@@ -1,4 +1,4 @@
-#include "CWeaponMgr.hpp"
+#include "Runtime/Weapon/CWeaponMgr.hpp"
 
 namespace urde {
 

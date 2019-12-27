@@ -1,7 +1,9 @@
-#include "CScriptPointOfInterest.hpp"
-#include "CActorParameters.hpp"
-#include "CStateManager.hpp"
-#include "CPlayerState.hpp"
+#include "Runtime/World/CScriptPointOfInterest.hpp"
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

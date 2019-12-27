@@ -1,10 +1,12 @@
-#include "CScriptCameraPitchVolume.hpp"
-#include "CActorParameters.hpp"
-#include "CStateManager.hpp"
-#include "CPlayer.hpp"
-#include "Camera/CCameraManager.hpp"
-#include "Camera/CFirstPersonCamera.hpp"
-#include "Particle/CGenDescription.hpp"
+#include "Runtime/World/CScriptCameraPitchVolume.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

@@ -1,12 +1,15 @@
-#include "CPowerBomb.hpp"
+#include "Runtime/Weapon/CPowerBomb.hpp"
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
-#include "World/CDamageInfo.hpp"
-#include "CStateManager.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "CPlayerState.hpp"
-#include "World/CPlayer.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "DataSpec/DNAMP1/SFX/Weapons.h"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

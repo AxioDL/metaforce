@@ -1,13 +1,15 @@
-#include "Particle/CElementGen.hpp"
-#include "CDependencyGroup.hpp"
-#include "CGrappleArm.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "World/CPlayer.hpp"
+#include "Runtime/Weapon/CGrappleArm.hpp"
+
+#include "Runtime/CDependencyGroup.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
+#include "Runtime/Graphics/CVertexMorphEffect.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "Camera/CGameCamera.hpp"
-#include "Graphics/CSkinnedModel.hpp"
-#include "Graphics/CVertexMorphEffect.hpp"
 
 namespace urde {
 

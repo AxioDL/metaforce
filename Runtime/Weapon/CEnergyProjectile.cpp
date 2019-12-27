@@ -1,15 +1,17 @@
-#include "GameGlobalObjects.hpp"
-#include "CEnergyProjectile.hpp"
-#include "CStateManager.hpp"
-#include "World/CWorld.hpp"
-#include "World/CGameLight.hpp"
-#include "World/CPlayer.hpp"
-#include "Particle/CDecalManager.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "World/CExplosion.hpp"
-#include "World/CScriptPlatform.hpp"
-#include "World/CIceImpact.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/Weapon/CEnergyProjectile.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Particle/CDecalManager.hpp"
+#include "Runtime/World/CExplosion.hpp"
+#include "Runtime/World/CGameLight.hpp"
+#include "Runtime/World/CIceImpact.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptPlatform.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

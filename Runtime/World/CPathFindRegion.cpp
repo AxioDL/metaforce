@@ -1,5 +1,6 @@
-#include "CPathFindRegion.hpp"
-#include "CPathFindArea.hpp"
+#include "Runtime/World/CPathFindRegion.hpp"
+
+#include "Runtime/World/CPathFindArea.hpp"
 
 namespace urde {
 

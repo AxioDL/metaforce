@@ -1,18 +1,20 @@
-#include "CScanDisplay.hpp"
-#include "zeus/CTransform.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "GuiSys/CGuiWidget.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "GuiSys/CGuiModel.hpp"
-#include "GuiSys/CAuiImagePane.hpp"
-#include "GuiSys/CGuiCamera.hpp"
-#include "MP1/CPauseScreenBase.hpp"
-#include "CStringTable.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "Input/CFinalInput.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/GuiSys/CScanDisplay.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/GuiSys/CAuiImagePane.hpp"
+#include "Runtime/GuiSys/CGuiCamera.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CGuiWidget.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
+#include "Runtime/Input/CFinalInput.hpp"
+#include "Runtime/MP1/CPauseScreenBase.hpp"
+
+#include <zeus/CTransform.hpp>
 
 namespace urde {
 void CScanDisplay::CDataDot::Update(float dt) {

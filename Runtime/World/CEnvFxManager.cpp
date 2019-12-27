@@ -1,19 +1,22 @@
-#include "CEnvFxManager.hpp"
-#include "Graphics/CTexture.hpp"
-#include "CActor.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CRandom16.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CEnvFxManager.hpp"
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+#include "Runtime/Collision/CInternalRayCastStructure.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CHUDBillboardEffect.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptTrigger.hpp"
+#include "Runtime/World/CScriptWater.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CHUDBillboardEffect.hpp"
-#include "World/CWorld.hpp"
-#include "World/CPlayer.hpp"
-#include "Collision/CGameCollision.hpp"
-#include "Collision/CInternalRayCastStructure.hpp"
-#include "World/CScriptTrigger.hpp"
-#include "World/CScriptWater.hpp"
-#include "Graphics/CBooRenderer.hpp"
+
 
 namespace urde {
 

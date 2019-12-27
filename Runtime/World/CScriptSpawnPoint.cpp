@@ -1,8 +1,10 @@
-#include "CScriptSpawnPoint.hpp"
-#include "CStateManager.hpp"
-#include "CWorld.hpp"
-#include "CPlayer.hpp"
-#include "Particle/CGenDescription.hpp"
+#include "Runtime/World/CScriptSpawnPoint.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

@@ -1,4 +1,4 @@
-#include "CParticleGen.hpp"
+#include "Runtime/Particle/CParticleGen.hpp"
 
 namespace urde {
 

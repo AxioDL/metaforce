@@ -1,9 +1,10 @@
-#include <Runtime/GameGlobalObjects.hpp>
-#include "CFluidPlane.hpp"
-#include "CSimplePool.hpp"
-#include "CRipple.hpp"
-#include "CScriptWater.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CFluidPlane.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/World/CRipple.hpp"
+#include "Runtime/World/CScriptWater.hpp"
 
 namespace urde {
 

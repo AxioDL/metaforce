@@ -1,16 +1,19 @@
-#include "CScriptPickup.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "GameGlobalObjects.hpp"
-#include "MP1/CArtifactDoll.hpp"
-#include "CExplosion.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/World/CScriptPickup.hpp"
+
+#include "Runtime/CGameOptions.hpp"
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
+#include "Runtime/MP1/CArtifactDoll.hpp"
+#include "Runtime/MP1/CSamusHud.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+
+#include "Runtime/World/CExplosion.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CPlayer.hpp"
-#include "CGameState.hpp"
-#include "CGameOptions.hpp"
-#include "MP1/CSamusHud.hpp"
-#include "GuiSys/CStringTable.hpp"
-#include "Camera/CFirstPersonCamera.hpp"
 
 namespace urde {
 CScriptPickup::CScriptPickup(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,

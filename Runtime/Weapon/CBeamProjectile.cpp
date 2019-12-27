@@ -1,6 +1,7 @@
-#include "Weapon/CBeamProjectile.hpp"
+#include "Runtime/Weapon/CBeamProjectile.hpp"
+
+#include "Runtime/CStateManager.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CStateManager.hpp"
 
 namespace urde {
 

@@ -1,7 +1,9 @@
-#include "CFishCloudModifier.hpp"
-#include "CFishCloud.hpp"
-#include "CStateManager.hpp"
-#include "CActorParameters.hpp"
+#include "Runtime/World/CFishCloudModifier.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CFishCloud.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

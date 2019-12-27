@@ -1,5 +1,6 @@
-#include "CFontImageDef.hpp"
-#include "Graphics/CTexture.hpp"
+#include "Runtime/GuiSys/CFontImageDef.hpp"
+
+#include "Runtime/Graphics/CTexture.hpp"
 
 namespace urde {
 

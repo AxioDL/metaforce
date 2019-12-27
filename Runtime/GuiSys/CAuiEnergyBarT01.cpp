@@ -1,7 +1,8 @@
-#include "CAuiEnergyBarT01.hpp"
-#include "CGuiSys.hpp"
-#include "CSimplePool.hpp"
-#include "CGuiWidgetDrawParms.hpp"
+#include "Runtime/GuiSys/CAuiEnergyBarT01.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GuiSys/CGuiSys.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
 namespace urde {
 

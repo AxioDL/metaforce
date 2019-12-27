@@ -1,11 +1,13 @@
-#include "CHUDBillboardEffect.hpp"
+#include "Runtime/World/CHUDBillboardEffect.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CStateManager.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CWorld.hpp"
 
 namespace urde {
 

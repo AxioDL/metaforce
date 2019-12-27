@@ -1,10 +1,12 @@
-#include "CScriptMidi.hpp"
+#include "Runtime/World/CScriptMidi.hpp"
+
+#include "Runtime/CInGameTweakManagerBase.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/MP1/CInGameGuiManager.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CSimplePool.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CStateManager.hpp"
-#include "MP1/CInGameGuiManager.hpp"
-#include "CInGameTweakManagerBase.hpp"
 
 namespace urde {
 

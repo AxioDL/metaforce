@@ -1,11 +1,13 @@
-#include "CGameState.hpp"
-#include "IOStreams.hpp"
-#include "zeus/Math.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CMemoryCardSys.hpp"
-#include "CSimplePool.hpp"
-#include "CSaveWorld.hpp"
-#include "MP1/MP1.hpp"
+#include "Runtime/CGameState.hpp"
+
+#include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/MP1/MP1.hpp"
+
+#include <zeus/Math.hpp>
 
 namespace urde {
 union BitsToDouble {

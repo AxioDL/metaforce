@@ -1,6 +1,8 @@
-#include "CScriptCameraFilterKeyframe.hpp"
+#include "Runtime/World/CScriptCameraFilterKeyframe.hpp"
+
+#include "Runtime/CStateManager.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CStateManager.hpp"
 
 namespace urde {
 CScriptCameraFilterKeyframe::CScriptCameraFilterKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info,

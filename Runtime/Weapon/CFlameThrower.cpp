@@ -1,15 +1,17 @@
-#include "Weapon/CFlameThrower.hpp"
-#include "Weapon/CFlameInfo.hpp"
-#include "World/CGameLight.hpp"
-#include "World/CPlayer.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "Collision/CInternalRayCastStructure.hpp"
-#include "CStateManager.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/Weapon/CFlameThrower.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Collision/CInternalRayCastStructure.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Weapon/CFlameInfo.hpp"
+#include "Runtime/Weapon/CFlameThrower.hpp"
+#include "Runtime/World/CGameLight.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CFlameThrower.hpp"
 
 namespace urde {
 const zeus::CVector3f CFlameThrower::kLightOffset(0, 3.f, 2.f);

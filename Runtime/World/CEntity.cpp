@@ -1,5 +1,6 @@
-#include "CEntity.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CEntity.hpp"
+
+#include "Runtime/CStateManager.hpp"
 
 namespace urde {
 const std::vector<SConnection> CEntity::NullConnectionList;

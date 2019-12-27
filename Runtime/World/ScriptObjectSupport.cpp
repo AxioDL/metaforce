@@ -1,4 +1,4 @@
-#include "ScriptObjectSupport.hpp"
+#include "Runtime/World/ScriptObjectSupport.hpp"
 
 using namespace std::literals;
 

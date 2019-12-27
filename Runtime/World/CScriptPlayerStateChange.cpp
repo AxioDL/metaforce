@@ -1,7 +1,9 @@
-#include "CScriptPlayerStateChange.hpp"
-#include "CStateManager.hpp"
-#include "CPlayerState.hpp"
-#include "Input/ControlMapper.hpp"
+#include "Runtime/World/CScriptPlayerStateChange.hpp"
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Input/ControlMapper.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

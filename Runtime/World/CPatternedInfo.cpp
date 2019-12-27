@@ -1,5 +1,6 @@
-#include "CPatternedInfo.hpp"
-#include "Audio/CSfxManager.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+
+#include "Runtime/Audio/CSfxManager.hpp"
 
 namespace urde {
 

@@ -1,9 +1,11 @@
-#include "CScriptWorldTeleporter.hpp"
-#include "CStateManager.hpp"
-#include "CWorldTransManager.hpp"
-#include "CWorld.hpp"
-#include "CGameState.hpp"
-#include "IMain.hpp"
+#include "Runtime/World/CScriptWorldTeleporter.hpp"
+
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/IMain.hpp"
+#include "Runtime/World/CWorld.hpp"
+#include "Runtime/World/CWorldTransManager.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

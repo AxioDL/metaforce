@@ -1,6 +1,7 @@
-#include "CResFactory.hpp"
-#include "CSimplePool.hpp"
-#include "CStopwatch.hpp"
+#include "Runtime/CResFactory.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStopwatch.hpp"
 
 namespace urde {
 static logvisor::Module Log("CResFactory");

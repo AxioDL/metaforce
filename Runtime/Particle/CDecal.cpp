@@ -1,7 +1,8 @@
-#include "CDecal.hpp"
-#include "CParticleGlobals.hpp"
-#include "Graphics/Shaders/CDecalShaders.hpp"
-#include "Graphics/CModel.hpp"
+#include "Runtime/Particle/CDecal.hpp"
+
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Graphics/Shaders/CDecalShaders.hpp"
+#include "Runtime/Particle/CParticleGlobals.hpp"
 
 namespace urde {
 CRandom16 CDecal::sDecalRandom;

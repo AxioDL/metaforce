@@ -1,6 +1,7 @@
-#include "CVisorFlare.hpp"
-#include "CSimplePool.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/World/CVisorFlare.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
 

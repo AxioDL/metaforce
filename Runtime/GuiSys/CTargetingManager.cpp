@@ -1,8 +1,9 @@
-#include "CTargetingManager.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "CStateManager.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CTargetingManager.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
 
 namespace urde {
 

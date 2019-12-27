@@ -1,8 +1,10 @@
-#include "CScriptHUDMemo.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "GuiSys/CStringTable.hpp"
-#include "MP1/CSamusHud.hpp"
+#include "Runtime/World/CScriptHUDMemo.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
+#include "Runtime/MP1/CSamusHud.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

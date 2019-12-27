@@ -1,17 +1,19 @@
-#include "CScriptEffect.hpp"
-#include "Character/CModelData.hpp"
-#include "Collision/CMaterialList.hpp"
-#include "CActorParameters.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Particle/CParticleElectric.hpp"
-#include "CStateManager.hpp"
-#include "World/CWorld.hpp"
-#include "World/CGameLight.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "CPlayerState.hpp"
-#include "CScriptTrigger.hpp"
+#include "Runtime/World/CScriptEffect.hpp"
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CParticleElectric.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CGameLight.hpp"
+#include "Runtime/World/CScriptTrigger.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

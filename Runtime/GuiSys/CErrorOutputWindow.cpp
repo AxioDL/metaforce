@@ -1,5 +1,6 @@
-#include "CErrorOutputWindow.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/GuiSys/CErrorOutputWindow.hpp"
+
+#include "Runtime/Graphics/CGraphics.hpp"
 
 namespace urde {
 

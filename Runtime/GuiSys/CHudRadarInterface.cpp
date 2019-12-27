@@ -1,17 +1,20 @@
-#include "CHudRadarInterface.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CGuiFrame.hpp"
-#include "CGuiCamera.hpp"
-#include "CStateManager.hpp"
-#include "CGameState.hpp"
-#include "World/CPlayer.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "zeus/CEulerAngles.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "World/CWallCrawlerSwarm.hpp"
-#include "GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/GuiSys/CHudRadarInterface.hpp"
+
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/GuiSys/CGuiCamera.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWallCrawlerSwarm.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
+
+#include <zeus/CEulerAngles.hpp>
 
 namespace urde {
 

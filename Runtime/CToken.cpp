@@ -1,4 +1,4 @@
-#include "CToken.hpp"
+#include "Runtime/CToken.hpp"
 
 namespace urde {
 u16 CObjectReference::RemoveReference() {

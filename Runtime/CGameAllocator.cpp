@@ -1,4 +1,4 @@
-#include "CGameAllocator.hpp"
+#include "Runtime/CGameAllocator.hpp"
 
 namespace urde {
 logvisor::Module AllocLog("urde::CGameAllocator");

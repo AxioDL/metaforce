@@ -1,16 +1,18 @@
-#include "CParticleElectric.hpp"
-#include "CElectricDescription.hpp"
-#include "CGenDescription.hpp"
-#include "CSwooshDescription.hpp"
-#include "CParticleSwoosh.hpp"
-#include "CElementGen.hpp"
-#include "Graphics/CModel.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "CParticleGlobals.hpp"
-#include "zeus/CRelAngle.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/Particle/CParticleElectric.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Particle/CElectricDescription.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CParticleGlobals.hpp"
+#include "Runtime/Particle/CParticleSwoosh.hpp"
+#include "Runtime/Particle/CSwooshDescription.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CRelAngle.hpp>
 
 namespace urde {
 

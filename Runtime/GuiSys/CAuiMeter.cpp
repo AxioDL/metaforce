@@ -1,4 +1,9 @@
-#include "CAuiMeter.hpp"
+#include "Runtime/GuiSys/CAuiMeter.hpp"
+
+#include <algorithm>
+#include <memory>
+
+#include <zeus/Math.hpp>
 
 namespace urde {
 

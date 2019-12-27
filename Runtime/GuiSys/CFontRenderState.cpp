@@ -1,5 +1,6 @@
-#include "CFontRenderState.hpp"
-#include "CRasterFont.hpp"
+#include "Runtime/GuiSys/CFontRenderState.hpp"
+
+#include "Runtime/GuiSys/CRasterFont.hpp"
 
 namespace urde {
 

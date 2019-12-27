@@ -1,8 +1,9 @@
-#include "CPlasmaBeam.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CWorld.hpp"
+#include "Runtime/Weapon/CPlasmaBeam.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
 
 namespace urde {
 

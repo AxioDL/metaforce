@@ -1,7 +1,9 @@
-#include "CWeapon.hpp"
-#include "World/CActorParameters.hpp"
-#include "World/CScriptWater.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Weapon/CWeapon.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CScriptWater.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

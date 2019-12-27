@@ -1,4 +1,5 @@
-#include "CPhysicsActor.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

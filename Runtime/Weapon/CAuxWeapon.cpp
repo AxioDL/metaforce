@@ -1,9 +1,10 @@
-#include "CAuxWeapon.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CWaveBuster.hpp"
-#include "CNewFlameThrower.hpp"
-#include "CEnergyProjectile.hpp"
+#include "Runtime/Weapon/CAuxWeapon.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Weapon/CEnergyProjectile.hpp"
+#include "Runtime/Weapon/CNewFlameThrower.hpp"
+#include "Runtime/Weapon/CWaveBuster.hpp"
 
 namespace urde {
 

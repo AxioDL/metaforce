@@ -1,10 +1,11 @@
-#include "CAi.hpp"
-#include "Character/CModelData.hpp"
-#include "CStateManager.hpp"
-#include "CStateMachine.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CScriptWater.hpp"
+#include "Runtime/World/CAi.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/World/CScriptWater.hpp"
+#include "Runtime/World/CStateMachine.hpp"
 
 namespace urde {
 

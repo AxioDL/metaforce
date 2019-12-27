@@ -1,4 +1,4 @@
-#include "CUVElement.hpp"
+#include "Runtime/Particle/CUVElement.hpp"
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#UV_Elements */
 

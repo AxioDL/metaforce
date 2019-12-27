@@ -1,22 +1,24 @@
-#include "CScriptSpecialFunction.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "Camera/CCameraManager.hpp"
-#include "Character/CModelData.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "Graphics/CTexture.hpp"
-#include "World/CActorParameters.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptPlatform.hpp"
-#include "Weapon/CEnergyProjectile.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CMemoryCardSys.hpp"
-#include "CGameState.hpp"
-#include "CSimplePool.hpp"
-#include "CStateManager.hpp"
-#include "IMain.hpp"
+#include "Runtime/World/CScriptSpecialFunction.hpp"
+
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/IMain.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptPlatform.hpp"
+#include "Runtime/Weapon/CEnergyProjectile.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-#include "hecl/CVarManager.hpp"
+#include <hecl/CVarManager.hpp>
 
 namespace urde {
 

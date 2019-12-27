@@ -1,5 +1,5 @@
-#include "CDependencyGroup.hpp"
-#include "CToken.hpp"
+#include "Runtime/CDependencyGroup.hpp"
+#include "Runtime/CToken.hpp"
 
 namespace urde {
 CDependencyGroup::CDependencyGroup(CInputStream& in) { ReadFromStream(in); }

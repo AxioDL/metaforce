@@ -1,5 +1,6 @@
-#include "CPlayerEnergyDrain.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CPlayerEnergyDrain.hpp"
+
+#include "Runtime/CStateManager.hpp"
 
 namespace urde {
 

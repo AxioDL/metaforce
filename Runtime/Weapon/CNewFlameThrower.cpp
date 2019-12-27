@@ -1,8 +1,9 @@
-#include "CNewFlameThrower.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CStateManager.hpp"
-#include "World/CGameLight.hpp"
+#include "Runtime/Weapon/CNewFlameThrower.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/World/CGameLight.hpp"
 
 namespace urde {
 

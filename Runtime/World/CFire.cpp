@@ -1,10 +1,12 @@
-#include "CFire.hpp"
-#include "Particle/CElementGen.hpp"
-#include "CActorParameters.hpp"
-#include "CStateManager.hpp"
-#include "CPlayer.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CFire.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

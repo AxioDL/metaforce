@@ -1,5 +1,7 @@
-#include "CSnakeWeedSwarm.hpp"
-#include "CAnimationParameters.hpp"
+#include "Runtime/World/CSnakeWeedSwarm.hpp"
+
+#include "Runtime/World/CAnimationParameters.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

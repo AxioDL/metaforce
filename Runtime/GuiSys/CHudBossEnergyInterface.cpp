@@ -1,8 +1,9 @@
-#include "CHudBossEnergyInterface.hpp"
-#include "CGuiFrame.hpp"
-#include "CAuiEnergyBarT01.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CHudBossEnergyInterface.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CAuiEnergyBarT01.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
 
 namespace urde {
 

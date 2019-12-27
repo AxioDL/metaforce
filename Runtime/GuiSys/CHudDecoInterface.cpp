@@ -1,14 +1,16 @@
-#include "CHudDecoInterface.hpp"
-#include "CGuiFrame.hpp"
-#include "CGuiTextPane.hpp"
-#include "CGuiCamera.hpp"
-#include "CGuiModel.hpp"
-#include "CAuiEnergyBarT01.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "MP1/CSamusHud.hpp"
+#include "Runtime/GuiSys/CHudDecoInterface.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CAuiEnergyBarT01.hpp"
+#include "Runtime/GuiSys/CGuiCamera.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/MP1/CSamusHud.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CGuiWidgetDrawParms.hpp"
 
 namespace urde {
 

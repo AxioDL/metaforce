@@ -1,10 +1,11 @@
-#include "CMorphBallShadow.hpp"
-#include "CStateManager.hpp"
-#include "World/CWorld.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "World/CPlayer.hpp"
-#include "Particle/CGenDescription.hpp"
+#include "Runtime/World/CMorphBallShadow.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
 
 namespace urde {
 

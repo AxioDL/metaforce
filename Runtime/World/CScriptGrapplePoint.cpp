@@ -1,7 +1,9 @@
-#include "CScriptGrapplePoint.hpp"
-#include "Character/CModelData.hpp"
-#include "Collision/CMaterialList.hpp"
-#include "CActorParameters.hpp"
+#include "Runtime/World/CScriptGrapplePoint.hpp"
+
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

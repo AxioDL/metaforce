@@ -1,6 +1,8 @@
-#include "CScriptCameraBlurKeyframe.hpp"
+#include "Runtime/World/CScriptCameraBlurKeyframe.hpp"
+
+#include "Runtime/CStateManager.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CStateManager.hpp"
 
 namespace urde {
 CScriptCameraBlurKeyframe::CScriptCameraBlurKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info,

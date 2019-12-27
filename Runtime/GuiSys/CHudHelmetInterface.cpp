@@ -1,8 +1,9 @@
-#include "CHudHelmetInterface.hpp"
-#include "CGuiFrame.hpp"
-#include "CGuiCamera.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CGameState.hpp"
+#include "Runtime/GuiSys/CHudHelmetInterface.hpp"
+
+#include "Runtime/CGameState.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CGuiCamera.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
 
 namespace urde {
 

@@ -1,15 +1,17 @@
-#include "Weapon/CGameProjectile.hpp"
-#include "World/CGameLight.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
+#include "Runtime/Collision/CInternalRayCastStructure.hpp"
+#include "Runtime/MP1/World/CPuddleToadGamma.hpp"
+#include "Runtime/World/CGameLight.hpp"
+#include "Runtime/World/CHUDBillboardEffect.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptDoor.hpp"
+#include "Runtime/World/CScriptPlatform.hpp"
+#include "Runtime/World/CWallCrawlerSwarm.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "World/CPlayer.hpp"
-#include "World/CHUDBillboardEffect.hpp"
-#include "World/CWallCrawlerSwarm.hpp"
-#include "World/CScriptDoor.hpp"
-#include "Collision/CInternalRayCastStructure.hpp"
-#include "MP1/World/CPuddleToadGamma.hpp"
-#include "World/CScriptPlatform.hpp"
-#include "Collision/CCollisionActor.hpp"
 
 namespace urde {
 CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& wDesc, std::string_view name,

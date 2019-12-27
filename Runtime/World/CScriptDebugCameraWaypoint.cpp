@@ -1,5 +1,7 @@
-#include "CScriptDebugCameraWaypoint.hpp"
-#include "CActorParameters.hpp"
+#include "Runtime/World/CScriptDebugCameraWaypoint.hpp"
+
+#include "Runtime/World/CActorParameters.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

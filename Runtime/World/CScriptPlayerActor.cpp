@@ -1,16 +1,18 @@
-#include "World/CScriptPlayerActor.hpp"
-#include "World/CActorParameters.hpp"
-#include "World/CLightParameters.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "CStateManager.hpp"
-#include "Character/CAssetFactory.hpp"
-#include "Character/CCharacterFactory.hpp"
-#include "World/CWorld.hpp"
-#include "MP1/MP1.hpp"
-#include "World/CPlayer.hpp"
+#include "Runtime/World/CScriptPlayerActor.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Character/CAssetFactory.hpp"
+#include "Runtime/Character/CCharacterFactory.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/MP1/MP1.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CLightParameters.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "Camera/CGameCamera.hpp"
 
 namespace urde {
 CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, std::string_view name, const CEntityInfo& info,

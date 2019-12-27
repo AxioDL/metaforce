@@ -1,8 +1,9 @@
-#include "CProjectileWeapon.hpp"
-#include "Graphics/CModel.hpp"
-#include "Particle/CParticleGlobals.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/Weapon/CProjectileWeapon.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Particle/CParticleGlobals.hpp"
 
 namespace urde {
 

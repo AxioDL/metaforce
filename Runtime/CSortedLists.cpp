@@ -1,8 +1,9 @@
 #include "Runtime/CSortedLists.hpp"
 
+#include "Runtime/World/CActor.hpp"
+
 #include <algorithm>
 #include <cassert>
-#include "Runtime/World/CActor.hpp"
 
 namespace urde {
 namespace {

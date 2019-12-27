@@ -1,7 +1,9 @@
-#include "CModVectorElement.hpp"
-#include "CParticleGlobals.hpp"
-#include "CRandom16.hpp"
-#include "zeus/Math.hpp"
+#include "Runtime/Particle/CModVectorElement.hpp"
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/Particle/CParticleGlobals.hpp"
+
+#include <zeus/Math.hpp>
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Mod_Vector_Elements */
 

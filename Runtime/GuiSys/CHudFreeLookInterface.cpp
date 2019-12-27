@@ -1,7 +1,8 @@
-#include "CHudFreeLookInterface.hpp"
-#include "CGuiFrame.hpp"
-#include "CGuiModel.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CHudFreeLookInterface.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
 
 namespace urde {
 

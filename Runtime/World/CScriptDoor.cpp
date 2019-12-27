@@ -1,13 +1,15 @@
-#include "CScriptDoor.hpp"
-#include "CScriptDock.hpp"
-#include "Collision/CMaterialList.hpp"
-#include "Character/CAnimData.hpp"
-#include "Character/CAnimPlaybackParms.hpp"
-#include "AutoMapper/CMapWorldInfo.hpp"
-#include "CStateManager.hpp"
-#include "CWorld.hpp"
-#include "Camera/CCameraManager.hpp"
-#include "Camera/CBallCamera.hpp"
+#include "Runtime/World/CScriptDoor.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/AutoMapper/CMapWorldInfo.hpp"
+#include "Runtime/Camera/CBallCamera.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+#include "Runtime/Character/CAnimData.hpp"
+#include "Runtime/Character/CAnimPlaybackParms.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+#include "Runtime/World/CScriptDock.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

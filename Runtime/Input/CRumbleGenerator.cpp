@@ -1,5 +1,6 @@
-#include "CRumbleGenerator.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/Input/CRumbleGenerator.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
 

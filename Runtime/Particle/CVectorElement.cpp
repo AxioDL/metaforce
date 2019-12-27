@@ -1,9 +1,11 @@
-#include "CVectorElement.hpp"
-#include "CParticleGlobals.hpp"
-#include "CRandom16.hpp"
-#include "CElementGen.hpp"
-#include "zeus/Math.hpp"
-#include "CGenDescription.hpp"
+#include "Runtime/Particle/CVectorElement.hpp"
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CParticleGlobals.hpp"
+
+#include <zeus/Math.hpp>
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Vector_Elements */
 

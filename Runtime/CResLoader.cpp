@@ -1,5 +1,6 @@
-#include "CResLoader.hpp"
-#include "CPakFile.hpp"
+#include "Runtime/CResLoader.hpp"
+
+#include "Runtime/CPakFile.hpp"
 
 namespace urde {
 static logvisor::Module Log("CResLoader");

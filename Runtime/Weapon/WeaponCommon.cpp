@@ -1,10 +1,11 @@
-#include "WeaponCommon.hpp"
-#include "Character/CAnimData.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "Character/CPrimitive.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Weapon/WeaponCommon.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Character/CAnimData.hpp"
+#include "Runtime/Character/CPrimitive.hpp"
 
 namespace urde::NWeaponTypes {
 

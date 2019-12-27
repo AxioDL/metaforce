@@ -1,10 +1,11 @@
-#include "CPhazonBeam.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CWorld.hpp"
-#include "CProjectileWeapon.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/Weapon/CPhazonBeam.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Weapon/CProjectileWeapon.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
 
 namespace urde {
 

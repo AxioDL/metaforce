@@ -1,6 +1,8 @@
-#include "CScriptCameraHintTrigger.hpp"
-#include "CActorParameters.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CScriptCameraHintTrigger.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

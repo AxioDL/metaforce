@@ -1,13 +1,16 @@
+#include "Runtime/GuiSys/CCompoundTargetReticle.hpp"
+
 #include <cstdlib>
-#include "CCompoundTargetReticle.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "CSimplePool.hpp"
-#include "CStateManager.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptGrapplePoint.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "World/CScriptGrapplePoint.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CWorld.hpp"
 
 namespace urde {
 namespace {
