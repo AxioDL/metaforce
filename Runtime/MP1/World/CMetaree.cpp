@@ -18,6 +18,7 @@ CMetaree::CMetaree(TUniqueId uid, std::string_view name, EFlavorType flavor, con
 , x570_dropHeight(f1)
 , x574_offset(v1)
 , x580_attackSpeed(f2)
+, x5ac_damageInfo(dInfo)
 , x5ca_24_(true)
 , x5ca_25_started(false)
 , x5ca_26_deactivated(false) {}
@@ -47,7 +48,7 @@ void CMetaree::Explode(CStateManager& mgr, EStateMsg msg, float) {
   if (msg != EStateMsg::Activate)
     return;
 
-  mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), x5ac_damgeInfo,
+  mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), x5ac_damageInfo,
                   CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
   MassiveDeath(mgr);
 }
@@ -69,7 +70,7 @@ void CMetaree::CollidedWith(TUniqueId id, const CCollisionInfoList& colList, CSt
   if (!x400_25_alive || colList.GetCount() <= 0)
     return;
 
-  mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), x5ac_damgeInfo,
+  mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), x5ac_damageInfo,
                          CMaterialFilter::MakeInclude({EMaterialTypes::Player}));
   SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
   MassiveDeath(mgr);
@@ -100,7 +101,7 @@ void CMetaree::Dead(CStateManager& mgr, EStateMsg msg, float) {
   if (msg != EStateMsg::Activate)
     return;
 
-  mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), x5ac_damgeInfo,
+  mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), x5ac_damageInfo,
                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Player}, {}));
   DeathDelete(mgr);
 }
