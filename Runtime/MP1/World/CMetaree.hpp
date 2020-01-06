@@ -18,7 +18,7 @@ class CMetaree : public CPatterned {
   zeus::CVector3f x590_projectileDelta;
   zeus::CVector3f x59c_velocity;
   u32 x5a8_ = 0;
-  CDamageInfo x5ac_damgeInfo;
+  CDamageInfo x5ac_damageInfo;
   u16 x5c8_attackSfx = SFXsfx0225;
 
   struct {
