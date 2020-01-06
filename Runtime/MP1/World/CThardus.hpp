@@ -8,6 +8,9 @@ namespace urde {
 class CCollisionActorManager;
 namespace MP1 {
 class CThardus : public CPatterned {
+
+  enum class EUpdateMaterialMode { Add, Remove };
+
   class CThardusSomething {
     TUniqueId x0_ = kInvalidUniqueId;
     zeus::CVector3f x4_;
@@ -18,7 +21,7 @@ class CThardus : public CPatterned {
   };
   u32 x568_;
   TUniqueId x56c_ = kInvalidUniqueId;
-  std::vector<TUniqueId> x570_;
+  std::vector<TUniqueId> x570_waypoints;
   u32 x5c4_ = 1;
   bool x5c8_heardPlayer = false;
   /* NOTE(phil) These two vectors used to vectors of CModelData, They have been converted to vectors of CStaticRes due
@@ -26,27 +29,27 @@ class CThardus : public CPatterned {
   std::vector<CStaticRes> x5cc_;
   std::vector<CStaticRes> x5dc_;
   s32 x5ec_ = -1;
-  std::unique_ptr<CCollisionActorManager> x5f0_;
+  std::unique_ptr<CCollisionActorManager> x5f0_rockColliders;
   std::unique_ptr<CCollisionActorManager> x5f4_;
   std::unique_ptr<CCollisionActorManager> x5f8_;
-  TUniqueId x5fc_ = kInvalidUniqueId;
+  TUniqueId x5fc_projectileId = kInvalidUniqueId;
   CAssetId x600_;
   CAssetId x604_;
   CAssetId x608_;
-  TEditorId x60c_ = kInvalidEditorId;
+  TEditorId x60c_projectileEditorId = kInvalidEditorId;
   std::vector<TUniqueId> x610_destroyableRocks;
   u32 x624_;
   u32 x628_;
   u32 x62c_;
   CAssetId x630_;
-  std::vector<TUniqueId> x634_;
+  std::vector<TUniqueId> x634_nonDestroyableActors;
   s32 x644_ = -1;
-  u32 x648_ = 0;
-  TUniqueId x64c_ = kInvalidUniqueId;
+  u32 x648_currentRock = 0;
+  TUniqueId x64c_fog = kInvalidUniqueId;
   zeus::CVector2f x650_ = zeus::CVector2f(0.f, 1.f);
   s32 x658_ = -1;
   s32 x65c_ = -1;
-  std::vector<TUniqueId> x660_;
+  std::vector<TUniqueId> x660_repulsors;
   bool x688_ = false;
   bool x689_ = false;
   u32 x68c_ = 0;
@@ -76,10 +79,10 @@ class CThardus : public CPatterned {
   s32 x758_;
   s32 x75c_;
   s32 x760_;
-  zeus::CTransform x764_;
+  zeus::CTransform x764_startTransform;
   u32 x794_ = 0;
   std::vector<TUniqueId> x798_;
-  std::vector<TUniqueId> x7a8_;
+  std::vector<TUniqueId> x7a8_timers;
   float x7b8_ = 0.f;
   float x7bc_ = 10.f;
   u32 x7c0_;
@@ -88,18 +91,19 @@ class CThardus : public CPatterned {
   zeus::CVector3f x7cc_;
   zeus::CVector3f x7d8_;
   zeus::CVector3f x7e4_;
-  CPathFindSearch x7f0_;
+  CPathFindSearch x7f0_pathFindSearch;
   bool x8d4_ = false;
   zeus::CVector3f x8d8_;
   zeus::CVector3f x8e4_;
   bool x8f0_ = false;
-  std::vector<TUniqueId> x8f4_;
+  std::vector<TUniqueId> x8f4_waypoints;
   u32 x904_ = 0;
   bool x908_ = false;
+  bool x909_ = false;
   std::vector<float> x90c_;
   TLockedToken<CTexture> x91c_;
-  TUniqueId x928_;
-  zeus::CVector3f x92c_;
+  TUniqueId x928_currentRockId;
+  zeus::CVector3f x92c_currentRockPos;
   bool x938_ = false;
   bool x939_ = false;
   bool x93a_ = false;
@@ -109,11 +113,11 @@ class CThardus : public CPatterned {
   u32 x940_ = 0;
   float x944_ = 0.3f;
   u32 x948_;
-  bool x94c_ = false;
+  bool x94c_initialized = false;
   bool x94d_ = false;
   zeus::CVector3f x950_;
   bool x95c_doCodeTrigger = false;
-  bool x95d_ = false;
+  u8 x95d_ = 0;
   bool x95e_ = false;
 
   void SetState(s32 state, CStateManager& mgr) {
@@ -127,6 +131,29 @@ class CThardus : public CPatterned {
   void GatherWaypoints(CScriptWaypoint* wp, CStateManager& mgr, rstl::reserved_vector<TUniqueId, 16>& uids);
   void sub801dec80() { x68c_ = 20000; }
   void sub801dd4fc(const std::unique_ptr<CCollisionActorManager>& colMgr);
+  void sub801dbf34(float dt, CStateManager& mgr);
+  bool sub801dc2c8() const { return (x610_destroyableRocks.size() - 1) == x648_currentRock; }
+  void _DoSuckState(CStateManager& mgr) { x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Suck"sv); }
+  void sub801de9f8(CStateManager& mgr){};
+  void sub801dd608(CStateManager& mgr);
+  void sub801dcfa4(CStateManager& mgr);
+  void sub80deadc(CStateManager& mgr) {
+    if (x570_waypoints.empty()) {
+      sub801de9f8(mgr);
+    } else {
+      if (sub801dc2c8() || x5c4_ != 0 || x944_ <= 0.f)
+        sub801de9f8(mgr);
+      else
+        x944_ = 0.f;
+    }
+  }
+  void sub801dae2c(CStateManager& mgr, u32 rockIndex);
+  void sub801dc444(CStateManager& mgr, const zeus::CVector3f& pos, CAssetId particle);
+  void sub801dbc5c(CStateManager& mgr, CDestroyableRock* rock);
+  void sub801dbbdc(CStateManager& mgr, CDestroyableRock* rock);
+  void UpdateNonDestroyableCollisionActorMaterials(EUpdateMaterialMode mode, EMaterialTypes mat, CStateManager& mgr);
+  void UpdateExcludeList(const std::unique_ptr<CCollisionActorManager>& colMgr, EUpdateMaterialMode mode,
+                         EMaterialTypes mat, CStateManager& mgr);
   void _SetupCollisionActorMaterials(const std::unique_ptr<CCollisionActorManager>& colMgr, CStateManager& mgr);
   void _SetupCollisionManagers(CStateManager& mgr);
   void _BuildSphereJointList(const SSphereJointInfo* arr, int count, std::vector<CJointCollisionDescription>& list);
@@ -176,29 +203,23 @@ public:
   bool PathFound(CStateManager& mgr, float arg) override;
   bool InRange(CStateManager& mgr, float arg) override;
   bool PatternOver(CStateManager& mgr, float arg) override;
-  bool HasAttackPattern(CStateManager& mgr, float arg) override {
-    return x5c4_ == 1 && !ShouldMove(mgr, 0.f);
-  }
+  bool HasAttackPattern(CStateManager& mgr, float arg) override { return x5c4_ == 1 && !ShouldMove(mgr, 0.f); }
   bool AnimOver(CStateManager& mgr, float arg) override;
   bool InPosition(CStateManager& mgr, float arg) override;
   bool ShouldTurn(CStateManager& mgr, float arg) override;
   bool HitSomething(CStateManager& mgr, float arg) override;
   bool HearPlayer(CStateManager& mgr, float arg) override { return x5c8_heardPlayer; }
-  bool CoverBlown(CStateManager& mgr, float arg) override {
-    return x5c4_ == 2 && !ShouldMove(mgr, 0.f);
-  }
-  bool CoveringFire(CStateManager& mgr, float arg) override {
-    return x5c4_ == 0 && !ShouldMove(mgr, 0.f);
-  }
+  bool CoverBlown(CStateManager& mgr, float arg) override { return x5c4_ == 2 && !ShouldMove(mgr, 0.f); }
+  bool CoveringFire(CStateManager& mgr, float arg) override { return x5c4_ == 0 && !ShouldMove(mgr, 0.f); }
   bool AggressionCheck(CStateManager& mgr, float arg) override { return x330_stateMachineState.GetTime() > 0.1f; }
   bool AttackOver(CStateManager& mgr, float arg) override { return true; }
-  bool ShouldTaunt(CStateManager& mgr, float arg) override { return false;}
-  bool ShouldMove(CStateManager& mgr, float arg) override { return x68c_ < x570_.size() || x93b_; }
-  bool CodeTrigger(CStateManager& mgr, float arg) override { return x95c_doCodeTrigger;}
+  bool ShouldTaunt(CStateManager& mgr, float arg) override { return false; }
+  bool ShouldMove(CStateManager& mgr, float arg) override { return x68c_ < x570_waypoints.size() || x93b_; }
+  bool CodeTrigger(CStateManager& mgr, float arg) override { return x95c_doCodeTrigger; }
   bool IsDizzy(CStateManager& mgr, float arg) override { return x330_stateMachineState.GetTime() > 4.f; }
   bool ShouldCallForBackup(CStateManager& mgr, float arg) override { return x330_stateMachineState.GetTime() > .5f; }
 
-  CPathFindSearch* GetSearchPath() override { return &x7f0_; }
+  CPathFindSearch* GetSearchPath() override { return &x7f0_pathFindSearch; }
 };
 } // namespace MP1
 } // namespace urde

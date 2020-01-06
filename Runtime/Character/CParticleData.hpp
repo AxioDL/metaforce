@@ -37,6 +37,8 @@ class CAuxiliaryParticleData {
   float x18_scale = 1.f;
 
 public:
+  CAuxiliaryParticleData(u32 duration, const SObjectTag& particle, const zeus::CVector3f& translation, float scale)
+  : x0_duration(duration), x4_particle(particle), xc_translation(translation), x18_scale(scale) {}
   u32 GetDuration() const { return x0_duration; }
   const SObjectTag& GetTag() const { return x4_particle; }
   const zeus::CVector3f& GetTranslation() const { return xc_translation; }
