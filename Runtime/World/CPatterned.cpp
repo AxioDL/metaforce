@@ -357,8 +357,8 @@ void CPatterned::CollidedWith(TUniqueId other, const CCollisionInfoList& list, C
       }
     }
   }
-  static CMaterialList testList(EMaterialTypes::Solid, EMaterialTypes::Ceiling, EMaterialTypes::Wall,
-                                EMaterialTypes::Floor, EMaterialTypes::Character);
+  static constexpr CMaterialList testList(EMaterialTypes::Solid, EMaterialTypes::Ceiling, EMaterialTypes::Wall,
+                                          EMaterialTypes::Floor, EMaterialTypes::Character);
   for (const CCollisionInfo& info : list) {
     if (info.GetMaterialLeft().Intersection(testList)) {
       if (!info.GetMaterialLeft().HasMaterial(EMaterialTypes::Floor)) {
