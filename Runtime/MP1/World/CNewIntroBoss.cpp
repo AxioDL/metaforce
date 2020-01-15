@@ -297,8 +297,9 @@ void CNewIntroBoss::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& nod
     StopRumble(mgr);
     x63c_attackTime = GetNextAttackTime(mgr);
     SendScriptMsgs(EScriptObjectState::Attack, mgr, EScriptObjectMessage::None);
-  } else
-    CActor::DoUserAnimEvent(mgr, node, event, dt);
+  } else {
+    CPatterned::DoUserAnimEvent(mgr, node, event, dt);
+  }
 }
 
 void CNewIntroBoss::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const { EnsureRendered(mgr); }
