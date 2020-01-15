@@ -1,14 +1,16 @@
-#include "CBeetle.hpp"
-#include "CStateManager.hpp"
-#include "World/CDamageInfo.hpp"
-#include "Character/CCharLayoutInfo.hpp"
+#include "Runtime/MP1/World/CBeetle.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptWaypoint.hpp"
+#include "Runtime/World/CTeamAiMgr.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "World/CPatternedInfo.hpp"
-#include "Character/CPASAnimParmData.hpp"
-#include "World/CTeamAiMgr.hpp"
-#include "World/CWorld.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptWaypoint.hpp"
 
 namespace urde::MP1 {
 

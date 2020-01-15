@@ -1,10 +1,12 @@
-#include "CBodyState.hpp"
-#include "CBodyController.hpp"
-#include "World/CActor.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Character/CBodyState.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CBodyController.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CPASAnimParmData.hpp"
-#include "World/CPatterned.hpp"
 
 namespace urde {
 

@@ -1,9 +1,10 @@
-#include "CAssetFactory.hpp"
-#include "CAnimCharacterSet.hpp"
-#include "CCharacterFactory.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CModelData.hpp"
-#include "Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CAssetFactory.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CAnimCharacterSet.hpp"
+#include "Runtime/Character/CCharacterFactory.hpp"
+#include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CModelData.hpp"
 
 namespace urde {
 

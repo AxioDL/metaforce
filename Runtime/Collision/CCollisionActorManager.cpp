@@ -1,9 +1,11 @@
-#include "CCollisionActorManager.hpp"
+#include "Runtime/Collision/CCollisionActorManager.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+#include "Runtime/World/CActor.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "World/CActor.hpp"
-#include "CStateManager.hpp"
-#include "CMaterialList.hpp"
-#include "Collision/CCollisionActor.hpp"
 
 namespace urde {
 

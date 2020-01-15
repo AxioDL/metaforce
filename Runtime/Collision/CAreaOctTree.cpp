@@ -1,7 +1,14 @@
-#include "CAreaOctTree.hpp"
-#include "CMaterialFilter.hpp"
-#include "zeus/CVector2i.hpp"
+#include "Runtime/Collision/CAreaOctTree.hpp"
+
+#include "Runtime/Collision/CMaterialFilter.hpp"
+
 #include <array>
+#include <cfloat>
+#include <cmath>
+#include <utility>
+
+#include <hecl/hecl.hpp>
+#include <zeus/CVector2i.hpp>
 
 namespace urde {
 

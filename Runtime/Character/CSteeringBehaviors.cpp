@@ -1,6 +1,7 @@
-#include "CSteeringBehaviors.hpp"
-#include "World/CPhysicsActor.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Character/CSteeringBehaviors.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
 
 namespace urde {
 

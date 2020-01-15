@@ -1,14 +1,16 @@
-#include "CGroundMovement.hpp"
-#include "World/CPhysicsActor.hpp"
-#include "Collision/CGameCollision.hpp"
-#include "Collision/CCollisionInfoList.hpp"
-#include "Collision/CollisionUtil.hpp"
-#include "Collision/CAABoxFilter.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Character/CGroundMovement.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Collision/CAABoxFilter.hpp"
+#include "Runtime/Collision/CCollisionInfoList.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+#include "Runtime/Collision/CollisionUtil.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptPlatform.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "World/CScriptPlatform.hpp"
-#include "World/CWorld.hpp"
-#include "World/CPlayer.hpp"
 
 namespace urde {
 

@@ -1,11 +1,13 @@
-#include "CMoviePlayer.hpp"
-#include "boo/graphicsdev/GLSLMacros.hpp"
-#include "specter/View.hpp"
-#include "CGraphics.hpp"
-#include "Audio/g721.h"
-#include "amuse/DSPCodec.hpp"
-#include "CDvdRequest.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/CMoviePlayer.hpp"
+
+#include "Runtime/CDvdRequest.hpp"
+#include "Runtime/Audio/g721.h"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <amuse/DSPCodec.hpp>
+#include <boo/graphicsdev/GLSLMacros.hpp>
+#include <hecl/Pipeline.hpp>
+#include <specter/View.hpp>
 #include <turbojpeg.h>
 
 namespace urde {

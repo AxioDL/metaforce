@@ -1,6 +1,7 @@
-#include "CSegStatementSet.hpp"
-#include "CSegIdList.hpp"
-#include "CCharLayoutInfo.hpp"
+#include "Runtime/Character/CSegStatementSet.hpp"
+
+#include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CSegIdList.hpp"
 
 namespace urde {
 

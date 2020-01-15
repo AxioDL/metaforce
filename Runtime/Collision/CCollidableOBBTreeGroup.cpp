@@ -1,10 +1,11 @@
-#include "CCollidableOBBTreeGroup.hpp"
-#include "CCollidableOBBTree.hpp"
-#include "CCollidableAABox.hpp"
-#include "CCollidableSphere.hpp"
-#include "CInternalRayCastStructure.hpp"
-#include "CollisionUtil.hpp"
-#include "CToken.hpp"
+#include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Collision/CCollidableAABox.hpp"
+#include "Runtime/Collision/CCollidableOBBTree.hpp"
+#include "Runtime/Collision/CCollidableSphere.hpp"
+#include "Runtime/Collision/CInternalRayCastStructure.hpp"
+#include "Runtime/Collision/CollisionUtil.hpp"
 
 namespace urde {
 constexpr CCollisionPrimitive::Type sType(CCollidableOBBTreeGroup::SetStaticTableIndex, "CCollidableOBBTreeGroup");

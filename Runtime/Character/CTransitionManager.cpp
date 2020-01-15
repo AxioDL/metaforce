@@ -1,5 +1,6 @@
-#include "CTransitionManager.hpp"
-#include "CTreeUtils.hpp"
+#include "Runtime/Character/CTransitionManager.hpp"
+
+#include "Runtime/Character/CTreeUtils.hpp"
 
 namespace urde {
 

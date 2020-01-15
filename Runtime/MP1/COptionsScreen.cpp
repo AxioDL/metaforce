@@ -1,9 +1,10 @@
-#include "COptionsScreen.hpp"
-#include "GuiSys/CGuiTableGroup.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "GuiSys/CGuiSliderGroup.hpp"
-#include "Input/RumbleFxTable.hpp"
-#include "CArchitectureQueue.hpp"
+#include "Runtime/MP1/COptionsScreen.hpp"
+
+#include "Runtime/CArchitectureQueue.hpp"
+#include "Runtime/GuiSys/CGuiSliderGroup.hpp"
+#include "Runtime/GuiSys/CGuiTableGroup.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/Input/RumbleFxTable.hpp"
 
 namespace urde::MP1 {
 

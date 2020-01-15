@@ -1,5 +1,6 @@
-#include "COBBTree.hpp"
-#include "CCollidableOBBTreeGroup.hpp"
+#include "Runtime/Collision/COBBTree.hpp"
+
+#include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
 
 namespace urde {
 /* This is exactly what retro did >.< */

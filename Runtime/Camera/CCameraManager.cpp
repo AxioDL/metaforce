@@ -1,18 +1,20 @@
-#include "CCameraManager.hpp"
-#include "CCameraShakeData.hpp"
-#include "CFirstPersonCamera.hpp"
-#include "CStateManager.hpp"
-#include "World/CScriptWater.hpp"
-#include "World/CPlayer.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CBallCamera.hpp"
+#include "Runtime/Camera/CCameraShakeData.hpp"
+#include "Runtime/Camera/CCinematicCamera.hpp"
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
+#include "Runtime/Camera/CInterpolationCamera.hpp"
+#include "Runtime/Camera/CPathCamera.hpp"
+#include "Runtime/World/CExplosion.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptCameraHint.hpp"
+#include "Runtime/World/CScriptSpindleCamera.hpp"
+#include "Runtime/World/CScriptWater.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CCinematicCamera.hpp"
-#include "CBallCamera.hpp"
-#include "CInterpolationCamera.hpp"
-#include "World/CScriptCameraHint.hpp"
-#include "CPathCamera.hpp"
-#include "World/CScriptSpindleCamera.hpp"
-#include "World/CExplosion.hpp"
 
 namespace urde {
 float CCameraManager::sFirstPersonFOV = 55.f;

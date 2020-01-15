@@ -1,10 +1,12 @@
-#include "CPuffer.hpp"
-#include "CStateManager.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "World/CKnockBackController.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CFire.hpp"
+#include "Runtime/MP1/World/CPuffer.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/World/CFire.hpp"
+#include "Runtime/World/CKnockBackController.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {

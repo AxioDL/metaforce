@@ -1,11 +1,19 @@
-#include "CSamusDoll.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CDependencyGroup.hpp"
-#include "zeus/CEulerAngles.hpp"
-#include "Collision/CollisionUtil.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "World/CMorphBall.hpp"
+#include "Runtime/MP1/CSamusDoll.hpp"
+
+#include "Runtime/CDependencyGroup.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Collision/CollisionUtil.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CMorphBall.hpp"
+
+#include <algorithm>
+#include <cfloat>
+#include <cmath>
+#include <memory>
+
+#include <zeus/CColor.hpp>
+#include <zeus/CEulerAngles.hpp>
 
 namespace urde::MP1 {
 

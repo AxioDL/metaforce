@@ -1,15 +1,16 @@
-#include "CPauseScreenBase.hpp"
-#include "GuiSys/CGuiFrame.hpp"
-#include "GuiSys/CGuiTableGroup.hpp"
-#include "GuiSys/CGuiSliderGroup.hpp"
-#include "GuiSys/CGuiModel.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "GuiSys/CAuiImagePane.hpp"
-#include "GuiSys/CGuiWidgetDrawParms.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "CGameState.hpp"
-#include "GuiSys/CStringTable.hpp"
+#include "Runtime/MP1/CPauseScreenBase.hpp"
+
+#include "Runtime/CGameState.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/GuiSys/CAuiImagePane.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiSliderGroup.hpp"
+#include "Runtime/GuiSys/CGuiTableGroup.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
 
 namespace urde::MP1 {
 

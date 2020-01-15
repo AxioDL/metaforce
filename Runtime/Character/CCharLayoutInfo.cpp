@@ -1,5 +1,6 @@
-#include "CCharLayoutInfo.hpp"
-#include "CToken.hpp"
+#include "Runtime/Character/CCharLayoutInfo.hpp"
+
+#include "Runtime/CToken.hpp"
 
 namespace urde {
 

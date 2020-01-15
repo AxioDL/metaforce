@@ -1,6 +1,12 @@
-#include "CFBStreamedAnimReader.hpp"
-#include "CSegIdList.hpp"
-#include "CSegStatementSet.hpp"
+#include "Runtime/Character/CFBStreamedAnimReader.hpp"
+
+#include <algorithm>
+#include <cmath>
+#include <cstring>
+#include <memory>
+
+#include "Runtime/Character/CSegIdList.hpp"
+#include "Runtime/Character/CSegStatementSet.hpp"
 
 namespace urde {
 

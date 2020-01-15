@@ -1,14 +1,16 @@
-#include "CActorLights.hpp"
-#include "Graphics/CModel.hpp"
-#include "World/CGameArea.hpp"
-#include "CStateManager.hpp"
-#include "Collision/CGameCollision.hpp"
-#include "Camera/CFirstPersonCamera.hpp"
-#include "World/CGameLight.hpp"
+#include "Runtime/Character/CActorLights.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/World/CExplosion.hpp"
+#include "Runtime/World/CGameArea.hpp"
+#include "Runtime/World/CGameLight.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "GameGlobalObjects.hpp"
-#include "World/CExplosion.hpp"
-#include "Graphics/CBooRenderer.hpp"
 
 namespace urde {
 

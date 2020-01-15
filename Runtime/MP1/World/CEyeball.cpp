@@ -1,12 +1,15 @@
-#include "CEyeball.hpp"
-#include "Weapon/CBeamInfo.hpp"
-#include "Weapon/CGameProjectile.hpp"
-#include "Weapon/CPlasmaProjectile.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CWorld.hpp"
-#include "World/CGameArea.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/MP1/World/CEyeball.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Weapon/CBeamInfo.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
+#include "Runtime/Weapon/CPlasmaProjectile.hpp"
+#include "Runtime/World/CGameArea.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
+
 namespace urde::MP1 {
 CEyeball::CEyeball(TUniqueId uid, std::string_view name, CPatterned::EFlavorType flavor, const CEntityInfo& info,
                    const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, float attackDelay,

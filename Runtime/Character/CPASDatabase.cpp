@@ -1,6 +1,10 @@
-#include "CPASDatabase.hpp"
-#include "CPASAnimParmData.hpp"
-#include "CRandom16.hpp"
+#include "Runtime/Character/CPASDatabase.hpp"
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
+
+#include <algorithm>
 
 namespace urde {
 

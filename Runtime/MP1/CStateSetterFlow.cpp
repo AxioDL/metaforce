@@ -1,7 +1,9 @@
-#include "CStateSetterFlow.hpp"
-#include "CArchitectureMessage.hpp"
-#include "GameGlobalObjects.hpp"
-#include "MP1.hpp"
+#include "Runtime/MP1/CStateSetterFlow.hpp"
+
+#include "Runtime/CArchitectureMessage.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/MP1/MP1.hpp"
+
 namespace urde::MP1 {
 
 CStateSetterFlow::CStateSetterFlow() : CIOWin("") {}

@@ -1,4 +1,4 @@
-#include "CEffectComponent.hpp"
+#include "Runtime/Character/CEffectComponent.hpp"
 
 namespace urde {
 

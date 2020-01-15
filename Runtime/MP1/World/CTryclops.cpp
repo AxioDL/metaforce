@@ -1,11 +1,15 @@
-#include "CTryclops.hpp"
-#include "CStateManager.hpp"
-#include "World/CWorld.hpp"
-#include "World/CGameArea.hpp"
-#include "World/CPatternedInfo.hpp"
-#include "World/CPlayer.hpp"
-#include "Weapon/CBomb.hpp"
+#include "Runtime/MP1/World/CTryclops.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Weapon/CBomb.hpp"
+#include "Runtime/World/CGameArea.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
+
+#include <cmath>
 
 namespace urde::MP1 {
 const CDamageVulnerability CTryclops::skVulnerabilities = CDamageVulnerability(

@@ -1,8 +1,9 @@
-#include "MP1/World/CMetaree.hpp"
-#include "Weapon/CGameProjectile.hpp"
-#include "World/CPlayer.hpp"
-#include "CStateManager.hpp"
-#include "CPlayerState.hpp"
+#include "Runtime/MP1/World/CMetaree.hpp"
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
+#include "Runtime/World/CPlayer.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 

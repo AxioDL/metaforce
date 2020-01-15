@@ -1,5 +1,6 @@
-#include "CParticlePOINode.hpp"
-#include "CAnimSourceReader.hpp"
+#include "Runtime/Character/CParticlePOINode.hpp"
+
+#include "Runtime/Character/CAnimSourceReader.hpp"
 
 namespace urde {
 

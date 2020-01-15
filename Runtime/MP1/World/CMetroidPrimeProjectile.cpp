@@ -1,6 +1,7 @@
-#include "CMetroidPrimeProjectile.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/MP1/World/CMetroidPrimeProjectile.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde::MP1 {
 

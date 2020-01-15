@@ -1,10 +1,16 @@
-#include "CStreamAudioManager.hpp"
-#include "CStringExtras.hpp"
-#include "CDvdFile.hpp"
-#include "CDvdRequest.hpp"
-#include "Audio/CAudioSys.hpp"
-#include "amuse/DSPCodec.hpp"
+#include "Runtime/Audio/CStreamAudioManager.hpp"
+
+#include "Runtime/Audio/CAudioSys.hpp"
+#include "Runtime/CDvdFile.hpp"
+#include "Runtime/CDvdRequest.hpp"
+#include "Runtime/CStringExtras.hpp"
+
+#include <algorithm>
+#include <cstdlib>
+#include <cstring>
 #include <memory>
+
+#include <amuse/DSPCodec.hpp>
 
 namespace urde {
 class CDSPStreamManager;

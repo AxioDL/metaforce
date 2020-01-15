@@ -1,7 +1,7 @@
-#include "CAnimationManager.hpp"
-#include "CAnimationDatabaseGame.hpp"
-#include "CTransitionDatabaseGame.hpp"
-#include "IMetaAnim.hpp"
+#include "Runtime/Character/CAnimationManager.hpp"
+
+#include "Runtime/Character/CAnimationDatabaseGame.hpp"
+#include "Runtime/Character/IMetaAnim.hpp"
 
 namespace urde {
 

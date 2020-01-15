@@ -1,11 +1,13 @@
-#include "CCinematicCamera.hpp"
-#include "CStateManager.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptActor.hpp"
+#include "Runtime/Camera/CCinematicCamera.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CAnimTreeNode.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptActor.hpp"
+#include "Runtime/World/CScriptCameraWaypoint.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "World/CScriptCameraWaypoint.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Character/CAnimTreeNode.hpp"
 
 namespace urde {
 

@@ -1,7 +1,8 @@
-#include "CSkinRules.hpp"
-#include "CToken.hpp"
-#include "Graphics/CModel.hpp"
-#include "CPoseAsTransforms.hpp"
+#include "Runtime/Character/CSkinRules.hpp"
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Character/CPoseAsTransforms.hpp"
+#include "Runtime/Graphics/CModel.hpp"
 
 namespace urde {
 

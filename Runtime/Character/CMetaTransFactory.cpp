@@ -1,8 +1,9 @@
-#include "CMetaTransFactory.hpp"
-#include "CMetaTransMetaAnim.hpp"
-#include "CMetaTransTrans.hpp"
-#include "CMetaTransPhaseTrans.hpp"
-#include "CMetaTransSnap.hpp"
+#include "Runtime/Character/CMetaTransFactory.hpp"
+
+#include "Runtime/Character/CMetaTransMetaAnim.hpp"
+#include "Runtime/Character/CMetaTransPhaseTrans.hpp"
+#include "Runtime/Character/CMetaTransSnap.hpp"
+#include "Runtime/Character/CMetaTransTrans.hpp"
 
 namespace urde {
 

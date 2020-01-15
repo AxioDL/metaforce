@@ -1,5 +1,8 @@
-#include "ProjectResourceFactoryBase.hpp"
+#include "Editor/ProjectResourceFactoryBase.hpp"
+
 #include "Runtime/IObj.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 #undef min
 #undef max

@@ -1,4 +1,4 @@
-#include "CCharacterSet.hpp"
+#include "Runtime/Character/CCharacterSet.hpp"
 
 namespace urde {
 

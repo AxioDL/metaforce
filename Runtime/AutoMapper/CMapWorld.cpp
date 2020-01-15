@@ -1,9 +1,10 @@
-#include "CMapWorld.hpp"
-#include "CMapWorldInfo.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "World/CWorld.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/AutoMapper/CMapWorld.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/AutoMapper/CMapWorldInfo.hpp"
+#include "Runtime/World/CWorld.hpp"
 
 namespace urde {
 

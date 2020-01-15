@@ -1,5 +1,6 @@
-#include "CFBStreamedCompression.hpp"
-#include "CFBStreamedAnimReader.hpp"
+#include "Runtime/Character/CFBStreamedCompression.hpp"
+
+#include "Runtime/Character/CFBStreamedAnimReader.hpp"
 
 namespace urde {
 

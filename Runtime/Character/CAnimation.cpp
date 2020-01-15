@@ -1,5 +1,6 @@
-#include "CAnimation.hpp"
-#include "CMetaAnimFactory.hpp"
+#include "Runtime/Character/CAnimation.hpp"
+
+#include "Runtime/Character/CMetaAnimFactory.hpp"
 
 namespace urde {
 

@@ -1,4 +1,4 @@
-#include "CChozoGhost.hpp"
+#include "Runtime/MP1/World/CChozoGhost.hpp"
 
 namespace urde::MP1 {
 CChozoGhost::CBehaveChance::CBehaveChance(CInputStream& in)

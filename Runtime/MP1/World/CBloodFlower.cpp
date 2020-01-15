@@ -1,13 +1,14 @@
-#include "CBloodFlower.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Weapon/CProjectileWeapon.hpp"
-#include "Weapon/CTargetableProjectile.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptTrigger.hpp"
-#include "CSimplePool.hpp"
-#include "CStateManager.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/MP1/World/CBloodFlower.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Weapon/CProjectileWeapon.hpp"
+#include "Runtime/Weapon/CTargetableProjectile.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptTrigger.hpp"
 
 namespace urde::MP1 {
 CBloodFlower::CBloodFlower(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,

@@ -1,5 +1,8 @@
-#include "CLineRenderer.hpp"
-#include "Shaders/CLineRendererShaders.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
+
+#include "Runtime/Graphics/Shaders/CLineRendererShaders.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace urde {
 logvisor::Module LineRendererLog("urde::CLineRenderer");

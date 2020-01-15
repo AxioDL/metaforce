@@ -1,18 +1,24 @@
-#include "GameGlobalObjects.hpp"
-#include "CBallCamera.hpp"
+#include "Runtime/Camera/CBallCamera.hpp"
+
+#include <algorithm>
+#include <cmath>
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
+#include "Runtime/Camera/CPathCamera.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+#include "Runtime/Input/ControlMapper.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptCameraHint.hpp"
+#include "Runtime/World/CScriptDock.hpp"
+#include "Runtime/World/CScriptDoor.hpp"
+#include "Runtime/World/CScriptSpindleCamera.hpp"
+#include "Runtime/World/CScriptWater.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CStateManager.hpp"
-#include "Collision/CCollisionActor.hpp"
-#include "World/CPlayer.hpp"
-#include "Input/ControlMapper.hpp"
-#include "Camera/CFirstPersonCamera.hpp"
-#include "Camera/CPathCamera.hpp"
-#include "World/CScriptSpindleCamera.hpp"
-#include "World/CScriptCameraHint.hpp"
-#include "World/CScriptDoor.hpp"
-#include "World/CScriptWater.hpp"
-#include "World/CScriptDock.hpp"
-#include "Collision/CGameCollision.hpp"
 
 namespace urde {
 

@@ -1,8 +1,10 @@
-#include "CAllFormatsAnimSource.hpp"
-#include "logvisor/logvisor.hpp"
-#include "CSimplePool.hpp"
-#include "CAnimSourceReader.hpp"
-#include "CFBStreamedAnimReader.hpp"
+#include "Runtime/Character/CAllFormatsAnimSource.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Character/CAnimSourceReader.hpp"
+#include "Runtime/Character/CFBStreamedAnimReader.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace urde {
 static logvisor::Module Log("urde::CAllFormatsAnimSource");

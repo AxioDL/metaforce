@@ -1,10 +1,11 @@
 #include "CAudioStateWin.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "CArchitectureMessage.hpp"
-#include "CArchitectureQueue.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CGameState.hpp"
-#include "MP1.hpp"
+
+#include "Runtime/CArchitectureMessage.hpp"
+#include "Runtime/CArchitectureQueue.hpp"
+#include "Runtime/CGameState.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/MP1/MP1.hpp"
 
 namespace urde::MP1 {
 

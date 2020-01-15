@@ -1,6 +1,8 @@
-#include "CSlideShow.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/MP1/CSlideShow.hpp"
+
 #include "Editor/ProjectManager.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
 

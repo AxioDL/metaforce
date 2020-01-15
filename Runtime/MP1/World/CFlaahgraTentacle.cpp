@@ -1,8 +1,10 @@
-#include "CFlaahgraTentacle.hpp"
-#include "Collision/CCollisionActor.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptTrigger.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/MP1/World/CFlaahgraTentacle.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptTrigger.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {

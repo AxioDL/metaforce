@@ -1,4 +1,4 @@
-#include "CPASParmInfo.hpp"
+#include "Runtime/Character/CPASParmInfo.hpp"
 
 namespace urde {
 

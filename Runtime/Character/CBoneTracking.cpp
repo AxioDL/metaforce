@@ -1,9 +1,10 @@
-#include "Character/CBoneTracking.hpp"
-#include "Character/CBodyController.hpp"
-#include "Character/CAnimData.hpp"
-#include "Character/CHierarchyPoseBuilder.hpp"
-#include "World/CPatterned.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Character/CBoneTracking.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CAnimData.hpp"
+#include "Runtime/Character/CBodyController.hpp"
+#include "Runtime/Character/CHierarchyPoseBuilder.hpp"
+#include "Runtime/World/CPatterned.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 

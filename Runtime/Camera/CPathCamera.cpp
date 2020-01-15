@@ -1,11 +1,13 @@
-#include "CPathCamera.hpp"
-#include "CCameraManager.hpp"
-#include "CStateManager.hpp"
-#include "CBallCamera.hpp"
-#include "World/CScriptCameraHint.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptDoor.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/Camera/CPathCamera.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CBallCamera.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptCameraHint.hpp"
+#include "Runtime/World/CScriptDoor.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

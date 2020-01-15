@@ -1,4 +1,5 @@
-#include "CCharAnimTime.hpp"
+#include "Runtime/Character/CCharAnimTime.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cfloat>

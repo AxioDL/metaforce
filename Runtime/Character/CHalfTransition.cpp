@@ -1,5 +1,6 @@
-#include "CHalfTransition.hpp"
-#include "CMetaTransFactory.hpp"
+#include "Runtime/Character/CHalfTransition.hpp"
+
+#include "Runtime/Character/CMetaTransFactory.hpp"
 
 namespace urde {
 

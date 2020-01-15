@@ -1,9 +1,10 @@
-#include "CSimplePool.hpp"
-#include "CStateManager.hpp"
-#include "GameGlobalObjects.hpp"
-#include "MP1/World/CEnergyBall.hpp"
-#include "World/CPatternedInfo.hpp"
-#include "World/CPlayer.hpp"
+#include "Runtime/MP1/World/CEnergyBall.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
 
 namespace urde::MP1 {
 CEnergyBall::CEnergyBall(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,

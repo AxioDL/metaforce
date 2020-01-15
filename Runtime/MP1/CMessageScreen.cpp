@@ -1,12 +1,13 @@
-#include "CMessageScreen.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "GuiSys/CGuiModel.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "CGameState.hpp"
-#include "Input/CFinalInput.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/MP1/CMessageScreen.hpp"
+
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/Input/CFinalInput.hpp"
 
 namespace urde::MP1 {
 

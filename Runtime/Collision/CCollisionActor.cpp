@@ -1,9 +1,11 @@
-#include "CCollisionActor.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "CStateManager.hpp"
-#include "World/CActorParameters.hpp"
-#include "Collision/CCollidableOBBTreeGroup.hpp"
-#include "Collision/CCollidableSphere.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
+#include "Runtime/Collision/CCollidableSphere.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

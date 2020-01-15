@@ -1,9 +1,11 @@
-#include "CFirstPersonCamera.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CStateManager.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptGrapplePoint.hpp"
-#include "World/CScriptCameraPitchVolume.hpp"
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptCameraPitchVolume.hpp"
+#include "Runtime/World/CScriptGrapplePoint.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace DataSpec::DNAMP1 {

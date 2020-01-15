@@ -1,17 +1,25 @@
-#include "boo/System.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CBooRenderer.hpp"
-#include "CModel.hpp"
-#include "Particle/CParticleGen.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "Particle/CDecal.hpp"
-#include "Particle/CElementGen.hpp"
-#include "CMetroidModelInstance.hpp"
-#include "Collision/CAreaOctTree.hpp"
-#include "zeus/CUnitVector.hpp"
-#include "Graphics/CSkinnedModel.hpp"
-#include "zeus/CVector3d.hpp"
-#include "World/CActor.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Collision/CAreaOctTree.hpp"
+#include "Runtime/Graphics/CMetroidModelInstance.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
+#include "Runtime/Particle/CDecal.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CParticleGen.hpp"
+#include "Runtime/World/CActor.hpp"
+
+#include <algorithm>
+
+#include <boo/System.hpp>
+#include <logvisor/logvisor.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CUnitVector.hpp>
+#include <zeus/CVector3d.hpp>
+#include <zeus/CVector4f.hpp>
 
 #define FOGVOL_RAMP_RES 256
 #define FOGVOL_FAR 750.0

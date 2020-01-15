@@ -1,9 +1,11 @@
-#include "CFlickerBat.hpp"
-#include "CStateManager.hpp"
-#include "Camera/CCameraManager.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "Collision/CGameCollision.hpp"
-#include "World/CPlayer.hpp"
+#include "Runtime/MP1/World/CFlickerBat.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {

@@ -1,5 +1,6 @@
-#include "CCredits.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/MP1/CCredits.hpp"
+
+#include "Runtime/Graphics/CGraphics.hpp"
 
 namespace urde::MP1 {
 

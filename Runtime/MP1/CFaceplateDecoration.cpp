@@ -1,9 +1,10 @@
-#include "CFaceplateDecoration.hpp"
-#include "CStateManager.hpp"
-#include "World/CPlayer.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "Particle/CGenDescription.hpp"
+#include "Runtime/MP1/CFaceplateDecoration.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/World/CPlayer.hpp"
 
 namespace urde::MP1 {
 

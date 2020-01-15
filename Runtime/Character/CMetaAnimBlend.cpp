@@ -1,6 +1,7 @@
-#include "CMetaAnimBlend.hpp"
-#include "CMetaAnimFactory.hpp"
-#include "CAnimTreeBlend.hpp"
+#include "Runtime/Character/CMetaAnimBlend.hpp"
+
+#include "Runtime/Character/CAnimTreeBlend.hpp"
+#include "Runtime/Character/CMetaAnimFactory.hpp"
 
 namespace urde {
 

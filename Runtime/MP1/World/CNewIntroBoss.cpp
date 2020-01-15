@@ -1,14 +1,15 @@
-#include "MP1/World/CNewIntroBoss.hpp"
-#include "Character/CCharLayoutInfo.hpp"
-#include "Collision/CCollisionActor.hpp"
-#include "Collision/CCollisionActorManager.hpp"
-#include "Collision/CGameCollision.hpp"
-#include "Collision/CJointCollisionDescription.hpp"
-#include "Weapon/CPlasmaProjectile.hpp"
-#include "World/CPlayer.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/MP1/World/CNewIntroBoss.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
+#include "Runtime/Collision/CCollisionActorManager.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+#include "Runtime/Collision/CJointCollisionDescription.hpp"
+#include "Runtime/Weapon/CPlasmaProjectile.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CNewIntroBoss.hpp"
 
 namespace urde::MP1 {
 

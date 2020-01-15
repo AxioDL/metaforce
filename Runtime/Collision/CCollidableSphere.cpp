@@ -1,8 +1,9 @@
-#include "CCollidableSphere.hpp"
-#include "CCollisionInfoList.hpp"
-#include "CCollidableAABox.hpp"
-#include "CollisionUtil.hpp"
-#include "CInternalRayCastStructure.hpp"
+#include "Runtime/Collision/CCollidableSphere.hpp"
+
+#include "Runtime/Collision/CCollidableAABox.hpp"
+#include "Runtime/Collision/CCollisionInfoList.hpp"
+#include "Runtime/Collision/CInternalRayCastStructure.hpp"
+#include "Runtime/Collision/CollisionUtil.hpp"
 
 namespace urde {
 constexpr CCollisionPrimitive::Type sType(CCollidableSphere::SetStaticTableIndex, "CCollidableSphere");

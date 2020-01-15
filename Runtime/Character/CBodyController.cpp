@@ -1,11 +1,13 @@
-#include "CBodyController.hpp"
-#include "World/CActor.hpp"
+#include "Runtime/Character/CBodyController.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CPASAnimParm.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CActorModelParticles.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "World/CPhysicsActor.hpp"
-#include "World/CActorModelParticles.hpp"
-#include "Character/CPASAnimParm.hpp"
-#include "Character/CPASAnimParmData.hpp"
-#include "CStateManager.hpp"
 
 namespace urde {
 

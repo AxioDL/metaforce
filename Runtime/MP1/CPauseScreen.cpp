@@ -1,13 +1,14 @@
-#include "CPauseScreen.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "CLogBookScreen.hpp"
-#include "COptionsScreen.hpp"
-#include "GuiSys/CGuiSys.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "GuiSys/CGuiWidgetDrawParms.hpp"
-#include "Input/ControlMapper.hpp"
+#include "Runtime/MP1/CPauseScreen.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/GuiSys/CGuiSys.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/Input/ControlMapper.hpp"
+#include "Runtime/MP1/CLogBookScreen.hpp"
+#include "Runtime/MP1/COptionsScreen.hpp"
 
 namespace urde::MP1 {
 

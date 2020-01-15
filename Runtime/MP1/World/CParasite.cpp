@@ -1,19 +1,21 @@
-#include "CParasite.hpp"
-#include "Character/CModelData.hpp"
-#include "World/CActorParameters.hpp"
-#include "World/CPatternedInfo.hpp"
-#include "World/CWorld.hpp"
-#include "World/CGameArea.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptWaypoint.hpp"
-#include "World/CScriptDoor.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/MP1/World/CParasite.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CGameArea.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptDoor.hpp"
+#include "Runtime/World/CScriptWaypoint.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "Graphics/CSkinnedModel.hpp"
-#include "Collision/CGameCollision.hpp"
-#include "Collision/CCollisionActor.hpp"
 
 namespace urde::MP1 {
 

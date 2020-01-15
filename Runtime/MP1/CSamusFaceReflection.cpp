@@ -1,10 +1,12 @@
-#include "CSamusFaceReflection.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/MP1/CSamusFaceReflection.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "Camera/CFirstPersonCamera.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CWorld.hpp"
 
 namespace urde::MP1 {
 

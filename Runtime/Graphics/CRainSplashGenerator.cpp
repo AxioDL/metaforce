@@ -1,8 +1,9 @@
-#include "CRainSplashGenerator.hpp"
-#include "CStateManager.hpp"
-#include "World/CWorld.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CRainSplashGenerator.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CWorld.hpp"
 
 namespace urde {
 
