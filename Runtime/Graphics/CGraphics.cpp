@@ -1,10 +1,12 @@
-#include "Graphics/CGraphics.hpp"
-#include "Graphics/CLight.hpp"
-#include "zeus/Math.hpp"
-#include "CTimeProvider.hpp"
-#include "Shaders/CTextSupportShader.hpp"
-#include "GuiSys/CGuiSys.hpp"
-#include "CLineRenderer.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include "Runtime/CTimeProvider.hpp"
+#include "Runtime/Graphics/CLight.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
+#include "Runtime/GuiSys/CGuiSys.hpp"
+
+#include <zeus/Math.hpp>
 
 namespace urde {
 

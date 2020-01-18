@@ -1,14 +1,16 @@
-#include "CWarWasp.hpp"
-#include "Character/CCharLayoutInfo.hpp"
+#include "Runtime/MP1/World/CWarWasp.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptWaypoint.hpp"
+#include "Runtime/World/CTeamAiMgr.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "World/CPatternedInfo.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CTeamAiMgr.hpp"
-#include "World/CWorld.hpp"
-#include "World/CScriptWaypoint.hpp"
-#include "Weapon/CGameProjectile.hpp"
 
 namespace urde::MP1 {
 CWarWasp::CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,

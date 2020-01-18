@@ -1,6 +1,9 @@
-#include "RetroTypes.hpp"
-#include "GameGlobalObjects.hpp"
-#include "IMain.hpp"
+#include "Runtime/RetroTypes.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/IMain.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace urde {
 logvisor::Module Log("urde::RetroTypes::CAssetId");

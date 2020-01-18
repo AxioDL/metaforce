@@ -1,7 +1,8 @@
-#include "CAdditiveAnimPlayback.hpp"
-#include "CSegStatementSet.hpp"
-#include "CCharLayoutInfo.hpp"
-#include "CAnimTreeNode.hpp"
+#include "Runtime/Character/CAdditiveAnimPlayback.hpp"
+
+#include "Runtime/Character/CAnimTreeNode.hpp"
+#include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CSegStatementSet.hpp"
 
 namespace urde {
 

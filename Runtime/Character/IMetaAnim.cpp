@@ -1,8 +1,9 @@
-#include "IMetaAnim.hpp"
-#include "CCharAnimTime.hpp"
-#include "IAnimReader.hpp"
-#include "CBoolPOINode.hpp"
-#include "CAnimTreeNode.hpp"
+#include "Runtime/Character/IMetaAnim.hpp"
+
+#include "Runtime/Character/CAnimTreeNode.hpp"
+#include "Runtime/Character/CBoolPOINode.hpp"
+#include "Runtime/Character/CCharAnimTime.hpp"
+#include "Runtime/Character/IAnimReader.hpp"
 
 namespace urde {
 

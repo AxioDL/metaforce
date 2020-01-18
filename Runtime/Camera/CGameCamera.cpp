@@ -1,7 +1,8 @@
-#include "CGameCamera.hpp"
-#include "CStateManager.hpp"
-#include "Camera/CCameraManager.hpp"
-#include "World/CActorParameters.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+#include "Runtime/World/CActorParameters.hpp"
 
 namespace urde {
 

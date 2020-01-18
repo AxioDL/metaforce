@@ -1,17 +1,21 @@
-#include "CModelData.hpp"
-#include "CAnimData.hpp"
-#include "IAnimReader.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "Graphics/CSkinnedModel.hpp"
-#include "Graphics/CVertexMorphEffect.hpp"
+#include "Runtime/Character/CModelData.hpp"
+
 #include "Editor/ProjectManager.hpp"
-#include "CActorLights.hpp"
-#include "CStateManager.hpp"
-#include "CPlayerState.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CAssetFactory.hpp"
-#include "CCharacterFactory.hpp"
-#include "CAdditiveAnimPlayback.hpp"
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CActorLights.hpp"
+#include "Runtime/Character/CAdditiveAnimPlayback.hpp"
+#include "Runtime/Character/CAnimData.hpp"
+#include "Runtime/Character/CAssetFactory.hpp"
+#include "Runtime/Character/CCharacterFactory.hpp"
+#include "Runtime/Character/IAnimReader.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
+#include "Runtime/Graphics/CVertexMorphEffect.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace urde {
 static logvisor::Module Log("urde::CModelData");

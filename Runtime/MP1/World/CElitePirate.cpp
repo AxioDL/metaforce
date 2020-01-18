@@ -1,5 +1,6 @@
-#include "CElitePirate.hpp"
-#include "World/ScriptLoader.hpp"
+#include "Runtime/MP1/World/CElitePirate.hpp"
+
+#include "Runtime/World/ScriptLoader.hpp"
 
 namespace urde::MP1 {
 CElitePirateData::CElitePirateData(CInputStream& in, u32 propCount)

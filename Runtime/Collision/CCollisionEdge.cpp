@@ -1,4 +1,4 @@
-#include "CCollisionEdge.hpp"
+#include "Runtime/Collision/CCollisionEdge.hpp"
 
 namespace urde {
 CCollisionEdge::CCollisionEdge(CInputStream& in) {

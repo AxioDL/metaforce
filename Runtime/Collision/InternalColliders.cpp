@@ -1,7 +1,8 @@
-#include "InternalColliders.hpp"
-#include "CCollidableAABox.hpp"
-#include "CCollidableCollisionSurface.hpp"
-#include "CCollidableSphere.hpp"
+#include "Runtime/Collision/InternalColliders.hpp"
+
+#include "Runtime/Collision/CCollidableAABox.hpp"
+#include "Runtime/Collision/CCollidableCollisionSurface.hpp"
+#include "Runtime/Collision/CCollidableSphere.hpp"
 
 namespace urde::InternalColliders {
 void AddTypes() {

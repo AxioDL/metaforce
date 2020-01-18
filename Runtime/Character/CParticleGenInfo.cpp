@@ -1,10 +1,12 @@
-#include "CParticleGenInfo.hpp"
-#include "Graphics/IRenderer.hpp"
-#include "Particle/CParticleGen.hpp"
-#include "GameGlobalObjects.hpp"
-#include "World/CGameLight.hpp"
-#include "CStateManager.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/Character/CParticleGenInfo.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/IRenderer.hpp"
+#include "Runtime/Particle/CParticleGen.hpp"
+#include "Runtime/World/CGameLight.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

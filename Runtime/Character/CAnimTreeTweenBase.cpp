@@ -1,6 +1,7 @@
-#include "CAnimTreeTweenBase.hpp"
-#include "CSegStatementSet.hpp"
-#include "CSegIdList.hpp"
+#include "Runtime/Character/CAnimTreeTweenBase.hpp"
+
+#include "Runtime/Character/CSegIdList.hpp"
+#include "Runtime/Character/CSegStatementSet.hpp"
 
 namespace urde {
 

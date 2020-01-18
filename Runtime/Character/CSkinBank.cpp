@@ -1,5 +1,6 @@
-#include "CSkinBank.hpp"
-#include "CPoseAsTransforms.hpp"
+#include "Runtime/Character/CSkinBank.hpp"
+
+#include "Runtime/Character/CPoseAsTransforms.hpp"
 
 namespace urde {
 

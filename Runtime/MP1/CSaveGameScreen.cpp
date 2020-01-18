@@ -1,13 +1,14 @@
-#include "CSaveGameScreen.hpp"
-#include "CSimplePool.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CMemoryCardSys.hpp"
-#include "GuiSys/CGuiFrame.hpp"
-#include "GuiSys/CGuiTableGroup.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "GuiSys/CGuiWidgetDrawParms.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "MP1/MP1.hpp"
+#include "Runtime/MP1/CSaveGameScreen.hpp"
+
+#include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiTableGroup.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/MP1/MP1.hpp"
 
 namespace urde::MP1 {
 

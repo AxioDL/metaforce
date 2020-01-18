@@ -1,5 +1,6 @@
-#include "IWeaponRenderer.hpp"
-#include "Particle/CParticleGen.hpp"
+#include "Runtime/Graphics/IWeaponRenderer.hpp"
+
+#include "Runtime/Particle/CParticleGen.hpp"
 
 namespace urde {
 

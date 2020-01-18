@@ -1,12 +1,16 @@
-#include "Graphics/CGraphics.hpp"
-#include "CCameraFilter.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "CSimplePool.hpp"
-#include "Graphics/Shaders/CColoredQuadFilter.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
-#include "Graphics/Shaders/CScanLinesFilter.hpp"
-#include "Graphics/Shaders/CRandomStaticFilter.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
+#include "Runtime/Graphics/Shaders/CScanLinesFilter.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+
+#include <algorithm>
+#include <zeus/CColor.hpp>
 
 namespace urde {
 

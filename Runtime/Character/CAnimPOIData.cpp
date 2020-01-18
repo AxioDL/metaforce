@@ -1,5 +1,6 @@
-#include "CAnimPOIData.hpp"
-#include "CToken.hpp"
+#include "Runtime/Character/CAnimPOIData.hpp"
+
+#include "Runtime/CToken.hpp"
 
 namespace urde {
 

@@ -1,9 +1,10 @@
-#include "CMetaAnimFactory.hpp"
-#include "CMetaAnimPlay.hpp"
-#include "CMetaAnimBlend.hpp"
-#include "CMetaAnimPhaseBlend.hpp"
-#include "CMetaAnimRandom.hpp"
-#include "CMetaAnimSequence.hpp"
+#include "Runtime/Character/CMetaAnimFactory.hpp"
+
+#include "Runtime/Character/CMetaAnimBlend.hpp"
+#include "Runtime/Character/CMetaAnimPhaseBlend.hpp"
+#include "Runtime/Character/CMetaAnimPlay.hpp"
+#include "Runtime/Character/CMetaAnimRandom.hpp"
+#include "Runtime/Character/CMetaAnimSequence.hpp"
 
 namespace urde {
 

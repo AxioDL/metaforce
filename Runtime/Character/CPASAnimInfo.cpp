@@ -1,4 +1,4 @@
-#include "CPASAnimInfo.hpp"
+#include "Runtime/Character/CPASAnimInfo.hpp"
 
 namespace urde {
 

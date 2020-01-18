@@ -1,4 +1,5 @@
-#include "CBodyStateCmdMgr.hpp"
+#include "Runtime/Character/CBodyStateCmdMgr.hpp"
+
 #include <cfloat>
 
 namespace urde {

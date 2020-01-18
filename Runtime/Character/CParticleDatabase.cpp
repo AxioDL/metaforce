@@ -1,11 +1,12 @@
-#include "CParticleDatabase.hpp"
-#include "CSimplePool.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Character/CCharLayoutInfo.hpp"
-#include "Character/CPoseAsTransforms.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Particle/CParticleSwoosh.hpp"
-#include "Particle/CParticleElectric.hpp"
+#include "Runtime/Character/CParticleDatabase.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CPoseAsTransforms.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CParticleElectric.hpp"
+#include "Runtime/Particle/CParticleSwoosh.hpp"
 
 namespace urde {
 

@@ -1,4 +1,4 @@
-#include "CThardusRockProjectile.hpp"
+#include "Runtime/MP1/World/CThardusRockProjectile.hpp"
 
 namespace urde {
 

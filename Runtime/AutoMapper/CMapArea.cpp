@@ -1,10 +1,11 @@
-#include "CMapArea.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CMappableObject.hpp"
-#include "CToken.hpp"
-#include "World/CWorld.hpp"
-#include "World/CGameArea.hpp"
-#include "CResFactory.hpp"
+#include "Runtime/AutoMapper/CMapArea.hpp"
+
+#include "Runtime/CResFactory.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/AutoMapper/CMappableObject.hpp"
+#include "Runtime/World/CGameArea.hpp"
+#include "Runtime/World/CWorld.hpp"
 
 namespace urde {
 CMapArea::CMapArea(CInputStream& in, u32 size)

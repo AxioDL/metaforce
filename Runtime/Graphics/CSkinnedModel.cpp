@@ -1,6 +1,9 @@
-#include "CSkinnedModel.hpp"
-#include "Character/CSkinRules.hpp"
-#include "CVertexMorphEffect.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
+
+#include "Runtime/Character/CSkinRules.hpp"
+#include "Runtime/Graphics/CVertexMorphEffect.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace urde {
 static logvisor::Module Log("urde::CSkinnedModel");

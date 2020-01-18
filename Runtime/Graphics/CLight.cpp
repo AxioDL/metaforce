@@ -1,4 +1,5 @@
-#include "CLight.hpp"
+#include "Runtime/Graphics/CLight.hpp"
+
 #include <cfloat>
 
 namespace urde {

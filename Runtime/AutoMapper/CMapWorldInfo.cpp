@@ -1,6 +1,7 @@
-#include "CMapWorldInfo.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CMemoryCardSys.hpp"
+#include "Runtime/AutoMapper/CMapWorldInfo.hpp"
+
+#include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
 

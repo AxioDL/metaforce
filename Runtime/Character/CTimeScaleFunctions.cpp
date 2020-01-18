@@ -1,5 +1,6 @@
-#include "CTimeScaleFunctions.hpp"
-#include "zeus/Math.hpp"
+#include "Runtime/Character/CTimeScaleFunctions.hpp"
+
+#include <zeus/Math.hpp>
 
 namespace urde {
 

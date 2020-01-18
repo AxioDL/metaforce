@@ -1,10 +1,12 @@
-#include "MP1/World/CActorContraption.hpp"
-#include "Weapon/CFlameThrower.hpp"
-#include "Weapon/CFlameInfo.hpp"
-#include "Character/CInt32POINode.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/MP1/World/CActorContraption.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CInt32POINode.hpp"
+#include "Runtime/Weapon/CFlameInfo.hpp"
+#include "Runtime/Weapon/CFlameThrower.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

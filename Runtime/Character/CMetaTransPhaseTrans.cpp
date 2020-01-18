@@ -1,8 +1,9 @@
-#include "CMetaTransPhaseTrans.hpp"
-#include "CAnimTreeNode.hpp"
-#include "CTimeScaleFunctions.hpp"
-#include "CAnimTreeTransition.hpp"
-#include "CAnimTreeTimeScale.hpp"
+#include "Runtime/Character/CMetaTransPhaseTrans.hpp"
+
+#include "Runtime/Character/CAnimTreeNode.hpp"
+#include "Runtime/Character/CAnimTreeTimeScale.hpp"
+#include "Runtime/Character/CAnimTreeTransition.hpp"
+#include "Runtime/Character/CTimeScaleFunctions.hpp"
 
 namespace urde {
 

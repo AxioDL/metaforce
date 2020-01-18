@@ -1,9 +1,9 @@
-#include "CGBASupport.hpp"
+#include "Runtime/MP1/CGBASupport.hpp"
 
 #include <cstring>
 
-#include "CBasics.hpp"
-#include "CDvdRequest.hpp"
+#include "Runtime/CBasics.hpp"
+#include "Runtime/CDvdRequest.hpp"
 
 #include <jbus/Endpoint.hpp>
 #include <jbus/Listener.hpp>

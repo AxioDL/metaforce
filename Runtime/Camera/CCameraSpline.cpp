@@ -1,6 +1,8 @@
-#include "Camera/CCameraSpline.hpp"
-#include "CStateManager.hpp"
-#include "World/CScriptCameraWaypoint.hpp"
+#include "Runtime/Camera/CCameraSpline.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CScriptCameraWaypoint.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

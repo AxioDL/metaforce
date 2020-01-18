@@ -1,7 +1,8 @@
-#include "CPauseScreenBlur.hpp"
-#include "CSimplePool.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Audio/CSfxManager.hpp"
+#include "Runtime/MP1/CPauseScreenBlur.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
 
 namespace urde::MP1 {
 

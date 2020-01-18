@@ -1,9 +1,10 @@
-#include "CInventoryScreen.hpp"
-#include "GuiSys/CGuiTableGroup.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "GuiSys/CGuiModel.hpp"
-#include "Input/ControlMapper.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/MP1/CInventoryScreen.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiTableGroup.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/Input/ControlMapper.hpp"
 
 namespace urde::MP1 {
 

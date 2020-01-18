@@ -1,9 +1,14 @@
-#include "CPASAnimState.hpp"
-#include "CPASAnimParmData.hpp"
-#include "CRandom16.hpp"
-#include "zeus/Math.hpp"
-#include <cmath>
+#include "Runtime/Character/CPASAnimState.hpp"
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
+
+#include <algorithm>
 #include <cfloat>
+#include <cmath>
+
+#include <zeus/Math.hpp>
 
 namespace urde {
 

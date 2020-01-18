@@ -1,8 +1,11 @@
-#include "CAnimSource.hpp"
-#include "CAnimPOIData.hpp"
-#include "CSegId.hpp"
-#include "CSegIdList.hpp"
-#include "CSegStatementSet.hpp"
+#include "Runtime/Character/CAnimSource.hpp"
+
+#include <algorithm>
+
+#include "Runtime/Character/CAnimPOIData.hpp"
+#include "Runtime/Character/CSegId.hpp"
+#include "Runtime/Character/CSegIdList.hpp"
+#include "Runtime/Character/CSegStatementSet.hpp"
 
 namespace urde {
 

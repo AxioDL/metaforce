@@ -1,6 +1,7 @@
-#include "CSimpleShadow.hpp"
-#include "CStateManager.hpp"
-#include "Collision/CGameCollision.hpp"
+#include "Runtime/Graphics/CSimpleShadow.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
 
 namespace urde {
 

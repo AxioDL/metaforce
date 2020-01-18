@@ -1,7 +1,13 @@
-#include "CCameraShakeData.hpp"
-#include "World/ScriptLoader.hpp"
-#include "CStateManager.hpp"
-#include "World/CPlayer.hpp"
+#include "Runtime/Camera/CCameraShakeData.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/ScriptLoader.hpp"
+
+#include <algorithm>
+#include <cmath>
+
+#include <zeus/Math.hpp>
 
 namespace urde {
 

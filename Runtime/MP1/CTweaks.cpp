@@ -1,10 +1,5 @@
-#include "logvisor/logvisor.hpp"
-#include "CTweaks.hpp"
-#include "CResFactory.hpp"
-#include "CResLoader.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Editor/ProjectManager.hpp"
-#include "Editor/ProjectResourceFactoryMP1.hpp"
+#include "Runtime/MP1/CTweaks.hpp"
+
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayerControl.hpp"
@@ -18,7 +13,13 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakBall.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGuiColors.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayerGun.hpp"
-#include "World/CPlayerCameraBob.hpp"
+
+#include "Editor/ProjectManager.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/World/CPlayerCameraBob.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace urde {
 

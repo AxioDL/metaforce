@@ -1,7 +1,8 @@
-#include "CPreFrontEnd.hpp"
-#include "CResLoader.hpp"
-#include "GameGlobalObjects.hpp"
-#include "MP1.hpp"
+#include "Runtime/MP1/CPreFrontEnd.hpp"
+
+#include "Runtime/CResLoader.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/MP1/MP1.hpp"
 
 namespace urde::MP1 {
 

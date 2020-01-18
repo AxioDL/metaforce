@@ -1,4 +1,4 @@
-#include "CPrimitive.hpp"
+#include "Runtime/Character/CPrimitive.hpp"
 
 namespace urde {
 

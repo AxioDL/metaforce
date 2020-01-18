@@ -1,7 +1,8 @@
-#include "CGameCubeDoll.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/MP1/CGameCubeDoll.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
 
 namespace urde::MP1 {
 

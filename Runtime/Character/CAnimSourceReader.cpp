@@ -1,9 +1,10 @@
-#include "CAnimSourceReader.hpp"
-#include "CBoolPOINode.hpp"
-#include "CInt32POINode.hpp"
-#include "CParticlePOINode.hpp"
-#include "CSoundPOINode.hpp"
-#include "CFBStreamedAnimReader.hpp"
+#include "Runtime/Character/CAnimSourceReader.hpp"
+
+#include "Runtime/Character/CBoolPOINode.hpp"
+#include "Runtime/Character/CFBStreamedAnimReader.hpp"
+#include "Runtime/Character/CInt32POINode.hpp"
+#include "Runtime/Character/CParticlePOINode.hpp"
+#include "Runtime/Character/CSoundPOINode.hpp"
 
 namespace urde {
 

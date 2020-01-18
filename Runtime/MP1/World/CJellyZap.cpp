@@ -1,6 +1,8 @@
-#include "CJellyZap.hpp"
-#include "CStateManager.hpp"
-#include "World/CPlayer.hpp"
+#include "Runtime/MP1/World/CJellyZap.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {

@@ -1,4 +1,4 @@
-#include "CMagdolite.hpp"
+#include "Runtime/MP1/World/CMagdolite.hpp"
 
 namespace urde::MP1 {
 

@@ -1,6 +1,11 @@
-#include "CTransitionDatabaseGame.hpp"
-#include "CTransition.hpp"
-#include "CHalfTransition.hpp"
+#include "Runtime/Character/CTransitionDatabaseGame.hpp"
+
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CHalfTransition.hpp"
+#include "Runtime/Character/CTransition.hpp"
+
+#include <algorithm>
+#include <utility>
 
 namespace urde {
 

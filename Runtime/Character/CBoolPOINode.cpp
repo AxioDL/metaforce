@@ -1,5 +1,6 @@
-#include "CBoolPOINode.hpp"
-#include "CAnimSourceReader.hpp"
+#include "Runtime/Character/CBoolPOINode.hpp"
+
+#include "Runtime/Character/CAnimSourceReader.hpp"
 
 namespace urde {
 

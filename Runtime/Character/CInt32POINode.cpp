@@ -1,5 +1,6 @@
-#include "CInt32POINode.hpp"
-#include "CAnimSourceReader.hpp"
+#include "Runtime/Character/CInt32POINode.hpp"
+
+#include "Runtime/Character/CAnimSourceReader.hpp"
 
 namespace urde {
 CInt32POINode::CInt32POINode()

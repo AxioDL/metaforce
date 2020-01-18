@@ -1,14 +1,16 @@
-#include "CPlayerVisor.hpp"
-#include "CSimplePool.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CModel.hpp"
-#include "CStateManager.hpp"
-#include "World/CPlayer.hpp"
+#include "Runtime/MP1/CPlayerVisor.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/GuiSys/CCompoundTargetReticle.hpp"
+#include "Runtime/GuiSys/CTargetingManager.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "Camera/CGameCamera.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "GuiSys/CCompoundTargetReticle.hpp"
-#include "GuiSys/CTargetingManager.hpp"
 
 namespace urde::MP1 {
 

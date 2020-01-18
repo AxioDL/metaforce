@@ -1,7 +1,8 @@
-#include "CMapUniverse.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CGameState.hpp"
+#include "Runtime/AutoMapper/CMapUniverse.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CGameState.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
 

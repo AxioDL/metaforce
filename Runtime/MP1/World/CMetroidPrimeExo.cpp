@@ -1,8 +1,10 @@
-#include "CMetroidPrimeExo.hpp"
-#include "World/ScriptLoader.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/MP1/World/CMetroidPrimeExo.hpp"
+
 #include "DataSpec/DNAMP1/ScriptObjects/MetroidPrimeStage1.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/World/ScriptLoader.hpp"
 
 namespace urde::MP1 {
 

@@ -1,10 +1,11 @@
-#include "CRagDoll.hpp"
-#include "Collision/CMetroidAreaCollider.hpp"
-#include "Collision/CGameCollision.hpp"
-#include "Collision/CMaterialFilter.hpp"
-#include "Collision/CCollidableSphere.hpp"
-#include "Collision/CCollisionInfo.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Character/CRagDoll.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Collision/CCollidableSphere.hpp"
+#include "Runtime/Collision/CCollisionInfo.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+#include "Runtime/Collision/CMaterialFilter.hpp"
+#include "Runtime/Collision/CMetroidAreaCollider.hpp"
 
 namespace urde {
 

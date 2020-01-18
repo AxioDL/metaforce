@@ -1,7 +1,8 @@
-#include "CAnimationDatabaseGame.hpp"
-#include "IMetaAnim.hpp"
-#include "CPrimitive.hpp"
-#include "CAnimation.hpp"
+#include "Runtime/Character/CAnimationDatabaseGame.hpp"
+
+#include "Runtime/Character/CAnimation.hpp"
+#include "Runtime/Character/CPrimitive.hpp"
+#include "Runtime/Character/IMetaAnim.hpp"
 
 namespace urde {
 

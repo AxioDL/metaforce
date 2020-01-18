@@ -1,10 +1,12 @@
-#include "CPuddleToadGamma.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CStateManager.hpp"
-#include "World/CPlayer.hpp"
-#include "Collision/CGameCollision.hpp"
-#include "Weapon/CBomb.hpp"
+#include "Runtime/MP1/World/CPuddleToadGamma.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+#include "Runtime/Weapon/CBomb.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {

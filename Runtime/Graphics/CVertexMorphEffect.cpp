@@ -1,5 +1,6 @@
-#include "CVertexMorphEffect.hpp"
-#include "Character/CSkinRules.hpp"
+#include "Runtime/Graphics/CVertexMorphEffect.hpp"
+
+#include "Runtime/Character/CSkinRules.hpp"
 
 namespace urde {
 

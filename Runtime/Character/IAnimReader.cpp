@@ -1,5 +1,6 @@
-#include "IAnimReader.hpp"
-#include "CCharAnimTime.hpp"
+#include "Runtime/Character/IAnimReader.hpp"
+
+#include "Runtime/Character/CCharAnimTime.hpp"
 
 namespace urde {
 

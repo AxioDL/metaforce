@@ -1,17 +1,19 @@
-#include "CSamusHud.hpp"
-#include "CSimplePool.hpp"
-#include "GameGlobalObjects.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptTrigger.hpp"
-#include "GuiSys/CGuiFrame.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "GuiSys/CGuiLight.hpp"
-#include "GuiSys/CGuiModel.hpp"
-#include "GuiSys/CGuiCamera.hpp"
-#include "GuiSys/CGuiWidgetDrawParms.hpp"
-#include "Camera/CFirstPersonCamera.hpp"
+#include "Runtime/MP1/CSamusHud.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
+#include "Runtime/GuiSys/CGuiCamera.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiLight.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/World/CGameLight.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptTrigger.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "World/CGameLight.hpp"
 
 namespace urde::MP1 {
 

@@ -1,8 +1,10 @@
-#include <Runtime/World/CPatternedInfo.hpp>
-#include "CFireFlea.hpp"
-#include "CStateManager.hpp"
-#include "CPlayerState.hpp"
-#include "World/CWorld.hpp"
+#include "Runtime/MP1/World/CFireFlea.hpp"
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {

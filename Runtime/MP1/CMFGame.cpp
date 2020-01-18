@@ -1,12 +1,14 @@
-#include "CMFGame.hpp"
-#include "CArchitectureQueue.hpp"
-#include "World/CPlayer.hpp"
-#include "MP1.hpp"
-#include "AutoMapper/CAutoMapper.hpp"
-#include "CSamusHud.hpp"
+#include "Runtime/MP1/CMFGame.hpp"
+
+#include "Runtime/CArchitectureQueue.hpp"
+#include "Runtime/MP1/CSamusHud.hpp"
+#include "Runtime/MP1/MP1.hpp"
+#include "Runtime/Audio/CMidiManager.hpp"
+#include "Runtime/AutoMapper/CAutoMapper.hpp"
+#include "Runtime/Camera/CCinematicCamera.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "Audio/CMidiManager.hpp"
-#include "Camera/CCinematicCamera.hpp"
 
 namespace urde::MP1 {
 

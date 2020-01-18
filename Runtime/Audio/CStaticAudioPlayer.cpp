@@ -1,6 +1,7 @@
-#include "CStaticAudioPlayer.hpp"
-#include "CDvdFile.hpp"
-#include "CDvdRequest.hpp"
+#include "Runtime/Audio/CStaticAudioPlayer.hpp"
+
+#include "Runtime/CDvdFile.hpp"
+#include "Runtime/CDvdRequest.hpp"
 
 namespace urde {
 

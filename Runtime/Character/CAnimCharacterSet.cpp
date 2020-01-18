@@ -1,5 +1,6 @@
-#include "CAnimCharacterSet.hpp"
-#include "CToken.hpp"
+#include "Runtime/Character/CAnimCharacterSet.hpp"
+
+#include "Runtime/CToken.hpp"
 
 namespace urde {
 

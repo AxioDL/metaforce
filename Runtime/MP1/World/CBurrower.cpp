@@ -1,5 +1,6 @@
-#include "CBurrower.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/MP1/World/CBurrower.hpp"
+
+#include "Runtime/CStateManager.hpp"
 
 namespace urde::MP1 {
 

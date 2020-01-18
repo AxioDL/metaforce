@@ -1,17 +1,21 @@
-#include "Graphics/CModel.hpp"
-#include "Graphics/CTexture.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "Graphics/CLight.hpp"
-#include "hecl/HMDLMeta.hpp"
-#include "hecl/Runtime.hpp"
-#include "hecl/CVarManager.hpp"
-#include "boo/graphicsdev/Metal.hpp"
-#include "Shaders/CModelShaders.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "Character/CSkinRules.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CSkinRules.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CLight.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/Shaders/CModelShaders.hpp"
+
 #include <array>
+
+#include <boo/graphicsdev/Metal.hpp>
+#include <hecl/CVarManager.hpp>
+#include <hecl/HMDLMeta.hpp>
+#include <hecl/Runtime.hpp>
+#include <logvisor/logvisor.hpp>
 
 namespace urde {
 static logvisor::Module Log("urde::CBooModel");

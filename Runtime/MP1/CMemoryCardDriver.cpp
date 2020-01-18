@@ -1,6 +1,7 @@
-#include "CMemoryCardDriver.hpp"
-#include "MP1.hpp"
-#include "CCRC32.hpp"
+#include "Runtime/MP1/CMemoryCardDriver.hpp"
+
+#include "Runtime/CCRC32.hpp"
+#include "Runtime/MP1/MP1.hpp"
 
 namespace urde::MP1 {
 

@@ -1,13 +1,15 @@
-#include "CPuddleSpore.hpp"
-#include "Collision/CGameCollision.hpp"
-#include "Weapon/CEnergyProjectile.hpp"
-#include "Weapon/CGameProjectile.hpp"
-#include "World/CPatternedInfo.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptWater.hpp"
-#include "CStateManager.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/MP1/World/CPuddleSpore.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+#include "Runtime/Weapon/CEnergyProjectile.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptWater.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {

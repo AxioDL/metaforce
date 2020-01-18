@@ -1,10 +1,12 @@
-#include "MP1/World/CRipper.hpp"
-#include "Collision/CCollidableOBBTreeGroup.hpp"
-#include "Weapon/CPlayerGun.hpp"
-#include "World/CActorParameters.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptGrapplePoint.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/MP1/World/CRipper.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
+#include "Runtime/Weapon/CPlayerGun.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptGrapplePoint.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {

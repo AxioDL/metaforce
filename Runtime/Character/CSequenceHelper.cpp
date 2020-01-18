@@ -1,11 +1,12 @@
-#include "CSequenceHelper.hpp"
-#include "CAnimSysContext.hpp"
-#include "CBoolPOINode.hpp"
-#include "CInt32POINode.hpp"
-#include "CParticlePOINode.hpp"
-#include "CSoundPOINode.hpp"
-#include "IMetaAnim.hpp"
-#include "CTreeUtils.hpp"
+#include "Runtime/Character/CSequenceHelper.hpp"
+
+#include "Runtime/Character/CAnimSysContext.hpp"
+#include "Runtime/Character/CBoolPOINode.hpp"
+#include "Runtime/Character/CInt32POINode.hpp"
+#include "Runtime/Character/CParticlePOINode.hpp"
+#include "Runtime/Character/CSoundPOINode.hpp"
+#include "Runtime/Character/CTreeUtils.hpp"
+#include "Runtime/Character/IMetaAnim.hpp"
 
 namespace urde {
 

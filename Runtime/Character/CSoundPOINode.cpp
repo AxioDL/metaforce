@@ -1,5 +1,6 @@
-#include "CSoundPOINode.hpp"
-#include "CAnimSourceReader.hpp"
+#include "Runtime/Character/CSoundPOINode.hpp"
+
+#include "Runtime/Character/CAnimSourceReader.hpp"
 
 namespace urde {
 

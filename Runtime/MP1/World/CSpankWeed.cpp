@@ -1,8 +1,10 @@
-#include "CSpankWeed.hpp"
-#include "World/CPatternedInfo.hpp"
-#include "World/CPlayer.hpp"
-#include "Collision/CCollisionActor.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/MP1/World/CSpankWeed.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include <logvisor/logvisor.hpp>
 
 namespace urde::MP1 {

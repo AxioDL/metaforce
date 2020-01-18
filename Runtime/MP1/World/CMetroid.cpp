@@ -1,5 +1,5 @@
-#include "CMetroid.hpp"
-#include "World/ScriptLoader.hpp"
+#include "Runtime/MP1/World/CMetroid.hpp"
+#include "Runtime/World/ScriptLoader.hpp"
 
 namespace urde::MP1 {
 
