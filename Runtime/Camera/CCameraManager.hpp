@@ -94,7 +94,7 @@ public:
   bool IsInFirstPersonCamera() const;
   zeus::CVector3f GetGlobalCameraTranslation(const CStateManager& stateMgr) const;
   zeus::CTransform GetCurrentCameraTransform(const CStateManager& stateMgr) const;
-  void RemoveCameraShaker(int id);
+  void RemoveCameraShaker(u32 id);
   int AddCameraShaker(const CCameraShakeData& data, bool sfx);
   void AddCinemaCamera(TUniqueId, CStateManager& stateMgr);
   void RemoveCinemaCamera(TUniqueId, CStateManager&);

@@ -37,7 +37,7 @@ zeus::CTransform CCameraManager::GetCurrentCameraTransform(const CStateManager& 
   return camera->GetTransform() * zeus::CTransform::Translate(x30_shakeOffset);
 }
 
-void CCameraManager::RemoveCameraShaker(int id) {
+void CCameraManager::RemoveCameraShaker(u32 id) {
   for (auto it = x14_shakers.begin(); it != x14_shakers.end(); ++it)
     if (it->xbc_shakerId == id) {
       x14_shakers.erase(it);
