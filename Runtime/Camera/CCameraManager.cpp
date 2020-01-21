@@ -1,5 +1,7 @@
 #include "Runtime/Camera/CCameraManager.hpp"
 
+#include <algorithm>
+
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CBallCamera.hpp"
@@ -37,12 +39,13 @@ zeus::CTransform CCameraManager::GetCurrentCameraTransform(const CStateManager& 
   return camera->GetTransform() * zeus::CTransform::Translate(x30_shakeOffset);
 }
 
-void CCameraManager::RemoveCameraShaker(int id) {
-  for (auto it = x14_shakers.begin(); it != x14_shakers.end(); ++it)
-    if (it->xbc_shakerId == id) {
-      x14_shakers.erase(it);
-      break;
-    }
+void CCameraManager::RemoveCameraShaker(u32 id) {
+  const auto iter = std::find_if(x14_shakers.cbegin(), x14_shakers.cend(),
+                                 [id](const auto& shaker) { return shaker.xbc_shakerId == id; });
+  if (iter == x14_shakers.cend()) {
+    return;
+  }
+  x14_shakers.erase(iter);
 }
 
 int CCameraManager::AddCameraShaker(const CCameraShakeData& data, bool sfx) {
