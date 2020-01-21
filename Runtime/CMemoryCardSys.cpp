@@ -101,9 +101,7 @@ bool CMemoryCardSys::InitializePump() {
         return false;
     }
 
-    if (!x0_hints.IsLoaded() || !x0_hints.GetObj())
-      return false;
-    return true;
+    return !(!x0_hints.IsLoaded() || !x0_hints.GetObj());
   }
 
   bool done = true;

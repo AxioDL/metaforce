@@ -207,8 +207,8 @@ void CActor::DrawTouchBounds() const {
 }
 
 void CActor::RenderInternal(const CStateManager& mgr) const {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CActor::RenderInternal {} {} {}"),
-    x8_uid, xc_editorId, x10_name).c_str(), zeus::skOrange);
+  SCOPED_GRAPHICS_DEBUG_GROUP(
+      fmt::format(fmt("CActor::RenderInternal {} {} {}"), x8_uid, xc_editorId, x10_name).c_str(), zeus::skOrange);
 
   CModelData::EWhichModel which = CModelData::GetRenderingModel(mgr);
   if (which == CModelData::EWhichModel::ThermalHot) {
@@ -265,8 +265,8 @@ void CActor::Render(const CStateManager& mgr) const {
       if (xe5_29_globalTimeProvider) {
         RenderInternal(mgr);
       } else {
-        float timeSince = CGraphics::GetSecondsMod900() - xbc_time;
-        float tpTime = timeSince - std::floor(timeSince / 900.f) * 900.f;
+        const float timeSince = CGraphics::GetSecondsMod900() - xbc_time;
+        const float tpTime = timeSince - std::floor(timeSince / 900.f) * 900.f;
         CTimeProvider tp(tpTime);
         RenderInternal(mgr);
       }

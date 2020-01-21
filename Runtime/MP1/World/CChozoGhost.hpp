@@ -10,6 +10,13 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
+enum class EBehaveType {
+  Zero,
+  One,
+  Two,
+  Three
+};
+
 class CChozoGhost : public CPatterned {
 public:
   class CBehaveChance {
@@ -24,6 +31,8 @@ public:
 
   public:
     CBehaveChance(CInputStream&);
+
+    u32 GetBehave(EBehaveType type, CStateManager& mgr) const;
   };
 
 private:
@@ -72,15 +81,17 @@ private:
   float x66c_ = 0.f;
   float x670_ = 0.f;
   TUniqueId x674_ = kInvalidUniqueId;
+  float x678_ = 0.f;
   u32 x67c_ = -1;
-  u32 x680_;
+  u32 x680_ = 0;
   float x684_ = 1.f;
   CSteeringBehaviors x688_;
-  //CBoneTracking x68c_boneTracking;
+  CBoneTracking x68c_boneTracking;
   TUniqueId x6c4_ = kInvalidUniqueId;
   float x6c8_ = 0.f;
   zeus::CVector3f x6cc_;
   u32 x6d8_ = 1;
+  u32 x6dc_;
 public:
   DEFINE_PATTERNED(ChozoGhost)
 
@@ -89,5 +100,7 @@ public:
               CAssetId, const CDamageInfo&, const CChozoGhost::CBehaveChance&, const CChozoGhost::CBehaveChance&,
               const CBehaveChance&, u16, float, u16, u16, u32, float, u32, float, CAssetId, s16, float, float, u32,
               u32);
+
+  float GetGravityConstant() const { return 60.f; }
 };
 } // namespace urde::MP1

@@ -1,5 +1,9 @@
 #include "Runtime/MP1/World/CChozoGhost.hpp"
 
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/CRandom16.hpp"
+
+#include "TCastTo.hpp" // Generated file, do not modify include path
 namespace urde::MP1 {
 CChozoGhost::CBehaveChance::CBehaveChance(CInputStream& in)
 : x0_propertyCount(in.readUint32Big())
@@ -15,6 +19,42 @@ CChozoGhost::CBehaveChance::CBehaveChance(CInputStream& in)
   x8_ *= f2;
   xc_ *= f2;
   x10_ *= f2;
+}
+
+u32 CChozoGhost::CBehaveChance::GetBehave(EBehaveType type, CStateManager& mgr) const {
+  float dVar5 = x4_;
+  float dVar4 = x8_;
+  float dVar3 = xc_;
+  if (type == EBehaveType::Zero) {
+    float dVar2 = dVar5 / 3.f;
+    dVar5 = 0.f;
+    dVar4 += dVar2;
+    dVar3 += dVar2;
+  } else if (type == EBehaveType::One) {
+    float dVar2 = dVar4 / 3.f;
+    dVar4 = 0.f;
+    dVar5 += dVar2;
+    dVar3 += dVar2;
+  } else if (type == EBehaveType::Two) {
+    float dVar2 = dVar3 / 3.f;
+    dVar3 = 0.f;
+    dVar5 += dVar2;
+    dVar4 += dVar2;
+  } else if (type == EBehaveType::Three) {
+    float dVar2 = x10_ / 3.f;
+    dVar5 += dVar2;
+    dVar4 += dVar2;
+    dVar3 += dVar2;
+  }
+
+  float rnd = mgr.GetActiveRandom()->Float();
+  if (dVar5 > rnd)
+    return 0;
+  else if (dVar4 > (rnd - dVar5))
+    return 1;
+  else if (dVar3 > (rnd - dVar5) - dVar4)
+    return 2;
+  return 3;
 }
 
 CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -40,5 +80,26 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
 , x632_(sId3)
 , x634_(f6)
 , x638_(f7)
-, x63c_(w2) {}
+, x63c_(w2)
+, x650_(sId4)
+, x654_(f8)
+, x658_(f9)
+, x65c_(w3)
+, x660_(w4)
+, x664_24_(w1)
+, x664_25_(w1)
+, x664_26_(false)
+, x664_27_(false)
+, x664_28_(false)
+, x664_29_(false)
+, x664_30_(false)
+, x664_31_(false)
+, x665_24_(true)
+, x665_25_(false)
+, x665_26_(false)
+, x665_27_(false)
+, x665_28_(false)
+, x665_29_(false)
+, x68c_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
+                    EBoneTrackingFlags::None) {}
 } // namespace urde::MP1

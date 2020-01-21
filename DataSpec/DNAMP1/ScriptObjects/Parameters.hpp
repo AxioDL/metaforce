@@ -121,7 +121,7 @@ struct BehaveChance : BigDNA {
   Value<float> unknown4;
   Value<float> unknown5;
   Value<float> unknown6;
-  Value<float> unknown7;
+  Value<atUint32> unknown7;
 };
 
 struct DamageInfo : BigDNA {
