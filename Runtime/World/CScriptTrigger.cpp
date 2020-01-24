@@ -207,7 +207,7 @@ std::optional<zeus::CAABox> CScriptTrigger::GetTouchBounds() const {
     return {GetTriggerBoundsWR()};
   return {};
 }
-static const CWeaponMode sktonOHurtWeaponMode = CWeaponMode(EWeaponType::Power, false, false, true);
+constexpr auto sktonOHurtWeaponMode = CWeaponMode(EWeaponType::Power, false, false, true);
 
 void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
   if (!act.GetActive() || act.GetMaterialList().HasMaterial(EMaterialTypes::Trigger))
