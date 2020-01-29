@@ -57,7 +57,7 @@ constexpr std::array<float, 8> skStrafeDistances{
 };
 
 constexpr std::array<float, 8> skDashStrafeDistances{
-    30.0f, 22.6f, 10.0f, 10.0f, 10.0f, 10.0f, 10.0f,
+    11.8f, 30.0f, 22.6f, 10.0f, 10.0f, 10.0f, 10.0f, 10.0f,
 };
 
 constexpr std::array<float, 8> skOrbitForwardDistances{
