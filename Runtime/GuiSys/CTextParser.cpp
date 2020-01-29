@@ -114,7 +114,7 @@ void CTextParser::ParseTag(CTextExecuteBuffer& out, const char16_t* str, int len
       out.AddColorOverride(val, color);
     }
   } else if (BeginsWith(str, len, u"line-spacing=")) {
-    out.AddLineSpacing(ParseInt(str + 13, len - 13, true) / 100.0);
+    out.AddLineSpacing(ParseInt(str + 13, len - 13, true) / 100.0f);
   } else if (BeginsWith(str, len, u"line-extra-space=")) {
     out.AddLineExtraSpace(ParseInt(str + 17, len - 17, true));
   } else if (BeginsWith(str, len, u"just=")) {
