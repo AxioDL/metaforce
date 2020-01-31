@@ -1100,7 +1100,7 @@ void CWallCrawlerSwarm::Touch(CActor& other, CStateManager& mgr) {
           zeus::CAABox aabb(b.GetTranslation() - radius, b.GetTranslation() + radius);
           if (playerTb->intersects(aabb)) {
             if (b.GetActive() && x558_flavor == EFlavor::Parasite) {
-              CDamageInfo dInfo(CWeaponMode(EWeaponType::AI), 2.0e-05f, 0.f, 0.f);
+              constexpr CDamageInfo dInfo(CWeaponMode(EWeaponType::AI), 2.0e-05f, 0.f, 0.f);
               mgr.ApplyDamage(GetUniqueId(), player->GetUniqueId(), GetUniqueId(), dInfo,
                  CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
               KillBoid(b, mgr, 0.f, 1.f);

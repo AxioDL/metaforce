@@ -867,7 +867,7 @@ const CDamageVulnerability* CPlayer::GetDamageVulnerability(const zeus::CVector3
 }
 
 const CDamageVulnerability* CPlayer::GetDamageVulnerability() const {
-  CDamageInfo info(CWeaponMode(EWeaponType::Power, false, false, false), 0.f, 0.f, 0.f);
+  constexpr CDamageInfo info(CWeaponMode(EWeaponType::Power, false, false, false), 0.f, 0.f, 0.f);
   return GetDamageVulnerability(zeus::skZero3f, zeus::skUp, info);
 }
 

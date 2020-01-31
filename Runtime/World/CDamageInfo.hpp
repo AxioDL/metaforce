@@ -19,7 +19,7 @@ class CDamageInfo {
   bool x18_noImmunity = false;
 
 public:
-  CDamageInfo() = default;
+  constexpr CDamageInfo() = default;
   CDamageInfo(CInputStream& in) {
     in.readUint32Big();
     x0_weaponMode = CWeaponMode(EWeaponType(in.readUint32Big()));
@@ -28,10 +28,15 @@ public:
     x10_radius = in.readFloatBig();
     x14_knockback = in.readFloatBig();
   }
-  CDamageInfo(const CWeaponMode& mode, float damage, float radius, float knockback)
+  constexpr CDamageInfo(const CWeaponMode& mode, float damage, float radius, float knockback)
   : x0_weaponMode(mode), x8_damage(damage), xc_radiusDamage(damage), x10_radius(radius), x14_knockback(knockback) {}
 
-  CDamageInfo(const CDamageInfo& other) = default;
+  constexpr CDamageInfo(const CDamageInfo&) = default;
+  constexpr CDamageInfo& operator=(const CDamageInfo&) = default;
+
+  constexpr CDamageInfo(CDamageInfo&&) = default;
+  constexpr CDamageInfo& operator=(CDamageInfo&&) = default;
+
   CDamageInfo(const CDamageInfo&, float);
   CDamageInfo(const DataSpec::SShotParam& other);
   CDamageInfo& operator=(const DataSpec::SShotParam& other);
