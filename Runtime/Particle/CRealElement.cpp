@@ -55,7 +55,7 @@ bool CREKeyframeEmitter::GetValue(int frame, float& valOut) const {
 }
 
 bool CRELifetimeTween::GetValue(int frame, float& valOut) const {
-  float ltFac = frame / CParticleGlobals::instance()->instance()->m_ParticleLifetimeReal;
+  float ltFac = frame / CParticleGlobals::instance()->m_ParticleLifetimeReal;
   float a, b;
   x4_a->GetValue(frame, a);
   x8_b->GetValue(frame, b);
