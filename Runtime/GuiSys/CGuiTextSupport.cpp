@@ -215,8 +215,8 @@ void CGuiTextSupport::SetFontColor(const zeus::CColor& col) {
 
 void CGuiTextSupport::AddText(std::u16string_view str) {
   if (x60_renderBuf) {
-    float t = GetCurrentAnimationOverAge();
-    x40_primStartTimes.push_back(std::make_pair(std::max(t, x3c_curTime), x60_renderBuf->GetPrimitiveCount()));
+    const float t = GetCurrentAnimationOverAge();
+    x40_primStartTimes.emplace_back(std::max(t, x3c_curTime), x60_renderBuf->GetPrimitiveCount());
   }
   x0_string += str;
   ClearRenderBuffer();
