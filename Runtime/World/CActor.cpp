@@ -343,11 +343,11 @@ void CActor::SetVolume(float vol) {
   xd4_maxVol = vol;
 }
 
-const zeus::CTransform CActor::GetScaledLocatorTransform(std::string_view segName) const {
+zeus::CTransform CActor::GetScaledLocatorTransform(std::string_view segName) const {
   return x64_modelData->GetScaledLocatorTransform(segName);
 }
 
-const zeus::CTransform CActor::GetLocatorTransform(std::string_view segName) const {
+zeus::CTransform CActor::GetLocatorTransform(std::string_view segName) const {
   return x64_modelData->GetLocatorTransform(segName);
 }
 

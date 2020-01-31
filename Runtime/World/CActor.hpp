@@ -134,8 +134,8 @@ public:
   void SetMuted(bool);
   const zeus::CTransform& GetTransform() const { return x34_transform; }
   const zeus::CVector3f& GetTranslation() const { return x34_transform.origin; }
-  const zeus::CTransform GetScaledLocatorTransform(std::string_view segName) const;
-  const zeus::CTransform GetLocatorTransform(std::string_view segName) const;
+  zeus::CTransform GetScaledLocatorTransform(std::string_view segName) const;
+  zeus::CTransform GetLocatorTransform(std::string_view segName) const;
   void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
   void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
   void RemoveMaterial(EMaterialTypes, EMaterialTypes, CStateManager&);
