@@ -5068,7 +5068,7 @@ bool CPlayer::SidewaysDashAllowed(float strafeInput, float forwardInput, const C
       return true;
   } else {
     if (x304_orbitState != EPlayerOrbitState::NoOrbit && g_tweakPlayer->GetDashEnabled() &&
-        ControlMapper::GetDigitalInput(ControlMapper::ECommands::JumpOrBoost, input) &&
+        ControlMapper::GetPressInput(ControlMapper::ECommands::JumpOrBoost, input) &&
         x288_startingJumpTimeout > 0.f && std::fabs(strafeInput) >= std::fabs(forwardInput) &&
         std::fabs(strafeInput) > 0.01f) {
       float threshold = std::sqrt(strafeInput * strafeInput + forwardInput * forwardInput) /
