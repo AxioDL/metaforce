@@ -534,7 +534,7 @@ void CKnockBackController::DoDeferredKnockBack(CStateManager& mgr, CPatterned& p
       DoKnockBackAnimation(backVec, mgr, parent, 10.f);
       ResetKnockBackImpulse(parent, backVec, 2.f);
       x82_25_inDeferredKnockBack = true;
-      parent.KnockBack(backVec, mgr, CDamageInfo({x14_deferWeaponType, false, true, false}, 0.f, 0.f, 10.f),
+      parent.KnockBack(backVec, mgr, CDamageInfo(CWeaponMode{x14_deferWeaponType, false, true, false}, 0.f, 0.f, 10.f),
                        EKnockBackType::Radius, x82_25_inDeferredKnockBack, 10.f);
       x82_25_inDeferredKnockBack = false;
     }

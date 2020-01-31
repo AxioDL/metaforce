@@ -2045,7 +2045,7 @@ float CMorphBall::ComputeMaxSpeed() const {
     return g_tweakBall->GetBallTranslationMaxSpeed(int(x0_player.GetSurfaceRestraint()));
 }
 
-static const CDamageInfo kBallDamage = {CWeaponMode(EWeaponType::BoostBall), 50000.f, 0.f, 0.f};
+constexpr CDamageInfo kBallDamage = {CWeaponMode(EWeaponType::BoostBall), 50000.f, 0.f, 0.f};
 
 void CMorphBall::Touch(CActor& actor, CStateManager& mgr) {
   if (TCastToPtr<CPhysicsActor> act = actor) {
