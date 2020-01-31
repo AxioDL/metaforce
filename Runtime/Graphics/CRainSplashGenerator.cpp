@@ -89,7 +89,7 @@ void CRainSplashGenerator::SSplashLine::Update(float dt, CStateManager& mgr) {
     x15_length -= 1;
   } else {
     x16_active = false;
-    xc_speed = mgr.GetActiveRandom()->Range(0.015625f, 8.f);
+    xc_speed = mgr.GetActiveRandom()->Range(4.0f, 8.0f);
     x10_zParabolaHeight = mgr.GetActiveRandom()->Range(0.015625f, 0.03125f);
     x4_xEnd = mgr.GetActiveRandom()->Range(-0.125f, 0.125f);
     x8_yEnd = mgr.GetActiveRandom()->Range(-0.125f, 0.125f);
