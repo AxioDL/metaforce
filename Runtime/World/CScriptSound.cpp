@@ -158,8 +158,7 @@ void CScriptSound::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
       StopSound(mgr);
   } break;
   case EScriptObjectMessage::Deactivate: {
-    if (GetActive())
-      StopSound(mgr);
+    StopSound(mgr);
   } break;
   case EScriptObjectMessage::Activate: {
     if (GetActive())
