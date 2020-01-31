@@ -31,46 +31,43 @@ public:
   enum class EAutoMapperState { MiniMap, MapScreen, MapScreenUniverse };
   struct SAutoMapperRenderState {
     enum class Ease { None, Linear, Out, In, InOut };
-    typedef zeus::CVector2i (*FGetViewportSize)();
-    FGetViewportSize m_getViewportSize;
+    using FGetViewportSize = zeus::CVector2i (*)();
+
+    FGetViewportSize m_getViewportSize = nullptr;
     zeus::CVector2i x0_viewportSize;
     zeus::CQuaternion x8_camOrientation;
-    float x18_camDist;
-    float x1c_camAngle;
+    float x18_camDist = 0.0f;
+    float x1c_camAngle = 0.0f;
     zeus::CVector3f x20_areaPoint;
-    float x2c_drawDepth1;
-    float x30_drawDepth2;
-    float x34_alphaSurfaceVisited;
-    float x38_alphaOutlineVisited;
-    float x3c_alphaSurfaceUnvisited;
-    float x40_alphaOutlineUnvisited;
-    Ease x44_viewportEase;
-    Ease x48_camEase;
-    Ease x4c_pointEase;
-    Ease x50_depth1Ease;
-    Ease x54_depth2Ease;
-    Ease x58_alphaEase;
+    float x2c_drawDepth1 = 0.0f;
+    float x30_drawDepth2 = 0.0f;
+    float x34_alphaSurfaceVisited = 0.0f;
+    float x38_alphaOutlineVisited = 0.0f;
+    float x3c_alphaSurfaceUnvisited = 0.0f;
+    float x40_alphaOutlineUnvisited = 0.0f;
+    Ease x44_viewportEase = Ease::None;
+    Ease x48_camEase = Ease::None;
+    Ease x4c_pointEase = Ease::None;
+    Ease x50_depth1Ease = Ease::None;
+    Ease x54_depth2Ease = Ease::None;
+    Ease x58_alphaEase = Ease::None;
     SAutoMapperRenderState() = default;
-    SAutoMapperRenderState(FGetViewportSize v1, const zeus::CQuaternion& rot, float f1, float f2,
-                           const zeus::CVector3f& v2, float f3, float f4, float f5, float f6, float f7, float f8)
-    : m_getViewportSize(v1)
-    , x0_viewportSize(v1())
-    , x8_camOrientation(rot)
-    , x18_camDist(f1)
-    , x1c_camAngle(f2)
-    , x20_areaPoint(v2)
-    , x2c_drawDepth1(f3)
-    , x30_drawDepth2(f4)
-    , x34_alphaSurfaceVisited(f5)
-    , x38_alphaOutlineVisited(f6)
-    , x3c_alphaSurfaceUnvisited(f7)
-    , x40_alphaOutlineUnvisited(f8)
-    , x44_viewportEase(Ease::None)
-    , x48_camEase(Ease::None)
-    , x4c_pointEase(Ease::None)
-    , x50_depth1Ease(Ease::None)
-    , x54_depth2Ease(Ease::None)
-    , x58_alphaEase(Ease::None) {}
+    SAutoMapperRenderState(FGetViewportSize getViewportSize, const zeus::CQuaternion& camOrientation, float camDist,
+                           float camAngle, const zeus::CVector3f& areaPoint, float drawDepth1, float drawDepth2,
+                           float alphaSurfaceVisited, float alphaOutlineVisited, float alphaSurfaceUnvisited,
+                           float alphaOutlineUnvisited)
+    : m_getViewportSize(getViewportSize)
+    , x0_viewportSize(getViewportSize())
+    , x8_camOrientation(camOrientation)
+    , x18_camDist(camDist)
+    , x1c_camAngle(camAngle)
+    , x20_areaPoint(areaPoint)
+    , x2c_drawDepth1(drawDepth1)
+    , x30_drawDepth2(drawDepth2)
+    , x34_alphaSurfaceVisited(alphaSurfaceVisited)
+    , x38_alphaOutlineVisited(alphaOutlineVisited)
+    , x3c_alphaSurfaceUnvisited(alphaSurfaceUnvisited)
+    , x40_alphaOutlineUnvisited(alphaOutlineUnvisited) {}
 
     static void InterpolateWithClamp(const SAutoMapperRenderState& a, SAutoMapperRenderState& out,
                                      const SAutoMapperRenderState& b, float t);
