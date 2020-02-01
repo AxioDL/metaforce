@@ -8,7 +8,7 @@
 namespace urde {
 
 class CScriptDock : public CPhysicsActor {
-  enum EDockState { Idle, PlayerTouched, EnterNextArea, Three };
+  enum class EDockState { Idle, PlayerTouched, EnterNextArea, Three };
 
   friend class CScriptDoor;
   s32 x258_dockReferenceCount;
