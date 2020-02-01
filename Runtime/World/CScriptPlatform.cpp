@@ -144,7 +144,7 @@ void CScriptPlatform::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
     CScriptColorModulate::FadeOutHelper(mgr, GetUniqueId(), x26c_fadeOutTime);
     break;
   case EScriptObjectMessage::Deleted:
-    DecayRiders(x318_riders, 0.f, mgr);
+    DecayRiders(x318_riders, 1.66666675f, mgr);
     break;
   default:
     break;
