@@ -28,10 +28,11 @@ void CScriptCoverPoint::Think(float delta, CStateManager&) {
 }
 
 std::optional<zeus::CAABox> CScriptCoverPoint::GetTouchBounds() const {
-  if (x100_touchBounds)
+  if (x100_touchBounds) {
     return x100_touchBounds;
+  }
 
-  return {};
+  return std::nullopt;
 }
 
 void CScriptCoverPoint::SetInUse(bool inUse) {

@@ -111,7 +111,7 @@ void CScriptVisorGoo::Render(const CStateManager& mgr) const {
   // Empty
 }
 
-std::optional<zeus::CAABox> CScriptVisorGoo::GetTouchBounds() const { return {}; }
+std::optional<zeus::CAABox> CScriptVisorGoo::GetTouchBounds() const { return std::nullopt; }
 
 void CScriptVisorGoo::Touch(CActor& other, CStateManager& mgr) {
   // Empty

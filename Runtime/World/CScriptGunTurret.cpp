@@ -311,9 +311,10 @@ void CScriptGunTurret::Touch(CActor& act, CStateManager& mgr) {
 }
 
 std::optional<zeus::CAABox> CScriptGunTurret::GetTouchBounds() const {
-  if (GetActive() && GetMaterialList().HasMaterial(EMaterialTypes::Solid))
-    return {GetBoundingBox()};
-  return {};
+  if (GetActive() && GetMaterialList().HasMaterial(EMaterialTypes::Solid)) {
+    return GetBoundingBox();
+  }
+  return std::nullopt;
 }
 
 zeus::CVector3f CScriptGunTurret::GetOrbitPosition(const CStateManager& mgr) const { return GetAimPosition(mgr, 0.f); }

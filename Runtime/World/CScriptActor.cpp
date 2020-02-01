@@ -185,9 +185,10 @@ EWeaponCollisionResponseTypes CScriptActor::GetCollisionResponseType(const zeus:
 }
 
 std::optional<zeus::CAABox> CScriptActor::GetTouchBounds() const {
-  if (GetActive() && x68_material.HasMaterial(EMaterialTypes::Solid))
+  if (GetActive() && x68_material.HasMaterial(EMaterialTypes::Solid)) {
     return {CPhysicsActor::GetBoundingBox()};
-  return {};
+  }
+  return std::nullopt;
 }
 
 void CScriptActor::Touch(CActor&, CStateManager&) {

@@ -150,8 +150,9 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
 }
 
 std::optional<zeus::CAABox> CScriptDock::GetTouchBounds() const {
-  if (x264_dockState == EDockState::Three)
-    return {};
+  if (x264_dockState == EDockState::Three) {
+    return std::nullopt;
+  }
 
   return GetBoundingBox();
 }
