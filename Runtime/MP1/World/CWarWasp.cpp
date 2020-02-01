@@ -310,7 +310,7 @@ void CWarWasp::ApplyNormalSteering(CStateManager& mgr) {
           CBCLocomotionCmd(x45c_steeringBehaviors.Arrival(*this, teamPos, 3.f), zeus::skZero3f, 1.f));
       zeus::CVector3f target = GetTranslation();
       target.z() = float(teamPos.z());
-      zeus::CVector3f moveVec = x45c_steeringBehaviors.Arrival(*this, target, 3.f);
+      zeus::CVector3f moveVec = x45c_steeringBehaviors.Arrival(*this, target, 2.5f);
       if (moveVec.magSquared() > 0.01f) {
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::skZero3f, 3.f));
       }
