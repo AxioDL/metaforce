@@ -365,15 +365,17 @@ void CScriptDoor::SetDoorAnimation(CScriptDoor::EDoorAnimType type) {
 }
 
 std::optional<zeus::CAABox> CScriptDoor::GetTouchBounds() const {
-  if (GetActive() && GetMaterialList().HasMaterial(EMaterialTypes::Solid))
-    return {CPhysicsActor::GetBoundingBox()};
-  return {};
+  if (GetActive() && GetMaterialList().HasMaterial(EMaterialTypes::Solid)) {
+    return CPhysicsActor::GetBoundingBox();
+  }
+  return std::nullopt;
 }
 
 std::optional<zeus::CAABox> CScriptDoor::GetProjectileBounds() const {
-  if (x2a8_28_projectilesCollide)
-    return {{x284_modelBounds.min + GetTranslation(), x284_modelBounds.max + GetTranslation()}};
-  return {};
+  if (x2a8_28_projectilesCollide) {
+    return zeus::CAABox{x284_modelBounds.min + GetTranslation(), x284_modelBounds.max + GetTranslation()};
+  }
+  return std::nullopt;
 }
 
 } // namespace urde

@@ -193,9 +193,10 @@ void CScriptDamageableTrigger::Think(float dt, CStateManager& mgr) {
 }
 
 std::optional<zeus::CAABox> CScriptDamageableTrigger::GetTouchBounds() const {
-  if (x30_24_active && x300_24_notOccluded)
-    return {zeus::CAABox(x14c_bounds.min + GetTranslation(), x14c_bounds.max + GetTranslation())};
-  return {};
+  if (x30_24_active && x300_24_notOccluded) {
+    return zeus::CAABox(x14c_bounds.min + GetTranslation(), x14c_bounds.max + GetTranslation());
+  }
+  return std::nullopt;
 }
 
 } // namespace urde

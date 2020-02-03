@@ -203,9 +203,10 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
 std::list<CScriptTrigger::CObjectTracker>& CScriptTrigger::GetInhabitants() { return xe8_inhabitants; }
 
 std::optional<zeus::CAABox> CScriptTrigger::GetTouchBounds() const {
-  if (x30_24_active)
-    return {GetTriggerBoundsWR()};
-  return {};
+  if (x30_24_active) {
+    return GetTriggerBoundsWR();
+  }
+  return std::nullopt;
 }
 constexpr auto sktonOHurtWeaponMode = CWeaponMode(EWeaponType::Power, false, false, true);
 
