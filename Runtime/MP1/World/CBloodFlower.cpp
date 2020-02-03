@@ -1,5 +1,7 @@
 #include "Runtime/MP1/World/CBloodFlower.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -73,7 +75,7 @@ void CBloodFlower::UpdateFire(CStateManager& mgr) {
   ++x5d8_effectState;
 }
 
-static std::string_view sFireEffects[3] = {
+constexpr std::array sFireEffects{
     "Fire1"sv,
     "Fire2"sv,
     "Fire3"sv,
