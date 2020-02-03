@@ -56,6 +56,9 @@ public:
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
   void Render(const CStateManager& mgr) const override;
   void Touch(CActor&, CStateManager&) override {}
+  EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f& v1, const zeus::CVector3f& v2,
+                                                         const CWeaponMode& weaponMode,
+                                                         EProjectileAttrib attribute) const override;
   CProjectileInfo* GetProjectileInfo() override { return &x590_projectileInfo; }
 
   bool ShouldAttack(CStateManager&, float) override;
