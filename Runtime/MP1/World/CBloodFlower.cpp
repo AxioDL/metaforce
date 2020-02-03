@@ -146,6 +146,17 @@ void CBloodFlower::Render(const CStateManager& mgr) const {
   x574_podEffect->Render(GetActorLights());
 }
 
+EWeaponCollisionResponseTypes CBloodFlower::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                                     const CWeaponMode& weaponMode, EProjectileAttrib) const {
+  const auto* const damageVulnerability = GetDamageVulnerability();
+
+  if (damageVulnerability->WeaponHurts(weaponMode, false)) {
+    return EWeaponCollisionResponseTypes::Unknown28;
+  }
+
+  return EWeaponCollisionResponseTypes::Unknown78;
+}
+
 bool CBloodFlower::ShouldAttack(CStateManager& mgr, float arg) {
   if (TooClose(mgr, 0.f))
     return false;
