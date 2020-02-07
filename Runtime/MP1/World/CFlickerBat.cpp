@@ -137,6 +137,7 @@ void CFlickerBat::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
 
 void CFlickerBat::Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) {
   SetFlickerBatState(EFlickerBatState::Visible, mgr);
+  SetMuted(false);
   CPatterned::Death(mgr, direction, state);
 }
 
