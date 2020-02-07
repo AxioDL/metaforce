@@ -30,7 +30,6 @@ class CFireFlea : public CPatterned {
   float x568_ = 1.f;
   float x56c_;
   rstl::reserved_vector<TUniqueId, 1024> x570_nearList;
-  float xe64_;
   zeus::CVector3f xd74_;
   zeus::CVector3f xd80_targetPos;
   CPathFindSearch xd8c_pathFind;

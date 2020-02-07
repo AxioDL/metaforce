@@ -56,6 +56,7 @@ public:
   void SetArea(CPFArea* area) { x0_area = area; }
   float GetCharacterHeight() const { return xd0_chHeight; }
   void SetCharacterHeight(float h) { xd0_chHeight = h; }
+  void SetPadding(float padding) { xd8_padding = padding; }
   float RemainingPathDistance(const zeus::CVector3f& pos) const;
   void DebugDraw() const;
 };
