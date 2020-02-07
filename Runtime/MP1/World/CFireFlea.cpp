@@ -85,7 +85,7 @@ void CFireFlea::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
     x450_bodyController->Activate(mgr);
   } else if (msg == EScriptObjectMessage::InitializedInArea) {
     xd8c_pathFind.SetArea(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed()->x10bc_pathArea);
-    xe64_ = 50.f;
+    xd8c_pathFind.SetPadding(50.0f);
   }
 }
 
