@@ -689,8 +689,11 @@ CEntity* ScriptLoader::LoadSound(CStateManager& mgr, CInputStream& in, int propC
   bool allowDuplicates = in.readBool();
   s32 pitch = in.readInt32Big();
 
-  if (soundId < 0)
+  if (soundId < 0) {
+    Log.report(logvisor::Warning, fmt("Invalid sound ID specified in Sound {} ({}), dropping..."), head.x0_name,
+               info.GetEditorId());
     return nullptr;
+  }
 
   return new CScriptSound(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, u16(soundId), active, maxDist,
                           distComp, startDelay, minVol, vol, 0, prio, pan, 0, loop, nonEmitter, autoStart,

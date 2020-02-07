@@ -134,6 +134,7 @@ public:
   constexpr u64 Intersection(const CMaterialList& other) const noexcept { return other.x0_list & x0_list; }
 
   constexpr u64 XOR(const CMaterialList& other) const noexcept { return x0_list ^ other.x0_list; }
+  void Union(const CMaterialList& other) noexcept { x0_list |= other.x0_list; }
 };
 
 } // namespace urde
