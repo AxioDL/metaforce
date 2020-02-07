@@ -11,9 +11,6 @@
 namespace urde::MP1 {
 
 class CPuddleToadGamma final : public CPatterned {
-  static constexpr std::string_view mMouthLocatorName = "MOUTH_LCTR_SDK"sv;
-  static constexpr std::string_view mBellyLocatorName = "SAMUS_POS_LCTR_SDK"sv;
-  static const zeus::CVector3f skBellyOffset;
   u32 x568_stateProg = 0;
   float x56c_waitTimer = 0.f;
   CDamageInfo x570_playerShootDamage;

@@ -10,8 +10,16 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
+namespace {
+constexpr zeus::CVector3f skBellyOffset(0.f, 0.1f, -.3f);
 
-const zeus::CVector3f CPuddleToadGamma::skBellyOffset(0.f, 0.1f, -.3f);
+constexpr std::string_view skMouthLocatorName = "MOUTH_LCTR_SDK"sv;
+constexpr std::string_view skBellyLocatorName = "SAMUS_POS_LCTR_SDK"sv;
+
+constexpr CMaterialFilter skSolidFilter =
+    CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Character, EMaterialTypes::Player,
+                                                                  EMaterialTypes::ProjectilePassthrough});
+} // Anonymous namespace
 
 CPuddleToadGamma::CPuddleToadGamma(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                                    const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
@@ -72,8 +80,8 @@ void CPuddleToadGamma::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
 
   if (msg == EScriptObjectMessage::Registered) {
     x450_bodyController->Activate(mgr);
-    zeus::CTransform bellyXf = GetLctrTransform(mBellyLocatorName);
-    zeus::CVector3f bellyOffset = GetTransform().rotate(skBellyOffset);
+    const zeus::CTransform bellyXf = GetLctrTransform(skBellyLocatorName);
+    const zeus::CVector3f bellyOffset = GetTransform().rotate(skBellyOffset);
     x5d8_damageablePoint = x5cc_suckPoint = bellyXf.origin + bellyOffset;
     RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
     AddMaterial(EMaterialTypes::Immovable, mgr);
@@ -155,13 +163,9 @@ bool CPuddleToadGamma::InAttackPosition(CStateManager& mgr, float) {
          PlayerInVortexArea(mgr);
 }
 
-static CMaterialFilter kSolidFilter =
-    CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Character, EMaterialTypes::Player,
-                                                                  EMaterialTypes::ProjectilePassthrough});
-
 bool CPuddleToadGamma::PlayerInVortexArea(const CStateManager& mgr) const {
   const CPlayer& player = mgr.GetPlayer();
-  const zeus::CTransform xf = GetLctrTransform(mMouthLocatorName);
+  const zeus::CTransform xf = GetLctrTransform(skMouthLocatorName);
 
   const zeus::CVector3f playerOffset =
       player.GetTranslation() + zeus::CVector3f{0.f, 0.f, player.GetMorphBall()->GetBallRadius()};
@@ -174,7 +178,7 @@ bool CPuddleToadGamma::PlayerInVortexArea(const CStateManager& mgr) const {
   if (playerDist > 2.f) {
     const CRayCastResult result =
         mgr.RayStaticIntersection(suckPointToPlayer, 1.f / playerDist * suckPointToPlayer,
-            playerDist - player.GetMorphBall()->GetBallRadius(), kSolidFilter);
+            playerDist - player.GetMorphBall()->GetBallRadius(), skSolidFilter);
     if (result.IsValid())
       return false;
   }
@@ -194,7 +198,7 @@ void CPuddleToadGamma::InActive(CStateManager& mgr, EStateMsg msg, float) {
 void CPuddleToadGamma::Active(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Lurk);
-    zeus::CTransform xf = GetLctrTransform(mBellyLocatorName);
+    const zeus::CTransform xf = GetLctrTransform(skBellyLocatorName);
     x5cc_suckPoint = xf.origin + GetTransform().rotate(skBellyOffset);
     x56c_waitTimer = 0.f;
     x5e8_25_waitTimerActive = true;
@@ -252,7 +256,7 @@ void CPuddleToadGamma::Attack(CStateManager& mgr, EStateMsg msg, float) {
     mgr.GetPlayer().GetMorphBall()->SetBombJumpState(CMorphBall::EBombJumpState::BombJumpDisabled);
   } else if (msg == EStateMsg::Update) {
     if (!x5e8_26_shotPlayer) {
-      zeus::CTransform xf = GetLctrTransform(mBellyLocatorName);
+      const zeus::CTransform xf = GetLctrTransform(skBellyLocatorName);
       x5cc_suckPoint = xf.origin + GetTransform().rotate(skBellyOffset);
       SetPlayerPosition(mgr, x5cc_suckPoint);
     } else if (LostInterest(mgr, 0.f))
@@ -318,7 +322,7 @@ void CPuddleToadGamma::Crouch(CStateManager& mgr, EStateMsg msg, float) {
     mgr.GetPlayer().GetMorphBall()->DisableHalfPipeStatus();
     SetSolid(mgr, false);
   } else if (msg == EStateMsg::Update) {
-    zeus::CTransform xf = GetLctrTransform(mBellyLocatorName);
+    const zeus::CTransform xf = GetLctrTransform(skBellyLocatorName);
     x5cc_suckPoint = xf.origin + GetTransform().rotate(skBellyOffset);
     SetPlayerPosition(mgr, x5cc_suckPoint);
     if (x568_stateProg == 0) {
