@@ -153,8 +153,9 @@ void CMetaree::Active(CStateManager& mgr, EStateMsg msg, float) {
 
 void CMetaree::InActive(CStateManager&, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
-    if (!x5ca_26_deactivated)
-      x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
+    const auto locomotionType = x5ca_26_deactivated ? pas::ELocomotionType::Crouch
+                                                    : pas::ELocomotionType::Relaxed;
+    x450_bodyController->SetLocomotionType(locomotionType);
   } else if (msg == EStateMsg::Deactivate) {
     x5ca_26_deactivated = true;
   }
