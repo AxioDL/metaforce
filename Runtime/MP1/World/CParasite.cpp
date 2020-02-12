@@ -332,7 +332,7 @@ void CParasite::Touch(CActor& actor, CStateManager& mgr) { CPatterned::Touch(act
 zeus::CVector3f CParasite::GetAimPosition(const CStateManager&, float) const { return GetTranslation(); }
 
 void CParasite::CollidedWith(TUniqueId uid, const CCollisionInfoList& list, CStateManager&) {
-  static CMaterialList testList(EMaterialTypes::Character, EMaterialTypes::Player);
+  static constexpr CMaterialList testList(EMaterialTypes::Character, EMaterialTypes::Player);
   if (x743_27_inJump) {
     for (const auto& info : list) {
       if (!x5d6_24_alignToFloor && info.GetMaterialLeft().Intersection(testList) == 0) {
@@ -396,7 +396,7 @@ void CParasite::DoFlockingBehavior(CStateManager& mgr) {
   zeus::CAABox aabb(GetTranslation() - x6e4_parasiteSearchRadius, GetTranslation() + x6e4_parasiteSearchRadius);
   if ((x5d4_thinkCounter % 6) == 0) {
     rstl::reserved_vector<TUniqueId, 1024> nearList;
-    static CMaterialFilter filter = CMaterialFilter::MakeInclude(EMaterialTypes::Character);
+    static constexpr CMaterialFilter filter = CMaterialFilter::MakeInclude(EMaterialTypes::Character);
     CParasite* closestParasite = nullptr;
     float minDistSq = 2.f + x6e8_parasiteSeparationDist * x6e8_parasiteSeparationDist;
     mgr.BuildNearList(nearList, aabb, filter, nullptr);
@@ -788,7 +788,7 @@ bool CParasite::ShouldAttack(CStateManager& mgr, float arg) {
 }
 
 bool CParasite::CloseToWall(const CStateManager& mgr) const {
-  static CMaterialFilter filter = CMaterialFilter::MakeInclude(EMaterialTypes::Solid);
+  static constexpr CMaterialFilter filter = CMaterialFilter::MakeInclude(EMaterialTypes::Solid);
   zeus::CAABox aabb = CPhysicsActor::GetBoundingBox();
   const float margin = x590_colSphere.GetSphere().radius + x5b0_collisionCloseMargin;
   aabb.min -= zeus::CVector3f(margin);
