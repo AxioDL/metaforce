@@ -119,8 +119,8 @@ void CAtomicBeta::Think(float dt, CStateManager& mgr) {
   if (!movementVec.isZero())
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(movementVec, x5f4_, 1.f));
 
-  float mag =
-      x63c_ * std::max(1.f - (mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() / (x640_ / x640_), 0.f);
+  const float mag =
+      x63c_ * std::max(1.f - (mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() / (x640_ * x640_), 0.f);
   if (!zeus::close_enough(mag, 0.f))
     mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), mag, 0.5f);
 
