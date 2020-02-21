@@ -3026,16 +3026,18 @@ CEntity* ScriptLoader::LoadSnakeWeedSwarm(CStateManager& mgr, CInputStream& in, 
   float f14 = in.readFloatBig();
   CDamageInfo dInfo(in);
   float f15 = in.readFloatBig();
-  u32 w4 = in.readUint32Big();
-  u32 w5 = in.readUint32Big();
-  u32 w6 = in.readUint32Big();
-  u32 w7 = (propCount < 29 ? -1 : in.readUint32Big());
-  u32 w8 = (propCount < 29 ? -1 : in.readUint32Big());
-  u32 w9 = (propCount < 29 ? -1 : in.readUint32Big());
-  u32 f16 = (propCount < 29 ? 0.f : in.readFloatBig());
+  u32 w1 = in.readUint32Big();
+  u32 w2 = in.readUint32Big();
+  u32 w3 = in.readUint32Big();
+  CAssetId w4 = (propCount < 29 ? -1 : in.readUint32Big());
+  u32 w5 = (propCount < 29 ? -1 : in.readUint32Big());
+  CAssetId w6 = (propCount < 29 ? -1 : in.readUint32Big());
+  float f16 = (propCount < 29 ? 0.f : in.readFloatBig());
 
-  return new CSnakeWeedSwarm(mgr.AllocateUniqueId(), active, name, info, pos, scale, animParms, actParms, f1, f2, f3,
-                             f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, dInfo, f15, w4, w5, w6, w7, w8, w9, f16);
+  CAnimRes animRes(animParms.GetACSFile(), animParms.GetCharacter(), zeus::skOne3f, animParms.GetInitialAnimation(),
+                   true);
+  return new CSnakeWeedSwarm(mgr.AllocateUniqueId(), active, name, info, pos, scale, animRes, actParms, f1, f2, f3, f4,
+                             f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, dInfo, f15, w1, w2, w3, w4, w5, w6, f16);
 }
 
 CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in, int propCount,
