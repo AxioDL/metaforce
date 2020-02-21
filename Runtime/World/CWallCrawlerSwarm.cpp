@@ -97,7 +97,7 @@ CWallCrawlerSwarm::CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_vie
   }
   if (aParams.GetThermalAssets().first.IsValid()) {
     for (int i = 0; i < 9; ++i)
-      x4b0_modelDatas[i]->SetXRayModel(aParams.GetThermalAssets());
+      x4b0_modelDatas[i]->SetInfraModel(aParams.GetThermalAssets());
     x560_26_modelAssetDirty = true;
   }
   if (part1.IsValid())
