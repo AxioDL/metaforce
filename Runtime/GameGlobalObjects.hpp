@@ -34,6 +34,8 @@
 #include "../DataSpec/DNACommon/Tweaks/ITweakGuiColors.hpp"
 #endif
 
+#include "Runtime/CTextureCache.hpp"
+
 namespace urde {
 extern class IMain* g_Main;
 namespace MP1 {
