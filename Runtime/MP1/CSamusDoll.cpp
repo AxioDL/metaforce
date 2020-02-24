@@ -8,6 +8,7 @@
 #include "Runtime/World/CMorphBall.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cfloat>
 #include <cmath>
 #include <memory>
@@ -17,55 +18,79 @@
 
 namespace urde::MP1 {
 namespace {
-const std::pair<const char*, u32> SpiderBallGlassModels[] = {
-    {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 1},
-    {"SamusPhazonBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0},
-    {"SamusSpiderBallGlassCMDL", 1}, {"SamusPhazonBallGlassCMDL", 0},
-};
+constexpr std::array<std::pair<const char*, u32>, 8> SpiderBallGlassModels{{
+    {"SamusSpiderBallGlassCMDL", 0},
+    {"SamusSpiderBallGlassCMDL", 0},
+    {"SamusSpiderBallGlassCMDL", 1},
+    {"SamusPhazonBallGlassCMDL", 0},
+    {"SamusSpiderBallGlassCMDL", 0},
+    {"SamusSpiderBallGlassCMDL", 0},
+    {"SamusSpiderBallGlassCMDL", 1},
+    {"SamusPhazonBallGlassCMDL", 0},
+}};
 
-const std::pair<const char*, u32> SpiderBallCharacters[] = {
-    {"SamusSpiderBallANCS", 0}, {"SamusSpiderBallANCS", 0}, {"SamusSpiderBallANCS", 1}, {"SamusPhazonBallANCS", 0},
-    {"SamusFusionBallANCS", 0}, {"SamusFusionBallANCS", 2}, {"SamusFusionBallANCS", 1}, {"SamusFusionBallANCS", 3},
-};
+constexpr std::array<std::pair<const char*, u32>, 8> SpiderBallCharacters{{
+    {"SamusSpiderBallANCS", 0},
+    {"SamusSpiderBallANCS", 0},
+    {"SamusSpiderBallANCS", 1},
+    {"SamusPhazonBallANCS", 0},
+    {"SamusFusionBallANCS", 0},
+    {"SamusFusionBallANCS", 2},
+    {"SamusFusionBallANCS", 1},
+    {"SamusFusionBallANCS", 3},
+}};
 
-const std::pair<const char*, u32> BallCharacters[] = {
-    {"SamusBallANCS", 0},       {"SamusBallANCS", 0},       {"SamusBallANCS", 1},       {"SamusBallANCS", 0},
-    {"SamusFusionBallANCS", 0}, {"SamusFusionBallANCS", 2}, {"SamusFusionBallANCS", 1}, {"SamusFusionBallANCS", 3},
-};
+constexpr std::array<std::pair<const char*, u32>, 8> BallCharacters{{
+    {"SamusBallANCS", 0},
+    {"SamusBallANCS", 0},
+    {"SamusBallANCS", 1},
+    {"SamusBallANCS", 0},
+    {"SamusFusionBallANCS", 0},
+    {"SamusFusionBallANCS", 2},
+    {"SamusFusionBallANCS", 1},
+    {"SamusFusionBallANCS", 3},
+}};
 
-const u32 SpiderBallGlowColorIdxs[] = {
+constexpr std::array<u32, 8> SpiderBallGlowColorIdxs{
     3, 3, 2, 4, 5, 7, 6, 8,
 };
 
-const u32 BallGlowColorIdxs[] = {
+constexpr std::array<u32, 8> BallGlowColorIdxs{
     0, 0, 1, 0, 5, 7, 6, 8,
 };
 
-const char* BeamModels[] = {
+constexpr std::array BeamModels{
     "CMDL_InvPowerBeam", "CMDL_InvIceBeam", "CMDL_InvWaveBeam", "CMDL_InvPlasmaBeam", "CMDL_InvPowerBeam",
 };
 
-const char* VisorModels[] = {
+constexpr std::array VisorModels{
     "CMDL_InvVisor",       "CMDL_InvGravityVisor", "CMDL_InvVisor",       "CMDL_InvPhazonVisor",
     "CMDL_InvFusionVisor", "CMDL_InvFusionVisor",  "CMDL_InvFusionVisor", "CMDL_InvFusionVisor",
 };
 
-const char* FinModels[] = {
+constexpr std::array FinModels{
     "CMDL_InvPowerFins", "CMDL_InvPowerFins", "CMDL_InvPowerFins",   "CMDL_InvPowerFins",
     "CMDL_InvPowerFins", "CMDL_InvVariaFins", "CMDL_InvGravityFins", "CMDL_InvPhazonFins",
 };
 
-const u32 Character1Idxs[8] = {
+constexpr std::array<u32, 8> Character1Idxs{
     0, 6, 2, 10, 16, 24, 20, 28,
 };
 
-const u32 CharacterBootsIdxs[8] = {
+constexpr std::array<u32, 8> CharacterBootsIdxs{
     1, 7, 3, 11, 17, 25, 21, 29,
 };
 
-const u32 Character2and3Idxs[8][2] = {
-    {14, 15}, {8, 9}, {4, 5}, {12, 13}, {18, 19}, {26, 27}, {22, 23}, {30, 31},
-};
+constexpr std::array<std::array<u32, 2>, 8> Character2and3Idxs{{
+    {14, 15},
+    {8, 9},
+    {4, 5},
+    {12, 13},
+    {18, 19},
+    {26, 27},
+    {22, 23},
+    {30, 31},
+}};
 } // Anonymous namespace
 
 CSamusDoll::CSamusDoll(const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp,
@@ -76,15 +101,15 @@ CSamusDoll::CSamusDoll(const CDependencyGroup& suitDgrp, const CDependencyGroup&
 , x48_beam(beam) {
   x70_fixedRot.rotateZ(M_PIF);
   x90_userInterpRot = xb0_userRot = x70_fixedRot;
-  x1d4_spiderBallGlass = g_SimplePool->GetObj(SpiderBallGlassModels[int(suit)].first);
-  x1e0_ballMatIdx = hasSpiderBall ? SpiderBallCharacters[int(suit)].second : BallCharacters[int(suit)].second;
-  x1e4_glassMatIdx = SpiderBallGlassModels[int(suit)].second;
-  x1e8_ballGlowColorIdx = hasSpiderBall ? SpiderBallGlowColorIdxs[int(suit)] : BallGlowColorIdxs[int(suit)];
+  x1d4_spiderBallGlass = g_SimplePool->GetObj(SpiderBallGlassModels[size_t(suit)].first);
+  x1e0_ballMatIdx = hasSpiderBall ? SpiderBallCharacters[size_t(suit)].second : BallCharacters[size_t(suit)].second;
+  x1e4_glassMatIdx = SpiderBallGlassModels[size_t(suit)].second;
+  x1e8_ballGlowColorIdx = hasSpiderBall ? SpiderBallGlowColorIdxs[size_t(suit)] : BallGlowColorIdxs[size_t(suit)];
   x1ec_itemScreenSamus = g_SimplePool->GetObj("ANCS_ItemScreenSamus");
-  x1f4_invBeam = g_SimplePool->GetObj(BeamModels[int(beam)]);
-  x200_invVisor = g_SimplePool->GetObj(VisorModels[int(suit)]);
+  x1f4_invBeam = g_SimplePool->GetObj(BeamModels[size_t(beam)]);
+  x200_invVisor = g_SimplePool->GetObj(VisorModels[size_t(suit)]);
   x20c_invGrappleBeam = g_SimplePool->GetObj("CMDL_InvGrappleBeam");
-  x218_invFins = g_SimplePool->GetObj(FinModels[int(suit)]);
+  x218_invFins = g_SimplePool->GetObj(FinModels[size_t(suit)]);
   x224_ballInnerGlow = g_SimplePool->GetObj("BallInnerGlow");
   x22c_ballInnerGlowGen = std::make_unique<CElementGen>(x224_ballInnerGlow);
   x230_ballTransitionFlash = g_SimplePool->GetObj("MorphBallTransitionFlash");
@@ -123,7 +148,7 @@ bool CSamusDoll::IsLoaded() const {
 }
 
 CModelData CSamusDoll::BuildSuitModelData1(CPlayerState::EPlayerSuit suit) {
-  CModelData ret(CAnimRes(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id, Character1Idxs[int(suit)],
+  CModelData ret(CAnimRes(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id, Character1Idxs[size_t(suit)],
                           zeus::skOne3f, 2, true));
   CAnimPlaybackParms parms(2, -1, 1.f, true);
   ret.GetAnimationData()->SetAnimation(parms, false);
@@ -131,8 +156,8 @@ CModelData CSamusDoll::BuildSuitModelData1(CPlayerState::EPlayerSuit suit) {
 }
 
 CModelData CSamusDoll::BuildSuitModelDataBoots(CPlayerState::EPlayerSuit suit) {
-  CModelData ret(CAnimRes(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id, CharacterBootsIdxs[int(suit)],
-                          zeus::skOne3f, 2, true));
+  CModelData ret(CAnimRes(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id,
+                          CharacterBootsIdxs[size_t(suit)], zeus::skOne3f, 2, true));
   CAnimPlaybackParms parms(2, -1, 1.f, true);
   ret.GetAnimationData()->SetAnimation(parms, false);
   return ret;
@@ -148,7 +173,7 @@ bool CSamusDoll::CheckLoadComplete() {
 
   xc8_suitModel0.emplace(BuildSuitModelData1(x44_suit));
   for (int i = 0; i < 2; ++i) {
-    CAnimRes res(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id, Character2and3Idxs[int(x44_suit)][i],
+    CAnimRes res(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id, Character2and3Idxs[size_t(x44_suit)][i],
                  zeus::skOne3f, 2, true);
     CModelData mData(res);
     x118_suitModel1and2.push_back(mData.GetAnimationData()->GetModelData());
@@ -157,13 +182,13 @@ bool CSamusDoll::CheckLoadComplete() {
   x134_suitModelBoots.emplace(BuildSuitModelDataBoots(x44_suit));
 
   CAnimRes res(g_ResFactory
-                   ->GetResourceIdByName(x270_24_hasSpiderBall ? SpiderBallCharacters[int(x44_suit)].first
-                                                               : BallCharacters[int(x44_suit)].first)
+                   ->GetResourceIdByName(x270_24_hasSpiderBall ? SpiderBallCharacters[size_t(x44_suit)].first
+                                                               : BallCharacters[size_t(x44_suit)].first)
                    ->id,
                0, zeus::skOne3f, 0, true);
   x184_ballModelData.emplace(res);
   x1e0_ballMatIdx =
-      x270_24_hasSpiderBall ? SpiderBallCharacters[int(x44_suit)].second : BallCharacters[int(x44_suit)].second;
+      x270_24_hasSpiderBall ? SpiderBallCharacters[size_t(x44_suit)].second : BallCharacters[size_t(x44_suit)].second;
   x270_31_loaded = true;
   return true;
 }
