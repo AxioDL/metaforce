@@ -11,10 +11,17 @@ class CAnimationParameters;
 class CSnakeWeedSwarm : public CActor {
 public:
   enum class EBoidState : u32 {
-    x0 = 0,
+    Raised = 0,
     x1 = 1,
     x2 = 2,
     x3 = 3,
+  };
+
+  enum class EBoidPlacement : u32 {
+    None = 0,
+    Ready = 1,
+    Invalid = 2,
+    Placed = 3,
   };
 
   class CBoid {
@@ -44,10 +51,10 @@ public:
 
 private:
   zeus::CVector3f xe8_scale;
-  float xf4_;
-  float xf8_;
+  float xf4_boidSpacing;
+  float xf8_height;
   float xfc_;
-  float x100_;
+  float x100_weaponDamageRadius;
   float x104_;
   float x108_;
   float x10c_;
@@ -58,31 +65,29 @@ private:
   float x120_;
   float x124_;
   float x128_;
-  u32 x12c_ = 0;
-  // x130_
+  // u32 x12c_ = 0;
   std::vector<CBoid> x134_boids;
-  bool x140_24_ : 1;
+  bool x140_24_hasGround : 1;
   bool x140_25_modelAssetDirty : 1;
-  bool x140_26_ : 1;
-  zeus::CAABox x144_ = zeus::skInvertedBox;
-  CDamageInfo x15c_dInfo;
-//  std::vector<std::shared_ptr<CSkinnedModel>> x178_;
-//  std::vector<std::unique_ptr<CSkinnedModel>> x19c_;
+  bool x140_26_playerTouching : 1;
+  zeus::CAABox x144_touchBounds = zeus::skInvertedBox;
+  CDamageInfo x15c_damageInfo;
+  // x178_ / x19c_: vectors of CSkinnedModel, not needed
   rstl::reserved_vector<std::shared_ptr<CModelData>, 4> x1b0_modelData;
-  CModelData::EWhichModel x1c4_;
-  std::unique_ptr<std::vector<zeus::CVector3f>> x1c8_;
-  std::unique_ptr<std::vector<int>> x1cc_;
+  CModelData::EWhichModel x1c4_which;
+  std::unique_ptr<std::vector<zeus::CVector3f>> x1c8_boidPositions;
+  std::unique_ptr<std::vector<EBoidPlacement>> x1cc_boidPlacement;
   u16 x1d0_sfx1;
   u16 x1d2_sfx2;
   u16 x1d4_sfx3;
-  CSfxHandle x1d8_ = 0;
-  TLockedToken<CGenDescription> x1dc_;
-  // TLockedToken<CGenDescription> x1e4_; both assign to x1dc_?
+  CSfxHandle x1d8_sfxHandle = 0;
+  TLockedToken<CGenDescription> x1dc_particleGenDesc;
+  // TLockedToken<CGenDescription> x1e4_; both assign to x1dc_
   std::unique_ptr<CElementGen> x1ec_particleGen1;
   std::unique_ptr<CElementGen> x1f4_particleGen2;
   u32 x1fc_;
   float x200_;
-  float x204_ = 0.f;
+  float x204_particleTimer = 0.f;
 
 public:
   CSnakeWeedSwarm(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CVector3f&, const zeus::CVector3f&,
@@ -92,12 +97,7 @@ public:
 
   void Accept(IVisitor&) override;
   void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr);
-  std::optional<zeus::CAABox> GetTouchBounds() const override {
-    if (x140_24_) {
-      return {};
-    }
-    return x144_;
-  }
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void PreRender(CStateManager&, const zeus::CFrustum&) override;
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
@@ -106,20 +106,20 @@ public:
 
 private:
   void AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which);
-  void sub_8023ca48(float radius, CStateManager& mgr, const zeus::CVector3f& pos);
-  void sub_8023c238(const CStateManager& mgr);
-  zeus::CAABox sub_8023d3f4();
-  int sub_8023c0fc();
-  int sub_8023c154();
-  void sub_8023bca8(CStateManager& mgr, int v);
-  zeus::CVector2i sub_8023c1ac(const zeus::CVector3f& vec);
+  void HandleRadiusDamage(float radius, CStateManager& mgr, const zeus::CVector3f& pos);
+  void FindGround(const CStateManager& mgr);
+  zeus::CAABox GetBoidBox();
+  int GetNumBoidsY();
+  int GetNumBoidsX();
+  void CreateBoids(CStateManager& mgr, int num);
+  zeus::CVector2i GetBoidIndex(const zeus::CVector3f& pos);
   bool CreateBoid(const zeus::CVector3f& vec, CStateManager& mgr);
-  float sub_8023bbc8(const zeus::CVector3f& vec);
-  float sub_8023bc38(const zeus::CVector3f& vec);
-  void sub_8023bfb8(const zeus::CVector3f& vec);
-  void sub_8023d204();
+  float GetBoidOffsetY(const zeus::CVector3f& pos);
+  float GetBoidOffsetX(const zeus::CVector3f& pos);
+  void AddBoidPosition(const zeus::CVector3f& pos);
+  void CalculateTouchBounds();
   void EmitParticles1(const zeus::CVector3f& pos);
   void EmitParticles2(const zeus::CVector3f& pos);
-  void RenderBoid(u32 p1, const CBoid* boid, u32 *p3) const;
+  void RenderBoid(u32 p1, const CBoid* boid, u32& posesToBuild) const;
 };
 } // namespace urde
