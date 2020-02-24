@@ -10,14 +10,17 @@ static logvisor::Module Log("urde::CSkinnedModel");
 
 CSkinnedModel::CSkinnedModel(TLockedToken<CModel> model, TLockedToken<CSkinRules> skinRules,
                              TLockedToken<CCharLayoutInfo> layoutInfo, int shaderIdx, int drawInsts)
-: x4_model(model), x10_skinRules(skinRules), x1c_layoutInfo(layoutInfo) {
-  if (!model)
+: x4_model(std::move(model)), x10_skinRules(std::move(skinRules)), x1c_layoutInfo(std::move(layoutInfo)) {
+  if (!x4_model) {
     Log.report(logvisor::Fatal, fmt("bad model token provided to CSkinnedModel"));
-  if (!skinRules)
+  }
+  if (!x10_skinRules) {
     Log.report(logvisor::Fatal, fmt("bad skin token provided to CSkinnedModel"));
-  if (!layoutInfo)
+  }
+  if (!x1c_layoutInfo) {
     Log.report(logvisor::Fatal, fmt("bad character layout token provided to CSkinnedModel"));
-  m_modelInst = model->MakeNewInstance(shaderIdx, drawInsts);
+  }
+  m_modelInst = x4_model->MakeNewInstance(shaderIdx, drawInsts);
 }
 
 CSkinnedModel::CSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo,
