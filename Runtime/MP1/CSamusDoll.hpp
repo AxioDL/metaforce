@@ -85,7 +85,7 @@ class CSamusDoll {
     u32 _dummy = 0;
   };
 
-  static const zeus::CVector3f skInitialOffset;
+  static constexpr zeus::CVector3f skInitialOffset{0.0f, 0.0f, 0.8f};
   static CModelData BuildSuitModelData1(CPlayerState::EPlayerSuit suit);
   static CModelData BuildSuitModelDataBoots(CPlayerState::EPlayerSuit suit);
   void SetupLights();

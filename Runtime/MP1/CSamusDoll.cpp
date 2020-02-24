@@ -17,8 +17,6 @@
 
 namespace urde::MP1 {
 
-const zeus::CVector3f CSamusDoll::skInitialOffset = {0.f, 0.f, 0.8f};
-
 static const std::pair<const char*, u32> SpiderBallGlassModels[] = {
     {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 1},
     {"SamusPhazonBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0},
