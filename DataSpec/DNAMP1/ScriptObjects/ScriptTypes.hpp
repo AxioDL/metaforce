@@ -131,7 +131,7 @@
 namespace DataSpec::DNAMP1 {
 struct ScriptObjectSpec {
   atUint8 type;
-  std::function<IScriptObject*()> a;
+  IScriptObject* (*a)();
 };
 
 extern const std::vector<const struct ScriptObjectSpec*> SCRIPT_OBJECT_DB;
