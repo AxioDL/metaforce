@@ -73,12 +73,10 @@ void CScriptVisorGoo::Think(float, CStateManager& mgr) {
             float t = (x108_maxDist - eyeToGooDist) / (x108_maxDist - x104_minDist);
             if (mgr.GetActiveRandom()->Float() * 100.f <= (1.f - t) * x110_farProb + t * x10c_nearProb) {
               mgr.AddObject(new CHUDBillboardEffect(
-                  xfc_particleId.IsValid() ? xe8_particleDesc : std::optional<TToken<CGenDescription>>(),
-                  x100_electricId.IsValid() ? xf0_electricDesc
-                                            : std::optional<TToken<CElectricDescription>>(),
+                  xfc_particleId.IsValid() ? std::make_optional(xe8_particleDesc) : std::nullopt,
+                  x100_electricId.IsValid() ? std::make_optional(xf0_electricDesc) : std::nullopt,
                   mgr.AllocateUniqueId(), true, "VisorGoo", CHUDBillboardEffect::GetNearClipDistance(mgr),
-                  CHUDBillboardEffect::GetScaleForPOV(mgr), x114_color, zeus::skOne3f,
-                  zeus::skZero3f));
+                  CHUDBillboardEffect::GetScaleForPOV(mgr), x114_color, zeus::skOne3f, zeus::skZero3f));
               CSfxManager::SfxStart(xf8_sfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             }
           }
