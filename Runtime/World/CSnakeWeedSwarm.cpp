@@ -151,7 +151,9 @@ void CSnakeWeedSwarm::AddToRenderer(const zeus::CFrustum& frustum, const CStateM
       g_Renderer->AddParticleGen(*x1f4_particleGen2);
     }
     if (x90_actorLights) {
-      //      x90_actorLights->ActivateLights(); FIXME pass what here?
+      for (auto modelData : x1b0_modelData) {
+        x90_actorLights->ActivateLights(*modelData->PickAnimatedModel(x1c4_).GetModelInst());
+      }
     } else {
       CGraphics::DisableAllLights();
       g_Renderer->SetAmbientColor(zeus::skWhite);
@@ -181,8 +183,8 @@ void CSnakeWeedSwarm::Touch(CActor& actor, CStateManager& mgr) {
   }
 }
 
-void CSnakeWeedSwarm::sub_8023ca48(float param_1, CStateManager& mgr, const zeus::CVector3f& pos) {
-  float dVar8 = param_1 * param_1;
+void CSnakeWeedSwarm::sub_8023ca48(float radius, CStateManager& mgr, const zeus::CVector3f& pos) {
+  float dVar8 = radius * radius;
   for (auto boid : x134_boids) {
     const zeus::CVector3f& boidPosition = boid.GetPosition();
     if ((boidPosition - pos).magSquared() < dVar8 &&
@@ -442,6 +444,13 @@ void CSnakeWeedSwarm::RenderBoid(u32 p1, const CBoid* boid, u32* p3) const {
   g_Renderer->SetModelMatrix(xf);
   model.Draw(useFlags);
   *p3 = var3;
+}
+
+void CSnakeWeedSwarm::ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& mgr) {
+  EWeaponType type = info.GetWeaponMode().GetType();
+  if (type == EWeaponType::Bomb || type == EWeaponType::PowerBomb) {
+    sub_8023ca48(info.GetRadius(), mgr, pos);
+  }
 }
 
 } // namespace urde

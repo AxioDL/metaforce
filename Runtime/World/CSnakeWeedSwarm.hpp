@@ -91,7 +91,7 @@ public:
                   CAssetId, float);
 
   void Accept(IVisitor&) override;
-  void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr) {}
+  void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr);
   std::optional<zeus::CAABox> GetTouchBounds() const override {
     if (x140_24_) {
       return {};
@@ -106,7 +106,7 @@ public:
 
 private:
   void AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which);
-  void sub_8023ca48(float param_1, CStateManager& mgr, const zeus::CVector3f& pos);
+  void sub_8023ca48(float radius, CStateManager& mgr, const zeus::CVector3f& pos);
   void sub_8023c238(const CStateManager& mgr);
   zeus::CAABox sub_8023d3f4();
   int sub_8023c0fc();
