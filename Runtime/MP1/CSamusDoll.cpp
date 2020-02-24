@@ -16,44 +16,57 @@
 #include <zeus/CEulerAngles.hpp>
 
 namespace urde::MP1 {
-
-static const std::pair<const char*, u32> SpiderBallGlassModels[] = {
+namespace {
+const std::pair<const char*, u32> SpiderBallGlassModels[] = {
     {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 1},
     {"SamusPhazonBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0},
     {"SamusSpiderBallGlassCMDL", 1}, {"SamusPhazonBallGlassCMDL", 0},
 };
 
-static const std::pair<const char*, u32> SpiderBallCharacters[] = {
+const std::pair<const char*, u32> SpiderBallCharacters[] = {
     {"SamusSpiderBallANCS", 0}, {"SamusSpiderBallANCS", 0}, {"SamusSpiderBallANCS", 1}, {"SamusPhazonBallANCS", 0},
     {"SamusFusionBallANCS", 0}, {"SamusFusionBallANCS", 2}, {"SamusFusionBallANCS", 1}, {"SamusFusionBallANCS", 3},
 };
 
-static const std::pair<const char*, u32> BallCharacters[] = {
+const std::pair<const char*, u32> BallCharacters[] = {
     {"SamusBallANCS", 0},       {"SamusBallANCS", 0},       {"SamusBallANCS", 1},       {"SamusBallANCS", 0},
     {"SamusFusionBallANCS", 0}, {"SamusFusionBallANCS", 2}, {"SamusFusionBallANCS", 1}, {"SamusFusionBallANCS", 3},
 };
 
-static const u32 SpiderBallGlowColorIdxs[] = {3, 3, 2, 4, 5, 7, 6, 8};
+const u32 SpiderBallGlowColorIdxs[] = {
+    3, 3, 2, 4, 5, 7, 6, 8,
+};
 
-static const u32 BallGlowColorIdxs[] = {0, 0, 1, 0, 5, 7, 6, 8};
+const u32 BallGlowColorIdxs[] = {
+    0, 0, 1, 0, 5, 7, 6, 8,
+};
 
-static const char* BeamModels[] = {"CMDL_InvPowerBeam", "CMDL_InvIceBeam", "CMDL_InvWaveBeam", "CMDL_InvPlasmaBeam",
-                                   "CMDL_InvPowerBeam"};
+const char* BeamModels[] = {
+    "CMDL_InvPowerBeam", "CMDL_InvIceBeam", "CMDL_InvWaveBeam", "CMDL_InvPlasmaBeam", "CMDL_InvPowerBeam",
+};
 
-static const char* VisorModels[] = {"CMDL_InvVisor",       "CMDL_InvGravityVisor", "CMDL_InvVisor",
-                                    "CMDL_InvPhazonVisor", "CMDL_InvFusionVisor",  "CMDL_InvFusionVisor",
-                                    "CMDL_InvFusionVisor", "CMDL_InvFusionVisor"};
+const char* VisorModels[] = {
+    "CMDL_InvVisor",       "CMDL_InvGravityVisor", "CMDL_InvVisor",       "CMDL_InvPhazonVisor",
+    "CMDL_InvFusionVisor", "CMDL_InvFusionVisor",  "CMDL_InvFusionVisor", "CMDL_InvFusionVisor",
+};
 
-static const char* FinModels[] = {"CMDL_InvPowerFins",   "CMDL_InvPowerFins", "CMDL_InvPowerFins",
-                                  "CMDL_InvPowerFins",   "CMDL_InvPowerFins", "CMDL_InvVariaFins",
-                                  "CMDL_InvGravityFins", "CMDL_InvPhazonFins"};
+const char* FinModels[] = {
+    "CMDL_InvPowerFins", "CMDL_InvPowerFins", "CMDL_InvPowerFins",   "CMDL_InvPowerFins",
+    "CMDL_InvPowerFins", "CMDL_InvVariaFins", "CMDL_InvGravityFins", "CMDL_InvPhazonFins",
+};
 
-static const u32 Character1Idxs[8] = {0, 6, 2, 10, 16, 24, 20, 28};
+const u32 Character1Idxs[8] = {
+    0, 6, 2, 10, 16, 24, 20, 28,
+};
 
-static const u32 CharacterBootsIdxs[8] = {1, 7, 3, 11, 17, 25, 21, 29};
+const u32 CharacterBootsIdxs[8] = {
+    1, 7, 3, 11, 17, 25, 21, 29,
+};
 
-static const u32 Character2and3Idxs[8][2] = {{14, 15}, {8, 9},   {4, 5},   {12, 13},
-                                             {18, 19}, {26, 27}, {22, 23}, {30, 31}};
+const u32 Character2and3Idxs[8][2] = {
+    {14, 15}, {8, 9}, {4, 5}, {12, 13}, {18, 19}, {26, 27}, {22, 23}, {30, 31},
+};
+} // Anonymous namespace
 
 CSamusDoll::CSamusDoll(const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp,
                        CPlayerState::EPlayerSuit suit, CPlayerState::EBeamId beam, bool hasSpiderBall,
