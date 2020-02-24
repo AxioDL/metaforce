@@ -505,6 +505,9 @@ public:
  * @brief Case-insensitive comparator for std::map sorting
  */
 struct CaseInsensitiveCompare {
+  // Allow heterogenous lookup with maps that use this comparator.
+  using is_transparent = void;
+
   bool operator()(std::string_view lhs, std::string_view rhs) const {
     return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](char lhs, char rhs) {
       return std::tolower(static_cast<unsigned char>(lhs)) < std::tolower(static_cast<unsigned char>(rhs));
