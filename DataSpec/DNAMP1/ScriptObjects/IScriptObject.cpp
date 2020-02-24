@@ -284,7 +284,7 @@ constexpr ScriptObjectSpec EnergyBallEnt = {0x8B, []() -> IScriptObject* { retur
 } // Anonymous namespace
 } // namespace priv
 
-const std::vector<const struct ScriptObjectSpec*> SCRIPT_OBJECT_DB = {
+const ScriptObjectDBArray SCRIPT_OBJECT_DB = {
     &priv::AIJumpPointEnt,
     &priv::AIKeyframeEnt,
     &priv::ActorEnt,

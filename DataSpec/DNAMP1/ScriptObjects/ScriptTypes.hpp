@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <array>
 
 #include <athena/Types.hpp>
 
@@ -12,5 +12,7 @@ struct ScriptObjectSpec {
   IScriptObject* (*a)();
 };
 
-extern const std::vector<const struct ScriptObjectSpec*> SCRIPT_OBJECT_DB;
+using ScriptObjectDBArray = std::array<const ScriptObjectSpec*, 127>;
+
+extern const ScriptObjectDBArray SCRIPT_OBJECT_DB;
 } // namespace DataSpec::DNAMP1
