@@ -30,7 +30,9 @@ zeus::CTransform CGraphics::g_GXViewPointMatrix;
 zeus::CTransform CGraphics::g_CameraMatrix;
 SClipScreenRect CGraphics::g_CroppedViewport;
 bool CGraphics::g_IsGXModelMatrixIdentity = true;
-SViewport g_Viewport = {0, 0, 640, 480, 640 / 2.f, 480 / 2.f};
+SViewport g_Viewport = {
+    0, 0, 640, 480, 640 / 2.f, 480 / 2.f, 0.0f,
+};
 u32 CGraphics::g_FrameCounter = 0;
 
 const zeus::CMatrix3f CGraphics::skCubeBasisMats[] = {
