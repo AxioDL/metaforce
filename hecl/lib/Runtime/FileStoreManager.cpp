@@ -36,11 +36,20 @@ FileStoreManager::FileStoreManager(SystemStringView domain) : m_domain(domain) {
   hecl::MakeDir(path.c_str());
   m_storeRoot = path;
 #else
-  const char* home = getenv("HOME");
-  if (!home)
-    Log.report(logvisor::Fatal, fmt("unable to locate $HOME for file store"));
-  std::string path(home);
-  path += "/.heclrun";
+  const char* xdg_data_home = getenv("XDG_DATA_HOME");
+  std::string path;
+  if (xdg_data_home) {
+    if (xdg_data_home[0] != '/')
+      Log.report(logvisor::Fatal, fmt("invalid $XDG_DATA_HOME for file store (must be absolute)"));
+    path = xdg_data_home;
+  } else {
+    const char* home = getenv("HOME");
+    if (!home)
+      Log.report(logvisor::Fatal, fmt("unable to locate $HOME for file store"));
+    path = home;
+    path += "/.local/share"
+  }
+  path += "/hecl";
   if (mkdir(path.c_str(), 0755) && errno != EEXIST)
     Log.report(logvisor::Fatal, fmt("unable to mkdir at {}"), path);
   path += '/';
