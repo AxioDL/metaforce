@@ -116,14 +116,14 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
   g_GameState->GameOptions().EnsureSettings();
 }
 
-void CGameArchitectureSupport::UpdateTicks() {
+void CGameArchitectureSupport::UpdateTicks(float dt) {
   x4_archQueue.Push(MakeMsg::CreateFrameBegin(EArchMsgTarget::Game, x78_gameFrameCount));
-  x4_archQueue.Push(MakeMsg::CreateTimerTick(EArchMsgTarget::Game, 1.f / 60.f));
+  x4_archQueue.Push(MakeMsg::CreateTimerTick(EArchMsgTarget::Game, dt));
 }
 
-void CGameArchitectureSupport::Update() {
+void CGameArchitectureSupport::Update(float dt) {
   g_GameState->GetWorldTransitionManager()->TouchModels();
-  x30_inputGenerator.Update(1 / 60.f, x4_archQueue);
+  x30_inputGenerator.Update(dt, x4_archQueue);
   x4_archQueue.Push(MakeMsg::CreateFrameEnd(EArchMsgTarget::Game, x78_gameFrameCount));
   x58_ioWinManager.PumpMessages(x4_archQueue);
 }
@@ -817,13 +817,25 @@ bool CMain::Proc() {
     m_loadedPersistentResources = true;
   }
 
+  float dt = 1 / 60.f;
+#if MP1_VARIABLE_DELTA_TIME
+  auto now = delta_clock::now();
+  if (m_firstFrame) {
+    m_firstFrame = false;
+  } else {
+    using delta_duration = std::chrono::duration<float, std::ratio<1>>;
+    dt = std::min(std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count(), dt);
+  }
+  m_prevFrameTime = now;
+#endif
+
   m_console->proc();
   if (!m_console->isOpen()) {
     CGBASupport::GlobalPoll();
-    x164_archSupport->UpdateTicks();
-    x164_archSupport->Update();
-    CSfxManager::Update(1.f / 60.f);
-    CStreamAudioManager::Update(1.f / 60.f);
+    x164_archSupport->UpdateTicks(dt);
+    x164_archSupport->Update(dt);
+    CSfxManager::Update(dt);
+    CStreamAudioManager::Update(dt);
   }
 
   if (x164_archSupport->GetIOWinManager().IsEmpty() || CheckReset()) {
