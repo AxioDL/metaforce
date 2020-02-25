@@ -275,7 +275,7 @@ void CAuxWeapon::Fire(float dt, bool underwater, CPlayerState::EBeamId currentBe
     attrib = CGameProjectile::GetBeamAttribType(type) | EProjectileAttrib::ComboShot;
 
   if (chargeState == EChargeState::Normal) {
-    LaunchMissile(dt, underwater, chargeState == EChargeState::Charged, currentBeam, attrib, xf, homingId, mgr);
+    LaunchMissile(dt, underwater, false, currentBeam, attrib, xf, homingId, mgr);
   } else {
     switch (currentBeam) {
     case CPlayerState::EBeamId::Power:
