@@ -65,40 +65,40 @@ struct ITweakGunRes : ITweak {
   }
 
   void ResolveResources(const urde::IFactory& factory) {
-    x4_gunMotion = factory.GetResourceIdByName(GetGunMotion().c_str())->id;
-    x8_grappleArm = factory.GetResourceIdByName(GetGrappleArm().c_str())->id;
-    xc_rightHand = factory.GetResourceIdByName(GetRightHand().c_str())->id;
+    x4_gunMotion = factory.GetResourceIdByName(GetGunMotion())->id;
+    x8_grappleArm = factory.GetResourceIdByName(GetGrappleArm())->id;
+    xc_rightHand = factory.GetResourceIdByName(GetRightHand())->id;
 
-    x10_powerBeam = factory.GetResourceIdByName(GetPowerBeam().c_str())->id;
-    x14_iceBeam = factory.GetResourceIdByName(GetIceBeam().c_str())->id;
-    x18_waveBeam = factory.GetResourceIdByName(GetWaveBeam().c_str())->id;
-    x1c_plasmaBeam = factory.GetResourceIdByName(GetPlasmaBeam().c_str())->id;
-    x20_phazonBeam = factory.GetResourceIdByName(GetPhazonBeam().c_str())->id;
+    x10_powerBeam = factory.GetResourceIdByName(GetPowerBeam())->id;
+    x14_iceBeam = factory.GetResourceIdByName(GetIceBeam())->id;
+    x18_waveBeam = factory.GetResourceIdByName(GetWaveBeam())->id;
+    x1c_plasmaBeam = factory.GetResourceIdByName(GetPlasmaBeam())->id;
+    x20_phazonBeam = factory.GetResourceIdByName(GetPhazonBeam())->id;
 
-    x24_holoTransition = factory.GetResourceIdByName(GetHoloTransition().c_str())->id;
+    x24_holoTransition = factory.GetResourceIdByName(GetHoloTransition())->id;
 
-    x28_bombSet = factory.GetResourceIdByName(GetBombSet().c_str())->id;
-    x2c_bombExplode = factory.GetResourceIdByName(GetBombExplode().c_str())->id;
-    x30_powerBombExplode = factory.GetResourceIdByName(GetPowerBombExplode().c_str())->id;
+    x28_bombSet = factory.GetResourceIdByName(GetBombSet())->id;
+    x2c_bombExplode = factory.GetResourceIdByName(GetBombExplode())->id;
+    x30_powerBombExplode = factory.GetResourceIdByName(GetPowerBombExplode())->id;
 
     for (int i = 0; i < 5; ++i)
       for (int j = 0; j < 2; ++j)
-        x34_weapons[i][j] = factory.GetResourceIdByName(GetWeapon(i, j).c_str())->id;
+        x34_weapons[i][j] = factory.GetResourceIdByName(GetWeapon(i, j))->id;
 
     for (int i = 0; i < 5; ++i)
-      x84_muzzle[i] = factory.GetResourceIdByName(GetMuzzleParticle(i).c_str())->id;
+      x84_muzzle[i] = factory.GetResourceIdByName(GetMuzzleParticle(i))->id;
 
     for (int i = 0; i < 5; ++i)
-      x94_charge[i] = factory.GetResourceIdByName(GetChargeParticle(i).c_str())->id;
+      x94_charge[i] = factory.GetResourceIdByName(GetChargeParticle(i))->id;
 
     for (int i = 0; i < 5; ++i)
-      xa4_auxMuzzle[i] = factory.GetResourceIdByName(GetAuxMuzzleParticle(i).c_str())->id;
+      xa4_auxMuzzle[i] = factory.GetResourceIdByName(GetAuxMuzzleParticle(i))->id;
 
-    xb4_grappleSegment = factory.GetResourceIdByName(GetGrappleSegmentParticle().c_str())->id;
-    xb8_grappleClaw = factory.GetResourceIdByName(GetGrappleClawParticle().c_str())->id;
-    xbc_grappleHit = factory.GetResourceIdByName(GetGrappleHitParticle().c_str())->id;
-    xc0_grappleMuzzle = factory.GetResourceIdByName(GetGrappleMuzzleParticle().c_str())->id;
-    xc4_grappleSwoosh = factory.GetResourceIdByName(GetGrappleSwooshParticle().c_str())->id;
+    xb4_grappleSegment = factory.GetResourceIdByName(GetGrappleSegmentParticle())->id;
+    xb8_grappleClaw = factory.GetResourceIdByName(GetGrappleClawParticle())->id;
+    xbc_grappleHit = factory.GetResourceIdByName(GetGrappleHitParticle())->id;
+    xc0_grappleMuzzle = factory.GetResourceIdByName(GetGrappleMuzzleParticle())->id;
+    xc4_grappleSwoosh = factory.GetResourceIdByName(GetGrappleSwooshParticle())->id;
   }
 
 protected:
