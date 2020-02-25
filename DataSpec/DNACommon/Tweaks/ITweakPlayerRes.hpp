@@ -79,9 +79,9 @@ struct ITweakPlayerRes : ITweak {
   }
 
   void ResolveResources(const urde::IFactory& factory) {
-    x4_saveStationIcon = factory.GetResourceIdByName(_GetSaveStationIcon().data())->id;
-    x8_missileStationIcon = factory.GetResourceIdByName(_GetMissileStationIcon().data())->id;
-    xc_elevatorIcon = factory.GetResourceIdByName(_GetElevatorIcon().data())->id;
+    x4_saveStationIcon = factory.GetResourceIdByName(_GetSaveStationIcon())->id;
+    x8_missileStationIcon = factory.GetResourceIdByName(_GetMissileStationIcon())->id;
+    xc_elevatorIcon = factory.GetResourceIdByName(_GetElevatorIcon())->id;
 
     x10_minesBreakFirstTopIcon = factory.GetResourceIdByName(_GetMinesBreakFirstTopIcon())->id;
     x14_minesBreakFirstBottomIcon = factory.GetResourceIdByName(_GetMinesBreakFirstBottomIcon())->id;
@@ -89,39 +89,39 @@ struct ITweakPlayerRes : ITweak {
     x1c_minesBreakSecondBottomIcon = factory.GetResourceIdByName(_GetMinesBreakSecondBottomIcon())->id;
 
     for (int i = 0; i < 9; ++i)
-      x24_lStick[i] = factory.GetResourceIdByName(_GetLStick(i).data())->id;
+      x24_lStick[i] = factory.GetResourceIdByName(_GetLStick(i))->id;
 
     for (int i = 0; i < 9; ++i)
-      x4c_cStick[i] = factory.GetResourceIdByName(_GetCStick(i).data())->id;
+      x4c_cStick[i] = factory.GetResourceIdByName(_GetCStick(i))->id;
 
     for (int i = 0; i < 2; ++i)
-      x74_lTrigger[i] = factory.GetResourceIdByName(_GetLTrigger(i).data())->id;
+      x74_lTrigger[i] = factory.GetResourceIdByName(_GetLTrigger(i))->id;
 
     for (int i = 0; i < 2; ++i)
-      x80_rTrigger[i] = factory.GetResourceIdByName(_GetRTrigger(i).data())->id;
+      x80_rTrigger[i] = factory.GetResourceIdByName(_GetRTrigger(i))->id;
 
     for (int i = 0; i < 2; ++i)
-      x8c_startButton[i] = factory.GetResourceIdByName(_GetStartButton(i).data())->id;
+      x8c_startButton[i] = factory.GetResourceIdByName(_GetStartButton(i))->id;
 
     for (int i = 0; i < 2; ++i)
-      x98_aButton[i] = factory.GetResourceIdByName(_GetAButton(i).data())->id;
+      x98_aButton[i] = factory.GetResourceIdByName(_GetAButton(i))->id;
 
     for (int i = 0; i < 2; ++i)
-      xa4_bButton[i] = factory.GetResourceIdByName(_GetBButton(i).data())->id;
+      xa4_bButton[i] = factory.GetResourceIdByName(_GetBButton(i))->id;
 
     for (int i = 0; i < 2; ++i)
-      xb0_xButton[i] = factory.GetResourceIdByName(_GetXButton(i).data())->id;
+      xb0_xButton[i] = factory.GetResourceIdByName(_GetXButton(i))->id;
 
     for (int i = 0; i < 2; ++i)
-      xbc_yButton[i] = factory.GetResourceIdByName(_GetYButton(i).data())->id;
+      xbc_yButton[i] = factory.GetResourceIdByName(_GetYButton(i))->id;
 
-    xc4_ballTransitionsANCS = factory.GetResourceIdByName(_GetBallTransitionsANCS().data())->id;
+    xc4_ballTransitionsANCS = factory.GetResourceIdByName(_GetBallTransitionsANCS())->id;
 
     for (int i = 0; i < 5; ++i)
-      xc8_ballTransitions[i] = factory.GetResourceIdByName(_GetBallTransitionBeamRes(i).data())->id;
+      xc8_ballTransitions[i] = factory.GetResourceIdByName(_GetBallTransitionBeamRes(i))->id;
 
     for (int i = 0; i < 5; ++i)
-      xc8_cineGun[i] = factory.GetResourceIdByName(_GetBeamCineModel(i).data())->id;
+      xc8_cineGun[i] = factory.GetResourceIdByName(_GetBeamCineModel(i))->id;
 
     xf0_cinematicMoveOutofIntoPlayerDistance = _GetCinematicMoveOutofIntoPlayerDistance();
   }
