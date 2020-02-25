@@ -15,8 +15,7 @@
 
 namespace urde {
 
-static CMaterialFilter matFilter =
-    CMaterialFilter::MakeInclude(CMaterialList(EMaterialTypes::Solid, EMaterialTypes::Character));
+static constexpr CMaterialFilter matFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
 
 CSnakeWeedSwarm::CSnakeWeedSwarm(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
                                  const zeus::CVector3f& pos, const zeus::CVector3f& scale, const CAnimRes& animRes,
@@ -41,6 +40,9 @@ CSnakeWeedSwarm::CSnakeWeedSwarm(TUniqueId uid, bool active, std::string_view na
 , x120_(f12)
 , x124_(f13)
 , x128_(f14)
+, x140_24_hasGround(false)
+, x140_25_modelAssetDirty(false)
+, x140_26_playerTouching(false)
 , x15c_damageInfo(dInfo)
 , x1c8_boidPositions(std::make_unique<std::vector<zeus::CVector3f>>())
 , x1cc_boidPlacement(std::make_unique<std::vector<EBoidPlacement>>())
@@ -153,7 +155,7 @@ void CSnakeWeedSwarm::AddToRenderer(const zeus::CFrustum& frustum, const CStateM
 
   u32 posesToBuild = -1;
   for (u32 i = 0; i < x134_boids.size(); ++i)
-    RenderBoid(i, &x134_boids[i], posesToBuild);
+    RenderBoid(i, x134_boids[i], posesToBuild);
   CGraphics::DisableAllLights();
 }
 
@@ -208,7 +210,7 @@ void CSnakeWeedSwarm::Think(float dt, CStateManager& mgr) {
   if (!x140_24_hasGround)
     FindGround(mgr);
   if (x140_24_hasGround && x1c8_boidPositions && !x1c8_boidPositions->empty()) {
-    int n = (u64)(dt * x1cc_boidPlacement->size()) >> 0x20; // TODO ?
+    int n = (u64)(dt * x1cc_boidPlacement->size()) >> 0x20;
     CreateBoids(mgr, n + 1);
   }
 
@@ -352,12 +354,12 @@ bool CSnakeWeedSwarm::CreateBoid(const zeus::CVector3f& vec, CStateManager& mgr)
 
 float CSnakeWeedSwarm::GetBoidOffsetY(const zeus::CVector3f& pos) {
   float f = 2.4729404f * pos.y() + 0.3478602f * pos.x() * pos.x();
-  return xfc_ * (2.f * std::abs(f - (int)f) - 1.f);
+  return xfc_ * (2.f * std::abs(f - std::trunc(f)) - 1.f);
 }
 
 float CSnakeWeedSwarm::GetBoidOffsetX(const zeus::CVector3f& pos) {
   float f = 8.21395f * pos.x() + 0.112869f * pos.y() * pos.y();
-  return xfc_ * (2.f * std::abs(f - (int)f) - 1.f);
+  return xfc_ * (2.f * std::abs(f - std::trunc(f)) - 1.f);
 }
 
 void CSnakeWeedSwarm::AddBoidPosition(const zeus::CVector3f& pos) {
@@ -406,20 +408,20 @@ void CSnakeWeedSwarm::EmitParticles2(const zeus::CVector3f& pos) {
   x1f4_particleGen2->SetParticleEmission(false);
 }
 
-void CSnakeWeedSwarm::RenderBoid(u32 p1, const CBoid* boid, u32& posesToBuild) const {
-  u32 modelIdx = p1 & 3;
+void CSnakeWeedSwarm::RenderBoid(u32 idx, const CBoid& boid, u32& posesToBuild) const {
+  const u32 modelIdx = idx & 3;
   auto modelData = x1b0_modelData[modelIdx];
   CSkinnedModel& model = modelData->PickAnimatedModel(x1c4_which);
-  CModelFlags useFlags(0, 0, 3, zeus::skWhite);
-  if ((posesToBuild & 1 << modelIdx) != 0) {
+  const CModelFlags useFlags(0, 0, 3, zeus::skWhite);
+  if (posesToBuild & 1 << modelIdx) {
     posesToBuild &= ~(1 << modelIdx);
     modelData->GetAnimationData()->BuildPose();
     model.Calculate(modelData->GetAnimationData()->GetPose(), useFlags, {}, nullptr);
   }
   //  printf("rendering boid with x14 %f\n", boid->Get_x14());
   const zeus::CTransform& xf =
-      zeus::CTransform::Translate(boid->GetPosition() /*- zeus::CVector3f(0.f, 0.f, boid->Get_x14())*/) *
-      zeus::CTransform::Scale(boid->Get_x20());
+      zeus::CTransform::Translate(boid.GetPosition() /*- zeus::CVector3f(0.f, 0.f, boid.Get_x14())*/) *
+      zeus::CTransform::Scale(boid.Get_x20());
   g_Renderer->SetModelMatrix(xf);
   model.Draw(useFlags);
 }
@@ -433,7 +435,7 @@ void CSnakeWeedSwarm::ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamag
 std::optional<zeus::CAABox> CSnakeWeedSwarm::GetTouchBounds() const {
   if (x140_24_hasGround)
     return x144_touchBounds;
-  return {};
+  return std::nullopt;
 }
 
 } // namespace urde

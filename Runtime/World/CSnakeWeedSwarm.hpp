@@ -72,7 +72,7 @@ private:
   bool x140_26_playerTouching : 1;
   zeus::CAABox x144_touchBounds = zeus::skInvertedBox;
   CDamageInfo x15c_damageInfo;
-  // x178_ / x19c_: vectors of CSkinnedModel, not needed
+  // x178_ / x19c_: vectors of CSkinnedModel*, not needed
   rstl::reserved_vector<std::shared_ptr<CModelData>, 4> x1b0_modelData;
   CModelData::EWhichModel x1c4_which;
   std::unique_ptr<std::vector<zeus::CVector3f>> x1c8_boidPositions;
@@ -120,6 +120,6 @@ private:
   void CalculateTouchBounds();
   void EmitParticles1(const zeus::CVector3f& pos);
   void EmitParticles2(const zeus::CVector3f& pos);
-  void RenderBoid(u32 p1, const CBoid* boid, u32& posesToBuild) const;
+  void RenderBoid(u32 idx, const CBoid& boid, u32& posesToBuild) const;
 };
 } // namespace urde
