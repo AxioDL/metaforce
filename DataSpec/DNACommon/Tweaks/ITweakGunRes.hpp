@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "ITweak.hpp"
 #include "Runtime/IFactory.hpp"
 #include "Runtime/CPlayerState.hpp"
@@ -27,10 +29,11 @@ struct ITweakGunRes : ITweak {
   ResId x30_powerBombExplode;
 
   /* Power, Ice, Wave, Plasma, Phazon / Beam, Ball */
-  ResId x34_weapons[5][2];
-  ResId x84_muzzle[5];
-  ResId x94_charge[5];
-  ResId xa4_auxMuzzle[5];
+  using WeaponPair = std::array<ResId, 2>;
+  std::array<WeaponPair, 5> x34_weapons;
+  std::array<ResId, 5> x84_muzzle;
+  std::array<ResId, 5> x94_charge;
+  std::array<ResId, 5> xa4_auxMuzzle;
 
   ResId xb4_grappleSegment;
   ResId xb8_grappleClaw;
@@ -57,10 +60,11 @@ struct ITweakGunRes : ITweak {
     }
   }
 
-  const ResId* GetWeaponPair(EBeamId beam) const {
-    auto b = int(beam);
-    if (b < 0 || b > 4)
+  const WeaponPair& GetWeaponPair(EBeamId beam) const {
+    const auto b = int(beam);
+    if (b < 0 || b > 4) {
       return x34_weapons[0];
+    }
     return x34_weapons[b];
   }
 
@@ -81,18 +85,23 @@ struct ITweakGunRes : ITweak {
     x2c_bombExplode = factory.GetResourceIdByName(GetBombExplode())->id;
     x30_powerBombExplode = factory.GetResourceIdByName(GetPowerBombExplode())->id;
 
-    for (int i = 0; i < 5; ++i)
-      for (int j = 0; j < 2; ++j)
-        x34_weapons[i][j] = factory.GetResourceIdByName(GetWeapon(i, j))->id;
+    for (size_t i = 0; i < x34_weapons.size(); ++i) {
+      for (size_t j = 0; j < x34_weapons[i].size(); ++j) {
+        x34_weapons[i][j] = factory.GetResourceIdByName(GetWeapon(i, j != 0))->id;
+      }
+    }
 
-    for (int i = 0; i < 5; ++i)
+    for (size_t i = 0; i < x84_muzzle.size(); ++i) {
       x84_muzzle[i] = factory.GetResourceIdByName(GetMuzzleParticle(i))->id;
+    }
 
-    for (int i = 0; i < 5; ++i)
+    for (size_t i = 0; i < x94_charge.size(); ++i) {
       x94_charge[i] = factory.GetResourceIdByName(GetChargeParticle(i))->id;
+    }
 
-    for (int i = 0; i < 5; ++i)
+    for (size_t i = 0; i < xa4_auxMuzzle.size(); ++i) {
       xa4_auxMuzzle[i] = factory.GetResourceIdByName(GetAuxMuzzleParticle(i))->id;
+    }
 
     xb4_grappleSegment = factory.GetResourceIdByName(GetGrappleSegmentParticle())->id;
     xb8_grappleClaw = factory.GetResourceIdByName(GetGrappleClawParticle())->id;
