@@ -4230,8 +4230,10 @@ void CPlayer::UpdateOrbitPreventionTimer(float dt) {
 }
 
 void CPlayer::UpdateOrbitModeTimer(float dt) {
-  if (x304_orbitState == EPlayerOrbitState::NoOrbit && x32c_orbitModeTimer > 0.f)
+  if (x304_orbitState == EPlayerOrbitState::NoOrbit && x32c_orbitModeTimer > 0.f) {
     x32c_orbitModeTimer -= dt;
+    return;
+  }
   x32c_orbitModeTimer = 0.f;
 }
 
