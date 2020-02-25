@@ -83,10 +83,10 @@ struct ITweakPlayerRes : ITweak {
     x8_missileStationIcon = factory.GetResourceIdByName(_GetMissileStationIcon().data())->id;
     xc_elevatorIcon = factory.GetResourceIdByName(_GetElevatorIcon().data())->id;
 
-    x10_minesBreakFirstTopIcon = factory.GetResourceIdByName(_GetMinesBreakFirstTopIcon().data())->id;
-    x14_minesBreakFirstBottomIcon = factory.GetResourceIdByName(_GetMinesBreakFirstTopIcon().data())->id;
-    x18_minesBreakSecondTopIcon = factory.GetResourceIdByName(_GetMinesBreakFirstTopIcon().data())->id;
-    x1c_minesBreakSecondBottomIcon = factory.GetResourceIdByName(_GetMinesBreakFirstTopIcon().data())->id;
+    x10_minesBreakFirstTopIcon = factory.GetResourceIdByName(_GetMinesBreakFirstTopIcon())->id;
+    x14_minesBreakFirstBottomIcon = factory.GetResourceIdByName(_GetMinesBreakFirstBottomIcon())->id;
+    x18_minesBreakSecondTopIcon = factory.GetResourceIdByName(_GetMinesBreakSecondTopIcon())->id;
+    x1c_minesBreakSecondBottomIcon = factory.GetResourceIdByName(_GetMinesBreakSecondBottomIcon())->id;
 
     for (int i = 0; i < 9; ++i)
       x24_lStick[i] = factory.GetResourceIdByName(_GetLStick(i).data())->id;
