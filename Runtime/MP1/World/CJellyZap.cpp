@@ -6,7 +6,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
-const CMaterialFilter CJellyZap::kPlayerFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Player});
+constexpr CMaterialFilter kPlayerFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Player});
 
 CJellyZap::CJellyZap(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                      CModelData&& mData, const CDamageInfo& dInfo, bool b1, float f1, float f2, float f3, float f4,

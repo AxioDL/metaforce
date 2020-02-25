@@ -4,7 +4,6 @@
 
 namespace urde::MP1 {
 class CJellyZap : public CPatterned {
-  static const CMaterialFilter kPlayerFilter;
   u32 x568_ = 0;
   CDamageInfo x56c_attackDamage;
   float x588_attackRadius;
