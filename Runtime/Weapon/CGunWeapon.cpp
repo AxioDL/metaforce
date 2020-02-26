@@ -76,7 +76,7 @@ CGunWeapon::CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId, EM
 }
 
 void CGunWeapon::AllocResPools(CPlayerState::EBeamId beam) {
-  const CAssetId* const wPair = g_tweakGunRes->GetWeaponPair(beam);
+  const auto& wPair = g_tweakGunRes->GetWeaponPair(beam);
   const char* const* muzzleNames = &skMuzzleNames[size_t(beam) * 2];
   const char* const* frozenNames = &skFrozenNames[size_t(beam) * 2];
 
