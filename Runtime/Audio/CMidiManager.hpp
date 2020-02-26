@@ -30,7 +30,7 @@ public:
 
   public:
     amuse::ObjToken<amuse::Sequencer> GetAudioSysHandle() const { return x0_sequencer; }
-    void SetAudioSysHandle(amuse::ObjToken<amuse::Sequencer> sequencer) { x0_sequencer = sequencer; }
+    void SetAudioSysHandle(amuse::ObjToken<amuse::Sequencer> sequencer) { x0_sequencer = std::move(sequencer); }
     // const CSfxHandle& GetManagerHandle() const { return x4_handle; }
     // void SetMidiHandle(const CSfxHandle& handle) { x4_handle = handle; }
     bool IsAvailable() const { return xa_available; }
