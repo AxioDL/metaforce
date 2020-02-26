@@ -488,7 +488,7 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
     opts.x24_dampedNormalCoefficient = 0.f;
     opts.x28_dampedDeltaCoefficient = 1.f;
     opts.x2c_floorElasticForce = 0.1f;
-    opts.x30_wallElasticConstant = dampUnderwater ? 0.2f : 0.2f;
+    opts.x30_wallElasticConstant = 0.2f;
     opts.x3c_floorPlaneNormal = player.GetLastFloorPlaneNormal();
     opts.x38_maxPositiveVerticalVelocity = player.GetMaximumPlayerPositiveVerticalVelocity(mgr);
 
