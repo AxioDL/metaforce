@@ -283,11 +283,11 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
   if (!conn.openBlend(in))
     return;
   switch (conn.getBlendType()) {
-  case hecl::blender::BlendType::Mesh: {
+  case hecl::blender::BlendType::Mesh:
+  case hecl::blender::BlendType::Area: {
     hecl::blender::DataStream ds = conn.beginData();
     std::vector<hecl::ProjectPath> texs = ds.getTextures();
-    for (const hecl::ProjectPath& tex : texs)
-      pathsOut.push_back(tex);
+    pathsOut.insert(pathsOut.end(), std::make_move_iterator(texs.begin()), std::make_move_iterator(texs.end()));
     break;
   }
   case hecl::blender::BlendType::Actor: {
@@ -378,13 +378,6 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
 
     pathsOut.push_back(asGlob);
     return;
-  }
-  case hecl::blender::BlendType::Area: {
-    hecl::blender::DataStream ds = conn.beginData();
-    std::vector<hecl::ProjectPath> texs = ds.getTextures();
-    for (const hecl::ProjectPath& tex : texs)
-      pathsOut.push_back(tex);
-    break;
   }
   default:
     break;
