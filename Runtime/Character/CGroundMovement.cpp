@@ -384,10 +384,13 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
     /* NoStepLogic must be the only set material bit to bypass step logic */
     if (material2.XOR({EMaterialTypes::NoStepLogic})) {
       SMovementOptions optsCopy = opts;
-      zeus::CVector3f postToPre = physStatePre.GetTranslation() - physStatePost.GetTranslation();
-      float postToPreMag = postToPre.magSquared();
       optsCopy.x19_alwaysClip = noJump;
-      float quarterStepUp = 0.25f * stepUp;
+      optsCopy.x30_wallElasticConstant = 0.03f;
+
+      const zeus::CVector3f postToPre = physStatePre.GetTranslation() - physStatePost.GetTranslation();
+      const float postToPreMag = postToPre.magSquared();
+      const float quarterStepUp = 0.25f * stepUp;
+
       rstl::reserved_vector<CPhysicsState, 2> physStateList;
       rstl::reserved_vector<float, 2> stepDeltaList;
       rstl::reserved_vector<CCollisionInfo, 2> collisionInfoList;
