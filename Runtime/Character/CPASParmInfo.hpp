@@ -9,6 +9,7 @@ class CPASParmInfo {
 public:
   enum class EWeightFunction { ExactMatch, PercentError, AngularPercent, NoWeight };
 
+private:
   CPASAnimParm::EParmType x0_type;
   EWeightFunction x4_weightFunction;
   float x8_weight;
