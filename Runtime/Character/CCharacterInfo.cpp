@@ -32,13 +32,13 @@ CCharacterInfo::CParticleResData::CParticleResData(CInputStream& in, u16 tableCo
 
 static std::vector<std::pair<s32, std::pair<std::string, std::string>>> MakeAnimInfoVector(CInputStream& in) {
   std::vector<std::pair<s32, std::pair<std::string, std::string>>> ret;
-  u32 animInfoCount = in.readUint32Big();
+  const u32 animInfoCount = in.readUint32Big();
   ret.reserve(animInfoCount);
   for (u32 i = 0; i < animInfoCount; ++i) {
-    s32 idx = in.readInt32Big();
+    const s32 idx = in.readInt32Big();
     std::string a = in.readString();
     std::string b = in.readString();
-    ret.emplace_back(idx, std::make_pair(a, b));
+    ret.emplace_back(idx, std::make_pair(std::move(a), std::move(b)));
   }
   return ret;
 }
@@ -54,26 +54,27 @@ CCharacterInfo::CCharacterInfo(CInputStream& in)
 , x44_partRes(in, x0_tableCount)
 , x84_unk(in.readUint32Big()) {
   if (x0_tableCount > 1) {
-    u32 aabbCount = in.readUint32Big();
+    const u32 aabbCount = in.readUint32Big();
     x88_aabbs.reserve(aabbCount);
     for (u32 i = 0; i < aabbCount; ++i) {
       std::string name = in.readString();
-      x88_aabbs.emplace_back(name, zeus::CAABox());
+      x88_aabbs.emplace_back(std::move(name), zeus::CAABox());
       x88_aabbs.back().second.readBoundingBoxBig(in);
     }
   }
 
   if (x0_tableCount > 2) {
-    u32 effectCount = in.readUint32Big();
+    const u32 effectCount = in.readUint32Big();
     x98_effects.reserve(effectCount);
     for (u32 i = 0; i < effectCount; ++i) {
       std::string name = in.readString();
-      x98_effects.emplace_back(name, std::vector<CEffectComponent>());
+      x98_effects.emplace_back(std::move(name), std::vector<CEffectComponent>());
       std::vector<CEffectComponent>& comps = x98_effects.back().second;
-      u32 compCount = in.readUint32Big();
+      const u32 compCount = in.readUint32Big();
       comps.reserve(compCount);
-      for (u32 j = 0; j < compCount; ++j)
+      for (u32 j = 0; j < compCount; ++j) {
         comps.emplace_back(in);
+      }
     }
   }
 
@@ -83,10 +84,11 @@ CCharacterInfo::CCharacterInfo(CInputStream& in)
   }
 
   if (x0_tableCount > 4) {
-    u32 aidxCount = in.readUint32Big();
+    const u32 aidxCount = in.readUint32Big();
     xb0_animIdxs.reserve(aidxCount);
-    for (u32 i = 0; i < aidxCount; ++i)
+    for (u32 i = 0; i < aidxCount; ++i) {
       xb0_animIdxs.push_back(in.readInt32Big());
+    }
   }
 }
 
