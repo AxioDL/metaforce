@@ -647,11 +647,11 @@ void CFrontEndUI::SNewFileSelectFrame::DoFileMenuAdvance(CGuiTableGroup* caller)
 
 CFrontEndUI::SFileMenuOption CFrontEndUI::SNewFileSelectFrame::FindFileSelectOption(CGuiFrame* frame, int idx) {
   SFileMenuOption ret;
-  ret.x0_base = frame->FindWidget(fmt::format(fmt("basewidget_file{}"), idx).c_str());
-  ret.x4_textpanes[0] = FindTextPanePair(frame, fmt::format(fmt("textpane_filename{}"), idx).c_str());
-  ret.x4_textpanes[1] = FindTextPanePair(frame, fmt::format(fmt("textpane_world{}"), idx).c_str());
-  ret.x4_textpanes[2] = FindTextPanePair(frame, fmt::format(fmt("textpane_playtime{}"), idx).c_str());
-  ret.x4_textpanes[3] = FindTextPanePair(frame, fmt::format(fmt("textpane_date{}"), idx).c_str());
+  ret.x0_base = frame->FindWidget(fmt::format(fmt("basewidget_file{}"), idx));
+  ret.x4_textpanes[0] = FindTextPanePair(frame, fmt::format(fmt("textpane_filename{}"), idx));
+  ret.x4_textpanes[1] = FindTextPanePair(frame, fmt::format(fmt("textpane_world{}"), idx));
+  ret.x4_textpanes[2] = FindTextPanePair(frame, fmt::format(fmt("textpane_playtime{}"), idx));
+  ret.x4_textpanes[3] = FindTextPanePair(frame, fmt::format(fmt("textpane_date{}"), idx));
   return ret;
 }
 
@@ -1108,17 +1108,17 @@ void CFrontEndUI::SGuiTextPair::SetPairText(std::u16string_view str) {
   x0_panes[1]->TextSupport().SetText(str);
 }
 
-CFrontEndUI::SGuiTextPair CFrontEndUI::FindTextPanePair(CGuiFrame* frame, const char* name) {
+CFrontEndUI::SGuiTextPair CFrontEndUI::FindTextPanePair(CGuiFrame* frame, std::string_view name) {
   SGuiTextPair ret;
   ret.x0_panes[0] = static_cast<CGuiTextPane*>(frame->FindWidget(name));
-  ret.x0_panes[1] = static_cast<CGuiTextPane*>(frame->FindWidget(fmt::format(fmt("{}b"), name).c_str()));
+  ret.x0_panes[1] = static_cast<CGuiTextPane*>(frame->FindWidget(fmt::format(fmt("{}b"), name)));
   return ret;
 }
 
-void CFrontEndUI::FindAndSetPairText(CGuiFrame* frame, const char* name, std::u16string_view str) {
+void CFrontEndUI::FindAndSetPairText(CGuiFrame* frame, std::string_view name, std::u16string_view str) {
   CGuiTextPane* w1 = static_cast<CGuiTextPane*>(frame->FindWidget(name));
   w1->TextSupport().SetText(str);
-  CGuiTextPane* w2 = static_cast<CGuiTextPane*>(frame->FindWidget(fmt::format(fmt("{}b"), name).c_str()));
+  CGuiTextPane* w2 = static_cast<CGuiTextPane*>(frame->FindWidget(fmt::format(fmt("{}b"), name)));
   w2->TextSupport().SetText(str);
 }
 
@@ -1535,11 +1535,10 @@ void CFrontEndUI::SOptionsFrontEndFrame::SetRightUIText() {
   for (int i = 0; i < 5; ++i) {
     std::string name = fmt::format(fmt("textpane_right{}"), i);
     if (i < static_cast<int>(options.first)) {
-      FindTextPanePair(x1c_loadedFrame, name.c_str()).SetPairText(
-        x20_loadedPauseStrg->GetString(options.second[i].stringId));
+      FindTextPanePair(x1c_loadedFrame, name).SetPairText(x20_loadedPauseStrg->GetString(options.second[i].stringId));
       x28_tablegroup_rightmenu->GetWorkerWidget(i)->SetIsSelectable(true);
     } else {
-      FindTextPanePair(x1c_loadedFrame, name.c_str()).SetPairText(u"");
+      FindTextPanePair(x1c_loadedFrame, name).SetPairText(u"");
       x28_tablegroup_rightmenu->GetWorkerWidget(i)->SetIsSelectable(false);
     }
   }
@@ -1596,8 +1595,8 @@ void CFrontEndUI::SOptionsFrontEndFrame::FinishedLoading() {
 
   // Visor, Display, Sound, Controller
   for (int i = 0; i < 4; ++i) {
-    std::string name = fmt::format(fmt("textpane_filename{}"), i);
-    FindTextPanePair(x1c_loadedFrame, name.c_str()).SetPairText(x20_loadedPauseStrg->GetString(16 + i));
+    const std::string name = fmt::format(fmt("textpane_filename{}"), i);
+    FindTextPanePair(x1c_loadedFrame, name).SetPairText(x20_loadedPauseStrg->GetString(16 + i));
   }
 
   x2c_tablegroup_double->SetVertical(false);
@@ -1756,7 +1755,7 @@ CFrontEndUI::CFrontEndUI() : CIOWin("FrontEndUI") {
   g_GameState->GameOptions().ResetToDefaults();
   g_GameState->WriteBackupBuf();
 
-  for (int i = 0; CDvdFile::FileExists(GetAttractMovieFileName(i).c_str()); ++i)
+  for (int i = 0; CDvdFile::FileExists(GetAttractMovieFileName(i)); ++i)
     ++xc0_attractCount;
 
   m_touchBar = NewFrontEndUITouchBar();

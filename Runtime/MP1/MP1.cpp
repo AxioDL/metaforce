@@ -337,8 +337,9 @@ void CMain::AddWorldPaks() {
     if (i != 0)
       path += '0' + i;
 
-    if (CDvdFile::FileExists((path + ".upak").c_str()))
+    if (CDvdFile::FileExists(path + ".upak")) {
       loader->AddPakFileAsync(path, false, true);
+    }
   }
   loader->WaitForPakFileLoadingComplete();
 }
@@ -352,9 +353,10 @@ void CMain::AddOverridePaks() {
    * the higher the number the higer the priority, e.g: Override0 has less priority than Override1 etc.
    */
   for (size_t i = 999; i > 0; --i) {
-    std::string path = fmt::format(fmt("Override{}"), i);
-    if (CDvdFile::FileExists((path + ".upak").c_str()))
+    const std::string path = fmt::format(fmt("Override{}"), i);
+    if (CDvdFile::FileExists(path + ".upak")) {
       loader->AddPakFileAsync(path, false, false, true);
+    }
   }
   /* Make sure all Override paks are ready before attempting to load URDE.upak */
   loader->WaitForPakFileLoadingComplete();
