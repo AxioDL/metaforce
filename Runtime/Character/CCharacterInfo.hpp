@@ -23,9 +23,9 @@ public:
     std::vector<CAssetId> x20_elsc;
     std::vector<CAssetId> x30_elsc;
     CParticleResData(CInputStream& in, u16 tableCount);
-    CParticleResData(const std::vector<CAssetId>& part, const std::vector<CAssetId>& swhc,
-                     const std::vector<CAssetId>& elsc1, const std::vector<CAssetId>& elsc2)
-    : x0_part(part), x10_swhc(swhc), x20_elsc(elsc1), x30_elsc(elsc2) {}
+    CParticleResData(std::vector<CAssetId> part, std::vector<CAssetId> swhc, std::vector<CAssetId> elsc1,
+                     std::vector<CAssetId> elsc2)
+    : x0_part(std::move(part)), x10_swhc(std::move(swhc)), x20_elsc(std::move(elsc1)), x30_elsc(std::move(elsc2)) {}
   };
 
 private:
