@@ -654,7 +654,7 @@ public:
     if (stream.x70_26_headerReadState != 0 || stream.x70_24_unclaimed)
       return false;
 
-    CDvdFile file(stream.x60_fileName.c_str());
+    CDvdFile file(stream.x60_fileName);
     if (!file)
       return false;
 
@@ -668,11 +668,11 @@ public:
         rstream.x70_24_unclaimed)
       return false;
 
-    CDvdFile lfile(lstream.x60_fileName.c_str());
+    CDvdFile lfile(lstream.x60_fileName);
     if (!lfile)
       return false;
 
-    CDvdFile rfile(rstream.x60_fileName.c_str());
+    CDvdFile rfile(rstream.x60_fileName);
     if (!rfile)
       return false;
 

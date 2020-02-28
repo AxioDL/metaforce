@@ -18,7 +18,7 @@ CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, int pbAmount, int pbCapa
   xc_model_bombicon = static_cast<CGuiModel*>(selHud.FindWidget("model_bombicon"));
   x10_textpane_bombdigits = static_cast<CGuiTextPane*>(selHud.FindWidget("textpane_bombdigits"));
   for (int i = 0; i < 3; ++i) {
-    CGuiGroup* grp = static_cast<CGuiGroup*>(selHud.FindWidget(fmt::format(fmt("group_bombcount{}"), i).c_str()));
+    CGuiGroup* grp = static_cast<CGuiGroup*>(selHud.FindWidget(fmt::format(fmt("group_bombcount{}"), i)));
     CGuiWidget* filled = grp->GetWorkerWidget(1);
     CGuiWidget* empty = grp->GetWorkerWidget(0);
     x14_group_bombfilled.push_back(filled);

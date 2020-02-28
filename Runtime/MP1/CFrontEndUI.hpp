@@ -65,8 +65,8 @@ public:
     std::array<CGuiTextPane*, 2> x0_panes{};
     void SetPairText(std::u16string_view str);
   };
-  static SGuiTextPair FindTextPanePair(CGuiFrame* frame, const char* name);
-  static void FindAndSetPairText(CGuiFrame* frame, const char* name, std::u16string_view str);
+  static SGuiTextPair FindTextPanePair(CGuiFrame* frame, std::string_view name);
+  static void FindAndSetPairText(CGuiFrame* frame, std::string_view name, std::u16string_view str);
 
   struct SFileMenuOption {
     CGuiWidget* x0_base;

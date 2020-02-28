@@ -291,7 +291,7 @@ CMorphBall::CMorphBall(CPlayer& player, float radius)
 }
 
 void CMorphBall::LoadAnimationTokens(std::string_view ancsName) {
-  TToken<CDependencyGroup> dgrp = g_SimplePool->GetObj((std::string(ancsName) + "_DGRP").c_str());
+  TToken<CDependencyGroup> dgrp = g_SimplePool->GetObj(std::string(ancsName).append("_DGRP"));
   x1958_animationTokens.clear();
   x1958_animationTokens.reserve(dgrp->GetObjectTagVector().size());
   for (const SObjectTag& tag : dgrp->GetObjectTagVector()) {
