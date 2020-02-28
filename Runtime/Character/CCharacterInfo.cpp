@@ -3,26 +3,30 @@
 namespace urde {
 
 CCharacterInfo::CParticleResData::CParticleResData(CInputStream& in, u16 tableCount) {
-  u32 partCount = in.readUint32Big();
+  const u32 partCount = in.readUint32Big();
   x0_part.reserve(partCount);
-  for (u32 i = 0; i < partCount; ++i)
-    x0_part.push_back(in.readUint32Big());
+  for (u32 i = 0; i < partCount; ++i) {
+    x0_part.emplace_back(in.readUint32Big());
+  }
 
-  u32 swhcCount = in.readUint32Big();
+  const u32 swhcCount = in.readUint32Big();
   x10_swhc.reserve(swhcCount);
-  for (u32 i = 0; i < swhcCount; ++i)
-    x10_swhc.push_back(in.readUint32Big());
+  for (u32 i = 0; i < swhcCount; ++i) {
+    x10_swhc.emplace_back(in.readUint32Big());
+  }
 
-  u32 unkCount = in.readUint32Big();
+  const u32 unkCount = in.readUint32Big();
   x20_elsc.reserve(unkCount);
-  for (u32 i = 0; i < unkCount; ++i)
-    x20_elsc.push_back(in.readUint32Big());
+  for (u32 i = 0; i < unkCount; ++i) {
+    x20_elsc.emplace_back(in.readUint32Big());
+  }
 
   if (tableCount > 5) {
-    u32 elscCount = in.readUint32Big();
+    const u32 elscCount = in.readUint32Big();
     x30_elsc.reserve(elscCount);
-    for (u32 i = 0; i < elscCount; ++i)
-      x30_elsc.push_back(in.readUint32Big());
+    for (u32 i = 0; i < elscCount; ++i) {
+      x30_elsc.emplace_back(in.readUint32Big());
+    }
   }
 }
 
