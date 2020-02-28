@@ -14,11 +14,11 @@ class CPASAnimState {
   s32 x0_id;
   std::vector<CPASParmInfo> x4_parms;
   std::vector<CPASAnimInfo> x14_anims;
-  std::vector<s32> x24_selectionCache;
+  mutable std::vector<s32> x24_selectionCache;
 
 public:
-  CPASAnimState(CInputStream& in);
-  CPASAnimState(int stateId);
+  explicit CPASAnimState(CInputStream& in);
+  explicit CPASAnimState(int stateId);
   s32 GetStateId() const { return x0_id; }
   s32 GetNumAnims() const { return x14_anims.size(); }
   CPASAnimParm GetAnimParmData(s32, u32) const;
