@@ -66,6 +66,6 @@ public:
   s32 GetAnimationIndex(s32 idx) const { return xb0_animIdxs.at(idx); }
   const CPASDatabase& GetPASDatabase() const { return x30_pasDatabase; }
 
-  const s32 GetAnimationIndex(std::string_view) const;
+  s32 GetAnimationIndex(std::string_view) const;
 };
 } // namespace urde

@@ -92,7 +92,7 @@ CCharacterInfo::CCharacterInfo(CInputStream& in)
   }
 }
 
-const s32 CCharacterInfo::GetAnimationIndex(std::string_view name) const {
+s32 CCharacterInfo::GetAnimationIndex(std::string_view name) const {
   for (const auto& pair : x20_animInfo) {
     if (pair.second.second == name)
       return pair.first;
