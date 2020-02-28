@@ -87,7 +87,7 @@ s32 CPASAnimState::PickRandomAnimation(CRandom16& rand) const {
 
 std::pair<float, s32> CPASAnimState::FindBestAnimation(const rstl::reserved_vector<CPASAnimParm, 8>& parms,
                                                        CRandom16& rand, s32 ignoreAnim) const {
-  const_cast<std::vector<s32>*>(&x24_selectionCache)->clear();
+  x24_selectionCache.clear();
   float weight = -1.f;
 
   for (const CPASAnimInfo& info : x14_anims) {
@@ -130,11 +130,11 @@ std::pair<float, s32> CPASAnimState::FindBestAnimation(const rstl::reserved_vect
       calcWeight = 1.0f;
 
     if (calcWeight > weight) {
-      const_cast<std::vector<s32>*>(&x24_selectionCache)->clear();
-      const_cast<std::vector<s32>*>(&x24_selectionCache)->push_back(info.GetAnimId());
+      x24_selectionCache.clear();
+      x24_selectionCache.push_back(info.GetAnimId());
       weight = calcWeight;
     } else if (weight == calcWeight) {
-      const_cast<std::vector<s32>*>(&x24_selectionCache)->push_back(info.GetAnimId());
+      x24_selectionCache.push_back(info.GetAnimId());
       weight = calcWeight;
     }
   }

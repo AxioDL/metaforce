@@ -14,7 +14,7 @@ class CPASAnimState {
   s32 x0_id;
   std::vector<CPASParmInfo> x4_parms;
   std::vector<CPASAnimInfo> x14_anims;
-  std::vector<s32> x24_selectionCache;
+  mutable std::vector<s32> x24_selectionCache;
 
 public:
   CPASAnimState(CInputStream& in);
