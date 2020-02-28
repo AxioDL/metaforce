@@ -1,5 +1,8 @@
 #include "Runtime/Collision/CollisionUtil.hpp"
 
+#include <algorithm>
+#include <tuple>
+
 #include "Runtime/Collision/CCollisionInfo.hpp"
 #include "Runtime/Collision/CCollisionInfoList.hpp"
 
@@ -390,17 +393,6 @@ bool AABoxAABoxIntersection(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1
 /* Thanks to David Hunt for finding a ">="-bug!         */
 /********************************************************/
 
-#define FINDMINMAX(x0, x1, x2, min, max)                                                                               \
-  min = max = x0;                                                                                                      \
-  if (x1 < min)                                                                                                        \
-    min = x1;                                                                                                          \
-  if (x1 > max)                                                                                                        \
-    max = x1;                                                                                                          \
-  if (x2 < min)                                                                                                        \
-    min = x2;                                                                                                          \
-  if (x2 > max)                                                                                                        \
-    max = x2;
-
 static bool planeBoxOverlap(const zeus::CVector3f& normal, float d, const zeus::CVector3f& maxbox) {
   zeus::CVector3f vmin, vmax;
   for (int q = 0; q <= 2; q++) {
@@ -563,17 +555,17 @@ bool TriBoxOverlap(const zeus::CVector3f& boxcenter, const zeus::CVector3f& boxh
   /*  the triangle against the AABB */
 
   /* test in X-direction */
-  FINDMINMAX(v0.x(), v1.x(), v2.x(), min, max);
+  std::tie(min, max) = std::minmax<float>({v0.x(), v1.x(), v2.x()});
   if (min > boxhalfsize.x() || max < -boxhalfsize.x())
     return false;
 
   /* test in Y-direction */
-  FINDMINMAX(v0.y(), v1.y(), v2.y(), min, max);
+  std::tie(min, max) = std::minmax<float>({v0.y(), v1.y(), v2.y()});
   if (min > boxhalfsize.y() || max < -boxhalfsize.y())
     return false;
 
   /* test in Z-direction */
-  FINDMINMAX(v0.z(), v1.z(), v2.z(), min, max);
+  std::tie(min, max) = std::minmax<float>({v0.z(), v1.z(), v2.z()});
   if (min > boxhalfsize.z() || max < -boxhalfsize.z())
     return false;
 
