@@ -1194,7 +1194,7 @@ void SpecBase::beginBackgroundIndex() {
   cancelBackgroundIndex();
   clearTagCache();
   m_backgroundRunning = true;
-  m_backgroundIndexTh = std::thread(std::bind(&SpecBase::backgroundIndexProc, this));
+  m_backgroundIndexTh = std::thread(&SpecBase::backgroundIndexProc, this);
 }
 
 void SpecBase::waitForIndexComplete() const {
