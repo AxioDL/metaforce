@@ -18,7 +18,7 @@ class CPASDatabase {
   void SetDefaultState(s32 state) { x10_defaultState = state; }
 
 public:
-  CPASDatabase(CInputStream& in);
+  explicit CPASDatabase(CInputStream& in);
 
   std::pair<float, s32> FindBestAnimation(const CPASAnimParmData&, s32) const;
   std::pair<float, s32> FindBestAnimation(const CPASAnimParmData&, CRandom16&, s32) const;
