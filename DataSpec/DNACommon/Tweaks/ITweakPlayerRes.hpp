@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "ITweak.hpp"
 #include "Runtime/IFactory.hpp"
 #include "Runtime/CPlayerState.hpp"
@@ -20,30 +22,31 @@ struct ITweakPlayerRes : ITweak {
   ResId x1c_minesBreakSecondBottomIcon;
 
   /* N, U, UL, L, DL, D, DR, R, UR */
-  ResId x24_lStick[9];
-  ResId x4c_cStick[9];
+  std::array<ResId, 9> x24_lStick;
+  std::array<ResId, 9> x4c_cStick;
 
   /* Out, In */
-  ResId x74_lTrigger[2];
-  ResId x80_rTrigger[2];
-  ResId x8c_startButton[2];
-  ResId x98_aButton[2];
-  ResId xa4_bButton[2];
-  ResId xb0_xButton[2];
-  ResId xbc_yButton[2];
+  std::array<ResId, 2> x74_lTrigger;
+  std::array<ResId, 2> x80_rTrigger;
+  std::array<ResId, 2> x8c_startButton;
+  std::array<ResId, 2> x98_aButton;
+  std::array<ResId, 2> xa4_bButton;
+  std::array<ResId, 2> xb0_xButton;
+  std::array<ResId, 2> xbc_yButton;
 
   ResId xc4_ballTransitionsANCS;
 
   /* Power, Ice, Wave, Plasma, Phazon */
-  ResId xc8_ballTransitions[5];
-  ResId xc8_cineGun[5];
+  std::array<ResId, 5> xc8_ballTransitions;
+  std::array<ResId, 5> xc8_cineGun;
 
   float xf0_cinematicMoveOutofIntoPlayerDistance;
 
   ResId GetBeamBallTransitionModel(EBeamId beam) const {
-    int b = int(beam);
-    if (b < 0 || b > 4)
+    auto b = size_t(beam);
+    if (b >= xc8_ballTransitions.size()) {
       b = 0;
+    }
     switch (EBeamId(b)) {
     case EBeamId::Power:
     default:
@@ -60,9 +63,10 @@ struct ITweakPlayerRes : ITweak {
   }
 
   ResId GetBeamCineModel(EBeamId beam) const {
-    int b = int(beam);
-    if (b < 0 || b > 4)
+    auto b = size_t(beam);
+    if (b >= xc8_cineGun.size()) {
       b = 0;
+    }
     switch (EBeamId(b)) {
     case EBeamId::Power:
     default:
@@ -88,40 +92,51 @@ struct ITweakPlayerRes : ITweak {
     x18_minesBreakSecondTopIcon = factory.GetResourceIdByName(_GetMinesBreakSecondTopIcon())->id;
     x1c_minesBreakSecondBottomIcon = factory.GetResourceIdByName(_GetMinesBreakSecondBottomIcon())->id;
 
-    for (int i = 0; i < 9; ++i)
+    for (size_t i = 0; i < x24_lStick.size(); ++i) {
       x24_lStick[i] = factory.GetResourceIdByName(_GetLStick(i))->id;
+    }
 
-    for (int i = 0; i < 9; ++i)
+    for (size_t i = 0; i < x4c_cStick.size(); ++i) {
       x4c_cStick[i] = factory.GetResourceIdByName(_GetCStick(i))->id;
+    }
 
-    for (int i = 0; i < 2; ++i)
+    for (size_t i = 0; i < x74_lTrigger.size(); ++i) {
       x74_lTrigger[i] = factory.GetResourceIdByName(_GetLTrigger(i))->id;
+    }
 
-    for (int i = 0; i < 2; ++i)
+    for (size_t i = 0; i < x80_rTrigger.size(); ++i) {
       x80_rTrigger[i] = factory.GetResourceIdByName(_GetRTrigger(i))->id;
+    }
 
-    for (int i = 0; i < 2; ++i)
+    for (size_t i = 0; i < x8c_startButton.size(); ++i) {
       x8c_startButton[i] = factory.GetResourceIdByName(_GetStartButton(i))->id;
+    }
 
-    for (int i = 0; i < 2; ++i)
+    for (size_t i = 0; i < x98_aButton.size(); ++i) {
       x98_aButton[i] = factory.GetResourceIdByName(_GetAButton(i))->id;
+    }
 
-    for (int i = 0; i < 2; ++i)
+    for (size_t i = 0; i < xa4_bButton.size(); ++i) {
       xa4_bButton[i] = factory.GetResourceIdByName(_GetBButton(i))->id;
+    }
 
-    for (int i = 0; i < 2; ++i)
+    for (size_t i = 0; i < xb0_xButton.size(); ++i) {
       xb0_xButton[i] = factory.GetResourceIdByName(_GetXButton(i))->id;
+    }
 
-    for (int i = 0; i < 2; ++i)
+    for (size_t i = 0; i < xbc_yButton.size(); ++i) {
       xbc_yButton[i] = factory.GetResourceIdByName(_GetYButton(i))->id;
+    }
 
     xc4_ballTransitionsANCS = factory.GetResourceIdByName(_GetBallTransitionsANCS())->id;
 
-    for (int i = 0; i < 5; ++i)
+    for (size_t i = 0; i < xc8_ballTransitions.size(); ++i) {
       xc8_ballTransitions[i] = factory.GetResourceIdByName(_GetBallTransitionBeamRes(i))->id;
+    }
 
-    for (int i = 0; i < 5; ++i)
+    for (size_t i = 0; i < xc8_cineGun.size(); ++i) {
       xc8_cineGun[i] = factory.GetResourceIdByName(_GetBeamCineModel(i))->id;
+    }
 
     xf0_cinematicMoveOutofIntoPlayerDistance = _GetCinematicMoveOutofIntoPlayerDistance();
   }
