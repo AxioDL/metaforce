@@ -44,7 +44,7 @@ void CFlaahgraTentacle::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
     break;
   }
   case EScriptObjectMessage::Play: {
-    x578_ = 0.039999999f;
+    x578_ = 0.04f;
     break;
   }
   case EScriptObjectMessage::Deactivate: {
