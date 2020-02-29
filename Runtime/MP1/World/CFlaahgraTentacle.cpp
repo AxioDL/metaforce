@@ -169,7 +169,6 @@ bool CFlaahgraTentacle::ShouldAttack(CStateManager& mgr, float) {
   if (x578_ > 0.f)
     return  true;
 
-  /* FIXME: Double check this */
   if (x574_ > 0.f || mgr.GetPlayer().IsInWaterMovement())
     return false;
 
