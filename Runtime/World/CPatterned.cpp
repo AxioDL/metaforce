@@ -651,8 +651,10 @@ bool CPatterned::Leash(CStateManager&, float arg) {
 }
 
 bool CPatterned::InDetectionRange(CStateManager& mgr, float arg) {
-  zeus::CVector3f delta = mgr.GetPlayer().GetTranslation() - GetTranslation();
-  if (delta.magSquared() < x3bc_detectionRange * x3bc_detectionRange) {
+  zeus::CVector3f delta = GetTranslation() - mgr.GetPlayer().GetTranslation();
+  const float maxRange = x3bc_detectionRange * x3bc_detectionRange;
+  const float dist = delta.magSquared();
+  if (dist < maxRange) {
     if (x3c0_detectionHeightRange > 0.f)
       return delta.z() * delta.z() < x3c0_detectionHeightRange * x3c0_detectionHeightRange;
     return true;
@@ -884,7 +886,11 @@ void CPatterned::TryMeleeAttack(CStateManager& mgr, int arg) {
 }
 
 void CPatterned::TryGenerate(CStateManager& mgr, int arg) {
-  x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType(arg), x2e0_destPos, true));
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType(arg), x2e0_destPos, false));
+}
+
+void CPatterned::TryGenerateNoXf(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Zero, x2e0_destPos, true));
 }
 
 void CPatterned::TryJump(CStateManager& mgr, int arg) {
@@ -937,6 +943,10 @@ void CPatterned::TryKnockBack(CStateManager& mgr, int arg) {
 
 void CPatterned::TryGenerateDeactivate(urde::CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType(arg), zeus::skZero3f));
+}
+
+void CPatterned::TryStep(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection(arg), pas::EStepType::Normal));
 }
 
 void CPatterned::BuildBodyController(EBodyType bodyType) {

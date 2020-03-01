@@ -198,7 +198,7 @@ void CSeedling::Generate(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate)
     x32c_animState = EAnimState::Ready;
   else if (msg == EStateMsg::Update)
-    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerate, 0);
+    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerateNoXf, 0);
 }
 
 bool CSeedling::ShouldAttack(CStateManager& mgr, float) {

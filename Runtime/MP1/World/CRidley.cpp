@@ -157,21 +157,25 @@ constexpr std::array skWingEffects{
     "WingSparks8"sv,
 };
 
-constexpr std::array<SOBBRadiiJointInfo, 4> skTail{{{"Tail_1", "Tail_3", 0.66f},
-                                                    {"Tail_3", "Tail_5", 0.66f},
-                                                    {"Tail_5", "Tail_7", 0.66f},
-                                                    {"Tail_7", "Tail_9", 0.66f}}};
+constexpr std::array<SOBBRadiiJointInfo, 4> skTail{{
+    {"Tail_1", "Tail_3", 0.66f},
+    {"Tail_3", "Tail_5", 0.66f},
+    {"Tail_5", "Tail_7", 0.66f},
+    {"Tail_7", "Tail_9", 0.66f},
+}};
 
-constexpr std::array<SSphereJointInfo, 10> skSphereJoints{{{"Skeleton_Root", 0.6f},
-                                                           {"Spine_2", 0.6f},
-                                                           {"breastPlate_LCTR", 0.6f},
-                                                           {"Head_1", 0.6f},
-                                                           {"L_wrist", 0.5f},
-                                                           {"R_wrist", 0.5f},
-                                                           {"L_ankle", 0.6f},
-                                                           {"R_ankle", 0.6f},
-                                                           {"L_pinky_1", 0.4f},
-                                                           {"R_pinky_1", 0.4f}}};
+constexpr std::array<SSphereJointInfo, 10> skSphereJoints{{
+    {"Skeleton_Root", 0.6f},
+    {"Spine_2", 0.6f},
+    {"breastPlate_LCTR", 0.6f},
+    {"Head_1", 0.6f},
+    {"L_wrist", 0.5f},
+    {"R_wrist", 0.5f},
+    {"L_ankle", 0.6f},
+    {"R_ankle", 0.6f},
+    {"L_pinky_1", 0.4f},
+    {"R_pinky_1", 0.4f},
+}};
 
 struct SSomeRidleyStruct3 {
   float x0_;

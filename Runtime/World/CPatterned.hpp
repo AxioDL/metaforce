@@ -322,6 +322,7 @@ public:
   void TryProjectileAttack(CStateManager& mgr, int arg);
   void TryMeleeAttack(CStateManager& mgr, int arg);
   void TryGenerate(CStateManager& mgr, int arg);
+  void TryGenerateNoXf(CStateManager& mgr, int arg);
   void TryJump(CStateManager& mgr, int arg);
   void TryTurn(CStateManager& mgr, int arg);
   void TryGetUp(CStateManager& mgr, int arg);
@@ -334,6 +335,7 @@ public:
   void TryWallHang(CStateManager& mgr, int arg);
   void TryKnockBack(CStateManager& mgr, int arg);
   void TryGenerateDeactivate(CStateManager& mgr, int arg);
+  void TryStep(CStateManager& mgr, int arg);
 
   virtual bool KnockbackWhenFrozen() const { return true; }
   virtual void MassiveDeath(CStateManager& mgr);

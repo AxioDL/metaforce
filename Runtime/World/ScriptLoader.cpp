@@ -3019,7 +3019,7 @@ CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int p
   float f4 = in.readFloatBig();
   float f5 = in.readFloatBig();
   float f6 = in.readFloatBig();
-  MP1::CMagdolite::CMagdoliteData magData(in);
+  CFlameInfo flameInfo(in);
   float f7 = in.readFloatBig();
   float f8 = in.readFloatBig();
   float f9 = in.readFloatBig();
@@ -3030,7 +3030,7 @@ CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int p
 
   return new MP1::CMagdolite(mgr.AllocateUniqueId(), actorHead.x0_name, info, actorHead.x10_transform,
                              std::move(modelData), pInfo, actorParameters, f1, f2, damageInfo1, damageInfo2,
-                             damageVulnerability1, damageVulnerability2, modelId, skinId, f3, f4, f5, f6, magData, f7,
+                             damageVulnerability1, damageVulnerability2, modelId, skinId, f3, f4, f5, f6, flameInfo, f7,
                              f8, f9);
 }
 
