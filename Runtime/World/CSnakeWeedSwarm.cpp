@@ -80,10 +80,10 @@ void CSnakeWeedSwarm::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
 
 void CSnakeWeedSwarm::AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which) {
   for (int i = 0; i < 4; ++i) {
-    x1b0_modelData[i]->EnableLooping(true);
-    x1b0_modelData[i]->AdvanceAnimation(x1b0_modelData[i]->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv) *
-                                            (i * 0.25f),
-                                        mgr, x4_areaId, true);
+    const auto& modelData = x1b0_modelData[i];
+    modelData->EnableLooping(true);
+    modelData->AdvanceAnimation(modelData->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv) * (i * 0.25f), mgr,
+                                x4_areaId, true);
   }
   x1c4_which = which;
 }
@@ -109,8 +109,8 @@ void CSnakeWeedSwarm::PreRender(CStateManager& mgr, const zeus::CFrustum& frustu
   }
 
   SetCalculateLighting(false);
-  for (int i = 0; i < 4; ++i) {
-    x1b0_modelData[i]->GetAnimationData()->PreRender();
+  for (const auto& modelData : x1b0_modelData) {
+    modelData->GetAnimationData()->PreRender();
   }
   if (x90_actorLights && x140_24_hasGround) {
     bool buildLights = false;
@@ -145,7 +145,7 @@ void CSnakeWeedSwarm::AddToRenderer(const zeus::CFrustum& frustum, const CStateM
     g_Renderer->AddParticleGen(*x1f4_particleGen2);
 
   if (x90_actorLights) {
-    for (auto modelData : x1b0_modelData) {
+    for (const auto& modelData : x1b0_modelData) {
       x90_actorLights->ActivateLights(*modelData->PickAnimatedModel(x1c4_which).GetModelInst());
     }
   } else {
@@ -165,7 +165,7 @@ void CSnakeWeedSwarm::Touch(CActor& actor, CStateManager& mgr) {
       HandleRadiusDamage(x100_weaponDamageRadius, mgr, proj->GetTransform().origin);
   }
   if (TCastToPtr<CPlayer> player = actor) {
-    for (auto boid : x134_boids) {
+    for (const auto& boid : x134_boids) {
       float m = (boid.GetPosition() - player->GetTransform().origin).magnitude();
       if (m < x104_ && boid.GetState() == EBoidState::Raised) {
         mgr.SendScriptMsg(player, kInvalidUniqueId, EScriptObjectMessage::InSnakeWeed);
@@ -177,13 +177,12 @@ void CSnakeWeedSwarm::Touch(CActor& actor, CStateManager& mgr) {
 
 void CSnakeWeedSwarm::HandleRadiusDamage(float radius, CStateManager& mgr, const zeus::CVector3f& pos) {
   float radiusSquared = radius * radius;
-  for (auto boid : x134_boids) {
+  for (auto& boid : x134_boids) {
     const zeus::CVector3f& boidPosition = boid.GetPosition();
     if ((boidPosition - pos).magSquared() < radiusSquared &&
-        (boid.GetState() == EBoidState::Raised || boid.GetState() == EBoidState::x1)) {
+        (boid.GetState() == EBoidState::Raised || boid.GetState() == EBoidState::Raising)) {
       boid.SetState(EBoidState::x3);
-      float random = mgr.GetActiveRandom()->Float();
-      boid.Set_x18(x118_ * random + x114_);
+      boid.Set_x18(x118_ * mgr.GetActiveRandom()->Float() + x114_);
       CSfxManager::AddEmitter(x1d2_sfx2, boidPosition, zeus::skZero3f, true, false, 0x7f, x4_areaId);
       EmitParticles1(boidPosition);
     }
@@ -218,13 +217,13 @@ void CSnakeWeedSwarm::Think(float dt, CStateManager& mgr) {
   if (x140_25_modelAssetDirty && x1c4_which != model)
     AllocateSkinnedModels(mgr, model);
 
-  for (int i = 0; i < 4; ++i) {
-    x1b0_modelData[i]->GetAnimationData()->SetPlaybackRate(1.f);
-    x1b0_modelData[i]->AdvanceAnimation(dt, mgr, x4_areaId, true);
+  for (const auto& modelData : x1b0_modelData) {
+    modelData->GetAnimationData()->SetPlaybackRate(1.f);
+    modelData->AdvanceAnimation(dt, mgr, x4_areaId, true);
   }
 
   int raisedBoids = 0;
-  for (auto boid : x134_boids) {
+  for (auto& boid : x134_boids) {
     const zeus::CVector3f& pos = boid.GetPosition();
     EBoidState state = boid.GetState();
     if (state == EBoidState::Raised) {
@@ -232,32 +231,27 @@ void CSnakeWeedSwarm::Think(float dt, CStateManager& mgr) {
       if (x1f4_particleGen2 && emitParticle) {
         EmitParticles2(pos);
       }
-    } else if (state == EBoidState::x1) {
-      float x14 = boid.Get_x14() - dt * boid.Get_x18();
-      if (x14 <= 0.f) {
+    } else if (state == EBoidState::Raising) {
+      boid.Set_x14(boid.Get_x14() - dt * boid.Get_x18());
+      if (boid.Get_x14() <= 0.f) {
         boid.Set_x14(0.f);
         boid.SetState(EBoidState::Raised);
-      } else {
-        boid.Set_x14(x14);
       }
     } else if (state == EBoidState::x2) {
-      float x10 = boid.Get_x10() - dt;
-      boid.Set_x10(x10);
-      if (x10 <= 0.f) {
-        boid.SetState(EBoidState::x1);
+      boid.Set_x10(boid.Get_x10() - dt);
+      if (boid.Get_x10() <= 0.f) {
+        boid.SetState(EBoidState::Raising);
         CSfxManager::AddEmitter(x1d4_sfx3, pos, zeus::skZero3f, true, false, 0x7f, x4_areaId);
         EmitParticles1(pos);
       }
     } else if (state == EBoidState::x3) {
-      float x14 = dt * boid.Get_x18() + boid.Get_x14();
+      boid.Set_x14(dt * boid.Get_x18() + boid.Get_x14());
       float max = x110_ * boid.Get_x20();
-      if (x14 >= max) {
+      if (boid.Get_x14() >= max) {
         boid.Set_x14(max);
         float random = mgr.GetActiveRandom()->Float();
         boid.Set_x10(x10c_ * random + x108_);
         boid.SetState(EBoidState::x2);
-      } else {
-        boid.Set_x14(x14);
       }
     }
   }
@@ -344,9 +338,8 @@ bool CSnakeWeedSwarm::CreateBoid(const zeus::CVector3f& vec, CStateManager& mgr)
   const CRayCastResult& result = mgr.RayStaticIntersection(pos, zeus::skDown, 2.f * xf8_height, matFilter);
   if (result.IsValid() && result.GetPlane().normal().dot(zeus::skUp) > x11c_) {
     const zeus::CVector3f& boidPosition = result.GetPoint() - zeus::CVector3f(0.f, 0.f, x128_);
-    float random = mgr.GetActiveRandom()->Float();
-    const CBoid boid(boidPosition, x110_, x114_ + x118_, (x124_ - x120_) * random + x120_);
-    x134_boids.push_back(boid);
+    x134_boids.push_back(
+        {boidPosition, x110_, x114_ + x118_, (x124_ - x120_) * mgr.GetActiveRandom()->Float() + x120_});
     return true;
   }
   return false;
@@ -380,7 +373,7 @@ void CSnakeWeedSwarm::CalculateTouchBounds() {
     x144_touchBounds = zeus::CAABox(GetTransform().origin, GetTransform().origin);
   } else {
     x144_touchBounds = zeus::skInvertedBox;
-    for (auto boid : x134_boids) {
+    for (const auto& boid : x134_boids) {
       x144_touchBounds.accumulateBounds(boid.GetPosition() - x100_weaponDamageRadius);
       x144_touchBounds.accumulateBounds(boid.GetPosition() + x100_weaponDamageRadius);
     }
@@ -410,7 +403,7 @@ void CSnakeWeedSwarm::EmitParticles2(const zeus::CVector3f& pos) {
 
 void CSnakeWeedSwarm::RenderBoid(u32 idx, const CBoid& boid, u32& posesToBuild) const {
   const u32 modelIdx = idx & 3;
-  auto modelData = x1b0_modelData[modelIdx];
+  const auto& modelData = x1b0_modelData[modelIdx];
   CSkinnedModel& model = modelData->PickAnimatedModel(x1c4_which);
   const CModelFlags useFlags(0, 0, 3, zeus::skWhite);
   if (posesToBuild & 1 << modelIdx) {
@@ -418,12 +411,11 @@ void CSnakeWeedSwarm::RenderBoid(u32 idx, const CBoid& boid, u32& posesToBuild) 
     modelData->GetAnimationData()->BuildPose();
     model.Calculate(modelData->GetAnimationData()->GetPose(), useFlags, {}, nullptr);
   }
-  //  printf("rendering boid with x14 %f\n", boid->Get_x14());
   const zeus::CTransform& xf =
-      zeus::CTransform::Translate(boid.GetPosition() /*- zeus::CVector3f(0.f, 0.f, boid.Get_x14())*/) *
+      zeus::CTransform::Translate(boid.GetPosition() - zeus::CVector3f(0.f, 0.f, boid.Get_x14())) *
       zeus::CTransform::Scale(boid.Get_x20());
-  g_Renderer->SetModelMatrix(xf);
-  model.Draw(useFlags);
+  CGraphics::SetModelMatrix(xf);
+  modelData->GetAnimationData()->Render(model, useFlags, {}, nullptr);
 }
 
 void CSnakeWeedSwarm::ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& mgr) {

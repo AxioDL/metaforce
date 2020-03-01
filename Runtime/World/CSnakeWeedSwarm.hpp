@@ -12,7 +12,7 @@ class CSnakeWeedSwarm : public CActor {
 public:
   enum class EBoidState : u32 {
     Raised = 0,
-    x1 = 1,
+    Raising = 1,
     x2 = 2,
     x3 = 3,
   };
@@ -35,7 +35,7 @@ public:
 
   public:
     constexpr CBoid(const zeus::CVector3f& pos, float f1, float f2, float f3)
-    : x0_pos(pos), xc_state(EBoidState::x1), x14_(f1), x18_(f2), x20_(f3) {}
+    : x0_pos(pos), xc_state(EBoidState::Raising), x14_(f1), x18_(f2), x20_(f3) {}
 
     constexpr const zeus::CVector3f& GetPosition() const { return x0_pos; }
     constexpr EBoidState GetState() const { return xc_state; }
@@ -43,7 +43,7 @@ public:
     constexpr float Get_x14() const { return x14_; }
     constexpr float Get_x18() const { return x18_; }
     constexpr float Get_x20() const { return x20_; }
-    constexpr void SetState(EBoidState v) { xc_state = v; }
+    void SetState(EBoidState v) { xc_state = v; fmt::print(fmt("Setting boid state {}"), v); }
     constexpr void Set_x10(float v) { x10_ = v; }
     constexpr void Set_x14(float v) { x14_ = v; }
     constexpr void Set_x18(float v) { x18_ = v; }
