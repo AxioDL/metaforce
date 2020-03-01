@@ -3054,9 +3054,9 @@ CEntity* ScriptLoader::LoadSnakeWeedSwarm(CStateManager& mgr, CInputStream& in, 
   u32 w1 = in.readUint32Big();
   u32 w2 = in.readUint32Big();
   u32 w3 = in.readUint32Big();
-  CAssetId w4 = (propCount < 29 ? -1 : in.readUint32Big());
-  u32 w5 = (propCount < 29 ? -1 : in.readUint32Big());
-  CAssetId w6 = (propCount < 29 ? -1 : in.readUint32Big());
+  CAssetId w4 = (propCount < 29 ? CAssetId() : in.readUint32Big());
+  u32 w5 = (propCount < 29 ? 0 : in.readUint32Big());
+  CAssetId w6 = (propCount < 29 ? CAssetId() : in.readUint32Big());
   float f16 = (propCount < 29 ? 0.f : in.readFloatBig());
 
   CAnimRes animRes(animParms.GetACSFile(), animParms.GetCharacter(), zeus::skOne3f, animParms.GetInitialAnimation(),
