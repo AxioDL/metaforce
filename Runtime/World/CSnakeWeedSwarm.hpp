@@ -28,24 +28,24 @@ public:
     zeus::CVector3f x0_pos;
     EBoidState xc_state;
     float x10_ = 0.f; // some timer
-    float x14_; // height?
+    float x14_yOffset;
     float x18_;
     float x1c_ = 0.f;
     float x20_;
 
   public:
     constexpr CBoid(const zeus::CVector3f& pos, float f1, float f2, float f3)
-    : x0_pos(pos), xc_state(EBoidState::Raising), x14_(f1), x18_(f2), x20_(f3) {}
+    : x0_pos(pos), xc_state(EBoidState::Raising), x14_yOffset(f1), x18_(f2), x20_(f3) {}
 
     constexpr const zeus::CVector3f& GetPosition() const { return x0_pos; }
     constexpr EBoidState GetState() const { return xc_state; }
     constexpr float Get_x10() const { return x10_; }
-    constexpr float Get_x14() const { return x14_; }
+    constexpr float GetYOffset() const { return x14_yOffset; }
     constexpr float Get_x18() const { return x18_; }
     constexpr float Get_x20() const { return x20_; }
-    void SetState(EBoidState v) { xc_state = v; fmt::print(fmt("Setting boid state {}"), v); }
+    constexpr void SetState(EBoidState v) { xc_state = v; }
     constexpr void Set_x10(float v) { x10_ = v; }
-    constexpr void Set_x14(float v) { x14_ = v; }
+    constexpr void SetYOffset(float v) { x14_yOffset = v; }
     constexpr void Set_x18(float v) { x18_ = v; }
   };
 
