@@ -32,7 +32,7 @@ void CDestroyableRock::PreRender(CStateManager& mgr, const zeus::CFrustum& frust
         xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
       } else {
         x330_.a() = 1.f;
-        xb4_drawFlags = CModelFlags(0, 0, 3, x330_);
+        xb4_drawFlags = CModelFlags(2, 0, 3, x330_);
       }
     }
   }

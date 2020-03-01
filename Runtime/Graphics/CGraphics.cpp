@@ -36,30 +36,18 @@ SViewport g_Viewport = {
 u32 CGraphics::g_FrameCounter = 0;
 
 const zeus::CMatrix3f CGraphics::skCubeBasisMats[] = {
-  /* Right */
-  {0.f, 1.f, 0.f,
-   1.f, 0.f, 0.f,
-   0.f, 0.f, -1.f},
-  /* Left */
-  {0.f, -1.f, 0.f,
-   -1.f, 0.f, 0.f,
-   0.f, 0.f, -1.f},
-  /* Up */
-  {1.f, 0.f, 0.f,
-   0.f, 0.f, -1.f,
-   0.f, 1.f, 0.f},
-  /* Down */
-  {1.f, 0.f, 0.f,
-   0.f, 0.f, 1.f,
-   0.f, -1.f, 0.f},
-  /* Back */
-  {1.f, 0.f, 0.f,
-   0.f, -1.f, 0.f,
-   0.f, 0.f, -1.f},
-  /* Forward */
-  {-1.f, 0.f, 0.f,
-   0.f, 1.f, 0.f,
-   0.f, 0.f, -1.f},
+    /* Right */
+    {0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, -1.f},
+    /* Left */
+    {0.f, -1.f, 0.f, -1.f, 0.f, 0.f, 0.f, 0.f, -1.f},
+    /* Up */
+    {1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f},
+    /* Down */
+    {1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, -1.f, 0.f},
+    /* Back */
+    {1.f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, 0.f, -1.f},
+    /* Forward */
+    {-1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, -1.f},
 };
 
 void CGraphics::DisableAllLights() {
@@ -462,4 +450,48 @@ boo::IGraphicsCommandQueue* CGraphics::g_BooMainCommandQueue = nullptr;
 boo::ObjToken<boo::ITextureR> CGraphics::g_SpareTexture;
 const boo::SystemChar* CGraphics::g_BooPlatformName = nullptr;
 
+const CTevCombiners::CTevPass CGraphics::sTevPass805a564c(
+    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC},
+    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA});
+
+const CTevCombiners::CTevPass CGraphics::sTevPass805a5698(
+    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_C0, GX::TevColorArg::CC_ZERO},
+    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_A0, GX::TevAlphaArg::CA_ZERO});
+
+const CTevCombiners::CTevPass CGraphics::sTevPass805a5e70(
+    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_C0},
+    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_A0});
+
+const CTevCombiners::CTevPass CGraphics::sTevPass805a5ebc(
+    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_ZERO},
+    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_TEXA, GX::TevAlphaArg::CA_ZERO});
+
+const CTevCombiners::CTevPass CGraphics::sTevPass805a5f08(
+    {GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_TEXA, GX::TevColorArg::CC_ZERO},
+    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA});
+
+const CTevCombiners::CTevPass CGraphics::sTevPass805a5f54(
+    {GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_ONE, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_ZERO},
+    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_TEXA, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_ZERO});
+
+const CTevCombiners::CTevPass CGraphics::sTevPass805a5fa0(
+    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_TEXC},
+    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_TEXA});
+
+const CTevCombiners::CTevPass CGraphics::sTevPass804bfcc0(
+    {GX::TevColorArg::CC_C0, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_ZERO},
+    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA});
+
+const CTevCombiners::CTevPass CGraphics::sTevPass805a5fec(
+    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC},
+    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_TEXA, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_ZERO});
+
+const CTevCombiners::CTevPass CGraphics::sTevPass805a6038(
+    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_ZERO},
+    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_KONST, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_ZERO});
+
+const CTevCombiners::CTevPass CGraphics::sTevPass805a6084(
+    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_CPREV, GX::TevColorArg::CC_APREV, GX::TevColorArg::CC_ZERO},
+    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_APREV});
 } // namespace urde
+

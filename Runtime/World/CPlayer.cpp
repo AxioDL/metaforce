@@ -3659,7 +3659,7 @@ void CPlayer::SetOrbitTargetId(TUniqueId id, CStateManager& mgr) {
   if (id != kInvalidUniqueId) {
     x394_orbitingEnemy =
         (TCastToPtr<CPatterned>(mgr.ObjectById(id)) || TCastToPtr<CWallCrawlerSwarm>(mgr.ObjectById(id)) ||
-         CPatterned::CastTo<CThardusRockProjectile>(mgr.ObjectById(id)) ||
+         CPatterned::CastTo<MP1::CThardusRockProjectile>(mgr.ObjectById(id)) ||
          TCastToPtr<CScriptGunTurret>(mgr.ObjectById(id)));
   }
 

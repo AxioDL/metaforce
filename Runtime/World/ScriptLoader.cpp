@@ -41,6 +41,7 @@
 #include "Runtime/MP1/World/CSpacePirate.hpp"
 #include "Runtime/MP1/World/CSpankWeed.hpp"
 #include "Runtime/MP1/World/CThardus.hpp"
+#include "Runtime/MP1/World/CThardusRockProjectile.hpp"
 #include "Runtime/MP1/World/CTryclops.hpp"
 #include "Runtime/MP1/World/CWarWasp.hpp"
 #include "Runtime/Particle/CWeaponDescription.hpp"
@@ -2738,7 +2739,31 @@ CEntity* ScriptLoader::LoadColorModulate(CStateManager& mgr, CInputStream& in, i
 
 CEntity* ScriptLoader::LoadThardusRockProjectile(CStateManager& mgr, CInputStream& in, int propCount,
                                                  const CEntityInfo& info) {
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 3, "ThardusRockProjectile"))
+    return nullptr;
+
+  SScaledActorHead actorHead = LoadScaledActorHead(in, mgr);
+  auto [pInfoValid, pInfoCount] = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pInfoValid)
+    return nullptr;
+
+  CPatternedInfo pInfo(in, pInfoCount);
+  CActorParameters actParms = LoadActorParameters(in);
+  in.readBool();
+  in.readBool();
+  float f1 = in.readFloatBig();
+  CAssetId modelId(in);
+  CAssetId stateMachine(in);
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+    return nullptr;
+
+  std::vector<std::unique_ptr<CModelData>> mDataVec;
+  CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), 0, actorHead.x40_scale,
+                            pInfo.GetAnimationParameters().GetInitialAnimation(), true));
+  mDataVec.reserve(3);
+  mDataVec.emplace_back(std::make_unique<CModelData>(CStaticRes(modelId, zeus::skOne3f)));
+  return new MP1::CThardusRockProjectile(mgr.AllocateUniqueId(), actorHead.x0_name, info, actorHead.x10_transform,
+                                         std::move(mData), actParms, pInfo, std::move(mDataVec), stateMachine, f1);
 }
 
 CEntity* ScriptLoader::LoadMidi(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

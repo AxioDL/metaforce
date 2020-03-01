@@ -4,6 +4,8 @@
 
 #include "Runtime/RetroTypes.hpp"
 
+#include "DataSpec/DNACommon/GX.hpp"
+
 #include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
@@ -183,6 +185,46 @@ enum class ETexelFormat {
 #define CUBEMAP_RES 256
 #define CUBEMAP_MIPS 6
 
+static s32 sNextUniquePass = 0;
+namespace CTevCombiners {
+struct CTevOp {
+  bool x0_clamp = true;
+  GX::TevOp x4_op = GX::TevOp::TEV_ADD;
+  GX::TevBias x8_bias = GX::TevBias::TB_ZERO;
+  GX::TevScale xc_scale = GX::TevScale::CS_SCALE_1;
+  GX::TevRegID xc_regId = GX::TevRegID::TEVPREV;
+};
+
+struct ColorPass {
+  GX::TevColorArg x0_a;
+  GX::TevColorArg x4_b;
+  GX::TevColorArg x8_c;
+  GX::TevColorArg xc_d;
+};
+struct AlphaPass {
+  GX::TevAlphaArg x0_a;
+  GX::TevAlphaArg x4_b;
+  GX::TevAlphaArg x8_c;
+  GX::TevAlphaArg xc_d;
+};
+
+class CTevPass {
+  u32 x0_id;
+  ColorPass x4_colorPass;
+  AlphaPass x14_alphaPass;
+  CTevOp x24_colorOp;
+  CTevOp x38_alphaOp;
+
+public:
+  CTevPass(const ColorPass& colPass, const AlphaPass& alphaPass, const CTevOp& colorOp = CTevOp(), const CTevOp alphaOp = CTevOp())
+      : x0_id(++sNextUniquePass)
+      , x4_colorPass(colPass)
+      , x14_alphaPass(alphaPass)
+      , x24_colorOp(colorOp)
+      , x38_alphaOp(alphaOp) {}
+};
+};
+
 class CGraphics {
 public:
   struct CProjectionState {
@@ -312,7 +354,28 @@ public:
     g_BooMainCommandQueue->drawInstances(start, count, instCount, startInst);
   }
   static void DrawArray(size_t start, size_t count) { g_BooMainCommandQueue->draw(start, count); }
-  static void DrawArrayIndexed(size_t start, size_t count) { g_BooMainCommandQueue->drawIndexed(start, count); }
+  static void DrawArrayIndexed(size_t start, size_t count) { g_BooMainCommandQueue->drawIndexed(start, count); }\
+
+  static const CTevCombiners::CTevPass sTevPass805a564c;
+  static const CTevCombiners::CTevPass sTevPass805a5698;
+
+  static const CTevCombiners::CTevPass sTevPass805a5e70;
+
+  static const CTevCombiners::CTevPass sTevPass805a5ebc;
+
+  static const CTevCombiners::CTevPass sTevPass805a5f08;
+
+  static const CTevCombiners::CTevPass sTevPass805a5f54;
+
+  static const CTevCombiners::CTevPass sTevPass805a5fa0;
+
+  static const CTevCombiners::CTevPass sTevPass804bfcc0;
+
+  static const CTevCombiners::CTevPass sTevPass805a5fec;
+
+  static const CTevCombiners::CTevPass sTevPass805a6038;
+
+  static const CTevCombiners::CTevPass sTevPass805a6084;
 };
 
 template <class VTX>

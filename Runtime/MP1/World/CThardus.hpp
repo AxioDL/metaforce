@@ -21,7 +21,8 @@ class CThardus : public CPatterned {
   };
   u32 x568_;
   TUniqueId x56c_ = kInvalidUniqueId;
-  std::vector<TUniqueId> x570_waypoints;
+  u32 x570_ = 0;
+  std::vector<TUniqueId> x574_waypoints;
   u32 x5c4_ = 1;
   bool x5c8_heardPlayer = false;
   /* NOTE(phil) These two vectors used to vectors of CModelData, They have been converted to vectors of CStaticRes due
@@ -85,7 +86,7 @@ class CThardus : public CPatterned {
   std::vector<TUniqueId> x7a8_timers;
   float x7b8_ = 0.f;
   float x7bc_ = 10.f;
-  u32 x7c0_;
+  float x7c0_ = 1.0f;
   u32 x7c4_ = 0;
   bool x7c8_ = false;
   zeus::CVector3f x7cc_;
@@ -97,11 +98,11 @@ class CThardus : public CPatterned {
   zeus::CVector3f x8e4_;
   bool x8f0_ = false;
   std::vector<TUniqueId> x8f4_waypoints;
-  u32 x904_ = 0;
+  CSfxHandle x904_ = 0;
   bool x908_ = false;
   bool x909_ = false;
   std::vector<float> x90c_;
-  TLockedToken<CTexture> x91c_;
+  TLockedToken<CTexture> x91c_flareTexture;
   TUniqueId x928_currentRockId;
   zeus::CVector3f x92c_currentRockPos;
   bool x938_ = false;
@@ -138,7 +139,7 @@ class CThardus : public CPatterned {
   void sub801dd608(CStateManager& mgr);
   void sub801dcfa4(CStateManager& mgr);
   void sub80deadc(CStateManager& mgr) {
-    if (x570_waypoints.empty()) {
+    if (x574_waypoints.empty()) {
       sub801de9f8(mgr);
     } else {
       if (sub801dc2c8() || x5c4_ != 0 || x944_ <= 0.f)
@@ -158,6 +159,11 @@ class CThardus : public CPatterned {
   void _SetupCollisionManagers(CStateManager& mgr);
   void _BuildSphereJointList(const SSphereJointInfo* arr, int count, std::vector<CJointCollisionDescription>& list);
   void _BuildAABoxJointList(const SAABoxJointInfo* arr, int count, std::vector<CJointCollisionDescription>& list);
+  void RenderFlare(const CStateManager& mgr, float t) const;
+  zeus::CVector3f sub801de550(const CStateManager& mgr) const;
+  zeus::CVector3f sub801de434(const CStateManager& mgr) const { return {}; }
+
+  mutable std::optional<CTexturedQuadFilter> m_flareFilter;
 
 public:
   DEFINE_PATTERNED(Thardus)
@@ -214,7 +220,7 @@ public:
   bool AggressionCheck(CStateManager& mgr, float arg) override { return x330_stateMachineState.GetTime() > 0.1f; }
   bool AttackOver(CStateManager& mgr, float arg) override { return true; }
   bool ShouldTaunt(CStateManager& mgr, float arg) override { return false; }
-  bool ShouldMove(CStateManager& mgr, float arg) override { return x68c_ < x570_waypoints.size() || x93b_; }
+  bool ShouldMove(CStateManager& mgr, float arg) override { return x68c_ < x574_waypoints.size() || x93b_; }
   bool CodeTrigger(CStateManager& mgr, float arg) override { return x95c_doCodeTrigger; }
   bool IsDizzy(CStateManager& mgr, float arg) override { return x330_stateMachineState.GetTime() > 4.f; }
   bool ShouldCallForBackup(CStateManager& mgr, float arg) override { return x330_stateMachineState.GetTime() > .5f; }
