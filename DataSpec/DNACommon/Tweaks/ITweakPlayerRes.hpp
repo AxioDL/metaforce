@@ -38,7 +38,7 @@ struct ITweakPlayerRes : ITweak {
 
   /* Power, Ice, Wave, Plasma, Phazon */
   std::array<ResId, 5> xc8_ballTransitions;
-  std::array<ResId, 5> xc8_cineGun;
+  std::array<ResId, 5> xdc_cineGun;
 
   float xf0_cinematicMoveOutofIntoPlayerDistance;
 
@@ -64,21 +64,21 @@ struct ITweakPlayerRes : ITweak {
 
   ResId GetBeamCineModel(EBeamId beam) const {
     auto b = size_t(beam);
-    if (b >= xc8_cineGun.size()) {
+    if (b >= xdc_cineGun.size()) {
       b = 0;
     }
     switch (EBeamId(b)) {
     case EBeamId::Power:
     default:
-      return xc8_cineGun[0];
+      return xdc_cineGun[0];
     case EBeamId::Ice:
-      return xc8_cineGun[1];
+      return xdc_cineGun[1];
     case EBeamId::Wave:
-      return xc8_cineGun[2];
+      return xdc_cineGun[2];
     case EBeamId::Plasma:
-      return xc8_cineGun[3];
+      return xdc_cineGun[3];
     case EBeamId::Phazon:
-      return xc8_cineGun[4];
+      return xdc_cineGun[4];
     }
   }
 
@@ -134,8 +134,8 @@ struct ITweakPlayerRes : ITweak {
       xc8_ballTransitions[i] = factory.GetResourceIdByName(_GetBallTransitionBeamRes(i))->id;
     }
 
-    for (size_t i = 0; i < xc8_cineGun.size(); ++i) {
-      xc8_cineGun[i] = factory.GetResourceIdByName(_GetBeamCineModel(i))->id;
+    for (size_t i = 0; i < xdc_cineGun.size(); ++i) {
+      xdc_cineGun[i] = factory.GetResourceIdByName(_GetBeamCineModel(i))->id;
     }
 
     xf0_cinematicMoveOutofIntoPlayerDistance = _GetCinematicMoveOutofIntoPlayerDistance();
