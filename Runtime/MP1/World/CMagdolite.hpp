@@ -25,29 +25,28 @@ public:
   };
 
 private:
-  float x568_;
-  float x56c_;
-  float x570_;
-  float x574_;
-  float x578_;
+  float x568_initialDelay;
+  float x56c_minDelay;
+  float x570_maxDelay;
+  float x574_minHp;
+  float x578_losMaxDistance;
   float x57c_;
-  std::unique_ptr<CCollisionActorManager> x580_;
+  std::unique_ptr<CCollisionActorManager> x580_collisionManager;
   CBoneTracking x584_boneTracker;
   CDamageVulnerability x5bc_;
   CDamageVulnerability x624_;
   /* x68c_ */
   TLockedToken<CSkinnedModel> x690_headlessModel;
-  TToken<CModel> x698_originalModel;
   rstl::reserved_vector<TUniqueId, 5> x69c_;
   CFlameInfo x6a8_;
   TUniqueId x6c8_flameThrowerId = kInvalidUniqueId;
   TLockedToken<CWeaponDescription> x6cc_;
   CDamageInfo x6d4_;
   CDamageInfo x6f0_;
-  float x70c_;
-  zeus::CVector3f x710_;
-  zeus::CVector3f x71c_;
-  zeus::CVector3f x728_;
+  float x70c_curHealth;
+  zeus::CVector3f x710_attackOffset;
+  zeus::CVector3f x71c_attackTarget;
+  zeus::CVector3f x728_cachedTarget;
   float x734_ = 0.f;
   float x738_ = 0.f;
   float x73c_ = 0.f;
@@ -55,24 +54,14 @@ private:
   float x744_;
   float x748_;
   float x74c_;
-  u32 x750_ = 0;
-#if 0
-  bool x754_24_ : 1 = false;
-  bool x754_25_ : 1 = false;
-  bool x754_26_ : 1 = false;
-  bool x754_27_ : 1 = false;
-  bool x754_28_ : 1 = false;
-  bool x754_29_ : 1 = true;
-  bool x754_30_ : 1 = false;
-#else
-  bool x754_24_ = false;
-  bool x754_25_ = false;
-  bool x754_26_ = false;
-  bool x754_27_ = false;
-  bool x754_28_ = false;
-  bool x754_29_ = true;
-  bool x754_30_ = false;
-#endif
+  u32 x750_aiStage = 0;
+  bool x754_24_retreat : 1 = false;
+  bool x754_25_up : 1 = false;
+  bool x754_26_lostMyHead : 1 = false;
+  bool x754_27_flameThrowerActive : 1 = false;
+  bool x754_28_alert : 1 = false;
+  bool x754_29_useDetectionRange : 1 = true;
+  bool x754_30_inProjectileAttack : 1 = false;
   float x758_ = 0.f;
 
   void ApplyContactDamage(TUniqueId uid, CStateManager& mgr);
