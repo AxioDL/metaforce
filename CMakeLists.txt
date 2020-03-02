@@ -128,6 +128,11 @@ else()
   if (HAS_NO_PLT)
     add_compile_options(-fno-plt)
   endif()
+  check_cxx_compiler_flag(-fno-asynchronous-unwind-tables HAS_NO_ASYNC_UNWIND_TABLES)
+  if (HAS_NO_ASYNC_UNWIND_TABLES)
+    # Binary size reduction
+    add_compile_options(-fno-asynchronous-unwind-tables)
+  endif()
 
   if(URDE_MSAN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
@@ -180,7 +185,7 @@ endif()
 if(USE_LD_LLD)
   execute_process(COMMAND ${CMAKE_C_COMPILER} -fuse-ld=lld -Wl,--version ERROR_QUIET OUTPUT_VARIABLE LD_VERSION)
   if("${LD_VERSION}" MATCHES "LLD")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld -Wl,--build-id=uuid")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
     if(USE_LTO)
       add_compile_options(-flto=thin)
@@ -228,7 +233,7 @@ add_subdirectory(nod)
 
 set(HECL_DLPACKAGE ${URDE_DLPACKAGE})
 
-set(DATA_SPEC_LIBS RetroDataSpec)
+set(DATA_SPEC_LIBS RetroDataSpec AssetNameMap)
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */
 namespace DataSpec

@@ -1,10 +1,13 @@
 #include "AssetNameMap.hpp"
+#include "athena/Compression.hpp"
 #include "athena/MemoryReader.hpp"
 
 extern "C" const uint8_t ASSET_NAME_MP32[];
 extern "C" const size_t ASSET_NAME_MP32_SZ;
+extern "C" const size_t ASSET_NAME_MP32_DECOMPRESSED_SZ;
 extern "C" const uint8_t ASSET_NAME_MP64[];
 extern "C" const size_t ASSET_NAME_MP64_SZ;
+extern "C" const size_t ASSET_NAME_MP64_DECOMPRESSED_SZ;
 
 namespace DataSpec::AssetNameMap {
 logvisor::Module Log("AssetNameMap");
@@ -53,14 +56,28 @@ void InitAssetNameMap() {
   Log.report(logvisor::Info, fmt("Initializing asset name database..."));
 
   /* First load the 32bit map for MP1/2 */
-  {
-    athena::io::MemoryReader ar(ASSET_NAME_MP32, ASSET_NAME_MP32_SZ);
+  if (ASSET_NAME_MP32_DECOMPRESSED_SZ) {
+    auto decompressed = new uint8_t[ASSET_NAME_MP32_DECOMPRESSED_SZ];
+    athena::io::Compression::decompressZlib(ASSET_NAME_MP32, ASSET_NAME_MP32_SZ, decompressed,
+                                            ASSET_NAME_MP32_DECOMPRESSED_SZ);
+    athena::io::MemoryReader ar(decompressed, ASSET_NAME_MP32_DECOMPRESSED_SZ);
     LoadAssetMap(ar);
+    delete[](decompressed);
+  } else {
+    Log.report(logvisor::Warning,
+               fmt(_SYS_STR("AssetNameMap32 unavailable; Assets will not have proper filenames for most files.")));
   }
   /* Now load the 64bit map for MP3 */
-  {
-    athena::io::MemoryReader ar(ASSET_NAME_MP64, ASSET_NAME_MP64_SZ);
+  if (ASSET_NAME_MP64_DECOMPRESSED_SZ) {
+    auto decompressed = new uint8_t[ASSET_NAME_MP64_DECOMPRESSED_SZ];
+    athena::io::Compression::decompressZlib(ASSET_NAME_MP64, ASSET_NAME_MP64_SZ, decompressed,
+                                            ASSET_NAME_MP64_DECOMPRESSED_SZ);
+    athena::io::MemoryReader ar(decompressed, ASSET_NAME_MP64_DECOMPRESSED_SZ);
     LoadAssetMap(ar);
+    delete[](decompressed);
+  } else {
+    Log.report(logvisor::Warning,
+               fmt(_SYS_STR("AssetNameMap64 unavailable; Assets will not have proper filenames for most files.")));
   }
   g_AssetNameMapInit = true;
 }
