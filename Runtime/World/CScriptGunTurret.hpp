@@ -104,14 +104,6 @@ public:
 };
 
 class CScriptGunTurret : public CPhysicsActor {
-  static const SBurst skOOVBurst4InfoTemplate[];
-  static const SBurst skOOVBurst3InfoTemplate[];
-  static const SBurst skOOVBurst2InfoTemplate[];
-  static const SBurst skBurst4InfoTemplate[];
-  static const SBurst skBurst3InfoTemplate[];
-  static const SBurst skBurst2InfoTemplate[];
-  static const SBurst* skBursts[];
-
 public:
   enum class ETurretComponent { Base, Gun };
   enum class ETurretState {
