@@ -74,7 +74,7 @@ CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& in
 , x6d4_(g_SimplePool->GetObj({SBIG('PART'), x56c_.xb8_}))
 , x6dc_(x56c_.x78_, x56c_.x7c_)
 , x704_(x56c_.x98_, x56c_.x9c_)
-, x7dc_(GetContactDamage())
+, x7dc_(x404_contactDamage)
 , x820_(xf.origin)
 , x8a0_(xf.frontVector())
 , x8ac_(animRes) {

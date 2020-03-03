@@ -89,7 +89,7 @@ private:
   CSfxHandle x178_sfxHandle;
   u32 x17c_;
   float x180_ = 0.f;
-  std::vector<float> x184_;
+  TReservedAverage<float, 6> x184_;
   float x194_ = 0.f;
   std::vector<SRingController> x198_ringControllers;
   ERingState x1a8_ringState = ERingState::Stopped;
@@ -147,5 +147,6 @@ public:
 
   void DeleteEmitter(const CSfxHandle& handle);
   u32 GetSpecialEnding(const CStateManager&) const;
+  void AddOrUpdateEmitter(float pitch, CSfxHandle& handle, u16 id, const zeus::CVector3f& pos, float vol);
 };
 } // namespace urde

@@ -42,13 +42,13 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view n
 , x170_sfx1(CSfxManager::TranslateSFXID(sId1))
 , x172_sfx2(CSfxManager::TranslateSFXID(sId2))
 , x174_sfx3(CSfxManager::TranslateSFXID(sId3))
-, x184_(6, 0.f)
+, x184_(0.f)
 , x1bc_areaSaveId(aId1)
 , x1c0_layerIdx(aId2)
 , x1c4_item(itemType) {
   x1e4_26_sfx2Played = true;
   if (xe8_function == ESpecialFunction::HUDTarget)
-    x1c8_touchBounds = {{zeus::CVector3f(-1.f), zeus::CVector3f(1.f)}};
+    x1c8_touchBounds = {-1.f, 1.f};
 }
 
 void CScriptSpecialFunction::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -639,7 +639,7 @@ void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr
 
               float spinImpulse =
                   (pl.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ? 0.025f * mag : 0.f);
-              if (spinImpulse > x180_)
+              if (spinImpulse >= x180_)
                 SendScriptMsgs(EScriptObjectState::Play, mgr, EScriptObjectMessage::None);
 
               x180_ = spinImpulse;
@@ -648,7 +648,7 @@ void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr
               if (!noBackward)
                 x138_ -= f29;
             } else if (!noBackward) {
-              x138_ = twoByDt - f28;
+              x138_ = f28 - twoByDt;
             }
           } else if (mode == ESpinnerControllerMode::One) {
             x138_ = (0.1f * x16c_) * xfc_float1 + f28;
@@ -659,46 +659,68 @@ void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr
               if (std::fabs(x16c_) < dt)
                 x16c_ = 0.f;
               else
-                x16c_ += (dt * (x16c_ < 0 ? -1.f : 1.f));
+                x16c_ -= (dt * (x16c_ <= 0.f ? -1.f : 1.f));
             }
-
-            if (allowWrap) {
-              x138_ = std::fmod(x138_, 1.f);
-              if (x138_ < 0.f)
-                x138_ += 1.f;
-            } else {
-              x138_ = zeus::clamp(0.f, x138_, 1.f);
-            }
-
-            f28 = f28 - x138_;
-            bool r23 = true;
-            if (zeus::close_enough(1.f, x138_, FLT_EPSILON)) {
-              if (!x1e4_27_sfx3Played) {
-                if (x174_sfx3 != 0xFFFF)
-                  CSfxManager::AddEmitter(x174_sfx3, GetTranslation(), {}, true, false, 0x7F, kInvalidAreaId);
-
-                x1e4_27_sfx3Played = true;
-              }
-
-              SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
-              r23 = false;
-            } else
-              x1e4_27_sfx3Played = false;
-
-            if (zeus::close_enough(0.f, x138_, FLT_EPSILON)) {
-              if (!x1e4_26_sfx2Played) {
-                if (x172_sfx2 != 0xFFFF)
-                  CSfxManager::AddEmitter(x172_sfx2, GetTranslation(), {}, true, false, 0x7F, kInvalidAreaId);
-
-                x1e4_26_sfx2Played = true;
-              }
-
-              SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
-              r23 = false;
-            } else
-              x1e4_26_sfx2Played = false;
-            (void)r23;
           }
+
+          if (allowWrap) {
+            x138_ = std::fmod(x138_, 1.f);
+            if (x138_ < 0.f)
+              x138_ += 1.f;
+          } else {
+            x138_ = zeus::clamp(0.f, x138_, 1.f);
+          }
+
+          bool r23 = true;
+          f28 = x138_ - f28;
+          if (zeus::close_enough(x138_, 1.f, FLT_EPSILON)) {
+            if (!x1e4_27_sfx3Played) {
+              if (x174_sfx3 != 0xFFFF)
+                CSfxManager::AddEmitter(x174_sfx3, GetTranslation(), {}, true, false, 0x7F, kInvalidAreaId);
+
+              x1e4_27_sfx3Played = true;
+            }
+
+            SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
+            r23 = false;
+          } else
+            x1e4_27_sfx3Played = false;
+
+          if (zeus::close_enough(x138_, 0.f, FLT_EPSILON)) {
+            if (!x1e4_26_sfx2Played) {
+              if (x172_sfx2 != 0xFFFF)
+                CSfxManager::AddEmitter(x172_sfx2, GetTranslation(), {}, true, false, 0x7F, kInvalidAreaId);
+
+              x1e4_26_sfx2Played = true;
+            }
+
+            SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+            r23 = false;
+          } else
+            x1e4_26_sfx2Played = false;
+
+          // local_1ac = x184_.GetAverage();
+          if (r23) {
+            if (x170_sfx1 != 0xFFFF) {
+              if (r23) { // ?
+                x184_.AddValue(0.f <= f28 ? 100 : 0x7f);
+              } else {
+                x184_.AddValue(0.f);
+              }
+              const std::optional<float>& avg = x184_.GetAverage();
+              AddOrUpdateEmitter(0.f <= f28 ? x108_float4 : 1.f, x178_sfxHandle, x170_sfx1, GetTranslation(),
+                                 avg.value());
+            }
+          } else {
+            DeleteEmitter(x178_sfxHandle);
+          }
+
+          CAnimData* animData = plat->GetModelData()->GetAnimationData();
+          float dur = animData->GetAnimationDuration(animData->GetDefaultAnimation()) * x138_;
+          animData->SetPhase(0.f);
+          animData->SetPlaybackRate(1.f);
+          const SAdvancementDeltas& deltas = plat->UpdateAnimation(dur, mgr, true);
+          plat->SetTransform(x13c_ * deltas.xc_rotDelta.toTransform(deltas.x0_posDelta));
         }
       }
     }
@@ -903,6 +925,16 @@ u32 CScriptSpecialFunction::GetSpecialEnding(const CStateManager& mgr) const {
   else if (rate < 100)
     return 1;
   return 2;
+}
+
+void CScriptSpecialFunction::AddOrUpdateEmitter(float pitch, CSfxHandle& handle, u16 id, const zeus::CVector3f& pos,
+                                                float vol) {
+  if (!handle) {
+    handle = CSfxManager::AddEmitter(id, pos, zeus::skZero3f, vol, true, true, 0x7f, kInvalidAreaId);
+  } else {
+    CSfxManager::UpdateEmitter(handle, pos, zeus::skZero3f, vol);
+    CSfxManager::PitchBend(handle, 8192.f * pitch + 8192.f);
+  }
 }
 
 CScriptSpecialFunction::SRingController::SRingController(TUniqueId uid, float rotateSpeed, bool reachedTarget)
