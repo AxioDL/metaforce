@@ -174,7 +174,7 @@ void CScriptGunTurret::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
       if (x478_targettingLight->SystemHasLight()) {
         x498_lightId = mgr.AllocateUniqueId();
         mgr.AddObject(new CGameLight(x498_lightId, GetAreaIdAlways(), GetActive(),
-                                     std::string("ParticleLight_") + GetName().data(), GetTransform(), GetUniqueId(),
+                                     std::string("ParticleLight_").append(GetName()), GetTransform(), GetUniqueId(),
                                      x478_targettingLight->GetLight(), 0, 1, 0.f));
       }
       SetupCollisionManager(mgr);
