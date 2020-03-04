@@ -1,5 +1,6 @@
 if(NOT CMAKE_CROSSCOMPILING)
 add_executable(bintoc bintoc.c)
+target_include_directories(bintoc PRIVATE ${ZLIB_INCLUDE_DIR})
 target_link_libraries(bintoc ${ZLIB_LIBRARIES})
 function(bintoc out in sym)
   if(IS_ABSOLUTE ${out})
