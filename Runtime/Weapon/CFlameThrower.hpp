@@ -57,6 +57,9 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager& mgr) const override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor& actor, CStateManager& mgr) override;
   void SetTransform(const zeus::CTransform& xf, float);
   void Reset(CStateManager&, bool);
   void Fire(const zeus::CTransform&, CStateManager&, bool);

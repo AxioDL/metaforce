@@ -95,6 +95,12 @@ void CFlameThrower::AddToRenderer(const zeus::CFrustum&, const CStateManager& mg
   EnsureRendered(mgr, x2e8_flameXf.origin, GetRenderBounds());
 }
 
+void CFlameThrower::Render(const CStateManager&) const {}
+
+std::optional<zeus::CAABox> CFlameThrower::GetTouchBounds() const { return std::nullopt; }
+
+void CFlameThrower::Touch(CActor&, CStateManager&) {}
+
 void CFlameThrower::SetFlameLightActive(CStateManager& mgr, bool active) {
   if (x2c8_projectileLight == kInvalidUniqueId)
     return;
