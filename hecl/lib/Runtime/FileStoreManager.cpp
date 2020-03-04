@@ -47,7 +47,7 @@ FileStoreManager::FileStoreManager(SystemStringView domain) : m_domain(domain) {
     if (!home)
       Log.report(logvisor::Fatal, fmt("unable to locate $HOME for file store"));
     path = home;
-    path += "/.local/share"
+    path += "/.local/share";
   }
   path += "/hecl";
   if (mkdir(path.c_str(), 0755) && errno != EEXIST)
