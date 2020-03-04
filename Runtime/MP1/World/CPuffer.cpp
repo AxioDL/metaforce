@@ -31,6 +31,7 @@ CPuffer::CPuffer(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
   CreateShadow(false);
   x460_knockBackController.SetImpulseDurationIdx(1);
   x574_cloudEffect.Lock();
+  x450_bodyController->SetRestrictedFlyerMoveSpeed(hoverSpeed);
 }
 
 void CPuffer::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -65,8 +66,7 @@ void CPuffer::Think(float dt, CStateManager& mgr) {
 
   x450_bodyController->GetCommandMgr().ClearLocomotionCmds();
   if (moveVector.canBeNormalized()) {
-    //zeus::CVector3f vec = x5c0_move * (1.f - (dt / 0.5f)) + (moveVector * (dt / 0.5f));
-    x5c0_move = moveVector.normalized();
+    x5c0_move = (x5c0_move * (1.f - (dt / 0.5f)) + (moveVector * (dt / 0.5f))).normalized();
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x5c0_move, x568_face, 1.f));
   }
 }
@@ -114,9 +114,29 @@ void CPuffer::sub8025bfa4(CStateManager& mgr) {
 
   if (x5d4_gasLocators.empty()) {
     for (u32 i = 0; i < 14; ++i)
-      x5d4_gasLocators.push_back(GetScaledLocatorTransform(GasLocators[i]).frontVector());
+      x5d4_gasLocators.push_back(GetScaledLocatorTransform(GasLocators[i]).basis[1]);
   }
 
-  if (moveVector.canBeNormalized()) {}
+  if (moveVector.canBeNormalized()) {
+    zeus::CVector3f moveNorm = -moveVector.normalized();
+    for (u32 i = 0; i < 14; ++i) {
+      zeus::CVector3f tmp = GetTransform().rotate(x5d4_gasLocators[i]);
+      bool enable = std::cos(zeus::degToRad(45.f)) < moveNorm.dot(tmp);
+      printf("%s -> %i\n", GesJetLocators[i], enable);
+      if ((x5d0_enabledParticles & (1 << i)) != enable) {
+        GetModelData()->GetAnimationData()->SetParticleEffectState(GesJetLocators[i], enable, mgr);
+      }
+      if (enable)
+        x5d0_enabledParticles |= (1 << i);
+      else
+        x5d0_enabledParticles &= ~(1 << i);
+    }
+  } else {
+    for (u32 i = 0; i < 14; ++i) {
+      if ((x5d0_enabledParticles & (1 << i)))
+        GetModelData()->GetAnimationData()->SetParticleEffectState(GesJetLocators[i], false, mgr);
+    }
+    x5d0_enabledParticles = 0;
+  }
 }
 } // namespace urde::MP1

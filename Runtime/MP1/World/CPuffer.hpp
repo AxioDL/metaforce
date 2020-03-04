@@ -21,7 +21,7 @@ class CPuffer : public CPatterned {
   CAssetId x5bc_cloudSteam;
   zeus::CVector3f x5c0_move;
   TUniqueId x5cc_ = kInvalidUniqueId;
-  s32 x5d0_ = 0;
+  s32 x5d0_enabledParticles = 0;
   rstl::reserved_vector<zeus::CVector3f, 14> x5d4_gasLocators;
 
   void sub8025bfa4(CStateManager&);

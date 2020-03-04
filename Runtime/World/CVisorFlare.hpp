@@ -30,7 +30,7 @@ public:
       x0_tex.Lock();
     }
 
-    TToken<CTexture> GetTexture() const;
+    TToken<CTexture> GetTexture() const { return x0_tex; }
     zeus::CColor GetColor() const { return x10_color; }
     float GetScale() const;
     float GetPosition() const;
