@@ -1,5 +1,7 @@
 #include "Runtime/MP1/World/CSpacePirate.hpp"
 
+#include <array>
+
 #include "Runtime/CTimeProvider.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CCharLayoutInfo.hpp"
@@ -20,6 +22,133 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
+namespace {
+constexpr std::array skParts{
+    "Collar"sv,  "Neck_1"sv, "R_shoulder"sv, "R_elbow"sv, "R_wrist"sv, "L_shoulder"sv, "L_elbow"sv,
+    "L_wrist"sv, "R_hip"sv,  "R_knee"sv,     "R_ankle"sv, "L_hip"sv,   "L_knee"sv,     "L_ankle"sv,
+};
+
+constexpr std::array skRadii{
+    0.45f, 0.52f, 0.35f, 0.1f, 0.15f, 0.35f, 0.1f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f,
+};
+
+constexpr std::array<SBurst, 6> skBurstsQuick{{
+    {20, {3, 4, 5, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {20, {2, 3, 4, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {20, {6, 5, 4, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {20, {1, 2, 3, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {20, {7, 6, 5, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000f, 0.000000f},
+}};
+
+constexpr std::array<SBurst, 7> skBurstsStandard{{
+    {15, {5, 3, 2, 1, -1, 0, 0, 0}, 0.100000f, 0.050000f},
+    {20, {1, 2, 3, 4, -1, 0, 0, 0}, 0.100000f, 0.050000f},
+    {20, {7, 6, 5, 4, -1, 0, 0, 0}, 0.100000f, 0.050000f},
+    {15, {3, 4, 5, 6, -1, 0, 0, 0}, 0.100000f, 0.050000f},
+    {15, {6, 5, 4, 3, -1, 0, 0, 0}, 0.100000f, 0.050000f},
+    {15, {2, 3, 4, 5, -1, 0, 0, 0}, 0.100000f, 0.050000f},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000f, 0.000000f},
+}};
+
+constexpr std::array<SBurst, 5> skBurstsFrenzied{{
+    {40, {1, 2, 3, 4, 5, 6, -1, 0}, 0.100000f, 0.050000f},
+    {40, {7, 6, 5, 4, 3, 2, -1, 0}, 0.100000f, 0.050000f},
+    {10, {2, 3, 4, 5, 4, 3, -1, 0}, 0.100000f, 0.050000f},
+    {10, {6, 5, 4, 3, 4, 5, -1, 0}, 0.100000f, 0.050000f},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000f, 0.000000f},
+}};
+
+constexpr std::array<SBurst, 4> skBurstsJumping{{
+    {20, {16, 4, -1, 0, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {40, {5, 7, -1, 0, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {40, {1, 10, -1, 0, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000f, 0.000000f},
+}};
+
+constexpr std::array<SBurst, 6> skBurstsInjured{{
+    {15, {16, 1, 3, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {20, {3, 4, 6, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {25, {7, 5, 4, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {25, {2, 6, 4, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {15, {7, 5, 3, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000f, 0.000000f},
+}};
+
+constexpr std::array<SBurst, 4> skBurstsSeated{{
+    {35, {7, 13, -1, 0, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {35, {9, 1, -1, 0, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {30, {16, 12, -1, 0, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000f, 0.000000f},
+}};
+
+constexpr std::array<SBurst, 6> skBurstsQuickOOV{{
+    {10, {16, 15, 13, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {20, {13, 12, 10, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {30, {9, 11, 12, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {30, {14, 10, 12, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {10, {9, 11, 13, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000f, 0.000000f},
+}};
+
+constexpr std::array<SBurst, 7> skBurstsStandardOOV{{
+    {26, {16, 8, 11, 14, -1, 0, 0, 0}, 0.100000f, 0.050000f},
+    {26, {16, 13, 11, 12, -1, 0, 0, 0}, 0.100000f, 0.050000f},
+    {16, {9, 11, 13, 10, -1, 0, 0, 0}, 0.100000f, 0.050000f},
+    {16, {14, 13, 12, 11, -1, 0, 0, 0}, 0.100000f, 0.050000f},
+    {8, {10, 11, 12, 13, -1, 0, 0, 0}, 0.100000f, 0.050000f},
+    {8, {6, 8, 11, 13, -1, 0, 0, 0}, 0.100000f, 0.050000f},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000f, 0.000000f},
+}};
+
+constexpr std::array<SBurst, 5> skBurstsFrenziedOOV{{
+    {40, {1, 16, 14, 12, 10, 11, -1, 0}, 0.100000f, 0.050000f},
+    {40, {9, 11, 12, 13, 11, 7, -1, 0}, 0.100000f, 0.050000f},
+    {10, {8, 10, 11, 12, 13, 12, -1, 0}, 0.100000f, 0.050000f},
+    {10, {15, 13, 12, 10, 12, 9, -1, 0}, 0.100000f, 0.050000f},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000f, 0.000000f},
+}};
+
+constexpr std::array<SBurst, 4> skBurstsJumpingOOV{{
+    {40, {7, 13, -1, 0, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {40, {9, 1, -1, 0, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {20, {16, 12, -1, 0, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000f, 0.000000f},
+}};
+
+constexpr std::array<SBurst, 6> skBurstsInjuredOOV{{
+    {30, {9, 11, 13, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {10, {13, 12, 10, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {15, {9, 11, 12, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {15, {14, 10, 12, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {30, {16, 15, 13, -1, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000f, 0.000000f},
+}};
+
+constexpr std::array<SBurst, 4> skBurstsSeatedOOV{{
+    {35, {7, 13, -1, 0, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {35, {9, 1, -1, 0, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {30, {16, 12, -1, 0, 0, 0, 0, 0}, 0.100000f, 0.050000f},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000f, 0.000000f},
+}};
+
+constexpr std::array<const SBurst*, 13> skBursts{
+    skBurstsQuick.data(),
+    skBurstsStandard.data(),
+    skBurstsFrenzied.data(),
+    skBurstsJumping.data(),
+    skBurstsInjured.data(),
+    skBurstsSeated.data(),
+    skBurstsQuickOOV.data(),
+    skBurstsStandardOOV.data(),
+    skBurstsFrenziedOOV.data(),
+    skBurstsJumpingOOV.data(),
+    skBurstsInjuredOOV.data(),
+    skBurstsSeatedOOV.data(),
+    nullptr,
+};
+} // Anonymous namespace
+
 CSpacePirate::CSpacePirateData::CSpacePirateData(urde::CInputStream& in, u32 propCount)
 : x0_AggressionCheck(in.readFloatBig())
 , x4_CoverCheck(in.readFloatBig())
@@ -50,13 +179,6 @@ CSpacePirate::CSpacePirateData::CSpacePirateData(urde::CInputStream& in, u32 pro
 , xc4_(propCount > 35 ? in.readFloatBig() : 0.2f)
 , xc8_AvoidDistance(propCount > 36 ? in.readFloatBig() : 8.f) {}
 
-static const std::string_view skParts[] = {"Collar"sv,     "Neck_1"sv,  "R_shoulder"sv, "R_elbow"sv, "R_wrist"sv,
-                                           "L_shoulder"sv, "L_elbow"sv, "L_wrist"sv,    "R_hip"sv,   "R_knee"sv,
-                                           "R_ankle"sv,    "L_hip"sv,   "L_knee"sv,     "L_ankle"sv};
-
-static const float skRadii[] = {0.45f, 0.52f, 0.35f, 0.1f,  0.15f, 0.35f, 0.1f,
-                                0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f};
-
 CPirateRagDoll::CPirateRagDoll(CStateManager& mgr, CSpacePirate* sp, u16 thudSfx, u32 flags)
 : CRagDoll(-sp->GetGravityConstant(), -3.f, 8.f, flags), x6c_spacePirate(sp), x70_thudSfx(thudSfx) {
   xb0_24_initSfx = true;
@@ -69,8 +191,8 @@ CPirateRagDoll::CPirateRagDoll(CStateManager& mgr, CSpacePirate* sp, u16 thudSfx
   CAnimData* aData = x6c_spacePirate->GetModelData()->GetAnimationData();
   aData->BuildPose();
   zeus::CVector3f center = x6c_spacePirate->GetBoundingBox().center();
-  for (int i = 0; i < 14; ++i) {
-    CSegId id = aData->GetLocatorSegId(skParts[i]);
+  for (size_t i = 0; i < skParts.size(); ++i) {
+    const CSegId id = aData->GetLocatorSegId(skParts[i]);
     AddParticle(id, center, x6c_spacePirate->GetTransform() * (aData->GetPose().GetOffset(id) * scale),
                 skRadii[i] * scale.z());
   }
@@ -252,87 +374,6 @@ void CPirateRagDoll::Prime(CStateManager& mgr, const zeus::CTransform& xf, CMode
   CRagDoll::Prime(mgr, xf, mData);
 }
 
-const SBurst CSpacePirate::skBurstsQuick[] = {
-    {20, {3, 4, 5, -1, 0, 0, 0, 0}, 0.100000, 0.050000}, {20, {2, 3, 4, -1, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {20, {6, 5, 4, -1, 0, 0, 0, 0}, 0.100000, 0.050000}, {20, {1, 2, 3, -1, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {20, {7, 6, 5, -1, 0, 0, 0, 0}, 0.100000, 0.050000}, {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-const SBurst CSpacePirate::skBurstsStandard[] = {
-    {15, {5, 3, 2, 1, -1, 0, 0, 0}, 0.100000, 0.050000}, {20, {1, 2, 3, 4, -1, 0, 0, 0}, 0.100000, 0.050000},
-    {20, {7, 6, 5, 4, -1, 0, 0, 0}, 0.100000, 0.050000}, {15, {3, 4, 5, 6, -1, 0, 0, 0}, 0.100000, 0.050000},
-    {15, {6, 5, 4, 3, -1, 0, 0, 0}, 0.100000, 0.050000}, {15, {2, 3, 4, 5, -1, 0, 0, 0}, 0.100000, 0.050000},
-    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-const SBurst CSpacePirate::skBurstsFrenzied[] = {
-    {40, {1, 2, 3, 4, 5, 6, -1, 0}, 0.100000, 0.050000}, {40, {7, 6, 5, 4, 3, 2, -1, 0}, 0.100000, 0.050000},
-    {10, {2, 3, 4, 5, 4, 3, -1, 0}, 0.100000, 0.050000}, {10, {6, 5, 4, 3, 4, 5, -1, 0}, 0.100000, 0.050000},
-    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-const SBurst CSpacePirate::skBurstsJumping[] = {
-    {20, {16, 4, -1, 0, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {40, {5, 7, -1, 0, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {40, {1, 10, -1, 0, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-const SBurst CSpacePirate::skBurstsInjured[] = {
-    {15, {16, 1, 3, -1, 0, 0, 0, 0}, 0.100000, 0.050000}, {20, {3, 4, 6, -1, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {25, {7, 5, 4, -1, 0, 0, 0, 0}, 0.100000, 0.050000},  {25, {2, 6, 4, -1, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {15, {7, 5, 3, -1, 0, 0, 0, 0}, 0.100000, 0.050000},  {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-const SBurst CSpacePirate::skBurstsSeated[] = {
-    {35, {7, 13, -1, 0, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {35, {9, 1, -1, 0, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {30, {16, 12, -1, 0, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-const SBurst CSpacePirate::skBurstsQuickOOV[] = {
-    {10, {16, 15, 13, -1, 0, 0, 0, 0}, 0.100000, 0.050000}, {20, {13, 12, 10, -1, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {30, {9, 11, 12, -1, 0, 0, 0, 0}, 0.100000, 0.050000},  {30, {14, 10, 12, -1, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {10, {9, 11, 13, -1, 0, 0, 0, 0}, 0.100000, 0.050000},  {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-const SBurst CSpacePirate::skBurstsStandardOOV[] = {
-    {26, {16, 8, 11, 14, -1, 0, 0, 0}, 0.100000, 0.050000}, {26, {16, 13, 11, 12, -1, 0, 0, 0}, 0.100000, 0.050000},
-    {16, {9, 11, 13, 10, -1, 0, 0, 0}, 0.100000, 0.050000}, {16, {14, 13, 12, 11, -1, 0, 0, 0}, 0.100000, 0.050000},
-    {8, {10, 11, 12, 13, -1, 0, 0, 0}, 0.100000, 0.050000}, {8, {6, 8, 11, 13, -1, 0, 0, 0}, 0.100000, 0.050000},
-    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-const SBurst CSpacePirate::skBurstsFrenziedOOV[] = {
-    {40, {1, 16, 14, 12, 10, 11, -1, 0}, 0.100000, 0.050000}, {40, {9, 11, 12, 13, 11, 7, -1, 0}, 0.100000, 0.050000},
-    {10, {8, 10, 11, 12, 13, 12, -1, 0}, 0.100000, 0.050000}, {10, {15, 13, 12, 10, 12, 9, -1, 0}, 0.100000, 0.050000},
-    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-const SBurst CSpacePirate::skBurstsJumpingOOV[] = {
-    {40, {7, 13, -1, 0, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {40, {9, 1, -1, 0, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {20, {16, 12, -1, 0, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-const SBurst CSpacePirate::skBurstsInjuredOOV[] = {
-    {30, {9, 11, 13, -1, 0, 0, 0, 0}, 0.100000, 0.050000},  {10, {13, 12, 10, -1, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {15, {9, 11, 12, -1, 0, 0, 0, 0}, 0.100000, 0.050000},  {15, {14, 10, 12, -1, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {30, {16, 15, 13, -1, 0, 0, 0, 0}, 0.100000, 0.050000}, {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-const SBurst CSpacePirate::skBurstsSeatedOOV[] = {
-    {35, {7, 13, -1, 0, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {35, {9, 1, -1, 0, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {30, {16, 12, -1, 0, 0, 0, 0, 0}, 0.100000, 0.050000},
-    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-
-const SBurst* CSpacePirate::skBursts[] = {skBurstsQuick,
-                                          skBurstsStandard,
-                                          skBurstsFrenzied,
-                                          skBurstsJumping,
-                                          skBurstsInjured,
-                                          skBurstsSeated,
-                                          skBurstsQuickOOV,
-                                          skBurstsStandardOOV,
-                                          skBurstsFrenziedOOV,
-                                          skBurstsJumpingOOV,
-                                          skBurstsInjuredOOV,
-                                          skBurstsSeatedOOV,
-                                          nullptr};
-
 std::list<TUniqueId> CSpacePirate::mChargePlayerList;
 
 CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -345,7 +386,7 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
 , x750_initialHP(pInfo.GetHealthInfo().GetHP())
 , x764_boneTracking(*x64_modelData->GetAnimationData(), "Head_1"sv, zeus::degToRad(70.f), zeus::degToRad(180.f),
                     EBoneTrackingFlags::None)
-, x7c4_burstFire(skBursts, x568_pirateData.xac_firstBurstCount)
+, x7c4_burstFire(skBursts.data(), x568_pirateData.xac_firstBurstCount)
 , x8b8_minCloakAlpha(x568_pirateData.xb0_CloakOpacity)
 , x8bc_maxCloakAlpha(x568_pirateData.xb4_MaxCloakOpacity)
 , x8c0_dodgeDelayTimer(x568_pirateData.xb8_dodgeDelayTimeMin)
