@@ -210,20 +210,6 @@ private:
   float x8d8_holdPositionTime = 0.f;
   float x8dc_leashTimer = 0.f;
 
-  static const SBurst skBurstsSeatedOOV[];
-  static const SBurst skBurstsInjuredOOV[];
-  static const SBurst skBurstsJumpingOOV[];
-  static const SBurst skBurstsFrenziedOOV[];
-  static const SBurst skBurstsStandardOOV[];
-  static const SBurst skBurstsQuickOOV[];
-  static const SBurst skBurstsSeated[];
-  static const SBurst skBurstsInjured[];
-  static const SBurst skBurstsJumping[];
-  static const SBurst skBurstsFrenzied[];
-  static const SBurst skBurstsStandard[];
-  static const SBurst skBurstsQuick[];
-  static const SBurst* skBursts[];
-
   static std::list<TUniqueId> mChargePlayerList;
 
   void UpdateCloak(float dt, CStateManager& mgr);
