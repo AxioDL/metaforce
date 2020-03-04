@@ -35,7 +35,7 @@ class CBurstFire {
   rstl::reserved_vector<const SBurst*, 16> x1c_burstDefs;
 
 public:
-  CBurstFire(const SBurst** burstDefs, s32 firstBurstCount);
+  CBurstFire(const SBurst* const* burstDefs, s32 firstBurstCount);
 
   void SetAvoidAccuracy(bool b) { x14_25_avoidAccuracy = b; }
   void SetBurstType(s32 type) { x0_burstType = type; }

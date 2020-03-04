@@ -1,5 +1,7 @@
 #include "Runtime/World/CScriptGunTurret.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
@@ -17,10 +19,87 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
+namespace {
+constexpr CMaterialList skGunMaterialList = {EMaterialTypes::Solid, EMaterialTypes::Character, EMaterialTypes::Orbit,
+                                             EMaterialTypes::Target};
+constexpr CMaterialList skTurretMaterialList = {EMaterialTypes::Character};
 
-static const CMaterialList skGunMaterialList = {EMaterialTypes::Solid, EMaterialTypes::Character, EMaterialTypes::Orbit,
-                                                EMaterialTypes::Target};
-static const CMaterialList skTurretMaterialList = {EMaterialTypes::Character};
+constexpr std::array<SBurst, 6> skBurst2InfoTemplate{{
+    {3, {1, 2, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {3, {7, 6, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {4, {3, 5, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {60, {16, 4, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {30, {4, 4, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
+}};
+
+constexpr std::array<SBurst, 6> skBurst3InfoTemplate{{
+    {30, {4, 5, 4, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {30, {2, 3, 4, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {30, {3, 4, 5, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {5, {16, 1, 2, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {5, {8, 7, 6, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
+}};
+
+constexpr std::array<SBurst, 8> skBurst4InfoTemplate{{
+    {5, {16, 1, 2, 3, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {5, {9, 8, 7, 6, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {15, {2, 3, 4, 5, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {15, {5, 4, 3, 2, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {15, {10, 11, 4, 13, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {15, {14, 13, 4, 11, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {30, {2, 4, 4, 6, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
+}};
+
+constexpr std::array<SBurst, 6> skOOVBurst2InfoTemplate{{
+    {20, {16, 15, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {20, {8, 9, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {20, {13, 11, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {20, {2, 6, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {20, {3, 4, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
+}};
+
+constexpr std::array<SBurst, 6> skOOVBurst3InfoTemplate{{
+    {10, {14, 4, 10, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {10, {15, 13, 4, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {10, {9, 11, 4, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {35, {15, 13, 11, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {35, {9, 11, 13, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
+}};
+
+constexpr std::array<SBurst, 7> skOOVBurst4InfoTemplate{{
+    {10, {14, 13, 4, 11, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {30, {1, 15, 13, 11, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {20, {16, 15, 14, 13, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {10, {8, 9, 11, 4, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {10, {1, 15, 13, 4, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {20, {8, 9, 10, 11, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
+}};
+
+constexpr std::array<const SBurst*, 7> skBursts{
+    skBurst2InfoTemplate.data(),
+    skBurst3InfoTemplate.data(),
+    skBurst4InfoTemplate.data(),
+    skOOVBurst2InfoTemplate.data(),
+    skOOVBurst3InfoTemplate.data(),
+    skOOVBurst4InfoTemplate.data(),
+    nullptr,
+};
+
+constexpr std::array StateNames{
+    "Destroyed", "Deactive", "DeactiveFromReady", "Deactivating", "DeactivatingFromReady", "Inactive", "Ready",
+    "PanningA",  "PanningB", "Targeting",         "Firing",       "ExitTargeting",         "Frenzy",
+};
+
+constexpr std::array<u32, 13> skStateToLocoTypeLookup{
+    5, 7, 9, 0, 1, 0, 1, 2, 3, 1, 1, 1, 1,
+};
+} // Anonymous namespace
 
 CScriptGunTurretData::CScriptGunTurretData(CInputStream& in, s32 propCount)
 : x0_intoDeactivateDelay(in.readFloatBig())
@@ -61,52 +140,6 @@ CScriptGunTurretData::CScriptGunTurretData(CInputStream& in, s32 propCount)
 , x9c_frenzyDuration(propCount >= 47 ? in.readFloatBig() : 3.f)
 , xa0_scriptedStartOnly(propCount >= 46 ? in.readBool() : false) {}
 
-const SBurst CScriptGunTurret::skBurst2InfoTemplate[] = {
-    {3, {1, 2, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},  {3, {7, 6, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {4, {3, 5, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},  {60, {16, 4, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {30, {4, 4, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000}, {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-
-const SBurst CScriptGunTurret::skBurst3InfoTemplate[] = {
-    {30, {4, 5, 4, -1, 0, 0, 0, 0}, 0.150000, 0.050000}, {30, {2, 3, 4, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {30, {3, 4, 5, -1, 0, 0, 0, 0}, 0.150000, 0.050000}, {5, {16, 1, 2, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {5, {8, 7, 6, -1, 0, 0, 0, 0}, 0.150000, 0.050000},  {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-
-const SBurst CScriptGunTurret::skBurst4InfoTemplate[] = {
-    {5, {16, 1, 2, 3, 0, 0, 0, 0}, 0.150000, 0.050000},    {5, {9, 8, 7, 6, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {15, {2, 3, 4, 5, 0, 0, 0, 0}, 0.150000, 0.050000},    {15, {5, 4, 3, 2, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {15, {10, 11, 4, 13, 0, 0, 0, 0}, 0.150000, 0.050000}, {15, {14, 13, 4, 11, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {30, {2, 4, 4, 6, 0, 0, 0, 0}, 0.150000, 0.050000},    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-
-const SBurst CScriptGunTurret::skOOVBurst2InfoTemplate[] = {
-    {20, {16, 15, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000}, {20, {8, 9, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {20, {13, 11, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000}, {20, {2, 6, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {20, {3, 4, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},   {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-
-const SBurst CScriptGunTurret::skOOVBurst3InfoTemplate[] = {
-    {10, {14, 4, 10, -1, 0, 0, 0, 0}, 0.150000, 0.050000}, {10, {15, 13, 4, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {10, {9, 11, 4, -1, 0, 0, 0, 0}, 0.150000, 0.050000},  {35, {15, 13, 11, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {35, {9, 11, 13, -1, 0, 0, 0, 0}, 0.150000, 0.050000}, {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-
-const SBurst CScriptGunTurret::skOOVBurst4InfoTemplate[] = {
-    {10, {14, 13, 4, 11, 0, 0, 0, 0}, 0.150000, 0.050000},  {30, {1, 15, 13, 11, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {20, {16, 15, 14, 13, 0, 0, 0, 0}, 0.150000, 0.050000}, {10, {8, 9, 11, 4, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {10, {1, 15, 13, 4, 0, 0, 0, 0}, 0.150000, 0.050000},   {20, {8, 9, 10, 11, 0, 0, 0, 0}, 0.150000, 0.050000},
-    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
-};
-
-const SBurst* CScriptGunTurret::skBursts[] = {skBurst2InfoTemplate,
-                                              skBurst3InfoTemplate,
-                                              skBurst4InfoTemplate,
-                                              skOOVBurst2InfoTemplate,
-                                              skOOVBurst3InfoTemplate,
-                                              skOOVBurst4InfoTemplate,
-                                              nullptr};
-
 CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurretComponent comp, const CEntityInfo& info,
                                    const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabb,
                                    const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
@@ -119,7 +152,7 @@ CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurret
 , x26c_damageVuln(dVuln)
 , x2d4_data(turretData)
 , x37c_projectileInfo(turretData.GetProjectileRes(), turretData.GetProjectileDamage())
-, x3a4_burstFire(skBursts, 1)
+, x3a4_burstFire(skBursts.data(), 1)
 , x410_idleLightDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetIdleLightRes()}))
 , x41c_deactivateLightDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetDeactivateLightRes()}))
 , x428_targettingLightDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetTargettingLightRes()}))
@@ -351,37 +384,23 @@ void CScriptGunTurret::SetupCollisionManager(CStateManager& mgr) {
   }
 }
 
-static const char* StateNames[] = {
-  "Destroyed",
-  "Deactive",
-  "DeactiveFromReady",
-  "Deactivating",
-  "DeactivatingFromReady",
-  "Inactive",
-  "Ready",
-  "PanningA",
-  "PanningB",
-  "Targeting",
-  "Firing",
-  "ExitTargeting",
-  "Frenzy"
-};
-
 void CScriptGunTurret::SetTurretState(ETurretState state, CStateManager& mgr) {
-  if (state < ETurretState::Destroyed || state > ETurretState::Frenzy)
+  if (state < ETurretState::Destroyed || state > ETurretState::Frenzy) {
     return;
+  }
 
-  if (x520_state != ETurretState::Invalid)
+  if (x520_state != ETurretState::Invalid) {
     ProcessCurrentState(EStateMsg::Deactivate, mgr, 0.f);
+  }
 
-  if (state != ETurretState::Invalid && x520_state != state)
-    fmt::print(fmt("{} {} {} - {}\n"), GetUniqueId(), GetEditorId(), GetName(), StateNames[int(state)]);
+  if (state != ETurretState::Invalid && x520_state != state) {
+    fmt::print(fmt("{} {} {} - {}\n"), GetUniqueId(), GetEditorId(), GetName(), StateNames[size_t(state)]);
+  }
+
   x520_state = state;
   x524_curStateTime = 0.f;
   ProcessCurrentState(EStateMsg::Activate, mgr, 0.f);
 }
-
-static const u32 skStateToLocoTypeLookup[13] = {5, 7, 9, 0, 1, 0, 1, 2, 3, 1, 1, 1, 1};
 
 void CScriptGunTurret::LaunchProjectile(CStateManager& mgr) {
   if (x37c_projectileInfo.Token().IsLoaded() && mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, 8)) {
@@ -410,7 +429,7 @@ void CScriptGunTurret::LaunchProjectile(CStateManager& mgr) {
     auto pair =
     x64_modelData->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
     CPASAnimParmData(18, CPASAnimParm::FromEnum(1), CPASAnimParm::FromReal32(90.f),
-      CPASAnimParm::FromEnum(skStateToLocoTypeLookup[int(x520_state)])), -1);
+      CPASAnimParm::FromEnum(skStateToLocoTypeLookup[size_t(x520_state)])), -1);
     if (pair.first > 0.f) {
       x64_modelData->EnableLooping(false);
       x64_modelData->GetAnimationData()->SetAnimation(CAnimPlaybackParms(pair.second, -1, 1.f, true), false);
@@ -672,15 +691,18 @@ void CScriptGunTurret::ProcessGunStateMachine(float dt, CStateManager& mgr) {
 }
 
 void CScriptGunTurret::UpdateTurretAnimation() {
-  if (!HasModelData() || !GetModelData()->HasAnimData())
+  if (!HasModelData() || !GetModelData()->HasAnimData()) {
     return;
+  }
 
-  if (x520_state > ETurretState::Frenzy)
+  if (x520_state > ETurretState::Frenzy) {
     return;
+  }
 
-  CPASAnimParmData parmData = CPASAnimParmData(5, CPASAnimParm::FromEnum(0),
-                              CPASAnimParm::FromEnum(skStateToLocoTypeLookup[int(x520_state)]));
-  auto pair = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(parmData, -1);
+  const auto parmData = CPASAnimParmData(5, CPASAnimParm::FromEnum(0),
+                                         CPASAnimParm::FromEnum(skStateToLocoTypeLookup[size_t(x520_state)]));
+  const auto pair =
+      GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(parmData, -1);
 
   if (pair.first > 0.f && pair.second != x540_turretAnim) {
     GetModelData()->GetAnimationData()->SetAnimation(CAnimPlaybackParms(pair.second, -1, 1.f, true), false);
