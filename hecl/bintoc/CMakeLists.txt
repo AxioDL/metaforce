@@ -1,5 +1,4 @@
 if(NOT CMAKE_CROSSCOMPILING)
-add_subdirectory(../extern/athena/extern/zlib zlib)
 add_executable(bintoc bintoc.c)
 target_link_libraries(bintoc ${ZLIB_LIBRARIES})
 function(bintoc out in sym)

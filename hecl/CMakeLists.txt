@@ -46,14 +46,13 @@ endforeach()
 
 configure_file(include/hecl/ApplicationReps.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/ApplicationReps.hpp @ONLY)
 
+add_subdirectory(extern)
 add_subdirectory(bintoc)
 
 if(NOT TARGET bintoc)
   # Use native if cross compiling
   find_package(hecl-bintoc REQUIRED)
 endif()
-
-add_subdirectory(extern)
 
 if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
