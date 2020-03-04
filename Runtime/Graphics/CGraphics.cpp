@@ -410,6 +410,8 @@ void CGraphics::SetViewportResolution(const zeus::CVector2i& res) {
 static boo::SWindowRect CachedVP;
 zeus::CVector2f CGraphics::g_CachedDepthRange = {0.f, 1.f};
 
+const boo::SWindowRect& CGraphics::GetViewport() { return CachedVP; }
+
 void CGraphics::SetViewport(int leftOff, int bottomOff, int width, int height) {
   CachedVP.location[0] = leftOff;
   CachedVP.location[1] = bottomOff;
