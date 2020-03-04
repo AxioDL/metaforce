@@ -49,6 +49,7 @@ set(GUISYS_SOURCES
     CHudRadarInterface.hpp CHudRadarInterface.cpp
     CHudBallInterface.hpp CHudBallInterface.cpp
     CHudInterface.hpp
-    CScanDisplay.hpp CScanDisplay.cpp)
+    CScanDisplay.hpp CScanDisplay.cpp
+    CGuiCursor.hpp CGuiCursor.cpp)
 
 runtime_add_list(GuiSys GUISYS_SOURCES)

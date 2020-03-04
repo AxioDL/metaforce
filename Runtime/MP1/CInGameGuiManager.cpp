@@ -172,6 +172,10 @@ CInGameGuiManager::CInGameGuiManager(CStateManager& stateMgr, CArchitectureQueue
 : x0_iggmPreLoad(g_SimplePool->GetObj("PreLoadIGGM_DGRP"))
 , x1c_rand(1234)
 , x20_faceplateDecor(stateMgr)
+, x40_rs5_cursor(CGuiCursor(
+        CGuiCursorTransfer(0.f, 0.f, 1.f, 1.f),
+        CGuiCursorTransfer(0.f, 0.f, 1.f, 1.f),
+        ECursorState::x0))
 , x50_deathDot(g_SimplePool->GetObj("TXTR_DeathDot"))
 , x5c_pauseScreenDGRPs(LockPauseScreenDependencies()) {
   x1e0_helmetVisMode = g_tweakGui->GetHelmetVisMode();
@@ -549,6 +553,12 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
                          mapAlpha * x1f4_visorStaticAlpha * t);
     // Zest and write
     x148_model_automapper->SetIsVisible(false);
+  }
+
+  if (stateMgr.GetPlayer().GetUnknownPlayerState1().x184_ == 1 &&
+      stateMgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
+      !stateMgr.GetCameraManager()->IsInCinematicCamera()) {
+    x40_rs5_cursor.Draw();
   }
 
   if (!preDrawBlur)

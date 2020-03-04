@@ -12,6 +12,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
+#include "Runtime/GuiSys/CGuiCursor.hpp"
 #include "Runtime/MP1/CFaceplateDecoration.hpp"
 #include "Runtime/MP1/CInGameGuiManagerCommon.hpp"
 #include "Runtime/MP1/CInventoryScreen.hpp"
@@ -61,6 +62,7 @@ private:
   std::unique_ptr<CAutoMapper> x38_autoMapper;
   std::unique_ptr<CPauseScreenBlur> x3c_pauseScreenBlur;
   std::unique_ptr<CSamusFaceReflection> x40_samusReflection;
+  CGuiCursor x40_rs5_cursor;
   std::unique_ptr<CMessageScreen> x44_messageScreen;
   std::unique_ptr<CPauseScreen> x48_pauseScreen;
   std::unique_ptr<CSaveGameScreen> x4c_saveUI;
