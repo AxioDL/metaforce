@@ -632,7 +632,7 @@ FontTag FontCache::prepCustomFont(std::string_view name, FT_Face face, FCharFilt
   }
 
   /* Now check filesystem cache */
-  hecl::SystemString cachePath = m_cacheRoot + _SYS_STR('/') + fmt::format(fmt(_SYS_STR("{}")), tag.hash());
+  hecl::SystemString cachePath = m_cacheRoot + _SYS_STR('/') + fmt::format(fmt(_SYS_STR("{:x}")), tag.hash());
   hecl::Sstat st;
   if (!hecl::Stat(cachePath.c_str(), &st) && S_ISREG(st.st_mode)) {
     athena::io::FileReader r(cachePath);
