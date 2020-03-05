@@ -66,7 +66,7 @@ void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWid
   x74_transform = zeus::CTransform(orient, trans);
   m_initTransform = x74_transform;
   ReapplyXform();
-  zeus::CVector3f::ReadBig(in);
+  (void)zeus::CVector3f::ReadBig(in); // Unused
   in.readUint32Big();
   in.readUint16Big();
   if (isWorker) {

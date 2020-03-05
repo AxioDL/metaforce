@@ -546,7 +546,7 @@ void CPlayer::UpdateMorphBallTransition(float dt, CStateManager& mgr) {
 
   switch (x2f8_morphBallState) {
   case EPlayerMorphBallState::Unmorphing:
-    GetCollisionPrimitive()->CalculateAABox(GetPrimitiveTransform()).center();
+    (void)GetCollisionPrimitive()->CalculateAABox(GetPrimitiveTransform()).center();
     ClearForcesAndTorques();
     SetAngularVelocityWR(zeus::CAxisAngle());
     if (x574_morphTime >= x578_morphDuration || mgr.GetCameraManager()->IsInCinematicCamera()) {

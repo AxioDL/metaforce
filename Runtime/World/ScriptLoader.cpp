@@ -2066,7 +2066,7 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
   CScriptDebris::EOrientationType particle2Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
   CAssetId particle3 = in.readUint32Big();
-  /*zeus::CVector3f particle3Scale =*/zeus::CVector3f::ReadBig(in); /* Not actually used, go figure */
+  /*zeus::CVector3f particle3Scale =*/(void)zeus::CVector3f::ReadBig(in); /* Not actually used, go figure */
   CScriptDebris::EOrientationType particle3Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
   bool solid = in.readBool();
