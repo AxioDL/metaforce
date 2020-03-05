@@ -1434,7 +1434,7 @@ CEntity* ScriptLoader::LoadMetroidBeta(CStateManager& mgr, CInputStream& in, int
 }
 
 CEntity* ScriptLoader::LoadChozoGhost(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 32, "ChozoGhost"))
+  if (!EnsurePropertyCount(propCount, 31, "ChozoGhost"))
     return nullptr;
 
   SScaledActorHead actorHead = LoadScaledActorHead(in, mgr);

@@ -5,6 +5,8 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CTeamAiMgr.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 namespace urde::MP1 {
@@ -92,7 +94,7 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
 , x65c_nearChance(nearChance)
 , x660_midChance(midChance)
 , x664_24_onGround(w1)
-, x664_25_(w1)
+, x664_25_flinch(w1)
 , x664_26_(false)
 , x664_27_(false)
 , x664_28_(false)
@@ -102,10 +104,10 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
 , x665_24_(true)
 , x665_25_(false)
 , x665_26_(false)
-, x665_27_(false)
-, x665_28_(false)
-, x665_29_(false)
-, x680_(x664_24_onGround ? 2 : 4)
+, x665_27_playerInLeashRange(false)
+, x665_28_inRange(false)
+, x665_29_aggressive(false)
+, x680_stateProg(x664_24_onGround ? 2 : 4)
 , x68c_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
                     EBoneTrackingFlags::None) {
   x578_.Token().Lock();
@@ -128,13 +130,70 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
 }
 void CChozoGhost::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
+
+  switch (msg) {
+  case EScriptObjectMessage::Activate:
+    AddToTeam(mgr);
+    break;
+  case EScriptObjectMessage::Deactivate:
+  case EScriptObjectMessage::Deleted:
+    RemoveFromTeam(mgr);
+    break;
+  case EScriptObjectMessage::Action:
+    if (x664_26_)
+      break;
+    x664_26_ = true;
+    x400_24_hitByPlayerProjectile = true;
+    break;
+  case EScriptObjectMessage::Falling:
+  case EScriptObjectMessage::Jumped: {
+    if (!x328_25_verticalMovement)
+      x150_momentum = {0.f, 0.f, -(GetGravityConstant() * GetMass())};
+    break;
+  }
+  case EScriptObjectMessage::InitializedInArea:
+    if (GetActive())
+      AddToTeam(mgr);
+    break;
+  default:
+    break;
+  }
 }
 
-void CChozoGhost::Think(float dt, CStateManager& mgr) { CPatterned::Think(dt, mgr); }
+void CChozoGhost::Think(float dt, CStateManager& mgr) {
+  if (!GetActive())
+    return;
+
+  CPatterned::Think(dt, mgr);
+  UpdateThermalFrozenState(false);
+  x68c_boneTracking.Update(dt);
+  x6c8_ = std::max(0.f, x6c8_ - dt);
+  xe7_31_targetable = IsVisibleEnough(mgr);
+}
 
 void CChozoGhost::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) { CPatterned::PreRender(mgr, frustum); }
 
-void CChozoGhost::Render(const CStateManager& mgr) const { CPatterned::Render(mgr); }
+void CChozoGhost::Render(const CStateManager& mgr) const {
+  if (x6c8_ > 0.f)
+    mgr.DrawSpaceWarp(x6cc_, std::sin((M_PIF * x6c8_) / x56c_fadeOutDelay));
+
+  if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
+    CElementGen::SetSubtractBlend(true);
+    CElementGen::g_ParticleSystemInitialized = true;
+    CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
+    mgr.SetupFogForArea3XRange(GetAreaIdAlways());
+  }
+
+  CPatterned::Render(mgr);
+
+  if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
+    CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
+    GetModelData()->GetAnimationData()->GetParticleDB().RenderSystemsToBeDrawnLast();
+    mgr.SetupFogForArea(GetAreaIdAlways());
+    CElementGen::SetSubtractBlend(false);
+    CElementGen::g_ParticleSystemInitialized = false;
+  }
+}
 
 void CChozoGhost::Touch(CActor& act, CStateManager& mgr) { CPatterned::Touch(act, mgr); }
 
@@ -153,7 +212,7 @@ void CChozoGhost::KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, cons
   CPatterned::KnockBack(dir, mgr, info, type, inDeferred, magnitude);
 }
 
-bool CChozoGhost::CanBeShot(const CStateManager& mgr, int w1) { return CAi::CanBeShot(mgr, w1); }
+bool CChozoGhost::CanBeShot(const CStateManager& mgr, int w1) { return IsVisibleEnough(mgr); }
 
 void CChozoGhost::Dead(CStateManager& mgr, EStateMsg msg, float arg) { CPatterned::Dead(mgr, msg, arg); }
 
@@ -161,51 +220,205 @@ void CChozoGhost::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) { C
 
 void CChozoGhost::Run(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Run(mgr, msg, arg); }
 
-void CChozoGhost::Generate(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Generate(mgr, msg, arg); }
+void CChozoGhost::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x330_stateMachineState.SetDelay(x56c_fadeOutDelay);
+    x32c_animState = EAnimState::Ready;
+    x664_27_ = false;
+    CRayCastResult res = mgr.RayStaticIntersection(GetTranslation(), zeus::skDown, 100.f,
+                                                   CMaterialFilter::MakeInclude({EMaterialTypes::Floor}));
+    if (res.IsInvalid()) {
+      x678_ = mgr.GetPlayer().GetTranslation().z();
+    } else
+      x678_ = res.GetPoint().z();
+    x3e8_alphaDelta = 1.f;
+    x664_29_ = true;
+    if (x56c_fadeOutDelay > 0.f) {
+      x6c8_ = x56c_fadeOutDelay;
+      FindNearestSolid(mgr, zeus::skDown);
+    }
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::Jump, &CPatterned::TryJump, 0);
+    if (x32c_animState == EAnimState::Over) {
+      x68c_boneTracking.SetActive(true);
+      x68c_boneTracking.SetTarget(mgr.GetPlayer().GetUniqueId());
+      FloatToLevel(x678_, arg);
+    } else if (x32c_animState == EAnimState::Repeat) {
+      x450_bodyController->SetLocomotionType(pas::ELocomotionType::Crouch);
+      if (!x664_27_) {
+        zeus::CVector3f pos = GetTranslation();
+        SetTranslation({pos.x(), pos.y(), x678_ + x668_});
+        x664_27_ = true;
+      }
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+    x665_24_ = false;
+    x664_27_ = false;
+  }
+}
 
-void CChozoGhost::Deactivate(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Deactivate(mgr, msg, arg); }
+void CChozoGhost::Deactivate(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x68c_boneTracking.SetActive(false);
+    ReleaseCoverPoint(mgr, x674_coverPoint);
+    x32c_animState = EAnimState::Ready;
+    x665_24_ = true;
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerate, 1);
+    if (x32c_animState == EAnimState::Repeat)
+      GetBodyController()->SetLocomotionType(pas::ELocomotionType::Relaxed);
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+  }
+}
 
 void CChozoGhost::Attack(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Attack(mgr, msg, arg); }
 
 void CChozoGhost::Shuffle(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Shuffle(mgr, msg, arg); }
 
-void CChozoGhost::InActive(CStateManager& mgr, EStateMsg msg, float arg) { CAi::InActive(mgr, msg, arg); }
+void CChozoGhost::InActive(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    if (!x450_bodyController->GetActive())
+      x450_bodyController->Activate(mgr);
 
-void CChozoGhost::Taunt(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Taunt(mgr, msg, arg); }
+    if (x63c_ == 3) {
+      x450_bodyController->SetLocomotionType(pas::ELocomotionType::Crouch);
+      x42c_color.a() = 1.f;
+    } else {
+      x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
+      x42c_color.a() = 0.f;
+    }
+
+    RemoveMaterial(EMaterialTypes::Solid, mgr);
+    x150_momentum.zeroOut();
+    x665_24_ = true;
+  }
+}
+
+void CChozoGhost::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x32c_animState = EAnimState::Ready;
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::Taunt, &CPatterned::TryTaunt, 0);
+    FloatToLevel(x678_, arg);
+  } else {
+    x32c_animState = EAnimState::NotReady;
+    x665_26_ = false;
+  }
+}
 
 void CChozoGhost::Hurled(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Hurled(mgr, msg, arg); }
 
 void CChozoGhost::WallDetach(CStateManager& mgr, EStateMsg msg, float arg) { CAi::WallDetach(mgr, msg, arg); }
 
-void CChozoGhost::Growth(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Growth(mgr, msg, arg); }
+void CChozoGhost::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x330_stateMachineState.SetDelay(x56c_fadeOutDelay);
+    GetBodyController()->SetLocomotionType(pas::ELocomotionType::Crouch);
+    x3e8_alphaDelta = 1.f;
+    x664_29_ = true;
+    if (x56c_fadeOutDelay > 0.f) {
+      x6c8_ = x56c_fadeOutDelay;
+      FindNearestSolid(mgr, zeus::skUp);
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x665_24_ = false;
+    x68c_boneTracking.SetActive(false);
+    x68c_boneTracking.SetTarget(mgr.GetPlayer().GetUniqueId());
+  }
+}
 
-void CChozoGhost::Land(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Land(mgr, msg, arg); }
+void CChozoGhost::Land(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Update) {
+    FloatToLevel(x678_, arg);
+    if (std::fabs(x678_ - GetTranslation().z()) < 0.05f) {
+      x330_stateMachineState.SetCodeTrigger();
+    }
+  }
+}
 
-bool CChozoGhost::Leash(CStateManager& mgr, float arg) { return CPatterned::Leash(mgr, arg); }
+void CChozoGhost::Lurk(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x330_stateMachineState.SetDelay(x684_lurkDelay);
+  } else if (msg == EStateMsg::Update) {
+    FloatToLevel(x678_, arg);
+  }
+}
 
-bool CChozoGhost::InRange(CStateManager& mgr, float arg) { return CPatterned::InRange(mgr, arg); }
+bool CChozoGhost::Leash(CStateManager& mgr, float arg) { return x665_27_playerInLeashRange || CPatterned::Leash(mgr, arg); }
 
-bool CChozoGhost::InPosition(CStateManager& mgr, float arg) { return CPatterned::InPosition(mgr, arg); }
+bool CChozoGhost::InRange(CStateManager& mgr, float arg) { return x665_28_inRange; }
 
-bool CChozoGhost::AggressionCheck(CStateManager& mgr, float arg) { return CAi::AggressionCheck(mgr, arg); }
+bool CChozoGhost::InPosition(CStateManager& mgr, float arg) { return x680_stateProg == 2; }
 
-bool CChozoGhost::ShouldTaunt(CStateManager& mgr, float arg) { return CAi::ShouldTaunt(mgr, arg); }
+bool CChozoGhost::AggressionCheck(CStateManager& mgr, float arg) { return x665_29_aggressive; }
 
-bool CChozoGhost::ShouldFlinch(CStateManager& mgr, float arg) { return CAi::ShouldFlinch(mgr, arg); }
+bool CChozoGhost::ShouldTaunt(CStateManager& mgr, float arg) { return x680_stateProg == 1; }
 
-bool CChozoGhost::ShouldMove(CStateManager& mgr, float arg) { return CAi::ShouldMove(mgr, arg); }
+bool CChozoGhost::ShouldFlinch(CStateManager& mgr, float arg) { return x664_25_flinch; }
 
-bool CChozoGhost::AIStage(CStateManager& mgr, float arg) { return CAi::AIStage(mgr, arg); }
+bool CChozoGhost::ShouldMove(CStateManager& mgr, float arg) { return x680_stateProg == 3; }
+
+bool CChozoGhost::AIStage(CStateManager& mgr, float arg) { return arg == x63c_; }
 
 u8 CChozoGhost::GetModelAlphau8(const CStateManager& mgr) const {
-  if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay || !IsAlive())
-    return u8(x42c_color.a() * 255);
+  //if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay || !IsAlive())
+  //  return u8(x42c_color.a() * 255);
 
   return 255;
 }
 
 bool CChozoGhost::IsOnGround() const { return x664_24_onGround; }
 
-CProjectileInfo* CChozoGhost::GetProjectileInfo() { return CPatterned::GetProjectileInfo(); }
+CProjectileInfo* CChozoGhost::GetProjectileInfo() { return x67c_ == 2 ? &x578_ : &x5a0_; }
+
+void CChozoGhost::AddToTeam(CStateManager& mgr) {
+  if (x6c4_teamMgr == kInvalidUniqueId)
+    x6c4_teamMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
+
+  if (x6c4_teamMgr == kInvalidUniqueId)
+    return;
+
+  if (TCastToPtr<CTeamAiMgr> teamMgr = mgr.ObjectById(x6c4_teamMgr))
+    teamMgr->AssignTeamAiRole(*this, CTeamAiRole::ETeamAiRole::Ranged, CTeamAiRole::ETeamAiRole::Unknown,
+                              CTeamAiRole::ETeamAiRole::Invalid);
+}
+
+void CChozoGhost::RemoveFromTeam(CStateManager& mgr) {
+  if (x6c4_teamMgr == kInvalidUniqueId)
+    return;
+
+  if (TCastToPtr<CTeamAiMgr> teamMgr = mgr.ObjectById(x6c4_teamMgr)) {
+    if (teamMgr->IsPartOfTeam(GetUniqueId())) {
+      teamMgr->RemoveTeamAiRole(GetUniqueId());
+      x6c4_teamMgr = kInvalidUniqueId;
+    }
+  }
+}
+
+void CChozoGhost::FloatToLevel(float f1, float f2) {
+  zeus::CVector3f pos = GetTranslation();
+  pos.z() = 4.f * (f1 - pos.z()) * f2 + pos.z();
+  SetTranslation(pos);
+}
+
+const CChozoGhost::CBehaveChance& CChozoGhost::ChooseBehaveChanceRange(CStateManager& mgr) {
+  const float dist = (GetTranslation() - mgr.GetPlayer().GetTranslation()).magnitude();
+  if (x654_ <= dist && x658_ > dist)
+    return x5e8_;
+  else if (x658_ <= dist)
+    return x608_;
+  else
+    return x5c8_;
+}
+void CChozoGhost::FindNearestSolid(CStateManager& mgr, const zeus::CVector3f& dir) {
+  CRayCastResult res = mgr.RayStaticIntersection(GetBoundingBox().center() + (dir * 8.f), -dir, 8.f,
+                                                 CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+  if (res.IsInvalid()) {
+    x6cc_ = GetBoundingBox().center() + dir;
+  } else
+    x6cc_ = res.GetPoint();
+}
 
 } // namespace urde::MP1

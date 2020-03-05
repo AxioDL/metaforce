@@ -261,8 +261,10 @@ public:
   void DrawWorld() const;
   void DrawActorCubeFaces(CActor& actor, int& cubeInst) const;
   void DrawWorldCubeFaces() const;
+  void SetupFogForArea3XRange(TAreaId area) const;
   void SetupFogForArea(TAreaId area) const;
   void SetupFogForAreaNonCurrent(TAreaId area) const;
+  void SetupFogForArea3XRange(const CGameArea& area) const;
   void SetupFogForArea(const CGameArea& area) const;
   void SetupFogForAreaNonCurrent(const CGameArea& area) const;
   bool SetupFogForDraw() const;
