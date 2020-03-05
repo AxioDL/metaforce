@@ -10,12 +10,7 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
-enum class EBehaveType {
-  Zero,
-  One,
-  Two,
-  Three
-};
+enum class EBehaveType { Lurk, One, Attack, Move, Four };
 
 class CChozoGhost : public CPatterned {
 public:
@@ -32,7 +27,14 @@ public:
   public:
     CBehaveChance(CInputStream&);
 
-    u32 GetBehave(EBehaveType type, CStateManager& mgr) const;
+    EBehaveType GetBehave(EBehaveType type, CStateManager& mgr) const;
+    float GetLurk() const { return x4_lurk; }
+    float GetX8() const { return x8_; }
+    float GetAttack() const { return xc_attack; }
+    float GetMove() const { return x10_move; }
+    float GetLurkTime() const { return x14_lurkTime; }
+    float GetChargeAttack() const { return x18_chargeAttack; }
+    u32 GetNumBolts() const { return x1c_numBolts; }
   };
 
 private:
@@ -79,7 +81,7 @@ private:
   float x6c8_ = 0.f;
   float x678_ = 0.f;
   u32 x67c_ = -1;
-  u32 x680_stateProg = 0;
+  EBehaveType x680_behaveType = EBehaveType::Lurk;
   float x684_lurkDelay = 1.f;
   CSteeringBehaviors x688_;
   CBoneTracking x68c_boneTracking;
@@ -94,6 +96,7 @@ private:
   const CBehaveChance& ChooseBehaveChanceRange(CStateManager& mgr);
   bool IsVisibleEnough(const CStateManager& mgr) const { return GetModelAlphau8(mgr) > 31; }
   void FindNearestSolid(CStateManager& mgr, const zeus::CVector3f& dir);
+
 public:
   DEFINE_PATTERNED(ChozoGhost)
 
@@ -109,7 +112,8 @@ public:
   void Render(const CStateManager& mgr) const override;
   void Touch(CActor& act, CStateManager& mgr) override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
-                                                         const CWeaponMode& mode, EProjectileAttrib attrib) const override;
+                                                         const CWeaponMode& mode,
+                                                         EProjectileAttrib attrib) const override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
   void KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const CDamageInfo& info, EKnockBackType type,
                  bool inDeferred, float magnitude) override;

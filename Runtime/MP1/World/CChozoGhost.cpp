@@ -26,11 +26,11 @@ CChozoGhost::CBehaveChance::CBehaveChance(CInputStream& in)
   x10_move *= f2;
 }
 
-u32 CChozoGhost::CBehaveChance::GetBehave(EBehaveType type, CStateManager& mgr) const {
+EBehaveType CChozoGhost::CBehaveChance::GetBehave(EBehaveType type, CStateManager& mgr) const {
   float dVar5 = x4_lurk;
   float dVar4 = x8_;
   float dVar3 = xc_attack;
-  if (type == EBehaveType::Zero) {
+  if (type == EBehaveType::Lurk) {
     float dVar2 = dVar5 / 3.f;
     dVar5 = 0.f;
     dVar4 += dVar2;
@@ -40,12 +40,12 @@ u32 CChozoGhost::CBehaveChance::GetBehave(EBehaveType type, CStateManager& mgr) 
     dVar4 = 0.f;
     dVar5 += dVar2;
     dVar3 += dVar2;
-  } else if (type == EBehaveType::Two) {
+  } else if (type == EBehaveType::Attack) {
     float dVar2 = dVar3 / 3.f;
     dVar3 = 0.f;
     dVar5 += dVar2;
     dVar4 += dVar2;
-  } else if (type == EBehaveType::Three) {
+  } else if (type == EBehaveType::Move) {
     float dVar2 = x10_move / 3.f;
     dVar5 += dVar2;
     dVar4 += dVar2;
@@ -54,12 +54,12 @@ u32 CChozoGhost::CBehaveChance::GetBehave(EBehaveType type, CStateManager& mgr) 
 
   float rnd = mgr.GetActiveRandom()->Float();
   if (dVar5 > rnd)
-    return 0;
+    return EBehaveType::Lurk;
   else if (dVar4 > (rnd - dVar5))
-    return 1;
+    return EBehaveType::One;
   else if (dVar3 > (rnd - dVar5) - dVar4)
-    return 2;
-  return 3;
+    return EBehaveType::Attack;
+  return EBehaveType::Move;
 }
 
 CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -107,7 +107,7 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
 , x665_27_playerInLeashRange(false)
 , x665_28_inRange(false)
 , x665_29_aggressive(false)
-, x680_stateProg(x664_24_onGround ? 2 : 4)
+, x680_behaveType(x664_24_onGround ? EBehaveType::Attack : EBehaveType::Four)
 , x68c_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
                     EBoneTrackingFlags::None) {
   x578_.Token().Lock();
@@ -273,9 +273,61 @@ void CChozoGhost::Deactivate(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CChozoGhost::Attack(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Attack(mgr, msg, arg); }
+void CChozoGhost::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    CTeamAiMgr::AddAttacker(CTeamAiMgr::EAttackType::Melee, mgr, x6c4_teamMgr, GetUniqueId());
+    x32c_animState = EAnimState::Ready;
+    if (x6d8_ == 1)
+      x67c_ = 3;
+    else if (x6d8_ == 2)
+      x67c_ = 4;
+    else if (x6d8_ == 3)
+      x67c_ = 5;
 
-void CChozoGhost::Shuffle(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Shuffle(mgr, msg, arg); }
+    if (x665_26_ && mgr.RayStaticIntersection(GetTranslation() + (zeus::skUp * 0.5f), zeus::skUp, x670_,
+                                              CMaterialFilter::MakeInclude({EMaterialTypes::Solid}))
+                        .IsValid()) {
+      x67c_ = 2;
+      x460_knockBackController.SetAvailableState(EKnockBackAnimationState::KnockBack, false);
+    }
+    x150_momentum.zeroOut();
+    xfc_constantForce.zeroOut();
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, x67c_);
+    GetBodyController()->GetCommandMgr().SetTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+    if (x67c_ != 2)
+      FloatToLevel(x678_, arg);
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+    x665_26_ = false;
+    x460_knockBackController.SetAvailableState(EKnockBackAnimationState::KnockBack, true);
+    CTeamAiMgr::ResetTeamAiRole(CTeamAiMgr::EAttackType::Ranged, mgr, x6c4_teamMgr, GetUniqueId(), true);
+  }
+}
+
+void CChozoGhost::Shuffle(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg != EStateMsg::Activate)
+    return;
+
+  const CBehaveChance& chance1 = ChooseBehaveChanceRange(mgr);
+  CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x6c4_teamMgr, GetUniqueId());
+  if (role && role->GetTeamAiRole() == CTeamAiRole::ETeamAiRole::Ranged &&
+      !CTeamAiMgr::CanAcceptAttacker(CTeamAiMgr::EAttackType::Ranged, mgr, x6c4_teamMgr, GetUniqueId())) {
+    x680_behaveType = EBehaveType::Attack;
+  }
+
+  const CBehaveChance& chance2 = ChooseBehaveChanceRange(mgr);
+  x680_behaveType = chance2.GetBehave(x680_behaveType, mgr);
+  if (x680_behaveType == EBehaveType::Lurk)
+    x684_lurkDelay = chance1.GetLurkTime();
+  else if (x680_behaveType == EBehaveType::Attack) {
+    x665_25_ = mgr.GetActiveRandom()->Float() < chance1.GetChargeAttack();
+    const int rnd = mgr.GetActiveRandom()->Next();
+    x6d8_ = (rnd - (rnd / chance1.GetNumBolts()) * chance1.GetNumBolts()) + 1;
+  }
+  x664_31_ = false;
+  x665_27_playerInLeashRange = false;
+}
 
 void CChozoGhost::InActive(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
@@ -346,24 +398,26 @@ void CChozoGhost::Lurk(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-bool CChozoGhost::Leash(CStateManager& mgr, float arg) { return x665_27_playerInLeashRange || CPatterned::Leash(mgr, arg); }
+bool CChozoGhost::Leash(CStateManager& mgr, float arg) {
+  return x665_27_playerInLeashRange || CPatterned::Leash(mgr, arg);
+}
 
 bool CChozoGhost::InRange(CStateManager& mgr, float arg) { return x665_28_inRange; }
 
-bool CChozoGhost::InPosition(CStateManager& mgr, float arg) { return x680_stateProg == 2; }
+bool CChozoGhost::InPosition(CStateManager& mgr, float arg) { return x680_behaveType == EBehaveType::Attack; }
 
 bool CChozoGhost::AggressionCheck(CStateManager& mgr, float arg) { return x665_29_aggressive; }
 
-bool CChozoGhost::ShouldTaunt(CStateManager& mgr, float arg) { return x680_stateProg == 1; }
+bool CChozoGhost::ShouldTaunt(CStateManager& mgr, float arg) { return x680_behaveType == EBehaveType::One; }
 
 bool CChozoGhost::ShouldFlinch(CStateManager& mgr, float arg) { return x664_25_flinch; }
 
-bool CChozoGhost::ShouldMove(CStateManager& mgr, float arg) { return x680_stateProg == 3; }
+bool CChozoGhost::ShouldMove(CStateManager& mgr, float arg) { return x680_behaveType == EBehaveType::Move; }
 
 bool CChozoGhost::AIStage(CStateManager& mgr, float arg) { return arg == x63c_; }
 
 u8 CChozoGhost::GetModelAlphau8(const CStateManager& mgr) const {
-  //if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay || !IsAlive())
+  // if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay || !IsAlive())
   //  return u8(x42c_color.a() * 255);
 
   return 255;
