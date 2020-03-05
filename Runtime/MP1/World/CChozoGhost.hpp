@@ -59,7 +59,7 @@ private:
   u32 x65c_nearChance;
   u32 x660_midChance;
   bool x664_24_onGround : 1;
-  bool x664_25_ : 1;
+  bool x664_25_flinch : 1;
   bool x664_26_ : 1;
   bool x664_27_ : 1;
   bool x664_28_ : 1;
@@ -69,25 +69,31 @@ private:
   bool x665_24_ : 1;
   bool x665_25_ : 1;
   bool x665_26_ : 1;
-  bool x665_27_ : 1;
-  bool x665_28_ : 1;
-  bool x665_29_ : 1;
+  bool x665_27_playerInLeashRange : 1;
+  bool x665_28_inRange : 1;
+  bool x665_29_aggressive : 1;
   float x668_ = 0.f;
   float x66c_ = 0.f;
   float x670_ = 0.f;
-  TUniqueId x674_ = kInvalidUniqueId;
+  TUniqueId x674_coverPoint = kInvalidUniqueId;
+  float x6c8_ = 0.f;
   float x678_ = 0.f;
   u32 x67c_ = -1;
-  u32 x680_ = 0;
-  float x684_ = 1.f;
+  u32 x680_stateProg = 0;
+  float x684_lurkDelay = 1.f;
   CSteeringBehaviors x688_;
   CBoneTracking x68c_boneTracking;
-  TUniqueId x6c4_ = kInvalidUniqueId;
-  float x6c8_ = 0.f;
+  TUniqueId x6c4_teamMgr = kInvalidUniqueId;
   zeus::CVector3f x6cc_;
   u32 x6d8_ = 1;
   u32 x6dc_;
-  CTeamAiMgr
+
+  void AddToTeam(CStateManager& mgr);
+  void RemoveFromTeam(CStateManager& mgr);
+  void FloatToLevel(float f1, float f2);
+  const CBehaveChance& ChooseBehaveChanceRange(CStateManager& mgr);
+  bool IsVisibleEnough(const CStateManager& mgr) const { return GetModelAlphau8(mgr) > 31; }
+  void FindNearestSolid(CStateManager& mgr, const zeus::CVector3f& dir);
 public:
   DEFINE_PATTERNED(ChozoGhost)
 
@@ -125,6 +131,7 @@ public:
   void WallDetach(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Growth(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Land(CStateManager& mgr, EStateMsg msg, float arg) override;
+  void Lurk(CStateManager& mgr, EStateMsg msg, float arg) override;
   bool Leash(CStateManager& mgr, float arg) override;
   bool InRange(CStateManager& mgr, float arg) override;
   bool InPosition(CStateManager& mgr, float arg) override;
