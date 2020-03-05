@@ -360,7 +360,39 @@ void CChozoGhost::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CChozoGhost::Hurled(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Hurled(mgr, msg, arg); }
+void CChozoGhost::Hurled(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x328_25_verticalMovement = false;
+    x664_27_ = false;
+    x665_24_ = true;
+  } else if (msg == EStateMsg::Update) {
+    x3e8_alphaDelta = 2.f;
+    if (x664_27_)
+      return;
+
+    if (x138_velocity.z() < 0.f) {
+      CRayCastResult res = mgr.RayStaticIntersection(GetTranslation() + zeus::skUp, zeus::skDown, 2.f,
+                                                     CMaterialFilter::MakeInclude({EMaterialTypes::Floor}));
+      if (res.IsValid()) {
+        x664_27_ = true;
+        x150_momentum.zeroOut();
+        zeus::CVector3f velNoZ = x138_velocity;
+        velNoZ.z() = 0.f;
+        SetVelocityWR(velNoZ);
+        x678_ = res.GetPoint().z();
+        x330_stateMachineState.SetCodeTrigger();
+      }
+    }
+    if (!x664_27_ && x638_hurlRecoverTime < x330_stateMachineState.GetTime()) {
+      GetBodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
+      GetBodyController()->SetLocomotionType(pas::ELocomotionType::Lurk);
+      x330_stateMachineState.SetCodeTrigger();
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x328_25_verticalMovement = true;
+    x150_momentum.zeroOut();
+  }
+}
 
 void CChozoGhost::WallDetach(CStateManager& mgr, EStateMsg msg, float arg) { CAi::WallDetach(mgr, msg, arg); }
 
