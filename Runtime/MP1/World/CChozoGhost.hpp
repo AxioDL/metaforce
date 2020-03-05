@@ -96,6 +96,7 @@ private:
   const CBehaveChance& ChooseBehaveChanceRange(CStateManager& mgr);
   bool IsVisibleEnough(const CStateManager& mgr) const { return GetModelAlphau8(mgr) > 31; }
   void FindNearestSolid(CStateManager& mgr, const zeus::CVector3f& dir);
+  void FindBestAnchor(CStateManager& mgr);
 
 public:
   DEFINE_PATTERNED(ChozoGhost)

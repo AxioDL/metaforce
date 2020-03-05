@@ -171,7 +171,37 @@ void CChozoGhost::Think(float dt, CStateManager& mgr) {
   xe7_31_targetable = IsVisibleEnough(mgr);
 }
 
-void CChozoGhost::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) { CPatterned::PreRender(mgr, frustum); }
+void CChozoGhost::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+  x402_29_drawParticles = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay;
+  if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
+    SetCalculateLighting(false);
+    x90_actorLights->BuildConstantAmbientLighting(zeus::skWhite);
+  } else {
+    SetCalculateLighting(true);
+  }
+
+  u8 alpha = GetModelAlphau8(mgr);
+  u8 r, g, b, a;
+  x42c_color.toRGBA8(r, g, b, a);
+  if (alpha < 255 || r == 0) {
+    zeus::CColor col;
+    if (r == 0) {
+      col = zeus::skWhite;
+    } else {
+      float v = std::max<s8>(0, r - 255) * (1.f / 255.f);
+      col.r() = 1.f;
+      col.g() = v;
+      col.b() = v;
+    }
+    col.a() = alpha * (1.f / 255.f);
+    xb4_drawFlags = CModelFlags(5, 0, 3, col);
+  } else {
+    xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
+  }
+  CPatterned::PreRender(mgr, frustum);
+  x68c_boneTracking.PreRender(mgr, *GetModelData()->GetAnimationData(), GetTransform(), GetModelData()->GetScale(),
+                              *GetBodyController());
+}
 
 void CChozoGhost::Render(const CStateManager& mgr) const {
   if (x6c8_ > 0.f)
@@ -200,7 +230,7 @@ void CChozoGhost::Touch(CActor& act, CStateManager& mgr) { CPatterned::Touch(act
 EWeaponCollisionResponseTypes CChozoGhost::GetCollisionResponseType(const zeus::CVector3f& pos,
                                                                     const zeus::CVector3f& dir, const CWeaponMode& mode,
                                                                     EProjectileAttrib attrib) const {
-  return CAi::GetCollisionResponseType(pos, dir, mode, attrib);
+  return EWeaponCollisionResponseTypes::ChozoGhost;
 }
 
 void CChozoGhost::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
@@ -209,16 +239,65 @@ void CChozoGhost::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
 
 void CChozoGhost::KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const CDamageInfo& info,
                             EKnockBackType type, bool inDeferred, float magnitude) {
+  if (!IsAlive())
+    x460_knockBackController.SetAvailableState(EKnockBackAnimationState::Hurled, false);
+  else if (!x460_knockBackController.TestAvailableState(EKnockBackAnimationState::KnockBack) &&
+           info.GetWeaponMode().IsCharged())
+    x460_knockBackController.SetAnimationStateRange(EKnockBackAnimationState::Hurled, EKnockBackAnimationState::Fall);
+
   CPatterned::KnockBack(dir, mgr, info, type, inDeferred, magnitude);
+  if (!IsAlive()) {
+    Stop();
+    x150_momentum.zeroOut();
+  } else if (x460_knockBackController.GetActiveParms().x0_animState == EKnockBackAnimationState::Hurled) {
+    x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Hurled"sv);
+  }
 }
 
 bool CChozoGhost::CanBeShot(const CStateManager& mgr, int w1) { return IsVisibleEnough(mgr); }
 
-void CChozoGhost::Dead(CStateManager& mgr, EStateMsg msg, float arg) { CPatterned::Dead(mgr, msg, arg); }
+void CChozoGhost::Dead(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    ReleaseCoverPoint(mgr, x674_coverPoint);
+    x3e8_alphaDelta = 4.f;
+    x664_30_ = false;
+    x664_29_ = false;
+    x68c_boneTracking.SetActive(false);
+    Stop();
+  }
+}
 
-void CChozoGhost::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) { CAi::SelectTarget(mgr, msg, arg); }
+void CChozoGhost::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate)
+    FindBestAnchor(mgr);
+}
 
-void CChozoGhost::Run(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Run(mgr, msg, arg); }
+void CChozoGhost::Run(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    GetBodyController()->SetLocomotionType(pas::ELocomotionType::Lurk);
+    x400_24_hitByPlayerProjectile = false;
+    x460_knockBackController.SetAvailableState(EKnockBackAnimationState::KnockBack, false);
+    x665_28_inRange = false;
+  } else if (msg == EStateMsg::Update) {
+    GetBodyController()->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x688_.Seek(*this, x2e0_destPos), {}, 1.f));
+    if (x665_26_) {
+      x678_ = x2e0_destPos.z();
+      FloatToLevel(x678_, arg);
+      GetModelData()->GetAnimationData()->SetParticleEffectState("SpeedSwoosh", true, mgr);
+      x665_24_ = false;
+      if (!x665_28_inRange) {
+        const float range = 2.5f * (arg * x138_velocity.magnitude()) + x66c_;
+        x665_28_inRange = (GetTranslation() - x2e0_destPos).magSquared() < range * range;
+      }
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    GetBodyController()->SetLocomotionType(pas::ELocomotionType::Crouch);
+    SetDestPos(mgr.GetPlayer().GetTranslation());
+    GetModelData()->GetAnimationData()->SetParticleEffectState("SpeedSwoosh", false, mgr);
+    x460_knockBackController.SetAvailableState(EKnockBackAnimationState::KnockBack, true);
+    x665_28_inRange = false;
+  }
+}
 
 void CChozoGhost::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
@@ -449,8 +528,8 @@ bool CChozoGhost::ShouldMove(CStateManager& mgr, float arg) { return x680_behave
 bool CChozoGhost::AIStage(CStateManager& mgr, float arg) { return arg == x63c_; }
 
 u8 CChozoGhost::GetModelAlphau8(const CStateManager& mgr) const {
-  // if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay || !IsAlive())
-  //  return u8(x42c_color.a() * 255);
+  if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay || !IsAlive())
+    return u8(x42c_color.a() * 255);
 
   return 255;
 }
@@ -506,5 +585,7 @@ void CChozoGhost::FindNearestSolid(CStateManager& mgr, const zeus::CVector3f& di
   } else
     x6cc_ = res.GetPoint();
 }
+
+void CChozoGhost::FindBestAnchor(urde::CStateManager& mgr) {}
 
 } // namespace urde::MP1

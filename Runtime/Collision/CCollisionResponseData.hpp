@@ -54,7 +54,7 @@ enum class EWeaponCollisionResponseTypes {
   Unknown35,
   Unknown36,
   Unknown37,
-  Unknown38,
+  ChozoGhost,
   Unknown39,
   Unknown40,
   Unknown41,
