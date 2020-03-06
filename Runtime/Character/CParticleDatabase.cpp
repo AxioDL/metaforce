@@ -306,7 +306,7 @@ void CParticleDatabase::SetParticleEffectState(std::string_view name, bool activ
 
 void CParticleDatabase::SetCEXTValue(std::string_view name, int idx, float value) {
   if (CParticleGenInfo* info = GetParticleEffect(name)) {
-    static_cast<CElementGen*>(static_cast<CParticleGenInfoGeneric*>(info)->GetParticleSystem().get())
+    std::static_pointer_cast<CElementGen>(static_cast<CParticleGenInfoGeneric*>(info)->GetParticleSystem())
         ->SetExternalVar(idx, value);
   }
 }
