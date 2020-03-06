@@ -13,6 +13,7 @@
 #include "Runtime/World/CActor.hpp"
 
 #include <algorithm>
+#include <array>
 
 #include <boo/System.hpp>
 #include <logvisor/logvisor.hpp>
@@ -27,13 +28,34 @@
 #define SPHERE_RAMP_RES 32
 
 namespace urde {
+namespace {
+struct FogVolumeControl {
+  std::array<std::array<u32, 2>, 12> xfc_{
+      {{0, 1}, {1, 3}, {3, 2}, {2, 0}, {4, 5}, {5, 7}, {7, 6}, {6, 4}, {0, 4}, {1, 5}, {3, 7}, {2, 6}},
+  };
+  std::array<u32, 8> x15c_{};
+  // GXVtxDescList x17c_; {{POS, DIRECT}, {TEX0, DIRECT}}
+};
 
-static logvisor::Module Log("CBooRenderer");
+logvisor::Module Log("CBooRenderer");
 
-static rstl::reserved_vector<CDrawable, 512> sDataHolder;
-static rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50> sBucketsHolder;
-static rstl::reserved_vector<CDrawablePlaneObject, 8> sPlaneObjectDataHolder;
-static rstl::reserved_vector<u16, 8> sPlaneObjectBucketHolder;
+rstl::reserved_vector<CDrawable, 512> sDataHolder;
+rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50> sBucketsHolder;
+rstl::reserved_vector<CDrawablePlaneObject, 8> sPlaneObjectDataHolder;
+rstl::reserved_vector<u16, 8> sPlaneObjectBucketHolder;
+
+constexpr FogVolumeControl s_FogVolumeCtrl{};
+
+constexpr std::array<std::array<int, 2>, 3> OrthogonalAxis{
+    {{1, 2}, {0, 2}, {0, 1}},
+};
+
+constexpr bool TestBit(const u32* words, size_t bit) { return (words[bit / 32] & (1U << (bit & 0x1f))) != 0; }
+
+float GetPlaneInterpolant(const zeus::CPlane& plane, const zeus::CVector3f& vert1, const zeus::CVector3f& vert2) {
+  return zeus::clamp(0.f, -plane.pointToPlaneDist(vert1) / (vert2 - vert1).dot(plane.normal()), 1.f);
+}
+} // Anonymous namespace
 
 class Buckets {
   friend class CBooRenderer;
@@ -43,8 +65,8 @@ class Buckets {
   static inline rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50>* sBuckets = nullptr;
   static inline rstl::reserved_vector<CDrawablePlaneObject, 8>* sPlaneObjectData = nullptr;
   static inline rstl::reserved_vector<u16, 8>* sPlaneObjectBucket = nullptr;
-  static constexpr float skWorstMinMaxDistance[2] = {99999.0f, -99999.0f};
-  static inline float sMinMaxDistance[2] = {0.0f, 0.0f};
+  static constexpr std::array skWorstMinMaxDistance{99999.0f, -99999.0f};
+  static inline std::array sMinMaxDistance{0.0f, 0.0f};
 
 public:
   static void Clear();
@@ -62,10 +84,10 @@ void Buckets::Clear() {
   sBucketIndex.clear();
   sPlaneObjectData->clear();
   sPlaneObjectBucket->clear();
-  for (rstl::reserved_vector<CDrawable*, 128>& bucket : *sBuckets)
+  for (rstl::reserved_vector<CDrawable*, 128>& bucket : *sBuckets) {
     bucket.clear();
-  sMinMaxDistance[0] = skWorstMinMaxDistance[0];
-  sMinMaxDistance[1] = skWorstMinMaxDistance[1];
+  }
+  sMinMaxDistance = skWorstMinMaxDistance;
 }
 
 void Buckets::Sort() {
@@ -167,12 +189,8 @@ void Buckets::Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDraw
 
   const float dist = plane.pointToPlaneDist(pos);
   sData->emplace_back(dtype, extraSort, dist, aabb, data);
-  if (sMinMaxDistance[0] > dist) {
-    sMinMaxDistance[0] = dist;
-  }
-  if (sMinMaxDistance[1] < dist) {
-    sMinMaxDistance[1] = dist;
-  }
+  sMinMaxDistance[0] = std::min(sMinMaxDistance[0], dist);
+  sMinMaxDistance[1] = std::max(sMinMaxDistance[1], dist);
 }
 
 void Buckets::Shutdown() {
@@ -188,8 +206,7 @@ void Buckets::Init() {
   sBuckets->resize(50);
   sPlaneObjectData = &sPlaneObjectDataHolder;
   sPlaneObjectBucket = &sPlaneObjectBucketHolder;
-  sMinMaxDistance[0] = skWorstMinMaxDistance[0];
-  sMinMaxDistance[1] = skWorstMinMaxDistance[1];
+  sMinMaxDistance = skWorstMinMaxDistance;
 }
 
 CBooRenderer::CAreaListItem::CAreaListItem(const std::vector<CMetroidModelInstance>* geom,
@@ -205,50 +222,56 @@ CBooRenderer::CAreaListItem::CAreaListItem(const std::vector<CMetroidModelInstan
 
 CBooRenderer::CAreaListItem::~CAreaListItem() {}
 
-static inline bool TestBit(const u32* words, int bit) { return (words[bit / 32] & (1 << (bit & 0x1f))) != 0; }
-
 void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model) {
   std::vector<CLight> thisLights;
   thisLights.reserve(4);
 
   if (x300_dynamicLights.size()) {
     u32 lightOctreeWordCount = 0;
-    u32* lightOctreeWords = nullptr;
+    const u32* lightOctreeWords = nullptr;
     if (item && model.x44_areaInstanceIdx != UINT32_MAX) {
       lightOctreeWordCount = item->x4_octTree->x14_bitmapWordCount;
       lightOctreeWords = item->x1c_lightOctreeWords.data();
     }
 
-    float lightRads[4] = {-1.f, -1.f, -1.f, -1.f};
-    CLight* lightRefs[4] = {};
+    std::array<float, 4> lightRads{-1.f, -1.f, -1.f, -1.f};
+    std::array<CLight*, 4> lightRefs{};
     auto it = x300_dynamicLights.begin();
-    for (int i = 0; i < 4 && it != x300_dynamicLights.end(); ++it, lightOctreeWords += lightOctreeWordCount) {
+    for (size_t i = 0; i < thisLights.size() && it != x300_dynamicLights.end();
+         ++it, lightOctreeWords += lightOctreeWordCount) {
       CLight& refLight = *it;
-      if (lightOctreeWords && !TestBit(lightOctreeWords, model.x44_areaInstanceIdx))
+      if (lightOctreeWords && !TestBit(lightOctreeWords, model.x44_areaInstanceIdx)) {
         continue;
+      }
 
-      float radius = model.x20_aabb.intersectionRadius(zeus::CSphere(refLight.GetPosition(), refLight.GetRadius()));
+      const float radius =
+          model.x20_aabb.intersectionRadius(zeus::CSphere(refLight.GetPosition(), refLight.GetRadius()));
 
       bool foundLight = false;
-      for (int j = 0; j < i; ++j) {
-        if (lightRefs[j] == &refLight)
+      for (size_t j = 0; j < i; ++j) {
+        if (lightRefs[j] == &refLight) {
           continue;
-        if (radius < 0.f)
+        }
+        if (radius < 0.f) {
           break;
-        if (lightRads[j] <= radius)
+        }
+        if (lightRads[j] <= radius) {
           break;
+        }
         lightRads[j] = radius;
         thisLights.push_back(refLight);
         foundLight = true;
         break;
       }
 
-      if (foundLight)
+      if (foundLight) {
         continue;
+      }
 
       lightRads[i] = radius;
-      if (radius < 0.f)
+      if (radius < 0.f) {
         continue;
+      }
       lightRefs[i] = &refLight;
       thisLights.push_back(refLight);
       ++i;
@@ -301,23 +324,8 @@ void CBooRenderer::HandleUnsortedModel(CAreaListItem* item, CBooModel& model, co
   }
 }
 
-static const struct FogVolumeControl {
-
-  u32 xfc_[12][2] = {{0, 1}, {1, 3}, {3, 2}, {2, 0}, {4, 5}, {5, 7}, {7, 6}, {6, 4}, {0, 4}, {1, 5}, {3, 7}, {2, 6}};
-  u32 x15c_[8] = {};
-  // GXVtxDescList x17c_; {{POS, DIRECT}, {TEX0, DIRECT}}
-
-} s_FogVolumeCtrl = {};
-
-static const int OrthogonalAxis[3][2] = {{1, 2}, {0, 2}, {0, 1}};
-
-static float GetPlaneInterpolant(const zeus::CPlane& plane, const zeus::CVector3f& vert1,
-                                 const zeus::CVector3f& vert2) {
-  return zeus::clamp(0.f, -plane.pointToPlaneDist(vert1) / (vert2 - vert1).dot(plane.normal()), 1.f);
-}
-
-void CBooRenderer::CalcDrawFogFan(const zeus::CPlane* planes, int numPlanes, const zeus::CVector3f* verts, int numVerts,
-                                  int iteration, int level, CFogVolumePlaneShader& fogVol) {
+void CBooRenderer::CalcDrawFogFan(const zeus::CPlane* planes, size_t numPlanes, const zeus::CVector3f* verts,
+                                  size_t numVerts, size_t iteration, size_t level, CFogVolumePlaneShader& fogVol) {
   if (level == iteration) {
     CalcDrawFogFan(planes, numPlanes, verts, numVerts, iteration, level + 1, fogVol);
     return;
@@ -329,48 +337,56 @@ void CBooRenderer::CalcDrawFogFan(const zeus::CPlane* planes, int numPlanes, con
   }
 
   const zeus::CPlane& plane = planes[level];
-  u32 insidePlaneCount = 0;
-  bool outsidePlane[20];
-  for (int i = 0; i < numVerts; ++i)
+  size_t insidePlaneCount = 0;
+  std::array<bool, 20> outsidePlane;
+  for (size_t i = 0; i < numVerts; ++i) {
     outsidePlane[insidePlaneCount++] = plane.normal().dot(verts[i]) < plane.d();
+  }
 
-  u32 numUseVerts = 0;
-  zeus::CVector3f useVerts[20];
-  for (int i = 0; i < numVerts; ++i) {
-    int nextIdx = (i + 1) % numVerts;
-    int insidePair = int(outsidePlane[i]) | (int(outsidePlane[nextIdx]) << 1);
-    if (!(insidePair & 0x1))
+  size_t numUseVerts = 0;
+  std::array<zeus::CVector3f, 20> useVerts;
+  for (size_t i = 0; i < numVerts; ++i) {
+    const size_t nextIdx = (i + 1) % numVerts;
+    const int insidePair = int(outsidePlane[i]) | (int(outsidePlane[nextIdx]) << 1);
+    if ((insidePair & 0x1) == 0) {
       useVerts[numUseVerts++] = verts[i];
+    }
     if (insidePair == 1 || insidePair == 2) {
       /* Inside/outside transition; clip verts to other plane boundary */
       const zeus::CVector3f vert1 = verts[i];
       const zeus::CVector3f vert2 = verts[nextIdx];
-      float interp = GetPlaneInterpolant(plane, vert1, vert2);
-      if (interp > 0.f || interp < 1.f)
+      const float interp = GetPlaneInterpolant(plane, vert1, vert2);
+      if (interp > 0.f || interp < 1.f) {
         useVerts[numUseVerts++] = (vert1 * (1.f - interp)) + (vert2 * interp);
+      }
     }
   }
 
-  if (numUseVerts >= 3)
-    CalcDrawFogFan(planes, numPlanes, useVerts, numUseVerts, iteration, level + 1, fogVol);
+  if (numUseVerts < 3) {
+    return;
+  }
+
+  CalcDrawFogFan(planes, numPlanes, useVerts.data(), numUseVerts, iteration, level + 1, fogVol);
 }
 
-void CBooRenderer::DrawFogSlices(const zeus::CPlane* planes, int numPlanes, int iteration,
+void CBooRenderer::DrawFogSlices(const zeus::CPlane* planes, size_t numPlanes, size_t iteration,
                                  const zeus::CVector3f& center, float longestAxis, CFogVolumePlaneShader& fogVol) {
   u32 vertCount = 0;
-  zeus::CVector3d verts[4];
+  std::array<zeus::CVector3d, 4> verts;
   u32 vert2Count = 0;
-  zeus::CVector3f verts2[4];
+  std::array<zeus::CVector3f, 4> verts2;
   const zeus::CPlane& plane = planes[iteration];
   int longestNormAxis = std::fabs(plane[1]) > std::fabs(plane[0]);
-  if (std::fabs(plane[2]) > std::fabs(plane[longestNormAxis]))
+  if (std::fabs(plane[2]) > std::fabs(plane[longestNormAxis])) {
     longestNormAxis = 2;
+  }
 
-  zeus::CVector3d pointOnPlane = center - (plane.pointToPlaneDist(center) * plane.normal());
+  const zeus::CVector3d pointOnPlane = center - (plane.pointToPlaneDist(center) * plane.normal());
 
   float deltaSign = plane[longestNormAxis] >= 0.f ? -1.f : 1.f;
-  if (longestNormAxis == 1)
+  if (longestNormAxis == 1) {
     deltaSign = -deltaSign;
+  }
 
   zeus::CVector3d vec1;
   zeus::CVector3d vec2;
@@ -383,11 +399,12 @@ void CBooRenderer::DrawFogSlices(const zeus::CPlane* planes, int numPlanes, int 
   verts[vertCount++] = pointOnPlane + vec1 + vec2;
   verts[vertCount++] = pointOnPlane - vec1 + vec2;
 
-  zeus::CVector3d planeNormal = plane.normal();
-  for (const zeus::CVector3d& vert : verts)
+  const zeus::CVector3d planeNormal = plane.normal();
+  for (const zeus::CVector3d& vert : verts) {
     verts2[vert2Count++] = vert - (planeNormal * zeus::CVector3f(planeNormal.dot(vert) - plane.d()));
+  }
 
-  CalcDrawFogFan(planes, numPlanes, verts2, vert2Count, iteration, 0, fogVol);
+  CalcDrawFogFan(planes, numPlanes, verts2.data(), vert2Count, iteration, 0, fogVol);
 }
 
 void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model, const zeus::CTransform& modelMtx,
@@ -397,23 +414,26 @@ void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* 
     if (pass == 0) {
       zeus::CAABox xfAABB = aabb.getTransformedAABox(modelMtx);
       zeus::CUnitVector3f viewNormal(viewMtx.basis[1]);
-      zeus::CPlane planes[7] = {{zeus::skRight, xfAABB.min.x()},
-                                {zeus::skLeft, -xfAABB.max.x()},
-                                {zeus::skForward, xfAABB.min.y()},
-                                {zeus::skBack, -xfAABB.max.y()},
-                                {zeus::skUp, xfAABB.min.z()},
-                                {zeus::skDown, -xfAABB.max.z()},
-                                {viewNormal, viewNormal.dot(viewMtx.origin) + 0.2f + 0.1f}};
+      const std::array<zeus::CPlane, 7> planes{{
+          {zeus::skRight, xfAABB.min.x()},
+          {zeus::skLeft, -xfAABB.max.x()},
+          {zeus::skForward, xfAABB.min.y()},
+          {zeus::skBack, -xfAABB.max.y()},
+          {zeus::skUp, xfAABB.min.z()},
+          {zeus::skDown, -xfAABB.max.z()},
+          {viewNormal, viewNormal.dot(viewMtx.origin) + 0.2f + 0.1f},
+      }};
 
       CGraphics::SetModelMatrix(zeus::CTransform());
 
-      float longestAxis = std::max(std::max(xfAABB.max.x() - xfAABB.min.x(), xfAABB.max.y() - xfAABB.min.y()),
-                                   xfAABB.max.z() - xfAABB.min.z()) *
-                          2.f;
+      const float longestAxis = std::max(std::max(xfAABB.max.x() - xfAABB.min.x(), xfAABB.max.y() - xfAABB.min.y()),
+                                         xfAABB.max.z() - xfAABB.min.z()) *
+                                2.f;
 
       fvs->reset(7 * 6);
-      for (int i = 0; i < 7; ++i)
-        DrawFogSlices(planes, 7, i, xfAABB.center(), longestAxis, *fvs);
+      for (size_t i = 0; i < planes.size(); ++i) {
+        DrawFogSlices(planes.data(), planes.size(), i, xfAABB.center(), longestAxis, *fvs);
+      }
       fvs->draw(0);
     } else {
       fvs->draw(pass);
@@ -458,46 +478,48 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
                                          const CSkinnedModel* sModel) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::ReallyRenderFogVolume", zeus::skPurple);
   zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(false);
-  zeus::CVector4f points[8];
+  std::array<zeus::CVector4f, 8> points;
 
-  for (int i = 0; i < 8; ++i) {
-    zeus::CVector3f xfPt = CGraphics::g_GXModelView * aabb.getPoint(i);
+  for (size_t i = 0; i < points.size(); ++i) {
+    const zeus::CVector3f xfPt = CGraphics::g_GXModelView * aabb.getPoint(i);
     points[i] = proj * zeus::CVector4f(xfPt);
   }
 
   zeus::CVector2i vpMax(0, 0);
   zeus::CVector2i vpMin(g_Viewport.x8_width, g_Viewport.xc_height);
 
-  for (int i = 0; i < 20; ++i) {
+  for (size_t i = 0; i < 20; ++i) {
     zeus::CVector3f overW;
-    if (i < 8) {
+    if (i < points.size()) {
       overW = points[i].toVec3f() * (1.f / points[i].w());
     } else {
       const zeus::CVector4f& pt1 = points[s_FogVolumeCtrl.xfc_[i - 8][0]];
       const zeus::CVector4f& pt2 = points[s_FogVolumeCtrl.xfc_[i - 8][1]];
 
-      bool eq1 = (pt1.z() / pt1.w()) == 1.f;
-      bool eq2 = (pt2.z() / pt2.w()) == 1.f;
-      if (eq1 == eq2)
+      const bool eq1 = (pt1.z() / pt1.w()) == 1.f;
+      const bool eq2 = (pt2.z() / pt2.w()) == 1.f;
+      if (eq1 == eq2) {
         continue;
+      }
 
-      float interp = -(pt1.w() - 1.f) / (pt2.w() - pt1.w());
-      if (interp <= 0.f || interp >= 1.f)
+      const float interp = -(pt1.w() - 1.f) / (pt2.w() - pt1.w());
+      if (interp <= 0.f || interp >= 1.f) {
         continue;
+      }
 
-      float wRecip = 1.f / (interp * (pt2.w() - pt1.w()) + pt1.w());
-      zeus::CVector3f pt1_3 = pt1.toVec3f();
-      zeus::CVector3f pt2_3 = pt2.toVec3f();
+      const float wRecip = 1.f / (interp * (pt2.w() - pt1.w()) + pt1.w());
+      const zeus::CVector3f pt1_3 = pt1.toVec3f();
+      const zeus::CVector3f pt2_3 = pt2.toVec3f();
       overW = (pt1_3 + interp * (pt2_3 - pt1_3)) * wRecip;
     }
 
     // if (overW.z > 1.001f)
     //    continue;
 
-    int vpX = zeus::clamp(0, int(g_Viewport.x8_width * overW.x() * 0.5f + (g_Viewport.x8_width / 2)),
-                          int(g_Viewport.x8_width));
-    int vpY = zeus::clamp(0, int(g_Viewport.xc_height * overW.y() * 0.5f + (g_Viewport.xc_height / 2)),
-                          int(g_Viewport.xc_height));
+    const int vpX = zeus::clamp(0, int(g_Viewport.x8_width * overW.x() * 0.5f + (g_Viewport.x8_width / 2)),
+                                int(g_Viewport.x8_width));
+    const int vpY = zeus::clamp(0, int(g_Viewport.xc_height * overW.y() * 0.5f + (g_Viewport.xc_height / 2)),
+                                int(g_Viewport.xc_height));
     vpMax.x = std::max(vpMax.x, vpX);
     vpMin.x = std::min(vpMin.x, vpX);
     vpMax.y = std::max(vpMax.y, vpY);
@@ -555,11 +577,11 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
 }
 
 void CBooRenderer::GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx) {
-  u16 data[FOGVOL_RAMP_RES][FOGVOL_RAMP_RES] = {};
-  for (int y = 0; y < FOGVOL_RAMP_RES; ++y) {
-    for (int x = 0; x < FOGVOL_RAMP_RES; ++x) {
-      int tmp = y << 16 | x << 8 | 0x7f;
-      double a =
+  std::array<std::array<u16, FOGVOL_RAMP_RES>, FOGVOL_RAMP_RES> data{};
+  for (size_t y = 0; y < data.size(); ++y) {
+    for (size_t x = 0; x < data[y].size(); ++x) {
+      const int tmp = int(y << 16 | x << 8 | 0x7f);
+      const double a =
           zeus::clamp(0.0,
                       (-150.0 / (tmp / double(0xffffff) * (FOGVOL_FAR - FOGVOL_NEAR) - FOGVOL_FAR) - FOGVOL_NEAR) *
                           3.0 / (FOGVOL_FAR - FOGVOL_NEAR),
@@ -569,21 +591,21 @@ void CBooRenderer::GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& 
   }
   x1b8_fogVolumeRamp =
       ctx.newStaticTexture(FOGVOL_RAMP_RES, FOGVOL_RAMP_RES, 1, boo::TextureFormat::I16, boo::TextureClampMode::Repeat,
-                           data[0], FOGVOL_RAMP_RES * FOGVOL_RAMP_RES * 2);
+                           data[0].data(), FOGVOL_RAMP_RES * FOGVOL_RAMP_RES * 2);
 }
 
 void CBooRenderer::GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx) {
-  u8 data[SPHERE_RAMP_RES][SPHERE_RAMP_RES] = {};
-  float halfRes = SPHERE_RAMP_RES / 2.f;
-  for (int y = 0; y < SPHERE_RAMP_RES; ++y) {
-    for (int x = 0; x < SPHERE_RAMP_RES; ++x) {
-      zeus::CVector2f vec((x - halfRes) / halfRes, (y - halfRes) / halfRes);
+  std::array<std::array<u8, SPHERE_RAMP_RES>, SPHERE_RAMP_RES> data{};
+  constexpr float halfRes = SPHERE_RAMP_RES / 2.f;
+  for (size_t y = 0; y < data.size(); ++y) {
+    for (size_t x = 0; x < data[y].size(); ++x) {
+      const zeus::CVector2f vec((float(x) - halfRes) / halfRes, (float(y) - halfRes) / halfRes);
       data[y][x] = 255 - zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
     }
   }
-  x220_sphereRamp = ctx.newStaticTexture(SPHERE_RAMP_RES, SPHERE_RAMP_RES, 1, boo::TextureFormat::I8,
-                                         boo::TextureClampMode::ClampToEdge, data[0],
-                                         SPHERE_RAMP_RES * SPHERE_RAMP_RES);
+  x220_sphereRamp =
+      ctx.newStaticTexture(SPHERE_RAMP_RES, SPHERE_RAMP_RES, 1, boo::TextureFormat::I8,
+                           boo::TextureClampMode::ClampToEdge, data[0].data(), SPHERE_RAMP_RES * SPHERE_RAMP_RES);
 }
 
 void CBooRenderer::GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx) {
@@ -624,18 +646,21 @@ void CBooRenderer::GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx)
 }
 
 boo::ObjToken<boo::ITexture> CBooRenderer::GetColorTexture(const zeus::CColor& color) {
-  auto search = m_colorTextures.find(color);
-  if (search != m_colorTextures.end())
+  const auto search = m_colorTextures.find(color);
+  if (search != m_colorTextures.end()) {
     return search->second;
-  u8 pixel[4];
+  }
+
+  std::array<u8, 4> pixel;
   color.toRGBA8(pixel[0], pixel[1], pixel[2], pixel[3]);
   boo::ObjToken<boo::ITexture> tex;
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    tex = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8,
-                               boo::TextureClampMode::Repeat, pixel, 4).get();
+    tex = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, pixel.data(),
+                               pixel.size())
+              .get();
     return true;
   } BooTrace);
-  m_colorTextures.insert(std::make_pair(color, tex));
+  m_colorTextures.emplace(color, tex);
   return tex;
 }
 
@@ -663,15 +688,18 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
   m_staticEntropy = store.GetObj("RandomStaticEntropy");
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    u8 clearPixel[] = {0, 0, 0, 0};
-    m_clearTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8,
-                                          boo::TextureClampMode::Repeat, clearPixel, 4).get();
-    u8 blackPixel[] = {0, 0, 0, 255};
-    m_blackTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8,
-                                          boo::TextureClampMode::Repeat, blackPixel, 4).get();
-    u8 whitePixel[] = {255, 255, 255, 255};
-    m_whiteTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8,
-                                          boo::TextureClampMode::Repeat, whitePixel, 4).get();
+    constexpr std::array<u8, 4> clearPixel{0, 0, 0, 0};
+    m_clearTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
+                                          clearPixel.data(), clearPixel.size())
+                         .get();
+    constexpr std::array<u8, 4> blackPixel{0, 0, 0, 255};
+    m_blackTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
+                                          blackPixel.data(), blackPixel.size())
+                         .get();
+    constexpr std::array<u8, 4> whitePixel{255, 255, 255, 255};
+    m_whiteTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
+                                          whitePixel.data(), whitePixel.size())
+                         .get();
 
     GenerateFogVolumeRampTex(ctx);
     GenerateSphereRampTex(ctx);
@@ -708,7 +736,7 @@ void CBooRenderer::AddWorldSurfaces(CBooModel& model) {
 std::list<CBooRenderer::CAreaListItem>::iterator
 CBooRenderer::FindStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) {
   return std::find_if(x1c_areaListItems.begin(), x1c_areaListItems.end(),
-                      [&](CAreaListItem& item) -> bool { return item.x0_geometry == geometry; });
+                      [&](const CAreaListItem& item) { return item.x0_geometry == geometry; });
 }
 
 void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry,
