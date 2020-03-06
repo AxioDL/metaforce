@@ -18,10 +18,32 @@
 #include <logvisor/logvisor.hpp>
 
 namespace urde {
-static logvisor::Module Log("urde::CBooModel");
-bool CBooModel::g_DrawingOccluders = false;
+namespace {
+logvisor::Module Log("urde::CBooModel");
+CBooModel* g_FirstModel = nullptr;
 
-static CBooModel* g_FirstModel = nullptr;
+constexpr zeus::CMatrix4f ReflectBaseMtx{
+    0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f,
+};
+
+constexpr zeus::CMatrix4f ReflectPostGL{
+    1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f,
+};
+
+constexpr zeus::CMatrix4f MBShadowPost0{
+    1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f,
+};
+
+constexpr zeus::CMatrix4f MBShadowPost1{
+    0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, -0.0625f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f,
+};
+
+constexpr zeus::CMatrix4f DisintegratePost{
+    1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f,
+};
+} // Anonymous namespace
+
+bool CBooModel::g_DrawingOccluders = false;
 
 void CBooModel::Shutdown() {
   g_shadowMap.reset();
@@ -58,12 +80,6 @@ bool CBooModel::g_DummyTextures = false;
 bool CBooModel::g_RenderModelBlack = false;
 
 zeus::CVector3f CBooModel::g_ReflectViewPos = {};
-
-static const zeus::CMatrix4f ReflectBaseMtx = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
-                                               0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f};
-
-static const zeus::CMatrix4f ReflectPostGL = {1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f,
-                                              0.f, 0.f, 1.f, 0.f, 0.f, 0.f,  0.f, 1.f};
 
 void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf, zeus::CMatrix4f* mtxsOut,
                                          float& alphaOut) {
@@ -746,17 +762,6 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const MaterialS
 void CBooModel::UVAnimationBuffer::PadOutBuffer(u8*& bufStart, u8*& bufOut) {
   bufOut = bufStart + ROUND_UP_256(bufOut - bufStart);
 }
-
-static const zeus::CMatrix4f MBShadowPost0(1.f, 0.f, 0.f, 0.f,
-                                           0.f, -1.f, 0.f, 1.f,
-                                           0.f, 0.f, 0.f, 1.f,
-                                           0.f, 0.f, 0.f, 1.f);
-
-static const zeus::CMatrix4f MBShadowPost1(0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, -0.0625f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f,
-                                           0.f, 1.f);
-
-static const zeus::CMatrix4f DisintegratePost(1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f,
-                                              1.f);
 
 void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags,
                                           const CBooModel* parent) {
