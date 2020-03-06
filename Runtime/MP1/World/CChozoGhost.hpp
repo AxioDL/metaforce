@@ -101,6 +101,6 @@ public:
               const CBehaveChance&, u16, float, u16, u16, u32, float, u32, float, CAssetId, s16, float, float, u32,
               u32);
 
-  float GetGravityConstant() const { return 60.f; }
+  float GetGravityConstant() const override { return 60.f; }
 };
 } // namespace urde::MP1
