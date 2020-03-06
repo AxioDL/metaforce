@@ -83,17 +83,22 @@ void CEyeball::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
 }
 
-static float kMinAngle = std::cos(zeus::degToRad(45.f));
 void CEyeball::Think(float dt, CStateManager& mgr) {
   CPatterned::Think(dt, mgr);
-  if (!GetActive())
-    return;
 
-  CPlayer& player = mgr.GetPlayer();
-  zeus::CVector3f direction = (player.GetTranslation() - GetTranslation()).normalized();
+  if (!GetActive()) {
+    return;
+  }
+
+  const CPlayer& player = mgr.GetPlayer();
+  const zeus::CVector3f direction = (player.GetTranslation() - GetTranslation()).normalized();
+
+  // Used to be directly calculated as std::cos(zeus::degToRad(45.f));
+  // but was converted into the exact constant to avoid unnecessary runtime initialization.
+  constexpr float minAngle = 0.707106769f;
 
   x60c_25_playerInRange = (player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed &&
-                           direction.dot(GetTransform().frontVector()) > kMinAngle);
+                           direction.dot(GetTransform().frontVector()) > minAngle);
 
   if (x60c_25_playerInRange) {
     x570_boneTracking.SetActive(true);
