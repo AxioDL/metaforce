@@ -38,7 +38,7 @@ void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, con
   TCastToConstPtr<CActor> targetAct = mgr.GetObjectById(x34_target);
   if (x36_24_active && tracking && (targetAct || x24_targetPosition)) {
     x36_25_hasTrackedRotation = true;
-    auto layoutInfo = pb.CharLayoutInfo();
+    const auto& layoutInfo = pb.CharLayoutInfo();
     CSegId bone;
     if (x36_26_noParent)
       bone = x14_segId;
