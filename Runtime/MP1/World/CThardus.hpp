@@ -157,8 +157,8 @@ class CThardus : public CPatterned {
                          EMaterialTypes mat, CStateManager& mgr);
   void _SetupCollisionActorMaterials(const std::unique_ptr<CCollisionActorManager>& colMgr, CStateManager& mgr);
   void _SetupCollisionManagers(CStateManager& mgr);
-  void _BuildSphereJointList(const SSphereJointInfo* arr, int count, std::vector<CJointCollisionDescription>& list);
-  void _BuildAABoxJointList(const SAABoxJointInfo* arr, int count, std::vector<CJointCollisionDescription>& list);
+  void _BuildSphereJointList(const SSphereJointInfo* arr, size_t count, std::vector<CJointCollisionDescription>& list);
+  void _BuildAABoxJointList(const SAABoxJointInfo* arr, size_t count, std::vector<CJointCollisionDescription>& list);
   void RenderFlare(const CStateManager& mgr, float t) const;
   zeus::CVector3f sub801de550(const CStateManager& mgr) const;
   zeus::CVector3f sub801de434(const CStateManager& mgr) const { return {}; }
