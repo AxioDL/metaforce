@@ -92,5 +92,6 @@ public:
   const CProjectileWeapon& GetProjectileWeapon() const { return x170_projectile; }
   TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }
   zeus::CVector3f GetPreviousPos() const { return x298_previousPos; }
+  void SetMinHomingDistance(float dist) { x2e0_minHomingDist = dist; }
 };
 } // namespace urde

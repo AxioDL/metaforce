@@ -45,10 +45,7 @@ bool CScriptCoverPoint::GetInUse(TUniqueId uid) const {
   if (xf8_25_inUse || x11c_timeLeft > 0.f)
     return true;
 
-  if (xfa_occupant == kInvalidUniqueId || uid == kInvalidUniqueId || xfa_occupant == uid)
-    return false;
-
-  return true;
+  return !(xfa_occupant == kInvalidUniqueId || uid == kInvalidUniqueId || xfa_occupant == uid);
 }
 
 bool CScriptCoverPoint::Blown(const zeus::CVector3f& point) const {

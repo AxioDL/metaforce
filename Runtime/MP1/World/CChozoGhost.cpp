@@ -5,7 +5,10 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptCoverPoint.hpp"
+#include "Runtime/World/CScriptWaypoint.hpp"
 #include "Runtime/World/CTeamAiMgr.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
@@ -225,7 +228,19 @@ void CChozoGhost::Render(const CStateManager& mgr) const {
   }
 }
 
-void CChozoGhost::Touch(CActor& act, CStateManager& mgr) { CPatterned::Touch(act, mgr); }
+void CChozoGhost::Touch(CActor& act, CStateManager& mgr) {
+
+  if (IsVisibleEnough(mgr)) {
+    if (TCastToPtr<CPlayer> pl = act) {
+      if (x420_curDamageRemTime <= 0.f) {
+        mgr.ApplyDamage(GetUniqueId(), pl->GetUniqueId(), GetUniqueId(), GetContactDamage(),
+                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
+        x420_curDamageRemTime = x424_damageWaitTime;
+      }
+    }
+  }
+  CPatterned::Touch(act, mgr);
+}
 
 EWeaponCollisionResponseTypes CChozoGhost::GetCollisionResponseType(const zeus::CVector3f& pos,
                                                                     const zeus::CVector3f& dir, const CWeaponMode& mode,
@@ -234,7 +249,59 @@ EWeaponCollisionResponseTypes CChozoGhost::GetCollisionResponseType(const zeus::
 }
 
 void CChozoGhost::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
+
+  if (type == EUserEventType::FadeIn) {
+    if (x664_30_) {
+      x3e8_alphaDelta = 2.f;
+      CSfxManager::AddEmitter(x630_, GetTranslation(), {}, false, false, 127, -1);
+    }
+    AddMaterial(EMaterialTypes::Target, mgr);
+    x664_30_ = false;
+    x664_29_ = true;
+    return;
+  } else if (type == EUserEventType::Projectile) {
+    zeus::CTransform xf =
+        zeus::lookAt(GetLctrTransform(node.GetLocatorName()).origin, mgr.GetPlayer().GetAimPosition(mgr, 0.f));
+    if (x67c_ == 2) {
+      CGameProjectile* proj =
+          LaunchProjectile(xf, mgr, 2, EProjectileAttrib::BigStrike | EProjectileAttrib::StaticInterference, true,
+                           {x640_}, x650_sound_ProjectileVisor, false, zeus::skOne3f);
+      if (proj) {
+        proj->AddAttrib(EProjectileAttrib::BigStrike);
+        proj->SetDamageDuration(x62c_);
+        proj->AddAttrib(EProjectileAttrib::StaticInterference);
+        proj->SetInterferenceDuration(x62c_);
+        proj->SetMinHomingDistance(x634_);
+      }
+    } else {
+      CGameProjectile* proj =
+          LaunchProjectile(xf, mgr, 5, EProjectileAttrib::DamageFalloff | EProjectileAttrib::StaticInterference, true,
+                           {x640_}, x650_sound_ProjectileVisor, false, zeus::skOne3f);
+      if (proj) {
+        proj->AddAttrib(EProjectileAttrib::BigStrike);
+        proj->SetDamageDuration(x62c_);
+        proj->AddAttrib(EProjectileAttrib::StaticInterference);
+        proj->SetInterferenceDuration(x62c_);
+        proj->SetMinHomingDistance(x634_);
+      }
+    }
+    return;
+  } else if (type == EUserEventType::FadeOut) {
+    if (x664_29_) {
+      x3e8_alphaDelta = -2.f;
+      CSfxManager::AddEmitter(x632_, GetTranslation(), {}, false, false, 127, -1);
+    }
+    RemoveMaterial(EMaterialTypes::Target, mgr);
+    x664_29_ = false;
+    x664_30_ = true;
+    x665_26_ = true;
+    return;
+  }
+
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
+
+  if (type == EUserEventType::Delete)
+    x3e8_alphaDelta = -1.f;
 }
 
 void CChozoGhost::KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const CDamageInfo& info,
@@ -473,7 +540,33 @@ void CChozoGhost::Hurled(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CChozoGhost::WallDetach(CStateManager& mgr, EStateMsg msg, float arg) { CAi::WallDetach(mgr, msg, arg); }
+void CChozoGhost::WallDetach(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x330_stateMachineState.SetDelay(x56c_fadeOutDelay);
+    x3e8_alphaDelta = 0.f;
+    x664_29_ = false;
+    if (x56c_fadeOutDelay > 0.f) {
+      x6c8_ = x56c_fadeOutDelay;
+      FindNearestSolid(mgr, GetTransform().basis[1]);
+    }
+    TUniqueId wpId = GetWaypointForState(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow);
+    TCastToConstPtr<CScriptWaypoint> wp;
+    if (wpId != kInvalidUniqueId) {
+      wp = TCastToConstPtr<CScriptWaypoint>(mgr.GetObjectById(wpId));
+    }
+    if (wp)
+      SetDestPos(wp->GetTranslation());
+    else
+      SetDestPos(GetTranslation() + (2.f * x66c_) * GetTranslation());
+
+    SendScriptMsgs(EScriptObjectState::Attack, mgr, EScriptObjectMessage::Follow);
+  } else if (msg == EStateMsg::Deactivate) {
+    x68c_boneTracking.SetActive(true);
+    x68c_boneTracking.SetTarget(mgr.GetPlayer().GetUniqueId());
+    x665_24_ = false;
+    x680_behaveType = EBehaveType::Move;
+  }
+}
 
 void CChozoGhost::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
@@ -586,6 +679,89 @@ void CChozoGhost::FindNearestSolid(CStateManager& mgr, const zeus::CVector3f& di
     x6cc_ = res.GetPoint();
 }
 
-void CChozoGhost::FindBestAnchor(urde::CStateManager& mgr) {}
+void CChozoGhost::FindBestAnchor(urde::CStateManager& mgr) {
+  x665_27_playerInLeashRange = false;
+  u32 chance = mgr.GetActiveRandom()->Next() % 100;
+  chance = chance < x65c_nearChance ? 0 : (chance < (x65c_nearChance + x660_midChance)) + 2;
+  float dVar10 = 10.f;
+  float dVar15 = dVar10 * x658_;
+  float dVar14 = dVar15;
+  float dVar13 = dVar15;
+  if (chance == 0) {
+    dVar13 = dVar15 * dVar10;
+    dVar15 *= 5.f;
+  } else if (chance == 1) {
+    dVar13 = dVar15 * 5.f;
+    dVar15 *= dVar10;
+  } else if (chance == 2) {
+    dVar14 = dVar15 * 5.f;
+    dVar15 *= dVar10;
+  }
 
+  float prevDist = FLT_MAX;
+  CScriptCoverPoint* target = nullptr;
+  for (CEntity* ent : mgr.GetAiWaypointObjectList()) {
+    if (TCastToPtr<CScriptCoverPoint> cover = ent) {
+      if (cover->GetActive() && !cover->GetInUse(kInvalidUniqueId) && cover->GetAreaIdAlways() == GetAreaId()) {
+        float fVar17 = (cover->GetTranslation() - GetTranslation()).magnitude();
+        if (2.f * x66c_ <= fVar17) {
+          float dist = std::max(0.f, x654_ - fVar17);
+          zeus::CVector3f diff = (cover->GetTranslation() - mgr.GetPlayer().GetTranslation());
+          fVar17 = diff.magnitude();
+          if (x2fc_minAttackRange <= fVar17) {
+            if (std::fabs(diff.z()) / fVar17 < 0.2f) {
+              dist = (20.f * x658_) * ((std::fabs(diff.z()) / fVar17) - 0.2f) + dist;
+            }
+            if (x654_ <= dVar10) {
+              if (x658_ <= dVar10) {
+                dist = (dist + dVar13);
+              } else {
+                dist = (dist + dVar14);
+                if (dist < prevDist) {
+                  fVar17 = 1.f / dVar10;
+                  diff = diff * fVar17;
+                  dist += (10.f * x658_) * (1.f * mgr.GetPlayer().GetTransform().basis[1].dot(diff));
+                }
+              }
+            } else {
+              dist += dVar15;
+              if (dist < prevDist) {
+                fVar17 = 1.f / dVar10;
+                diff = diff * fVar17;
+                dist += (10.f * x658_) * (1.f * mgr.GetPlayer().GetTransform().basis[1].dot(diff));
+              }
+            }
+            if (dist < prevDist) {
+              dist += x658_ * mgr.GetActiveRandom()->Float();
+              if (dist < prevDist) {
+                x665_27_playerInLeashRange = false;
+                target = cover;
+                prevDist = dist;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (target) {
+    x2dc_destObj = target->GetUniqueId();
+    SetDestPos(target->GetTranslation());
+    ReleaseCoverPoint(mgr, x674_coverPoint);
+    SetCoverPoint(target, x674_coverPoint);
+  } else if (mgr.GetPlayer().GetAreaIdAlways() == GetAreaIdAlways()) {
+    x2dc_destObj = mgr.GetPlayer().GetUniqueId();
+    zeus::CVector3f destPos =
+        mgr.GetPlayer().GetTranslation() - x654_ * (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized();
+    CRayCastResult res =
+        mgr.RayStaticIntersection(destPos, zeus::skDown, 8.f, CMaterialFilter::MakeInclude(EMaterialTypes::Floor));
+    if (res.IsValid())
+      destPos = res.GetPoint();
+    SetDestPos(destPos);
+  } else {
+    x2dc_destObj = kInvalidUniqueId;
+    x2e0_destPos = GetTranslation();
+  }
+}
 } // namespace urde::MP1

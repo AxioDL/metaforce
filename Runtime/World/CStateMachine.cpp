@@ -111,7 +111,7 @@ void CStateMachineState::SetState(CStateManager& mgr, CAi& ai, const CStateMachi
     return;
 
   if (!x0_machine)
-    x0_machine = machine;
+    Setup(machine);
 
   s32 idx = machine->GetStateIndex(state);
   SetState(mgr, ai, idx);

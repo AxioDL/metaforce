@@ -1081,7 +1081,7 @@ void CPatterned::SetupPlayerCollision(bool v) {
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(include, exclude));
 }
 
-void CPatterned::LaunchProjectile(const zeus::CTransform& gunXf, CStateManager& mgr, int maxAllowed,
+CGameProjectile* CPatterned::LaunchProjectile(const zeus::CTransform& gunXf, CStateManager& mgr, int maxAllowed,
                                   EProjectileAttrib attrib, bool playerHoming,
                                   const std::optional<TLockedToken<CGenDescription>>& visorParticle,
                                   u16 visorSfx, bool sendCollideMsg, const zeus::CVector3f& scale) {
@@ -1094,8 +1094,10 @@ void CPatterned::LaunchProjectile(const zeus::CTransform& gunXf, CStateManager& 
                                 pInfo->GetDamage(), mgr.AllocateUniqueId(), GetAreaIdAlways(), GetUniqueId(), homingId,
                                 attrib, false, scale, visorParticle, visorSfx, sendCollideMsg);
       mgr.AddObject(newProjectile);
+      return newProjectile;
     }
   }
+  return nullptr;
 }
 
 void CPatterned::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
