@@ -107,9 +107,10 @@ void CEyeball::Think(float dt, CStateManager& mgr) {
     x570_boneTracking.Update(dt);
     GetModelData()->GetAnimationData()->PreRender();
     x570_boneTracking.PreRender(mgr, *GetModelData()->GetAnimationData(), GetTransform(), GetModelData()->GetScale(),
-                                *x450_bodyController.get());
-  } else
+                                *x450_bodyController);
+  } else {
     x570_boneTracking.SetActive(false);
+  }
 
   if (GetActive()) {
     CPlasmaProjectile* projectile = static_cast<CPlasmaProjectile*>(mgr.ObjectById(x5ec_projectileId));
