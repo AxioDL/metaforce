@@ -38,27 +38,7 @@ class CTexture;
 class IFactory;
 class IObjectStore;
 
-class Buckets {
-  friend class CBooRenderer;
-
-  static rstl::reserved_vector<u16, 50> sBucketIndex;
-  static rstl::reserved_vector<CDrawable, 512>* sData;
-  static rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50>* sBuckets;
-  static rstl::reserved_vector<CDrawablePlaneObject, 8>* sPlaneObjectData;
-  static rstl::reserved_vector<u16, 8>* sPlaneObjectBucket;
-  static const float skWorstMinMaxDistance[2];
-  static float sMinMaxDistance[2];
-
-public:
-  static void Clear();
-  static void Sort();
-  static void InsertPlaneObject(float closeDist, float farDist, const zeus::CAABox& aabb, bool invertTest,
-                                const zeus::CPlane& plane, bool zOnly, EDrawableType dtype, const void* data);
-  static void Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype, const void* data,
-                     const zeus::CPlane& plane, u16 extraSort);
-  static void Shutdown();
-  static void Init();
-};
+class Buckets;
 
 enum class EWorldShadowMode {
   None,

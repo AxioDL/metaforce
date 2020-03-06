@@ -35,13 +35,27 @@ static rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50> sBucket
 static rstl::reserved_vector<CDrawablePlaneObject, 8> sPlaneObjectDataHolder;
 static rstl::reserved_vector<u16, 8> sPlaneObjectBucketHolder;
 
-rstl::reserved_vector<u16, 50> Buckets::sBucketIndex;
-rstl::reserved_vector<CDrawable, 512>* Buckets::sData = nullptr;
-rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50>* Buckets::sBuckets = nullptr;
-rstl::reserved_vector<CDrawablePlaneObject, 8>* Buckets::sPlaneObjectData = nullptr;
-rstl::reserved_vector<u16, 8>* Buckets::sPlaneObjectBucket = nullptr;
-const float Buckets::skWorstMinMaxDistance[2] = {99999.f, -99999.f};
-float Buckets::sMinMaxDistance[2];
+class Buckets {
+  friend class CBooRenderer;
+
+  static inline rstl::reserved_vector<u16, 50> sBucketIndex;
+  static inline rstl::reserved_vector<CDrawable, 512>* sData = nullptr;
+  static inline rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50>* sBuckets = nullptr;
+  static inline rstl::reserved_vector<CDrawablePlaneObject, 8>* sPlaneObjectData = nullptr;
+  static inline rstl::reserved_vector<u16, 8>* sPlaneObjectBucket = nullptr;
+  static constexpr float skWorstMinMaxDistance[2] = {99999.0f, -99999.0f};
+  static inline float sMinMaxDistance[2] = {0.0f, 0.0f};
+
+public:
+  static void Clear();
+  static void Sort();
+  static void InsertPlaneObject(float closeDist, float farDist, const zeus::CAABox& aabb, bool invertTest,
+                                const zeus::CPlane& plane, bool zOnly, EDrawableType dtype, const void* data);
+  static void Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype, const void* data,
+                     const zeus::CPlane& plane, u16 extraSort);
+  static void Shutdown();
+  static void Init();
+};
 
 void Buckets::Clear() {
   sData->clear();
