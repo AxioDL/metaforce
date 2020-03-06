@@ -836,15 +836,15 @@ void CThardus::_SetupCollisionActorMaterials(const std::unique_ptr<CCollisionAct
 void CThardus::_SetupCollisionManagers(CStateManager& mgr) {
   std::vector<CJointCollisionDescription> list;
   _BuildSphereJointList(skDamageableSphereJointInfoList1, 7, list);
-  x5f0_rockColliders.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), list, true));
+  x5f0_rockColliders = std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), list, true);
   _SetupCollisionActorMaterials(x5f0_rockColliders, mgr);
   list.clear();
   _BuildSphereJointList(skDamageableSphereJointInfoList2, 5, list);
-  x5f4_.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), list, true));
+  x5f4_ = std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), list, true);
   _SetupCollisionActorMaterials(x5f4_, mgr);
   list.clear();
   _BuildAABoxJointList(skFootCollision, 2, list);
-  x5f8_.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), list, true));
+  x5f8_ = std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), list, true);
   _SetupCollisionActorMaterials(x5f8_, mgr);
   list.clear();
   x634_nonDestroyableActors.reserve(x5f4_->GetNumCollisionActors() + x5f0_rockColliders->GetNumCollisionActors() +
