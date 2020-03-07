@@ -4,9 +4,9 @@ namespace urde {
 
 CPVSVisOctree CPVSVisOctree::MakePVSVisOctree(const u8* data) {
   CMemoryInStream r(data, 68);
-  zeus::CAABox aabb = aabb.ReadBoundingBoxBig(r);
-  u32 numObjects = r.readUint32Big();
-  u32 numLights = r.readUint32Big();
+  const zeus::CAABox aabb = zeus::CAABox::ReadBoundingBoxBig(r);
+  const u32 numObjects = r.readUint32Big();
+  const u32 numLights = r.readUint32Big();
   r.readUint32Big();
   return CPVSVisOctree(aabb, numObjects, numLights, data + r.position());
 }
