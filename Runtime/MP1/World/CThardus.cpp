@@ -59,7 +59,7 @@ constexpr std::array<std::string_view, 7> skRockJoints = {
 } // namespace
 CThardus::CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                    CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
-                   const std::vector<CStaticRes>& mData1, const std::vector<CStaticRes>& mData2, CAssetId particle1,
+                   std::vector<CStaticRes> mData1, std::vector<CStaticRes> mData2, CAssetId particle1,
                    CAssetId particle2, CAssetId particle3, float f1, float f2, float f3, float f4, float f5, float f6,
                    CAssetId stateMachine, CAssetId particle4, CAssetId particle5, CAssetId particle6,
                    CAssetId particle7, CAssetId particle8, CAssetId particle9, CAssetId texture, u32 sfxId1,
