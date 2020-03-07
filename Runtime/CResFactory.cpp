@@ -7,7 +7,8 @@ namespace urde {
 static logvisor::Module Log("CResFactory");
 
 void CResFactory::AddToLoadList(SLoadingData&& data) {
-  m_loadMap[data.x0_tag] = m_loadList.insert(m_loadList.end(), std::move(data));
+  const SObjectTag tag = data.x0_tag;
+  m_loadMap.insert_or_assign(tag, m_loadList.insert(m_loadList.end(), std::move(data)));
 }
 
 CFactoryFnReturn CResFactory::BuildSync(const SObjectTag& tag, const CVParamTransfer& xfer, CObjectReference* selfRef) {
