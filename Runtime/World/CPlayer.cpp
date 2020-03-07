@@ -1698,7 +1698,7 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     mgr.BuildColliderList(nearList, *this, expandedBounds);
     std::optional<zeus::CVector3f> nonIntVec =
-        CGameCollision::FindNonIntersectingVector(mgr, cache, *this, *prim, nearList);
+        CGameCollision::FindNonIntersectingVector(mgr, cache, *this, tmpBox, nearList);
     if (nonIntVec) {
       x4a0_failsafeTest->Reset();
       SetTranslation(GetTranslation() + *nonIntVec);
