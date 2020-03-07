@@ -18,9 +18,10 @@ CProjectileInfo::CProjectileInfo(CAssetId proj, const CDamageInfo& dInfo)
 zeus::CVector3f CProjectileInfo::PredictInterceptPos(const zeus::CVector3f& gunPos, const zeus::CVector3f& aimPos,
                                                      const CPlayer& player, bool gravity, float speed, float dt) {
   zeus::CVector3f ret;
-  zeus::CVector3f playerVel = player.GetDampedClampedVelocityWR();
-  zeus::CVector3f gravVec(0.f, 0.f, player.GetGravity());
-  bool result;
+  const zeus::CVector3f playerVel = player.GetDampedClampedVelocityWR();
+  const zeus::CVector3f gravVec(0.f, 0.f, player.GetGravity());
+  bool result = false;
+
   switch (player.GetOrbitState()) {
   case CPlayer::EPlayerOrbitState::OrbitObject:
   case CPlayer::EPlayerOrbitState::OrbitPoint:
@@ -33,22 +34,28 @@ zeus::CVector3f CProjectileInfo::PredictInterceptPos(const zeus::CVector3f& gunP
       break;
     }
     zeus::CVector3f vel;
-    if (playerVel.canBeNormalized())
+    if (playerVel.canBeNormalized()) {
       vel = playerVel.normalized() * player.GetAverageSpeed();
-    else
+    } else {
       vel = playerVel;
+    }
     result = CSteeringBehaviors::ProjectOrbitalIntersection(gunPos, speed, dt, aimPos, vel,
                                                             player.GetOrbitPoint(), ret);
     break;
   }
   case CPlayer::EPlayerOrbitState::NoOrbit:
-    if (gravity && player.GetPlayerMovementState() == CPlayer::EPlayerMovementState::ApplyJump)
+    if (gravity && player.GetPlayerMovementState() == CPlayer::EPlayerMovementState::ApplyJump) {
       result = CSteeringBehaviors::ProjectLinearIntersection(gunPos, speed, aimPos, playerVel, gravVec, ret);
-    else
+    } else {
       result = CSteeringBehaviors::ProjectLinearIntersection(gunPos, speed, aimPos, playerVel, ret);
+    }
+    break;
   }
-  if (!result)
+
+  if (!result) {
     ret = playerVel * 1.5f + aimPos;
+  }
+
   return ret;
 }
 
