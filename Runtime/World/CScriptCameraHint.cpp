@@ -34,13 +34,13 @@ void CScriptCameraHint::InitializeInArea(CStateManager& mgr) {
       if (conn.x4_msg != EScriptObjectMessage::Increment && conn.x4_msg != EScriptObjectMessage::Decrement)
         continue;
 
-      for (auto it = ent->GetConnectionList().begin(); it != ent->GetConnectionList().cend(); ++it) {
+      for (auto it = ent->GetConnectionList().begin(); it != ent->GetConnectionList().end(); ++it) {
         const SConnection& conn2 = *it;
         if (conn2.x4_msg != EScriptObjectMessage::Increment && conn2.x4_msg != EScriptObjectMessage::Decrement)
           continue;
         TUniqueId id = mgr.GetIdForScript(conn2.x8_objId);
         if (TCastToPtr<CPathCamera>(mgr.ObjectById(id)) || TCastToPtr<CScriptSpindleCamera>(mgr.ObjectById((id)))) {
-          ent->ConnectionList().erase(it);
+          it = ent->ConnectionList().erase(it);
           if (x164_delegatedCamera != id)
             x164_delegatedCamera = id;
           break;

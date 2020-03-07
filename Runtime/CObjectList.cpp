@@ -1,14 +1,26 @@
 #include "Runtime/CObjectList.hpp"
 
+#include <logvisor/logvisor.hpp>
 namespace urde {
+namespace {
+logvisor::Module Log("urde::CObjectList");
+}
 
 CObjectList::CObjectList(EGameObjectList listEnum) : x2004_listEnum(listEnum) {}
 
 void CObjectList::AddObject(CEntity& entity) {
   if (IsQualified(entity)) {
-    if (x2008_firstId != -1)
+#ifndef NDEBUG
+    if (x0_list[entity.GetUniqueId().Value()].entity != nullptr &&
+        x0_list[entity.GetUniqueId().Value()].entity != &entity)
+      Log.report(logvisor::Level::Fatal, fmt("INVALID USAGE DETECTED: Attempting to assign entity '{} ({})' to existing node '{}'!!!"),
+                 entity.GetName(), entity.GetEditorId(), entity.GetUniqueId().Value());
+#endif
+    s16 prevFirst = -1;
+    if (x2008_firstId != -1) {
       x0_list[x2008_firstId].prev = entity.GetUniqueId().Value();
-    s16 prevFirst = x2008_firstId;
+      prevFirst = x2008_firstId;
+    }
     x2008_firstId = entity.GetUniqueId().Value();
     SObjectListEntry& newEnt = x0_list[x2008_firstId];
     newEnt.entity = &entity;

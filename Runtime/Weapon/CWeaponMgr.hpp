@@ -9,7 +9,7 @@
 namespace urde {
 
 class CWeaponMgr {
-  std::map<TUniqueId, rstl::reserved_vector<s32, 10>> x0_weapons;
+  std::map<TUniqueId, rstl::reserved_vector<s32, 15>> x0_weapons;
 
 public:
   void Add(TUniqueId, EWeaponType);
