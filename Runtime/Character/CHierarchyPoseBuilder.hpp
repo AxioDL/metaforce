@@ -38,7 +38,7 @@ class CHierarchyPoseBuilder {
 public:
   CHierarchyPoseBuilder(const CLayoutDescription& layout);
 
-  const TLockedToken<CCharLayoutInfo> CharLayoutInfo() const { return x0_layoutDesc.ScaledLayout(); }
+  const TLockedToken<CCharLayoutInfo>& CharLayoutInfo() const { return x0_layoutDesc.ScaledLayout(); }
   bool HasRoot() const { return xcf0_hasRoot; }
   void BuildTransform(const CSegId& boneId, zeus::CTransform& xfOut) const;
   void BuildNoScale(CPoseAsTransforms& pose);

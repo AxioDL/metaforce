@@ -15,7 +15,7 @@ void CIkChain::Deactivate() { x44_24_activated = false; }
 
 void CIkChain::Activate(const CAnimData& animData, const CSegId& segId, const zeus::CTransform& xf) {
   x0_bone = segId;
-  auto info = animData.GetPoseBuilder().CharLayoutInfo();
+  const auto& info = animData.GetPoseBuilder().CharLayoutInfo();
   x1_p1 = info->GetRootNode()->GetBoneMap()[x0_bone].x0_parentId;
   if (x1_p1 != 2) {
     x2_p2 = info->GetRootNode()->GetBoneMap()[x1_p1].x0_parentId;
