@@ -103,8 +103,8 @@ void CInGameGuiManager::DoStateTransition(CStateManager& stateMgr) {
   case EInGameGuiState::PauseGame:
   case EInGameGuiState::PauseLogBook:
     if (!x48_pauseScreen) {
-      auto pState = stateMgr.GetPlayerState();
-      CPlayerState::EPlayerSuit suit = pState->GetCurrentSuitRaw();
+      const auto& pState = stateMgr.GetPlayerState();
+      const CPlayerState::EPlayerSuit suit = pState->GetCurrentSuitRaw();
       int suitResIdx;
       if (pState->IsFusionEnabled()) {
         switch (suit) {
