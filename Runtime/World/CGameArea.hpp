@@ -167,7 +167,7 @@ public:
   public:
     CAreaObjectList(TAreaId areaIdx) : CObjectList(EGameObjectList::Invalid), x200c_areaIdx(areaIdx) {}
 
-    bool IsQualified(const CEntity& ent) override;
+    bool IsQualified(const CEntity& ent) const override;
   };
 
   enum class EOcclusionState { Occluded, Visible };
