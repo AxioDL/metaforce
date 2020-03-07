@@ -10,10 +10,10 @@ namespace urde {
 
 class CPVSVisOctree {
   zeus::CAABox x0_aabb;
-  u32 x18_numObjects;
-  u32 x1c_numLights;
-  bool x20_bufferFlag;
-  const u8* x24_octreeData;
+  u32 x18_numObjects = 0;
+  u32 x1c_numLights = 0;
+  bool x20_bufferFlag = false;
+  const u8* x24_octreeData = nullptr;
   zeus::CAABox x2c_searchAabb;
 
 public:

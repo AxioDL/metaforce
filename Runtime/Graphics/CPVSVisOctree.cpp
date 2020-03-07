@@ -14,9 +14,13 @@ CPVSVisOctree CPVSVisOctree::MakePVSVisOctree(const u8* data) {
 }
 
 CPVSVisOctree::CPVSVisOctree(const zeus::CAABox& aabb, u32 numObjects, u32 numLights, const u8* c)
-: x0_aabb(aabb), x18_numObjects(numObjects), x1c_numLights(numLights), x20_bufferFlag(c != nullptr), x24_octreeData(c) {
-  x2c_searchAabb = x0_aabb;
-  x20_bufferFlag = 0;
+: x0_aabb(aabb)
+, x18_numObjects(numObjects)
+, x1c_numLights(numLights)
+, x20_bufferFlag(c != nullptr)
+, x24_octreeData(c)
+, x2c_searchAabb(x0_aabb) {
+  x20_bufferFlag = false;
 }
 
 u32 CPVSVisOctree::GetNumChildren(u8 byte) const {
