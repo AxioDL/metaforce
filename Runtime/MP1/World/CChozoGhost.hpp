@@ -54,7 +54,7 @@ private:
   float x634_;
   float x638_hurlRecoverTime;
   u32 x63c_;
-  TLockedToken<CGenDescription> x640_;
+  std::optional<TLockedToken<CGenDescription>> x640_projectileVisor;
   s16 x650_sound_ProjectileVisor;
   float x654_;
   float x658_;

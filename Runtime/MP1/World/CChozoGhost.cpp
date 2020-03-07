@@ -97,7 +97,7 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
 , x65c_nearChance(nearChance)
 , x660_midChance(midChance)
 , x664_24_onGround(w1)
-, x664_25_flinch(w1)
+, x664_25_flinch(!w1)
 , x664_26_(false)
 , x664_27_(false)
 , x664_28_(false)
@@ -123,7 +123,7 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
           GetAnimationDistance(CPASAnimParmData(7, CPASAnimParm::FromEnum(1), CPASAnimParm::FromEnum(2)));
 
   if (projectileVisorEffect.IsValid())
-    x640_ = g_SimplePool->GetObj({SBIG('PART'), projectileVisorEffect});
+    x640_projectileVisor = g_SimplePool->GetObj({SBIG('PART'), projectileVisorEffect});
   x460_knockBackController.SetEnableBurn(false);
   x460_knockBackController.SetEnableLaggedBurnDeath(false);
   x460_knockBackController.SetEnableShock(false);
@@ -143,6 +143,10 @@ void CChozoGhost::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
     RemoveFromTeam(mgr);
     break;
   case EScriptObjectMessage::Action:
+    if (x664_25_flinch)
+      x665_29_aggressive = true;
+    break;
+  case EScriptObjectMessage::Alert:
     if (x664_26_)
       break;
     x664_26_ = true;
@@ -265,7 +269,7 @@ void CChozoGhost::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
     if (x67c_ == 2) {
       CGameProjectile* proj =
           LaunchProjectile(xf, mgr, 2, EProjectileAttrib::BigStrike | EProjectileAttrib::StaticInterference, true,
-                           {x640_}, x650_sound_ProjectileVisor, false, zeus::skOne3f);
+                           x640_projectileVisor, x650_sound_ProjectileVisor, false, zeus::skOne3f);
       if (proj) {
         proj->AddAttrib(EProjectileAttrib::BigStrike);
         proj->SetDamageDuration(x62c_);
@@ -276,7 +280,7 @@ void CChozoGhost::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
     } else {
       CGameProjectile* proj =
           LaunchProjectile(xf, mgr, 5, EProjectileAttrib::DamageFalloff | EProjectileAttrib::StaticInterference, true,
-                           {x640_}, x650_sound_ProjectileVisor, false, zeus::skOne3f);
+                           {x640_projectileVisor}, x650_sound_ProjectileVisor, false, zeus::skOne3f);
       if (proj) {
         proj->AddAttrib(EProjectileAttrib::BigStrike);
         proj->SetDamageDuration(x62c_);
@@ -621,10 +625,9 @@ bool CChozoGhost::ShouldMove(CStateManager& mgr, float arg) { return x680_behave
 bool CChozoGhost::AIStage(CStateManager& mgr, float arg) { return arg == x63c_; }
 
 u8 CChozoGhost::GetModelAlphau8(const CStateManager& mgr) const {
-  if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay || !IsAlive())
-    return u8(x42c_color.a() * 255);
-
-  return 255;
+  if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay && IsAlive())
+    return 255;
+  return u8(x42c_color.a() * 255);
 }
 
 bool CChozoGhost::IsOnGround() const { return x664_24_onGround; }
