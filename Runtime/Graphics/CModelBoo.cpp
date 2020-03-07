@@ -359,7 +359,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
       std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = newInst.m_shaderDataBindings.back();
       extendeds.reserve(pipelines->size());
 
-      int idx = 0;
+      EExtendedShader idx{};
       for (const auto& pipeline : *pipelines) {
         if (idx == EExtendedShader::Thermal) {
           texs[8] = g_Renderer->x220_sphereRamp.get();
@@ -387,7 +387,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
         extendeds.push_back(ctx.newShaderDataBinding(pipeline, newInst.GetBooVBO(*this, ctx), nullptr,
                                                      m_staticIbo.get(), 4, bufs, stages, thisOffs, thisSizes, 12, texs,
                                                      nullptr, nullptr));
-        ++idx;
+        idx = EExtendedShader(size_t(idx) + 1);
       }
     }
     return true;
