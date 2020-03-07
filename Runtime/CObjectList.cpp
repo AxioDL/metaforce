@@ -91,6 +91,6 @@ CEntity* CObjectList::GetValidObjectById(TUniqueId uid) {
   return ent.entity;
 }
 
-bool CObjectList::IsQualified(const CEntity&) { return true; }
+bool CObjectList::IsQualified(const CEntity&) const { return true; }
 
 } // namespace urde
