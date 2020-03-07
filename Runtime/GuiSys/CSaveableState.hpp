@@ -35,10 +35,7 @@ protected:
   EVerticalJustification x84_vjust = EVerticalJustification::Top;
 
 public:
-  CSaveableState() {
-    x54_colors.resize(3, zeus::skBlack);
-    x64_colorOverrides.resize(16);
-  }
+  CSaveableState() : x54_colors(3, zeus::skBlack), x64_colorOverrides(16) {}
 
   bool IsFinishedLoading() const;
 };
