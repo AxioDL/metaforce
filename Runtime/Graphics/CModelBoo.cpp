@@ -642,7 +642,7 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
   const std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = inst.m_shaderDataBindings[surf.selfIdx];
   EExtendedShader extended = ResolveExtendedShader(data, flags);
 
-  boo::ObjToken<boo::IShaderDataBinding> binding = extendeds[extended];
+  boo::ObjToken<boo::IShaderDataBinding> binding = extendeds[size_t(extended)];
   CGraphics::SetShaderDataBinding(binding);
   CGraphics::DrawArrayIndexed(surf.m_data.idxStart, surf.m_data.idxCount);
 }
