@@ -31,12 +31,12 @@ CLogBookScreen::~CLogBookScreen() {
 
 bool CLogBookScreen::IsScanComplete(CSaveWorld::EScanCategory category, CAssetId scan,
                                     const CPlayerState& playerState) {
-  return true;
-  float time = playerState.GetScanTime(scan);
-  if (category == CSaveWorld::EScanCategory::Artifact)
+  const float time = playerState.GetScanTime(scan);
+  if (category == CSaveWorld::EScanCategory::Artifact) {
     return time >= 0.5f;
-  else
+  } else {
     return time >= 1.f;
+  }
 }
 
 void CLogBookScreen::InitializeLogBook() {
