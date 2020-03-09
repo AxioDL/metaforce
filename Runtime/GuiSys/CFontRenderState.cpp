@@ -50,12 +50,10 @@ void CFontRenderState::RefreshColor(EColorType tp) {
       return;
     switch (x48_font->GetMode()) {
     case EColorType::Main:
-      if (!x64_colorOverrides[0])
-        x0_drawStrOpts.x4_colors[0] = ConvertToTextureSpace(x54_colors[0]);
-      break;
     case EColorType::Outline:
-      if (!x64_colorOverrides[0])
+      if (!x64_colorOverrides[0]) {
         x0_drawStrOpts.x4_colors[0] = ConvertToTextureSpace(x54_colors[0]);
+      }
       break;
     default:
       break;
