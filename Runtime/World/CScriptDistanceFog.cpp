@@ -46,23 +46,22 @@ void CScriptDistanceFog::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
     else
       fog->SetFogExplicit(x34_mode, x38_color, x3c_range);
   } else if (msg == EScriptObjectMessage::Action) {
-    if (!x61_nonZero)
-      return;
+    if (x61_nonZero) {
+      CGameArea::CAreaFog* fog = stateMgr.GetWorld()->GetArea(x4_areaId)->GetAreaFog();
+      if (x34_mode == ERglFogMode::None)
+        fog->RollFogOut(x48_rangeDelta.x(), x44_colorDelta, x38_color);
+      else
+        fog->FadeFog(x34_mode, x38_color, x3c_range, x44_colorDelta, x48_rangeDelta);
+    }
 
-    CGameArea::CAreaFog* fog = stateMgr.GetWorld()->GetArea(x4_areaId)->GetAreaFog();
-    if (x34_mode == ERglFogMode::None)
-      fog->RollFogOut(x48_rangeDelta.x(), x44_colorDelta, x38_color);
-    else
-      fog->FadeFog(x34_mode, x38_color, x3c_range, x44_colorDelta, x48_rangeDelta);
-
-    if (zeus::close_enough(x54_thermalSpeed, 0.f) && !zeus::close_enough(x5c_xraySpeed, 0.f)) {
-      CWorld* world = stateMgr.GetWorld();
-      CGameArea* area = world->GetArea(x4_areaId);
-      area->SetXRaySpeedAndTarget(x5c_xraySpeed, x58_xrayTarget);
-    } else {
-      CWorld* world = stateMgr.GetWorld();
-      CGameArea* area = world->GetArea(x4_areaId);
+    CWorld* world = stateMgr.GetWorld();
+    CGameArea* area = world->GetArea(x4_areaId);
+    if (!zeus::close_enough(x54_thermalSpeed, 0.f)) {
       area->SetThermalSpeedAndTarget(x54_thermalSpeed, x50_thermalTarget);
+    }
+
+    if (!zeus::close_enough(x5c_xraySpeed, 0.f)) {
+      area->SetXRaySpeedAndTarget(x5c_xraySpeed, x58_xrayTarget);
     }
   }
 }
