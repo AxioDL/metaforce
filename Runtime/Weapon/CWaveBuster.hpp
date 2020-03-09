@@ -54,6 +54,8 @@ public:
   void UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr);
   void ResetBeam(bool deactivate);
   void SetNewTarget(TUniqueId id);
+
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
 };
 
 } // namespace urde

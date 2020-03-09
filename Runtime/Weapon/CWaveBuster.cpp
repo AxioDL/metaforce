@@ -37,4 +37,12 @@ void CWaveBuster::ResetBeam(bool deactivate) {}
 
 void CWaveBuster::SetNewTarget(TUniqueId id) {}
 
+std::optional<zeus::CAABox> CWaveBuster::GetTouchBounds() const {
+  if (x3d0_28_) {
+    return std::nullopt;
+  }
+
+  return GetProjectileBounds();
+}
+
 } // namespace urde
