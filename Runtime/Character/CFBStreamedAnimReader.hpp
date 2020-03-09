@@ -14,7 +14,7 @@ class TAnimSourceInfo : public IAnimSourceInfo {
   TSubAnimTypeToken<T> x4_token;
 
 public:
-  TAnimSourceInfo(const TSubAnimTypeToken<T>& token) : x4_token(token) {}
+  explicit TAnimSourceInfo(TSubAnimTypeToken<T> token) : x4_token(std::move(token)) {}
   bool HasPOIData() const override { return x4_token->HasPOIData(); }
   const std::vector<CBoolPOINode>& GetBoolPOIStream() const override { return x4_token->GetBoolPOIStream(); }
   const std::vector<CInt32POINode>& GetInt32POIStream() const override { return x4_token->GetInt32POIStream(); }
