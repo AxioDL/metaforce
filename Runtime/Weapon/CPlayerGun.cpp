@@ -17,62 +17,62 @@
 
 namespace urde {
 namespace {
-float kVerticalAngleTable[] = {-30.f, 0.f, 30.f};
-float kHorizontalAngleTable[] = {30.f, 30.f, 30.f};
-float kVerticalVarianceTable[] = {30.f, 30.f, 30.f};
+std::array kVerticalAngleTable{-30.f, 0.f, 30.f};
+std::array kHorizontalAngleTable{30.f, 30.f, 30.f};
+std::array kVerticalVarianceTable{30.f, 30.f, 30.f};
 
 constexpr zeus::CVector3f sGunScale(2.f);
 
-constexpr u32 skBeamAnimIds[] = {
+constexpr std::array<u32, 4> skBeamAnimIds{
     0,
     1,
     2,
     1,
 };
 
-constexpr CPlayerState::EItemType skBeamArr[] = {
+constexpr std::array skBeamArr{
     CPlayerState::EItemType::PowerBeam,
     CPlayerState::EItemType::IceBeam,
     CPlayerState::EItemType::WaveBeam,
     CPlayerState::EItemType::PlasmaBeam,
 };
 
-constexpr CPlayerState::EItemType skBeamComboArr[] = {
+constexpr std::array skBeamComboArr{
     CPlayerState::EItemType::SuperMissile,
     CPlayerState::EItemType::IceSpreader,
     CPlayerState::EItemType::Wavebuster,
     CPlayerState::EItemType::Flamethrower,
 };
 
-constexpr ControlMapper::ECommands mBeamCtrlCmd[] = {
+constexpr std::array mBeamCtrlCmd{
     ControlMapper::ECommands::PowerBeam,
     ControlMapper::ECommands::IceBeam,
     ControlMapper::ECommands::WaveBeam,
     ControlMapper::ECommands::PlasmaBeam,
 };
 
-constexpr u16 skFromMissileSound[] = {
+constexpr std::array<u16, 4> skFromMissileSound{
     SFXwpn_from_missile_power,
     SFXwpn_from_missile_ice,
     SFXwpn_from_missile_wave,
     SFXwpn_from_missile_plasma,
 };
 
-constexpr u16 skFromBeamSound[] = {
+constexpr std::array<u16, 4> skFromBeamSound{
     SFXsfx0000,
     SFXwpn_from_beam_ice,
     SFXwpn_from_beam_wave,
     SFXwpn_from_beam_plasma,
 };
 
-constexpr u16 skToMissileSound[] = {
+constexpr std::array<u16, 4> skToMissileSound{
     SFXwpn_to_missile_power,
     SFXwpn_to_missile_ice,
     SFXwpn_to_missile_wave,
     SFXwpn_to_missile_plasma,
 };
 
-constexpr u16 skIntoBeamSound[] = {
+constexpr std::array<u16, 4> skIntoBeamSound{
     SFXsfx0000,
     SFXwpn_into_beam_ice,
     SFXwpn_into_beam_wave,
@@ -84,24 +84,24 @@ constexpr float kChargeFxStart = 1.f / CPlayerState::GetMissileComboChargeFactor
 constexpr float kChargeAnimStart = 0.25f / CPlayerState::GetMissileComboChargeFactor();
 constexpr float kChargeStart = 0.025f / CPlayerState::GetMissileComboChargeFactor();
 
-constexpr u16 skBeamChargeUpSound[] = {
+constexpr std::array<u16, 4> skBeamChargeUpSound{
     SFXwpn_chargeup_power,
     SFXwpn_chargeup_ice,
     SFXwpn_chargeup_wave,
     SFXwpn_chargeup_plasma,
 };
 
-constexpr CPlayerState::EItemType skItemArr[] = {
+constexpr std::array skItemArr{
     CPlayerState::EItemType::Invalid,
     CPlayerState::EItemType::Missiles,
 };
 
-constexpr u16 skItemEmptySound[] = {
+constexpr std::array<u16, 2> skItemEmptySound{
     SFXsfx0000,
     SFXwpn_empty_action,
 };
 
-constexpr float chargeShakeTbl[] = {
+constexpr std::array chargeShakeTbl{
     -0.001f,
     0.f,
     0.001f,
@@ -109,12 +109,12 @@ constexpr float chargeShakeTbl[] = {
 constexpr CMaterialFilter sAimFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
 
-const CModelFlags kThermalFlags[] = {
+const std::array<CModelFlags, 4> kThermalFlags{{
     {0, 0, 3, zeus::skWhite},
     {5, 0, 3, zeus::CColor(0.f, 0.5f)},
     {0, 0, 3, zeus::skWhite},
     {0, 0, 3, zeus::skWhite},
-};
+}};
 
 const CModelFlags kHandThermalFlag = {7, 0, 3, zeus::skWhite};
 const CModelFlags kHandHoloFlag = {1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f, 1.f)};
@@ -308,11 +308,11 @@ void CPlayerGun::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
   case EScriptObjectMessage::Registered: {
     CreateGunLight(mgr);
     x320_currentAuxBeam = x314_nextBeam = x310_currentBeam = mgr.GetPlayerState()->GetCurrentBeam();
-    x72c_currentBeam = x738_nextBeam = x760_selectableBeams[int(x310_currentBeam)];
+    x72c_currentBeam = x738_nextBeam = x760_selectableBeams[size_t(x310_currentBeam)];
     x72c_currentBeam->Load(mgr, true);
     x72c_currentBeam->SetRainSplashGenerator(x748_rainSplashGenerator.get());
     x744_auxWeapon->Load(x310_currentBeam, mgr);
-    CAnimPlaybackParms parms(skBeamAnimIds[int(mgr.GetPlayerState()->GetCurrentBeam())], -1, 1.f, true);
+    const CAnimPlaybackParms parms(skBeamAnimIds[size_t(mgr.GetPlayerState()->GetCurrentBeam())], -1, 1.f, true);
     x6e0_rightHandModel.GetAnimationData()->SetAnimation(parms, false);
     break;
   }
@@ -497,12 +497,12 @@ bool CPlayerGun::ExitMissile() {
 }
 
 void CPlayerGun::HandleBeamChange(const CFinalInput& input, CStateManager& mgr) {
-  CPlayerState& playerState = *mgr.GetPlayerState();
+  const CPlayerState& playerState = *mgr.GetPlayerState();
   float maxBeamInput = 0.f;
   CPlayerState::EBeamId selectBeam = CPlayerState::EBeamId::Invalid;
-  for (int i = 0; i < 4; ++i) {
+  for (size_t i = 0; i < skBeamArr.size(); ++i) {
     if (playerState.HasPowerUp(skBeamArr[i])) {
-      float inputVal = ControlMapper::GetAnalogInput(mBeamCtrlCmd[i], input);
+      const float inputVal = ControlMapper::GetAnalogInput(mBeamCtrlCmd[i], input);
       if (inputVal > 0.65f && inputVal > maxBeamInput) {
         maxBeamInput = inputVal;
         selectBeam = CPlayerState::EBeamId(i);
@@ -514,7 +514,7 @@ void CPlayerGun::HandleBeamChange(const CFinalInput& input, CStateManager& mgr) 
     return;
 
   x833_25_ = true;
-  if (x310_currentBeam != selectBeam && playerState.HasPowerUp(skBeamArr[int(selectBeam)])) {
+  if (x310_currentBeam != selectBeam && playerState.HasPowerUp(skBeamArr[size_t(selectBeam)])) {
     x314_nextBeam = selectBeam;
     u32 flags = 0;
     if ((x2f8_stateFlags & 0x10) == 0x10)
@@ -529,7 +529,7 @@ void CPlayerGun::HandleBeamChange(const CFinalInput& input, CStateManager& mgr) 
     x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::None);
     x338_nextState = ENextState::ChangeWeapon;
     x2e4_invalidSfx.reset();
-  } else if (playerState.HasPowerUp(skBeamArr[int(selectBeam)])) {
+  } else if (playerState.HasPowerUp(skBeamArr[size_t(selectBeam)])) {
     if (ExitMissile()) {
       if (!CSfxManager::IsPlaying(x2e4_invalidSfx))
         x2e4_invalidSfx = NWeaponTypes::play_sfx(SFXwpn_empty_action, x834_27_underwater, false, 0.165f);
@@ -568,13 +568,15 @@ void CPlayerGun::Reset(CStateManager& mgr, bool b1) {
 
 void CPlayerGun::ResetBeamParams(CStateManager& mgr, const CPlayerState& playerState, bool playSelectionSfx) {
   StopContinuousBeam(mgr, true);
-  if (playerState.ItemEnabled(CPlayerState::EItemType::ChargeBeam))
+  if (playerState.ItemEnabled(CPlayerState::EItemType::ChargeBeam)) {
     ResetCharge(mgr, false);
-  CAnimPlaybackParms parms(skBeamAnimIds[int(x314_nextBeam)], -1, 1.f, true);
+  }
+  const CAnimPlaybackParms parms(skBeamAnimIds[size_t(x314_nextBeam)], -1, 1.f, true);
   x6e0_rightHandModel.GetAnimationData()->SetAnimation(parms, false);
   Reset(mgr, false);
-  if (playSelectionSfx)
+  if (playSelectionSfx) {
     CSfxManager::SfxStart(SFXwpn_morph_out_wipe, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
+  }
   x2ec_lastFireButtonStates &= ~0x1;
   x320_currentAuxBeam = x310_currentBeam;
   x833_30_canShowAuxMuzzleEffect = true;
@@ -588,17 +590,17 @@ void CPlayerGun::PlayAnim(NWeaponTypes::EGunAnimType type, bool loop) {
   switch (type) {
   case NWeaponTypes::EGunAnimType::FromMissile:
     x2f8_stateFlags &= ~0x4;
-    sfx = skFromMissileSound[int(x310_currentBeam)];
+    sfx = skFromMissileSound[size_t(x310_currentBeam)];
     break;
   case NWeaponTypes::EGunAnimType::MissileReload:
     sfx = SFXwpn_reload_missile;
     break;
   case NWeaponTypes::EGunAnimType::FromBeam:
-    sfx = skFromBeamSound[int(x310_currentBeam)];
+    sfx = skFromBeamSound[size_t(x310_currentBeam)];
     break;
   case NWeaponTypes::EGunAnimType::ToMissile:
     x2f8_stateFlags &= ~0x1;
-    sfx = skToMissileSound[int(x310_currentBeam)];
+    sfx = skToMissileSound[size_t(x310_currentBeam)];
     break;
   default:
     break;
@@ -874,7 +876,7 @@ void CPlayerGun::ChangeWeapon(const CPlayerState& playerState, CStateManager& mg
   if (x730_outgoingBeam != nullptr && x72c_currentBeam != x730_outgoingBeam)
     x730_outgoingBeam->Unload(mgr);
 
-  x734_loadingBeam = x760_selectableBeams[int(x314_nextBeam)];
+  x734_loadingBeam = x760_selectableBeams[size_t(x314_nextBeam)];
   if (x734_loadingBeam && x72c_currentBeam != x734_loadingBeam) {
     x734_loadingBeam->Load(mgr, false);
     x744_auxWeapon->Load(x314_nextBeam, mgr);
@@ -981,7 +983,7 @@ void CPlayerGun::ProcessGunMorph(float dt, CStateManager& mgr) {
         x310_currentBeam = x314_nextBeam;
         x320_currentAuxBeam = x314_nextBeam;
         x833_30_canShowAuxMuzzleEffect = true;
-        x72c_currentBeam = x760_selectableBeams[int(x314_nextBeam)];
+        x72c_currentBeam = x760_selectableBeams[size_t(x314_nextBeam)];
         x738_nextBeam = x72c_currentBeam;
         x678_morph.SetWeaponChanged();
         mgr.GetPlayerState()->SetCurrentBeam(x314_nextBeam);
@@ -1007,8 +1009,9 @@ void CPlayerGun::ProcessGunMorph(float dt, CStateManager& mgr) {
       x730_outgoingBeam->Unload(mgr);
       x730_outgoingBeam = nullptr;
     }
-    if (isUnmorphed)
-      NWeaponTypes::play_sfx(skIntoBeamSound[int(x310_currentBeam)], x834_27_underwater, false, 0.165f);
+    if (isUnmorphed) {
+      NWeaponTypes::play_sfx(skIntoBeamSound[size_t(x310_currentBeam)], x834_27_underwater, false, 0.165f);
+    }
     x72c_currentBeam->SetRainSplashGenerator(x748_rainSplashGenerator.get());
     x72c_currentBeam->EnableFx(true);
     PlayAnim(NWeaponTypes::EGunAnimType::ToBeam, false);
@@ -1041,12 +1044,13 @@ void CPlayerGun::SetPhazonBeamFeedback(bool active) {
 }
 
 void CPlayerGun::StartPhazonBeamTransition(bool active, CStateManager& mgr, CPlayerState& playerState) {
-  if (x833_28_phazonBeamActive == active)
+  if (x833_28_phazonBeamActive == active) {
     return;
-  x760_selectableBeams[int(x310_currentBeam)]->Unload(mgr);
-  x760_selectableBeams[int(x310_currentBeam)] = active ? x75c_phazonBeam.get() : x738_nextBeam;
+  }
+  x760_selectableBeams[size_t(x310_currentBeam)]->Unload(mgr);
+  x760_selectableBeams[size_t(x310_currentBeam)] = active ? x75c_phazonBeam.get() : x738_nextBeam;
   ResetBeamParams(mgr, playerState, false);
-  x72c_currentBeam = x760_selectableBeams[int(x310_currentBeam)];
+  x72c_currentBeam = x760_selectableBeams[size_t(x310_currentBeam)];
   x833_28_phazonBeamActive = active;
   SetPhazonBeamFeedback(active);
   x72c_currentBeam->SetRainSplashGenerator(x748_rainSplashGenerator.get());
@@ -1124,10 +1128,10 @@ void CPlayerGun::EnableChargeFx(EChargeState state, CStateManager& mgr) {
   x338_nextState = ENextState::StatusQuo;
   x833_30_canShowAuxMuzzleEffect = true;
 
-  x800_auxMuzzleGenerators[int(x320_currentAuxBeam)] =
-      std::make_unique<CElementGen>(x7c0_auxMuzzleEffects[int(x320_currentAuxBeam)]);
+  x800_auxMuzzleGenerators[size_t(x320_currentAuxBeam)] =
+      std::make_unique<CElementGen>(x7c0_auxMuzzleEffects[size_t(x320_currentAuxBeam)]);
 
-  x800_auxMuzzleGenerators[int(x320_currentAuxBeam)]->SetParticleEmission(true);
+  x800_auxMuzzleGenerators[size_t(x320_currentAuxBeam)]->SetParticleEmission(true);
 }
 
 void CPlayerGun::UpdateChargeState(float dt, CStateManager& mgr) {
@@ -1141,16 +1145,19 @@ void CPlayerGun::UpdateChargeState(float dt, CStateManager& mgr) {
     break;
   case EChargePhase::AnimAndSfx:
     if (!x832_27_chargeAnimStarted) {
-      if (x340_chargeBeamFactor > kChargeStart && x832_25_chargeEffectVisible)
+      if (x340_chargeBeamFactor > kChargeStart && x832_25_chargeEffectVisible) {
         x832_25_chargeEffectVisible = false;
+      }
       if (x340_chargeBeamFactor > kChargeAnimStart) {
         PlayAnim(NWeaponTypes::EGunAnimType::ChargeUp, false);
-        if (!x2e0_chargeSfx)
+        if (!x2e0_chargeSfx) {
           x2e0_chargeSfx =
-              NWeaponTypes::play_sfx(skBeamChargeUpSound[int(x310_currentBeam)], x834_27_underwater, true, 0.165f);
-        if (x830_chargeRumbleHandle == -1)
+              NWeaponTypes::play_sfx(skBeamChargeUpSound[size_t(x310_currentBeam)], x834_27_underwater, true, 0.165f);
+        }
+        if (x830_chargeRumbleHandle == -1) {
           x830_chargeRumbleHandle =
               mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerGunCharge, 1.f, ERumblePriority::Three);
+        }
         x832_27_chargeAnimStarted = true;
       }
     } else {
@@ -1424,7 +1431,7 @@ void CPlayerGun::ProcessChargeState(u32 releasedStates, u32 pressedStates, CStat
     }
   } else if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::Missiles) && (pressedStates & 0x2) != 0) {
     if (x32c_chargePhase >= EChargePhase::FxGrown) {
-      if (mgr.GetPlayerState()->HasPowerUp(skBeamComboArr[int(x310_currentBeam)]))
+      if (mgr.GetPlayerState()->HasPowerUp(skBeamComboArr[size_t(x310_currentBeam)]))
         ActivateCombo(mgr);
     } else if (x32c_chargePhase == EChargePhase::NotCharging) {
       FireSecondary(dt, mgr);
@@ -1959,7 +1966,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
     bool emitting = x833_30_canShowAuxMuzzleEffect ? x344_comboXferTimer < 1.f : false;
     zeus::CVector3f scale((emitting && x832_26_comboFiring) ? (1.f - x344_comboXferTimer) * 2.f : 2.f);
     x72c_currentBeam->UpdateMuzzleFx(advDt, scale, x418_beamLocalXf.origin, emitting);
-    CElementGen& gen = *x800_auxMuzzleGenerators[int(x320_currentAuxBeam)];
+    CElementGen& gen = *x800_auxMuzzleGenerators[size_t(x320_currentAuxBeam)];
     gen.SetGlobalOrientAndTrans(x418_beamLocalXf);
     gen.SetGlobalScale(scale);
     gen.SetParticleEmission(emitting);
@@ -2142,37 +2149,44 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
 
   CGraphics::CProjectionState projState = CGraphics::GetProjectionState();
   CModelFlags useFlags = flags;
-  if (x0_lights.HasShadowLight())
+  if (x0_lights.HasShadowLight()) {
     useFlags.m_extendedShader = EExtendedShader::LightingCubeReflectionWorldShadow;
+  }
   CModelFlags beamFlags = useFlags;
-  if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal)
-    beamFlags = kThermalFlags[int(x310_currentBeam)];
-  else if (x835_26_phazonBeamMorphing)
+  if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal) {
+    beamFlags = kThermalFlags[size_t(x310_currentBeam)];
+  } else if (x835_26_phazonBeamMorphing) {
     beamFlags.x4_color = zeus::CColor::lerp(zeus::skWhite, zeus::skBlack, x39c_phazonMorphT);
+  }
 
   const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   CGraphics::SetDepthRange(DEPTH_GUN, DEPTH_WORLD);
   zeus::CTransform offsetWorldXf = zeus::CTransform::Translate(pos) * x4a8_gunWorldXf;
   zeus::CTransform elbowOffsetXf = offsetWorldXf * x508_elbowLocalXf;
-  if (x32c_chargePhase != EChargePhase::NotCharging && (x2f8_stateFlags & 0x10) != 0x10)
+  if (x32c_chargePhase != EChargePhase::NotCharging && (x2f8_stateFlags & 0x10) != 0x10) {
     offsetWorldXf.origin += zeus::CVector3f(x34c_shakeX, 0.f, x350_shakeZ);
+  }
 
   zeus::CTransform oldViewMtx = CGraphics::g_ViewMatrix;
   CGraphics::SetViewPointMatrix(offsetWorldXf.inverse() * oldViewMtx);
   CGraphics::SetModelMatrix(zeus::CTransform());
-  if (x32c_chargePhase >= EChargePhase::FxGrown && x32c_chargePhase < EChargePhase::ComboXfer)
-    x800_auxMuzzleGenerators[int(x320_currentAuxBeam)]->Render();
+  if (x32c_chargePhase >= EChargePhase::FxGrown && x32c_chargePhase < EChargePhase::ComboXfer) {
+    x800_auxMuzzleGenerators[size_t(x320_currentAuxBeam)]->Render();
+  }
 
-  if (x832_25_chargeEffectVisible && (x38c_muzzleEffectVisTimer > 0.f || x32c_chargePhase > EChargePhase::AnimAndSfx))
+  if (x832_25_chargeEffectVisible && (x38c_muzzleEffectVisTimer > 0.f || x32c_chargePhase > EChargePhase::AnimAndSfx)) {
     x72c_currentBeam->DrawMuzzleFx(mgr);
+  }
 
   if (x678_morph.GetGunState() == CGunMorph::EGunState::InWipe ||
-      x678_morph.GetGunState() == CGunMorph::EGunState::OutWipe)
+      x678_morph.GetGunState() == CGunMorph::EGunState::OutWipe) {
     x774_holoTransitionGen->Render();
+  }
 
   CGraphics::SetViewPointMatrix(oldViewMtx);
-  if ((x2f8_stateFlags & 0x10) == 0x10)
+  if ((x2f8_stateFlags & 0x10) == 0x10) {
     x744_auxWeapon->RenderMuzzleFx();
+  }
 
   x72c_currentBeam->PreRenderGunFx(mgr, offsetWorldXf);
   bool drawSuitArm =
