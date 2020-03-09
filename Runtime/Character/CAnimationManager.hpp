@@ -19,8 +19,8 @@ class CAnimationManager {
   CAnimSysContext x8_sysCtx;
 
 public:
-  CAnimationManager(const TToken<CAnimationDatabaseGame>& animDB, const CAnimSysContext& sysCtx)
-  : x0_animDB(animDB), x8_sysCtx(sysCtx) {}
+  CAnimationManager(TToken<CAnimationDatabaseGame> animDB, CAnimSysContext sysCtx)
+  : x0_animDB(std::move(animDB)), x8_sysCtx(std::move(sysCtx)) {}
 
   const CAnimationDatabaseGame* GetAnimationDatabase() const;
   std::shared_ptr<CAnimTreeNode> GetAnimationTree(s32, const CMetaAnimTreeBuildOrders& orders) const;
