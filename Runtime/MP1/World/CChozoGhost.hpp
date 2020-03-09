@@ -60,10 +60,10 @@ private:
   float x658_;
   u32 x65c_nearChance;
   u32 x660_midChance;
-  bool x664_24_onGround : 1;
+  bool x664_24_ : 1;
   bool x664_25_flinch : 1;
   bool x664_26_ : 1;
-  bool x664_27_ : 1;
+  bool x664_27_onGround : 1;
   bool x664_28_ : 1;
   bool x664_29_ : 1;
   bool x664_30_ : 1;
@@ -78,7 +78,6 @@ private:
   float x66c_ = 0.f;
   float x670_ = 0.f;
   TUniqueId x674_coverPoint = kInvalidUniqueId;
-  float x6c8_ = 0.f;
   float x678_ = 0.f;
   u32 x67c_ = -1;
   EBehaveType x680_behaveType = EBehaveType::Lurk;
@@ -86,9 +85,9 @@ private:
   CSteeringBehaviors x688_;
   CBoneTracking x68c_boneTracking;
   TUniqueId x6c4_teamMgr = kInvalidUniqueId;
+  float x6c8_ = 0.f;
   zeus::CVector3f x6cc_;
   u32 x6d8_ = 1;
-  u32 x6dc_;
 
   void AddToTeam(CStateManager& mgr);
   void RemoveFromTeam(CStateManager& mgr);

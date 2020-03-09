@@ -12,6 +12,7 @@
 #include "Runtime/World/CTeamAiMgr.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
+
 namespace urde::MP1 {
 CChozoGhost::CBehaveChance::CBehaveChance(CInputStream& in)
 : x0_propertyCount(in.readUint32Big())
@@ -96,10 +97,10 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
 , x658_(f9)
 , x65c_nearChance(nearChance)
 , x660_midChance(midChance)
-, x664_24_onGround(w1)
+, x664_24_(w1)
 , x664_25_flinch(!w1)
 , x664_26_(false)
-, x664_27_(false)
+, x664_27_onGround(false)
 , x664_28_(false)
 , x664_29_(false)
 , x664_30_(false)
@@ -110,7 +111,7 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
 , x665_27_playerInLeashRange(false)
 , x665_28_inRange(false)
 , x665_29_aggressive(false)
-, x680_behaveType(x664_24_onGround ? EBehaveType::Attack : EBehaveType::Four)
+, x680_behaveType(x664_24_ ? EBehaveType::Attack : EBehaveType::Four)
 , x68c_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
                     EBoneTrackingFlags::None) {
   x578_.Token().Lock();
@@ -131,6 +132,7 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
   CreateShadow(false);
   MakeThermalColdAndHot();
 }
+
 void CChozoGhost::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
 
@@ -233,7 +235,6 @@ void CChozoGhost::Render(const CStateManager& mgr) const {
 }
 
 void CChozoGhost::Touch(CActor& act, CStateManager& mgr) {
-
   if (IsVisibleEnough(mgr)) {
     if (TCastToPtr<CPlayer> pl = act) {
       if (x420_curDamageRemTime <= 0.f) {
@@ -374,7 +375,7 @@ void CChozoGhost::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x330_stateMachineState.SetDelay(x56c_fadeOutDelay);
     x32c_animState = EAnimState::Ready;
-    x664_27_ = false;
+    x664_27_onGround = false;
     CRayCastResult res = mgr.RayStaticIntersection(GetTranslation(), zeus::skDown, 100.f,
                                                    CMaterialFilter::MakeInclude({EMaterialTypes::Floor}));
     if (res.IsInvalid()) {
@@ -395,16 +396,16 @@ void CChozoGhost::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
       FloatToLevel(x678_, arg);
     } else if (x32c_animState == EAnimState::Repeat) {
       x450_bodyController->SetLocomotionType(pas::ELocomotionType::Crouch);
-      if (!x664_27_) {
+      if (!x664_27_onGround) {
         zeus::CVector3f pos = GetTranslation();
         SetTranslation({pos.x(), pos.y(), x678_ + x668_});
-        x664_27_ = true;
+        x664_27_onGround = true;
       }
     }
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
     x665_24_ = false;
-    x664_27_ = false;
+    x664_27_onGround = false;
   }
 }
 
@@ -513,18 +514,18 @@ void CChozoGhost::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
 void CChozoGhost::Hurled(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x328_25_verticalMovement = false;
-    x664_27_ = false;
+    x664_27_onGround = false;
     x665_24_ = true;
   } else if (msg == EStateMsg::Update) {
     x3e8_alphaDelta = 2.f;
-    if (x664_27_)
+    if (x664_27_onGround)
       return;
 
     if (x138_velocity.z() < 0.f) {
       CRayCastResult res = mgr.RayStaticIntersection(GetTranslation() + zeus::skUp, zeus::skDown, 2.f,
                                                      CMaterialFilter::MakeInclude({EMaterialTypes::Floor}));
       if (res.IsValid()) {
-        x664_27_ = true;
+        x664_27_onGround = true;
         x150_momentum.zeroOut();
         zeus::CVector3f velNoZ = x138_velocity;
         velNoZ.z() = 0.f;
@@ -533,7 +534,7 @@ void CChozoGhost::Hurled(CStateManager& mgr, EStateMsg msg, float arg) {
         x330_stateMachineState.SetCodeTrigger();
       }
     }
-    if (!x664_27_ && x638_hurlRecoverTime < x330_stateMachineState.GetTime()) {
+    if (!x664_27_onGround && x638_hurlRecoverTime < x330_stateMachineState.GetTime()) {
       GetBodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
       GetBodyController()->SetLocomotionType(pas::ELocomotionType::Lurk);
       x330_stateMachineState.SetCodeTrigger();
@@ -630,7 +631,7 @@ u8 CChozoGhost::GetModelAlphau8(const CStateManager& mgr) const {
   return u8(x42c_color.a() * 255);
 }
 
-bool CChozoGhost::IsOnGround() const { return x664_24_onGround; }
+bool CChozoGhost::IsOnGround() const { return x664_27_onGround; }
 
 CProjectileInfo* CChozoGhost::GetProjectileInfo() { return x67c_ == 2 ? &x578_ : &x5a0_; }
 
@@ -673,6 +674,7 @@ const CChozoGhost::CBehaveChance& CChozoGhost::ChooseBehaveChanceRange(CStateMan
   else
     return x5c8_;
 }
+
 void CChozoGhost::FindNearestSolid(CStateManager& mgr, const zeus::CVector3f& dir) {
   CRayCastResult res = mgr.RayStaticIntersection(GetBoundingBox().center() + (dir * 8.f), -dir, 8.f,
                                                  CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
