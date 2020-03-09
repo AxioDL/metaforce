@@ -16,7 +16,15 @@
 #define MAX_GLOBAL_PARTICLES 2560
 
 namespace urde {
-static logvisor::Module Log("urde::CElementGen");
+namespace {
+logvisor::Module Log("urde::CElementGen");
+
+constexpr std::array ShadClsSizes{
+    sizeof(SParticleInstanceTex),
+    sizeof(SParticleInstanceIndTex),
+    sizeof(SParticleInstanceNoTex),
+};
+} // Anonymous namespace
 
 u16 CElementGen::g_GlobalSeed = 99;
 bool CElementGen::g_subtractBlend = false;
@@ -44,9 +52,6 @@ void CElementGen::Initialize() {
 }
 
 void CElementGen::Shutdown() { CElementGenShaders::Shutdown(); }
-
-static const size_t ShadClsSizes[] = {sizeof(SParticleInstanceTex), sizeof(SParticleInstanceIndTex),
-                                      sizeof(SParticleInstanceNoTex)};
 
 CElementGen::CElementGen(const TToken<CGenDescription>& gen, EModelOrientationType orientType,
                          EOptionalSystemFlags flags)
@@ -212,11 +217,11 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen, EModelOrientationTy
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     if (!x26c_31_LINE) {
-      m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[int(m_shaderClass)], maxInsts);
+      m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
       m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
     }
     if (desc->x45_24_x31_26_PMUS) {
-      m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[int(m_shaderClass)], maxInsts);
+      m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
       m_uniformBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
     }
     CElementGenShaders::BuildShaderDataBinding(ctx, *this);
@@ -366,7 +371,7 @@ void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 par
     adv8->GetValue(particleFrame, arr[7]);
 }
 
-bool CElementGen::UpdateVelocitySource(u32 idx, u32 particleFrame, CParticle& particle) {
+bool CElementGen::UpdateVelocitySource(size_t idx, u32 particleFrame, CParticle& particle) {
   bool err;
   if (x278_hasVMD[idx]) {
     zeus::CVector3f localVel = x208_orientationInverse * particle.x1c_vel;
@@ -433,9 +438,10 @@ void CElementGen::UpdateExistingParticles() {
 
     ++x25c_activeParticleCount;
 
-    for (int i = 0; i < 4; ++i) {
-      if (!x280_VELSources[i])
+    for (size_t i = 0; i < x280_VELSources.size(); ++i) {
+      if (!x280_VELSources[i]) {
         break;
+      }
       UpdateVelocitySource(i, particleFrame, particle);
     }
 

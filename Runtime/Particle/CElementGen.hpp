@@ -68,7 +68,7 @@ private:
   int m_maxMAXP = 256;
   u16 x94_randomSeed = g_GlobalSeed;
   float x98_generatorRate = 1.f;
-  float x9c_externalVars[16] = {};
+  std::array<float, 16> x9c_externalVars{};
 
   zeus::CVector3f xdc_translation;
   zeus::CVector3f xe8_globalTranslation;
@@ -110,9 +110,9 @@ private:
   int x270_MBSP = 0;
   int m_maxMBSP = 0;
   ERglLightBits x274_backupLightActive = ERglLightBits::None;
-  bool x278_hasVMD[4] = {};
+  std::array<bool, 4> x278_hasVMD{};
   CRandom16 x27c_randState;
-  CModVectorElement* x280_VELSources[4] = {};
+  std::array<CModVectorElement*, 4> x280_VELSources{};
 
   std::vector<std::unique_ptr<CParticleGen>> x290_activePartChildren;
   int x2a0_CSSD = 0;
@@ -148,15 +148,15 @@ public:
               EOptionalSystemFlags flags = EOptionalSystemFlags::One);
   ~CElementGen() override;
 
-  boo::ObjToken<boo::IShaderDataBinding> m_normalDataBind[2];
-  boo::ObjToken<boo::IShaderDataBinding> m_normalSubDataBind[2];
-  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaDataBind[2];
-  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaSubDataBind[2];
+  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBind;
+  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalSubDataBind;
+  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBind;
+  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaSubDataBind;
   boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
   boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
 
-  boo::ObjToken<boo::IShaderDataBinding> m_normalDataBindPmus[2];
-  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaDataBindPmus[2];
+  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBindPmus;
+  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBindPmus;
   boo::ObjToken<boo::IGraphicsBufferD> m_instBufPmus;
   boo::ObjToken<boo::IGraphicsBufferD> m_uniformBufPmus;
 
@@ -171,7 +171,7 @@ public:
   static void Shutdown();
 
   void UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 particleFrame);
-  bool UpdateVelocitySource(u32 idx, u32 particleFrame, CParticle& particle);
+  bool UpdateVelocitySource(size_t idx, u32 particleFrame, CParticle& particle);
   void UpdateExistingParticles();
   void CreateNewParticles(int);
   void UpdatePSTranslationAndOrientation();

@@ -249,28 +249,28 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
     const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> uniforms{gen.m_uniformBuf.get()};
 
     if (regPipeline != nullptr) {
-      for (size_t i = 0; i < std::size(gen.m_normalDataBind); ++i) {
+      for (size_t i = 0; i < gen.m_normalDataBind.size(); ++i) {
         gen.m_normalDataBind[i] =
             ctx.newShaderDataBinding((*regPipeline)[i], nullptr, gen.m_instBuf.get(), nullptr, uniforms.size(),
                                      uniforms.data(), nullptr, texCount, textures.data(), nullptr, nullptr);
       }
     }
     if (regPipelineSub != nullptr) {
-      for (size_t i = 0; i < std::size(gen.m_normalSubDataBind); ++i) {
+      for (size_t i = 0; i < gen.m_normalSubDataBind.size(); ++i) {
         gen.m_normalSubDataBind[i] =
             ctx.newShaderDataBinding((*regPipelineSub)[i], nullptr, gen.m_instBuf.get(), nullptr, uniforms.size(),
                                      uniforms.data(), nullptr, texCount, textures.data(), nullptr, nullptr);
       }
     }
     if (redToAlphaPipeline != nullptr) {
-      for (size_t i = 0; i < std::size(gen.m_redToAlphaDataBind); ++i) {
+      for (size_t i = 0; i < gen.m_redToAlphaDataBind.size(); ++i) {
         gen.m_redToAlphaDataBind[i] =
             ctx.newShaderDataBinding((*redToAlphaPipeline)[i], nullptr, gen.m_instBuf.get(), nullptr, uniforms.size(),
                                      uniforms.data(), nullptr, texCount, textures.data(), nullptr, nullptr);
       }
     }
     if (redToAlphaPipelineSub != nullptr) {
-      for (size_t i = 0; i < std::size(gen.m_redToAlphaSubDataBind); ++i) {
+      for (size_t i = 0; i < gen.m_redToAlphaSubDataBind.size(); ++i) {
         gen.m_redToAlphaSubDataBind[i] = ctx.newShaderDataBinding(
             (*redToAlphaPipelineSub)[i], nullptr, gen.m_instBuf.get(), nullptr, uniforms.size(), uniforms.data(),
             nullptr, texCount, textures.data(), nullptr, nullptr);
@@ -283,14 +283,14 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
     texCount = std::min(texCount, 1);
 
     if (regPipelinePmus != nullptr) {
-      for (size_t i = 0; i < std::size(gen.m_normalDataBindPmus); ++i) {
+      for (size_t i = 0; i < gen.m_normalDataBindPmus.size(); ++i) {
         gen.m_normalDataBindPmus[i] =
             ctx.newShaderDataBinding((*regPipelinePmus)[i], nullptr, gen.m_instBufPmus.get(), nullptr, uniforms.size(),
                                      uniforms.data(), nullptr, texCount, textures.data(), nullptr, nullptr);
       }
     }
     if (redToAlphaPipelinePmus != nullptr) {
-      for (size_t i = 0; i < std::size(gen.m_redToAlphaDataBindPmus); ++i) {
+      for (size_t i = 0; i < gen.m_redToAlphaDataBindPmus.size(); ++i) {
         gen.m_redToAlphaDataBindPmus[i] = ctx.newShaderDataBinding(
             (*redToAlphaPipelinePmus)[i], nullptr, gen.m_instBufPmus.get(), nullptr, uniforms.size(), uniforms.data(),
             nullptr, texCount, textures.data(), nullptr, nullptr);
