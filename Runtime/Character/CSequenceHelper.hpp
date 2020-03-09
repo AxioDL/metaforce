@@ -22,10 +22,9 @@ class CSequenceFundamentals {
   std::vector<CSoundPOINode> x48_soundNodes;
 
 public:
-  CSequenceFundamentals(const CSteadyStateAnimInfo& ssInfo, const std::vector<CBoolPOINode>& boolNodes,
-                        const std::vector<CInt32POINode>& int32Nodes,
-                        const std::vector<CParticlePOINode>& particleNodes,
-                        const std::vector<CSoundPOINode>& soundNodes);
+  CSequenceFundamentals(const CSteadyStateAnimInfo& ssInfo, std::vector<CBoolPOINode> boolNodes,
+                        std::vector<CInt32POINode> int32Nodes, std::vector<CParticlePOINode> particleNodes,
+                        std::vector<CSoundPOINode> soundNodes);
 
   const CSteadyStateAnimInfo& GetSteadyStateAnimInfo() const { return x0_ssInfo; }
   const std::vector<CBoolPOINode>& GetBoolPointsOfInterest() const { return x18_boolNodes; }
@@ -41,8 +40,8 @@ class CSequenceHelper {
 
 public:
   CSequenceHelper(const std::shared_ptr<CAnimTreeNode>& a, const std::shared_ptr<CAnimTreeNode>& b,
-                  const CAnimSysContext& animCtx);
-  CSequenceHelper(const std::vector<std::shared_ptr<IMetaAnim>>& nodes, const CAnimSysContext& animCtx);
+                  CAnimSysContext animCtx);
+  CSequenceHelper(const std::vector<std::shared_ptr<IMetaAnim>>& nodes, CAnimSysContext animCtx);
   CSequenceFundamentals ComputeSequenceFundamentals();
 };
 
