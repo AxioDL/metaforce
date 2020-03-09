@@ -144,8 +144,8 @@ private:
   void AccumulateBounds(const zeus::CVector3f& pos, float size);
 
 public:
-  CElementGen(const TToken<CGenDescription>& gen, EModelOrientationType orientType = EModelOrientationType::Normal,
-              EOptionalSystemFlags flags = EOptionalSystemFlags::One);
+  explicit CElementGen(TToken<CGenDescription> gen, EModelOrientationType orientType = EModelOrientationType::Normal,
+                       EOptionalSystemFlags flags = EOptionalSystemFlags::One);
   ~CElementGen() override;
 
   std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBind;

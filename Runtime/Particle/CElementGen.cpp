@@ -53,9 +53,8 @@ void CElementGen::Initialize() {
 
 void CElementGen::Shutdown() { CElementGenShaders::Shutdown(); }
 
-CElementGen::CElementGen(const TToken<CGenDescription>& gen, EModelOrientationType orientType,
-                         EOptionalSystemFlags flags)
-: x1c_genDesc(gen), x2c_orientType(orientType), x27c_randState(x94_randomSeed) {
+CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orientType, EOptionalSystemFlags flags)
+: x1c_genDesc(std::move(gen)), x2c_orientType(orientType), x27c_randState(x94_randomSeed) {
   CGenDescription* desc = x1c_genDesc.GetObj();
   x28_loadedGenDesc = desc;
 
