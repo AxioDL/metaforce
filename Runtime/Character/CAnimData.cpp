@@ -40,19 +40,19 @@ void CAnimData::FreeCache() {}
 void CAnimData::InitializeCache() {}
 
 CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAnim, int charIdx, bool loop,
-                     const TLockedToken<CCharLayoutInfo>& layout, const TToken<CSkinnedModel>& model,
+                     TLockedToken<CCharLayoutInfo> layout, TToken<CSkinnedModel> model,
                      const std::optional<TToken<CMorphableSkinnedModel>>& iceModel,
-                     const std::weak_ptr<CAnimSysContext>& ctx, const std::shared_ptr<CAnimationManager>& animMgr,
-                     const std::shared_ptr<CTransitionManager>& transMgr,
-                     const TLockedToken<CCharacterFactory>& charFactory, int drawInstCount)
-: x0_charFactory(charFactory)
+                     const std::weak_ptr<CAnimSysContext>& ctx, std::shared_ptr<CAnimationManager> animMgr,
+                     std::shared_ptr<CTransitionManager> transMgr, TLockedToken<CCharacterFactory> charFactory,
+                     int drawInstCount)
+: x0_charFactory(std::move(charFactory))
 , xc_charInfo(character)
-, xcc_layoutData(layout)
-, xd8_modelData(model)
+, xcc_layoutData(std::move(layout))
+, xd8_modelData(std::move(model))
 , xfc_animCtx(ctx.lock())
-, x100_animMgr(animMgr)
+, x100_animMgr(std::move(animMgr))
 , x1d8_selfId(id)
-, x1fc_transMgr(transMgr)
+, x1fc_transMgr(std::move(transMgr))
 , x204_charIdx(charIdx)
 , x208_defaultAnim(defaultAnim)
 , x224_pose(layout->GetSegIdList().GetList().size())
@@ -82,10 +82,11 @@ CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAn
                character.GetCharacterName());
   }
 
-  std::shared_ptr<CAnimTreeNode> treeNode = GetAnimationManager()->GetAnimationTree(
-      character.GetAnimationIndex(defaultAnim), CMetaAnimTreeBuildOrders::NoSpecialOrders());
-  if (treeNode != x1f8_animRoot)
-    x1f8_animRoot = treeNode;
+  auto treeNode = GetAnimationManager()->GetAnimationTree(character.GetAnimationIndex(defaultAnim),
+                                                          CMetaAnimTreeBuildOrders::NoSpecialOrders());
+  if (treeNode != x1f8_animRoot) {
+    x1f8_animRoot = std::move(treeNode);
+  }
 }
 
 void CAnimData::SetParticleEffectState(std::string_view effectName, bool active, CStateManager& mgr) {

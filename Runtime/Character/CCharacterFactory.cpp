@@ -78,19 +78,20 @@ std::unique_ptr<CAnimData> CCharacterFactory::CreateCharacter(int charIdx, bool 
                                                               const TLockedToken<CCharacterFactory>& factory,
                                                               int defaultAnim, int drawInsts) const {
   const CCharacterInfo& charInfo = x4_charInfoDB[charIdx];
-  CVParamTransfer charParm(new TObjOwnerParam<const CCharacterInfo*>(&charInfo));
+  const CVParamTransfer charParm(new TObjOwnerParam<const CCharacterInfo*>(&charInfo));
 
   TToken<CSkinnedModel> skinnedModel = const_cast<CCharacterFactory*>(this)->x70_cacheResPool.GetObj(
       {FourCC(drawInsts << 16), charInfo.GetModelId()}, charParm);
 
   std::optional<TToken<CMorphableSkinnedModel>> iceModel;
-  if (charInfo.GetIceModelId().IsValid() && charInfo.GetIceSkinRulesId().IsValid())
+  if (charInfo.GetIceModelId().IsValid() && charInfo.GetIceSkinRulesId().IsValid()) {
     iceModel.emplace(const_cast<CCharacterFactory*>(this)->x70_cacheResPool.GetObj(
         {FourCC((drawInsts << 16) | 1), charInfo.GetIceModelId()}, charParm));
+  }
 
   return std::make_unique<CAnimData>(x68_selfId, charInfo, defaultAnim, charIdx, loop, x14_charLayoutInfoDB[charIdx],
-                                     skinnedModel, iceModel, x24_sysContext, x28_animMgr, x2c_transMgr, factory,
-                                     drawInsts);
+                                     std::move(skinnedModel), iceModel, x24_sysContext, x28_animMgr, x2c_transMgr,
+                                     factory, drawInsts);
 }
 
 CAssetId CCharacterFactory::GetEventResourceIdForAnimResourceId(CAssetId id) const {
