@@ -1004,8 +1004,6 @@ zeus::CVector3f CBallCamera::AvoidGeometry(const zeus::CTransform& xf,
     UpdateColliders(xf, x274_mediumColliders, x2d4_mediumColliderIt, 3, 4.f, nearList, dt, mgr);
     break;
   case 2:
-    UpdateColliders(xf, x284_largeColliders, x2d8_largeColliderIt, 4, 4.f, nearList, dt, mgr);
-    break;
   case 3:
     UpdateColliders(xf, x284_largeColliders, x2d8_largeColliderIt, 4, 4.f, nearList, dt, mgr);
     break;
