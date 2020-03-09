@@ -925,7 +925,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
 
   zeus::CVector3f pmopVec;
   auto matrixIt = x50_parentMatrices.begin();
-  for (int i = 0; i < x30_particles.size(); ++i) {
+  for (size_t i = 0; i < x30_particles.size(); ++i) {
     CParticle& particle = x30_particles[i];
     g_currentParticle = &particle;
 
@@ -1124,7 +1124,7 @@ void CElementGen::RenderLines() {
 
   m_lineRenderer->Reset();
 
-  for (int i = 0; i < x30_particles.size(); ++i) {
+  for (size_t i = 0; i < x30_particles.size(); ++i) {
     CParticle& particle = x30_particles[i];
     g_currentParticle = &particle;
 
@@ -1227,9 +1227,9 @@ void CElementGen::RenderParticles() {
   if (desc->x44_28_x30_28_SORT) {
     sortItems.reserve(x30_particles.size());
 
-    for (int i = 0; i < x30_particles.size(); ++i) {
+    for (size_t i = 0; i < x30_particles.size(); ++i) {
       const CParticle& particle = x30_particles[i];
-      sortItems.emplace_back(i);
+      sortItems.emplace_back(s16(i));
       CParticleListItem& sortItem = sortItems.back();
       sortItem.x4_viewPoint =
           systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
@@ -1303,18 +1303,19 @@ void CElementGen::RenderParticles() {
     }
 
     if (!x26c_29_ORNT) {
-      for (int i = 0; i < x30_particles.size(); ++i) {
-        int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;
+      for (size_t i = 0; i < x30_particles.size(); ++i) {
+        const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
         CParticle& particle = x30_particles[partIdx];
         g_currentParticle = &particle;
 
-        int partFrame = x74_curFrame - particle.x28_startFrame - 1;
+        const int partFrame = x74_curFrame - particle.x28_startFrame - 1;
         zeus::CVector3f viewPoint;
-        if (desc->x44_28_x30_28_SORT)
+        if (desc->x44_28_x30_28_SORT) {
           viewPoint = sortItems[i].x4_viewPoint;
-        else
+        } else {
           viewPoint = systemCameraMatrix *
                       ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
+        }
 
         if (!constUVs) {
           CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
@@ -1322,7 +1323,7 @@ void CElementGen::RenderParticles() {
           texr->GetValueUV(partFrame, uvs);
         }
 
-        float size = 0.5f * particle.x2c_lineLengthOrSize;
+        const float size = 0.5f * particle.x2c_lineLengthOrSize;
         if (0.f == particle.x30_lineWidthOrRota) {
           switch (m_shaderClass) {
           case CElementGenShaders::EShaderClass::Tex: {
@@ -1392,15 +1393,15 @@ void CElementGen::RenderParticles() {
         }
       }
     } else {
-      for (int i = 0; i < x30_particles.size(); ++i) {
-        int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;
+      for (size_t i = 0; i < x30_particles.size(); ++i) {
+        const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
         CParticle& particle = x30_particles[partIdx];
         g_currentParticle = &particle;
 
-        int partFrame = x74_curFrame - particle.x28_startFrame - 1;
+        const int partFrame = x74_curFrame - particle.x28_startFrame - 1;
         zeus::CVector3f viewPoint =
             ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
-        float width = !desc->x50_x3c_ROTA ? 1.f : particle.x30_lineWidthOrRota;
+        const float width = !desc->x50_x3c_ROTA ? 1.f : particle.x30_lineWidthOrRota;
         zeus::CVector3f dir;
         if (particle.x1c_vel.canBeNormalized()) {
           dir = particle.x1c_vel.normalized();
@@ -1495,13 +1496,13 @@ void CElementGen::RenderParticles() {
       Log.report(logvisor::Fatal, fmt("unexpected particle shader class"));
       break;
     }
-    float mbspFac = 1.f / float(mbspVal);
-    for (int i = 0; i < x30_particles.size(); ++i) {
-      int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;
+    const float mbspFac = 1.f / float(mbspVal);
+    for (size_t i = 0; i < x30_particles.size(); ++i) {
+      const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
       CParticle& particle = x30_particles[partIdx];
       g_currentParticle = &particle;
 
-      int partFrame = x74_curFrame - particle.x28_startFrame - 1;
+      const int partFrame = x74_curFrame - particle.x28_startFrame - 1;
 
       if (!constUVs) {
         CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
@@ -1652,9 +1653,9 @@ void CElementGen::RenderParticlesIndirectTexture() {
   if (desc->x44_28_x30_28_SORT) {
     sortItems.reserve(x30_particles.size());
 
-    for (int i = 0; i < x30_particles.size(); ++i) {
+    for (size_t i = 0; i < x30_particles.size(); ++i) {
       const CParticle& particle = x30_particles[i];
-      sortItems.emplace_back(i);
+      sortItems.emplace_back(s16(i));
       CParticleListItem& sortItem = sortItems.back();
       sortItem.x4_viewPoint =
           systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
@@ -1671,18 +1672,19 @@ void CElementGen::RenderParticlesIndirectTexture() {
   if (!x30_particles.empty())
     CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
 
-  for (int i = 0; i < x30_particles.size(); ++i) {
-    int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;
+  for (size_t i = 0; i < x30_particles.size(); ++i) {
+    const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
     CParticle& particle = x30_particles[partIdx];
     g_currentParticle = &particle;
 
-    int thisPartFrame = x74_curFrame - particle.x28_startFrame;
+    const int thisPartFrame = x74_curFrame - particle.x28_startFrame;
     zeus::CVector3f viewPoint;
-    if (desc->x44_28_x30_28_SORT)
+    if (desc->x44_28_x30_28_SORT) {
       viewPoint = sortItems[i].x4_viewPoint;
-    else
+    } else {
       viewPoint =
           systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
+    }
 
     if (!constTexr) {
       CTexture* tex = texr->GetValueTexture(thisPartFrame).GetObj();
