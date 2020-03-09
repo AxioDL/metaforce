@@ -19,13 +19,13 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CWarp;
-class CLight;
-class IGenDescription;
-class CGenDescription;
-class CParticleSwoosh;
-class CParticleElectric;
 class CActorLights;
+class CGenDescription;
+class CLight;
+class CParticleElectric;
+class CParticleSwoosh;
+class CWarp;
+class IGenDescription;
 
 class CElementGen : public CParticleGen {
   static u16 g_GlobalSeed;
