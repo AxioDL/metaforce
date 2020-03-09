@@ -8,7 +8,7 @@
 
 namespace urde {
 
-CAnimSourceInfo::CAnimSourceInfo(const TSubAnimTypeToken<CAnimSource>& token) : x4_token(token) {}
+CAnimSourceInfo::CAnimSourceInfo(TSubAnimTypeToken<CAnimSource> token) : x4_token(std::move(token)) {}
 
 bool CAnimSourceInfo::HasPOIData() const { return x4_token->x58_evntData.HasReference(); }
 

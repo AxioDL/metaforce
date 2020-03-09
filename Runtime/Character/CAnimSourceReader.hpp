@@ -28,7 +28,7 @@ class CAnimSourceInfo : public IAnimSourceInfo {
   TSubAnimTypeToken<CAnimSource> x4_token;
 
 public:
-  CAnimSourceInfo(const TSubAnimTypeToken<CAnimSource>& token);
+  explicit CAnimSourceInfo(TSubAnimTypeToken<CAnimSource> token);
   bool HasPOIData() const override;
   const std::vector<CBoolPOINode>& GetBoolPOIStream() const override;
   const std::vector<CInt32POINode>& GetInt32POIStream() const override;
