@@ -786,16 +786,17 @@ void CElementGen::BuildParticleSystemBounds() {
     x2f0_systemBounds.accumulateBounds(aabb);
 }
 
-u32 CElementGen::GetSystemCount() {
+u32 CElementGen::GetSystemCount() const {
   u32 ret = 0;
   for (const std::unique_ptr<CParticleGen>& child : x290_activePartChildren) {
-    if (child->Get4CharId() == FOURCC('PART'))
-      ret += static_cast<CElementGen&>(*child).GetSystemCount();
-    else
+    if (child->Get4CharId() == FOURCC('PART')) {
+      ret += static_cast<const CElementGen&>(*child).GetSystemCount();
+    } else {
       ret += 1;
+    }
   }
 
-  return (ret + (x25c_activeParticleCount != 0));
+  return ret + (x25c_activeParticleCount != 0);
 }
 
 void CElementGen::Render(const CActorLights* actorLights) {

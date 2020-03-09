@@ -180,7 +180,7 @@ public:
   void UpdateLightParameters();
   void BuildParticleSystemBounds();
   u32 GetEmitterTime() const { return x74_curFrame; }
-  u32 GetSystemCount();
+  u32 GetSystemCount() const;
   u32 GetCumulativeParticleCount() const { return x260_cumulativeParticles; }
   u32 GetParticleCountAllInternal() const;
   u32 GetParticleCountAll() const { return x264_recursiveParticleCount; }
