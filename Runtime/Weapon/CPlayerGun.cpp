@@ -16,12 +16,109 @@
 #include "Runtime/Weapon/CPowerBomb.hpp"
 
 namespace urde {
+namespace {
+float kVerticalAngleTable[] = {-30.f, 0.f, 30.f};
+float kHorizontalAngleTable[] = {30.f, 30.f, 30.f};
+float kVerticalVarianceTable[] = {30.f, 30.f, 30.f};
 
-static const zeus::CVector3f sGunScale(2.f);
+constexpr zeus::CVector3f sGunScale(2.f);
 
-static float kVerticalAngleTable[] = {-30.f, 0.f, 30.f};
-static float kHorizontalAngleTable[] = {30.f, 30.f, 30.f};
-static float kVerticalVarianceTable[] = {30.f, 30.f, 30.f};
+constexpr u32 skBeamAnimIds[] = {
+    0,
+    1,
+    2,
+    1,
+};
+
+constexpr CPlayerState::EItemType skBeamArr[] = {
+    CPlayerState::EItemType::PowerBeam,
+    CPlayerState::EItemType::IceBeam,
+    CPlayerState::EItemType::WaveBeam,
+    CPlayerState::EItemType::PlasmaBeam,
+};
+
+constexpr CPlayerState::EItemType skBeamComboArr[] = {
+    CPlayerState::EItemType::SuperMissile,
+    CPlayerState::EItemType::IceSpreader,
+    CPlayerState::EItemType::Wavebuster,
+    CPlayerState::EItemType::Flamethrower,
+};
+
+constexpr ControlMapper::ECommands mBeamCtrlCmd[] = {
+    ControlMapper::ECommands::PowerBeam,
+    ControlMapper::ECommands::IceBeam,
+    ControlMapper::ECommands::WaveBeam,
+    ControlMapper::ECommands::PlasmaBeam,
+};
+
+constexpr u16 skFromMissileSound[] = {
+    SFXwpn_from_missile_power,
+    SFXwpn_from_missile_ice,
+    SFXwpn_from_missile_wave,
+    SFXwpn_from_missile_plasma,
+};
+
+constexpr u16 skFromBeamSound[] = {
+    SFXsfx0000,
+    SFXwpn_from_beam_ice,
+    SFXwpn_from_beam_wave,
+    SFXwpn_from_beam_plasma,
+};
+
+constexpr u16 skToMissileSound[] = {
+    SFXwpn_to_missile_power,
+    SFXwpn_to_missile_ice,
+    SFXwpn_to_missile_wave,
+    SFXwpn_to_missile_plasma,
+};
+
+constexpr u16 skIntoBeamSound[] = {
+    SFXsfx0000,
+    SFXwpn_into_beam_ice,
+    SFXwpn_into_beam_wave,
+    SFXwpn_into_beam_plasma,
+};
+
+constexpr float kChargeSpeed = 1.f / CPlayerState::GetMissileComboChargeFactor();
+constexpr float kChargeFxStart = 1.f / CPlayerState::GetMissileComboChargeFactor();
+constexpr float kChargeAnimStart = 0.25f / CPlayerState::GetMissileComboChargeFactor();
+constexpr float kChargeStart = 0.025f / CPlayerState::GetMissileComboChargeFactor();
+
+constexpr u16 skBeamChargeUpSound[] = {
+    SFXwpn_chargeup_power,
+    SFXwpn_chargeup_ice,
+    SFXwpn_chargeup_wave,
+    SFXwpn_chargeup_plasma,
+};
+
+constexpr CPlayerState::EItemType skItemArr[] = {
+    CPlayerState::EItemType::Invalid,
+    CPlayerState::EItemType::Missiles,
+};
+
+constexpr u16 skItemEmptySound[] = {
+    SFXsfx0000,
+    SFXwpn_empty_action,
+};
+
+constexpr float chargeShakeTbl[] = {
+    -0.001f,
+    0.f,
+    0.001f,
+};
+constexpr CMaterialFilter sAimFilter =
+    CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
+
+const CModelFlags kThermalFlags[] = {
+    {0, 0, 3, zeus::skWhite},
+    {5, 0, 3, zeus::CColor(0.f, 0.5f)},
+    {0, 0, 3, zeus::skWhite},
+    {0, 0, 3, zeus::skWhite},
+};
+
+const CModelFlags kHandThermalFlag = {7, 0, 3, zeus::skWhite};
+const CModelFlags kHandHoloFlag = {1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f, 1.f)};
+} // Anonymous namespace
 
 float CPlayerGun::CMotionState::gGunExtendDistance = 0.125f;
 float CPlayerGun::skTractorBeamFactor = 0.5f / CPlayerState::GetMissileComboChargeFactor();
@@ -203,8 +300,6 @@ void CPlayerGun::SetGunLightActive(bool active, CStateManager& mgr) {
     }
   }
 }
-
-static const u32 skBeamAnimIds[] = {0, 1, 2, 1};
 
 void CPlayerGun::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   const CPlayer& player = mgr.GetPlayer();
@@ -401,21 +496,6 @@ bool CPlayerGun::ExitMissile() {
   return false;
 }
 
-static const CPlayerState::EItemType skBeamArr[] = {CPlayerState::EItemType::PowerBeam,
-                                                    CPlayerState::EItemType::IceBeam, CPlayerState::EItemType::WaveBeam,
-                                                    CPlayerState::EItemType::PlasmaBeam};
-
-static const CPlayerState::EItemType skBeamComboArr[] = {
-    CPlayerState::EItemType::SuperMissile, CPlayerState::EItemType::IceSpreader, CPlayerState::EItemType::Wavebuster,
-    CPlayerState::EItemType::Flamethrower};
-
-static const ControlMapper::ECommands mBeamCtrlCmd[] = {
-    ControlMapper::ECommands::PowerBeam,
-    ControlMapper::ECommands::IceBeam,
-    ControlMapper::ECommands::WaveBeam,
-    ControlMapper::ECommands::PlasmaBeam,
-};
-
 void CPlayerGun::HandleBeamChange(const CFinalInput& input, CStateManager& mgr) {
   CPlayerState& playerState = *mgr.GetPlayerState();
   float maxBeamInput = 0.f;
@@ -499,12 +579,6 @@ void CPlayerGun::ResetBeamParams(CStateManager& mgr, const CPlayerState& playerS
   x320_currentAuxBeam = x310_currentBeam;
   x833_30_canShowAuxMuzzleEffect = true;
 }
-
-static const u16 skFromMissileSound[] = {SFXwpn_from_missile_power, SFXwpn_from_missile_ice, SFXwpn_from_missile_wave,
-                                         SFXwpn_from_missile_plasma};
-static const u16 skFromBeamSound[] = {SFXsfx0000, SFXwpn_from_beam_ice, SFXwpn_from_beam_wave, SFXwpn_from_beam_plasma};
-static const u16 skToMissileSound[] = {SFXwpn_to_missile_power, SFXwpn_to_missile_ice, SFXwpn_to_missile_wave,
-                                       SFXwpn_to_missile_plasma};
 
 void CPlayerGun::PlayAnim(NWeaponTypes::EGunAnimType type, bool loop) {
   if (x338_nextState != ENextState::ChangeWeapon)
@@ -894,8 +968,6 @@ void CPlayerGun::CGunMorph::StartWipe(EDir dir) {
   x24_24_morphing = true;
 }
 
-static const u16 skIntoBeamSound[] = {SFXsfx0000, SFXwpn_into_beam_ice, SFXwpn_into_beam_wave, SFXwpn_into_beam_plasma};
-
 void CPlayerGun::ProcessGunMorph(float dt, CStateManager& mgr) {
   bool isUnmorphed = mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed;
   switch (x678_morph.GetGunState()) {
@@ -1057,14 +1129,6 @@ void CPlayerGun::EnableChargeFx(EChargeState state, CStateManager& mgr) {
 
   x800_auxMuzzleGenerators[int(x320_currentAuxBeam)]->SetParticleEmission(true);
 }
-
-static constexpr float kChargeSpeed = 1.f / CPlayerState::GetMissileComboChargeFactor();
-static constexpr float kChargeFxStart = 1.f / CPlayerState::GetMissileComboChargeFactor();
-static constexpr float kChargeAnimStart = 0.25f / CPlayerState::GetMissileComboChargeFactor();
-static constexpr float kChargeStart = 0.025f / CPlayerState::GetMissileComboChargeFactor();
-
-static const u16 skBeamChargeUpSound[] = {SFXwpn_chargeup_power, SFXwpn_chargeup_ice, SFXwpn_chargeup_wave,
-                                          SFXwpn_chargeup_plasma};
 
 void CPlayerGun::UpdateChargeState(float dt, CStateManager& mgr) {
   switch (x32c_chargePhase) {
@@ -1257,11 +1321,6 @@ void CPlayerGun::CancelLockOn() {
       PlayAnim(NWeaponTypes::EGunAnimType::BasePosition, false);
   }
 }
-
-static const CPlayerState::EItemType skItemArr[] = {CPlayerState::EItemType::Invalid,
-                                                    CPlayerState::EItemType::Missiles};
-
-static const u16 skItemEmptySound[] = {SFXsfx0000, SFXwpn_empty_action};
 
 void CPlayerGun::FireSecondary(float dt, CStateManager& mgr) {
   if (mgr.GetCameraManager()->IsInCinematicCamera())
@@ -1717,10 +1776,6 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
   }
 }
 
-static const float chargeShakeTbl[] = {-0.001f, 0.f, 0.001f};
-static const CMaterialFilter sAimFilter =
-    CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
-
 void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateManager& mgr) {
   CPlayer& player = mgr.GetPlayer();
   CPlayerState& playerState = *mgr.GetPlayerState();
@@ -2032,11 +2087,6 @@ void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustum& frust
     g_Renderer->AllocatePhazonSuitMaskTexture();
 }
 
-static const CModelFlags kThermalFlags[] = {{0, 0, 3, zeus::skWhite},
-                                            {5, 0, 3, zeus::CColor(0.f, 0.5f)},
-                                            {0, 0, 3, zeus::skWhite},
-                                            {0, 0, 3, zeus::skWhite}};
-
 void CPlayerGun::RenderEnergyDrainEffects(const CStateManager& mgr) const {
   if (TCastToConstPtr<CPlayer> player = mgr.GetObjectById(x538_playerId)) {
     for (const auto& source : player->GetEnergyDrain().GetEnergyDrainSources()) {
@@ -2086,9 +2136,6 @@ void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) const {
   // AABB has already been set in constructor (since it's constant)
   m_aaboxShader.draw(zeus::skClear);
 }
-
-static const CModelFlags kHandThermalFlag = {7, 0, 3, zeus::skWhite};
-static const CModelFlags kHandHoloFlag = {1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f, 1.f)};
 
 void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerGun::Render", zeus::skMagenta);
