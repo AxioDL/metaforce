@@ -1183,7 +1183,7 @@ void CGameArea::SetAreaAttributes(const CScriptAreaAttributes* areaAttributes) {
   x12c_postConstructed->x1128_worldLightingLevel = areaAttributes->GetWorldLightingLevel();
 }
 
-bool CGameArea::CAreaObjectList::IsQualified(const CEntity& ent) { return (ent.GetAreaIdAlways() == x200c_areaIdx); }
+bool CGameArea::CAreaObjectList::IsQualified(const CEntity& ent) const { return (ent.GetAreaIdAlways() == x200c_areaIdx); }
 void CGameArea::WarmupShaders(const SObjectTag& mreaTag) {
   // Calling this version of the constructor performs warmup implicitly
   CGameArea area(mreaTag.id);

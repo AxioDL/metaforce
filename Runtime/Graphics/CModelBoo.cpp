@@ -18,10 +18,32 @@
 #include <logvisor/logvisor.hpp>
 
 namespace urde {
-static logvisor::Module Log("urde::CBooModel");
-bool CBooModel::g_DrawingOccluders = false;
+namespace {
+logvisor::Module Log("urde::CBooModel");
+CBooModel* g_FirstModel = nullptr;
 
-static CBooModel* g_FirstModel = nullptr;
+constexpr zeus::CMatrix4f ReflectBaseMtx{
+    0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f,
+};
+
+constexpr zeus::CMatrix4f ReflectPostGL{
+    1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f,
+};
+
+constexpr zeus::CMatrix4f MBShadowPost0{
+    1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f,
+};
+
+constexpr zeus::CMatrix4f MBShadowPost1{
+    0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, -0.0625f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f,
+};
+
+constexpr zeus::CMatrix4f DisintegratePost{
+    1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f,
+};
+} // Anonymous namespace
+
+bool CBooModel::g_DrawingOccluders = false;
 
 void CBooModel::Shutdown() {
   g_shadowMap.reset();
@@ -58,12 +80,6 @@ bool CBooModel::g_DummyTextures = false;
 bool CBooModel::g_RenderModelBlack = false;
 
 zeus::CVector3f CBooModel::g_ReflectViewPos = {};
-
-static const zeus::CMatrix4f ReflectBaseMtx = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
-                                               0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f};
-
-static const zeus::CMatrix4f ReflectPostGL = {1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f,
-                                              0.f, 0.f, 1.f, 0.f, 0.f, 0.f,  0.f, 1.f};
 
 void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf, zeus::CMatrix4f* mtxsOut,
                                          float& alphaOut) {
@@ -359,7 +375,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
       std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = newInst.m_shaderDataBindings.back();
       extendeds.reserve(pipelines->size());
 
-      int idx = 0;
+      EExtendedShader idx{};
       for (const auto& pipeline : *pipelines) {
         if (idx == EExtendedShader::Thermal) {
           texs[8] = g_Renderer->x220_sphereRamp.get();
@@ -387,7 +403,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
         extendeds.push_back(ctx.newShaderDataBinding(pipeline, newInst.GetBooVBO(*this, ctx), nullptr,
                                                      m_staticIbo.get(), 4, bufs, stages, thisOffs, thisSizes, 12, texs,
                                                      nullptr, nullptr));
-        ++idx;
+        idx = EExtendedShader(size_t(idx) + 1);
       }
     }
     return true;
@@ -626,7 +642,7 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
   const std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = inst.m_shaderDataBindings[surf.selfIdx];
   EExtendedShader extended = ResolveExtendedShader(data, flags);
 
-  boo::ObjToken<boo::IShaderDataBinding> binding = extendeds[extended];
+  boo::ObjToken<boo::IShaderDataBinding> binding = extendeds[size_t(extended)];
   CGraphics::SetShaderDataBinding(binding);
   CGraphics::DrawArrayIndexed(surf.m_data.idxStart, surf.m_data.idxCount);
 }
@@ -746,17 +762,6 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const MaterialS
 void CBooModel::UVAnimationBuffer::PadOutBuffer(u8*& bufStart, u8*& bufOut) {
   bufOut = bufStart + ROUND_UP_256(bufOut - bufStart);
 }
-
-static const zeus::CMatrix4f MBShadowPost0(1.f, 0.f, 0.f, 0.f,
-                                           0.f, -1.f, 0.f, 1.f,
-                                           0.f, 0.f, 0.f, 1.f,
-                                           0.f, 0.f, 0.f, 1.f);
-
-static const zeus::CMatrix4f MBShadowPost1(0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, -0.0625f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f,
-                                           0.f, 1.f);
-
-static const zeus::CMatrix4f DisintegratePost(1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f,
-                                              1.f);
 
 void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags,
                                           const CBooModel* parent) {

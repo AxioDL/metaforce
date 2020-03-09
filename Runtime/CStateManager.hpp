@@ -97,14 +97,14 @@ private:
   std::unique_ptr<CAiWaypointList> x83c_aiWaypointObjs;
   std::unique_ptr<CPlatformAndDoorList> x844_platformAndDoorObjs;
    */
-  std::unique_ptr<CObjectList> x808_objLists[8] = {std::make_unique<CObjectList>(EGameObjectList::All),
-                                                   std::make_unique<CActorList>(),
-                                                   std::make_unique<CPhysicsActorList>(),
-                                                   std::make_unique<CGameCameraList>(),
-                                                   std::make_unique<CGameLightList>(),
-                                                   std::make_unique<CListeningAiList>(),
-                                                   std::make_unique<CAiWaypointList>(),
-                                                   std::make_unique<CPlatformAndDoorList>()};
+  std::array<std::unique_ptr<CObjectList>, 8> x808_objLists = {std::make_unique<CObjectList>(EGameObjectList::All),
+                                                               std::make_unique<CActorList>(),
+                                                               std::make_unique<CPhysicsActorList>(),
+                                                               std::make_unique<CGameCameraList>(),
+                                                               std::make_unique<CGameLightList>(),
+                                                               std::make_unique<CListeningAiList>(),
+                                                               std::make_unique<CAiWaypointList>(),
+                                                               std::make_unique<CPlatformAndDoorList>()};
 
   std::unique_ptr<CPlayer> x84c_player;
   std::unique_ptr<CWorld> x850_world;

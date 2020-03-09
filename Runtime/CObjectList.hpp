@@ -80,7 +80,7 @@ public:
   CEntity* GetValidObjectById(TUniqueId uid);
   s16 GetFirstObjectIndex() const { return x2008_firstId; }
   s16 GetNextObjectIndex(s16 prev) const { return x0_list[prev].next; }
-  virtual bool IsQualified(const CEntity&);
+  virtual bool IsQualified(const CEntity&) const;
   u16 size() const { return x200a_count; }
 };
 

@@ -3,8 +3,8 @@
 namespace urde {
 
 void CWeaponMgr::Add(TUniqueId uid, EWeaponType type) {
-  x0_weapons.insert(std::make_pair(uid, rstl::reserved_vector<s32, 10>()));
-  x0_weapons[uid].resize(10);
+  x0_weapons.insert(std::make_pair(uid, rstl::reserved_vector<s32, 15>()));
+  x0_weapons[uid].resize(15);
   ++x0_weapons[uid][u32(type)];
 }
 

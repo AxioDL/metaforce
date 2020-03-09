@@ -1,5 +1,7 @@
 #include "Runtime/MP1/CInGameGuiManager.hpp"
 
+#include <array>
+
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -20,23 +22,26 @@
 
 namespace urde::MP1 {
 
-static const char* InGameGuiDGRPs[] = {"InGameGui_DGRP", "Ice_DGRP",         "Phazon_DGRP",         "Plasma_DGRP",
-                                       "Power_DGRP",     "Wave_DGRP",        "BallTransition_DGRP", "GravitySuit_DGRP",
-                                       "Ice_Anim_DGRP",  "Plasma_Anim_DGRP", "PowerSuit_DGRP",      "Power_Anim_DGRP",
-                                       "VariaSuit_DGRP", "Wave_Anim_DGRP"};
+constexpr std::array InGameGuiDGRPs{
+    "InGameGui_DGRP",      "Ice_DGRP",         "Phazon_DGRP",   "Plasma_DGRP",      "Power_DGRP",     "Wave_DGRP",
+    "BallTransition_DGRP", "GravitySuit_DGRP", "Ice_Anim_DGRP", "Plasma_Anim_DGRP", "PowerSuit_DGRP", "Power_Anim_DGRP",
+    "VariaSuit_DGRP",      "Wave_Anim_DGRP",
+};
 
-static const char* PauseScreenDGRPs[] = {
+constexpr std::array PauseScreenDGRPs{
     "InventorySuitPower_DGRP",         "InventorySuitVaria_DGRP",        "InventorySuitGravity_DGRP",
     "InventorySuitPhazon_DGRP",        "InventorySuitFusionPower_DGRP",  "InventorySuitFusionVaria_DGRP",
     "InventorySuitFusionGravity_DGRP", "InventorySuitFusionPhazon_DGRP", "SamusBallANCS_DGRP",
     "SamusSpiderBallANCS_DGRP",        "PauseScreenDontDump_DGRP",       "PauseScreenDontDump_NoARAM_DGRP",
-    "PauseScreenTokens_DGRP"};
+    "PauseScreenTokens_DGRP",
+};
 
 std::vector<TLockedToken<CDependencyGroup>> CInGameGuiManager::LockPauseScreenDependencies() {
   std::vector<TLockedToken<CDependencyGroup>> ret;
-  ret.reserve(13);
-  for (int i = 0; i < 13; ++i)
-    ret.push_back(g_SimplePool->GetObj(PauseScreenDGRPs[i]));
+  ret.reserve(PauseScreenDGRPs.size());
+  for (const char* const dgrp : PauseScreenDGRPs) {
+    ret.emplace_back(g_SimplePool->GetObj(dgrp));
+  }
   return ret;
 }
 
@@ -103,8 +108,8 @@ void CInGameGuiManager::DoStateTransition(CStateManager& stateMgr) {
   case EInGameGuiState::PauseGame:
   case EInGameGuiState::PauseLogBook:
     if (!x48_pauseScreen) {
-      auto pState = stateMgr.GetPlayerState();
-      CPlayerState::EPlayerSuit suit = pState->GetCurrentSuitRaw();
+      const auto& pState = stateMgr.GetPlayerState();
+      const CPlayerState::EPlayerSuit suit = pState->GetCurrentSuitRaw();
       int suitResIdx;
       if (pState->IsFusionEnabled()) {
         switch (suit) {
@@ -185,9 +190,10 @@ CInGameGuiManager::CInGameGuiManager(CStateManager& stateMgr, CArchitectureQueue
   x1f8_25_playerAlive = true;
   x1f8_27_exitSaveUI = true;
 
-  xc8_inGameGuiDGRPs.reserve(14);
-  for (int i = 0; i < 14; ++i)
-    xc8_inGameGuiDGRPs.push_back(g_SimplePool->GetObj(InGameGuiDGRPs[i]));
+  xc8_inGameGuiDGRPs.reserve(InGameGuiDGRPs.size());
+  for (const char* const dgrp : InGameGuiDGRPs) {
+    xc8_inGameGuiDGRPs.emplace_back(g_SimplePool->GetObj(dgrp));
+  }
 }
 
 bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr) {
@@ -598,18 +604,20 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
       float z = 0.5f * (zT * zT * zT * zT * zT * (g_Viewport.xc_height - 12.f) + 12.f);
       float x = 0.5f * (xT * (g_Viewport.x8_width - 12.f) + 12.f);
 
-      CTexturedQuadFilter::Vert verts[] = {{{-x, 0.f, z}, {0.f, 0.f}},
-                                           {{-x, 0.f, -z}, {0.f, 1.f}},
-                                           {{x, 0.f, z}, {1.f, 0.f}},
-                                           {{x, 0.f, -z}, {1.f, 1.f}}};
+      const std::array<CTexturedQuadFilter::Vert, 4> verts{{
+          {{-x, 0.f, z}, {0.f, 0.f}},
+          {{-x, 0.f, -z}, {0.f, 1.f}},
+          {{x, 0.f, z}, {1.f, 0.f}},
+          {{x, 0.f, -z}, {1.f, 1.f}},
+      }};
 
       if (!m_deathRenderTexQuad)
         m_deathRenderTexQuad.emplace(EFilterType::Blend, CGraphics::g_SpareTexture.get());
-      m_deathRenderTexQuad->drawVerts(zeus::CColor(1.f, colT), verts);
+      m_deathRenderTexQuad->drawVerts(zeus::CColor(1.f, colT), verts.data());
 
       if (!m_deathDotQuad)
         m_deathDotQuad.emplace(EFilterType::Multiply, x50_deathDot);
-      m_deathDotQuad->drawVerts(zeus::CColor(1.f, colT), verts);
+      m_deathDotQuad->drawVerts(zeus::CColor(1.f, colT), verts.data());
     }
   }
 }

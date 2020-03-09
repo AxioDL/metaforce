@@ -1688,17 +1688,17 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
 
   if (x2f8_morphBallState == EPlayerMorphBallState::Unmorphed && x4a0_failsafeTest->Passes()) {
     auto* prim = static_cast<const CCollidableAABox*>(GetCollisionPrimitive());
-    zeus::CAABox tmpAABB(prim->GetBox().min - 0.2f, prim->GetBox().max + 0.2f);
-    CCollidableAABox tmpBox(tmpAABB, prim->GetMaterial());
+    const zeus::CAABox tmpAABB(prim->GetBox().min - 0.2f, prim->GetBox().max + 0.2f);
+    const CCollidableAABox tmpBox(tmpAABB, prim->GetMaterial());
     CPhysicsActor::Stop();
-    zeus::CAABox testBounds = prim->GetBox().getTransformedAABox(x34_transform);
-    zeus::CAABox expandedBounds(testBounds.min - 3.f, testBounds.max + 3.f);
+    const zeus::CAABox testBounds = prim->GetBox().getTransformedAABox(x34_transform);
+    const zeus::CAABox expandedBounds(testBounds.min - 3.f, testBounds.max + 3.f);
     CAreaCollisionCache cache(expandedBounds);
     CGameCollision::BuildAreaCollisionCache(mgr, cache);
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     mgr.BuildColliderList(nearList, *this, expandedBounds);
-    std::optional<zeus::CVector3f> nonIntVec =
-        CGameCollision::FindNonIntersectingVector(mgr, cache, *this, *prim, nearList);
+    const std::optional<zeus::CVector3f> nonIntVec =
+        CGameCollision::FindNonIntersectingVector(mgr, cache, *this, tmpBox, nearList);
     if (nonIntVec) {
       x4a0_failsafeTest->Reset();
       SetTranslation(GetTranslation() + *nonIntVec);

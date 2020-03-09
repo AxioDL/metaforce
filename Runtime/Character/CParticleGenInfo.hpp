@@ -106,6 +106,6 @@ public:
   TUniqueId GetLightId() const override;
   void DeleteLight(CStateManager& mgr) override;
   void SetModulationColor(const zeus::CColor& color) override;
-  const std::shared_ptr<CParticleGen> GetParticleSystem() const { return x84_system; }
+  const std::shared_ptr<CParticleGen>& GetParticleSystem() const { return x84_system; }
 };
 } // namespace urde

@@ -1,5 +1,7 @@
 #include "Runtime/MP1/World/CThardus.hpp"
 
+#include <array>
+
 #include "Runtime/Camera/CCameraManager.hpp"
 #include "Runtime/Camera/CFirstPersonCamera.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
@@ -21,9 +23,8 @@
 
 #include <DataSpec/DNAMP1/SFX/IceWorld.h>
 namespace urde::MP1 {
-
 namespace {
-constexpr SSphereJointInfo skDamageableSphereJointInfoList1[7] = {
+constexpr std::array<SSphereJointInfo, 7> skDamageableSphereJointInfoList1{{
     {"R_Knee", 1.f},
     {"R_Elbow_Collision_LCTR", 1.5f},
     {"L_Elbow_Collision_LCTR", 1.5f},
@@ -31,19 +32,22 @@ constexpr SSphereJointInfo skDamageableSphereJointInfoList1[7] = {
     {"R_Back_Rock_Collision_LCTR", 2.5f},
     {"L_Back_Rock_Collision_LCTR", 1.5f},
     {"Head_Collision_LCTR", 1.5f},
-};
+}};
 
-constexpr SSphereJointInfo skDamageableSphereJointInfoList2[5] = {
-    {"R_Shoulder_Collision_LCTR", 0.75f}, {"L_Shoulder_Collision_LCTR", 0.75f}, {"Spine_Collision_LCTR", 0.75f},
-    {"R_Hand_Collision_LCTR", 2.25f},     {"L_Hand_Collision_LCTR", 2.f},
-};
+constexpr std::array<SSphereJointInfo, 5> skDamageableSphereJointInfoList2{{
+    {"R_Shoulder_Collision_LCTR", 0.75f},
+    {"L_Shoulder_Collision_LCTR", 0.75f},
+    {"Spine_Collision_LCTR", 0.75f},
+    {"R_Hand_Collision_LCTR", 2.25f},
+    {"L_Hand_Collision_LCTR", 2.f},
+}};
 
-constexpr SAABoxJointInfo skFootCollision[2] = {
+constexpr std::array<SAABoxJointInfo, 2> skFootCollision{{
     {"R_Foot_Collision_LCTR", zeus::CVector3f(3.f, 3.f, 1.f)},
     {"L_Foot_Collision_LCTR", zeus::CVector3f(3.f, 2.f, 3.f)},
-};
+}};
 
-constexpr std::array<std::string_view, 7> skSearchJointNames = {
+constexpr std::array skSearchJointNames{
     "R_Knee"sv,
     "R_Elbow_Collision_LCTR"sv,
     "L_Elbow_Collision_LCTR"sv,
@@ -53,13 +57,14 @@ constexpr std::array<std::string_view, 7> skSearchJointNames = {
     "Head_Collision_LCTR"sv,
 };
 
-constexpr std::array<std::string_view, 7> skRockJoints = {
+constexpr std::array skRockJoints{
     "R_knee"sv, "R_forearm"sv, "L_elbow"sv, "L_hip"sv, "R_collar_BigRock_SDK"sv, "collar_rock4_SDK"sv, "Neck_1"sv,
 };
-} // namespace
+} // Anonymous namespace
+
 CThardus::CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                    CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
-                   const std::vector<CStaticRes>& mData1, const std::vector<CStaticRes>& mData2, CAssetId particle1,
+                   std::vector<CStaticRes> mData1, std::vector<CStaticRes> mData2, CAssetId particle1,
                    CAssetId particle2, CAssetId particle3, float f1, float f2, float f3, float f4, float f5, float f6,
                    CAssetId stateMachine, CAssetId particle4, CAssetId particle5, CAssetId particle6,
                    CAssetId particle7, CAssetId particle8, CAssetId particle9, CAssetId texture, u32 sfxId1,
@@ -797,7 +802,7 @@ void CThardus::GatherWaypoints(urde::CScriptWaypoint* wp, urde::CStateManager& m
   }
 }
 
-void CThardus::_BuildSphereJointList(const SSphereJointInfo* arr, int count,
+void CThardus::_BuildSphereJointList(const SSphereJointInfo* arr, size_t count,
                                      std::vector<CJointCollisionDescription>& list) {
   for (size_t i = 0; i < count; ++i) {
     const auto& jInfo = arr[i];
@@ -806,7 +811,7 @@ void CThardus::_BuildSphereJointList(const SSphereJointInfo* arr, int count,
   }
 }
 
-void CThardus::_BuildAABoxJointList(const SAABoxJointInfo* arr, int count,
+void CThardus::_BuildAABoxJointList(const SAABoxJointInfo* arr, size_t count,
                                     std::vector<CJointCollisionDescription>& list) {
   for (size_t i = 0; i < count; ++i) {
     const auto& jInfo = arr[i];
@@ -835,16 +840,16 @@ void CThardus::_SetupCollisionActorMaterials(const std::unique_ptr<CCollisionAct
 
 void CThardus::_SetupCollisionManagers(CStateManager& mgr) {
   std::vector<CJointCollisionDescription> list;
-  _BuildSphereJointList(skDamageableSphereJointInfoList1, 7, list);
-  x5f0_rockColliders.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), list, true));
+  _BuildSphereJointList(skDamageableSphereJointInfoList1.data(), skDamageableSphereJointInfoList1.size(), list);
+  x5f0_rockColliders = std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), list, true);
   _SetupCollisionActorMaterials(x5f0_rockColliders, mgr);
   list.clear();
-  _BuildSphereJointList(skDamageableSphereJointInfoList2, 5, list);
-  x5f4_.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), list, true));
+  _BuildSphereJointList(skDamageableSphereJointInfoList2.data(), skDamageableSphereJointInfoList2.size(), list);
+  x5f4_ = std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), list, true);
   _SetupCollisionActorMaterials(x5f4_, mgr);
   list.clear();
-  _BuildAABoxJointList(skFootCollision, 2, list);
-  x5f8_.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), list, true));
+  _BuildAABoxJointList(skFootCollision.data(), skFootCollision.size(), list);
+  x5f8_ = std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), list, true);
   _SetupCollisionActorMaterials(x5f8_, mgr);
   list.clear();
   x634_nonDestroyableActors.reserve(x5f4_->GetNumCollisionActors() + x5f0_rockColliders->GetNumCollisionActors() +

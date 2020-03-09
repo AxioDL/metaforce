@@ -46,13 +46,13 @@ void CVisorFlare::Update(float dt, const zeus::CVector3f& pos, const CActor* act
     zeus::CVector3f camPos = mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation();
     zeus::CVector3f camDiff = pos - camPos;
     const float mag = (camDiff.magnitude());
-    rstl::reserved_vector<TUniqueId, 1024> near;
-    mgr.BuildNearList(near, camPos, camDiff * (1.f / mag), mag,
+    rstl::reserved_vector<TUniqueId, 1024> nearVec;
+    mgr.BuildNearList(nearVec, camPos, camDiff * (1.f / mag), mag,
                       CMaterialFilter::MakeInclude({EMaterialTypes::Occluder}), act);
     TUniqueId id;
     CRayCastResult result = mgr.RayWorldIntersection(
         id, camPos, camDiff, mag,
-        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::SeeThrough}), near);
+        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::SeeThrough}), nearVec);
 
     if (result.IsValid()) {
       x28_ -= mag;

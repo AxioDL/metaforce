@@ -21,7 +21,7 @@ class ShaderTag;
 namespace urde {
 class CLight;
 
-enum EExtendedShader : uint8_t {
+enum class EExtendedShader : uint8_t {
   Flat,
   Lighting,
   Thermal,
@@ -96,7 +96,7 @@ public:
   static void Initialize();
   static void Shutdown();
 
-  using ShaderPipelinesData = std::array<boo::ObjToken<boo::IShaderPipeline>, EExtendedShader::MAX>;
+  using ShaderPipelinesData = std::array<boo::ObjToken<boo::IShaderPipeline>, size_t(EExtendedShader::MAX)>;
   using ShaderPipelines = std::shared_ptr<ShaderPipelinesData>;
 
   using Material = DataSpec::DNAMP1::HMDLMaterialSet::Material;
