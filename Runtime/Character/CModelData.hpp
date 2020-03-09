@@ -148,16 +148,16 @@ public:
   const zeus::CVector3f& GetScale() const { return x0_scale; }
   void SetScale(const zeus::CVector3f& scale) { x0_scale = scale; }
   bool HasAnimData() const { return x10_animData != nullptr; }
-  bool HasNormalModel() const { return bool(x1c_normalModel); }
+  bool HasNormalModel() const { return x1c_normalModel.HasReference(); }
   bool HasModel(EWhichModel which) const {
     if (x10_animData) {
       switch (which) {
       case EWhichModel::Normal:
         return true;
       case EWhichModel::XRay:
-        return x10_animData->GetXRayModel().operator bool();
+        return x10_animData->GetXRayModel() != nullptr;
       case EWhichModel::Thermal:
-        return x10_animData->GetInfraModel().operator bool();
+        return x10_animData->GetInfraModel() != nullptr;
       default:
         return false;
       }
@@ -165,11 +165,11 @@ public:
 
     switch (which) {
     case EWhichModel::Normal:
-      return bool(x1c_normalModel);
+      return x1c_normalModel.HasReference();
     case EWhichModel::XRay:
-      return bool(x2c_xrayModel);
+      return x2c_xrayModel.HasReference();
     case EWhichModel::Thermal:
-      return bool(x3c_infraModel);
+      return x3c_infraModel.HasReference();
     default:
       return false;
     }

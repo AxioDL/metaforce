@@ -75,7 +75,7 @@ public:
   CCharAnimTime GetAnimationDuration() const { return MainHeader().duration; }
   float GetAverageVelocity() const { return x10_averageVelocity; }
   const zeus::CVector3f& GetRootOffset() const { return x14_rootOffset; }
-  bool HasPOIData() const { return bool(x8_evntToken); }
+  bool HasPOIData() const { return x8_evntToken.HasReference(); }
   const std::vector<CBoolPOINode>& GetBoolPOIStream() const { return x8_evntToken->GetBoolPOIStream(); }
   const std::vector<CInt32POINode>& GetInt32POIStream() const { return x8_evntToken->GetInt32POIStream(); }
   const std::vector<CParticlePOINode>& GetParticlePOIStream() const { return x8_evntToken->GetParticlePOIStream(); }

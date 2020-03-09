@@ -74,7 +74,9 @@ class CToken {
 
 public:
   /* Added to test for non-null state */
-  explicit operator bool() const { return x0_objRef != nullptr; }
+  explicit operator bool() const { return HasReference(); }
+  bool HasReference() const { return x0_objRef != nullptr; }
+
   void Unlock();
   void Lock();
   bool IsLocked() const { return x4_lockHeld; }
