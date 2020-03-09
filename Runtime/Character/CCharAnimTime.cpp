@@ -1,5 +1,6 @@
 #include "Runtime/Character/CCharAnimTime.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 namespace urde {
