@@ -37,30 +37,31 @@ CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::u
                                                    CObjectReference* selfRef) {
   std::unique_ptr<u8[]> localBuf = std::move(buf);
 
-  auto search = m_memFactories.find(tag.type);
-  if (search != m_memFactories.cend()) {
+  const auto memFactoryIter = m_memFactories.find(tag.type);
+  if (memFactoryIter != m_memFactories.cend()) {
     if (compressed) {
       std::unique_ptr<CInputStream> compRead = std::make_unique<athena::io::MemoryReader>(localBuf.get(), size);
-      u32 decompLen = compRead->readUint32Big();
+      const u32 decompLen = compRead->readUint32Big();
       CZipInputStream r(std::move(compRead));
       std::unique_ptr<u8[]> decompBuf = r.readUBytes(decompLen);
-      return search->second(tag, std::move(decompBuf), decompLen, paramXfer, selfRef);
+      return memFactoryIter->second(tag, std::move(decompBuf), decompLen, paramXfer, selfRef);
     } else {
-      return search->second(tag, std::move(localBuf), size, paramXfer, selfRef);
+      return memFactoryIter->second(tag, std::move(localBuf), size, paramXfer, selfRef);
     }
   } else {
-    auto search = m_factories.find(tag.type);
-    if (search == m_factories.end())
+    const auto factoryIter = m_factories.find(tag.type);
+    if (factoryIter == m_factories.end()) {
       return {};
+    }
 
     if (compressed) {
       std::unique_ptr<CInputStream> compRead = std::make_unique<athena::io::MemoryReader>(localBuf.get(), size);
       compRead->readUint32Big();
       CZipInputStream r(std::move(compRead));
-      return search->second(tag, r, paramXfer, selfRef);
+      return factoryIter->second(tag, r, paramXfer, selfRef);
     } else {
       CMemoryInStream r(localBuf.get(), size);
-      return search->second(tag, r, paramXfer, selfRef);
+      return factoryIter->second(tag, r, paramXfer, selfRef);
     }
   }
 }
