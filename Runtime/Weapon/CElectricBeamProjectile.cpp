@@ -42,8 +42,8 @@ void CElectricBeamProjectile::PreRender(CStateManager&, const zeus::CFrustum&) {
   if (!GetActive())
     return;
 
-  g_Renderer->AddParticleGen(*x478_elementGen.get());
-  g_Renderer->AddParticleGen(*x468_electric.get());
+  g_Renderer->AddParticleGen(*x478_elementGen);
+  g_Renderer->AddParticleGen(*x468_electric);
 }
 
 void CElectricBeamProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr) {
