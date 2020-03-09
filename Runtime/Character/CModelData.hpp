@@ -148,7 +148,7 @@ public:
   const zeus::CVector3f& GetScale() const { return x0_scale; }
   void SetScale(const zeus::CVector3f& scale) { x0_scale = scale; }
   bool HasAnimData() const { return x10_animData != nullptr; }
-  bool HasNormalModel() const { return x1c_normalModel; }
+  bool HasNormalModel() const { return bool(x1c_normalModel); }
   bool HasModel(EWhichModel which) const {
     if (x10_animData) {
       switch (which) {
@@ -165,11 +165,11 @@ public:
 
     switch (which) {
     case EWhichModel::Normal:
-      return x1c_normalModel;
+      return bool(x1c_normalModel);
     case EWhichModel::XRay:
-      return x2c_xrayModel;
+      return bool(x2c_xrayModel);
     case EWhichModel::Thermal:
-      return x3c_infraModel;
+      return bool(x3c_infraModel);
     default:
       return false;
     }

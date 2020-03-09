@@ -10,7 +10,7 @@ namespace urde {
 
 CAnimSourceInfo::CAnimSourceInfo(const TSubAnimTypeToken<CAnimSource>& token) : x4_token(token) {}
 
-bool CAnimSourceInfo::HasPOIData() const { return x4_token->x58_evntData; }
+bool CAnimSourceInfo::HasPOIData() const { return bool(x4_token->x58_evntData); }
 
 const std::vector<CBoolPOINode>& CAnimSourceInfo::GetBoolPOIStream() const { return x4_token->GetBoolPOIStream(); }
 
