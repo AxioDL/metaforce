@@ -1208,16 +1208,17 @@ void CPlayerGun::DoUserAnimEvent(float dt, CStateManager& mgr, const CInt32POINo
 void CPlayerGun::DoUserAnimEvents(float dt, CStateManager& mgr) {
   zeus::CVector3f posToCam = mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation() - x3e8_xf.origin;
   const CAnimData& animData = *x72c_currentBeam->GetSolidModelData().GetAnimationData();
-  for (int i = 0; i < animData.GetPassedSoundPOICount(); ++i) {
+  for (size_t i = 0; i < animData.GetPassedSoundPOICount(); ++i) {
     const CSoundPOINode& node = CAnimData::g_SoundPOINodes[i];
     if (node.GetPoiType() != EPOIType::Sound ||
-        (node.GetCharacterIndex() != -1 && animData.x204_charIdx != node.GetCharacterIndex()))
+        (node.GetCharacterIndex() != -1 && animData.x204_charIdx != node.GetCharacterIndex())) {
       continue;
+    }
     NWeaponTypes::do_sound_event(x670_animSfx, x328_animSfxPitch, false, node.GetSfxId(), node.GetWeight(),
                                  node.GetFlags(), node.GetFalloff(), node.GetMaxDist(), 0.16f, 1.f, posToCam,
                                  x3e8_xf.origin, mgr.GetPlayer().GetAreaIdAlways(), mgr);
   }
-  for (int i = 0; i < animData.GetPassedIntPOICount(); ++i) {
+  for (size_t i = 0; i < animData.GetPassedIntPOICount(); ++i) {
     const CInt32POINode& node = CAnimData::g_Int32POINodes[i];
     switch (node.GetPoiType()) {
     case EPOIType::UserEvent:
@@ -1568,15 +1569,20 @@ void CPlayerGun::AsyncLoadFidget(CStateManager& mgr) {
 }
 
 bool CPlayerGun::IsFidgetLoaded() const {
-  int loadFlags = 0;
-  if ((x2fc_fidgetAnimBits & 0x1) == 0x1 && x73c_gunMotion->GunController().IsFidgetLoaded())
+  u32 loadFlags = 0;
+  if ((x2fc_fidgetAnimBits & 0x1) == 0x1 && x73c_gunMotion->GunController().IsFidgetLoaded()) {
     loadFlags |= 0x1;
-  if ((x2fc_fidgetAnimBits & 0x2) == 0x2 && x72c_currentBeam->IsFidgetLoaded())
+  }
+  if ((x2fc_fidgetAnimBits & 0x2) == 0x2 && x72c_currentBeam->IsFidgetLoaded()) {
     loadFlags |= 0x2;
-  if ((x2fc_fidgetAnimBits & 0x4) == 0x4)
-    if (CGunController* gc = x740_grappleArm->GunController())
-      if (gc->IsFidgetLoaded())
+  }
+  if ((x2fc_fidgetAnimBits & 0x4) == 0x4) {
+    if (CGunController* gc = x740_grappleArm->GunController()) {
+      if (gc->IsFidgetLoaded()) {
         loadFlags |= 0x4;
+      }
+    }
+  }
   return x2fc_fidgetAnimBits == loadFlags;
 }
 
