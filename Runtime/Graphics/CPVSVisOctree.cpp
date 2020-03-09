@@ -1,25 +1,32 @@
 #include "Runtime/Graphics/CPVSVisOctree.hpp"
 
+#include <array>
+
 namespace urde {
 
 CPVSVisOctree CPVSVisOctree::MakePVSVisOctree(const u8* data) {
   CMemoryInStream r(data, 68);
-  zeus::CAABox aabb = aabb.ReadBoundingBoxBig(r);
-  u32 numObjects = r.readUint32Big();
-  u32 numLights = r.readUint32Big();
+  const zeus::CAABox aabb = zeus::CAABox::ReadBoundingBoxBig(r);
+  const u32 numObjects = r.readUint32Big();
+  const u32 numLights = r.readUint32Big();
   r.readUint32Big();
   return CPVSVisOctree(aabb, numObjects, numLights, data + r.position());
 }
 
 CPVSVisOctree::CPVSVisOctree(const zeus::CAABox& aabb, u32 numObjects, u32 numLights, const u8* c)
-: x0_aabb(aabb), x18_numObjects(numObjects), x1c_numLights(numLights), x20_bufferFlag(c != nullptr), x24_octreeData(c) {
-  x2c_searchAabb = x0_aabb;
-  x20_bufferFlag = 0;
+: x0_aabb(aabb)
+, x18_numObjects(numObjects)
+, x1c_numLights(numLights)
+, x20_bufferFlag(c != nullptr)
+, x24_octreeData(c)
+, x2c_searchAabb(x0_aabb) {
+  x20_bufferFlag = false;
 }
 
-static const u32 NumChildTable[] = {0, 2, 2, 4, 2, 4, 4, 8};
-
-u32 CPVSVisOctree::GetNumChildren(u8 byte) const { return NumChildTable[byte & 0x7]; }
+u32 CPVSVisOctree::GetNumChildren(u8 byte) const {
+  static constexpr std::array<u32, 8> numChildTable{0, 2, 2, 4, 2, 4, 4, 8};
+  return numChildTable[byte & 0x7];
+}
 
 u32 CPVSVisOctree::GetChildIndex(const u8*, const zeus::CVector3f&) const { return 0; }
 
@@ -29,7 +36,7 @@ s32 CPVSVisOctree::IterateSearch(u8 nodeData, const zeus::CVector3f& tp) const {
 
   zeus::CVector3f newMin = x2c_searchAabb.center();
   zeus::CVector3f newMax;
-  bool highFlags[3];
+  std::array<bool, 3> highFlags{};
 
   if (tp.x() > newMin.x()) {
     newMax.x() = x2c_searchAabb.max.x();
@@ -58,7 +65,7 @@ s32 CPVSVisOctree::IterateSearch(u8 nodeData, const zeus::CVector3f& tp) const {
     highFlags[2] = false;
   }
 
-  u8 axisCounts[2] = {1, 1};
+  std::array<u8, 2> axisCounts{1, 1};
   if (nodeData & 0x1)
     axisCounts[0] = 2;
   if (nodeData & 0x2)
