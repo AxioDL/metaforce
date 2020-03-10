@@ -225,10 +225,9 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
   x490_gun = std::make_unique<CPlayerGun>(uid);
   x49c_gunHolsterRemTime = g_tweakPlayerGun->GetGunNotFiringTime();
   x4a0_failsafeTest = std::make_unique<CFailsafeTest>();
-  x76c_cameraBob.reset(
-      new CPlayerCameraBob(CPlayerCameraBob::ECameraBobType::One,
-                           zeus::CVector2f{CPlayerCameraBob::kCameraBobExtentX, CPlayerCameraBob::kCameraBobExtentY},
-                           CPlayerCameraBob::kCameraBobPeriod));
+  x76c_cameraBob.reset(new CPlayerCameraBob(CPlayerCameraBob::ECameraBobType::One,
+                                            CPlayerCameraBob::GetCameraBobExtent(),
+                                            CPlayerCameraBob::GetCameraBobPeriod()));
   x9c4_26_ = true;
   x9c4_27_canEnterMorphBall = true;
   x9c4_28_canLeaveMorphBall = true;
@@ -722,8 +721,8 @@ float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr) {
     const float strafeDist =
         skStrafeDistances[size_t(x2b0_outOfWaterTicks == 2 ? x2ac_surfaceRestraint : ESurfaceRestraints::Water)];
     bobMag = std::min(std::sqrt(f30 * f30 + f29 * f29) / std::sqrt(strafeDist * strafeDist + maxVel * maxVel) *
-                          CPlayerCameraBob::kOrbitBobScale,
-                      CPlayerCameraBob::kMaxOrbitBobScale);
+                          CPlayerCameraBob::GetOrbitBobScale(),
+                      CPlayerCameraBob::GetMaxOrbitBobScale());
     if (bobMag < 0.01f)
       bobMag = 0.f;
   }
@@ -770,8 +769,8 @@ float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr) {
   x76c_cameraBob->SetPlayerVelocity(backupVel);
   x76c_cameraBob->SetState(state, mgr);
   x76c_cameraBob->SetBobMagnitude(bobMag);
-  x76c_cameraBob->SetBobTimeScale((1.f - CPlayerCameraBob::kSlowSpeedPeriodScale) * bobMag +
-                                  CPlayerCameraBob::kSlowSpeedPeriodScale);
+  x76c_cameraBob->SetBobTimeScale((1.f - CPlayerCameraBob::GetSlowSpeedPeriodScale()) * bobMag +
+                                  CPlayerCameraBob::GetSlowSpeedPeriodScale());
   x76c_cameraBob->Update(dt, mgr);
 
   return bobMag;
@@ -799,9 +798,9 @@ void CPlayer::PostUpdate(float dt, CStateManager& mgr) {
 
   float cameraBobT = 0.f;
   if (mgr.GetCameraManager()->IsInCinematicCamera()) {
-    const zeus::CVector2f bobExtent(CPlayerCameraBob::kCameraBobExtentX, CPlayerCameraBob::kCameraBobExtentY);
-    x76c_cameraBob = std::make_unique<CPlayerCameraBob>(CPlayerCameraBob::ECameraBobType::One, bobExtent,
-                                                        CPlayerCameraBob::kCameraBobPeriod);
+    x76c_cameraBob = std::make_unique<CPlayerCameraBob>(CPlayerCameraBob::ECameraBobType::One,
+                                                        CPlayerCameraBob::GetCameraBobExtent(),
+                                                        CPlayerCameraBob::GetCameraBobPeriod());
   } else {
     cameraBobT = UpdateCameraBob(dt, mgr);
   }

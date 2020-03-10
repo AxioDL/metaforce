@@ -27,6 +27,13 @@ public:
     Unspecified
   };
 
+  static zeus::CVector2f GetCameraBobExtent() { return {kCameraBobExtentX, kCameraBobExtentY}; }
+  static float GetCameraBobPeriod() { return kCameraBobPeriod; }
+  static float GetOrbitBobScale() { return kOrbitBobScale; }
+  static float GetMaxOrbitBobScale() { return kMaxOrbitBobScale; }
+  static float GetSlowSpeedPeriodScale() { return kSlowSpeedPeriodScale; }
+
+private:
   static float kCameraBobExtentX;
   static float kCameraBobExtentY;
   static float kCameraBobPeriod;
@@ -46,7 +53,6 @@ public:
   static const float kLandingBobDamping2;
   static const float kCameraDamping;
 
-private:
   ECameraBobType x0_type;
   zeus::CVector2f x4_vec;
   float xc_bobPeriod;
