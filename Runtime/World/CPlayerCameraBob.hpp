@@ -65,8 +65,8 @@ private:
   float x70_landingTranslation = 0.f;
   float x74_camVelocity = 0.f;
   float x78_camTranslation = 0.f;
-  zeus::CVector3f x7c_wanderPoints[4];
-  float xb0_wanderPitches[4] = {};
+  std::array<zeus::CVector3f, 4> x7c_wanderPoints;
+  std::array<float, 4> xb0_wanderPitches{};
   float xc4_wanderTime = 0.f;
   float xc8_viewWanderSpeed = kViewWanderSpeedMin;
   u32 xcc_wanderIndex = 0;
