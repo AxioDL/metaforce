@@ -10,7 +10,7 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
-enum class EBehaveType { Lurk, Taunt, Attack, Move, Four };
+enum class EBehaveType { Lurk, Taunt, Attack, Move, None };
 
 class CChozoGhost : public CPatterned {
 public:
@@ -49,8 +49,8 @@ private:
   CBehaveChance x608_;
   s16 x628_soundImpact;
   float x62c_;
-  s16 x630_;
-  s16 x632_;
+  s16 x630_sfxFadeIn;
+  s16 x632_sfxFadeOut;
   float x634_;
   float x638_hurlRecoverTime;
   u32 x63c_;
@@ -60,17 +60,17 @@ private:
   float x658_;
   u32 x65c_nearChance;
   u32 x660_midChance;
-  bool x664_24_ : 1;
+  bool x664_24_behaviorEnabled : 1;
   bool x664_25_flinch : 1;
-  bool x664_26_ : 1;
+  bool x664_26_alert : 1;
   bool x664_27_onGround : 1;
   bool x664_28_ : 1;
-  bool x664_29_ : 1;
-  bool x664_30_ : 1;
+  bool x664_29_fadedIn : 1;
+  bool x664_30_fadedOut : 1;
   bool x664_31_ : 1;
   bool x665_24_ : 1;
   bool x665_25_ : 1;
-  bool x665_26_ : 1;
+  bool x665_26_shouldSwoosh : 1;
   bool x665_27_playerInLeashRange : 1;
   bool x665_28_inRange : 1;
   bool x665_29_aggressive : 1;
@@ -78,23 +78,23 @@ private:
   float x66c_ = 0.f;
   float x670_ = 0.f;
   TUniqueId x674_coverPoint = kInvalidUniqueId;
-  float x678_ = 0.f;
-  u32 x67c_ = -1;
+  float x678_floorLevel = 0.f;
+  u32 x67c_attackType = -1;
   EBehaveType x680_behaveType = EBehaveType::Lurk;
   float x684_lurkDelay = 1.f;
   CSteeringBehaviors x688_;
   CBoneTracking x68c_boneTracking;
   TUniqueId x6c4_teamMgr = kInvalidUniqueId;
-  float x6c8_ = 0.f;
-  zeus::CVector3f x6cc_;
+  float x6c8_spaceWarpTime = 0.f;
+  zeus::CVector3f x6cc_spaceWarpPosition;
   u32 x6d8_ = 1;
 
   void AddToTeam(CStateManager& mgr);
   void RemoveFromTeam(CStateManager& mgr);
-  void FloatToLevel(float f1, float f2);
+  void FloatToLevel(float f1, float dt);
   const CBehaveChance& ChooseBehaveChanceRange(CStateManager& mgr);
   bool IsVisibleEnough(const CStateManager& mgr) const { return GetModelAlphau8(mgr) > 31; }
-  void FindNearestSolid(CStateManager& mgr, const zeus::CVector3f& dir);
+  void FindSpaceWarpPosition(CStateManager& mgr, const zeus::CVector3f& dir);
   void FindBestAnchor(CStateManager& mgr);
 
 public:
@@ -124,18 +124,18 @@ public:
   }
   void Dead(CStateManager& mgr, EStateMsg msg, float arg) override;
   void SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) override;
-  void Run(CStateManager& mgr, EStateMsg msg, float arg) override;
-  void Generate(CStateManager& mgr, EStateMsg msg, float arg) override;
+  void Run(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void Generate(CStateManager& mgr, EStateMsg msg, float dt) override;
   void Deactivate(CStateManager& mgr, EStateMsg msg, float arg) override;
-  void Attack(CStateManager& mgr, EStateMsg msg, float arg) override;
+  void Attack(CStateManager& mgr, EStateMsg msg, float dt) override;
   void Shuffle(CStateManager& mgr, EStateMsg msg, float arg) override;
   void InActive(CStateManager& mgr, EStateMsg msg, float arg) override;
-  void Taunt(CStateManager& mgr, EStateMsg msg, float arg) override;
+  void Taunt(CStateManager& mgr, EStateMsg msg, float dt) override;
   void Hurled(CStateManager& mgr, EStateMsg msg, float arg) override;
   void WallDetach(CStateManager& mgr, EStateMsg msg, float arg) override;
-  void Growth(CStateManager& mgr, EStateMsg msg, float arg) override;
-  void Land(CStateManager& mgr, EStateMsg msg, float arg) override;
-  void Lurk(CStateManager& mgr, EStateMsg msg, float arg) override;
+  void Growth(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void Land(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void Lurk(CStateManager& mgr, EStateMsg msg, float dt) override;
   bool Leash(CStateManager& mgr, float arg) override;
   bool InRange(CStateManager& mgr, float arg) override;
   bool ShouldAttack(CStateManager& mgr, float arg) override;
