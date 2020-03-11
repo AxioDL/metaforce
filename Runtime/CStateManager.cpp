@@ -970,6 +970,14 @@ void CStateManager::DrawWorldCubeFaces() const {
   }
 }
 
+void CStateManager::SetupFogForArea3XRange(TAreaId area) const {
+  if (area == kInvalidAreaId)
+    area = x8cc_nextAreaId;
+  const CGameArea* areaObj = x850_world->GetAreaAlways(area);
+  if (areaObj->IsPostConstructed())
+    SetupFogForArea3XRange(*areaObj);
+}
+
 void CStateManager::SetupFogForArea(TAreaId area) const {
   if (area == kInvalidAreaId)
     area = x8cc_nextAreaId;
@@ -984,6 +992,15 @@ void CStateManager::SetupFogForAreaNonCurrent(TAreaId area) const {
   const CGameArea* areaObj = x850_world->GetAreaAlways(area);
   if (areaObj->IsPostConstructed())
     SetupFogForAreaNonCurrent(*areaObj);
+}
+
+void CStateManager::SetupFogForArea3XRange(const CGameArea& area) const {
+  if (x8b8_playerState->GetActiveVisor(*this) == CPlayerState::EPlayerVisor::XRay) {
+    float fogDist = area.GetXRayFogDistance();
+    float farz = (g_tweakGui->GetXRayFogNearZ() * (1.f - fogDist) + g_tweakGui->GetXRayFogFarZ() * fogDist) * 3.f;
+    g_Renderer->SetWorldFog(ERglFogMode(g_tweakGui->GetXRayFogMode()), g_tweakGui->GetXRayFogNearZ(), farz,
+                            g_tweakGui->GetXRayFogColor());
+  }
 }
 
 void CStateManager::SetupFogForArea(const CGameArea& area) const {
@@ -1180,7 +1197,7 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
 }
 
 void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest, EScriptObjectMessage msg, EScriptObjectState state) {
-  //CEntity* ent = GetObjectById(src);
+  // CEntity* ent = GetObjectById(src);
   auto search = GetIdListForScript(dest);
   if (search.first != x890_scriptIdMap.cend()) {
     for (auto it = search.first; it != search.second; ++it) {

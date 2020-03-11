@@ -27,7 +27,7 @@ public:
   bool CallFunc(CStateManager& mgr, CAi& ai) const {
     if (x0_func) {
       bool ret = (ai.*x0_func)(mgr, xc_arg);
-      return x18_lNot ? !ret : ret;
+      return x18_lNot == !ret;
     }
     return true;
   }

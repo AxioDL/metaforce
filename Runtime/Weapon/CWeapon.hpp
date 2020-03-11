@@ -30,6 +30,7 @@ public:
   void Accept(IVisitor& visitor) override;
   bool HasAttrib(EProjectileAttrib attrib) const { return (int(xe8_projectileAttribs) & int(attrib)) == int(attrib); }
   EProjectileAttrib GetAttribField() const { return xe8_projectileAttribs; }
+  void AddAttrib(EProjectileAttrib attrib) { xe8_projectileAttribs |= attrib; }
   const CMaterialFilter& GetFilter() const { return xf8_filter; }
   void SetFilter(const CMaterialFilter& filter) { xf8_filter = filter; }
   TUniqueId GetOwnerId() const { return xec_ownerId; }
@@ -39,7 +40,9 @@ public:
   CDamageInfo& DamageInfo() { return x12c_curDamageInfo; }
   void SetDamageInfo(const CDamageInfo& dInfo) { x12c_curDamageInfo = dInfo; }
   float GetDamageDuration() const { return x150_damageDuration; }
+  void SetDamageDuration(float dur) { x150_damageDuration = dur; }
   float GetInterferenceDuration() const { return x154_interferenceDuration; }
+  void SetInterferenceDuration(float dur) { x154_interferenceDuration = dur; }
 
   void Think(float, CStateManager&) override;
   void Render(const CStateManager&) const override;
