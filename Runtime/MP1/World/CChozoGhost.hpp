@@ -10,14 +10,14 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
-enum class EBehaveType { Lurk, One, Attack, Move, Four };
+enum class EBehaveType { Lurk, Taunt, Attack, Move, Four };
 
 class CChozoGhost : public CPatterned {
 public:
   class CBehaveChance {
     u32 x0_propertyCount;
     float x4_lurk;
-    float x8_;
+    float x8_taunt;
     float xc_attack;
     float x10_move;
     float x14_lurkTime;
@@ -29,7 +29,7 @@ public:
 
     EBehaveType GetBehave(EBehaveType type, CStateManager& mgr) const;
     float GetLurk() const { return x4_lurk; }
-    float GetX8() const { return x8_; }
+    float GetTaunt() const { return x8_taunt; }
     float GetAttack() const { return xc_attack; }
     float GetMove() const { return x10_move; }
     float GetLurkTime() const { return x14_lurkTime; }
@@ -138,7 +138,7 @@ public:
   void Lurk(CStateManager& mgr, EStateMsg msg, float arg) override;
   bool Leash(CStateManager& mgr, float arg) override;
   bool InRange(CStateManager& mgr, float arg) override;
-  bool InPosition(CStateManager& mgr, float arg) override;
+  bool ShouldAttack(CStateManager& mgr, float arg) override;
   bool AggressionCheck(CStateManager& mgr, float arg) override;
   bool ShouldTaunt(CStateManager& mgr, float arg) override;
   bool ShouldFlinch(CStateManager& mgr, float arg) override;

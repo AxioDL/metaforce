@@ -17,51 +17,51 @@ namespace urde::MP1 {
 CChozoGhost::CBehaveChance::CBehaveChance(CInputStream& in)
 : x0_propertyCount(in.readUint32Big())
 , x4_lurk(in.readFloatBig())
-, x8_(in.readFloatBig())
+, x8_taunt(in.readFloatBig())
 , xc_attack(in.readFloatBig())
 , x10_move(in.readFloatBig())
 , x14_lurkTime(in.readFloatBig())
-, x18_chargeAttack(x0_propertyCount <= 5 ? 0.5f : in.readFloatBig() * .01f)
-, x1c_numBolts(x0_propertyCount <= 6 ? 2 : in.readUint32Big()) {
-  float f2 = 1.f / (x10_move + xc_attack + x4_lurk + x8_);
+, x18_chargeAttack(x0_propertyCount < 6 ? 0.5f : in.readFloatBig() * .01f)
+, x1c_numBolts(x0_propertyCount < 7 ? 2 : in.readUint32Big()) {
+  float f2 = 1.f / (x10_move + xc_attack + x4_lurk + x8_taunt);
   x4_lurk *= f2;
-  x8_ *= f2;
+  x8_taunt *= f2;
   xc_attack *= f2;
   x10_move *= f2;
 }
 
 EBehaveType CChozoGhost::CBehaveChance::GetBehave(EBehaveType type, CStateManager& mgr) const {
-  float dVar5 = x4_lurk;
-  float dVar4 = x8_;
-  float dVar3 = xc_attack;
+  float lurkChance = x4_lurk;
+  float tauntChance = x8_taunt;
+  float attackChance = xc_attack;
   if (type == EBehaveType::Lurk) {
-    float dVar2 = dVar5 / 3.f;
-    dVar5 = 0.f;
-    dVar4 += dVar2;
-    dVar3 += dVar2;
-  } else if (type == EBehaveType::One) {
-    float dVar2 = dVar4 / 3.f;
-    dVar4 = 0.f;
-    dVar5 += dVar2;
-    dVar3 += dVar2;
+    float delta = lurkChance / 3.f;
+    lurkChance = 0.f;
+    tauntChance += delta;
+    attackChance += delta;
+  } else if (type == EBehaveType::Taunt) {
+    float delta = tauntChance / 3.f;
+    tauntChance = 0.f;
+    lurkChance += delta;
+    attackChance += delta;
   } else if (type == EBehaveType::Attack) {
-    float dVar2 = dVar3 / 3.f;
-    dVar3 = 0.f;
-    dVar5 += dVar2;
-    dVar4 += dVar2;
+    float delta = attackChance / 3.f;
+    attackChance = 0.f;
+    lurkChance += delta;
+    tauntChance += delta;
   } else if (type == EBehaveType::Move) {
-    float dVar2 = x10_move / 3.f;
-    dVar5 += dVar2;
-    dVar4 += dVar2;
-    dVar3 += dVar2;
+    float delta = x10_move / 3.f;
+    lurkChance += delta;
+    tauntChance += delta;
+    attackChance += delta;
   }
 
   float rnd = mgr.GetActiveRandom()->Float();
-  if (dVar5 > rnd)
+  if (lurkChance > rnd)
     return EBehaveType::Lurk;
-  else if (dVar4 > (rnd - dVar5))
-    return EBehaveType::One;
-  else if (dVar3 > (rnd - dVar5) - dVar4)
+  else if (tauntChance > rnd - lurkChance)
+    return EBehaveType::Taunt;
+  else if (attackChance > rnd - lurkChance - tauntChance)
     return EBehaveType::Attack;
   return EBehaveType::Move;
 }
@@ -613,11 +613,11 @@ bool CChozoGhost::Leash(CStateManager& mgr, float arg) {
 
 bool CChozoGhost::InRange(CStateManager& mgr, float arg) { return x665_28_inRange; }
 
-bool CChozoGhost::InPosition(CStateManager& mgr, float arg) { return x680_behaveType == EBehaveType::Attack; }
+bool CChozoGhost::ShouldAttack(CStateManager& mgr, float arg) { return x680_behaveType == EBehaveType::Attack; }
 
 bool CChozoGhost::AggressionCheck(CStateManager& mgr, float arg) { return x665_29_aggressive; }
 
-bool CChozoGhost::ShouldTaunt(CStateManager& mgr, float arg) { return x680_behaveType == EBehaveType::One; }
+bool CChozoGhost::ShouldTaunt(CStateManager& mgr, float arg) { return x680_behaveType == EBehaveType::Taunt; }
 
 bool CChozoGhost::ShouldFlinch(CStateManager& mgr, float arg) { return x664_25_flinch; }
 
