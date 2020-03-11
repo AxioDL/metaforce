@@ -466,7 +466,7 @@ void CPlayer::UpdateMorphBallTransition(float dt, CStateManager& mgr) {
   switch (x2f8_morphBallState) {
   case EPlayerMorphBallState::Unmorphed:
   case EPlayerMorphBallState::Morphed: {
-    CPlayerState::EPlayerSuit suit = mgr.GetPlayerState()->GetCurrentSuit();
+    CPlayerState::EPlayerSuit suit = mgr.GetPlayerState()->GetCurrentSuitRaw();
     if (mgr.GetPlayerState()->IsFusionEnabled())
       suit = CPlayerState::EPlayerSuit(int(suit) + 4);
     if (x7cc_transitionSuit != suit) {

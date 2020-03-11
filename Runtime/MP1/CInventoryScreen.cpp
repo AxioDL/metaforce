@@ -63,7 +63,7 @@ CInventoryScreen::CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame, c
   CPlayerState& playerState = *mgr.GetPlayerState();
   x19c_samusDoll = std::make_unique<CSamusDoll>(
       suitDgrp, ballDgrp,
-      CPlayerState::EPlayerSuit(int(playerState.GetCurrentSuit()) + playerState.IsFusionEnabled() * 4),
+      CPlayerState::EPlayerSuit(int(playerState.GetCurrentSuitRaw()) + (playerState.IsFusionEnabled() * 4)),
       playerState.GetCurrentBeam(), playerState.HasPowerUp(CPlayerState::EItemType::SpiderBall),
       playerState.HasPowerUp(CPlayerState::EItemType::GrappleBeam));
 }
