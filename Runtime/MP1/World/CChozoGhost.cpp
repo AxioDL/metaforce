@@ -660,9 +660,8 @@ void CChozoGhost::RemoveFromTeam(CStateManager& mgr) {
 }
 
 void CChozoGhost::FloatToLevel(float f1, float f2) {
-  zeus::CVector3f pos = GetTranslation();
-  pos.z() = 4.f * (f1 - pos.z()) * f2 + pos.z();
-  SetTranslation(pos);
+  const zeus::CVector3f& pos = GetTranslation();
+  SetTranslation({pos.x(), pos.y(), 4.f * (f1 - pos.z()) * f2 + pos.z()});
 }
 
 const CChozoGhost::CBehaveChance& CChozoGhost::ChooseBehaveChanceRange(CStateManager& mgr) {
@@ -676,31 +675,32 @@ const CChozoGhost::CBehaveChance& CChozoGhost::ChooseBehaveChanceRange(CStateMan
 }
 
 void CChozoGhost::FindNearestSolid(CStateManager& mgr, const zeus::CVector3f& dir) {
-  CRayCastResult res = mgr.RayStaticIntersection(GetBoundingBox().center() + (dir * 8.f), -dir, 8.f,
-                                                 CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+  const zeus::CVector3f& center = GetBoundingBox().center();
+  const CRayCastResult& res =
+      mgr.RayStaticIntersection(center + (dir * 8.f), -dir, 8.f, CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
   if (res.IsInvalid()) {
-    x6cc_ = GetBoundingBox().center() + dir;
-  } else
+    x6cc_ = center + dir;
+  } else {
     x6cc_ = res.GetPoint();
+  }
 }
 
-void CChozoGhost::FindBestAnchor(urde::CStateManager& mgr) {
+void CChozoGhost::FindBestAnchor(CStateManager& mgr) {
   x665_27_playerInLeashRange = false;
   u32 chance = mgr.GetActiveRandom()->Next() % 100;
   chance = chance < x65c_nearChance ? 0 : (chance < (x65c_nearChance + x660_midChance)) + 2;
-  float dVar10 = 10.f;
-  float dVar15 = dVar10 * x658_;
+  float dVar15 = 10.f * x658_;
   float dVar14 = dVar15;
   float dVar13 = dVar15;
   if (chance == 0) {
-    dVar13 = dVar15 * dVar10;
-    dVar15 *= 5.f;
+    dVar13 = dVar15 * 10.f;
+    dVar14 = dVar15 * 5.f;
   } else if (chance == 1) {
     dVar13 = dVar15 * 5.f;
-    dVar15 *= dVar10;
+    dVar15 *= 10.f;
   } else if (chance == 2) {
     dVar14 = dVar15 * 5.f;
-    dVar15 *= dVar10;
+    dVar15 *= 10.f;
   }
 
   float prevDist = FLT_MAX;
@@ -711,29 +711,29 @@ void CChozoGhost::FindBestAnchor(urde::CStateManager& mgr) {
         float fVar17 = (cover->GetTranslation() - GetTranslation()).magnitude();
         if (2.f * x66c_ <= fVar17) {
           float dist = std::max(0.f, x654_ - fVar17);
-          zeus::CVector3f diff = (cover->GetTranslation() - mgr.GetPlayer().GetTranslation());
+          zeus::CVector3f diff = cover->GetTranslation() - mgr.GetPlayer().GetTranslation();
           fVar17 = diff.magnitude();
           if (x2fc_minAttackRange <= fVar17) {
             if (std::fabs(diff.z()) / fVar17 < 0.2f) {
               dist = (20.f * x658_) * ((std::fabs(diff.z()) / fVar17) - 0.2f) + dist;
             }
-            if (x654_ <= dVar10) {
-              if (x658_ <= dVar10) {
+            if (x654_ <= fVar17) {
+              if (x658_ <= fVar17) {
                 dist = (dist + dVar13);
               } else {
                 dist = (dist + dVar14);
                 if (dist < prevDist) {
-                  fVar17 = 1.f / dVar10;
+                  fVar17 = 1.f / fVar17;
                   diff = diff * fVar17;
-                  dist += (10.f * x658_) * (1.f * mgr.GetPlayer().GetTransform().basis[1].dot(diff));
+                  dist += (10.f * x658_) * (1.f - mgr.GetPlayer().GetTransform().basis[1].dot(diff));
                 }
               }
             } else {
               dist += dVar15;
               if (dist < prevDist) {
-                fVar17 = 1.f / dVar10;
+                fVar17 = 1.f / fVar17;
                 diff = diff * fVar17;
-                dist += (10.f * x658_) * (1.f * mgr.GetPlayer().GetTransform().basis[1].dot(diff));
+                dist += (10.f * x658_) * (1.f - mgr.GetPlayer().GetTransform().basis[1].dot(diff));
               }
             }
             if (dist < prevDist) {
@@ -759,7 +759,7 @@ void CChozoGhost::FindBestAnchor(urde::CStateManager& mgr) {
     x2dc_destObj = mgr.GetPlayer().GetUniqueId();
     zeus::CVector3f destPos =
         mgr.GetPlayer().GetTranslation() - x654_ * (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized();
-    CRayCastResult res =
+    const CRayCastResult& res =
         mgr.RayStaticIntersection(destPos, zeus::skDown, 8.f, CMaterialFilter::MakeInclude(EMaterialTypes::Floor));
     if (res.IsValid())
       destPos = res.GetPoint();
