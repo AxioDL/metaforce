@@ -40,7 +40,8 @@ class CElitePirateData {
   float xe8_;
   float xec_;
   u32 xf0_;
-  u32 xf4_;
+  u16 xf4_;
+  u16 xf6_;
   CAssetId xf8_;
   CDamageInfo xfc_;
   CAssetId x118_;
@@ -170,7 +171,7 @@ public:
   virtual bool V180() { return true; }
   virtual void V181(CStateManager& mgr);
   virtual void v182(CStateManager& mgr, bool b);
-  virtual SUnknownStruct2 V182() const {return {x5d8_.GetXF8(), x5d8_.GetXFC(), x5d8_.GetX118(), x5d8_.GetX11C()}; }
+  virtual SUnknownStruct2 V183() const {return {x5d8_.GetXF8(), x5d8_.GetXFC(), x5d8_.GetX118(), x5d8_.GetX11C()}; }
 };
 } // namespace MP1
 } // namespace urde

@@ -2,6 +2,7 @@
 
 #include "Runtime/Collision/CCollisionActorManager.hpp"
 #include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
 #include "Runtime/World/ScriptLoader.hpp"
@@ -39,6 +40,7 @@ CElitePirateData::CElitePirateData(CInputStream& in, u32 propCount)
 , xec_(zeus::degToRad(in.readFloatBig()))
 , xf0_(in.readUint32Big())
 , xf4_(CSfxManager::TranslateSFXID(in.readUint32Big()))
+, xf6_(CSfxManager::TranslateSFXID(in.readUint32Big()))
 , xf8_(in)
 , xfc_(in)
 , x118_(in)
@@ -71,6 +73,36 @@ CElitePirate::CElitePirate(TUniqueId uid, std::string_view name, const CEntityIn
 void CElitePirate::Accept(IVisitor& visitor) { visitor.Visit(this); }
 void CElitePirate::Think(float dt, CStateManager& mgr) { CPatterned::Think(dt, mgr); }
 void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
+
+  switch (msg) {
+  case EScriptObjectMessage::Activate: {
+    if (V179())
+      x730_->SetActive(mgr, true);
+    if (CEntity* ent = mgr.ObjectById(x772_))
+      ent->SetActive(true);
+    break;
+  }
+  case EScriptObjectMessage::Deactivate: {
+    if (V179())
+      x730_->SetActive(mgr, false);
+    x5d4_->SetActive(mgr, false);
+
+    if (CEntity* ent = mgr.ObjectById(x772_))
+      ent->SetActive(false);
+    break;
+  }
+  case EScriptObjectMessage::Alert:
+    x988_28_ = true;
+    break;
+  case EScriptObjectMessage::Touched:
+    break;
+  case EScriptObjectMessage::Registered:
+    x450_bodyController->Activate(mgr);
+    SetupCollisionManager(mgr);
+  default:
+    break;
+  }
+
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
 }
 void CElitePirate::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) { CPatterned::PreRender(mgr, frustum); }
@@ -91,16 +123,14 @@ void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
 const CCollisionPrimitive* CElitePirate::GetCollisionPrimitive() const {
   return CPhysicsActor::GetCollisionPrimitive();
 }
-void CElitePirate::KnockBack(const zeus::CVector3f& pos, CStateManager& mgr, const CDamageInfo& info, EKnockBackType type,
-                             bool inDeferred, float magnitude) {
+void CElitePirate::KnockBack(const zeus::CVector3f& pos, CStateManager& mgr, const CDamageInfo& info,
+                             EKnockBackType type, bool inDeferred, float magnitude) {
   CPatterned::KnockBack(pos, mgr, info, type, inDeferred, magnitude);
 }
 void CElitePirate::TakeDamage(const zeus::CVector3f& pos, float arg) { CPatterned::TakeDamage(pos, arg); }
 void CElitePirate::Patrol(CStateManager& mgr, EStateMsg msg, float dt) { CPatterned::Patrol(mgr, msg, dt); }
 void CElitePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) { CPatterned::PathFind(mgr, msg, dt); }
-void CElitePirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
-  CPatterned::TargetPatrol(mgr, msg, dt);
-}
+void CElitePirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) { CPatterned::TargetPatrol(mgr, msg, dt); }
 void CElitePirate::Halt(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Halt(mgr, msg, dt); }
 void CElitePirate::Run(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Run(mgr, msg, dt); }
 void CElitePirate::Generate(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Generate(mgr, msg, dt); }
