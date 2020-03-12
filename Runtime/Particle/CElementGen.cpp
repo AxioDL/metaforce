@@ -16,7 +16,15 @@
 #define MAX_GLOBAL_PARTICLES 2560
 
 namespace urde {
-static logvisor::Module Log("urde::CElementGen");
+namespace {
+logvisor::Module Log("urde::CElementGen");
+
+constexpr std::array ShadClsSizes{
+    sizeof(SParticleInstanceTex),
+    sizeof(SParticleInstanceIndTex),
+    sizeof(SParticleInstanceNoTex),
+};
+} // Anonymous namespace
 
 u16 CElementGen::g_GlobalSeed = 99;
 bool CElementGen::g_subtractBlend = false;
@@ -45,12 +53,8 @@ void CElementGen::Initialize() {
 
 void CElementGen::Shutdown() { CElementGenShaders::Shutdown(); }
 
-static const size_t ShadClsSizes[] = {sizeof(SParticleInstanceTex), sizeof(SParticleInstanceIndTex),
-                                      sizeof(SParticleInstanceNoTex)};
-
-CElementGen::CElementGen(const TToken<CGenDescription>& gen, EModelOrientationType orientType,
-                         EOptionalSystemFlags flags)
-: x1c_genDesc(gen), x2c_orientType(orientType), x27c_randState(x94_randomSeed) {
+CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orientType, EOptionalSystemFlags flags)
+: x1c_genDesc(std::move(gen)), x2c_orientType(orientType), x27c_randState(x94_randomSeed) {
   CGenDescription* desc = x1c_genDesc.GetObj();
   x28_loadedGenDesc = desc;
 
@@ -212,11 +216,11 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen, EModelOrientationTy
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     if (!x26c_31_LINE) {
-      m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[int(m_shaderClass)], maxInsts);
+      m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
       m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
     }
     if (desc->x45_24_x31_26_PMUS) {
-      m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[int(m_shaderClass)], maxInsts);
+      m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
       m_uniformBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
     }
     CElementGenShaders::BuildShaderDataBinding(ctx, *this);
@@ -366,7 +370,7 @@ void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 par
     adv8->GetValue(particleFrame, arr[7]);
 }
 
-bool CElementGen::UpdateVelocitySource(u32 idx, u32 particleFrame, CParticle& particle) {
+bool CElementGen::UpdateVelocitySource(size_t idx, u32 particleFrame, CParticle& particle) {
   bool err;
   if (x278_hasVMD[idx]) {
     zeus::CVector3f localVel = x208_orientationInverse * particle.x1c_vel;
@@ -433,9 +437,10 @@ void CElementGen::UpdateExistingParticles() {
 
     ++x25c_activeParticleCount;
 
-    for (int i = 0; i < 4; ++i) {
-      if (!x280_VELSources[i])
+    for (size_t i = 0; i < x280_VELSources.size(); ++i) {
+      if (!x280_VELSources[i]) {
         break;
+      }
       UpdateVelocitySource(i, particleFrame, particle);
     }
 
@@ -780,16 +785,17 @@ void CElementGen::BuildParticleSystemBounds() {
     x2f0_systemBounds.accumulateBounds(aabb);
 }
 
-u32 CElementGen::GetSystemCount() {
+u32 CElementGen::GetSystemCount() const {
   u32 ret = 0;
   for (const std::unique_ptr<CParticleGen>& child : x290_activePartChildren) {
-    if (child->Get4CharId() == FOURCC('PART'))
-      ret += static_cast<CElementGen&>(*child).GetSystemCount();
-    else
+    if (child->Get4CharId() == FOURCC('PART')) {
+      ret += static_cast<const CElementGen&>(*child).GetSystemCount();
+    } else {
       ret += 1;
+    }
   }
 
-  return (ret + (x25c_activeParticleCount != 0));
+  return ret + (x25c_activeParticleCount != 0);
 }
 
 void CElementGen::Render(const CActorLights* actorLights) {
@@ -919,7 +925,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
 
   zeus::CVector3f pmopVec;
   auto matrixIt = x50_parentMatrices.begin();
-  for (int i = 0; i < x30_particles.size(); ++i) {
+  for (size_t i = 0; i < x30_particles.size(); ++i) {
     CParticle& particle = x30_particles[i];
     g_currentParticle = &particle;
 
@@ -1118,7 +1124,7 @@ void CElementGen::RenderLines() {
 
   m_lineRenderer->Reset();
 
-  for (int i = 0; i < x30_particles.size(); ++i) {
+  for (size_t i = 0; i < x30_particles.size(); ++i) {
     CParticle& particle = x30_particles[i];
     g_currentParticle = &particle;
 
@@ -1221,9 +1227,9 @@ void CElementGen::RenderParticles() {
   if (desc->x44_28_x30_28_SORT) {
     sortItems.reserve(x30_particles.size());
 
-    for (int i = 0; i < x30_particles.size(); ++i) {
+    for (size_t i = 0; i < x30_particles.size(); ++i) {
       const CParticle& particle = x30_particles[i];
-      sortItems.emplace_back(i);
+      sortItems.emplace_back(s16(i));
       CParticleListItem& sortItem = sortItems.back();
       sortItem.x4_viewPoint =
           systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
@@ -1297,18 +1303,19 @@ void CElementGen::RenderParticles() {
     }
 
     if (!x26c_29_ORNT) {
-      for (int i = 0; i < x30_particles.size(); ++i) {
-        int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;
+      for (size_t i = 0; i < x30_particles.size(); ++i) {
+        const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
         CParticle& particle = x30_particles[partIdx];
         g_currentParticle = &particle;
 
-        int partFrame = x74_curFrame - particle.x28_startFrame - 1;
+        const int partFrame = x74_curFrame - particle.x28_startFrame - 1;
         zeus::CVector3f viewPoint;
-        if (desc->x44_28_x30_28_SORT)
+        if (desc->x44_28_x30_28_SORT) {
           viewPoint = sortItems[i].x4_viewPoint;
-        else
+        } else {
           viewPoint = systemCameraMatrix *
                       ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
+        }
 
         if (!constUVs) {
           CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
@@ -1316,7 +1323,7 @@ void CElementGen::RenderParticles() {
           texr->GetValueUV(partFrame, uvs);
         }
 
-        float size = 0.5f * particle.x2c_lineLengthOrSize;
+        const float size = 0.5f * particle.x2c_lineLengthOrSize;
         if (0.f == particle.x30_lineWidthOrRota) {
           switch (m_shaderClass) {
           case CElementGenShaders::EShaderClass::Tex: {
@@ -1386,15 +1393,15 @@ void CElementGen::RenderParticles() {
         }
       }
     } else {
-      for (int i = 0; i < x30_particles.size(); ++i) {
-        int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;
+      for (size_t i = 0; i < x30_particles.size(); ++i) {
+        const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
         CParticle& particle = x30_particles[partIdx];
         g_currentParticle = &particle;
 
-        int partFrame = x74_curFrame - particle.x28_startFrame - 1;
+        const int partFrame = x74_curFrame - particle.x28_startFrame - 1;
         zeus::CVector3f viewPoint =
             ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
-        float width = !desc->x50_x3c_ROTA ? 1.f : particle.x30_lineWidthOrRota;
+        const float width = !desc->x50_x3c_ROTA ? 1.f : particle.x30_lineWidthOrRota;
         zeus::CVector3f dir;
         if (particle.x1c_vel.canBeNormalized()) {
           dir = particle.x1c_vel.normalized();
@@ -1489,13 +1496,13 @@ void CElementGen::RenderParticles() {
       Log.report(logvisor::Fatal, fmt("unexpected particle shader class"));
       break;
     }
-    float mbspFac = 1.f / float(mbspVal);
-    for (int i = 0; i < x30_particles.size(); ++i) {
-      int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;
+    const float mbspFac = 1.f / float(mbspVal);
+    for (size_t i = 0; i < x30_particles.size(); ++i) {
+      const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
       CParticle& particle = x30_particles[partIdx];
       g_currentParticle = &particle;
 
-      int partFrame = x74_curFrame - particle.x28_startFrame - 1;
+      const int partFrame = x74_curFrame - particle.x28_startFrame - 1;
 
       if (!constUVs) {
         CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
@@ -1646,9 +1653,9 @@ void CElementGen::RenderParticlesIndirectTexture() {
   if (desc->x44_28_x30_28_SORT) {
     sortItems.reserve(x30_particles.size());
 
-    for (int i = 0; i < x30_particles.size(); ++i) {
+    for (size_t i = 0; i < x30_particles.size(); ++i) {
       const CParticle& particle = x30_particles[i];
-      sortItems.emplace_back(i);
+      sortItems.emplace_back(s16(i));
       CParticleListItem& sortItem = sortItems.back();
       sortItem.x4_viewPoint =
           systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
@@ -1665,18 +1672,19 @@ void CElementGen::RenderParticlesIndirectTexture() {
   if (!x30_particles.empty())
     CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
 
-  for (int i = 0; i < x30_particles.size(); ++i) {
-    int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;
+  for (size_t i = 0; i < x30_particles.size(); ++i) {
+    const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
     CParticle& particle = x30_particles[partIdx];
     g_currentParticle = &particle;
 
-    int thisPartFrame = x74_curFrame - particle.x28_startFrame;
+    const int thisPartFrame = x74_curFrame - particle.x28_startFrame;
     zeus::CVector3f viewPoint;
-    if (desc->x44_28_x30_28_SORT)
+    if (desc->x44_28_x30_28_SORT) {
       viewPoint = sortItems[i].x4_viewPoint;
-    else
+    } else {
       viewPoint =
           systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
+    }
 
     if (!constTexr) {
       CTexture* tex = texr->GetValueTexture(thisPartFrame).GetObj();
