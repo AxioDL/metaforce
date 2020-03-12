@@ -225,7 +225,7 @@ public:
     enum class EAction { None, StartGame, FusionBonus, GameOptions, SlideShow };
 
     u32 x0_rnd;
-    EAction x4_action;
+    EAction x4_action = EAction::None;
     TLockedToken<CGuiFrame> x8_frme;
     CGuiFrame* x14_loadedFrme = nullptr;
     CGuiTableGroup* x18_tablegroup_mainmenu = nullptr;
