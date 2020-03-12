@@ -13,20 +13,24 @@ static logvisor::Module Log("urde::CParticleElectricDataFactory");
 
 using CPF = CParticleDataFactory;
 
-CElectricDescription* CParticleElectricDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
+std::unique_ptr<CElectricDescription> CParticleElectricDataFactory::GetGeneratorDesc(CInputStream& in,
+                                                                                     CSimplePool* resPool) {
   return CreateElectricDescription(in, resPool);
 }
 
-CElectricDescription* CParticleElectricDataFactory::CreateElectricDescription(CInputStream& in, CSimplePool* resPool) {
-  FourCC cid = CPF::GetClassID(in);
-  if (cid == FOURCC('ELSM')) {
-    CElectricDescription* desc = new CElectricDescription;
-    CreateELSM(desc, in, resPool);
-    LoadELSMTokens(desc);
-    return desc;
+std::unique_ptr<CElectricDescription> CParticleElectricDataFactory::CreateElectricDescription(CInputStream& in,
+                                                                                              CSimplePool* resPool) {
+  const FourCC cid = CPF::GetClassID(in);
+
+  if (cid != FOURCC('ELSM')) {
+    return nullptr;
   }
 
-  return nullptr;
+  auto desc = std::make_unique<CElectricDescription>();
+  CreateELSM(desc.get(), in, resPool);
+  LoadELSMTokens(desc.get());
+  return desc;
+
 }
 
 bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInputStream& in, CSimplePool* resPool) {
@@ -124,7 +128,6 @@ void CParticleElectricDataFactory::LoadELSMTokens(CElectricDescription* desc) {
 CFactoryFnReturn FParticleElectricDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                               CObjectReference*) {
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
-  return TToken<CElectricDescription>::GetIObjObjectFor(
-      std::unique_ptr<CElectricDescription>(CParticleElectricDataFactory::GetGeneratorDesc(in, sp)));
+  return TToken<CElectricDescription>::GetIObjObjectFor(CParticleElectricDataFactory::GetGeneratorDesc(in, sp));
 }
 } // namespace urde
