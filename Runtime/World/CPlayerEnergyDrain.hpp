@@ -9,7 +9,7 @@ namespace urde {
 class CStateManager;
 class CPlayerEnergyDrain {
   std::vector<CEnergyDrainSource> x0_sources;
-  float x10_energyDrainTime;
+  float x10_energyDrainTime = 0.0f;
 
 public:
   CPlayerEnergyDrain(u32);
