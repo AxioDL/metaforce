@@ -12,7 +12,7 @@ class CPlayerEnergyDrain {
   float x10_energyDrainTime = 0.0f;
 
 public:
-  CPlayerEnergyDrain(u32);
+  explicit CPlayerEnergyDrain(u32 numSources);
   const std::vector<CEnergyDrainSource>& GetEnergyDrainSources() const { return x0_sources; }
   void AddEnergyDrainSource(TUniqueId, float);
   void RemoveEnergyDrainSource(TUniqueId id);

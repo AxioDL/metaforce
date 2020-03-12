@@ -4,7 +4,7 @@
 
 namespace urde {
 
-CPlayerEnergyDrain::CPlayerEnergyDrain(u32 capacity) { x0_sources.reserve(capacity); }
+CPlayerEnergyDrain::CPlayerEnergyDrain(u32 numSources) { x0_sources.reserve(numSources); }
 
 void CPlayerEnergyDrain::AddEnergyDrainSource(TUniqueId id, float intensity) { x0_sources.emplace_back(id, intensity); }
 

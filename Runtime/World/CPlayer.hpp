@@ -138,7 +138,7 @@ private:
   std::vector<CToken> x25c_ballTransitionsRes;
   TUniqueId x26c_attachedActor = kInvalidUniqueId;
   float x270_attachedActorTime = 0.f;
-  CPlayerEnergyDrain x274_energyDrain = CPlayerEnergyDrain(4);
+  CPlayerEnergyDrain x274_energyDrain{4};
   float x288_startingJumpTimeout = 0.f;
   float x28c_sjTimer = 0.f;
   float x290_minJumpTimeout = 0.f;
