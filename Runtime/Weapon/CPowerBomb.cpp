@@ -12,9 +12,10 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+#include <zeus/CColor.hpp>
 
-const zeus::CColor CPowerBomb::kFadeColor(COLOR(0xffffff7));
+namespace urde {
+constexpr zeus::CColor kFadeColor(COLOR(0xffffff7));
 
 CPowerBomb::CPowerBomb(const TToken<CGenDescription>& particle, TUniqueId uid, TAreaId aid, TUniqueId playerId,
                        const zeus::CTransform& xf, const CDamageInfo& dInfo)

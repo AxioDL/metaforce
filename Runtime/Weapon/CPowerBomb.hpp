@@ -7,13 +7,11 @@
 #include "Runtime/Weapon/CWeapon.hpp"
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CColor.hpp>
 
 namespace urde {
 class CElementGen;
 
 class CPowerBomb : public CWeapon {
-  static const zeus::CColor kFadeColor;
   bool x158_24_canStartFilter : 1;
   bool x158_25_filterEnabled : 1;
   float x15c_curTime = 0.f;
