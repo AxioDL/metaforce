@@ -29,7 +29,7 @@ const float CPlayerCameraBob::kCameraDamping = 6.f * std::sqrt(80.f);
 
 CPlayerCameraBob::CPlayerCameraBob(ECameraBobType type, const zeus::CVector2f& vec, float bobPeriod)
 : x0_type(type), x4_vec(vec), xc_bobPeriod(bobPeriod) {
-  std::fill(std::begin(x7c_wanderPoints), std::end(x7c_wanderPoints), zeus::skForward);
+  x7c_wanderPoints.fill(zeus::skForward);
 }
 
 zeus::CTransform CPlayerCameraBob::GetViewWanderTransform() const { return xd0_viewWanderXf; }

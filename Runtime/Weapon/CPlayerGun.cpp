@@ -126,9 +126,8 @@ float CPlayerGun::skTractorBeamFactor = 0.5f / CPlayerState::GetMissileComboChar
 CPlayerGun::CPlayerGun(TUniqueId playerId)
 : x0_lights(8, zeus::CVector3f{-30.f, 0.f, 30.f}, 4, 4, 0, 0, 0, 0.1f)
 , x538_playerId(playerId)
-, x550_camBob(CPlayerCameraBob::ECameraBobType::One,
-              zeus::CVector2f(CPlayerCameraBob::kCameraBobExtentX, CPlayerCameraBob::kCameraBobExtentY),
-              CPlayerCameraBob::kCameraBobPeriod)
+, x550_camBob(CPlayerCameraBob::ECameraBobType::One, CPlayerCameraBob::GetCameraBobExtent(),
+              CPlayerCameraBob::GetCameraBobPeriod())
 , x678_morph(g_tweakPlayerGun->GetGunTransformTime(), g_tweakPlayerGun->GetHoloHoldTime())
 , x6c8_hologramClipCube(zeus::CVector3f(-0.29329199f, 0.f, -0.2481945f),
                         zeus::CVector3f(0.29329199f, 1.292392f, 0.2481945f))
