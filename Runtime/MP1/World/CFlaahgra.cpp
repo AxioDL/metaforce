@@ -895,8 +895,8 @@ void CFlaahgra::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
         x7d4_ += arg;
         if (x7d4_ >= x56c_.xc_)
           x568_ = 4;
-        else
-          x450_bodyController->FaceDirection(x894_, arg);
+      } else {
+        x450_bodyController->FaceDirection(x894_, arg);
       }
     }
   } else if (msg == EStateMsg::Deactivate) {
@@ -1186,13 +1186,16 @@ TUniqueId CFlaahgra::GetMirrorNearestPlayer(const CStateManager& mgr) const {
   zeus::CVector3f playerPos = mgr.GetPlayer().GetTranslation();
 
   TUniqueId nearId = kInvalidUniqueId;
+  float prevMag = -1.f;
   for (TUniqueId id : x770_mirrorWaypoints) {
     if (TCastToConstPtr<CActor> wp = mgr.GetObjectById(id)) {
       if (!wp->GetActive())
         continue;
-
-      if ((wp->GetTranslation() - playerPos).magSquared() > -1.f)
+      const float mag = (wp->GetTranslation() - playerPos).magSquared();
+      if (mag > prevMag) {
         nearId = id;
+        prevMag = mag;
+      }
     }
   }
 

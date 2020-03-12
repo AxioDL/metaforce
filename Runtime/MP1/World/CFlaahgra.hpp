@@ -22,7 +22,7 @@ class CCollisionActorManager;
 class CDependencyGroup;
 class CElementGen;
 class CGenDescription;
-}
+} // namespace urde
 
 namespace urde::MP1 {
 class CFlaahgraData {
@@ -44,6 +44,7 @@ class CFlaahgraData {
   float x148_;
   CAnimationParameters x14c_animationParameters;
   CAssetId x158_;
+
 public:
   static constexpr u32 GetNumProperties() { return 23; }
   CFlaahgraData(CInputStream&);
@@ -53,6 +54,7 @@ public:
 
 class CFlaahgraRenderer : public CActor {
   TUniqueId xe8_owner;
+
 public:
   CFlaahgraRenderer(TUniqueId, TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&);
 
@@ -69,6 +71,7 @@ class CFlaahgraPlants : public CActor {
   float x12c_lastDt = 0.f;
   zeus::COBBox x130_obbox;
   TUniqueId x16c_colAct = kInvalidUniqueId;
+
 public:
   CFlaahgraPlants(const TToken<CGenDescription>&, const CActorParameters&, TUniqueId, TAreaId, TUniqueId,
                   const zeus::CTransform&, const CDamageInfo&, const zeus::CVector3f&);
@@ -137,26 +140,21 @@ class CFlaahgra : public CPatterned {
   CAnimRes x8ac_;
   std::optional<TToken<CDependencyGroup>> x8c8_depGroup;
   std::vector<CToken> x8d4_tokens;
-  union {
-    struct {
-      bool x8e4_24_loaded : 1;
-      bool x8e4_25_loading : 1;
-      bool x8e4_26_ : 1;
-      bool x8e4_27_ : 1;
-      bool x8e4_28_ : 1;
-      bool x8e4_29_getup : 1;
-      bool x8e4_30_ : 1;
-      bool x8e4_31_ : 1;
-      bool x8e5_24_ : 1;
-      bool x8e5_25_ : 1;
-      bool x8e5_26_ : 1;
-      bool x8e5_27_ : 1;
-      bool x8e5_28_ : 1;
-      bool x8e5_29_ : 1;
-      bool x8e5_30_ : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x8e4_24_loaded : 1;
+  bool x8e4_25_loading : 1;
+  bool x8e4_26_ : 1;
+  bool x8e4_27_ : 1;
+  bool x8e4_28_ : 1;
+  bool x8e4_29_getup : 1;
+  bool x8e4_30_ : 1;
+  bool x8e4_31_ : 1;
+  bool x8e5_24_ : 1;
+  bool x8e5_25_ : 1;
+  bool x8e5_26_ : 1;
+  bool x8e5_27_ : 1;
+  bool x8e5_28_ : 1;
+  bool x8e5_29_ : 1;
+  bool x8e5_30_ : 1;
 
   void LoadDependencies(CAssetId);
   void ResetModelDataAndBodyController();
@@ -192,6 +190,7 @@ class CFlaahgra : public CPatterned {
   zeus::CVector3f sub801ae754(const CStateManager&) const;
 
   TUniqueId GetMirrorNearestPlayer(const CStateManager&) const;
+
 public:
   DEFINE_PATTERNED(Flaahgra);
   CFlaahgra(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, const CAnimRes&,
@@ -235,6 +234,5 @@ public:
   void Cover(CStateManager&, EStateMsg, float) override;
   void SpecialAttack(CStateManager&, EStateMsg, float) override;
   void Enraged(CStateManager&, EStateMsg, float) override;
-
 };
-}
+} // namespace urde::MP1
