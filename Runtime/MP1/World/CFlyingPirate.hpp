@@ -50,7 +50,7 @@ private:
     CFlyingPirateData(CInputStream& in, u32 propCount);
   };
 
-  class CFlyingPirateRagDoll : CRagDoll {
+  class CFlyingPirateRagDoll : public CRagDoll {
   private:
     CFlyingPirate* x6c_actor;
     float x70_ = 0.f;
@@ -139,9 +139,16 @@ private:
   CFlyingPirateData x568_data;
   rstl::reserved_vector<TCachedToken<CGenDescription>, 4> x65c_particleGenDescs;
   rstl::reserved_vector<std::unique_ptr<CElementGen>, 16> x684_particleGens;
-  char x6a0_flags1; // TODO
-  char x6a1_flags2; // TODO
-  char x6a2_flags3; // TODO
+  bool x6a0_24_ : 1;
+  bool x6a0_27_ : 1;
+  bool x6a0_29_ : 1;
+  bool x6a0_30_ : 1;
+  bool x6a1_28_ : 1;
+  bool x6a1_30_ : 1;
+  bool x6a1_31_ : 1;
+  bool x6a2_24_ : 1;
+  bool x6a2_25_ : 1;
+  bool x6a2_28_ : 1;
   TUniqueId x6a4_id1 = kInvalidUniqueId;
   TUniqueId x6a6_id2 = kInvalidUniqueId;
   CPathFindSearch x6a8_pathFindSearch;
@@ -168,7 +175,7 @@ private:
   zeus::CVector3f x87c_ = zeus::skZero3f;
   float x888_ = 10.f;
   float x88c_ = 3.f;
-  TUniqueId x890_ = kInvalidUniqueId;
+  TUniqueId x890_teamAiMgr = kInvalidUniqueId;
   float x894_ = 1.f;
   float x898_ = 1.f;
   std::unique_ptr<CFlyingPirateRagDoll> x89c_ragDoll;
@@ -177,14 +184,16 @@ private:
 
   zeus::CVector3f AvoidActors(CStateManager& mgr);
   bool CanFireMissiles(CStateManager& mgr);
-  bool CheckForProjectiles(CStateManager& mgr);
+  void CheckForProjectiles(CStateManager& mgr);
   void FireProjectile(CStateManager& mgr, const zeus::CVector3f& pos);
   pas::EStepDirection GetDodgeDirection(CStateManager& mgr, float arg);
   zeus::CVector3f GetTargetPos(CStateManager& mgr);
-  bool LineOfSightTest(CStateManager& mgr, zeus::CVector3f& pos, zeus::CVector3f& dir, CMaterialList materials);
+  bool LineOfSightTest(CStateManager& mgr, const zeus::CVector3f& pos, const zeus::CVector3f& dir, CMaterialList materials);
   void UpdateLandingSmoke(CStateManager& mgr, bool active);
   void UpdateParticleEffects(CStateManager& mgr, float f1, bool b1);
   void DeliverGetUp();
   void UpdateCantSeePlayer(CStateManager& mgr);
+  void AddToTeam(CStateManager& mgr);
+  void RemoveFromTeam(CStateManager& mgr);
 };
 } // namespace urde::MP1

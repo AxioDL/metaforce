@@ -466,20 +466,20 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
 
   if (x634_29_onlyAttackInRange)
     x460_knockBackController.SetKnockBackVariant(EKnockBackVariant::Small);
-  else if (x636_24_trooper && GetDamageVulnerability()->WeaponHurts(CWeaponMode(EWeaponType::Plasma), false))
+  else if (x636_24_trooper && x260_damageVulnerability.WeaponHurts(CWeaponMode(EWeaponType::Plasma), false))
     x460_knockBackController.SetKnockBackVariant(EKnockBackVariant::Large);
 
   if (!x450_bodyController->HasBodyState(pas::EAnimationState::AdditiveAim))
     x634_27_melee = true;
 
   if (x636_24_trooper) {
-    if (GetDamageVulnerability()->WeaponHurts(CWeaponMode(EWeaponType::Plasma), false))
+    if (x260_damageVulnerability.WeaponHurts(CWeaponMode(EWeaponType::Plasma), false))
       x8cc_trooperColor = zeus::CColor(0.996f, 0.f, 0.157f, 1.f);
-    else if (GetDamageVulnerability()->WeaponHurts(CWeaponMode(EWeaponType::Ice), false))
+    else if (x260_damageVulnerability.WeaponHurts(CWeaponMode(EWeaponType::Ice), false))
       x8cc_trooperColor = zeus::skWhite;
-    else if (GetDamageVulnerability()->WeaponHurts(CWeaponMode(EWeaponType::Power), false))
+    else if (x260_damageVulnerability.WeaponHurts(CWeaponMode(EWeaponType::Power), false))
       x8cc_trooperColor = zeus::CColor(0.992f, 0.937f, 0.337f, 1.f);
-    else if (GetDamageVulnerability()->WeaponHurts(CWeaponMode(EWeaponType::Wave), false))
+    else if (x260_damageVulnerability.WeaponHurts(CWeaponMode(EWeaponType::Wave), false))
       x8cc_trooperColor = zeus::CColor(0.776f, 0.054f, 1.f, 1.f);
   }
 
