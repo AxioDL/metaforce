@@ -75,6 +75,8 @@ CGunWeapon::CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId, EM
   BuildDependencyList(x200_beamId);
 }
 
+CGunWeapon::~CGunWeapon() = default;
+
 void CGunWeapon::AllocResPools(CPlayerState::EBeamId beam) {
   const auto& wPair = g_tweakGunRes->GetWeaponPair(beam);
   const char* const* muzzleNames = &skMuzzleNames[size_t(beam) * 2];

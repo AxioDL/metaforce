@@ -116,6 +116,8 @@ protected:
 public:
   CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId, EMaterialTypes playerMaterial,
              const zeus::CVector3f& scale);
+  virtual ~CGunWeapon();
+
   void AsyncLoadSuitArm(CStateManager& mgr);
   virtual void Reset(CStateManager& mgr);
   virtual void PlayAnim(NWeaponTypes::EGunAnimType type, bool loop);
