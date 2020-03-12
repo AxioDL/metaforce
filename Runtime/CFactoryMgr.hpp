@@ -21,8 +21,8 @@ public:
   bool CanMakeMemory(const urde::SObjectTag& tag) const;
   CFactoryFnReturn MakeObjectFromMemory(const SObjectTag& tag, std::unique_ptr<u8[]>&& buf, int size, bool compressed,
                                         const CVParamTransfer& paramXfer, CObjectReference* selfRef);
-  void AddFactory(FourCC key, FFactoryFunc func) { m_factories[key] = func; }
-  void AddFactory(FourCC key, FMemFactoryFunc func) { m_memFactories[key] = func; }
+  void AddFactory(FourCC key, FFactoryFunc func) { m_factories.insert_or_assign(key, std::move(func)); }
+  void AddFactory(FourCC key, FMemFactoryFunc func) { m_memFactories.insert_or_assign(key, std::move(func)); }
 
   enum class ETypeTable : u8 {
     CLSN,
