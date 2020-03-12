@@ -140,9 +140,11 @@ private:
   rstl::reserved_vector<TCachedToken<CGenDescription>, 4> x65c_particleGenDescs;
   rstl::reserved_vector<std::unique_ptr<CElementGen>, 16> x684_particleGens;
   bool x6a0_24_ : 1;
+  bool x6a0_25_ : 1;
   bool x6a0_27_ : 1;
   bool x6a0_29_ : 1;
   bool x6a0_30_ : 1;
+  bool x6a1_26_ : 1;
   bool x6a1_28_ : 1;
   bool x6a1_30_ : 1;
   bool x6a1_31_ : 1;
@@ -163,7 +165,7 @@ private:
   float x7e4_ = 1.f;
   TUniqueId x7e8_id3 = kInvalidUniqueId;
   CBurstFire x7ec_burstFire;
-  int x84c_ = -1;
+  pas::EStepDirection x84c_ = pas::EStepDirection::Invalid;
   float x850_ = 3.f;
   float x854_ = FLT_MAX;
   float x858_ = FLT_MAX;
@@ -185,7 +187,7 @@ private:
   zeus::CVector3f AvoidActors(CStateManager& mgr);
   bool CanFireMissiles(CStateManager& mgr);
   void CheckForProjectiles(CStateManager& mgr);
-  void FireProjectile(CStateManager& mgr, const zeus::CVector3f& pos);
+  void FireProjectile(CStateManager& mgr, const zeus::CVector3f& pos, float dt);
   pas::EStepDirection GetDodgeDirection(CStateManager& mgr, float arg);
   zeus::CVector3f GetTargetPos(CStateManager& mgr);
   bool LineOfSightTest(CStateManager& mgr, const zeus::CVector3f& pos, const zeus::CVector3f& dir, CMaterialList materials);
