@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/IObj.hpp"
@@ -12,11 +14,11 @@ class CSimplePool;
 
 class CDecalDataFactory {
   static bool CreateDPSM(CDecalDescription* desc, CInputStream& in, CSimplePool* resPool);
-  static CDecalDescription* CreateGeneratorDescription(CInputStream& in, CSimplePool* resPool);
+  static std::unique_ptr<CDecalDescription> CreateGeneratorDescription(CInputStream& in, CSimplePool* resPool);
   static void GetQuadDecalInfo(CInputStream& in, CSimplePool* resPool, FourCC clsId, SQuadDescr& quad);
 
 public:
-  static CDecalDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
+  static std::unique_ptr<CDecalDescription> GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
 };
 
 CFactoryFnReturn FDecalDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,

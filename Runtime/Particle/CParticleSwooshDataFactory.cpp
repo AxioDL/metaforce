@@ -12,19 +12,22 @@ static logvisor::Module Log("urde::CParticleSwooshDataFactory");
 
 using CPF = CParticleDataFactory;
 
-CSwooshDescription* CParticleSwooshDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
+std::unique_ptr<CSwooshDescription> CParticleSwooshDataFactory::GetGeneratorDesc(CInputStream& in,
+                                                                                 CSimplePool* resPool) {
   return CreateGeneratorDescription(in, resPool);
 }
 
-CSwooshDescription* CParticleSwooshDataFactory::CreateGeneratorDescription(CInputStream& in, CSimplePool* resPool) {
-  FourCC clsId = CPF::GetClassID(in);
+std::unique_ptr<CSwooshDescription> CParticleSwooshDataFactory::CreateGeneratorDescription(CInputStream& in,
+                                                                                           CSimplePool* resPool) {
+  const FourCC clsId = CPF::GetClassID(in);
+
   if (clsId == FOURCC('SWSH')) {
-    CSwooshDescription* desc = new CSwooshDescription;
-    if (CreateWPSM(desc, in, resPool))
+    auto desc = std::make_unique<CSwooshDescription>();
+    if (CreateWPSM(desc.get(), in, resPool)) {
       return desc;
-    else
-      delete desc;
+    }
   }
+
   return nullptr;
 }
 
@@ -132,7 +135,6 @@ bool CParticleSwooshDataFactory::CreateWPSM(CSwooshDescription* desc, CInputStre
 CFactoryFnReturn FParticleSwooshDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                             CObjectReference*) {
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
-  return TToken<CSwooshDescription>::GetIObjObjectFor(
-      std::unique_ptr<CSwooshDescription>(CParticleSwooshDataFactory::GetGeneratorDesc(in, sp)));
+  return TToken<CSwooshDescription>::GetIObjObjectFor(CParticleSwooshDataFactory::GetGeneratorDesc(in, sp));
 }
 } // namespace urde

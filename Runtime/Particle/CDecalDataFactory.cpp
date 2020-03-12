@@ -12,19 +12,21 @@ namespace urde {
 static logvisor::Module Log("urde::CDecalDataFactory");
 
 using CPF = CParticleDataFactory;
-CDecalDescription* CDecalDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
+std::unique_ptr<CDecalDescription> CDecalDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
   return CreateGeneratorDescription(in, resPool);
 }
 
-CDecalDescription* CDecalDataFactory::CreateGeneratorDescription(CInputStream& in, CSimplePool* resPool) {
-  FourCC clsId = CPF::GetClassID(in);
+std::unique_ptr<CDecalDescription> CDecalDataFactory::CreateGeneratorDescription(CInputStream& in,
+                                                                                 CSimplePool* resPool) {
+  const FourCC clsId = CPF::GetClassID(in);
+
   if (clsId == FOURCC('DPSM')) {
-    CDecalDescription* desc = new CDecalDescription;
-    if (CreateDPSM(desc, in, resPool))
+    auto desc = std::make_unique<CDecalDescription>();
+    if (CreateDPSM(desc.get(), in, resPool)) {
       return desc;
-    else
-      delete desc;
+    }
   }
+
   return nullptr;
 }
 
@@ -129,7 +131,6 @@ void CDecalDataFactory::GetQuadDecalInfo(CInputStream& in, CSimplePool* resPool,
 CFactoryFnReturn FDecalDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                    CObjectReference*) {
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
-  return TToken<CDecalDescription>::GetIObjObjectFor(
-      std::unique_ptr<CDecalDescription>(CDecalDataFactory::GetGeneratorDesc(in, sp)));
+  return TToken<CDecalDescription>::GetIObjObjectFor(CDecalDataFactory::GetGeneratorDesc(in, sp));
 }
 } // namespace urde

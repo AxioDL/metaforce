@@ -14,19 +14,22 @@ static logvisor::Module Log("urde::CProjectileWeaponDataFactory");
 
 using CPF = CParticleDataFactory;
 
-CWeaponDescription* CProjectileWeaponDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
+std::unique_ptr<CWeaponDescription> CProjectileWeaponDataFactory::GetGeneratorDesc(CInputStream& in,
+                                                                                   CSimplePool* resPool) {
   return CreateGeneratorDescription(in, resPool);
 }
 
-CWeaponDescription* CProjectileWeaponDataFactory::CreateGeneratorDescription(CInputStream& in, CSimplePool* resPool) {
-  FourCC clsId = CPF::GetClassID(in);
-  if (clsId == FOURCC('WPSM')) {
-    CWeaponDescription* desc = new CWeaponDescription;
-    CreateWPSM(desc, in, resPool);
-    return desc;
+std::unique_ptr<CWeaponDescription> CProjectileWeaponDataFactory::CreateGeneratorDescription(CInputStream& in,
+                                                                                             CSimplePool* resPool) {
+  const FourCC clsId = CPF::GetClassID(in);
+  if (clsId != FOURCC('WPSM')) {
+    return nullptr;
   }
 
-  return nullptr;
+  auto desc = std::make_unique<CWeaponDescription>();
+  CreateWPSM(desc.get(), in, resPool);
+  return desc;
+
 }
 
 bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputStream& in, CSimplePool* resPool) {
@@ -159,7 +162,6 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
 CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                               CObjectReference*) {
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
-  return TToken<CWeaponDescription>::GetIObjObjectFor(
-      std::unique_ptr<CWeaponDescription>(CProjectileWeaponDataFactory::GetGeneratorDesc(in, sp)));
+  return TToken<CWeaponDescription>::GetIObjObjectFor(CProjectileWeaponDataFactory::GetGeneratorDesc(in, sp));
 }
 } // namespace urde
