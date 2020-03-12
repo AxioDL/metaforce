@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -215,7 +216,7 @@ private:
   std::unique_ptr<CWaveBeam> x754_waveBeam;
   std::unique_ptr<CPlasmaBeam> x758_plasmaBeam;
   std::unique_ptr<CPhazonBeam> x75c_phazonBeam;
-  CGunWeapon* x760_selectableBeams[4] = {}; // Used to be reserved_vector
+  std::array<CGunWeapon*, 4> x760_selectableBeams{}; // Used to be reserved_vector
   std::unique_ptr<CElementGen> x774_holoTransitionGen;
   std::unique_ptr<CElementGen> x77c_comboXferGen;
   rstl::reserved_vector<rstl::reserved_vector<TLockedToken<CGenDescription>, 2>, 2> x784_bombEffects;
