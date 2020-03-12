@@ -155,11 +155,10 @@ private:
 
 public:
   CAnimData(CAssetId, const CCharacterInfo& character, int defaultAnim, int charIdx, bool loop,
-            const TLockedToken<CCharLayoutInfo>& layout, const TToken<CSkinnedModel>& model,
-            const std::optional<TToken<CMorphableSkinnedModel>>& iceModel,
-            const std::weak_ptr<CAnimSysContext>& ctx, const std::shared_ptr<CAnimationManager>& animMgr,
-            const std::shared_ptr<CTransitionManager>& transMgr, const TLockedToken<CCharacterFactory>& charFactory,
-            int drawInstCount);
+            TLockedToken<CCharLayoutInfo> layout, TToken<CSkinnedModel> model,
+            const std::optional<TToken<CMorphableSkinnedModel>>& iceModel, const std::weak_ptr<CAnimSysContext>& ctx,
+            std::shared_ptr<CAnimationManager> animMgr, std::shared_ptr<CTransitionManager> transMgr,
+            TLockedToken<CCharacterFactory> charFactory, int drawInstCount);
 
   void SetParticleEffectState(std::string_view effectName, bool active, CStateManager& mgr);
   void InitializeEffects(CStateManager&, TAreaId, const zeus::CVector3f&);

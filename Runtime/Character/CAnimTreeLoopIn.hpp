@@ -23,7 +23,7 @@ public:
   CAnimTreeLoopIn(const std::weak_ptr<CAnimTreeNode>& a, const std::weak_ptr<CAnimTreeNode>& b,
                   const std::weak_ptr<CAnimTreeNode>& c, const CAnimSysContext& animCtx, std::string_view name);
   CAnimTreeLoopIn(const std::weak_ptr<CAnimTreeNode>& a, const std::weak_ptr<CAnimTreeNode>& b, bool didLoopIn,
-                  const CAnimSysContext& animCtx, std::string_view name, const CSequenceFundamentals& fundamentals,
+                  CAnimSysContext animCtx, std::string_view name, CSequenceFundamentals fundamentals,
                   const CCharAnimTime& time);
   CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const override;
   bool VSupportsReverseView() const { return false; }

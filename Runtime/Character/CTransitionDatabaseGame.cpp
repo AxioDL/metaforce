@@ -11,8 +11,8 @@ namespace urde {
 
 CTransitionDatabaseGame::CTransitionDatabaseGame(const std::vector<CTransition>& transitions,
                                                  const std::vector<CHalfTransition>& halfTransitions,
-                                                 const std::shared_ptr<IMetaTrans>& defaultTrans)
-: x10_defaultTrans(defaultTrans) {
+                                                 std::shared_ptr<IMetaTrans> defaultTrans)
+: x10_defaultTrans(std::move(defaultTrans)) {
   x14_transitions.reserve(transitions.size());
   for (const CTransition& trans : transitions)
     x14_transitions.emplace_back(trans.GetAnimPair(), trans.GetMetaTrans());

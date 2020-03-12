@@ -19,13 +19,13 @@ CAnimTreeLoopIn::CAnimTreeLoopIn(const std::weak_ptr<CAnimTreeNode>& a, const st
 , x30_fundamentals(CSequenceHelper(x14_child, x18_nextAnim, animCtx).ComputeSequenceFundamentals()) {}
 
 CAnimTreeLoopIn::CAnimTreeLoopIn(const std::weak_ptr<CAnimTreeNode>& a, const std::weak_ptr<CAnimTreeNode>& b,
-                                 bool didLoopIn, const CAnimSysContext& animCtx, std::string_view name,
-                                 const CSequenceFundamentals& fundamentals, const CCharAnimTime& time)
+                                 bool didLoopIn, CAnimSysContext animCtx, std::string_view name,
+                                 CSequenceFundamentals fundamentals, const CCharAnimTime& time)
 : CAnimTreeSingleChild(a, name)
 , x18_nextAnim(b.lock())
 , x1c_didLoopIn(didLoopIn)
-, x20_animCtx(animCtx)
-, x30_fundamentals(fundamentals)
+, x20_animCtx(std::move(animCtx))
+, x30_fundamentals(std::move(fundamentals))
 , x88_curTime(time) {}
 
 CAnimTreeEffectiveContribution CAnimTreeLoopIn::VGetContributionOfHighestInfluence() const {

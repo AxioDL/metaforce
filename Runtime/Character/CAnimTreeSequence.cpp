@@ -6,22 +6,22 @@
 
 namespace urde {
 
-CAnimTreeSequence::CAnimTreeSequence(const std::vector<std::shared_ptr<IMetaAnim>>& seq, const CAnimSysContext& animSys,
+CAnimTreeSequence::CAnimTreeSequence(std::vector<std::shared_ptr<IMetaAnim>> seq, CAnimSysContext animSys,
                                      std::string_view name)
 : CAnimTreeSingleChild(seq[0]->GetAnimationTree(animSys, CMetaAnimTreeBuildOrders::NoSpecialOrders()), name)
-, x18_animCtx(animSys)
-, x28_sequence(seq)
-, x3c_fundamentals(CSequenceHelper(seq, animSys).ComputeSequenceFundamentals())
+, x18_animCtx(std::move(animSys))
+, x28_sequence(std::move(seq))
+, x3c_fundamentals(CSequenceHelper(x28_sequence, x18_animCtx).ComputeSequenceFundamentals())
 , x94_curTime(0.f) {}
 
 CAnimTreeSequence::CAnimTreeSequence(const std::shared_ptr<CAnimTreeNode>& curNode,
-                                     const std::vector<std::shared_ptr<IMetaAnim>>& metaAnims,
-                                     const CAnimSysContext& animSys, std::string_view name,
-                                     const CSequenceFundamentals& fundamentals, const CCharAnimTime& time)
+                                     std::vector<std::shared_ptr<IMetaAnim>> metaAnims,
+                                     CAnimSysContext animSys, std::string_view name,
+                                     CSequenceFundamentals fundamentals, const CCharAnimTime& time)
 : CAnimTreeSingleChild(curNode, name)
-, x18_animCtx(animSys)
-, x28_sequence(metaAnims)
-, x3c_fundamentals(fundamentals)
+, x18_animCtx(std::move(animSys))
+, x28_sequence(std::move(metaAnims))
+, x3c_fundamentals(std::move(fundamentals))
 , x94_curTime(time) {}
 
 CAnimTreeEffectiveContribution CAnimTreeSequence::VGetContributionOfHighestInfluence() const {

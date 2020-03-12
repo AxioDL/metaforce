@@ -18,7 +18,7 @@ class CTransitionDatabaseGame final : public CTransitionDatabase {
 public:
   CTransitionDatabaseGame(const std::vector<CTransition>& transitions,
                           const std::vector<CHalfTransition>& halfTransitions,
-                          const std::shared_ptr<IMetaTrans>& defaultTrans);
+                          std::shared_ptr<IMetaTrans> defaultTrans);
   const std::shared_ptr<IMetaTrans>& GetMetaTrans(u32, u32) const override;
 };
 

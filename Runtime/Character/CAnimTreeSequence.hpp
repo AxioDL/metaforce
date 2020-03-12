@@ -20,11 +20,10 @@ class CAnimTreeSequence : public CAnimTreeSingleChild {
   CCharAnimTime x94_curTime;
 
 public:
-  CAnimTreeSequence(const std::vector<std::shared_ptr<IMetaAnim>>& seq, const CAnimSysContext& animSys,
-                    std::string_view name);
-  CAnimTreeSequence(const std::shared_ptr<CAnimTreeNode>& curNode,
-                    const std::vector<std::shared_ptr<IMetaAnim>>& metaAnims, const CAnimSysContext& animSys,
-                    std::string_view name, const CSequenceFundamentals& fundamentals, const CCharAnimTime& time);
+  CAnimTreeSequence(std::vector<std::shared_ptr<IMetaAnim>> seq, CAnimSysContext animSys, std::string_view name);
+  CAnimTreeSequence(const std::shared_ptr<CAnimTreeNode>& curNode, std::vector<std::shared_ptr<IMetaAnim>> metaAnims,
+                    CAnimSysContext animSys, std::string_view name, CSequenceFundamentals fundamentals,
+                    const CCharAnimTime& time);
 
   CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const override;
   std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const override;

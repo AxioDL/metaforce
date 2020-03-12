@@ -6,7 +6,7 @@ namespace urde {
 
 CAnimTreeAnimReaderContainer::CAnimTreeAnimReaderContainer(std::string_view name, std::shared_ptr<IAnimReader> reader,
                                                            u32 dbIdx)
-: CAnimTreeNode(name), x14_reader(reader), x1c_animDbIdx(dbIdx) {}
+: CAnimTreeNode(name), x14_reader(std::move(reader)), x1c_animDbIdx(dbIdx) {}
 
 u32 CAnimTreeAnimReaderContainer::Depth() const { return 1; }
 
