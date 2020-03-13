@@ -17,34 +17,34 @@ public:
 private:
   class CFlyingPirateData {
     friend class CFlyingPirate;
-    float x0_;
-    float x4_;
-    int x8_;
-    CProjectileInfo xc_projInfo1;
-    u16 x34_sfx1;
-    CProjectileInfo x38_projInfo2;
-    CProjectileInfo x60_projInfo3;
-    float x88_;
-    float x8c_;
+    float x0_maxCoverDistance;
+    float x4_hearingDistance;
+    u32 x8_;
+    CProjectileInfo xc_gunProjectileInfo;
+    u16 x34_gunSfx;
+    CProjectileInfo x38_altProjectileInfo1;
+    CProjectileInfo x60_altProjectileInfo2;
+    float x88_knockBackDelay;
+    float x8c_flyingHeight;
     TCachedToken<CGenDescription> x90_particleGenDesc;
     CDamageInfo x9c_dInfo;
     float xb8_;
     float xbc_;
     float xc0_;
     float xc4_;
-    u16 xc8_sfx2;
-    u16 xca_sfx3;
-    float xcc_;
+    u16 xc8_ragDollSfx1;
+    u16 xca_ragDollSfx2;
+    float xcc_coverCheckChance;
     float xd0_;
     float xd4_;
-    CAssetId xd8_;
-    CAssetId xdc_;
-    CAssetId xe0_;
-    u16 xe4_sfx4;
-    u16 xe6_sfx5;
-    float xe8_;
+    CAssetId xd8_particleGen1;
+    CAssetId xdc_particleGen2;
+    CAssetId xe0_particleGen3;
+    u16 xe4_knockBackSfx;
+    u16 xe6_deathSfx;
+    float xe8_aggressionChance;
     float xec_;
-    float xf0_;
+    float xf0_projectileHomingDistance;
 
   public:
     CFlyingPirateData(CInputStream& in, u32 propCount);
@@ -63,7 +63,7 @@ private:
     u16 x9c_;
     int xa0_ = 0;
     zeus::CVector3f xa4_;
-    char xb0_; // TODO flags
+    bool xb0_24_ : 1;
 
   public:
     CFlyingPirateRagDoll(CStateManager& mgr, CFlyingPirate* actor, u16 w1, u16 w2);
@@ -84,13 +84,13 @@ public:
   void CalculateRenderBounds() override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
   void MassiveDeath(CStateManager& mgr) override;
-  float GetGravityConstant() const override { return 50.f; /* TODO check flags */ }
+  float GetGravityConstant() const override { return x6a0_25_isUnderwater ? 5.f : 50.f; }
   CPathFindSearch* GetSearchPath() override { return &x6a8_pathFindSearch; }
   bool IsListening() const override { return true; }
   bool KnockbackWhenFrozen() const override { return false; }
   bool Listen(const zeus::CVector3f& pos, EListenNoiseType type) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  CProjectileInfo* GetProjectileInfo() override { return &x568_data.xc_projInfo1; }
+  CProjectileInfo* GetProjectileInfo() override { return &x568_data.xc_gunProjectileInfo; }
   void Think(float dt, CStateManager& mgr) override;
 
   void Attack(CStateManager& mgr, EStateMsg msg, float arg) override;
@@ -137,39 +137,50 @@ public:
 
 private:
   CFlyingPirateData x568_data;
-  rstl::reserved_vector<TCachedToken<CGenDescription>, 4> x65c_particleGenDescs;
-  rstl::reserved_vector<std::unique_ptr<CElementGen>, 16> x684_particleGens;
+  rstl::reserved_vector<TCachedToken<CGenDescription>, 3> x65c_particleGenDescs;
+  // was rstl::reserved_vector<rstl::optional_object<CElementGen *>, 3>
+  rstl::reserved_vector<std::unique_ptr<CElementGen>, 3> x684_particleGens;
   bool x6a0_24_ : 1;
-  bool x6a0_25_ : 1;
-  bool x6a0_27_ : 1;
-  bool x6a0_29_ : 1;
+  bool x6a0_25_isUnderwater : 1;
+  bool x6a0_26_hearShot : 1;
+  bool x6a0_27_canPatrol : 1;
+  bool x6a0_28_ : 1;
+  bool x6a0_29_checkForProjectiles : 1;
   bool x6a0_30_ : 1;
-  bool x6a1_26_ : 1;
+  bool x6a0_31_ : 1;
+  bool x6a1_24_ : 1;
+  bool x6a1_25_ : 1;
+  bool x6a1_26_isAttackingObject : 1;
+  bool x6a1_27_ : 1;
   bool x6a1_28_ : 1;
+  bool x6a1_29_isMoving : 1;
   bool x6a1_30_ : 1;
   bool x6a1_31_ : 1;
-  bool x6a2_24_ : 1;
-  bool x6a2_25_ : 1;
+  bool x6a2_24_aggressive : 1;
+  bool x6a2_25_aggressionChecked : 1;
+  bool x6a2_26_jetpackActive : 1;
+  bool x6a2_27_sparksActive : 1;
   bool x6a2_28_ : 1;
-  TUniqueId x6a4_id1 = kInvalidUniqueId;
+  TUniqueId x6a4_currentCoverPoint = kInvalidUniqueId;
   TUniqueId x6a6_id2 = kInvalidUniqueId;
   CPathFindSearch x6a8_pathFindSearch;
+  float x78c_ = 0.f; // not initialized in constructor?
   int x790_ = 0;
   int x794_health;
-  CSegId x798_;
+  CSegId x798_headSegId;
   int x79c_ = -1;
   CBoneTracking x7a0_boneTracking;
   float x7d8_ = 0.f;
   int x7dc_ = 0;
-  CSegId x7e0_;
+  CSegId x7e0_gunSegId;
   float x7e4_ = 1.f;
-  TUniqueId x7e8_id3 = kInvalidUniqueId;
+  TUniqueId x7e8_targetId = kInvalidUniqueId;
   CBurstFire x7ec_burstFire;
-  pas::EStepDirection x84c_ = pas::EStepDirection::Invalid;
-  float x850_ = 3.f;
+  pas::EStepDirection x84c_dodgeDirection = pas::EStepDirection::Invalid;
+  float x850_height = 3.f;
   float x854_ = FLT_MAX;
   float x858_ = FLT_MAX;
-  TUniqueId x85c_ = kInvalidUniqueId;
+  TUniqueId x85c_attackObjectId = kInvalidUniqueId;
   float x860_ = 15.f;
   rstl::reserved_vector<CSegId, 4> x864_missileSegments;
   float x86c_ = 0.f;
@@ -181,18 +192,19 @@ private:
   float x894_ = 1.f;
   float x898_ = 1.f;
   std::unique_ptr<CFlyingPirateRagDoll> x89c_ragDoll;
-  TUniqueId x8a0_ = kInvalidUniqueId;
+  TUniqueId x8a0_patrolTarget = kInvalidUniqueId;
   float x8a4_ = 0.f;
 
   zeus::CVector3f AvoidActors(CStateManager& mgr);
   bool CanFireMissiles(CStateManager& mgr);
   void CheckForProjectiles(CStateManager& mgr);
-  void FireProjectile(CStateManager& mgr, const zeus::CVector3f& pos, float dt);
+  void FireProjectile(CStateManager& mgr, float dt);
   pas::EStepDirection GetDodgeDirection(CStateManager& mgr, float arg);
   zeus::CVector3f GetTargetPos(CStateManager& mgr);
-  bool LineOfSightTest(CStateManager& mgr, const zeus::CVector3f& pos, const zeus::CVector3f& dir, CMaterialList materials);
+  bool LineOfSightTest(CStateManager& mgr, const zeus::CVector3f& start, const zeus::CVector3f& end,
+                       CMaterialList exclude);
   void UpdateLandingSmoke(CStateManager& mgr, bool active);
-  void UpdateParticleEffects(CStateManager& mgr, float f1, bool b1);
+  void UpdateParticleEffects(CStateManager& mgr, float intensity, bool active);
   void DeliverGetUp();
   void UpdateCantSeePlayer(CStateManager& mgr);
   void AddToTeam(CStateManager& mgr);

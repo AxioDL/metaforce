@@ -44,8 +44,8 @@ public:
   s32 GetBurstType() const { return x0_burstType; }
   void Start(CStateManager& mgr);
   void Update(CStateManager& mgr, float dt);
-  static zeus::CVector3f GetError(float xMag, float zMag);
-  static zeus::CVector3f GetDistanceCompensatedError(float dist, float maxErrDist);
+  zeus::CVector3f GetError(float xMag, float zMag) const;
+  zeus::CVector3f GetDistanceCompensatedError(float dist, float maxErrDist) const;
   float GetMaxXError() const;
   float GetMaxZError() const;
   void SetFirstBurstIndex(s32 idx) { xc_firstBurstIdx = idx; }

@@ -333,5 +333,6 @@ public:
   u8 GetModelAlphau8(const CStateManager& mgr) const override;
   float GetGravityConstant() const override;
   CProjectileInfo* GetProjectileInfo() override;
+  bool GetEnableAim() const { return x637_25_enableAim; }
 };
 } // namespace urde::MP1
