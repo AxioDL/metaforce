@@ -785,7 +785,7 @@ void CFlaahgra::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
         UpdateScale((x7c4_ > 0.f ? 1.f - (GetEndActionTime() / x7c4_) : 1.f), x81c_, x56c_.x4_);
       }
 
-      x450_bodyController->GetCommandMgr().SetTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+      x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
     }
   } else if (msg == EStateMsg::Deactivate) {
     UpdateScale(1.f, x81c_, x56c_.x4_);
@@ -983,7 +983,7 @@ void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::MeleeAttack)
         x568_ = 4;
       else
-        x450_bodyController->GetCommandMgr().SetTargetVector(x78c_);
+        x450_bodyController->GetCommandMgr().DeliverTargetVector(x78c_);
     }
   } else if (msg == EStateMsg::Deactivate) {
     SetCollisionActorBounds(mgr, x79c_leftArmCollision, {});
@@ -1100,7 +1100,7 @@ void CFlaahgra::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::ProjectileAttack) {
         x568_ = 4;
       } else {
-        x450_bodyController->GetCommandMgr().SetTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+        x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
       }
     }
   }
@@ -1135,7 +1135,7 @@ void CFlaahgra::Cover(CStateManager& mgr, EStateMsg msg, float) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::MeleeAttack)
         x568_ = 4;
       else if (TCastToConstPtr<CActor> wp = mgr.GetObjectById(x77c_)) {
-        x450_bodyController->GetCommandMgr().SetTargetVector(wp->GetTranslation() - GetTranslation());
+        x450_bodyController->GetCommandMgr().DeliverTargetVector(wp->GetTranslation() - GetTranslation());
       }
     }
   } else if (msg == EStateMsg::Deactivate) {

@@ -567,7 +567,7 @@ void CFlyingPirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& nod
         x6a1_26_isAttackingObject ? x568_data.x60_altProjectileInfo2 : x568_data.x38_altProjectileInfo1;
     if (pInfo.Token().IsLoaded() && mgr.CanCreateProjectile(x8_uid, EWeaponType::AI, 16)) {
       const zeus::CTransform& xf = GetLctrTransform(node.GetLocatorName());
-      TUniqueId& target = x6a1_26_isAttackingObject ? x85c_attackObjectId : x8_uid;
+      TUniqueId target = x6a1_26_isAttackingObject ? x85c_attackObjectId : mgr.GetPlayer().GetUniqueId();
       CEnergyProjectile* projectile = new CEnergyProjectile(
           true, pInfo.Token(), EWeaponType::AI, xf, EMaterialTypes::Floor, pInfo.GetDamage(), mgr.AllocateUniqueId(),
           x4_areaId, x8_uid, target, EProjectileAttrib::None, false, zeus::skOne3f, std::nullopt, -1, false);
@@ -928,7 +928,9 @@ void CFlyingPirate::Lurk(CStateManager& mgr, EStateMsg msg, float arg) {
     }
     if (x32c_animState != EAnimState::Repeat) {
       x2e0_destPos = GetTargetPos(mgr);
-      if (x34_transform.frontVector().dot((x2e0_destPos - GetTranslation()).normalized()) < 0.8f) {
+      zeus::CVector3f dist = x2e0_destPos - GetTranslation();
+      dist.z() = 0.f;
+      if (x34_transform.frontVector().dot(dist.normalized()) < 0.8f) {
         x32c_animState = EAnimState::Ready;
       }
     }
@@ -1020,7 +1022,7 @@ void CFlyingPirate::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
       x870_ += x87c_;
     }
     if (x30c_behaviourOrient == EBehaviourOrient::Constant) {
-      x450_bodyController->GetCommandMgr().SetTargetVector(GetTargetPos(mgr) - GetTranslation());
+      x450_bodyController->GetCommandMgr().DeliverTargetVector(GetTargetPos(mgr) - GetTranslation());
     }
     UpdateCanSeePlayer(mgr);
   } else if (msg == EStateMsg::Deactivate) {
@@ -1331,7 +1333,7 @@ void CFlyingPirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
       x870_ += x87c_;
     }
     if (x30c_behaviourOrient == EBehaviourOrient::Constant) {
-      x450_bodyController->GetCommandMgr().SetTargetVector(GetTargetPos(mgr) - GetTranslation());
+      x450_bodyController->GetCommandMgr().DeliverTargetVector(GetTargetPos(mgr) - GetTranslation());
     }
     UpdateCanSeePlayer(mgr);
   }
@@ -1341,7 +1343,8 @@ void CFlyingPirate::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x6a0_28_ = true;
     x7a0_boneTracking.SetActive(true);
-    x7a0_boneTracking.SetTarget(x8_uid);
+    const TUniqueId& playerUid = mgr.GetPlayer().GetUniqueId();
+    x7a0_boneTracking.SetTarget(playerUid);
     bool foundPirate = false;
     for (const auto& obj : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
       if (const CSpacePirate* const pirate = CPatterned::CastTo<CSpacePirate>(obj)) {
@@ -1354,7 +1357,7 @@ void CFlyingPirate::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
     }
     x79c_ = foundPirate ? 0 : 1;
     if (x7e8_targetId == kInvalidUniqueId) {
-      x7e8_targetId = mgr.GetPlayer().GetUniqueId();
+      x7e8_targetId = playerUid;
     }
   } else if (msg == EStateMsg::Deactivate) {
     if (x79c_ == 0) {
@@ -1526,25 +1529,24 @@ LAB_801f7bb8:
           x34_transform.transposeRotate(GetTargetPos(mgr) - GetTranslation()));
     }
     if (0.f < x870_.magSquared()) {
-      float fVar27 = x870_.magnitude();
-      float fVar4 = 1.f / fVar27;
-      float fVar5 = 0.2;
+      float mag = x870_.magnitude();
+      float fVar5 = 0.2f;
       if (0.f == x87c_.magSquared()) {
         fVar5 = 0.2f * 3.f;
       }
-      float mul = -(dt * fVar27 * fVar5 * fVar27 - fVar27);
-      x870_ = mul * fVar4 * x870_;
+      float mul = -(dt * mag * fVar5 * mag - mag);
+      x870_ = mul * (1.f / mag) * x870_;
     }
     pas::EAnimationState state = x450_bodyController->GetCurrentStateId();
-    if (!x400_25_alive || state == pas::EAnimationState::LoopReaction || state == pas::EAnimationState::LieOnGround ||
-        state == pas::EAnimationState::Getup) {
+    if (!x400_25_alive || state == pas::EAnimationState::LoopReaction || state == pas::EAnimationState::Hurled ||
+        state == pas::EAnimationState::LieOnGround || state == pas::EAnimationState::Getup) {
       x870_.zeroOut();
       x87c_.zeroOut();
     } else {
       ApplyImpulseWR(xe8_mass * x870_, {});
     }
 
-    if (auto& handle = GetSfxHandle()) {
+    if (const auto& handle = GetSfxHandle()) {
       x898_ = std::clamp(x898_, 1.f, 1.999f);
       x894_ += std::clamp(x898_ - x894_, -dt, dt);
       CSfxManager::PitchBend(handle, x894_); // TODO * 8192.f?
@@ -1569,10 +1571,7 @@ LAB_801f7bb8:
       zeus::CVector3f v128 = x34_transform.frontVector().cross(v1dc);
       zeus::CVector3f v20c = v1dc.cross(v128).normalized();
       zeus::CVector3f v128_2 = v20c.cross(v1dc);
-      x34_transform = zeus::CTransform(v128_2, v20c, v1dc, GetTranslation());
-      xe4_27_notInSortedLists = true;
-      xe4_28_transformDirty = true;
-      xe4_29_actorLightsDirty = true;
+      SetTransform({v128_2, v20c, v1dc, x34_transform.origin});
     }
 
     if (!x450_bodyController->IsFrozen()) {

@@ -446,7 +446,7 @@ void CChozoGhost::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
     xfc_constantForce.zeroOut();
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, x67c_attackType);
-    GetBodyController()->GetCommandMgr().SetTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+    GetBodyController()->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
     if (x67c_attackType != 2)
       FloatToLevel(x678_floorLevel, dt);
   } else if (msg == EStateMsg::Deactivate) {

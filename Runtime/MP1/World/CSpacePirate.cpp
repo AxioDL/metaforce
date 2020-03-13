@@ -1497,7 +1497,7 @@ void CSpacePirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
         }
       }
       if (r28)
-        x450_bodyController->GetCommandMgr().SetTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+        x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
     }
     x828_patrolDestPos = x2e0_destPos;
     break;
@@ -1553,7 +1553,7 @@ void CSpacePirate::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
     TryCommand(mgr, pas::EAnimationState::Jump, &CPatterned::TryJump, x634_25_ceilingAmbush ? 2 : 0);
     if (x32c_animState == EAnimState::Repeat)
       x450_bodyController->SetLocomotionType(pas::ELocomotionType::Combat);
-    x450_bodyController->GetCommandMgr().SetTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+    x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
     break;
   case EStateMsg::Deactivate:
     x32c_animState = EAnimState::NotReady;
@@ -1609,7 +1609,7 @@ void CSpacePirate::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   case EStateMsg::Update:
     if (x636_26_enableMeleeAttack) {
       TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, 1);
-      x450_bodyController->GetCommandMgr().SetTargetVector(x648_targetDelta);
+      x450_bodyController->GetCommandMgr().DeliverTargetVector(x648_targetDelta);
       CheckBlade(mgr);
       if (x635_27_shadowPirate) {
         if (x32c_animState == EAnimState::Over) {
@@ -1668,7 +1668,7 @@ void CSpacePirate::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
     if (!x639_25_useJumpBackJump) {
       x450_bodyController->GetCommandMgr().DeliverCmd(
           CBCStepCmd(pas::EStepDirection::Backward, pas::EStepType::Normal));
-      x450_bodyController->GetCommandMgr().SetTargetVector(GetTargetPos(mgr) - GetTranslation());
+      x450_bodyController->GetCommandMgr().DeliverTargetVector(GetTargetPos(mgr) - GetTranslation());
     } else {
       TryCommand(mgr, pas::EAnimationState::Jump, &CPatterned::TryJump, 0);
     }
@@ -1713,7 +1713,7 @@ void CSpacePirate::DoubleSnap(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     if (x639_30_closeMelee)
       x648_targetDelta = GetTargetPos(mgr) - GetTranslation();
-    x450_bodyController->GetCommandMgr().SetTargetVector(x648_targetDelta);
+    x450_bodyController->GetCommandMgr().DeliverTargetVector(x648_targetDelta);
     if (x635_27_shadowPirate) {
       if (x32c_animState == EAnimState::Over) {
         x3e8_alphaDelta = -0.4f;
@@ -1829,7 +1829,7 @@ void CSpacePirate::Crouch(CStateManager& mgr, EStateMsg msg, float dt) {
     x79c_coverDir = pas::ECoverDirection::Invalid;
     break;
   case EStateMsg::Update:
-    x450_bodyController->GetCommandMgr().SetTargetVector(x648_targetDelta);
+    x450_bodyController->GetCommandMgr().DeliverTargetVector(x648_targetDelta);
     UpdateCantSeePlayer(mgr);
     break;
   default:
@@ -2089,7 +2089,7 @@ void CSpacePirate::Cover(CStateManager& mgr, EStateMsg msg, float dt) {
   case EStateMsg::Update:
     TryCommand(mgr, pas::EAnimationState::Cover, &CPatterned::TryCover, int(x79c_coverDir));
     if (CScriptCoverPoint* cp = GetCoverPoint(mgr, x640_coverPoint))
-      x450_bodyController->GetCommandMgr().SetTargetVector(-cp->GetTransform().basis[1]);
+      x450_bodyController->GetCommandMgr().DeliverTargetVector(-cp->GetTransform().basis[1]);
     UpdateCantSeePlayer(mgr);
     break;
   case EStateMsg::Deactivate:
@@ -2134,7 +2134,7 @@ void CSpacePirate::WallHang(CStateManager& mgr, EStateMsg msg, float dt) {
     break;
   case EStateMsg::Update:
     TryCommand(mgr, pas::EAnimationState::WallHang, &CSpacePirate::TryWallHang, 0);
-    x450_bodyController->GetCommandMgr().SetTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+    x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
     x7c4_burstFire.SetBurstType(1);
     break;
   case EStateMsg::Deactivate:
@@ -2173,7 +2173,7 @@ void CSpacePirate::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) {
   case EStateMsg::Update:
     TryCommand(mgr, pas::EAnimationState::ProjectileAttack, &CPatterned::TryProjectileAttack, int(pas::ESeverity::One));
     if (x32c_animState == EAnimState::Ready)
-      x450_bodyController->GetCommandMgr().SetTargetVector(x648_targetDelta);
+      x450_bodyController->GetCommandMgr().DeliverTargetVector(x648_targetDelta);
     break;
   case EStateMsg::Deactivate:
     x32c_animState = EAnimState::NotReady;

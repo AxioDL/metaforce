@@ -107,7 +107,7 @@ void CJellyZap::Suck(CStateManager& mgr, EStateMsg msg, float arg) {
     RemoveAllAttractors(mgr);
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::LoopReaction, &CPatterned::TryLoopReaction, 0);
-    x450_bodyController->GetCommandMgr().SetTargetVector(
+    x450_bodyController->GetCommandMgr().DeliverTargetVector(
         (mgr.GetPlayer().GetTranslation() + zeus::CVector3f(0.f, 0.f, 1.f)) - GetTranslation());
 
     float intensity = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit) ? 0.1f : 1.f;
@@ -133,7 +133,7 @@ void CJellyZap::Active(CStateManager& mgr, EStateMsg msg, float arg) {
   } else if (msg == EStateMsg::Update) {
     zeus::CVector3f targetVector =
         GetTranslation() - (zeus::CVector3f(0.f, 0.f, 1.f) + mgr.GetPlayer().GetTranslation());
-    x450_bodyController->GetCommandMgr().SetTargetVector(targetVector);
+    x450_bodyController->GetCommandMgr().DeliverTargetVector(targetVector);
     if (x5b8_26_) {
       zeus::CVector3f moveToImpulse =
           GetMoveToORImpulseWR(GetTransform().transposeRotate(arg * (zeus::CVector3f(0.f, 1.f, 0.f) * x598_)), arg);

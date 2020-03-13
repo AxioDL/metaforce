@@ -144,7 +144,7 @@ void CMetaree::Active(CStateManager& mgr, EStateMsg msg, float) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Zero, x584_lookPos));
     SetMomentumWR({0.f, 0.f, -GetGravityConstant() * GetMass()});
   } else if (msg == EStateMsg::Update) {
-    x450_bodyController->GetCommandMgr().SetTargetVector(
+    x450_bodyController->GetCommandMgr().DeliverTargetVector(
         (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized());
   } else if (msg == EStateMsg::Deactivate) {
     SetMomentumWR({});
