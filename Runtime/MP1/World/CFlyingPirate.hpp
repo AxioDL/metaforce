@@ -147,8 +147,8 @@ private:
   bool x6a0_28_ : 1;
   bool x6a0_29_checkForProjectiles : 1;
   bool x6a0_30_ : 1;
-  bool x6a0_31_ : 1;
-  bool x6a1_24_ : 1;
+  bool x6a0_31_canSeePlayer : 1;
+  bool x6a1_24_prevInCineCam : 1;
   bool x6a1_25_ : 1;
   bool x6a1_26_isAttackingObject : 1;
   bool x6a1_27_ : 1;
@@ -206,7 +206,7 @@ private:
   void UpdateLandingSmoke(CStateManager& mgr, bool active);
   void UpdateParticleEffects(CStateManager& mgr, float intensity, bool active);
   void DeliverGetUp();
-  void UpdateCantSeePlayer(CStateManager& mgr);
+  void UpdateCanSeePlayer(CStateManager& mgr);
   void AddToTeam(CStateManager& mgr);
   void RemoveFromTeam(CStateManager& mgr);
 };
