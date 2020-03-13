@@ -29,7 +29,7 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx, EPrimitive
   }
   m_textured = bool(texture);
 
-  u32 maxTriVerts;
+  u32 maxTriVerts = 0;
   switch (mode) {
   case EPrimitiveMode::Lines:
   case EPrimitiveMode::LineStrip:
@@ -59,7 +59,7 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const boo::ObjTo
   }
   m_textured = bool(texture);
 
-  u32 maxTriVerts;
+  u32 maxTriVerts = 0;
   switch (mode) {
   case EPrimitiveMode::Lines:
   case EPrimitiveMode::LineStrip:
