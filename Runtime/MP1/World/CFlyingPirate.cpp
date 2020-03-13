@@ -1309,6 +1309,8 @@ void CFlyingPirate::UpdateCanSeePlayer(CStateManager& mgr) {
 }
 
 void CFlyingPirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
+  CPatterned::Patrol(mgr, msg, arg);
+
   if (msg == EStateMsg::Activate) {
     x450_bodyController->GetCommandMgr().SetSteeringBlendMode(ESteeringBlendMode::Normal);
     x2dc_destObj = GetWaypointForState(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow);
