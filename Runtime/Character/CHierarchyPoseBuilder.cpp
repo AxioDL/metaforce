@@ -12,8 +12,8 @@ void CHierarchyPoseBuilder::BuildIntoHierarchy(const CCharLayoutInfo& layout, co
   if (!x38_treeMap.HasElement(boneId)) {
     const CCharLayoutNode::Bone& bone = layout.GetRootNode()->GetBoneMap()[boneId];
     if (bone.x0_parentId == nullId) {
-      xcec_rootId = boneId;
-      xcf0_hasRoot = true;
+      x30_rootId = boneId;
+      x34_hasRoot = true;
       zeus::CVector3f origin = layout.GetFromParentUnrotated(boneId);
       CTreeNode& node = x38_treeMap[boneId];
       node.x14_offset = origin;
@@ -128,11 +128,11 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& boneId, zeus::CTransfor
 
 void CHierarchyPoseBuilder::BuildNoScale(CPoseAsTransforms& pose) {
   pose.Clear();
-  const CTreeNode& node = x38_treeMap[xcec_rootId];
+  const CTreeNode& node = x38_treeMap[x30_rootId];
   zeus::CQuaternion quat;
   zeus::CMatrix3f mtx;
   zeus::CVector3f vec;
-  RecursivelyBuildNoScale(xcec_rootId, node, pose, quat, mtx, vec);
+  RecursivelyBuildNoScale(x30_rootId, node, pose, quat, mtx, vec);
 }
 
 void CHierarchyPoseBuilder::Insert(const CSegId& boneId, const zeus::CQuaternion& quat) {

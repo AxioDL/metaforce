@@ -14,7 +14,8 @@ class CPoseAsTransforms;
 
 class CHierarchyPoseBuilder {
   CLayoutDescription x0_layoutDesc;
-  bool x34_ = 0;
+  CSegId x30_rootId;
+  bool x34_hasRoot = false;
 
   struct CTreeNode {
     CSegId x0_child = 0;
@@ -23,9 +24,6 @@ class CHierarchyPoseBuilder {
     zeus::CVector3f x14_offset;
   };
   TSegIdMap<CTreeNode> x38_treeMap;
-
-  CSegId xcec_rootId;
-  bool xcf0_hasRoot = false;
 
   void BuildIntoHierarchy(const CCharLayoutInfo& layout, const CSegId& boneId, const CSegId& nullId);
   void RecursivelyBuildNoScale(const CSegId& boneId, const CTreeNode& node, CPoseAsTransforms& pose,
@@ -39,7 +37,7 @@ public:
   CHierarchyPoseBuilder(const CLayoutDescription& layout);
 
   const TLockedToken<CCharLayoutInfo>& CharLayoutInfo() const { return x0_layoutDesc.ScaledLayout(); }
-  bool HasRoot() const { return xcf0_hasRoot; }
+  bool HasRoot() const { return x34_hasRoot; }
   void BuildTransform(const CSegId& boneId, zeus::CTransform& xfOut) const;
   void BuildNoScale(CPoseAsTransforms& pose);
   void Insert(const CSegId& boneId, const zeus::CQuaternion& quat);
