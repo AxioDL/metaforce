@@ -31,7 +31,7 @@ void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, CAss
 
   for (u32 i = 0; i < worldMem.GetAreaCount(); ++i) {
     if (i < x0_visitedAreasAllocated)
-      writer.WriteEncoded(IsAreaVisted(i), 1);
+      writer.WriteEncoded(IsAreaVisited(i), 1);
     else
       writer.WriteEncoded(0, 1);
   }
@@ -53,8 +53,8 @@ void CMapWorldInfo::SetDoorVisited(TEditorId eid, bool visited) { x28_visitedDoo
 
 bool CMapWorldInfo::IsDoorVisited(TEditorId eid) const { return x28_visitedDoors.find(eid) != x28_visitedDoors.end(); }
 
-bool CMapWorldInfo::IsAreaVisted(TAreaId aid) const {
-  if (aid + 1 > x0_visitedAreasAllocated) {
+bool CMapWorldInfo::IsAreaVisited(TAreaId aid) const {
+  if (u32(aid) + 1 > x0_visitedAreasAllocated) {
     const_cast<CMapWorldInfo&>(*this).x4_visitedAreas.resize((aid + 32) / 32);
     const_cast<CMapWorldInfo&>(*this).x0_visitedAreasAllocated = aid + 1;
   }
@@ -62,7 +62,7 @@ bool CMapWorldInfo::IsAreaVisted(TAreaId aid) const {
 }
 
 void CMapWorldInfo::SetAreaVisited(TAreaId aid, bool visited) {
-  if (aid + 1 > x0_visitedAreasAllocated) {
+  if (u32(aid) + 1 > x0_visitedAreasAllocated) {
     x4_visitedAreas.resize((aid + 32) / 32);
     x0_visitedAreasAllocated = aid + 1;
   }
@@ -73,7 +73,7 @@ void CMapWorldInfo::SetAreaVisited(TAreaId aid, bool visited) {
 }
 
 bool CMapWorldInfo::IsMapped(TAreaId aid) const {
-  if (aid + 1 > x14_mappedAreasAllocated) {
+  if (u32(aid) + 1 > x14_mappedAreasAllocated) {
     const_cast<CMapWorldInfo&>(*this).x18_mappedAreas.resize((aid + 32) / 32);
     const_cast<CMapWorldInfo&>(*this).x14_mappedAreasAllocated = aid + 1;
   }
@@ -81,7 +81,7 @@ bool CMapWorldInfo::IsMapped(TAreaId aid) const {
 }
 
 void CMapWorldInfo::SetIsMapped(TAreaId aid, bool mapped) {
-  if (aid + 1 > x14_mappedAreasAllocated) {
+  if (u32(aid) + 1 > x14_mappedAreasAllocated) {
     x18_mappedAreas.resize((aid + 32) / 32);
     x14_mappedAreasAllocated = aid + 1;
   }
@@ -93,7 +93,7 @@ void CMapWorldInfo::SetIsMapped(TAreaId aid, bool mapped) {
 
 bool CMapWorldInfo::IsWorldVisible(TAreaId aid) const { return x38_mapStationUsed || IsMapped(aid); }
 
-bool CMapWorldInfo::IsAreaVisible(TAreaId aid) const { return IsAreaVisted(aid) || IsMapped(aid); }
+bool CMapWorldInfo::IsAreaVisible(TAreaId aid) const { return IsAreaVisited(aid) || IsMapped(aid); }
 
 bool CMapWorldInfo::IsAnythingSet() const {
   for (u32 i = 0; i < x0_visitedAreasAllocated; ++i)

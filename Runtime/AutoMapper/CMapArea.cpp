@@ -246,9 +246,10 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
 }
 
 void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::CColor& surfColor,
-                                     const zeus::CColor& lineColor, float lineWidth, int instIdx) const {
-  if (instIdx >= m_instances.size())
+                                     const zeus::CColor& lineColor, float lineWidth, size_t instIdx) const {
+  if (instIdx >= m_instances.size()) {
     return;
+  }
 
   Instance& instance = const_cast<Instance&>(m_instances[instIdx]);
 

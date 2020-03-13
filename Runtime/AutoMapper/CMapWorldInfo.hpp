@@ -24,7 +24,7 @@ public:
   void SetIsMapped(TAreaId, bool);
   void SetDoorVisited(TEditorId eid, bool val);
   bool IsDoorVisited(TEditorId eid) const;
-  bool IsAreaVisted(TAreaId) const;
+  bool IsAreaVisited(TAreaId) const;
   void SetAreaVisited(TAreaId, bool);
   bool IsWorldVisible(TAreaId) const;
   bool IsAreaVisible(TAreaId) const;

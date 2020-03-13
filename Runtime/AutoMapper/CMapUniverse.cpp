@@ -57,7 +57,7 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
     if (!mwInfo.IsAnythingSet())
       continue;
     zeus::CColor surfColor, outlineColor;
-    if (w == parms.GetFocusWorldIndex()) {
+    if (s32(w) == parms.GetFocusWorldIndex()) {
       surfColor = data.GetSurfaceColorSelected();
       surfColor.a() *= parms.GetAlpha();
       outlineColor = data.GetOutlineColorSelected();
@@ -85,7 +85,7 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
 
   int lastWldIdx = -1;
   int lastHexIdx = -1;
-  int instIdx = 0;
+  size_t instIdx = 0;
   for (const CMapObjectSortInfo& info : sortInfos) {
     const CMapWorldData& mwData = x10_worldDatas[info.GetWorldIndex()];
     zeus::CColor surfColor = info.GetSurfaceColor();

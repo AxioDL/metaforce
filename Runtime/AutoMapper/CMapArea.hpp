@@ -42,7 +42,7 @@ public:
     CMapAreaSurface(CMapAreaSurface&&) = default;
     void PostConstruct(const u8* buf, std::vector<u32>& index);
     void Draw(const zeus::CVector3f* verts, const zeus::CColor& surfColor, const zeus::CColor& lineColor,
-              float lineWidth, int instIdx = 0) const;
+              float lineWidth, size_t instIdx = 0) const;
     const zeus::CVector3f& GetNormal() const { return x0_normal; }
     const zeus::CVector3f& GetCenterPosition() const { return xc_centroid; }
   };

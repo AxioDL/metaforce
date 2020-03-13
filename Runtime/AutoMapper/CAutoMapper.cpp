@@ -1249,7 +1249,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr) {
   } else if (x24_world) {
     const IGameArea* area = x24_world->IGetAreaAlways(xa0_curAreaId);
     const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
-    if (mwInfo.IsMapped(xa0_curAreaId) || mwInfo.IsAreaVisted(xa0_curAreaId))
+    if (mwInfo.IsMapped(xa0_curAreaId) || mwInfo.IsAreaVisited(xa0_curAreaId))
       stringId = area->IGetStringTableAssetId();
     else
       stringId = {};

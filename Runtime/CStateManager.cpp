@@ -2310,7 +2310,7 @@ void CStateManager::SetCurrentAreaId(TAreaId aid) {
 
   if (aid == kInvalidAreaId)
     return;
-  if (x8c0_mapWorldInfo->IsAreaVisted(aid))
+  if (x8c0_mapWorldInfo->IsAreaVisited(aid))
     return;
   x8c0_mapWorldInfo->SetAreaVisited(aid, true);
   x850_world->GetMapWorld()->RecalculateWorldSphere(*x8c0_mapWorldInfo, *x850_world);
