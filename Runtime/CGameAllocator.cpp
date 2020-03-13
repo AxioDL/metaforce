@@ -29,14 +29,14 @@ u8* CGameAllocator::Alloc(size_t len) {
 
   /* Pad size to allow for allocation information */
   allocSz = ROUND_UP_64(allocSz + sizeof(SChunkDescription));
-  m_allocations.emplace_back();
-  m_allocations.back().memptr.reset(new u8[allocSz]);
-  u8* ptr = m_allocations.back().memptr.get();
-  m_allocations.back().allocSize = allocSz;
-  m_allocations.back().freeOffset += roundedLen;
+  auto& alloc = m_allocations.emplace_back();
+  alloc.memptr.reset(new u8[allocSz]);
+  u8* ptr = alloc.memptr.get();
+  alloc.allocSize = allocSz;
+  alloc.freeOffset += roundedLen;
   SChunkDescription* chunkInfo = reinterpret_cast<SChunkDescription*>(ptr);
   *chunkInfo = SChunkDescription();
-  chunkInfo->parent = &m_allocations.back();
+  chunkInfo->parent = &alloc;
   chunkInfo->len = len;
   return ptr + sizeof(SChunkDescription);
 }

@@ -266,8 +266,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
         zeus::CSphere sphere(light.GetPosition(), light.GetRadius() * 2.f);
         if (aabb.intersects(sphere)) {
           /* Light passes as candidate */
-          valList.emplace_back();
-          SLightValue& value = valList.back();
+          SLightValue& value = valList.emplace_back();
           value.x0_areaLightIdx = lightIdx;
           value.x4_color = light.GetNormalIndependentLightingAtPoint(vec);
           value.x4_color.a() = 0.f;

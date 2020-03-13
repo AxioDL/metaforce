@@ -5,43 +5,49 @@
 namespace urde {
 CSaveWorld::CSaveWorld(CInputStream& in) {
   in.readUint32Big();
-  u32 version = in.readUint32Big();
-  if (version > 1)
+  const u32 version = in.readUint32Big();
+  if (version > 1) {
     x0_areaCount = in.readUint32Big();
-  if (version > 2) {
-    u32 cinematicCount = in.readUint32Big();
-    x4_cinematics.reserve(cinematicCount);
-    for (u32 i = 0; i < cinematicCount; ++i)
-      x4_cinematics.push_back(in.readUint32Big());
-
-    u32 relayCount = in.readUint32Big();
-    x14_relays.reserve(relayCount);
-    for (u32 i = 0; i < relayCount; ++i)
-      x14_relays.push_back(in.readUint32Big());
   }
 
-  u32 layerCount = in.readUint32Big();
+  if (version > 2) {
+    const u32 cinematicCount = in.readUint32Big();
+    x4_cinematics.reserve(cinematicCount);
+    for (u32 i = 0; i < cinematicCount; ++i) {
+      x4_cinematics.push_back(in.readUint32Big());
+    }
+
+    const u32 relayCount = in.readUint32Big();
+    x14_relays.reserve(relayCount);
+    for (u32 i = 0; i < relayCount; ++i) {
+      x14_relays.push_back(in.readUint32Big());
+    }
+  }
+
+  const u32 layerCount = in.readUint32Big();
   x24_layers.reserve(layerCount);
   for (u32 i = 0; i < layerCount; ++i) {
-    x24_layers.emplace_back();
-    SLayerState& st = x24_layers.back();
+    SLayerState& st = x24_layers.emplace_back();
     st.x0_area = in.readUint32Big();
     st.x4_layer = in.readUint32Big();
   }
 
-  u32 doorCount = in.readUint32Big();
+  const u32 doorCount = in.readUint32Big();
   x34_doors.reserve(doorCount);
-  for (u32 i = 0; i < doorCount; ++i)
+  for (u32 i = 0; i < doorCount; ++i) {
     x34_doors.push_back(in.readUint32Big());
-  if (version > 0) {
-    u32 scanCount = in.readUint32Big();
-    x44_scans.reserve(scanCount);
-    for (u32 i = 0; i < scanCount; ++i) {
-      x44_scans.emplace_back();
-      SScanState& st = x44_scans.back();
-      st.x0_id = in.readUint32Big();
-      st.x4_category = EScanCategory(in.readUint32Big());
-    }
+  }
+
+  if (version <= 0) {
+    return;
+  }
+
+  const u32 scanCount = in.readUint32Big();
+  x44_scans.reserve(scanCount);
+  for (u32 i = 0; i < scanCount; ++i) {
+    SScanState& st = x44_scans.emplace_back();
+    st.x0_id = in.readUint32Big();
+    st.x4_category = EScanCategory(in.readUint32Big());
   }
 }
 

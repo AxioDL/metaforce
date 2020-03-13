@@ -493,17 +493,18 @@ void CElementGen::CreateNewParticles(int count) {
   CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
 
   for (int i = 0; i < count; ++i) {
-    x30_particles.emplace_back();
+    CParticle& particle = x30_particles.emplace_back();
     ++g_ParticleAliveCount;
     ++x25c_activeParticleCount;
     ++x260_cumulativeParticles;
-    if (x2c_orientType == EModelOrientationType::One)
+    if (x2c_orientType == EModelOrientationType::One) {
       x50_parentMatrices[x30_particles.size() - 1] = x1d8_orientation.buildMatrix3f();
+    }
 
-    CParticle& particle = x30_particles.back();
     particle.x28_startFrame = x74_curFrame;
-    if (CIntElement* ltme = desc->x34_x28_LTME.get())
+    if (CIntElement* ltme = desc->x34_x28_LTME.get()) {
       ltme->GetValue(0, particle.x0_endFrame);
+    }
     CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame);
     CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(0);
     g_currentParticle = &particle;
@@ -994,8 +995,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
 
       switch (m_shaderClass) {
       case CElementGenShaders::EShaderClass::Tex: {
-        g_instTexData.emplace_back();
-        SParticleInstanceTex& inst = g_instTexData.back();
+        SParticleInstanceTex& inst = g_instTexData.emplace_back();
         inst.pos[0] = CGraphics::g_GXModelView * zeus::CVector3f{0.5f, 0.f, 0.5f};
         inst.pos[1] = CGraphics::g_GXModelView * zeus::CVector3f{-0.5f, 0.f, 0.5f};
         inst.pos[2] = CGraphics::g_GXModelView * zeus::CVector3f{0.5f, 0.f, -0.5f};
@@ -1008,8 +1008,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
         break;
       }
       case CElementGenShaders::EShaderClass::NoTex: {
-        g_instNoTexData.emplace_back();
-        SParticleInstanceNoTex& inst = g_instNoTexData.back();
+        SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
         inst.pos[0] = CGraphics::g_GXModelView * zeus::CVector3f{0.5f, 0.f, 0.5f};
         inst.pos[1] = CGraphics::g_GXModelView * zeus::CVector3f{-0.5f, 0.f, 0.5f};
         inst.pos[2] = CGraphics::g_GXModelView * zeus::CVector3f{0.5f, 0.f, -0.5f};
@@ -1327,8 +1326,7 @@ void CElementGen::RenderParticles() {
         if (0.f == particle.x30_lineWidthOrRota) {
           switch (m_shaderClass) {
           case CElementGenShaders::EShaderClass::Tex: {
-            g_instTexData.emplace_back();
-            SParticleInstanceTex& inst = g_instTexData.back();
+            SParticleInstanceTex& inst = g_instTexData.emplace_back();
             inst.pos[0] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size, 1.f};
             inst.pos[1] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size, 1.f};
             inst.pos[2] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size, 1.f};
@@ -1341,8 +1339,7 @@ void CElementGen::RenderParticles() {
             break;
           }
           case CElementGenShaders::EShaderClass::NoTex: {
-            g_instNoTexData.emplace_back();
-            SParticleInstanceNoTex& inst = g_instNoTexData.back();
+            SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
             inst.pos[0] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size, 1.f};
             inst.pos[1] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size, 1.f};
             inst.pos[2] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size, 1.f};
@@ -1360,8 +1357,7 @@ void CElementGen::RenderParticles() {
 
           switch (m_shaderClass) {
           case CElementGenShaders::EShaderClass::Tex: {
-            g_instTexData.emplace_back();
-            SParticleInstanceTex& inst = g_instTexData.back();
+            SParticleInstanceTex& inst = g_instTexData.emplace_back();
             inst.pos[0] = zeus::CVector4f{viewPoint.x() + sinT + cosT, viewPoint.y(), viewPoint.z() + cosT - sinT, 1.f};
             inst.pos[1] = zeus::CVector4f{viewPoint.x() + sinT - cosT, viewPoint.y(), viewPoint.z() + sinT + cosT, 1.f};
             inst.pos[2] =
@@ -1376,8 +1372,7 @@ void CElementGen::RenderParticles() {
             break;
           }
           case CElementGenShaders::EShaderClass::NoTex: {
-            g_instNoTexData.emplace_back();
-            SParticleInstanceNoTex& inst = g_instNoTexData.back();
+            SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
             inst.pos[0] = zeus::CVector4f{viewPoint.x() + sinT + cosT, viewPoint.y(), viewPoint.z() + cosT - sinT, 1.f};
             inst.pos[1] = zeus::CVector4f{viewPoint.x() + sinT - cosT, viewPoint.y(), viewPoint.z() + sinT + cosT, 1.f};
             inst.pos[2] =
@@ -1437,8 +1432,7 @@ void CElementGen::RenderParticles() {
 
         switch (m_shaderClass) {
         case CElementGenShaders::EShaderClass::Tex: {
-          g_instTexData.emplace_back();
-          SParticleInstanceTex& inst = g_instTexData.back();
+          SParticleInstanceTex& inst = g_instTexData.emplace_back();
           viewPoint += rightVec * 0.5f;
           inst.pos[0] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
           inst.pos[1] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
@@ -1453,8 +1447,7 @@ void CElementGen::RenderParticles() {
           break;
         }
         case CElementGenShaders::EShaderClass::NoTex: {
-          g_instNoTexData.emplace_back();
-          SParticleInstanceNoTex& inst = g_instNoTexData.back();
+          SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
           viewPoint += rightVec * 0.5f;
           inst.pos[0] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
           inst.pos[1] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
@@ -1521,8 +1514,7 @@ void CElementGen::RenderParticles() {
 
           switch (m_shaderClass) {
           case CElementGenShaders::EShaderClass::Tex: {
-            g_instTexData.emplace_back();
-            SParticleInstanceTex& inst = g_instTexData.back();
+            SParticleInstanceTex& inst = g_instTexData.emplace_back();
             inst.pos[0] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() + size, 1.f};
             inst.pos[1] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() + size, 1.f};
             inst.pos[2] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() - size, 1.f};
@@ -1535,8 +1527,7 @@ void CElementGen::RenderParticles() {
             break;
           }
           case CElementGenShaders::EShaderClass::NoTex: {
-            g_instNoTexData.emplace_back();
-            SParticleInstanceNoTex& inst = g_instNoTexData.back();
+            SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
             inst.pos[0] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() + size, 1.f};
             inst.pos[1] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() + size, 1.f};
             inst.pos[2] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() - size, 1.f};
@@ -1559,8 +1550,7 @@ void CElementGen::RenderParticles() {
 
           switch (m_shaderClass) {
           case CElementGenShaders::EShaderClass::Tex: {
-            g_instTexData.emplace_back();
-            SParticleInstanceTex& inst = g_instTexData.back();
+            SParticleInstanceTex& inst = g_instTexData.emplace_back();
             inst.pos[0] = zeus::CVector4f{vec2.x() + sinT + cosT, vec2.y(), vec2.z() + cosT - sinT, 1.f};
             inst.pos[1] = zeus::CVector4f{vec2.x() + sinT - cosT, vec2.y(), vec2.z() + sinT + cosT, 1.f};
             inst.pos[2] = zeus::CVector4f{vec2.x() + (cosT - sinT), vec2.y(), vec2.z() + (-cosT - sinT), 1.f};
@@ -1573,8 +1563,7 @@ void CElementGen::RenderParticles() {
             break;
           }
           case CElementGenShaders::EShaderClass::NoTex: {
-            g_instNoTexData.emplace_back();
-            SParticleInstanceNoTex& inst = g_instNoTexData.back();
+            SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
             inst.pos[0] = zeus::CVector4f{vec2.x() + sinT + cosT, vec2.y(), vec2.z() + cosT - sinT, 1.f};
             inst.pos[1] = zeus::CVector4f{vec2.x() + sinT - cosT, vec2.y(), vec2.z() + sinT + cosT, 1.f};
             inst.pos[2] = zeus::CVector4f{vec2.x() + (cosT - sinT), vec2.y(), vec2.z() + (-cosT - sinT), 1.f};
@@ -1718,8 +1707,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
 
     CGraphics::ResolveSpareTexture(clipRect);
 
-    g_instIndTexData.emplace_back();
-    SParticleInstanceIndTex& inst = g_instIndTexData.back();
+    SParticleInstanceIndTex& inst = g_instIndTexData.emplace_back();
     inst.pos[0] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size, 1.f};
     inst.pos[1] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size, 1.f};
     inst.pos[2] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size, 1.f};

@@ -17,11 +17,10 @@ CMapUniverse::CMapUniverse(CInputStream& in, u32 version) : x0_hexagonId(in.read
 CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
 : x0_label(in.readString()), x10_worldAssetId(in.readUint32Big()) {
   x14_transform.read34RowMajor(in);
-  u32 worldCount = in.readUint32Big();
+  const u32 worldCount = in.readUint32Big();
   x44_hexagonXfs.reserve(worldCount);
   for (u32 i = 0; i < worldCount; ++i) {
-    x44_hexagonXfs.emplace_back();
-    x44_hexagonXfs.back().read34RowMajor(in);
+    x44_hexagonXfs.emplace_back().read34RowMajor(in);
   }
 
   if (version != 0)

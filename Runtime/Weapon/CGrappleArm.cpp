@@ -69,8 +69,7 @@ void CGrappleArm::BuildSuitDependencyList() {
   x184_grappleArm.Lock();
   for (const char* name : skDependencyNames) {
     TLockedToken<CDependencyGroup> dgrp = g_SimplePool->GetObj(name);
-    x19c_suitDeps.emplace_back();
-    std::vector<CToken>& depsOut = x19c_suitDeps.back();
+    std::vector<CToken>& depsOut = x19c_suitDeps.emplace_back();
     FillTokenVector(dgrp->GetObjectTagVector(), depsOut);
   }
 }

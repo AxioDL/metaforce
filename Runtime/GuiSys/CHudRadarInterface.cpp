@@ -31,8 +31,8 @@ CHudRadarInterface::CHudRadarInterface(CGuiFrame& baseHud, CStateManager& stateM
 void CHudRadarInterface::DoDrawRadarPaint(const zeus::CVector3f& translate, float radius,
                                           const zeus::CColor& color) const {
   radius *= 4.f;
-  m_paintInsts.emplace_back();
-  CRadarPaintShader::Instance& inst = m_paintInsts.back();
+
+  CRadarPaintShader::Instance& inst = m_paintInsts.emplace_back();
   inst.pos[0] = translate + zeus::CVector3f(-radius, 0.f, radius);
   inst.uv[0].assign(0.f, 1.f);
   inst.pos[1] = translate + zeus::CVector3f(-radius, 0.f, -radius);

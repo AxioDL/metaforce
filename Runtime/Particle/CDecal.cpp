@@ -114,8 +114,7 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
     g_instTexData.clear();
     g_instTexData.reserve(1);
 
-    g_instTexData.emplace_back();
-    SParticleInstanceTex& inst = g_instTexData.back();
+    SParticleInstanceTex& inst = g_instTexData.emplace_back();
     if (decal.x8_rotation == 0.f) {
       inst.pos[0] = zeus::CVector3f(-size, 0.001f, size);
       inst.pos[1] = zeus::CVector3f(size, 0.001f, size);
@@ -142,8 +141,7 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
     g_instNoTexData.clear();
     g_instNoTexData.reserve(1);
 
-    g_instNoTexData.emplace_back();
-    SParticleInstanceNoTex& inst = g_instNoTexData.back();
+    SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
     if (decal.x8_rotation == 0.f) {
       inst.pos[0] = zeus::CVector3f(-size, 0.001f, size);
       inst.pos[1] = zeus::CVector3f(size, 0.001f, size);

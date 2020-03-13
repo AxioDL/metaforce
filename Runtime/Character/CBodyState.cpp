@@ -1721,8 +1721,7 @@ pas::EAnimationState CBSLocomotion::GetBodyStateTransition(float, CBodyControlle
 CBSBiPedLocomotion::CBSBiPedLocomotion(CActor& actor) {
   const CPASDatabase& pasDatabase = actor.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();
   for (int i = 0; i < 14; ++i) {
-    x8_anims.emplace_back();
-    rstl::reserved_vector<std::pair<s32, float>, 8>& innerVec = x8_anims.back();
+    rstl::reserved_vector<std::pair<s32, float>, 8>& innerVec = x8_anims.emplace_back();
     for (int j = 0; j < 8; ++j) {
       CPASAnimParmData parms(5, CPASAnimParm::FromEnum(j), CPASAnimParm::FromEnum(i));
       std::pair<float, s32> best = pasDatabase.FindBestAnimation(parms, -1);
