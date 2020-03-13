@@ -263,13 +263,15 @@ GeometryUniformLayout::GeometryUniformLayout(const CModel* model, const Material
 }
 
 CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
-  if (!x40_24_texturesLoaded && !g_DummyTextures)
+  if (!x40_24_texturesLoaded && !g_DummyTextures) {
     return nullptr;
+  }
 
-  if (m_instances.size() >= 512)
+  if (m_instances.size() >= 512) {
     Log.report(logvisor::Fatal, fmt("Model buffer overflow"));
-  m_instances.emplace_back();
-  ModelInstance& newInst = m_instances.back();
+  }
+
+  ModelInstance& newInst = m_instances.emplace_back();
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     /* Build geometry uniform buffer if shared not available */
@@ -371,8 +373,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
 
       const CModelShaders::ShaderPipelines& pipelines = m_pipelines->at(surf.m_data.matIdx);
 
-      newInst.m_shaderDataBindings.emplace_back();
-      std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = newInst.m_shaderDataBindings.back();
+      std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = newInst.m_shaderDataBindings.emplace_back();
       extendeds.reserve(pipelines->size());
 
       EExtendedShader idx{};
@@ -1171,10 +1172,9 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
   const u8* dataCur = data.get() + ROUND_UP_32(0x2c + secCount * 4);
   const u32* secSizeCur = reinterpret_cast<const u32*>(data.get() + 0x2c);
   for (u32 i = 0; i < matSetCount; ++i) {
-    u32 matSetSz = hecl::SBig(*secSizeCur);
+    const u32 matSetSz = hecl::SBig(*secSizeCur);
     const u8* sec = MemoryFromPartData(dataCur, secSizeCur);
-    x18_matSets.emplace_back(i);
-    SShader& shader = x18_matSets.back();
+    SShader& shader = x18_matSets.emplace_back(i);
     athena::io::MemoryReader r(sec, matSetSz);
     shader.m_matSet.read(r);
     CBooModel::MakeTexturesFromMats(shader.m_matSet, shader.x0_textures, *store);
@@ -1217,13 +1217,12 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
     return true;
   } BooTrace);
 
-  u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(surfInfo));
+  const u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(surfInfo));
   x8_surfaces.reserve(surfCount);
   for (u32 i = 0; i < surfCount; ++i) {
-    u32 surfSz = hecl::SBig(*secSizeCur);
+    const u32 surfSz = hecl::SBig(*secSizeCur);
     const u8* sec = MemoryFromPartData(dataCur, secSizeCur);
-    x8_surfaces.emplace_back();
-    CBooSurface& surf = x8_surfaces.back();
+    CBooSurface& surf = x8_surfaces.emplace_back();
     surf.selfIdx = i;
     athena::io::MemoryReader r(sec, surfSz);
     surf.m_data.read(r);

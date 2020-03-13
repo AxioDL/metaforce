@@ -49,8 +49,7 @@ void CCameraManager::RemoveCameraShaker(u32 id) {
 }
 
 int CCameraManager::AddCameraShaker(const CCameraShakeData& data, bool sfx) {
-  x14_shakers.emplace_back(data);
-  x14_shakers.back().xbc_shakerId = ++x2c_lastShakeId;
+  x14_shakers.emplace_back(data).xbc_shakerId = ++x2c_lastShakeId;
   if (!xa0_24_pendingRumble) {
     xa0_24_pendingRumble = true;
     x90_rumbleCooldown = 0.5f;

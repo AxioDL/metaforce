@@ -51,18 +51,16 @@ std::unique_ptr<float[]> RotationAndOffsetStorage::GetRotationsAndOffsets(const 
 }
 
 RotationAndOffsetStorage::CRotationAndOffsetVectors::CRotationAndOffsetVectors(CInputStream& in) {
-  u32 quatCount = in.readUint32Big();
+  const u32 quatCount = in.readUint32Big();
   x0_rotations.reserve(quatCount);
   for (u32 i = 0; i < quatCount; ++i) {
-    x0_rotations.emplace_back();
-    x0_rotations.back().readBig(in);
+    x0_rotations.emplace_back().readBig(in);
   }
 
-  u32 vecCount = in.readUint32Big();
+  const u32 vecCount = in.readUint32Big();
   x10_offsets.reserve(vecCount);
   for (u32 i = 0; i < vecCount; ++i) {
-    x10_offsets.emplace_back();
-    x10_offsets.back().readBig(in);
+    x10_offsets.emplace_back().readBig(in);
   }
 }
 

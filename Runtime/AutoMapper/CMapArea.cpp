@@ -30,8 +30,7 @@ void CMapArea::PostConstruct() {
 
   m_mappableObjects.reserve(x28_mappableObjCount);
   for (u32 i = 0, j = 0; i < x28_mappableObjCount; ++i, j += 0x50) {
-    m_mappableObjects.emplace_back(x38_moStart + j);
-    m_mappableObjects.back().PostConstruct(x44_buf.get());
+    m_mappableObjects.emplace_back(x38_moStart + j).PostConstruct(x44_buf.get());
   }
 
   u8* tmp = x3c_vertexStart;
@@ -45,8 +44,7 @@ void CMapArea::PostConstruct() {
   std::vector<u32> index;
   m_surfaces.reserve(x30_surfaceCount);
   for (u32 i = 0, j = 0; i < x30_surfaceCount; ++i, j += 32) {
-    m_surfaces.emplace_back(x40_surfaceStart + j);
-    m_surfaces.back().PostConstruct(x44_buf.get(), index);
+    m_surfaces.emplace_back(x40_surfaceStart + j).PostConstruct(x44_buf.get(), index);
   }
 
   CGraphics::CommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx) {
@@ -60,8 +58,7 @@ void CMapArea::PostConstruct() {
       CMapAreaSurface& surf = m_surfaces[i];
       surf.m_instances.reserve(instCount);
       for (u32 inst = 0; inst < instCount; ++inst) {
-        surf.m_instances.emplace_back(ctx, m_vbo, m_ibo);
-        CMapAreaSurface::Instance& instance = surf.m_instances.back();
+        CMapAreaSurface::Instance& instance = surf.m_instances.emplace_back(ctx, m_vbo, m_ibo);
 
         athena::io::MemoryReader r(surf.x1c_outlineOffset, INT_MAX);
         u32 outlineCount = r.readUint32Big();

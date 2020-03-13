@@ -234,11 +234,10 @@ void CGameArea::CAreaFog::DisableFog() { x0_fogMode = ERglFogMode::None; }
 
 static std::vector<SObjectTag> ReadDependencyList(CInputStream& in) {
   std::vector<SObjectTag> ret;
-  u32 count = in.readUint32Big();
+  const u32 count = in.readUint32Big();
   ret.reserve(count);
   for (u32 i = 0; i < count; ++i) {
-    ret.emplace_back();
-    ret.back().readMLVL(in);
+    ret.emplace_back().readMLVL(in);
   }
   return ret;
 }
@@ -1072,13 +1071,12 @@ void CGameArea::FillInStaticGeometry(bool textures) {
       ibo = ctx.newStaticBuffer(boo::BufferUse::Index, secIt->first, 4, inst.m_hmdlMeta.indexCount);
       ++secIt;
 
-      u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(secIt->first));
+      const u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(secIt->first));
       inst.m_surfaces.reserve(surfCount);
       inst.m_shaders.reserve(surfCount);
       ++secIt;
       for (u32 j = 0; j < surfCount; ++j) {
-        inst.m_surfaces.emplace_back();
-        CBooSurface& surf = inst.m_surfaces.back();
+        CBooSurface& surf = inst.m_surfaces.emplace_back();
         surf.selfIdx = j;
         athena::io::MemoryReader r(secIt->first, secIt->second);
         surf.m_data.read(r);

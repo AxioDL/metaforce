@@ -72,27 +72,30 @@ std::vector<CWorld::CRelay> CWorld::CRelay::ReadMemoryRelays(athena::io::MemoryR
 }
 
 void CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r, int version, CAssetId mlvlId) {
-  if (version <= 14)
+  if (version <= 14) {
     return;
+  }
 
   CWorldLayers ret;
 
   u32 areaCount = r.readUint32Big();
   ret.m_areas.reserve(areaCount);
   for (u32 i = 0; i < areaCount; ++i) {
-    ret.m_areas.emplace_back();
-    ret.m_areas.back().m_layerCount = r.readUint32Big();
-    ret.m_areas.back().m_layerBits = r.readUint64Big();
+    auto& area = ret.m_areas.emplace_back();
+    area.m_layerCount = r.readUint32Big();
+    area.m_layerBits = r.readUint64Big();
   }
 
-  u32 nameCount = r.readUint32Big();
+  const u32 nameCount = r.readUint32Big();
   ret.m_names.reserve(nameCount);
-  for (u32 i = 0; i < nameCount; ++i)
+  for (u32 i = 0; i < nameCount; ++i) {
     ret.m_names.push_back(r.readString());
+  }
 
   areaCount = r.readUint32Big();
-  for (u32 i = 0; i < areaCount; ++i)
+  for (u32 i = 0; i < areaCount; ++i) {
     ret.m_areas[i].m_startNameIdx = r.readUint32Big();
+  }
 
   CWorldState& wldState = g_GameState->StateForWorld(mlvlId);
   wldState.GetLayerState()->InitializeWorldLayers(ret.m_areas);

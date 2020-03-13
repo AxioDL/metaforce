@@ -205,8 +205,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     /* Allocate textures here (rather than at decode time) */
     x80_textures.reserve(3);
     for (int i = 0; i < 3; ++i) {
-      x80_textures.emplace_back();
-      CTHPTextureSet& set = x80_textures.back();
+      CTHPTextureSet& set = x80_textures.emplace_back();
       if (deinterlace) {
         /* urde addition: this way interlaced THPs don't look horrible */
         set.Y[0] = ctx.newDynamicTexture(x6c_videoInfo.width, x6c_videoInfo.height / 2, boo::TextureFormat::I8,

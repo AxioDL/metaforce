@@ -185,8 +185,8 @@ void CTextRenderBuffer::AddCharacter(const zeus::CVector2i& offset, char16_t ch,
     m_primitiveMarks.push_back({Command::CharacterRender, m_activeFontCh, chs.m_charCount++});
   else {
     const CGlyph* glyph = chs.m_font.GetObj()->GetGlyph(ch);
-    chs.m_charData.emplace_back();
-    CTextSupportShader::CharacterInstance& inst = chs.m_charData.back();
+
+    CTextSupportShader::CharacterInstance& inst = chs.m_charData.emplace_back();
     inst.SetMetrics(*glyph, offset);
     inst.m_fontColor = m_main * color;
     inst.m_outlineColor = m_outline * color;

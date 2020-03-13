@@ -36,8 +36,7 @@ CStateMachine::CStateMachine(CInputStream& in) {
         float arg = in.readFloatBig();
         CAiTrigger* newTrig;
         if (k < lastTriggerIdx) {
-          x10_triggers.emplace_back();
-          newTrig = &x10_triggers.back();
+          newTrig = &x10_triggers.emplace_back();
         } else {
           newTrig = &firstTrig[j];
         }
