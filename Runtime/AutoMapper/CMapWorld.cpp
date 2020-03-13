@@ -244,7 +244,7 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
     const zeus::CColor* outlineColor;
     const zeus::CColor* surfacePlayerColor;
     const zeus::CColor* outlinePlayerColor;
-    if (mwInfo.IsAreaVisted(thisArea)) {
+    if (mwInfo.IsAreaVisited(thisArea)) {
       alphaSurf = parms.GetAlphaSurfaceVisited();
       alphaOutline = parms.GetAlphaOutlineVisited();
       surfaceColor = &g_tweakAutoMapper->GetSurfaceVisitedColor();
