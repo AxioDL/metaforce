@@ -918,7 +918,7 @@ void CFlyingPirate::Lurk(CStateManager& mgr, EStateMsg msg, float arg) {
     x7d8_ = 0.f;
     x7dc_ = 0;
     CTeamAiMgr::ResetTeamAiRole(CTeamAiMgr::EAttackType::Ranged, mgr, x890_teamAiMgr, x8_uid, true);
-    x330_stateMachineState.SetDelay(0.f);
+    x330_stateMachineState.SetDelay(3.f);
     UpdateParticleEffects(mgr, 0.f, true);
     x6a2_25_aggressionChecked = false;
   } else if (msg == EStateMsg::Update) {
