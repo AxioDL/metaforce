@@ -1,5 +1,7 @@
 #include "Runtime/GuiSys/CHudMissileInterface.hpp"
 
+#include <array>
+
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/GuiSys/CAuiEnergyBarT01.hpp"
@@ -10,11 +12,14 @@
 
 namespace urde {
 
-static const CAuiEnergyBarT01::FCoordFunc CoordFuncs[] = {CHudMissileInterface::CombatMissileBarCoordFunc, nullptr,
-                                                          CHudMissileInterface::XRayMissileBarCoordFunc,
-                                                          CHudMissileInterface::ThermalMissileBarCoordFunc, nullptr};
+constexpr std::array<CAuiEnergyBarT01::FCoordFunc, 5> CoordFuncs{
+    CHudMissileInterface::CombatMissileBarCoordFunc,  nullptr, CHudMissileInterface::XRayMissileBarCoordFunc,
+    CHudMissileInterface::ThermalMissileBarCoordFunc, nullptr,
+};
 
-static const float IconTranslateRanges[] = {6.05f, 0.f, 0.f, 8.4f, 0.f};
+constexpr std::array IconTranslateRanges{
+    6.05f, 0.f, 0.f, 8.4f, 0.f,
+};
 
 CHudMissileInterface::CHudMissileInterface(CGuiFrame& selHud, int missileCapacity, int numMissiles, float chargeFactor,
                                            bool missilesActive, EHudType hudType, const CStateManager& mgr)
@@ -45,7 +50,7 @@ CHudMissileInterface::CHudMissileInterface(CGuiFrame& selHud, int missileCapacit
   x64_energybart01_missilebar->SetEmptyColor(g_tweakGuiColors->GetMissileBarEmpty());
   x64_energybart01_missilebar->SetFilledColor(g_tweakGuiColors->GetMissileBarFilled());
   x64_energybart01_missilebar->SetShadowColor(g_tweakGuiColors->GetMissileBarShadow());
-  x64_energybart01_missilebar->SetCoordFunc(CoordFuncs[int(hudType)]);
+  x64_energybart01_missilebar->SetCoordFunc(CoordFuncs[size_t(hudType)]);
   x64_energybart01_missilebar->SetTesselation(hudType == EHudType::Combat ? 1.f : 0.1f);
   x64_energybart01_missilebar->SetMaxEnergy(5.f);
   x64_energybart01_missilebar->SetFilledDrainSpeed(g_tweakGui->GetEnergyBarFilledSpeed());
@@ -121,8 +126,8 @@ void CHudMissileInterface::Update(float dt, const CStateManager& mgr) {
   if (x58_28_notXRay) {
     x74_basewidget_missileicon->SetLocalTransform(
         x10_missleIconXf *
-        zeus::CTransform::Translate(0.f, 0.f,
-                                    x8_numMissles * IconTranslateRanges[int(x0_hudType)] / float(x4_missileCapacity)));
+        zeus::CTransform::Translate(
+            0.f, 0.f, x8_numMissles * IconTranslateRanges[size_t(x0_hudType)] / float(x4_missileCapacity)));
   }
 
   if (x58_27_hasArrows) {
@@ -236,28 +241,30 @@ CHudMissileInterface::EInventoryStatus CHudMissileInterface::GetMissileInventory
 }
 
 std::pair<zeus::CVector3f, zeus::CVector3f> CHudMissileInterface::CombatMissileBarCoordFunc(float t) {
-  float z = t * IconTranslateRanges[int(EHudType::Combat)];
+  const float z = t * IconTranslateRanges[size_t(EHudType::Combat)];
   return {zeus::CVector3f(0.f, 0.f, z), zeus::CVector3f(0.3f, 0.f, z)};
 }
 
 std::pair<zeus::CVector3f, zeus::CVector3f> CHudMissileInterface::XRayMissileBarCoordFunc(float t) {
-  float theta = 0.8f * (t - 0.5f);
-  float x = 9.55f * std::cos(theta);
-  float z = 9.55f * std::sin(theta);
+  const float theta = 0.8f * (t - 0.5f);
+  const float x = 9.55f * std::cos(theta);
+  const float z = 9.55f * std::sin(theta);
   return {zeus::CVector3f(x - 0.4f, 0.f, z), zeus::CVector3f(x, 0.f, z)};
 }
 
 std::pair<zeus::CVector3f, zeus::CVector3f> CHudMissileInterface::ThermalMissileBarCoordFunc(float t) {
-  float transRange = IconTranslateRanges[int(EHudType::Thermal)];
-  float a = 0.08f * transRange;
-  float b = t * transRange;
+  const float transRange = IconTranslateRanges[size_t(EHudType::Thermal)];
+  const float a = 0.08f * transRange;
+  const float b = t * transRange;
+
   float c;
-  if (b < a)
+  if (b < a) {
     c = b / a;
-  else if (b < transRange - a)
+  } else if (b < transRange - a) {
     c = 1.f;
-  else
+  } else {
     c = 1.f - (b - (transRange - a)) / a;
+  }
 
   return {zeus::CVector3f(-0.5f * c - 0.1f, 0.f, b), zeus::CVector3f(-0.1f, 0.f, b)};
 }
