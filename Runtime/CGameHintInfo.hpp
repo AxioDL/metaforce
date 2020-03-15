@@ -42,7 +42,7 @@ private:
 public:
   CGameHintInfo(CInputStream&, s32);
   const std::vector<CGameHint>& GetHints() const { return x0_hints; }
-  static int FindHintIndex(const char* str);
+  static int FindHintIndex(std::string_view str);
 };
 
 CFactoryFnReturn FHintFactory(const SObjectTag&, CInputStream&, const CVParamTransfer, CObjectReference*);
