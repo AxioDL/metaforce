@@ -1,5 +1,7 @@
 #include "Runtime/GuiSys/CHudVisorBeamMenu.hpp"
 
+#include <array>
+
 #include "Runtime/CGameState.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
@@ -10,22 +12,40 @@
 
 namespace urde {
 
-static const char* BaseMenuNames[] = {"BaseWidget_VisorMenu", "BaseWidget_BeamMenu"};
-
-static const char* TextNames[] = {"TextPane_VisorMenu", "TextPane_BeamMenu"};
-
-static const char* BaseTitleNames[] = {"basewidget_visormenutitle", "basewidget_beammenutitle"};
-
-static const char* ModelNames[] = {"model_visor", "model_beam"};
-
-static const char MenuItemOrders[2][4] = {{'1', '0', '3', '2'}, {'3', '2', '1', '0'}};
-
-static const int MenuStringIdx[2][4] = {
-    {0, 2, 1, 3}, // Combat, XRay, Scan, Thermal
-    {4, 5, 6, 7}  // Power, Ice, Wave, Plasma
+constexpr std::array BaseMenuNames{
+    "BaseWidget_VisorMenu",
+    "BaseWidget_BeamMenu",
 };
 
-static const u16 SelectionSfxs[] = {SFXui_select_visor, SFXui_select_beam};
+constexpr std::array TextNames{
+    "TextPane_VisorMenu",
+    "TextPane_BeamMenu",
+};
+
+constexpr std::array BaseTitleNames{
+    "basewidget_visormenutitle",
+    "basewidget_beammenutitle",
+};
+
+constexpr std::array ModelNames{
+    "model_visor",
+    "model_beam",
+};
+
+constexpr std::array<std::array<char, 4>, 2> MenuItemOrders{{
+    {'1', '0', '3', '2'},
+    {'3', '2', '1', '0'},
+}};
+
+constexpr std::array<std::array<int, 4>, 2> MenuStringIdx{{
+    {0, 2, 1, 3}, // Combat, XRay, Scan, Thermal
+    {4, 5, 6, 7}, // Power, Ice, Wave, Plasma
+}};
+
+constexpr std::array<u16, 2> SelectionSfxs{
+    SFXui_select_visor,
+    SFXui_select_beam,
+};
 
 CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
                                      const rstl::reserved_vector<bool, 4>& enables)
@@ -43,19 +63,23 @@ CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
   else
     swappedType = x4_type;
 
-  x20_textpane_menu = static_cast<CGuiTextPane*>(x0_baseHud.FindWidget(TextNames[int(swappedType)]));
-  x1c_basewidget_menutitle = x0_baseHud.FindWidget(BaseTitleNames[int(swappedType)]);
-  x18_basewidget_menu = x0_baseHud.FindWidget(BaseMenuNames[int(swappedType)]);
+  x20_textpane_menu = static_cast<CGuiTextPane*>(x0_baseHud.FindWidget(TextNames[size_t(swappedType)]));
+  x1c_basewidget_menutitle = x0_baseHud.FindWidget(BaseTitleNames[size_t(swappedType)]);
+  x18_basewidget_menu = x0_baseHud.FindWidget(BaseMenuNames[size_t(swappedType)]);
 
-  x24_model_ghost = static_cast<CGuiModel*>(x0_baseHud.FindWidget(fmt::format(fmt("{}ghost"), ModelNames[int(x4_type)])));
+  x24_model_ghost =
+      static_cast<CGuiModel*>(x0_baseHud.FindWidget(fmt::format(fmt("{}ghost"), ModelNames[size_t(x4_type)])));
 
   x28_menuItems.resize(4);
-  for (int i = 0; i < 4; ++i) {
+  for (size_t i = 0; i < x28_menuItems.size(); i++) {
+    const auto modelName = ModelNames[size_t(x4_type)];
+    const auto menuItemOrder = MenuItemOrders[size_t(x4_type)][i];
+
     SMenuItem& item = x28_menuItems[i];
-    item.x0_model_loz = static_cast<CGuiModel*>(
-        x0_baseHud.FindWidget(fmt::format(fmt("{}loz{}"), ModelNames[int(x4_type)], MenuItemOrders[int(x4_type)][i])));
-    item.x4_model_icon = static_cast<CGuiModel*>(
-        x0_baseHud.FindWidget(fmt::format(fmt("{}icon{}"), ModelNames[int(x4_type)], MenuItemOrders[int(x4_type)][i])));
+    item.x0_model_loz =
+        static_cast<CGuiModel*>(x0_baseHud.FindWidget(fmt::format(fmt("{}loz{}"), modelName, menuItemOrder)));
+    item.x4_model_icon =
+        static_cast<CGuiModel*>(x0_baseHud.FindWidget(fmt::format(fmt("{}icon{}"), modelName, menuItemOrder)));
     item.xc_opacity = enables[i] ? 1.f : 0.f;
   }
 
@@ -71,7 +95,8 @@ CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
   titleColor.a() = 0.f;
   x1c_basewidget_menutitle->SetColor(titleColor);
 
-  x20_textpane_menu->TextSupport().SetText(g_MainStringTable->GetString(MenuStringIdx[int(x4_type)][x8_selectedItem]));
+  x20_textpane_menu->TextSupport().SetText(
+      g_MainStringTable->GetString(MenuStringIdx[size_t(x4_type)][x8_selectedItem]));
 
   for (int i = 0; i < 4; ++i) {
     SMenuItem& item = x28_menuItems[i];
@@ -130,9 +155,9 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
     else
       swappedType = x4_type;
 
-    x18_basewidget_menu = x0_baseHud.FindWidget(BaseMenuNames[int(swappedType)]);
-    x20_textpane_menu = static_cast<CGuiTextPane*>(x0_baseHud.FindWidget(TextNames[int(swappedType)]));
-    x1c_basewidget_menutitle = x0_baseHud.FindWidget(BaseTitleNames[int(swappedType)]);
+    x18_basewidget_menu = x0_baseHud.FindWidget(BaseMenuNames[size_t(swappedType)]);
+    x20_textpane_menu = static_cast<CGuiTextPane*>(x0_baseHud.FindWidget(TextNames[size_t(swappedType)]));
+    x1c_basewidget_menutitle = x0_baseHud.FindWidget(BaseTitleNames[size_t(swappedType)]);
 
     for (int i = 0; i < 4; ++i) {
       SMenuItem& item = x28_menuItems[i];
@@ -146,7 +171,7 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
   zeus::CColor activeColor = g_tweakGuiColors->GetVisorBeamMenuItemActive();
   zeus::CColor inactiveColor = g_tweakGuiColors->GetVisorBeamMenuItemInactive();
   zeus::CColor lozColor = g_tweakGuiColors->GetVisorBeamMenuLozColor();
-  zeus::CColor tmpColors[4];
+  std::array<zeus::CColor, 4> tmpColors;
 
   for (int i = 0; i < 4; ++i) {
     SMenuItem& item = x28_menuItems[i];
@@ -262,13 +287,14 @@ void CHudVisorBeamMenu::SetSelection(int selection, int pending, float interp) {
     return;
 
   if (pending != selection) {
-    if (x6c_animPhase != EAnimPhase::SelectFlash)
-      CSfxManager::SfxStart(SelectionSfxs[int(x4_type)], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    if (x6c_animPhase != EAnimPhase::SelectFlash) {
+      CSfxManager::SfxStart(SelectionSfxs[size_t(x4_type)], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    }
     x6c_animPhase = EAnimPhase::SelectFlash;
   } else if (interp < 1.f) {
     x6c_animPhase = EAnimPhase::Animate;
     x20_textpane_menu->TextSupport().SetText(
-        g_MainStringTable->GetString(MenuStringIdx[int(x4_type)][x8_selectedItem]));
+        g_MainStringTable->GetString(MenuStringIdx[size_t(x4_type)][x8_selectedItem]));
     x20_textpane_menu->TextSupport().SetTypeWriteEffectOptions(true, 0.1f, 16.f);
   } else {
     if (x6c_animPhase != EAnimPhase::Steady)
