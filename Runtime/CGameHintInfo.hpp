@@ -45,5 +45,5 @@ public:
   static int FindHintIndex(std::string_view str);
 };
 
-CFactoryFnReturn FHintFactory(const SObjectTag&, CInputStream&, const CVParamTransfer, CObjectReference*);
+CFactoryFnReturn FHintFactory(const SObjectTag&, CInputStream&, const CVParamTransfer&, CObjectReference*);
 } // namespace urde

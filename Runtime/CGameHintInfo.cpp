@@ -39,7 +39,7 @@ int CGameHintInfo::FindHintIndex(std::string_view str) {
   return it != gameHints.cend() ? it - gameHints.cbegin() : -1;
 }
 
-CFactoryFnReturn FHintFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer, CObjectReference*) {
+CFactoryFnReturn FHintFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer&, CObjectReference*) {
   in.readUint32Big();
   s32 version = in.readInt32Big();
 
