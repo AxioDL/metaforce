@@ -27,27 +27,33 @@ CCharAnimTime CAnimSourceInfo::GetAnimationDuration() const { return x4_token->G
 std::set<std::pair<std::string, s32>> CAnimSourceReaderBase::GetUniqueParticlePOIs() const {
   const std::vector<CParticlePOINode>& particleNodes = x4_sourceInfo->GetParticlePOIStream();
   std::set<std::pair<std::string, s32>> ret;
-  for (const CParticlePOINode& node : particleNodes)
-    if (node.GetUnique())
-      ret.insert(std::make_pair(std::string(node.GetString()), node.GetIndex()));
+  for (const CParticlePOINode& node : particleNodes) {
+    if (node.GetUnique()) {
+      ret.emplace(node.GetString(), node.GetIndex());
+    }
+  }
   return ret;
 }
 
 std::set<std::pair<std::string, s32>> CAnimSourceReaderBase::GetUniqueInt32POIs() const {
   const std::vector<CInt32POINode>& int32Nodes = x4_sourceInfo->GetInt32POIStream();
   std::set<std::pair<std::string, s32>> ret;
-  for (const CInt32POINode& node : int32Nodes)
-    if (node.GetUnique())
-      ret.insert(std::make_pair(std::string(node.GetString()), node.GetIndex()));
+  for (const CInt32POINode& node : int32Nodes) {
+    if (node.GetUnique()) {
+      ret.emplace(node.GetString(), node.GetIndex());
+    }
+  }
   return ret;
 }
 
 std::set<std::pair<std::string, s32>> CAnimSourceReaderBase::GetUniqueBoolPOIs() const {
   const std::vector<CBoolPOINode>& boolNodes = x4_sourceInfo->GetBoolPOIStream();
   std::set<std::pair<std::string, s32>> ret;
-  for (const CBoolPOINode& node : boolNodes)
-    if (node.GetUnique())
-      ret.insert(std::make_pair(std::string(node.GetString()), node.GetIndex()));
+  for (const CBoolPOINode& node : boolNodes) {
+    if (node.GetUnique()) {
+      ret.emplace(node.GetString(), node.GetIndex());
+    }
+  }
   return ret;
 }
 
