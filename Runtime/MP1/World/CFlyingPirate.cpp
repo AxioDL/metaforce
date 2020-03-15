@@ -59,9 +59,9 @@ constexpr std::array<const SBurst* const, 5> skBursts{
     skBurst1.data(), skBurst2.data(), skBurst3.data(), skBurst4.data(), nullptr,
 };
 
-constexpr std::array<const std::string_view, 14> skParts{
-    "Head_1", "R_shoulder", "R_elbow", "R_wrist", "L_shoulder", "L_elbow", "L_wrist",
-    "R_hip",  "R_knee",     "R_ankle", "L_hip",   "L_knee",     "L_ankle", "rocket_LCTR",
+constexpr std::array<const std::string_view, 15> skParts{
+    "Collar"sv, "Head_1"sv, "R_shoulder"sv, "R_elbow"sv, "R_wrist"sv, "L_shoulder"sv, "L_elbow"sv,     "L_wrist"sv,
+    "R_hip"sv,  "R_knee"sv, "R_ankle"sv,    "L_hip"sv,   "L_knee"sv,  "L_ankle"sv,    "rocket_LCTR"sv,
 };
 } // namespace
 
@@ -210,15 +210,15 @@ CFlyingPirate::CFlyingPirate(TUniqueId uid, std::string_view name, const CEntity
 , x6a2_27_sparksActive(false)
 , x6a2_28_(false)
 , x6a8_pathFindSearch(nullptr, 0 /* TODO */, pInfo.GetHalfExtent(), pInfo.GetHeight(), pInfo.GetPathfindingIndex())
-, x7a0_boneTracking(*GetModelData()->GetAnimationData(), "Head_1", zeus::degToRad(80.f), zeus::degToRad(180.f),
+, x7a0_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
                     EBoneTrackingFlags::None)
 , x7ec_burstFire(skBursts.data(), 0) {
   const CModelData* modelData = GetModelData();
   const CAnimData* animData = modelData->GetAnimationData();
-  x798_headSegId = animData->GetLocatorSegId("Head_1");
-  x7e0_gunSegId = animData->GetLocatorSegId("L_gun_LCTR");
-  x864_missileSegments.push_back(animData->GetLocatorSegId("L_Missile_LCTR"));
-  x864_missileSegments.push_back(animData->GetLocatorSegId("R_Missile_LCTR"));
+  x798_headSegId = animData->GetLocatorSegId("Head_1"sv);
+  x7e0_gunSegId = animData->GetLocatorSegId("L_gun_LCTR"sv);
+  x864_missileSegments.push_back(animData->GetLocatorSegId("L_Missile_LCTR"sv));
+  x864_missileSegments.push_back(animData->GetLocatorSegId("R_Missile_LCTR"sv));
   x850_height =
       modelData->GetScale().x() * GetAnimationDistance({3, CPASAnimParm::FromEnum(3), CPASAnimParm::FromEnum(1)});
   if (x568_data.xd8_particleGen1.IsValid() && x568_data.xdc_particleGen2.IsValid() &&
@@ -283,7 +283,7 @@ void CFlyingPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
       AddToTeam(mgr);
     }
     UpdateParticleEffects(mgr, 0.f, x6a0_24_);
-    GetModelData()->GetAnimationData()->SetParticleEffectState("Eyes", true, mgr);
+    GetModelData()->GetAnimationData()->SetParticleEffectState("Eyes"sv, true, mgr);
     break;
   case EScriptObjectMessage::Jumped:
     if (CScriptCoverPoint* cover = GetCoverPoint(mgr, x6a4_currentCoverPoint)) {
@@ -532,7 +532,7 @@ void CFlyingPirate::Dead(CStateManager& mgr, EStateMsg msg, float arg) {
   CPatterned::Dead(mgr, msg, arg);
   if (msg == EStateMsg::Activate) {
     x7a0_boneTracking.SetActive(false);
-    GetModelData()->GetAnimationData()->SetParticleEffectState("Eyes", false, mgr);
+    GetModelData()->GetAnimationData()->SetParticleEffectState("Eyes"sv, false, mgr);
     CTeamAiMgr::ResetTeamAiRole(CTeamAiMgr::EAttackType::Ranged, mgr, x890_teamAiMgr, x8_uid, true);
   }
 }
@@ -846,7 +846,7 @@ void CFlyingPirate::KnockBack(const zeus::CVector3f& pos, CStateManager& mgr, co
   if (x460_knockBackController.GetActiveParms().x0_animState == EKnockBackAnimationState::Hurled) {
     if (x400_25_alive) {
       if (!x450_bodyController->IsFrozen()) {
-        x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "GetUpNow");
+        x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "GetUpNow"sv);
         x330_stateMachineState.SetDelay(x568_data.x88_knockBackDelay);
       }
       x6a1_28_ = false;
@@ -1140,7 +1140,7 @@ bool CFlyingPirate::ShouldDodge(CStateManager& mgr, float arg) {
   if (x6a1_28_ || x6a1_25_)
     return false;
   return 0.f < (GetTargetPos(mgr) - x34_transform.origin).dot(x34_transform.frontVector()) &&
-         (x854_ < 0.33f || (x858_ < 0.33f && x7d8_ < 0.5f));
+         (x854_ < 0.33f || x858_ < 0.33f) && x7d8_ < 0.5f;
 }
 
 bool CFlyingPirate::ShouldMove(CStateManager& mgr, float arg) {
@@ -1250,25 +1250,22 @@ void CFlyingPirate::UpdateLandingSmoke(CStateManager& mgr, bool active) {
       x684_particleGens[idx]->SetParticleEmission(true);
       x684_particleGens[idx]->SetTranslation({origin.x(), origin.y(), particleLevel});
     }
-    GetModelData()->GetAnimationData()->SetParticleEffectState("LandingSmoke", true, mgr);
+    GetModelData()->GetAnimationData()->SetParticleEffectState("LandingSmoke"sv, true, mgr);
   } else {
     for (const auto& gen : x684_particleGens) {
       gen->SetParticleEmission(false);
     }
-    GetModelData()->GetAnimationData()->SetParticleEffectState("LandingSmoke", false, mgr);
+    GetModelData()->GetAnimationData()->SetParticleEffectState("LandingSmoke"sv, false, mgr);
   }
 }
 
 void CFlyingPirate::UpdateParticleEffects(CStateManager& mgr, float intensity, bool active) {
   CAnimData* const animData = GetModelData()->GetAnimationData();
-  std::string_view name = "JetPack";
-  if (x6a0_25_isUnderwater) {
-    name = "ScubaGear";
-  }
+  std::string_view name = x6a0_25_isUnderwater ? "ScubaGear"sv : "JetPack"sv;
   if (active != x6a2_26_jetpackActive) {
     animData->SetParticleEffectState(name, active, mgr);
     if (x6a0_25_isUnderwater) {
-      animData->SetParticleEffectState("ScubaBubbles", active, mgr);
+      animData->SetParticleEffectState("ScubaBubbles"sv, active, mgr);
     }
     x6a2_26_jetpackActive = active;
   }
@@ -1279,7 +1276,7 @@ void CFlyingPirate::UpdateParticleEffects(CStateManager& mgr, float intensity, b
   if (!x6a0_25_isUnderwater) {
     const bool sparksActive = active && intensity > 0.8f;
     if (sparksActive != x6a2_27_sparksActive) {
-      animData->SetParticleEffectState("Sparks", sparksActive, mgr);
+      animData->SetParticleEffectState("Sparks"sv, sparksActive, mgr);
       x6a2_27_sparksActive = sparksActive;
     }
   }
@@ -1371,7 +1368,9 @@ void CFlyingPirate::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
 void CFlyingPirate::TurnAround(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x2e0_destPos = GetTargetPos(mgr);
-    if (x34_transform.frontVector().dot((x2e0_destPos - GetTranslation()).normalized()) < 0.8f) {
+    zeus::CVector3f dist = x2e0_destPos - GetTranslation();
+    dist.z() = 0.f;
+    if (x34_transform.frontVector().dot(dist.normalized()) < 0.8f) {
       x32c_animState = EAnimState::Ready;
     }
   } else if (msg == EStateMsg::Update) {
@@ -1385,7 +1384,7 @@ void CFlyingPirate::Walk(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     UpdateParticleEffects(mgr, 0.f, false);
   } else if (msg == EStateMsg::Update) {
-    if (x32c_animState != EAnimState::Ready) {
+    if (x32c_animState != EAnimState::NotReady) {
       TryCommand(mgr, pas::EAnimationState::Turn, &CPatterned::TryTurn, 0);
     }
     if (x32c_animState != EAnimState::Repeat) {
