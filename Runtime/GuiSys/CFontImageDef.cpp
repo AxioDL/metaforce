@@ -8,13 +8,14 @@ CFontImageDef::CFontImageDef(const std::vector<TToken<CTexture>>& texs, float in
                              const zeus::CVector2f& cropFactor)
 : x0_fps(interval), x14_cropFactor(cropFactor) {
   x4_texs.reserve(texs.size());
-  for (const TToken<CTexture>& tok : texs)
-    x4_texs.push_back(tok);
+  for (const TToken<CTexture>& tok : texs) {
+    x4_texs.emplace_back(tok);
+  }
 }
 
 CFontImageDef::CFontImageDef(const TToken<CTexture>& tex, const zeus::CVector2f& cropFactor)
 : x0_fps(0.f), x14_cropFactor(cropFactor) {
-  x4_texs.push_back(tex);
+  x4_texs.emplace_back(tex);
 }
 
 bool CFontImageDef::IsLoaded() const {
