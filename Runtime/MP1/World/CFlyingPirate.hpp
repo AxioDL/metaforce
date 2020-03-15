@@ -61,14 +61,14 @@ private:
     float x8c_ = 0.f;
     zeus::CVector3f x90_ = zeus::skZero3f;
     u16 x9c_;
-    int xa0_ = 0;
+    CSfxHandle xa0_;
     zeus::CVector3f xa4_;
     bool xb0_24_ : 1;
 
   public:
     CFlyingPirateRagDoll(CStateManager& mgr, CFlyingPirate* actor, u16 w1, u16 w2);
 
-    void PreRender(const zeus::CVector3f& pos, CModelData& mData) override;
+    void PreRender(const zeus::CVector3f& v, CModelData& mData) override;
     void Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData& mData) override;
     void Update(CStateManager& mgr, float dt, float waterTop) override;
   };

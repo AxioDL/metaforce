@@ -167,13 +167,50 @@ CFlyingPirate::CFlyingPirateRagDoll::CFlyingPirateRagDoll(CStateManager& mgr, CF
   AddJointConstraint(5, 2, 8, 5, 6, 7);
 }
 
-void CFlyingPirate::CFlyingPirateRagDoll::PreRender(const zeus::CVector3f& pos, CModelData& mData) {
-  // TODO
-  CRagDoll::PreRender(pos, mData);
+void CFlyingPirate::CFlyingPirateRagDoll::PreRender(const zeus::CVector3f& v, CModelData& mData) {
+  if (!x68_25_over) {
+    CAnimData* const animData = mData.GetAnimationData();
+    const CCharLayoutInfo& layout = animData->GetCharLayoutInfo();
+    CHierarchyPoseBuilder& poseBuilder = animData->PoseBuilder();
+    for (const auto& id : layout.GetSegIdList().GetList()) {
+      if (layout.GetRootNode()->GetBoneMap()[id].x10_children.size() > 1) {
+        poseBuilder.GetTreeMap()[id].x4_rotation = zeus::CQuaternion();
+      }
+    }
+
+    CHierarchyPoseBuilder::CTreeNode& skeletonRoot =
+        poseBuilder.GetTreeMap()[animData->GetLocatorSegId("Skeleton_Root"sv)];
+    const zeus::CVector3f& rHipPos = x4_particles[8].GetPosition();      // R_hip
+    const zeus::CVector3f& lHipPos = x4_particles[11].GetPosition();     // L_hip
+    const zeus::CVector3f& rShoulderPos = x4_particles[2].GetPosition(); // R_shoulder
+    const zeus::CVector3f& lShoulderPos = x4_particles[5].GetPosition(); // L_shoulder
+    const zeus::CVector3f& collarPos = x4_particles[0].GetPosition();    // Collar
+    skeletonRoot.x14_offset = (0.5f * (rHipPos + lHipPos) - v) / mData.GetScale();
+
+    const zeus::CVector3f& rootRight = rShoulderPos - lShoulderPos;
+    const zeus::CVector3f& rootUp = (collarPos - (rHipPos + lHipPos) * 0.5f).normalized();
+    const zeus::CVector3f& rootFore = rootUp.cross(rootRight).normalized();
+    const zeus::CQuaternion& rootRot = zeus::CMatrix3f(rootFore.cross(rootUp), rootFore, rootUp);
+    skeletonRoot.x4_rotation = rootRot;
+
+    const CRagDollParticle& head = x4_particles[1]; // Head_1
+    const zeus::CVector3f& neckRestVec = layout.GetFromParentUnrotated(head.GetBone());
+    poseBuilder.GetTreeMap()[head.GetBone()].x4_rotation = zeus::CQuaternion::shortestRotationArc(
+        neckRestVec, rootRot.inverse().transform(head.GetPosition() - collarPos));
+
+    BoneAlign(poseBuilder, layout, 3, 4, rootRot * BoneAlign(poseBuilder, layout, 2, 3, rootRot));
+    BoneAlign(poseBuilder, layout, 6, 7, rootRot * BoneAlign(poseBuilder, layout, 5, 6, rootRot));
+    BoneAlign(poseBuilder, layout, 9, 10, rootRot * BoneAlign(poseBuilder, layout, 8, 9, rootRot));
+    BoneAlign(poseBuilder, layout, 12, 13, rootRot * BoneAlign(poseBuilder, layout, 11, 12, rootRot));
+
+    animData->MarkPoseDirty();
+  }
 }
 
 void CFlyingPirate::CFlyingPirateRagDoll::Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData& mData) {
-  // TODO
+  if (x6c_actor->x6a1_30_) {
+    xa0_ = CSfxManager::AddEmitter(x9c_, x6c_actor->GetTranslation(), zeus::skZero3f, true, true, 0x7f, kInvalidAreaId);
+  }
   CRagDoll::Prime(mgr, xf, mData);
 }
 
