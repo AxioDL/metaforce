@@ -1,5 +1,7 @@
 #include "Runtime/MP1/CPauseScreenBase.hpp"
 
+#include <array>
+
 #include "Runtime/CGameState.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
@@ -521,9 +523,13 @@ void CPauseScreenBase::OnWidgetScroll(CGuiWidget* widget, const boo::SScrollDelt
   }
 }
 
-static const char* PaneSuffixes[] = {"0", "1", "2", "3", "01", "12", "23", "012", "123", "0123",
-                                     "4", "5", "6", "7", "45", "56", "67", "456", "567", "4567"};
+std::string CPauseScreenBase::GetImagePaneName(u32 i) {
+  static constexpr std::array PaneSuffixes{
+      "0", "1", "2", "3", "01", "12", "23", "012", "123", "0123",
+      "4", "5", "6", "7", "45", "56", "67", "456", "567", "4567",
+  };
 
-std::string CPauseScreenBase::GetImagePaneName(u32 i) { return fmt::format(fmt("imagepane_pane{}"), PaneSuffixes[i]); }
+  return fmt::format(fmt("imagepane_pane{}"), PaneSuffixes[i]);
+}
 
 } // namespace urde::MP1
