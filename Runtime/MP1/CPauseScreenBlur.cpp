@@ -84,21 +84,20 @@ void CPauseScreenBlur::Update(float dt, const CStateManager& stateMgr, bool b) {
   }
 }
 
-void CPauseScreenBlur::Draw(const CStateManager&) const {
+void CPauseScreenBlur::Draw(const CStateManager&) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPauseScreenBlur::Draw", zeus::skPurple);
-  const_cast<CCameraBlurPass&>(x1c_camBlur).Draw(true);
-  float t = std::fabs(x18_blurAmt);
+  x1c_camBlur.Draw(true);
+  const float t = std::fabs(x18_blurAmt);
   if (x1c_camBlur.GetCurrType() != EBlurType::NoBlur) {
-    zeus::CColor filterColor =
-        zeus::CColor::lerp(zeus::skWhite, g_tweakGuiColors->GetPauseBlurFilterColor(), t);
-    const_cast<CTexturedQuadFilter&>(m_quarterFilter).DrawFilter(EFilterShape::FullscreenQuarters, filterColor, t);
-    zeus::CColor scanLinesColor = zeus::CColor::lerp(zeus::skWhite, zeus::CColor(0.75f, 1.f), t);
-    const_cast<CScanLinesFilterEven&>(m_linesFilter).draw(scanLinesColor);
+    const auto filterColor = zeus::CColor::lerp(zeus::skWhite, g_tweakGuiColors->GetPauseBlurFilterColor(), t);
+    m_quarterFilter.DrawFilter(EFilterShape::FullscreenQuarters, filterColor, t);
+    const auto scanLinesColor = zeus::CColor::lerp(zeus::skWhite, zeus::CColor(0.75f, 1.f), t);
+    m_linesFilter.draw(scanLinesColor);
   }
 
   if (x50_24_blurring /*&& x1c_camBlur.x2d_noPersistentCopy*/) {
-    const_cast<CPauseScreenBlur*>(this)->x50_24_blurring = false;
-    const_cast<CPauseScreenBlur*>(this)->x50_25_gameDraw = false;
+    x50_24_blurring = false;
+    x50_25_gameDraw = false;
   }
 }
 
