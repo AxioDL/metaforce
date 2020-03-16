@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <utility>
 
@@ -24,7 +25,7 @@ public:
 private:
   CSegId x0_nextId = 0;
   CSegId x1_count;
-  std::pair<CSegId, CSegId> x8_links[100];
+  std::array<std::pair<CSegId, CSegId>, 100> x8_links;
   std::unique_ptr<Transform[]> xd0_transformArr;
   CSegId xd4_lastInserted = 0;
 
