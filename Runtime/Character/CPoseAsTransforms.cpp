@@ -12,8 +12,7 @@ bool CPoseAsTransforms::ContainsDataFor(const CSegId& id) const {
 }
 
 void CPoseAsTransforms::Clear() {
-  for (u32 i = 0; i < 100; ++i)
-    x8_links[i] = std::make_pair(CSegId(), CSegId());
+  x8_links.fill({});
   xd4_lastInserted = 0;
   x0_nextId = 0;
 }

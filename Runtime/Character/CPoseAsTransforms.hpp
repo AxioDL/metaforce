@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <utility>
 
@@ -24,12 +25,12 @@ public:
 private:
   CSegId x0_nextId = 0;
   CSegId x1_count;
-  std::pair<CSegId, CSegId> x8_links[100];
+  std::array<std::pair<CSegId, CSegId>, 100> x8_links;
   std::unique_ptr<Transform[]> xd0_transformArr;
   CSegId xd4_lastInserted = 0;
 
 public:
-  CPoseAsTransforms(u8 boneCount);
+  explicit CPoseAsTransforms(u8 boneCount);
   bool ContainsDataFor(const CSegId& id) const;
   void Clear();
   void AccumulateScaledTransform(const CSegId& id, zeus::CMatrix3f& rotation, float scale) const;
