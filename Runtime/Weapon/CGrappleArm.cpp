@@ -474,14 +474,13 @@ void CGrappleArm::PreRender(const CStateManager& mgr, const zeus::CFrustum& frus
   }
 }
 
-void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf,
-                                  const CModelFlags& flags) const {
+void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf, const CModelFlags& flags) {
   CGraphics::SetModelMatrix(modelXf * zeus::CTransform::Scale(x0_grappleArmModel->GetScale()));
   // CGraphics::DisableAllLights();
   // g_Renderer->SetAmbientColor(zeus::skWhite);
   CSkinnedModel& model = const_cast<CSkinnedModel&>(*x50_grappleArmSkeletonModel->GetAnimationData()->GetModelData());
   model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
-  const_cast<CGrappleArm*>(this)->x0_grappleArmModel->GetAnimationData()->Render(model, flags, {}, nullptr);
+  x0_grappleArmModel->GetAnimationData()->Render(model, flags, {}, nullptr);
   // g_Renderer->SetAmbientColor(zeus::skWhite);
   // CGraphics::DisableAllLights();
 }
@@ -491,7 +490,7 @@ void CGrappleArm::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CV
 }
 
 void CGrappleArm::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags,
-                         const CActorLights* lights) const {
+                         const CActorLights* lights) {
   if (x3b2_24_active && !x3b2_29_suitLoading) {
     SCOPED_GRAPHICS_DEBUG_GROUP("CGrappleArm::Render", zeus::skOrange);
     zeus::CTransform modelXf = zeus::CTransform::Translate(pos) * x220_xf * x2e0_auxXf;
