@@ -487,7 +487,7 @@ void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransfo
 }
 
 void CGrappleArm::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  reinterpret_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
+  static_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
 }
 
 void CGrappleArm::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags,
