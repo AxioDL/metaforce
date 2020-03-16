@@ -38,7 +38,7 @@ public:
   void OnNewInGameGuiState(EInGameGuiState state, CStateManager& stateMgr);
   bool IsGameDraw() const { return x50_25_gameDraw; }
   void Update(float dt, const CStateManager& stateMgr, bool);
-  void Draw(const CStateManager& stateMgr) const;
+  void Draw(const CStateManager& stateMgr);
   float GetBlurAmt() const { return std::fabs(x18_blurAmt); }
   bool IsNotTransitioning() const { return x10_prevState == x14_nextState; }
 };
