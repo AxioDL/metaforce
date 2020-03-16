@@ -63,13 +63,13 @@ void CGrappleArm::FillTokenVector(const std::vector<SObjectTag>& tags, std::vect
 }
 
 void CGrappleArm::BuildSuitDependencyList() {
-  static constexpr std::array skDependencyNames{
+  static constexpr std::array dependencyNames{
       "PowerSuit_DGRP"sv,  "GravitySuit_DGRP"sv, "VariaSuit_DGRP"sv,   "PhazonSuit_DGRP"sv,
       "FusionSuit_DGRP"sv, "FusionSuitG_DGRP"sv, "FusionSuitV_DGRP"sv, "FusionSuitP_DGRP"sv,
   };
 
   x184_grappleArm.Lock();
-  for (const auto& name : skDependencyNames) {
+  for (const auto& name : dependencyNames) {
     TLockedToken<CDependencyGroup> dgrp = g_SimplePool->GetObj(name);
     std::vector<CToken>& depsOut = x19c_suitDeps.emplace_back();
     FillTokenVector(dgrp->GetObjectTagVector(), depsOut);
