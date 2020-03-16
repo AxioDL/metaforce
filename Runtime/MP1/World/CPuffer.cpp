@@ -11,6 +11,17 @@
 
 namespace urde::MP1 {
 
+constexpr std::array GasLocators{
+    "Gas_01_LCTR"sv, "Gas_02_LCTR"sv, "Gas_03_LCTR"sv, "Gas_04_LCTR"sv, "Gas_05_LCTR"sv,
+    "Gas_06_LCTR"sv, "Gas_07_LCTR"sv, "Gas_08_LCTR"sv, "Gas_09_LCTR"sv, "Gas_10_LCTR"sv,
+    "Gas_11_LCTR"sv, "Gas_12_LCTR"sv, "Gas_13_LCTR"sv, "Gas_14_LCTR"sv,
+};
+
+constexpr std::array GesJetLocators{
+    "GasJet01"sv, "GasJet02"sv, "GasJet03"sv, "GasJet04"sv, "GasJet05"sv, "GasJet06"sv, "GasJet07"sv,
+    "GasJet08"sv, "GasJet09"sv, "GasJet10"sv, "GasJet11"sv, "GasJet12"sv, "GasJet13"sv, "GasJet14"sv,
+};
+
 CPuffer::CPuffer(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                  CModelData&& modelData, const CActorParameters& actorParameters, const CPatternedInfo& patternedInfo,
                  float hoverSpeed, CAssetId cloudEffect, const CDamageInfo& cloudDamage, CAssetId cloudSteam, float f2,
@@ -99,42 +110,35 @@ void CPuffer::Death(CStateManager& mgr, const zeus::CVector3f& vec, EScriptObjec
                           x5bc_cloudSteam, x598_24_, x598_26_, x598_25_, 1.f, x5b8_, 1.f, 1.f));
 }
 
-static const char* GasLocators[14] = {
-    "Gas_01_LCTR", "Gas_02_LCTR", "Gas_03_LCTR", "Gas_04_LCTR", "Gas_05_LCTR", "Gas_06_LCTR", "Gas_07_LCTR",
-    "Gas_08_LCTR", "Gas_09_LCTR", "Gas_10_LCTR", "Gas_11_LCTR", "Gas_12_LCTR", "Gas_13_LCTR", "Gas_14_LCTR",
-};
-
-static const char* GesJetLocators[14] = {
-    "GasJet01", "GasJet02", "GasJet03", "GasJet04", "GasJet05", "GasJet06", "GasJet07",
-    "GasJet08", "GasJet09", "GasJet10", "GasJet11", "GasJet12", "GasJet13", "GasJet14",
-};
-
 void CPuffer::sub8025bfa4(CStateManager& mgr) {
-  zeus::CVector3f moveVector = x450_bodyController->GetCommandMgr().GetMoveVector();
+  const zeus::CVector3f moveVector = x450_bodyController->GetCommandMgr().GetMoveVector();
 
   if (x5d4_gasLocators.empty()) {
-    for (u32 i = 0; i < 14; ++i)
-      x5d4_gasLocators.push_back(GetScaledLocatorTransform(GasLocators[i]).basis[1]);
+    for (const auto& gasLocator : GasLocators) {
+      x5d4_gasLocators.push_back(GetScaledLocatorTransform(gasLocator).basis[1]);
+    }
   }
 
   if (moveVector.canBeNormalized()) {
-    zeus::CVector3f moveNorm = -moveVector.normalized();
-    for (u32 i = 0; i < 14; ++i) {
-      zeus::CVector3f tmp = GetTransform().rotate(x5d4_gasLocators[i]);
-      bool enable = std::cos(zeus::degToRad(45.f)) < moveNorm.dot(tmp);
-      printf("%s -> %i\n", GesJetLocators[i], enable);
+    const zeus::CVector3f moveNorm = -moveVector.normalized();
+    for (size_t i = 0; i < GesJetLocators.size(); ++i) {
+      const zeus::CVector3f tmp = GetTransform().rotate(x5d4_gasLocators[i]);
+      const bool enable = std::cos(zeus::degToRad(45.f)) < moveNorm.dot(tmp);
+
       if ((x5d0_enabledParticles & (1 << i)) != enable) {
         GetModelData()->GetAnimationData()->SetParticleEffectState(GesJetLocators[i], enable, mgr);
       }
-      if (enable)
+      if (enable) {
         x5d0_enabledParticles |= (1 << i);
-      else
+      } else {
         x5d0_enabledParticles &= ~(1 << i);
+      }
     }
   } else {
-    for (u32 i = 0; i < 14; ++i) {
-      if ((x5d0_enabledParticles & (1 << i)))
+    for (size_t i = 0; i < GesJetLocators.size(); ++i) {
+      if ((x5d0_enabledParticles & (1 << i)) != 0) {
         GetModelData()->GetAnimationData()->SetParticleEffectState(GesJetLocators[i], false, mgr);
+      }
     }
     x5d0_enabledParticles = 0;
   }
