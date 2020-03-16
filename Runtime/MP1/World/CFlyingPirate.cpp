@@ -21,7 +21,7 @@
 
 namespace urde::MP1 {
 namespace {
-constexpr std::array<const SBurst, 6> skBurst1{{
+constexpr std::array<SBurst, 6> skBurst1{{
     {4, {3, 4, 11, 12, -1, 0, 0, 0}, 0.1f, 0.05f},
     {20, {2, 3, 4, 5, -1, 0, 0, 0}, 0.1f, 0.05f},
     {20, {10, 11, 12, 13, -1, 0, 0, 0}, 0.1f, 0.05f},
@@ -30,7 +30,7 @@ constexpr std::array<const SBurst, 6> skBurst1{{
     {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 }};
 
-constexpr std::array<const SBurst, 6> skBurst2{{
+constexpr std::array<SBurst, 6> skBurst2{{
     {5, {3, 4, 8, 12, -1, 0, 0, 0}, 0.1f, 0.05f},
     {10, {2, 3, 4, 5, -1, 0, 0, 0}, 0.1f, 0.05f},
     {10, {10, 11, 12, 13, -1, 0, 0, 0}, 0.1f, 0.05f},
@@ -39,7 +39,7 @@ constexpr std::array<const SBurst, 6> skBurst2{{
     {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 }};
 
-constexpr std::array<const SBurst, 5> skBurst3{{
+constexpr std::array<SBurst, 5> skBurst3{{
     {30, {3, 4, 5, 11, 12, 4, -1, 0}, 0.1f, 0.05f},
     {20, {2, 3, 4, 5, 4, 3, -1, 0}, 0.1f, 0.05f},
     {20, {5, 4, 3, 13, 12, 11, -1, 0}, 0.1f, 0.05f},
@@ -47,7 +47,7 @@ constexpr std::array<const SBurst, 5> skBurst3{{
     {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 }};
 
-constexpr std::array<const SBurst, 5> skBurst4{{
+constexpr std::array<SBurst, 5> skBurst4{{
     {10, {6, 5, 4, 14, 13, 12, -1, 0}, 0.1f, 0.05f},
     {20, {14, 13, 12, 11, 10, 9, -1, 0}, 0.1f, 0.05f},
     {20, {14, 15, 16, 11, 10, 9, -1, 0}, 0.1f, 0.05f},
@@ -55,11 +55,11 @@ constexpr std::array<const SBurst, 5> skBurst4{{
     {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 }};
 
-constexpr std::array<const SBurst* const, 5> skBursts{
+constexpr std::array<const SBurst*, 5> skBursts{
     skBurst1.data(), skBurst2.data(), skBurst3.data(), skBurst4.data(), nullptr,
 };
 
-constexpr std::array<const std::string_view, 15> skParts{
+constexpr std::array<std::string_view, 15> skParts{
     "Collar"sv, "Head_1"sv, "R_shoulder"sv, "R_elbow"sv, "R_wrist"sv, "L_shoulder"sv, "L_elbow"sv,     "L_wrist"sv,
     "R_hip"sv,  "R_knee"sv, "R_ankle"sv,    "L_hip"sv,   "L_knee"sv,  "L_ankle"sv,    "rocket_LCTR"sv,
 };
@@ -395,9 +395,8 @@ bool CFlyingPirate::AggressionCheck(CStateManager& mgr, float arg) { return x6a2
 bool CFlyingPirate::AnimOver(CStateManager& mgr, float arg) {
   if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::Death) {
     return true;
-  } else {
-    return CPatterned::AnimOver(mgr, arg);
   }
+  return CPatterned::AnimOver(mgr, arg);
 }
 
 void CFlyingPirate::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
@@ -434,9 +433,9 @@ bool CFlyingPirate::Attacked(CStateManager& mgr, float arg) { return x854_ < (ar
 
 zeus::CVector3f CFlyingPirate::AvoidActors(CStateManager& mgr) {
   const zeus::CVector3f& origin = GetTranslation();
-  zeus::CAABox box(origin - 8.f, origin + 8.f);
+  const zeus::CAABox box(origin - 8.f, origin + 8.f);
   rstl::reserved_vector<TUniqueId, 1024> nearList;
-  mgr.BuildNearList(nearList, box, CMaterialFilter::MakeInclude(EMaterialTypes::CameraPassthrough), this);
+  mgr.BuildNearList(nearList, box, CMaterialFilter::MakeInclude(EMaterialTypes::Character), this);
 
   zeus::CVector3f ret;
   for (const auto& id : nearList) {
@@ -445,8 +444,7 @@ zeus::CVector3f CFlyingPirate::AvoidActors(CStateManager& mgr) {
     }
   }
   const zeus::CVector3f& playerPos = mgr.GetPlayer().GetTranslation();
-  ret += x45c_steeringBehaviors.Separation(*this, {playerPos.x(), playerPos.y(), origin.z()}, 20.f);
-  return ret;
+  return ret + x45c_steeringBehaviors.Separation(*this, {playerPos.x(), playerPos.y(), origin.z()}, 20.f);
 }
 
 void CFlyingPirate::Bounce(CStateManager& mgr, EStateMsg msg, float arg) {
@@ -498,7 +496,7 @@ void CFlyingPirate::CheckForProjectiles(CStateManager& mgr) {
     return;
 
   const zeus::CVector3f& playerPos = mgr.GetPlayer().GetTranslation();
-  zeus::CAABox box(playerPos - 5.f, playerPos + 5.f);
+  const zeus::CAABox box(playerPos - 5.f, playerPos + 5.f);
   x6a0_30_ = false;
 
   rstl::reserved_vector<TUniqueId, 1024> nearList;
@@ -605,9 +603,10 @@ void CFlyingPirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& nod
     if (pInfo.Token().IsLoaded() && mgr.CanCreateProjectile(x8_uid, EWeaponType::AI, 16)) {
       const zeus::CTransform& xf = GetLctrTransform(node.GetLocatorName());
       TUniqueId target = x6a1_26_isAttackingObject ? x85c_attackObjectId : mgr.GetPlayer().GetUniqueId();
-      CEnergyProjectile* projectile = new CEnergyProjectile(
-          true, pInfo.Token(), EWeaponType::AI, xf, EMaterialTypes::Floor, pInfo.GetDamage(), mgr.AllocateUniqueId(),
-          x4_areaId, x8_uid, target, EProjectileAttrib::None, false, zeus::skOne3f, std::nullopt, -1, false);
+      CEnergyProjectile* projectile =
+          new CEnergyProjectile(true, pInfo.Token(), EWeaponType::AI, xf, EMaterialTypes::Character, pInfo.GetDamage(),
+                                mgr.AllocateUniqueId(), x4_areaId, x8_uid, target, EProjectileAttrib::None, false,
+                                zeus::skOne3f, std::nullopt, -1, false);
       mgr.AddObject(projectile);
       if (!x6a1_26_isAttackingObject) {
         projectile->SetCameraShake(
@@ -662,7 +661,7 @@ void CFlyingPirate::MassiveDeath(CStateManager& mgr) {
 void CFlyingPirate::FireProjectile(CStateManager& mgr, float dt) {
   bool projectileFired = false;
   const zeus::CTransform& xf = GetLctrTransform(x7e0_gunSegId);
-  if (x400_25_alive) {
+  if (!x400_25_alive) {
     LaunchProjectile(xf, mgr, 8, EProjectileAttrib::None, false, std::nullopt, -1, false, zeus::skOne3f);
     projectileFired = true;
   } else {
@@ -674,8 +673,7 @@ void CFlyingPirate::FireProjectile(CStateManager& mgr, float dt) {
       }
       zeus::CVector3f dist = origin - xf.origin;
       float mag = dist.magnitude();
-      dist *= zeus::CVector3f(1.f / mag);
-      float fVar13 = xf.frontVector().dot(dist);
+      float fVar13 = xf.frontVector().dot(dist * (1.f / mag));
       if (0.707f < fVar13 || (mag < 6.f && 0.5f < fVar13)) {
         if (LineOfSightTest(mgr, xf.origin, origin, {EMaterialTypes::Player, EMaterialTypes::ProjectilePassthrough})) {
           origin += x34_transform.rotate(x7ec_burstFire.GetDistanceCompensatedError(mag, 6.f));
@@ -812,9 +810,9 @@ void CFlyingPirate::GetUp(CStateManager& mgr, EStateMsg msg, float arg) {
 
 bool CFlyingPirate::HearPlayer(CStateManager& mgr, float arg) {
   const CPlayer& player = mgr.GetPlayer();
-  const float x4squared = x568_data.x4_hearingDistance * x568_data.x4_hearingDistance;
+  const float hearingDist = x568_data.x4_hearingDistance * x568_data.x4_hearingDistance;
   return player.GetVelocity().magSquared() > 0.1f &&
-         (player.GetTranslation() - GetTranslation()).magSquared() < x4squared;
+         (player.GetTranslation() - GetTranslation()).magSquared() < hearingDist;
 }
 
 bool CFlyingPirate::HearShot(CStateManager& mgr, float arg) { return x6a0_26_hearShot; }
