@@ -252,11 +252,12 @@ void CPauseScreenBase::ChangeMode(EMode mode, bool playSfx) {
 }
 
 void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table) {
-  if (!table)
+  if (!table) {
     return;
+  }
 
-  zeus::CColor selColor = zeus::skWhite;
-  zeus::CColor deselColor = {1.f, 1.f, 1.f, 0.5f};
+  constexpr zeus::CColor selColor = zeus::skWhite;
+  constexpr zeus::CColor deselColor = {1.f, 1.f, 1.f, 0.5f};
 
   bool tableActive = true;
   if (table == x84_tablegroup_rightlog && x10_mode != EMode::RightTable)
