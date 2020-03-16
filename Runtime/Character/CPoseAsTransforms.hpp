@@ -29,7 +29,7 @@ private:
   CSegId xd4_lastInserted = 0;
 
 public:
-  CPoseAsTransforms(u8 boneCount);
+  explicit CPoseAsTransforms(u8 boneCount);
   bool ContainsDataFor(const CSegId& id) const;
   void Clear();
   void AccumulateScaledTransform(const CSegId& id, zeus::CMatrix3f& rotation, float scale) const;
