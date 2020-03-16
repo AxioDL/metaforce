@@ -1,6 +1,7 @@
 #include "Runtime/MP1/World/CJellyZap.hpp"
 
 #include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CFishCloud.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
@@ -20,9 +21,9 @@ CJellyZap::CJellyZap(TUniqueId uid, std::string_view name, const CEntityInfo& in
 , x590_(f4)
 , x594_(f3)
 , x598_(f8)
-, x59c_(f9)
-, x5a0_(f10)
-, x5a4_(f11)
+, x59c_priority(f9)
+, x5a0_repulseRadius(f10)
+, x5a4_attractRadius(f11)
 , x5a8_attackDelay(f5)
 , x5ac_(f6)
 , x5b0_(f7)
@@ -54,9 +55,9 @@ void CJellyZap::Think(float dt, CStateManager& mgr) {
   if (x5b8_24_)
     x450_bodyController->FaceDirection(mgr.GetPlayer().GetTranslation() - GetTranslation(), dt);
 
-  float fv = (x5b8_25_ && x450_bodyController->GetPercentageFrozen() == 0.f ? x50c_baseDamageMag + (dt / 0.3f)
+  float damage = (x5b8_25_ && x450_bodyController->GetPercentageFrozen() == 0.f ? x50c_baseDamageMag + (dt / 0.3f)
                                                                             : x50c_baseDamageMag - (dt / 0.75f));
-  x50c_baseDamageMag = zeus::clamp(0.f, fv, 1.f);
+  x50c_baseDamageMag = zeus::clamp(0.f, damage, 1.f);
 }
 
 void CJellyZap::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
@@ -65,6 +66,13 @@ void CJellyZap::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
     return;
   }
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
+}
+
+void CJellyZap::KnockBack(const zeus::CVector3f& pos, CStateManager& mgr, const CDamageInfo& info, EKnockBackType type,
+                          bool inDeferred, float magnitude) {
+  if (info.GetWeaponMode().GetType() == EWeaponType::Ice) {
+    Freeze(mgr, {}, GetTransform().transposeRotate(pos), magnitude);
+  }
 }
 
 void CJellyZap::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
@@ -101,18 +109,18 @@ void CJellyZap::Suck(CStateManager& mgr, EStateMsg msg, float arg) {
     TryCommand(mgr, pas::EAnimationState::LoopReaction, &CPatterned::TryLoopReaction, 0);
     x450_bodyController->GetCommandMgr().SetTargetVector(
         (mgr.GetPlayer().GetTranslation() + zeus::CVector3f(0.f, 0.f, 1.f)) - GetTranslation());
-    zeus::CVector3f diff = (mgr.GetPlayer().GetTranslation() - GetTranslation());
-    float f1 = diff.magnitude();
-    float f3 = 5.f;
-    float f2 = x58c_;
-    if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed)
-      f2 = x594_;
-    else if (mgr.GetPlayerState()->GetCurrentSuitRaw() == CPlayerState::EPlayerSuit::Gravity)
-      f2 = x590_;
-    float f4 = f3 * f2;
-    float f5 = 1.f / f1;
-    
+
+    float intensity = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit) ? 0.1f : 1.f;
+    zeus::CVector3f posDiff = (mgr.GetPlayer().GetTranslation() - GetTranslation());
+    float mag = 1.f / posDiff.magnitude();
+    mgr.GetPlayer().ApplyImpulseWR((-posDiff * mag) * (arg * (5.f * mag * mgr.GetPlayer().GetMass()) * intensity), zeus::CAxisAngle());
+    mgr.GetPlayer().UseCollisionImpulses();
+    mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), 0.1f, 0.1f);
   } else if (msg == EStateMsg::Deactivate) {
+    x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
+    mgr.GetPlayerState()->GetStaticInterference().RemoveSource(GetUniqueId());
+    x5b8_24_ = false;
+    x5b8_25_ = false;
   }
 }
 
@@ -168,13 +176,37 @@ bool CJellyZap::InDetectionRange(CStateManager& mgr, float arg) {
   return (mgr.GetPlayer().GetFluidCounter() != 0 ? CPatterned::InDetectionRange(mgr, arg) : false);
 }
 
-void CJellyZap::AddSelfToFishCloud(CStateManager, float, bool b) {}
+void CJellyZap::AddSelfToFishCloud(CStateManager& mgr, float radius, float priority, bool repulsor) {
+  for (const SConnection& conn : x20_conns) {
+    if (conn.x0_state != EScriptObjectState::ScanStart || conn.x4_msg != EScriptObjectMessage::Follow)
+      continue;
+    if (TCastToPtr<CFishCloud> cloud = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId))) {
+      if (repulsor) {
+        cloud->AddRepulsor(GetUniqueId(), false, radius, priority);
+      } else {
+        cloud->AddAttractor(GetUniqueId(), false, radius, priority);
+      }
+    }
+  }
+}
 
-void CJellyZap::AddRepulsor(CStateManager&) {}
+void CJellyZap::AddRepulsor(CStateManager& mgr) { AddSelfToFishCloud(mgr, x5a0_repulseRadius, x59c_priority, true); }
 
-void CJellyZap::AddAttractor(CStateManager&) {}
+void CJellyZap::AddAttractor(CStateManager& mgr) {
+  AddSelfToFishCloud(mgr, x5a0_repulseRadius, x59c_priority, true);
+  AddSelfToFishCloud(mgr, x5a4_attractRadius, x59c_priority, false);
+}
 
-void CJellyZap::RemoveSelfFromFishCloud(CStateManager&) {}
+void CJellyZap::RemoveSelfFromFishCloud(CStateManager& mgr) {
+  for (const SConnection& conn : x20_conns) {
+    if (conn.x0_state != EScriptObjectState::ScanStart || conn.x4_msg != EScriptObjectMessage::Follow)
+      continue;
+    if (TCastToPtr<CFishCloud> cloud = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId))) {
+      cloud->RemoveAttractor(GetUniqueId());
+      cloud->RemoveRepulsor(GetUniqueId());
+    }
+  }
+}
 
 void CJellyZap::RemoveAllAttractors(CStateManager& mgr) { RemoveSelfFromFishCloud(mgr); }
 
@@ -184,7 +216,7 @@ bool CJellyZap::ClosestToPlayer(const CStateManager& mgr) const {
   float closestDistance = ourDistance;
   for (CEntity* ent : mgr.GetPhysicsActorObjectList()) {
     if (CJellyZap* zap = CPatterned::CastTo<CJellyZap>(ent)) {
-      if (zap->GetAreaIdAlways() != GetAreaIdAlways())
+      if (zap->GetAreaIdAlways() != GetAreaIdAlways() || zap == this)
         continue;
 
       const float tmpDist = (playerPos - zap->GetTranslation()).magnitude();
@@ -196,5 +228,9 @@ bool CJellyZap::ClosestToPlayer(const CStateManager& mgr) const {
     }
   }
   return zeus::close_enough(closestDistance, ourDistance);
+}
+const CDamageVulnerability* CJellyZap::GetDamageVulnerability(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                                                              const CDamageInfo& info) const {
+  return CActor::GetDamageVulnerability(pos, dir, info);
 }
 } // namespace urde::MP1

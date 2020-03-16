@@ -11,9 +11,9 @@ class CJellyZap : public CPatterned {
   float x590_;
   float x594_;
   float x598_;
-  float x59c_;
-  float x5a0_;
-  float x5a4_;
+  float x59c_priority;
+  float x5a0_repulseRadius;
+  float x5a4_attractRadius;
   float x5a8_attackDelay;
   float x5ac_;
   float x5b0_;
@@ -22,12 +22,13 @@ class CJellyZap : public CPatterned {
   bool x5b8_25_ : 1;
   bool x5b8_26_ : 1;
 
-  void AddSelfToFishCloud(CStateManager, float, bool);
+  void AddSelfToFishCloud(CStateManager&, float, float, bool);
   void AddRepulsor(CStateManager&);
   void AddAttractor(CStateManager&);
   void RemoveSelfFromFishCloud(CStateManager&);
   void RemoveAllAttractors(CStateManager&);
   bool ClosestToPlayer(const CStateManager&) const;
+  bool sub801d8190() const { return x568_ != 1; }
 
 public:
   DEFINE_PATTERNED(JellyZap)
@@ -40,6 +41,14 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
   void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt) override;
+  void KnockBack(const zeus::CVector3f &, CStateManager &, const CDamageInfo &info, EKnockBackType type, bool inDeferred, float magnitude) override;
+  const CDamageVulnerability* GetDamageVulnerability() const override { return CAi::GetDamageVulnerability(); }
+  const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                                                     const CDamageInfo& info) const override;
+  EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                         const CWeaponMode&, EProjectileAttrib) const override {
+    return sub801d8190() ? EWeaponCollisionResponseTypes::Unknown89 : EWeaponCollisionResponseTypes::Unknown39;
+  }
   void Attack(CStateManager&, EStateMsg, float) override;
   void Suck(CStateManager&, EStateMsg, float) override;
   void Active(CStateManager&, EStateMsg, float) override;
