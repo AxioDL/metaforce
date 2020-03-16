@@ -30,8 +30,6 @@ void CPhazonSuitFilter::Shutdown() {
   s_BlurPipeline.reset();
 }
 
-#define BLUR_SCALE (1.f / 128.f)
-
 void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPhazonSuitFilter::drawBlurPasses", zeus::skMagenta);
   if (!m_dataBind || indTex != m_indTex) {
@@ -120,9 +118,10 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
   rect.xc_width = g_Viewport.x8_width;
   rect.x10_height = g_Viewport.xc_height;
 
+  constexpr float blurScale = 1.0f / 128.0f;
+
   /* X Pass */
-  zeus::CVector4f blurDir =
-      zeus::CVector4f{g_Viewport.xc_height / float(g_Viewport.x8_width) * radius * BLUR_SCALE, 0.f, 0.f, 0.f};
+  auto blurDir = zeus::CVector4f{g_Viewport.xc_height / float(g_Viewport.x8_width) * radius * blurScale, 0.f, 0.f, 0.f};
   m_uniBufBlurX->load(&blurDir, sizeof(zeus::CVector4f));
 
   CGraphics::SetShaderDataBinding(m_dataBindBlurX);
@@ -130,7 +129,7 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
   CGraphics::ResolveSpareTexture(rect, 2);
 
   /* Y Pass */
-  blurDir = zeus::CVector4f{0.f, radius * BLUR_SCALE, 0.f, 0.f};
+  blurDir = zeus::CVector4f{0.f, radius * blurScale, 0.f, 0.f};
   m_uniBufBlurY->load(&blurDir, sizeof(zeus::CVector4f));
 
   CGraphics::SetShaderDataBinding(m_dataBindBlurY);
