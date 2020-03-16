@@ -13,11 +13,14 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
-const std::string_view CPuddleSpore::kEyeLocators[16] = {
+constexpr u32 kEyeCount = 16;
+
+constexpr std::array kEyeLocators{
     "Glow_1_LCTR"sv,  "Glow_2_LCTR"sv,  "Glow_3_LCTR"sv,  "Glow_4_LCTR"sv,  "Glow_5_LCTR"sv,  "Glow_6_LCTR"sv,
     "Glow_7_LCTR"sv,  "Glow_8_LCTR"sv,  "Glow_9_LCTR"sv,  "Glow_10_LCTR"sv, "Glow_11_LCTR"sv, "Glow_12_LCTR"sv,
     "Glow_13_LCTR"sv, "Glow_14_LCTR"sv, "Glow_15_LCTR"sv, "Glow_16_LCTR"sv,
 };
+
 CPuddleSpore::CPuddleSpore(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                            const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                            EColliderType colType, CAssetId glowFx, float f1, float f2, float f3, float f4, float f5,
@@ -121,7 +124,7 @@ void CPuddleSpore::Think(float dt, CStateManager& mgr) {
   HealthInfo(mgr)->SetHP(1000000.0f);
   float t = (x56c_ / x570_) - 1.f >= -0.f ? 1.f : x56c_ / x570_;
   zeus::CColor modColor = zeus::CColor::lerp(zeus::skWhite, zeus::CColor(1.f, 1.f, 1.f, 0.f), t);
-  for (u32 i = 0; i < kEyeCount; ++i) {
+  for (size_t i = 0; i < kEyeCount; ++i) {
     const auto& elemGen = x5dc_elemGens[i];
     elemGen->SetModulationColor(modColor);
     elemGen->SetTranslation(GetLctrTransform(kEyeLocators[i]).origin);

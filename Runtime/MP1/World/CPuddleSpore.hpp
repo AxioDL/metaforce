@@ -11,8 +11,6 @@
 
 namespace urde::MP1 {
 class CPuddleSpore : public CPatterned {
-  static constexpr u32 kEyeCount = 16;
-  static const std::string_view kEyeLocators[16];
   float x568_ = 0.f;
   float x56c_ = 0.f;
   float x570_;
