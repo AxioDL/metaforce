@@ -105,7 +105,7 @@ private:
   void UpdateGrappleBeamFx(const zeus::CVector3f& beamGunPos, const zeus::CVector3f& beamAirPos, CStateManager& mgr);
   bool UpdateGrappleBeam(float dt, const zeus::CTransform& beamLoc, CStateManager& mgr);
   void UpdateSwingAction(float grappleSwingT, float dt, CStateManager& mgr);
-  void RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf, const CModelFlags& flags) const;
+  void RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf, const CModelFlags& flags);
 
   static void PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
 
@@ -130,7 +130,7 @@ public:
   void Update(float grappleSwingT, float dt, CStateManager& mgr);
   void PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos);
   void Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags,
-              const CActorLights* lights) const;
+              const CActorLights* lights);
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   void EnterStruck(CStateManager& mgr, float angle, bool bigStrike, bool notInFreeLook);
   void EnterIdle(CStateManager& mgr);

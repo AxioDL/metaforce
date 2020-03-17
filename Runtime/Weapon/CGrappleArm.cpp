@@ -1,5 +1,7 @@
 #include "Runtime/Weapon/CGrappleArm.hpp"
 
+#include <array>
+
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -54,11 +56,6 @@ CGrappleArm::CGrappleArm(const zeus::CVector3f& scale)
   LoadAnimations();
 }
 
-static const char* skDependencyNames[] = {
-    "PowerSuit_DGRP",  "GravitySuit_DGRP", "VariaSuit_DGRP",   "PhazonSuit_DGRP",
-    "FusionSuit_DGRP", "FusionSuitG_DGRP", "FusionSuitV_DGRP", "FusionSuitP_DGRP",
-};
-
 void CGrappleArm::FillTokenVector(const std::vector<SObjectTag>& tags, std::vector<CToken>& objects) {
   objects.reserve(tags.size());
   for (const SObjectTag& tag : tags)
@@ -66,8 +63,13 @@ void CGrappleArm::FillTokenVector(const std::vector<SObjectTag>& tags, std::vect
 }
 
 void CGrappleArm::BuildSuitDependencyList() {
+  static constexpr std::array dependencyNames{
+      "PowerSuit_DGRP"sv,  "GravitySuit_DGRP"sv, "VariaSuit_DGRP"sv,   "PhazonSuit_DGRP"sv,
+      "FusionSuit_DGRP"sv, "FusionSuitG_DGRP"sv, "FusionSuitV_DGRP"sv, "FusionSuitP_DGRP"sv,
+  };
+
   x184_grappleArm.Lock();
-  for (const char* name : skDependencyNames) {
+  for (const auto& name : dependencyNames) {
     TLockedToken<CDependencyGroup> dgrp = g_SimplePool->GetObj(name);
     std::vector<CToken>& depsOut = x19c_suitDeps.emplace_back();
     FillTokenVector(dgrp->GetObjectTagVector(), depsOut);
@@ -254,7 +256,7 @@ void CGrappleArm::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
 void CGrappleArm::DoUserAnimEvents(CStateManager& mgr) {
   zeus::CVector3f armToCam = mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation() - x220_xf.origin;
   const CAnimData& animData = *x0_grappleArmModel->GetAnimationData();
-  for (int i = 0; i < animData.GetPassedSoundPOICount(); ++i) {
+  for (size_t i = 0; i < animData.GetPassedSoundPOICount(); ++i) {
     const CSoundPOINode& node = CAnimData::g_SoundPOINodes[i];
     if (node.GetPoiType() != EPOIType::Sound ||
         (node.GetCharacterIndex() != -1 && animData.x204_charIdx != node.GetCharacterIndex()))
@@ -263,7 +265,7 @@ void CGrappleArm::DoUserAnimEvents(CStateManager& mgr) {
                                  node.GetFlags(), node.GetFalloff(), node.GetMaxDist(), 0.16f, 1.f, armToCam,
                                  x220_xf.origin, mgr.GetPlayer().GetAreaIdAlways(), mgr);
   }
-  for (int i = 0; i < animData.GetPassedIntPOICount(); ++i) {
+  for (size_t i = 0; i < animData.GetPassedIntPOICount(); ++i) {
     const CInt32POINode& node = CAnimData::g_Int32POINodes[i];
     switch (node.GetPoiType()) {
     case EPOIType::UserEvent:
@@ -472,24 +474,23 @@ void CGrappleArm::PreRender(const CStateManager& mgr, const zeus::CFrustum& frus
   }
 }
 
-void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf,
-                                  const CModelFlags& flags) const {
+void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf, const CModelFlags& flags) {
   CGraphics::SetModelMatrix(modelXf * zeus::CTransform::Scale(x0_grappleArmModel->GetScale()));
   // CGraphics::DisableAllLights();
   // g_Renderer->SetAmbientColor(zeus::skWhite);
   CSkinnedModel& model = const_cast<CSkinnedModel&>(*x50_grappleArmSkeletonModel->GetAnimationData()->GetModelData());
   model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
-  const_cast<CGrappleArm*>(this)->x0_grappleArmModel->GetAnimationData()->Render(model, flags, {}, nullptr);
+  x0_grappleArmModel->GetAnimationData()->Render(model, flags, {}, nullptr);
   // g_Renderer->SetAmbientColor(zeus::skWhite);
   // CGraphics::DisableAllLights();
 }
 
 void CGrappleArm::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  reinterpret_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
+  static_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
 }
 
 void CGrappleArm::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags,
-                         const CActorLights* lights) const {
+                         const CActorLights* lights) {
   if (x3b2_24_active && !x3b2_29_suitLoading) {
     SCOPED_GRAPHICS_DEBUG_GROUP("CGrappleArm::Render", zeus::skOrange);
     zeus::CTransform modelXf = zeus::CTransform::Translate(pos) * x220_xf * x2e0_auxXf;
