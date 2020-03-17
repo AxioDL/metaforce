@@ -2,6 +2,7 @@
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DataSpec/DNACommon/RigInverter.hpp"
+#include "DNAMP2.hpp"
 
 namespace DataSpec::DNAMP2 {
 
@@ -37,6 +38,22 @@ struct CINF : BigDNA {
   void sendVertexGroupsToBlender(hecl::blender::PyOutStream& os) const;
   void sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& cinfId) const;
   static std::string GetCINFArmatureName(const UniqueID32& cinfId);
+
+  CINF() = default;
+  using Armature = hecl::blender::Armature;
+  using BlenderBone = hecl::blender::Bone;
+
+  int RecursiveAddArmatureBone(const Armature& armature, const BlenderBone* bone, int parent, int& curId,
+                               std::unordered_map<std::string, atInt32>& idMap, std::map<std::string, int>& nameMap);
+
+  CINF(const Armature& armature, std::unordered_map<std::string, atInt32>& idMap);
+
+  static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
+                      PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
+                      std::function<void(const hecl::SystemChar*)> fileChanged);
+
+  static bool Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath,
+                   const hecl::blender::Armature& armature);
 };
 
 } // namespace DataSpec::DNAMP2

@@ -4,6 +4,7 @@
 #include "MLVL.hpp"
 #include "CMDL.hpp"
 #include "ANCS.hpp"
+#include "CINF.hpp"
 #include "MREA.hpp"
 #include "MAPA.hpp"
 #include "MAPU.hpp"
@@ -234,6 +235,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     return {SAVWCommon::ExtractSAVW<SAVW>, {_SYS_STR(".yaml")}};
   case SBIG('CMDL'):
     return {CMDL::Extract, {_SYS_STR(".blend")}, 1};
+  case SBIG('CINF'):
+    return {CINF::Extract, {_SYS_STR(".blend")}, 1};
   case SBIG('ANCS'):
     return {ANCS::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 2};
   case SBIG('MLVL'):
