@@ -13,8 +13,8 @@ public:
   enum class EBoidState : u32 {
     Raised = 0,
     Raising = 1,
-    x2 = 2,
-    x3 = 3,
+    Lowered = 2,
+    Lowering = 3,
   };
 
   enum class EBoidPlacement : u32 {
@@ -27,26 +27,26 @@ public:
   class CBoid {
     zeus::CVector3f x0_pos;
     EBoidState xc_state;
-    float x10_ = 0.f; // some timer
-    float x14_yOffset;
-    float x18_;
-    float x1c_ = 0.f;
-    float x20_;
+    float x10_loweredTimer = 0.f;
+    float x14_zOffset;
+    float x18_speed;
+    // x1c unused
+    float x20_scale;
 
   public:
-    constexpr CBoid(const zeus::CVector3f& pos, float f1, float f2, float f3)
-    : x0_pos(pos), xc_state(EBoidState::Raising), x14_yOffset(f1), x18_(f2), x20_(f3) {}
+    constexpr CBoid(const zeus::CVector3f& pos, float zOffset, float speed, float scale)
+    : x0_pos(pos), xc_state(EBoidState::Raising), x14_zOffset(zOffset), x18_speed(speed), x20_scale(scale) {}
 
     constexpr const zeus::CVector3f& GetPosition() const { return x0_pos; }
     constexpr EBoidState GetState() const { return xc_state; }
-    constexpr float Get_x10() const { return x10_; }
-    constexpr float GetYOffset() const { return x14_yOffset; }
-    constexpr float Get_x18() const { return x18_; }
-    constexpr float Get_x20() const { return x20_; }
+    constexpr float GetLoweredTimer() const { return x10_loweredTimer; }
+    constexpr float GetZOffset() const { return x14_zOffset; }
+    constexpr float GetSpeed() const { return x18_speed; }
+    constexpr float GetScale() const { return x20_scale; }
     constexpr void SetState(EBoidState v) { xc_state = v; }
-    constexpr void Set_x10(float v) { x10_ = v; }
-    constexpr void SetYOffset(float v) { x14_yOffset = v; }
-    constexpr void Set_x18(float v) { x18_ = v; }
+    constexpr void SetLoweredTimer(float v) { x10_loweredTimer = v; }
+    constexpr void SetZOffset(float v) { x14_zOffset = v; }
+    constexpr void SetSpeed(float v) { x18_speed = v; }
   };
 
 private:
@@ -55,16 +55,16 @@ private:
   float xf8_height;
   float xfc_;
   float x100_weaponDamageRadius;
-  float x104_;
-  float x108_;
-  float x10c_;
-  float x110_;
-  float x114_;
-  float x118_;
+  float x104_maxPlayerDistance;
+  float x108_loweredTime;
+  float x10c_loweredTimeVariation;
+  float x110_maxZOffset;
+  float x114_speed;
+  float x118_speedVariation;
   float x11c_;
-  float x120_;
-  float x124_;
-  float x128_;
+  float x120_scaleMin;
+  float x124_scaleMax;
+  float x128_distanceBelowGround;
   // u32 x12c_ = 0;
   std::vector<CBoid> x134_boids;
   bool x140_24_hasGround : 1;
@@ -73,7 +73,7 @@ private:
   zeus::CAABox x144_touchBounds = zeus::skInvertedBox;
   CDamageInfo x15c_damageInfo;
   // x178_ / x19c_: vectors of CSkinnedModel*, not needed
-  rstl::reserved_vector<std::shared_ptr<CModelData>, 4> x1b0_modelData;
+  rstl::reserved_vector<std::unique_ptr<CModelData>, 4> x1b0_modelData;
   CModelData::EWhichModel x1c4_which;
   std::unique_ptr<std::vector<zeus::CVector3f>> x1c8_boidPositions;
   std::unique_ptr<std::vector<EBoidPlacement>> x1cc_boidPlacement;
@@ -86,14 +86,17 @@ private:
   std::unique_ptr<CElementGen> x1ec_particleGen1;
   std::unique_ptr<CElementGen> x1f4_particleGen2;
   u32 x1fc_;
-  float x200_;
+  float x200_; // unused?
   float x204_particleTimer = 0.f;
 
 public:
-  CSnakeWeedSwarm(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CVector3f&, const zeus::CVector3f&,
-                  const CAnimRes&, const CActorParameters&, float, float, float, float, float, float, float, float,
-                  float, float, float, float, float, float, const CDamageInfo&, float, u32, u32, u32, CAssetId, u32,
-                  CAssetId, float);
+  CSnakeWeedSwarm(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
+                  const zeus::CVector3f& pos, const zeus::CVector3f& scale, const CAnimRes& animRes,
+                  const CActorParameters& actParms, float spacing, float height, float f3, float weaponDamageRadius,
+                  float maxPlayerDistance, float loweredTime, float loweredTimeVariation, float maxZOffset, float speed,
+                  float speedVariation, float f11, float scaleMin, float scaleMax, float distanceBelowGround,
+                  const CDamageInfo& dInfo, float /*f15*/, u32 sfxId1, u32 sfxId2, u32 sfxId3, CAssetId particleGenDesc1, u32 w5,
+                  CAssetId particleGenDesc2, float f16);
 
   void Accept(IVisitor&) override;
   void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr);

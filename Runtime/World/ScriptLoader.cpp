@@ -3033,34 +3033,36 @@ CEntity* ScriptLoader::LoadSnakeWeedSwarm(CStateManager& mgr, CInputStream& in, 
   bool active = in.readBool();
   CAnimationParameters animParms = LoadAnimationParameters(in);
   CActorParameters actParms = LoadActorParameters(in);
-  float f1 = in.readFloatBig();
-  float f2 = in.readFloatBig();
+  float spacing = in.readFloatBig();
+  float height = in.readFloatBig();
   float f3 = in.readFloatBig();
-  float f4 = in.readFloatBig();
-  float f5 = in.readFloatBig();
-  float f6 = in.readFloatBig();
-  float f7 = in.readFloatBig();
-  float f8 = in.readFloatBig();
-  float f9 = in.readFloatBig();
-  float f10 = in.readFloatBig();
+  float weaponDamageRadius = in.readFloatBig();
+  float maxPlayerDistance = in.readFloatBig();
+  float loweredTime = in.readFloatBig();
+  float loweredTimeVariation = in.readFloatBig();
+  float maxZOffset = in.readFloatBig();
+  float speed = in.readFloatBig();
+  float speedVariation = in.readFloatBig();
   float f11 = in.readFloatBig();
-  float f12 = in.readFloatBig();
-  float f13 = in.readFloatBig();
-  float f14 = in.readFloatBig();
+  float scaleMin = in.readFloatBig();
+  float scaleMax = in.readFloatBig();
+  float distanceBelowGround = in.readFloatBig();
   CDamageInfo dInfo(in);
-  float f15 = in.readFloatBig();
-  u32 w1 = in.readUint32Big();
-  u32 w2 = in.readUint32Big();
-  u32 w3 = in.readUint32Big();
-  CAssetId w4 = (propCount < 29 ? CAssetId() : in.readUint32Big());
+  float unused = in.readFloatBig();
+  u32 sfxId1 = in.readUint32Big();
+  u32 sfxId2 = in.readUint32Big();
+  u32 sfxId3 = in.readUint32Big();
+  CAssetId particleGenDesc1 = (propCount < 29 ? CAssetId() : CAssetId(in));
   u32 w5 = (propCount < 29 ? 0 : in.readUint32Big());
-  CAssetId w6 = (propCount < 29 ? CAssetId() : in.readUint32Big());
+  CAssetId particleGenDesc2 = (propCount < 29 ? CAssetId() : CAssetId(in));
   float f16 = (propCount < 29 ? 0.f : in.readFloatBig());
 
   CAnimRes animRes(animParms.GetACSFile(), animParms.GetCharacter(), zeus::skOne3f, animParms.GetInitialAnimation(),
                    true);
-  return new CSnakeWeedSwarm(mgr.AllocateUniqueId(), active, name, info, pos, scale, animRes, actParms, f1, f2, f3, f4,
-                             f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, dInfo, f15, w1, w2, w3, w4, w5, w6, f16);
+  return new CSnakeWeedSwarm(mgr.AllocateUniqueId(), active, name, info, pos, scale, animRes, actParms, spacing, height,
+                             f3, weaponDamageRadius, maxPlayerDistance, loweredTime, loweredTimeVariation, maxZOffset,
+                             speed, speedVariation, f11, scaleMin, scaleMax, distanceBelowGround, dInfo, unused, sfxId1,
+                             sfxId2, sfxId3, particleGenDesc1, w5, particleGenDesc2, f16);
 }
 
 CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in, int propCount,
