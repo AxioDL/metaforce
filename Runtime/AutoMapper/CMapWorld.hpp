@@ -149,15 +149,15 @@ public:
   void SetWhichMapAreasLoaded(const IWorld&, int start, int count);
   bool IsMapAreasStreaming() const;
   void MoveMapAreaToList(CMapAreaData*, EMapAreaList);
-  s32 GetCurrentMapAreaDepth(const IWorld&, int areaIdx) const;
+  s32 GetCurrentMapAreaDepth(const IWorld&, int areaIdx);
   std::vector<int> GetVisibleAreas(const IWorld&, const CMapWorldInfo&) const;
-  void Draw(const CMapWorldDrawParms&, int, int, float, float, bool) const;
-  void DoBFS(const IWorld&, int, int, float, float, bool, std::vector<CMapAreaBFSInfo>&) const;
+  void Draw(const CMapWorldDrawParms&, int, int, float, float, bool);
+  void DoBFS(const IWorld&, int, int, float, float, bool, std::vector<CMapAreaBFSInfo>&);
   bool IsMapAreaValid(const IWorld&, int, bool) const;
   void DrawAreas(const CMapWorldDrawParms&, int, const std::vector<CMapAreaBFSInfo>&, bool) const;
-  void RecalculateWorldSphere(const CMapWorldInfo&, const IWorld&) const;
+  void RecalculateWorldSphere(const CMapWorldInfo&, const IWorld&);
   zeus::CVector3f ConstrainToWorldVolume(const zeus::CVector3f&, const zeus::CVector3f&) const;
-  void ClearTraversedFlags() const;
+  void ClearTraversedFlags();
 };
 
 CFactoryFnReturn FMapWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,

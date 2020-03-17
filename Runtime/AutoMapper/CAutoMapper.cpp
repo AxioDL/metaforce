@@ -194,7 +194,7 @@ bool CAutoMapper::HasCurrentMapUniverseWorld() const {
   return false;
 }
 
-bool CAutoMapper::CheckDummyWorldLoad(const CStateManager& mgr) {
+bool CAutoMapper::CheckDummyWorldLoad(CStateManager& mgr) {
   const CMapUniverse::CMapWorldData& mapuWld = x8_mapu->GetMapWorldData(x9c_worldIdx);
   auto& dummyWorld = x14_dummyWorlds[x9c_worldIdx];
   if (!dummyWorld) {
@@ -222,7 +222,7 @@ bool CAutoMapper::CheckDummyWorldLoad(const CStateManager& mgr) {
   return true;
 }
 
-void CAutoMapper::UpdateHintNavigation(float dt, const CStateManager& mgr) {
+void CAutoMapper::UpdateHintNavigation(float dt, CStateManager& mgr) {
   SAutoMapperHintStep& nextStep = x1e0_hintSteps.front();
   bool oldProcessing = nextStep.x8_processing;
   nextStep.x8_processing = true;
@@ -321,7 +321,7 @@ void CAutoMapper::SetCurWorldAssetId(CAssetId mlvlId) {
     }
 }
 
-void CAutoMapper::BeginMapperStateTransition(EAutoMapperState state, const CStateManager& mgr) {
+void CAutoMapper::BeginMapperStateTransition(EAutoMapperState state, CStateManager& mgr) {
   if (state == x1c0_nextState)
     return;
   if ((state == EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) ||
@@ -378,7 +378,7 @@ void CAutoMapper::CompleteMapperStateTransition(const CStateManager& mgr) {
 
   if (x1c0_nextState == EAutoMapperState::MapScreen) {
     const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
-    x24_world->IGetMapWorld()->RecalculateWorldSphere(mwInfo, *x24_world);
+    x24_world->IMapWorld()->RecalculateWorldSphere(mwInfo, *x24_world);
     x1d8_flashTimer = 0.f;
     x1dc_playerFlashPulse = 0.f;
   }
@@ -784,7 +784,7 @@ void CAutoMapper::SetShouldRotatingSoundBePlaying(bool b) {
   }
 }
 
-void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, const CStateManager& mgr) {
+void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager& mgr) {
   zeus::CMatrix3f camRot = xa8_renderStates[0].x8_camOrientation.toTransform().buildMatrix3f();
   if (x1bc_state == EAutoMapperState::MapScreen) {
     if ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter)) && x328_ == 0 && HasCurrentMapUniverseWorld())
@@ -911,7 +911,7 @@ zeus::CVector2i CAutoMapper::GetMapScreenViewportSize() {
 }
 
 float CAutoMapper::GetMapAreaMaxDrawDepth(const CStateManager&, TAreaId aid) const {
-  return x24_world->IGetMapWorld()->GetCurrentMapAreaDepth(*x24_world, aid);
+  return x24_world->IMapWorld()->GetCurrentMapAreaDepth(*x24_world, aid);
 }
 
 float CAutoMapper::GetMapAreaMiniMapDrawAlphaSurfaceVisited(const CStateManager& stateMgr) {
@@ -1224,7 +1224,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr) {
       else
         xa8_renderStates[1].x18_camDist -= 3.f;
     } else if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap && x24_world) {
-      x24_world->IGetMapWorld()->RecalculateWorldSphere(
+      x24_world->IMapWorld()->RecalculateWorldSphere(
           *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo(), *x24_world);
     }
   }
@@ -1341,7 +1341,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
   if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
     if (universeInterp < 1.f && x24_world) {
       const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
-      const CMapWorld* mw = x24_world->IGetMapWorld();
+      CMapWorld* mw = x24_world->IMapWorld();
       float hintFlash = 0.f;
       if (x1e0_hintSteps.size() && x1e0_hintSteps.front().x0_type == SAutoMapperHintStep::Type::ShowBeacon) {
         if (xa0_curAreaId == mgr.GetNextAreaId() && x24_world == mgr.GetWorld()) {
@@ -1360,35 +1360,37 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           }
         }
       }
-      zeus::CTransform modelXf = planeXf * preXf;
-      CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
-                                          xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
-                                          xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
-                                          xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp, mapAlpha, 2.f,
-                                          mgr, modelXf, camXf, *x24_world, mwInfo, x1dc_playerFlashPulse, hintFlash,
-                                          objectScale, true);
+      const zeus::CTransform modelXf = planeXf * preXf;
+      const CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
+                                                xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
+                                                xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
+                                                xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp, mapAlpha,
+                                                2.f, mgr, modelXf, camXf, *x24_world, mwInfo, x1dc_playerFlashPulse,
+                                                hintFlash, objectScale, true);
       mw->Draw(parms, xa0_curAreaId, xa0_curAreaId, xa8_renderStates[0].x2c_drawDepth1,
                xa8_renderStates[0].x30_drawDepth2, true);
     }
   } else if (IsInMapperState(EAutoMapperState::MiniMap)) {
-    const CMapWorld* mw = x24_world->IGetMapWorld();
+    CMapWorld* mw = x24_world->IMapWorld();
     const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
-    CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
-                                        xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
-                                        xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
-                                        xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp, mapAlpha, 1.f, mgr,
-                                        planeXf, camXf, *x24_world, mwInfo, 0.f, 0.f, objectScale, false);
+    const CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
+                                              xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
+                                              xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
+                                              xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp, mapAlpha,
+                                              1.f, mgr, planeXf, camXf, *x24_world, mwInfo, 0.f, 0.f, objectScale,
+                                              false);
     mw->Draw(parms, xa0_curAreaId, xa4_otherAreaId, xa8_renderStates[0].x2c_drawDepth1,
              xa8_renderStates[0].x30_drawDepth2, false);
   } else {
-    const CMapWorld* mw = x24_world->IGetMapWorld();
+    CMapWorld* mw = x24_world->IMapWorld();
     const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
     zeus::CTransform modelXf = planeXf * preXf;
-    CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
-                                        xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
-                                        xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
-                                        xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp, mapAlpha, 2.f, mgr,
-                                        modelXf, camXf, *x24_world, mwInfo, 0.f, 0.f, objectScale, true);
+    const CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
+                                              xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
+                                              xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
+                                              xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp, mapAlpha,
+                                              2.f, mgr, modelXf, camXf, *x24_world, mwInfo, 0.f, 0.f, objectScale,
+                                              true);
     mw->Draw(parms, xa0_curAreaId, xa0_curAreaId, xa8_renderStates[0].x2c_drawDepth1,
              xa8_renderStates[0].x30_drawDepth2, false);
   }
@@ -1410,8 +1412,8 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
       }
     }
 
-    CMapUniverse::CMapUniverseDrawParms parms(universeInterp, x9c_worldIdx, g_GameState->CurrentWorldAssetId(), hexIdx,
-                                              x1dc_playerFlashPulse, mgr, planeXf, camXf);
+    const CMapUniverse::CMapUniverseDrawParms parms(universeInterp, x9c_worldIdx, g_GameState->CurrentWorldAssetId(),
+                                                    hexIdx, x1dc_playerFlashPulse, mgr, planeXf, camXf);
     x8_mapu->Draw(parms, zeus::skZero3f, 0.f, 0.f);
   }
 
@@ -1601,7 +1603,7 @@ CAssetId CAutoMapper::GetAreaHintDescriptionString(CAssetId mreaId) {
   return -1;
 }
 
-void CAutoMapper::OnNewInGameGuiState(EInGameGuiState state, const CStateManager& mgr) {
+void CAutoMapper::OnNewInGameGuiState(EInGameGuiState state, CStateManager& mgr) {
   if (state == EInGameGuiState::MapScreen) {
     MP1::CMain::EnsureWorldPaksReady();
     const CWorld& wld = *mgr.GetWorld();
