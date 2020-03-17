@@ -90,9 +90,9 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
   }
   case EClientFlowStates::Game: {
     g_GameState->GameOptions().EnsureSettings();
-    std::shared_ptr<CMFGameLoader> gameLoader = std::make_shared<CMFGameLoader>();
+    auto gameLoader = std::make_shared<CMFGameLoader>();
     main->SetFlowState(EFlowState::Default);
-    queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 10, 1000, gameLoader));
+    queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 10, 1000, std::move(gameLoader)));
     break;
   }
   default:
