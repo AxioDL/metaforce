@@ -36,8 +36,14 @@ void CMapArea::PostConstruct() {
   u8* tmp = x3c_vertexStart;
   m_verts.reserve(x2c_vertexCount);
   for (u32 i = 0; i < x2c_vertexCount; ++i) {
-    float* fl = reinterpret_cast<float*>(tmp);
-    m_verts.emplace_back(hecl::SBig(fl[0]), hecl::SBig(fl[1]), hecl::SBig(fl[2]));
+    float x;
+    std::memcpy(&x, tmp, sizeof(float));
+    float y;
+    std::memcpy(&y, tmp + 4, sizeof(float));
+    float z;
+    std::memcpy(&z, tmp + 8, sizeof(float));
+
+    m_verts.emplace_back(hecl::SBig(x), hecl::SBig(y), hecl::SBig(z));
     tmp += 12;
   }
 
