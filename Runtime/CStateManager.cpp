@@ -286,10 +286,10 @@ void CStateManager::UpdateThermalVisor() {
 }
 
 void CStateManager::RendererDrawCallback(const void* drawable, const void* ctx, int type) {
-  const CStateManager& mgr = *reinterpret_cast<const CStateManager*>(ctx);
+  const CStateManager& mgr = *static_cast<const CStateManager*>(ctx);
   switch (type) {
   case 0: {
-    const CActor& actor = *reinterpret_cast<const CActor*>(drawable);
+    const CActor& actor = *static_cast<const CActor*>(drawable);
     if (actor.xc8_drawnToken == mgr.x8dc_objectDrawToken)
       break;
     if (actor.xc6_nextDrawNode != kInvalidUniqueId)
@@ -299,10 +299,10 @@ void CStateManager::RendererDrawCallback(const void* drawable, const void* ctx, 
     break;
   }
   case 1:
-    reinterpret_cast<const CSimpleShadow*>(drawable)->Render(mgr.x8f0_shadowTex);
+    static_cast<const CSimpleShadow*>(drawable)->Render(mgr.x8f0_shadowTex);
     break;
   case 2:
-    reinterpret_cast<const CDecal*>(drawable)->Render();
+    static_cast<const CDecal*>(drawable)->Render();
     break;
   default:
     break;
@@ -319,12 +319,12 @@ bool CStateManager::RenderLast(TUniqueId uid) {
 void CStateManager::AddDrawableActorPlane(const CActor& actor, const zeus::CPlane& plane,
                                           const zeus::CAABox& aabb) const {
   const_cast<CActor&>(actor).SetAddedToken(x8dc_objectDrawToken + 1);
-  g_Renderer->AddPlaneObject(static_cast<const void*>(&actor), aabb, plane, 0);
+  g_Renderer->AddPlaneObject(&actor, aabb, plane, 0);
 }
 
 void CStateManager::AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const {
   const_cast<CActor&>(actor).SetAddedToken(x8dc_objectDrawToken + 1);
-  g_Renderer->AddDrawable(static_cast<const void*>(&actor), vec, aabb, 0, IRenderer::EDrawableSorting::SortedCallback);
+  g_Renderer->AddDrawable(&actor, vec, aabb, 0, IRenderer::EDrawableSorting::SortedCallback);
 }
 
 bool CStateManager::SpecialSkipCinematic() {
@@ -479,7 +479,7 @@ void CStateManager::DrawReflection(const zeus::CVector3f& reflectPoint) {
 }
 
 void CStateManager::ReflectionDrawer(void* ctx, const zeus::CVector3f& vec) {
-  reinterpret_cast<CStateManager*>(ctx)->DrawReflection(vec);
+  static_cast<CStateManager*>(ctx)->DrawReflection(vec);
 }
 
 void CStateManager::CacheReflection() { g_Renderer->CacheReflection(ReflectionDrawer, this, true); }
@@ -524,8 +524,8 @@ void CStateManager::RenderCamerasAndAreaLights() const {
     filter.Draw();
 }
 
-void CStateManager::DrawE3DeathEffect() const {
-  CPlayer& player = *x84c_player;
+void CStateManager::DrawE3DeathEffect() {
+  const CPlayer& player = *x84c_player;
   if (player.x9f4_deathTime > 0.f) {
     if (player.x2f8_morphBallState != CPlayer::EPlayerMorphBallState::Unmorphed) {
       float blurAmt = zeus::clamp(0.f, (player.x9f4_deathTime - 1.f) / (6.f - 1.f), 1.f);
@@ -535,18 +535,19 @@ void CStateManager::DrawE3DeathEffect() const {
         blur.Draw();
       }
     }
-    float whiteAmt = zeus::clamp(0.f, 1.f - player.x9f4_deathTime / (0.05f * 6.f), 1.f);
+
+    const float whiteAmt = zeus::clamp(0.f, 1.f - player.x9f4_deathTime / (0.05f * 6.f), 1.f);
     zeus::CColor color = zeus::skWhite;
     color.a() = whiteAmt;
-    const_cast<CColoredQuadFilter&>(m_deathWhiteout).draw(color);
+    m_deathWhiteout.draw(color);
   }
 }
 
-void CStateManager::DrawAdditionalFilters() const {
+void CStateManager::DrawAdditionalFilters() {
   if (xf0c_escapeTimer < 1.f && xf0c_escapeTimer > 0.f && !x870_cameraManager->IsInCinematicCamera()) {
     zeus::CColor color = zeus::skWhite;
     color.a() = 1.f - xf0c_escapeTimer;
-    const_cast<CColoredQuadFilter&>(m_escapeWhiteout).draw(color);
+    m_escapeWhiteout.draw(color);
   }
 }
 
@@ -629,7 +630,7 @@ void CStateManager::ResetViewAfterDraw(const SViewport& backupViewport,
                              cam->GetFarClipDistance());
 }
 
-void CStateManager::DrawWorld() const {
+void CStateManager::DrawWorld() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CStateManager::DrawWorld", zeus::skBlue);
   CTimeProvider timeProvider(xf14_curTimeMod900);
   SViewport backupViewport = g_Viewport;
@@ -682,11 +683,11 @@ void CStateManager::DrawWorld() const {
   CPlayerState::EPlayerVisor visor = x8b8_playerState->GetActiveVisor(*this);
   bool thermal = visor == CPlayerState::EPlayerVisor::Thermal;
   if (thermal) {
-    const_cast<CStateManager&>(*this).xf34_thermalFlag = EThermalDrawFlag::Cold;
+    xf34_thermalFlag = EThermalDrawFlag::Cold;
     mask = 0x34;
     targetMask = 0;
   } else {
-    const_cast<CStateManager&>(*this).xf34_thermalFlag = EThermalDrawFlag::Bypass;
+    xf34_thermalFlag = EThermalDrawFlag::Bypass;
     mask = 1 << (visor == CPlayerState::EPlayerVisor::XRay ? 3 : 1);
     targetMask = 0;
   }
@@ -758,7 +759,7 @@ void CStateManager::DrawWorld() const {
       x884_actorModelParticles->AddStragglersToRenderer(*this);
     }
 
-    ++const_cast<CStateManager&>(*this).x8dc_objectDrawToken;
+    ++x8dc_objectDrawToken;
 
     x84c_player->GetMorphBall()->DrawBallShadow(*this);
 
@@ -786,7 +787,7 @@ void CStateManager::DrawWorld() const {
       CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
     }
     g_Renderer->DoThermalBlendCold();
-    const_cast<CStateManager&>(*this).xf34_thermalFlag = EThermalDrawFlag::Hot;
+    xf34_thermalFlag = EThermalDrawFlag::Hot;
 
     for (TUniqueId id : x86c_stateManagerContainer->xf370_)
       if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
@@ -802,7 +803,7 @@ void CStateManager::DrawWorld() const {
       g_Renderer->DrawAreaGeometry(area.x4_selfIdx, mask, 0x10);
     }
 
-    ++const_cast<CStateManager&>(*this).x8dc_objectDrawToken;
+    ++x8dc_objectDrawToken;
 
     for (int i = 0; i < areaCount; ++i) {
       const CGameArea& area = *areaArr[i];
@@ -823,7 +824,7 @@ void CStateManager::DrawWorld() const {
           x84c_player->AddToRenderer(frustum, *this);
       }
 
-      ++const_cast<CStateManager&>(*this).x8dc_objectDrawToken;
+      ++x8dc_objectDrawToken;
 
       g_Renderer->EnablePVS(pvs, area.x4_selfIdx);
       g_Renderer->DrawSortedGeometry(area.x4_selfIdx, mask, 0x10);
@@ -856,7 +857,7 @@ void CStateManager::DrawWorld() const {
   if (thermal) {
     g_Renderer->DoThermalBlendHot();
     g_Renderer->SetThermal(false, 0.f, zeus::skBlack);
-    const_cast<CStateManager&>(*this).xf34_thermalFlag = EThermalDrawFlag::Bypass;
+    xf34_thermalFlag = EThermalDrawFlag::Bypass;
   }
 
   DrawDebugStuff();
@@ -1458,7 +1459,7 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
   zeus::CAABox aabb(pos - info.GetRadius(), pos + info.GetRadius());
 
   bool bomb = false;
-  TCastToPtr<CWeapon> weapon = const_cast<CActor&>(actor);
+  TCastToConstPtr<CWeapon> weapon = actor;
   if (weapon)
     bomb = True(weapon->GetAttribField() & (EProjectileAttrib::Bombs | EProjectileAttrib::PowerBombs));
 
@@ -1644,7 +1645,7 @@ bool CStateManager::MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterial
 }
 
 void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVector3f& pos, CActor& damagee) {
-  if (TCastToPtr<CWeapon> wpn = const_cast<CActor&>(damager)) {
+  if (TCastToConstPtr<CWeapon> wpn = damager) {
     if (True(wpn->GetAttribField() & (EProjectileAttrib::Bombs | EProjectileAttrib::PowerBombs))) {
       bool powerBomb = (wpn->GetAttribField() & EProjectileAttrib::PowerBombs) == EProjectileAttrib::PowerBombs;
       if (TCastToPtr<CScriptWater> water = damagee) {

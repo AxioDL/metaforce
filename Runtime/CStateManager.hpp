@@ -252,13 +252,13 @@ public:
   void BuildDynamicLightListForWorld();
   void DrawDebugStuff() const;
   void RenderCamerasAndAreaLights() const;
-  void DrawE3DeathEffect() const;
-  void DrawAdditionalFilters() const;
+  void DrawE3DeathEffect();
+  void DrawAdditionalFilters();
   zeus::CFrustum SetupDrawFrustum(const SViewport& vp) const;
   zeus::CFrustum SetupViewForDraw(const SViewport& vp) const;
   zeus::CFrustum SetupViewForCubeFaceDraw(const zeus::CVector3f& pos, int face) const;
   void ResetViewAfterDraw(const SViewport& backupViewport, const zeus::CTransform& backupViewMatrix) const;
-  void DrawWorld() const;
+  void DrawWorld();
   void DrawActorCubeFaces(CActor& actor, int& cubeInst) const;
   void DrawWorldCubeFaces() const;
   void SetupFogForArea3XRange(TAreaId area) const;
