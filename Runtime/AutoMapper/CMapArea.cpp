@@ -73,8 +73,8 @@ void CMapArea::PostConstruct() {
         linePrims.reserve(outlineCount * 2);
         for (u32 j = 0; j < 2; ++j) {
           r.seek(4, athena::SeekOrigin::Begin);
-          for (u32 i = 0; i < outlineCount; ++i) {
-            u32 count = r.readUint32Big();
+          for (u32 k = 0; k < outlineCount; ++k) {
+            const u32 count = r.readUint32Big();
             r.seek(count);
             r.seekAlign4();
             linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false, false, true);
