@@ -319,12 +319,12 @@ bool CStateManager::RenderLast(TUniqueId uid) {
 void CStateManager::AddDrawableActorPlane(const CActor& actor, const zeus::CPlane& plane,
                                           const zeus::CAABox& aabb) const {
   const_cast<CActor&>(actor).SetAddedToken(x8dc_objectDrawToken + 1);
-  g_Renderer->AddPlaneObject(static_cast<const void*>(&actor), aabb, plane, 0);
+  g_Renderer->AddPlaneObject(&actor, aabb, plane, 0);
 }
 
 void CStateManager::AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const {
   const_cast<CActor&>(actor).SetAddedToken(x8dc_objectDrawToken + 1);
-  g_Renderer->AddDrawable(static_cast<const void*>(&actor), vec, aabb, 0, IRenderer::EDrawableSorting::SortedCallback);
+  g_Renderer->AddDrawable(&actor, vec, aabb, 0, IRenderer::EDrawableSorting::SortedCallback);
 }
 
 bool CStateManager::SpecialSkipCinematic() {
