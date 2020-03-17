@@ -286,10 +286,10 @@ void CStateManager::UpdateThermalVisor() {
 }
 
 void CStateManager::RendererDrawCallback(const void* drawable, const void* ctx, int type) {
-  const CStateManager& mgr = *reinterpret_cast<const CStateManager*>(ctx);
+  const CStateManager& mgr = *static_cast<const CStateManager*>(ctx);
   switch (type) {
   case 0: {
-    const CActor& actor = *reinterpret_cast<const CActor*>(drawable);
+    const CActor& actor = *static_cast<const CActor*>(drawable);
     if (actor.xc8_drawnToken == mgr.x8dc_objectDrawToken)
       break;
     if (actor.xc6_nextDrawNode != kInvalidUniqueId)
@@ -299,10 +299,10 @@ void CStateManager::RendererDrawCallback(const void* drawable, const void* ctx, 
     break;
   }
   case 1:
-    reinterpret_cast<const CSimpleShadow*>(drawable)->Render(mgr.x8f0_shadowTex);
+    static_cast<const CSimpleShadow*>(drawable)->Render(mgr.x8f0_shadowTex);
     break;
   case 2:
-    reinterpret_cast<const CDecal*>(drawable)->Render();
+    static_cast<const CDecal*>(drawable)->Render();
     break;
   default:
     break;
@@ -479,7 +479,7 @@ void CStateManager::DrawReflection(const zeus::CVector3f& reflectPoint) {
 }
 
 void CStateManager::ReflectionDrawer(void* ctx, const zeus::CVector3f& vec) {
-  reinterpret_cast<CStateManager*>(ctx)->DrawReflection(vec);
+  static_cast<CStateManager*>(ctx)->DrawReflection(vec);
 }
 
 void CStateManager::CacheReflection() { g_Renderer->CacheReflection(ReflectionDrawer, this, true); }
