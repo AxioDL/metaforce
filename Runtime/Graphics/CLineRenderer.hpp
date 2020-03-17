@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
@@ -68,7 +70,7 @@ public:
   hecl::VertexBufferPool<SDrawVertTex>::Token m_vertBufTex;
   hecl::VertexBufferPool<SDrawVertNoTex>::Token m_vertBufNoTex;
   hecl::UniformBufferPool<SDrawUniform>::Token m_uniformBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_shaderBind[2];
+  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_shaderBind;
 
   CLineRenderer(boo::IGraphicsDataFactory::Context& ctx, EPrimitiveMode mode, u32 maxVerts,
                 const boo::ObjToken<boo::ITexture>& texture, bool additive, bool zTest = false, bool zGEqual = false);
