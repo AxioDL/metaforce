@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <string_view>
 #include <vector>
 
 #include "Runtime/CSaveWorld.hpp"
@@ -205,9 +206,9 @@ public:
   void SetNextHintTime();
   void InitializeMemoryState();
   const SHintState* GetCurrentDisplayedHint() const;
-  void DelayHint(const char* name);
-  void ActivateImmediateHintTimer(const char* name);
-  void ActivateContinueDelayHintTimer(const char* name);
+  void DelayHint(std::string_view name);
+  void ActivateImmediateHintTimer(std::string_view name);
+  void ActivateContinueDelayHintTimer(std::string_view name);
   void DismissDisplayedHint();
   u32 GetNextHintIdx() const;
   const std::vector<SHintState>& GetHintStates() const { return x0_hintStates; }

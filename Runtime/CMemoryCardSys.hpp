@@ -76,7 +76,7 @@ public:
     ECardResult result;
     CardResult(ECardResult res) : result(res) {}
     operator ECardResult() const { return result; }
-    operator bool() const { return result != ECardResult::READY; }
+    explicit operator bool() const { return result != ECardResult::READY; }
   };
 
   struct CardFileHandle {

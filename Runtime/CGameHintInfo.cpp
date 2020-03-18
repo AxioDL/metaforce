@@ -31,15 +31,15 @@ CGameHintInfo::SHintLocation::SHintLocation(CInputStream& in, s32)
 , x8_areaId(in.readUint32Big())
 , xc_stringId(in.readUint32Big()) {}
 
-int CGameHintInfo::FindHintIndex(const char* str) {
+int CGameHintInfo::FindHintIndex(std::string_view str) {
   const std::vector<CGameHint>& gameHints = g_MemoryCardSys->GetHints();
-  const auto& it = std::find_if(gameHints.begin(), gameHints.end(),
-                                [&str](const CGameHint& gh) -> bool { return gh.GetName() == str; });
+  const auto it =
+      std::find_if(gameHints.cbegin(), gameHints.cend(), [&str](const CGameHint& gh) { return gh.GetName() == str; });
 
-  return (it != gameHints.end() ? it - gameHints.begin() : -1);
+  return it != gameHints.cend() ? it - gameHints.cbegin() : -1;
 }
 
-CFactoryFnReturn FHintFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer, CObjectReference*) {
+CFactoryFnReturn FHintFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer&, CObjectReference*) {
   in.readUint32Big();
   s32 version = in.readInt32Big();
 

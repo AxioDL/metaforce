@@ -9,7 +9,7 @@
 
 namespace urde {
 
-static float ClampZeroToOne(float in) { return std::max(0.f, std::min(1.f, in)); }
+static constexpr float ClampZeroToOne(float in) { return std::clamp(in, 0.0f, 1.0f); }
 
 u32 RotationAndOffsetStorage::DataSizeInBytes(u32 rotPerFrame, u32 transPerFrame, u32 frameCount) {
   return (transPerFrame * 12 + rotPerFrame * 16) * frameCount;

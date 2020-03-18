@@ -1,5 +1,7 @@
 #include "Runtime/GuiSys/CHudThreatInterface.hpp"
 
+#include <array>
+
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/GuiSys/CAuiEnergyBarT01.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
@@ -10,11 +12,14 @@
 
 namespace urde {
 
-static const CAuiEnergyBarT01::FCoordFunc CoordFuncs[] = {CHudThreatInterface::CombatThreatBarCoordFunc, nullptr,
-                                                          CHudThreatInterface::XRayThreatBarCoordFunc,
-                                                          CHudThreatInterface::ThermalThreatBarCoordFunc, nullptr};
+constexpr std::array<CAuiEnergyBarT01::FCoordFunc, 5> CoordFuncs{
+    CHudThreatInterface::CombatThreatBarCoordFunc,  nullptr, CHudThreatInterface::XRayThreatBarCoordFunc,
+    CHudThreatInterface::ThermalThreatBarCoordFunc, nullptr,
+};
 
-static const float IconTranslateRanges[] = {6.05f, 0.f, 0.f, 8.4f, 0.f};
+constexpr std::array IconTranslateRanges{
+    6.05f, 0.f, 0.f, 8.4f, 0.f,
+};
 
 CHudThreatInterface::CHudThreatInterface(CGuiFrame& selHud, EHudType hudType, float threatDist)
 : x4_hudType(hudType), x10_threatDist(threatDist) {
@@ -42,7 +47,7 @@ CHudThreatInterface::CHudThreatInterface(CGuiFrame& selHud, EHudType hudType, fl
   x6c_energybart01_threatbar->SetFilledColor(g_tweakGuiColors->GetThreatBarFilled());
   x6c_energybart01_threatbar->SetShadowColor(g_tweakGuiColors->GetThreatBarShadow());
   x6c_energybart01_threatbar->SetEmptyColor(g_tweakGuiColors->GetThreatBarEmpty());
-  x6c_energybart01_threatbar->SetCoordFunc(CoordFuncs[int(hudType)]);
+  x6c_energybart01_threatbar->SetCoordFunc(CoordFuncs[size_t(hudType)]);
   x6c_energybart01_threatbar->SetTesselation(hudType == EHudType::Combat ? 1.f : 0.1f);
   x6c_energybart01_threatbar->SetMaxEnergy(g_tweakGui->GetThreatRange());
   x6c_energybart01_threatbar->SetFilledDrainSpeed(9999.f);
@@ -133,7 +138,7 @@ void CHudThreatInterface::Update(float dt) {
     x5c_basewidget_threaticon->SetLocalTransform(
         x18_threatIconXf * zeus::CTransform::Translate(0.f, 0.f,
                                                        std::max(0.f, maxThreatEnergy - x10_threatDist) *
-                                                           IconTranslateRanges[int(x4_hudType)] / maxThreatEnergy));
+                                                           IconTranslateRanges[size_t(x4_hudType)] / maxThreatEnergy));
   }
 
   if (x68_textpane_threatwarning) {
@@ -203,28 +208,30 @@ void CHudThreatInterface::Update(float dt) {
 }
 
 std::pair<zeus::CVector3f, zeus::CVector3f> CHudThreatInterface::CombatThreatBarCoordFunc(float t) {
-  float z = IconTranslateRanges[int(EHudType::Combat)] * t;
+  const float z = IconTranslateRanges[size_t(EHudType::Combat)] * t;
   return {zeus::CVector3f(-0.3f, 0.f, z), zeus::CVector3f(0.f, 0.f, z)};
 }
 
 std::pair<zeus::CVector3f, zeus::CVector3f> CHudThreatInterface::XRayThreatBarCoordFunc(float t) {
-  float theta = 0.8f * (t - 0.5f);
-  float x = -9.55f * std::cos(theta);
-  float z = 9.55f * std::sin(theta);
+  const float theta = 0.8f * (t - 0.5f);
+  const float x = -9.55f * std::cos(theta);
+  const float z = 9.55f * std::sin(theta);
   return {zeus::CVector3f(0.4f + x, 0.f, z), zeus::CVector3f(x, 0.f, z)};
 }
 
 std::pair<zeus::CVector3f, zeus::CVector3f> CHudThreatInterface::ThermalThreatBarCoordFunc(float t) {
-  float transRange = IconTranslateRanges[int(EHudType::Thermal)];
-  float a = 0.08f * transRange;
-  float b = t * transRange;
+  const float transRange = IconTranslateRanges[size_t(EHudType::Thermal)];
+  const float a = 0.08f * transRange;
+  const float b = t * transRange;
+
   float c;
-  if (b < a)
+  if (b < a) {
     c = b / a;
-  else if (b < transRange - a)
+  } else if (b < transRange - a) {
     c = 1.f;
-  else
+  } else {
     c = 1.f - (b - (transRange - a)) / a;
+  }
 
   return {zeus::CVector3f(0.1f, 0.f, b), zeus::CVector3f(0.5f * c + 0.1f, 0.f, b)};
 }

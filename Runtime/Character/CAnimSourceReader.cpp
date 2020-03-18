@@ -1,5 +1,7 @@
 #include "Runtime/Character/CAnimSourceReader.hpp"
 
+#include <algorithm>
+
 #include "Runtime/Character/CBoolPOINode.hpp"
 #include "Runtime/Character/CFBStreamedAnimReader.hpp"
 #include "Runtime/Character/CInt32POINode.hpp"
@@ -27,27 +29,33 @@ CCharAnimTime CAnimSourceInfo::GetAnimationDuration() const { return x4_token->G
 std::set<std::pair<std::string, s32>> CAnimSourceReaderBase::GetUniqueParticlePOIs() const {
   const std::vector<CParticlePOINode>& particleNodes = x4_sourceInfo->GetParticlePOIStream();
   std::set<std::pair<std::string, s32>> ret;
-  for (const CParticlePOINode& node : particleNodes)
-    if (node.GetUnique())
-      ret.insert(std::make_pair(std::string(node.GetString()), node.GetIndex()));
+  for (const CParticlePOINode& node : particleNodes) {
+    if (node.GetUnique()) {
+      ret.emplace(node.GetString(), node.GetIndex());
+    }
+  }
   return ret;
 }
 
 std::set<std::pair<std::string, s32>> CAnimSourceReaderBase::GetUniqueInt32POIs() const {
   const std::vector<CInt32POINode>& int32Nodes = x4_sourceInfo->GetInt32POIStream();
   std::set<std::pair<std::string, s32>> ret;
-  for (const CInt32POINode& node : int32Nodes)
-    if (node.GetUnique())
-      ret.insert(std::make_pair(std::string(node.GetString()), node.GetIndex()));
+  for (const CInt32POINode& node : int32Nodes) {
+    if (node.GetUnique()) {
+      ret.emplace(node.GetString(), node.GetIndex());
+    }
+  }
   return ret;
 }
 
 std::set<std::pair<std::string, s32>> CAnimSourceReaderBase::GetUniqueBoolPOIs() const {
   const std::vector<CBoolPOINode>& boolNodes = x4_sourceInfo->GetBoolPOIStream();
   std::set<std::pair<std::string, s32>> ret;
-  for (const CBoolPOINode& node : boolNodes)
-    if (node.GetUnique())
-      ret.insert(std::make_pair(std::string(node.GetString()), node.GetIndex()));
+  for (const CBoolPOINode& node : boolNodes) {
+    if (node.GetUnique()) {
+      ret.emplace(node.GetString(), node.GetIndex());
+    }
+  }
   return ret;
 }
 
@@ -165,24 +173,36 @@ u32 CAnimSourceReaderBase::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOI
 }
 
 bool CAnimSourceReaderBase::VGetBoolPOIState(const char* name) const {
-  for (const auto& node : x24_boolStates)
-    if (node.first == name)
-      return node.second;
-  return false;
+  const auto iter = std::find_if(x24_boolStates.cbegin(), x24_boolStates.cend(),
+                                 [name](const auto& entry) { return entry.first == name; });
+
+  if (iter == x24_boolStates.cend()) {
+    return false;
+  }
+
+  return iter->second;
 }
 
 s32 CAnimSourceReaderBase::VGetInt32POIState(const char* name) const {
-  for (const auto& node : x34_int32States)
-    if (node.first == name)
-      return node.second;
-  return 0;
+  const auto iter = std::find_if(x34_int32States.cbegin(), x34_int32States.cend(),
+                                 [name](const auto& entry) { return entry.first == name; });
+
+  if (iter == x34_int32States.cend()) {
+    return 0;
+  }
+
+  return iter->second;
 }
 
 CParticleData::EParentedMode CAnimSourceReaderBase::VGetParticlePOIState(const char* name) const {
-  for (const auto& node : x44_particleStates)
-    if (node.first == name)
-      return node.second;
-  return CParticleData::EParentedMode::Initial;
+  const auto iter = std::find_if(x44_particleStates.cbegin(), x44_particleStates.cend(),
+                                 [name](const auto& entry) { return entry.first == name; });
+
+  if (iter == x44_particleStates.cend()) {
+    return CParticleData::EParentedMode::Initial;
+  }
+
+  return iter->second;
 }
 
 CAnimSourceReaderBase::CAnimSourceReaderBase(std::unique_ptr<IAnimSourceInfo>&& sourceInfo, const CCharAnimTime& time)
