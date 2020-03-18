@@ -85,7 +85,7 @@ public:
 
 private:
   s16 x0_nextFreeIndex = 0;
-  u16 x8_idArr[1024] = {};
+  std::array<u16, 1024> x8_idArr{};
 
   /*
   std::unique_ptr<CObjectList> x80c_allObjs;
@@ -97,14 +97,16 @@ private:
   std::unique_ptr<CAiWaypointList> x83c_aiWaypointObjs;
   std::unique_ptr<CPlatformAndDoorList> x844_platformAndDoorObjs;
    */
-  std::array<std::unique_ptr<CObjectList>, 8> x808_objLists = {std::make_unique<CObjectList>(EGameObjectList::All),
-                                                               std::make_unique<CActorList>(),
-                                                               std::make_unique<CPhysicsActorList>(),
-                                                               std::make_unique<CGameCameraList>(),
-                                                               std::make_unique<CGameLightList>(),
-                                                               std::make_unique<CListeningAiList>(),
-                                                               std::make_unique<CAiWaypointList>(),
-                                                               std::make_unique<CPlatformAndDoorList>()};
+  std::array<std::unique_ptr<CObjectList>, 8> x808_objLists{
+      std::make_unique<CObjectList>(EGameObjectList::All),
+      std::make_unique<CActorList>(),
+      std::make_unique<CPhysicsActorList>(),
+      std::make_unique<CGameCameraList>(),
+      std::make_unique<CGameLightList>(),
+      std::make_unique<CListeningAiList>(),
+      std::make_unique<CAiWaypointList>(),
+      std::make_unique<CPlatformAndDoorList>(),
+  };
 
   std::unique_ptr<CPlayer> x84c_player;
   std::unique_ptr<CWorld> x850_world;
@@ -156,7 +158,7 @@ private:
   CRandom16* x900_activeRandom = nullptr;
   EGameState x904_gameState = EGameState::Running;
   u32 x908_loaderCount = 0;
-  FScriptLoader x90c_loaderFuncs[int(EScriptObjectType::ScriptObjectTypeMAX)] = {};
+  std::array<FScriptLoader, size_t(EScriptObjectType::ScriptObjectTypeMAX)> x90c_loaderFuncs{};
 
   bool xab0_worldLoaded = false;
 
@@ -165,8 +167,10 @@ private:
   std::set<std::string> xb40_uniqueInstanceNames;
 
   CFinalInput xb54_finalInput;
-  CCameraFilterPassPoly xb84_camFilterPasses[9]; // size: 0x2c
-  CCameraBlurPass xd14_camBlurPasses[9];         // size: 0x34
+
+  static constexpr size_t numCameraPasses = 9;
+  std::array<CCameraFilterPassPoly, numCameraPasses> xb84_camFilterPasses; // size: 0x2c
+  std::array<CCameraBlurPass, numCameraPasses> xd14_camBlurPasses;         // size: 0x34
 
   s32 xeec_hintIdx = -1;
   u32 xef0_hintPeriods = 0;
