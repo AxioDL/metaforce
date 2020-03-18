@@ -4,8 +4,8 @@
 
 namespace urde {
 
-static const zeus::CVector3f kDefaultPosition(0.f, 0.f, 0.f);
-static const zeus::CVector3f kDefaultDirection(0.f, -1.f, 0.f);
+constexpr zeus::CVector3f kDefaultPosition(0.f, 0.f, 0.f);
+constexpr zeus::CVector3f kDefaultDirection(0.f, -1.f, 0.f);
 
 float CLight::CalculateLightRadius() const {
   if (x28_distL < FLT_EPSILON && x2c_distQ < FLT_EPSILON)
@@ -27,20 +27,20 @@ float CLight::CalculateLightRadius() const {
 
 float CLight::GetIntensity() const {
   if (x4c_24_intensityDirty) {
-    const_cast<CLight*>(this)->x4c_24_intensityDirty = false;
+    x4c_24_intensityDirty = false;
     float coef = 1.f;
-    if (x1c_type == ELightType::Custom)
+    if (x1c_type == ELightType::Custom) {
       coef = x30_angleC;
-    const_cast<CLight*>(this)->x48_cachedIntensity =
-        coef * std::max(x18_color.r(), std::max(x18_color.g(), x18_color.b()));
+    }
+    x48_cachedIntensity = coef * std::max({x18_color.r(), x18_color.g(), x18_color.b()});
   }
   return x48_cachedIntensity;
 }
 
 float CLight::GetRadius() const {
   if (x4c_25_radiusDirty) {
-    const_cast<CLight*>(this)->x44_cachedRadius = CalculateLightRadius();
-    const_cast<CLight*>(this)->x4c_25_radiusDirty = false;
+    x44_cachedRadius = CalculateLightRadius();
+    x4c_25_radiusDirty = false;
   }
   return x44_cachedRadius;
 }
@@ -50,16 +50,12 @@ CLight::CLight(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeu
 : x0_pos(pos)
 , xc_dir(dir)
 , x18_color(color)
-, x1c_type(ELightType::Custom)
-, x20_spotCutoff(0.f)
 , x24_distC(distC)
 , x28_distL(distL)
 , x2c_distQ(distQ)
 , x30_angleC(angleC)
 , x34_angleL(angleL)
 , x38_angleQ(angleQ)
-, x44_cachedRadius(0.f)
-, x48_cachedIntensity(0.f)
 , x4c_24_intensityDirty(true)
 , x4c_25_radiusDirty(true) {}
 
@@ -70,22 +66,14 @@ CLight::CLight(ELightType type, const zeus::CVector3f& pos, const zeus::CVector3
 , x18_color(color)
 , x1c_type(type)
 , x20_spotCutoff(cutoff)
-, x24_distC(1.f)
-, x28_distL(0.f)
-, x2c_distQ(0.f)
-, x30_angleC(1.f)
-, x34_angleL(0.f)
-, x38_angleQ(0.f)
-, x44_cachedRadius(0.f)
-, x48_cachedIntensity(0.f)
 , x4c_24_intensityDirty(true)
 , x4c_25_radiusDirty(true) {
   switch (type) {
   case ELightType::Spot: {
-    float cosCutoff = std::cos(zeus::degToRad(cutoff));
+    const float cosCutoff = std::cos(zeus::degToRad(cutoff));
     x30_angleC = 0.f;
-    x34_angleL = -cosCutoff / (1.0 - cosCutoff);
-    x38_angleQ = 1.f / (1.0 - cosCutoff);
+    x34_angleL = -cosCutoff / (1.0f - cosCutoff);
+    x38_angleQ = 1.f / (1.0f - cosCutoff);
     break;
   }
   case ELightType::Directional: {
