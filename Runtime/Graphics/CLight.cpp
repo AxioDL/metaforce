@@ -4,8 +4,8 @@
 
 namespace urde {
 
-static const zeus::CVector3f kDefaultPosition(0.f, 0.f, 0.f);
-static const zeus::CVector3f kDefaultDirection(0.f, -1.f, 0.f);
+constexpr zeus::CVector3f kDefaultPosition(0.f, 0.f, 0.f);
+constexpr zeus::CVector3f kDefaultDirection(0.f, -1.f, 0.f);
 
 float CLight::CalculateLightRadius() const {
   if (x28_distL < FLT_EPSILON && x2c_distQ < FLT_EPSILON)
