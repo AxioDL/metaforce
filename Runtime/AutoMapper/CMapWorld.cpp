@@ -1,5 +1,7 @@
 #include "Runtime/AutoMapper/CMapWorld.hpp"
 
+#include <algorithm>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -93,7 +95,7 @@ void CMapWorld::MoveMapAreaToList(CMapWorld::CMapAreaData* data, CMapWorld::EMap
   x10_listHeads[int(list)] = data;
 }
 
-s32 CMapWorld::GetCurrentMapAreaDepth(const IWorld& wld, TAreaId aid) const {
+s32 CMapWorld::GetCurrentMapAreaDepth(const IWorld& wld, TAreaId aid) {
   ClearTraversedFlags();
   std::vector<CMapAreaBFSInfo> info;
   info.reserve(x0_areas.size());
@@ -118,8 +120,8 @@ std::vector<int> CMapWorld::GetVisibleAreas(const IWorld& wld, const CMapWorldIn
   return ret;
 }
 
-void CMapWorld::Draw(const CMapWorld::CMapWorldDrawParms& parms, int curArea, int otherArea, float depth1, float depth2,
-                     bool inMapScreen) const {
+void CMapWorld::Draw(const CMapWorldDrawParms& parms, int curArea, int otherArea, float depth1, float depth2,
+                     bool inMapScreen) {
   if (depth1 == 0.f && depth2 == 0.f)
     return;
   SCOPED_GRAPHICS_DEBUG_GROUP("CMapWorld::Draw", zeus::skBlue);
@@ -130,7 +132,7 @@ void CMapWorld::Draw(const CMapWorld::CMapWorldDrawParms& parms, int curArea, in
   std::vector<CMapAreaBFSInfo> bfsInfos;
   bfsInfos.reserve(x0_areas.size());
   if (curArea != otherArea) {
-    const_cast<CMapWorld*>(this)->x20_traversed[otherArea] = true;
+    x20_traversed[otherArea] = true;
     DoBFS(parms.GetWorld(), curArea, areaDepth, depth1, depth2, true, bfsInfos);
 
     float lowD1 = std::ceil(depth1 - 1.f);
@@ -150,7 +152,7 @@ void CMapWorld::Draw(const CMapWorld::CMapWorldDrawParms& parms, int curArea, in
 
     int otherDepth = std::ceil(std::max(newD1, newD2));
     if (parms.GetWorld().IGetAreaAlways(otherArea)->IIsActive()) {
-      const_cast<CMapWorld*>(this)->x20_traversed[otherArea] = false;
+      x20_traversed[otherArea] = false;
       DoBFS(parms.GetWorld(), otherArea, otherDepth, newD1, newD2, true, bfsInfos);
     }
   } else {
@@ -161,13 +163,13 @@ void CMapWorld::Draw(const CMapWorld::CMapWorldDrawParms& parms, int curArea, in
 }
 
 void CMapWorld::DoBFS(const IWorld& wld, int startArea, int areaCount, float surfDepth, float outlineDepth,
-                      bool checkLoad, std::vector<CMapAreaBFSInfo>& bfsInfos) const {
+                      bool checkLoad, std::vector<CMapAreaBFSInfo>& bfsInfos) {
   if (areaCount <= 0 || !IsMapAreaValid(wld, startArea, checkLoad))
     return;
 
   size_t size = bfsInfos.size();
   bfsInfos.emplace_back(startArea, 1, surfDepth, outlineDepth);
-  const_cast<CMapWorld*>(this)->x20_traversed[startArea] = true;
+  x20_traversed[startArea] = true;
 
   for (; size != bfsInfos.size(); ++size) {
     CMapAreaBFSInfo& testInfo = bfsInfos[size];
@@ -182,7 +184,7 @@ void CMapWorld::DoBFS(const IWorld& wld, int startArea, int areaCount, float sur
       TAreaId attId = area->IGetAttachedAreaId(i);
       if (IsMapAreaValid(wld, attId, checkLoad) && !x20_traversed[attId]) {
         bfsInfos.emplace_back(attId, testInfo.GetDepth() + 1, surfDepth, outlineDepth);
-        const_cast<CMapWorld*>(this)->x20_traversed[attId] = true;
+        x20_traversed[attId] = true;
       }
     }
   }
@@ -618,7 +620,7 @@ static Circle MinCircle(const std::vector<zeus::CVector2f>& coords) {
   return ret;
 }
 
-void CMapWorld::RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld& wld) const {
+void CMapWorld::RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld& wld) {
   std::vector<zeus::CVector2f> coords;
   coords.reserve(x0_areas.size() * 8);
   float zMin = FLT_MAX;
@@ -638,11 +640,10 @@ void CMapWorld::RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld
     }
   }
 
-  Circle circle = MinCircle(coords);
-  const_cast<CMapWorld*>(this)->x3c_worldSphereRadius = circle.x8_radius;
-  const_cast<CMapWorld*>(this)->x30_worldSpherePoint =
-      zeus::CVector3f(circle.x0_point.x(), circle.x0_point.y(), (zMin + zMax) * 0.5f);
-  const_cast<CMapWorld*>(this)->x40_worldSphereHalfDepth = (zMax - zMin) * 0.5f;
+  const Circle circle = MinCircle(coords);
+  x3c_worldSphereRadius = circle.x8_radius;
+  x30_worldSpherePoint = zeus::CVector3f(circle.x0_point.x(), circle.x0_point.y(), (zMin + zMax) * 0.5f);
+  x40_worldSphereHalfDepth = (zMax - zMin) * 0.5f;
 }
 
 zeus::CVector3f CMapWorld::ConstrainToWorldVolume(const zeus::CVector3f& point, const zeus::CVector3f& lookVec) const {
@@ -670,10 +671,8 @@ zeus::CVector3f CMapWorld::ConstrainToWorldVolume(const zeus::CVector3f& point, 
   return ret;
 }
 
-void CMapWorld::ClearTraversedFlags() const {
-  std::vector<bool>& flags = const_cast<CMapWorld*>(this)->x20_traversed;
-  for (size_t i = 0; i < flags.size(); ++i)
-    flags[i] = false;
+void CMapWorld::ClearTraversedFlags() {
+  std::fill(x20_traversed.begin(), x20_traversed.end(), false);
 }
 
 CFactoryFnReturn FMapWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,

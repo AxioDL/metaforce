@@ -128,7 +128,7 @@ private:
   ELoadPhase x4_loadPhase = ELoadPhase::LoadResources;
   TLockedToken<CMapUniverse> x8_mapu;
   std::vector<std::unique_ptr<IWorld>> x14_dummyWorlds;
-  const CWorld* x24_world;
+  CWorld* x24_world;
   TLockedToken<CGuiFrame> x28_frmeMapScreen; // Used to be ptr
   bool m_frmeInitialized = false;
   TLockedToken<CModel> x30_miniMapSamus;
@@ -197,8 +197,8 @@ private:
   void LeaveMapScreen(const CStateManager& mgr);
   void SetupMiniMapWorld(const CStateManager& mgr);
   bool HasCurrentMapUniverseWorld() const;
-  bool CheckDummyWorldLoad(const CStateManager& mgr);
-  void UpdateHintNavigation(float dt, const CStateManager& mgr);
+  bool CheckDummyWorldLoad(CStateManager& mgr);
+  void UpdateHintNavigation(float dt, CStateManager& mgr);
   static zeus::CVector2i GetMiniMapViewportSize();
   static zeus::CVector2i GetMapScreenViewportSize();
   static float GetMapAreaMiniMapDrawDepth() { return 2.f; }
@@ -241,7 +241,7 @@ public:
   void Update(float dt, const CStateManager& mgr);
   void Draw(const CStateManager&, const zeus::CTransform&, float) const;
   float GetTimeIntoInterpolation() const { return x1c8_interpTime; }
-  void BeginMapperStateTransition(EAutoMapperState, const CStateManager&);
+  void BeginMapperStateTransition(EAutoMapperState, CStateManager&);
   void CompleteMapperStateTransition(const CStateManager&);
   void ResetInterpolationTimer(float);
   SAutoMapperRenderState BuildMiniMapWorldRenderState(const CStateManager&, const zeus::CQuaternion&, TAreaId) const;
@@ -250,7 +250,7 @@ public:
   SAutoMapperRenderState BuildMapScreenUniverseRenderState(const CStateManager&, const zeus::CQuaternion&,
                                                            TAreaId) const;
   void LeaveMapScreenState();
-  void ProcessMapScreenInput(const CFinalInput& input, const CStateManager& mgr);
+  void ProcessMapScreenInput(const CFinalInput& input, CStateManager& mgr);
   zeus::CQuaternion GetMiniMapCameraOrientation(const CStateManager&) const;
   zeus::CVector3f GetAreaPointOfInterest(const CStateManager&, TAreaId) const;
   TAreaId FindClosestVisibleArea(const zeus::CVector3f&, const zeus::CUnitVector3f&, const CStateManager&,
@@ -267,7 +267,7 @@ public:
   bool IsFullyOutOfMiniMapState() const {
     return x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap;
   }
-  void OnNewInGameGuiState(EInGameGuiState, const CStateManager&);
+  void OnNewInGameGuiState(EInGameGuiState, CStateManager&);
   float GetInterp() const {
     if (x1c4_interpDur > 0.f)
       return x1c8_interpTime / x1c4_interpDur;
