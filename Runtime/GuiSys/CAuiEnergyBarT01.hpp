@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -38,7 +39,7 @@ private:
   float xfc_shadowEnergy = 0.f;
   float x100_shadowDrainDelayTimer = 0.f;
   CEnergyBarShader m_energyBarShader;
-  std::vector<CEnergyBarShader::Vertex> m_verts[3];
+  std::array<std::vector<CEnergyBarShader::Vertex>, 3> m_verts;
 
 public:
   CAuiEnergyBarT01(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId txtrId);
