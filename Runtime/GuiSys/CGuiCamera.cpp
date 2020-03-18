@@ -24,12 +24,13 @@ zeus::CVector3f CGuiCamera::ConvertToScreenSpace(const zeus::CVector3f& vec) con
   return mat.multiplyOneOverW(local);
 }
 
-void CGuiCamera::Draw(const CGuiWidgetDrawParms& parms) const {
-  if (xb8_projtype == EProjection::Perspective)
+void CGuiCamera::Draw(const CGuiWidgetDrawParms& parms) {
+  if (xb8_projtype == EProjection::Perspective) {
     CGraphics::SetPerspective(m_proj.xbc_fov, m_proj.xc0_aspect, m_proj.xc4_znear, m_proj.xc8_zfar);
-  else
+  } else {
     CGraphics::SetOrtho(m_proj.xbc_left, m_proj.xc0_right, m_proj.xc4_top, m_proj.xc8_bottom, m_proj.xcc_znear,
                         m_proj.xd0_zfar);
+  }
   CGraphics::SetViewPointMatrix(GetGuiFrame()->GetAspectTransform() *
                                 zeus::CTransform::Translate(parms.x4_cameraOffset) * x34_worldXF);
   CGuiWidget::Draw(parms);

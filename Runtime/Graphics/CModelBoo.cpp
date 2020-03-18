@@ -468,13 +468,14 @@ void CBooModel::RemapMaterialData(SShader& shader,
   m_instances.clear();
 }
 
-bool CBooModel::TryLockTextures() const {
+bool CBooModel::TryLockTextures() {
   if (!x40_24_texturesLoaded) {
     bool allLoad = true;
-    for (auto& tex : const_cast<std::unordered_map<CAssetId, TCachedToken<CTexture>>&>(x1c_textures)) {
+    for (auto& tex : x1c_textures) {
       tex.second.Lock();
-      if (!tex.second.IsLoaded())
+      if (!tex.second.IsLoaded()) {
         allLoad = false;
+      }
     }
 
     if (allLoad) {
@@ -485,30 +486,38 @@ bool CBooModel::TryLockTextures() const {
             break;
           }
         }
-        if (!allLoad)
+        if (!allLoad) {
           break;
+        }
       }
     }
 
-    const_cast<CBooModel*>(this)->x40_24_texturesLoaded = allLoad;
+    x40_24_texturesLoaded = allLoad;
   }
 
   return x40_24_texturesLoaded;
 }
 
-void CBooModel::UnlockTextures() const {
-  const_cast<CBooModel*>(this)->m_instances.clear();
-  for (auto& tex : const_cast<std::unordered_map<CAssetId, TCachedToken<CTexture>>&>(x1c_textures))
+void CBooModel::UnlockTextures() {
+  m_instances.clear();
+
+  for (auto& tex : x1c_textures) {
     tex.second.Unlock();
-  const_cast<CBooModel*>(this)->x40_24_texturesLoaded = false;
+  }
+
+  x40_24_texturesLoaded = false;
 }
 
-void CBooModel::SyncLoadTextures() const {
-  if (!x40_24_texturesLoaded) {
-    for (auto& tex : const_cast<std::unordered_map<CAssetId, TCachedToken<CTexture>>&>(x1c_textures))
-      tex.second.GetObj();
-    const_cast<CBooModel*>(this)->x40_24_texturesLoaded = true;
+void CBooModel::SyncLoadTextures() {
+  if (x40_24_texturesLoaded) {
+    return;
   }
+
+  for (auto& tex : x1c_textures) {
+    tex.second.GetObj();
+  }
+
+  x40_24_texturesLoaded = true;
 }
 
 void CBooModel::DrawFlat(ESurfaceSelection sel, EExtendedShader extendedIdx) const {
@@ -965,8 +974,7 @@ boo::ObjToken<boo::IGraphicsBufferD> GeometryUniformLayout::GetSharedBuffer(int 
 }
 
 boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
-                                                                  const CPoseAsTransforms* pose,
-                                                                  int sharedLayoutBuf) const {
+                                                                  const CPoseAsTransforms* pose, int sharedLayoutBuf) {
   if (!g_DummyTextures && !TryLockTextures())
     return {};
 
@@ -974,47 +982,52 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
   if ((flags.m_extendedShader == EExtendedShader::WorldShadow ||
        flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
       m_lastDrawnShadowMap != g_shadowMap) {
-    const_cast<CBooModel*>(this)->m_lastDrawnShadowMap = g_shadowMap;
-    const_cast<CBooModel*>(this)->m_instances.clear();
+    m_lastDrawnShadowMap = g_shadowMap;
+    m_instances.clear();
   }
 
   /* Invalidate instances if new one-texture being drawn */
   if (flags.m_extendedShader == EExtendedShader::Disintegrate && m_lastDrawnOneTexture != g_disintegrateTexture) {
-    const_cast<CBooModel*>(this)->m_lastDrawnOneTexture = g_disintegrateTexture;
-    const_cast<CBooModel*>(this)->m_instances.clear();
+    m_lastDrawnOneTexture = g_disintegrateTexture;
+    m_instances.clear();
   }
 
   /* Invalidate instances if new reflection cube being drawn */
   if (hecl::com_cubemaps->toBoolean() && (flags.m_extendedShader == EExtendedShader::LightingCubeReflection ||
        flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
       m_lastDrawnReflectionCube != g_reflectionCube) {
-    const_cast<CBooModel*>(this)->m_lastDrawnReflectionCube = g_reflectionCube;
-    const_cast<CBooModel*>(this)->m_instances.clear();
+    m_lastDrawnReflectionCube = g_reflectionCube;
+    m_instances.clear();
   }
 
   const ModelInstance* inst;
   if (sharedLayoutBuf >= 0) {
     if (m_instances.size() <= sharedLayoutBuf) {
       do {
-        inst = const_cast<CBooModel*>(this)->PushNewModelInstance(m_instances.size());
-        if (!inst)
+        inst = PushNewModelInstance(m_instances.size());
+        if (!inst) {
           return {};
+        }
       } while (m_instances.size() <= sharedLayoutBuf);
-    } else
+    } else {
       inst = &m_instances[sharedLayoutBuf];
-    const_cast<CBooModel*>(this)->m_uniUpdateCount = sharedLayoutBuf + 1;
+    }
+    m_uniUpdateCount = sharedLayoutBuf + 1;
   } else {
     if (m_instances.size() <= m_uniUpdateCount) {
-      inst = const_cast<CBooModel*>(this)->PushNewModelInstance(sharedLayoutBuf);
-      if (!inst)
+      inst = PushNewModelInstance(sharedLayoutBuf);
+      if (!inst) {
         return {};
-    } else
+      }
+    } else {
       inst = &m_instances[m_uniUpdateCount];
-    ++const_cast<CBooModel*>(this)->m_uniUpdateCount;
+    }
+    ++m_uniUpdateCount;
   }
 
-  if (inst->m_geomUniformBuffer)
+  if (inst->m_geomUniformBuffer) {
     m_geomLayout->Update(flags, cskr, pose, x4_matSet, inst->m_geomUniformBuffer, this);
+  }
 
   u8* dataOut = reinterpret_cast<u8*>(inst->m_uniformBuffer->map(m_uniformDataSize));
   u8* dataCur = dataOut;
@@ -1072,7 +1085,7 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
   return inst->m_dynamicVbo;
 }
 
-void CBooModel::DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose) const {
+void CBooModel::DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose) {
   CModelFlags rFlags = flags;
   /* Check if we're overriding with RenderModelBlack */
   if (g_RenderModelBlack) {
@@ -1086,7 +1099,7 @@ void CBooModel::DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, cons
   }
 }
 
-void CBooModel::DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose) const {
+void CBooModel::DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose) {
   CModelFlags rFlags = flags;
   /* Check if we're overriding with RenderModelBlack */
   if (g_RenderModelBlack) {
@@ -1099,7 +1112,7 @@ void CBooModel::DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, con
   }
 }
 
-void CBooModel::Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose) const {
+void CBooModel::Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose) {
   CModelFlags rFlags = flags;
   /* Check if we're overriding with RenderModelBlack */
   if (g_RenderModelBlack) {
@@ -1244,29 +1257,29 @@ void CBooModel::VerifyCurrentShader(int shaderIdx) {
     RemapMaterialData(m_model->x18_matSets[shaderIdx]);
 }
 
-void CBooModel::Touch(int shaderIdx) const {
-  const_cast<CBooModel*>(this)->VerifyCurrentShader(shaderIdx);
+void CBooModel::Touch(int shaderIdx) {
+  VerifyCurrentShader(shaderIdx);
   TryLockTextures();
 }
 
 void CModel::DrawSortedParts(const CModelFlags& flags) const {
-  const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(flags.x1_matSetIdx);
+  x28_modelInst->VerifyCurrentShader(flags.x1_matSetIdx);
   x28_modelInst->DrawAlpha(flags, nullptr, nullptr);
 }
 
 void CModel::DrawUnsortedParts(const CModelFlags& flags) const {
-  const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(flags.x1_matSetIdx);
+  x28_modelInst->VerifyCurrentShader(flags.x1_matSetIdx);
   x28_modelInst->DrawNormal(flags, nullptr, nullptr);
 }
 
 void CModel::Draw(const CModelFlags& flags) const {
-  const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(flags.x1_matSetIdx);
+  x28_modelInst->VerifyCurrentShader(flags.x1_matSetIdx);
   x28_modelInst->Draw(flags, nullptr, nullptr);
 }
 
 bool CModel::IsLoaded(int shaderIdx) const {
-  const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(shaderIdx);
-  return const_cast<CBooModel&>(*x28_modelInst).TryLockTextures();
+  x28_modelInst->VerifyCurrentShader(shaderIdx);
+  return x28_modelInst->TryLockTextures();
 }
 
 size_t CModel::GetPoolVertexOffset(size_t idx) const { return m_hmdlMeta.vertStride * idx; }

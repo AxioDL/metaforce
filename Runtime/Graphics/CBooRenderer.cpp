@@ -1352,12 +1352,14 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
             return alphaVal;
 
           flags.x4_color.a() = alphaVal / 255.f;
-          const CBooModel& model = *item.x10_models[wordModel + j];
-          const_cast<CBooModel&>(model).UpdateUniformData(flags, nullptr, nullptr, 3);
-          const_cast<CBooModel&>(model).VerifyCurrentShader(0);
-          for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)
-            if (surf->GetBounds().intersects(aabb))
+          CBooModel& model = *item.x10_models[wordModel + j];
+          model.UpdateUniformData(flags, nullptr, nullptr, 3);
+          model.VerifyCurrentShader(0);
+          for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next) {
+            if (surf->GetBounds().intersects(aabb)) {
               model.DrawSurface(*surf, flags);
+            }
+          }
           alphaVal += 4;
         }
       }

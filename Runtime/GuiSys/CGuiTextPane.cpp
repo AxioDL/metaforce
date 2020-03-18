@@ -20,7 +20,7 @@ void CGuiTextPane::Update(float dt) {
   xd4_textSupport.Update(dt);
 }
 
-bool CGuiTextPane::GetIsFinishedLoadingWidgetSpecific() const {
+bool CGuiTextPane::GetIsFinishedLoadingWidgetSpecific() {
   return xd4_textSupport.GetIsTextSupportFinishedLoading();
 }
 
@@ -32,30 +32,33 @@ void CGuiTextPane::SetDimensions(const zeus::CVector2f& dim, bool initVBO) {
 
 void CGuiTextPane::ScaleDimensions(const zeus::CVector3f& scale) {}
 
-void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const {
-  if (!GetIsVisible())
+void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) {
+  if (!GetIsVisible()) {
     return;
+  }
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CGuiTextPane::Draw {}"), m_name).c_str(), zeus::skCyan);
 
   zeus::CVector2f dims = GetDimensions();
 
-  if (xd4_textSupport.x34_extentX)
+  if (xd4_textSupport.x34_extentX) {
     dims.x() /= float(xd4_textSupport.x34_extentX);
-  else
+  } else {
     dims.x() = 0.f;
+  }
 
-  if (xd4_textSupport.x38_extentY)
+  if (xd4_textSupport.x38_extentY) {
     dims.y() /= float(xd4_textSupport.x38_extentY);
-  else
+  } else {
     dims.y() = 0.f;
+  }
 
-  zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
-                           zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
+  const zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
+                                 zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
   CGraphics::SetModelMatrix(x34_worldXF * local);
 
   zeus::CColor geomCol = xa8_color2;
   geomCol.a() *= parms.x0_alphaMod;
-  const_cast<CGuiTextPane*>(this)->xd4_textSupport.SetGeometryColor(geomCol);
+  xd4_textSupport.SetGeometryColor(geomCol);
 
 #if 0
     CGraphics::SetDepthWriteMode(xb6_31_depthTest, ERglEnum::LEqual, xb7_24_depthWrite);

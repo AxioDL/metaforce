@@ -53,8 +53,8 @@ public:
 
   void Reset(ETraversalMode mode) override;
   void Update(float dt) override;
-  void Draw(const CGuiWidgetDrawParms& params) const override;
-  bool GetIsFinishedLoadingWidgetSpecific() const override;
+  void Draw(const CGuiWidgetDrawParms& params) override;
+  bool GetIsFinishedLoadingWidgetSpecific() override;
   void SetTextureID0(CAssetId tex, CSimplePool* sp);
   void SetAnimationParms(const zeus::CVector2f& vec, float interval, float duration);
   void SetDeResFactor(float d) { x14c_deResFactor = d; }
