@@ -31,9 +31,8 @@ s16 CRumbleVoice::GetFreeChannel() const {
 }
 
 float CRumbleVoice::GetIntensity() const {
-  return std::min(2.f, std::max(x10_deltas[0].x0_curIntensity,
-                                std::max(x10_deltas[1].x0_curIntensity,
-                                         std::max(x10_deltas[2].x0_curIntensity, x10_deltas[3].x0_curIntensity))));
+  return std::min(2.f, std::max({x10_deltas[0].x0_curIntensity, x10_deltas[1].x0_curIntensity,
+                                 x10_deltas[2].x0_curIntensity, x10_deltas[3].x0_curIntensity}));
 }
 
 bool CRumbleVoice::UpdateChannel(SAdsrDelta& delta, const SAdsrData& data, float dt) {
