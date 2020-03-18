@@ -23,18 +23,24 @@ CRelayTracker::CRelayTracker(CBitStreamReader& in, const CSaveWorld& saveworld) 
   }
 }
 
-bool CRelayTracker::HasRelay(TEditorId id) {
-  return std::find(x0_relayStates.begin(), x0_relayStates.end(), id) != x0_relayStates.end();
+bool CRelayTracker::HasRelay(TEditorId id) const {
+  return std::find(x0_relayStates.cbegin(), x0_relayStates.cend(), id) != x0_relayStates.cend();
 }
 
 void CRelayTracker::AddRelay(TEditorId id) {
-  if (std::find(x0_relayStates.begin(), x0_relayStates.end(), id) == x0_relayStates.end())
-    x0_relayStates.push_back(id);
+  if (HasRelay(id)) {
+    return;
+  }
+
+  x0_relayStates.push_back(id);
 }
 
 void CRelayTracker::RemoveRelay(TEditorId id) {
-  if (std::find(x0_relayStates.begin(), x0_relayStates.end(), id) != x0_relayStates.end())
-    x0_relayStates.erase(std::remove(x0_relayStates.begin(), x0_relayStates.end(), id), x0_relayStates.end());
+  if (!HasRelay(id)) {
+    return;
+  }
+
+  x0_relayStates.erase(std::remove(x0_relayStates.begin(), x0_relayStates.end(), id), x0_relayStates.end());
 }
 
 void CRelayTracker::SendMsgs(TAreaId areaId, CStateManager& stateMgr) {

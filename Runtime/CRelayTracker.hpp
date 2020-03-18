@@ -31,7 +31,7 @@ public:
   CRelayTracker() = default;
   CRelayTracker(CBitStreamReader&, const CSaveWorld&);
 
-  bool HasRelay(TEditorId);
+  bool HasRelay(TEditorId) const;
   void AddRelay(TEditorId);
   void RemoveRelay(TEditorId);
   void SendMsgs(TAreaId, CStateManager&);
