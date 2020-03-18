@@ -70,10 +70,10 @@ CLight::CLight(ELightType type, const zeus::CVector3f& pos, const zeus::CVector3
 , x4c_25_radiusDirty(true) {
   switch (type) {
   case ELightType::Spot: {
-    float cosCutoff = std::cos(zeus::degToRad(cutoff));
+    const float cosCutoff = std::cos(zeus::degToRad(cutoff));
     x30_angleC = 0.f;
-    x34_angleL = -cosCutoff / (1.0 - cosCutoff);
-    x38_angleQ = 1.f / (1.0 - cosCutoff);
+    x34_angleL = -cosCutoff / (1.0f - cosCutoff);
+    x38_angleQ = 1.f / (1.0f - cosCutoff);
     break;
   }
   case ELightType::Directional: {
