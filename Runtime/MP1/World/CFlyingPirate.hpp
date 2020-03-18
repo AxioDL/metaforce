@@ -155,7 +155,7 @@ private:
   bool x6a1_28_ : 1;
   bool x6a1_29_isMoving : 1;
   bool x6a1_30_ : 1;
-  bool x6a1_31_ : 1;
+  bool x6a1_31_stopped : 1;
   bool x6a2_24_aggressive : 1;
   bool x6a2_25_aggressionChecked : 1;
   bool x6a2_26_jetpackActive : 1;
@@ -187,9 +187,9 @@ private:
   zeus::CVector3f x870_ = zeus::skZero3f;
   zeus::CVector3f x87c_ = zeus::skZero3f;
   float x888_ = 10.f;
-  float x88c_ = 3.f;
+  float x88c_ragDollTimer = 3.f;
   TUniqueId x890_teamAiMgr = kInvalidUniqueId;
-  float x894_ = 1.f;
+  float x894_pitchBend = 1.f;
   float x898_ = 1.f;
   std::unique_ptr<CFlyingPirateRagDoll> x89c_ragDoll;
   TUniqueId x8a0_patrolTarget = kInvalidUniqueId;
