@@ -101,7 +101,8 @@ CFlyingPirate::CFlyingPirateData::CFlyingPirateData(CInputStream& in, u32 propCo
 
 CFlyingPirate::CFlyingPirateRagDoll::CFlyingPirateRagDoll(CStateManager& mgr, CFlyingPirate* actor, u16 w1, u16 w2)
 : CRagDoll(-actor->GetGravityConstant(), 3.f, 8.f, 0)
-, x88_(w1)
+, x6c_actor(actor)
+, x88_sfx(w1)
 , x9c_(w2)
 , xa4_(actor->GetDestPos() - actor->GetTranslation())
 , xb0_24_(false) {
@@ -208,15 +209,85 @@ void CFlyingPirate::CFlyingPirateRagDoll::PreRender(const zeus::CVector3f& v, CM
 }
 
 void CFlyingPirate::CFlyingPirateRagDoll::Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData& mData) {
-  if (x6c_actor->x6a1_30_) {
+  if (x6c_actor->x6a1_30_spinToDeath) {
     xa0_ = CSfxManager::AddEmitter(x9c_, x6c_actor->GetTranslation(), zeus::skZero3f, true, true, 0x7f, kInvalidAreaId);
   }
   CRagDoll::Prime(mgr, xf, mData);
 }
 
 void CFlyingPirate::CFlyingPirateRagDoll::Update(CStateManager& mgr, float dt, float waterTop) {
-  // TODO
-  CRagDoll::Update(mgr, dt, waterTop);
+  if (!x68_25_over) {
+    if (x6c_actor->x6a1_30_spinToDeath) {
+      x84_ -= dt;
+      const zeus::CVector3f& v9c = (x6c_actor->x2e0_destPos - x4_particles[14].GetPosition()).normalized();
+      x74_ = zeus::CVector3f::slerp(x74_, v9c, zeus::degToRad(360.f * dt));
+      x70_ = 25.f;
+      zeus::CVector3f mul = x70_ * x74_;
+      if (x84_ <= 0.f) {
+        x4_particles[14].Velocity() += 11.f * mul;
+      } else {
+        x4_particles[14].Velocity() += 25.f * mul;
+      }
+      zeus::CVector3f inv = -4 * mul;
+      x4_particles[4].Velocity() += -mul;
+      x4_particles[7].Velocity() += -mul;
+      x4_particles[10].Velocity() += inv;
+      x4_particles[10].Velocity() += inv;
+      x4_particles[1].Velocity() += -mul;
+
+      x80_ = std::min(1000.f * dt + x80_, 1000.f);
+
+      zeus::CVector3f vc0 = ((x4_particles[5].Position() - x4_particles[2].Position())
+                                 .cross(x4_particles[8].Position() - x4_particles[2].Position()) +
+                             0.25f * (x4_particles[2].Position() - x4_particles[5].Position()))
+                                .normalized() *
+                            x80_;
+      x4_particles[2].Velocity() += vc0;
+      x4_particles[5].Velocity() += -vc0;
+
+      x44_normalGravity = 0.f;
+      CSfxManager::UpdateEmitter(xa0_, x6c_actor->GetTranslation(), x58_averageVel, 1.f);
+    }
+
+    // Collar-hips weighted center
+    zeus::CVector3f oldTorsoCenter = x4_particles[8].GetPosition() * 0.25f + x4_particles[11].GetPosition() * 0.25f +
+                                     x4_particles[0].GetPosition() * 0.5f;
+    oldTorsoCenter.z() = std::min({x4_particles[0].GetPosition().z() - x4_particles[0].GetRadius(),
+                                   x4_particles[8].GetPosition().z() - x4_particles[8].GetRadius(),
+                                   x4_particles[11].GetPosition().z() - x4_particles[11].GetRadius()});
+
+    CRagDoll::Update(mgr, dt, waterTop);
+
+    // Collar-hips weighted center
+    zeus::CVector3f newTorsoCenter = x4_particles[8].GetPosition() * 0.25f + x4_particles[11].GetPosition() * 0.25f +
+                                     x4_particles[0].GetPosition() * 0.5f;
+    newTorsoCenter.z() = std::min({x4_particles[0].GetPosition().z() - x4_particles[0].GetRadius(),
+                                   x4_particles[8].GetPosition().z() - x4_particles[8].GetRadius(),
+                                   x4_particles[11].GetPosition().z() - x4_particles[11].GetRadius()});
+    x6c_actor->SetTransform({zeus::CMatrix3f(false), newTorsoCenter});
+    x6c_actor->SetVelocityWR((newTorsoCenter - oldTorsoCenter) * (1.f / dt));
+
+    if (x6c_actor->x6a1_30_spinToDeath) {
+      if ((newTorsoCenter - x6c_actor->GetDestPos()).magSquared() > 0.f) {
+        x6c_actor->x88c_ragDollTimer = 0.5f * dt;
+      }
+    }
+
+    x8c_ -= dt;
+    if (x54_impactVel > 2.f && x8c_ < 0.f) {
+      if (xb0_24_ || (x6c_actor->GetTranslation() - x90_).magSquared() > 0.1f) {
+        float vol = std::min(10.f * x54_impactVel, 127.f) / 127.f;
+        CSfxManager::AddEmitter(x88_sfx, x6c_actor->GetTranslation(), zeus::skZero3f, vol, true, false, 0x7f,
+                                kInvalidAreaId);
+        x8c_ = 0.222f * mgr.GetActiveRandom()->Float() + 0.222f;
+        xb0_24_ = false;
+        x90_ = x6c_actor->GetTranslation();
+      }
+    }
+  } else {
+    x6c_actor->SetMomentumWR(zeus::skZero3f);
+    x6c_actor->Stop();
+  }
 }
 
 CFlyingPirate::CFlyingPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -239,7 +310,7 @@ CFlyingPirate::CFlyingPirate(TUniqueId uid, std::string_view name, const CEntity
 , x6a1_27_(false)
 , x6a1_28_(false)
 , x6a1_29_isMoving(false)
-, x6a1_30_(false)
+, x6a1_30_spinToDeath(false)
 , x6a1_31_stopped(false)
 , x6a2_24_aggressive(false)
 , x6a2_25_aggressionChecked(false)
@@ -296,7 +367,7 @@ void CFlyingPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
     x7ec_burstFire.SetBurstType(2);
     break;
   case EScriptObjectMessage::Falling:
-    if (x450_bodyController->GetPercentageFrozen() == 0.f && !x400_28_pendingMassiveDeath && !x6a1_30_) {
+    if (x450_bodyController->GetPercentageFrozen() == 0.f && !x400_28_pendingMassiveDeath && !x6a1_30_spinToDeath) {
       SetMomentumWR({0.f, 0.f, -GetGravityConstant() * xe8_mass});
     }
     x7ec_burstFire.SetBurstType(0);
@@ -859,7 +930,7 @@ void CFlyingPirate::KnockBack(const zeus::CVector3f& pos, CStateManager& mgr, co
       UpdateParticleEffects(mgr, 0.f, false);
       SetMomentumWR({0.f, 0.f, -GetGravityConstant() * xe8_mass});
     } else {
-      x6a1_30_ = true;
+      x6a1_30_spinToDeath = true;
       x150_momentum.zeroOut();
     }
     x460_knockBackController.SetAnimationStateRange(EKnockBackAnimationState::Hurled, EKnockBackAnimationState::Hurled);
@@ -892,7 +963,7 @@ void CFlyingPirate::KnockBack(const zeus::CVector3f& pos, CStateManager& mgr, co
       CSfxManager::AddEmitter(x568_data.xe6_deathSfx, GetTranslation(), zeus::skZero3f, 1.f, true, false, 0x7f,
                               kInvalidAreaId);
       if (x400_27_fadeToDeath) {
-        x6a1_30_ = false;
+        x6a1_30_spinToDeath = false;
         UpdateParticleEffects(mgr, 0.f, false);
         SetMomentumWR({0.f, 0.f, -GetGravityConstant() * xe8_mass});
       }
@@ -1322,10 +1393,7 @@ void CFlyingPirate::DeliverGetUp() {
 }
 
 void CFlyingPirate::UpdateCanSeePlayer(CStateManager& mgr) {
-  int iVar3 = x7dc_;
-  int iVar1 = iVar3 / 7 + (iVar3 >> 0x1f) * 7;
-  // x7dc % 7 == ?
-  if (iVar3 == (iVar1 - (iVar1 >> 0x1f)) * 7) {
+  if (x7dc_ % 7 == 0) {
     bool bVar4 = true;
     const zeus::CVector3f& start = GetGunEyePos() - x34_transform.rightVector();
     const zeus::CVector3f& end = GetAimPosition(mgr, 0.f);
@@ -1608,13 +1676,7 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
   }
 
   if (x89c_ragDoll) {
-    if (!x89c_ragDoll->IsPrimed()) {
-      // SetMuted(true); ??
-      SetMuted(false);
-      x89c_ragDoll->Prime(mgr, x34_transform, *x64_modelData);
-      SetTransform(zeus::CTransform::Translate(x34_transform.origin));
-      x450_bodyController->SetPlaybackRate(0.f);
-    } else {
+    if (x89c_ragDoll->IsPrimed()) {
       float waterTop = -FLT_MAX;
       if (xc4_fluidId != kInvalidUniqueId) {
         if (TCastToPtr<CScriptWater> water = mgr.ObjectById(xc4_fluidId)) {
@@ -1623,24 +1685,30 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
       }
       x89c_ragDoll->Update(mgr, dt * CalcDyingThinkRate(), waterTop);
       x64_modelData->AdvanceParticles(x34_transform, dt, mgr);
+    } else {
+      // SetMuted(true); ??
+      SetMuted(false);
+      x89c_ragDoll->Prime(mgr, x34_transform, *x64_modelData);
+      SetTransform(zeus::CTransform::Translate(x34_transform.origin));
+      x450_bodyController->SetPlaybackRate(0.f);
     }
-    if (x89c_ragDoll->IsPrimed() && !x400_27_fadeToDeath) {
+
+    if (x89c_ragDoll->IsOver() && !x400_27_fadeToDeath) {
       x400_27_fadeToDeath = true;
       x3e8_alphaDelta = -1.f / 3.f;
       SetVelocityWR(zeus::skZero3f);
       x150_momentum.zeroOut();
       x870_.zeroOut();
     }
-    if (x89c_ragDoll) {
-      bool wasGtZero = x88c_ragDollTimer > 0.f;
-      x88c_ragDollTimer -= dt;
-      if (x88c_ragDollTimer < 2.f) {
-        if (x89c_ragDoll->GetImpactCount() > 2) {
-          x88c_ragDollTimer = std::min(0.1f, x88c_ragDollTimer);
-        }
-        if (wasGtZero && x88c_ragDollTimer <= 0.f) {
-          x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Explode");
-        }
+
+    bool wasGtZero = x88c_ragDollTimer > 0.f;
+    x88c_ragDollTimer -= dt;
+    if (x88c_ragDollTimer < 2.f) {
+      if (x89c_ragDoll->GetImpactCount() > 2) {
+        x88c_ragDollTimer = std::min(0.1f, x88c_ragDollTimer);
+      }
+      if (wasGtZero && x88c_ragDollTimer <= 0.f) {
+        x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Explode");
       }
     }
   }

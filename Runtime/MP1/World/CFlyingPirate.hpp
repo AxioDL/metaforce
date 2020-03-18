@@ -57,7 +57,7 @@ private:
     zeus::CVector3f x74_ = zeus::skUp;
     float x80_ = 0.f;
     float x84_ = 5.f;
-    u16 x88_;
+    u16 x88_sfx;
     float x8c_ = 0.f;
     zeus::CVector3f x90_ = zeus::skZero3f;
     u16 x9c_;
@@ -154,7 +154,7 @@ private:
   bool x6a1_27_ : 1;
   bool x6a1_28_ : 1;
   bool x6a1_29_isMoving : 1;
-  bool x6a1_30_ : 1;
+  bool x6a1_30_spinToDeath : 1;
   bool x6a1_31_stopped : 1;
   bool x6a2_24_aggressive : 1;
   bool x6a2_25_aggressionChecked : 1;
