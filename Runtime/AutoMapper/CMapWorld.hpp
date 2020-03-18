@@ -142,21 +142,23 @@ private:
   float x40_worldSphereHalfDepth = 0.f;
 
 public:
-  CMapWorld(CInputStream&);
+  explicit CMapWorld(CInputStream& in);
   u32 GetNumAreas() const { return x0_areas.size(); }
   const CMapArea* GetMapArea(int aid) const { return x0_areas[aid].GetMapArea(); }
-  bool IsMapAreaInBFSInfoVector(const CMapAreaData*, const std::vector<CMapAreaBFSInfo>&) const;
-  void SetWhichMapAreasLoaded(const IWorld&, int start, int count);
+  bool IsMapAreaInBFSInfoVector(const CMapAreaData* area, const std::vector<CMapAreaBFSInfo>& vec) const;
+  void SetWhichMapAreasLoaded(const IWorld& wld, int start, int count);
   bool IsMapAreasStreaming() const;
-  void MoveMapAreaToList(CMapAreaData*, EMapAreaList);
-  s32 GetCurrentMapAreaDepth(const IWorld&, int areaIdx);
-  std::vector<int> GetVisibleAreas(const IWorld&, const CMapWorldInfo&) const;
-  void Draw(const CMapWorldDrawParms&, int, int, float, float, bool);
-  void DoBFS(const IWorld&, int, int, float, float, bool, std::vector<CMapAreaBFSInfo>&);
-  bool IsMapAreaValid(const IWorld&, int, bool) const;
-  void DrawAreas(const CMapWorldDrawParms&, int, const std::vector<CMapAreaBFSInfo>&, bool) const;
-  void RecalculateWorldSphere(const CMapWorldInfo&, const IWorld&);
-  zeus::CVector3f ConstrainToWorldVolume(const zeus::CVector3f&, const zeus::CVector3f&) const;
+  void MoveMapAreaToList(CMapAreaData* data, EMapAreaList list);
+  s32 GetCurrentMapAreaDepth(const IWorld& wld, TAreaId aid);
+  std::vector<int> GetVisibleAreas(const IWorld& wld, const CMapWorldInfo& mwInfo) const;
+  void Draw(const CMapWorldDrawParms& parms, int curArea, int otherArea, float depth1, float depth2, bool inMapScreen);
+  void DoBFS(const IWorld& wld, int startArea, int areaCount, float surfDepth, float outlineDepth, bool checkLoad,
+             std::vector<CMapAreaBFSInfo>& bfsInfos);
+  bool IsMapAreaValid(const IWorld& wld, int areaIdx, bool checkLoad) const;
+  void DrawAreas(const CMapWorldDrawParms& parms, int selArea, const std::vector<CMapAreaBFSInfo>& bfsInfos,
+                 bool inMapScreen) const;
+  void RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld& wld);
+  zeus::CVector3f ConstrainToWorldVolume(const zeus::CVector3f& point, const zeus::CVector3f& lookVec) const;
   void ClearTraversedFlags();
 };
 
