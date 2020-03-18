@@ -40,10 +40,11 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx, EPrimitive
     break;
   }
 
-  if (bool(texture))
+  if (texture) {
     m_vertBufTex = s_vertPoolTex.allocateBlock(CGraphics::g_BooFactory, maxTriVerts);
-  else
+  } else {
     m_vertBufNoTex = s_vertPoolNoTex.allocateBlock(CGraphics::g_BooFactory, maxTriVerts);
+  }
 
   m_uniformBuf = s_uniformPool.allocateBlock(CGraphics::g_BooFactory);
 
@@ -70,10 +71,11 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const boo::ObjTo
     break;
   }
 
-  if (bool(texture))
+  if (texture) {
     m_vertBufTex = s_vertPoolTex.allocateBlock(CGraphics::g_BooFactory, maxTriVerts);
-  else
+  } else {
     m_vertBufNoTex = s_vertPoolNoTex.allocateBlock(CGraphics::g_BooFactory, maxTriVerts);
+  }
 
   m_uniformBuf = s_uniformPool.allocateBlock(CGraphics::g_BooFactory);
 

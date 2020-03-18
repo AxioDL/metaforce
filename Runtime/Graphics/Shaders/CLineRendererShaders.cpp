@@ -111,7 +111,7 @@ void CLineRendererShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Con
   const std::array<size_t, 1> ubufOffs{size_t(ubufInfo.second)};
   const std::array<size_t, 1> ubufSizes{sizeof(CLineRenderer::SDrawUniform)};
 
-  for (size_t i = 0; i < std::size(renderer.m_shaderBind); ++i) {
+  for (size_t i = 0; i < renderer.m_shaderBind.size(); ++i) {
     renderer.m_shaderBind[i] = ctx.newShaderDataBinding(
         (*pipeline)[i], vbufInfo.first.get(), nullptr, nullptr, uniforms.size(), uniforms.data(), stages.data(),
         ubufOffs.data(), ubufSizes.data(), texCount, textures.data(), nullptr, nullptr, vbufInfo.second);
