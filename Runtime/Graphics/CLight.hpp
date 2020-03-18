@@ -35,10 +35,10 @@ class CLight {
   float x38_angleQ = 0.f;
   u32 x3c_priority = 0;
   u32 x40_lightId = 0; // Serves as unique key
-  float x44_cachedRadius = 0.f;
-  float x48_cachedIntensity = 0.f;
-  bool x4c_24_intensityDirty : 1;
-  bool x4c_25_radiusDirty : 1;
+  mutable float x44_cachedRadius = 0.f;
+  mutable float x48_cachedIntensity = 0.f;
+  mutable bool x4c_24_intensityDirty : 1;
+  mutable bool x4c_25_radiusDirty : 1;
 
   float CalculateLightRadius() const;
 

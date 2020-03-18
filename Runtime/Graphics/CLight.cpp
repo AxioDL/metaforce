@@ -27,20 +27,20 @@ float CLight::CalculateLightRadius() const {
 
 float CLight::GetIntensity() const {
   if (x4c_24_intensityDirty) {
-    const_cast<CLight*>(this)->x4c_24_intensityDirty = false;
+    x4c_24_intensityDirty = false;
     float coef = 1.f;
-    if (x1c_type == ELightType::Custom)
+    if (x1c_type == ELightType::Custom) {
       coef = x30_angleC;
-    const_cast<CLight*>(this)->x48_cachedIntensity =
-        coef * std::max(x18_color.r(), std::max(x18_color.g(), x18_color.b()));
+    }
+    x48_cachedIntensity = coef * std::max(x18_color.r(), std::max(x18_color.g(), x18_color.b()));
   }
   return x48_cachedIntensity;
 }
 
 float CLight::GetRadius() const {
   if (x4c_25_radiusDirty) {
-    const_cast<CLight*>(this)->x44_cachedRadius = CalculateLightRadius();
-    const_cast<CLight*>(this)->x4c_25_radiusDirty = false;
+    x44_cachedRadius = CalculateLightRadius();
+    x4c_25_radiusDirty = false;
   }
   return x44_cachedRadius;
 }
