@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <atomic>
 #include <mutex>
 
@@ -82,9 +83,9 @@ public:
    * report thread. This class atomically exchanges that data to the
    * game thread as needed */
   struct DolphinSmashAdapterCallback : boo::IDolphinSmashAdapterCallback {
-    std::atomic<EStatusChange> m_statusChanges[4];
-    bool m_connected[4] = {};
-    boo::DolphinControllerState m_states[4];
+    std::array<std::atomic<EStatusChange>, 4> m_statusChanges;
+    std::array<bool, 4> m_connected{};
+    std::array<boo::DolphinControllerState, 4> m_states;
     std::mutex m_stateLock;
     void controllerConnected(unsigned idx, boo::EDolphinControllerType) override {
       /* Controller thread */
@@ -103,7 +104,7 @@ public:
       m_states[idx] = state;
     }
 
-    CFinalInput m_lastUpdates[4];
+    std::array<CFinalInput, 4> m_lastUpdates;
     const CFinalInput& getFinalInput(unsigned idx, float dt, float leftDiv, float rightDiv) {
       /* Game thread */
       std::unique_lock<std::mutex> lk(m_stateLock);
@@ -159,9 +160,9 @@ public:
       }
     }
   }
-  void ControlAllMotors(const EMotorState* states) {
+  void ControlAllMotors(const std::array<EMotorState, 4>& states) {
     if (smashAdapter) {
-      for (int i = 0; i < 4; ++i) {
+      for (size_t i = 0; i < states.size(); ++i) {
         switch (states[i]) {
         case EMotorState::Stop:
           smashAdapter->stopRumble(i);

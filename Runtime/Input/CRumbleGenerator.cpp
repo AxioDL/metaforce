@@ -30,8 +30,8 @@ void CRumbleGenerator::Update(float dt) {
 
   if (!xf0_24_disabled) {
     bool updated = false;
-    for (int i = 0; i < 4; ++i) {
-      float intensity = x0_voices[i].GetIntensity();
+    for (size_t i = 0; i < x0_voices.size(); ++i) {
+      const float intensity = x0_voices[i].GetIntensity();
       if (!x0_voices[i].Update(dt) || intensity <= 0.f) {
         xc0_periodTime[i] = 0.f;
         xd0_onTime[i] = 0.f;
@@ -76,31 +76,36 @@ void CRumbleGenerator::Update(float dt) {
   }
 }
 
-static const EMotorState HardStopCommands[] = {EMotorState::StopHard, EMotorState::StopHard, EMotorState::StopHard,
-                                               EMotorState::StopHard};
-
 void CRumbleGenerator::HardStopAll() {
-  for (int i = 0; i < 4; ++i) {
-    xc0_periodTime[i] = 0.f;
-    xd0_onTime[i] = 0.f;
-    xe0_commandArray[i] = EMotorState::Stop;
-    x0_voices[i].HardReset();
+  static constexpr std::array HardStopCommands{
+      EMotorState::StopHard,
+      EMotorState::StopHard,
+      EMotorState::StopHard,
+      EMotorState::StopHard,
+  };
+
+  xc0_periodTime.fill(0.0f);
+  xd0_onTime.fill(0.0f);
+  xe0_commandArray.fill(EMotorState::Stop);
+  for (auto& voice : x0_voices) {
+    voice.HardReset();
   }
+
   g_InputGenerator->ControlAllMotors(HardStopCommands);
 }
 
 s16 CRumbleGenerator::Rumble(const SAdsrData& adsr, float gain, ERumblePriority prio, EIOPort port) {
-  CRumbleVoice& vox = x0_voices[int(port)];
-  s16 freeChan = vox.GetFreeChannel();
+  CRumbleVoice& vox = x0_voices[size_t(port)];
+  const s16 freeChan = vox.GetFreeChannel();
   if (prio >= vox.GetPriority(freeChan)) {
-    xc0_periodTime[int(port)] = 0.f;
+    xc0_periodTime[size_t(port)] = 0.f;
     return vox.Activate(adsr, freeChan, gain, prio);
   }
   return -1;
 }
 
 void CRumbleGenerator::Stop(s16 id, EIOPort port) {
-  CRumbleVoice& vox = x0_voices[int(port)];
+  CRumbleVoice& vox = x0_voices[size_t(port)];
   vox.Deactivate(id, false);
 }
 
