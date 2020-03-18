@@ -50,16 +50,12 @@ CLight::CLight(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeu
 : x0_pos(pos)
 , xc_dir(dir)
 , x18_color(color)
-, x1c_type(ELightType::Custom)
-, x20_spotCutoff(0.f)
 , x24_distC(distC)
 , x28_distL(distL)
 , x2c_distQ(distQ)
 , x30_angleC(angleC)
 , x34_angleL(angleL)
 , x38_angleQ(angleQ)
-, x44_cachedRadius(0.f)
-, x48_cachedIntensity(0.f)
 , x4c_24_intensityDirty(true)
 , x4c_25_radiusDirty(true) {}
 
@@ -70,14 +66,6 @@ CLight::CLight(ELightType type, const zeus::CVector3f& pos, const zeus::CVector3
 , x18_color(color)
 , x1c_type(type)
 , x20_spotCutoff(cutoff)
-, x24_distC(1.f)
-, x28_distL(0.f)
-, x2c_distQ(0.f)
-, x30_angleC(1.f)
-, x34_angleL(0.f)
-, x38_angleQ(0.f)
-, x44_cachedRadius(0.f)
-, x48_cachedIntensity(0.f)
 , x4c_24_intensityDirty(true)
 , x4c_25_radiusDirty(true) {
   switch (type) {
