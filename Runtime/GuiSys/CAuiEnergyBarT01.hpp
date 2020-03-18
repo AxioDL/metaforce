@@ -16,7 +16,7 @@ class CSimplePool;
 
 class CAuiEnergyBarT01 : public CGuiWidget {
 public:
-  typedef std::pair<zeus::CVector3f, zeus::CVector3f> (*FCoordFunc)(float t);
+  using FCoordFunc = std::pair<zeus::CVector3f, zeus::CVector3f> (*)(float t);
   enum class ESetMode { Normal, Wrapped, Insta };
 
 private:
