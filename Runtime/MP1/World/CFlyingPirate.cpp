@@ -246,7 +246,8 @@ CFlyingPirate::CFlyingPirate(TUniqueId uid, std::string_view name, const CEntity
 , x6a2_26_jetpackActive(false)
 , x6a2_27_sparksActive(false)
 , x6a2_28_(false)
-, x6a8_pathFindSearch(nullptr, 0 /* TODO */, pInfo.GetHalfExtent(), pInfo.GetHeight(), pInfo.GetPathfindingIndex())
+, x6a8_pathFindSearch(nullptr, x6a0_25_isUnderwater ? 2 : 3, pInfo.GetHalfExtent(), pInfo.GetHeight(),
+                      pInfo.GetPathfindingIndex())
 , x7a0_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
                     EBoneTrackingFlags::None)
 , x7ec_burstFire(skBursts.data(), 0) {
