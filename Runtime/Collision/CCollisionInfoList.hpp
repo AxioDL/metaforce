@@ -53,9 +53,10 @@ public:
   void Clear() { x0_list.clear(); }
   const CCollisionInfo& Front() const { return x0_list.front(); }
   const CCollisionInfo& GetItem(int i) const { return x0_list[i]; }
-  rstl::reserved_vector<CCollisionInfo, 32>::iterator end() { return x0_list.end(); }
-  rstl::reserved_vector<CCollisionInfo, 32>::const_iterator end() const { return x0_list.end(); }
-  rstl::reserved_vector<CCollisionInfo, 32>::iterator begin() { return x0_list.begin(); }
-  rstl::reserved_vector<CCollisionInfo, 32>::const_iterator begin() const { return x0_list.begin(); }
+
+  auto end() noexcept { return x0_list.end(); }
+  auto end() const noexcept { return x0_list.end(); }
+  auto begin() noexcept { return x0_list.begin(); }
+  auto begin() const noexcept { return x0_list.begin(); }
 };
 } // namespace urde
