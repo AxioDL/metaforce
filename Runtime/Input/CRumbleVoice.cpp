@@ -22,10 +22,12 @@ bool CRumbleVoice::OwnsSustained(s16 handle) const {
 }
 
 s16 CRumbleVoice::GetFreeChannel() const {
-  for (s16 i = 0; i < 4; ++i)
-    if (!((1 << i) & x2c_usedChannels))
+  for (s16 i = 0; i < 4; ++i) {
+    if (!((1 << i) & x2c_usedChannels)) {
       return i;
-  return false;
+    }
+  }
+  return 0;
 }
 
 float CRumbleVoice::GetIntensity() const {
