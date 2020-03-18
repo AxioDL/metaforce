@@ -2,9 +2,7 @@
 
 namespace urde {
 
-CRumbleVoice::CRumbleVoice() {
-  x0_datas.resize(4);
-  x10_deltas.resize(4, SAdsrDelta::Stopped());
+CRumbleVoice::CRumbleVoice() : x0_datas(4), x10_deltas(4, SAdsrDelta::Stopped()) {
   x20_handleIds.resize(4);
 }
 
