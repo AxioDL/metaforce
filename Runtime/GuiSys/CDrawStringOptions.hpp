@@ -18,7 +18,7 @@ class CDrawStringOptions {
   std::vector<CTextColor> x4_colors;
 
 public:
-  CDrawStringOptions() { x4_colors.resize(16); }
+  CDrawStringOptions() : x4_colors(16) {}
 };
 
 } // namespace urde
