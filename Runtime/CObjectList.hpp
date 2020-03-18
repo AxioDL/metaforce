@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CEntity.hpp"
 
@@ -25,7 +27,7 @@ class CObjectList {
     s16 next = -1;
     s16 prev = -1;
   };
-  SObjectListEntry x0_list[1024]; // was an rstl::prereserved_vector
+  std::array<SObjectListEntry, 1024> x0_list; // was an rstl::prereserved_vector
   EGameObjectList x2004_listEnum;
   s16 x2008_firstId = -1;
   u16 x200a_count = 0;
