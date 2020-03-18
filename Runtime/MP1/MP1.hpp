@@ -4,7 +4,7 @@
 #define MP1_USE_BOO 0
 #endif
 #ifndef MP1_VARIABLE_DELTA_TIME
-#define MP1_VARIABLE_DELTA_TIME 0
+#define MP1_VARIABLE_DELTA_TIME 1
 #endif
 
 #include "IMain.hpp"

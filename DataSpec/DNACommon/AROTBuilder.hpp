@@ -7,9 +7,10 @@
 #include <set>
 
 namespace DataSpec {
-namespace DNAMP1 {
+namespace DNAPATH {
 struct PATH;
 }
+
 
 struct AROTBuilder {
   using ColMesh = hecl::blender::ColMesh;
@@ -42,13 +43,13 @@ struct AROTBuilder {
     void writeColNodes(uint8_t*& ptr, const zeus::CAABox& curAABB);
 
     void pathCountNodesAndLookups(size_t& nodeCount, size_t& lookupCount);
-    void pathWrite(DNAMP1::PATH& path, const zeus::CAABox& curAABB);
+    void pathWrite(DNAPATH::PATH& path, const zeus::CAABox& curAABB);
   } rootNode;
 
   void build(std::vector<std::vector<uint8_t>>& secs, const zeus::CAABox& fullAabb,
              const std::vector<zeus::CAABox>& meshAabbs, const std::vector<DNACMDL::Mesh>& meshes);
   std::pair<std::unique_ptr<uint8_t[]>, uint32_t> buildCol(const ColMesh& mesh, BspNodeType& rootOut);
-  void buildPath(DNAMP1::PATH& path);
+  void buildPath(DNAPATH::PATH& path);
 };
 
 } // namespace DataSpec

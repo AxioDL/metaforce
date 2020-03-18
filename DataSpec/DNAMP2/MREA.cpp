@@ -296,5 +296,22 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   return conn.saveBlend();
 }
 
+UniqueID32 MREA::GetPATHId(PAKEntryReadStream& rs) {
+  /* Do extract */
+  Header head;
+  head.read(rs);
+  rs.seekAlign32();
+
+  /* Skip to PATH */
+  atUint32 curSec = 0;
+  atUint64 secStart = rs.position();
+  while (curSec != head.pathSecIdx)
+    secStart += head.secSizes[curSec++];
+  if (!head.secSizes[curSec])
+    return {};
+  rs.seek(secStart, athena::SeekOrigin::Begin);
+  return {rs};
+}
+
 } // namespace DNAMP2
 } // namespace DataSpec

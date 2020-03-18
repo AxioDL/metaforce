@@ -31,6 +31,9 @@ public:
 
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const;
 
+  void addPATHToMREA(PAKRouter<PAKBridge>& pakRouter,
+                     std::unordered_map<UniqueID32, UniqueID32>& pathToMrea) const;
+
   void addMAPATransforms(PAKRouter<PAKBridge>& pakRouter, std::unordered_map<UniqueID32, zeus::CMatrix4f>& addTo,
                          std::unordered_map<UniqueID32, hecl::ProjectPath>& pathOverrides) const;
 };

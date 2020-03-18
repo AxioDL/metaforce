@@ -118,6 +118,8 @@ struct MREA {
     Value<atVec3f> aabb[2];
   };
 
+  static UniqueID32 GetPATHId(PAKEntryReadStream& rs);
+
   static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                       PAKRouter<PAKBridge>& pakRouter, const DNAMP2::PAK::Entry& entry, bool,
                       hecl::blender::Token& btok, std::function<void(const hecl::SystemChar*)>);

@@ -272,10 +272,10 @@ void AROTBuilder::Node::pathCountNodesAndLookups(size_t& nodeCount, size_t& look
   }
 }
 
-void AROTBuilder::Node::pathWrite(DNAMP1::PATH& path, const zeus::CAABox& curAABB) {
+void AROTBuilder::Node::pathWrite(DNAPATH::PATH& path, const zeus::CAABox& curAABB) {
   if (childNodes.empty()) {
     path.octree.emplace_back();
-    DNAMP1::PATH::OctreeNode& n = path.octree.back();
+    DNAPATH::PATH::OctreeNode& n = path.octree.back();
     n.isLeaf = 1;
     n.aabb[0] = curAABB.min;
     n.aabb[1] = curAABB.max;
@@ -401,12 +401,12 @@ std::pair<std::unique_ptr<uint8_t[]>, uint32_t> AROTBuilder::buildCol(const ColM
   return {std::move(ret), totalSize};
 }
 
-void AROTBuilder::buildPath(DNAMP1::PATH& path) {
+void AROTBuilder::buildPath(DNAPATH::PATH& path) {
   /* Accumulate total AABB and gather region boxes */
   std::vector<zeus::CAABox> regionBoxes;
   regionBoxes.reserve(path.regions.size());
   zeus::CAABox fullAABB;
-  for (const DNAMP1::PATH::Region& r : path.regions) {
+  for (const DNAPATH::PATH::Region& r : path.regions) {
     regionBoxes.emplace_back(r.aabb[0], r.aabb[1]);
     fullAABB.accumulateBounds(regionBoxes.back());
   }

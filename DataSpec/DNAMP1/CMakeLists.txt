@@ -11,7 +11,6 @@ make_dnalist(PAK
              CINF
              CSKR
              EVNT
-             PATH
              CMDLMaterials
              MREA
              DeafBabe

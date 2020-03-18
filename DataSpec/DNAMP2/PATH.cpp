@@ -1,8 +1,7 @@
-#include "DataSpec/DNAMP1/PATH.hpp"
-#include "DataSpec/DNACommon/AROTBuilder.hpp"
+#include "DataSpec/DNAMP2/PATH.hpp"
 #include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec::DNAMP1 {
+namespace DataSpec::DNAMP2 {
 bool PATH::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
                    std::function<void(const hecl::SystemChar*)> fileChanged) {

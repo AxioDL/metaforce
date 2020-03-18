@@ -4,6 +4,7 @@ make_dnalist(CMDL
              FSM2
              MAPA
              MAPU
+             PATH
              MayaSpline
              EGMC
              SAVWCommon
@@ -19,6 +20,7 @@ set(DNACOMMON_SOURCES
     CMDL.cpp
     MAPA.cpp
     MAPU.cpp
+    PATH.hpp PATH.cpp
     STRG.hpp STRG.cpp
     TXTR.hpp TXTR.cpp
     ANCS.hpp ANCS.cpp
