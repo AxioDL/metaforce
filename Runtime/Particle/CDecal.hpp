@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
@@ -36,7 +38,7 @@ class CDecal {
 
   TLockedToken<CDecalDescription> x0_description;
   zeus::CTransform xc_transform;
-  CQuadDecal x3c_decalQuads[2];
+  std::array<CQuadDecal, 2> x3c_decalQuads;
   s32 x54_modelLifetime = 0;
   s32 x58_frameIdx = 0;
   union {
