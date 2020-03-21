@@ -242,7 +242,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
     }
 
     if (True(testFlags & x12c_flags)) {
-      xe8_inhabitants.push_back(act.GetUniqueId());
+      xe8_inhabitants.emplace_back(act.GetUniqueId());
       InhabitantAdded(act, mgr);
 
       if (pl) {

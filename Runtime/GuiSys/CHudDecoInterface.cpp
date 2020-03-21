@@ -475,7 +475,7 @@ CHudDecoInterfaceThermal::CHudDecoInterfaceThermal(CGuiFrame& selHud) {
   if (CGuiWidget* w = selHud.FindWidget("basewidget_lock")) {
     for (CGuiWidget* c = static_cast<CGuiWidget*>(w->GetChildObject()); c;
          c = static_cast<CGuiWidget*>(c->GetNextSibling())) {
-      x84_lockonWidgets.push_back({c, c->GetLocalTransform()});
+      x84_lockonWidgets.emplace_back(c, c->GetLocalTransform());
       c->SetLocalTransform(c->GetLocalTransform() * zeus::CTransform::Scale(x68_lockonScale));
     }
   }

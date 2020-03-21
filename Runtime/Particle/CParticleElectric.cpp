@@ -333,7 +333,7 @@ void CParticleElectric::CreateNewParticles(int count) {
         if (CIntElement* slif = x1c_elecDesc->x4_SLIF.get())
           slif->GetValue(x28_currentFrame, lifetime);
 
-        x3e8_electricManagers.push_back(CParticleElectricManager(allocIdx, lifetime, x28_currentFrame));
+        x3e8_electricManagers.emplace_back(allocIdx, lifetime, x28_currentFrame);
         CParticleElectricManager& elec = x3e8_electricManagers.back();
         CParticleGlobals::instance()->SetParticleLifetime(elec.xc_endFrame - elec.x8_startFrame);
         int frame = x28_currentFrame - elec.x8_startFrame;
