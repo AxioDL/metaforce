@@ -2339,7 +2339,7 @@ void CStateManager::SetCurrentAreaId(TAreaId aid) {
   if (x8c0_mapWorldInfo->IsAreaVisited(aid))
     return;
   x8c0_mapWorldInfo->SetAreaVisited(aid, true);
-  x850_world->IMapWorld()->RecalculateWorldSphere(*x8c0_mapWorldInfo, *x850_world);
+  x850_world->IGetMapWorld()->RecalculateWorldSphere(*x8c0_mapWorldInfo, *x850_world);
 }
 
 void CStateManager::AreaUnloaded(TAreaId) {
