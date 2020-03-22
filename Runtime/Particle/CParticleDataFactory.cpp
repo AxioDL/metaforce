@@ -88,19 +88,20 @@ std::unique_ptr<CUVElement> CParticleDataFactory::GetTextureElement(CInputStream
     return std::make_unique<CUVEConstant>(std::move(txtr));
   }
   case SBIG('ATEX'): {
-    FourCC subId = GetClassID(in);
-    if (subId == SBIG('NONE'))
+    const FourCC subId = GetClassID(in);
+    if (subId == SBIG('NONE')) {
       return nullptr;
-    CAssetId id = in.readUint32Big();
+    }
+    const CAssetId id = in.readUint32Big();
     auto a = GetIntElement(in);
     auto b = GetIntElement(in);
     auto c = GetIntElement(in);
     auto d = GetIntElement(in);
     auto e = GetIntElement(in);
-    bool f = GetBool(in);
+    const bool f = GetBool(in);
     TToken<CTexture> txtr = resPool->GetObj({FOURCC('TXTR'), id});
     return std::make_unique<CUVEAnimTexture>(std::move(txtr), std::move(std::move(a)), std::move(b), std::move(c),
-                                             std::move(d), std::move(e), std::move(f));
+                                             std::move(d), std::move(e), f);
   }
   default:
     break;
@@ -174,17 +175,16 @@ std::unique_ptr<CModVectorElement> CParticleDataFactory::GetModVectorElement(CIn
     auto b = GetRealElement(in);
     auto c = GetRealElement(in);
     auto d = GetRealElement(in);
-    bool e = GetBool(in);
-    return std::make_unique<CMVEImplosion>(std::move(a), std::move(b), std::move(c), std::move(d), std::move(e));
+    const bool e = GetBool(in);
+    return std::make_unique<CMVEImplosion>(std::move(a), std::move(b), std::move(c), std::move(d), e);
   }
   case SBIG('EMPL'): {
     auto a = GetVectorElement(in);
     auto b = GetRealElement(in);
     auto c = GetRealElement(in);
     auto d = GetRealElement(in);
-    bool e = GetBool(in);
-    return std::make_unique<CMVEExponentialImplosion>(std::move(a), std::move(b), std::move(c), std::move(d),
-                                                      std::move(e));
+    const bool e = GetBool(in);
+    return std::make_unique<CMVEExponentialImplosion>(std::move(a), std::move(b), std::move(c), std::move(d), e);
   }
   case SBIG('CHAN'): {
     auto a = GetModVectorElement(in);
@@ -197,8 +197,8 @@ std::unique_ptr<CModVectorElement> CParticleDataFactory::GetModVectorElement(CIn
     auto b = GetVectorElement(in);
     auto c = GetRealElement(in);
     auto d = GetRealElement(in);
-    bool e = GetBool(in);
-    return std::make_unique<CMVEBounce>(std::move(a), std::move(b), std::move(c), std::move(d), std::move(e));
+    const bool e = GetBool(in);
+    return std::make_unique<CMVEBounce>(std::move(a), std::move(b), std::move(c), std::move(d), e);
   }
   case SBIG('CNST'): {
     auto a = GetRealElement(in);
@@ -232,8 +232,8 @@ std::unique_ptr<CModVectorElement> CParticleDataFactory::GetModVectorElement(CIn
     auto b = GetRealElement(in);
     auto c = GetRealElement(in);
     auto d = GetRealElement(in);
-    bool e = GetBool(in);
-    return std::make_unique<CMVELinearImplosion>(std::move(a), std::move(b), std::move(c), std::move(d), std::move(e));
+    const bool e = GetBool(in);
+    return std::make_unique<CMVELinearImplosion>(std::move(a), std::move(b), std::move(c), std::move(d), e);
   }
   case SBIG('PULS'): {
     auto a = GetIntElement(in);
@@ -424,8 +424,8 @@ std::unique_ptr<CRealElement> CParticleDataFactory::GetRealElement(CInputStream&
     return std::make_unique<CRELifetimeTween>(std::move(a), std::move(b));
   }
   case SBIG('CNST'): {
-    float a = GetReal(in);
-    return std::make_unique<CREConstant>(std::move(a));
+    const float a = GetReal(in);
+    return std::make_unique<CREConstant>(a);
   }
   case SBIG('CHAN'): {
     auto a = GetRealElement(in);
@@ -628,8 +628,8 @@ std::unique_ptr<CIntElement> CParticleDataFactory::GetIntElement(CInputStream& i
     return std::make_unique<CIEAdd>(std::move(a), std::move(b));
   }
   case SBIG('CNST'): {
-    int a = GetInt(in);
-    return std::make_unique<CIEConstant>(std::move(a));
+    const int a = GetInt(in);
+    return std::make_unique<CIEConstant>(a);
   }
   case SBIG('IMPL'): {
     auto a = GetIntElement(in);
