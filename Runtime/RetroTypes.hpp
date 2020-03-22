@@ -38,9 +38,9 @@ public:
   constexpr void Assign(u64 v) noexcept { id = (v == UINT32_MAX ? UINT64_MAX : (v == 0 ? UINT64_MAX : v)); }
   constexpr void Reset() noexcept { id = UINT64_MAX; }
   void PutTo(COutputStream& out);
-  [[nodiscard]] constexpr bool operator==(const CAssetId& other) const noexcept { return id == other.id; }
-  [[nodiscard]] constexpr bool operator!=(const CAssetId& other) const noexcept { return !operator==(other); }
-  [[nodiscard]] constexpr bool operator<(const CAssetId& other) const noexcept { return id < other.id; }
+  [[nodiscard]] constexpr bool operator==(CAssetId other) const noexcept { return id == other.id; }
+  [[nodiscard]] constexpr bool operator!=(CAssetId other) const noexcept { return !operator==(other); }
+  [[nodiscard]] constexpr bool operator<(CAssetId other) const noexcept { return id < other.id; }
 };
 
 //#define kInvalidAssetId CAssetId()
@@ -73,11 +73,11 @@ struct TEditorId {
   [[nodiscard]] constexpr u8 LayerNum() const noexcept { return u8((id >> 26) & 0x3f); }
   [[nodiscard]] constexpr u16 AreaNum() const noexcept { return u16((id >> 16) & 0x3ff); }
   [[nodiscard]] constexpr u16 Id() const noexcept { return u16(id & 0xffff); }
-  [[nodiscard]] constexpr bool operator<(const TEditorId& other) const noexcept { return (id & 0x3ffffff) < (other.id & 0x3ffffff); }
-  [[nodiscard]] constexpr bool operator==(const TEditorId& other) const noexcept {
+  [[nodiscard]] constexpr bool operator<(TEditorId other) const noexcept { return (id & 0x3ffffff) < (other.id & 0x3ffffff); }
+  [[nodiscard]] constexpr bool operator==(TEditorId other) const noexcept {
     return (id & 0x3ffffff) == (other.id & 0x3ffffff);
   }
-  [[nodiscard]] constexpr bool operator!=(const TEditorId& other) const noexcept { return !operator==(other); }
+  [[nodiscard]] constexpr bool operator!=(TEditorId other) const noexcept { return !operator==(other); }
 };
 
 #define kInvalidEditorId TEditorId()
@@ -89,9 +89,9 @@ struct TUniqueId {
   constexpr TUniqueId(u16 value, u16 version) noexcept : id(value | (version << 10)) {}
   [[nodiscard]] constexpr u16 Version() const noexcept { return u16((id >> 10) & 0x3f); }
   [[nodiscard]] constexpr u16 Value() const noexcept { return u16(id & 0x3ff); }
-  [[nodiscard]] constexpr bool operator<(const TUniqueId& other) const noexcept { return id < other.id; }
-  [[nodiscard]] constexpr bool operator==(const TUniqueId& other) const noexcept { return id == other.id; }
-  [[nodiscard]] constexpr bool operator!=(const TUniqueId& other) const noexcept { return !operator==(other); }
+  [[nodiscard]] constexpr bool operator<(TUniqueId other) const noexcept { return id < other.id; }
+  [[nodiscard]] constexpr bool operator==(TUniqueId other) const noexcept { return id == other.id; }
+  [[nodiscard]] constexpr bool operator!=(TUniqueId other) const noexcept { return !operator==(other); }
 };
 
 #define kInvalidUniqueId TUniqueId()
