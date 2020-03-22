@@ -134,10 +134,10 @@ public:
 
 class CIESampleAndHold : public CIntElement {
   std::unique_ptr<CIntElement> x4_sampleSource;
-  int x8_nextSampleFrame = 0;
+  mutable int x8_nextSampleFrame = 0;
   std::unique_ptr<CIntElement> xc_waitFramesMin;
   std::unique_ptr<CIntElement> x10_waitFramesMax;
-  int x14_holdVal;
+  mutable int x14_holdVal;
 
 public:
   CIESampleAndHold(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b, std::unique_ptr<CIntElement>&& c)
