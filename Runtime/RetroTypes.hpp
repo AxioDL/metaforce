@@ -33,14 +33,14 @@ public:
   constexpr CAssetId() noexcept = default;
   constexpr CAssetId(u64 v) noexcept { Assign(v); }
   explicit CAssetId(CInputStream& in);
-  constexpr bool IsValid() const noexcept { return id != UINT64_MAX; }
-  constexpr u64 Value() const noexcept { return id; }
+  [[nodiscard]] constexpr bool IsValid() const noexcept { return id != UINT64_MAX; }
+  [[nodiscard]] constexpr u64 Value() const noexcept { return id; }
   constexpr void Assign(u64 v) noexcept { id = (v == UINT32_MAX ? UINT64_MAX : (v == 0 ? UINT64_MAX : v)); }
   constexpr void Reset() noexcept { id = UINT64_MAX; }
   void PutTo(COutputStream& out);
-  constexpr bool operator==(const CAssetId& other) const noexcept { return id == other.id; }
-  constexpr bool operator!=(const CAssetId& other) const noexcept { return !operator==(other); }
-  constexpr bool operator<(const CAssetId& other) const noexcept { return id < other.id; }
+  [[nodiscard]] constexpr bool operator==(CAssetId other) const noexcept { return id == other.id; }
+  [[nodiscard]] constexpr bool operator!=(CAssetId other) const noexcept { return !operator==(other); }
+  [[nodiscard]] constexpr bool operator<(CAssetId other) const noexcept { return id < other.id; }
 };
 
 //#define kInvalidAssetId CAssetId()
@@ -50,9 +50,9 @@ struct SObjectTag {
   CAssetId id;
 
   constexpr explicit operator bool() const noexcept { return id.IsValid(); }
-  constexpr bool operator==(const SObjectTag& other) const noexcept { return id == other.id; }
-  constexpr bool operator!=(const SObjectTag& other) const noexcept { return !operator==(other); }
-  constexpr bool operator<(const SObjectTag& other) const noexcept { return id < other.id; }
+  [[nodiscard]] constexpr bool operator==(const SObjectTag& other) const noexcept { return id == other.id; }
+  [[nodiscard]] constexpr bool operator!=(const SObjectTag& other) const noexcept { return !operator==(other); }
+  [[nodiscard]] constexpr bool operator<(const SObjectTag& other) const noexcept { return id < other.id; }
   constexpr SObjectTag() noexcept = default;
   constexpr SObjectTag(FourCC tp, CAssetId rid) noexcept : type(tp), id(rid) {}
   SObjectTag(CInputStream& in) {
@@ -70,14 +70,14 @@ struct TEditorId {
 
   constexpr TEditorId() noexcept = default;
   constexpr TEditorId(u32 idin) noexcept : id(idin) {}
-  constexpr u8 LayerNum() const noexcept { return u8((id >> 26) & 0x3f); }
-  constexpr u16 AreaNum() const noexcept { return u16((id >> 16) & 0x3ff); }
-  constexpr u16 Id() const noexcept { return u16(id & 0xffff); }
-  constexpr bool operator<(const TEditorId& other) const noexcept { return (id & 0x3ffffff) < (other.id & 0x3ffffff); }
-  constexpr bool operator==(const TEditorId& other) const noexcept {
+  [[nodiscard]] constexpr u8 LayerNum() const noexcept { return u8((id >> 26) & 0x3f); }
+  [[nodiscard]] constexpr u16 AreaNum() const noexcept { return u16((id >> 16) & 0x3ff); }
+  [[nodiscard]] constexpr u16 Id() const noexcept { return u16(id & 0xffff); }
+  [[nodiscard]] constexpr bool operator<(TEditorId other) const noexcept { return (id & 0x3ffffff) < (other.id & 0x3ffffff); }
+  [[nodiscard]] constexpr bool operator==(TEditorId other) const noexcept {
     return (id & 0x3ffffff) == (other.id & 0x3ffffff);
   }
-  constexpr bool operator!=(const TEditorId& other) const noexcept { return !operator==(other); }
+  [[nodiscard]] constexpr bool operator!=(TEditorId other) const noexcept { return !operator==(other); }
 };
 
 #define kInvalidEditorId TEditorId()
@@ -87,11 +87,11 @@ struct TUniqueId {
 
   constexpr TUniqueId() noexcept = default;
   constexpr TUniqueId(u16 value, u16 version) noexcept : id(value | (version << 10)) {}
-  constexpr u16 Version() const noexcept { return u16((id >> 10) & 0x3f); }
-  constexpr u16 Value() const noexcept { return u16(id & 0x3ff); }
-  constexpr bool operator<(const TUniqueId& other) const noexcept { return id < other.id; }
-  constexpr bool operator==(const TUniqueId& other) const noexcept { return id == other.id; }
-  constexpr bool operator!=(const TUniqueId& other) const noexcept { return !operator==(other); }
+  [[nodiscard]] constexpr u16 Version() const noexcept { return u16((id >> 10) & 0x3f); }
+  [[nodiscard]] constexpr u16 Value() const noexcept { return u16(id & 0x3ff); }
+  [[nodiscard]] constexpr bool operator<(TUniqueId other) const noexcept { return id < other.id; }
+  [[nodiscard]] constexpr bool operator==(TUniqueId other) const noexcept { return id == other.id; }
+  [[nodiscard]] constexpr bool operator!=(TUniqueId other) const noexcept { return !operator==(other); }
 };
 
 #define kInvalidUniqueId TUniqueId()
@@ -122,7 +122,7 @@ public:
 #endif
 
 template <class T>
-T GetAverage(const T* v, s32 count) noexcept {
+[[nodiscard]] T GetAverage(const T* v, s32 count) noexcept {
   T r = v[0];
   for (s32 i = 1; i < count; ++i)
     r += v[i];
@@ -146,22 +146,24 @@ public:
     }
   } 
 
-  std::optional<T> GetAverage() const {
-    if (this->empty())
-      return {};
+  [[nodiscard]] std::optional<T> GetAverage() const {
+    if (this->empty()) {
+      return std::nullopt;
+    }
 
     return {urde::GetAverage<T>(this->data(), this->size())};
   }
 
-  std::optional<T> GetEntry(int i) const {
-    if (i >= this->size())
-      return {};
+  [[nodiscard]] std::optional<T> GetEntry(int i) const {
+    if (i >= this->size()) {
+      return std::nullopt;
+    }
     return this->operator[](i);
   }
 
   void Clear() { this->clear(); }
 
-  size_t Size() const { return this->size(); }
+  [[nodiscard]] size_t Size() const { return this->size(); }
 };
 
 } // namespace urde
