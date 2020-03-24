@@ -19,10 +19,11 @@ CCEKeyframeEmitter::CCEKeyframeEmitter(CInputStream& in) {
   x10_loopEnd = in.readUint32Big();
   x14_loopStart = in.readUint32Big();
 
-  u32 count = in.readUint32Big();
+  const u32 count = in.readUint32Big();
   x18_keys.reserve(count);
-  for (u32 i = 0; i < count; ++i)
-    x18_keys.push_back(in.readVec4fBig());
+  for (u32 i = 0; i < count; ++i) {
+    x18_keys.emplace_back(in.readVec4fBig());
+  }
 }
 
 bool CCEKeyframeEmitter::GetValue(int frame, zeus::CColor& valOut) const {

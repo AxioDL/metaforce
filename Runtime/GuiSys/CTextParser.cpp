@@ -188,7 +188,7 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len,
       texs.reserve(commaCount - 1);
       do {
         AdvanceCommaPos();
-        texs.push_back(x0_store.GetObj({SBIG('TXTR'), GetAssetIdFromString(&iterable[tokenPos], len, txtrMap)}));
+        texs.emplace_back(x0_store.GetObj({SBIG('TXTR'), GetAssetIdFromString(&iterable[tokenPos], len, txtrMap)}));
         AdvanceTokenPos();
       } while (commaPos != iterable.size());
 
@@ -211,7 +211,7 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len,
       texs.reserve(commaCount - 3);
       do {
         AdvanceCommaPos();
-        texs.push_back(x0_store.GetObj({SBIG('TXTR'), GetAssetIdFromString(&iterable[tokenPos], len, txtrMap)}));
+        texs.emplace_back(x0_store.GetObj({SBIG('TXTR'), GetAssetIdFromString(&iterable[tokenPos], len, txtrMap)}));
         AdvanceTokenPos();
       } while (commaPos != iterable.size());
 

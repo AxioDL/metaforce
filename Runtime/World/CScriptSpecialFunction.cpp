@@ -254,7 +254,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
             auto search = mgr.GetIdListForScript(conn.x8_objId);
             for (auto it = search.first; it != search.second; ++it) {
               if (TCastToPtr<CActor> act = mgr.ObjectById(it->second)) {
-                x198_ringControllers.push_back(SRingController(it->second, 0.f, false));
+                x198_ringControllers.emplace_back(it->second, 0.f, false);
                 act->RemoveMaterial(EMaterialTypes::Occluder, mgr);
               }
             }

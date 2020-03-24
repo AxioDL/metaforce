@@ -64,8 +64,8 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store) {
       baseline = in.readByte();
       kernStart = in.readInt16Big();
     }
-    xc_glyphs.push_back(std::make_pair(
-        chr, CGlyph(a, b, c, startU, startV, endU, endV, cellWidth, cellHeight, baseline, kernStart, layer)));
+    xc_glyphs.emplace_back(
+        chr, CGlyph(a, b, c, startU, startV, endU, endV, cellWidth, cellHeight, baseline, kernStart, layer));
   }
 
   std::sort(xc_glyphs.begin(), xc_glyphs.end(), [=](auto& a, auto& b) -> bool { return a.first < b.first; });

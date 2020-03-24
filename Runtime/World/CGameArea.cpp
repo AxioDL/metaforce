@@ -353,28 +353,31 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(id
   else
     x88_areaId = -1;
 
-  u32 attachedCount = in.readUint32Big();
+  const u32 attachedCount = in.readUint32Big();
   x8c_attachedAreaIndices.reserve(attachedCount);
-  for (u32 i = 0; i < attachedCount; ++i)
-    x8c_attachedAreaIndices.push_back(in.readUint16Big());
+  for (u32 i = 0; i < attachedCount; ++i) {
+    x8c_attachedAreaIndices.emplace_back(in.readUint16Big());
+  }
 
   x9c_deps1 = ::urde::ReadDependencyList(in);
   xac_deps2 = ::urde::ReadDependencyList(in);
 
-  zeus::CAABox aabb = x6c_aabb.getTransformedAABox(xc_transform);
+  const zeus::CAABox aabb = x6c_aabb.getTransformedAABox(xc_transform);
   x6c_aabb = aabb;
 
   if (mlvlVersion > 13) {
-    u32 depCount = in.readUint32Big();
+    const u32 depCount = in.readUint32Big();
     xbc_layerDepOffsets.reserve(depCount);
-    for (u32 i = 0; i < depCount; ++i)
-      xbc_layerDepOffsets.push_back(in.readUint32Big());
+    for (u32 i = 0; i < depCount; ++i) {
+      xbc_layerDepOffsets.emplace_back(in.readUint32Big());
+    }
   }
 
-  u32 dockCount = in.readUint32Big();
+  const u32 dockCount = in.readUint32Big();
   xcc_docks.reserve(dockCount);
-  for (u32 i = 0; i < dockCount; ++i)
-    xcc_docks.push_back({in, xc_transform});
+  for (u32 i = 0; i < dockCount; ++i) {
+    xcc_docks.emplace_back(in, xc_transform);
+  }
 
   ClearTokenList();
 

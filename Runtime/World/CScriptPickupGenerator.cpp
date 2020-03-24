@@ -89,10 +89,10 @@ float CScriptPickupGenerator::GetPickupTemplates(CStateManager& mgr,
             doAlways = true;
             break;
           }
-          bool thirtyPercTest = mgr.GetActiveRandom()->Float() < 0.3f;
+          const bool thirtyPercTest = mgr.GetActiveRandom()->Float() < 0.3f;
           if ((doAlways || (doThirtyPerc && thirtyPercTest)) && possibility > 0.f) {
             totalPossibility += possibility * multiplier;
-            idsOut.push_back(std::make_pair(possibility, conn.x8_objId));
+            idsOut.emplace_back(possibility, conn.x8_objId);
           }
         }
       }

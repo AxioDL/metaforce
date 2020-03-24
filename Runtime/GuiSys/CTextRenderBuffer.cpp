@@ -174,7 +174,7 @@ void CTextRenderBuffer::AddImage(const zeus::CVector2i& offset, const CFontImage
   if (x0_mode == EMode::AllocTally)
     m_primitiveMarks.push_back({Command::ImageRender, m_imagesCount++, 0});
   else
-    m_images.push_back({image, offset});
+    m_images.emplace_back(image, offset);
 }
 
 void CTextRenderBuffer::AddCharacter(const zeus::CVector2i& offset, char16_t ch, const zeus::CColor& color) {
@@ -209,7 +209,7 @@ void CTextRenderBuffer::AddFontChange(const TToken<CRasterFont>& font) {
   }
 
   m_activeFontCh = m_fontCharacters.size();
-  m_fontCharacters.push_back({font});
+  m_fontCharacters.emplace_back(font);
 }
 
 bool CTextRenderBuffer::HasSpaceAvailable(const zeus::CVector2i& origin, const zeus::CVector2i& extent) const {
