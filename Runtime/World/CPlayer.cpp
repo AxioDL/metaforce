@@ -1195,18 +1195,36 @@ static CAssetId UpdatePersistentScanPercent(u32 prevLogScans, u32 logScans, u32 
 }
 
 void CPlayer::FinishNewScan(CStateManager& mgr) {
-  if (TCastToPtr<CActor> act = mgr.ObjectById(x310_orbitTargetId))
-    if (act->GetMaterialList().HasMaterial(EMaterialTypes::Scannable))
-      if (auto scanInfo = act->GetScannableObjectInfo())
-        if (mgr.GetPlayerState()->GetScanTime(scanInfo->GetScannableObjectId()) >= 1.f)
-          if (IsDataLoreResearchScan(scanInfo->GetScannableObjectId())) {
-            auto scanCompletion = mgr.CalculateScanCompletionRate();
-            CAssetId message = UpdatePersistentScanPercent(mgr.GetPlayerState()->GetLogScans(), scanCompletion.first,
-                                                           scanCompletion.second);
-            if (message.IsValid())
-              mgr.ShowPausedHUDMemo(message, 0.f);
-            mgr.GetPlayerState()->SetScanCompletionRate(scanCompletion);
-          }
+  const TCastToConstPtr<CActor> act = mgr.ObjectById(x310_orbitTargetId);
+
+  if (!act) {
+    return;
+  }
+
+  if (!act->GetMaterialList().HasMaterial(EMaterialTypes::Scannable)) {
+    return;
+  }
+
+  const auto* const scanInfo = act->GetScannableObjectInfo();
+  if (!scanInfo) {
+    return;
+  }
+
+  if (mgr.GetPlayerState()->GetScanTime(scanInfo->GetScannableObjectId()) < 1.f) {
+    return;
+  }
+
+  if (!IsDataLoreResearchScan(scanInfo->GetScannableObjectId())) {
+    return;
+  }
+
+  const auto scanCompletion = mgr.CalculateScanCompletionRate();
+  const CAssetId message = UpdatePersistentScanPercent(mgr.GetPlayerState()->GetLogScans(), scanCompletion.first,
+                                                 scanCompletion.second);
+  if (message.IsValid()) {
+    mgr.ShowPausedHUDMemo(message, 0.f);
+  }
+  mgr.GetPlayerState()->SetScanCompletionRate(scanCompletion);
 }
 
 void CPlayer::SetScanningState(EPlayerScanState state, CStateManager& mgr) {
