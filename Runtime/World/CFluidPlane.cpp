@@ -35,7 +35,7 @@ float CFluidPlane::ProjectRippleVelocity(float baseI, float velDot) const {
 }
 
 float CFluidPlane::CalculateRippleIntensity(float baseI) const {
-  float mul;
+  float mul = 0.0f;
   switch (x44_fluidType) {
   case EFluidType::NormalWater:
     mul = g_tweakGame->GetRippleIntensityNormal();
