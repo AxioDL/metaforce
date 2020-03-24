@@ -25,16 +25,17 @@ CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf
 
     if (d->x50_DMRT)
       d->x50_DMRT->GetValue(0, x60_rotation);
-  } else
+  } else {
     x5c_29_modelInvalid = true;
+  }
 
   CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    for (int i = 0; i < 2; ++i) {
-      CQuadDecal& decal = x3c_decalQuads[i];
-      if (decal.m_desc->x14_TEX)
+    for (auto& decal : x3c_decalQuads) {
+      if (decal.m_desc->x14_TEX) {
         decal.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SParticleInstanceTex), 1);
-      else
+      } else {
         decal.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SParticleInstanceNoTex), 1);
+      }
       decal.m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
       CDecalShaders::BuildShaderDataBinding(ctx, decal);
     }
