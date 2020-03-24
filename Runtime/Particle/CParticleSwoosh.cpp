@@ -90,17 +90,19 @@ void CParticleSwoosh::UpdateBounds(const zeus::CVector3f& pos) {
   x1f0_aabbMin[2] = std::min(pos[2], float(x1f0_aabbMin[2]));
 }
 
-float CParticleSwoosh::GetLeftRadius(int i) const {
+float CParticleSwoosh::GetLeftRadius(size_t i) const {
   float ret = 0.f;
-  if (CRealElement* lrad = x1c_desc->x8_LRAD.get())
+  if (CRealElement* lrad = x1c_desc->x8_LRAD.get()) {
     lrad->GetValue(x15c_swooshes[i].x68_frame, ret);
+  }
   return ret;
 }
 
-float CParticleSwoosh::GetRightRadius(int i) const {
+float CParticleSwoosh::GetRightRadius(size_t i) const {
   float ret = 0.f;
-  if (CRealElement* rrad = x1c_desc->xc_RRAD.get())
+  if (CRealElement* rrad = x1c_desc->xc_RRAD.get()) {
     rrad->GetValue(x15c_swooshes[i].x68_frame, ret);
+  }
   return ret;
 }
 
@@ -115,7 +117,7 @@ void CParticleSwoosh::UpdateTranslationAndOrientation() {
   CParticleGlobals::instance()->SetParticleLifetime(x1b4_LENG);
   CParticleGlobals::instance()->SetEmitterTime(x28_curFrame);
 
-  for (int i = 0; i < x15c_swooshes.size(); ++i) {
+  for (size_t i = 0; i < x15c_swooshes.size(); ++i) {
     SSwooshData& swoosh = x15c_swooshes[i];
     if (!swoosh.x0_active)
       continue;
@@ -298,7 +300,7 @@ void CParticleSwoosh::RenderNSidedSpline() {
     cros = false;
 
   int curIdx = x158_curParticle;
-  for (int i = 0; i < x15c_swooshes.size(); ++i) {
+  for (size_t i = 0; i < x15c_swooshes.size(); ++i) {
     bool a0 = x15c_swooshes[WrapIndex(curIdx - 1)].x0_active;
     bool a1 = x15c_swooshes[WrapIndex(curIdx)].x0_active;
     if (!a1 || (a1 && !a0)) {
@@ -372,9 +374,9 @@ void CParticleSwoosh::RenderNSidedSpline() {
 
     if (x1c_desc->x3c_TEXR) {
       if (x1ec_TSPN > 0)
-        x1d4_uvs.xMin = (i % x1ec_TSPN) * x1e8_uvSpan;
+        x1d4_uvs.xMin = float((i % x1ec_TSPN) * x1e8_uvSpan);
       else
-        x1d4_uvs.xMin = i * x1e8_uvSpan;
+        x1d4_uvs.xMin = float(i * x1e8_uvSpan);
     }
 
     float segUvSpan = x1e8_uvSpan / float(x1b0_SPLN + 1);
@@ -457,7 +459,7 @@ void CParticleSwoosh::Render3SidedSolidSpline() {
   int curIdx = x158_curParticle;
   float curUvSpan = -x1e8_uvSpan;
   zeus::CColor prevColor0 = zeus::skClear;
-  for (int i = 0; i < x15c_swooshes.size(); ++i) {
+  for (size_t i = 0; i < x15c_swooshes.size(); ++i) {
     SSwooshData& swoosh = x15c_swooshes[curIdx];
 
     curIdx -= 1;
@@ -584,7 +586,7 @@ void CParticleSwoosh::Render3SidedSolidNoSplineNoGaps() {
   bool lastActive = false;
   zeus::CColor c0 = zeus::skClear;
   float uv0 = -x1e8_uvSpan;
-  for (int i = 0; i < x15c_swooshes.size(); ++i) {
+  for (size_t i = 0; i < x15c_swooshes.size(); ++i) {
     SSwooshData& swoosh = x15c_swooshes[curIdx];
 
     curIdx -= 1;
@@ -662,7 +664,7 @@ void CParticleSwoosh::Render2SidedNoSplineGaps() {
   int drawStart = 0;
   bool streaming = false;
   int curIdx = x158_curParticle;
-  for (int i = 0; i < x15c_swooshes.size(); ++i) {
+  for (size_t i = 0; i < x15c_swooshes.size(); ++i) {
     SSwooshData& swoosh = x15c_swooshes[curIdx];
     bool otherActive = x15c_swooshes[WrapIndex(curIdx - 1)].x0_active;
 
@@ -732,7 +734,7 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
               .origin;
       zeus::CVector3f dotVec = zeus::skZero3f;
 
-      for (int i = 0; i < x15c_swooshes.size(); ++i) {
+      for (size_t i = 0; i < x15c_swooshes.size(); ++i) {
         SSwooshData& swoosh = x15c_swooshes[curIdx];
 
         curIdx -= 1;
@@ -775,13 +777,13 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
               if (x1ec_TSPN > 0)
                 uvOffset += x1e8_uvSpan;
               else
-                uvOffset = i * x1e8_uvSpan;
+                uvOffset = float(i * x1e8_uvSpan);
             }
           }
         }
       }
     } else {
-      for (int i = 0; i < x15c_swooshes.size(); ++i) {
+      for (size_t i = 0; i < x15c_swooshes.size(); ++i) {
         SSwooshData& swoosh = x15c_swooshes[curIdx];
 
         curIdx -= 1;
@@ -826,12 +828,12 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
           if (x1ec_TSPN > 0)
             uvOffset += x1e8_uvSpan;
           else
-            uvOffset = i * x1e8_uvSpan;
+            uvOffset = float(i* x1e8_uvSpan);
         }
       }
     }
   } else {
-    for (int i = 0; i < x15c_swooshes.size(); ++i) {
+    for (size_t i = 0; i < x15c_swooshes.size(); ++i) {
       SSwooshData& swoosh = x15c_swooshes[curIdx];
 
       curIdx -= 1;
