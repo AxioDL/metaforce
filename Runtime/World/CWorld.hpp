@@ -27,7 +27,7 @@ public:
   virtual CAssetId IGetStringTableAssetId() const = 0;
   virtual CAssetId IGetSaveWorldAssetId() const = 0;
   virtual const CMapWorld* IGetMapWorld() const = 0;
-  virtual CMapWorld* IMapWorld() = 0;
+  virtual CMapWorld* IGetMapWorld() = 0;
   virtual const IGameArea* IGetAreaAlways(TAreaId id) const = 0;
   virtual TAreaId IGetCurrentAreaId() const = 0;
   virtual TAreaId IGetAreaId(CAssetId id) const = 0;
@@ -62,7 +62,7 @@ public:
   CAssetId IGetStringTableAssetId() const override;
   CAssetId IGetSaveWorldAssetId() const override;
   const CMapWorld* IGetMapWorld() const override;
-  CMapWorld* IMapWorld() override;
+  CMapWorld* IGetMapWorld() override;
   const IGameArea* IGetAreaAlways(TAreaId id) const override;
   TAreaId IGetCurrentAreaId() const override;
   TAreaId IGetAreaId(CAssetId id) const override;
@@ -182,7 +182,7 @@ public:
   CAssetId IGetStringTableAssetId() const override;
   CAssetId IGetSaveWorldAssetId() const override;
   const CMapWorld* IGetMapWorld() const override;
-  CMapWorld* IMapWorld() override;
+  CMapWorld* IGetMapWorld() override;
   const CGameArea* GetAreaAlways(TAreaId) const;
   CGameArea* GetArea(TAreaId);
   s32 GetNumAreas() const { return x18_areas.size(); }

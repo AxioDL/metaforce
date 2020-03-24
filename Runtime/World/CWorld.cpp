@@ -37,7 +37,7 @@ CAssetId CDummyWorld::IGetSaveWorldAssetId() const { return x14_savwId; }
 
 const CMapWorld* CDummyWorld::IGetMapWorld() const { return x2c_mapWorld.GetObj(); }
 
-CMapWorld* CDummyWorld::IMapWorld() { return x2c_mapWorld.GetObj(); }
+CMapWorld* CDummyWorld::IGetMapWorld() { return x2c_mapWorld.GetObj(); }
 
 const IGameArea* CDummyWorld::IGetAreaAlways(TAreaId id) const { return &x18_areas.at(id); }
 
@@ -210,7 +210,7 @@ CAssetId CWorld::IGetSaveWorldAssetId() const { return x10_savwId; }
 
 const CMapWorld* CWorld::IGetMapWorld() const { return const_cast<CWorld*>(this)->GetMapWorld(); }
 
-CMapWorld* CWorld::IMapWorld() { return const_cast<CMapWorld*>(GetMapWorld()); }
+CMapWorld* CWorld::IGetMapWorld() { return const_cast<CMapWorld*>(GetMapWorld()); }
 
 const CGameArea* CWorld::GetAreaAlways(TAreaId id) const { return x18_areas.at(id).get(); }
 

@@ -216,7 +216,7 @@ bool CAutoMapper::CheckDummyWorldLoad(CStateManager& mgr) {
   }
   xa0_curAreaId = aid;
 
-  dummyWorld->IMapWorld()->RecalculateWorldSphere(mwInfo, *dummyWorld);
+  dummyWorld->IGetMapWorld()->RecalculateWorldSphere(mwInfo, *dummyWorld);
   BeginMapperStateTransition(EAutoMapperState::MapScreen, mgr);
   x32c_loadingDummyWorld = false;
   return true;
@@ -378,7 +378,7 @@ void CAutoMapper::CompleteMapperStateTransition(const CStateManager& mgr) {
 
   if (x1c0_nextState == EAutoMapperState::MapScreen) {
     const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
-    x24_world->IMapWorld()->RecalculateWorldSphere(mwInfo, *x24_world);
+    x24_world->IGetMapWorld()->RecalculateWorldSphere(mwInfo, *x24_world);
     x1d8_flashTimer = 0.f;
     x1dc_playerFlashPulse = 0.f;
   }
@@ -911,7 +911,7 @@ zeus::CVector2i CAutoMapper::GetMapScreenViewportSize() {
 }
 
 float CAutoMapper::GetMapAreaMaxDrawDepth(const CStateManager&, TAreaId aid) const {
-  return x24_world->IMapWorld()->GetCurrentMapAreaDepth(*x24_world, aid);
+  return x24_world->IGetMapWorld()->GetCurrentMapAreaDepth(*x24_world, aid);
 }
 
 float CAutoMapper::GetMapAreaMiniMapDrawAlphaSurfaceVisited(const CStateManager& stateMgr) {
@@ -1224,7 +1224,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr) {
       else
         xa8_renderStates[1].x18_camDist -= 3.f;
     } else if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap && x24_world) {
-      x24_world->IMapWorld()->RecalculateWorldSphere(
+      x24_world->IGetMapWorld()->RecalculateWorldSphere(
           *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo(), *x24_world);
     }
   }
@@ -1341,7 +1341,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
   if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
     if (universeInterp < 1.f && x24_world) {
       const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
-      CMapWorld* mw = x24_world->IMapWorld();
+      CMapWorld* mw = x24_world->IGetMapWorld();
       float hintFlash = 0.f;
       if (x1e0_hintSteps.size() && x1e0_hintSteps.front().x0_type == SAutoMapperHintStep::Type::ShowBeacon) {
         if (xa0_curAreaId == mgr.GetNextAreaId() && x24_world == mgr.GetWorld()) {
@@ -1371,7 +1371,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
                xa8_renderStates[0].x30_drawDepth2, true);
     }
   } else if (IsInMapperState(EAutoMapperState::MiniMap)) {
-    CMapWorld* mw = x24_world->IMapWorld();
+    CMapWorld* mw = x24_world->IGetMapWorld();
     const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
     const CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
                                               xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
@@ -1382,7 +1382,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
     mw->Draw(parms, xa0_curAreaId, xa4_otherAreaId, xa8_renderStates[0].x2c_drawDepth1,
              xa8_renderStates[0].x30_drawDepth2, false);
   } else {
-    CMapWorld* mw = x24_world->IMapWorld();
+    CMapWorld* mw = x24_world->IGetMapWorld();
     const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
     zeus::CTransform modelXf = planeXf * preXf;
     const CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
