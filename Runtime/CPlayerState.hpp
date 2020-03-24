@@ -93,8 +93,8 @@ private:
   struct CPowerUp {
     u32 x0_amount = 0;
     u32 x4_capacity = 0;
-    CPowerUp() {}
-    CPowerUp(u32 amount, u32 capacity) : x0_amount(amount), x4_capacity(capacity) {}
+    constexpr CPowerUp() = default;
+    constexpr CPowerUp(u32 amount, u32 capacity) : x0_amount(amount), x4_capacity(capacity) {}
   };
   union {
     struct {

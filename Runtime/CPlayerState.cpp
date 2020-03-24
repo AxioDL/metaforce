@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstring>
 
 #include "Runtime/CMemoryCardSys.hpp"
 #include "Runtime/CStateManager.hpp"
@@ -81,12 +82,12 @@ CPlayerState::CPlayerState() : x188_staticIntf(5) {
 CPlayerState::CPlayerState(CBitStreamReader& stream) : x188_staticIntf(5) {
   x0_24_alive = true;
   x4_enabledItems = u32(stream.ReadEncoded(32));
-  union {
-    float fHP;
-    u32 iHP;
-  } hp;
-  hp.iHP = u32(stream.ReadEncoded(32));
-  xc_health.SetHP(hp.fHP);
+
+  const u32 integralHP = u32(stream.ReadEncoded(32));
+  float realHP;
+  std::memcpy(&realHP, &integralHP, sizeof(float));
+
+  xc_health.SetHP(realHP);
   x8_currentBeam = EBeamId(stream.ReadEncoded(CBitStreamReader::GetBitCount(5)));
   x20_currentSuit = EPlayerSuit(stream.ReadEncoded(CBitStreamReader::GetBitCount(4)));
   x24_powerups.resize(41);
@@ -113,12 +114,12 @@ CPlayerState::CPlayerState(CBitStreamReader& stream) : x188_staticIntf(5) {
 
 void CPlayerState::PutTo(CBitStreamWriter& stream) {
   stream.WriteEncoded(x4_enabledItems, 32);
-  union {
-    float fHP;
-    u32 iHP;
-  } hp;
-  hp.fHP = xc_health.GetHP();
-  stream.WriteEncoded(hp.iHP, 32);
+
+  const float realHP = xc_health.GetHP();
+  u32 integralHP;
+  std::memcpy(&integralHP, &realHP, sizeof(u32));
+
+  stream.WriteEncoded(integralHP, 32);
   stream.WriteEncoded(u32(x8_currentBeam), CBitStreamWriter::GetBitCount(5));
   stream.WriteEncoded(u32(x20_currentSuit), CBitStreamWriter::GetBitCount(4));
   for (size_t i = 0; i < x24_powerups.size(); ++i) {
