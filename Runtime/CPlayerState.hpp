@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string_view>
-#include <unordered_map>
 #include <vector>
 
 #include "Runtime/CStaticInterference.hpp"
@@ -89,7 +88,6 @@ public:
   enum class EBeamId : s32 { Invalid = -1, Power, Ice, Wave, Plasma, Phazon, Phazon2 = 27 };
 
 private:
-  static const std::unordered_map<std::string_view, EItemType> g_TypeNameMap;
   struct CPowerUp {
     u32 x0_amount = 0;
     u32 x4_capacity = 0;
