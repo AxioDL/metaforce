@@ -21,7 +21,7 @@ public:
   , x8_magScale(std::move(b))
   , xc_maxMag(std::move(c))
   , x10_minMag(std::move(d))
-  , x14_enableMinMag(std::move(e)) {}
+  , x14_enableMinMag(e) {}
   bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const override;
 };
 
@@ -39,7 +39,7 @@ public:
   , x8_magScale(std::move(b))
   , xc_maxMag(std::move(c))
   , x10_minMag(std::move(d))
-  , x14_enableMinMag(std::move(e)) {}
+  , x14_enableMinMag(e) {}
   bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const override;
 };
 
@@ -57,7 +57,7 @@ public:
   , x8_magScale(std::move(b))
   , xc_maxMag(std::move(c))
   , x10_minMag(std::move(d))
-  , x14_enableMinMag(std::move(e)) {}
+  , x14_enableMinMag(e) {}
   bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const override;
 };
 
