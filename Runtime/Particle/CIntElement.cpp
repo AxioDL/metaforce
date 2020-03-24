@@ -189,12 +189,12 @@ bool CIESampleAndHold::GetValue(int frame, int& valOut) const {
     int b, c;
     xc_waitFramesMin->GetValue(frame, b);
     x10_waitFramesMax->GetValue(frame, c);
-    /* const-correctness, who needs it? */
-    const_cast<CIESampleAndHold*>(this)->x8_nextSampleFrame = CRandom16::GetRandomNumber()->Range(b, c) + frame;
+    x8_nextSampleFrame = CRandom16::GetRandomNumber()->Range(b, c) + frame;
     x4_sampleSource->GetValue(frame, valOut);
-    const_cast<CIESampleAndHold*>(this)->x14_holdVal = valOut;
-  } else
+    x14_holdVal = valOut;
+  } else {
     valOut = x14_holdVal;
+  }
   return false;
 }
 
