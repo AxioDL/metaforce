@@ -656,7 +656,7 @@ void CParticleElectric::SetLocalScale(const zeus::CVector3f& scale) {
   }
 }
 
-void CParticleElectric::SetParticleEmission(bool e) { x450_24_emitting = e; }
+void CParticleElectric::SetParticleEmission(bool emitting) { x450_24_emitting = emitting; }
 
 void CParticleElectric::SetModulationColor(const zeus::CColor& color) { x1b8_moduColor = color; }
 

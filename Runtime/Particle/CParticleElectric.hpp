@@ -117,14 +117,14 @@ public:
   CParticleElectric(const TToken<CElectricDescription>& desc);
 
   bool Update(double) override;
-  void Render(const CActorLights* = nullptr) override;
-  void SetOrientation(const zeus::CTransform&) override;
-  void SetTranslation(const zeus::CVector3f&) override;
-  void SetGlobalOrientation(const zeus::CTransform&) override;
-  void SetGlobalTranslation(const zeus::CVector3f&) override;
-  void SetGlobalScale(const zeus::CVector3f&) override;
-  void SetLocalScale(const zeus::CVector3f&) override;
-  void SetParticleEmission(bool) override;
+  void Render(const CActorLights* lights = nullptr) override;
+  void SetOrientation(const zeus::CTransform& orientation) override;
+  void SetTranslation(const zeus::CVector3f& translation) override;
+  void SetGlobalOrientation(const zeus::CTransform& orientation) override;
+  void SetGlobalTranslation(const zeus::CVector3f& translation) override;
+  void SetGlobalScale(const zeus::CVector3f& scale) override;
+  void SetLocalScale(const zeus::CVector3f& scale) override;
+  void SetParticleEmission(bool emitting) override;
   void SetModulationColor(const zeus::CColor&) override;
   void SetOverrideIPos(const zeus::CVector3f& vec) { x178_overrideIPos.emplace(vec); }
   void SetOverrideIVel(const zeus::CVector3f& vec) { x188_overrideIVel.emplace(vec); }
