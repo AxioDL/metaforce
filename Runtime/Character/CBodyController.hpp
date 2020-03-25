@@ -86,7 +86,7 @@ public:
   void SetDeltaRotation(const zeus::CQuaternion& q) { x2dc_rot *= q; }
   void FaceDirection(const zeus::CVector3f& v0, float dt);
   void FaceDirection3D(const zeus::CVector3f& v0, const zeus::CVector3f& v1, float dt);
-  static bool HasBodyInfo(CActor& act);
+  static bool HasBodyInfo(const CActor& actor);
   const CPASDatabase& GetPASDatabase() const;
   void PlayBestAnimation(const CPASAnimParmData& parms, CRandom16& r);
   void LoopBestAnimation(const CPASAnimParmData& parms, CRandom16& r);

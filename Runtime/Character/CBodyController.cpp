@@ -142,8 +142,8 @@ void CBodyController::FaceDirection3D(const zeus::CVector3f& v0, const zeus::CVe
   }
 }
 
-bool CBodyController::HasBodyInfo(CActor& act) {
-  return act.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().GetNumAnimStates() != 0;
+bool CBodyController::HasBodyInfo(const CActor& actor) {
+  return actor.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().GetNumAnimStates() != 0;
 }
 
 void CBodyController::PlayBestAnimation(const CPASAnimParmData& parms, CRandom16& r) {
