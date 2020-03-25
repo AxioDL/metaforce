@@ -61,8 +61,8 @@ public:
   TEditorId GetEditorId() const { return xc_editorId; }
   void SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, EScriptObjectMessage msg);
 
+  std::vector<SConnection>& GetConnectionList() { return x20_conns; }
   const std::vector<SConnection>& GetConnectionList() const { return x20_conns; }
-  std::vector<SConnection>& ConnectionList() { return x20_conns; }
 
   std::string_view GetName() const { return x10_name; }
 };

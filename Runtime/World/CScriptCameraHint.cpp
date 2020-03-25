@@ -40,7 +40,7 @@ void CScriptCameraHint::InitializeInArea(CStateManager& mgr) {
           continue;
         TUniqueId id = mgr.GetIdForScript(conn2.x8_objId);
         if (TCastToPtr<CPathCamera>(mgr.ObjectById(id)) || TCastToPtr<CScriptSpindleCamera>(mgr.ObjectById((id)))) {
-          it = ent->ConnectionList().erase(it);
+          it = ent->GetConnectionList().erase(it);
           if (x164_delegatedCamera != id)
             x164_delegatedCamera = id;
           break;
