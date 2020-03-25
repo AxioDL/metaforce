@@ -45,8 +45,8 @@ void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnec
   }
 }
 
-void CCameraSpline::Initialize(TUniqueId camId, const std::vector<SConnection>& connections, CStateManager& mgr) {
-  CalculateKnots(camId, connections, mgr);
+void CCameraSpline::Initialize(TUniqueId cameraId, const std::vector<SConnection>& connections, CStateManager& mgr) {
+  CalculateKnots(cameraId, connections, mgr);
   x44_length = CalculateSplineLength();
 }
 

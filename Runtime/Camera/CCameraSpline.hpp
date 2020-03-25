@@ -20,8 +20,8 @@ class CCameraSpline {
 
 public:
   CCameraSpline(bool closedLoop);
-  void CalculateKnots(TUniqueId, const std::vector<SConnection>&, CStateManager&);
-  void Initialize(TUniqueId, const std::vector<SConnection>&, CStateManager&);
+  void CalculateKnots(TUniqueId cameraId, const std::vector<SConnection>& connections, CStateManager& mgr);
+  void Initialize(TUniqueId cameraId, const std::vector<SConnection>& connections, CStateManager& mgr);
   void Reset(int size);
   void AddKnot(const zeus::CVector3f& pos, const zeus::CVector3f& dir);
   void SetKnotPosition(int idx, const zeus::CVector3f& pos);
