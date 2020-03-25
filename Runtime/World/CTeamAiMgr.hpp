@@ -64,10 +64,10 @@ private:
   std::vector<CTeamAiRole> x58_roles;
   std::vector<TUniqueId> x68_meleeAttackers;
   std::vector<TUniqueId> x78_rangedAttackers;
-  float x88_timeDirty = 0.f;
+  float x88_timeDirty = 0.0f;
   TUniqueId x8c_teamCaptainId = kInvalidUniqueId;
-  float x90_timeSinceMelee;
-  float x94_timeSinceRanged;
+  float x90_timeSinceMelee = 0.0f;
+  float x94_timeSinceRanged = 0.0f;
 
   void UpdateTeamCaptain();
   bool ShouldUpdateRoles(float dt);
