@@ -107,7 +107,7 @@ bool CGuiFrame::GetIsFinishedLoading() const {
       continue;
     return false;
   }
-  const_cast<CGuiFrame*>(this)->x58_24_loaded = true;
+  x58_24_loaded = true;
   return true;
 }
 

@@ -135,7 +135,7 @@ public:
   void SetColor(const zeus::CColor& color);
   void InitializeRGBAFactor();
   CGuiWidget* FindWidget(s16 id);
-  bool GetIsFinishedLoading() const;
+  bool GetIsFinishedLoading();
   void DispatchInitialize();
   void SetDepthGreater(bool v) { xb6_30_depthGreater = v; }
   void SetDepthTest(bool v) { xb6_31_depthTest = v; }

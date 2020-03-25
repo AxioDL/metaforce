@@ -227,7 +227,7 @@ CGuiWidget* CGuiWidget::FindWidget(s16 id) {
   return nullptr;
 }
 
-bool CGuiWidget::GetIsFinishedLoading() const { return GetIsFinishedLoadingWidgetSpecific(); }
+bool CGuiWidget::GetIsFinishedLoading() { return GetIsFinishedLoadingWidgetSpecific(); }
 
 void CGuiWidget::DispatchInitialize() {
   Initialize();
