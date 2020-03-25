@@ -29,13 +29,13 @@ class CRelayTracker {
 
 public:
   CRelayTracker() = default;
-  CRelayTracker(CBitStreamReader&, const CSaveWorld&);
+  CRelayTracker(CBitStreamReader& in, const CSaveWorld& saveWorld);
 
-  bool HasRelay(TEditorId) const;
-  void AddRelay(TEditorId);
-  void RemoveRelay(TEditorId);
-  void SendMsgs(TAreaId, CStateManager&);
-  void PutTo(CBitStreamWriter&, const CSaveWorld&);
+  bool HasRelay(TEditorId id) const;
+  void AddRelay(TEditorId id);
+  void RemoveRelay(TEditorId id);
+  void SendMsgs(TAreaId areaId, CStateManager& stateMgr);
+  void PutTo(CBitStreamWriter& out, const CSaveWorld& saveWorld);
 };
 
 } // namespace urde
