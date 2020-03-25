@@ -13,13 +13,13 @@ constexpr CMaterialList skDefaultCollisionActorMaterials =
     CMaterialList(EMaterialTypes::Solid, EMaterialTypes::CollisionActor, EMaterialTypes::ScanPassthrough,
                   EMaterialTypes::CameraPassthrough);
 
-CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, const zeus::CVector3f& extent,
+CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, const zeus::CVector3f& extent,
                                  const zeus::CVector3f& center, bool active, float mass, std::string_view name)
-: CPhysicsActor(uid1, active, "CollisionActor", CEntityInfo(aId, CEntity::NullConnectionList),
+: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList),
                 zeus::CTransform(), CModelData::CModelDataNull(), skDefaultCollisionActorMaterials,
                 zeus::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::OBBTreeGroup)
-, x25c_owner(uid2)
+, x25c_owner(owner)
 , x260_boxSize(extent)
 , x26c_center(center)
 , x278_obbContainer(std::make_unique<CCollidableOBBTreeGroupContainer>(extent, center))
@@ -32,13 +32,13 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, co
       {EMaterialTypes::Solid}, {EMaterialTypes::CollisionActor, EMaterialTypes::NoStaticCollision}));
 }
 
-CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, const zeus::CVector3f& boxSize,
+CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, const zeus::CVector3f& boxSize,
                                  bool active, float mass, std::string_view name)
-: CPhysicsActor(uid1, active, "CollisionActor", CEntityInfo(aId, CEntity::NullConnectionList),
+: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList),
                 zeus::CTransform(), CModelData::CModelDataNull(), skDefaultCollisionActorMaterials,
                 zeus::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::AABox)
-, x25c_owner(uid2)
+, x25c_owner(owner)
 , x260_boxSize(boxSize)
 , x280_aaboxPrimitive(
       std::make_unique<CCollidableAABox>(zeus::CAABox(-0.5f * boxSize, 0.5f * boxSize),
@@ -51,13 +51,13 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, co
       {EMaterialTypes::Solid}, {EMaterialTypes::CollisionActor, EMaterialTypes::NoStaticCollision}));
 }
 
-CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bool active, float radius, float mass,
+CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, bool active, float radius, float mass,
                                  std::string_view name)
-: CPhysicsActor(uid1, active, "CollisionActor", CEntityInfo(aId, CEntity::NullConnectionList),
+: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList),
                 zeus::CTransform(), CModelData::CModelDataNull(), skDefaultCollisionActorMaterials,
                 zeus::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::Sphere)
-, x25c_owner(uid2)
+, x25c_owner(owner)
 , x284_spherePrimitive(std::make_unique<CCollidableSphere>(
       zeus::CSphere(zeus::skZero3f, radius), CMaterialList(EMaterialTypes::NoStaticCollision, EMaterialTypes::Solid)))
 , x288_sphereRadius(radius) {
@@ -71,7 +71,7 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bo
 
 void CCollisionActor::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
+void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   switch (msg) {
   case EScriptObjectMessage::Falling:
   case EScriptObjectMessage::Registered:
@@ -82,7 +82,7 @@ void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
   case EScriptObjectMessage::Damage:
   case EScriptObjectMessage::InvulnDamage: {
     if (CEntity* ent = mgr.ObjectById(x25c_owner)) {
-      x2fc_lastTouched = uid;
+      x2fc_lastTouched = sender;
       mgr.SendScriptMsg(ent, GetUniqueId(), msg);
     }
   } break;
@@ -91,7 +91,7 @@ void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
     break;
   }
 
-  CActor::AcceptScriptMsg(msg, uid, mgr);
+  CActor::AcceptScriptMsg(msg, sender, mgr);
 }
 
 CHealthInfo* CCollisionActor::HealthInfo(CStateManager&) { return &x28c_healthInfo; }
@@ -157,7 +157,7 @@ std::optional<zeus::CAABox> CCollisionActor::GetTouchBounds() const {
   return aabox;
 }
 
-void CCollisionActor::OnScanStateChanged(CActor::EScanState state, CStateManager& mgr) {
+void CCollisionActor::OnScanStateChanged(EScanState state, CStateManager& mgr) {
   TCastToPtr<CActor> actor = mgr.ObjectById(x25c_owner);
   if (actor)
     actor->OnScanStateChanged(state, mgr);
