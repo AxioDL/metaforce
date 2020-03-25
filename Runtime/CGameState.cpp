@@ -111,6 +111,7 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data) {
 
   CPlayerState playerState(stream);
   ret.x10_energyTanks = playerState.GetItemCapacity(CPlayerState::EItemType::EnergyTanks);
+  ret.xc_health = playerState.GetHealthInfo().GetHP();
 
   u32 itemPercent;
   if (origMLVL == 0x158EFE17)
