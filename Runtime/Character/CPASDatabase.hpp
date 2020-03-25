@@ -20,8 +20,8 @@ class CPASDatabase {
 public:
   explicit CPASDatabase(CInputStream& in);
 
-  std::pair<float, s32> FindBestAnimation(const CPASAnimParmData&, s32) const;
-  std::pair<float, s32> FindBestAnimation(const CPASAnimParmData&, CRandom16&, s32) const;
+  std::pair<float, s32> FindBestAnimation(const CPASAnimParmData& data, s32 ignoreAnim) const;
+  std::pair<float, s32> FindBestAnimation(const CPASAnimParmData& data, CRandom16& rand, s32 ignoreAnim) const;
   s32 GetDefaultState() const { return x10_defaultState; }
   s32 GetNumAnimStates() const { return x0_states.size(); }
   const CPASAnimState* GetAnimState(s32 id) const {
