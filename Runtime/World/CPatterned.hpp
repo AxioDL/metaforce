@@ -379,6 +379,7 @@ public:
                                     bool sendCollideMsg, const zeus::CVector3f& scale);
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
 
+  const zeus::CVector3f& GetDestPos() const { return x2e0_destPos; }
   void SetDestPos(const zeus::CVector3f& pos) { x2e0_destPos = pos; }
   void UpdateAlphaDelta(float dt, CStateManager& mgr);
   void SetModelAlpha(float a) { x42c_color.a() = a; }

@@ -101,6 +101,7 @@ public:
     return TObjOwnerDerivedFromIObj<T>::GetNewDerivedObject(std::move(obj));
   }
   TToken() = default;
+  virtual ~TToken() = default;
   TToken(const CToken& other) : CToken(other) {}
   TToken(CToken&& other) : CToken(std::move(other)) {}
   TToken(std::unique_ptr<T>&& obj) : CToken(GetIObjObjectFor(std::move(obj))) {}
@@ -108,13 +109,19 @@ public:
     *this = CToken(GetIObjObjectFor(std::move(obj)));
     return this;
   }
-  T* GetObj() {
+  virtual void Unlock() { CToken::Unlock(); }
+  virtual void Lock() { CToken::Lock(); }
+  virtual T* GetObj() {
     TObjOwnerDerivedFromIObj<T>* owner = static_cast<TObjOwnerDerivedFromIObj<T>*>(CToken::GetObj());
     if (owner)
       return owner->GetObj();
     return nullptr;
   }
-  const T* GetObj() const { return const_cast<TToken<T>*>(this)->GetObj(); }
+  virtual const T* GetObj() const { return const_cast<TToken<T>*>(this)->GetObj(); }
+  virtual TToken& operator=(const CToken& other) {
+    CToken::operator=(other);
+    return *this;
+  }
   T* operator->() { return GetObj(); }
   const T* operator->() const { return GetObj(); }
   T& operator*() { return *GetObj(); }
@@ -136,20 +143,18 @@ public:
     return m_obj;
   }
   const T* GetObj() const { return const_cast<TCachedToken<T>*>(this)->GetObj(); }
-  T* operator->() { return GetObj(); }
-  const T* operator->() const { return GetObj(); }
   void Unlock() {
     TToken<T>::Unlock();
     m_obj = nullptr;
   }
 
   TCachedToken& operator=(const TCachedToken& other) {
-    CToken::operator=(other);
+    TToken<T>::operator=(other);
     m_obj = nullptr;
     return *this;
   }
   TCachedToken& operator=(const CToken& other) {
-    CToken::operator=(other);
+    TToken<T>::operator=(other);
     m_obj = nullptr;
     return *this;
   }

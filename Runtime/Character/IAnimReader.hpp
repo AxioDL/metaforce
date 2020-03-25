@@ -71,31 +71,35 @@ template <class T>
 class TSubAnimTypeToken : public TLockedToken<CAllFormatsAnimSource> {};
 
 template <>
-class TSubAnimTypeToken<CAnimSource> : public TLockedToken<CAllFormatsAnimSource> {
+class TSubAnimTypeToken<CAnimSource> : public TLockedToken<CAnimSource> {
 public:
-  TSubAnimTypeToken<CAnimSource>(const TLockedToken<CAllFormatsAnimSource>& token)
-  : TLockedToken<CAllFormatsAnimSource>(token) {}
+  TSubAnimTypeToken<CAnimSource>(const TLockedToken<CAllFormatsAnimSource>& token) : TLockedToken<CAnimSource>(token) {}
 
-  const CAnimSource* GetObj() const {
-    const CAllFormatsAnimSource* source = TLockedToken<CAllFormatsAnimSource>::GetObj();
+  CAnimSource* GetObj() {
+    CAllFormatsAnimSource* source = reinterpret_cast<CAllFormatsAnimSource*>(TLockedToken<CAnimSource>::GetObj());
     return &source->GetAsCAnimSource();
   }
-  const CAnimSource* operator->() const { return GetObj(); }
-  const CAnimSource& operator*() const { return *GetObj(); }
+
+  const CAnimSource* GetObj() const {
+    return const_cast<TSubAnimTypeToken<CAnimSource>*>(this)->GetObj();
+  }
 };
 
 template <>
-class TSubAnimTypeToken<CFBStreamedCompression> : public TLockedToken<CAllFormatsAnimSource> {
+class TSubAnimTypeToken<CFBStreamedCompression> : public TLockedToken<CFBStreamedCompression> {
 public:
   TSubAnimTypeToken<CFBStreamedCompression>(const TLockedToken<CAllFormatsAnimSource>& token)
-  : TLockedToken<CAllFormatsAnimSource>(token) {}
+  : TLockedToken<CFBStreamedCompression>(token) {}
 
-  const CFBStreamedCompression* GetObj() const {
-    const CAllFormatsAnimSource* source = TLockedToken<CAllFormatsAnimSource>::GetObj();
+  CFBStreamedCompression* GetObj() {
+    CAllFormatsAnimSource* source =
+        reinterpret_cast<CAllFormatsAnimSource*>(TLockedToken<CFBStreamedCompression>::GetObj());
     return &source->GetAsCFBStreamedCompression();
   }
-  const CFBStreamedCompression* operator->() const { return GetObj(); }
-  const CFBStreamedCompression& operator*() const { return *GetObj(); }
+
+  const CFBStreamedCompression* GetObj() const {
+    return const_cast<TSubAnimTypeToken<CFBStreamedCompression>*>(this)->GetObj();
+  }
 };
 
 class IAnimReader {

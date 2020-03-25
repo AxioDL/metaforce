@@ -1365,7 +1365,7 @@ CEntity* ScriptLoader::LoadFlyingPirate(CStateManager& mgr, CInputStream& in, in
 
   SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (pair.first)
+  if (!pair.first)
     return nullptr;
 
   CPatternedInfo pInfo(in, pair.second);
