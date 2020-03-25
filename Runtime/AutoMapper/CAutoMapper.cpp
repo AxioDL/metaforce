@@ -407,8 +407,8 @@ void CAutoMapper::CompleteMapperStateTransition(const CStateManager& mgr) {
   x1bc_state = x1c0_nextState;
 }
 
-void CAutoMapper::ResetInterpolationTimer(float t) {
-  x1c4_interpDur = t;
+void CAutoMapper::ResetInterpolationTimer(float duration) {
+  x1c4_interpDur = duration;
   x1c8_interpTime = 0.f;
 }
 
@@ -754,8 +754,8 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
   }
 }
 
-void CAutoMapper::SetShouldPanningSoundBePlaying(bool b) {
-  if (b) {
+void CAutoMapper::SetShouldPanningSoundBePlaying(bool shouldBePlaying) {
+  if (shouldBePlaying) {
     if (!x1cc_panningSfx)
       x1cc_panningSfx = CSfxManager::SfxStart(SFXui_map_pan, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
   } else {
@@ -764,8 +764,8 @@ void CAutoMapper::SetShouldPanningSoundBePlaying(bool b) {
   }
 }
 
-void CAutoMapper::SetShouldZoomingSoundBePlaying(bool b) {
-  if (b) {
+void CAutoMapper::SetShouldZoomingSoundBePlaying(bool shouldBePlaying) {
+  if (shouldBePlaying) {
     if (!x1d4_zoomingSfx)
       x1d4_zoomingSfx = CSfxManager::SfxStart(SFXui_map_zoom, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
   } else {
@@ -774,8 +774,8 @@ void CAutoMapper::SetShouldZoomingSoundBePlaying(bool b) {
   }
 }
 
-void CAutoMapper::SetShouldRotatingSoundBePlaying(bool b) {
-  if (b) {
+void CAutoMapper::SetShouldRotatingSoundBePlaying(bool shouldBePlaying) {
+  if (shouldBePlaying) {
     if (!x1d0_rotatingSfx)
       x1d0_rotatingSfx = CSfxManager::SfxStart(SFXui_map_rotate, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
   } else {
@@ -968,10 +968,11 @@ float CAutoMapper::GetDesiredMiniMapCameraDistance(const CStateManager& mgr) con
          std::tan(M_PIF / 2.f - 0.5f * 2.f * M_PIF * (xa8_renderStates[0].x1c_camAngle / 360.f));
 }
 
-float CAutoMapper::GetClampedMapScreenCameraDistance(float v) const {
-  if (x1bc_state == EAutoMapperState::MapScreenUniverse)
-    return zeus::clamp(g_tweakAutoMapper->GetMinUniverseCamDist(), v, g_tweakAutoMapper->GetMaxUniverseCamDist());
-  return zeus::clamp(g_tweakAutoMapper->GetMinCamDist(), v, g_tweakAutoMapper->GetMaxCamDist());
+float CAutoMapper::GetClampedMapScreenCameraDistance(float value) const {
+  if (x1bc_state == EAutoMapperState::MapScreenUniverse) {
+    return zeus::clamp(g_tweakAutoMapper->GetMinUniverseCamDist(), value, g_tweakAutoMapper->GetMaxUniverseCamDist());
+  }
+  return zeus::clamp(g_tweakAutoMapper->GetMinCamDist(), value, g_tweakAutoMapper->GetMaxCamDist());
 }
 
 void CAutoMapper::MuteAllLoopedSounds() {
