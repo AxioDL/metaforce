@@ -105,12 +105,13 @@ void CCameraManager::AddCinemaCamera(TUniqueId id, CStateManager& stateMgr) {
   }
 }
 
-void CCameraManager::SetInsideFluid(bool val, TUniqueId fluidId) {
-  if (val) {
+void CCameraManager::SetInsideFluid(bool isInside, TUniqueId fluidId) {
+  if (isInside) {
     ++x74_fluidCounter;
     x78_fluidId = fluidId;
-  } else
+  } else {
     --x74_fluidCounter;
+  }
 }
 
 void CCameraManager::Update(float dt, CStateManager& stateMgr) {
