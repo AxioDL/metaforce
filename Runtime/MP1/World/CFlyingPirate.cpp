@@ -63,6 +63,10 @@ constexpr std::array<std::string_view, 15> skParts{
     "Collar"sv, "Head_1"sv, "R_shoulder"sv, "R_elbow"sv, "R_wrist"sv, "L_shoulder"sv, "L_elbow"sv,     "L_wrist"sv,
     "R_hip"sv,  "R_knee"sv, "R_ankle"sv,    "L_hip"sv,   "L_knee"sv,  "L_ankle"sv,    "rocket_LCTR"sv,
 };
+
+constexpr std::array<float, 15> skRadii{
+    0.45f, 0.52f, 0.35f, 0.1f, 0.15f, 0.35f, 0.1f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.35f,
+};
 } // namespace
 
 CFlyingPirate::CFlyingPirateData::CFlyingPirateData(CInputStream& in, u32 propCount)
@@ -108,15 +112,18 @@ CFlyingPirate::CFlyingPirateRagDoll::CFlyingPirateRagDoll(CStateManager& mgr, CF
 , xb0_24_(false) {
   actor->RemoveMaterial(EMaterialTypes::Solid, EMaterialTypes::AIBlock, EMaterialTypes::GroundCollider, mgr);
   actor->HealthInfo(mgr)->SetHP(-1.f);
-  SetNumParticles(15);
+  SetNumParticles(skParts.size());
   SetNumLengthConstraints(45);
   SetNumJointConstraints(4);
-  CAnimData* animData = actor->GetModelData()->GetAnimationData();
+  CModelData* modelData = actor->GetModelData();
+  CAnimData* animData = modelData->GetAnimationData();
+  const zeus::CVector3f& scale = modelData->GetScale();
   animData->BuildPose();
   const zeus::CVector3f& center = actor->GetBoundingBox().center();
-  for (const auto& part : skParts) {
-    const CSegId& id = animData->GetLocatorSegId(part);
-    AddParticle(id, center, center * animData->GetPose().GetOffset(id), 0.45f * center.z());
+  for (size_t i = 0; i < skParts.size(); ++i) {
+    const CSegId& id = animData->GetLocatorSegId(skParts[i]);
+    AddParticle(id, center, actor->GetTransform() * (scale * animData->GetPose().GetOffset(id)),
+                skRadii[i] * scale.z());
   }
   SatisfyWorldConstraintsOnConstruction(mgr);
   AddLengthConstraint(0, 1);
@@ -129,6 +136,7 @@ CFlyingPirate::CFlyingPirateRagDoll::CFlyingPirateRagDoll(CStateManager& mgr, CF
   AddLengthConstraint(5, 6);
   AddLengthConstraint(6, 7);
   AddLengthConstraint(2, 5);
+  AddLengthConstraint(2, 8);
   AddLengthConstraint(2, 11);
   AddLengthConstraint(5, 8);
   AddLengthConstraint(5, 11);
@@ -151,13 +159,14 @@ CFlyingPirate::CFlyingPirateRagDoll::CFlyingPirateRagDoll(CStateManager& mgr, CF
   AddMinLengthConstraint(4, 5, 0.5f * x14_lengthConstraints[5].GetLength() + x14_lengthConstraints[9].GetLength());
   AddMinLengthConstraint(7, 2, 0.5f * x14_lengthConstraints[7].GetLength() + x14_lengthConstraints[9].GetLength());
   AddMinLengthConstraint(10, 8, x14_lengthConstraints[15].GetLength());
-  AddMinLengthConstraint(11, 11, x14_lengthConstraints[17].GetLength());
+  AddMinLengthConstraint(13, 11, x14_lengthConstraints[17].GetLength());
   AddMinLengthConstraint(9, 2, 0.707f * x14_lengthConstraints[15].GetLength() + x14_lengthConstraints[10].GetLength());
   AddMinLengthConstraint(12, 5, 0.707f * x14_lengthConstraints[17].GetLength() + x14_lengthConstraints[13].GetLength());
   AddMinLengthConstraint(9, 11, x14_lengthConstraints[15].GetLength());
   AddMinLengthConstraint(12, 8, x14_lengthConstraints[17].GetLength());
   AddMinLengthConstraint(10, 0, x14_lengthConstraints[2].GetLength() + x14_lengthConstraints[15].GetLength());
   AddMinLengthConstraint(13, 0, x14_lengthConstraints[3].GetLength() + x14_lengthConstraints[17].GetLength());
+  AddMinLengthConstraint(10, 13, x14_lengthConstraints[14].GetLength());
   AddMinLengthConstraint(9, 12, 0.5f * x14_lengthConstraints[14].GetLength());
   AddMinLengthConstraint(10, 12, 0.5f * x14_lengthConstraints[14].GetLength());
   AddMinLengthConstraint(13, 9, 0.5f * x14_lengthConstraints[14].GetLength());
@@ -195,9 +204,9 @@ void CFlyingPirate::CFlyingPirateRagDoll::PreRender(const zeus::CVector3f& v, CM
     skeletonRoot.x4_rotation = rootRot;
 
     const CRagDollParticle& head = x4_particles[1]; // Head_1
-    const zeus::CVector3f& neckRestVec = layout.GetFromParentUnrotated(head.GetBone());
+    const zeus::CVector3f& headRestVec = layout.GetFromParentUnrotated(head.GetBone());
     poseBuilder.GetTreeMap()[head.GetBone()].x4_rotation = zeus::CQuaternion::shortestRotationArc(
-        neckRestVec, rootRot.inverse().transform(head.GetPosition() - collarPos));
+        headRestVec, rootRot.inverse().transform(head.GetPosition() - collarPos));
 
     BoneAlign(poseBuilder, layout, 3, 4, rootRot * BoneAlign(poseBuilder, layout, 2, 3, rootRot));
     BoneAlign(poseBuilder, layout, 6, 7, rootRot * BoneAlign(poseBuilder, layout, 5, 6, rootRot));
@@ -721,7 +730,7 @@ void CFlyingPirate::Explode(CStateManager& mgr, EStateMsg msg, float) {
 void CFlyingPirate::MassiveDeath(CStateManager& mgr) {
   CExplosion* explosion = new CExplosion(
       static_cast<const TLockedToken<CGenDescription>>(x568_data.x90_particleGenDesc), mgr.AllocateUniqueId(), true,
-      {x4_areaId, CEntity::NullConnectionList}, "", x34_transform, 0, zeus::CVector3f(1.5f), zeus::skWhite);
+      {x4_areaId, CEntity::NullConnectionList}, "", GetTransform(), 0, zeus::CVector3f(1.5f), zeus::skWhite);
   mgr.AddObject(explosion);
   mgr.ApplyDamageToWorld(x8_uid, *this, GetTranslation(), x568_data.x9c_dInfo,
                          CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
@@ -747,7 +756,7 @@ void CFlyingPirate::FireProjectile(CStateManager& mgr, float dt) {
       float fVar13 = xf.frontVector().dot(dist * (1.f / mag));
       if (0.707f < fVar13 || (mag < 6.f && 0.5f < fVar13)) {
         if (LineOfSightTest(mgr, xf.origin, origin, {EMaterialTypes::Player, EMaterialTypes::ProjectilePassthrough})) {
-          origin += x34_transform.rotate(x7ec_burstFire.GetDistanceCompensatedError(mag, 6.f));
+          origin += GetTransform().rotate(x7ec_burstFire.GetDistanceCompensatedError(mag, 6.f));
           LaunchProjectile(zeus::lookAt(xf.origin, origin, zeus::skUp), mgr, 8, EProjectileAttrib::None, false,
                            std::nullopt, -1, false, zeus::skOne3f);
           projectileFired = true;
@@ -779,13 +788,13 @@ pas::EStepDirection CFlyingPirate::GetDodgeDirection(CStateManager& mgr, float a
       const zeus::CVector3f& dist = actor->GetTranslation() - GetTranslation();
       float distMagSquared = dist.magSquared();
       if (distMagSquared < argSquared) {
-        float rightVecMag = x34_transform.rightVector().magSquared();
+        float rightVecMag = GetTransform().rightVector().magSquared();
         if ((0.866f * distMagSquared) < rightVecMag || (0.f < rightVecMag && distMagSquared < 3.f)) {
           canDodgeRight = false;
         } else if (rightVecMag < 0.866f * -distMagSquared || (rightVecMag < 0.f && distMagSquared < 3.f)) {
           canDodgeLeft = false;
         }
-        float upVecMag = x34_transform.upVector().magSquared();
+        float upVecMag = GetTransform().upVector().magSquared();
         if ((0.866f * distMagSquared) < upVecMag || (0.f < upVecMag && distMagSquared < 3.f)) {
           canDodgeUp = false;
         } else if (upVecMag < 0.866f * -distMagSquared || (0.f < upVecMag && distMagSquared < 3.f)) {
@@ -797,16 +806,16 @@ pas::EStepDirection CFlyingPirate::GetDodgeDirection(CStateManager& mgr, float a
 
   const zeus::CVector3f& center = GetBoundingBox().center();
   if (canDodgeRight) {
-    canDodgeRight = LineOfSightTest(mgr, center, center + (arg * x34_transform.rightVector()), {});
+    canDodgeRight = LineOfSightTest(mgr, center, center + (arg * GetTransform().rightVector()), {});
   }
   if (canDodgeLeft) {
-    canDodgeLeft = LineOfSightTest(mgr, center, center - (arg * x34_transform.rightVector()), {});
+    canDodgeLeft = LineOfSightTest(mgr, center, center - (arg * GetTransform().rightVector()), {});
   }
   if (canDodgeUp) {
-    canDodgeUp = LineOfSightTest(mgr, center, center + (arg * x34_transform.upVector()), {});
+    canDodgeUp = LineOfSightTest(mgr, center, center + (arg * GetTransform().upVector()), {});
   }
   if (canDodgeDown) {
-    canDodgeDown = LineOfSightTest(mgr, center, center - (arg * x34_transform.upVector()), {});
+    canDodgeDown = LineOfSightTest(mgr, center, center - (arg * GetTransform().upVector()), {});
   }
 
   if ((canDodgeLeft || canDodgeRight) && (canDodgeUp || canDodgeDown)) {
@@ -827,7 +836,7 @@ pas::EStepDirection CFlyingPirate::GetDodgeDirection(CStateManager& mgr, float a
   }
   if (canDodgeUp && canDodgeDown) {
     const zeus::CVector3f& target = GetTargetPos(mgr);
-    if (target.z() - (x34_transform.origin.z() + x568_data.x8c_flyingHeight) <= 0.f) {
+    if (target.z() - (GetTranslation().z() + x568_data.x8c_flyingHeight) <= 0.f) {
       canDodgeUp = false;
     } else {
       canDodgeDown = false;
@@ -868,7 +877,7 @@ void CFlyingPirate::GetUp(CStateManager& mgr, EStateMsg msg, float) {
   } else if (msg == EStateMsg::Update) {
     if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::LieOnGround) {
       // will always return Success?
-      CPathFindSearch::EResult result = x6a8_pathFindSearch.Search(x34_transform.origin, x34_transform.origin);
+      CPathFindSearch::EResult result = x6a8_pathFindSearch.Search(GetTranslation(), GetTranslation());
       if (result == CPathFindSearch::EResult::NoSourcePoint) {
         x401_30_pendingDeath = true;
       }
@@ -1034,7 +1043,7 @@ void CFlyingPirate::Lurk(CStateManager& mgr, EStateMsg msg, float) {
       x2e0_destPos = GetTargetPos(mgr);
       zeus::CVector3f dist = x2e0_destPos - GetTranslation();
       dist.z() = 0.f;
-      if (x34_transform.frontVector().dot(dist.normalized()) < 0.8f) {
+      if (GetTransform().frontVector().dot(dist.normalized()) < 0.8f) {
         x32c_animState = EAnimState::Ready;
       }
     }
@@ -1071,7 +1080,7 @@ void CFlyingPirate::PathFind(CStateManager& mgr, EStateMsg msg, float arg) {
     if (search->GetResult() == CPathFindSearch::EResult::Success &&
         search->GetCurrentWaypoint() < search->GetWaypoints().size() - 1) {
       zeus::CVector3f out = GetTranslation();
-      const zeus::CVector3f& front = out + x34_transform.frontVector();
+      const zeus::CVector3f& front = out + GetTransform().frontVector();
       search->GetSplinePointWithLookahead(out, front, 3.f);
       if (search->SegmentOver(out)) {
         search->SetCurrentWaypoint(search->GetCurrentWaypoint() + 1);
@@ -1188,7 +1197,7 @@ void CFlyingPirate::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
     CPathFindSearch* const search = GetSearchPath();
     if (search->GetCurrentWaypoint() < search->GetWaypoints().size() - 1) {
       const zeus::CVector3f& origin = GetTranslation();
-      zeus::CVector3f out = origin + x34_transform.frontVector();
+      zeus::CVector3f out = origin + GetTransform().frontVector();
       search->GetSplinePointWithLookahead(out, origin, 3.f);
       if (search->SegmentOver(out)) {
         search->SetCurrentWaypoint(search->GetCurrentWaypoint() + 1);
@@ -1243,7 +1252,7 @@ bool CFlyingPirate::ShouldAttack(CStateManager& mgr, float) {
 bool CFlyingPirate::ShouldDodge(CStateManager& mgr, float) {
   if (x6a1_28_ || x6a1_25_)
     return false;
-  return 0.f < (GetTargetPos(mgr) - x34_transform.origin).dot(x34_transform.frontVector()) &&
+  return 0.f < (GetTargetPos(mgr) - GetTranslation()).dot(GetTransform().frontVector()) &&
          (x854_ < 0.33f || x858_ < 0.33f) && x7d8_ < 0.5f;
 }
 
@@ -1318,7 +1327,7 @@ bool CFlyingPirate::ShouldSpecialAttack(CStateManager& mgr, float) {
 
 bool CFlyingPirate::SpotPlayer(CStateManager& mgr, float) {
   const zeus::CVector3f& dir = mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetGunEyePos();
-  return dir.magnitude() * x3c4_detectionAngle < dir.dot(x34_transform.frontVector());
+  return dir.magnitude() * x3c4_detectionAngle < dir.dot(GetTransform().frontVector());
 }
 
 bool CFlyingPirate::Stuck(CStateManager& mgr, float arg) {
@@ -1395,7 +1404,7 @@ void CFlyingPirate::DeliverGetUp() {
 void CFlyingPirate::UpdateCanSeePlayer(CStateManager& mgr) {
   if (x7dc_ % 7 == 0) {
     bool bVar4 = true;
-    const zeus::CVector3f& start = GetGunEyePos() - x34_transform.rightVector();
+    const zeus::CVector3f& start = GetGunEyePos() - GetTransform().rightVector();
     const zeus::CVector3f& end = GetAimPosition(mgr, 0.f);
     const CMaterialList matList(EMaterialTypes::Player, EMaterialTypes::ProjectilePassthrough);
     if (LineOfSightTest(mgr, start, end, matList)) {
@@ -1471,7 +1480,7 @@ void CFlyingPirate::TurnAround(CStateManager& mgr, EStateMsg msg, float) {
     x2e0_destPos = GetTargetPos(mgr);
     zeus::CVector3f dist = x2e0_destPos - GetTranslation();
     dist.z() = 0.f;
-    if (x34_transform.frontVector().dot(dist.normalized()) < 0.8f) {
+    if (GetTransform().frontVector().dot(dist.normalized()) < 0.8f) {
       x32c_animState = EAnimState::Ready;
     }
   } else if (msg == EStateMsg::Update) {
@@ -1492,7 +1501,7 @@ void CFlyingPirate::Walk(CStateManager& mgr, EStateMsg msg, float) {
       x2e0_destPos = GetTargetPos(mgr);
       zeus::CVector3f dist = x2e0_destPos - GetTranslation();
       dist.z() = 0.f;
-      if (x34_transform.frontVector().dot(dist.normalized()) < 0.8f) {
+      if (GetTransform().frontVector().dot(dist.normalized()) < 0.8f) {
         x32c_animState = EAnimState::Ready;
       }
     }
@@ -1622,7 +1631,7 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
     } else {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCAdditiveAimCmd());
       x450_bodyController->GetCommandMgr().DeliverAdditiveTargetVector(
-          x34_transform.transposeRotate(GetTargetPos(mgr) - GetTranslation()));
+          GetTransform().transposeRotate(GetTargetPos(mgr) - GetTranslation()));
     }
     if (0.f < x870_.magSquared()) {
       float mag = x870_.magnitude();
@@ -1658,16 +1667,16 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
     }
     zeus::CVector3f v1d0 = std::min(0.333f * x87c_.magnitude(), 0.333f) * vf8;
     const zeus::CVector3f& v104 = (zeus::skUp + v1d0).normalized();
-    const zeus::CVector3f& v110 = x34_transform.upVector();
+    const zeus::CVector3f& v110 = GetTransform().upVector();
     float f26c = std::abs(zeus::CVector3f::getAngleDiff(v110, v104));
     if (f26c > 0.f) {
       float f1f4 = std::min(f26c, 30.f * zeus::degToRad(dt)); // ?
       float f200 = f26c - f1f4;
       zeus::CVector3f v1dc = (f1f4 * v104 + (f200 * v110)).normalized();
-      zeus::CVector3f v128 = x34_transform.frontVector().cross(v1dc);
+      zeus::CVector3f v128 = GetTransform().frontVector().cross(v1dc);
       zeus::CVector3f v20c = v1dc.cross(v128).normalized();
       zeus::CVector3f v128_2 = v20c.cross(v1dc);
-      SetTransform({v128_2, v20c, v1dc, x34_transform.origin});
+      SetTransform({v128_2, v20c, v1dc, GetTranslation()});
     }
 
     if (!x450_bodyController->IsFrozen()) {
@@ -1684,12 +1693,12 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
         }
       }
       x89c_ragDoll->Update(mgr, dt * CalcDyingThinkRate(), waterTop);
-      x64_modelData->AdvanceParticles(x34_transform, dt, mgr);
+      x64_modelData->AdvanceParticles(GetTransform(), dt, mgr);
     } else {
       // SetMuted(true); ??
       SetMuted(false);
-      x89c_ragDoll->Prime(mgr, x34_transform, *x64_modelData);
-      SetTransform(zeus::CTransform::Translate(x34_transform.origin));
+      x89c_ragDoll->Prime(mgr, GetTransform(), *x64_modelData);
+      SetTransform(zeus::CTransform::Translate(GetTranslation()));
       x450_bodyController->SetPlaybackRate(0.f);
     }
 
