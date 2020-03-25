@@ -18,15 +18,16 @@ class CActorContraption : public CScriptActor {
   CDamageInfo x30c_dInfo;
 
 public:
-  CActorContraption(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
-                    const zeus::CAABox&, const CMaterialList&, float, float, const CHealthInfo&,
-                    const CDamageVulnerability&, const CActorParameters&, CAssetId, const CDamageInfo&, bool);
+  CActorContraption(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+                    CModelData&& mData, const zeus::CAABox& aabox, const CMaterialList& matList, float mass,
+                    float zMomentum, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
+                    const CActorParameters& aParams, CAssetId part, const CDamageInfo& dInfo, bool active);
 
   void Accept(IVisitor& visitor) override;
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void Think(float, CStateManager&) override;
-  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt) override;
-  CFlameThrower* CreateFlameThrower(std::string_view, CStateManager&);
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType evType, float dt) override;
+  CFlameThrower* CreateFlameThrower(std::string_view name, CStateManager& mgr);
   void ResetFlameThrowers(CStateManager& mgr);
 };
 } // namespace MP1
