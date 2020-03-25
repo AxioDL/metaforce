@@ -568,6 +568,12 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   case 0x2523A379: /* RetroDynamicShader: Emissive*Dynamic, Specular, Reflection, Alpha=1.0 */
     _GenerateRootShader(out, "RetroDynamicShader", "Emissive"_tex, "Specular"_tex, "Reflection"_tex);
     break;
+  case 0x07AA75D7:
+    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex);
+    break;
+  case 0x03FEE002:
+    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex);
+    break;
   case 0x25E85017: /* RetroShader: Lightmap, KColorDiffuse, Alpha=KAlpha */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Alpha"_kcola);
     break;
@@ -610,12 +616,6 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   case 0x54A92F25: /* RetroShader: ObjLightmap, KColorDiffuse, Alpha=KAlpha */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Alpha"_kcola);
     break;
-  case 0x07AA75D7:
-    /* TODO: Properly implement TEV configuration:
-     A:CC_ZERO B:CC_RASC C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_TEXA -> TEVPREV
-     A:CC_ZERO B:CC_ONE C:CC_TEXC D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_APREV -> TEVPREV
-     HasIndirect: false HasLightmap: false
-   */
   case 0x72BEDDAC:
     /* TODO: Properly implement TEV configuration:
     A:CC_ZERO B:CC_RASC C:CC_TEXC D:CC_ZERO -> TEVREG0 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG0
@@ -625,13 +625,6 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
     A:CC_ZERO B:CC_C2 C:CC_TEXC D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_APREV -> TEVPREV
     HasIndirect: false HasLightmap: true
   */
-  case 0x03FEE002:
-    /* TODO: Properly implement TEV configuration:
-     A:CC_ZERO B:CC_RASC C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_TEXA -> TEVPREV
-     A:CC_ZERO B:CC_TEXC C:CC_ONE D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-     A:CC_ZERO B:CC_ONE C:CC_TEXC D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_APREV -> TEVPREV
-     HasIndirect: false HasLightmap: false
-     */
   case 0xF4DA0A86:
     /* TODO: Properly implement TEV configuration:
      A:CC_ZERO B:CC_RASC C:CC_KONST D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
