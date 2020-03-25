@@ -18,7 +18,7 @@ class CVParamTransfer;
 class CObjectReference;
 
 class CPFBitSet {
-  std::bitset<128> x0_bitmap;
+  std::bitset<512> x0_bitmap;
 
 public:
   void Clear() { x0_bitmap.reset(); }
