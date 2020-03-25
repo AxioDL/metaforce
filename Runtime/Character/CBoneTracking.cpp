@@ -98,7 +98,7 @@ void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, con
   x18_time = 0.f;
 }
 
-void CBoneTracking::SetActive(bool) { x36_24_active = true; }
+void CBoneTracking::SetActive(bool active) { x36_24_active = active; }
 
 void CBoneTracking::SetTarget(TUniqueId target) { x34_target = target; }
 
