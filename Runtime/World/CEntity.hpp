@@ -37,8 +37,8 @@ public:
   virtual ~CEntity() = default;
   CEntity(TUniqueId uid, const CEntityInfo& info, bool active, std::string_view name);
   virtual void Accept(IVisitor& visitor) = 0;
-  virtual void PreThink(float, CStateManager&) {}
-  virtual void Think(float, CStateManager&) {}
+  virtual void PreThink(float dt, CStateManager& mgr) {}
+  virtual void Think(float dt, CStateManager& mgr) {}
   virtual void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
   virtual void SetActive(bool active) { x30_24_active = active; }
 
