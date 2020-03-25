@@ -72,7 +72,7 @@ constexpr std::array<float, 15> skRadii{
 CFlyingPirate::CFlyingPirateData::CFlyingPirateData(CInputStream& in, u32 propCount)
 : x0_maxCoverDistance(in.readFloatBig())
 , x4_hearingDistance(in.readFloatBig())
-, x8_(in.readUint32Big())
+, x8_type(EFlyingPirateType(in.readUint32Big()))
 , xc_gunProjectileInfo(in)
 , x34_gunSfx(CSfxManager::TranslateSFXID(in.readUint32Big()))
 , x38_altProjectileInfo1(in)
@@ -305,8 +305,8 @@ CFlyingPirate::CFlyingPirate(TUniqueId uid, std::string_view name, const CEntity
 : CPatterned(ECharacter::FlyingPirate, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Ground, EColliderType::One, EBodyType::NewFlyer, actParms, EKnockBackVariant::Medium)
 , x568_data(in, propCount)
-, x6a0_24_(x568_data.x8_ & 1)
-, x6a0_25_isUnderwater(x568_data.x8_ & 0x40)
+, x6a0_24_isFlyingPirate(x568_data.x8_type == EFlyingPirateType::FlyingPirate)
+, x6a0_25_isAquaPirate(x568_data.x8_type == EFlyingPirateType::AquaPirate)
 , x6a0_26_hearShot(false)
 , x6a0_27_canPatrol(false)
 , x6a0_28_(false)
@@ -326,7 +326,7 @@ CFlyingPirate::CFlyingPirate(TUniqueId uid, std::string_view name, const CEntity
 , x6a2_26_jetpackActive(false)
 , x6a2_27_sparksActive(false)
 , x6a2_28_(false)
-, x6a8_pathFindSearch(nullptr, x6a0_25_isUnderwater ? 2 : 3, pInfo.GetHalfExtent(), pInfo.GetHeight(),
+, x6a8_pathFindSearch(nullptr, x6a0_25_isAquaPirate ? 2 : 3, pInfo.GetHalfExtent(), pInfo.GetHeight(),
                       pInfo.GetPathfindingIndex())
 , x7a0_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
                     EBoneTrackingFlags::None)
@@ -400,7 +400,7 @@ void CFlyingPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
     if (x30_24_active) {
       AddToTeam(mgr);
     }
-    UpdateParticleEffects(mgr, 0.f, x6a0_24_);
+    UpdateParticleEffects(mgr, 0.f, x6a0_24_isFlyingPirate);
     GetModelData()->GetAnimationData()->SetParticleEffectState("Eyes"sv, true, mgr);
     break;
   case EScriptObjectMessage::Jumped:
@@ -414,10 +414,7 @@ void CFlyingPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
         zeus::CVector3f velocity = GetVelocity();
         const float gravity = GetGravityConstant();
         float fVar2 = -(2.f * gravity) * dist.z() - (velocity.z() * velocity.z());
-        float fVar3 = 0.f;
-        if (0.f != fVar2) {
-          fVar3 = fVar2 * (1.f / std::sqrt(fVar2));
-        }
+        float fVar3 = fVar2 != 0.f ? fVar2 * (1.f / std::sqrt(fVar2)) : 0.f;
         float dVar9 = (-velocity.z() + fVar3) / gravity;
         if (0.f < dVar9) {
           zeus::CVector2f dist2f(dist.x(), dist.y());
@@ -691,7 +688,7 @@ void CFlyingPirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& nod
       if (!x6a1_26_isAttackingObject) {
         projectile->SetCameraShake(
             CCameraShakeData::BuildPatternedExplodeShakeData(projectile->GetTranslation(), 0.3f, 0.2f, 50.f));
-        if (x6a0_25_isUnderwater) {
+        if (x6a0_25_isAquaPirate) {
           projectile->SetMinHomingDistance(x568_data.xf0_projectileHomingDistance);
         }
       }
@@ -1374,10 +1371,10 @@ void CFlyingPirate::UpdateLandingSmoke(CStateManager& mgr, bool active) {
 
 void CFlyingPirate::UpdateParticleEffects(CStateManager& mgr, float intensity, bool active) {
   CAnimData* const animData = GetModelData()->GetAnimationData();
-  std::string_view name = x6a0_25_isUnderwater ? "ScubaGear"sv : "JetPack"sv;
+  std::string_view name = x6a0_25_isAquaPirate ? "ScubaGear"sv : "JetPack"sv;
   if (active != x6a2_26_jetpackActive) {
     animData->SetParticleEffectState(name, active, mgr);
-    if (x6a0_25_isUnderwater) {
+    if (x6a0_25_isAquaPirate) {
       animData->SetParticleEffectState("ScubaBubbles"sv, active, mgr);
     }
     x6a2_26_jetpackActive = active;
@@ -1386,7 +1383,7 @@ void CFlyingPirate::UpdateParticleEffects(CStateManager& mgr, float intensity, b
     animData->SetParticleCEXTValue(name, 0, 0.75f * intensity + 2.25f);
     animData->SetParticleCEXTValue(name, 1, -0.13f * intensity + -0.1f);
   }
-  if (!x6a0_25_isUnderwater) {
+  if (!x6a0_25_isAquaPirate) {
     const bool sparksActive = active && intensity > 0.8f;
     if (sparksActive != x6a2_27_sparksActive) {
       animData->SetParticleEffectState("Sparks"sv, sparksActive, mgr);
@@ -1519,7 +1516,7 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
 
   if (!x450_bodyController->GetActive()) {
     x450_bodyController->Activate(mgr);
-    if (x6a0_24_) {
+    if (x6a0_24_isFlyingPirate) {
       x450_bodyController->SetLocomotionType(pas::ELocomotionType::Combat);
       x328_25_verticalMovement = true;
     }
@@ -1557,7 +1554,7 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
     } else {
       x854_ += dt;
     }
-    if (!x6a0_25_isUnderwater && xc4_fluidId != kInvalidUniqueId) {
+    if (!x6a0_25_isAquaPirate && xc4_fluidId != kInvalidUniqueId) {
       if (TCastToPtr<CScriptWater> water = mgr.ObjectById(xc4_fluidId)) {
         const zeus::CAABox& box = water->GetTriggerBoundsWR();
         if (2.f + GetTranslation().z() < box.max.z()) {
@@ -1579,7 +1576,7 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
     if (x400_25_alive) {
       CheckForProjectiles(mgr);
     }
-    if (!x6a0_25_isUnderwater &&
+    if (!x6a0_25_isAquaPirate &&
         (!x400_25_alive || !(!x450_bodyController->GetBodyStateInfo().GetCurrentState()->CanShoot() || !x6a0_28_ ||
                              x450_bodyController->GetCurrentStateId() == pas::EAnimationState::ProjectileAttack ||
                              x6a1_31_stopped || x450_bodyController->IsElectrocuting()))) {
@@ -1626,7 +1623,7 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
     UpdateDamageColor(dt);
   } else {
     if (!x400_25_alive || x450_bodyController->IsFrozen() || x450_bodyController->IsElectrocuting() || !x6a0_28_ ||
-        x89c_ragDoll || x6a0_25_isUnderwater) {
+        x89c_ragDoll || x6a0_25_isAquaPirate) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::AdditiveIdle));
     } else {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCAdditiveAimCmd());

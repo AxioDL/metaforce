@@ -10,6 +10,11 @@
 #include "Runtime/World/CPatterned.hpp"
 
 namespace urde::MP1 {
+enum class EFlyingPirateType : u32 {
+  FlyingPirate = 1,
+  AquaPirate = 2,
+};
+
 class CFlyingPirate : public CPatterned {
 public:
   DEFINE_PATTERNED(FlyingPirate)
@@ -19,7 +24,7 @@ private:
     friend class CFlyingPirate;
     float x0_maxCoverDistance;
     float x4_hearingDistance;
-    u32 x8_;
+    EFlyingPirateType x8_type;
     CProjectileInfo xc_gunProjectileInfo;
     u16 x34_gunSfx;
     CProjectileInfo x38_altProjectileInfo1;
@@ -84,7 +89,7 @@ public:
   void CalculateRenderBounds() override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
   void MassiveDeath(CStateManager& mgr) override;
-  float GetGravityConstant() const override { return x6a0_25_isUnderwater ? 5.f : 50.f; }
+  float GetGravityConstant() const override { return x6a0_25_isAquaPirate ? 5.f : 50.f; }
   CPathFindSearch* GetSearchPath() override { return &x6a8_pathFindSearch; }
   bool IsListening() const override { return true; }
   bool KnockbackWhenFrozen() const override { return false; }
@@ -140,8 +145,8 @@ private:
   rstl::reserved_vector<TCachedToken<CGenDescription>, 3> x65c_particleGenDescs;
   // was rstl::reserved_vector<rstl::optional_object<CElementGen *>, 3>
   rstl::reserved_vector<std::unique_ptr<CElementGen>, 3> x684_particleGens;
-  bool x6a0_24_ : 1;
-  bool x6a0_25_isUnderwater : 1;
+  bool x6a0_24_isFlyingPirate : 1;
+  bool x6a0_25_isAquaPirate : 1;
   bool x6a0_26_hearShot : 1;
   bool x6a0_27_canPatrol : 1;
   bool x6a0_28_ : 1;
