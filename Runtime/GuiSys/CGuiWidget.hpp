@@ -96,18 +96,18 @@ public:
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
   void Update(float dt) override;
-  void Draw(const CGuiWidgetDrawParms& drawParms) const override;
+  void Draw(const CGuiWidgetDrawParms& drawParms) override;
   void Initialize() override;
 
   virtual void Reset(ETraversalMode mode);
   virtual void ProcessUserInput(const CFinalInput& input);
-  virtual void Touch() const;
+  virtual void Touch();
   virtual bool GetIsVisible() const;
   virtual bool GetIsActive() const;
   virtual bool GetMouseActive() const;
   virtual FourCC GetWidgetTypeID() const { return FOURCC('BWIG'); }
   virtual bool AddWorkerWidget(CGuiWidget* worker);
-  virtual bool GetIsFinishedLoadingWidgetSpecific() const;
+  virtual bool GetIsFinishedLoadingWidgetSpecific();
   virtual void OnVisibleChange();
   virtual void OnActiveChange();
 
@@ -135,7 +135,7 @@ public:
   void SetColor(const zeus::CColor& color);
   void InitializeRGBAFactor();
   CGuiWidget* FindWidget(s16 id);
-  bool GetIsFinishedLoading() const;
+  bool GetIsFinishedLoading();
   void DispatchInitialize();
   void SetDepthGreater(bool v) { xb6_30_depthGreater = v; }
   void SetDepthTest(bool v) { xb6_31_depthTest = v; }

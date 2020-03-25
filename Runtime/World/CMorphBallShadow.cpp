@@ -73,8 +73,8 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
 
     CModelFlags flags(0, 0, 3, zeus::CColor{1.f, 1.f, 1.f, alphaVal / 255.f});
     flags.m_extendedShader = EExtendedShader::SolidColor; // Do solid color draw
-    const CBooModel& model = *modelData->PickStaticModel(CModelData::EWhichModel::Normal);
-    const_cast<CBooModel&>(model).VerifyCurrentShader(flags.x1_matSetIdx);
+    CBooModel& model = *modelData->PickStaticModel(CModelData::EWhichModel::Normal);
+    model.VerifyCurrentShader(flags.x1_matSetIdx);
     model.DrawNormal(flags, nullptr, nullptr);
     alphaVal += 4;
   }
@@ -128,8 +128,8 @@ void CMorphBallShadow::Render(const CStateManager& mgr, float alpha) {
     CGraphics::SetModelMatrix(modelXf);
 
     flags.x4_color.r() = alphaVal / 255.f;
-    const CBooModel& model = *modelData->PickStaticModel(CModelData::EWhichModel::Normal);
-    const_cast<CBooModel&>(model).VerifyCurrentShader(flags.x1_matSetIdx);
+    CBooModel& model = *modelData->PickStaticModel(CModelData::EWhichModel::Normal);
+    model.VerifyCurrentShader(flags.x1_matSetIdx);
     model.DrawNormal(flags, nullptr, nullptr);
     alphaVal += 4;
   }

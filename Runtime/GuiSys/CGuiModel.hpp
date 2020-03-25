@@ -20,9 +20,9 @@ public:
 
   std::vector<CAssetId> GetModelAssets() const { return {xc8_modelId}; }
   const TLockedToken<CModel>& GetModel() const { return xb8_model; }
-  bool GetIsFinishedLoadingWidgetSpecific() const override;
-  void Touch() const override;
-  void Draw(const CGuiWidgetDrawParms& parms) const override;
+  bool GetIsFinishedLoadingWidgetSpecific() override;
+  void Touch() override;
+  void Draw(const CGuiWidgetDrawParms& parms) override;
   bool TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const override;
 
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);

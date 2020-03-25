@@ -117,9 +117,9 @@ void CGuiWidget::Update(float dt) {
     sib->Update(dt);
 }
 
-void CGuiWidget::Draw(const CGuiWidgetDrawParms&) const {}
+void CGuiWidget::Draw(const CGuiWidgetDrawParms&) {}
 void CGuiWidget::ProcessUserInput(const CFinalInput& input) {}
-void CGuiWidget::Touch() const {}
+void CGuiWidget::Touch() {}
 
 bool CGuiWidget::GetIsVisible() const { return xb6_25_isVisible; }
 
@@ -136,7 +136,7 @@ void CGuiWidget::InitializeRGBAFactor() {
     nextSib->InitializeRGBAFactor();
 }
 
-bool CGuiWidget::GetIsFinishedLoadingWidgetSpecific() const { return true; }
+bool CGuiWidget::GetIsFinishedLoadingWidgetSpecific() { return true; }
 
 void CGuiWidget::SetTransform(const zeus::CTransform& xf) {
   x74_transform = xf;
@@ -227,7 +227,7 @@ CGuiWidget* CGuiWidget::FindWidget(s16 id) {
   return nullptr;
 }
 
-bool CGuiWidget::GetIsFinishedLoading() const { return GetIsFinishedLoadingWidgetSpecific(); }
+bool CGuiWidget::GetIsFinishedLoading() { return GetIsFinishedLoadingWidgetSpecific(); }
 
 void CGuiWidget::DispatchInitialize() {
   Initialize();

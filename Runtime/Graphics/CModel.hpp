@@ -210,16 +210,16 @@ public:
   void DisableAllLights();
   void RemapMaterialData(SShader& shader);
   void RemapMaterialData(SShader& shader, const std::unordered_map<int, CModelShaders::ShaderPipelines>& pipelines);
-  bool TryLockTextures() const;
-  void UnlockTextures() const;
-  void SyncLoadTextures() const;
-  void Touch(int shaderIdx) const;
+  bool TryLockTextures();
+  void UnlockTextures();
+  void SyncLoadTextures();
+  void Touch(int shaderIdx);
   void VerifyCurrentShader(int shaderIdx);
   boo::ObjToken<boo::IGraphicsBufferD> UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
-                                                         const CPoseAsTransforms* pose, int sharedLayoutBuf = -1) const;
-  void DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose) const;
-  void DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose) const;
-  void Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose) const;
+                                                         const CPoseAsTransforms* pose, int sharedLayoutBuf = -1);
+  void DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
+  void DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
+  void Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
   void DrawFlat(ESurfaceSelection sel, EExtendedShader extendedIdx) const;
 
   void LockParent() { m_modelTok.Lock(); }

@@ -46,7 +46,7 @@ public:
   zeus::CVector3f ConvertToScreenSpace(const zeus::CVector3f& vec) const;
   const SProjection& GetProjection() const { return m_proj; }
   void SetFov(float fov) { m_proj.xbc_fov = fov; }
-  void Draw(const CGuiWidgetDrawParms& parms) const override;
+  void Draw(const CGuiWidgetDrawParms& parms) override;
 
   std::shared_ptr<CGuiCamera> shared_from_this() {
     return std::static_pointer_cast<CGuiCamera>(CGuiObject::shared_from_this());

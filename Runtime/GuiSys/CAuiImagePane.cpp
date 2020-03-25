@@ -101,15 +101,17 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
   }
 }
 
-void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) const {
+void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) {
   CGraphics::SetModelMatrix(x34_worldXF);
-  if (!GetIsVisible() || !xb8_tex0Tok.IsLoaded())
+  if (!GetIsVisible() || !xb8_tex0Tok.IsLoaded()) {
     return;
+  }
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CAuiImagePane::Draw {}"), m_name).c_str(), zeus::skCyan);
   GetIsFinishedLoadingWidgetSpecific();
-  if (!m_filters || m_filters->m_texId != xb8_tex0Tok.GetObjectTag()->id)
-    const_cast<CAuiImagePane*>(this)->m_filters.emplace(const_cast<CAuiImagePane*>(this)->xb8_tex0Tok);
-  Filters& filters = const_cast<Filters&>(*m_filters);
+  if (!m_filters || m_filters->m_texId != xb8_tex0Tok.GetObjectTag()->id) {
+    m_filters.emplace(xb8_tex0Tok);
+  }
+  Filters& filters = *m_filters;
   zeus::CColor color = xa8_color2;
   color.a() *= params.x0_alphaMod;
   // SetZUpdate(xac_drawFlags == EGuiModelDrawFlags::Shadeless || xac_drawFlags == EGuiModelDrawFlags::Opaque);
@@ -174,7 +176,7 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) const {
   }
 }
 
-bool CAuiImagePane::GetIsFinishedLoadingWidgetSpecific() const { return !xb8_tex0Tok || xb8_tex0Tok.IsLoaded(); }
+bool CAuiImagePane::GetIsFinishedLoadingWidgetSpecific() { return !xb8_tex0Tok || xb8_tex0Tok.IsLoaded(); }
 
 void CAuiImagePane::SetTextureID0(CAssetId tex, CSimplePool* sp) {
   xc8_tex0 = tex;
