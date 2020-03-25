@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <list>
 #include <memory>
 #include <optional>
@@ -29,8 +30,8 @@ public:
   class CLineManager {
     friend class CParticleElectric;
     std::vector<zeus::CVector3f> x0_verts;
-    float x10_widths[3] = {1.f, 2.f, 3.f};
-    zeus::CColor x1c_colors[3];
+    std::array<float, 3> x10_widths = {1.f, 2.f, 3.f};
+    std::array<zeus::CColor, 3> x1c_colors;
     zeus::CAABox x28_aabb = zeus::CAABox();
   };
 
