@@ -19,7 +19,7 @@ class CCameraSpline {
                             rstl::reserved_vector<zeus::CVector3f, 4>& directions) const;
 
 public:
-  CCameraSpline(bool closedLoop);
+  explicit CCameraSpline(bool closedLoop);
   void CalculateKnots(TUniqueId cameraId, const std::vector<SConnection>& connections, CStateManager& mgr);
   void Initialize(TUniqueId cameraId, const std::vector<SConnection>& connections, CStateManager& mgr);
   void Reset(int size);
