@@ -165,7 +165,7 @@ public:
   CGameArea::CConstChainIterator begin() const { return GetChainHead(EChain::Alive); }
   CGameArea::CConstChainIterator end() const { return GetAliveAreasEnd(); }
   bool ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr);
-  void TravelToArea(TAreaId aid, CStateManager& mgr, bool);
+  void TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther);
   void SetLoadPauseState(bool paused);
   void CycleLoadPauseState();
 
@@ -183,7 +183,7 @@ public:
   CAssetId IGetSaveWorldAssetId() const override;
   const CMapWorld* IGetMapWorld() const override;
   CMapWorld* IGetMapWorld() override;
-  const CGameArea* GetAreaAlways(TAreaId) const;
+  const CGameArea* GetAreaAlways(TAreaId id) const;
   CGameArea* GetArea(TAreaId);
   s32 GetNumAreas() const { return x18_areas.size(); }
   const IGameArea* IGetAreaAlways(TAreaId id) const override;
@@ -194,7 +194,7 @@ public:
   std::string IGetDefaultAudioTrack() const override;
   int IGetAreaCount() const override;
 
-  static void PropogateAreaChain(CGameArea::EOcclusionState, CGameArea*, CWorld*);
+  static void PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGameArea* area, CWorld* world);
   static CGameArea::CConstChainIterator GetAliveAreasEnd() { return {skGlobalEnd}; }
   static CGameArea::CChainIterator AliveAreasEnd() { return {skGlobalNonConstEnd}; }
 
