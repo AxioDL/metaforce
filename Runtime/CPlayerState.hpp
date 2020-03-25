@@ -123,7 +123,7 @@ public:
   static constexpr float GetMissileComboChargeFactor() { return 1.8f; }
   u32 CalculateItemCollectionRate() const;
 
-  CHealthInfo& HealthInfo();
+  CHealthInfo& GetHealthInfo();
   const CHealthInfo& GetHealthInfo() const;
   u32 GetPickupTotal() { return 99; }
   void SetIsFusionEnabled(bool val) { x0_26_fusion = val; }

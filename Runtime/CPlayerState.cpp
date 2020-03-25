@@ -182,7 +182,7 @@ u32 CPlayerState::CalculateItemCollectionRate() const {
   return total + GetItemCapacity(EItemType::Wavebuster);
 }
 
-CHealthInfo& CPlayerState::HealthInfo() { return xc_health; }
+CHealthInfo& CPlayerState::GetHealthInfo() { return xc_health; }
 
 const CHealthInfo& CPlayerState::GetHealthInfo() const { return xc_health; }
 

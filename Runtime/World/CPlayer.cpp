@@ -1049,7 +1049,7 @@ void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location, floa
 
 void CPlayer::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-CHealthInfo* CPlayer::HealthInfo(CStateManager& mgr) { return &mgr.GetPlayerState()->HealthInfo(); }
+CHealthInfo* CPlayer::HealthInfo(CStateManager& mgr) { return &mgr.GetPlayerState()->GetHealthInfo(); }
 
 bool CPlayer::IsUnderBetaMetroidAttack(const CStateManager& mgr) const {
   if (x274_energyDrain.GetEnergyDrainIntensity() > 0.f) {
