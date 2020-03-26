@@ -25,24 +25,37 @@ namespace MP1 {
 struct SGrenadeLauncherData {
   CHealthInfo x0_healthInfo;
   CDamageInfo x8_damageInfo;
-  u32 x24_;
-  u32 x28_;
-  u32 x2c_;
-  u32 x30_;
-  u32 x34_;
+  CAssetId x24_;
+  CAssetId x28_;
+  CAssetId x2c_;
+  CAssetId x30_;
+  CAssetId x34_;
   u16 x38_;
   u16 x3a_;
+
+  SGrenadeLauncherData(const CHealthInfo& healthInfo, const CDamageInfo& damageInfo, CAssetId w1, CAssetId w2,
+                       CAssetId w3, CAssetId w4, CAssetId w5, u16 s1, u16 s2)
+  : x0_healthInfo(healthInfo)
+  , x8_damageInfo(damageInfo)
+  , x24_(w1)
+  , x28_(w2)
+  , x2c_(w3)
+  , x30_(w4)
+  , x34_(w5)
+  , x38_(s1)
+  , x3a_(s2){};
 };
 
 class CGrenadeLauncherData {
 public:
   SGrenadeLauncherData x0_;
-  u32 x3c_;
+  CAssetId x3c_;
   CAssetId x40_;
   u16 x44_sfx;
   zeus::CQuaternion x48_quat;
 
-  CGrenadeLauncherData(const SGrenadeLauncherData& data, u32 w1, CAssetId w2, u16 sfx, const zeus::CQuaternion& quat)
+  CGrenadeLauncherData(const SGrenadeLauncherData& data, CAssetId w1, CAssetId w2, u16 sfx,
+                       const zeus::CQuaternion& quat)
   : x0_(data), x3c_(w1), x40_(w2), x44_sfx(sfx), x48_quat(quat){};
 };
 

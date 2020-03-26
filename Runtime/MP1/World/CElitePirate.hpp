@@ -22,11 +22,11 @@ public:
   float x18_;
   float x1c_;
   CAssetId x20_;
-  s16 x24_;
-  CActorParameters x28_;
-  CAnimationParameters x90_launcherParams;
+  s16 x24_sfxAbsorb;
+  CActorParameters x28_launcherActParams;
+  CAnimationParameters x90_launcherAnimParams;
   CAssetId x9c_;
-  s16 xa0_;
+  u16 xa0_;
   CAssetId xa4_;
   CDamageInfo xa8_;
   float xc4_;
@@ -34,13 +34,9 @@ public:
   CAssetId xcc_;
   CAssetId xd0_;
   CAssetId xd4_;
-  float xd8_;
-  float xdc_;
-  float xe0_;
-  float xe4_;
-  float xe8_;
-  float xec_;
-  u32 xf0_;
+  CHealthInfo xd8_;       // FIXME probably wrong type
+  zeus::CQuaternion xe0_; // FIXME probably wrong type
+  CAssetId xf0_;
   u16 xf4_;
   u16 xf6_;
   CAssetId xf8_;
@@ -91,7 +87,7 @@ class CElitePirate : public CPatterned {
   CCollidableAABox x738_;
   std::optional<TLockedToken<CGenDescription>> x760_;
   TUniqueId x770_collisionHeadId = kInvalidUniqueId;
-  TUniqueId x772_ = kInvalidUniqueId;
+  TUniqueId x772_launcherId = kInvalidUniqueId;
   rstl::reserved_vector<TUniqueId, 8> x774_collisionRJointIds;
   rstl::reserved_vector<TUniqueId, 8> x788_collisionLJointIds;
   TUniqueId x79c_ = kInvalidUniqueId;
@@ -100,7 +96,7 @@ class CElitePirate : public CPatterned {
   float x7a8_ = 0.f;
   float x7ac_ = 0.f;
   float x7b0_ = 1.f;
-  float x7b4_ = 0.f;
+  float x7b4_hp = 0.f;
   float x7b8_ = 0.f;
   float x7bc_ = 0.f;
   float x7c0_ = 0.f;
@@ -186,6 +182,10 @@ private:
   void sub_80229818(CStateManager& mgr);
   bool sub_8022943c(std::string_view name, std::string_view locator, const SJointInfo* info, size_t infoCount);
   void CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid);
+  void sub_80227464(CStateManager& mgr, TUniqueId uid);
+  void sub_802281d8(CStateManager& mgr, const zeus::CTransform& xf);
+  void sub_8022902c(CStateManager& mgr, TUniqueId uid);
+  void sub_80228920(CStateManager& mgr, bool b, TUniqueId uid);
 };
 } // namespace MP1
 } // namespace urde

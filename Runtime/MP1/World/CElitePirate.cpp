@@ -5,8 +5,12 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/MP1/World/CGrenadeLauncher.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
+#include "Runtime/World/CExplosion.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
 #include "Runtime/World/ScriptLoader.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
@@ -46,9 +50,9 @@ CElitePirateData::CElitePirateData(CInputStream& in, u32 propCount)
 , x18_(in.readFloatBig())
 , x1c_(in.readFloatBig())
 , x20_(in)
-, x24_(CSfxManager::TranslateSFXID(in.readUint32Big()))
-, x28_(ScriptLoader::LoadActorParameters(in))
-, x90_launcherParams(ScriptLoader::LoadAnimationParameters(in))
+, x24_sfxAbsorb(CSfxManager::TranslateSFXID(in.readUint32Big()))
+, x28_launcherActParams(ScriptLoader::LoadActorParameters(in))
+, x90_launcherAnimParams(ScriptLoader::LoadAnimationParameters(in))
 , x9c_(in)
 , xa0_(CSfxManager::TranslateSFXID(in.readUint32Big()))
 , xa4_(in)
@@ -58,13 +62,9 @@ CElitePirateData::CElitePirateData(CInputStream& in, u32 propCount)
 , xcc_(in)
 , xd0_(in)
 , xd4_(in)
-, xd8_(in.readFloatBig())
-, xdc_(in.readFloatBig())
-, xe0_(in.readFloatBig())
-, xe4_(in.readFloatBig())
-, xe8_(zeus::degToRad(in.readFloatBig()))
-, xec_(zeus::degToRad(in.readFloatBig()))
-, xf0_(in.readUint32Big())
+, xd8_(in)
+, xe0_(in.readFloatBig(), in.readFloatBig(), zeus::degToRad(in.readFloatBig()), zeus::degToRad(in.readFloatBig()))
+, xf0_(in)
 , xf4_(CSfxManager::TranslateSFXID(in.readUint32Big()))
 , xf6_(CSfxManager::TranslateSFXID(in.readUint32Big()))
 , xf8_(in)
@@ -106,15 +106,20 @@ CElitePirate::CElitePirate(TUniqueId uid, std::string_view name, const CEntityIn
   x460_knockBackController.SetEnableLaggedBurnDeath(false);
   sub_80229248();
 }
+
 void CElitePirate::Accept(IVisitor& visitor) { visitor.Visit(this); }
+
 void CElitePirate::Think(float dt, CStateManager& mgr) { CPatterned::Think(dt, mgr); }
+
 void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
+  bool shouldPass = true;
+
   switch (msg) {
   case EScriptObjectMessage::Activate: {
     if (sub_802273a8()) {
       x730_collisionActorMgr2->SetActive(mgr, true);
     }
-    if (CEntity* ent = mgr.ObjectById(x772_)) {
+    if (CEntity* ent = mgr.ObjectById(x772_launcherId)) {
       ent->SetActive(true);
     }
     break;
@@ -124,7 +129,7 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
       x730_collisionActorMgr2->SetActive(mgr, false);
     }
     x5d4_collisionActorMgr1->SetActive(mgr, false);
-    if (CEntity* ent = mgr.ObjectById(x772_)) {
+    if (CEntity* ent = mgr.ObjectById(x772_launcherId)) {
       ent->SetActive(false);
     }
     break;
@@ -137,7 +142,7 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
       break;
     TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid);
     if (!actor) {
-      if (uid == x772_ && x772_ != kInvalidUniqueId) {
+      if (uid == x772_launcherId && x772_launcherId != kInvalidUniqueId) {
         sub_8022759c(true, mgr);
       }
       break;
@@ -169,69 +174,183 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     x988_24_ = false;
     break;
   }
-  case EScriptObjectMessage::Registered:
+  case EScriptObjectMessage::Registered: {
     x450_bodyController->Activate(mgr);
     SetupCollisionManagers(mgr);
-    // TODO
+    x772_launcherId = mgr.AllocateUniqueId();
+    CreateGrenadeLauncher(mgr, x772_launcherId);
+    const auto& bodyStateInfo = x450_bodyController->GetBodyStateInfo();
+    if (bodyStateInfo.GetMaxSpeed() > 0.f) {
+      x7a4_ = (0.99f * bodyStateInfo.GetLocomotionSpeed(pas::ELocomotionAnim::Walk)) / bodyStateInfo.GetMaxSpeed();
+    }
+    x450_bodyController->GetCommandMgr().SetSteeringBlendMode(ESteeringBlendMode::FullSpeed);
+    x450_bodyController->GetCommandMgr().SetSteeringSpeedRange(x7a4_, x7a4_);
     break;
+  }
+  case EScriptObjectMessage::Deleted:
+    if (sub_802273a8()) {
+      x730_collisionActorMgr2->Destroy(mgr);
+    }
+    x5d4_collisionActorMgr1->Destroy(mgr);
+    mgr.FreeScriptObject(x772_launcherId);
+    break;
+  case EScriptObjectMessage::InitializedInArea:
+    x7d0_pathFindSearch.SetArea(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed()->x10bc_pathArea);
+    break;
+  case EScriptObjectMessage::Damage:
+    shouldPass = false;
+    if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {
+      if (TCastToPtr<CGameProjectile> projectile = mgr.ObjectById(actor->GetLastTouchedObject())) {
+        if (uid == x770_collisionHeadId) {
+          x428_damageCooldownTimer = 0.33f;
+          const auto& damageInfo = projectile->GetDamageInfo();
+          KnockBack(projectile->GetTranslation() - projectile->GetPreviousPos(), mgr, damageInfo,
+                    EKnockBackType::Radius, false, damageInfo.GetKnockBackPower());
+          CPatterned::AcceptScriptMsg(msg, uid, mgr);
+        } else if (uid == x79c_ && x760_->IsLoaded()) {
+          sub_802281d8(mgr, projectile->GetTransform());
+        }
+        sub_8022759c(true, mgr);
+      }
+    } else if (uid == x772_launcherId && x772_launcherId != kInvalidUniqueId) {
+      x450_bodyController->GetCommandMgr().DeliverCmd(
+          CBCKnockBackCmd(GetTransform().frontVector(), pas::ESeverity::Eight));
+    } else {
+      sub_80227464(mgr, uid);
+    }
+    break;
+  case EScriptObjectMessage::InvulnDamage: {
+    sub_8022759c(true, mgr);
+    TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid);
+    if (!actor) {
+      sub_80227464(mgr, uid);
+    }
+    break;
+  }
   default:
     break;
   }
 
-  // TODO
-
-  CPatterned::AcceptScriptMsg(msg, uid, mgr);
+  if (shouldPass) {
+    CPatterned::AcceptScriptMsg(msg, uid, mgr);
+  }
 }
-void CElitePirate::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) { CPatterned::PreRender(mgr, frustum); }
-const CDamageVulnerability* CElitePirate::GetDamageVulnerability() const { return CAi::GetDamageVulnerability(); }
+
+void CElitePirate::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+  CPatterned::PreRender(mgr, frustum);
+  auto modelData = GetModelData();
+  x6f8_boneTracking.PreRender(mgr, *modelData->GetAnimationData(), GetTransform(), modelData->GetScale(),
+                              *x450_bodyController);
+  auto numMaterialSets = modelData->GetNumMaterialSets();
+  xb4_drawFlags.x1_matSetIdx = numMaterialSets - 1 < x7cc_ ? numMaterialSets - 1 : x7cc_;
+}
+
+const CDamageVulnerability* CElitePirate::GetDamageVulnerability() const {
+  return &CDamageVulnerability::PassThroughVulnerabilty();
+}
+
 const CDamageVulnerability* CElitePirate::GetDamageVulnerability(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                                                                  const CDamageInfo& dInfo) const {
-  return CActor::GetDamageVulnerability(pos, dir, dInfo);
+  return &CDamageVulnerability::PassThroughVulnerabilty();
 }
+
 zeus::CVector3f CElitePirate::GetOrbitPosition(const CStateManager& mgr) const {
   return CPatterned::GetOrbitPosition(mgr);
 }
+
 zeus::CVector3f CElitePirate::GetAimPosition(const CStateManager& mgr, float dt) const {
   return CPatterned::GetAimPosition(mgr, dt);
 }
+
 void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
+
 const CCollisionPrimitive* CElitePirate::GetCollisionPrimitive() const { return &x738_; }
+
 void CElitePirate::KnockBack(const zeus::CVector3f& pos, CStateManager& mgr, const CDamageInfo& info,
                              EKnockBackType type, bool inDeferred, float magnitude) {
   CPatterned::KnockBack(pos, mgr, info, type, inDeferred, magnitude);
 }
+
 void CElitePirate::TakeDamage(const zeus::CVector3f& pos, float) {}
+
 void CElitePirate::Patrol(CStateManager& mgr, EStateMsg msg, float dt) { CPatterned::Patrol(mgr, msg, dt); }
+
 void CElitePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) { CPatterned::PathFind(mgr, msg, dt); }
+
 void CElitePirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) { CPatterned::TargetPatrol(mgr, msg, dt); }
+
 void CElitePirate::Halt(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Halt(mgr, msg, dt); }
+
 void CElitePirate::Run(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Run(mgr, msg, dt); }
+
 void CElitePirate::Generate(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Generate(mgr, msg, dt); }
+
 void CElitePirate::Attack(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Attack(mgr, msg, dt); }
+
 void CElitePirate::Taunt(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Taunt(mgr, msg, dt); }
+
 void CElitePirate::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float dt) {
   CAi::ProjectileAttack(mgr, msg, dt);
 }
+
 void CElitePirate::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) { CAi::SpecialAttack(mgr, msg, dt); }
+
 void CElitePirate::CallForBackup(CStateManager& mgr, EStateMsg msg, float dt) { CAi::CallForBackup(mgr, msg, dt); }
+
 bool CElitePirate::TooClose(CStateManager& mgr, float arg) { return CPatterned::TooClose(mgr, arg); }
+
 bool CElitePirate::InDetectionRange(CStateManager& mgr, float arg) { return CPatterned::InDetectionRange(mgr, arg); }
+
 bool CElitePirate::SpotPlayer(CStateManager& mgr, float arg) { return CPatterned::SpotPlayer(mgr, arg); }
-bool CElitePirate::AnimOver(CStateManager& mgr, float arg) { return CPatterned::AnimOver(mgr, arg); }
+
+bool CElitePirate::AnimOver(CStateManager& mgr, float arg) { return x568_ == 3; }
+
 bool CElitePirate::ShouldAttack(CStateManager& mgr, float arg) { return CAi::ShouldAttack(mgr, arg); }
+
 bool CElitePirate::InPosition(CStateManager& mgr, float arg) { return CPatterned::InPosition(mgr, arg); }
+
 bool CElitePirate::ShouldTurn(CStateManager& mgr, float arg) { return CAi::ShouldTurn(mgr, arg); }
-bool CElitePirate::AggressionCheck(CStateManager& mgr, float arg) { return CAi::AggressionCheck(mgr, arg); }
+
+bool CElitePirate::AggressionCheck(CStateManager& mgr, float arg) {
+  if (x772_launcherId == kInvalidUniqueId && !PathShagged(mgr, arg)) {
+    if (!x988_31_) {
+      return 4.f * x300_maxAttackRange * x300_maxAttackRange <
+             (mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared();
+    }
+    return true;
+  }
+  return false;
+}
+
 bool CElitePirate::ShouldTaunt(CStateManager& mgr, float arg) { return CAi::ShouldTaunt(mgr, arg); }
+
 bool CElitePirate::ShouldFire(CStateManager& mgr, float arg) { return CAi::ShouldFire(mgr, arg); }
+
 bool CElitePirate::ShotAt(CStateManager& mgr, float arg) { return CAi::ShotAt(mgr, arg); }
+
 bool CElitePirate::ShouldSpecialAttack(CStateManager& mgr, float arg) { return CAi::ShouldSpecialAttack(mgr, arg); }
+
 bool CElitePirate::ShouldCallForBackup(CStateManager& mgr, float arg) { return CAi::ShouldCallForBackup(mgr, arg); }
+
 CPathFindSearch* CElitePirate::GetSearchPath() { return CPatterned::GetSearchPath(); }
-void CElitePirate::sub_80229114(CStateManager& mgr) {}
-void CElitePirate::sub_802289b0(CStateManager& mgr, bool b) {}
+
+void CElitePirate::sub_80229114(CStateManager& mgr) {
+  const CHealthInfo* const health = HealthInfo(mgr);
+  x7b4_hp = health->GetHP();
+  if (sub_802273a8()) {
+    if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(x770_collisionHeadId)) {
+      auto actHealth = actor->HealthInfo(mgr);
+      actHealth->SetHP(health->GetHP());
+      actHealth->SetKnockbackResistance(health->GetKnockbackResistance());
+      actor->SetDamageVulnerability(x56c_vulnerability);
+    }
+  }
+  sub_8022902c(mgr, x772_launcherId);
+}
+
+void CElitePirate::sub_802289b0(CStateManager& mgr, bool b) { sub_80228920(mgr, b, x772_launcherId); }
 
 void CElitePirate::sub_80229248() {
   float scale = 1.5f * GetModelData()->GetScale().y();
@@ -244,9 +363,9 @@ void CElitePirate::sub_80229248() {
 }
 
 void CElitePirate::sub_8022759c(bool param_1, CStateManager& mgr) {
-  if (!sub_802273b0() || x7b4_ <= 0.f || !param_1) {
+  if (!sub_802273b0() || x7b4_hp <= 0.f || !param_1) {
     x988_27_ = param_1;
-  } else if (HealthInfo(mgr)->GetHP() / x7b4_ <= x7b0_) {
+  } else if (HealthInfo(mgr)->GetHP() / x7b4_hp <= x7b0_) {
     x7b0_ -= 0.2f;
     x988_27_ = true;
   }
@@ -369,12 +488,61 @@ bool CElitePirate::sub_8022943c(std::string_view name, std::string_view locator,
 }
 
 void CElitePirate::CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid) {
-  CAnimationParameters& params = x5d8_data.x90_launcherParams;
+  CAnimationParameters& params = x5d8_data.x90_launcherAnimParams;
   if (!params.GetACSFile().IsValid()) {
     return;
   }
-  CModelData data(CAnimRes(params.GetACSFile(), params.GetCharacter(), GetModelData()->GetScale(),
-                           params.GetInitialAnimation(), true));
-  // TODO
+  CModelData mData(CAnimRes(params.GetACSFile(), params.GetCharacter(), GetModelData()->GetScale(),
+                            params.GetInitialAnimation(), true));
+  SGrenadeLauncherData transfer{x5d8_data.xd8_, x5d8_data.xa8_, x5d8_data.xc8_, x5d8_data.xcc_, x5d8_data.xd0_,
+                                x5d8_data.xd4_, x5d8_data.xf0_, x5d8_data.xf4_, x5d8_data.xf6_};
+  CGrenadeLauncherData launcherData{transfer, x5d8_data.xa4_, x5d8_data.x9c_, x5d8_data.xa0_, x5d8_data.xe0_};
+  mgr.AddObject(new CGrenadeLauncher(uid, "Grenade Launcher", {GetAreaIdAlways(), CEntity::NullConnectionList},
+                                     GetTransform(), std::move(mData), mData.GetBounds(GetTransform().getRotation()),
+                                     CHealthInfo(x5d8_data.xc4_, 10.f), x56c_vulnerability,
+                                     x5d8_data.x28_launcherActParams, GetUniqueId(), launcherData, 0.f));
+}
+
+void CElitePirate::sub_80227464(CStateManager& mgr, TUniqueId uid) {
+  if (!sub_802273a8()) {
+    return;
+  }
+  if (TCastToPtr<CWeapon> weapon = mgr.ObjectById(uid)) {
+    CDamageInfo damageInfo = weapon->GetDamageInfo();
+    damageInfo.SetRadius(0.f);
+    mgr.ApplyDamage(uid, x770_collisionHeadId, weapon->GetOwnerId(), damageInfo,
+                    CMaterialFilter::MakeInclude({EMaterialTypes::Solid}), zeus::skZero3f);
+  }
+}
+
+void CElitePirate::sub_802281d8(CStateManager& mgr, const zeus::CTransform& xf) {
+  if (x7ac_ > 0.f) {
+    return;
+  }
+  mgr.AddObject(new CExplosion(*x760_, mgr.AllocateUniqueId(), true, {GetAreaIdAlways(), CEntity::NullConnectionList},
+                               "Absorb energy Fx", xf, 0, GetModelData()->GetScale(), zeus::skWhite));
+  CSfxManager::AddEmitter(x5d8_data.x24_sfxAbsorb, GetTranslation(), zeus::skUp, false, false, 0x7f, GetAreaIdAlways());
+  x7ac_ = 0.25f;
+}
+
+void CElitePirate::sub_8022902c(CStateManager& mgr, TUniqueId uid) {
+  const CHealthInfo* const health = HealthInfo(mgr);
+  if (uid != kInvalidUniqueId) {
+    if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {
+      auto actHealth = actor->HealthInfo(mgr);
+      actHealth->SetHP(x5d8_data.xc4_);
+      actHealth->SetKnockbackResistance(health->GetKnockbackResistance());
+      actor->SetDamageVulnerability(x56c_vulnerability);
+    }
+  }
+}
+
+void CElitePirate::sub_80228920(CStateManager& mgr, bool b, TUniqueId uid) {
+  if (uid == kInvalidUniqueId) {
+    return;
+  }
+  if (auto entity = mgr.ObjectById(uid)) {
+    mgr.SendScriptMsg(entity, GetUniqueId(), b ? EScriptObjectMessage::Start : EScriptObjectMessage::Stop);
+  }
 }
 } // namespace urde::MP1
