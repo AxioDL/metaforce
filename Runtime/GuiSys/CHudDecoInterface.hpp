@@ -53,7 +53,7 @@ class CHudDecoInterfaceCombat : public IHudDecoInterface {
   void UpdateVisibility();
 
 public:
-  CHudDecoInterfaceCombat(CGuiFrame& selHud);
+  explicit CHudDecoInterfaceCombat(CGuiFrame& selHud);
   void SetIsVisibleDebug(bool v) override;
   void SetIsVisibleGame(bool v) override;
   void SetHudRotation(const zeus::CQuaternion& rot) override;
@@ -142,7 +142,7 @@ class CHudDecoInterfaceXRay : public IHudDecoInterface {
   void UpdateVisibility();
 
 public:
-  CHudDecoInterfaceXRay(CGuiFrame& selHud);
+  explicit CHudDecoInterfaceXRay(CGuiFrame& selHud);
   void SetIsVisibleDebug(bool v) override;
   void SetIsVisibleGame(bool v) override;
   void SetHudRotation(const zeus::CQuaternion& rot) override;
@@ -175,7 +175,7 @@ class CHudDecoInterfaceThermal : public IHudDecoInterface {
   void UpdateVisibility();
 
 public:
-  CHudDecoInterfaceThermal(CGuiFrame& selHud);
+  explicit CHudDecoInterfaceThermal(CGuiFrame& selHud);
   void SetIsVisibleDebug(bool v) override;
   void SetIsVisibleGame(bool v) override;
   void SetHudRotation(const zeus::CQuaternion& rot) override;

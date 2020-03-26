@@ -43,7 +43,7 @@ public:
     CTexturedQuadFilter m_quad;
 
   public:
-    CDataDot(const TLockedToken<CTexture>& dataDotTex) : m_quad(EFilterType::Add, dataDotTex) {}
+    explicit CDataDot(const TLockedToken<CTexture>& dataDotTex) : m_quad(EFilterType::Add, dataDotTex) {}
     void Update(float dt);
     void Draw(const zeus::CColor& color, float radius) const;
     float GetTransitionFactor() const { return x1c_transDur > 0.f ? x20_remTime / x1c_transDur : 0.f; }
@@ -84,7 +84,7 @@ private:
   static void SetScanMessageTypeEffect(CGuiTextPane* pane, bool type);
 
 public:
-  CScanDisplay(const CGuiFrame& selHud);
+  explicit CScanDisplay(const CGuiFrame& selHud);
   void ProcessInput(const CFinalInput& input);
   void StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo, CGuiTextPane* message, CGuiTextPane* scrollMessage,
                  CGuiWidget* textGroup, CGuiModel* xmark, CGuiModel* abutton, CGuiModel* dash, float scanTime);
