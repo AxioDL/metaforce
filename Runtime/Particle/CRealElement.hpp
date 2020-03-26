@@ -20,7 +20,7 @@ class CREKeyframeEmitter : public CRealElement {
   std::vector<float> x18_keys;
 
 public:
-  CREKeyframeEmitter(CInputStream& in);
+  explicit CREKeyframeEmitter(CInputStream& in);
   bool GetValue(int frame, float& valOut) const override;
 };
 
@@ -38,7 +38,7 @@ class CREConstant : public CRealElement {
   float x4_val;
 
 public:
-  CREConstant(float val) : x4_val(val) {}
+  explicit CREConstant(float val) : x4_val(val) {}
   bool GetValue(int frame, float& valOut) const override;
   bool IsConstant() const override { return true; }
 };
@@ -133,7 +133,7 @@ class CRETimeScale : public CRealElement {
   std::unique_ptr<CRealElement> x4_a;
 
 public:
-  CRETimeScale(std::unique_ptr<CRealElement>&& a) : x4_a(std::move(a)) {}
+  explicit CRETimeScale(std::unique_ptr<CRealElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, float& valOut) const override;
 };
 
@@ -141,7 +141,7 @@ class CRELifetimePercent : public CRealElement {
   std::unique_ptr<CRealElement> x4_percentVal;
 
 public:
-  CRELifetimePercent(std::unique_ptr<CRealElement>&& a) : x4_percentVal(std::move(a)) {}
+  explicit CRELifetimePercent(std::unique_ptr<CRealElement>&& a) : x4_percentVal(std::move(a)) {}
   bool GetValue(int frame, float& valOut) const override;
 };
 
@@ -256,7 +256,7 @@ class CREVectorMagnitude : public CRealElement {
   std::unique_ptr<CVectorElement> x4_a;
 
 public:
-  CREVectorMagnitude(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CREVectorMagnitude(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, float& valOut) const override;
 };
 
@@ -264,7 +264,7 @@ class CREVectorXToReal : public CRealElement {
   std::unique_ptr<CVectorElement> x4_a;
 
 public:
-  CREVectorXToReal(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CREVectorXToReal(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, float& valOut) const override;
 };
 
@@ -272,7 +272,7 @@ class CREVectorYToReal : public CRealElement {
   std::unique_ptr<CVectorElement> x4_a;
 
 public:
-  CREVectorYToReal(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CREVectorYToReal(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, float& valOut) const override;
 };
 
@@ -280,7 +280,7 @@ class CREVectorZToReal : public CRealElement {
   std::unique_ptr<CVectorElement> x4_a;
 
 public:
-  CREVectorZToReal(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CREVectorZToReal(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, float& valOut) const override;
 };
 
@@ -288,7 +288,7 @@ class CREExternalVar : public CRealElement {
   std::unique_ptr<CIntElement> x4_a;
 
 public:
-  CREExternalVar(std::unique_ptr<CIntElement>&& a) : x4_a(std::move(a)) {}
+  explicit CREExternalVar(std::unique_ptr<CIntElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, float& valOut) const override;
 };
 
@@ -326,7 +326,7 @@ class CREGetComponentRed : public CRealElement {
   std::unique_ptr<CColorElement> x4_a;
 
 public:
-  CREGetComponentRed(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CREGetComponentRed(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
 
   bool GetValue(int frame, float& valOut) const override;
 };
@@ -335,7 +335,7 @@ class CREGetComponentGreen : public CRealElement {
   std::unique_ptr<CColorElement> x4_a;
 
 public:
-  CREGetComponentGreen(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CREGetComponentGreen(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
 
   bool GetValue(int frame, float& valOut) const override;
 };
@@ -344,7 +344,7 @@ class CREGetComponentBlue : public CRealElement {
   std::unique_ptr<CColorElement> x4_a;
 
 public:
-  CREGetComponentBlue(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CREGetComponentBlue(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
 
   bool GetValue(int frame, float& valOut) const override;
 };
@@ -353,7 +353,7 @@ class CREGetComponentAlpha : public CRealElement {
   std::unique_ptr<CColorElement> x4_a;
 
 public:
-  CREGetComponentAlpha(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CREGetComponentAlpha(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
 
   bool GetValue(int frame, float& valOut) const override;
 };

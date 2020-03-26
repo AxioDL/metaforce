@@ -90,7 +90,7 @@ protected:
   std::string m_name;
 
 public:
-  CGuiWidget(const CGuiWidgetParms& parms);
+  explicit CGuiWidget(const CGuiWidgetParms& parms);
 
   static CGuiWidgetParms ReadWidgetHeader(CGuiFrame* frame, CInputStream& in);
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);

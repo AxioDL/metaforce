@@ -86,7 +86,7 @@ struct CAreaRenderOctTree {
   const u32* x34_indirectionTable;
   const u8* x38_entries;
 
-  CAreaRenderOctTree(const u8* buf);
+  explicit CAreaRenderOctTree(const u8* buf);
 
   void FindOverlappingModels(std::vector<u32>& out, const zeus::CAABox& testAABB) const;
   void FindOverlappingModels(u32* out, const zeus::CAABox& testAABB) const;
@@ -131,10 +131,11 @@ class CGameArea final : public IGameArea {
 
 public:
   class CChainIterator {
-    CGameArea* m_area;
+    CGameArea* m_area = nullptr;
 
   public:
-    CChainIterator(CGameArea* area) : m_area(area) {}
+    constexpr CChainIterator() = default;
+    explicit constexpr CChainIterator(CGameArea* area) : m_area(area) {}
     CGameArea& operator*() const { return *m_area; }
     CGameArea* operator->() const { return m_area; }
     CChainIterator& operator++() {
@@ -146,10 +147,11 @@ public:
   };
 
   class CConstChainIterator {
-    const CGameArea* m_area;
+    const CGameArea* m_area = nullptr;
 
   public:
-    CConstChainIterator(const CGameArea* area) : m_area(area) {}
+    constexpr CConstChainIterator() = default;
+    explicit constexpr CConstChainIterator(const CGameArea* area) : m_area(area) {}
     const CGameArea& operator*() const { return *m_area; }
     const CGameArea* operator->() const { return m_area; }
     CConstChainIterator& operator++() {
@@ -165,7 +167,7 @@ public:
     TAreaId x200c_areaIdx = 0;
 
   public:
-    CAreaObjectList(TAreaId areaIdx) : CObjectList(EGameObjectList::Invalid), x200c_areaIdx(areaIdx) {}
+    explicit CAreaObjectList(TAreaId areaIdx) : CObjectList(EGameObjectList::Invalid), x200c_areaIdx(areaIdx) {}
 
     bool IsQualified(const CEntity& ent) const override;
   };
@@ -267,8 +269,8 @@ private:
   void UpdateWeaponWorldLighting(float dt);
 
 public:
-  CGameArea(CInputStream& in, int idx, int mlvlVersion);
-  CGameArea(CAssetId mreaId); // Warmup constructor
+  explicit CGameArea(CInputStream& in, int idx, int mlvlVersion);
+  explicit CGameArea(CAssetId mreaId); // Warmup constructor
   ~CGameArea();
 
   bool IsFinishedOccluding() const;

@@ -30,7 +30,7 @@ class CHudHelmetInterface {
   void UpdateVisibility();
 
 public:
-  CHudHelmetInterface(CGuiFrame& helmetFrame);
+  explicit CHudHelmetInterface(CGuiFrame& helmetFrame);
   void Update(float dt);
   void SetHudLagOffset(const zeus::CVector3f& off);
   void SetHudLagRotation(const zeus::CMatrix3f& rot);

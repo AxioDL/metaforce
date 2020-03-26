@@ -2267,12 +2267,12 @@ void CPlayerGun::DropBomb(EBWeapon weapon, CStateManager& mgr) {
     if (x308_bombCount <= 0)
       return;
 
-    zeus::CVector3f plPos = mgr.GetPlayer().GetTranslation();
-    zeus::CTransform xf =
+    const zeus::CVector3f plPos = mgr.GetPlayer().GetTranslation();
+    const zeus::CTransform xf =
         zeus::CTransform::Translate({plPos.x(), plPos.y(), plPos.z() + g_tweakPlayer->GetPlayerBallHalfExtent()});
-    CBomb* bomb =
-        new CBomb(x784_bombEffects[u32(weapon)][0], x784_bombEffects[u32(weapon)][1], mgr.AllocateUniqueId(),
-                  mgr.GetPlayer().GetAreaId(), x538_playerId, x354_bombFuseTime, xf, g_tweakPlayerGun->GetBombInfo());
+    CBomb* bomb = new CBomb(x784_bombEffects[u32(weapon)][0], x784_bombEffects[u32(weapon)][1], mgr.AllocateUniqueId(),
+                            mgr.GetPlayer().GetAreaId(), x538_playerId, x354_bombFuseTime, xf,
+                            CDamageInfo{g_tweakPlayerGun->GetBombInfo()});
     mgr.AddObject(bomb);
 
     if (x308_bombCount == 3)
@@ -2288,8 +2288,8 @@ void CPlayerGun::DropBomb(EBWeapon weapon, CStateManager& mgr) {
 }
 
 TUniqueId CPlayerGun::DropPowerBomb(CStateManager& mgr) {
-  CDamageInfo dInfo = (mgr.GetPlayer().GetDeathTime() <= 0.f ? g_tweakPlayerGun->GetPowerBombInfo()
-                                                             : CDamageInfo(CWeaponMode::PowerBomb(), 0.f, 0.f, 0.f));
+  const auto dInfo = mgr.GetPlayer().GetDeathTime() <= 0.f ? CDamageInfo{g_tweakPlayerGun->GetPowerBombInfo()}
+                                                           : CDamageInfo{CWeaponMode::PowerBomb(), 0.f, 0.f, 0.f};
 
   TUniqueId uid = mgr.AllocateUniqueId();
   zeus::CVector3f plVec = mgr.GetPlayer().GetTranslation();

@@ -19,7 +19,7 @@ class CGunController {
   bool x58_25_enteredComboFire : 1;
 
 public:
-  CGunController(CModelData& modelData) : x0_modelData(modelData) {
+  explicit CGunController(CModelData& modelData) : x0_modelData(modelData) {
     x58_24_animDone = true;
     x58_25_enteredComboFire = false;
   }

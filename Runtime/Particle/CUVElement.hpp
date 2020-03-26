@@ -29,7 +29,7 @@ struct CUVEConstant : public CUVElement {
   TLockedToken<CTexture> x4_tex;
 
 public:
-  CUVEConstant(TToken<CTexture>&& tex) : x4_tex(std::move(tex)) {}
+  explicit CUVEConstant(TToken<CTexture>&& tex) : x4_tex(std::move(tex)) {}
   TLockedToken<CTexture> GetValueTexture(int frame) const override { return TLockedToken<CTexture>(x4_tex); }
   void GetValueUV(int frame, SUVElementSet& valOut) const override { valOut = {0.f, 0.f, 1.f, 1.f}; }
   bool HasConstantTexture() const override { return true; }

@@ -567,7 +567,7 @@ void CWorld::Update(float dt) {
 
   u32 areaCount = 0;
 
-  for (CGameArea* head = x4c_chainHeads[3]; head != skGlobalNonConstEnd; head = head->x130_next, ++areaCount) {
+  for (auto head = GetChainHead(EChain::Alive); head != AliveAreasEnd(); ++head, ++areaCount) {
     head->AliveUpdate(dt);
 
     if (head->DoesAreaNeedSkyNow()) {
@@ -625,7 +625,7 @@ void CWorld::Update(float dt) {
 }
 
 void CWorld::PreRender() {
-  for (CGameArea* head = x4c_chainHeads[3]; head != skGlobalNonConstEnd; head = head->x130_next) {
+  for (auto head = GetChainHead(EChain::Alive); head != AliveAreasEnd(); ++head) {
     head->PreRender();
   }
 }

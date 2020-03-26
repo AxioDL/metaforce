@@ -13,7 +13,7 @@ class CStringTable {
   u32 m_bufLen;
 
 public:
-  CStringTable(CInputStream& in);
+  explicit CStringTable(CInputStream& in);
   void LoadStringTable(CInputStream& in);
 
   const char16_t* GetString(s32) const;

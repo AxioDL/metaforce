@@ -6,12 +6,12 @@ namespace urde {
 
 class CMFGameBase : public CIOWin {
 public:
-  CMFGameBase(const char* name) : CIOWin(name) {}
+  explicit CMFGameBase(const char* name) : CIOWin(name) {}
 };
 
 class CMFGameLoaderBase : public CIOWin {
 public:
-  CMFGameLoaderBase(const char* name) : CIOWin(name) {}
+  explicit CMFGameLoaderBase(const char* name) : CIOWin(name) {}
 };
 
 } // namespace urde

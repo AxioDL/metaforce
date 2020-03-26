@@ -8,7 +8,7 @@ class CPaletteInfo {
   u64 m_dolphinHash;
 
 public:
-  CPaletteInfo(CInputStream& in)
+  explicit CPaletteInfo(CInputStream& in)
       : m_format(in.readUint32Big()), m_elementCount(in.readUint32Big()), m_dolphinHash(in.readUint64Big()) {}
 };
 class CTextureInfo {
@@ -20,7 +20,7 @@ class CTextureInfo {
   std::optional<CPaletteInfo> m_paletteInfo;
 
 public:
-  CTextureInfo(CInputStream& in)
+  explicit CTextureInfo(CInputStream& in)
       : m_format(ETexelFormat(in.readUint32Big()))
       , m_mipCount(in.readUint32Big())
       , m_width(in.readUint16Big())
@@ -36,7 +36,7 @@ public:
   std::map<CAssetId, CTextureInfo> m_textureInfo;
 
 public:
-  CTextureCache(CInputStream& in);
+  explicit CTextureCache(CInputStream& in);
 
 
   const CTextureInfo* GetTextureInfo(CAssetId id) const;

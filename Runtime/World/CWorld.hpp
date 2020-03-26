@@ -83,7 +83,7 @@ public:
 
   public:
     CRelay() = default;
-    CRelay(CInputStream& in);
+    explicit CRelay(CInputStream& in);
 
     TEditorId GetRelayId() const { return x0_relay; }
     TEditorId GetTargetId() const { return x4_target; }
@@ -104,8 +104,6 @@ public:
   };
 
 private:
-  static constexpr CGameArea* skGlobalEnd = nullptr;
-  static constexpr CGameArea* skGlobalNonConstEnd = nullptr;
   enum class Phase {
     Loading,
     LoadingMap,
@@ -158,12 +156,16 @@ public:
   void MoveToChain(CGameArea* area, EChain chain);
   void MoveAreaToAliveChain(TAreaId aid);
   bool CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId);
-  CGameArea::CChainIterator GetChainHead(EChain chain) { return {x4c_chainHeads[int(chain)]}; }
-  CGameArea::CConstChainIterator GetChainHead(EChain chain) const { return {x4c_chainHeads[int(chain)]}; }
-  CGameArea::CChainIterator begin() { return GetChainHead(EChain::Alive); }
-  CGameArea::CChainIterator end() { return AliveAreasEnd(); }
-  CGameArea::CConstChainIterator begin() const { return GetChainHead(EChain::Alive); }
-  CGameArea::CConstChainIterator end() const { return GetAliveAreasEnd(); }
+
+  [[nodiscard]] auto GetChainHead(EChain chain) { return CGameArea::CChainIterator{x4c_chainHeads[size_t(chain)]}; }
+  [[nodiscard]] auto GetChainHead(EChain chain) const {
+    return CGameArea::CConstChainIterator{x4c_chainHeads[size_t(chain)]};
+  }
+  [[nodiscard]] auto begin() { return GetChainHead(EChain::Alive); }
+  [[nodiscard]] auto end() { return AliveAreasEnd(); }
+  [[nodiscard]] auto begin() const { return GetChainHead(EChain::Alive); }
+  [[nodiscard]] auto end() const { return GetAliveAreasEnd(); }
+
   bool ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr);
   void TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther);
   void SetLoadPauseState(bool paused);
@@ -195,8 +197,8 @@ public:
   int IGetAreaCount() const override;
 
   static void PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGameArea* area, CWorld* world);
-  static CGameArea::CConstChainIterator GetAliveAreasEnd() { return {skGlobalEnd}; }
-  static CGameArea::CChainIterator AliveAreasEnd() { return {skGlobalNonConstEnd}; }
+  static constexpr CGameArea::CConstChainIterator GetAliveAreasEnd() { return CGameArea::CConstChainIterator{}; }
+  static constexpr CGameArea::CChainIterator AliveAreasEnd() { return CGameArea::CChainIterator{}; }
 
   void Update(float dt);
   void PreRender();

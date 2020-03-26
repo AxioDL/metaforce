@@ -13,7 +13,7 @@ public:
   CAnimationParameters() = default;
   CAnimationParameters(CAssetId ancs, u32 charIdx, u32 defaultAnim)
   : x0_ancs(ancs), x4_charIdx(charIdx), x8_defaultAnim(defaultAnim) {}
-  CAnimationParameters(CInputStream& in)
+  explicit CAnimationParameters(CInputStream& in)
   : x0_ancs(in.readUint32Big()), x4_charIdx(in.readUint32Big()), x8_defaultAnim(in.readUint32Big()) {}
 
   CAssetId GetACSFile() const { return x0_ancs; }

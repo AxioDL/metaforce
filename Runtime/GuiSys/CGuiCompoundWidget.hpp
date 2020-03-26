@@ -6,7 +6,7 @@ namespace urde {
 
 class CGuiCompoundWidget : public CGuiWidget {
 public:
-  CGuiCompoundWidget(const CGuiWidgetParms& parms);
+  explicit CGuiCompoundWidget(const CGuiWidgetParms& parms);
   FourCC GetWidgetTypeID() const override { return FourCC(-1); }
 
   void OnVisibleChange() override;

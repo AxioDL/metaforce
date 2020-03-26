@@ -104,7 +104,7 @@ class CHudDecoInterfaceScan : public IHudDecoInterface {
   void UpdateVisibility();
 
 public:
-  CHudDecoInterfaceScan(CGuiFrame& selHud);
+  explicit CHudDecoInterfaceScan(CGuiFrame& selHud);
   void SetIsVisibleDebug(bool v) override;
   void SetIsVisibleGame(bool v) override;
   void SetHudRotation(const zeus::CQuaternion& rot) override;
