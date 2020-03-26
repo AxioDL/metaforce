@@ -79,7 +79,7 @@ class CEnvFxManagerGrid {
 
 public:
   CEnvFxManagerGrid(const zeus::CVector2i& position, const zeus::CVector2i& extent,
-                    const std::vector<CVectorFixed8_8>& initialParticles, int reserve, CEnvFxManager& parent,
+                    std::vector<CVectorFixed8_8> initialParticles, int reserve, CEnvFxManager& parent,
                     boo::IGraphicsDataFactory::Context& ctx);
   void Render(const zeus::CTransform& xf, const zeus::CTransform& invXf, const zeus::CTransform& camXf, float fxDensity,
               EEnvFxType fxType, const CEnvFxManager& parent) const;

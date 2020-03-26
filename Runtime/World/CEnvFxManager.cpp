@@ -23,11 +23,11 @@ namespace urde {
 static rstl::reserved_vector<zeus::CVector2f, 256> g_SnowForces;
 
 CEnvFxManagerGrid::CEnvFxManagerGrid(const zeus::CVector2i& position, const zeus::CVector2i& extent,
-                                     const std::vector<CVectorFixed8_8>& initialParticles, int reserve,
-                                     CEnvFxManager& parent, boo::IGraphicsDataFactory::Context& ctx)
+                                     std::vector<CVectorFixed8_8> initialParticles, int reserve, CEnvFxManager& parent,
+                                     boo::IGraphicsDataFactory::Context& ctx)
 : x4_position(position)
 , xc_extent(extent)
-, x1c_particles(initialParticles)
+, x1c_particles(std::move(initialParticles))
 , m_instBuf(parent.m_instPool.allocateBlock(CGraphics::g_BooFactory, reserve))
 , m_uniformBuf(parent.m_uniformPool.allocateBlock(CGraphics::g_BooFactory))
 , m_lineRenderer(ctx, CLineRenderer::EPrimitiveMode::Lines, reserve * 2, parent.x40_txtrEnvGradient->GetBooTexture(),
