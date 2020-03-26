@@ -15,8 +15,9 @@ set(MP1_WORLD_SOURCES
     CAtomicAlpha.hpp CAtomicAlpha.cpp
     CAtomicBeta.hpp CAtomicBeta.cpp
     CFlickerBat.hpp CFlickerBat.cpp
-    CJellyZap.hpp CJellyZap.cpp
     CFlyingPirate.hpp CFlyingPirate.cpp
+    CGrenadeLauncher.hpp CGrenadeLauncher.cpp
+    CJellyZap.hpp CJellyZap.cpp
     CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
     CMetroidPrimeExo.hpp CMetroidPrimeExo.cpp
     CMetroidPrimeProjectile.hpp CMetroidPrimeProjectile.cpp

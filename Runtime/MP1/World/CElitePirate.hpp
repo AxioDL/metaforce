@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Runtime/Character/CBoneTracking.hpp"
-
+#include "Runtime/Collision/CJointCollisionDescription.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CAnimationParameters.hpp"
 #include "Runtime/World/CPatterned.hpp"
@@ -12,6 +12,7 @@ class CCollisionActorManager;
 class CGenDescription;
 namespace MP1 {
 class CElitePirateData {
+public:
   float x0_;
   float x4_;
   float x8_;
@@ -23,7 +24,7 @@ class CElitePirateData {
   CAssetId x20_;
   s16 x24_;
   CActorParameters x28_;
-  CAnimationParameters x90_;
+  CAnimationParameters x90_launcherParams;
   CAssetId x9c_;
   s16 xa0_;
   CAssetId xa4_;
@@ -49,7 +50,6 @@ class CElitePirateData {
   bool x11e_;
   bool x11f_;
 
-public:
   CElitePirateData(CInputStream&, u32 propCount);
 
   CAssetId GetX20() const { return x20_; }
@@ -82,18 +82,18 @@ class CElitePirate : public CPatterned {
   };
 
   s32 x568_ = -1;
-  CDamageVulnerability x56c_;
-  std::unique_ptr<CCollisionActorManager> x5d4_;
-  CElitePirateData x5d8_;
-  CBoneTracking x6f8_;
-  std::unique_ptr<CCollisionActorManager> x730_;
+  CDamageVulnerability x56c_vulnerability;
+  std::unique_ptr<CCollisionActorManager> x5d4_collisionActorMgr1;
+  CElitePirateData x5d8_data;
+  CBoneTracking x6f8_boneTracking;
+  std::unique_ptr<CCollisionActorManager> x730_collisionActorMgr2;
   s32 x734_;
   CCollidableAABox x738_;
   std::optional<TLockedToken<CGenDescription>> x760_;
-  TUniqueId x770_ = kInvalidUniqueId;
+  TUniqueId x770_collisionHeadId = kInvalidUniqueId;
   TUniqueId x772_ = kInvalidUniqueId;
-  s32 x774_ = 0;
-  s32 x788_ = 0;
+  rstl::reserved_vector<TUniqueId, 8> x774_collisionRJointIds;
+  rstl::reserved_vector<TUniqueId, 8> x788_collisionLJointIds;
   TUniqueId x79c_ = kInvalidUniqueId;
   float x7a0_;
   float x7a4_ = 1.f;
@@ -107,19 +107,18 @@ class CElitePirate : public CPatterned {
   float x7c4_ = 0.f;
   s32 x7c8_ = -1;
   s32 x7cc_ = 0;
-  CPathFindSearch x7d0_;
+  CPathFindSearch x7d0_pathFindSearch;
   zeus::CVector3f x8b4_;
-  SUnknownStruct x8c0_ = SUnknownStruct(5.f);
+  SUnknownStruct x8c0_;
   bool x988_24_ : 1;
   bool x988_25_ : 1;
   bool x988_26_ : 1;
   bool x988_27_ : 1;
-  bool x988_28_ : 1;
+  bool x988_28_alert : 1;
   bool x988_29_ : 1;
   bool x988_30_ : 1;
   bool x988_31_ : 1;
   bool x989_24_ : 1;
-  void sub80229248() {}
 
 public:
   DEFINE_PATTERNED(ElitePirate)
@@ -167,11 +166,26 @@ public:
   bool ShouldSpecialAttack(CStateManager&, float arg) override;
   bool ShouldCallForBackup(CStateManager&, float arg) override;
   CPathFindSearch* GetSearchPath() override;
-  virtual bool V179() { return true; }
-  virtual bool V180() { return true; }
-  virtual void V181(CStateManager& mgr);
-  virtual void v182(CStateManager& mgr, bool b);
-  virtual SUnknownStruct2 V183() const {return {x5d8_.GetXF8(), x5d8_.GetXFC(), x5d8_.GetX118(), x5d8_.GetX11C()}; }
+  virtual bool sub_802273a8() { return true; }
+  virtual bool sub_802273b0() { return true; }
+  virtual void sub_80229114(CStateManager& mgr);
+  virtual void sub_802289b0(CStateManager& mgr, bool b);
+  virtual SUnknownStruct2 sub_802273b8() const {
+    return {x5d8_data.GetXF8(), x5d8_data.GetXFC(), x5d8_data.GetX118(), x5d8_data.GetX11C()};
+  }
+
+private:
+  void sub_80229248();
+  void sub_8022759c(bool param_1, CStateManager& mgr);
+  bool sub_802293f8(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 8>& vec) const;
+  void AddSphereCollisionList(const SSphereJointInfo* joints, size_t count,
+                              std::vector<CJointCollisionDescription>& outJoints) const;
+  void AddCollisionList(const SJointInfo* joints, size_t count,
+                        std::vector<CJointCollisionDescription>& outJoints) const;
+  void SetupCollisionManagers(CStateManager& mgr);
+  void sub_80229818(CStateManager& mgr);
+  bool sub_8022943c(std::string_view name, std::string_view locator, const SJointInfo* info, size_t infoCount);
+  void CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid);
 };
 } // namespace MP1
 } // namespace urde
