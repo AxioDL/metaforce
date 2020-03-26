@@ -11,11 +11,10 @@ namespace urde {
 
 CScriptVisorFlare::CScriptVisorFlare(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                                      const zeus::CVector3f& pos, CVisorFlare::EBlendMode blendMode, bool b1, float f1,
-                                     float f2, float f3, u32 w1, u32 w2,
-                                     const std::vector<CVisorFlare::CFlareDef>& flares)
+                                     float f2, float f3, u32 w1, u32 w2, std::vector<CVisorFlare::CFlareDef> flares)
 : CActor(uid, active, name, info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(),
          CMaterialList(EMaterialTypes::NoStepLogic), CActorParameters::None(), kInvalidUniqueId)
-, xe8_flare(blendMode, b1, f1, f2, f3, w1, w2, flares) {
+, xe8_flare(blendMode, b1, f1, f2, f3, w1, w2, std::move(flares)) {
   xe6_27_thermalVisorFlags = 2;
 }
 

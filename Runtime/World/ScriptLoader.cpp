@@ -2339,25 +2339,30 @@ CEntity* ScriptLoader::LoadFishCloudModifier(CStateManager& mgr, CInputStream& i
 }
 
 CEntity* ScriptLoader::LoadVisorFlare(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 14, "VisorFlare"))
+  if (!EnsurePropertyCount(propCount, 14, "VisorFlare")) {
     return nullptr;
+  }
 
-  std::string name = mgr.HashInstanceName(in);
-  zeus::CVector3f pos = zeus::CVector3f::ReadBig(in);
-  bool b1 = in.readBool();
-  CVisorFlare::EBlendMode w1 = CVisorFlare::EBlendMode(in.readUint32Big());
-  bool b2 = in.readBool();
-  float f1 = in.readFloatBig();
-  float f2 = in.readFloatBig();
-  float f3 = in.readFloatBig();
-  u32 w2 = in.readUint32Big();
+  const std::string name = mgr.HashInstanceName(in);
+  const zeus::CVector3f pos = zeus::CVector3f::ReadBig(in);
+  const bool b1 = in.readBool();
+  const auto w1 = CVisorFlare::EBlendMode(in.readUint32Big());
+  const bool b2 = in.readBool();
+  const float f1 = in.readFloatBig();
+  const float f2 = in.readFloatBig();
+  const float f3 = in.readFloatBig();
+  const u32 w2 = in.readUint32Big();
+
   std::vector<CVisorFlare::CFlareDef> flares;
   flares.reserve(5);
-  for (int i = 0; i < 5; ++i)
-    if (auto flare = CVisorFlare::LoadFlareDef(in))
+  for (size_t i = 0; i < flares.capacity(); ++i) {
+    if (auto flare = CVisorFlare::LoadFlareDef(in)) {
       flares.push_back(*flare);
+    }
+  }
 
-  return new CScriptVisorFlare(mgr.AllocateUniqueId(), name, info, b1, pos, w1, b2, f1, f2, f3, 2, w2, flares);
+  return new CScriptVisorFlare(mgr.AllocateUniqueId(), name, info, b1, pos, w1, b2, f1, f2, f3, 2, w2,
+                               std::move(flares));
 }
 
 CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in, int propCount,

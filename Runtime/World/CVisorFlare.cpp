@@ -27,9 +27,9 @@ std::optional<CVisorFlare::CFlareDef> CVisorFlare::LoadFlareDef(CInputStream& in
 }
 
 CVisorFlare::CVisorFlare(EBlendMode blendMode, bool b1, float f1, float f2, float f3, u32 w1, u32 w2,
-                         const std::vector<CFlareDef>& flares)
+                         std::vector<CFlareDef> flares)
 : x0_blendMode(blendMode)
-, x4_flareDefs(flares)
+, x4_flareDefs(std::move(flares))
 , x14_b1(b1)
 , x18_f1(std::max(f1, FLT_EPSILON))
 , x1c_f2(f2)
