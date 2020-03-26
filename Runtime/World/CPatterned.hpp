@@ -26,7 +26,8 @@ namespace urde {
 class CPatternedInfo;
 class CProjectileInfo;
 class CPathFindSearch;
-typedef void (CPatterned::*CPatternedTryFunc)(CStateManager&, int);
+
+using CPatternedTryFunc = void (CPatterned::*)(CStateManager&, int);
 
 class CPatterned : public CAi {
 public:
