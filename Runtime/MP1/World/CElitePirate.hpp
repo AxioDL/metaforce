@@ -2,10 +2,11 @@
 
 #include "Runtime/Character/CBoneTracking.hpp"
 #include "Runtime/Collision/CJointCollisionDescription.hpp"
+#include "Runtime/MP1/World/CShockWave.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CAnimationParameters.hpp"
-#include "Runtime/World/CPatterned.hpp"
 #include "Runtime/World/CPathFindSearch.hpp"
+#include "Runtime/World/CPatterned.hpp"
 
 namespace urde {
 class CCollisionActorManager;
@@ -60,21 +61,6 @@ class CElitePirate : public CPatterned {
     float x0_;
     s32 x4_ = 0;
     SUnknownStruct(float f) : x0_(f * f) {}
-  };
-
-  struct SUnknownStruct2 {
-    u32 x0_ = 8;
-    CAssetId x4_particleDesc;
-    CDamageInfo x8_damageInfo;
-    float x24_ = 0.f;
-    float x28_ = 0.5f;
-    float x2c_ = 16.5217f;
-    float x30_ = 0.f;
-    CAssetId x34_weaponDesc;
-    s16 x38_sfx;
-
-    SUnknownStruct2(CAssetId part, const CDamageInfo& dInfo, CAssetId weapon, s16 sfx)
-    : x4_particleDesc(part), x8_damageInfo(dInfo), x34_weaponDesc(weapon), x38_sfx(sfx) {}
   };
 
   s32 x568_ = -1;
@@ -162,11 +148,11 @@ public:
   bool ShouldSpecialAttack(CStateManager&, float arg) override;
   bool ShouldCallForBackup(CStateManager&, float arg) override;
   CPathFindSearch* GetSearchPath() override;
-  virtual bool sub_802273a8() { return true; }
-  virtual bool sub_802273b0() { return true; }
+  virtual bool sub_802273a8() const { return true; }
+  virtual bool sub_802273b0() const { return true; }
   virtual void sub_80229114(CStateManager& mgr);
   virtual void sub_802289b0(CStateManager& mgr, bool b);
-  virtual SUnknownStruct2 sub_802273b8() const {
+  virtual SShockWaveData GetShockWaveData() const {
     return {x5d8_data.GetXF8(), x5d8_data.GetXFC(), x5d8_data.GetX118(), x5d8_data.GetX11C()};
   }
 
@@ -186,6 +172,7 @@ private:
   void sub_802281d8(CStateManager& mgr, const zeus::CTransform& xf);
   void sub_8022902c(CStateManager& mgr, TUniqueId uid);
   void sub_80228920(CStateManager& mgr, bool b, TUniqueId uid);
+  zeus::CVector3f sub_80228864(const CActor* actor) const;
 };
 } // namespace MP1
 } // namespace urde

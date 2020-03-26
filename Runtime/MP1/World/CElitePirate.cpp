@@ -255,15 +255,69 @@ const CDamageVulnerability* CElitePirate::GetDamageVulnerability(const zeus::CVe
 }
 
 zeus::CVector3f CElitePirate::GetOrbitPosition(const CStateManager& mgr) const {
-  return CPatterned::GetOrbitPosition(mgr);
+  if (x772_launcherId != kInvalidUniqueId &&
+      mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal) {
+    if (const CActor* actor = static_cast<const CActor*>(mgr.GetObjectById(x772_launcherId))) {
+      return sub_80228864(actor);
+    }
+  }
+  if (sub_802273a8()) {
+    if (TCastToConstPtr<CCollisionActor> actor = mgr.GetObjectById(x770_collisionHeadId)) {
+      return actor->GetTranslation();
+    }
+  }
+  return GetLctrTransform("lockon_target_LCTR").origin;
 }
 
 zeus::CVector3f CElitePirate::GetAimPosition(const CStateManager& mgr, float dt) const {
-  return CPatterned::GetAimPosition(mgr, dt);
+  std::shared_ptr<CPlayerState> playerState = mgr.GetPlayerState();
+  if (x5d4_collisionActorMgr1->GetActive() && playerState->IsFiringComboBeam() &&
+      playerState->GetCurrentBeam() == CPlayerState::EBeamId::Wave) {
+    if (TCastToConstPtr<CCollisionActor> actor = mgr.GetObjectById(x79c_)) {
+      return actor->GetTranslation();
+    }
+  }
+  return GetOrbitPosition(mgr);
 }
 
 void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
-  CPatterned::DoUserAnimEvent(mgr, node, type, dt);
+  bool handled = false;
+  switch (type) {
+  case EUserEventType::Projectile:
+    if (x772_launcherId != kInvalidUniqueId) {
+      CEntity* launcher = mgr.ObjectById(x772_launcherId);
+      mgr.SendScriptMsg(launcher, GetUniqueId(), EScriptObjectMessage::Action);
+    }
+    handled = true;
+    break;
+  case EUserEventType::DamageOn:
+    handled = true;
+    x988_24_ = true;
+    break;
+  case EUserEventType::DamageOff:
+    handled = true;
+    x988_24_ = false;
+    break;
+  case EUserEventType::ScreenShake:
+    sub_802273a8();
+    handled = true;
+    break;
+  case EUserEventType::BeginAction: {
+    zeus::CTransform xf; // TODO
+    mgr.AddObject(new CShockWave(mgr.AllocateUniqueId(), "Shock Wave", {GetAreaIdAlways(), CEntity::NullConnectionList},
+                                 xf, GetUniqueId(), GetShockWaveData(), sub_802273b0() ? 2.f : 1.3f,
+                                 sub_802273b0() ? 0.4f : 0.5f));
+    break;
+  }
+  case EUserEventType::BecomeShootThrough:
+    // TODO
+    break;
+  default:
+    break;
+  }
+  if (!handled) {
+    CPatterned::DoUserAnimEvent(mgr, node, type, dt);
+  }
 }
 
 const CCollisionPrimitive* CElitePirate::GetCollisionPrimitive() const { return &x738_; }
@@ -544,5 +598,10 @@ void CElitePirate::sub_80228920(CStateManager& mgr, bool b, TUniqueId uid) {
   if (auto entity = mgr.ObjectById(uid)) {
     mgr.SendScriptMsg(entity, GetUniqueId(), b ? EScriptObjectMessage::Start : EScriptObjectMessage::Stop);
   }
+}
+
+zeus::CVector3f CElitePirate::sub_80228864(const CActor* actor) const {
+  const zeus::CTransform& targetTransform = actor->GetLocatorTransform("lockon_target_LCTR");
+  return actor->GetTranslation() + actor->GetTransform().rotate(targetTransform.origin);
 }
 } // namespace urde::MP1
