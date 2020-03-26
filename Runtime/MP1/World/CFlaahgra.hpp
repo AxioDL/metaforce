@@ -4,6 +4,7 @@
 #include <optional>
 #include <vector>
 
+#include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/Collision/CJointCollisionDescription.hpp"
 #include "Runtime/Weapon/CProjectileInfo.hpp"

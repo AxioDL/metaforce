@@ -16,6 +16,7 @@
 #include "Runtime/Character/CParticleDatabase.hpp"
 #include "Runtime/Character/CPoseAsTransforms.hpp"
 #include "Runtime/Character/IAnimReader.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CQuaternion.hpp>
@@ -74,7 +75,6 @@ class CRandom16;
 class CSegIdList;
 class CSegStatementSet;
 class CSkinRules;
-class CSkinnedModel;
 class CSoundPOINode;
 class CStateManager;
 class CTransitionManager;

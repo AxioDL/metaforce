@@ -4,11 +4,11 @@
 #include <string_view>
 
 #include "Runtime/CToken.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
 #include "Runtime/World/CEntity.hpp"
 #include "Runtime/World/CHUDMemoParms.hpp"
 
 namespace urde {
-class CStringTable;
 
 class CScriptHUDMemo : public CEntity {
 public:
