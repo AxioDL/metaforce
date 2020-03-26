@@ -10,6 +10,7 @@
 #include "Runtime/Character/CAdditiveAnimPlayback.hpp"
 #include "Runtime/Character/CAnimPlaybackParms.hpp"
 #include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CCharacterFactory.hpp"
 #include "Runtime/Character/CCharacterInfo.hpp"
 #include "Runtime/Character/CHierarchyPoseBuilder.hpp"
 #include "Runtime/Character/CParticleDatabase.hpp"
@@ -64,7 +65,6 @@ class CAnimationManager;
 class CBoolPOINode;
 class CCharAnimTime;
 class CCharLayoutInfo;
-class CCharacterFactory;
 class CInt32POINode;
 class CModel;
 class CMorphableSkinnedModel;

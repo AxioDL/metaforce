@@ -6,6 +6,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
+#include "Runtime/Audio/CAudioGroupSet.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/AutoMapper/CMapWorld.hpp"
 #include "Runtime/Graphics/CModel.hpp"
@@ -14,7 +15,6 @@
 #include "Runtime/World/ScriptObjectSupport.hpp"
 
 namespace urde {
-class CAudioGroupSet;
 class CGameArea;
 class CResFactory;
 class IGameArea;

@@ -9,9 +9,9 @@
 #include "Runtime/IObj.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Collision/CMaterialList.hpp"
+#include "Runtime/Particle/CDecalDescription.hpp"
 
 namespace urde {
-class CDecalDescription;
 class CGenDescription;
 class CSimplePool;
 

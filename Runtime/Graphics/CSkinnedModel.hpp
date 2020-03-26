@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Runtime/CToken.hpp"
+#include "Runtime/Character/CSkinRules.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 
 #include <zeus/CVector3f.hpp>
@@ -14,7 +15,6 @@ namespace urde {
 class CCharLayoutInfo;
 class CModel;
 class CPoseAsTransforms;
-class CSkinRules;
 class CVertexMorphEffect;
 class IObjectStore;
 
