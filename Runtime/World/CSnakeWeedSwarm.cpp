@@ -341,8 +341,8 @@ bool CSnakeWeedSwarm::CreateBoid(const zeus::CVector3f& vec, CStateManager& mgr)
   const auto& result = mgr.RayStaticIntersection(pos, zeus::skDown, 2.f * xf8_height, skMaterialFilter);
   if (result.IsValid() && result.GetPlane().normal().dot(zeus::skUp) > x11c_) {
     const auto& boidPosition = result.GetPoint() - zeus::CVector3f(0.f, 0.f, x128_distanceBelowGround);
-    x134_boids.push_back({boidPosition, x110_maxZOffset, x114_speed + x118_speedVariation,
-                          (x124_scaleMax - x120_scaleMin) * mgr.GetActiveRandom()->Float() + x120_scaleMin});
+    x134_boids.emplace_back(boidPosition, x110_maxZOffset, x114_speed + x118_speedVariation,
+                            (x124_scaleMax - x120_scaleMin) * mgr.GetActiveRandom()->Float() + x120_scaleMin);
     return true;
   }
   return false;
