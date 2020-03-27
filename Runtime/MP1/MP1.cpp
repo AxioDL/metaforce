@@ -1,5 +1,7 @@
 #include "Runtime/MP1/MP1.hpp"
 
+#include <array>
+
 #include "NESEmulator/CNESShader.hpp"
 
 #include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
@@ -75,6 +77,20 @@ extern CVar* com_cubemaps;
 }; // namespace hecl
 
 namespace urde::MP1 {
+namespace {
+struct AudioGroupInfo {
+  const char* name;
+  u32 id;
+};
+
+constexpr std::array<AudioGroupInfo, 5> StaticAudioGroups{{
+    {"Misc_AGSC", GRPmisc},
+    {"MiscSamus_AGSC", GRPmiscSamus},
+    {"UI_AGSC", GRPui},
+    {"Weapons_AGSC", GRPweapons},
+    {"ZZZ_AGSC", GRPzzz},
+}};
+} // Anonymous namespace
 
 CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
                                                    amuse::IBackendVoiceAllocator& backend)
@@ -127,17 +143,6 @@ void CGameArchitectureSupport::Update(float dt) {
   x58_ioWinManager.PumpMessages(x4_archQueue);
 }
 
-struct AudioGroupInfo {
-  const char* name;
-  u32 id;
-};
-
-static const AudioGroupInfo StaticAudioGroups[] = {{"Misc_AGSC", GRPmisc},
-                                                   {"MiscSamus_AGSC", GRPmiscSamus},
-                                                   {"UI_AGSC", GRPui},
-                                                   {"Weapons_AGSC", GRPweapons},
-                                                   {"ZZZ_AGSC", GRPzzz}};
-
 bool CGameArchitectureSupport::LoadAudio() {
   if (x88_audioLoadStatus == EAudioLoadStatus::Loaded)
     return true;
@@ -169,26 +174,30 @@ bool CGameArchitectureSupport::LoadAudio() {
 }
 
 void CGameArchitectureSupport::PreloadAudio() {
-  if (x88_audioLoadStatus != EAudioLoadStatus::Uninitialized)
+  if (x88_audioLoadStatus != EAudioLoadStatus::Uninitialized) {
     return;
+  }
+
   x8c_pendingAudioGroups.clear();
   x8c_pendingAudioGroups.reserve(5);
 
-  for (int i = 0; i < 5; ++i) {
+  for (size_t i = 0; i < StaticAudioGroups.size(); ++i) {
     const AudioGroupInfo& info = StaticAudioGroups[i];
     CToken grp = g_SimplePool->GetObj(info.name);
-    if (i == 0) /* Lock first group in sequence */
+
+    // Lock first group in sequence
+    if (i == 0) {
       grp.Lock();
-    x8c_pendingAudioGroups.push_back(std::move(grp));
+    }
+
+    x8c_pendingAudioGroups.emplace_back(std::move(grp));
   }
 
   x88_audioLoadStatus = EAudioLoadStatus::Loading;
 }
 
 void CGameArchitectureSupport::UnloadAudio() {
-
-  for (int i = 0; i < 5; ++i) {
-    const AudioGroupInfo& info = StaticAudioGroups[i];
+  for (const AudioGroupInfo& info : StaticAudioGroups) {
     const SObjectTag* tag = g_ResFactory->GetResourceIdByName(info.name);
     auto name = CAudioSys::SysGetGroupSetName(tag->id);
     CAudioSys::SysRemoveGroupFromAmuse(name);
