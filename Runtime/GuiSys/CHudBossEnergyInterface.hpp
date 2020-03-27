@@ -20,7 +20,7 @@ class CHudBossEnergyInterface {
   CGuiTextPane* x1c_textpane_boss;
 
 public:
-  CHudBossEnergyInterface(CGuiFrame& selHud);
+  explicit CHudBossEnergyInterface(CGuiFrame& selHud);
   void Update(float dt);
   void SetAlpha(float a) { x0_alpha = a; }
   void SetBossParams(bool visible, std::u16string_view name, float curEnergy, float maxEnergy);

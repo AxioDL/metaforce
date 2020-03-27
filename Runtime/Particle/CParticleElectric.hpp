@@ -115,7 +115,7 @@ private:
   void BuildBounds();
 
 public:
-  CParticleElectric(const TToken<CElectricDescription>& desc);
+  explicit CParticleElectric(const TToken<CElectricDescription>& desc);
 
   bool Update(double) override;
   void Render(const CActorLights* lights = nullptr) override;

@@ -29,7 +29,7 @@ struct SSpindleProperty {
   float x10_lowIn;
   float x14_highIn;
 
-  SSpindleProperty(CInputStream& in);
+  explicit SSpindleProperty(CInputStream& in);
   void FixupAngles() {
     x8_lowOut = zeus::degToRad(x8_lowOut);
     xc_highOut = zeus::degToRad(xc_highOut);

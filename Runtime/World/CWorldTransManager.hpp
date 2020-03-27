@@ -48,7 +48,7 @@ public:
     float x1d8_transCompleteTime = 99999.f;
     bool x1dc_dissolveStarted = false;
 
-    SModelDatas(const CAnimRes& samusRes);
+    explicit SModelDatas(const CAnimRes& samusRes);
   };
 
 private:

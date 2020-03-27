@@ -27,7 +27,7 @@ class CTextParser {
   TToken<CRasterFont> GetFont(const char16_t* str, int len);
 
 public:
-  CTextParser(IObjectStore& store) : x0_store(store) {}
+  explicit CTextParser(IObjectStore& store) : x0_store(store) {}
   void ParseText(CTextExecuteBuffer& out, const char16_t* str, int len,
                  const std::vector<std::pair<CAssetId, CAssetId>>* txtrMap);
 };

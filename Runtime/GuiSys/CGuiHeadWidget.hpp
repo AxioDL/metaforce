@@ -7,7 +7,7 @@ namespace urde {
 class CGuiHeadWidget : public CGuiWidget {
 public:
   FourCC GetWidgetTypeID() const override { return FOURCC('HWIG'); }
-  CGuiHeadWidget(const CGuiWidgetParms& parms);
+  explicit CGuiHeadWidget(const CGuiWidgetParms& parms);
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
   std::shared_ptr<CGuiHeadWidget> shared_from_this() {

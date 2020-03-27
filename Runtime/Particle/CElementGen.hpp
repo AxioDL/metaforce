@@ -43,7 +43,7 @@ public:
     zeus::CVector3f x4_viewPoint;
 
   public:
-    CParticleListItem(s16 idx) : x0_partIdx(idx) {}
+    explicit CParticleListItem(s16 idx) : x0_partIdx(idx) {}
   };
   static CParticle* g_currentParticle;
 

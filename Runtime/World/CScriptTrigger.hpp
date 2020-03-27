@@ -41,7 +41,7 @@ public:
     TUniqueId x0_id;
 
   public:
-    CObjectTracker(TUniqueId id) : x0_id(id) {}
+    explicit CObjectTracker(TUniqueId id) : x0_id(id) {}
 
     TUniqueId GetObjectId() const { return x0_id; }
     bool operator==(const CObjectTracker& other) const { return x0_id == other.x0_id; }

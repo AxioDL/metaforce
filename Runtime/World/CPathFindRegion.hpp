@@ -17,7 +17,7 @@ class CPFNode {
   zeus::CVector3f xc_normal;
 
 public:
-  CPFNode(CMemoryInStream& in);
+  explicit CPFNode(CMemoryInStream& in);
   const zeus::CVector3f& GetPos() const { return x0_position; }
   const zeus::CVector3f& GetNormal() const { return xc_normal; }
 };
@@ -29,7 +29,7 @@ class CPFLink {
   float xc_oo2dWidth;
 
 public:
-  CPFLink(CMemoryInStream& in);
+  explicit CPFLink(CMemoryInStream& in);
   u32 GetNode() const { return x0_node; }
   u32 GetRegion() const { return x4_region; }
   float Get2dWidth() const { return x8_2dWidth; }
@@ -51,7 +51,7 @@ class CPFRegion {
 
 public:
   CPFRegion() = default;
-  CPFRegion(CMemoryInStream& in);
+  explicit CPFRegion(CMemoryInStream& in);
   void SetData(CPFRegionData* data) { x4c_regionData = data; }
   CPFRegionData* Data() const { return x4c_regionData; }
   u32 GetIndex() const { return x24_regionIdx; }

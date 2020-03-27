@@ -24,7 +24,7 @@ private:
   const wchar_t* x1c_msg;
 
 public:
-  CErrorOutputWindow(bool);
+  explicit CErrorOutputWindow(bool);
   EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) override;
   bool GetIsContinueDraw() const override { return int(x14_state) < 2; }
   void Draw() const override;

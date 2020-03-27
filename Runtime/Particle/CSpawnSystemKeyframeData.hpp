@@ -24,7 +24,7 @@ public:
     void LoadToken(CSimplePool* pool);
 
   public:
-    CSpawnSystemKeyframeInfo(CInputStream& in);
+    explicit CSpawnSystemKeyframeInfo(CInputStream& in);
     TLockedToken<CGenDescription>& GetToken() { return x10_token; }
   };
 
@@ -36,7 +36,7 @@ private:
   std::vector<std::pair<u32, std::vector<CSpawnSystemKeyframeInfo>>> x10_spawns;
 
 public:
-  CSpawnSystemKeyframeData(CInputStream& in);
+  explicit CSpawnSystemKeyframeData(CInputStream& in);
   void LoadAllSpawnedSystemTokens(CSimplePool* pool);
   std::vector<CSpawnSystemKeyframeInfo>& GetSpawnedSystemsAtFrame(u32 frame);
 };

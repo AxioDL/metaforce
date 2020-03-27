@@ -112,7 +112,7 @@ class CMVEGravity : public CModVectorElement {
   std::unique_ptr<CVectorElement> x4_a;
 
 public:
-  CMVEGravity(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CMVEGravity(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const override;
 };
 
@@ -130,7 +130,7 @@ class CMVESetPosition : public CModVectorElement {
   std::unique_ptr<CVectorElement> x4_a;
 
 public:
-  CMVESetPosition(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CMVESetPosition(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const override;
 };
 
