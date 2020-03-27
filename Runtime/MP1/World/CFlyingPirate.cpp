@@ -21,7 +21,7 @@
 
 namespace urde::MP1 {
 namespace {
-constexpr std::array<SBurst, 6> skBurst1{{
+constexpr std::array<SBurst, 6> skBurstsFlying{{
     {4, {3, 4, 11, 12, -1, 0, 0, 0}, 0.1f, 0.05f},
     {20, {2, 3, 4, 5, -1, 0, 0, 0}, 0.1f, 0.05f},
     {20, {10, 11, 12, 13, -1, 0, 0, 0}, 0.1f, 0.05f},
@@ -30,7 +30,7 @@ constexpr std::array<SBurst, 6> skBurst1{{
     {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 }};
 
-constexpr std::array<SBurst, 6> skBurst2{{
+constexpr std::array<SBurst, 6> skBurstsFlyingOutOfView{{
     {5, {3, 4, 8, 12, -1, 0, 0, 0}, 0.1f, 0.05f},
     {10, {2, 3, 4, 5, -1, 0, 0, 0}, 0.1f, 0.05f},
     {10, {10, 11, 12, 13, -1, 0, 0, 0}, 0.1f, 0.05f},
@@ -39,7 +39,7 @@ constexpr std::array<SBurst, 6> skBurst2{{
     {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 }};
 
-constexpr std::array<SBurst, 5> skBurst3{{
+constexpr std::array<SBurst, 5> skBurstsLanded{{
     {30, {3, 4, 5, 11, 12, 4, -1, 0}, 0.1f, 0.05f},
     {20, {2, 3, 4, 5, 4, 3, -1, 0}, 0.1f, 0.05f},
     {20, {5, 4, 3, 13, 12, 11, -1, 0}, 0.1f, 0.05f},
@@ -47,7 +47,7 @@ constexpr std::array<SBurst, 5> skBurst3{{
     {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 }};
 
-constexpr std::array<SBurst, 5> skBurst4{{
+constexpr std::array<SBurst, 5> skBurstsLandedOutOfView{{
     {10, {6, 5, 4, 14, 13, 12, -1, 0}, 0.1f, 0.05f},
     {20, {14, 13, 12, 11, 10, 9, -1, 0}, 0.1f, 0.05f},
     {20, {14, 15, 16, 11, 10, 9, -1, 0}, 0.1f, 0.05f},
@@ -56,7 +56,11 @@ constexpr std::array<SBurst, 5> skBurst4{{
 }};
 
 constexpr std::array<const SBurst*, 5> skBursts{
-    skBurst1.data(), skBurst2.data(), skBurst3.data(), skBurst4.data(), nullptr,
+    skBurstsFlying.data(),
+    skBurstsFlyingOutOfView.data(),
+    skBurstsLanded.data(),
+    skBurstsLandedOutOfView.data(),
+    nullptr,
 };
 
 constexpr std::array<std::string_view, 15> skParts{

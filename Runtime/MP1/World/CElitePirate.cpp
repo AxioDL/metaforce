@@ -17,19 +17,19 @@
 
 namespace urde::MP1 {
 namespace {
-static constexpr std::array<SJointInfo, 3> skJointInfoL{{
+static constexpr std::array<SJointInfo, 3> skLeftArmJointList{{
     {"L_shoulder", "L_elbow", 1.f, 1.5f},
     {"L_wrist", "L_elbow", 0.9f, 1.3f},
     {"L_knee", "L_ankle", 0.9f, 1.3f},
 }};
 
-static constexpr std::array<SJointInfo, 3> skJointInfoR{{
+static constexpr std::array<SJointInfo, 3> skRightArmJointList{{
     {"R_shoulder", "R_elbow", 1.f, 1.5f},
     {"R_wrist", "R_elbow", 0.9f, 1.3f},
     {"R_knee", "R_ankle", 0.9f, 1.3f},
 }};
 
-static constexpr std::array<SSphereJointInfo, 7> skSphereJointInfo{{
+static constexpr std::array<SSphereJointInfo, 7> skSphereJointList{{
     {"Head_1", 1.2f},
     {"L_Palm_LCTR", 1.5f},
     {"R_Palm_LCTR", 1.5f},
@@ -164,8 +164,8 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
       }
       break;
     }
-    if ((!x988_25_ || !sub_802293f8(uid, x774_collisionRJointIds)) &&
-        (!x988_26_ || !sub_802293f8(uid, x788_collisionLJointIds))) {
+    if ((!x988_25_ || !IsArmClawCollider(uid, x774_collisionRJointIds)) &&
+        (!x988_26_ || !IsArmClawCollider(uid, x788_collisionLJointIds))) {
       break;
     }
     mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), GetContactDamage(),
@@ -176,7 +176,7 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
   }
   case EScriptObjectMessage::Registered: {
     x450_bodyController->Activate(mgr);
-    SetupCollisionManagers(mgr);
+    SetupCollisionManager(mgr);
     x772_launcherId = mgr.AllocateUniqueId();
     CreateGrenadeLauncher(mgr, x772_launcherId);
     const auto& bodyStateInfo = x450_bodyController->GetBodyStateInfo();
@@ -390,7 +390,7 @@ bool CElitePirate::ShouldCallForBackup(CStateManager& mgr, float arg) { return C
 
 CPathFindSearch* CElitePirate::GetSearchPath() { return CPatterned::GetSearchPath(); }
 
-void CElitePirate::sub_80229114(CStateManager& mgr) {
+void CElitePirate::SetupHealthInfo(CStateManager& mgr) {
   const CHealthInfo* const health = HealthInfo(mgr);
   x7b4_hp = health->GetHP();
   if (sub_802273a8()) {
@@ -401,7 +401,7 @@ void CElitePirate::sub_80229114(CStateManager& mgr) {
       actor->SetDamageVulnerability(x56c_vulnerability);
     }
   }
-  sub_8022902c(mgr, x772_launcherId);
+  UpdateHealthInfo(mgr, x772_launcherId);
 }
 
 void CElitePirate::sub_802289b0(CStateManager& mgr, bool b) { sub_80228920(mgr, b, x772_launcherId); }
@@ -430,7 +430,7 @@ void CElitePirate::sub_8022759c(bool param_1, CStateManager& mgr) {
   }
 }
 
-bool CElitePirate::sub_802293f8(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 8>& vec) const {
+bool CElitePirate::IsArmClawCollider(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 7>& vec) const {
   return std::find(vec.begin(), vec.end(), uid) != vec.end();
 }
 
@@ -468,12 +468,12 @@ void CElitePirate::AddSphereCollisionList(const SSphereJointInfo* joints, size_t
   }
 }
 
-void CElitePirate::SetupCollisionManagers(CStateManager& mgr) {
-  constexpr size_t jointInfoCount = skJointInfoL.size() + skJointInfoR.size() + skSphereJointInfo.size();
+void CElitePirate::SetupCollisionManager(CStateManager& mgr) {
+  constexpr size_t jointInfoCount = skLeftArmJointList.size() + skRightArmJointList.size() + skSphereJointList.size();
   std::vector<CJointCollisionDescription> joints(jointInfoCount);
-  AddCollisionList(skJointInfoL.data(), skJointInfoL.size(), joints);
-  AddCollisionList(skJointInfoR.data(), skJointInfoL.size(), joints);
-  AddSphereCollisionList(skSphereJointInfo.data(), skSphereJointInfo.size(), joints);
+  AddCollisionList(skLeftArmJointList.data(), skLeftArmJointList.size(), joints);
+  AddCollisionList(skRightArmJointList.data(), skLeftArmJointList.size(), joints);
+  AddSphereCollisionList(skSphereJointList.data(), skSphereJointList.size(), joints);
   if (sub_802273a8()) {
     x730_collisionActorMgr2 =
         std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), joints, true);
@@ -489,8 +489,8 @@ void CElitePirate::SetupCollisionManagers(CStateManager& mgr) {
   x5d4_collisionActorMgr1 =
       std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), joints, false);
 
-  sub_80229818(mgr);
-  sub_80229114(mgr);
+  SetupCollisionActorInfo(mgr);
+  SetupHealthInfo(mgr);
 
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
       {EMaterialTypes::Solid},
@@ -498,7 +498,7 @@ void CElitePirate::SetupCollisionManagers(CStateManager& mgr) {
   AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
 }
 
-void CElitePirate::sub_80229818(CStateManager& mgr) {
+void CElitePirate::SetupCollisionActorInfo(CStateManager& mgr) {
   if (sub_802273a8()) {
     for (size_t i = 0; i < x730_collisionActorMgr2->GetNumCollisionActors(); ++i) {
       const auto& colDesc = x730_collisionActorMgr2->GetCollisionDescFromIndex(i);
@@ -506,9 +506,11 @@ void CElitePirate::sub_80229818(CStateManager& mgr) {
       if (TCastToPtr<CCollisionActor> act = mgr.ObjectById(uid)) {
         if (colDesc.GetName() == "Head_1"sv) {
           x770_collisionHeadId = uid;
-        } else if (sub_8022943c(colDesc.GetName(), "R_Palm_LCTR"sv, skJointInfoR.data(), skJointInfoR.size())) {
+        } else if (IsArmClawCollider(colDesc.GetName(), "R_Palm_LCTR"sv, skRightArmJointList.data(),
+                                     skRightArmJointList.size())) {
           x774_collisionRJointIds.push_back(uid);
-        } else if (sub_8022943c(colDesc.GetName(), "L_Palm_LCTR"sv, skJointInfoL.data(), skJointInfoL.size())) {
+        } else if (IsArmClawCollider(colDesc.GetName(), "L_Palm_LCTR"sv, skLeftArmJointList.data(),
+                                     skLeftArmJointList.size())) {
           x788_collisionLJointIds.push_back(uid);
         }
         if (uid != x770_collisionHeadId) {
@@ -528,8 +530,8 @@ void CElitePirate::sub_80229818(CStateManager& mgr) {
   x5d4_collisionActorMgr1->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
 }
 
-bool CElitePirate::sub_8022943c(std::string_view name, std::string_view locator, const SJointInfo* info,
-                                size_t infoCount) {
+bool CElitePirate::IsArmClawCollider(std::string_view name, std::string_view locator, const SJointInfo* info,
+                                     size_t infoCount) {
   if (name == locator) {
     return true;
   }
@@ -579,7 +581,7 @@ void CElitePirate::sub_802281d8(CStateManager& mgr, const zeus::CTransform& xf) 
   x7ac_ = 0.25f;
 }
 
-void CElitePirate::sub_8022902c(CStateManager& mgr, TUniqueId uid) {
+void CElitePirate::UpdateHealthInfo(CStateManager& mgr, TUniqueId uid) {
   const CHealthInfo* const health = HealthInfo(mgr);
   if (uid != kInvalidUniqueId) {
     if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {

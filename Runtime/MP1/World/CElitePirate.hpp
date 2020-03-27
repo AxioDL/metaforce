@@ -74,8 +74,8 @@ class CElitePirate : public CPatterned {
   std::optional<TLockedToken<CGenDescription>> x760_;
   TUniqueId x770_collisionHeadId = kInvalidUniqueId;
   TUniqueId x772_launcherId = kInvalidUniqueId;
-  rstl::reserved_vector<TUniqueId, 8> x774_collisionRJointIds;
-  rstl::reserved_vector<TUniqueId, 8> x788_collisionLJointIds;
+  rstl::reserved_vector<TUniqueId, 7> x774_collisionRJointIds;
+  rstl::reserved_vector<TUniqueId, 7> x788_collisionLJointIds;
   TUniqueId x79c_ = kInvalidUniqueId;
   float x7a0_;
   float x7a4_ = 1.f;
@@ -150,7 +150,7 @@ public:
   CPathFindSearch* GetSearchPath() override;
   virtual bool sub_802273a8() const { return true; }
   virtual bool sub_802273b0() const { return true; }
-  virtual void sub_80229114(CStateManager& mgr);
+  virtual void SetupHealthInfo(CStateManager& mgr);
   virtual void sub_802289b0(CStateManager& mgr, bool b);
   virtual SShockWaveData GetShockWaveData() const {
     return {x5d8_data.GetXF8(), x5d8_data.GetXFC(), x5d8_data.GetX118(), x5d8_data.GetX11C()};
@@ -159,18 +159,18 @@ public:
 private:
   void sub_80229248();
   void sub_8022759c(bool param_1, CStateManager& mgr);
-  bool sub_802293f8(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 8>& vec) const;
+  bool IsArmClawCollider(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 7>& vec) const;
   void AddSphereCollisionList(const SSphereJointInfo* joints, size_t count,
                               std::vector<CJointCollisionDescription>& outJoints) const;
   void AddCollisionList(const SJointInfo* joints, size_t count,
                         std::vector<CJointCollisionDescription>& outJoints) const;
-  void SetupCollisionManagers(CStateManager& mgr);
-  void sub_80229818(CStateManager& mgr);
-  bool sub_8022943c(std::string_view name, std::string_view locator, const SJointInfo* info, size_t infoCount);
+  void SetupCollisionManager(CStateManager& mgr);
+  void SetupCollisionActorInfo(CStateManager& mgr);
+  bool IsArmClawCollider(std::string_view name, std::string_view locator, const SJointInfo* info, size_t infoCount);
   void CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid);
   void sub_80227464(CStateManager& mgr, TUniqueId uid);
   void sub_802281d8(CStateManager& mgr, const zeus::CTransform& xf);
-  void sub_8022902c(CStateManager& mgr, TUniqueId uid);
+  void UpdateHealthInfo(CStateManager& mgr, TUniqueId uid);
   void sub_80228920(CStateManager& mgr, bool b, TUniqueId uid);
   zeus::CVector3f sub_80228864(const CActor* actor) const;
 };
