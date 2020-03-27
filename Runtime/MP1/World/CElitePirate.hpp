@@ -59,8 +59,9 @@ public:
 class CElitePirate : public CPatterned {
   struct SUnknownStruct {
     float x0_;
-    s32 x4_ = 0;
+    rstl::reserved_vector<zeus::CVector3f, 16> x4_;
     SUnknownStruct(float f) : x0_(f * f) {}
+    zeus::CVector3f sub_802a07f0(const zeus::CVector3f& v1, const zeus::CVector3f& v2);
   };
 
   s32 x568_ = -1;
@@ -173,6 +174,9 @@ private:
   void UpdateHealthInfo(CStateManager& mgr, TUniqueId uid);
   void sub_80228920(CStateManager& mgr, bool b, TUniqueId uid);
   zeus::CVector3f sub_80228864(const CActor* actor) const;
+  bool sub_80227430(const CDamageInfo& info) const;
+  void sub_80228634(CStateManager& mgr);
+  void sub_802285c4(CStateManager& mgr);
 };
 } // namespace MP1
 } // namespace urde
