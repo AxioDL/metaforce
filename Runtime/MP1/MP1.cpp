@@ -74,8 +74,7 @@ extern CVar* com_developer;
 extern CVar* com_cubemaps;
 }; // namespace hecl
 
-namespace urde {
-namespace MP1 {
+namespace urde::MP1 {
 
 CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
                                                    amuse::IBackendVoiceAllocator& backend)
@@ -984,5 +983,4 @@ int CMain::appMain(boo::IApplication* app) {
 
 #endif
 
-} // namespace MP1
-} // namespace urde
+} // namespace urde::MP1
