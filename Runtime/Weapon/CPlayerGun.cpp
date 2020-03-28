@@ -1785,36 +1785,35 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
 void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateManager& mgr) {
   CPlayer& player = mgr.GetPlayer();
   CPlayerState& playerState = *mgr.GetPlayerState();
-  bool isUnmorphed = player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed;
+  const bool isUnmorphed = player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed;
 
-  bool becameFrozen;
-  if (isUnmorphed)
+  bool becameFrozen = false;
+  if (isUnmorphed) {
     becameFrozen = !x834_29_frozen && player.GetFrozenState();
-  else
-    becameFrozen = false;
+  }
 
-  bool becameThawed;
-  if (isUnmorphed)
+  bool becameThawed = false;
+  if (isUnmorphed) {
     becameThawed = x834_29_frozen && !player.GetFrozenState();
-  else
-    becameThawed = false;
+  }
 
   x834_29_frozen = isUnmorphed && player.GetFrozenState();
-  float advDt;
-  if (x834_29_frozen)
+  float advDt = dt;
+  if (x834_29_frozen) {
     advDt = 0.f;
-  else
-    advDt = dt;
+  }
 
-  bool r23 = x678_morph.GetGunState() != CGunMorph::EGunState::OutWipeDone;
-  if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay || r23)
+  const bool r23 = x678_morph.GetGunState() != CGunMorph::EGunState::OutWipeDone;
+  if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay || r23) {
     x6e0_rightHandModel.AdvanceAnimation(advDt, mgr, kInvalidAreaId, true);
-  if (r23 && x734_loadingBeam != 0 && x734_loadingBeam != x72c_currentBeam) {
+  }
+  if (r23 && x734_loadingBeam != nullptr && x734_loadingBeam != x72c_currentBeam) {
     x744_auxWeapon->LoadIdle();
     x734_loadingBeam->Update(advDt, mgr);
   }
-  if (!x744_auxWeapon->IsLoaded())
+  if (!x744_auxWeapon->IsLoaded()) {
     x744_auxWeapon->LoadIdle();
+  }
 
   if (becameFrozen) {
     x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::None);

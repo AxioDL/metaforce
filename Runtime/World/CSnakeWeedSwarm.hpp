@@ -80,7 +80,7 @@ private:
   u16 x1d0_sfx1;
   u16 x1d2_sfx2;
   u16 x1d4_sfx3;
-  CSfxHandle x1d8_sfxHandle = 0;
+  CSfxHandle x1d8_sfxHandle;
   TLockedToken<CGenDescription> x1dc_particleGenDesc;
   // TLockedToken<CGenDescription> x1e4_; both assign to x1dc_
   std::unique_ptr<CElementGen> x1ec_particleGen1;

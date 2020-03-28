@@ -1013,15 +1013,18 @@ CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in, int prop
 }
 
 CEntity* ScriptLoader::LoadHUDMemo(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (propCount != 5 && !EnsurePropertyCount(propCount, 6, "HUDMemo"))
-    return 0;
-  std::string name = mgr.HashInstanceName(in);
-  CHUDMemoParms hParms(in);
-  CScriptHUDMemo::EDisplayType displayType = CScriptHUDMemo::EDisplayType::MessageBox;
-  if (propCount == 6)
+  if (propCount != 5 && !EnsurePropertyCount(propCount, 6, "HUDMemo")) {
+    return nullptr;
+  }
+
+  const std::string name = mgr.HashInstanceName(in);
+  const CHUDMemoParms hParms(in);
+  auto displayType = CScriptHUDMemo::EDisplayType::MessageBox;
+  if (propCount == 6) {
     displayType = CScriptHUDMemo::EDisplayType(in.readUint32Big());
-  CAssetId message = in.readUint32Big();
-  bool active = in.readBool();
+  }
+  const CAssetId message = in.readUint32Big();
+  const bool active = in.readBool();
 
   return new CScriptHUDMemo(mgr.AllocateUniqueId(), name, info, hParms, displayType, message, active);
 }
