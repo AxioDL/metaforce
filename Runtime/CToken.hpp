@@ -153,7 +153,7 @@ public:
     m_obj = nullptr;
     return *this;
   }
-  TCachedToken& operator=(const CToken& other) {
+  TCachedToken& operator=(const CToken& other) override {
     TToken<T>::operator=(other);
     m_obj = nullptr;
     return *this;
@@ -172,7 +172,7 @@ public:
     return *this;
   }
   TLockedToken(const CToken& other) : TCachedToken<T>(other) { CToken::Lock(); }
-  TLockedToken& operator=(const CToken& other) {
+  TLockedToken& operator=(const CToken& other) override {
     CToken oldTok = std::move(*this);
     TCachedToken<T>::operator=(other);
     CToken::Lock();
