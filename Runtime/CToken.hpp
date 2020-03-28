@@ -84,7 +84,7 @@ public:
   IObj* GetObj();
   const IObj* GetObj() const { return const_cast<CToken*>(this)->GetObj(); }
   CToken& operator=(const CToken& other);
-  CToken& operator=(CToken&& other);
+  CToken& operator=(CToken&& other) noexcept;
   CToken() = default;
   CToken(const CToken& other);
   CToken(CToken&& other) noexcept;
