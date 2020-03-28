@@ -95,7 +95,7 @@ void CExplosion::AddToRenderer(const zeus::CFrustum& frustum, const CStateManage
 
   if (!(xf4_24_renderThermalHot && mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot) &&
       !(xf4_26_renderXray && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)) {
-    g_Renderer->AddParticleGen(*xe8_particleGen.get());
+    g_Renderer->AddParticleGen(*xe8_particleGen);
     return;
   }
 
