@@ -12,31 +12,60 @@
 
 namespace urde {
 
+struct CTextRenderBuffer::BooFontCharacters {
+  TLockedToken<CRasterFont> m_font;
+  hecl::VertexBufferPool<CTextSupportShader::CharacterInstance>::Token m_instBuf;
+  boo::ObjToken<boo::IShaderDataBinding> m_dataBinding;
+  boo::ObjToken<boo::IShaderDataBinding> m_dataBinding2;
+  std::vector<CTextSupportShader::CharacterInstance> m_charData;
+  u32 m_charCount = 0;
+  bool m_dirty = true;
+
+  BooFontCharacters(const CToken& token) : m_font(token) {}
+};
+
+struct CTextRenderBuffer::BooImage {
+  CFontImageDef m_imageDef;
+  hecl::VertexBufferPool<CTextSupportShader::ImageInstance>::Token m_instBuf;
+  std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding;
+  std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding2;
+  CTextSupportShader::ImageInstance m_imageData;
+  bool m_dirty = true;
+
+  BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset) : m_imageDef(imgDef) {
+    m_imageData.SetMetrics(imgDef, offset);
+  }
+};
+
+struct CTextRenderBuffer::BooPrimitiveMark {
+  Command m_cmd;
+  u32 m_bindIdx;
+  u32 m_instIdx;
+
+  void SetOpacity(CTextRenderBuffer& rb, float opacity) {
+    switch (m_cmd) {
+    case Command::CharacterRender: {
+      BooFontCharacters& fc = rb.m_fontCharacters[m_bindIdx];
+      CTextSupportShader::CharacterInstance& inst = fc.m_charData[m_instIdx];
+      inst.m_mulColor.a() = opacity;
+      fc.m_dirty = true;
+      break;
+    }
+    case Command::ImageRender: {
+      BooImage& img = rb.m_images[m_bindIdx];
+      img.m_imageData.m_color.a() = opacity;
+      img.m_dirty = true;
+      break;
+    }
+    default:
+      break;
+    }
+  }
+};
+
 CTextRenderBuffer::CTextRenderBuffer(EMode mode, CGuiWidget::EGuiModelDrawFlags df) : x0_mode(mode), m_drawFlags(df) {}
 
-CTextRenderBuffer::BooImage::BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset) : m_imageDef(imgDef) {
-  m_imageData.SetMetrics(imgDef, offset);
-}
-
-void CTextRenderBuffer::BooPrimitiveMark::SetOpacity(CTextRenderBuffer& rb, float opacity) {
-  switch (m_cmd) {
-  case Command::CharacterRender: {
-    BooFontCharacters& fc = rb.m_fontCharacters[m_bindIdx];
-    CTextSupportShader::CharacterInstance& inst = fc.m_charData[m_instIdx];
-    inst.m_mulColor.a() = opacity;
-    fc.m_dirty = true;
-    break;
-  }
-  case Command::ImageRender: {
-    BooImage& img = rb.m_images[m_bindIdx];
-    img.m_imageData.m_color.a() = opacity;
-    img.m_dirty = true;
-    break;
-  }
-  default:
-    break;
-  }
-}
+CTextRenderBuffer::~CTextRenderBuffer() = default;
 
 void CTextRenderBuffer::CommitResources() {
   if (m_committed)
@@ -124,6 +153,8 @@ void CTextRenderBuffer::SetMode(EMode mode) {
 void CTextRenderBuffer::SetPrimitiveOpacity(int idx, float opacity) {
   m_primitiveMarks[idx].SetOpacity(*this, opacity);
 }
+
+u32 CTextRenderBuffer::GetPrimitiveCount() const { return m_primitiveMarks.size(); }
 
 void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const {
   const_cast<CTextRenderBuffer*>(this)->CommitResources();
