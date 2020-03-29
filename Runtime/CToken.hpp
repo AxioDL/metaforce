@@ -137,13 +137,13 @@ public:
   TCachedToken() = default;
   TCachedToken(const CToken& other) : TToken<T>(other) {}
   TCachedToken(CToken&& other) : TToken<T>(std::move(other)) {}
-  T* GetObj() {
+  T* GetObj() override {
     if (!m_obj)
       m_obj = TToken<T>::GetObj();
     return m_obj;
   }
-  const T* GetObj() const { return const_cast<TCachedToken<T>*>(this)->GetObj(); }
-  void Unlock() {
+  const T* GetObj() const override { return const_cast<TCachedToken<T>*>(this)->GetObj(); }
+  void Unlock() override {
     TToken<T>::Unlock();
     m_obj = nullptr;
   }
