@@ -186,8 +186,8 @@ void CGuiTextSupport::AutoSetExtent() {
   x38_extentY = bounds.second.y;
 }
 
-void CGuiTextSupport::Render() const {
-  const_cast<CGuiTextSupport*>(this)->CheckAndRebuildRenderBuffer();
+void CGuiTextSupport::Render() {
+  CheckAndRebuildRenderBuffer();
   if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
     SCOPED_GRAPHICS_DEBUG_GROUP("CGuiTextSupport::Draw", zeus::skBlue);
     zeus::CTransform oldModel = CGraphics::g_GXModelMatrix;

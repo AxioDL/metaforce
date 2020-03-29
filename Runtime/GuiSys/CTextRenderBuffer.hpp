@@ -122,7 +122,7 @@ public:
   u32 GetPrimitiveCount() const { return m_primitiveMarks.size(); }
 #endif
   void SetMode(EMode mode);
-  void Render(const zeus::CColor& col, float) const;
+  void Render(const zeus::CColor& col, float time);
   void AddImage(const zeus::CVector2i& offset, const CFontImageDef& image);
   void AddCharacter(const zeus::CVector2i& offset, char16_t ch, const zeus::CColor& color);
   void AddPaletteChange(const zeus::CColor& main, const zeus::CColor& outline);
