@@ -2,6 +2,7 @@
 
 #include "Runtime/Character/CBoneTracking.hpp"
 #include "Runtime/Collision/CJointCollisionDescription.hpp"
+#include "Runtime/MP1/World/CGrenadeLauncher.hpp"
 #include "Runtime/MP1/World/CShockWave.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CAnimationParameters.hpp"
@@ -14,8 +15,8 @@ class CGenDescription;
 namespace MP1 {
 class CElitePirateData {
 public:
-  float x0_;
-  float x4_;
+  float x0_tauntInterval;
+  float x4_tauntVariance;
   float x8_;
   float xc_;
   float x10_;
@@ -23,20 +24,20 @@ public:
   float x18_;
   float x1c_;
   CAssetId x20_;
-  s16 x24_sfxAbsorb;
+  u16 x24_sfxAbsorb;
   CActorParameters x28_launcherActParams;
   CAnimationParameters x90_launcherAnimParams;
   CAssetId x9c_;
   u16 xa0_;
   CAssetId xa4_;
   CDamageInfo xa8_;
-  float xc4_;
+  float xc4_launcherHp;
   CAssetId xc8_;
   CAssetId xcc_;
   CAssetId xd0_;
   CAssetId xd4_;
-  CHealthInfo xd8_;       // FIXME probably wrong type
-  zeus::CQuaternion xe0_; // FIXME probably wrong type
+  SGrenadeUnknownStruct xd8_;
+  SGrenadeTrajectoryInfo xe0_trajectoryInfo;
   CAssetId xf0_;
   u16 xf4_;
   u16 xf6_;
@@ -61,10 +62,20 @@ class CElitePirate : public CPatterned {
     float x0_;
     rstl::reserved_vector<zeus::CVector3f, 16> x4_;
     SUnknownStruct(float f) : x0_(f * f) {}
-    zeus::CVector3f sub_802a07f0(const zeus::CVector3f& v1, const zeus::CVector3f& v2);
+    zeus::CVector3f GetValue(const zeus::CVector3f& v1, const zeus::CVector3f& v2);
+    void AddValue(const zeus::CVector3f& vec);
+    void Clear() { x4_.clear(); }
   };
 
-  s32 x568_ = -1;
+  enum class EState {
+    Invalid = -1,
+    Zero = 0,
+    One = 1,
+    Two = 2,
+    Over = 3,
+  };
+
+  EState x568_ = EState::Invalid;
   CDamageVulnerability x56c_vulnerability;
   std::unique_ptr<CCollisionActorManager> x5d4_collisionActorMgr1;
   CElitePirateData x5d8_data;
@@ -72,7 +83,7 @@ class CElitePirate : public CPatterned {
   std::unique_ptr<CCollisionActorManager> x730_collisionActorMgr2;
   s32 x734_;
   CCollidableAABox x738_;
-  std::optional<TLockedToken<CGenDescription>> x760_;
+  std::optional<TLockedToken<CGenDescription>> x760_energyAbsorbDesc;
   TUniqueId x770_collisionHeadId = kInvalidUniqueId;
   TUniqueId x772_launcherId = kInvalidUniqueId;
   rstl::reserved_vector<TUniqueId, 7> x774_collisionRJointIds;
@@ -81,14 +92,14 @@ class CElitePirate : public CPatterned {
   float x7a0_;
   float x7a4_ = 1.f;
   float x7a8_ = 0.f;
-  float x7ac_ = 0.f;
+  float x7ac_energyAbsorbCooldown = 0.f;
   float x7b0_ = 1.f;
   float x7b4_hp = 0.f;
-  float x7b8_ = 0.f;
-  float x7bc_ = 0.f;
+  float x7b8_attackTimer = 0.f;
+  float x7bc_tauntTimer = 0.f;
   float x7c0_ = 0.f;
   float x7c4_ = 0.f;
-  s32 x7c8_ = -1;
+  s32 x7c8_currAnimId = -1;
   s32 x7cc_ = 0;
   CPathFindSearch x7d0_pathFindSearch;
   zeus::CVector3f x8b4_;
@@ -121,33 +132,34 @@ public:
   zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
   const CCollisionPrimitive* GetCollisionPrimitive() const override;
-  void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType type, bool inDeferred,
-                 float magnitude) override;
+  void KnockBack(const zeus::CVector3f&, CStateManager& mgr, const CDamageInfo& info, EKnockBackType type,
+                 bool inDeferred, float magnitude) override;
   void TakeDamage(const zeus::CVector3f&, float arg) override;
-  void Patrol(CStateManager&, EStateMsg msg, float dt) override;
-  void PathFind(CStateManager&, EStateMsg msg, float dt) override;
-  void TargetPatrol(CStateManager&, EStateMsg msg, float dt) override;
-  void Halt(CStateManager&, EStateMsg msg, float dt) override;
-  void Run(CStateManager&, EStateMsg msg, float dt) override;
-  void Generate(CStateManager&, EStateMsg msg, float dt) override;
-  void Attack(CStateManager&, EStateMsg msg, float dt) override;
-  void Taunt(CStateManager&, EStateMsg msg, float dt) override;
-  void ProjectileAttack(CStateManager&, EStateMsg msg, float dt) override;
-  void SpecialAttack(CStateManager&, EStateMsg msg, float dt) override;
-  void CallForBackup(CStateManager&, EStateMsg msg, float dt) override;
-  bool TooClose(CStateManager&, float arg) override;
-  bool InDetectionRange(CStateManager&, float arg) override;
-  bool SpotPlayer(CStateManager&, float arg) override;
-  bool AnimOver(CStateManager&, float arg) override;
-  bool ShouldAttack(CStateManager&, float arg) override;
-  bool InPosition(CStateManager&, float arg) override;
-  bool ShouldTurn(CStateManager&, float arg) override;
-  bool AggressionCheck(CStateManager&, float arg) override;
-  bool ShouldTaunt(CStateManager&, float arg) override;
-  bool ShouldFire(CStateManager&, float arg) override;
-  bool ShotAt(CStateManager&, float arg) override;
-  bool ShouldSpecialAttack(CStateManager&, float arg) override;
-  bool ShouldCallForBackup(CStateManager&, float arg) override;
+  void Patrol(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void PathFind(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void Halt(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void Run(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void Generate(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void Attack(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void Taunt(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void ProjectileAttack(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void CallForBackup(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void Cover(CStateManager& mgr, EStateMsg msg, float dt) override;
+  bool TooClose(CStateManager& mgr, float arg) override;
+  bool InDetectionRange(CStateManager& mgr, float arg) override;
+  bool SpotPlayer(CStateManager& mgr, float arg) override;
+  bool AnimOver(CStateManager& mgr, float arg) override;
+  bool ShouldAttack(CStateManager& mgr, float arg) override;
+  bool InPosition(CStateManager& mgr, float arg) override;
+  bool ShouldTurn(CStateManager& mgr, float arg) override;
+  bool AggressionCheck(CStateManager& mgr, float arg) override;
+  bool ShouldTaunt(CStateManager& mgr, float arg) override;
+  bool ShouldFire(CStateManager& mgr, float arg) override;
+  bool ShotAt(CStateManager& mgr, float arg) override;
+  bool ShouldSpecialAttack(CStateManager& mgr, float arg) override;
+  bool ShouldCallForBackup(CStateManager& mgr, float arg) override;
   CPathFindSearch* GetSearchPath() override;
   virtual bool sub_802273a8() const { return true; }
   virtual bool sub_802273b0() const { return true; }
@@ -169,14 +181,25 @@ private:
   void SetupCollisionActorInfo(CStateManager& mgr);
   bool IsArmClawCollider(std::string_view name, std::string_view locator, const SJointInfo* info, size_t infoCount);
   void CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid);
-  void sub_80227464(CStateManager& mgr, TUniqueId uid);
-  void sub_802281d8(CStateManager& mgr, const zeus::CTransform& xf);
+  void ApplyDamageToHead(CStateManager& mgr, TUniqueId uid);
+  void CreateEnergyAbsorb(CStateManager& mgr, const zeus::CTransform& xf);
   void UpdateHealthInfo(CStateManager& mgr, TUniqueId uid);
   void sub_80228920(CStateManager& mgr, bool b, TUniqueId uid);
   zeus::CVector3f sub_80228864(const CActor* actor) const;
   bool sub_80227430(const CDamageInfo& info) const;
   void sub_80228634(CStateManager& mgr);
   void sub_802285c4(CStateManager& mgr);
+  void sub_80227a90(CStateManager& mgr);
+  void sub_802277e0(CStateManager& mgr, float dt);
+  bool sub_80229208();
+  void sub_80228e50(float dt);
+  void sub_80228798();
+  void sub_802289dc(CStateManager& mgr, TUniqueId& uid, std::string_view name);
+  void sub_80228e84(CStateManager& mgr);
+  void ExtendTouchBounds(CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 7>& uids,
+                         const zeus::CVector3f& vec);
+  bool ShouldFireFromLauncher(CStateManager& mgr, TUniqueId launcherId);
+  bool ShouldCallForBackupFromLauncher(CStateManager& mgr, TUniqueId uid);
 };
 } // namespace MP1
 } // namespace urde
