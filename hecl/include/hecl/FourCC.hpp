@@ -59,10 +59,11 @@ using BigDNA = athena::io::DNA<athena::Endian::Big>;
 /** FourCC with DNA read/write */
 class DNAFourCC final : public BigDNA, public FourCC {
 public:
-  constexpr DNAFourCC() : FourCC() {}
-  constexpr DNAFourCC(const FourCC& other) : FourCC() { num = other.toUint32(); }
-  constexpr DNAFourCC(const char* name) : FourCC(name) {}
-  constexpr DNAFourCC(uint32_t n) : FourCC(n) {}
+  constexpr DNAFourCC() noexcept : FourCC() {}
+  constexpr DNAFourCC(const FourCC& other) noexcept : FourCC(other) {}
+  constexpr DNAFourCC(const char* name) noexcept : FourCC(name) {}
+  constexpr DNAFourCC(uint32_t n) noexcept : FourCC(n) {}
+  constexpr DNAFourCC(athena::io::IStreamReader& r) { read(r); }
   AT_DECL_EXPLICIT_DNA_YAML
 };
 template <>
