@@ -45,7 +45,7 @@ private:
   float x7c_animDur;
   bool x80_24_swapBeamControls : 1;
 
-  void UpdateMenuWidgetTransform(int, CGuiWidget& w, float);
+  void UpdateMenuWidgetTransform(size_t idx, CGuiWidget& w, float t);
 
 public:
   CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type, const rstl::reserved_vector<bool, 4>& enables);
@@ -53,7 +53,7 @@ public:
   void UpdateHudAlpha(float alpha);
   void SetIsVisibleGame(bool v);
   void SetPlayerHas(const rstl::reserved_vector<bool, 4>& enables);
-  void SetSelection(int, int, float);
+  void SetSelection(int selection, int pending, float interp);
 };
 
 } // namespace urde
