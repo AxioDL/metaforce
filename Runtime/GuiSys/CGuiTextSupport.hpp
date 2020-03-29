@@ -104,7 +104,7 @@ public:
   const std::pair<zeus::CVector2i, zeus::CVector2i>& GetBounds();
   void AutoSetExtent();
 
-  void Render() const;
+  void Render();
   void SetGeometryColor(const zeus::CColor& col);
   void SetOutlineColor(const zeus::CColor& col);
   void SetFontColor(const zeus::CColor& col);
