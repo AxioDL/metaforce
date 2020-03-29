@@ -133,6 +133,9 @@ void CHudFreeLookInterfaceXRay::SetIsVisibleGame(bool v) {
 
 void CHudFreeLookInterfaceXRay::SetFreeLookState(bool inFreeLook, bool lookControlHeld, bool lockedOnObj,
                                                  float vertLookAngle) {
+  x20_inFreeLook = inFreeLook;
+  x21_lookControlHeld = lookControlHeld;
+
   x2c_model_freelookleft->SetLocalTransform(
       zeus::CTransform(zeus::CMatrix3f::RotateY(vertLookAngle), x4_freeLookLeftPos));
   x30_model_freelookright->SetLocalTransform(
