@@ -1,12 +1,16 @@
 #include "SCAN.hpp"
 
+#include <algorithm>
+#include <array>
+
 namespace DataSpec::DNAMP1 {
 
-static const std::vector<std::string> PaneNames = {
-    "imagepane_pane0",  "imagepane_pane1",  "imagepane_pane2",   "imagepane_pane3",   "imagepane_pane01",
-    "imagepane_pane12", "imagepane_pane23", "imagepane_pane012", "imagepane_pane123", "imagepane_pane0123",
-    "imagepane_pane4",  "imagepane_pane5",  "imagepane_pane6",   "imagepane_pane7",   "imagepane_pane45",
-    "imagepane_pane56", "imagepane_pane67", "imagepane_pane456", "imagepane_pane567", "imagepane_pane4567"};
+constexpr std::array PaneNames{
+    "imagepane_pane0"sv,  "imagepane_pane1"sv,  "imagepane_pane2"sv,   "imagepane_pane3"sv,   "imagepane_pane01"sv,
+    "imagepane_pane12"sv, "imagepane_pane23"sv, "imagepane_pane012"sv, "imagepane_pane123"sv, "imagepane_pane0123"sv,
+    "imagepane_pane4"sv,  "imagepane_pane5"sv,  "imagepane_pane6"sv,   "imagepane_pane7"sv,   "imagepane_pane45"sv,
+    "imagepane_pane56"sv, "imagepane_pane67"sv, "imagepane_pane456"sv, "imagepane_pane567"sv, "imagepane_pane4567"sv,
+};
 
 template <>
 void SCAN::Texture::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
