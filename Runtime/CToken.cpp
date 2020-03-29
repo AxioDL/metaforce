@@ -112,7 +112,7 @@ CToken& CToken::operator=(const CToken& other) {
   }
   return *this;
 }
-CToken& CToken::operator=(CToken&& other) {
+CToken& CToken::operator=(CToken&& other) noexcept {
   Unlock();
   RemoveRef();
   x0_objRef = other.x0_objRef;
