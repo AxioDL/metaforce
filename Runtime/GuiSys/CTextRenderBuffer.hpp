@@ -65,13 +65,35 @@ private:
   hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf;
   hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf2;
 
-  struct BooFontCharacters;
+  struct BooFontCharacters {
+    TLockedToken<CRasterFont> m_font;
+    hecl::VertexBufferPool<CTextSupportShader::CharacterInstance>::Token m_instBuf;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBinding;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBinding2;
+    std::vector<CTextSupportShader::CharacterInstance> m_charData;
+    u32 m_charCount = 0;
+    bool m_dirty = true;
+    BooFontCharacters(const CToken& token) : m_font(token) {}
+  };
   std::vector<BooFontCharacters> m_fontCharacters;
 
-  struct BooImage;
+  struct BooImage {
+    CFontImageDef m_imageDef;
+    hecl::VertexBufferPool<CTextSupportShader::ImageInstance>::Token m_instBuf;
+    std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding;
+    std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding2;
+    CTextSupportShader::ImageInstance m_imageData;
+    bool m_dirty = true;
+    BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset);
+  };
   std::vector<BooImage> m_images;
 
-  struct BooPrimitiveMark;
+  struct BooPrimitiveMark {
+    Command m_cmd;
+    u32 m_bindIdx;
+    u32 m_instIdx;
+    void SetOpacity(CTextRenderBuffer& rb, float opacity);
+  };
   std::vector<BooPrimitiveMark> m_primitiveMarks;
   u32 m_imagesCount = 0;
   u32 m_activeFontCh = UINT32_MAX;
@@ -87,8 +109,6 @@ private:
 
 public:
   CTextRenderBuffer(EMode mode, CGuiWidget::EGuiModelDrawFlags df);
-  ~CTextRenderBuffer();
-
 #if 0
     void SetPrimitive(const Primitive&, int);
     Primitive GetPrimitive(int) const;
@@ -99,7 +119,7 @@ public:
     void AddPaletteChange(const CGraphicsPalette& palette);
 #else
   void SetPrimitiveOpacity(int idx, float opacity);
-  u32 GetPrimitiveCount() const;
+  u32 GetPrimitiveCount() const { return m_primitiveMarks.size(); }
 #endif
   void SetMode(EMode mode);
   void Render(const zeus::CColor& col, float) const;
