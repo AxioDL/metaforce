@@ -1,5 +1,7 @@
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 
+#include <array>
+
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CGraphicsPalette.hpp"
 #include "Runtime/GuiSys/CFontImageDef.hpp"
@@ -8,6 +10,19 @@
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
 namespace urde {
+namespace {
+constexpr std::array<zeus::CVector3f, 4> NormalPoints{{
+    {0.f, 0.f, -1.f},
+    {1.f, 0.f, -1.f},
+    {1.f, 0.f, 0.f},
+    {0.f, 0.f, 0.f},
+}};
+
+bool testProjectedLine(const zeus::CVector2f& a, const zeus::CVector2f& b, const zeus::CVector2f& point) {
+  const zeus::CVector2f normal = (b - a).perpendicularVector().normalized();
+  return point.dot(normal) >= a.dot(normal);
+}
+} // Anonymous namespace
 
 CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, CSimplePool* sp, const zeus::CVector2f& dim,
                            const zeus::CVector3f& vec, CAssetId fontId, const CGuiTextProperties& props,
@@ -97,32 +112,22 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) {
 #endif
 }
 
-static const zeus::CVector3f NormalPoints[] = {
-  {0.f, 0.f, -1.f},
-  {1.f, 0.f, -1.f},
-  {1.f, 0.f, 0.f},
-  {0.f, 0.f, 0.f}
-};
-
-static bool testProjectedLine(const zeus::CVector2f& a, const zeus::CVector2f& b, const zeus::CVector2f& point) {
-  zeus::CVector2f normal = (b - a).perpendicularVector().normalized();
-  return point.dot(normal) >= a.dot(normal);
-}
-
 bool CGuiTextPane::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const {
-  zeus::CVector2f dims = GetDimensions();
-  zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
-                           zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
-  zeus::CMatrix4f mvp = vp * (x34_worldXF * local).toMatrix4f();
+  const zeus::CVector2f dims = GetDimensions();
+  const zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
+                                 zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
+  const zeus::CMatrix4f mvp = vp * (x34_worldXF * local).toMatrix4f();
 
-  zeus::CVector2f projPoints[4];
-  for (int i = 0; i < 4; ++i)
+  std::array<zeus::CVector2f, 4> projPoints;
+  for (size_t i = 0; i < projPoints.size(); ++i) {
     projPoints[i] = mvp.multiplyOneOverW(NormalPoints[i]).toVec2f();
+  }
 
-  int j;
+  size_t j;
   for (j = 0; j < 3; ++j) {
-    if (!testProjectedLine(projPoints[j], projPoints[j + 1], point))
+    if (!testProjectedLine(projPoints[j], projPoints[j + 1], point)) {
       break;
+    }
   }
   return j == 3 && testProjectedLine(projPoints[3], projPoints[0], point);
 }
