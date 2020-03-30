@@ -1,5 +1,7 @@
 #include "Runtime/World/CWallCrawlerSwarm.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -598,14 +600,14 @@ void CWallCrawlerSwarm::LaunchBoid(CBoid& boid, const zeus::CVector3f& dir) {
   CSfxManager::AddEmitter(x55c_launchSfx, pos, zeus::skZero3f, true, false, 0x7f, x4_areaId);
 }
 
-static const int kParticleCounts[] = {8, 2, 0, 0};
-
 void CWallCrawlerSwarm::AddParticle(const zeus::CTransform& xf) {
-  int i = 0;
+  static constexpr std::array particleCounts{8, 2, 0, 0};
+
+  size_t i = 0;
   for (auto& p : x524_particleGens) {
     p->SetParticleEmission(true);
     p->SetTranslation(xf.origin);
-    p->ForceParticleCreation(kParticleCounts[i]);
+    p->ForceParticleCreation(particleCounts[i]);
     p->SetParticleEmission(false);
     ++i;
   }
@@ -863,7 +865,7 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
 
   if (x558_flavor == EFlavor::Parasite && x554_maxLaunches > 0) {
     zeus::CVector3f _383c = mgr.GetPlayer().GetTranslation() + zeus::skUp;
-    static const CMaterialFilter filter = CMaterialFilter::MakeInclude(EMaterialTypes::Solid);
+    static constexpr auto filter = CMaterialFilter::MakeInclude(EMaterialTypes::Solid);
     int numLaunched = 0;
     for (auto& b : x108_boids) {
       if (b.GetActive() && b.x80_26_launched)
