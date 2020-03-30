@@ -21,8 +21,8 @@ public:
   virtual ~CIOWin() = default;
   virtual EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) = 0;
   virtual bool GetIsContinueDraw() const { return true; }
-  virtual void Draw() const {}
-  virtual void PreDraw() const {}
+  virtual void Draw() {}
+  virtual void PreDraw() {}
 
   std::string_view GetName() const { return x4_name; }
   size_t GetNameHash() const { return m_nameHash; }

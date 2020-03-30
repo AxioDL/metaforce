@@ -10,7 +10,7 @@ CIOWin::EMessageReturn CCredits::OnMessage(const CArchitectureMessage& msg, CArc
   return EMessageReturn::Normal;
 }
 
-void CCredits::Draw() const {
+void CCredits::Draw() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CCredits::Draw", zeus::skGreen);
 }
 
