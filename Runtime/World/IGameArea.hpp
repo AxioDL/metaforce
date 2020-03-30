@@ -58,6 +58,13 @@ public:
   virtual const zeus::CTransform& IGetTM() const = 0;
 };
 
-enum class EChain { Invalid = -1, ToDeallocate, Deallocated, Loading, Alive, AliveJudgement };
+enum class EChain {
+  Invalid = -1,
+  ToDeallocate,
+  Deallocated,
+  Loading,
+  Alive,
+  AliveJudgement,
+};
 
 } // namespace urde
