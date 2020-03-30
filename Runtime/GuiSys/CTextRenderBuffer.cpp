@@ -160,26 +160,26 @@ void CTextRenderBuffer::SetPrimitiveOpacity(int idx, float opacity) {
 
 u32 CTextRenderBuffer::GetPrimitiveCount() const { return m_primitiveMarks.size(); }
 
-void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const {
-  const_cast<CTextRenderBuffer*>(this)->CommitResources();
+void CTextRenderBuffer::Render(const zeus::CColor& col, float time) {
+  CommitResources();
 
-  zeus::CMatrix4f mv = CGraphics::g_GXModelView.toMatrix4f();
-  zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-  zeus::CMatrix4f mat = proj * mv;
+  const zeus::CMatrix4f mv = CGraphics::g_GXModelView.toMatrix4f();
+  const zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+  const zeus::CMatrix4f mat = proj * mv;
 
-  const_cast<CTextRenderBuffer*>(this)->m_uniBuf.access() = CTextSupportShader::Uniform{mat, col};
+  m_uniBuf.access() = CTextSupportShader::Uniform{mat, col};
   if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
     zeus::CColor colPremul = col * col.a();
     colPremul.a() = col.a();
-    const_cast<CTextRenderBuffer*>(this)->m_uniBuf2.access() = CTextSupportShader::Uniform{mat, colPremul};
+    m_uniBuf2.access() = CTextSupportShader::Uniform{mat, colPremul};
   }
 
-  for (const BooFontCharacters& chs : m_fontCharacters) {
+  for (BooFontCharacters& chs : m_fontCharacters) {
     if (chs.m_charData.size()) {
       if (chs.m_dirty) {
-        memmove(const_cast<BooFontCharacters&>(chs).m_instBuf.access(), chs.m_charData.data(),
-                sizeof(CTextSupportShader::CharacterInstance) * chs.m_charData.size());
-        const_cast<BooFontCharacters&>(chs).m_dirty = false;
+        std::memmove(chs.m_instBuf.access(), chs.m_charData.data(),
+                     sizeof(CTextSupportShader::CharacterInstance) * chs.m_charData.size());
+        chs.m_dirty = false;
       }
       CGraphics::SetShaderDataBinding(chs.m_dataBinding);
       CGraphics::DrawInstances(0, 4, chs.m_charData.size());
@@ -190,12 +190,12 @@ void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const {
     }
   }
 
-  for (const BooImage& img : m_images) {
+  for (BooImage& img : m_images) {
     if (img.m_dirty) {
-      *const_cast<BooImage&>(img).m_instBuf.access() = img.m_imageData;
-      const_cast<BooImage&>(img).m_dirty = false;
+      *img.m_instBuf.access() = img.m_imageData;
+      img.m_dirty = false;
     }
-    int idx = int(img.m_imageDef.x0_fps * time) % img.m_dataBinding.size();
+    const int idx = int(img.m_imageDef.x0_fps * time) % img.m_dataBinding.size();
     CGraphics::SetShaderDataBinding(img.m_dataBinding[idx]);
     CGraphics::DrawInstances(0, 4, 1);
     if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
