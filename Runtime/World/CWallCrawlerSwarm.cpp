@@ -93,13 +93,15 @@ CWallCrawlerSwarm::CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_vie
   x4b0_modelDatas.emplace_back(std::make_unique<CModelData>(launchAnimRes));
   x4b0_modelDatas.emplace_back(std::make_unique<CModelData>(animRes));
   if (aParams.GetXRayAssets().first.IsValid()) {
-    for (int i = 0; i < 9; ++i)
+    for (size_t i = 0; i < 9; ++i) {
       x4b0_modelDatas[i]->SetXRayModel(aParams.GetXRayAssets());
+    }
     x560_26_modelAssetDirty = true;
   }
   if (aParams.GetThermalAssets().first.IsValid()) {
-    for (int i = 0; i < 9; ++i)
+    for (size_t i = 0; i < 9; ++i) {
       x4b0_modelDatas[i]->SetInfraModel(aParams.GetThermalAssets());
+    }
     x560_26_modelAssetDirty = true;
   }
   if (part1.IsValid())
@@ -120,12 +122,12 @@ void CWallCrawlerSwarm::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CWallCrawlerSwarm::AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which) {
   //x430_.clear();
-  for (int i = 0; i < 9; ++i) {
+  for (size_t i = 0; i < 9; ++i) {
     //x430_.push_back(x4b0_[i]->PickAnimatedModel(which).Clone());
     x4b0_modelDatas[i]->EnableLooping(true);
-    x4b0_modelDatas[i]->AdvanceAnimation(
-      x4b0_modelDatas[i]->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv) * (i * 0.0625f),
-      mgr, x4_areaId, true);
+    x4b0_modelDatas[i]->AdvanceAnimation(x4b0_modelDatas[i]->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv) *
+                                             (float(i) * 0.0625f),
+                                         mgr, x4_areaId, true);
   }
   //x430_.push_back(x4b0_.back()->PickAnimatedModel(which).Clone());
   x4dc_whichModel = which;
@@ -891,8 +893,9 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
 }
 
 void CWallCrawlerSwarm::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
-  for (int i = 0; i < 5; ++i)
+  for (size_t i = 0; i < 5; ++i) {
     x4b0_modelDatas[i]->GetAnimationData()->PreRender();
+  }
   bool activeBoid = false;
   for (auto& b : x108_boids) {
     if (b.GetActive()) {
