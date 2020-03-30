@@ -62,7 +62,7 @@ public:
   void Accept(IVisitor& visitor) override { visitor.Visit(this); }
   void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
   void CollidedWith(TUniqueId id, const CCollisionInfoList &list, CStateManager &mgr) override;
-  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  [[nodiscard]] std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Render(const CStateManager& mgr) const override;
   void Think(float dt, CStateManager& mgr) override;
   void Touch(CActor& act, CStateManager& mgr) override;

@@ -95,7 +95,7 @@ void CBouncyGrenade::CollidedWith(TUniqueId id, const CCollisionInfoList& list, 
   CPhysicsActor::CollidedWith(id, list, mgr);
 }
 
-auto CBouncyGrenade::GetTouchBounds() const -> std::optional<zeus::CAABox> {
+std::optional<zeus::CAABox> CBouncyGrenade::GetTouchBounds() const {
   return GetModelData()->GetBounds(GetTransform());
 }
 

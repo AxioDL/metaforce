@@ -37,7 +37,7 @@ CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const C
   }
 }
 
-auto CGrenadeLauncher::GrenadeTarget(const CStateManager& mgr) -> zeus::CVector3f {
+zeus::CVector3f CGrenadeLauncher::GrenadeTarget(const CStateManager& mgr) {
   const zeus::CVector3f& aim = mgr.GetPlayer().GetAimPosition(mgr, 1.f);
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed) {
     return aim - zeus::CVector3f{0.f, 0.f, 0.5f * mgr.GetPlayer().GetEyeHeight()};
@@ -121,7 +121,7 @@ void CGrenadeLauncher::AddToRenderer(const zeus::CFrustum& frustum, const CState
   CActor::AddToRenderer(frustum, mgr);
 }
 
-auto CGrenadeLauncher::GetTouchBounds() const -> std::optional<zeus::CAABox> {
+std::optional<zeus::CAABox> CGrenadeLauncher::GetTouchBounds() const {
   return x328_cSphere.CalculateAABox(GetTransform());
 }
 

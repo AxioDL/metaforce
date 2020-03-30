@@ -84,12 +84,10 @@ public:
   void Accept(IVisitor& visitor) override { visitor.Visit(this); }
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
-  [[nodiscard]] auto GetCollisionPrimitive() const -> const CCollisionPrimitive* override { return &x328_cSphere; }
-  [[nodiscard]] auto GetDamageVulnerability() const -> const CDamageVulnerability* override {
-    return &x264_vulnerability;
-  }
-  [[nodiscard]] auto GetTouchBounds() const -> std::optional<zeus::CAABox> override;
-  auto HealthInfo(CStateManager & /*mgr*/) -> CHealthInfo* override { return &x25c_healthInfo; }
+  [[nodiscard]] const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x328_cSphere; }
+  [[nodiscard]] const CDamageVulnerability* GetDamageVulnerability() const override { return &x264_vulnerability; }
+  [[nodiscard]] std::optional<zeus::CAABox> GetTouchBounds() const override;
+  CHealthInfo* HealthInfo(CStateManager& mgr) override { return &x25c_healthInfo; }
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
   void Render(const CStateManager& mgr) const override;
   void Think(float dt, CStateManager& mgr) override;
