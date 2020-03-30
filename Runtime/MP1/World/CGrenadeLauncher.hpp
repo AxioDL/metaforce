@@ -2,14 +2,13 @@
 
 #include "Runtime/Character/CModelData.hpp"
 #include "Runtime/Collision/CCollidableSphere.hpp"
+#include "Runtime/MP1/World/CBouncyGrenade.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
-#include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
 #include "Runtime/World/CDamageVulnerability.hpp"
 #include "Runtime/World/CEntityInfo.hpp"
 #include "Runtime/World/CHealthInfo.hpp"
-#include "Runtime/World/CPhysicsActor.hpp"
 #include "Runtime/World/CPhysicsActor.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
@@ -20,8 +19,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CQuaternion.hpp>
 
-namespace urde {
-namespace MP1 {
+namespace urde::MP1 {
 struct SGrenadeTrajectoryInfo {
   float x0_;
   float x4_;
@@ -35,40 +33,21 @@ struct SGrenadeTrajectoryInfo {
   , xc_angleMax(zeus::degToRad(in.readFloatBig())) {}
 };
 
-struct SGrenadeUnknownStruct {
-  float x0_mass;
-  float x4_;
-
-  SGrenadeUnknownStruct(CInputStream& in) : x0_mass(in.readFloatBig()), x4_(in.readFloatBig()) {}
-};
-
-struct SBouncyGrenadeData {
-  SGrenadeUnknownStruct x0_;
-  CDamageInfo x8_damageInfo;
-  CAssetId x24_;
-  CAssetId x28_;
-  CAssetId x2c_;
-  CAssetId x30_;
-  CAssetId x34_;
-  u16 x38_;
-  u16 x3a_;
-
-  SBouncyGrenadeData(const SGrenadeUnknownStruct& unkStruct, const CDamageInfo& damageInfo, CAssetId w1, CAssetId w2,
-                     CAssetId w3, CAssetId w4, CAssetId w5, u16 s1, u16 s2)
-  : x0_(unkStruct), x8_damageInfo(damageInfo), x24_(w1), x28_(w2), x2c_(w3), x30_(w4), x34_(w5), x38_(s1), x3a_(s2){};
-};
-
 class CGrenadeLauncherData {
 public:
-  SBouncyGrenadeData x0_;
-  CAssetId x3c_;
+  SBouncyGrenadeData x0_grenadeData;
+  CAssetId x3c_grenadeCmdl;
   CAssetId x40_;
   u16 x44_launcherExplodeSfx;
   SGrenadeTrajectoryInfo x48_trajectoryInfo;
 
   CGrenadeLauncherData(const SBouncyGrenadeData& data, CAssetId w1, CAssetId w2, u16 sfx,
                        const SGrenadeTrajectoryInfo& trajectoryInfo)
-  : x0_(data), x3c_(w1), x40_(w2), x44_launcherExplodeSfx(sfx), x48_trajectoryInfo(trajectoryInfo){};
+  : x0_grenadeData(data)
+  , x3c_grenadeCmdl(w1)
+  , x40_(w2)
+  , x44_launcherExplodeSfx(sfx)
+  , x48_trajectoryInfo(trajectoryInfo){};
 };
 
 class CGrenadeLauncher : public CPhysicsActor {
@@ -81,7 +60,7 @@ public:
   CCollidableSphere x328_cSphere;
   float x348_shotTimer = -1.f;
   zeus::CColor x34c_color1{1.f};
-  CActorParameters x350_actParms;
+  CActorParameters x350_grenadeActorParams;
   std::optional<TLockedToken<CGenDescription>> x3b8_particleGenDesc;
   std::array<s32, 4> x3c8_animIds;
   float x3d8_ = 0.f;
@@ -92,7 +71,7 @@ public:
   float x3ec_damageTimer = 0.f;
   zeus::CColor x3f0_color2{0.5f, 0.f, 0.f};
   zeus::CColor x3f4_color3{0.f};
-  float x3f8_;
+  float x3f8_explodePlayerDistance;
   bool x3fc_launchGrenade = false;
   bool x3fd_visible = true;
   bool x3fe_ = true;
@@ -127,5 +106,4 @@ protected:
   void sub_80230438();
   void LaunchGrenade(CStateManager& mgr);
 };
-} // namespace MP1
-} // namespace urde
+} // namespace urde::MP1

@@ -10,8 +10,7 @@
 #include "Runtime/World/CPatterned.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-namespace urde {
-namespace MP1 {
+namespace urde::MP1 {
 CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                    const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& bounds,
                                    const CHealthInfo& healthInfo, const CDamageVulnerability& vulnerability,
@@ -24,9 +23,9 @@ CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const C
 , x2cc_parentId(parentId)
 , x2d0_data(data)
 , x328_cSphere({{}, mData.GetScale().z()}, {EMaterialTypes::Character, EMaterialTypes::Solid})
-, x350_actParms(actParams)
+, x350_grenadeActorParams(actParams)
 , x3e8_thermalMag(actParams.GetThermalMag())
-, x3f8_(f1) {
+, x3f8_explodePlayerDistance(f1) {
   if (data.x40_.IsValid()) {
     x3b8_particleGenDesc = g_SimplePool->GetObj({SBIG('PART'), data.x40_});
   }
@@ -293,8 +292,33 @@ void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
   const auto& anim = animData->GetCharacterInfo().GetPASDatabase().FindBestAnimation({24}, -1);
   if (anim.first > 0.f) {
     animData->AddAdditiveAnimation(anim.second, 1.f, false, true);
-    // TODO
+    const zeus::CVector3f& origin =
+        GetTranslation() + GetTransform().rotate(GetLocatorTransform("grenade_LCTR"sv).origin);
+    const zeus::CVector3f& target = GrenadeTarget(mgr);
+    float angleOut = x2d0_data.x48_trajectoryInfo.x8_angleMin, velocityOut = x2d0_data.x48_trajectoryInfo.x0_;
+    CalculateGrenadeTrajectory(target, origin, x2d0_data.x48_trajectoryInfo, angleOut, velocityOut);
+
+    zeus::CVector3f dist = target - origin;
+    dist.z() = 0.f;
+    const zeus::CVector3f& front = GetTransform().frontVector();
+    if (dist.canBeNormalized()) {
+      dist.normalize();
+    } else {
+      dist = front;
+    }
+
+    constexpr float maxAngle = zeus::degToRad(45.f);
+    if (zeus::CVector3f::getAngleDiff(front, dist) > maxAngle) {
+      dist = zeus::CVector3f::slerp(front, dist, maxAngle);
+    }
+
+    const zeus::CVector3f& look = zeus::CVector3f::slerp(dist, zeus::skUp, angleOut);
+    const zeus::CTransform& xf = zeus::lookAt(origin, origin + look, zeus::skUp);
+    CModelData mData{CStaticRes{x2d0_data.x3c_grenadeCmdl, GetModelData()->GetScale()}};
+    mgr.AddObject(new CBouncyGrenade(mgr.AllocateUniqueId(), "Bouncy Grenade"sv,
+                                     {GetAreaIdAlways(), CEntity::NullConnectionList}, xf, std::move(mData),
+                                     x350_grenadeActorParams, x2cc_parentId, x2d0_data.x0_grenadeData, velocityOut,
+                                     x3f8_explodePlayerDistance));
   }
 }
-} // namespace MP1
-} // namespace urde
+} // namespace urde::MP1

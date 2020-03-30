@@ -64,7 +64,7 @@ CElitePirateData::CElitePirateData(CInputStream& in, u32 propCount)
 , xd4_(in)
 , xd8_(in)
 , xe0_trajectoryInfo(in)
-, xf0_(in)
+, xf0_grenadeNumBounces(in.readUint32Big())
 , xf4_(CSfxManager::TranslateSFXID(in.readUint32Big()))
 , xf6_(CSfxManager::TranslateSFXID(in.readUint32Big()))
 , xf8_(in)
@@ -892,7 +892,7 @@ void CElitePirate::CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid) {
   CModelData mData(CAnimRes(params.GetACSFile(), params.GetCharacter(), GetModelData()->GetScale(),
                             params.GetInitialAnimation(), true));
   SBouncyGrenadeData grenadeData{x5d8_data.xd8_, x5d8_data.xa8_, x5d8_data.xc8_, x5d8_data.xcc_, x5d8_data.xd0_,
-                                 x5d8_data.xd4_, x5d8_data.xf0_, x5d8_data.xf4_, x5d8_data.xf6_};
+                                 x5d8_data.xd4_, x5d8_data.xf0_grenadeNumBounces, x5d8_data.xf4_, x5d8_data.xf6_};
   CGrenadeLauncherData launcherData{grenadeData, x5d8_data.xa4_, x5d8_data.x9c_, x5d8_data.xa0_,
                                     x5d8_data.xe0_trajectoryInfo};
   mgr.AddObject(new CGrenadeLauncher(uid, "Grenade Launcher", {GetAreaIdAlways(), CEntity::NullConnectionList},

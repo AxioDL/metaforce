@@ -38,7 +38,7 @@ public:
   CAssetId xd4_;
   SGrenadeUnknownStruct xd8_;
   SGrenadeTrajectoryInfo xe0_trajectoryInfo;
-  CAssetId xf0_;
+  u32 xf0_grenadeNumBounces;
   u16 xf4_;
   u16 xf6_;
   CAssetId xf8_;
