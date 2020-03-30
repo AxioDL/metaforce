@@ -44,10 +44,10 @@ class CSortedListManager {
 public:
   CSortedListManager();
   void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const zeus::CVector3f& pos,
-                     const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter, const CActor* actor) const;
-  void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const CActor& actor, const zeus::CAABox& aabb) const;
+                     const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter, const CActor* actor);
+  void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const CActor& actor, const zeus::CAABox& aabb);
   void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const zeus::CAABox& aabb,
-                     const CMaterialFilter& filter, const CActor* actor) const;
+                     const CMaterialFilter& filter, const CActor* actor);
   void Remove(const CActor* actor);
   void Move(const CActor* actor, const zeus::CAABox& aabb);
   void Insert(const CActor* actor, const zeus::CAABox& aabb);

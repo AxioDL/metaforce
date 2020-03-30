@@ -235,41 +235,44 @@ s16 CSortedListManager::CalculateIntersections(ESortedList la, ESortedList lb, s
 
 void CSortedListManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const zeus::CVector3f& pos,
                                        const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter,
-                                       const CActor* actor) const {
-  if (mag == 0.f)
+                                       const CActor* actor) {
+  if (mag == 0.f) {
     mag = 8000.f;
+  }
   const zeus::CVector3f ray = dir * mag;
   const zeus::CVector3f sum = ray + pos;
-  zeus::CVector3f maxs(std::max(pos.x(), sum.x()), std::max(pos.y(), sum.y()), std::max(pos.z(), sum.z()));
-  zeus::CVector3f mins(std::min(sum.x(), pos.x()), std::min(sum.y(), pos.y()), std::min(sum.z(), pos.z()));
+  const zeus::CVector3f maxs(std::max(pos.x(), sum.x()), std::max(pos.y(), sum.y()), std::max(pos.z(), sum.z()));
+  const zeus::CVector3f mins(std::min(sum.x(), pos.x()), std::min(sum.y(), pos.y()), std::min(sum.z(), pos.z()));
   BuildNearList(out, zeus::CAABox(mins, maxs), filter, actor);
 }
 
 void CSortedListManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const CActor& actor,
-                                       const zeus::CAABox& aabb) const {
+                                       const zeus::CAABox& aabb) {
   const CMaterialFilter& filter = actor.GetMaterialFilter();
-  s16 id = const_cast<CSortedListManager&>(*this).ConstructIntersectionArray(aabb);
+  s16 id = ConstructIntersectionArray(aabb);
   while (id != -1) {
-    const SNode& node = AccessElement(x0_nodes, id);
+    SNode& node = AccessElement(x0_nodes, id);
     if (&actor != node.x0_actor && filter.Passes(node.x0_actor->GetMaterialList()) &&
-        node.x0_actor->GetMaterialFilter().Passes(actor.GetMaterialList()))
+        node.x0_actor->GetMaterialFilter().Passes(actor.GetMaterialList())) {
       out.push_back(node.x0_actor->GetUniqueId());
+    }
 
     id = node.x28_next;
-    const_cast<SNode&>(node).x28_next = -1;
+    node.x28_next = -1;
   }
 }
 
 void CSortedListManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const zeus::CAABox& aabb,
-                                       const CMaterialFilter& filter, const CActor* actor) const {
-  s16 id = const_cast<CSortedListManager&>(*this).ConstructIntersectionArray(aabb);
+                                       const CMaterialFilter& filter, const CActor* actor) {
+  s16 id = ConstructIntersectionArray(aabb);
   while (id != -1) {
-    const SNode& node = AccessElement(x0_nodes, id);
-    if (actor != node.x0_actor && filter.Passes(node.x0_actor->GetMaterialList()))
+    SNode& node = AccessElement(x0_nodes, id);
+    if (actor != node.x0_actor && filter.Passes(node.x0_actor->GetMaterialList())) {
       out.push_back(node.x0_actor->GetUniqueId());
+    }
 
     id = node.x28_next;
-    const_cast<SNode&>(node).x28_next = -1;
+    node.x28_next = -1;
   }
 }
 
