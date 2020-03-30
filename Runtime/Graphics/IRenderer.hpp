@@ -27,7 +27,7 @@ struct SShader;
 
 class IRenderer {
 public:
-  typedef void (*TDrawableCallback)(const void*, const void*, int);
+  using TDrawableCallback = void (*)(const void*, const void*, int);
   using TReflectionCallback = std::function<void(void*, const zeus::CVector3f&)>;
 
   enum class EDrawableSorting { SortedCallback, UnsortedCallback };
