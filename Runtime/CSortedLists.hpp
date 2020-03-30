@@ -31,7 +31,7 @@ class CSortedListManager {
   std::array<SNode, 1024> x0_nodes;
   std::array<SSortedList, 6> xb000_sortedLists;
   void Reset();
-  void AddToLinkedList(s16 a, s16& b, s16& c) const;
+  void AddToLinkedList(s16 a, s16& b, s16& c);
   void RemoveFromList(ESortedList, s16);
   void MoveInList(ESortedList, s16);
   void InsertInList(ESortedList, SNode& node);

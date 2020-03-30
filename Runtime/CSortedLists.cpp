@@ -30,17 +30,19 @@ void CSortedListManager::Reset() {
   }
 }
 
-void CSortedListManager::AddToLinkedList(s16 nodeId, s16& headId, s16& tailId) const {
+void CSortedListManager::AddToLinkedList(s16 nodeId, s16& headId, s16& tailId) {
   if (headId == -1) {
-    const_cast<SNode&>(AccessElement(x0_nodes, nodeId)).x28_next = headId;
+    AccessElement(x0_nodes, nodeId).x28_next = headId;
     headId = nodeId;
     tailId = nodeId;
   } else {
-    if (AccessElement(x0_nodes, nodeId).x28_next != -1)
+    if (AccessElement(x0_nodes, nodeId).x28_next != -1) {
       return;
-    if (tailId == nodeId)
+    }
+    if (tailId == nodeId) {
       return;
-    const_cast<SNode&>(AccessElement(x0_nodes, nodeId)).x28_next = headId;
+    }
+    AccessElement(x0_nodes, nodeId).x28_next = headId;
     headId = nodeId;
   }
 }
