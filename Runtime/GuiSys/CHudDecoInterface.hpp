@@ -28,7 +28,7 @@ public:
   virtual void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position) = 0;
   virtual void SetFrameColorValue(float v);
   virtual void Update(float dt, const CStateManager& stateMgr) = 0;
-  virtual void Draw() const;
+  virtual void Draw();
   virtual void ProcessInput(const CFinalInput& input);
   virtual void UpdateCameraDebugSettings(float fov, float y, float z) = 0;
   virtual void UpdateHudAlpha() = 0;
@@ -116,7 +116,7 @@ public:
   const CScannableObjectInfo* GetCurrScanInfo(const CStateManager& stateMgr) const;
   void UpdateScanDisplay(const CStateManager& stateMgr, float dt);
   void Update(float dt, const CStateManager& stateMgr) override;
-  void Draw() const override;
+  void Draw() override;
   void ProcessInput(const CFinalInput& input) override;
   void UpdateCameraDebugSettings(float fov, float y, float z) override;
   void UpdateHudAlpha() override;

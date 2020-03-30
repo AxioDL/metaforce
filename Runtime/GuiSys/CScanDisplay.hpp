@@ -45,7 +45,7 @@ public:
   public:
     explicit CDataDot(const TLockedToken<CTexture>& dataDotTex) : m_quad(EFilterType::Add, dataDotTex) {}
     void Update(float dt);
-    void Draw(const zeus::CColor& color, float radius) const;
+    void Draw(const zeus::CColor& color, float radius);
     float GetTransitionFactor() const { return x1c_transDur > 0.f ? x20_remTime / x1c_transDur : 0.f; }
     void StartTransitionTo(const zeus::CVector2f&, float);
     void SetDestPosition(const zeus::CVector2f&);
@@ -90,7 +90,7 @@ public:
                  CGuiWidget* textGroup, CGuiModel* xmark, CGuiModel* abutton, CGuiModel* dash, float scanTime);
   void StopScan();
   void Update(float dt, float scanningTime);
-  void Draw() const;
+  void Draw();
   EScanState GetScanState() const { return xc_state; }
   TUniqueId ScanTarget() const { return x10_objId; }
 };
