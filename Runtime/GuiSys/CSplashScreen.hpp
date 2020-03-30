@@ -24,7 +24,7 @@ private:
 public:
   explicit CSplashScreen(ESplashScreen);
   EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) override;
-  void Draw() const override;
+  void Draw() override;
 };
 
 } // namespace urde

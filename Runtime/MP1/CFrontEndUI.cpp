@@ -1906,9 +1906,10 @@ void CFrontEndUI::CompleteStateTransition() {
 
 void CFrontEndUI::HandleDebugMenuReturnValue(CGameDebug::EReturnValue val, CArchitectureQueue& queue) {}
 
-void CFrontEndUI::Draw() const {
-  if (x14_phase < EPhase::DisplayFrontEnd)
+void CFrontEndUI::Draw() {
+  if (x14_phase < EPhase::DisplayFrontEnd) {
     return;
+  }
   SCOPED_GRAPHICS_DEBUG_GROUP("CFrontEndUI::Draw", zeus::skGreen);
 
   if (xec_emuFrme) {

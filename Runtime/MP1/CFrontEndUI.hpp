@@ -385,7 +385,7 @@ public:
   void StartStateTransition(EScreen screen);
   void CompleteStateTransition();
   void HandleDebugMenuReturnValue(CGameDebug::EReturnValue val, CArchitectureQueue& queue);
-  void Draw() const override;
+  void Draw() override;
   void UpdateMovies(float dt);
   bool PumpMovieLoad();
   void ProcessUserInput(const CFinalInput& input, CArchitectureQueue& queue);

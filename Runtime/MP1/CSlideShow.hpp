@@ -37,7 +37,7 @@ public:
 
     void SetTexture(const TLockedToken<CTexture>& tex) { m_texQuad.emplace(EFilterType::Blend, tex); }
     bool IsLoaded() const { return m_texQuad && m_texQuad->GetTex().IsLoaded(); }
-    void Draw() const;
+    void Draw();
   };
 
 private:
@@ -110,7 +110,7 @@ public:
   CSlideShow();
   EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) override;
   bool GetIsContinueDraw() const override { return false; }
-  void Draw() const override;
+  void Draw() override;
 
   static u32 SlideShowGalleryFlags();
 };
