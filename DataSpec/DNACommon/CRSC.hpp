@@ -18,20 +18,33 @@ class ProjectPath;
 }
 
 namespace DataSpec::DNAParticle {
+
 template <class IDType>
-struct CRSM : BigDNA {
-  AT_DECL_EXPLICIT_DNA_YAML
-  AT_SUBDECL_DNA
-  std::unordered_map<FourCC, ChildResourceFactory<IDType>> x0_generators;
-  std::unordered_map<FourCC, uint32_t> x10_sfx;
-  std::unordered_map<FourCC, ChildResourceFactory<IDType>> x20_decals;
-  float x30_RNGE;
-  float x34_FOFF;
+struct _CRSM {
+  static constexpr ParticleType Type = ParticleType::CRSM;
+#define RES_ENTRY(name, identifier) ChildResourceFactory<IDType> identifier;
+#define U32_ENTRY(name, identifier) uint32_t identifier = ~0;
+#define FLOAT_ENTRY(name, identifier) float identifier = 0.f;
+#include "CRSC.def"
 
-  CRSM();
+  template<typename _Func>
+  void constexpr Enumerate(_Func f) {
+#define ENTRY(name, identifier) f(FOURCC(name), identifier);
+#include "CRSC.def"
+  }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
+  template<typename _Func>
+  bool constexpr Lookup(FourCC fcc, _Func f) {
+    switch (fcc.toUint32()) {
+#define ENTRY(name, identifier) case SBIG(name): f(identifier); return true;
+#include "CRSC.def"
+    default: return false;
+    }
+  }
 };
+template <class IDType>
+using CRSM = PPImpl<_CRSM<IDType>>;
+
 template <class IDType>
 bool ExtractCRSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 
