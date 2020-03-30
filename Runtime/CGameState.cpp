@@ -38,15 +38,17 @@ CWorldLayerState::CWorldLayerState(CBitStreamReader& reader, const CSaveWorld& s
 
 void CWorldLayerState::PutTo(CBitStreamWriter& writer) const {
   u32 totalLayerCount = 0;
-  for (int i = 0; i < x0_areaLayers.size(); ++i)
-    totalLayerCount += GetAreaLayerCount(i) - 1;
+  for (size_t i = 0; i < x0_areaLayers.size(); ++i) {
+    totalLayerCount += GetAreaLayerCount(s32(i)) - 1;
+  }
 
   writer.WriteEncoded(totalLayerCount, 10);
 
-  for (int i = 0; i < x0_areaLayers.size(); ++i) {
-    u32 count = GetAreaLayerCount(i);
-    for (u32 l = 1; l < count; ++l)
-      writer.WriteEncoded(IsLayerActive(i, l), 1);
+  for (size_t i = 0; i < x0_areaLayers.size(); ++i) {
+    const u32 count = GetAreaLayerCount(s32(i));
+    for (u32 l = 1; l < count; ++l) {
+      writer.WriteEncoded(IsLayerActive(s32(i), s32(l)), 1);
+    }
   }
 }
 
@@ -95,8 +97,9 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data) {
   CBitStreamReader stream(data, 4096);
   GameFileStateInfo ret;
 
-  for (u32 i = 0; i < 128; i++)
+  for (u32 i = 0; i < 128; i++) {
     stream.ReadEncoded(8);
+  }
   ret.x14_timestamp = stream.ReadEncoded(32);
 
   ret.x20_hardMode = stream.ReadEncoded(1);
