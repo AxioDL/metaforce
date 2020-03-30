@@ -25,21 +25,47 @@ CGuiTextSupport::CGuiTextSupport(CAssetId fontId, const CGuiTextProperties& prop
   x2cc_font = store->GetObj({SBIG('FONT'), fontId});
 }
 
-CTextRenderBuffer* CGuiTextSupport::GetCurrentPageRenderBuffer() const {
-  if (x60_renderBuf && !x308_multipageFlag)
-    return const_cast<CTextRenderBuffer*>(&*x60_renderBuf);
-  if (!x308_multipageFlag || x2ec_renderBufferPages.size() <= x304_pageCounter)
+CTextRenderBuffer* CGuiTextSupport::GetCurrentPageRenderBuffer() {
+  if (x60_renderBuf && !x308_multipageFlag) {
+    return &*x60_renderBuf;
+  }
+
+  if (!x308_multipageFlag || x2ec_renderBufferPages.size() <= x304_pageCounter) {
     return nullptr;
+  }
+
   int idx = 0;
-  for (const CTextRenderBuffer& buf : x2ec_renderBufferPages)
-    if (idx++ == x304_pageCounter)
-      return const_cast<CTextRenderBuffer*>(&buf);
+  for (CTextRenderBuffer& buf : x2ec_renderBufferPages) {
+    if (idx++ == x304_pageCounter) {
+      return &buf;
+    }
+  }
+
+  return nullptr;
+}
+
+const CTextRenderBuffer* CGuiTextSupport::GetCurrentPageRenderBuffer() const {
+  if (x60_renderBuf && !x308_multipageFlag) {
+    return &*x60_renderBuf;
+  }
+
+  if (!x308_multipageFlag || x2ec_renderBufferPages.size() <= x304_pageCounter) {
+    return nullptr;
+  }
+
+  int idx = 0;
+  for (const CTextRenderBuffer& buf : x2ec_renderBufferPages) {
+    if (idx++ == x304_pageCounter) {
+      return &buf;
+    }
+  }
+
   return nullptr;
 }
 
 float CGuiTextSupport::GetCurrentAnimationOverAge() const {
   float ret = 0.f;
-  if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
+  if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
     if (x50_typeEnable) {
       if (x40_primStartTimes.size()) {
         auto& lastTime = x40_primStartTimes.back();
@@ -53,16 +79,18 @@ float CGuiTextSupport::GetCurrentAnimationOverAge() const {
 }
 
 float CGuiTextSupport::GetNumCharsTotal() const {
-  if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer())
-    if (x50_typeEnable)
+  if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
+    if (x50_typeEnable) {
       return buf->GetPrimitiveCount();
+    }
+  }
   return 0.f;
 }
 
 float CGuiTextSupport::GetNumCharsPrinted() const {
-  if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
+  if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
     if (x50_typeEnable) {
-      float charsPrinted = x3c_curTime * x58_chRate;
+      const float charsPrinted = x3c_curTime * x58_chRate;
       return std::min(charsPrinted, float(buf->GetPrimitiveCount()));
     }
   }
@@ -70,9 +98,11 @@ float CGuiTextSupport::GetNumCharsPrinted() const {
 }
 
 float CGuiTextSupport::GetTotalAnimationTime() const {
-  if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer())
-    if (x50_typeEnable)
+  if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
+    if (x50_typeEnable) {
       return buf->GetPrimitiveCount() / x58_chRate;
+    }
+  }
   return 0.f;
 }
 
@@ -235,16 +265,23 @@ void CGuiTextSupport::SetText(std::u16string_view str, bool multipage) {
 
 void CGuiTextSupport::SetText(std::string_view str, bool multipage) { SetText(hecl::UTF8ToChar16(str), multipage); }
 
-bool CGuiTextSupport::_GetIsTextSupportFinishedLoading() const {
-  for (const CToken& tok : x2bc_assets) {
-    const_cast<CToken&>(tok).Lock();
-    if (!tok.IsLoaded())
+bool CGuiTextSupport::_GetIsTextSupportFinishedLoading() {
+  for (CToken& tok : x2bc_assets) {
+    tok.Lock();
+
+    if (!tok.IsLoaded()) {
       return false;
+    }
   }
-  if (!x2cc_font)
+
+  if (!x2cc_font) {
     return true;
-  if (x2cc_font.IsLoaded())
+  }
+
+  if (x2cc_font.IsLoaded()) {
     return x2cc_font->IsFinishedLoading();
+  }
+
   return false;
 }
 
@@ -269,8 +306,8 @@ void CGuiTextSupport::SetImageBaseline(bool b) {
   }
 }
 
-bool CGuiTextSupport::GetIsTextSupportFinishedLoading() const {
-  const_cast<CGuiTextSupport*>(this)->CheckAndRebuildRenderBuffer();
+bool CGuiTextSupport::GetIsTextSupportFinishedLoading() {
+  CheckAndRebuildRenderBuffer();
   return _GetIsTextSupportFinishedLoading();
 }
 

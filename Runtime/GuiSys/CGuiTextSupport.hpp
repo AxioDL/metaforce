@@ -84,8 +84,10 @@ class CGuiTextSupport {
   int x304_pageCounter = 0;
   bool x308_multipageFlag = false;
 
-  CTextRenderBuffer* GetCurrentPageRenderBuffer() const;
-  bool _GetIsTextSupportFinishedLoading() const;
+  CTextRenderBuffer* GetCurrentPageRenderBuffer();
+  const CTextRenderBuffer* GetCurrentPageRenderBuffer() const;
+
+  bool _GetIsTextSupportFinishedLoading();
 
 public:
   CGuiTextSupport(CAssetId fontId, const CGuiTextProperties& props, const zeus::CColor& fontCol,
@@ -114,7 +116,7 @@ public:
   void SetJustification(EJustification j);
   void SetVerticalJustification(EVerticalJustification j);
   void SetImageBaseline(bool b);
-  bool GetIsTextSupportFinishedLoading() const;
+  bool GetIsTextSupportFinishedLoading();
   float GetCurTime() const { return x3c_curTime; }
   void SetCurTime(float t) { x3c_curTime = t; }
   std::u16string_view GetString() const { return x0_string; }
