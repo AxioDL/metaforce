@@ -318,7 +318,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
       for (size_t i = x48_chainCount; i < x4c_chainHeads.size(); ++i) {
         x4c_chainHeads[i] = nullptr;
       }
-      x48_chainCount = 5;
+      x48_chainCount = x4c_chainHeads.size();
     }
 
     for (std::unique_ptr<CGameArea>& area : x18_areas)
