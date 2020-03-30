@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -67,7 +68,7 @@ public:
 class CGameState {
   friend class CStateManager;
 
-  bool x0_[128] = {};
+  std::array<bool, 128> x0_{};
   u32 x80_;
   CAssetId x84_mlvlId;
   std::vector<CWorldState> x88_worldStates;

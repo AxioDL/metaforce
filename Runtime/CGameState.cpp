@@ -143,8 +143,9 @@ CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx) : x20c_saveFileIdx
   x9c_transManager = std::make_shared<CWorldTransManager>();
   x228_25_initPowerupsAtFirstSpawn = true;
 
-  for (u32 i = 0; i < 128; i++)
-    x0_[i] = stream.ReadEncoded(8);
+  for (bool& value : x0_) {
+    value = stream.ReadEncoded(8) != 0;
+  }
   stream.ReadEncoded(32);
 
   x228_24_hardMode = stream.ReadEncoded(1);
@@ -206,8 +207,9 @@ void CGameState::WriteBackupBuf() {
 }
 
 void CGameState::PutTo(CBitStreamWriter& writer) {
-  for (u32 i = 0; i < 128; i++)
-    writer.WriteEncoded(x0_[i], 8);
+  for (const bool value : x0_) {
+    writer.WriteEncoded(u32(value), 8);
+  }
 
   writer.WriteEncoded(CBasics::ToWiiTime(std::chrono::system_clock::now()) / CBasics::TICKS_PER_SECOND, 32);
   writer.WriteEncoded(x228_24_hardMode, 1);
