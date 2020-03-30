@@ -1056,9 +1056,9 @@ std::pair<zeus::CVector2f, zeus::CVector2f> CBooRenderer::SetViewportOrtho(bool 
 
 void CBooRenderer::SetClippingPlanes(const zeus::CFrustum& frustum) { x44_frustumPlanes = frustum; }
 
-void CBooRenderer::SetViewport(int l, int b, int w, int h) {
-  CGraphics::SetViewport(l, b, w, h);
-  CGraphics::SetScissor(l, b, w, h);
+void CBooRenderer::SetViewport(int left, int bottom, int width, int height) {
+  CGraphics::SetViewport(left, bottom, width, height);
+  CGraphics::SetScissor(left, bottom, width, height);
 }
 
 void CBooRenderer::SetDebugOption(EDebugOption, int) {}
