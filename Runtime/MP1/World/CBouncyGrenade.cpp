@@ -14,7 +14,7 @@ CBouncyGrenade::CBouncyGrenade(TUniqueId uid, std::string_view name, const CEnti
                                TUniqueId parentId, const SBouncyGrenadeData& data, float velocity,
                                float explodePlayerDistance)
 : CPhysicsActor(uid, true, name, info, xf, std::move(mData), {EMaterialTypes::Projectile, EMaterialTypes::Solid}, {},
-                {data.x0_.x0_mass}, actParams, 0.3f, 0.1f)
+                SMoverData(data.x0_.x0_mass), actParams, 0.3f, 0.1f)
 , x258_data(data)
 , x294_numBounces(data.x34_numBounces)
 , x298_parentId(parentId)
