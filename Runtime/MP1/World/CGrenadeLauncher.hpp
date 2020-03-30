@@ -63,57 +63,56 @@ public:
   SBouncyGrenadeData x0_;
   CAssetId x3c_;
   CAssetId x40_;
-  u16 x44_sfx;
+  u16 x44_launcherExplodeSfx;
   SGrenadeTrajectoryInfo x48_trajectoryInfo;
 
   CGrenadeLauncherData(const SBouncyGrenadeData& data, CAssetId w1, CAssetId w2, u16 sfx,
                        const SGrenadeTrajectoryInfo& trajectoryInfo)
-  : x0_(data), x3c_(w1), x40_(w2), x44_sfx(sfx), x48_trajectoryInfo(trajectoryInfo){};
+  : x0_(data), x3c_(w1), x40_(w2), x44_launcherExplodeSfx(sfx), x48_trajectoryInfo(trajectoryInfo){};
 };
 
 class CGrenadeLauncher : public CPhysicsActor {
 public:
-  int x258_ = 0;
-  CHealthInfo x25c_;
+  int x258_started = 0;
+  CHealthInfo x25c_healthInfo;
   CDamageVulnerability x264_vulnerability;
-  TUniqueId x2cc_otherId;
+  TUniqueId x2cc_parentId;
   CGrenadeLauncherData x2d0_data;
   CCollidableSphere x328_cSphere;
-  float x348_ = -1.f;
+  float x348_shotTimer = -1.f;
   zeus::CColor x34c_color1{1.f};
   CActorParameters x350_actParms;
-  // was TToken<CGenDescription>
-  TLockedToken<CGenDescription> x3c0_particleGenDesc;
+  std::optional<TLockedToken<CGenDescription>> x3b8_particleGenDesc;
   std::array<s32, 4> x3c8_animIds;
   float x3d8_ = 0.f;
   float x3dc_ = 0.f;
   float x3e0_ = 0.f;
   float x3e4_ = 0.f;
   float x3e8_thermalMag;
-  float x3ec_ = 0.f;
+  float x3ec_damageTimer = 0.f;
   zeus::CColor x3f0_color2{0.5f, 0.f, 0.f};
   zeus::CColor x3f4_color3{0.f};
   float x3f8_;
-  bool x3fc_ = false;
-  bool x3fd_ = true;
+  bool x3fc_launchGrenade = false;
+  bool x3fd_visible = true;
   bool x3fe_ = true;
 
   CGrenadeLauncher(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                    CModelData&& mData, const zeus::CAABox& bounds, const CHealthInfo& healthInfo,
-                   const CDamageVulnerability& vulnerability, const CActorParameters& actParams, TUniqueId otherId,
+                   const CDamageVulnerability& vulnerability, const CActorParameters& actParams, TUniqueId parentId,
                    const CGrenadeLauncherData& data, float f1);
 
   void Accept(IVisitor& visitor) override { visitor.Visit(this); }
-  //  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  //  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
   const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x328_cSphere; }
   const CDamageVulnerability* GetDamageVulnerability() const override { return &x264_vulnerability; }
-  //  std::optional<zeus::CAABox> GetTouchBounds() const override;
-  //  CHealthInfo* HealthInfo(CStateManager& mgr) override;
-  //  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  //  void Render(const CStateManager& mgr) const override;
-  //  void Think(float dt, CStateManager& mgr) override;
-  //  void Touch(CActor& act, CStateManager& mgr) override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  CHealthInfo* HealthInfo(CStateManager& mgr) override { return &x25c_healthInfo; }
+  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void Render(const CStateManager& mgr) const override;
+  void Think(float dt, CStateManager& mgr) override;
+  void Touch(CActor& act, CStateManager& mgr) override;
 
   static zeus::CVector3f GrenadeTarget(const CStateManager& mgr);
   static void CalculateGrenadeTrajectory(const zeus::CVector3f& target, const zeus::CVector3f& origin,
@@ -123,9 +122,10 @@ protected:
   void UpdateCollision();
   void UpdateColor(float arg);
   void sub_8022f69c(float arg);
-  void sub_8022f770(CStateManager& mgr);
-  void sub_8022f9e0(CStateManager& mgr, float arg);
+  void CreateExplosion(CStateManager& mgr);
+  void sub_8022f9e0(CStateManager& mgr, float dt);
   void sub_80230438();
+  void LaunchGrenade(CStateManager& mgr);
 };
 } // namespace MP1
 } // namespace urde

@@ -144,9 +144,9 @@ public:
   void Attack(CStateManager& mgr, EStateMsg msg, float dt) override;
   void Taunt(CStateManager& mgr, EStateMsg msg, float dt) override;
   void ProjectileAttack(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void Cover(CStateManager& mgr, EStateMsg msg, float dt) override;
   void SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) override;
   void CallForBackup(CStateManager& mgr, EStateMsg msg, float dt) override;
-  void Cover(CStateManager& mgr, EStateMsg msg, float dt) override;
   bool TooClose(CStateManager& mgr, float arg) override;
   bool InDetectionRange(CStateManager& mgr, float arg) override;
   bool SpotPlayer(CStateManager& mgr, float arg) override;

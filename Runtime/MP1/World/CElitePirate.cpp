@@ -173,7 +173,7 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
       }
       break;
     }
-    if (!x988_31_) { // TODO is this right?
+    if (x988_31_) {
       if (x420_curDamageRemTime <= 0.f) {
         CDamageInfo info = GetContactDamage();
         info.SetDamage(0.5f * info.GetDamage());
@@ -783,16 +783,13 @@ bool CElitePirate::IsArmClawCollider(TUniqueId uid, const rstl::reserved_vector<
 void CElitePirate::AddCollisionList(const SJointInfo* joints, size_t count,
                                     std::vector<CJointCollisionDescription>& outJoints) const {
   const CAnimData* animData = GetModelData()->GetAnimationData();
-
   for (size_t i = 0; i < count; ++i) {
     const auto& joint = joints[i];
     const CSegId from = animData->GetLocatorSegId(joint.from);
     const CSegId to = animData->GetLocatorSegId(joint.to);
-
     if (to.IsInvalid() || from.IsInvalid()) {
       continue;
     }
-
     outJoints.emplace_back(CJointCollisionDescription::SphereSubdivideCollision(
         to, from, joint.radius, joint.separation, CJointCollisionDescription::EOrientationType::One, joint.from, 10.f));
   }
@@ -801,15 +798,12 @@ void CElitePirate::AddCollisionList(const SJointInfo* joints, size_t count,
 void CElitePirate::AddSphereCollisionList(const SSphereJointInfo* joints, size_t count,
                                           std::vector<CJointCollisionDescription>& outJoints) const {
   const CAnimData* animData = GetModelData()->GetAnimationData();
-
   for (size_t i = 0; i < count; ++i) {
     const auto& joint = joints[i];
     const CSegId seg = animData->GetLocatorSegId(joint.name);
-
     if (seg.IsInvalid()) {
       continue;
     }
-
     outJoints.emplace_back(CJointCollisionDescription::SphereCollision(seg, joint.radius, joint.name, 10.f));
   }
 }
@@ -891,7 +885,7 @@ bool CElitePirate::IsArmClawCollider(std::string_view name, std::string_view loc
 }
 
 void CElitePirate::CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid) {
-  CAnimationParameters& params = x5d8_data.x90_launcherAnimParams;
+  const CAnimationParameters& params = x5d8_data.x90_launcherAnimParams;
   if (!params.GetACSFile().IsValid()) {
     return;
   }
@@ -1068,24 +1062,22 @@ void CElitePirate::ExtendTouchBounds(CStateManager& mgr, const rstl::reserved_ve
 }
 
 bool CElitePirate::ShouldFireFromLauncher(CStateManager& mgr, TUniqueId launcherId) {
-  if (x7b8_attackTimer <= 0.f && launcherId != kInvalidUniqueId) {
-    const CActor* launcher = static_cast<const CActor*>(mgr.GetObjectById(launcherId));
-    if (launcher != nullptr) {
-      const zeus::CVector3f& aim = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
-      if (x300_maxAttackRange * x300_maxAttackRange <= (aim - GetTranslation()).magSquared() && !ShouldTurn(mgr, 0.f)) {
-        const zeus::CVector3f& origin = sub_80228864(launcher);
-        if (!IsPatternObstructed(mgr, origin, aim)) {
-          const zeus::CVector3f& target = CGrenadeLauncher::GrenadeTarget(mgr);
-          float angleOut = x5d8_data.xe0_trajectoryInfo.x8_angleMin, velocityOut = x5d8_data.xe0_trajectoryInfo.x0_;
-          CGrenadeLauncher::CalculateGrenadeTrajectory(target, origin, x5d8_data.xe0_trajectoryInfo, angleOut,
-                                                       velocityOut);
-          const zeus::CVector3f& rot = GetTransform().rotate({0.f, std::cos(angleOut), std::sin(angleOut)});
-          return !CPatterned::IsPatternObstructed(mgr, target, target + (7.5f * rot));
-        }
-      }
-    }
-  }
-  return false;
+  if (x7b8_attackTimer > 0.f || launcherId == kInvalidUniqueId)
+    return false;
+  const CActor* launcher = static_cast<const CActor*>(mgr.GetObjectById(launcherId));
+  if (launcher == nullptr)
+    return false;
+  const zeus::CVector3f& aim = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
+  if (x300_maxAttackRange * x300_maxAttackRange > (aim - GetTranslation()).magSquared() || ShouldTurn(mgr, 0.f))
+    return false;
+  const zeus::CVector3f& origin = sub_80228864(launcher);
+  if (IsPatternObstructed(mgr, origin, aim))
+    return false;
+  const zeus::CVector3f& target = CGrenadeLauncher::GrenadeTarget(mgr);
+  float angleOut = x5d8_data.xe0_trajectoryInfo.x8_angleMin, velocityOut = x5d8_data.xe0_trajectoryInfo.x0_;
+  CGrenadeLauncher::CalculateGrenadeTrajectory(target, origin, x5d8_data.xe0_trajectoryInfo, angleOut, velocityOut);
+  const zeus::CVector3f& rot = GetTransform().rotate({0.f, std::cos(angleOut), std::sin(angleOut)});
+  return !CPatterned::IsPatternObstructed(mgr, target, target + (7.5f * rot));
 }
 
 bool CElitePirate::ShouldCallForBackupFromLauncher(CStateManager& mgr, TUniqueId uid) {
