@@ -188,19 +188,20 @@ int CWallCrawlerSwarm::SelectLockOnIdx(CStateManager& mgr) const {
   }
 
   int ret = -1;
-  float omtd = mgr.GetPlayer().GetOrbitMaxTargetDistance(mgr);
-  float omtdSq = omtd * omtd;
+  const float omtd = mgr.GetPlayer().GetOrbitMaxTargetDistance(mgr);
+  const float omtdSq = omtd * omtd;
   float maxDot = 0.5f;
-  for (int i = 0; i < x108_boids.size(); ++i) {
+  for (size_t i = 0; i < x108_boids.size(); ++i) {
     const CBoid& b = x108_boids[i];
     if (b.GetActive()) {
       zeus::CVector3f delta = b.GetTranslation() - fpCamXf.origin;
-      if (delta.magSquared() > omtdSq)
+      if (delta.magSquared() > omtdSq) {
         continue;
+      }
       if (delta.canBeNormalized()) {
-        float thisDot = fpCamXf.basis[1].dot(delta.normalized());
+        const float thisDot = fpCamXf.basis[1].dot(delta.normalized());
         if (thisDot > maxDot) {
-          ret = i;
+          ret = static_cast<int>(i);
           maxDot = thisDot;
         }
       }
@@ -669,7 +670,7 @@ zeus::CVector3f CWallCrawlerSwarm::FindClosestCell(const zeus::CVector3f& pos) c
 
 void CWallCrawlerSwarm::UpdateEffects(CStateManager& mgr, CAnimData& aData, int vol) {
   if (aData.GetPassedSoundPOICount() > 0 && !CAnimData::g_SoundPOINodes.empty()) {
-    for (int i = 0; i < aData.GetPassedSoundPOICount(); ++i) {
+    for (size_t i = 0; i < aData.GetPassedSoundPOICount(); ++i) {
       const CSoundPOINode& n = CAnimData::g_SoundPOINodes[i];
       if (n.GetPoiType() == EPOIType::Sound &&
           (n.GetCharacterIndex() == -1 || n.GetCharacterIndex() == aData.GetCharacterIndex())) {
@@ -811,8 +812,8 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
   int r9 = 0;
   int r3 = 0;
   int r8 = 0;
-  bool _38F8[4] = {};
-  bool _38F4[4] = {};
+  std::array<bool, 4> _38F8{};
+  std::array<bool, 4> _38F4{};
   for (const auto& b : x108_boids) {
     if (b.GetActive() && !b.x80_26_launched) {
       if (b.x80_27_scarabExplodeTimerEnabled || b.x80_28_nearPlayer) {
@@ -826,16 +827,18 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
     ++r9;
   }
 
-  for (int i = 0; i < 4; ++i) {
+  for (size_t i = 0; i < _38F4.size(); ++i) {
     x4b0_modelDatas[i]->GetAnimationData()->SetPlaybackRate(x160_animPlaybackSpeed);
     deltas1 = x4b0_modelDatas[i]->AdvanceAnimation(dt, mgr, x4_areaId, true);
-    x4b0_modelDatas[i+4]->GetAnimationData()->SetPlaybackRate(x160_animPlaybackSpeed);
-    deltas2 = x4b0_modelDatas[i+4]->AdvanceAnimation(dt, mgr, x4_areaId, true);
-    if (x4b0_modelDatas[i]->HasAnimData() && _38F4[i])
+    x4b0_modelDatas[i + 4]->GetAnimationData()->SetPlaybackRate(x160_animPlaybackSpeed);
+    deltas2 = x4b0_modelDatas[i + 4]->AdvanceAnimation(dt, mgr, x4_areaId, true);
+    if (x4b0_modelDatas[i]->HasAnimData() && _38F4[i]) {
       UpdateEffects(mgr, *x4b0_modelDatas[i]->GetAnimationData(), r8 * 44 / x548_numBoids + 0x53);
-    if (x4b0_modelDatas[i+4]->HasAnimData() && _38F8[i])
-      UpdateEffects(mgr, *x4b0_modelDatas[i+4]->GetAnimationData(), r3 * 44 / x548_numBoids + 0x53);
-    for (int r20 = i; r20 < x108_boids.size(); r20 += 4) {
+    }
+    if (x4b0_modelDatas[i + 4]->HasAnimData() && _38F8[i]) {
+      UpdateEffects(mgr, *x4b0_modelDatas[i + 4]->GetAnimationData(), r3 * 44 / x548_numBoids + 0x53);
+    }
+    for (size_t r20 = i; r20 < x108_boids.size(); r20 += 4) {
       CBoid& b = x108_boids[r20];
       if (b.GetActive()) {
         if (b.x80_26_launched) {
