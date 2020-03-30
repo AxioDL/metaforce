@@ -116,19 +116,19 @@ void CSortedListManager::InsertInList(ESortedList list, SNode& node) {
   ++sl.x800_size;
 }
 
-s16 CSortedListManager::FindInListUpper(ESortedList list, float val) const {
+s16 CSortedListManager::FindInListUpper(ESortedList list, float value) const {
   const auto listIndex = static_cast<size_t>(list);
   const SSortedList& sl = xb000_sortedLists[listIndex];
   int idx = 0;
 
   for (int i = sl.x800_size; i > 0;) {
-    /* Binary search cycle to find index */
-    if (!(val < AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + i / 2)).x4_box[listIndex])) {
-      /* Upper */
+    // Binary search cycle to find index
+    if (!(value < AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + i / 2)).x4_box[listIndex])) {
+      // Upper
       idx = idx + i / 2 + 1;
       i = i - i / 2 - 1;
     } else {
-      /* Lower */
+      // Lower
       i /= 2;
     }
   }
@@ -136,19 +136,19 @@ s16 CSortedListManager::FindInListUpper(ESortedList list, float val) const {
   return idx;
 }
 
-s16 CSortedListManager::FindInListLower(ESortedList list, float val) const {
+s16 CSortedListManager::FindInListLower(ESortedList list, float value) const {
   const auto listIndex = static_cast<size_t>(list);
   const SSortedList& sl = xb000_sortedLists[listIndex];
   int idx = 0;
 
   for (int i = sl.x800_size; i > 0;) {
-    /* Binary search cycle to find index */
-    if (AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + i / 2)).x4_box[listIndex] < val) {
-      /* Upper */
+    // Binary search cycle to find index
+    if (AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + i / 2)).x4_box[listIndex] < value) {
+      // Upper
       idx = idx + i / 2 + 1;
       i = i - i / 2 - 1;
     } else {
-      /* Lower */
+      // Lower
       i /= 2;
     }
   }
@@ -273,10 +273,11 @@ void CSortedListManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& o
   }
 }
 
-void CSortedListManager::Remove(const CActor* act) {
-  SNode& node = AccessElement(x0_nodes, act->GetUniqueId().Value());
-  if (!node.x2a_populated)
+void CSortedListManager::Remove(const CActor* actor) {
+  SNode& node = AccessElement(x0_nodes, actor->GetUniqueId().Value());
+  if (!node.x2a_populated) {
     return;
+  }
 
   RemoveFromList(ESortedList::MinX, node.x1c_selfIdxs[0]);
   RemoveFromList(ESortedList::MaxX, node.x1c_selfIdxs[3]);
@@ -287,8 +288,8 @@ void CSortedListManager::Remove(const CActor* act) {
   node.x2a_populated = false;
 }
 
-void CSortedListManager::Move(const CActor* act, const zeus::CAABox& aabb) {
-  SNode& node = AccessElement(x0_nodes, act->GetUniqueId().Value());
+void CSortedListManager::Move(const CActor* actor, const zeus::CAABox& aabb) {
+  SNode& node = AccessElement(x0_nodes, actor->GetUniqueId().Value());
   node.x4_box = aabb;
 
   MoveInList(ESortedList::MinX, node.x1c_selfIdxs[0]);
@@ -299,14 +300,14 @@ void CSortedListManager::Move(const CActor* act, const zeus::CAABox& aabb) {
   MoveInList(ESortedList::MaxZ, node.x1c_selfIdxs[5]);
 }
 
-void CSortedListManager::Insert(const CActor* act, const zeus::CAABox& aabb) {
-  SNode& node = AccessElement(x0_nodes, act->GetUniqueId().Value());
+void CSortedListManager::Insert(const CActor* actor, const zeus::CAABox& aabb) {
+  SNode& node = AccessElement(x0_nodes, actor->GetUniqueId().Value());
   if (node.x2a_populated) {
-    Move(act, aabb);
+    Move(actor, aabb);
     return;
   }
 
-  SNode newNode(act, aabb);
+  SNode newNode(actor, aabb);
   InsertInList(ESortedList::MinX, newNode);
   InsertInList(ESortedList::MaxX, newNode);
   InsertInList(ESortedList::MinY, newNode);
@@ -316,10 +317,11 @@ void CSortedListManager::Insert(const CActor* act, const zeus::CAABox& aabb) {
   node = newNode;
 }
 
-bool CSortedListManager::ActorInLists(const CActor* act) const {
-  if (!act)
+bool CSortedListManager::ActorInLists(const CActor* actor) const {
+  if (!actor) {
     return false;
-  const SNode& node = AccessElement(x0_nodes, act->GetUniqueId().Value());
+  }
+  const SNode& node = AccessElement(x0_nodes, actor->GetUniqueId().Value());
   return node.x2a_populated;
 }
 
