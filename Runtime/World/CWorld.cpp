@@ -233,15 +233,18 @@ TAreaId CWorld::IGetAreaId(CAssetId id) const {
 }
 
 void CWorld::MoveToChain(CGameArea* area, EChain chain) {
-  if (area->x138_curChain == chain)
+  if (area->x138_curChain == chain) {
     return;
+  }
 
-  if (area->x138_curChain != EChain::Invalid)
-    if (x4c_chainHeads[int(area->x138_curChain)] == area)
-      x4c_chainHeads[int(area->x138_curChain)] = area->x130_next;
+  if (area->x138_curChain != EChain::Invalid) {
+    if (x4c_chainHeads[size_t(area->x138_curChain)] == area) {
+      x4c_chainHeads[size_t(area->x138_curChain)] = area->x130_next;
+    }
+  }
 
-  area->SetChain(x4c_chainHeads[int(chain)], chain);
-  x4c_chainHeads[int(chain)] = area;
+  area->SetChain(x4c_chainHeads[size_t(chain)], chain);
+  x4c_chainHeads[size_t(chain)] = area;
 }
 
 void CWorld::MoveAreaToAliveChain(TAreaId aid) { MoveToChain(x18_areas[aid].get(), EChain::Alive); }
@@ -307,12 +310,14 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
     r.readUint32Big();
 
     x18_areas.reserve(areaCount);
-    for (u32 i = 0; i < areaCount; ++i)
+    for (u32 i = 0; i < areaCount; ++i) {
       x18_areas.push_back(std::make_unique<CGameArea>(r, i, version));
+    }
 
-    if (x48_chainCount < 5) {
-      for (int i = x48_chainCount; i < 5; ++i)
+    if (x48_chainCount < x4c_chainHeads.size()) {
+      for (size_t i = x48_chainCount; i < x4c_chainHeads.size(); ++i) {
         x4c_chainHeads[i] = nullptr;
+      }
       x48_chainCount = 5;
     }
 
