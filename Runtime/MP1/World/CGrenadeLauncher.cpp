@@ -31,13 +31,13 @@ CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const C
   }
   GetModelData()->EnableLooping(true);
   const CPASDatabase& pasDatabase = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < x3c8_animIds.size(); i++) {
     const auto result = pasDatabase.FindBestAnimation({22, CPASAnimParm::FromEnum(i)}, -1);
     x3c8_animIds[i] = result.second;
   }
 }
 
-zeus::CVector3f CGrenadeLauncher::GrenadeTarget(const CStateManager& mgr) {
+auto CGrenadeLauncher::GrenadeTarget(const CStateManager& mgr) -> zeus::CVector3f {
   const zeus::CVector3f& aim = mgr.GetPlayer().GetAimPosition(mgr, 1.f);
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed) {
     return aim - zeus::CVector3f{0.f, 0.f, 0.5f * mgr.GetPlayer().GetEyeHeight()};
@@ -121,7 +121,7 @@ void CGrenadeLauncher::AddToRenderer(const zeus::CFrustum& frustum, const CState
   CActor::AddToRenderer(frustum, mgr);
 }
 
-std::optional<zeus::CAABox> CGrenadeLauncher::GetTouchBounds() const {
+auto CGrenadeLauncher::GetTouchBounds() const -> std::optional<zeus::CAABox> {
   return x328_cSphere.CalculateAABox(GetTransform());
 }
 
@@ -200,8 +200,9 @@ void CGrenadeLauncher::sub_8022f69c(float arg) {
 }
 
 void CGrenadeLauncher::CreateExplosion(CStateManager& mgr) {
-  if (!x3b8_particleGenDesc)
+  if (!x3b8_particleGenDesc) {
     return;
+  }
   mgr.AddObject(new CExplosion(*x3b8_particleGenDesc, mgr.AllocateUniqueId(), true,
                                {GetAreaIdAlways(), CEntity::NullConnectionList}, "Grenade Launcher Explode Fx"sv,
                                GetTransform(), 0, GetModelData()->GetScale(), zeus::skWhite));
@@ -210,7 +211,7 @@ void CGrenadeLauncher::CreateExplosion(CStateManager& mgr) {
 
 void CGrenadeLauncher::sub_8022f9e0(CStateManager& mgr, float dt) {
   CModelData* modelData = GetModelData();
-  CAnimData* animData;
+  CAnimData* animData = nullptr;
 
   if (modelData != nullptr && (animData = modelData->GetAnimationData()) != nullptr && x258_started == 1 && x3fe_) {
     const zeus::CVector3f& target = mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation();
@@ -257,11 +258,15 @@ void CGrenadeLauncher::sub_8022f9e0(CStateManager& mgr, float dt) {
     }
   } else {
     if (x3d8_ != 0.f) {
-      animData->DelAdditiveAnimation(x3c8_animIds[x3d8_ >= 0.f ? 1 : 0]);
+      if (animData != nullptr) { // Original code does not check
+        animData->DelAdditiveAnimation(x3c8_animIds[x3d8_ >= 0.f ? 1 : 0]);
+      }
       x3d8_ = 0.f;
     }
     if (x3e0_ != 0.f) {
-      animData->DelAdditiveAnimation(x3c8_animIds[x3e0_ <= 0.f ? 3 : 2]);
+      if (animData != nullptr) { // Original code does not check
+        animData->DelAdditiveAnimation(x3c8_animIds[x3e0_ <= 0.f ? 3 : 2]);
+      }
       x3e0_ = 0.f;
     }
   }
@@ -271,8 +276,9 @@ void CGrenadeLauncher::sub_80230438() {
   CModelData* modelData = GetModelData();
   CAnimData* animData;
   if (modelData == nullptr || (animData = modelData->GetAnimationData()) == nullptr || x258_started <= -1 ||
-      x258_started >= 2)
+      x258_started >= 2) {
     return;
+  }
 
   constexpr std::array arr = {0, 3};
   const auto& anim = animData->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
@@ -286,8 +292,9 @@ void CGrenadeLauncher::sub_80230438() {
 void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
   CModelData* modelData = GetModelData();
   CAnimData* animData;
-  if (modelData == nullptr || (animData = modelData->GetAnimationData()) == nullptr)
+  if (modelData == nullptr || (animData = modelData->GetAnimationData()) == nullptr) {
     return;
+  }
 
   const auto& anim = animData->GetCharacterInfo().GetPASDatabase().FindBestAnimation({24}, -1);
   if (anim.first > 0.f) {
@@ -295,7 +302,8 @@ void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
     const zeus::CVector3f& origin =
         GetTranslation() + GetTransform().rotate(GetLocatorTransform("grenade_LCTR"sv).origin);
     const zeus::CVector3f& target = GrenadeTarget(mgr);
-    float angleOut = x2d0_data.x48_trajectoryInfo.x8_angleMin, velocityOut = x2d0_data.x48_trajectoryInfo.x0_;
+    float angleOut = x2d0_data.x48_trajectoryInfo.x8_angleMin;
+    float velocityOut = x2d0_data.x48_trajectoryInfo.x0_;
     CalculateGrenadeTrajectory(target, origin, x2d0_data.x48_trajectoryInfo, angleOut, velocityOut);
 
     zeus::CVector3f dist = target - origin;

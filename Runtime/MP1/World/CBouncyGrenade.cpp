@@ -95,7 +95,9 @@ void CBouncyGrenade::CollidedWith(TUniqueId id, const CCollisionInfoList& list, 
   CPhysicsActor::CollidedWith(id, list, mgr);
 }
 
-std::optional<zeus::CAABox> CBouncyGrenade::GetTouchBounds() const { return GetModelData()->GetBounds(GetTransform()); }
+auto CBouncyGrenade::GetTouchBounds() const -> std::optional<zeus::CAABox> {
+  return GetModelData()->GetBounds(GetTransform());
+}
 
 void CBouncyGrenade::Render(const CStateManager& mgr) const {
   if (!x2b4_24_exploded) {
@@ -146,8 +148,9 @@ void CBouncyGrenade::Think(float dt, CStateManager& mgr) {
 void CBouncyGrenade::Touch(CActor& act, CStateManager& mgr) { CActor::Touch(act, mgr); }
 
 void CBouncyGrenade::Explode(CStateManager& mgr, TUniqueId uid) {
-  if (x2b4_24_exploded)
+  if (x2b4_24_exploded) {
     return;
+  }
 
   x2b4_24_exploded = true;
   CSfxManager::AddEmitter(x258_data.x3a_explodeSfx, GetTranslation(), zeus::skUp, false, false, 0x7f,
@@ -181,16 +184,19 @@ void CBouncyGrenade::Explode(CStateManager& mgr, TUniqueId uid) {
       if (TCastToConstPtr<CCollisionActor> cActor = mgr.GetObjectById(id)) {
         isParent = x298_parentId == cActor->GetOwnerId();
       }
-      if (isParent)
+      if (isParent) {
         continue;
+      }
 
-      const CActor* actor = static_cast<const CActor*>(mgr.GetObjectById(id));
-      if (actor == nullptr)
+      const auto* actor = static_cast<const CActor*>(mgr.GetObjectById(id));
+      if (actor == nullptr) {
         continue;
+      }
 
       const float magnitude = (actor->GetTranslation() - GetTranslation()).magnitude();
-      if (radius <= magnitude)
+      if (radius <= magnitude) {
         continue;
+      }
 
       float scale = (radius - magnitude) / radius;
       const CDamageInfo info{dInfo.GetWeaponMode(), scale * dInfo.GetDamage(), radius,

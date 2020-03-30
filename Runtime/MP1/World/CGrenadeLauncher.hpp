@@ -26,7 +26,7 @@ struct SGrenadeTrajectoryInfo {
   float x8_angleMin;
   float xc_angleMax;
 
-  SGrenadeTrajectoryInfo(CInputStream& in)
+  explicit SGrenadeTrajectoryInfo(CInputStream& in)
   : x0_(in.readFloatBig())
   , x4_(in.readFloatBig())
   , x8_angleMin(zeus::degToRad(in.readFloatBig()))
@@ -84,10 +84,12 @@ public:
   void Accept(IVisitor& visitor) override { visitor.Visit(this); }
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
-  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x328_cSphere; }
-  const CDamageVulnerability* GetDamageVulnerability() const override { return &x264_vulnerability; }
-  std::optional<zeus::CAABox> GetTouchBounds() const override;
-  CHealthInfo* HealthInfo(CStateManager& mgr) override { return &x25c_healthInfo; }
+  [[nodiscard]] auto GetCollisionPrimitive() const -> const CCollisionPrimitive* override { return &x328_cSphere; }
+  [[nodiscard]] auto GetDamageVulnerability() const -> const CDamageVulnerability* override {
+    return &x264_vulnerability;
+  }
+  [[nodiscard]] auto GetTouchBounds() const -> std::optional<zeus::CAABox> override;
+  auto HealthInfo(CStateManager & /*mgr*/) -> CHealthInfo* override { return &x25c_healthInfo; }
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
   void Render(const CStateManager& mgr) const override;
   void Think(float dt, CStateManager& mgr) override;

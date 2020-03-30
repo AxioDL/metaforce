@@ -61,7 +61,7 @@ class CElitePirate : public CPatterned {
   struct SUnknownStruct {
     float x0_;
     rstl::reserved_vector<zeus::CVector3f, 16> x4_;
-    SUnknownStruct(float f) : x0_(f * f) {}
+    explicit SUnknownStruct(float f) : x0_(f * f) {}
     zeus::CVector3f GetValue(const zeus::CVector3f& v1, const zeus::CVector3f& v2);
     void AddValue(const zeus::CVector3f& vec);
     void Clear() { x4_.clear(); }
@@ -119,7 +119,7 @@ public:
 
   CElitePirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
-               const CElitePirateData& data);
+               CElitePirateData data);
 
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
