@@ -205,7 +205,7 @@ void CGameState::WriteBackupBuf() {
   PutTo(w);
 }
 
-void CGameState::PutTo(CBitStreamWriter& writer) const {
+void CGameState::PutTo(CBitStreamWriter& writer) {
   for (u32 i = 0; i < 128; i++)
     writer.WriteEncoded(x0_[i], 8);
 
@@ -227,7 +227,7 @@ void CGameState::PutTo(CBitStreamWriter& writer) const {
   for (const auto& memWorld : memWorlds) {
     TLockedToken<CSaveWorld> saveWorld =
         g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), memWorld.second.GetSaveWorldAssetId()});
-    const CWorldState& wld = const_cast<CGameState&>(*this).StateForWorld(memWorld.first);
+    const CWorldState& wld = StateForWorld(memWorld.first);
     wld.PutTo(writer, *saveWorld);
   }
 }

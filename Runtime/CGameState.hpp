@@ -116,7 +116,7 @@ public:
   void SetFileIdx(u32 idx) { x20c_saveFileIdx = idx; }
   void SetCardSerial(u64 serial) { x210_cardSerial = serial; }
   u64 GetCardSerial() const { return x210_cardSerial; }
-  void PutTo(CBitStreamWriter& writer) const;
+  void PutTo(CBitStreamWriter& writer);
   float GetHardModeDamageMultiplier() const;
   float GetHardModeWeaponMultiplier() const;
   void InitializeMemoryWorlds();
