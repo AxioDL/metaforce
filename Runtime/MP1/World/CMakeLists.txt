@@ -9,6 +9,11 @@ set(MP1_WORLD_SOURCES
     CBurrower.hpp CBurrower.cpp
     CChozoGhost.hpp CChozoGhost.cpp
     CElitePirate.hpp CElitePirate.cpp
+    CDrone.hpp CDrone.cpp
+    CSpacePirate.hpp CSpacePirate.cpp
+    CParasite.hpp CParasite.cpp
+    CBabygoth.hpp CBabygoth.cpp
+    CTryclops.hpp CTryclops.cpp
     CEnergyBall.hpp CEnergyBall.cpp
     CEyeball.hpp CEyeball.cpp
     CFireFlea.hpp CFireFlea.cpp

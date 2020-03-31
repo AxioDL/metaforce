@@ -18,9 +18,9 @@ struct Drone : IScriptObject {
   DamageInfo damageInfo1;
   Value<atUint32> unknown3;
   DamageInfo damageInfo2;
-  Value<atUint32> unknown4;
-  Value<atUint32> unknown5;
-  Value<atUint32> unknown6;
+  UniqueID32 unknown4;
+  UniqueID32 unknown5;
+  UniqueID32 unknown6;
   FlareDefinition flareDefinition1;
   FlareDefinition flareDefinition2;
   FlareDefinition flareDefinition3;
