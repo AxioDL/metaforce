@@ -101,9 +101,10 @@ struct SpecMP2 : SpecBase {
       m_orderedPaks[std::string(dpak.getName())] = &dpak;
 
     /* Assemble extract report */
-    for (const std::pair<std::string, DNAMP2::PAKBridge*>& item : m_orderedPaks) {
-      if (!item.second->m_doExtract)
+    for (const auto& item : m_orderedPaks) {
+      if (!item.second->m_doExtract) {
         continue;
+      }
       rep.childOpts.emplace_back();
       ExtractReport& childRep = rep.childOpts.back();
       hecl::SystemStringConv nameView(item.first);
