@@ -280,7 +280,7 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
   }
 }
 
-CMFGameLoader::~CMFGameLoader() {}
+CMFGameLoader::~CMFGameLoader() = default;
 
 static const char* LoadDepPAKs[] = {"TestAnim", "SamusGun", "SamGunFx", nullptr};
 

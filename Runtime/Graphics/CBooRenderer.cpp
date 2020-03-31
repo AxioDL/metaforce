@@ -220,7 +220,7 @@ CBooRenderer::CAreaListItem::CAreaListItem(const std::vector<CMetroidModelInstan
 , x18_areaIdx(areaIdx)
 , m_shaderSet(shaderSet) {}
 
-CBooRenderer::CAreaListItem::~CAreaListItem() {}
+CBooRenderer::CAreaListItem::~CAreaListItem() = default;
 
 void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model) {
   std::vector<CLight> thisLights;

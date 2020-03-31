@@ -20,7 +20,7 @@
 namespace urde {
 static logvisor::Module Log("urde::CModelData");
 
-CModelData::~CModelData() {}
+CModelData::~CModelData() = default;
 
 CModelData::CModelData() {}
 CModelData CModelData::CModelDataNull() { return CModelData(); }
