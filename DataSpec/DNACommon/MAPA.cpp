@@ -27,11 +27,11 @@ void MAPA::Enumerate<BigDNA::Read>(typename Read::StreamT& __dna_reader) {
   /* version */
   version = __dna_reader.readUint32Big();
   if (version == 2)
-    header.reset(new HeaderMP1);
+    header = std::make_unique<HeaderMP1>();
   else if (version == 3)
-    header.reset(new HeaderMP2);
+    header = std::make_unique<HeaderMP2>();
   else if (version == 5)
-    header.reset(new HeaderMP3);
+    header = std::make_unique<HeaderMP3>();
   else {
     LogDNACommon.report(logvisor::Error, fmt("invalid MAPA version"));
     return;
@@ -41,10 +41,11 @@ void MAPA::Enumerate<BigDNA::Read>(typename Read::StreamT& __dna_reader) {
 
   for (atUint32 i = 0; i < header->mappableObjectCount(); i++) {
     std::unique_ptr<IMappableObject> mo = nullptr;
-    if (version != 5)
-      mo.reset(new MappableObjectMP1_2);
-    else
-      mo.reset(new MappableObjectMP3);
+    if (version != 5) {
+      mo = std::make_unique<MappableObjectMP1_2>();
+    } else {
+      mo = std::make_unique<MappableObjectMP3>();
+    }
     mo->read(__dna_reader);
     mappableObjects.push_back(std::move(mo));
   }

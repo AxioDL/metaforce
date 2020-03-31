@@ -126,11 +126,11 @@ void ANIM::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
   atUint32 version = reader.readUint32Big();
   switch (version) {
   case 0:
-    m_anim.reset(new struct ANIM0);
+    m_anim = std::make_unique<ANIM0>();
     m_anim->read(reader);
     break;
   case 2:
-    m_anim.reset(new struct ANIM2);
+    m_anim = std::make_unique<ANIM2>();
     m_anim->read(reader);
     break;
   default:

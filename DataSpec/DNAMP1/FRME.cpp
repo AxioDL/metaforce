@@ -54,43 +54,43 @@ void FRME::Widget::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_read
   header.read(__dna_reader);
   switch (type.toUint32()) {
   case SBIG('BWIG'):
-    widgetInfo.reset(new BWIGInfo);
+    widgetInfo = std::make_unique<BWIGInfo>();
     break;
   case SBIG('HWIG'):
-    widgetInfo.reset(new HWIGInfo);
+    widgetInfo = std::make_unique<HWIGInfo>();
     break;
   case SBIG('CAMR'):
-    widgetInfo.reset(new CAMRInfo);
+    widgetInfo = std::make_unique<CAMRInfo>();
     break;
   case SBIG('LITE'):
-    widgetInfo.reset(new LITEInfo);
+    widgetInfo = std::make_unique<LITEInfo>();
     break;
   case SBIG('ENRG'):
-    widgetInfo.reset(new ENRGInfo);
+    widgetInfo = std::make_unique<ENRGInfo>();
     break;
   case SBIG('MODL'):
-    widgetInfo.reset(new MODLInfo);
+    widgetInfo = std::make_unique<MODLInfo>();
     break;
   case SBIG('METR'):
-    widgetInfo.reset(new METRInfo);
+    widgetInfo = std::make_unique<METRInfo>();
     break;
   case SBIG('GRUP'):
-    widgetInfo.reset(new GRUPInfo);
+    widgetInfo = std::make_unique<GRUPInfo>();
     break;
   case SBIG('PANE'):
-    widgetInfo.reset(new PANEInfo);
+    widgetInfo = std::make_unique<PANEInfo>();
     break;
   case SBIG('TXPN'):
-    widgetInfo.reset(new TXPNInfo(owner->version));
+    widgetInfo = std::make_unique<TXPNInfo>(owner->version);
     break;
   case SBIG('IMGP'):
-    widgetInfo.reset(new IMGPInfo);
+    widgetInfo = std::make_unique<IMGPInfo>();
     break;
   case SBIG('TBGP'):
-    widgetInfo.reset(new TBGPInfo);
+    widgetInfo = std::make_unique<TBGPInfo>();
     break;
   case SBIG('SLGP'):
-    widgetInfo.reset(new SLGPInfo);
+    widgetInfo = std::make_unique<SLGPInfo>();
     break;
   default:
     Log.report(logvisor::Fatal, fmt(_SYS_STR("Unsupported FRME widget type {}")), type);
@@ -169,12 +169,13 @@ void FRME::Widget::Enumerate<BigDNA::BinarySize>(size_t& __isz) {
 template <>
 void FRME::Widget::CAMRInfo::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_reader) {
   projectionType = ProjectionType(__dna_reader.readUint32Big());
-  if (projectionType == ProjectionType::Perspective)
-    projection.reset(new PerspectiveProjection);
-  else if (projectionType == ProjectionType::Orthographic)
-    projection.reset(new OrthographicProjection);
-  else
+  if (projectionType == ProjectionType::Perspective) {
+    projection = std::make_unique<PerspectiveProjection>();
+  } else if (projectionType == ProjectionType::Orthographic) {
+    projection = std::make_unique<OrthographicProjection>();
+  } else {
     Log.report(logvisor::Fatal, fmt(_SYS_STR("Invalid CAMR projection mode! {}")), int(projectionType));
+  }
 
   projection->read(__dna_reader);
 }
