@@ -9,11 +9,11 @@
 namespace DataSpec {
 logvisor::Module Log("AROTBuilder");
 
-#define AROT_MAX_LEVEL 10
-#define AROT_MIN_SUBDIV 10.f
-#define AROT_MIN_MODELS 8
-#define COLLISION_MIN_NODE_TRIANGLES 8
-#define PATH_MIN_NODE_REGIONS 16
+constexpr s32 AROT_MAX_LEVEL = 10;
+constexpr s32 AROT_MIN_MODELS = 8;
+constexpr s32 COLLISION_MIN_NODE_TRIANGLES = 8;
+constexpr s32 PATH_MIN_NODE_REGIONS = 16;
+constexpr float AROT_MIN_SUBDIV = 10.f;
 
 static zeus::CAABox SplitAABB(const zeus::CAABox& aabb, int i) {
   zeus::CAABox pos, neg;
