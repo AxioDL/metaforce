@@ -205,8 +205,8 @@ struct SpecMP1 : SpecBase {
       if (!item.second->m_doExtract) {
         continue;
       }
-      rep.childOpts.emplace_back();
-      ExtractReport& childRep = rep.childOpts.back();
+
+      ExtractReport& childRep = rep.childOpts.emplace_back();
       hecl::SystemStringConv nameView(item.first);
       childRep.name = nameView.sys_str();
       childRep.desc = item.second->getLevelString();
@@ -223,8 +223,7 @@ struct SpecMP1 : SpecBase {
       return false;
 
     /* Root Report */
-    reps.emplace_back();
-    ExtractReport& rep = reps.back();
+    ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP1");
     rep.desc = _SYS_STR("Metroid Prime ") + regstr;
     if (buildInfo) {
@@ -278,8 +277,7 @@ struct SpecMP1 : SpecBase {
     const char* buildInfo = (char*)memmem(m_dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
 
     /* Root Report */
-    reps.emplace_back();
-    ExtractReport& rep = reps.back();
+    ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP1");
     rep.desc = _SYS_STR("Metroid Prime ") + regstr;
     if (buildInfo) {
