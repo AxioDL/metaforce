@@ -132,7 +132,7 @@ struct SpecMP3 : SpecBase {
     }
 
     /* Assemble extract report */
-    for (const std::pair<std::string, DNAMP3::PAKBridge*>& item : fe ? m_feOrderedPaks : m_orderedPaks) {
+    for (const auto& item : fe ? m_feOrderedPaks : m_orderedPaks) {
       if (!item.second->m_doExtract)
         continue;
       rep.childOpts.emplace_back();
@@ -394,7 +394,7 @@ struct SpecMP3 : SpecBase {
       progress.startNewLine();
 
       hecl::ClientProcess process;
-      for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_feOrderedPaks) {
+      for (auto& pair : m_feOrderedPaks) {
         DNAMP3::PAKBridge& pak = *pair.second;
         if (!pak.m_doExtract)
           continue;
