@@ -25,6 +25,8 @@ public:
     zeus::CColor x10_color;
 
   public:
+    CFlareDef()=default;
+    CFlareDef(const CFlareDef&)=default;
     CFlareDef(const TToken<CTexture>& tex, float f1, float f2, const zeus::CColor& color)
     : x0_tex(tex), x8_f1(f1), xc_f2(f2), x10_color(color) {
       x0_tex.Lock();

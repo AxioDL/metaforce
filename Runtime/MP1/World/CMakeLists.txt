@@ -5,6 +5,7 @@ set(MP1_WORLD_SOURCES
     CElitePirate.hpp CElitePirate.cpp
     CBloodFlower.hpp CBloodFlower.cpp
     CChozoGhost.hpp CChozoGhost.cpp
+    CDrone.hpp CDrone.cpp
     CSpacePirate.hpp CSpacePirate.cpp
     CParasite.hpp CParasite.cpp
     CBabygoth.hpp CBabygoth.cpp
