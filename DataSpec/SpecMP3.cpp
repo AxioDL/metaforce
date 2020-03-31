@@ -305,7 +305,7 @@ struct SpecMP3 : SpecBase {
   }
 
   bool extractFromDisc(nod::DiscBase& disc, bool force, const hecl::MultiProgressPrinter& progress) override {
-    hecl::SystemString currentTarget = _SYS_STR("");
+    hecl::SystemString currentTarget;
     size_t nodeCount = 0;
     int prog = 0;
     nod::ExtractionContext ctx = {force, [&](std::string_view name, float) {
