@@ -933,9 +933,9 @@ static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, s
       }
     }
   } else {
-    png_colorp palettes;
+    png_colorp palettes2;
     int colorCount;
-    if (png_get_PLTE(png, info, &palettes, &colorCount) == PNG_INFO_PLTE) {
+    if (png_get_PLTE(png, info, &palettes2, &colorCount) == PNG_INFO_PLTE) {
       if (colorCount > 16) {
         /* This is a C8 palette */
         ret.reset(new uint8_t[4 * 257]);
@@ -944,7 +944,7 @@ static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, s
         uint8_t* cur = ret.get() + 4;
         for (int j = 0; j < 256; ++j) {
           if (j < colorCount) {
-            png_colorp entry = &palettes[j];
+            const png_colorp entry = &palettes2[j];
             *cur++ = entry->red;
             *cur++ = entry->green;
             *cur++ = entry->blue;
@@ -964,7 +964,7 @@ static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, s
         uint8_t* cur = ret.get() + 4;
         for (int j = 0; j < 16; ++j) {
           if (j < colorCount) {
-            png_colorp entry = &palettes[j];
+            const png_colorp entry = &palettes2[j];
             *cur++ = entry->red;
             *cur++ = entry->green;
             *cur++ = entry->blue;
@@ -984,11 +984,11 @@ static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, s
 
 static int GetNumPaletteEntriesForGCN(png_structp png, png_infop info) {
   png_sPLT_tp palettes;
-  int paletteCount = png_get_sPLT(png, info, &palettes);
-  if (paletteCount) {
+  const int paletteCount = png_get_sPLT(png, info, &palettes);
+  if (paletteCount != 0) {
     for (int i = 0; i < paletteCount; ++i) {
-      png_sPLT_tp palette = &palettes[i];
-      if (!strncmp(palette->name, "GX_", 3)) {
+      const png_sPLT_tp palette = &palettes[i];
+      if (strncmp(palette->name, "GX_", 3) == 0) {
         if (palette->nentries > 16) {
           /* This is a C8 palette */
           return 256;
@@ -996,13 +996,12 @@ static int GetNumPaletteEntriesForGCN(png_structp png, png_infop info) {
           /* This is a C4 palette */
           return 16;
         }
-        break;
       }
     }
   } else {
-    png_colorp palettes;
+    png_colorp palletes2;
     int colorCount;
-    if (png_get_PLTE(png, info, &palettes, &colorCount) == PNG_INFO_PLTE) {
+    if (png_get_PLTE(png, info, &palletes2, &colorCount) == PNG_INFO_PLTE) {
       if (colorCount > 16) {
         /* This is a C8 palette */
         return 256;
