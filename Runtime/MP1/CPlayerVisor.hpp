@@ -82,7 +82,7 @@ class CPlayerVisor {
   void BeginTransitionOut();
 
 public:
-  CPlayerVisor(CStateManager& stateMgr);
+  explicit CPlayerVisor(CStateManager& stateMgr);
   ~CPlayerVisor();
   void Update(float dt, const CStateManager& stateMgr);
   void Draw(const CStateManager& stateMgr, const CTargetingManager* tgtManager) const;

@@ -108,7 +108,7 @@ public:
   const CGameState::GameFileStateInfo* GetGameData(int idx) const;
   EUIType GetUIType() const { return x10_uiType; }
   bool IsSavingDisabled() const { return x92_savingDisabled; }
-  CSaveGameScreen(ESaveContext saveCtx, u64 serial);
+  explicit CSaveGameScreen(ESaveContext saveCtx, u64 serial);
 };
 
 } // namespace MP1

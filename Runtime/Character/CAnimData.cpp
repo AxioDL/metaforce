@@ -56,7 +56,7 @@ CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAn
 , x204_charIdx(charIdx)
 , x208_defaultAnim(defaultAnim)
 , x224_pose(layout->GetSegIdList().GetList().size())
-, x2fc_poseBuilder(layout)
+, x2fc_poseBuilder(CLayoutDescription{layout})
 , m_drawInstCount(drawInstCount) {
   x220_25_loop = loop;
 
@@ -72,7 +72,7 @@ CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAn
   x108_aabb = xd8_modelData->GetModel()->GetAABB();
   x120_particleDB.CacheParticleDesc(xc_charInfo.GetParticleResData());
 
-  CHierarchyPoseBuilder pb(xcc_layoutData);
+  CHierarchyPoseBuilder pb(CLayoutDescription{xcc_layoutData});
   pb.BuildNoScale(x224_pose);
   x220_30_poseBuilt = true;
 

@@ -25,7 +25,7 @@ public:
     u32 x1c_numBolts;
 
   public:
-    CBehaveChance(CInputStream&);
+    explicit CBehaveChance(CInputStream&);
 
     EBehaveType GetBehave(EBehaveType type, CStateManager& mgr) const;
     float GetLurk() const { return x4_lurk; }

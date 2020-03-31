@@ -16,7 +16,7 @@ public:
     float x1c_;
 
   public:
-    CMagdoliteData(CInputStream&);
+    explicit CMagdoliteData(CInputStream&);
   };
 
 private:

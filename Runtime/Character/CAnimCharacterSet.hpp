@@ -12,7 +12,7 @@ class CAnimCharacterSet {
   CAnimationSet x1c_animationSet;
 
 public:
-  CAnimCharacterSet(CInputStream& in);
+  explicit CAnimCharacterSet(CInputStream& in);
   const CCharacterSet& GetCharacterSet() const { return x4_characterSet; }
   const CAnimationSet& GetAnimationSet() const { return x1c_animationSet; }
 };

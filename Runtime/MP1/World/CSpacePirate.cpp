@@ -618,10 +618,11 @@ bool CSpacePirate::FireProjectile(float dt, CStateManager& mgr) {
     }
   }
   if (ret) {
-    auto bestAnim = x450_bodyController->GetPASDatabase().FindBestAnimation({24, CPASAnimParm::FromEnum(2)},
-                                                                            *mgr.GetActiveRandom(), -1);
-    if (bestAnim.first > 0.f)
+    const auto bestAnim = x450_bodyController->GetPASDatabase().FindBestAnimation(
+        CPASAnimParmData{24, CPASAnimParm::FromEnum(2)}, *mgr.GetActiveRandom(), -1);
+    if (bestAnim.first > 0.f) {
       x64_modelData->GetAnimationData()->AddAdditiveAnimation(bestAnim.second, 1.f, false, true);
+    }
     CSfxManager::AddEmitter(x568_pirateData.x48_Sound_Projectile, GetTranslation(), zeus::skZero3f, true, false, 0x7f,
                             kInvalidAreaId);
   }
@@ -1876,8 +1877,8 @@ void CSpacePirate::Taunt(CStateManager& mgr, EStateMsg msg, float dt) {
       if (!x635_27_shadowPirate) {
         bool withOtherPirate = true;
         if (x634_27_melee) {
-          auto bestAnim = x450_bodyController->GetPASDatabase().FindBestAnimation({16, CPASAnimParm::FromEnum(2)},
-                                                                                  *mgr.GetActiveRandom(), -1);
+          const auto bestAnim = x450_bodyController->GetPASDatabase().FindBestAnimation(
+              CPASAnimParmData{16, CPASAnimParm::FromEnum(2)}, *mgr.GetActiveRandom(), -1);
           if (bestAnim.first > 0.f) {
             withOtherPirate = false;
             x760_taunt = pas::ETauntType::Two;

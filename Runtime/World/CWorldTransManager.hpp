@@ -80,9 +80,9 @@ private:
     u8 dummy = 0;
   };
 
-  CColoredQuadFilter m_fadeToBlack = {EFilterType::Blend};
-  CTexturedQuadFilter m_dissolve = {EFilterType::Blend, CGraphics::g_SpareTexture.get()};
-  CWideScreenFilter m_widescreen = {EFilterType::Blend};
+  CColoredQuadFilter m_fadeToBlack{EFilterType::Blend};
+  CTexturedQuadFilter m_dissolve{EFilterType::Blend, CGraphics::g_SpareTexture.get()};
+  CWideScreenFilter m_widescreen{EFilterType::Blend};
   CCameraBlurFilter m_camblur;
 
   boo::ObjToken<boo::ITextureCubeR> m_reflectionCube[2];

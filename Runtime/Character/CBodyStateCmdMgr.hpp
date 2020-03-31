@@ -13,7 +13,7 @@ class CBodyStateCmd {
 
 public:
   virtual ~CBodyStateCmd() = default;
-  CBodyStateCmd(EBodyStateCmd cmd) : x4_cmd(cmd) {}
+  explicit CBodyStateCmd(EBodyStateCmd cmd) : x4_cmd(cmd) {}
   EBodyStateCmd GetCommandId() const { return x4_cmd; }
 };
 
@@ -23,10 +23,11 @@ class CBCMeleeAttackCmd : public CBodyStateCmd {
   bool x18_hasTargetPos = false;
 
 public:
-  CBCMeleeAttackCmd() : CBodyStateCmd(EBodyStateCmd::MeleeAttack) {}
-  CBCMeleeAttackCmd(pas::ESeverity severity) : CBodyStateCmd(EBodyStateCmd::MeleeAttack), x8_severity(severity) {}
-  CBCMeleeAttackCmd(pas::ESeverity severity, const zeus::CVector3f& target) : CBodyStateCmd(EBodyStateCmd::MeleeAttack)
-  , x8_severity(severity), xc_targetPos(target), x18_hasTargetPos(true) {}
+  explicit CBCMeleeAttackCmd() : CBodyStateCmd(EBodyStateCmd::MeleeAttack) {}
+  explicit CBCMeleeAttackCmd(pas::ESeverity severity)
+  : CBodyStateCmd(EBodyStateCmd::MeleeAttack), x8_severity(severity) {}
+  explicit CBCMeleeAttackCmd(pas::ESeverity severity, const zeus::CVector3f& target)
+  : CBodyStateCmd(EBodyStateCmd::MeleeAttack), x8_severity(severity), xc_targetPos(target), x18_hasTargetPos(true) {}
   pas::ESeverity GetAttackSeverity() const { return x8_severity; }
   bool HasAttackTargetPos() const { return x18_hasTargetPos; }
   const zeus::CVector3f& GetAttackTargetPos() const { return xc_targetPos; }
@@ -38,8 +39,8 @@ class CBCProjectileAttackCmd : public CBodyStateCmd {
   bool x18_blendAnims = false;
 
 public:
-  CBCProjectileAttackCmd() : CBodyStateCmd(EBodyStateCmd::ProjectileAttack) {}
-  CBCProjectileAttackCmd(pas::ESeverity severity, const zeus::CVector3f& vec, bool b)
+  explicit CBCProjectileAttackCmd() : CBodyStateCmd(EBodyStateCmd::ProjectileAttack) {}
+  explicit CBCProjectileAttackCmd(pas::ESeverity severity, const zeus::CVector3f& vec, bool b)
   : CBodyStateCmd(EBodyStateCmd::ProjectileAttack), x8_severity(severity), xc_target(vec), x18_blendAnims(b) {}
   pas::ESeverity GetAttackSeverity() const { return x8_severity; }
   const zeus::CVector3f& GetTargetPosition() const { return xc_target; }
@@ -51,8 +52,8 @@ class CBCStepCmd : public CBodyStateCmd {
   pas::EStepType xc_type = pas::EStepType::Normal;
 
 public:
-  CBCStepCmd() : CBodyStateCmd(EBodyStateCmd::Step) {}
-  CBCStepCmd(pas::EStepDirection dir, pas::EStepType type)
+  explicit CBCStepCmd() : CBodyStateCmd(EBodyStateCmd::Step) {}
+  explicit CBCStepCmd(pas::EStepDirection dir, pas::EStepType type)
   : CBodyStateCmd(EBodyStateCmd::Step), x8_dir(dir), xc_type(type) {}
   pas::EStepDirection GetStepDirection() const { return x8_dir; }
   pas::EStepType GetStepType() const { return xc_type; }
@@ -66,16 +67,16 @@ class CBCJumpCmd : public CBodyStateCmd {
   bool x24_25_startInJumpLoop : 1;
 
 public:
-  CBCJumpCmd() : CBodyStateCmd(EBodyStateCmd::Jump) {
+  explicit CBCJumpCmd() : CBodyStateCmd(EBodyStateCmd::Jump) {
     x24_24_wallJump = false;
     x24_25_startInJumpLoop = false;
   }
-  CBCJumpCmd(const zeus::CVector3f& wp1, pas::EJumpType type, bool startInLoop = false)
+  explicit CBCJumpCmd(const zeus::CVector3f& wp1, pas::EJumpType type, bool startInLoop = false)
   : CBodyStateCmd(EBodyStateCmd::Jump), x8_type(type), xc_waypoint1(wp1) {
     x24_24_wallJump = false;
     x24_25_startInJumpLoop = startInLoop;
   }
-  CBCJumpCmd(const zeus::CVector3f& wp1, const zeus::CVector3f& wp2, pas::EJumpType type)
+  explicit CBCJumpCmd(const zeus::CVector3f& wp1, const zeus::CVector3f& wp2, pas::EJumpType type)
   : CBodyStateCmd(EBodyStateCmd::Jump), x8_type(type), xc_waypoint1(wp1), x18_waypoint2(wp2) {
     x24_24_wallJump = true;
     x24_25_startInJumpLoop = false;
@@ -95,22 +96,22 @@ class CBCGenerateCmd : public CBodyStateCmd {
   bool x1c_25_overrideAnim : 1;
 
 public:
-  CBCGenerateCmd() : CBodyStateCmd(EBodyStateCmd::Generate) {
+  explicit CBCGenerateCmd() : CBodyStateCmd(EBodyStateCmd::Generate) {
     x1c_24_targetTransform = false;
     x1c_25_overrideAnim = false;
   }
-  CBCGenerateCmd(pas::EGenerateType type)
+  explicit CBCGenerateCmd(pas::EGenerateType type)
   : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type) {
     x1c_24_targetTransform = false;
     x1c_25_overrideAnim = false;
   }
-  CBCGenerateCmd(pas::EGenerateType type, s32 animId)
+  explicit CBCGenerateCmd(pas::EGenerateType type, s32 animId)
   : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type), x18_animId(animId) {
     x1c_24_targetTransform = false;
     x1c_25_overrideAnim = animId != -1;
   }
-  CBCGenerateCmd(pas::EGenerateType type, const zeus::CVector3f& vec, bool targetTransform = false,
-                 bool overrideAnim = false)
+  explicit CBCGenerateCmd(pas::EGenerateType type, const zeus::CVector3f& vec, bool targetTransform = false,
+                          bool overrideAnim = false)
   : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type), xc_targetPos(vec) {
     x1c_24_targetTransform = targetTransform;
     x1c_25_overrideAnim = overrideAnim;
@@ -127,8 +128,8 @@ class CBCKnockBackCmd : public CBodyStateCmd {
   pas::ESeverity x14_severity = pas::ESeverity::Invalid;
 
 public:
-  CBCKnockBackCmd() : CBodyStateCmd(EBodyStateCmd::KnockBack) {}
-  CBCKnockBackCmd(const zeus::CVector3f& vec, pas::ESeverity severity)
+  explicit CBCKnockBackCmd() : CBodyStateCmd(EBodyStateCmd::KnockBack) {}
+  explicit CBCKnockBackCmd(const zeus::CVector3f& vec, pas::ESeverity severity)
   : CBodyStateCmd(EBodyStateCmd::KnockBack), x8_dir(vec), x14_severity(severity) {}
   const zeus::CVector3f& GetHitDirection() const { return x8_dir; }
   pas::ESeverity GetHitSeverity() const { return x14_severity; }
@@ -140,8 +141,8 @@ class CBCHurledCmd : public CBodyStateCmd {
   bool x20_startInKnockLoop = false;
 
 public:
-  CBCHurledCmd() : CBodyStateCmd(EBodyStateCmd::Hurled) {}
-  CBCHurledCmd(const zeus::CVector3f& dir, const zeus::CVector3f& launchVel, bool startInLoop = false)
+  explicit CBCHurledCmd() : CBodyStateCmd(EBodyStateCmd::Hurled) {}
+  explicit CBCHurledCmd(const zeus::CVector3f& dir, const zeus::CVector3f& launchVel, bool startInLoop = false)
   : CBodyStateCmd(EBodyStateCmd::Hurled)
   , x8_direction(dir)
   , x14_launchVel(launchVel)
@@ -156,8 +157,8 @@ class CBCGetupCmd : public CBodyStateCmd {
   pas::EGetupType x8_type = pas::EGetupType::Invalid;
 
 public:
-  CBCGetupCmd() : CBodyStateCmd(EBodyStateCmd::Getup) {}
-  CBCGetupCmd(pas::EGetupType type) : CBodyStateCmd(EBodyStateCmd::Getup), x8_type(type) {}
+  explicit CBCGetupCmd() : CBodyStateCmd(EBodyStateCmd::Getup) {}
+  explicit CBCGetupCmd(pas::EGetupType type) : CBodyStateCmd(EBodyStateCmd::Getup), x8_type(type) {}
   pas::EGetupType GetGetupType() const { return x8_type; }
 };
 
@@ -165,8 +166,8 @@ class CBCLoopReactionCmd : public CBodyStateCmd {
   pas::EReactionType x8_type = pas::EReactionType::Invalid;
 
 public:
-  CBCLoopReactionCmd() : CBodyStateCmd(EBodyStateCmd::LoopReaction) {}
-  CBCLoopReactionCmd(pas::EReactionType type) : CBodyStateCmd(EBodyStateCmd::LoopReaction), x8_type(type) {}
+  explicit CBCLoopReactionCmd() : CBodyStateCmd(EBodyStateCmd::LoopReaction) {}
+  explicit CBCLoopReactionCmd(pas::EReactionType type) : CBodyStateCmd(EBodyStateCmd::LoopReaction), x8_type(type) {}
   pas::EReactionType GetReactionType() const { return x8_type; }
 };
 
@@ -174,8 +175,8 @@ class CBCLoopHitReactionCmd : public CBodyStateCmd {
   pas::EReactionType x8_type = pas::EReactionType::Invalid;
 
 public:
-  CBCLoopHitReactionCmd() : CBodyStateCmd(EBodyStateCmd::LoopHitReaction) {}
-  CBCLoopHitReactionCmd(pas::EReactionType type) : CBodyStateCmd(EBodyStateCmd::LoopHitReaction), x8_type(type) {}
+  explicit CBCLoopHitReactionCmd() : CBodyStateCmd(EBodyStateCmd::LoopHitReaction) {}
+  explicit CBCLoopHitReactionCmd(pas::EReactionType type) : CBodyStateCmd(EBodyStateCmd::LoopHitReaction), x8_type(type) {}
   pas::EReactionType GetReactionType() const { return x8_type; }
 };
 
@@ -184,8 +185,8 @@ class CBCKnockDownCmd : public CBodyStateCmd {
   pas::ESeverity x14_severity = pas::ESeverity::Invalid;
 
 public:
-  CBCKnockDownCmd() : CBodyStateCmd(EBodyStateCmd::KnockDown) {}
-  CBCKnockDownCmd(const zeus::CVector3f& vec, pas::ESeverity severity)
+  explicit CBCKnockDownCmd() : CBodyStateCmd(EBodyStateCmd::KnockDown) {}
+  explicit CBCKnockDownCmd(const zeus::CVector3f& vec, pas::ESeverity severity)
   : CBodyStateCmd(EBodyStateCmd::KnockDown), x8_dir(vec), x14_severity(severity) {}
   const zeus::CVector3f& GetHitDirection() const { return x8_dir; }
   pas::ESeverity GetHitSeverity() const { return x14_severity; }
@@ -196,8 +197,8 @@ class CBCSlideCmd : public CBodyStateCmd {
   zeus::CVector3f xc_dir;
 
 public:
-  CBCSlideCmd() : CBodyStateCmd(EBodyStateCmd::Slide) {}
-  CBCSlideCmd(pas::ESlideType type, const zeus::CVector3f& dir)
+  explicit CBCSlideCmd() : CBodyStateCmd(EBodyStateCmd::Slide) {}
+  explicit CBCSlideCmd(pas::ESlideType type, const zeus::CVector3f& dir)
   : CBodyStateCmd(EBodyStateCmd::Slide), x8_type(type), xc_dir(dir) {}
   pas::ESlideType GetSlideType() const { return x8_type; }
   const zeus::CVector3f& GetSlideDirection() const { return xc_dir; }
@@ -210,11 +211,11 @@ class CBCScriptedCmd : public CBodyStateCmd {
   float x10_loopDur = 0.f;
 
 public:
-  CBCScriptedCmd() : CBodyStateCmd(EBodyStateCmd::Scripted) {
+  explicit CBCScriptedCmd() : CBodyStateCmd(EBodyStateCmd::Scripted) {
     xc_24_loopAnim = false;
     xc_25_timedLoop = false;
   }
-  CBCScriptedCmd(int i, bool b1, bool b2, float f)
+  explicit CBCScriptedCmd(int i, bool b1, bool b2, float f)
   : CBodyStateCmd(EBodyStateCmd::Scripted), x8_anim(i), x10_loopDur(f) {
     xc_24_loopAnim = b1;
     xc_25_timedLoop = b2;
@@ -231,8 +232,8 @@ class CBCCoverCmd : public CBodyStateCmd {
   zeus::CVector3f x18_alignDir;
 
 public:
-  CBCCoverCmd() : CBodyStateCmd(EBodyStateCmd::Cover) {}
-  CBCCoverCmd(pas::ECoverDirection dir, const zeus::CVector3f& v1, const zeus::CVector3f& v2)
+  explicit CBCCoverCmd() : CBodyStateCmd(EBodyStateCmd::Cover) {}
+  explicit CBCCoverCmd(pas::ECoverDirection dir, const zeus::CVector3f& v1, const zeus::CVector3f& v2)
   : CBodyStateCmd(EBodyStateCmd::Cover), x8_dir(dir), xc_targetPos(v1), x18_alignDir(v2) {}
   pas::ECoverDirection GetDirection() const { return x8_dir; }
   const zeus::CVector3f& GetTarget() const { return xc_targetPos; }
@@ -243,22 +244,22 @@ class CBCWallHangCmd : public CBodyStateCmd {
   TUniqueId x8_wpId = kInvalidUniqueId;
 
 public:
-  CBCWallHangCmd() : CBodyStateCmd(EBodyStateCmd::WallHang) {}
-  CBCWallHangCmd(TUniqueId uid) : CBodyStateCmd(EBodyStateCmd::WallHang), x8_wpId(uid) {}
+  explicit CBCWallHangCmd() : CBodyStateCmd(EBodyStateCmd::WallHang) {}
+  explicit CBCWallHangCmd(TUniqueId uid) : CBodyStateCmd(EBodyStateCmd::WallHang), x8_wpId(uid) {}
   TUniqueId GetTarget() const { return x8_wpId; }
 };
 
 class CBCAdditiveAimCmd : public CBodyStateCmd {
 public:
-  CBCAdditiveAimCmd() : CBodyStateCmd(EBodyStateCmd::AdditiveAim) {}
+  explicit CBCAdditiveAimCmd() : CBodyStateCmd(EBodyStateCmd::AdditiveAim) {}
 };
 
 class CBCAdditiveFlinchCmd : public CBodyStateCmd {
   float x8_weight = 1.f;
 
 public:
-  CBCAdditiveFlinchCmd() : CBodyStateCmd(EBodyStateCmd::AdditiveFlinch) {}
-  CBCAdditiveFlinchCmd(float f) : CBodyStateCmd(EBodyStateCmd::AdditiveFlinch), x8_weight(f) {}
+  explicit CBCAdditiveFlinchCmd() : CBodyStateCmd(EBodyStateCmd::AdditiveFlinch) {}
+  explicit CBCAdditiveFlinchCmd(float f) : CBodyStateCmd(EBodyStateCmd::AdditiveFlinch), x8_weight(f) {}
   float GetWeight() const { return x8_weight; }
 };
 
@@ -268,9 +269,9 @@ class CBCAdditiveReactionCmd : public CBodyStateCmd {
   bool x10_active = false;
 
 public:
-  CBCAdditiveReactionCmd() : CBodyStateCmd(EBodyStateCmd::AdditiveReaction) {}
-  CBCAdditiveReactionCmd(pas::EAdditiveReactionType type, float f, bool active)
-  : CBodyStateCmd(EBodyStateCmd::AdditiveReaction), x8_weight(f), xc_type(type), x10_active(active) {}
+  explicit CBCAdditiveReactionCmd() : CBodyStateCmd(EBodyStateCmd::AdditiveReaction) {}
+  explicit CBCAdditiveReactionCmd(pas::EAdditiveReactionType type, float weight, bool active)
+  : CBodyStateCmd(EBodyStateCmd::AdditiveReaction), x8_weight(weight), xc_type(type), x10_active(active) {}
   pas::EAdditiveReactionType GetType() const { return xc_type; }
   float GetWeight() const { return x8_weight; }
   bool GetIsActive() const { return x10_active; }
@@ -281,8 +282,8 @@ class CBCLoopAttackCmd : public CBodyStateCmd {
   u32 xc_waitForAnimOver = 0;
 
 public:
-  CBCLoopAttackCmd() : CBodyStateCmd(EBodyStateCmd::LoopAttack) {}
-  CBCLoopAttackCmd(pas::ELoopAttackType type) : CBodyStateCmd(EBodyStateCmd::LoopAttack), x8_type(type) {}
+  explicit CBCLoopAttackCmd() : CBodyStateCmd(EBodyStateCmd::LoopAttack) {}
+  explicit CBCLoopAttackCmd(pas::ELoopAttackType type) : CBodyStateCmd(EBodyStateCmd::LoopAttack), x8_type(type) {}
   pas::ELoopAttackType GetAttackType() const { return x8_type; }
   bool WaitForAnimOver() const { return xc_waitForAnimOver == 1; }
 };
@@ -291,8 +292,8 @@ class CBCTauntCmd : public CBodyStateCmd {
   pas::ETauntType x8_type = pas::ETauntType::Invalid;
 
 public:
-  CBCTauntCmd() : CBodyStateCmd(EBodyStateCmd::Taunt) {}
-  CBCTauntCmd(pas::ETauntType type) : CBodyStateCmd(EBodyStateCmd::Taunt), x8_type(type) {}
+  explicit CBCTauntCmd() : CBodyStateCmd(EBodyStateCmd::Taunt) {}
+  explicit CBCTauntCmd(pas::ETauntType type) : CBodyStateCmd(EBodyStateCmd::Taunt), x8_type(type) {}
   pas::ETauntType GetTauntType() const { return x8_type; }
 };
 
@@ -302,7 +303,7 @@ class CBCLocomotionCmd {
   float x18_weight;
 
 public:
-  CBCLocomotionCmd(const zeus::CVector3f& move, const zeus::CVector3f& face, float weight)
+  explicit CBCLocomotionCmd(const zeus::CVector3f& move, const zeus::CVector3f& face, float weight)
   : x0_move(move), xc_face(face), x18_weight(weight) {}
   const zeus::CVector3f& GetMoveVector() const { return x0_move; }
   const zeus::CVector3f& GetFaceVector() const { return xc_face; }
@@ -324,7 +325,7 @@ class CBodyStateCmdMgr {
   u32 xb4_deliveredCmdMask = 0;
   CBCGetupCmd xb8_getup;
   CBCStepCmd xc4_step;
-  CBodyStateCmd xd4_die = {EBodyStateCmd::Die};
+  CBodyStateCmd xd4_die{EBodyStateCmd::Die};
   CBCKnockDownCmd xdc_knockDown;
   CBCKnockBackCmd xf4_knockBack;
   CBCMeleeAttackCmd x10c_meleeAttack;
@@ -332,10 +333,10 @@ class CBodyStateCmdMgr {
   CBCLoopAttackCmd x144_loopAttack;
   CBCLoopReactionCmd x154_loopReaction;
   CBCLoopHitReactionCmd x160_loopHitReaction;
-  CBodyStateCmd x16c_exitState = {EBodyStateCmd::ExitState};
-  CBodyStateCmd x174_leanFromCover = {EBodyStateCmd::LeanFromCover};
-  CBodyStateCmd x17c_nextState = {EBodyStateCmd::NextState};
-  CBodyStateCmd x184_maintainVelocity = {EBodyStateCmd::MaintainVelocity};
+  CBodyStateCmd x16c_exitState{EBodyStateCmd::ExitState};
+  CBodyStateCmd x174_leanFromCover{EBodyStateCmd::LeanFromCover};
+  CBodyStateCmd x17c_nextState{EBodyStateCmd::NextState};
+  CBodyStateCmd x184_maintainVelocity{EBodyStateCmd::MaintainVelocity};
   CBCGenerateCmd x18c_generate;
   CBCHurledCmd x1ac_hurled;
   CBCJumpCmd x1d0_jump;
@@ -344,12 +345,12 @@ class CBodyStateCmdMgr {
   CBCScriptedCmd x21c_scripted;
   CBCCoverCmd x230_cover;
   CBCWallHangCmd x254_wallHang;
-  CBodyStateCmd x260_locomotion = {EBodyStateCmd::Locomotion};
-  CBodyStateCmd x268_additiveIdle = {EBodyStateCmd::AdditiveIdle};
+  CBodyStateCmd x260_locomotion{EBodyStateCmd::Locomotion};
+  CBodyStateCmd x268_additiveIdle{EBodyStateCmd::AdditiveIdle};
   CBCAdditiveAimCmd x270_additiveAim;
   CBCAdditiveFlinchCmd x278_additiveFlinch;
   CBCAdditiveReactionCmd x284_additiveReaction;
-  CBodyStateCmd x298_stopReaction = {EBodyStateCmd::StopReaction};
+  CBodyStateCmd x298_stopReaction{EBodyStateCmd::StopReaction};
   void DeliverCmd(EBodyStateCmd cmd) { xb4_deliveredCmdMask |= (1 << int(cmd)); }
 
 public:

@@ -84,7 +84,7 @@ public:
     zeus::CVector3f x64_centerPoint = zeus::skZero3f;
 
   public:
-    CMapWorldData(CInputStream& in, u32 version);
+    explicit CMapWorldData(CInputStream& in, u32 version);
     CAssetId GetWorldAssetId() const { return x10_worldAssetId; }
     const zeus::CVector3f& GetWorldCenterPoint() const { return x64_centerPoint; }
     std::string_view GetWorldLabel() const { return x0_label; }
@@ -105,7 +105,7 @@ private:
   float x2c_universeRadius = 1600.f;
 
 public:
-  CMapUniverse(CInputStream&, u32);
+  explicit CMapUniverse(CInputStream&, u32);
   const CMapWorldData& GetMapWorldData(s32 idx) const { return x10_worldDatas[idx]; }
   const CMapWorldData& GetMapWorldDataByWorldId(CAssetId id) const {
     for (const CMapWorldData& data : x10_worldDatas)

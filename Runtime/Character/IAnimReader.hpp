@@ -73,7 +73,8 @@ class TSubAnimTypeToken : public TLockedToken<CAllFormatsAnimSource> {};
 template <>
 class TSubAnimTypeToken<CAnimSource> : public TLockedToken<CAnimSource> {
 public:
-  TSubAnimTypeToken<CAnimSource>(const TLockedToken<CAllFormatsAnimSource>& token) : TLockedToken<CAnimSource>(token) {}
+  // Converting constructor
+  TSubAnimTypeToken(const TLockedToken<CAllFormatsAnimSource>& token) : TLockedToken<CAnimSource>(token) {}
 
   CAnimSource* GetObj() {
     CAllFormatsAnimSource* source = reinterpret_cast<CAllFormatsAnimSource*>(TLockedToken<CAnimSource>::GetObj());
@@ -88,8 +89,8 @@ public:
 template <>
 class TSubAnimTypeToken<CFBStreamedCompression> : public TLockedToken<CFBStreamedCompression> {
 public:
-  TSubAnimTypeToken<CFBStreamedCompression>(const TLockedToken<CAllFormatsAnimSource>& token)
-  : TLockedToken<CFBStreamedCompression>(token) {}
+  // Converting constructor
+  TSubAnimTypeToken(const TLockedToken<CAllFormatsAnimSource>& token) : TLockedToken<CFBStreamedCompression>(token) {}
 
   CFBStreamedCompression* GetObj() {
     CAllFormatsAnimSource* source =

@@ -48,7 +48,7 @@ class CFlaahgraData {
 
 public:
   static constexpr u32 GetNumProperties() { return 23; }
-  CFlaahgraData(CInputStream&);
+  explicit CFlaahgraData(CInputStream&);
 
   const CAnimationParameters& GetAnimationParameters() const { return x14c_animationParameters; }
 };

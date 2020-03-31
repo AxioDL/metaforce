@@ -36,7 +36,7 @@ public:
   EQuitAction Update(float dt);
   void Draw();
   void ProcessUserInput(const CFinalInput& input);
-  CQuitGameScreen(EQuitType type);
+  explicit CQuitGameScreen(EQuitType type);
 };
 
 } // namespace MP1

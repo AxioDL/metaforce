@@ -54,9 +54,9 @@ void CAuiImagePane::Update(float dt) {
 CAuiImagePane::Filters::Filters(TLockedToken<CTexture>& tex)
 : m_texId(tex.GetObjectTag()->id)
 , m_darkenerQuad(EFilterType::Blend, tex)
-, m_flashQuad{{{EFilterType::Add, tex}, {EFilterType::Add, tex}}}
-, m_alphaQuad{{{EFilterType::Blend, tex}, {EFilterType::Blend, tex}}}
-, m_addQuad{{{EFilterType::Add, tex}, {EFilterType::Add, tex}}} {}
+, m_flashQuad{{CTexturedQuadFilterAlpha{EFilterType::Add, tex}, CTexturedQuadFilterAlpha{EFilterType::Add, tex}}}
+, m_alphaQuad{{CTexturedQuadFilterAlpha{EFilterType::Blend, tex}, CTexturedQuadFilterAlpha{EFilterType::Blend, tex}}}
+, m_addQuad{{CTexturedQuadFilterAlpha{EFilterType::Add, tex}, CTexturedQuadFilterAlpha{EFilterType::Add, tex}}} {}
 
 void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& tex, int frame, float alpha, bool noBlur,
                                     CTexturedQuadFilterAlpha& quad) const {

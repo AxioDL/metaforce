@@ -12,10 +12,10 @@ class CSoundPOINode : public CPOINode {
   float x40_maxDist;
 
 public:
-  CSoundPOINode();
-  CSoundPOINode(CInputStream& in);
-  CSoundPOINode(std::string_view name, EPOIType type, const CCharAnimTime& time, u32 b, bool c, float d, u32 e, u32 f,
-                u32 sfxId, float falloff, float maxDist);
+  explicit CSoundPOINode();
+  explicit CSoundPOINode(CInputStream& in);
+  explicit CSoundPOINode(std::string_view name, EPOIType type, const CCharAnimTime& time, u32 b, bool c, float d, u32 e,
+                         u32 f, u32 sfxId, float falloff, float maxDist);
 
   static CSoundPOINode CopyNodeMinusStartTime(const CSoundPOINode& node, const CCharAnimTime& startTime);
   u32 GetSfxId() const { return x38_sfxId; }

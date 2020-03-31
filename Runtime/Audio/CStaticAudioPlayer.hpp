@@ -53,7 +53,7 @@ class CStaticAudioPlayer {
         memset(data, 0, 4 * frames);
       return frames;
     }
-    AudioVoiceCallback(CStaticAudioPlayer& p) : m_parent(p) {}
+    explicit AudioVoiceCallback(CStaticAudioPlayer& p) : m_parent(p) {}
   } m_voiceCallback;
   boo::ObjToken<boo::IAudioVoice> m_voice;
 

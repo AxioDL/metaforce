@@ -121,7 +121,7 @@ public:
     bool x908_24_overflow : 1;
 
   public:
-    COctreeLeafCache(const CAreaOctTree& octTree);
+    explicit COctreeLeafCache(const CAreaOctTree& octTree);
     void AddLeaf(const CAreaOctTree::Node& node);
     u32 GetNumLeaves() const { return x4_nodeCache.size(); }
     bool HasCacheOverflowed() const { return x908_24_overflow; }
@@ -179,7 +179,7 @@ class CAreaCollisionCache {
   };
 
 public:
-  CAreaCollisionCache(const zeus::CAABox& aabb) : x0_aabb(aabb) {}
+  explicit CAreaCollisionCache(const zeus::CAABox& aabb) : x0_aabb(aabb) {}
   void ClearCache();
   const zeus::CAABox& GetCacheBounds() const { return x0_aabb; }
   void SetCacheBounds(const zeus::CAABox& aabb) { x0_aabb = aabb; }

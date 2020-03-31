@@ -33,7 +33,7 @@ public:
     zeus::CVector2f x28_canvasSize;
     zeus::CColor x30_mulColor = zeus::skWhite;
 
-    SSlideData(CSlideShow& parent) : x0_parent(parent) { x30_mulColor.a() = 0.f; }
+    explicit SSlideData(CSlideShow& parent) : x0_parent(parent) { x30_mulColor.a() = 0.f; }
 
     void SetTexture(const TLockedToken<CTexture>& tex) { m_texQuad.emplace(EFilterType::Blend, tex); }
     bool IsLoaded() const { return m_texQuad && m_texQuad->GetTex().IsLoaded(); }

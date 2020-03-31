@@ -105,7 +105,7 @@ class CBSLieOnGround : public CBodyState {
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
 
 public:
-  CBSLieOnGround(CActor& actor);
+  explicit CBSLieOnGround(CActor& actor);
   void Start(CBodyController& bc, CStateManager& mgr) override;
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
   void Shutdown(CBodyController& bc) override;
@@ -371,7 +371,7 @@ protected:
   }
 
 public:
-  CBSBiPedLocomotion(CActor& actor);
+  explicit CBSBiPedLocomotion(CActor& actor);
   bool IsMoving() const override { return x3c4_anim != pas::ELocomotionAnim::Idle; }
   void Start(CBodyController& bc, CStateManager& mgr) override;
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
@@ -384,7 +384,7 @@ class CBSFlyerLocomotion : public CBSBiPedLocomotion {
   bool x3cc_pitchable;
 
 public:
-  CBSFlyerLocomotion(CActor& actor, bool pitchable);
+  explicit CBSFlyerLocomotion(CActor& actor, bool pitchable);
   bool IsPitchable() const override { return x3cc_pitchable; }
   float ApplyLocomotionPhysics(float dt, CBodyController& bc) override;
   virtual bool IsBackPedal(CBodyController& bc) const { return false; }
@@ -392,13 +392,13 @@ public:
 
 class CBSWallWalkerLocomotion : public CBSBiPedLocomotion {
 public:
-  CBSWallWalkerLocomotion(CActor& actor);
+  explicit CBSWallWalkerLocomotion(CActor& actor);
   float ApplyLocomotionPhysics(float dt, CBodyController& bc) override;
 };
 
 class CBSNewFlyerLocomotion : public CBSBiPedLocomotion {
 public:
-  CBSNewFlyerLocomotion(CActor& actor);
+  explicit CBSNewFlyerLocomotion(CActor& actor);
   float ApplyLocomotionPhysics(float dt, CBodyController& bc) override;
   float UpdateLocomotionAnimation(float dt, float velMag, CBodyController& bc, bool init) override;
 };
@@ -408,7 +408,7 @@ class CBSRestrictedLocomotion : public CBSLocomotion {
   pas::ELocomotionAnim x44_anim = pas::ELocomotionAnim::Invalid;
 
 public:
-  CBSRestrictedLocomotion(CActor& actor);
+  explicit CBSRestrictedLocomotion(CActor& actor);
   bool IsMoving() const override { return false; }
   float GetLocomotionSpeed(pas::ELocomotionType type, pas::ELocomotionAnim anim) const override { return 0.f; }
   float UpdateLocomotionAnimation(float dt, float velMag, CBodyController& bc, bool init) override;
@@ -416,7 +416,7 @@ public:
 
 class CBSRestrictedFlyerLocomotion : public CBSRestrictedLocomotion {
 public:
-  CBSRestrictedFlyerLocomotion(CActor& actor);
+  explicit CBSRestrictedFlyerLocomotion(CActor& actor);
   float ApplyLocomotionPhysics(float dt, CBodyController& bc) override;
 };
 } // namespace urde
