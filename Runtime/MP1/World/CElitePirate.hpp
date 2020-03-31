@@ -14,14 +14,14 @@ class CCollisionActorManager;
 class CGenDescription;
 namespace MP1 {
 class CElitePirateData {
-public:
+private:
   float x0_tauntInterval;
   float x4_tauntVariance;
   float x8_;
   float xc_;
-  float x10_;
-  float x14_;
-  float x18_;
+  float x10_attackChance;
+  float x14_shotAtTime;
+  float x18_shotAtTimeVariance;
   float x1c_;
   CAssetId x20_;
   u16 x24_sfxAbsorb;
@@ -48,19 +48,43 @@ public:
   bool x11e_;
   bool x11f_;
 
+public:
   CElitePirateData(CInputStream&, u32 propCount);
 
-  CAssetId GetX20() const { return x20_; }
-  CAssetId GetXF8() const { return xf8_; }
-  const CDamageInfo& GetXFC() const { return xfc_; }
-  CAssetId GetX118() const { return x118_; }
-  s16 GetX11C() const { return x11c_; }
+  [[nodiscard]] float GetTauntInterval() const { return x0_tauntInterval; }
+  [[nodiscard]] float GetTauntVariance() const { return x4_tauntVariance; }
+  [[nodiscard]] float GetAttackChance() const { return x10_attackChance; }
+  [[nodiscard]] float GetShotAtTime() const { return x14_shotAtTime; }
+  [[nodiscard]] float GetShotAtTimeVariance() const { return x18_shotAtTimeVariance; }
+  [[nodiscard]] CAssetId GetX20() const { return x20_; }
+  [[nodiscard]] u16 GetSFXAbsorb() const { return x24_sfxAbsorb; }
+  [[nodiscard]] const CActorParameters& GetLauncherActParams() const { return x28_launcherActParams; }
+  [[nodiscard]] const CAnimationParameters& GetLauncherAnimParams() const { return x90_launcherAnimParams; }
+  [[nodiscard]] float GetLauncherHP() const { return xc4_launcherHp; }
+  [[nodiscard]] const SGrenadeTrajectoryInfo& GetGrenadeTrajectoryInfo() const { return xe0_trajectoryInfo; }
+  [[nodiscard]] CAssetId GetXF8() const { return xf8_; }
+  [[nodiscard]] const CDamageInfo& GetXFC() const { return xfc_; }
+  [[nodiscard]] CAssetId GetX118() const { return x118_; }
+  [[nodiscard]] s16 GetX11C() const { return x11c_; }
+  [[nodiscard]] bool GetX11E() const { return x11e_; }
+  [[nodiscard]] bool GetX11F() const { return x11f_; }
+
+  [[nodiscard]] SBouncyGrenadeData GetBouncyGrenadeData() const {
+    return {xd8_, xa8_, xc8_, xcc_, xd0_, xd4_, xf0_grenadeNumBounces, xf4_, xf6_};
+  }
+  [[nodiscard]] SGrenadeLauncherData GetGrenadeLauncherData() const {
+    return {GetBouncyGrenadeData(), xa4_, x9c_, xa0_, xe0_trajectoryInfo};
+  }
 };
 
 class CElitePirate : public CPatterned {
+private:
   struct SUnknownStruct {
+  private:
     float x0_;
     rstl::reserved_vector<zeus::CVector3f, 16> x4_;
+
+  public:
     explicit SUnknownStruct(float f) : x0_(f * f) {}
     zeus::CVector3f GetValue(const zeus::CVector3f& v1, const zeus::CVector3f& v2);
     void AddValue(const zeus::CVector3f& vec);
@@ -81,7 +105,7 @@ class CElitePirate : public CPatterned {
   CElitePirateData x5d8_data;
   CBoneTracking x6f8_boneTracking;
   std::unique_ptr<CCollisionActorManager> x730_collisionActorMgr2;
-  s32 x734_;
+  // s32 x734_;
   CCollidableAABox x738_;
   std::optional<TLockedToken<CGenDescription>> x760_energyAbsorbDesc;
   TUniqueId x770_collisionHeadId = kInvalidUniqueId;
@@ -89,7 +113,7 @@ class CElitePirate : public CPatterned {
   rstl::reserved_vector<TUniqueId, 7> x774_collisionRJointIds;
   rstl::reserved_vector<TUniqueId, 7> x788_collisionLJointIds;
   TUniqueId x79c_ = kInvalidUniqueId;
-  float x7a0_;
+  float x7a0_initialSpeed;
   float x7a4_ = 1.f;
   float x7a8_ = 0.f;
   float x7ac_energyAbsorbCooldown = 0.f;
@@ -97,7 +121,7 @@ class CElitePirate : public CPatterned {
   float x7b4_hp = 0.f;
   float x7b8_attackTimer = 0.f;
   float x7bc_tauntTimer = 0.f;
-  float x7c0_ = 0.f;
+  float x7c0_shotAtTimer = 0.f;
   float x7c4_ = 0.f;
   s32 x7c8_currAnimId = -1;
   s32 x7cc_ = 0;
@@ -107,7 +131,7 @@ class CElitePirate : public CPatterned {
   bool x988_24_ : 1;
   bool x988_25_ : 1;
   bool x988_26_ : 1;
-  bool x988_27_ : 1;
+  bool x988_27_shotAt : 1;
   bool x988_28_alert : 1;
   bool x988_29_ : 1;
   bool x988_30_ : 1;
@@ -171,7 +195,7 @@ public:
 
 private:
   void sub_80229248();
-  void sub_8022759c(bool param_1, CStateManager& mgr);
+  void SetShotAt(bool val, CStateManager& mgr);
   bool IsArmClawCollider(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 7>& vec) const;
   void AddSphereCollisionList(const SSphereJointInfo* joints, size_t count,
                               std::vector<CJointCollisionDescription>& outJoints) const;

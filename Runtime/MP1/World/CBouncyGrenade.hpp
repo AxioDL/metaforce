@@ -10,13 +10,19 @@
 
 namespace urde::MP1 {
 struct SGrenadeUnknownStruct {
+private:
   float x0_mass;
-  float x4_; // speed?
+  float x4_speed; // wrong name probably
 
-  SGrenadeUnknownStruct(CInputStream& in) : x0_mass(in.readFloatBig()), x4_(in.readFloatBig()) {}
+public:
+  explicit SGrenadeUnknownStruct(CInputStream& in) : x0_mass(in.readFloatBig()), x4_speed(in.readFloatBig()) {}
+
+  [[nodiscard]] float GetMass() const { return x0_mass; }
+  [[nodiscard]] float GetSpeed() const { return x4_speed; }
 };
 
 struct SBouncyGrenadeData {
+private:
   SGrenadeUnknownStruct x0_;
   CDamageInfo x8_damageInfo;
   CAssetId x24_elementGenId1;
@@ -27,6 +33,7 @@ struct SBouncyGrenadeData {
   u16 x38_bounceSfx;
   u16 x3a_explodeSfx;
 
+public:
   SBouncyGrenadeData(const SGrenadeUnknownStruct& unkStruct, const CDamageInfo& damageInfo, CAssetId w1, CAssetId w2,
                      CAssetId w3, CAssetId w4, u32 w5, u16 s1, u16 s2)
   : x0_(unkStruct)
@@ -38,6 +45,16 @@ struct SBouncyGrenadeData {
   , x34_numBounces(w5)
   , x38_bounceSfx(s1)
   , x3a_explodeSfx(s2){};
+
+  [[nodiscard]] const SGrenadeUnknownStruct& GetUnkStruct() const { return x0_; }
+  [[nodiscard]] const CDamageInfo& GetDamageInfo() const { return x8_damageInfo; }
+  [[nodiscard]] CAssetId GetElementGenId1() const { return x24_elementGenId1; }
+  [[nodiscard]] CAssetId GetElementGenId2() const { return x28_elementGenId2; }
+  [[nodiscard]] CAssetId GetElementGenId3() const { return x2c_elementGenId3; }
+  [[nodiscard]] CAssetId GetElementGenId4() const { return x30_elementGenId4; }
+  [[nodiscard]] u32 GetNumBounces() const { return x34_numBounces; }
+  [[nodiscard]] u16 GetBounceSfx() const { return x38_bounceSfx; }
+  [[nodiscard]] u16 GetExplodeSfx() const { return x3a_explodeSfx; }
 };
 
 class CBouncyGrenade : public CPhysicsActor {
@@ -61,7 +78,7 @@ public:
 
   void Accept(IVisitor& visitor) override { visitor.Visit(this); }
   void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
-  void CollidedWith(TUniqueId id, const CCollisionInfoList &list, CStateManager &mgr) override;
+  void CollidedWith(TUniqueId id, const CCollisionInfoList& list, CStateManager& mgr) override;
   [[nodiscard]] std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Render(const CStateManager& mgr) const override;
   void Think(float dt, CStateManager& mgr) override;

@@ -14,14 +14,14 @@ CBouncyGrenade::CBouncyGrenade(TUniqueId uid, std::string_view name, const CEnti
                                TUniqueId parentId, const SBouncyGrenadeData& data, float velocity,
                                float explodePlayerDistance)
 : CPhysicsActor(uid, true, name, info, xf, std::move(mData), {EMaterialTypes::Projectile, EMaterialTypes::Solid}, {},
-                SMoverData(data.x0_.x0_mass), actParams, 0.3f, 0.1f)
+                SMoverData(data.GetUnkStruct().GetMass()), actParams, 0.3f, 0.1f)
 , x258_data(data)
-, x294_numBounces(data.x34_numBounces)
+, x294_numBounces(data.GetNumBounces())
 , x298_parentId(parentId)
-, x2a0_elementGen1(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.x24_elementGenId1})))
-, x2a4_elementGen2(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.x28_elementGenId2})))
-, x2a8_elementGen3(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.x2c_elementGenId3})))
-, x2ac_elementGen4(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.x30_elementGenId4})))
+, x2a0_elementGen1(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId1()})))
+, x2a4_elementGen2(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId2()})))
+, x2a8_elementGen3(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId3()})))
+, x2ac_elementGen4(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId4()})))
 , x2b0_explodePlayerDistance(explodePlayerDistance)
 , x2b4_24_exploded(false)
 , x2b4_25_(false) {
@@ -81,10 +81,11 @@ void CBouncyGrenade::CollidedWith(TUniqueId id, const CCollisionInfoList& list, 
           if (GetVelocity().dot(info.GetNormalLeft()) > 0.f) {
             normal = &info.GetNormalRight();
           }
-          const zeus::CVector3f impulse = (x258_data.x0_.x4_ * GetConstantForce().magnitude()) * *normal;
-          const zeus::CVector3f angle = -x258_data.x0_.x4_ * GetAngularMomentum();
+          const zeus::CVector3f impulse =
+              (x258_data.GetUnkStruct().GetSpeed() * GetConstantForce().magnitude()) * *normal;
+          const zeus::CVector3f angle = -x258_data.GetUnkStruct().GetSpeed() * GetAngularMomentum();
           ApplyImpulseWR(impulse, angle);
-          CSfxManager::AddEmitter(x258_data.x38_bounceSfx, GetTranslation(), zeus::skUp, false, false, 0x7f,
+          CSfxManager::AddEmitter(x258_data.GetBounceSfx(), GetTranslation(), zeus::skUp, false, false, 0x7f,
                                   GetAreaIdAlways());
           x294_numBounces--;
         }
@@ -95,9 +96,7 @@ void CBouncyGrenade::CollidedWith(TUniqueId id, const CCollisionInfoList& list, 
   CPhysicsActor::CollidedWith(id, list, mgr);
 }
 
-std::optional<zeus::CAABox> CBouncyGrenade::GetTouchBounds() const {
-  return GetModelData()->GetBounds(GetTransform());
-}
+std::optional<zeus::CAABox> CBouncyGrenade::GetTouchBounds() const { return GetModelData()->GetBounds(GetTransform()); }
 
 void CBouncyGrenade::Render(const CStateManager& mgr) const {
   if (!x2b4_24_exploded) {
@@ -153,14 +152,14 @@ void CBouncyGrenade::Explode(CStateManager& mgr, TUniqueId uid) {
   }
 
   x2b4_24_exploded = true;
-  CSfxManager::AddEmitter(x258_data.x3a_explodeSfx, GetTranslation(), zeus::skUp, false, false, 0x7f,
+  CSfxManager::AddEmitter(x258_data.GetExplodeSfx(), GetTranslation(), zeus::skUp, false, false, 0x7f,
                           GetAreaIdAlways());
   x2a0_elementGen1->SetParticleEmission(true);
   x2a4_elementGen2->SetParticleEmission(true);
   x2a8_elementGen3->SetParticleEmission(true);
   x2ac_elementGen4->SetParticleEmission(false);
 
-  const CDamageInfo& dInfo = x258_data.x8_damageInfo;
+  const CDamageInfo& dInfo = x258_data.GetDamageInfo();
   {
     bool isParent = x298_parentId == uid;
     if (TCastToConstPtr<CCollisionActor> actor = mgr.GetObjectById(uid)) {

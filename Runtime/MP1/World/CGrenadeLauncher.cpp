@@ -15,7 +15,7 @@ CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const C
                                    const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& bounds,
                                    const CHealthInfo& healthInfo, const CDamageVulnerability& vulnerability,
                                    const CActorParameters& actParams, TUniqueId parentId,
-                                   const CGrenadeLauncherData& data, float f1)
+                                   const SGrenadeLauncherData& data, float f1)
 : CPhysicsActor(uid, true, name, info, xf, std::move(mData), {EMaterialTypes::Character, EMaterialTypes::Solid}, bounds,
                 {1000.f}, actParams, 0.3f, 0.1f)
 , x25c_healthInfo(healthInfo)
@@ -26,8 +26,8 @@ CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const C
 , x350_grenadeActorParams(actParams)
 , x3e8_thermalMag(actParams.GetThermalMag())
 , x3f8_explodePlayerDistance(f1) {
-  if (data.x40_.IsValid()) {
-    x3b8_particleGenDesc = g_SimplePool->GetObj({SBIG('PART'), data.x40_});
+  if (data.GetExplosionGenDescId().IsValid()) {
+    x3b8_particleGenDesc = g_SimplePool->GetObj({SBIG('PART'), data.GetExplosionGenDescId()});
   }
   GetModelData()->EnableLooping(true);
   const CPASDatabase& pasDatabase = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();
@@ -48,31 +48,31 @@ zeus::CVector3f CGrenadeLauncher::GrenadeTarget(const CStateManager& mgr) {
 void CGrenadeLauncher::CalculateGrenadeTrajectory(const zeus::CVector3f& target, const zeus::CVector3f& origin,
                                                   const SGrenadeTrajectoryInfo& info, float& angleOut,
                                                   float& velocityOut) {
-  float angle = info.x8_angleMin;
-  float velocity = info.x0_;
-  float delta = std::max(0.01f, 0.1f * (info.xc_angleMax - info.x8_angleMin));
+  float angle = info.GetAngleMin();
+  float velocity = info.GetVelocityMin();
+  float delta = std::max(0.01f, 0.1f * (info.GetAngleMax() - info.GetAngleMin()));
   zeus::CVector3f dist = target - origin;
   float distXYMag = dist.toVec2f().magnitude();
-  float qwSq = info.x0_ * info.x0_;
-  float qxSq = info.x4_ * info.x4_;
+  float velocityMinSq = info.GetVelocityMin() * info.GetVelocityMin();
+  float velocityMaxSq = info.GetVelocityMax() * info.GetVelocityMax();
   float gravAdj = distXYMag * ((0.5f * CPhysicsActor::GravityConstant()) * distXYMag);
-  float currAngle = info.x8_angleMin;
+  float currAngle = info.GetAngleMin();
   float leastResult = FLT_MAX;
-  while (info.xc_angleMax >= currAngle) {
+  while (info.GetAngleMax() >= currAngle) {
     float cos = std::cos(currAngle);
     float sin = std::sin(currAngle);
     float result = (distXYMag * (cos * sin) - (dist.z() * (cos * cos)));
     if (result > FLT_EPSILON) {
       float div = gravAdj / result;
-      if (qwSq <= result && result <= qxSq) {
+      if (velocityMinSq <= result && result <= velocityMaxSq) {
         angle = currAngle;
         velocity = std::sqrt(div);
         break;
       }
-      if (result <= qxSq) {
-        result = qwSq - result;
+      if (result <= velocityMaxSq) {
+        result = velocityMinSq - result;
       } else {
-        result = result - qxSq;
+        result = result - velocityMaxSq;
       }
       if (result < leastResult) {
         angle = currAngle;
@@ -206,7 +206,7 @@ void CGrenadeLauncher::CreateExplosion(CStateManager& mgr) {
   mgr.AddObject(new CExplosion(*x3b8_particleGenDesc, mgr.AllocateUniqueId(), true,
                                {GetAreaIdAlways(), CEntity::NullConnectionList}, "Grenade Launcher Explode Fx"sv,
                                GetTransform(), 0, GetModelData()->GetScale(), zeus::skWhite));
-  CSfxManager::SfxStart(x2d0_data.x44_launcherExplodeSfx, 1.f, 1.f, false, 0x7f, false, kInvalidAreaId);
+  CSfxManager::SfxStart(x2d0_data.GetExplosionSfx(), 1.f, 1.f, false, 0x7f, false, kInvalidAreaId);
 }
 
 void CGrenadeLauncher::sub_8022f9e0(CStateManager& mgr, float dt) {
@@ -302,9 +302,9 @@ void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
     const zeus::CVector3f& origin =
         GetTranslation() + GetTransform().rotate(GetLocatorTransform("grenade_LCTR"sv).origin);
     const zeus::CVector3f& target = GrenadeTarget(mgr);
-    float angleOut = x2d0_data.x48_trajectoryInfo.x8_angleMin;
-    float velocityOut = x2d0_data.x48_trajectoryInfo.x0_;
-    CalculateGrenadeTrajectory(target, origin, x2d0_data.x48_trajectoryInfo, angleOut, velocityOut);
+    float angleOut = x2d0_data.GetGrenadeTrajectoryInfo().GetAngleMin();
+    float velocityOut = x2d0_data.GetGrenadeTrajectoryInfo().GetVelocityMin();
+    CalculateGrenadeTrajectory(target, origin, x2d0_data.GetGrenadeTrajectoryInfo(), angleOut, velocityOut);
 
     zeus::CVector3f dist = target - origin;
     dist.z() = 0.f;
@@ -322,10 +322,10 @@ void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
 
     const zeus::CVector3f& look = zeus::CVector3f::slerp(dist, zeus::skUp, angleOut);
     const zeus::CTransform& xf = zeus::lookAt(origin, origin + look, zeus::skUp);
-    CModelData mData{CStaticRes{x2d0_data.x3c_grenadeCmdl, GetModelData()->GetScale()}};
+    CModelData mData{CStaticRes{x2d0_data.GetGrenadeModelId(), GetModelData()->GetScale()}};
     mgr.AddObject(new CBouncyGrenade(mgr.AllocateUniqueId(), "Bouncy Grenade"sv,
                                      {GetAreaIdAlways(), CEntity::NullConnectionList}, xf, std::move(mData),
-                                     x350_grenadeActorParams, x2cc_parentId, x2d0_data.x0_grenadeData, velocityOut,
+                                     x350_grenadeActorParams, x2cc_parentId, x2d0_data.GetGrenadeData(), velocityOut,
                                      x3f8_explodePlayerDistance));
   }
 }
