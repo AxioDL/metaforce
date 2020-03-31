@@ -71,6 +71,7 @@ public:
     void Lock() { x0_area.Lock(); }
     void Unlock() { x0_area.Unlock(); }
     bool IsLoaded() const { return x0_area.IsLoaded(); }
+    CMapArea* GetMapArea() { return x0_area.GetObj(); }
     const CMapArea* GetMapArea() const { return x0_area.GetObj(); }
     CMapAreaData* GetNextMapAreaData() { return x14_next; }
     const CMapAreaData* GetNextMapAreaData() const { return x14_next; }
@@ -144,10 +145,11 @@ private:
 public:
   explicit CMapWorld(CInputStream& in);
   u32 GetNumAreas() const { return x0_areas.size(); }
+  CMapArea* GetMapArea(int aid) { return x0_areas[aid].GetMapArea(); }
   const CMapArea* GetMapArea(int aid) const { return x0_areas[aid].GetMapArea(); }
   bool IsMapAreaInBFSInfoVector(const CMapAreaData* area, const std::vector<CMapAreaBFSInfo>& vec) const;
   void SetWhichMapAreasLoaded(const IWorld& wld, int start, int count);
-  bool IsMapAreasStreaming() const;
+  bool IsMapAreasStreaming();
   void MoveMapAreaToList(CMapAreaData* data, EMapAreaList list);
   s32 GetCurrentMapAreaDepth(const IWorld& wld, TAreaId aid);
   std::vector<int> GetVisibleAreas(const IWorld& wld, const CMapWorldInfo& mwInfo) const;
@@ -156,7 +158,7 @@ public:
              std::vector<CMapAreaBFSInfo>& bfsInfos);
   bool IsMapAreaValid(const IWorld& wld, int areaIdx, bool checkLoad) const;
   void DrawAreas(const CMapWorldDrawParms& parms, int selArea, const std::vector<CMapAreaBFSInfo>& bfsInfos,
-                 bool inMapScreen) const;
+                 bool inMapScreen);
   void RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld& wld);
   zeus::CVector3f ConstrainToWorldVolume(const zeus::CVector3f& point, const zeus::CVector3f& lookVec) const;
   void ClearTraversedFlags();

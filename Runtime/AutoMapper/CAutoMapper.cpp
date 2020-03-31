@@ -158,7 +158,7 @@ bool CAutoMapper::CanLeaveMapScreenInternal(const CStateManager& mgr) const {
   return false;
 }
 
-void CAutoMapper::LeaveMapScreen(const CStateManager& mgr) {
+void CAutoMapper::LeaveMapScreen(CStateManager& mgr) {
   if (x1c0_nextState == EAutoMapperState::MapScreenUniverse) {
     xa8_renderStates[1].x2c_drawDepth1 = GetMapAreaMiniMapDrawDepth();
     xa8_renderStates[1].x30_drawDepth2 = GetMapAreaMiniMapDrawDepth();
@@ -180,9 +180,9 @@ void CAutoMapper::LeaveMapScreen(const CStateManager& mgr) {
   }
 }
 
-void CAutoMapper::SetupMiniMapWorld(const CStateManager& mgr) {
-  const CWorld& wld = *mgr.GetWorld();
-  const_cast<CMapWorld*>(wld.GetMapWorld())->SetWhichMapAreasLoaded(wld, wld.GetCurrentAreaId(), 3);
+void CAutoMapper::SetupMiniMapWorld(CStateManager& mgr) {
+  CWorld& wld = *mgr.GetWorld();
+  wld.GetMapWorld()->SetWhichMapAreasLoaded(wld, wld.GetCurrentAreaId(), 3);
   x328_ = 3;
 }
 
@@ -372,7 +372,7 @@ void CAutoMapper::BeginMapperStateTransition(EAutoMapperState state, CStateManag
   }
 }
 
-void CAutoMapper::CompleteMapperStateTransition(const CStateManager& mgr) {
+void CAutoMapper::CompleteMapperStateTransition(CStateManager& mgr) {
   if (x1bc_state == EAutoMapperState::MapScreenUniverse)
     TransformRenderStatesUniverseToWorld();
 
@@ -1093,7 +1093,7 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
   }
 }
 
-void CAutoMapper::Update(float dt, const CStateManager& mgr) {
+void CAutoMapper::Update(float dt, CStateManager& mgr) {
   if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
     x1d8_flashTimer = std::fmod(x1d8_flashTimer + dt, 0.75f);
     x1dc_playerFlashPulse = x1d8_flashTimer < 0.375f ? x1d8_flashTimer / 0.375f : (0.75f - x1d8_flashTimer) / 0.375f;
@@ -1289,7 +1289,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr) {
       wld->ICheckWorldComplete();
 }
 
-void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, float alpha) const {
+void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, float alpha) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CAutoMapper::Draw", zeus::skPurple);
   alpha *= g_GameState->GameOptions().GetHUDAlpha() / 255.f;
   // Blend mode alpha
@@ -1447,7 +1447,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
     if (IsInMapperState(EAutoMapperState::MapScreen)) {
       CAssetId wldMlvl = x24_world->IGetWorldAssetId();
       const CMapWorld* mw = x24_world->IGetMapWorld();
-      std::vector<CTexturedQuadFilter>& hintBeaconFilters = const_cast<CAutoMapper&>(*this).m_hintBeaconFilters;
+      std::vector<CTexturedQuadFilter>& hintBeaconFilters = m_hintBeaconFilters;
       if (hintBeaconFilters.size() < x1f8_hintLocations.size()) {
         hintBeaconFilters.reserve(x1f8_hintLocations.size());
         for (u32 i = hintBeaconFilters.size(); i < x1f8_hintLocations.size(); ++i)
@@ -1607,8 +1607,8 @@ CAssetId CAutoMapper::GetAreaHintDescriptionString(CAssetId mreaId) {
 void CAutoMapper::OnNewInGameGuiState(EInGameGuiState state, CStateManager& mgr) {
   if (state == EInGameGuiState::MapScreen) {
     MP1::CMain::EnsureWorldPaksReady();
-    const CWorld& wld = *mgr.GetWorld();
-    const_cast<CMapWorld*>(wld.GetMapWorld())->SetWhichMapAreasLoaded(wld, 0, 9999);
+    CWorld& wld = *mgr.GetWorld();
+    wld.GetMapWorld()->SetWhichMapAreasLoaded(wld, 0, 9999);
     SetupHintNavigation();
     BeginMapperStateTransition(EAutoMapperState::MapScreen, mgr);
     x28_frmeMapScreen = g_SimplePool->GetObj("FRME_MapScreen");

@@ -38,9 +38,10 @@ CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
   x64_centerPoint *= zeus::CVector3f(1.0f / float(x44_hexagonXfs.size()));
 }
 
-void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3f&, float, float) const {
-  if (!x4_hexagonToken.IsLoaded())
+void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3f&, float, float) {
+  if (!x4_hexagonToken.IsLoaded()) {
     return;
+  }
   SCOPED_GRAPHICS_DEBUG_GROUP("CMapUniverse::Draw", zeus::skBlue);
 
   u32 totalSurfaceCount = 0;
@@ -100,7 +101,7 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
 
     zeus::CTransform hexXf = mwData.GetMapAreaData(info.GetAreaIndex());
     hexXf.orthonormalize();
-    const CMapArea::CMapAreaSurface& surf = x4_hexagonToken->GetSurface(info.GetObjectIndex());
+    CMapArea::CMapAreaSurface& surf = x4_hexagonToken->GetSurface(info.GetObjectIndex());
     zeus::CColor color(std::max(0.f, (-parms.GetCameraTransform().basis[1]).dot(hexXf.rotate(surf.GetNormal()))) *
                            g_tweakAutoMapper->GetMapSurfaceNormColorLinear() +
                        g_tweakAutoMapper->GetMapSurfaceNormColorConstant());

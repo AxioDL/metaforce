@@ -279,7 +279,7 @@ void CInGameGuiManager::OnNewPauseScreenState(CArchitectureQueue& archQueue) {
   x1bc_prevState = x1c0_nextState;
 }
 
-void CInGameGuiManager::UpdateAutoMapper(float dt, const CStateManager& stateMgr) {
+void CInGameGuiManager::UpdateAutoMapper(float dt, CStateManager& stateMgr) {
   x38_autoMapper->Update(dt, stateMgr);
   zeus::CTransform xf =
       x148_model_automapper->GetParent()->GetWorldTransform() * x144_basewidget_automapper->GetTransform();

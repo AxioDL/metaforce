@@ -314,7 +314,7 @@ CScriptDoor::EDoorOpenCondition CScriptDoor::GetDoorOpenCondition(CStateManager&
   if (connArea == kInvalidAreaId)
     return EDoorOpenCondition::NotReady;
 
-  const CWorld* world = mgr.GetWorld();
+  CWorld* world = mgr.GetWorld();
   const CGameArea* area = world->GetAreaAlways(connArea);
 
   if (!area->IsPostConstructed()) {
