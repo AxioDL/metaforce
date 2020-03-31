@@ -14,7 +14,7 @@ protected:
   std::string x4_name;
 
 public:
-  CAnimTreeNode(std::string_view name) : x4_name(name) {}
+  explicit CAnimTreeNode(std::string_view name) : x4_name(name) {}
   bool IsCAnimTreeNode() const override { return true; }
   static std::shared_ptr<CAnimTreeNode> Cast(std::unique_ptr<IAnimReader>&& ptr) {
     if (ptr->IsCAnimTreeNode())

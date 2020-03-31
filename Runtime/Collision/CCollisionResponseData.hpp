@@ -126,7 +126,7 @@ class CCollisionResponseData {
   bool CheckAndAddResourceToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool);
 
 public:
-  CCollisionResponseData(CInputStream& in, CSimplePool* resPool);
+  explicit CCollisionResponseData(CInputStream& in, CSimplePool* resPool);
   const std::optional<TLockedToken<CGenDescription>>& GetParticleDescription(EWeaponCollisionResponseTypes type) const;
   const std::optional<TLockedToken<CDecalDescription>>& GetDecalDescription(EWeaponCollisionResponseTypes type) const;
   s32 GetSoundEffectId(EWeaponCollisionResponseTypes type) const;

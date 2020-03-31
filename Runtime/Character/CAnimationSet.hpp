@@ -24,7 +24,7 @@ class CAnimationSet {
   std::vector<std::pair<CAssetId, CAssetId>> x50_animRes;
 
 public:
-  CAnimationSet(CInputStream& in);
+  explicit CAnimationSet(CInputStream& in);
 
   const std::vector<CAnimation>& GetAnimations() const { return x4_animations; }
   const std::vector<CTransition>& GetTransitions() const { return x14_transitions; }

@@ -31,7 +31,7 @@ class CMFGame : public CMFGameBase {
     u8 _dummy = 0;
   };
 
-  CColoredQuadFilter m_fadeToBlack = {EFilterType::Multiply};
+  CColoredQuadFilter m_fadeToBlack{EFilterType::Multiply};
 
   bool IsCameraActiveFlow() const {
     return (x1c_flowState == EGameFlowState::InGame || x1c_flowState == EGameFlowState::SamusDied);

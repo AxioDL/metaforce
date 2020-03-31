@@ -198,7 +198,7 @@ private:
   float x664_ = 0.f;
   float x668_aimVerticalSpeed;
   float x66c_aimHorizontalSpeed;
-  std::pair<u16, CSfxHandle> x670_animSfx = {0xffff, {}};
+  std::pair<u16, CSfxHandle> x670_animSfx{0xffff, {}};
   CGunMorph x678_morph;
   CMotionState x6a0_motionState;
   zeus::CAABox x6c8_hologramClipCube;
@@ -266,9 +266,9 @@ private:
     u32 _dummy = 0;
   };
 
-  mutable CTexturedQuadFilter m_screenQuad = {EFilterType::Blend, CGraphics::g_SpareTexture.get(),
-                                              CTexturedQuadFilter::ZTest::GEqualZWrite};
-  mutable CAABoxShader m_aaboxShader = {true};
+  mutable CTexturedQuadFilter m_screenQuad{EFilterType::Blend, CGraphics::g_SpareTexture.get(),
+                                           CTexturedQuadFilter::ZTest::GEqualZWrite};
+  mutable CAABoxShader m_aaboxShader{true};
 
   void InitBeamData();
   void InitBombData();

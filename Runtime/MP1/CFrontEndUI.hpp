@@ -203,7 +203,7 @@ public:
 
     bool m_gbaOverride = false;
 
-    SFusionBonusFrame(CFrontEndUITouchBar& touchBar);
+    explicit SFusionBonusFrame(CFrontEndUITouchBar& touchBar);
     void FinishedLoading();
     bool PumpLoad();
     void SetTableColors(CGuiTableGroup* tbgp) const;
@@ -354,7 +354,7 @@ private:
   std::unique_ptr<SOptionsFrontEndFrame> xf0_optionsFrme;
   CStaticAudioPlayer* xf4_curAudio = nullptr;
 
-  CColoredQuadFilter m_fadeToBlack = {EFilterType::Blend};
+  CColoredQuadFilter m_fadeToBlack{EFilterType::Blend};
   std::optional<CTexturedQuadFilterAlpha> m_pressStartQuad;
 
   std::unique_ptr<CFrontEndUITouchBar> m_touchBar;

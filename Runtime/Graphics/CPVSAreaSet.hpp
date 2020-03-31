@@ -25,7 +25,7 @@ class CPVSAreaSet {
   }
 
 public:
-  CPVSAreaSet(const u8* data, u32 len);
+  explicit CPVSAreaSet(const u8* data, u32 len);
   u32 GetNumFeatures() const { return x0_numFeatures; }
   u32 GetNumActors() const { return xc_numActors; }
   u32 Get1stLightIndex(u32 lightIdx) const { return x0_numFeatures + x8_num2ndLights + lightIdx; }

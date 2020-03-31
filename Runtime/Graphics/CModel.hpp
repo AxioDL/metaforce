@@ -106,7 +106,7 @@ struct SShader {
   MaterialSet m_matSet;
   std::optional<GeometryUniformLayout> m_geomLayout;
   int m_matSetIdx;
-  SShader(int idx) : m_matSetIdx(idx) {
+  explicit SShader(int idx) : m_matSetIdx(idx) {
     x0_textures.clear();
     m_shaders.clear();
   }

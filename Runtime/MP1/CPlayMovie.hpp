@@ -32,7 +32,7 @@ private:
   static bool IsResultsScreen(EWhichMovie which);
 
 public:
-  CPlayMovie(EWhichMovie which);
+  explicit CPlayMovie(EWhichMovie which);
 };
 
 } // namespace urde::MP1

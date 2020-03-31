@@ -14,7 +14,7 @@ class CAnimation {
   std::shared_ptr<IMetaAnim> x10_anim;
 
 public:
-  CAnimation(CInputStream& in);
+  explicit CAnimation(CInputStream& in);
   const std::shared_ptr<IMetaAnim>& GetMetaAnim() const { return x10_anim; }
   std::string_view GetMetaAnimName() const { return x0_name; }
 };

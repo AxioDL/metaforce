@@ -11,7 +11,7 @@ class CMetaAnimPlay : public IMetaAnim {
   CCharAnimTime x1c_startTime;
 
 public:
-  CMetaAnimPlay(CInputStream& in);
+  explicit CMetaAnimPlay(CInputStream& in);
   EMetaAnimType GetType() const override { return EMetaAnimType::Play; }
 
   void GetUniquePrimitives(std::set<CPrimitive>& primsOut) const override;

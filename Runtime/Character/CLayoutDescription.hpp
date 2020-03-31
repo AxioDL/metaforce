@@ -27,7 +27,7 @@ private:
   std::optional<CScaledLayoutDescription> xc_scaled;
 
 public:
-  CLayoutDescription(const TLockedToken<CCharLayoutInfo>& token) : x0_layoutToken(token) {}
+  explicit CLayoutDescription(const TLockedToken<CCharLayoutInfo>& token) : x0_layoutToken(token) {}
 
   const std::optional<CScaledLayoutDescription>& GetScaledLayoutDescription() const { return xc_scaled; }
 

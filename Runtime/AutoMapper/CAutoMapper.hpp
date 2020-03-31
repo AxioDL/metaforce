@@ -224,7 +224,7 @@ private:
   CAssetId GetAreaHintDescriptionString(CAssetId mreaId);
 
 public:
-  CAutoMapper(CStateManager& stateMgr);
+  explicit CAutoMapper(CStateManager& stateMgr);
   bool CheckLoadComplete();
   bool CanLeaveMapScreen(const CStateManager& mgr) const;
   float GetMapRotationX() const { return xa8_renderStates[0].x1c_camAngle; }

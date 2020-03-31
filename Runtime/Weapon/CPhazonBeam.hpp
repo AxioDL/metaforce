@@ -22,8 +22,8 @@ class CPhazonBeam final : public CGunWeapon {
   bool x274_26_veinsAlphaActive : 1;
   bool x274_27_phazonVeinsIdx : 1;
   float x278_fireTime = 1.f / 3.f;
-  mutable CAABoxShader m_aaboxShaderScale = {true};
-  mutable CAABoxShader m_aaboxShaderTranslate = {true};
+  mutable CAABoxShader m_aaboxShaderScale{true};
+  mutable CAABoxShader m_aaboxShaderTranslate{true};
   void ReInitVariables();
   void DrawClipScaleCube() const;
   void DrawClipTranslateCube() const;

@@ -22,7 +22,7 @@ private:
 
 public:
   CParticleData() = default;
-  CParticleData(CInputStream& in);
+  explicit CParticleData(CInputStream& in);
   u32 GetDuration() const { return x0_duration; }
   const SObjectTag& GetTag() const { return x4_particle; }
   std::string_view GetSegmentName() const { return xc_boneName; }

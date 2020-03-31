@@ -185,7 +185,7 @@ constexpr std::array<std::pair<CPlayerState::EItemType, ControlMapper::ECommands
 }};
 
 CModelData MakePlayerAnimRes(CAssetId resId, const zeus::CVector3f& scale) {
-  return {CAnimRes(resId, 0, scale, 0, true), 1};
+  return CModelData{CAnimRes(resId, 0, scale, 0, true), 1};
 }
 
 uint32_t GetOrbitScreenBoxHalfExtentXScaled(int zone) {

@@ -47,7 +47,7 @@ private:
   std::vector<s32> xb0_animIdxs;
 
 public:
-  CCharacterInfo(CInputStream& in);
+  explicit CCharacterInfo(CInputStream& in);
 
   std::string_view GetCharacterName() const { return x4_name; }
   CAssetId GetModelId() const { return x14_cmdl; }

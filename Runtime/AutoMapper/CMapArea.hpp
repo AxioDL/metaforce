@@ -38,7 +38,7 @@ public:
     std::vector<Instance> m_instances;
 
   public:
-    CMapAreaSurface(const void* surfBuf);
+    explicit CMapAreaSurface(const void* surfBuf);
     CMapAreaSurface(CMapAreaSurface&&) = default;
     void PostConstruct(const u8* buf, std::vector<u32>& index);
     void Draw(const zeus::CVector3f* verts, const zeus::CColor& surfColor, const zeus::CColor& lineColor,
@@ -69,7 +69,7 @@ private:
   boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
 
 public:
-  CMapArea(CInputStream& in, u32 size);
+  explicit CMapArea(CInputStream& in, u32 size);
   void PostConstruct();
   bool GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const;
   zeus::CVector3f GetAreaCenterPoint() const { return x10_box.center(); }

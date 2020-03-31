@@ -35,7 +35,7 @@ protected:
   ZTest m_zTest;
   bool m_flipRect = false;
 
-  CTexturedQuadFilter(const boo::ObjToken<boo::ITexture>& tex);
+  explicit CTexturedQuadFilter(const boo::ObjToken<boo::ITexture>& tex);
 
 public:
   struct Vert {
@@ -45,8 +45,8 @@ public:
   static void Initialize();
   static void Shutdown();
   static const zeus::CRectangle DefaultRect;
-  CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ZTest zTest = ZTest::None);
-  CTexturedQuadFilter(EFilterType type, const boo::ObjToken<boo::ITexture>& tex, ZTest zTest = ZTest::None);
+  explicit CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ZTest zTest = ZTest::None);
+  explicit CTexturedQuadFilter(EFilterType type, const boo::ObjToken<boo::ITexture>& tex, ZTest zTest = ZTest::None);
   CTexturedQuadFilter(const CTexturedQuadFilter&) = delete;
   CTexturedQuadFilter& operator=(const CTexturedQuadFilter&) = delete;
   CTexturedQuadFilter(CTexturedQuadFilter&&) = default;
@@ -63,8 +63,8 @@ class CTexturedQuadFilterAlpha : public CTexturedQuadFilter {
 public:
   static void Initialize();
   static void Shutdown();
-  CTexturedQuadFilterAlpha(EFilterType type, TLockedToken<CTexture> tex);
-  CTexturedQuadFilterAlpha(EFilterType type, const boo::ObjToken<boo::ITexture>& tex);
+  explicit CTexturedQuadFilterAlpha(EFilterType type, TLockedToken<CTexture> tex);
+  explicit CTexturedQuadFilterAlpha(EFilterType type, const boo::ObjToken<boo::ITexture>& tex);
 };
 
 } // namespace urde

@@ -55,7 +55,7 @@ struct SObjectTag {
   [[nodiscard]] constexpr bool operator<(const SObjectTag& other) const noexcept { return id < other.id; }
   constexpr SObjectTag() noexcept = default;
   constexpr SObjectTag(FourCC tp, CAssetId rid) noexcept : type(tp), id(rid) {}
-  SObjectTag(CInputStream& in) {
+  explicit SObjectTag(CInputStream& in) {
     in.readBytesToBuf(&type, 4);
     id = CAssetId(in);
   }

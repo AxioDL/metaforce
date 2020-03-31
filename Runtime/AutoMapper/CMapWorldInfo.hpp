@@ -18,7 +18,7 @@ class CMapWorldInfo {
 
 public:
   CMapWorldInfo() = default;
-  CMapWorldInfo(CBitStreamReader&, const CSaveWorld& saveWorld, CAssetId mlvlId);
+  explicit CMapWorldInfo(CBitStreamReader&, const CSaveWorld& saveWorld, CAssetId mlvlId);
   void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, CAssetId mlvlId) const;
   bool IsMapped(TAreaId) const;
   void SetIsMapped(TAreaId, bool);
