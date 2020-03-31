@@ -13,7 +13,7 @@ class CMetaTransTrans : public IMetaTrans {
   u32 x10_flags;
 
 public:
-  CMetaTransTrans(CInputStream& in);
+  explicit CMetaTransTrans(CInputStream& in);
   EMetaTransType GetType() const override { return EMetaTransType::Trans; }
 
   std::shared_ptr<CAnimTreeNode> VGetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,

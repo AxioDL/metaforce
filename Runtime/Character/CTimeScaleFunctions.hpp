@@ -25,7 +25,7 @@ private:
   float x4_scale;
 
 public:
-  CConstantAnimationTimeScale(float scale) : x4_scale(scale) {}
+  explicit CConstantAnimationTimeScale(float scale) : x4_scale(scale) {}
 
   EVaryingAnimationTimeScaleType GetType() const override { return EVaryingAnimationTimeScaleType::Constant; }
   float VTimeScaleIntegral(float lowerLimit, float upperLimit) const override;
@@ -46,7 +46,7 @@ class CLinearAnimationTimeScale : public IVaryingAnimationTimeScale {
   static float TimeScaleIntegralWithSortedLimits(const CFunctionDescription& desc, float lowerLimit, float upperLimit);
 
 public:
-  CLinearAnimationTimeScale(const CCharAnimTime& t1, float y1, const CCharAnimTime& t2, float y2);
+  explicit CLinearAnimationTimeScale(const CCharAnimTime& t1, float y1, const CCharAnimTime& t2, float y2);
 
   EVaryingAnimationTimeScaleType GetType() const override { return EVaryingAnimationTimeScaleType::Linear; }
   float VTimeScaleIntegral(float lowerLimit, float upperLimit) const override;

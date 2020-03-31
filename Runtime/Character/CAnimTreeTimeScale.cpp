@@ -99,11 +99,11 @@ u32 CAnimTreeTimeScale::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINod
   return ret;
 }
 
-bool CAnimTreeTimeScale::VGetBoolPOIState(const char* name) const { return x14_child->VGetBoolPOIState(name); }
+bool CAnimTreeTimeScale::VGetBoolPOIState(std::string_view name) const { return x14_child->VGetBoolPOIState(name); }
 
-s32 CAnimTreeTimeScale::VGetInt32POIState(const char* name) const { return x14_child->VGetInt32POIState(name); }
+s32 CAnimTreeTimeScale::VGetInt32POIState(std::string_view name) const { return x14_child->VGetInt32POIState(name); }
 
-CParticleData::EParentedMode CAnimTreeTimeScale::VGetParticlePOIState(const char* name) const {
+CParticleData::EParentedMode CAnimTreeTimeScale::VGetParticlePOIState(std::string_view name) const {
   return x14_child->VGetParticlePOIState(name);
 }
 

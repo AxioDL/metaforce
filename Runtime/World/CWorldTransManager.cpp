@@ -349,7 +349,7 @@ void CWorldTransManager::TouchModels() {
 
   if (x4_modelData->x68_beamModelData.IsNull() && x4_modelData->x14c_beamModel.IsLoaded() &&
       x4_modelData->x14c_beamModel.GetObj()) {
-    x4_modelData->x68_beamModelData = {
+    x4_modelData->x68_beamModelData = CModelData{
         CStaticRes(x4_modelData->x14c_beamModel.GetObjectTag()->id, x4_modelData->x0_samusRes.GetScale()), 2};
   }
 
@@ -358,7 +358,7 @@ void CWorldTransManager::TouchModels() {
       x4_modelData->x164_suitSkin.GetObj()) {
     CAnimRes animRes(x4_modelData->x0_samusRes.GetId(), GetSuitCharIdx(), x4_modelData->x0_samusRes.GetScale(),
                      x4_modelData->x0_samusRes.GetDefaultAnim(), true);
-    x4_modelData->x1c_samusModelData = {animRes, 2};
+    x4_modelData->x1c_samusModelData = CModelData{animRes, 2};
 
     CAnimPlaybackParms aData(animRes.GetDefaultAnim(), -1, 1.f, true);
     x4_modelData->x1c_samusModelData.GetAnimationData()->SetAnimation(aData, false);
@@ -408,22 +408,23 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes, CAssetId pla
   x4_modelData->x164_suitSkin = g_SimplePool->GetObj(SObjectTag{FOURCC('CSKR'), info.GetSkinRulesId()});
 
   if (platRes.IsValid()) {
-    x4_modelData->xb4_platformModelData = {CStaticRes(platRes, platScale), 2};
+    x4_modelData->xb4_platformModelData = CModelData{CStaticRes(platRes, platScale), 2};
     x4_modelData->xb4_platformModelData.Touch(CModelData::EWhichModel::Normal, 0);
   }
 
   if (bgRes.IsValid()) {
-    CStaticRes bg(bgRes, bgScale);
-    x4_modelData->x100_bgModelData[0] = bg;
+    const CStaticRes bg(bgRes, bgScale);
+    x4_modelData->x100_bgModelData[0] = CModelData{bg};
     x4_modelData->x100_bgModelData[0].Touch(CModelData::EWhichModel::Normal, 0);
-    x4_modelData->x100_bgModelData[1] = bg;
+    x4_modelData->x100_bgModelData[1] = CModelData{bg};
     x4_modelData->x100_bgModelData[1].Touch(CModelData::EWhichModel::Normal, 0);
-    x4_modelData->x100_bgModelData[2] = bg;
+    x4_modelData->x100_bgModelData[2] = CModelData{bg};
     x4_modelData->x100_bgModelData[2].Touch(CModelData::EWhichModel::Normal, 0);
-    zeus::CAABox bounds = x4_modelData->x100_bgModelData[0].GetBounds();
+    const zeus::CAABox bounds = x4_modelData->x100_bgModelData[0].GetBounds();
     x1c_bgHeight = (bounds.max.z() - bounds.min.z()) * bgScale.z();
-  } else
+  } else {
     x1c_bgHeight = 0.f;
+  }
 
   StartTransition();
   TouchModels();

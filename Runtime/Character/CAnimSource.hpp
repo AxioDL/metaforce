@@ -39,7 +39,7 @@ public:
   struct CRotationAndOffsetVectors {
     std::vector<zeus::CQuaternion> x0_rotations;
     std::vector<zeus::CVector3f> x10_offsets;
-    CRotationAndOffsetVectors(CInputStream& in);
+    explicit CRotationAndOffsetVectors(CInputStream& in);
   };
   u32 GetFrameSizeInBytes() const;
   RotationAndOffsetStorage(const CRotationAndOffsetVectors& vectors, u32 frameCount);
@@ -61,7 +61,7 @@ class CAnimSource {
   void CalcAverageVelocity();
 
 public:
-  CAnimSource(CInputStream& in, IObjectStore& store);
+  explicit CAnimSource(CInputStream& in, IObjectStore& store);
 
   void GetSegStatementSet(const CSegIdList& list, CSegStatementSet& set, const CCharAnimTime& time) const;
 

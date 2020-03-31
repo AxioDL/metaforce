@@ -18,7 +18,7 @@ class TSegIdMap {
   CSegId xd4_curPrevBone = 0;
 
 public:
-  TSegIdMap(const CSegId& capacity) : x1_capacity(capacity), xd0_bones(new T[capacity]) {}
+  explicit TSegIdMap(const CSegId& capacity) : x1_capacity(capacity), xd0_bones(new T[capacity]) {}
 
   T& operator[](const CSegId& id) { return SetElement(id); }
   const T& operator[](const CSegId& id) const { return xd0_bones[x8_indirectionMap[id].second]; }

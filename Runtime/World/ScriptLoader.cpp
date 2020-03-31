@@ -435,10 +435,12 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
     list.Add(EMaterialTypes::CameraPassthrough);
 
   CModelData data;
-  if (animType == SBIG('ANCS'))
-    data = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), false);
-  else
-    data = CStaticRes(staticId, head.x40_scale);
+  if (animType == SBIG('ANCS')) {
+    data = CModelData{
+        CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), false)};
+  } else {
+    data = CModelData{CStaticRes(staticId, head.x40_scale)};
+  }
 
   if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
     aabb = data.GetBounds(head.x10_transform.getRotation());
@@ -495,7 +497,7 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCo
   if (!g_ResFactory->GetResourceTypeById(aParms.GetACSFile()).IsValid())
     return nullptr;
 
-  CModelData mData = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, 0, false);
+  CModelData mData{CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, 0, false)};
   if (collisionExtent.isZero())
     aabb = mData.GetBounds(head.x10_transform.getRotation());
 
@@ -655,10 +657,12 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int pr
   }
 
   CModelData data;
-  if (animType == SBIG('ANCS'))
-    data = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), true);
-  else
-    data = CStaticRes(staticId, head.x40_scale);
+  if (animType == SBIG('ANCS')) {
+    data = CModelData{
+        CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), true)};
+  } else {
+    data = CModelData{CStaticRes(staticId, head.x40_scale)};
+  }
 
   if (extent.isZero())
     aabb = data.GetBounds(head.x10_transform.getRotation());
@@ -814,9 +818,9 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in, in
 
   CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), true);
 
-  return new MP1::CNewIntroBoss(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, res, pInfo, actParms,
-                                minTurnAngle, projectile, dInfo, beamContactFxId, beamPulseFxId, beamTextureId,
-                                beamGlowTextureId);
+  return new MP1::CNewIntroBoss(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, CModelData{res}, pInfo,
+                                actParms, minTurnAngle, projectile, dInfo, beamContactFxId, beamPulseFxId,
+                                beamTextureId, beamGlowTextureId);
 }
 
 CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -922,14 +926,16 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int prop
 
   CModelData data;
 
-  if (acsType == SBIG('ANCS'))
-    data = CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale, animParms.GetInitialAnimation(),
-                    true);
-  else
-    data = CStaticRes(staticModel, head.x40_scale);
+  if (acsType == SBIG('ANCS')) {
+    data = CModelData{CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale,
+                               animParms.GetInitialAnimation(), true)};
+  } else {
+    data = CModelData{CStaticRes(staticModel, head.x40_scale)};
+  }
 
-  if (extent.isZero())
+  if (extent.isZero()) {
     aabb = data.GetBounds(head.x10_transform.getRotation());
+  }
 
   return new CScriptPickup(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), actorParms,
                            aabb, itemType, amount, capacity, pickupEffect, possibility, lifeTime, fadeInTime,
@@ -1008,9 +1014,9 @@ CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in, int prop
   const CAnimationParameters& animParams = pInfo.GetAnimationParameters();
   CAnimRes animRes(animParams.GetACSFile(), animParams.GetCharacter(), scale, animParams.GetInitialAnimation(), true);
 
-  return new MP1::CBeetle(mgr.AllocateUniqueId(), name, info, xfrm, animRes, pInfo, flavor, entranceType, touchDamage,
-                          platingVuln, tailAimReference, initialAttackDelay, retreatTime, unused, tailVuln, aParams,
-                          tailRes);
+  return new MP1::CBeetle(mgr.AllocateUniqueId(), name, info, xfrm, CModelData{animRes}, pInfo, flavor, entranceType,
+                          touchDamage, platingVuln, tailAimReference, initialAttackDelay, retreatTime, unused, tailVuln,
+                          aParams, tailRes);
 }
 
 CEntity* ScriptLoader::LoadHUDMemo(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -1129,28 +1135,30 @@ CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in, int prop
   if (!EnsurePropertyCount(propCount, 18, "Debris"))
     return nullptr;
 
-  SScaledActorHead head = LoadScaledActorHead(in, mgr);
-  float zImpulse = in.readFloatBig();
-  zeus::CVector3f velocity = zeus::CVector3f::ReadBig(in);
+  const SScaledActorHead head = LoadScaledActorHead(in, mgr);
+  const float zImpulse = in.readFloatBig();
+  const zeus::CVector3f velocity = zeus::CVector3f::ReadBig(in);
   zeus::CColor endsColor;
   endsColor.readRGBABig(in);
-  float mass = in.readFloatBig();
-  float restitution = in.readFloatBig();
-  float duration = in.readFloatBig();
-  CScriptDebris::EScaleType scaleType = CScriptDebris::EScaleType(in.readUint32Big());
-  bool randomAngImpulse = in.readBool();
-  CAssetId model = in.readUint32Big();
-  CActorParameters aParams = LoadActorParameters(in);
-  CAssetId particleId = in.readUint32Big();
-  zeus::CVector3f particleScale = zeus::CVector3f::ReadBig(in);
-  bool b1 = in.readBool();
-  bool active = in.readBool();
+  const float mass = in.readFloatBig();
+  const float restitution = in.readFloatBig();
+  const float duration = in.readFloatBig();
+  const auto scaleType = CScriptDebris::EScaleType(in.readUint32Big());
+  const bool randomAngImpulse = in.readBool();
+  const CAssetId model = in.readUint32Big();
+  const CActorParameters aParams = LoadActorParameters(in);
+  const CAssetId particleId = in.readUint32Big();
+  const zeus::CVector3f particleScale = zeus::CVector3f::ReadBig(in);
+  const bool b1 = in.readBool();
+  const bool active = in.readBool();
 
-  if (!g_ResFactory->GetResourceTypeById(model).IsValid())
+  if (!g_ResFactory->GetResourceTypeById(model).IsValid()) {
     return nullptr;
+  }
+
   return new CScriptDebris(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
-                           CStaticRes(model, head.x40_scale), aParams, particleId, particleScale, zImpulse, velocity,
-                           endsColor, mass, restitution, duration, scaleType, b1, randomAngImpulse, active);
+                           CModelData{CStaticRes(model, head.x40_scale)}, aParams, particleId, particleScale, zImpulse,
+                           velocity, endsColor, mass, restitution, duration, scaleType, b1, randomAngImpulse, active);
 }
 
 CEntity* ScriptLoader::LoadCameraShaker(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

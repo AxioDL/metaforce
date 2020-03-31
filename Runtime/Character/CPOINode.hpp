@@ -33,9 +33,9 @@ protected:
   s32 x34_flags;
 
 public:
-  CPOINode(std::string_view name, EPOIType type, const CCharAnimTime& time, s32 index, bool unique, float weight,
-           s32 charIdx, s32 flags);
-  CPOINode(CInputStream& in);
+  explicit CPOINode(std::string_view name, EPOIType type, const CCharAnimTime& time, s32 index, bool unique,
+                    float weight, s32 charIdx, s32 flags);
+  explicit CPOINode(CInputStream& in);
   virtual ~CPOINode() = default;
 
   std::string_view GetString() const { return x8_name; }

@@ -18,7 +18,7 @@ class CEffectComponent {
   static SObjectTag GetSObjectTagFromStream(CInputStream& in);
 
 public:
-  CEffectComponent(CInputStream& in);
+  explicit CEffectComponent(CInputStream& in);
 
   std::string_view GetComponentName() const { return x0_name; }
   const SObjectTag& GetParticleTag() const { return x10_tag; }

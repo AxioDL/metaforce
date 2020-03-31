@@ -66,7 +66,7 @@ private:
   float CalculateAverageVelocity(const u8* chans) const;
 
 public:
-  CFBStreamedCompression(CInputStream& in, IObjectStore& objStore, bool pc);
+  explicit CFBStreamedCompression(CInputStream& in, IObjectStore& objStore, bool pc);
   const Header& MainHeader() const { return *reinterpret_cast<const Header*>(xc_rotsAndOffs.get()); }
   const u32* GetTimes() const;
   const u8* GetPerChannelHeaders() const;

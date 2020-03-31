@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -67,7 +68,7 @@ public:
 class CGameState {
   friend class CStateManager;
 
-  bool x0_[128] = {};
+  std::array<bool, 128> x0_{};
   u32 x80_;
   CAssetId x84_mlvlId;
   std::vector<CWorldState> x88_worldStates;
@@ -116,7 +117,7 @@ public:
   void SetFileIdx(u32 idx) { x20c_saveFileIdx = idx; }
   void SetCardSerial(u64 serial) { x210_cardSerial = serial; }
   u64 GetCardSerial() const { return x210_cardSerial; }
-  void PutTo(CBitStreamWriter& writer) const;
+  void PutTo(CBitStreamWriter& writer);
   float GetHardModeDamageMultiplier() const;
   float GetHardModeWeaponMultiplier() const;
   void InitializeMemoryWorlds();

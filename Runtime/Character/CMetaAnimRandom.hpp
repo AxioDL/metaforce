@@ -15,7 +15,7 @@ class CMetaAnimRandom : public IMetaAnim {
   static RandomData CreateRandomData(CInputStream& in);
 
 public:
-  CMetaAnimRandom(CInputStream& in);
+  explicit CMetaAnimRandom(CInputStream& in);
   EMetaAnimType GetType() const override { return EMetaAnimType::Random; }
 
   void GetUniquePrimitives(std::set<CPrimitive>& primsOut) const override;

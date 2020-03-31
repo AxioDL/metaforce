@@ -21,8 +21,9 @@ class CGraphicsPalette {
   bool x1c_ = false;
 
 public:
-  CGraphicsPalette(EPaletteFormat fmt, int count) : x0_fmt(fmt), x8_entryCount(count), xc_entries(new u16[count]) {}
-  CGraphicsPalette(CInputStream& in) : x0_fmt(EPaletteFormat(in.readUint32Big())) {
+  explicit CGraphicsPalette(EPaletteFormat fmt, int count)
+  : x0_fmt(fmt), x8_entryCount(count), xc_entries(new u16[count]) {}
+  explicit CGraphicsPalette(CInputStream& in) : x0_fmt(EPaletteFormat(in.readUint32Big())) {
     u16 w = in.readUint16Big();
     u16 h = in.readUint16Big();
     x8_entryCount = w * h;

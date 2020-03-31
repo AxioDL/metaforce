@@ -30,7 +30,7 @@ class CWorldShadowShader {
 public:
   static void Initialize();
   static void Shutdown();
-  CWorldShadowShader(u32 w, u32 h);
+  explicit CWorldShadowShader(u32 w, u32 h);
   void bindRenderTarget();
   void drawBase(float extent);
   void lightenShadow();

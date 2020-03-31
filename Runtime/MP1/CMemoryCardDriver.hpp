@@ -99,7 +99,7 @@ private:
     u8 x0_saveBuffer[940] = {};
     CGameState::GameFileStateInfo x944_fileInfo;
     SGameFileSlot();
-    SGameFileSlot(CMemoryInStream& in);
+    explicit SGameFileSlot(CMemoryInStream& in);
     void InitializeFromGameState();
     void LoadGameState(u32 idx);
     void DoPut(CMemoryOutStream& w) const { w.writeBytes(x0_saveBuffer, 940); }

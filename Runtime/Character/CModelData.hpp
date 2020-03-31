@@ -79,7 +79,7 @@ class CModelData {
   std::unique_ptr<CBooModel> m_xrayModelInst;
   std::unique_ptr<CBooModel> m_infraModelInst;
 
-  int m_drawInstCount;
+  int m_drawInstCount = 0;
 
 public:
   enum class EWhichModel { Normal, XRay, Thermal, ThermalHot };
@@ -88,8 +88,8 @@ public:
   bool GetSortThermal() const { return x14_25_sortThermal; }
 
   ~CModelData();
-  CModelData(const CStaticRes& res, int instCount = 1);
-  CModelData(const CAnimRes& res, int instCount = 1);
+  explicit CModelData(const CStaticRes& res, int instCount = 1);
+  explicit CModelData(const CAnimRes& res, int instCount = 1);
   CModelData(CModelData&&) = default;
   CModelData& operator=(CModelData&&) = default;
   CModelData();

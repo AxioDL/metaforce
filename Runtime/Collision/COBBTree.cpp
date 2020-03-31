@@ -130,30 +130,37 @@ zeus::CAABox COBBTree::CalculateAABox(const zeus::CTransform& xf) const {
 COBBTree::SIndexData::SIndexData(CInputStream& in) {
   u32 count = in.readUint32Big();
   x0_materials.reserve(count);
-  for (u32 i = 0; i < count; i++)
-    x0_materials.push_back(in.readUint32Big());
+  for (u32 i = 0; i < count; i++) {
+    x0_materials.emplace_back(in.readUint32Big());
+  }
 
   count = in.readUint32Big();
-  for (u32 i = 0; i < count; i++)
-    x10_vertMaterials.push_back(in.readUByte());
+  for (u32 i = 0; i < count; i++) {
+    x10_vertMaterials.emplace_back(in.readUByte());
+  }
   count = in.readUint32Big();
-  for (u32 i = 0; i < count; i++)
-    x20_edgeMaterials.push_back(in.readUByte());
+  for (u32 i = 0; i < count; i++) {
+    x20_edgeMaterials.emplace_back(in.readUByte());
+  }
   count = in.readUint32Big();
-  for (u32 i = 0; i < count; i++)
-    x30_surfaceMaterials.push_back(in.readUByte());
+  for (u32 i = 0; i < count; i++) {
+    x30_surfaceMaterials.emplace_back(in.readUByte());
+  }
 
   count = in.readUint32Big();
-  for (u32 i = 0; i < count; i++)
-    x40_edges.push_back(in);
+  for (u32 i = 0; i < count; i++) {
+    x40_edges.emplace_back(in);
+  }
 
   count = in.readUint32Big();
-  for (u32 i = 0; i < count; i++)
-    x50_surfaceIndices.push_back(in.readUint16Big());
+  for (u32 i = 0; i < count; i++) {
+    x50_surfaceIndices.emplace_back(in.readUint16Big());
+  }
 
   count = in.readUint32Big();
-  for (u32 i = 0; i < count; i++)
-    x60_vertices.push_back(zeus::CVector3f::ReadBig(in));
+  for (u32 i = 0; i < count; i++) {
+    x60_vertices.emplace_back(zeus::CVector3f::ReadBig(in));
+  }
 }
 
 COBBTree::CNode::CNode(const zeus::CTransform& xf, const zeus::CVector3f& point,
@@ -195,14 +202,15 @@ COBBTree::CLeafData::CLeafData(std::vector<u16>&& surface) : x0_surface(std::mov
 const std::vector<u16>& COBBTree::CLeafData::GetSurfaceVector() const { return x0_surface; }
 
 size_t COBBTree::CLeafData::GetMemoryUsage() const {
-  size_t ret = (x0_surface.size() * 2) + /*sizeof(CLeafData)*/ 16;
+  const size_t ret = (x0_surface.size() * 2) + /*sizeof(CLeafData)*/ 16;
   return (ret + 3) & ~3;
 }
 
 COBBTree::CLeafData::CLeafData(CInputStream& in) {
-  u32 edgeCount = in.readUint32Big();
-  for (u32 i = 0; i < edgeCount; i++)
-    x0_surface.push_back(in.readUint16Big());
+  const u32 edgeCount = in.readUint32Big();
+  for (u32 i = 0; i < edgeCount; i++) {
+    x0_surface.emplace_back(in.readUint16Big());
+  }
 }
 
 } // namespace urde

@@ -1586,7 +1586,7 @@ void CPatterned::RenderIceModelWithFlags(const CModelFlags& flags) const {
   CModelFlags useFlags = flags;
   useFlags.x1_matSetIdx = 0;
   CAnimData* animData = x64_modelData->GetAnimationData();
-  if (CMorphableSkinnedModel* iceModel = animData->IceModel().GetObj())
+  if (CMorphableSkinnedModel* iceModel = animData->GetIceModel().GetObj())
     animData->Render(*iceModel, useFlags, {*x510_vertexMorph}, iceModel->GetMorphMagnitudes());
 }
 

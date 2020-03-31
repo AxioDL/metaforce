@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <string>
 #include <vector>
@@ -123,7 +124,7 @@ private:
   std::unique_ptr<uint8_t[]> x40_loadBuf;
   u32 x44_bufSz;
   u32 x48_chainCount = 0;
-  CGameArea* x4c_chainHeads[5] = {};
+  std::array<CGameArea*, 5> x4c_chainHeads{};
 
   IObjectStore& x60_objectStore;
   IFactory& x64_resFactory;

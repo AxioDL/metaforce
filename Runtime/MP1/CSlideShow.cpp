@@ -124,18 +124,19 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg, CA
   return EMessageReturn::Exit;
 }
 
-void CSlideShow::SSlideData::Draw() const {
-  if (!IsLoaded())
+void CSlideShow::SSlideData::Draw() {
+  if (!IsLoaded()) {
     return;
+  }
 
-  zeus::CRectangle rect;
-  const_cast<CTexturedQuadFilterAlpha&>(*m_texQuad).draw(x30_mulColor, 1.f, rect);
+  const zeus::CRectangle rect;
+  m_texQuad->draw(x30_mulColor, 1.f, rect);
 
-  zeus::CVector2f centeredOffset((x28_canvasSize.x() - m_texQuad->GetTex()->GetWidth()) * 0.5f,
-                                 (x28_canvasSize.y() - m_texQuad->GetTex()->GetHeight()) * 0.5f);
+  const zeus::CVector2f centeredOffset((x28_canvasSize.x() - m_texQuad->GetTex()->GetWidth()) * 0.5f,
+                                       (x28_canvasSize.y() - m_texQuad->GetTex()->GetHeight()) * 0.5f);
 }
 
-void CSlideShow::Draw() const {
+void CSlideShow::Draw() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CSlideShow::Draw", zeus::skGreen);
   if (x14_phase == Phase::Five) {
     x5c_slideA.Draw();

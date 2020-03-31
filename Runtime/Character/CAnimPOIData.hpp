@@ -19,7 +19,7 @@ class CAnimPOIData {
   std::vector<CSoundPOINode> x34_soundNodes;
 
 public:
-  CAnimPOIData(CInputStream& in);
+  explicit CAnimPOIData(CInputStream& in);
 
   const std::vector<CBoolPOINode>& GetBoolPOIStream() const { return x4_boolNodes; }
   const std::vector<CInt32POINode>& GetInt32POIStream() const { return x14_int32Nodes; }

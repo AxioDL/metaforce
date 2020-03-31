@@ -173,7 +173,7 @@ class CSamusHud {
   rstl::reserved_vector<SProfileInfo, 15> x7ac_;
 
   CColoredQuadFilter m_energyDrainFilter;
-  CCookieCutterDepthRandomStaticFilter m_cookieCutterStatic = {EFilterType::NoColor};
+  CCookieCutterDepthRandomStaticFilter m_cookieCutterStatic{EFilterType::NoColor};
 
   static CSamusHud* g_SamusHud;
   static rstl::reserved_vector<bool, 4> BuildPlayerHasVisors(const CStateManager& mgr);
@@ -211,7 +211,7 @@ class CSamusHud {
   static EHudState GetDesiredHudState(const CStateManager& mgr);
 
 public:
-  CSamusHud(CStateManager& stateMgr);
+  explicit CSamusHud(CStateManager& stateMgr);
   ~CSamusHud();
   void Update(float dt, const CStateManager& mgr, CInGameGuiManager::EHelmetVisMode helmetVis, bool hudVis,
               bool targetingManager);

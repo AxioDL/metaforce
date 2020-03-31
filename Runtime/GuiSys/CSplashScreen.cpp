@@ -48,19 +48,22 @@ CIOWin::EMessageReturn CSplashScreen::OnMessage(const CArchitectureMessage& msg,
   return EMessageReturn::Exit;
 }
 
-void CSplashScreen::Draw() const {
-  if (!x25_textureLoaded)
+void CSplashScreen::Draw() {
+  if (!x25_textureLoaded) {
     return;
+  }
   SCOPED_GRAPHICS_DEBUG_GROUP("CSplashScreen::Draw", zeus::skGreen);
 
   zeus::CColor color;
-  if (x14_which == ESplashScreen::Nintendo)
+  if (x14_which == ESplashScreen::Nintendo) {
     color = zeus::CColor{0.86f, 0.f, 0.f, 1.f};
+  }
 
-  if (x18_splashTimeout > 1.5f)
+  if (x18_splashTimeout > 1.5f) {
     color.a() = 1.f - (x18_splashTimeout - 1.5f) * 2.f;
-  else if (x18_splashTimeout < 0.5f)
+  } else if (x18_splashTimeout < 0.5f) {
     color.a() = x18_splashTimeout * 2.f;
+  }
 
   zeus::CRectangle rect;
   rect.size.x() = m_quad.GetTex()->GetWidth() / (480.f * g_Viewport.aspect);
@@ -68,7 +71,7 @@ void CSplashScreen::Draw() const {
   rect.position.x() = 0.5f - rect.size.x() / 2.f;
   rect.position.y() = 0.5f - rect.size.y() / 2.f;
 
-  const_cast<CTexturedQuadFilterAlpha&>(m_quad).draw(color, 1.f, rect);
+  m_quad.draw(color, 1.f, rect);
 }
 
 } // namespace urde

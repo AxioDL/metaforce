@@ -251,7 +251,7 @@ public:
 
   s32 GetCharacterIndex() const { return x204_charIdx; }
   u16 GetDefaultAnimation() const { return x208_defaultAnim; }
-  TLockedToken<CMorphableSkinnedModel>& IceModel() { return xe4_iceModelData; }
+  TLockedToken<CMorphableSkinnedModel>& GetIceModel() { return xe4_iceModelData; }
   const TLockedToken<CMorphableSkinnedModel>& GetIceModel() const { return xe4_iceModelData; }
   void SetParticleLightIdx(s32 idx) { x21c_particleLightIdx = idx; }
 

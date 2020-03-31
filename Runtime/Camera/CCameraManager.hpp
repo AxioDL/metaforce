@@ -80,7 +80,7 @@ class CCameraManager {
   void EnterCinematic(CStateManager& mgr);
 
 public:
-  CCameraManager(TUniqueId curCameraId = kInvalidUniqueId);
+  explicit CCameraManager(TUniqueId curCameraId = kInvalidUniqueId);
 
   static float Aspect() { return 1.42f; }
   static float FarPlane() { return 750.0f; }

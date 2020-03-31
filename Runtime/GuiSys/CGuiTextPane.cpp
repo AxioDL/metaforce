@@ -100,8 +100,7 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) {
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
                                 ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
         xd4_textSupport.Render();
-        const_cast<CGuiTextPane*>(this)->xd4_textSupport.SetGeometryColor
-            (geomCol * zeus::CColor(geomCol.a, geomCol.a, geomCol.a, 1.f));
+        xd4_textSupport.SetGeometryColor(geomCol * zeus::CColor(geomCol.a, geomCol.a, geomCol.a, 1.f));
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One,
                                 ERglBlendFactor::One, ERglLogicOp::Clear);
         xd4_textSupport.Render();
