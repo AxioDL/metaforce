@@ -127,7 +127,8 @@ std::optional<zeus::CAABox> CGrenadeLauncher::GetTouchBounds() const {
 
 void CGrenadeLauncher::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   if (x3f4_color3.a() == 1.f) {
-    xb4_drawFlags = CModelFlags{2, 0, 3, zeus::CColor{x3f4_color3, 1.f}};
+    // Original code redundantly sets a() = 1.f
+    xb4_drawFlags = CModelFlags{2, 0, 3, x3f4_color3};
   } else {
     xb4_drawFlags = CModelFlags{5, 0, 3, x3f4_color3};
   }
