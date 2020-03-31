@@ -77,12 +77,12 @@ public:
   // Converting constructor
   TSubAnimTypeToken(const TLockedToken<CAllFormatsAnimSource>& token) : TLockedToken<CAnimSource>(token) {}
 
-  CAnimSource* GetObj() {
+  CAnimSource* GetObj() override {
     CAllFormatsAnimSource* source = reinterpret_cast<CAllFormatsAnimSource*>(TLockedToken<CAnimSource>::GetObj());
     return &source->GetAsCAnimSource();
   }
 
-  const CAnimSource* GetObj() const {
+  const CAnimSource* GetObj() const override {
     return const_cast<TSubAnimTypeToken<CAnimSource>*>(this)->GetObj();
   }
 };
@@ -93,13 +93,13 @@ public:
   // Converting constructor
   TSubAnimTypeToken(const TLockedToken<CAllFormatsAnimSource>& token) : TLockedToken<CFBStreamedCompression>(token) {}
 
-  CFBStreamedCompression* GetObj() {
+  CFBStreamedCompression* GetObj() override {
     CAllFormatsAnimSource* source =
         reinterpret_cast<CAllFormatsAnimSource*>(TLockedToken<CFBStreamedCompression>::GetObj());
     return &source->GetAsCFBStreamedCompression();
   }
 
-  const CFBStreamedCompression* GetObj() const {
+  const CFBStreamedCompression* GetObj() const override {
     return const_cast<TSubAnimTypeToken<CFBStreamedCompression>*>(this)->GetObj();
   }
 };
