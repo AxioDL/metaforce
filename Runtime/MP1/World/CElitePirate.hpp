@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Runtime/Character/CBoneTracking.hpp"
+#include "Runtime/Collision/CCollisionActorManager.hpp"
 #include "Runtime/Collision/CJointCollisionDescription.hpp"
 #include "Runtime/MP1/World/CGrenadeLauncher.hpp"
 #include "Runtime/MP1/World/CShockWave.hpp"
@@ -9,10 +10,7 @@
 #include "Runtime/World/CPathFindSearch.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde {
-class CCollisionActorManager;
-class CGenDescription;
-namespace MP1 {
+namespace urde::MP1 {
 class CElitePirateData {
 private:
   float x0_tauntInterval;
@@ -228,5 +226,4 @@ private:
   bool IsClosestEnergyAttractor(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 1024>& charNearList,
                                 const zeus::CVector3f& projectilePos) const;
 };
-} // namespace MP1
 } // namespace urde

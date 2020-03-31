@@ -31,6 +31,7 @@
 #include "Runtime/MP1/World/CMetroidBeta.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"
 #include "Runtime/MP1/World/CNewIntroBoss.hpp"
+#include "Runtime/MP1/World/COmegaPirate.hpp"
 #include "Runtime/MP1/World/CParasite.hpp"
 #include "Runtime/MP1/World/CPuddleSpore.hpp"
 #include "Runtime/MP1/World/CPuddleToadGamma.hpp"
@@ -126,6 +127,8 @@ namespace urde {
 static logvisor::Module Log("urde::ScriptLoader");
 
 constexpr SObjectTag MorphballDoorANCS = {FOURCC('ANCS'), 0x1F9DA858};
+
+constexpr int skElitePiratePropCount = 41;
 
 static bool EnsurePropertyCount(int count, int expected, const char* structName) {
   if (count < expected) {
@@ -1383,7 +1386,7 @@ CEntity* ScriptLoader::LoadFlyingPirate(CStateManager& mgr, CInputStream& in, in
 }
 
 CEntity* ScriptLoader::LoadElitePirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 41, "ElitePirate"))
+  if (!EnsurePropertyCount(propCount, skElitePiratePropCount, "ElitePirate"))
     return nullptr;
 
   SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
@@ -3622,7 +3625,33 @@ CEntity* ScriptLoader::LoadMazeNode(CStateManager& mgr, CInputStream& in, int pr
 }
 
 CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
+  if (!EnsurePropertyCount(propCount, skElitePiratePropCount + 1, "OmegaPirate")) {
+    return nullptr;
+  }
+
+#if 0
+  SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
+  auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pair.first) {
+    return nullptr;
+  }
+
+  CPatternedInfo pInfo(in, pair.second);
+  CActorParameters actParms = LoadActorParameters(in);
+  MP1::CElitePirateData elitePirateData(in, propCount);
+
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
+    return nullptr;
+  }
+
+  CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
+                            actHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
+
+  return new MP1::COmegaPirate(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform, std::move(mData),
+                               pInfo, actParms, elitePirateData, CAssetId(in), CAssetId(in), CAssetId(in));
+#else
   return nullptr;
+#endif
 }
 
 CEntity* ScriptLoader::LoadPhazonPool(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
