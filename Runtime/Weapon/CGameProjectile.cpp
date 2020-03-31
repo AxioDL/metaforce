@@ -25,7 +25,8 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
           CMaterialFilter::MakeIncludeExclude(
               {EMaterialTypes::Solid, EMaterialTypes::NonSolidDamageable},
               {EMaterialTypes::Projectile, EMaterialTypes::ProjectilePassthrough, excludeMat}),
-          CMaterialList(), dInfo, attribs | GetBeamAttribType(wType), CModelData::CModelDataNull())
+          CMaterialList(EMaterialTypes::Projectile), dInfo, attribs | GetBeamAttribType(wType),
+          CModelData::CModelDataNull())
 , x158_visorParticle(visorParticle)
 , x168_visorSfx(visorSfx)
 , x170_projectile(wDesc, xf.origin, xf.basis, scale,

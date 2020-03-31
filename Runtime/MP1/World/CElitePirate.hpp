@@ -56,6 +56,7 @@ public:
   [[nodiscard]] float GetAttackChance() const { return x10_attackChance; }
   [[nodiscard]] float GetShotAtTime() const { return x14_shotAtTime; }
   [[nodiscard]] float GetShotAtTimeVariance() const { return x18_shotAtTimeVariance; }
+  [[nodiscard]] float GetX1C() const { return x1c_; }
   [[nodiscard]] CAssetId GetX20() const { return x20_; }
   [[nodiscard]] u16 GetSFXAbsorb() const { return x24_sfxAbsorb; }
   [[nodiscard]] const CActorParameters& GetLauncherActParams() const { return x28_launcherActParams; }
@@ -213,17 +214,19 @@ private:
   bool sub_80227430(const CDamageInfo& info) const;
   void sub_80228634(CStateManager& mgr);
   void sub_802285c4(CStateManager& mgr);
-  void sub_80227a90(CStateManager& mgr);
+  void AttractProjectiles(CStateManager& mgr);
   void sub_802277e0(CStateManager& mgr, float dt);
-  bool sub_80229208();
-  void sub_80228e50(float dt);
+  bool IsAttractingEnergy();
+  void UpdateTimers(float dt);
   void sub_80228798();
-  void sub_802289dc(CStateManager& mgr, TUniqueId& uid, std::string_view name);
+  void UpdateActorTransform(CStateManager& mgr, TUniqueId& uid, std::string_view name);
   void sub_80228e84(CStateManager& mgr);
-  void ExtendTouchBounds(CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 7>& uids,
-                         const zeus::CVector3f& vec);
+  void ExtendTouchBounds(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 7>& uids,
+                         const zeus::CVector3f& vec) const;
   bool ShouldFireFromLauncher(CStateManager& mgr, TUniqueId launcherId);
-  bool ShouldCallForBackupFromLauncher(CStateManager& mgr, TUniqueId uid);
+  bool ShouldCallForBackupFromLauncher(const CStateManager& mgr, TUniqueId uid) const;
+  bool IsClosestEnergyAttractor(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 1024>& charNearList,
+                                const zeus::CVector3f& projectilePos) const;
 };
 } // namespace MP1
 } // namespace urde
