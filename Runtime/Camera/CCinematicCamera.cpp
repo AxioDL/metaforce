@@ -296,11 +296,11 @@ void CCinematicCamera::GenerateMoveOutofIntoPoints(bool outOfEye, CStateManager&
     behindDelta = -behindDelta;
   }
   for (int i = 0; i < 2; ++i) {
-    x188_viewPoints.push_back(behindPos);
-    x198_viewOrientations.push_back(q);
-    x1a8_viewPointArrivals.push_back(mgr.GetPlayer().GetUniqueId());
-    x1b8_targets.push_back(eyePos);
-    x1c8_targetArrivals.push_back(kInvalidUniqueId);
+    x188_viewPoints.emplace_back(behindPos);
+    x198_viewOrientations.emplace_back(q);
+    x1a8_viewPointArrivals.emplace_back(mgr.GetPlayer().GetUniqueId());
+    x1b8_targets.emplace_back(eyePos);
+    x1c8_targetArrivals.emplace_back(kInvalidUniqueId);
     behindPos += behindDelta;
   }
   CalculateMoveOutofIntoEyePosition(outOfEye, mgr);
