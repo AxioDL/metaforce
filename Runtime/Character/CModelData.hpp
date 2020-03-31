@@ -79,7 +79,7 @@ class CModelData {
   std::unique_ptr<CBooModel> m_xrayModelInst;
   std::unique_ptr<CBooModel> m_infraModelInst;
 
-  int m_drawInstCount;
+  int m_drawInstCount = 0;
 
 public:
   enum class EWhichModel { Normal, XRay, Thermal, ThermalHot };
