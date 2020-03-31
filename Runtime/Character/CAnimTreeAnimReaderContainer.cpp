@@ -63,7 +63,7 @@ bool CAnimTreeAnimReaderContainer::VGetBoolPOIState(const char* name) const {
 }
 
 s32 CAnimTreeAnimReaderContainer::VGetInt32POIState(const char* name) const {
-  return x14_reader->VGetBoolPOIState(name);
+  return x14_reader->VGetInt32POIState(name);
 }
 
 CParticleData::EParentedMode CAnimTreeAnimReaderContainer::VGetParticlePOIState(const char* name) const {
