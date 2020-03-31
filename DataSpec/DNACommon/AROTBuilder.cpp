@@ -347,18 +347,20 @@ void AROTBuilder::build(std::vector<std::vector<uint8_t>>& secs, const zeus::CAA
     auto bmpIt = bmp.cbegin();
     if (bmpIt != bmp.cend()) {
       int curIdx = 0;
-      for (size_t w = 0; w < bmpWordCount; ++w) {
-        for (int b = 0; b < 32; ++b) {
+      for (size_t word = 0; word < bmpWordCount; ++word) {
+        for (u32 b = 0; b < 32; ++b) {
           if (*bmpIt == curIdx) {
-            bmpWords[w] |= 1 << b;
+            bmpWords[word] |= 1U << b;
             ++bmpIt;
-            if (bmpIt == bmp.cend())
+            if (bmpIt == bmp.cend()) {
               break;
+            }
           }
           ++curIdx;
         }
-        if (bmpIt == bmp.cend())
+        if (bmpIt == bmp.cend()) {
           break;
+        }
       }
     }
 
