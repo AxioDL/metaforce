@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <optional>
+#include <string_view>
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
@@ -121,9 +122,9 @@ public:
                                   u32) const = 0;
   virtual u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator,
                                u32) const = 0;
-  virtual bool VGetBoolPOIState(const char*) const = 0;
-  virtual s32 VGetInt32POIState(const char*) const = 0;
-  virtual CParticleData::EParentedMode VGetParticlePOIState(const char*) const = 0;
+  virtual bool VGetBoolPOIState(std::string_view name) const = 0;
+  virtual s32 VGetInt32POIState(std::string_view name) const = 0;
+  virtual CParticleData::EParentedMode VGetParticlePOIState(std::string_view name) const = 0;
   virtual void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const = 0;
   virtual void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut,
                                    const CCharAnimTime& time) const = 0;
