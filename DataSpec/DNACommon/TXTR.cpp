@@ -17,9 +17,11 @@ static logvisor::Module Log("libpng");
 
 static int CountBits(uint32_t n) {
   int ret = 0;
-  for (int i = 0; i < 32; ++i)
-    if (((n >> i) & 1) != 0)
+  for (int i = 0; i < 32; ++i) {
+    if (((n >> i) & 1) != 0) {
       ++ret;
+    }
+  }
   return ret;
 }
 
@@ -28,27 +30,29 @@ static void BoxFilter(const uint8_t* input, unsigned chanCount, unsigned inWidth
                       bool dxt1) {
   unsigned mipWidth = 1;
   unsigned mipHeight = 1;
-  if (inWidth > 1)
+  if (inWidth > 1) {
     mipWidth = inWidth / 2;
-  if (inHeight > 1)
+  }
+  if (inHeight > 1) {
     mipHeight = inHeight / 2;
+  }
 
-  unsigned y, x, c;
-  for (y = 0; y < mipHeight; ++y) {
-    unsigned miplineBase = mipWidth * y;
-    unsigned in1LineBase = inWidth * (y * 2);
-    unsigned in2LineBase = inWidth * (y * 2 + 1);
-    for (x = 0; x < mipWidth; ++x) {
+  for (unsigned y = 0; y < mipHeight; ++y) {
+    const unsigned miplineBase = mipWidth * y;
+    const unsigned in1LineBase = inWidth * (y * 2);
+    const unsigned in2LineBase = inWidth * (y * 2 + 1);
+    for (unsigned x = 0; x < mipWidth; ++x) {
       uint8_t* out = &output[(miplineBase + x) * chanCount];
-      for (c = 0; c < chanCount; ++c) {
+      for (unsigned c = 0; c < chanCount; ++c) {
         uint32_t tmp = 0;
         tmp += input[(in1LineBase + (x * 2)) * chanCount + c];
         tmp += input[(in1LineBase + (x * 2 + 1)) * chanCount + c];
         tmp += input[(in2LineBase + (x * 2)) * chanCount + c];
         tmp += input[(in2LineBase + (x * 2 + 1)) * chanCount + c];
         out[c] = uint8_t(tmp / 4);
-        if (c == 3 && dxt1)
+        if (c == 3 && dxt1) {
           out[c] = uint8_t(out[c] ? 0xff : 0x0);
+        }
       }
     }
   }
@@ -94,23 +98,23 @@ constexpr uint8_t Convert6To8(uint8_t v) {
 constexpr uint8_t Convert8To6(uint8_t v) { return v >> 2; }
 
 static uint8_t Lookup4BPP(const uint8_t* texels, int width, int x, int y) {
-  int bwidth = (width + 7) / 8;
-  int bx = x / 8;
-  int by = y / 8;
-  int rx = x % 8;
-  int ry = y % 8;
-  int bidx = by * bwidth + bx;
+  const int bwidth = (width + 7) / 8;
+  const int bx = x / 8;
+  const int by = y / 8;
+  const int rx = x % 8;
+  const int ry = y % 8;
+  const int bidx = by * bwidth + bx;
   const uint8_t* btexels = &texels[32 * bidx];
   return btexels[ry * 4 + rx / 2] >> ((rx & 1) ? 0 : 4) & 0xf;
 }
 
 static void Set4BPP(uint8_t* texels, int width, int x, int y, uint8_t val) {
-  int bwidth = (width + 7) / 8;
-  int bx = x / 8;
-  int by = y / 8;
-  int rx = x % 8;
-  int ry = y % 8;
-  int bidx = by * bwidth + bx;
+  const int bwidth = (width + 7) / 8;
+  const int bx = x / 8;
+  const int by = y / 8;
+  const int rx = x % 8;
+  const int ry = y % 8;
+  const int bidx = by * bwidth + bx;
   uint8_t* btexels = &texels[32 * bidx];
   btexels[ry * 4 + rx / 2] |= (val & 0xf) << ((rx & 1) ? 0 : 4);
 }
@@ -127,68 +131,68 @@ static uint8_t Lookup8BPP(const uint8_t* texels, int width, int x, int y) {
 }
 
 static void Set8BPP(uint8_t* texels, int width, int x, int y, uint8_t val) {
-  int bwidth = (width + 7) / 8;
-  int bx = x / 8;
-  int by = y / 4;
-  int rx = x % 8;
-  int ry = y % 4;
-  int bidx = by * bwidth + bx;
+  const int bwidth = (width + 7) / 8;
+  const int bx = x / 8;
+  const int by = y / 4;
+  const int rx = x % 8;
+  const int ry = y % 4;
+  const int bidx = by * bwidth + bx;
   uint8_t* btexels = &texels[32 * bidx];
   btexels[ry * 8 + rx] = val;
 }
 
 static uint16_t Lookup16BPP(const uint8_t* texels, int width, int x, int y) {
-  int bwidth = (width + 3) / 4;
-  int bx = x / 4;
-  int by = y / 4;
-  int rx = x % 4;
-  int ry = y % 4;
+  const int bwidth = (width + 3) / 4;
+  const int bx = x / 4;
+  const int by = y / 4;
+  const int rx = x % 4;
+  const int ry = y % 4;
   int bidx = by * bwidth + bx;
-  const uint16_t* btexels = (uint16_t*)&texels[32 * bidx];
+  const uint16_t* btexels = reinterpret_cast<const uint16_t*>(&texels[32 * bidx]);
   return btexels[ry * 4 + rx];
 }
 
 static void Set16BPP(uint8_t* texels, int width, int x, int y, uint16_t val) {
-  int bwidth = (width + 3) / 4;
-  int bx = x / 4;
-  int by = y / 4;
-  int rx = x % 4;
-  int ry = y % 4;
-  int bidx = by * bwidth + bx;
-  uint16_t* btexels = (uint16_t*)&texels[32 * bidx];
+  const int bwidth = (width + 3) / 4;
+  const int bx = x / 4;
+  const int by = y / 4;
+  const int rx = x % 4;
+  const int ry = y % 4;
+  const int bidx = by * bwidth + bx;
+  auto* btexels = reinterpret_cast<uint16_t*>(&texels[32 * bidx]);
   btexels[ry * 4 + rx] = val;
 }
 
 static void LookupRGBA8(const uint8_t* texels, int width, int x, int y, uint8_t* r, uint8_t* g, uint8_t* b,
                         uint8_t* a) {
-  int bwidth = (width + 3) / 4;
-  int bx = x / 4;
-  int by = y / 4;
-  int rx = x % 4;
-  int ry = y % 4;
-  int bidx = (by * bwidth + bx) * 2;
-  const uint16_t* artexels = (uint16_t*)&texels[32 * bidx];
-  const uint16_t* gbtexels = (uint16_t*)&texels[32 * (bidx + 1)];
-  uint16_t ar = hecl::SBig(artexels[ry * 4 + rx]);
+  const int bwidth = (width + 3) / 4;
+  const int bx = x / 4;
+  const int by = y / 4;
+  const int rx = x % 4;
+  const int ry = y % 4;
+  const int bidx = (by * bwidth + bx) * 2;
+  const auto* artexels = reinterpret_cast<const uint16_t*>(&texels[32 * bidx]);
+  const auto* gbtexels = reinterpret_cast<const uint16_t*>(&texels[32 * (bidx + 1)]);
+  const uint16_t ar = hecl::SBig(artexels[ry * 4 + rx]);
   *a = ar >> 8 & 0xff;
   *r = ar & 0xff;
-  uint16_t gb = hecl::SBig(gbtexels[ry * 4 + rx]);
+  const uint16_t gb = hecl::SBig(gbtexels[ry * 4 + rx]);
   *g = gb >> 8 & 0xff;
   *b = gb & 0xff;
 }
 
 static void SetRGBA8(uint8_t* texels, int width, int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-  int bwidth = (width + 3) / 4;
-  int bx = x / 4;
-  int by = y / 4;
-  int rx = x % 4;
-  int ry = y % 4;
-  int bidx = (by * bwidth + bx) * 2;
-  uint16_t* artexels = (uint16_t*)&texels[32 * bidx];
-  uint16_t* gbtexels = (uint16_t*)&texels[32 * (bidx + 1)];
-  uint16_t ar = (a << 8) | r;
+  const int bwidth = (width + 3) / 4;
+  const int bx = x / 4;
+  const int by = y / 4;
+  const int rx = x % 4;
+  const int ry = y % 4;
+  const int bidx = (by * bwidth + bx) * 2;
+  uint16_t* artexels = reinterpret_cast<uint16_t*>(&texels[32 * bidx]);
+  uint16_t* gbtexels = reinterpret_cast<uint16_t*>(&texels[32 * (bidx + 1)]);
+  const uint16_t ar = (a << 8) | r;
   artexels[ry * 4 + rx] = hecl::SBig(ar);
-  uint16_t gb = (g << 8) | b;
+  const uint16_t gb = (g << 8) | b;
   gbtexels[ry * 4 + rx] = hecl::SBig(gb);
 }
 
@@ -199,8 +203,9 @@ static void DecodeI4(png_structp png, png_infop info, const uint8_t* texels, int
   std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
   // memset(buf.get(), 0, width);
   for (int y = height - 1; y >= 0; --y) {
-    for (int x = 0; x < width; ++x)
+    for (int x = 0; x < width; ++x) {
       buf[x] = Convert4To8(Lookup4BPP(texels, width, x, y));
+    }
     png_write_row(png, buf.get());
   }
 }
@@ -223,16 +228,18 @@ static void DecodeI8(png_structp png, png_infop info, const uint8_t* texels, int
   png_write_info(png, info);
   std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
   for (int y = height - 1; y >= 0; --y) {
-    for (int x = 0; x < width; ++x)
+    for (int x = 0; x < width; ++x) {
       buf[x] = Lookup8BPP(texels, width, x, y);
+    }
     png_write_row(png, buf.get());
   }
 }
 
 static void EncodeI8(const uint8_t* rgbaIn, uint8_t* texels, int width, int height) {
   for (int y = height - 1; y >= 0; --y) {
-    for (int x = 0; x < width; ++x)
+    for (int x = 0; x < width; ++x) {
       Set8BPP(texels, width, x, y, rgbaIn[x]);
+    }
     rgbaIn += width;
   }
 }
@@ -244,7 +251,7 @@ static void DecodeIA4(png_structp png, png_infop info, const uint8_t* texels, in
   std::unique_ptr<uint8_t[]> buf(new uint8_t[width * 2]);
   for (int y = height - 1; y >= 0; --y) {
     for (int x = 0; x < width; ++x) {
-      uint8_t texel = Lookup8BPP(texels, width, x, y);
+      const uint8_t texel = Lookup8BPP(texels, width, x, y);
       buf[x * 2 ] = Convert4To8(texel & 0xf);
       buf[x * 2 + 1] = Convert4To8(texel >> 4 & 0xf);
     }
@@ -274,22 +281,24 @@ static void DecodeIA8(png_structp png, png_infop info, const uint8_t* texels, in
   png_write_info(png, info);
   std::unique_ptr<uint16_t[]> buf(new uint16_t[width]);
   for (int y = height - 1; y >= 0; --y) {
-    for (int x = 0; x < width; ++x)
+    for (int x = 0; x < width; ++x) {
       buf[x] = hecl::SBig(Lookup16BPP(texels, width, x, y));
-    png_write_row(png, (png_bytep)buf.get());
+    }
+    png_write_row(png, reinterpret_cast<png_bytep>(buf.get()));
   }
 }
 
 static void EncodeIA8(const uint8_t* rgbaIn, uint8_t* texels, int width, int height) {
   for (int y = height - 1; y >= 0; --y) {
-    for (int x = 0; x < width; ++x)
-      Set16BPP(texels, width, x, y, hecl::SBig(((uint16_t*)rgbaIn)[x]));
+    for (int x = 0; x < width; ++x) {
+      Set16BPP(texels, width, x, y, hecl::SBig(reinterpret_cast<const uint16_t*>(rgbaIn)[x]));
+    }
     rgbaIn += width * 2;
   }
 }
 
 static const uint8_t* DecodePalette(png_structp png, png_infop info, int numEntries, const uint8_t* data) {
-  uint32_t format = hecl::SBig(*(uint32_t*)data);
+  const auto format = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
   data += 8;
   png_color cEntries[256];
   png_byte aEntries[256];
@@ -306,9 +315,9 @@ static const uint8_t* DecodePalette(png_structp png, png_infop info, int numEntr
   }
   case 1: {
     /* RGB565 */
-    const uint16_t* data16 = (uint16_t*)data;
+    const auto* data16 = reinterpret_cast<const uint16_t*>(data);
     for (int e = 0; e < numEntries; ++e) {
-      uint16_t texel = hecl::SBig(data16[e]);
+      const uint16_t texel = hecl::SBig(data16[e]);
       cEntries[e].red = Convert5To8(texel >> 11 & 0x1f);
       cEntries[e].green = Convert6To8(texel >> 5 & 0x3f);
       cEntries[e].blue = Convert5To8(texel & 0x1f);
@@ -317,9 +326,9 @@ static const uint8_t* DecodePalette(png_structp png, png_infop info, int numEntr
   }
   case 2: {
     /* RGB5A3 */
-    const uint16_t* data16 = (uint16_t*)data;
+    const auto* data16 = reinterpret_cast<const uint16_t*>(data);
     for (int e = 0; e < numEntries; ++e) {
-      uint16_t texel = hecl::SBig(data16[e]);
+      const uint16_t texel = hecl::SBig(data16[e]);
       if (texel & 0x8000) {
         cEntries[e].red = Convert5To8(texel >> 10 & 0x1f);
         cEntries[e].green = Convert5To8(texel >> 5 & 0x1f);
@@ -336,8 +345,9 @@ static const uint8_t* DecodePalette(png_structp png, png_infop info, int numEntr
   }
   }
   png_set_PLTE(png, info, cEntries, numEntries);
-  if (format == 0 || format == 2)
+  if (format == 0 || format == 2) {
     png_set_tRNS(png, info, aEntries, numEntries, nullptr);
+  }
   data += numEntries * 2;
   return data;
 }
@@ -360,20 +370,21 @@ static uint8_t* EncodePalette(png_structp png, png_infop info, int numEntries, u
 
   uint32_t format = 0; /* Default IA8 */
   for (int e = 0; e < pngNumEntries; ++e) {
-    png_colorp ent = &cEntries[e];
+    const png_const_colorp ent = &cEntries[e];
     if (ent->red != ent->green || ent->red != ent->blue) {
-      if (pngNumAEntries)
+      if (pngNumAEntries) {
         format = 2; /* RGB565 if not greyscale and has alpha */
-      else
+      } else {
         format = 1; /* RGB565 if not greyscale */
+      }
       break;
     }
   }
 
-  ((uint32_t*)data)[0] = hecl::SBig(format);
+  reinterpret_cast<uint32_t*>(data)[0] = hecl::SBig(format);
   data += 4;
-  ((uint16_t*)data)[0] = hecl::SBig(uint16_t(numEntries));
-  ((uint16_t*)data)[1] = hecl::SBig(uint16_t(1));
+  reinterpret_cast<uint16_t*>(data)[0] = hecl::SBig(uint16_t(numEntries));
+  reinterpret_cast<uint16_t*>(data)[1] = hecl::SBig(uint16_t(1));
   data += 4;
 
   switch (format) {
@@ -393,7 +404,7 @@ static uint8_t* EncodePalette(png_structp png, png_infop info, int numEntries, u
   }
   case 1: {
     /* RGB565 */
-    uint16_t* data16 = (uint16_t*)data;
+    uint16_t* data16 = reinterpret_cast<uint16_t*>(data);
     for (int e = 0; e < numEntries; ++e) {
       if (e < pngNumEntries) {
         uint16_t texel = Convert8To5(cEntries[e].red) << 11;
@@ -408,11 +419,12 @@ static uint8_t* EncodePalette(png_structp png, png_infop info, int numEntries, u
   }
   case 2: {
     /* RGB5A3 */
-    uint16_t* data16 = (uint16_t*)data;
+    auto* data16 = reinterpret_cast<uint16_t*>(data);
     for (int e = 0; e < numEntries; ++e) {
       uint8_t alpha = 0;
-      if (e < pngNumAEntries)
+      if (e < pngNumAEntries) {
         alpha = aEntries[e];
+      }
 
       uint16_t texel = 0;
       if (alpha == 0xff) {
@@ -440,7 +452,7 @@ static uint8_t* EncodePalette(png_structp png, png_infop info, int numEntries, u
 }
 
 static const uint8_t* DecodePaletteSPLT(png_structp png, png_infop info, int numEntries, const uint8_t* data) {
-  uint32_t format = hecl::SBig(*(uint32_t*)data);
+  const auto format = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
   data += 8;
   png_sPLT_entry entries[256] = {};
   png_sPLT_t GXEntry = {(char*)"GXPalette", 8, entries, numEntries};
@@ -459,9 +471,9 @@ static const uint8_t* DecodePaletteSPLT(png_structp png, png_infop info, int num
   case 1: {
     /* RGB565 */
     GXEntry.name = (char*)"GX_RGB565";
-    const uint16_t* data16 = (uint16_t*)data;
+    const auto* data16 = reinterpret_cast<const uint16_t*>(data);
     for (int e = 0; e < numEntries; ++e) {
-      uint16_t texel = hecl::SBig(data16[e]);
+      const uint16_t texel = hecl::SBig(data16[e]);
       entries[e].red = Convert5To8(texel >> 11 & 0x1f);
       entries[e].green = Convert6To8(texel >> 5 & 0x3f);
       entries[e].blue = Convert5To8(texel & 0x1f);
@@ -472,9 +484,9 @@ static const uint8_t* DecodePaletteSPLT(png_structp png, png_infop info, int num
   case 2: {
     /* RGB5A3 */
     GXEntry.name = (char*)"GX_RGB5A3";
-    const uint16_t* data16 = (uint16_t*)data;
+    const auto* data16 = reinterpret_cast<const uint16_t*>(data);
     for (int e = 0; e < numEntries; ++e) {
-      uint16_t texel = hecl::SBig(data16[e]);
+      const uint16_t texel = hecl::SBig(data16[e]);
       if (texel & 0x8000) {
         entries[e].red = Convert5To8(texel >> 10 & 0x1f);
         entries[e].green = Convert5To8(texel >> 5 & 0x1f);
@@ -497,12 +509,12 @@ static const uint8_t* DecodePaletteSPLT(png_structp png, png_infop info, int num
 
 static uint8_t* EncodePaletteSPLT(png_structp png, png_infop info, int numEntries, uint8_t* data) {
   png_sPLT_tp palettes;
-  int pngNumPalettes = png_get_sPLT(png, info, &palettes);
+  const int pngNumPalettes = png_get_sPLT(png, info, &palettes);
   int pngNumEntries = 0;
   png_sPLT_entryp cEntries = nullptr;
   for (int i = 0; i < pngNumPalettes; ++i) {
-    png_sPLT_tp palette = &palettes[i];
-    if (!strncmp(palette->name, "GX_", 3)) {
+    const png_const_sPLT_tp palette = &palettes[i];
+    if (strncmp(palette->name, "GX_", 3) == 0) {
       pngNumEntries = palette->nentries;
       cEntries = palette->entries;
       break;
@@ -511,20 +523,21 @@ static uint8_t* EncodePaletteSPLT(png_structp png, png_infop info, int numEntrie
 
   uint32_t format = 2; /* Default RGB5A3 */
   for (int e = 0; e < pngNumEntries; ++e) {
-    png_sPLT_entryp ent = &cEntries[e];
+    const png_const_sPLT_entryp ent = &cEntries[e];
     if (ent->red != ent->green || ent->red != ent->blue) {
       if (ent->alpha) {
         format = 2;
         break;
-      } else
+      } else {
         format = 1;
+      }
     }
   }
 
-  ((uint32_t*)data)[0] = hecl::SBig(format);
+  reinterpret_cast<uint32_t*>(data)[0] = hecl::SBig(format);
   data += 4;
-  ((uint16_t*)data)[0] = hecl::SBig(uint16_t(1));
-  ((uint16_t*)data)[1] = hecl::SBig(uint16_t(numEntries));
+  reinterpret_cast<uint16_t*>(data)[0] = hecl::SBig(uint16_t(1));
+  reinterpret_cast<uint16_t*>(data)[1] = hecl::SBig(uint16_t(numEntries));
   data += 4;
 
   switch (format) {
@@ -543,7 +556,7 @@ static uint8_t* EncodePaletteSPLT(png_structp png, png_infop info, int numEntrie
   }
   case 1: {
     /* RGB565 */
-    uint16_t* data16 = (uint16_t*)data;
+    auto* data16 = reinterpret_cast<uint16_t*>(data);
     for (int e = 0; e < numEntries; ++e) {
       if (e < pngNumEntries) {
         uint16_t texel = Convert8To5(cEntries[e].red) << 11;
@@ -558,7 +571,7 @@ static uint8_t* EncodePaletteSPLT(png_structp png, png_infop info, int numEntrie
   }
   case 2: {
     /* RGB5A3 */
-    uint16_t* data16 = (uint16_t*)data;
+    auto* data16 = reinterpret_cast<uint16_t*>(data);
     for (int e = 0; e < numEntries; ++e) {
       uint16_t texel = 0;
       if (cEntries && cEntries[e].alpha == 0xff) {
@@ -599,8 +612,9 @@ static void DecodeC4(png_structp png, png_infop info, const uint8_t* data, int w
   png_write_info(png, info);
   std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
   for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x)
+    for (int x = 0; x < width; ++x) {
       buf[x] = Lookup4BPP(texels, width, x, y);
+    }
     png_write_row(png, buf.get());
   }
 }
@@ -608,8 +622,9 @@ static void DecodeC4(png_structp png, png_infop info, const uint8_t* data, int w
 static void EncodeC4(png_structp png, png_infop info, const uint8_t* rgbaIn, uint8_t* data, int width, int height) {
   uint8_t* texels = EncodePaletteSPLT(png, info, 16, data);
   for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x)
+    for (int x = 0; x < width; ++x) {
       Set4BPP(texels, width, x, y, rgbaIn[x]);
+    }
     rgbaIn += width;
   }
 }
@@ -621,8 +636,9 @@ static void DecodeC8(png_structp png, png_infop info, const uint8_t* data, int w
   png_write_info(png, info);
   std::unique_ptr<uint8_t[]> buf(new uint8_t[width]);
   for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x)
+    for (int x = 0; x < width; ++x) {
       buf[x] = Lookup8BPP(texels, width, x, y);
+    }
     png_write_row(png, buf.get());
   }
 }
@@ -630,8 +646,9 @@ static void DecodeC8(png_structp png, png_infop info, const uint8_t* data, int w
 static void EncodeC8(png_structp png, png_infop info, const uint8_t* rgbaIn, uint8_t* data, int width, int height) {
   uint8_t* texels = EncodePalette(png, info, 256, data);
   for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x)
+    for (int x = 0; x < width; ++x) {
       Set8BPP(texels, width, x, y, rgbaIn[x]);
+    }
     rgbaIn += width;
   }
 }
@@ -643,7 +660,7 @@ static void DecodeRGB565(png_structp png, png_infop info, const uint8_t* texels,
   std::unique_ptr<uint8_t[]> buf(new uint8_t[width * 3]);
   for (int y = height - 1; y >= 0; --y) {
     for (int x = 0; x < width; ++x) {
-      uint16_t texel = hecl::SBig(Lookup16BPP(texels, width, x, y));
+      const uint16_t texel = hecl::SBig(Lookup16BPP(texels, width, x, y));
       buf[x * 3] = Convert5To8(texel >> 11 & 0x1f);
       buf[x * 3 + 1] = Convert6To8(texel >> 5 & 0x3f);
       buf[x * 3 + 2] = Convert5To8(texel & 0x1f);
@@ -676,7 +693,7 @@ static void DecodeRGB5A3(png_structp png, png_infop info, const uint8_t* texels,
   std::unique_ptr<uint8_t[]> buf(new uint8_t[width * 4]);
   for (int y = height - 1; y >= 0; --y) {
     for (int x = 0; x < width; ++x) {
-      uint16_t texel = hecl::SBig(Lookup16BPP(texels, width, x, y));
+      const uint16_t texel = hecl::SBig(Lookup16BPP(texels, width, x, y));
       if (texel & 0x8000) {
         buf[x * 4] = Convert5To8(texel >> 10 & 0x1f);
         buf[x * 4 + 1] = Convert5To8(texel >> 5 & 0x1f);
@@ -728,16 +745,18 @@ static void DecodeRGBA8(png_structp png, png_infop info, const uint8_t* texels, 
   png_write_info(png, info);
   std::unique_ptr<uint8_t[]> buf(new uint8_t[width * 4]);
   for (int y = height - 1; y >= 0; --y) {
-    for (int x = 0; x < width; ++x)
+    for (int x = 0; x < width; ++x) {
       LookupRGBA8(texels, width, x, y, &buf[x * 4], &buf[x * 4 + 1], &buf[x * 4 + 2], &buf[x * 4 + 3]);
+    }
     png_write_row(png, buf.get());
   }
 }
 
 static void EncodeRGBA8(const uint8_t* rgbaIn, uint8_t* texels, int width, int height) {
   for (int y = height - 1; y >= 0; --y) {
-    for (int x = 0; x < width; ++x)
+    for (int x = 0; x < width; ++x) {
       SetRGBA8(texels, width, x, y, rgbaIn[x * 4], rgbaIn[x * 4 + 1], rgbaIn[x * 4 + 2], rgbaIn[x * 4 + 3]);
+    }
     rgbaIn += width * 4;
   }
 }
@@ -754,50 +773,55 @@ static void DecodeCMPR(png_structp png, png_infop info, const uint8_t* texels, i
   png_write_info(png, info);
 
   /* Decode 8 rows at a time */
-  int bwidth = (width + 7) / 8;
-  int bpwidth = bwidth * 8;
+  const int bwidth = (width + 7) / 8;
+  const int bpwidth = bwidth * 8;
   std::unique_ptr<uint32_t[]> buf(new uint32_t[bpwidth * 8]);
   uint32_t* bTargets[4] = {buf.get(), buf.get() + 4, buf.get() + 4 * width, buf.get() + 4 * width + 4};
   for (int y = height / 8 - 1; y >= 0; --y) {
-    const DXTBlock* blks = (DXTBlock*)(texels + 32 * bwidth * y);
+    const auto* blks = reinterpret_cast<const DXTBlock*>(texels + 32 * bwidth * y);
     for (int x = 0; x < width; x += 8) {
       uint32_t blkOut[4][4][4];
-      squish::Decompress((uint8_t*)blkOut[0][0], blks++, squish::kDxt1GCN);
-      squish::Decompress((uint8_t*)blkOut[1][0], blks++, squish::kDxt1GCN);
-      squish::Decompress((uint8_t*)blkOut[2][0], blks++, squish::kDxt1GCN);
-      squish::Decompress((uint8_t*)blkOut[3][0], blks++, squish::kDxt1GCN);
+      squish::Decompress(reinterpret_cast<uint8_t*>(blkOut[0][0]), blks++, squish::kDxt1GCN);
+      squish::Decompress(reinterpret_cast<uint8_t*>(blkOut[1][0]), blks++, squish::kDxt1GCN);
+      squish::Decompress(reinterpret_cast<uint8_t*>(blkOut[2][0]), blks++, squish::kDxt1GCN);
+      squish::Decompress(reinterpret_cast<uint8_t*>(blkOut[3][0]), blks++, squish::kDxt1GCN);
 
-      for (int bt = 0; bt < 4; ++bt)
-        for (int by = 0; by < 4; ++by)
-          memcpy(bTargets[bt] + x + width * by, blkOut[bt][by], 16);
+      for (int bt = 0; bt < 4; ++bt) {
+        for (int by = 0; by < 4; ++by) {
+          std::memcpy(bTargets[bt] + x + width * by, blkOut[bt][by], 16);
+        }
+      }
     }
-    for (int r = 7; r >= 0; --r)
-      png_write_row(png, (png_bytep)(bTargets[0] + width * r));
+    for (int r = 7; r >= 0; --r) {
+      png_write_row(png, reinterpret_cast<png_bytep>(bTargets[0] + width * r));
+    }
   }
 }
 
 static void EncodeCMPR(const uint8_t* rgbaIn, uint8_t* texels, int width, int height) {
   /* Encode 8 rows at a time */
-  int bwidth = (width + 7) / 8;
-  int bpwidth = bwidth * 8;
+  const int bwidth = (width + 7) / 8;
+  const int bpwidth = bwidth * 8;
   std::unique_ptr<uint32_t[]> buf(new uint32_t[bpwidth * 8]);
   uint32_t* bTargets[4] = {buf.get(), buf.get() + 4, buf.get() + 4 * width, buf.get() + 4 * width + 4};
   for (int y = height / 8 - 1; y >= 0; --y) {
     for (int r = 7; r >= 0; --r) {
-      memcpy(bTargets[0] + width * r, rgbaIn, width * 4);
+      std::memcpy(bTargets[0] + width * r, rgbaIn, width * 4);
       rgbaIn += width * 4;
     }
-    DXTBlock* blks = (DXTBlock*)(texels + 32 * bwidth * y);
+    auto* blks = reinterpret_cast<DXTBlock*>(texels + 32 * bwidth * y);
     for (int x = 0; x < width; x += 8) {
       uint32_t blkIn[4][4][4];
-      for (int bt = 0; bt < 4; ++bt)
-        for (int by = 0; by < 4; ++by)
-          memcpy(blkIn[bt][by], bTargets[bt] + x + width * by, 16);
+      for (int bt = 0; bt < 4; ++bt) {
+        for (int by = 0; by < 4; ++by) {
+          std::memcpy(blkIn[bt][by], bTargets[bt] + x + width * by, 16);
+        }
+      }
 
-      squish::Compress((uint8_t*)blkIn[0][0], blks++, squish::kDxt1GCN);
-      squish::Compress((uint8_t*)blkIn[1][0], blks++, squish::kDxt1GCN);
-      squish::Compress((uint8_t*)blkIn[2][0], blks++, squish::kDxt1GCN);
-      squish::Compress((uint8_t*)blkIn[3][0], blks++, squish::kDxt1GCN);
+      squish::Compress(reinterpret_cast<uint8_t*>(blkIn[0][0]), blks++, squish::kDxt1GCN);
+      squish::Compress(reinterpret_cast<uint8_t*>(blkIn[1][0]), blks++, squish::kDxt1GCN);
+      squish::Compress(reinterpret_cast<uint8_t*>(blkIn[2][0]), blks++, squish::kDxt1GCN);
+      squish::Compress(reinterpret_cast<uint8_t*>(blkIn[3][0]), blks++, squish::kDxt1GCN);
     }
   }
 }
@@ -807,10 +831,10 @@ static void PNGErr(png_structp png, png_const_charp msg) { Log.report(logvisor::
 static void PNGWarn(png_structp png, png_const_charp msg) { Log.report(logvisor::Warning, fmt("{}"), msg); }
 
 bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
-  uint32_t format = rs.readUint32Big();
-  uint16_t width = rs.readUint16Big();
-  uint16_t height = rs.readUint16Big();
-  uint32_t numMips = rs.readUint32Big();
+  const uint32_t format = rs.readUint32Big();
+  const uint16_t width = rs.readUint16Big();
+  const uint16_t height = rs.readUint16Big();
+  const uint32_t numMips = rs.readUint32Big();
 
   auto fp = hecl::FopenUnique(outPath.getAbsolutePath().data(), _SYS_STR("wb"));
   if (fp == nullptr) {
@@ -869,11 +893,11 @@ bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
 static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, size_t& szOut) {
   std::unique_ptr<uint8_t[]> ret;
   png_sPLT_tp palettes;
-  int paletteCount = png_get_sPLT(png, info, &palettes);
-  if (paletteCount) {
+  const int paletteCount = png_get_sPLT(png, info, &palettes);
+  if (paletteCount != 0) {
     for (int i = 0; i < paletteCount; ++i) {
-      png_sPLT_tp palette = &palettes[i];
-      if (!strncmp(palette->name, "GX_", 3)) {
+      const png_const_sPLT_tp palette = &palettes[i];
+      if (strncmp(palette->name, "GX_", 3) == 0) {
         if (palette->nentries > 16) {
           /* This is a C8 palette */
           ret.reset(new uint8_t[4 * 257]);
@@ -882,7 +906,7 @@ static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, s
           uint8_t* cur = ret.get() + 4;
           for (int j = 0; j < 256; ++j) {
             if (j < palette->nentries) {
-              png_sPLT_entryp entry = &palette->entries[j];
+              const png_const_sPLT_entryp entry = &palette->entries[j];
               if (palette->depth == 16) {
                 *cur++ = entry->red >> 8;
                 *cur++ = entry->green >> 8;
@@ -909,7 +933,7 @@ static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, s
           uint8_t* cur = ret.get() + 4;
           for (int j = 0; j < 16; ++j) {
             if (j < palette->nentries) {
-              png_sPLT_entryp entry = &palette->entries[j];
+              const png_const_sPLT_entryp entry = &palette->entries[j];
               if (palette->depth == 16) {
                 *cur++ = entry->red >> 8;
                 *cur++ = entry->green >> 8;
@@ -944,7 +968,7 @@ static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, s
         uint8_t* cur = ret.get() + 4;
         for (int j = 0; j < 256; ++j) {
           if (j < colorCount) {
-            const png_colorp entry = &palettes2[j];
+            const png_const_colorp entry = &palettes2[j];
             *cur++ = entry->red;
             *cur++ = entry->green;
             *cur++ = entry->blue;
@@ -964,7 +988,7 @@ static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, s
         uint8_t* cur = ret.get() + 4;
         for (int j = 0; j < 16; ++j) {
           if (j < colorCount) {
-            const png_colorp entry = &palettes2[j];
+            const png_const_colorp entry = &palettes2[j];
             *cur++ = entry->red;
             *cur++ = entry->green;
             *cur++ = entry->blue;
@@ -987,7 +1011,7 @@ static int GetNumPaletteEntriesForGCN(png_structp png, png_infop info) {
   const int paletteCount = png_get_sPLT(png, info, &palettes);
   if (paletteCount != 0) {
     for (int i = 0; i < paletteCount; ++i) {
-      const png_sPLT_tp palette = &palettes[i];
+      const png_const_sPLT_tp palette = &palettes[i];
       if (strncmp(palette->name, "GX_", 3) == 0) {
         if (palette->nentries > 16) {
           /* This is a C8 palette */
@@ -1053,10 +1077,10 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
 
   png_read_info(pngRead, info);
 
-  png_uint_32 width = png_get_image_width(pngRead, info);
-  png_uint_32 height = png_get_image_height(pngRead, info);
-  png_byte colorType = png_get_color_type(pngRead, info);
-  png_byte bitDepth = png_get_bit_depth(pngRead, info);
+  const png_uint_32 width = png_get_image_width(pngRead, info);
+  const png_uint_32 height = png_get_image_height(pngRead, info);
+  const png_byte colorType = png_get_color_type(pngRead, info);
+  const png_byte bitDepth = png_get_bit_depth(pngRead, info);
 
   if (width < 4 || height < 4) {
     Log.report(logvisor::Error, fmt("image must be 4x4 or larger"));
@@ -1069,18 +1093,22 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   png_text* textStruct;
   int numText;
   png_get_text(pngRead, info, &textStruct, &numText);
-  for (int i = 0; i < numText; ++i)
-    if (!strcmp(textStruct[i].key, "urde_nomip"))
+  for (int i = 0; i < numText; ++i) {
+    if (std::strcmp(textStruct[i].key, "urde_nomip") == 0) {
       mipmap = false;
-  if (colorType == PNG_COLOR_TYPE_PALETTE)
+    }
+  }
+  if (colorType == PNG_COLOR_TYPE_PALETTE) {
     mipmap = false;
+  }
 
   /* Compute mipmap levels */
   size_t numMips = 1;
   if (mipmap && CountBits(width) == 1 && CountBits(height) == 1) {
     size_t index = std::min(width, height);
-    while (index >>= 1)
+    while (index >>= 1) {
       ++numMips;
+    }
   }
 
   if (bitDepth != 8) {
@@ -1148,8 +1176,8 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     if (colorType == PNG_COLOR_TYPE_RGB) {
       png_read_row(pngRead, rowBuf.get(), nullptr);
       for (unsigned i = 0; i < width; ++i) {
-        size_t inbase = i * 3;
-        size_t outbase = (r * width + i) * 4;
+        const size_t inbase = i * 3;
+        const size_t outbase = (r * width + i) * 4;
         bufOut[outbase] = rowBuf[inbase];
         bufOut[outbase + 1] = rowBuf[inbase + 1];
         bufOut[outbase + 2] = rowBuf[inbase + 2];
@@ -1159,9 +1187,10 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
       png_read_row(pngRead, &bufOut[(r * width) * nComps], nullptr);
       if (colorType == PNG_COLOR_TYPE_RGB_ALPHA) {
         for (unsigned i = 0; i < width; ++i) {
-          size_t outbase = (r * width + i) * nComps;
-          if (bufOut[outbase + 3] != 0 && bufOut[outbase + 3] != 255)
+          const size_t outbase = (r * width + i) * nComps;
+          if (bufOut[outbase + 3] != 0 && bufOut[outbase + 3] != 255) {
             doDXT1 = false;
+          }
         }
       }
     }
@@ -1252,9 +1281,9 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     filterHeight = height;
     const uint8_t* rgbaIn = bufOut.get();
     uint8_t* blocksOut = compOut.get();
-    memset(blocksOut, 0, compLen);
+    std::memset(blocksOut, 0, compLen);
     for (size_t i = 0; i < numMips; ++i) {
-      int thisLen = squish::GetStorageRequirements(filterWidth, filterHeight, squish::kDxt1);
+      const int thisLen = squish::GetStorageRequirements(filterWidth, filterHeight, squish::kDxt1);
       EncodeCMPR(rgbaIn, blocksOut, filterWidth, filterHeight);
       rgbaIn += filterWidth * filterHeight * nComps;
       blocksOut += thisLen;
@@ -1268,14 +1297,15 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     int filterHeight = height;
     compLen = bufLen;
     if (colorType == PNG_COLOR_TYPE_PALETTE) {
-      if (nPaletteEntries == 16)
+      if (nPaletteEntries == 16) {
         compLen /= 2;
+      }
       compLen += 8 + nPaletteEntries * 2;
     }
     compOut.reset(new uint8_t[compLen]);
     const uint8_t* rgbaIn = bufOut.get();
     uint8_t* dataOut = compOut.get();
-    memset(dataOut, 0, compLen);
+    std::memset(dataOut, 0, compLen);
     for (size_t i = 0; i < numMips; ++i) {
       switch (colorType) {
       case PNG_COLOR_TYPE_GRAY:
@@ -1366,28 +1396,32 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
 
   png_read_info(pngRead, info);
 
-  png_uint_32 width = png_get_image_width(pngRead, info);
-  png_uint_32 height = png_get_image_height(pngRead, info);
-  png_byte colorType = png_get_color_type(pngRead, info);
-  png_byte bitDepth = png_get_bit_depth(pngRead, info);
+  const png_uint_32 width = png_get_image_width(pngRead, info);
+  const png_uint_32 height = png_get_image_height(pngRead, info);
+  const png_byte colorType = png_get_color_type(pngRead, info);
+  const png_byte bitDepth = png_get_bit_depth(pngRead, info);
 
   /* Disable mipmapping if urde_nomip embedded */
   bool mipmap = true;
   png_text* textStruct;
   int numText;
   png_get_text(pngRead, info, &textStruct, &numText);
-  for (int i = 0; i < numText; ++i)
-    if (!strcmp(textStruct[i].key, "urde_nomip"))
+  for (int i = 0; i < numText; ++i) {
+    if (std::strcmp(textStruct[i].key, "urde_nomip") == 0) {
       mipmap = false;
-  if (colorType == PNG_COLOR_TYPE_PALETTE)
+    }
+  }
+  if (colorType == PNG_COLOR_TYPE_PALETTE) {
     mipmap = false;
+  }
 
   /* Compute mipmap levels */
   size_t numMips = 1;
   if (mipmap && CountBits(width) == 1 && CountBits(height) == 1) {
     size_t index = std::min(width, height);
-    while (index >>= 1)
+    while (index >>= 1) {
       ++numMips;
+    }
   }
 
   if (bitDepth != 8) {
@@ -1453,7 +1487,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     switch (colorType) {
     case PNG_COLOR_TYPE_GRAY:
       for (unsigned i = 0; i < width; ++i) {
-        size_t outbase = (r * width + i) * 4;
+        const size_t outbase = (r * width + i) * 4;
         bufOut[outbase] = rowBuf[i];
         bufOut[outbase + 1] = rowBuf[i];
         bufOut[outbase + 2] = rowBuf[i];
@@ -1462,8 +1496,8 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
       break;
     case PNG_COLOR_TYPE_GRAY_ALPHA:
       for (unsigned i = 0; i < width; ++i) {
-        size_t inbase = i * 2;
-        size_t outbase = (r * width + i) * 4;
+        const size_t inbase = i * 2;
+        const size_t outbase = (r * width + i) * 4;
         bufOut[outbase] = rowBuf[inbase];
         bufOut[outbase + 1] = rowBuf[inbase];
         bufOut[outbase + 2] = rowBuf[inbase];
@@ -1472,8 +1506,8 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
       break;
     case PNG_COLOR_TYPE_RGB:
       for (unsigned i = 0; i < width; ++i) {
-        size_t inbase = i * 3;
-        size_t outbase = (r * width + i) * 4;
+        const size_t inbase = i * 3;
+        const size_t outbase = (r * width + i) * 4;
         bufOut[outbase] = rowBuf[inbase];
         bufOut[outbase + 1] = rowBuf[inbase + 1];
         bufOut[outbase + 2] = rowBuf[inbase + 2];
@@ -1482,8 +1516,8 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
       break;
     case PNG_COLOR_TYPE_RGB_ALPHA:
       for (unsigned i = 0; i < width; ++i) {
-        size_t inbase = i * 4;
-        size_t outbase = (r * width + i) * 4;
+        const size_t inbase = i * 4;
+        const size_t outbase = (r * width + i) * 4;
         bufOut[outbase] = rowBuf[inbase];
         bufOut[outbase + 1] = rowBuf[inbase + 1];
         bufOut[outbase + 2] = rowBuf[inbase + 2];
@@ -1547,7 +1581,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     const uint8_t* rgbaIn = bufOut.get();
     uint8_t* blocksOut = compOut.get();
     for (i = 0; i < numMips; ++i) {
-      int thisLen = squish::GetStorageRequirements(filterWidth, filterHeight, compFlags);
+      const int thisLen = squish::GetStorageRequirements(filterWidth, filterHeight, compFlags);
       squish::CompressImage(rgbaIn, filterWidth, filterHeight, blocksOut, compFlags);
       rgbaIn += filterWidth * filterHeight * nComps;
       blocksOut += thisLen;
@@ -1620,8 +1654,8 @@ static const atInt32 RetroToDol[11] {
 };
 
 TXTR::Meta TXTR::GetMetaData(DataSpec::PAKEntryReadStream& rs) {
-  atUint32 retroFormat = rs.readUint32Big();
-  atUint32 format = RetroToDol[retroFormat];
+  const atUint32 retroFormat = rs.readUint32Big();
+  const atUint32 format = RetroToDol[retroFormat];
   if (format == UINT32_MAX)
     return {};
 
@@ -1635,10 +1669,10 @@ TXTR::Meta TXTR::GetMetaData(DataSpec::PAKEntryReadStream& rs) {
     meta.hasPalette = true;
     PaletteMeta& palMeta = meta.palette;
     palMeta.format = rs.readUint32Big();
-    atUint16 palWidth = rs.readUint16Big();
-    atUint16 palHeight = rs.readUint16Big();
+    const atUint16 palWidth = rs.readUint16Big();
+    const atUint16 palHeight = rs.readUint16Big();
     palMeta.elementCount = palWidth * palHeight;
-    atUint32 palSize = atUint32(palWidth * palHeight * 2);
+    const atUint32 palSize = atUint32(palWidth * palHeight * 2);
     if (format == 8)
       textureSize /= 2;
     std::unique_ptr<u8[]> palData(new u8[palSize]);
