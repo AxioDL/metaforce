@@ -118,40 +118,40 @@ public:
   using value_type = uint32_t;
   static UniqueID32 kInvalidId;
   AT_DECL_EXPLICIT_DNA_YAML
-  bool isValid() const { return m_id != 0xffffffff && m_id != 0; }
-  void assign(uint32_t id) { m_id = id ? id : 0xffffffff; }
+  bool isValid() const noexcept { return m_id != 0xffffffff && m_id != 0; }
+  void assign(uint32_t id) noexcept { m_id = id ? id : 0xffffffff; }
 
-  UniqueID32& operator=(const hecl::ProjectPath& path) {
+  UniqueID32& operator=(const hecl::ProjectPath& path) noexcept {
     assign(path.parsedHash32());
     return *this;
   }
 
-  bool operator!=(const UniqueID32& other) const { return m_id != other.m_id; }
-  bool operator==(const UniqueID32& other) const { return m_id == other.m_id; }
-  bool operator<(const UniqueID32& other) const { return m_id < other.m_id; }
-  uint32_t toUint32() const { return m_id; }
-  uint64_t toUint64() const { return m_id; }
+  bool operator!=(const UniqueID32& other) const noexcept { return m_id != other.m_id; }
+  bool operator==(const UniqueID32& other) const noexcept { return m_id == other.m_id; }
+  bool operator<(const UniqueID32& other) const noexcept { return m_id < other.m_id; }
+  uint32_t toUint32() const noexcept { return m_id; }
+  uint64_t toUint64() const noexcept { return m_id; }
   std::string toString() const;
-  void clear() { m_id = 0xffffffff; }
+  void clear() noexcept { m_id = 0xffffffff; }
 
-  UniqueID32() = default;
-  UniqueID32(uint32_t idin) { assign(idin); }
+  UniqueID32() noexcept = default;
+  UniqueID32(uint32_t idin) noexcept { assign(idin); }
   UniqueID32(athena::io::IStreamReader& reader) { read(reader); }
-  UniqueID32(const hecl::ProjectPath& path) { *this = path; }
-  UniqueID32(const char* hexStr) {
+  UniqueID32(const hecl::ProjectPath& path) noexcept { *this = path; }
+  UniqueID32(const char* hexStr) noexcept {
     char copy[9];
     strncpy(copy, hexStr, 8);
     copy[8] = '\0';
     assign(strtoul(copy, nullptr, 16));
   }
-  UniqueID32(const wchar_t* hexStr) {
+  UniqueID32(const wchar_t* hexStr) noexcept{
     wchar_t copy[9];
     wcsncpy(copy, hexStr, 8);
     copy[8] = L'\0';
     assign(wcstoul(copy, nullptr, 16));
   }
 
-  static constexpr size_t BinarySize() { return 4; }
+  static constexpr size_t BinarySize() noexcept { return 4; }
 };
 
 /** PAK 32-bit Unique ID - writes zero when invalid */
@@ -169,39 +169,39 @@ class UniqueID64 : public BigDNA {
 public:
   using value_type = uint64_t;
   AT_DECL_EXPLICIT_DNA_YAML
-  bool isValid() const { return m_id != 0xffffffffffffffff && m_id != 0; }
-  void assign(uint64_t id) { m_id = id ? id : 0xffffffffffffffff; }
+  bool isValid() const noexcept { return m_id != 0xffffffffffffffff && m_id != 0; }
+  void assign(uint64_t id) noexcept { m_id = id ? id : 0xffffffffffffffff; }
 
-  UniqueID64& operator=(const hecl::ProjectPath& path) {
+  UniqueID64& operator=(const hecl::ProjectPath& path) noexcept {
     assign(path.hash().val64());
     return *this;
   }
 
-  bool operator!=(const UniqueID64& other) const { return m_id != other.m_id; }
-  bool operator==(const UniqueID64& other) const { return m_id == other.m_id; }
-  bool operator<(const UniqueID64& other) const { return m_id < other.m_id; }
-  uint64_t toUint64() const { return m_id; }
+  bool operator!=(const UniqueID64& other) const noexcept { return m_id != other.m_id; }
+  bool operator==(const UniqueID64& other) const noexcept { return m_id == other.m_id; }
+  bool operator<(const UniqueID64& other) const noexcept { return m_id < other.m_id; }
+  uint64_t toUint64() const noexcept { return m_id; }
   std::string toString() const;
-  void clear() { m_id = 0xffffffffffffffff; }
+  void clear() noexcept { m_id = 0xffffffffffffffff; }
 
-  UniqueID64() = default;
-  UniqueID64(uint64_t idin) { assign(idin); }
+  UniqueID64() noexcept = default;
+  UniqueID64(uint64_t idin) noexcept { assign(idin); }
   UniqueID64(athena::io::IStreamReader& reader) { read(reader); }
-  UniqueID64(const hecl::ProjectPath& path) { *this = path; }
-  UniqueID64(const char* hexStr) {
+  UniqueID64(const hecl::ProjectPath& path) noexcept { *this = path; }
+  UniqueID64(const char* hexStr) noexcept {
     char copy[17];
     std::strncpy(copy, hexStr, 16);
     copy[16] = '\0';
     assign(std::strtoull(copy, nullptr, 16));
   }
-  UniqueID64(const wchar_t* hexStr) {
+  UniqueID64(const wchar_t* hexStr) noexcept {
     wchar_t copy[17];
     std::wcsncpy(copy, hexStr, 16);
     copy[16] = L'\0';
     assign(std::wcstoull(copy, nullptr, 16));
   }
 
-  static constexpr size_t BinarySize() { return 8; }
+  static constexpr size_t BinarySize() noexcept { return 8; }
 };
 
 /** PAK 128-bit Unique ID */
@@ -220,26 +220,26 @@ private:
 public:
   using value_type = uint64_t;
   AT_DECL_EXPLICIT_DNA_YAML
-  UniqueID128() {
+  UniqueID128() noexcept {
     m_id.id[0] = 0xffffffffffffffff;
     m_id.id[1] = 0xffffffffffffffff;
   }
-  UniqueID128(uint64_t idin) {
+  UniqueID128(uint64_t idin) noexcept {
     m_id.id[0] = idin;
     m_id.id[1] = 0;
   }
-  bool isValid() const {
+  bool isValid() const noexcept {
     return m_id.id[0] != 0xffffffffffffffff && m_id.id[0] != 0 && m_id.id[1] != 0xffffffffffffffff && m_id.id[1] != 0;
   }
 
-  UniqueID128& operator=(const hecl::ProjectPath& path) {
+  UniqueID128& operator=(const hecl::ProjectPath& path) noexcept {
     m_id.id[0] = path.hash().val64();
     m_id.id[1] = 0;
     return *this;
   }
-  UniqueID128(const hecl::ProjectPath& path) { *this = path; }
+  UniqueID128(const hecl::ProjectPath& path) noexcept { *this = path; }
 
-  bool operator!=(const UniqueID128& other) const {
+  bool operator!=(const UniqueID128& other) const noexcept {
 #if __SSE__
     __m128i vcmp = _mm_cmpeq_epi32(m_id.id128, other.m_id.id128);
     int vmask = _mm_movemask_epi8(vcmp);
@@ -248,7 +248,7 @@ public:
     return (m_id.id[0] != other.m_id.id[0]) || (m_id.id[1] != other.m_id.id[1]);
 #endif
   }
-  bool operator==(const UniqueID128& other) const {
+  bool operator==(const UniqueID128& other) const noexcept {
 #if __SSE__
     __m128i vcmp = _mm_cmpeq_epi32(m_id.id128, other.m_id.id128);
     int vmask = _mm_movemask_epi8(vcmp);
@@ -257,19 +257,19 @@ public:
     return (m_id.id[0] == other.m_id.id[0]) && (m_id.id[1] == other.m_id.id[1]);
 #endif
   }
-  bool operator<(const UniqueID128& other) const {
+  bool operator<(const UniqueID128& other) const noexcept {
     return m_id.id[0] < other.m_id.id[0] || (m_id.id[0] == other.m_id.id[0] && m_id.id[1] < other.m_id.id[1]);
   }
-  void clear() {
+  void clear() noexcept {
     m_id.id[0] = 0xffffffffffffffff;
     m_id.id[1] = 0xffffffffffffffff;
   }
-  uint64_t toUint64() const { return m_id.id[0]; }
-  uint64_t toHighUint64() const { return m_id.id[0]; }
-  uint64_t toLowUint64() const { return m_id.id[1]; }
+  uint64_t toUint64() const noexcept { return m_id.id[0]; }
+  uint64_t toHighUint64() const noexcept { return m_id.id[0]; }
+  uint64_t toLowUint64() const noexcept { return m_id.id[1]; }
   std::string toString() const;
 
-  static constexpr size_t BinarySize() { return 16; }
+  static constexpr size_t BinarySize() noexcept { return 16; }
 };
 
 /** Casts ID type to its null-zero equivalent */
@@ -377,22 +377,22 @@ inline hecl::ProjectPath GetPathBeginsWith(const hecl::ProjectPath& parentPath, 
 namespace std {
 template <>
 struct hash<DataSpec::DNAFourCC> {
-  size_t operator()(const DataSpec::DNAFourCC& fcc) const { return fcc.toUint32(); }
+  size_t operator()(const DataSpec::DNAFourCC& fcc) const noexcept{ return fcc.toUint32(); }
 };
 
 template <>
 struct hash<DataSpec::UniqueID32> {
-  size_t operator()(const DataSpec::UniqueID32& id) const { return id.toUint32(); }
+  size_t operator()(const DataSpec::UniqueID32& id) const noexcept{ return id.toUint32(); }
 };
 
 template <>
 struct hash<DataSpec::UniqueID64> {
-  size_t operator()(const DataSpec::UniqueID64& id) const { return id.toUint64(); }
+  size_t operator()(const DataSpec::UniqueID64& id) const noexcept{ return id.toUint64(); }
 };
 
 template <>
 struct hash<DataSpec::UniqueID128> {
-  size_t operator()(const DataSpec::UniqueID128& id) const { return id.toHighUint64() ^ id.toLowUint64(); }
+  size_t operator()(const DataSpec::UniqueID128& id) const noexcept { return id.toHighUint64() ^ id.toLowUint64(); }
 };
 } // namespace std
 
