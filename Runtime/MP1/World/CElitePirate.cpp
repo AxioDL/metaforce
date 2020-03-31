@@ -596,7 +596,30 @@ void CElitePirate::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
   }
 }
 
-void CElitePirate::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) { CAi::SpecialAttack(mgr, msg, dt); }
+void CElitePirate::SpecialAttack(CStateManager& mgr, EStateMsg msg, float) {
+  if (msg == EStateMsg::Activate) {
+    x568_ = EState::Zero;
+  } else if (msg == EStateMsg::Update) {
+    if (x568_ == EState::Zero) {
+      if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::ProjectileAttack) {
+        x568_ = EState::Two;
+        x988_29_ = true;
+      } else {
+        x450_bodyController->GetCommandMgr().DeliverCmd(
+            CBCProjectileAttackCmd(pas::ESeverity::Two, mgr.GetPlayer().GetTranslation(), false));
+      }
+    } else if (x568_ == EState::Two) {
+      if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::ProjectileAttack) {
+        x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation());
+      } else {
+        x568_ = EState::Over;
+      }
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    sub_802285c4(mgr);
+    x988_29_ = false;
+  }
+}
 
 void CElitePirate::CallForBackup(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
