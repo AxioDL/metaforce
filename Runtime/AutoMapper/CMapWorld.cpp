@@ -1,6 +1,7 @@
 #include "Runtime/AutoMapper/CMapWorld.hpp"
 
 #include <algorithm>
+#include <array>
 
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
@@ -12,7 +13,7 @@ namespace urde {
 namespace {
 struct Support {
   int x0_;
-  int x4_[3];
+  std::array<int, 3> x4_;
 };
 
 struct Circle2 {
@@ -65,7 +66,7 @@ Circle2 UpdateSupport1(int idx, const zeus::CVector2f** list, Support& support) 
 }
 
 Circle2 UpdateSupport2(int idx, const zeus::CVector2f** list, Support& support) {
-  Circle2 circs[3] = {};
+  std::array<Circle2, 3> circs{};
   float intersect;
   int circIdx = -1;
   float minRad = FLT_MAX;
@@ -94,7 +95,7 @@ Circle2 UpdateSupport2(int idx, const zeus::CVector2f** list, Support& support) 
 }
 
 Circle2 UpdateSupport3(int idx, const zeus::CVector2f** list, Support& support) {
-  Circle2 circs[6] = {};
+  std::array<Circle2, 6> circs{};
   float intersect;
   int circIdxA = -1;
   int circIdxB = -1;
@@ -212,7 +213,7 @@ Circle2 UpdateSupport3(int idx, const zeus::CVector2f** list, Support& support) 
 }
 
 using FSupport = Circle2 (*)(int idx, const zeus::CVector2f** list, Support& support);
-constexpr FSupport SupportFuncs[] = {
+constexpr std::array<FSupport, 4> SupportFuncs{
     nullptr,
     UpdateSupport1,
     UpdateSupport2,
