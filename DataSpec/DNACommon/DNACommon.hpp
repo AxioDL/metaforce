@@ -340,7 +340,7 @@ public:
 };
 
 /** Resource cooker function */
-typedef std::function<bool(const hecl::ProjectPath&, const hecl::ProjectPath&)> ResCooker;
+using ResCooker = std::function<bool(const hecl::ProjectPath&, const hecl::ProjectPath&)>;
 
 /** Mappings of resources involved in extracting characters */
 template <class IDType>
