@@ -384,10 +384,10 @@ std::pair<std::unique_ptr<uint8_t[]>, uint32_t> AROTBuilder::buildCol(const ColM
   triBoxes.reserve(mesh.trianges.size());
   for (const ColMesh::Triangle& tri : mesh.trianges) {
     zeus::CAABox& aabb = triBoxes.emplace_back();
-    for (size_t e = 0; e < tri.edges.size(); ++e) {
-      const ColMesh::Edge& edge = mesh.edges[tri.edges[e]];
-      for (size_t v = 0; v < edge.verts.size(); ++v) {
-        const auto& vert = mesh.verts[edge.verts[v]];
+    for (const u32 edgeIdx : tri.edges) {
+      const ColMesh::Edge& edge = mesh.edges[edgeIdx];
+      for (const u32 vertIdx : edge.verts) {
+        const auto& vert = mesh.verts[vertIdx];
         aabb.accumulateBounds(zeus::CVector3f(vert));
       }
     }
