@@ -1,4 +1,8 @@
 #include "AROTBuilder.hpp"
+
+#include <algorithm>
+#include <array>
+
 #include "hecl/Blender/Connection.hpp"
 #include "../DNAMP1/PATH.hpp"
 
@@ -128,7 +132,9 @@ size_t AROTBuilder::BitmapPool::addIndices(const std::set<int>& indices) {
   return m_pool.size() - 1;
 }
 
-static const uint32_t AROTChildCounts[] = {0, 2, 2, 4, 2, 4, 4, 8};
+constexpr std::array<uint32_t, 8> AROTChildCounts{
+    0, 2, 2, 4, 2, 4, 4, 8,
+};
 
 void AROTBuilder::Node::nodeCount(size_t& sz, size_t& idxRefs, BitmapPool& bmpPool, size_t& curOff) {
   sz += 1;
@@ -176,7 +182,7 @@ void AROTBuilder::Node::writeNodes(athena::io::MemoryWriter& w, int nodeIdx) {
     if (curIdx > 65535)
       Log.report(logvisor::Fatal, fmt("AROT node exceeds 16-bit node addressing; area too complex"));
 
-    int childIndices[8];
+    std::array<int, 8> childIndices;
 
     for (int k = 0; k < 1 + ((compSubdivs & 0x4) != 0); ++k) {
       for (int j = 0; j < 1 + ((compSubdivs & 0x2) != 0); ++j) {
@@ -280,17 +286,16 @@ void AROTBuilder::Node::pathWrite(DNAMP1::PATH& path, const zeus::CAABox& curAAB
     n.aabb[0] = curAABB.min;
     n.aabb[1] = curAABB.max;
     n.centroid = curAABB.center();
-    for (int i = 0; i < 8; ++i)
-      n.children[i] = 0xffffffff;
+    std::fill(std::begin(n.children), std::end(n.children), 0xFFFFFFFF);
     n.regionCount = childIndices.size();
     n.regionStart = path.octreeRegionLookup.size();
     for (int r : childIndices)
       path.octreeRegionLookup.push_back(r);
   } else {
-    atUint32 children[8];
-    for (int i = 0; i < 8; ++i) {
+    std::array<atUint32, 8> children;
+    for (size_t i = 0; i < children.size(); ++i) {
       /* Head recursion (first node will be a leaf) */
-      childNodes[i].pathWrite(path, SplitAABB(curAABB, i));
+      childNodes[i].pathWrite(path, SplitAABB(curAABB, static_cast<int>(i)));
       children[i] = path.octree.size() - 1;
     }
 
@@ -300,8 +305,7 @@ void AROTBuilder::Node::pathWrite(DNAMP1::PATH& path, const zeus::CAABox& curAAB
     n.aabb[0] = curAABB.min;
     n.aabb[1] = curAABB.max;
     n.centroid = curAABB.center();
-    for (int i = 0; i < 8; ++i)
-      n.children[i] = children[i];
+    std::copy(children.cbegin(), children.cend(), std::begin(n.children));
     n.regionCount = 0;
     n.regionStart = 0;
   }
@@ -377,11 +381,10 @@ std::pair<std::unique_ptr<uint8_t[]>, uint32_t> AROTBuilder::buildCol(const ColM
   std::vector<zeus::CAABox> triBoxes;
   triBoxes.reserve(mesh.trianges.size());
   for (const ColMesh::Triangle& tri : mesh.trianges) {
-    triBoxes.emplace_back();
-    zeus::CAABox& aabb = triBoxes.back();
-    for (int e = 0; e < 3; ++e) {
+    zeus::CAABox& aabb = triBoxes.emplace_back();
+    for (size_t e = 0; e < tri.edges.size(); ++e) {
       const ColMesh::Edge& edge = mesh.edges[tri.edges[e]];
-      for (int v = 0; v < 2; ++v) {
+      for (size_t v = 0; v < edge.verts.size(); ++v) {
         const auto& vert = mesh.verts[edge.verts[v]];
         aabb.accumulateBounds(zeus::CVector3f(vert));
       }
