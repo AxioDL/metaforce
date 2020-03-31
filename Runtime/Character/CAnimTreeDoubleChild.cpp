@@ -103,7 +103,7 @@ u32 CAnimTreeDoubleChild::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOIN
 
 bool CAnimTreeDoubleChild::VGetBoolPOIState(const char* name) const { return x18_b->VGetBoolPOIState(name); }
 
-s32 CAnimTreeDoubleChild::VGetInt32POIState(const char* name) const { return x18_b->VGetBoolPOIState(name); }
+s32 CAnimTreeDoubleChild::VGetInt32POIState(const char* name) const { return x18_b->VGetInt32POIState(name); }
 
 CParticleData::EParentedMode CAnimTreeDoubleChild::VGetParticlePOIState(const char* name) const {
   return x18_b->VGetParticlePOIState(name);
