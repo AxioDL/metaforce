@@ -108,7 +108,7 @@ struct TextureCache {
       auto rec = r.enterSubRecord(node.first.c_str());
       TXTR::Meta meta;
       meta.read(r);
-      metaPairs.push_back(std::make_pair(projectPath.parsedHash32(), meta));
+      metaPairs.emplace_back(projectPath.parsedHash32(), meta);
     }
 
     std::sort(metaPairs.begin(), metaPairs.end(), [](const auto& a, const auto& b) -> bool {
@@ -1022,7 +1022,7 @@ struct SpecMP1 : SpecBase {
       for (const auto& dep : area.deps) {
         urde::CAssetId newId = dep.id.toUint64();
         if (dupeRes || addedTags.find(newId) == addedTags.end()) {
-          listOut.push_back({dep.type, newId});
+          listOut.emplace_back(dep.type, newId);
           addedTags.insert(newId);
         }
       }
@@ -1082,7 +1082,7 @@ struct SpecMP1 : SpecBase {
           for (atUint32 i = 0; i < mapaCount; ++i) {
             UniqueID32 id;
             id.read(r);
-            listOut.push_back({FOURCC('MAPA'), id.toUint64()});
+            listOut.emplace_back(FOURCC('MAPA'), id.toUint64());
           }
         }
       }
