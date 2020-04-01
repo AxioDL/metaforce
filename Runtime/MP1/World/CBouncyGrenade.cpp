@@ -87,7 +87,7 @@ void CBouncyGrenade::CollidedWith(TUniqueId id, const CCollisionInfoList& list, 
           ApplyImpulseWR(impulse, angle);
           CSfxManager::AddEmitter(x258_data.GetBounceSfx(), GetTranslation(), zeus::skUp, false, false, 0x7f,
                                   GetAreaIdAlways());
-          x294_numBounces--;
+          --x294_numBounces;
         }
         break;
       }

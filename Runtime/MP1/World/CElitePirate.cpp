@@ -341,7 +341,7 @@ void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
   case EUserEventType::BecomeShootThrough:
     if (HasWeakPointHead()) {
       u32 numCollisionActors = x730_collisionActorMgrHead->GetNumCollisionActors();
-      for (u32 i = 0; i < numCollisionActors; i++) {
+      for (u32 i = 0; i < numCollisionActors; ++i) {
         const auto& description = x730_collisionActorMgrHead->GetCollisionDescFromIndex(i);
         if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(description.GetCollisionActorId())) {
           actor->AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
