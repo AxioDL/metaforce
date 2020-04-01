@@ -47,7 +47,7 @@ public:
                  const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
   void Draw(const CModelFlags& drawFlags) const;
 
-  typedef void (*FPointGenerator)(void* item, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
+  using FPointGenerator = void (*)(void* item, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
   static void SetPointGeneratorFunc(void* ctx, FPointGenerator func) {
     g_PointGenFunc = func;
     g_PointGenCtx = ctx;
