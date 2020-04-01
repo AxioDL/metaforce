@@ -6,6 +6,7 @@
 
 namespace urde::MP1 {
 struct SShockWaveData {
+private:
   u32 x0_ = 8;
   CAssetId x4_particleDesc;
   CDamageInfo x8_damageInfo;
@@ -14,10 +15,20 @@ struct SShockWaveData {
   float x2c_ = 16.5217f;
   float x30_ = 0.f;
   CAssetId x34_weaponDesc;
-  s16 x38_sfx;
+  u16 x38_electrocuteSfx;
 
-  SShockWaveData(CAssetId part, const CDamageInfo& dInfo, CAssetId weapon, s16 sfx)
-  : x4_particleDesc(part), x8_damageInfo(dInfo), x34_weaponDesc(weapon), x38_sfx(sfx) {}
+public:
+  SShockWaveData(CAssetId part, const CDamageInfo& dInfo, CAssetId weapon, u16 sfx)
+  : x4_particleDesc(part), x8_damageInfo(dInfo), x34_weaponDesc(weapon), x38_electrocuteSfx(sfx) {}
+
+  [[nodiscard]] CAssetId GetParticleDescId() const { return x4_particleDesc; }
+  [[nodiscard]] const CDamageInfo& GetDamageInfo() const { return x8_damageInfo; }
+  [[nodiscard]] float GetX24() const { return x24_; }
+  [[nodiscard]] float GetX28() const { return x28_; }
+  [[nodiscard]] float GetX2C() const { return x2c_; }
+  [[nodiscard]] float GetX30() const { return x30_; }
+  [[nodiscard]] CAssetId GetWeaponDescId() const { return x34_weaponDesc; }
+  [[nodiscard]] u16 GetElectrocuteSfx() const { return x38_electrocuteSfx; }
 };
 
 class CShockWave : public CActor {
@@ -32,11 +43,11 @@ private:
   float x158_ = 0.f;
   float x15c_;
   float x160_;
-  float x164_ = 0.f;
-  float x168_ = 0.f;
-  bool x16c_ = false;
-  bool x16d_ = false;
-  // x368 => very large reserved_vector of ?
+  float x164_timeSinceHitPlayerInAir = 0.f;
+  float x168_timeSinceHitPlayer = 0.f;
+  bool x16c_hitPlayerInAir = false;
+  bool x16d_hitPlayer = false;
+  rstl::reserved_vector<TUniqueId, 1024> x170_hitIds;
   std::optional<TToken<CElectricDescription>> x974_electricDesc;
   TUniqueId x980_id2 = kInvalidUniqueId;
 
@@ -51,5 +62,8 @@ public:
   void Render(const CStateManager& mgr) const override;
   void Think(float dt, CStateManager& mgr) override;
   void Touch(CActor& actor, CStateManager& mgr) override;
+
+private:
+  [[nodiscard]] bool IsHit(TUniqueId id) const;
 };
-} // namespace urde
+} // namespace urde::MP1

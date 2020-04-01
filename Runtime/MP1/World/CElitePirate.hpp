@@ -42,7 +42,7 @@ private:
   CAssetId xf8_;
   CDamageInfo xfc_;
   CAssetId x118_;
-  s16 x11c_;
+  u16 x11c_;
   bool x11e_;
   bool x11f_;
 
@@ -64,7 +64,7 @@ public:
   [[nodiscard]] CAssetId GetXF8() const { return xf8_; }
   [[nodiscard]] const CDamageInfo& GetXFC() const { return xfc_; }
   [[nodiscard]] CAssetId GetX118() const { return x118_; }
-  [[nodiscard]] s16 GetX11C() const { return x11c_; }
+  [[nodiscard]] u16 GetX11C() const { return x11c_; }
   [[nodiscard]] bool GetX11E() const { return x11e_; }
   [[nodiscard]] bool GetX11F() const { return x11f_; }
 

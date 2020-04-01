@@ -915,10 +915,11 @@ void CElitePirate::CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid) {
   }
   CModelData mData(CAnimRes(params.GetACSFile(), params.GetCharacter(), GetModelData()->GetScale(),
                             params.GetInitialAnimation(), true));
-  mgr.AddObject(new CGrenadeLauncher(
-      uid, "Grenade Launcher", {GetAreaIdAlways(), CEntity::NullConnectionList}, GetTransform(), std::move(mData),
-      mData.GetBounds(GetTransform().getRotation()), CHealthInfo(x5d8_data.GetLauncherHP(), 10.f), x56c_vulnerability,
-      x5d8_data.GetLauncherActParams(), GetUniqueId(), x5d8_data.GetGrenadeLauncherData(), 0.f));
+  const zeus::CAABox bounds = mData.GetBounds(GetTransform().getRotation());
+  mgr.AddObject(
+      new CGrenadeLauncher(uid, "Grenade Launcher", {GetAreaIdAlways(), CEntity::NullConnectionList}, GetTransform(),
+                           std::move(mData), bounds, CHealthInfo(x5d8_data.GetLauncherHP(), 10.f), x56c_vulnerability,
+                           x5d8_data.GetLauncherActParams(), GetUniqueId(), x5d8_data.GetGrenadeLauncherData(), 0.f));
 }
 
 void CElitePirate::ApplyDamageToHead(CStateManager& mgr, TUniqueId uid) {
