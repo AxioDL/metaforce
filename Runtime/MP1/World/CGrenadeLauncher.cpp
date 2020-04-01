@@ -127,10 +127,12 @@ std::optional<zeus::CAABox> CGrenadeLauncher::GetTouchBounds() const {
 
 void CGrenadeLauncher::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   if (x3f4_color3.a() == 1.f) {
+    xb4_drawFlags = CModelFlags{2, 0, 3, zeus::skWhite};
     // Original code redundantly sets a() = 1.f
-    xb4_drawFlags = CModelFlags{2, 0, 3, x3f4_color3};
+    xb4_drawFlags.addColor = x3f4_color3;
   } else {
-    xb4_drawFlags = CModelFlags{5, 0, 3, x3f4_color3};
+    xb4_drawFlags = CModelFlags{5, 0, 3, zeus::skWhite};
+    xb4_drawFlags.addColor = x3f4_color3;
   }
   CActor::PreRender(mgr, frustum);
 }
@@ -151,7 +153,7 @@ void CGrenadeLauncher::Think(float dt, CStateManager& mgr) {
     UpdateCollision();
     UpdateColor(dt);
     sub_8022f9e0(mgr, dt);
-    sub_8022f69c(dt);
+    UpdateDamageTime(dt);
 
     const SAdvancementDeltas& deltas = CActor::UpdateAnimation(dt, mgr, true);
     MoveToOR(deltas.x0_posDelta, dt);
@@ -190,7 +192,7 @@ void CGrenadeLauncher::UpdateColor(float arg) {
   }
 }
 
-void CGrenadeLauncher::sub_8022f69c(float arg) {
+void CGrenadeLauncher::UpdateDamageTime(float arg) {
   if (x3ec_damageTimer <= 0.f) {
     xd0_damageMag = x3e8_thermalMag;
   } else {
@@ -297,7 +299,7 @@ void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
     return;
   }
 
-  const auto& anim = animData->GetCharacterInfo().GetPASDatabase().FindBestAnimation({24}, -1);
+  const auto& anim = animData->GetCharacterInfo().GetPASDatabase().FindBestAnimation({23}, -1);
   if (anim.first > 0.f) {
     animData->AddAdditiveAnimation(anim.second, 1.f, false, true);
     const zeus::CVector3f& origin =

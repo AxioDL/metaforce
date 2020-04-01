@@ -115,7 +115,7 @@ public:
 private:
   void UpdateCollision();
   void UpdateColor(float arg);
-  void sub_8022f69c(float arg);
+  void UpdateDamageTime(float arg);
   void CreateExplosion(CStateManager& mgr);
   void sub_8022f9e0(CStateManager& mgr, float dt);
   void sub_80230438();
