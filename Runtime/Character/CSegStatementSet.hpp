@@ -8,10 +8,12 @@ class CCharLayoutInfo;
 class CSegIdList;
 
 class CSegStatementSet {
-public:
+private:
   /* Used to be a pointer to arbitrary subclass-provided storage,
    * now it's a self-stored array */
   CAnimPerSegmentData x4_segData[100];
+
+public:
   void Add(const CSegIdList& list, const CCharLayoutInfo& layout, const CSegStatementSet& other, float weight);
 
   CAnimPerSegmentData& operator[](const CSegId& idx) { return x4_segData[idx]; }
