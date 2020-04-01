@@ -101,11 +101,12 @@ struct SpecMP2 : SpecBase {
       m_orderedPaks[std::string(dpak.getName())] = &dpak;
 
     /* Assemble extract report */
-    for (const std::pair<std::string, DNAMP2::PAKBridge*>& item : m_orderedPaks) {
-      if (!item.second->m_doExtract)
+    for (const auto& item : m_orderedPaks) {
+      if (!item.second->m_doExtract) {
         continue;
-      rep.childOpts.emplace_back();
-      ExtractReport& childRep = rep.childOpts.back();
+      }
+
+      ExtractReport& childRep = rep.childOpts.emplace_back();
       hecl::SystemStringConv nameView(item.first);
       childRep.name = hecl::SystemString(nameView.sys_str());
       childRep.desc = item.second->getLevelString();
@@ -121,8 +122,7 @@ struct SpecMP2 : SpecBase {
       return false;
 
     /* Root Report */
-    reps.emplace_back();
-    ExtractReport& rep = reps.back();
+    ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP2");
     rep.desc = _SYS_STR("Metroid Prime 2 ") + regstr;
     std::string buildStr(buildInfo);
@@ -174,8 +174,7 @@ struct SpecMP2 : SpecBase {
     const char* buildInfo = (char*)memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
 
     /* Root Report */
-    reps.emplace_back();
-    ExtractReport& rep = reps.back();
+    ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP2");
     rep.desc = _SYS_STR("Metroid Prime 2 ") + regstr;
     if (buildInfo) {

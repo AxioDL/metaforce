@@ -19,7 +19,7 @@ class CSamusFaceReflection {
   bool x70_hidden = true;
 
 public:
-  CSamusFaceReflection(CStateManager& stateMgr);
+  explicit CSamusFaceReflection(CStateManager& stateMgr);
   void PreDraw(const CStateManager& stateMgr);
   void Draw(const CStateManager& stateMgr) const;
   void Update(float dt, const CStateManager& stateMgr, CRandom16& rand);

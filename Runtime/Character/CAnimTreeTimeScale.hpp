@@ -34,9 +34,9 @@ public:
                           u32) const override;
   u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator,
                        u32) const override;
-  bool VGetBoolPOIState(const char* name) const override;
-  s32 VGetInt32POIState(const char* name) const override;
-  CParticleData::EParentedMode VGetParticlePOIState(const char* name) const override;
+  bool VGetBoolPOIState(std::string_view name) const override;
+  s32 VGetInt32POIState(std::string_view name) const override;
+  CParticleData::EParentedMode VGetParticlePOIState(std::string_view name) const override;
 
   CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const override;
   std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const override;

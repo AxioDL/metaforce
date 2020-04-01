@@ -97,8 +97,10 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, in
       if (opts.x0_direction == ETextDirection::Horizontal) {
         x += glyph->GetLeftPadding();
 
-        if (prevGlyph != 0)
+        if (prevGlyph != nullptr) {
           x += KernLookup(x1c_kerning, prevGlyph->GetKernStart(), *chr);
+        }
+
         int left = 0;
         int top = 0;
 

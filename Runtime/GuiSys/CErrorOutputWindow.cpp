@@ -15,7 +15,7 @@ CIOWin::EMessageReturn CErrorOutputWindow::OnMessage(const CArchitectureMessage&
   return EMessageReturn::Normal;
 }
 
-void CErrorOutputWindow::Draw() const {
+void CErrorOutputWindow::Draw() {
   //SCOPED_GRAPHICS_DEBUG_GROUP("CErrorOutputWindow::Draw", zeus::skGreen);
 }
 

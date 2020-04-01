@@ -22,9 +22,9 @@ private:
   CTexturedQuadFilterAlpha m_quad;
 
 public:
-  CSplashScreen(ESplashScreen);
+  explicit CSplashScreen(ESplashScreen);
   EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) override;
-  void Draw() const override;
+  void Draw() override;
 };
 
 } // namespace urde

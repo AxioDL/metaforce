@@ -13,7 +13,7 @@ class CProjectileInfo {
   CDamageInfo xc_damageInfo;
 
 public:
-  CProjectileInfo(CInputStream&);
+  explicit CProjectileInfo(CInputStream&);
   CProjectileInfo(CAssetId, const CDamageInfo&);
 
   float GetProjectileSpeed() const;

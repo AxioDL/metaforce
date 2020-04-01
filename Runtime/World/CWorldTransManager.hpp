@@ -48,7 +48,7 @@ public:
     float x1d8_transCompleteTime = 99999.f;
     bool x1dc_dissolveStarted = false;
 
-    SModelDatas(const CAnimRes& samusRes);
+    explicit SModelDatas(const CAnimRes& samusRes);
   };
 
 private:
@@ -80,9 +80,9 @@ private:
     u8 dummy = 0;
   };
 
-  CColoredQuadFilter m_fadeToBlack = {EFilterType::Blend};
-  CTexturedQuadFilter m_dissolve = {EFilterType::Blend, CGraphics::g_SpareTexture.get()};
-  CWideScreenFilter m_widescreen = {EFilterType::Blend};
+  CColoredQuadFilter m_fadeToBlack{EFilterType::Blend};
+  CTexturedQuadFilter m_dissolve{EFilterType::Blend, CGraphics::g_SpareTexture.get()};
+  CWideScreenFilter m_widescreen{EFilterType::Blend};
   CCameraBlurFilter m_camblur;
 
   boo::ObjToken<boo::ITextureCubeR> m_reflectionCube[2];

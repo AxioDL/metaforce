@@ -12,31 +12,64 @@
 
 namespace urde {
 
+struct CTextRenderBuffer::BooFontCharacters {
+  TLockedToken<CRasterFont> m_font;
+  hecl::VertexBufferPool<CTextSupportShader::CharacterInstance>::Token m_instBuf;
+  boo::ObjToken<boo::IShaderDataBinding> m_dataBinding;
+  boo::ObjToken<boo::IShaderDataBinding> m_dataBinding2;
+  std::vector<CTextSupportShader::CharacterInstance> m_charData;
+  u32 m_charCount = 0;
+  bool m_dirty = true;
+
+  BooFontCharacters(const CToken& token) : m_font(token) {}
+};
+
+struct CTextRenderBuffer::BooImage {
+  CFontImageDef m_imageDef;
+  hecl::VertexBufferPool<CTextSupportShader::ImageInstance>::Token m_instBuf;
+  std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding;
+  std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding2;
+  CTextSupportShader::ImageInstance m_imageData;
+  bool m_dirty = true;
+
+  BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset) : m_imageDef(imgDef) {
+    m_imageData.SetMetrics(imgDef, offset);
+  }
+};
+
+struct CTextRenderBuffer::BooPrimitiveMark {
+  Command m_cmd;
+  u32 m_bindIdx;
+  u32 m_instIdx;
+
+  void SetOpacity(CTextRenderBuffer& rb, float opacity) {
+    switch (m_cmd) {
+    case Command::CharacterRender: {
+      BooFontCharacters& fc = rb.m_fontCharacters[m_bindIdx];
+      CTextSupportShader::CharacterInstance& inst = fc.m_charData[m_instIdx];
+      inst.m_mulColor.a() = opacity;
+      fc.m_dirty = true;
+      break;
+    }
+    case Command::ImageRender: {
+      BooImage& img = rb.m_images[m_bindIdx];
+      img.m_imageData.m_color.a() = opacity;
+      img.m_dirty = true;
+      break;
+    }
+    default:
+      break;
+    }
+  }
+};
+
+CTextRenderBuffer::CTextRenderBuffer(CTextRenderBuffer&&) noexcept = default;
+
 CTextRenderBuffer::CTextRenderBuffer(EMode mode, CGuiWidget::EGuiModelDrawFlags df) : x0_mode(mode), m_drawFlags(df) {}
 
-CTextRenderBuffer::BooImage::BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset) : m_imageDef(imgDef) {
-  m_imageData.SetMetrics(imgDef, offset);
-}
+CTextRenderBuffer::~CTextRenderBuffer() = default;
 
-void CTextRenderBuffer::BooPrimitiveMark::SetOpacity(CTextRenderBuffer& rb, float opacity) {
-  switch (m_cmd) {
-  case Command::CharacterRender: {
-    BooFontCharacters& fc = rb.m_fontCharacters[m_bindIdx];
-    CTextSupportShader::CharacterInstance& inst = fc.m_charData[m_instIdx];
-    inst.m_mulColor.a() = opacity;
-    fc.m_dirty = true;
-    break;
-  }
-  case Command::ImageRender: {
-    BooImage& img = rb.m_images[m_bindIdx];
-    img.m_imageData.m_color.a() = opacity;
-    img.m_dirty = true;
-    break;
-  }
-  default:
-    break;
-  }
-}
+CTextRenderBuffer& CTextRenderBuffer::operator=(CTextRenderBuffer&&) noexcept = default;
 
 void CTextRenderBuffer::CommitResources() {
   if (m_committed)
@@ -125,26 +158,28 @@ void CTextRenderBuffer::SetPrimitiveOpacity(int idx, float opacity) {
   m_primitiveMarks[idx].SetOpacity(*this, opacity);
 }
 
-void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const {
-  const_cast<CTextRenderBuffer*>(this)->CommitResources();
+u32 CTextRenderBuffer::GetPrimitiveCount() const { return m_primitiveMarks.size(); }
 
-  zeus::CMatrix4f mv = CGraphics::g_GXModelView.toMatrix4f();
-  zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-  zeus::CMatrix4f mat = proj * mv;
+void CTextRenderBuffer::Render(const zeus::CColor& col, float time) {
+  CommitResources();
 
-  const_cast<CTextRenderBuffer*>(this)->m_uniBuf.access() = CTextSupportShader::Uniform{mat, col};
+  const zeus::CMatrix4f mv = CGraphics::g_GXModelView.toMatrix4f();
+  const zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+  const zeus::CMatrix4f mat = proj * mv;
+
+  m_uniBuf.access() = CTextSupportShader::Uniform{mat, col};
   if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
     zeus::CColor colPremul = col * col.a();
     colPremul.a() = col.a();
-    const_cast<CTextRenderBuffer*>(this)->m_uniBuf2.access() = CTextSupportShader::Uniform{mat, colPremul};
+    m_uniBuf2.access() = CTextSupportShader::Uniform{mat, colPremul};
   }
 
-  for (const BooFontCharacters& chs : m_fontCharacters) {
+  for (BooFontCharacters& chs : m_fontCharacters) {
     if (chs.m_charData.size()) {
       if (chs.m_dirty) {
-        memmove(const_cast<BooFontCharacters&>(chs).m_instBuf.access(), chs.m_charData.data(),
-                sizeof(CTextSupportShader::CharacterInstance) * chs.m_charData.size());
-        const_cast<BooFontCharacters&>(chs).m_dirty = false;
+        std::memmove(chs.m_instBuf.access(), chs.m_charData.data(),
+                     sizeof(CTextSupportShader::CharacterInstance) * chs.m_charData.size());
+        chs.m_dirty = false;
       }
       CGraphics::SetShaderDataBinding(chs.m_dataBinding);
       CGraphics::DrawInstances(0, 4, chs.m_charData.size());
@@ -155,12 +190,12 @@ void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const {
     }
   }
 
-  for (const BooImage& img : m_images) {
+  for (BooImage& img : m_images) {
     if (img.m_dirty) {
-      *const_cast<BooImage&>(img).m_instBuf.access() = img.m_imageData;
-      const_cast<BooImage&>(img).m_dirty = false;
+      *img.m_instBuf.access() = img.m_imageData;
+      img.m_dirty = false;
     }
-    int idx = int(img.m_imageDef.x0_fps * time) % img.m_dataBinding.size();
+    const int idx = int(img.m_imageDef.x0_fps * time) % img.m_dataBinding.size();
     CGraphics::SetShaderDataBinding(img.m_dataBinding[idx]);
     CGraphics::DrawInstances(0, 4, 1);
     if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {

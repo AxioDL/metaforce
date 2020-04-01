@@ -61,11 +61,13 @@ void CScriptTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
 
 CScriptTrigger::CObjectTracker* CScriptTrigger::FindObject(TUniqueId id) {
   auto& inhabitants = GetInhabitants();
-  const auto& iter = std::find(inhabitants.begin(), inhabitants.end(), id);
+  const auto iter = std::find(inhabitants.begin(), inhabitants.end(), CObjectTracker{id});
 
-  if (iter != inhabitants.end())
-    return &(*iter);
-  return nullptr;
+  if (iter == inhabitants.end()) {
+    return nullptr;
+  }
+
+  return &*iter;
 }
 
 void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {

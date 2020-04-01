@@ -36,7 +36,7 @@ private:
                         const zeus::CVector3f& offset) const;
 
 public:
-  CHierarchyPoseBuilder(const CLayoutDescription& layout);
+  explicit CHierarchyPoseBuilder(const CLayoutDescription& layout);
 
   const TLockedToken<CCharLayoutInfo>& CharLayoutInfo() const { return x0_layoutDesc.ScaledLayout(); }
   bool HasRoot() const { return x34_hasRoot; }

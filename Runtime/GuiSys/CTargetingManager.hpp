@@ -10,7 +10,7 @@ class CTargetingManager {
   COrbitPointMarker x21c_orbitPointMarker;
 
 public:
-  CTargetingManager(const CStateManager& stateMgr);
+  explicit CTargetingManager(const CStateManager& stateMgr);
   bool CheckLoadComplete();
   void Update(float, const CStateManager& stateMgr);
   void Draw(const CStateManager& stateMgr, bool hideLockon) const;

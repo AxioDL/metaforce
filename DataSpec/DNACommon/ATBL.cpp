@@ -48,9 +48,7 @@ bool ATBL::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     maxI = std::max(maxI, i);
   }
 
-  std::vector<uint16_t> vecOut;
-  vecOut.resize(maxI + 1, 0xffff);
-
+  std::vector<uint16_t> vecOut(maxI + 1, 0xffff);
   for (const auto& pair : dr.getRootNode()->m_mapChildren) {
     unsigned long i = strtoul(pair.first.c_str(), nullptr, 0);
     vecOut[i] = hecl::SBig(uint16_t(strtoul(pair.second->m_scalarString.c_str(), nullptr, 0)));

@@ -157,7 +157,7 @@ void PAKBridge::build() {
 }
 
 void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID64>& charAssoc) const {
-  for (const std::pair<UniqueID64, PAK::Entry>& entry : m_pak.m_entries) {
+  for (const auto& entry : m_pak.m_entries) {
     if (entry.second.type == FOURCC('CHAR')) {
       PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
       CHAR aChar;
@@ -180,7 +180,7 @@ static const atVec4f BottomRow = {{0.f, 0.f, 0.f, 1.f}};
 void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
                                   std::unordered_map<UniqueID64, zeus::CMatrix4f>& addTo,
                                   std::unordered_map<UniqueID64, hecl::ProjectPath>& pathOverrides) const {
-  for (const std::pair<UniqueID64, PAK::Entry>& entry : m_pak.m_entries) {
+  for (const auto& entry : m_pak.m_entries) {
     if (entry.second.type == FOURCC('MLVL')) {
       MLVL mlvl;
       {

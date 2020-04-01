@@ -20,7 +20,7 @@ class CDamageInfo {
 
 public:
   constexpr CDamageInfo() = default;
-  CDamageInfo(CInputStream& in) {
+  explicit CDamageInfo(CInputStream& in) {
     in.readUint32Big();
     x0_weaponMode = CWeaponMode(EWeaponType(in.readUint32Big()));
     x8_damage = in.readFloatBig();
@@ -38,7 +38,7 @@ public:
   constexpr CDamageInfo& operator=(CDamageInfo&&) = default;
 
   CDamageInfo(const CDamageInfo&, float);
-  CDamageInfo(const DataSpec::SShotParam& other);
+  explicit CDamageInfo(const DataSpec::SShotParam& other);
   CDamageInfo& operator=(const DataSpec::SShotParam& other);
 
   const CWeaponMode& GetWeaponMode() const { return x0_weaponMode; }

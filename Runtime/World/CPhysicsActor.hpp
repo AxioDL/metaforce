@@ -21,7 +21,7 @@ struct SMoverData {
   zeus::CAxisAngle x24_;
   float x30_mass;
 
-  SMoverData(float mass) : x30_mass(mass) {}
+  explicit SMoverData(float mass) : x30_mass(mass) {}
 };
 
 struct CMotionState {

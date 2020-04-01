@@ -44,7 +44,7 @@ class CFontInstruction : public CInstruction {
   TLockedToken<CRasterFont> x4_font;
 
 public:
-  CFontInstruction(const TToken<CRasterFont>& font) : x4_font(font) {}
+  explicit CFontInstruction(const TToken<CRasterFont>& font) : x4_font(font) {}
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
   void GetAssets(std::vector<CToken>& assetsOut) const override;
@@ -55,7 +55,7 @@ class CLineExtraSpaceInstruction : public CInstruction {
   s32 x4_extraSpace;
 
 public:
-  CLineExtraSpaceInstruction(s32 extraSpace) : x4_extraSpace(extraSpace) {}
+  explicit CLineExtraSpaceInstruction(s32 extraSpace) : x4_extraSpace(extraSpace) {}
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
@@ -107,7 +107,7 @@ class CLineSpacingInstruction : public CInstruction {
   float x4_lineSpacing;
 
 public:
-  CLineSpacingInstruction(float spacing) : x4_lineSpacing(spacing) {}
+  explicit CLineSpacingInstruction(float spacing) : x4_lineSpacing(spacing) {}
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
@@ -128,7 +128,7 @@ class CRemoveColorOverrideInstruction : public CInstruction {
   int x4_idx;
 
 public:
-  CRemoveColorOverrideInstruction(int idx) : x4_idx(idx) {}
+  explicit CRemoveColorOverrideInstruction(int idx) : x4_idx(idx) {}
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
@@ -137,7 +137,7 @@ class CImageInstruction : public CInstruction {
   CFontImageDef x4_image;
 
 public:
-  CImageInstruction(const CFontImageDef& image) : x4_image(image) {}
+  explicit CImageInstruction(const CFontImageDef& image) : x4_image(image) {}
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
   void GetAssets(std::vector<CToken>& assetsOut) const override;
   size_t GetAssetCount() const override;

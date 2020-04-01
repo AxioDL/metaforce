@@ -216,8 +216,8 @@ private:
     u32 xf94_ = 0;
   };
 
-  CColoredQuadFilter m_deathWhiteout = {EFilterType::Add};
-  CColoredQuadFilter m_escapeWhiteout = {EFilterType::Add};
+  CColoredQuadFilter m_deathWhiteout{EFilterType::Add};
+  CColoredQuadFilter m_escapeWhiteout{EFilterType::Add};
   bool m_warping = false;
 
   void UpdateThermalVisor();

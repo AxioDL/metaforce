@@ -14,7 +14,7 @@ class CMetaAnimPhaseBlend : public IMetaAnim {
   bool x10_;
 
 public:
-  CMetaAnimPhaseBlend(CInputStream& in);
+  explicit CMetaAnimPhaseBlend(CInputStream& in);
   EMetaAnimType GetType() const override { return EMetaAnimType::PhaseBlend; }
 
   void GetUniquePrimitives(std::set<CPrimitive>& primsOut) const override;

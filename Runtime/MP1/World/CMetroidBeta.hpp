@@ -38,7 +38,7 @@ class CMetroidBetaData {
   bool x108_24_ : 1;
 
 public:
-  CMetroidBetaData(CInputStream&);
+  explicit CMetroidBetaData(CInputStream&);
 };
 class CMetroidBeta : public CPatterned {
   s32 x568_progState = -1;

@@ -16,13 +16,13 @@ class CIOWin {
 
 public:
   enum class EMessageReturn { Normal = 0, Exit = 1, RemoveIOWinAndExit = 2, RemoveIOWin = 3 };
-  CIOWin(std::string_view name) : x4_name(name) { m_nameHash = std::hash<std::string_view>()(name); }
+  explicit CIOWin(std::string_view name) : x4_name(name) { m_nameHash = std::hash<std::string_view>()(name); }
 
   virtual ~CIOWin() = default;
   virtual EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) = 0;
   virtual bool GetIsContinueDraw() const { return true; }
-  virtual void Draw() const {}
-  virtual void PreDraw() const {}
+  virtual void Draw() {}
+  virtual void PreDraw() {}
 
   std::string_view GetName() const { return x4_name; }
   size_t GetNameHash() const { return m_nameHash; }

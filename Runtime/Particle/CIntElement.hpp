@@ -19,7 +19,7 @@ class CIEKeyframeEmitter : public CIntElement {
   std::vector<int> x18_keys;
 
 public:
-  CIEKeyframeEmitter(CInputStream& in);
+  explicit CIEKeyframeEmitter(CInputStream& in);
   bool GetValue(int frame, int& valOut) const override;
   int GetMaxValue() const override;
 };
@@ -73,7 +73,7 @@ class CIEConstant : public CIntElement {
   int x4_val;
 
 public:
-  CIEConstant(int val) : x4_val(val) {}
+  explicit CIEConstant(int val) : x4_val(val) {}
   bool GetValue(int frame, int& valOut) const override;
   int GetMaxValue() const override;
 };
@@ -82,7 +82,7 @@ class CIEImpulse : public CIntElement {
   std::unique_ptr<CIntElement> x4_a;
 
 public:
-  CIEImpulse(std::unique_ptr<CIntElement>&& a) : x4_a(std::move(a)) {}
+  explicit CIEImpulse(std::unique_ptr<CIntElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, int& valOut) const override;
   int GetMaxValue() const override;
 };
@@ -91,7 +91,7 @@ class CIELifetimePercent : public CIntElement {
   std::unique_ptr<CIntElement> x4_percentVal;
 
 public:
-  CIELifetimePercent(std::unique_ptr<CIntElement>&& a) : x4_percentVal(std::move(a)) {}
+  explicit CIELifetimePercent(std::unique_ptr<CIntElement>&& a) : x4_percentVal(std::move(a)) {}
   bool GetValue(int frame, int& valOut) const override;
   int GetMaxValue() const override;
 };
@@ -161,7 +161,7 @@ class CIETimeScale : public CIntElement {
   std::unique_ptr<CRealElement> x4_a;
 
 public:
-  CIETimeScale(std::unique_ptr<CRealElement>&& a) : x4_a(std::move(a)) {}
+  explicit CIETimeScale(std::unique_ptr<CRealElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, int& valOut) const override;
   int GetMaxValue() const override;
 };

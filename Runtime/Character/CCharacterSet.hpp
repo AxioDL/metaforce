@@ -13,7 +13,7 @@ class CCharacterSet {
   std::map<u32, CCharacterInfo> x4_characters;
 
 public:
-  CCharacterSet(CInputStream& in);
+  explicit CCharacterSet(CInputStream& in);
   const std::map<u32, CCharacterInfo>& GetCharacterInfoMap() const { return x4_characters; }
 };
 

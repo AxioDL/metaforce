@@ -191,7 +191,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     }
     case ESpecialFunction::MissileStation: {
       if (msg == EScriptObjectMessage::Action) {
-        CPlayerState& pState = *mgr.GetPlayerState().get();
+        CPlayerState& pState = *mgr.GetPlayerState();
         pState.ResetAndIncrPickUp(CPlayerState::EItemType::Missiles,
                                   pState.GetItemCapacity(CPlayerState::EItemType::Missiles));
       }
@@ -199,7 +199,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     }
     case ESpecialFunction::PowerBombStation: {
       if (msg == EScriptObjectMessage::Action) {
-        CPlayerState& pState = *mgr.GetPlayerState().get();
+        CPlayerState& pState = *mgr.GetPlayerState();
         pState.ResetAndIncrPickUp(CPlayerState::EItemType::PowerBombs,
                                   pState.GetItemCapacity(CPlayerState::EItemType::PowerBombs));
       }

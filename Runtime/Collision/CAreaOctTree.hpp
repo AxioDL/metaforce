@@ -27,7 +27,7 @@ public:
     const u16* m_ptr;
 
   public:
-    TriListReference(const u16* ptr) : m_ptr(ptr) {}
+    explicit TriListReference(const u16* ptr) : m_ptr(ptr) {}
     u16 GetAt(int idx) const { return m_ptr[idx + 1]; }
     u16 GetSize() const { return m_ptr[0]; }
   };

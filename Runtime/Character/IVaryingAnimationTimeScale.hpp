@@ -7,6 +7,7 @@
 namespace urde {
 class IVaryingAnimationTimeScale {
 public:
+  virtual ~IVaryingAnimationTimeScale() = default;
   virtual u32 GetType() const = 0;
   virtual float VTimeScaleIntegral(const float&, const float&) const = 0;
   virtual float VFindUpperLimit(const float&, const float&) const = 0;

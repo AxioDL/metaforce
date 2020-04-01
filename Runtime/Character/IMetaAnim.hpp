@@ -35,8 +35,8 @@ class CPreAdvanceIndicator {
   u16 x3c_;
   */
 public:
-  CPreAdvanceIndicator(const CCharAnimTime& time) : x0_isTime(true), x4_time(time) {}
-  CPreAdvanceIndicator(const char* string) : x0_isTime(false), xc_string(string) {}
+  explicit CPreAdvanceIndicator(const CCharAnimTime& time) : x0_isTime(true), x4_time(time) {}
+  explicit CPreAdvanceIndicator(const char* string) : x0_isTime(false), xc_string(string) {}
   const char* GetString() const { return xc_string; }
   bool IsString() const { return !x0_isTime; }
   const CCharAnimTime& GetTime() const { return x4_time; }

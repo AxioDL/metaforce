@@ -20,9 +20,8 @@ class ProjectPath;
 namespace DataSpec::DNAParticle {
 
 template <class IDType>
-struct DPSM : BigDNA {
-  AT_DECL_EXPLICIT_DNA_YAML
-  AT_SUBDECL_DNA
+struct _DPSM {
+  static constexpr ParticleType Type = ParticleType::DPSM;
 
   struct SQuadDescr {
     IntElementFactory x0_LFT;
@@ -31,7 +30,7 @@ struct DPSM : BigDNA {
     VectorElementFactory xc_OFF;
     ColorElementFactory x10_CLR;
     UVElementFactory<IDType> x14_TEX;
-    BoolHelper x18_ADD;
+    bool x18_ADD = false;
   };
 
   SQuadDescr x0_quad;
@@ -42,21 +41,27 @@ struct DPSM : BigDNA {
   VectorElementFactory x50_DMRT;
   VectorElementFactory x54_DMSC;
   ColorElementFactory x58_DMCL;
-  union {
-    struct {
-      bool x5c_24_DMAB : 1;
-      bool x5c_25_DMOO : 1;
-    };
-    uint8_t dummy;
-  };
-  template <class Reader>
-  void readQuadDecalInfo(Reader& r, FourCC clsId, SQuadDescr& quad);
-  void writeQuadDecalInfo(athena::io::YAMLDocWriter& w, const SQuadDescr& quad, bool first) const;
-  void getQuadDecalBinarySize(size_t& s, const SQuadDescr& desc) const;
-  void writeQuadDecalInfo(athena::io::IStreamWriter& w, const SQuadDescr& quad, bool first) const;
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
+  bool x5c_24_DMAB = false;
+  bool x5c_25_DMOO = false;
+
+  template<typename _Func>
+  void constexpr Enumerate(_Func f) {
+#define ENTRY(name, identifier) f(FOURCC(name), identifier);
+#include "DPSC.def"
+  }
+
+  template<typename _Func>
+  bool constexpr Lookup(FourCC fcc, _Func f) {
+    switch (fcc.toUint32()) {
+#define ENTRY(name, identifier) case SBIG(name): f(identifier); return true;
+#include "DPSC.def"
+    default: return false;
+    }
+  }
 };
+template <class IDType>
+using DPSM = PPImpl<_DPSM<IDType>>;
 
 template <class IDType>
 bool ExtractDPSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);

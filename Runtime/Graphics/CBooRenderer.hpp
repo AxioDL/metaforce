@@ -198,9 +198,9 @@ public:
   void AddWorldSurfaces(CBooModel& model);
 
   std::list<CAreaListItem>::iterator FindStaticGeometry(const std::vector<CMetroidModelInstance>*);
-  void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaRenderOctTree*, int areaIdx,
-                         const SShader* shaderSet) override;
-  void EnablePVS(const CPVSVisSet&, u32) override;
+  void AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry, const CAreaRenderOctTree* octTree,
+                         int areaIdx, const SShader* shaderSet) override;
+  void EnablePVS(const CPVSVisSet& set, u32 areaIdx) override;
   void DisablePVS() override;
   void UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode = EWorldShadowMode::None,
                           bool activateLights = true, int cubeFace = -1, const CModelFlags* ballShadowFlags = nullptr);
@@ -212,17 +212,18 @@ public:
   void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) override;
   void PostRenderFogs() override;
   void SetModelMatrix(const zeus::CTransform& xf) override;
-  void AddParticleGen(const CParticleGen&) override;
-  void AddParticleGen(const CParticleGen&, const zeus::CVector3f&, const zeus::CAABox&) override;
-  void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int) override;
-  void AddDrawable(void const*, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting) override;
-  void SetDrawableCallback(TDrawableCallback, const void*) override;
-  void SetWorldViewpoint(const zeus::CTransform&) override;
-  void SetPerspective(float, float, float, float, float) override;
-  void SetPerspective(float, float, float, float) override;
-  std::pair<zeus::CVector2f, zeus::CVector2f> SetViewportOrtho(bool, float, float) override;
+  void AddParticleGen(const CParticleGen& gen) override;
+  void AddParticleGen(const CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) override;
+  void AddPlaneObject(const void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type) override;
+  void AddDrawable(const void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode,
+                   EDrawableSorting sorting) override;
+  void SetDrawableCallback(TDrawableCallback cb, const void* ctx) override;
+  void SetWorldViewpoint(const zeus::CTransform& xf) override;
+  void SetPerspective(float fovy, float width, float height, float znear, float zfar) override;
+  void SetPerspective(float fovy, float aspect, float znear, float zfar) override;
+  std::pair<zeus::CVector2f, zeus::CVector2f> SetViewportOrtho(bool centered, float znear, float zfar) override;
   void SetClippingPlanes(const zeus::CFrustum& frustum) override;
-  void SetViewport(int, int, int, int) override;
+  void SetViewport(int left, int bottom, int width, int height) override;
   // void SetDepthReadWrite(bool, bool);
   // void SetBlendMode_AdditiveAlpha();
   // void SetBlendMode_AlphaBlended();
@@ -246,18 +247,18 @@ public:
   // void PrimColor(float, float, float, float);
   // void PrimColor(const zeus::CColor&);
   // void EndPrimitive();
-  void SetAmbientColor(const zeus::CColor&) override;
-  void DrawString(const char*, int, int) override;
+  void SetAmbientColor(const zeus::CColor& color) override;
+  void DrawString(const char* string, int, int) override;
   u32 GetFPS() override;
-  void CacheReflection(TReflectionCallback, void*, bool) override;
-  void DrawSpaceWarp(const zeus::CVector3f&, float) override;
+  void CacheReflection(TReflectionCallback cb, void* ctx, bool clearAfter) override;
+  void DrawSpaceWarp(const zeus::CVector3f& pt, float strength) override;
   void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol) override;
   void DrawXRayOutline(const zeus::CAABox&) override;
-  void SetWireframeFlags(int) override;
-  void SetWorldFog(ERglFogMode, float, float, const zeus::CColor&) override;
-  void RenderFogVolume(const zeus::CColor&, const zeus::CAABox&, const TLockedToken<CModel>*,
-                       const CSkinnedModel*) override;
-  void SetThermal(bool, float, const zeus::CColor&) override;
+  void SetWireframeFlags(int flags) override;
+  void SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) override;
+  void RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const TLockedToken<CModel>* model,
+                       const CSkinnedModel* sModel) override;
+  void SetThermal(bool thermal, float level, const zeus::CColor& color) override;
   void SetThermalColdScale(float scale) override;
   void DoThermalBlendCold() override;
   void DoThermalBlendHot() override;

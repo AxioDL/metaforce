@@ -61,7 +61,7 @@ struct PAK : BigDNA {
 
   bool mreaHasDupeResources(const UniqueID64& id) const { return m_dupeMREAs.find(id) != m_dupeMREAs.cend(); }
 
-  typedef UniqueID64 IDType;
+  using IDType = UniqueID64;
 };
 
 } // namespace DataSpec::DNAMP3

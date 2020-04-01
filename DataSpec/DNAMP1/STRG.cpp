@@ -1,10 +1,14 @@
 #include "STRG.hpp"
+
+#include <array>
+
 #include "DNAMP1.hpp"
 
 namespace DataSpec::DNAMP1 {
 
-const std::vector<FourCC> skLanguages = {FOURCC('ENGL'), FOURCC('FREN'), FOURCC('GERM'), FOURCC('SPAN'),
-                                         FOURCC('ITAL'), FOURCC('DUTC'), FOURCC('JAPN')};
+constexpr std::array skLanguages{
+    FOURCC('ENGL'), FOURCC('FREN'), FOURCC('GERM'), FOURCC('SPAN'), FOURCC('ITAL'), FOURCC('DUTC'), FOURCC('JAPN'),
+};
 
 static uint32_t ParseTag(const char16_t* str) {
   char parseStr[9];

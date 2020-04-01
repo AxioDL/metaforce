@@ -20,7 +20,7 @@ public:
     x4_fadeOutDur = in.readFloatBig();
   }
   CAdditiveAnimationInfo() = default;
-  CAdditiveAnimationInfo(CInputStream& in) { read(in); }
+  explicit CAdditiveAnimationInfo(CInputStream& in) { read(in); }
   float GetFadeInDuration() const { return x0_fadeInDur; }
   float GetFadeOutDuration() const { return x4_fadeOutDur; }
 };

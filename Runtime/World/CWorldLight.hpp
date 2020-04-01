@@ -30,7 +30,7 @@ private:
 
 public:
   CWorldLight(const CWorldLight&) = default;
-  CWorldLight(CInputStream& in);
+  explicit CWorldLight(CInputStream& in);
   EWorldLightType GetLightType() const { return x0_type; }
   const zeus::CVector3f& GetDirection() const { return x1c_direction; }
   const zeus::CVector3f& GetPosition() const { return x10_position; }

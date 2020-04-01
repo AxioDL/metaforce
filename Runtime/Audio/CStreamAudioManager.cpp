@@ -50,7 +50,7 @@ struct SDSPStreamInfo {
   s16 x1c_coef[8][2];
 
   SDSPStreamInfo() = default;
-  SDSPStreamInfo(const CDSPStreamManager& stream);
+  explicit SDSPStreamInfo(const CDSPStreamManager& stream);
 };
 
 struct SDSPStream : boo::IAudioVoiceCallback {

@@ -16,48 +16,36 @@ class ProjectPath;
 namespace DataSpec::DNAParticle {
 
 template <class IDType>
-struct SWSH : public BigDNA {
-  AT_DECL_EXPLICIT_DNA_YAML
-  AT_SUBDECL_DNA
+struct _SWSH {
+  static constexpr ParticleType Type = ParticleType::SWSH;
 
-  IntElementFactory x0_PSLT;
-  RealElementFactory x4_TIME;
-  RealElementFactory x8_LRAD;
-  RealElementFactory xc_RRAD;
-  IntElementFactory x10_LENG;
-  ColorElementFactory x14_COLR;
-  IntElementFactory x18_SIDE;
-  RealElementFactory x1c_IROT;
-  RealElementFactory x20_ROTM;
-  VectorElementFactory x24_POFS;
-  VectorElementFactory x28_IVEL;
-  VectorElementFactory x2c_NPOS;
-  ModVectorElementFactory x30_VELM;
-  ModVectorElementFactory x34_VLM2;
-  IntElementFactory x38_SPLN;
-  UVElementFactory<IDType> x3c_TEXR;
-  IntElementFactory x40_TSPN;
-  union {
-    struct {
-      bool x44_24_LLRD : 1;
-      bool x44_25_CROS : 1;
-      bool x44_26_VLS1 : 1;
-      bool x44_27_VLS2 : 1;
-      bool x44_28_SROT : 1;
-      bool x44_29_WIRE : 1;
-      bool x44_30_TEXW : 1;
-      bool x44_31_AALP : 1;
-      bool x45_24_ZBUF : 1;
-      bool x45_25_ORNT : 1;
-      bool x45_26_CRND : 1;
-    };
-    uint16_t dummy = 0;
-  };
+#define INT_ENTRY(name, identifier) IntElementFactory identifier;
+#define REAL_ENTRY(name, identifier) RealElementFactory identifier;
+#define VECTOR_ENTRY(name, identifier) VectorElementFactory identifier;
+#define MOD_VECTOR_ENTRY(name, identifier) ModVectorElementFactory identifier;
+#define COLOR_ENTRY(name, identifier) ColorElementFactory identifier;
+#define UV_ENTRY(name, identifier) UVElementFactory<IDType> identifier;
+#define BOOL_ENTRY(name, identifier, def) bool identifier = def;
+#include "SWHC.def"
 
-  SWSH() { x44_25_CROS = true; }
+  template<typename _Func>
+  void constexpr Enumerate(_Func f) {
+#define ENTRY(name, identifier) f(FOURCC(name), identifier);
+#define BOOL_ENTRY(name, identifier, def) f(FOURCC(name), identifier, def);
+#include "SWHC.def"
+  }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
+  template<typename _Func>
+  bool constexpr Lookup(FourCC fcc, _Func f) {
+    switch (fcc.toUint32()) {
+#define ENTRY(name, identifier) case SBIG(name): f(identifier); return true;
+#include "SWHC.def"
+    default: return false;
+    }
+  }
 };
+template <class IDType>
+using SWSH = PPImpl<_SWSH<IDType>>;
 
 template <class IDType>
 bool ExtractSWSH(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);

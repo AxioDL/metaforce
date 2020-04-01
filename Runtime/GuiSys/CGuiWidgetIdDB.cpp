@@ -21,7 +21,7 @@ s16 CGuiWidgetIdDB::AddWidget(std::string_view name, s16 id) {
   if (findId == -1) {
     if (id >= x14_lastPoolId)
       x14_lastPoolId = id;
-    x0_dbMap.emplace(std::make_pair(name, id));
+    x0_dbMap.emplace(name, id);
     findId = id;
   }
   return findId;
@@ -31,7 +31,7 @@ s16 CGuiWidgetIdDB::AddWidget(std::string_view name) {
   s16 findId = FindWidgetID(name);
   if (findId == -1) {
     ++x14_lastPoolId;
-    x0_dbMap.emplace(std::make_pair(name, x14_lastPoolId));
+    x0_dbMap.emplace(name, x14_lastPoolId);
     findId = x14_lastPoolId;
   }
   return findId;

@@ -19,7 +19,7 @@ public:
     u16 GetGroupId() const { return x2_groupId; }
     CAssetId GetAGSCAssetId() const { return x4_agscId; }
     const u8* GetArrData() const { return x8_arrData.get(); }
-    CMidiData(CInputStream& in);
+    explicit CMidiData(CInputStream& in);
   };
 
   class CMidiWrapper {

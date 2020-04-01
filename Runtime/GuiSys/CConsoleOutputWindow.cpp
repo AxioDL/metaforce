@@ -9,7 +9,7 @@ CIOWin::EMessageReturn CConsoleOutputWindow::OnMessage(const CArchitectureMessag
   return EMessageReturn::Normal;
 }
 
-void CConsoleOutputWindow::Draw() const {
+void CConsoleOutputWindow::Draw() {
   //SCOPED_GRAPHICS_DEBUG_GROUP("CConsoleOutputWindow::Draw", zeus::skGreen);
 }
 

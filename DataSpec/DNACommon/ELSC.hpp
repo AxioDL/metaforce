@@ -12,33 +12,36 @@ class ProjectPath;
 }
 
 namespace DataSpec::DNAParticle {
-template <class IDType>
-struct ELSM : BigDNA {
-  AT_DECL_EXPLICIT_DNA_YAML
-  AT_SUBDECL_DNA
-  IntElementFactory x0_LIFE;
-  IntElementFactory x4_SLIF;
-  RealElementFactory x8_GRAT;
-  IntElementFactory xc_SCNT;
-  IntElementFactory x10_SSEG;
-  ColorElementFactory x14_COLR;
-  EmitterElementFactory x18_IEMT;
-  EmitterElementFactory x1c_FEMT;
-  RealElementFactory x20_AMPL;
-  RealElementFactory x24_AMPD;
-  RealElementFactory x28_LWD1;
-  RealElementFactory x2c_LWD2;
-  RealElementFactory x30_LWD3;
-  ColorElementFactory x34_LCL1;
-  ColorElementFactory x38_LCL2;
-  ColorElementFactory x3c_LCL3;
-  ChildResourceFactory<IDType> x40_SSWH;
-  ChildResourceFactory<IDType> x50_GPSM;
-  ChildResourceFactory<IDType> x60_EPSM;
-  BoolHelper x70_ZERY;
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
+template <class IDType>
+struct _ELSM {
+  static constexpr ParticleType Type = ParticleType::ELSM;
+
+#define INT_ENTRY(name, identifier) IntElementFactory identifier;
+#define REAL_ENTRY(name, identifier) RealElementFactory identifier;
+#define COLOR_ENTRY(name, identifier) ColorElementFactory identifier;
+#define EMITTER_ENTRY(name, identifier) EmitterElementFactory identifier;
+#define RES_ENTRY(name, identifier) ChildResourceFactory<IDType> identifier;
+#define BOOL_ENTRY(name, identifier) bool identifier = false;
+#include "ELSC.def"
+
+  template<typename _Func>
+  void constexpr Enumerate(_Func f) {
+#define ENTRY(name, identifier) f(FOURCC(name), identifier);
+#include "ELSC.def"
+  }
+
+  template<typename _Func>
+  bool constexpr Lookup(FourCC fcc, _Func f) {
+    switch (fcc.toUint32()) {
+#define ENTRY(name, identifier) case SBIG(name): f(identifier); return true;
+#include "ELSC.def"
+    default: return false;
+    }
+  }
 };
+template <class IDType>
+using ELSM = PPImpl<_ELSM<IDType>>;
 
 template <class IDType>
 bool ExtractELSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);

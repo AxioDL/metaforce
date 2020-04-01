@@ -35,20 +35,23 @@ void CScanDisplay::CDataDot::Update(float dt) {
   }
 }
 
-void CScanDisplay::CDataDot::Draw(const zeus::CColor& col, float radius) const {
-  if (x24_alpha == 0.f)
+void CScanDisplay::CDataDot::Draw(const zeus::CColor& col, float radius) {
+  if (x24_alpha == 0.f) {
     return;
+  }
 
   if (x0_dotState != EDotState::Hidden) {
-    zeus::CTransform xf = zeus::CTransform::Translate(xc_curPos.x(), 0.f, xc_curPos.y());
+    const zeus::CTransform xf = zeus::CTransform::Translate(xc_curPos.x(), 0.f, xc_curPos.y());
     CGraphics::SetModelMatrix(xf);
     zeus::CColor useColor = col;
     useColor.a() *= x24_alpha;
-    CTexturedQuadFilter::Vert verts[4] = {{{-radius, 0.f, radius}, {0.f, 1.f}},
-                                          {{-radius, 0.f, -radius}, {0.f, 0.f}},
-                                          {{radius, 0.f, radius}, {1.f, 1.f}},
-                                          {{radius, 0.f, -radius}, {1.f, 0.f}}};
-    const_cast<CTexturedQuadFilter&>(m_quad).drawVerts(useColor, verts);
+    const CTexturedQuadFilter::Vert verts[4] = {
+        {{-radius, 0.f, radius}, {0.f, 1.f}},
+        {{-radius, 0.f, -radius}, {0.f, 0.f}},
+        {{radius, 0.f, radius}, {1.f, 1.f}},
+        {{radius, 0.f, -radius}, {1.f, 0.f}},
+    };
+    m_quad.drawVerts(useColor, verts);
   }
 }
 
@@ -418,16 +421,18 @@ void CScanDisplay::Update(float dt, float scanningTime) {
   }
 }
 
-void CScanDisplay::Draw() const {
-  if (!x0_dataDot.IsLoaded())
+void CScanDisplay::Draw() {
+  if (!x0_dataDot.IsLoaded()) {
     return;
+  }
 
   // No Z-test or write
   g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
   // Additive alpha
 
-  float vpRatio = g_Viewport.xc_height / 480.f;
-  for (const CDataDot& dot : xbc_dataDots)
+  const float vpRatio = g_Viewport.xc_height / 480.f;
+  for (CDataDot& dot : xbc_dataDots) {
     dot.Draw(g_tweakGuiColors->GetScanDataDotColor(), g_tweakGui->GetScanDataDotRadius() * vpRatio);
+  }
 }
 } // namespace urde

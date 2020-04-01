@@ -14,7 +14,7 @@ public:
   CHUDMemoParms() = default;
   CHUDMemoParms(float dispTime, bool clearMemoWindow, bool fadeOutOnly, bool hintMemo)
   : x0_dispTime(dispTime), x4_clearMemoWindow(clearMemoWindow), x5_fadeOutOnly(fadeOutOnly), x6_hintMemo(hintMemo) {}
-  CHUDMemoParms(CInputStream& in) {
+  explicit CHUDMemoParms(CInputStream& in) {
     x0_dispTime = in.readFloatBig();
     x4_clearMemoWindow = in.readBool();
   }

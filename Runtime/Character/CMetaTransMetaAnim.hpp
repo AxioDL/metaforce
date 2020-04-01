@@ -12,7 +12,7 @@ class CMetaTransMetaAnim : public IMetaTrans {
   std::shared_ptr<IMetaAnim> x4_metaAnim;
 
 public:
-  CMetaTransMetaAnim(CInputStream& in);
+  explicit CMetaTransMetaAnim(CInputStream& in);
   EMetaTransType GetType() const override { return EMetaTransType::MetaAnim; }
 
   std::shared_ptr<CAnimTreeNode> VGetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,

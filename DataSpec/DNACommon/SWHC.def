@@ -1,0 +1,69 @@
+#ifndef ENTRY
+#define ENTRY(name, identifier)
+#endif
+
+#ifndef INT_ENTRY
+#define INT_ENTRY(name, identifier) ENTRY(name, identifier)
+#endif
+
+#ifndef REAL_ENTRY
+#define REAL_ENTRY(name, identifier) ENTRY(name, identifier)
+#endif
+
+#ifndef VECTOR_ENTRY
+#define VECTOR_ENTRY(name, identifier) ENTRY(name, identifier)
+#endif
+
+#ifndef MOD_VECTOR_ENTRY
+#define MOD_VECTOR_ENTRY(name, identifier) ENTRY(name, identifier)
+#endif
+
+#ifndef COLOR_ENTRY
+#define COLOR_ENTRY(name, identifier) ENTRY(name, identifier)
+#endif
+
+#ifndef UV_ENTRY
+#define UV_ENTRY(name, identifier) ENTRY(name, identifier)
+#endif
+
+#ifndef BOOL_ENTRY
+#define BOOL_ENTRY(name, identifier, def) ENTRY(name, identifier)
+#endif
+
+INT_ENTRY('PSLT', x0_PSLT)
+REAL_ENTRY('TIME', x4_TIME)
+REAL_ENTRY('LRAD', x8_LRAD)
+REAL_ENTRY('RRAD', xc_RRAD)
+INT_ENTRY('LENG', x10_LENG)
+COLOR_ENTRY('COLR', x14_COLR)
+INT_ENTRY('SIDE', x18_SIDE)
+REAL_ENTRY('IROT', x1c_IROT)
+REAL_ENTRY('ROTM', x20_ROTM)
+VECTOR_ENTRY('POFS', x24_POFS)
+VECTOR_ENTRY('IVEL', x28_IVEL)
+VECTOR_ENTRY('NPOS', x2c_NPOS)
+MOD_VECTOR_ENTRY('VELM', x30_VELM)
+MOD_VECTOR_ENTRY('VLM2', x34_VLM2)
+INT_ENTRY('SPLN', x38_SPLN)
+UV_ENTRY('TEXR', x3c_TEXR)
+INT_ENTRY('TSPN', x40_TSPN)
+BOOL_ENTRY('LLRD', x44_24_LLRD, false)
+BOOL_ENTRY('CROS', x44_25_CROS, true)
+BOOL_ENTRY('VLS1', x44_26_VLS1, false)
+BOOL_ENTRY('VLS2', x44_27_VLS2, false)
+BOOL_ENTRY('SROT', x44_28_SROT, false)
+BOOL_ENTRY('WIRE', x44_29_WIRE, false)
+BOOL_ENTRY('TEXW', x44_30_TEXW, false)
+BOOL_ENTRY('AALP', x44_31_AALP, false)
+BOOL_ENTRY('ZBUF', x45_24_ZBUF, false)
+BOOL_ENTRY('ORNT', x45_25_ORNT, false)
+BOOL_ENTRY('CRND', x45_26_CRND, false)
+
+#undef ENTRY
+#undef INT_ENTRY
+#undef REAL_ENTRY
+#undef VECTOR_ENTRY
+#undef MOD_VECTOR_ENTRY
+#undef COLOR_ENTRY
+#undef UV_ENTRY
+#undef BOOL_ENTRY

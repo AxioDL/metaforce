@@ -23,21 +23,21 @@ class CScanLinesFilter {
 public:
   static void Initialize();
   static void Shutdown();
-  CScanLinesFilter(EFilterType type, bool even);
+  explicit CScanLinesFilter(EFilterType type, bool even);
   void draw(const zeus::CColor& color);
   void DrawFilter(EFilterShape, const zeus::CColor& color, float) { draw(color); }
 };
 
 class CScanLinesFilterEven : public CScanLinesFilter {
 public:
-  CScanLinesFilterEven(EFilterType type) : CScanLinesFilter(type, true) {}
-  CScanLinesFilterEven(EFilterType type, const TLockedToken<CTexture>&) : CScanLinesFilterEven(type) {}
+  explicit CScanLinesFilterEven(EFilterType type) : CScanLinesFilter(type, true) {}
+  explicit CScanLinesFilterEven(EFilterType type, const TLockedToken<CTexture>&) : CScanLinesFilterEven(type) {}
 };
 
 class CScanLinesFilterOdd : public CScanLinesFilter {
 public:
-  CScanLinesFilterOdd(EFilterType type) : CScanLinesFilter(type, false) {}
-  CScanLinesFilterOdd(EFilterType type, const TLockedToken<CTexture>&) : CScanLinesFilterOdd(type) {}
+  explicit CScanLinesFilterOdd(EFilterType type) : CScanLinesFilter(type, false) {}
+  explicit CScanLinesFilterOdd(EFilterType type, const TLockedToken<CTexture>&) : CScanLinesFilterOdd(type) {}
 };
 
 } // namespace urde

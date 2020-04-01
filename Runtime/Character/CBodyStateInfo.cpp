@@ -42,10 +42,10 @@ CBodyStateInfo::CBodyStateInfo(CActor& actor, EBodyType type) {
   }
 
   x1c_additiveStates.reserve(4);
-  x1c_additiveStates.push_back({pas::EAnimationState::AdditiveIdle, std::make_unique<CABSIdle>()});
-  x1c_additiveStates.push_back({pas::EAnimationState::AdditiveAim, std::make_unique<CABSAim>()});
-  x1c_additiveStates.push_back({pas::EAnimationState::AdditiveFlinch, std::make_unique<CABSFlinch>()});
-  x1c_additiveStates.push_back({pas::EAnimationState::AdditiveReaction, std::make_unique<CABSReaction>()});
+  x1c_additiveStates.emplace_back(pas::EAnimationState::AdditiveIdle, std::make_unique<CABSIdle>());
+  x1c_additiveStates.emplace_back(pas::EAnimationState::AdditiveAim, std::make_unique<CABSAim>());
+  x1c_additiveStates.emplace_back(pas::EAnimationState::AdditiveFlinch, std::make_unique<CABSFlinch>());
+  x1c_additiveStates.emplace_back(pas::EAnimationState::AdditiveReaction, std::make_unique<CABSReaction>());
 }
 
 std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedFlyerBodyStates(int stateId, CActor& actor) const {

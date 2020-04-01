@@ -122,15 +122,15 @@ void ANIM::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
   atUint32 version = reader.readUint32Big();
   switch (version) {
   case 0:
-    m_anim.reset(new struct ANIM0);
+    m_anim = std::make_unique<ANIM0>();
     m_anim->read(reader);
     break;
   case 2:
-    m_anim.reset(new struct ANIM2(false));
+    m_anim = std::make_unique<ANIM2>(false);
     m_anim->read(reader);
     break;
   case 3:
-    m_anim.reset(new struct ANIM2(true));
+    m_anim = std::make_unique<ANIM2>(true);
     m_anim->read(reader);
     break;
   default:
@@ -548,7 +548,7 @@ void ANIM::ANIM2::Enumerate<BigDNA::BinarySize>(size_t& __isz) {
 
 ANIM::ANIM(const BlenderAction& act, const std::unordered_map<std::string, atInt32>& idMap,
            const DNAANIM::RigInverter<CINF>& rig, bool pc) {
-  m_anim.reset(new struct ANIM2(pc));
+  m_anim = std::make_unique<ANIM2>(pc);
   IANIM& newAnim = *m_anim;
   newAnim.looping = act.looping;
 

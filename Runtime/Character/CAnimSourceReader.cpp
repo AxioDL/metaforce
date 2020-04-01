@@ -172,7 +172,7 @@ u32 CAnimSourceReaderBase::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOI
   return 0;
 }
 
-bool CAnimSourceReaderBase::VGetBoolPOIState(const char* name) const {
+bool CAnimSourceReaderBase::VGetBoolPOIState(std::string_view name) const {
   const auto iter = std::find_if(x24_boolStates.cbegin(), x24_boolStates.cend(),
                                  [name](const auto& entry) { return entry.first == name; });
 
@@ -183,7 +183,7 @@ bool CAnimSourceReaderBase::VGetBoolPOIState(const char* name) const {
   return iter->second;
 }
 
-s32 CAnimSourceReaderBase::VGetInt32POIState(const char* name) const {
+s32 CAnimSourceReaderBase::VGetInt32POIState(std::string_view name) const {
   const auto iter = std::find_if(x34_int32States.cbegin(), x34_int32States.cend(),
                                  [name](const auto& entry) { return entry.first == name; });
 
@@ -194,7 +194,7 @@ s32 CAnimSourceReaderBase::VGetInt32POIState(const char* name) const {
   return iter->second;
 }
 
-CParticleData::EParentedMode CAnimSourceReaderBase::VGetParticlePOIState(const char* name) const {
+CParticleData::EParentedMode CAnimSourceReaderBase::VGetParticlePOIState(std::string_view name) const {
   const auto iter = std::find_if(x44_particleStates.cbegin(), x44_particleStates.cend(),
                                  [name](const auto& entry) { return entry.first == name; });
 

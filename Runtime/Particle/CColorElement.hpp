@@ -20,7 +20,7 @@ class CCEKeyframeEmitter : public CColorElement {
   std::vector<zeus::CColor> x18_keys;
 
 public:
-  CCEKeyframeEmitter(CInputStream& in);
+  explicit CCEKeyframeEmitter(CInputStream& in);
   bool GetValue(int frame, zeus::CColor& colorOut) const override;
 };
 

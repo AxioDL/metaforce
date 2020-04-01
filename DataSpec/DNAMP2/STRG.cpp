@@ -67,8 +67,8 @@ void STRG::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer) {
   writer.writeUint32Big(strCount);
 
   atUint32 offset = 0;
-  for (const std::pair<DNAFourCC, std::vector<std::u16string>>& lang : langs) {
-    lang.first.write(writer);
+  for (const auto& lang : langs) {
+    DNAFourCC{lang.first}.write(writer);
     writer.writeUint32Big(offset);
     offset += strCount * 4 + 4;
     atUint32 langStrCount = lang.second.size();
@@ -87,20 +87,22 @@ void STRG::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer) {
   }
 
   atUint32 nameTableSz = names.size() * 8;
-  for (const std::pair<std::string, int32_t>& name : names)
+  for (const auto& name : names) {
     nameTableSz += name.first.size() + 1;
+  }
   writer.writeUint32Big(names.size());
   writer.writeUint32Big(nameTableSz);
   offset = names.size() * 8;
-  for (const std::pair<std::string, int32_t>& name : names) {
+  for (const auto& name : names) {
     writer.writeUint32Big(offset);
     writer.writeInt32Big(name.second);
     offset += name.first.size() + 1;
   }
-  for (const std::pair<std::string, int32_t>& name : names)
+  for (const auto& name : names) {
     writer.writeString(name.first);
+  }
 
-  for (const std::pair<DNAFourCC, std::vector<std::u16string>>& lang : langs) {
+  for (const auto& lang : langs) {
     offset = strCount * 4;
     atUint32 langStrCount = lang.second.size();
     for (atUint32 s = 0; s < strCount; ++s) {
@@ -128,11 +130,12 @@ void STRG::Enumerate<BigDNA::BinarySize>(size_t& __isz) {
 
   __isz += 8;
   __isz += names.size() * 8;
-  for (const std::pair<std::string, int32_t>& name : names)
+  for (const auto& name : names) {
     __isz += name.first.size() + 1;
+  }
 
   size_t strCount = STRG::count();
-  for (const std::pair<DNAFourCC, std::vector<std::u16string>>& lang : langs) {
+  for (const auto& lang : langs) {
     atUint32 langStrCount = lang.second.size();
     __isz += strCount * 4;
 

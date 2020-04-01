@@ -5,8 +5,9 @@
 namespace urde {
 
 void CFlameWarp::ModifyParticles(std::vector<CParticle>& particles) {
-  if (x9c_stateMgr == 0 || particles.size() < 9)
+  if (x9c_stateMgr == nullptr || particles.size() < 9) {
     return;
+  }
 
   std::vector<std::pair<float, u8>> vec;
   vec.reserve(particles.size());

@@ -10,11 +10,13 @@
 #include "Runtime/Character/CAdditiveAnimPlayback.hpp"
 #include "Runtime/Character/CAnimPlaybackParms.hpp"
 #include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CCharacterFactory.hpp"
 #include "Runtime/Character/CCharacterInfo.hpp"
 #include "Runtime/Character/CHierarchyPoseBuilder.hpp"
 #include "Runtime/Character/CParticleDatabase.hpp"
 #include "Runtime/Character/CPoseAsTransforms.hpp"
 #include "Runtime/Character/IAnimReader.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CQuaternion.hpp>
@@ -64,7 +66,6 @@ class CAnimationManager;
 class CBoolPOINode;
 class CCharAnimTime;
 class CCharLayoutInfo;
-class CCharacterFactory;
 class CInt32POINode;
 class CModel;
 class CMorphableSkinnedModel;
@@ -74,7 +75,6 @@ class CRandom16;
 class CSegIdList;
 class CSegStatementSet;
 class CSkinRules;
-class CSkinnedModel;
 class CSoundPOINode;
 class CStateManager;
 class CTransitionManager;
@@ -251,7 +251,7 @@ public:
 
   s32 GetCharacterIndex() const { return x204_charIdx; }
   u16 GetDefaultAnimation() const { return x208_defaultAnim; }
-  TLockedToken<CMorphableSkinnedModel>& IceModel() { return xe4_iceModelData; }
+  TLockedToken<CMorphableSkinnedModel>& GetIceModel() { return xe4_iceModelData; }
   const TLockedToken<CMorphableSkinnedModel>& GetIceModel() const { return xe4_iceModelData; }
   void SetParticleLightIdx(s32 idx) { x21c_particleLightIdx = idx; }
 

@@ -134,7 +134,7 @@ private:
 
 public:
   CCollisionPrimitive() = default;
-  CCollisionPrimitive(const CMaterialList& list);
+  explicit CCollisionPrimitive(const CMaterialList& list);
   virtual u32 GetTableIndex() const = 0;
   virtual void SetMaterial(const CMaterialList&);
   virtual const CMaterialList& GetMaterial() const;

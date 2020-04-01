@@ -16,7 +16,7 @@ class CStaticInterference {
   std::vector<CStaticInterferenceSource> m_sources;
 
 public:
-  CStaticInterference(int sourceCount);
+  explicit CStaticInterference(int sourceCount);
   void RemoveSource(TUniqueId id);
   void Update(CStateManager&, float dt);
   float GetTotalInterference() const;

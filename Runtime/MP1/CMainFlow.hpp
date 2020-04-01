@@ -14,7 +14,7 @@ public:
   void AdvanceGameState(CArchitectureQueue& queue) override;
   void SetGameState(EClientFlowStates state, CArchitectureQueue& queue) override;
   bool GetIsContinueDraw() const override { return false; }
-  void Draw() const override {}
+  void Draw() override {}
 };
 
 } // namespace MP1

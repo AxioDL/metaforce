@@ -98,7 +98,7 @@ CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
   x20_textpane_menu->TextSupport().SetText(
       g_MainStringTable->GetString(MenuStringIdx[size_t(x4_type)][x8_selectedItem]));
 
-  for (int i = 0; i < 4; ++i) {
+  for (size_t i = 0; i < x28_menuItems.size(); ++i) {
     SMenuItem& item = x28_menuItems[i];
     item.x0_model_loz->SetColor(g_tweakGuiColors->GetVisorBeamMenuLozColor());
     UpdateMenuWidgetTransform(i, *item.x0_model_loz, 1.f);
@@ -107,20 +107,22 @@ CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
   Update(0.f, true);
 }
 
-void CHudVisorBeamMenu::UpdateMenuWidgetTransform(int idx, CGuiWidget& w, float t) {
-  float translate = t * g_tweakGui->GetVisorBeamMenuItemTranslate();
-  float scale =
+void CHudVisorBeamMenu::UpdateMenuWidgetTransform(size_t idx, CGuiWidget& w, float t) {
+  const float translate = t * g_tweakGui->GetVisorBeamMenuItemTranslate();
+  const float scale =
       t * g_tweakGui->GetVisorBeamMenuItemInactiveScale() + (1.f - t) * g_tweakGui->GetVisorBeamMenuItemActiveScale();
   if (x4_type == EHudVisorBeamMenu::Visor) {
-    if (idx == 2)
+    if (idx == 2) {
       idx = 3;
-    else if (idx == 3)
+    } else if (idx == 3) {
       idx = 2;
+    }
   } else {
-    if (idx == 1)
+    if (idx == 1) {
       idx = 2;
-    else if (idx == 2)
+    } else if (idx == 2) {
       idx = 1;
+    }
   }
 
   switch (idx) {
@@ -159,13 +161,13 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
     x20_textpane_menu = static_cast<CGuiTextPane*>(x0_baseHud.FindWidget(TextNames[size_t(swappedType)]));
     x1c_basewidget_menutitle = x0_baseHud.FindWidget(BaseTitleNames[size_t(swappedType)]);
 
-    for (int i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < x28_menuItems.size(); ++i) {
       SMenuItem& item = x28_menuItems[i];
       UpdateMenuWidgetTransform(i, *item.x4_model_icon, item.x8_positioner);
       UpdateMenuWidgetTransform(i, *item.x0_model_loz, 1.f);
     }
 
-    UpdateMenuWidgetTransform(x8_selectedItem, *x24_model_ghost, x28_menuItems[x8_selectedItem].x8_positioner);
+    UpdateMenuWidgetTransform(size_t(x8_selectedItem), *x24_model_ghost, x28_menuItems[x8_selectedItem].x8_positioner);
   }
 
   zeus::CColor activeColor = g_tweakGuiColors->GetVisorBeamMenuItemActive();
@@ -173,24 +175,30 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
   zeus::CColor lozColor = g_tweakGuiColors->GetVisorBeamMenuLozColor();
   std::array<zeus::CColor, 4> tmpColors;
 
-  for (int i = 0; i < 4; ++i) {
+  for (size_t i = 0; i < x28_menuItems.size(); ++i) {
     SMenuItem& item = x28_menuItems[i];
-    if (item.xc_opacity > 0.f)
+    if (item.xc_opacity > 0.f) {
       item.xc_opacity = std::min(item.xc_opacity + dt, 1.f);
+    }
     tmpColors[i] = zeus::CColor::lerp(activeColor, zeus::skClear, item.xc_opacity);
   }
 
   switch (x6c_animPhase) {
   case EAnimPhase::Steady:
-    for (int i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < x28_menuItems.size(); ++i) {
       SMenuItem& item = x28_menuItems[i];
-      zeus::CColor& color0 = (x8_selectedItem == i) ? activeColor : inactiveColor;
-      zeus::CColor& color1 = (x8_selectedItem == i) ? lozColor : inactiveColor;
-      zeus::CColor iconColor = (item.xc_opacity == 0.f) ? zeus::skClear : color0 + tmpColors[i];
-      zeus::CColor lColor = (item.xc_opacity == 0.f) ? lozColor : color1 + tmpColors[i];
+
+      const bool isSelectedItem = x8_selectedItem == int(i);
+      const bool isClear = item.xc_opacity == 0.0f;
+
+      const zeus::CColor& color0 = isSelectedItem ? activeColor : inactiveColor;
+      const zeus::CColor& color1 = isSelectedItem ? lozColor : inactiveColor;
+      const zeus::CColor iconColor = isClear ? zeus::skClear : color0 + tmpColors[i];
+      const zeus::CColor lColor = isClear ? lozColor : color1 + tmpColors[i];
+
       item.x4_model_icon->SetColor(iconColor);
       item.x0_model_loz->SetColor(lColor);
-      item.x8_positioner = (x8_selectedItem == i) ? 0.f : 1.f;
+      item.x8_positioner = isSelectedItem ? 0.f : 1.f;
     }
     x24_model_ghost->SetColor(activeColor);
     break;
@@ -210,20 +218,25 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
     item1.x4_model_icon->SetColor(color);
     item1.x0_model_loz->SetColor(lozColor);
 
-    for (int i = 0; i < 4; ++i)
-      x28_menuItems[i].x8_positioner = (x8_selectedItem == i) ? 1.f - x10_interp : 1.f;
+    for (size_t i = 0; i < x28_menuItems.size(); ++i) {
+      const bool isSelectedItem = x8_selectedItem == int(i);
+      x28_menuItems[i].x8_positioner = isSelectedItem ? 1.f - x10_interp : 1.f;
+    }
 
     x24_model_ghost->SetColor(zeus::CColor::lerp(activeColor, inactiveColor, item1.x8_positioner));
     break;
   }
   case EAnimPhase::Animate:
-    for (int i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < x28_menuItems.size(); ++i) {
       SMenuItem& item = x28_menuItems[i];
-      zeus::CColor& color0 = (x8_selectedItem == i) ? activeColor : inactiveColor;
-      zeus::CColor iconColor = (item.xc_opacity == 0.f) ? zeus::skClear : color0 + tmpColors[i];
+      const bool isSelectedItem = x8_selectedItem == int(i);
+      const bool isClear = item.xc_opacity == 0.f;
+      const zeus::CColor& color0 = isSelectedItem ? activeColor : inactiveColor;
+      const zeus::CColor iconColor = isClear ? zeus::skClear : color0 + tmpColors[i];
+
       item.x4_model_icon->SetColor(iconColor);
-      item.x0_model_loz->SetColor((item.xc_opacity == 0.f || x8_selectedItem == i) ? lozColor : inactiveColor);
-      item.x8_positioner = (x8_selectedItem == i) ? 1.f - x10_interp : 1.f;
+      item.x0_model_loz->SetColor((isClear || isSelectedItem) ? lozColor : inactiveColor);
+      item.x8_positioner = isSelectedItem ? 1.f - x10_interp : 1.f;
     }
     x24_model_ghost->SetColor(
         zeus::CColor::lerp(activeColor, inactiveColor, x28_menuItems[x8_selectedItem].x8_positioner));
@@ -241,11 +254,11 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
 
   if (x14_26_dirty || init) {
     x14_26_dirty = false;
-    for (int i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < x28_menuItems.size(); ++i) {
       SMenuItem& item = x28_menuItems[i];
       UpdateMenuWidgetTransform(i, *item.x4_model_icon, item.x8_positioner);
     }
-    UpdateMenuWidgetTransform(x8_selectedItem, *x24_model_ghost, x28_menuItems[x8_selectedItem].x8_positioner);
+    UpdateMenuWidgetTransform(size_t(x8_selectedItem), *x24_model_ghost, x28_menuItems[x8_selectedItem].x8_positioner);
   }
 
   if (!x14_24_visibleDebug || !x14_25_visibleGame)
@@ -254,8 +267,7 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
   x1c_basewidget_menutitle->SetVisibility(x1c_basewidget_menutitle->GetGeometryColor().a() != 0.f,
                                           ETraversalMode::Children);
 
-  for (int i = 0; i < 4; ++i) {
-    SMenuItem& item = x28_menuItems[i];
+  for (SMenuItem& item : x28_menuItems) {
     item.x4_model_icon->SetIsVisible(item.x4_model_icon->GetGeometryColor().a() != 0.f);
   }
 }
@@ -275,10 +287,11 @@ void CHudVisorBeamMenu::SetIsVisibleGame(bool v) {
 }
 
 void CHudVisorBeamMenu::SetPlayerHas(const rstl::reserved_vector<bool, 4>& enables) {
-  for (int i = 0; i < 4; ++i) {
+  for (size_t i = 0; i < x28_menuItems.size(); ++i) {
     SMenuItem& item = x28_menuItems[i];
-    if (item.xc_opacity == 0.f && enables[i])
+    if (item.xc_opacity == 0.f && enables[i]) {
       item.xc_opacity = FLT_EPSILON;
+    }
   }
 }
 

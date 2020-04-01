@@ -18,7 +18,7 @@ class CFaceplateDecoration {
   std::optional<CTexturedQuadFilter> m_texFilter;
 
 public:
-  CFaceplateDecoration(CStateManager& stateMgr);
+  explicit CFaceplateDecoration(CStateManager& stateMgr);
   void Update(float dt, CStateManager& stateMgr);
   void Draw(CStateManager& stateMgr);
 };

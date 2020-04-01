@@ -12,53 +12,40 @@ class ProjectPath;
 }
 
 namespace DataSpec::DNAParticle {
-template <class IDType>
-struct WPSM : BigDNA {
-  AT_DECL_EXPLICIT_DNA_YAML
-  AT_SUBDECL_DNA
-  VectorElementFactory x0_IORN;
-  VectorElementFactory x4_IVEC;
-  VectorElementFactory x8_PSOV;
-  ModVectorElementFactory xc_PSVM;
-  BoolHelper x10_VMD2;
-  IntElementFactory x14_PSLT;
-  VectorElementFactory x18_PSCL;
-  ColorElementFactory x1c_PCOL;
-  VectorElementFactory x20_POFS;
-  VectorElementFactory x24_OFST;
-  BoolHelper x28_APSO;
-  BoolHelper x29_HOMG;
-  BoolHelper x2a_AP11;
-  BoolHelper x2b_AP21;
-  BoolHelper x2c_AS11;
-  BoolHelper x2d_AS12;
-  BoolHelper x2e_AS13;
-  RealElementFactory x30_TRAT;
-  ChildResourceFactory<IDType> x34_APSM;
-  ChildResourceFactory<IDType> x44_APS2;
-  ChildResourceFactory<IDType> x54_ASW1;
-  ChildResourceFactory<IDType> x64_ASW2;
-  ChildResourceFactory<IDType> x74_ASW3;
-  ChildResourceFactory<IDType> x84_OHEF;
-  ChildResourceFactory<IDType> x94_COLR;
-  BoolHelper xa4_EWTR;
-  BoolHelper xa5_LWTR;
-  BoolHelper xa6_SWTR;
-  uint32_t xa8_PJFX = ~0;
-  RealElementFactory xac_RNGE;
-  RealElementFactory xb0_FOFF;
-  BoolHelper xunk_FC60;
-  BoolHelper xunk_SPS1;
-  BoolHelper xunk_SPS2;
 
-  WPSM() {
-    xa4_EWTR = true;
-    xa5_LWTR = true;
-    xa6_SWTR = true;
+template <class IDType>
+struct _WPSM {
+  static constexpr ParticleType Type = ParticleType::WPSM;
+
+#define INT_ENTRY(name, identifier) IntElementFactory identifier;
+#define U32_ENTRY(name, identifier) uint32_t identifier = ~0;
+#define REAL_ENTRY(name, identifier) RealElementFactory identifier;
+#define VECTOR_ENTRY(name, identifier) VectorElementFactory identifier;
+#define MOD_VECTOR_ENTRY(name, identifier) ModVectorElementFactory identifier;
+#define COLOR_ENTRY(name, identifier) ColorElementFactory identifier;
+#define UV_ENTRY(name, identifier) UVElementFactory<IDType> identifier;
+#define RES_ENTRY(name, identifier) ChildResourceFactory<IDType> identifier;
+#define BOOL_ENTRY(name, identifier, def) bool identifier = def;
+#include "WPSC.def"
+
+  template<typename _Func>
+  void constexpr Enumerate(_Func f) {
+#define ENTRY(name, identifier) f(FOURCC(name), identifier);
+#define BOOL_ENTRY(name, identifier, def) f(FOURCC(name), identifier, def);
+#include "WPSC.def"
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
+  template<typename _Func>
+  bool constexpr Lookup(FourCC fcc, _Func f) {
+    switch (fcc.toUint32()) {
+#define ENTRY(name, identifier) case SBIG(name): f(identifier); return true;
+#include "WPSC.def"
+    default: return false;
+    }
+  }
 };
+template <class IDType>
+using WPSM = PPImpl<_WPSM<IDType>>;
 
 template <class IDType>
 bool ExtractWPSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);

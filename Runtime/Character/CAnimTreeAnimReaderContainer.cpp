@@ -58,15 +58,15 @@ u32 CAnimTreeAnimReaderContainer::VGetSoundPOIList(const CCharAnimTime& time, CS
   return x14_reader->GetSoundPOIList(time, listOut, capacity, iterator, unk);
 }
 
-bool CAnimTreeAnimReaderContainer::VGetBoolPOIState(const char* name) const {
+bool CAnimTreeAnimReaderContainer::VGetBoolPOIState(std::string_view name) const {
   return x14_reader->VGetBoolPOIState(name);
 }
 
-s32 CAnimTreeAnimReaderContainer::VGetInt32POIState(const char* name) const {
-  return x14_reader->VGetBoolPOIState(name);
+s32 CAnimTreeAnimReaderContainer::VGetInt32POIState(std::string_view name) const {
+  return x14_reader->VGetInt32POIState(name);
 }
 
-CParticleData::EParentedMode CAnimTreeAnimReaderContainer::VGetParticlePOIState(const char* name) const {
+CParticleData::EParentedMode CAnimTreeAnimReaderContainer::VGetParticlePOIState(std::string_view name) const {
   return x14_reader->VGetParticlePOIState(name);
 }
 

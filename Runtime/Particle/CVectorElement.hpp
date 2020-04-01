@@ -22,7 +22,7 @@ class CVEKeyframeEmitter : public CVectorElement {
   std::vector<zeus::CVector3f> x18_keys;
 
 public:
-  CVEKeyframeEmitter(CInputStream& in);
+  explicit CVEKeyframeEmitter(CInputStream& in);
   bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
@@ -138,7 +138,7 @@ class CVERealToVector : public CVectorElement {
   std::unique_ptr<CRealElement> x4_a;
 
 public:
-  CVERealToVector(std::unique_ptr<CRealElement>&& a) : x4_a(std::move(a)) {}
+  explicit CVERealToVector(std::unique_ptr<CRealElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
@@ -204,7 +204,7 @@ class CVEColorToVector : public CVectorElement {
   std::unique_ptr<CColorElement> x4_a;
 
 public:
-  CVEColorToVector(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CVEColorToVector(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
 
   bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };

@@ -59,7 +59,7 @@ public:
     float x10_rotAng = 0.f;
     float x14_baseAngle = 0.f;
     float x18_offshootAngleDelta = 0.f;
-    SOuterItemInfo(std::string_view);
+    explicit SOuterItemInfo(std::string_view);
   };
 
 private:
@@ -135,7 +135,7 @@ private:
                         bool zEqual) const;
 
 public:
-  CCompoundTargetReticle(const CStateManager&);
+  explicit CCompoundTargetReticle(const CStateManager&);
 
   void SetLeadingOrientation(const zeus::CQuaternion& o) { x0_leadingOrientation = o; }
   bool CheckLoadComplete() { return true; }
