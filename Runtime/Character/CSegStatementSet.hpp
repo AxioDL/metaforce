@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/Character/CAnimPerSegmentData.hpp"
 #include "Runtime/Character/CSegId.hpp"
 
@@ -11,7 +13,7 @@ class CSegStatementSet {
 private:
   /* Used to be a pointer to arbitrary subclass-provided storage,
    * now it's a self-stored array */
-  CAnimPerSegmentData x4_segData[100];
+  std::array<CAnimPerSegmentData, 100> x4_segData;
 
 public:
   void Add(const CSegIdList& list, const CCharLayoutInfo& layout, const CSegStatementSet& other, float weight);
