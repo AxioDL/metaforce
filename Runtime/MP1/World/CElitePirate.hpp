@@ -123,11 +123,11 @@ private:
   float x7c0_shotAtTimer = 0.f;
   float x7c4_ = 0.f;
   s32 x7c8_currAnimId = -1;
-  s32 x7cc_ = 0;
+  u32 x7cc_activeMaterialSet = 0;
   CPathFindSearch x7d0_pathFindSearch;
   zeus::CVector3f x8b4_;
   SUnknownStruct x8c0_;
-  bool x988_24_ : 1;
+  bool x988_24_damageOn : 1;
   bool x988_25_ : 1;
   bool x988_26_ : 1;
   bool x988_27_shotAt : 1;

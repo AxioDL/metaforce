@@ -87,7 +87,7 @@ CElitePirate::CElitePirate(TUniqueId uid, std::string_view name, const CEntityIn
 , x7a0_initialSpeed(x3b4_speed)
 , x7d0_pathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x8c0_(5.f)
-, x988_24_(false)
+, x988_24_damageOn(false)
 , x988_25_(false)
 , x988_26_(false)
 , x988_27_shotAt(false)
@@ -169,13 +169,13 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
       break;
     }
     const TUniqueId& touchedUid = actor->GetLastTouchedObject();
-    if (touchedUid != GetUniqueId()) {
+    if (touchedUid != mgr.GetPlayer().GetUniqueId()) {
       if (TCastToPtr<CGameProjectile>(mgr.ObjectById(touchedUid))) {
         SetShotAt(true, mgr);
       }
       break;
     }
-    if (x988_31_) {
+    if (!x988_24_damageOn) {
       if (x420_curDamageRemTime <= 0.f) {
         CDamageInfo info = GetContactDamage();
         info.SetDamage(0.5f * info.GetDamage());
@@ -192,7 +192,7 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), GetContactDamage(),
                     CMaterialFilter::MakeInclude({EMaterialTypes::Solid}), zeus::skZero3f);
     x420_curDamageRemTime = x424_damageWaitTime;
-    x988_24_ = false;
+    x988_24_damageOn = false;
     break;
   }
   case EScriptObjectMessage::Registered: {
@@ -262,7 +262,7 @@ void CElitePirate::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
   x6f8_boneTracking.PreRender(mgr, *modelData->GetAnimationData(), GetTransform(), modelData->GetScale(),
                               *x450_bodyController);
   auto numMaterialSets = modelData->GetNumMaterialSets();
-  xb4_drawFlags.x1_matSetIdx = numMaterialSets - 1 < x7cc_ ? numMaterialSets - 1 : x7cc_;
+  xb4_drawFlags.x1_matSetIdx = numMaterialSets - 1 < x7cc_activeMaterialSet ? numMaterialSets - 1 : x7cc_activeMaterialSet;
 }
 
 const CDamageVulnerability* CElitePirate::GetDamageVulnerability() const {
@@ -312,11 +312,11 @@ void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
     break;
   case EUserEventType::DamageOn:
     handled = true;
-    x988_24_ = true;
+    x988_24_damageOn = true;
     break;
   case EUserEventType::DamageOff:
     handled = true;
-    x988_24_ = false;
+    x988_24_damageOn = false;
     break;
   case EUserEventType::ScreenShake:
     sub_802273a8();
@@ -524,7 +524,7 @@ void CElitePirate::Attack(CStateManager& mgr, EStateMsg msg, float) {
     x568_ = EState::Zero;
     ExtendTouchBounds(mgr, x774_collisionRJointIds, zeus::CVector3f(2.f));
     if (x64_modelData->GetNumMaterialSets() > 1) {
-      x7cc_ = 1;
+      x7cc_activeMaterialSet = 1;
     }
   } else if (msg == EStateMsg::Update) {
     if (x568_ == EState::Zero) {
@@ -561,13 +561,13 @@ void CElitePirate::Attack(CStateManager& mgr, EStateMsg msg, float) {
     }
   } else if (msg == EStateMsg::Deactivate) {
     sub_802285c4(mgr);
-    x988_24_ = false;
+    x988_24_damageOn = false;
     x988_26_ = false;
     x988_25_ = false;
     x7c8_currAnimId = -1;
     ExtendTouchBounds(mgr, x774_collisionRJointIds, zeus::skZero3f);
     ExtendTouchBounds(mgr, x788_collisionLJointIds, zeus::skZero3f);
-    x7cc_ = 0;
+    x7cc_activeMaterialSet = 0;
   }
 }
 
