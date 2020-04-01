@@ -14,7 +14,7 @@
 
 namespace urde::MP1 {
 CShockWave::CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
-                       TUniqueId parent, const SShockWaveData& data, float f1, float f2)
+                       TUniqueId parent, const SShockWaveData& data, float minActiveTime, float knockback)
 : CActor(uid, true, name, info, xf, CModelData::CModelDataNull(), {EMaterialTypes::Projectile},
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_id1(parent)
@@ -24,8 +24,8 @@ CShockWave::CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& 
 , x114_data(data)
 , x150_(data.GetX24())
 , x154_(data.GetX2C())
-, x15c_(f1)
-, x160_(f2) {
+, x15c_minActiveTime(minActiveTime)
+, x160_knockback(knockback) {
   if (data.GetWeaponDescId().IsValid()) {
     x974_electricDesc = g_SimplePool->GetObj({SBIG('ELSC'), data.GetWeaponDescId()});
   }
@@ -73,7 +73,7 @@ void CShockWave::Render(const CStateManager& mgr) const {
 void CShockWave::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {
     x110_elementGen->Update(dt);
-    x158_ += dt;
+    x158_activeTime += dt;
     x150_ += x154_ * dt;
     x154_ += dt * x114_data.GetX30();
     x110_elementGen->SetExternalVar(0, x150_);
@@ -92,7 +92,7 @@ void CShockWave::Think(float dt, CStateManager& mgr) {
       x16d_hitPlayer = false;
     }
   }
-  if (x110_elementGen->IsSystemDeletable() && x15c_ > 0.f && x158_ >= x15c_) {
+  if (x110_elementGen->IsSystemDeletable() && x15c_minActiveTime > 0.f && x158_activeTime >= x15c_minActiveTime) {
     mgr.FreeScriptObject(GetUniqueId());
   } else if (x980_id2 != kInvalidUniqueId) {
     if (TCastToPtr<CGameLight> light = mgr.ObjectById(x980_id2)) {
@@ -104,7 +104,7 @@ void CShockWave::Think(float dt, CStateManager& mgr) {
 }
 
 void CShockWave::Touch(CActor& actor, CStateManager& mgr) {
-  if (x158_ >= x15c_) {
+  if (x158_activeTime >= x15c_minActiveTime) {
     return;
   }
 
@@ -120,7 +120,7 @@ void CShockWave::Touch(CActor& actor, CStateManager& mgr) {
   float mmin = mmax * x114_data.GetX28() * x114_data.GetX28();
   zeus::CVector3f dist = actor.GetTranslation() - GetTranslation();
   CDamageInfo damageInfo = xec_damageInfo;
-  float knockBackScale = std::max(0.f, 1.f - x160_ * x158_);
+  float knockBackScale = std::max(0.f, 1.f - x160_knockback * x158_activeTime);
   bool isPlayer = mgr.GetPlayer().GetUniqueId() == actor.GetUniqueId();
   bool isPlayerInAir = isPlayer && mgr.GetPlayer().GetPlayerMovementState() != CPlayer::EPlayerMovementState::OnGround;
   float distXYMag = dist.toVec2f().magSquared();

@@ -98,14 +98,14 @@ private:
     Over = 3,
   };
 
-  EState x568_ = EState::Invalid;
+  EState x568_state = EState::Invalid;
   CDamageVulnerability x56c_vulnerability;
-  std::unique_ptr<CCollisionActorManager> x5d4_collisionActorMgr1;
+  std::unique_ptr<CCollisionActorManager> x5d4_collisionActorMgr;
   CElitePirateData x5d8_data;
   CBoneTracking x6f8_boneTracking;
-  std::unique_ptr<CCollisionActorManager> x730_collisionActorMgr2;
+  std::unique_ptr<CCollisionActorManager> x730_collisionActorMgrHead;
   // s32 x734_;
-  CCollidableAABox x738_;
+  CCollidableAABox x738_collisionAabb;
   std::optional<TLockedToken<CGenDescription>> x760_energyAbsorbDesc;
   TUniqueId x770_collisionHeadId = kInvalidUniqueId;
   TUniqueId x772_launcherId = kInvalidUniqueId;
@@ -113,29 +113,29 @@ private:
   rstl::reserved_vector<TUniqueId, 7> x788_collisionLJointIds;
   TUniqueId x79c_ = kInvalidUniqueId;
   float x7a0_initialSpeed;
-  float x7a4_ = 1.f;
-  float x7a8_ = 0.f;
+  float x7a4_steeringSpeed = 1.f;
+  float x7a8_pathShaggedTime = 0.f;
   float x7ac_energyAbsorbCooldown = 0.f;
   float x7b0_ = 1.f;
   float x7b4_hp = 0.f;
   float x7b8_attackTimer = 0.f;
   float x7bc_tauntTimer = 0.f;
   float x7c0_shotAtTimer = 0.f;
-  float x7c4_ = 0.f;
+  float x7c4_absorbUpdateTimer = 0.f;
   s32 x7c8_currAnimId = -1;
   u32 x7cc_activeMaterialSet = 0;
   CPathFindSearch x7d0_pathFindSearch;
-  zeus::CVector3f x8b4_;
+  zeus::CVector3f x8b4_targetDestPos;
   SUnknownStruct x8c0_;
   bool x988_24_damageOn : 1;
-  bool x988_25_ : 1;
-  bool x988_26_ : 1;
+  bool x988_25_attackingRightClaw : 1;
+  bool x988_26_attackingLeftClaw : 1;
   bool x988_27_shotAt : 1;
   bool x988_28_alert : 1;
-  bool x988_29_ : 1;
-  bool x988_30_ : 1;
-  bool x988_31_ : 1;
-  bool x989_24_ : 1;
+  bool x988_29_shockWaveAnim : 1;
+  bool x988_30_calledForBackup : 1;
+  bool x988_31_running : 1;
+  bool x989_24_onPath : 1;
 
 public:
   DEFINE_PATTERNED(ElitePirate)
@@ -184,16 +184,16 @@ public:
   bool ShouldSpecialAttack(CStateManager& mgr, float arg) override;
   bool ShouldCallForBackup(CStateManager& mgr, float arg) override;
   CPathFindSearch* GetSearchPath() override;
-  virtual bool sub_802273a8() const { return true; }
-  virtual bool sub_802273b0() const { return true; }
+  virtual bool HasWeakPointHead() const { return true; }
+  virtual bool IsElitePirate() const { return true; }
   virtual void SetupHealthInfo(CStateManager& mgr);
-  virtual void sub_802289b0(CStateManager& mgr, bool b);
+  virtual void SetLaunchersActive(CStateManager& mgr, bool val);
   virtual SShockWaveData GetShockWaveData() const {
     return {x5d8_data.GetXF8(), x5d8_data.GetXFC(), x5d8_data.GetX118(), x5d8_data.GetX11C()};
   }
 
 private:
-  void sub_80229248();
+  void SetupPathFindSearch();
   void SetShotAt(bool val, CStateManager& mgr);
   bool IsArmClawCollider(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 7>& vec) const;
   void AddSphereCollisionList(const SSphereJointInfo* joints, size_t count,
@@ -206,19 +206,19 @@ private:
   void CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid);
   void ApplyDamageToHead(CStateManager& mgr, TUniqueId uid);
   void CreateEnergyAbsorb(CStateManager& mgr, const zeus::CTransform& xf);
-  void UpdateHealthInfo(CStateManager& mgr, TUniqueId uid);
-  void sub_80228920(CStateManager& mgr, bool b, TUniqueId uid);
-  zeus::CVector3f sub_80228864(const CActor* actor) const;
-  bool sub_80227430(const CDamageInfo& info) const;
-  void sub_80228634(CStateManager& mgr);
-  void sub_802285c4(CStateManager& mgr);
+  void SetupLauncherHealthInfo(CStateManager& mgr, TUniqueId uid);
+  void SetLauncherActive(CStateManager& mgr, bool val, TUniqueId uid);
+  zeus::CVector3f GetLockOnPosition(const CActor* actor) const;
+  bool CanKnockBack(const CDamageInfo& info) const;
+  void UpdateDestPos(CStateManager& mgr);
+  void CheckAttackChance(CStateManager& mgr);
   void AttractProjectiles(CStateManager& mgr);
-  void sub_802277e0(CStateManager& mgr, float dt);
+  void UpdateAbsorbBodyState(CStateManager& mgr, float dt);
   bool IsAttractingEnergy();
   void UpdateTimers(float dt);
-  void sub_80228798();
+  void UpdatePositionHistory();
   void UpdateActorTransform(CStateManager& mgr, TUniqueId& uid, std::string_view name);
-  void sub_80228e84(CStateManager& mgr);
+  void UpdateHealthInfo(CStateManager& mgr);
   void ExtendTouchBounds(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 7>& uids,
                          const zeus::CVector3f& vec) const;
   bool ShouldFireFromLauncher(CStateManager& mgr, TUniqueId launcherId);

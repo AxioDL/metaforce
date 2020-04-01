@@ -40,9 +40,9 @@ private:
   SShockWaveData x114_data;
   float x150_;
   float x154_;
-  float x158_ = 0.f;
-  float x15c_;
-  float x160_;
+  float x158_activeTime = 0.f;
+  float x15c_minActiveTime;
+  float x160_knockback;
   float x164_timeSinceHitPlayerInAir = 0.f;
   float x168_timeSinceHitPlayer = 0.f;
   bool x16c_hitPlayerInAir = false;
@@ -53,7 +53,7 @@ private:
 
 public:
   CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
-             TUniqueId parent, const SShockWaveData& data, float f1, float f2);
+             TUniqueId parent, const SShockWaveData& data, float minActiveTime, float knockback);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
