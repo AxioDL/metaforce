@@ -69,33 +69,33 @@ static size_t ComputeMippedTexelCount(unsigned inWidth, unsigned inHeight) {
 }
 
 /* GX uses this upsampling technique to extract full 8-bit range */
-constexpr uint8_t Convert3To8(uint8_t v) {
+static constexpr uint8_t Convert3To8(uint8_t v) {
   /* Swizzle bits: 00000123 -> 12312312 */
   return (v << 5) | (v << 2) | (v >> 1);
 }
 
-constexpr uint8_t Convert8To3(uint8_t v) { return v >> 5; }
+static constexpr uint8_t Convert8To3(uint8_t v) { return v >> 5; }
 
-constexpr uint8_t Convert4To8(uint8_t v) {
+static constexpr uint8_t Convert4To8(uint8_t v) {
   /* Swizzle bits: 00001234 -> 12341234 */
   return (v << 4) | v;
 }
 
-constexpr uint8_t Convert8To4(uint8_t v) { return v >> 4; }
+static constexpr uint8_t Convert8To4(uint8_t v) { return v >> 4; }
 
-constexpr uint8_t Convert5To8(uint8_t v) {
+static constexpr uint8_t Convert5To8(uint8_t v) {
   /* Swizzle bits: 00012345 -> 12345123 */
   return (v << 3) | (v >> 2);
 }
 
-constexpr uint8_t Convert8To5(uint8_t v) { return v >> 3; }
+static constexpr uint8_t Convert8To5(uint8_t v) { return v >> 3; }
 
-constexpr uint8_t Convert6To8(uint8_t v) {
+static constexpr uint8_t Convert6To8(uint8_t v) {
   /* Swizzle bits: 00123456 -> 12345612 */
   return (v << 2) | (v >> 4);
 }
 
-constexpr uint8_t Convert8To6(uint8_t v) { return v >> 2; }
+static constexpr uint8_t Convert8To6(uint8_t v) { return v >> 2; }
 
 static uint8_t Lookup4BPP(const uint8_t* texels, int width, int x, int y) {
   const int bwidth = (width + 7) / 8;
