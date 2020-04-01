@@ -13,8 +13,8 @@ CBouncyGrenade::CBouncyGrenade(TUniqueId uid, std::string_view name, const CEnti
                                const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParams,
                                TUniqueId parentId, const SBouncyGrenadeData& data, float velocity,
                                float explodePlayerDistance)
-: CPhysicsActor(uid, true, name, info, xf, std::move(mData), {EMaterialTypes::Projectile, EMaterialTypes::Solid}, {},
-                SMoverData(data.GetUnkStruct().GetMass()), actParams, 0.3f, 0.1f)
+: CPhysicsActor(uid, true, name, info, xf, std::move(mData), {EMaterialTypes::Projectile, EMaterialTypes::Solid},
+                mData.GetBounds(), SMoverData(data.GetUnkStruct().GetMass()), actParams, 0.3f, 0.1f)
 , x258_data(data)
 , x294_numBounces(data.GetNumBounces())
 , x298_parentId(parentId)
