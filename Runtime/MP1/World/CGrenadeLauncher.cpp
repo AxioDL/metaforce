@@ -17,7 +17,7 @@ CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const C
                                    const CActorParameters& actParams, TUniqueId parentId,
                                    const SGrenadeLauncherData& data, float f1)
 : CPhysicsActor(uid, true, name, info, xf, std::move(mData), {EMaterialTypes::Character, EMaterialTypes::Solid}, bounds,
-                {1000.f}, actParams, 0.3f, 0.1f)
+                SMoverData{1000.f}, actParams, 0.3f, 0.1f)
 , x25c_healthInfo(healthInfo)
 , x264_vulnerability(vulnerability)
 , x2cc_parentId(parentId)
@@ -32,7 +32,7 @@ CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const C
   GetModelData()->EnableLooping(true);
   const CPASDatabase& pasDatabase = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();
   for (int i = 0; i < x3c8_animIds.size(); ++i) {
-    const auto result = pasDatabase.FindBestAnimation({22, CPASAnimParm::FromEnum(i)}, -1);
+    const auto result = pasDatabase.FindBestAnimation(CPASAnimParmData{22, CPASAnimParm::FromEnum(i)}, -1);
     x3c8_animIds[i] = result.second;
   }
 }
@@ -285,7 +285,7 @@ void CGrenadeLauncher::sub_80230438() {
 
   constexpr std::array arr = {0, 3};
   const auto& anim = animData->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
-      {5, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(arr[x258_started])}, -1);
+      CPASAnimParmData{5, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(arr[x258_started])}, -1);
   if (anim.first > 0.f) {
     animData->SetAnimation({anim.second, -1, 1.f, true}, false);
     modelData->EnableLooping(true);
@@ -299,7 +299,7 @@ void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
     return;
   }
 
-  const auto& anim = animData->GetCharacterInfo().GetPASDatabase().FindBestAnimation({23}, -1);
+  const auto& anim = animData->GetCharacterInfo().GetPASDatabase().FindBestAnimation(CPASAnimParmData{23}, -1);
   if (anim.first > 0.f) {
     animData->AddAdditiveAnimation(anim.second, 1.f, false, true);
     const zeus::CVector3f& origin =
