@@ -107,10 +107,11 @@ void CSamusHud::InitializeFrameGluePermanent(const CStateManager& mgr) {
     child->SetDepthTest(false);
   x59c_base_textpane_message = static_cast<CGuiTextPane*>(x274_loadedFrmeBaseHud->FindWidget("textpane_message"));
   x5a0_base_model_abutton = static_cast<CGuiModel*>(x274_loadedFrmeBaseHud->FindWidget("model_abutton"));
-  for (int i = 0; i < 4; ++i)
-    x5d8_guiLights[i] = x264_loadedFrmeHelmet->GetFrameLight(i);
+  for (size_t i = 0; i < x5d8_guiLights.size(); ++i) {
+    x5d8_guiLights[i] = x264_loadedFrmeHelmet->GetFrameLight(s32(i));
+  }
   x5d8_guiLights[3]->SetColor(zeus::skBlack);
-  for (int i = 0; i < 4; ++i) {
+  for (size_t i = 0; i < x5a4_videoBands.size(); ++i) {
     SVideoBand& band = x5a4_videoBands[i];
     band.x0_videoband =
         static_cast<CGuiModel*>(x274_loadedFrmeBaseHud->FindWidget(fmt::format(fmt("model_videoband{}"), i)));
@@ -497,9 +498,11 @@ void CSamusHud::UpdateMissile(float dt, const CStateManager& mgr, bool init) {
 }
 
 void CSamusHud::UpdateVideoBands(float dt, const CStateManager& mgr) {
-  for (int i = 0; i < 4; ++i)
-    if (x5a4_videoBands[i].x0_videoband)
-      x5a4_videoBands[i].x0_videoband->SetIsVisible(false);
+  for (auto& videoBand : x5a4_videoBands) {
+    if (videoBand.x0_videoband) {
+      videoBand.x0_videoband->SetIsVisible(false);
+    }
+  }
 }
 
 void CSamusHud::UpdateBallMode(const CStateManager& mgr, bool init) {
@@ -710,9 +713,11 @@ bool CSamusHud::IsAreaLightInCachedLights(const CLight& light) const {
 }
 
 int CSamusHud::FindEmptyHudLightSlot(const CLight& light) const {
-  for (int i = 0; i < 3; ++i)
-    if (x340_hudLights[i].x1c_fader == 0.f)
-      return i;
+  for (size_t i = 0; i < x340_hudLights.size(); ++i) {
+    if (x340_hudLights[i].x1c_fader == 0.f) {
+      return int(i);
+    }
+  }
   return -1;
 }
 
@@ -792,7 +797,7 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr) {
     auto lightIt = x5d8_guiLights.begin();
     float maxIntensity = 0.f;
     int maxIntensityIdx = 0;
-    for (int i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < x340_hudLights.size(); ++i) {
       SCachedHudLight& light = x340_hudLights[i];
       CGuiLight* lightWidget = *lightIt++;
       zeus::CVector3f lightToCam = fpCam->GetTranslation() - light.x0_pos;
@@ -811,7 +816,7 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr) {
           fadedFalloff * zeus::skForward.dot(-lightNormal) * lightAdd.rgbDot(zeus::CColor(0.3f, 0.6f, 0.1f));
       if (greyscale > maxIntensity) {
         maxIntensity = greyscale;
-        maxIntensityIdx = i;
+        maxIntensityIdx = int(i);
       }
     }
 
@@ -953,9 +958,9 @@ void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr, DataSpec::IT
     float rotAng = rotMul * (2.f * M_PIF / 10.f);
     x44c_hudLagShakeRot.rotateX(rand() / float(RAND_MAX) * rotAng);
     x44c_hudLagShakeRot.rotateZ(rand() / float(RAND_MAX) * rotAng);
-    zeus::CVector3f vecs[] = {zeus::skRight, zeus::skForward, zeus::skUp};
+    std::array<zeus::CVector3f, 3> vecs{zeus::skRight, zeus::skForward, zeus::skUp};
     for (int i = 0; i < 4; ++i) {
-      int sel = rand() % 9;
+      const int sel = rand() % 9;
       vecs[sel % 3][sel / 3] += (rand() / float(RAND_MAX) - dt) * rotMul;
     }
     x428_decoShakeRotate = zeus::CMatrix3f(vecs[0], vecs[1], vecs[2]).transposed();
@@ -1169,9 +1174,9 @@ void CSamusHud::Update(float dt, const CStateManager& mgr, CInGameGuiManager::EH
 
   UpdateEnergyLow(dt, mgr);
 
-  for (int i = 0; i < 15; ++i) {
-    x7ac_[i].x0_ = 0;
-    x7ac_[i].x4_ = 0;
+  for (auto& entry : x7ac_) {
+    entry.x0_ = 0;
+    entry.x4_ = 0;
   }
 
   if (x2ac_radarIntf)
