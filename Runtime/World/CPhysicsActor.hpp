@@ -161,6 +161,7 @@ public:
   void SetMomentumWR(const zeus::CVector3f& momentum) { x150_momentum = momentum; }
   const zeus::CVector3f& GetConstantForce() const { return xfc_constantForce; }
   void SetConstantForce(const zeus::CVector3f& force) { xfc_constantForce = force; }
+  const zeus::CVector3f& GetAngularMomentum() const { return x108_angularMomentum; }
   void SetAngularMomentum(const zeus::CAxisAngle& momentum) { x108_angularMomentum = momentum; }
   const zeus::CVector3f& GetMomentum() const { return x150_momentum; }
   const zeus::CVector3f& GetVelocity() const { return x138_velocity; }

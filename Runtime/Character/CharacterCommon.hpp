@@ -68,7 +68,7 @@ enum class EFallState { Invalid = -1, Zero, One , Two};
 
 enum class EReactionType { Invalid = -1, Zero, One, Two, Three };
 
-enum class EAdditiveReactionType { Invalid = -1, Electrocution, One, Two, IceBreakout };
+enum class EAdditiveReactionType { Invalid = -1, Electrocution, One, Two, IceBreakout, Four, Five, Six, Seven };
 
 enum class EJumpType { Normal, One, Ambush };
 
@@ -96,7 +96,7 @@ enum class ELoopState { Invalid = -1, Begin, Loop, End };
 
 enum class ELoopAttackType { Invalid = -1 };
 
-enum class EGenerateType { Invalid = -1, Zero, One, Two, Three, Four };
+enum class EGenerateType { Invalid = -1, Zero, One, Two, Three, Four, Five };
 
 enum class ESlideType { Invalid = -1, Zero = 0 };
 

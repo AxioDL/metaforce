@@ -134,7 +134,7 @@ protected:
       bool x328_28_prevOnGround : 1;
       bool x328_29_noPatternShagging : 1;
       bool x328_30_lookAtDeathDir : 1;
-      bool x328_31_ : 1;
+      bool x328_31_energyAttractor : 1;
       bool x329_24_ : 1;
     };
     u32 _dummy = 0;
@@ -367,6 +367,7 @@ public:
   }
   float GetDamageDuration() const { return x504_damageDur; }
   zeus::CVector3f GetGunEyePos() const;
+  bool IsEnergyAttractor() const { return x328_31_energyAttractor; }
   bool IsAlive() const { return x400_25_alive; }
 
   void BuildBodyController(EBodyType);

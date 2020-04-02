@@ -1,42 +1,47 @@
 set(MP1_WORLD_SOURCES
-    CNewIntroBoss.hpp CNewIntroBoss.cpp
-    CBeetle.hpp CBeetle.cpp
-    CWarWasp.hpp CWarWasp.cpp
-    CElitePirate.hpp CElitePirate.cpp
-    CBloodFlower.hpp CBloodFlower.cpp
-    CChozoGhost.hpp CChozoGhost.cpp
-    CSpacePirate.hpp CSpacePirate.cpp
-    CParasite.hpp CParasite.cpp
-    CBabygoth.hpp CBabygoth.cpp
-    CTryclops.hpp CTryclops.cpp
-    CFireFlea.hpp CFireFlea.cpp
-    CEnergyBall.hpp CEnergyBall.cpp
-    CEyeball.hpp CEyeball.cpp
+    CActorContraption.hpp CActorContraption.cpp
     CAtomicAlpha.hpp CAtomicAlpha.cpp
     CAtomicBeta.hpp CAtomicBeta.cpp
+    CBabygoth.hpp CBabygoth.cpp
+    CBeetle.hpp CBeetle.cpp
+    CBloodFlower.hpp CBloodFlower.cpp
+    CBouncyGrenade.hpp CBouncyGrenade.cpp
+    CBurrower.hpp CBurrower.cpp
+    CChozoGhost.hpp CChozoGhost.cpp
+    CElitePirate.hpp CElitePirate.cpp
+    CEnergyBall.hpp CEnergyBall.cpp
+    CEyeball.hpp CEyeball.cpp
+    CFireFlea.hpp CFireFlea.cpp
+    CFlaahgra.hpp CFlaahgra.cpp
+    CFlaahgraProjectile.hpp CFlaahgraProjectile.cpp
+    CFlaahgraTentacle.hpp CFlaahgraTentacle.cpp
     CFlickerBat.hpp CFlickerBat.cpp
-    CJellyZap.hpp CJellyZap.cpp
     CFlyingPirate.hpp CFlyingPirate.cpp
-    CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
+    CGrenadeLauncher.hpp CGrenadeLauncher.cpp
+    CJellyZap.hpp CJellyZap.cpp
+    CMagdolite.hpp CMagdolite.cpp
+    CMetaree.hpp CMetaree.cpp
+    CMetroid.hpp CMetroid.cpp
+    CMetroidBeta.hpp CMetroidBeta.cpp
     CMetroidPrimeExo.hpp CMetroidPrimeExo.cpp
     CMetroidPrimeProjectile.hpp CMetroidPrimeProjectile.cpp
-    CActorContraption.hpp CActorContraption.cpp
-    CThardusRockProjectile.hpp CThardusRockProjectile.cpp
-    CMetroidBeta.hpp CMetroidBeta.cpp
-    CMetroid.hpp CMetroid.cpp
-    CMetaree.hpp CMetaree.cpp
-    CBurrower.hpp CBurrower.cpp
-    CPuffer.hpp CPuffer.cpp
-    CMagdolite.hpp CMagdolite.cpp
-    CSeedling.hpp CSeedling.cpp
-    CRidley.hpp CRidley.cpp
-    CPuddleToadGamma.hpp CPuddleToadGamma.cpp
-    CFlaahgra.hpp CFlaahgra.cpp
-    CFlaahgraTentacle.hpp CFlaahgraTentacle.cpp
-    CFlaahgraProjectile.hpp CFlaahgraProjectile.cpp
-    CSpankWeed.hpp CSpankWeed.cpp
+    CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
+    CNewIntroBoss.hpp CNewIntroBoss.cpp
+    COmegaPirate.hpp COmegaPirate.cpp
+    CParasite.hpp CParasite.cpp
     CPuddleSpore.hpp CPuddleSpore.cpp
+    CPuddleToadGamma.hpp CPuddleToadGamma.cpp
+    CPuffer.hpp CPuffer.cpp
+    CRidley.hpp CRidley.cpp
     CRipper.hpp CRipper.cpp
-    CThardus.hpp CThardus.cpp)
+    CSeedling.hpp CSeedling.cpp
+    CShockWave.hpp CShockWave.cpp
+    CSpacePirate.hpp CSpacePirate.cpp
+    CSpankWeed.hpp CSpankWeed.cpp
+    CThardus.hpp CThardus.cpp
+    CThardusRockProjectile.hpp CThardusRockProjectile.cpp
+    CTryclops.hpp CTryclops.cpp
+    CWarWasp.hpp CWarWasp.cpp
+)
 
 runtime_add_list(World MP1_WORLD_SOURCES)
