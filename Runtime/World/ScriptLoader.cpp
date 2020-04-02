@@ -3645,7 +3645,6 @@ CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int
     return nullptr;
   }
 
-#if 0
   SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
   if (!pair.first) {
@@ -3665,9 +3664,6 @@ CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int
 
   return new MP1::COmegaPirate(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform, std::move(mData),
                                pInfo, actParms, elitePirateData, CAssetId(in), CAssetId(in), CAssetId(in));
-#else
-  return nullptr;
-#endif
 }
 
 CEntity* ScriptLoader::LoadPhazonPool(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

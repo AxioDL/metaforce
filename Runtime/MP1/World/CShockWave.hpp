@@ -12,14 +12,14 @@ private:
   CDamageInfo x8_damageInfo;
   float x24_ = 0.f;
   float x28_ = 0.5f;
-  float x2c_ = 16.5217f;
+  float x2c_;
   float x30_ = 0.f;
   CAssetId x34_weaponDesc;
   u16 x38_electrocuteSfx;
 
 public:
-  SShockWaveData(CAssetId part, const CDamageInfo& dInfo, CAssetId weapon, u16 sfx)
-  : x4_particleDesc(part), x8_damageInfo(dInfo), x34_weaponDesc(weapon), x38_electrocuteSfx(sfx) {}
+  SShockWaveData(CAssetId part, const CDamageInfo& dInfo, float x2c, CAssetId weapon, u16 sfx)
+  : x4_particleDesc(part), x8_damageInfo(dInfo), x2c_(x2c), x34_weaponDesc(weapon), x38_electrocuteSfx(sfx) {}
 
   [[nodiscard]] CAssetId GetParticleDescId() const { return x4_particleDesc; }
   [[nodiscard]] const CDamageInfo& GetDamageInfo() const { return x8_damageInfo; }

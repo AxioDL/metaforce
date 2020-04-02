@@ -77,6 +77,15 @@ public:
 };
 
 class CElitePirate : public CPatterned {
+protected:
+  enum class EState {
+    Invalid = -1,
+    Zero = 0,
+    One = 1,
+    Two = 2,
+    Over = 3,
+  };
+
 private:
   struct SUnknownStruct {
   private:
@@ -88,14 +97,6 @@ private:
     zeus::CVector3f GetValue(const zeus::CVector3f& v1, const zeus::CVector3f& v2);
     void AddValue(const zeus::CVector3f& vec);
     void Clear() { x4_.clear(); }
-  };
-
-  enum class EState {
-    Invalid = -1,
-    Zero = 0,
-    One = 1,
-    Two = 2,
-    Over = 3,
   };
 
   EState x568_state = EState::Invalid;
@@ -189,10 +190,10 @@ public:
   virtual void SetupHealthInfo(CStateManager& mgr);
   virtual void SetLaunchersActive(CStateManager& mgr, bool val);
   virtual SShockWaveData GetShockWaveData() const {
-    return {x5d8_data.GetXF8(), x5d8_data.GetXFC(), x5d8_data.GetX118(), x5d8_data.GetX11C()};
+    return {x5d8_data.GetXF8(), x5d8_data.GetXFC(), 16.5217f, x5d8_data.GetX118(), x5d8_data.GetX11C()};
   }
 
-private:
+protected:
   void SetupPathFindSearch();
   void SetShotAt(bool val, CStateManager& mgr);
   bool IsArmClawCollider(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 7>& vec) const;
@@ -226,5 +227,9 @@ private:
   bool ShouldCallForBackupFromLauncher(const CStateManager& mgr, TUniqueId uid) const;
   bool IsClosestEnergyAttractor(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 1024>& charNearList,
                                 const zeus::CVector3f& projectilePos) const;
+
+  const CElitePirateData& GetData() const { return x5d8_data; }
+  EState GetState() const { return x568_state; }
+  void SetState(EState state) { x568_state = state; }
 };
-} // namespace urde
+} // namespace urde::MP1
