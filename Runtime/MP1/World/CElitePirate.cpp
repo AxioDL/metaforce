@@ -1190,7 +1190,7 @@ bool CElitePirate::IsClosestEnergyAttractor(const CStateManager& mgr,
 
 zeus::CVector3f CElitePirate::SUnknownStruct::GetValue(const zeus::CVector3f& v1, const zeus::CVector3f& v2) {
   while (!x4_.empty()) {
-    const zeus::CVector3f v = x4_[x4_.size() - 1] - v1;
+    const zeus::CVector3f v = x4_.back() - v1;
     if (v.dot(v2) > 0.f && v.isMagnitudeSafe()) {
       return v.normalized();
     }
@@ -1207,7 +1207,7 @@ void CElitePirate::SUnknownStruct::AddValue(const zeus::CVector3f& vec) {
     x4_.emplace_back(vec);
     return;
   }
-  if (x4_[x4_.size() - 1].magSquared() > x0_) {
+  if (x4_.back().magSquared() > x0_) {
     x4_.emplace_back(vec);
   }
 }
