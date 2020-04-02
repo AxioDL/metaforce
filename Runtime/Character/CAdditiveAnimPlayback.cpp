@@ -18,7 +18,7 @@ void CAdditiveAnimPlayback::AddToSegStatementSet(const CSegIdList& list, const C
   CSegStatementSet stackSet;
   x8_anim->VGetSegStatementSet(list, stackSet);
   for (const CSegId& id : list.GetList()) {
-    CAnimPerSegmentData& data = stackSet.x4_segData[id];
+    CAnimPerSegmentData& data = stackSet[id];
     data.x10_offset = layout.GetFromParentUnrotated(id);
     data.x1c_hasOffset = true;
   }

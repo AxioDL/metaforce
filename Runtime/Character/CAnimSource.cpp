@@ -133,7 +133,7 @@ void CAnimSource::GetSegStatementSet(const CSegIdList& list, CSegStatementSet& s
 
       zeus::CQuaternion quatA(frameDataA[0], frameDataA[1], frameDataA[2], frameDataA[3]);
       zeus::CQuaternion quatB(frameDataB[0], frameDataB[1], frameDataB[2], frameDataB[3]);
-      set.x4_segData[id].x0_rotation = zeus::CQuaternion::slerp(quatA, quatB, t);
+      set[id].x0_rotation = zeus::CQuaternion::slerp(quatA, quatB, t);
 
       u8 transIdx = x30_translationChannels[rotIdx];
       if (transIdx != 0xff) {
@@ -142,8 +142,8 @@ void CAnimSource::GetSegStatementSet(const CSegIdList& list, CSegStatementSet& s
             &x40_data.x0_storage[(frameIdx - 1) * floatsPerFrame + rotFloatsPerFrame + transIdx * 3];
         zeus::CVector3f vecA(frameDataA[0], frameDataA[1], frameDataA[2]);
         zeus::CVector3f vecB(frameDataB[0], frameDataB[1], frameDataB[2]);
-        set.x4_segData[id].x10_offset = zeus::CVector3f::lerp(vecA, vecB, t);
-        set.x4_segData[id].x1c_hasOffset = true;
+        set[id].x10_offset = zeus::CVector3f::lerp(vecA, vecB, t);
+        set[id].x1c_hasOffset = true;
       }
     }
   }
