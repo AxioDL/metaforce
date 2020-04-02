@@ -301,7 +301,7 @@ CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
 , xb94_(zeus::CTransform::RotateX(zeus::degToRad(-40.f)))
 , xc14_(x568_data.xac_, x568_data.xb0_)
 , xc3c_(x568_data.x1a0_, x568_data.x1a4_)
-, xc8c_(GetContactDamage())
+, xc8c_(CPatterned::GetContactDamage())
 , xcd0_(g_SimplePool->GetObj({SBIG('ELSC'), x568_data.x3f0_}))
 , xce0_(std::make_unique<CParticleElectric>(xcd0_))
 , xd10_(std::make_unique<CProjectedShadow>(128, 128, true)) {
