@@ -243,7 +243,7 @@ std::optional<zeus::CVector3f> CCollisionActorManager::GetDeviation(const CState
     }
   }
 
-  return {};
+  return std::nullopt;
 }
 
 } // namespace urde
