@@ -1,5 +1,7 @@
 #include "Runtime/World/CPlayerEnergyDrain.hpp"
 
+#include <numeric>
+
 #include "Runtime/CStateManager.hpp"
 
 namespace urde {
@@ -16,12 +18,8 @@ void CPlayerEnergyDrain::RemoveEnergyDrainSource(TUniqueId id) {
 }
 
 float CPlayerEnergyDrain::GetEnergyDrainIntensity() const {
-  float intensity = 0.f;
-
-  for (const CEnergyDrainSource& src : x0_sources)
-    intensity += src.GetEnergyDrainIntensity();
-
-  return intensity;
+  return std::accumulate(x0_sources.cbegin(), x0_sources.cend(), 0.0f,
+                         [](float value, const auto& src) { return value + src.GetEnergyDrainIntensity(); });
 }
 
 void CPlayerEnergyDrain::ProcessEnergyDrain(const CStateManager& mgr, float dt) {
