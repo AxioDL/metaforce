@@ -303,8 +303,8 @@ CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
 , xc3c_(x568_data.x1a0_, x568_data.x1a4_)
 , xc8c_(GetContactDamage())
 , xcd0_(g_SimplePool->GetObj({SBIG('ELSC'), x568_data.x3f0_}))
-, xce0_(new CParticleElectric(xcd0_))
-, xd10_(new CProjectedShadow(128, 128, true)) {
+, xce0_(std::make_unique<CParticleElectric>(xcd0_))
+, xd10_(std::make_unique<CProjectedShadow>(128, 128, true)) {
   xe7_30_doTargetDistanceTest = true;
   xb68_.Token().Lock();
   xc14_.Token().Lock();
