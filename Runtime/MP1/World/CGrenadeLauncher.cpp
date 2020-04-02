@@ -38,7 +38,7 @@ CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const C
 }
 
 zeus::CVector3f CGrenadeLauncher::GrenadeTarget(const CStateManager& mgr) {
-  const zeus::CVector3f& aim = mgr.GetPlayer().GetAimPosition(mgr, 1.f);
+  const zeus::CVector3f aim = mgr.GetPlayer().GetAimPosition(mgr, 1.f);
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed) {
     return aim - zeus::CVector3f{0.f, 0.f, 0.5f * mgr.GetPlayer().GetEyeHeight()};
   }
