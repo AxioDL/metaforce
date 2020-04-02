@@ -194,8 +194,23 @@ public:
   }
 
 protected:
-  void SetupPathFindSearch();
   void SetShotAt(bool val, CStateManager& mgr);
+  void CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid);
+  zeus::CVector3f GetLockOnPosition(const CActor* actor) const;
+  bool ShouldFireFromLauncher(CStateManager& mgr, TUniqueId launcherId);
+  bool ShouldCallForBackupFromLauncher(const CStateManager& mgr, TUniqueId uid) const;
+  void SetupLauncherHealthInfo(CStateManager& mgr, TUniqueId uid);
+  void SetLauncherActive(CStateManager& mgr, bool val, TUniqueId uid);
+  void SetupPathFindSearch();
+  void UpdateActorTransform(CStateManager& mgr, TUniqueId& uid, std::string_view name);
+
+  const CElitePirateData& GetData() const { return x5d8_data; }
+  EState GetState() const { return x568_state; }
+  void SetState(EState state) { x568_state = state; }
+  TUniqueId GetLauncherId() const { return x772_launcherId; }
+  void SetAlert(bool val) { x988_28_alert = val; }
+
+private:
   bool IsArmClawCollider(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 7>& vec) const;
   void AddSphereCollisionList(const SSphereJointInfo* joints, size_t count,
                               std::vector<CJointCollisionDescription>& outJoints) const;
@@ -205,12 +220,8 @@ protected:
   void SetupCollisionActorInfo(CStateManager& mgr);
   bool IsArmClawCollider(std::string_view name, std::string_view locator, const SJointInfo* info,
                          size_t infoCount) const;
-  void CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid);
   void ApplyDamageToHead(CStateManager& mgr, TUniqueId uid);
   void CreateEnergyAbsorb(CStateManager& mgr, const zeus::CTransform& xf);
-  void SetupLauncherHealthInfo(CStateManager& mgr, TUniqueId uid);
-  void SetLauncherActive(CStateManager& mgr, bool val, TUniqueId uid);
-  zeus::CVector3f GetLockOnPosition(const CActor* actor) const;
   bool CanKnockBack(const CDamageInfo& info) const;
   void UpdateDestPos(CStateManager& mgr);
   void CheckAttackChance(CStateManager& mgr);
@@ -219,17 +230,10 @@ protected:
   bool IsAttractingEnergy() const;
   void UpdateTimers(float dt);
   void UpdatePositionHistory();
-  void UpdateActorTransform(CStateManager& mgr, TUniqueId& uid, std::string_view name);
   void UpdateHealthInfo(CStateManager& mgr);
   void ExtendTouchBounds(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 7>& uids,
                          const zeus::CVector3f& vec) const;
-  bool ShouldFireFromLauncher(CStateManager& mgr, TUniqueId launcherId);
-  bool ShouldCallForBackupFromLauncher(const CStateManager& mgr, TUniqueId uid) const;
   bool IsClosestEnergyAttractor(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 1024>& charNearList,
                                 const zeus::CVector3f& projectilePos) const;
-
-  const CElitePirateData& GetData() const { return x5d8_data; }
-  EState GetState() const { return x568_state; }
-  void SetState(EState state) { x568_state = state; }
 };
 } // namespace urde::MP1

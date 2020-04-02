@@ -189,6 +189,7 @@ public:
   float GetAverageAnimVelocity(int anim) const;
   u8 GetTargetableVisorFlags() const { return xe6_31_targetableVisorFlags; }
   bool GetIsTargetable() const { return xe7_31_targetable; }
+  const CModelFlags& GetDrawFlags() const { return xb4_drawFlags; }
   void SetDrawFlags(const CModelFlags& flags) { xb4_drawFlags = flags; }
   void SetModelData(std::unique_ptr<CModelData>&& mData);
   u8 GetFluidCounter() const { return xe6_24_fluidCounter; }

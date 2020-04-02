@@ -374,6 +374,7 @@ public:
   const CBodyController* GetBodyController() const { return x450_bodyController.get(); }
   CBodyController* GetBodyController() { return x450_bodyController.get(); }
   const CKnockBackController& GetKnockBackController() const { return x460_knockBackController; }
+  CKnockBackController& GetKnockBackController() { return x460_knockBackController; }
   void SetupPlayerCollision(bool);
   CGameProjectile* LaunchProjectile(const zeus::CTransform& gunXf, CStateManager& mgr, int maxAllowed,
                                     EProjectileAttrib attrib, bool playerHoming,

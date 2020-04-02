@@ -4,12 +4,38 @@
 #include "Runtime/Collision/CCollisionActorManager.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptEffect.hpp"
+#include "Runtime/World/CScriptPlatform.hpp"
+#include "Runtime/World/CScriptSound.hpp"
+#include "Runtime/World/CScriptWaypoint.hpp"
 #include "Runtime/World/CWorld.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
+namespace {
+constexpr std::array<SSphereJointInfo, 1> skSphereJoints{{
+    {"lockon_target_LCTR", 1.f},
+}};
+
+constexpr std::array<SOBBJointInfo, 11> skObbJoints{{
+    {"Spine_2", "Collar", zeus::skOne3f},
+    {"R_toe_1", "R_ankle", zeus::skOne3f},
+    {"L_toe_1", "L_ankle", zeus::skOne3f},
+    {"R_knee", "R_ankle", zeus::skOne3f},
+    {"L_knee", "L_ankle", zeus::skOne3f},
+    {"R_elbow", "R_wrist", zeus::skOne3f},
+    {"L_elbow", "L_wrist", zeus::skOne3f},
+    {"R_wrist", "R_index_1", zeus::skOne3f},
+    {"L_wrist", "L_index_1", zeus::skOne3f},
+    {"R_index_1", "R_index_3_SDK", zeus::CVector3f{2.f}},
+    {"L_index_1", "L_index_3_SDK", zeus::CVector3f{2.f}},
+}};
+} // namespace
+
 COmegaPirate::CFlash::CFlash(TUniqueId uid, const CEntityInfo& info, const zeus::CVector3f& pos,
                              TToken<CTexture>& thermalSpot, float p5)
 : CActor(uid, true, "Omega Pirate Flash", info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(), {},
@@ -26,10 +52,10 @@ COmegaPirate::COmegaPirate(TUniqueId uid, std::string_view name, const CEntityIn
 , x9d0_(GetModelData()->GetScale())
 , x9f0_(*g_SimplePool, w1, w2, w3, 0, 0)
 , xb70_thermalSpot(g_SimplePool->GetObj("Thermal_Spot_2"sv)) {
-  x9a4_.reserve(3);
-  x9b8_.reserve(24);
-  x9dc_.reserve(4);
-  xaa0_.reserve(4);
+  x9a4_scriptWaypointPlatforms.reserve(3);
+  x9b8_scriptEffects.reserve(24);
+  x9dc_scriptPlatforms.reserve(4);
+  xaa0_scriptSounds.reserve(4);
   xab4_.reserve(3);
   xb7c_.resize(4, 0);
 
@@ -44,8 +70,171 @@ COmegaPirate::COmegaPirate(TUniqueId uid, std::string_view name, const CEntityIn
 }
 
 void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
-  CElitePirate::AcceptScriptMsg(msg, uid, mgr);
-  // TODO
+  switch (msg) {
+  default:
+    CElitePirate::AcceptScriptMsg(msg, uid, mgr);
+    break;
+  case EScriptObjectMessage::Activate:
+    CElitePirate::AcceptScriptMsg(msg, uid, mgr);
+    xa38_collisionActorMgr1->SetActive(mgr, true);
+    xa9c_collisionActorMgr2->SetActive(mgr, true);
+    GetKnockBackController().SetAutoResetImpulse(false);
+    if (auto* entity = mgr.ObjectById(x990_launcherId2)) {
+      entity->SetActive(true);
+    }
+    break;
+  case EScriptObjectMessage::Deactivate:
+    CElitePirate::AcceptScriptMsg(msg, uid, mgr);
+    xa38_collisionActorMgr1->SetActive(mgr, false);
+    xa9c_collisionActorMgr2->SetActive(mgr, false);
+    if (auto* entity = mgr.ObjectById(x990_launcherId2)) {
+      entity->SetActive(false);
+    }
+    break;
+  case EScriptObjectMessage::Decrement:
+    x9ec_ = true;
+    break;
+  case EScriptObjectMessage::Increment:
+    SetShotAt(true, mgr);
+    break;
+  case EScriptObjectMessage::Open:
+    xb7c_[3] -= xb7c_[3] == 0 ? 0 : 1;
+    break;
+  case EScriptObjectMessage::Reset:
+    xb78_ = true;
+    break;
+  case EScriptObjectMessage::SetToMax:
+    xa3c_hearPlayer = true;
+    break;
+  case EScriptObjectMessage::SetToZero:
+    xb7c_[2] -= xb7c_[2] == 0 ? 0 : 1;
+    break;
+  case EScriptObjectMessage::Start:
+    x3b4_speed = 1.f;
+    ++xade_;
+    if (xade_ < 4) {
+      GetBodyController()->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(zeus::skLeft, pas::ESeverity::One));
+    }
+    break;
+  case EScriptObjectMessage::Stop:
+    SetupCollisionManager(mgr);
+    break;
+  case EScriptObjectMessage::StopAndReset:
+    xb7c_[1] -= xb7c_[1] == 0 ? 0 : 1;
+    break;
+  case EScriptObjectMessage::UNKM18:
+    xb7c_[0] -= xb7c_[0] == 0 ? 0 : 1;
+    break;
+  case EScriptObjectMessage::Action:
+    x3b4_speed = 1.f;
+    ++xade_;
+    if (xade_ < 4) {
+      GetBodyController()->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(zeus::skRight, pas::ESeverity::One));
+    }
+    break;
+  case EScriptObjectMessage::Alert:
+    CElitePirate::AcceptScriptMsg(msg, uid, mgr);
+    break;
+  case EScriptObjectMessage::Touched:
+    CElitePirate::AcceptScriptMsg(msg, uid, mgr);
+    if (uid == x990_launcherId2 && x990_launcherId2 != kInvalidUniqueId) {
+      SetShotAt(true, mgr);
+    }
+    if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {
+      if (TCastToPtr<CPlayer> player = mgr.ObjectById(actor->GetLastTouchedObject())) {
+        if (x420_curDamageRemTime <= 0.f) {
+          mgr.ApplyDamage(GetUniqueId(), player->GetUniqueId(), GetUniqueId(), GetContactDamage(),
+                          CMaterialFilter::MakeInclude({EMaterialTypes::Solid}), zeus::skZero3f);
+          x420_curDamageRemTime = x424_damageWaitTime;
+        }
+      }
+    }
+    break;
+  case EScriptObjectMessage::Registered:
+    CElitePirate::AcceptScriptMsg(msg, uid, mgr);
+    x990_launcherId2 = mgr.AllocateUniqueId();
+    CreateGrenadeLauncher(mgr, x990_launcherId2);
+    SetupCollisionManager(mgr);
+    GetBodyController()->SetLocomotionType(pas::ELocomotionType::Internal8);
+    x402_27_noXrayModel = false;
+    xa4c_initialXf = x34_transform;
+    xa98_maxEnergy = HealthInfo(mgr)->GetHP();
+    if (auto* actor = static_cast<CActor*>(mgr.ObjectById(GetLauncherId()))) {
+      actor->RemoveMaterial(EMaterialTypes::Scannable, mgr);
+    }
+    if (auto* actor = static_cast<CActor*>(mgr.ObjectById(x990_launcherId2))) {
+      actor->RemoveMaterial(EMaterialTypes::Scannable, mgr);
+    }
+    GetKnockBackController().SetAutoResetImpulse(false);
+    SetupPathFindSearch();
+    break;
+  case EScriptObjectMessage::Deleted:
+    CElitePirate::AcceptScriptMsg(msg, uid, mgr);
+    xa38_collisionActorMgr1->Destroy(mgr);
+    xa9c_collisionActorMgr2->Destroy(mgr);
+    mgr.FreeScriptObject(x990_launcherId2);
+    break;
+  case EScriptObjectMessage::InitializedInArea:
+    CElitePirate::AcceptScriptMsg(msg, uid, mgr);
+
+    for (const SConnection& conn : GetConnectionList()) {
+      TUniqueId connId = mgr.GetIdForScript(conn.x8_objId);
+      if (connId == kInvalidUniqueId || conn.x0_state != EScriptObjectState::Attack) {
+        continue;
+      }
+
+      if (conn.x4_msg == EScriptObjectMessage::Activate) {
+        if (TCastToPtr<CScriptEffect> effect = mgr.ObjectById(connId)) {
+          x9b8_scriptEffects.emplace_back(connId, effect->GetName());
+        } else if (TCastToPtr<CScriptPlatform> platform = mgr.ObjectById(connId)) {
+          x9dc_scriptPlatforms.emplace_back(connId, platform->GetName());
+          platform->AddMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, EMaterialTypes::Character, mgr);
+          platform->RemoveMaterial(EMaterialTypes::Scannable, mgr);
+          CMaterialList excludes = platform->GetMaterialFilter().GetExcludeList();
+          excludes.Add({EMaterialTypes::Player, EMaterialTypes::Character, EMaterialTypes::CollisionActor});
+          CMaterialList includes = GetMaterialFilter().GetIncludeList();
+          platform->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(includes, excludes));
+          xae4_platformVuln = *platform->GetDamageVulnerability();
+          xb54_platformColor = platform->GetDrawFlags().x4_color; // TODO does this work?
+        } else if (TCastToPtr<CScriptSound> sound = mgr.ObjectById(connId)) {
+          xaa0_scriptSounds.emplace_back(connId, sound->GetName());
+        }
+      } else if (conn.x4_msg == EScriptObjectMessage::Follow) {
+        if (TCastToPtr<CScriptWaypoint> waypoint = mgr.ObjectById(connId)) {
+          std::vector<TUniqueId> waypointPlatformIds;
+          waypointPlatformIds.reserve(3);
+          for (const SConnection& waypointConn : waypoint->GetConnectionList()) {
+            auto waypointConnId = mgr.GetIdForScript(waypointConn.x8_objId);
+            if (TCastToPtr<CScriptPlatform> platform = mgr.ObjectById(waypointConnId)) {
+              platform->AddMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
+              waypointPlatformIds.push_back(waypointConnId);
+            }
+          }
+          x9a4_scriptWaypointPlatforms.emplace_back(connId, waypointPlatformIds);
+        }
+      }
+    }
+    break;
+  case EScriptObjectMessage::Damage:
+    if (uid == x990_launcherId2 && x990_launcherId2 != kInvalidUniqueId) {
+      GetBodyController()->GetCommandMgr().DeliverCmd(
+          CBCKnockBackCmd(GetTransform().frontVector(), pas::ESeverity::Eight));
+    }
+    CElitePirate::AcceptScriptMsg(msg, uid, mgr);
+    if (uid == xa46_ && xa7c_ == 2) {
+      xa7c_ = 3;
+      xa84_ = 0.f;
+    }
+    break;
+  case EScriptObjectMessage::InvulnDamage:
+    if (const TCastToConstPtr<CGameProjectile> projectile = mgr.GetObjectById(uid)) {
+      if (xa4a_) {
+        mgr.ApplyDamage(uid, xa46_, projectile->GetOwnerId(), projectile->GetDamageInfo(),
+                        CMaterialFilter::MakeInclude({EMaterialTypes::Solid}), zeus::skZero3f);
+      }
+    }
+    SetShotAt(true, mgr);
+  }
 }
 
 bool COmegaPirate::AggressionCheck(CStateManager& mgr, float arg) {
@@ -221,8 +410,29 @@ void COmegaPirate::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
 }
 
 void COmegaPirate::Render(const CStateManager& mgr) const {
-  CPatterned::Render(mgr);
-  // TODO
+  const auto* mData = GetModelData();
+  auto* animData = const_cast<CAnimData*>(mData->GetAnimationData());
+
+  CGraphics::SetModelMatrix(GetTransform() * zeus::CTransform::Scale(mData->GetScale()));
+
+  if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay && xa2c_ > 0.f) {
+    auto& model = const_cast<CSkinnedModel&>(x9f0_);
+    const CModelFlags flags{5, 0, 3, zeus::CColor{1.f, xa2c_}};
+    animData->Render(model, flags, std::nullopt, nullptr);
+  }
+  if (x9a0_) {
+    bool isXRay = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay;
+    if (isXRay) {
+      g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
+      const CModelFlags flags{5, 0, 1, zeus::CColor{1.f, 0.2f}};
+      auto& model = const_cast<CSkinnedModel&>(*animData->GetModelData().GetObj());
+      animData->Render(model, flags, std::nullopt, nullptr);
+    }
+    CPatterned::Render(mgr);
+    if (isXRay) {
+      mgr.SetupFogForArea(GetAreaIdAlways());
+    }
+  }
 }
 
 void COmegaPirate::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
@@ -327,8 +537,28 @@ void COmegaPirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
 }
 
 void COmegaPirate::Think(float dt, CStateManager& mgr) {
-  CElitePirate::Think(dt, mgr);
-  // TODO
+  if (GetActive()) {
+    SetAlert(true);
+    CElitePirate::Think(dt, mgr);
+
+    float maxHealth = xa98_maxEnergy;
+    CHealthInfo* healthInfo = HealthInfo(mgr);
+    if (healthInfo->GetHP() > 0.2f * maxHealth) {
+      if (healthInfo->GetHP() > 0.7f * maxHealth) { // ??
+        if (xacc_ > 4) {
+          xac4_ = 1;
+        }
+      } else {
+        xac4_ = 2;
+      }
+    } else {
+      xac4_ = 3;
+    }
+
+    UpdateActorTransform(mgr, x990_launcherId2, "grenadeLauncher2_LCTR"sv);
+
+    // TODO
+  }
 }
 
 void COmegaPirate::WallDetach(CStateManager& mgr, EStateMsg msg, float dt) {
@@ -367,4 +597,98 @@ void COmegaPirate::CreateFlash(CStateManager& mgr, float arg) {
   mgr.AddObject(new CFlash(mgr.AllocateUniqueId(), CEntityInfo{GetAreaIdAlways(), CEntity::NullConnectionList},
                            GetRenderBounds().center(), xb70_thermalSpot, arg));
 }
+
+void COmegaPirate::SetupCollisionManager(CStateManager& mgr) {
+  std::vector<CJointCollisionDescription> sphereJoints;
+  sphereJoints.reserve(skSphereJoints.size());
+  AddSphereCollisionList(skSphereJoints.data(), skSphereJoints.size(), sphereJoints);
+  xa38_collisionActorMgr1 =
+      std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), sphereJoints, true);
+  SetupCollisionActorInfo1(xa38_collisionActorMgr1, mgr);
+  xa46_ = xa38_collisionActorMgr1->GetCollisionDescFromIndex(0).GetCollisionActorId();
+  if (auto* actor = static_cast<CActor*>(mgr.ObjectById(xa46_))) {
+    *actor->HealthInfo(mgr) = *HealthInfo(mgr);
+  }
+
+  std::vector<CJointCollisionDescription> obbJoints;
+  obbJoints.reserve(skObbJoints.size());
+  AddOBBAutoSizeCollisionList(skObbJoints.data(), skObbJoints.size(), obbJoints);
+  xa9c_collisionActorMgr2 =
+      std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), obbJoints, true);
+  SetupCollisionActorInfo2(xa9c_collisionActorMgr2, mgr);
+  xa48_ = xa9c_collisionActorMgr2->GetCollisionDescFromIndex(0).GetCollisionActorId();
+}
+
+void COmegaPirate::AddSphereCollisionList(const SSphereJointInfo* joints, size_t count,
+                                          std::vector<CJointCollisionDescription>& outJoints) const {
+  const CAnimData* animData = GetModelData()->GetAnimationData();
+  for (size_t i = 0; i < count; ++i) {
+    const auto& joint = joints[i];
+    const CSegId seg = animData->GetLocatorSegId(joint.name);
+    if (seg.IsInvalid()) {
+      continue;
+    }
+    outJoints.emplace_back(CJointCollisionDescription::SphereCollision(seg, joint.radius, joint.name, 0.001f));
+  }
+}
+
+void COmegaPirate::AddOBBAutoSizeCollisionList(const SOBBJointInfo* joints, size_t count,
+                                               std::vector<CJointCollisionDescription>& outJoints) const {
+  const CAnimData* animData = GetModelData()->GetAnimationData();
+  for (size_t i = 0; i < count; ++i) {
+    const auto& joint = joints[i];
+    const CSegId from = animData->GetLocatorSegId(joint.from);
+    const CSegId to = animData->GetLocatorSegId(joint.to);
+    if (to.IsInvalid() || from.IsInvalid()) {
+      continue;
+    }
+    outJoints.emplace_back(CJointCollisionDescription::OBBAutoSizeCollision(
+        from, to, joint.bounds, CJointCollisionDescription::EOrientationType::One,
+        "Omega_Pirate_OBB_"s + std::to_string(i), 0.001f));
+  }
+}
+
+void COmegaPirate::SetupCollisionActorInfo1(const std::unique_ptr<CCollisionActorManager>& actMgr, CStateManager& mgr) {
+  for (size_t i = 0; i < actMgr->GetNumCollisionActors(); ++i) {
+    const auto& colDesc = actMgr->GetCollisionDescFromIndex(i);
+    const TUniqueId uid = colDesc.GetCollisionActorId();
+    if (TCastToPtr<CCollisionActor> act = mgr.ObjectById(uid)) {
+      act->AddMaterial(EMaterialTypes::ScanPassthrough, EMaterialTypes::CameraPassthrough, EMaterialTypes::AIJoint,
+                       EMaterialTypes::Immovable, mgr);
+      const CMaterialFilter& selfFilter = GetMaterialFilter();
+      const CMaterialFilter& actFilter = act->GetMaterialFilter();
+      CMaterialFilter filter =
+          CMaterialFilter::MakeIncludeExclude(selfFilter.GetIncludeList(), selfFilter.GetExcludeList());
+      filter.IncludeList().Add(actFilter.GetIncludeList());
+      filter.ExcludeList().Add(actFilter.GetExcludeList());
+      filter.ExcludeList().Add(EMaterialTypes::Platform); // ?
+      act->SetMaterialFilter(filter);
+      act->RemoveMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
+    }
+  }
+}
+
+void COmegaPirate::SetupCollisionActorInfo2(const std::unique_ptr<CCollisionActorManager>& actMgr, CStateManager& mgr) {
+  for (size_t i = 0; i < actMgr->GetNumCollisionActors(); ++i) {
+    const auto& colDesc = actMgr->GetCollisionDescFromIndex(i);
+    const TUniqueId uid = colDesc.GetCollisionActorId();
+    if (TCastToPtr<CCollisionActor> act = mgr.ObjectById(uid)) {
+      act->AddMaterial(EMaterialTypes::ScanPassthrough, EMaterialTypes::CameraPassthrough, EMaterialTypes::AIJoint,
+                       EMaterialTypes::Immovable, mgr);
+      const CMaterialFilter& selfFilter = GetMaterialFilter();
+      const CMaterialFilter& actFilter = act->GetMaterialFilter();
+      CMaterialFilter filter =
+          CMaterialFilter::MakeIncludeExclude(selfFilter.GetIncludeList(), selfFilter.GetExcludeList());
+      filter.IncludeList().Add(actFilter.GetIncludeList());
+      filter.IncludeList().Add(EMaterialTypes::Player); // ?
+      filter.ExcludeList().Add(actFilter.GetExcludeList());
+      filter.ExcludeList().Remove(EMaterialTypes::Player); // ?
+      filter.ExcludeList().Add(EMaterialTypes::Platform);  // ?
+      act->SetMaterialFilter(filter);
+      act->RemoveMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
+      act->SetDamageVulnerability(CDamageVulnerability::ReflectVulnerabilty());
+    }
+  }
+}
+
 } // namespace urde::MP1

@@ -25,26 +25,26 @@ private:
   float x99c_ = 1.f;
   bool x9a0_ = true;
   bool x9a1_ = true;
-  std::vector<int> x9a4_; // TODO type
+  std::vector<std::pair<TUniqueId, std::vector<TUniqueId>>> x9a4_scriptWaypointPlatforms;
   bool x9b4_ = false;
-  std::vector<std::pair<TUniqueId, std::string_view>> x9b8_;
+  std::vector<std::pair<TUniqueId, std::string_view>> x9b8_scriptEffects;
   int x9c8_ = 0;
   float x9cc_ = 0.f;
   zeus::CVector3f x9d0_;
-  std::vector<std::pair<TUniqueId, std::string_view>> x9dc_;
+  std::vector<std::pair<TUniqueId, std::string_view>> x9dc_scriptPlatforms;
   bool x9ec_ = false;
   CSkinnedModel x9f0_;
   float xa2c_ = 0.f;
   int xa30_ = 0;
   float xa34_ = 0.f;
-  std::unique_ptr<CCollisionActorManager> xa38_;
+  std::unique_ptr<CCollisionActorManager> xa38_collisionActorMgr1;
   bool xa3c_hearPlayer = false;
   pas::ELocomotionType xa40_ = pas::ELocomotionType::Relaxed;
   bool xa44_ = false;
   TUniqueId xa46_ = kInvalidUniqueId;
   TUniqueId xa48_ = kInvalidUniqueId;
   bool xa4a_ = false;
-  zeus::CTransform xa4c_;
+  zeus::CTransform xa4c_initialXf;
   int xa7c_ = 0;
   float xa80_ = 1.f;
   float xa84_ = 0.f;
@@ -53,8 +53,8 @@ private:
   float xa90_ = 1.f;
   float xa94_ = 1.f;
   float xa98_maxEnergy = 0.f;
-  std::unique_ptr<CCollisionActorManager> xa9c_;
-  std::vector<std::pair<TUniqueId, std::string_view>> xaa0_;
+  std::unique_ptr<CCollisionActorManager> xa9c_collisionActorMgr2;
+  std::vector<std::pair<TUniqueId, std::string_view>> xaa0_scriptSounds;
   float xab0_ = 0.f;
   std::vector<int> xab4_; // TODO type
   int xac4_ = 0;
@@ -66,13 +66,13 @@ private:
   TUniqueId xada_ = kInvalidUniqueId;
   bool xadc_ = false;
   bool xadd_ = false;
-  bool xade_ = false;
+  u8 xade_ = 0;
   bool xadf_ = true;
   bool xae0_ = true;
-  CDamageVulnerability xae4_ = CDamageVulnerability::NormalVulnerabilty();
+  CDamageVulnerability xae4_platformVuln = CDamageVulnerability::NormalVulnerabilty();
   int xb4c_ = 0;
   float xb50_ = 0.f;
-  zeus::CColor xb54_ = zeus::skWhite;
+  zeus::CColor xb54_platformColor = zeus::skWhite;
   float xb58_ = 2.5f;
   float xb5c_ = 0.f;
   float xb60_ = 0.f;
@@ -136,5 +136,12 @@ public:
 
 private:
   void CreateFlash(CStateManager& mgr, float arg);
+  void SetupCollisionManager(CStateManager& mgr);
+  void AddSphereCollisionList(const SSphereJointInfo* joints, size_t count,
+                              std::vector<CJointCollisionDescription>& outJoints) const;
+  void AddOBBAutoSizeCollisionList(const SOBBJointInfo* joints, size_t count,
+                           std::vector<CJointCollisionDescription>& outJoints) const;
+  void SetupCollisionActorInfo1(const std::unique_ptr<CCollisionActorManager>& actMgr, CStateManager& mgr);
+  void SetupCollisionActorInfo2(const std::unique_ptr<CCollisionActorManager>& actMgr, CStateManager& mgr);
 };
 } // namespace urde::MP1
