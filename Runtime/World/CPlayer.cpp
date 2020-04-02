@@ -225,9 +225,9 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
   x490_gun = std::make_unique<CPlayerGun>(uid);
   x49c_gunHolsterRemTime = g_tweakPlayerGun->GetGunNotFiringTime();
   x4a0_failsafeTest = std::make_unique<CFailsafeTest>();
-  x76c_cameraBob.reset(new CPlayerCameraBob(CPlayerCameraBob::ECameraBobType::One,
-                                            CPlayerCameraBob::GetCameraBobExtent(),
-                                            CPlayerCameraBob::GetCameraBobPeriod()));
+  x76c_cameraBob =
+      std::make_unique<CPlayerCameraBob>(CPlayerCameraBob::ECameraBobType::One, CPlayerCameraBob::GetCameraBobExtent(),
+                                         CPlayerCameraBob::GetCameraBobPeriod());
   x9c4_26_ = true;
   x9c4_27_canEnterMorphBall = true;
   x9c4_28_canLeaveMorphBall = true;
