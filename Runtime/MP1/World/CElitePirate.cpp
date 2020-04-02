@@ -898,7 +898,7 @@ void CElitePirate::SetupCollisionActorInfo(CStateManager& mgr) {
 }
 
 bool CElitePirate::IsArmClawCollider(std::string_view name, std::string_view locator, const SJointInfo* info,
-                                     size_t infoCount) {
+                                     size_t infoCount) const {
   if (name == locator) {
     return true;
   }
@@ -1080,7 +1080,7 @@ void CElitePirate::UpdateAbsorbBodyState(CStateManager& mgr, float dt) {
   x7c4_absorbUpdateTimer = 0.f;
 }
 
-bool CElitePirate::IsAttractingEnergy() {
+bool CElitePirate::IsAttractingEnergy() const {
   if (x450_bodyController->GetLocomotionType() == pas::ELocomotionType::Crouch) {
     const auto state = x450_bodyController->GetCurrentStateId();
     return state == pas::EAnimationState::Locomotion || state == pas::EAnimationState::Turn;
