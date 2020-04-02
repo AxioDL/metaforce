@@ -31,8 +31,8 @@ CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const C
   }
   GetModelData()->EnableLooping(true);
   const CPASDatabase& pasDatabase = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();
-  for (int i = 0; i < x3c8_animIds.size(); ++i) {
-    const auto result = pasDatabase.FindBestAnimation(CPASAnimParmData{22, CPASAnimParm::FromEnum(i)}, -1);
+  for (size_t i = 0; i < x3c8_animIds.size(); ++i) {
+    const auto result = pasDatabase.FindBestAnimation(CPASAnimParmData{22, CPASAnimParm::FromEnum(int(i))}, -1);
     x3c8_animIds[i] = result.second;
   }
 }
