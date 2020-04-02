@@ -202,7 +202,8 @@ private:
                         std::vector<CJointCollisionDescription>& outJoints) const;
   void SetupCollisionManager(CStateManager& mgr);
   void SetupCollisionActorInfo(CStateManager& mgr);
-  bool IsArmClawCollider(std::string_view name, std::string_view locator, const SJointInfo* info, size_t infoCount);
+  bool IsArmClawCollider(std::string_view name, std::string_view locator, const SJointInfo* info,
+                         size_t infoCount) const;
   void CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid);
   void ApplyDamageToHead(CStateManager& mgr, TUniqueId uid);
   void CreateEnergyAbsorb(CStateManager& mgr, const zeus::CTransform& xf);
@@ -214,7 +215,7 @@ private:
   void CheckAttackChance(CStateManager& mgr);
   void AttractProjectiles(CStateManager& mgr);
   void UpdateAbsorbBodyState(CStateManager& mgr, float dt);
-  bool IsAttractingEnergy();
+  bool IsAttractingEnergy() const;
   void UpdateTimers(float dt);
   void UpdatePositionHistory();
   void UpdateActorTransform(CStateManager& mgr, TUniqueId& uid, std::string_view name);
