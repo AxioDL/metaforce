@@ -838,7 +838,7 @@ CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int 
   rotation.readBig(in);
 
   rstl::reserved_vector<u32, int(CPlayerState::EItemType::Max)> itemCounts;
-  itemCounts.resize(size_t(CPlayerState::EItemType::Max));
+  itemCounts.resize(size_t(CPlayerState::EItemType::Max), 0);
   for (int i = 0; i < propCount - 6; ++i)
     itemCounts[i] = in.readUint32Big();
 
