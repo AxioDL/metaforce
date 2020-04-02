@@ -36,12 +36,15 @@ CSamusHud::CSamusHud(CStateManager& stateMgr)
   UpdateStateTransition(1.f, stateMgr);
   g_SamusHud = this;
 
-  for (int i = 0; i < 16; ++i)
-    x5ec_camFovTweaks[i] = 5.f * i + 40.f;
-  for (int i = 0; i < 64; ++i)
-    x62c_camYTweaks[i] = -0.5f * i;
-  for (int i = 0; i < 32; ++i)
-    x72c_camZTweaks[i] = 0.5f * i - 8.f;
+  for (size_t i = 0; i < x5ec_camFovTweaks.size(); ++i) {
+    x5ec_camFovTweaks[i] = 5.f * float(i) + 40.f;
+  }
+  for (size_t i = 0; i < x62c_camYTweaks.size(); ++i) {
+    x62c_camYTweaks[i] = -0.5f * float(i);
+  }
+  for (size_t i = 0; i < x72c_camZTweaks.size(); ++i) {
+    x72c_camZTweaks[i] = 0.5f * float(i) - 8.f;
+  }
 
   x264_loadedFrmeHelmet = x258_frmeHelmet.GetObj();
   x264_loadedFrmeHelmet->Reset();
@@ -577,13 +580,15 @@ void CSamusHud::UpdateVisorAndBeamMenus(float dt, const CStateManager& mgr) {
 }
 
 void CSamusHud::UpdateCameraDebugSettings() {
-  float fov = x5ec_camFovTweaks[g_tweakGui->GetHudCamFovTweak()];
-  float y = x62c_camYTweaks[g_tweakGui->GetHudCamYTweak()];
-  float z = x72c_camZTweaks[g_tweakGui->GetHudCamZTweak()];
-  if (x2a0_helmetIntf)
+  const float fov = x5ec_camFovTweaks[g_tweakGui->GetHudCamFovTweak()];
+  const float y = x62c_camYTweaks[g_tweakGui->GetHudCamYTweak()];
+  const float z = x72c_camZTweaks[g_tweakGui->GetHudCamZTweak()];
+  if (x2a0_helmetIntf) {
     x2a0_helmetIntf->UpdateCameraDebugSettings(fov, y, z);
-  if (x29c_decoIntf)
+  }
+  if (x29c_decoIntf) {
     x29c_decoIntf->UpdateCameraDebugSettings(fov, y, z);
+  }
   x274_loadedFrmeBaseHud->GetFrameCamera()->SetFov(fov);
   x310_cameraPos.y() = y;
   x310_cameraPos.z() = z;

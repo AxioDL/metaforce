@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <string_view>
 #include <vector>
@@ -167,9 +168,9 @@ class CSamusHud {
   CGuiModel* x5a0_base_model_abutton;
   rstl::reserved_vector<SVideoBand, 4> x5a4_videoBands;
   rstl::reserved_vector<CGuiLight*, 4> x5d8_guiLights;
-  float x5ec_camFovTweaks[16];
-  float x62c_camYTweaks[64];
-  float x72c_camZTweaks[32];
+  std::array<float, 16> x5ec_camFovTweaks;
+  std::array<float, 64> x62c_camYTweaks;
+  std::array<float, 32> x72c_camZTweaks;
   rstl::reserved_vector<SProfileInfo, 15> x7ac_;
 
   CColoredQuadFilter m_energyDrainFilter;
