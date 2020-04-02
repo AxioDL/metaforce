@@ -161,16 +161,16 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     if (HealthInfo(mgr)->GetHP() <= 0.f) {
       break;
     }
-    TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid);
+    const TCastToConstPtr<CCollisionActor> actor = mgr.ObjectById(uid);
     if (!actor) {
       if (uid == x772_launcherId && x772_launcherId != kInvalidUniqueId) {
         SetShotAt(true, mgr);
       }
       break;
     }
-    const TUniqueId& touchedUid = actor->GetLastTouchedObject();
+    const TUniqueId touchedUid = actor->GetLastTouchedObject();
     if (touchedUid != mgr.GetPlayer().GetUniqueId()) {
-      if (TCastToPtr<CGameProjectile>(mgr.ObjectById(touchedUid))) {
+      if (TCastToConstPtr<CGameProjectile>(mgr.ObjectById(touchedUid))) {
         SetShotAt(true, mgr);
       }
       break;
@@ -220,8 +220,8 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     break;
   case EScriptObjectMessage::Damage:
     shouldPass = false;
-    if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {
-      if (TCastToPtr<CGameProjectile> projectile = mgr.ObjectById(actor->GetLastTouchedObject())) {
+    if (const TCastToConstPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {
+      if (const TCastToConstPtr<CGameProjectile> projectile = mgr.ObjectById(actor->GetLastTouchedObject())) {
         if (uid == x770_collisionHeadId) {
           x428_damageCooldownTimer = 0.33f;
           const auto& damageInfo = projectile->GetDamageInfo();
@@ -242,7 +242,7 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     break;
   case EScriptObjectMessage::InvulnDamage: {
     SetShotAt(true, mgr);
-    if (!TCastToPtr<CCollisionActor>(mgr.ObjectById(uid))) {
+    if (!TCastToConstPtr<CCollisionActor>(mgr.ObjectById(uid))) {
       ApplyDamageToHead(mgr, uid);
     }
     break;
@@ -283,7 +283,7 @@ zeus::CVector3f CElitePirate::GetOrbitPosition(const CStateManager& mgr) const {
     }
   }
   if (HasWeakPointHead()) {
-    if (TCastToConstPtr<CCollisionActor> actor = mgr.GetObjectById(x770_collisionHeadId)) {
+    if (const TCastToConstPtr<CCollisionActor> actor = mgr.GetObjectById(x770_collisionHeadId)) {
       return actor->GetTranslation();
     }
   }
@@ -294,7 +294,7 @@ zeus::CVector3f CElitePirate::GetAimPosition(const CStateManager& mgr, float) co
   const std::shared_ptr<CPlayerState>& playerState = mgr.GetPlayerState();
   if (x5d4_collisionActorMgr->GetActive() && playerState->IsFiringComboBeam() &&
       playerState->GetCurrentBeam() == CPlayerState::EBeamId::Wave) {
-    if (TCastToConstPtr<CCollisionActor> actor = mgr.GetObjectById(x79c_)) {
+    if (const TCastToConstPtr<CCollisionActor> actor = mgr.GetObjectById(x79c_)) {
       return actor->GetTranslation();
     }
   }
@@ -340,7 +340,7 @@ void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
   }
   case EUserEventType::BecomeShootThrough:
     if (HasWeakPointHead()) {
-      u32 numCollisionActors = x730_collisionActorMgrHead->GetNumCollisionActors();
+      const u32 numCollisionActors = x730_collisionActorMgrHead->GetNumCollisionActors();
       for (u32 i = 0; i < numCollisionActors; ++i) {
         const auto& description = x730_collisionActorMgrHead->GetCollisionDescFromIndex(i);
         if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(description.GetCollisionActorId())) {
@@ -779,9 +779,9 @@ void CElitePirate::SetupHealthInfo(CStateManager& mgr) {
 void CElitePirate::SetLaunchersActive(CStateManager& mgr, bool val) { SetLauncherActive(mgr, val, x772_launcherId); }
 
 void CElitePirate::SetupPathFindSearch() {
-  float scale = 1.5f * GetModelData()->GetScale().y();
-  float fVar1 = IsElitePirate() ? 5.f : 1.f;
-  zeus::CAABox box{{-scale, -scale, 0.f}, {scale, scale, fVar1 * scale}};
+  const float scale = 1.5f * GetModelData()->GetScale().y();
+  const float fVar1 = IsElitePirate() ? 5.f : 1.f;
+  const zeus::CAABox box{{-scale, -scale, 0.f}, {scale, scale, fVar1 * scale}};
   SetBoundingBox(box);
   x738_collisionAabb.SetBox(box);
   x7d0_pathFindSearch.SetCharacterRadius(scale);
@@ -928,7 +928,7 @@ void CElitePirate::ApplyDamageToHead(CStateManager& mgr, TUniqueId uid) {
   if (!HasWeakPointHead()) {
     return;
   }
-  if (TCastToPtr<CWeapon> weapon = mgr.ObjectById(uid)) {
+  if (const TCastToConstPtr<CWeapon> weapon = mgr.ObjectById(uid)) {
     CDamageInfo damageInfo = weapon->GetDamageInfo();
     damageInfo.SetRadius(0.f);
     mgr.ApplyDamage(uid, x770_collisionHeadId, weapon->GetOwnerId(), damageInfo,
@@ -998,7 +998,7 @@ void CElitePirate::AttractProjectiles(CStateManager& mgr) {
   if (!IsAlive()) {
     return;
   }
-  TCastToConstPtr<CCollisionActor> actor = mgr.GetObjectById(x79c_);
+  const TCastToConstPtr<CCollisionActor> actor = mgr.GetObjectById(x79c_);
   if (!actor) {
     return;
   }
@@ -1028,13 +1028,13 @@ void CElitePirate::AttractProjectiles(CStateManager& mgr) {
     if (GetTransform().frontVector().dot(actorProjDist) < 0.f) {
       const zeus::CVector3f projectileDir = projectilePos - projectile->GetPreviousPos();
       if (projectileDir.canBeNormalized() && IsClosestEnergyAttractor(mgr, charNearList, projectilePos)) {
-        float actorProjMag = actorProjDist.magnitude();
+        const float actorProjMag = actorProjDist.magnitude();
         const zeus::CVector3f b = projectilePos + ((0.5f * actorProjMag) * projectileDir.normalized());
         const zeus::CVector3f c = actorPos + zeus::CVector3f{0.f, 0.f, 0.4f * 0.4f * actorProjMag};
         const zeus::CVector3f p1 = zeus::getBezierPoint(projectilePos, b, c, actorPos, 0.333f);
         const zeus::CVector3f p2 = zeus::getBezierPoint(projectilePos, b, c, actorPos, 0.666f);
 
-        float magAdd = (p2 - p1).magnitude() + (p1 - projectilePos).magnitude() + (actorPos - p2).magnitude();
+        const float magAdd = (p2 - p1).magnitude() + (p1 - projectilePos).magnitude() + (actorPos - p2).magnitude();
         const zeus::CVector3f p3 =
             zeus::getBezierPoint(projectilePos, b, c, actorPos, projectileDir.magnitude() / magAdd);
 
@@ -1118,10 +1118,10 @@ void CElitePirate::UpdateActorTransform(CStateManager& mgr, TUniqueId& uid, std:
 }
 
 void CElitePirate::UpdateHealthInfo(CStateManager& mgr) {
-  float hp = HealthInfo(mgr)->GetHP();
+  const float hp = HealthInfo(mgr)->GetHP();
   if (HasWeakPointHead()) {
     if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(x770_collisionHeadId)) {
-      float headHp = actor->HealthInfo(mgr)->GetHP();
+      const float headHp = actor->HealthInfo(mgr)->GetHP();
       HealthInfo(mgr)->SetHP(hp - (hp - headHp));
       *actor->HealthInfo(mgr) = *HealthInfo(mgr); // TODO does this work?
     }
