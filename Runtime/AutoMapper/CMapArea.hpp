@@ -42,7 +42,7 @@ public:
     CMapAreaSurface(CMapAreaSurface&&) = default;
     void PostConstruct(const u8* buf, std::vector<u32>& index);
     void Draw(const zeus::CVector3f* verts, const zeus::CColor& surfColor, const zeus::CColor& lineColor,
-              float lineWidth, size_t instIdx = 0) const;
+              float lineWidth, size_t instIdx = 0);
     const zeus::CVector3f& GetNormal() const { return x0_normal; }
     const zeus::CVector3f& GetCenterPosition() const { return xc_centroid; }
   };
@@ -74,7 +74,9 @@ public:
   bool GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const;
   zeus::CVector3f GetAreaCenterPoint() const { return x10_box.center(); }
   const zeus::CAABox& GetBoundingBox() const { return x10_box; }
+  CMappableObject& GetMappableObject(int idx) { return m_mappableObjects[idx]; }
   const CMappableObject& GetMappableObject(int idx) const { return m_mappableObjects[idx]; }
+  CMapAreaSurface& GetSurface(int idx) { return m_surfaces[idx]; }
   const CMapAreaSurface& GetSurface(int idx) const { return m_surfaces[idx]; }
   u32 GetNumMappableObjects() const { return m_mappableObjects.size(); }
   u32 GetNumSurfaces() const { return m_surfaces.size(); }

@@ -194,8 +194,8 @@ private:
   }
   bool NotHintNavigating() const;
   bool CanLeaveMapScreenInternal(const CStateManager& mgr) const;
-  void LeaveMapScreen(const CStateManager& mgr);
-  void SetupMiniMapWorld(const CStateManager& mgr);
+  void LeaveMapScreen(CStateManager& mgr);
+  void SetupMiniMapWorld(CStateManager& mgr);
   bool HasCurrentMapUniverseWorld() const;
   bool CheckDummyWorldLoad(CStateManager& mgr);
   void UpdateHintNavigation(float dt, CStateManager& mgr);
@@ -238,11 +238,11 @@ public:
   bool IsInPlayerControlState() const {
     return IsInMapperState(EAutoMapperState::MapScreen) || IsInMapperState(EAutoMapperState::MapScreenUniverse);
   }
-  void Update(float dt, const CStateManager& mgr);
-  void Draw(const CStateManager& mgr, const zeus::CTransform& xf, float alpha) const;
+  void Update(float dt, CStateManager& mgr);
+  void Draw(const CStateManager& mgr, const zeus::CTransform& xf, float alpha);
   float GetTimeIntoInterpolation() const { return x1c8_interpTime; }
   void BeginMapperStateTransition(EAutoMapperState state, CStateManager& mgr);
-  void CompleteMapperStateTransition(const CStateManager& mgr);
+  void CompleteMapperStateTransition(CStateManager& mgr);
   void ResetInterpolationTimer(float duration);
   SAutoMapperRenderState BuildMiniMapWorldRenderState(const CStateManager& stateMgr, const zeus::CQuaternion& rot,
                                                       TAreaId area) const;

@@ -311,13 +311,13 @@ void CMapWorld::SetWhichMapAreasLoaded(const IWorld& wld, int start, int count) 
   }
 }
 
-bool CMapWorld::IsMapAreasStreaming() const {
+bool CMapWorld::IsMapAreasStreaming() {
   bool ret = false;
   CMapAreaData* data = x10_listHeads[1];
   while (data != nullptr) {
     if (data->IsLoaded()) {
       CMapAreaData* next = data->GetNextMapAreaData();
-      const_cast<CMapWorld*>(this)->MoveMapAreaToList(data, EMapAreaList::Loaded);
+      MoveMapAreaToList(data, EMapAreaList::Loaded);
       data = next;
     } else {
       data = data->GetNextMapAreaData();
@@ -448,8 +448,8 @@ bool CMapWorld::IsMapAreaValid(const IWorld& wld, int areaIdx, bool checkLoad) c
   return true;
 }
 
-void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selArea,
-                          const std::vector<CMapAreaBFSInfo>& bfsInfos, bool inMapScreen) const {
+void CMapWorld::DrawAreas(const CMapWorldDrawParms& parms, int selArea, const std::vector<CMapAreaBFSInfo>& bfsInfos,
+                          bool inMapScreen) {
   // Alpha blend
   // Line width 1
 
@@ -579,17 +579,18 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
   u32 lastAreaIdx = UINT32_MAX;
   CMapObjectSortInfo::EObjectCode lastType = CMapObjectSortInfo::EObjectCode::Invalid;
   for (const CMapObjectSortInfo& info : sortInfos) {
-    const CMapArea* mapa = GetMapArea(info.GetAreaIndex());
+    CMapArea* mapa = GetMapArea(info.GetAreaIndex());
     zeus::CTransform areaPostXf = mapa->GetAreaPostTransform(parms.GetWorld(), info.GetAreaIndex());
     if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Surface) {
-      const CMapArea::CMapAreaSurface& surf = mapa->GetSurface(info.GetLocalObjectIndex());
+      CMapArea::CMapAreaSurface& surf = mapa->GetSurface(info.GetLocalObjectIndex());
       zeus::CColor color(
           std::max(0.f, (-parms.GetCameraTransform().basis[1]).dot(areaPostXf.rotate(surf.GetNormal()))) *
               g_tweakAutoMapper->GetMapSurfaceNormColorLinear() +
           g_tweakAutoMapper->GetMapSurfaceNormColorConstant());
       color *= info.GetSurfaceColor();
-      if (lastAreaIdx != info.GetAreaIndex() || lastType != CMapObjectSortInfo::EObjectCode::Surface)
+      if (lastAreaIdx != info.GetAreaIndex() || lastType != CMapObjectSortInfo::EObjectCode::Surface) {
         CGraphics::SetModelMatrix(parms.GetPlaneProjectionTransform() * areaPostXf);
+      }
       surf.Draw(mapa->GetVertices(), color, info.GetOutlineColor(), parms.GetOutlineWidthScale());
 
       lastAreaIdx = info.GetAreaIndex();
@@ -597,11 +598,11 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
     }
   }
   for (const CMapObjectSortInfo& info : sortInfos) {
-    const CMapArea* mapa = GetMapArea(info.GetAreaIndex());
+    CMapArea* mapa = GetMapArea(info.GetAreaIndex());
     if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door ||
         info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Object) {
-      const CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex());
-      zeus::CTransform objXf =
+      CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex());
+      const zeus::CTransform objXf =
           zeus::CTransform::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
           mapObj.GetTransform();
       if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door) {
@@ -614,8 +615,8 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
       mapObj.Draw(selArea, mwInfo, parms.GetAlpha(), lastType != info.GetObjectCode());
       lastType = info.GetObjectCode();
     } else if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::DoorSurface) {
-      const CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex() / 6);
-      zeus::CTransform objXf =
+      CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex() / 6);
+      const zeus::CTransform objXf =
           parms.GetPlaneProjectionTransform() *
           zeus::CTransform::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
           mapObj.GetTransform();

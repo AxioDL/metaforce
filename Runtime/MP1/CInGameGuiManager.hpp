@@ -121,7 +121,7 @@ private:
   void TryReloadAreaTextures();
   bool IsInGameStateNotTransitioning() const;
   bool IsInPausedStateNotTransitioning() const;
-  void UpdateAutoMapper(float dt, const CStateManager& stateMgr);
+  void UpdateAutoMapper(float dt, CStateManager& stateMgr);
   void OnNewPauseScreenState(CArchitectureQueue& archQueue);
   void RefreshHudOptions();
 

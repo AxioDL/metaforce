@@ -106,12 +106,12 @@ std::pair<zeus::CColor, zeus::CColor> CMappableObject::GetDoorColors(int curArea
 
 void CMappableObject::PostConstruct(const void*) { x10_transform = AdjustTransformForType(); }
 
-void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha, bool needsVtxLoad) const {
+void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha, bool needsVtxLoad) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CMappableObject::Draw", zeus::skCyan);
   if (IsDoorType(x0_type)) {
     std::pair<zeus::CColor, zeus::CColor> colors = GetDoorColors(curArea, mwInfo, alpha);
     for (int s = 0; s < 6; ++s) {
-      DoorSurface& ds = const_cast<DoorSurface&>(*m_doorSurface);
+      DoorSurface& ds = *m_doorSurface;
       ds.m_surface.draw(colors.first, s * 4, 4);
       CLineRenderer& line = ds.m_outline;
       const u32* baseIdx = &DoorIndices[s * 4];
@@ -164,22 +164,24 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
     iconColor.a() *= alpha;
 
     TLockedToken<CTexture> tex = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), iconRes});
-    if (!m_texQuadFilter || m_texQuadFilter->GetTex().GetObj() != tex.GetObj())
-      const_cast<CMappableObject*>(this)->m_texQuadFilter.emplace(EFilterType::Add, tex,
-                                                                  CTexturedQuadFilter::ZTest::GEqual);
+    if (!m_texQuadFilter || m_texQuadFilter->GetTex().GetObj() != tex.GetObj()) {
+      m_texQuadFilter.emplace(EFilterType::Add, tex, CTexturedQuadFilter::ZTest::GEqual);
+    }
 
-    CTexturedQuadFilter::Vert verts[4] = {{{-2.6f, 0.f, 2.6f}, {0.f, 1.f}},
-                                          {{-2.6f, 0.f, -2.6f}, {0.f, 0.f}},
-                                          {{2.6f, 0.f, 2.6f}, {1.f, 1.f}},
-                                          {{2.6f, 0.f, -2.6f}, {1.f, 0.f}}};
-    const_cast<CMappableObject*>(this)->m_texQuadFilter->drawVerts(iconColor, verts);
+    const CTexturedQuadFilter::Vert verts[4] = {
+        {{-2.6f, 0.f, 2.6f}, {0.f, 1.f}},
+        {{-2.6f, 0.f, -2.6f}, {0.f, 0.f}},
+        {{2.6f, 0.f, 2.6f}, {1.f, 1.f}},
+        {{2.6f, 0.f, -2.6f}, {1.f, 0.f}},
+    };
+    m_texQuadFilter->drawVerts(iconColor, verts);
   }
 }
 
 void CMappableObject::DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, float alpha, int surfIdx,
-                                      bool needsVtxLoad) const {
+                                      bool needsVtxLoad) {
   std::pair<zeus::CColor, zeus::CColor> colors = GetDoorColors(curArea, mwInfo, alpha);
-  DoorSurface& ds = const_cast<DoorSurface&>(*m_doorSurface);
+  DoorSurface& ds = *m_doorSurface;
   ds.m_surface.draw(colors.first, surfIdx * 4, 4);
   CLineRenderer& line = ds.m_outline;
   const u32* baseIdx = &DoorIndices[surfIdx * 4];

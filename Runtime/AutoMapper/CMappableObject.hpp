@@ -79,8 +79,8 @@ public:
   void PostConstruct(const void*);
   const zeus::CTransform& GetTransform() const { return x10_transform; }
   EMappableObjectType GetType() const { return x0_type; }
-  void Draw(int, const CMapWorldInfo&, float, bool) const;
-  void DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, float alpha, int surfIdx, bool needsVtxLoad) const;
+  void Draw(int, const CMapWorldInfo&, float, bool);
+  void DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, float alpha, int surfIdx, bool needsVtxLoad);
   zeus::CVector3f BuildSurfaceCenterPoint(int surfIdx) const;
   bool IsDoorConnectedToArea(int idx, const CStateManager&) const;
   bool IsDoorConnectedToVisitedArea(const CStateManager&) const;

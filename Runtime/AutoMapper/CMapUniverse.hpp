@@ -116,7 +116,7 @@ public:
   u32 GetNumMapWorldDatas() const { return x10_worldDatas.size(); }
   float GetMapUniverseRadius() const { return x2c_universeRadius; }
   const zeus::CVector3f& GetMapUniverseCenterPoint() const { return x20_universeCenter; }
-  void Draw(const CMapUniverseDrawParms&, const zeus::CVector3f&, float, float) const;
+  void Draw(const CMapUniverseDrawParms&, const zeus::CVector3f&, float, float);
   std::vector<CMapWorldData>::const_iterator begin() const { return x10_worldDatas.cbegin(); }
   std::vector<CMapWorldData>::const_iterator end() const { return x10_worldDatas.cend(); }
 };
