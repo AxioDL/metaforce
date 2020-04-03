@@ -1,5 +1,6 @@
 #include "Runtime/World/CActorModelParticles.hpp"
 
+#include <algorithm>
 #include <array>
 
 #include "Runtime/CDependencyGroup.hpp"
@@ -528,10 +529,7 @@ void CActorModelParticles::SetupHook(TUniqueId uid) {
 }
 
 std::list<CActorModelParticles::CItem>::const_iterator CActorModelParticles::FindSystem(TUniqueId uid) const {
-  for (auto it = x0_items.cbegin(); it != x0_items.cend(); ++it)
-    if (it->x0_id == uid)
-      return it;
-  return x0_items.cend();
+  return std::find_if(x0_items.begin(), x0_items.end(), [uid](const auto& entry) { return entry.x0_id == uid; });
 }
 
 std::list<CActorModelParticles::CItem>::iterator CActorModelParticles::FindOrCreateSystem(CActor& act) {
