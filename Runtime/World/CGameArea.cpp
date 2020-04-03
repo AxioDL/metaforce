@@ -687,7 +687,7 @@ bool CGameArea::StartStreamingMainArea() {
   case EPhase::LoadHeader: {
     x110_mreaSecBufs.reserve(3);
     AllocNewAreaData(0, 96);
-    x12c_postConstructed.reset(new CPostConstructed());
+    x12c_postConstructed = std::make_unique<CPostConstructed>();
     xf4_phase = EPhase::LoadSecSizes;
     break;
   }
@@ -998,8 +998,8 @@ void CGameArea::PostConstructArea() {
     ++secIt;
   }
 
-  x12c_postConstructed->x10c0_areaObjs.reset(new CAreaObjectList(x4_selfIdx));
-  x12c_postConstructed->x10c4_areaFog.reset(new CAreaFog());
+  x12c_postConstructed->x10c0_areaObjs = std::make_unique<CAreaObjectList>(x4_selfIdx);
+  x12c_postConstructed->x10c4_areaFog = std::make_unique<CAreaFog>();
 
   /* URDE addition: preemptively fill in area models so shaders may be polled for completion */
   if (!x12c_postConstructed->x1108_25_modelsConstructed)
