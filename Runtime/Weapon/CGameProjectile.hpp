@@ -83,9 +83,9 @@ public:
                                             float mag, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                             CStateManager& mgr);
   CProjectileTouchResult CanCollideWith(CActor& act, CStateManager& mgr) const;
-  CProjectileTouchResult CanCollideWithComplexCollision(CActor& act, CStateManager& mgr) const;
+  CProjectileTouchResult CanCollideWithComplexCollision(const CActor& act, const CStateManager& mgr) const;
   CProjectileTouchResult CanCollideWithGameObject(CActor& act, CStateManager& mgr) const;
-  CProjectileTouchResult CanCollideWithTrigger(CActor& act, CStateManager& mgr) const;
+  CProjectileTouchResult CanCollideWithTrigger(const CActor& act, const CStateManager& mgr) const;
   zeus::CAABox GetProjectileBounds() const;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   CProjectileWeapon& ProjectileWeapon() { return x170_projectile; }

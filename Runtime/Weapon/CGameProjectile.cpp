@@ -46,24 +46,35 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
 void CGameProjectile::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
 
 void CGameProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr) {
-  zeus::CVector3f revDir = -x34_transform.basis[1].normalized();
-  if (TCastToPtr<CPlayer>(act)) {
-    if (x158_visorParticle && mgr.GetPlayer().GetCameraState() == CPlayer::EPlayerCameraState::FirstPerson) {
-      if (zeus::radToDeg(std::acos(
-              mgr.GetCameraManager()->GetCurrentCameraTransform(mgr).basis[1].normalized().dot(revDir))) <= 45.f) {
-        /* Hit us head on! Draw Billboard! */
-        std::optional<TToken<CGenDescription>> bb = {*x158_visorParticle};
-        CHUDBillboardEffect* effect = new CHUDBillboardEffect(
-            bb, {}, mgr.AllocateUniqueId(), true, "VisorAcid", CHUDBillboardEffect::GetNearClipDistance(mgr),
-            CHUDBillboardEffect::GetScaleForPOV(mgr), zeus::skWhite, zeus::skOne3f,
-            zeus::skZero3f);
-        mgr.AddObject(effect);
-        CSfxManager::SfxStart(x168_visorSfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-        if (x2e4_28_sendProjectileCollideMsg)
-          mgr.SendScriptMsg(&mgr.GetPlayer(), GetUniqueId(), EScriptObjectMessage::ProjectileCollide);
-      }
-    }
+  const zeus::CVector3f revDir = -x34_transform.basis[1].normalized();
+  const TCastToConstPtr<CPlayer> player(act);
+
+  if (!player) {
+    return;
   }
+
+  if (!x158_visorParticle || mgr.GetPlayer().GetCameraState() != CPlayer::EPlayerCameraState::FirstPerson) {
+    return;
+  }
+
+  if (zeus::radToDeg(
+          std::acos(mgr.GetCameraManager()->GetCurrentCameraTransform(mgr).basis[1].normalized().dot(revDir))) > 45.f) {
+    return;
+  }
+
+  // Hit us head on! Draw Billboard!
+  std::optional<TToken<CGenDescription>> bb = {*x158_visorParticle};
+  auto* effect = new CHUDBillboardEffect(
+      bb, {}, mgr.AllocateUniqueId(), true, "VisorAcid", CHUDBillboardEffect::GetNearClipDistance(mgr),
+      CHUDBillboardEffect::GetScaleForPOV(mgr), zeus::skWhite, zeus::skOne3f, zeus::skZero3f);
+  mgr.AddObject(effect);
+  CSfxManager::SfxStart(x168_visorSfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+
+  if (!x2e4_28_sendProjectileCollideMsg) {
+    return;
+  }
+
+  mgr.SendScriptMsg(&mgr.GetPlayer(), GetUniqueId(), EScriptObjectMessage::ProjectileCollide);
 }
 
 void CGameProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId /*uid*/, CStateManager& mgr) {
@@ -115,14 +126,14 @@ void CGameProjectile::Chase(float dt, CStateManager& mgr) {
   if (!x170_projectile.IsProjectileActive() || x2c0_homingTargetId == kInvalidUniqueId)
     return;
 
-  if (TCastToConstPtr<CActor> act = mgr.GetObjectById(x2c0_homingTargetId)) {
+  if (const TCastToConstPtr<CActor> act = mgr.GetObjectById(x2c0_homingTargetId)) {
     if (!act->GetMaterialList().HasMaterial(EMaterialTypes::Target) &&
         !act->GetMaterialList().HasMaterial(EMaterialTypes::Player)) {
       x2c0_homingTargetId = kInvalidUniqueId;
     } else {
       zeus::CVector3f homingPos = act->GetHomingPosition(mgr, 0.f);
 
-      TCastToConstPtr<CWallCrawlerSwarm> swarm = act.GetPtr();
+      const TCastToConstPtr<CWallCrawlerSwarm> swarm = act.GetPtr();
       if (swarm) {
         int lockOnId = swarm->GetCurrentLockOnId();
         if (swarm->GetLockOnLocationValid(lockOnId)) {
@@ -211,21 +222,23 @@ CRayCastResult CGameProjectile::DoCollisionCheck(TUniqueId& idOut, CStateManager
 
 void CGameProjectile::ApplyDamageToActors(CStateManager& mgr, const CDamageInfo& dInfo) {
   if (x2c6_pendingDamagee != kInvalidUniqueId) {
-    if (TCastToPtr<CActor> act = mgr.ObjectById(x2c6_pendingDamagee)) {
+    if (const TCastToConstPtr<CActor> act = mgr.ObjectById(x2c6_pendingDamagee)) {
       mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), xec_ownerId, dInfo, xf8_filter, x34_transform.basis[1]);
       if ((xe8_projectileAttribs & EProjectileAttrib::PlayerUnFreeze) == EProjectileAttrib::PlayerUnFreeze &&
-          mgr.GetPlayer().GetUniqueId() == act->GetUniqueId() && mgr.GetPlayer().GetFrozenState())
+          mgr.GetPlayer().GetUniqueId() == act->GetUniqueId() && mgr.GetPlayer().GetFrozenState()) {
         mgr.GetPlayer().UnFreeze(mgr);
+      }
     }
     x2c6_pendingDamagee = kInvalidUniqueId;
   }
 
-  for (CProjectileTouchResult& res : x2d0_touchResults) {
-    if (TCastToConstPtr<CActor> act = mgr.GetObjectById(res.GetActorId())) {
+  for (const CProjectileTouchResult& res : x2d0_touchResults) {
+    if (const TCastToConstPtr<CActor> act = mgr.GetObjectById(res.GetActorId())) {
       mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), xec_ownerId, dInfo, xf8_filter, x34_transform.basis[1]);
       if ((xe8_projectileAttribs & EProjectileAttrib::PlayerUnFreeze) == EProjectileAttrib::PlayerUnFreeze &&
-          mgr.GetPlayer().GetUniqueId() == act->GetUniqueId() && mgr.GetPlayer().GetFrozenState())
+          mgr.GetPlayer().GetUniqueId() == act->GetUniqueId() && mgr.GetPlayer().GetFrozenState()) {
         mgr.GetPlayer().UnFreeze(mgr);
+      }
     }
   }
 
@@ -271,10 +284,10 @@ CRayCastResult CGameProjectile::RayCollisionCheckWithWorld(TUniqueId& idOut, con
         }
       } else {
         auto tb = ent->GetTouchBounds();
-        CGameProjectile* projObj = nullptr;
-        if (TCastToPtr<CScriptDoor> door = ent) {
+        const CGameProjectile* projObj = nullptr;
+        if (const TCastToConstPtr<CScriptDoor> door = ent) {
           tb = door->GetProjectileBounds();
-        } else if (TCastToPtr<CGameProjectile> proj = ent) {
+        } else if (const TCastToConstPtr<CGameProjectile> proj = ent) {
           tb.emplace(proj->GetProjectileBounds());
           projObj = proj.GetPtr();
         }
@@ -311,9 +324,9 @@ CProjectileTouchResult CGameProjectile::CanCollideWith(CActor& act, CStateManage
       EVulnerability::PassThrough) {
     return {kInvalidUniqueId, {}};
   } else {
-    if (TCastToPtr<CScriptTrigger>(act)) {
+    if (TCastToConstPtr<CScriptTrigger>(act)) {
       return CanCollideWithTrigger(act, mgr);
-    } else if (TCastToPtr<CScriptPlatform>(act) || TCastToPtr<CCollisionActor>(act) ||
+    } else if (TCastToConstPtr<CScriptPlatform>(act) || TCastToConstPtr<CCollisionActor>(act) ||
                CPatterned::CastTo<MP1::CPuddleToadGamma>(&act)) {
       return CanCollideWithComplexCollision(act, mgr);
     } else {
@@ -322,16 +335,19 @@ CProjectileTouchResult CGameProjectile::CanCollideWith(CActor& act, CStateManage
   }
 }
 
-CProjectileTouchResult CGameProjectile::CanCollideWithComplexCollision(CActor& act, CStateManager& mgr) const {
-  CPhysicsActor* useAct = nullptr;
-  if (TCastToPtr<CScriptPlatform> plat = act) {
-    if (plat->HasComplexCollision())
+CProjectileTouchResult CGameProjectile::CanCollideWithComplexCollision(const CActor& act,
+                                                                       const CStateManager& mgr) const {
+  const CPhysicsActor* useAct = nullptr;
+  if (const TCastToConstPtr<CScriptPlatform> plat = act) {
+    if (plat->HasComplexCollision()) {
       useAct = plat.GetPtr();
-  } else if (MP1::CPuddleToadGamma* toad = CPatterned::CastTo<MP1::CPuddleToadGamma>(&act)) {
+    }
+  } else if (const MP1::CPuddleToadGamma* toad = CPatterned::CastTo<MP1::CPuddleToadGamma>(&act)) {
     useAct = toad;
-  } else if (TCastToPtr<CCollisionActor> cact = act) {
-    if (cact->GetOwnerId() == xec_ownerId)
+  } else if (const TCastToConstPtr<CCollisionActor> cact = act) {
+    if (cact->GetOwnerId() == xec_ownerId) {
       return {kInvalidUniqueId, {}};
+    }
     useAct = cact.GetPtr();
   }
 
@@ -353,11 +369,11 @@ CProjectileTouchResult CGameProjectile::CanCollideWithComplexCollision(CActor& a
                CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough})});
           if (res2.IsValid())
             return {act.GetUniqueId(), {res2}};
-        } else if (TCastToPtr<CCollisionActor> cAct = act) {
-          float rad = cAct->GetSphereRadius();
+        } else if (const TCastToConstPtr<CCollisionActor> cAct = act) {
+          const float rad = cAct->GetSphereRadius();
           if ((x298_previousPos - GetTranslation()).magSquared() < rad * rad) {
-            zeus::CVector3f point = x298_previousPos - dir * rad * 1.125f;
-            zeus::CUnitVector3f revDir(-dir);
+            const zeus::CVector3f point = x298_previousPos - dir * rad * 1.125f;
+            const zeus::CUnitVector3f revDir(-dir);
             return {act.GetUniqueId(), {{0.f, point, {revDir, point.dot(revDir)}, act.GetMaterialList()}}};
           }
         }
@@ -374,7 +390,7 @@ CProjectileTouchResult CGameProjectile::CanCollideWithComplexCollision(CActor& a
 }
 
 CProjectileTouchResult CGameProjectile::CanCollideWithGameObject(CActor& act, CStateManager& mgr) const {
-  TCastToPtr<CGameProjectile> proj = act;
+  const TCastToConstPtr<CGameProjectile> proj = act;
   if (!proj) {
     if (!act.GetMaterialList().HasMaterial(EMaterialTypes::Solid) && !act.HealthInfo(mgr)) {
       return {kInvalidUniqueId, {}};
@@ -385,8 +401,9 @@ CProjectileTouchResult CGameProjectile::CanCollideWithGameObject(CActor& act, CS
     } else if (xf8_filter.GetExcludeList().Intersection(act.GetMaterialList())) {
       return {kInvalidUniqueId, {}};
     } else if (TCastToPtr<CAi> ai = act) {
-      if (!ai->CanBeShot(mgr, int(xe8_projectileAttribs)))
+      if (!ai->CanBeShot(mgr, int(xe8_projectileAttribs))) {
         return {kInvalidUniqueId, {}};
+      }
     }
   } else if ((xe8_projectileAttribs & EProjectileAttrib::PartialCharge) == EProjectileAttrib::PartialCharge ||
              (proj->xe8_projectileAttribs & EProjectileAttrib::PartialCharge) == EProjectileAttrib::PartialCharge) {
@@ -398,19 +415,21 @@ CProjectileTouchResult CGameProjectile::CanCollideWithGameObject(CActor& act, CS
   return {act.GetUniqueId(), {}};
 }
 
-CProjectileTouchResult CGameProjectile::CanCollideWithTrigger(CActor& act, CStateManager& mgr) const {
-  bool isWater = TCastToPtr<CScriptWater>(act).operator bool();
+CProjectileTouchResult CGameProjectile::CanCollideWithTrigger(const CActor& act, const CStateManager& mgr) const {
+  const bool isWater = TCastToConstPtr<CScriptWater>(act).operator bool();
   if (isWater) {
     bool enteredWater = false;
     if (isWater && !x2e4_25_startedUnderwater) {
-      if (!x170_projectile.GetWeaponDescription()->xa4_EWTR)
+      if (!x170_projectile.GetWeaponDescription()->xa4_EWTR) {
         enteredWater = true;
+      }
     }
     /* This case is logically unreachable */
     bool leftWater = false;
     if (!isWater && x2e4_25_startedUnderwater) {
-      if (!x170_projectile.GetWeaponDescription()->xa5_LWTR)
+      if (!x170_projectile.GetWeaponDescription()->xa5_LWTR) {
         leftWater = true;
+      }
     }
     return {(enteredWater || leftWater) ? act.GetUniqueId() : kInvalidUniqueId, {}};
   }
