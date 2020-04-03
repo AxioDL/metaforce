@@ -322,16 +322,16 @@ CRayCastResult CGameProjectile::RayCollisionCheckWithWorld(TUniqueId& idOut, con
 CProjectileTouchResult CGameProjectile::CanCollideWith(CActor& act, CStateManager& mgr) const {
   if (act.GetDamageVulnerability()->GetVulnerability(x12c_curDamageInfo.GetWeaponMode(), false) ==
       EVulnerability::PassThrough) {
-    return {kInvalidUniqueId, {}};
+    return {kInvalidUniqueId, std::nullopt};
+  }
+
+  if (TCastToConstPtr<CScriptTrigger>(act)) {
+    return CanCollideWithTrigger(act, mgr);
+  } else if (TCastToConstPtr<CScriptPlatform>(act) || TCastToConstPtr<CCollisionActor>(act) ||
+             CPatterned::CastTo<MP1::CPuddleToadGamma>(&act)) {
+    return CanCollideWithComplexCollision(act, mgr);
   } else {
-    if (TCastToConstPtr<CScriptTrigger>(act)) {
-      return CanCollideWithTrigger(act, mgr);
-    } else if (TCastToConstPtr<CScriptPlatform>(act) || TCastToConstPtr<CCollisionActor>(act) ||
-               CPatterned::CastTo<MP1::CPuddleToadGamma>(&act)) {
-      return CanCollideWithComplexCollision(act, mgr);
-    } else {
-      return CanCollideWithGameObject(act, mgr);
-    }
+    return CanCollideWithGameObject(act, mgr);
   }
 }
 
@@ -346,73 +346,75 @@ CProjectileTouchResult CGameProjectile::CanCollideWithComplexCollision(const CAc
     useAct = toad;
   } else if (const TCastToConstPtr<CCollisionActor> cact = act) {
     if (cact->GetOwnerId() == xec_ownerId) {
-      return {kInvalidUniqueId, {}};
+      return {kInvalidUniqueId, std::nullopt};
     }
     useAct = cact.GetPtr();
   }
 
-  if (useAct) {
-    const CCollisionPrimitive* prim = useAct->GetCollisionPrimitive();
-    zeus::CTransform xf = useAct->GetPrimitiveTransform();
-    zeus::CVector3f deltaPos = GetTranslation() - x298_previousPos;
-    if (deltaPos.canBeNormalized()) {
-      zeus::CVector3f dir = deltaPos.normalized();
-      float mag = deltaPos.magnitude();
-      CRayCastResult res = prim->CastRayInternal(
-          {x298_previousPos, dir, mag, xf,
-           CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough})});
-      if (!res.IsValid()) {
-        if (prim->GetPrimType() == FOURCC('SPHR')) {
-          mag *= 2.f;
-          CRayCastResult res2 = prim->CastRayInternal(
-              {x298_previousPos - dir * mag, dir, deltaPos.magnitude(), xf,
-               CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough})});
-          if (res2.IsValid())
-            return {act.GetUniqueId(), {res2}};
-        } else if (const TCastToConstPtr<CCollisionActor> cAct = act) {
-          const float rad = cAct->GetSphereRadius();
-          if ((x298_previousPos - GetTranslation()).magSquared() < rad * rad) {
-            const zeus::CVector3f point = x298_previousPos - dir * rad * 1.125f;
-            const zeus::CUnitVector3f revDir(-dir);
-            return {act.GetUniqueId(), {{0.f, point, {revDir, point.dot(revDir)}, act.GetMaterialList()}}};
-          }
-        }
-        return {kInvalidUniqueId, {}};
-      } else {
-        return {act.GetUniqueId(), {res}};
-      }
-    } else {
-      return {kInvalidUniqueId, {}};
-    }
-  } else {
-    return {act.GetUniqueId(), {}};
+  if (!useAct) {
+    return {act.GetUniqueId(), std::nullopt};
   }
+
+  const CCollisionPrimitive* prim = useAct->GetCollisionPrimitive();
+  const zeus::CTransform xf = useAct->GetPrimitiveTransform();
+  const zeus::CVector3f deltaPos = GetTranslation() - x298_previousPos;
+  if (!deltaPos.canBeNormalized()) {
+    return {kInvalidUniqueId, std::nullopt};
+  }
+
+  const zeus::CVector3f dir = deltaPos.normalized();
+  float mag = deltaPos.magnitude();
+  const CRayCastResult res = prim->CastRayInternal(
+      {x298_previousPos, dir, mag, xf,
+       CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough})});
+  if (res.IsValid()) {
+    return {act.GetUniqueId(), {res}};
+  }
+
+  if (prim->GetPrimType() == FOURCC('SPHR')) {
+    mag *= 2.f;
+    const CRayCastResult res2 = prim->CastRayInternal(
+        {x298_previousPos - dir * mag, dir, deltaPos.magnitude(), xf,
+         CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough})});
+    if (res2.IsValid()) {
+      return {act.GetUniqueId(), {res2}};
+    }
+  } else if (const TCastToConstPtr<CCollisionActor> cAct = act) {
+    const float rad = cAct->GetSphereRadius();
+    if ((x298_previousPos - GetTranslation()).magSquared() < rad * rad) {
+      const zeus::CVector3f point = x298_previousPos - dir * rad * 1.125f;
+      const zeus::CUnitVector3f revDir(-dir);
+      return {act.GetUniqueId(), {{0.f, point, {revDir, point.dot(revDir)}, act.GetMaterialList()}}};
+    }
+  }
+
+  return {kInvalidUniqueId, std::nullopt};
 }
 
 CProjectileTouchResult CGameProjectile::CanCollideWithGameObject(CActor& act, CStateManager& mgr) const {
   const TCastToConstPtr<CGameProjectile> proj = act;
   if (!proj) {
     if (!act.GetMaterialList().HasMaterial(EMaterialTypes::Solid) && !act.HealthInfo(mgr)) {
-      return {kInvalidUniqueId, {}};
+      return {kInvalidUniqueId, std::nullopt};
     } else if (act.GetUniqueId() == xec_ownerId) {
-      return {kInvalidUniqueId, {}};
+      return {kInvalidUniqueId, std::nullopt};
     } else if (act.GetUniqueId() == x2c2_lastResolvedObj) {
-      return {kInvalidUniqueId, {}};
+      return {kInvalidUniqueId, std::nullopt};
     } else if (xf8_filter.GetExcludeList().Intersection(act.GetMaterialList())) {
-      return {kInvalidUniqueId, {}};
+      return {kInvalidUniqueId, std::nullopt};
     } else if (TCastToPtr<CAi> ai = act) {
       if (!ai->CanBeShot(mgr, int(xe8_projectileAttribs))) {
-        return {kInvalidUniqueId, {}};
+        return {kInvalidUniqueId, std::nullopt};
       }
     }
   } else if ((xe8_projectileAttribs & EProjectileAttrib::PartialCharge) == EProjectileAttrib::PartialCharge ||
              (proj->xe8_projectileAttribs & EProjectileAttrib::PartialCharge) == EProjectileAttrib::PartialCharge) {
-    return {act.GetUniqueId(), {}};
+    return {act.GetUniqueId(), std::nullopt};
   } else if ((xe8_projectileAttribs & EProjectileAttrib::PartialCharge) != EProjectileAttrib::PartialCharge &&
              (proj->xe8_projectileAttribs & EProjectileAttrib::PartialCharge) != EProjectileAttrib::PartialCharge) {
-    return {kInvalidUniqueId, {}};
+    return {kInvalidUniqueId, std::nullopt};
   }
-  return {act.GetUniqueId(), {}};
+  return {act.GetUniqueId(), std::nullopt};
 }
 
 CProjectileTouchResult CGameProjectile::CanCollideWithTrigger(const CActor& act, const CStateManager& mgr) const {
@@ -431,9 +433,9 @@ CProjectileTouchResult CGameProjectile::CanCollideWithTrigger(const CActor& act,
         leftWater = true;
       }
     }
-    return {(enteredWater || leftWater) ? act.GetUniqueId() : kInvalidUniqueId, {}};
+    return {(enteredWater || leftWater) ? act.GetUniqueId() : kInvalidUniqueId, std::nullopt};
   }
-  return {kInvalidUniqueId, {}};
+  return {kInvalidUniqueId, std::nullopt};
 }
 
 zeus::CAABox CGameProjectile::GetProjectileBounds() const {
@@ -446,9 +448,10 @@ zeus::CAABox CGameProjectile::GetProjectileBounds() const {
 }
 
 std::optional<zeus::CAABox> CGameProjectile::GetTouchBounds() const {
-  if (x2e4_24_active)
+  if (x2e4_24_active) {
     return {GetProjectileBounds()};
-  return {};
+  }
+  return std::nullopt;
 }
 
 } // namespace urde
