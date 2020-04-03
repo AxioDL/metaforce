@@ -1,5 +1,7 @@
 #include "Runtime/CGameOptions.hpp"
 
+#include <cstring>
+
 #include "Runtime/CGameHintInfo.hpp"
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
@@ -522,18 +524,20 @@ CHintOptions::CHintOptions(CBitStreamReader& stream) {
   x0_hintStates.reserve(hints.size());
 
   u32 hintIdx = 0;
-  for (const auto& hint : hints) {
-    (void)hint;
-    EHintState state = EHintState(stream.ReadEncoded(2));
-    union { s32 i; float f; } timeBits = {stream.ReadEncoded(32)};
-    float time = timeBits.f;
-    if (state == EHintState::Zero)
+  for ([[maybe_unused]] const auto& hint : hints) {
+    const auto state = EHintState(stream.ReadEncoded(2));
+    const s32 timeBits = stream.ReadEncoded(32);
+    float time;
+    std::memcpy(&time, &timeBits, sizeof(s32));
+    if (state == EHintState::Zero) {
       time = 0.f;
+    }
 
     x0_hintStates.emplace_back(state, time, false);
 
-    if (x10_nextHintIdx == -1 && state == EHintState::Displaying)
+    if (x10_nextHintIdx == -1 && state == EHintState::Displaying) {
       x10_nextHintIdx = hintIdx;
+    }
     ++hintIdx;
   }
 }
@@ -541,8 +545,11 @@ CHintOptions::CHintOptions(CBitStreamReader& stream) {
 void CHintOptions::PutTo(CBitStreamWriter& writer) const {
   for (const SHintState& hint : x0_hintStates) {
     writer.WriteEncoded(u32(hint.x0_state), 2);
-    union { float f; u32 i; } timeBits = {hint.x4_time};
-    writer.WriteEncoded(timeBits.i, 32);
+
+    u32 timeBits;
+    std::memcpy(&timeBits, &hint.x4_time, sizeof(timeBits));
+
+    writer.WriteEncoded(timeBits, 32);
   }
 }
 
