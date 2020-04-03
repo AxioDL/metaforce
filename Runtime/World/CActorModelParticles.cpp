@@ -523,9 +523,13 @@ void CActorModelParticles::PointGenerator(void* ctx,
 }
 
 void CActorModelParticles::SetupHook(TUniqueId uid) {
-  auto search = FindSystem(uid);
-  if (search != x0_items.cend())
-    CSkinnedModel::SetPointGeneratorFunc((void*)&*search, PointGenerator);
+  const auto search = FindSystem(uid);
+
+  if (search == x0_items.cend()) {
+    return;
+  }
+
+  CSkinnedModel::SetPointGeneratorFunc(&*search, PointGenerator);
 }
 
 std::list<CActorModelParticles::CItem>::iterator CActorModelParticles::FindSystem(TUniqueId uid) {
