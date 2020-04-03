@@ -9,7 +9,7 @@
 
 namespace urde {
 namespace {
-const CCameraShakeData CameraShaker{0.125f, 0.25f};
+constexpr CCameraShakeData CameraShaker{0.125f, 0.25f};
 constexpr std::array<u16, 2> kSoundId{SFXwpn_fire_plasma_normal, SFXwpn_fire_plasma_charged};
 } // Anonymous namespace
 
