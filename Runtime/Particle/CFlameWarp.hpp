@@ -47,12 +47,7 @@ public:
   bool IsActivated() override { return xa0_24_activated; }
   bool IsProcessed() const { return xa0_26_processed; }
   FourCC Get4CharID() override { return FOURCC('FWRP'); }
-  void ResetPosition(const zeus::CVector3f& pos) {
-    for (auto& vec : x4_collisionPoints) {
-      vec = pos;
-    }
-    xa0_26_processed = false;
-  }
+  void ResetPosition(const zeus::CVector3f& pos);
   zeus::CAABox CalculateBounds() const;
 };
 } // namespace urde

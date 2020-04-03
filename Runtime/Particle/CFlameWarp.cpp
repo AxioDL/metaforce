@@ -1,5 +1,7 @@
 #include "Runtime/Particle/CFlameWarp.hpp"
 
+#include <algorithm>
+
 #include "Runtime/CStateManager.hpp"
 
 namespace urde {
@@ -65,20 +67,26 @@ void CFlameWarp::ModifyParticles(std::vector<CParticle>& particles) {
 
   std::sort(vec.begin(), vec.end(), [](auto& a, auto& b) { return a.first < b.first; });
 
-  int pitch = particles.size() / 9;
-  for (int i = 0; i < 9; ++i) {
-    CParticle& part = particles[vec[i * pitch].second];
+  const size_t pitch = particles.size() / 9;
+  for (size_t i = 0; i < x4_collisionPoints.size(); ++i) {
+    const CParticle& part = particles[vec[i * pitch].second];
     x4_collisionPoints[i] = part.x4_pos;
     if (i > 0) {
-      zeus::CVector3f delta = x4_collisionPoints[i] - x4_collisionPoints[i - 1];
-      if (delta.magnitude() < 0.0011920929f)
+      const zeus::CVector3f delta = x4_collisionPoints[i] - x4_collisionPoints[i - 1];
+      if (delta.magnitude() < 0.0011920929f) {
         x4_collisionPoints[i] += delta.normalized() * 0.0011920929f;
+      }
     }
   }
 
   x4_collisionPoints[0] = x74_warpPoint;
   x80_floatingPoint = x4_collisionPoints[8];
   xa0_26_processed = true;
+}
+
+void CFlameWarp::ResetPosition(const zeus::CVector3f& pos) {
+  std::fill(x4_collisionPoints.begin(), x4_collisionPoints.end(), pos);
+  xa0_26_processed = false;
 }
 
 zeus::CAABox CFlameWarp::CalculateBounds() const {
