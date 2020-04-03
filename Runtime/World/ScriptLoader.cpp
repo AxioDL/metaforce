@@ -34,6 +34,7 @@
 #include "Runtime/MP1/World/COmegaPirate.hpp"
 #include "Runtime/MP1/World/CParasite.hpp"
 #include "Runtime/MP1/World/CPhazonHealingNodule.hpp"
+#include "Runtime/MP1/World/CPhazonPool.hpp"
 #include "Runtime/MP1/World/CPuddleSpore.hpp"
 #include "Runtime/MP1/World/CPuddleToadGamma.hpp"
 #include "Runtime/MP1/World/CPuffer.hpp"
@@ -3668,15 +3669,29 @@ CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int
 }
 
 CEntity* ScriptLoader::LoadPhazonPool(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 9, "PhazonHealingNodule")) {
+  if (!EnsurePropertyCount(propCount, 18, "PhazonPool")) {
     return nullptr;
   }
 
   SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
-  auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first) {
-    return nullptr;
-  }
+  bool active = in.readBool();
+  CAssetId w1{in};
+  CAssetId w2{in};
+  CAssetId w3{in};
+  CAssetId w4{in};
+  u32 u1 = in.readUint32Big();
+  CDamageInfo dInfo{in};
+  zeus::CVector3f orientedForce{in.readVec3f()};
+  ETriggerFlags triggerFlags = static_cast<ETriggerFlags>(in.readUint32Big());
+  float f1 = in.readFloatBig();
+  float f2 = in.readFloatBig();
+  float f3 = in.readFloatBig();
+  bool b2 = in.readBool();
+  float f4 = in.readFloatBig();
+
+  return new MP1::CPhazonPool(mgr.AllocateUniqueId(), actHead.x0_name, info,
+                              zeus::CTransform::Translate(actHead.x10_transform.origin), actHead.x40_scale, active, w1,
+                              w2, w3, w4, u1, dInfo, orientedForce, triggerFlags, b2, f1, f2, f3, f4);
 }
 
 CEntity* ScriptLoader::LoadPhazonHealingNodule(CStateManager& mgr, CInputStream& in, int propCount,
