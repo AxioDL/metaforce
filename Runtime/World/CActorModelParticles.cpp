@@ -456,11 +456,12 @@ void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr) {
       continue;
     }
     if (isNotCold) {
-      /* Hot Draw */
-      for (int i = 0; i < 8; ++i) {
-        std::unique_ptr<CElementGen>& gen = item.x8_onFireGens[i].first;
-        if (gen)
+      // Hot Draw
+      for (auto& entry : item.x8_onFireGens) {
+        std::unique_ptr<CElementGen>& gen = entry.first;
+        if (gen) {
           g_Renderer->AddParticleGen(*gen);
+        }
       }
       if (mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot && item.x78_ashGen)
         g_Renderer->AddParticleGen(*item.x78_ashGen);
@@ -485,19 +486,21 @@ void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr) {
 }
 
 void CActorModelParticles::UpdateLoad() {
-  if (xe4_loadingDeps) {
-    xe5_justLoadedDeps = 0;
-    for (int i = 0; i < 6; ++i) {
-      if (xe4_loadingDeps & (1 << i)) {
-        x50_dgrps[i].UpdateLoad();
-        if (x50_dgrps[i].x14_loaded) {
-          xe5_justLoadedDeps |= (1 << i);
-          xe4_loadingDeps &= ~(1 << i);
-        }
+  if (!xe4_loadingDeps) {
+    return;
+  }
+
+  xe5_justLoadedDeps = 0;
+  for (size_t i = 0; i < x50_dgrps.size(); ++i) {
+    if ((xe4_loadingDeps & (1U << i)) != 0) {
+      x50_dgrps[i].UpdateLoad();
+      if (x50_dgrps[i].x14_loaded) {
+        xe5_justLoadedDeps |= (1U << i);
+        xe4_loadingDeps &= ~(1U << i);
       }
     }
-    xe6_loadedDeps |= xe5_justLoadedDeps;
   }
+  xe6_loadedDeps |= xe5_justLoadedDeps;
 }
 
 void CActorModelParticles::Update(float dt, CStateManager& mgr) {
