@@ -17,6 +17,8 @@ private:
   // u32 x59c_;
 
 public:
+  DEFINE_PATTERNED(PhazonHealingNodule);
+
   CPhazonHealingNodule(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                        CModelData&& mData, const CActorParameters& actParams, const CPatternedInfo& pInfo,
                        CAssetId particleDescId, std::string actorLctr);

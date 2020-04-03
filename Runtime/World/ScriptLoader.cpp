@@ -3668,7 +3668,15 @@ CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int
 }
 
 CEntity* ScriptLoader::LoadPhazonPool(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 9, "PhazonHealingNodule")) {
+    return nullptr;
+  }
+
+  SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
+  auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pair.first) {
+    return nullptr;
+  }
 }
 
 CEntity* ScriptLoader::LoadPhazonHealingNodule(CStateManager& mgr, CInputStream& in, int propCount,
