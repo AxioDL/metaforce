@@ -519,7 +519,7 @@ void CActorModelParticles::Update(float dt, CStateManager& mgr) {
 
 void CActorModelParticles::PointGenerator(void* ctx,
                                           const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  reinterpret_cast<CItem*>(ctx)->GeneratePoints(vn);
+  static_cast<CItem*>(ctx)->GeneratePoints(vn);
 }
 
 void CActorModelParticles::SetupHook(TUniqueId uid) {
