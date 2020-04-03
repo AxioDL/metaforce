@@ -381,23 +381,24 @@ void CActorModelParticles::IncrementDependency(EDependency d) {
     xe4_loadingDeps |= (1 << int(d));
 }
 
-constexpr std::array<const char*, 6> ParticleDGRPs{
-    "Effect_OnFire_DGRP",  "Effect_IceBreak_DGRP", "Effect_Ash_DGRP",
-    "Effect_FirePop_DGRP", "Effect_Electric_DGRP", "Effect_IcePop_DGRP",
-};
-
-CActorModelParticles::Dependency CActorModelParticles::GetParticleDGRPTokens(const char* name) {
+CActorModelParticles::Dependency CActorModelParticles::GetParticleDGRPTokens(std::string_view name) const {
   Dependency ret = {};
   TToken<CDependencyGroup> dgrp = g_SimplePool->GetObj(name);
   const auto& vector = dgrp->GetObjectTagVector();
   ret.x0_tokens.reserve(vector.size());
-  for (const SObjectTag& tag : vector)
+  for (const SObjectTag& tag : vector) {
     ret.x0_tokens.push_back(g_SimplePool->GetObj(tag));
+  }
   return ret;
 }
 
 void CActorModelParticles::LoadParticleDGRPs() {
-  for (const char* dgrp : ParticleDGRPs) {
+  static constexpr std::array particleDGRPs{
+      "Effect_OnFire_DGRP"sv,  "Effect_IceBreak_DGRP"sv, "Effect_Ash_DGRP"sv,
+      "Effect_FirePop_DGRP"sv, "Effect_Electric_DGRP"sv, "Effect_IcePop_DGRP"sv,
+  };
+
+  for (const auto& dgrp : particleDGRPs) {
     x50_dgrps.push_back(GetParticleDGRPTokens(dgrp));
   }
 }
