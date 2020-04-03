@@ -81,10 +81,9 @@ void CPlasmaProjectile::SetLightsActive(bool active, CStateManager& mgr) {
 void CPlasmaProjectile::CreatePlasmaLights(u32 sourceId, const CLight& l, CStateManager& mgr) {
   DeletePlasmaLights(mgr);
   x468_lights.reserve(3);
-  for (int i = 0; i < 3; ++i) {
-    TUniqueId lid = mgr.AllocateUniqueId();
-    auto* light =
-      new CGameLight(lid, GetAreaId(), GetActive(), ""sv, GetTransform(), GetUniqueId(), l, sourceId, 0, 0.f);
+  for (size_t i = 0; i < x468_lights.capacity(); ++i) {
+    const TUniqueId lid = mgr.AllocateUniqueId();
+    auto* light = new CGameLight(lid, GetAreaId(), GetActive(), "", GetTransform(), GetUniqueId(), l, sourceId, 0, 0.f);
     mgr.AddObject(light);
     x468_lights.push_back(lid);
   }
@@ -141,16 +140,16 @@ void CPlasmaProjectile::RenderMotionBlur() const {
   zeus::CColor color2 = x494_outerColor;
   color1.a() = 63.f / 255.f;
   color2.a() = 0.f;
-  CColoredStripShader::Vert verts[16];
-  for (int i = 0; i < 8; ++i) {
+  std::array<CColoredStripShader::Vert, 16> verts;
+  for (size_t i = 0; i < verts.size() / 2; ++i) {
     auto& v1 = verts[i * 2];
     auto& v2 = verts[i * 2 + 1];
     v1.m_pos = GetBeamTransform().origin;
-    v1.m_color = zeus::CColor::lerp(color1, color2, i / 8.f);
+    v1.m_color = zeus::CColor::lerp(color1, color2, float(i) / 8.f);
     v2.m_pos = GetPointCache()[i];
     v2.m_color = v1.m_color;
   }
-  m_renderObjs->m_motionBlurStrip.draw(zeus::skWhite, 16, verts);
+  m_renderObjs->m_motionBlurStrip.draw(zeus::skWhite, verts.size(), verts.data());
 }
 
 void CPlasmaProjectile::RenderBeam(s32 subdivs, float width, const zeus::CColor& color, s32 flags,
@@ -161,7 +160,7 @@ void CPlasmaProjectile::RenderBeam(s32 subdivs, float width, const zeus::CColor&
     float angIncrement = 2.f * M_PIF / float(subdivs);
     float uvY1 = -(x4cc_energyPulseStartY / 16.f);
     float uvY2 = (uvY1 + float((flags & 0x3) == 0x3) != 0.f) ? 2.f : 0.5f * GetCurrentLength();
-    CColoredStripShader::Vert verts[18];
+    std::array<CColoredStripShader::Vert, 18> verts;
     s32 numNodes = subdivs + 1;
     float angle = 0.f;
     bool flip = false;
@@ -186,7 +185,7 @@ void CPlasmaProjectile::RenderBeam(s32 subdivs, float width, const zeus::CColor&
       v1.m_uv = zeus::CVector2f(uvX, uvY2);
       angle += angIncrement;
     }
-    shader.draw(zeus::skWhite, numNodes * 2, verts);
+    shader.draw(zeus::skWhite, numNodes * 2, verts.data());
   }
 }
 
