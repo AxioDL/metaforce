@@ -29,6 +29,7 @@ set(MP1_WORLD_SOURCES
     CNewIntroBoss.hpp CNewIntroBoss.cpp
     COmegaPirate.hpp COmegaPirate.cpp
     CParasite.hpp CParasite.cpp
+    CPhazonHealingNodule.hpp CPhazonHealingNodule.cpp
     CPuddleSpore.hpp CPuddleSpore.cpp
     CPuddleToadGamma.hpp CPuddleToadGamma.cpp
     CPuffer.hpp CPuffer.cpp

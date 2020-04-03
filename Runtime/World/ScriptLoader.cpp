@@ -33,6 +33,7 @@
 #include "Runtime/MP1/World/CNewIntroBoss.hpp"
 #include "Runtime/MP1/World/COmegaPirate.hpp"
 #include "Runtime/MP1/World/CParasite.hpp"
+#include "Runtime/MP1/World/CPhazonHealingNodule.hpp"
 #include "Runtime/MP1/World/CPuddleSpore.hpp"
 #include "Runtime/MP1/World/CPuddleToadGamma.hpp"
 #include "Runtime/MP1/World/CPuffer.hpp"
@@ -3672,7 +3673,32 @@ CEntity* ScriptLoader::LoadPhazonPool(CStateManager& mgr, CInputStream& in, int 
 
 CEntity* ScriptLoader::LoadPhazonHealingNodule(CStateManager& mgr, CInputStream& in, int propCount,
                                                const CEntityInfo& info) {
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 9, "PhazonHealingNodule")) {
+    return nullptr;
+  }
+
+  SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
+  auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pair.first) {
+    return nullptr;
+  }
+
+  CPatternedInfo pInfo(in, pair.second);
+  CActorParameters actParms = LoadActorParameters(in);
+
+  in.readBool();
+  CAssetId w1{in};
+  std::string w2 = in.readString();
+
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
+    return nullptr;
+  }
+
+  CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
+                            actHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
+
+  return new MP1::CPhazonHealingNodule(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform,
+                                       std::move(mData), actParms, pInfo, w1, std::move(w2));
 }
 
 CEntity* ScriptLoader::LoadNewCameraShaker(CStateManager& mgr, CInputStream& in, int propCount,
