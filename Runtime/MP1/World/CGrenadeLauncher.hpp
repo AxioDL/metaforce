@@ -88,7 +88,7 @@ private:
   float x3f8_explodePlayerDistance;
   bool x3fc_launchGrenade = false;
   bool x3fd_visible = true;
-  bool x3fe_ = true;
+  bool x3fe_followPlayer = true;
 
 public:
   CGrenadeLauncher(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -107,6 +107,8 @@ public:
   void Render(const CStateManager& mgr) const override;
   void Think(float dt, CStateManager& mgr) override;
   void Touch(CActor& act, CStateManager& mgr) override;
+
+  void SetFollowPlayer(bool val) { x3fe_followPlayer = val; }
 
   static zeus::CVector3f GrenadeTarget(const CStateManager& mgr);
   static void CalculateGrenadeTrajectory(const zeus::CVector3f& target, const zeus::CVector3f& origin,

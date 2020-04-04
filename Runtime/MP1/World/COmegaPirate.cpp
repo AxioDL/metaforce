@@ -284,7 +284,45 @@ void COmegaPirate::Dizzy(CStateManager& mgr, EStateMsg msg, float dt) {
 }
 
 void COmegaPirate::DoubleSnap(CStateManager& mgr, EStateMsg msg, float dt) {
-  // TODO
+  if (msg == EStateMsg::Activate) {
+    SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
+    SetShotAt(false, mgr);
+    SetState(CElitePirate::EState::Zero);
+    xa44_ = false;
+    xa4a_ = false;
+    xa88_ = false;
+    xa8c_ = 3.f;
+    for (auto& entry : x9dc_scriptPlatforms) {
+      if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
+        platform->SetActive(true);
+        platform->SetDamageVulnerability(xae4_platformVuln);
+        platform->AddMaterial(EMaterialTypes::Orbit, EMaterialTypes::Target, mgr);
+        platform->SetDisableXRayAlpha(false);
+        platform->SetXRayFog(true);
+      }
+    }
+    xb64_ = 17.f;
+    AddMaterial(EMaterialTypes::Scannable, mgr);
+  } else if (msg == EStateMsg::Update) {
+    if (GetState() == CElitePirate::EState::Zero) {
+      if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Step) {
+        SetState(CElitePirate::EState::Two);
+      } else {
+        GetBodyController()->GetCommandMgr().DeliverCmd(
+            CBCStepCmd(pas::EStepDirection::Backward, pas::EStepType::BreakDodge));
+      }
+    } else if (GetState() == CElitePirate::EState::Two &&
+               GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
+      SetState(CElitePirate::EState::Over);
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
+      launcher->SetFollowPlayer(true);
+    }
+    if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
+      launcher->SetFollowPlayer(true);
+    }
+  }
 }
 
 void COmegaPirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
@@ -306,7 +344,23 @@ void COmegaPirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
     }
     break;
   case EUserEventType::ObjectPickUp:
-    // TODO
+    xab4_.clear();
+    xac8_ = 0;
+    ++xacc_;
+    if (xac4_ == 0) {
+      sub_8028cbec(2, mgr);
+    } else if (xac4_ == 1) {
+      sub_8028cbec(1, mgr);
+      sub_8028cbec(1, mgr);
+    } else if (xac4_ == 2) {
+      sub_8028cbec(2, mgr);
+      sub_8028cbec(1, mgr);
+    } else if (xac4_ == 3) {
+      sub_8028cbec(1, mgr);
+      sub_8028cbec(1, mgr);
+      sub_8028cbec(1, mgr);
+    }
+    SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
     break;
   case EUserEventType::Projectile:
   case EUserEventType::DamageOn:
@@ -691,4 +745,17 @@ void COmegaPirate::SetupCollisionActorInfo2(const std::unique_ptr<CCollisionActo
   }
 }
 
+u8 COmegaPirate::sub_8028bfac() const {
+  std::array<u8, 4> arr{0, 0, 0, 0};
+  for (const auto i : xab4_) {
+    arr[i]++;
+  }
+  u8 ret = 0;
+  for (size_t i = 0; i < arr.size(); ++i) {
+    if (xb7c_[i] != 0 || arr[i] != 0) {
+      ret++;
+    }
+  }
+  return ret;
+}
 } // namespace urde::MP1

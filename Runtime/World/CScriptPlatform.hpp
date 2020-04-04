@@ -83,8 +83,8 @@ public:
                   CModelData&& mData, const CActorParameters& actParms, const zeus::CAABox& aabb, float speed,
                   bool detectCollision, float xrayAlpha, bool active, const CHealthInfo& hInfo,
                   const CDamageVulnerability& dVuln,
-                  const std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln,
-                  bool rainSplashes, u32 maxRainSplashes, u32 rainGenRate);
+                  const std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln, bool rainSplashes,
+                  u32 maxRainSplashes, u32 rainGenRate);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
@@ -112,8 +112,11 @@ public:
   TUniqueId GetWaypoint(CStateManager&);
 
   const CDamageVulnerability* GetDamageVulnerability() const override { return &x29c_damageVuln; }
+  void SetDamageVulnerability(const CDamageVulnerability& vuln) { x29c_damageVuln = vuln; }
   CHealthInfo* HealthInfo(CStateManager&) override { return &x294_health; }
   void SetControlledAnimation(bool controlled) { x356_25_controlledAnimation = controlled; }
+  void SetDisableXRayAlpha(bool val) { x356_30_disableXrayAlpha = val; }
+  void SetXRayFog(bool val) { x356_31_xrayFog = val; }
 
   virtual void SplashThink(const zeus::CAABox&, const CFluidPlane&, float, CStateManager&) const;
   virtual zeus::CQuaternion Move(float, CStateManager&);

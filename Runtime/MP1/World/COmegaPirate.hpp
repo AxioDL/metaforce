@@ -56,7 +56,7 @@ private:
   std::unique_ptr<CCollisionActorManager> xa9c_collisionActorMgr2;
   std::vector<std::pair<TUniqueId, std::string_view>> xaa0_scriptSounds;
   float xab0_ = 0.f;
-  std::vector<int> xab4_; // TODO type
+  std::vector<u32> xab4_;
   int xac4_ = 0;
   int xac8_ = 0;
   int xacc_ = 0;
@@ -143,5 +143,9 @@ private:
                            std::vector<CJointCollisionDescription>& outJoints) const;
   void SetupCollisionActorInfo1(const std::unique_ptr<CCollisionActorManager>& actMgr, CStateManager& mgr);
   void SetupCollisionActorInfo2(const std::unique_ptr<CCollisionActorManager>& actMgr, CStateManager& mgr);
+
+  void sub_8028cbec(u32 arg, CStateManager& mgr);
+  int sub_8028c230() const;
+  u8 sub_8028bfac() const;
 };
 } // namespace urde::MP1

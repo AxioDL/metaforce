@@ -216,7 +216,8 @@ void CGrenadeLauncher::sub_8022f9e0(CStateManager& mgr, float dt) {
   CModelData* modelData = GetModelData();
   CAnimData* animData = nullptr;
 
-  if (modelData != nullptr && (animData = modelData->GetAnimationData()) != nullptr && x258_started == 1 && x3fe_) {
+  if (modelData != nullptr && (animData = modelData->GetAnimationData()) != nullptr && x258_started == 1 &&
+      x3fe_followPlayer) {
     const zeus::CVector3f target = mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation();
     const zeus::CVector3f rot = GetTransform().rotate({target.x(), target.y(), 0.f}); // TODO double check
 
