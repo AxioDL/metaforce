@@ -147,5 +147,12 @@ private:
   void sub_8028cbec(u32 arg, CStateManager& mgr);
   int sub_8028c230() const;
   u8 sub_8028bfac() const;
+  void sub_8028efc4(CStateManager& mgr);
+  void sub_8028f6f0(CStateManager& mgr, float arg);
+  void sub_8028c704(CStateManager& mgr, float arg);
+  void sub_8028cd04(CStateManager& mgr, float arg);
+  void sub_8028d7e4(CStateManager& mgr, float arg);
+  void sub_8028d690(CStateManager& mgr, float arg);
+  void sub_8028b518(CStateManager& mgr);
 };
 } // namespace urde::MP1

@@ -209,6 +209,7 @@ protected:
   void SetState(EState state) { x568_state = state; }
   TUniqueId GetLauncherId() const { return x772_launcherId; }
   void SetAlert(bool val) { x988_28_alert = val; }
+  const CCollisionActorManager& GetCollisionActorManager() const { return *x5d4_collisionActorMgr; }
 
 private:
   bool IsArmClawCollider(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 7>& vec) const;
