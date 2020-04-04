@@ -10,7 +10,7 @@ class CDrone : public CPatterned {
   CAssetId x568_;
   TLockedToken<CCollisionResponseData> x56c_;
   CCollisionResponseData* x574_;
-  TUniqueId x578_ = kInvalidUniqueId;
+  TUniqueId x578_lightId = kInvalidUniqueId;
   TUniqueId x57a_ = kInvalidUniqueId;
   std::vector<CVisorFlare::CFlareDef> x57c_flares;
   u32 x58c_ = 2;
@@ -60,7 +60,7 @@ class CDrone : public CPatterned {
   float x66c_ = 0.f;
   zeus::CVector3f x670_;
   zeus::CVector3f x67c_;
-  TUniqueId x688_ = kInvalidUniqueId;
+  TUniqueId x688_teamMgr = kInvalidUniqueId;
   CCollidableSphere x690_;
   CPathFindSearch x6b0_pathFind;
   zeus::CAxisAngle x794_;
@@ -72,7 +72,7 @@ class CDrone : public CPatterned {
   float x7bc_ = 0.f;
   s32 x7c8_ = 0;
   s16 x7cc_;
-  s32 x7d0_ = 0;
+  CSfxHandle x7d0_;
   rstl::reserved_vector<TUniqueId, 2> x7d4_;
   rstl::reserved_vector<zeus::CVector3f, 2> x7e0_;
   rstl::reserved_vector<zeus::CVector3f, 2> x7fc_;
@@ -93,6 +93,10 @@ class CDrone : public CPatterned {
   bool x835_25_ : 1;
   bool x835_26_ : 1;
   void UpdateTouchBounds(float radius);
+  bool HitShield(const zeus::CVector3f& dir) const;
+  void AddToTeam(CStateManager& mgr) const;
+  void RemoveFromTeam(CStateManager& mgr) const;
+
 public:
   DEFINE_PATTERNED(Drone);
   CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -103,7 +107,55 @@ public:
          float f13, float f14, float f15, float f16, float f17, float f18, float f19, float f20, CAssetId crscId,
          float f21, float f22, float f23, float f24, s32 w3, bool b1);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
+  void Accept(IVisitor& visitor) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void Render(const CStateManager &mgr) const override;
+  bool CanRenderUnsorted(const CStateManager& mgr) const override;
+  const CDamageVulnerability* GetDamageVulnerability() const override { return CAi::GetDamageVulnerability(); }
+  const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                     const CDamageInfo&) const override;
+  void Touch(CActor& act, CStateManager& mgr) override;
+  EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                         const CWeaponMode&, EProjectileAttrib) const override;
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
+  const CCollisionPrimitive* GetCollisionPrimitive() const override;
+  void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;
+  void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType type, bool inDeferred,
+                 float magnitude) override;
+  void Patrol(CStateManager&, EStateMsg msg, float dt) override;
+  void PathFind(CStateManager&, EStateMsg msg, float dt) override;
+  void TargetPlayer(CStateManager&, EStateMsg msg, float dt) override;
+  void TargetCover(CStateManager&, EStateMsg msg, float dt) override;
+  void Deactivate(CStateManager&, EStateMsg msg, float dt) override;
+  void Attack(CStateManager&, EStateMsg msg, float dt) override;
+  void Active(CStateManager&, EStateMsg msg, float dt) override;
+  void Flee(CStateManager&, EStateMsg msg, float dt) override;
+  void ProjectileAttack(CStateManager&, EStateMsg msg, float dt) override;
+  void TelegraphAttack(CStateManager&, EStateMsg msg, float dt) override;
+  void Dodge(CStateManager&, EStateMsg msg, float dt) override;
+  void Retreat(CStateManager&, EStateMsg msg, float dt) override;
+  void Cover(CStateManager&, EStateMsg msg, float dt) override;
+  void SpecialAttack(CStateManager&, EStateMsg msg, float dt) override;
+  void PathFindEx(CStateManager&, EStateMsg msg, float dt) override;
+  bool Leash(CStateManager&, float arg) override;
+  bool InRange(CStateManager&, float arg) override;
+  bool SpotPlayer(CStateManager&, float arg) override;
+  bool AnimOver(CStateManager&, float arg) override;
+  bool ShouldAttack(CStateManager&, float arg) override;
+  bool HearShot(CStateManager&, float arg) override;
+  bool CoverCheck(CStateManager&, float arg) override;
+  bool LineOfSight(CStateManager&, float arg) override;
+  bool ShouldMove(CStateManager&, float arg) override;
+  bool CodeTrigger(CStateManager&, float arg) override;
+  void Burn(float duration, float damage) override;
+  CPathFindSearch* GetSearchPath() override;
+  virtual void BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat,
+                             rstl::reserved_vector<TUniqueId, 1024>& listOut, float radius, CStateManager& mgr);
+  virtual void SetLightEnabled(CStateManager& mgr, bool activate);
+  virtual void UpdateVisorFlare(CStateManager& mgr);
+  virtual int sub_8015f150() { return 3; }
 };
 } // namespace urde::MP1
