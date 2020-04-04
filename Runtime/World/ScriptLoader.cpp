@@ -2076,18 +2076,19 @@ CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propC
   float f18 = in.readFloatBig();
   float f19 = in.readFloatBig();
   float f20 = in.readFloatBig();
+  CAssetId crscId(in);
   float f21 = in.readFloatBig();
   float f22 = in.readFloatBig();
   float f23 = in.readFloatBig();
   float f24 = in.readFloatBig();
-  CAssetId crscId(in);
+  s32 soundId = in.readUint32Big();
   bool b1 = in.readBool();
   CModelData mData(
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
   return new MP1::CDrone(mgr.AllocateUniqueId(), name, flavor, info, xf, f1, std::move(mData), pInfo, actParms,
                          CPatterned::EMovementType::Flyer, CPatterned::EColliderType::One, EBodyType::Pitchable, dInfo1,
                          aId2, dInfo2, aId2, flares, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16,
-                         f17, f18, f19, f20, f21, f22, f23, f24, crscId, b1);
+                         f17, f18, f19, f20, crscId, f21, f22, f23, f24, soundId, b1);
 }
 
 CEntity* ScriptLoader::LoadMetroid(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
