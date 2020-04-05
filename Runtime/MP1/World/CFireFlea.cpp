@@ -8,11 +8,13 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
+namespace {
+constexpr zeus::CColor skEndFadeColor{1.f, 1.f, 0.5f, 1.f};
+constexpr zeus::CColor skStartFadeColor{1.f, 0.f, 0.f, 0.f};
+} // Anonymous namespace
 
 // region Fire Flea Death Camera
 
-const zeus::CColor CFireFlea::CDeathCameraEffect::skEndFadeColor{1.f, 1.f, 0.5f, 1.f};
-const zeus::CColor CFireFlea::CDeathCameraEffect::skStartFadeColor{1.f, 0.f, 0.f, 0.f};
 zeus::CColor CFireFlea::CDeathCameraEffect::sCurrentFadeColor = zeus::skClear;
 
 CFireFlea::CDeathCameraEffect::CDeathCameraEffect(TUniqueId uid, TAreaId areaId, std::string_view name)
