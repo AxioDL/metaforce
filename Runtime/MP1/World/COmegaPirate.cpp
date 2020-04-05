@@ -117,7 +117,7 @@ void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     }
     break;
   case EScriptObjectMessage::Stop:
-    SetupCollisionManager(mgr);
+    Destroy(mgr);
     break;
   case EScriptObjectMessage::StopAndReset:
     xb7c_[1] -= xb7c_[1] == 0 ? 0 : 1;
@@ -498,7 +498,7 @@ void COmegaPirate::Growth(CStateManager& mgr, EStateMsg msg, float dt) {
       xb6c_ = true;
     }
   } else if (msg == EStateMsg::Deactivate) {
-    sub_8028efc4(mgr);
+    TeleportToFurthestPlatform(mgr);
     xad0_ = true;
     AddMaterial(EMaterialTypes::RadarObject, mgr);
     ProcessSoundEvent(0xb28, 1.f, 0, 0.1f, 1000.f, 0.16f, 1.f, zeus::skZero3f, GetTranslation(), mgr.GetNextAreaId(),
@@ -699,9 +699,9 @@ void COmegaPirate::Suck(CStateManager& mgr, EStateMsg msg, float dt) {
         platform->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
         platform->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
         platform->SetDisableXRayAlpha(true);
-        CModelFlags flags{5, 0, 3, zeus::skWhite};
-        flags.addColor = zeus::CColor{1.f, 0.f};
+        CModelFlags flags{5, 0, 3, zeus::CColor{1.f, 0.f}};
         platform->SetDrawFlags(flags);
+        platform->SetXRayFog(false);
       }
     }
     xb50_ = 0.f;
@@ -806,7 +806,7 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
       x9b4_ = true;
     }
   } else {
-    sub_8028b518(mgr);
+    Destroy(mgr);
   }
 
   sub_8028c704(mgr, dt);
@@ -864,10 +864,15 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
   }
 
   if (xb68_ > 1) {
-    // TODO
+    DoUserAnimEvent(mgr, CInt32POINode{}, EUserEventType::ObjectPickUp, dt);
+    xb68_ = 0;
   }
 
-  // TODO
+  if (xb8c_ > 0.f) {
+    // TODO CGameCollision unimplemented method
+    xb8c_ = 0.f;
+  }
+  xb8c_ += dt;
 }
 
 void COmegaPirate::WallDetach(CStateManager& mgr, EStateMsg msg, float dt) {
@@ -1003,14 +1008,345 @@ void COmegaPirate::SetupCollisionActorInfo2(const std::unique_ptr<CCollisionActo
 u8 COmegaPirate::sub_8028bfac() const {
   std::array<u8, 4> arr{0, 0, 0, 0};
   for (const auto i : xab4_) {
-    arr[i]++;
+    ++arr[i];
   }
   u8 ret = 0;
   for (size_t i = 0; i < arr.size(); ++i) {
     if (xb7c_[i] != 0 || arr[i] != 0) {
-      ret++;
+      ++ret;
     }
   }
   return ret;
+}
+
+void COmegaPirate::sub_8028cbec(u32 arg, CStateManager& mgr) {
+  int i = mgr.GetActiveRandom()->Next() % 4;
+  u32 v = 3 - (xab4_.size() + sub_8028c230());
+  u32 ct = std::min(arg, v);
+
+  if (sub_8028bfac() < 2) {
+    for (u32 n = 0; n < ct; ++n) {
+      xab4_.push_back(i);
+    }
+  } else {
+    sub_8028c840(ct, mgr);
+  }
+}
+
+u8 COmegaPirate::sub_8028c230() const { return xb7c_[0] + xb7c_[1] + xb7c_[2] + xb7c_[3]; }
+
+void COmegaPirate::sub_8028c840(u32 arg, CStateManager& mgr) {
+  std::array<u8, 4> arr{0, 0, 0, 0};
+  for (const auto i : xab4_) {
+    ++arr[i];
+  }
+  std::vector<u8> vec;
+  for (size_t i = 0; i < arr.size(); ++i) {
+    if (xb7c_[i] != 0 || arr[i] != 0) {
+      vec.push_back(i);
+    }
+  }
+  if (vec.empty()) {
+    sub_8028cbec(arg, mgr);
+  } else {
+    s32 rand = mgr.GetActiveRandom()->Next();
+    int sz = vec.size(); // might be wrong?
+    int val = vec[rand - (rand / sz) * sz];
+    u32 v = 3 - (xab4_.size() + sub_8028c230());
+    u32 ct = std::min(arg, v);
+    for (u32 n = 0; n < ct; ++n) {
+      xab4_.push_back(val);
+    }
+  }
+}
+
+void COmegaPirate::TeleportToFurthestPlatform(CStateManager& mgr) {
+  size_t waypointIdx = 0;
+  float maxDist = 0.f;
+  zeus::CVector3f pos;
+  for (size_t i = 0; i < x9a4_scriptWaypointPlatforms.size(); ++i) {
+    const auto& entry = x9a4_scriptWaypointPlatforms[i];
+    if (TCastToConstPtr<CScriptWaypoint> waypoint = mgr.GetObjectById(entry.first)) {
+      auto waypointPos = waypoint->GetTranslation();
+      float dist = (mgr.GetPlayer().GetTranslation() - waypointPos).magnitude();
+      if (dist > maxDist && waypoint->GetUniqueId() != xada_) {
+        waypointIdx = i;
+        maxDist = dist;
+        pos = waypointPos;
+      }
+    }
+  }
+  SetTranslation(FindGround(pos, mgr));
+
+  auto waypointId = x9a4_scriptWaypointPlatforms[waypointIdx].first;
+  xada_ = waypointId;
+  if (TCastToPtr<CScriptWaypoint> waypoint = mgr.ObjectById(waypointId)) {
+    waypoint->SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
+  }
+
+  const zeus::CVector2f distXY = (mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f()).normalized();
+  const zeus::CVector2f frontVecXY = GetTransform().frontVector().toVec2f().normalized();
+  const zeus::CQuaternion quat =
+      zeus::CQuaternion::shortestRotationArc(zeus::CVector3f{frontVecXY, 0.f}, zeus::CVector3f{distXY, 0.f});
+  SetTransform(zeus::CTransform{GetTransform().basis * zeus::CMatrix3f{quat}, GetTranslation()});
+}
+
+zeus::CVector3f COmegaPirate::FindGround(const zeus::CVector3f& pos, CStateManager& mgr) const {
+  auto result = mgr.RayStaticIntersection(pos, zeus::skDown, 30.f, CMaterialFilter::MakeInclude(EMaterialTypes::Solid));
+  if (result.IsValid()) {
+    return result.GetPoint();
+  }
+  return pos;
+}
+
+void COmegaPirate::sub_8028f6f0(CStateManager& mgr, float dt) {
+  if (x994_ == 1) {
+    x99c_ = 1.f - std::min(x998_, 1.25f) / 1.25f;
+    x42c_color.a() = x99c_;
+    if (x998_ > 1.25f) {
+      x994_ = 2;
+      x9a1_ = false;
+      x998_ = 0.f;
+    }
+    x998_ += dt;
+    x9a0_ = true;
+  } else if (x994_ == 2) {
+    x99c_ = 0.f;
+    if (x998_ > 1.5f && x9a1_) {
+      CreateFlash(mgr, 0.f);
+      x994_ = 3;
+      x998_ = 0.f;
+    }
+    x998_ += dt;
+    x9a0_ = false;
+  } else if (x994_ == 3) {
+    x99c_ = std::min(x998_, 1.f) / 1.25f;
+    if (x998_ > 1.f) {
+      x994_ = 0;
+      x998_ = 0.f;
+    }
+    x998_ += dt;
+    x9a0_ = true;
+  } else {
+    x99c_ = 1.f;
+    x9a0_ = true;
+  }
+
+  float alpha = x99c_;
+  if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
+    alpha = 0.f;
+    x99c_ = 1.f;
+    x9a0_ = true;
+  }
+  x42c_color.a() = x99c_;
+
+  if (alpha >= 1.f) {
+    if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
+      launcher->SetVisible(true);
+      launcher->SetColor(zeus::CColor{0.f});
+    }
+    if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
+      launcher->SetVisible(true);
+      launcher->SetColor(zeus::CColor{0.f});
+    }
+  } else {
+    if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
+      launcher->SetColor(zeus::CColor{1.f, alpha});
+      launcher->SetVisible(alpha != 0.f);
+    }
+    if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
+      launcher->SetColor(zeus::CColor{1.f, alpha});
+      launcher->SetVisible(alpha != 0.f);
+    }
+  }
+}
+
+void COmegaPirate::sub_8028c704(CStateManager& mgr, float dt) {
+  int idx = xac8_;
+  if (idx >= xab4_.size()) {
+    return;
+  }
+
+  if (xab0_ <= 0.f) {
+    ++xac8_;
+    int val = xab4_[idx];
+    if (val == 0) {
+      SendScriptMsgs(EScriptObjectState::Closed, mgr, EScriptObjectMessage::None);
+      xb7c_[0]++;
+    } else if (val == 1) {
+      SendScriptMsgs(EScriptObjectState::Open, mgr, EScriptObjectMessage::None);
+      xb7c_[1]++;
+    } else if (val == 2) {
+      SendScriptMsgs(EScriptObjectState::CloseIn, mgr, EScriptObjectMessage::None);
+      xb7c_[2]++;
+    } else if (val == 3) {
+      SendScriptMsgs(EScriptObjectState::Modify, mgr, EScriptObjectMessage::None);
+      xb7c_[3]++;
+    }
+    xab0_ = 1.5f;
+  }
+  xab0_ -= dt;
+}
+
+void COmegaPirate::sub_8028cd04(CStateManager& mgr, float dt) {
+  if (xa7c_ == 1) {
+    xa80_ = std::min(xa84_, xa90_) / xa90_;
+    if (xa90_ < xa84_) {
+      xa7c_ = 0;
+      xa84_ = 0.f;
+    }
+    xa84_ += dt;
+  } else if (xa7c_ == 2) {
+    xa80_ = 0.f;
+    if ((xa94_ < xa84_) && !xa88_) {
+      xa7c_ = 1;
+      xa84_ = 0.f;
+    }
+    xa84_ += dt;
+  } else if (xa7c_ == 3) {
+    xa80_ = 1.f - std::min(xa84_, xa8c_) / xa8c_;
+    if (xa8c_ < xa84_) {
+      xa7c_ = 2;
+      xa84_ = 0.f;
+    }
+    xa84_ += dt;
+  } else {
+    xa80_ = 1.f;
+  }
+}
+
+void COmegaPirate::sub_8028d7e4(CStateManager& mgr, float dt) {
+  auto modelData = GetModelData();
+  zeus::CVector3f scale = modelData->GetScale();
+  switch (x9c8_) {
+  case 0:
+  default:
+    return;
+  case 1:
+    scale.x() = x9d0_.x() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_, 0.25f) / 0.25f));
+    if (x9cc_ > 0.25f) {
+      x9c8_ = 3;
+      x9cc_ = 0.f;
+    }
+    x9cc_ += dt;
+    break;
+  case 2:
+    scale.y() = x9d0_.y() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_, 0.25f) / 0.25f));
+    if (x9cc_ > 0.25f) {
+      x9c8_ = 1;
+      x9cc_ = 0.f;
+    }
+    x9cc_ += dt;
+    break;
+  case 3:
+    scale.z() = x9d0_.z() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_, 0.25f) / 0.25f));
+    if (x9cc_ > 0.25f) {
+      x9c8_ = 4;
+      x9cc_ = 0.f;
+    }
+    x9cc_ += dt;
+    break;
+  case 4:
+    if (x9cc_ > 0.1f && xad0_) {
+      x9c8_ = 7;
+      x9cc_ = 0.f;
+    }
+    x9cc_ += dt;
+    break;
+  case  5:
+    scale.x() = x9d0_.x() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_, 0.25f) / 0.25f));
+    if (x9cc_ > 0.25f) {
+      x9c8_ = 6;
+      x9cc_ = 0.f;
+    }
+    x9cc_ += dt;
+    break;
+  case 6:
+    scale.y() = x9d0_.y() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_, 0.25f) / 0.25f));
+    if (x9cc_ > 0.25f) {
+      x9c8_ = 0;
+      x9cc_ = 0.f;
+    }
+    x9cc_ += dt;
+    break;
+  case 7:
+    scale.z() = x9d0_.z() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_, 0.25f) / 0.25f));
+    if (x9cc_ > 0.25f) {
+      x9c8_ = 5;
+      x9cc_ = 0.f;
+    }
+    x9cc_ += dt;
+    break;
+  }
+
+  modelData->SetScale(scale);
+  if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
+    launcher->GetModelData()->SetScale(scale);
+  }
+  if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
+    launcher->GetModelData()->SetScale(scale);
+  }
+  for (const auto& entry : x9dc_scriptPlatforms) {
+    if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
+      platform->GetModelData()->SetScale(scale);
+    }
+  }
+}
+
+void COmegaPirate::sub_8028d690(CStateManager& mgr, float dt) {
+  if (xa30_ == 1) {
+    xa2c_ = 1.f - std::min(xa34_, 1.f);
+    if (xa34_ > 1.f) {
+      xa30_ = 0;
+      xa34_ = 0.f;
+    }
+    xa34_ += dt;
+  } else if (xa30_ == 2) {
+    xa2c_ = 1.f;
+    if (xa34_ > 1.f) {
+      xa30_ = 1;
+      xa34_ = 0.f;
+      CreateFlash(mgr, 0.75f);
+    }
+    xa34_ += dt;
+  } else if (xa30_ == 3) {
+    xa2c_ = std::min(xa34_, 1.f);
+    if (xa34_ > 1.f) {
+      xa30_ = 2;
+      xa34_ = 0.f;
+    }
+    xa34_ += dt;
+  } else {
+    xa2c_ = 0.f;
+  }
+}
+
+void COmegaPirate::Destroy(CStateManager& mgr) {
+  RemoveEmitter();
+  SetTransform(xa4c_initialXf);
+  x9a1_ = true;
+  xa4a_ = false;
+  SendScriptMsgs(EScriptObjectState::DeathRattle, mgr, EScriptObjectMessage::None);
+  SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
+  SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::None);
+  for (auto& entry : x9dc_scriptPlatforms) {
+    if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
+      platform->SetActive(false);
+      platform->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
+      mgr.FreeScriptObject(entry.first);
+    }
+  }
+  x9dc_scriptPlatforms.clear();
+
+  if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
+    launcher->SetActive(false);
+  }
+  if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
+    launcher->SetActive(false);
+  }
+  SetActive(false);
+  mgr.SetBossParams(kInvalidUniqueId, 0.f, 0x59);
+  xa38_collisionActorMgr1->SetActive(mgr, false);
+  xa9c_collisionActorMgr2->SetActive(mgr, false);
 }
 } // namespace urde::MP1

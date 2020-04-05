@@ -108,6 +108,8 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void Touch(CActor& act, CStateManager& mgr) override;
 
+  void SetColor(const zeus::CColor& color) { x3f4_color3 = color; }
+  void SetVisible(bool val) { x3fd_visible = val; }
   void SetFollowPlayer(bool val) { x3fe_followPlayer = val; }
 
   static zeus::CVector3f GrenadeTarget(const CStateManager& mgr);

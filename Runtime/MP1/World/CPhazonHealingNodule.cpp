@@ -141,18 +141,20 @@ void CPhazonHealingNodule::Render(const CStateManager& mgr) const {
 }
 
 void CPhazonHealingNodule::Think(float dt, CStateManager& mgr) {
-  if (GetActive()) {
-    CPatterned::Think(dt, mgr);
-    if (HealthInfo(mgr)->GetHP() <= 0.f) {
-      x57c_particleElectric.reset();
-      x56c_emitting = false;
-      x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Patrol"sv);
-      x568_active = 0;
-    }
-    if (x57c_particleElectric) {
-      UpdateParticleElectric(mgr);
-      x57c_particleElectric->Update(dt);
-    }
+  if (!GetActive()) {
+    return;
+  }
+
+  CPatterned::Think(dt, mgr);
+  if (HealthInfo(mgr)->GetHP() <= 0.f) {
+    x57c_particleElectric.reset();
+    x56c_emitting = false;
+    x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Patrol"sv);
+    x568_active = 0;
+  }
+  if (x57c_particleElectric) {
+    UpdateParticleElectric(mgr);
+    x57c_particleElectric->Update(dt);
   }
 }
 

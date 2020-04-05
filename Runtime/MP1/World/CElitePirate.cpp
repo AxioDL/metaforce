@@ -611,7 +611,7 @@ void CElitePirate::SpecialAttack(CStateManager& mgr, EStateMsg msg, float) {
       }
     } else if (x568_state == EState::Two) {
       if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::ProjectileAttack) {
-        x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation());
+        x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
       } else {
         x568_state = EState::Over;
       }

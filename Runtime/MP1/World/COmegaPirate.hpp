@@ -143,16 +143,17 @@ private:
                            std::vector<CJointCollisionDescription>& outJoints) const;
   void SetupCollisionActorInfo1(const std::unique_ptr<CCollisionActorManager>& actMgr, CStateManager& mgr);
   void SetupCollisionActorInfo2(const std::unique_ptr<CCollisionActorManager>& actMgr, CStateManager& mgr);
-
   void sub_8028cbec(u32 arg, CStateManager& mgr);
-  int sub_8028c230() const;
+  u8 sub_8028c230() const;
   u8 sub_8028bfac() const;
-  void sub_8028efc4(CStateManager& mgr);
-  void sub_8028f6f0(CStateManager& mgr, float arg);
-  void sub_8028c704(CStateManager& mgr, float arg);
-  void sub_8028cd04(CStateManager& mgr, float arg);
-  void sub_8028d7e4(CStateManager& mgr, float arg);
-  void sub_8028d690(CStateManager& mgr, float arg);
-  void sub_8028b518(CStateManager& mgr);
+  void TeleportToFurthestPlatform(CStateManager& mgr);
+  void sub_8028f6f0(CStateManager& mgr, float dt);
+  void sub_8028c704(CStateManager& mgr, float dt);
+  void sub_8028cd04(CStateManager& mgr, float dt);
+  void sub_8028d7e4(CStateManager& mgr, float dt);
+  void sub_8028d690(CStateManager& mgr, float dt);
+  void Destroy(CStateManager& mgr);
+  void sub_8028c840(u32 arg, CStateManager& mgr);
+  zeus::CVector3f FindGround(const zeus::CVector3f& pos, CStateManager& mgr) const;
 };
 } // namespace urde::MP1
