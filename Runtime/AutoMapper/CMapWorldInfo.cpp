@@ -59,8 +59,8 @@ bool CMapWorldInfo::IsDoorVisited(TEditorId eid) const { return x28_visitedDoors
 
 bool CMapWorldInfo::IsAreaVisited(TAreaId aid) const {
   if (u32(aid) + 1 > x0_visitedAreasAllocated) {
-    const_cast<CMapWorldInfo&>(*this).x4_visitedAreas.resize((u32(aid) + 32) / 32);
-    const_cast<CMapWorldInfo&>(*this).x0_visitedAreasAllocated = u32(aid) + 1;
+    x4_visitedAreas.resize((u32(aid) + 32) / 32);
+    x0_visitedAreasAllocated = u32(aid) + 1;
   }
   return ((x4_visitedAreas[aid / 32] >> (aid % 32)) & 1) != 0;
 }
@@ -80,8 +80,8 @@ void CMapWorldInfo::SetAreaVisited(TAreaId aid, bool visited) {
 
 bool CMapWorldInfo::IsMapped(TAreaId aid) const {
   if (u32(aid) + 1 > x14_mappedAreasAllocated) {
-    const_cast<CMapWorldInfo&>(*this).x18_mappedAreas.resize((u32(aid) + 32) / 32);
-    const_cast<CMapWorldInfo&>(*this).x14_mappedAreasAllocated = u32(aid) + 1;
+    x18_mappedAreas.resize((u32(aid) + 32) / 32);
+    x14_mappedAreasAllocated = u32(aid) + 1;
   }
   return ((x18_mappedAreas[aid / 32] >> (aid % 32)) & 1) != 0;
 }
