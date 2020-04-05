@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <optional>
 #include <utility>
 
@@ -52,7 +53,7 @@ public:
   enum class EVisMode { Always, MapStationOrVisit, Visit, Never, MapStationOrVisit2 };
 
 private:
-  static zeus::CVector3f skDoorVerts[8];
+  static std::array<zeus::CVector3f, 8> skDoorVerts;
 
   EMappableObjectType x0_type;
   EVisMode x4_visibilityMode;
