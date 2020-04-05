@@ -199,7 +199,7 @@ void CMFGame::Draw() {
   }
   SCOPED_GRAPHICS_DEBUG_GROUP("CMFGame::Draw", zeus::skGreen);
 
-  const_cast<CMFGame&>(*this).Touch();
+  Touch();
   if (x18_guiManager->GetIsGameDraw()) {
     static_cast<CMain&>(*g_Main).SetGameFrameDrawn();
     x14_stateManager->PreRender();
