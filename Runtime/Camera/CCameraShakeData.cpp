@@ -27,22 +27,6 @@ CCameraShakerComponent CCameraShakerComponent::LoadNewCameraShakerComponent(CInp
   return {useModulation != 0, am, fm};
 }
 
-CCameraShakeData::CCameraShakeData(float duration, float sfxDist, u32 flags, const zeus::CVector3f& sfxPos,
-                                   const CCameraShakerComponent& shaker1, const CCameraShakerComponent& shaker2,
-                                   const CCameraShakerComponent& shaker3)
-: x0_duration(duration)
-, x8_shakerX(shaker1)
-, x44_shakerY(shaker2)
-, x80_shakerZ(shaker3)
-, xc0_flags(flags)
-, xc4_sfxPos(sfxPos)
-, xd0_sfxDist(sfxDist) {}
-
-CCameraShakeData::CCameraShakeData(float duration, float magnitude)
-: CCameraShakeData(duration, 100.f, 0, zeus::skZero3f, CCameraShakerComponent{}, CCameraShakerComponent{},
-                   CCameraShakerComponent{1, SCameraShakePoint{0, 0.25f * duration, 0.f, 0.75f * duration, magnitude},
-                                          SCameraShakePoint{1, 0.f, 0.f, 0.5f * duration, 2.f}}) {}
-
 CCameraShakeData::CCameraShakeData(CInputStream& in) {
   in.readUint32Big();
   in.readFloatBig();
@@ -54,66 +38,6 @@ CCameraShakeData::CCameraShakeData(CInputStream& in) {
   in.readFloatBig();
   in.readBool();
   BuildProjectileCameraShake(0.5f, 0.75f);
-}
-
-CCameraShakeData CCameraShakeData::BuildLandingCameraShakeData(float duration, float magnitude) {
-  return {duration,
-          100.f,
-          0,
-          zeus::skZero3f,
-          CCameraShakerComponent(1, SCameraShakePoint(0, 0.15f * duration, 0.f, 0.85f * duration, magnitude),
-                                 SCameraShakePoint(1, 0.f, 0.f, 0.4f * duration, 1.5f)),
-          CCameraShakerComponent(),
-          CCameraShakerComponent(1, SCameraShakePoint(0, 0.25f * duration, 0.f, 0.75f * duration, magnitude),
-                                 SCameraShakePoint(1, 0.f, 0.f, 0.5f * duration, 2.f))};
-}
-
-CCameraShakeData CCameraShakeData::BuildProjectileCameraShake(float duration, float magnitude) {
-  return {duration,
-          100.f,
-          0,
-          zeus::skZero3f,
-          CCameraShakerComponent(1, SCameraShakePoint(0, 0.f, 0.f, duration, magnitude),
-                                 SCameraShakePoint(1, 0.f, 0.f, 0.5f * duration, 3.f)),
-          CCameraShakerComponent(),
-          CCameraShakerComponent()};
-}
-
-CCameraShakeData CCameraShakeData::BuildMissileCameraShake(float duration, float magnitude, float sfxDistance,
-                                                           const zeus::CVector3f& sfxPos) {
-  CCameraShakeData ret(duration, magnitude);
-  ret.SetSfxPositionAndDistance(sfxPos, sfxDistance);
-  return ret;
-}
-
-CCameraShakeData CCameraShakeData::BuildPhazonCameraShakeData(float duration, float magnitude) {
-  return {duration,
-          100.f,
-          0,
-          zeus::skZero3f,
-          CCameraShakerComponent(1, SCameraShakePoint(0, 0.15f * duration, 0.f, 0.25f * duration, magnitude),
-                                 SCameraShakePoint(1, 0.f, 0.f, 0.4f * duration, 0.3f)),
-          CCameraShakerComponent(),
-          CCameraShakerComponent(1, SCameraShakePoint(0, 0.25f * duration, 0.f, 0.25f * duration, magnitude),
-                                 SCameraShakePoint(1, 0.f, 0.f, 0.5f * duration, 0.5f))};
-}
-
-CCameraShakeData CCameraShakeData::BuildPatternedExplodeShakeData(float duration, float magnitude) {
-  return {duration,
-          100.f,
-          0,
-          zeus::skZero3f,
-          CCameraShakerComponent(1, SCameraShakePoint(0, 0.25f * duration, 0.f, 0.75f * duration, magnitude),
-                                 SCameraShakePoint(1, 0.f, 0.f, 0.5f * duration, 2.0f)),
-          CCameraShakerComponent(),
-          CCameraShakerComponent()};
-}
-
-CCameraShakeData CCameraShakeData::BuildPatternedExplodeShakeData(const zeus::CVector3f& pos, float duration,
-                                                                  float magnitude, float distance) {
-  CCameraShakeData shakeData = CCameraShakeData::BuildPatternedExplodeShakeData(duration, magnitude);
-  shakeData.SetSfxPositionAndDistance(pos, distance);
-  return shakeData;
 }
 
 void SCameraShakePoint::Update(float curTime) {
@@ -198,13 +122,18 @@ CCameraShakeData CCameraShakeData::LoadCameraShakeData(CInputStream& in) {
   return {duration, 100.f, 0, zeus::skZero3f, shakerX, shakerY, shakerZ};
 }
 
-const CCameraShakeData CCameraShakeData::skChargedShotCameraShakeData = {
+const CCameraShakeData CCameraShakeData::skChargedShotCameraShakeData{
     0.3f,
     100.f,
     0,
     zeus::skZero3f,
-    CCameraShakerComponent(),
-    CCameraShakerComponent(1, {0, 0.f, 0.f, 0.3f, -1.f}, {1, 0.f, 0.f, 0.05f, 0.3f}),
-    CCameraShakerComponent()};
+    CCameraShakerComponent{},
+    CCameraShakerComponent{
+        true,
+        {false, 0.f, 0.f, 0.3f, -1.f},
+        {true, 0.f, 0.f, 0.05f, 0.3f},
+    },
+    CCameraShakerComponent{},
+};
 
 } // namespace urde
