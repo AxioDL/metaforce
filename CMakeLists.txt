@@ -84,10 +84,16 @@ if(MSVC)
     set(HAVE_WORDS_BIGENDIAN_EXITCODE 0)
   endif()
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+  add_compile_options(/EHsc)
 
-  # Link-time Code Generation for Release builds (excluding clang-cl)
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    add_compile_options(
+      /permissive-        # Enforce various standards compliance features.
+      /Zc:externConstexpr # Allow extern constexpr variables according to the standard.
+      /Zc:throwingNew     # Assume new throws, allowing for better code generation.
+    )
+
+    # Link-time Code Generation for Release builds (excluding clang-cl)
     set(CMAKE_C_FLAGS_RELEASE "/DNDEBUG /O2 /Oy /GL /Gy /MD")
     set(CMAKE_C_FLAGS_RELWITHDEBINFO "/DNDEBUG /Zi /O2 /Oy- /GL /Gy /MD")
     set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "/LTCG")
