@@ -97,8 +97,8 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const nod::Node& pak, atUint64&
     atUint32 decompSz;
     strm->read(&decompSz, 4);
     decompSz = hecl::SBig(decompSz);
-    atUint8* buf = new atUint8[decompSz];
-    atUint8* bufCur = buf;
+    std::unique_ptr<atUint8[]> buf{new atUint8[decompSz]};
+    atUint8* bufCur = buf.get();
 
     atUint8 compBuf[0x8000];
     if (compressed == 1) {
@@ -106,7 +106,7 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const nod::Node& pak, atUint64&
       z_stream zs = {};
       inflateInit(&zs);
       zs.avail_out = decompSz;
-      zs.next_out = buf;
+      zs.next_out = buf.get();
       while (zs.avail_out) {
         atUint64 readSz = strm->read(compBuf, std::min(compRem, atUint32(0x8000)));
         compRem -= readSz;
@@ -130,12 +130,12 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const nod::Node& pak, atUint64&
     }
 
     szOut = decompSz;
-    return std::unique_ptr<atUint8[]>(buf);
+    return buf;
   } else {
-    atUint8* buf = new atUint8[size];
-    pak.beginReadStream(offset)->read(buf, size);
+    std::unique_ptr<atUint8[]> buf{new atUint8[size]};
+    pak.beginReadStream(offset)->read(buf.get(), size);
     szOut = size;
-    return std::unique_ptr<atUint8[]>(buf);
+    return buf;
   }
 }
 
