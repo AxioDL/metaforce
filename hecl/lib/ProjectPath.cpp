@@ -7,7 +7,6 @@
 
 namespace hecl {
 static const SystemRegex regPATHCOMP(_SYS_STR("[/\\\\]*([^/\\\\]+)"), SystemRegex::ECMAScript | SystemRegex::optimize);
-static const SystemRegex regDRIVELETTER(_SYS_STR("^([^/]*)/"), SystemRegex::ECMAScript | SystemRegex::optimize);
 
 static SystemString CanonRelPath(SystemStringView path) {
   /* Tokenize Path */
