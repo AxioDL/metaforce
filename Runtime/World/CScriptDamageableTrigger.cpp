@@ -116,9 +116,11 @@ void CScriptDamageableTrigger::Render(const CStateManager& mgr) const {
   CActor::Render(mgr);
 }
 
-void CScriptDamageableTrigger::AddToRenderer(const zeus::CFrustum& /*frustum*/, const CStateManager& mgr) const {
-  if (x300_26_outOfFrustum)
+void CScriptDamageableTrigger::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManager& mgr) {
+  if (x300_26_outOfFrustum) {
     return;
+  }
+
   EnsureRendered(mgr, GetTranslation() - x244_faceTranslate, GetSortingBounds(mgr));
 }
 

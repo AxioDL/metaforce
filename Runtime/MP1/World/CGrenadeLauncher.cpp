@@ -117,7 +117,7 @@ void CGrenadeLauncher::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
   }
 }
 
-void CGrenadeLauncher::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CGrenadeLauncher::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
 }
 

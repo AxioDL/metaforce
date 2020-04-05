@@ -207,7 +207,7 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
   void Render(const CStateManager& mgr) const override;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   zeus::CAABox GetSortingBounds(const CStateManager&) const override { return GetBoundingBox(); }
   const CDamageVulnerability* GetDamageVulnerability() const override {
     return &CDamageVulnerability::ImmuneVulnerabilty();

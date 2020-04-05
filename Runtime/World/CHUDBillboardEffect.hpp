@@ -37,7 +37,7 @@ public:
   ~CHUDBillboardEffect() override;
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
   void Render(const CStateManager& mgr) const override;
   bool IsElementGen() const { return x104_26_isElementGen; }

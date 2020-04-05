@@ -84,7 +84,7 @@ public:
 
   void Accept(IVisitor& visitor) override { visitor.Visit(this); }
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   bool AnimOver(CStateManager& mgr, float arg) override;
   void CalculateRenderBounds() override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;

@@ -101,7 +101,7 @@ void CScriptVisorGoo::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
   CActor::AcceptScriptMsg(msg, objId, mgr);
 }
 
-void CScriptVisorGoo::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CScriptVisorGoo::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   // Empty
 }
 

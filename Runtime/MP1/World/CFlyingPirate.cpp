@@ -463,7 +463,7 @@ void CFlyingPirate::RemoveFromTeam(CStateManager& mgr) {
   }
 }
 
-void CFlyingPirate::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CFlyingPirate::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   for (const auto& gen : x684_particleGens) {
     if (frustum.aabbFrustumTest(GetBoundingBox())) {
       g_Renderer->AddParticleGen(*gen);

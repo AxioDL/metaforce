@@ -207,31 +207,33 @@ void CScriptEffect::PreRender(CStateManager& mgr, const zeus::CFrustum&) {
     x13c_triggerId = kInvalidUniqueId;
 }
 
-void CScriptEffect::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CScriptEffect::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   if (!x111_26_canRender) {
-    const_cast<CScriptEffect&>(*this).x12c_remTime = zeus::max(x12c_remTime, x134_durationResetWhileVisible);
+    x12c_remTime = zeus::max(x12c_remTime, x134_durationResetWhileVisible);
     return;
   }
 
-  if (!frustum.aabbFrustumTest(x9c_renderBounds))
+  if (!frustum.aabbFrustumTest(x9c_renderBounds)) {
     return;
-  const_cast<CScriptEffect&>(*this).x12c_remTime = zeus::max(x12c_remTime, x134_durationResetWhileVisible);
+  }
+  x12c_remTime = zeus::max(x12c_remTime, x134_durationResetWhileVisible);
 
   if (x110_31_anyVisorVisible) {
     bool visible = false;
     const CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
-    if (visor == CPlayerState::EPlayerVisor::Combat || visor == CPlayerState::EPlayerVisor::Scan)
+    if (visor == CPlayerState::EPlayerVisor::Combat || visor == CPlayerState::EPlayerVisor::Scan) {
       visible = x110_28_combatVisorVisible;
-    else if (visor == CPlayerState::EPlayerVisor::XRay)
+    } else if (visor == CPlayerState::EPlayerVisor::XRay) {
       visible = x110_30_xrayVisorVisible;
-    else if (visor == CPlayerState::EPlayerVisor::Thermal)
+    } else if (visor == CPlayerState::EPlayerVisor::Thermal) {
       visible = x110_29_thermalVisorVisible;
+    }
 
     if (visible && x138_actorLights) {
       const CGameArea* area = mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways());
-      const_cast<CScriptEffect&>(*this).x138_actorLights->BuildAreaLightList(
+      x138_actorLights->BuildAreaLightList(
           mgr, *area, zeus::CAABox{x9c_renderBounds.center(), x9c_renderBounds.center()});
-      const_cast<CScriptEffect&>(*this).x138_actorLights->BuildDynamicLightList(mgr, x9c_renderBounds);
+      x138_actorLights->BuildDynamicLightList(mgr, x9c_renderBounds);
     }
     EnsureRendered(mgr);
   }

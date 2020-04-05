@@ -33,7 +33,7 @@ void CScriptWaypoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender
       SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
 }
 
-void CScriptWaypoint::AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {
+void CScriptWaypoint::AddToRenderer(const zeus::CFrustum&, CStateManager&) {
   // Empty
 }
 

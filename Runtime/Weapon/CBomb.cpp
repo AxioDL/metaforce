@@ -114,7 +114,7 @@ void CBomb::Think(float dt, urde::CStateManager& mgr) {
   x184_particle2->SetGlobalTranslation(GetTranslation());
 }
 
-void CBomb::AddToRenderer(const zeus::CFrustum& frustum, const urde::CStateManager& mgr) const {
+void CBomb::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   zeus::CVector3f origin = GetTranslation();
   float ballRadius = mgr.GetPlayer().GetMorphBall()->GetBallRadius();
 

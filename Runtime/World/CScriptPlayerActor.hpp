@@ -67,7 +67,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void SetActive(bool active) override;
   void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
   void Render(const CStateManager& mgr) const override;
   void TouchModels(const CStateManager& mgr) const;
 };

@@ -139,14 +139,17 @@ void CSnakeWeedSwarm::PreRender(CStateManager& mgr, const zeus::CFrustum& frustu
   }
 }
 
-void CSnakeWeedSwarm::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
-  if (xe4_30_outOfFrustum)
+void CSnakeWeedSwarm::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+  if (xe4_30_outOfFrustum) {
     return;
+  }
 
-  if (x1ec_particleGen1)
+  if (x1ec_particleGen1) {
     g_Renderer->AddParticleGen(*x1ec_particleGen1);
-  if (x1f4_particleGen2)
+  }
+  if (x1f4_particleGen2) {
     g_Renderer->AddParticleGen(*x1f4_particleGen2);
+  }
 
   if (x90_actorLights) {
     for (const auto& modelData : x1b0_modelData) {
@@ -158,8 +161,9 @@ void CSnakeWeedSwarm::AddToRenderer(const zeus::CFrustum& frustum, const CStateM
   }
 
   u32 posesToBuild = -1;
-  for (u32 i = 0; i < x134_boids.size(); ++i)
+  for (u32 i = 0; i < x134_boids.size(); ++i) {
     RenderBoid(i, x134_boids[i], posesToBuild);
+  }
   CGraphics::DisableAllLights();
 }
 

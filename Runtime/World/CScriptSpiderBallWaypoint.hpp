@@ -20,7 +20,7 @@ public:
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Render(const CStateManager& mgr) const override { CActor::Render(mgr); }
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override {}
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override {}
   std::optional<zeus::CAABox> GetTouchBounds() const override { return xfc_aabox; }
   void AccumulateBounds(const zeus::CVector3f& v);
   void BuildWaypointListAndBounds(CStateManager& mgr);

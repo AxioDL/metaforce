@@ -53,7 +53,7 @@ void CShockWave::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
   mgr.SendScriptMsgAlways(x980_id2, uid, msg);
 }
 
-void CShockWave::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CShockWave::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
   g_Renderer->AddParticleGen(*x110_elementGen);
 }

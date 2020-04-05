@@ -90,7 +90,7 @@ void CFlameThrower::CreateFlameParticles(CStateManager& mgr) {
     CreateProjectileLight("FlameThrower_Light"sv, x348_flameGen->GetLight(), mgr);
 }
 
-void CFlameThrower::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const {
+void CFlameThrower::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
   g_Renderer->AddParticleGen(*x348_flameGen);
   EnsureRendered(mgr, x2e8_flameXf.origin, GetRenderBounds());
 }

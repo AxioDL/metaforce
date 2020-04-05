@@ -51,7 +51,7 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const override;
+  void AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) override;
   void Render(const CStateManager&) const override {}
   void ForceClosed(CStateManager&);
   bool IsConnectedToArea(const CStateManager& mgr, TAreaId area) const;

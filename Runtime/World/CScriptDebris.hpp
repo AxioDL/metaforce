@@ -78,7 +78,7 @@ public:
                 bool noBounce, bool active);
 
   void Accept(IVisitor& visitor) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void Touch(CActor& other, CStateManager& mgr) override;

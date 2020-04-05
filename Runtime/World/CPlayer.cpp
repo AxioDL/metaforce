@@ -1597,7 +1597,7 @@ void CPlayer::CalculateRenderBounds() {
   }
 }
 
-void CPlayer::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CPlayer::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   if (x2f4_cameraState != EPlayerCameraState::FirstPerson && x2f8_morphBallState == EPlayerMorphBallState::Morphed) {
     if (x768_morphball->IsInFrustum(frustum)) {
       CActor::AddToRenderer(frustum, mgr);

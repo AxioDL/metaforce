@@ -36,7 +36,7 @@ CBouncyGrenade::CBouncyGrenade(TUniqueId uid, std::string_view name, const CEnti
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(filter.IncludeList(), filter.ExcludeList()));
 }
 
-void CBouncyGrenade::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CBouncyGrenade::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
   if (!x2b4_24_exploded) {
     g_Renderer->AddParticleGen(*x2ac_elementGen4);
