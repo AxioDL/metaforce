@@ -1120,12 +1120,14 @@ pas::EAnimationState CBSHurled::GetBodyStateTransition(float dt, CBodyController
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::NextState)) {
     return pas::EAnimationState::LieOnGround;
   }
+
   if (x18_curTime > 0.25f) {
-    if (const auto* cmd = static_cast<const CBCHurledCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))) {
-      const_cast<CBCHurledCmd*>(cmd)->SetSkipLaunchState(true);
+    if (auto* cmd = static_cast<CBCHurledCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))) {
+      cmd->SetSkipLaunchState(true);
       return pas::EAnimationState::Hurled;
     }
   }
+
   return pas::EAnimationState::Invalid;
 }
 

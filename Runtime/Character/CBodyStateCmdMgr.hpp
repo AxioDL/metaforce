@@ -452,11 +452,20 @@ public:
   void BlendSteeringCmds();
   void Reset();
   void ClearLocomotionCmds();
-  const CBodyStateCmd* GetCmd(EBodyStateCmd cmd) const {
-    if (xb4_deliveredCmdMask & (1 << int(cmd)))
-      return x40_commandTable[int(cmd)];
+
+  CBodyStateCmd* GetCmd(EBodyStateCmd cmd) {
+    if ((xb4_deliveredCmdMask & (1U << u32(cmd))) != 0) {
+      return x40_commandTable[size_t(cmd)];
+    }
     return nullptr;
   }
+  const CBodyStateCmd* GetCmd(EBodyStateCmd cmd) const {
+    if ((xb4_deliveredCmdMask & (1U << u32(cmd))) != 0) {
+      return x40_commandTable[size_t(cmd)];
+    }
+    return nullptr;
+  }
+
   const zeus::CVector3f& GetMoveVector() const { return x0_move; }
   const zeus::CVector3f& GetFaceVector() const { return xc_face; }
   const zeus::CVector3f& GetTargetVector() const { return x18_target; }
