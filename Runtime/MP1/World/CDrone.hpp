@@ -5,7 +5,9 @@
 #include "Runtime/World/CPathFindSearch.hpp"
 #include "Runtime/World/CVisorFlare.hpp"
 
-namespace urde::MP1 {
+namespace urde {
+class CWeaponDescription;
+namespace MP1 {
 class CDrone : public CPatterned {
   CAssetId x568_;
   TLockedToken<CCollisionResponseData> x56c_;
@@ -24,8 +26,8 @@ class CDrone : public CPatterned {
   float x5dc_ = 0.f;
   float x5e0_ = 0.f;
   float x5e4_;
-  float x5e8_ = 0.f;
-  float x5ec_;
+  float x5e8_shieldTime = 0.f;
+  float x5ec_turnSpeed;
   float x5f0_;
   float x5f4_;
   float x5f8_;
@@ -73,12 +75,12 @@ class CDrone : public CPatterned {
   s32 x7c8_ = 0;
   s16 x7cc_;
   CSfxHandle x7d0_;
-  rstl::reserved_vector<TUniqueId, 2> x7d4_;
-  rstl::reserved_vector<zeus::CVector3f, 2> x7e0_;
-  rstl::reserved_vector<zeus::CVector3f, 2> x7fc_;
-  rstl::reserved_vector<float, 2> x818_;
-  rstl::reserved_vector<bool, 2> x824_;
-  std::unique_ptr<CModelData> x82c_;
+  rstl::reserved_vector<TUniqueId, 2> x7d4_ = {{kInvalidUniqueId, kInvalidUniqueId}};
+  rstl::reserved_vector<zeus::CVector3f, 2> x7e0_ = {{zeus::skZero3f, zeus::skZero3f}};
+  rstl::reserved_vector<zeus::CVector3f, 2> x7fc_ = {{zeus::skZero3f, zeus::skZero3f}};;
+  rstl::reserved_vector<float, 2> x818_ = {{0.f, 0.f}};
+  rstl::reserved_vector<bool, 2> x824_ = {{false, false}};
+  std::unique_ptr<CModelData> x82c_shieldModel;
   u8 x830_13_ : 2;
   u8 x830_10_ : 2;
   bool x834_24_ : 1;
@@ -86,8 +88,8 @@ class CDrone : public CPatterned {
   bool x834_26_ : 1;
   bool x834_27_ : 1;
   bool x834_28_ : 1;
-  bool x834_29_ : 1;
-  bool x834_30_ : 1;
+  bool x834_29_codeTrigger : 1;
+  bool x834_30_visible : 1;
   bool x834_31_ : 1;
   bool x835_24_ : 1;
   bool x835_25_ : 1;
@@ -96,6 +98,9 @@ class CDrone : public CPatterned {
   bool HitShield(const zeus::CVector3f& dir) const;
   void AddToTeam(CStateManager& mgr) const;
   void RemoveFromTeam(CStateManager& mgr) const;
+  void UpdateLaser(CStateManager& mgr, u32 laserIdx, bool b1);
+  void FireProjectile(CStateManager& mgr, const zeus::CTransform& xf, const TToken<CWeaponDescription>& weapon);
+  void StrafeFromCompanions(CStateManager& mgr);
 
 public:
   DEFINE_PATTERNED(Drone);
@@ -111,8 +116,7 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
-  void Render(const CStateManager &mgr) const override;
+  void Render(const CStateManager& mgr) const override;
   bool CanRenderUnsorted(const CStateManager& mgr) const override;
   const CDamageVulnerability* GetDamageVulnerability() const override { return CAi::GetDamageVulnerability(); }
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
@@ -155,7 +159,9 @@ public:
   virtual void BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat,
                              rstl::reserved_vector<TUniqueId, 1024>& listOut, float radius, CStateManager& mgr);
   virtual void SetLightEnabled(CStateManager& mgr, bool activate);
+  virtual void SetVisorFlareEnabled(CStateManager& mgr, bool activate);
   virtual void UpdateVisorFlare(CStateManager& mgr);
   virtual int sub_8015f150() { return 3; }
 };
-} // namespace urde::MP1
+} // namespace MP1
+} // namespace urde
