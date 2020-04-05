@@ -11,7 +11,7 @@ static logvisor::Module HMDL_Log("HMDL");
 HMDLData::HMDLData(boo::IGraphicsDataFactory::Context& ctx, const void* metaData, const void* vbo, const void* ibo) {
   HMDLMeta meta;
   {
-    athena::io::MemoryReader r((atUint8*)metaData, HECL_HMDL_META_SZ);
+    athena::io::MemoryReader r(metaData, HECL_HMDL_META_SZ);
     meta.read(r);
   }
   if (meta.magic != 'TACO')
