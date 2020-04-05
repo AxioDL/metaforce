@@ -354,7 +354,7 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CAc
         model.GetModelInst()->ActivateLights(useLights);
       }
 
-      x10_animData->Render(model, drawFlags, {}, nullptr);
+      x10_animData->Render(model, drawFlags, std::nullopt, nullptr);
     } else {
       const auto& model = PickStaticModel(which);
       if (lights) {
@@ -388,18 +388,18 @@ void CModelData::InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, cons
     /* Z-prime */
     flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
     flags.x4_color = zeus::skWhite;
-    x10_animData->Render(model, flags, {}, nullptr);
+    x10_animData->Render(model, flags, std::nullopt, nullptr);
 
     /* Normal Blended */
     lights->ActivateLights(*model.GetModelInst());
     flags.m_extendedShader = EExtendedShader::ForcedAlpha;
     flags.x4_color = alphaColor;
-    x10_animData->Render(model, flags, {}, nullptr);
+    x10_animData->Render(model, flags, std::nullopt, nullptr);
 
     /* Selection Additive */
     flags.m_extendedShader = EExtendedShader::ForcedAdditive;
     flags.x4_color = additiveColor;
-    x10_animData->Render(model, flags, {}, nullptr);
+    x10_animData->Render(model, flags, std::nullopt, nullptr);
   } else {
     CBooModel& model = *PickStaticModel(which);
     model.DisableAllLights();
@@ -441,7 +441,7 @@ void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
 
   if (x10_animData) {
     CSkinnedModel& sModel = PickAnimatedModel(which);
-    x10_animData->Render(sModel, flags, {}, nullptr);
+    x10_animData->Render(sModel, flags, std::nullopt, nullptr);
   } else {
     CBooModel& model = *PickStaticModel(which);
     model.Draw(flags, nullptr, nullptr);
