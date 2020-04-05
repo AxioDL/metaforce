@@ -12,7 +12,7 @@ namespace urde {
 
 CGraphics::CProjectionState CGraphics::g_Proj;
 CGraphics::CFogState CGraphics::g_Fog;
-zeus::CColor CGraphics::g_ColorRegs[3] = {};
+std::array<zeus::CColor, 3> CGraphics::g_ColorRegs{};
 float CGraphics::g_ProjAspect = 1.f;
 u32 CGraphics::g_NumLightsActive = 0;
 u32 CGraphics::g_NumBreakpointsWaiting = 0;
@@ -35,7 +35,7 @@ SViewport g_Viewport = {
 };
 u32 CGraphics::g_FrameCounter = 0;
 
-const zeus::CMatrix3f CGraphics::skCubeBasisMats[] = {
+const std::array<zeus::CMatrix3f, 6> CGraphics::skCubeBasisMats{{
     /* Right */
     {0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, -1.f},
     /* Left */
@@ -48,7 +48,7 @@ const zeus::CMatrix3f CGraphics::skCubeBasisMats[] = {
     {1.f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, 0.f, -1.f},
     /* Forward */
     {-1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, -1.f},
-};
+}};
 
 void CGraphics::DisableAllLights() {
   g_NumLightsActive = 0;

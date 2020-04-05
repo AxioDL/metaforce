@@ -1055,9 +1055,7 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
   } else {
     CModelShaders::LightingUniform& lightingOut = *reinterpret_cast<CModelShaders::LightingUniform*>(dataCur);
     lightingOut = m_lightingData;
-    lightingOut.colorRegs[0] = CGraphics::g_ColorRegs[0];
-    lightingOut.colorRegs[1] = CGraphics::g_ColorRegs[1];
-    lightingOut.colorRegs[2] = CGraphics::g_ColorRegs[2];
+    lightingOut.colorRegs = CGraphics::g_ColorRegs;
     lightingOut.mulColor = flags.x4_color;
     lightingOut.addColor = flags.addColor;
     lightingOut.fog = CGraphics::g_Fog;

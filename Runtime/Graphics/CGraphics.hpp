@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <vector>
 
 #include "Runtime/RetroTypes.hpp"
@@ -248,7 +249,7 @@ public:
   static CProjectionState g_Proj;
   static zeus::CVector2f g_CachedDepthRange;
   static CFogState g_Fog;
-  static zeus::CColor g_ColorRegs[3];
+  static std::array<zeus::CColor, 3> g_ColorRegs;
   static float g_ProjAspect;
   static u32 g_NumLightsActive;
   static u32 g_NumBreakpointsWaiting;
@@ -316,7 +317,7 @@ public:
   static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
   static boo::ObjToken<boo::ITextureR> g_SpareTexture;
 
-  static const zeus::CMatrix3f skCubeBasisMats[6];
+  static const std::array<zeus::CMatrix3f, 6> skCubeBasisMats;
 
   static void InitializeBoo(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cc,
                             const boo::ObjToken<boo::ITextureR>& spareTex) {
