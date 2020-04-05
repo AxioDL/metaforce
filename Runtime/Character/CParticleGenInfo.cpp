@@ -55,50 +55,60 @@ void CParticleGenInfoGeneric::Render() { x84_system->Render(); }
 void CParticleGenInfoGeneric::Update(float dt, CStateManager& stateMgr) {
   x84_system->Update(dt);
 
-  if (x88_lightId != kInvalidUniqueId) {
-    TCastToPtr<CGameLight> gl(stateMgr.ObjectById(x88_lightId));
-    if (gl)
-      gl->SetLight(x84_system->GetLight());
+  if (x88_lightId == kInvalidUniqueId) {
+    return;
+  }
+
+  if (const TCastToPtr<CGameLight> gl = stateMgr.ObjectById(x88_lightId)) {
+    gl->SetLight(x84_system->GetLight());
   }
 }
 
 void CParticleGenInfoGeneric::SetOrientation(const zeus::CTransform& xf, CStateManager& stateMgr) {
   x84_system->SetOrientation(xf);
 
-  if (x88_lightId != kInvalidUniqueId) {
-    TCastToPtr<CGameLight> gl(stateMgr.ObjectById(x88_lightId));
-    if (gl)
-      gl->SetRotation(zeus::CQuaternion(xf.buildMatrix3f()));
+  if (x88_lightId == kInvalidUniqueId) {
+    return;
+  }
+
+  if (const TCastToPtr<CGameLight> gl = stateMgr.ObjectById(x88_lightId)) {
+    gl->SetRotation(zeus::CQuaternion(xf.buildMatrix3f()));
   }
 }
 
 void CParticleGenInfoGeneric::SetTranslation(const zeus::CVector3f& trans, CStateManager& stateMgr) {
   x84_system->SetTranslation(trans);
 
-  if (x88_lightId != kInvalidUniqueId) {
-    TCastToPtr<CGameLight> gl(stateMgr.ObjectById(x88_lightId));
-    if (gl)
-      gl->SetTranslation(trans);
+  if (x88_lightId == kInvalidUniqueId) {
+    return;
+  }
+
+  if (const TCastToPtr<CGameLight> gl = stateMgr.ObjectById(x88_lightId)) {
+    gl->SetTranslation(trans);
   }
 }
 
 void CParticleGenInfoGeneric::SetGlobalOrientation(const zeus::CTransform& xf, CStateManager& stateMgr) {
   x84_system->SetGlobalOrientation(xf);
 
-  if (x88_lightId != kInvalidUniqueId) {
-    TCastToPtr<CGameLight> gl(stateMgr.ObjectById(x88_lightId));
-    if (gl)
-      gl->SetRotation(zeus::CQuaternion(xf.buildMatrix3f()));
+  if (x88_lightId == kInvalidUniqueId) {
+    return;
+  }
+
+  if (const TCastToPtr<CGameLight> gl = stateMgr.ObjectById(x88_lightId)) {
+    gl->SetRotation(zeus::CQuaternion(xf.buildMatrix3f()));
   }
 }
 
 void CParticleGenInfoGeneric::SetGlobalTranslation(const zeus::CVector3f& trans, CStateManager& stateMgr) {
   x84_system->SetGlobalTranslation(trans);
 
-  if (x88_lightId != kInvalidUniqueId) {
-    TCastToPtr<CGameLight> gl(stateMgr.ObjectById(x88_lightId));
-    if (gl)
-      gl->SetTranslation(trans);
+  if (x88_lightId == kInvalidUniqueId) {
+    return;
+  }
+
+  if (const TCastToPtr<CGameLight> gl = stateMgr.ObjectById(x88_lightId)) {
+    gl->SetTranslation(trans);
   }
 }
 
@@ -107,9 +117,7 @@ void CParticleGenInfoGeneric::SetGlobalScale(const zeus::CVector3f& scale) { x84
 void CParticleGenInfoGeneric::SetParticleEmission(bool isActive, CStateManager& stateMgr) {
   x84_system->SetParticleEmission(isActive);
 
-  TCastToPtr<CGameLight> gl(stateMgr.ObjectById(x88_lightId));
-
-  if (gl) {
+  if (const TCastToPtr<CGameLight> gl = stateMgr.ObjectById(x88_lightId)) {
     gl->SetActive(isActive);
   }
 }
