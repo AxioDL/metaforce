@@ -695,10 +695,11 @@ bool CParticleElectric::IsSystemDeletable() const {
 }
 
 std::optional<zeus::CAABox> CParticleElectric::GetBounds() const {
-  if (GetParticleCount() <= 0)
-    return {};
-  else
-    return x160_systemBounds;
+  if (GetParticleCount() <= 0) {
+    return std::nullopt;
+  }
+
+  return x160_systemBounds;
 }
 
 u32 CParticleElectric::GetParticleCount() const {
