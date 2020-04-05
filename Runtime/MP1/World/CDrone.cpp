@@ -4,9 +4,11 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Particle/CWeaponDescription.hpp"
 #include "Runtime/Weapon/CWeapon.hpp"
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CTeamAiMgr.hpp"
 #include "Runtime/World/CWorld.hpp"
 
@@ -29,7 +31,7 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
 , x590_(dInfo1)
 , x5ac_(dInfo2)
 , x5e4_(f23)
-, x5ec_(f1)
+, x5ec_turnSpeed(f1)
 , x5f0_(f2)
 , x5f4_(f3)
 , x5f8_(f4)
@@ -55,7 +57,7 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
 , x690_(zeus::CSphere({0.f, 0.f, 1.8f}, 1.1f), CActor::GetMaterialList())
 , x6b0_pathFind(nullptr, 3 + int(b1), pInfo.GetPathfindingIndex(), 1.f, 2.4f)
 , x7cc_(CSfxManager::TranslateSFXID(sId))
-, x82c_(std::make_unique<CModelData>(CStaticRes{aId2, zeus::skOne3f}))
+, x82c_shieldModel(std::make_unique<CModelData>(CStaticRes{aId2, zeus::skOne3f}))
 , x830_13_(0)
 , x830_10_(0)
 , x834_24_(false)
@@ -63,8 +65,8 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
 , x834_26_(false)
 , x834_27_(false)
 , x834_28_(false)
-, x834_29_(false)
-, x834_30_(false)
+, x834_29_codeTrigger(false)
+, x834_30_visible(false)
 , x834_31_(false)
 , x835_24_(false)
 , x835_25_(b1)
@@ -113,7 +115,7 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
     break;
   }
   case EScriptObjectMessage::Alert:
-    x834_29_ = true;
+    x834_29_codeTrigger = true;
     break;
   case EScriptObjectMessage::OnFloor:
     if (!x835_26_ && x834_24_) {
@@ -162,10 +164,6 @@ void CDrone::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   }
 }
 
-void CDrone::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
-  CPatterned::AddToRenderer(frustum, mgr);
-}
-
 void CDrone::Render(const CStateManager& mgr) const {
   bool isOne = x3fc_flavor == EFlavorType::One;
   if (!isOne || GetModelAlphau8(mgr) != 0) {
@@ -182,8 +180,9 @@ void CDrone::Render(const CStateManager& mgr) const {
     }
 
     if (isOne && zeus::close_enough(x5dc_, 0)) {
-      x82c_->Render(mgr, GetLctrTransform("Shield_LCTR"sv), GetActorLights(),
-                    CModelFlags{8, 0, 3, zeus::CColor::lerp({1.f, 0.f, 0.f, 1.f}, zeus::skWhite, x5e8_)});
+      x82c_shieldModel->Render(
+          mgr, GetLctrTransform("Shield_LCTR"sv), GetActorLights(),
+          CModelFlags{8, 0, 3, zeus::CColor::lerp({1.f, 0.f, 0.f, 1.f}, zeus::skWhite, x5e8_shieldTime)});
     }
   }
 }
@@ -206,7 +205,7 @@ void CDrone::Touch(CActor& act, CStateManager& mgr) {
     if (IsAlive()) {
       x834_24_ = weapon->GetType() == EWeaponType::Wave;
       if (HitShield(weapon->GetTranslation() - GetTranslation())) {
-        x5e8_ = 1.f;
+        x5e8_shieldTime = 1.f;
       }
     }
   }
@@ -221,43 +220,271 @@ EWeaponCollisionResponseTypes CDrone::GetCollisionResponseType(const zeus::CVect
 }
 
 void CDrone::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
+  switch (type) {
+  case EUserEventType::Projectile:
+    // sub80165984(mgr, GetLctrTransform(node.GetLocatorName()));
+    return;
+  case EUserEventType::Delete:
+    if (x7d0_) {
+      CSfxManager::RemoveEmitter(x7d0_);
+      x7d0_.reset();
+    }
+    MassiveDeath(mgr);
+    break;
+  case EUserEventType::DamageOn: {
+    if (IsAlive() && x835_24_) {
+      UpdateLaser(mgr, 0, true);
+      x824_[0] = true;
+      SetVisorFlareEnabled(mgr, true);
+    } else if (x3fc_flavor == EFlavorType::One) {
+      UpdateLaser(mgr, 1, true);
+      x824_[1] = true;
+    }
+    return;
+  }
+  case EUserEventType::DamageOff: {
+    if (x824_[0]) {
+      UpdateLaser(mgr, 0, false);
+      x824_[0] = false;
+      SetVisorFlareEnabled(mgr, false);
+    } else if (x3fc_flavor == EFlavorType::One) {
+      UpdateLaser(mgr, 1, false);
+      x824_[1] = false;
+    }
+    return;
+  }
+  case EUserEventType::FadeIn: {
+    if (x3fc_flavor == EFlavorType::One)
+      x834_30_visible = true;
+    return;
+  }
+  case EUserEventType::FadeOut: {
+    if (x3fc_flavor == EFlavorType::One)
+      x834_30_visible = false;
+    return;
+  }
+  default:
+    break;
+  }
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
-const CCollisionPrimitive* CDrone::GetCollisionPrimitive() const { return CPhysicsActor::GetCollisionPrimitive(); }
+const CCollisionPrimitive* CDrone::GetCollisionPrimitive() const {
+  if (!x834_28_)
+    return &x690_;
+  return CPatterned::GetCollisionPrimitive();
+}
+
 void CDrone::Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) {
-  CPatterned::Death(mgr, direction, state);
+  if (!IsAlive())
+    return;
+
+  x824_[0] = false;
+  x824_[1] = false;
+  UpdateLaser(mgr, 0, false);
+  UpdateLaser(mgr, 1, false);
+  SetVisorFlareEnabled(mgr, false);
+
+  if (x3e4_lastHP - HealthInfo(mgr)->GetHP() < x3d8_xDamageThreshold || x834_24_) {
+    x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Dead"sv);
+  } else {
+    x834_28_ = true;
+    if (x3e0_xDamageDelay <= 0.f) {
+      SetTransform(zeus::lookAt(GetTranslation(), GetTranslation() - direction) *
+                   zeus::CTransform::RotateX(zeus::degToRad(45.f)));
+    }
+
+    if (x450_bodyController->GetPercentageFrozen() > 0.f) {
+      x450_bodyController->UnFreeze();
+    }
+
+    x400_25_alive = false;
+    SendScriptMsgs(state, mgr, EScriptObjectMessage::None);
+  }
 }
 void CDrone::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, const CDamageInfo& info, EKnockBackType type,
                        bool inDeferred, float magnitude) {
   CPatterned::KnockBack(backVec, mgr, info, type, inDeferred, magnitude);
 }
-void CDrone::Patrol(CStateManager& mgr, EStateMsg msg, float dt) { CPatterned::Patrol(mgr, msg, dt); }
-void CDrone::PathFind(CStateManager& mgr, EStateMsg msg, float dt) { CPatterned::PathFind(mgr, msg, dt); }
-void CDrone::TargetPlayer(CStateManager& mgr, EStateMsg msg, float dt) { CPatterned::TargetPlayer(mgr, msg, dt); }
-void CDrone::TargetCover(CStateManager& mgr, EStateMsg msg, float dt) { CAi::TargetCover(mgr, msg, dt); }
-void CDrone::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Deactivate(mgr, msg, dt); }
-void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float dt) {}
+void CDrone::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
+  if (msg == EStateMsg::Activate) {
+    x450_bodyController->SetLocomotionType(pas::ELocomotionType::Lurk);
+    SetLightEnabled(mgr, true);
+    x834_25_ = true;
+  } else if (msg == EStateMsg::Update) {
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    BuildNearList(EMaterialTypes::Character, EMaterialTypes::Player, nearList, 5.f, mgr);
+    if (nearList.empty())
+      return;
+    zeus::CVector3f sep = x45c_steeringBehaviors.Separation(
+        *this, static_cast<const CActor*>(mgr.GetObjectById(nearList[0]))->GetTranslation(), 5.f);
+    if (!sep.isZero()) {
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(sep, zeus::skZero3f, 0.5f));
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    SetLightEnabled(mgr, false);
+    x834_25_ = false;
+  }
+  CPatterned::Patrol(mgr, msg, dt);
+}
+void CDrone::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
+  if (msg == EStateMsg::Activate) {
+    zeus::CVector3f searchOff = GetTranslation() + zeus::CVector3f{0.f, 0.f, x664_};
+    CPathFindSearch::EResult res = GetSearchPath()->Search(GetTranslation(), searchOff);
+    if (res != CPathFindSearch::EResult::Success &&
+        (res == CPathFindSearch::EResult::NoDestPoint || res == CPathFindSearch::EResult::NoPath)) {
+      if (GetSearchPath()->FindClosestReachablePoint(GetTranslation(), searchOff) ==
+          CPathFindSearch::EResult::Success) {
+        GetSearchPath()->Search(GetTranslation(), searchOff);
+        SetDestPos(searchOff);
+      }
+    }
+    x834_30_visible = true;
+  } else if (msg == EStateMsg::Update) {
+    CPatterned::PathFind(mgr, msg, dt);
+    x450_bodyController->GetCommandMgr().BlendSteeringCmds();
+    zeus::CVector3f moveVec = x450_bodyController->GetCommandMgr().GetMoveVector();
+    if (moveVec.canBeNormalized()) {
+      moveVec.normalize();
+      ApplyImpulseWR(GetMass() * (x5e4_ * moveVec), {});
+      zeus::CVector3f target = (mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation());
+      x450_bodyController->GetCommandMgr().DeliverCmd(
+          CBCLocomotionCmd(FLT_EPSILON * GetTransform().basis[1], target.normalized(), 1.f));
+      x450_bodyController->GetCommandMgr().DeliverTargetVector(target);
+      StrafeFromCompanions(mgr);
+      if (x630_ <= 0.f) {
+        x634_ = 0.333333f;
+      }
+    } else if (x630_ <= 0.f) {
+      x634_ = 0.f;
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    CPatterned::PathFind(mgr, msg, dt);
+  }
+}
+void CDrone::TargetPlayer(CStateManager& mgr, EStateMsg msg, float dt) {
+  if (msg == EStateMsg::Activate) {
+    x3b8_turnSpeed = x5ec_turnSpeed;
+    if (x450_bodyController->GetLocomotionType() != pas::ELocomotionType::Combat)
+      x450_bodyController->SetLocomotionType(pas::ELocomotionType::Combat);
+    SetDestPos(mgr.GetPlayer().GetAimPosition(mgr, 0.f));
+    x400_24_hitByPlayerProjectile = false;
+    if (x3fc_flavor == EFlavorType::One)
+      x834_30_visible = true;
+    x330_stateMachineState.SetDelay(std::max(0.f, x624_));
+  } else if (msg == EStateMsg::Update) {
+    zeus::CVector3f target = (mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation());
+    x450_bodyController->GetCommandMgr().DeliverCmd(
+        CBCLocomotionCmd(FLT_EPSILON * GetTransform().basis[1], target.normalized(), 1.f));
+    x450_bodyController->GetCommandMgr().DeliverTargetVector(target);
+    StrafeFromCompanions(mgr);
+    if (x630_ <= 0.f)
+      x634_ = 0.f;
+  } else if (msg == EStateMsg::Deactivate) {
+    SetDestPos(mgr.GetPlayer().GetTranslation() + zeus::CVector3f{0.f, 0.f, x664_});
+  }
+}
+void CDrone::TargetCover(CStateManager& mgr, EStateMsg msg, float dt) {
+  if (msg != EStateMsg::Update)
+    return;
+  /* Don't ask I have no idea.... */
+  const zeus::CVector3f vec = {1.f * x5e4_ * 0.f, 1.f * x5e4_ * 0.f, 1.f * x5e4_ * 0.f};
+  ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(vec), 1.f), {});
+}
+
+void CDrone::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
+  if (msg != EStateMsg::Activate)
+    return;
+  DeathDelete(mgr);
+}
+
+void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Attack(mgr, msg, dt); }
 void CDrone::Active(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Active(mgr, msg, dt); }
 void CDrone::Flee(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Flee(mgr, msg, dt); }
 void CDrone::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float dt) { CAi::ProjectileAttack(mgr, msg, dt); }
-void CDrone::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) { CAi::TelegraphAttack(mgr, msg, dt); }
+void CDrone::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) {
+  if (msg == EStateMsg::Activate) {
+    x7c8_ = 0;
+  } else if (msg == EStateMsg::Update) {
+    if (x7c8_ == 1 && x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Taunt) {
+      x7c8_ = 2;
+    } else if (x7c8_ == 0) {
+      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Taunt) {
+        x7c8_ = 1;
+      } else {
+        x450_bodyController->GetCommandMgr().DeliverCmd(CBCTauntCmd(pas::ETauntType::One));
+      }
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+  }
+}
 void CDrone::Dodge(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Dodge(mgr, msg, dt); }
 void CDrone::Retreat(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Retreat(mgr, msg, dt); }
 void CDrone::Cover(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Cover(mgr, msg, dt); }
 void CDrone::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) { CAi::SpecialAttack(mgr, msg, dt); }
-void CDrone::PathFindEx(CStateManager& mgr, EStateMsg msg, float dt) { CAi::PathFindEx(mgr, msg, dt); }
-bool CDrone::Leash(CStateManager& mgr, float arg) { return CPatterned::Leash(mgr, arg); }
-bool CDrone::InRange(CStateManager& mgr, float arg) { return CPatterned::InRange(mgr, arg); }
-bool CDrone::SpotPlayer(CStateManager& mgr, float arg) { return CPatterned::SpotPlayer(mgr, arg); }
-bool CDrone::AnimOver(CStateManager& mgr, float arg) { return CPatterned::AnimOver(mgr, arg); }
-bool CDrone::ShouldAttack(CStateManager& mgr, float arg) { return CAi::ShouldAttack(mgr, arg); }
+void CDrone::PathFindEx(CStateManager& mgr, EStateMsg msg, float dt) {
+  CPatterned::PathFind(mgr, msg, dt);
+  if (msg == EStateMsg::Activate) {
+    zeus::CVector3f searchOff = GetTranslation() + zeus::CVector3f{0.f, 0.f, x664_};
+    CPathFindSearch::EResult res = GetSearchPath()->Search(GetTranslation(), searchOff);
+    if (res != CPathFindSearch::EResult::Success &&
+        (res == CPathFindSearch::EResult::NoDestPoint || res == CPathFindSearch::EResult::NoPath)) {
+      if (GetSearchPath()->FindClosestReachablePoint(GetTranslation(), searchOff) ==
+          CPathFindSearch::EResult::Success) {
+        GetSearchPath()->Search(GetTranslation(), searchOff);
+        SetDestPos(searchOff);
+      }
+    }
+  }
+}
+
+bool CDrone::Leash(CStateManager& mgr, float arg) {
+  return (mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() < x3c8_leashRadius * x3c8_leashRadius;
+}
+bool CDrone::InRange(CStateManager& mgr, float arg) {
+  return (mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() < x300_maxAttackRange * x300_maxAttackRange;
+}
+bool CDrone::SpotPlayer(CStateManager& mgr, float arg) {
+  if ((mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() > x3bc_detectionRange)
+    return false;
+
+  if (!LineOfSight(mgr, arg))
+    return false;
+
+  return (GetTransform().basis[1] + x5cc_ * GetTransform().basis[0])
+             .normalized()
+             .dot((mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()).normalized()) > 0.5f;
+}
+bool CDrone::AnimOver(CStateManager& mgr, float arg) { return x7c8_ == 2; }
+bool CDrone::ShouldAttack(CStateManager& mgr, float arg) {
+  if (x5d0_ > 0.f)
+    return false;
+  if (TCastToPtr<CTeamAiMgr> teamMgr = mgr.ObjectById(x688_teamMgr)) {
+    if (teamMgr->HasTeamAiRole(GetUniqueId()))
+      teamMgr->AddRangedAttacker(GetUniqueId());
+  }
+  return true;
+}
 bool CDrone::HearShot(CStateManager& mgr, float arg) { return CAi::HearShot(mgr, arg); }
-bool CDrone::CoverCheck(CStateManager& mgr, float arg) { return CAi::CoverCheck(mgr, arg); }
-bool CDrone::LineOfSight(CStateManager& mgr, float arg) { return CAi::LineOfSight(mgr, arg); }
-bool CDrone::ShouldMove(CStateManager& mgr, float arg) { return CAi::ShouldMove(mgr, arg); }
-bool CDrone::CodeTrigger(CStateManager& mgr, float arg) { return CPatterned::CodeTrigger(mgr, arg); }
+bool CDrone::CoverCheck(CStateManager& mgr, float arg) {
+  if (!zeus::close_enough(x67c_, zeus::skZero3f)) {
+    const zeus::CVector3f diff = x670_ - GetTranslation();
+    return x67c_.dot(diff) < 0.0f || diff.magSquared() < 0.25f;
+  }
+
+  return true;
+}
+bool CDrone::LineOfSight(CStateManager& mgr, float arg) {
+  return mgr.RayCollideWorld(
+      GetTranslation(), mgr.GetPlayer().GetAimPosition(mgr, 0.f),
+      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid, EMaterialTypes::Character},
+                                          {EMaterialTypes::Player, EMaterialTypes::ProjectilePassthrough}),
+      this);
+}
+bool CDrone::ShouldMove(CStateManager& mgr, float arg) { return x644_ <= 0.f; }
+bool CDrone::CodeTrigger(CStateManager& mgr, float arg) { return x834_29_codeTrigger; }
 void CDrone::Burn(float duration, float damage) { CPatterned::Burn(duration, damage); }
-CPathFindSearch* CDrone::GetSearchPath() { return CPatterned::GetSearchPath(); }
+CPathFindSearch* CDrone::GetSearchPath() { return &x6b0_pathFind; }
 
 void CDrone::BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat,
                            rstl::reserved_vector<TUniqueId, 1024>& listOut, float radius, CStateManager& mgr) {
@@ -269,6 +496,9 @@ void CDrone::SetLightEnabled(CStateManager& mgr, bool activate) {
   mgr.SendScriptMsgAlways(x578_lightId, GetUniqueId(),
                           activate ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);
 }
+
+void CDrone::SetVisorFlareEnabled(CStateManager& mgr, bool activate) {}
+
 void CDrone::UpdateVisorFlare(CStateManager& mgr) {}
 
 void CDrone::UpdateTouchBounds(float radius) {
@@ -302,5 +532,37 @@ void CDrone::RemoveFromTeam(CStateManager& mgr) const {
     }
   }
 }
+void CDrone::UpdateLaser(CStateManager& mgr, u32 laserIdx, bool b1) {}
+void CDrone::FireProjectile(CStateManager& mgr, const zeus::CTransform& xf, const TToken<CWeaponDescription>& weapon) {}
+void CDrone::StrafeFromCompanions(CStateManager& mgr) {
+  if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Step)
+    return;
+  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  BuildNearList(EMaterialTypes::Character, EMaterialTypes::Player, nearList, x61c_, mgr);
+  if (nearList.empty())
+    return;
 
+  float minDist = FLT_MAX;
+  zeus::CVector3f nearestPos;
+  for (TUniqueId uid : nearList) {
+    if (const CActor* act = static_cast<const CActor*>(mgr.GetObjectById(uid))) {
+      const float dist = (act->GetTranslation() - GetTranslation()).magSquared();
+      if (uid != GetUniqueId() && dist < minDist) {
+        minDist = dist;
+        nearestPos = act->GetTranslation();
+      }
+    }
+  }
+
+  if (nearestPos.isZero())
+    return;
+
+  zeus::CVector3f off = nearestPos - GetTranslation();
+  const float rightOff = GetTransform().basis[0].dot(off);
+  if (rightOff > -0.2f && rightOff < 0.2f) {
+    x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Left, pas::EStepType::Normal));
+  } else {
+    x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Right, pas::EStepType::Normal));
+  }
+}
 } // namespace urde::MP1
