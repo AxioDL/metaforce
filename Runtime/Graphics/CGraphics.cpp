@@ -158,10 +158,10 @@ void CGraphics::SetModelMatrix(const zeus::CTransform& xf) {
   SetViewMatrix();
 }
 
-static const zeus::CMatrix4f PlusOneZ(1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f);
+constexpr zeus::CMatrix4f PlusOneZ(1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f);
 
-static const zeus::CMatrix4f VulkanCorrect(1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, 0.f, 0.f, 0.5f, 0.5f + FLT_EPSILON,
-                                           0.f, 0.f, 0.f, 1.f);
+constexpr zeus::CMatrix4f VulkanCorrect(1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, 0.f, 0.f, 0.5f, 0.5f + FLT_EPSILON,
+                                        0.f, 0.f, 0.f, 1.f);
 
 zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect, float znear, float zfar,
                                                       bool forRenderer) {
