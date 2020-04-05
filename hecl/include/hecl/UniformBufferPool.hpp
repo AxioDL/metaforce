@@ -129,14 +129,14 @@ public:
     Token() = default;
     Token(const Token& other) = delete;
     Token& operator=(const Token& other) = delete;
-    Token& operator=(Token&& other) {
+    Token& operator=(Token&& other) noexcept {
       m_pool = other.m_pool;
       m_index = other.m_index;
       m_div = other.m_div;
       other.m_index = -1;
       return *this;
     }
-    Token(Token&& other) : m_pool(other.m_pool), m_index(other.m_index), m_div(other.m_div) { other.m_index = -1; }
+    Token(Token&& other) noexcept : m_pool(other.m_pool), m_index(other.m_index), m_div(other.m_div) { other.m_index = -1; }
 
     ~Token() {
       if (m_index != -1) {
