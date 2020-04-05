@@ -60,24 +60,27 @@ std::vector<std::string>& Project::ConfigFile::lockAndRead() {
     mainString += std::string(readBuf, readSz);
   }
 
-  std::string::const_iterator begin = mainString.begin();
-  std::string::const_iterator end = mainString.begin();
+  auto begin = mainString.cbegin();
+  auto end = mainString.cbegin();
 
   m_lines.clear();
   while (end != mainString.end()) {
-    std::string::const_iterator origEnd = end;
-    if (*end == '\0')
+    auto origEnd = end;
+    if (*end == '\0') {
       break;
-    else if (CheckNewLineAdvance(end)) {
-      if (begin != origEnd)
-        m_lines.push_back(std::string(begin, origEnd));
+    }
+    if (CheckNewLineAdvance(end)) {
+      if (begin != origEnd) {
+        m_lines.emplace_back(begin, origEnd);
+      }
       begin = end;
       continue;
     }
     ++end;
   }
-  if (begin != end)
-    m_lines.push_back(std::string(begin, end));
+  if (begin != end) {
+    m_lines.emplace_back(begin, end);
+  }
 
   return m_lines;
 }
