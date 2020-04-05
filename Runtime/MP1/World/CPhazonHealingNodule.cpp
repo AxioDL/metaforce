@@ -169,4 +169,18 @@ void CPhazonHealingNodule::UpdateParticleElectric(CStateManager& mgr) {
     x57c_particleElectric->SetOverrideFPos(actorLctrXf.origin);
   }
 }
+
+bool CPhazonHealingNodule::AnimOver(CStateManager&, float arg) { return x588_state == 3; }
+
+bool CPhazonHealingNodule::InRange(CStateManager&, float arg) { return x568_active == 0; }
+
+bool CPhazonHealingNodule::InDetectionRange(CStateManager&, float arg) { return x568_active == 1; }
+
+void CPhazonHealingNodule::MassiveDeath(CStateManager& mgr) { Death(mgr, zeus::skZero3f, EScriptObjectState::Dead); }
+
+void CPhazonHealingNodule::MassiveFrozenDeath(CStateManager& mgr) {
+  Death(mgr, zeus::skZero3f, EScriptObjectState::Dead);
+}
+
+void CPhazonHealingNodule::PhazeOut(CStateManager& mgr) { Death(mgr, zeus::skZero3f, EScriptObjectState::Dead); }
 } // namespace urde::MP1

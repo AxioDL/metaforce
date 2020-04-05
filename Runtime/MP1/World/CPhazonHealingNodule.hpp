@@ -36,6 +36,14 @@ public:
   void Lurk(CStateManager& mgr, EStateMsg msg, float dt) override;
   void Patrol(CStateManager& mgr, EStateMsg msg, float dt) override;
 
+  bool InRange(CStateManager &, float arg) override;
+  bool InDetectionRange(CStateManager &, float arg) override;
+  bool AnimOver(CStateManager &, float arg) override;
+
+  void MassiveDeath(CStateManager &mgr) override;
+  void MassiveFrozenDeath(CStateManager &mgr) override;
+  void PhazeOut(CStateManager &) override;
+
 private:
   void UpdateParticleElectric(CStateManager& mgr);
 };
