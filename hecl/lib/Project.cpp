@@ -1,4 +1,6 @@
 #include <sys/stat.h>
+
+#include <algorithm>
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
@@ -105,16 +107,13 @@ void Project::ConfigFile::removeLine(std::string_view refLine) {
   }
 }
 
-bool Project::ConfigFile::checkForLine(std::string_view refLine) {
+bool Project::ConfigFile::checkForLine(std::string_view refLine) const {
   if (!m_lockedFile) {
     LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__, fmt("Project::ConfigFile::lockAndRead not yet called"));
     return false;
   }
 
-  for (const std::string& line : m_lines)
-    if (line == refLine)
-      return true;
-  return false;
+  return std::any_of(m_lines.cbegin(), m_lines.cend(), [&refLine](const auto& line) { return line == refLine; });
 }
 
 void Project::ConfigFile::unlockAndDiscard() {
