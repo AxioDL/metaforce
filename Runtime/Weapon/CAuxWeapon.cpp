@@ -1,5 +1,7 @@
 #include "Runtime/Weapon/CAuxWeapon.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
@@ -7,9 +9,27 @@
 #include "Runtime/Weapon/CWaveBuster.hpp"
 
 namespace urde {
+constexpr CCameraShakeData skHardShake{
+    0.3f,
+    100.f,
+    0,
+    zeus::skZero3f,
+    {},
+    {
+        true,
+        {false, 0.f, 0.f, 0.3f, -2.f},
+        {true, 0.f, 0.f, 0.05f, 0.5f},
+    },
+    {},
+};
 
-static const CCameraShakeData skHardShake = {
-    0.3f, 100.f, 0, zeus::skZero3f, {}, {1, {0, 0.f, 0.f, 0.3f, -2.f}, {1, 0.f, 0.f, 0.05f, 0.5f}}, {}};
+constexpr std::array skComboNames{
+    "SuperMissile", "IceCombo", "WaveBuster", "FlameThrower", "SuperMissile",
+};
+
+constexpr std::array<u16, 5> skSoundId{
+    1810, 1837, 1847, 1842, 1810,
+};
 
 CAuxWeapon::CAuxWeapon(TUniqueId playerId)
 : x0_missile(g_SimplePool->GetObj("Missile"))
@@ -23,11 +43,10 @@ CAuxWeapon::CAuxWeapon(TUniqueId playerId)
   InitComboData();
 }
 
-static const char* skComboNames[] = {"SuperMissile", "IceCombo", "WaveBuster", "FlameThrower", "SuperMissile"};
-
 void CAuxWeapon::InitComboData() {
-  for (int i = 0; i < 5; ++i)
-    x28_combos.push_back(g_SimplePool->GetObj(skComboNames[i]));
+  for (const auto comboName : skComboNames) {
+    x28_combos.push_back(g_SimplePool->GetObj(comboName));
+  }
 }
 
 void CAuxWeapon::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
@@ -241,8 +260,6 @@ void CAuxWeapon::CreateWaveBusterBeam(EProjectileAttrib attribs, TUniqueId homin
   mgr.GetPlayerState()->SetFiringComboBeam(true);
   x74_firingBeamId = CPlayerState::EBeamId::Wave;
 }
-
-static const u16 skSoundId[] = {1810, 1837, 1847, 1842, 1810};
 
 void CAuxWeapon::LaunchMissile(float dt, bool underwater, bool charged, CPlayerState::EBeamId currentBeam,
                                EProjectileAttrib attrib, const zeus::CTransform& xf, TUniqueId homingId,
