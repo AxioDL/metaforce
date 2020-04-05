@@ -142,7 +142,7 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const nod::Node& pak, atUint64&
     strm->read(&head, 8);
     if (head.magic != CMPD) {
       Log.report(logvisor::Error, fmt("invalid CMPD block"));
-      return std::unique_ptr<atUint8[]>();
+      return nullptr;
     }
     head.blockCount = hecl::SBig(head.blockCount);
 
@@ -165,8 +165,8 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const nod::Node& pak, atUint64&
     }
 
     std::unique_ptr<atUint8[]> compBuf(new atUint8[maxBlockSz]);
-    atUint8* buf = new atUint8[totalDecompSz];
-    atUint8* bufCur = buf;
+    std::unique_ptr<atUint8[]> buf{new atUint8[totalDecompSz]};
+    atUint8* bufCur = buf.get();
     for (atUint32 b = 0; b < head.blockCount; ++b) {
       Block& block = blocks[b];
       atUint8* compBufCur = compBuf.get();
@@ -189,12 +189,12 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const nod::Node& pak, atUint64&
     }
 
     szOut = totalDecompSz;
-    return std::unique_ptr<atUint8[]>(buf);
+    return buf;
   } else {
-    atUint8* buf = new atUint8[size];
-    pak.beginReadStream(offset)->read(buf, size);
+    std::unique_ptr<atUint8[]> buf{new atUint8[size]};
+    pak.beginReadStream(offset)->read(buf.get(), size);
     szOut = size;
-    return std::unique_ptr<atUint8[]>(buf);
+    return buf;
   }
 }
 
