@@ -22,11 +22,11 @@ class CPhazonBeam final : public CGunWeapon {
   bool x274_26_veinsAlphaActive : 1;
   bool x274_27_phazonVeinsIdx : 1;
   float x278_fireTime = 1.f / 3.f;
-  mutable CAABoxShader m_aaboxShaderScale{true};
-  mutable CAABoxShader m_aaboxShaderTranslate{true};
+  CAABoxShader m_aaboxShaderScale{true};
+  CAABoxShader m_aaboxShaderTranslate{true};
   void ReInitVariables();
-  void DrawClipScaleCube() const;
-  void DrawClipTranslateCube() const;
+  void DrawClipScaleCube();
+  void DrawClipTranslateCube();
 
 public:
   CPhazonBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId, EMaterialTypes playerMaterial,
@@ -49,7 +49,7 @@ public:
   void Unload(CStateManager& mgr) override;
   bool IsLoaded() const override;
   void Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
-            const CActorLights* lights) const override;
+            const CActorLights* lights) override;
   void DrawMuzzleFx(const CStateManager& mgr) const override;
 };
 
