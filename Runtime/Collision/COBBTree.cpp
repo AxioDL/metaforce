@@ -1,13 +1,52 @@
 #include "Runtime/Collision/COBBTree.hpp"
 
+#include <array>
+
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
 
 namespace urde {
+namespace {
+constexpr std::array<u8, 18> DefaultEdgeMaterials{
+    2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 2, 2,
+};
+
+constexpr std::array<u8, 12> DefaultSurfaceMaterials{
+    0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+};
+
+const std::array<CCollisionEdge, 18> DefaultEdges{{
+    {4, 1},
+    {1, 5},
+    {5, 4},
+    {4, 0},
+    {0, 1},
+    {7, 2},
+    {2, 6},
+    {6, 7},
+    {7, 3},
+    {3, 2},
+    {6, 0},
+    {4, 6},
+    {2, 0},
+    {5, 3},
+    {7, 5},
+    {1, 3},
+    {6, 5},
+    {0, 3},
+}};
+
+constexpr std::array<u16, 36> DefaultSurfaceIndices{
+    0,  1, 2,  0,  3, 4,  5,  6,  7, 5,  8,  9, 10, 3,  11, 10, 6,  12,
+    13, 8, 14, 13, 1, 15, 16, 14, 7, 16, 11, 2, 17, 15, 4,  17, 12, 9,
+};
+
+
 /* This is exactly what retro did >.< */
 u32 verify_deaf_babe(CInputStream& in) { return in.readUint32Big(); }
 
 /* This is exactly what retro did >.< */
 u32 verify_version(CInputStream& in) { return in.readUint32Big(); }
+} // Anonymous namespace
 
 COBBTree::COBBTree(CInputStream& in)
 : x0_magic(verify_deaf_babe(in))
@@ -15,24 +54,6 @@ COBBTree::COBBTree(CInputStream& in)
 , x8_memsize(in.readUint32())
 , x18_indexData(in)
 , x88_root(std::make_unique<CNode>(in)) {}
-
-static const u8 DefaultEdgeMaterials[] = {
-  2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 2, 2
-};
-
-static const u8 DefaultSurfaceMaterials[] = {
-  0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
-};
-
-static const CCollisionEdge DefaultEdges[] = {
-  {4, 1}, {1, 5}, {5, 4}, {4, 0}, {0, 1}, {7, 2}, {2, 6}, {6, 7}, {7, 3},
-  {3, 2}, {6, 0}, {4, 6}, {2, 0}, {5, 3}, {7, 5}, {1, 3}, {6, 5}, {0, 3}
-};
-
-static const u16 DefaultSurfaceIndices[] = {
-  0, 1, 2, 0, 3, 4, 5, 6, 7, 5, 8, 9, 10, 3, 11, 10, 6, 12, 13,
-  8, 14, 13, 1, 15, 16, 14, 7, 16, 11, 2, 17, 15, 4, 17, 12, 9
-};
 
 std::unique_ptr<COBBTree> COBBTree::BuildOrientedBoundingBoxTree(const zeus::CVector3f& extent,
                                                                  const zeus::CVector3f& center) {
@@ -44,10 +65,10 @@ std::unique_ptr<COBBTree> COBBTree::BuildOrientedBoundingBoxTree(const zeus::CVe
   idxData.x0_materials.push_back(0x42180000);
   idxData.x0_materials.push_back(0x41180000);
   idxData.x10_vertMaterials = std::vector<u8>(8, u8(0));
-  idxData.x20_edgeMaterials = std::vector<u8>(std::begin(DefaultEdgeMaterials), std::end(DefaultEdgeMaterials));
-  idxData.x30_surfaceMaterials = std::vector<u8>(std::begin(DefaultSurfaceMaterials), std::end(DefaultSurfaceMaterials));
-  idxData.x40_edges = std::vector<CCollisionEdge>(std::begin(DefaultEdges), std::end(DefaultEdges));
-  idxData.x50_surfaceIndices = std::vector<u16>(std::begin(DefaultSurfaceIndices), std::end(DefaultSurfaceIndices));
+  idxData.x20_edgeMaterials = std::vector<u8>(DefaultEdgeMaterials.cbegin(), DefaultEdgeMaterials.cend());
+  idxData.x30_surfaceMaterials = std::vector<u8>(DefaultSurfaceMaterials.cbegin(), DefaultSurfaceMaterials.cend());
+  idxData.x40_edges = std::vector<CCollisionEdge>(DefaultEdges.cbegin(), DefaultEdges.cend());
+  idxData.x50_surfaceIndices = std::vector<u16>(DefaultSurfaceIndices.cbegin(), DefaultSurfaceIndices.cend());
   idxData.x60_vertices.reserve(8);
   for (int i = 0; i < 8; ++i)
     idxData.x60_vertices.push_back(aabb.getPoint(i));
