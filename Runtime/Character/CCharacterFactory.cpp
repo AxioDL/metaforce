@@ -76,17 +76,16 @@ std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadNewResourcePartSync(
 
 std::unique_ptr<CAnimData> CCharacterFactory::CreateCharacter(int charIdx, bool loop,
                                                               const TLockedToken<CCharacterFactory>& factory,
-                                                              int defaultAnim, int drawInsts) const {
+                                                              int defaultAnim, int drawInsts) {
   const CCharacterInfo& charInfo = x4_charInfoDB[charIdx];
   const CVParamTransfer charParm(new TObjOwnerParam<const CCharacterInfo*>(&charInfo));
 
-  TToken<CSkinnedModel> skinnedModel = const_cast<CCharacterFactory*>(this)->x70_cacheResPool.GetObj(
-      {FourCC(drawInsts << 16), charInfo.GetModelId()}, charParm);
+  TToken<CSkinnedModel> skinnedModel =
+      x70_cacheResPool.GetObj({FourCC(drawInsts << 16), charInfo.GetModelId()}, charParm);
 
   std::optional<TToken<CMorphableSkinnedModel>> iceModel;
   if (charInfo.GetIceModelId().IsValid() && charInfo.GetIceSkinRulesId().IsValid()) {
-    iceModel.emplace(const_cast<CCharacterFactory*>(this)->x70_cacheResPool.GetObj(
-        {FourCC((drawInsts << 16) | 1), charInfo.GetIceModelId()}, charParm));
+    iceModel.emplace(x70_cacheResPool.GetObj({FourCC((drawInsts << 16) | 1), charInfo.GetIceModelId()}, charParm));
   }
 
   return std::make_unique<CAnimData>(x68_selfId, charInfo, defaultAnim, charIdx, loop, x14_charLayoutInfoDB[charIdx],
