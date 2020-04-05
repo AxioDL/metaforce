@@ -72,9 +72,9 @@ class CPlayerVisor {
   void UpdateScanWindow(float dt, const CStateManager& mgr);
   EScanWindowState GetDesiredScanWindowState(const CStateManager& mgr) const;
   void LockUnlockAssets();
-  void DrawScanEffect(const CStateManager& mgr, const CTargetingManager* tgtMgr) const;
-  void DrawXRayEffect(const CStateManager& mgr) const;
-  void DrawThermalEffect(const CStateManager& mgr) const;
+  void DrawScanEffect(const CStateManager& mgr, const CTargetingManager* tgtMgr);
+  void DrawXRayEffect(const CStateManager& mgr);
+  void DrawThermalEffect(const CStateManager& mgr);
   void UpdateCurrentVisor(float transFactor);
   void FinishTransitionIn();
   void BeginTransitionIn(const CStateManager& mgr);
@@ -85,7 +85,7 @@ public:
   explicit CPlayerVisor(CStateManager& stateMgr);
   ~CPlayerVisor();
   void Update(float dt, const CStateManager& stateMgr);
-  void Draw(const CStateManager& stateMgr, const CTargetingManager* tgtManager) const;
+  void Draw(const CStateManager& stateMgr, const CTargetingManager* tgtManager);
   void Touch();
   float GetDesiredViewportScaleX(const CStateManager& stateMgr) const;
   float GetDesiredViewportScaleY(const CStateManager& stateMgr) const;
