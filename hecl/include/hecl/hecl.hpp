@@ -485,20 +485,20 @@ class Time final {
   time_t ts;
 
 public:
-  Time() : ts(time(NULL)) {}
-  Time(time_t ti) : ts(ti) {}
-  Time(const Time& other) { ts = other.ts; }
-  time_t getTs() const { return ts; }
-  Time& operator=(const Time& other) {
+  Time() : ts(std::time(nullptr)) {}
+  constexpr Time(time_t ti) noexcept : ts{ti} {}
+  constexpr Time(const Time& other) noexcept : ts{other.ts} {}
+  [[nodiscard]] constexpr time_t getTs() const { return ts; }
+  constexpr Time& operator=(const Time& other) noexcept {
     ts = other.ts;
     return *this;
   }
-  bool operator==(const Time& other) const { return ts == other.ts; }
-  bool operator!=(const Time& other) const { return ts != other.ts; }
-  bool operator<(const Time& other) const { return ts < other.ts; }
-  bool operator>(const Time& other) const { return ts > other.ts; }
-  bool operator<=(const Time& other) const { return ts <= other.ts; }
-  bool operator>=(const Time& other) const { return ts >= other.ts; }
+  [[nodiscard]] constexpr bool operator==(const Time& other) const noexcept { return ts == other.ts; }
+  [[nodiscard]] constexpr bool operator!=(const Time& other) const noexcept { return ts != other.ts; }
+  [[nodiscard]] constexpr bool operator<(const Time& other) const noexcept { return ts < other.ts; }
+  [[nodiscard]] constexpr bool operator>(const Time& other) const noexcept { return ts > other.ts; }
+  [[nodiscard]] constexpr bool operator<=(const Time& other) const noexcept { return ts <= other.ts; }
+  [[nodiscard]] constexpr bool operator>=(const Time& other) const noexcept { return ts >= other.ts; }
 };
 
 /**
