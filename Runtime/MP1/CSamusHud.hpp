@@ -208,7 +208,7 @@ class CSamusHud {
   void ShowDamage(const zeus::CVector3f& position, float dam, float prevDam, const CStateManager& mgr);
   void EnterFirstPerson(const CStateManager& mgr);
   void LeaveFirstPerson(const CStateManager& mgr);
-  void DrawAttachedEnemyEffect(const CStateManager& mgr) const;
+  void DrawAttachedEnemyEffect(const CStateManager& mgr);
   static EHudState GetDesiredHudState(const CStateManager& mgr);
 
 public:
@@ -217,8 +217,8 @@ public:
   void Update(float dt, const CStateManager& mgr, CInGameGuiManager::EHelmetVisMode helmetVis, bool hudVis,
               bool targetingManager);
   void Draw(const CStateManager& mgr, float alpha, CInGameGuiManager::EHelmetVisMode helmetVis, bool hudVis,
-            bool targetingManager) const;
-  void DrawHelmet(const CStateManager& mgr, float camYOff) const;
+            bool targetingManager);
+  void DrawHelmet(const CStateManager& mgr, float camYOff);
   void ProcessControllerInput(const CFinalInput& input);
   void UpdateStateTransition(float time, const CStateManager& mgr);
   bool CheckLoadComplete(CStateManager& stateMgr);
