@@ -14,7 +14,7 @@ constexpr std::array<u8, 12> DefaultSurfaceMaterials{
     0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
 };
 
-const std::array<CCollisionEdge, 18> DefaultEdges{{
+constexpr std::array<CCollisionEdge, 18> DefaultEdges{{
     {4, 1},
     {1, 5},
     {5, 4},
