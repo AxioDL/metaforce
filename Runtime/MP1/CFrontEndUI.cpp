@@ -1949,12 +1949,13 @@ void CFrontEndUI::Draw() {
 
     if (x64_pressStartAlpha > 0.f && x38_pressStart.IsLoaded() && m_pressStartQuad) {
       /* Render "Press Start" */
-      zeus::CRectangle rect(0.5f - x38_pressStart->GetWidth() / 2.f / 640.f * hPad,
-                            0.5f + (x38_pressStart->GetHeight() / 2.f - 240.f + 72.f) / 480.f * vPad,
-                            x38_pressStart->GetWidth() / 640.f * hPad, x38_pressStart->GetHeight() / 480.f * vPad);
+      const zeus::CRectangle rect(0.5f - x38_pressStart->GetWidth() / 2.f / 640.f * hPad,
+                                  0.5f + (x38_pressStart->GetHeight() / 2.f - 240.f + 72.f) / 480.f * vPad,
+                                  x38_pressStart->GetWidth() / 640.f * hPad,
+                                  x38_pressStart->GetHeight() / 480.f * vPad);
       zeus::CColor color = zeus::skWhite;
       color.a() = x64_pressStartAlpha;
-      const_cast<CTexturedQuadFilterAlpha&>(*m_pressStartQuad).draw(color, 1.f, rect);
+      m_pressStartQuad->draw(color, 1.f, rect);
     }
 
     if (xc0_attractCount > 0) {
@@ -1965,7 +1966,7 @@ void CFrontEndUI::Draw() {
         /* To black */
         zeus::CColor color = zeus::skBlack;
         color.a() = 1.f - x58_fadeBlackTimer;
-        const_cast<CColoredQuadFilter&>(m_fadeToBlack).draw(color);
+        m_fadeToBlack.draw(color);
       }
     }
 
@@ -1975,12 +1976,12 @@ void CFrontEndUI::Draw() {
         /* To black */
         zeus::CColor color = zeus::skBlack;
         color.a() = zeus::clamp(0.f, 1.f - x58_fadeBlackTimer, 1.f);
-        const_cast<CColoredQuadFilter&>(m_fadeToBlack).draw(color);
+        m_fadeToBlack.draw(color);
       } else if (x50_curScreen == EScreen::Title && x54_nextScreen == EScreen::Title) {
         /* From black with 30-sec skip to title */
         zeus::CColor color = zeus::skBlack;
         color.a() = 1.f - zeus::clamp(0.f, 30.f - x58_fadeBlackTimer, 1.f);
-        const_cast<CColoredQuadFilter&>(m_fadeToBlack).draw(color);
+        m_fadeToBlack.draw(color);
       }
     }
 
