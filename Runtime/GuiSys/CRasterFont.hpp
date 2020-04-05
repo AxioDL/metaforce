@@ -109,16 +109,7 @@ class CRasterFont {
   s32 x8c_baseline;
   s32 x90_lineMargin = 0;
 
-  const CGlyph* InternalGetGlyph(char16_t chr) const {
-    u32 i = 0;
-    for (; i < xc_glyphs.size(); ++i)
-      if (chr == xc_glyphs[i].first)
-        break;
-
-    if (i == xc_glyphs.size())
-      return nullptr;
-    return &xc_glyphs[i].second;
-  }
+  const CGlyph* InternalGetGlyph(char16_t chr) const;
 
 public:
   CRasterFont(CInputStream& in, IObjectStore& store);

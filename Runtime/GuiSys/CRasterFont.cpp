@@ -1,5 +1,7 @@
 #include "Runtime/GuiSys/CRasterFont.hpp"
 
+#include <algorithm>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/GuiSys/CDrawStringOptions.hpp"
@@ -82,6 +84,17 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store) {
 
   if (magic == SBIG('FONT') && version <= 4)
     x0_initialized = true;
+}
+
+const CGlyph* CRasterFont::InternalGetGlyph(char16_t chr) const {
+  const auto iter =
+      std::find_if(xc_glyphs.cbegin(), xc_glyphs.cend(), [chr](const auto& entry) { return entry.first == chr; });
+
+  if (iter == xc_glyphs.cend()) {
+    return nullptr;
+  }
+
+  return &iter->second;
 }
 
 void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout,
