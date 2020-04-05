@@ -260,7 +260,7 @@ public:
     std::vector<std::string>& lockAndRead();
     void addLine(std::string_view line);
     void removeLine(std::string_view refLine);
-    bool checkForLine(std::string_view refLine);
+    bool checkForLine(std::string_view refLine) const;
     void unlockAndDiscard();
     bool unlockAndCommit();
   };
