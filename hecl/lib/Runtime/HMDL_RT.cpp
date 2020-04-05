@@ -20,8 +20,8 @@ HMDLData::HMDLData(boo::IGraphicsDataFactory::Context& ctx, const void* metaData
   m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vbo, meta.vertStride, meta.vertCount);
   m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, ibo, 4, meta.indexCount);
 
-  size_t elemCount = 2 + meta.colorCount + meta.uvCount + meta.weightCount;
-  m_vtxFmtData.reset(new boo::VertexElementDescriptor[elemCount]);
+  const size_t elemCount = 2 + meta.colorCount + meta.uvCount + meta.weightCount;
+  m_vtxFmtData = std::make_unique<boo::VertexElementDescriptor[]>(elemCount);
 
   m_vtxFmtData[0].semantic = boo::VertexSemantic::Position3;
   m_vtxFmtData[1].semantic = boo::VertexSemantic::Normal3;
