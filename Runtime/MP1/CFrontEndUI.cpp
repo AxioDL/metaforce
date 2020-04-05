@@ -120,7 +120,7 @@ CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveGameScreen* sui, u32 
 
 void CFrontEndUI::SNewFileSelectFrame::FinishedLoading() {
   x1c_loadedFrame->Reset();
-  x1c_loadedFrame->SetAspectConstraint(1.78f);
+  x1c_loadedFrame->SetAspectConstraint(1.62f);
 
   x20_tablegroup_fileselect = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_fileselect"));
   x24_model_erase = static_cast<CGuiModel*>(x1c_loadedFrame->FindWidget("model_erase"));
@@ -841,7 +841,7 @@ void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::Update(float dt) {
 }
 
 void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::FinishedLoading() {
-  x8_frme->SetAspectConstraint(1.78f);
+  x8_frme->SetAspectConstraint(1.62f);
 
   xc_textpane_instructions = FindTextPanePair(x8_frme, "textpane_instructions");
   x14_textpane_yes = static_cast<CGuiTextPane*>(x8_frme->FindWidget("textpane_yes"));
@@ -868,7 +868,7 @@ CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SGBALinkFrame(CGuiFrame* linkFram
 }
 
 void CFrontEndUI::SFusionBonusFrame::FinishedLoading() {
-  x24_loadedFrame->SetAspectConstraint(1.78f);
+  x24_loadedFrame->SetAspectConstraint(1.62f);
 
   x28_tablegroup_options = static_cast<CGuiTableGroup*>(x24_loadedFrame->FindWidget("tablegroup_options"));
   x2c_tablegroup_fusionsuit = static_cast<CGuiTableGroup*>(x24_loadedFrame->FindWidget("tablegroup_fusionsuit"));
@@ -1123,7 +1123,7 @@ void CFrontEndUI::FindAndSetPairText(CGuiFrame* frame, std::string_view name, st
 }
 
 void CFrontEndUI::SFrontEndFrame::FinishedLoading() {
-  x14_loadedFrme->SetAspectConstraint(1.78f);
+  x14_loadedFrme->SetAspectConstraint(1.62f);
 
   x18_tablegroup_mainmenu = static_cast<CGuiTableGroup*>(x14_loadedFrme->FindWidget("tablegroup_mainmenu"));
   x1c_gbaPair = FindTextPanePair(x14_loadedFrme, "textpane_gba");
@@ -1549,7 +1549,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::SetTableColors(CGuiTableGroup* tbgp) co
 }
 
 void CFrontEndUI::SOptionsFrontEndFrame::FinishedLoading() {
-  x1c_loadedFrame->SetAspectConstraint(1.78f);
+  x1c_loadedFrame->SetAspectConstraint(1.62f);
 
   x24_tablegroup_leftmenu = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_leftmenu"));
   x28_tablegroup_rightmenu = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_rightmenu"));

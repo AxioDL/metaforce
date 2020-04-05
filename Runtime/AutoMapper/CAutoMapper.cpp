@@ -1100,7 +1100,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr) {
   }
 
   if (!m_frmeInitialized && x28_frmeMapScreen.IsLoaded()) {
-    x28_frmeMapScreen->SetMaxAspect(1.78f);
+    x28_frmeMapScreen->SetMaxAspect(1.62f);
     m_frmeInitialized = true;
     static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_left"))
         ->TextSupport()
