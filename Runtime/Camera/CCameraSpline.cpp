@@ -18,13 +18,13 @@ void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnec
   }
 
   if (lastConn) {
-    TCastToPtr<CScriptCameraWaypoint> waypoint = mgr.ObjectById(mgr.GetIdForScript(lastConn->x8_objId));
+    TCastToConstPtr<CScriptCameraWaypoint> waypoint = mgr.ObjectById(mgr.GetIdForScript(lastConn->x8_objId));
     x14_wpTracker.clear();
     x14_wpTracker.reserve(4);
     while (waypoint) {
-      auto search = std::find_if(x14_wpTracker.begin(), x14_wpTracker.end(),
-                                 [&waypoint](const auto& a) { return a == waypoint->GetUniqueId(); });
-      if (search == x14_wpTracker.end()) {
+      const auto search = std::find_if(x14_wpTracker.cbegin(), x14_wpTracker.cend(),
+                                       [&waypoint](const auto& a) { return a == waypoint->GetUniqueId(); });
+      if (search == x14_wpTracker.cend()) {
         x14_wpTracker.push_back(waypoint->GetUniqueId());
         waypoint = mgr.ObjectById(waypoint->GetRandomNextWaypointId(mgr));
       }
@@ -34,9 +34,9 @@ void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnec
 
     waypoint = mgr.ObjectById(mgr.GetIdForScript(lastConn->x8_objId));
     while (waypoint) {
-      auto search = std::find_if(x14_wpTracker.begin(), x14_wpTracker.end(),
-                                 [&waypoint](const auto& a) { return a == waypoint->GetUniqueId(); });
-      if (search == x14_wpTracker.end()) {
+      const auto search = std::find_if(x14_wpTracker.cbegin(), x14_wpTracker.cend(),
+                                       [&waypoint](const auto& a) { return a == waypoint->GetUniqueId(); });
+      if (search == x14_wpTracker.cend()) {
         x14_wpTracker.push_back(waypoint->GetUniqueId());
         AddKnot(waypoint->GetTranslation(), waypoint->GetTransform().basis[1]);
         waypoint = mgr.ObjectById(waypoint->GetRandomNextWaypointId(mgr));

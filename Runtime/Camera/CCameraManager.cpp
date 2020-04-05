@@ -655,9 +655,9 @@ bool CCameraManager::HasBallCameraInitialPositionHint(CStateManager& mgr) const 
 }
 
 void CCameraManager::RemoveCinemaCamera(TUniqueId uid, CStateManager& mgr) {
-  const auto search = std::find(x4_cineCameras.begin(), x4_cineCameras.end(), uid);
+  const auto search = std::find(x4_cineCameras.cbegin(), x4_cineCameras.cend(), uid);
 
-  if (search == x4_cineCameras.end()) {
+  if (search == x4_cineCameras.cend()) {
     return;
   }
 
@@ -671,10 +671,10 @@ void CCameraManager::DeleteCameraHint(TUniqueId id, CStateManager& mgr) {
     return;
   }
 
-  const auto search = std::find_if(x2b0_inactiveCameraHints.begin(), x2b0_inactiveCameraHints.end(),
+  const auto search = std::find_if(x2b0_inactiveCameraHints.cbegin(), x2b0_inactiveCameraHints.cend(),
                                    [id](TUniqueId tid) { return tid == id; });
 
-  if (search != x2b0_inactiveCameraHints.end()) {
+  if (search != x2b0_inactiveCameraHints.cend()) {
     return;
   }
 
@@ -687,9 +687,9 @@ void CCameraManager::DeleteCameraHint(TUniqueId id, CStateManager& mgr) {
 
 void CCameraManager::AddInactiveCameraHint(TUniqueId id, CStateManager& mgr) {
   if (const TCastToConstPtr<CScriptCameraHint> hint = mgr.ObjectById(id)) {
-    const auto search = std::find_if(x2b0_inactiveCameraHints.begin(), x2b0_inactiveCameraHints.end(),
+    const auto search = std::find_if(x2b0_inactiveCameraHints.cbegin(), x2b0_inactiveCameraHints.cend(),
                                      [id](TUniqueId tid) { return tid == id; });
-    if (search == x2b0_inactiveCameraHints.end() && x2b0_inactiveCameraHints.size() != 64) {
+    if (search == x2b0_inactiveCameraHints.cend() && x2b0_inactiveCameraHints.size() != 64) {
       x2b0_inactiveCameraHints.push_back(id);
     }
   }
@@ -697,9 +697,9 @@ void CCameraManager::AddInactiveCameraHint(TUniqueId id, CStateManager& mgr) {
 
 void CCameraManager::AddActiveCameraHint(TUniqueId id, CStateManager& mgr) {
   if (const TCastToConstPtr<CScriptCameraHint> hint = mgr.ObjectById(id)) {
-    const auto search = std::find_if(x334_activeCameraHints.begin(), x334_activeCameraHints.end(),
+    const auto search = std::find_if(x334_activeCameraHints.cbegin(), x334_activeCameraHints.cend(),
                                      [id](TUniqueId tid) { return tid == id; });
-    if (search == x334_activeCameraHints.end() && xac_cameraHints.size() != 64 && x334_activeCameraHints.size() != 64) {
+    if (search == x334_activeCameraHints.cend() && xac_cameraHints.size() != 64 && x334_activeCameraHints.size() != 64) {
       x334_activeCameraHints.push_back(id);
     }
   }
