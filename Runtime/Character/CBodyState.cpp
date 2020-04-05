@@ -2035,8 +2035,6 @@ float CBSBiPedLocomotion::UpdateStrafe(float vel, CBodyController& bc, pas::ELoc
 }
 
 float CBSBiPedLocomotion::UpdateLocomotionAnimation(float dt, float velMag, CBodyController& bc, bool init) {
-  constexpr float ret = 1.f;
-
   if (init || x3c8_primeTime >= 0.2f) {
     const auto anim = init ? pas::ELocomotionAnim::Invalid : x3c4_anim;
     const float maxSpeed = velMag * GetLocomotionSpeed(x4_locomotionType, pas::ELocomotionAnim::Run);
@@ -2065,7 +2063,7 @@ float CBSBiPedLocomotion::UpdateLocomotionAnimation(float dt, float velMag, CBod
     }
   }
 
-  return ret;
+  return 1.0f;
 }
 
 bool CBSBiPedLocomotion::IsStrafing(const CBodyController& bc) const {
