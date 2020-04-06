@@ -256,7 +256,7 @@ void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks) {
 
   CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx) {
     g_doorVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, skDoorVerts.data(), 16, skDoorVerts.size());
-    g_doorIbo = ctx.newStaticBuffer(boo::BufferUse::Index, DoorIndices.data, 4, DoorIndices.size());
+    g_doorIbo = ctx.newStaticBuffer(boo::BufferUse::Index, DoorIndices.data(), 4, DoorIndices.size());
     return true;
   } BooTrace);
 }
