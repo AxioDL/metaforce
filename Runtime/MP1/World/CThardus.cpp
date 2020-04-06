@@ -111,7 +111,7 @@ CThardus::CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info
   gens.push_back(particle8);
   gens.push_back(particle9);
   GetModelData()->GetAnimationData()->GetParticleDB().CacheParticleDesc(
-      CCharacterInfo::CParticleResData(gens, {}, {}, {}));
+      CCharacterInfo::CParticleResData(std::move(gens), {}, {}, {}));
   x798_.reserve(6);
   x7a8_timers.reserve(16);
   UpdateThermalFrozenState(true);
