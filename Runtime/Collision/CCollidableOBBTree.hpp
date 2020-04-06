@@ -31,7 +31,7 @@ public:
 
 class CCollidableOBBTree : public CCollisionPrimitive {
   friend class CCollidableOBBTreeGroup;
-  COBBTree* x10_tree = nullptr;
+  const COBBTree* x10_tree = nullptr;
   u32 x14_tries = 0;
   u32 x18_misses = 0;
   u32 x1c_hits = 0;
