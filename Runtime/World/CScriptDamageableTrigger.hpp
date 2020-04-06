@@ -17,12 +17,7 @@ namespace urde {
 class CVisorParameters;
 
 class CScriptDamageableTrigger : public CActor {
-public:
-  enum class ECanOrbit {
-    NoOrbit,
-    Orbit,
-  };
-
+private:
   zeus::CFrustum xe8_frustum;
   zeus::CAABox x14c_bounds;
   CHealthInfo x164_origHInfo;
@@ -49,6 +44,11 @@ public:
   float GetPuddleAlphaScale() const;
 
 public:
+  enum class ECanOrbit {
+    NoOrbit,
+    Orbit,
+  };
+
   CScriptDamageableTrigger(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                            const zeus::CVector3f& position, const zeus::CVector3f& extent, const CHealthInfo& hInfo,
                            const CDamageVulnerability& dVuln, u32 faceFlag, CAssetId patternTex1, CAssetId patternTex2,
