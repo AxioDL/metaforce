@@ -874,9 +874,10 @@ void CGameCollision::CollisionFailsafe(const CStateManager& mgr, CAreaCollisionC
   }
 }
 
-std::optional<zeus::CVector3f> CGameCollision::FindNonIntersectingVector(
-    const CStateManager& mgr, CAreaCollisionCache& cache, CPhysicsActor& actor, const CCollisionPrimitive& prim,
-    const rstl::reserved_vector<TUniqueId, 1024>& nearList) {
+std::optional<zeus::CVector3f>
+CGameCollision::FindNonIntersectingVector(const CStateManager& mgr, CAreaCollisionCache& cache, CPhysicsActor& actor,
+                                          const CCollisionPrimitive& prim,
+                                          const rstl::reserved_vector<TUniqueId, 1024>& nearList) {
   zeus::CTransform xf = actor.GetPrimitiveTransform();
   zeus::CVector3f origOrigin = xf.origin;
   zeus::CVector3f center = prim.CalculateAABox(xf).center();
@@ -980,5 +981,42 @@ std::optional<zeus::CVector3f> CGameCollision::FindNonIntersectingVector(
   }
 
   return {};
+}
+
+void CGameCollision::AvoidStaticCollisionWithinRadius(const CStateManager& mgr, CPhysicsActor& actor, u32 iterations,
+                                                      float dt, float height, float size, float mass, float radius) {
+  const zeus::CVector3f& actorPos = actor.GetTranslation();
+  const zeus::CVector3f pos = actorPos + zeus::CVector3f{0.f, 0.f, height};
+  const float largeRadius = 1.2f * radius;
+  const zeus::CVector3f diff{size + largeRadius, size + largeRadius, largeRadius};
+  const zeus::CAABox aabb{pos - diff, pos + diff};
+  CAreaCollisionCache cache{aabb};
+  BuildAreaCollisionCache(mgr, cache);
+
+  const CCollidableSphere prim{{pos, radius}, {EMaterialTypes::Solid}};
+  if (!DetectStaticCollisionBoolean_Cached(mgr, cache, prim, {}, CMaterialFilter::MakeExclude(EMaterialTypes::Floor))) {
+    zeus::CVector3f velocity = zeus::skZero3f;
+    float seg = zeus::degToRad(360.f) / iterations;
+    for (u32 i = 0; i < iterations; ++i) {
+      const float angle = seg * i;
+      const zeus::CVector3f vec{std::sin(angle), std::cos(angle), 0.f};
+      double out = size;
+      CCollisionInfo info{};
+      if (cache.HasCacheOverflowed()) {
+        cache.ClearCache();
+        zeus::CAABox aabb2{pos, pos};
+        aabb2.accumulateBounds(actorPos + (size * vec));
+        cache.SetCacheBounds(zeus::CAABox{aabb2.min - radius, aabb2.max + radius});
+        BuildAreaCollisionCache(mgr, cache);
+      }
+
+      if (DetectStaticCollision_Cached_Moving(mgr, cache, prim, {}, CMaterialFilter::MakeExclude(EMaterialTypes::Floor),
+                                              vec, info, out)) {
+        float force = static_cast<float>((size - out) / size) / iterations;
+        velocity -= force * vec;
+      }
+    }
+    actor.SetVelocityWR(actor.GetVelocity() + (dt * (mass * velocity)));
+  }
 }
 } // namespace urde
