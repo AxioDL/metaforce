@@ -70,14 +70,16 @@ std::unique_ptr<COBBTree> COBBTree::BuildOrientedBoundingBoxTree(const zeus::CVe
   idxData.x40_edges = std::vector<CCollisionEdge>(DefaultEdges.cbegin(), DefaultEdges.cend());
   idxData.x50_surfaceIndices = std::vector<u16>(DefaultSurfaceIndices.cbegin(), DefaultSurfaceIndices.cend());
   idxData.x60_vertices.reserve(8);
-  for (int i = 0; i < 8; ++i)
+  for (int i = 0; i < 8; ++i) {
     idxData.x60_vertices.push_back(aabb.getPoint(i));
+  }
   std::vector<u16> surface;
   surface.reserve(12);
-  for (int i = 0; i < 12; ++i)
+  for (int i = 0; i < 12; ++i) {
     surface.push_back(i);
-  ret->x88_root = std::make_unique<CNode>(zeus::CTransform::Translate(center), extent * 0.5f,
-    std::unique_ptr<CNode>{}, std::unique_ptr<CNode>{}, std::make_unique<CLeafData>(std::move(surface)));
+  }
+  ret->x88_root = std::make_unique<CNode>(zeus::CTransform::Translate(center), extent * 0.5f, nullptr, nullptr,
+                                          std::make_unique<CLeafData>(std::move(surface)));
   return ret;
 }
 
