@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <string>
 #include <vector>
@@ -87,22 +88,25 @@ private:
 
   struct SSaveHeader {
     u32 x0_version = 0;
-    bool x4_savePresent[3];
+    std::array<bool, 3> x4_savePresent{};
+
     void DoPut(CMemoryOutStream& out) const {
       out.writeUint32Big(x0_version);
-      for (int i = 0; i < 3; ++i)
-        out.writeBool(x4_savePresent[i]);
+      for (const bool savePresent : x4_savePresent) {
+        out.writeBool(savePresent);
+      }
     }
   };
 
   struct SGameFileSlot {
-    u8 x0_saveBuffer[940] = {};
+    std::array<u8, 940> x0_saveBuffer{};
     CGameState::GameFileStateInfo x944_fileInfo;
+
     SGameFileSlot();
     explicit SGameFileSlot(CMemoryInStream& in);
     void InitializeFromGameState();
     void LoadGameState(u32 idx);
-    void DoPut(CMemoryOutStream& w) const { w.writeBytes(x0_saveBuffer, 940); }
+    void DoPut(CMemoryOutStream& w) const { w.writeBytes(x0_saveBuffer.data(), x0_saveBuffer.size()); }
   };
 
   enum class EFileState { Unknown, NoFile, File, BadFile };
@@ -117,8 +121,8 @@ private:
   s32 x1c_cardFreeFiles = 0;
   u32 x20_fileTime = 0;
   u64 x28_cardSerial = 0;
-  u8 x30_systemData[174] = {};
-  std::unique_ptr<SGameFileSlot> xe4_fileSlots[3];
+  std::array<u8, 174> x30_systemData{};
+  std::array<std::unique_ptr<SGameFileSlot>, 3> xe4_fileSlots;
   std::vector<std::pair<EFileState, SFileInfo>> x100_mcFileInfos;
   u32 x194_fileIdx = -1;
   std::unique_ptr<CMemoryCardSys::CCardFileInfo> x198_fileInfo;
