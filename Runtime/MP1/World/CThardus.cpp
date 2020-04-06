@@ -347,7 +347,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
           CActorParameters(CLightParameters(false, 0.f, CLightParameters::EShadowTesselation::Invalid, 0.f, 0.f,
                                             zeus::skWhite, true, CLightParameters::EWorldLightingOptions::NoShadowCast,
                                             CLightParameters::ELightRecalculationOptions::LargeFrameCount,
-                                            zeus::skZero3f, -1, -1, 0, 0),
+                                            zeus::skZero3f, -1, -1, false, 0),
                            {}, {}, {}, {}, true, true, false, false, 0.f, 0.f, 1.f),
           x5dc_[i], 0));
       x610_destroyableRocks.push_back(rockId);
