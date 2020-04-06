@@ -1,5 +1,7 @@
 #include "Runtime/Collision/CCollidableOBBTree.hpp"
 
+#include <array>
+
 #include "Runtime/Collision/CCollisionInfoList.hpp"
 #include "Runtime/Collision/CInternalRayCastStructure.hpp"
 #include "Runtime/Collision/CMaterialFilter.hpp"
@@ -152,13 +154,14 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
 
         zeus::CVector3f surfNormal = surf.GetNormal();
         if ((sphere.position + moveVec - surf.GetVert(0)).dot(surfNormal) <= sphere.radius) {
-          float mag = (sphere.radius - (sphere.position - surf.GetVert(0)).dot(surfNormal)) / dir.dot(surfNormal);
-          zeus::CVector3f intersectPoint = sphere.position + mag * dir;
+          const float mag = (sphere.radius - (sphere.position - surf.GetVert(0)).dot(surfNormal)) / dir.dot(surfNormal);
+          const zeus::CVector3f intersectPoint = sphere.position + mag * dir;
 
-          bool outsideEdges[] = {
+          const std::array<bool, 3> outsideEdges{
               (intersectPoint - surf.GetVert(0)).dot((surf.GetVert(1) - surf.GetVert(0)).cross(surfNormal)) < 0.f,
               (intersectPoint - surf.GetVert(1)).dot((surf.GetVert(2) - surf.GetVert(1)).cross(surfNormal)) < 0.f,
-              (intersectPoint - surf.GetVert(2)).dot((surf.GetVert(0) - surf.GetVert(2)).cross(surfNormal)) < 0.f};
+              (intersectPoint - surf.GetVert(2)).dot((surf.GetVert(0) - surf.GetVert(2)).cross(surfNormal)) < 0.f,
+          };
 
           if (mag >= 0.f && !outsideEdges[0] && !outsideEdges[1] && !outsideEdges[2] && mag < dOut) {
             infoOut = CCollisionInfo(intersectPoint - sphere.radius * surfNormal, matList, triMat, surfNormal);
@@ -166,8 +169,8 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
             ret = true;
           }
 
-          bool intersects = (sphere.position - surf.GetVert(0)).dot(surfNormal) <= sphere.radius;
-          bool testVert[] = {true, true, true};
+          const bool intersects = (sphere.position - surf.GetVert(0)).dot(surfNormal) <= sphere.radius;
+          std::array<bool, 3> testVert{true, true, true};
           const u16* edgeIndices = x10_tree->GetTriangleEdgeIndices(triIdx);
           for (int k = 0; k < 3; ++k) {
             if (intersects || outsideEdges[k]) {
