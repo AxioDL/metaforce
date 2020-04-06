@@ -1,5 +1,7 @@
 #include "Runtime/World/CScriptWater.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -11,8 +13,9 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
-
-const float CScriptWater::kSplashScales[6] = {1.0f, 3.0f, 0.709f, 1.19f, 0.709f, 1.f};
+constexpr std::array kSplashScales{
+    1.0f, 3.0f, 0.709f, 1.19f, 0.709f, 1.f,
+};
 
 CScriptWater::CScriptWater(
     CStateManager& mgr, TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& pos,

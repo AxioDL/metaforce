@@ -20,7 +20,6 @@ class CDamageInfo;
 class CFluidUVMotion;
 
 class CScriptWater : public CScriptTrigger {
-  static const float kSplashScales[6];
   zeus::CFrustum x150_frustum;
   std::unique_ptr<CFluidPlaneCPU> x1b4_fluidPlane;
   zeus::CVector3f x1b8_positionMorphed;
