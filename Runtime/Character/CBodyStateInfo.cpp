@@ -8,7 +8,7 @@ namespace urde {
 CBodyStateInfo::CBodyStateInfo(CActor& actor, EBodyType type) {
   x34_24_changeLocoAtEndOfAnimOnly = false;
   const CPASDatabase& pasDatabase = actor.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();
-  for (int i = 0; i < pasDatabase.GetNumAnimStates(); ++i) {
+  for (size_t i = 0; i < pasDatabase.GetNumAnimStates(); ++i) {
     const CPASAnimState* state = pasDatabase.GetAnimStateByIndex(i);
     std::unique_ptr<CBodyState> bs;
 
