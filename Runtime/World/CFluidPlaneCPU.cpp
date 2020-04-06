@@ -125,7 +125,7 @@ static const float* InitializeSineWave() {
 CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha,
                                                                const zeus::CTransform& xf,
                                                                const zeus::CTransform& areaXf, const zeus::CAABox& aabb,
-                                                               const CScriptWater* water) const {
+                                                               const CScriptWater* water) {
   CFluidPlaneShader::RenderSetupInfo out;
 
   float uvT = mgr.GetFluidPlaneManager()->GetUVT();
@@ -740,7 +740,7 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
                             const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
                             const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
                             const bool* gridFlags, u32 gridDimX, u32 gridDimY,
-                            const zeus::CVector3f& areaCenter) const {
+                            const zeus::CVector3f& areaCenter) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CFluidPlaneCPU::Render", zeus::skCyan);
   TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(waterId);
   CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, areaXf, aabb, water.GetPtr());

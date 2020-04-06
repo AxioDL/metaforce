@@ -128,9 +128,9 @@ protected:
   float x48_rippleIntensity;
   CFluidUVMotion x4c_uvMotion;
 
-  mutable std::vector<CFluidPlaneShader::Vertex> m_verts;
-  mutable std::vector<CFluidPlaneShader::PatchVertex> m_pVerts;
-  mutable std::optional<CFluidPlaneShader> m_shader;
+  std::vector<CFluidPlaneShader::Vertex> m_verts;
+  std::vector<CFluidPlaneShader::PatchVertex> m_pVerts;
+  std::optional<CFluidPlaneShader> m_shader;
 
   float ProjectRippleVelocity(float baseI, float velDot) const;
   float CalculateRippleIntensity(float baseI) const;
@@ -162,7 +162,7 @@ public:
   virtual void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
                       const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
                       const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
-                      const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const {}
+                      const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) {}
 
   float GetAlpha() const { return x40_alpha; }
   EFluidType GetFluidType() const { return x44_fluidType; }
