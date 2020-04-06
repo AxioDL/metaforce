@@ -194,7 +194,7 @@ COBBTree::CNode::CNode(const zeus::CTransform& xf, const zeus::CVector3f& point,
                        std::unique_ptr<CNode>&& left, std::unique_ptr<CNode>&& right,
                        std::unique_ptr<CLeafData>&& leaf)
 : x0_obb(xf, point)
-, x3c_isLeaf(leaf.operator bool())
+, x3c_isLeaf(leaf != nullptr)
 , x40_left(std::move(left))
 , x44_right(std::move(right))
 , x48_leaf(std::move(leaf)) {}
