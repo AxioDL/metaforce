@@ -539,7 +539,7 @@ pas::EAnimationState CBSTurn::UpdateBody(float dt, CBodyController& bc, CStateMa
 }
 
 void CBSFlyerTurn::Start(CBodyController& bc, CStateManager& mgr) {
-  if (bc.GetPASDatabase().GetAnimState(8)->GetNumAnims()) {
+  if (bc.GetPASDatabase().GetAnimState(8)->HasAnims()) {
     CBSTurn::Start(bc, mgr);
   } else {
     x8_dest = zeus::CVector2f(bc.GetCommandMgr().GetFaceVector().toVec2f());
@@ -556,7 +556,7 @@ void CBSFlyerTurn::Start(CBodyController& bc, CStateManager& mgr) {
 }
 
 pas::EAnimationState CBSFlyerTurn::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
-  if (bc.GetPASDatabase().GetAnimState(8)->GetNumAnims()) {
+  if (bc.GetPASDatabase().GetAnimState(8)->HasAnims()) {
     return CBSTurn::UpdateBody(dt, bc, mgr);
   }
 
