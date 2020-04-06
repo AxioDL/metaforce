@@ -11,12 +11,13 @@ u32 CMetroidAreaCollider::g_RejectedByClip = 0;
 u32 CMetroidAreaCollider::g_TrianglesProcessed = 0;
 u32 CMetroidAreaCollider::g_DupTrianglesProcessed = 0;
 u16 CMetroidAreaCollider::g_DupPrimitiveCheckCount = 0;
-u16 CMetroidAreaCollider::g_DupVertexList[0x5000] = {};
-u16 CMetroidAreaCollider::g_DupEdgeList[0xC000] = {};
-u16 CMetroidAreaCollider::g_DupTriangleList[0x4000] = {};
+std::array<u16, 0x5000> CMetroidAreaCollider::g_DupVertexList{};
+std::array<u16, 0xC000> CMetroidAreaCollider::g_DupEdgeList{};
+std::array<u16, 0x4000> CMetroidAreaCollider::g_DupTriangleList{};
 
-CAABoxAreaCache::CAABoxAreaCache(const zeus::CAABox& aabb, const zeus::CPlane* pl, const CMaterialFilter& filter,
-                                 const CMaterialList& material, CCollisionInfoList& collisionList)
+CAABoxAreaCache::CAABoxAreaCache(const zeus::CAABox& aabb, const std::array<zeus::CPlane, 6>& pl,
+                                 const CMaterialFilter& filter, const CMaterialList& material,
+                                 CCollisionInfoList& collisionList)
 : x0_aabb(aabb)
 , x4_planes(pl)
 , x8_filter(filter)
@@ -44,7 +45,7 @@ SBoxEdge::SBoxEdge(const zeus::CAABox& aabb, int idx, const zeus::CVector3f& dir
 , x70_coDir(x58_delta.cross(dir).asNormalized())
 , x88_dirCoDirDot(x28_start.dot(x70_coDir)) {}
 
-static void FlagEdgeIndicesForFace(int face, bool edgeFlags[12]) {
+static void FlagEdgeIndicesForFace(int face, std::array<bool, 12>& edgeFlags) {
   switch (face) {
   case 0:
     edgeFlags[10] = true;
@@ -87,7 +88,7 @@ static void FlagEdgeIndicesForFace(int face, bool edgeFlags[12]) {
   }
 }
 
-static void FlagVertexIndicesForFace(int face, bool vertFlags[8]) {
+static void FlagVertexIndicesForFace(int face, std::array<bool, 8>& vertFlags) {
   switch (face) {
   case 0:
     vertFlags[1] = true;
@@ -131,26 +132,30 @@ static void FlagVertexIndicesForFace(int face, bool vertFlags[8]) {
 }
 
 CMovingAABoxComponents::CMovingAABoxComponents(const zeus::CAABox& aabb, const zeus::CVector3f& dir) : x6e8_aabb(aabb) {
-  bool edgeFlags[12] = {};
-  bool vertFlags[8] = {};
+  std::array<bool, 12> edgeFlags{};
+  std::array<bool, 8> vertFlags{};
   int useFaces = 0;
 
   for (int i = 0; i < 3; ++i) {
     if (dir[i] != 0.f) {
-      int face = i * 2 + (dir[i] < 0.f);
+      const int face = i * 2 + (dir[i] < 0.f);
       FlagEdgeIndicesForFace(face, edgeFlags);
       FlagVertexIndicesForFace(face, vertFlags);
       useFaces += 1;
     }
   }
 
-  for (int i = 0; i < 12; ++i)
-    if (edgeFlags[i])
-      x0_edges.push_back(SBoxEdge(aabb, i, dir));
+  for (size_t i = 0; i < edgeFlags.size(); ++i) {
+    if (edgeFlags[i]) {
+      x0_edges.emplace_back(aabb, s32(i), dir);
+    }
+  }
 
-  for (int i = 0; i < 8; ++i)
-    if (vertFlags[i])
-      x6c4_vertIdxs.push_back(i);
+  for (size_t i = 0; i < vertFlags.size(); ++i) {
+    if (vertFlags[i]) {
+      x6c4_vertIdxs.push_back(u32(i));
+    }
+  }
 
   if (useFaces == 1) {
     x6e8_aabb = zeus::CAABox();
@@ -194,9 +199,9 @@ static zeus::CVector3f ClipRayToPlane(const zeus::CVector3f& a, const zeus::CVec
   return (1.f - -plane.pointToPlaneDist(a) / (b - a).dot(plane.normal())) * (a - b) + b;
 }
 
-bool CMetroidAreaCollider::ConvexPolyCollision(const zeus::CPlane* planes, const zeus::CVector3f* verts,
+bool CMetroidAreaCollider::ConvexPolyCollision(const std::array<zeus::CPlane, 6>& planes, const zeus::CVector3f* verts,
                                                zeus::CAABox& aabb) {
-  rstl::reserved_vector<zeus::CVector3f, 20> vecs[2];
+  std::array<rstl::reserved_vector<zeus::CVector3f, 20>, 2> vecs;
 
   g_CalledClip += 1;
   g_RejectedByClip -= 1;
@@ -354,22 +359,24 @@ bool CMetroidAreaCollider::AABoxCollisionCheck_Cached(const COctreeLeafCache& le
                                                       const CMaterialFilter& filter, const CMaterialList& matList,
                                                       CCollisionInfoList& list) {
   bool ret = false;
-  zeus::CPlane planes[] = {{zeus::skRight, aabb.min.dot(zeus::skRight)},
-                           {zeus::skLeft, aabb.max.dot(zeus::skLeft)},
-                           {zeus::skForward, aabb.min.dot(zeus::skForward)},
-                           {zeus::skBack, aabb.max.dot(zeus::skBack)},
-                           {zeus::skUp, aabb.min.dot(zeus::skUp)},
-                           {zeus::skDown, aabb.max.dot(zeus::skDown)}};
+  const std::array<zeus::CPlane, 6> planes{{
+      {zeus::skRight, aabb.min.dot(zeus::skRight)},
+      {zeus::skLeft, aabb.max.dot(zeus::skLeft)},
+      {zeus::skForward, aabb.min.dot(zeus::skForward)},
+      {zeus::skBack, aabb.max.dot(zeus::skBack)},
+      {zeus::skUp, aabb.min.dot(zeus::skUp)},
+      {zeus::skDown, aabb.max.dot(zeus::skDown)},
+  }};
   CAABoxAreaCache cache(aabb, planes, filter, matList, list);
 
   ResetInternalCounters();
 
   for (const CAreaOctTree::Node& node : leafCache.x4_nodeCache) {
     if (aabb.intersects(node.GetBoundingBox())) {
-      CAreaOctTree::TriListReference list = node.GetTriangleArray();
-      for (int j = 0; j < list.GetSize(); ++j) {
+      CAreaOctTree::TriListReference listRef = node.GetTriangleArray();
+      for (int j = 0; j < listRef.GetSize(); ++j) {
         ++g_TrianglesProcessed;
-        u16 triIdx = list.GetAt(j);
+        u16 triIdx = listRef.GetAt(j);
         if (g_DupPrimitiveCheckCount == g_DupTriangleList[triIdx]) {
           g_DupTrianglesProcessed += 1;
         } else {
@@ -379,10 +386,10 @@ bool CMetroidAreaCollider::AABoxCollisionCheck_Cached(const COctreeLeafCache& le
           if (cache.x8_filter.Passes(material)) {
             if (CollisionUtil::TriBoxOverlap(cache.x14_center, cache.x20_halfExtent, surf.GetVert(0), surf.GetVert(1),
                                              surf.GetVert(2))) {
-              zeus::CAABox aabb = zeus::CAABox();
-              if (ConvexPolyCollision(cache.x4_planes, surf.GetVerts(), aabb)) {
+              zeus::CAABox aabb2 = zeus::CAABox();
+              if (ConvexPolyCollision(cache.x4_planes, surf.GetVerts(), aabb2)) {
                 zeus::CPlane plane = surf.GetPlane();
-                CCollisionInfo collision(aabb, cache.xc_material, material, plane.normal(), -plane.normal());
+                CCollisionInfo collision(aabb2, cache.xc_material, material, plane.normal(), -plane.normal());
                 cache.x10_collisionList.Add(collision, false);
                 ret = true;
               }
@@ -448,17 +455,19 @@ bool CMetroidAreaCollider::AABoxCollisionCheck_Internal(const CAreaOctTree::Node
 bool CMetroidAreaCollider::AABoxCollisionCheck(const CAreaOctTree& octTree, const zeus::CAABox& aabb,
                                                const CMaterialFilter& filter, const CMaterialList& matList,
                                                CCollisionInfoList& list) {
-  zeus::CPlane planes[] = {{zeus::skRight, aabb.min.dot(zeus::skRight)},
-                           {zeus::skLeft, aabb.max.dot(zeus::skLeft)},
-                           {zeus::skForward, aabb.min.dot(zeus::skForward)},
-                           {zeus::skBack, aabb.max.dot(zeus::skBack)},
-                           {zeus::skUp, aabb.min.dot(zeus::skUp)},
-                           {zeus::skDown, aabb.max.dot(zeus::skDown)}};
-  CAABoxAreaCache cache(aabb, planes, filter, matList, list);
+  const std::array<zeus::CPlane, 6> planes{{
+      {zeus::skRight, aabb.min.dot(zeus::skRight)},
+      {zeus::skLeft, aabb.max.dot(zeus::skLeft)},
+      {zeus::skForward, aabb.min.dot(zeus::skForward)},
+      {zeus::skBack, aabb.max.dot(zeus::skBack)},
+      {zeus::skUp, aabb.min.dot(zeus::skUp)},
+      {zeus::skDown, aabb.max.dot(zeus::skDown)},
+  }};
+  const CAABoxAreaCache cache(aabb, planes, filter, matList, list);
 
   ResetInternalCounters();
 
-  CAreaOctTree::Node node = octTree.GetRootNode();
+  const CAreaOctTree::Node node = octTree.GetRootNode();
   return AABoxCollisionCheck_Internal(node, cache);
 }
 
@@ -674,8 +683,8 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Cached(const COctreeLeafCac
           g_DupTriangleList[triIdx] = g_DupPrimitiveCheckCount;
           CMaterialList triMat(node.GetOwner().GetTriangleMaterial(triIdx));
           if (filter.Passes(triMat)) {
-            u16 vertIndices[3];
-            node.GetOwner().GetTriangleVertexIndices(triIdx, vertIndices);
+            std::array<u16, 3> vertIndices;
+            node.GetOwner().GetTriangleVertexIndices(triIdx, vertIndices.data());
             CCollisionSurface surf(node.GetOwner().GetVert(vertIndices[0]), node.GetOwner().GetVert(vertIndices[1]),
                                    node.GetOwner().GetVert(vertIndices[2]), triMat.GetValue());
 
@@ -690,8 +699,7 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Cached(const COctreeLeafCac
                 dOut = d;
               }
 
-              for (int k = 0; k < 3; ++k) {
-                u16 vertIdx = vertIndices[k];
+              for (const u16 vertIdx : vertIndices) {
                 zeus::CVector3f vtx = node.GetOwner().GetVert(vertIdx);
                 if (g_DupPrimitiveCheckCount != g_DupVertexList[vertIdx]) {
                   g_DupVertexList[vertIdx] = g_DupPrimitiveCheckCount;
@@ -783,8 +791,8 @@ bool CMetroidAreaCollider::MovingSphereCollisionCheck_Cached(const COctreeLeafCa
           g_DupTriangleList[triIdx] = g_DupPrimitiveCheckCount;
           CMaterialList triMat(node.GetOwner().GetTriangleMaterial(triIdx));
           if (filter.Passes(triMat)) {
-            u16 vertIndices[3];
-            node.GetOwner().GetTriangleVertexIndices(triIdx, vertIndices);
+            std::array<u16, 3> vertIndices;
+            node.GetOwner().GetTriangleVertexIndices(triIdx, vertIndices.data());
             CCollisionSurface surf(node.GetOwner().GetVert(vertIndices[0]), node.GetOwner().GetVert(vertIndices[1]),
                                    node.GetOwner().GetVert(vertIndices[2]), triMat.GetValue());
 
@@ -796,11 +804,11 @@ bool CMetroidAreaCollider::MovingSphereCollisionCheck_Cached(const COctreeLeafCa
                 float mag = (sphere.radius - (sphere.position - surf.GetVert(0)).dot(surfNormal)) / dir.dot(surfNormal);
                 zeus::CVector3f intersectPoint = sphere.position + mag * dir;
 
-                bool outsideEdges[] = {
+                const std::array<bool, 3> outsideEdges{
                     (intersectPoint - surf.GetVert(0)).dot(surfNormal.cross(surf.GetVert(1) - surf.GetVert(0))) < 0.f,
                     (intersectPoint - surf.GetVert(1)).dot(surfNormal.cross(surf.GetVert(2) - surf.GetVert(1))) < 0.f,
-                    (intersectPoint - surf.GetVert(2)).dot(surfNormal.cross(surf.GetVert(0) - surf.GetVert(2))) <
-                        0.f};
+                    (intersectPoint - surf.GetVert(2)).dot(surfNormal.cross(surf.GetVert(0) - surf.GetVert(2))) < 0.f,
+                };
 
                 if (mag >= 0.f && !outsideEdges[0] && !outsideEdges[1] && !outsideEdges[2] && mag < dOut) {
                   infoOut = CCollisionInfo(intersectPoint - sphere.radius * surfNormal, matList, triMat, surfNormal);
@@ -810,7 +818,7 @@ bool CMetroidAreaCollider::MovingSphereCollisionCheck_Cached(const COctreeLeafCa
                 }
 
                 bool intersects = (sphere.position - surf.GetVert(0)).dot(surfNormal) <= sphere.radius;
-                bool testVert[] = {true, true, true};
+                std::array<bool, 3> testVert{true, true, true};
                 const u16* edgeIndices = node.GetOwner().GetTriangleEdgeIndices(triIdx);
                 for (int k = 0; k < 3; ++k) {
                   if (intersects || outsideEdges[k]) {
@@ -916,9 +924,9 @@ void CMetroidAreaCollider::ResetInternalCounters() {
   g_TrianglesProcessed = 0;
   g_DupTrianglesProcessed = 0;
   if (g_DupPrimitiveCheckCount == 0xffff) {
-    std::fill(std::begin(g_DupVertexList), std::end(g_DupVertexList), 0);
-    std::fill(std::begin(g_DupEdgeList), std::end(g_DupEdgeList), 0);
-    std::fill(std::begin(g_DupTriangleList), std::end(g_DupTriangleList), 0);
+    g_DupVertexList.fill(0);
+    g_DupEdgeList.fill(0);
+    g_DupTriangleList.fill(0);
     g_DupPrimitiveCheckCount += 1;
   }
   g_DupPrimitiveCheckCount += 1;
