@@ -21,7 +21,7 @@ void CFluidPlaneGPU::RenderStripWithRipples(float curY, const CFluidPlaneRender:
                                             const u8 (&flags)[9][9], int startYDiv,
                                             const CFluidPlaneRender::SPatchInfo& info,
                                             std::vector<CFluidPlaneShader::Vertex>& vOut,
-                                            std::vector<CFluidPlaneShader::PatchVertex>& pvOut) const {
+                                            std::vector<CFluidPlaneShader::PatchVertex>& pvOut) {
   m_shader->bindTessellation();
 
   int yTile = (startYDiv + CFluidPlaneRender::numSubdivisionsInTile - 1) / CFluidPlaneRender::numSubdivisionsInTile;

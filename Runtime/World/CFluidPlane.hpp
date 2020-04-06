@@ -138,10 +138,10 @@ protected:
   virtual void RenderStripWithRipples(float curY, const CFluidPlaneRender::SHFieldSample (&heights)[46][46],
                                       const u8 (&flags)[9][9], int startYDiv, const CFluidPlaneRender::SPatchInfo& info,
                                       std::vector<CFluidPlaneShader::Vertex>& vOut,
-                                      std::vector<CFluidPlaneShader::PatchVertex>& pvOut) const;
+                                      std::vector<CFluidPlaneShader::PatchVertex>& pvOut);
   void RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const CFluidPlaneRender::SHFieldSample (&heights)[46][46],
                    const u8 (&flags)[9][9], bool noRipples, bool flagIs1, std::vector<CFluidPlaneShader::Vertex>& vOut,
-                   std::vector<CFluidPlaneShader::PatchVertex>& pvOut) const;
+                   std::vector<CFluidPlaneShader::PatchVertex>& pvOut);
 
 public:
   virtual ~CFluidPlane() = default;

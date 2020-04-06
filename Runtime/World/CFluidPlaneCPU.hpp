@@ -60,8 +60,8 @@ protected:
   u32 m_maxVertCount;
   bool m_tessellation = false;
 
-  mutable bool m_cachedDoubleLightmapBlend;
-  mutable bool m_cachedAdditive;
+  bool m_cachedDoubleLightmapBlend;
+  bool m_cachedAdditive;
 
   static bool PrepareRipple(const CRipple& ripple, const CFluidPlaneRender::SPatchInfo& info,
                             CFluidPlaneRender::SRippleInfo& rippleOut);
