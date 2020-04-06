@@ -133,8 +133,8 @@ public:
   };
   static void BuildOctreeLeafCache(const CAreaOctTree::Node& root, const zeus::CAABox& aabb,
                                    CMetroidAreaCollider::COctreeLeafCache& cache);
-  static bool ConvexPolyCollision(const std::array<zeus::CPlane, 6>& planes, const zeus::CVector3f* verts,
-                                  zeus::CAABox& aabb);
+  static bool ConvexPolyCollision(const std::array<zeus::CPlane, 6>& planes,
+                                  const std::array<zeus::CVector3f, 3>& verts, zeus::CAABox& aabb);
 
   static bool AABoxCollisionCheckBoolean_Cached(const COctreeLeafCache& leafCache, const zeus::CAABox& aabb,
                                                 const CMaterialFilter& filter);

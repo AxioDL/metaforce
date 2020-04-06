@@ -9,7 +9,11 @@
 
 namespace urde {
 class CCollisionSurface {
-  std::array<zeus::CVector3f, 3> x0_data;
+public:
+  using Vertices = std::array<zeus::CVector3f, 3>;
+
+private:
+  Vertices x0_data;
   u32 x24_flags;
 
 public:
@@ -17,7 +21,7 @@ public:
 
   zeus::CVector3f GetNormal() const;
   const zeus::CVector3f& GetVert(s32 idx) const { return x0_data[idx]; }
-  const zeus::CVector3f* GetVerts() const { return x0_data.data(); }
+  const Vertices& GetVerts() const { return x0_data; }
   zeus::CPlane GetPlane() const;
   u32 GetSurfaceFlags() const { return x24_flags; }
 };

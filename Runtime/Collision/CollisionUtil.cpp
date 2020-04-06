@@ -263,7 +263,7 @@ bool RaySphereIntersection(const zeus::CSphere& sphere, const zeus::CVector3f& p
 }
 
 bool RayTriangleIntersection_Double(const zeus::CVector3f& point, const zeus::CVector3f& dir,
-                                    const zeus::CVector3f* verts, double& d) {
+                                    const std::array<zeus::CVector3f, 3>& verts, double& d) {
   const zeus::CVector3d v0tov1 = verts[1] - verts[0];
   const zeus::CVector3d v0tov2 = verts[2] - verts[0];
   const zeus::CVector3d cross0 = zeus::CVector3d(dir).cross(v0tov2);
@@ -293,8 +293,8 @@ bool RayTriangleIntersection_Double(const zeus::CVector3f& point, const zeus::CV
   return true;
 }
 
-bool RayTriangleIntersection(const zeus::CVector3f& point, const zeus::CVector3f& dir, const zeus::CVector3f* verts,
-                             float& d) {
+bool RayTriangleIntersection(const zeus::CVector3f& point, const zeus::CVector3f& dir,
+                             const std::array<zeus::CVector3f, 3>& verts, float& d) {
   const zeus::CVector3f v0tov1 = verts[1] - verts[0];
   const zeus::CVector3f v0tov2 = verts[2] - verts[0];
   const zeus::CVector3f cross0 = dir.cross(v0tov2);

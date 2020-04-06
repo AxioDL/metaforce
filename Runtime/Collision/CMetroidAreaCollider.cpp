@@ -199,8 +199,8 @@ static zeus::CVector3f ClipRayToPlane(const zeus::CVector3f& a, const zeus::CVec
   return (1.f - -plane.pointToPlaneDist(a) / (b - a).dot(plane.normal())) * (a - b) + b;
 }
 
-bool CMetroidAreaCollider::ConvexPolyCollision(const std::array<zeus::CPlane, 6>& planes, const zeus::CVector3f* verts,
-                                               zeus::CAABox& aabb) {
+bool CMetroidAreaCollider::ConvexPolyCollision(const std::array<zeus::CPlane, 6>& planes,
+                                               const std::array<zeus::CVector3f, 3>& verts, zeus::CAABox& aabb) {
   std::array<rstl::reserved_vector<zeus::CVector3f, 20>, 2> vecs;
 
   g_CalledClip += 1;
