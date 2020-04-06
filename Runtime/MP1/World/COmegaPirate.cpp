@@ -2,6 +2,7 @@
 
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CBooRenderer.hpp"
@@ -869,7 +870,9 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
   }
 
   if (xb8c_ > 0.f) {
-    // TODO CGameCollision unimplemented method
+    const zeus::CAABox& box = GetBoundingBox();
+    CGameCollision::AvoidStaticCollisionWithinRadius(mgr, *this, 8, dt, 1.f, 1.5f * (box.max.x() - box.min.x()),
+                                                     10000.f, 0.25f);
     xb8c_ = 0.f;
   }
   xb8c_ += dt;
@@ -1345,7 +1348,7 @@ void COmegaPirate::Destroy(CStateManager& mgr) {
     launcher->SetActive(false);
   }
   SetActive(false);
-  mgr.SetBossParams(kInvalidUniqueId, 0.f, 0x59);
+  mgr.SetBossParams(kInvalidUniqueId, 0.f, 89);
   xa38_collisionActorMgr1->SetActive(mgr, false);
   xa9c_collisionActorMgr2->SetActive(mgr, false);
 }
