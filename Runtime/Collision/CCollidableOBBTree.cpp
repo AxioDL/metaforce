@@ -190,17 +190,17 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
                   float vtsDotEdge = vertToSphere.dot(edgeVec);
                   zeus::CVector3f vtsRej = vertToSphere - vtsDotEdge * edgeVec;
                   if (edgeRejMagSq > 0.f) {
-                    float tmp = 2.f * vtsRej.dot(edgeRej);
-                    float tmp2 = 4.f * edgeRejMagSq * (vtsRej.magSquared() - sphere.radius * sphere.radius) - tmp * tmp;
+                    const float tmp = 2.f * vtsRej.dot(edgeRej);
+                    const float tmp2 = 4.f * edgeRejMagSq * (vtsRej.magSquared() - sphere.radius * sphere.radius) - tmp * tmp;
                     if (tmp2 >= 0.f) {
-                      float mag = 0.5f / edgeRejMagSq * (-tmp - std::sqrt(tmp2));
-                      if (mag >= 0.f) {
-                        float t = mag * dirDotEdge + vtsDotEdge;
-                        if (t >= 0.f && t <= edgeVecMag && mag < dOut) {
+                      const float mag2 = 0.5f / edgeRejMagSq * (-tmp - std::sqrt(tmp2));
+                      if (mag2 >= 0.f) {
+                        const float t = mag2 * dirDotEdge + vtsDotEdge;
+                        if (t >= 0.f && t <= edgeVecMag && mag2 < dOut) {
                           zeus::CVector3f point = surf.GetVert(k) + t * edgeVec;
                           infoOut = CCollisionInfo(point, matList, edgeMat,
-                                                   (sphere.position + mag * dir - point).normalized());
-                          dOut = mag;
+                                                   (sphere.position + mag2 * dir - point).normalized());
+                          dOut = mag2;
                           ret = true;
                           testVert[k] = false;
                           testVert[nextIdx] = false;
