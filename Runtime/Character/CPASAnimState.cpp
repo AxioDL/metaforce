@@ -100,7 +100,7 @@ std::pair<float, s32> CPASAnimState::FindBestAnimation(const rstl::reserved_vect
 
     u32 unweightedCount = 0;
 
-    for (u32 i = 0; i < x4_parms.size(); ++i) {
+    for (size_t i = 0; i < x4_parms.size(); ++i) {
       CPASAnimParm::UParmValue val = info.GetAnimParmValue(i);
       const CPASParmInfo& parmInfo = x4_parms[i];
       float parmWeight = parmInfo.GetParameterWeight();
@@ -142,7 +142,7 @@ std::pair<float, s32> CPASAnimState::FindBestAnimation(const rstl::reserved_vect
   return {weight, PickRandomAnimation(rand)};
 }
 
-float CPASAnimState::ComputeExactMatchWeight(u32, const CPASAnimParm& parm, CPASAnimParm::UParmValue parmVal) const {
+float CPASAnimState::ComputeExactMatchWeight(size_t, const CPASAnimParm& parm, CPASAnimParm::UParmValue parmVal) const {
   switch (parm.GetParameterType()) {
   case CPASAnimParm::EParmType::Int32:
     return (parm.GetInt32Value() == parmVal.m_int ? 1.f : 0.f);
@@ -161,7 +161,7 @@ float CPASAnimState::ComputeExactMatchWeight(u32, const CPASAnimParm& parm, CPAS
   return 0.f;
 }
 
-float CPASAnimState::ComputePercentErrorWeight(u32 idx, const CPASAnimParm& parm,
+float CPASAnimState::ComputePercentErrorWeight(size_t idx, const CPASAnimParm& parm,
                                                CPASAnimParm::UParmValue parmVal) const {
   float range = 0.f;
   float val = 0.f;
@@ -205,7 +205,7 @@ float CPASAnimState::ComputePercentErrorWeight(u32 idx, const CPASAnimParm& parm
   return (val < FLT_EPSILON ? 1.f : 0.f);
 }
 
-float CPASAnimState::ComputeAngularPercentErrorWeight(u32 idx, const CPASAnimParm& parm,
+float CPASAnimState::ComputeAngularPercentErrorWeight(size_t idx, const CPASAnimParm& parm,
                                                       CPASAnimParm::UParmValue parmVal) const {
   float range = 0.f;
   float val = 0.f;

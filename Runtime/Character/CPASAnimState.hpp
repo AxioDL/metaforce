@@ -16,9 +16,9 @@ class CPASAnimState {
   std::vector<CPASAnimInfo> x14_anims;
   mutable std::vector<s32> x24_selectionCache;
 
-  float ComputeExactMatchWeight(u32 idx, const CPASAnimParm& parm, CPASAnimParm::UParmValue parmVal) const;
-  float ComputePercentErrorWeight(u32 idx, const CPASAnimParm& parm, CPASAnimParm::UParmValue parmVal) const;
-  float ComputeAngularPercentErrorWeight(u32 idx, const CPASAnimParm& parm, CPASAnimParm::UParmValue parmVal) const;
+  float ComputeExactMatchWeight(size_t idx, const CPASAnimParm& parm, CPASAnimParm::UParmValue parmVal) const;
+  float ComputePercentErrorWeight(size_t idx, const CPASAnimParm& parm, CPASAnimParm::UParmValue parmVal) const;
+  float ComputeAngularPercentErrorWeight(size_t idx, const CPASAnimParm& parm, CPASAnimParm::UParmValue parmVal) const;
 
 public:
   explicit CPASAnimState(CInputStream& in);
