@@ -84,17 +84,18 @@ std::unique_ptr<COBBTree> COBBTree::BuildOrientedBoundingBoxTree(const zeus::CVe
 }
 
 CCollisionSurface COBBTree::GetSurface(u16 idx) const {
-  int surfIdx = idx * 3;
-  CCollisionEdge e0 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx]];
-  CCollisionEdge e1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
-  u16 vert1 = e0.GetVertIndex1();
-  u16 vert2 = e0.GetVertIndex2();
+  const auto surfIdx = size_t{idx} * 3;
+  const CCollisionEdge e0 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx]];
+  const CCollisionEdge e1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
+  const u16 vert1 = e0.GetVertIndex1();
+  const u16 vert2 = e0.GetVertIndex2();
   u16 vert3 = e1.GetVertIndex1();
 
-  if (vert3 == vert1 || vert3 == vert2)
+  if (vert3 == vert1 || vert3 == vert2) {
     vert3 = e1.GetVertIndex2();
+  }
 
-  u32 mat = x18_indexData.x0_materials[x18_indexData.x30_surfaceMaterials[idx]];
+  const u32 mat = x18_indexData.x0_materials[x18_indexData.x30_surfaceMaterials[idx]];
 
   if ((mat & 0x2000000) != 0) {
     return CCollisionSurface(x18_indexData.x60_vertices[vert2], x18_indexData.x60_vertices[vert1],
@@ -105,14 +106,15 @@ CCollisionSurface COBBTree::GetSurface(u16 idx) const {
 }
 
 void COBBTree::GetTriangleVertexIndices(u16 idx, u16 indicesOut[3]) const {
-  const CCollisionEdge& e0 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[idx * 3]];
-  const CCollisionEdge& e1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[idx * 3 + 1]];
+  const auto surfIdx = size_t{idx} * 3;
+  const CCollisionEdge& e0 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx]];
+  const CCollisionEdge& e1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
   indicesOut[2] = (e1.GetVertIndex1() != e0.GetVertIndex1() && e1.GetVertIndex1() != e0.GetVertIndex2())
                       ? e1.GetVertIndex1()
                       : e1.GetVertIndex2();
 
-  u32 material = x18_indexData.x0_materials[x18_indexData.x30_surfaceMaterials[idx]];
-  if (material & 0x2000000) {
+  const u32 material = x18_indexData.x0_materials[x18_indexData.x30_surfaceMaterials[idx]];
+  if ((material & 0x2000000) != 0) {
     indicesOut[0] = e0.GetVertIndex2();
     indicesOut[1] = e0.GetVertIndex1();
   } else {
@@ -122,17 +124,18 @@ void COBBTree::GetTriangleVertexIndices(u16 idx, u16 indicesOut[3]) const {
 }
 
 CCollisionSurface COBBTree::GetTransformedSurface(u16 idx, const zeus::CTransform& xf) const {
-  int surfIdx = idx * 3;
-  CCollisionEdge e0 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx]];
-  CCollisionEdge e1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
-  u16 vert1 = e0.GetVertIndex1();
-  u16 vert2 = e0.GetVertIndex2();
+  const auto surfIdx = size_t{idx} * 3;
+  const CCollisionEdge e0 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx]];
+  const CCollisionEdge e1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
+  const u16 vert1 = e0.GetVertIndex1();
+  const u16 vert2 = e0.GetVertIndex2();
   u16 vert3 = e1.GetVertIndex1();
 
-  if (vert3 == vert1 || vert3 == vert2)
+  if (vert3 == vert1 || vert3 == vert2) {
     vert3 = e1.GetVertIndex2();
+  }
 
-  u32 mat = x18_indexData.x0_materials[x18_indexData.x30_surfaceMaterials[idx]];
+  const u32 mat = x18_indexData.x0_materials[x18_indexData.x30_surfaceMaterials[idx]];
 
   if ((mat & 0x2000000) != 0) {
     return CCollisionSurface(xf * x18_indexData.x60_vertices[vert2], xf * x18_indexData.x60_vertices[vert1],
@@ -145,8 +148,9 @@ CCollisionSurface COBBTree::GetTransformedSurface(u16 idx, const zeus::CTransfor
 zeus::CAABox COBBTree::CalculateLocalAABox() const { return CalculateAABox(zeus::CTransform()); }
 
 zeus::CAABox COBBTree::CalculateAABox(const zeus::CTransform& xf) const {
-  if (x88_root)
+  if (x88_root) {
     return x88_root->GetOBB().calculateAABox(xf);
+  }
   return zeus::CAABox();
 }
 
