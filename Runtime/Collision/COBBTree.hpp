@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -79,7 +80,10 @@ public:
                                                                 const zeus::CVector3f&);
   CCollisionSurface GetSurface(u16 idx) const;
   const u16* GetTriangleEdgeIndices(u16 idx) const { return &x18_indexData.x50_surfaceIndices[idx * 3]; }
-  void GetTriangleVertexIndices(u16 idx, u16 indicesOut[3]) const;
+
+  // In the game binary, this used to use an out pointer for the indices after the index.
+  std::array<u16, 3> GetTriangleVertexIndices(u16 idx) const;
+
   const CCollisionEdge& GetEdge(int idx) const { return x18_indexData.x40_edges[idx]; }
   const zeus::CVector3f& GetVert(int idx) const { return x18_indexData.x60_vertices[idx]; }
   u32 GetVertMaterial(u16 idx) const { return x18_indexData.x0_materials[x18_indexData.x10_vertMaterials[idx]]; }

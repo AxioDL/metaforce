@@ -217,11 +217,9 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
             }
           }
 
-          u16 vertIndices[3];
-          x10_tree->GetTriangleVertexIndices(triIdx, vertIndices);
-
+          const auto vertIndices = x10_tree->GetTriangleVertexIndices(triIdx);
           for (int k = 0; k < 3; ++k) {
-            u16 vertIdx = vertIndices[k];
+            const u16 vertIdx = vertIndices[k];
             if (testVert[k]) {
               if (CMetroidAreaCollider::g_DupPrimitiveCheckCount != CMetroidAreaCollider::g_DupVertexList[vertIdx]) {
                 CMetroidAreaCollider::g_DupVertexList[vertIdx] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
@@ -246,8 +244,7 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
         CMetroidAreaCollider::g_DupEdgeList[edgeIndices[1]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
         CMetroidAreaCollider::g_DupEdgeList[edgeIndices[2]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
 
-        u16 vertIndices[3];
-        x10_tree->GetTriangleVertexIndices(triIdx, vertIndices);
+        const auto vertIndices = x10_tree->GetTriangleVertexIndices(triIdx);
         CMetroidAreaCollider::g_DupVertexList[vertIndices[0]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
         CMetroidAreaCollider::g_DupVertexList[vertIndices[1]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
         CMetroidAreaCollider::g_DupVertexList[vertIndices[2]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
@@ -309,8 +306,7 @@ bool CCollidableOBBTree::AABoxCollideWithLeafMoving(const COBBTree::CLeafData& l
       if (CollisionUtil::TriBoxOverlap(center, extent, surf.GetVert(0), surf.GetVert(1), surf.GetVert(2))) {
         const_cast<CCollidableOBBTree&>(*this).x1c_hits += 1;
 
-        u16 vertIndices[3];
-        x10_tree->GetTriangleVertexIndices(triIdx, vertIndices);
+        const auto vertIndices = x10_tree->GetTriangleVertexIndices(triIdx);
 
         double d = dOut;
         if (CMetroidAreaCollider::MovingAABoxCollisionCheck_BoxVertexTri(surf, aabb, components.x6c4_vertIdxs, dir, d,
@@ -363,8 +359,7 @@ bool CCollidableOBBTree::AABoxCollideWithLeafMoving(const COBBTree::CLeafData& l
         CMetroidAreaCollider::g_DupEdgeList[edgeIndices[1]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
         CMetroidAreaCollider::g_DupEdgeList[edgeIndices[2]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
 
-        u16 vertIndices[3];
-        x10_tree->GetTriangleVertexIndices(triIdx, vertIndices);
+        const auto vertIndices = x10_tree->GetTriangleVertexIndices(triIdx);
         CMetroidAreaCollider::g_DupVertexList[vertIndices[0]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
         CMetroidAreaCollider::g_DupVertexList[vertIndices[1]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
         CMetroidAreaCollider::g_DupVertexList[vertIndices[2]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;

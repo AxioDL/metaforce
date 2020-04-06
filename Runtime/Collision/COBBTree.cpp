@@ -105,22 +105,26 @@ CCollisionSurface COBBTree::GetSurface(u16 idx) const {
                            x18_indexData.x60_vertices[vert3], mat);
 }
 
-void COBBTree::GetTriangleVertexIndices(u16 idx, u16 indicesOut[3]) const {
+std::array<u16, 3> COBBTree::GetTriangleVertexIndices(u16 idx) const {
   const auto surfIdx = size_t{idx} * 3;
   const CCollisionEdge& e0 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx]];
   const CCollisionEdge& e1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
-  indicesOut[2] = (e1.GetVertIndex1() != e0.GetVertIndex1() && e1.GetVertIndex1() != e0.GetVertIndex2())
-                      ? e1.GetVertIndex1()
-                      : e1.GetVertIndex2();
+  std::array<u16, 3> indices{};
+
+  indices[2] = (e1.GetVertIndex1() != e0.GetVertIndex1() && e1.GetVertIndex1() != e0.GetVertIndex2())
+                   ? e1.GetVertIndex1()
+                   : e1.GetVertIndex2();
 
   const u32 material = x18_indexData.x0_materials[x18_indexData.x30_surfaceMaterials[idx]];
   if ((material & 0x2000000) != 0) {
-    indicesOut[0] = e0.GetVertIndex2();
-    indicesOut[1] = e0.GetVertIndex1();
+    indices[0] = e0.GetVertIndex2();
+    indices[1] = e0.GetVertIndex1();
   } else {
-    indicesOut[0] = e0.GetVertIndex1();
-    indicesOut[1] = e0.GetVertIndex2();
+    indices[0] = e0.GetVertIndex1();
+    indices[1] = e0.GetVertIndex2();
   }
+
+  return indices;
 }
 
 CCollisionSurface COBBTree::GetTransformedSurface(u16 idx, const zeus::CTransform& xf) const {
