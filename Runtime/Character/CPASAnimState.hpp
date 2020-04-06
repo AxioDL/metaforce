@@ -26,7 +26,8 @@ public:
   explicit CPASAnimState(CInputStream& in);
   explicit CPASAnimState(int stateId);
   s32 GetStateId() const { return x0_id; }
-  s32 GetNumAnims() const { return x14_anims.size(); }
+  size_t GetNumAnims() const { return x14_anims.size(); }
+  bool HasAnims() const { return !x14_anims.empty(); }
   CPASAnimParm GetAnimParmData(s32 animId, size_t parmIdx) const;
   std::pair<float, s32> FindBestAnimation(const rstl::reserved_vector<CPASAnimParm, 8>& parms, CRandom16& rand,
                                           s32 ignoreAnim) const;
