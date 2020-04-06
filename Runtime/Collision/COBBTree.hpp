@@ -45,7 +45,7 @@ public:
     std::unique_ptr<CNode> x40_left;
     std::unique_ptr<CNode> x44_right;
     std::unique_ptr<CLeafData> x48_leaf;
-    bool x4c_hit;
+    bool x4c_hit = false;
 
   public:
     CNode() = default;
