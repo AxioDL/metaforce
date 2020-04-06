@@ -60,14 +60,15 @@ CPASAnimState::CPASAnimState(CInputStream& in) {
 
 CPASAnimState::CPASAnimState(int stateId) : x0_id(stateId) {}
 
-CPASAnimParm CPASAnimState::GetAnimParmData(s32 animId, u32 parmIdx) const {
-  auto search = rstl::binary_find(x14_anims.begin(), x14_anims.end(), animId,
-                                  [](const CPASAnimInfo& item) { return item.GetAnimId(); });
-  if (search == x14_anims.end())
+CPASAnimParm CPASAnimState::GetAnimParmData(s32 animId, size_t parmIdx) const {
+  const auto search = rstl::binary_find(x14_anims.cbegin(), x14_anims.cend(), animId,
+                                        [](const CPASAnimInfo& item) { return item.GetAnimId(); });
+  if (search == x14_anims.cend()) {
     return CPASAnimParm::NoParameter();
+  }
 
-  CPASParmInfo parm = x4_parms.at(parmIdx);
-  return (*search).GetAnimParmData(parmIdx, parm.GetParameterType());
+  const CPASParmInfo& parm = x4_parms.at(parmIdx);
+  return search->GetAnimParmData(parmIdx, parm.GetParameterType());
 }
 
 s32 CPASAnimState::PickRandomAnimation(CRandom16& rand) const {
