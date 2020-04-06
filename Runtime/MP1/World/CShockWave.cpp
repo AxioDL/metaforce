@@ -77,7 +77,7 @@ void CShockWave::Think(float dt, CStateManager& mgr) {
     x150_ += x154_ * dt;
     x154_ += dt * x114_data.GetX30();
     x110_elementGen->SetExternalVar(0, x150_);
-    for (int i = 0; i < x110_elementGen->GetNumActiveChildParticles(); ++i) {
+    for (size_t i = 0; i < x110_elementGen->GetNumActiveChildParticles(); ++i) {
       auto& particle = static_cast<CElementGen&>(x110_elementGen->GetActiveChildParticle(i));
       if (particle.Get4CharId() == SBIG('PART')) {
         particle.SetExternalVar(0, x150_);
