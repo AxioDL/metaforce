@@ -80,20 +80,16 @@ public:
 };
 
 class CFontInfo {
-  bool x0_ = false;
-  bool x1_ = false;
-  s32 x4_ = 0;
-  s32 x8_fontSize = 0;
-  char xc_name[40];
+  [[maybe_unused]] bool x0_ = false;
+  [[maybe_unused]] bool x1_ = false;
+  [[maybe_unused]] s32 x4_ = 0;
+  [[maybe_unused]] s32 x8_fontSize = 0;
+  char xc_name[64] = "";
 
 public:
   CFontInfo() = default;
   CFontInfo(bool a, bool b, s32 c, s32 fontSize, const char* name) : x0_(a), x1_(b), x4_(c), x8_fontSize(fontSize) {
-    strcpy(xc_name, name);
-    (void)x0_;
-    (void)x1_;
-    (void)x4_;
-    (void)x8_fontSize;
+    std::strcpy(xc_name, name);
   }
 };
 
