@@ -8,14 +8,14 @@
 namespace urde {
 
 CGameLight::CGameLight(TUniqueId uid, TAreaId aid, bool active, std::string_view name, const zeus::CTransform& xf,
-                       TUniqueId parentId, const CLight& light, u32 sourceId, u32 w2, float f1)
+                       TUniqueId parentId, const CLight& light, u32 sourceId, u32 priority, float lifeTime)
 : CActor(uid, active, name, CEntityInfo(aid, CEntity::NullConnectionList), xf, CModelData::CModelDataNull(),
          CMaterialList(), CActorParameters::None(), kInvalidUniqueId)
 , xe8_parentId(parentId)
 , xec_light(light)
 , x13c_lightId(sourceId)
-, x140_priority(w2)
-, x144_lifeTime(f1) {
+, x140_priority(priority)
+, x144_lifeTime(lifeTime) {
   xec_light.GetRadius();
   xec_light.GetIntensity();
   SetLightPriorityAndId();
