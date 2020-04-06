@@ -1,6 +1,7 @@
 #include "Runtime/Collision/CollisionUtil.hpp"
 
 #include <algorithm>
+#include <array>
 #include <tuple>
 
 #include "Runtime/Collision/CCollisionInfo.hpp"
@@ -18,27 +19,32 @@ u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb, float
   tMin = -999999.f;
   tMax = 999999.f;
 
-  for (int i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < 3; ++i) {
     if (std::fabs(ray.dir[i]) < 0.00001f) {
-      if (ray.start[i] < aabb.min[i] || ray.start[i] > aabb.max[i])
+      if (ray.start[i] < aabb.min[i] || ray.start[i] > aabb.max[i]) {
         return 0;
+      }
     } else {
       if (ray.dir[i] < 0.f) {
-        float startToMax = aabb.max[i] - ray.start[i];
-        float startToMin = aabb.min[i] - ray.start[i];
-        float dirRecip = 1.f / ray.dir[i];
-        if (startToMax < tMin * ray.dir[i])
+        const float startToMax = aabb.max[i] - ray.start[i];
+        const float startToMin = aabb.min[i] - ray.start[i];
+        const float dirRecip = 1.f / ray.dir[i];
+        if (startToMax < tMin * ray.dir[i]) {
           tMin = startToMax * dirRecip;
-        if (startToMin > tMax * ray.dir[i])
+        }
+        if (startToMin > tMax * ray.dir[i]) {
           tMax = startToMin * dirRecip;
+        }
       } else {
-        float startToMin = aabb.min[i] - ray.start[i];
-        float startToMax = aabb.max[i] - ray.start[i];
-        float dirRecip = 1.f / ray.dir[i];
-        if (startToMin > tMin * ray.dir[i])
+        const float startToMin = aabb.min[i] - ray.start[i];
+        const float startToMax = aabb.max[i] - ray.start[i];
+        const float dirRecip = 1.f / ray.dir[i];
+        if (startToMin > tMin * ray.dir[i]) {
           tMin = startToMin * dirRecip;
-        if (startToMax < tMax * ray.dir[i])
+        }
+        if (startToMax < tMax * ray.dir[i]) {
           tMax = startToMax * dirRecip;
+        }
       }
     }
   }
@@ -47,7 +53,7 @@ u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb, float
 }
 
 u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb, zeus::CVector3f& norm, float& d) {
-  int sign[] = {2, 2, 2};
+  std::array<int, 3> sign{2, 2, 2};
   bool bad = true;
   zeus::CVector3f rayStart = ray.start;
   zeus::CVector3f rayDelta = ray.delta;
@@ -58,7 +64,7 @@ u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb, zeus:
   zeus::CVector3f vec1;
 
   if (rayDelta.x() != 0.f && rayDelta.y() != 0.f && rayDelta.z() != 0.f) {
-    for (int i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < sign.size(); ++i) {
       if (rayStart[i] < aabbMin[i]) {
         sign[i] = 1;
         bad = false;
@@ -76,7 +82,7 @@ u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb, zeus:
     }
   } else {
     zeus::CVector3f end;
-    for (int i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < sign.size(); ++i) {
       if (rayStart[i] < aabbMin[i]) {
         sign[i] = 1;
         bad = false;
@@ -93,13 +99,15 @@ u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb, zeus:
       return 1;
     }
 
-    for (int i = 0; i < 3; ++i)
-      if (sign[i] != 2 && rayDelta[i] != 0.f)
+    for (size_t i = 0; i < sign.size(); ++i) {
+      if (sign[i] != 2 && rayDelta[i] != 0.f) {
         vec0[i] = (end[i] - rayStart[i]) / rayDelta[i];
+      }
+    }
   }
 
   float maxComp = vec0.x();
-  int maxCompIdx = 0;
+  size_t maxCompIdx = 0;
   if (maxComp < vec0.y()) {
     maxComp = vec0.y();
     maxCompIdx = 1;
@@ -112,11 +120,12 @@ u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb, zeus:
   if (maxComp < 0.f || maxComp > 1.f)
     return 0;
 
-  for (int i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < 3; ++i) {
     if (maxCompIdx != i) {
       vec1[i] = maxComp * rayDelta[i] + rayStart[i];
-      if (vec1[i] > aabbMax[i])
+      if (vec1[i] > aabbMax[i]) {
         return 0;
+      }
     }
   }
 
@@ -127,7 +136,7 @@ u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb, zeus:
 }
 
 u32 RayAABoxIntersection_Double(const zeus::CMRay& ray, const zeus::CAABox& aabb, zeus::CVector3f& norm, double& d) {
-  int sign[] = {2, 2, 2};
+  std::array<int, 3> sign{2, 2, 2};
   bool bad = true;
   zeus::CVector3d rayStart = ray.start;
   zeus::CVector3d rayDelta = ray.delta;
@@ -138,7 +147,7 @@ u32 RayAABoxIntersection_Double(const zeus::CMRay& ray, const zeus::CAABox& aabb
   zeus::CVector3d vec1;
 
   if (rayDelta.x() != 0.0 && rayDelta.y() != 0.0 && rayDelta.z() != 0.0) {
-    for (int i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < sign.size(); ++i) {
       if (rayStart[i] < aabbMin[i]) {
         sign[i] = 1;
         bad = false;
@@ -156,7 +165,7 @@ u32 RayAABoxIntersection_Double(const zeus::CMRay& ray, const zeus::CAABox& aabb
     }
   } else {
     zeus::CVector3d end;
-    for (int i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < sign.size(); ++i) {
       if (rayStart[i] < aabbMin[i]) {
         sign[i] = 1;
         bad = false;
@@ -173,13 +182,15 @@ u32 RayAABoxIntersection_Double(const zeus::CMRay& ray, const zeus::CAABox& aabb
       return 1;
     }
 
-    for (int i = 0; i < 3; ++i)
-      if (sign[i] != 2 && rayDelta[i] != 0.0)
+    for (size_t i = 0; i < sign.size(); ++i) {
+      if (sign[i] != 2 && rayDelta[i] != 0.0) {
         vec0[i] = (end[i] - rayStart[i]) / rayDelta[i];
+      }
+    }
   }
 
   double maxComp = vec0.x();
-  int maxCompIdx = 0;
+  size_t maxCompIdx = 0;
   if (maxComp < vec0.y()) {
     maxComp = vec0.y();
     maxCompIdx = 1;
@@ -192,11 +203,12 @@ u32 RayAABoxIntersection_Double(const zeus::CMRay& ray, const zeus::CAABox& aabb
   if (maxComp < 0.0 || maxComp > 1.0)
     return 0;
 
-  for (int i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < 3; ++i) {
     if (maxCompIdx != i) {
       vec1[i] = maxComp * rayDelta[i] + rayStart[i];
-      if (vec1[i] > aabbMax[i])
+      if (vec1[i] > aabbMax[i]) {
         return 0;
+      }
     }
   }
 
@@ -317,8 +329,14 @@ void FilterByClosestNormal(const zeus::CVector3f& norm, const CCollisionInfoList
     out.Add(in.GetItem(idx), false);
 }
 
-static const zeus::CVector3f AABBNormalTable[] = {{-1.f, 0.f, 0.f}, {1.f, 0.f, 0.f},  {0.f, -1.f, 0.f},
-                                                  {0.f, 1.f, 0.f},  {0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}};
+constexpr std::array<zeus::CVector3f, 6> AABBNormalTable{{
+    {-1.f, 0.f, 0.f},
+    {1.f, 0.f, 0.f},
+    {0.f, -1.f, 0.f},
+    {0.f, 1.f, 0.f},
+    {0.f, 0.f, -1.f},
+    {0.f, 0.f, 1.f},
+}};
 
 bool AABoxAABoxIntersection(const zeus::CAABox& aabb0, const CMaterialList& list0, const zeus::CAABox& aabb1,
                             const CMaterialList& list1, CCollisionInfoList& infoList) {
@@ -332,7 +350,7 @@ bool AABoxAABoxIntersection(const zeus::CAABox& aabb0, const CMaterialList& list
 
   zeus::CAABox boolAABB(maxOfMin, minOfMax);
 
-  int ineqFlags[] = {
+  const std::array<int, 3> ineqFlags{
       (aabb0.min.x() <= aabb1.min.x() ? 1 << 0 : 0) | (aabb0.min.x() <= aabb1.max.x() ? 1 << 1 : 0) |
           (aabb0.max.x() <= aabb1.min.x() ? 1 << 2 : 0) | (aabb0.max.x() <= aabb1.max.x() ? 1 << 3 : 0),
       (aabb0.min.y() <= aabb1.min.y() ? 1 << 0 : 0) | (aabb0.min.y() <= aabb1.max.y() ? 1 << 1 : 0) |
@@ -341,7 +359,7 @@ bool AABoxAABoxIntersection(const zeus::CAABox& aabb0, const CMaterialList& list
           (aabb0.max.z() <= aabb1.min.z() ? 1 << 2 : 0) | (aabb0.max.z() <= aabb1.max.z() ? 1 << 3 : 0),
   };
 
-  for (int i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < ineqFlags.size(); ++i) {
     switch (ineqFlags[i]) {
     case 0x2: // aabb0.min <= aabb1.max
     {
@@ -771,10 +789,12 @@ bool BoxLineTest(const zeus::CAABox& aabb, const zeus::CVector3f& point, const z
   tMin = -999999.f;
   tMax = 999999.f;
 
-  for (int i = 0; i < 3; ++i) {
-    if (dir[i] == 0.f)
-      if (point[i] < aabb.min[i] || point[i] > aabb.max[i])
+  for (size_t i = 0; i < 3; ++i) {
+    if (dir[i] == 0.f) {
+      if (point[i] < aabb.min[i] || point[i] > aabb.max[i]) {
         return false;
+      }
+    }
 
     float dirRecip = 1.f / dir[i];
     float tmpMin, tmpMax;
@@ -1013,7 +1033,7 @@ bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, co
   zeus::CVector3d vecMin(-FLT_MAX);
   zeus::CVector3d vecMax(FLT_MAX);
 
-  for (int i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < 3; ++i) {
     if (std::fabs(dir[i]) < FLT_EPSILON) {
       if (aabb0.min[i] >= aabb1.min[i] && aabb0.min[i] <= aabb1.max[i])
         continue;
@@ -1057,8 +1077,9 @@ bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, co
   normal = zeus::skZero3f;
   normal[maxAxis] = dir[maxAxis] > 0.f ? -1.f : 1.f;
 
-  for (int i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i) {
     point[i] = dir[i] > 0.f ? aabb0.max[i] : aabb0.min[i];
+  }
 
   point += float(d) * dir;
   return true;
