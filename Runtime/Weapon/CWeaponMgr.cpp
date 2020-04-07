@@ -27,7 +27,7 @@ void CWeaponMgr::IncrCount(TUniqueId uid, EWeaponType type) {
   if (GetIndex(uid) < 0) {
     Add(uid, type);
   } else {
-    x0_weapons[uid][u32(type)]++;
+    x0_weapons[uid][size_t(type)]++;
   }
 }
 
