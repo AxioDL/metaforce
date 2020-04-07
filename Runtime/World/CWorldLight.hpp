@@ -29,8 +29,14 @@ private:
   float x40_ = 0.f;
 
 public:
-  CWorldLight(const CWorldLight&) = default;
   explicit CWorldLight(CInputStream& in);
+
+  CWorldLight(const CWorldLight&) = default;
+  CWorldLight& operator=(const CWorldLight&) = default;
+
+  CWorldLight(CWorldLight&&) = default;
+  CWorldLight& operator=(CWorldLight&&) = default;
+
   EWorldLightType GetLightType() const { return x0_type; }
   const zeus::CVector3f& GetDirection() const { return x1c_direction; }
   const zeus::CVector3f& GetPosition() const { return x10_position; }
