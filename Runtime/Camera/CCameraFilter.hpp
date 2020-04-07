@@ -73,7 +73,7 @@ public:
 };
 
 class CCameraFilterPassPoly {
-  EFilterShape m_shape;
+  EFilterShape m_shape{};
   std::unique_ptr<CCameraFilterPassBase> m_filter;
 
 public:
