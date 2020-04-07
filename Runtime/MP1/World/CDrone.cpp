@@ -1,6 +1,8 @@
+#include <Collision/CGameCollision.hpp>
 #include "Runtime/MP1/World/CDrone.hpp"
 
 #include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -9,8 +11,11 @@
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptWater.hpp"
 #include "Runtime/World/CTeamAiMgr.hpp"
 #include "Runtime/World/CWorld.hpp"
+
+#include "DataSpec/DNAMP1/SFX/Drones.h"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -99,7 +104,117 @@ void CDrone::Think(float dt, CStateManager& mgr) {
 
   if (!GetActive())
     return;
-  // TODO: Finish
+
+  x5c8_ -= dt;
+  if (x7c4_ > 0.f) {
+    x7c4_ -= dt;
+  }
+
+  if (x5d0_ > 0.f) {
+    x5d0_ -= (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ? 3.f * dt : dt);
+  }
+
+  if (x624_ > 0.f) {
+    x624_ -= dt;
+  }
+
+  if (x644_ > 0.f) {
+    x644_ -= dt;
+  }
+
+  if (x824_[0] || (x824_[1] && IsAlive())) {
+    sub_80163c40(dt, mgr);
+    UpdateVisorFlare(mgr);
+  }
+
+  if (x834_25_ && IsAlive()) {
+    UpdateScanner(mgr, dt);
+  }
+
+  const float dist = (mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared();
+  if (x834_28_ && dist < x60c_ * x60c_) {
+    mgr.GetPlayerState()->GetStaticInterference().RemoveSource(GetUniqueId());
+    mgr.GetPlayerState()->GetStaticInterference().AddSource(
+        GetUniqueId(), std::max(0.f, mgr.GetPlayerState()->GetStaticInterference().GetTotalInterference() - x608_),
+        0.2f);
+  }
+
+  if (!x834_28_ && dist < x614_ * x614_) {
+    mgr.GetPlayerState()->GetStaticInterference().RemoveSource(GetUniqueId());
+    mgr.GetPlayerState()->GetStaticInterference().AddSource(
+        GetUniqueId(), std::max(0.f, mgr.GetPlayerState()->GetStaticInterference().GetTotalInterference() - x610_),
+        0.2f);
+  }
+
+  if (!x834_28_ && IsAlive() && !x835_25_) {
+    x5e0_ -= dt;
+    if (x5e0_ < 0.f) {
+      sub_801633a8(mgr);
+      x5e0_ = 0.1f;
+    }
+  }
+
+  const float healthDiff = x604_ - HealthInfo(mgr)->GetHP();
+  if (!zeus::close_enough(x600_, 0.f)) {
+    x5d0_ -= healthDiff / x600_;
+    x624_ -= healthDiff / x600_;
+  }
+  x604_ = HealthInfo(mgr)->GetHP();
+  if (x3fc_flavor == EFlavorType::One) {
+    if (!x834_30_visible) {
+      x5dc_ = zeus::max(0.f, x5dc_ - (3.f * dt));
+    } else {
+      x5dc_ = zeus::max(0.f, x5dc_ + (3.f * dt));
+    }
+    x5e8_shieldTime = zeus::max(0.f, x5e8_shieldTime - dt);
+
+    if (zeus::close_enough(x5dc_, 0.f) && x7d0_) {
+      CSfxManager::RemoveEmitter(x7d0_);
+      x7d0_.reset();
+    } else if (!x7d0_ && IsAlive()) {
+      x7d0_ = CSfxManager::AddEmitter(SFXsfx00DD, GetTranslation(), zeus::skZero3f, true, true, 127, GetAreaIdAlways());
+    }
+  }
+  sub_8015f25c(dt, mgr);
+  sub_8015f158(dt);
+
+  if (!x835_25_) {
+    CGameCollision::AvoidStaticCollisionWithinRadius(mgr, *this, 8, dt, 0.25f, 3.5f * GetModelData()->GetScale().y(),
+                                                     3000.f, 0.5f);
+  }
+  if (x66c_ > 0.f) {
+    x66c_ -= dt;
+  } else {
+    x668_ = mgr.RayStaticIntersection(GetTranslation(), zeus::skDown, 1000.f,
+                                      CMaterialFilter::MakeInclude({EMaterialTypes::Solid}))
+                .GetT();
+    x66c_ = 0.f;
+  }
+
+  if (IsAlive() && x835_25_) {
+    zeus::CAABox box = GetBoundingBox();
+    box.accumulateBounds(20.f * zeus::skDown);
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    mgr.BuildNearList(nearList, GetBoundingBox(), CMaterialFilter::MakeInclude({EMaterialTypes::Trigger}), this);
+    for (TUniqueId id : nearList) {
+      if (const TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(id)) {
+        zeus::CAABox waterBox = water->GetTriggerBoundsWR();
+        if (waterBox.max.z() - GetTranslation().z() < 3.f) {
+          float z = 20.f;
+          if (waterBox.max.z() - GetTranslation().z() < 1.5f) {
+            z = 60.f;
+          }
+          ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(z * zeus::skDown), dt),
+                         zeus::CAxisAngle());
+        }
+      }
+    }
+  }
+  if (IsAlive() && x668_ < x664_) {
+    ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(dt * (1.f * zeus::skUp)), dt),
+                   zeus::CAxisAngle());
+    xe7_31_targetable = IsAlive();
+  }
 }
 
 void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
@@ -682,7 +797,7 @@ void CDrone::UpdateTouchBounds(float radius) {
   const zeus::CTransform xf = GetLctrTransform("Skeleton_Root"sv);
   const zeus::CVector3f diff = xf.origin - GetTranslation();
   SetBoundingBox(zeus::CAABox{diff - radius, diff + radius});
-  x6b0_pathFind.SetRadius(0.25f + radius);
+  x6b0_pathFind.SetCharacterRadius(0.25f + radius);
 }
 
 bool CDrone::HitShield(const zeus::CVector3f& dir) const {
@@ -712,8 +827,9 @@ void CDrone::RemoveFromTeam(CStateManager& mgr) const {
 void CDrone::UpdateLaser(CStateManager& mgr, u32 laserIdx, bool b1) {
   // TODO: Finish
 }
-void CDrone::FireProjectile(CStateManager& mgr, const zeus::CTransform& xf, const TToken<CWeaponDescription>& weapon) {
-}
+
+void CDrone::FireProjectile(CStateManager& mgr, const zeus::CTransform& xf, const TToken<CWeaponDescription>& weapon) {}
+
 void CDrone::StrafeFromCompanions(CStateManager& mgr) {
   if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Step)
     return;
@@ -745,4 +861,29 @@ void CDrone::StrafeFromCompanions(CStateManager& mgr) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Right, pas::EStepType::Normal));
   }
 }
+void CDrone::UpdateScanner(CStateManager& mgr, float dt) {
+  x5d4_ = zeus::CRelAngle::MakeRelativeAngle(1.2f * dt + x5d4_);
+  x5d8_ = zeus::CRelAngle::MakeRelativeAngle(x5d8_);
+  float angle = zeus::clamp(0.f, 0.5f * (1.f + std::sin(x5d4_)), 1.f);
+  if (std::fpclassify(angle) != FP_SUBNORMAL)
+    x5d8_ += 0.03f * std::pow(angle, 5.f);
+  zeus::CVector3f vec =
+      GetTransform().rotate(zeus::CVector3f(0.5f * std::cos(x5d8_), 1.f, 0.5f * std::sin(2.05f * x5d8_)).normalized());
+  TUniqueId id;
+  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  nearList.push_back(GetUniqueId());
+  auto res = mgr.RayWorldIntersection(
+      id, GetLctrTransform("Beacon_LCTR"sv).origin + (0.2f * vec), vec, 10000.f,
+      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough}), nearList);
+  if (res.IsValid() && x578_lightId != kInvalidUniqueId) {
+    if (TCastToPtr<CGameLight> light = mgr.ObjectById(x578_lightId)) {
+      light->SetTranslation(res.GetPoint());
+      x7ac_lightPos = res.GetPoint();
+    }
+  }
+}
+void CDrone::sub_80163c40(float, CStateManager& mgr) {}
+void CDrone::sub_801633a8(CStateManager& mgr) {}
+void CDrone::sub_8015f25c(float dt, CStateManager& mgr) {}
+void CDrone::sub_8015f158(float dt) {}
 } // namespace urde::MP1

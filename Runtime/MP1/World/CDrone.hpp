@@ -67,11 +67,10 @@ class CDrone : public CPatterned {
   CPathFindSearch x6b0_pathFind;
   zeus::CAxisAngle x794_;
   zeus::CVector3f x7a0_;
-  float x7ac_ = 0.f;
-  float x7b0_ = 0.f;
-  float x7b4_ = 0.f;
+  zeus::CVector3f x7ac_lightPos;
   float x7b8_ = 0.f;
   float x7bc_ = 0.f;
+  float x7c4_ = 0.f;
   s32 x7c8_ = 0;
   s16 x7cc_;
   CSfxHandle x7d0_;
@@ -102,7 +101,12 @@ class CDrone : public CPatterned {
   void UpdateLaser(CStateManager& mgr, u32 laserIdx, bool b1);
   void FireProjectile(CStateManager& mgr, const zeus::CTransform& xf, const TToken<CWeaponDescription>& weapon);
   void StrafeFromCompanions(CStateManager& mgr);
+  void UpdateScanner(CStateManager& mgr, float dt);
 
+  void sub_80163c40(float, CStateManager& mgr);
+  void sub_801633a8(CStateManager& mgr);
+  void sub_8015f25c(float dt, CStateManager& mgr);
+  void sub_8015f158(float dt);
 public:
   DEFINE_PATTERNED(Drone);
   CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info, const zeus::CTransform& xf,
