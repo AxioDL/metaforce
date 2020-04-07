@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Character/CBodyStateCmdMgr.hpp"
 #include "Runtime/Character/CharacterCommon.hpp"
@@ -21,8 +23,8 @@ public:
 
 class CABSAim : public CAdditiveBodyState {
   bool x4_needsIdle = false;
-  s32 x8_anims[4];
-  float x18_angles[4];
+  std::array<s32, 4> x8_anims{};
+  std::array<float, 4> x18_angles{};
   float x28_hWeight = 0.f;
   float x2c_hWeightVel = 0.f;
   float x30_vWeight = 0.f;
