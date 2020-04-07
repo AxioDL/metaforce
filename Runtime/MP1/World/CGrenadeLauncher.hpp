@@ -121,7 +121,7 @@ private:
   void UpdateColor(float arg);
   void UpdateDamageTime(float arg);
   void CreateExplosion(CStateManager& mgr);
-  void sub_8022f9e0(CStateManager& mgr, float dt);
+  void UpdateFollowPlayer(CStateManager& mgr, float dt);
   void sub_80230438();
   void LaunchGrenade(CStateManager& mgr);
 };
