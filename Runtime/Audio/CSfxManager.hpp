@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <unordered_set>
 #include <vector>
@@ -177,7 +178,7 @@ public:
     }
   };
 
-  static CSfxChannel m_channels[4];
+  static std::array<CSfxChannel, 4> m_channels;
   static ESfxChannels m_currentChannel;
   static bool m_doUpdate;
   static void* m_usedSounds;
