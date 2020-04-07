@@ -123,11 +123,11 @@ public:
   };
 
   class CSfxEmitterWrapper : public CBaseSfxWrapper {
-    float x1a_reverb;
+    float x1a_reverb = 0.0f;
     CAudioSys::C3DEmitterParmData x24_parmData;
     amuse::ObjToken<amuse::Emitter> x50_emitterHandle;
     bool x54_ready = true;
-    float x55_cachedMaxVol;
+    float x55_cachedMaxVol = 0.0f;
 
   public:
     bool IsPlaying() const override;
