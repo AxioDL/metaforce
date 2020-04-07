@@ -13,7 +13,7 @@ class CLayoutDescription {
 public:
   class CScaledLayoutDescription {
     TLockedToken<CCharLayoutInfo> x0_layoutToken;
-    float xc_scale;
+    float xc_scale = 0.0f;
     std::optional<zeus::CVector3f> x10_scaleVec;
 
   public:
