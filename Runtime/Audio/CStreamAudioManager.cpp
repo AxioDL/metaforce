@@ -457,7 +457,7 @@ private:
   s8 x71_companionRight = -1;
   s8 x72_companionLeft = -1;
   float x73_volume = 0.f;
-  bool x74_oneshot;
+  bool x74_oneshot = false;
   s32 x78_handleId = -1; // arg2
   s32 x7c_streamId = -1;
   std::shared_ptr<IDvdRequest> m_dvdReq;
