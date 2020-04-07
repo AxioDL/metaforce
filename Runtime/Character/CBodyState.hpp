@@ -367,7 +367,7 @@ protected:
   float UpdateWalk(float vel, CBodyController& bc, pas::ELocomotionAnim anim);
   float UpdateStrafe(float vel, CBodyController& bc, pas::ELocomotionAnim anim);
   const std::pair<s32, float>& GetLocoAnimation(pas::ELocomotionType type, pas::ELocomotionAnim anim) const {
-    return x8_anims[int(type)][int(anim)];
+    return x8_anims[size_t(type)][size_t(anim)];
   }
 
 public:
