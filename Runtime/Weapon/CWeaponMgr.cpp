@@ -3,47 +3,64 @@
 namespace urde {
 
 void CWeaponMgr::Add(TUniqueId uid, EWeaponType type) {
-  x0_weapons.insert(std::make_pair(uid, rstl::reserved_vector<s32, 15>()));
-  x0_weapons[uid].resize(15);
-  ++x0_weapons[uid][u32(type)];
+  auto iter = x0_weapons.emplace(uid, rstl::reserved_vector<s32, 15>()).first;
+  iter->second.resize(15);
+  ++iter->second[size_t(type)];
 }
 
 void CWeaponMgr::Remove(TUniqueId uid) {
-  s32 totalActive = 0;
-  for (u32 i = 0; i < 10; ++i)
-    totalActive += x0_weapons[uid][i];
+  const auto& weapon = x0_weapons[uid];
 
-  if (totalActive == 0)
-    x0_weapons.erase(uid);
+  s32 totalActive = 0;
+  for (size_t i = 0; i < 10; ++i) {
+    totalActive += weapon[i];
+  }
+
+  if (totalActive != 0) {
+    return;
+  }
+
+  x0_weapons.erase(uid);
 }
 
 void CWeaponMgr::IncrCount(TUniqueId uid, EWeaponType type) {
-  if (GetIndex(uid) < 0)
+  if (GetIndex(uid) < 0) {
     Add(uid, type);
-  else
+  } else {
     x0_weapons[uid][u32(type)]++;
+  }
 }
 
 void CWeaponMgr::DecrCount(TUniqueId uid, EWeaponType type) {
-  if (GetIndex(uid) < 0)
+  if (GetIndex(uid) < 0) {
     return;
+  }
 
-  x0_weapons[uid][u32(type)]--;
-  if (x0_weapons[uid][u32(type)] <= 0)
-    Remove(uid);
+  auto& weapon = x0_weapons[uid];
+  weapon[size_t(type)]--;
+  if (weapon[size_t(type)] > 0) {
+    return;
+  }
+
+  Remove(uid);
 }
 
 s32 CWeaponMgr::GetNumActive(TUniqueId uid, EWeaponType type) const {
-  if (GetIndex(uid) < 0)
+  if (GetIndex(uid) < 0) {
     return 0;
+  }
 
-  return x0_weapons.at(uid)[u32(type)];
+  return x0_weapons.at(uid)[size_t(type)];
 }
 
 s32 CWeaponMgr::GetIndex(TUniqueId uid) const {
-  if (x0_weapons.find(uid) == x0_weapons.end())
+  const auto iter = x0_weapons.find(uid);
+
+  if (iter == x0_weapons.cend()) {
     return -1;
-  return s32(std::distance(x0_weapons.begin(), x0_weapons.find(uid)));
+  }
+
+  return s32(std::distance(x0_weapons.cbegin(), iter));
 }
 
 } // namespace urde
