@@ -31,7 +31,7 @@ struct SRiders {
 };
 
 class CScriptPlatform : public CPhysicsActor {
-  u32 x254_;
+  // u32 x254_;
   TUniqueId x258_currentWaypoint = kInvalidUniqueId;
   TUniqueId x25a_targetWaypoint = kInvalidUniqueId;
   float x25c_currentSpeed;
@@ -83,7 +83,7 @@ public:
                   CModelData&& mData, const CActorParameters& actParms, const zeus::CAABox& aabb, float speed,
                   bool detectCollision, float xrayAlpha, bool active, const CHealthInfo& hInfo,
                   const CDamageVulnerability& dVuln,
-                  const std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln, bool rainSplashes,
+                  std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>  dcln, bool rainSplashes,
                   u32 maxRainSplashes, u32 rainGenRate);
 
   void Accept(IVisitor& visitor) override;

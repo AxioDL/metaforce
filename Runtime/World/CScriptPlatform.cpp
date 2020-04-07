@@ -24,19 +24,19 @@ static CMaterialList MakePlatformMaterialList() {
   return ret;
 }
 
-CScriptPlatform::CScriptPlatform(
-    TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
-    const CActorParameters& actParms, const zeus::CAABox& aabb, float speed, bool detectCollision, float xrayAlpha,
-    bool active, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
-    const std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln, bool rainSplashes,
-    u32 maxRainSplashes, u32 rainGenRate)
+CScriptPlatform::CScriptPlatform(TUniqueId uid, std::string_view name, const CEntityInfo& info,
+                                 const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParms,
+                                 const zeus::CAABox& aabb, float speed, bool detectCollision, float xrayAlpha,
+                                 bool active, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
+                                 std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>  dcln,
+                                 bool rainSplashes, u32 maxRainSplashes, u32 rainGenRate)
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakePlatformMaterialList(), aabb, SMoverData(15000.f),
                 actParms, 0.3f, 0.1f)
 , x25c_currentSpeed(speed)
 , x28c_initialHealth(hInfo)
 , x294_health(hInfo)
 , x29c_damageVuln(dVuln)
-, x304_treeGroupContainer(dcln) {
+, x304_treeGroupContainer(std::move(dcln)) {
   x348_xrayAlpha = xrayAlpha;
   x34c_maxRainSplashes = maxRainSplashes;
   x350_rainGenRate = rainGenRate;
@@ -374,7 +374,8 @@ void CScriptPlatform::BuildSlaveList(CStateManager& mgr) {
 
 void CScriptPlatform::AddRider(std::vector<SRiders>& riders, TUniqueId riderId, const CPhysicsActor* ridee,
                                CStateManager& mgr) {
-  auto search = std::find_if(riders.begin(), riders.end(), [riderId](const SRiders& r) { return r.x0_uid == riderId; });
+  const auto& search =
+      std::find_if(riders.begin(), riders.end(), [riderId](const SRiders& r) { return r.x0_uid == riderId; });
   if (search == riders.end()) {
     zeus::CTransform xf;
     if (TCastToPtr<CPhysicsActor> act = mgr.ObjectById(riderId)) {
@@ -388,8 +389,8 @@ void CScriptPlatform::AddRider(std::vector<SRiders>& riders, TUniqueId riderId, 
 }
 
 void CScriptPlatform::AddSlave(TUniqueId id, CStateManager& mgr) {
-  auto search = std::find_if(x338_slavesDynamic.begin(), x338_slavesDynamic.end(),
-                             [id](const SRiders& r) { return r.x0_uid == id; });
+  const auto& search = std::find_if(x338_slavesDynamic.begin(), x338_slavesDynamic.end(),
+                                    [id](const SRiders& r) { return r.x0_uid == id; });
   if (search == x338_slavesDynamic.end()) {
     if (TCastToPtr<CActor> act = mgr.ObjectById(id)) {
       act->AddMaterial(EMaterialTypes::PlatformSlave, mgr);
