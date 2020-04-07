@@ -109,8 +109,7 @@ public:
     void SetTimeRemaining(float t) { x4_timeRemaining = t; }
 
     CBaseSfxWrapper(bool looped, s16 prio, /*const CSfxHandle& handle,*/ bool useAcoustics, TAreaId area)
-    : x8_rank(0)
-    , xa_prio(prio)
+    : xa_prio(prio)
     , /*xc_handle(handle),*/ x10_area(area)
     , x14_24_isActive(true)
     , x14_25_isPlaying(false)
@@ -118,6 +117,7 @@ public:
     , x14_27_inArea(true)
     , x14_28_isReleased(false)
     , x14_29_useAcoustics(useAcoustics)
+    , m_isEmitter(false)
     , m_isClosed(false) {}
   };
 
