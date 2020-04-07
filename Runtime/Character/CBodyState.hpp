@@ -198,7 +198,7 @@ public:
 
 class CBSJump : public CBodyState {
   pas::EJumpState x4_state = pas::EJumpState::Invalid;
-  pas::EJumpType x8_jumpType;
+  pas::EJumpType x8_jumpType{};
   zeus::CVector3f xc_waypoint1;
   zeus::CVector3f x18_velocity;
   zeus::CVector3f x24_waypoint2;
