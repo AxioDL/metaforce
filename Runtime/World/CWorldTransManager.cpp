@@ -44,11 +44,12 @@ CWorldTransManager::SModelDatas::SModelDatas(const CAnimRes& samusRes) : x0_samu
 }
 
 void CWorldTransManager::UpdateLights(float dt) {
-  if (!x4_modelData)
+  if (!x4_modelData) {
     return;
+  }
 
   x4_modelData->x1a0_lights.clear();
-  zeus::CVector3f lightPos(0.f, 10.f, 0.f);
+  constexpr zeus::CVector3f lightPos(0.f, 10.f, 0.f);
   CLight spot = CLight::BuildSpot(lightPos, zeus::skBack, zeus::skWhite, 90.f);
   spot.SetAttenuation(1.f, 0.f, 0.f);
 
