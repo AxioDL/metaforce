@@ -32,7 +32,7 @@ void CDroneLaser::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CS
     x104_beamParticle->SetParticleEmission(true);
   } else if (msg == EScriptObjectMessage::Deleted) {
     if (xf4_scannerLight != kInvalidUniqueId) {
-      mgr.FreeScriptObject(xf4_);
+      mgr.FreeScriptObject(xf4_scannerLight);
       xf4_scannerLight = kInvalidUniqueId;
     }
   } else if (msg == EScriptObjectMessage::Registered) {
@@ -65,7 +65,7 @@ void CDroneLaser::CalculateRenderBounds() {
   x9c_renderBounds = box;
 }
 void CDroneLaser::SetScannerLightActive(CStateManager& mgr, bool activate) {
-  mgr.SendScriptMsgAlways(xf4_, GetUniqueId(),
+  mgr.SendScriptMsgAlways(xf4_scannerLight, GetUniqueId(),
                           activate ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);
 }
 void CDroneLaser::RenderBeam(u32 w, float f, const zeus::CColor& col, bool) const {}

@@ -80,9 +80,8 @@ class CDrone : public CPatterned {
   rstl::reserved_vector<float, 2> x818_ = {{0.f, 0.f}};
   rstl::reserved_vector<bool, 2> x824_ = {{false, false}};
   std::unique_ptr<CModelData> x82c_shieldModel;
-  u8 x830_13_ : 2;
-  u8 x830_10_ : 2;
-  u16 x832_;
+  u8 x832_a : 3;
+  u8 x832_b : 3;
   bool x834_24_ : 1;
   bool x834_25_ : 1;
   bool x834_26_ : 1;

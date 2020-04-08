@@ -6,6 +6,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Particle/CWeaponDescription.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/Weapon/CWeapon.hpp"
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
@@ -17,6 +18,8 @@
 #include "DataSpec/DNAMP1/SFX/Drones.h"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
+
+#include <algorithm>
 
 namespace urde::MP1 {
 CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
@@ -62,8 +65,8 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
 , x6b0_pathFind(nullptr, 3 + int(b1), pInfo.GetPathfindingIndex(), 1.f, 2.4f)
 , x7cc_(CSfxManager::TranslateSFXID(sId))
 , x82c_shieldModel(std::make_unique<CModelData>(CStaticRes{aId2, zeus::skOne3f}))
-, x830_13_(0)
-, x830_10_(0)
+, x832_a(0)
+, x832_b(0)
 , x834_24_(false)
 , x834_25_(false)
 , x834_26_(false)
@@ -520,9 +523,9 @@ void CDrone::TargetPlayer(CStateManager& mgr, EStateMsg msg, float dt) {
       x834_30_visible = true;
     x330_stateMachineState.SetDelay(std::max(0.f, x624_));
   } else if (msg == EStateMsg::Update) {
-    zeus::CVector3f target = (mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation());
+    zeus::CVector3f target = (mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()).normalized();
     x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCLocomotionCmd(FLT_EPSILON * GetTransform().basis[1], target.normalized(), 1.f));
+        CBCLocomotionCmd(FLT_EPSILON * GetTransform().basis[1], target, 1.f));
     x450_bodyController->GetCommandMgr().DeliverTargetVector(target);
     StrafeFromCompanions(mgr);
     if (x630_ <= 0.f)
@@ -561,7 +564,35 @@ void CDrone::Active(CStateManager& mgr, EStateMsg msg, float dt) {
 
 void CDrone::Flee(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
+    x7c8_ = 0;
+    x832_b = 0;
+    if (mgr.RayStaticIntersection(GetTranslation(), -GetTransform().frontVector(), 4.f,
+                                  CMaterialFilter::MakeInclude({EMaterialTypes::Solid}))
+            .IsValid()) {
+      x832_b = mgr.GetActiveRandom()->Float() > 0.5f ? 1 : 2;
+    }
   } else if (msg == EStateMsg::Update) {
+    if (x7c8_ == 0) {
+      if (GetBodyController()->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Step) {
+        x7c8_ = 1;
+      } else {
+        if (x832_b == 0) {
+          GetBodyController()->GetCommandMgr().DeliverCmd(
+              CBCStepCmd(pas::EStepDirection::Backward, pas::EStepType::BreakDodge));
+        } else if (x832_b == 1) {
+          GetBodyController()->GetCommandMgr().DeliverCmd(
+              CBCStepCmd(pas::EStepDirection::Left, pas::EStepType::Normal));
+        } else if (x832_b == 2) {
+          GetBodyController()->GetCommandMgr().DeliverCmd(
+              CBCStepCmd(pas::EStepDirection::Right, pas::EStepType::Normal));
+        }
+      }
+    } else if (x7c8_ == 1 &&
+               GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Step) {
+      x7c8_ = 2;
+    }
+    GetBodyController()->GetCommandMgr().DeliverTargetVector(
+        (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized());
   }
 }
 
@@ -633,7 +664,7 @@ void CDrone::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
         x7c8_ = 1;
       } else {
         GetBodyController()->GetCommandMgr().DeliverCmd(
-            CBCStepCmd(pas::EStepDirection::Forward, pas::EStepType::Normal));
+            CBCStepCmd(pas::EStepDirection::Backward, pas::EStepType::Normal));
       }
     } else if (x7c8_ == 1 &&
                GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Step) {
@@ -726,9 +757,11 @@ void CDrone::PathFindEx(CStateManager& mgr, EStateMsg msg, float dt) {
 bool CDrone::Leash(CStateManager& mgr, float arg) {
   return (mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() < x3c8_leashRadius * x3c8_leashRadius;
 }
+
 bool CDrone::InRange(CStateManager& mgr, float arg) {
   return (mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() < x300_maxAttackRange * x300_maxAttackRange;
 }
+
 bool CDrone::SpotPlayer(CStateManager& mgr, float arg) {
   if ((mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() > x3bc_detectionRange)
     return false;
@@ -740,7 +773,9 @@ bool CDrone::SpotPlayer(CStateManager& mgr, float arg) {
              .normalized()
              .dot((mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()).normalized()) > 0.5f;
 }
+
 bool CDrone::AnimOver(CStateManager& mgr, float arg) { return x7c8_ == 2; }
+
 bool CDrone::ShouldAttack(CStateManager& mgr, float arg) {
   if (x5d0_ > 0.f)
     return false;
@@ -750,10 +785,17 @@ bool CDrone::ShouldAttack(CStateManager& mgr, float arg) {
   }
   return true;
 }
+
 bool CDrone::HearShot(CStateManager& mgr, float arg) {
-  // TODO: Finish
-  return CAi::HearShot(mgr, arg);
+  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  BuildNearList(EMaterialTypes::Projectile, EMaterialTypes::Player, nearList, 10.f, mgr);
+  return std::find_if(nearList.begin(), nearList.end(), [&mgr](TUniqueId uid) {
+           if (TCastToConstPtr<CWeapon> wp = mgr.GetObjectById(uid))
+             return wp->GetType() != EWeaponType::AI;
+           return false;
+         }) != nearList.end();
 }
+
 bool CDrone::CoverCheck(CStateManager& mgr, float arg) {
   if (!zeus::close_enough(x67c_, zeus::skZero3f)) {
     const zeus::CVector3f diff = x670_ - GetTranslation();
