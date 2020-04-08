@@ -10,6 +10,7 @@ set(MP1_WORLD_SOURCES
     CChozoGhost.hpp CChozoGhost.cpp
     CElitePirate.hpp CElitePirate.cpp
     CDrone.hpp CDrone.cpp
+    CDroneLaser.hpp CDroneLaser.cpp
     CSpacePirate.hpp CSpacePirate.cpp
     CParasite.hpp CParasite.cpp
     CBabygoth.hpp CBabygoth.cpp
