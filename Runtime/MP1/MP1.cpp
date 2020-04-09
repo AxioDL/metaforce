@@ -633,7 +633,7 @@ static u32 DiscordItemPercent = 0xffffffff;
 static std::string DiscordState;
 
 void CMain::InitializeDiscord() {
-  DiscordStartTime = time(0);
+  DiscordStartTime = std::time(nullptr);
   DiscordEventHandlers handlers = {};
   handlers.ready = HandleDiscordReady;
   handlers.disconnected = HandleDiscordDisconnected;
