@@ -1572,10 +1572,10 @@ bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& dama
   if (!hInfo)
     return false;
 
-  static const CMaterialList incList(EMaterialTypes::Solid);
-  static const CMaterialList exList(EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Player,
-                                    EMaterialTypes::Occluder, EMaterialTypes::Character);
-  static const CMaterialFilter filter(incList, exList, CMaterialFilter::EFilterType::IncludeExclude);
+  static constexpr CMaterialList incList(EMaterialTypes::Solid);
+  static constexpr CMaterialList exList(EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Player,
+                                        EMaterialTypes::Occluder, EMaterialTypes::Character);
+  static constexpr CMaterialFilter filter(incList, exList, CMaterialFilter::EFilterType::IncludeExclude);
 
   std::optional<zeus::CAABox> bounds = damagee.GetTouchBounds();
   if (!bounds)
