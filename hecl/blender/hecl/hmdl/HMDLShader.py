@@ -13,12 +13,14 @@ SHADER_TYPES = {
 PASS_TYPE = {
     'Lightmap': b'LMAP',
     'Diffuse': b'DIFF',
+    'DiffuseMod': b'DIFM',
     'Emissive': b'EMIS',
     'Specular': b'SPEC',
     'ExtendedSpecular': b'ESPC',
     'Reflection': b'REFL',
     'IndirectTex': b'INDR',
     'Alpha': b'ALPH',
+    'AlphaMod': b'ALPM'
 }
 
 def write_chunks(writebuf, mat_obj, mesh_obj):
@@ -37,7 +39,7 @@ def write_chunks(writebuf, mat_obj, mesh_obj):
 
     # Count sockets
     chunk_count = 0
-    for inp in output_node.inputs:
+    for inp, def_inp in zip(output_node.inputs, output_node.node_tree.inputs):
         if inp.name in PASS_TYPE:
             if inp.is_linked:
                 chunk_count += 1
@@ -45,17 +47,17 @@ def write_chunks(writebuf, mat_obj, mesh_obj):
                 # Color pass
                 color_set = False
                 if inp.type == 'VALUE':
-                    color_set = bool(inp.default_value)
+                    color_set = inp.default_value != def_inp.default_value
                 else:
-                    for comp in inp.default_value:
-                        color_set |= bool(comp)
+                    for comp, def_comp in zip(inp.default_value, def_inp.default_value):
+                        color_set |= comp != def_comp
                 if color_set:
                     chunk_count += 1
 
     writebuf(struct.pack('I', chunk_count))
 
     # Enumerate sockets
-    for inp in output_node.inputs:
+    for inp, def_inp in zip(output_node.inputs, output_node.node_tree.inputs):
         if inp.name in PASS_TYPE:
             pass_fourcc = PASS_TYPE[inp.name]
             if inp.is_linked:
@@ -146,10 +148,10 @@ def write_chunks(writebuf, mat_obj, mesh_obj):
                 # Color pass
                 color_set = False
                 if inp.type == 'VALUE':
-                    color_set = bool(inp.default_value)
+                    color_set = inp.default_value != def_inp.default_value
                 else:
-                    for comp in inp.default_value:
-                        color_set |= bool(comp)
+                    for comp, def_comp in zip(inp.default_value, def_inp.default_value):
+                        color_set |= comp != def_comp
 
                 if color_set:
                     writebuf(b'CLR ')
