@@ -1,5 +1,7 @@
 #include "Runtime/MP1/World/CFlaahgraTentacle.hpp"
 
+#include <array>
+
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/World/CPlayer.hpp"
@@ -8,6 +10,15 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
+namespace {
+constexpr std::string_view skpTentacleTip = "Arm_12"sv;
+constexpr std::array<SSphereJointInfo, 3> skJointList{{
+    {"Arm_8", 2.f},
+    {"Arm_10", 1.2f},
+    {"Arm_12", 1.2f},
+}};
+} // Anonymous namespace
+
 CFlaahgraTentacle::CFlaahgraTentacle(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                      const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                                      const CActorParameters& actParms)
@@ -84,11 +95,11 @@ void CFlaahgraTentacle::Think(float dt, CStateManager& mgr) {
     x578_ -= dt;
 }
 
-void CFlaahgraTentacle::AddSphereCollisionList(const SSphereJointInfo* sphereJoints, s32 jointCount,
+void CFlaahgraTentacle::AddSphereCollisionList(const SSphereJointInfo* sphereJoints, size_t jointCount,
                                                std::vector<CJointCollisionDescription>& outJoints) {
   const CAnimData* animData = GetModelData()->GetAnimationData();
 
-  for (s32 i = 0; i < jointCount; ++i) {
+  for (size_t i = 0; i < jointCount; ++i) {
     const SSphereJointInfo& sphereJoint = sphereJoints[i];
     const CSegId segId = animData->GetLocatorSegId(sphereJoint.name);
 
@@ -100,11 +111,9 @@ void CFlaahgraTentacle::AddSphereCollisionList(const SSphereJointInfo* sphereJoi
   }
 }
 
-const SSphereJointInfo CFlaahgraTentacle::skJointList[3] = {{"Arm_8", 2.f}, {"Arm_10", 1.2f}, {"Arm_12", 1.2f}};
-
 void CFlaahgraTentacle::SetupCollisionManager(CStateManager& mgr) {
   std::vector<CJointCollisionDescription> jointList;
-  AddSphereCollisionList(skJointList, 3, jointList);
+  AddSphereCollisionList(skJointList.data(), skJointList.size(), jointList);
   x56c_collisionManager =
       std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), jointList, true);
 
