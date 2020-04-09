@@ -167,18 +167,18 @@ void CPhazonBeam::Unload(CStateManager& mgr) {
 
 bool CPhazonBeam::IsLoaded() const { return CGunWeapon::IsLoaded() && x274_24_loaded; }
 
-void CPhazonBeam::DrawClipScaleCube() const {
+void CPhazonBeam::DrawClipScaleCube() {
   // Render AABB as completely transparent object, only modifying Z-buffer
   m_aaboxShaderScale.draw(zeus::skClear);
 }
 
-void CPhazonBeam::DrawClipTranslateCube() const {
+void CPhazonBeam::DrawClipTranslateCube() {
   // Render AABB as completely transparent object, only modifying Z-buffer
   m_aaboxShaderTranslate.draw(zeus::skClear);
 }
 
 void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
-                       const CActorLights* lights) const {
+                       const CActorLights* lights) {
   CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
   bool drawIndirect = visor == CPlayerState::EPlayerVisor::Combat || visor == CPlayerState::EPlayerVisor::Scan;
 

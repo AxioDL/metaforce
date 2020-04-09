@@ -266,9 +266,9 @@ private:
     u32 _dummy = 0;
   };
 
-  mutable CTexturedQuadFilter m_screenQuad{EFilterType::Blend, CGraphics::g_SpareTexture.get(),
-                                           CTexturedQuadFilter::ZTest::GEqualZWrite};
-  mutable CAABoxShader m_aaboxShader{true};
+  CTexturedQuadFilter m_screenQuad{EFilterType::Blend, CGraphics::g_SpareTexture.get(),
+                                   CTexturedQuadFilter::ZTest::GEqualZWrite};
+  CAABoxShader m_aaboxShader{true};
 
   void InitBeamData();
   void InitBombData();
@@ -322,8 +322,8 @@ private:
   void DrawArm(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const;
   zeus::CVector3f ConvertToScreenSpace(const zeus::CVector3f& pos, const CGameCamera& cam) const;
   static void CopyScreenTex();
-  void DrawScreenTex(float z) const;
-  void DrawClipCube(const zeus::CAABox& aabb) const;
+  void DrawScreenTex(float z);
+  void DrawClipCube(const zeus::CAABox& aabb);
 
 public:
   explicit CPlayerGun(TUniqueId playerId);
@@ -358,7 +358,7 @@ public:
   void StopContinuousBeam(CStateManager& mgr, bool b1);
   void Update(float grappleSwingT, float cameraBobT, float dt, CStateManager& mgr);
   void PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos);
-  void Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const;
+  void Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags);
   void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
   u32 GetLastFireButtonStates() const { return x2ec_lastFireButtonStates; }
   void DropBomb(EBWeapon weapon, CStateManager& mgr);
