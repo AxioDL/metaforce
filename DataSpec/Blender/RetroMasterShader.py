@@ -58,6 +58,8 @@ def make_retro_shader():
     lightmap_input.default_value = (0.0, 0.0, 0.0, 0.0)
     diffuse_input = new_grp.inputs.new('NodeSocketColor', 'Diffuse')
     diffuse_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    diffuse_mod_input = new_grp.inputs.new('NodeSocketColor', 'DiffuseMod')
+    diffuse_mod_input.default_value = (1.0, 1.0, 1.0, 1.0)
     emissive_input = new_grp.inputs.new('NodeSocketColor', 'Emissive')
     emissive_input.default_value = (0.0, 0.0, 0.0, 0.0)
     specular_input = new_grp.inputs.new('NodeSocketColor', 'Specular')
@@ -72,6 +74,10 @@ def make_retro_shader():
     alpha_input.default_value = 1.0
     alpha_input.min_value = 0.0
     alpha_input.max_value = 1.0
+    alpha_mod_input = new_grp.inputs.new('NodeSocketFloatFactor', 'AlphaMod')
+    alpha_mod_input.default_value = 1.0
+    alpha_mod_input.min_value = 0.0
+    alpha_mod_input.max_value = 1.0
     new_grp.use_fake_user = True
 
     # Group inputs
@@ -107,6 +113,17 @@ def make_retro_shader():
     # Mix shader (interpolates Principled and Diffuse BSDF)
     new_shader_model_mix1 = new_grp.nodes.new('ShaderNodeMixShader')
     new_shader_model_mix1.location = (-760, 340)
+
+    # Multiply (Multiples diffuse with diffusemod)
+    diffuse_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    diffuse_mult.location = (-1094, 122)
+    diffuse_mult.blend_type = 'MULTIPLY'
+    diffuse_mult.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Multiples alpha with alphamod)
+    alpha_mult = new_grp.nodes.new('ShaderNodeMath')
+    alpha_mult.location = (-1094, -178)
+    alpha_mult.operation = 'MULTIPLY'
 
     # Multiply (Multiplies static lightmap with diffuse)
     lightmap_mult = new_grp.nodes.new('ShaderNodeMixRGB')
@@ -164,17 +181,21 @@ def make_retro_shader():
     mat_out.location = (150, -88)
 
     # Links
+    new_grp.links.new(grp_in.outputs['Diffuse'], diffuse_mult.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['DiffuseMod'], diffuse_mult.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Alpha'], alpha_mult.inputs[0])
+    new_grp.links.new(grp_in.outputs['AlphaMod'], alpha_mult.inputs[1])
     new_grp.links.new(grp_in.outputs['Lightmap'], lightmap_mult.inputs['Color1'])
-    new_grp.links.new(grp_in.outputs['Diffuse'], lightmap_mult.inputs['Color2'])
-    new_grp.links.new(grp_in.outputs['Diffuse'], diffuse_bdsf.inputs['Color'])
-    new_grp.links.new(grp_in.outputs['Diffuse'], principled_bsdf.inputs['Base Color'])
+    new_grp.links.new(diffuse_mult.outputs['Color'], lightmap_mult.inputs['Color2'])
+    new_grp.links.new(diffuse_mult.outputs['Color'], diffuse_bdsf.inputs['Color'])
+    new_grp.links.new(diffuse_mult.outputs['Color'], principled_bsdf.inputs['Base Color'])
     new_grp.links.new(grp_in.outputs['Emissive'], emissive_add_shader.inputs[0])
     new_grp.links.new(grp_in.outputs['Specular'], specular_mult.inputs['Color1'])
     new_grp.links.new(grp_in.outputs['Specular'], principled_bsdf.inputs['Specular'])
     new_grp.links.new(grp_in.outputs['ExtendedSpecular'], extended_specular_mult.inputs['Color1'])
     new_grp.links.new(grp_in.outputs['Reflection'], specular_mult.inputs['Color2'])
     new_grp.links.new(grp_in.outputs['Reflection'], extended_specular_mult.inputs['Color2'])
-    new_grp.links.new(grp_in.outputs['Alpha'], alpha_mix.inputs['Fac'])
+    new_grp.links.new(alpha_mult.outputs[0], alpha_mix.inputs['Fac'])
     new_grp.links.new(new_shader_model.outputs['Value'], new_shader_model_mix1.inputs[0])
     new_grp.links.new(diffuse_bdsf.outputs['BSDF'], new_shader_model_mix1.inputs[1])
     new_grp.links.new(grp_in.outputs['Specular'], invert.inputs['Color'])

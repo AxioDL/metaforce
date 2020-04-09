@@ -524,12 +524,18 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   /* Select appropriate root shader and link textures */
   uint32_t hash = _HashTextureConfig(material);
   switch (hash) {
+  case 0x03FEE002: /* RetroShader: Diffuse, Emissive, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, "Reflection"_tex);
+    break;
   case 0x0473AE40: /* RetroShader: Lightmap, Diffuse, Emissive, Alpha=1.0 */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex);
     break;
   case 0x072D2CB3: /* RetroShader: Diffuse, Emissive, Reflection, Alpha=1.0 */
     _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, WhiteColorLink("Specular"),
                         "Reflection"_tex);
+    break;
+  case 0x07AA75D7: /* RetroShader: Diffuse, Emissive, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, TexLink("Alpha", 0, true));
     break;
   case 0x0879D346: /* RetroShader: KColorDiffuse, Alpha=Texture */
     _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Alpha"_tex);
@@ -549,6 +555,10 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   case 0x129B8578: /* RetroShader: KColorDiffuse, Emissive, Alpha=KAlpha */
     _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Emissive"_tex, "Alpha"_kcola);
     break;
+  case 0x15A00948: /* RetroShader: Diffuse, Emissive, Specular, ExtendedSpecular, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "ExtendedSpecular"_tex,
+                        "Reflection"_tex);
+    break;
   case 0x15A3E6E5: /* RetroShader: Diffuse, Alpha=KAlpha */
     _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Alpha"_kcola);
     break;
@@ -567,12 +577,6 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
     break;
   case 0x2523A379: /* RetroDynamicShader: Emissive*Dynamic, Specular, Reflection, Alpha=1.0 */
     _GenerateRootShader(out, "RetroDynamicShader", "Emissive"_tex, "Specular"_tex, "Reflection"_tex);
-    break;
-  case 0x07AA75D7:
-    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex);
-    break;
-  case 0x03FEE002:
-    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex);
     break;
   case 0x25E85017: /* RetroShader: Lightmap, KColorDiffuse, Alpha=KAlpha */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Alpha"_kcola);
@@ -603,6 +607,9 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex,
                         "IndirectTex"_tex, "Alpha"_kcola);
     break;
+  case 0x4184FBCA: /* RetroShader: Lightmap, Diffuse, Emissive, DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, TexLink("Alpha", 1, true));
+    break;
   case 0x47ECF3ED: /* RetroShader: Diffuse, Specular, Reflection, Emissive, Alpha=1.0 */
     _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "Emissive"_tex);
     break;
@@ -616,112 +623,10 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   case 0x54A92F25: /* RetroShader: ObjLightmap, KColorDiffuse, Alpha=KAlpha */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Alpha"_kcola);
     break;
-  case 0x72BEDDAC:
-    /* TODO: Properly implement TEV configuration:
-    A:CC_ZERO B:CC_RASC C:CC_TEXC D:CC_ZERO -> TEVREG0 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG0
-    A:CC_ZERO B:CC_C0 C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_TEXA -> TEVPREV
-    A:CC_ZERO B:CC_TEXC C:CC_ONE D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-    A:CC_ZERO B:CC_ZERO C:CC_ZERO D:CC_TEXC -> TEVREG2 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG2
-    A:CC_ZERO B:CC_C2 C:CC_TEXC D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_APREV -> TEVPREV
-    HasIndirect: false HasLightmap: true
-  */
-  case 0xF4DA0A86:
-    /* TODO: Properly implement TEV configuration:
-     A:CC_ZERO B:CC_RASC C:CC_KONST D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-     A:CC_ZERO B:CC_ONE C:CC_TEXC D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_APREV -> TEVPREV
-     HasIndirect: false HasLightmap: false
-   */
-  case 0xF345C16E:
-    /* TODO: Properly implement TEV configuration:
-     A:CC_ZERO B:CC_ONE C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-     A:CC_ZERO B:CC_ONE C:CC_TEXC D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_APREV -> TEVPREV
-     HasIndirect: false HasLightmap: false
-   */
-  case 0x8C562AB1:
-    /* TODO: Properly implement TEV configuration:
-     A:CC_ZERO B:CC_RASC C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-     A:CC_ZERO B:CC_ONE C:CC_TEXC D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_APREV -> TEVPREV
-     HasIndirect: false HasLightmap: false
-    */
-  case 0xE92F1340:
-    /* TODO: Properly implement TEV configuration:
-     A:CC_ZERO B:CC_RASC C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_TEXA -> TEVPREV
-     A:CC_ZERO B:CC_ZERO C:CC_ZERO D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_TEXA C:CA_APREV D:CA_ZERO -> TEVPREV
-     HasIndirect: false HasLightmap: false
-     */
-  case 0xCE06F3F2:
-    /* TODO: Properly implement TEV configuration:
-     A:CC_ZERO B:CC_ONE C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-     A:CC_ZERO B:CC_ZERO C:CC_ZERO D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_TEXA C:CA_APREV D:CA_ZERO -> TEVPREV
-     HasIndirect: false HasLightmap: false
-     */
-  case 0xC0E3FF1F:
-    /* TODO: Properly implement TEV configuration:
-     A:CC_ZERO B:CC_RASC C:CC_KONST D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-     A:CC_ZERO B:CC_ZERO C:CC_ZERO D:CC_TEXC -> TEVREG2 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG2
-     A:CC_ZERO B:CC_C2 C:CC_TEXC D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_APREV -> TEVPREV
-     HasIndirect: false HasLightmap: false
-    */
-  case 0xFC2761B8:
-    /* TODO: Properly implement TEV configuration:
-      A:CC_ZERO B:CC_C1 C:CC_TEXC D:CC_RASC -> TEVREG0 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG0
-      A:CC_ZERO B:CC_C0 C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_TEXA -> TEVPREV
-      A:CC_ZERO B:CC_ZERO C:CC_ZERO D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_TEXA C:CA_APREV D:CA_ZERO -> TEVPREV
-      HasIndirect: false HasLightmap: true
-     */
-  case 0xE64D1085:
-    /* TODO: Properly implement TEV configuration:
-      A:CC_ZERO B:CC_C1 C:CC_TEXC D:CC_RASC -> TEVREG0 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG0
-      A:CC_ZERO B:CC_C0 C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_TEXA -> TEVPREV
-      A:CC_ZERO B:CC_TEXC C:CC_ONE D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-      A:CC_ZERO B:CC_ONE C:CC_TEXC D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_APREV -> TEVPREV
-      HasIndirect: false HasLightmap: true
-     */
-  case 0xB26E9E2E:
-    /* TODO: Properly implement TEV configuration:
-      A:CC_ZERO B:CC_RASC C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_TEXA -> TEVPREV
-      A:CC_ZERO B:CC_TEXC C:CC_ONE D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-      A:CC_ZERO B:CC_ZERO C:CC_ZERO D:CC_TEXC -> TEVREG2 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG2
-      A:CC_ZERO B:CC_RASC C:CC_TEXC D:CC_C2 -> TEVREG2 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG2
-      HasIndirect: false HasLightmap: false
-     */
-  case 0x4184FBCA:
-    /* TODO: Properly implement TEV configuration:
-      A:CC_ZERO B:CC_C1 C:CC_TEXC D:CC_RASC -> TEVREG0 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG0
-      A:CC_ZERO B:CC_C0 C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_TEXA -> TEVPREV
-      A:CC_ZERO B:CC_ONE C:CC_TEXC D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_APREV -> TEVPREV
-      HasIndirect: false HasLightmap: true
-     */
-  case 0x81106196:
-    /* TODO: Properly implement TEV configuration:
-       A:CC_ZERO B:CC_C1 C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-       HasIndirect: false HasLightmap: false
-    */
-  case 0x15A00948:
-    /* TODO: Properly implement TEV configuration:
-      A:CC_ZERO B:CC_RASC C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_TEXA -> TEVPREV
-      A:CC_ZERO B:CC_TEXC C:CC_ONE D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-      A:CC_ZERO B:CC_ZERO C:CC_ZERO D:CC_TEXC -> TEVREG2 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG2
-      A:CC_ZERO B:CC_RASC C:CC_TEXC D:CC_C2 -> TEVREG2 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG2
-      A:CC_ZERO B:CC_C2 C:CC_TEXC D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_APREV -> TEVPREV
-      HasIndirect: false HasLightmap: false
-  */
-  case 0xFFF3CEBB:
-    /* TODO: Properly implement TEV configuration:
-      A:CC_ZERO B:CC_C1 C:CC_TEXC D:CC_RASC -> TEVREG0 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG0
-      A:CC_ZERO B:CC_C0 C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_TEXA -> TEVPREV
-      A:CC_ZERO B:CC_TEXC C:CC_ONE D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-      A:CC_ZERO B:CC_ZERO C:CC_ZERO D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_TEXA C:CA_APREV D:CA_ZERO -> TEVPREV
-    HasIndirect: false HasLightmap: true
-  */
-  case 0x58BAA415:
-    /* TODO: Properly implement TEV configuration:
-      A:CC_ZERO B:CC_C1 C:CC_TEXC D:CC_RASC -> TEVREG0 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG0
-      A:CC_ZERO B:CC_C0 C:CC_TEXC D:CC_ZERO -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_TEXA -> TEVPREV
-      A:CC_ZERO B:CC_TEXC C:CC_ONE D:CC_CPREV -> TEVPREV | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVPREV
-      A:CC_ZERO B:CC_ZERO C:CC_ZERO D:CC_TEXC -> TEVREG2 | A:CA_ZERO B:CA_ZERO C:CA_ZERO D:CA_KONST -> TEVREG2
-      HasIndirect: false HasLightmap: true
-     */
+  case 0x58BAA415: /* RetroShader: Lightmap, Diffuse, Emissive, Alpha=1.0 */
+    // TODO: Last stage assigns into unused reg2, perhaps for runtime material mod?
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex);
+    break;
   case 0x54C6204C:
     _GenerateRootShader(out, "RetroShader");
     break;
@@ -756,6 +661,10 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   case 0x7252CB90: /* RetroShader: Lightmap, Diffuse, Alpha=KAlpha */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Alpha"_kcola);
     break;
+  case 0x72BEDDAC: /* RetroShader: DiffuseMod, Diffuse, Emissive, Specular, Reflection Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "DiffuseMod"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex,
+                        "Reflection"_tex);
+    break;
   case 0x76BEA57E: /* RetroShader: Lightmap, Diffuse, Emissive, Specular, Reflection, Alpha=1.0, IndirectTex */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex,
                         "Reflection"_tex, "IndirectTex"_tex);
@@ -763,12 +672,18 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   case 0x7D6A4487: /* RetroShader: Diffuse, Specular, Reflection, Alpha=DiffuseAlpha */
     _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, TexLink("Alpha", 0, true));
     break;
+  case 0x81106196: /* RetroDynamicShader: Emissive, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroDynamicShader", "Emissive"_tex);
+    break;
   case 0x84319328: /* RetroShader: Reflection, UnusedSpecular?, Alpha=1.0 */
     _GenerateRootShader(out, "RetroShader", WhiteColorLink("Specular"), "Reflection"_tex);
     break;
   case 0x846215DA: /* RetroShader: Diffuse, Specular, Reflection, Alpha=DiffuseAlpha, IndirectTex */
     _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex,
                         TexLink("Alpha", 0, true));
+    break;
+  case 0x8C562AB1: /* RetroShader: Diffuse, Emissive, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex);
     break;
   case 0x8E916C01: /* RetroShader: NULL, all inputs 0 */
     _GenerateRootShader(out, "RetroShader");
@@ -788,6 +703,13 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   case 0xA187C630: /* RetroShader: Diffuse, Emissive, UnusedReflection?, Alpha=1.0 */
     _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex);
     break;
+  case 0xB26E9E2E: /* RetroShader: Diffuse, Emissive, Alpha=1.0 */
+    // TODO: Last two stages assign into unused reg2, perhaps for runtime material mod?
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex);
+    break;
+  case 0xC0E3FF1F: /* RetroShader: KColorDiffuse, Specular, Reflection, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Specular"_tex, "Reflection"_tex, "Alpha"_kcola);
+    break;
   case 0xC138DCFA: /* RetroShader: Diffuse, Emissive, Alpha=1.0 */
     _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex);
     break;
@@ -804,11 +726,18 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   case 0xCD92D4C5: /* RetroShader: Diffuse, Reflection, Alpha=KAlpha */
     _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, WhiteColorLink("Specular"), "Reflection"_tex, "Alpha"_kcola);
     break;
+  case 0xCE06F3F2: /* RetroShader: Diffuse, Alpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 1, true));
+    break;
   case 0xD73E7728: /* RetroShader: ObjLightmap, Diffuse, Alpha=DiffuseAlpha */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true));
     break;
   case 0xDB8F01AD: /* RetroDynamicShader: Diffuse*Dynamic, Emissive*Dynamic, UnusedSpecular?, Alpha=1.0 */
     _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex);
+    break;
+  case 0xE64D1085: /* RetroShader: Lightmap, Diffuse, Emissive, Reflection, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Reflection"_tex,
+                        TexLink("Alpha", 1, true));
     break;
   case 0xE6784B10: /* RetroShader: Lightmap, Diffuse, Specular, Reflection, Alpha=DiffuseAlpha, IndirectTex */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex,
@@ -816,6 +745,9 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
     break;
   case 0xE68FF182: /* RetroShader: Diffuse, Emissive, Specular, Reflection, Alpha=1.0 */
     _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex);
+    break;
+  case 0xE92F1340: /* RetroShader: Diffuse, Alpha=DiffuseAlpha*AlphaMod */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 0, true), TexLink("AlphaMod", 1, true));
     break;
   case 0xEB4645CF: /* RetroDynamicAlphaShader: Diffuse*Dynamic, Alpha=DiffuseAlpha*Dynamic */
     _GenerateRootShader(out, "RetroDynamicAlphaShader", "Diffuse"_tex, TexLink("Alpha", 0, true));
@@ -827,6 +759,12 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "ExtendedSpecular"_tex,
                         "Reflection"_tex, TexLink("Alpha", 1, true));
     break;
+  case 0xF345C16E: /* RetroShader: Emissive, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Emissive"_tex, "Reflection"_tex);
+    break;
+  case 0xF4DA0A86: /* RetroShader: KColorDiffuse, Emissive, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Emissive"_tex, "Alpha"_kcola); break;
+    break;
   case 0xF559DB08: /* RetroShader: Lightmap, Diffuse, Emissive, Specular, Reflection, Alpha=1.0 */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex,
                         "Reflection"_tex);
@@ -834,8 +772,15 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   case 0xF9324367: /* RetroShader: Lightmap, Diffuse, Emissive, Alpha=1.0 */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex);
     break;
+  case 0xFC2761B8: /* RetroShader: Lightmap, Diffuse, Alpha=DiffuseAlpha*AlphaMod */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true),
+                        TexLink("AlphaMod", 2, true));
+    break;
   case 0xFD95D7FD: /* RetroShader: ObjLightmap, Diffuse, Alpha=DiffuseAlpha */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true));
+    break;
+  case 0xFFF3CEBB: /* RetroShader: Lightmap, Diffuse, Emissive, Alpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, TexLink("Alpha", 3, true));
     break;
   default:
     _DescribeTEV(material);
