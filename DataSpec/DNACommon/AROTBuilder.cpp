@@ -1,9 +1,6 @@
 #include "AROTBuilder.hpp"
 #include "hecl/Blender/Connection.hpp"
 #include "PATH.hpp"
-#include "DataSpec/DNAMP1/DNAMP1.hpp"
-#include "DataSpec/DNAMP2/DNAMP2.hpp"
-#include "DataSpec/DNAMP3/DNAMP3.hpp"
 
 namespace DataSpec {
 logvisor::Module Log("AROTBuilder");
