@@ -24,9 +24,9 @@ static void OutputOctreeNode(hecl::blender::PyOutStream& os, int idx, const zeus
 }
 #endif
 
-template <atUint32 Ver>
-void PATH<Ver>::sendToBlender(hecl::blender::Connection& conn, std::string_view entryName, const zeus::CMatrix4f* xf,
-                              const std::string& areaPath) {
+template <class PAKBridge>
+void PATH<PAKBridge>::sendToBlender(hecl::blender::Connection& conn, std::string_view entryName,
+                                    const zeus::CMatrix4f* xf, const std::string& areaPath) {
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
   os << "import bpy\n"
@@ -176,9 +176,33 @@ void PATH<Ver>::sendToBlender(hecl::blender::Connection& conn, std::string_view 
   os.close();
 }
 
-template <atUint32 Ver>
-bool PATH<Ver>::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const PathMesh& mesh,
-                     hecl::blender::Token& btok) {
+template <class PAKBridge>
+bool PATH<PAKBridge>::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
+                              PAKRouter<PAKBridge>& pakRouter, const typename PAKBridge::PAKType::Entry& entry,
+                              bool force, hecl::blender::Token& btok,
+                              std::function<void(const hecl::SystemChar*)> fileChanged) {
+  PATH path;
+  path.read(rs);
+  hecl::blender::Connection& conn = btok.getBlenderConnection();
+  if (!conn.createBlend(outPath, hecl::blender::BlendType::PathMesh))
+    return false;
+
+  std::string areaPath;
+  for (const auto& ent : hecl::DirectoryEnumerator(outPath.getParentPath().getAbsolutePath())) {
+    if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!area_"))) {
+      areaPath = hecl::SystemUTF8Conv(ent.m_name).str();
+      break;
+    }
+  }
+
+  const zeus::CMatrix4f* xf = pakRouter.lookupMAPATransform(entry.id);
+  path.sendToBlender(conn, pakRouter.getBestEntryName(entry, false), xf, areaPath);
+  return conn.saveBlend();
+}
+
+template <class PAKBridge>
+bool PATH<PAKBridge>::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const PathMesh& mesh,
+                           hecl::blender::Token& btok) {
   athena::io::MemoryReader r(mesh.data.data(), mesh.data.size());
   PATH path;
   path.read(r);
@@ -217,8 +241,8 @@ bool PATH<Ver>::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& 
   return true;
 }
 
-template struct PATH<4>;
-template struct PATH<6>;
-template struct PATH<7>;
+template struct PATH<DataSpec::DNAMP1::PAKBridge>;
+template struct PATH<DataSpec::DNAMP2::PAKBridge>;
+template struct PATH<DataSpec::DNAMP3::PAKBridge>;
 
 } // namespace DataSpec::DNAPATH

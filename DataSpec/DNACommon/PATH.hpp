@@ -2,17 +2,20 @@
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DataSpec/DNACommon/PAK.hpp"
+#include "DataSpec/DNAMP1/DNAMP1.hpp"
+#include "DataSpec/DNAMP2/DNAMP2.hpp"
+#include "DataSpec/DNAMP3/DNAMP3.hpp"
 
 namespace DataSpec::DNAPATH {
-template <atUint32 Ver>
+template <class PAKBridge>
 struct RegionPointers {};
 template <>
-struct RegionPointers<4> : BigDNA {
+struct RegionPointers<DataSpec::DNAMP1::PAKBridge> : BigDNA {
   AT_DECL_DNA
   Value<atUint32> regionIdxPtr;
 };
 template <>
-struct RegionPointers<6> : BigDNA {
+struct RegionPointers<DataSpec::DNAMP2::PAKBridge> : BigDNA {
   AT_DECL_DNA
   Value<atUint32> unk0;
   Value<atUint32> unk1;
@@ -20,7 +23,7 @@ struct RegionPointers<6> : BigDNA {
   Value<atUint32> regionIdxPtr;
 };
 template <>
-struct RegionPointers<7> : BigDNA {
+struct RegionPointers<DataSpec::DNAMP3::PAKBridge> : BigDNA {
   AT_DECL_DNA
   Value<atUint32> unk0;
   Value<atUint32> unk1;
@@ -28,8 +31,9 @@ struct RegionPointers<7> : BigDNA {
   Value<atUint32> regionIdxPtr;
 };
 
-template <atUint32 Ver>
-struct AT_SPECIALIZE_PARMS(4, 6, 7) PATH : BigDNA {
+template <class PAKBridge>
+struct AT_SPECIALIZE_PARMS(DataSpec::DNAMP1::PAKBridge, DataSpec::DNAMP2::PAKBridge, DataSpec::DNAMP3::PAKBridge) PATH
+: BigDNA {
   using PathMesh = hecl::blender::PathMesh;
 
   AT_DECL_DNA
@@ -66,7 +70,7 @@ struct AT_SPECIALIZE_PARMS(4, 6, 7) PATH : BigDNA {
     Value<atUint32> regionIdx;
     Value<atVec3f> centroid;
     Value<atVec3f> aabb[2];
-    Value<RegionPointers<Ver>> pointers;
+    Value<RegionPointers<PAKBridge>> pointers;
   };
   Value<atUint32> regionCount;
   Vector<Region, AT_DNA_COUNT(regionCount)> regions;
@@ -93,7 +97,11 @@ struct AT_SPECIALIZE_PARMS(4, 6, 7) PATH : BigDNA {
   void sendToBlender(hecl::blender::Connection& conn, std::string_view entryName, const zeus::CMatrix4f* xf,
                      const std::string& areaPath);
 
-  static bool Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath,
-                   const PathMesh& mesh, hecl::blender::Token& btok);
+  static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
+                      PAKRouter<PAKBridge>& pakRouter, const typename PAKBridge::PAKType::Entry& entry, bool force,
+                      hecl::blender::Token& btok, std::function<void(const hecl::SystemChar*)> fileChanged);
+
+  static bool Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const PathMesh& mesh,
+                   hecl::blender::Token& btok);
 };
-} // namespace DataSpec::DNAMP1
+} // namespace DataSpec::DNAPATH

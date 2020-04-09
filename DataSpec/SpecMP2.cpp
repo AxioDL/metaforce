@@ -6,6 +6,7 @@
 #include "DNAMP2/MLVL.hpp"
 #include "DNAMP2/STRG.hpp"
 #include "DNAMP2/AGSC.hpp"
+#include "DNAMP2/PATH.hpp"
 #include "DNAMP2/MAPA.hpp"
 #include "DNAMP1/CSNG.hpp"
 #include "DNACommon/MAPU.hpp"
@@ -291,7 +292,7 @@ struct SpecMP2 : SpecBase {
                     hecl::blender::Token& btok, FCookProgress progress) override {
     PathMesh mesh = ds.compilePathMesh();
     ds.close();
-    DNAPATH::PATH<6>::Cook(out, in, mesh, btok);
+    DNAMP2::PATH::Cook(out, in, mesh, btok);
   }
 
   void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,

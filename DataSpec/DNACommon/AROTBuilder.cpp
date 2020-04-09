@@ -1,6 +1,9 @@
 #include "AROTBuilder.hpp"
 #include "hecl/Blender/Connection.hpp"
-#include "../DNAMP1/PATH.hpp"
+#include "PATH.hpp"
+#include "DataSpec/DNAMP1/DNAMP1.hpp"
+#include "DataSpec/DNAMP2/DNAMP2.hpp"
+#include "DataSpec/DNAMP3/DNAMP3.hpp"
 
 namespace DataSpec {
 logvisor::Module Log("AROTBuilder");
@@ -272,8 +275,8 @@ void AROTBuilder::Node::pathCountNodesAndLookups(size_t& nodeCount, size_t& look
   }
 }
 
-template <uint32_t PathVer>
-void AROTBuilder::Node::pathWrite(DNAPATH::PATH<PathVer>& path, const zeus::CAABox& curAABB) {
+template <class PAKBridge>
+void AROTBuilder::Node::pathWrite(DNAPATH::PATH<PAKBridge>& path, const zeus::CAABox& curAABB) {
   if (childNodes.empty()) {
     auto& n = path.octree.emplace_back();
     n.isLeaf = 1;
@@ -306,9 +309,9 @@ void AROTBuilder::Node::pathWrite(DNAPATH::PATH<PathVer>& path, const zeus::CAAB
   }
 }
 
-template void AROTBuilder::Node::pathWrite<4>(DNAPATH::PATH<4>& path, const zeus::CAABox& curAABB);
-template void AROTBuilder::Node::pathWrite<6>(DNAPATH::PATH<6>& path, const zeus::CAABox& curAABB);
-template void AROTBuilder::Node::pathWrite<7>(DNAPATH::PATH<7>& path, const zeus::CAABox& curAABB);
+template void AROTBuilder::Node::pathWrite(DNAPATH::PATH<DNAMP1::PAKBridge>& path, const zeus::CAABox& curAABB);
+template void AROTBuilder::Node::pathWrite(DNAPATH::PATH<DNAMP2::PAKBridge>& path, const zeus::CAABox& curAABB);
+template void AROTBuilder::Node::pathWrite(DNAPATH::PATH<DNAMP3::PAKBridge>& path, const zeus::CAABox& curAABB);
 
 void AROTBuilder::build(std::vector<std::vector<uint8_t>>& secs, const zeus::CAABox& fullAabb,
                         const std::vector<zeus::CAABox>& meshAabbs, const std::vector<DNACMDL::Mesh>& meshes) {
@@ -403,8 +406,8 @@ std::pair<std::unique_ptr<uint8_t[]>, uint32_t> AROTBuilder::buildCol(const ColM
   return {std::move(ret), totalSize};
 }
 
-template <uint32_t PathVer>
-void AROTBuilder::buildPath(DNAPATH::PATH<PathVer>& path) {
+template <class PAKBridge>
+void AROTBuilder::buildPath(DNAPATH::PATH<PAKBridge>& path) {
   /* Accumulate total AABB and gather region boxes */
   std::vector<zeus::CAABox> regionBoxes;
   regionBoxes.reserve(path.regions.size());
@@ -427,8 +430,8 @@ void AROTBuilder::buildPath(DNAPATH::PATH<PathVer>& path) {
   rootNode.pathWrite(path, fullAABB);
 }
 
-template void AROTBuilder::buildPath<4>(DNAPATH::PATH<4>& path);
-template void AROTBuilder::buildPath<6>(DNAPATH::PATH<6>& path);
-template void AROTBuilder::buildPath<7>(DNAPATH::PATH<7>& path);
+template void AROTBuilder::buildPath(DNAPATH::PATH<DNAMP1::PAKBridge>& path);
+template void AROTBuilder::buildPath(DNAPATH::PATH<DNAMP2::PAKBridge>& path);
+template void AROTBuilder::buildPath(DNAPATH::PATH<DNAMP3::PAKBridge>& path);
 
 } // namespace DataSpec
