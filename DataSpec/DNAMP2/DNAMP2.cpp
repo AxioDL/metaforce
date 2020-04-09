@@ -203,7 +203,6 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
             fmt::format(fmt(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
 
       for (const MLVL::Area& area : mlvl.areas) {
-#if 0
         {
           /* Get PATH transform */
           const nod::Node* areaNode;
@@ -214,7 +213,6 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
             addTo[pathId] = zeus::CMatrix4f(area.transformMtx[0], area.transformMtx[1], area.transformMtx[2], BottomRow)
                 .transposed();
         }
-#endif
         hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
         if (area.areaNameId.isValid())
           pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath,
@@ -272,8 +270,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     return {MAPA::Extract, {_SYS_STR(".blend")}, 4};
   case SBIG('MAPU'):
     return {MAPU::Extract, {_SYS_STR(".blend")}, 5};
-//  case SBIG('PATH'):
-//    return {PATH::Extract, {_SYS_STR(".blend")}, 5};
+  case SBIG('PATH'):
+    return {PATH::Extract, {_SYS_STR(".blend")}, 5};
   case SBIG('FSM2'):
     return {DNAFSM2::ExtractFSM2<UniqueID32>, {_SYS_STR(".yaml")}};
   case SBIG('FONT'):

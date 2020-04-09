@@ -98,11 +98,11 @@ void MREA::StreamReader::seek(atInt64 diff, athena::SeekOrigin whence) {
     if (newAccum > target)
       break;
     dAccum = newAccum;
-    ++bIdx;
     if (info.compSize)
       cAccum += ROUND_UP_32(info.compSize);
     else
       cAccum += info.decompSize;
+    ++bIdx;
   }
 
   /* Seek source if needed */
@@ -111,6 +111,41 @@ void MREA::StreamReader::seek(atInt64 diff, athena::SeekOrigin whence) {
     m_nextBlk = bIdx;
     nextBlock();
   }
+
+  m_pos = target;
+  m_posInBlk = target - dAccum;
+}
+
+void MREA::StreamReader::seekToSection(atUint32 sec, const std::vector<atUint32>& secSizes) {
+  /* Determine which block contains section */
+  atUint32 sAccum = 0;
+  atUint32 dAccum = 0;
+  atUint32 cAccum = 0;
+  atUint32 bIdx = 0;
+  for (BlockInfo& info : m_blockInfos) {
+    atUint32 newSAccum = sAccum + info.secCount;
+    if (newSAccum > sec)
+      break;
+    sAccum = newSAccum;
+    dAccum += info.decompSize;
+    if (info.compSize)
+      cAccum += ROUND_UP_32(info.compSize);
+    else
+      cAccum += info.decompSize;
+    ++bIdx;
+  }
+
+  /* Seek source if needed */
+  if (bIdx != m_nextBlk - 1) {
+    m_source.seek(m_blkBase + cAccum, athena::SeekOrigin::Begin);
+    m_nextBlk = bIdx;
+    nextBlock();
+  }
+
+  /* Seek within block */
+  atUint32 target = dAccum;
+  while (sAccum != sec)
+    target += secSizes[sAccum++];
 
   m_pos = target;
   m_posInBlk = target - dAccum;
@@ -302,15 +337,12 @@ UniqueID32 MREA::GetPATHId(PAKEntryReadStream& rs) {
   head.read(rs);
   rs.seekAlign32();
 
+  /* MREA decompression stream */
+  StreamReader drs(rs, head.compressedBlockCount);
+
   /* Skip to PATH */
-  atUint32 curSec = 0;
-  atUint64 secStart = rs.position();
-  while (curSec != head.pathSecIdx)
-    secStart += head.secSizes[curSec++];
-  if (!head.secSizes[curSec])
-    return {};
-  rs.seek(secStart, athena::SeekOrigin::Begin);
-  return {rs};
+  drs.seekToSection(head.pathSecIdx, head.secSizes);
+  return {drs};
 }
 
 } // namespace DNAMP2

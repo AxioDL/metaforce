@@ -4,7 +4,32 @@
 #include "DataSpec/DNACommon/PAK.hpp"
 
 namespace DataSpec::DNAPATH {
-struct PATH : BigDNA {
+template <atUint32 Ver>
+struct RegionPointers {};
+template <>
+struct RegionPointers<4> : BigDNA {
+  AT_DECL_DNA
+  Value<atUint32> regionIdxPtr;
+};
+template <>
+struct RegionPointers<6> : BigDNA {
+  AT_DECL_DNA
+  Value<atUint32> unk0;
+  Value<atUint32> unk1;
+  Value<atUint32> unk2;
+  Value<atUint32> regionIdxPtr;
+};
+template <>
+struct RegionPointers<7> : BigDNA {
+  AT_DECL_DNA
+  Value<atUint32> unk0;
+  Value<atUint32> unk1;
+  Value<atUint32> unk2;
+  Value<atUint32> regionIdxPtr;
+};
+
+template <atUint32 Ver>
+struct AT_SPECIALIZE_PARMS(4, 6, 7) PATH : BigDNA {
   using PathMesh = hecl::blender::PathMesh;
 
   AT_DECL_DNA
@@ -41,7 +66,7 @@ struct PATH : BigDNA {
     Value<atUint32> regionIdx;
     Value<atVec3f> centroid;
     Value<atVec3f> aabb[2];
-    Value<atUint32> regionIdxPtr;
+    Value<RegionPointers<Ver>> pointers;
   };
   Value<atUint32> regionCount;
   Vector<Region, AT_DNA_COUNT(regionCount)> regions;

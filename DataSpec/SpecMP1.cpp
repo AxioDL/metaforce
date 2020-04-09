@@ -661,7 +661,7 @@ struct SpecMP1 : SpecBase {
                     hecl::blender::Token& btok, FCookProgress progress) override {
     PathMesh mesh = ds.compilePathMesh();
     ds.close();
-    DNAPATH::PATH::Cook(out, in, mesh, btok);
+    DNAPATH::PATH<4>::Cook(out, in, mesh, btok);
   }
 
   void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,

@@ -43,6 +43,7 @@ struct MREA {
   public:
     StreamReader(athena::io::IStreamReader& source, atUint32 blkCount);
     void seek(atInt64 diff, athena::SeekOrigin whence) override;
+    void seekToSection(atUint32 sec, const std::vector<atUint32>& secSizes);
     atUint64 position() const override { return m_pos; }
     atUint64 length() const override { return m_totalDecompLen; }
     atUint64 readUBytesToBuf(void* buf, atUint64 len) override;
