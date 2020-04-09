@@ -1,4 +1,6 @@
 #include <sys/stat.h>
+
+#include <algorithm>
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
@@ -60,24 +62,27 @@ std::vector<std::string>& Project::ConfigFile::lockAndRead() {
     mainString += std::string(readBuf, readSz);
   }
 
-  std::string::const_iterator begin = mainString.begin();
-  std::string::const_iterator end = mainString.begin();
+  auto begin = mainString.cbegin();
+  auto end = mainString.cbegin();
 
   m_lines.clear();
   while (end != mainString.end()) {
-    std::string::const_iterator origEnd = end;
-    if (*end == '\0')
+    auto origEnd = end;
+    if (*end == '\0') {
       break;
-    else if (CheckNewLineAdvance(end)) {
-      if (begin != origEnd)
-        m_lines.push_back(std::string(begin, origEnd));
+    }
+    if (CheckNewLineAdvance(end)) {
+      if (begin != origEnd) {
+        m_lines.emplace_back(begin, origEnd);
+      }
       begin = end;
       continue;
     }
     ++end;
   }
-  if (begin != end)
-    m_lines.push_back(std::string(begin, end));
+  if (begin != end) {
+    m_lines.emplace_back(begin, end);
+  }
 
   return m_lines;
 }
@@ -102,16 +107,13 @@ void Project::ConfigFile::removeLine(std::string_view refLine) {
   }
 }
 
-bool Project::ConfigFile::checkForLine(std::string_view refLine) {
+bool Project::ConfigFile::checkForLine(std::string_view refLine) const {
   if (!m_lockedFile) {
     LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__, fmt("Project::ConfigFile::lockAndRead not yet called"));
     return false;
   }
 
-  for (const std::string& line : m_lines)
-    if (line == refLine)
-      return true;
-  return false;
+  return std::any_of(m_lines.cbegin(), m_lines.cend(), [&refLine](const auto& line) { return line == refLine; });
 }
 
 void Project::ConfigFile::unlockAndDiscard() {

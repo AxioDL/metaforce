@@ -63,7 +63,7 @@ public:
   constexpr DNAFourCC(const FourCC& other) noexcept : FourCC(other) {}
   constexpr DNAFourCC(const char* name) noexcept : FourCC(name) {}
   constexpr DNAFourCC(uint32_t n) noexcept : FourCC(n) {}
-  constexpr DNAFourCC(athena::io::IStreamReader& r) { read(r); }
+  DNAFourCC(athena::io::IStreamReader& r) { read(r); }
   AT_DECL_EXPLICIT_DNA_YAML
 };
 template <>
