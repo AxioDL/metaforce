@@ -697,7 +697,7 @@ void CRidley::Render(const CStateManager& mgr) const {
   CPatterned::Render(mgr);
 }
 
-void CRidley::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CRidley::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CPatterned::AddToRenderer(frustum, mgr);
   if (xce0_ && frustum.aabbFrustumTest(*xce0_->GetBounds())) {
     g_Renderer->AddParticleGen(*xce0_);

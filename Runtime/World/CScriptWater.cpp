@@ -413,12 +413,14 @@ void CScriptWater::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
   }
 }
 
-void CScriptWater::AddToRenderer(const zeus::CFrustum& /*frustum*/, const CStateManager& mgr) const {
-  if (!xe4_30_outOfFrustum) {
-    zeus::CPlane plane(zeus::skUp, x34_transform.origin.z() + x130_bounds.max.z());
-    zeus::CAABox renderBounds = GetSortingBounds(mgr);
-    mgr.AddDrawableActorPlane(*this, plane, renderBounds);
+void CScriptWater::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManager& mgr) {
+  if (xe4_30_outOfFrustum) {
+    return;
   }
+
+  const zeus::CPlane plane(zeus::skUp, x34_transform.origin.z() + x130_bounds.max.z());
+  const zeus::CAABox renderBounds = GetSortingBounds(mgr);
+  mgr.AddDrawableActorPlane(*this, plane, renderBounds);
 }
 
 void CScriptWater::Render(const CStateManager& mgr) const {

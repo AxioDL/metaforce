@@ -394,7 +394,7 @@ bool CPlasmaProjectile::CanRenderUnsorted(const CStateManager& mgr) const {
   return false;
 }
 
-void CPlasmaProjectile::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CPlasmaProjectile::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   if (GetActive()) {
     g_Renderer->AddParticleGen(*x518_contactGen);
     if (x478_beamAttributes & 0x2) {

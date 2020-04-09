@@ -61,7 +61,7 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager&) override;
   void Think(float dt, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
   void OnScanStateChanged(EScanState, CStateManager&) override;
   CProjectileInfo* GetProjectileInfo() override { return &x5ac_projectileInfo; }
   zeus::CAABox GetSortingBounds(const CStateManager&) const override {

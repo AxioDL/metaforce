@@ -181,25 +181,29 @@ void CActor::PreRender(CStateManager& mgr, const zeus::CFrustum& planes) {
   }
 }
 
-void CActor::AddToRenderer(const zeus::CFrustum& planes, const CStateManager& mgr) const {
-  if (!x64_modelData || x64_modelData->IsNull())
+void CActor::AddToRenderer(const zeus::CFrustum& planes, CStateManager& mgr) {
+  if (!x64_modelData || x64_modelData->IsNull()) {
     return;
+  }
 
-  if (xe6_29_renderParticleDBInside)
+  if (xe6_29_renderParticleDBInside) {
     x64_modelData->RenderParticles(planes);
+  }
 
   if (!xe4_30_outOfFrustum) {
-    if (CanRenderUnsorted(mgr))
+    if (CanRenderUnsorted(mgr)) {
       Render(mgr);
-    else
+    } else {
       EnsureRendered(mgr);
+    }
   }
 
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay &&
       mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::Thermal && xe5_24_shadowEnabled &&
-      x94_simpleShadow->Valid() && planes.aabbFrustumTest(x94_simpleShadow->GetBounds()))
+      x94_simpleShadow->Valid() && planes.aabbFrustumTest(x94_simpleShadow->GetBounds())) {
     g_Renderer->AddDrawable(x94_simpleShadow.get(), x94_simpleShadow->GetTransform().origin,
                             x94_simpleShadow->GetBounds(), 1, CBooRenderer::EDrawableSorting::SortedCallback);
+  }
 }
 
 void CActor::DrawTouchBounds() const {

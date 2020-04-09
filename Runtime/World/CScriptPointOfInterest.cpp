@@ -26,7 +26,7 @@ void CScriptPointOfInterest::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
   CActor::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CScriptPointOfInterest::AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
+void CScriptPointOfInterest::AddToRenderer(const zeus::CFrustum&, CStateManager&) {}
 
 void CScriptPointOfInterest::Render(const CStateManager&) const {}
 

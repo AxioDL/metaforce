@@ -170,7 +170,7 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     break;
   }
 }
-void CMetroidBeta::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CMetroidBeta::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CPatterned::AddToRenderer(frustum, mgr);
 }
 void CMetroidBeta::Render(const CStateManager& mgr) const { CPatterned::Render(mgr); }

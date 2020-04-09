@@ -983,7 +983,7 @@ void CWallCrawlerSwarm::RenderParticles() const {
   }
 }
 
-void CWallCrawlerSwarm::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const {
+void CWallCrawlerSwarm::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
   if (!GetActive()) {
     return;
   }

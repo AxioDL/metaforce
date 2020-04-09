@@ -42,6 +42,6 @@ public:
   }
 
   void Touch(CActor&, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
 };
 } // namespace urde

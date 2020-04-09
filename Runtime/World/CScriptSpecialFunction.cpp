@@ -481,12 +481,14 @@ void CScriptSpecialFunction::PreRender(CStateManager&, const zeus::CFrustum& fru
     x1e4_28_frustumEntered = true;
 }
 
-void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const {
-  if (!GetActive())
+void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
+  if (!GetActive()) {
     return;
+  }
 
-  if (xe8_function == ESpecialFunction::FogVolume && x1e4_30_)
+  if (xe8_function == ESpecialFunction::FogVolume && x1e4_30_) {
     EnsureRendered(mgr);
+  }
 }
 
 void CScriptSpecialFunction::Render(const CStateManager& mgr) const {

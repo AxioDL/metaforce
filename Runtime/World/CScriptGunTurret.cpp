@@ -444,11 +444,12 @@ void CScriptGunTurret::PlayAdditiveFlinchAnimation(CStateManager& mgr) {
     GetModelData()->GetAnimationData()->AddAdditiveAnimation(pair.second, 1.f, false, true);
 }
 
-void CScriptGunTurret::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CScriptGunTurret::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
 
-  if (x258_type != ETurretComponent::Gun)
+  if (x258_type != ETurretComponent::Gun) {
     return;
+  }
 
   if (!x560_25_frozen) {
     switch (x520_state) {
@@ -471,8 +472,9 @@ void CScriptGunTurret::AddToRenderer(const zeus::CFrustum& frustum, const CState
     case ETurretState::ExitTargeting:
     case ETurretState::Frenzy:
       g_Renderer->AddParticleGen(*x478_targettingLight);
-      if (x520_state == ETurretState::Firing || x520_state == ETurretState::Frenzy)
+      if (x520_state == ETurretState::Firing || x520_state == ETurretState::Frenzy) {
         g_Renderer->AddParticleGen(*x488_chargingEffect);
+      }
       break;
     default:
       break;

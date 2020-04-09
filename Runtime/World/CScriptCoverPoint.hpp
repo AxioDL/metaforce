@@ -40,7 +40,7 @@ public:
 
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override {}
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override {}
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Render(const CStateManager&) const override {}
   std::optional<zeus::CAABox> GetTouchBounds() const override;

@@ -77,7 +77,7 @@ public:
                  const SBouncyGrenadeData& data, float velocity, float explodePlayerDistance);
 
   void Accept(IVisitor& visitor) override { visitor.Visit(this); }
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   void CollidedWith(TUniqueId id, const CCollisionInfoList& list, CStateManager& mgr) override;
   [[nodiscard]] std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Render(const CStateManager& mgr) const override;

@@ -89,9 +89,10 @@ void CExplosion::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   xe4_30_outOfFrustum = !xf4_25_ || !frustum.aabbFrustumTest(x9c_renderBounds);
 }
 
-void CExplosion::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
-  if (xe4_30_outOfFrustum)
+void CExplosion::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+  if (xe4_30_outOfFrustum) {
     return;
+  }
 
   if (!(xf4_24_renderThermalHot && mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot) &&
       !(xf4_26_renderXray && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)) {
