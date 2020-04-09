@@ -42,7 +42,7 @@ class CFBStreamedAnimReaderTotals {
   void Allocate(u32 chanCount);
 
 public:
-  CFBStreamedAnimReaderTotals(const CFBStreamedCompression& source);
+  explicit CFBStreamedAnimReaderTotals(const CFBStreamedCompression& source);
   void Initialize(const CFBStreamedCompression& source);
   void IncrementInto(CBitLevelLoader& loader, const CFBStreamedCompression& source, CFBStreamedAnimReaderTotals& dest);
   void CalculateDown();
@@ -61,7 +61,7 @@ class CFBStreamedPairOfTotals {
   float x78_t = 0.f;
 
 public:
-  CFBStreamedPairOfTotals(const TSubAnimTypeToken<CFBStreamedCompression>& source);
+  explicit CFBStreamedPairOfTotals(const TSubAnimTypeToken<CFBStreamedCompression>& source);
   void SetTime(CBitLevelLoader& loader, const CCharAnimTime& time);
   void DoIncrement(CBitLevelLoader& loader);
   float GetT() const { return x78_t; }
@@ -76,7 +76,7 @@ class CBitLevelLoader {
   size_t m_bitIdx = 0;
 
 public:
-  CBitLevelLoader(const void* data) : m_data(reinterpret_cast<const u8*>(data)) {}
+  explicit CBitLevelLoader(const void* data) : m_data(reinterpret_cast<const u8*>(data)) {}
   void Reset() { m_bitIdx = 0; }
   u32 LoadUnsigned(u8 q);
   s32 LoadSigned(u8 q);
@@ -88,7 +88,7 @@ class CSegIdToIndexConverter {
   std::array<s32,100> x0_indices;
 
 public:
-  CSegIdToIndexConverter(const CFBStreamedAnimReaderTotals& totals);
+  explicit CSegIdToIndexConverter(const CFBStreamedAnimReaderTotals& totals);
   s32 SegIdToIndex(const CSegId& id) const { return x0_indices[id]; }
 };
 
@@ -104,7 +104,7 @@ class CFBStreamedAnimReader : public CAnimSourceReaderBase {
   zeus::CQuaternion GetRotation(const CSegId& seg) const;
 
 public:
-  CFBStreamedAnimReader(const TSubAnimTypeToken<CFBStreamedCompression>& source, const CCharAnimTime& time);
+  explicit CFBStreamedAnimReader(const TSubAnimTypeToken<CFBStreamedCompression>& source, const CCharAnimTime& time);
 
   SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const override;
   bool VSupportsReverseView() const override { return false; }

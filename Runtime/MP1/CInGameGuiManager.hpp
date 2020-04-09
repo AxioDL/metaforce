@@ -98,9 +98,9 @@ private:
 
   std::optional<CTexturedQuadFilter> m_deathRenderTexQuad;
   std::optional<CTexturedQuadFilter> m_deathDotQuad;
-  CRandomStaticFilter m_randomStatic = {EFilterType::Blend};
-  CColoredQuadFilter m_deathWhiteout = {EFilterType::Blend};
-  CColoredQuadFilter m_deathBlackout = {EFilterType::Blend};
+  CRandomStaticFilter m_randomStatic{EFilterType::Blend};
+  CColoredQuadFilter m_deathWhiteout{EFilterType::Blend};
+  CColoredQuadFilter m_deathBlackout{EFilterType::Blend};
 
   union {
     struct {
@@ -121,12 +121,12 @@ private:
   void TryReloadAreaTextures();
   bool IsInGameStateNotTransitioning() const;
   bool IsInPausedStateNotTransitioning() const;
-  void UpdateAutoMapper(float dt, const CStateManager& stateMgr);
+  void UpdateAutoMapper(float dt, CStateManager& stateMgr);
   void OnNewPauseScreenState(CArchitectureQueue& archQueue);
   void RefreshHudOptions();
 
 public:
-  CInGameGuiManager(CStateManager& stateMgr, CArchitectureQueue& archQueue);
+  explicit CInGameGuiManager(CStateManager& stateMgr, CArchitectureQueue& archQueue);
   bool CheckLoadComplete(CStateManager& stateMgr);
   void Update(CStateManager& stateMgr, float dt, CArchitectureQueue& archQueue, bool useHud);
   void ProcessControllerInput(CStateManager& stateMgr, const CFinalInput& input, CArchitectureQueue& archQueue);

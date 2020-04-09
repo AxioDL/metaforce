@@ -99,15 +99,18 @@ void DCLN::Collision::Node::Enumerate(typename Op::StreamT& s) {
   Do<Op>(athena::io::PropId{"halfExtent"}, halfExtent, s);
   Do<Op>(athena::io::PropId{"isLeaf"}, isLeaf, s);
   if (isLeaf) {
-    if (!leafData)
-      leafData.reset(new LeafData);
+    if (!leafData) {
+      leafData = std::make_unique<LeafData>();
+    }
     Do<Op>(athena::io::PropId{"leafData"}, *leafData, s);
   } else {
-    if (!left)
-      left.reset(new Node);
+    if (!left) {
+      left = std::make_unique<Node>();
+    }
     Do<Op>(athena::io::PropId{"left"}, *left, s);
-    if (!right)
-      right.reset(new Node);
+    if (!right) {
+      right = std::make_unique<Node>();
+    }
     Do<Op>(athena::io::PropId{"right"}, *right, s);
   }
 }

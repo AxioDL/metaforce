@@ -16,36 +16,45 @@ CGuiModel::CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId mod
   xb8_model = sp->GetObj({SBIG('CMDL'), modelId});
 }
 
-bool CGuiModel::GetIsFinishedLoadingWidgetSpecific() const {
-  if (!xb8_model)
+bool CGuiModel::GetIsFinishedLoadingWidgetSpecific() {
+  if (!xb8_model) {
     return true;
-  if (!xb8_model.IsLoaded())
+  }
+  if (!xb8_model.IsLoaded()) {
     return false;
+  }
   xb8_model->GetInstance().Touch(0);
   return xb8_model->IsLoaded(0);
 }
 
-void CGuiModel::Touch() const {
-  const CModel* model = xb8_model.GetObj();
-  if (model)
-    model->GetInstance().Touch(0);
+void CGuiModel::Touch() {
+  CModel* const model = xb8_model.GetObj();
+
+  if (model == nullptr) {
+    return;
+  }
+
+  model->GetInstance().Touch(0);
 }
 
-void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const {
+void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) {
   CGraphics::SetModelMatrix(x34_worldXF);
-  if (!xb8_model)
+  if (!xb8_model) {
     return;
-  if (!GetIsFinishedLoading())
+  }
+  if (!GetIsFinishedLoading()) {
     return;
-  const CModel* model = xb8_model.GetObj();
-  if (!model)
+  }
+  CModel* const model = xb8_model.GetObj();
+  if (!model) {
     return;
+  }
 
   if (GetIsVisible()) {
     SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CGuiModel::Draw {}"), m_name).c_str(), zeus::skCyan);
     zeus::CColor moduCol = xa8_color2;
     moduCol.a() *= parms.x0_alphaMod;
-    xb0_frame->EnableLights(xcc_lightMask, const_cast<CBooModel&>(model->GetInstance()));
+    xb0_frame->EnableLights(xcc_lightMask, model->GetInstance());
     // if (xb6_29_cullFaces)
     //    CGraphics::SetCullMode(ERglCullMode::Front);
 

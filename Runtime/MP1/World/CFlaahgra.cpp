@@ -56,11 +56,11 @@ CFlaahgraRenderer::CFlaahgraRenderer(TUniqueId uid, TUniqueId owner, std::string
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_owner(owner) {}
 
-void CFlaahgraRenderer::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
-
+void CFlaahgraRenderer::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   if (const CActor* act = static_cast<const CActor*>(mgr.GetObjectById(xe8_owner))) {
-    if (act->HasModelData() && (act->GetModelData()->HasAnimData() || act->GetModelData()->HasNormalModel()))
+    if (act->HasModelData() && (act->GetModelData()->HasAnimData() || act->GetModelData()->HasNormalModel())) {
       act->GetModelData()->RenderParticles(frustum);
+    }
   }
 }
 void CFlaahgraRenderer::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -254,14 +254,16 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CFlaahgra::AddToRenderer(const zeus::CFrustum& frustum, const urde::CStateManager& mgr) const {
-  if ((!GetModelData()->HasAnimData() && !GetModelData()->HasNormalModel()) || xe4_30_outOfFrustum)
+void CFlaahgra::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+  if ((!GetModelData()->HasAnimData() && !GetModelData()->HasNormalModel()) || xe4_30_outOfFrustum) {
     return;
+  }
 
-  if (CanRenderUnsorted(mgr))
+  if (CanRenderUnsorted(mgr)) {
     Render(mgr);
-  else
+  } else {
     EnsureRendered(mgr);
+  }
 }
 
 void CFlaahgra::Death(CStateManager& mgr, const zeus::CVector3f& dir, EScriptObjectState state) {
@@ -785,7 +787,7 @@ void CFlaahgra::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
         UpdateScale((x7c4_ > 0.f ? 1.f - (GetEndActionTime() / x7c4_) : 1.f), x81c_, x56c_.x4_);
       }
 
-      x450_bodyController->GetCommandMgr().SetTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+      x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
     }
   } else if (msg == EStateMsg::Deactivate) {
     UpdateScale(1.f, x81c_, x56c_.x4_);
@@ -983,7 +985,7 @@ void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::MeleeAttack)
         x568_ = 4;
       else
-        x450_bodyController->GetCommandMgr().SetTargetVector(x78c_);
+        x450_bodyController->GetCommandMgr().DeliverTargetVector(x78c_);
     }
   } else if (msg == EStateMsg::Deactivate) {
     SetCollisionActorBounds(mgr, x79c_leftArmCollision, {});
@@ -1100,7 +1102,7 @@ void CFlaahgra::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::ProjectileAttack) {
         x568_ = 4;
       } else {
-        x450_bodyController->GetCommandMgr().SetTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+        x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
       }
     }
   }
@@ -1135,7 +1137,7 @@ void CFlaahgra::Cover(CStateManager& mgr, EStateMsg msg, float) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::MeleeAttack)
         x568_ = 4;
       else if (TCastToConstPtr<CActor> wp = mgr.GetObjectById(x77c_)) {
-        x450_bodyController->GetCommandMgr().SetTargetVector(wp->GetTranslation() - GetTranslation());
+        x450_bodyController->GetCommandMgr().DeliverTargetVector(wp->GetTranslation() - GetTranslation());
       }
     }
   } else if (msg == EStateMsg::Deactivate) {
@@ -1270,7 +1272,7 @@ void CFlaahgraPlants::Think(float dt, CStateManager& mgr) {
     mgr.FreeScriptObject(GetUniqueId());
 }
 
-void CFlaahgraPlants::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CFlaahgraPlants::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   g_Renderer->AddParticleGen(*xe8_elementGen.get());
   CActor::AddToRenderer(frustum, mgr);
 }

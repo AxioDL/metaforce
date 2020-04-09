@@ -38,7 +38,7 @@ class CMetroidBetaData {
   bool x108_24_ : 1;
 
 public:
-  CMetroidBetaData(CInputStream&);
+  explicit CMetroidBetaData(CInputStream&);
 };
 class CMetroidBeta : public CPatterned {
   s32 x568_progState = -1;
@@ -102,8 +102,8 @@ public:
 
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
-  void Render(const CStateManager& mgr) const override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void Render(CStateManager& mgr) override;
   const CDamageVulnerability* GetDamageVulnerability() const override;
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2,
                                                      const CDamageInfo& dInfo) const override;

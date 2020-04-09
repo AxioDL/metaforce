@@ -89,20 +89,21 @@ void CExplosion::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   xe4_30_outOfFrustum = !xf4_25_ || !frustum.aabbFrustumTest(x9c_renderBounds);
 }
 
-void CExplosion::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
-  if (xe4_30_outOfFrustum)
+void CExplosion::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+  if (xe4_30_outOfFrustum) {
     return;
+  }
 
   if (!(xf4_24_renderThermalHot && mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot) &&
       !(xf4_26_renderXray && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)) {
-    g_Renderer->AddParticleGen(*xe8_particleGen.get());
+    g_Renderer->AddParticleGen(*xe8_particleGen);
     return;
   }
 
   EnsureRendered(mgr);
 }
 
-void CExplosion::Render(const CStateManager& mgr) const {
+void CExplosion::Render(CStateManager& mgr) {
   if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && xf4_24_renderThermalHot) {
     CElementGen::SetSubtractBlend(true);
     CBooModel::SetRenderModelBlack(true);

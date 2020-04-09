@@ -5,15 +5,18 @@ namespace urde {
 CPASAnimInfo::CPASAnimInfo(u32 id, rstl::reserved_vector<CPASAnimParm::UParmValue, 8>&& parms)
 : x0_id(id), x4_parms(std::move(parms)) {}
 
-CPASAnimParm::UParmValue CPASAnimInfo::GetAnimParmValue(u32 idx) const {
-  if (idx >= x4_parms.size())
+CPASAnimParm::UParmValue CPASAnimInfo::GetAnimParmValue(size_t idx) const {
+  if (idx >= x4_parms.size()) {
     return CPASAnimParm::UParmValue{};
+  }
   return x4_parms[idx];
 }
 
-CPASAnimParm CPASAnimInfo::GetAnimParmData(u32 idx, CPASAnimParm::EParmType type) const {
-  if (idx >= x4_parms.size())
+CPASAnimParm CPASAnimInfo::GetAnimParmData(size_t idx, CPASAnimParm::EParmType type) const {
+  if (idx >= x4_parms.size()) {
     return CPASAnimParm::NoParameter();
+  }
+
   const CPASAnimParm::UParmValue& parm = x4_parms[idx];
 
   switch (type) {

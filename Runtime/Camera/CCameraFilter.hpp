@@ -58,7 +58,7 @@ public:
   virtual void SetFilter(EFilterType type, EFilterShape shape, float time, const zeus::CColor& color,
                          CAssetId txtr) = 0;
   virtual void DisableFilter(float time) = 0;
-  virtual void Draw() const = 0;
+  virtual void Draw() = 0;
 };
 
 template <class S>
@@ -69,11 +69,11 @@ public:
   void Update(float dt) override;
   void SetFilter(EFilterType type, EFilterShape shape, float time, const zeus::CColor& color, CAssetId txtr) override;
   void DisableFilter(float time) override;
-  void Draw() const override;
+  void Draw() override;
 };
 
 class CCameraFilterPassPoly {
-  EFilterShape m_shape;
+  EFilterShape m_shape{};
   std::unique_ptr<CCameraFilterPassBase> m_filter;
 
 public:
@@ -107,8 +107,8 @@ class CCameraBlurPass {
   // bool x2d_noPersistentCopy = false;
   // u32 x30_persistentBuf = 0;
 
-  mutable std::optional<CCameraBlurFilter> m_shader;
-  mutable std::optional<CXRayBlurFilter> m_xrayShader;
+  std::optional<CCameraBlurFilter> m_shader;
+  std::optional<CXRayBlurFilter> m_xrayShader;
 
 public:
   void Draw(bool clearDepth = false);

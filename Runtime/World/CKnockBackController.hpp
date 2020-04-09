@@ -130,6 +130,7 @@ public:
   void Update(float dt, CStateManager& mgr, CPatterned& parent);
   void KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, CPatterned& parent, const CDamageInfo& info,
                  EKnockBackType type, float magnitude);
+  void SetSeverity(pas::ESeverity v) { x7c_severity = v; }
   void SetEnableFreeze(bool b) { x81_25_enableFreeze = b; }
   void SetEnableShock(bool b) { x81_26_enableShock = b; }
   void SetEnableBurn(bool b) { x81_27_enableBurn = b; }

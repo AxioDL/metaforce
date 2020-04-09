@@ -90,12 +90,12 @@ void CFlameThrower::CreateFlameParticles(CStateManager& mgr) {
     CreateProjectileLight("FlameThrower_Light"sv, x348_flameGen->GetLight(), mgr);
 }
 
-void CFlameThrower::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const {
+void CFlameThrower::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
   g_Renderer->AddParticleGen(*x348_flameGen);
   EnsureRendered(mgr, x2e8_flameXf.origin, GetRenderBounds());
 }
 
-void CFlameThrower::Render(const CStateManager&) const {}
+void CFlameThrower::Render(CStateManager&) {}
 
 std::optional<zeus::CAABox> CFlameThrower::GetTouchBounds() const { return std::nullopt; }
 
@@ -139,49 +139,62 @@ CRayCastResult CFlameThrower::DoCollisionCheck(TUniqueId& idOut, const zeus::CAA
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   mgr.BuildNearList(nearList, aabb, CMaterialFilter::skPassEverything, this);
   const auto& colPoints = x34c_flameWarp.GetCollisionPoints();
-  if (x400_27_coneCollision && colPoints.size() > 0) {
-    float radiusPitch = (x34c_flameWarp.GetMaxSize() - x34c_flameWarp.GetMinSize()) /
-        float(colPoints.size()) * 0.5f;
+
+  if (x400_27_coneCollision && !colPoints.empty()) {
+    const float radiusPitch =
+        (x34c_flameWarp.GetMaxSize() - x34c_flameWarp.GetMinSize()) / float(colPoints.size()) * 0.5f;
     float curRadius = radiusPitch;
-    for (int i = 1; i < colPoints.size(); ++i) {
-      zeus::CVector3f delta = colPoints[i] - colPoints[i - 1];
+
+    for (size_t i = 1; i < colPoints.size(); ++i) {
+      const zeus::CVector3f delta = colPoints[i] - colPoints[i - 1];
       zeus::CTransform lookXf = zeus::lookAt(colPoints[i - 1], colPoints[i]);
       lookXf.origin = delta * 0.5f + colPoints[i - 1];
-      zeus::COBBox obb(lookXf, {curRadius, delta.magnitude() * 0.5f, curRadius});
-      for (TUniqueId id : nearList) {
-        if (CActor* act = static_cast<CActor*>(mgr.ObjectById(id))) {
-          CProjectileTouchResult tres = CanCollideWith(*act, mgr);
-          if (tres.GetActorId() == kInvalidUniqueId)
+      const zeus::COBBox obb(lookXf, {curRadius, delta.magnitude() * 0.5f, curRadius});
+
+      for (const TUniqueId id : nearList) {
+        if (auto* act = static_cast<CActor*>(mgr.ObjectById(id))) {
+          const CProjectileTouchResult tres = CanCollideWith(*act, mgr);
+          if (tres.GetActorId() == kInvalidUniqueId) {
             continue;
-          auto tb = act->GetTouchBounds();
-          if (!tb)
+          }
+
+          const auto tb = act->GetTouchBounds();
+          if (!tb) {
             continue;
+          }
+
           if (obb.AABoxIntersectsBox(*tb)) {
-            CCollidableAABox caabb(*tb, act->GetMaterialList());
-            zeus::CVector3f flameToAct = act->GetAimPosition(mgr, 0.f) - x2e8_flameXf.origin;
-            float flameToActDist = flameToAct.magnitude();
-            CInternalRayCastStructure rc(x2e8_flameXf.origin, flameToAct.normalized(), flameToActDist,
-                                         {}, CMaterialFilter::skPassEverything);
-            CRayCastResult cres = caabb.CastRayInternal(rc);
-            if (cres.IsInvalid())
+            const CCollidableAABox caabb(*tb, act->GetMaterialList());
+            const zeus::CVector3f flameToAct = act->GetAimPosition(mgr, 0.f) - x2e8_flameXf.origin;
+            const float flameToActDist = flameToAct.magnitude();
+            const CInternalRayCastStructure rc(x2e8_flameXf.origin, flameToAct.normalized(), flameToActDist, {},
+                                               CMaterialFilter::skPassEverything);
+            const CRayCastResult cres = caabb.CastRayInternal(rc);
+            if (cres.IsInvalid()) {
               continue;
+            }
             return cres;
           }
         }
       }
+
       curRadius += radiusPitch;
     }
   } else {
-    for (int i = 0; i < colPoints.size() - 1; ++i) {
-      zeus::CVector3f delta = colPoints[i + 1] - colPoints[i];
-      float deltaMag = delta.magnitude();
-      if (deltaMag <= 0.f)
+    for (size_t i = 0; i < colPoints.size() - 1; ++i) {
+      const zeus::CVector3f delta = colPoints[i + 1] - colPoints[i];
+      const float deltaMag = delta.magnitude();
+      if (deltaMag <= 0.f) {
         break;
-      CRayCastResult cres = RayCollisionCheckWithWorld(idOut, colPoints[i], colPoints[i + 1], deltaMag, nearList, mgr);
-      if (cres.IsValid())
+      }
+
+      const CRayCastResult cres = RayCollisionCheckWithWorld(idOut, colPoints[i], colPoints[i + 1], deltaMag, nearList, mgr);
+      if (cres.IsValid()) {
         return cres;
+      }
     }
   }
+
   return ret;
 }
 

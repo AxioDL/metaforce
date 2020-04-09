@@ -18,7 +18,7 @@ class CScannableParameters;
 class CStateManager;
 class CVisorParameters;
 
-typedef CEntity* (*FScriptLoader)(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
+using FScriptLoader = CEntity* (*)(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
 
 class ScriptLoader {
 public:

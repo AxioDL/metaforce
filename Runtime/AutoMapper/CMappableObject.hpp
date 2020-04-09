@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <optional>
 #include <utility>
 
@@ -52,7 +53,7 @@ public:
   enum class EVisMode { Always, MapStationOrVisit, Visit, Never, MapStationOrVisit2 };
 
 private:
-  static zeus::CVector3f skDoorVerts[8];
+  static std::array<zeus::CVector3f, 8> skDoorVerts;
 
   EMappableObjectType x0_type;
   EVisMode x4_visibilityMode;
@@ -63,7 +64,7 @@ private:
   struct DoorSurface {
     CMapSurfaceShader m_surface;
     CLineRenderer m_outline;
-    DoorSurface(boo::IGraphicsDataFactory::Context& ctx)
+    explicit DoorSurface(boo::IGraphicsDataFactory::Context& ctx)
     : m_surface(ctx, g_doorVbo, g_doorIbo)
     , m_outline(ctx, CLineRenderer::EPrimitiveMode::LineLoop, 5, nullptr, false, false, true) {}
   };
@@ -74,13 +75,13 @@ private:
   std::pair<zeus::CColor, zeus::CColor> GetDoorColors(int idx, const CMapWorldInfo& mwInfo, float alpha) const;
 
 public:
-  CMappableObject(const void* buf);
+  explicit CMappableObject(const void* buf);
   CMappableObject(CMappableObject&&) = default;
   void PostConstruct(const void*);
   const zeus::CTransform& GetTransform() const { return x10_transform; }
   EMappableObjectType GetType() const { return x0_type; }
-  void Draw(int, const CMapWorldInfo&, float, bool) const;
-  void DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, float alpha, int surfIdx, bool needsVtxLoad) const;
+  void Draw(int, const CMapWorldInfo&, float, bool);
+  void DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, float alpha, int surfIdx, bool needsVtxLoad);
   zeus::CVector3f BuildSurfaceCenterPoint(int surfIdx) const;
   bool IsDoorConnectedToArea(int idx, const CStateManager&) const;
   bool IsDoorConnectedToVisitedArea(const CStateManager&) const;

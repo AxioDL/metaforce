@@ -13,16 +13,18 @@ class CLayoutDescription;
 class CPoseAsTransforms;
 
 class CHierarchyPoseBuilder {
-  CLayoutDescription x0_layoutDesc;
-  CSegId x30_rootId;
-  bool x34_hasRoot = false;
-
+public:
   struct CTreeNode {
     CSegId x0_child = 0;
     CSegId x1_sibling = 0;
     zeus::CQuaternion x4_rotation;
     zeus::CVector3f x14_offset;
   };
+
+private:
+  CLayoutDescription x0_layoutDesc;
+  CSegId x30_rootId;
+  bool x34_hasRoot = false;
   TSegIdMap<CTreeNode> x38_treeMap;
 
   void BuildIntoHierarchy(const CCharLayoutInfo& layout, const CSegId& boneId, const CSegId& nullId);
@@ -34,7 +36,7 @@ class CHierarchyPoseBuilder {
                         const zeus::CVector3f& offset) const;
 
 public:
-  CHierarchyPoseBuilder(const CLayoutDescription& layout);
+  explicit CHierarchyPoseBuilder(const CLayoutDescription& layout);
 
   const TLockedToken<CCharLayoutInfo>& CharLayoutInfo() const { return x0_layoutDesc.ScaledLayout(); }
   bool HasRoot() const { return x34_hasRoot; }

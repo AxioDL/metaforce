@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/Collision/CAreaOctTree.hpp"
@@ -17,7 +19,7 @@ class CMaterialList;
 class CAABoxAreaCache {
   friend class CMetroidAreaCollider;
   const zeus::CAABox& x0_aabb;
-  const zeus::CPlane* x4_planes;
+  const std::array<zeus::CPlane, 6>& x4_planes;
   const CMaterialFilter& x8_filter;
   const CMaterialList& xc_material;
   CCollisionInfoList& x10_collisionList;
@@ -25,7 +27,7 @@ class CAABoxAreaCache {
   zeus::CVector3f x20_halfExtent;
 
 public:
-  CAABoxAreaCache(const zeus::CAABox& aabb, const zeus::CPlane* pl, const CMaterialFilter& filter,
+  CAABoxAreaCache(const zeus::CAABox& aabb, const std::array<zeus::CPlane, 6>& pl, const CMaterialFilter& filter,
                   const CMaterialList& material, CCollisionInfoList& collisionList);
 };
 
@@ -91,9 +93,9 @@ class CMetroidAreaCollider {
   static u32 g_TrianglesProcessed;
   static u32 g_DupTrianglesProcessed;
   static u16 g_DupPrimitiveCheckCount;
-  static u16 g_DupVertexList[0x5000];
-  static u16 g_DupEdgeList[0xC000];
-  static u16 g_DupTriangleList[0x4000];
+  static std::array<u16, 0x5000> g_DupVertexList;
+  static std::array<u16, 0xC000> g_DupEdgeList;
+  static std::array<u16, 0x4000> g_DupTriangleList;
   static bool AABoxCollisionCheckBoolean_Internal(const CAreaOctTree::Node& node, const CBooleanAABoxAreaCache& cache);
   static bool AABoxCollisionCheck_Internal(const CAreaOctTree::Node& node, const CAABoxAreaCache& cache);
 
@@ -121,7 +123,7 @@ public:
     bool x908_24_overflow : 1;
 
   public:
-    COctreeLeafCache(const CAreaOctTree& octTree);
+    explicit COctreeLeafCache(const CAreaOctTree& octTree);
     void AddLeaf(const CAreaOctTree::Node& node);
     u32 GetNumLeaves() const { return x4_nodeCache.size(); }
     bool HasCacheOverflowed() const { return x908_24_overflow; }
@@ -131,7 +133,8 @@ public:
   };
   static void BuildOctreeLeafCache(const CAreaOctTree::Node& root, const zeus::CAABox& aabb,
                                    CMetroidAreaCollider::COctreeLeafCache& cache);
-  static bool ConvexPolyCollision(const zeus::CPlane* planes, const zeus::CVector3f* verts, zeus::CAABox& aabb);
+  static bool ConvexPolyCollision(const std::array<zeus::CPlane, 6>& planes,
+                                  const std::array<zeus::CVector3f, 3>& verts, zeus::CAABox& aabb);
 
   static bool AABoxCollisionCheckBoolean_Cached(const COctreeLeafCache& leafCache, const zeus::CAABox& aabb,
                                                 const CMaterialFilter& filter);
@@ -179,7 +182,7 @@ class CAreaCollisionCache {
   };
 
 public:
-  CAreaCollisionCache(const zeus::CAABox& aabb) : x0_aabb(aabb) {}
+  explicit CAreaCollisionCache(const zeus::CAABox& aabb) : x0_aabb(aabb) {}
   void ClearCache();
   const zeus::CAABox& GetCacheBounds() const { return x0_aabb; }
   void SetCacheBounds(const zeus::CAABox& aabb) { x0_aabb = aabb; }

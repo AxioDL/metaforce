@@ -21,7 +21,7 @@ public:
   , x8_magScale(std::move(b))
   , xc_maxMag(std::move(c))
   , x10_minMag(std::move(d))
-  , x14_enableMinMag(std::move(e)) {}
+  , x14_enableMinMag(e) {}
   bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const override;
 };
 
@@ -39,7 +39,7 @@ public:
   , x8_magScale(std::move(b))
   , xc_maxMag(std::move(c))
   , x10_minMag(std::move(d))
-  , x14_enableMinMag(std::move(e)) {}
+  , x14_enableMinMag(e) {}
   bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const override;
 };
 
@@ -57,7 +57,7 @@ public:
   , x8_magScale(std::move(b))
   , xc_maxMag(std::move(c))
   , x10_minMag(std::move(d))
-  , x14_enableMinMag(std::move(e)) {}
+  , x14_enableMinMag(e) {}
   bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const override;
 };
 
@@ -112,7 +112,7 @@ class CMVEGravity : public CModVectorElement {
   std::unique_ptr<CVectorElement> x4_a;
 
 public:
-  CMVEGravity(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CMVEGravity(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const override;
 };
 
@@ -130,7 +130,7 @@ class CMVESetPosition : public CModVectorElement {
   std::unique_ptr<CVectorElement> x4_a;
 
 public:
-  CMVESetPosition(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
+  explicit CMVESetPosition(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const override;
 };
 

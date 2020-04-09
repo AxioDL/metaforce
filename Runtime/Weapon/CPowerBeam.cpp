@@ -1,5 +1,7 @@
 #include "Runtime/Weapon/CPowerBeam.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
@@ -69,12 +71,15 @@ void CPowerBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr,
   CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
 
-static const u16 skSoundId[] = {SFXwpn_fire_power_normal, SFXwpn_fire_power_charged};
-
 void CPowerBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                       CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
+  static constexpr std::array<u16, 2> skSoundId{
+      SFXwpn_fire_power_normal,
+      SFXwpn_fire_power_charged,
+  };
+
   CGunWeapon::Fire(underwater, dt, chargeState, xf, mgr, homingTarget, chargeFactor1, chargeFactor2);
-  NWeaponTypes::play_sfx(skSoundId[int(chargeState)], underwater, false, 0.165f);
+  NWeaponTypes::play_sfx(skSoundId[size_t(chargeState)], underwater, false, 0.165f);
 }
 
 void CPowerBeam::EnableSecondaryFx(ESecondaryFxType type) {

@@ -19,47 +19,47 @@ private:
   EParmType x4_type;
 
 public:
-  CPASAnimParm(UParmValue val, EParmType tp) : x0_value(val), x4_type(tp) {}
+  constexpr CPASAnimParm(UParmValue val, EParmType tp) : x0_value(val), x4_type(tp) {}
 
-  EParmType GetParameterType() const { return x4_type; }
-  s32 GetEnumValue() const { return x0_value.m_int; }
-  bool GetBoolValue() const { return x0_value.m_bool; }
-  float GetReal32Value() const { return x0_value.m_float; }
-  u32 GetUint32Value() const { return x0_value.m_uint; }
-  s32 GetInt32Value() const { return x0_value.m_int; }
+  [[nodiscard]] constexpr EParmType GetParameterType() const { return x4_type; }
+  [[nodiscard]] constexpr s32 GetEnumValue() const { return x0_value.m_int; }
+  [[nodiscard]] constexpr bool GetBoolValue() const { return x0_value.m_bool; }
+  [[nodiscard]] constexpr float GetReal32Value() const { return x0_value.m_float; }
+  [[nodiscard]] constexpr u32 GetUint32Value() const { return x0_value.m_uint; }
+  [[nodiscard]] constexpr s32 GetInt32Value() const { return x0_value.m_int; }
 
-  static CPASAnimParm FromEnum(s32 val) {
-    UParmValue valin;
+  [[nodiscard]] static constexpr CPASAnimParm FromEnum(s32 val) {
+    UParmValue valin{};
     valin.m_int = val;
     return CPASAnimParm(valin, EParmType::Enum);
   }
 
-  static CPASAnimParm FromBool(bool val) {
-    UParmValue valin;
+  [[nodiscard]] static constexpr CPASAnimParm FromBool(bool val) {
+    UParmValue valin{};
     valin.m_bool = val;
     return CPASAnimParm(valin, EParmType::Bool);
   }
 
-  static CPASAnimParm FromReal32(float val) {
-    UParmValue valin;
+  [[nodiscard]] static constexpr CPASAnimParm FromReal32(float val) {
+    UParmValue valin{};
     valin.m_float = val;
     return CPASAnimParm(valin, EParmType::Float);
   }
 
-  static CPASAnimParm FromUint32(u32 val) {
-    UParmValue valin;
+  [[nodiscard]] static constexpr CPASAnimParm FromUint32(u32 val) {
+    UParmValue valin{};
     valin.m_uint = val;
     return CPASAnimParm(valin, EParmType::UInt32);
   }
 
-  static CPASAnimParm FromInt32(s32 val) {
-    UParmValue valin;
+  [[nodiscard]] static constexpr CPASAnimParm FromInt32(s32 val) {
+    UParmValue valin{};
     valin.m_int = val;
     return CPASAnimParm(valin, EParmType::Int32);
   }
 
-  static CPASAnimParm NoParameter() {
-    UParmValue valin;
+  [[nodiscard]] static constexpr CPASAnimParm NoParameter() {
+    UParmValue valin{};
     valin.m_int = -1;
     return CPASAnimParm(valin, EParmType::None);
   }

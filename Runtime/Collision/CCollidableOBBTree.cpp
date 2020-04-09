@@ -1,5 +1,7 @@
 #include "Runtime/Collision/CCollidableOBBTree.hpp"
 
+#include <array>
+
 #include "Runtime/Collision/CCollisionInfoList.hpp"
 #include "Runtime/Collision/CInternalRayCastStructure.hpp"
 #include "Runtime/Collision/CMaterialFilter.hpp"
@@ -10,7 +12,7 @@ namespace urde {
 u32 CCollidableOBBTree::sTableIndex = 0;
 
 CCollidableOBBTree::CCollidableOBBTree(const COBBTree* tree, const urde::CMaterialList& material)
-: CCollisionPrimitive(material), x10_tree((COBBTree*)tree) {}
+: CCollisionPrimitive(material), x10_tree(tree) {}
 
 bool CCollidableOBBTree::LineIntersectsLeaf(const COBBTree::CLeafData& leaf, CRayCastInfo& info) const {
   bool ret = false;
@@ -152,13 +154,14 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
 
         zeus::CVector3f surfNormal = surf.GetNormal();
         if ((sphere.position + moveVec - surf.GetVert(0)).dot(surfNormal) <= sphere.radius) {
-          float mag = (sphere.radius - (sphere.position - surf.GetVert(0)).dot(surfNormal)) / dir.dot(surfNormal);
-          zeus::CVector3f intersectPoint = sphere.position + mag * dir;
+          const float mag = (sphere.radius - (sphere.position - surf.GetVert(0)).dot(surfNormal)) / dir.dot(surfNormal);
+          const zeus::CVector3f intersectPoint = sphere.position + mag * dir;
 
-          bool outsideEdges[] = {
+          const std::array<bool, 3> outsideEdges{
               (intersectPoint - surf.GetVert(0)).dot((surf.GetVert(1) - surf.GetVert(0)).cross(surfNormal)) < 0.f,
               (intersectPoint - surf.GetVert(1)).dot((surf.GetVert(2) - surf.GetVert(1)).cross(surfNormal)) < 0.f,
-              (intersectPoint - surf.GetVert(2)).dot((surf.GetVert(0) - surf.GetVert(2)).cross(surfNormal)) < 0.f};
+              (intersectPoint - surf.GetVert(2)).dot((surf.GetVert(0) - surf.GetVert(2)).cross(surfNormal)) < 0.f,
+          };
 
           if (mag >= 0.f && !outsideEdges[0] && !outsideEdges[1] && !outsideEdges[2] && mag < dOut) {
             infoOut = CCollisionInfo(intersectPoint - sphere.radius * surfNormal, matList, triMat, surfNormal);
@@ -166,8 +169,8 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
             ret = true;
           }
 
-          bool intersects = (sphere.position - surf.GetVert(0)).dot(surfNormal) <= sphere.radius;
-          bool testVert[] = {true, true, true};
+          const bool intersects = (sphere.position - surf.GetVert(0)).dot(surfNormal) <= sphere.radius;
+          std::array<bool, 3> testVert{true, true, true};
           const u16* edgeIndices = x10_tree->GetTriangleEdgeIndices(triIdx);
           for (int k = 0; k < 3; ++k) {
             if (intersects || outsideEdges[k]) {
@@ -187,17 +190,17 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
                   float vtsDotEdge = vertToSphere.dot(edgeVec);
                   zeus::CVector3f vtsRej = vertToSphere - vtsDotEdge * edgeVec;
                   if (edgeRejMagSq > 0.f) {
-                    float tmp = 2.f * vtsRej.dot(edgeRej);
-                    float tmp2 = 4.f * edgeRejMagSq * (vtsRej.magSquared() - sphere.radius * sphere.radius) - tmp * tmp;
+                    const float tmp = 2.f * vtsRej.dot(edgeRej);
+                    const float tmp2 = 4.f * edgeRejMagSq * (vtsRej.magSquared() - sphere.radius * sphere.radius) - tmp * tmp;
                     if (tmp2 >= 0.f) {
-                      float mag = 0.5f / edgeRejMagSq * (-tmp - std::sqrt(tmp2));
-                      if (mag >= 0.f) {
-                        float t = mag * dirDotEdge + vtsDotEdge;
-                        if (t >= 0.f && t <= edgeVecMag && mag < dOut) {
+                      const float mag2 = 0.5f / edgeRejMagSq * (-tmp - std::sqrt(tmp2));
+                      if (mag2 >= 0.f) {
+                        const float t = mag2 * dirDotEdge + vtsDotEdge;
+                        if (t >= 0.f && t <= edgeVecMag && mag2 < dOut) {
                           zeus::CVector3f point = surf.GetVert(k) + t * edgeVec;
                           infoOut = CCollisionInfo(point, matList, edgeMat,
-                                                   (sphere.position + mag * dir - point).normalized());
-                          dOut = mag;
+                                                   (sphere.position + mag2 * dir - point).normalized());
+                          dOut = mag2;
                           ret = true;
                           testVert[k] = false;
                           testVert[nextIdx] = false;
@@ -217,11 +220,9 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
             }
           }
 
-          u16 vertIndices[3];
-          x10_tree->GetTriangleVertexIndices(triIdx, vertIndices);
-
+          const auto vertIndices = x10_tree->GetTriangleVertexIndices(triIdx);
           for (int k = 0; k < 3; ++k) {
-            u16 vertIdx = vertIndices[k];
+            const u16 vertIdx = vertIndices[k];
             if (testVert[k]) {
               if (CMetroidAreaCollider::g_DupPrimitiveCheckCount != CMetroidAreaCollider::g_DupVertexList[vertIdx]) {
                 CMetroidAreaCollider::g_DupVertexList[vertIdx] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
@@ -246,8 +247,7 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
         CMetroidAreaCollider::g_DupEdgeList[edgeIndices[1]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
         CMetroidAreaCollider::g_DupEdgeList[edgeIndices[2]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
 
-        u16 vertIndices[3];
-        x10_tree->GetTriangleVertexIndices(triIdx, vertIndices);
+        const auto vertIndices = x10_tree->GetTriangleVertexIndices(triIdx);
         CMetroidAreaCollider::g_DupVertexList[vertIndices[0]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
         CMetroidAreaCollider::g_DupVertexList[vertIndices[1]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
         CMetroidAreaCollider::g_DupVertexList[vertIndices[2]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
@@ -309,8 +309,7 @@ bool CCollidableOBBTree::AABoxCollideWithLeafMoving(const COBBTree::CLeafData& l
       if (CollisionUtil::TriBoxOverlap(center, extent, surf.GetVert(0), surf.GetVert(1), surf.GetVert(2))) {
         const_cast<CCollidableOBBTree&>(*this).x1c_hits += 1;
 
-        u16 vertIndices[3];
-        x10_tree->GetTriangleVertexIndices(triIdx, vertIndices);
+        const auto vertIndices = x10_tree->GetTriangleVertexIndices(triIdx);
 
         double d = dOut;
         if (CMetroidAreaCollider::MovingAABoxCollisionCheck_BoxVertexTri(surf, aabb, components.x6c4_vertIdxs, dir, d,
@@ -363,8 +362,7 @@ bool CCollidableOBBTree::AABoxCollideWithLeafMoving(const COBBTree::CLeafData& l
         CMetroidAreaCollider::g_DupEdgeList[edgeIndices[1]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
         CMetroidAreaCollider::g_DupEdgeList[edgeIndices[2]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
 
-        u16 vertIndices[3];
-        x10_tree->GetTriangleVertexIndices(triIdx, vertIndices);
+        const auto vertIndices = x10_tree->GetTriangleVertexIndices(triIdx);
         CMetroidAreaCollider::g_DupVertexList[vertIndices[0]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
         CMetroidAreaCollider::g_DupVertexList[vertIndices[1]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
         CMetroidAreaCollider::g_DupVertexList[vertIndices[2]] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
@@ -511,7 +509,7 @@ bool CCollidableOBBTree::SphereCollision(const COBBTree::CNode& node, const zeus
 
 bool CCollidableOBBTree::AABoxCollideWithLeaf(const COBBTree::CLeafData& leaf, const zeus::CTransform& xf,
                                               const zeus::CAABox& aabb, const CMaterialList& material,
-                                              const CMaterialFilter& filter, const zeus::CPlane* planes,
+                                              const CMaterialFilter& filter, const std::array<zeus::CPlane, 6>& planes,
                                               CCollisionInfoList& infoList) const {
   bool ret = false;
   zeus::CVector3f center = aabb.center();
@@ -540,7 +538,7 @@ bool CCollidableOBBTree::AABoxCollideWithLeaf(const COBBTree::CLeafData& leaf, c
 bool CCollidableOBBTree::AABoxCollision(const COBBTree::CNode& node, const zeus::CTransform& xf,
                                         const zeus::CAABox& aabb, const zeus::COBBox& obb,
                                         const CMaterialList& material, const CMaterialFilter& filter,
-                                        const zeus::CPlane* planes, CCollisionInfoList& infoList) const {
+                                        const std::array<zeus::CPlane, 6>& planes, CCollisionInfoList& infoList) const {
   bool ret = false;
 
   const_cast<CCollidableOBBTree&>(*this).x14_tries += 1;

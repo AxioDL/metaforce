@@ -15,18 +15,18 @@ class CCameraSpline {
   std::vector<zeus::CVector3f> x34_directions;
   float x44_length = 0.f;
   bool x48_closedLoop = false;
-  bool GetSurroundingPoints(int idx, rstl::reserved_vector<zeus::CVector3f, 4>& positions,
+  bool GetSurroundingPoints(size_t idx, rstl::reserved_vector<zeus::CVector3f, 4>& positions,
                             rstl::reserved_vector<zeus::CVector3f, 4>& directions) const;
 
 public:
-  CCameraSpline(bool closedLoop);
-  void CalculateKnots(TUniqueId, const std::vector<SConnection>&, CStateManager&);
-  void Initialize(TUniqueId, const std::vector<SConnection>&, CStateManager&);
-  void Reset(int size);
+  explicit CCameraSpline(bool closedLoop);
+  void CalculateKnots(TUniqueId cameraId, const std::vector<SConnection>& connections, CStateManager& mgr);
+  void Initialize(TUniqueId cameraId, const std::vector<SConnection>& connections, CStateManager& mgr);
+  void Reset(size_t size);
   void AddKnot(const zeus::CVector3f& pos, const zeus::CVector3f& dir);
-  void SetKnotPosition(int idx, const zeus::CVector3f& pos);
-  const zeus::CVector3f& GetKnotPosition(int idx) const;
-  float GetKnotT(int idx) const;
+  void SetKnotPosition(size_t idx, const zeus::CVector3f& pos);
+  const zeus::CVector3f& GetKnotPosition(size_t idx) const;
+  float GetKnotT(size_t idx) const;
   float CalculateSplineLength();
   void UpdateSplineLength() { x44_length = CalculateSplineLength(); }
   zeus::CTransform GetInterpolatedSplinePointByLength(float pos) const;

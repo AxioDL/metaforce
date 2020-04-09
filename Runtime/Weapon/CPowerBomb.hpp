@@ -27,9 +27,9 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
-  void Render(const CStateManager&) const override {}
-  std::optional<zeus::CAABox> GetTouchBounds() const override { return {}; }
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void Render(CStateManager&) override {}
+  std::optional<zeus::CAABox> GetTouchBounds() const override { return std::nullopt; }
   void Touch(CActor&, CStateManager&) override { /*x158_24_canStartFilter; */
   }
   float GetCurTime() const { return x15c_curTime; }

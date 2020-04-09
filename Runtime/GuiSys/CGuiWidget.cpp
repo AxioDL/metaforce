@@ -117,9 +117,9 @@ void CGuiWidget::Update(float dt) {
     sib->Update(dt);
 }
 
-void CGuiWidget::Draw(const CGuiWidgetDrawParms&) const {}
+void CGuiWidget::Draw(const CGuiWidgetDrawParms&) {}
 void CGuiWidget::ProcessUserInput(const CFinalInput& input) {}
-void CGuiWidget::Touch() const {}
+void CGuiWidget::Touch() {}
 
 bool CGuiWidget::GetIsVisible() const { return xb6_25_isVisible; }
 
@@ -136,7 +136,7 @@ void CGuiWidget::InitializeRGBAFactor() {
     nextSib->InitializeRGBAFactor();
 }
 
-bool CGuiWidget::GetIsFinishedLoadingWidgetSpecific() const { return true; }
+bool CGuiWidget::GetIsFinishedLoadingWidgetSpecific() { return true; }
 
 void CGuiWidget::SetTransform(const zeus::CTransform& xf) {
   x74_transform = xf;
@@ -161,27 +161,30 @@ void CGuiWidget::AddChildWidget(CGuiWidget* widget, bool makeWorldLocal, bool at
 
 bool CGuiWidget::AddWorkerWidget(CGuiWidget* worker) { return false; }
 
-void CGuiWidget::SetVisibility(bool vis, ETraversalMode mode) {
+void CGuiWidget::SetVisibility(bool visible, ETraversalMode mode) {
   switch (mode) {
   case ETraversalMode::Children: {
-    CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
-    if (child)
-      child->SetVisibility(vis, ETraversalMode::ChildrenAndSiblings);
+    auto* child = static_cast<CGuiWidget*>(GetChildObject());
+    if (child) {
+      child->SetVisibility(visible, ETraversalMode::ChildrenAndSiblings);
+    }
     break;
   }
   case ETraversalMode::ChildrenAndSiblings: {
-    CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
-    if (child)
-      child->SetVisibility(vis, ETraversalMode::ChildrenAndSiblings);
-    CGuiWidget* nextSib = static_cast<CGuiWidget*>(GetNextSibling());
-    if (nextSib)
-      nextSib->SetVisibility(vis, ETraversalMode::ChildrenAndSiblings);
+    auto* child = static_cast<CGuiWidget*>(GetChildObject());
+    if (child) {
+      child->SetVisibility(visible, ETraversalMode::ChildrenAndSiblings);
+    }
+    auto* nextSib = static_cast<CGuiWidget*>(GetNextSibling());
+    if (nextSib) {
+      nextSib->SetVisibility(visible, ETraversalMode::ChildrenAndSiblings);
+    }
     break;
   }
   default:
     break;
   }
-  SetIsVisible(vis);
+  SetIsVisible(visible);
 }
 
 void CGuiWidget::RecalcWidgetColor(ETraversalMode mode) {
@@ -227,7 +230,7 @@ CGuiWidget* CGuiWidget::FindWidget(s16 id) {
   return nullptr;
 }
 
-bool CGuiWidget::GetIsFinishedLoading() const { return GetIsFinishedLoadingWidgetSpecific(); }
+bool CGuiWidget::GetIsFinishedLoading() { return GetIsFinishedLoadingWidgetSpecific(); }
 
 void CGuiWidget::DispatchInitialize() {
   Initialize();
@@ -247,16 +250,18 @@ void CGuiWidget::SetColor(const zeus::CColor& color) {
 void CGuiWidget::OnActiveChange() {}
 void CGuiWidget::OnVisibleChange() {}
 
-void CGuiWidget::SetIsVisible(bool vis) {
-  xb6_25_isVisible = vis;
+void CGuiWidget::SetIsVisible(bool visible) {
+  xb6_25_isVisible = visible;
   OnVisibleChange();
 }
 
-void CGuiWidget::SetIsActive(bool a) {
-  if (a != xb6_26_isActive) {
-    xb6_26_isActive = a;
-    OnActiveChange();
+void CGuiWidget::SetIsActive(bool active) {
+  if (active == xb6_26_isActive) {
+    return;
   }
+
+  xb6_26_isActive = active;
+  OnActiveChange();
 }
 
 } // namespace urde

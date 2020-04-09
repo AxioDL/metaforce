@@ -31,7 +31,7 @@ class CMFGame : public CMFGameBase {
     u8 _dummy = 0;
   };
 
-  CColoredQuadFilter m_fadeToBlack = {EFilterType::Multiply};
+  CColoredQuadFilter m_fadeToBlack{EFilterType::Multiply};
 
   bool IsCameraActiveFlow() const {
     return (x1c_flowState == EGameFlowState::InGame || x1c_flowState == EGameFlowState::SamusDied);
@@ -43,7 +43,7 @@ public:
   ~CMFGame() override;
   CIOWin::EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) override;
   void Touch();
-  void Draw() const override;
+  void Draw() override;
   void PlayerDied();
   void UnpauseGame();
   void EnterMessageScreen(float time);
@@ -72,7 +72,7 @@ public:
   CMFGameLoader();
   ~CMFGameLoader() override;
   EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) override;
-  void Draw() const override;
+  void Draw() override;
 };
 
 } // namespace MP1

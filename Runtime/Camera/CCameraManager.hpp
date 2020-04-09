@@ -80,7 +80,7 @@ class CCameraManager {
   void EnterCinematic(CStateManager& mgr);
 
 public:
-  CCameraManager(TUniqueId curCameraId = kInvalidUniqueId);
+  explicit CCameraManager(TUniqueId curCameraId = kInvalidUniqueId);
 
   static float Aspect() { return 1.42f; }
   static float FarPlane() { return 750.0f; }
@@ -96,9 +96,9 @@ public:
   zeus::CTransform GetCurrentCameraTransform(const CStateManager& stateMgr) const;
   void RemoveCameraShaker(u32 id);
   int AddCameraShaker(const CCameraShakeData& data, bool sfx);
-  void AddCinemaCamera(TUniqueId, CStateManager& stateMgr);
-  void RemoveCinemaCamera(TUniqueId, CStateManager&);
-  void SetInsideFluid(bool, TUniqueId);
+  void AddCinemaCamera(TUniqueId id, CStateManager& stateMgr);
+  void RemoveCinemaCamera(TUniqueId uid, CStateManager& mgr);
+  void SetInsideFluid(bool isInside, TUniqueId fluidId);
   void Update(float dt, CStateManager& stateMgr);
   CGameCamera* GetCurrentCamera(CStateManager& stateMgr) const;
   const CGameCamera* GetCurrentCamera(const CStateManager& stateMgr) const;
@@ -134,12 +134,12 @@ public:
   void UpdateRumble(float dt, CStateManager& mgr);
   void UpdateListener(CStateManager& mgr);
 
-  float CalculateFogDensity(CStateManager&, const CScriptWater*) const;
-  void SetFogDensity(float, float);
+  float CalculateFogDensity(CStateManager& mgr, const CScriptWater* water) const;
+  void SetFogDensity(float fogDensityTarget, float fogDensitySpeed);
 
   void ProcessInput(const CFinalInput& input, CStateManager& stateMgr);
 
-  void RenderCameras(const CStateManager& mgr);
+  void RenderCameras(CStateManager& mgr);
   void SetupBallCamera(CStateManager& mgr);
   void SetPlayerCamera(CStateManager& mgr, TUniqueId newCamId);
   int GetFluidCounter() const { return x74_fluidCounter; }

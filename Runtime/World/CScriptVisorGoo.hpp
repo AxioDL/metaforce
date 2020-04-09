@@ -30,8 +30,8 @@ public:
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager& stateMgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
-  void Render(const CStateManager&) const override;
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void Render(CStateManager&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Touch(CActor&, CStateManager&) override;
 };

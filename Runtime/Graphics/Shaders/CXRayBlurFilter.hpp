@@ -24,7 +24,7 @@ class CXRayBlurFilter {
 public:
   static void Initialize();
   static void Shutdown();
-  CXRayBlurFilter(TLockedToken<CTexture>& tex);
+  explicit CXRayBlurFilter(TLockedToken<CTexture>& tex);
   void draw(float amount);
 };
 

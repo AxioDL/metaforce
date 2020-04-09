@@ -1,11 +1,13 @@
 #include "Runtime/MP1/CMemoryCardDriver.hpp"
 
+#include <array>
+
 #include "Runtime/CCRC32.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
 namespace urde::MP1 {
 
-static const char* SaveFileNames[] = {"MetroidPrime A", "MetroidPrime B"};
+constexpr std::array SaveFileNames{"MetroidPrime A", "MetroidPrime B"};
 
 using ECardResult = kabufuda::ECardResult;
 using ECardSlot = kabufuda::ECardSlot;
@@ -100,19 +102,19 @@ ECardResult CMemoryCardDriver::SFileInfo::GetSaveDataOffset(u32& offOut) const {
 CMemoryCardDriver::SGameFileSlot::SGameFileSlot() { InitializeFromGameState(); }
 
 CMemoryCardDriver::SGameFileSlot::SGameFileSlot(CMemoryInStream& in) {
-  in.readBytesToBuf(x0_saveBuffer, 940);
-  x944_fileInfo = CGameState::LoadGameFileState(x0_saveBuffer);
+  in.readBytesToBuf(x0_saveBuffer.data(), x0_saveBuffer.size());
+  x944_fileInfo = CGameState::LoadGameFileState(x0_saveBuffer.data());
 }
 
 void CMemoryCardDriver::SGameFileSlot::InitializeFromGameState() {
-  CBitStreamWriter w(x0_saveBuffer, 940);
+  CBitStreamWriter w(x0_saveBuffer.data(), x0_saveBuffer.size());
   g_GameState->PutTo(w);
   w.Flush();
-  x944_fileInfo = CGameState::LoadGameFileState(x0_saveBuffer);
+  x944_fileInfo = CGameState::LoadGameFileState(x0_saveBuffer.data());
 }
 
 void CMemoryCardDriver::SGameFileSlot::LoadGameState(u32 idx) {
-  CBitStreamReader r(x0_saveBuffer, 940);
+  CBitStreamReader r(x0_saveBuffer.data(), x0_saveBuffer.size());
   static_cast<MP1::CMain*>(g_Main)->StreamNewGameState(r, idx);
 }
 
@@ -146,8 +148,9 @@ const CGameState::GameFileStateInfo* CMemoryCardDriver::GetGameFileStateInfo(int
 CMemoryCardDriver::SSaveHeader CMemoryCardDriver::LoadSaveHeader(CMemoryInStream& in) {
   SSaveHeader ret;
   ret.x0_version = in.readUint32Big();
-  for (int i = 0; i < 3; ++i)
-    ret.x4_savePresent[i] = in.readBool();
+  for (bool& present : ret.x4_savePresent) {
+    present = in.readBool();
+  }
   return ret;
 }
 
@@ -167,27 +170,30 @@ void CMemoryCardDriver::ReadFinished() {
   x20_fileTime = stat.GetTime();
   CMemoryInStream r(fileInfo.x34_saveData.data(), 3004);
   SSaveHeader header = LoadSaveHeader(r);
-  r.readBytesToBuf(x30_systemData, 174);
+  r.readBytesToBuf(x30_systemData.data(), x30_systemData.size());
 
-  for (int i = 0; i < 3; ++i)
-    if (header.x4_savePresent[i])
+  for (size_t i = 0; i < xe4_fileSlots.size(); ++i) {
+    if (header.x4_savePresent[i]) {
       xe4_fileSlots[i] = LoadSaveFile(r);
+    }
+  }
 
-  if (x19d_importPersistent)
+  if (x19d_importPersistent) {
     ImportPersistentOptions();
+  }
 }
 
 void CMemoryCardDriver::ImportPersistentOptions() {
-  CBitStreamReader r(x30_systemData, 174);
+  CBitStreamReader r(x30_systemData.data(), x30_systemData.size());
   CPersistentOptions opts(r);
   g_GameState->ImportPersistentOptions(opts);
 }
 
 void CMemoryCardDriver::ExportPersistentOptions() {
-  CBitStreamReader r(x30_systemData, 174);
+  CBitStreamReader r(x30_systemData.data(), x30_systemData.size());
   CPersistentOptions opts(r);
   g_GameState->ExportPersistentOptions(opts);
-  CBitStreamWriter w(x30_systemData, 174);
+  CBitStreamWriter w(x30_systemData.data(), x30_systemData.size());
   opts.PutTo(w);
 }
 
@@ -635,7 +641,7 @@ void CMemoryCardDriver::BuildNewFileSlot(u32 saveIdx) {
     slot = std::make_unique<SGameFileSlot>();
   slot->LoadGameState(saveIdx);
 
-  CBitStreamReader r(x30_systemData, 174);
+  CBitStreamReader r(x30_systemData.data(), x30_systemData.size());
   g_GameState->ReadPersistentOptions(r);
   ImportPersistentOptions();
   g_GameState->SetCardSerial(x28_cardSerial);
@@ -653,7 +659,7 @@ void CMemoryCardDriver::BuildExistingFileSlot(u32 saveIdx) {
   else
     slot->InitializeFromGameState();
 
-  CBitStreamWriter w(x30_systemData, 174);
+  CBitStreamWriter w(x30_systemData.data(), x30_systemData.size());
   g_GameState->PutTo(w);
 }
 
@@ -674,15 +680,18 @@ void CMemoryCardDriver::InitializeFileInfo() {
   CMemoryOutStream w = x198_fileInfo->BeginMemoryOut(3004);
 
   SSaveHeader header;
-  for (int i = 0; i < 3; ++i)
-    header.x4_savePresent[i] = xe4_fileSlots[i].operator bool();
+  for (size_t i = 0; i < xe4_fileSlots.size(); ++i) {
+    header.x4_savePresent[i] = xe4_fileSlots[i] != nullptr;
+  }
   header.DoPut(w);
 
-  w.writeBytes(x30_systemData, 174);
+  w.writeBytes(x30_systemData.data(), x30_systemData.size());
 
-  for (int i = 0; i < 3; ++i)
-    if (xe4_fileSlots[i])
-      xe4_fileSlots[i]->DoPut(w);
+  for (auto& fileSlot : xe4_fileSlots) {
+    if (fileSlot) {
+      fileSlot->DoPut(w);
+    }
+  }
 }
 
 void CMemoryCardDriver::WriteBackupBuf() {

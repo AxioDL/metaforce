@@ -143,21 +143,28 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
 
 void CScriptDebris::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-void CScriptDebris::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
-  if (x2d4_particleGens[0])
-    if (x270_curTime < x274_duration || x281_26_deferDeleteTillParticle1Done)
+void CScriptDebris::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+  if (x2d4_particleGens[0]) {
+    if (x270_curTime < x274_duration || x281_26_deferDeleteTillParticle1Done) {
       g_Renderer->AddParticleGen(*x2d4_particleGens[0]);
+    }
+  }
 
-  if (x2d4_particleGens[1])
-    if (x270_curTime < x274_duration || x281_28_deferDeleteTillParticle2Done)
+  if (x2d4_particleGens[1]) {
+    if (x270_curTime < x274_duration || x281_28_deferDeleteTillParticle2Done) {
       g_Renderer->AddParticleGen(*x2d4_particleGens[1]);
+    }
+  }
 
-  if (x281_29_particle3Active)
+  if (x281_29_particle3Active) {
     g_Renderer->AddParticleGen(*x2d4_particleGens[2]);
+  }
 
-  if (x64_modelData && !x64_modelData->IsNull())
-    if (x270_curTime < x274_duration)
+  if (x64_modelData && !x64_modelData->IsNull()) {
+    if (x270_curTime < x274_duration) {
       CActor::AddToRenderer(frustum, mgr);
+    }
+  }
 }
 
 static zeus::CVector3f debris_cone(CStateManager& mgr, float coneAng, float minMag, float maxMag) {
@@ -372,7 +379,7 @@ void CScriptDebris::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
   xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor::lerp(zeus::skWhite, x268_endsColor, t));
 }
 
-void CScriptDebris::Render(const CStateManager& mgr) const { CPhysicsActor::Render(mgr); }
+void CScriptDebris::Render(CStateManager& mgr) { CPhysicsActor::Render(mgr); }
 
 void CScriptDebris::CollidedWith(TUniqueId, const CCollisionInfoList& colList, CStateManager&) {
   if (colList.GetCount() == 0)

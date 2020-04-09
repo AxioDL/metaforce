@@ -5,10 +5,6 @@
 
 namespace urde {
 
-CCharAnimTime CCharAnimTime::Infinity() {
-  return {EType::Infinity, 1.f};
-}
-
 bool CCharAnimTime::EqualsZero() const {
   if (x4_type == EType::ZeroIncreasing || x4_type == EType::ZeroSteady || x4_type == EType::ZeroDecreasing)
     return true;

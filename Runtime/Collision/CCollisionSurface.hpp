@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/GCNTypes.hpp"
 
 #include <zeus/CPlane.hpp>
@@ -7,17 +9,19 @@
 
 namespace urde {
 class CCollisionSurface {
-  zeus::CVector3f x0_a;
-  zeus::CVector3f xc_b;
-  zeus::CVector3f x18_c;
+public:
+  using Vertices = std::array<zeus::CVector3f, 3>;
+
+private:
+  Vertices x0_data;
   u32 x24_flags;
 
 public:
-  CCollisionSurface(const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&, u32);
+  CCollisionSurface(const zeus::CVector3f& a, const zeus::CVector3f& b, const zeus::CVector3f& c, u32 flags);
 
   zeus::CVector3f GetNormal() const;
-  const zeus::CVector3f& GetVert(s32 idx) const { return (&x0_a)[idx]; }
-  const zeus::CVector3f* GetVerts() const { return &x0_a; }
+  const zeus::CVector3f& GetVert(s32 idx) const { return x0_data[idx]; }
+  const Vertices& GetVerts() const { return x0_data; }
   zeus::CPlane GetPlane() const;
   u32 GetSurfaceFlags() const { return x24_flags; }
 };

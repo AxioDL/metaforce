@@ -14,7 +14,7 @@ void CGuiObject::Update(float dt) {
     x6c_nextSibling->Update(dt);
 }
 
-void CGuiObject::Draw(const CGuiWidgetDrawParms& parms) const {
+void CGuiObject::Draw(const CGuiWidgetDrawParms& parms) {
   if (x68_child)
     x68_child->Draw(parms);
   if (x6c_nextSibling)

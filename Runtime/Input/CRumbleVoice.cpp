@@ -2,9 +2,7 @@
 
 namespace urde {
 
-CRumbleVoice::CRumbleVoice() {
-  x0_datas.resize(4);
-  x10_deltas.resize(4, SAdsrDelta::Stopped());
+CRumbleVoice::CRumbleVoice() : x0_datas(4), x10_deltas(4, SAdsrDelta::Stopped()) {
   x20_handleIds.resize(4);
 }
 
@@ -24,16 +22,17 @@ bool CRumbleVoice::OwnsSustained(s16 handle) const {
 }
 
 s16 CRumbleVoice::GetFreeChannel() const {
-  for (s16 i = 0; i < 4; ++i)
-    if (!((1 << i) & x2c_usedChannels))
+  for (s16 i = 0; i < 4; ++i) {
+    if (!((1 << i) & x2c_usedChannels)) {
       return i;
-  return false;
+    }
+  }
+  return 0;
 }
 
 float CRumbleVoice::GetIntensity() const {
-  return std::min(2.f, std::max(x10_deltas[0].x0_curIntensity,
-                                std::max(x10_deltas[1].x0_curIntensity,
-                                         std::max(x10_deltas[2].x0_curIntensity, x10_deltas[3].x0_curIntensity))));
+  return std::min(2.f, std::max({x10_deltas[0].x0_curIntensity, x10_deltas[1].x0_curIntensity,
+                                 x10_deltas[2].x0_curIntensity, x10_deltas[3].x0_curIntensity}));
 }
 
 bool CRumbleVoice::UpdateChannel(SAdsrDelta& delta, const SAdsrData& data, float dt) {

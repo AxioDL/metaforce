@@ -1,5 +1,7 @@
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 
+#include <array>
+
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CGraphicsPalette.hpp"
 #include "Runtime/GuiSys/CFontImageDef.hpp"
@@ -8,6 +10,19 @@
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
 namespace urde {
+namespace {
+constexpr std::array<zeus::CVector3f, 4> NormalPoints{{
+    {0.f, 0.f, -1.f},
+    {1.f, 0.f, -1.f},
+    {1.f, 0.f, 0.f},
+    {0.f, 0.f, 0.f},
+}};
+
+bool testProjectedLine(const zeus::CVector2f& a, const zeus::CVector2f& b, const zeus::CVector2f& point) {
+  const zeus::CVector2f normal = (b - a).perpendicularVector().normalized();
+  return point.dot(normal) >= a.dot(normal);
+}
+} // Anonymous namespace
 
 CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, CSimplePool* sp, const zeus::CVector2f& dim,
                            const zeus::CVector3f& vec, CAssetId fontId, const CGuiTextProperties& props,
@@ -20,7 +35,7 @@ void CGuiTextPane::Update(float dt) {
   xd4_textSupport.Update(dt);
 }
 
-bool CGuiTextPane::GetIsFinishedLoadingWidgetSpecific() const {
+bool CGuiTextPane::GetIsFinishedLoadingWidgetSpecific() {
   return xd4_textSupport.GetIsTextSupportFinishedLoading();
 }
 
@@ -32,30 +47,33 @@ void CGuiTextPane::SetDimensions(const zeus::CVector2f& dim, bool initVBO) {
 
 void CGuiTextPane::ScaleDimensions(const zeus::CVector3f& scale) {}
 
-void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const {
-  if (!GetIsVisible())
+void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) {
+  if (!GetIsVisible()) {
     return;
+  }
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CGuiTextPane::Draw {}"), m_name).c_str(), zeus::skCyan);
 
   zeus::CVector2f dims = GetDimensions();
 
-  if (xd4_textSupport.x34_extentX)
+  if (xd4_textSupport.x34_extentX) {
     dims.x() /= float(xd4_textSupport.x34_extentX);
-  else
+  } else {
     dims.x() = 0.f;
+  }
 
-  if (xd4_textSupport.x38_extentY)
+  if (xd4_textSupport.x38_extentY) {
     dims.y() /= float(xd4_textSupport.x38_extentY);
-  else
+  } else {
     dims.y() = 0.f;
+  }
 
-  zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
-                           zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
+  const zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
+                                 zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
   CGraphics::SetModelMatrix(x34_worldXF * local);
 
   zeus::CColor geomCol = xa8_color2;
   geomCol.a() *= parms.x0_alphaMod;
-  const_cast<CGuiTextPane*>(this)->xd4_textSupport.SetGeometryColor(geomCol);
+  xd4_textSupport.SetGeometryColor(geomCol);
 
 #if 0
     CGraphics::SetDepthWriteMode(xb6_31_depthTest, ERglEnum::LEqual, xb7_24_depthWrite);
@@ -82,8 +100,7 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const {
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
                                 ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
         xd4_textSupport.Render();
-        const_cast<CGuiTextPane*>(this)->xd4_textSupport.SetGeometryColor
-            (geomCol * zeus::CColor(geomCol.a, geomCol.a, geomCol.a, 1.f));
+        xd4_textSupport.SetGeometryColor(geomCol * zeus::CColor(geomCol.a, geomCol.a, geomCol.a, 1.f));
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One,
                                 ERglBlendFactor::One, ERglLogicOp::Clear);
         xd4_textSupport.Render();
@@ -94,32 +111,22 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const {
 #endif
 }
 
-static const zeus::CVector3f NormalPoints[] = {
-  {0.f, 0.f, -1.f},
-  {1.f, 0.f, -1.f},
-  {1.f, 0.f, 0.f},
-  {0.f, 0.f, 0.f}
-};
-
-static bool testProjectedLine(const zeus::CVector2f& a, const zeus::CVector2f& b, const zeus::CVector2f& point) {
-  zeus::CVector2f normal = (b - a).perpendicularVector().normalized();
-  return point.dot(normal) >= a.dot(normal);
-}
-
 bool CGuiTextPane::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const {
-  zeus::CVector2f dims = GetDimensions();
-  zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
-                           zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
-  zeus::CMatrix4f mvp = vp * (x34_worldXF * local).toMatrix4f();
+  const zeus::CVector2f dims = GetDimensions();
+  const zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
+                                 zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
+  const zeus::CMatrix4f mvp = vp * (x34_worldXF * local).toMatrix4f();
 
-  zeus::CVector2f projPoints[4];
-  for (int i = 0; i < 4; ++i)
+  std::array<zeus::CVector2f, 4> projPoints;
+  for (size_t i = 0; i < projPoints.size(); ++i) {
     projPoints[i] = mvp.multiplyOneOverW(NormalPoints[i]).toVec2f();
+  }
 
-  int j;
+  size_t j;
   for (j = 0; j < 3; ++j) {
-    if (!testProjectedLine(projPoints[j], projPoints[j + 1], point))
+    if (!testProjectedLine(projPoints[j], projPoints[j + 1], point)) {
       break;
+    }
   }
   return j == 3 && testProjectedLine(projPoints[3], projPoints[0], point);
 }

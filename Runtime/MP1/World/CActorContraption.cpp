@@ -53,11 +53,12 @@ void MP1::CActorContraption::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
 void MP1::CActorContraption::Think(float dt, CStateManager& mgr) {
   CScriptActor::Think(dt, mgr);
 
-  for (const std::pair<TUniqueId, std::string>& uid : x2e8_children) {
-    CFlameThrower* act = static_cast<CFlameThrower*>(mgr.ObjectById(uid.first));
+  for (const auto& [uid, name] : x2e8_children) {
+    auto* act = static_cast<CFlameThrower*>(mgr.ObjectById(uid));
 
-    if (act && act->GetActive())
-      act->SetTransform(x34_transform * GetScaledLocatorTransform(uid.second), dt);
+    if (act && act->GetActive()) {
+      act->SetTransform(x34_transform * GetScaledLocatorTransform(name), dt);
+    }
   }
 }
 

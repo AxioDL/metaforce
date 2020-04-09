@@ -20,10 +20,10 @@ class CPASDatabase {
 public:
   explicit CPASDatabase(CInputStream& in);
 
-  std::pair<float, s32> FindBestAnimation(const CPASAnimParmData&, s32) const;
-  std::pair<float, s32> FindBestAnimation(const CPASAnimParmData&, CRandom16&, s32) const;
+  std::pair<float, s32> FindBestAnimation(const CPASAnimParmData& data, s32 ignoreAnim) const;
+  std::pair<float, s32> FindBestAnimation(const CPASAnimParmData& data, CRandom16& rand, s32 ignoreAnim) const;
   s32 GetDefaultState() const { return x10_defaultState; }
-  s32 GetNumAnimStates() const { return x0_states.size(); }
+  size_t GetNumAnimStates() const { return x0_states.size(); }
   const CPASAnimState* GetAnimState(s32 id) const {
     for (const CPASAnimState& state : x0_states)
       if (id == state.GetStateId())
@@ -31,11 +31,12 @@ public:
 
     return nullptr;
   }
-  const CPASAnimState* GetAnimStateByIndex(s32 index) const {
-    if (index < 0 || index >= x0_states.size())
+  const CPASAnimState* GetAnimStateByIndex(size_t index) const {
+    if (index >= x0_states.size()) {
       return nullptr;
+    }
 
-    return &x0_states.at(index);
+    return &x0_states[index];
   }
 
   bool HasState(s32 id) const {

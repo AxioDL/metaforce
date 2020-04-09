@@ -301,10 +301,10 @@ CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
 , xb94_(zeus::CTransform::RotateX(zeus::degToRad(-40.f)))
 , xc14_(x568_data.xac_, x568_data.xb0_)
 , xc3c_(x568_data.x1a0_, x568_data.x1a4_)
-, xc8c_(GetContactDamage())
+, xc8c_(CPatterned::GetContactDamage())
 , xcd0_(g_SimplePool->GetObj({SBIG('ELSC'), x568_data.x3f0_}))
-, xce0_(new CParticleElectric(xcd0_))
-, xd10_(new CProjectedShadow(128, 128, true)) {
+, xce0_(std::make_unique<CParticleElectric>(xcd0_))
+, xd10_(std::make_unique<CProjectedShadow>(128, 128, true)) {
   xe7_30_doTargetDistanceTest = true;
   xb68_.Token().Lock();
   xc14_.Token().Lock();
@@ -669,7 +669,7 @@ void CRidley::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   }
 }
 
-void CRidley::Render(const CStateManager& mgr) const {
+void CRidley::Render(CStateManager& mgr) {
   zeus::CColor multiplyColor = zeus::skBlack;
   if (xb24_ > 0.f) {
     multiplyColor = zeus::CColor::lerp(zeus::skWhite, x430_damageColor, xb24_ / 0.33f);
@@ -697,7 +697,7 @@ void CRidley::Render(const CStateManager& mgr) const {
   CPatterned::Render(mgr);
 }
 
-void CRidley::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CRidley::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CPatterned::AddToRenderer(frustum, mgr);
   if (xce0_ && frustum.aabbFrustumTest(*xce0_->GetBounds())) {
     g_Renderer->AddParticleGen(*xce0_);

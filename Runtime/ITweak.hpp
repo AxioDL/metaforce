@@ -3,6 +3,6 @@
 namespace urde {
 class ITweak {
 public:
-  virtual ~ITweak() {}
+  virtual ~ITweak() = default;
 };
 } // namespace urde

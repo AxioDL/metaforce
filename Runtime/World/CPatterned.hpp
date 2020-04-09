@@ -26,7 +26,8 @@ namespace urde {
 class CPatternedInfo;
 class CProjectileInfo;
 class CPathFindSearch;
-typedef void (CPatterned::*CPatternedTryFunc)(CStateManager&, int);
+
+using CPatternedTryFunc = void (CPatterned::*)(CStateManager&, int);
 
 class CPatterned : public CAi {
 public:
@@ -133,7 +134,7 @@ protected:
       bool x328_28_prevOnGround : 1;
       bool x328_29_noPatternShagging : 1;
       bool x328_30_lookAtDeathDir : 1;
-      bool x328_31_ : 1;
+      bool x328_31_energyAttractor : 1;
       bool x329_24_ : 1;
     };
     u32 _dummy = 0;
@@ -272,8 +273,8 @@ public:
   }
   void Think(float, CStateManager&) override;
   void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
-  void Render(const CStateManager& mgr) const override;
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void Render(CStateManager& mgr) override;
 
   void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr) override;
   void Touch(CActor& act, CStateManager& mgr) override;
@@ -366,6 +367,7 @@ public:
   }
   float GetDamageDuration() const { return x504_damageDur; }
   zeus::CVector3f GetGunEyePos() const;
+  bool IsEnergyAttractor() const { return x328_31_energyAttractor; }
   bool IsAlive() const { return x400_25_alive; }
 
   void BuildBodyController(EBodyType);
@@ -379,6 +381,7 @@ public:
                                     bool sendCollideMsg, const zeus::CVector3f& scale);
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
 
+  const zeus::CVector3f& GetDestPos() const { return x2e0_destPos; }
   void SetDestPos(const zeus::CVector3f& pos) { x2e0_destPos = pos; }
   void UpdateAlphaDelta(float dt, CStateManager& mgr);
   void SetModelAlpha(float a) { x42c_color.a() = a; }

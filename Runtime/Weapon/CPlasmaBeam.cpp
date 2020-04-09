@@ -1,11 +1,17 @@
 #include "Runtime/Weapon/CPlasmaBeam.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CWorld.hpp"
 
 namespace urde {
+namespace {
+constexpr CCameraShakeData CameraShaker{0.125f, 0.25f};
+constexpr std::array<u16, 2> kSoundId{SFXwpn_fire_plasma_normal, SFXwpn_fire_plasma_charged};
+} // Anonymous namespace
 
 CPlasmaBeam::CPlasmaBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId, EMaterialTypes playerMaterial,
                          const zeus::CVector3f& scale)
@@ -59,9 +65,6 @@ void CPlasmaBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr
   CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
 
-static const CCameraShakeData CameraShaker = {0.125f, 0.25f};
-static const u16 kSoundId[] = {SFXwpn_fire_plasma_normal, SFXwpn_fire_plasma_charged};
-
 void CPlasmaBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                        CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
   bool fired = false;
@@ -81,8 +84,11 @@ void CPlasmaBeam::Fire(bool underwater, float dt, EChargeState chargeState, cons
     fired = true;
   }
 
-  if (fired)
-    NWeaponTypes::play_sfx(kSoundId[int(chargeState)], underwater, false, 0.165f);
+  if (!fired) {
+    return;
+  }
+
+  NWeaponTypes::play_sfx(kSoundId[size_t(chargeState)], underwater, false, 0.165f);
 }
 
 void CPlasmaBeam::EnableSecondaryFx(ESecondaryFxType type) {

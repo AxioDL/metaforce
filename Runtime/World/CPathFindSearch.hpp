@@ -14,6 +14,7 @@ class CPathFindSearch;
 
 class CPathFindVisualizer {
   CLineRenderer m_spline = {CLineRenderer::EPrimitiveMode::LineStrip, 16, {}, true};
+
 public:
   void Draw(const CPathFindSearch& path);
 };
@@ -56,6 +57,8 @@ public:
   void SetArea(CPFArea* area) { x0_area = area; }
   float GetCharacterHeight() const { return xd0_chHeight; }
   void SetCharacterHeight(float h) { xd0_chHeight = h; }
+  float GetCharacterRadius() const { return xd4_chRadius; }
+  void SetCharacterRadius(float r) { xd4_chRadius = r; }
   void SetPadding(float padding) { xd8_padding = padding; }
   float RemainingPathDistance(const zeus::CVector3f& pos) const;
   void DebugDraw() const;

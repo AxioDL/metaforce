@@ -12,19 +12,19 @@ void MaterialSet::Material::SectionFactory::Enumerate<BigDNA::Read>(typename Rea
   type.read(reader);
   switch (ISection::Type(type.toUint32())) {
   case ISection::Type::PASS:
-    section.reset(new struct SectionPASS);
+    section = std::make_unique<SectionPASS>();
     section->read(reader);
     break;
   case ISection::Type::CLR:
-    section.reset(new struct SectionCLR);
+    section = std::make_unique<SectionCLR>();
     section->read(reader);
     break;
   case ISection::Type::INT:
-    section.reset(new struct SectionINT);
+    section = std::make_unique<SectionINT>();
     section->read(reader);
     break;
   default:
-    section.reset(nullptr);
+    section.reset();
     break;
   }
 }

@@ -11,8 +11,6 @@
 
 namespace urde::MP1 {
 class CFlaahgraTentacle : public CPatterned {
-  static const SSphereJointInfo skJointList[3];
-  static constexpr std::string_view skpTentacleTip = "Arm_12"sv;
   s32 x568_ = -1;
   std::unique_ptr<CCollisionActorManager> x56c_collisionManager;
   float x570_ = 0.f;
@@ -23,7 +21,8 @@ class CFlaahgraTentacle : public CPatterned {
   TUniqueId x58c_triggerId = kInvalidUniqueId;
   bool x58e_24_ : 1;
 
-  void AddSphereCollisionList(const SSphereJointInfo*, s32, std::vector<CJointCollisionDescription>&);
+  void AddSphereCollisionList(const SSphereJointInfo* sphereJoints, size_t jointCount,
+                              std::vector<CJointCollisionDescription>& outJoints);
   void SetupCollisionManager(CStateManager&);
   void ExtractTentacle(CStateManager&);
   void RetractTentacle(CStateManager&);

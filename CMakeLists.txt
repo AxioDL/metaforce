@@ -36,8 +36,15 @@ endif()
 
 project(urde VERSION 0.1.0)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# MSVC has a "latest" flag, which always uses the newest standard
+# when available. GCC and Clang posess no such flag, and must be
+# manually enforced. CMake, curiously, also doesn't have a "latest"
+# standard flag either.
+if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force shared libs off" FORCE)
 set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)
 
@@ -84,10 +91,17 @@ if(MSVC)
     set(HAVE_WORDS_BIGENDIAN_EXITCODE 0)
   endif()
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+  add_compile_options(/EHsc)
 
-  # Link-time Code Generation for Release builds (excluding clang-cl)
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    add_compile_options(
+      /std:c++latest      # Use latest C++ standard.
+      /permissive-        # Enforce various standards compliance features.
+      /Zc:externConstexpr # Allow extern constexpr variables according to the standard.
+      /Zc:throwingNew     # Assume new throws, allowing for better code generation.
+    )
+
+    # Link-time Code Generation for Release builds (excluding clang-cl)
     set(CMAKE_C_FLAGS_RELEASE "/DNDEBUG /O2 /Oy /GL /Gy /MD")
     set(CMAKE_C_FLAGS_RELWITHDEBINFO "/DNDEBUG /Zi /O2 /Oy- /GL /Gy /MD")
     set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "/LTCG")

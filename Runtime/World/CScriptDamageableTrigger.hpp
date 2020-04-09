@@ -17,12 +17,7 @@ namespace urde {
 class CVisorParameters;
 
 class CScriptDamageableTrigger : public CActor {
-public:
-  enum class ECanOrbit {
-    NoOrbit,
-    Orbit,
-  };
-
+private:
   zeus::CFrustum xe8_frustum;
   zeus::CAABox x14c_bounds;
   CHealthInfo x164_origHInfo;
@@ -34,7 +29,7 @@ public:
   zeus::CTransform x214_faceDirInv;
   zeus::CVector3f x244_faceTranslate;
   float x250_alphaTimer = 0.f;
-  CFluidPlaneDoor x254_fluidPlane;
+  mutable CFluidPlaneDoor x254_fluidPlane;
   union {
     struct {
       bool x300_24_notOccluded : 1;
@@ -49,6 +44,11 @@ public:
   float GetPuddleAlphaScale() const;
 
 public:
+  enum class ECanOrbit {
+    NoOrbit,
+    Orbit,
+  };
+
   CScriptDamageableTrigger(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                            const zeus::CVector3f& position, const zeus::CVector3f& extent, const CHealthInfo& hInfo,
                            const CDamageVulnerability& dVuln, u32 faceFlag, CAssetId patternTex1, CAssetId patternTex2,
@@ -58,8 +58,8 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                          const CWeaponMode&, EProjectileAttrib) const override;
-  void Render(const CStateManager& mgr) const override;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
   const CDamageVulnerability* GetDamageVulnerability() const override { return &x174_dVuln; }
   CHealthInfo* HealthInfo(CStateManager&) override { return &x16c_hInfo; }

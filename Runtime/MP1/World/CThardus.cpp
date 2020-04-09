@@ -111,7 +111,7 @@ CThardus::CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info
   gens.push_back(particle8);
   gens.push_back(particle9);
   GetModelData()->GetAnimationData()->GetParticleDB().CacheParticleDesc(
-      CCharacterInfo::CParticleResData(gens, {}, {}, {}));
+      CCharacterInfo::CParticleResData(std::move(gens), {}, {}, {}));
   x798_.reserve(6);
   x7a8_timers.reserve(16);
   UpdateThermalFrozenState(true);
@@ -347,7 +347,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
           CActorParameters(CLightParameters(false, 0.f, CLightParameters::EShadowTesselation::Invalid, 0.f, 0.f,
                                             zeus::skWhite, true, CLightParameters::EWorldLightingOptions::NoShadowCast,
                                             CLightParameters::ELightRecalculationOptions::LargeFrameCount,
-                                            zeus::skZero3f, -1, -1, 0, 0),
+                                            zeus::skZero3f, -1, -1, false, 0),
                            {}, {}, {}, {}, true, true, false, false, 0.f, 0.f, 1.f),
           x5dc_[i], 0));
       x610_destroyableRocks.push_back(rockId);
@@ -443,7 +443,7 @@ void CThardus::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
     xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
   }
 }
-void CThardus::Render(const CStateManager& mgr) const {
+void CThardus::Render(CStateManager& mgr) {
   CPatterned::Render(mgr);
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal && x7c4_ != 0) {
     RenderFlare(mgr, x7c0_);

@@ -191,7 +191,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     }
     case ESpecialFunction::MissileStation: {
       if (msg == EScriptObjectMessage::Action) {
-        CPlayerState& pState = *mgr.GetPlayerState().get();
+        CPlayerState& pState = *mgr.GetPlayerState();
         pState.ResetAndIncrPickUp(CPlayerState::EItemType::Missiles,
                                   pState.GetItemCapacity(CPlayerState::EItemType::Missiles));
       }
@@ -199,7 +199,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     }
     case ESpecialFunction::PowerBombStation: {
       if (msg == EScriptObjectMessage::Action) {
-        CPlayerState& pState = *mgr.GetPlayerState().get();
+        CPlayerState& pState = *mgr.GetPlayerState();
         pState.ResetAndIncrPickUp(CPlayerState::EItemType::PowerBombs,
                                   pState.GetItemCapacity(CPlayerState::EItemType::PowerBombs));
       }
@@ -254,7 +254,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
             auto search = mgr.GetIdListForScript(conn.x8_objId);
             for (auto it = search.first; it != search.second; ++it) {
               if (TCastToPtr<CActor> act = mgr.ObjectById(it->second)) {
-                x198_ringControllers.push_back(SRingController(it->second, 0.f, false));
+                x198_ringControllers.emplace_back(it->second, 0.f, false);
                 act->RemoveMaterial(EMaterialTypes::Occluder, mgr);
               }
             }
@@ -396,12 +396,13 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     }
     case ESpecialFunction::RedundantHintSystem: {
       CHintOptions& hintOptions = g_GameState->HintOptions();
-      if (msg == EScriptObjectMessage::Action)
-        hintOptions.ActivateContinueDelayHintTimer(xec_locatorName.c_str());
-      else if (msg == EScriptObjectMessage::Increment)
-        hintOptions.ActivateImmediateHintTimer(xec_locatorName.c_str());
-      else if (msg == EScriptObjectMessage::Decrement)
-        hintOptions.DelayHint(xec_locatorName.c_str());
+      if (msg == EScriptObjectMessage::Action) {
+        hintOptions.ActivateContinueDelayHintTimer(xec_locatorName);
+      } else if (msg == EScriptObjectMessage::Increment) {
+        hintOptions.ActivateImmediateHintTimer(xec_locatorName);
+      } else if (msg == EScriptObjectMessage::Decrement) {
+        hintOptions.DelayHint(xec_locatorName);
+      }
       break;
     }
     case ESpecialFunction::Billboard: {
@@ -480,15 +481,17 @@ void CScriptSpecialFunction::PreRender(CStateManager&, const zeus::CFrustum& fru
     x1e4_28_frustumEntered = true;
 }
 
-void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const {
-  if (!GetActive())
+void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
+  if (!GetActive()) {
     return;
+  }
 
-  if (xe8_function == ESpecialFunction::FogVolume && x1e4_30_)
+  if (xe8_function == ESpecialFunction::FogVolume && x1e4_30_) {
     EnsureRendered(mgr);
+  }
 }
 
-void CScriptSpecialFunction::Render(const CStateManager& mgr) const {
+void CScriptSpecialFunction::Render(CStateManager& mgr) {
   if (xe8_function == ESpecialFunction::FogVolume) {
     float z = mgr.IntegrateVisorFog(xfc_float1 * std::sin(CGraphics::GetSecondsMod900()));
     if (z > 0.f) {

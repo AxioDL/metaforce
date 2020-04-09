@@ -75,8 +75,9 @@ CRainSplashGenerator::SSplashLine::SSplashLine(boo::IGraphicsDataFactory::Contex
 : m_renderer(ctx, CLineRenderer::EPrimitiveMode::LineStrip, 3, nullptr, false) {}
 
 CRainSplashGenerator::SRainSplash::SRainSplash(boo::IGraphicsDataFactory::Context& ctx) {
-  for (int i = 0; i < 4; ++i)
+  for (size_t i = 0; i < x0_lines.capacity(); ++i) {
     x0_lines.emplace_back(ctx);
+  }
 }
 
 void CRainSplashGenerator::SSplashLine::Update(float dt, CStateManager& mgr) {

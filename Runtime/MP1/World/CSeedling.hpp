@@ -31,7 +31,7 @@ public:
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void Render(const CStateManager&) const override;
+  void Render(CStateManager&) override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
   CProjectileInfo* GetProjectileInfo() override { return &x6c0_projectileInfo; }
   std::optional<zeus::CAABox> GetTouchBounds() const override;

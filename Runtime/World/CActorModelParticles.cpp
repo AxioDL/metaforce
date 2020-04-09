@@ -1,5 +1,6 @@
 #include "Runtime/World/CActorModelParticles.hpp"
 
+#include <algorithm>
 #include <array>
 
 #include "Runtime/CDependencyGroup.hpp"
@@ -380,23 +381,24 @@ void CActorModelParticles::IncrementDependency(EDependency d) {
     xe4_loadingDeps |= (1 << int(d));
 }
 
-constexpr std::array<const char*, 6> ParticleDGRPs{
-    "Effect_OnFire_DGRP",  "Effect_IceBreak_DGRP", "Effect_Ash_DGRP",
-    "Effect_FirePop_DGRP", "Effect_Electric_DGRP", "Effect_IcePop_DGRP",
-};
-
-CActorModelParticles::Dependency CActorModelParticles::GetParticleDGRPTokens(const char* name) {
+CActorModelParticles::Dependency CActorModelParticles::GetParticleDGRPTokens(std::string_view name) const {
   Dependency ret = {};
   TToken<CDependencyGroup> dgrp = g_SimplePool->GetObj(name);
   const auto& vector = dgrp->GetObjectTagVector();
   ret.x0_tokens.reserve(vector.size());
-  for (const SObjectTag& tag : vector)
+  for (const SObjectTag& tag : vector) {
     ret.x0_tokens.push_back(g_SimplePool->GetObj(tag));
+  }
   return ret;
 }
 
 void CActorModelParticles::LoadParticleDGRPs() {
-  for (const char* dgrp : ParticleDGRPs) {
+  static constexpr std::array particleDGRPs{
+      "Effect_OnFire_DGRP"sv,  "Effect_IceBreak_DGRP"sv, "Effect_Ash_DGRP"sv,
+      "Effect_FirePop_DGRP"sv, "Effect_Electric_DGRP"sv, "Effect_IcePop_DGRP"sv,
+  };
+
+  for (const auto& dgrp : particleDGRPs) {
     x50_dgrps.push_back(GetParticleDGRPTokens(dgrp));
   }
 }
@@ -456,11 +458,12 @@ void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr) {
       continue;
     }
     if (isNotCold) {
-      /* Hot Draw */
-      for (int i = 0; i < 8; ++i) {
-        std::unique_ptr<CElementGen>& gen = item.x8_onFireGens[i].first;
-        if (gen)
+      // Hot Draw
+      for (auto& entry : item.x8_onFireGens) {
+        std::unique_ptr<CElementGen>& gen = entry.first;
+        if (gen) {
           g_Renderer->AddParticleGen(*gen);
+        }
       }
       if (mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot && item.x78_ashGen)
         g_Renderer->AddParticleGen(*item.x78_ashGen);
@@ -485,19 +488,21 @@ void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr) {
 }
 
 void CActorModelParticles::UpdateLoad() {
-  if (xe4_loadingDeps) {
-    xe5_justLoadedDeps = 0;
-    for (int i = 0; i < 6; ++i) {
-      if (xe4_loadingDeps & (1 << i)) {
-        x50_dgrps[i].UpdateLoad();
-        if (x50_dgrps[i].x14_loaded) {
-          xe5_justLoadedDeps |= (1 << i);
-          xe4_loadingDeps &= ~(1 << i);
-        }
+  if (!xe4_loadingDeps) {
+    return;
+  }
+
+  xe5_justLoadedDeps = 0;
+  for (size_t i = 0; i < x50_dgrps.size(); ++i) {
+    if ((xe4_loadingDeps & (1U << i)) != 0) {
+      x50_dgrps[i].UpdateLoad();
+      if (x50_dgrps[i].x14_loaded) {
+        xe5_justLoadedDeps |= (1U << i);
+        xe4_loadingDeps &= ~(1U << i);
       }
     }
-    xe6_loadedDeps |= xe5_justLoadedDeps;
   }
+  xe6_loadedDeps |= xe5_justLoadedDeps;
 }
 
 void CActorModelParticles::Update(float dt, CStateManager& mgr) {
@@ -515,20 +520,25 @@ void CActorModelParticles::Update(float dt, CStateManager& mgr) {
 
 void CActorModelParticles::PointGenerator(void* ctx,
                                           const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  reinterpret_cast<CItem*>(ctx)->GeneratePoints(vn);
+  static_cast<CItem*>(ctx)->GeneratePoints(vn);
 }
 
 void CActorModelParticles::SetupHook(TUniqueId uid) {
-  auto search = FindSystem(uid);
-  if (search != x0_items.cend())
-    CSkinnedModel::SetPointGeneratorFunc((void*)&*search, PointGenerator);
+  const auto search = FindSystem(uid);
+
+  if (search == x0_items.cend()) {
+    return;
+  }
+
+  CSkinnedModel::SetPointGeneratorFunc(&*search, PointGenerator);
+}
+
+std::list<CActorModelParticles::CItem>::iterator CActorModelParticles::FindSystem(TUniqueId uid) {
+  return std::find_if(x0_items.begin(), x0_items.end(), [uid](const auto& entry) { return entry.x0_id == uid; });
 }
 
 std::list<CActorModelParticles::CItem>::const_iterator CActorModelParticles::FindSystem(TUniqueId uid) const {
-  for (auto it = x0_items.cbegin(); it != x0_items.cend(); ++it)
-    if (it->x0_id == uid)
-      return it;
-  return x0_items.cend();
+  return std::find_if(x0_items.begin(), x0_items.end(), [uid](const auto& entry) { return entry.x0_id == uid; });
 }
 
 std::list<CActorModelParticles::CItem>::iterator CActorModelParticles::FindOrCreateSystem(CActor& act) {

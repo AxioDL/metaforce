@@ -1570,13 +1570,14 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CActor::PreRender(mgr, frustum);
 }
 
-void CPatterned::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CPatterned::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   if (x402_29_drawParticles) {
     if (x64_modelData && !x64_modelData->IsNull()) {
       int mask, target;
       mgr.GetCharacterRenderMaskAndTarget(x402_31_thawed, mask, target);
-      if (CAnimData* aData = x64_modelData->GetAnimationData())
+      if (CAnimData* aData = x64_modelData->GetAnimationData()) {
         aData->GetParticleDB().AddToRendererClippedMasked(frustum, mask, target);
+      }
     }
   }
   CActor::AddToRenderer(frustum, mgr);
@@ -1586,11 +1587,11 @@ void CPatterned::RenderIceModelWithFlags(const CModelFlags& flags) const {
   CModelFlags useFlags = flags;
   useFlags.x1_matSetIdx = 0;
   CAnimData* animData = x64_modelData->GetAnimationData();
-  if (CMorphableSkinnedModel* iceModel = animData->IceModel().GetObj())
+  if (CMorphableSkinnedModel* iceModel = animData->GetIceModel().GetObj())
     animData->Render(*iceModel, useFlags, {*x510_vertexMorph}, iceModel->GetMorphMagnitudes());
 }
 
-void CPatterned::Render(const CStateManager& mgr) const {
+void CPatterned::Render(CStateManager& mgr) {
   int mask = 0;
   int target = 0;
   if (x402_29_drawParticles) {

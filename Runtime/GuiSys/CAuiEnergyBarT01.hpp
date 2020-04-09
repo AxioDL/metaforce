@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -16,7 +17,7 @@ class CSimplePool;
 
 class CAuiEnergyBarT01 : public CGuiWidget {
 public:
-  typedef std::pair<zeus::CVector3f, zeus::CVector3f> (*FCoordFunc)(float t);
+  using FCoordFunc = std::pair<zeus::CVector3f, zeus::CVector3f> (*)(float t);
   enum class ESetMode { Normal, Wrapped, Insta };
 
 private:
@@ -38,14 +39,14 @@ private:
   float xfc_shadowEnergy = 0.f;
   float x100_shadowDrainDelayTimer = 0.f;
   CEnergyBarShader m_energyBarShader;
-  std::vector<CEnergyBarShader::Vertex> m_verts[3];
+  std::array<std::vector<CEnergyBarShader::Vertex>, 3> m_verts;
 
 public:
   CAuiEnergyBarT01(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId txtrId);
   FourCC GetWidgetTypeID() const override { return FOURCC('ENRG'); }
   static std::pair<zeus::CVector3f, zeus::CVector3f> DownloadBarCoordFunc(float t);
   void Update(float dt) override;
-  void Draw(const CGuiWidgetDrawParms& drawParms) const override;
+  void Draw(const CGuiWidgetDrawParms& drawParms) override;
   float GetActualFraction() const { return xe0_maxEnergy == 0.f ? 0.f : xf4_setEnergy / xe0_maxEnergy; }
   float GetSetEnergy() const { return xf4_setEnergy; }
   float GetMaxEnergy() const { return xe0_maxEnergy; }

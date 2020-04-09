@@ -46,7 +46,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void PreThink(float, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void Render(const CStateManager&) const override;
+  void Render(CStateManager&) override;
   void Touch(CActor&, CStateManager&) override;
   void FluidFXThink(EFluidState, CScriptWater&, CStateManager&) override;
   void KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const CDamageInfo& dInfo, EKnockBackType type,

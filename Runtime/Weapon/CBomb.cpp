@@ -62,7 +62,7 @@ void CBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManag
   CActor::AcceptScriptMsg(msg, uid, mgr);
 }
 
-static CMaterialFilter kSolidFilter =
+constexpr CMaterialFilter kSolidFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Character, EMaterialTypes::Player,
                                                                   EMaterialTypes::ProjectilePassthrough});
 void CBomb::Think(float dt, urde::CStateManager& mgr) {
@@ -114,7 +114,7 @@ void CBomb::Think(float dt, urde::CStateManager& mgr) {
   x184_particle2->SetGlobalTranslation(GetTranslation());
 }
 
-void CBomb::AddToRenderer(const zeus::CFrustum& frustum, const urde::CStateManager& mgr) const {
+void CBomb::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   zeus::CVector3f origin = GetTranslation();
   float ballRadius = mgr.GetPlayer().GetMorphBall()->GetBallRadius();
 

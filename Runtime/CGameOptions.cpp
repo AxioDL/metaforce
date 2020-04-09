@@ -1,5 +1,7 @@
 #include "Runtime/CGameOptions.hpp"
 
+#include <cstring>
+
 #include "Runtime/CGameHintInfo.hpp"
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
@@ -522,18 +524,20 @@ CHintOptions::CHintOptions(CBitStreamReader& stream) {
   x0_hintStates.reserve(hints.size());
 
   u32 hintIdx = 0;
-  for (const auto& hint : hints) {
-    (void)hint;
-    EHintState state = EHintState(stream.ReadEncoded(2));
-    union { s32 i; float f; } timeBits = {stream.ReadEncoded(32)};
-    float time = timeBits.f;
-    if (state == EHintState::Zero)
+  for ([[maybe_unused]] const auto& hint : hints) {
+    const auto state = EHintState(stream.ReadEncoded(2));
+    const s32 timeBits = stream.ReadEncoded(32);
+    float time;
+    std::memcpy(&time, &timeBits, sizeof(s32));
+    if (state == EHintState::Zero) {
       time = 0.f;
+    }
 
     x0_hintStates.emplace_back(state, time, false);
 
-    if (x10_nextHintIdx == -1 && state == EHintState::Displaying)
+    if (x10_nextHintIdx == -1 && state == EHintState::Displaying) {
       x10_nextHintIdx = hintIdx;
+    }
     ++hintIdx;
   }
 }
@@ -541,8 +545,11 @@ CHintOptions::CHintOptions(CBitStreamReader& stream) {
 void CHintOptions::PutTo(CBitStreamWriter& writer) const {
   for (const SHintState& hint : x0_hintStates) {
     writer.WriteEncoded(u32(hint.x0_state), 2);
-    union { float f; u32 i; } timeBits = {hint.x4_time};
-    writer.WriteEncoded(timeBits.i, 32);
+
+    u32 timeBits;
+    std::memcpy(&timeBits, &hint.x4_time, sizeof(timeBits));
+
+    writer.WriteEncoded(timeBits, 32);
   }
 }
 
@@ -578,43 +585,51 @@ const CHintOptions::SHintState* CHintOptions::GetCurrentDisplayedHint() const {
   return nullptr;
 }
 
-void CHintOptions::DelayHint(const char* name) {
-  int idx = CGameHintInfo::FindHintIndex(name);
-  if (idx == -1)
+void CHintOptions::DelayHint(std::string_view name) {
+  const int idx = CGameHintInfo::FindHintIndex(name);
+  if (idx == -1) {
     return;
+  }
 
-  if (x10_nextHintIdx == idx)
-    for (SHintState& state : x0_hintStates)
+  if (x10_nextHintIdx == idx) {
+    for (SHintState& state : x0_hintStates) {
       state.x4_time += 60.f;
+    }
+  }
 
   x0_hintStates[idx].x0_state = EHintState::Delayed;
 }
 
-void CHintOptions::ActivateImmediateHintTimer(const char* name) {
-  int idx = CGameHintInfo::FindHintIndex(name);
-  if (idx == -1)
+void CHintOptions::ActivateImmediateHintTimer(std::string_view name) {
+  const int idx = CGameHintInfo::FindHintIndex(name);
+  if (idx == -1) {
     return;
+  }
 
   SHintState& hintState = x0_hintStates[idx];
   const CGameHintInfo::CGameHint& hint = g_MemoryCardSys->GetHints()[idx];
-  if (hintState.x0_state != EHintState::Zero)
+  if (hintState.x0_state != EHintState::Zero) {
     return;
+  }
 
   hintState.x0_state = EHintState::Waiting;
   hintState.x4_time = hint.GetImmediateTime();
 }
 
-void CHintOptions::ActivateContinueDelayHintTimer(const char* name) {
+void CHintOptions::ActivateContinueDelayHintTimer(std::string_view name) {
   int idx = x10_nextHintIdx;
-  if (idx != 0)
+  if (idx != 0) {
     idx = CGameHintInfo::FindHintIndex(name);
-  if (idx == -1)
+  }
+  if (idx == -1) {
     return;
+  }
 
   SHintState& hintState = x0_hintStates[idx];
   const CGameHintInfo::CGameHint& hint = g_MemoryCardSys->GetHints()[idx];
-  if (hintState.x0_state != EHintState::Displaying)
+  if (hintState.x0_state != EHintState::Displaying) {
     return;
+  }
 
   hintState.x4_time = hint.GetTextTime();
 }

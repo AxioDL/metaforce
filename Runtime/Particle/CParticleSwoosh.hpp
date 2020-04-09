@@ -119,8 +119,8 @@ class CParticleSwoosh : public CParticleGen {
   bool IsValid() const { return x1b4_LENG >= 2 && x1b8_SIDE >= 2; }
   void UpdateMaxRadius(float r);
   void UpdateBounds(const zeus::CVector3f& pos);
-  float GetLeftRadius(int i) const;
-  float GetRightRadius(int i) const;
+  float GetLeftRadius(size_t i) const;
+  float GetRightRadius(size_t i) const;
   void UpdateSwooshTranslation(const zeus::CVector3f& translation);
   void UpdateTranslationAndOrientation();
 

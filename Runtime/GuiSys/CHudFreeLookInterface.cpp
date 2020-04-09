@@ -84,13 +84,9 @@ void CHudFreeLookInterface::SetFreeLookState(bool inFreeLook, bool lookControlHe
     x8c_basewidget_outlinesb->SetColor(color);
   }
 
-  if (totalInterp == 0.f) {
-    x74_basewidget_freelookleft->SetVisibility(false, ETraversalMode::Children);
-    x80_basewidget_freelookright->SetVisibility(false, ETraversalMode::Children);
-  } else {
-    x74_basewidget_freelookleft->SetVisibility(true, ETraversalMode::Children);
-    x80_basewidget_freelookright->SetVisibility(true, ETraversalMode::Children);
-  }
+  const bool visible = totalInterp != 0.0f;
+  x74_basewidget_freelookleft->SetVisibility(visible, ETraversalMode::Children);
+  x80_basewidget_freelookright->SetVisibility(visible, ETraversalMode::Children);
 }
 
 CHudFreeLookInterfaceXRay::CHudFreeLookInterfaceXRay(CGuiFrame& selHud, bool inFreeLook, bool lookControlHeld,
@@ -137,6 +133,9 @@ void CHudFreeLookInterfaceXRay::SetIsVisibleGame(bool v) {
 
 void CHudFreeLookInterfaceXRay::SetFreeLookState(bool inFreeLook, bool lookControlHeld, bool lockedOnObj,
                                                  float vertLookAngle) {
+  x20_inFreeLook = inFreeLook;
+  x21_lookControlHeld = lookControlHeld;
+
   x2c_model_freelookleft->SetLocalTransform(
       zeus::CTransform(zeus::CMatrix3f::RotateY(vertLookAngle), x4_freeLookLeftPos));
   x30_model_freelookright->SetLocalTransform(
@@ -146,10 +145,8 @@ void CHudFreeLookInterfaceXRay::SetFreeLookState(bool inFreeLook, bool lookContr
   color.a() = x1c_freeLookInterp;
   x24_basewidget_freelook->SetColor(color);
 
-  if (x1c_freeLookInterp == 0.f)
-    x24_basewidget_freelook->SetVisibility(false, ETraversalMode::Children);
-  else
-    x24_basewidget_freelook->SetVisibility(true, ETraversalMode::Children);
+  const bool visible = x1c_freeLookInterp != 0.0f;
+  x24_basewidget_freelook->SetVisibility(visible, ETraversalMode::Children);
 }
 
 } // namespace urde

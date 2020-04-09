@@ -132,11 +132,11 @@ struct SpecMP3 : SpecBase {
     }
 
     /* Assemble extract report */
-    for (const std::pair<std::string, DNAMP3::PAKBridge*>& item : fe ? m_feOrderedPaks : m_orderedPaks) {
+    for (const auto& item : fe ? m_feOrderedPaks : m_orderedPaks) {
       if (!item.second->m_doExtract)
         continue;
-      rep.childOpts.emplace_back();
-      ExtractReport& childRep = rep.childOpts.back();
+
+      ExtractReport& childRep = rep.childOpts.emplace_back();
       hecl::SystemStringConv nameView(item.first);
       childRep.name = hecl::SystemString(nameView.sys_str());
       if (item.first == "Worlds.pak")
@@ -168,8 +168,7 @@ struct SpecMP3 : SpecBase {
       return false;
 
     /* Root Report */
-    reps.emplace_back();
-    ExtractReport& rep = reps.back();
+    ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP3");
     rep.desc = _SYS_STR("Metroid Prime 3 ") + regstr;
     std::string buildStr(buildInfo);
@@ -250,8 +249,7 @@ struct SpecMP3 : SpecBase {
       }
 
       /* Root Report */
-      reps.emplace_back();
-      ExtractReport& rep = reps.back();
+      ExtractReport& rep = reps.emplace_back();
       rep.name = _SYS_STR("MP3");
       rep.desc = _SYS_STR("Metroid Prime 3 ") + regstr;
 
@@ -281,8 +279,7 @@ struct SpecMP3 : SpecBase {
       const char* buildInfo = (char*)memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
 
       /* Root Report */
-      reps.emplace_back();
-      ExtractReport& rep = reps.back();
+      ExtractReport& rep = reps.emplace_back();
       rep.name = _SYS_STR("fe");
       rep.desc = _SYS_STR("Metroid Prime Trilogy Frontend ") + regstr;
       if (buildInfo) {
@@ -305,7 +302,7 @@ struct SpecMP3 : SpecBase {
   }
 
   bool extractFromDisc(nod::DiscBase& disc, bool force, const hecl::MultiProgressPrinter& progress) override {
-    hecl::SystemString currentTarget = _SYS_STR("");
+    hecl::SystemString currentTarget;
     size_t nodeCount = 0;
     int prog = 0;
     nod::ExtractionContext ctx = {force, [&](std::string_view name, float) {
@@ -394,7 +391,7 @@ struct SpecMP3 : SpecBase {
       progress.startNewLine();
 
       hecl::ClientProcess process;
-      for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_feOrderedPaks) {
+      for (auto& pair : m_feOrderedPaks) {
         DNAMP3::PAKBridge& pak = *pair.second;
         if (!pak.m_doExtract)
           continue;

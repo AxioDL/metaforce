@@ -17,7 +17,9 @@ CBodyController::CBodyController(CActor& actor, float turnSpeed, EBodyType bodyT
   x2a4_bodyStateInfo.x18_bodyController = this;
 }
 
-void CBodyController::EnableAnimation(bool e) { x0_actor.GetModelData()->GetAnimationData()->EnableAnimation(e); }
+void CBodyController::EnableAnimation(bool enable) {
+  x0_actor.GetModelData()->GetAnimationData()->EnableAnimation(enable);
+}
 
 void CBodyController::Activate(CStateManager& mgr) {
   x300_25_active = true;
@@ -61,7 +63,7 @@ void CBodyController::UpdateBody(float dt, CStateManager& mgr) {
   }
 }
 
-void CBodyController::SetTurnSpeed(float s) { x2fc_turnSpeed = std::max(0.f, s); }
+void CBodyController::SetTurnSpeed(float speed) { x2fc_turnSpeed = std::max(0.f, speed); }
 
 void CBodyController::Update(float dt, CStateManager& mgr) {
   SetPlaybackRate(1.f);
@@ -76,7 +78,7 @@ void CBodyController::Update(float dt, CStateManager& mgr) {
   }
 }
 
-bool CBodyController::HasBodyState(pas::EAnimationState s) const { return GetPASDatabase().HasState(s32(s)); }
+bool CBodyController::HasBodyState(pas::EAnimationState state) const { return GetPASDatabase().HasState(s32(state)); }
 
 void CBodyController::SetCurrentAnimation(const CAnimPlaybackParms& parms, bool loop, bool noTrans) {
   x0_actor.GetModelData()->GetAnimationData()->SetAnimation(parms, noTrans);
@@ -88,14 +90,18 @@ float CBodyController::GetAnimTimeRemaining() const {
   return x0_actor.GetModelData()->GetAnimationData()->GetAnimTimeRemaining("Whole Body");
 }
 
-void CBodyController::SetPlaybackRate(float r) { x0_actor.GetModelData()->GetAnimationData()->SetPlaybackRate(r); }
+void CBodyController::SetPlaybackRate(float rate) {
+  x0_actor.GetModelData()->GetAnimationData()->SetPlaybackRate(rate);
+}
 // GX uses a HW approximation of 3/8 + 5/8 instead of 1/3 + 2/3.
 
 const CPASDatabase& CBodyController::GetPASDatabase() const {
   return x0_actor.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();
 }
 
-void CBodyController::MultiplyPlaybackRate(float r) { x0_actor.GetModelData()->GetAnimationData()->MultiplyPlaybackRate(r); }
+void CBodyController::MultiplyPlaybackRate(float mul) {
+  x0_actor.GetModelData()->GetAnimationData()->MultiplyPlaybackRate(mul);
+}
 
 void CBodyController::FaceDirection(const zeus::CVector3f& v0, float dt) {
   if (x300_26_frozen)
@@ -136,8 +142,8 @@ void CBodyController::FaceDirection3D(const zeus::CVector3f& v0, const zeus::CVe
   }
 }
 
-bool CBodyController::HasBodyInfo(CActor& act) {
-  return act.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().GetNumAnimStates() != 0;
+bool CBodyController::HasBodyInfo(const CActor& actor) {
+  return actor.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().GetNumAnimStates() != 0;
 }
 
 void CBodyController::PlayBestAnimation(const CPASAnimParmData& parms, CRandom16& r) {
@@ -201,8 +207,8 @@ float CBodyController::GetPercentageFrozen() const {
   return 1.f - (x310_timeFrozen - (x308_frozenDur + x304_intoFreezeDur)) / x30c_breakoutDur;
 }
 
-void CBodyController::SetOnFire(float dur) {
-  x320_fireDur = dur;
+void CBodyController::SetOnFire(float duration) {
+  x320_fireDur = duration;
   x328_timeOnFire = 0.f;
   if (IsFrozen())
     UnFreeze();
@@ -215,12 +221,12 @@ void CBodyController::DouseFlames() {
   x328_timeOnFire = 0.f;
 }
 
-void CBodyController::SetElectrocuting(float dur) {
+void CBodyController::SetElectrocuting(float duration) {
   if (!IsElectrocuting()) {
     CBCAdditiveReactionCmd reaction(pas::EAdditiveReactionType::Electrocution, 1.f, true);
     x4_cmdMgr.DeliverCmd(reaction);
   }
-  x324_electrocutionDur = dur;
+  x324_electrocutionDur = duration;
   x32c_timeElectrocuting = 0.f;
   if (IsFrozen())
     UnFreeze();

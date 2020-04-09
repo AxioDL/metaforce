@@ -55,7 +55,7 @@ public:
   virtual void TakeDamage(const zeus::CVector3f& direction, float magnitude) {}
   virtual bool CanBeShot(const CStateManager&, int) { return true; }
   virtual bool IsListening() const { return false; }
-  virtual bool Listen(const zeus::CVector3f&, EListenNoiseType) { return 0; }
+  virtual bool Listen(const zeus::CVector3f&, EListenNoiseType) { return false; }
 
   virtual zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
                                     const zeus::CVector3f& aimPos) const {

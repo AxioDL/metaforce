@@ -21,7 +21,7 @@ class CAudioGroupSet {
   amuse::AudioGroupData LoadData();
 
 public:
-  CAudioGroupSet(std::unique_ptr<u8[]>&& in);
+  explicit CAudioGroupSet(std::unique_ptr<u8[]>&& in);
   const amuse::AudioGroupData& GetAudioGroupData() const { return m_data; }
   std::string_view GetName() const { return x20_name; }
 };

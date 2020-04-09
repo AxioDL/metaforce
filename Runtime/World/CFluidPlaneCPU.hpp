@@ -60,8 +60,8 @@ protected:
   u32 m_maxVertCount;
   bool m_tessellation = false;
 
-  mutable bool m_cachedDoubleLightmapBlend;
-  mutable bool m_cachedAdditive;
+  bool m_cachedDoubleLightmapBlend;
+  bool m_cachedAdditive;
 
   static bool PrepareRipple(const CRipple& ripple, const CFluidPlaneRender::SPatchInfo& info,
                             CFluidPlaneRender::SRippleInfo& rippleOut);
@@ -96,11 +96,11 @@ public:
                                zeus::CMatrix4f& mtxOut) const;
   CFluidPlaneShader::RenderSetupInfo RenderSetup(const CStateManager& mgr, float, const zeus::CTransform& xf,
                                                  const zeus::CTransform& areaXf, const zeus::CAABox& aabb,
-                                                 const CScriptWater* water) const;
+                                                 const CScriptWater* water);
   void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
               const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
               const std::optional<CRippleManager>& rippleManager, TUniqueId waterId, const bool* gridFlags,
-              u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const override;
+              u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) override;
   float GetReflectionBlend() const { return x114_reflectionBlend; }
   float GetSpecularMax() const { return x110_specularMax; }
   float GetSpecularMin() const { return x10c_specularMin; }

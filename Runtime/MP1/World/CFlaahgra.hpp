@@ -4,6 +4,7 @@
 #include <optional>
 #include <vector>
 
+#include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/Collision/CJointCollisionDescription.hpp"
 #include "Runtime/Weapon/CProjectileInfo.hpp"
@@ -47,7 +48,7 @@ class CFlaahgraData {
 
 public:
   static constexpr u32 GetNumProperties() { return 23; }
-  CFlaahgraData(CInputStream&);
+  explicit CFlaahgraData(CInputStream&);
 
   const CAnimationParameters& GetAnimationParameters() const { return x14c_animationParameters; }
 };
@@ -58,7 +59,7 @@ class CFlaahgraRenderer : public CActor {
 public:
   CFlaahgraRenderer(TUniqueId, TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&);
 
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
   void Accept(IVisitor&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override { return {}; }
 };
@@ -79,7 +80,7 @@ public:
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override { return x110_aabox; }
   void Touch(CActor&, CStateManager&) override;
 };
@@ -199,7 +200,7 @@ public:
   void Think(float, CStateManager&) override;
   void PreThink(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
   bool CanRenderUnsorted(const CStateManager&) const override { return true; }
   zeus::CVector3f GetAimPosition(const CStateManager&, float) const override { return x820_; }
   void Death(CStateManager&, const zeus::CVector3f&, EScriptObjectState) override;

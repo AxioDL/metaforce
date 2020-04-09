@@ -121,7 +121,7 @@ public:
   void Fire(const zeus::CTransform& xf, CStateManager& mgr, bool b) override;
   void Touch(CActor& other, CStateManager& mgr) override;
   bool CanRenderUnsorted(const CStateManager& mgr) const override;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
-  void Render(const CStateManager& mgr) const override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void Render(CStateManager& mgr) override;
 };
 } // namespace urde

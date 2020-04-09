@@ -108,7 +108,7 @@ struct TextureCache {
       auto rec = r.enterSubRecord(node.first.c_str());
       TXTR::Meta meta;
       meta.read(r);
-      metaPairs.push_back(std::make_pair(projectPath.parsedHash32(), meta));
+      metaPairs.emplace_back(projectPath.parsedHash32(), meta);
     }
 
     std::sort(metaPairs.begin(), metaPairs.end(), [](const auto& a, const auto& b) -> bool {
@@ -201,11 +201,12 @@ struct SpecMP1 : SpecBase {
 
     /* Assemble extract report */
     rep.childOpts.reserve(m_orderedPaks.size());
-    for (const std::pair<std::string, DNAMP1::PAKBridge*>& item : m_orderedPaks) {
-      if (!item.second->m_doExtract)
+    for (const auto& item : m_orderedPaks) {
+      if (!item.second->m_doExtract) {
         continue;
-      rep.childOpts.emplace_back();
-      ExtractReport& childRep = rep.childOpts.back();
+      }
+
+      ExtractReport& childRep = rep.childOpts.emplace_back();
       hecl::SystemStringConv nameView(item.first);
       childRep.name = nameView.sys_str();
       childRep.desc = item.second->getLevelString();
@@ -222,8 +223,7 @@ struct SpecMP1 : SpecBase {
       return false;
 
     /* Root Report */
-    reps.emplace_back();
-    ExtractReport& rep = reps.back();
+    ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP1");
     rep.desc = _SYS_STR("Metroid Prime ") + regstr;
     if (buildInfo) {
@@ -277,8 +277,7 @@ struct SpecMP1 : SpecBase {
     const char* buildInfo = (char*)memmem(m_dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
 
     /* Root Report */
-    reps.emplace_back();
-    ExtractReport& rep = reps.back();
+    ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP1");
     rep.desc = _SYS_STR("Metroid Prime ") + regstr;
     if (buildInfo) {
@@ -1023,7 +1022,7 @@ struct SpecMP1 : SpecBase {
       for (const auto& dep : area.deps) {
         urde::CAssetId newId = dep.id.toUint64();
         if (dupeRes || addedTags.find(newId) == addedTags.end()) {
-          listOut.push_back({dep.type, newId});
+          listOut.emplace_back(dep.type, newId);
           addedTags.insert(newId);
         }
       }
@@ -1083,7 +1082,7 @@ struct SpecMP1 : SpecBase {
           for (atUint32 i = 0; i < mapaCount; ++i) {
             UniqueID32 id;
             id.read(r);
-            listOut.push_back({FOURCC('MAPA'), id.toUint64()});
+            listOut.emplace_back(FOURCC('MAPA'), id.toUint64());
           }
         }
       }

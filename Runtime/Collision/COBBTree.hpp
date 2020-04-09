@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -24,7 +25,7 @@ public:
     std::vector<u16> x50_surfaceIndices;
     std::vector<zeus::CVector3f> x60_vertices;
     SIndexData() = default;
-    SIndexData(CInputStream&);
+    explicit SIndexData(CInputStream&);
   };
 
   class CLeafData {
@@ -32,8 +33,8 @@ public:
 
   public:
     CLeafData() = default;
-    CLeafData(std::vector<u16>&& surface);
-    CLeafData(CInputStream&);
+    explicit CLeafData(std::vector<u16>&& surface);
+    explicit CLeafData(CInputStream&);
 
     const std::vector<u16>& GetSurfaceVector() const;
     size_t GetMemoryUsage() const;
@@ -45,13 +46,13 @@ public:
     std::unique_ptr<CNode> x40_left;
     std::unique_ptr<CNode> x44_right;
     std::unique_ptr<CLeafData> x48_leaf;
-    bool x4c_hit;
+    bool x4c_hit = false;
 
   public:
     CNode() = default;
     CNode(const zeus::CTransform&, const zeus::CVector3f&, std::unique_ptr<CNode>&&, std::unique_ptr<CNode>&&,
           std::unique_ptr<CLeafData>&&);
-    CNode(CInputStream&);
+    explicit CNode(CInputStream&);
 
     bool WasHit() const { return x4c_hit; }
     void SetHit(bool h) { x4c_hit = h; }
@@ -73,13 +74,16 @@ private:
 
 public:
   COBBTree() = default;
-  COBBTree(CInputStream&);
+  explicit COBBTree(CInputStream&);
 
   static std::unique_ptr<COBBTree> BuildOrientedBoundingBoxTree(const zeus::CVector3f&,
                                                                 const zeus::CVector3f&);
   CCollisionSurface GetSurface(u16 idx) const;
   const u16* GetTriangleEdgeIndices(u16 idx) const { return &x18_indexData.x50_surfaceIndices[idx * 3]; }
-  void GetTriangleVertexIndices(u16 idx, u16 indicesOut[3]) const;
+
+  // In the game binary, this used to use an out pointer for the indices after the index.
+  std::array<u16, 3> GetTriangleVertexIndices(u16 idx) const;
+
   const CCollisionEdge& GetEdge(int idx) const { return x18_indexData.x40_edges[idx]; }
   const zeus::CVector3f& GetVert(int idx) const { return x18_indexData.x60_vertices[idx]; }
   u32 GetVertMaterial(u16 idx) const { return x18_indexData.x0_materials[x18_indexData.x10_vertMaterials[idx]]; }

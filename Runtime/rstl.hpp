@@ -522,32 +522,36 @@ public:
     x0_size = 0;
   }
 
-  size_t size() const noexcept { return x0_size; }
-  bool empty() const noexcept { return x0_size == 0; }
-  constexpr size_t capacity() const noexcept { return N; }
-  const T* data() const noexcept { return std::addressof(_value(0)); }
-  T* data() noexcept { return std::addressof(_value(0)); }
+  [[nodiscard]] size_t size() const noexcept { return x0_size; }
+  [[nodiscard]] bool empty() const noexcept { return x0_size == 0; }
+  [[nodiscard]] constexpr size_t capacity() const noexcept { return N; }
+  [[nodiscard]] const T* data() const noexcept { return std::addressof(_value(0)); }
+  [[nodiscard]] T* data() noexcept { return std::addressof(_value(0)); }
 
-  T& back() { return _value(x0_size - 1); }
-  T& front() { return _value(0); }
-  const T& back() const { return _value(x0_size - 1); }
-  const T& front() const { return _value(0); }
+  [[nodiscard]] T& back() { return _value(x0_size - 1); }
+  [[nodiscard]] T& front() { return _value(0); }
+  [[nodiscard]] const T& back() const { return _value(x0_size - 1); }
+  [[nodiscard]] const T& front() const { return _value(0); }
 
-  const_iterator begin() const noexcept { return const_iterator(std::addressof(_value(0))); }
-  const_iterator end() const noexcept { return const_iterator(std::addressof(_value(x0_size))); }
-  iterator begin() noexcept { return iterator(std::addressof(_value(0))); }
-  iterator end() noexcept { return iterator(std::addressof(_value(x0_size))); }
-  const_iterator cbegin() const noexcept { return begin(); }
-  const_iterator cend() const noexcept { return end(); }
+  [[nodiscard]] const_iterator begin() const noexcept { return const_iterator(std::addressof(_value(0))); }
+  [[nodiscard]] const_iterator end() const noexcept { return const_iterator(std::addressof(_value(x0_size))); }
+  [[nodiscard]] iterator begin() noexcept { return iterator(std::addressof(_value(0))); }
+  [[nodiscard]] iterator end() noexcept { return iterator(std::addressof(_value(x0_size))); }
+  [[nodiscard]] const_iterator cbegin() const noexcept { return begin(); }
+  [[nodiscard]] const_iterator cend() const noexcept { return end(); }
 
-  const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(std::addressof(_value(x0_size - 1))); }
-  const_reverse_iterator rend() const noexcept { return const_reverse_iterator(std::addressof(_value(-1))); }
-  reverse_iterator rbegin() noexcept { return reverse_iterator(std::addressof(_value(x0_size - 1))); }
-  reverse_iterator rend() noexcept { return reverse_iterator(std::addressof(_value(-1))); }
-  const_reverse_iterator crbegin() const noexcept { return rbegin(); }
-  const_reverse_iterator crend() const noexcept { return rend(); }
+  [[nodiscard]] const_reverse_iterator rbegin() const noexcept {
+    return const_reverse_iterator(std::addressof(_value(x0_size - 1)));
+  }
+  [[nodiscard]] const_reverse_iterator rend() const noexcept {
+    return const_reverse_iterator(std::addressof(_value(-1)));
+  }
+  [[nodiscard]] reverse_iterator rbegin() noexcept { return reverse_iterator(std::addressof(_value(x0_size - 1))); }
+  [[nodiscard]] reverse_iterator rend() noexcept { return reverse_iterator(std::addressof(_value(-1))); }
+  [[nodiscard]] const_reverse_iterator crbegin() const noexcept { return rbegin(); }
+  [[nodiscard]] const_reverse_iterator crend() const noexcept { return rend(); }
 
-  T& operator[](size_t idx) {
+  [[nodiscard]] T& operator[](size_t idx) {
 #ifndef NDEBUG
     if (idx >= x0_size) {
       Log.report(logvisor::Fatal, fmt("out of bounds access on reserved_vector."));
@@ -555,7 +559,7 @@ public:
 #endif
     return _value(idx);
   }
-  const T& operator[](size_t idx) const {
+  [[nodiscard]] const T& operator[](size_t idx) const {
 #ifndef NDEBUG
     if (idx >= x0_size) {
       Log.report(logvisor::Fatal, fmt("out of bounds access on reserved_vector."));
@@ -587,32 +591,36 @@ public:
   void set_size(size_t n) { x0_size = n; }
   void set_data(T* data) { x4_data = data; }
 
-  size_t size() const noexcept { return x0_size; }
-  bool empty() const noexcept { return x0_size == 0; }
-  const T* data() const noexcept { return x4_data; }
-  T* data() noexcept { return x4_data; }
+  [[nodiscard]] size_t size() const noexcept { return x0_size; }
+  [[nodiscard]] bool empty() const noexcept { return x0_size == 0; }
+  [[nodiscard]] const T* data() const noexcept { return x4_data; }
+  [[nodiscard]] T* data() noexcept { return x4_data; }
 
-  T& back() { return _value(x0_size - 1); }
-  T& front() { return _value(0); }
-  const T& back() const { return _value(x0_size - 1); }
-  const T& front() const { return _value(0); }
+  [[nodiscard]] T& back() { return _value(x0_size - 1); }
+  [[nodiscard]] T& front() { return _value(0); }
+  [[nodiscard]] const T& back() const { return _value(x0_size - 1); }
+  [[nodiscard]] const T& front() const { return _value(0); }
 
-  const_iterator begin() const noexcept { return const_iterator(std::addressof(_value(0))); }
-  const_iterator end() const noexcept { return const_iterator(std::addressof(_value(x0_size))); }
-  iterator begin() noexcept { return iterator(std::addressof(_value(0))); }
-  iterator end() noexcept { return iterator(std::addressof(_value(x0_size))); }
-  const_iterator cbegin() const noexcept { return begin(); }
-  const_iterator cend() const noexcept { return end(); }
+  [[nodiscard]] const_iterator begin() const noexcept { return const_iterator(std::addressof(_value(0))); }
+  [[nodiscard]] const_iterator end() const noexcept { return const_iterator(std::addressof(_value(x0_size))); }
+  [[nodiscard]] iterator begin() noexcept { return iterator(std::addressof(_value(0))); }
+  [[nodiscard]] iterator end() noexcept { return iterator(std::addressof(_value(x0_size))); }
+  [[nodiscard]] const_iterator cbegin() const noexcept { return begin(); }
+  [[nodiscard]] const_iterator cend() const noexcept { return end(); }
 
-  const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(std::addressof(_value(x0_size - 1))); }
-  const_reverse_iterator rend() const noexcept { return const_reverse_iterator(std::addressof(_value(-1))); }
-  reverse_iterator rbegin() noexcept { return reverse_iterator(std::addressof(_value(x0_size - 1))); }
-  reverse_iterator rend() noexcept { return reverse_iterator(std::addressof(_value(-1))); }
-  const_reverse_iterator crbegin() const noexcept { return rbegin(); }
-  const_reverse_iterator crend() const noexcept { return rend(); }
+  [[nodiscard]] const_reverse_iterator rbegin() const noexcept {
+    return const_reverse_iterator(std::addressof(_value(x0_size - 1)));
+  }
+  [[nodiscard]] const_reverse_iterator rend() const noexcept {
+    return const_reverse_iterator(std::addressof(_value(-1)));
+  }
+  [[nodiscard]] reverse_iterator rbegin() noexcept { return reverse_iterator(std::addressof(_value(x0_size - 1))); }
+  [[nodiscard]] reverse_iterator rend() noexcept { return reverse_iterator(std::addressof(_value(-1))); }
+  [[nodiscard]] const_reverse_iterator crbegin() const noexcept { return rbegin(); }
+  [[nodiscard]] const_reverse_iterator crend() const noexcept { return rend(); }
 
-  T& operator[](size_t idx) { return _value(idx); }
-  const T& operator[](size_t idx) const { return _value(idx); }
+  [[nodiscard]] T& operator[](size_t idx) { return _value(idx); }
+  [[nodiscard]] const T& operator[](size_t idx) const { return _value(idx); }
 };
 
 template <class ForwardIt, class T>

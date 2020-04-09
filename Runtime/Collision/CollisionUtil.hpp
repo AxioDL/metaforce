@@ -20,9 +20,9 @@ bool RaySphereIntersection_Double(const zeus::CSphere&, const zeus::CVector3f&, 
 bool RaySphereIntersection(const zeus::CSphere& sphere, const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                            float mag, float& T, zeus::CVector3f& point);
 bool RayTriangleIntersection_Double(const zeus::CVector3f& point, const zeus::CVector3f& dir,
-                                    const zeus::CVector3f* verts, double& d);
-bool RayTriangleIntersection(const zeus::CVector3f& point, const zeus::CVector3f& dir, const zeus::CVector3f* verts,
-                             float& d);
+                                    const std::array<zeus::CVector3f, 3>& verts, double& d);
+bool RayTriangleIntersection(const zeus::CVector3f& point, const zeus::CVector3f& dir,
+                             const std::array<zeus::CVector3f, 3>& verts, float& d);
 void FilterOutBackfaces(const zeus::CVector3f& vec, const CCollisionInfoList& in, CCollisionInfoList& out);
 void FilterByClosestNormal(const zeus::CVector3f& norm, const CCollisionInfoList& in, CCollisionInfoList& out);
 bool AABoxAABoxIntersection(const zeus::CAABox& aabb0, const CMaterialList& list0, const zeus::CAABox& aabb1,

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string_view>
-#include <unordered_map>
 #include <vector>
 
 #include "Runtime/CStaticInterference.hpp"
@@ -89,12 +88,11 @@ public:
   enum class EBeamId : s32 { Invalid = -1, Power, Ice, Wave, Plasma, Phazon, Phazon2 = 27 };
 
 private:
-  static const std::unordered_map<std::string_view, EItemType> g_TypeNameMap;
   struct CPowerUp {
     u32 x0_amount = 0;
     u32 x4_capacity = 0;
-    CPowerUp() {}
-    CPowerUp(u32 amount, u32 capacity) : x0_amount(amount), x4_capacity(capacity) {}
+    constexpr CPowerUp() = default;
+    constexpr CPowerUp(u32 amount, u32 capacity) : x0_amount(amount), x4_capacity(capacity) {}
   };
   union {
     struct {
@@ -125,7 +123,7 @@ public:
   static constexpr float GetMissileComboChargeFactor() { return 1.8f; }
   u32 CalculateItemCollectionRate() const;
 
-  CHealthInfo& HealthInfo();
+  CHealthInfo& GetHealthInfo();
   const CHealthInfo& GetHealthInfo() const;
   u32 GetPickupTotal() { return 99; }
   void SetIsFusionEnabled(bool val) { x0_26_fusion = val; }
@@ -172,7 +170,7 @@ public:
   CStaticInterference& GetStaticInterference() { return x188_staticIntf; }
   const std::vector<std::pair<CAssetId, float>>& GetScanTimes() const { return x170_scanTimes; }
   CPlayerState();
-  CPlayerState(CBitStreamReader& stream);
+  explicit CPlayerState(CBitStreamReader& stream);
   void PutTo(CBitStreamWriter& stream);
   static u32 GetPowerUpMaxValue(EItemType type);
   static EItemType ItemNameToType(std::string_view name);

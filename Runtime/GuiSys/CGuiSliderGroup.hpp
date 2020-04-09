@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <functional>
 #include <memory>
 
@@ -18,7 +19,7 @@ private:
   float xc0_roundedCurVal;
   float xc4_curVal;
   float xc8_increment;
-  CGuiWidget* xcc_sliderRangeWidgets[2] = {};
+  std::array<CGuiWidget*, 2> xcc_sliderRangeWidgets{};
   std::function<void(CGuiSliderGroup*, float)> xd8_changeCallback;
   EState xf0_state = EState::None;
   union {

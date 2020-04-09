@@ -1,5 +1,7 @@
 #include "Runtime/GuiSys/CRasterFont.hpp"
 
+#include <algorithm>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/GuiSys/CDrawStringOptions.hpp"
@@ -64,8 +66,8 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store) {
       baseline = in.readByte();
       kernStart = in.readInt16Big();
     }
-    xc_glyphs.push_back(std::make_pair(
-        chr, CGlyph(a, b, c, startU, startV, endU, endV, cellWidth, cellHeight, baseline, kernStart, layer)));
+    xc_glyphs.emplace_back(
+        chr, CGlyph(a, b, c, startU, startV, endU, endV, cellWidth, cellHeight, baseline, kernStart, layer));
   }
 
   std::sort(xc_glyphs.begin(), xc_glyphs.end(), [=](auto& a, auto& b) -> bool { return a.first < b.first; });
@@ -84,6 +86,17 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store) {
     x0_initialized = true;
 }
 
+const CGlyph* CRasterFont::InternalGetGlyph(char16_t chr) const {
+  const auto iter =
+      std::find_if(xc_glyphs.cbegin(), xc_glyphs.cend(), [chr](const auto& entry) { return entry.first == chr; });
+
+  if (iter == xc_glyphs.cend()) {
+    return nullptr;
+  }
+
+  return &iter->second;
+}
+
 void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout,
                                        CTextRenderBuffer* renderBuf, const char16_t* str, s32 length) const {
   if (!x0_initialized)
@@ -97,8 +110,10 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, in
       if (opts.x0_direction == ETextDirection::Horizontal) {
         x += glyph->GetLeftPadding();
 
-        if (prevGlyph != 0)
+        if (prevGlyph != nullptr) {
           x += KernLookup(x1c_kerning, prevGlyph->GetKernStart(), *chr);
+        }
+
         int left = 0;
         int top = 0;
 

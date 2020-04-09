@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <string_view>
 #include <vector>
 
 #include "Runtime/CSaveWorld.hpp"
@@ -70,7 +71,7 @@ class CPersistentOptions {
 
 public:
   CPersistentOptions() = default;
-  CPersistentOptions(CBitStreamReader& stream);
+  explicit CPersistentOptions(CBitStreamReader& stream);
 
   bool GetCinematicState(CAssetId mlvlId, TEditorId cineId) const;
   void SetCinematicState(CAssetId mlvlId, TEditorId cineId, bool state);
@@ -133,7 +134,7 @@ class CGameOptions {
 
 public:
   CGameOptions();
-  CGameOptions(CBitStreamReader& stream);
+  explicit CGameOptions(CBitStreamReader& stream);
   void ResetToDefaults();
   void InitSoundMode();
   void EnsureSettings();
@@ -200,14 +201,14 @@ private:
 
 public:
   CHintOptions() = default;
-  CHintOptions(CBitStreamReader& stream);
+  explicit CHintOptions(CBitStreamReader& stream);
   void PutTo(CBitStreamWriter& writer) const;
   void SetNextHintTime();
   void InitializeMemoryState();
   const SHintState* GetCurrentDisplayedHint() const;
-  void DelayHint(const char* name);
-  void ActivateImmediateHintTimer(const char* name);
-  void ActivateContinueDelayHintTimer(const char* name);
+  void DelayHint(std::string_view name);
+  void ActivateImmediateHintTimer(std::string_view name);
+  void ActivateContinueDelayHintTimer(std::string_view name);
   void DismissDisplayedHint();
   u32 GetNextHintIdx() const;
   const std::vector<SHintState>& GetHintStates() const { return x0_hintStates; }

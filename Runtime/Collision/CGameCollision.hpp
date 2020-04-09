@@ -119,5 +119,7 @@ public:
   static std::optional<zeus::CVector3f>
   FindNonIntersectingVector(const CStateManager& mgr, CAreaCollisionCache& cache, CPhysicsActor& actor,
                             const CCollisionPrimitive& prim, const rstl::reserved_vector<TUniqueId, 1024>& nearList);
+  static void AvoidStaticCollisionWithinRadius(const CStateManager& mgr, CPhysicsActor& actor, u32 iterations, float dt,
+                                               float height, float size, float mass, float radius);
 };
 } // namespace urde

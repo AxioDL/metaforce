@@ -2,6 +2,7 @@
 
 #include <list>
 #include <memory>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -137,7 +138,7 @@ private:
   u8 xe5_justLoadedDeps = 0;
   u8 xe6_loadedDeps = 0;
 
-  Dependency GetParticleDGRPTokens(const char* name);
+  Dependency GetParticleDGRPTokens(std::string_view name) const;
   void LoadParticleDGRPs();
 
   std::unique_ptr<CElementGen> MakeOnFireGen() const;
@@ -158,6 +159,7 @@ public:
   void AddStragglersToRenderer(const CStateManager& mgr);
   void Update(float dt, CStateManager& mgr);
   void SetupHook(TUniqueId uid);
+  std::list<CItem>::iterator FindSystem(TUniqueId uid);
   std::list<CItem>::const_iterator FindSystem(TUniqueId uid) const;
   std::list<CItem>::iterator FindOrCreateSystem(CActor& act);
   void StartIce(CActor& actor);

@@ -31,7 +31,7 @@ public:
 
 class CCollidableOBBTree : public CCollisionPrimitive {
   friend class CCollidableOBBTreeGroup;
-  COBBTree* x10_tree = nullptr;
+  const COBBTree* x10_tree = nullptr;
   u32 x14_tries = 0;
   u32 x18_misses = 0;
   u32 x1c_hits = 0;
@@ -68,11 +68,11 @@ class CCollidableOBBTree : public CCollisionPrimitive {
                        const zeus::COBBox& obb, const CMaterialList& material, const CMaterialFilter& filter,
                        CCollisionInfoList& infoList) const;
   bool AABoxCollideWithLeaf(const COBBTree::CLeafData& leaf, const zeus::CTransform& xf, const zeus::CAABox& aabb,
-                            const CMaterialList& material, const CMaterialFilter& filter, const zeus::CPlane* planes,
-                            CCollisionInfoList& infoList) const;
+                            const CMaterialList& material, const CMaterialFilter& filter,
+                            const std::array<zeus::CPlane, 6>& planes, CCollisionInfoList& infoList) const;
   bool AABoxCollision(const COBBTree::CNode& node, const zeus::CTransform& xf, const zeus::CAABox& aabb,
                       const zeus::COBBox& obb, const CMaterialList& material, const CMaterialFilter& filter,
-                      const zeus::CPlane* planes, CCollisionInfoList& infoList) const;
+                      const std::array<zeus::CPlane, 6>& planes, CCollisionInfoList& infoList) const;
 
 public:
   CCollidableOBBTree(const COBBTree* tree, const CMaterialList& material);

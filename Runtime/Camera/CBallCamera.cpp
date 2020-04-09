@@ -242,7 +242,7 @@ void CBallCamera::Reset(const zeus::CTransform& xf, CStateManager& mgr) {
   }
 }
 
-void CBallCamera::Render(const CStateManager& mgr) const {
+void CBallCamera::Render(CStateManager& mgr) {
   // Empty
 }
 
@@ -586,13 +586,13 @@ void CBallCamera::CheckFailsafe(float dt, CStateManager& mgr) {
 void CBallCamera::UpdateObjectTooCloseId(CStateManager& mgr) {
   x3e0_tooCloseActorDist = 1000000.f;
   x3dc_tooCloseActorId = kInvalidUniqueId;
-  zeus::CVector3f ballPos = mgr.GetPlayer().GetBallPosition();
-  for (CEntity* ent : mgr.GetPlatformAndDoorObjectList()) {
-    if (TCastToPtr<CScriptDoor> door = ent) {
+  const zeus::CVector3f ballPos = mgr.GetPlayer().GetBallPosition();
+  for (const CEntity* ent : mgr.GetPlatformAndDoorObjectList()) {
+    if (const TCastToConstPtr<CScriptDoor> door = ent) {
       if (mgr.GetPlayer().GetAreaIdAlways() == door->GetAreaIdAlways()) {
         door->GetBoundingBox();
-        float minMag = std::min((door->GetTranslation() - GetTranslation()).magnitude(),
-                                (door->GetTranslation() - ballPos).magnitude());
+        const float minMag = std::min((door->GetTranslation() - GetTranslation()).magnitude(),
+                                      (door->GetTranslation() - ballPos).magnitude());
         if (minMag < 30.f && minMag < x3e0_tooCloseActorDist) {
           x3dc_tooCloseActorId = door->GetUniqueId();
           x3e0_tooCloseActorDist = minMag;
@@ -611,7 +611,7 @@ void CBallCamera::UpdateAnglePerSecond(float dt) {
 }
 
 void CBallCamera::UpdateUsingPathCameras(float dt, CStateManager& mgr) {
-  if (TCastToPtr<CPathCamera> cam = mgr.ObjectById(mgr.GetCameraManager()->GetPathCameraId())) {
+  if (const TCastToConstPtr<CPathCamera> cam = mgr.ObjectById(mgr.GetCameraManager()->GetPathCameraId())) {
     TeleportCamera(cam->GetTransform(), mgr);
     x18d_26_lookAtBall = true;
   }
@@ -707,15 +707,15 @@ zeus::CVector3f CBallCamera::TweenVelocity(const zeus::CVector3f& curVel, const 
 }
 
 zeus::CVector3f CBallCamera::MoveCollisionActor(const zeus::CVector3f& pos, float dt, CStateManager& mgr) {
-  if (TCastToPtr<CPhysicsActor> act = mgr.ObjectById(x46c_collisionActorId)) {
-    zeus::CVector3f posDelta = pos - act->GetTranslation();
+  if (const TCastToPtr<CPhysicsActor> act = mgr.ObjectById(x46c_collisionActorId)) {
+    const zeus::CVector3f posDelta = pos - act->GetTranslation();
     if (!posDelta.canBeNormalized() || posDelta.magnitude() < 0.01f) {
       act->Stop();
       return act->GetTranslation();
     }
-    zeus::CVector3f oldTranslation = act->GetTranslation();
-    zeus::CVector3f oldVel = act->GetVelocity();
-    zeus::CVector3f newVel = ComputeVelocity(oldVel, posDelta * (1.f / dt));
+    const zeus::CVector3f oldTranslation = act->GetTranslation();
+    const zeus::CVector3f oldVel = act->GetVelocity();
+    const zeus::CVector3f newVel = ComputeVelocity(oldVel, posDelta * (1.f / dt));
     act->SetVelocityWR(newVel);
     act->SetMovable(true);
     act->AddMaterial(EMaterialTypes::Solid, mgr);
@@ -808,8 +808,8 @@ void CBallCamera::UpdateUsingFreeLook(float dt, CStateManager& mgr) {
   }
 
   x37c_camSpline.UpdateSplineLength();
-  zeus::CVector3f pos = x37c_camSpline.GetInterpolatedSplinePointByLength(splineT * x37c_camSpline.x44_length).origin;
-  if (TCastToPtr<CPhysicsActor> act = mgr.ObjectById(x46c_collisionActorId)) {
+  const zeus::CVector3f pos = x37c_camSpline.GetInterpolatedSplinePointByLength(splineT * x37c_camSpline.x44_length).origin;
+  if (const TCastToPtr<CPhysicsActor> act = mgr.ObjectById(x46c_collisionActorId)) {
     CMaterialFilter filter = act->GetMaterialFilter();
     CMaterialFilter tmpFilter = filter;
     tmpFilter.IncludeList().Add(EMaterialTypes::Wall);
@@ -820,8 +820,9 @@ void CBallCamera::UpdateUsingFreeLook(float dt, CStateManager& mgr) {
   }
 
   zeus::CVector3f lookDir = x1d8_lookPos - desiredPos;
-  if (x18d_26_lookAtBall)
+  if (x18d_26_lookAtBall) {
     lookDir = ballPos - desiredPos;
+  }
 
   if (lookDir.canBeNormalized()) {
     lookDir.normalize();
@@ -830,8 +831,9 @@ void CBallCamera::UpdateUsingFreeLook(float dt, CStateManager& mgr) {
 
   TeleportCamera(desiredPos, mgr);
 
-  if (x3d0_24_camBehindFloorOrWall && x374_splineCtrl / x378_splineCtrlRange < 0.5f)
+  if (x3d0_24_camBehindFloorOrWall && x374_splineCtrl / x378_splineCtrlRange < 0.5f) {
     x36c_splineState = ESplineState::Invalid;
+  }
 }
 
 zeus::CVector3f CBallCamera::InterpolateCameraElevation(const zeus::CVector3f& camPos, float dt) {
@@ -1307,7 +1309,7 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr) {
 }
 
 void CBallCamera::UpdateUsingSpindleCameras(float dt, CStateManager& mgr) {
-  if (TCastToPtr<CScriptSpindleCamera> cam = mgr.ObjectById(mgr.GetCameraManager()->GetSpindleCameraId())) {
+  if (const TCastToConstPtr<CScriptSpindleCamera> cam = mgr.ObjectById(mgr.GetCameraManager()->GetSpindleCameraId())) {
     TeleportCamera(cam->GetTransform(), mgr);
     x18d_26_lookAtBall = true;
   }
@@ -1315,12 +1317,13 @@ void CBallCamera::UpdateUsingSpindleCameras(float dt, CStateManager& mgr) {
 
 zeus::CVector3f CBallCamera::ClampElevationToWater(zeus::CVector3f& pos, CStateManager& mgr) const {
   zeus::CVector3f ret = pos;
-  if (TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(mgr.GetPlayer().GetFluidId())) {
-    float waterZ = water->GetTriggerBoundsWR().max.z();
-    if (pos.z() >= waterZ && pos.z() - waterZ <= 0.25f)
+  if (const TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(mgr.GetPlayer().GetFluidId())) {
+    const float waterZ = water->GetTriggerBoundsWR().max.z();
+    if (pos.z() >= waterZ && pos.z() - waterZ <= 0.25f) {
       ret.z() = 0.25f + waterZ;
-    else if (pos.z() < waterZ && pos.z() - waterZ >= -0.12f)
+    } else if (pos.z() < waterZ && pos.z() - waterZ >= -0.12f) {
       ret.z() = waterZ - 0.12f;
+    }
   }
   return ret;
 }
@@ -1366,24 +1369,25 @@ void CBallCamera::UpdateUsingTransitions(float dt, CStateManager& mgr) {
     float distance = x194_targetMinDistance;
     ConstrainElevationAndDistance(elevation, distance, dt, mgr);
     distance = x194_targetMinDistance;
-    bool r28 = IsBallNearDoor(GetTranslation(), mgr) || x478_shortMoveCount > 2;
-    zeus::CVector3f toDesired =
+    const bool r28 = IsBallNearDoor(GetTranslation(), mgr) || x478_shortMoveCount > 2;
+    const zeus::CVector3f toDesired =
         FindDesiredPosition(distance, elevation, mgr.GetPlayer().GetMoveDir(), mgr, r28) - eyePos;
     zeus::CVector3f finalPos = toDesired * mgr.GetPlayer().GetMorphFactor() + eyePos;
-    if (TCastToPtr<CPhysicsActor> act = mgr.ObjectById(x46c_collisionActorId)) {
+    if (const TCastToPtr<CPhysicsActor> act = mgr.ObjectById(x46c_collisionActorId)) {
       act->SetTranslation(GetTranslation());
       finalPos = ClampElevationToWater(finalPos, mgr);
       finalPos = MoveCollisionActor(finalPos, dt, mgr);
       zeus::CVector3f camToLookDir = x1d8_lookPos - finalPos;
       if (camToLookDir.canBeNormalized()) {
         camToLookDir.normalize();
-        float devDot = std::fabs(zeus::clamp(-1.f, lookDir.dot(camToLookDir), 1.f));
-        float devAngle = zeus::clamp(-1.f, mgr.GetPlayer().GetMorphFactor() * 0.5f, 1.f) * std::acos(devDot);
-        if (devDot < 1.f)
+        const float devDot = std::fabs(zeus::clamp(-1.f, lookDir.dot(camToLookDir), 1.f));
+        const float devAngle = zeus::clamp(-1.f, mgr.GetPlayer().GetMorphFactor() * 0.5f, 1.f) * std::acos(devDot);
+        if (devDot < 1.f) {
           SetTransform(zeus::CQuaternion::lookAt(xe8.basis[1], camToLookDir, devAngle).toTransform() *
                        xe8.getRotation());
-        else
+        } else {
           SetTransform(zeus::lookAt(zeus::skZero3f, camToLookDir));
+        }
       }
     }
     SetTransform(ValidateCameraTransform(x34_transform, xe8));
@@ -1509,7 +1513,7 @@ bool CBallCamera::SplineIntersectTest(CMaterialList& intersectMat, CStateManager
   TUniqueId xe38 = kInvalidUniqueId;
   rstl::reserved_vector<CRayCastResult, 12> xacc;
   rstl::reserved_vector<CRayCastResult, 12> xd10;
-  CMaterialFilter filter =
+  constexpr auto filter =
       CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid, EMaterialTypes::Floor, EMaterialTypes::Wall},
                                           {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Player,
                                            EMaterialTypes::Character, EMaterialTypes::CameraPassthrough});
@@ -1544,18 +1548,23 @@ bool CBallCamera::SplineIntersectTest(CMaterialList& intersectMat, CStateManager
 }
 
 bool CBallCamera::IsBallNearDoor(const zeus::CVector3f& pos, CStateManager& mgr) {
-  TCastToConstPtr<CScriptDoor> door = mgr.GetObjectById(mgr.GetCameraManager()->GetBallCamera()->x3dc_tooCloseActorId);
-  if (!door || door->x2a8_26_isOpen)
+  const TCastToConstPtr<CScriptDoor> door =
+      mgr.GetObjectById(mgr.GetCameraManager()->GetBallCamera()->x3dc_tooCloseActorId);
+  if (!door || door->x2a8_26_isOpen) {
     return false;
+  }
 
-  auto tb = door->GetTouchBounds();
-  zeus::CAABox testAABB(pos - 0.3f, pos + 0.3f);
-  if (!tb || !tb->intersects(testAABB))
+  const auto tb = door->GetTouchBounds();
+  const zeus::CAABox testAABB(pos - 0.3f, pos + 0.3f);
+  if (!tb || !tb->intersects(testAABB)) {
     return false;
+  }
 
-  if (TCastToConstPtr<CScriptDock> dock = mgr.GetObjectById(door->x282_dockId))
-    if (std::fabs(dock->GetPlane(mgr).pointToPlaneDist(pos)) < 1.15f)
+  if (const TCastToConstPtr<CScriptDock> dock = mgr.GetObjectById(door->x282_dockId)) {
+    if (std::fabs(dock->GetPlane(mgr).pointToPlaneDist(pos)) < 1.15f) {
       return true;
+    }
+  }
 
   return false;
 }
@@ -1586,17 +1595,20 @@ bool CBallCamera::ConstrainElevationAndDistance(float& elevation, float& distanc
   float newDistance = distance;
   float baseElevation = elevation;
   float springSpeed = 1.f;
-  if (TCastToConstPtr<CScriptDoor> door = mgr.GetObjectById(x3dc_tooCloseActorId)) {
+  if (const TCastToConstPtr<CScriptDoor> door = mgr.GetObjectById(x3dc_tooCloseActorId)) {
     if (!door->x2a8_29_ballDoor) {
       stretchFac = zeus::clamp(-1.f, std::fabs(x3e0_tooCloseActorDist / (3.f * distance)), 1.f);
-      if (x3e0_tooCloseActorDist < 3.f * distance)
+      if (x3e0_tooCloseActorDist < 3.f * distance) {
         doorClose = true;
-      if (door->x2a8_26_isOpen)
+      }
+      if (door->x2a8_26_isOpen) {
         newDistance = stretchFac * (distance - x468_conservativeDoorCamDistance) + x468_conservativeDoorCamDistance;
-      else
+      } else {
         newDistance = stretchFac * (distance - 5.f) + 5.f;
-      if (x18d_28_obtuseDirection)
+      }
+      if (x18d_28_obtuseDirection) {
         newDistance *= 1.f + x308_speedFactor;
+      }
       baseElevation = door->x2a8_26_isOpen ? 0.75f : 1.5f;
       springSpeed = 4.f;
     }
@@ -1799,9 +1811,10 @@ bool CBallCamera::DetectCollision(const zeus::CVector3f& from, const zeus::CVect
 void CBallCamera::Think(float dt, CStateManager& mgr) {
   mgr.SetActorAreaId(*this, mgr.GetNextAreaId());
   UpdatePlayerMovement(dt, mgr);
-  TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x46c_collisionActorId);
-  if (colAct)
+  const TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x46c_collisionActorId);
+  if (colAct) {
     mgr.SetActorAreaId(*colAct, mgr.GetNextAreaId());
+  }
 
   switch (mgr.GetPlayer().GetCameraState()) {
   default:
@@ -1936,8 +1949,9 @@ void CBallCamera::TeleportCamera(const zeus::CVector3f& pos, CStateManager& mgr)
   TeleportColliders(x264_smallColliders, pos);
   TeleportColliders(x274_mediumColliders, pos);
   TeleportColliders(x284_largeColliders, pos);
-  if (TCastToPtr<CCollisionActor> act = mgr.ObjectById(x46c_collisionActorId))
+  if (const TCastToPtr<CCollisionActor> act = mgr.ObjectById(x46c_collisionActorId)) {
     act->SetTranslation(pos);
+  }
 }
 
 void CBallCamera::TeleportCamera(const zeus::CTransform& xf, CStateManager& mgr) {

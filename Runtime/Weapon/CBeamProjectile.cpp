@@ -25,13 +25,16 @@ CBeamProjectile::CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::s
 }
 
 std::optional<zeus::CAABox> CBeamProjectile::GetTouchBounds() const {
-  if (!GetActive())
-    return {};
+  if (!GetActive()) {
+    return std::nullopt;
+  }
+
   if (x464_25_enableTouchDamage) {
-    zeus::CVector3f pos = GetTranslation();
+    const zeus::CVector3f pos = GetTranslation();
     return {{pos - 0.1f, pos + 0.1f}};
   }
-  return {};
+
+  return std::nullopt;
 }
 
 void CBeamProjectile::CalculateRenderBounds() { x9c_renderBounds = x354_.getTransformedAABox(x324_xf); }

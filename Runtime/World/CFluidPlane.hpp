@@ -128,9 +128,9 @@ protected:
   float x48_rippleIntensity;
   CFluidUVMotion x4c_uvMotion;
 
-  mutable std::vector<CFluidPlaneShader::Vertex> m_verts;
-  mutable std::vector<CFluidPlaneShader::PatchVertex> m_pVerts;
-  mutable std::optional<CFluidPlaneShader> m_shader;
+  std::vector<CFluidPlaneShader::Vertex> m_verts;
+  std::vector<CFluidPlaneShader::PatchVertex> m_pVerts;
+  std::optional<CFluidPlaneShader> m_shader;
 
   float ProjectRippleVelocity(float baseI, float velDot) const;
   float CalculateRippleIntensity(float baseI) const;
@@ -138,10 +138,10 @@ protected:
   virtual void RenderStripWithRipples(float curY, const CFluidPlaneRender::SHFieldSample (&heights)[46][46],
                                       const u8 (&flags)[9][9], int startYDiv, const CFluidPlaneRender::SPatchInfo& info,
                                       std::vector<CFluidPlaneShader::Vertex>& vOut,
-                                      std::vector<CFluidPlaneShader::PatchVertex>& pvOut) const;
+                                      std::vector<CFluidPlaneShader::PatchVertex>& pvOut);
   void RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const CFluidPlaneRender::SHFieldSample (&heights)[46][46],
                    const u8 (&flags)[9][9], bool noRipples, bool flagIs1, std::vector<CFluidPlaneShader::Vertex>& vOut,
-                   std::vector<CFluidPlaneShader::PatchVertex>& pvOut) const;
+                   std::vector<CFluidPlaneShader::PatchVertex>& pvOut);
 
 public:
   virtual ~CFluidPlane() = default;
@@ -162,7 +162,7 @@ public:
   virtual void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
                       const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
                       const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
-                      const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const {}
+                      const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) {}
 
   float GetAlpha() const { return x40_alpha; }
   EFluidType GetFluidType() const { return x44_fluidType; }

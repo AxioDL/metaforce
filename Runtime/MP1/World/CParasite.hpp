@@ -117,7 +117,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void PreThink(float, CStateManager&) override;
   void Think(float dt, CStateManager& mgr) override;
-  void Render(const CStateManager&) const override;
+  void Render(CStateManager&) override;
   const CDamageVulnerability* GetDamageVulnerability() const override;
   CDamageInfo GetContactDamage() const override;
   void Touch(CActor& actor, CStateManager&) override;

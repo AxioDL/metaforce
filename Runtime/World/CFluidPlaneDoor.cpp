@@ -15,7 +15,7 @@ CFluidPlaneDoor::CFluidPlaneDoor(CAssetId patternTex1, CAssetId patternTex2, CAs
 
 CFluidPlaneShader::RenderSetupInfo CFluidPlaneDoor::RenderSetup(const CStateManager& mgr, float alpha,
                                                                 const zeus::CTransform& xf, const zeus::CAABox& aabb,
-                                                                bool noNormals) const {
+                                                                bool noNormals) {
   CFluidPlaneShader::RenderSetupInfo out;
 
   float uvT = mgr.GetFluidPlaneManager()->GetUVT();
@@ -62,7 +62,7 @@ void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::
                              const zeus::CFrustum& frustum,
                              const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
                              const bool* gridFlags, u32 gridDimX, u32 gridDimY,
-                             const zeus::CVector3f& areaCenter) const {
+                             const zeus::CVector3f& areaCenter) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CFluidPlaneDoor::Render", zeus::skCyan);
   CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, aabb, noNormals);
 

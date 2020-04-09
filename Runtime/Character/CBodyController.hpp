@@ -65,39 +65,39 @@ public:
   pas::ELocomotionType GetLocomotionType() const { return x2ec_locomotionType; }
   CActor& GetOwner() const { return x0_actor; }
   bool IsAnimationOver() const { return x300_24_animationOver; }
-  void EnableAnimation(bool e);
+  void EnableAnimation(bool enable);
   bool ShouldPlayDeathAnims() const { return x300_28_playDeathAnims; }
   s32 GetCurrentAnimId() const { return x2f8_curAnim; }
-  void Activate(CStateManager&);
+  void Activate(CStateManager& mgr);
   CAdditiveBodyState* GetCurrentAdditiveState() { return x2a4_bodyStateInfo.GetCurrentAdditiveState(); }
-  void SetState(pas::EAnimationState s) { x2a4_bodyStateInfo.SetState(s); }
-  void Update(float, CStateManager&);
+  void SetState(pas::EAnimationState state) { x2a4_bodyStateInfo.SetState(state); }
+  void Update(float dt, CStateManager& mgr);
   bool ShouldBeHurled() const { return HasBodyState(pas::EAnimationState::Hurled); }
-  bool HasBodyState(pas::EAnimationState s) const;
+  bool HasBodyState(pas::EAnimationState state) const;
   pas::EFallState GetFallState() const { return x2f0_fallState; }
-  void SetFallState(pas::EFallState s) { x2f0_fallState = s; }
-  void UpdateBody(float, CStateManager&);
-  void SetAdditiveState(pas::EAnimationState s) { x2a4_bodyStateInfo.SetAdditiveState(s); }
-  void SetTurnSpeed(float s);
+  void SetFallState(pas::EFallState state) { x2f0_fallState = state; }
+  void UpdateBody(float dt, CStateManager& mgr);
+  void SetAdditiveState(pas::EAnimationState state) { x2a4_bodyStateInfo.SetAdditiveState(state); }
+  void SetTurnSpeed(float speed);
   void SetCurrentAnimation(const CAnimPlaybackParms& parms, bool loop, bool noTrans);
   float GetAnimTimeRemaining() const;
-  void SetPlaybackRate(float);
-  void MultiplyPlaybackRate(float);
+  void SetPlaybackRate(float rate);
+  void MultiplyPlaybackRate(float mul);
   void SetDeltaRotation(const zeus::CQuaternion& q) { x2dc_rot *= q; }
-  void FaceDirection(const zeus::CVector3f&, float);
-  void FaceDirection3D(const zeus::CVector3f&, const zeus::CVector3f&, float);
-  static bool HasBodyInfo(CActor& act);
+  void FaceDirection(const zeus::CVector3f& v0, float dt);
+  void FaceDirection3D(const zeus::CVector3f& v0, const zeus::CVector3f& v1, float dt);
+  static bool HasBodyInfo(const CActor& actor);
   const CPASDatabase& GetPASDatabase() const;
-  void PlayBestAnimation(const CPASAnimParmData&, CRandom16&);
-  void LoopBestAnimation(const CPASAnimParmData&, CRandom16&);
+  void PlayBestAnimation(const CPASAnimParmData& parms, CRandom16& r);
+  void LoopBestAnimation(const CPASAnimParmData& parms, CRandom16& r);
   void Freeze(float intoFreezeDur, float frozenDur, float breakoutDur);
   void UnFreeze();
   float GetPercentageFrozen() const;
-  void SetOnFire(float);
+  void SetOnFire(float duration);
   void DouseFlames();
-  void SetElectrocuting(float dur);
+  void SetElectrocuting(float duration);
   void DouseElectrocuting();
-  void UpdateFrozenInfo(float, CStateManager&);
+  void UpdateFrozenInfo(float dt, CStateManager& mgr);
   bool HasIceBreakoutState() const;
   void StopElectrocution();
   void FrozenBreakout();
@@ -105,7 +105,7 @@ public:
   EBodyType GetBodyType() const { return x2f4_bodyType; }
   bool HasBeenFrozen() const { return x300_27_hasBeenFrozen; }
   float GetRestrictedFlyerMoveSpeed() const { return x330_restrictedFlyerMoveSpeed; }
-  void SetRestrictedFlyerMoveSpeed(float s) { x330_restrictedFlyerMoveSpeed = s; }
+  void SetRestrictedFlyerMoveSpeed(float speed) { x330_restrictedFlyerMoveSpeed = speed; }
   bool GetActive() const { return x300_25_active; }
 };
 } // namespace urde

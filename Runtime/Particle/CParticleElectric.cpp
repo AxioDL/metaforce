@@ -42,7 +42,7 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
   if (desc->x40_SSWH) {
     x450_27_haveSSWH = true;
     for (int i = 0; i < x154_SCNT; ++i) {
-      x1e0_swooshGenerators.emplace_back(new CParticleSwoosh(desc->x40_SSWH.m_token, x150_SSEG));
+      x1e0_swooshGenerators.emplace_back(std::make_unique<CParticleSwoosh>(desc->x40_SSWH.m_token, x150_SSEG));
       x1e0_swooshGenerators.back()->DoElectricWarmup();
     }
   }
@@ -56,7 +56,7 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
     x450_25_haveGPSM = true;
     x400_gpsmGenerators.reserve(x154_SCNT);
     for (int i = 0; i < x154_SCNT; ++i) {
-      x400_gpsmGenerators.emplace_back(new CElementGen(desc->x50_GPSM.m_token));
+      x400_gpsmGenerators.emplace_back(std::make_unique<CElementGen>(desc->x50_GPSM.m_token));
       x400_gpsmGenerators.back()->SetParticleEmission(false);
     }
   }
@@ -65,15 +65,16 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
     x450_26_haveEPSM = true;
     x410_epsmGenerators.reserve(x154_SCNT);
     for (int i = 0; i < x154_SCNT; ++i) {
-      x410_epsmGenerators.emplace_back(new CElementGen(desc->x60_EPSM.m_token));
+      x410_epsmGenerators.emplace_back(std::make_unique<CElementGen>(desc->x60_EPSM.m_token));
       x410_epsmGenerators.back()->SetParticleEmission(false);
     }
   }
 
   if (x1c_elecDesc->x28_LWD1 || x1c_elecDesc->x2c_LWD2 || x1c_elecDesc->x30_LWD3) {
     x450_28_haveLWD = true;
-    for (int i = 0; i < x154_SCNT; ++i)
-      x2e4_lineManagers.emplace_back(new CLineManager());
+    for (int i = 0; i < x154_SCNT; ++i) {
+      x2e4_lineManagers.emplace_back(std::make_unique<CLineManager>());
+    }
   }
 }
 
@@ -333,7 +334,7 @@ void CParticleElectric::CreateNewParticles(int count) {
         if (CIntElement* slif = x1c_elecDesc->x4_SLIF.get())
           slif->GetValue(x28_currentFrame, lifetime);
 
-        x3e8_electricManagers.push_back(CParticleElectricManager(allocIdx, lifetime, x28_currentFrame));
+        x3e8_electricManagers.emplace_back(allocIdx, lifetime, x28_currentFrame);
         CParticleElectricManager& elec = x3e8_electricManagers.back();
         CParticleGlobals::instance()->SetParticleLifetime(elec.xc_endFrame - elec.x8_startFrame);
         int frame = x28_currentFrame - elec.x8_startFrame;
@@ -655,7 +656,7 @@ void CParticleElectric::SetLocalScale(const zeus::CVector3f& scale) {
   }
 }
 
-void CParticleElectric::SetParticleEmission(bool e) { x450_24_emitting = e; }
+void CParticleElectric::SetParticleEmission(bool emitting) { x450_24_emitting = emitting; }
 
 void CParticleElectric::SetModulationColor(const zeus::CColor& color) { x1b8_moduColor = color; }
 
@@ -694,10 +695,11 @@ bool CParticleElectric::IsSystemDeletable() const {
 }
 
 std::optional<zeus::CAABox> CParticleElectric::GetBounds() const {
-  if (GetParticleCount() <= 0)
-    return {};
-  else
-    return x160_systemBounds;
+  if (GetParticleCount() <= 0) {
+    return std::nullopt;
+  }
+
+  return x160_systemBounds;
 }
 
 u32 CParticleElectric::GetParticleCount() const {

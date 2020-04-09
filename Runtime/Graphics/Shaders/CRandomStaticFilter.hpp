@@ -26,16 +26,16 @@ class CRandomStaticFilter {
 public:
   static void Initialize();
   static void Shutdown();
-  CRandomStaticFilter(EFilterType type, bool cookieCutter = false);
-  CRandomStaticFilter(EFilterType type, const TLockedToken<CTexture>&) : CRandomStaticFilter(type) {}
+  explicit CRandomStaticFilter(EFilterType type, bool cookieCutter = false);
+  explicit CRandomStaticFilter(EFilterType type, const TLockedToken<CTexture>&) : CRandomStaticFilter(type) {}
   void draw(const zeus::CColor& color, float t);
   void DrawFilter(EFilterShape, const zeus::CColor& color, float t) { draw(color, t); }
 };
 
 class CCookieCutterDepthRandomStaticFilter : public CRandomStaticFilter {
 public:
-  CCookieCutterDepthRandomStaticFilter(EFilterType type) : CRandomStaticFilter(type, true) {}
-  CCookieCutterDepthRandomStaticFilter(EFilterType type, const TLockedToken<CTexture>&)
+  explicit CCookieCutterDepthRandomStaticFilter(EFilterType type) : CRandomStaticFilter(type, true) {}
+  explicit CCookieCutterDepthRandomStaticFilter(EFilterType type, const TLockedToken<CTexture>&)
   : CCookieCutterDepthRandomStaticFilter(type) {}
 };
 

@@ -26,12 +26,12 @@ class CAnimFormatUnion {
   static void SubConstruct(u8* storage, EAnimFormat fmt, CInputStream& in, IObjectStore& store);
 
 public:
-  CAnimFormatUnion(CInputStream& in, IObjectStore& store);
+  explicit CAnimFormatUnion(CInputStream& in, IObjectStore& store);
   ~CAnimFormatUnion();
   EAnimFormat GetFormat() const { return x0_format; }
-  const CAnimSource& GetAsCAnimSource() const { return *reinterpret_cast<const CAnimSource*>(x4_storage); }
-  const CFBStreamedCompression& GetAsCFBStreamedCompression() const {
-    return *reinterpret_cast<const CFBStreamedCompression*>(x4_storage);
+  CAnimSource& GetAsCAnimSource() { return *reinterpret_cast<CAnimSource*>(x4_storage); }
+  CFBStreamedCompression& GetAsCFBStreamedCompression() {
+    return *reinterpret_cast<CFBStreamedCompression*>(x4_storage);
   }
 };
 
@@ -40,7 +40,7 @@ class CAllFormatsAnimSource : public CAnimFormatUnion {
   SObjectTag x74_tag;
 
 public:
-  CAllFormatsAnimSource(CInputStream& in, IObjectStore& store, const SObjectTag& tag);
+  explicit CAllFormatsAnimSource(CInputStream& in, IObjectStore& store, const SObjectTag& tag);
   static std::shared_ptr<IAnimReader> GetNewReader(const TLockedToken<CAllFormatsAnimSource>& tok,
                                                    const CCharAnimTime& startTime);
 };

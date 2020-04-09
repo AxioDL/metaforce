@@ -39,8 +39,8 @@ public:
   void ResolveCollisionWithWorld(const CRayCastResult& res, CStateManager& mgr);
   void ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr);
   void Think(float dt, CStateManager& mgr);
-  void Render(const CStateManager& mgr) const;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
+  void Render(CStateManager& mgr);
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr);
   void Touch(CActor& act, CStateManager& mgr);
   virtual bool Explode(const zeus::CVector3f& pos, const zeus::CVector3f& normal, EWeaponCollisionResponseTypes type,
                        CStateManager& mgr, const CDamageVulnerability& dVuln, TUniqueId hitActor);

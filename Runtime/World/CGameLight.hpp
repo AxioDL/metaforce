@@ -15,13 +15,13 @@ class CGameLight : public CActor {
   float x144_lifeTime;
 
 public:
-  CGameLight(TUniqueId, TAreaId, bool, std::string_view, const zeus::CTransform&, TUniqueId, const CLight&,
-             u32 sourceId, u32, float);
+  CGameLight(TUniqueId uid, TAreaId aid, bool active, std::string_view name, const zeus::CTransform& xf,
+             TUniqueId parentId, const CLight& light, u32 sourceId, u32 priority, float lifeTime);
 
   void Accept(IVisitor& visitor) override;
-  void Think(float, CStateManager&) override;
+  void Think(float dt, CStateManager& mgr) override;
   void SetLightPriorityAndId();
-  void SetLight(const CLight&);
+  void SetLight(const CLight& light);
   CLight GetLight() const;
   TUniqueId GetParentId() const { return xe8_parentId; }
 };

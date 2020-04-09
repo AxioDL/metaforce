@@ -35,7 +35,7 @@ float CFluidPlane::ProjectRippleVelocity(float baseI, float velDot) const {
 }
 
 float CFluidPlane::CalculateRippleIntensity(float baseI) const {
-  float mul;
+  float mul = 0.0f;
   switch (x44_fluidType) {
   case EFluidType::NormalWater:
     mul = g_tweakGame->GetRippleIntensityNormal();
@@ -87,7 +87,7 @@ void CFluidPlane::RenderStripWithRipples(float curY, const CFluidPlaneRender::SH
                                          const u8 (&flags)[9][9], int startYDiv,
                                          const CFluidPlaneRender::SPatchInfo& info,
                                          std::vector<CFluidPlaneShader::Vertex>& vOut,
-                                         std::vector<CFluidPlaneShader::PatchVertex>& pvOut) const {
+                                         std::vector<CFluidPlaneShader::PatchVertex>& pvOut) {
   m_shader->bindRegular();
 
   int yTile = (startYDiv + CFluidPlaneRender::numSubdivisionsInTile - 1) / CFluidPlaneRender::numSubdivisionsInTile;
@@ -313,7 +313,7 @@ void CFluidPlane::RenderStripWithRipples(float curY, const CFluidPlaneRender::SH
 void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info,
                               const CFluidPlaneRender::SHFieldSample (&heights)[46][46], const u8 (&flags)[9][9],
                               bool noRipples, bool flagIs1, std::vector<CFluidPlaneShader::Vertex>& vOut,
-                              std::vector<CFluidPlaneShader::PatchVertex>& pvOut) const {
+                              std::vector<CFluidPlaneShader::PatchVertex>& pvOut) {
   if (noRipples) {
     m_shader->bindRegular();
 

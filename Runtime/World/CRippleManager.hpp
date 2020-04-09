@@ -15,7 +15,7 @@ class CRippleManager {
 public:
   CRippleManager(int maxRipples, float alpha);
   void Init(int maxRipples);
-  std::vector<CRipple>& Ripples() { return x4_ripples; }
+  std::vector<CRipple>& GetRipples() { return x4_ripples; }
   const std::vector<CRipple>& GetRipples() const { return x4_ripples; }
   void Update(float dt);
   float GetLastRippleDeltaTime(TUniqueId rippler) const;

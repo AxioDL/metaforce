@@ -21,7 +21,7 @@ struct SMoverData {
   zeus::CAxisAngle x24_;
   float x30_mass;
 
-  SMoverData(float mass) : x30_mass(mass) {}
+  explicit SMoverData(float mass) : x30_mass(mass) {}
 };
 
 struct CMotionState {
@@ -48,18 +48,19 @@ class CPhysicsState {
   zeus::CAxisAngle x64_angularImpulse;
 
 public:
-  CPhysicsState(const zeus::CVector3f& translation, const zeus::CQuaternion& orient, const zeus::CVector3f& v2,
-                const zeus::CAxisAngle& a1, const zeus::CVector3f& v3, const zeus::CVector3f& v4,
-                const zeus::CVector3f& v5, const zeus::CAxisAngle& a2, const zeus::CAxisAngle& a3)
+  CPhysicsState(const zeus::CVector3f& translation, const zeus::CQuaternion& orient,
+                const zeus::CVector3f& constantForce, const zeus::CAxisAngle& angularMomentum,
+                const zeus::CVector3f& momentum, const zeus::CVector3f& force, const zeus::CVector3f& impulse,
+                const zeus::CAxisAngle& torque, const zeus::CAxisAngle& angularImpulse)
   : x0_translation(translation)
   , xc_orientation(orient)
-  , x1c_constantForce(v2)
-  , x28_angularMomentum(a1)
-  , x34_momentum(v3)
-  , x40_force(v4)
-  , x4c_impulse(v5)
-  , x58_torque(a2)
-  , x64_angularImpulse(a3) {}
+  , x1c_constantForce(constantForce)
+  , x28_angularMomentum(angularMomentum)
+  , x34_momentum(momentum)
+  , x40_force(force)
+  , x4c_impulse(impulse)
+  , x58_torque(torque)
+  , x64_angularImpulse(angularImpulse) {}
 
   void SetTranslation(const zeus::CVector3f& tr) { x0_translation = tr; }
   void SetOrientation(const zeus::CQuaternion& orient) { xc_orientation = orient; }
@@ -116,15 +117,16 @@ protected:
   u32 x250_numTicksPartialUpdate = 0;
 
 public:
-  CPhysicsActor(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
-                const CMaterialList&, const zeus::CAABox&, const SMoverData&, const CActorParameters&, float, float);
+  CPhysicsActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+                CModelData&& mData, const CMaterialList& matList, const zeus::CAABox& box, const SMoverData& moverData,
+                const CActorParameters& actorParms, float stepUp, float stepDown);
 
-  void Render(const CStateManager& mgr) const override;
-  zeus::CVector3f GetOrbitPosition(const CStateManager&) const override;
-  zeus::CVector3f GetAimPosition(const CStateManager&, float val) const override;
+  void Render(CStateManager& mgr) override;
+  zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const override;
+  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float val) const override;
   virtual const CCollisionPrimitive* GetCollisionPrimitive() const;
   virtual zeus::CTransform GetPrimitiveTransform() const;
-  virtual void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager&);
+  virtual void CollidedWith(TUniqueId id, const CCollisionInfoList& list, CStateManager& mgr);
   virtual float GetStepUpHeight() const;
   virtual float GetStepDownHeight() const;
   virtual float GetWeight() const;
@@ -144,7 +146,7 @@ public:
   void SetLastNonCollidingState(const CMotionState& mst) { x1f4_lastNonCollidingState = mst; }
   void SetMotionState(const CMotionState& mst);
   float GetMaximumCollisionVelocity() const { return x238_maximumCollisionVelocity; }
-  void SetMaximumCollisionVelocity(float v) { x238_maximumCollisionVelocity = v; }
+  void SetMaximumCollisionVelocity(float velocity) { x238_maximumCollisionVelocity = velocity; }
   void SetInertiaTensorScalar(float tensor);
   void SetMass(float mass);
   void SetAngularVelocityOR(const zeus::CAxisAngle& angVel);
@@ -156,14 +158,15 @@ public:
   const zeus::CVector3f& GetMoveImpulseOR() const { return x18c_moveImpulse; }
   void SetVelocityWR(const zeus::CVector3f& vel);
   void SetVelocityOR(const zeus::CVector3f& vel);
-  void SetMomentumWR(const zeus::CVector3f& m) { x150_momentum = m; }
+  void SetMomentumWR(const zeus::CVector3f& momentum) { x150_momentum = momentum; }
   const zeus::CVector3f& GetConstantForce() const { return xfc_constantForce; }
-  void SetConstantForce(const zeus::CVector3f& f) { xfc_constantForce = f; }
-  void SetAngularMomentum(const zeus::CAxisAngle& m) { x108_angularMomentum = m; }
+  void SetConstantForce(const zeus::CVector3f& force) { xfc_constantForce = force; }
+  const zeus::CVector3f& GetAngularMomentum() const { return x108_angularMomentum; }
+  void SetAngularMomentum(const zeus::CAxisAngle& momentum) { x108_angularMomentum = momentum; }
   const zeus::CVector3f& GetMomentum() const { return x150_momentum; }
   const zeus::CVector3f& GetVelocity() const { return x138_velocity; }
   const zeus::CAxisAngle& GetAngularImpulse() const { return x180_angularImpulse; }
-  void SetAngularImpulse(const zeus::CAxisAngle& i) { x180_angularImpulse = i; }
+  void SetAngularImpulse(const zeus::CAxisAngle& impulse) { x180_angularImpulse = impulse; }
   zeus::CVector3f GetTotalForcesWR() const;
   void RotateInOneFrameOR(const zeus::CQuaternion& q, float d);
   void MoveInOneFrameOR(const zeus::CVector3f& trans, float d);
@@ -177,26 +180,26 @@ public:
   void ClearForcesAndTorques();
   void Stop();
   void ComputeDerivedQuantities();
-  bool WillMove(const CStateManager&) const;
+  bool WillMove(const CStateManager& mgr) const;
   void SetPhysicsState(const CPhysicsState& state);
   CPhysicsState GetPhysicsState() const;
   bool IsMovable() const { return xf8_24_movable; }
-  void SetMovable(bool m) { xf8_24_movable = m; }
+  void SetMovable(bool movable) { xf8_24_movable = movable; }
   bool IsAngularEnabled() const { return xf8_25_angularEnabled; }
-  void SetAngularEnabled(bool e) { xf8_25_angularEnabled = e; }
+  void SetAngularEnabled(bool enabled) { xf8_25_angularEnabled = enabled; }
   float GetCollisionAccuracyModifier() const { return x248_collisionAccuracyModifier; }
-  void SetCollisionAccuracyModifier(float m) { x248_collisionAccuracyModifier = m; }
+  void SetCollisionAccuracyModifier(float modifier) { x248_collisionAccuracyModifier = modifier; }
   float GetCoefficientOfRestitutionModifier() const { return x244_restitutionCoefModifier; }
-  void SetCoefficientOfRestitutionModifier(float m) { x244_restitutionCoefModifier = m; }
+  void SetCoefficientOfRestitutionModifier(float modifier) { x244_restitutionCoefModifier = modifier; }
   bool IsUseStandardCollider() const { return xf9_standardCollider; }
   u32 GetNumTicksPartialUpdate() const { return x250_numTicksPartialUpdate; }
-  void SetNumTicksPartialUpdate(u32 t) { x250_numTicksPartialUpdate = t; }
+  void SetNumTicksPartialUpdate(u32 ticks) { x250_numTicksPartialUpdate = ticks; }
   u32 GetNumTicksStuck() const { return x24c_numTicksStuck; }
-  void SetNumTicksStuck(u32 t) { x24c_numTicksStuck = t; }
+  void SetNumTicksStuck(u32 ticks) { x24c_numTicksStuck = ticks; }
   const std::optional<zeus::CVector3f>& GetLastFloorPlaneNormal() const {
     return x228_lastFloorPlaneNormal;
   }
-  void SetLastFloorPlaneNormal(const std::optional<zeus::CVector3f>& n) { x228_lastFloorPlaneNormal = n; }
+  void SetLastFloorPlaneNormal(const std::optional<zeus::CVector3f>& normal) { x228_lastFloorPlaneNormal = normal; }
 
   CMotionState PredictMotion_Internal(float) const;
   CMotionState PredictMotion(float dt) const;

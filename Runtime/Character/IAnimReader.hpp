@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <optional>
+#include <string_view>
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
@@ -71,31 +72,36 @@ template <class T>
 class TSubAnimTypeToken : public TLockedToken<CAllFormatsAnimSource> {};
 
 template <>
-class TSubAnimTypeToken<CAnimSource> : public TLockedToken<CAllFormatsAnimSource> {
+class TSubAnimTypeToken<CAnimSource> : public TLockedToken<CAnimSource> {
 public:
-  TSubAnimTypeToken<CAnimSource>(const TLockedToken<CAllFormatsAnimSource>& token)
-  : TLockedToken<CAllFormatsAnimSource>(token) {}
+  // Converting constructor
+  TSubAnimTypeToken(const TLockedToken<CAllFormatsAnimSource>& token) : TLockedToken<CAnimSource>(token) {}
 
-  const CAnimSource* GetObj() const {
-    const CAllFormatsAnimSource* source = TLockedToken<CAllFormatsAnimSource>::GetObj();
+  CAnimSource* GetObj() override {
+    CAllFormatsAnimSource* source = reinterpret_cast<CAllFormatsAnimSource*>(TLockedToken<CAnimSource>::GetObj());
     return &source->GetAsCAnimSource();
   }
-  const CAnimSource* operator->() const { return GetObj(); }
-  const CAnimSource& operator*() const { return *GetObj(); }
+
+  const CAnimSource* GetObj() const override {
+    return const_cast<TSubAnimTypeToken<CAnimSource>*>(this)->GetObj();
+  }
 };
 
 template <>
-class TSubAnimTypeToken<CFBStreamedCompression> : public TLockedToken<CAllFormatsAnimSource> {
+class TSubAnimTypeToken<CFBStreamedCompression> : public TLockedToken<CFBStreamedCompression> {
 public:
-  TSubAnimTypeToken<CFBStreamedCompression>(const TLockedToken<CAllFormatsAnimSource>& token)
-  : TLockedToken<CAllFormatsAnimSource>(token) {}
+  // Converting constructor
+  TSubAnimTypeToken(const TLockedToken<CAllFormatsAnimSource>& token) : TLockedToken<CFBStreamedCompression>(token) {}
 
-  const CFBStreamedCompression* GetObj() const {
-    const CAllFormatsAnimSource* source = TLockedToken<CAllFormatsAnimSource>::GetObj();
+  CFBStreamedCompression* GetObj() override {
+    CAllFormatsAnimSource* source =
+        reinterpret_cast<CAllFormatsAnimSource*>(TLockedToken<CFBStreamedCompression>::GetObj());
     return &source->GetAsCFBStreamedCompression();
   }
-  const CFBStreamedCompression* operator->() const { return GetObj(); }
-  const CFBStreamedCompression& operator*() const { return *GetObj(); }
+
+  const CFBStreamedCompression* GetObj() const override {
+    return const_cast<TSubAnimTypeToken<CFBStreamedCompression>*>(this)->GetObj();
+  }
 };
 
 class IAnimReader {
@@ -116,9 +122,9 @@ public:
                                   u32) const = 0;
   virtual u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator,
                                u32) const = 0;
-  virtual bool VGetBoolPOIState(const char*) const = 0;
-  virtual s32 VGetInt32POIState(const char*) const = 0;
-  virtual CParticleData::EParentedMode VGetParticlePOIState(const char*) const = 0;
+  virtual bool VGetBoolPOIState(std::string_view name) const = 0;
+  virtual s32 VGetInt32POIState(std::string_view name) const = 0;
+  virtual CParticleData::EParentedMode VGetParticlePOIState(std::string_view name) const = 0;
   virtual void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const = 0;
   virtual void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut,
                                    const CCharAnimTime& time) const = 0;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <unordered_set>
 #include <vector>
@@ -109,8 +110,7 @@ public:
     void SetTimeRemaining(float t) { x4_timeRemaining = t; }
 
     CBaseSfxWrapper(bool looped, s16 prio, /*const CSfxHandle& handle,*/ bool useAcoustics, TAreaId area)
-    : x8_rank(0)
-    , xa_prio(prio)
+    : xa_prio(prio)
     , /*xc_handle(handle),*/ x10_area(area)
     , x14_24_isActive(true)
     , x14_25_isPlaying(false)
@@ -118,15 +118,16 @@ public:
     , x14_27_inArea(true)
     , x14_28_isReleased(false)
     , x14_29_useAcoustics(useAcoustics)
+    , m_isEmitter(false)
     , m_isClosed(false) {}
   };
 
   class CSfxEmitterWrapper : public CBaseSfxWrapper {
-    float x1a_reverb;
+    float x1a_reverb = 0.0f;
     CAudioSys::C3DEmitterParmData x24_parmData;
     amuse::ObjToken<amuse::Emitter> x50_emitterHandle;
     bool x54_ready = true;
-    float x55_cachedMaxVol;
+    float x55_cachedMaxVol = 0.0f;
 
   public:
     bool IsPlaying() const override;
@@ -177,7 +178,7 @@ public:
     }
   };
 
-  static CSfxChannel m_channels[4];
+  static std::array<CSfxChannel, 4> m_channels;
   static ESfxChannels m_currentChannel;
   static bool m_doUpdate;
   static void* m_usedSounds;

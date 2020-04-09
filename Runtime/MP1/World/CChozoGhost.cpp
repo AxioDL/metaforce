@@ -212,7 +212,7 @@ void CChozoGhost::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
                               *GetBodyController());
 }
 
-void CChozoGhost::Render(const CStateManager& mgr) const {
+void CChozoGhost::Render(CStateManager& mgr) {
   if (x6c8_spaceWarpTime > 0.f)
     mgr.DrawSpaceWarp(x6cc_spaceWarpPosition, std::sin((M_PIF * x6c8_spaceWarpTime) / x56c_fadeOutDelay));
 
@@ -446,7 +446,7 @@ void CChozoGhost::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
     xfc_constantForce.zeroOut();
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, x67c_attackType);
-    GetBodyController()->GetCommandMgr().SetTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+    GetBodyController()->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
     if (x67c_attackType != 2)
       FloatToLevel(x678_floorLevel, dt);
   } else if (msg == EStateMsg::Deactivate) {

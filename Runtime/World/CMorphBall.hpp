@@ -233,7 +233,7 @@ public:
   void RenderMorphBallTransitionFlash(const CStateManager&) const;
   void UpdateIceBreakEffect(float dt);
   void RenderIceBreakEffect(const CStateManager& mgr) const;
-  bool IsMorphBallTransitionFlashValid() const { return x19dc_morphBallTransitionFlashGen != 0; }
+  bool IsMorphBallTransitionFlashValid() const { return x19dc_morphBallTransitionFlashGen != nullptr; }
   void RenderDamageEffects(const CStateManager& mgr, const zeus::CTransform& xf) const;
   void UpdateHalfPipeStatus(CStateManager& mgr, float dt);
   bool GetIsInHalfPipeMode() const { return x1df8_24_inHalfPipeMode; }

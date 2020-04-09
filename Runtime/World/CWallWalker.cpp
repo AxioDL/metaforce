@@ -164,7 +164,7 @@ void CWallWalker::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CWallWalker::Render(const CStateManager& mgr) const { CPatterned::Render(mgr); }
+void CWallWalker::Render(CStateManager& mgr) { CPatterned::Render(mgr); }
 
 void CWallWalker::UpdateWPDestination(CStateManager& mgr) {
   if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x2dc_destObj)) {

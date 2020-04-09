@@ -14,7 +14,8 @@ CInterpolationCamera::CInterpolationCamera(TUniqueId uid, const zeus::CTransform
 : CGameCamera(uid, false, "Interpolation Camera",
               CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList, kInvalidEditorId), xf,
               CCameraManager::ThirdPersonFOV(), CCameraManager::NearPlane(), CCameraManager::FarPlane(),
-              CCameraManager::Aspect(), kInvalidUniqueId, false, 0) {}
+              CCameraManager::Aspect(), kInvalidUniqueId, false, 0)
+, x1d8_24_sinusoidal{false} {}
 
 void CInterpolationCamera::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
@@ -26,7 +27,7 @@ void CInterpolationCamera::ProcessInput(const CFinalInput& input, CStateManager&
   // Empty
 }
 
-void CInterpolationCamera::Render(const CStateManager& mgr) const {
+void CInterpolationCamera::Render(CStateManager& mgr) {
   // Empty
 }
 

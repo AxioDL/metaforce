@@ -31,27 +31,27 @@ class CSortedListManager {
   std::array<SNode, 1024> x0_nodes;
   std::array<SSortedList, 6> xb000_sortedLists;
   void Reset();
-  void AddToLinkedList(s16 a, s16& b, s16& c) const;
-  void RemoveFromList(ESortedList, s16);
-  void MoveInList(ESortedList, s16);
-  void InsertInList(ESortedList, SNode& node);
-  s16 FindInListUpper(ESortedList, float) const;
-  s16 FindInListLower(ESortedList, float) const;
-  s16 ConstructIntersectionArray(const zeus::CAABox&);
-  s16 CalculateIntersections(ESortedList, ESortedList, s16, s16, s16, s16, ESortedList, ESortedList, ESortedList,
-                             ESortedList, const zeus::CAABox&);
+  void AddToLinkedList(s16 nodeId, s16& headId, s16& tailId);
+  void RemoveFromList(ESortedList list, s16 idx);
+  void MoveInList(ESortedList list, s16 idx);
+  void InsertInList(ESortedList list, SNode& node);
+  s16 FindInListUpper(ESortedList list, float value) const;
+  s16 FindInListLower(ESortedList list, float value) const;
+  s16 ConstructIntersectionArray(const zeus::CAABox& aabb);
+  s16 CalculateIntersections(ESortedList la, ESortedList lb, s16 a, s16 b, s16 c, s16 d, ESortedList slA,
+                             ESortedList slB, ESortedList slC, ESortedList slD, const zeus::CAABox& aabb);
 
 public:
   CSortedListManager();
-  void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>&, const zeus::CVector3f&, const zeus::CVector3f&, float,
-                     const CMaterialFilter&, const CActor*) const;
-  void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>&, const CActor&, const zeus::CAABox&) const;
-  void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>&, const zeus::CAABox&, const CMaterialFilter&,
-                     const CActor*) const;
-  void Remove(const CActor*);
-  void Move(const CActor* act, const zeus::CAABox& aabb);
-  void Insert(const CActor* act, const zeus::CAABox& aabb);
-  bool ActorInLists(const CActor* act) const;
+  void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const zeus::CVector3f& pos,
+                     const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter, const CActor* actor);
+  void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const CActor& actor, const zeus::CAABox& aabb);
+  void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const zeus::CAABox& aabb,
+                     const CMaterialFilter& filter, const CActor* actor);
+  void Remove(const CActor* actor);
+  void Move(const CActor* actor, const zeus::CAABox& aabb);
+  void Insert(const CActor* actor, const zeus::CAABox& aabb);
+  bool ActorInLists(const CActor* actor) const;
 };
 
 } // namespace urde

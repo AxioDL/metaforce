@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <string_view>
 #include <vector>
@@ -167,13 +168,13 @@ class CSamusHud {
   CGuiModel* x5a0_base_model_abutton;
   rstl::reserved_vector<SVideoBand, 4> x5a4_videoBands;
   rstl::reserved_vector<CGuiLight*, 4> x5d8_guiLights;
-  float x5ec_camFovTweaks[16];
-  float x62c_camYTweaks[64];
-  float x72c_camZTweaks[32];
+  std::array<float, 16> x5ec_camFovTweaks;
+  std::array<float, 64> x62c_camYTweaks;
+  std::array<float, 32> x72c_camZTweaks;
   rstl::reserved_vector<SProfileInfo, 15> x7ac_;
 
   CColoredQuadFilter m_energyDrainFilter;
-  CCookieCutterDepthRandomStaticFilter m_cookieCutterStatic = {EFilterType::NoColor};
+  CCookieCutterDepthRandomStaticFilter m_cookieCutterStatic{EFilterType::NoColor};
 
   static CSamusHud* g_SamusHud;
   static rstl::reserved_vector<bool, 4> BuildPlayerHasVisors(const CStateManager& mgr);
@@ -207,17 +208,17 @@ class CSamusHud {
   void ShowDamage(const zeus::CVector3f& position, float dam, float prevDam, const CStateManager& mgr);
   void EnterFirstPerson(const CStateManager& mgr);
   void LeaveFirstPerson(const CStateManager& mgr);
-  void DrawAttachedEnemyEffect(const CStateManager& mgr) const;
+  void DrawAttachedEnemyEffect(const CStateManager& mgr);
   static EHudState GetDesiredHudState(const CStateManager& mgr);
 
 public:
-  CSamusHud(CStateManager& stateMgr);
+  explicit CSamusHud(CStateManager& stateMgr);
   ~CSamusHud();
   void Update(float dt, const CStateManager& mgr, CInGameGuiManager::EHelmetVisMode helmetVis, bool hudVis,
               bool targetingManager);
   void Draw(const CStateManager& mgr, float alpha, CInGameGuiManager::EHelmetVisMode helmetVis, bool hudVis,
-            bool targetingManager) const;
-  void DrawHelmet(const CStateManager& mgr, float camYOff) const;
+            bool targetingManager);
+  void DrawHelmet(const CStateManager& mgr, float camYOff);
   void ProcessControllerInput(const CFinalInput& input);
   void UpdateStateTransition(float time, const CStateManager& mgr);
   bool CheckLoadComplete(CStateManager& stateMgr);

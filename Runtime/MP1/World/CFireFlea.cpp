@@ -8,11 +8,13 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
+namespace {
+constexpr zeus::CColor skEndFadeColor{1.f, 1.f, 0.5f, 1.f};
+constexpr zeus::CColor skStartFadeColor{1.f, 0.f, 0.f, 0.f};
+} // Anonymous namespace
 
 // region Fire Flea Death Camera
 
-const zeus::CColor CFireFlea::CDeathCameraEffect::skEndFadeColor{1.f, 1.f, 0.5f, 1.f};
-const zeus::CColor CFireFlea::CDeathCameraEffect::skStartFadeColor{1.f, 0.f, 0.f, 0.f};
 zeus::CColor CFireFlea::CDeathCameraEffect::sCurrentFadeColor = zeus::skClear;
 
 CFireFlea::CDeathCameraEffect::CDeathCameraEffect(TUniqueId uid, TAreaId areaId, std::string_view name)
@@ -127,45 +129,46 @@ void CFireFlea::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
 }
 
 zeus::CVector3f CFireFlea::FindSafeRoute(CStateManager& mgr, const zeus::CVector3f& forward) {
-  float mag = forward.magnitude();
-  if (mag > 0.f) {
-    CRayCastResult res = mgr.RayStaticIntersection(GetTranslation(), forward.normalized(), 1.f,
-                                                   CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
-    if (res.IsValid() || CheckNearWater(mgr, forward.normalized())) {
-      zeus::CVector3f right = forward.normalized().cross(zeus::skUp).normalized();
-      CRayCastResult res1 = mgr.RayStaticIntersection(GetTranslation(), right, 1.f,
-                                                      CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
-      if (res1.IsValid()) {
-        zeus::CVector3f left = -right;
-        CRayCastResult res2 = mgr.RayStaticIntersection(GetTranslation(), left, 1.f,
-                                                        CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
-        if (res2.IsValid()) {
-          zeus::CVector3f up = right.cross(forward.normalized());
-          CRayCastResult res3 = mgr.RayStaticIntersection(GetTranslation(), up, 1.f,
-                                                          CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
-          if (res3.IsValid()) {
-            zeus::CVector3f down = -up;
-            CRayCastResult res4 = mgr.RayStaticIntersection(GetTranslation(), down, 1.f,
-                                                            CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
-            if (res4.IsInvalid()) {
-              return mag * down;
-            } else {
-              return -forward;
-            }
-          } else {
-            return mag * up;
-          }
-        } else {
-          return mag * left;
-        }
-      } else {
-        return mag * right;
-      }
-    } else {
-      return forward;
-    }
+  const float mag = forward.magnitude();
+  if (mag <= 0.f) {
+    return {};
   }
-  return {};
+
+  const CRayCastResult res = mgr.RayStaticIntersection(GetTranslation(), forward.normalized(), 1.f,
+                                                       CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+  if (res.IsInvalid() && !CheckNearWater(mgr, forward.normalized())) {
+    return forward;
+  }
+
+  const zeus::CVector3f right = forward.normalized().cross(zeus::skUp).normalized();
+  const CRayCastResult res1 =
+      mgr.RayStaticIntersection(GetTranslation(), right, 1.f, CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+  if (res1.IsInvalid()) {
+    return mag * right;
+  }
+
+  const zeus::CVector3f left = -right;
+  const CRayCastResult res2 =
+      mgr.RayStaticIntersection(GetTranslation(), left, 1.f, CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+  if (res2.IsInvalid()) {
+    return mag * left;
+  }
+
+  const zeus::CVector3f up = right.cross(forward.normalized());
+  const CRayCastResult res3 =
+      mgr.RayStaticIntersection(GetTranslation(), up, 1.f, CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+  if (res3.IsInvalid()) {
+    return mag * up;
+  }
+
+  const zeus::CVector3f down = -up;
+  const CRayCastResult res4 =
+      mgr.RayStaticIntersection(GetTranslation(), down, 1.f, CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+  if (res4.IsInvalid()) {
+    return mag * down;
+  }
+
+  return -forward;
 }
 
 bool CFireFlea::CheckNearWater(const CStateManager& mgr, const zeus::CVector3f& dir) {

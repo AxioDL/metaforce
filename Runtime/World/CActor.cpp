@@ -181,25 +181,29 @@ void CActor::PreRender(CStateManager& mgr, const zeus::CFrustum& planes) {
   }
 }
 
-void CActor::AddToRenderer(const zeus::CFrustum& planes, const CStateManager& mgr) const {
-  if (!x64_modelData || x64_modelData->IsNull())
+void CActor::AddToRenderer(const zeus::CFrustum& planes, CStateManager& mgr) {
+  if (!x64_modelData || x64_modelData->IsNull()) {
     return;
+  }
 
-  if (xe6_29_renderParticleDBInside)
+  if (xe6_29_renderParticleDBInside) {
     x64_modelData->RenderParticles(planes);
+  }
 
   if (!xe4_30_outOfFrustum) {
-    if (CanRenderUnsorted(mgr))
+    if (CanRenderUnsorted(mgr)) {
       Render(mgr);
-    else
+    } else {
       EnsureRendered(mgr);
+    }
   }
 
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay &&
       mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::Thermal && xe5_24_shadowEnabled &&
-      x94_simpleShadow->Valid() && planes.aabbFrustumTest(x94_simpleShadow->GetBounds()))
+      x94_simpleShadow->Valid() && planes.aabbFrustumTest(x94_simpleShadow->GetBounds())) {
     g_Renderer->AddDrawable(x94_simpleShadow.get(), x94_simpleShadow->GetTransform().origin,
                             x94_simpleShadow->GetBounds(), 1, CBooRenderer::EDrawableSorting::SortedCallback);
+  }
 }
 
 void CActor::DrawTouchBounds() const {
@@ -253,7 +257,7 @@ bool CActor::IsModelOpaque(const CStateManager& mgr) const {
   return x64_modelData->IsDefinitelyOpaque(CModelData::GetRenderingModel(mgr));
 }
 
-void CActor::Render(const CStateManager& mgr) const {
+void CActor::Render(CStateManager& mgr) {
   if (x64_modelData && !x64_modelData->IsNull()) {
     bool renderPrePostParticles = xe6_29_renderParticleDBInside && x64_modelData && x64_modelData->HasAnimData();
     if (renderPrePostParticles)
@@ -508,12 +512,12 @@ float CActor::GetPitch() const { return zeus::CQuaternion(x34_transform.buildMat
 
 float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).yaw(); }
 
-void CActor::EnsureRendered(const CStateManager& mgr) const {
-  zeus::CAABox aabb = GetSortingBounds(mgr);
+void CActor::EnsureRendered(const CStateManager& mgr) {
+  const zeus::CAABox aabb = GetSortingBounds(mgr);
   EnsureRendered(mgr, aabb.closestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]), aabb);
 }
 
-void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f& pos, const zeus::CAABox& aabb) const {
+void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f& pos, const zeus::CAABox& aabb) {
   if (x64_modelData) {
     x64_modelData->RenderUnsortedParts(x64_modelData->GetRenderingModel(stateMgr), x34_transform, x90_actorLights.get(),
                                        xb4_drawFlags);

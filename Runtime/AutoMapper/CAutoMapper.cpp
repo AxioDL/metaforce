@@ -158,7 +158,7 @@ bool CAutoMapper::CanLeaveMapScreenInternal(const CStateManager& mgr) const {
   return false;
 }
 
-void CAutoMapper::LeaveMapScreen(const CStateManager& mgr) {
+void CAutoMapper::LeaveMapScreen(CStateManager& mgr) {
   if (x1c0_nextState == EAutoMapperState::MapScreenUniverse) {
     xa8_renderStates[1].x2c_drawDepth1 = GetMapAreaMiniMapDrawDepth();
     xa8_renderStates[1].x30_drawDepth2 = GetMapAreaMiniMapDrawDepth();
@@ -180,9 +180,9 @@ void CAutoMapper::LeaveMapScreen(const CStateManager& mgr) {
   }
 }
 
-void CAutoMapper::SetupMiniMapWorld(const CStateManager& mgr) {
-  const CWorld& wld = *mgr.GetWorld();
-  const_cast<CMapWorld*>(wld.GetMapWorld())->SetWhichMapAreasLoaded(wld, wld.GetCurrentAreaId(), 3);
+void CAutoMapper::SetupMiniMapWorld(CStateManager& mgr) {
+  CWorld& wld = *mgr.GetWorld();
+  wld.GetMapWorld()->SetWhichMapAreasLoaded(wld, wld.GetCurrentAreaId(), 3);
   x328_ = 3;
 }
 
@@ -194,7 +194,7 @@ bool CAutoMapper::HasCurrentMapUniverseWorld() const {
   return false;
 }
 
-bool CAutoMapper::CheckDummyWorldLoad(const CStateManager& mgr) {
+bool CAutoMapper::CheckDummyWorldLoad(CStateManager& mgr) {
   const CMapUniverse::CMapWorldData& mapuWld = x8_mapu->GetMapWorldData(x9c_worldIdx);
   auto& dummyWorld = x14_dummyWorlds[x9c_worldIdx];
   if (!dummyWorld) {
@@ -216,13 +216,13 @@ bool CAutoMapper::CheckDummyWorldLoad(const CStateManager& mgr) {
   }
   xa0_curAreaId = aid;
 
-  dummyWorld->IMapWorld()->RecalculateWorldSphere(mwInfo, *dummyWorld);
+  dummyWorld->IGetMapWorld()->RecalculateWorldSphere(mwInfo, *dummyWorld);
   BeginMapperStateTransition(EAutoMapperState::MapScreen, mgr);
   x32c_loadingDummyWorld = false;
   return true;
 }
 
-void CAutoMapper::UpdateHintNavigation(float dt, const CStateManager& mgr) {
+void CAutoMapper::UpdateHintNavigation(float dt, CStateManager& mgr) {
   SAutoMapperHintStep& nextStep = x1e0_hintSteps.front();
   bool oldProcessing = nextStep.x8_processing;
   nextStep.x8_processing = true;
@@ -321,7 +321,7 @@ void CAutoMapper::SetCurWorldAssetId(CAssetId mlvlId) {
     }
 }
 
-void CAutoMapper::BeginMapperStateTransition(EAutoMapperState state, const CStateManager& mgr) {
+void CAutoMapper::BeginMapperStateTransition(EAutoMapperState state, CStateManager& mgr) {
   if (state == x1c0_nextState)
     return;
   if ((state == EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) ||
@@ -372,7 +372,7 @@ void CAutoMapper::BeginMapperStateTransition(EAutoMapperState state, const CStat
   }
 }
 
-void CAutoMapper::CompleteMapperStateTransition(const CStateManager& mgr) {
+void CAutoMapper::CompleteMapperStateTransition(CStateManager& mgr) {
   if (x1bc_state == EAutoMapperState::MapScreenUniverse)
     TransformRenderStatesUniverseToWorld();
 
@@ -407,8 +407,8 @@ void CAutoMapper::CompleteMapperStateTransition(const CStateManager& mgr) {
   x1bc_state = x1c0_nextState;
 }
 
-void CAutoMapper::ResetInterpolationTimer(float t) {
-  x1c4_interpDur = t;
+void CAutoMapper::ResetInterpolationTimer(float duration) {
+  x1c4_interpDur = duration;
   x1c8_interpTime = 0.f;
 }
 
@@ -754,8 +754,8 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
   }
 }
 
-void CAutoMapper::SetShouldPanningSoundBePlaying(bool b) {
-  if (b) {
+void CAutoMapper::SetShouldPanningSoundBePlaying(bool shouldBePlaying) {
+  if (shouldBePlaying) {
     if (!x1cc_panningSfx)
       x1cc_panningSfx = CSfxManager::SfxStart(SFXui_map_pan, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
   } else {
@@ -764,8 +764,8 @@ void CAutoMapper::SetShouldPanningSoundBePlaying(bool b) {
   }
 }
 
-void CAutoMapper::SetShouldZoomingSoundBePlaying(bool b) {
-  if (b) {
+void CAutoMapper::SetShouldZoomingSoundBePlaying(bool shouldBePlaying) {
+  if (shouldBePlaying) {
     if (!x1d4_zoomingSfx)
       x1d4_zoomingSfx = CSfxManager::SfxStart(SFXui_map_zoom, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
   } else {
@@ -774,8 +774,8 @@ void CAutoMapper::SetShouldZoomingSoundBePlaying(bool b) {
   }
 }
 
-void CAutoMapper::SetShouldRotatingSoundBePlaying(bool b) {
-  if (b) {
+void CAutoMapper::SetShouldRotatingSoundBePlaying(bool shouldBePlaying) {
+  if (shouldBePlaying) {
     if (!x1d0_rotatingSfx)
       x1d0_rotatingSfx = CSfxManager::SfxStart(SFXui_map_rotate, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
   } else {
@@ -784,7 +784,7 @@ void CAutoMapper::SetShouldRotatingSoundBePlaying(bool b) {
   }
 }
 
-void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, const CStateManager& mgr) {
+void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager& mgr) {
   zeus::CMatrix3f camRot = xa8_renderStates[0].x8_camOrientation.toTransform().buildMatrix3f();
   if (x1bc_state == EAutoMapperState::MapScreen) {
     if ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter)) && x328_ == 0 && HasCurrentMapUniverseWorld())
@@ -968,10 +968,11 @@ float CAutoMapper::GetDesiredMiniMapCameraDistance(const CStateManager& mgr) con
          std::tan(M_PIF / 2.f - 0.5f * 2.f * M_PIF * (xa8_renderStates[0].x1c_camAngle / 360.f));
 }
 
-float CAutoMapper::GetClampedMapScreenCameraDistance(float v) const {
-  if (x1bc_state == EAutoMapperState::MapScreenUniverse)
-    return zeus::clamp(g_tweakAutoMapper->GetMinUniverseCamDist(), v, g_tweakAutoMapper->GetMaxUniverseCamDist());
-  return zeus::clamp(g_tweakAutoMapper->GetMinCamDist(), v, g_tweakAutoMapper->GetMaxCamDist());
+float CAutoMapper::GetClampedMapScreenCameraDistance(float value) const {
+  if (x1bc_state == EAutoMapperState::MapScreenUniverse) {
+    return zeus::clamp(g_tweakAutoMapper->GetMinUniverseCamDist(), value, g_tweakAutoMapper->GetMaxUniverseCamDist());
+  }
+  return zeus::clamp(g_tweakAutoMapper->GetMinCamDist(), value, g_tweakAutoMapper->GetMaxCamDist());
 }
 
 void CAutoMapper::MuteAllLoopedSounds() {
@@ -1092,7 +1093,7 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
   }
 }
 
-void CAutoMapper::Update(float dt, const CStateManager& mgr) {
+void CAutoMapper::Update(float dt, CStateManager& mgr) {
   if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
     x1d8_flashTimer = std::fmod(x1d8_flashTimer + dt, 0.75f);
     x1dc_playerFlashPulse = x1d8_flashTimer < 0.375f ? x1d8_flashTimer / 0.375f : (0.75f - x1d8_flashTimer) / 0.375f;
@@ -1288,7 +1289,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr) {
       wld->ICheckWorldComplete();
 }
 
-void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, float alpha) const {
+void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, float alpha) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CAutoMapper::Draw", zeus::skPurple);
   alpha *= g_GameState->GameOptions().GetHUDAlpha() / 255.f;
   // Blend mode alpha
@@ -1341,7 +1342,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
   if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
     if (universeInterp < 1.f && x24_world) {
       const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
-      const CMapWorld* mw = x24_world->IGetMapWorld();
+      CMapWorld* mw = x24_world->IGetMapWorld();
       float hintFlash = 0.f;
       if (x1e0_hintSteps.size() && x1e0_hintSteps.front().x0_type == SAutoMapperHintStep::Type::ShowBeacon) {
         if (xa0_curAreaId == mgr.GetNextAreaId() && x24_world == mgr.GetWorld()) {
@@ -1360,35 +1361,37 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           }
         }
       }
-      zeus::CTransform modelXf = planeXf * preXf;
-      CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
-                                          xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
-                                          xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
-                                          xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp, mapAlpha, 2.f,
-                                          mgr, modelXf, camXf, *x24_world, mwInfo, x1dc_playerFlashPulse, hintFlash,
-                                          objectScale, true);
+      const zeus::CTransform modelXf = planeXf * preXf;
+      const CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
+                                                xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
+                                                xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
+                                                xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp, mapAlpha,
+                                                2.f, mgr, modelXf, camXf, *x24_world, mwInfo, x1dc_playerFlashPulse,
+                                                hintFlash, objectScale, true);
       mw->Draw(parms, xa0_curAreaId, xa0_curAreaId, xa8_renderStates[0].x2c_drawDepth1,
                xa8_renderStates[0].x30_drawDepth2, true);
     }
   } else if (IsInMapperState(EAutoMapperState::MiniMap)) {
-    const CMapWorld* mw = x24_world->IGetMapWorld();
+    CMapWorld* mw = x24_world->IGetMapWorld();
     const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
-    CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
-                                        xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
-                                        xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
-                                        xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp, mapAlpha, 1.f, mgr,
-                                        planeXf, camXf, *x24_world, mwInfo, 0.f, 0.f, objectScale, false);
+    const CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
+                                              xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
+                                              xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
+                                              xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp, mapAlpha,
+                                              1.f, mgr, planeXf, camXf, *x24_world, mwInfo, 0.f, 0.f, objectScale,
+                                              false);
     mw->Draw(parms, xa0_curAreaId, xa4_otherAreaId, xa8_renderStates[0].x2c_drawDepth1,
              xa8_renderStates[0].x30_drawDepth2, false);
   } else {
-    const CMapWorld* mw = x24_world->IGetMapWorld();
+    CMapWorld* mw = x24_world->IGetMapWorld();
     const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
     zeus::CTransform modelXf = planeXf * preXf;
-    CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
-                                        xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
-                                        xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
-                                        xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp, mapAlpha, 2.f, mgr,
-                                        modelXf, camXf, *x24_world, mwInfo, 0.f, 0.f, objectScale, true);
+    const CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
+                                              xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
+                                              xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
+                                              xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp, mapAlpha,
+                                              2.f, mgr, modelXf, camXf, *x24_world, mwInfo, 0.f, 0.f, objectScale,
+                                              true);
     mw->Draw(parms, xa0_curAreaId, xa0_curAreaId, xa8_renderStates[0].x2c_drawDepth1,
              xa8_renderStates[0].x30_drawDepth2, false);
   }
@@ -1410,8 +1413,8 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
       }
     }
 
-    CMapUniverse::CMapUniverseDrawParms parms(universeInterp, x9c_worldIdx, g_GameState->CurrentWorldAssetId(), hexIdx,
-                                              x1dc_playerFlashPulse, mgr, planeXf, camXf);
+    const CMapUniverse::CMapUniverseDrawParms parms(universeInterp, x9c_worldIdx, g_GameState->CurrentWorldAssetId(),
+                                                    hexIdx, x1dc_playerFlashPulse, mgr, planeXf, camXf);
     x8_mapu->Draw(parms, zeus::skZero3f, 0.f, 0.f);
   }
 
@@ -1444,7 +1447,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
     if (IsInMapperState(EAutoMapperState::MapScreen)) {
       CAssetId wldMlvl = x24_world->IGetWorldAssetId();
       const CMapWorld* mw = x24_world->IGetMapWorld();
-      std::vector<CTexturedQuadFilter>& hintBeaconFilters = const_cast<CAutoMapper&>(*this).m_hintBeaconFilters;
+      std::vector<CTexturedQuadFilter>& hintBeaconFilters = m_hintBeaconFilters;
       if (hintBeaconFilters.size() < x1f8_hintLocations.size()) {
         hintBeaconFilters.reserve(x1f8_hintLocations.size());
         for (u32 i = hintBeaconFilters.size(); i < x1f8_hintLocations.size(); ++i)
@@ -1601,11 +1604,11 @@ CAssetId CAutoMapper::GetAreaHintDescriptionString(CAssetId mreaId) {
   return -1;
 }
 
-void CAutoMapper::OnNewInGameGuiState(EInGameGuiState state, const CStateManager& mgr) {
+void CAutoMapper::OnNewInGameGuiState(EInGameGuiState state, CStateManager& mgr) {
   if (state == EInGameGuiState::MapScreen) {
     MP1::CMain::EnsureWorldPaksReady();
-    const CWorld& wld = *mgr.GetWorld();
-    const_cast<CMapWorld*>(wld.GetMapWorld())->SetWhichMapAreasLoaded(wld, 0, 9999);
+    CWorld& wld = *mgr.GetWorld();
+    wld.GetMapWorld()->SetWhichMapAreasLoaded(wld, 0, 9999);
     SetupHintNavigation();
     BeginMapperStateTransition(EAutoMapperState::MapScreen, mgr);
     x28_frmeMapScreen = g_SimplePool->GetObj("FRME_MapScreen");

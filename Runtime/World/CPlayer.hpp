@@ -367,8 +367,8 @@ public:
   void UpdateMorphBallTransition(float dt, CStateManager& mgr);
   void UpdateGunAlpha();
   void UpdatePlayerSounds(float dt);
-  void Update(float, CStateManager& mgr);
-  void PostUpdate(float, CStateManager& mgr);
+  void Update(float dt, CStateManager& mgr);
+  void PostUpdate(float dt, CStateManager& mgr);
   bool StartSamusVoiceSfx(u16 sfx, float vol, int prio);
   bool IsPlayerDeadEnough() const;
   void AsyncLoadSuit(CStateManager& mgr);
@@ -378,14 +378,14 @@ public:
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& v1, const zeus::CVector3f& v2,
                                                      const CDamageInfo& info) const override;
   const CDamageVulnerability* GetDamageVulnerability() const override;
-  zeus::CVector3f GetHomingPosition(const CStateManager& mgr, float) const override;
-  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const override;
-  void FluidFXThink(CActor::EFluidState, CScriptWater& water, CStateManager& mgr) override;
+  zeus::CVector3f GetHomingPosition(const CStateManager& mgr, float dt) const override;
+  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override;
+  void FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr) override;
   zeus::CVector3f GetDamageLocationWR() const { return x564_damageLocation; }
   float GetPrevDamageAmount() const { return x560_prevDamageAmt; }
   float GetDamageAmount() const { return x55c_damageAmt; }
   bool WasDamaged() const { return x558_wasDamaged; }
-  void TakeDamage(bool, const zeus::CVector3f&, float, EWeaponType, CStateManager& mgr);
+  void TakeDamage(bool significant, const zeus::CVector3f& location, float dam, EWeaponType type, CStateManager& mgr);
   void Accept(IVisitor& visitor) override;
   CHealthInfo* HealthInfo(CStateManager& mgr) override;
   bool IsUnderBetaMetroidAttack(const CStateManager& mgr) const;
@@ -393,24 +393,24 @@ public:
   void Touch(CActor& actor, CStateManager& mgr) override;
   void DoPreThink(float dt, CStateManager& mgr);
   void DoThink(float dt, CStateManager& mgr);
-  void UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float);
+  void UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float dt);
   bool ValidateScanning(const CFinalInput& input, const CStateManager& mgr) const;
   void FinishNewScan(CStateManager& mgr);
-  void SetScanningState(EPlayerScanState, CStateManager& mgr);
-  void SetSpawnedMorphBallState(EPlayerMorphBallState, CStateManager&);
+  void SetScanningState(EPlayerScanState state, CStateManager& mgr);
+  void SetSpawnedMorphBallState(EPlayerMorphBallState state, CStateManager& mgr);
   bool GetExplorationMode() const;
   bool GetCombatMode() const;
-  void RenderGun(const CStateManager& mgr, const zeus::CVector3f&) const;
-  void Render(const CStateManager& mgr) const override;
+  void RenderGun(const CStateManager& mgr, const zeus::CVector3f& pos) const;
+  void Render(CStateManager& mgr) override;
   void RenderReflectedPlayer(CStateManager& mgr);
-  void PreRender(CStateManager& mgr, const zeus::CFrustum&) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
   void CalculateRenderBounds() override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   void ComputeFreeLook(const CFinalInput& input);
-  void UpdateFreeLookState(const CFinalInput&, float dt, CStateManager&);
+  void UpdateFreeLookState(const CFinalInput& input, float dt, CStateManager& mgr);
   void UpdateFreeLook(float dt);
-  float GetMaximumPlayerPositiveVerticalVelocity(CStateManager&) const;
-  void ProcessInput(const CFinalInput&, CStateManager&);
+  float GetMaximumPlayerPositiveVerticalVelocity(CStateManager& mgr) const;
+  void ProcessInput(const CFinalInput& input, CStateManager& mgr);
   bool ShouldSampleFailsafe(CStateManager& mgr) const;
   void CalculateLeaveMorphBallDirection(const CFinalInput& input);
   void CalculatePlayerControlDirection(CStateManager& mgr);
@@ -434,17 +434,17 @@ public:
   void ResetControlDirectionInterpolation();
   void SetControlDirectionInterpolation(float time);
   void UpdatePlayerControlDirection(float dt, CStateManager& mgr);
-  void Think(float, CStateManager&) override;
-  void PreThink(float, CStateManager&) override;
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void SetVisorSteam(float, float, float, CAssetId, bool);
-  void UpdateFootstepSounds(const CFinalInput& input, CStateManager&, float);
+  void Think(float dt, CStateManager& mgr) override;
+  void PreThink(float dt, CStateManager& mgr) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  void SetVisorSteam(float targetAlpha, float alphaInDur, float alphaOutDir, CAssetId txtr, bool affectsThermal);
+  void UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr, float dt);
   u16 GetMaterialSoundUnderPlayer(const CStateManager& mgr, const u16* idList, size_t length, u16 defId) const;
   static u16 SfxIdFromMaterial(const CMaterialList& mat, const u16* idList, size_t tableLen, u16 defId);
-  void UpdateCrosshairsState(const CFinalInput&);
+  void UpdateCrosshairsState(const CFinalInput& input);
   void UpdateVisorTransition(float, CStateManager& mgr);
-  void UpdateVisorState(const CFinalInput&, float, CStateManager& mgr);
-  void UpdateGunState(const CFinalInput&, CStateManager& mgr);
+  void UpdateVisorState(const CFinalInput& input, float dt, CStateManager& mgr);
+  void UpdateGunState(const CFinalInput& input, CStateManager& mgr);
   void ResetGun(CStateManager& mgr);
   void UpdateArmAndGunTransforms(float dt, CStateManager& mgr);
   void ForceGunOrientation(const zeus::CTransform&, CStateManager& mgr);
@@ -453,7 +453,7 @@ public:
   void UpdateCameraTimers(float dt, const CFinalInput& input);
   void UpdateMorphBallState(float dt, const CFinalInput&, CStateManager& mgr);
   CFirstPersonCamera& GetFirstPersonCamera(CStateManager& mgr);
-  void UpdateGunTransform(const zeus::CVector3f&, CStateManager& mgr);
+  void UpdateGunTransform(const zeus::CVector3f& gunPos, CStateManager& mgr);
   void UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManager& mgr);
   void UpdateAimTargetPrediction(const zeus::CTransform& xf, const CStateManager& mgr);
   void ResetAimTargetPrediction(TUniqueId target);
@@ -464,48 +464,48 @@ public:
   EGunHolsterState GetGunHolsterState() const { return x498_gunHolsterState; }
   EPlayerMovementState GetPlayerMovementState() const { return x258_movementState; }
   bool IsMorphBallTransitioning() const;
-  void UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float);
+  void UpdateGrappleArmTransform(const zeus::CVector3f& offset, CStateManager& mgr, float dt);
   float GetGravity() const;
-  void ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float);
+  void ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float dt);
   bool ValidateFPPosition(const zeus::CVector3f& pos, const CStateManager& mgr) const;
   void UpdateGrappleState(const CFinalInput& input, CStateManager& mgr);
   void ApplyGrappleJump(CStateManager& mgr);
-  void BeginGrapple(zeus::CVector3f&, CStateManager& mgr);
-  void BreakGrapple(EPlayerOrbitRequest, CStateManager& mgr);
+  void BeginGrapple(zeus::CVector3f& vec, CStateManager& mgr);
+  void BreakGrapple(EPlayerOrbitRequest req, CStateManager& mgr);
   void SetOrbitRequest(EPlayerOrbitRequest req, CStateManager& mgr);
   void SetOrbitRequestForTarget(TUniqueId id, EPlayerOrbitRequest req, CStateManager& mgr);
   bool InGrappleJumpCooldown() const;
   void PreventFallingCameraPitch();
-  void OrbitCarcass(CStateManager&);
-  void OrbitPoint(EPlayerOrbitType, CStateManager& mgr);
+  void OrbitCarcass(CStateManager& mgr);
+  void OrbitPoint(EPlayerOrbitType type, CStateManager& mgr);
   zeus::CVector3f GetHUDOrbitTargetPosition() const;
-  void SetOrbitState(EPlayerOrbitState, CStateManager& mgr);
-  void SetOrbitTargetId(TUniqueId, CStateManager& mgr);
-  void UpdateOrbitPosition(float, CStateManager& mgr);
+  void SetOrbitState(EPlayerOrbitState state, CStateManager& mgr);
+  void SetOrbitTargetId(TUniqueId id, CStateManager& mgr);
+  void UpdateOrbitPosition(float dist, CStateManager& mgr);
   void UpdateOrbitZPosition();
   void UpdateOrbitFixedPosition();
-  void SetOrbitPosition(float, CStateManager& mgr);
+  void SetOrbitPosition(float dist, CStateManager& mgr);
   void UpdateAimTarget(CStateManager& mgr);
-  void UpdateAimTargetTimer(float);
-  bool ValidateAimTargetId(TUniqueId, CStateManager& mgr);
-  bool ValidateObjectForMode(TUniqueId, CStateManager& mgr) const;
+  void UpdateAimTargetTimer(float dt);
+  bool ValidateAimTargetId(TUniqueId uid, CStateManager& mgr);
+  bool ValidateObjectForMode(TUniqueId uid, CStateManager& mgr) const;
   TUniqueId FindAimTargetId(CStateManager& mgr) const;
   TUniqueId GetAimTarget() const { return x3f4_aimTarget; }
-  TUniqueId CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUniqueId, 1024>&, EPlayerZoneInfo,
-                                         EPlayerZoneType, CStateManager& mgr) const;
+  TUniqueId CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUniqueId, 1024>& list, EPlayerZoneInfo info,
+                                         EPlayerZoneType zone, CStateManager& mgr) const;
   TUniqueId FindOrbitTargetId(CStateManager& mgr) const;
   void UpdateOrbitableObjects(CStateManager& mgr);
-  TUniqueId FindBestOrbitableObject(const std::vector<TUniqueId>&, EPlayerZoneInfo, CStateManager& mgr) const;
-  void FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, 1024>&, std::vector<TUniqueId>&, EPlayerZoneInfo,
-                            EPlayerZoneType, CStateManager& mgr, bool) const;
-  bool WithinOrbitScreenBox(const zeus::CVector3f&, EPlayerZoneInfo, EPlayerZoneType) const;
-  bool WithinOrbitScreenEllipse(const zeus::CVector3f&, EPlayerZoneInfo) const;
+  TUniqueId FindBestOrbitableObject(const std::vector<TUniqueId>& ids, EPlayerZoneInfo info, CStateManager& mgr) const;
+  void FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, 1024>& nearObjects, std::vector<TUniqueId>& listOut,
+                            EPlayerZoneInfo zone, EPlayerZoneType type, CStateManager& mgr, bool onScreenTest) const;
+  bool WithinOrbitScreenBox(const zeus::CVector3f& screenCoords, EPlayerZoneInfo zone, EPlayerZoneType type) const;
+  bool WithinOrbitScreenEllipse(const zeus::CVector3f& screenCoords, EPlayerZoneInfo zone) const;
   bool CheckOrbitDisableSourceList(CStateManager& mgr);
   bool CheckOrbitDisableSourceList() const { return !x9e4_orbitDisableList.empty(); }
-  void RemoveOrbitDisableSource(TUniqueId);
-  void AddOrbitDisableSource(CStateManager& mgr, TUniqueId);
-  void UpdateOrbitPreventionTimer(float);
-  void UpdateOrbitModeTimer(float);
+  void RemoveOrbitDisableSource(TUniqueId uid);
+  void AddOrbitDisableSource(CStateManager& mgr, TUniqueId addId);
+  void UpdateOrbitPreventionTimer(float dt);
+  void UpdateOrbitModeTimer(float dt);
   void UpdateOrbitZone(CStateManager& mgr);
   void UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr);
   void ActivateOrbitSource(CStateManager& mgr);
@@ -516,7 +516,7 @@ public:
   float GetOrbitMaxTargetDistance(CStateManager& mgr) const;
   EOrbitValidationResult ValidateOrbitTargetId(TUniqueId uid, CStateManager& mgr) const;
   EOrbitValidationResult ValidateCurrentOrbitTargetId(CStateManager& mgr);
-  bool ValidateOrbitTargetIdAndPointer(TUniqueId, CStateManager& mgr) const;
+  bool ValidateOrbitTargetIdAndPointer(TUniqueId uid, CStateManager& mgr) const;
   zeus::CVector3f GetBallPosition() const;
   zeus::CVector3f GetEyePosition() const;
   float GetEyeHeight() const;
@@ -529,15 +529,15 @@ public:
   const CCollisionPrimitive* GetCollisionPrimitive() const override;
   const CCollidableSphere* GetCollidableSphere() const;
   zeus::CTransform GetPrimitiveTransform() const override;
-  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr) override;
+  void CollidedWith(TUniqueId id, const CCollisionInfoList& list, CStateManager& mgr) override;
   float GetBallMaxVelocity() const;
   float GetActualBallMaxVelocity(float dt) const;
   float GetActualFirstPersonMaxVelocity(float dt) const;
-  void SetMoveState(EPlayerMovementState, CStateManager& mgr);
+  void SetMoveState(EPlayerMovementState newState, CStateManager& mgr);
   float JumpInput(const CFinalInput& input, CStateManager& mgr);
   float TurnInput(const CFinalInput& input) const;
   float StrafeInput(const CFinalInput& input) const;
-  float ForwardInput(const CFinalInput& input, float) const;
+  float ForwardInput(const CFinalInput& input, float turnInput) const;
   zeus::CVector3f CalculateLeftStickEdgePosition(float strafeInput, float forwardInput) const;
   bool SidewaysDashAllowed(float strafeInput, float forwardInput, const CFinalInput& input, CStateManager& mgr) const;
   void FinishSidewaysDash();

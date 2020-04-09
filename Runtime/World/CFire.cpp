@@ -84,7 +84,7 @@ void CFire::Touch(CActor& act, CStateManager& mgr) {
                   CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
 }
 
-void CFire::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CFire::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   bool drawParticles = true;
   if (!x148_27_) {
     using EPlayerVisor = CPlayerState::EPlayerVisor;

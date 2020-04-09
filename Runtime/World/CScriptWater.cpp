@@ -1,5 +1,7 @@
 #include "Runtime/World/CScriptWater.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -11,8 +13,9 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
-
-const float CScriptWater::kSplashScales[6] = {1.0f, 3.0f, 0.709f, 1.19f, 0.709f, 1.f};
+constexpr std::array kSplashScales{
+    1.0f, 3.0f, 0.709f, 1.19f, 0.709f, 1.f,
+};
 
 CScriptWater::CScriptWater(
     CStateManager& mgr, TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& pos,
@@ -410,15 +413,17 @@ void CScriptWater::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
   }
 }
 
-void CScriptWater::AddToRenderer(const zeus::CFrustum& /*frustum*/, const CStateManager& mgr) const {
-  if (!xe4_30_outOfFrustum) {
-    zeus::CPlane plane(zeus::skUp, x34_transform.origin.z() + x130_bounds.max.z());
-    zeus::CAABox renderBounds = GetSortingBounds(mgr);
-    mgr.AddDrawableActorPlane(*this, plane, renderBounds);
+void CScriptWater::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManager& mgr) {
+  if (xe4_30_outOfFrustum) {
+    return;
   }
+
+  const zeus::CPlane plane(zeus::skUp, x34_transform.origin.z() + x130_bounds.max.z());
+  const zeus::CAABox renderBounds = GetSortingBounds(mgr);
+  mgr.AddDrawableActorPlane(*this, plane, renderBounds);
 }
 
-void CScriptWater::Render(const CStateManager& mgr) const {
+void CScriptWater::Render(CStateManager& mgr) {
   if (x30_24_active && !xe4_30_outOfFrustum) {
     float zOffset = 0.5f * (x9c_renderBounds.max.z() + x9c_renderBounds.min.z()) - x34_transform.origin.z();
     zeus::CAABox aabb = x9c_renderBounds.getTransformedAABox(zeus::CTransform::Translate(

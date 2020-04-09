@@ -1,15 +1,17 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/Input/CInputGenerator.hpp"
 #include "Runtime/Input/CRumbleVoice.hpp"
 
 namespace urde {
 class CRumbleGenerator {
-  CRumbleVoice x0_voices[4];
-  float xc0_periodTime[4];
-  float xd0_onTime[4];
-  EMotorState xe0_commandArray[4];
+  std::array<CRumbleVoice, 4> x0_voices;
+  std::array<float, 4> xc0_periodTime;
+  std::array<float, 4> xd0_onTime;
+  std::array<EMotorState, 4> xe0_commandArray;
   bool xf0_24_disabled : 1;
 
 public:

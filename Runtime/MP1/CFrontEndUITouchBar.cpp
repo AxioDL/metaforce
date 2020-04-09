@@ -2,7 +2,7 @@
 
 namespace urde {
 
-CFrontEndUITouchBar::~CFrontEndUITouchBar() {}
+CFrontEndUITouchBar::~CFrontEndUITouchBar() = default;
 void CFrontEndUITouchBar::SetPhase(EPhase ph) { m_phase = ph; }
 CFrontEndUITouchBar::EPhase CFrontEndUITouchBar::GetPhase() { return m_phase; }
 void CFrontEndUITouchBar::SetFileSelectPhase(const SFileSelectDetail details[3], bool eraseGame, bool galleryActive) {

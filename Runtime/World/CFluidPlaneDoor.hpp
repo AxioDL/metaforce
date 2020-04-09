@@ -12,7 +12,7 @@ class CFluidPlaneDoor final : public CFluidPlane {
   float xa8_rippleResolution;
 
   CFluidPlaneShader::RenderSetupInfo RenderSetup(const CStateManager& mgr, float alpha, const zeus::CTransform& xf,
-                                                 const zeus::CAABox& aabb, bool noNormals) const;
+                                                 const zeus::CAABox& aabb, bool noNormals);
 
 public:
   CFluidPlaneDoor(CAssetId patternTex1, CAssetId patternTex2, CAssetId colorTex, float tileSize, u32 tileSubdivisions,
@@ -26,7 +26,7 @@ public:
   void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
               const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
               const std::optional<CRippleManager>& rippleManager, TUniqueId waterId, const bool* gridFlags,
-              u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const override;
+              u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) override;
 };
 
 } // namespace urde

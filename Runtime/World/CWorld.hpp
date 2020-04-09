@@ -1,11 +1,13 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
+#include "Runtime/Audio/CAudioGroupSet.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/AutoMapper/CMapWorld.hpp"
 #include "Runtime/Graphics/CModel.hpp"
@@ -14,7 +16,6 @@
 #include "Runtime/World/ScriptObjectSupport.hpp"
 
 namespace urde {
-class CAudioGroupSet;
 class CGameArea;
 class CResFactory;
 class IGameArea;
@@ -27,7 +28,7 @@ public:
   virtual CAssetId IGetStringTableAssetId() const = 0;
   virtual CAssetId IGetSaveWorldAssetId() const = 0;
   virtual const CMapWorld* IGetMapWorld() const = 0;
-  virtual CMapWorld* IMapWorld() = 0;
+  virtual CMapWorld* IGetMapWorld() = 0;
   virtual const IGameArea* IGetAreaAlways(TAreaId id) const = 0;
   virtual TAreaId IGetCurrentAreaId() const = 0;
   virtual TAreaId IGetAreaId(CAssetId id) const = 0;
@@ -62,7 +63,7 @@ public:
   CAssetId IGetStringTableAssetId() const override;
   CAssetId IGetSaveWorldAssetId() const override;
   const CMapWorld* IGetMapWorld() const override;
-  CMapWorld* IMapWorld() override;
+  CMapWorld* IGetMapWorld() override;
   const IGameArea* IGetAreaAlways(TAreaId id) const override;
   TAreaId IGetCurrentAreaId() const override;
   TAreaId IGetAreaId(CAssetId id) const override;
@@ -83,7 +84,7 @@ public:
 
   public:
     CRelay() = default;
-    CRelay(CInputStream& in);
+    explicit CRelay(CInputStream& in);
 
     TEditorId GetRelayId() const { return x0_relay; }
     TEditorId GetTargetId() const { return x4_target; }
@@ -104,8 +105,6 @@ public:
   };
 
 private:
-  static constexpr CGameArea* skGlobalEnd = nullptr;
-  static constexpr CGameArea* skGlobalNonConstEnd = nullptr;
   enum class Phase {
     Loading,
     LoadingMap,
@@ -125,7 +124,7 @@ private:
   std::unique_ptr<uint8_t[]> x40_loadBuf;
   u32 x44_bufSz;
   u32 x48_chainCount = 0;
-  CGameArea* x4c_chainHeads[5] = {};
+  std::array<CGameArea*, 5> x4c_chainHeads{};
 
   IObjectStore& x60_objectStore;
   IFactory& x64_resFactory;
@@ -158,14 +157,18 @@ public:
   void MoveToChain(CGameArea* area, EChain chain);
   void MoveAreaToAliveChain(TAreaId aid);
   bool CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId);
-  CGameArea::CChainIterator GetChainHead(EChain chain) { return {x4c_chainHeads[int(chain)]}; }
-  CGameArea::CConstChainIterator GetChainHead(EChain chain) const { return {x4c_chainHeads[int(chain)]}; }
-  CGameArea::CChainIterator begin() { return GetChainHead(EChain::Alive); }
-  CGameArea::CChainIterator end() { return AliveAreasEnd(); }
-  CGameArea::CConstChainIterator begin() const { return GetChainHead(EChain::Alive); }
-  CGameArea::CConstChainIterator end() const { return GetAliveAreasEnd(); }
+
+  [[nodiscard]] auto GetChainHead(EChain chain) { return CGameArea::CChainIterator{x4c_chainHeads[size_t(chain)]}; }
+  [[nodiscard]] auto GetChainHead(EChain chain) const {
+    return CGameArea::CConstChainIterator{x4c_chainHeads[size_t(chain)]};
+  }
+  [[nodiscard]] auto begin() { return GetChainHead(EChain::Alive); }
+  [[nodiscard]] auto end() { return AliveAreasEnd(); }
+  [[nodiscard]] auto begin() const { return GetChainHead(EChain::Alive); }
+  [[nodiscard]] auto end() const { return GetAliveAreasEnd(); }
+
   bool ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr);
-  void TravelToArea(TAreaId aid, CStateManager& mgr, bool);
+  void TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther);
   void SetLoadPauseState(bool paused);
   void CycleLoadPauseState();
 
@@ -174,7 +177,9 @@ public:
   bool DoesAreaExist(TAreaId area) const;
   const std::vector<std::unique_ptr<CGameArea>>& GetGameAreas() const { return x18_areas; }
 
+  CMapWorld* GetMapWorld() { return x28_mapWorld.GetObj(); }
   const CMapWorld* GetMapWorld() const { return x28_mapWorld.GetObj(); }
+
   u32 GetRelayCount() const { return x2c_relays.size(); }
   CRelay GetRelay(u32 idx) const { return x2c_relays[idx]; }
 
@@ -182,8 +187,8 @@ public:
   CAssetId IGetStringTableAssetId() const override;
   CAssetId IGetSaveWorldAssetId() const override;
   const CMapWorld* IGetMapWorld() const override;
-  CMapWorld* IMapWorld() override;
-  const CGameArea* GetAreaAlways(TAreaId) const;
+  CMapWorld* IGetMapWorld() override;
+  const CGameArea* GetAreaAlways(TAreaId id) const;
   CGameArea* GetArea(TAreaId);
   s32 GetNumAreas() const { return x18_areas.size(); }
   const IGameArea* IGetAreaAlways(TAreaId id) const override;
@@ -194,9 +199,9 @@ public:
   std::string IGetDefaultAudioTrack() const override;
   int IGetAreaCount() const override;
 
-  static void PropogateAreaChain(CGameArea::EOcclusionState, CGameArea*, CWorld*);
-  static CGameArea::CConstChainIterator GetAliveAreasEnd() { return {skGlobalEnd}; }
-  static CGameArea::CChainIterator AliveAreasEnd() { return {skGlobalNonConstEnd}; }
+  static void PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGameArea* area, CWorld* world);
+  static constexpr CGameArea::CConstChainIterator GetAliveAreasEnd() { return CGameArea::CConstChainIterator{}; }
+  static constexpr CGameArea::CChainIterator AliveAreasEnd() { return CGameArea::CChainIterator{}; }
 
   void Update(float dt);
   void PreRender();

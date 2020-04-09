@@ -80,7 +80,7 @@ private:
   u16 x1d0_sfx1;
   u16 x1d2_sfx2;
   u16 x1d4_sfx3;
-  CSfxHandle x1d8_sfxHandle = 0;
+  CSfxHandle x1d8_sfxHandle;
   TLockedToken<CGenDescription> x1dc_particleGenDesc;
   // TLockedToken<CGenDescription> x1e4_; both assign to x1dc_
   std::unique_ptr<CElementGen> x1ec_particleGen1;
@@ -103,7 +103,7 @@ public:
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
   void Touch(CActor&, CStateManager&) override;
   void Think(float, CStateManager&) override;
 
@@ -111,14 +111,14 @@ private:
   void AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which);
   void HandleRadiusDamage(float radius, CStateManager& mgr, const zeus::CVector3f& pos);
   void FindGround(const CStateManager& mgr);
-  zeus::CAABox GetBoidBox();
-  int GetNumBoidsY();
-  int GetNumBoidsX();
+  zeus::CAABox GetBoidBox() const;
+  int GetNumBoidsY() const;
+  int GetNumBoidsX() const;
   void CreateBoids(CStateManager& mgr, int num);
-  zeus::CVector2i GetBoidIndex(const zeus::CVector3f& pos);
+  zeus::CVector2i GetBoidIndex(const zeus::CVector3f& pos) const;
   bool CreateBoid(const zeus::CVector3f& vec, CStateManager& mgr);
-  float GetBoidOffsetY(const zeus::CVector3f& pos);
-  float GetBoidOffsetX(const zeus::CVector3f& pos);
+  float GetBoidOffsetY(const zeus::CVector3f& pos) const;
+  float GetBoidOffsetX(const zeus::CVector3f& pos) const;
   void AddBoidPosition(const zeus::CVector3f& pos);
   void CalculateTouchBounds();
   void EmitParticles1(const zeus::CVector3f& pos);

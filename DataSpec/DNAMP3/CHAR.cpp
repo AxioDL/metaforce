@@ -74,30 +74,30 @@ std::string_view CHAR::AnimationInfo::EVNT::SFXEvent::DNAType() {
 
 template <>
 void CHAR::AnimationInfo::MetaAnimFactory::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader) {
-  IMetaAnim::Type type(IMetaAnim::Type(reader.readUint32Big()));
+  const auto type = IMetaAnim::Type(reader.readUint32Big());
   switch (type) {
   case IMetaAnim::Type::Primitive:
-    m_anim.reset(new struct MetaAnimPrimitive);
+    m_anim = std::make_unique<MetaAnimPrimitive>();
     m_anim->read(reader);
     break;
   case IMetaAnim::Type::Blend:
-    m_anim.reset(new struct MetaAnimBlend);
+    m_anim = std::make_unique<MetaAnimBlend>();
     m_anim->read(reader);
     break;
   case IMetaAnim::Type::PhaseBlend:
-    m_anim.reset(new struct MetaAnimPhaseBlend);
+    m_anim = std::make_unique<MetaAnimPhaseBlend>();
     m_anim->read(reader);
     break;
   case IMetaAnim::Type::Random:
-    m_anim.reset(new struct MetaAnimRandom);
+    m_anim = std::make_unique<MetaAnimRandom>();
     m_anim->read(reader);
     break;
   case IMetaAnim::Type::Sequence:
-    m_anim.reset(new struct MetaAnimSequence);
+    m_anim = std::make_unique<MetaAnimSequence>();
     m_anim->read(reader);
     break;
   default:
-    m_anim.reset(nullptr);
+    m_anim.reset();
     break;
   }
 }
@@ -123,22 +123,22 @@ void CHAR::AnimationInfo::MetaAnimFactory::Enumerate<BigDNA::ReadYaml>(athena::i
   std::string type = reader.readString("type");
   std::transform(type.begin(), type.end(), type.begin(), tolower);
   if (type == "primitive") {
-    m_anim.reset(new struct MetaAnimPrimitive);
+    m_anim = std::make_unique<MetaAnimPrimitive>();
     m_anim->read(reader);
   } else if (type == "blend") {
-    m_anim.reset(new struct MetaAnimBlend);
+    m_anim = std::make_unique<MetaAnimBlend>();
     m_anim->read(reader);
   } else if (type == "phaseblend") {
-    m_anim.reset(new struct MetaAnimPhaseBlend);
+    m_anim = std::make_unique<MetaAnimPhaseBlend>();
     m_anim->read(reader);
   } else if (type == "random") {
-    m_anim.reset(new struct MetaAnimRandom);
+    m_anim = std::make_unique<MetaAnimRandom>();
     m_anim->read(reader);
   } else if (type == "sequence") {
-    m_anim.reset(new struct MetaAnimSequence);
+    m_anim = std::make_unique<MetaAnimSequence>();
     m_anim->read(reader);
   } else {
-    m_anim.reset(nullptr);
+    m_anim.reset();
   }
 }
 

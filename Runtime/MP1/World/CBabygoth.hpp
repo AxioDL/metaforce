@@ -45,7 +45,7 @@ struct CBabygothData {
   CAssetId x174_flamePlayerIceTxtr;
 
 public:
-  CBabygothData(CInputStream&);
+  explicit CBabygothData(CInputStream&);
   const CDamageInfo& GetFireballDamage() const { return xc_fireballDamage; }
   CAssetId GetFireballResID() const { return x8_fireballWeapon; }
   float GetFireballAttackVariance() const { return x4_fireballAttackTimeVariance; }

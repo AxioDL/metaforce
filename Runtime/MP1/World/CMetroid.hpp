@@ -25,7 +25,7 @@ class CMetroidData {
   bool x128_24_ : 1;
 
 public:
-  CMetroidData(CInputStream& in);
+  explicit CMetroidData(CInputStream& in);
   static u32 GetNumProperties() { return skNumProperties; }
 };
 

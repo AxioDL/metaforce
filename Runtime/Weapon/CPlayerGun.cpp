@@ -1785,36 +1785,35 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
 void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateManager& mgr) {
   CPlayer& player = mgr.GetPlayer();
   CPlayerState& playerState = *mgr.GetPlayerState();
-  bool isUnmorphed = player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed;
+  const bool isUnmorphed = player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed;
 
-  bool becameFrozen;
-  if (isUnmorphed)
+  bool becameFrozen = false;
+  if (isUnmorphed) {
     becameFrozen = !x834_29_frozen && player.GetFrozenState();
-  else
-    becameFrozen = false;
+  }
 
-  bool becameThawed;
-  if (isUnmorphed)
+  bool becameThawed = false;
+  if (isUnmorphed) {
     becameThawed = x834_29_frozen && !player.GetFrozenState();
-  else
-    becameThawed = false;
+  }
 
   x834_29_frozen = isUnmorphed && player.GetFrozenState();
-  float advDt;
-  if (x834_29_frozen)
+  float advDt = dt;
+  if (x834_29_frozen) {
     advDt = 0.f;
-  else
-    advDt = dt;
+  }
 
-  bool r23 = x678_morph.GetGunState() != CGunMorph::EGunState::OutWipeDone;
-  if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay || r23)
+  const bool r23 = x678_morph.GetGunState() != CGunMorph::EGunState::OutWipeDone;
+  if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay || r23) {
     x6e0_rightHandModel.AdvanceAnimation(advDt, mgr, kInvalidAreaId, true);
-  if (r23 && x734_loadingBeam != 0 && x734_loadingBeam != x72c_currentBeam) {
+  }
+  if (r23 && x734_loadingBeam != nullptr && x734_loadingBeam != x72c_currentBeam) {
     x744_auxWeapon->LoadIdle();
     x734_loadingBeam->Update(advDt, mgr);
   }
-  if (!x744_auxWeapon->IsLoaded())
+  if (!x744_auxWeapon->IsLoaded()) {
     x744_auxWeapon->LoadIdle();
+  }
 
   if (becameFrozen) {
     x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::None);
@@ -2130,20 +2129,20 @@ void CPlayerGun::CopyScreenTex() {
   CGraphics::ResolveSpareTexture(g_Viewport);
 }
 
-void CPlayerGun::DrawScreenTex(float z) const {
+void CPlayerGun::DrawScreenTex(float z) {
   // Use CopyScreenTex rendering to draw over framebuffer pixels in front of `z`
   // This is accomplished using orthographic projection quad with sweeping `y` coordinates
   // Depth is set to GEQUAL to obscure pixels in front rather than behind
   m_screenQuad.draw(zeus::skWhite, 1.f, CTexturedQuadFilter::DefaultRect, z);
 }
 
-void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) const {
+void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) {
   // Render AABB as completely transparent object, only modifying Z-buffer
   // AABB has already been set in constructor (since it's constant)
   m_aaboxShader.draw(zeus::skClear);
 }
 
-void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const {
+void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerGun::Render", zeus::skMagenta);
 
   CGraphics::CProjectionState projState = CGraphics::GetProjectionState();
@@ -2267,12 +2266,12 @@ void CPlayerGun::DropBomb(EBWeapon weapon, CStateManager& mgr) {
     if (x308_bombCount <= 0)
       return;
 
-    zeus::CVector3f plPos = mgr.GetPlayer().GetTranslation();
-    zeus::CTransform xf =
+    const zeus::CVector3f plPos = mgr.GetPlayer().GetTranslation();
+    const zeus::CTransform xf =
         zeus::CTransform::Translate({plPos.x(), plPos.y(), plPos.z() + g_tweakPlayer->GetPlayerBallHalfExtent()});
-    CBomb* bomb =
-        new CBomb(x784_bombEffects[u32(weapon)][0], x784_bombEffects[u32(weapon)][1], mgr.AllocateUniqueId(),
-                  mgr.GetPlayer().GetAreaId(), x538_playerId, x354_bombFuseTime, xf, g_tweakPlayerGun->GetBombInfo());
+    CBomb* bomb = new CBomb(x784_bombEffects[u32(weapon)][0], x784_bombEffects[u32(weapon)][1], mgr.AllocateUniqueId(),
+                            mgr.GetPlayer().GetAreaId(), x538_playerId, x354_bombFuseTime, xf,
+                            CDamageInfo{g_tweakPlayerGun->GetBombInfo()});
     mgr.AddObject(bomb);
 
     if (x308_bombCount == 3)
@@ -2288,8 +2287,8 @@ void CPlayerGun::DropBomb(EBWeapon weapon, CStateManager& mgr) {
 }
 
 TUniqueId CPlayerGun::DropPowerBomb(CStateManager& mgr) {
-  CDamageInfo dInfo = (mgr.GetPlayer().GetDeathTime() <= 0.f ? g_tweakPlayerGun->GetPowerBombInfo()
-                                                             : CDamageInfo(CWeaponMode::PowerBomb(), 0.f, 0.f, 0.f));
+  const auto dInfo = mgr.GetPlayer().GetDeathTime() <= 0.f ? CDamageInfo{g_tweakPlayerGun->GetPowerBombInfo()}
+                                                           : CDamageInfo{CWeaponMode::PowerBomb(), 0.f, 0.f, 0.f};
 
   TUniqueId uid = mgr.AllocateUniqueId();
   zeus::CVector3f plVec = mgr.GetPlayer().GetTranslation();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bitset>
 #include <memory>
 #include <vector>
 
@@ -17,16 +18,13 @@ class CVParamTransfer;
 class CObjectReference;
 
 class CPFBitSet {
-  u32 x0_bitmap[16] = {};
+  std::bitset<512> x0_bitmap;
 
 public:
-  void Clear() {
-    for (u32& w : x0_bitmap)
-      w = 0;
-  }
-  void Add(s32 i) { x0_bitmap[i / 32] |= (1 << (i % 32)); }
-  bool Test(s32 i) const { return (x0_bitmap[i / 32] & (1 << (i % 32))) != 0; }
-  void Rmv(s32 i) { x0_bitmap[i / 32] &= ~(1 << (i % 32)); }
+  void Clear() { x0_bitmap.reset(); }
+  void Add(s32 i) { x0_bitmap.set(i); }
+  bool Test(s32 i) const { return x0_bitmap.test(i); }
+  void Rmv(s32 i) { x0_bitmap.reset(i); }
 };
 
 class CPFAreaOctree {

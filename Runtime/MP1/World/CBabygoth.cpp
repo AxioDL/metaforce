@@ -708,7 +708,7 @@ void CBabygoth::FollowPattern(CStateManager& mgr, EStateMsg msg, float) {
           CBCStepCmd(pas::EStepDirection::Backward, pas::EStepType::Normal));
     } else if (x568_stateProg == 3) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Step)
-        x450_bodyController->GetCommandMgr().SetTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+        x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
       else
         x568_stateProg = 4;
     }

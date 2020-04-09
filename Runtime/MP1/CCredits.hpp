@@ -9,7 +9,7 @@ public:
   CCredits();
   EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) override;
   bool GetIsContinueDraw() const override { return false; }
-  void Draw() const override;
+  void Draw() override;
 };
 
 } // namespace urde::MP1

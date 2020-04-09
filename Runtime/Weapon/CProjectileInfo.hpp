@@ -9,11 +9,11 @@
 namespace urde {
 class CPlayer;
 class CProjectileInfo {
-  TToken<CWeaponDescription> x0_weaponDescription;
+  TCachedToken<CWeaponDescription> x0_weaponDescription;
   CDamageInfo xc_damageInfo;
 
 public:
-  CProjectileInfo(CInputStream&);
+  explicit CProjectileInfo(CInputStream&);
   CProjectileInfo(CAssetId, const CDamageInfo&);
 
   float GetProjectileSpeed() const;
@@ -24,6 +24,6 @@ public:
 
   const CDamageInfo& GetDamage() const { return xc_damageInfo; }
   void SetDamage(const CDamageInfo& damageInfo) { xc_damageInfo = damageInfo; }
-  TToken<CWeaponDescription>& Token() { return x0_weaponDescription; }
+  TCachedToken<CWeaponDescription>& Token() { return x0_weaponDescription; }
 };
 } // namespace urde

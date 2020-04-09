@@ -1,5 +1,7 @@
 #include "Runtime/GuiSys/CHudEnergyInterface.hpp"
 
+#include <array>
+
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/GuiSys/CAuiEnergyBarT01.hpp"
@@ -10,12 +12,15 @@
 
 namespace urde {
 
-static const CAuiEnergyBarT01::FCoordFunc CoordFuncs[] = {
+constexpr std::array<CAuiEnergyBarT01::FCoordFunc, 5> CoordFuncs{
     CHudEnergyInterface::CombatEnergyCoordFunc, CHudEnergyInterface::CombatEnergyCoordFunc,
-    CHudEnergyInterface::XRayEnergyCoordFunc, CHudEnergyInterface::ThermalEnergyCoordFunc,
-    CHudEnergyInterface::BallEnergyCoordFunc};
+    CHudEnergyInterface::XRayEnergyCoordFunc,   CHudEnergyInterface::ThermalEnergyCoordFunc,
+    CHudEnergyInterface::BallEnergyCoordFunc,
+};
 
-static const float Tesselations[] = {0.2f, 0.2f, 0.1f, 0.2f, 1.f};
+constexpr std::array Tesselations{
+    0.2f, 0.2f, 0.1f, 0.2f, 1.f,
+};
 
 CHudEnergyInterface::CHudEnergyInterface(CGuiFrame& selHud, float tankEnergy, int totalEnergyTanks, int numTanksFilled,
                                          bool energyLow, EHudType hudType)
@@ -33,8 +38,8 @@ CHudEnergyInterface::CHudEnergyInterface(CGuiFrame& selHud, float tankEnergy, in
   x28_textpane_energywarning = static_cast<CGuiTextPane*>(selHud.FindWidget("textpane_energywarning"));
   x2c_energybart01_energybar = static_cast<CAuiEnergyBarT01*>(selHud.FindWidget("energybart01_energybar"));
 
-  x2c_energybart01_energybar->SetCoordFunc(CoordFuncs[int(hudType)]);
-  x2c_energybart01_energybar->SetTesselation(Tesselations[int(hudType)]);
+  x2c_energybart01_energybar->SetCoordFunc(CoordFuncs[size_t(hudType)]);
+  x2c_energybart01_energybar->SetTesselation(Tesselations[size_t(hudType)]);
 
   ITweakGuiColors::VisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(int(hudType));
   ITweakGuiColors::VisorEnergyInitColors initColors = g_tweakGuiColors->GetVisorEnergyInitColors(int(hudType));

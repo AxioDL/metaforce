@@ -28,7 +28,7 @@ public:
   virtual void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position) = 0;
   virtual void SetFrameColorValue(float v);
   virtual void Update(float dt, const CStateManager& stateMgr) = 0;
-  virtual void Draw() const;
+  virtual void Draw();
   virtual void ProcessInput(const CFinalInput& input);
   virtual void UpdateCameraDebugSettings(float fov, float y, float z) = 0;
   virtual void UpdateHudAlpha() = 0;
@@ -53,7 +53,7 @@ class CHudDecoInterfaceCombat : public IHudDecoInterface {
   void UpdateVisibility();
 
 public:
-  CHudDecoInterfaceCombat(CGuiFrame& selHud);
+  explicit CHudDecoInterfaceCombat(CGuiFrame& selHud);
   void SetIsVisibleDebug(bool v) override;
   void SetIsVisibleGame(bool v) override;
   void SetHudRotation(const zeus::CQuaternion& rot) override;
@@ -104,7 +104,7 @@ class CHudDecoInterfaceScan : public IHudDecoInterface {
   void UpdateVisibility();
 
 public:
-  CHudDecoInterfaceScan(CGuiFrame& selHud);
+  explicit CHudDecoInterfaceScan(CGuiFrame& selHud);
   void SetIsVisibleDebug(bool v) override;
   void SetIsVisibleGame(bool v) override;
   void SetHudRotation(const zeus::CQuaternion& rot) override;
@@ -116,7 +116,7 @@ public:
   const CScannableObjectInfo* GetCurrScanInfo(const CStateManager& stateMgr) const;
   void UpdateScanDisplay(const CStateManager& stateMgr, float dt);
   void Update(float dt, const CStateManager& stateMgr) override;
-  void Draw() const override;
+  void Draw() override;
   void ProcessInput(const CFinalInput& input) override;
   void UpdateCameraDebugSettings(float fov, float y, float z) override;
   void UpdateHudAlpha() override;
@@ -142,7 +142,7 @@ class CHudDecoInterfaceXRay : public IHudDecoInterface {
   void UpdateVisibility();
 
 public:
-  CHudDecoInterfaceXRay(CGuiFrame& selHud);
+  explicit CHudDecoInterfaceXRay(CGuiFrame& selHud);
   void SetIsVisibleDebug(bool v) override;
   void SetIsVisibleGame(bool v) override;
   void SetHudRotation(const zeus::CQuaternion& rot) override;
@@ -175,7 +175,7 @@ class CHudDecoInterfaceThermal : public IHudDecoInterface {
   void UpdateVisibility();
 
 public:
-  CHudDecoInterfaceThermal(CGuiFrame& selHud);
+  explicit CHudDecoInterfaceThermal(CGuiFrame& selHud);
   void SetIsVisibleDebug(bool v) override;
   void SetIsVisibleGame(bool v) override;
   void SetHudRotation(const zeus::CQuaternion& rot) override;

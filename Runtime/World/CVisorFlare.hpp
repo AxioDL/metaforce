@@ -49,7 +49,7 @@ private:
   u32 x30_w2;
 
 public:
-  CVisorFlare(EBlendMode blendMode, bool, float, float, float, u32, u32, const std::vector<CFlareDef>& flares);
+  CVisorFlare(EBlendMode blendMode, bool, float, float, float, u32, u32, std::vector<CFlareDef> flares);
   void Update(float dt, const zeus::CVector3f& pos, const CActor* act, CStateManager& mgr);
   void Render(const zeus::CVector3f& pos, const CStateManager& mgr) const;
   static std::optional<CFlareDef> LoadFlareDef(CInputStream& in);

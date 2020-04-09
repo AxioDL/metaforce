@@ -116,9 +116,10 @@ std::optional<zeus::CAABox> CProjectileWeapon::GetBounds() const {
     }
   }
 
-  if (ret)
+  if (ret) {
     return {aabb};
-  return {};
+  }
+  return std::nullopt;
 }
 
 float CProjectileWeapon::GetAudibleFallOff() const {
@@ -135,8 +136,9 @@ float CProjectileWeapon::GetAudibleRange() const {
 
 std::optional<TLockedToken<CDecalDescription>>
 CProjectileWeapon::GetDecalForCollision(EWeaponCollisionResponseTypes type) const {
-  if (!x4_weaponDesc->x94_COLR)
-    return {};
+  if (!x4_weaponDesc->x94_COLR) {
+    return std::nullopt;
+  }
   return x4_weaponDesc->x94_COLR.m_res->GetDecalDescription(type);
 }
 
@@ -159,21 +161,27 @@ std::optional<TLockedToken<CGenDescription>> CProjectileWeapon::CollisionOccured
       SetWorldSpaceOrientation(
           zeus::lookAt(zeus::skZero3f, xf.basis[1] - normal * (normal.dot(xf.basis[1]) * 2.f), normal));
     }
-    return {};
+    return std::nullopt;
   } else {
     x124_24_active = false;
-    if (xfc_APSMGen)
+    if (xfc_APSMGen) {
       xfc_APSMGen->SetParticleEmission(false);
-    if (x100_APS2Gen)
+    }
+    if (x100_APS2Gen) {
       x100_APS2Gen->SetParticleEmission(false);
-    if (x118_swoosh1)
+    }
+    if (x118_swoosh1) {
       x118_swoosh1->SetParticleEmission(false);
-    if (x11c_swoosh2)
+    }
+    if (x11c_swoosh2) {
       x11c_swoosh2->SetParticleEmission(false);
-    if (x120_swoosh3)
+    }
+    if (x120_swoosh3) {
       x120_swoosh3->SetParticleEmission(false);
-    if (!x4_weaponDesc->x94_COLR)
-      return {};
+    }
+    if (!x4_weaponDesc->x94_COLR) {
+      return std::nullopt;
+    }
     return x4_weaponDesc->x94_COLR.m_res->GetParticleDescription(type);
   }
 }

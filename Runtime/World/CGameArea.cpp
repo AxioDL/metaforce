@@ -353,28 +353,31 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(id
   else
     x88_areaId = -1;
 
-  u32 attachedCount = in.readUint32Big();
+  const u32 attachedCount = in.readUint32Big();
   x8c_attachedAreaIndices.reserve(attachedCount);
-  for (u32 i = 0; i < attachedCount; ++i)
-    x8c_attachedAreaIndices.push_back(in.readUint16Big());
+  for (u32 i = 0; i < attachedCount; ++i) {
+    x8c_attachedAreaIndices.emplace_back(in.readUint16Big());
+  }
 
   x9c_deps1 = ::urde::ReadDependencyList(in);
   xac_deps2 = ::urde::ReadDependencyList(in);
 
-  zeus::CAABox aabb = x6c_aabb.getTransformedAABox(xc_transform);
+  const zeus::CAABox aabb = x6c_aabb.getTransformedAABox(xc_transform);
   x6c_aabb = aabb;
 
   if (mlvlVersion > 13) {
-    u32 depCount = in.readUint32Big();
+    const u32 depCount = in.readUint32Big();
     xbc_layerDepOffsets.reserve(depCount);
-    for (u32 i = 0; i < depCount; ++i)
-      xbc_layerDepOffsets.push_back(in.readUint32Big());
+    for (u32 i = 0; i < depCount; ++i) {
+      xbc_layerDepOffsets.emplace_back(in.readUint32Big());
+    }
   }
 
-  u32 dockCount = in.readUint32Big();
+  const u32 dockCount = in.readUint32Big();
   xcc_docks.reserve(dockCount);
-  for (u32 i = 0; i < dockCount; ++i)
-    xcc_docks.push_back({in, xc_transform});
+  for (u32 i = 0; i < dockCount; ++i) {
+    xcc_docks.emplace_back(in, xc_transform);
+  }
 
   ClearTokenList();
 
@@ -684,7 +687,7 @@ bool CGameArea::StartStreamingMainArea() {
   case EPhase::LoadHeader: {
     x110_mreaSecBufs.reserve(3);
     AllocNewAreaData(0, 96);
-    x12c_postConstructed.reset(new CPostConstructed());
+    x12c_postConstructed = std::make_unique<CPostConstructed>();
     xf4_phase = EPhase::LoadSecSizes;
     break;
   }
@@ -995,8 +998,8 @@ void CGameArea::PostConstructArea() {
     ++secIt;
   }
 
-  x12c_postConstructed->x10c0_areaObjs.reset(new CAreaObjectList(x4_selfIdx));
-  x12c_postConstructed->x10c4_areaFog.reset(new CAreaFog());
+  x12c_postConstructed->x10c0_areaObjs = std::make_unique<CAreaObjectList>(x4_selfIdx);
+  x12c_postConstructed->x10c4_areaFog = std::make_unique<CAreaFog>();
 
   /* URDE addition: preemptively fill in area models so shaders may be polled for completion */
   if (!x12c_postConstructed->x1108_25_modelsConstructed)

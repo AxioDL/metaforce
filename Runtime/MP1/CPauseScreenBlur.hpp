@@ -20,8 +20,8 @@ class CPauseScreenBlur {
   EState x14_nextState = EState::InGame;
   float x18_blurAmt = 0.f;
   CCameraBlurPass x1c_camBlur;
-  CTexturedQuadFilter m_quarterFilter = {EFilterType::Multiply, x4_mapLightQuarter};
-  CScanLinesFilterEven m_linesFilter = {EFilterType::Multiply};
+  CTexturedQuadFilter m_quarterFilter{EFilterType::Multiply, x4_mapLightQuarter};
+  CScanLinesFilterEven m_linesFilter{EFilterType::Multiply};
 
   union {
     struct {

@@ -137,6 +137,7 @@ public:
   bool IsOver() const { return x68_25_over; }
   void SetNoOverTimer(bool b) { x68_28_noOverTimer = b; }
   void SetContinueSmallMovements(bool b) { x68_27_continueSmallMovements = b; }
+  u32 GetImpactCount() const { return x4c_impactCount; }
 };
 
 } // namespace urde

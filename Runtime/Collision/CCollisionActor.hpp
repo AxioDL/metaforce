@@ -33,24 +33,27 @@ class CCollisionActor : public CPhysicsActor {
   zeus::CVector3f x304_extendedTouchBounds = zeus::skZero3f;
 
 public:
-  CCollisionActor(TUniqueId, TAreaId, TUniqueId, const zeus::CVector3f&, const zeus::CVector3f&, bool, float,
+  CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, const zeus::CVector3f& extent,
+                  const zeus::CVector3f& center, bool active, float mass, std::string_view name);
+  CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, const zeus::CVector3f& boxSize, bool active,
+                  float mass, std::string_view name);
+  CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, bool active, float radius, float mass,
                   std::string_view name);
-  CCollisionActor(TUniqueId, TAreaId, TUniqueId, const zeus::CVector3f&, bool, float, std::string_view name);
-  CCollisionActor(TUniqueId, TAreaId, TUniqueId, bool, float, float, std::string_view name);
 
   void Accept(IVisitor& visitor) override;
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  CHealthInfo* HealthInfo(CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  CHealthInfo* HealthInfo(CStateManager& mgr) override;
   const CDamageVulnerability* GetDamageVulnerability() const override;
-  const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                     const CDamageInfo&) const override;
-  void OnScanStateChanged(EScanState, CStateManager&) override;
+  const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2,
+                                                     const CDamageInfo& dInfo) const override;
+  void OnScanStateChanged(EScanState state, CStateManager& mgr) override;
 
-  void Touch(CActor&, CStateManager&) override;
-  zeus::CVector3f GetOrbitPosition(const CStateManager&) const override;
+  void Touch(CActor& actor, CStateManager& mgr) override;
+  zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const override;
   const CCollisionPrimitive* GetCollisionPrimitive() const override;
-  EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                         const CWeaponMode&, EProjectileAttrib) const override;
+  EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2,
+                                                         const CWeaponMode& mode,
+                                                         EProjectileAttrib attribute) const override;
   void SetWeaponCollisionResponseType(EWeaponCollisionResponseTypes type) { x300_responseType = type; }
   zeus::CTransform GetPrimitiveTransform() const override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
@@ -58,7 +61,7 @@ public:
   const zeus::CVector3f& GetBoxSize() const { return x260_boxSize; }
   TUniqueId GetOwnerId() const { return x25c_owner; }
   TUniqueId GetLastTouchedObject() const { return x2fc_lastTouched; }
-  zeus::CVector3f GetScanObjectIndicatorPosition(const CStateManager&) const override;
+  zeus::CVector3f GetScanObjectIndicatorPosition(const CStateManager& mgr) const override;
   void SetExtendedTouchBounds(const zeus::CVector3f& boundExt) { x304_extendedTouchBounds = boundExt; }
   void SetSphereRadius(float radius);
   float GetSphereRadius() const { return x288_sphereRadius; }

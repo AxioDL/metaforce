@@ -12,6 +12,7 @@ class IMetaAnim;
 
 class CAnimationDatabase {
 public:
+  virtual ~CAnimationDatabase() = default;
   virtual const std::shared_ptr<IMetaAnim>& GetMetaAnim(s32) const = 0;
   virtual u32 GetNumMetaAnims() const = 0;
   virtual const char* GetMetaAnimName(s32) const = 0;

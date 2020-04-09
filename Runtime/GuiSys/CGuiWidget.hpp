@@ -90,24 +90,24 @@ protected:
   std::string m_name;
 
 public:
-  CGuiWidget(const CGuiWidgetParms& parms);
+  explicit CGuiWidget(const CGuiWidgetParms& parms);
 
   static CGuiWidgetParms ReadWidgetHeader(CGuiFrame* frame, CInputStream& in);
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
   void Update(float dt) override;
-  void Draw(const CGuiWidgetDrawParms& drawParms) const override;
+  void Draw(const CGuiWidgetDrawParms& drawParms) override;
   void Initialize() override;
 
   virtual void Reset(ETraversalMode mode);
   virtual void ProcessUserInput(const CFinalInput& input);
-  virtual void Touch() const;
+  virtual void Touch();
   virtual bool GetIsVisible() const;
   virtual bool GetIsActive() const;
   virtual bool GetMouseActive() const;
   virtual FourCC GetWidgetTypeID() const { return FOURCC('BWIG'); }
   virtual bool AddWorkerWidget(CGuiWidget* worker);
-  virtual bool GetIsFinishedLoadingWidgetSpecific() const;
+  virtual bool GetIsFinishedLoadingWidgetSpecific();
   virtual void OnVisibleChange();
   virtual void OnActiveChange();
 
@@ -122,24 +122,24 @@ public:
   const zeus::CColor& GetGeometryColor() const { return xa8_color2; }
   void SetIdlePosition(const zeus::CVector3f& pos, bool reapply);
   void ReapplyXform();
-  virtual void SetIsVisible(bool);
-  void SetIsActive(bool);
+  virtual void SetIsVisible(bool visible);
+  void SetIsActive(bool active);
   bool GetIsSelectable() const { return xb6_27_isSelectable; }
-  void SetIsSelectable(bool v) { xb6_27_isSelectable = v; }
-  void SetMouseActive(bool v) { m_mouseActive = v; }
+  void SetIsSelectable(bool selectable) { xb6_27_isSelectable = selectable; }
+  void SetMouseActive(bool mouseActive) { m_mouseActive = mouseActive; }
 
   void ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms);
   void AddChildWidget(CGuiWidget* widget, bool makeWorldLocal, bool atEnd);
-  void SetVisibility(bool, ETraversalMode);
-  void RecalcWidgetColor(ETraversalMode);
+  void SetVisibility(bool visible, ETraversalMode mode);
+  void RecalcWidgetColor(ETraversalMode mode);
   void SetColor(const zeus::CColor& color);
   void InitializeRGBAFactor();
   CGuiWidget* FindWidget(s16 id);
-  bool GetIsFinishedLoading() const;
+  bool GetIsFinishedLoading();
   void DispatchInitialize();
-  void SetDepthGreater(bool v) { xb6_30_depthGreater = v; }
-  void SetDepthTest(bool v) { xb6_31_depthTest = v; }
-  void SetDepthWrite(bool v) { xb7_24_depthWrite = v; }
+  void SetDepthGreater(bool depthGreater) { xb6_30_depthGreater = depthGreater; }
+  void SetDepthTest(bool depthTest) { xb6_31_depthTest = depthTest; }
+  void SetDepthWrite(bool depthWrite) { xb7_24_depthWrite = depthWrite; }
 
   CGuiFrame* GetGuiFrame() const { return xb0_frame; }
 };

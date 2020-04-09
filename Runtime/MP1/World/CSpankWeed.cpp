@@ -109,8 +109,9 @@ void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
 
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
 
-  if (GetActive() != oldActive)
-    x594_collisionMgr.reset();
+  bool active = GetActive();
+  if (active != oldActive && x594_collisionMgr)
+    x594_collisionMgr->SetActive(mgr, active);
 }
 
 void CSpankWeed::Think(float dt, CStateManager& mgr) {

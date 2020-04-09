@@ -53,16 +53,17 @@ void CAuiEnergyBarT01::Update(float dt) {
   CGuiWidget::Update(dt);
 }
 
-void CAuiEnergyBarT01::Draw(const CGuiWidgetDrawParms& drawParms) const {
-  if (!xbc_tex || !xbc_tex.IsLoaded() || !xd8_coordFunc)
+void CAuiEnergyBarT01::Draw(const CGuiWidgetDrawParms& drawParms) {
+  if (!xbc_tex || !xbc_tex.IsLoaded() || !xd8_coordFunc) {
     return;
+  }
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CAuiEnergyBarT01::Draw {}"), m_name).c_str(), zeus::skCyan);
 
   CGraphics::SetModelMatrix(x34_worldXF);
-  const_cast<CEnergyBarShader&>(m_energyBarShader).updateModelMatrix();
+  m_energyBarShader.updateModelMatrix();
 
-  float filledT = xe0_maxEnergy > 0.f ? xf8_filledEnergy / xe0_maxEnergy : 0.f;
-  float shadowT = xe0_maxEnergy > 0.f ? xfc_shadowEnergy / xe0_maxEnergy : 0.f;
+  const float filledT = xe0_maxEnergy > 0.f ? xf8_filledEnergy / xe0_maxEnergy : 0.f;
+  const float shadowT = xe0_maxEnergy > 0.f ? xfc_shadowEnergy / xe0_maxEnergy : 0.f;
 
   zeus::CColor filledColor = xd0_filledColor;
   filledColor.a() *= drawParms.x0_alphaMod;
@@ -76,8 +77,8 @@ void CAuiEnergyBarT01::Draw(const CGuiWidgetDrawParms& drawParms) const {
   emptyColor.a() *= drawParms.x0_alphaMod;
   emptyColor *= xa8_color2;
 
-  for (int i = 0; i < 3; ++i) {
-    std::vector<CEnergyBarShader::Vertex>& verts = const_cast<CAuiEnergyBarT01&>(*this).m_verts[i];
+  for (size_t i = 0; i < m_verts.size(); ++i) {
+    std::vector<CEnergyBarShader::Vertex>& verts = m_verts[i];
     verts.clear();
 
     float start;
@@ -98,8 +99,9 @@ void CAuiEnergyBarT01::Draw(const CGuiWidgetDrawParms& drawParms) const {
       break;
     }
 
-    if (start == end)
+    if (start == end) {
       continue;
+    }
 
     std::pair<zeus::CVector3f, zeus::CVector3f> coords = xd8_coordFunc(start);
     while (start < end) {
@@ -116,8 +118,7 @@ void CAuiEnergyBarT01::Draw(const CGuiWidgetDrawParms& drawParms) const {
     }
   }
 
-  const_cast<CEnergyBarShader&>(m_energyBarShader)
-      .draw(filledColor, m_verts[0], shadowColor, m_verts[1], emptyColor, m_verts[2], xbc_tex.GetObj());
+  m_energyBarShader.draw(filledColor, m_verts[0], shadowColor, m_verts[1], emptyColor, m_verts[2], xbc_tex.GetObj());
 }
 
 void CAuiEnergyBarT01::SetCurrEnergy(float e, ESetMode mode) {

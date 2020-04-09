@@ -1,5 +1,8 @@
 #include "Runtime/AutoMapper/CMapWorld.hpp"
 
+#include <algorithm>
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -7,6 +10,254 @@
 #include "Runtime/World/CWorld.hpp"
 
 namespace urde {
+namespace {
+struct Support {
+  int x0_;
+  std::array<int, 3> x4_;
+};
+
+struct Circle2 {
+  zeus::CVector2f x0_point;
+  float x8_radiusSq;
+};
+
+struct Circle {
+  zeus::CVector2f x0_point;
+  float x8_radius;
+  Circle(const Circle2& circ2) : x0_point(circ2.x0_point), x8_radius(std::sqrt(circ2.x8_radiusSq)) {}
+};
+
+Circle2 ExactCircle1(const zeus::CVector2f* a) { return {*a, 0.f}; }
+
+Circle2 ExactCircle2(const zeus::CVector2f* a, const zeus::CVector2f* b) {
+  Circle2 ret = {};
+  ret.x0_point = 0.5f * (*a + *b);
+  ret.x8_radiusSq = (*b - *a).magSquared() * 0.25f;
+  return ret;
+}
+
+Circle2 ExactCircle3(const zeus::CVector2f* a, const zeus::CVector2f* b, const zeus::CVector2f* c) {
+  Circle2 ret = {};
+  zeus::CVector2f d1 = *b - *a;
+  zeus::CVector2f d2 = *c - *a;
+  float cross = d1.cross(d2);
+  zeus::CVector2f magVec(d1.magSquared() * 0.5f, d2.magSquared() * 0.5f);
+  if (std::fabs(cross) > 0.01f) {
+    zeus::CVector2f tmp((d2.y() * magVec.x() - d1.y() * magVec.y()) / cross,
+                        (d1.x() * magVec.y() - d2.x() * magVec.x()) / cross);
+    ret.x0_point = *a + tmp;
+    ret.x8_radiusSq = tmp.magSquared();
+  } else {
+    ret.x8_radiusSq = FLT_MAX;
+  }
+  return ret;
+}
+
+bool PointInsideCircle(const zeus::CVector2f& point, const Circle2& circ, float& intersect) {
+  intersect = (point - circ.x0_point).magSquared() - circ.x8_radiusSq;
+  return intersect <= 0.f;
+}
+
+Circle2 UpdateSupport1(int idx, const zeus::CVector2f** list, Support& support) {
+  Circle2 ret = ExactCircle2(list[support.x4_[0]], list[idx]);
+  support.x0_ = 2;
+  support.x4_[1] = idx;
+  return ret;
+}
+
+Circle2 UpdateSupport2(int idx, const zeus::CVector2f** list, Support& support) {
+  std::array<Circle2, 3> circs{};
+  float intersect;
+  int circIdx = -1;
+  float minRad = FLT_MAX;
+
+  circs[0] = ExactCircle2(list[support.x4_[0]], list[idx]);
+  if (PointInsideCircle(*list[support.x4_[1]], circs[0], intersect)) {
+    minRad = circs[0].x8_radiusSq;
+    circIdx = 0;
+  }
+
+  circs[1] = ExactCircle2(list[support.x4_[1]], list[idx]);
+  if (circs[1].x8_radiusSq < minRad && PointInsideCircle(*list[support.x4_[0]], circs[1], intersect)) {
+    circIdx = 1;
+  }
+
+  Circle2 ret;
+  if (circIdx != -1) {
+    ret = circs[circIdx];
+    support.x4_[1 - circIdx] = idx;
+  } else {
+    ret = ExactCircle3(list[support.x4_[0]], list[support.x4_[1]], list[idx]);
+    support.x0_ = 3;
+    support.x4_[2] = idx;
+  }
+  return ret;
+}
+
+Circle2 UpdateSupport3(int idx, const zeus::CVector2f** list, Support& support) {
+  std::array<Circle2, 6> circs{};
+  float intersect;
+  int circIdxA = -1;
+  int circIdxB = -1;
+  float minRadA = FLT_MAX;
+  float minRadB = FLT_MAX;
+
+  circs[0] = ExactCircle2(list[support.x4_[0]], list[idx]);
+  if (PointInsideCircle(*list[support.x4_[1]], circs[0], intersect)) {
+    if (PointInsideCircle(*list[support.x4_[2]], circs[0], intersect)) {
+      minRadA = circs[0].x8_radiusSq;
+      circIdxA = 0;
+    } else {
+      minRadB = intersect;
+      circIdxB = 0;
+    }
+  } else {
+    minRadB = intersect;
+    circIdxB = 0;
+  }
+
+  circs[1] = ExactCircle2(list[support.x4_[1]], list[idx]);
+  if (circs[1].x8_radiusSq < minRadA) {
+    if (PointInsideCircle(*list[support.x4_[0]], circs[1], intersect)) {
+      if (PointInsideCircle(*list[support.x4_[2]], circs[1], intersect)) {
+        minRadA = circs[1].x8_radiusSq;
+        circIdxA = 1;
+      } else if (intersect < minRadB) {
+        minRadB = intersect;
+        circIdxB = 1;
+      }
+    } else if (intersect < minRadB) {
+      minRadB = intersect;
+      circIdxB = 1;
+    }
+  }
+
+  circs[2] = ExactCircle2(list[support.x4_[2]], list[idx]);
+  if (circs[2].x8_radiusSq < minRadA) {
+    if (PointInsideCircle(*list[support.x4_[0]], circs[2], intersect)) {
+      if (PointInsideCircle(*list[support.x4_[1]], circs[2], intersect)) {
+        minRadA = circs[2].x8_radiusSq;
+        circIdxA = 2;
+      } else if (intersect < minRadB) {
+        minRadB = intersect;
+        circIdxB = 2;
+      }
+    } else if (intersect < minRadB) {
+      minRadB = intersect;
+      circIdxB = 2;
+    }
+  }
+
+  circs[3] = ExactCircle3(list[support.x4_[0]], list[support.x4_[1]], list[idx]);
+  if (circs[3].x8_radiusSq < minRadA) {
+    if (PointInsideCircle(*list[support.x4_[2]], circs[3], intersect)) {
+      minRadA = circs[3].x8_radiusSq;
+      circIdxA = 3;
+    } else if (intersect < minRadB) {
+      minRadB = intersect;
+      circIdxB = 3;
+    }
+  }
+
+  circs[4] = ExactCircle3(list[support.x4_[0]], list[support.x4_[2]], list[idx]);
+  if (circs[4].x8_radiusSq < minRadA) {
+    if (PointInsideCircle(*list[support.x4_[1]], circs[4], intersect)) {
+      minRadA = circs[4].x8_radiusSq;
+      circIdxA = 4;
+    } else if (intersect < minRadB) {
+      minRadB = intersect;
+      circIdxB = 4;
+    }
+  }
+
+  circs[5] = ExactCircle3(list[support.x4_[1]], list[support.x4_[2]], list[idx]);
+  if (circs[5].x8_radiusSq < minRadA) {
+    if (PointInsideCircle(*list[support.x4_[0]], circs[5], intersect)) {
+      circIdxA = 5;
+    } else if (intersect < minRadB) {
+      circIdxB = 5;
+    }
+  }
+
+  if (circIdxA == -1)
+    circIdxA = circIdxB;
+
+  switch (circIdxA) {
+  case 0:
+    support.x0_ = 2;
+    support.x4_[1] = idx;
+    break;
+  case 1:
+    support.x0_ = 2;
+    support.x4_[0] = idx;
+    break;
+  case 2:
+    support.x0_ = 2;
+    support.x4_[0] = support.x4_[2];
+    support.x4_[1] = idx;
+    break;
+  case 3:
+    support.x4_[2] = idx;
+    break;
+  case 4:
+    support.x4_[1] = idx;
+    break;
+  case 5:
+    support.x4_[0] = idx;
+    break;
+  default:
+    break;
+  }
+
+  return circs[circIdxA];
+}
+
+using FSupport = Circle2 (*)(int idx, const zeus::CVector2f** list, Support& support);
+constexpr std::array<FSupport, 4> SupportFuncs{
+    nullptr,
+    UpdateSupport1,
+    UpdateSupport2,
+    UpdateSupport3,
+};
+
+Circle MinCircle(const std::vector<zeus::CVector2f>& coords) {
+  Circle2 ret = {};
+  if (coords.size() >= 1) {
+    std::unique_ptr<const zeus::CVector2f*[]> randArr(new const zeus::CVector2f*[coords.size()]);
+    for (size_t i = 0; i < coords.size(); ++i)
+      randArr[i] = &coords[i];
+    for (int i = coords.size() - 1; i >= 0; --i) {
+      int shuf = rand() % (i + 1);
+      if (shuf != i)
+        std::swap(randArr[i], randArr[shuf]);
+    }
+    ret = ExactCircle1(randArr[0]);
+
+    Support support = {};
+    support.x0_ = 1;
+    for (size_t i = 1; i < coords.size();) {
+      bool broke = false;
+      for (int j = 0; j < support.x0_; ++j) {
+        if ((*randArr[i] - *randArr[support.x4_[j]]).magSquared() < 0.01f) {
+          broke = true;
+          break;
+        }
+      }
+      float intersect;
+      if (!broke && !PointInsideCircle(*randArr[i], ret, intersect)) {
+        Circle2 circ = SupportFuncs[support.x0_](i, randArr.get(), support);
+        if (circ.x8_radiusSq > ret.x8_radiusSq) {
+          i = 0;
+          ret = circ;
+          continue;
+        }
+      }
+      ++i;
+    }
+  }
+  return ret;
+}
+} // Anonymous namespace
 
 CMapWorld::CMapAreaData::CMapAreaData(CAssetId areaRes, EMapAreaList list, CMapAreaData* next)
 : x0_area(g_SimplePool->GetObj(SObjectTag{FOURCC('MAPA'), areaRes})), x10_list(list), x14_next(next) {}
@@ -60,13 +311,13 @@ void CMapWorld::SetWhichMapAreasLoaded(const IWorld& wld, int start, int count) 
   }
 }
 
-bool CMapWorld::IsMapAreasStreaming() const {
+bool CMapWorld::IsMapAreasStreaming() {
   bool ret = false;
   CMapAreaData* data = x10_listHeads[1];
   while (data != nullptr) {
     if (data->IsLoaded()) {
       CMapAreaData* next = data->GetNextMapAreaData();
-      const_cast<CMapWorld*>(this)->MoveMapAreaToList(data, EMapAreaList::Loaded);
+      MoveMapAreaToList(data, EMapAreaList::Loaded);
       data = next;
     } else {
       data = data->GetNextMapAreaData();
@@ -93,7 +344,7 @@ void CMapWorld::MoveMapAreaToList(CMapWorld::CMapAreaData* data, CMapWorld::EMap
   x10_listHeads[int(list)] = data;
 }
 
-s32 CMapWorld::GetCurrentMapAreaDepth(const IWorld& wld, TAreaId aid) const {
+s32 CMapWorld::GetCurrentMapAreaDepth(const IWorld& wld, TAreaId aid) {
   ClearTraversedFlags();
   std::vector<CMapAreaBFSInfo> info;
   info.reserve(x0_areas.size());
@@ -118,8 +369,8 @@ std::vector<int> CMapWorld::GetVisibleAreas(const IWorld& wld, const CMapWorldIn
   return ret;
 }
 
-void CMapWorld::Draw(const CMapWorld::CMapWorldDrawParms& parms, int curArea, int otherArea, float depth1, float depth2,
-                     bool inMapScreen) const {
+void CMapWorld::Draw(const CMapWorldDrawParms& parms, int curArea, int otherArea, float depth1, float depth2,
+                     bool inMapScreen) {
   if (depth1 == 0.f && depth2 == 0.f)
     return;
   SCOPED_GRAPHICS_DEBUG_GROUP("CMapWorld::Draw", zeus::skBlue);
@@ -130,7 +381,7 @@ void CMapWorld::Draw(const CMapWorld::CMapWorldDrawParms& parms, int curArea, in
   std::vector<CMapAreaBFSInfo> bfsInfos;
   bfsInfos.reserve(x0_areas.size());
   if (curArea != otherArea) {
-    const_cast<CMapWorld*>(this)->x20_traversed[otherArea] = true;
+    x20_traversed[otherArea] = true;
     DoBFS(parms.GetWorld(), curArea, areaDepth, depth1, depth2, true, bfsInfos);
 
     float lowD1 = std::ceil(depth1 - 1.f);
@@ -150,7 +401,7 @@ void CMapWorld::Draw(const CMapWorld::CMapWorldDrawParms& parms, int curArea, in
 
     int otherDepth = std::ceil(std::max(newD1, newD2));
     if (parms.GetWorld().IGetAreaAlways(otherArea)->IIsActive()) {
-      const_cast<CMapWorld*>(this)->x20_traversed[otherArea] = false;
+      x20_traversed[otherArea] = false;
       DoBFS(parms.GetWorld(), otherArea, otherDepth, newD1, newD2, true, bfsInfos);
     }
   } else {
@@ -161,13 +412,13 @@ void CMapWorld::Draw(const CMapWorld::CMapWorldDrawParms& parms, int curArea, in
 }
 
 void CMapWorld::DoBFS(const IWorld& wld, int startArea, int areaCount, float surfDepth, float outlineDepth,
-                      bool checkLoad, std::vector<CMapAreaBFSInfo>& bfsInfos) const {
+                      bool checkLoad, std::vector<CMapAreaBFSInfo>& bfsInfos) {
   if (areaCount <= 0 || !IsMapAreaValid(wld, startArea, checkLoad))
     return;
 
   size_t size = bfsInfos.size();
   bfsInfos.emplace_back(startArea, 1, surfDepth, outlineDepth);
-  const_cast<CMapWorld*>(this)->x20_traversed[startArea] = true;
+  x20_traversed[startArea] = true;
 
   for (; size != bfsInfos.size(); ++size) {
     CMapAreaBFSInfo& testInfo = bfsInfos[size];
@@ -182,7 +433,7 @@ void CMapWorld::DoBFS(const IWorld& wld, int startArea, int areaCount, float sur
       TAreaId attId = area->IGetAttachedAreaId(i);
       if (IsMapAreaValid(wld, attId, checkLoad) && !x20_traversed[attId]) {
         bfsInfos.emplace_back(attId, testInfo.GetDepth() + 1, surfDepth, outlineDepth);
-        const_cast<CMapWorld*>(this)->x20_traversed[attId] = true;
+        x20_traversed[attId] = true;
       }
     }
   }
@@ -197,8 +448,8 @@ bool CMapWorld::IsMapAreaValid(const IWorld& wld, int areaIdx, bool checkLoad) c
   return true;
 }
 
-void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selArea,
-                          const std::vector<CMapAreaBFSInfo>& bfsInfos, bool inMapScreen) const {
+void CMapWorld::DrawAreas(const CMapWorldDrawParms& parms, int selArea, const std::vector<CMapAreaBFSInfo>& bfsInfos,
+                          bool inMapScreen) {
   // Alpha blend
   // Line width 1
 
@@ -328,17 +579,18 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
   u32 lastAreaIdx = UINT32_MAX;
   CMapObjectSortInfo::EObjectCode lastType = CMapObjectSortInfo::EObjectCode::Invalid;
   for (const CMapObjectSortInfo& info : sortInfos) {
-    const CMapArea* mapa = GetMapArea(info.GetAreaIndex());
+    CMapArea* mapa = GetMapArea(info.GetAreaIndex());
     zeus::CTransform areaPostXf = mapa->GetAreaPostTransform(parms.GetWorld(), info.GetAreaIndex());
     if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Surface) {
-      const CMapArea::CMapAreaSurface& surf = mapa->GetSurface(info.GetLocalObjectIndex());
+      CMapArea::CMapAreaSurface& surf = mapa->GetSurface(info.GetLocalObjectIndex());
       zeus::CColor color(
           std::max(0.f, (-parms.GetCameraTransform().basis[1]).dot(areaPostXf.rotate(surf.GetNormal()))) *
               g_tweakAutoMapper->GetMapSurfaceNormColorLinear() +
           g_tweakAutoMapper->GetMapSurfaceNormColorConstant());
       color *= info.GetSurfaceColor();
-      if (lastAreaIdx != info.GetAreaIndex() || lastType != CMapObjectSortInfo::EObjectCode::Surface)
+      if (lastAreaIdx != info.GetAreaIndex() || lastType != CMapObjectSortInfo::EObjectCode::Surface) {
         CGraphics::SetModelMatrix(parms.GetPlaneProjectionTransform() * areaPostXf);
+      }
       surf.Draw(mapa->GetVertices(), color, info.GetOutlineColor(), parms.GetOutlineWidthScale());
 
       lastAreaIdx = info.GetAreaIndex();
@@ -346,11 +598,11 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
     }
   }
   for (const CMapObjectSortInfo& info : sortInfos) {
-    const CMapArea* mapa = GetMapArea(info.GetAreaIndex());
+    CMapArea* mapa = GetMapArea(info.GetAreaIndex());
     if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door ||
         info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Object) {
-      const CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex());
-      zeus::CTransform objXf =
+      CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex());
+      const zeus::CTransform objXf =
           zeus::CTransform::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
           mapObj.GetTransform();
       if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door) {
@@ -363,8 +615,8 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
       mapObj.Draw(selArea, mwInfo, parms.GetAlpha(), lastType != info.GetObjectCode());
       lastType = info.GetObjectCode();
     } else if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::DoorSurface) {
-      const CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex() / 6);
-      zeus::CTransform objXf =
+      CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex() / 6);
+      const zeus::CTransform objXf =
           parms.GetPlaneProjectionTransform() *
           zeus::CTransform::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
           mapObj.GetTransform();
@@ -376,249 +628,7 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
   }
 }
 
-struct Support {
-  int x0_;
-  int x4_[3];
-};
-
-struct Circle2 {
-  zeus::CVector2f x0_point;
-  float x8_radiusSq;
-};
-
-struct Circle {
-  zeus::CVector2f x0_point;
-  float x8_radius;
-  Circle(const Circle2& circ2) : x0_point(circ2.x0_point), x8_radius(std::sqrt(circ2.x8_radiusSq)) {}
-};
-
-static Circle2 ExactCircle1(const zeus::CVector2f* a) { return {*a, 0.f}; }
-
-static Circle2 ExactCircle2(const zeus::CVector2f* a, const zeus::CVector2f* b) {
-  Circle2 ret = {};
-  ret.x0_point = 0.5f * (*a + *b);
-  ret.x8_radiusSq = (*b - *a).magSquared() * 0.25f;
-  return ret;
-}
-
-static Circle2 ExactCircle3(const zeus::CVector2f* a, const zeus::CVector2f* b, const zeus::CVector2f* c) {
-  Circle2 ret = {};
-  zeus::CVector2f d1 = *b - *a;
-  zeus::CVector2f d2 = *c - *a;
-  float cross = d1.cross(d2);
-  zeus::CVector2f magVec(d1.magSquared() * 0.5f, d2.magSquared() * 0.5f);
-  if (std::fabs(cross) > 0.01f) {
-    zeus::CVector2f tmp((d2.y() * magVec.x() - d1.y() * magVec.y()) / cross,
-                        (d1.x() * magVec.y() - d2.x() * magVec.x()) / cross);
-    ret.x0_point = *a + tmp;
-    ret.x8_radiusSq = tmp.magSquared();
-  } else {
-    ret.x8_radiusSq = FLT_MAX;
-  }
-  return ret;
-}
-
-static bool PointInsideCircle(const zeus::CVector2f& point, const Circle2& circ, float& intersect) {
-  intersect = (point - circ.x0_point).magSquared() - circ.x8_radiusSq;
-  return intersect <= 0.f;
-}
-
-static Circle2 UpdateSupport1(int idx, const zeus::CVector2f** list, Support& support) {
-  Circle2 ret = ExactCircle2(list[support.x4_[0]], list[idx]);
-  support.x0_ = 2;
-  support.x4_[1] = idx;
-  return ret;
-}
-
-static Circle2 UpdateSupport2(int idx, const zeus::CVector2f** list, Support& support) {
-  Circle2 circs[3] = {};
-  float intersect;
-  int circIdx = -1;
-  float minRad = FLT_MAX;
-
-  circs[0] = ExactCircle2(list[support.x4_[0]], list[idx]);
-  if (PointInsideCircle(*list[support.x4_[1]], circs[0], intersect)) {
-    minRad = circs[0].x8_radiusSq;
-    circIdx = 0;
-  }
-
-  circs[1] = ExactCircle2(list[support.x4_[1]], list[idx]);
-  if (circs[1].x8_radiusSq < minRad && PointInsideCircle(*list[support.x4_[0]], circs[1], intersect)) {
-    circIdx = 1;
-  }
-
-  Circle2 ret;
-  if (circIdx != -1) {
-    ret = circs[circIdx];
-    support.x4_[1 - circIdx] = idx;
-  } else {
-    ret = ExactCircle3(list[support.x4_[0]], list[support.x4_[1]], list[idx]);
-    support.x0_ = 3;
-    support.x4_[2] = idx;
-  }
-  return ret;
-}
-
-static Circle2 UpdateSupport3(int idx, const zeus::CVector2f** list, Support& support) {
-  Circle2 circs[6] = {};
-  float intersect;
-  int circIdxA = -1;
-  int circIdxB = -1;
-  float minRadA = FLT_MAX;
-  float minRadB = FLT_MAX;
-
-  circs[0] = ExactCircle2(list[support.x4_[0]], list[idx]);
-  if (PointInsideCircle(*list[support.x4_[1]], circs[0], intersect)) {
-    if (PointInsideCircle(*list[support.x4_[2]], circs[0], intersect)) {
-      minRadA = circs[0].x8_radiusSq;
-      circIdxA = 0;
-    } else {
-      minRadB = intersect;
-      circIdxB = 0;
-    }
-  } else {
-    minRadB = intersect;
-    circIdxB = 0;
-  }
-
-  circs[1] = ExactCircle2(list[support.x4_[1]], list[idx]);
-  if (circs[1].x8_radiusSq < minRadA) {
-    if (PointInsideCircle(*list[support.x4_[0]], circs[1], intersect)) {
-      if (PointInsideCircle(*list[support.x4_[2]], circs[1], intersect)) {
-        minRadA = circs[1].x8_radiusSq;
-        circIdxA = 1;
-      } else if (intersect < minRadB) {
-        minRadB = intersect;
-        circIdxB = 1;
-      }
-    } else if (intersect < minRadB) {
-      minRadB = intersect;
-      circIdxB = 1;
-    }
-  }
-
-  circs[2] = ExactCircle2(list[support.x4_[2]], list[idx]);
-  if (circs[2].x8_radiusSq < minRadA) {
-    if (PointInsideCircle(*list[support.x4_[0]], circs[2], intersect)) {
-      if (PointInsideCircle(*list[support.x4_[1]], circs[2], intersect)) {
-        minRadA = circs[2].x8_radiusSq;
-        circIdxA = 2;
-      } else if (intersect < minRadB) {
-        minRadB = intersect;
-        circIdxB = 2;
-      }
-    } else if (intersect < minRadB) {
-      minRadB = intersect;
-      circIdxB = 2;
-    }
-  }
-
-  circs[3] = ExactCircle3(list[support.x4_[0]], list[support.x4_[1]], list[idx]);
-  if (circs[3].x8_radiusSq < minRadA) {
-    if (PointInsideCircle(*list[support.x4_[2]], circs[3], intersect)) {
-      minRadA = circs[3].x8_radiusSq;
-      circIdxA = 3;
-    } else if (intersect < minRadB) {
-      minRadB = intersect;
-      circIdxB = 3;
-    }
-  }
-
-  circs[4] = ExactCircle3(list[support.x4_[0]], list[support.x4_[2]], list[idx]);
-  if (circs[4].x8_radiusSq < minRadA) {
-    if (PointInsideCircle(*list[support.x4_[1]], circs[4], intersect)) {
-      minRadA = circs[4].x8_radiusSq;
-      circIdxA = 4;
-    } else if (intersect < minRadB) {
-      minRadB = intersect;
-      circIdxB = 4;
-    }
-  }
-
-  circs[5] = ExactCircle3(list[support.x4_[1]], list[support.x4_[2]], list[idx]);
-  if (circs[5].x8_radiusSq < minRadA) {
-    if (PointInsideCircle(*list[support.x4_[0]], circs[5], intersect)) {
-      circIdxA = 5;
-    } else if (intersect < minRadB) {
-      circIdxB = 5;
-    }
-  }
-
-  if (circIdxA == -1)
-    circIdxA = circIdxB;
-
-  switch (circIdxA) {
-  case 0:
-    support.x0_ = 2;
-    support.x4_[1] = idx;
-    break;
-  case 1:
-    support.x0_ = 2;
-    support.x4_[0] = idx;
-    break;
-  case 2:
-    support.x0_ = 2;
-    support.x4_[0] = support.x4_[2];
-    support.x4_[1] = idx;
-    break;
-  case 3:
-    support.x4_[2] = idx;
-    break;
-  case 4:
-    support.x4_[1] = idx;
-    break;
-  case 5:
-    support.x4_[0] = idx;
-    break;
-  default:
-    break;
-  }
-
-  return circs[circIdxA];
-}
-
-typedef Circle2 (*FSupport)(int idx, const zeus::CVector2f** list, Support& support);
-static const FSupport SupportFuncs[] = {nullptr, UpdateSupport1, UpdateSupport2, UpdateSupport3};
-
-static Circle MinCircle(const std::vector<zeus::CVector2f>& coords) {
-  Circle2 ret = {};
-  if (coords.size() >= 1) {
-    std::unique_ptr<const zeus::CVector2f*[]> randArr(new const zeus::CVector2f*[coords.size()]);
-    for (size_t i = 0; i < coords.size(); ++i)
-      randArr[i] = &coords[i];
-    for (int i = coords.size() - 1; i >= 0; --i) {
-      int shuf = rand() % (i + 1);
-      if (shuf != i)
-        std::swap(randArr[i], randArr[shuf]);
-    }
-    ret = ExactCircle1(randArr[0]);
-
-    Support support = {};
-    support.x0_ = 1;
-    for (size_t i = 1; i < coords.size();) {
-      bool broke = false;
-      for (int j = 0; j < support.x0_; ++j) {
-        if ((*randArr[i] - *randArr[support.x4_[j]]).magSquared() < 0.01f) {
-          broke = true;
-          break;
-        }
-      }
-      float intersect;
-      if (!broke && !PointInsideCircle(*randArr[i], ret, intersect)) {
-        Circle2 circ = SupportFuncs[support.x0_](i, randArr.get(), support);
-        if (circ.x8_radiusSq > ret.x8_radiusSq) {
-          i = 0;
-          ret = circ;
-          continue;
-        }
-      }
-      ++i;
-    }
-  }
-  return ret;
-}
-
-void CMapWorld::RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld& wld) const {
+void CMapWorld::RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld& wld) {
   std::vector<zeus::CVector2f> coords;
   coords.reserve(x0_areas.size() * 8);
   float zMin = FLT_MAX;
@@ -638,11 +648,10 @@ void CMapWorld::RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld
     }
   }
 
-  Circle circle = MinCircle(coords);
-  const_cast<CMapWorld*>(this)->x3c_worldSphereRadius = circle.x8_radius;
-  const_cast<CMapWorld*>(this)->x30_worldSpherePoint =
-      zeus::CVector3f(circle.x0_point.x(), circle.x0_point.y(), (zMin + zMax) * 0.5f);
-  const_cast<CMapWorld*>(this)->x40_worldSphereHalfDepth = (zMax - zMin) * 0.5f;
+  const Circle circle = MinCircle(coords);
+  x3c_worldSphereRadius = circle.x8_radius;
+  x30_worldSpherePoint = zeus::CVector3f(circle.x0_point.x(), circle.x0_point.y(), (zMin + zMax) * 0.5f);
+  x40_worldSphereHalfDepth = (zMax - zMin) * 0.5f;
 }
 
 zeus::CVector3f CMapWorld::ConstrainToWorldVolume(const zeus::CVector3f& point, const zeus::CVector3f& lookVec) const {
@@ -670,10 +679,8 @@ zeus::CVector3f CMapWorld::ConstrainToWorldVolume(const zeus::CVector3f& point, 
   return ret;
 }
 
-void CMapWorld::ClearTraversedFlags() const {
-  std::vector<bool>& flags = const_cast<CMapWorld*>(this)->x20_traversed;
-  for (size_t i = 0; i < flags.size(); ++i)
-    flags[i] = false;
+void CMapWorld::ClearTraversedFlags() {
+  std::fill(x20_traversed.begin(), x20_traversed.end(), false);
 }
 
 CFactoryFnReturn FMapWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,

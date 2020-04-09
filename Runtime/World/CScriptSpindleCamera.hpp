@@ -29,7 +29,7 @@ struct SSpindleProperty {
   float x10_lowIn;
   float x14_highIn;
 
-  SSpindleProperty(CInputStream& in);
+  explicit SSpindleProperty(CInputStream& in);
   void FixupAngles() {
     x8_lowOut = zeus::degToRad(x8_lowOut);
     xc_highOut = zeus::degToRad(xc_highOut);
@@ -105,7 +105,7 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void Render(const CStateManager&) const override;
+  void Render(CStateManager&) override;
   void Reset(const zeus::CTransform& xf, CStateManager& mgr) override;
   void ProcessInput(const CFinalInput& input, CStateManager& mgr) override;
 };

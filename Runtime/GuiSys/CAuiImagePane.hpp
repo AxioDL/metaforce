@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/CToken.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
@@ -33,10 +35,10 @@ class CAuiImagePane : public CGuiWidget {
   struct Filters {
     CAssetId m_texId;
     CTexturedQuadFilterAlpha m_darkenerQuad;
-    CTexturedQuadFilterAlpha m_flashQuad[2];
-    CTexturedQuadFilterAlpha m_alphaQuad[2];
-    CTexturedQuadFilterAlpha m_addQuad[2];
-    Filters(TLockedToken<CTexture>& tex);
+    std::array<CTexturedQuadFilterAlpha, 2> m_flashQuad;
+    std::array<CTexturedQuadFilterAlpha, 2> m_alphaQuad;
+    std::array<CTexturedQuadFilterAlpha, 2> m_addQuad;
+    explicit Filters(TLockedToken<CTexture>& tex);
   };
   std::optional<Filters> m_filters;
   void DoDrawImagePane(const zeus::CColor& color, const CTexture& tex, int frame, float blurAmt, bool noBlur,
@@ -51,8 +53,8 @@ public:
 
   void Reset(ETraversalMode mode) override;
   void Update(float dt) override;
-  void Draw(const CGuiWidgetDrawParms& params) const override;
-  bool GetIsFinishedLoadingWidgetSpecific() const override;
+  void Draw(const CGuiWidgetDrawParms& params) override;
+  bool GetIsFinishedLoadingWidgetSpecific() override;
   void SetTextureID0(CAssetId tex, CSimplePool* sp);
   void SetAnimationParms(const zeus::CVector2f& vec, float interval, float duration);
   void SetDeResFactor(float d) { x14c_deResFactor = d; }

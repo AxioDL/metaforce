@@ -54,9 +54,9 @@ void CAuiImagePane::Update(float dt) {
 CAuiImagePane::Filters::Filters(TLockedToken<CTexture>& tex)
 : m_texId(tex.GetObjectTag()->id)
 , m_darkenerQuad(EFilterType::Blend, tex)
-, m_flashQuad{{EFilterType::Add, tex}, {EFilterType::Add, tex}}
-, m_alphaQuad{{EFilterType::Blend, tex}, {EFilterType::Blend, tex}}
-, m_addQuad{{EFilterType::Add, tex}, {EFilterType::Add, tex}} {}
+, m_flashQuad{{CTexturedQuadFilterAlpha{EFilterType::Add, tex}, CTexturedQuadFilterAlpha{EFilterType::Add, tex}}}
+, m_alphaQuad{{CTexturedQuadFilterAlpha{EFilterType::Blend, tex}, CTexturedQuadFilterAlpha{EFilterType::Blend, tex}}}
+, m_addQuad{{CTexturedQuadFilterAlpha{EFilterType::Add, tex}, CTexturedQuadFilterAlpha{EFilterType::Add, tex}}} {}
 
 void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& tex, int frame, float alpha, bool noBlur,
                                     CTexturedQuadFilterAlpha& quad) const {
@@ -66,13 +66,13 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
   rstl::reserved_vector<zeus::CVector2f, 4> vec;
   const rstl::reserved_vector<zeus::CVector2f, 4>* useUVs;
   if (x138_tileSize != zeus::skZero2f) {
-    zeus::CVector2f res(xb8_tex0Tok->GetWidth(), xb8_tex0Tok->GetHeight());
-    zeus::CVector2f tmp = res / x138_tileSize;
-    zeus::CVector2f tmpRecip = x138_tileSize / res;
-    float x0 = tmpRecip.x() * (frame % int(tmp.x()));
-    float x1 = x0 + tmpRecip.x();
-    float y0 = tmpRecip.y() * (frame % int(tmp.y()));
-    float y1 = y0 + tmpRecip.y();
+    const zeus::CVector2f res(xb8_tex0Tok->GetWidth(), xb8_tex0Tok->GetHeight());
+    const zeus::CVector2f tmp = res / x138_tileSize;
+    const zeus::CVector2f tmpRecip = x138_tileSize / res;
+    const float x0 = tmpRecip.x() * (frame % int(tmp.x()));
+    const float x1 = x0 + tmpRecip.x();
+    const float y0 = tmpRecip.y() * (frame % int(tmp.y()));
+    const float y1 = y0 + tmpRecip.y();
     vec.push_back(zeus::CVector2f(x0, y0));
     vec.push_back(zeus::CVector2f(x0, y1));
     vec.push_back(zeus::CVector2f(x1, y0));
@@ -82,32 +82,36 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
     useUVs = &x114_uvs;
   }
 
-  CTexturedQuadFilter::Vert verts[] = {{xe0_coords[0], (*useUVs)[0] + xd0_uvBias0},
-                                       {xe0_coords[1], (*useUVs)[1] + xd0_uvBias0},
-                                       {xe0_coords[3], (*useUVs)[3] + xd0_uvBias0},
-                                       {xe0_coords[2], (*useUVs)[2] + xd0_uvBias0}};
+  const std::array<CTexturedQuadFilter::Vert, 4> verts{{
+      {xe0_coords[0], (*useUVs)[0] + xd0_uvBias0},
+      {xe0_coords[1], (*useUVs)[1] + xd0_uvBias0},
+      {xe0_coords[3], (*useUVs)[3] + xd0_uvBias0},
+      {xe0_coords[2], (*useUVs)[2] + xd0_uvBias0},
+  }};
 
   if (noBlur) {
-    quad.drawVerts(useColor, verts);
+    quad.drawVerts(useColor, verts.data());
   } else if ((x14c_deResFactor == 0.f && alpha == 1.f) || tex.GetNumMips() == 1) {
-    quad.drawVerts(useColor, verts, 0.f);
+    quad.drawVerts(useColor, verts.data(), 0.f);
   } else {
-    float tmp = (1.f - x14c_deResFactor) * alpha;
-    float tmp3 = 1.f - tmp * tmp * tmp;
-    float mip = tmp3 * (tex.GetNumMips() - 1);
-    quad.drawVerts(useColor, verts, mip);
+    const float tmp = (1.f - x14c_deResFactor) * alpha;
+    const float tmp3 = 1.f - tmp * tmp * tmp;
+    const float mip = tmp3 * (tex.GetNumMips() - 1);
+    quad.drawVerts(useColor, verts.data(), mip);
   }
 }
 
-void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) const {
+void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) {
   CGraphics::SetModelMatrix(x34_worldXF);
-  if (!GetIsVisible() || !xb8_tex0Tok.IsLoaded())
+  if (!GetIsVisible() || !xb8_tex0Tok.IsLoaded()) {
     return;
+  }
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CAuiImagePane::Draw {}"), m_name).c_str(), zeus::skCyan);
   GetIsFinishedLoadingWidgetSpecific();
-  if (!m_filters || m_filters->m_texId != xb8_tex0Tok.GetObjectTag()->id)
-    const_cast<CAuiImagePane*>(this)->m_filters.emplace(const_cast<CAuiImagePane*>(this)->xb8_tex0Tok);
-  Filters& filters = const_cast<Filters&>(*m_filters);
+  if (!m_filters || m_filters->m_texId != xb8_tex0Tok.GetObjectTag()->id) {
+    m_filters.emplace(xb8_tex0Tok);
+  }
+  Filters& filters = *m_filters;
   zeus::CColor color = xa8_color2;
   color.a() *= params.x0_alphaMod;
   // SetZUpdate(xac_drawFlags == EGuiModelDrawFlags::Shadeless || xac_drawFlags == EGuiModelDrawFlags::Opaque);
@@ -172,7 +176,7 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) const {
   }
 }
 
-bool CAuiImagePane::GetIsFinishedLoadingWidgetSpecific() const { return !xb8_tex0Tok || xb8_tex0Tok.IsLoaded(); }
+bool CAuiImagePane::GetIsFinishedLoadingWidgetSpecific() { return !xb8_tex0Tok || xb8_tex0Tok.IsLoaded(); }
 
 void CAuiImagePane::SetTextureID0(CAssetId tex, CSimplePool* sp) {
   xc8_tex0 = tex;

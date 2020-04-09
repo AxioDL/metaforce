@@ -31,7 +31,7 @@ class CBeamInfo {
   zeus::CColor x40_outerColor;
 
 public:
-  CBeamInfo(CInputStream& in)
+  explicit CBeamInfo(CInputStream& in)
   : x0_(in.readUint32Big())
   , x4_beamAttributes(in.readUint32Big())
   , x8_contactFxId(in.readUint32Big())

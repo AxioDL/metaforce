@@ -150,25 +150,28 @@ bool CCollidableOBBTreeGroup::CollideMovingSphere(const CInternalCollisionStruct
 
 bool CCollidableOBBTreeGroup::AABoxCollide(const CInternalCollisionStructure& collision, CCollisionInfoList& list) {
   bool ret = false;
-  const CCollidableAABox& p0 = static_cast<const CCollidableAABox&>(collision.GetLeft().GetPrim());
-  const CCollidableOBBTreeGroup& p1 = static_cast<const CCollidableOBBTreeGroup&>(collision.GetRight().GetPrim());
+  const auto& p0 = static_cast<const CCollidableAABox&>(collision.GetLeft().GetPrim());
+  const auto& p1 = static_cast<const CCollidableOBBTreeGroup&>(collision.GetRight().GetPrim());
 
-  zeus::CAABox b0 = p0.CalculateAABox(collision.GetLeft().GetTransform());
-  zeus::COBBox p0Obb = zeus::COBBox::FromAABox(p0.CalculateLocalAABox(), collision.GetRight().GetTransform().inverse() *
-                                                                             collision.GetLeft().GetTransform());
+  const zeus::CAABox b0 = p0.CalculateAABox(collision.GetLeft().GetTransform());
+  const zeus::COBBox p0Obb = zeus::COBBox::FromAABox(
+      p0.CalculateLocalAABox(), collision.GetRight().GetTransform().inverse() * collision.GetLeft().GetTransform());
 
-  zeus::CPlane planes[] = {{zeus::skRight, b0.min.dot(zeus::skRight)},
-                           {zeus::skLeft, b0.max.dot(zeus::skLeft)},
-                           {zeus::skForward, b0.min.dot(zeus::skForward)},
-                           {zeus::skBack, b0.max.dot(zeus::skBack)},
-                           {zeus::skUp, b0.min.dot(zeus::skUp)},
-                           {zeus::skDown, b0.max.dot(zeus::skDown)}};
+  const std::array<zeus::CPlane, 6> planes{{
+      {zeus::skRight, b0.min.dot(zeus::skRight)},
+      {zeus::skLeft, b0.max.dot(zeus::skLeft)},
+      {zeus::skForward, b0.min.dot(zeus::skForward)},
+      {zeus::skBack, b0.max.dot(zeus::skBack)},
+      {zeus::skUp, b0.min.dot(zeus::skUp)},
+      {zeus::skDown, b0.max.dot(zeus::skDown)},
+  }};
 
   for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees) {
     CCollidableOBBTree obbTree(tree.get(), p1.GetMaterial());
     if (obbTree.AABoxCollision(obbTree.x10_tree->GetRoot(), collision.GetRight().GetTransform(), b0, p0Obb,
-                               p0.GetMaterial(), collision.GetLeft().GetFilter(), planes, list))
+                               p0.GetMaterial(), collision.GetLeft().GetFilter(), planes, list)) {
       ret = true;
+    }
   }
 
   return ret;

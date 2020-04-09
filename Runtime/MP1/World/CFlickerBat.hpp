@@ -31,7 +31,7 @@ public:
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void Render(const CStateManager&) const override;
+  void Render(CStateManager&) override;
   void Touch(CActor&, CStateManager&) override;
   void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt) override;
   void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;

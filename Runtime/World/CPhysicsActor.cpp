@@ -25,7 +25,7 @@ CPhysicsActor::CPhysicsActor(TUniqueId uid, bool active, std::string_view name, 
   ComputeDerivedQuantities();
 }
 
-void CPhysicsActor::Render(const CStateManager& mgr) const { CActor::Render(mgr); }
+void CPhysicsActor::Render(CStateManager& mgr) { CActor::Render(mgr); }
 
 zeus::CVector3f CPhysicsActor::GetOrbitPosition(const CStateManager&) const { return GetBoundingBox().center(); }
 

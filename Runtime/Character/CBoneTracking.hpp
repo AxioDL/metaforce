@@ -53,7 +53,7 @@ public:
                  const zeus::CVector3f& vec, const CBodyController& bodyController);
   void PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform& worldXf,
                  const zeus::CVector3f& localOffsetScale, bool tracking);
-  void SetActive(bool b);
+  void SetActive(bool active);
   void SetTarget(TUniqueId id);
   void UnsetTarget();
   void SetTargetPosition(const zeus::CVector3f& pos);

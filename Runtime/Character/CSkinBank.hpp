@@ -12,7 +12,7 @@ class CSkinBank {
   std::vector<CSegId> x0_segments;
 
 public:
-  CSkinBank(CInputStream& in);
+  explicit CSkinBank(CInputStream& in);
   void GetBankTransforms(std::vector<const zeus::CTransform*>& out, const CPoseAsTransforms& pose) const;
 };
 

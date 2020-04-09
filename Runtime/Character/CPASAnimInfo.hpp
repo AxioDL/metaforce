@@ -11,11 +11,11 @@ class CPASAnimInfo {
   rstl::reserved_vector<CPASAnimParm::UParmValue, 8> x4_parms;
 
 public:
-  CPASAnimInfo(u32 id) : x0_id(id) {}
-  CPASAnimInfo(u32 id, rstl::reserved_vector<CPASAnimParm::UParmValue, 8>&& parms);
+  explicit CPASAnimInfo(u32 id) : x0_id(id) {}
+  explicit CPASAnimInfo(u32 id, rstl::reserved_vector<CPASAnimParm::UParmValue, 8>&& parms);
   u32 GetAnimId() const { return x0_id; }
-  CPASAnimParm::UParmValue GetAnimParmValue(u32 idx) const;
-  CPASAnimParm GetAnimParmData(u32, CPASAnimParm::EParmType) const;
+  CPASAnimParm::UParmValue GetAnimParmValue(size_t idx) const;
+  CPASAnimParm GetAnimParmData(size_t idx, CPASAnimParm::EParmType type) const;
 };
 
 } // namespace urde

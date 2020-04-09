@@ -9,16 +9,16 @@ namespace urde {
 class CSaveWorld;
 
 class CMapWorldInfo {
-  u32 x0_visitedAreasAllocated = 0;
-  std::vector<u32> x4_visitedAreas;
-  u32 x14_mappedAreasAllocated = 0;
-  std::vector<u32> x18_mappedAreas;
+  mutable u32 x0_visitedAreasAllocated = 0;
+  mutable std::vector<u32> x4_visitedAreas;
+  mutable u32 x14_mappedAreasAllocated = 0;
+  mutable std::vector<u32> x18_mappedAreas;
   std::map<TEditorId, bool> x28_visitedDoors;
   bool x38_mapStationUsed = false;
 
 public:
   CMapWorldInfo() = default;
-  CMapWorldInfo(CBitStreamReader&, const CSaveWorld& saveWorld, CAssetId mlvlId);
+  explicit CMapWorldInfo(CBitStreamReader&, const CSaveWorld& saveWorld, CAssetId mlvlId);
   void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, CAssetId mlvlId) const;
   bool IsMapped(TAreaId) const;
   void SetIsMapped(TAreaId, bool);

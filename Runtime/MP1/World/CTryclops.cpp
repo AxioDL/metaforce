@@ -496,7 +496,7 @@ void CTryclops::LaunchPlayer(CStateManager& mgr, const zeus::CTransform& xf, flo
   player.Stop();
   zeus::CTransform tmpXf = (xf * x64c_);
   tmpXf.origin += zeus::CVector3f(0.f, 0.f, -0.5f);
-  player.Teleport(xf, mgr, false);
+  player.Teleport(tmpXf, mgr, false);
   player.ApplyImpulseWR(f1 * (player.GetMass() * xf.basis[1].normalized()), zeus::CAxisAngle());
   player.SetMoveState(CPlayer::EPlayerMovementState::ApplyJump, mgr);
   player.AddMaterial(EMaterialTypes::Solid, mgr);

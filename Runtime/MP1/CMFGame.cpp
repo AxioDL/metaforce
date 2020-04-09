@@ -193,12 +193,13 @@ void CMFGame::Touch() {
     player.GetMorphBall()->TouchModel(*x14_stateManager);
 }
 
-void CMFGame::Draw() const {
-  if (!x2a_24_initialized)
+void CMFGame::Draw() {
+  if (!x2a_24_initialized) {
     return;
+  }
   SCOPED_GRAPHICS_DEBUG_GROUP("CMFGame::Draw", zeus::skGreen);
 
-  const_cast<CMFGame&>(*this).Touch();
+  Touch();
   if (x18_guiManager->GetIsGameDraw()) {
     static_cast<CMain&>(*g_Main).SetGameFrameDrawn();
     x14_stateManager->PreRender();
@@ -210,8 +211,8 @@ void CMFGame::Draw() const {
   x18_guiManager->Draw(*x14_stateManager);
 
   if (x1c_flowState == EGameFlowState::CinematicSkip) {
-    float c = std::min(1.f, 1.f - x20_cineSkipTime);
-    const_cast<CColoredQuadFilter&>(m_fadeToBlack).draw(zeus::CColor{c, c, c, c});
+    const float c = std::min(1.f, 1.f - x20_cineSkipTime);
+    m_fadeToBlack.draw(zeus::CColor{c, c, c, c});
   }
 }
 
@@ -279,7 +280,7 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
   }
 }
 
-CMFGameLoader::~CMFGameLoader() {}
+CMFGameLoader::~CMFGameLoader() = default;
 
 static const char* LoadDepPAKs[] = {"TestAnim", "SamusGun", "SamGunFx", nullptr};
 
@@ -364,7 +365,7 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
   return EMessageReturn::Exit;
 }
 
-void CMFGameLoader::Draw() const {
+void CMFGameLoader::Draw() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CMFGameLoader::Draw", zeus::skGreen);
   g_GameState->GetWorldTransitionManager()->Draw();
 }

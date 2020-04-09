@@ -9,7 +9,7 @@
 
 namespace urde {
 
-static float ClampZeroToOne(float in) { return std::max(0.f, std::min(1.f, in)); }
+static constexpr float ClampZeroToOne(float in) { return std::clamp(in, 0.0f, 1.0f); }
 
 u32 RotationAndOffsetStorage::DataSizeInBytes(u32 rotPerFrame, u32 transPerFrame, u32 frameCount) {
   return (transPerFrame * 12 + rotPerFrame * 16) * frameCount;
@@ -117,33 +117,35 @@ CAnimSource::CAnimSource(CInputStream& in, IObjectStore& store)
 }
 
 void CAnimSource::GetSegStatementSet(const CSegIdList& list, CSegStatementSet& set, const CCharAnimTime& time) const {
-  u32 frameIdx = unsigned(time / x8_interval);
+  const auto frameIdx = u32(time / x8_interval);
   float remTime = time.GetSeconds() - frameIdx * x8_interval.GetSeconds();
-  if (std::fabs(remTime) < 0.00001f)
+  if (std::fabs(remTime) < 0.00001f) {
     remTime = 0.f;
-  float t = ClampZeroToOne(remTime / x8_interval.GetSeconds());
+  }
+
+  const float t = ClampZeroToOne(remTime / x8_interval.GetSeconds());
   const u32 floatsPerFrame = x40_data.x10_transPerFrame * 3 + x40_data.xc_rotPerFrame * 4;
   const u32 rotFloatsPerFrame = x40_data.xc_rotPerFrame * 4;
 
   for (const CSegId& id : list.GetList()) {
-    u8 rotIdx = x20_rotationChannels[id];
+    const u8 rotIdx = x20_rotationChannels[id];
     if (rotIdx != 0xff) {
       const float* frameDataA = &x40_data.x0_storage[frameIdx * floatsPerFrame + rotIdx * 4];
       const float* frameDataB = &x40_data.x0_storage[(frameIdx + 1) * floatsPerFrame + rotIdx * 4];
 
-      zeus::CQuaternion quatA(frameDataA[0], frameDataA[1], frameDataA[2], frameDataA[3]);
-      zeus::CQuaternion quatB(frameDataB[0], frameDataB[1], frameDataB[2], frameDataB[3]);
-      set.x4_segData[id].x0_rotation = zeus::CQuaternion::slerp(quatA, quatB, t);
+      const zeus::CQuaternion quatA(frameDataA[0], frameDataA[1], frameDataA[2], frameDataA[3]);
+      const zeus::CQuaternion quatB(frameDataB[0], frameDataB[1], frameDataB[2], frameDataB[3]);
+      set[id].x0_rotation = zeus::CQuaternion::slerp(quatA, quatB, t);
 
-      u8 transIdx = x30_translationChannels[rotIdx];
+      const u8 transIdx = x30_translationChannels[rotIdx];
       if (transIdx != 0xff) {
-        const float* frameDataA = &x40_data.x0_storage[frameIdx * floatsPerFrame + rotFloatsPerFrame + transIdx * 3];
-        const float* frameDataB =
+        const float* frameVecDataA = &x40_data.x0_storage[frameIdx * floatsPerFrame + rotFloatsPerFrame + transIdx * 3];
+        const float* frameVecDataB =
             &x40_data.x0_storage[(frameIdx - 1) * floatsPerFrame + rotFloatsPerFrame + transIdx * 3];
-        zeus::CVector3f vecA(frameDataA[0], frameDataA[1], frameDataA[2]);
-        zeus::CVector3f vecB(frameDataB[0], frameDataB[1], frameDataB[2]);
-        set.x4_segData[id].x10_offset = zeus::CVector3f::lerp(vecA, vecB, t);
-        set.x4_segData[id].x1c_hasOffset = true;
+        const zeus::CVector3f vecA(frameVecDataA[0], frameVecDataA[1], frameVecDataA[2]);
+        const zeus::CVector3f vecB(frameVecDataB[0], frameVecDataB[1], frameVecDataB[2]);
+        set[id].x10_offset = zeus::CVector3f::lerp(vecA, vecB, t);
+        set[id].x1c_hasOffset = true;
       }
     }
   }

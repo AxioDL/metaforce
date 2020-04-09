@@ -611,30 +611,30 @@ std::string_view ANCS::CharacterSet::CharacterInfo::DNAType() {
 
 template <>
 void ANCS::AnimationSet::MetaAnimFactory::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader) {
-  IMetaAnim::Type type(IMetaAnim::Type(reader.readUint32Big()));
+  const auto type = IMetaAnim::Type(reader.readUint32Big());
   switch (type) {
   case IMetaAnim::Type::Primitive:
-    m_anim.reset(new struct MetaAnimPrimitive);
+    m_anim = std::make_unique<MetaAnimPrimitive>();
     m_anim->read(reader);
     break;
   case IMetaAnim::Type::Blend:
-    m_anim.reset(new struct MetaAnimBlend);
+    m_anim = std::make_unique<MetaAnimBlend>();
     m_anim->read(reader);
     break;
   case IMetaAnim::Type::PhaseBlend:
-    m_anim.reset(new struct MetaAnimPhaseBlend);
+    m_anim = std::make_unique<MetaAnimPhaseBlend>();
     m_anim->read(reader);
     break;
   case IMetaAnim::Type::Random:
-    m_anim.reset(new struct MetaAnimRandom);
+    m_anim = std::make_unique<MetaAnimRandom>();
     m_anim->read(reader);
     break;
   case IMetaAnim::Type::Sequence:
-    m_anim.reset(new struct MetaAnimSequence);
+    m_anim = std::make_unique<MetaAnimSequence>();
     m_anim->read(reader);
     break;
   default:
-    m_anim.reset(nullptr);
+    m_anim.reset();
     break;
   }
 }
@@ -660,22 +660,22 @@ void ANCS::AnimationSet::MetaAnimFactory::Enumerate<BigDNA::ReadYaml>(athena::io
   std::string type = reader.readString("type");
   std::transform(type.begin(), type.end(), type.begin(), tolower);
   if (type == "primitive") {
-    m_anim.reset(new struct MetaAnimPrimitive);
+    m_anim = std::make_unique<MetaAnimPrimitive>();
     m_anim->read(reader);
   } else if (type == "blend") {
-    m_anim.reset(new struct MetaAnimBlend);
+    m_anim = std::make_unique<MetaAnimBlend>();
     m_anim->read(reader);
   } else if (type == "phaseblend") {
-    m_anim.reset(new struct MetaAnimPhaseBlend);
+    m_anim = std::make_unique<MetaAnimPhaseBlend>();
     m_anim->read(reader);
   } else if (type == "random") {
-    m_anim.reset(new struct MetaAnimRandom);
+    m_anim = std::make_unique<MetaAnimRandom>();
     m_anim->read(reader);
   } else if (type == "sequence") {
-    m_anim.reset(new struct MetaAnimSequence);
+    m_anim = std::make_unique<MetaAnimSequence>();
     m_anim->read(reader);
   } else {
-    m_anim.reset(nullptr);
+    m_anim.reset();
   }
 }
 
@@ -696,20 +696,20 @@ void ANCS::AnimationSet::MetaTransFactory::Enumerate<BigDNA::Read>(athena::io::I
   IMetaTrans::Type type(IMetaTrans::Type(reader.readUint32Big()));
   switch (type) {
   case IMetaTrans::Type::MetaAnim:
-    m_trans.reset(new struct MetaTransMetaAnim);
+    m_trans = std::make_unique<MetaTransMetaAnim>();
     m_trans->read(reader);
     break;
   case IMetaTrans::Type::Trans:
-    m_trans.reset(new struct MetaTransTrans);
+    m_trans = std::make_unique<MetaTransTrans>();
     m_trans->read(reader);
     break;
   case IMetaTrans::Type::PhaseTrans:
-    m_trans.reset(new struct MetaTransPhaseTrans);
+    m_trans = std::make_unique<MetaTransPhaseTrans>();
     m_trans->read(reader);
     break;
   case IMetaTrans::Type::NoTrans:
   default:
-    m_trans.reset(nullptr);
+    m_trans.reset();
     break;
   }
 }
@@ -737,16 +737,16 @@ void ANCS::AnimationSet::MetaTransFactory::Enumerate<BigDNA::ReadYaml>(athena::i
   std::string type = reader.readString("type");
   std::transform(type.begin(), type.end(), type.begin(), tolower);
   if (type == "metaanim") {
-    m_trans.reset(new struct MetaTransMetaAnim);
+    m_trans = std::make_unique<MetaTransMetaAnim>();
     m_trans->read(reader);
   } else if (type == "trans") {
-    m_trans.reset(new struct MetaTransTrans);
+    m_trans = std::make_unique<MetaTransTrans>();
     m_trans->read(reader);
   } else if (type == "phasetrans") {
-    m_trans.reset(new struct MetaTransPhaseTrans);
+    m_trans = std::make_unique<MetaTransPhaseTrans>();
     m_trans->read(reader);
   } else {
-    m_trans.reset(nullptr);
+    m_trans.reset();
   }
 }
 

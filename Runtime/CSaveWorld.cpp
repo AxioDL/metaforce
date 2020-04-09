@@ -14,13 +14,13 @@ CSaveWorld::CSaveWorld(CInputStream& in) {
     const u32 cinematicCount = in.readUint32Big();
     x4_cinematics.reserve(cinematicCount);
     for (u32 i = 0; i < cinematicCount; ++i) {
-      x4_cinematics.push_back(in.readUint32Big());
+      x4_cinematics.emplace_back(in.readUint32Big());
     }
 
     const u32 relayCount = in.readUint32Big();
     x14_relays.reserve(relayCount);
     for (u32 i = 0; i < relayCount; ++i) {
-      x14_relays.push_back(in.readUint32Big());
+      x14_relays.emplace_back(in.readUint32Big());
     }
   }
 
@@ -35,7 +35,7 @@ CSaveWorld::CSaveWorld(CInputStream& in) {
   const u32 doorCount = in.readUint32Big();
   x34_doors.reserve(doorCount);
   for (u32 i = 0; i < doorCount; ++i) {
-    x34_doors.push_back(in.readUint32Big());
+    x34_doors.emplace_back(in.readUint32Big());
   }
 
   if (version <= 0) {

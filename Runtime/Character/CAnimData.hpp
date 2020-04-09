@@ -10,11 +10,13 @@
 #include "Runtime/Character/CAdditiveAnimPlayback.hpp"
 #include "Runtime/Character/CAnimPlaybackParms.hpp"
 #include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CCharacterFactory.hpp"
 #include "Runtime/Character/CCharacterInfo.hpp"
 #include "Runtime/Character/CHierarchyPoseBuilder.hpp"
 #include "Runtime/Character/CParticleDatabase.hpp"
 #include "Runtime/Character/CPoseAsTransforms.hpp"
 #include "Runtime/Character/IAnimReader.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CQuaternion.hpp>
@@ -64,7 +66,6 @@ class CAnimationManager;
 class CBoolPOINode;
 class CCharAnimTime;
 class CCharLayoutInfo;
-class CCharacterFactory;
 class CInt32POINode;
 class CModel;
 class CMorphableSkinnedModel;
@@ -74,7 +75,6 @@ class CRandom16;
 class CSegIdList;
 class CSegStatementSet;
 class CSkinRules;
-class CSkinnedModel;
 class CSoundPOINode;
 class CStateManager;
 class CTransitionManager;
@@ -161,36 +161,36 @@ public:
             TLockedToken<CCharacterFactory> charFactory, int drawInstCount);
 
   void SetParticleEffectState(std::string_view effectName, bool active, CStateManager& mgr);
-  void InitializeEffects(CStateManager&, TAreaId, const zeus::CVector3f&);
-  CAssetId GetEventResourceIdForAnimResourceId(CAssetId) const;
+  void InitializeEffects(CStateManager& mgr, TAreaId aId, const zeus::CVector3f& scale);
+  CAssetId GetEventResourceIdForAnimResourceId(CAssetId id) const;
   void AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet);
   static SAdvancementResults AdvanceAdditiveAnim(std::shared_ptr<CAnimTreeNode>& anim, const CCharAnimTime& time);
-  SAdvancementDeltas AdvanceAdditiveAnims(float);
-  SAdvancementDeltas UpdateAdditiveAnims(float);
-  bool IsAdditiveAnimation(s32) const;
-  bool IsAdditiveAnimationAdded(s32) const;
+  SAdvancementDeltas AdvanceAdditiveAnims(float dt);
+  SAdvancementDeltas UpdateAdditiveAnims(float dt);
+  bool IsAdditiveAnimation(s32 idx) const;
+  bool IsAdditiveAnimationAdded(s32 idx) const;
   const std::shared_ptr<CAnimTreeNode>& GetRootAnimationTree() const { return x1f8_animRoot; }
-  const std::shared_ptr<CAnimTreeNode>& GetAdditiveAnimationTree(s32) const;
-  bool IsAdditiveAnimationActive(s32) const;
-  void DelAdditiveAnimation(s32);
-  void AddAdditiveAnimation(s32, float, bool, bool);
+  const std::shared_ptr<CAnimTreeNode>& GetAdditiveAnimationTree(s32 idx) const;
+  bool IsAdditiveAnimationActive(s32 idx) const;
+  void DelAdditiveAnimation(s32 idx);
+  void AddAdditiveAnimation(s32 idx, float weight, bool active, bool fadeOut);
   float GetAdditiveAnimationWeight(s32 idx) const;
   std::shared_ptr<CAnimationManager> GetAnimationManager();
   const CCharacterInfo& GetCharacterInfo() const { return xc_charInfo; }
   const CCharLayoutInfo& GetCharLayoutInfo() const { return *xcc_layoutData.GetObj(); }
-  void SetPhase(float);
+  void SetPhase(float ph);
   void Touch(const CSkinnedModel& model, int shaderIdx) const;
   SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
-  CCharAnimTime GetTimeOfUserEvent(EUserEventType, const CCharAnimTime& time) const;
-  void MultiplyPlaybackRate(float);
-  void SetPlaybackRate(float);
-  void SetRandomPlaybackRate(CRandom16&);
+  CCharAnimTime GetTimeOfUserEvent(EUserEventType type, const CCharAnimTime& time) const;
+  void MultiplyPlaybackRate(float mul);
+  void SetPlaybackRate(float set);
+  void SetRandomPlaybackRate(CRandom16& r);
   void CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms, const std::shared_ptr<CAnimTreeNode>& node);
   zeus::CTransform GetLocatorTransform(CSegId id, const CCharAnimTime* time) const;
   zeus::CTransform GetLocatorTransform(std::string_view name, const CCharAnimTime* time) const;
-  bool IsAnimTimeRemaining(float, std::string_view name) const;
+  bool IsAnimTimeRemaining(float rem, std::string_view name) const;
   float GetAnimTimeRemaining(std::string_view name) const;
-  float GetAnimationDuration(int) const;
+  float GetAnimationDuration(int animIn) const;
   bool GetIsLoop() const { return x220_25_loop; }
   void EnableLooping(bool val) {
     x220_25_loop = val;
@@ -201,7 +201,7 @@ public:
   void SetAnimDir(EAnimDir dir) { x104_animDir = dir; }
   std::shared_ptr<CAnimSysContext> GetAnimSysContext() const;
   std::shared_ptr<CAnimationManager> GetAnimationManager() const;
-  void RecalcPoseBuilder(const CCharAnimTime*);
+  void RecalcPoseBuilder(const CCharAnimTime* time);
   void RenderAuxiliary(const zeus::CFrustum& frustum) const;
   void Render(CSkinnedModel& model, const CModelFlags& drawFlags,
               const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
@@ -214,15 +214,16 @@ public:
   static void PrimitiveSetToTokenVector(const std::set<CPrimitive>& primSet, std::vector<CToken>& tokensOut,
                                         bool preLock);
   void GetAnimationPrimitives(const CAnimPlaybackParms& parms, std::set<CPrimitive>& primsOut) const;
-  void SetAnimation(const CAnimPlaybackParms& parms, bool);
-  SAdvancementDeltas DoAdvance(float, bool& suspendParticles, CRandom16&, bool advTree);
-  SAdvancementDeltas Advance(float, const zeus::CVector3f&, CStateManager& stateMgr, TAreaId aid, bool advTree);
-  SAdvancementDeltas AdvanceIgnoreParticles(float, CRandom16&, bool advTree);
-  void AdvanceAnim(CCharAnimTime& time, zeus::CVector3f&, zeus::CQuaternion&);
+  void SetAnimation(const CAnimPlaybackParms& parms, bool noTrans);
+  SAdvancementDeltas DoAdvance(float dt, bool& suspendParticles, CRandom16& random, bool advTree);
+  SAdvancementDeltas Advance(float dt, const zeus::CVector3f& scale, CStateManager& stateMgr, TAreaId aid, bool advTree);
+  SAdvancementDeltas AdvanceIgnoreParticles(float dt, CRandom16& random, bool advTree);
+  void AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::CQuaternion& quat);
   void SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
   std::shared_ptr<CSkinnedModel> GetXRayModel() const { return xf4_xrayModel; }
   void SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
   std::shared_ptr<CSkinnedModel> GetInfraModel() const { return xf8_infraModel; }
+  TLockedToken<CSkinnedModel>& GetModelData() { return xd8_modelData; }
   const TLockedToken<CSkinnedModel>& GetModelData() const { return xd8_modelData; }
 
   static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
@@ -251,7 +252,7 @@ public:
 
   s32 GetCharacterIndex() const { return x204_charIdx; }
   u16 GetDefaultAnimation() const { return x208_defaultAnim; }
-  TLockedToken<CMorphableSkinnedModel>& IceModel() { return xe4_iceModelData; }
+  TLockedToken<CMorphableSkinnedModel>& GetIceModel() { return xe4_iceModelData; }
   const TLockedToken<CMorphableSkinnedModel>& GetIceModel() const { return xe4_iceModelData; }
   void SetParticleLightIdx(s32 idx) { x21c_particleLightIdx = idx; }
 

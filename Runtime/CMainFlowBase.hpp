@@ -11,7 +11,7 @@ protected:
   EClientFlowStates x14_gameState = EClientFlowStates::Unspecified;
 
 public:
-  CMainFlowBase(const char* name) : CIOWin(name) {}
+  explicit CMainFlowBase(const char* name) : CIOWin(name) {}
   EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) override;
   virtual void AdvanceGameState(CArchitectureQueue& queue) = 0;
   virtual void SetGameState(EClientFlowStates state, CArchitectureQueue& queue) = 0;

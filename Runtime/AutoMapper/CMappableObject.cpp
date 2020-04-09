@@ -8,9 +8,11 @@
 #include "Runtime/Graphics/CTexture.hpp"
 
 namespace urde {
-zeus::CVector3f CMappableObject::skDoorVerts[8] = {};
+std::array<zeus::CVector3f, 8> CMappableObject::skDoorVerts{};
 
-static const u32 DoorIndices[] = {6, 4, 2, 0, 3, 1, 7, 5, 1, 0, 5, 4, 7, 6, 3, 2, 3, 2, 1, 0, 5, 4, 7, 6};
+constexpr std::array<u32, 24> DoorIndices{
+    6, 4, 2, 0, 3, 1, 7, 5, 1, 0, 5, 4, 7, 6, 3, 2, 3, 2, 1, 0, 5, 4, 7, 6,
+};
 
 CMappableObject::CMappableObject(const void* buf) {
   athena::io::MemoryReader r(buf, 64);
@@ -106,12 +108,12 @@ std::pair<zeus::CColor, zeus::CColor> CMappableObject::GetDoorColors(int curArea
 
 void CMappableObject::PostConstruct(const void*) { x10_transform = AdjustTransformForType(); }
 
-void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha, bool needsVtxLoad) const {
+void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha, bool needsVtxLoad) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CMappableObject::Draw", zeus::skCyan);
   if (IsDoorType(x0_type)) {
     std::pair<zeus::CColor, zeus::CColor> colors = GetDoorColors(curArea, mwInfo, alpha);
     for (int s = 0; s < 6; ++s) {
-      DoorSurface& ds = const_cast<DoorSurface&>(*m_doorSurface);
+      DoorSurface& ds = *m_doorSurface;
       ds.m_surface.draw(colors.first, s * 4, 4);
       CLineRenderer& line = ds.m_outline;
       const u32* baseIdx = &DoorIndices[s * 4];
@@ -164,22 +166,24 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
     iconColor.a() *= alpha;
 
     TLockedToken<CTexture> tex = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), iconRes});
-    if (!m_texQuadFilter || m_texQuadFilter->GetTex().GetObj() != tex.GetObj())
-      const_cast<CMappableObject*>(this)->m_texQuadFilter.emplace(EFilterType::Add, tex,
-                                                                  CTexturedQuadFilter::ZTest::GEqual);
+    if (!m_texQuadFilter || m_texQuadFilter->GetTex().GetObj() != tex.GetObj()) {
+      m_texQuadFilter.emplace(EFilterType::Add, tex, CTexturedQuadFilter::ZTest::GEqual);
+    }
 
-    CTexturedQuadFilter::Vert verts[4] = {{{-2.6f, 0.f, 2.6f}, {0.f, 1.f}},
-                                          {{-2.6f, 0.f, -2.6f}, {0.f, 0.f}},
-                                          {{2.6f, 0.f, 2.6f}, {1.f, 1.f}},
-                                          {{2.6f, 0.f, -2.6f}, {1.f, 0.f}}};
-    const_cast<CMappableObject*>(this)->m_texQuadFilter->drawVerts(iconColor, verts);
+    const std::array<CTexturedQuadFilter::Vert, 4> verts{{
+        {{-2.6f, 0.f, 2.6f}, {0.f, 1.f}},
+        {{-2.6f, 0.f, -2.6f}, {0.f, 0.f}},
+        {{2.6f, 0.f, 2.6f}, {1.f, 1.f}},
+        {{2.6f, 0.f, -2.6f}, {1.f, 0.f}},
+    }};
+    m_texQuadFilter->drawVerts(iconColor, verts.data());
   }
 }
 
 void CMappableObject::DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, float alpha, int surfIdx,
-                                      bool needsVtxLoad) const {
+                                      bool needsVtxLoad) {
   std::pair<zeus::CColor, zeus::CColor> colors = GetDoorColors(curArea, mwInfo, alpha);
-  DoorSurface& ds = const_cast<DoorSurface&>(*m_doorSurface);
+  DoorSurface& ds = *m_doorSurface;
   ds.m_surface.draw(colors.first, surfIdx * 4, 4);
   CLineRenderer& line = ds.m_outline;
   const u32* baseIdx = &DoorIndices[surfIdx * 4];
@@ -237,9 +241,10 @@ boo::ObjToken<boo::IGraphicsBufferS> CMappableObject::g_doorIbo;
 
 void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks) {
   const zeus::CVector3f& center = tweaks.GetDoorCenter();
-  zeus::simd_floats centerF(center.mSimd);
-  zeus::CVector3f* doorVerts = CMappableObject::skDoorVerts;
-  /* Wrap door verts around -Z to build surface */
+  const zeus::simd_floats centerF(center.mSimd);
+
+  // Wrap door verts around -Z to build surface
+  auto& doorVerts = skDoorVerts;
   doorVerts[0].assign(-centerF[2], -centerF[1], 0.f);
   doorVerts[1].assign(-centerF[2], -centerF[1], 2.f * centerF[0]);
   doorVerts[2].assign(-centerF[2], centerF[1], 0.f);
@@ -250,8 +255,8 @@ void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks) {
   doorVerts[7].assign(.2f * -centerF[2], centerF[1], 2.f * centerF[0]);
 
   CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx) {
-    g_doorVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, skDoorVerts, 16, 8);
-    g_doorIbo = ctx.newStaticBuffer(boo::BufferUse::Index, DoorIndices, 4, 24);
+    g_doorVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, skDoorVerts.data(), 16, skDoorVerts.size());
+    g_doorIbo = ctx.newStaticBuffer(boo::BufferUse::Index, DoorIndices.data(), 4, DoorIndices.size());
     return true;
   } BooTrace);
 }

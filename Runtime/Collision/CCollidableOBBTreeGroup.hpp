@@ -19,7 +19,7 @@ class CCollidableOBBTreeGroupContainer {
   zeus::CAABox x20_aabox;
 
 public:
-  CCollidableOBBTreeGroupContainer(CInputStream& in);
+  explicit CCollidableOBBTreeGroupContainer(CInputStream& in);
   CCollidableOBBTreeGroupContainer(const zeus::CVector3f&, const zeus::CVector3f&);
 };
 

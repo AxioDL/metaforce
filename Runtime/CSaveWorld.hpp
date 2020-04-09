@@ -31,7 +31,7 @@ private:
   std::vector<SScanState> x44_scans;
 
 public:
-  CSaveWorld(CInputStream& in);
+  explicit CSaveWorld(CInputStream& in);
   u32 GetAreaCount() const;
   u32 GetCinematicCount() const;
   s32 GetCinematicIndex(const TEditorId& id) const;

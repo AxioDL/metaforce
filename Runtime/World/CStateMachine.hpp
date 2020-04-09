@@ -75,7 +75,7 @@ class CStateMachine {
   std::vector<CAiTrigger> x10_triggers;
 
 public:
-  CStateMachine(CInputStream& in);
+  explicit CStateMachine(CInputStream& in);
 
   s32 GetStateIndex(std::string_view state) const;
   const std::vector<CAiState>& GetStateVector() const { return x0_states; }

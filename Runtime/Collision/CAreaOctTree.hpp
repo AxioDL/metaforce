@@ -27,7 +27,7 @@ public:
     const u16* m_ptr;
 
   public:
-    TriListReference(const u16* ptr) : m_ptr(ptr) {}
+    explicit TriListReference(const u16* ptr) : m_ptr(ptr) {}
     u16 GetAt(int idx) const { return m_ptr[idx + 1]; }
     u16 GetSize() const { return m_ptr[0]; }
   };
@@ -42,17 +42,17 @@ public:
     const CAreaOctTree& x1c_owner;
     ETreeType x20_nodeType;
 
-    bool LineTestInternal(const zeus::CLine&, const CMaterialFilter&, float, float, float,
-                          const zeus::CVector3f&) const;
-    void LineTestExInternal(const zeus::CLine&, const CMaterialFilter&, SRayResult&, float, float, float,
-                            const zeus::CVector3f&) const;
+    bool LineTestInternal(const zeus::CLine& line, const CMaterialFilter& filter, float lT, float hT, float maxT,
+                          const zeus::CVector3f& vec) const;
+    void LineTestExInternal(const zeus::CLine& line, const CMaterialFilter& filter, SRayResult& res, float lT, float hT,
+                            float maxT, const zeus::CVector3f& dirRecip) const;
 
   public:
     Node(const void* ptr, const zeus::CAABox& aabb, const CAreaOctTree& owner, ETreeType type)
     : x0_aabb(aabb), x18_ptr(reinterpret_cast<const u8*>(ptr)), x1c_owner(owner), x20_nodeType(type) {}
 
-    bool LineTest(const zeus::CLine&, const CMaterialFilter&, float) const;
-    void LineTestEx(const zeus::CLine&, const CMaterialFilter&, SRayResult&, float) const;
+    bool LineTest(const zeus::CLine& line, const CMaterialFilter& filter, float length) const;
+    void LineTestEx(const zeus::CLine& line, const CMaterialFilter& filter, SRayResult& res, float length) const;
 
     const CAreaOctTree& GetOwner() const { return x1c_owner; }
 

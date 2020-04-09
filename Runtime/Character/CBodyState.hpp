@@ -33,8 +33,8 @@ class CBSAttack : public CBodyState {
   float x2c_alignTargetPosStartTime = -1.f;
   float x30_alignTargetPosTime = -1.f;
   float x34_curTime = 0.f;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
-  void UpdatePhysicsActor(CBodyController& bc, float dt);
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc);
+  void UpdatePhysicsActor(const CBodyController& bc, float dt);
 
 public:
   bool CanShoot() const override { return false; }
@@ -44,7 +44,7 @@ public:
 };
 
 class CBSProjectileAttack : public CBodyState {
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
   bool CanShoot() const override { return true; }
@@ -69,7 +69,7 @@ class CBSFall : public CBodyState {
   float x4_rotateSpeed = 0.f;
   float x8_remTime = 0.f;
   pas::EFallState xc_fallState = pas::EFallState::Invalid;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
   void Start(CBodyController& bc, CStateManager& mgr) override;
@@ -79,7 +79,7 @@ public:
 
 class CBSGetup : public CBodyState {
   pas::EFallState x4_fallState = pas::EFallState::Invalid;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
   void Start(CBodyController& bc, CStateManager& mgr) override;
@@ -91,7 +91,7 @@ class CBSKnockBack : public CBodyState {
   float x4_curTime = 0.f;
   float x8_rotateSpeed = 0.f;
   float xc_remTime = 0.f;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
   bool IsMoving() const override { return true; }
@@ -102,17 +102,17 @@ public:
 
 class CBSLieOnGround : public CBodyState {
   bool x4_24_hasGroundHit : 1;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
-  CBSLieOnGround(CActor& actor);
+  explicit CBSLieOnGround(CActor& actor);
   void Start(CBodyController& bc, CStateManager& mgr) override;
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
   void Shutdown(CBodyController& bc) override;
 };
 
 class CBSStep : public CBodyState {
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
   bool IsMoving() const override { return true; }
@@ -127,7 +127,7 @@ protected:
   float x4_rotateSpeed = 0.f;
   zeus::CVector2f x8_dest;
   pas::ETurnDirection x10_turnDir = pas::ETurnDirection::Invalid;
-  bool FacingDest(CBodyController& bc) const;
+  bool FacingDest(const CBodyController& bc) const;
 
 public:
   bool CanShoot() const override { return true; }
@@ -148,7 +148,7 @@ class CBSLoopAttack : public CBodyState {
   pas::ELoopAttackType x8_loopAttackType = pas::ELoopAttackType::Invalid;
   bool xc_24_waitForAnimOver : 1;
   bool xc_25_advance : 1;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
   CBSLoopAttack() {
@@ -165,7 +165,7 @@ class CBSLoopReaction : public CBodyState {
   pas::ELoopState x4_state = pas::ELoopState::Invalid;
   pas::EReactionType x8_reactionType = pas::EReactionType::Invalid;
   bool xc_24_loopHit : 1;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
   bool PlayExitAnimation(CBodyController& bc, CStateManager& mgr) const;
 
 public:
@@ -179,7 +179,7 @@ class CBSGroundHit : public CBodyState {
   float x4_rotateSpeed = 0.f;
   float x8_remTime = 0.f;
   pas::EFallState xc_fallState = pas::EFallState::Invalid;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
   void Start(CBodyController& bc, CStateManager& mgr) override;
@@ -188,7 +188,7 @@ public:
 };
 
 class CBSGenerate : public CBodyState {
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
   void Start(CBodyController& bc, CStateManager& mgr) override;
@@ -198,7 +198,7 @@ public:
 
 class CBSJump : public CBodyState {
   pas::EJumpState x4_state = pas::EJumpState::Invalid;
-  pas::EJumpType x8_jumpType;
+  pas::EJumpType x8_jumpType{};
   zeus::CVector3f xc_waypoint1;
   zeus::CVector3f x18_velocity;
   zeus::CVector3f x24_waypoint2;
@@ -212,7 +212,7 @@ class CBSJump : public CBodyState {
     };
     u32 _dummy = 0;
   };
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
   bool CheckForWallJump(CBodyController& bc, CStateManager& mgr);
   void CheckForLand(CBodyController& bc, CStateManager& mgr);
   void PlayJumpLoop(CStateManager& mgr, CBodyController& bc);
@@ -257,7 +257,7 @@ public:
 
 class CBSSlide : public CBodyState {
   float x4_rotateSpeed = 0.f;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
   bool ApplyHeadTracking() const override { return false; }
@@ -268,7 +268,7 @@ public:
 };
 
 class CBSTaunt : public CBodyState {
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
   void Start(CBodyController& bc, CStateManager& mgr) override;
@@ -285,7 +285,7 @@ class CBSScripted : public CBodyState {
     u32 _dummy = 0;
   };
   float x8_remTime = 0.f;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
   bool ApplyHeadTracking() const override { return false; }
@@ -298,7 +298,7 @@ class CBSCover : public CBodyState {
   pas::ECoverState x4_state = pas::ECoverState::Invalid;
   pas::ECoverDirection x8_coverDirection = pas::ECoverDirection::Invalid;
   bool xc_needsExit = false;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
   bool ApplyHeadTracking() const override { return false; }
@@ -320,7 +320,7 @@ class CBSWallHang : public CBodyState {
     };
     u32 _dummy = 0;
   };
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
+  pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
   void FixInPlace(CBodyController& bc);
   bool CheckForLand(CBodyController& bc, CStateManager& mgr);
   bool CheckForWall(CBodyController& bc, CStateManager& mgr);
@@ -362,16 +362,16 @@ class CBSBiPedLocomotion : public CBSLocomotion {
 protected:
   rstl::reserved_vector<rstl::reserved_vector<std::pair<s32, float>, 8>, 14> x8_anims;
   pas::ELocomotionAnim x3c4_anim = pas::ELocomotionAnim::Invalid;
-  float x3c8_primeTime;
+  float x3c8_primeTime = 0.0f;
   float UpdateRun(float vel, CBodyController& bc, pas::ELocomotionAnim anim);
   float UpdateWalk(float vel, CBodyController& bc, pas::ELocomotionAnim anim);
   float UpdateStrafe(float vel, CBodyController& bc, pas::ELocomotionAnim anim);
   const std::pair<s32, float>& GetLocoAnimation(pas::ELocomotionType type, pas::ELocomotionAnim anim) const {
-    return x8_anims[int(type)][int(anim)];
+    return x8_anims[size_t(type)][size_t(anim)];
   }
 
 public:
-  CBSBiPedLocomotion(CActor& actor);
+  explicit CBSBiPedLocomotion(CActor& actor);
   bool IsMoving() const override { return x3c4_anim != pas::ELocomotionAnim::Idle; }
   void Start(CBodyController& bc, CStateManager& mgr) override;
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
@@ -384,7 +384,7 @@ class CBSFlyerLocomotion : public CBSBiPedLocomotion {
   bool x3cc_pitchable;
 
 public:
-  CBSFlyerLocomotion(CActor& actor, bool pitchable);
+  explicit CBSFlyerLocomotion(CActor& actor, bool pitchable);
   bool IsPitchable() const override { return x3cc_pitchable; }
   float ApplyLocomotionPhysics(float dt, CBodyController& bc) override;
   virtual bool IsBackPedal(CBodyController& bc) const { return false; }
@@ -392,13 +392,13 @@ public:
 
 class CBSWallWalkerLocomotion : public CBSBiPedLocomotion {
 public:
-  CBSWallWalkerLocomotion(CActor& actor);
+  explicit CBSWallWalkerLocomotion(CActor& actor);
   float ApplyLocomotionPhysics(float dt, CBodyController& bc) override;
 };
 
 class CBSNewFlyerLocomotion : public CBSBiPedLocomotion {
 public:
-  CBSNewFlyerLocomotion(CActor& actor);
+  explicit CBSNewFlyerLocomotion(CActor& actor);
   float ApplyLocomotionPhysics(float dt, CBodyController& bc) override;
   float UpdateLocomotionAnimation(float dt, float velMag, CBodyController& bc, bool init) override;
 };
@@ -408,7 +408,7 @@ class CBSRestrictedLocomotion : public CBSLocomotion {
   pas::ELocomotionAnim x44_anim = pas::ELocomotionAnim::Invalid;
 
 public:
-  CBSRestrictedLocomotion(CActor& actor);
+  explicit CBSRestrictedLocomotion(CActor& actor);
   bool IsMoving() const override { return false; }
   float GetLocomotionSpeed(pas::ELocomotionType type, pas::ELocomotionAnim anim) const override { return 0.f; }
   float UpdateLocomotionAnimation(float dt, float velMag, CBodyController& bc, bool init) override;
@@ -416,7 +416,7 @@ public:
 
 class CBSRestrictedFlyerLocomotion : public CBSRestrictedLocomotion {
 public:
-  CBSRestrictedFlyerLocomotion(CActor& actor);
+  explicit CBSRestrictedFlyerLocomotion(CActor& actor);
   float ApplyLocomotionPhysics(float dt, CBodyController& bc) override;
 };
 } // namespace urde

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <list>
 #include <memory>
 #include <optional>
@@ -29,8 +30,8 @@ public:
   class CLineManager {
     friend class CParticleElectric;
     std::vector<zeus::CVector3f> x0_verts;
-    float x10_widths[3] = {1.f, 2.f, 3.f};
-    zeus::CColor x1c_colors[3];
+    std::array<float, 3> x10_widths = {1.f, 2.f, 3.f};
+    std::array<zeus::CColor, 3> x1c_colors;
     zeus::CAABox x28_aabb = zeus::CAABox();
   };
 
@@ -114,17 +115,17 @@ private:
   void BuildBounds();
 
 public:
-  CParticleElectric(const TToken<CElectricDescription>& desc);
+  explicit CParticleElectric(const TToken<CElectricDescription>& desc);
 
   bool Update(double) override;
-  void Render(const CActorLights* = nullptr) override;
-  void SetOrientation(const zeus::CTransform&) override;
-  void SetTranslation(const zeus::CVector3f&) override;
-  void SetGlobalOrientation(const zeus::CTransform&) override;
-  void SetGlobalTranslation(const zeus::CVector3f&) override;
-  void SetGlobalScale(const zeus::CVector3f&) override;
-  void SetLocalScale(const zeus::CVector3f&) override;
-  void SetParticleEmission(bool) override;
+  void Render(const CActorLights* lights = nullptr) override;
+  void SetOrientation(const zeus::CTransform& orientation) override;
+  void SetTranslation(const zeus::CVector3f& translation) override;
+  void SetGlobalOrientation(const zeus::CTransform& orientation) override;
+  void SetGlobalTranslation(const zeus::CVector3f& translation) override;
+  void SetGlobalScale(const zeus::CVector3f& scale) override;
+  void SetLocalScale(const zeus::CVector3f& scale) override;
+  void SetParticleEmission(bool emitting) override;
   void SetModulationColor(const zeus::CColor&) override;
   void SetOverrideIPos(const zeus::CVector3f& vec) { x178_overrideIPos.emplace(vec); }
   void SetOverrideIVel(const zeus::CVector3f& vec) { x188_overrideIVel.emplace(vec); }

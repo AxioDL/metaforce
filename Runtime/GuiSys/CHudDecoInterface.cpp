@@ -17,7 +17,7 @@ namespace urde {
 void IHudDecoInterface::SetReticuleTransform(const zeus::CMatrix3f& xf) {}
 void IHudDecoInterface::SetDecoRotation(float angle) {}
 void IHudDecoInterface::SetFrameColorValue(float v) {}
-void IHudDecoInterface::Draw() const {}
+void IHudDecoInterface::Draw() {}
 void IHudDecoInterface::ProcessInput(const CFinalInput& input) {}
 float IHudDecoInterface::GetHudTextAlpha() const { return 1.f; }
 
@@ -325,10 +325,11 @@ void CHudDecoInterfaceScan::Update(float dt, const CStateManager& stateMgr) {
   UpdateScanDisplay(stateMgr, dt);
 }
 
-void CHudDecoInterfaceScan::Draw() const {
+void CHudDecoInterfaceScan::Draw() {
   x18_scanDisplay.Draw();
-  if (x10_loadedScanHudFlat)
+  if (x10_loadedScanHudFlat) {
     x10_loadedScanHudFlat->Draw(CGuiWidgetDrawParms::Default);
+  }
 }
 
 void CHudDecoInterfaceScan::ProcessInput(const CFinalInput& input) { x18_scanDisplay.ProcessInput(input); }
@@ -475,7 +476,7 @@ CHudDecoInterfaceThermal::CHudDecoInterfaceThermal(CGuiFrame& selHud) {
   if (CGuiWidget* w = selHud.FindWidget("basewidget_lock")) {
     for (CGuiWidget* c = static_cast<CGuiWidget*>(w->GetChildObject()); c;
          c = static_cast<CGuiWidget*>(c->GetNextSibling())) {
-      x84_lockonWidgets.push_back({c, c->GetLocalTransform()});
+      x84_lockonWidgets.emplace_back(c, c->GetLocalTransform());
       c->SetLocalTransform(c->GetLocalTransform() * zeus::CTransform::Scale(x68_lockonScale));
     }
   }

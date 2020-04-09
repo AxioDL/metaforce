@@ -368,13 +368,14 @@ void CScriptPlayerActor::PreRender(CStateManager& mgr, const zeus::CFrustum& fru
   CScriptActor::PreRender(mgr, frustum);
 }
 
-void CScriptPlayerActor::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
-  const_cast<CScriptPlayerActor*>(this)->TouchModels_Internal(mgr);
-  if (GetActive())
+void CScriptPlayerActor::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+  TouchModels_Internal(mgr);
+  if (GetActive()) {
     CActor::AddToRenderer(frustum, mgr);
+  }
 }
 
-void CScriptPlayerActor::Render(const CStateManager& mgr) const {
+void CScriptPlayerActor::Render(CStateManager& mgr) {
   CBooModel::SetReflectionCube(m_reflectionCube);
 
   bool phazonSuit = x2e8_suitRes.GetCharacterNodeId() == 3;

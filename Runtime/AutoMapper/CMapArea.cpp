@@ -1,5 +1,8 @@
 #include "Runtime/AutoMapper/CMapArea.hpp"
 
+#include <array>
+#include <cstring>
+
 #include "Runtime/CResFactory.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -8,101 +11,13 @@
 #include "Runtime/World/CWorld.hpp"
 
 namespace urde {
-CMapArea::CMapArea(CInputStream& in, u32 size)
-: x0_magic(in.readUint32())
-, x4_version(in.readUint32Big())
-, x8_(in.readUint32Big())
-, xc_visibilityMode(EVisMode(in.readUint32Big()))
-, x10_box(zeus::CAABox::ReadBoundingBoxBig(in))
-, x28_mappableObjCount(in.readUint32Big())
-, x2c_vertexCount(in.readUint32Big())
-, x30_surfaceCount(in.readUint32Big())
-, x34_size(size - 52) {
-  x44_buf.reset(new u8[x34_size]);
-  in.readUBytesToBuf(x44_buf.get(), x34_size);
-  PostConstruct();
-}
+constexpr std::array<zeus::CVector3f, 3> MinesPostTransforms{{
+    {0.f, 0.f, 200.f},
+    {0.f, 0.f, 0.f},
+    {0.f, 0.f, -200.f},
+}};
 
-void CMapArea::PostConstruct() {
-  x38_moStart = x44_buf.get();
-  x3c_vertexStart = x38_moStart + (x28_mappableObjCount * 0x50);
-  x40_surfaceStart = x3c_vertexStart + (x2c_vertexCount * 12);
-
-  m_mappableObjects.reserve(x28_mappableObjCount);
-  for (u32 i = 0, j = 0; i < x28_mappableObjCount; ++i, j += 0x50) {
-    m_mappableObjects.emplace_back(x38_moStart + j).PostConstruct(x44_buf.get());
-  }
-
-  u8* tmp = x3c_vertexStart;
-  m_verts.reserve(x2c_vertexCount);
-  for (u32 i = 0; i < x2c_vertexCount; ++i) {
-    float* fl = reinterpret_cast<float*>(tmp);
-    m_verts.emplace_back(hecl::SBig(fl[0]), hecl::SBig(fl[1]), hecl::SBig(fl[2]));
-    tmp += 12;
-  }
-
-  std::vector<u32> index;
-  m_surfaces.reserve(x30_surfaceCount);
-  for (u32 i = 0, j = 0; i < x30_surfaceCount; ++i, j += 32) {
-    m_surfaces.emplace_back(x40_surfaceStart + j).PostConstruct(x44_buf.get(), index);
-  }
-
-  CGraphics::CommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx) {
-    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, m_verts.data(), 16, m_verts.size());
-    m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, index.data(), 4, index.size());
-
-    /* Only the map universe specifies Always; it draws a maximum of 1016 instances */
-    size_t instCount = (xc_visibilityMode == EVisMode::Always) ? 1024 : 1;
-
-    for (u32 i = 0; i < x30_surfaceCount; ++i) {
-      CMapAreaSurface& surf = m_surfaces[i];
-      surf.m_instances.reserve(instCount);
-      for (u32 inst = 0; inst < instCount; ++inst) {
-        CMapAreaSurface::Instance& instance = surf.m_instances.emplace_back(ctx, m_vbo, m_ibo);
-
-        athena::io::MemoryReader r(surf.x1c_outlineOffset, INT_MAX);
-        u32 outlineCount = r.readUint32Big();
-
-        std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
-        linePrims.reserve(outlineCount * 2);
-        for (u32 j = 0; j < 2; ++j) {
-          r.seek(4, athena::SeekOrigin::Begin);
-          for (u32 i = 0; i < outlineCount; ++i) {
-            u32 count = r.readUint32Big();
-            r.seek(count);
-            r.seekAlign4();
-            linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false, false, true);
-          }
-        }
-      }
-    }
-
-    for (u32 i = 0; i < x28_mappableObjCount; ++i) {
-      CMappableObject& mapObj = m_mappableObjects[i];
-      if (CMappableObject::IsDoorType(mapObj.GetType()))
-        mapObj.CreateDoorSurface(ctx);
-    }
-    return true;
-  } BooTrace);
-}
-
-bool CMapArea::GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const {
-  switch (xc_visibilityMode) {
-  case EVisMode::Always:
-    return true;
-  case EVisMode::MapStationOrVisit:
-    return worldVis || areaVis;
-  case EVisMode::Visit:
-    return areaVis;
-  case EVisMode::Never:
-    return false;
-  default:
-    return true;
-  }
-}
-
-static const zeus::CVector3f MinesPostTransforms[3] = {{0.f, 0.f, 200.f}, {0.f, 0.f, 0.f}, {0.f, 0.f, -200.f}};
-static const u8 MinesPostTransformIndices[] = {
+constexpr std::array<u8, 42> MinesPostTransformIndices{
     0, // 00 Transport to Tallon Overworld South
     0, // 01 Quarry Access
     0, // 02 Main Quarry
@@ -146,6 +61,105 @@ static const u8 MinesPostTransformIndices[] = {
     2, // 40 Fungal Hall Access
     2, // 41 Fungal Hall A
 };
+
+CMapArea::CMapArea(CInputStream& in, u32 size)
+: x0_magic(in.readUint32())
+, x4_version(in.readUint32Big())
+, x8_(in.readUint32Big())
+, xc_visibilityMode(EVisMode(in.readUint32Big()))
+, x10_box(zeus::CAABox::ReadBoundingBoxBig(in))
+, x28_mappableObjCount(in.readUint32Big())
+, x2c_vertexCount(in.readUint32Big())
+, x30_surfaceCount(in.readUint32Big())
+, x34_size(size - 52) {
+  x44_buf.reset(new u8[x34_size]);
+  in.readUBytesToBuf(x44_buf.get(), x34_size);
+  PostConstruct();
+}
+
+void CMapArea::PostConstruct() {
+  x38_moStart = x44_buf.get();
+  x3c_vertexStart = x38_moStart + (x28_mappableObjCount * 0x50);
+  x40_surfaceStart = x3c_vertexStart + (x2c_vertexCount * 12);
+
+  m_mappableObjects.reserve(x28_mappableObjCount);
+  for (u32 i = 0, j = 0; i < x28_mappableObjCount; ++i, j += 0x50) {
+    m_mappableObjects.emplace_back(x38_moStart + j).PostConstruct(x44_buf.get());
+  }
+
+  u8* tmp = x3c_vertexStart;
+  m_verts.reserve(x2c_vertexCount);
+  for (u32 i = 0; i < x2c_vertexCount; ++i) {
+    float x;
+    std::memcpy(&x, tmp, sizeof(float));
+    float y;
+    std::memcpy(&y, tmp + 4, sizeof(float));
+    float z;
+    std::memcpy(&z, tmp + 8, sizeof(float));
+
+    m_verts.emplace_back(hecl::SBig(x), hecl::SBig(y), hecl::SBig(z));
+    tmp += 12;
+  }
+
+  std::vector<u32> index;
+  m_surfaces.reserve(x30_surfaceCount);
+  for (u32 i = 0, j = 0; i < x30_surfaceCount; ++i, j += 32) {
+    m_surfaces.emplace_back(x40_surfaceStart + j).PostConstruct(x44_buf.get(), index);
+  }
+
+  CGraphics::CommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx) {
+    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, m_verts.data(), 16, m_verts.size());
+    m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, index.data(), 4, index.size());
+
+    /* Only the map universe specifies Always; it draws a maximum of 1016 instances */
+    size_t instCount = (xc_visibilityMode == EVisMode::Always) ? 1024 : 1;
+
+    for (u32 i = 0; i < x30_surfaceCount; ++i) {
+      CMapAreaSurface& surf = m_surfaces[i];
+      surf.m_instances.reserve(instCount);
+      for (u32 inst = 0; inst < instCount; ++inst) {
+        CMapAreaSurface::Instance& instance = surf.m_instances.emplace_back(ctx, m_vbo, m_ibo);
+
+        athena::io::MemoryReader r(surf.x1c_outlineOffset, INT_MAX);
+        u32 outlineCount = r.readUint32Big();
+
+        std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
+        linePrims.reserve(outlineCount * 2);
+        for (u32 j = 0; j < 2; ++j) {
+          r.seek(4, athena::SeekOrigin::Begin);
+          for (u32 k = 0; k < outlineCount; ++k) {
+            const u32 count = r.readUint32Big();
+            r.seek(count);
+            r.seekAlign4();
+            linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false, false, true);
+          }
+        }
+      }
+    }
+
+    for (u32 i = 0; i < x28_mappableObjCount; ++i) {
+      CMappableObject& mapObj = m_mappableObjects[i];
+      if (CMappableObject::IsDoorType(mapObj.GetType()))
+        mapObj.CreateDoorSurface(ctx);
+    }
+    return true;
+  } BooTrace);
+}
+
+bool CMapArea::GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const {
+  switch (xc_visibilityMode) {
+  case EVisMode::Always:
+    return true;
+  case EVisMode::MapStationOrVisit:
+    return worldVis || areaVis;
+  case EVisMode::Visit:
+    return areaVis;
+  case EVisMode::Never:
+    return false;
+  default:
+    return true;
+  }
+}
 
 zeus::CTransform CMapArea::GetAreaPostTransform(const IWorld& world, TAreaId aid) const {
   if (world.IGetWorldAssetId() == 0xB1AC4D65) // Phazon Mines
@@ -243,15 +257,16 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
 }
 
 void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::CColor& surfColor,
-                                     const zeus::CColor& lineColor, float lineWidth, size_t instIdx) const {
+                                     const zeus::CColor& lineColor, float lineWidth, size_t instIdx) {
   if (instIdx >= m_instances.size()) {
     return;
   }
 
-  Instance& instance = const_cast<Instance&>(m_instances[instIdx]);
+  Instance& instance = m_instances[instIdx];
 
-  if (surfColor.a())
+  if (surfColor.a()) {
     instance.m_surfacePrims.draw(surfColor, m_primStart, m_primCount);
+  }
 
   if (lineColor.a()) {
     bool draw2 = lineWidth > 1.f;

@@ -18,13 +18,13 @@ void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnec
   }
 
   if (lastConn) {
-    TCastToPtr<CScriptCameraWaypoint> waypoint = mgr.ObjectById(mgr.GetIdForScript(lastConn->x8_objId));
+    TCastToConstPtr<CScriptCameraWaypoint> waypoint = mgr.ObjectById(mgr.GetIdForScript(lastConn->x8_objId));
     x14_wpTracker.clear();
     x14_wpTracker.reserve(4);
     while (waypoint) {
-      auto search = std::find_if(x14_wpTracker.begin(), x14_wpTracker.end(),
-                                 [&waypoint](const auto& a) { return a == waypoint->GetUniqueId(); });
-      if (search == x14_wpTracker.end()) {
+      const auto search = std::find_if(x14_wpTracker.cbegin(), x14_wpTracker.cend(),
+                                       [&waypoint](const auto& a) { return a == waypoint->GetUniqueId(); });
+      if (search == x14_wpTracker.cend()) {
         x14_wpTracker.push_back(waypoint->GetUniqueId());
         waypoint = mgr.ObjectById(waypoint->GetRandomNextWaypointId(mgr));
       }
@@ -34,9 +34,9 @@ void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnec
 
     waypoint = mgr.ObjectById(mgr.GetIdForScript(lastConn->x8_objId));
     while (waypoint) {
-      auto search = std::find_if(x14_wpTracker.begin(), x14_wpTracker.end(),
-                                 [&waypoint](const auto& a) { return a == waypoint->GetUniqueId(); });
-      if (search == x14_wpTracker.end()) {
+      const auto search = std::find_if(x14_wpTracker.cbegin(), x14_wpTracker.cend(),
+                                       [&waypoint](const auto& a) { return a == waypoint->GetUniqueId(); });
+      if (search == x14_wpTracker.cend()) {
         x14_wpTracker.push_back(waypoint->GetUniqueId());
         AddKnot(waypoint->GetTranslation(), waypoint->GetTransform().basis[1]);
         waypoint = mgr.ObjectById(waypoint->GetRandomNextWaypointId(mgr));
@@ -45,20 +45,23 @@ void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnec
   }
 }
 
-void CCameraSpline::Initialize(TUniqueId camId, const std::vector<SConnection>& connections, CStateManager& mgr) {
-  CalculateKnots(camId, connections, mgr);
+void CCameraSpline::Initialize(TUniqueId cameraId, const std::vector<SConnection>& connections, CStateManager& mgr) {
+  CalculateKnots(cameraId, connections, mgr);
   x44_length = CalculateSplineLength();
 }
 
-void CCameraSpline::Reset(int size) {
+void CCameraSpline::Reset(size_t size) {
   x4_positions.clear();
   x24_t.clear();
   x34_directions.clear();
-  if (size != 0) {
-    x4_positions.reserve(size);
-    x24_t.reserve(size);
-    x34_directions.reserve(size);
+
+  if (size == 0) {
+    return;
   }
+
+  x4_positions.reserve(size);
+  x24_t.reserve(size);
+  x34_directions.reserve(size);
 }
 
 void CCameraSpline::AddKnot(const zeus::CVector3f& pos, const zeus::CVector3f& dir) {
@@ -66,21 +69,24 @@ void CCameraSpline::AddKnot(const zeus::CVector3f& pos, const zeus::CVector3f& d
   x34_directions.push_back(dir);
 }
 
-void CCameraSpline::SetKnotPosition(int idx, const zeus::CVector3f& pos) {
-  if (idx >= x4_positions.size())
+void CCameraSpline::SetKnotPosition(size_t idx, const zeus::CVector3f& pos) {
+  if (idx >= x4_positions.size()) {
     return;
+  }
   x4_positions[idx] = pos;
 }
 
-const zeus::CVector3f& CCameraSpline::GetKnotPosition(int idx) const {
-  if (idx >= x4_positions.size())
+const zeus::CVector3f& CCameraSpline::GetKnotPosition(size_t idx) const {
+  if (idx >= x4_positions.size()) {
     return zeus::skZero3f;
+  }
   return x4_positions[idx];
 }
 
-float CCameraSpline::GetKnotT(int idx) const {
-  if (idx >= x4_positions.size())
+float CCameraSpline::GetKnotT(size_t idx) const {
+  if (idx >= x4_positions.size()) {
     return 0.f;
+  }
   return x24_t[idx];
 }
 
@@ -117,10 +123,11 @@ float CCameraSpline::CalculateSplineLength() {
   return 0.f;
 }
 
-bool CCameraSpline::GetSurroundingPoints(int idx, rstl::reserved_vector<zeus::CVector3f, 4>& positions,
+bool CCameraSpline::GetSurroundingPoints(size_t idx, rstl::reserved_vector<zeus::CVector3f, 4>& positions,
                                          rstl::reserved_vector<zeus::CVector3f, 4>& directions) const {
-  if (x4_positions.size() <= 3 || idx < 0 || idx >= x4_positions.size())
+  if (x4_positions.size() <= 3 || idx < 0 || idx >= x4_positions.size()) {
     return false;
+  }
 
   if (idx > 0) {
     positions.push_back(x4_positions[idx - 1]);
