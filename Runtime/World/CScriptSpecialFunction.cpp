@@ -184,8 +184,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     case ESpecialFunction::MapStation: {
       if (msg == EScriptObjectMessage::Action) {
         mgr.MapWorldInfo()->SetMapStationUsed(true);
-        const_cast<CMapWorld&>(*mgr.GetWorld()->GetMapWorld())
-            .RecalculateWorldSphere(*mgr.MapWorldInfo(), *mgr.GetWorld());
+        mgr.GetWorld()->GetMapWorld()->RecalculateWorldSphere(*mgr.MapWorldInfo(), *mgr.GetWorld());
       }
       break;
     }
