@@ -77,7 +77,12 @@ struct AT_SPECIALIZE_PARMS(DataSpec::DNAMP1::PAKBridge, DataSpec::DNAMP2::PAKBri
 
   Vector<atUint32, AT_DNA_COUNT((((regionCount * (regionCount - 1)) / 2) + 31) / 32)> bitmap1;
   Vector<atUint32, AT_DNA_COUNT(bitmap1.size())> bitmap2;
-  Vector<atUint32, AT_DNA_COUNT(((((regionCount * regionCount) + 31) / 32) - bitmap1.size()) * 2)> bitmap3;
+
+  /* Unused in all games, removed in MP3 */
+  Vector<atUint32, AT_DNA_COUNT(std::is_same_v<PAKBridge, DataSpec::DNAMP3::PAKBridge>
+                                    ? 0
+                                    : (((((regionCount * regionCount) + 31) / 32) - bitmap1.size()) * 2))>
+      bitmap3;
 
   Value<atUint32> octreeRegionLookupCount;
   Vector<atUint32, AT_DNA_COUNT(octreeRegionLookupCount)> octreeRegionLookup;
