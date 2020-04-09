@@ -103,7 +103,7 @@ void CExplosion::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr
   EnsureRendered(mgr);
 }
 
-void CExplosion::Render(const CStateManager& mgr) const {
+void CExplosion::Render(CStateManager& mgr) {
   if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && xf4_24_renderThermalHot) {
     CElementGen::SetSubtractBlend(true);
     CBooModel::SetRenderModelBlack(true);

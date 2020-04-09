@@ -27,7 +27,7 @@ struct SShader;
 
 class IRenderer {
 public:
-  using TDrawableCallback = void (*)(const void*, const void*, int);
+  using TDrawableCallback = void (*)(void*, void*, int);
   using TReflectionCallback = std::function<void(void*, const zeus::CVector3f&)>;
 
   enum class EDrawableSorting { SortedCallback, UnsortedCallback };
@@ -47,12 +47,12 @@ public:
   virtual void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) = 0;
   virtual void PostRenderFogs() = 0;
   virtual void SetModelMatrix(const zeus::CTransform& xf) = 0;
-  virtual void AddParticleGen(const CParticleGen& gen) = 0;
-  virtual void AddParticleGen(const CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) = 0;
-  virtual void AddPlaneObject(const void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type) = 0;
-  virtual void AddDrawable(const void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode,
+  virtual void AddParticleGen(CParticleGen& gen) = 0;
+  virtual void AddParticleGen(CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) = 0;
+  virtual void AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type) = 0;
+  virtual void AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode,
                            EDrawableSorting sorting) = 0;
-  virtual void SetDrawableCallback(TDrawableCallback cb, const void* ctx) = 0;
+  virtual void SetDrawableCallback(TDrawableCallback cb, void* ctx) = 0;
   virtual void SetWorldViewpoint(const zeus::CTransform& xf) = 0;
   virtual void SetPerspective(float fovy, float width, float height, float znear, float zfar) = 0;
   virtual void SetPerspective(float fovy, float aspect, float znear, float zfar) = 0;

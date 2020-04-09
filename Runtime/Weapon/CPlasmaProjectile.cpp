@@ -404,7 +404,7 @@ void CPlasmaProjectile::AddToRenderer(const zeus::CFrustum& frustum, CStateManag
   EnsureRendered(mgr, GetBeamTransform().origin, GetSortingBounds(mgr));
 }
 
-void CPlasmaProjectile::Render(const CStateManager& mgr) const {
+void CPlasmaProjectile::Render(CStateManager& mgr) {
   if (!GetActive())
     return;
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlasmaProjectile::Render", zeus::skOrange);

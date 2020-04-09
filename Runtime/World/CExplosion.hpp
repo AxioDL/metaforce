@@ -34,7 +34,7 @@ public:
   void Think(float, CStateManager&) override;
   void PreRender(CStateManager&, const zeus::CFrustum&) override;
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
-  void Render(const CStateManager&) const override;
+  void Render(CStateManager&) override;
   bool CanRenderUnsorted(const CStateManager&) const override;
 };
 

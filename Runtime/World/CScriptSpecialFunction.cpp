@@ -491,7 +491,7 @@ void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustum&, CStateManager&
   }
 }
 
-void CScriptSpecialFunction::Render(const CStateManager& mgr) const {
+void CScriptSpecialFunction::Render(CStateManager& mgr) {
   if (xe8_function == ESpecialFunction::FogVolume) {
     float z = mgr.IntegrateVisorFog(xfc_float1 * std::sin(CGraphics::GetSecondsMod900()));
     if (z > 0.f) {

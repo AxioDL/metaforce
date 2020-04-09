@@ -107,7 +107,7 @@ void CSeedling::Think(float dt, CStateManager& mgr) {
     x71c_attackCoolOff -= dt;
 }
 
-void CSeedling::Render(const CStateManager& mgr) const {
+void CSeedling::Render(CStateManager& mgr) {
   if (x400_25_alive && x6bc_spikeData) {
     const size_t index = x722_24_renderOnlyClusterA ? 0 : size_t(x722_25_curNeedleCluster);
     CModelFlags flags;

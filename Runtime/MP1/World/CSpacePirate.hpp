@@ -245,7 +245,7 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
 
   void CalculateRenderBounds() override;
   void Touch(CActor& other, CStateManager& mgr) override;

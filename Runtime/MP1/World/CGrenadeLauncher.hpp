@@ -104,7 +104,7 @@ public:
   [[nodiscard]] std::optional<zeus::CAABox> GetTouchBounds() const override;
   CHealthInfo* HealthInfo(CStateManager& mgr) override { return &x25c_healthInfo; }
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void Touch(CActor& act, CStateManager& mgr) override;
 

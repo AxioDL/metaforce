@@ -84,7 +84,7 @@ public:
   void Touch(CActor& other, CStateManager& mgr) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
 
   void CollidedWith(TUniqueId uid, const CCollisionInfoList&, CStateManager&) override;
 };

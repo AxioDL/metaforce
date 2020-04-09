@@ -103,7 +103,7 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
   const CDamageVulnerability* GetDamageVulnerability() const override;
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2,
                                                      const CDamageInfo& dInfo) const override;

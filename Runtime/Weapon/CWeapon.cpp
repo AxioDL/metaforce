@@ -37,7 +37,7 @@ void CWeapon::Think(float dt, CStateManager& mgr) {
   CEntity::Think(dt, mgr);
 }
 
-void CWeapon::Render(const CStateManager&) const {
+void CWeapon::Render(CStateManager&) {
   // Empty
 }
 

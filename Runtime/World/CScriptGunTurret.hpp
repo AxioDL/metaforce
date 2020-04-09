@@ -228,7 +228,7 @@ public:
   void Think(float, CStateManager&) override;
   void Touch(CActor&, CStateManager&) override;
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
-  void Render(const CStateManager&) const override;
+  void Render(CStateManager&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   zeus::CVector3f GetOrbitPosition(const CStateManager&) const override;
   zeus::CVector3f GetAimPosition(const CStateManager&, float) const override;

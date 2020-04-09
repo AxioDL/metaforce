@@ -375,7 +375,7 @@ void CScriptPlayerActor::AddToRenderer(const zeus::CFrustum& frustum, CStateMana
   }
 }
 
-void CScriptPlayerActor::Render(const CStateManager& mgr) const {
+void CScriptPlayerActor::Render(CStateManager& mgr) {
   CBooModel::SetReflectionCube(m_reflectionCube);
 
   bool phazonSuit = x2e8_suitRes.GetCharacterNodeId() == 3;

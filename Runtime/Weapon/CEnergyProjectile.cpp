@@ -185,7 +185,7 @@ void CEnergyProjectile::Think(float dt, CStateManager& mgr) {
     mgr.FreeScriptObject(GetUniqueId());
 }
 
-void CEnergyProjectile::Render(const CStateManager& mgr) const {
+void CEnergyProjectile::Render(CStateManager& mgr) {
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CEnergyProjectile::Render WPSC_{}"), x2cc_wpscId).c_str(), zeus::skOrange);
 
   CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);

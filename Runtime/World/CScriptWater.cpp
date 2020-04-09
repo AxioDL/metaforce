@@ -423,7 +423,7 @@ void CScriptWater::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManage
   mgr.AddDrawableActorPlane(*this, plane, renderBounds);
 }
 
-void CScriptWater::Render(const CStateManager& mgr) const {
+void CScriptWater::Render(CStateManager& mgr) {
   if (x30_24_active && !xe4_30_outOfFrustum) {
     float zOffset = 0.5f * (x9c_renderBounds.max.z() + x9c_renderBounds.min.z()) - x34_transform.origin.z();
     zeus::CAABox aabb = x9c_renderBounds.getTransformedAABox(zeus::CTransform::Translate(

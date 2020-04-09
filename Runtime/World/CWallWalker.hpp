@@ -55,7 +55,7 @@ public:
 
   void PreThink(float, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void Render(const CStateManager&) const override;
+  void Render(CStateManager&) override;
   const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x590_colSphere; }
   void UpdateWPDestination(CStateManager&);
 };

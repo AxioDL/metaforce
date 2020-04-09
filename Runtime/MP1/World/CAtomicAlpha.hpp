@@ -39,7 +39,7 @@ public:
                CAssetId, bool, bool);
 
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void Render(const CStateManager&) const override;
+  void Render(CStateManager&) override;
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   void Think(float, CStateManager&) override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;

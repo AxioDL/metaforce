@@ -164,7 +164,7 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
   }
 }
 
-void CDecal::RenderMdl() const {
+void CDecal::RenderMdl() {
   const CDecalDescription& desc = *x0_description;
   zeus::CColor color = zeus::skWhite;
   zeus::CVector3f dmop;
@@ -179,7 +179,7 @@ void CDecal::RenderMdl() const {
 
   zeus::CTransform dmrtXf;
   if (dmrtIsConst) {
-    desc.x50_DMRT->GetValue(x58_frameIdx, const_cast<zeus::CVector3f&>(x60_rotation));
+    desc.x50_DMRT->GetValue(x58_frameIdx, x60_rotation);
     dmrtXf = zeus::CTransform::RotateZ(zeus::degToRad(x60_rotation.z()));
     dmrtXf.rotateLocalY(zeus::degToRad(x60_rotation.y()));
     dmrtXf.rotateLocalX(zeus::degToRad(x60_rotation.x()));
@@ -232,7 +232,7 @@ void CDecal::RenderMdl() const {
   }
 }
 
-void CDecal::Render() const {
+void CDecal::Render() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CDecal::Render", zeus::skYellow);
   CGlobalRandom gr(sDecalRandom);
   if (x5c_29_modelInvalid && x5c_30_quad2Invalid && x5c_31_quad1Invalid)
@@ -245,12 +245,12 @@ void CDecal::Render() const {
   if (desc.x0_Quads[0].x14_TEX && !x5c_31_quad1Invalid) {
     CParticleGlobals::instance()->SetParticleLifetime(x3c_decalQuads[0].x4_lifetime);
     CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(x58_frameIdx);
-    RenderQuad(const_cast<CQuadDecal&>(x3c_decalQuads[0]), desc.x0_Quads[0]);
+    RenderQuad(x3c_decalQuads[0], desc.x0_Quads[0]);
   }
   if (desc.x0_Quads[1].x14_TEX && !x5c_30_quad2Invalid) {
     CParticleGlobals::instance()->SetParticleLifetime(x3c_decalQuads[1].x4_lifetime);
     CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(x58_frameIdx);
-    RenderQuad(const_cast<CQuadDecal&>(x3c_decalQuads[1]), desc.x0_Quads[1]);
+    RenderQuad(x3c_decalQuads[1], desc.x0_Quads[1]);
   }
   if (desc.x38_DMDL && !x5c_29_modelInvalid) {
     CParticleGlobals::instance()->SetParticleLifetime(x54_modelLifetime);

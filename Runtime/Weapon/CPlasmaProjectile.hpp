@@ -122,6 +122,6 @@ public:
   void Touch(CActor& other, CStateManager& mgr) override;
   bool CanRenderUnsorted(const CStateManager& mgr) const override;
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
 };
 } // namespace urde

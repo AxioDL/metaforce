@@ -257,7 +257,7 @@ bool CActor::IsModelOpaque(const CStateManager& mgr) const {
   return x64_modelData->IsDefinitelyOpaque(CModelData::GetRenderingModel(mgr));
 }
 
-void CActor::Render(const CStateManager& mgr) const {
+void CActor::Render(CStateManager& mgr) {
   if (x64_modelData && !x64_modelData->IsNull()) {
     bool renderPrePostParticles = xe6_29_renderParticleDBInside && x64_modelData && x64_modelData->HasAnimData();
     if (renderPrePostParticles)
@@ -512,12 +512,12 @@ float CActor::GetPitch() const { return zeus::CQuaternion(x34_transform.buildMat
 
 float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).yaw(); }
 
-void CActor::EnsureRendered(const CStateManager& mgr) const {
-  zeus::CAABox aabb = GetSortingBounds(mgr);
+void CActor::EnsureRendered(const CStateManager& mgr) {
+  const zeus::CAABox aabb = GetSortingBounds(mgr);
   EnsureRendered(mgr, aabb.closestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]), aabb);
 }
 
-void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f& pos, const zeus::CAABox& aabb) const {
+void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f& pos, const zeus::CAABox& aabb) {
   if (x64_modelData) {
     x64_modelData->RenderUnsortedParts(x64_modelData->GetRenderingModel(stateMgr), x34_transform, x90_actorLights.get(),
                                        xb4_drawFlags);

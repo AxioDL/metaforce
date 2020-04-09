@@ -285,24 +285,26 @@ void CStateManager::UpdateThermalVisor() {
   }
 }
 
-void CStateManager::RendererDrawCallback(const void* drawable, const void* ctx, int type) {
-  const CStateManager& mgr = *static_cast<const CStateManager*>(ctx);
+void CStateManager::RendererDrawCallback(void* drawable, void* ctx, int type) {
+  CStateManager& mgr = *static_cast<CStateManager*>(ctx);
   switch (type) {
   case 0: {
-    const CActor& actor = *static_cast<const CActor*>(drawable);
-    if (actor.xc8_drawnToken == mgr.x8dc_objectDrawToken)
+    CActor& actor = *static_cast<CActor*>(drawable);
+    if (actor.xc8_drawnToken == mgr.x8dc_objectDrawToken) {
       break;
-    if (actor.xc6_nextDrawNode != kInvalidUniqueId)
+    }
+    if (actor.xc6_nextDrawNode != kInvalidUniqueId) {
       mgr.RecursiveDrawTree(actor.xc6_nextDrawNode);
+    }
     actor.Render(mgr);
-    const_cast<CActor&>(actor).xc8_drawnToken = mgr.x8dc_objectDrawToken;
+    actor.xc8_drawnToken = mgr.x8dc_objectDrawToken;
     break;
   }
   case 1:
-    static_cast<const CSimpleShadow*>(drawable)->Render(mgr.x8f0_shadowTex);
+    static_cast<CSimpleShadow*>(drawable)->Render(mgr.x8f0_shadowTex);
     break;
   case 2:
-    static_cast<const CDecal*>(drawable)->Render();
+    static_cast<CDecal*>(drawable)->Render();
     break;
   default:
     break;
@@ -316,14 +318,13 @@ bool CStateManager::RenderLast(TUniqueId uid) {
   return true;
 }
 
-void CStateManager::AddDrawableActorPlane(const CActor& actor, const zeus::CPlane& plane,
-                                          const zeus::CAABox& aabb) const {
-  const_cast<CActor&>(actor).SetAddedToken(x8dc_objectDrawToken + 1);
+void CStateManager::AddDrawableActorPlane(CActor& actor, const zeus::CPlane& plane, const zeus::CAABox& aabb) const {
+  actor.SetAddedToken(x8dc_objectDrawToken + 1);
   g_Renderer->AddPlaneObject(&actor, aabb, plane, 0);
 }
 
-void CStateManager::AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const {
-  const_cast<CActor&>(actor).SetAddedToken(x8dc_objectDrawToken + 1);
+void CStateManager::AddDrawableActor(CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const {
+  actor.SetAddedToken(x8dc_objectDrawToken + 1);
   g_Renderer->AddDrawable(&actor, vec, aabb, 0, IRenderer::EDrawableSorting::SortedCallback);
 }
 
@@ -518,10 +519,11 @@ void CStateManager::DrawDebugStuff() const {
   }
 }
 
-void CStateManager::RenderCamerasAndAreaLights() const {
+void CStateManager::RenderCamerasAndAreaLights() {
   x870_cameraManager->RenderCameras(*this);
-  for (const CCameraFilterPassPoly& filter : xb84_camFilterPasses)
+  for (const CCameraFilterPassPoly& filter : xb84_camFilterPasses) {
     filter.Draw();
+  }
 }
 
 void CStateManager::DrawE3DeathEffect() {
@@ -716,10 +718,13 @@ void CStateManager::DrawWorld() {
   if (areaCount)
     SetupFogForArea(*areaArr[areaCount - 1]);
 
-  for (TUniqueId id : x86c_stateManagerContainer->xf370_)
-    if (const CActor* ent = static_cast<const CActor*>(GetObjectById(id)))
-      if (!thermal || ent->xe6_27_thermalVisorFlags & 0x1)
+  for (const TUniqueId id : x86c_stateManagerContainer->xf370_) {
+    if (auto* ent = static_cast<CActor*>(ObjectById(id))) {
+      if (!thermal || ent->xe6_27_thermalVisorFlags & 0x1) {
         ent->Render(*this);
+      }
+    }
+  }
 
   bool morphingPlayerVisible = false;
   int thermalActorCount = 0;
@@ -784,19 +789,25 @@ void CStateManager::DrawWorld() {
   if (thermal) {
     if (x86c_stateManagerContainer->xf39c_renderLast.size()) {
       CGraphics::SetDepthRange(DEPTH_SCREEN_ACTORS, DEPTH_GUN);
-      for (TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast)
-        if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-          if (actor->xe6_27_thermalVisorFlags & 0x1)
+      for (const TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast) {
+        if (auto* actor = static_cast<CActor*>(ObjectById(id))) {
+          if (actor->xe6_27_thermalVisorFlags & 0x1) {
             actor->Render(*this);
+          }
+        }
+      }
       CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
     }
     g_Renderer->DoThermalBlendCold();
     xf34_thermalFlag = EThermalDrawFlag::Hot;
 
-    for (TUniqueId id : x86c_stateManagerContainer->xf370_)
-      if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-        if (actor->xe6_27_thermalVisorFlags & 0x2)
+    for (const TUniqueId id : x86c_stateManagerContainer->xf370_) {
+      if (auto* actor = static_cast<CActor*>(ObjectById(id))) {
+        if (actor->xe6_27_thermalVisorFlags & 0x2) {
           actor->Render(*this);
+        }
+      }
+    }
 
     for (int i = areaCount - 1; i >= 0; --i) {
       const CGameArea& area = *areaArr[i];
@@ -851,10 +862,13 @@ void CStateManager::DrawWorld() {
 
   if (x86c_stateManagerContainer->xf39c_renderLast.size()) {
     CGraphics::SetDepthRange(DEPTH_SCREEN_ACTORS, DEPTH_GUN);
-    for (TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast)
-      if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-        if (!thermal || actor->xe6_27_thermalVisorFlags & 0x2)
+    for (const TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast) {
+      if (auto* actor = static_cast<CActor*>(ObjectById(id))) {
+        if (!thermal || actor->xe6_27_thermalVisorFlags & 0x2) {
           actor->Render(*this);
+        }
+      }
+    }
     CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
   }
 
@@ -1173,14 +1187,16 @@ bool CStateManager::GetVisSetForArea(TAreaId a, TAreaId b, CPVSVisSet& setOut) c
   return false;
 }
 
-void CStateManager::RecursiveDrawTree(TUniqueId node) const {
-  if (TCastToConstPtr<CActor> actor = GetObjectById(node)) {
+void CStateManager::RecursiveDrawTree(TUniqueId node) {
+  if (const TCastToPtr<CActor> actor = ObjectById(node)) {
     if (x8dc_objectDrawToken != actor->xc8_drawnToken) {
-      if (actor->xc6_nextDrawNode != kInvalidUniqueId)
+      if (actor->xc6_nextDrawNode != kInvalidUniqueId) {
         RecursiveDrawTree(actor->xc6_nextDrawNode);
-      if (x8dc_objectDrawToken == actor->xcc_addedToken)
+      }
+      if (x8dc_objectDrawToken == actor->xcc_addedToken) {
         actor->Render(*this);
-      const_cast<CActor*>(actor.GetPtr())->xc8_drawnToken = x8dc_objectDrawToken;
+      }
+      actor->xc8_drawnToken = x8dc_objectDrawToken;
     }
   }
 }

@@ -40,7 +40,7 @@ void CScriptGrapplePoint::Think(float, CStateManager&) {
   // Empty
 }
 
-void CScriptGrapplePoint::Render(const CStateManager&) const {
+void CScriptGrapplePoint::Render(CStateManager&) {
   // Empty
 }
 

@@ -98,7 +98,7 @@ void CBouncyGrenade::CollidedWith(TUniqueId id, const CCollisionInfoList& list, 
 
 std::optional<zeus::CAABox> CBouncyGrenade::GetTouchBounds() const { return GetModelData()->GetBounds(GetTransform()); }
 
-void CBouncyGrenade::Render(const CStateManager& mgr) const {
+void CBouncyGrenade::Render(CStateManager& mgr) {
   if (!x2b4_24_exploded) {
     GetModelData()->Render(mgr, GetTransform(), nullptr, {0, 0, 3, zeus::skWhite});
   } else if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {

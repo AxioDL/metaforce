@@ -39,6 +39,6 @@ void CScriptVisorFlare::AddToRenderer(const zeus::CFrustum&, CStateManager& stat
   }
 }
 
-void CScriptVisorFlare::Render(const CStateManager& stateMgr) const { xe8_flare.Render(GetTranslation(), stateMgr); }
+void CScriptVisorFlare::Render(CStateManager& stateMgr) { xe8_flare.Render(GetTranslation(), stateMgr); }
 
 } // namespace urde

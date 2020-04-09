@@ -27,7 +27,7 @@ void CInterpolationCamera::ProcessInput(const CFinalInput& input, CStateManager&
   // Empty
 }
 
-void CInterpolationCamera::Render(const CStateManager& mgr) const {
+void CInterpolationCamera::Render(CStateManager& mgr) {
   // Empty
 }
 

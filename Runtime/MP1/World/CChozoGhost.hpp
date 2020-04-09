@@ -109,7 +109,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float dt, CStateManager&) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
   void Touch(CActor& act, CStateManager& mgr) override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                                                          const CWeaponMode& mode,

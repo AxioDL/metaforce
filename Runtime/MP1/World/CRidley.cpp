@@ -669,7 +669,7 @@ void CRidley::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   }
 }
 
-void CRidley::Render(const CStateManager& mgr) const {
+void CRidley::Render(CStateManager& mgr) {
   zeus::CColor multiplyColor = zeus::skBlack;
   if (xb24_ > 0.f) {
     multiplyColor = zeus::CColor::lerp(zeus::skWhite, x430_damageColor, xb24_ / 0.33f);

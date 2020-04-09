@@ -105,7 +105,7 @@ EWeaponCollisionResponseTypes CScriptDamageableTrigger::GetCollisionResponseType
                                                  : EWeaponCollisionResponseTypes::Unknown15;
 }
 
-void CScriptDamageableTrigger::Render(const CStateManager& mgr) const {
+void CScriptDamageableTrigger::Render(CStateManager& mgr) {
   if (x30_24_active && x1dc_faceFlag != 0 && std::fabs(x1e0_alpha) >= 0.00001f) {
     zeus::CAABox aabb = x14c_bounds.getTransformedAABox(x214_faceDirInv);
     zeus::CTransform xf = x34_transform * zeus::CTransform::Translate(x244_faceTranslate) * x1e4_faceDir;

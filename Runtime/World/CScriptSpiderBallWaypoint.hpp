@@ -19,7 +19,7 @@ public:
   CScriptSpiderBallWaypoint(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool, u32);
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void Render(const CStateManager& mgr) const override { CActor::Render(mgr); }
+  void Render(CStateManager& mgr) override { CActor::Render(mgr); }
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) override {}
   std::optional<zeus::CAABox> GetTouchBounds() const override { return xfc_aabox; }
   void AccumulateBounds(const zeus::CVector3f& v);

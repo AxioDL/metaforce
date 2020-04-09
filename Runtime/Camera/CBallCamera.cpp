@@ -242,7 +242,7 @@ void CBallCamera::Reset(const zeus::CTransform& xf, CStateManager& mgr) {
   }
 }
 
-void CBallCamera::Render(const CStateManager& mgr) const {
+void CBallCamera::Render(CStateManager& mgr) {
   // Empty
 }
 
