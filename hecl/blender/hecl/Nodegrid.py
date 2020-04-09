@@ -28,7 +28,7 @@ class Nodegrid:
             frame_node.color = FRAME_COLORS[i]
             self.frames.append(frame_node)
 
-    def place_node(self, node, col):
+    def place_node(self, node, col, update_height = True):
         if col < 0 or col >= self.ncol:
             return False
 
@@ -37,8 +37,9 @@ class Nodegrid:
             x_pos += FRAME_WIDTHS[i] + NODE_PADDING*2
         node.location[0] = x_pos - TOTAL_WIDTH/2
         node.location[1] = self.heights[col]
-        self.heights[col] -= node.height + NODE_PADDING
-        self.frames[col].height += node.height + NODE_PADDING
+        if update_height:
+            self.heights[col] -= node.height + NODE_PADDING
+            self.frames[col].height += node.height + NODE_PADDING
         node.parent = self.frames[col]
 
         return True
