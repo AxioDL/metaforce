@@ -137,7 +137,7 @@ void CGrenadeLauncher::PreRender(CStateManager& mgr, const zeus::CFrustum& frust
   CActor::PreRender(mgr, frustum);
 }
 
-void CGrenadeLauncher::Render(const CStateManager& mgr) const {
+void CGrenadeLauncher::Render(CStateManager& mgr) {
   if (x3fd_visible) {
     CPhysicsActor::Render(mgr);
   }

@@ -274,7 +274,7 @@ public:
   void Think(float, CStateManager&) override;
   void PreRender(CStateManager&, const zeus::CFrustum&) override;
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
 
   void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr) override;
   void Touch(CActor& act, CStateManager& mgr) override;

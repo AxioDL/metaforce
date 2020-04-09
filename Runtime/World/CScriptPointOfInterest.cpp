@@ -28,7 +28,7 @@ void CScriptPointOfInterest::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
 
 void CScriptPointOfInterest::AddToRenderer(const zeus::CFrustum&, CStateManager&) {}
 
-void CScriptPointOfInterest::Render(const CStateManager&) const {}
+void CScriptPointOfInterest::Render(CStateManager&) {}
 
 void CScriptPointOfInterest::CalculateRenderBounds() {
   if (xe8_pointSize == 0.f)

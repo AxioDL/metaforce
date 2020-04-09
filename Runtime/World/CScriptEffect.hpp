@@ -61,7 +61,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void PreRender(CStateManager&, const zeus::CFrustum&) override;
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
-  void Render(const CStateManager&) const override;
+  void Render(CStateManager&) override;
   void Think(float, CStateManager&) override;
   bool CanRenderUnsorted(const CStateManager&) const override { return false; }
   void SetActive(bool active) override {

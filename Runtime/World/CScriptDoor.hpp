@@ -52,7 +52,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float, CStateManager& mgr) override;
   void AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) override;
-  void Render(const CStateManager&) const override {}
+  void Render(CStateManager&) override {}
   void ForceClosed(CStateManager&);
   bool IsConnectedToArea(const CStateManager& mgr, TAreaId area) const;
   void OpenDoor(TUniqueId, CStateManager&);

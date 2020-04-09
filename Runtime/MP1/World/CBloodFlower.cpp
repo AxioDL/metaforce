@@ -143,7 +143,7 @@ void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateMana
   }
 }
 
-void CBloodFlower::Render(const CStateManager& mgr) const {
+void CBloodFlower::Render(CStateManager& mgr) {
   CPatterned::Render(mgr);
   x574_podEffect->Render(GetActorLights());
 }

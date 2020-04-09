@@ -105,7 +105,7 @@ void CScriptVisorGoo::AddToRenderer(const zeus::CFrustum& frustum, CStateManager
   // Empty
 }
 
-void CScriptVisorGoo::Render(const CStateManager& mgr) const {
+void CScriptVisorGoo::Render(CStateManager& mgr) {
   // Empty
 }
 

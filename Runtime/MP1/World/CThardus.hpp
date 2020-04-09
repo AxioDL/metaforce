@@ -177,7 +177,7 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
   bool CanRenderUnsorted(const CStateManager&) const override { return false; }
   void Touch(CActor& act, CStateManager& mgr) override;
   zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const override;

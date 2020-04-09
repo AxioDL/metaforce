@@ -29,7 +29,7 @@ public:
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void Render(const CStateManager&) const override {}
+  void Render(CStateManager&) override {}
   void ProcessInput(const CFinalInput&, CStateManager& mgr) override;
   void Reset(const zeus::CTransform&, CStateManager& mgr) override;
   zeus::CTransform MoveAlongSpline(float, CStateManager&);

@@ -212,7 +212,7 @@ void CChozoGhost::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
                               *GetBodyController());
 }
 
-void CChozoGhost::Render(const CStateManager& mgr) const {
+void CChozoGhost::Render(CStateManager& mgr) {
   if (x6c8_spaceWarpTime > 0.f)
     mgr.DrawSpaceWarp(x6cc_spaceWarpPosition, std::sin((M_PIF * x6c8_spaceWarpTime) / x56c_fadeOutDelay));
 

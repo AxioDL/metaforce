@@ -484,7 +484,7 @@ void CScriptGunTurret::AddToRenderer(const zeus::CFrustum& frustum, CStateManage
   }
 }
 
-void CScriptGunTurret::Render(const CStateManager& mgr) const {
+void CScriptGunTurret::Render(CStateManager& mgr) {
   CPhysicsActor::Render(mgr);
 
   if (x258_type == ETurretComponent::Gun) {

@@ -1591,7 +1591,7 @@ void CPatterned::RenderIceModelWithFlags(const CModelFlags& flags) const {
     animData->Render(*iceModel, useFlags, {*x510_vertexMorph}, iceModel->GetMorphMagnitudes());
 }
 
-void CPatterned::Render(const CStateManager& mgr) const {
+void CPatterned::Render(CStateManager& mgr) {
   int mask = 0;
   int target = 0;
   if (x402_29_drawParticles) {

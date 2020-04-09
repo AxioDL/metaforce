@@ -170,70 +170,106 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     break;
   }
 }
+
 void CMetroidBeta::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CPatterned::AddToRenderer(frustum, mgr);
 }
-void CMetroidBeta::Render(const CStateManager& mgr) const { CPatterned::Render(mgr); }
+
+void CMetroidBeta::Render(CStateManager& mgr) { CPatterned::Render(mgr); }
+
 const CDamageVulnerability* CMetroidBeta::GetDamageVulnerability() const { return CAi::GetDamageVulnerability(); }
+
 const CDamageVulnerability* CMetroidBeta::GetDamageVulnerability(const zeus::CVector3f& vec1,
                                                                  const zeus::CVector3f& vec2,
                                                                  const CDamageInfo& dInfo) const {
   return CActor::GetDamageVulnerability(vec1, vec2, dInfo);
 }
+
 void CMetroidBeta::Touch(CActor& act, CStateManager& mgr) { CPatterned::Touch(act, mgr); }
+
 zeus::CVector3f CMetroidBeta::GetAimPosition(const CStateManager& mgr, float dt) const {
   return CPatterned::GetAimPosition(mgr, dt);
 }
+
 void CMetroidBeta::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType eType, float dt) {
   CPatterned::DoUserAnimEvent(mgr, node, eType, dt);
 }
+
 const CCollisionPrimitive* CMetroidBeta::GetCollisionPrimitive() const {
   return CPhysicsActor::GetCollisionPrimitive();
 }
+
 void CMetroidBeta::CollidedWith(TUniqueId collidee, const CCollisionInfoList& info, CStateManager& mgr) {
   CPatterned::CollidedWith(collidee, info, mgr);
 }
+
 zeus::CVector3f CMetroidBeta::GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
                                         const zeus::CVector3f& aimPos) const {
   return CAi::GetOrigin(mgr, role, aimPos);
 }
+
 void CMetroidBeta::Patrol(CStateManager& mgr, EStateMsg msg, float arg) { CPatterned::Patrol(mgr, msg, arg); }
+
 void CMetroidBeta::PathFind(CStateManager& mgr, EStateMsg msg, float arg) { CPatterned::PathFind(mgr, msg, arg); }
+
 void CMetroidBeta::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) { CAi::SelectTarget(mgr, msg, arg); }
+
 void CMetroidBeta::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
   CPatterned::TargetPatrol(mgr, msg, arg);
 }
+
 void CMetroidBeta::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
   CAi::Generate(mgr, msg, arg);
 }
+
 void CMetroidBeta::Attack(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Attack(mgr, msg, arg); }
+
 void CMetroidBeta::TurnAround(CStateManager& mgr, EStateMsg msg, float arg) { CAi::TurnAround(mgr, msg, arg); }
+
 void CMetroidBeta::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   CAi::TelegraphAttack(mgr, msg, arg);
 }
+
 void CMetroidBeta::WallHang(CStateManager& mgr, EStateMsg msg, float arg) { CAi::WallHang(mgr, msg, arg); }
+
 void CMetroidBeta::SpecialAttack(CStateManager& mgr, EStateMsg msg, float arg) { CAi::SpecialAttack(mgr, msg, arg); }
+
 bool CMetroidBeta::InAttackPosition(CStateManager& mgr, float arg) { return CAi::InAttackPosition(mgr, arg); }
+
 bool CMetroidBeta::Attacked(CStateManager& mgr, float arg) { return CPatterned::Attacked(mgr, arg); }
+
 bool CMetroidBeta::PathShagged(CStateManager& mgr, float arg) { return CPatterned::PathShagged(mgr, arg); }
+
 bool CMetroidBeta::InDetectionRange(CStateManager& mgr, float arg) { return CPatterned::InDetectionRange(mgr, arg); }
+
 bool CMetroidBeta::AnimOver(CStateManager& mgr, float arg) { return CPatterned::AnimOver(mgr, arg); }
+
 bool CMetroidBeta::ShouldAttack(CStateManager& mgr, float arg) { return CAi::ShouldAttack(mgr, arg); }
+
 bool CMetroidBeta::InPosition(CStateManager& mgr, float arg) { return CPatterned::InPosition(mgr, arg); }
+
 bool CMetroidBeta::ShouldTurn(CStateManager& mgr, float arg) { return CAi::ShouldTurn(mgr, arg); }
+
 bool CMetroidBeta::AttackOver(CStateManager& mgr, float arg) { return CAi::AttackOver(mgr, arg); }
+
 bool CMetroidBeta::ShotAt(CStateManager& mgr, float arg) { return CAi::ShotAt(mgr, arg); }
+
 bool CMetroidBeta::ShouldWallHang(CStateManager& mgr, float arg) { return CAi::ShouldWallHang(mgr, arg); }
+
 bool CMetroidBeta::StartAttack(CStateManager& mgr, float arg) { return CAi::StartAttack(mgr, arg); }
+
 bool CMetroidBeta::BreakAttack(CStateManager& mgr, float arg) { return CAi::BreakAttack(mgr, arg); }
+
 bool CMetroidBeta::ShouldSpecialAttack(CStateManager& mgr, float arg) { return CAi::ShouldSpecialAttack(mgr, arg); }
 
 void CMetroidBeta::RenderHitGunEffect() const {}
 
 void CMetroidBeta::RenderHitBallEffect() const {}
+
 static SSphereJointInfo skPelvisInfo[1] {
     {"Pelvis", 1.5f},
 };
+
 void CMetroidBeta::CreateCollisionActorManager(CStateManager& mgr) {
   std::vector<CJointCollisionDescription> joints;
   AddSphereJoints(skPelvisInfo, 1, joints);
@@ -272,6 +308,7 @@ void CMetroidBeta::AddSphereJoints(SSphereJointInfo* sphereJoints, s32 count,
     joints.push_back(CJointCollisionDescription::SphereCollision(id, sphereJoint.radius, sphereJoint.name, 1000.0f));
   }
 }
+
 void CMetroidBeta::SetCollisionActorHealthAndVulnerability(CStateManager& mgr) {
   CHealthInfo* hInfo = HealthInfo(mgr);
   if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x790_)) {
@@ -279,6 +316,7 @@ void CMetroidBeta::SetCollisionActorHealthAndVulnerability(CStateManager& mgr) {
     colAct->SetDamageVulnerability(*GetDamageVulnerability());
   }
 }
+
 void CMetroidBeta::RemoveFromTeam(CStateManager& mgr) {
   if (x678_teamMgr == kInvalidUniqueId)
     return;
@@ -288,6 +326,7 @@ void CMetroidBeta::RemoveFromTeam(CStateManager& mgr) {
       teamMgr->RemoveTeamAiRole(GetUniqueId());
   }
 }
+
 void CMetroidBeta::AddToTeam(CStateManager& mgr) {
   if (x678_teamMgr == kInvalidUniqueId)
     return;

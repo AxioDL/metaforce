@@ -121,7 +121,7 @@ public:
                 CModelData&& mData, const CMaterialList& matList, const zeus::CAABox& box, const SMoverData& moverData,
                 const CActorParameters& actorParms, float stepUp, float stepDown);
 
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
   zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const override;
   zeus::CVector3f GetAimPosition(const CStateManager& mgr, float val) const override;
   virtual const CCollisionPrimitive* GetCollisionPrimitive() const;

@@ -45,7 +45,7 @@ public:
   void SetInterferenceDuration(float dur) { x154_interferenceDuration = dur; }
 
   void Think(float, CStateManager&) override;
-  void Render(const CStateManager&) const override;
+  void Render(CStateManager&) override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                          const CWeaponMode&, EProjectileAttrib) const override;
   void FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr) override;

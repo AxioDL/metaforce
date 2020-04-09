@@ -206,7 +206,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   zeus::CAABox GetSortingBounds(const CStateManager&) const override { return GetBoundingBox(); }
   const CDamageVulnerability* GetDamageVulnerability() const override {

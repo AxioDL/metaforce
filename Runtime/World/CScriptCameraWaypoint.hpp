@@ -18,7 +18,7 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) override {}
-  void Render(const CStateManager&) const override {}
+  void Render(CStateManager&) override {}
   TUniqueId GetRandomNextWaypointId(CStateManager& mgr) const;
   float GetHFov() const { return xe8_hfov; }
 };

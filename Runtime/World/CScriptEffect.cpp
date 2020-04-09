@@ -239,7 +239,7 @@ void CScriptEffect::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& 
   }
 }
 
-void CScriptEffect::Render(const CStateManager& mgr) const {
+void CScriptEffect::Render(CStateManager& mgr) {
   /* The following code is kept for reference, this is now performed in CElementGen
   if (x138_actorLights)
   x138_actorLights->ActivateLights();

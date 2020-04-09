@@ -401,7 +401,7 @@ public:
   bool GetExplorationMode() const;
   bool GetCombatMode() const;
   void RenderGun(const CStateManager& mgr, const zeus::CVector3f& pos) const;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
   void RenderReflectedPlayer(CStateManager& mgr);
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
   void CalculateRenderBounds() override;

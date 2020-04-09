@@ -379,7 +379,7 @@ void CScriptDebris::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
   xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor::lerp(zeus::skWhite, x268_endsColor, t));
 }
 
-void CScriptDebris::Render(const CStateManager& mgr) const { CPhysicsActor::Render(mgr); }
+void CScriptDebris::Render(CStateManager& mgr) { CPhysicsActor::Render(mgr); }
 
 void CScriptDebris::CollidedWith(TUniqueId, const CCollisionInfoList& colList, CStateManager&) {
   if (colList.GetCount() == 0)

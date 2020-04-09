@@ -95,7 +95,7 @@ void CFlameThrower::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
   EnsureRendered(mgr, x2e8_flameXf.origin, GetRenderBounds());
 }
 
-void CFlameThrower::Render(const CStateManager&) const {}
+void CFlameThrower::Render(CStateManager&) {}
 
 std::optional<zeus::CAABox> CFlameThrower::GetTouchBounds() const { return std::nullopt; }
 

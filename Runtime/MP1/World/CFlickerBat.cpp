@@ -96,7 +96,7 @@ void CFlickerBat::Think(float dt, CStateManager& mgr) {
   CPatterned::Think(dt, mgr);
 }
 
-void CFlickerBat::Render(const CStateManager& mgr) const {
+void CFlickerBat::Render(CStateManager& mgr) {
   if (!x580_24_wasInXray && x580_26_inLOS &&
       (GetFlickerBatState() == EFlickerBatState::FadeIn || GetFlickerBatState() == EFlickerBatState::FadeOut)) {
     float strength = 0.f;

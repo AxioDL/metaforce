@@ -522,7 +522,7 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask,
   }
 }
 
-void CFishCloud::Render(const CStateManager& mgr) const {
+void CFishCloud::Render(CStateManager& mgr) {
   if (!GetActive())
     return;
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CFishCloud::Render {} {} {}"),
