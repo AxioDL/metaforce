@@ -64,7 +64,13 @@ class CPersistentOptions {
   bool xd0_29_allItemsCollected : 1;
 
 public:
-  CPersistentOptions() = default;
+  CPersistentOptions()
+  : xd0_24_fusionLinked(false)
+  , xd0_25_normalModeBeat(false)
+  , xd0_26_hardModeBeat(false)
+  , xd0_27_fusionBeat(false)
+  , xd0_28_fusionSuitActive(false)
+  , xd0_29_allItemsCollected(false) {}
   explicit CPersistentOptions(CBitStreamReader& stream);
 
   bool GetCinematicState(CAssetId mlvlId, TEditorId cineId) const;
