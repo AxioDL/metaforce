@@ -14,11 +14,12 @@ set(DNAMP3_SOURCES
     DNAMP3.hpp DNAMP3.cpp
     PAK.cpp
     ANIM.cpp
-    CINF.cpp
+    CINF.hpp
     CHAR.cpp
     CMDL.hpp CMDL.cpp
     CMDLMaterials.cpp
     CSKR.cpp
+    PATH.hpp
     STRG.hpp STRG.cpp
     MAPA.hpp
     MREA.cpp)

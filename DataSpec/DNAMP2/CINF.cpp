@@ -1,5 +1,6 @@
 #include "CINF.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "DataSpec/DNAMP3/DNAMP3.hpp"
 
 namespace DataSpec::DNAMP2 {
 
@@ -41,7 +42,8 @@ void CINF::sendVertexGroupsToBlender(hecl::blender::PyOutStream& os) const {
   }
 }
 
-void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& cinfId) const {
+template <class PAKBridge>
+void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const typename PAKBridge::PAKType::IDType& cinfId) const {
   DNAANIM::RigInverter<CINF> inverter(*this);
 
   os.format(fmt(
@@ -66,9 +68,18 @@ void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& c
         tailF[2], bone.m_origBone.id);
   }
 
-  for (const Bone& bone : bones)
-    if (bone.parentId != 97)
-      os.format(fmt("arm_bone_table[{}].parent = arm_bone_table[{}]\n"), bone.id, bone.parentId);
+  if constexpr (std::is_same_v<PAKBridge, DNAMP3::PAKBridge>) {
+    if (bones.size()) {
+      atUint32 nullId = bones[0].parentId;
+      for (const Bone& bone : bones)
+        if (bone.parentId != nullId)
+          os.format(fmt("arm_bone_table[{}].parent = arm_bone_table[{}]\n"), bone.id, bone.parentId);
+    }
+  } else {
+    for (const Bone& bone : bones)
+      if (bone.parentId != 97)
+        os.format(fmt("arm_bone_table[{}].parent = arm_bone_table[{}]\n"), bone.id, bone.parentId);
+  }
 
   os << "bpy.ops.object.mode_set(mode='OBJECT')\n";
 
@@ -76,8 +87,14 @@ void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& c
     os.format(fmt("arm_obj.pose.bones['{}'].rotation_mode = 'QUATERNION'\n"),
               *getBoneNameFromId(bone.m_origBone.id));
 }
+template void CINF::sendCINFToBlender<PAKBridge>(hecl::blender::PyOutStream& os, const UniqueID32& cinfId) const;
+template void CINF::sendCINFToBlender<DNAMP3::PAKBridge>(hecl::blender::PyOutStream& os,
+                                                         const UniqueID64& cinfId) const;
 
-std::string CINF::GetCINFArmatureName(const UniqueID32& cinfId) { return fmt::format(fmt("CINF_{}"), cinfId); }
+template <class UniqueID>
+std::string CINF::GetCINFArmatureName(const UniqueID& cinfId) { return fmt::format(fmt("CINF_{}"), cinfId); }
+template std::string CINF::GetCINFArmatureName(const UniqueID32& cinfId);
+template std::string CINF::GetCINFArmatureName(const UniqueID64& cinfId);
 
 int CINF::RecursiveAddArmatureBone(const Armature& armature, const BlenderBone* bone, int parent, int& curId,
                                    std::unordered_map<std::string, atInt32>& idMap,
@@ -156,9 +173,10 @@ CINF::CINF(const Armature& armature, std::unordered_map<std::string, atInt32>& i
     boneIds.push_back(it->id);
 }
 
+template <class PAKBridge>
 bool CINF::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
-                   PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
-                   std::function<void(const hecl::SystemChar*)> fileChanged) {
+                   PAKRouter<PAKBridge>& pakRouter, const typename PAKBridge::PAKType::Entry& entry, bool force,
+                   hecl::blender::Token& btok, std::function<void(const hecl::SystemChar*)> fileChanged) {
   if (!force && outPath.isFile())
     return true;
 
@@ -179,11 +197,20 @@ bool CINF::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   CINF cinf;
   cinf.read(rs);
-  cinf.sendCINFToBlender(os, entry.id);
+  cinf.sendCINFToBlender<PAKBridge>(os, entry.id);
   os.centerView();
   os.close();
   return conn.saveBlend();
 }
+
+template bool CINF::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
+                            PAKRouter<PAKBridge>& pakRouter, const typename PAKBridge::PAKType::Entry& entry,
+                            bool force, hecl::blender::Token& btok,
+                            std::function<void(const hecl::SystemChar*)> fileChanged);
+template bool CINF::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
+                            PAKRouter<DNAMP3::PAKBridge>& pakRouter,
+                            const typename DNAMP3::PAKBridge::PAKType::Entry& entry, bool force,
+                            hecl::blender::Token& btok, std::function<void(const hecl::SystemChar*)> fileChanged);
 
 bool CINF::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath,
                 const hecl::blender::Armature& armature) {

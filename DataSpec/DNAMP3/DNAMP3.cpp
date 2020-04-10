@@ -9,6 +9,7 @@
 #include "CHAR.hpp"
 #include "MREA.hpp"
 #include "MAPA.hpp"
+#include "PATH.hpp"
 #include "SAVW.hpp"
 #include "HINT.hpp"
 #include "DataSpec/DNACommon/TXTR.hpp"
@@ -21,6 +22,8 @@ namespace DataSpec::DNAMP3 {
 logvisor::Module Log("urde::DNAMP3");
 
 static bool GetNoShare(std::string_view name) {
+  if (name == "UniverseArea.pak"sv)
+    return false;
   std::string lowerName(name);
   std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
   if (!lowerName.compare(0, 7, "metroid"))
@@ -194,6 +197,16 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
             fmt::format(fmt(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
 
       for (const MLVL::Area& area : mlvl.areas) {
+        {
+          /* Get PATH transform */
+          const nod::Node* areaNode;
+          const PAK::Entry* areaEntry = pakRouter.lookupEntry(area.areaMREAId, &areaNode);
+          PAKEntryReadStream rs = areaEntry->beginReadStream(*areaNode);
+          UniqueID64 pathId = MREA::GetPATHId(rs);
+          if (pathId.isValid())
+            addTo[pathId] = zeus::CMatrix4f(area.transformMtx[0], area.transformMtx[1], area.transformMtx[2], BottomRow)
+                .transposed();
+        }
         hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
         if (area.areaNameId.isValid())
           pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath,
@@ -236,16 +249,20 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     return {SAVWCommon::ExtractSAVW<SAVW>, {_SYS_STR(".yaml")}};
   case SBIG('HINT'):
     return {HINT::Extract, {_SYS_STR(".yaml")}};
-//  case SBIG('CMDL'):
-//    return {CMDL::Extract, {_SYS_STR(".blend")}, 1};
-//  case SBIG('CHAR'):
-//    return {CHAR::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 2};
-//  case SBIG('MLVL'):
-//    return {MLVL::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 3};
-//  case SBIG('MREA'):
-//    return {MREA::Extract, {_SYS_STR(".blend")}, 4};
-//  case SBIG('MAPA'):
-//    return {MAPA::Extract, {_SYS_STR(".blend")}, 4};
+  case SBIG('CMDL'):
+    return {CMDL::Extract, {_SYS_STR(".blend")}, 1};
+  case SBIG('CINF'):
+    return {CINF::Extract<PAKBridge>, {_SYS_STR(".blend")}, 1};
+  case SBIG('CHAR'):
+    return {CHAR::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 2};
+  case SBIG('MLVL'):
+    return {MLVL::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 3};
+  case SBIG('MREA'):
+    return {MREA::Extract, {_SYS_STR(".blend")}, 4};
+  case SBIG('MAPA'):
+    return {MAPA::Extract, {_SYS_STR(".blend")}, 4};
+  case SBIG('PATH'):
+    return {PATH::Extract, {_SYS_STR(".blend")}, 5};
   case SBIG('FSM2'):
     return {DNAFSM2::ExtractFSM2<UniqueID64>, {_SYS_STR(".yaml")}};
   case SBIG('FONT'):

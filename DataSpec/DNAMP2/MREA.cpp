@@ -68,8 +68,7 @@ MREA::StreamReader::StreamReader(athena::io::IStreamReader& source, atUint32 blk
 , m_blkCount(blkCount) {
   m_blockInfos.reserve(blkCount);
   for (atUint32 i = 0; i < blkCount; ++i) {
-    m_blockInfos.emplace_back();
-    BlockInfo& info = m_blockInfos.back();
+    BlockInfo& info = m_blockInfos.emplace_back();
     info.read(source);
     m_totalDecompLen += info.decompSize;
   }

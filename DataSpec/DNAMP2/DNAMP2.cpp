@@ -25,6 +25,8 @@ namespace DataSpec::DNAMP2 {
 logvisor::Module Log("urde::DNAMP2");
 
 static bool GetNoShare(std::string_view name) {
+  if (name == "FrontEnd.pak"sv)
+    return false;
   std::string lowerName(name);
   std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
   if (!lowerName.compare(0, 7, "metroid"))
@@ -259,7 +261,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
   case SBIG('CMDL'):
     return {CMDL::Extract, {_SYS_STR(".blend")}, 1};
   case SBIG('CINF'):
-    return {CINF::Extract, {_SYS_STR(".blend")}, 1};
+    return {CINF::Extract<PAKBridge>, {_SYS_STR(".blend")}, 1};
   case SBIG('ANCS'):
     return {ANCS::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 2};
   case SBIG('MLVL'):

@@ -141,6 +141,5 @@ zeus::CVector3f RigInverter<CINFType>::restorePosition(atUint32 boneId, const ze
 
 template class RigInverter<DNAMP1::CINF>;
 template class RigInverter<DNAMP2::CINF>;
-template class RigInverter<DNAMP3::CINF>;
 
 } // namespace DataSpec::DNAANIM
