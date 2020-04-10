@@ -88,8 +88,8 @@ public:
                                                                               const zeus::CVector3f& target);
   TLockedToken<CWeaponDescription> GetWeaponDescription() const { return x4_weaponDesc; }
   void RenderParticles() const;
-  virtual void AddToRenderer() const;
-  virtual void Render() const;
+  virtual void AddToRenderer();
+  virtual void Render();
   bool IsSystemDeletable() const;
   void UpdateChildParticleSystems(float);
   void UpdatePSTranslationAndOrientation();

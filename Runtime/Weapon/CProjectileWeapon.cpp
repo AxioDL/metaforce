@@ -201,7 +201,7 @@ void CProjectileWeapon::RenderParticles() const {
     x104_->Render();
 }
 
-void CProjectileWeapon::AddToRenderer() const {
+void CProjectileWeapon::AddToRenderer() {
   if (xfc_APSMGen)
     g_Renderer->AddParticleGen(*xfc_APSMGen);
   if (x100_APS2Gen)
@@ -216,7 +216,7 @@ void CProjectileWeapon::AddToRenderer() const {
     g_Renderer->AddParticleGen(*x104_);
 }
 
-void CProjectileWeapon::Render() const {
+void CProjectileWeapon::Render() {
   if (xf4_curFrame > xe8_lifetime || !x124_24_active || !x108_model)
     return;
 
@@ -227,7 +227,7 @@ void CProjectileWeapon::Render() const {
 
   std::vector<CLight> useLights;
   useLights.push_back(CLight::BuildLocalAmbient({}, xc8_ambientLightColor));
-  const_cast<CModel&>(**x108_model).GetInstance().ActivateLights(useLights);
+  (**x108_model).GetInstance().ActivateLights(useLights);
   CModelFlags flags(0, 0, 3, zeus::skWhite);
   (*x108_model)->Draw(flags);
 }
