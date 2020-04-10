@@ -29,7 +29,9 @@ static bool GetNoShare(std::string_view name) {
     return false;
   std::string lowerName(name);
   std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
-  if (!lowerName.compare(0, 7, "metroid"))
+  if (lowerName.compare(0, 7, "metroid") == 0)
+    return false;
+  if (lowerName.compare(0, 8, "frontend") == 0)
     return false;
   return true;
 }
