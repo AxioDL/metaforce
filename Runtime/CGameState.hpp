@@ -81,14 +81,8 @@ class CGameState {
   u32 x20c_saveFileIdx = 0;
   u64 x210_cardSerial = 0;
   std::vector<u8> x218_backupBuf;
-
-  union {
-    struct {
-      bool x228_24_hardMode : 1;
-      bool x228_25_initPowerupsAtFirstSpawn : 1;
-    };
-    u8 _dummy = 0;
-  };
+  bool x228_24_hardMode : 1;
+  bool x228_25_initPowerupsAtFirstSpawn : 1;
 
 public:
   CGameState();

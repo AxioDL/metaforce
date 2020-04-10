@@ -56,18 +56,12 @@ class CPersistentOptions {
   u32 xc4_frozenBallCount = 0;
   u32 xc8_powerBombAmmoCount = 0;
   u32 xcc_logScanPercent = 0;
-
-  union {
-    struct {
-      bool xd0_24_fusionLinked : 1;
-      bool xd0_25_normalModeBeat : 1;
-      bool xd0_26_hardModeBeat : 1;
-      bool xd0_27_fusionBeat : 1;
-      bool xd0_28_fusionSuitActive : 1;
-      bool xd0_29_allItemsCollected : 1;
-    };
-    u16 _dummy = 0;
-  };
+  bool xd0_24_fusionLinked : 1;
+  bool xd0_25_normalModeBeat : 1;
+  bool xd0_26_hardModeBeat : 1;
+  bool xd0_27_fusionBeat : 1;
+  bool xd0_28_fusionSuitActive : 1;
+  bool xd0_29_allItemsCollected : 1;
 
 public:
   CPersistentOptions() = default;
@@ -116,21 +110,14 @@ class CGameOptions {
   u32 x5c_musicVol = 0x7f;
   u32 x60_hudAlpha = 0xff;
   u32 x64_helmetAlpha = 0xff;
+  bool x68_24_hudLag : 1;
+  bool x68_25_invertY : 1;
+  bool x68_26_rumble : 1;
+  bool x68_27_swapBeamsControls : 1;
+  bool x68_28_hintSystem : 1;
+  std::vector<std::pair<CAssetId, CAssetId>> x6c_controlTxtrMap;
 
   s32 m_gamma = 0;
-
-  union {
-    struct {
-      bool x68_24_hudLag : 1;
-      bool x68_25_invertY : 1;
-      bool x68_26_rumble : 1;
-      bool x68_27_swapBeamsControls : 1;
-      bool x68_28_hintSystem : 1;
-    };
-    u16 _dummy = 0;
-  };
-
-  std::vector<std::pair<CAssetId, CAssetId>> x6c_controlTxtrMap;
 
 public:
   CGameOptions();
