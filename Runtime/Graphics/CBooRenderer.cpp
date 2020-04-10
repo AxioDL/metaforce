@@ -1397,9 +1397,9 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
             return;
 
           flags.x4_color.r() = alphaVal / 255.f;
-          const CBooModel& model = *item.x10_models[wordModel + j];
-          const_cast<CBooModel&>(model).UpdateUniformData(flags, nullptr, nullptr, 2);
-          const_cast<CBooModel&>(model).VerifyCurrentShader(0);
+          CBooModel& model = *item.x10_models[wordModel + j];
+          model.UpdateUniformData(flags, nullptr, nullptr, 2);
+          model.VerifyCurrentShader(0);
           for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)
             if (surf->GetBounds().intersects(aabb))
               model.DrawSurface(*surf, flags);
