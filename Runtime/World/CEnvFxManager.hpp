@@ -64,34 +64,34 @@ class CEnvFxManagerGrid {
   std::pair<bool, float> x14_block = {false, FLT_MAX}; /* Blocked-bool, Z-coordinate */
   std::vector<CVectorFixed8_8> x1c_particles;
 
-  mutable hecl::VertexBufferPool<CEnvFxShaders::Instance>::Token m_instBuf;
-  mutable hecl::UniformBufferPool<CEnvFxShaders::Uniform>::Token m_uniformBuf;
-  mutable CLineRenderer m_lineRenderer;
+  hecl::VertexBufferPool<CEnvFxShaders::Instance>::Token m_instBuf;
+  hecl::UniformBufferPool<CEnvFxShaders::Uniform>::Token m_uniformBuf;
+  CLineRenderer m_lineRenderer;
 
   boo::ObjToken<boo::IShaderDataBinding> m_snowBinding;
   boo::ObjToken<boo::IShaderDataBinding> m_underwaterBinding;
 
-  mutable float m_uvyOffset = 0.f;
+  float m_uvyOffset = 0.f;
 
-  void RenderSnowParticles(const zeus::CTransform& camXf) const;
-  void RenderRainParticles(const zeus::CTransform& camXf) const;
-  void RenderUnderwaterParticles(const zeus::CTransform& camXf) const;
+  void RenderSnowParticles(const zeus::CTransform& camXf);
+  void RenderRainParticles(const zeus::CTransform& camXf);
+  void RenderUnderwaterParticles(const zeus::CTransform& camXf);
 
 public:
   CEnvFxManagerGrid(const zeus::CVector2i& position, const zeus::CVector2i& extent,
                     std::vector<CVectorFixed8_8> initialParticles, int reserve, CEnvFxManager& parent,
                     boo::IGraphicsDataFactory::Context& ctx);
   void Render(const zeus::CTransform& xf, const zeus::CTransform& invXf, const zeus::CTransform& camXf, float fxDensity,
-              EEnvFxType fxType, const CEnvFxManager& parent) const;
+              EEnvFxType fxType, CEnvFxManager& parent);
 };
 
 class CEnvFxManager {
   friend class CEnvFxManagerGrid;
   friend class CEnvFxShaders;
 
-  mutable hecl::VertexBufferPool<CEnvFxShaders::Instance> m_instPool;
-  mutable hecl::UniformBufferPool<CEnvFxShaders::Uniform> m_uniformPool;
-  mutable CEnvFxShaders::Uniform m_uniformData;
+  hecl::VertexBufferPool<CEnvFxShaders::Instance> m_instPool;
+  hecl::UniformBufferPool<CEnvFxShaders::Uniform> m_uniformPool;
+  CEnvFxShaders::Uniform m_uniformData;
   boo::ObjToken<boo::IGraphicsBufferD> m_fogUniformBuf;
 
   zeus::CAABox x0_particleBounds = zeus::CAABox(-63.5f, 63.5f);
@@ -133,7 +133,7 @@ class CEnvFxManager {
   void UpdateSnowParticles(const rstl::reserved_vector<CVectorFixed8_8, 256>& snowForces);
   void UpdateRainParticles(const CVectorFixed8_8& zVec, const zeus::CVector3f& oopbtws, float dt);
   void UpdateUnderwaterParticles(const CVectorFixed8_8& zVec);
-  void SetupSnowTevs(const CStateManager& mgr) const;
+  void SetupSnowTevs(const CStateManager& mgr);
   void SetupRainTevs() const;
   void SetupUnderwaterTevs(const zeus::CTransform& invXf, const CStateManager& mgr) const;
 
@@ -142,7 +142,7 @@ public:
   void AsyncLoadResources(CStateManager& mgr);
 
   void Update(float, CStateManager& mgr);
-  void Render(const CStateManager& mgr) const;
+  void Render(const CStateManager& mgr);
   void SetFxDensity(s32, float);
   void AreaLoaded();
   void SetSplashRate(float f) { xb54_baseSplashRate = f; }
