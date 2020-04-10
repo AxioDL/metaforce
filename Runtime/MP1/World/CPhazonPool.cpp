@@ -75,7 +75,7 @@ void CPhazonPool::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
   CScriptTrigger::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CPhazonPool::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CPhazonPool::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   if (GetActive()) {
     if (x170_elementGen1) {
       g_Renderer->AddParticleGen(*x170_elementGen1);
@@ -90,7 +90,7 @@ void CPhazonPool::AddToRenderer(const zeus::CFrustum& frustum, const CStateManag
 
 std::optional<zeus::CAABox> CPhazonPool::GetTouchBounds() const { return CScriptTrigger::GetTouchBounds(); }
 
-void CPhazonPool::Render(const CStateManager& mgr) const {
+void CPhazonPool::Render(CStateManager& mgr) {
   CActor::Render(mgr);
   bool discard = x1a4_ < 0.25f;
   const CModelFlags flags{5, 0, static_cast<u16>(discard ? 3 : 0), zeus::CColor{1.f, x1a4_}};

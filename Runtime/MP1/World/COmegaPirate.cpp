@@ -196,7 +196,7 @@ void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
           CMaterialList includes = GetMaterialFilter().GetIncludeList();
           platform->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(includes, excludes));
           xae4_platformVuln = *platform->GetDamageVulnerability();
-          xb54_platformColor = platform->GetDrawFlags().x4_color; // TODO does this work?
+          xb54_platformColor = platform->GetDrawFlags().x4_color;
         } else if (TCastToPtr<CScriptSound> sound = mgr.ObjectById(connId)) {
           xaa0_scriptSounds.emplace_back(connId, sound->GetName());
         }
@@ -432,15 +432,15 @@ void COmegaPirate::Faint(CStateManager& mgr, EStateMsg msg, float dt) {
     if (xb4c_ < 4 && x9c8_ == 0 && xb58_ >= 2.5f) {
       float alpha = std::max(xb50_, 1.f);
       float invAlpha = 1.f - alpha;
-      size_t uVar6 = 0;
+      size_t idx = 0;
       for (const auto& entry : x9dc_scriptPlatforms) {
         if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
           if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
-            if (xb4c_ > uVar6) {
+            if (xb4c_ > idx) {
               CModelFlags flags{5, 0, 3, zeus::skWhite};
               flags.addColor = zeus::skBlack;
               platform->SetDrawFlags(flags);
-            } else if (xb4c_ == uVar6) {
+            } else if (xb4c_ == idx) {
               if (!xb6e_) {
                 SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
                 xb6e_ = true;
@@ -455,7 +455,7 @@ void COmegaPirate::Faint(CStateManager& mgr, EStateMsg msg, float dt) {
             platform->SetDrawFlags(flags);
           }
         }
-        ++uVar6;
+        ++idx;
       }
       if (xb50_ > 1.f) {
         ++xb4c_;
@@ -569,23 +569,22 @@ void COmegaPirate::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
   }
 }
 
-void COmegaPirate::Render(const CStateManager& mgr) const {
-  const auto* mData = GetModelData();
-  auto* animData = const_cast<CAnimData*>(mData->GetAnimationData());
+void COmegaPirate::Render(CStateManager& mgr) {
+  auto* mData = GetModelData();
+  auto* animData = mData->GetAnimationData();
 
   CGraphics::SetModelMatrix(GetTransform() * zeus::CTransform::Scale(mData->GetScale()));
 
   if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay && xa2c_ > 0.f) {
-    auto& model = const_cast<CSkinnedModel&>(x9f0_);
     const CModelFlags flags{5, 0, 3, zeus::CColor{1.f, xa2c_}};
-    animData->Render(model, flags, std::nullopt, nullptr);
+    animData->Render(x9f0_, flags, std::nullopt, nullptr);
   }
   if (x9a0_) {
     bool isXRay = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay;
     if (isXRay) {
       g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
       const CModelFlags flags{5, 0, 1, zeus::CColor{1.f, 0.2f}};
-      auto& model = const_cast<CSkinnedModel&>(*animData->GetModelData().GetObj());
+      auto& model = *animData->GetModelData().GetObj();
       animData->Render(model, flags, std::nullopt, nullptr);
     }
     CPatterned::Render(mgr);

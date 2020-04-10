@@ -133,7 +133,7 @@ void CPhazonHealingNodule::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-void CPhazonHealingNodule::Render(const CStateManager& mgr) const {
+void CPhazonHealingNodule::Render(CStateManager& mgr) {
   if (x57c_particleElectric) {
     x57c_particleElectric->Render();
   }

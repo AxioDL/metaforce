@@ -25,7 +25,7 @@ public:
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
 
   void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;
