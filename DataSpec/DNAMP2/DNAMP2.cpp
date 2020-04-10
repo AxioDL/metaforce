@@ -25,8 +25,6 @@ namespace DataSpec::DNAMP2 {
 logvisor::Module Log("urde::DNAMP2");
 
 static bool GetNoShare(std::string_view name) {
-  if (name == "FrontEnd.pak"sv)
-    return false;
   std::string lowerName(name);
   std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
   if (lowerName.compare(0, 7, "metroid") == 0)
