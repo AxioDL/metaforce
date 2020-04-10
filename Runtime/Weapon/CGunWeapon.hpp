@@ -133,13 +133,13 @@ public:
   void Touch(const CStateManager& mgr);
   void TouchHolo(const CStateManager& mgr);
   virtual void Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
-                    const CActorLights* lights) const;
+                    const CActorLights* lights);
   virtual void DrawMuzzleFx(const CStateManager& mgr) const;
   virtual void Update(float dt, CStateManager& mgr);
   virtual void Load(CStateManager& mgr, bool subtypeBasePose);
   virtual void Unload(CStateManager& mgr);
   virtual bool IsLoaded() const;
-  void DrawHologram(const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags) const;
+  void DrawHologram(const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags);
   void UpdateMuzzleFx(float dt, const zeus::CVector3f& scale, const zeus::CVector3f& pos, bool emitting);
   const CVelocityInfo& GetVelocityInfo() const { return x1d0_velInfo; }
   void SetRainSplashGenerator(CRainSplashGenerator* g) { x1bc_rainSplashGenerator = g; }

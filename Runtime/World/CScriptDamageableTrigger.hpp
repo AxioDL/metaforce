@@ -58,8 +58,8 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                          const CWeaponMode&, EProjectileAttrib) const override;
-  void Render(const CStateManager& mgr) const override;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
   const CDamageVulnerability* GetDamageVulnerability() const override { return &x174_dVuln; }
   CHealthInfo* HealthInfo(CStateManager&) override { return &x16c_hInfo; }

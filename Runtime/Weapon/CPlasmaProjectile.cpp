@@ -394,7 +394,7 @@ bool CPlasmaProjectile::CanRenderUnsorted(const CStateManager& mgr) const {
   return false;
 }
 
-void CPlasmaProjectile::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CPlasmaProjectile::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   if (GetActive()) {
     g_Renderer->AddParticleGen(*x518_contactGen);
     if (x478_beamAttributes & 0x2) {
@@ -404,7 +404,7 @@ void CPlasmaProjectile::AddToRenderer(const zeus::CFrustum& frustum, const CStat
   EnsureRendered(mgr, GetBeamTransform().origin, GetSortingBounds(mgr));
 }
 
-void CPlasmaProjectile::Render(const CStateManager& mgr) const {
+void CPlasmaProjectile::Render(CStateManager& mgr) {
   if (!GetActive())
     return;
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlasmaProjectile::Render", zeus::skOrange);

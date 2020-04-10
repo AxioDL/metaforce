@@ -293,7 +293,7 @@ void CScriptPlatform::PreRender(CStateManager& mgr, const zeus::CFrustum& frustu
     x354_boundsTrigger = kInvalidUniqueId;
 }
 
-void CScriptPlatform::Render(const CStateManager& mgr) const {
+void CScriptPlatform::Render(CStateManager& mgr) {
   bool xray = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay;
   if (xray && !x356_31_xrayFog)
     g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);

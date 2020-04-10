@@ -125,8 +125,8 @@ public:
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
-  void Render(const CStateManager&) const override;
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void Render(CStateManager&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override { return x1c8_touchBounds; }
 
   void SkipCinematic(CStateManager&);

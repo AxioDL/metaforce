@@ -2129,20 +2129,20 @@ void CPlayerGun::CopyScreenTex() {
   CGraphics::ResolveSpareTexture(g_Viewport);
 }
 
-void CPlayerGun::DrawScreenTex(float z) const {
+void CPlayerGun::DrawScreenTex(float z) {
   // Use CopyScreenTex rendering to draw over framebuffer pixels in front of `z`
   // This is accomplished using orthographic projection quad with sweeping `y` coordinates
   // Depth is set to GEQUAL to obscure pixels in front rather than behind
   m_screenQuad.draw(zeus::skWhite, 1.f, CTexturedQuadFilter::DefaultRect, z);
 }
 
-void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) const {
+void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) {
   // Render AABB as completely transparent object, only modifying Z-buffer
   // AABB has already been set in constructor (since it's constant)
   m_aaboxShader.draw(zeus::skClear);
 }
 
-void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const {
+void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerGun::Render", zeus::skMagenta);
 
   CGraphics::CProjectionState projState = CGraphics::GetProjectionState();

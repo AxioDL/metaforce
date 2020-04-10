@@ -89,7 +89,7 @@ void CPowerBomb::Think(float dt, CStateManager& mgr) {
   x15c_curTime += dt;
 }
 
-void CPowerBomb::AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {
+void CPowerBomb::AddToRenderer(const zeus::CFrustum&, CStateManager&) {
   g_Renderer->AddParticleGen(*x168_particle);
 }
 

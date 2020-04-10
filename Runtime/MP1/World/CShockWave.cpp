@@ -53,7 +53,7 @@ void CShockWave::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
   mgr.SendScriptMsgAlways(x980_id2, uid, msg);
 }
 
-void CShockWave::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CShockWave::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
   g_Renderer->AddParticleGen(*x110_elementGen);
 }
@@ -65,7 +65,7 @@ std::optional<zeus::CAABox> CShockWave::GetTouchBounds() const {
   return zeus::CAABox({-x150_, -x150_, 0.f}, {x150_, x150_, 1.f}).getTransformedAABox(GetTransform());
 }
 
-void CShockWave::Render(const CStateManager& mgr) const {
+void CShockWave::Render(CStateManager& mgr) {
   CActor::Render(mgr);
   x110_elementGen->Render();
 }

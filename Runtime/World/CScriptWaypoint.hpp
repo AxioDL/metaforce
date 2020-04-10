@@ -25,7 +25,7 @@ public:
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
   TUniqueId FollowWaypoint(CStateManager& mgr) const;
   TUniqueId NextWaypoint(CStateManager& mgr) const;
   float GetSpeed() const { return xe8_speed; }

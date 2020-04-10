@@ -139,7 +139,7 @@ public:
 
   void ProcessInput(const CFinalInput& input, CStateManager& stateMgr);
 
-  void RenderCameras(const CStateManager& mgr);
+  void RenderCameras(CStateManager& mgr);
   void SetupBallCamera(CStateManager& mgr);
   void SetPlayerCamera(CStateManager& mgr, TUniqueId newCamId);
   int GetFluidCounter() const { return x74_fluidCounter; }

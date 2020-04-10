@@ -1060,7 +1060,7 @@ void CSpacePirate::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
   }
 }
 
-void CSpacePirate::Render(const CStateManager& mgr) const {
+void CSpacePirate::Render(CStateManager& mgr) {
   float time = x400_25_alive ? CGraphics::GetSecondsMod900() : 0.f;
   CTimeProvider prov(time);
   g_Renderer->SetGXRegister1Color(x8cc_trooperColor);

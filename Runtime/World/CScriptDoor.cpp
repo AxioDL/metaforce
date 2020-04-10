@@ -197,9 +197,12 @@ void CScriptDoor::Think(float dt, CStateManager& mgr) {
   xe7_31_targetable = mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan;
 }
 
-void CScriptDoor::AddToRenderer(const zeus::CFrustum& /*frustum*/, const CStateManager& mgr) const {
-  if (!xe4_30_outOfFrustum)
-    CPhysicsActor::Render(mgr);
+void CScriptDoor::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManager& mgr) {
+  if (xe4_30_outOfFrustum) {
+    return;
+  }
+
+  CPhysicsActor::Render(mgr);
 }
 
 /* ORIGINAL 0-00 OFFSET: 8007E0BC */

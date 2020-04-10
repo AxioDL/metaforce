@@ -221,7 +221,7 @@ private:
   bool m_warping = false;
 
   void UpdateThermalVisor();
-  static void RendererDrawCallback(const void*, const void*, int);
+  static void RendererDrawCallback(void*, void*, int);
 
 public:
   CStateManager(const std::weak_ptr<CRelayTracker>&, const std::weak_ptr<CMapWorldInfo>&,
@@ -231,8 +231,8 @@ public:
 
   u32 GetInputFrameIdx() const { return x8d4_inputFrameIdx; }
   bool RenderLast(TUniqueId);
-  void AddDrawableActorPlane(const CActor& actor, const zeus::CPlane&, const zeus::CAABox& aabb) const;
-  void AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const;
+  void AddDrawableActorPlane(CActor& actor, const zeus::CPlane&, const zeus::CAABox& aabb) const;
+  void AddDrawableActor(CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const;
   bool SpecialSkipCinematic();
   TAreaId GetVisAreaId() const;
   s32 GetWeaponIdCount(TUniqueId, EWeaponType) const;
@@ -255,7 +255,7 @@ public:
   const std::vector<CLight>& GetDynamicLightList() const { return x8e0_dynamicLights; }
   void BuildDynamicLightListForWorld();
   void DrawDebugStuff() const;
-  void RenderCamerasAndAreaLights() const;
+  void RenderCamerasAndAreaLights();
   void DrawE3DeathEffect();
   void DrawAdditionalFilters();
   zeus::CFrustum SetupDrawFrustum(const SViewport& vp) const;
@@ -275,7 +275,7 @@ public:
   void PreRender();
   void GetCharacterRenderMaskAndTarget(bool thawed, int& mask, int& target) const;
   bool GetVisSetForArea(TAreaId, TAreaId, CPVSVisSet& setOut) const;
-  void RecursiveDrawTree(TUniqueId) const;
+  void RecursiveDrawTree(TUniqueId);
   void SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMessage msg);
   void SendScriptMsg(TUniqueId dest, TUniqueId src, EScriptObjectMessage msg);
   void SendScriptMsg(TUniqueId src, TEditorId dest, EScriptObjectMessage msg, EScriptObjectState state);

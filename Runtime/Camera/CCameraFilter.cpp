@@ -104,9 +104,11 @@ void CCameraFilterPass<S>::DisableFilter(float time) {
 }
 
 template <class S>
-void CCameraFilterPass<S>::Draw() const {
-  if (m_shader)
-    const_cast<S&>(*m_shader).DrawFilter(x8_shape, x18_curColor, GetT(x4_nextType == EFilterType::Passthru));
+void CCameraFilterPass<S>::Draw() {
+  if (!m_shader) {
+    return;
+  }
+  m_shader->DrawFilter(x8_shape, x18_curColor, GetT(x4_nextType == EFilterType::Passthru));
 }
 
 float CCameraFilterPassBase::GetT(bool invert) const {

@@ -983,7 +983,7 @@ void CWallCrawlerSwarm::RenderParticles() const {
   }
 }
 
-void CWallCrawlerSwarm::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const {
+void CWallCrawlerSwarm::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
   if (!GetActive()) {
     return;
   }
@@ -1082,7 +1082,7 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
   }
 }
 
-void CWallCrawlerSwarm::Render(const CStateManager& mgr) const {
+void CWallCrawlerSwarm::Render(CStateManager& mgr) {
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CWallCrawlerSwarm::Render {} {} {}"),
                                           x8_uid, xc_editorId, x10_name).c_str(), zeus::skOrange);
   u32 drawMask = 0xffffffff;

@@ -185,7 +185,7 @@ void CEnergyProjectile::Think(float dt, CStateManager& mgr) {
     mgr.FreeScriptObject(GetUniqueId());
 }
 
-void CEnergyProjectile::Render(const CStateManager& mgr) const {
+void CEnergyProjectile::Render(CStateManager& mgr) {
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CEnergyProjectile::Render WPSC_{}"), x2cc_wpscId).c_str(), zeus::skOrange);
 
   CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
@@ -217,7 +217,7 @@ void CEnergyProjectile::Render(const CStateManager& mgr) const {
   }
 }
 
-void CEnergyProjectile::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CEnergyProjectile::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   auto bounds = x170_projectile.GetBounds();
   if (bounds && !frustum.aabbFrustumTest(*bounds))
     return;
@@ -225,8 +225,9 @@ void CEnergyProjectile::AddToRenderer(const zeus::CFrustum& frustum, const CStat
   CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
   if (visor != CPlayerState::EPlayerVisor::XRay &&
       ((xe8_projectileAttribs & EProjectileAttrib::Ice) != EProjectileAttrib::Ice ||
-       mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot))
+       mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot)) {
     x170_projectile.AddToRenderer();
+  }
   EnsureRendered(mgr);
 }
 

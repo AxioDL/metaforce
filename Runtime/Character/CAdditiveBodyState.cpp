@@ -14,9 +14,9 @@ void CABSAim::Start(CBodyController& bc, CStateManager& mgr) {
   const CPASAnimState* aimState = bc.GetPASDatabase().GetAnimState(22);
 
   // Left, Right, Up, Down
-  for (int i = 0; i < 4; ++i) {
-    CPASAnimParmData parms(22, CPASAnimParm::FromEnum(i));
-    std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
+  for (size_t i = 0; i < x8_anims.size(); ++i) {
+    const CPASAnimParmData parms(22, CPASAnimParm::FromEnum(s32(i)));
+    const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
     x8_anims[i] = best.second;
     x18_angles[i] = zeus::degToRad(aimState->GetAnimParmData(x8_anims[i], 1).GetReal32Value());
   }

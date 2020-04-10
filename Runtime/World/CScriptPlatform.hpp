@@ -91,7 +91,7 @@ public:
   void PreThink(float, CStateManager&) override;
   void Think(float, CStateManager&) override;
   void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void Render(const CStateManager&) const override;
+  void Render(CStateManager&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   zeus::CTransform GetPrimitiveTransform() const override;
   const CCollisionPrimitive* GetCollisionPrimitive() const override;

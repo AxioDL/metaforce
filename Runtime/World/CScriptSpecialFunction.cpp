@@ -184,8 +184,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     case ESpecialFunction::MapStation: {
       if (msg == EScriptObjectMessage::Action) {
         mgr.MapWorldInfo()->SetMapStationUsed(true);
-        const_cast<CMapWorld&>(*mgr.GetWorld()->GetMapWorld())
-            .RecalculateWorldSphere(*mgr.MapWorldInfo(), *mgr.GetWorld());
+        mgr.GetWorld()->GetMapWorld()->RecalculateWorldSphere(*mgr.MapWorldInfo(), *mgr.GetWorld());
       }
       break;
     }
@@ -481,15 +480,17 @@ void CScriptSpecialFunction::PreRender(CStateManager&, const zeus::CFrustum& fru
     x1e4_28_frustumEntered = true;
 }
 
-void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const {
-  if (!GetActive())
+void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
+  if (!GetActive()) {
     return;
+  }
 
-  if (xe8_function == ESpecialFunction::FogVolume && x1e4_30_)
+  if (xe8_function == ESpecialFunction::FogVolume && x1e4_30_) {
     EnsureRendered(mgr);
+  }
 }
 
-void CScriptSpecialFunction::Render(const CStateManager& mgr) const {
+void CScriptSpecialFunction::Render(CStateManager& mgr) {
   if (xe8_function == ESpecialFunction::FogVolume) {
     float z = mgr.IntegrateVisorFog(xfc_float1 * std::sin(CGraphics::GetSecondsMod900()));
     if (z > 0.f) {

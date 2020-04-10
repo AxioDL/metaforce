@@ -52,7 +52,7 @@ public:
   void SetCharacterNodeId(s32 id) { x4_charIdx = id; }
   const zeus::CVector3f& GetScale() const { return x8_scale; }
   bool CanLoop() const { return x14_canLoop; }
-  void SetCanLoop(bool l) { x14_canLoop = l; }
+  void SetCanLoop(bool loop) { x14_canLoop = loop; }
   s32 GetDefaultAnim() const { return x18_defaultAnim; }
   void SetDefaultAnim(s32 anim) { x18_defaultAnim = anim; }
 };
@@ -84,7 +84,7 @@ class CModelData {
 public:
   enum class EWhichModel { Normal, XRay, Thermal, ThermalHot };
 
-  void SetSortThermal(bool v) { x14_25_sortThermal = v; }
+  void SetSortThermal(bool sort) { x14_25_sortThermal = sort; }
   bool GetSortThermal() const { return x14_25_sortThermal; }
 
   ~CModelData();
@@ -106,16 +106,16 @@ public:
   void SetInfraModel(const std::pair<CAssetId, CAssetId>& modelSkin);
   bool IsDefinitelyOpaque(EWhichModel) const;
   bool GetIsLoop() const;
-  float GetAnimationDuration(int) const;
-  void EnableLooping(bool);
-  void AdvanceParticles(const zeus::CTransform& xf, float, CStateManager& stateMgr);
+  float GetAnimationDuration(int idx) const;
+  void EnableLooping(bool enable);
+  void AdvanceParticles(const zeus::CTransform& xf, float dt, CStateManager& stateMgr);
   zeus::CAABox GetBounds() const;
   zeus::CAABox GetBounds(const zeus::CTransform& xf) const;
   zeus::CTransform GetScaledLocatorTransformDynamic(std::string_view name, const CCharAnimTime* time) const;
   zeus::CTransform GetScaledLocatorTransform(std::string_view name) const;
   zeus::CTransform GetLocatorTransformDynamic(std::string_view name, const CCharAnimTime* time) const;
   zeus::CTransform GetLocatorTransform(std::string_view name) const;
-  SAdvancementDeltas AdvanceAnimationIgnoreParticles(float dt, CRandom16&, bool advTree);
+  SAdvancementDeltas AdvanceAnimationIgnoreParticles(float dt, CRandom16& rand, bool advTree);
   SAdvancementDeltas AdvanceAnimation(float dt, CStateManager& stateMgr, TAreaId aid, bool advTree);
   bool IsAnimating() const;
   bool IsInFrustum(const zeus::CTransform& xf, const zeus::CFrustum& frustum) const;

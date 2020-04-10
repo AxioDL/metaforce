@@ -55,8 +55,8 @@ class CDecal {
 public:
   CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf);
   void RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const;
-  void RenderMdl() const;
-  void Render() const;
+  void RenderMdl();
+  void Render();
   void Update(float dt);
 
   static void SetGlobalSeed(u16);

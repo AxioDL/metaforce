@@ -223,6 +223,7 @@ public:
   std::shared_ptr<CSkinnedModel> GetXRayModel() const { return xf4_xrayModel; }
   void SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
   std::shared_ptr<CSkinnedModel> GetInfraModel() const { return xf8_infraModel; }
+  TLockedToken<CSkinnedModel>& GetModelData() { return xd8_modelData; }
   const TLockedToken<CSkinnedModel>& GetModelData() const { return xd8_modelData; }
 
   static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, const CModelFlags& drawFlags,

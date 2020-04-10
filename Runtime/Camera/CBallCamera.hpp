@@ -247,7 +247,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   void ProcessInput(const CFinalInput& input, CStateManager& mgr) override;
   void Reset(const zeus::CTransform&, CStateManager& mgr) override;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
   EBallCameraBehaviour GetBehaviour() const { return x188_behaviour; }
   EBallCameraState GetState() const { return x400_state; }
   void SetState(EBallCameraState state, CStateManager& mgr);

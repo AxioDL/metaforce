@@ -53,7 +53,7 @@ public:
                bool worldSfx, bool allowDuplicates, s32 pitch);
 
   void Accept(IVisitor& visitor) override;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override {}
+  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override {}
   void PreThink(float, CStateManager&) override;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;

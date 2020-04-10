@@ -401,11 +401,11 @@ public:
   bool GetExplorationMode() const;
   bool GetCombatMode() const;
   void RenderGun(const CStateManager& mgr, const zeus::CVector3f& pos) const;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
   void RenderReflectedPlayer(CStateManager& mgr);
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
   void CalculateRenderBounds() override;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   void ComputeFreeLook(const CFinalInput& input);
   void UpdateFreeLookState(const CFinalInput& input, float dt, CStateManager& mgr);
   void UpdateFreeLook(float dt);

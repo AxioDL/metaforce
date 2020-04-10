@@ -254,7 +254,7 @@ void CGunWeapon::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVe
 }
 
 void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
-                      const CActorLights* lights) const {
+                      const CActorLights* lights) {
   if (!x218_26_loaded)
     return;
 
@@ -498,7 +498,7 @@ void CGunWeapon::Unload(CStateManager& mgr) {
 
 bool CGunWeapon::IsLoaded() const { return x218_26_loaded; }
 
-void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags) const {
+void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags) {
   if (!x218_26_loaded)
     return;
 
@@ -510,9 +510,9 @@ void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform& 
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x10_solidModelData->GetScale()));
     // CGraphics::DisableAllLights();
     // g_Renderer->SetAmbientColor(zeus::skWhite);
-    CSkinnedModel& model = const_cast<CSkinnedModel&>(*x60_holoModelData->GetAnimationData()->GetModelData());
+    CSkinnedModel& model = *x60_holoModelData->GetAnimationData()->GetModelData();
     model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
-    const_cast<CGunWeapon*>(this)->x10_solidModelData->GetAnimationData()->Render(model, flags, std::nullopt, nullptr);
+    x10_solidModelData->GetAnimationData()->Render(model, flags, std::nullopt, nullptr);
     // g_Renderer->SetAmbientColor(zeus::skWhite);
     // CGraphics::DisableAllLights();
   }

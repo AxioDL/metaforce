@@ -151,7 +151,7 @@ void CBeetle::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CPatterned::PreRender(mgr, frustum);
 }
 
-void CBeetle::Render(const CStateManager& mgr) const {
+void CBeetle::Render(CStateManager& mgr) {
   if (x3fc_flavor == EFlavorType::One && x400_25_alive) {
     zeus::CTransform tailXf = GetLctrTransform("Target_Tail"sv);
     if (x428_damageCooldownTimer >= 0.f && x42c_color.a() == 1.f) {

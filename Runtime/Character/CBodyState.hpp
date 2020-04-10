@@ -198,7 +198,7 @@ public:
 
 class CBSJump : public CBodyState {
   pas::EJumpState x4_state = pas::EJumpState::Invalid;
-  pas::EJumpType x8_jumpType;
+  pas::EJumpType x8_jumpType{};
   zeus::CVector3f xc_waypoint1;
   zeus::CVector3f x18_velocity;
   zeus::CVector3f x24_waypoint2;
@@ -362,12 +362,12 @@ class CBSBiPedLocomotion : public CBSLocomotion {
 protected:
   rstl::reserved_vector<rstl::reserved_vector<std::pair<s32, float>, 8>, 14> x8_anims;
   pas::ELocomotionAnim x3c4_anim = pas::ELocomotionAnim::Invalid;
-  float x3c8_primeTime;
+  float x3c8_primeTime = 0.0f;
   float UpdateRun(float vel, CBodyController& bc, pas::ELocomotionAnim anim);
   float UpdateWalk(float vel, CBodyController& bc, pas::ELocomotionAnim anim);
   float UpdateStrafe(float vel, CBodyController& bc, pas::ELocomotionAnim anim);
   const std::pair<s32, float>& GetLocoAnimation(pas::ELocomotionType type, pas::ELocomotionAnim anim) const {
-    return x8_anims[int(type)][int(anim)];
+    return x8_anims[size_t(type)][size_t(anim)];
   }
 
 public:

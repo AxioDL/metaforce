@@ -337,7 +337,7 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CScriptSpindleCamera::Render(const CStateManager&) const {
+void CScriptSpindleCamera::Render(CStateManager&) {
   // Empty
 }
 

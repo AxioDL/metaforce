@@ -33,11 +33,12 @@ void CScriptVisorFlare::PreRender(CStateManager& stateMgr, const zeus::CFrustum&
   x11c_notInRenderLast = !stateMgr.RenderLast(x8_uid);
 }
 
-void CScriptVisorFlare::AddToRenderer(const zeus::CFrustum&, const CStateManager& stateMgr) const {
-  if (x11c_notInRenderLast)
+void CScriptVisorFlare::AddToRenderer(const zeus::CFrustum&, CStateManager& stateMgr) {
+  if (x11c_notInRenderLast) {
     EnsureRendered(stateMgr, stateMgr.GetPlayer().GetTranslation(), GetSortingBounds(stateMgr));
+  }
 }
 
-void CScriptVisorFlare::Render(const CStateManager& stateMgr) const { xe8_flare.Render(GetTranslation(), stateMgr); }
+void CScriptVisorFlare::Render(CStateManager& stateMgr) { xe8_flare.Render(GetTranslation(), stateMgr); }
 
 } // namespace urde

@@ -303,7 +303,7 @@ void CNewIntroBoss::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& nod
   }
 }
 
-void CNewIntroBoss::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const { EnsureRendered(mgr); }
+void CNewIntroBoss::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) { EnsureRendered(mgr); }
 
 float CNewIntroBoss::GetNextAttackTime(CStateManager& mgr) const {
   float attackTime = 2.f * mgr.GetActiveRandom()->Float() + 6.f;

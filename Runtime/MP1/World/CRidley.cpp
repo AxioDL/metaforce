@@ -669,7 +669,7 @@ void CRidley::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   }
 }
 
-void CRidley::Render(const CStateManager& mgr) const {
+void CRidley::Render(CStateManager& mgr) {
   zeus::CColor multiplyColor = zeus::skBlack;
   if (xb24_ > 0.f) {
     multiplyColor = zeus::CColor::lerp(zeus::skWhite, x430_damageColor, xb24_ / 0.33f);
@@ -697,7 +697,7 @@ void CRidley::Render(const CStateManager& mgr) const {
   CPatterned::Render(mgr);
 }
 
-void CRidley::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CRidley::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CPatterned::AddToRenderer(frustum, mgr);
   if (xce0_ && frustum.aabbFrustumTest(*xce0_->GetBounds())) {
     g_Renderer->AddParticleGen(*xce0_);

@@ -55,10 +55,11 @@ void CScriptEMPulse::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
   }
 }
 
-void CScriptEMPulse::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CScriptEMPulse::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
-  if (GetActive())
+  if (GetActive()) {
     g_Renderer->AddParticleGen(*x114_particleGen);
+  }
 }
 
 void CScriptEMPulse::CalculateRenderBounds() { x9c_renderBounds = CalculateBoundingBox(); }

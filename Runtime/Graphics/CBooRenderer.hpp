@@ -96,7 +96,7 @@ class CBooRenderer final : public IRenderer {
   zeus::CFrustum x44_frustumPlanes;
 
   TDrawableCallback xa8_drawableCallback;
-  const void* xac_callbackContext;
+  void* xac_callbackContext;
 
   zeus::CPlane xb0_viewPlane = {0.f, 1.f, 0.f, 0.f};
 
@@ -212,12 +212,12 @@ public:
   void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) override;
   void PostRenderFogs() override;
   void SetModelMatrix(const zeus::CTransform& xf) override;
-  void AddParticleGen(const CParticleGen& gen) override;
-  void AddParticleGen(const CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) override;
-  void AddPlaneObject(const void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type) override;
-  void AddDrawable(const void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode,
+  void AddParticleGen(CParticleGen& gen) override;
+  void AddParticleGen(CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) override;
+  void AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type) override;
+  void AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode,
                    EDrawableSorting sorting) override;
-  void SetDrawableCallback(TDrawableCallback cb, const void* ctx) override;
+  void SetDrawableCallback(TDrawableCallback cb, void* ctx) override;
   void SetWorldViewpoint(const zeus::CTransform& xf) override;
   void SetPerspective(float fovy, float width, float height, float znear, float zfar) override;
   void SetPerspective(float fovy, float aspect, float znear, float zfar) override;

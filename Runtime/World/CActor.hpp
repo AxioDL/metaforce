@@ -108,8 +108,8 @@ public:
     CEntity::SetActive(active);
   }
   virtual void PreRender(CStateManager&, const zeus::CFrustum&);
-  virtual void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  virtual void Render(const CStateManager&) const;
+  virtual void AddToRenderer(const zeus::CFrustum&, CStateManager&);
+  virtual void Render(CStateManager&);
   virtual bool CanRenderUnsorted(const CStateManager&) const;
   virtual void CalculateRenderBounds();
   virtual CHealthInfo* HealthInfo(CStateManager&);
@@ -168,8 +168,8 @@ public:
   float GetYaw() const;
   const CModelData* GetModelData() const { return x64_modelData.get(); }
   CModelData* GetModelData() { return x64_modelData.get(); }
-  void EnsureRendered(const CStateManager&) const;
-  void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CAABox&) const;
+  void EnsureRendered(const CStateManager&);
+  void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CAABox&);
   void ProcessSoundEvent(u32 sfxId, float weight, u32 flags, float falloff, float maxDist, float minVol, float maxVol,
                          const zeus::CVector3f& toListener, const zeus::CVector3f& position, TAreaId aid,
                          CStateManager& mgr, bool translateId);

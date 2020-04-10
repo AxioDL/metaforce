@@ -303,7 +303,7 @@ void CParasite::Think(float dt, CStateManager& mgr) {
   x742_27_landed = false;
 }
 
-void CParasite::Render(const CStateManager& mgr) const { CWallWalker::Render(mgr); }
+void CParasite::Render(CStateManager& mgr) { CWallWalker::Render(mgr); }
 
 const CDamageVulnerability* CParasite::GetDamageVulnerability() const {
   switch (x5d0_walkerType) {

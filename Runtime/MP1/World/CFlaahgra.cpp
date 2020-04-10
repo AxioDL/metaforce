@@ -56,11 +56,11 @@ CFlaahgraRenderer::CFlaahgraRenderer(TUniqueId uid, TUniqueId owner, std::string
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_owner(owner) {}
 
-void CFlaahgraRenderer::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
-
+void CFlaahgraRenderer::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   if (const CActor* act = static_cast<const CActor*>(mgr.GetObjectById(xe8_owner))) {
-    if (act->HasModelData() && (act->GetModelData()->HasAnimData() || act->GetModelData()->HasNormalModel()))
+    if (act->HasModelData() && (act->GetModelData()->HasAnimData() || act->GetModelData()->HasNormalModel())) {
       act->GetModelData()->RenderParticles(frustum);
+    }
   }
 }
 void CFlaahgraRenderer::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -254,14 +254,16 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CFlaahgra::AddToRenderer(const zeus::CFrustum& frustum, const urde::CStateManager& mgr) const {
-  if ((!GetModelData()->HasAnimData() && !GetModelData()->HasNormalModel()) || xe4_30_outOfFrustum)
+void CFlaahgra::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+  if ((!GetModelData()->HasAnimData() && !GetModelData()->HasNormalModel()) || xe4_30_outOfFrustum) {
     return;
+  }
 
-  if (CanRenderUnsorted(mgr))
+  if (CanRenderUnsorted(mgr)) {
     Render(mgr);
-  else
+  } else {
     EnsureRendered(mgr);
+  }
 }
 
 void CFlaahgra::Death(CStateManager& mgr, const zeus::CVector3f& dir, EScriptObjectState state) {
@@ -1270,7 +1272,7 @@ void CFlaahgraPlants::Think(float dt, CStateManager& mgr) {
     mgr.FreeScriptObject(GetUniqueId());
 }
 
-void CFlaahgraPlants::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CFlaahgraPlants::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   g_Renderer->AddParticleGen(*xe8_elementGen.get());
   CActor::AddToRenderer(frustum, mgr);
 }

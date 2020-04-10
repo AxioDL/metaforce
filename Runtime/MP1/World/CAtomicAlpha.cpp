@@ -50,7 +50,7 @@ void CAtomicAlpha::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
   }
 }
 
-void CAtomicAlpha::Render(const CStateManager& mgr) const {
+void CAtomicAlpha::Render(CStateManager& mgr) {
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay && x568_25_invisible)
     return;
 
@@ -66,9 +66,10 @@ void CAtomicAlpha::Render(const CStateManager& mgr) const {
     x690_bombModel.Render(mgr, locatorXf, x90_actorLights.get(), flags);
   }
 }
-void CAtomicAlpha::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
-  if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay && x568_25_invisible)
+void CAtomicAlpha::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+  if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay && x568_25_invisible) {
     return;
+  }
   CPatterned::AddToRenderer(frustum, mgr);
 }
 

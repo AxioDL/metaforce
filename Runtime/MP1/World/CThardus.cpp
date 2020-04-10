@@ -443,7 +443,7 @@ void CThardus::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
     xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
   }
 }
-void CThardus::Render(const CStateManager& mgr) const {
+void CThardus::Render(CStateManager& mgr) {
   CPatterned::Render(mgr);
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal && x7c4_ != 0) {
     RenderFlare(mgr, x7c0_);

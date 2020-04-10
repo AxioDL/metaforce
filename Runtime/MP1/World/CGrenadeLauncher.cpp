@@ -117,7 +117,7 @@ void CGrenadeLauncher::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
   }
 }
 
-void CGrenadeLauncher::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CGrenadeLauncher::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
 }
 
@@ -137,7 +137,7 @@ void CGrenadeLauncher::PreRender(CStateManager& mgr, const zeus::CFrustum& frust
   CActor::PreRender(mgr, frustum);
 }
 
-void CGrenadeLauncher::Render(const CStateManager& mgr) const {
+void CGrenadeLauncher::Render(CStateManager& mgr) {
   if (x3fd_visible) {
     CPhysicsActor::Render(mgr);
   }

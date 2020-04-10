@@ -72,8 +72,8 @@ public:
   static void Clear();
   static void Sort();
   static void InsertPlaneObject(float closeDist, float farDist, const zeus::CAABox& aabb, bool invertTest,
-                                const zeus::CPlane& plane, bool zOnly, EDrawableType dtype, const void* data);
-  static void Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype, const void* data,
+                                const zeus::CPlane& plane, bool zOnly, EDrawableType dtype, void* data);
+  static void Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype, void* data,
                      const zeus::CPlane& plane, u16 extraSort);
   static void Shutdown();
   static void Init();
@@ -173,14 +173,14 @@ void Buckets::Sort() {
 }
 
 void Buckets::InsertPlaneObject(float closeDist, float farDist, const zeus::CAABox& aabb, bool invertTest,
-                                const zeus::CPlane& plane, bool zOnly, EDrawableType dtype, const void* data) {
+                                const zeus::CPlane& plane, bool zOnly, EDrawableType dtype, void* data) {
   if (sPlaneObjectData->size() == sPlaneObjectData->capacity()) {
     return;
   }
   sPlaneObjectData->emplace_back(dtype, closeDist, farDist, aabb, invertTest, plane, zOnly, data);
 }
 
-void Buckets::Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype, const void* data,
+void Buckets::Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype, void* data,
                      const zeus::CPlane& plane, u16 extraSort) {
   if (sData->size() == sData->capacity()) {
     Log.report(logvisor::Fatal, fmt("Rendering buckets filled to capacity"));
@@ -291,12 +291,12 @@ void CBooRenderer::RenderBucketItems(CAreaListItem* item) {
     for (CDrawable* drawable : bucket) {
       switch (drawable->GetType()) {
       case EDrawableType::Particle: {
-        static_cast<CParticleGen*>((void*)drawable->GetData())->Render();
+        static_cast<CParticleGen*>(drawable->GetData())->Render();
         break;
       }
       case EDrawableType::WorldSurface: {
         // SetupRendererStates();
-        CBooSurface* surf = static_cast<CBooSurface*>((void*)drawable->GetData());
+        auto* surf = static_cast<CBooSurface*>(drawable->GetData());
         CBooModel* model = surf->m_parent;
         if (model) {
           ActivateLightsForModel(item, *model);
@@ -988,18 +988,18 @@ void CBooRenderer::PostRenderFogs() {
 void CBooRenderer::SetModelMatrix(const zeus::CTransform& xf) {
   CGraphics::SetModelMatrix(xf);
 }
-void CBooRenderer::AddParticleGen(const CParticleGen& gen) {
+void CBooRenderer::AddParticleGen(CParticleGen& gen) {
   if (auto bounds = gen.GetBounds()) {
     zeus::CVector3f pt = bounds.value().closestPointAlongVector(xb0_viewPlane.normal());
     Buckets::Insert(pt, bounds.value(), EDrawableType::Particle, &gen, xb0_viewPlane, 0);
   }
 }
 
-void CBooRenderer::AddParticleGen(const CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) {
+void CBooRenderer::AddParticleGen(CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) {
   Buckets::Insert(pos, bounds, EDrawableType::Particle, &gen, xb0_viewPlane, 0);
 }
 
-void CBooRenderer::AddPlaneObject(const void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type) {
+void CBooRenderer::AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type) {
   zeus::CVector3f closePoint = aabb.closestPointAlongVector(xb0_viewPlane.normal());
   zeus::CVector3f farPoint = aabb.furthestPointAlongVector(xb0_viewPlane.normal());
   float closeDist = xb0_viewPlane.pointToPlaneDist(closePoint);
@@ -1015,7 +1015,7 @@ void CBooRenderer::AddPlaneObject(const void* obj, const zeus::CAABox& aabb, con
   }
 }
 
-void CBooRenderer::AddDrawable(const void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode,
+void CBooRenderer::AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode,
                                EDrawableSorting sorting) {
   if (sorting == EDrawableSorting::UnsortedCallback)
     xa8_drawableCallback(obj, xac_callbackContext, mode);
@@ -1023,7 +1023,7 @@ void CBooRenderer::AddDrawable(const void* obj, const zeus::CVector3f& pos, cons
     Buckets::Insert(pos, aabb, EDrawableType(mode + 2), obj, xb0_viewPlane, 0);
 }
 
-void CBooRenderer::SetDrawableCallback(TDrawableCallback cb, const void* ctx) {
+void CBooRenderer::SetDrawableCallback(TDrawableCallback cb, void* ctx) {
   xa8_drawableCallback = cb;
   xac_callbackContext = ctx;
 }

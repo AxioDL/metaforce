@@ -26,7 +26,7 @@ CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStre
   return TToken<std::vector<u16>>::GetIObjObjectFor(std::move(obj));
 }
 
-CSfxManager::CSfxChannel CSfxManager::m_channels[4];
+std::array<CSfxManager::CSfxChannel, 4> CSfxManager::m_channels;
 CSfxManager::ESfxChannels CSfxManager::m_currentChannel = CSfxManager::ESfxChannels::Default;
 bool CSfxManager::m_doUpdate;
 void* CSfxManager::m_usedSounds;
@@ -186,7 +186,7 @@ void CSfxManager::SetChannel(ESfxChannels chan) {
 }
 
 void CSfxManager::KillAll(ESfxChannels chan) {
-  CSfxChannel& chanObj = m_channels[int(chan)];
+  CSfxChannel& chanObj = m_channels[size_t(chan)];
   for (auto it = chanObj.x48_handles.begin(); it != chanObj.x48_handles.end();) {
     const CSfxHandle& handle = *it;
     handle->Stop();
@@ -197,7 +197,7 @@ void CSfxManager::KillAll(ESfxChannels chan) {
 }
 
 void CSfxManager::TurnOnChannel(ESfxChannels chan) {
-  CSfxChannel& chanObj = m_channels[int(chan)];
+  CSfxChannel& chanObj = m_channels[size_t(chan)];
   m_currentChannel = chan;
   m_doUpdate = true;
   if (chanObj.x44_listenerActive) {
@@ -208,7 +208,7 @@ void CSfxManager::TurnOnChannel(ESfxChannels chan) {
 }
 
 void CSfxManager::TurnOffChannel(ESfxChannels chan) {
-  CSfxChannel& chanObj = m_channels[int(chan)];
+  CSfxChannel& chanObj = m_channels[size_t(chan)];
   for (auto it = chanObj.x48_handles.begin(); it != chanObj.x48_handles.end();) {
     const CSfxHandle& handle = *it;
     if (handle->IsLooped()) {
@@ -260,24 +260,29 @@ void CSfxManager::UpdateListener(const zeus::CVector3f& pos, const zeus::CVector
 }
 
 s16 CSfxManager::GetRank(CBaseSfxWrapper* sfx) {
-  CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
-  if (!sfx->IsInArea())
+  const CSfxChannel& chanObj = m_channels[size_t(m_currentChannel)];
+  if (!sfx->IsInArea()) {
     return 0;
+  }
 
   s16 rank = sfx->GetPriority() / 4;
-  if (sfx->IsPlaying())
+  if (sfx->IsPlaying()) {
     ++rank;
+  }
 
-  if (sfx->IsLooped())
+  if (sfx->IsLooped()) {
     rank -= 2;
+  }
 
-  if (sfx->Ready() && !sfx->IsPlaying())
+  if (sfx->Ready() && !sfx->IsPlaying()) {
     rank += 3;
+  }
 
   if (chanObj.x44_listenerActive) {
-    ESfxAudibility aud = sfx->GetAudible(chanObj.x0_pos);
-    if (aud == ESfxAudibility::Aud0)
+    const ESfxAudibility aud = sfx->GetAudible(chanObj.x0_pos);
+    if (aud == ESfxAudibility::Aud0) {
       return 0;
+    }
     rank += int(aud) / 2;
   }
 
@@ -285,7 +290,7 @@ s16 CSfxManager::GetRank(CBaseSfxWrapper* sfx) {
 }
 
 void CSfxManager::ApplyReverb() {
-  CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+  const CSfxChannel& chanObj = m_channels[size_t(m_currentChannel)];
   for (const CSfxHandle& handle : chanObj.x48_handles) {
     handle->SetReverb(m_reverbAmount);
   }
@@ -344,7 +349,7 @@ void CSfxManager::StopSound(const CSfxHandle& handle) {
   m_doUpdate = true;
   handle->Stop();
   handle->Release();
-  CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+  CSfxChannel& chanObj = m_channels[size_t(m_currentChannel)];
   handle->Close();
   chanObj.x48_handles.erase(handle);
 }
@@ -357,7 +362,7 @@ CSfxHandle CSfxManager::SfxStart(u16 id, float vol, float pan, bool useAcoustics
 
   m_doUpdate = true;
   CSfxHandle wrapper = std::make_shared<CSfxWrapper>(looped, prio, id, vol, pan, useAcoustics, areaId);
-  CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+  CSfxChannel& chanObj = m_channels[size_t(m_currentChannel)];
   chanObj.x48_handles.insert(wrapper);
   return wrapper;
 }
@@ -428,14 +433,13 @@ CSfxHandle CSfxManager::AddEmitter(const CAudioSys::C3DEmitterParmData& parmData
     data.x20_flags |= 0x6; // Pausable/restartable when inaudible
   m_doUpdate = true;
   CSfxHandle wrapper = std::make_shared<CSfxEmitterWrapper>(looped, prio, data, useAcoustics, areaId);
-  CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+  CSfxChannel& chanObj = m_channels[size_t(m_currentChannel)];
   chanObj.x48_handles.insert(wrapper);
   return wrapper;
 }
 
 void CSfxManager::StopAndRemoveAllEmitters() {
-  for (int i = 0; i < 4; ++i) {
-    CSfxChannel& chanObj = m_channels[i];
+  for (auto& chanObj : m_channels) {
     for (auto it = chanObj.x48_handles.begin(); it != chanObj.x48_handles.end();) {
       const CSfxHandle& handle = *it;
       handle->Stop();
@@ -538,15 +542,15 @@ void CSfxManager::DisableAuxProcessing() {
 }
 
 void CSfxManager::SetActiveAreas(const rstl::reserved_vector<TAreaId, 10>& areas) {
-  CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+  const CSfxChannel& chanObj = m_channels[size_t(m_currentChannel)];
 
   for (const CSfxHandle& hnd : chanObj.x48_handles) {
-    TAreaId sndArea = hnd->GetArea();
+    const TAreaId sndArea = hnd->GetArea();
     if (sndArea == kInvalidAreaId) {
       hnd->SetInArea(true);
     } else {
       bool inArea = false;
-      for (TAreaId id : areas) {
+      for (const TAreaId id : areas) {
         if (sndArea == id) {
           inArea = true;
           break;
@@ -559,7 +563,7 @@ void CSfxManager::SetActiveAreas(const rstl::reserved_vector<TAreaId, 10>& areas
 }
 
 void CSfxManager::Update(float dt) {
-  CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+  CSfxChannel& chanObj = m_channels[size_t(m_currentChannel)];
 
   for (auto it = chanObj.x48_handles.begin(); it != chanObj.x48_handles.end();) {
     const CSfxHandle& handle = *it;
