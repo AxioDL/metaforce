@@ -40,16 +40,9 @@ class CCameraManager {
   float x94_fogDensityFactor = 1.f;
   float x98_fogDensitySpeed = 0.f;
   float x9c_fogDensityFactorTarget = 1.f;
-
-  union {
-    struct {
-      bool xa0_24_pendingRumble : 1;
-      bool xa0_25_rumbling : 1;
-      bool xa0_26_inWater : 1;
-    };
-    u8 _dummy1 = 0;
-  };
-
+  bool xa0_24_pendingRumble : 1;
+  bool xa0_25_rumbling : 1;
+  bool xa0_26_inWater : 1;
   TUniqueId xa2_spindleCamId = kInvalidUniqueId;
   TUniqueId xa4_pathCamId = kInvalidUniqueId;
   TUniqueId xa6_camHintId = kInvalidUniqueId;
@@ -57,15 +50,8 @@ class CCameraManager {
   rstl::reserved_vector<std::pair<s32, TUniqueId>, 64> xac_cameraHints;
   rstl::reserved_vector<TUniqueId, 64> x2b0_inactiveCameraHints;
   rstl::reserved_vector<TUniqueId, 64> x334_activeCameraHints;
-
-  union {
-    struct {
-      bool x3b8_24_ : 1;
-      bool x3b8_25_ : 1;
-    };
-    u8 _dummy2;
-  };
-
+  bool x3b8_24_ : 1;
+  bool x3b8_25_ : 1;
   float x3bc_curFov = 60.f;
 
   void SetPathCamera(TUniqueId id, CStateManager& mgr);
