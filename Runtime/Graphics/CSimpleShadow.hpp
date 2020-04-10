@@ -22,7 +22,7 @@ class CSimpleShadow {
   bool x48_24_collision : 1;
   bool x48_25_alwaysCalculateRadius : 1;
   bool x48_26_radiusCalculated : 1;
-  mutable std::optional<CTexturedQuadFilter> m_filter;
+  std::optional<CTexturedQuadFilter> m_filter;
 
 public:
   CSimpleShadow(float scale, float userAlpha, float maxObjHeight, float displacement);
@@ -33,7 +33,7 @@ public:
   float GetMaxObjectHeight() const { return x40_maxObjHeight; }
   void SetUserAlpha(float a) { x38_userAlpha = a; }
   const zeus::CTransform& GetTransform() const { return x0_xf; }
-  void Render(const TLockedToken<CTexture>& tex) const;
+  void Render(const TLockedToken<CTexture>& tex);
   void Calculate(const zeus::CAABox& aabb, const zeus::CTransform& xf, const CStateManager& mgr);
 };
 } // namespace urde
