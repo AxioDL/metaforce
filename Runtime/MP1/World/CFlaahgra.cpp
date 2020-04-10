@@ -121,8 +121,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   switch (msg) {
   case EScriptObjectMessage::InitializedInArea: {
     if (!x8e4_25_loading && !x8e4_24_loaded) {
-      const_cast<CGameArea::CPostConstructed*>(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed())
-          ->x113c_playerActorsLoading++;
+      mgr.GetWorld()->GetArea(GetAreaIdAlways())->GetPostConstructed()->x113c_playerActorsLoading++;
       x8e4_25_loading = true;
     }
 
@@ -401,8 +400,7 @@ void CFlaahgra::LoadTokens(CStateManager& mgr) {
 void CFlaahgra::FinalizeLoad(CStateManager& mgr) {
   x8e4_24_loaded = true;
   if (x8e4_25_loading) {
-    const_cast<CGameArea::CPostConstructed*>(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed())
-        ->x113c_playerActorsLoading--;
+    mgr.GetWorld()->GetArea(GetAreaIdAlways())->GetPostConstructed()->x113c_playerActorsLoading--;
     x8e4_25_loading = false;
   }
 
