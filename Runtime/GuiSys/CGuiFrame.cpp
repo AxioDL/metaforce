@@ -195,7 +195,7 @@ void CGuiFrame::ProcessUserInput(const CFinalInput& input) const {
   }
 }
 
-bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDrawParms& parms) const {
+bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDrawParms& parms) {
   if (const auto& kbm = input.GetKBM()) {
     zeus::CVector2f point(kbm->m_mouseCoord.norm[0] * 2.f - 1.f,
                           kbm->m_mouseCoord.norm[1] * 2.f - 1.f);

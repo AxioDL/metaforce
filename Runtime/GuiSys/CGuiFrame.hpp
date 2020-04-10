@@ -47,10 +47,10 @@ private:
   float m_aspectConstraint = -1.f;
   float m_maxAspect = -1.f;
 
-  mutable bool m_inMouseDown = false;
-  mutable bool m_inCancel = false;
-  mutable CGuiWidget* m_mouseDownWidget = nullptr;
-  mutable CGuiWidget* m_lastMouseOverWidget = nullptr;
+  bool m_inMouseDown = false;
+  bool m_inCancel = false;
+  CGuiWidget* m_mouseDownWidget = nullptr;
+  CGuiWidget* m_lastMouseOverWidget = nullptr;
   std::function<void(CGuiWidget*, CGuiWidget*)> m_mouseOverChangeCb;
   std::function<void(CGuiWidget*, bool)> m_mouseDownCb;
   std::function<void(CGuiWidget*, bool)> m_mouseUpCb;
@@ -102,7 +102,7 @@ public:
   void Initialize();
   void LoadWidgetsInGame(CInputStream& in, CSimplePool* sp);
   void ProcessUserInput(const CFinalInput& input) const;
-  bool ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDrawParms& parms) const;
+  bool ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDrawParms& parms);
   void ResetMouseState();
 
   CGuiWidgetIdDB& GetWidgetIdDB() { return x18_idDB; }
