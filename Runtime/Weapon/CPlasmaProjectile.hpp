@@ -93,14 +93,14 @@ private:
                   boo::ObjToken<boo::ITexture> tex,
                   boo::ObjToken<boo::ITexture> glowTex);
   };
-  mutable std::optional<RenderObjects> m_renderObjs;
+  std::optional<RenderObjects> m_renderObjs;
 
   void SetLightsActive(bool active, CStateManager& mgr);
   void CreatePlasmaLights(u32 sourceId, const CLight& l, CStateManager& mgr);
   void DeletePlasmaLights(CStateManager& mgr);
   void UpdateLights(float expansion, float dt, CStateManager& mgr);
   void UpdateEnergyPulse(float dt);
-  void RenderMotionBlur() const;
+  void RenderMotionBlur();
   void RenderBeam(s32 subdivs, float width, const zeus::CColor& color, s32 flags,
                   CColoredStripShader& shader) const;
   float UpdateBeamState(float dt, CStateManager& mgr);

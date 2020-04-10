@@ -134,7 +134,7 @@ void CPlasmaProjectile::UpdateEnergyPulse(float dt) {
   x51c_pulseGen->Update(dt);
 }
 
-void CPlasmaProjectile::RenderMotionBlur() const {
+void CPlasmaProjectile::RenderMotionBlur() {
   CGraphics::SetModelMatrix({});
   zeus::CColor color1 = x494_outerColor;
   zeus::CColor color2 = x494_outerColor;
