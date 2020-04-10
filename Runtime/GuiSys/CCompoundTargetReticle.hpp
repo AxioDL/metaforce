@@ -69,7 +69,7 @@ private:
   zeus::CQuaternion x10_laggingOrientation;
   EReticleState x20_prevState = EReticleState::Unspecified;
   EReticleState x24_nextState = EReticleState::Unspecified;
-  mutable u32 x28_noDrawTicks = 0;
+  u32 x28_noDrawTicks = 0;
   float x2c_overshootOffsetHalf;
   float x30_premultOvershootOffset;
   TCachedToken<CModel> x34_crosshairs;
