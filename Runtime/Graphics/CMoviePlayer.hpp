@@ -99,20 +99,14 @@ private:
   float xe8_curSeconds = 0.f;
   float xec_preLoadSeconds;
   u32 xf0_preLoadFrames = 0;
+  bool xf4_24_loop : 1;
+  bool xf4_25_hasAudio : 1;
+  bool xf4_26_fieldFlip : 1;
+  bool m_deinterlace : 1;
   u32 xf8_ = 0;
   u32 xfc_fieldIndex = 0;
 
   std::unique_ptr<uint8_t[]> m_yuvBuf;
-
-  union {
-    u32 m_dummy = 0;
-    struct {
-      bool xf4_24_loop : 1;
-      bool xf4_25_hasAudio : 1;
-      bool xf4_26_fieldFlip : 1;
-      bool m_deinterlace : 1;
-    };
-  };
 
   specter::View::ViewBlock m_viewVertBlock;
   boo::ObjToken<boo::IGraphicsBufferD> m_blockBuf;

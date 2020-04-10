@@ -152,20 +152,15 @@ class CBooRenderer final : public IRenderer {
   // std::unique_ptr<CTexture> x314_phazonSuitMask;
   CPhazonSuitFilter m_phazonSuitFilter;
 
-  union {
-    struct {
-      bool x318_24_refectionDirty : 1;
-      bool x318_25_drawWireframe : 1;
-      bool x318_26_requestRGBA6 : 1;
-      bool x318_27_currentRGBA6 : 1;
-      bool x318_28_disableFog : 1;
-      bool x318_29_thermalVisor : 1;
-      bool x318_30_inAreaDraw : 1;
-      bool x318_31_persistRGBA6 : 1;
-      bool m_thermalHotPass : 1;
-    };
-    u16 dummy = 0;
-  };
+  bool x318_24_refectionDirty : 1;
+  bool x318_25_drawWireframe : 1;
+  bool x318_26_requestRGBA6 : 1;
+  bool x318_27_currentRGBA6 : 1;
+  bool x318_28_disableFog : 1;
+  bool x318_29_thermalVisor : 1;
+  bool x318_30_inAreaDraw : 1;
+  bool x318_31_persistRGBA6 : 1;
+  bool m_thermalHotPass : 1;
 
   void GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx);
   void GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx);
