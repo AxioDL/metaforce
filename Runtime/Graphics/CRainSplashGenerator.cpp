@@ -22,7 +22,7 @@ CRainSplashGenerator::CRainSplashGenerator(const zeus::CVector3f& scale, u32 max
   } BooTrace);
 }
 
-void CRainSplashGenerator::SSplashLine::Draw(float alpha, float dt, const zeus::CVector3f& pos) const {
+void CRainSplashGenerator::SSplashLine::Draw(float alpha, float dt, const zeus::CVector3f& pos) {
   if (x0_t > 0.f) {
     float delta = dt * xc_speed;
     float vt = std::max(0.f, x0_t - delta * x15_length);
@@ -39,36 +39,40 @@ void CRainSplashGenerator::SSplashLine::Draw(float alpha, float dt, const zeus::
   }
 }
 
-void CRainSplashGenerator::SRainSplash::Draw(float alpha, float dt, const zeus::CVector3f& pos) const {
-  for (const SSplashLine& line : x0_lines)
+void CRainSplashGenerator::SRainSplash::Draw(float alpha, float dt, const zeus::CVector3f& pos) {
+  for (SSplashLine& line : x0_lines) {
     line.Draw(alpha, dt, pos);
+  }
 }
 
-void CRainSplashGenerator::DoDraw(const zeus::CTransform& xf) const {
+void CRainSplashGenerator::DoDraw(const zeus::CTransform& xf) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CRainSplashGenerator::DoDraw", zeus::skYellow);
   CGraphics::SetModelMatrix(xf);
   if (x40_queueSize > 0) {
     if (x38_queueTail <= x3c_queueHead) {
       for (size_t i = x3c_queueHead; i < x0_rainSplashes.size(); ++i) {
-        const SRainSplash& splash = x0_rainSplashes[i];
+        SRainSplash& splash = x0_rainSplashes[i];
         splash.Draw(x30_alpha, x28_dt, splash.x64_pos);
       }
       for (size_t i = 0; i < x38_queueTail; ++i) {
-        const SRainSplash& splash = x0_rainSplashes[i];
+        SRainSplash& splash = x0_rainSplashes[i];
         splash.Draw(x30_alpha, x28_dt, splash.x64_pos);
       }
     } else {
       for (size_t i = x3c_queueHead; i < x38_queueTail; ++i) {
-        const SRainSplash& splash = x0_rainSplashes[i];
+        SRainSplash& splash = x0_rainSplashes[i];
         splash.Draw(x30_alpha, x28_dt, splash.x64_pos);
       }
     }
   }
 }
 
-void CRainSplashGenerator::Draw(const zeus::CTransform& xf) const {
-  if (x48_25_raining)
-    DoDraw(xf);
+void CRainSplashGenerator::Draw(const zeus::CTransform& xf) {
+  if (!x48_25_raining) {
+    return;
+  }
+
+  DoDraw(xf);
 }
 
 CRainSplashGenerator::SSplashLine::SSplashLine(boo::IGraphicsDataFactory::Context& ctx)
