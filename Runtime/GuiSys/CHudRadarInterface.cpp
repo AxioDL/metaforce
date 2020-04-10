@@ -28,8 +28,7 @@ CHudRadarInterface::CHudRadarInterface(CGuiFrame& baseHud, CStateManager& stateM
   x40_BaseWidget_RadarStuff->SetColor(g_tweakGuiColors->GetRadarStuffColor());
 }
 
-void CHudRadarInterface::DoDrawRadarPaint(const zeus::CVector3f& translate, float radius,
-                                          const zeus::CColor& color) const {
+void CHudRadarInterface::DoDrawRadarPaint(const zeus::CVector3f& translate, float radius, const zeus::CColor& color) {
   radius *= 4.f;
 
   CRadarPaintShader::Instance& inst = m_paintInsts.emplace_back();
@@ -45,7 +44,7 @@ void CHudRadarInterface::DoDrawRadarPaint(const zeus::CVector3f& translate, floa
 }
 
 void CHudRadarInterface::DrawRadarPaint(const zeus::CVector3f& enemyPos, float radius, float alpha,
-                                        const SRadarPaintDrawParms& parms) const {
+                                        const SRadarPaintDrawParms& parms) {
   zeus::CVector2f playerToEnemy = enemyPos.toVec2f() - parms.x0_playerPos.toVec2f();
 
   float zDelta = std::fabs(enemyPos.z() - parms.x0_playerPos.z());
@@ -81,7 +80,7 @@ void CHudRadarInterface::Update(float dt, const CStateManager& mgr) {
   }
 }
 
-void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const {
+void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) {
   alpha *= g_GameState->GameOptions().GetHUDAlpha() / 255.f;
   if (g_tweakGui->GetHudVisMode() == ITweakGui::EHudVisMode::Zero || !x3c_24_visibleGame || !x0_txtrRadarPaint ||
       !x0_txtrRadarPaint.IsLoaded())
