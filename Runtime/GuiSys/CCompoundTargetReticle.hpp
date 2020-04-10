@@ -129,7 +129,7 @@ private:
     std::optional<CLineRenderer> m_stripRenderers[2][4];
     SScanReticuleRenderer();
   };
-  mutable SScanReticuleRenderer m_scanRetRenderer;
+  SScanReticuleRenderer m_scanRetRenderer;
 
   void DrawGrapplePoint(const CScriptGrapplePoint& point, float t, const CStateManager& mgr, const zeus::CMatrix3f& rot,
                         bool zEqual) const;
@@ -144,10 +144,10 @@ public:
   void UpdateCurrLockOnGroup(float, const CStateManager&);
   void UpdateNextLockOnGroup(float, const CStateManager&);
   void UpdateOrbitZoneGroup(float, const CStateManager&);
-  void Draw(const CStateManager&, bool hideLockon) const;
+  void Draw(const CStateManager&, bool hideLockon);
   void DrawGrappleGroup(const zeus::CMatrix3f& rot, const CStateManager&, bool) const;
   void DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager&) const;
-  void DrawNextLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager&) const;
+  void DrawNextLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager&);
   void DrawOrbitZoneGroup(const zeus::CMatrix3f& rot, const CStateManager&) const;
   void UpdateTargetParameters(CTargetReticleRenderState&, const CStateManager&);
   float CalculateRadiusWorld(const CActor&, const CStateManager&) const;

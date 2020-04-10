@@ -18,7 +18,7 @@ void CTargetingManager::Update(float dt, const CStateManager& stateMgr) {
   x21c_orbitPointMarker.Update(dt, stateMgr);
 }
 
-void CTargetingManager::Draw(const CStateManager& mgr, bool hideLockon) const {
+void CTargetingManager::Draw(const CStateManager& mgr, bool hideLockon) {
   CGraphics::SetAmbientColor(zeus::skWhite);
   CGraphics::DisableAllLights();
   x21c_orbitPointMarker.Draw(mgr);

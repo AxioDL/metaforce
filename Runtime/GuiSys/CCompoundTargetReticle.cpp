@@ -431,7 +431,7 @@ void CCompoundTargetReticle::UpdateOrbitZoneGroup(float dt, const CStateManager&
     x1e8_crosshairsScale = std::max(0.f, x1e8_crosshairsScale - dt / g_tweakTargeting->GetCrosshairsScaleDuration());
 }
 
-void CCompoundTargetReticle::Draw(const CStateManager& mgr, bool hideLockon) const {
+void CCompoundTargetReticle::Draw(const CStateManager& mgr, bool hideLockon) {
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
       !mgr.GetCameraManager()->IsInCinematicCamera()) {
     SCOPED_GRAPHICS_DEBUG_GROUP("CCompoundTargetReticle::Draw", zeus::skCyan);
@@ -740,9 +740,10 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
   }
 }
 
-void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager& mgr) const {
-  if (x28_noDrawTicks > 0)
+void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager& mgr) {
+  if (x28_noDrawTicks > 0) {
     return;
+  }
 
   zeus::CVector3f position = x174_nextGroupInterp.GetTargetPositionWorld();
   float visorFactor = mgr.GetPlayerState()->GetVisorTransitionFactor();
