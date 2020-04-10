@@ -1,6 +1,6 @@
 #pragma once
 #include "DataSpec/DNACommon/PATH.hpp"
 
-namespace DataSpec::DNAMP1 {
+namespace DataSpec::DNAMP3 {
 using PATH = DNAPATH::PATH<PAKBridge>;
-} // namespace DataSpec::DNAMP1
+} // namespace DataSpec::DNAMP3

@@ -2,6 +2,7 @@
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DataSpec/DNACommon/RigInverter.hpp"
+#include "DNAMP2.hpp"
 
 namespace DataSpec::DNAMP2 {
 
@@ -35,8 +36,27 @@ struct CINF : BigDNA {
   atUint32 getBoneIdxFromId(atUint32 id) const;
   const std::string* getBoneNameFromId(atUint32 id) const;
   void sendVertexGroupsToBlender(hecl::blender::PyOutStream& os) const;
-  void sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& cinfId) const;
-  static std::string GetCINFArmatureName(const UniqueID32& cinfId);
+  template <class PAKBridge>
+  void sendCINFToBlender(hecl::blender::PyOutStream& os, const typename PAKBridge::PAKType::IDType& cinfId) const;
+  template <class UniqueID>
+  static std::string GetCINFArmatureName(const UniqueID& cinfId);
+
+  CINF() = default;
+  using Armature = hecl::blender::Armature;
+  using BlenderBone = hecl::blender::Bone;
+
+  int RecursiveAddArmatureBone(const Armature& armature, const BlenderBone* bone, int parent, int& curId,
+                               std::unordered_map<std::string, atInt32>& idMap, std::map<std::string, int>& nameMap);
+
+  CINF(const Armature& armature, std::unordered_map<std::string, atInt32>& idMap);
+
+  template <class PAKBridge>
+  static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
+                      PAKRouter<PAKBridge>& pakRouter, const typename PAKBridge::PAKType::Entry& entry, bool force,
+                      hecl::blender::Token& btok, std::function<void(const hecl::SystemChar*)> fileChanged);
+
+  static bool Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath,
+                   const hecl::blender::Armature& armature);
 };
 
 } // namespace DataSpec::DNAMP2

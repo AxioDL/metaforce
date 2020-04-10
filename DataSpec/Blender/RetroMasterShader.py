@@ -58,6 +58,8 @@ def make_retro_shader():
     lightmap_input.default_value = (0.0, 0.0, 0.0, 0.0)
     diffuse_input = new_grp.inputs.new('NodeSocketColor', 'Diffuse')
     diffuse_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    diffuse_mod_input = new_grp.inputs.new('NodeSocketColor', 'DiffuseMod')
+    diffuse_mod_input.default_value = (1.0, 1.0, 1.0, 1.0)
     emissive_input = new_grp.inputs.new('NodeSocketColor', 'Emissive')
     emissive_input.default_value = (0.0, 0.0, 0.0, 0.0)
     specular_input = new_grp.inputs.new('NodeSocketColor', 'Specular')
@@ -72,6 +74,10 @@ def make_retro_shader():
     alpha_input.default_value = 1.0
     alpha_input.min_value = 0.0
     alpha_input.max_value = 1.0
+    alpha_mod_input = new_grp.inputs.new('NodeSocketFloatFactor', 'AlphaMod')
+    alpha_mod_input.default_value = 1.0
+    alpha_mod_input.min_value = 0.0
+    alpha_mod_input.max_value = 1.0
     new_grp.use_fake_user = True
 
     # Group inputs
@@ -107,6 +113,17 @@ def make_retro_shader():
     # Mix shader (interpolates Principled and Diffuse BSDF)
     new_shader_model_mix1 = new_grp.nodes.new('ShaderNodeMixShader')
     new_shader_model_mix1.location = (-760, 340)
+
+    # Multiply (Multiples diffuse with diffusemod)
+    diffuse_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    diffuse_mult.location = (-1094, 122)
+    diffuse_mult.blend_type = 'MULTIPLY'
+    diffuse_mult.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Multiples alpha with alphamod)
+    alpha_mult = new_grp.nodes.new('ShaderNodeMath')
+    alpha_mult.location = (-1094, -178)
+    alpha_mult.operation = 'MULTIPLY'
 
     # Multiply (Multiplies static lightmap with diffuse)
     lightmap_mult = new_grp.nodes.new('ShaderNodeMixRGB')
@@ -164,17 +181,21 @@ def make_retro_shader():
     mat_out.location = (150, -88)
 
     # Links
+    new_grp.links.new(grp_in.outputs['Diffuse'], diffuse_mult.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['DiffuseMod'], diffuse_mult.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Alpha'], alpha_mult.inputs[0])
+    new_grp.links.new(grp_in.outputs['AlphaMod'], alpha_mult.inputs[1])
     new_grp.links.new(grp_in.outputs['Lightmap'], lightmap_mult.inputs['Color1'])
-    new_grp.links.new(grp_in.outputs['Diffuse'], lightmap_mult.inputs['Color2'])
-    new_grp.links.new(grp_in.outputs['Diffuse'], diffuse_bdsf.inputs['Color'])
-    new_grp.links.new(grp_in.outputs['Diffuse'], principled_bsdf.inputs['Base Color'])
+    new_grp.links.new(diffuse_mult.outputs['Color'], lightmap_mult.inputs['Color2'])
+    new_grp.links.new(diffuse_mult.outputs['Color'], diffuse_bdsf.inputs['Color'])
+    new_grp.links.new(diffuse_mult.outputs['Color'], principled_bsdf.inputs['Base Color'])
     new_grp.links.new(grp_in.outputs['Emissive'], emissive_add_shader.inputs[0])
     new_grp.links.new(grp_in.outputs['Specular'], specular_mult.inputs['Color1'])
     new_grp.links.new(grp_in.outputs['Specular'], principled_bsdf.inputs['Specular'])
     new_grp.links.new(grp_in.outputs['ExtendedSpecular'], extended_specular_mult.inputs['Color1'])
     new_grp.links.new(grp_in.outputs['Reflection'], specular_mult.inputs['Color2'])
     new_grp.links.new(grp_in.outputs['Reflection'], extended_specular_mult.inputs['Color2'])
-    new_grp.links.new(grp_in.outputs['Alpha'], alpha_mix.inputs['Fac'])
+    new_grp.links.new(alpha_mult.outputs[0], alpha_mix.inputs['Fac'])
     new_grp.links.new(new_shader_model.outputs['Value'], new_shader_model_mix1.inputs[0])
     new_grp.links.new(diffuse_bdsf.outputs['BSDF'], new_shader_model_mix1.inputs[1])
     new_grp.links.new(grp_in.outputs['Specular'], invert.inputs['Color'])
@@ -700,11 +721,661 @@ def make_retro_dynamic_character_shader():
     new_grp.links.new(final_add_shader.outputs['Shader'], alpha_mix.inputs[2])
     new_grp.links.new(alpha_mix.outputs['Shader'], mat_out.inputs['Surface'])
 
+# MP3 / DKCR Material Passes:
+# https://wiki.axiodl.com/w/Materials_(Metroid_Prime_3)
+
+def make_retro_shader_mp3_color():
+    new_grp = bpy.data.node_groups.new("__RetroShaderMP3Color", "ShaderNodeTree")
+    new_grp.use_fake_user = True
+    input = new_grp.inputs.new("NodeSocketColor", "DIFFC")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketColor", "DIFBC")
+    input.default_value = (1.0, 1.0, 1.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketColor", "CLRC")
+    input.default_value = (0.5, 0.5, 0.5, 1.0)
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "CLRA")
+    input.default_value = 1.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "TRAN")
+    input.default_value = 1.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketColor", "RFLDC")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "RFLDA")
+    input.default_value = 1.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketColor", "RFLV")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketColor", "LRLD")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketColor", "LURDC")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "LURDA")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketColor", "INCAC")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketInt", "Add INCA")
+    input.default_value = 0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "OPAC")
+    input.default_value = 1.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    new_grp.outputs.new("NodeSocketShader", "Shader")
+    nodes = {}
+    node = new_grp.nodes.new("ShaderNodeBsdfDiffuse")
+    node.name = "Diffuse BSDF.004"
+    nodes["Diffuse BSDF.004"] = node
+    node.label = ""
+    node.location = (-196.910400390625, -503.60546875)
+    node.inputs[0].default_value = (0.800000011920929, 0.800000011920929, 0.800000011920929, 1.0)
+    node.inputs[1].default_value = 0.0
+    node.inputs[2].default_value = (0.0, 0.0, 0.0)
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.009"
+    nodes["Add Shader.009"] = node
+    node.label = ""
+    node.location = (14.618888854980469, -571.516357421875)
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.008"
+    nodes["Add Shader.008"] = node
+    node.label = ""
+    node.location = (6.4276123046875, -926.3602905273438)
+    node = new_grp.nodes.new("ShaderNodeBsdfDiffuse")
+    node.name = "Diffuse BSDF.005"
+    nodes["Diffuse BSDF.005"] = node
+    node.label = ""
+    node.location = (-189.85516357421875, -865.79345703125)
+    node.inputs[0].default_value = (0.800000011920929, 0.800000011920929, 0.800000011920929, 1.0)
+    node.inputs[1].default_value = 0.0
+    node.inputs[2].default_value = (0.0, 0.0, 0.0)
+    node = new_grp.nodes.new("ShaderNodeMixRGB")
+    node.name = "Mix.005"
+    nodes["Mix.005"] = node
+    node.label = ""
+    node.location = (-190.5804901123047, -1017.0886840820312)
+    node.blend_type = "MULTIPLY"
+    node.inputs[0].default_value = 1.0
+    node.inputs[1].default_value = (0.5, 0.5, 0.5, 1.0)
+    node.inputs[2].default_value = (0.5, 0.5, 0.5, 1.0)
+    node = new_grp.nodes.new("ShaderNodeMixRGB")
+    node.name = "Mix.004"
+    nodes["Mix.004"] = node
+    node.label = ""
+    node.location = (-381.6676940917969, -870.815673828125)
+    node.blend_type = "MULTIPLY"
+    node.inputs[0].default_value = 1.0
+    node.inputs[1].default_value = (0.5, 0.5, 0.5, 1.0)
+    node.inputs[2].default_value = (0.5, 0.5, 0.5, 1.0)
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.006"
+    nodes["Add Shader.006"] = node
+    node.label = ""
+    node.location = (220.7507781982422, -724.6066284179688)
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.005"
+    nodes["Add Shader.005"] = node
+    node.label = ""
+    node.location = (218.0698699951172, -528.0934448242188)
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.007"
+    nodes["Add Shader.007"] = node
+    node.label = ""
+    node.location = (388.0714416503906, -600.8295288085938)
+    node = new_grp.nodes.new("ShaderNodeMixRGB")
+    node.name = "Mix.002"
+    nodes["Mix.002"] = node
+    node.label = ""
+    node.location = (-192.1793212890625, -281.65264892578125)
+    node.blend_type = "MULTIPLY"
+    node.inputs[0].default_value = 1.0
+    node.inputs[1].default_value = (0.5, 0.5, 0.5, 1.0)
+    node.inputs[2].default_value = (0.5, 0.5, 0.5, 1.0)
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.010"
+    nodes["Add Shader.010"] = node
+    node.label = ""
+    node.location = (522.2215576171875, -284.7532653808594)
+    node = new_grp.nodes.new("ShaderNodeMixRGB")
+    node.name = "Mix.001"
+    nodes["Mix.001"] = node
+    node.label = ""
+    node.location = (-198.2812957763672, -13.079503059387207)
+    node.blend_type = "MULTIPLY"
+    node.inputs[0].default_value = 1.0
+    node.inputs[1].default_value = (0.5, 0.5, 0.5, 1.0)
+    node.inputs[2].default_value = (0.5, 0.5, 0.5, 1.0)
+    node = new_grp.nodes.new("ShaderNodeBsdfDiffuse")
+    node.name = "Diffuse BSDF.001"
+    nodes["Diffuse BSDF.001"] = node
+    node.label = ""
+    node.location = (-200.4605255126953, 138.9542694091797)
+    node.inputs[0].default_value = (0.800000011920929, 0.800000011920929, 0.800000011920929, 1.0)
+    node.inputs[1].default_value = 0.0
+    node.inputs[2].default_value = (0.0, 0.0, 0.0)
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.001"
+    nodes["Add Shader.001"] = node
+    node.label = ""
+    node.location = (-14.161624908447266, 32.61324691772461)
+    node = new_grp.nodes.new("NodeGroupOutput")
+    node.name = "Group Output"
+    nodes["Group Output"] = node
+    node.label = ""
+    node.location = (948.8831176757812, -299.1160583496094)
+    node = new_grp.nodes.new("ShaderNodeBsdfTransparent")
+    node.name = "Transparent BSDF.001"
+    nodes["Transparent BSDF.001"] = node
+    node.label = ""
+    node.location = (604.5911254882812, -88.7776870727539)
+    node.inputs[0].default_value = (1.0, 1.0, 1.0, 1.0)
+    node = new_grp.nodes.new("ShaderNodeMixShader")
+    node.name = "Mix Shader"
+    nodes["Mix Shader"] = node
+    node.label = ""
+    node.location = (772.179443359375, -91.1546401977539)
+    node.inputs[0].default_value = 0.5
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.012"
+    nodes["Add Shader.012"] = node
+    node.label = ""
+    node.location = (776.751953125, -432.8694152832031)
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.011"
+    nodes["Add Shader.011"] = node
+    node.label = ""
+    node.location = (779.857177734375, -294.9550476074219)
+    node = new_grp.nodes.new("ShaderNodeMixRGB")
+    node.name = "Mix.006"
+    nodes["Mix.006"] = node
+    node.label = ""
+    node.location = (-192.534912109375, -643.984619140625)
+    node.blend_type = "MULTIPLY"
+    node.inputs[0].default_value = 1.0
+    node.inputs[1].default_value = (0.5, 0.5, 0.5, 1.0)
+    node.inputs[2].default_value = (0.5, 0.5, 0.5, 1.0)
+    node = new_grp.nodes.new("ShaderNodeMixRGB")
+    node.name = "Mix.003"
+    nodes["Mix.003"] = node
+    node.label = ""
+    node.location = (-374.2341003417969, -515.1140747070312)
+    node.blend_type = "MULTIPLY"
+    node.inputs[0].default_value = 1.0
+    node.inputs[1].default_value = (0.5, 0.5, 0.5, 1.0)
+    node.inputs[2].default_value = (0.5, 0.5, 0.5, 1.0)
+    node = new_grp.nodes.new("ShaderNodeMixRGB")
+    node.name = "Mix"
+    nodes["Mix"] = node
+    node.label = ""
+    node.location = (-500.3056640625, -114.82369995117188)
+    node.blend_type = "MULTIPLY"
+    node.inputs[0].default_value = 1.0
+    node.inputs[1].default_value = (0.5, 0.5, 0.5, 1.0)
+    node.inputs[2].default_value = (0.5, 0.5, 0.5, 1.0)
+    node = new_grp.nodes.new("ShaderNodeMath")
+    node.name = "Math"
+    nodes["Math"] = node
+    node.label = ""
+    node.location = (454.39404296875, 96.02081298828125)
+    node.operation = "MULTIPLY"
+    node.inputs[0].default_value = 0.5
+    node.inputs[1].default_value = 0.5
+    node = new_grp.nodes.new("ShaderNodeMath")
+    node.name = "Math.001"
+    nodes["Math.001"] = node
+    node.label = ""
+    node.location = (619.3079223632812, 90.52423095703125)
+    node.operation = "MULTIPLY"
+    node.inputs[0].default_value = 0.5
+    node.inputs[1].default_value = 0.5
+    node = new_grp.nodes.new("ShaderNodeMath")
+    node.name = "Math.002"
+    nodes["Math.002"] = node
+    node.label = ""
+    node.location = (785.3211059570312, 81.7295913696289)
+    node.operation = "MULTIPLY"
+    node.inputs[0].default_value = 0.5
+    node.inputs[1].default_value = 0.5
+    node = new_grp.nodes.new("ShaderNodeBsdfTransparent")
+    node.name = "Transparent BSDF"
+    nodes["Transparent BSDF"] = node
+    node.label = ""
+    node.location = (597.9944458007812, -480.7802734375)
+    node.inputs[0].default_value = (1.0, 1.0, 1.0, 1.0)
+    node = new_grp.nodes.new("NodeGroupInput")
+    node.name = "Group Input"
+    nodes["Group Input"] = node
+    node.label = ""
+    node.location = (-669.6587524414062, -193.9534149169922)
+    new_grp.links.new(nodes["Group Input"].outputs[0], nodes["Mix"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[1], nodes["Mix"].inputs[2])
+    new_grp.links.new(nodes["Mix"].outputs[0], nodes["Mix.001"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[2], nodes["Mix.001"].inputs[2])
+    new_grp.links.new(nodes["Mix.001"].outputs[0], nodes["Add Shader.001"].inputs[1])
+    new_grp.links.new(nodes["Diffuse BSDF.001"].outputs[0], nodes["Add Shader.001"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[2], nodes["Diffuse BSDF.001"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[5], nodes["Mix.002"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[7], nodes["Mix.002"].inputs[2])
+    new_grp.links.new(nodes["Mix.002"].outputs[0], nodes["Add Shader.005"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[5], nodes["Mix.003"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[8], nodes["Mix.003"].inputs[2])
+    new_grp.links.new(nodes["Mix.003"].outputs[0], nodes["Diffuse BSDF.004"].inputs[0])
+    new_grp.links.new(nodes["Diffuse BSDF.004"].outputs[0], nodes["Add Shader.009"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[5], nodes["Mix.004"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[10], nodes["Mix.004"].inputs[2])
+    new_grp.links.new(nodes["Mix.004"].outputs[0], nodes["Diffuse BSDF.005"].inputs[0])
+    new_grp.links.new(nodes["Diffuse BSDF.005"].outputs[0], nodes["Add Shader.008"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[9], nodes["Add Shader.006"].inputs[0])
+    new_grp.links.new(nodes["Add Shader.005"].outputs[0], nodes["Add Shader.007"].inputs[0])
+    new_grp.links.new(nodes["Add Shader.006"].outputs[0], nodes["Add Shader.007"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[10], nodes["Mix.005"].inputs[2])
+    new_grp.links.new(nodes["Mix"].outputs[0], nodes["Mix.005"].inputs[1])
+    new_grp.links.new(nodes["Add Shader.008"].outputs[0], nodes["Add Shader.006"].inputs[1])
+    new_grp.links.new(nodes["Mix.005"].outputs[0], nodes["Add Shader.008"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[8], nodes["Mix.006"].inputs[2])
+    new_grp.links.new(nodes["Mix"].outputs[0], nodes["Mix.006"].inputs[1])
+    new_grp.links.new(nodes["Add Shader.009"].outputs[0], nodes["Add Shader.005"].inputs[1])
+    new_grp.links.new(nodes["Mix.006"].outputs[0], nodes["Add Shader.009"].inputs[1])
+    new_grp.links.new(nodes["Add Shader.007"].outputs[0], nodes["Add Shader.010"].inputs[1])
+    new_grp.links.new(nodes["Add Shader.001"].outputs[0], nodes["Add Shader.010"].inputs[0])
+    new_grp.links.new(nodes["Transparent BSDF"].outputs[0], nodes["Add Shader.012"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[11], nodes["Add Shader.012"].inputs[0])
+    new_grp.links.new(nodes["Add Shader.012"].outputs[0], nodes["Add Shader.011"].inputs[1])
+    new_grp.links.new(nodes["Add Shader.011"].outputs[0], nodes["Group Output"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[3], nodes["Math"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[13], nodes["Math"].inputs[1])
+    new_grp.links.new(nodes["Math"].outputs[0], nodes["Math.001"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[4], nodes["Math.001"].inputs[1])
+    new_grp.links.new(nodes["Math.001"].outputs[0], nodes["Math.002"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[6], nodes["Math.002"].inputs[0])
+    new_grp.links.new(nodes["Math.002"].outputs[0], nodes["Mix Shader"].inputs[0])
+    new_grp.links.new(nodes["Transparent BSDF.001"].outputs[0], nodes["Mix Shader"].inputs[1])
+    new_grp.links.new(nodes["Add Shader.010"].outputs[0], nodes["Mix Shader"].inputs[2])
+    new_grp.links.new(nodes["Mix Shader"].outputs[0], nodes["Add Shader.011"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[12], nodes["Transparent BSDF"].inputs[0])
+
+def make_retro_shader_mp3_bloom():
+    new_grp = bpy.data.node_groups.new("__RetroShaderMP3Bloom", "ShaderNodeTree")
+    new_grp.use_fake_user = True
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "DIFFA")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "DIFBA")
+    input.default_value = 1.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "BLOL")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "BLOD")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "BLODB")
+    input.default_value = 0.5
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "TRAN")
+    input.default_value = 1.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "INCAA")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "BNIF")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "BLOI")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "BLOIB")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "OPAC")
+    input.default_value = 1.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketInt", "Add INCA")
+    input.default_value = 0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    new_grp.outputs.new("NodeSocketShader", "Shader")
+    nodes = {}
+    node = new_grp.nodes.new("ShaderNodeMath")
+    node.name = "Math.003"
+    nodes["Math.003"] = node
+    node.label = ""
+    node.location = (-131.26889038085938, -228.6888885498047)
+    node.operation = "MULTIPLY"
+    node.inputs[0].default_value = 0.5
+    node.inputs[1].default_value = 0.5
+    node = new_grp.nodes.new("ShaderNodeMath")
+    node.name = "Math"
+    nodes["Math"] = node
+    node.label = ""
+    node.location = (-501.6487731933594, -144.7719268798828)
+    node.operation = "MULTIPLY"
+    node.inputs[0].default_value = 0.5
+    node.inputs[1].default_value = 0.5
+    node = new_grp.nodes.new("ShaderNodeMath")
+    node.name = "Math.002"
+    nodes["Math.002"] = node
+    node.label = ""
+    node.location = (-328.3370666503906, -209.53160095214844)
+    node.operation = "MULTIPLY"
+    node.inputs[0].default_value = 0.5
+    node.inputs[1].default_value = 0.5
+    node = new_grp.nodes.new("NodeGroupOutput")
+    node.name = "Group Output"
+    nodes["Group Output"] = node
+    node.label = ""
+    node.location = (1109.7938232421875, -257.2006530761719)
+    node = new_grp.nodes.new("ShaderNodeMath")
+    node.name = "Math.001"
+    nodes["Math.001"] = node
+    node.label = ""
+    node.location = (129.59579467773438, -299.0679626464844)
+    node.operation = "MULTIPLY"
+    node.inputs[0].default_value = 0.5
+    node.inputs[1].default_value = 0.5
+    node = new_grp.nodes.new("ShaderNodeBsdfDiffuse")
+    node.name = "Diffuse BSDF.002"
+    nodes["Diffuse BSDF.002"] = node
+    node.label = ""
+    node.location = (122.80331420898438, -150.7427520751953)
+    node.inputs[0].default_value = (0.800000011920929, 0.800000011920929, 0.800000011920929, 1.0)
+    node.inputs[1].default_value = 0.0
+    node.inputs[2].default_value = (0.0, 0.0, 0.0)
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.002"
+    nodes["Add Shader.002"] = node
+    node.label = ""
+    node.location = (312.7171325683594, -220.0266571044922)
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.005"
+    nodes["Add Shader.005"] = node
+    node.label = ""
+    node.location = (-165.06072998046875, -549.3956298828125)
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.006"
+    nodes["Add Shader.006"] = node
+    node.label = ""
+    node.location = (20.3157958984375, -545.8302612304688)
+    node = new_grp.nodes.new("ShaderNodeBsdfTransparent")
+    node.name = "Transparent BSDF.001"
+    nodes["Transparent BSDF.001"] = node
+    node.label = ""
+    node.location = (205.5854034423828, -558.1273803710938)
+    node.inputs[0].default_value = (1.0, 1.0, 1.0, 1.0)
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader.001"
+    nodes["Add Shader.001"] = node
+    node.label = ""
+    node.location = (399.876708984375, -533.2184448242188)
+    node = new_grp.nodes.new("ShaderNodeMath")
+    node.name = "Math.004"
+    nodes["Math.004"] = node
+    node.label = ""
+    node.location = (-354.23876953125, -508.8504943847656)
+    node.operation = "MULTIPLY"
+    node.inputs[0].default_value = 0.5
+    node.inputs[1].default_value = 0.5
+    node = new_grp.nodes.new("ShaderNodeAddShader")
+    node.name = "Add Shader"
+    nodes["Add Shader"] = node
+    node.label = ""
+    node.location = (875.3080444335938, -248.47450256347656)
+    node = new_grp.nodes.new("ShaderNodeBsdfTransparent")
+    node.name = "Transparent BSDF"
+    nodes["Transparent BSDF"] = node
+    node.label = ""
+    node.location = (502.63671875, -341.6871032714844)
+    node.inputs[0].default_value = (1.0, 1.0, 1.0, 1.0)
+    node = new_grp.nodes.new("ShaderNodeMath")
+    node.name = "Math.006"
+    nodes["Math.006"] = node
+    node.label = ""
+    node.location = (505.8763122558594, -171.7743377685547)
+    node.operation = "MULTIPLY"
+    node.inputs[0].default_value = 0.5
+    node.inputs[1].default_value = 0.5
+    node = new_grp.nodes.new("ShaderNodeMixShader")
+    node.name = "Mix Shader"
+    nodes["Mix Shader"] = node
+    node.label = ""
+    node.location = (682.0885620117188, -169.31057739257812)
+    node.inputs[0].default_value = 0.5
+    node = new_grp.nodes.new("NodeGroupInput")
+    node.name = "Group Input"
+    nodes["Group Input"] = node
+    node.label = ""
+    node.location = (-669.6587524414062, -193.9534149169922)
+    new_grp.links.new(nodes["Group Input"].outputs[0], nodes["Math"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[1], nodes["Math"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[3], nodes["Math.002"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[4], nodes["Math.003"].inputs[1])
+    new_grp.links.new(nodes["Math.002"].outputs[0], nodes["Math.003"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[2], nodes["Math.002"].inputs[0])
+    new_grp.links.new(nodes["Math"].outputs[0], nodes["Math.001"].inputs[0])
+    new_grp.links.new(nodes["Diffuse BSDF.002"].outputs[0], nodes["Add Shader.002"].inputs[0])
+    new_grp.links.new(nodes["Math.001"].outputs[0], nodes["Add Shader.002"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[10], nodes["Math.006"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[5], nodes["Math.006"].inputs[0])
+    new_grp.links.new(nodes["Math.006"].outputs[0], nodes["Mix Shader"].inputs[0])
+    new_grp.links.new(nodes["Transparent BSDF"].outputs[0], nodes["Mix Shader"].inputs[1])
+    new_grp.links.new(nodes["Transparent BSDF.001"].outputs[0], nodes["Add Shader.001"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[6], nodes["Math.004"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[7], nodes["Math.004"].inputs[1])
+    new_grp.links.new(nodes["Math.003"].outputs[0], nodes["Math.001"].inputs[1])
+    new_grp.links.new(nodes["Math.003"].outputs[0], nodes["Diffuse BSDF.002"].inputs[0])
+    new_grp.links.new(nodes["Math.004"].outputs[0], nodes["Add Shader.005"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[8], nodes["Add Shader.005"].inputs[1])
+    new_grp.links.new(nodes["Add Shader.005"].outputs[0], nodes["Add Shader.006"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[9], nodes["Add Shader.006"].inputs[1])
+    new_grp.links.new(nodes["Add Shader.006"].outputs[0], nodes["Add Shader.001"].inputs[1])
+    new_grp.links.new(nodes["Add Shader"].outputs[0], nodes["Group Output"].inputs[0])
+    new_grp.links.new(nodes["Mix Shader"].outputs[0], nodes["Add Shader"].inputs[0])
+    new_grp.links.new(nodes["Add Shader.002"].outputs[0], nodes["Mix Shader"].inputs[2])
+    new_grp.links.new(nodes["Add Shader.001"].outputs[0], nodes["Add Shader"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[11], nodes["Transparent BSDF.001"].inputs[0])
+
+def make_retro_shader_mp3():
+    new_grp = bpy.data.node_groups.new("RetroShaderMP3", "ShaderNodeTree")
+    new_grp.use_fake_user = True
+    input = new_grp.inputs.new("NodeSocketColor", "DIFFC")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "DIFFA")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketColor", "DIFBC")
+    input.default_value = (1.0, 1.0, 1.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "DIFBA")
+    input.default_value = 1.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "BLOL")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "BLOD")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "BLODB")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketColor", "CLR")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "CLRA")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "TRAN")
+    input.default_value = 1.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketColor", "RFLD")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "RFLDA")
+    input.default_value = 1.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketColor", "RFLV")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketColor", "LRLD")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketColor", "LURDC")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "LURDA")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketColor", "INCAC")
+    input.default_value = (0.0, 0.0, 0.0, 1.0)
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "INCAA")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketInt", "Add INCA")
+    input.default_value = 0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "BNIF")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "BLOI")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "BLOIB")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "OPAC")
+    input.default_value = 1.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "XRAYC")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "XRAYA")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    input = new_grp.inputs.new("NodeSocketFloatFactor", "XRBR")
+    input.default_value = 0.0
+    input.min_value = 0.000000
+    input.max_value = 1.000000
+    nodes = {}
+    node = new_grp.nodes.new("ShaderNodeMixShader")
+    node.name = "Mix Shader"
+    nodes["Mix Shader"] = node
+    node.label = ""
+    node.location = (-118.33348846435547, -291.9857482910156)
+    node.inputs[0].default_value = 0.0
+    node = new_grp.nodes.new("ShaderNodeOutputMaterial")
+    node.name = "Material Output"
+    nodes["Material Output"] = node
+    node.label = ""
+    node.location = (81.25957489013672, -265.6065368652344)
+    node.inputs[2].default_value = (0.0, 0.0, 0.0)
+    node = new_grp.nodes.new("ShaderNodeGroup")
+    node.name = "Group.001"
+    nodes["Group.001"] = node
+    node.label = ""
+    node.location = (-358.6896057128906, -60.17391586303711)
+    node.node_tree = bpy.data.node_groups["__RetroShaderMP3Color"]
+    node.inputs[0].default_value = (1.0, 1.0, 1.0, 1.0)
+    node.inputs[1].default_value = (1.0, 1.0, 1.0, 1.0)
+    node.inputs[2].default_value = (0.5, 0.5, 0.5, 1.0)
+    node.inputs[3].default_value = 0.5
+    node.inputs[4].default_value = 0.5
+    node.inputs[5].default_value = (0.0, 0.0, 0.0, 1.0)
+    node.inputs[6].default_value = 0.5
+    node.inputs[7].default_value = (0.0, 0.0, 0.0, 1.0)
+    node.inputs[8].default_value = (0.0, 0.0, 0.0, 1.0)
+    node.inputs[9].default_value = (0.0, 0.0, 0.0, 1.0)
+    node.inputs[10].default_value = 0.0
+    node.inputs[11].default_value = (0.0, 0.0, 0.0, 1.0)
+    node.inputs[12].default_value = 0
+    node.inputs[13].default_value = 0.5
+    node = new_grp.nodes.new("ShaderNodeGroup")
+    node.name = "Group"
+    nodes["Group"] = node
+    node.label = ""
+    node.location = (-356.9021301269531, -446.9474182128906)
+    node.node_tree = bpy.data.node_groups["__RetroShaderMP3Bloom"]
+    node.inputs[0].default_value = 1.0
+    node.inputs[1].default_value = 1.0
+    node.inputs[2].default_value = 0.0
+    node.inputs[3].default_value = 0.0
+    node.inputs[4].default_value = 0.5
+    node.inputs[5].default_value = 0.5
+    node.inputs[6].default_value = 0.0
+    node.inputs[7].default_value = 0.0
+    node.inputs[8].default_value = 0.0
+    node.inputs[9].default_value = 0.0
+    node.inputs[10].default_value = 0.5
+    node.inputs[11].default_value = 0
+    node = new_grp.nodes.new("NodeGroupInput")
+    node.name = "Group Input"
+    nodes["Group Input"] = node
+    node.label = ""
+    node.location = (-669.6587524414062, -193.9534149169922)
+    new_grp.links.new(nodes["Group Input"].outputs[0], nodes["Group.001"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[1], nodes["Group"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[3], nodes["Group"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[4], nodes["Group"].inputs[2])
+    new_grp.links.new(nodes["Group Input"].outputs[5], nodes["Group"].inputs[3])
+    new_grp.links.new(nodes["Group Input"].outputs[6], nodes["Group"].inputs[4])
+    new_grp.links.new(nodes["Group Input"].outputs[17], nodes["Group"].inputs[6])
+    new_grp.links.new(nodes["Group Input"].outputs[19], nodes["Group"].inputs[7])
+    new_grp.links.new(nodes["Group Input"].outputs[20], nodes["Group"].inputs[8])
+    new_grp.links.new(nodes["Group Input"].outputs[2], nodes["Group.001"].inputs[1])
+    new_grp.links.new(nodes["Group Input"].outputs[7], nodes["Group.001"].inputs[2])
+    new_grp.links.new(nodes["Group Input"].outputs[10], nodes["Group.001"].inputs[5])
+    new_grp.links.new(nodes["Group Input"].outputs[12], nodes["Group.001"].inputs[7])
+    new_grp.links.new(nodes["Group Input"].outputs[13], nodes["Group.001"].inputs[8])
+    new_grp.links.new(nodes["Group Input"].outputs[14], nodes["Group.001"].inputs[9])
+    new_grp.links.new(nodes["Group Input"].outputs[15], nodes["Group.001"].inputs[10])
+    new_grp.links.new(nodes["Group Input"].outputs[16], nodes["Group.001"].inputs[11])
+    new_grp.links.new(nodes["Group.001"].outputs[0], nodes["Mix Shader"].inputs[1])
+    new_grp.links.new(nodes["Group"].outputs[0], nodes["Mix Shader"].inputs[2])
+    new_grp.links.new(nodes["Mix Shader"].outputs[0], nodes["Material Output"].inputs[0])
+    new_grp.links.new(nodes["Group Input"].outputs[21], nodes["Group"].inputs[9])
+    new_grp.links.new(nodes["Group Input"].outputs[8], nodes["Group.001"].inputs[3])
+    new_grp.links.new(nodes["Group Input"].outputs[9], nodes["Group.001"].inputs[4])
+    new_grp.links.new(nodes["Group Input"].outputs[11], nodes["Group.001"].inputs[6])
+    new_grp.links.new(nodes["Group Input"].outputs[22], nodes["Group.001"].inputs[13])
+    new_grp.links.new(nodes["Group Input"].outputs[9], nodes["Group"].inputs[5])
+    new_grp.links.new(nodes["Group Input"].outputs[22], nodes["Group"].inputs[10])
+    new_grp.links.new(nodes["Group Input"].outputs[18], nodes["Group.001"].inputs[12])
+    new_grp.links.new(nodes["Group Input"].outputs[18], nodes["Group"].inputs[11])
+
 ROOT_SHADER_GROUPS = (
     make_retro_shader,
     make_retro_dynamic_shader,
     make_retro_dynamic_alpha_shader,
-    make_retro_dynamic_character_shader
+    make_retro_dynamic_character_shader,
+    make_retro_shader_mp3_color,
+    make_retro_shader_mp3_bloom,
+    make_retro_shader_mp3
 )
 
 # UV animation nodes:
@@ -1175,414 +1846,6 @@ UV_ANIMATION_GROUPS = (
     make_uva8
 )
 
-# MP3 / DKCR Material Passes:
-# https://wiki.axiodl.com/w/Materials_(Metroid_Prime_3)
-
-# Lightmap
-def make_pass_diff():
-    new_grp = bpy.data.node_groups.new('RetroPassDIFF', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Multiply1
-    mult1 = new_grp.nodes.new('ShaderNodeMixRGB')
-    mult1.blend_type = 'ADD'
-    mult1.inputs[0].default_value = 1.0
-    mult1.location = (-600, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], mult1.inputs[1])
-    new_grp.links.new(grp_in.outputs[2], mult1.inputs[2])
-    new_grp.links.new(mult1.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
-
-
-# Rim Lighting Map
-def make_pass_riml():
-    new_grp = bpy.data.node_groups.new('RetroPassRIML', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
-
-# Bloom Lightmap
-def make_pass_blol():
-    new_grp = bpy.data.node_groups.new('RetroPassBLOL', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
-
-# Bloom Diffuse Map
-def make_pass_blod():
-    new_grp = bpy.data.node_groups.new('RetroPassBLOD', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
-
-# Diffuse Map
-def make_pass_clr():
-    new_grp = bpy.data.node_groups.new('RetroPassCLR', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Multiply
-    mult1 = new_grp.nodes.new('ShaderNodeMixRGB')
-    mult1.blend_type = 'MULTIPLY'
-    mult1.inputs[0].default_value = 1.0
-    grp_in.location = (-400, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], mult1.inputs[1])
-    new_grp.links.new(grp_in.outputs[2], mult1.inputs[2])
-    new_grp.links.new(mult1.outputs[0], grp_out.inputs[0])
-    grp_out.inputs[1].default_value = 1.0
-
-# Opacity Map
-def make_pass_tran():
-    new_grp = bpy.data.node_groups.new('RetroPassTRAN', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Multiply
-    mul1 = new_grp.nodes.new('ShaderNodeMath')
-    mul1.operation = 'MULTIPLY'
-    mul1.inputs[0].default_value = 1.0
-    mul1.location = (-400, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], mul1.inputs[0])
-    new_grp.links.new(grp_in.outputs[2], mul1.inputs[1])
-    new_grp.links.new(mul1.outputs[0], grp_out.inputs[1])
-
-# Opacity Map Inverted
-def make_pass_tran_inv():
-    new_grp = bpy.data.node_groups.new('RetroPassTRANInv', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Multiply
-    mul1 = new_grp.nodes.new('ShaderNodeMath')
-    mul1.operation = 'MULTIPLY'
-    mul1.inputs[0].default_value = 1.0
-    mul1.location = (-400, 0)
-
-    # Invert
-    inv1 = new_grp.nodes.new('ShaderNodeInvert')
-    inv1.inputs[0].default_value = 1.0
-    inv1.location = (-600, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], mul1.inputs[1])
-    new_grp.links.new(grp_in.outputs[2], inv1.inputs[1])
-    new_grp.links.new(inv1.outputs[0], mul1.inputs[0])
-    new_grp.links.new(mul1.outputs[0], grp_out.inputs[1])
-
-# Incandescence Map
-def make_pass_inca():
-    new_grp = bpy.data.node_groups.new('RetroPassINCA', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Multiply
-    add1 = new_grp.nodes.new('ShaderNodeMixRGB')
-    add1.blend_type = 'ADD'
-    add1.inputs[0].default_value = 1.0
-    grp_in.location = (-400, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], add1.inputs[1])
-    new_grp.links.new(grp_in.outputs[2], add1.inputs[2])
-    new_grp.links.new(add1.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
-    grp_out.inputs[1].default_value = 1.0
-
-# Reflection Map
-def make_pass_rfld():
-    new_grp = bpy.data.node_groups.new('RetroPassRFLD', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Mask Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Mask Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Multiply
-    mult1 = new_grp.nodes.new('ShaderNodeMixRGB')
-    mult1.location = (-600, 0)
-    mult1.blend_type = 'MULTIPLY'
-    mult1.inputs[0].default_value = 1.0
-
-    # Add
-    add1 = new_grp.nodes.new('ShaderNodeMixRGB')
-    add1.location = (-400, 0)
-    add1.blend_type = 'ADD'
-    add1.inputs[0].default_value = 1.0
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], add1.inputs[1])
-    new_grp.links.new(grp_in.outputs[2], mult1.inputs[1])
-    new_grp.links.new(grp_in.outputs[4], mult1.inputs[2])
-    new_grp.links.new(mult1.outputs[0], add1.inputs[2])
-    new_grp.links.new(add1.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
-
-# Unk1
-def make_pass_lrld():
-    new_grp = bpy.data.node_groups.new('RetroPassLRLD', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
-
-# Unk2
-def make_pass_lurd():
-    new_grp = bpy.data.node_groups.new('RetroPassLURD', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
-
-# Bloom Incandescence Map
-def make_pass_bloi():
-    new_grp = bpy.data.node_groups.new('RetroPassBLOI', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
-
-# X-ray Reflection Map
-def make_pass_xray():
-    new_grp = bpy.data.node_groups.new('RetroPassXRAY', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
-
-# Unused
-def make_pass_toon():
-    new_grp = bpy.data.node_groups.new('RetroPassTOON', 'ShaderNodeTree')
-    new_grp.inputs.new('NodeSocketColor', 'Prev Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Prev Alpha')
-    new_grp.inputs.new('NodeSocketColor', 'Tex Color')
-    new_grp.inputs.new('NodeSocketFloat', 'Tex Alpha')
-    new_grp.outputs.new('NodeSocketColor', 'Next Color')
-    new_grp.outputs.new('NodeSocketFloat', 'Next Alpha')
-    new_grp.use_fake_user = True
-
-    # Group inputs
-    grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-800, 0)
-
-    # Group outputs
-    grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (0, 0)
-
-    # Links
-    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
-    new_grp.links.new(grp_in.outputs[1], grp_out.inputs[1])
-
-MP3_PASS_GROUPS = (
-    make_pass_diff,
-    make_pass_riml,
-    make_pass_blol,
-    make_pass_blod,
-    make_pass_clr,
-    make_pass_tran,
-    make_pass_tran_inv,
-    make_pass_inca,
-    make_pass_rfld,
-    make_pass_lrld,
-    make_pass_lurd,
-    make_pass_bloi,
-    make_pass_xray,
-    make_pass_toon
-)
-
 def make_master_shader_library():
     make_additive_output()
     make_blend_opaque_output()
@@ -1590,6 +1853,4 @@ def make_master_shader_library():
         shad()
     for uva in UV_ANIMATION_GROUPS:
         uva()
-    for aPass in MP3_PASS_GROUPS:
-        aPass()
 

@@ -23,6 +23,7 @@ set(DNAMP2_SOURCES
     MREA.cpp
     MAPA.hpp
     MAPU.hpp
+    PATH.hpp
     AFSM.hpp
     STRG.hpp STRG.cpp)
 

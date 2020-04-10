@@ -68,8 +68,7 @@ MREA::StreamReader::StreamReader(athena::io::IStreamReader& source, atUint32 blk
 , m_blkCount(blkCount) {
   m_blockInfos.reserve(blkCount);
   for (atUint32 i = 0; i < blkCount; ++i) {
-    m_blockInfos.emplace_back();
-    BlockInfo& info = m_blockInfos.back();
+    BlockInfo& info = m_blockInfos.emplace_back();
     info.read(source);
     m_totalDecompLen += info.decompSize;
   }
@@ -98,11 +97,11 @@ void MREA::StreamReader::seek(atInt64 diff, athena::SeekOrigin whence) {
     if (newAccum > target)
       break;
     dAccum = newAccum;
-    ++bIdx;
     if (info.compSize)
       cAccum += ROUND_UP_32(info.compSize);
     else
       cAccum += info.decompSize;
+    ++bIdx;
   }
 
   /* Seek source if needed */
@@ -111,6 +110,41 @@ void MREA::StreamReader::seek(atInt64 diff, athena::SeekOrigin whence) {
     m_nextBlk = bIdx;
     nextBlock();
   }
+
+  m_pos = target;
+  m_posInBlk = target - dAccum;
+}
+
+void MREA::StreamReader::seekToSection(atUint32 sec, const std::vector<atUint32>& secSizes) {
+  /* Determine which block contains section */
+  atUint32 sAccum = 0;
+  atUint32 dAccum = 0;
+  atUint32 cAccum = 0;
+  atUint32 bIdx = 0;
+  for (BlockInfo& info : m_blockInfos) {
+    atUint32 newSAccum = sAccum + info.secCount;
+    if (newSAccum > sec)
+      break;
+    sAccum = newSAccum;
+    dAccum += info.decompSize;
+    if (info.compSize)
+      cAccum += ROUND_UP_32(info.compSize);
+    else
+      cAccum += info.decompSize;
+    ++bIdx;
+  }
+
+  /* Seek source if needed */
+  if (bIdx != m_nextBlk - 1) {
+    m_source.seek(m_blkBase + cAccum, athena::SeekOrigin::Begin);
+    m_nextBlk = bIdx;
+    nextBlock();
+  }
+
+  /* Seek within block */
+  atUint32 target = dAccum;
+  while (sAccum != sec)
+    target += secSizes[sAccum++];
 
   m_pos = target;
   m_posInBlk = target - dAccum;
@@ -294,6 +328,20 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   os.centerView();
   os.close();
   return conn.saveBlend();
+}
+
+UniqueID32 MREA::GetPATHId(PAKEntryReadStream& rs) {
+  /* Do extract */
+  Header head;
+  head.read(rs);
+  rs.seekAlign32();
+
+  /* MREA decompression stream */
+  StreamReader drs(rs, head.compressedBlockCount);
+
+  /* Skip to PATH */
+  drs.seekToSection(head.pathSecIdx, head.secSizes);
+  return {drs};
 }
 
 } // namespace DNAMP2

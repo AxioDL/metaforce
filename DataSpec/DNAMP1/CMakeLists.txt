@@ -11,7 +11,6 @@ make_dnalist(PAK
              CINF
              CSKR
              EVNT
-             PATH
              CMDLMaterials
              MREA
              DeafBabe
@@ -50,7 +49,7 @@ set(DNAMP1_SOURCES
     ANIM.cpp
     CINF.cpp
     EVNT.cpp
-    PATH.cpp
+    PATH.hpp
     CMDL.hpp CMDL.cpp
     CMDLMaterials.cpp
     DCLN.cpp

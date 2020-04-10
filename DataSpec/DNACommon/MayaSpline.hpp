@@ -14,6 +14,8 @@ struct MayaSpline : public BigDNA {
     Value<float> amplitude;
     Value<atUint8> unk1;
     Value<atUint8> unk2;
+    Vector<atVec2f, AT_DNA_COUNT(unk1 == 5)> unk1Floats;
+    Vector<atVec2f, AT_DNA_COUNT(unk2 == 5)> unk2Floats;
   };
 
   Vector<Knot, AT_DNA_COUNT(knotCount)> knots;

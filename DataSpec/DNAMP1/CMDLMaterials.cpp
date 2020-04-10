@@ -34,12 +34,11 @@ void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t 
   else
     texLabel = "Texture";
 
-  out.format(fmt(
-      "# Texture\n"
-      "tex_node = new_nodetree.nodes.new('ShaderNodeTexImage')\n"
-      "tex_node.label = '{} {}'\n"
-      "texture_nodes.append(tex_node)\n"),
-      texLabel, texIdx);
+  out.format(fmt("# Texture\n"
+                 "tex_node = new_nodetree.nodes.new('ShaderNodeTexImage')\n"
+                 "tex_node.label = '{} {}'\n"
+                 "texture_nodes.append(tex_node)\n"),
+             texLabel, texIdx);
 
   if (texIdx != 0xff)
     out.format(fmt("tex_node.image = tex_maps[{}]\n"), texIdx);
@@ -52,11 +51,10 @@ void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t 
            "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['Normal'], tex_node.inputs['Vector']))\n";
   else if (type >= GX::TG_TEX0 && type <= GX::TG_TEX7) {
     uint8_t texIdx = type - GX::TG_TEX0;
-    out.format(fmt(
-        "tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
-        "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
-        "tex_uv_node.uv_map = 'UV_{}'\n"),
-        texIdx);
+    out.format(fmt("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
+                   "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
+                   "tex_uv_node.uv_map = 'UV_{}'\n"),
+               texIdx);
   }
 
   out.format(fmt("tex_uv_node.label = '{}'\n"), mtxLabel);
@@ -72,171 +70,162 @@ void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t 
 void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx, const float* vals) {
   switch (type) {
   case UVAnimation::Mode::MvInvNoTranslation:
-    out.format(fmt(
-        "for link in list(tex_links):\n"
-        "    if link.from_node.label == 'MTX_{}':\n"
-        "        tex_links.remove(link)\n"
-        "        soc_from = link.from_socket\n"
-        "        soc_to = link.to_socket\n"
-        "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-        "        node.node_tree = bpy.data.node_groups['RetroUVMode0NodeN']\n"
-        "        node.location[0] = link.from_node.location[0] + 50\n"
-        "        node.location[1] = link.from_node.location[1] - 50\n"
-        "        new_nodetree.links.remove(link)\n"
-        "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-        "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
-        idx);
+    out.format(fmt("for link in list(tex_links):\n"
+                   "    if link.from_node.label == 'MTX_{}':\n"
+                   "        tex_links.remove(link)\n"
+                   "        soc_from = link.from_socket\n"
+                   "        soc_to = link.to_socket\n"
+                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode0NodeN']\n"
+                   "        node.location[0] = link.from_node.location[0] + 50\n"
+                   "        node.location[1] = link.from_node.location[1] - 50\n"
+                   "        new_nodetree.links.remove(link)\n"
+                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+               idx);
     break;
   case UVAnimation::Mode::MvInv:
-    out.format(fmt(
-        "for link in list(tex_links):\n"
-        "    if link.from_node.label == 'MTX_{}':\n"
-        "        tex_links.remove(link)\n"
-        "        soc_from = link.from_socket\n"
-        "        soc_to = link.to_socket\n"
-        "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-        "        node.node_tree = bpy.data.node_groups['RetroUVMode1NodeN']\n"
-        "        node.location[0] = link.from_node.location[0] + 50\n"
-        "        node.location[1] = link.from_node.location[1] - 50\n"
-        "        new_nodetree.links.remove(link)\n"
-        "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-        "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
-        idx);
+    out.format(fmt("for link in list(tex_links):\n"
+                   "    if link.from_node.label == 'MTX_{}':\n"
+                   "        tex_links.remove(link)\n"
+                   "        soc_from = link.from_socket\n"
+                   "        soc_to = link.to_socket\n"
+                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode1NodeN']\n"
+                   "        node.location[0] = link.from_node.location[0] + 50\n"
+                   "        node.location[1] = link.from_node.location[1] - 50\n"
+                   "        new_nodetree.links.remove(link)\n"
+                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+               idx);
     break;
   case UVAnimation::Mode::Scroll:
-    out.format(fmt(
-        "for link in list(tex_links):\n"
-        "    if link.from_node.label == 'MTX_{}':\n"
-        "        tex_links.remove(link)\n"
-        "        soc_from = link.from_socket\n"
-        "        soc_to = link.to_socket\n"
-        "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-        "        node.node_tree = bpy.data.node_groups['RetroUVMode2Node']\n"
-        "        node.location[0] = link.from_node.location[0] + 50\n"
-        "        node.location[1] = link.from_node.location[1] - 50\n"
-        "        node.inputs[1].default_value = ({},{},0)\n"
-        "        node.inputs[2].default_value = ({},{},0)\n"
-        "        new_nodetree.links.remove(link)\n"
-        "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-        "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
-        idx, vals[0], vals[1], vals[2], vals[3]);
+    out.format(fmt("for link in list(tex_links):\n"
+                   "    if link.from_node.label == 'MTX_{}':\n"
+                   "        tex_links.remove(link)\n"
+                   "        soc_from = link.from_socket\n"
+                   "        soc_to = link.to_socket\n"
+                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode2Node']\n"
+                   "        node.location[0] = link.from_node.location[0] + 50\n"
+                   "        node.location[1] = link.from_node.location[1] - 50\n"
+                   "        node.inputs[1].default_value = ({},{},0)\n"
+                   "        node.inputs[2].default_value = ({},{},0)\n"
+                   "        new_nodetree.links.remove(link)\n"
+                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+               idx, vals[0], vals[1], vals[2], vals[3]);
     break;
   case UVAnimation::Mode::Rotation:
-    out.format(fmt(
-        "for link in list(tex_links):\n"
-        "    if link.from_node.label == 'MTX_{}':\n"
-        "        tex_links.remove(link)\n"
-        "        soc_from = link.from_socket\n"
-        "        soc_to = link.to_socket\n"
-        "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-        "        node.node_tree = bpy.data.node_groups['RetroUVMode3Node']\n"
-        "        node.location[0] = link.from_node.location[0] + 50\n"
-        "        node.location[1] = link.from_node.location[1] - 50\n"
-        "        node.inputs[1].default_value = {}\n"
-        "        node.inputs[2].default_value = {}\n"
-        "        new_nodetree.links.remove(link)\n"
-        "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-        "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
-        idx, vals[0], vals[1]);
+    out.format(fmt("for link in list(tex_links):\n"
+                   "    if link.from_node.label == 'MTX_{}':\n"
+                   "        tex_links.remove(link)\n"
+                   "        soc_from = link.from_socket\n"
+                   "        soc_to = link.to_socket\n"
+                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode3Node']\n"
+                   "        node.location[0] = link.from_node.location[0] + 50\n"
+                   "        node.location[1] = link.from_node.location[1] - 50\n"
+                   "        node.inputs[1].default_value = {}\n"
+                   "        node.inputs[2].default_value = {}\n"
+                   "        new_nodetree.links.remove(link)\n"
+                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+               idx, vals[0], vals[1]);
     break;
   case UVAnimation::Mode::HStrip:
-    out.format(fmt(
-        "for link in list(tex_links):\n"
-        "    if link.from_node.label == 'MTX_{}':\n"
-        "        tex_links.remove(link)\n"
-        "        soc_from = link.from_socket\n"
-        "        soc_to = link.to_socket\n"
-        "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-        "        node.node_tree = bpy.data.node_groups['RetroUVMode4Node']\n"
-        "        node.location[0] = link.from_node.location[0] + 50\n"
-        "        node.location[1] = link.from_node.location[1] - 50\n"
-        "        node.inputs[1].default_value = {}\n"
-        "        node.inputs[2].default_value = {}\n"
-        "        node.inputs[3].default_value = {}\n"
-        "        node.inputs[4].default_value = {}\n"
-        "        new_nodetree.links.remove(link)\n"
-        "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-        "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
-        idx, vals[0], vals[1], vals[2], vals[3]);
+    out.format(fmt("for link in list(tex_links):\n"
+                   "    if link.from_node.label == 'MTX_{}':\n"
+                   "        tex_links.remove(link)\n"
+                   "        soc_from = link.from_socket\n"
+                   "        soc_to = link.to_socket\n"
+                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode4Node']\n"
+                   "        node.location[0] = link.from_node.location[0] + 50\n"
+                   "        node.location[1] = link.from_node.location[1] - 50\n"
+                   "        node.inputs[1].default_value = {}\n"
+                   "        node.inputs[2].default_value = {}\n"
+                   "        node.inputs[3].default_value = {}\n"
+                   "        node.inputs[4].default_value = {}\n"
+                   "        new_nodetree.links.remove(link)\n"
+                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+               idx, vals[0], vals[1], vals[2], vals[3]);
     break;
   case UVAnimation::Mode::VStrip:
-    out.format(fmt(
-        "for link in list(tex_links):\n"
-        "    if link.from_node.label == 'MTX_{}':\n"
-        "        tex_links.remove(link)\n"
-        "        soc_from = link.from_socket\n"
-        "        soc_to = link.to_socket\n"
-        "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-        "        node.node_tree = bpy.data.node_groups['RetroUVMode5Node']\n"
-        "        node.location[0] = link.from_node.location[0] + 50\n"
-        "        node.location[1] = link.from_node.location[1] - 50\n"
-        "        node.inputs[1].default_value = {}\n"
-        "        node.inputs[2].default_value = {}\n"
-        "        node.inputs[3].default_value = {}\n"
-        "        node.inputs[4].default_value = {}\n"
-        "        new_nodetree.links.remove(link)\n"
-        "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-        "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
-        idx, vals[0], vals[1], vals[2], vals[3]);
+    out.format(fmt("for link in list(tex_links):\n"
+                   "    if link.from_node.label == 'MTX_{}':\n"
+                   "        tex_links.remove(link)\n"
+                   "        soc_from = link.from_socket\n"
+                   "        soc_to = link.to_socket\n"
+                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode5Node']\n"
+                   "        node.location[0] = link.from_node.location[0] + 50\n"
+                   "        node.location[1] = link.from_node.location[1] - 50\n"
+                   "        node.inputs[1].default_value = {}\n"
+                   "        node.inputs[2].default_value = {}\n"
+                   "        node.inputs[3].default_value = {}\n"
+                   "        node.inputs[4].default_value = {}\n"
+                   "        new_nodetree.links.remove(link)\n"
+                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+               idx, vals[0], vals[1], vals[2], vals[3]);
     break;
   case UVAnimation::Mode::Model:
-    out.format(fmt(
-        "for link in list(tex_links):\n"
-        "    if link.from_node.label == 'MTX_{}':\n"
-        "        tex_links.remove(link)\n"
-        "        soc_from = link.from_socket\n"
-        "        soc_to = link.to_socket\n"
-        "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-        "        node.node_tree = bpy.data.node_groups['RetroUVMode6NodeN']\n"
-        "        node.location[0] = link.from_node.location[0] + 50\n"
-        "        node.location[1] = link.from_node.location[1] - 50\n"
-        "        new_nodetree.links.remove(link)\n"
-        "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-        "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
-        idx);
+    out.format(fmt("for link in list(tex_links):\n"
+                   "    if link.from_node.label == 'MTX_{}':\n"
+                   "        tex_links.remove(link)\n"
+                   "        soc_from = link.from_socket\n"
+                   "        soc_to = link.to_socket\n"
+                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode6NodeN']\n"
+                   "        node.location[0] = link.from_node.location[0] + 50\n"
+                   "        node.location[1] = link.from_node.location[1] - 50\n"
+                   "        new_nodetree.links.remove(link)\n"
+                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+               idx);
     break;
   case UVAnimation::Mode::CylinderEnvironment:
-    out.format(fmt(
-        "for link in list(tex_links):\n"
-        "    if link.from_node.label == 'MTX_{}':\n"
-        "        tex_links.remove(link)\n"
-        "        soc_from = link.from_socket\n"
-        "        soc_to = link.to_socket\n"
-        "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-        "        node.node_tree = bpy.data.node_groups['RetroUVMode7NodeN']\n"
-        "        node.location[0] = link.from_node.location[0] + 50\n"
-        "        node.location[1] = link.from_node.location[1] - 50\n"
-        "        node.inputs[1].default_value = {}\n"
-        "        node.inputs[2].default_value = {}\n"
-        "        new_nodetree.links.remove(link)\n"
-        "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-        "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
-        idx, vals[0], vals[1]);
+    out.format(fmt("for link in list(tex_links):\n"
+                   "    if link.from_node.label == 'MTX_{}':\n"
+                   "        tex_links.remove(link)\n"
+                   "        soc_from = link.from_socket\n"
+                   "        soc_to = link.to_socket\n"
+                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode7NodeN']\n"
+                   "        node.location[0] = link.from_node.location[0] + 50\n"
+                   "        node.location[1] = link.from_node.location[1] - 50\n"
+                   "        node.inputs[1].default_value = {}\n"
+                   "        node.inputs[2].default_value = {}\n"
+                   "        new_nodetree.links.remove(link)\n"
+                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+               idx, vals[0], vals[1]);
     break;
   case UVAnimation::Mode::Eight:
-    out.format(fmt(
-        "for link in list(tex_links):\n"
-        "    if link.from_node.label == 'MTX_{}':\n"
-        "        tex_links.remove(link)\n"
-        "        soc_from = link.from_socket\n"
-        "        soc_to = link.to_socket\n"
-        "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-        "        node.node_tree = bpy.data.node_groups['RetroUVMode8Node']\n"
-        "        node.location[0] = link.from_node.location[0] + 50\n"
-        "        node.location[1] = link.from_node.location[1] - 50\n"
-        "        node.inputs[1].default_value = {}\n"
-        "        node.inputs[2].default_value = {}\n"
-        "        node.inputs[3].default_value = {}\n"
-        "        node.inputs[4].default_value = {}\n"
-        "        node.inputs[5].default_value = {}\n"
-        "        node.inputs[6].default_value = {}\n"
-        "        node.inputs[7].default_value = {}\n"
-        "        node.inputs[8].default_value = {}\n"
-        "        node.inputs[9].default_value = {}\n"
-        "        new_nodetree.links.remove(link)\n"
-        "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-        "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
-        idx, vals[0], vals[1], vals[2], vals[3], vals[4], vals[5], vals[6], vals[7], vals[8]);
+    out.format(fmt("for link in list(tex_links):\n"
+                   "    if link.from_node.label == 'MTX_{}':\n"
+                   "        tex_links.remove(link)\n"
+                   "        soc_from = link.from_socket\n"
+                   "        soc_to = link.to_socket\n"
+                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                   "        node.node_tree = bpy.data.node_groups['RetroUVMode8Node']\n"
+                   "        node.location[0] = link.from_node.location[0] + 50\n"
+                   "        node.location[1] = link.from_node.location[1] - 50\n"
+                   "        node.inputs[1].default_value = {}\n"
+                   "        node.inputs[2].default_value = {}\n"
+                   "        node.inputs[3].default_value = {}\n"
+                   "        node.inputs[4].default_value = {}\n"
+                   "        node.inputs[5].default_value = {}\n"
+                   "        node.inputs[6].default_value = {}\n"
+                   "        node.inputs[7].default_value = {}\n"
+                   "        node.inputs[8].default_value = {}\n"
+                   "        node.inputs[9].default_value = {}\n"
+                   "        new_nodetree.links.remove(link)\n"
+                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+               idx, vals[0], vals[1], vals[2], vals[3], vals[4], vals[5], vals[6], vals[7], vals[8]);
     break;
   default:
     break;
@@ -244,12 +233,12 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
 }
 
 void Material::AddKcolor(Stream& out, const GX::Color& col, unsigned idx) {
-  out.format(fmt(
-      "kcolors[{}] = ({}, {}, {}, {})\n"
-      "kalphas[{}] = {}\n"
-      "\n"),
-      idx, (float)col.color[0] / (float)0xff, (float)col.color[1] / (float)0xff, (float)col.color[2] / (float)0xff,
-      (float)col.color[3] / (float)0xff, idx, (float)col.color[3] / (float)0xff);
+  out.format(fmt("kcolors[{}] = ({}, {}, {}, {})\n"
+                 "kalphas[{}] = {}\n"
+                 "\n"),
+             idx, (float)col.color[0] / (float)0xff, (float)col.color[1] / (float)0xff,
+             (float)col.color[2] / (float)0xff, (float)col.color[3] / (float)0xff, idx,
+             (float)col.color[3] / (float)0xff);
 }
 
 template <class MAT>
@@ -354,11 +343,10 @@ template <class MAT>
 static void _DescribeTEV(const MAT& mat) {
   for (uint32_t i = 0; i < mat.tevStageCount; ++i) {
     const auto& stage = mat.tevStages[i];
-    fmt::print(stderr, fmt("A:{} B:{} C:{} D:{} -> {} | A:{} B:{} C:{} D:{} -> {}\n"),
-            ToString(stage.colorInA()), ToString(stage.colorInB()),
-            ToString(stage.colorInC()), ToString(stage.colorInD()), ToString(stage.colorOpOutReg()),
-            ToString(stage.alphaInA()), ToString(stage.alphaInB()),
-            ToString(stage.alphaInC()), ToString(stage.alphaInD()), ToString(stage.alphaOpOutReg()));
+    fmt::print(stderr, fmt("A:{} B:{} C:{} D:{} -> {} | A:{} B:{} C:{} D:{} -> {}\n"), ToString(stage.colorInA()),
+               ToString(stage.colorInB()), ToString(stage.colorInC()), ToString(stage.colorInD()),
+               ToString(stage.colorOpOutReg()), ToString(stage.alphaInA()), ToString(stage.alphaInB()),
+               ToString(stage.alphaInC()), ToString(stage.alphaInD()), ToString(stage.alphaOpOutReg()));
   }
   bool hasInd = mat.flags.samusReflectionIndirectTexture();
   bool hasLm = mat.flags.lightmap();
@@ -388,12 +376,10 @@ struct KColLink {
 
 struct WhiteColorLink {
   const char* shaderInput;
-  explicit WhiteColorLink(const char* shaderInput)
-  : shaderInput(shaderInput) {}
+  explicit WhiteColorLink(const char* shaderInput) : shaderInput(shaderInput) {}
 };
 
-static void _GenerateRootShader(Stream& out, int) {
-  /* End of shader links */
+static void _GenerateRootShader(Stream& out, int) { /* End of shader links */
 }
 
 template <typename... Targs>
@@ -401,8 +387,8 @@ static void _GenerateRootShader(Stream& out, int tidx, TexLink tex, Targs... arg
   int texIdx = tex.texidx == -1 ? tidx : tex.texidx;
   out << "texture_nodes[" << texIdx << "].name = '" << tex.shaderInput << "'\n";
   out << "texture_nodes[" << texIdx << "].label = '" << tex.shaderInput << "'\n";
-  out << "new_nodetree.links.new(texture_nodes[" << texIdx << "].outputs['" <<
-    (tex.alpha ? "Alpha" : "Color") << "'], node.inputs['" << tex.shaderInput << "'])\n";
+  out << "new_nodetree.links.new(texture_nodes[" << texIdx << "].outputs['" << (tex.alpha ? "Alpha" : "Color")
+      << "'], node.inputs['" << tex.shaderInput << "'])\n";
   if (tex.texidx == -1)
     ++tidx;
   _GenerateRootShader(out, tidx, args...);
@@ -422,8 +408,8 @@ static void _GenerateRootShader(Stream& out, int tidx, ExtendedSpecularLink tex,
 
 template <typename... Targs>
 static void _GenerateRootShader(Stream& out, int tidx, KColLink kcol, Targs... args) {
-  out << "node.inputs['" << kcol.shaderInput << "'].default_value = " <<
-    (kcol.alpha ? "kalphas[" : "kcolors[") << kcol.kcidx << "]\n";
+  out << "node.inputs['" << kcol.shaderInput << "'].default_value = " << (kcol.alpha ? "kalphas[" : "kcolors[")
+      << kcol.kcidx << "]\n";
   _GenerateRootShader(out, tidx, args...);
 }
 
@@ -437,16 +423,18 @@ template <typename... Targs>
 static void _GenerateRootShader(Stream& out, const char* type, Targs... args) {
   out << "node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
          "node.name = 'Output'\n"
-         "node.node_tree = bpy.data.node_groups['" << type << "']\n"
+         "node.node_tree = bpy.data.node_groups['"
+      << type
+      << "']\n"
          "gridder.place_node(node, 1)\n"
          "new_nodetree.links.new(node.outputs['Surface'], blend_node.inputs['Surface'])\n";
   _GenerateRootShader(out, 0, args...);
 }
 
-static TexLink operator "" _tex(const char* str, size_t) { return TexLink(str); }
-static TexLink operator "" _texa(const char* str, size_t) { return TexLink(str, -1, true); }
-static KColLink operator "" _kcol(const char* str, size_t) { return KColLink(str); }
-static KColLink operator "" _kcola(const char* str, size_t) { return KColLink(str, 0, true); }
+static TexLink operator"" _tex(const char* str, size_t) { return TexLink(str); }
+static TexLink operator"" _texa(const char* str, size_t) { return TexLink(str, -1, true); }
+static KColLink operator"" _kcol(const char* str, size_t) { return KColLink(str); }
+static KColLink operator"" _kcola(const char* str, size_t) { return KColLink(str, 0, true); }
 
 template <class MAT>
 static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupIdx, unsigned matIdx) {
@@ -470,22 +458,21 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
          "\n";
 
   /* Material Flags */
-  out.format(fmt(
-      "new_material.retro_depth_sort = {}\n"
-      "new_material.retro_alpha_test = {}\n"
-      "new_material.retro_samus_reflection = {}\n"
-      "new_material.retro_depth_write = {}\n"
-      "new_material.retro_samus_reflection_persp = {}\n"
-      "new_material.retro_shadow_occluder = {}\n"
-      "new_material.retro_samus_reflection_indirect = {}\n"
-      "new_material.retro_lightmapped = {}\n"
-      "new_material.diffuse_color = (1, 1, 1, {})\n"),
-      material.flags.depthSorting() ? "True" : "False", material.flags.alphaTest() ? "True" : "False",
-      material.flags.samusReflection() ? "True" : "False", material.flags.depthWrite() ? "True" : "False",
-      material.flags.samusReflectionSurfaceEye() ? "True" : "False",
-      material.flags.shadowOccluderMesh() ? "True" : "False",
-      material.flags.samusReflectionIndirectTexture() ? "True" : "False", material.flags.lightmap() ? "True" : "False",
-      material.flags.shadowOccluderMesh() ? "0" : "1");
+  out.format(fmt("new_material.retro_depth_sort = {}\n"
+                 "new_material.retro_alpha_test = {}\n"
+                 "new_material.retro_samus_reflection = {}\n"
+                 "new_material.retro_depth_write = {}\n"
+                 "new_material.retro_samus_reflection_persp = {}\n"
+                 "new_material.retro_shadow_occluder = {}\n"
+                 "new_material.retro_samus_reflection_indirect = {}\n"
+                 "new_material.retro_lightmapped = {}\n"
+                 "new_material.diffuse_color = (1, 1, 1, {})\n"),
+             material.flags.depthSorting() ? "True" : "False", material.flags.alphaTest() ? "True" : "False",
+             material.flags.samusReflection() ? "True" : "False", material.flags.depthWrite() ? "True" : "False",
+             material.flags.samusReflectionSurfaceEye() ? "True" : "False",
+             material.flags.shadowOccluderMesh() ? "True" : "False",
+             material.flags.samusReflectionIndirectTexture() ? "True" : "False",
+             material.flags.lightmap() ? "True" : "False", material.flags.shadowOccluderMesh() ? "0" : "1");
 
   /* Texture Indices */
   out << "tex_maps = []\n";
@@ -537,131 +524,268 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   /* Select appropriate root shader and link textures */
   uint32_t hash = _HashTextureConfig(material);
   switch (hash) {
+  case 0x03FEE002: /* RetroShader: Diffuse, Emissive, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, "Reflection"_tex);
+    break;
   case 0x0473AE40: /* RetroShader: Lightmap, Diffuse, Emissive, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex);
+    break;
   case 0x072D2CB3: /* RetroShader: Diffuse, Emissive, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, WhiteColorLink("Specular"), "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, WhiteColorLink("Specular"),
+                        "Reflection"_tex);
+    break;
+  case 0x07AA75D7: /* RetroShader: Diffuse, Emissive, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, TexLink("Alpha", 0, true));
+    break;
   case 0x0879D346: /* RetroShader: KColorDiffuse, Alpha=Texture */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Alpha"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Alpha"_tex);
+    break;
   case 0x0DA256BB: /* Lightmap, Diffuse, Specular, Reflection, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex,
+                        "Alpha"_kcola);
+    break;
   case 0x11C41DA4: /* RetroDynamicCharacterShader: Diffuse, DynamicMaskTex, Specular, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroDynamicCharacterShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroDynamicCharacterShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex,
+                        "Reflection"_tex);
+    break;
   case 0x1218F83E: /* RetroShader: ObjLightmap, Diffuse, ExtendedSpecular, Reflection, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, ExtendedSpecularLink(), "Reflection"_tex, TexLink("Alpha", 1, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, ExtendedSpecularLink(), "Reflection"_tex,
+                        TexLink("Alpha", 1, true));
+    break;
   case 0x129B8578: /* RetroShader: KColorDiffuse, Emissive, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Emissive"_tex, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Emissive"_tex, "Alpha"_kcola);
+    break;
+  case 0x15A00948: /* RetroShader: Diffuse, Emissive, Specular, ExtendedSpecular, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "ExtendedSpecular"_tex,
+                        "Reflection"_tex);
+    break;
   case 0x15A3E6E5: /* RetroShader: Diffuse, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Alpha"_kcola);
+    break;
   case 0x1BEB3E15: /* RetroShader: Diffuse, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 0, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 0, true));
+    break;
   case 0x2261E0EB: /* RetroShader: Diffuse, Emissive, Specular, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex);
+    break;
   case 0x239C7724: /* RetroDynamicShader: Diffuse*Dynamic, Emissive*Dynamic, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex); break;
+    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex);
+    break;
   case 0x240C4C84: /* RetroShader: Lightmap, KColorDiffuse, Specular, Reflection, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Specular"_tex, "Reflection"_tex, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Specular"_tex, "Reflection"_tex,
+                        "Alpha"_kcola);
+    break;
   case 0x2523A379: /* RetroDynamicShader: Emissive*Dynamic, Specular, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroDynamicShader", "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroDynamicShader", "Emissive"_tex, "Specular"_tex, "Reflection"_tex);
+    break;
   case 0x25E85017: /* RetroShader: Lightmap, KColorDiffuse, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Alpha"_kcola);
+    break;
   case 0x27FD5C6C: /* RetroShader: ObjLightmap, Diffuse, Specular, Reflection, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, TexLink("Alpha", 1, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex,
+                        TexLink("Alpha", 1, true));
+    break;
   case 0x2AD9F535: /* RetroShader: Emissive, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Emissive"_tex, WhiteColorLink("Specular"), "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Emissive"_tex, WhiteColorLink("Specular"), "Reflection"_tex);
+    break;
   case 0x2C9F5104: /* RetroShader: Diffuse, Specular, Reflection, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "Alpha"_kcola);
+    break;
   case 0x2D059429: /* RetroShader: Diffuse, Emissive, ExtendedSpecular, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, ExtendedSpecularLink(), "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, ExtendedSpecularLink(), "Reflection"_tex);
+    break;
   case 0x30AC64BB: /* RetroShader: Diffuse, Specular, Reflection, Alpha=KAlpha, IndirectTex */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex, "Alpha"_kcola); break;
-  case 0x39BC4809: /* RetroDynamicShader: ObjLightmap*Dynamic, Diffuse*Dynamic, Emissive*Dynamic, Specular, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroDynamicShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex,
+                        "Alpha"_kcola);
+    break;
+  case 0x39BC4809: /* RetroDynamicShader: ObjLightmap*Dynamic, Diffuse*Dynamic, Emissive*Dynamic, Specular, Reflection,
+                      Alpha=1.0 */
+    _GenerateRootShader(out, "RetroDynamicShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex,
+                        "Reflection"_tex);
+    break;
   case 0x3BF97299: /* RetroShader: Lightmap, Diffuse, Specular, Reflection, Alpha=KAlpha, IndirectTex */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex,
+                        "IndirectTex"_tex, "Alpha"_kcola);
+    break;
+  case 0x4184FBCA: /* RetroShader: Lightmap, Diffuse, Emissive, DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, TexLink("Alpha", 1, true));
+    break;
   case 0x47ECF3ED: /* RetroShader: Diffuse, Specular, Reflection, Emissive, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "Emissive"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "Emissive"_tex);
+    break;
   case 0x4BBDFFA6: /* RetroShader: Diffuse, Emissive, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex);
+    break;
   case 0x4D4127A3: /* RetroShader: Lightmap, Diffuse, Specular, Reflection, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, TexLink("Alpha", 1, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex,
+                        TexLink("Alpha", 1, true));
+    break;
   case 0x54A92F25: /* RetroShader: ObjLightmap, KColorDiffuse, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Alpha"_kcola);
+    break;
+  case 0x58BAA415: /* RetroShader: Lightmap, Diffuse, Emissive, Alpha=1.0 */
+    // TODO: Last stage assigns into unused reg2, perhaps for runtime material mod?
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex);
+    break;
   case 0x54C6204C:
-    _GenerateRootShader(out, "RetroShader"); break;
+    _GenerateRootShader(out, "RetroShader");
+    break;
   case 0x5A62D5F0: /* RetroShader: Lightmap, Diffuse, UnusedExtendedSpecular?, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true));
+    break;
   case 0x5CB59821: /* RetroShader: Diffuse, UnusedSpecular?, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Alpha"_kcola);
+    break;
   case 0x5D0F0069: /* RetroShader: Diffuse, Emissive, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, TexLink("Alpha", 0, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, TexLink("Alpha", 0, true));
+    break;
   case 0x5D80E53C: /* RetroShader: Emissive, Specular, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Emissive"_tex, "Specular"_tex, "Reflection"_tex);
+    break;
   case 0x5F0AB0E9: /* RetroShader: Lightmap, Diffuse, UnusedSpecular?, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true));
+    break;
   case 0x5F189425: /* RetroShader: Lightmap, Diffuse, UnusedSpecular?, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Alpha"_kcola);
+    break;
   case 0x6601D113: /* RetroShader: Emissive, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Emissive"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Emissive"_tex);
+    break;
   case 0x694287FA: /* RetroShader: Diffuse, Emissive, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, WhiteColorLink("Specular"), "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, WhiteColorLink("Specular"),
+                        "Reflection"_tex);
+    break;
   case 0x6D98D689: /* RetroDynamicAlphaShader: Diffuse*Dynamic, Specular, Reflection, Alpha=KAlpha*Dynamic */
-    _GenerateRootShader(out, "RetroDynamicAlphaShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroDynamicAlphaShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "Alpha"_kcola);
+    break;
   case 0x7252CB90: /* RetroShader: Lightmap, Diffuse, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Alpha"_kcola);
+    break;
+  case 0x72BEDDAC: /* RetroShader: DiffuseMod, Diffuse, Emissive, Specular, Reflection Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "DiffuseMod"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex,
+                        "Reflection"_tex);
+    break;
   case 0x76BEA57E: /* RetroShader: Lightmap, Diffuse, Emissive, Specular, Reflection, Alpha=1.0, IndirectTex */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex,
+                        "Reflection"_tex, "IndirectTex"_tex);
+    break;
   case 0x7D6A4487: /* RetroShader: Diffuse, Specular, Reflection, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, TexLink("Alpha", 0, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, TexLink("Alpha", 0, true));
+    break;
+  case 0x81106196: /* RetroDynamicShader: Emissive, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroDynamicShader", "Emissive"_tex);
+    break;
   case 0x84319328: /* RetroShader: Reflection, UnusedSpecular?, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", WhiteColorLink("Specular"), "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroShader", WhiteColorLink("Specular"), "Reflection"_tex);
+    break;
   case 0x846215DA: /* RetroShader: Diffuse, Specular, Reflection, Alpha=DiffuseAlpha, IndirectTex */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex, TexLink("Alpha", 0, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex,
+                        TexLink("Alpha", 0, true));
+    break;
+  case 0x8C562AB1: /* RetroShader: Diffuse, Emissive, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex);
+    break;
   case 0x8E916C01: /* RetroShader: NULL, all inputs 0 */
-    _GenerateRootShader(out, "RetroShader"); break;
+    _GenerateRootShader(out, "RetroShader");
+    break;
   case 0x957709F8: /* RetroShader: Emissive, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Emissive"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Emissive"_tex);
+    break;
   case 0x96ABB2D3: /* RetroShader: Lightmap, Diffuse, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true));
+    break;
   case 0x985A0B67: /* RetroShader: Diffuse, UnusedSpecular?, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 0, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 0, true));
+    break;
   case 0x9B4453A2: /* RetroShader: Diffuse, Emissive, ExtendedSpecular, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, ExtendedSpecularLink(), "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, ExtendedSpecularLink(), "Reflection"_tex);
+    break;
   case 0xA187C630: /* RetroShader: Diffuse, Emissive, UnusedReflection?, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex);
+    break;
+  case 0xB26E9E2E: /* RetroShader: Diffuse, Emissive, Alpha=1.0 */
+    // TODO: Last two stages assign into unused reg2, perhaps for runtime material mod?
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex);
+    break;
+  case 0xC0E3FF1F: /* RetroShader: KColorDiffuse, Specular, Reflection, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Specular"_tex, "Reflection"_tex, "Alpha"_kcola);
+    break;
   case 0xC138DCFA: /* RetroShader: Diffuse, Emissive, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex);
+    break;
   case 0xC3C8B1C8: /* RetroShader: KColorDiffuse, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Alpha"_kcola);
+    break;
   case 0xC689C8C6: /* RetroShader: Diffuse, ExtendedSpecular, Reflection, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, ExtendedSpecularLink(), "Reflection"_tex, TexLink("Alpha", 0, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, ExtendedSpecularLink(), "Reflection"_tex,
+                        TexLink("Alpha", 0, true));
+    break;
   case 0xC6B18B28: /* RetroShader: Diffuse, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 0, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 0, true));
+    break;
   case 0xCD92D4C5: /* RetroShader: Diffuse, Reflection, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, WhiteColorLink("Specular"), "Reflection"_tex, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, WhiteColorLink("Specular"), "Reflection"_tex, "Alpha"_kcola);
+    break;
+  case 0xCE06F3F2: /* RetroShader: Diffuse, Alpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 1, true));
+    break;
   case 0xD73E7728: /* RetroShader: ObjLightmap, Diffuse, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true));
+    break;
   case 0xDB8F01AD: /* RetroDynamicShader: Diffuse*Dynamic, Emissive*Dynamic, UnusedSpecular?, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex); break;
+    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex);
+    break;
+  case 0xE64D1085: /* RetroShader: Lightmap, Diffuse, Emissive, Reflection, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Reflection"_tex,
+                        TexLink("Alpha", 1, true));
+    break;
   case 0xE6784B10: /* RetroShader: Lightmap, Diffuse, Specular, Reflection, Alpha=DiffuseAlpha, IndirectTex */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex, TexLink("Alpha", 1, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex,
+                        "IndirectTex"_tex, TexLink("Alpha", 1, true));
+    break;
   case 0xE68FF182: /* RetroShader: Diffuse, Emissive, Specular, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex);
+    break;
+  case 0xE92F1340: /* RetroShader: Diffuse, Alpha=DiffuseAlpha*AlphaMod */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 0, true), TexLink("AlphaMod", 1, true));
+    break;
   case 0xEB4645CF: /* RetroDynamicAlphaShader: Diffuse*Dynamic, Alpha=DiffuseAlpha*Dynamic */
-    _GenerateRootShader(out, "RetroDynamicAlphaShader", "Diffuse"_tex, TexLink("Alpha", 0, true)); break;
+    _GenerateRootShader(out, "RetroDynamicAlphaShader", "Diffuse"_tex, TexLink("Alpha", 0, true));
+    break;
   case 0xECEF8D1F: /* RetroDynamicShader: Diffuse*Dynamic, Emissive*Dynamic, Specular, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex);
+    break;
   case 0xF1C26570: /* RetroShader: Lightmap, Diffuse, Specular, ExtendedSpecular, Reflection, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "ExtendedSpecular"_tex, "Reflection"_tex, TexLink("Alpha", 1, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "ExtendedSpecular"_tex,
+                        "Reflection"_tex, TexLink("Alpha", 1, true));
+    break;
+  case 0xF345C16E: /* RetroShader: Emissive, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Emissive"_tex, "Reflection"_tex);
+    break;
+  case 0xF4DA0A86: /* RetroShader: KColorDiffuse, Emissive, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Emissive"_tex, "Alpha"_kcola); break;
+    break;
   case 0xF559DB08: /* RetroShader: Lightmap, Diffuse, Emissive, Specular, Reflection, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex,
+                        "Reflection"_tex);
+    break;
   case 0xF9324367: /* RetroShader: Lightmap, Diffuse, Emissive, Alpha=1.0 */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex);
+    break;
+  case 0xFC2761B8: /* RetroShader: Lightmap, Diffuse, Alpha=DiffuseAlpha*AlphaMod */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true),
+                        TexLink("AlphaMod", 2, true));
+    break;
   case 0xFD95D7FD: /* RetroShader: ObjLightmap, Diffuse, Alpha=DiffuseAlpha */
-    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true)); break;
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true));
+    break;
+  case 0xFFF3CEBB: /* RetroShader: Lightmap, Diffuse, Emissive, Alpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, TexLink("Alpha", 3, true));
+    break;
   default:
     _DescribeTEV(material);
-    Log.report(logvisor::Fatal, fmt("Unable to resolve shader hash {:08X}\n"), hash); break;
+    Log.report(logvisor::Fatal, fmt("Unable to resolve shader hash {:08X}\n"), hash);
+    break;
   }
 
   /* Has Lightmap? */
@@ -682,8 +806,7 @@ void MaterialSet::ConstructMaterial(Stream& out, const MaterialSet::Material& ma
   _ConstructMaterial(out, material, groupIdx, matIdx);
 }
 
-MaterialSet::Material::Material(const hecl::blender::Material& mat,
-                                std::vector<hecl::ProjectPath>& texPathsOut,
+MaterialSet::Material::Material(const hecl::blender::Material& mat, std::vector<hecl::ProjectPath>& texPathsOut,
                                 int colorCount, bool lightmapUVs, bool matrixSkinning) {
   /* TODO: Rewrite for new shader rep */
   XXH32_state_t xxHash;
@@ -1089,7 +1212,6 @@ void HMDLMaterialSet::Material::PASS::Enumerate(typename Op::StreamT& s) {
 }
 
 AT_SPECIALIZE_DNA(HMDLMaterialSet::Material::PASS)
-
 
 std::string_view HMDLMaterialSet::Material::PASS::DNAType() {
   return "DataSpec::DNAMP1::HMDLMaterialSet::Material::PASS"sv;
