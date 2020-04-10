@@ -122,12 +122,12 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
   }
 }
 
-void CCollisionActorManager::Destroy(CStateManager& mgr) const {
+void CCollisionActorManager::Destroy(CStateManager& mgr) {
   for (const CJointCollisionDescription& desc : x0_jointDescriptions) {
     mgr.FreeScriptObject(desc.GetCollisionActorId());
   }
 
-  const_cast<CCollisionActorManager&>(*this).x13_destroyed = true;
+  x13_destroyed = true;
 }
 
 void CCollisionActorManager::SetActive(CStateManager& mgr, bool active) {
