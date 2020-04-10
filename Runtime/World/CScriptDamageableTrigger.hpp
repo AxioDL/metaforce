@@ -29,7 +29,7 @@ private:
   zeus::CTransform x214_faceDirInv;
   zeus::CVector3f x244_faceTranslate;
   float x250_alphaTimer = 0.f;
-  mutable CFluidPlaneDoor x254_fluidPlane;
+  CFluidPlaneDoor x254_fluidPlane;
   union {
     struct {
       bool x300_24_notOccluded : 1;
