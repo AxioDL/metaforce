@@ -746,7 +746,7 @@ void SpecBase::clearTagCache() {
 }
 
 hecl::ProjectPath SpecBase::pathFromTag(const urde::SObjectTag& tag) const {
-  std::unique_lock<std::mutex> lk(const_cast<SpecBase&>(*this).m_backgroundIndexMutex);
+  std::unique_lock lk(m_backgroundIndexMutex);
   auto search = m_tagToPath.find(tag);
   if (search != m_tagToPath.cend())
     return search->second;
@@ -761,7 +761,7 @@ urde::SObjectTag SpecBase::tagFromPath(const hecl::ProjectPath& path) const {
 }
 
 bool SpecBase::waitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut) {
-  std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
+  std::unique_lock lk(m_backgroundIndexMutex);
   auto search = m_tagToPath.find(tag);
   if (search == m_tagToPath.end()) {
     if (m_backgroundRunning) {
@@ -787,7 +787,7 @@ const urde::SObjectTag* SpecBase::getResourceIdByName(std::string_view name) con
   std::string lower(name);
   std::transform(lower.cbegin(), lower.cend(), lower.begin(), tolower);
 
-  std::unique_lock<std::mutex> lk(const_cast<SpecBase&>(*this).m_backgroundIndexMutex);
+  std::unique_lock lk(m_backgroundIndexMutex);
   auto search = m_catalogNameToTag.find(lower);
   if (search == m_catalogNameToTag.end()) {
     if (m_backgroundRunning) {
@@ -811,7 +811,7 @@ FourCC SpecBase::getResourceTypeById(urde::CAssetId id) const {
   if (!id.IsValid())
     return {};
 
-  std::unique_lock<std::mutex> lk(const_cast<SpecBase&>(*this).m_backgroundIndexMutex);
+  std::unique_lock lk(m_backgroundIndexMutex);
   urde::SObjectTag searchTag = {FourCC(), id};
   auto search = m_tagToPath.find(searchTag);
   if (search == m_tagToPath.end()) {
@@ -901,7 +901,7 @@ void SpecBase::readCatalog(const hecl::ProjectPath& catalogPath, athena::io::YAM
       continue;
     urde::SObjectTag pathTag = tagFromPath(path);
     if (pathTag) {
-      std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
+      std::unique_lock lk(m_backgroundIndexMutex);
       m_catalogNameToTag[pLower] = pathTag;
       m_catalogTagToNames[pathTag].insert(p.first);
 
@@ -1111,7 +1111,7 @@ void SpecBase::backgroundIndexProc() {
       Log.report(logvisor::Info, fmt(_SYS_STR("Cache index of '{}' loading")), getOriginalSpec().m_name);
       athena::io::YAMLDocReader cacheReader;
       if (cacheReader.parse(&reader)) {
-        std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
+        std::unique_lock lk(m_backgroundIndexMutex);
         size_t tagCount = cacheReader.getRootNode()->m_mapChildren.size();
         m_tagToPath.reserve(tagCount);
         m_pathToTag.reserve(tagCount);
@@ -1147,7 +1147,7 @@ void SpecBase::backgroundIndexProc() {
         athena::io::FileReader nreader(nameCachePath.getAbsolutePath());
         athena::io::YAMLDocReader nameReader;
         if (nameReader.parse(&nreader)) {
-          std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
+          std::unique_lock lk(m_backgroundIndexMutex);
           m_catalogNameToTag.reserve(nameReader.getRootNode()->m_mapChildren.size());
           m_catalogTagToNames.reserve(nameReader.getRootNode()->m_mapChildren.size());
           for (const auto& child : nameReader.getRootNode()->m_mapChildren) {
@@ -1198,7 +1198,7 @@ void SpecBase::beginBackgroundIndex() {
 }
 
 void SpecBase::waitForIndexComplete() const {
-  std::unique_lock<std::mutex> lk(const_cast<SpecBase&>(*this).m_backgroundIndexMutex);
+  std::unique_lock lk(m_backgroundIndexMutex);
   while (m_backgroundRunning) {
     lk.unlock();
     std::this_thread::sleep_for(std::chrono::milliseconds(2));

@@ -175,7 +175,7 @@ protected:
 
   hecl::blender::Token m_backgroundBlender;
   std::thread m_backgroundIndexTh;
-  std::mutex m_backgroundIndexMutex;
+  mutable std::mutex m_backgroundIndexMutex;
   bool m_backgroundRunning = false;
 
   void readCatalog(const hecl::ProjectPath& catalogPath, athena::io::YAMLDocWriter& nameWriter);
