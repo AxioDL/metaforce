@@ -357,9 +357,10 @@ void CPathFindVisualizer::Draw(const CPathFindSearch& path) {
   m_spline.Render();
 }
 
-void CPathFindSearch::DebugDraw() const {
-  if (!m_viz)
+void CPathFindSearch::DebugDraw() {
+  if (!m_viz) {
     m_viz.emplace();
+  }
   m_viz->Draw(*this);
 }
 
