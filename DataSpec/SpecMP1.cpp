@@ -626,7 +626,7 @@ struct SpecMP1 : SpecBase {
     pathPrefix += pakName;
     pathPrefix += '/';
 
-    std::unique_lock<std::mutex> lk(const_cast<SpecMP1&>(*this).m_backgroundIndexMutex);
+    std::unique_lock lk(m_backgroundIndexMutex);
     for (const auto& tag : m_tagToPath)
       if (!tag.second.getRelativePathUTF8().compare(0, pathPrefix.size(), pathPrefix))
         out.push_back(tag.first);
