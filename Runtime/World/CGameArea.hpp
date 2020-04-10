@@ -347,11 +347,8 @@ public:
   s32 GetDockCount() const { return xcc_docks.size(); }
 
   bool IsPostConstructed() const { return xf0_24_postConstructed; }
-  const CPostConstructed* GetPostConstructed() const {
-    if (!x12c_postConstructed)
-      return nullptr;
-    return x12c_postConstructed.get();
-  }
+  CPostConstructed* GetPostConstructed() { return x12c_postConstructed.get(); }
+  const CPostConstructed* GetPostConstructed() const { return x12c_postConstructed.get(); }
 
   bool IsValidated() const { return xf0_28_validated; }
 

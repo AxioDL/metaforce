@@ -211,8 +211,8 @@ void CScriptPlayerActor::Think(float dt, CStateManager& mgr) {
     if (x354_29_loading && !x354_28_suitModelLoading && !x354_27_beamModelLoading && x64_modelData &&
         !x64_modelData->IsNull() && x64_modelData->IsLoaded(0)) {
       if (x355_24_areaTrackingLoad) {
-        const CGameArea* area = mgr.GetWorld()->GetAreaAlways(x4_areaId);
-        --const_cast<CGameArea::CPostConstructed*>(area->GetPostConstructed())->x113c_playerActorsLoading;
+        CGameArea* area = mgr.GetWorld()->GetArea(x4_areaId);
+        --area->GetPostConstructed()->x113c_playerActorsLoading;
         x355_24_areaTrackingLoad = false;
       }
       x354_29_loading = false;
@@ -285,8 +285,8 @@ void CScriptPlayerActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
   case EScriptObjectMessage::InitializedInArea:
     x354_31_deferOnlineLoad = true;
     if (x350_flags & 0x8) {
-      const CGameArea* area = mgr.GetWorld()->GetAreaAlways(x4_areaId);
-      ++const_cast<CGameArea::CPostConstructed*>(area->GetPostConstructed())->x113c_playerActorsLoading;
+      CGameArea* area = mgr.GetWorld()->GetArea(x4_areaId);
+      ++area->GetPostConstructed()->x113c_playerActorsLoading;
       x355_24_areaTrackingLoad = true;
     }
     if (GetActive()) {
