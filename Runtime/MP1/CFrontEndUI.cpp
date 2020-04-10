@@ -1412,10 +1412,9 @@ void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveGameScreen* saveUi) const {
   }
 }
 
-CFrontEndUI::SOptionsFrontEndFrame::SOptionsFrontEndFrame() {
+CFrontEndUI::SOptionsFrontEndFrame::SOptionsFrontEndFrame() : x134_24_visible(true), x134_25_exitOptions(false) {
   x4_frme = g_SimplePool->GetObj("FRME_OptionsFrontEnd");
   x10_pauseScreen = g_SimplePool->GetObj("STRG_PauseScreen");
-  x134_24_visible = true;
 }
 
 void CFrontEndUI::SOptionsFrontEndFrame::DoSliderChange(CGuiSliderGroup* caller, float value) {

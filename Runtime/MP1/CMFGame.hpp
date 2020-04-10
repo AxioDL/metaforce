@@ -23,13 +23,8 @@ class CMFGame : public CMFGameBase {
   float x20_cineSkipTime;
   u32 x24_ = 0;
   TUniqueId x28_skippedCineCam = kInvalidUniqueId;
-  union {
-    struct {
-      bool x2a_24_initialized : 1;
-      bool x2a_25_samusAlive : 1;
-    };
-    u8 _dummy = 0;
-  };
+  bool x2a_24_initialized : 1;
+  bool x2a_25_samusAlive : 1;
 
   CColoredQuadFilter m_fadeToBlack{EFilterType::Multiply};
 
@@ -57,14 +52,8 @@ class CMFGameLoader : public CMFGameLoaderBase {
   std::shared_ptr<CStateManager> x14_stateMgr;
   std::shared_ptr<CInGameGuiManager> x18_guiMgr;
   std::vector<CToken> x1c_loadList;
-
-  union {
-    struct {
-      bool x2c_24_initialized : 1;
-      bool x2c_25_transitionFinished : 1;
-    };
-    u8 _dummy = 0;
-  };
+  bool x2c_24_initialized : 1;
+  bool x2c_25_transitionFinished : 1;
 
   void MakeLoadDependencyList();
 

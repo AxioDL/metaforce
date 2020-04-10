@@ -74,24 +74,20 @@ protected:
   CGuiSliderGroup* x18c_slidergroup_slider = nullptr;
   CGuiTableGroup* x190_tablegroup_double = nullptr;
   CGuiTableGroup* x194_tablegroup_triple = nullptr;
-  union {
-    struct {
-      bool x198_24_ready : 1;
-      bool x198_25_handledInput : 1;
-      bool x198_26_exitPauseScreen : 1;
-      bool x198_27_canDraw : 1;
-      bool x198_28_pulseTextArrowTop : 1;
-      bool x198_29_pulseTextArrowBottom : 1;
-      bool m_isLogBook : 1;
-      bool m_bodyUpClicked : 1;
-      bool m_bodyDownClicked : 1;
-      bool m_bodyClicked : 1;
-      bool m_leftClicked : 1;
-      bool m_rightClicked : 1;
-      bool m_playRightTableSfx : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x198_24_ready : 1;
+  bool x198_25_handledInput : 1;
+  bool x198_26_exitPauseScreen : 1;
+  bool x198_27_canDraw : 1;
+  bool x198_28_pulseTextArrowTop : 1;
+  bool x198_29_pulseTextArrowBottom : 1;
+  bool m_isLogBook : 1;
+  bool m_bodyUpClicked : 1;
+  bool m_bodyDownClicked : 1;
+  bool m_bodyClicked : 1;
+  bool m_leftClicked : 1;
+  bool m_rightClicked : 1;
+  bool m_playRightTableSfx : 1;
+
   void InitializeFrameGlue();
   void ChangeMode(EMode mode, bool playSfx = true);
   void UpdateSideTable(CGuiTableGroup* table);

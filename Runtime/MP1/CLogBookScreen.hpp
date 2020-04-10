@@ -13,7 +13,7 @@ namespace urde {
 class CPlayerState;
 class CScannableObjectInfo;
 class CStringTable;
-}
+} // namespace urde
 
 namespace urde::MP1 {
 class CArtifactDoll;
@@ -25,18 +25,14 @@ class CLogBookScreen : public CPauseScreenBase {
       x200_viewScans;
   float x254_viewInterp = 0.f;
   std::unique_ptr<CArtifactDoll> x258_artifactDoll;
-
-  enum class ELeavePauseState { InPause = 0, LeavingPause = 1, LeftPause = 2 };
-
-  ELeavePauseState x25c_leavePauseState = ELeavePauseState::InPause;
-  union {
-    struct {
-      bool x260_24_loaded : 1;
-      bool x260_25_inTextScroll : 1;
-      bool x260_26_exitTextScroll : 1;
-    };
-    s32 _dummy = 0;
-  };
+  enum class ELeavePauseState {
+    InPause = 0,
+    LeavingPause = 1,
+    LeftPause = 2
+  } x25c_leavePauseState = ELeavePauseState::InPause;
+  bool x260_24_loaded : 1;
+  bool x260_25_inTextScroll : 1;
+  bool x260_26_exitTextScroll : 1;
 
   void InitializeLogBook();
   void UpdateRightTitles();

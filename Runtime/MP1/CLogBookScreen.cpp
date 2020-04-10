@@ -14,7 +14,10 @@
 namespace urde::MP1 {
 
 CLogBookScreen::CLogBookScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg)
-: CPauseScreenBase(mgr, frame, pauseStrg, true) {
+: CPauseScreenBase(mgr, frame, pauseStrg, true)
+, x260_24_loaded(false)
+, x260_25_inTextScroll(false)
+, x260_26_exitTextScroll(false) {
   x19c_scanCompletes.resize(5);
   x200_viewScans.resize(5);
   x258_artifactDoll = std::make_unique<CArtifactDoll>();
@@ -176,7 +179,6 @@ bool CLogBookScreen::IsScanCategoryReady(CSaveWorld::EScanCategory category) con
     return IsScanComplete(state.second, state.first, playerState);
   });
 }
-
 
 void CLogBookScreen::UpdateBodyText() {
   if (x10_mode != EMode::TextScroll) {

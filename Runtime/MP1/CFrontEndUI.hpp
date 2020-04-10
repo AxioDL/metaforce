@@ -279,13 +279,8 @@ public:
     float x38_rowPitch = 0.f;
     CSfxHandle x3c_sliderSfx;
     CRumbleGenerator x40_rumbleGen;
-    union {
-      u8 _dummy = 0;
-      struct {
-        bool x134_24_visible : 1;
-        bool x134_25_exitOptions : 1;
-      };
-    };
+    bool x134_24_visible : 1;
+    bool x134_25_exitOptions : 1;
 
     std::unique_ptr<CGameOptionsTouchBar> m_touchBar;
     bool m_touchBarInValue = false;
