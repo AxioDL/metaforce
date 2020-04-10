@@ -1,5 +1,7 @@
 #include "Runtime/Character/IMetaAnim.hpp"
 
+#include <array>
+
 #include "Runtime/Character/CAnimTreeNode.hpp"
 #include "Runtime/Character/CBoolPOINode.hpp"
 #include "Runtime/Character/CCharAnimTime.hpp"
@@ -29,17 +31,19 @@ void IMetaAnim::AdvanceAnim(IAnimReader& anim, const CCharAnimTime& dt) {
 }
 
 CCharAnimTime IMetaAnim::GetTime(const CPreAdvanceIndicator& ind, const IAnimReader& anim) {
-  if (ind.IsTime())
+  if (ind.IsTime()) {
     return ind.GetTime();
+  }
 
-  CBoolPOINode nodes[64];
-  CCharAnimTime rem = anim.VGetTimeRemaining();
-  u32 count = anim.VGetBoolPOIList(rem, nodes, 64, 0, 0);
+  std::array<CBoolPOINode, 64> nodes;
+  const CCharAnimTime rem = anim.VGetTimeRemaining();
+  const size_t count = anim.VGetBoolPOIList(rem, nodes.data(), nodes.size(), 0, 0);
   const char* cmpStr = ind.GetString();
-  for (u32 i = 0; i < count; ++i) {
-    CBoolPOINode& node = nodes[i];
-    if (node.GetString() != cmpStr || !node.GetValue())
+  for (size_t i = 0; i < count; ++i) {
+    const CBoolPOINode& node = nodes[i];
+    if (node.GetString() != cmpStr || !node.GetValue()) {
       continue;
+    }
     return node.GetTime();
   }
 

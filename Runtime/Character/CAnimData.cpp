@@ -135,11 +135,13 @@ SAdvancementDeltas CAnimData::AdvanceAdditiveAnims(float dt) {
     std::shared_ptr<CAnimTreeNode>& anim = additive.second.GetAnim();
     if (additive.second.IsActive()) {
       while (time.GreaterThanZero() && std::fabs(time.GetSeconds()) >= 0.00001f) {
-        x210_passedIntCount += anim->GetInt32POIList(time, g_Int32POINodes.data(), 16, x210_passedIntCount, 0);
-        x20c_passedBoolCount += anim->GetBoolPOIList(time, g_BoolPOINodes.data(), 8, x20c_passedBoolCount, 0);
+        x210_passedIntCount +=
+            u32(anim->GetInt32POIList(time, g_Int32POINodes.data(), g_Int32POINodes.size(), x210_passedIntCount, 0));
+        x20c_passedBoolCount +=
+            u32(anim->GetBoolPOIList(time, g_BoolPOINodes.data(), g_BoolPOINodes.size(), x20c_passedBoolCount, 0));
         x214_passedParticleCount +=
-            anim->GetParticlePOIList(time, g_ParticlePOINodes.data(), 8, x214_passedParticleCount, 0);
-        x218_passedSoundCount += anim->GetSoundPOIList(time, g_SoundPOINodes.data(), 8, x218_passedSoundCount, 0);
+            u32(anim->GetParticlePOIList(time, g_ParticlePOINodes.data(), 8, x214_passedParticleCount, 0));
+        x218_passedSoundCount += u32(anim->GetSoundPOIList(time, g_SoundPOINodes.data(), 8, x218_passedSoundCount, 0));
 
         SAdvancementResults results = AdvanceAdditiveAnim(anim, time);
         deltas.x0_posDelta += results.x8_deltas.x0_posDelta;
@@ -149,11 +151,13 @@ SAdvancementDeltas CAnimData::AdvanceAdditiveAnims(float dt) {
     } else {
       CCharAnimTime remTime = anim->VGetTimeRemaining();
       while (remTime.GreaterThanZero() && std::fabs(remTime.GetSeconds()) >= 0.00001f) {
-        x210_passedIntCount += anim->GetInt32POIList(time, g_Int32POINodes.data(), 16, x210_passedIntCount, 0);
-        x20c_passedBoolCount += anim->GetBoolPOIList(time, g_BoolPOINodes.data(), 8, x20c_passedBoolCount, 0);
+        x210_passedIntCount +=
+            u32(anim->GetInt32POIList(time, g_Int32POINodes.data(), g_Int32POINodes.size(), x210_passedIntCount, 0));
+        x20c_passedBoolCount +=
+            u32(anim->GetBoolPOIList(time, g_BoolPOINodes.data(), g_BoolPOINodes.size(), x20c_passedBoolCount, 0));
         x214_passedParticleCount +=
-            anim->GetParticlePOIList(time, g_ParticlePOINodes.data(), 8, x214_passedParticleCount, 0);
-        x218_passedSoundCount += anim->GetSoundPOIList(time, g_SoundPOINodes.data(), 8, x218_passedSoundCount, 0);
+            u32(anim->GetParticlePOIList(time, g_ParticlePOINodes.data(), 8, x214_passedParticleCount, 0));
+        x218_passedSoundCount += u32(anim->GetSoundPOIList(time, g_SoundPOINodes.data(), 8, x218_passedSoundCount, 0));
 
         SAdvancementResults results = AdvanceAdditiveAnim(anim, time);
         deltas.x0_posDelta += results.x8_deltas.x0_posDelta;
@@ -263,8 +267,9 @@ SAdvancementDeltas CAnimData::GetAdvancementDeltas(const CCharAnimTime& a, const
 }
 
 CCharAnimTime CAnimData::GetTimeOfUserEvent(EUserEventType type, const CCharAnimTime& time) const {
-  u32 count = x1f8_animRoot->GetInt32POIList(time, g_TransientInt32POINodes.data(), 16, 0, 64);
-  for (u32 i = 0; i < count; ++i) {
+  const size_t count =
+      x1f8_animRoot->GetInt32POIList(time, g_TransientInt32POINodes.data(), g_TransientInt32POINodes.size(), 0, 64);
+  for (size_t i = 0; i < count; ++i) {
     CInt32POINode& poi = g_TransientInt32POINodes[i];
     if (poi.GetPoiType() == EPOIType::UserEvent && EUserEventType(poi.GetValue()) == type) {
       CCharAnimTime ret = poi.GetTime();
@@ -283,8 +288,8 @@ void CAnimData::MultiplyPlaybackRate(float mul) { x200_speedScale *= mul; }
 void CAnimData::SetPlaybackRate(float set) { x200_speedScale = set; }
 
 void CAnimData::SetRandomPlaybackRate(CRandom16& r) {
-  for (u32 i = 0; i < x210_passedIntCount; ++i) {
-    CInt32POINode& poi = g_Int32POINodes[i];
+  for (size_t i = 0; i < x210_passedIntCount; ++i) {
+    const CInt32POINode& poi = g_Int32POINodes[i];
     if (poi.GetPoiType() == EPOIType::RandRate) {
       float tmp = (r.Next() % poi.GetValue()) / 100.f;
       if ((r.Next() % 100) < 50)
@@ -304,10 +309,10 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
   x220_27_ = false;
   if (parms.GetDeltaOrient() && parms.GetObjectXform()) {
     ResetPOILists();
-    x210_passedIntCount +=
-        node->GetInt32POIList(CCharAnimTime::Infinity(), g_Int32POINodes.data(), 16, x210_passedIntCount, 64);
-    for (u32 i = 0; i < x210_passedIntCount; ++i) {
-      CInt32POINode& poi = g_Int32POINodes[i];
+    x210_passedIntCount += u32(node->GetInt32POIList(CCharAnimTime::Infinity(), g_Int32POINodes.data(),
+                                                     g_Int32POINodes.size(), x210_passedIntCount, 64));
+    for (size_t i = 0; i < x210_passedIntCount; ++i) {
+      const CInt32POINode& poi = g_Int32POINodes[i];
       if (poi.GetPoiType() == EPOIType::UserEvent && EUserEventType(poi.GetValue()) == EUserEventType::AlignTargetRot) {
         SAdvancementResults res = node->VGetAdvancementResults(poi.GetTime(), 0.f);
         orient = zeus::CQuaternion::slerp(zeus::CQuaternion(),
@@ -328,10 +333,10 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
     CCharAnimTime timeStart, timeAlign;
     if (parms.GetTargetPos() && parms.GetObjectXform()) {
       ResetPOILists();
-      x210_passedIntCount +=
-          node->GetInt32POIList(CCharAnimTime::Infinity(), g_Int32POINodes.data(), 16, x210_passedIntCount, 64);
-      for (u32 i = 0; i < x210_passedIntCount; ++i) {
-        CInt32POINode& poi = g_Int32POINodes[i];
+      x210_passedIntCount += u32(node->GetInt32POIList(CCharAnimTime::Infinity(), g_Int32POINodes.data(),
+                                                       g_Int32POINodes.size(), x210_passedIntCount, 64));
+      for (size_t i = 0; i < x210_passedIntCount; ++i) {
+        const CInt32POINode& poi = g_Int32POINodes[i];
         if (poi.GetPoiType() == EPOIType::UserEvent) {
           if (EUserEventType(poi.GetValue()) == EUserEventType::AlignTargetPosStart) {
             didStart = true;
@@ -380,9 +385,9 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
     zeus::CVector3f startPos;
     if (parms.GetTargetPos() && parms.GetObjectXform()) {
       ResetPOILists();
-      x210_passedIntCount +=
-          node->GetInt32POIList(CCharAnimTime::Infinity(), g_Int32POINodes.data(), 16, x210_passedIntCount, 64);
-      for (u32 i = 0; i < x210_passedIntCount; ++i) {
+      x210_passedIntCount += u32(node->GetInt32POIList(CCharAnimTime::Infinity(), g_Int32POINodes.data(),
+                                                       g_Int32POINodes.size(), x210_passedIntCount, 64));
+      for (size_t i = 0; i < x210_passedIntCount; ++i) {
         CInt32POINode& poi = g_Int32POINodes[i];
         if (poi.GetPoiType() == EPOIType::UserEvent) {
           if (EUserEventType(poi.GetValue()) == EUserEventType::AlignTargetPosStart) {
@@ -678,23 +683,27 @@ SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& suspendParticles, CRando
     CCharAnimTime time(scaleDt);
     if (x220_25_loop) {
       while (time.GreaterThanZero() && !time.EpsilonZero()) {
-        x210_passedIntCount += x1f8_animRoot->GetInt32POIList(time, g_Int32POINodes.data(), 16, x210_passedIntCount, 0);
-        x20c_passedBoolCount += x1f8_animRoot->GetBoolPOIList(time, g_BoolPOINodes.data(), 16, x20c_passedBoolCount, 0);
+        x210_passedIntCount += u32(x1f8_animRoot->GetInt32POIList(time, g_Int32POINodes.data(), g_Int32POINodes.size(),
+                                                                  x210_passedIntCount, 0));
+        x20c_passedBoolCount += u32(
+            x1f8_animRoot->GetBoolPOIList(time, g_BoolPOINodes.data(), g_BoolPOINodes.size(), x20c_passedBoolCount, 0));
         x214_passedParticleCount +=
-            x1f8_animRoot->GetParticlePOIList(time, g_ParticlePOINodes.data(), 16, x214_passedParticleCount, 0);
+            u32(x1f8_animRoot->GetParticlePOIList(time, g_ParticlePOINodes.data(), 16, x214_passedParticleCount, 0));
         x218_passedSoundCount +=
-            x1f8_animRoot->GetSoundPOIList(time, g_SoundPOINodes.data(), 16, x218_passedSoundCount, 0);
+            u32(x1f8_animRoot->GetSoundPOIList(time, g_SoundPOINodes.data(), 16, x218_passedSoundCount, 0));
         AdvanceAnim(time, offsetPost, quatPost);
       }
     } else {
       CCharAnimTime remTime = x1f8_animRoot->VGetTimeRemaining();
       while (!remTime.EpsilonZero() && !time.EpsilonZero()) {
-        x210_passedIntCount += x1f8_animRoot->GetInt32POIList(time, g_Int32POINodes.data(), 16, x210_passedIntCount, 0);
-        x20c_passedBoolCount += x1f8_animRoot->GetBoolPOIList(time, g_BoolPOINodes.data(), 16, x20c_passedBoolCount, 0);
+        x210_passedIntCount += u32(x1f8_animRoot->GetInt32POIList(time, g_Int32POINodes.data(), g_Int32POINodes.size(),
+                                                                  x210_passedIntCount, 0));
+        x20c_passedBoolCount += u32(
+            x1f8_animRoot->GetBoolPOIList(time, g_BoolPOINodes.data(), g_BoolPOINodes.size(), x20c_passedBoolCount, 0));
         x214_passedParticleCount +=
-            x1f8_animRoot->GetParticlePOIList(time, g_ParticlePOINodes.data(), 16, x214_passedParticleCount, 0);
+            u32(x1f8_animRoot->GetParticlePOIList(time, g_ParticlePOINodes.data(), 16, x214_passedParticleCount, 0));
         x218_passedSoundCount +=
-            x1f8_animRoot->GetSoundPOIList(time, g_SoundPOINodes.data(), 16, x218_passedSoundCount, 0);
+            u32(x1f8_animRoot->GetSoundPOIList(time, g_SoundPOINodes.data(), 16, x218_passedSoundCount, 0));
         AdvanceAnim(time, offsetPost, quatPost);
         remTime = x1f8_animRoot->VGetTimeRemaining();
         time = std::max(0.f, std::min(remTime.GetSeconds(), time.GetSeconds()));
@@ -721,8 +730,8 @@ SAdvancementDeltas CAnimData::Advance(float dt, const zeus::CVector3f& scale, CS
   if (suspendParticles)
     x120_particleDB.SuspendAllActiveEffects(stateMgr);
 
-  for (u32 i = 0; i < x214_passedParticleCount; ++i) {
-    CParticlePOINode& node = g_ParticlePOINodes[i];
+  for (size_t i = 0; i < x214_passedParticleCount; ++i) {
+    const CParticlePOINode& node = g_ParticlePOINodes[i];
     if (node.GetCharacterIndex() == -1 || node.GetCharacterIndex() == x204_charIdx) {
       x120_particleDB.AddParticleEffect(node.GetString(), node.GetFlags(), node.GetParticleData(), scale, stateMgr, aid,
                                         false, x21c_particleLightIdx);
@@ -750,8 +759,8 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
     x1f8_animRoot = CAnimTreeNode::Cast(std::move(*simplified));
 
   if ((x220_28_ || x220_27_) && x210_passedIntCount > 0) {
-    for (u32 i = 0; i < x210_passedIntCount; ++i) {
-      CInt32POINode& node = g_Int32POINodes[i];
+    for (size_t i = 0; i < x210_passedIntCount; ++i) {
+      const CInt32POINode& node = g_Int32POINodes[i];
       if (node.GetPoiType() == EPOIType::UserEvent) {
         switch (EUserEventType(node.GetValue())) {
         case EUserEventType::AlignTargetPosStart: {

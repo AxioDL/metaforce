@@ -53,12 +53,12 @@ public:
 };
 
 template <class T>
-u32 _getPOIList(const CCharAnimTime& time, T* listOut, u32 capacity, u32 iterator, u32 unk1,
-                const std::vector<T>& stream, const CCharAnimTime& curTime, const IAnimSourceInfo& animInfo,
-                u32 passedCount);
+size_t _getPOIList(const CCharAnimTime& time, T* listOut, size_t capacity, size_t iterator, u32 unk1,
+                   const std::vector<T>& stream, const CCharAnimTime& curTime, const IAnimSourceInfo& animInfo,
+                   size_t passedCount);
 
 template <class T>
-u32 _getPOIList(const CCharAnimTime& time, T* listOut, u32 capacity, u32 iterator, u32 unk1,
-                const std::vector<T>& stream, const CCharAnimTime& curTime);
+size_t _getPOIList(const CCharAnimTime& time, T* listOut, size_t capacity, size_t iterator, u32 unk1,
+                   const std::vector<T>& stream, const CCharAnimTime& curTime);
 
 } // namespace urde

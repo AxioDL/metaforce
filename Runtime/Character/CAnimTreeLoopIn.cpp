@@ -57,26 +57,26 @@ std::unique_ptr<IAnimReader> CAnimTreeLoopIn::VClone() const {
                                            x20_animCtx, x4_name, x30_fundamentals, x88_curTime);
 }
 
-u32 CAnimTreeLoopIn::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator,
-                                     u32 unk) const {
+size_t CAnimTreeLoopIn::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, size_t capacity,
+                                        size_t iterator, u32 unk) const {
   return _getPOIList<CBoolPOINode>(time, listOut, capacity, iterator, unk, x30_fundamentals.GetBoolPointsOfInterest(),
                                    x88_curTime);
 }
 
-u32 CAnimTreeLoopIn::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator,
-                                      u32 unk) const {
+size_t CAnimTreeLoopIn::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, size_t capacity,
+                                         size_t iterator, u32 unk) const {
   return _getPOIList<CInt32POINode>(time, listOut, capacity, iterator, unk, x30_fundamentals.GetInt32PointsOfInterest(),
                                     x88_curTime);
 }
 
-u32 CAnimTreeLoopIn::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity,
-                                         u32 iterator, u32 unk) const {
+size_t CAnimTreeLoopIn::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, size_t capacity,
+                                            size_t iterator, u32 unk) const {
   return _getPOIList<CParticlePOINode>(time, listOut, capacity, iterator, unk,
                                        x30_fundamentals.GetParticlePointsOfInterest(), x88_curTime);
 }
 
-u32 CAnimTreeLoopIn::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator,
-                                      u32 unk) const {
+size_t CAnimTreeLoopIn::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, size_t capacity,
+                                         size_t iterator, u32 unk) const {
   return _getPOIList<CSoundPOINode>(time, listOut, capacity, iterator, unk, x30_fundamentals.GetSoundPointsOfInterest(),
                                     x88_curTime);
 }
