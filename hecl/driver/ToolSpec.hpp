@@ -71,7 +71,7 @@ public:
     help.endWrap();
   }
 
-  hecl::SystemString toolName() const override { return _SYS_STR("spec"); }
+  hecl::SystemStringView toolName() const override { return _SYS_STR("spec"sv); }
 
   int run() override {
     if (!m_info.project) {

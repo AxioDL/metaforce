@@ -717,6 +717,7 @@ class Connection {
   std::atomic_bool m_lock = {false};
   bool m_pyStreamActive = false;
   bool m_dataStreamActive = false;
+  bool m_blenderQuit = false;
 #if _WIN32
   PROCESS_INFORMATION m_pinfo = {};
   std::thread m_consoleThread;

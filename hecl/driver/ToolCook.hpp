@@ -145,7 +145,7 @@ public:
     }
   }
 
-  hecl::SystemString toolName() const override { return _SYS_STR("cook"); }
+  hecl::SystemStringView toolName() const override { return _SYS_STR("cook"sv); }
 
   int run() override {
     hecl::MultiProgressPrinter printer(true);

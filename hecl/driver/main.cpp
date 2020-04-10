@@ -27,6 +27,7 @@ logvisor::Module LogModule("hecl::Driver");
 #include "ToolCook.hpp"
 #include "ToolPackage.hpp"
 #include "ToolImage.hpp"
+#include "ToolInstallAddon.hpp"
 #include "ToolHelp.hpp"
 
 /* Static reference to dataspec additions
@@ -49,9 +50,9 @@ static void printHelp(const hecl::SystemChar* pname) {
   else
     fmt::print(fmt(_SYS_STR("HECL")));
 #if HECL_HAS_NOD
-#define TOOL_LIST "extract|init|cook|package|image|help"
+#define TOOL_LIST "extract|init|cook|package|image|installaddon|help"
 #else
-#define TOOL_LIST "extract|init|cook|package|help"
+#define TOOL_LIST "extract|init|cook|package|installaddon|help"
 #endif
 #if HECL_GIT
   fmt::print(fmt(_SYS_STR(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: {} " TOOL_LIST "\n")), pname);
@@ -250,6 +251,10 @@ static std::unique_ptr<ToolBase> MakeSelectedTool(hecl::SystemString toolName, T
     return std::make_unique<ToolImage>(info);
   }
 #endif
+
+  if (toolNameLower == _SYS_STR("installaddon")) {
+    return std::make_unique<ToolInstallAddon>(info);
+  }
 
   if (toolNameLower == _SYS_STR("help")) {
     return std::make_unique<ToolHelp>(info);

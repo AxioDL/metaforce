@@ -73,5 +73,5 @@ public:
     help.endWrap();
   }
 
-  hecl::SystemString toolName() const override { return _SYS_STR("init"); }
+  hecl::SystemStringView toolName() const override { return _SYS_STR("init"sv); }
 };

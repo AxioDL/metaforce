@@ -112,7 +112,7 @@ public:
     help.endWrap();
   }
 
-  hecl::SystemString toolName() const override { return _SYS_STR("extract"); }
+  hecl::SystemStringView toolName() const override { return _SYS_STR("extract"sv); }
 
   static void _recursivePrint(int level, hecl::Database::IDataSpec::ExtractReport& rep) {
     for (int l = 0; l < level; ++l)

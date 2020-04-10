@@ -50,6 +50,7 @@ class hecl_scene_panel(bpy.types.Panel):
             sm_row = layout.row(align=True)
             sm_row.prop_enum(context.scene, 'hecl_shader_model', 'ORIGINAL')
             sm_row.prop_enum(context.scene, 'hecl_shader_model', 'PBR')
+            layout.prop(context.scene, 'hecl_mp3_bloom', text='View MP3 Bloom')
 
         for exp_type in hecl_typeS:
             if exp_type[0] == context.scene.hecl_type and callable(exp_type[3]):
@@ -133,9 +134,15 @@ def shader_model_update(self, context):
     value = 0.0
     if self.hecl_shader_model == 'PBR':
         value = 1.0
+    bloom_value = 0.0
+    if self.hecl_mp3_bloom:
+        bloom_value = 1.0
     for shad in ('RetroShader', 'RetroDynamicShader', 'RetroDynamicAlphaShader', 'RetroDynamicCharacterShader'):
         if shad in bpy.data.node_groups and 'NewShaderModel' in bpy.data.node_groups[shad].nodes:
             bpy.data.node_groups[shad].nodes['NewShaderModel'].outputs[0].default_value = value
+    for shad in ('RetroShaderMP3',):
+        if shad in bpy.data.node_groups and 'Mix Shader' in bpy.data.node_groups[shad].nodes:
+            bpy.data.node_groups[shad].nodes['Mix Shader'].inputs[0].default_value = bloom_value
 
 # Load scene callback
 from bpy.app.handlers import persistent
@@ -239,6 +246,10 @@ def register():
                                             ('PBR', "PBR", "Hybrid PBR materials replacing original reflection")],
                                         update=shader_model_update,
                                         default='ORIGINAL')
+    bpy.types.Scene.hecl_mp3_bloom = bpy.props.BoolProperty(name="HECL View MP3 Bloom",
+                                                            description="Preview MP3 bloom factors of model",
+                                                            update=shader_model_update,
+                                                            default=False)
     bpy.app.handlers.load_post.append(scene_loaded)
     Patching.register()
 

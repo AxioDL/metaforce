@@ -1661,6 +1661,9 @@ MapUniverse DataStream::compileMapUniverse() {
 }
 
 void Connection::quitBlender() {
+  if (m_blenderQuit)
+    return;
+  m_blenderQuit = true;
   char lineBuf[256];
   if (m_lock) {
     if (m_pyStreamActive) {

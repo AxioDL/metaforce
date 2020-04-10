@@ -93,7 +93,7 @@ public:
     hecl::GuiMode = info.gui;
   }
   virtual ~ToolBase() = default;
-  virtual hecl::SystemString toolName() const = 0;
+  virtual hecl::SystemStringView toolName() const = 0;
   virtual int run() = 0;
   virtual void cancel() {}
   explicit operator bool() const { return m_good; }

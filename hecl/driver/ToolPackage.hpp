@@ -151,7 +151,7 @@ public:
     help.endWrap();
   }
 
-  hecl::SystemString toolName() const override { return _SYS_STR("package"); }
+  hecl::SystemStringView toolName() const override { return _SYS_STR("package"sv); }
 
   int run() override {
     if (XTERM_COLOR)
