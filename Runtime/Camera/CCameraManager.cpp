@@ -398,8 +398,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
           }
         } else {
           if (const TCastToConstPtr<CActor> act = mgr.GetObjectById(bestHint->GetFirstHelper())) {
-            zeus::CVector3f ballPos = mgr.GetPlayer().GetBallPosition();
-            zeus::CVector3f f26 = act->GetTranslation() - ballPos;
+            const zeus::CVector3f f26 = act->GetTranslation() - mgr.GetPlayer().GetBallPosition();
             zeus::CVector3f ballToHelper = f26;
             if (ballToHelper.canBeNormalized()) {
               ballToHelper.normalize();
