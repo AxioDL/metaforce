@@ -5,6 +5,7 @@
 namespace urde {
 
 CErrorOutputWindow::CErrorOutputWindow(bool flag) : CIOWin("Error Output Window") {
+  x18_24_ = false;
   x18_25_ = true;
   x18_26_ = true;
   x18_27_ = true;

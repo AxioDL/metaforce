@@ -11,16 +11,11 @@ public:
 
 private:
   State x14_state = State::Zero;
-  union {
-    struct {
-      bool x18_24_;
-      bool x18_25_;
-      bool x18_26_;
-      bool x18_27_;
-      bool x18_28_;
-    };
-    u16 dummy = 0;
-  };
+  bool x18_24_;
+  bool x18_25_;
+  bool x18_26_;
+  bool x18_27_;
+  bool x18_28_;
   const wchar_t* x1c_msg;
 
 public:

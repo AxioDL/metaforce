@@ -26,11 +26,10 @@ CHudMissileInterface::CHudMissileInterface(CGuiFrame& selHud, int missileCapacit
 : x0_hudType(hudType)
 , x4_missileCapacity(missileCapacity)
 , x8_numMissles(numMissiles)
-, x4c_chargeBeamFactor(chargeFactor) {
-  x58_24_missilesActive = missilesActive;
-  x58_25_visibleDebug = true;
-  x58_26_visibleGame = true;
-
+, x4c_chargeBeamFactor(chargeFactor)
+, x58_24_missilesActive(missilesActive)
+, x58_25_visibleDebug(true)
+, x58_26_visibleGame(true) {
   x5c_basewidget_missileicon = selHud.FindWidget("basewidget_missileicon");
   x60_textpane_missiledigits = static_cast<CGuiTextPane*>(selHud.FindWidget("textpane_missiledigits"));
   x64_energybart01_missilebar = static_cast<CAuiEnergyBarT01*>(selHud.FindWidget("energybart01_missilebar"));

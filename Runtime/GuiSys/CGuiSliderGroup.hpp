@@ -22,14 +22,9 @@ private:
   std::array<CGuiWidget*, 2> xcc_sliderRangeWidgets{};
   std::function<void(CGuiSliderGroup*, float)> xd8_changeCallback;
   EState xf0_state = EState::None;
-  union {
-    struct {
-      bool xf4_24_inputPending : 1;
-      mutable bool m_mouseInside : 1;
-      bool m_mouseDown : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool xf4_24_inputPending : 1;
+  mutable bool m_mouseInside : 1;
+  bool m_mouseDown : 1;
 
   mutable float m_mouseT = 0.f;
 
