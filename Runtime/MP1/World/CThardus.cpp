@@ -977,7 +977,7 @@ void CThardus::UpdateExcludeList(const std::unique_ptr<CCollisionActorManager>& 
   }
 }
 
-void CThardus::RenderFlare(const CStateManager& mgr, float t) const {
+void CThardus::RenderFlare(const CStateManager& mgr, float t) {
   if (!x91c_flareTexture)
     return;
   if (!m_flareFilter)

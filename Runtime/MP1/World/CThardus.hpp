@@ -159,11 +159,11 @@ class CThardus : public CPatterned {
   void _SetupCollisionManagers(CStateManager& mgr);
   void _BuildSphereJointList(const SSphereJointInfo* arr, size_t count, std::vector<CJointCollisionDescription>& list);
   void _BuildAABoxJointList(const SAABoxJointInfo* arr, size_t count, std::vector<CJointCollisionDescription>& list);
-  void RenderFlare(const CStateManager& mgr, float t) const;
+  void RenderFlare(const CStateManager& mgr, float t);
   zeus::CVector3f sub801de550(const CStateManager& mgr) const;
   zeus::CVector3f sub801de434(const CStateManager& mgr) const { return {}; }
 
-  mutable std::optional<CTexturedQuadFilter> m_flareFilter;
+  std::optional<CTexturedQuadFilter> m_flareFilter;
 
 public:
   DEFINE_PATTERNED(Thardus)
