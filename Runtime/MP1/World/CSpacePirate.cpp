@@ -418,6 +418,7 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
   x637_24_enablePatrol = false;
   x637_25_enableAim = false;
   x637_26_hearPlayerFire = false;
+  x637_27_inProjectilePath = false;
   x637_28_noPlayerLos = false;
   x637_29_inWallHang = false;
   x637_30_jumpVelSet = false;
@@ -438,6 +439,7 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
   x639_29_enableBreakDodge = false;
   x639_30_closeMelee = false;
   x639_31_sentAttackMsg = false;
+  x63a_24_normalDodge = false;
 
   x758_headSeg = x64_modelData->GetAnimationData()->GetLocatorSegId("Head_1"sv);
   x7b6_gunSeg = x64_modelData->GetAnimationData()->GetLocatorSegId("R_gun_LCTR"sv);

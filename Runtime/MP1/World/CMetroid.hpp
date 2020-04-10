@@ -30,12 +30,7 @@ public:
 };
 
 class CMetroid : public CPatterned {
-  union {
-    struct {
-      bool x9bf_29_ : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x9bf_29_ : 1;
 
 public:
   DEFINE_PATTERNED(Metroid)
