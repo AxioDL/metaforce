@@ -12,8 +12,15 @@
 namespace urde {
 
 CBodyController::CBodyController(CActor& actor, float turnSpeed, EBodyType bodyType)
-: x0_actor(actor), x2a4_bodyStateInfo(actor, bodyType), x2f4_bodyType(bodyType), x2fc_turnSpeed(turnSpeed) {
-  x300_28_playDeathAnims = true;
+: x0_actor(actor)
+, x2a4_bodyStateInfo(actor, bodyType)
+, x2f4_bodyType(bodyType)
+, x2fc_turnSpeed(turnSpeed)
+, x300_24_animationOver(false)
+, x300_25_active(false)
+, x300_26_frozen(false)
+, x300_27_hasBeenFrozen(false)
+, x300_28_playDeathAnims(true) {
   x2a4_bodyStateInfo.x18_bodyController = this;
 }
 

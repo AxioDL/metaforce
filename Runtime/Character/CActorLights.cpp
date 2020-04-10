@@ -18,20 +18,22 @@ s32 CActorLights::sFrameSchedulerCount = 0;
 CActorLights::CActorLights(u32 areaUpdateFramePeriod, const zeus::CVector3f& actorPosBias, int maxDynamicLights,
                            int maxAreaLights, bool ambientChannelOverflow, bool layer2, bool disableWorldLights,
                            float positionUpdateThreshold)
-: x2a8_areaUpdateFramePeriod(areaUpdateFramePeriod)
+: x298_24_dirty(true)
+, x298_25_castShadows(true)
+, x298_26_hasAreaLights(false)
+, x298_27_findShadowLight(false)
+, x298_28_inArea(!disableWorldLights && maxAreaLights > 0)
+, x298_29_ambienceGenerated(ambientChannelOverflow)
+, x298_30_layer2(layer2)
+, x298_31_disableWorldLights(disableWorldLights)
+, x299_24_inBrightLight(true)
+, x299_25_useBrightLightLag(false)
+, x299_26_ambientOnly(false)
+, x2a8_areaUpdateFramePeriod(areaUpdateFramePeriod)
 , x2ac_actorPosBias(actorPosBias)
 , x2b8_maxAreaLights(maxAreaLights)
 , x2bc_maxDynamicLights(maxDynamicLights)
 , x2cc_actorPositionDeltaUpdateThreshold(positionUpdateThreshold * positionUpdateThreshold) {
-  x298_24_dirty = true;
-  x298_25_castShadows = true;
-
-  x298_28_inArea = !disableWorldLights && maxAreaLights > 0;
-  x298_29_ambienceGenerated = ambientChannelOverflow;
-  x298_30_layer2 = layer2;
-  x298_31_disableWorldLights = disableWorldLights;
-  x299_24_inBrightLight = true;
-
   sFrameSchedulerCount++;
   sFrameSchedulerCount &= 7;
 }

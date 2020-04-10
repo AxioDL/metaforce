@@ -33,17 +33,12 @@ class CBoneTracking {
   float x20_angSpeed;
   std::optional<zeus::CVector3f> x24_targetPosition;
   TUniqueId x34_target = kInvalidUniqueId;
-  union {
-    struct {
-      bool x36_24_active : 1;
-      bool x36_25_hasTrackedRotation : 1;
-      bool x36_26_noParent : 1;
-      bool x36_27_noParentOrigin : 1;
-      bool x36_28_noHorizontalAim : 1;
-      bool x36_29_parentIk : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x36_24_active : 1;
+  bool x36_25_hasTrackedRotation : 1;
+  bool x36_26_noParent : 1;
+  bool x36_27_noParentOrigin : 1;
+  bool x36_28_noHorizontalAim : 1;
+  bool x36_29_parentIk : 1;
 
 public:
   CBoneTracking(const CAnimData& animData, std::string_view bone,
