@@ -27,9 +27,17 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
 , x278_ooDuration(1.f / x274_duration)
 , x27c_restitution(restitution)
 , x280_scaleType(scaleType)
+, x281_24_randomAngImpulse(randomAngImpulse)
+, x281_25_particle1GlobalTranslation(false)
+, x281_26_deferDeleteTillParticle1Done(false)
+, x281_27_particle2GlobalTranslation(false)
+, x281_28_deferDeleteTillParticle2Done(false)
+, x281_29_particle3Active(false)
+, x281_30_debrisExtended(false)
+, x281_31_dieOnProjectile(false)
+, x282_24_noBounce(false)
 , x2b0_scale(mData.GetScale())
 , x2e0_speedAvg(2.f) {
-  x281_24_randomAngImpulse = randomAngImpulse;
   if (scaleType == EScaleType::NoScale)
     x2bc_endScale = mData.GetScale();
   else if (scaleType == EScaleType::EndsToZero)
@@ -80,6 +88,15 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
 , x264_color(color)
 , x268_endsColor(endsColor)
 , x27c_restitution(restitution)
+, x281_24_randomAngImpulse(false)
+, x281_25_particle1GlobalTranslation(particle1GlobalTranslation)
+, x281_26_deferDeleteTillParticle1Done(deferDeleteTillParticle1Done)
+, x281_27_particle2GlobalTranslation(particle2GlobalTranslation)
+, x281_28_deferDeleteTillParticle2Done(deferDeleteTillParticle2Done)
+, x281_29_particle3Active(false)
+, x281_30_debrisExtended(true)
+, x281_31_dieOnProjectile(false)
+, x282_24_noBounce(noBounce)
 , x288_linConeAngle(linConeAngle)
 , x28c_linMinMag(linMinMag)
 , x290_linMaxMag(linMaxMag)
@@ -93,13 +110,6 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
 , x2b0_scale(scale)
 , x2bc_endScale(scale * endScale)
 , x2e0_speedAvg(2.f) {
-  x281_25_particle1GlobalTranslation = particle1GlobalTranslation;
-  x281_26_deferDeleteTillParticle1Done = deferDeleteTillParticle1Done;
-  x281_27_particle2GlobalTranslation = particle2GlobalTranslation;
-  x281_28_deferDeleteTillParticle2Done = deferDeleteTillParticle2Done;
-  x281_30_debrisExtended = true;
-  x281_31_dieOnProjectile = dieOnProjectile;
-  x282_24_noBounce = noBounce;
   x283_particleOrs[0] = particle1Or;
   x283_particleOrs[1] = particle2Or;
   x283_particleOrs[2] = particle3Or;

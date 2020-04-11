@@ -178,7 +178,11 @@ CInGameGuiManager::CInGameGuiManager(CStateManager& stateMgr, CArchitectureQueue
 , x1c_rand(1234)
 , x20_faceplateDecor(stateMgr)
 , x50_deathDot(g_SimplePool->GetObj("TXTR_DeathDot"))
-, x5c_pauseScreenDGRPs(LockPauseScreenDependencies()) {
+, x5c_pauseScreenDGRPs(LockPauseScreenDependencies())
+, x1f8_24_(false)
+, x1f8_25_playerAlive(true)
+, x1f8_26_deferTransition(false)
+, x1f8_27_exitSaveUI(true) {
   x1e0_helmetVisMode = g_tweakGui->GetHelmetVisMode();
   x1e4_enableTargetingManager = g_tweakGui->GetEnableTargetingManager();
   x1e8_enableAutoMapper = g_tweakGui->GetEnableAutoMapper();
@@ -186,9 +190,6 @@ CInGameGuiManager::CInGameGuiManager(CStateManager& stateMgr, CArchitectureQueue
   x1f0_enablePlayerVisor = g_tweakGui->GetEnablePlayerVisor();
 
   x1f4_visorStaticAlpha = stateMgr.GetPlayer().GetVisorStaticAlpha();
-
-  x1f8_25_playerAlive = true;
-  x1f8_27_exitSaveUI = true;
 
   xc8_inGameGuiDGRPs.reserve(InGameGuiDGRPs.size());
   for (const char* const dgrp : InGameGuiDGRPs) {

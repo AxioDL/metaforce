@@ -36,8 +36,12 @@ CScriptDamageableTrigger::CScriptDamageableTrigger(TUniqueId uid, std::string_vi
 , x16c_hInfo(hInfo)
 , x174_dVuln(dVuln)
 , x1dc_faceFlag(faceFlag)
-, x254_fluidPlane(patternTex1, patternTex2, colorTex, 1.f, 2, EFluidType::NormalWater, 1.f, CFluidUVMotion(6.f, 0.f)) {
-  x300_28_canOrbit = canOrbit == ECanOrbit::Orbit;
+, x254_fluidPlane(patternTex1, patternTex2, colorTex, 1.f, 2, EFluidType::NormalWater, 1.f, CFluidUVMotion(6.f, 0.f))
+, x300_24_notOccluded(false)
+, x300_25_alphaOut(false)
+, x300_26_outOfFrustum(false)
+, x300_27_invulnerable(false)
+, x300_28_canOrbit(canOrbit == ECanOrbit::Orbit) {
   if (x1dc_faceFlag & 0x1) {
     x244_faceTranslate = zeus::CVector3f(0.f, x14c_bounds.max.y(), 0.f);
     x1e4_faceDir = zeus::CTransform::RotateX(-M_PIF / 2.f);

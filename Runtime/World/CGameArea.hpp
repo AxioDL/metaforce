@@ -229,18 +229,13 @@ public:
     // std::vector<CAramToken> x10f0_tokens;
     u32 x1100_ = 0;
     u32 x1104_ = 0;
-    union {
-      struct {
-        bool x1108_24_ : 1;
-        bool x1108_25_modelsConstructed : 1;
-        bool x1108_26_ : 1;
-        bool x1108_27_ : 1;
-        bool x1108_28_occlusionPinged : 1;
-        bool x1108_29_pvsHasActors : 1;
-        bool x1108_30_ : 1;
-      };
-      u32 _dummy = 0;
-    };
+    bool x1108_24_ : 1;
+    bool x1108_25_modelsConstructed : 1;
+    bool x1108_26_ : 1;
+    bool x1108_27_ : 1;
+    bool x1108_28_occlusionPinged : 1;
+    bool x1108_29_pvsHasActors : 1;
+    bool x1108_30_ : 1;
     std::vector<std::pair<const u8*, u32>> x110c_layerPtrs;
     float x111c_thermalCurrent = 0.f;
     float x1120_thermalSpeed = 0.f;
@@ -251,6 +246,15 @@ public:
     float x1134_weaponWorldLightingSpeed = 0.f;
     float x1138_weaponWorldLightingTarget = 1.f;
     u32 x113c_playerActorsLoading = 0;
+
+    CPostConstructed()
+    : x1108_24_(false)
+    , x1108_25_modelsConstructed(false)
+    , x1108_26_(false)
+    , x1108_27_(false)
+    , x1108_28_occlusionPinged(false)
+    , x1108_29_pvsHasActors(false)
+    , x1108_30_(false) {}
   };
 
 private:

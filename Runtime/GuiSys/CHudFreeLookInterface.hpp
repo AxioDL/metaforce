@@ -24,16 +24,11 @@ class CHudFreeLookInterface : public IFreeLookInterface {
   zeus::CTransform x38_freeLookRightXf;
   float x68_freeLookInterp = 0.f;
   float x6c_lockOnInterp;
-  union {
-    struct {
-      bool x70_24_inFreeLook : 1;
-      bool x70_25_lookControlHeld : 1;
-      bool x70_26_lockedOnObj : 1;
-      bool x70_27_visibleDebug : 1;
-      bool x70_28_visibleGame : 1;
-    };
-    u16 _dummy = 0;
-  };
+  bool x70_24_inFreeLook : 1;
+  bool x70_25_lookControlHeld : 1;
+  bool x70_26_lockedOnObj : 1;
+  bool x70_27_visibleDebug : 1;
+  bool x70_28_visibleGame : 1;
   CGuiWidget* x74_basewidget_freelookleft;
   CGuiModel* x78_model_shieldleft;
   CGuiModel* x7c_model_freelookleft;

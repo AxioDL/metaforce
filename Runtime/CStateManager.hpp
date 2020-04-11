@@ -202,19 +202,13 @@ private:
   CAssetId xf88_;
   float xf8c_ = 0.f;
   EStateManagerTransition xf90_deferredTransition = EStateManagerTransition::InGame;
-
-  union {
-    struct {
-      bool xf94_24_readyToRender : 1;
-      bool xf94_25_quitGame : 1;
-      bool xf94_26_generatingObject : 1;
-      bool xf94_27_inMapScreen : 1;
-      bool xf94_28_inSaveUI : 1;
-      bool xf94_29_cinematicPause : 1;
-      bool xf94_30_fullThreat : 1;
-    };
-    u32 xf94_ = 0;
-  };
+  bool xf94_24_readyToRender : 1;
+  bool xf94_25_quitGame : 1;
+  bool xf94_26_generatingObject : 1;
+  bool xf94_27_inMapScreen : 1;
+  bool xf94_28_inSaveUI : 1;
+  bool xf94_29_cinematicPause : 1;
+  bool xf94_30_fullThreat : 1;
 
   CColoredQuadFilter m_deathWhiteout{EFilterType::Add};
   CColoredQuadFilter m_escapeWhiteout{EFilterType::Add};

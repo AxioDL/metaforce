@@ -212,10 +212,12 @@ void CGameOptions::PutTo(CBitStreamWriter& writer) const {
   writer.WriteEncoded(x68_27_swapBeamsControls, 1);
 }
 
-CGameOptions::CGameOptions() {
-  x68_24_hudLag = true;
-  x68_26_rumble = true;
-  x68_28_hintSystem = true;
+CGameOptions::CGameOptions()
+: x68_24_hudLag(true)
+, x68_25_invertY(false)
+, x68_26_rumble(true)
+, x68_27_swapBeamsControls(false)
+, x68_28_hintSystem(true) {
   InitSoundMode();
 }
 

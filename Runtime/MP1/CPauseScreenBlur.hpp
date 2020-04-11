@@ -20,16 +20,12 @@ class CPauseScreenBlur {
   EState x14_nextState = EState::InGame;
   float x18_blurAmt = 0.f;
   CCameraBlurPass x1c_camBlur;
+  bool x50_24_blurring : 1;
+  bool x50_25_gameDraw : 1;
+
   CTexturedQuadFilter m_quarterFilter{EFilterType::Multiply, x4_mapLightQuarter};
   CScanLinesFilterEven m_linesFilter{EFilterType::Multiply};
 
-  union {
-    struct {
-      bool x50_24_blurring : 1;
-      bool x50_25_gameDraw : 1;
-    };
-    u32 _dummy = 0;
-  };
   void OnBlurComplete(bool);
   void SetState(EState state);
 

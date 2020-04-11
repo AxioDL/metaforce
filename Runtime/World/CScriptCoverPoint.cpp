@@ -11,9 +11,14 @@ CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, std::string_view name, const
                                      float coverTime)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_flags(flags)
-, xf4_coverTime(coverTime) {
-  xf8_24_crouch = crouch;
+, xe8_26_landHere((flags & 0x20) != 0u)
+, xe8_27_wallHang((flags & 0x10) != 0u)
+, xe8_28_stay((flags & 0x8) != 0u)
+, xe8_29_((flags & 0x4) != 0u)
+, xe8_30_attackDirection((flags & 0x2) != 0u)
+, xf4_coverTime(coverTime)
+, xf8_24_crouch(crouch)
+, xf8_25_inUse(false) {
   xec_cosHorizontalAngle = std::cos(zeus::degToRad(horizontalAngle) * 0.5f);
   xf0_sinVerticalAngle = std::sin(zeus::degToRad(verticalAngle) * 0.5f);
   x100_touchBounds.emplace(xf.origin, xf.origin);

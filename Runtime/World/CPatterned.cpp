@@ -47,6 +47,15 @@ CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view nam
 , x300_maxAttackRange(pInfo.x1c_maxAttackRange)
 , x304_averageAttackTime(pInfo.x20_averageAttackTime)
 , x308_attackTimeVariation(pInfo.x24_attackTimeVariation)
+, x328_24_inPosition(false)
+, x328_25_verticalMovement(moveType == EMovementType::Flyer)
+, x328_26_solidCollision(false)
+, x328_27_onGround(moveType != EMovementType::Flyer)
+, x328_28_prevOnGround(true)
+, x328_29_noPatternShagging(false)
+, x328_30_lookAtDeathDir(true)
+, x328_31_energyAttractor(false)
+, x329_24_(true)
 , x34c_character(character)
 , x388_anim(pInfo.GetAnimationParameters().GetInitialAnimation())
 , x3b4_speed(pInfo.x4_speed)
@@ -61,18 +70,33 @@ CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view nam
 , x3dc_frozenXDamageThreshold(pInfo.xe0_frozenXDamage)
 , x3e0_xDamageDelay(pInfo.xe4_xDamageDelay)
 , x3fc_flavor(flavor)
+, x400_24_hitByPlayerProjectile(false)
+, x400_25_alive(true)
+, x400_26_(false)
+, x400_27_fadeToDeath(false)
+, x400_28_pendingMassiveDeath(false)
+, x400_29_pendingMassiveFrozenDeath(false)
+, x400_30_patternShagged(false)
+, x400_31_isFlyer(moveType == CPatterned::EMovementType::Flyer)
+, x401_24_pathOverCount(0)
+, x401_26_disableMove(false)
+, x401_27_phazingOut(false)
+, x401_28_burning(false)
+, x401_29_laggedBurnDeath(false)
+, x401_30_pendingDeath(false)
+, x401_31_nextPendingShock(false)
+, x402_24_pendingShock(false)
+, x402_25_lostMassiveFrozenHP(false)
+, x402_26_dieIf80PercFrozen(false)
+, x402_27_noXrayModel(false)
+, x402_28_isMakingBigStrike(false)
+, x402_29_drawParticles(true)
+, x402_30_updateThermalFrozenState(x402_31_thawed = actorParms.HasThermalHeat())
+, x402_31_thawed(false)
+, x403_24_keepThermalVisorState(false)
+, x403_25_enableStateMachine(true)          // t
+, x403_26_stateControlledMassiveDeath(true)
 , x460_knockBackController(kbVariant) {
-  x328_25_verticalMovement = moveType == EMovementType::Flyer;
-  x328_27_onGround = moveType != EMovementType::Flyer;
-  x328_28_prevOnGround = true;
-  x328_30_lookAtDeathDir = true;
-  x329_24_ = true;
-  x400_25_alive = true;
-  x400_31_isFlyer = moveType == CPatterned::EMovementType::Flyer;
-  x402_29_drawParticles = true;
-  x402_30_updateThermalFrozenState = x402_31_thawed = actorParms.HasThermalHeat();
-  x403_25_enableStateMachine = true;
-  x403_26_stateControlledMassiveDeath = true;
   x404_contactDamage = pInfo.x34_contactDamageInfo;
   x424_damageWaitTime = pInfo.x50_damageWaitTime;
   x454_deathSfx = pInfo.xe8_deathSfx;

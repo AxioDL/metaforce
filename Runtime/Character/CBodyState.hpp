@@ -202,22 +202,23 @@ class CBSJump : public CBodyState {
   zeus::CVector3f xc_waypoint1;
   zeus::CVector3f x18_velocity;
   zeus::CVector3f x24_waypoint2;
-  union {
-    struct {
-      bool x30_24_bodyForceSet : 1;
-      bool x30_25_wallJump : 1;
-      bool x30_26_wallBounceRight : 1;
-      bool x30_27_wallBounceComplete : 1;
-      bool x30_28_startInJumpLoop : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x30_24_bodyForceSet : 1;
+  bool x30_25_wallJump : 1;
+  bool x30_26_wallBounceRight : 1;
+  bool x30_27_wallBounceComplete : 1;
+  bool x30_28_startInJumpLoop : 1;
   pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
   bool CheckForWallJump(CBodyController& bc, CStateManager& mgr);
   void CheckForLand(CBodyController& bc, CStateManager& mgr);
   void PlayJumpLoop(CStateManager& mgr, CBodyController& bc);
 
 public:
+  CBSJump()
+  : x30_24_bodyForceSet(false)
+  , x30_25_wallJump(false)
+  , x30_26_wallBounceRight(false)
+  , x30_27_wallBounceComplete(false)
+  , x30_28_startInJumpLoop(false) {}
   bool IsMoving() const override { return true; }
   bool ApplyHeadTracking() const override { return false; }
   bool CanShoot() const override;
@@ -277,17 +278,13 @@ public:
 };
 
 class CBSScripted : public CBodyState {
-  union {
-    struct {
-      bool x4_24_loopAnim : 1;
-      bool x4_25_timedLoop : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x4_24_loopAnim : 1;
+  bool x4_25_timedLoop : 1;
   float x8_remTime = 0.f;
   pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
+  CBSScripted() : x4_24_loopAnim(false), x4_25_timedLoop(false) {}
   bool ApplyHeadTracking() const override { return false; }
   void Start(CBodyController& bc, CStateManager& mgr) override;
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
@@ -313,13 +310,8 @@ class CBSWallHang : public CBodyState {
   pas::EWallHangState x4_state = pas::EWallHangState::Invalid;
   TUniqueId x8_wpId = kInvalidUniqueId;
   zeus::CVector3f xc_launchVel;
-  union {
-    struct {
-      bool x18_24_launched : 1;
-      bool x18_25_needsExit : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x18_24_launched : 1;
+  bool x18_25_needsExit : 1;
   pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
   void FixInPlace(CBodyController& bc);
   bool CheckForLand(CBodyController& bc, CStateManager& mgr);
@@ -327,6 +319,7 @@ class CBSWallHang : public CBodyState {
   void SetLaunchVelocity(CBodyController& bc);
 
 public:
+  CBSWallHang() : x18_24_launched(false), x18_25_needsExit(false) {}
   bool IsMoving() const override { return true; }
   bool CanShoot() const override { return x4_state == pas::EWallHangState::WallHang; }
   bool IsInAir(const CBodyController& bc) const override;

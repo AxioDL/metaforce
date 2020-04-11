@@ -42,23 +42,23 @@ public:
     int x7c_framesNotOnSurface : 8;
     int x7c_idx : 10;
     int x7c_remainingLaunchNotOnSurfaceFrames : 8;
-
-    union {
-      struct {
-        bool x80_24_active : 1;
-        bool x80_25_inFrustum : 1;
-        bool x80_26_launched : 1;
-        bool x80_27_scarabExplodeTimerEnabled : 1;
-        bool x80_28_nearPlayer : 1;
-      };
-      u32 x80_ = 0;
-    };
+    bool x80_24_active : 1;
+    bool x80_25_inFrustum : 1;
+    bool x80_26_launched : 1;
+    bool x80_27_scarabExplodeTimerEnabled : 1;
+    bool x80_28_nearPlayer : 1;
 
   public:
-    CBoid(const zeus::CTransform& xf, int idx) : x0_xf(xf) {
-      x7c_framesNotOnSurface = 0;
-      x7c_idx = idx;
-    }
+    CBoid(const zeus::CTransform& xf, int idx)
+    : x0_xf(xf)
+    , x7c_framesNotOnSurface(0)
+    , x7c_idx(idx)
+    , x80_24_active(false)
+    , x80_25_inFrustum(false)
+    , x80_26_launched(false)
+    , x80_27_scarabExplodeTimerEnabled(false)
+    , x80_28_nearPlayer(false) {}
+
     zeus::CTransform& Transform() { return x0_xf; }
     zeus::CVector3f& Translation() { return x0_xf.origin; }
     const zeus::CTransform& GetTransform() const { return x0_xf; }

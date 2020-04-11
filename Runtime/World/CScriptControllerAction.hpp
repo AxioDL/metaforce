@@ -11,14 +11,9 @@ namespace urde {
 class CScriptControllerAction : public CEntity {
   ControlMapper::ECommands x34_command;
   u32 x38_mapScreenSubaction;
-  union {
-    struct {
-      bool x3c_24_mapScreenResponse : 1;
-      bool x3c_25_deactivateOnClose : 1;
-      bool x3c_26_pressed : 1;
-    };
-    u8 _dummy = 0;
-  };
+  bool x3c_24_mapScreenResponse : 1;
+  bool x3c_25_deactivateOnClose : 1;
+  bool x3c_26_pressed : 1;
 
 public:
   CScriptControllerAction(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,

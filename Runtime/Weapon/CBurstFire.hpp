@@ -23,13 +23,8 @@ class CBurstFire {
   float x8_timeToNextShot = 0.f;
   s32 xc_firstBurstIdx = 0;
   s32 x10_firstBurstCounter;
-  union {
-    struct {
-      bool x14_24_shouldFire : 1;
-      bool x14_25_avoidAccuracy : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x14_24_shouldFire : 1;
+  bool x14_25_avoidAccuracy : 1;
 
   const SBurst* x18_curBursts = nullptr;
   rstl::reserved_vector<const SBurst*, 16> x1c_burstDefs;

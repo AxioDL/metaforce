@@ -25,14 +25,16 @@ CModelData::~CModelData() = default;
 CModelData::CModelData() {}
 CModelData CModelData::CModelDataNull() { return CModelData(); }
 
-CModelData::CModelData(const CStaticRes& res, int instCount) : x0_scale(res.GetScale()), m_drawInstCount(instCount) {
+CModelData::CModelData(const CStaticRes& res, int instCount)
+: x0_scale(res.GetScale()), x14_24_renderSorted(false), x14_25_sortThermal(false), m_drawInstCount(instCount) {
   x1c_normalModel = g_SimplePool->GetObj({SBIG('CMDL'), res.GetId()});
   if (!x1c_normalModel)
     Log.report(logvisor::Fatal, fmt("unable to find CMDL {}"), res.GetId());
   m_normalModelInst = x1c_normalModel->MakeNewInstance(0, instCount);
 }
 
-CModelData::CModelData(const CAnimRes& res, int instCount) : x0_scale(res.GetScale()), m_drawInstCount(instCount) {
+CModelData::CModelData(const CAnimRes& res, int instCount)
+: x0_scale(res.GetScale()), x14_24_renderSorted(false), x14_25_sortThermal(false), m_drawInstCount(instCount) {
   TToken<CCharacterFactory> factory = g_CharFactoryBuilder->GetFactory(res);
   x10_animData =
       factory->CreateCharacter(res.GetCharacterNodeId(), res.CanLoop(), factory, res.GetDefaultAnim(), instCount);
@@ -76,13 +78,13 @@ bool CModelData::IsLoaded(int shaderIdx) const {
 }
 
 u32 CModelData::GetNumMaterialSets() const {
-    if (x10_animData)
-      return x10_animData->GetModelData()->GetModel()->GetNumMaterialSets();
+  if (x10_animData)
+    return x10_animData->GetModelData()->GetModel()->GetNumMaterialSets();
 
-    if (x1c_normalModel)
-      return x1c_normalModel->GetNumMaterialSets();
+  if (x1c_normalModel)
+    return x1c_normalModel->GetNumMaterialSets();
 
-    return 1;
+  return 1;
 }
 
 CModelData::EWhichModel CModelData::GetRenderingModel(const CStateManager& stateMgr) {

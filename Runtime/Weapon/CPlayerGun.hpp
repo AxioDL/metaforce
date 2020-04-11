@@ -82,18 +82,15 @@ private:
     float x18_transitionFactor = 1.f;
     EDir x1c_dir = EDir::Done;
     EGunState x20_gunState = EGunState::OutWipeDone;
-
-    union {
-      struct {
-        bool x24_24_morphing : 1;
-        bool x24_25_weaponChanged : 1;
-      };
-      u32 _dummy = 0;
-    };
+    bool x24_24_morphing : 1;
+    bool x24_25_weaponChanged : 1;
 
   public:
     CGunMorph(float gunTransformTime, float holoHoldTime)
-    : x4_gunTransformTime(gunTransformTime), x10_holoHoldTime(std::fabs(holoHoldTime)) {}
+    : x4_gunTransformTime(gunTransformTime)
+    , x10_holoHoldTime(std::fabs(holoHoldTime))
+    , x24_24_morphing(false)
+    , x24_25_weaponChanged(false) {}
     float GetYLerp() const { return x0_yLerp; }
     float GetTransitionFactor() const { return x18_transitionFactor; }
     EGunState GetGunState() const { return x20_gunState; }
@@ -225,46 +222,41 @@ private:
   std::unique_ptr<CWorldShadow> x82c_shadow;
   s16 x830_chargeRumbleHandle = -1;
 
-  union {
-    struct {
-      bool x832_24_coolingCharge : 1;
-      bool x832_25_chargeEffectVisible : 1;
-      bool x832_26_comboFiring : 1;
-      bool x832_27_chargeAnimStarted : 1;
-      bool x832_28_readyForShot : 1;
-      bool x832_29_lockedOn : 1;
-      bool x832_30_requestReturnToDefault : 1;
-      bool x832_31_inRestPose : 1;
+  bool x832_24_coolingCharge : 1;
+  bool x832_25_chargeEffectVisible : 1;
+  bool x832_26_comboFiring : 1;
+  bool x832_27_chargeAnimStarted : 1;
+  bool x832_28_readyForShot : 1;
+  bool x832_29_lockedOn : 1;
+  bool x832_30_requestReturnToDefault : 1;
+  bool x832_31_inRestPose : 1;
 
-      bool x833_24_notFidgeting : 1;
-      bool x833_25_ : 1;
-      bool x833_26_ : 1;
-      bool x833_27_ : 1;
-      bool x833_28_phazonBeamActive : 1;
-      bool x833_29_pointBlankWorldSurface : 1;
-      bool x833_30_canShowAuxMuzzleEffect : 1;
-      bool x833_31_inFreeLook : 1;
+  bool x833_24_notFidgeting : 1;
+  bool x833_25_ : 1;
+  bool x833_26_ : 1;
+  bool x833_27_ : 1;
+  bool x833_28_phazonBeamActive : 1;
+  bool x833_29_pointBlankWorldSurface : 1;
+  bool x833_30_canShowAuxMuzzleEffect : 1;
+  bool x833_31_inFreeLook : 1;
 
-      bool x834_24_charging : 1;
-      bool x834_25_gunMotionFidgeting : 1;
-      bool x834_26_animPlaying : 1;
-      bool x834_27_underwater : 1;
-      bool x834_28_requestImmediateRecharge : 1;
-      bool x834_29_frozen : 1;
-      bool x834_30_inBigStrike : 1;
-      bool x834_31_gunMotionInFidgetBasePosition : 1;
+  bool x834_24_charging : 1;
+  bool x834_25_gunMotionFidgeting : 1;
+  bool x834_26_animPlaying : 1;
+  bool x834_27_underwater : 1;
+  bool x834_28_requestImmediateRecharge : 1;
+  bool x834_29_frozen : 1;
+  bool x834_30_inBigStrike : 1;
+  bool x834_31_gunMotionInFidgetBasePosition : 1;
 
-      bool x835_24_canFirePhazon : 1;
-      bool x835_25_inPhazonBeam : 1;
-      bool x835_26_phazonBeamMorphing : 1;
-      bool x835_27_intoPhazonBeam : 1;
-      bool x835_28_bombReady : 1;
-      bool x835_29_powerBombReady : 1;
-      bool x835_30_inPhazonPool : 1;
-      bool x835_31_actorAttached : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x835_24_canFirePhazon : 1;
+  bool x835_25_inPhazonBeam : 1;
+  bool x835_26_phazonBeamMorphing : 1;
+  bool x835_27_intoPhazonBeam : 1;
+  bool x835_28_bombReady : 1;
+  bool x835_29_powerBombReady : 1;
+  bool x835_30_inPhazonPool : 1;
+  bool x835_31_actorAttached : 1;
 
   CTexturedQuadFilter m_screenQuad{EFilterType::Blend, CGraphics::g_SpareTexture.get(),
                                    CTexturedQuadFilter::ZTest::GEqualZWrite};

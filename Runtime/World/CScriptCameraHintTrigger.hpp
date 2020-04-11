@@ -12,15 +12,10 @@ namespace urde {
 class CScriptCameraHintTrigger : public CActor {
   zeus::COBBox xe8_obb;
   zeus::CVector3f x124_scale;
-  union {
-    struct {
-      bool x130_24_deactivateOnEnter : 1;
-      bool x130_25_deactivateOnExit : 1;
-      bool x130_26_playerInside : 1;
-      bool x130_27_playerWasInside : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x130_24_deactivateOnEnter : 1;
+  bool x130_25_deactivateOnExit : 1;
+  bool x130_26_playerInside : 1;
+  bool x130_27_playerWasInside : 1;
 
 public:
   CScriptCameraHintTrigger(TUniqueId uid, bool active, std::string_view name,

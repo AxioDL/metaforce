@@ -8,7 +8,13 @@ const char* kMovies[] = {"Video/wingame.thp",       "Video/wingame_best.thp",  "
 
 bool CPlayMovie::IsResultsScreen(EWhichMovie which) { return int(which) <= 2; }
 
-CPlayMovie::CPlayMovie(EWhichMovie which) : CPlayMovieBase("CPlayMovie", kMovies[int(which)]), x18_which(which) {
+CPlayMovie::CPlayMovie(EWhichMovie which)
+: CPlayMovieBase("CPlayMovie", kMovies[int(which)])
+, x18_which(which)
+, x78_24_(false)
+, x78_25_(false)
+, x78_26_resultsScreen(false)
+, x78_27_(false) {
   (void)x18_which;
 }
 

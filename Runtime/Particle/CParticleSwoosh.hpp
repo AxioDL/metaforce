@@ -83,21 +83,15 @@ class CParticleSwoosh : public CParticleGen {
   float x1c4_ = 0.f;
   float x1c8_ = 0.f;
   float x1cc_TSPN;
-
-  union {
-    struct {
-      bool x1d0_24_emitting : 1;
-      bool x1d0_25_AALP : 1;
-      bool x1d0_26_forceOneUpdate : 1;
-      bool x1d0_27_renderGaps : 1;
-      bool x1d0_28_LLRD : 1;
-      bool x1d0_29_VLS1 : 1;
-      bool x1d0_30_VLS2 : 1;
-      bool x1d0_31_constantTex : 1;
-      bool x1d1_24_constantUv : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x1d0_24_emitting : 1;
+  bool x1d0_25_AALP : 1;
+  bool x1d0_26_forceOneUpdate : 1;
+  bool x1d0_27_renderGaps : 1;
+  bool x1d0_28_LLRD : 1;
+  bool x1d0_29_VLS1 : 1;
+  bool x1d0_30_VLS2 : 1;
+  bool x1d0_31_constantTex : 1;
+  bool x1d1_24_constantUv : 1;
 
   SUVElementSet x1d4_uvs = {};
   CTexture* x1e4_tex = nullptr;

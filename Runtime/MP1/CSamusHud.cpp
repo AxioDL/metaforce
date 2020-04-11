@@ -23,9 +23,11 @@ CSamusHud::CSamusHud(CStateManager& stateMgr)
 : x8_targetingMgr(stateMgr)
 , x258_frmeHelmet(g_SimplePool->GetObj("FRME_Helmet"))
 , x268_frmeBaseHud(g_SimplePool->GetObj("FRME_BaseHud"))
+, x2e0_24_inFreeLook(false)
+, x2e0_25_lookControlHeld(false)
+, x2e0_26_latestFirstPerson(true)
+, x2e0_27_energyLow(stateMgr.GetPlayer().IsEnergyLow(stateMgr))
 , m_energyDrainFilter(g_tweakGui->GetEnergyDrainFilterAdditive() ? EFilterType::Add : EFilterType::Blend) {
-  x2e0_26_latestFirstPerson = true;
-  x2e0_27_energyLow = stateMgr.GetPlayer().IsEnergyLow(stateMgr);
   x33c_lights = std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 1, true, 0, 0, 0.1f);
   x340_hudLights.resize(3, SCachedHudLight(zeus::skZero3f, zeus::skWhite, 0.f, 0.f, 0.f, 0.f));
   x46c_.resize(3);

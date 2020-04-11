@@ -17,14 +17,8 @@ class CScriptCameraPitchVolume : public CActor {
   zeus::CRelAngle x128_downPitch;
   zeus::CVector3f x12c_scale;
   float x138_maxInterpDistance;
-
-  union {
-    struct {
-      bool x13c_24_entered : 1;
-      bool x13c_25_occupied : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x13c_24_entered : 1;
+  bool x13c_25_occupied : 1;
 
 public:
   CScriptCameraPitchVolume(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CVector3f&,

@@ -45,9 +45,9 @@ CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAn
                      const std::weak_ptr<CAnimSysContext>& ctx, std::shared_ptr<CAnimationManager> animMgr,
                      std::shared_ptr<CTransitionManager> transMgr, TLockedToken<CCharacterFactory> charFactory,
                      int drawInstCount)
-: x0_charFactory(std::move(charFactory))
+: x0_charFactory(charFactory)
 , xc_charInfo(character)
-, xcc_layoutData(std::move(layout))
+, xcc_layoutData(layout)
 , xd8_modelData(std::move(model))
 , xfc_animCtx(ctx.lock())
 , x100_animMgr(std::move(animMgr))
@@ -55,6 +55,14 @@ CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAn
 , x1fc_transMgr(std::move(transMgr))
 , x204_charIdx(charIdx)
 , x208_defaultAnim(defaultAnim)
+, x220_24_animating(false)
+, x220_25_loop(false)
+, x220_26_aligningPos(false)
+, x220_27_(false)
+, x220_28_(false)
+, x220_29_animationJustStarted(false)
+, x220_30_poseBuilt(false)
+, x220_31_poseCached(false)
 , x224_pose(layout->GetSegIdList().GetList().size())
 , x2fc_poseBuilder(CLayoutDescription{layout})
 , m_drawInstCount(drawInstCount) {

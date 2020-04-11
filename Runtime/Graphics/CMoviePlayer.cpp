@@ -140,10 +140,12 @@ u32 CMoviePlayer::THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo)
 }
 
 CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bool deinterlace)
-: CDvdFile(path), xec_preLoadSeconds(preLoadSeconds) {
-  xf4_24_loop = loop;
-  m_deinterlace = deinterlace;
-
+: CDvdFile(path)
+, xec_preLoadSeconds(preLoadSeconds)
+, xf4_24_loop(loop)
+, xf4_25_hasAudio(false)
+, xf4_26_fieldFlip(false)
+, m_deinterlace(deinterlace) {
   /* Read THP header information */
   u8 buf[64];
   SyncRead(buf, 64);

@@ -137,6 +137,7 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data) {
 CGameState::CGameState() {
   x98_playerState = std::make_shared<CPlayerState>();
   x9c_transManager = std::make_shared<CWorldTransManager>();
+  x228_24_hardMode = false;
   x228_25_initPowerupsAtFirstSpawn = true;
   if (g_MemoryCardSys)
     InitializeMemoryStates();
@@ -144,6 +145,7 @@ CGameState::CGameState() {
 
 CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx) : x20c_saveFileIdx(saveIdx) {
   x9c_transManager = std::make_shared<CWorldTransManager>();
+  x228_24_hardMode = false;
   x228_25_initPowerupsAtFirstSpawn = true;
 
   for (bool& value : x0_) {

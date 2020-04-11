@@ -87,21 +87,15 @@ private:
   float x12c_ = 32.f;
   */
   float x130_;
-
-  union {
-    struct {
-      bool x134_24_ : 1;
-      bool x134_25_ : 1;
-      bool x134_26_ : 1;
-      bool x134_27_ : 1;
-      bool x134_28_disableInput : 1;
-      bool x134_29_ : 1;
-      bool x134_30_ : 1;
-      bool x134_31_ : 1;
-      bool x135_24_ : 1;
-    };
-    u32 dummy = 0;
-  };
+  bool x134_24_ : 1;
+  bool x134_25_ : 1;
+  bool x134_26_ : 1;
+  bool x134_27_ : 1;
+  bool x134_28_disableInput : 1;
+  bool x134_29_ : 1;
+  bool x134_30_ : 1;
+  bool x134_31_ : 1;
+  bool x135_24_ : 1;
 
   bool LoadTXTRDep(std::string_view name);
   static bool AreAllDepsLoaded(const std::vector<TLockedToken<CDependencyGroup>>& deps);

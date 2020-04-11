@@ -357,15 +357,19 @@ static const CKnockBackController::KnockBackParms KnockBackParmsTable[3][19][4] 
     },
 };
 
-CKnockBackController::CKnockBackController(EKnockBackVariant variant) : x0_variant(variant) {
-  x81_24_autoResetImpulse = true;
-  x81_25_enableFreeze = true;
-  x81_27_enableBurn = true;
-  x81_28_enableBurnDeath = true;
-  x81_29_enableExplodeDeath = true;
-  x81_30_enableLaggedBurnDeath = true;
-  x81_31_ = true;
-  x82_24_ = true;
+CKnockBackController::CKnockBackController(EKnockBackVariant variant)
+: x0_variant(variant)
+, x81_24_autoResetImpulse(true)
+, x81_25_enableFreeze(true)
+, x81_26_enableShock(false)
+, x81_27_enableBurn(true)
+, x81_28_enableBurnDeath(true)
+, x81_29_enableExplodeDeath(true)
+, x81_30_enableLaggedBurnDeath(true)
+, x81_31_(true)
+, x82_24_(true)
+, x82_25_inDeferredKnockBack(false)
+, x82_26_locomotionDuringElectrocution(false) {
   for (int i = 0; i < 5; ++i) {
     x24_.push_back(std::make_pair(0.f, FLT_MAX));
     x80_availableStates.set(i);

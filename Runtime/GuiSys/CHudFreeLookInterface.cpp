@@ -8,12 +8,12 @@ namespace urde {
 
 CHudFreeLookInterface::CHudFreeLookInterface(CGuiFrame& selHud, EHudType hudType, bool inFreeLook, bool lookControlHeld,
                                              bool lockedOnObj)
-: x4_hudType(hudType) {
-  x70_24_inFreeLook = inFreeLook;
-  x70_25_lookControlHeld = lookControlHeld;
-  x70_26_lockedOnObj = lockedOnObj;
-  x70_27_visibleDebug = true;
-  x70_28_visibleGame = true;
+: x4_hudType(hudType)
+, x70_24_inFreeLook(inFreeLook)
+, x70_25_lookControlHeld(lookControlHeld)
+, x70_26_lockedOnObj(lockedOnObj)
+, x70_27_visibleDebug(true)
+, x70_28_visibleGame(true) {
   x6c_lockOnInterp = (lockedOnObj && hudType == EHudType::Scan) ? 0.f : 1.f;
 
   x74_basewidget_freelookleft = selHud.FindWidget("basewidget_freelookleft");

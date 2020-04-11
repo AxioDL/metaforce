@@ -14,13 +14,16 @@ namespace urde::MP1 {
 
 CMFGame::CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_ptr<CInGameGuiManager>& guiMgr,
                  const CArchitectureQueue&)
-: CMFGameBase("CMFGame"), x14_stateManager(stateMgr.lock()), x18_guiManager(guiMgr.lock()) {
-  x2a_25_samusAlive = true;
+: CMFGameBase("CMFGame")
+, x14_stateManager(stateMgr.lock())
+, x18_guiManager(guiMgr.lock())
+, x2a_24_initialized(false)
+, x2a_25_samusAlive(true) {
   static_cast<CMain&>(*g_Main).SetMFGameBuilt(true);
 }
 
 CMFGame::~CMFGame() {
-  CMain& main = static_cast<CMain&>(*g_Main);
+  auto& main = static_cast<CMain&>(*g_Main);
   main.SetMFGameBuilt(false);
   main.SetScreenFading(false);
   CDecalManager::Reinitialize();
@@ -253,8 +256,9 @@ void CMFGame::EnterMapScreen() {
   x14_stateManager->SetInMapScreen(true);
 }
 
-CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
-  CMain* m = static_cast<CMain*>(g_Main);
+CMFGameLoader::CMFGameLoader()
+: CMFGameLoaderBase("CMFGameLoader"), x2c_24_initialized(false), x2c_25_transitionFinished(false) {
+  auto* m = static_cast<CMain*>(g_Main);
   switch (m->GetFlowState()) {
   case EFlowState::Default:
   case EFlowState::StateSetter: {

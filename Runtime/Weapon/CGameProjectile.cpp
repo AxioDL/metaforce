@@ -1,5 +1,7 @@
 #include "Runtime/Weapon/CGameProjectile.hpp"
 
+#include <utility>
+
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CInternalRayCastStructure.hpp"
@@ -19,15 +21,15 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
                                  const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                                  TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater,
                                  const zeus::CVector3f& scale,
-                                 const std::optional<TLockedToken<CGenDescription>>& visorParticle,
-                                 u16 visorSfx, bool sendCollideMsg)
+                                 std::optional<TLockedToken<CGenDescription>> visorParticle, u16 visorSfx,
+                                 bool sendCollideMsg)
 : CWeapon(uid, aid, active, owner, wType, name, xf,
           CMaterialFilter::MakeIncludeExclude(
               {EMaterialTypes::Solid, EMaterialTypes::NonSolidDamageable},
               {EMaterialTypes::Projectile, EMaterialTypes::ProjectilePassthrough, excludeMat}),
           CMaterialList(EMaterialTypes::Projectile), dInfo, attribs | GetBeamAttribType(wType),
           CModelData::CModelDataNull())
-, x158_visorParticle(visorParticle)
+, x158_visorParticle(std::move(visorParticle))
 , x168_visorSfx(visorSfx)
 , x170_projectile(wDesc, xf.origin, xf.basis, scale,
                   (attribs & EProjectileAttrib::ParticleOPTS) == EProjectileAttrib::ParticleOPTS)
@@ -35,13 +37,12 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
 , x2a4_projExtent((xe8_projectileAttribs & EProjectileAttrib::BigProjectile) == EProjectileAttrib::BigProjectile ? 0.25f
                                                                                                                  : 0.1f)
 , x2c0_homingTargetId(homingTarget)
-, x2cc_wpscId(wDesc.GetObjectTag()->id) {
-  x2e4_24_active = true;
-  x2e4_25_startedUnderwater = underwater;
-  x2e4_26_waterUpdate = underwater;
-  x2e4_27_inWater = underwater;
-  x2e4_28_sendProjectileCollideMsg = sendCollideMsg;
-}
+, x2cc_wpscId(wDesc.GetObjectTag()->id)
+, x2e4_24_active(true)
+, x2e4_25_startedUnderwater(underwater)
+, x2e4_26_waterUpdate(underwater)
+, x2e4_27_inWater(underwater)
+, x2e4_28_sendProjectileCollideMsg(sendCollideMsg) {}
 
 void CGameProjectile::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
 

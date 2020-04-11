@@ -27,20 +27,15 @@ private:
   float x278_ooDuration = 0.f;
   float x27c_restitution;
   CScriptDebris::EScaleType x280_scaleType = CScriptDebris::EScaleType::NoScale;
-  union {
-    struct {
-      bool x281_24_randomAngImpulse : 1;
-      bool x281_25_particle1GlobalTranslation : 1;
-      bool x281_26_deferDeleteTillParticle1Done : 1;
-      bool x281_27_particle2GlobalTranslation : 1;
-      bool x281_28_deferDeleteTillParticle2Done : 1;
-      bool x281_29_particle3Active : 1;
-      bool x281_30_debrisExtended : 1;
-      bool x281_31_dieOnProjectile : 1;
-      bool x282_24_noBounce : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x281_24_randomAngImpulse : 1;
+  bool x281_25_particle1GlobalTranslation : 1;
+  bool x281_26_deferDeleteTillParticle1Done : 1;
+  bool x281_27_particle2GlobalTranslation : 1;
+  bool x281_28_deferDeleteTillParticle2Done : 1;
+  bool x281_29_particle3Active : 1;
+  bool x281_30_debrisExtended : 1;
+  bool x281_31_dieOnProjectile : 1;
+  bool x282_24_noBounce : 1;
   EOrientationType x283_particleOrs[3] = {};
   float x288_linConeAngle = 0.f;
   float x28c_linMinMag = 0.f;

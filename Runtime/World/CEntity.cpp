@@ -10,10 +10,11 @@ CEntity::CEntity(TUniqueId uniqueId, const CEntityInfo& info, bool active, std::
 , x8_uid(uniqueId)
 , xc_editorId(info.GetEditorId())
 , x10_name(name)
-, x20_conns(info.GetConnectionList()) {
-  x30_24_active = active;
-  x30_27_inUse = x4_areaId != kInvalidAreaId;
-}
+, x20_conns(info.GetConnectionList())
+, x30_24_active(active)
+, x30_25_inGraveyard(false)
+, x30_26_scriptingBlocked(false)
+, x30_27_inUse(x4_areaId != kInvalidAreaId) {}
 
 void CEntity::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
   switch (msg) {

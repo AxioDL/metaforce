@@ -62,7 +62,14 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
 , x8bc_relayTracker(relayTracker)
 , x8c0_mapWorldInfo(mwInfo)
 , x8c4_worldTransManager(wtMgr)
-, x8c8_worldLayerState(layerState) {
+, x8c8_worldLayerState(layerState)
+, xf94_24_readyToRender(false)
+, xf94_25_quitGame(false)
+, xf94_26_generatingObject(false)
+, xf94_27_inMapScreen(false)
+, xf94_28_inSaveUI(false)
+, xf94_29_cinematicPause(false)
+, xf94_30_fullThreat(false) {
   x86c_stateManagerContainer = std::make_unique<CStateManagerContainer>();
   x870_cameraManager = &x86c_stateManagerContainer->x0_cameraManager;
   x874_sortedListManager = &x86c_stateManagerContainer->x3c0_sortedListManager;

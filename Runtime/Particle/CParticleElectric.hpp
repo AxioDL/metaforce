@@ -85,21 +85,15 @@ private:
   std::vector<zeus::CVector3f> x420_calculatedVerts;
   std::vector<float> x430_fractalMags;
   std::vector<zeus::CVector3f> x440_fractalOffsets;
+  bool x450_24_emitting : 1;
+  bool x450_25_haveGPSM : 1;
+  bool x450_26_haveEPSM : 1;
+  bool x450_27_haveSSWH : 1;
+  bool x450_28_haveLWD : 1;
+  bool x450_29_transformDirty : 1;
 
   size_t m_nextLineRenderer = 0;
   std::vector<std::unique_ptr<CLineRenderer>> m_lineRenderers;
-
-  union {
-    struct {
-      bool x450_24_emitting : 1;
-      bool x450_25_haveGPSM : 1;
-      bool x450_26_haveEPSM : 1;
-      bool x450_27_haveSSWH : 1;
-      bool x450_28_haveLWD : 1;
-      bool x450_29_transformDirty : 1;
-    };
-    u32 dummy = 0;
-  };
 
   void SetupLineGXMaterial();
   void DrawLineStrip(const std::vector<zeus::CVector3f>& verts, float width, const zeus::CColor& color);
