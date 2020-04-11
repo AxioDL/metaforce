@@ -10,10 +10,12 @@ namespace urde {
 CScriptControllerAction::CScriptControllerAction(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                  bool active, ControlMapper::ECommands command, bool mapScreenResponse,
                                                  u32 w1, bool deactivateOnClose)
-: CEntity(uid, info, active, name), x34_command(command), x38_mapScreenSubaction(w1) {
-  x3c_24_mapScreenResponse = mapScreenResponse;
-  x3c_25_deactivateOnClose = deactivateOnClose;
-}
+: CEntity(uid, info, active, name)
+, x34_command(command)
+, x38_mapScreenSubaction(w1)
+, x3c_24_mapScreenResponse(mapScreenResponse)
+, x3c_25_deactivateOnClose(deactivateOnClose)
+, x3c_26_pressed(false) {}
 
 void CScriptControllerAction::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

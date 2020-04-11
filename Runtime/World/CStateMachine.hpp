@@ -89,15 +89,10 @@ class CStateMachineState {
   float xc_random = 0.f;
   float x10_delay = 0.f;
   float x14_;
-  union {
-    struct {
-      bool x18_24_codeTrigger : 1;
-    };
-    u32 dummy = 0;
-  };
+  bool x18_24_codeTrigger : 1;
 
 public:
-  CStateMachineState() = default;
+  CStateMachineState() : x18_24_codeTrigger(false) {}
 
   CAiState* GetActorState() const { return x4_state; }
 

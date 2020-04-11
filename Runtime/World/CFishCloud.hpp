@@ -84,19 +84,14 @@ class CFishCloud : public CActor {
   u16 x234_deathSfx;
   zeus::CVector3f x238_partitionPitch;
   zeus::CVector3f x244_ooPartitionPitch;
-  union {
-    struct {
-      bool x250_24_randomMovement : 1;
-      bool x250_25_worldSpace : 1;
-      bool x250_26_enableWeaponRepelDamping : 1;
-      bool x250_27_validModel : 1;
-      bool x250_28_killable : 1;
-      bool x250_29_repelFromThreats : 1;
-      bool x250_30_enablePlayerRepelDamping : 1;
-      bool x250_31_updateWithoutPartitions : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x250_24_randomMovement : 1;
+  bool x250_25_worldSpace : 1;
+  bool x250_26_enableWeaponRepelDamping : 1;
+  bool x250_27_validModel : 1;
+  bool x250_28_killable : 1;
+  bool x250_29_repelFromThreats : 1;
+  bool x250_30_enablePlayerRepelDamping : 1;
+  bool x250_31_updateWithoutPartitions : 1;
 
   void UpdateParticles(float dt);
   void UpdatePartitionList();

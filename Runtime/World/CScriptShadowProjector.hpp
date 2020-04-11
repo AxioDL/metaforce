@@ -20,14 +20,8 @@ class CScriptShadowProjector : public CActor {
   TUniqueId x104_target;
   std::unique_ptr<CProjectedShadow> x108_projectedShadow;
   u32 x10c_textureSize;
-
-  union {
-    struct {
-      bool x110_24_persistent : 1;
-      bool x110_25_shadowInvalidated : 1;
-    };
-    u8 x110_dummy = 0;
-  };
+  bool x110_24_persistent : 1;
+  bool x110_25_shadowInvalidated : 1;
 
 public:
   CScriptShadowProjector(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool,

@@ -221,17 +221,39 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
                 stepDown)
 , x2d8_fpBounds(aabb)
 , x7d0_animRes(resId, 0, playerScale, 0, true)
-, x7d8_beamScale(playerScale) {
+, x7d8_beamScale(playerScale)
+, x9c4_24_visorChangeRequested(false)
+, x9c4_25_showCrosshairs(false)
+, x9c4_26_(true)
+, x9c4_27_canEnterMorphBall(true)
+, x9c4_28_canLeaveMorphBall(true)
+, x9c4_29_spiderBallControlXY(false)
+, x9c4_30_controlDirOverride(false)
+, x9c4_31_inWaterMovement(false)
+, x9c5_24_(false)
+, x9c5_25_splashUpdated(false)
+, x9c5_26_(false)
+, x9c5_27_camSubmerged(false)
+, x9c5_28_slidingOnWall(false)
+, x9c5_29_hitWall(false)
+, x9c5_30_selectFluidBallSound(false)
+, x9c5_31_stepCameraZBiasDirty(true)
+, x9c6_24_extendTargetDistance(false)
+, x9c6_25_interpolatingControlDir(false)
+, x9c6_26_outOfBallLookAtHint(false)
+, x9c6_27_aimingAtProjectile(false)
+, x9c6_28_aligningGrappleSwingTurn(false)
+, x9c6_29_disableInput(false)
+, x9c6_30_newScanScanning(false)
+, x9c6_31_overrideRadarRadius(false)
+, x9c7_24_noDamageLoopSfx(false)
+, x9c7_25_outOfBallLookAtHintActor(false) {
   x490_gun = std::make_unique<CPlayerGun>(uid);
   x49c_gunHolsterRemTime = g_tweakPlayerGun->GetGunNotFiringTime();
   x4a0_failsafeTest = std::make_unique<CFailsafeTest>();
   x76c_cameraBob =
       std::make_unique<CPlayerCameraBob>(CPlayerCameraBob::ECameraBobType::One, CPlayerCameraBob::GetCameraBobExtent(),
                                          CPlayerCameraBob::GetCameraBobPeriod());
-  x9c4_26_ = true;
-  x9c4_27_canEnterMorphBall = true;
-  x9c4_28_canLeaveMorphBall = true;
-  x9c5_31_stepCameraZBiasDirty = true;
   const CAssetId beamId = g_tweakPlayerRes->GetBeamBallTransitionModel(x7ec_beam);
   x7f0_ballTransitionBeamModel = std::make_unique<CModelData>(CStaticRes(beamId, playerScale));
   x730_transitionModels.reserve(3);

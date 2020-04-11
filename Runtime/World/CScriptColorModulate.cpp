@@ -15,17 +15,16 @@ CScriptColorModulate::CScriptColorModulate(TUniqueId uid, std::string_view name,
 , x44_colorB(colorB)
 , x48_blendMode(blendMode)
 , x4c_timeA2B(timeA2B)
-, x50_timeB2A(timeB2A) {
-  x54_24_doReverse = doReverse;
-  x54_25_resetTargetWhenDone = resetTargetWhenDone;
-  x54_26_depthCompare = depthCompare;
-  x54_27_depthUpdate = depthUpdate;
-  x54_28_depthBackwards = depthBackwards;
-  x54_29_reversing = false;
-  x54_30_enable = false;
-  x54_31_dieOnEnd = false;
-  x55_24_isFadeOutHelper = false;
-}
+, x50_timeB2A(timeB2A)
+, x54_24_doReverse(doReverse)
+, x54_25_resetTargetWhenDone(resetTargetWhenDone)
+, x54_26_depthCompare(depthCompare)
+, x54_27_depthUpdate(depthUpdate)
+, x54_28_depthBackwards(depthBackwards)
+, x54_29_reversing(false)
+, x54_30_enable(false)
+, x54_31_dieOnEnd(false)
+, x55_24_isFadeOutHelper(false) {}
 
 void CScriptColorModulate::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

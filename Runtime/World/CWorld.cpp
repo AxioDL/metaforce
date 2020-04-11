@@ -184,8 +184,13 @@ std::string CDummyWorld::IGetDefaultAudioTrack() const { return {}; }
 int CDummyWorld::IGetAreaCount() const { return x18_areas.size(); }
 
 CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId)
-: x8_mlvlId(mlvlId), x60_objectStore(objStore), x64_resFactory(resFactory) {
-  x70_24_currentAreaNeedsAllocation = true;
+: x8_mlvlId(mlvlId)
+, x60_objectStore(objStore)
+, x64_resFactory(resFactory)
+, x70_24_currentAreaNeedsAllocation(true)
+, x70_25_loadPaused(false)
+, x70_26_skyboxActive(false)
+, x70_27_skyboxVisible(false) {
   SObjectTag tag{FOURCC('MLVL'), mlvlId};
   x44_bufSz = resFactory.ResourceSize(tag);
   x40_loadBuf.reset(new u8[x44_bufSz]);

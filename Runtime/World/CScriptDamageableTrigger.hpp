@@ -30,16 +30,12 @@ private:
   zeus::CVector3f x244_faceTranslate;
   float x250_alphaTimer = 0.f;
   CFluidPlaneDoor x254_fluidPlane;
-  union {
-    struct {
-      bool x300_24_notOccluded : 1;
-      bool x300_25_alphaOut : 1;
-      bool x300_26_outOfFrustum : 1;
-      bool x300_27_invulnerable : 1;
-      bool x300_28_canOrbit : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x300_24_notOccluded : 1;
+  bool x300_25_alphaOut : 1;
+  bool x300_26_outOfFrustum : 1;
+  bool x300_27_invulnerable : 1;
+  bool x300_28_canOrbit : 1;
+
   void SetLinkedObjectAlpha(float a, CStateManager& mgr);
   float GetPuddleAlphaScale() const;
 

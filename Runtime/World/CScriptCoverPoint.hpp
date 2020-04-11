@@ -10,25 +10,14 @@
 
 namespace urde {
 class CScriptCoverPoint : public CActor {
-  union {
-    struct {
-      bool xe8_26_landHere : 1;
-      bool xe8_27_wallHang : 1;
-      bool xe8_28_stay : 1;
-    };
-    u32 xe8_flags;
-  };
-
+  bool xe8_26_landHere : 1;
+  bool xe8_27_wallHang : 1;
+  bool xe8_28_stay : 1;
   float xec_cosHorizontalAngle;
   float xf0_sinVerticalAngle;
   float xf4_coverTime;
-  union {
-    struct {
-      bool xf8_24_crouch : 1;
-      bool xf8_25_inUse : 1;
-    };
-    u32 xf8_flags = 0;
-  };
+  bool xf8_24_crouch : 1;
+  bool xf8_25_inUse : 1;
   TUniqueId xfa_occupant = kInvalidUniqueId;
   TUniqueId xfc_retreating = kInvalidUniqueId;
   std::optional<zeus::CAABox> x100_touchBounds;

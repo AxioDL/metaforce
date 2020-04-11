@@ -25,10 +25,16 @@ CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, std::string_view name, con
                0, 1.f, false, false, false, false)
 , x2e8_suitRes(animRes)
 , x304_beam(beam)
-, x350_flags(flags) {
-  x354_24_setBoundingBox = setBoundingBox;
-  x354_29_loading = true;
-  x354_30_enableLoading = true;
+, x350_flags(flags)
+, x354_24_setBoundingBox(setBoundingBox)
+, x354_25_deferOnlineModelData(false)
+, x354_26_deferOfflineModelData(false)
+, x354_27_beamModelLoading(false)
+, x354_28_suitModelLoading(false)
+, x354_29_loading(true)
+, x354_30_enableLoading(true)
+, x354_31_deferOnlineLoad(false)
+, x355_24_areaTrackingLoad(false) {
   CMaterialList exclude = GetMaterialFilter().GetExcludeList();
   CMaterialList include = GetMaterialFilter().GetIncludeList();
   include.Add(EMaterialTypes::Player);

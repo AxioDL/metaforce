@@ -25,7 +25,12 @@ static bool IsMediumOrLarge(CActor& act) {
 }
 
 CActorModelParticles::CItem::CItem(const CEntity& ent, CActorModelParticles& parent)
-: x0_id(ent.GetUniqueId()), x4_areaId(ent.GetAreaIdAlways()), xdc_ashy(parent.x48_ashy), x128_parent(parent) {
+: x0_id(ent.GetUniqueId())
+, x4_areaId(ent.GetAreaIdAlways())
+, xdc_ashy(parent.x48_ashy)
+, x128_parent(parent)
+, x12c_24_thermalCold(false)
+, x12c_25_thermalHot(false) {
   x8_onFireGens.resize(8);
 }
 

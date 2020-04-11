@@ -22,7 +22,9 @@ CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, bool active, s
 , x124_upPitch(upPitch)
 , x128_downPitch(downPitch)
 , x12c_scale(scale * skScaleFactor)
-, x138_maxInterpDistance(maxInterpDistance) {}
+, x138_maxInterpDistance(maxInterpDistance)
+, x13c_24_entered(false)
+, x13c_25_occupied(false) {}
 
 void CScriptCameraPitchVolume::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

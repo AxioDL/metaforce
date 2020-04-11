@@ -7,14 +7,9 @@
 
 namespace urde {
 class CScriptMemoryRelay : public CEntity {
-  union {
-    struct {
-      bool x34_24_defaultActive;
-      bool x34_25_skipSendActive;
-      bool x34_26_ignoreMessages;
-    };
-    u8 dummy = 0;
-  };
+  bool x34_24_defaultActive;
+  bool x34_25_skipSendActive;
+  bool x34_26_ignoreMessages;
 
 public:
   CScriptMemoryRelay(TUniqueId, std::string_view name, const CEntityInfo&, bool, bool, bool);

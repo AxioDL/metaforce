@@ -14,10 +14,11 @@ CScriptCameraHintTrigger::CScriptCameraHintTrigger(TUniqueId uid, bool active, s
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Trigger),
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_obb(xf, scale)
-, x124_scale(scale) {
-  x130_24_deactivateOnEnter = deactivateOnEnter;
-  x130_25_deactivateOnExit = deactivateOnExit;
-}
+, x124_scale(scale)
+, x130_24_deactivateOnEnter(deactivateOnEnter)
+, x130_25_deactivateOnExit(deactivateOnExit)
+, x130_26_playerInside(false)
+, x130_27_playerWasInside(false) {}
 
 void CScriptCameraHintTrigger::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

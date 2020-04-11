@@ -12,17 +12,12 @@ private:
   float x38_initialLifetime;
   float x3c_playbackRate;
   float x40_lifetime;
-  union {
-    struct {
-      bool x44_24_looping : 1;
-      bool x44_25_isPassive : 1;
-      bool x44_26_fadeOut : 1;
-      bool x44_27_timedLoop : 1;
-      bool x44_28_playing : 1;
-      bool x44_29_ : 1;
-    };
-    u8 _dummy = 0;
-  };
+  bool x44_24_looping : 1;
+  bool x44_25_isPassive : 1;
+  bool x44_26_fadeOut : 1;
+  bool x44_27_timedLoop : 1;
+  bool x44_28_playing : 1;
+  bool x44_29_ : 1;
 
 public:
   CScriptActorKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 animId, bool looping,

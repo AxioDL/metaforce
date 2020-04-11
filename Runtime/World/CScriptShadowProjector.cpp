@@ -10,7 +10,7 @@ namespace urde {
 
 CScriptShadowProjector::CScriptShadowProjector(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                const zeus::CTransform& xf, bool active, const zeus::CVector3f& offset,
-                                               bool b2, float scale, float f2, float opacity, float opacityQ,
+                                               bool persistent, float scale, float f2, float opacity, float opacityQ,
                                                s32 textureSize)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(),
          kInvalidUniqueId)
@@ -19,9 +19,9 @@ CScriptShadowProjector::CScriptShadowProjector(TUniqueId uid, std::string_view n
 , xf8_zOffsetAdjust(f2)
 , xfc_opacity(opacity)
 , x100_opacityRecip(opacity < 0.00001 ? 1.f : opacityQ / opacity)
-, x10c_textureSize(textureSize) {
-  x110_24_persistent = b2;
-}
+, x10c_textureSize(textureSize)
+, x110_24_persistent(persistent)
+, x110_25_shadowInvalidated(false) {}
 
 void CScriptShadowProjector::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

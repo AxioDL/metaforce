@@ -18,15 +18,10 @@ class CActorParameters {
   std::pair<CAssetId, CAssetId> x44_xrayAssets = {};
   std::pair<CAssetId, CAssetId> x4c_thermalAssets = {};
   CVisorParameters x54_visorParms;
-  union {
-    struct {
-      bool x58_24_globalTimeProvider : 1;
-      bool x58_25_thermalHeat : 1;
-      bool x58_26_renderUnsorted : 1;
-      bool x58_27_noSortThermal : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x58_24_globalTimeProvider : 1;
+  bool x58_25_thermalHeat : 1;
+  bool x58_26_renderUnsorted : 1;
+  bool x58_27_noSortThermal : 1;
   float x5c_fadeInTime = 0.f;
   float x60_fadeOutTime = 0.f;
   float x64_thermalMag = 0.f;
