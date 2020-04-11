@@ -53,48 +53,52 @@ SAdvancementResults CAnimTreeDoubleChild::VAdvanceView(const CCharAnimTime& a) {
   return (resA.x0_remTime > resB.x0_remTime) ? resA : resB;
 }
 
-u32 CAnimTreeDoubleChild::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator,
-                                          u32 unk) const {
-  u32 newCapacity = x14_a->GetBoolPOIList(time, listOut, capacity, iterator, unk);
+size_t CAnimTreeDoubleChild::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, size_t capacity,
+                                             size_t iterator, u32 unk) const {
+  size_t newCapacity = x14_a->GetBoolPOIList(time, listOut, capacity, iterator, unk);
   newCapacity += x18_b->GetBoolPOIList(time, listOut, capacity, newCapacity + iterator, unk);
-  if (newCapacity > capacity)
+  if (newCapacity > capacity) {
     newCapacity = capacity;
+  }
 
   std::sort(listOut, listOut + newCapacity);
 
   return newCapacity;
 }
 
-u32 CAnimTreeDoubleChild::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity,
-                                           u32 iterator, u32 unk) const {
-  u32 newCapacity = x14_a->GetInt32POIList(time, listOut, capacity, iterator, unk);
+size_t CAnimTreeDoubleChild::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, size_t capacity,
+                                              size_t iterator, u32 unk) const {
+  size_t newCapacity = x14_a->GetInt32POIList(time, listOut, capacity, iterator, unk);
   newCapacity += x18_b->GetInt32POIList(time, listOut, capacity, newCapacity + iterator, unk);
-  if (newCapacity > capacity)
+  if (newCapacity > capacity) {
     newCapacity = capacity;
+  }
 
   std::sort(listOut, listOut + newCapacity);
 
   return newCapacity;
 }
 
-u32 CAnimTreeDoubleChild::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity,
-                                              u32 iterator, u32 unk) const {
-  u32 newCapacity = x14_a->GetParticlePOIList(time, listOut, capacity, iterator, unk);
+size_t CAnimTreeDoubleChild::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, size_t capacity,
+                                                 size_t iterator, u32 unk) const {
+  size_t newCapacity = x14_a->GetParticlePOIList(time, listOut, capacity, iterator, unk);
   newCapacity += x18_b->GetParticlePOIList(time, listOut, capacity, newCapacity + iterator, unk);
-  if (newCapacity > capacity)
+  if (newCapacity > capacity) {
     newCapacity = capacity;
+  }
 
   std::sort(listOut, listOut + newCapacity);
 
   return newCapacity;
 }
 
-u32 CAnimTreeDoubleChild::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity,
-                                           u32 iterator, u32 unk) const {
-  u32 newCapacity = x14_a->GetSoundPOIList(time, listOut, capacity, iterator, unk);
+size_t CAnimTreeDoubleChild::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, size_t capacity,
+                                              size_t iterator, u32 unk) const {
+  size_t newCapacity = x14_a->GetSoundPOIList(time, listOut, capacity, iterator, unk);
   newCapacity += x18_b->GetSoundPOIList(time, listOut, capacity, newCapacity + iterator, unk);
-  if (newCapacity > capacity)
+  if (newCapacity > capacity) {
     newCapacity = capacity;
+  }
 
   std::sort(listOut, listOut + newCapacity);
 
