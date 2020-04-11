@@ -66,6 +66,7 @@ struct TextureCache {
   static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project, const hecl::ProjectPath& pakPath) {
     hecl::ProjectPath texturePath(pakPath, _SYS_STR("texture_cache.yaml"));
     hecl::ProjectPath catalogPath(pakPath, _SYS_STR("!catalog.yaml"));
+    texturePath.makeDirChain(false);
 
     if (const auto fp = hecl::FopenUnique(catalogPath.getAbsolutePath().data(), _SYS_STR("a"))) {
       fmt::print(fp.get(), fmt("TextureCache: {}\n"), texturePath.getRelativePathUTF8());
