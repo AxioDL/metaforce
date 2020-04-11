@@ -9,7 +9,7 @@ class CRandom16 {
   static CRandom16* g_randomNumber;
 
 public:
-  CRandom16(s32 p = 99) : m_seed(p) {}
+  explicit CRandom16(s32 seed = 99) : m_seed(seed) {}
 
   s32 Next() {
     m_seed = (m_seed * 0x41c64e6d) + 0x00003039;
@@ -18,7 +18,7 @@ public:
 
   s32 GetSeed() const { return m_seed; }
 
-  void SetSeed(s32 p) { m_seed = p; }
+  void SetSeed(s32 seed) { m_seed = seed; }
 
   float Float() { return Next() * 0.000015259022f; }
 
