@@ -82,6 +82,7 @@ class PyOutStream : public std::ostream {
     StreamBuf(const StreamBuf& other) = delete;
     StreamBuf(StreamBuf&& other) = default;
     bool sendLine(std::string_view line);
+    int_type overflow(int_type ch) override;
     std::streamsize xsputn(const char_type* __s, std::streamsize __n) override;
   } m_sbuf;
   PyOutStream(Connection* parent, bool deleteOnError);

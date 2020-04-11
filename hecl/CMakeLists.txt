@@ -2,15 +2,21 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR) # because of c++17
 project(hecl)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 if(MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
-  # Shaddup MSVC
-  add_definitions(-DUNICODE=1 -D_UNICODE=1 -D_CRT_SECURE_NO_WARNINGS=1 /wd4267 /wd4244)
+  add_compile_options(
+    # Disable exceptions
+    $<$<COMPILE_LANGUAGE:CXX>:/EHsc>
+    /wd4267 /wd4244
+  )
+  add_compile_definitions(UNICODE=1 _UNICODE=1 _CRT_SECURE_NO_WARNINGS=1)
 else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-multichar -fno-exceptions")
+  set(CMAKE_CXX_STANDARD 20)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  add_compile_options(
+    # Disable exceptions
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
+    -Wno-multichar
+  )
 endif()
 endif()
 

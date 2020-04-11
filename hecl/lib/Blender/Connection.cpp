@@ -583,6 +583,18 @@ bool PyOutStream::StreamBuf::sendLine(std::string_view line) {
   return true;
 }
 
+PyOutStream::StreamBuf::int_type PyOutStream::StreamBuf::overflow(int_type ch) {
+  if (!m_parent.m_parent || !m_parent.m_parent->m_lock)
+    BlenderLog.report(logvisor::Fatal, fmt("lock not held for PyOutStream writing"));
+  if (ch != traits_type::eof() && ch != '\n' && ch != '\0') {
+    m_lineBuf += char_type(ch);
+    return ch;
+  }
+  sendLine(m_lineBuf);
+  m_lineBuf.clear();
+  return ch;
+}
+
 std::streamsize PyOutStream::StreamBuf::xsputn(const char_type* __first, std::streamsize __n) {
   if (!m_parent.m_parent || !m_parent.m_parent->m_lock)
     BlenderLog.report(logvisor::Fatal, fmt("lock not held for PyOutStream writing"));
