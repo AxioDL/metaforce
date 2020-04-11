@@ -19,11 +19,16 @@ namespace urde {
 u16 CParticleElectric::g_GlobalSeed = 99;
 
 CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
-: x1c_elecDesc(token), x14c_randState(g_GlobalSeed++) {
+: x1c_elecDesc(token)
+, x14c_randState(g_GlobalSeed++)
+, x450_24_emitting(true)
+, x450_25_haveGPSM(false)
+, x450_26_haveEPSM(false)
+, x450_27_haveSSWH(false)
+, x450_28_haveLWD(false)
+, x450_29_transformDirty(true) {
   x1bc_allocated.resize(32);
 
-  x450_24_emitting = true;
-  x450_29_transformDirty = true;
   CElectricDescription* desc = x1c_elecDesc.GetObj();
 
   if (CIntElement* sseg = desc->x10_SSEG.get())

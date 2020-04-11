@@ -13,17 +13,12 @@
 namespace urde {
 struct SQuadDescr;
 struct CQuadDecal {
-  union {
-    struct {
-      bool x0_24_invalid : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x0_24_invalid : 1;
   s32 x4_lifetime = 0;
   float x8_rotation = 0.f;
   const SQuadDescr* m_desc = nullptr;
-  CQuadDecal() = default;
-  CQuadDecal(s32 i, float f) : x4_lifetime(i), x8_rotation(f) { x0_24_invalid = true; }
+  CQuadDecal() : x0_24_invalid(true) {}
+  CQuadDecal(s32 i, float f) : x0_24_invalid(true), x4_lifetime(i), x8_rotation(f) {}
 
   boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
   boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
@@ -41,14 +36,9 @@ class CDecal {
   std::array<CQuadDecal, 2> x3c_decalQuads;
   s32 x54_modelLifetime = 0;
   s32 x58_frameIdx = 0;
-  union {
-    struct {
-      bool x5c_31_quad1Invalid : 1;
-      bool x5c_30_quad2Invalid : 1;
-      bool x5c_29_modelInvalid : 1;
-    };
-    u32 x5c_dummy = 0;
-  };
+  bool x5c_31_quad1Invalid : 1;
+  bool x5c_30_quad2Invalid : 1;
+  bool x5c_29_modelInvalid : 1;
   zeus::CVector3f x60_rotation;
   bool InitQuad(CQuadDecal& quad, const SQuadDescr& desc);
 
