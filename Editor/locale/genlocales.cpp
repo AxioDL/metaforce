@@ -7,19 +7,18 @@
 
 #define FMT_STRING_ALIAS 1
 #define FMT_ENFORCE_COMPILE_STRING 1
-#define FMT_USE_GRISU 0
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
 int main(int argc, char** argv) {
   if (argc < 3) {
-    fmt::print(fmt("{} <out-header> <in-yamls>...\n"), argv[0]);
+    fmt::print(FMT_STRING("{} <out-header> <in-yamls>...\n"), argv[0]);
     return 1;
   }
 
   std::ofstream out(argv[1]);
   if (!out.is_open()) {
-    fmt::print(fmt("Unable to open {} for writing\n"), argv[1]);
+    fmt::print(FMT_STRING("Unable to open {} for writing\n"), argv[1]);
     return 1;
   }
 
@@ -34,12 +33,12 @@ int main(int argc, char** argv) {
   for (int i = 2; i < argc; ++i) {
     athena::io::FileReader fr(argv[i]);
     if (!fr.isOpen()) {
-      fmt::print(fmt("Unable to open {} for reading\n"), argv[i]);
+      fmt::print(FMT_STRING("Unable to open {} for reading\n"), argv[i]);
       return 1;
     }
     athena::io::YAMLDocReader r;
     if (!r.parse(&fr)) {
-      fmt::print(fmt("Unable to parse {}\n"), argv[i]);
+      fmt::print(FMT_STRING("Unable to parse {}\n"), argv[i]);
       return 1;
     }
 
@@ -55,31 +54,31 @@ int main(int argc, char** argv) {
       }
     }
     if (fullName.empty()) {
-      fmt::print(fmt("Unable to find 'name' node in {}\n"), argv[i]);
+      fmt::print(FMT_STRING("Unable to find 'name' node in {}\n"), argv[i]);
       return 1;
     }
     if (!listNode) {
-      fmt::print(fmt("Unable to find list node in {}\n"), argv[i]);
+      fmt::print(FMT_STRING("Unable to find list node in {}\n"), argv[i]);
       return 1;
     }
 
     if (seenLocales.find(name) == seenLocales.end()) {
       seenLocales.insert(name);
-      fmt::print(enumLocales, fmt("  {},\n"), name);
+      fmt::print(enumLocales, FMT_STRING("  {},\n"), name);
       fmt::print(declLocales,
-        fmt("struct {0} {{ static constexpr auto Name = \"{0}\"sv; static constexpr auto FullName = \"{1}\"sv; }};\n"),
+        FMT_STRING("struct {0} {{ static constexpr auto Name = \"{0}\"sv; static constexpr auto FullName = \"{1}\"sv; }};\n"),
         name, fullName);
       fmt::print(dos,
-        fmt("    case ELocale::{0}:\n"
+        FMT_STRING("    case ELocale::{0}:\n"
             "      return act.template Do<{0}>(std::forward<Args>(args)...);\n"), name);
-      fmt::print(lookups, fmt("/* {} */\n"), name);
+      fmt::print(lookups, FMT_STRING("/* {} */\n"), name);
       for (const auto& k : listNode->m_mapChildren) {
         if (seenKeys.find(k.first) == seenKeys.end()) {
           seenKeys.insert(k.first);
-          fmt::print(keys, fmt("struct {} {{}};\n"), k.first);
+          fmt::print(keys, FMT_STRING("struct {} {{}};\n"), k.first);
         }
         fmt::print(lookups,
-          fmt("template<> struct Lookup<{}, {}> {{ static constexpr auto Value() {{ return fmt(\"{}\"); }} }};\n"),
+          FMT_STRING("template<> struct Lookup<{}, {}> {{ static constexpr auto Value() {{ return FMT_STRING(\"{}\"); }} }};\n"),
           name, k.first, k.second->m_scalarString);
       }
     }

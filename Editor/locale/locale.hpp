@@ -5,7 +5,6 @@
 
 #define FMT_STRING_ALIAS 1
 #define FMT_ENFORCE_COMPILE_STRING 1
-#define FMT_USE_GRISU 0
 #include <fmt/format.h>
 
 namespace locale {
