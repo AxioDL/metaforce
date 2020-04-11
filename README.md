@@ -4,7 +4,7 @@
 **Official Discord Channel:** https://discord.gg/AMBVFuf
 
 ### Download
-Precompiled builds of the command-line extraction utility (`hecl`) with embedded dataspec libraries are available at https://github.com/AxioDL/urde/releases. This will give you intermediate dumps of original formats as *blender* and *yaml* representations.
+Precompiled builds of the command-line extraction utility (`hecl`) with embedded dataspec libraries are available at https://releases.axiodl.com. This will give you intermediate dumps of original formats as *blender* and *yaml* representations.
 
 Everything else is much too experimental to make portable/stable release builds (for now)
 
@@ -19,9 +19,10 @@ Everything else is much too experimental to make portable/stable release builds 
     
 ### Usage
 
-* Extract ISO: `hecl extract [path].iso`
-* Repackage game for URDE: `cd [extracted dir]; hecl package`
-* Run URDE: `urde [path to hecl dir]/out`
+* Extract ISO: `hecl extract [path].iso -o mp1`
+  * `mp1` can be substituted with the directory name of your choice
+* Repackage game for URDE: `cd mp1; hecl package`
+* Run URDE: `urde mp1/out`
 
 #### URDE options (non-exhaustive)
 
@@ -38,7 +39,7 @@ Everything else is much too experimental to make portable/stable release builds 
 * LLVM development package *(headers and libs)*
     * [Specialized Windows Package](https://axiodl.com/files/LLVM-9.0.1-win64.exe)
     * [Specialized macOS Package](https://axiodl.com/files/LLVM-9.0.1-Darwin.tar.xz)
-* **[Windows]** [Visual Studio 2017/2019 Community](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
+* **[Windows]** [Visual Studio 2019 Community](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
     * Select `C++ Development` and verify the following packages are included:
         * `Windows 10 SDK`
         * `CMake Tools`
@@ -50,7 +51,7 @@ Everything else is much too experimental to make portable/stable release builds 
 ### Prep Directions
 
 ```sh
-git clone --recurse-submodules https://github.com/AxioDL/urde.git
+git clone --recursive https://github.com/AxioDL/urde.git
 mkdir urde-build
 cd urde-build
 ```
@@ -66,7 +67,7 @@ ninja
 
 #### CMake options
 - Build release optimized (better runtime performance): `-DCMAKE_BUILD_TYPE=Release`
-- Use clang+lld (faster linking): `-DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++`
+- Use clang+lld (faster linking): `-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++`
 - Optimize for current CPU (resulting binaries are not portable): `-DURDE_VECTOR_ISA=native`
 
 #### CLion
