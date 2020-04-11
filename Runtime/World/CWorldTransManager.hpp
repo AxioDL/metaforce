@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -31,7 +32,7 @@ public:
     CModelData x1c_samusModelData;
     CModelData x68_beamModelData;
     CModelData xb4_platformModelData;
-    CModelData x100_bgModelData[3];
+    std::array<CModelData, 3> x100_bgModelData;
     TLockedToken<CModel> x14c_beamModel;
     TLockedToken<CModel> x158_suitModel;
     TLockedToken<CSkinRules> x164_suitSkin;
