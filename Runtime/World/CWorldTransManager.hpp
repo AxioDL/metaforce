@@ -81,7 +81,7 @@ private:
   CWideScreenFilter m_widescreen{EFilterType::Blend};
   CCameraBlurFilter m_camblur;
 
-  boo::ObjToken<boo::ITextureCubeR> m_reflectionCube[2];
+  std::array<boo::ObjToken<boo::ITextureCubeR>, 2> m_reflectionCube;
 
   static int GetSuitCharIdx();
   void DrawFirstPass(CActorLights* lights);
