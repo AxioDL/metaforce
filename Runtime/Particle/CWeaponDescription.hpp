@@ -18,7 +18,7 @@ struct SCollisionResponseData {
   bool m_found = false;
   SCollisionResponseData() = default;
   SCollisionResponseData(CToken&& tok, bool found) : m_res(std::move(tok)), m_found(found) {}
-  operator bool() const { return m_found; }
+  explicit operator bool() const { return m_found; }
 };
 
 class CWeaponDescription {
