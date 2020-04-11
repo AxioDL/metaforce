@@ -140,7 +140,7 @@ void AROTBuilder::Node::nodeCount(size_t& sz, size_t& idxRefs, BitmapPool& bmpPo
   sz += 1;
   poolIdx = bmpPool.addIndices(childIndices);
   if (poolIdx > 65535)
-    Log.report(logvisor::Fatal, fmt("AROT bitmap exceeds 16-bit node addressing; area too complex"));
+    Log.report(logvisor::Fatal, FMT_STRING("AROT bitmap exceeds 16-bit node addressing; area too complex"));
 
   uint32_t childCount = AROTChildCounts[compSubdivs];
   nodeOff = curOff;
@@ -180,7 +180,7 @@ void AROTBuilder::Node::writeNodes(athena::io::MemoryWriter& w, int nodeIdx) {
   if (childNodes.size()) {
     int curIdx = nodeIdx + 1;
     if (curIdx > 65535)
-      Log.report(logvisor::Fatal, fmt("AROT node exceeds 16-bit node addressing; area too complex"));
+      Log.report(logvisor::Fatal, FMT_STRING("AROT node exceeds 16-bit node addressing; area too complex"));
 
     std::array<int, 8> childIndices;
 

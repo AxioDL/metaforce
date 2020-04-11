@@ -5,7 +5,7 @@ static logvisor::Module Log("urde::CPakFile");
 
 CPakFile::CPakFile(std::string_view filename, bool buildDepList, bool worldPak, bool override) : CDvdFile(filename) {
   if (!CDvdFile::operator bool())
-    Log.report(logvisor::Fatal, fmt("{}: Unable to open"), GetPath());
+    Log.report(logvisor::Fatal, FMT_STRING("{}: Unable to open"), GetPath());
   x28_24_buildDepList = buildDepList;
   //x28_24_buildDepList = true; // Always do this so URDE can rapidly pre-warm shaders
   x28_25_aramFile = false;
@@ -67,7 +67,7 @@ void CPakFile::InitialHeaderLoad() {
   u32 version = r.readUint32Big();
   if (version != 0x80030005) {
     Log.report(logvisor::Fatal,
-               fmt("{}: Incompatible pak file version -- Current version is {:08X}, you're using {:08X}"),
+               FMT_STRING("{}: Incompatible pak file version -- Current version is {:08X}, you're using {:08X}"),
                GetPath(), 0x80030005, version);
     return;
   }

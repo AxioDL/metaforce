@@ -67,7 +67,7 @@ public:
   bool ReadFromMemoryCard(std::string_view name) { return true; }
 
   static std::string GetIdentifierForMidiEvent(CAssetId world, CAssetId area, std::string_view midiObj) {
-    return fmt::format(fmt("World {} Area {} MidiObject: {}"), world, area, midiObj);
+    return fmt::format(FMT_STRING("World {} Area {} MidiObject: {}"), world, area, midiObj);
   }
 };
 

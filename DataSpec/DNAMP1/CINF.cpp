@@ -34,7 +34,7 @@ void CINF::sendVertexGroupsToBlender(hecl::blender::PyOutStream& os) const {
   for (atUint32 bid : boneIds) {
     for (const Name& name : names) {
       if (name.boneId == bid) {
-        os.format(fmt("obj.vertex_groups.new(name='{}')\n"), name.name);
+        os.format(FMT_STRING("obj.vertex_groups.new(name='{}')\n"), name.name);
         break;
       }
     }
@@ -44,7 +44,7 @@ void CINF::sendVertexGroupsToBlender(hecl::blender::PyOutStream& os) const {
 void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& cinfId) const {
   DNAANIM::RigInverter<CINF> inverter(*this);
 
-  os.format(fmt(
+  os.format(FMT_STRING(
       "arm = bpy.data.armatures.new('CINF_{}')\n"
       "arm_obj = bpy.data.objects.new(arm.name, arm)\n"
       "bpy.context.scene.collection.objects.link(arm_obj)\n"
@@ -56,7 +56,7 @@ void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& c
   for (const DNAANIM::RigInverter<CINF>::Bone& bone : inverter.getBones()) {
     zeus::simd_floats originF(bone.m_origBone.origin.simd);
     zeus::simd_floats tailF(bone.m_tail.mSimd);
-    os.format(fmt(
+    os.format(FMT_STRING(
         "bone = arm.edit_bones.new('{}')\n"
         "bone.head = ({},{},{})\n"
         "bone.tail = ({},{},{})\n"
@@ -68,16 +68,16 @@ void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& c
 
   for (const Bone& bone : bones)
     if (bone.parentId != 2)
-      os.format(fmt("arm_bone_table[{}].parent = arm_bone_table[{}]\n"), bone.id, bone.parentId);
+      os.format(FMT_STRING("arm_bone_table[{}].parent = arm_bone_table[{}]\n"), bone.id, bone.parentId);
 
   os << "bpy.ops.object.mode_set(mode='OBJECT')\n";
 
   for (const DNAANIM::RigInverter<CINF>::Bone& bone : inverter.getBones())
-    os.format(fmt("arm_obj.pose.bones['{}'].rotation_mode = 'QUATERNION'\n"),
+    os.format(FMT_STRING("arm_obj.pose.bones['{}'].rotation_mode = 'QUATERNION'\n"),
               *getBoneNameFromId(bone.m_origBone.id));
 }
 
-std::string CINF::GetCINFArmatureName(const UniqueID32& cinfId) { return fmt::format(fmt("CINF_{}"), cinfId); }
+std::string CINF::GetCINFArmatureName(const UniqueID32& cinfId) { return fmt::format(FMT_STRING("CINF_{}"), cinfId); }
 
 int CINF::RecursiveAddArmatureBone(const Armature& armature, const BlenderBone* bone, int parent, int& curId,
                                    std::unordered_map<std::string, atInt32>& idMap,
@@ -167,7 +167,7 @@ bool CINF::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     return false;
   auto os = conn.beginPythonOut(true);
 
-  os.format(fmt("import bpy\n"
+  os.format(FMT_STRING("import bpy\n"
                 "from mathutils import Vector\n"
                 "bpy.context.scene.name = 'CINF_{}'\n"
                 "bpy.context.scene.hecl_arm_obj = bpy.context.scene.name\n"

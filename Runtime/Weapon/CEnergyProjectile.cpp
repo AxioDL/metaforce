@@ -190,7 +190,7 @@ void CEnergyProjectile::Think(float dt, CStateManager& mgr) {
 }
 
 void CEnergyProjectile::Render(CStateManager& mgr) {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CEnergyProjectile::Render WPSC_{}"), x2cc_wpscId).c_str(), zeus::skOrange);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CEnergyProjectile::Render WPSC_{}"), x2cc_wpscId).c_str(), zeus::skOrange);
 
   CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
   if (visor == CPlayerState::EPlayerVisor::Combat) {

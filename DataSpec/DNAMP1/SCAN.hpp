@@ -87,13 +87,13 @@ struct SCAN : BigDNA {
     scan.read(rs);
     if (scan.string.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(scan.string);
-      ent->name = fmt::format(fmt("SCAN_{}_strg"), entry.id);
+      ent->name = fmt::format(FMT_STRING("SCAN_{}_strg"), entry.id);
     }
     for (int i = 0; i < 4; ++i) {
       const Texture& tex = scan.textures[i];
       if (tex.texture.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(tex.texture);
-        ent->name = fmt::format(fmt("SCAN_{}_tex{}"), entry.id, i + 1);
+        ent->name = fmt::format(FMT_STRING("SCAN_{}_tex{}"), entry.id, i + 1);
       }
     }
   }

@@ -8,7 +8,7 @@ kabufuda::SystemString CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlo
     return {};
 
   kabufuda::SystemString path = home;
-  path += fmt::format(fmt("/Library/Application Support/Dolphin/GC/MemoryCard{:c}.USA.raw"),
+  path += fmt::format(FMT_STRING("/Library/Application Support/Dolphin/GC/MemoryCard{:c}.USA.raw"),
                       slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
 
   hecl::Sstat theStat;
@@ -28,7 +28,7 @@ kabufuda::SystemString CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot sl
   if (hecl::RecursiveMakeDir(path.c_str()) < 0)
     return {};
 
-  path += fmt::format(fmt("/MemoryCard{:c}.USA.raw"), slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
+  path += fmt::format(FMT_STRING("/MemoryCard{:c}.USA.raw"), slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
   const auto fp = hecl::FopenUnique(path.c_str(), "wb");
   if (fp == nullptr) {
     return {};

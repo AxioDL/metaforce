@@ -18,13 +18,13 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os, const BabeDeadLi
   switch (light.lightType) {
   case BabeDeadLight::LightType::LocalAmbient:
   case BabeDeadLight::LightType::LocalAmbient2:
-    os.format(fmt(
+    os.format(FMT_STRING(
         "bg_node.inputs[0].default_value = ({},{},{},1.0)\n"
         "bg_node.inputs[1].default_value = {}\n"),
         light.color.simd[0], light.color.simd[1], light.color.simd[2], light.q / 8.f);
     return;
   case BabeDeadLight::LightType::Directional:
-    os.format(fmt(
+    os.format(FMT_STRING(
         "lamp = bpy.data.lights.new('LAMP_{:01d}_{:03d}', 'SUN')\n"
         "lamp.color = ({},{},{})\n"
         "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
@@ -36,7 +36,7 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os, const BabeDeadLi
         light.direction.simd[1], light.direction.simd[2], light.castShadows ? "True" : "False");
     return;
   case BabeDeadLight::LightType::Custom:
-    os.format(fmt(
+    os.format(FMT_STRING(
         "lamp = bpy.data.lights.new('LAMP_{:01d}_{:03d}', 'POINT')\n"
         "lamp.color = ({},{},{})\n"
         "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
@@ -48,7 +48,7 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os, const BabeDeadLi
     break;
   case BabeDeadLight::LightType::Spot:
   case BabeDeadLight::LightType::Spot2:
-    os.format(fmt(
+    os.format(FMT_STRING(
         "lamp = bpy.data.lights.new('LAMP_{:01d}_{:03d}', 'SPOT')\n"
         "lamp.color = ({},{},{})\n"
         "lamp.spot_size = {:.6g}\n"
@@ -66,7 +66,7 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os, const BabeDeadLi
     return;
   }
 
-  os.format(fmt(
+  os.format(FMT_STRING(
       "lamp.retro_layer = {}\n"
       "lamp.retro_origtype = {}\n"
       "lamp.falloff_type = 'INVERSE_COEFFICIENTS'\n"
@@ -90,17 +90,17 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os, const BabeDeadLi
     os << "falloff_node.inputs[0].default_value *= 150.0\n"
           "lamp.node_tree.links.new(falloff_node.outputs[2], lamp.node_tree.nodes['Emission'].inputs[1])\n";
     if (light.q > FLT_EPSILON)
-      os.format(fmt("lamp.constant_coefficient = 2.0 / {}\n"), light.q);
+      os.format(FMT_STRING("lamp.constant_coefficient = 2.0 / {}\n"), light.q);
     break;
   case BabeDeadLight::Falloff::Linear:
     os << "lamp.node_tree.links.new(falloff_node.outputs[1], lamp.node_tree.nodes['Emission'].inputs[1])\n";
     if (light.q > FLT_EPSILON)
-      os.format(fmt("lamp.linear_coefficient = 250 / {}\n"), light.q);
+      os.format(FMT_STRING("lamp.linear_coefficient = 250 / {}\n"), light.q);
     break;
   case BabeDeadLight::Falloff::Quadratic:
     os << "lamp.node_tree.links.new(falloff_node.outputs[0], lamp.node_tree.nodes['Emission'].inputs[1])\n";
     if (light.q > FLT_EPSILON)
-      os.format(fmt("lamp.quadratic_coefficient = 25000 / {}\n"), light.q);
+      os.format(FMT_STRING("lamp.quadratic_coefficient = 25000 / {}\n"), light.q);
     break;
   default:
     break;

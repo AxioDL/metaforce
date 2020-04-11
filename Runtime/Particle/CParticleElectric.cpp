@@ -556,7 +556,7 @@ bool CParticleElectric::Update(double dt) {
 }
 
 void CParticleElectric::Render(const CActorLights* lights) {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CParticleElectric::Render {}"),
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CParticleElectric::Render {}"),
     *x1c_elecDesc.GetObjectTag()).c_str(), zeus::skYellow);
 
   if (x3e8_electricManagers.size()) {

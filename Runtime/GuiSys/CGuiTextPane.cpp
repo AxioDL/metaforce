@@ -51,7 +51,7 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) {
   if (!GetIsVisible()) {
     return;
   }
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CGuiTextPane::Draw {}"), m_name).c_str(), zeus::skCyan);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CGuiTextPane::Draw {}"), m_name).c_str(), zeus::skCyan);
 
   zeus::CVector2f dims = GetDimensions();
 

@@ -530,7 +530,7 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask,
 void CFishCloud::Render(CStateManager& mgr) {
   if (!GetActive())
     return;
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CFishCloud::Render {} {} {}"),
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CFishCloud::Render {} {} {}"),
                                           x8_uid, xc_editorId, x10_name).c_str(), zeus::skOrange);
   bool thermalHot = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot;
   CModelFlags flags(0, 0, 3, zeus::skWhite);

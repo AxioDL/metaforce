@@ -30,7 +30,7 @@ void DCLN::Collision::Node::sendToBlender(hecl::blender::PyOutStream& os) const 
 void DCLN::sendToBlender(hecl::blender::Connection& conn, std::string_view entryName) {
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-  os.format(fmt(
+  os.format(FMT_STRING(
       "import bpy\n"
       "import bmesh\n"
       "from mathutils import Vector, Matrix\n"

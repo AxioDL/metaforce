@@ -13,7 +13,7 @@ void CObjectList::AddObject(CEntity& entity) {
 #ifndef NDEBUG
     if (x0_list[entity.GetUniqueId().Value()].entity != nullptr &&
         x0_list[entity.GetUniqueId().Value()].entity != &entity)
-      Log.report(logvisor::Level::Fatal, fmt("INVALID USAGE DETECTED: Attempting to assign entity '{} ({})' to existing node '{}'!!!"),
+      Log.report(logvisor::Level::Fatal, FMT_STRING("INVALID USAGE DETECTED: Attempting to assign entity '{} ({})' to existing node '{}'!!!"),
                  entity.GetName(), entity.GetEditorId(), entity.GetUniqueId().Value());
 #endif
     s16 prevFirst = -1;

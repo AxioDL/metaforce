@@ -137,7 +137,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     if (!areaPath.isFile())
       continue;
 
-    Log.report(logvisor::Info, fmt(_SYS_STR("Visiting {}")), area.path.getRelativePath());
+    Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Visiting {}")), area.path.getRelativePath());
 
     hecl::ProjectPath memRelayPath(area.path, _SYS_STR("!memoryrelays.yaml"));
 
@@ -311,7 +311,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     }
 
     if (!areaInit)
-      Log.report(logvisor::Info, fmt(_SYS_STR("No layer directories for area {}")), area.path.getRelativePath());
+      Log.report(logvisor::Info, FMT_STRING(_SYS_STR("No layer directories for area {}")), area.path.getRelativePath());
 
     /* Build deplist */
     MLVL::Area& areaOut = mlvl.areas.back();

@@ -22,7 +22,7 @@ void DeafBabeSendToBlender(hecl::blender::PyOutStream& os, const DEAFBABE& db, b
         "col_bm = bmesh.new()\n";
   for (const atVec3f& vert : db.verts) {
     zeus::simd_floats f(vert.simd);
-    os.format(fmt("col_bm.verts.new(({},{},{}))\n"), f[0], f[1], f[2]);
+    os.format(FMT_STRING("col_bm.verts.new(({},{},{}))\n"), f[0], f[1], f[2]);
   }
 
   os << "col_bm.verts.ensure_lookup_table()\n";
@@ -49,11 +49,11 @@ void DeafBabeSendToBlender(hecl::blender::PyOutStream& os, const DEAFBABE& db, b
     }
 
     os << "tri_verts = []\n";
-    os.format(fmt("tri_verts.append(col_bm.verts[{}])\n"), vindices[0]);
-    os.format(fmt("tri_verts.append(col_bm.verts[{}])\n"), vindices[1]);
-    os.format(fmt("tri_verts.append(col_bm.verts[{}])\n"), vindices[2]);
+    os.format(FMT_STRING("tri_verts.append(col_bm.verts[{}])\n"), vindices[0]);
+    os.format(FMT_STRING("tri_verts.append(col_bm.verts[{}])\n"), vindices[1]);
+    os.format(FMT_STRING("tri_verts.append(col_bm.verts[{}])\n"), vindices[2]);
 
-    os.format(fmt(
+    os.format(FMT_STRING(
         "face = col_bm.faces.get(tri_verts)\n"
         "if face is None:\n"
         "    face = col_bm.faces.new(tri_verts)\n"
@@ -72,7 +72,7 @@ void DeafBabeSendToBlender(hecl::blender::PyOutStream& os, const DEAFBABE& db, b
   db.insertNoClimb(os);
 
   if (isDcln)
-    os.format(fmt("col_mesh = bpy.data.meshes.new('CMESH_{}')\n"), idx);
+    os.format(FMT_STRING("col_mesh = bpy.data.meshes.new('CMESH_{}')\n"), idx);
   else
     os << "col_mesh = bpy.data.meshes.new('CMESH')\n";
 

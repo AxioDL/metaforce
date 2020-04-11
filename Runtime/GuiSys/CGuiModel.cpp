@@ -51,7 +51,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) {
   }
 
   if (GetIsVisible()) {
-    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CGuiModel::Draw {}"), m_name).c_str(), zeus::skCyan);
+    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CGuiModel::Draw {}"), m_name).c_str(), zeus::skCyan);
     zeus::CColor moduCol = xa8_color2;
     moduCol.a() *= parms.x0_alphaMod;
     xb0_frame->EnableLights(xcc_lightMask, model->GetInstance());

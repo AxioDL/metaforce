@@ -380,13 +380,13 @@ struct ActorParameters : BigDNA {
     if (cmdlXray.isValid() && cskrXray.isValid()) {
       charAssoc.m_cmdlRigs[cmdlXray] = {cskrXray, cinf};
       charAssoc.m_cskrToCharacter[cskrXray] = std::make_pair(animParms.animationCharacterSet,
-          fmt::format(fmt("ATTACH.XRAY_{}.CSKR"), cskrXray));
+          fmt::format(FMT_STRING("ATTACH.XRAY_{}.CSKR"), cskrXray));
       charAssoc.addAttachmentRig(animParms.animationCharacterSet, {}, cmdlXray, "XRAY");
     }
     if (cmdlThermal.isValid() && cskrThermal.isValid()) {
       charAssoc.m_cmdlRigs[cmdlThermal] = {cskrThermal, cinf};
       charAssoc.m_cskrToCharacter[cskrThermal] =
-          std::make_pair(animParms.animationCharacterSet, fmt::format(fmt("ATTACH.THERMAL_{}.CSKR"), cskrThermal));
+          std::make_pair(animParms.animationCharacterSet, fmt::format(FMT_STRING("ATTACH.THERMAL_{}.CSKR"), cskrThermal));
       charAssoc.addAttachmentRig(animParms.animationCharacterSet, {}, cmdlThermal, "THERMAL");
     }
   }

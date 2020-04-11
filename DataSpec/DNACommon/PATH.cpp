@@ -70,7 +70,7 @@ void PATH<PAKBridge>::sendToBlender(hecl::blender::Connection& conn, std::string
         "        material_index.append(key)\n"
         "        return len(material_index)-1\n"
         "\n";
-  os.format(fmt("bpy.context.scene.name = '{}'\n"), entryName);
+  os.format(FMT_STRING("bpy.context.scene.name = '{}'\n"), entryName);
   os << "# Clear Scene\n"
         "if len(bpy.data.collections):\n"
         "    bpy.data.collections.remove(bpy.data.collections[0])\n"
@@ -80,7 +80,7 @@ void PATH<PAKBridge>::sendToBlender(hecl::blender::Connection& conn, std::string
 
   for (const Node& n : nodes) {
     zeus::simd_floats f(n.position.simd);
-    os.format(fmt("bm.verts.new(({},{},{}))\n"), f[0], f[1], f[2]);
+    os.format(FMT_STRING("bm.verts.new(({},{},{}))\n"), f[0], f[1], f[2]);
   }
 
   os << "bm.verts.ensure_lookup_table()\n";
@@ -88,9 +88,9 @@ void PATH<PAKBridge>::sendToBlender(hecl::blender::Connection& conn, std::string
   for (const Region& r : regions) {
     os << "tri_verts = []\n";
     for (atUint32 i = 0; i < r.nodeCount; ++i)
-      os.format(fmt("tri_verts.append(bm.verts[{}])\n"), r.nodeStart + i);
+      os.format(FMT_STRING("tri_verts.append(bm.verts[{}])\n"), r.nodeStart + i);
 
-    os.format(fmt("face = bm.faces.get(tri_verts)\n"
+    os.format(FMT_STRING("face = bm.faces.get(tri_verts)\n"
                   "if face is None:\n"
                   "    face = bm.faces.new(tri_verts)\n"
                   "    face.normal_flip()\n"
@@ -103,7 +103,7 @@ void PATH<PAKBridge>::sendToBlender(hecl::blender::Connection& conn, std::string
 #if 0
         const zeus::CVector3f center = xf->multiplyOneOverW(r.centroid);
         zeus::CAABox aabb(xf->multiplyOneOverW(r.aabb[0]), xf->multiplyOneOverW(r.aabb[1]));
-        os.format(fmt("aabb = bpy.data.objects.new('AABB', None)\n")
+        os.format(FMT_STRING("aabb = bpy.data.objects.new('AABB', None)\n")
                   "aabb.location = (%f,%f,%f)\n"
                   "aabb.scale = (%f,%f,%f)\n"
                   "aabb.empty_display_type = 'CUBE'\n"
@@ -125,7 +125,7 @@ void PATH<PAKBridge>::sendToBlender(hecl::blender::Connection& conn, std::string
   for (const Node& n : nodes) {
     zeus::simd_floats f(n.position.simd);
     zeus::simd_floats no(n.position.simd + n.normal.simd);
-    os.format(fmt("v = bm.verts.new((%f,%f,%f))\n")
+    os.format(FMT_STRING("v = bm.verts.new((%f,%f,%f))\n")
               "v2 = bm.verts.new((%f,%f,%f))\n"
               "bm.edges.new((v, v2))\n", f[0], f[1], f[2], no[0], no[1], no[2]);
   }
@@ -150,7 +150,7 @@ void PATH<PAKBridge>::sendToBlender(hecl::blender::Connection& conn, std::string
     zeus::simd_floats xfMtxF[4];
     for (int i = 0; i < 4; ++i)
       w.m[i].mSimd.copy_to(xfMtxF[i]);
-    os.format(fmt("mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
+    os.format(FMT_STRING("mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
                   "mtxd = mtx.decompose()\n"
                   "path_mesh_obj.rotation_mode = 'QUATERNION'\n"
                   "path_mesh_obj.location = mtxd[0]\n"
@@ -171,7 +171,7 @@ void PATH<PAKBridge>::sendToBlender(hecl::blender::Connection& conn, std::string
   }
 #endif
 
-  os.linkBackground(fmt::format(fmt("//{}"), areaPath));
+  os.linkBackground(fmt::format(FMT_STRING("//{}"), areaPath));
   os.centerView();
   os.close();
 }

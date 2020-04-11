@@ -204,7 +204,7 @@ class CMain : public IMain
   int appMain(boo::IApplication* app);
   void appQuitting(boo::IApplication*) { xe8_b24_finished = true; }
   void appFilesOpen(boo::IApplication*, const std::vector<std::string>& paths) {
-    fmt::print(stderr, fmt("OPENING: "));
+    fmt::print(stderr, FMT_STRING("OPENING: "));
     for (const std::string& path : paths)
       fprintf(stderr, "%s ", path.c_str());
     fprintf(stderr, "\n");

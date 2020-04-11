@@ -175,7 +175,7 @@ std::vector<std::vector<Value>> BitstreamReader::read(const atUint8* data, size_
 
   for (size_t f = 0; f < keyFrameCount; ++f) {
 #if DUMP_KEYS
-    fmt::print(stderr, fmt("\nFRAME {} {} {}\n"), f, (m_bitCur / 32) * 4, m_bitCur % 32);
+    fmt::print(stderr, FMT_STRING("\nFRAME {} {} {}\n"), f, (m_bitCur / 32) * 4, m_bitCur % 32);
     int lastId = -1;
 #endif
     auto kit = chanKeys.begin();
@@ -197,7 +197,7 @@ std::vector<std::vector<Value>> BitstreamReader::read(const atUint8* data, size_
         QuantizedRot qr = {{p[0], p[1], p[2]}, wBit};
         kit->emplace_back(DequantizeRotation(qr, rotDiv));
 #if DUMP_KEYS
-        fmt::print(stderr, fmt("{} R: {} {} {} {}\t"), chan.id, wBit, p[0], p[1], p[2]);
+        fmt::print(stderr, FMT_STRING("{} R: {} {} {} {}\t"), chan.id, wBit, p[0], p[1], p[2]);
 #endif
         break;
       }
@@ -210,7 +210,7 @@ std::vector<std::vector<Value>> BitstreamReader::read(const atUint8* data, size_
         p[2] += val3;
         kit->push_back({p[0] * transMult, p[1] * transMult, p[2] * transMult});
 #if DUMP_KEYS
-        fmt::print(stderr, fmt("{} T: {} {} {}\t"), chan.id, p[0], p[1], p[2]);
+        fmt::print(stderr, FMT_STRING("{} T: {} {} {}\t"), chan.id, p[0], p[1], p[2]);
 #endif
         break;
       }
@@ -220,7 +220,7 @@ std::vector<std::vector<Value>> BitstreamReader::read(const atUint8* data, size_
         p[2] += dequantize(data, chan.q[2]);
         kit->push_back({p[0] * scaleMult, p[1] * scaleMult, p[2] * scaleMult});
 #if DUMP_KEYS
-        fmt::print(stderr, fmt("{} S: {} {} {}\t"), chan.id, p[0], p[1], p[2]);
+        fmt::print(stderr, FMT_STRING("{} S: {} {} {}\t"), chan.id, p[0], p[1], p[2]);
 #endif
         break;
       }

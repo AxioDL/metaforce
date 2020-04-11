@@ -26,7 +26,7 @@ void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t 
   if (mtxIdx == -1)
     mtxLabel = "IDENTITY";
   else
-    mtxLabel = fmt::format(fmt("MTX_{}"), mtxIdx);
+    mtxLabel = fmt::format(FMT_STRING("MTX_{}"), mtxIdx);
 
   std::string texLabel;
   if (diffuse)
@@ -34,14 +34,14 @@ void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t 
   else
     texLabel = "Texture";
 
-  out.format(fmt("# Texture\n"
+  out.format(FMT_STRING("# Texture\n"
                  "tex_node = new_nodetree.nodes.new('ShaderNodeTexImage')\n"
                  "tex_node.label = '{} {}'\n"
                  "texture_nodes.append(tex_node)\n"),
              texLabel, texIdx);
 
   if (texIdx != 0xff)
-    out.format(fmt("tex_node.image = tex_maps[{}]\n"), texIdx);
+    out.format(FMT_STRING("tex_node.image = tex_maps[{}]\n"), texIdx);
 
   if (type == GX::TG_POS)
     out << "tex_uv_node = new_nodetree.nodes.new('ShaderNodeTexCoord')\n"
@@ -51,13 +51,13 @@ void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t 
            "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['Normal'], tex_node.inputs['Vector']))\n";
   else if (type >= GX::TG_TEX0 && type <= GX::TG_TEX7) {
     uint8_t texIdx = type - GX::TG_TEX0;
-    out.format(fmt("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
+    out.format(FMT_STRING("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
                    "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
                    "tex_uv_node.uv_map = 'UV_{}'\n"),
                texIdx);
   }
 
-  out.format(fmt("tex_uv_node.label = '{}'\n"), mtxLabel);
+  out.format(FMT_STRING("tex_uv_node.label = '{}'\n"), mtxLabel);
 
   out << "gridder.place_node(tex_uv_node, 0)\n"
          "gridder.place_node(tex_node, 0)\n"
@@ -70,7 +70,7 @@ void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t 
 void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx, const float* vals) {
   switch (type) {
   case UVAnimation::Mode::MvInvNoTranslation:
-    out.format(fmt("for link in list(tex_links):\n"
+    out.format(FMT_STRING("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_{}':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
@@ -85,7 +85,7 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
                idx);
     break;
   case UVAnimation::Mode::MvInv:
-    out.format(fmt("for link in list(tex_links):\n"
+    out.format(FMT_STRING("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_{}':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
@@ -100,7 +100,7 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
                idx);
     break;
   case UVAnimation::Mode::Scroll:
-    out.format(fmt("for link in list(tex_links):\n"
+    out.format(FMT_STRING("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_{}':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
@@ -117,7 +117,7 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
                idx, vals[0], vals[1], vals[2], vals[3]);
     break;
   case UVAnimation::Mode::Rotation:
-    out.format(fmt("for link in list(tex_links):\n"
+    out.format(FMT_STRING("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_{}':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
@@ -134,7 +134,7 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
                idx, vals[0], vals[1]);
     break;
   case UVAnimation::Mode::HStrip:
-    out.format(fmt("for link in list(tex_links):\n"
+    out.format(FMT_STRING("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_{}':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
@@ -153,7 +153,7 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
                idx, vals[0], vals[1], vals[2], vals[3]);
     break;
   case UVAnimation::Mode::VStrip:
-    out.format(fmt("for link in list(tex_links):\n"
+    out.format(FMT_STRING("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_{}':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
@@ -172,7 +172,7 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
                idx, vals[0], vals[1], vals[2], vals[3]);
     break;
   case UVAnimation::Mode::Model:
-    out.format(fmt("for link in list(tex_links):\n"
+    out.format(FMT_STRING("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_{}':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
@@ -187,7 +187,7 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
                idx);
     break;
   case UVAnimation::Mode::CylinderEnvironment:
-    out.format(fmt("for link in list(tex_links):\n"
+    out.format(FMT_STRING("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_{}':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
@@ -204,7 +204,7 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
                idx, vals[0], vals[1]);
     break;
   case UVAnimation::Mode::Eight:
-    out.format(fmt("for link in list(tex_links):\n"
+    out.format(FMT_STRING("for link in list(tex_links):\n"
                    "    if link.from_node.label == 'MTX_{}':\n"
                    "        tex_links.remove(link)\n"
                    "        soc_from = link.from_socket\n"
@@ -233,7 +233,7 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
 }
 
 void Material::AddKcolor(Stream& out, const GX::Color& col, unsigned idx) {
-  out.format(fmt("kcolors[{}] = ({}, {}, {}, {})\n"
+  out.format(FMT_STRING("kcolors[{}] = ({}, {}, {}, {})\n"
                  "kalphas[{}] = {}\n"
                  "\n"),
              idx, (float)col.color[0] / (float)0xff, (float)col.color[1] / (float)0xff,
@@ -343,14 +343,14 @@ template <class MAT>
 static void _DescribeTEV(const MAT& mat) {
   for (uint32_t i = 0; i < mat.tevStageCount; ++i) {
     const auto& stage = mat.tevStages[i];
-    fmt::print(stderr, fmt("A:{} B:{} C:{} D:{} -> {} | A:{} B:{} C:{} D:{} -> {}\n"), ToString(stage.colorInA()),
+    fmt::print(stderr, FMT_STRING("A:{} B:{} C:{} D:{} -> {} | A:{} B:{} C:{} D:{} -> {}\n"), ToString(stage.colorInA()),
                ToString(stage.colorInB()), ToString(stage.colorInC()), ToString(stage.colorInD()),
                ToString(stage.colorOpOutReg()), ToString(stage.alphaInA()), ToString(stage.alphaInB()),
                ToString(stage.alphaInC()), ToString(stage.alphaInD()), ToString(stage.alphaOpOutReg()));
   }
   bool hasInd = mat.flags.samusReflectionIndirectTexture();
   bool hasLm = mat.flags.lightmap();
-  fmt::print(stderr, fmt("HasIndirect: {} HasLightmap: {}\n"), hasInd, hasLm);
+  fmt::print(stderr, FMT_STRING("HasIndirect: {} HasLightmap: {}\n"), hasInd, hasLm);
 }
 
 struct TexLink {
@@ -440,7 +440,7 @@ template <class MAT>
 static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupIdx, unsigned matIdx) {
   unsigned i;
 
-  out.format(fmt("new_material = bpy.data.materials.new('MAT_{}_{}')\n"), groupIdx, matIdx);
+  out.format(FMT_STRING("new_material = bpy.data.materials.new('MAT_{}_{}')\n"), groupIdx, matIdx);
   out << "new_material.use_fake_user = True\n"
          "new_material.use_nodes = True\n"
          "new_material.use_backface_culling = True\n"
@@ -458,7 +458,7 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
          "\n";
 
   /* Material Flags */
-  out.format(fmt("new_material.retro_depth_sort = {}\n"
+  out.format(FMT_STRING("new_material.retro_depth_sort = {}\n"
                  "new_material.retro_alpha_test = {}\n"
                  "new_material.retro_samus_reflection = {}\n"
                  "new_material.retro_depth_write = {}\n"
@@ -477,7 +477,7 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   /* Texture Indices */
   out << "tex_maps = []\n";
   for (atUint32 idx : material.textureIdxs)
-    out.format(fmt("tex_maps.append(texmap_list[{}])\n"), idx);
+    out.format(FMT_STRING("tex_maps.append(texmap_list[{}])\n"), idx);
 
   /* KColor entries */
   if (material.flags.konstValuesEnabled()) {
@@ -784,7 +784,7 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
     break;
   default:
     _DescribeTEV(material);
-    Log.report(logvisor::Fatal, fmt("Unable to resolve shader hash {:08X}\n"), hash);
+    Log.report(logvisor::Fatal, FMT_STRING("Unable to resolve shader hash {:08X}\n"), hash);
     break;
   }
 
@@ -1132,7 +1132,7 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
   else if (gameFunction == "RetroUVMode2Node") {
     mode = Mode::Scroll;
     if (gameArgs.size() < 2)
-      Log.report(logvisor::Fatal, fmt("Mode2 UV anim requires 2 vector arguments"));
+      Log.report(logvisor::Fatal, FMT_STRING("Mode2 UV anim requires 2 vector arguments"));
     vals[0] = gameArgs[0].simd[0];
     vals[1] = gameArgs[0].simd[1];
     vals[2] = gameArgs[1].simd[0];
@@ -1140,13 +1140,13 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
   } else if (gameFunction == "RetroUVMode3Node") {
     mode = Mode::Rotation;
     if (gameArgs.size() < 2)
-      Log.report(logvisor::Fatal, fmt("Mode3 UV anim requires 2 arguments"));
+      Log.report(logvisor::Fatal, FMT_STRING("Mode3 UV anim requires 2 arguments"));
     vals[0] = gameArgs[0].simd[0];
     vals[1] = gameArgs[1].simd[0];
   } else if (gameFunction == "RetroUVMode4Node") {
     mode = Mode::HStrip;
     if (gameArgs.size() < 4)
-      Log.report(logvisor::Fatal, fmt("Mode4 UV anim requires 4 arguments"));
+      Log.report(logvisor::Fatal, FMT_STRING("Mode4 UV anim requires 4 arguments"));
     vals[0] = gameArgs[0].simd[0];
     vals[1] = gameArgs[1].simd[0];
     vals[2] = gameArgs[2].simd[0];
@@ -1154,7 +1154,7 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
   } else if (gameFunction == "RetroUVMode5Node") {
     mode = Mode::VStrip;
     if (gameArgs.size() < 4)
-      Log.report(logvisor::Fatal, fmt("Mode5 UV anim requires 4 arguments"));
+      Log.report(logvisor::Fatal, FMT_STRING("Mode5 UV anim requires 4 arguments"));
     vals[0] = gameArgs[0].simd[0];
     vals[1] = gameArgs[1].simd[0];
     vals[2] = gameArgs[2].simd[0];
@@ -1164,11 +1164,11 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
   else if (gameFunction == "RetroUVMode7NodeN") {
     mode = Mode::CylinderEnvironment;
     if (gameArgs.size() < 2)
-      Log.report(logvisor::Fatal, fmt("Mode7 UV anim requires 2 arguments"));
+      Log.report(logvisor::Fatal, FMT_STRING("Mode7 UV anim requires 2 arguments"));
     vals[0] = gameArgs[0].simd[0];
     vals[1] = gameArgs[1].simd[0];
   } else
-    Log.report(logvisor::Fatal, fmt("unsupported UV anim '{}'"), gameFunction);
+    Log.report(logvisor::Fatal, FMT_STRING("unsupported UV anim '{}'"), gameFunction);
 }
 
 template <class Op>

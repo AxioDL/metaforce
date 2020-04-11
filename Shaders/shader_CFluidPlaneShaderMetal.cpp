@@ -366,19 +366,19 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
 
   out << "#define TEXTURE_PARAMS ";
   if (info.m_hasPatternTex1)
-    fmt::print(out, fmt(",texture2d<float> patternTex1 [[ texture({}) ]]"), nextTex++);
+    fmt::print(out, FMT_STRING(",texture2d<float> patternTex1 [[ texture({}) ]]"), nextTex++);
   if (info.m_hasPatternTex2)
-    fmt::print(out, fmt(",texture2d<float> patternTex2 [[ texture({}) ]]"), nextTex++);
+    fmt::print(out, FMT_STRING(",texture2d<float> patternTex2 [[ texture({}) ]]"), nextTex++);
   if (info.m_hasColorTex)
-    fmt::print(out, fmt(",texture2d<float> colorTex [[ texture({}) ]]"), nextTex++);
+    fmt::print(out, FMT_STRING(",texture2d<float> colorTex [[ texture({}) ]]"), nextTex++);
   if (info.m_hasBumpMap)
-    fmt::print(out, fmt(",texture2d<float> bumpMap [[ texture({}) ]]"), nextTex++);
+    fmt::print(out, FMT_STRING(",texture2d<float> bumpMap [[ texture({}) ]]"), nextTex++);
   if (info.m_hasEnvMap)
-    fmt::print(out, fmt(",texture2d<float> envMap [[ texture({}) ]]"), nextTex++);
+    fmt::print(out, FMT_STRING(",texture2d<float> envMap [[ texture({}) ]]"), nextTex++);
   if (info.m_hasEnvBumpMap)
-    fmt::print(out, fmt(",exture2d<float> envBumpMap [[ texture({}) ]]"), nextTex++);
+    fmt::print(out, FMT_STRING(",exture2d<float> envBumpMap [[ texture({}) ]]"), nextTex++);
   if (info.m_hasLightmap)
-    fmt::print(out, fmt(",texture2d<float> lightMap [[ texture({}) ]]"), nextTex++);
+    fmt::print(out, FMT_STRING(",texture2d<float> lightMap [[ texture({}) ]]"), nextTex++);
   out << '\n';
 
   if (info.m_hasBumpMap) {
@@ -400,7 +400,7 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
   case EFluidType::PhazonFluid:
   case EFluidType::Four:
     if (info.m_hasLightmap) {
-      fmt::print(out, fmt("float4 lightMapTexel = lightMap.sample(samp, vtf.uv{});"), lightmapUv);
+      fmt::print(out, FMT_STRING("float4 lightMapTexel = lightMap.sample(samp, vtf.uv{});"), lightmapUv);
       // 0: Tex4TCG, Tex4, doubleLightmapBlend ? NULL : GX_COLOR1A1
       // ZERO, TEX, KONST, doubleLightmapBlend ? ZERO : RAS
       // Output reg 2
@@ -445,7 +445,7 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
 
     if (info.m_hasColorTex && !info.m_hasEnvMap && info.m_hasEnvBumpMap) {
       // Make previous stage indirect, mtx0
-      fmt::print(out, fmt(
+      fmt::print(out, FMT_STRING(
           "float2 indUvs = (envBumpMap.sample(samp, vtf.uv{}).ra - float2(0.5, 0.5)) * "
           "float2(lu.fog.indScale, -lu.fog.indScale);"),
           envBumpMapUv);
@@ -459,11 +459,11 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
       // Make previous stage indirect, mtx0
       if (info.m_hasColorTex)
         out << "colorOut += colorTex.sample(samp, vtf.uv2) * lighting;";
-      fmt::print(out, fmt(
+      fmt::print(out, FMT_STRING(
           "float2 indUvs = (envBumpMap.sample(samp, vtf.uv{}).ra - float2(0.5, 0.5)) * "
           "float2(lu.fog.indScale, -lu.fog.indScale);"),
           envBumpMapUv);
-      fmt::print(out, fmt(
+      fmt::print(out, FMT_STRING(
           "colorOut = mix(colorOut, envMap.sample(samp, indUvs + vtf.uv{}), lu.kColor1);"), envMapUv);
     } else if (info.m_hasColorTex) {
       out << "colorOut += colorTex.sample(samp, vtf.uv2) * lighting;";
@@ -473,7 +473,7 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
 
   case EFluidType::PoisonWater:
     if (info.m_hasLightmap) {
-      fmt::print(out, fmt("float4 lightMapTexel = lightMap.sample(samp, vtf.uv{});"), lightmapUv);
+      fmt::print(out, FMT_STRING("float4 lightMapTexel = lightMap.sample(samp, vtf.uv{});"), lightmapUv);
       // 0: Tex4TCG, Tex4, doubleLightmapBlend ? NULL : GX_COLOR1A1
       // ZERO, TEX, KONST, doubleLightmapBlend ? ZERO : RAS
       // Output reg 2
@@ -519,7 +519,7 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
     if (info.m_hasColorTex) {
       if (info.m_hasEnvBumpMap) {
         // Make previous stage indirect, mtx0
-        fmt::print(out, fmt(
+        fmt::print(out, FMT_STRING(
             "float2 indUvs = (envBumpMap.sample(samp, vtf.uv{}).ra - float2(0.5, 0.5)) * "
             "float2(lu.fog.indScale, -lu.fog.indScale);"),
             envBumpMapUv);
@@ -573,7 +573,7 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
           "float3 lightVec = lu.lights[3].pos.xyz - vtf.mvPos.xyz;"
           "float lx = dot(vtf.mvTangent.xyz, lightVec);"
           "float ly = dot(vtf.mvBinorm.xyz, lightVec);";
-      fmt::print(out, fmt(
+      fmt::print(out, FMT_STRING(
           "float4 emboss1 = bumpMap.sample(samp, vtf.uv{}) + float4(0.5);"
           "float4 emboss2 = bumpMap.sample(samp, vtf.uv{} + float2(lx, ly));"),
           bumpMapUv, bumpMapUv);
@@ -621,7 +621,7 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
       // 3: bumpMapTCG, bumpMap, NULL
       // ZERO, TEX, PREV, ZERO
       // Output reg prev, scale 2
-      fmt::print(out, fmt("float4 emboss1 = bumpMap.sample(samp, vtf.uv{}) + float4(0.5);"), bumpMapUv);
+      fmt::print(out, FMT_STRING("float4 emboss1 = bumpMap.sample(samp, vtf.uv{}) + float4(0.5);"), bumpMapUv);
       out << "colorOut *= emboss1 * float4(2.0);";
     }
 
@@ -641,13 +641,13 @@ static void _BuildAdditionalTCGs(std::stringstream& out, const SFluidPlaneShader
 
   out << "#define ADDITIONAL_TCGS ";
   if (info.m_hasBumpMap)
-    fmt::print(out, fmt("vtf.uv{} = (fu.texMtxs[0] * pos).xy;"), nextTCG++);
+    fmt::print(out, FMT_STRING("vtf.uv{} = (fu.texMtxs[0] * pos).xy;"), nextTCG++);
   if (info.m_hasEnvBumpMap)
-    fmt::print(out, fmt("vtf.uv{} = (fu.texMtxs[3] * float4(normalIn.xyz, 1.0)).xy;"), nextTCG++);
+    fmt::print(out, FMT_STRING("vtf.uv{} = (fu.texMtxs[3] * float4(normalIn.xyz, 1.0)).xy;"), nextTCG++);
   if (info.m_hasEnvMap)
-    fmt::print(out, fmt("vtf.uv{} = (fu.texMtxs[{}] * pos).xy;"), nextTCG++, nextMtx++);
+    fmt::print(out, FMT_STRING("vtf.uv{} = (fu.texMtxs[{}] * pos).xy;"), nextTCG++, nextMtx++);
   if (info.m_hasLightmap)
-    fmt::print(out, fmt("vtf.uv{} = (fu.texMtxs[{}] * pos).xy;"), nextTCG++, nextMtx++);
+    fmt::print(out, FMT_STRING("vtf.uv{} = (fu.texMtxs[{}] * pos).xy;"), nextTCG++, nextMtx++);
   out << '\n';
 }
 
@@ -718,11 +718,11 @@ static std::string _BuildFS(const SFluidPlaneDoorShaderInfo& info) {
 
   out << "#define TEXTURE_PARAMS ";
   if (info.m_hasPatternTex1)
-    fmt::print(out, fmt(",texture2d<float> patternTex1 [[ texture({}) ]]"), nextTex++);
+    fmt::print(out, FMT_STRING(",texture2d<float> patternTex1 [[ texture({}) ]]"), nextTex++);
   if (info.m_hasPatternTex2)
-    fmt::print(out, fmt(",texture2d<float> patternTex2 [[ texture({}) ]]"), nextTex++);
+    fmt::print(out, FMT_STRING(",texture2d<float> patternTex2 [[ texture({}) ]]"), nextTex++);
   if (info.m_hasColorTex)
-    fmt::print(out, fmt(",texture2d<float> colorTex [[ texture({}) ]]"), nextTex++);
+    fmt::print(out, FMT_STRING(",texture2d<float> colorTex [[ texture({}) ]]"), nextTex++);
   out << '\n';
 
   // Tex0 * kColor0 * Tex1 + Tex2

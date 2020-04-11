@@ -65,7 +65,7 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 , x208_lockonTimer(g_tweakTargeting->GetLockonDuration()) {
   xe0_outerBeamIconSquares.reserve(9);
   for (u32 i = 0; i < 9; ++i)
-    xe0_outerBeamIconSquares.emplace_back(fmt::format(fmt("{}{}"), skOuterBeamIconSquareNameBase, i));
+    xe0_outerBeamIconSquares.emplace_back(fmt::format(FMT_STRING("{}{}"), skOuterBeamIconSquareNameBase, i));
   x34_crosshairs.Lock();
 }
 

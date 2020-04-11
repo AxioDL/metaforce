@@ -32,10 +32,10 @@ struct TextureCache {
     texturePath.makeDirChain(false);
 
     if (const auto fp = hecl::FopenUnique(catalogPath.getAbsolutePath().data(), _SYS_STR("a"))) {
-      fmt::print(fp.get(), fmt("TextureCache: {}\n"), texturePath.getRelativePathUTF8());
+      fmt::print(fp.get(), FMT_STRING("TextureCache: {}\n"), texturePath.getRelativePathUTF8());
     }
 
-    Log.report(logvisor::Level::Info, fmt("Gathering Texture metadata (this can take up to 10 seconds)..."));
+    Log.report(logvisor::Level::Info, FMT_STRING("Gathering Texture metadata (this can take up to 10 seconds)..."));
     std::unordered_map<UniqueID64, TXTR::Meta> metaMap;
 
     pakRouter.enumerateResources([&](const DNAMP3::PAK::Entry* ent) {
@@ -55,7 +55,7 @@ struct TextureCache {
 
     athena::io::FileWriter fileW(texturePath.getAbsolutePath());
     yamlW.finish(&fileW);
-    Log.report(logvisor::Level::Info, fmt("Done..."));
+    Log.report(logvisor::Level::Info, FMT_STRING("Done..."));
   }
 
   static void Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {

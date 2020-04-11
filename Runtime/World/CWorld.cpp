@@ -350,7 +350,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
 
     if (version > 12) {
       x84_defAudioTrack = r.readString();
-      std::string trackKey = fmt::format(fmt("WorldDefault: {}"), x8_mlvlId);
+      std::string trackKey = fmt::format(FMT_STRING("WorldDefault: {}"), x8_mlvlId);
       if (g_TweakManager->HasTweakValue(trackKey))
         x84_defAudioTrack = g_TweakManager->GetTweakValue(trackKey)->GetAudio().GetFileName();
     }

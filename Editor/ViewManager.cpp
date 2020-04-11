@@ -70,14 +70,14 @@ void ViewManager::TestGameView::think() {
     const hecl::CVar* showResourceStats = hecl::CVarManager::instance()->findCVar("debugOverlay.showResourceStats");
     if (g_StateManager) {
       if (showFrameIdx && showFrameIdx->toBoolean())
-        overlayText += fmt::format(fmt("Frame: {}\n"), g_StateManager->GetUpdateFrameIndex());
+        overlayText += fmt::format(FMT_STRING("Frame: {}\n"), g_StateManager->GetUpdateFrameIndex());
 
       if (showInGameTime && showInGameTime->toBoolean()) {
         double igt = g_GameState->GetTotalPlayTime();
         u32 ms = u64(igt * 1000) % 1000;
         auto pt = std::div(igt, 3600);
         overlayText +=
-            fmt::format(fmt("PlayTime: {:02d}:{:02d}:{:02d}.{:03d}\n"), pt.quot, pt.rem / 60, pt.rem % 60, ms);
+            fmt::format(FMT_STRING("PlayTime: {:02d}:{:02d}:{:02d}.{:03d}\n"), pt.quot, pt.rem / 60, pt.rem % 60, ms);
       }
 
       if (g_StateManager->Player() && playerInfo && playerInfo->toBoolean()) {
@@ -85,7 +85,7 @@ void ViewManager::TestGameView::think() {
         const zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
         const zeus::CTransform camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
         const zeus::CQuaternion camQ = zeus::CQuaternion(camXf.getRotation().buildMatrix3f());
-        overlayText += fmt::format(fmt("Player Position: x {}, y {}, z {}\n"
+        overlayText += fmt::format(FMT_STRING("Player Position: x {}, y {}, z {}\n"
                                        "       Roll: {}, Pitch: {}, Yaw: {}\n"
                                        "       Momentum: x {}, y: {}, z: {}\n"
                                        "       Velocity: x {}, y: {}, z: {}\n"
@@ -102,7 +102,7 @@ void ViewManager::TestGameView::think() {
         TLockedToken<CStringTable> tbl =
             g_SimplePool->GetObj({FOURCC('STRG'), g_StateManager->GetWorld()->IGetStringTableAssetId()});
         const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
-        overlayText += fmt::format(fmt("World: 0x{}{}, Area: {}\n"), g_GameState->CurrentWorldAssetId(),
+        overlayText += fmt::format(FMT_STRING("World: 0x{}{}, Area: {}\n"), g_GameState->CurrentWorldAssetId(),
                                    (tbl.IsLoaded() ? (" " + hecl::Char16ToUTF8(tbl->GetString(0))).c_str() : ""), aId);
       }
 
@@ -119,7 +119,7 @@ void ViewManager::TestGameView::think() {
           } else
             layerBits += "0";
         }
-        overlayText += fmt::format(fmt("Area AssetId: 0x{}, Total Objects: {}\n"
+        overlayText += fmt::format(FMT_STRING("Area AssetId: 0x{}, Total Objects: {}\n"
                                        "Active Layer bits: {}\n"),
                                    g_StateManager->GetWorld()->GetArea(aId)->GetAreaAssetId(),
                                    g_StateManager->GetAllObjectList().size(), layerBits);
@@ -127,7 +127,7 @@ void ViewManager::TestGameView::think() {
     }
 
     if (showResourceStats && showResourceStats->toBoolean())
-      overlayText += fmt::format(fmt("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects());
+      overlayText += fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects());
 
     if (!overlayText.empty())
       m_debugText->typesetGlyphs(overlayText);
@@ -200,8 +200,8 @@ ViewManager::ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarMan
 , m_projManager(*this)
 , m_fontCache(fileMgr)
 , m_locale(locale::SystemLocaleOrEnglish())
-, m_recentProjectsPath(fmt::format(fmt(_SYS_STR("{}/recent_projects.txt")), fileMgr.getStoreRoot()))
-, m_recentFilesPath(fmt::format(fmt(_SYS_STR("{}/recent_files.txt")), fileMgr.getStoreRoot())) {
+, m_recentProjectsPath(fmt::format(FMT_STRING(_SYS_STR("{}/recent_projects.txt")), fileMgr.getStoreRoot()))
+, m_recentFilesPath(fmt::format(FMT_STRING(_SYS_STR("{}/recent_files.txt")), fileMgr.getStoreRoot())) {
   Space::SpaceMenuNode::InitializeStrings(*this);
   char path[2048];
   hecl::Sstat theStat;
@@ -246,7 +246,7 @@ void ViewManager::pushRecentProject(hecl::SystemStringView path) {
   }
 
   for (const hecl::SystemString& pPath : m_recentProjects) {
-    fmt::print(fp.get(), fmt("{}\n"), hecl::SystemUTF8Conv(pPath));
+    fmt::print(fp.get(), FMT_STRING("{}\n"), hecl::SystemUTF8Conv(pPath));
   }
 }
 
@@ -263,7 +263,7 @@ void ViewManager::pushRecentFile(hecl::SystemStringView path) {
   }
 
   for (const hecl::SystemString& pPath : m_recentFiles) {
-    fmt::print(fp.get(), fmt("{}\n"), hecl::SystemUTF8Conv(pPath));
+    fmt::print(fp.get(), FMT_STRING("{}\n"), hecl::SystemUTF8Conv(pPath));
   }
 }
 
@@ -278,7 +278,7 @@ void ViewManager::init(boo::IApplication* app) {
   m_pipelineConv = hecl::NewPipelineConverter(m_mainBooFactory);
   hecl::conv = m_pipelineConv.get();
   m_mainPlatformName = m_mainBooFactory->platformName();
-  m_mainWindow->setTitle(fmt::format(fmt(_SYS_STR("URDE [{}]")), m_mainPlatformName));
+  m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("URDE [{}]")), m_mainPlatformName));
   m_mainCommandQueue = m_mainWindow->getCommandQueue();
   m_viewResources.init(m_mainBooFactory, &m_fontCache, &m_themeData, pixelFactor);
   InitializeIcons(m_viewResources);
