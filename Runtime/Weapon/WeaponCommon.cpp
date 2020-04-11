@@ -134,10 +134,11 @@ void do_sound_event(std::pair<u16, CSfxHandle>& sfxHandle, float& pitch, bool do
   }
 }
 
-CAssetId get_asset_id_from_name(const char* name) {
+CAssetId get_asset_id_from_name(std::string_view name) {
   const SObjectTag* tag = g_ResFactory->GetResourceIdByName(name);
-  if (!tag)
+  if (!tag) {
     return {};
+  }
   return tag->id;
 }
 

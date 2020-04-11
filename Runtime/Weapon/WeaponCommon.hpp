@@ -1,6 +1,7 @@
 #pragma once
 
 #include <set>
+#include <string_view>
 #include <vector>
 
 #include "DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
@@ -83,7 +84,7 @@ void get_token_vector(const CAnimData& animData, int animIdx, std::vector<CToken
 void do_sound_event(std::pair<u16, CSfxHandle>& sfxHandle, float& pitch, bool doPitchBend, u32 soundId, float weight,
                     u32 flags, float falloff, float maxDist, float minVol, float maxVol,
                     const zeus::CVector3f& posToCam, const zeus::CVector3f& pos, TAreaId aid, CStateManager& mgr);
-CAssetId get_asset_id_from_name(const char* name);
+CAssetId get_asset_id_from_name(std::string_view name);
 CPlayerState::EPlayerSuit get_current_suit(const CStateManager& mgr);
 CSfxHandle play_sfx(u16 sfx, bool underwater, bool looped, float pan);
 
