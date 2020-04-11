@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -53,7 +54,7 @@ public:
   //  NFTSecondarySparks
   //  <invalid>
   CNewFlameThrower(const TToken<CWeaponDescription>& desc, std::string_view name, EWeaponType wType,
-                   const CAssetId resInfo[8], const zeus::CTransform& xf, EMaterialTypes matType,
+                   const std::array<CAssetId, 8>& resInfo, const zeus::CTransform& xf, EMaterialTypes matType,
                    const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner, EProjectileAttrib attribs);
   void StartFiring(const zeus::CTransform& xf, CStateManager& mgr);
   bool CanRenderAuxEffects() const { return x37c_24_renderAuxEffects; }

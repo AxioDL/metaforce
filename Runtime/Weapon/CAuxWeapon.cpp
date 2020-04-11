@@ -210,19 +210,21 @@ void CAuxWeapon::CreateFlameThrower(const zeus::CTransform& xf, CStateManager& m
   if (x6e_flameThrowerId != kInvalidUniqueId)
     return;
 
-  CAssetId resInfo[] = {NWeaponTypes::get_asset_id_from_name("NFTMainFire"),
-                        NWeaponTypes::get_asset_id_from_name("NFTMainSmoke"),
-                        NWeaponTypes::get_asset_id_from_name("NFTSwooshCenter"),
-                        NWeaponTypes::get_asset_id_from_name("NFTSwooshFire"),
-                        NWeaponTypes::get_asset_id_from_name("NFTSecondarySmoke"),
-                        NWeaponTypes::get_asset_id_from_name("NFTSecondaryFire"),
-                        NWeaponTypes::get_asset_id_from_name("NFTSecondarySparks"),
-                        {}};
+  const std::array<CAssetId, 8> resInfo{
+      NWeaponTypes::get_asset_id_from_name("NFTMainFire"),
+      NWeaponTypes::get_asset_id_from_name("NFTMainSmoke"),
+      NWeaponTypes::get_asset_id_from_name("NFTSwooshCenter"),
+      NWeaponTypes::get_asset_id_from_name("NFTSwooshFire"),
+      NWeaponTypes::get_asset_id_from_name("NFTSecondarySmoke"),
+      NWeaponTypes::get_asset_id_from_name("NFTSecondaryFire"),
+      NWeaponTypes::get_asset_id_from_name("NFTSecondarySparks"),
+      {},
+  };
   x6e_flameThrowerId = mgr.AllocateUniqueId();
-  CNewFlameThrower* ft = new CNewFlameThrower(
-      x28_combos[3], "Player_FlameThrower", EWeaponType::Plasma, resInfo, xf, EMaterialTypes::Player,
-      CGunWeapon::GetShotDamageInfo(g_tweakPlayerGun->GetComboShotInfo(3), mgr), x6e_flameThrowerId, kInvalidAreaId,
-      x6c_playerId, EProjectileAttrib::None);
+  auto* ft = new CNewFlameThrower(x28_combos[3], "Player_FlameThrower", EWeaponType::Plasma, resInfo, xf,
+                                  EMaterialTypes::Player,
+                                  CGunWeapon::GetShotDamageInfo(g_tweakPlayerGun->GetComboShotInfo(3), mgr),
+                                  x6e_flameThrowerId, kInvalidAreaId, x6c_playerId, EProjectileAttrib::None);
   mgr.AddObject(ft);
   ft->Think(dt, mgr);
   ft->StartFiring(xf, mgr);
