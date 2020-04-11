@@ -8,7 +8,7 @@ static logvisor::Module Log("specter::ViewResources");
 
 void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache, const IThemeData* theme, float pf) {
   if (!factory || !fcache || !theme)
-    Log.report(logvisor::Fatal, fmt("all arguments of ViewResources::init() must be non-null"));
+    Log.report(logvisor::Fatal, FMT_STRING("all arguments of ViewResources::init() must be non-null"));
   m_pixelFactor = pf;
   m_factory = factory;
   m_theme = theme;

@@ -46,7 +46,7 @@ Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITab
 , m_hVerts(std::make_unique<SolidShaderVert[]>(maxColumns * 6))
 , m_rowsView(*this, res) {
   if (maxColumns == 0) {
-    Log.report(logvisor::Fatal, fmt("0-column tables not supported"));
+    Log.report(logvisor::Fatal, FMT_STRING("0-column tables not supported"));
   }
 
   m_scroll.m_view = std::make_unique<ScrollView>(res, *this, ScrollView::Style::ThinIndicator);
@@ -202,7 +202,7 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
 
 void Table::cycleSortColumn(size_t c) {
   if (c >= m_columns)
-    Log.report(logvisor::Fatal, fmt("cycleSortColumn out of bounds ({}, {})"), c, m_columns);
+    Log.report(logvisor::Fatal, FMT_STRING("cycleSortColumn out of bounds ({}, {})"), c, m_columns);
   if (m_state) {
     size_t cIdx;
     SortDirection dir = m_state->getSort(cIdx);
@@ -219,7 +219,7 @@ void Table::selectRow(size_t r) {
   if (m_inSelectRow)
     return;
   if (r >= m_rows && r != SIZE_MAX)
-    Log.report(logvisor::Fatal, fmt("selectRow out of bounds ({}, {})"), r, m_rows);
+    Log.report(logvisor::Fatal, FMT_STRING("selectRow out of bounds ({}, {})"), r, m_rows);
   if (r == m_selectedRow) {
     if (m_state) {
       m_inSelectRow = true;

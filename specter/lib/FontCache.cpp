@@ -75,12 +75,12 @@ void FreeTypeGZipMemFace::open() {
     return;
 
   if (FT_Stream_OpenGzip(&m_decomp, &m_comp))
-    Log.report(logvisor::Fatal, fmt("unable to open FreeType gzip stream"));
+    Log.report(logvisor::Fatal, FMT_STRING("unable to open FreeType gzip stream"));
 
   FT_Open_Args args = {FT_OPEN_STREAM, nullptr, 0, nullptr, &m_decomp};
 
   if (FT_Open_Face(m_lib, &args, 0, &m_face))
-    Log.report(logvisor::Fatal, fmt("unable to open FreeType gzip face"));
+    Log.report(logvisor::Fatal, FMT_STRING("unable to open FreeType gzip face"));
 }
 
 void FreeTypeGZipMemFace::close() {
@@ -596,7 +596,7 @@ boo::ObjToken<boo::ITextureSA> FontAtlas::texture(boo::IGraphicsDataFactory* gf)
 FontCache::Library::Library() {
   FT_Error err = FT_Init_FreeType(&m_lib);
   if (err)
-    Log.report(logvisor::Fatal, fmt("unable to FT_Init_FreeType"));
+    Log.report(logvisor::Fatal, FMT_STRING("unable to FT_Init_FreeType"));
 }
 
 FontCache::Library::~Library() { FT_Done_FreeType(m_lib); }
@@ -616,10 +616,10 @@ FontTag FontCache::prepCustomFont(std::string_view name, FT_Face face, FCharFilt
                                   uint32_t dpi) {
   /* Quick validation */
   if (!face)
-    Log.report(logvisor::Fatal, fmt("invalid freetype face"));
+    Log.report(logvisor::Fatal, FMT_STRING("invalid freetype face"));
 
   if (!face->charmap || face->charmap->encoding != FT_ENCODING_UNICODE)
-    Log.report(logvisor::Fatal, fmt("font does not contain a unicode char map"));
+    Log.report(logvisor::Fatal, FMT_STRING("font does not contain a unicode char map"));
 
   /* Set size with FreeType */
   FT_Set_Char_Size(face, 0, points * 64.0, 0, dpi);
@@ -632,7 +632,7 @@ FontTag FontCache::prepCustomFont(std::string_view name, FT_Face face, FCharFilt
   }
 
   /* Now check filesystem cache */
-  hecl::SystemString cachePath = m_cacheRoot + _SYS_STR('/') + fmt::format(fmt(_SYS_STR("{:x}")), tag.hash());
+  hecl::SystemString cachePath = m_cacheRoot + _SYS_STR('/') + fmt::format(FMT_STRING(_SYS_STR("{:x}")), tag.hash());
   hecl::Sstat st;
   if (!hecl::Stat(cachePath.c_str(), &st) && S_ISREG(st.st_mode)) {
     athena::io::FileReader r(cachePath);
@@ -651,7 +651,7 @@ FontTag FontCache::prepCustomFont(std::string_view name, FT_Face face, FCharFilt
   /* Nada, build and cache now */
   athena::io::FileWriter w(cachePath);
   if (w.hasError())
-    Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to open '{}' for writing")), cachePath);
+    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to open '{}' for writing")), cachePath);
   w.writeUint32Big('FONT');
   m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(face, dpi, subpixel, filter, w));
   return tag;
@@ -660,7 +660,7 @@ FontTag FontCache::prepCustomFont(std::string_view name, FT_Face face, FCharFilt
 const FontAtlas& FontCache::lookupAtlas(FontTag tag) const {
   auto search = m_cachedAtlases.find(tag);
   if (search == m_cachedAtlases.cend())
-    Log.report(logvisor::Fatal, fmt("invalid font"));
+    Log.report(logvisor::Fatal, FMT_STRING("invalid font"));
   return *search->second.get();
 }
 

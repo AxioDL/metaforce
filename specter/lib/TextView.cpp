@@ -48,7 +48,7 @@ void TextView::_commitResources(size_t capacity) {
 TextView::TextView(ViewResources& res, View& parentView, const FontAtlas& font, Alignment align, size_t capacity)
 : View(res, parentView), m_capacity(capacity), m_fontAtlas(font), m_align(align) {
   if (size_t(hecl::VertexBufferPool<RenderGlyph>::bucketCapacity()) < capacity)
-    Log.report(logvisor::Fatal, fmt("bucket overflow [{}/{}]"), capacity,
+    Log.report(logvisor::Fatal, FMT_STRING("bucket overflow [{}/{}]"), capacity,
                hecl::VertexBufferPool<RenderGlyph>::bucketCapacity());
 
   _commitResources(0);
@@ -105,7 +105,7 @@ void TextView::typesetGlyphs(std::string_view str, const zeus::CColor& defaultCo
     for (; it.iter() < str.end(); ++it) {
       utf8proc_int32_t ch = *it;
       if (ch == -1) {
-        Log.report(logvisor::Warning, fmt("invalid UTF-8 char"));
+        Log.report(logvisor::Warning, FMT_STRING("invalid UTF-8 char"));
         break;
       }
       if (ch == '\n' || ch == '\0')
@@ -237,7 +237,7 @@ void TextView::draw(boo::IGraphicsCommandQueue* gfxQ) {
 
 std::pair<int, int> TextView::queryGlyphDimensions(size_t pos) const {
   if (pos >= m_glyphInfo.size())
-    Log.report(logvisor::Fatal, fmt("TextView::queryGlyphWidth({}) out of bounds: {}"), pos,
+    Log.report(logvisor::Fatal, FMT_STRING("TextView::queryGlyphWidth({}) out of bounds: {}"), pos,
                m_glyphInfo.size());
 
   return m_glyphInfo[pos].m_dims;
@@ -260,7 +260,7 @@ size_t TextView::reverseSelectGlyph(int x) const {
 
 int TextView::queryReverseAdvance(size_t idx) const {
   if (idx > m_glyphInfo.size())
-    Log.report(logvisor::Fatal, fmt("TextView::queryReverseGlyph({}) out of inclusive bounds: {}"), idx,
+    Log.report(logvisor::Fatal, FMT_STRING("TextView::queryReverseGlyph({}) out of inclusive bounds: {}"), idx,
                m_glyphInfo.size());
   if (!idx)
     return 0;
@@ -269,7 +269,7 @@ int TextView::queryReverseAdvance(size_t idx) const {
 
 std::pair<size_t, size_t> TextView::queryWholeWordRange(size_t idx) const {
   if (idx > m_glyphInfo.size())
-    Log.report(logvisor::Fatal, fmt("TextView::queryWholeWordRange({}) out of inclusive bounds: {}"), idx,
+    Log.report(logvisor::Fatal, FMT_STRING("TextView::queryWholeWordRange({}) out of inclusive bounds: {}"), idx,
                m_glyphInfo.size());
   if (m_glyphInfo.empty())
     return {0, 0};
