@@ -38,20 +38,20 @@ void MultiProgressPrinter::ThreadStat::print(const TermInfo& tinfo) const {
 
   if (submessageLen) {
     if (messageLen > half - submessageLen - 1)
-      fmt::print(fmt(_SYS_STR("  {:.{}}... {} ")), m_message, half - submessageLen - 4, m_submessage);
+      fmt::print(FMT_STRING(_SYS_STR("  {:.{}}... {} ")), m_message, half - submessageLen - 4, m_submessage);
     else {
-      fmt::print(fmt(_SYS_STR("  {}")), m_message);
+      fmt::print(FMT_STRING(_SYS_STR("  {}")), m_message);
       for (int i = half - messageLen - submessageLen - 1; i >= 0; --i)
-        fmt::print(fmt(_SYS_STR(" ")));
-      fmt::print(fmt(_SYS_STR("{} ")), m_submessage);
+        fmt::print(FMT_STRING(_SYS_STR(" ")));
+      fmt::print(FMT_STRING(_SYS_STR("{} ")), m_submessage);
     }
   } else {
     if (messageLen > half)
-      fmt::print(fmt(_SYS_STR("  {:.{}}... ")), m_message, half - 3);
+      fmt::print(FMT_STRING(_SYS_STR("  {:.{}}... ")), m_message, half - 3);
     else {
-      fmt::print(fmt(_SYS_STR("  {}")), m_message);
+      fmt::print(FMT_STRING(_SYS_STR("  {}")), m_message);
       for (int i = half - messageLen; i >= 0; --i)
-        fmt::print(fmt(_SYS_STR(" ")));
+        fmt::print(FMT_STRING(_SYS_STR(" ")));
     }
   }
 
@@ -62,22 +62,22 @@ void MultiProgressPrinter::ThreadStat::print(const TermInfo& tinfo) const {
     int rem = nblocks - filled;
 
     if (tinfo.xtermColor) {
-      fmt::print(fmt(_SYS_STR("" BOLD "{:3d}% [")), iFactor);
+      fmt::print(FMT_STRING(_SYS_STR("" BOLD "{:3d}% [")), iFactor);
       for (int b = 0; b < filled; ++b)
-        fmt::print(fmt(_SYS_STR("#")));
+        fmt::print(FMT_STRING(_SYS_STR("#")));
       for (int b = 0; b < rem; ++b)
-        fmt::print(fmt(_SYS_STR("-")));
-      fmt::print(fmt(_SYS_STR("]" NORMAL "")));
+        fmt::print(FMT_STRING(_SYS_STR("-")));
+      fmt::print(FMT_STRING(_SYS_STR("]" NORMAL "")));
     } else {
 #if _WIN32
       SetConsoleTextAttribute(tinfo.console, FOREGROUND_INTENSITY | FOREGROUND_WHITE);
 #endif
-      fmt::print(fmt(_SYS_STR("{:3d}% [")), iFactor);
+      fmt::print(FMT_STRING(_SYS_STR("{:3d}% [")), iFactor);
       for (int b = 0; b < filled; ++b)
-        fmt::print(fmt(_SYS_STR("#")));
+        fmt::print(FMT_STRING(_SYS_STR("#")));
       for (int b = 0; b < rem; ++b)
-        fmt::print(fmt(_SYS_STR("-")));
-      fmt::print(fmt(_SYS_STR("]")));
+        fmt::print(FMT_STRING(_SYS_STR("-")));
+      fmt::print(FMT_STRING(_SYS_STR("]")));
 #if _WIN32
       SetConsoleTextAttribute(tinfo.console, FOREGROUND_WHITE);
 #endif
@@ -100,24 +100,24 @@ void MultiProgressPrinter::DrawIndeterminateBar() {
   int rem = blocks - pre - 1;
 
   if (m_termInfo.xtermColor) {
-    fmt::print(fmt(_SYS_STR("" BOLD " [")));
+    fmt::print(FMT_STRING(_SYS_STR("" BOLD " [")));
     for (int b = 0; b < pre; ++b)
-      fmt::print(fmt(_SYS_STR("-")));
-    fmt::print(fmt(_SYS_STR("#")));
+      fmt::print(FMT_STRING(_SYS_STR("-")));
+    fmt::print(FMT_STRING(_SYS_STR("#")));
     for (int b = 0; b < rem; ++b)
-      fmt::print(fmt(_SYS_STR("-")));
-    fmt::print(fmt(_SYS_STR("]" NORMAL "")));
+      fmt::print(FMT_STRING(_SYS_STR("-")));
+    fmt::print(FMT_STRING(_SYS_STR("]" NORMAL "")));
   } else {
 #if _WIN32
     SetConsoleTextAttribute(m_termInfo.console, FOREGROUND_INTENSITY | FOREGROUND_WHITE);
 #endif
-    fmt::print(fmt(_SYS_STR(" [")));
+    fmt::print(FMT_STRING(_SYS_STR(" [")));
     for (int b = 0; b < pre; ++b)
-      fmt::print(fmt(_SYS_STR("-")));
-    fmt::print(fmt(_SYS_STR("#")));
+      fmt::print(FMT_STRING(_SYS_STR("-")));
+    fmt::print(FMT_STRING(_SYS_STR("#")));
     for (int b = 0; b < rem; ++b)
-      fmt::print(fmt(_SYS_STR("-")));
-    fmt::print(fmt(_SYS_STR("]")));
+      fmt::print(FMT_STRING(_SYS_STR("-")));
+    fmt::print(FMT_STRING(_SYS_STR("]")));
 #if _WIN32
     SetConsoleTextAttribute(m_termInfo.console, FOREGROUND_WHITE);
 #endif
@@ -127,7 +127,7 @@ void MultiProgressPrinter::DrawIndeterminateBar() {
 void MultiProgressPrinter::MoveCursorUp(int n) {
   if (n) {
     if (m_termInfo.xtermColor) {
-      fmt::print(fmt(_SYS_STR("" PREV_LINE "")), n);
+      fmt::print(FMT_STRING(_SYS_STR("" PREV_LINE "")), n);
     }
 #if _WIN32
     else {
@@ -139,7 +139,7 @@ void MultiProgressPrinter::MoveCursorUp(int n) {
     }
 #endif
   } else {
-    fmt::print(fmt(_SYS_STR("\r")));
+    fmt::print(FMT_STRING(_SYS_STR("\r")));
   }
 }
 
@@ -157,7 +157,7 @@ void MultiProgressPrinter::DoPrint() {
   SetConsoleCursorInfo(m_termInfo.console, &cursorInfo);
 #endif
   if (m_termInfo.xtermColor)
-    fmt::print(fmt(_SYS_STR("" HIDE_CURSOR "")));
+    fmt::print(FMT_STRING(_SYS_STR("" HIDE_CURSOR "")));
 
   if (m_dirty) {
     m_termInfo.width = (hecl::GuiMode ? 120 : std::max(80, hecl::ConsoleWidth(&m_termInfo.truncate)));
@@ -168,7 +168,7 @@ void MultiProgressPrinter::DoPrint() {
       for (const ThreadStat& stat : m_threadStats) {
         if (stat.m_active) {
           stat.print(m_termInfo);
-          fmt::print(fmt(_SYS_STR("\n")));
+          fmt::print(FMT_STRING(_SYS_STR("\n")));
           ++m_curThreadLines;
         }
       }
@@ -179,7 +179,7 @@ void MultiProgressPrinter::DoPrint() {
 #endif
       ) {
         DrawIndeterminateBar();
-        fmt::print(fmt(_SYS_STR("\n")));
+        fmt::print(FMT_STRING(_SYS_STR("\n")));
         ++m_curProgLines;
       } else if (m_mainFactor >= 0.f) {
         float factor = std::max(0.0f, std::min(1.0f, m_mainFactor));
@@ -191,34 +191,34 @@ void MultiProgressPrinter::DoPrint() {
         int rem = blocks - filled;
 
         if (m_termInfo.xtermColor) {
-          fmt::print(fmt(_SYS_STR("" BOLD "  {:3d}% [")), iFactor);
+          fmt::print(FMT_STRING(_SYS_STR("" BOLD "  {:3d}% [")), iFactor);
           for (int b = 0; b < filled; ++b)
-            fmt::print(fmt(_SYS_STR("#")));
+            fmt::print(FMT_STRING(_SYS_STR("#")));
           for (int b = 0; b < rem; ++b)
-            fmt::print(fmt(_SYS_STR("-")));
-          fmt::print(fmt(_SYS_STR("]" NORMAL "")));
+            fmt::print(FMT_STRING(_SYS_STR("-")));
+          fmt::print(FMT_STRING(_SYS_STR("]" NORMAL "")));
         } else {
 #if _WIN32
           SetConsoleTextAttribute(m_termInfo.console, FOREGROUND_INTENSITY | FOREGROUND_WHITE);
 #endif
-          fmt::print(fmt(_SYS_STR("  {:3d}% [")), iFactor);
+          fmt::print(FMT_STRING(_SYS_STR("  {:3d}% [")), iFactor);
           for (int b = 0; b < filled; ++b)
-            fmt::print(fmt(_SYS_STR("#")));
+            fmt::print(FMT_STRING(_SYS_STR("#")));
           for (int b = 0; b < rem; ++b)
-            fmt::print(fmt(_SYS_STR("-")));
-          fmt::print(fmt(_SYS_STR("]")));
+            fmt::print(FMT_STRING(_SYS_STR("-")));
+          fmt::print(FMT_STRING(_SYS_STR("]")));
 #if _WIN32
           SetConsoleTextAttribute(m_termInfo.console, FOREGROUND_WHITE);
 #endif
         }
 
-        fmt::print(fmt(_SYS_STR("\n")));
+        fmt::print(FMT_STRING(_SYS_STR("\n")));
         ++m_curProgLines;
       }
     } else if (m_latestThread != -1) {
       const ThreadStat& stat = m_threadStats[m_latestThread];
       stat.print(m_termInfo);
-      fmt::print(fmt(_SYS_STR("\r")));
+      fmt::print(FMT_STRING(_SYS_STR("\r")));
     }
     m_dirty = false;
   } else if (m_mainIndeterminate
@@ -230,12 +230,12 @@ void MultiProgressPrinter::DoPrint() {
     MoveCursorUp(m_curProgLines);
     m_curProgLines = 0;
     DrawIndeterminateBar();
-    fmt::print(fmt(_SYS_STR("\n")));
+    fmt::print(FMT_STRING(_SYS_STR("\n")));
     ++m_curProgLines;
   }
 
   if (m_termInfo.xtermColor)
-    fmt::print(fmt(_SYS_STR("" SHOW_CURSOR "")));
+    fmt::print(FMT_STRING(_SYS_STR("" SHOW_CURSOR "")));
   fflush(stdout);
 
 #if _WIN32
@@ -354,7 +354,7 @@ void MultiProgressPrinter::startNewLine() const {
   m_curThreadLines = 0;
   m_mainFactor = -1.f;
   auto logLk = logvisor::LockLog();
-  fmt::print(fmt(_SYS_STR("\n")));
+  fmt::print(FMT_STRING(_SYS_STR("\n")));
 }
 
 void MultiProgressPrinter::flush() const {

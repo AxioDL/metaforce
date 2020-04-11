@@ -94,7 +94,7 @@ void Project::ConfigFile::addLine(std::string_view line) {
 
 void Project::ConfigFile::removeLine(std::string_view refLine) {
   if (!m_lockedFile) {
-    LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__, fmt("Project::ConfigFile::lockAndRead not yet called"));
+    LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__, FMT_STRING("Project::ConfigFile::lockAndRead not yet called"));
     return;
   }
 
@@ -109,7 +109,7 @@ void Project::ConfigFile::removeLine(std::string_view refLine) {
 
 bool Project::ConfigFile::checkForLine(std::string_view refLine) const {
   if (!m_lockedFile) {
-    LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__, fmt("Project::ConfigFile::lockAndRead not yet called"));
+    LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__, FMT_STRING("Project::ConfigFile::lockAndRead not yet called"));
     return false;
   }
 
@@ -118,7 +118,7 @@ bool Project::ConfigFile::checkForLine(std::string_view refLine) const {
 
 void Project::ConfigFile::unlockAndDiscard() {
   if (m_lockedFile == nullptr) {
-    LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__, fmt("Project::ConfigFile::lockAndRead not yet called"));
+    LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__, FMT_STRING("Project::ConfigFile::lockAndRead not yet called"));
     return;
   }
 
@@ -128,7 +128,7 @@ void Project::ConfigFile::unlockAndDiscard() {
 
 bool Project::ConfigFile::unlockAndCommit() {
   if (!m_lockedFile) {
-    LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__, fmt("Project::ConfigFile::lockAndRead not yet called"));
+    LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__, FMT_STRING("Project::ConfigFile::lockAndRead not yet called"));
     return false;
   }
 
@@ -181,12 +181,12 @@ Project::Project(const ProjectRootPath& rootPath)
   /* Stat for existing project directory (must already exist) */
   Sstat myStat;
   if (hecl::Stat(m_rootPath.getAbsolutePath().data(), &myStat)) {
-    LogModule.report(logvisor::Error, fmt(_SYS_STR("unable to stat {}")), m_rootPath.getAbsolutePath());
+    LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to stat {}")), m_rootPath.getAbsolutePath());
     return;
   }
 
   if (!S_ISDIR(myStat.st_mode)) {
-    LogModule.report(logvisor::Error, fmt(_SYS_STR("provided path must be a directory; '{}' isn't")),
+    LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("provided path must be a directory; '{}' isn't")),
                      m_rootPath.getAbsolutePath());
     return;
   }
@@ -212,7 +212,7 @@ Project::Project(const ProjectRootPath& rootPath)
   bf.reset();
 
   if (beacon.magic != HECLfcc || SBig(beacon.version) != DATA_VERSION) {
-    LogModule.report(logvisor::Fatal, fmt("incompatible project version"));
+    LogModule.report(logvisor::Fatal, FMT_STRING("incompatible project version"));
     return;
   }
 
@@ -225,7 +225,7 @@ const ProjectPath& Project::getProjectCookedPath(const DataSpecEntry& spec) cons
   for (const ProjectDataSpec& sp : m_compiledSpecs)
     if (&sp.spec == &spec)
       return sp.cookedPath;
-  LogModule.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find spec '{}'")), spec.m_name);
+  LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to find spec '{}'")), spec.m_name);
   return m_cookedRoot;
 }
 
@@ -469,7 +469,7 @@ bool Project::packagePath(const ProjectPath& path, const hecl::MultiProgressPrin
   }
 
   if (!specEntry)
-    LogModule.report(logvisor::Fatal, fmt("No matching DataSpec"));
+    LogModule.report(logvisor::Fatal, FMT_STRING("No matching DataSpec"));
 
   if (!m_lastPackageSpec || m_lastPackageSpec->getDataSpecEntry() != specEntry)
     m_lastPackageSpec = specEntry->m_factory(*this, DataSpecTool::Package);

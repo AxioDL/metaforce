@@ -43,13 +43,13 @@ int main(int argc, const hecl::SystemChar** argv)
 
 #if _WIN32
   if (!FindBestD3DCompile()) {
-    Log.report(logvisor::Info, fmt("Unable to find D3DCompiler dll"));
+    Log.report(logvisor::Info, FMT_STRING("Unable to find D3DCompiler dll"));
     return 1;
   }
 #endif
 
   if (argc == 1) {
-    Log.report(logvisor::Info, fmt("Usage: shaderc -o <out-base> [-D definevar=defineval]... <in-files>..."));
+    Log.report(logvisor::Info, FMT_STRING("Usage: shaderc -o <out-base> [-D definevar=defineval]... <in-files>..."));
     return 0;
   }
 
@@ -64,7 +64,7 @@ int main(int argc, const hecl::SystemChar** argv)
           ++i;
           outPath = argv[i];
         } else {
-          Log.report(logvisor::Error, fmt("Invalid -o argument"));
+          Log.report(logvisor::Error, FMT_STRING("Invalid -o argument"));
           return 1;
         }
       } else if (argv[i][1] == 'D') {
@@ -75,7 +75,7 @@ int main(int argc, const hecl::SystemChar** argv)
           ++i;
           define = argv[i];
         } else {
-          Log.report(logvisor::Error, fmt("Invalid -D argument"));
+          Log.report(logvisor::Error, FMT_STRING("Invalid -D argument"));
           return 1;
         }
         hecl::SystemUTF8Conv conv(define);
@@ -85,7 +85,7 @@ int main(int argc, const hecl::SystemChar** argv)
         else
           c.addDefine(defineU8, "");
       } else {
-        Log.report(logvisor::Error, fmt(_SYS_STR("Unrecognized flag option '{:c}'")), argv[i][1]);
+        Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Unrecognized flag option '{:c}'")), argv[i][1]);
         return 1;
       }
     } else {
@@ -94,7 +94,7 @@ int main(int argc, const hecl::SystemChar** argv)
   }
 
   if (outPath.empty()) {
-    Log.report(logvisor::Error, fmt("-o option is required"));
+    Log.report(logvisor::Error, FMT_STRING("-o option is required"));
     return 1;
   }
 
@@ -106,7 +106,7 @@ int main(int argc, const hecl::SystemChar** argv)
     baseName = outPath;
 
   if (!glslang::InitializeProcess()) {
-    Log.report(logvisor::Error, fmt("Unable to initialize glslang"));
+    Log.report(logvisor::Error, FMT_STRING("Unable to initialize glslang"));
     return 1;
   }
 
@@ -119,7 +119,7 @@ int main(int argc, const hecl::SystemChar** argv)
     hecl::SystemString headerPath = outPath + _SYS_STR(".hpp");
     athena::io::FileWriter w(headerPath);
     if (w.hasError()) {
-      Log.report(logvisor::Error, fmt(_SYS_STR("Error opening '{}' for writing")), headerPath);
+      Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Error opening '{}' for writing")), headerPath);
       return 1;
     }
     std::string header = ret.first.str();
@@ -130,7 +130,7 @@ int main(int argc, const hecl::SystemChar** argv)
     hecl::SystemString impPath = outPath + _SYS_STR(".cpp");
     athena::io::FileWriter w(impPath);
     if (w.hasError()) {
-      Log.report(logvisor::Error, fmt(_SYS_STR("Error opening '{}' for writing")), impPath);
+      Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Error opening '{}' for writing")), impPath);
       return 1;
     }
     std::string source = ret.second.str();

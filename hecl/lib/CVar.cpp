@@ -279,7 +279,7 @@ bool CVar::fromVec2f(const atVec2f& val) {
     return false;
 
   athena::simd_floats f(val.simd);
-  m_value.assign(fmt::format(fmt("{} {}"), f[0], f[1]));
+  m_value.assign(fmt::format(FMT_STRING("{} {}"), f[0], f[1]));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -289,7 +289,7 @@ bool CVar::fromVec2d(const atVec2d& val) {
     return false;
 
   athena::simd_doubles f(val.simd);
-  m_value.assign(fmt::format(fmt("{} {}"), f[0], f[1]));
+  m_value.assign(fmt::format(FMT_STRING("{} {}"), f[0], f[1]));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -299,7 +299,7 @@ bool CVar::fromVec3f(const atVec3f& val) {
     return false;
 
   athena::simd_floats f(val.simd);
-  m_value.assign(fmt::format(fmt("{} {} {}"), f[0], f[1], f[2]));
+  m_value.assign(fmt::format(FMT_STRING("{} {} {}"), f[0], f[1], f[2]));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -309,7 +309,7 @@ bool CVar::fromVec3d(const atVec3d& val) {
     return false;
 
   athena::simd_doubles f(val.simd);
-  m_value.assign(fmt::format(fmt("{} {} {}"), f[0], f[1], f[2]));
+  m_value.assign(fmt::format(FMT_STRING("{} {} {}"), f[0], f[1], f[2]));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -319,7 +319,7 @@ bool CVar::fromVec4f(const atVec4f& val) {
     return false;
 
   athena::simd_floats f(val.simd);
-  m_value.assign(fmt::format(fmt("{} {} {} {}"), f[0], f[1], f[2], f[3]));
+  m_value.assign(fmt::format(FMT_STRING("{} {} {} {}"), f[0], f[1], f[2], f[3]));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -329,7 +329,7 @@ bool CVar::fromVec4d(const atVec4d& val) {
     return false;
 
   athena::simd_doubles f(val.simd);
-  m_value.assign(fmt::format(fmt("{} {} {} {}"), f[0], f[1], f[2], f[3]));
+  m_value.assign(fmt::format(FMT_STRING("{} {} {} {}"), f[0], f[1], f[2], f[3]));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -338,7 +338,7 @@ bool CVar::fromReal(double val) {
   if (!safeToModify(EType::Real))
     return false;
 
-  m_value.assign(fmt::format(fmt("{}"), val));
+  m_value.assign(fmt::format(FMT_STRING("{}"), val));
   setModified();
   return true;
 }
@@ -369,7 +369,7 @@ bool CVar::fromInteger(int32_t val) {
     return false;
 
   // Properly format based on signedness
-  m_value = fmt::format(fmt("{}"), (m_type == EType::Signed ? val : static_cast<uint32_t>(val)));
+  m_value = fmt::format(FMT_STRING("{}"), (m_type == EType::Signed ? val : static_cast<uint32_t>(val)));
   setModified();
   return true;
 }
@@ -387,7 +387,7 @@ bool CVar::fromInteger(uint32_t val) {
     return false;
 
   // Properly format based on signedness
-  m_value = fmt::format(fmt("{}"), (m_type == EType::Unsigned ? val : static_cast<int32_t>(val)));
+  m_value = fmt::format(FMT_STRING("{}"), (m_type == EType::Unsigned ? val : static_cast<int32_t>(val)));
   setModified();
   return true;
 }

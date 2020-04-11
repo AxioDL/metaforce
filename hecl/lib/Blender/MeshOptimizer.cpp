@@ -50,7 +50,7 @@ MeshOptimizer::Vertex::Vertex(Connection& conn) {
   uint32_t skin_count;
   conn._readValue(skin_count);
   if (skin_count > MaxSkinEntries)
-    Log.report(logvisor::Fatal, fmt("Skin entry overflow {}/{}"), skin_count, MaxSkinEntries);
+    Log.report(logvisor::Fatal, FMT_STRING("Skin entry overflow {}/{}"), skin_count, MaxSkinEntries);
   for (uint32_t i = 0; i < skin_count; ++i)
     skin_ents[i] = Mesh::SkinBind(conn);
 }
@@ -76,7 +76,7 @@ MeshOptimizer::Edge::Edge(Connection& conn) {
   uint32_t face_count;
   conn._readValue(face_count);
   if (face_count > MaxLinkFaces)
-    Log.report(logvisor::Fatal, fmt("Face overflow {}/{}"), face_count, MaxLinkFaces);
+    Log.report(logvisor::Fatal, FMT_STRING("Face overflow {}/{}"), face_count, MaxLinkFaces);
   for (uint32_t i = 0; i < face_count; ++i)
     conn._readValue(link_faces[i]);
   conn._readValue(is_contiguous);
@@ -384,10 +384,10 @@ MeshOptimizer::MeshOptimizer(Connection& conn, const std::vector<Material>& mate
 : materials(materials), use_luvs(use_luvs) {
   conn._readValue(color_count);
   if (color_count > MaxColorLayers)
-    Log.report(logvisor::Fatal, fmt("Color layer overflow {}/{}"), color_count, MaxColorLayers);
+    Log.report(logvisor::Fatal, FMT_STRING("Color layer overflow {}/{}"), color_count, MaxColorLayers);
   conn._readValue(uv_count);
   if (uv_count > MaxUVLayers)
-    Log.report(logvisor::Fatal, fmt("UV layer overflow {}/{}"), uv_count, MaxUVLayers);
+    Log.report(logvisor::Fatal, FMT_STRING("UV layer overflow {}/{}"), uv_count, MaxUVLayers);
 
   /* Simultaneously load topology objects and build unique mapping indices */
 

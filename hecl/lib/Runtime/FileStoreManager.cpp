@@ -20,7 +20,7 @@ FileStoreManager::FileStoreManager(SystemStringView domain) : m_domain(domain) {
 #if !WINDOWS_STORE
   WCHAR home[MAX_PATH];
   if (!SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, home)))
-    Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to locate profile for file store")));
+    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to locate profile for file store")));
 
   SystemString path(home);
 #else
@@ -40,22 +40,22 @@ FileStoreManager::FileStoreManager(SystemStringView domain) : m_domain(domain) {
   std::string path;
   if (xdg_data_home) {
     if (xdg_data_home[0] != '/')
-      Log.report(logvisor::Fatal, fmt("invalid $XDG_DATA_HOME for file store (must be absolute)"));
+      Log.report(logvisor::Fatal, FMT_STRING("invalid $XDG_DATA_HOME for file store (must be absolute)"));
     path = xdg_data_home;
   } else {
     const char* home = getenv("HOME");
     if (!home)
-      Log.report(logvisor::Fatal, fmt("unable to locate $HOME for file store"));
+      Log.report(logvisor::Fatal, FMT_STRING("unable to locate $HOME for file store"));
     path = home;
     path += "/.local/share";
   }
   path += "/hecl";
   if (mkdir(path.c_str(), 0755) && errno != EEXIST)
-    Log.report(logvisor::Fatal, fmt("unable to mkdir at {}"), path);
+    Log.report(logvisor::Fatal, FMT_STRING("unable to mkdir at {}"), path);
   path += '/';
   path += domain.data();
   if (mkdir(path.c_str(), 0755) && errno != EEXIST)
-    Log.report(logvisor::Fatal, fmt("unable to mkdir at {}"), path);
+    Log.report(logvisor::Fatal, FMT_STRING("unable to mkdir at {}"), path);
   m_storeRoot = path;
 #endif
 }

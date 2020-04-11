@@ -85,14 +85,14 @@ public:
 
   virtual bool canExtract([[maybe_unused]] const ExtractPassInfo& info,
                           [[maybe_unused]] std::vector<ExtractReport>& reps) {
-    LogModule.report(logvisor::Error, fmt("not implemented"));
+    LogModule.report(logvisor::Error, FMT_STRING("not implemented"));
     return false;
   }
   virtual void doExtract([[maybe_unused]] const ExtractPassInfo& info,
                          [[maybe_unused]] const MultiProgressPrinter& progress) {}
 
   virtual bool canCook([[maybe_unused]] const ProjectPath& path, [[maybe_unused]] blender::Token& btok) {
-    LogModule.report(logvisor::Error, fmt("not implemented"));
+    LogModule.report(logvisor::Error, FMT_STRING("not implemented"));
     return false;
   }
   virtual const DataSpecEntry* overrideDataSpec([[maybe_unused]] const ProjectPath& path,

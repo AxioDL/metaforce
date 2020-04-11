@@ -64,7 +64,7 @@ static int GetCPUCount() {
 void ClientProcess::BufferTransaction::run(blender::Token& btok) {
   athena::io::FileReader r(m_path.getAbsolutePath(), 32 * 1024, false);
   if (r.hasError()) {
-    CP_Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to background-buffer '{}'")), m_path.getAbsolutePath());
+    CP_Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to background-buffer '{}'")), m_path.getAbsolutePath());
     return;
   }
   if (m_offset)
@@ -94,7 +94,7 @@ ClientProcess::Worker::Worker(ClientProcess& proc, int idx) : m_proc(proc), m_id
 void ClientProcess::Worker::proc() {
   ClientProcess::ThreadWorker.reset(this);
 
-  std::string thrName = fmt::format(fmt("HECL Worker {}"), m_idx);
+  std::string thrName = fmt::format(FMT_STRING("HECL Worker {}"), m_idx);
   logvisor::RegisterThreadName(thrName.c_str());
 
   std::unique_lock lk{m_proc.m_mutex};
@@ -180,24 +180,24 @@ bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec*
         if (m_progPrinter) {
           hecl::SystemString str;
           if (path.getAuxInfo().empty())
-            str = fmt::format(fmt(_SYS_STR("Cooking {}")), path.getRelativePath());
+            str = fmt::format(FMT_STRING(_SYS_STR("Cooking {}")), path.getRelativePath());
           else
-            str = fmt::format(fmt(_SYS_STR("Cooking {}|{}")), path.getRelativePath(), path.getAuxInfo());
+            str = fmt::format(FMT_STRING(_SYS_STR("Cooking {}|{}")), path.getRelativePath(), path.getAuxInfo());
           m_progPrinter->print(str.c_str(), nullptr, -1.f, hecl::ClientProcess::GetThreadWorkerIdx());
           m_progPrinter->flush();
         } else {
           if (path.getAuxInfo().empty())
-            LogModule.report(logvisor::Info, fmt(_SYS_STR("Cooking {}")), path.getRelativePath());
+            LogModule.report(logvisor::Info, FMT_STRING(_SYS_STR("Cooking {}")), path.getRelativePath());
           else
-            LogModule.report(logvisor::Info, fmt(_SYS_STR("Cooking {}|{}")), path.getRelativePath(), path.getAuxInfo());
+            LogModule.report(logvisor::Info, FMT_STRING(_SYS_STR("Cooking {}|{}")), path.getRelativePath(), path.getAuxInfo());
         }
         spec->doCook(path, cooked, false, btok, [](const SystemChar*) {});
         if (m_progPrinter) {
           hecl::SystemString str;
           if (path.getAuxInfo().empty())
-            str = fmt::format(fmt(_SYS_STR("Cooked  {}")), path.getRelativePath());
+            str = fmt::format(FMT_STRING(_SYS_STR("Cooked  {}")), path.getRelativePath());
           else
-            str = fmt::format(fmt(_SYS_STR("Cooked  {}|{}")), path.getRelativePath(), path.getAuxInfo());
+            str = fmt::format(FMT_STRING(_SYS_STR("Cooked  {}|{}")), path.getRelativePath(), path.getAuxInfo());
           m_progPrinter->print(str.c_str(), nullptr, -1.f, hecl::ClientProcess::GetThreadWorkerIdx());
           m_progPrinter->flush();
         }

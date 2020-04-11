@@ -29,7 +29,7 @@ class ToolExtract final : public ToolBase {
 public:
   explicit ToolExtract(const ToolPassInfo& info) : ToolBase(info) {
     if (!m_info.args.size())
-      LogModule.report(logvisor::Fatal, fmt("hecl extract needs a source path as its first argument"));
+      LogModule.report(logvisor::Fatal, FMT_STRING("hecl extract needs a source path as its first argument"));
 
     if (!info.project) {
       hecl::SystemString rootDir;
@@ -47,7 +47,7 @@ public:
           baseFile.assign(baseFile.begin(), baseFile.begin() + dotPos);
 
         if (baseFile.empty())
-          LogModule.report(logvisor::Fatal, fmt("hecl extract must be ran within a project directory"));
+          LogModule.report(logvisor::Fatal, FMT_STRING("hecl extract must be ran within a project directory"));
 
         rootDir = info.cwd + baseFile;
       } else {
@@ -62,8 +62,8 @@ public:
       newProjRoot.makeDir();
       m_fallbackProj.reset(new hecl::Database::Project(newProjRoot));
       if (logvisor::ErrorCount > ErrorRef)
-        LogModule.report(logvisor::Fatal, fmt(_SYS_STR("unable to init project at '{}'")), rootDir);
-      LogModule.report(logvisor::Info, fmt(_SYS_STR("initialized project at '{}/.hecl'")), rootDir);
+        LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to init project at '{}'")), rootDir);
+      LogModule.report(logvisor::Info, FMT_STRING(_SYS_STR("initialized project at '{}/.hecl'")), rootDir);
       m_useProj = m_fallbackProj.get();
     } else
       m_useProj = info.project;
@@ -116,15 +116,15 @@ public:
 
   static void _recursivePrint(int level, hecl::Database::IDataSpec::ExtractReport& rep) {
     for (int l = 0; l < level; ++l)
-      fmt::print(fmt(_SYS_STR("  ")));
+      fmt::print(FMT_STRING(_SYS_STR("  ")));
     if (XTERM_COLOR)
-      fmt::print(fmt(_SYS_STR("" BOLD "{}" NORMAL "")), rep.name);
+      fmt::print(FMT_STRING(_SYS_STR("" BOLD "{}" NORMAL "")), rep.name);
     else
-      fmt::print(fmt(_SYS_STR("{}")), rep.name);
+      fmt::print(FMT_STRING(_SYS_STR("{}")), rep.name);
 
     if (rep.desc.size())
-      fmt::print(fmt(_SYS_STR(" [{}]")), rep.desc);
-    fmt::print(fmt(_SYS_STR("\n")));
+      fmt::print(FMT_STRING(_SYS_STR(" [{}]")), rep.desc);
+    fmt::print(FMT_STRING(_SYS_STR("\n")));
     for (hecl::Database::IDataSpec::ExtractReport& child : rep.childOpts)
       _recursivePrint(level + 1, child);
   }
@@ -132,32 +132,32 @@ public:
   int run() override {
     if (m_specPasses.empty()) {
       if (XTERM_COLOR)
-        fmt::print(fmt(_SYS_STR("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n")));
+        fmt::print(FMT_STRING(_SYS_STR("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n")));
       else
-        fmt::print(fmt(_SYS_STR("NOTHING TO EXTRACT\n")));
+        fmt::print(FMT_STRING(_SYS_STR("NOTHING TO EXTRACT\n")));
       return 1;
     }
 
     if (XTERM_COLOR)
-      fmt::print(fmt(_SYS_STR("" GREEN BOLD "ABOUT TO EXTRACT:" NORMAL "\n")));
+      fmt::print(FMT_STRING(_SYS_STR("" GREEN BOLD "ABOUT TO EXTRACT:" NORMAL "\n")));
     else
-      fmt::print(fmt(_SYS_STR("ABOUT TO EXTRACT:\n")));
+      fmt::print(FMT_STRING(_SYS_STR("ABOUT TO EXTRACT:\n")));
 
     for (hecl::Database::IDataSpec::ExtractReport& rep : m_reps) {
       _recursivePrint(0, rep);
-      fmt::print(fmt(_SYS_STR("\n")));
+      fmt::print(FMT_STRING(_SYS_STR("\n")));
     }
     fflush(stdout);
 
     if (continuePrompt()) {
       for (SpecExtractPass& ds : m_specPasses) {
         if (XTERM_COLOR)
-          fmt::print(fmt(_SYS_STR("" MAGENTA BOLD "Using DataSpec {}:" NORMAL "\n")), ds.m_entry->m_name);
+          fmt::print(FMT_STRING(_SYS_STR("" MAGENTA BOLD "Using DataSpec {}:" NORMAL "\n")), ds.m_entry->m_name);
         else
-          fmt::print(fmt(_SYS_STR("Using DataSpec {}:\n")), ds.m_entry->m_name);
+          fmt::print(FMT_STRING(_SYS_STR("Using DataSpec {}:\n")), ds.m_entry->m_name);
 
         ds.m_instance->doExtract(m_einfo, {true});
-        fmt::print(fmt(_SYS_STR("\n\n")));
+        fmt::print(FMT_STRING(_SYS_STR("\n\n")));
       }
     }
 

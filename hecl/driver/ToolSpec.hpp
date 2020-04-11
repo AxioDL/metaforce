@@ -13,7 +13,7 @@ public:
       return;
 
     if (!info.project)
-      LogModule.report(logvisor::Fatal, fmt("hecl spec must be ran within a project directory"));
+      LogModule.report(logvisor::Fatal, FMT_STRING("hecl spec must be ran within a project directory"));
 
     const auto& specs = info.project->getDataSpecs();
     hecl::SystemString firstArg = info.args.front();
@@ -27,7 +27,7 @@ public:
       return;
 
     if (info.args.size() < 2)
-      LogModule.report(logvisor::Fatal, fmt("Speclist argument required"));
+      LogModule.report(logvisor::Fatal, FMT_STRING("Speclist argument required"));
 
     auto it = info.args.begin();
     ++it;
@@ -41,7 +41,7 @@ public:
         }
       }
       if (!found)
-        LogModule.report(logvisor::Fatal, fmt(_SYS_STR("'{}' is not found in the dataspec registry")), *it);
+        LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("'{}' is not found in the dataspec registry")), *it);
     }
   }
 
@@ -77,10 +77,10 @@ public:
     if (!m_info.project) {
       for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY) {
         if (XTERM_COLOR)
-          fmt::print(fmt(_SYS_STR("" BOLD CYAN "{}" NORMAL "\n")), spec->m_name);
+          fmt::print(FMT_STRING(_SYS_STR("" BOLD CYAN "{}" NORMAL "\n")), spec->m_name);
         else
-          fmt::print(fmt(_SYS_STR("{}\n")), spec->m_name);
-        fmt::print(fmt(_SYS_STR("  {}\n")), spec->m_desc);
+          fmt::print(FMT_STRING(_SYS_STR("{}\n")), spec->m_name);
+        fmt::print(FMT_STRING(_SYS_STR("  {}\n")), spec->m_desc);
       }
       return 0;
     }
@@ -89,16 +89,16 @@ public:
     if (mode == MLIST) {
       for (auto& spec : specs) {
         if (XTERM_COLOR)
-          fmt::print(fmt(_SYS_STR("" BOLD CYAN "{}" NORMAL "")), spec.spec.m_name);
+          fmt::print(FMT_STRING(_SYS_STR("" BOLD CYAN "{}" NORMAL "")), spec.spec.m_name);
         else
-          fmt::print(fmt(_SYS_STR("{}")), spec.spec.m_name);
+          fmt::print(FMT_STRING(_SYS_STR("{}")), spec.spec.m_name);
         if (spec.active) {
           if (XTERM_COLOR)
-            fmt::print(fmt(_SYS_STR(" " BOLD GREEN "[ENABLED]" NORMAL "")));
+            fmt::print(FMT_STRING(_SYS_STR(" " BOLD GREEN "[ENABLED]" NORMAL "")));
           else
-            fmt::print(fmt(_SYS_STR(" [ENABLED]")));
+            fmt::print(FMT_STRING(_SYS_STR(" [ENABLED]")));
         }
-        fmt::print(fmt(_SYS_STR("\n  {}\n")), spec.spec.m_desc);
+        fmt::print(FMT_STRING(_SYS_STR("\n  {}\n")), spec.spec.m_desc);
       }
       return 0;
     }

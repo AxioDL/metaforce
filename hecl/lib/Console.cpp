@@ -109,7 +109,7 @@ void Console::executeString(const std::string& str) {
 
     if (isInLiteral) {
       if ((curLiteral.back() != '\'' && curLiteral.back() != '"') || depth > 1) {
-        report(Level::Warning, fmt("Unterminated string literal"));
+        report(Level::Warning, FMT_STRING("Unterminated string literal"));
         return;
       }
       args.push_back(std::move(curLiteral));
@@ -123,12 +123,12 @@ void Console::executeString(const std::string& str) {
     if (const auto iter = m_commands.find(lowComName); iter != m_commands.end()) {
       const SConsoleCommand& cmd = iter->second;
       if (bool(cmd.m_flags & SConsoleCommand::ECommandFlags::Developer) && !com_developer->toBoolean()) {
-        report(Level::Error, fmt("This command can only be executed in developer mode"), commandName);
+        report(Level::Error, FMT_STRING("This command can only be executed in developer mode"), commandName);
         return;
       }
 
       if (bool(cmd.m_flags & SConsoleCommand::ECommandFlags::Cheat) && !com_enableCheats->toBoolean()) {
-        report(Level::Error, fmt("This command can only be executed with cheats enabled"), commandName);
+        report(Level::Error, FMT_STRING("This command can only be executed with cheats enabled"), commandName);
         return;
       }
       cmd.m_func(this, args);
@@ -139,32 +139,32 @@ void Console::executeString(const std::string& str) {
       else
         m_cvarMgr->getCVar(this, args);
     } else {
-      report(Level::Error, fmt("'{}' is not a valid command or variable!"), commandName);
+      report(Level::Error, FMT_STRING("'{}' is not a valid command or variable!"), commandName);
     }
   }
 }
 
 void Console::help(Console* /*con*/, const std::vector<std::string>& args) {
   if (args.empty()) {
-    report(Level::Info, fmt("Expected usage: help <command>"));
+    report(Level::Info, FMT_STRING("Expected usage: help <command>"));
     return;
   }
   std::string cmd = args.front();
   athena::utility::tolower(cmd);
   auto it = m_commands.find(cmd);
   if (it == m_commands.end()) {
-    report(Level::Error, fmt("No such command '{}'"), args.front());
+    report(Level::Error, FMT_STRING("No such command '{}'"), args.front());
     return;
   }
 
-  report(Level::Info, fmt("{}: {}"), it->second.m_displayName, it->second.m_helpString);
+  report(Level::Info, FMT_STRING("{}: {}"), it->second.m_displayName, it->second.m_helpString);
   if (!it->second.m_usage.empty())
-    report(Level::Info, fmt("Usage: {} {}"), it->second.m_displayName, it->second.m_usage);
+    report(Level::Info, FMT_STRING("Usage: {} {}"), it->second.m_displayName, it->second.m_usage);
 }
 
 void Console::listCommands(Console* /*con*/, const std::vector<std::string>& /*args*/) {
   for (const auto& comPair : m_commands)
-    report(Level::Info, fmt("'{}': {}"), comPair.second.m_displayName, comPair.second.m_helpString);
+    report(Level::Info, FMT_STRING("'{}': {}"), comPair.second.m_displayName, comPair.second.m_helpString);
 }
 
 bool Console::commandExists(std::string_view cmd) const {
@@ -180,7 +180,7 @@ void Console::vreport(Level level, fmt::string_view fmt, fmt::format_args args) 
   for (std::string& line : lines) {
     m_log.emplace_back(std::move(line), level);
   }
-  fmt::print(fmt("{}\n"), tmp);
+  fmt::print(FMT_STRING("{}\n"), tmp);
 }
 
 void Console::init(boo::IWindow* window) {
@@ -197,7 +197,7 @@ void Console::proc() {
   }
 
   if (m_state == State::Opened) {
-    fmt::print(fmt("\r{}                                   "), m_commandString);
+    fmt::print(FMT_STRING("\r{}                                   "), m_commandString);
     fflush(stdout);
   } else if (m_state == State::Opening)
     m_state = State::Opened;
@@ -301,7 +301,7 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
     break;
   }
   case boo::ESpecialKey::Enter: {
-    fmt::print(fmt("\n"));
+    fmt::print(FMT_STRING("\n"));
     executeString(m_commandString);
     m_cursorPosition = -1;
     m_commandHistory.insert(m_commandHistory.begin(), m_commandString);
@@ -388,7 +388,7 @@ void Console::LogVisorAdapter::report(const char* modName, logvisor::Level sever
   auto tmp = fmt::internal::vformat(format, args);
   std::vector<std::string> lines = athena::utility::split(tmp, '\n');
   for (const std::string& line : lines) {
-    auto v = fmt::format(fmt("[{}] {}"), modName, line);
+    auto v = fmt::format(FMT_STRING("[{}] {}"), modName, line);
     m_con->m_log.emplace_back(std::move(v), Console::Level(severity));
   }
 }
@@ -398,7 +398,7 @@ void Console::LogVisorAdapter::report(const char* modName, logvisor::Level sever
   auto tmp = fmt::internal::vformat(format, args);
   std::vector<std::string> lines = athena::utility::split(athena::utility::wideToUtf8(tmp), '\n');
   for (const std::string& line : lines) {
-    auto v = fmt::format(fmt("[{}] {}"), modName, line);
+    auto v = fmt::format(FMT_STRING("[{}] {}"), modName, line);
     m_con->m_log.emplace_back(std::move(v), Console::Level(severity));
   }
 }
@@ -406,7 +406,7 @@ void Console::LogVisorAdapter::report(const char* modName, logvisor::Level sever
 void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level severity, const char* file,
                                             unsigned linenum, fmt::string_view format, fmt::format_args args) {
   auto tmp = fmt::internal::vformat(format, args);
-  auto v = fmt::format(fmt("[{}] {} {}:{}"), modName, tmp, file, linenum);
+  auto v = fmt::format(FMT_STRING("[{}] {} {}:{}"), modName, tmp, file, linenum);
   m_con->m_log.emplace_back(std::move(v), Console::Level(severity));
 }
 
@@ -415,7 +415,7 @@ void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level
   auto tmp = fmt::internal::vformat(format, args);
   std::vector<std::string> lines = athena::utility::split(athena::utility::wideToUtf8(tmp), '\n');
   for (const std::string& line : lines) {
-    auto v = fmt::format(fmt("[{}] {} {}:{}"), modName, line, file, linenum);
+    auto v = fmt::format(FMT_STRING("[{}] {} {}:{}"), modName, line, file, linenum);
     m_con->m_log.emplace_back(std::move(v), Console::Level(severity));
   }
 }
@@ -424,16 +424,16 @@ void Console::dumpLog() {
   for (const auto& l : m_log) {
     switch (l.second) {
     case Level::Info:
-      fmt::print(fmt("{}\n"), l.first);
+      fmt::print(FMT_STRING("{}\n"), l.first);
       break;
     case Level::Warning:
-      fmt::print(fmt("[Warning] {}\n"), l.first);
+      fmt::print(FMT_STRING("[Warning] {}\n"), l.first);
       break;
     case Level::Error:
-      fmt::print(fmt("[ Error ] {}\n"), l.first);
+      fmt::print(FMT_STRING("[ Error ] {}\n"), l.first);
       break;
     case Level::Fatal:
-      fmt::print(fmt("[ Fatal ] {}\n"), l.first);
+      fmt::print(FMT_STRING("[ Fatal ] {}\n"), l.first);
       break;
     }
   }

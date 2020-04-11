@@ -107,7 +107,7 @@ SystemString GetcwdStr() {
   }
   if (errno != ERANGE) {
     // It's not ERANGE, so we don't know how to handle it
-    LogModule.report(logvisor::Fatal, fmt("Cannot determine the current path."));
+    LogModule.report(logvisor::Fatal, FMT_STRING("Cannot determine the current path."));
     // Of course you may choose a different error reporting method
   }
   // Ok, the stack buffer isn't long enough; fallback to heap allocation
@@ -121,11 +121,11 @@ SystemString GetcwdStr() {
     }
     if (errno != ERANGE) {
       // It's not ERANGE, so we don't know how to handle it
-      LogModule.report(logvisor::Fatal, fmt("Cannot determine the current path."));
+      LogModule.report(logvisor::Fatal, FMT_STRING("Cannot determine the current path."));
       // Of course you may choose a different error reporting method
     }
   }
-  LogModule.report(logvisor::Fatal, fmt("Cannot determine the current path; the path is apparently unreasonably long"));
+  LogModule.report(logvisor::Fatal, FMT_STRING("Cannot determine the current path; the path is apparently unreasonably long"));
   return SystemString();
 }
 
@@ -141,7 +141,7 @@ bool ResourceLock::InProgress(const ProjectPath& path) {
 bool ResourceLock::SetThreadRes(const ProjectPath& path) {
   std::unique_lock lk{PathsMutex};
   if (PathsInProgress.find(std::this_thread::get_id()) != PathsInProgress.cend()) {
-    LogModule.report(logvisor::Fatal, fmt("multiple resource locks on thread"));
+    LogModule.report(logvisor::Fatal, FMT_STRING("multiple resource locks on thread"));
   }
 
   const bool isInProgress = std::any_of(PathsInProgress.cbegin(), PathsInProgress.cend(),
@@ -713,14 +713,14 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
   HANDLE consoleOutReadTmp = INVALID_HANDLE_VALUE;
   HANDLE consoleOutWrite = INVALID_HANDLE_VALUE;
   if (!CreatePipe(&consoleOutReadTmp, &consoleOutWrite, &sattrs, 0)) {
-    LogModule.report(logvisor::Fatal, fmt("Error with CreatePipe"));
+    LogModule.report(logvisor::Fatal, FMT_STRING("Error with CreatePipe"));
     return -1;
   }
 
   HANDLE consoleErrWrite = INVALID_HANDLE_VALUE;
   if (!DuplicateHandle(GetCurrentProcess(), consoleOutWrite, GetCurrentProcess(), &consoleErrWrite, 0, TRUE,
                        DUPLICATE_SAME_ACCESS)) {
-    LogModule.report(logvisor::Fatal, fmt("Error with DuplicateHandle"));
+    LogModule.report(logvisor::Fatal, FMT_STRING("Error with DuplicateHandle"));
     CloseHandle(consoleOutReadTmp);
     CloseHandle(consoleOutWrite);
     return -1;
@@ -731,7 +731,7 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
                        &consoleOutRead, // Address of new handle.
                        0, FALSE,        // Make it uninheritable.
                        DUPLICATE_SAME_ACCESS)) {
-    LogModule.report(logvisor::Fatal, fmt("Error with DuplicateHandle"));
+    LogModule.report(logvisor::Fatal, FMT_STRING("Error with DuplicateHandle"));
     CloseHandle(consoleOutReadTmp);
     CloseHandle(consoleOutWrite);
     CloseHandle(consoleErrWrite);
@@ -762,7 +762,7 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
     LPWSTR messageBuffer = nullptr;
     FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
                    GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, nullptr);
-    LogModule.report(logvisor::Error, fmt(L"unable to launch process from {}: {}"), path, messageBuffer);
+    LogModule.report(logvisor::Error, FMT_STRING(L"unable to launch process from {}: {}"), path, messageBuffer);
     LocalFree(messageBuffer);
 
     CloseHandle(nulHandle);
@@ -788,13 +788,13 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
         if (err == ERROR_BROKEN_PIPE)
           break; // pipe done - normal exit path.
         else
-          LogModule.report(logvisor::Error, fmt("Error with ReadFile: {:08X}"), err); // Something bad happened.
+          LogModule.report(logvisor::Error, FMT_STRING("Error with ReadFile: {:08X}"), err); // Something bad happened.
       }
 
       // Display the character read on the screen.
       auto lk = logvisor::LockLog();
       if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, nullptr)) {
-        // LogModule.report(logvisor::Error, fmt("Error with WriteConsole: {:08X}"), GetLastError());
+        // LogModule.report(logvisor::Error, FMT_STRING("Error with WriteConsole: {:08X}"), GetLastError());
       }
     }
 

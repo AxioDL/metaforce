@@ -29,6 +29,7 @@ static const char* StageNames[] = {
 };
 
 const std::string* Compiler::getFileContents(SystemStringView path) {
+  // TODO: Heterogeneous lookup when C++20 available
   auto search = m_fileContents.find(path.data());
   if (search == m_fileContents.end()) {
     athena::io::FileReader r(path);
@@ -48,7 +49,7 @@ void Compiler::addInputFile(SystemStringView file) {
 
 void Compiler::addDefine(std::string_view var, std::string_view val) { m_defines[var.data()] = val; }
 
-constexpr auto ShaderHeaderTemplate = fmt(
+constexpr auto ShaderHeaderTemplate = FMT_STRING(
     "class Shader_{} : public hecl::GeneralShader\n"
     "{{\n"
     "public:\n"
@@ -61,7 +62,7 @@ constexpr auto ShaderHeaderTemplate = fmt(
     "    static constexpr uint64_t StageHash();\n"
     "}};\n\n");
 
-constexpr auto StageObjectHeaderTemplate = fmt(
+constexpr auto StageObjectHeaderTemplate = FMT_STRING(
     "template<typename P, typename S>\n"
     "class StageObject_{} : public hecl::StageBinary<P, S>\n"
     "{{\n"
@@ -72,7 +73,7 @@ constexpr auto StageObjectHeaderTemplate = fmt(
     "}};\n"
     "STAGEOBJECT_PROTOTYPE_DECLARATIONS(StageObject_{})\n\n");
 
-constexpr auto StageObjectImplTemplate = fmt(
+constexpr auto StageObjectImplTemplate = FMT_STRING(
     "template<>\n"
     "const hecl::StageBinary<hecl::PlatformType::{}, hecl::PipelineStage::{}>\n"
     "StageObject_{}<hecl::PlatformType::{}, hecl::PipelineStage::{}>::Prototype = \n"
@@ -95,11 +96,11 @@ struct CompileStageAction {
     if (data.second == 0)
       return false;
 
-    fmt::print(out, fmt("static const uint8_t {}_{}_{}_data[] = {{\n"), name, P::Name, S::Name);
+    fmt::print(out, FMT_STRING("static const uint8_t {}_{}_{}_data[] = {{\n"), name, P::Name, S::Name);
     for (size_t i = 0; i < data.second;) {
       out << "    ";
       for (int j = 0; j < 10 && i < data.second; ++i, ++j)
-        fmt::print(out, fmt("0x{:02X}, "), data.first.get()[i]);
+        fmt::print(out, FMT_STRING("0x{:02X}, "), data.first.get()[i]);
       out << "\n";
     }
     out << "};\n\n";
@@ -127,7 +128,7 @@ bool Compiler::StageAction(StageType type, const std::string& name, const std::s
   default:
     break;
   }
-  Log.report(logvisor::Error, fmt("Unknown stage type"));
+  Log.report(logvisor::Error, FMT_STRING("Unknown stage type"));
   return false;
 }
 
@@ -172,7 +173,7 @@ bool Compiler::StageAction(const std::string& platforms, StageType type, const s
         return false;
 #endif
     } else {
-      Log.report(logvisor::Error, fmt("Unknown platform '{}'"), plat);
+      Log.report(logvisor::Error, FMT_STRING("Unknown platform '{}'"), plat);
       return false;
     }
     begin = match.suffix().first;
@@ -208,13 +209,13 @@ static const std::regex regEvaluation(R"(#\s*evaluation\s+(.*))", RegexFlags);
 
 bool Compiler::includeFile(SystemStringView file, std::string& out, int depth) {
   if (depth > 32) {
-    Log.report(logvisor::Error, fmt(_SYS_STR("Too many levels of includes (>32) at '{}'")), file);
+    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Too many levels of includes (>32) at '{}'")), file);
     return false;
   }
 
   const std::string* data = getFileContents(file);
   if (!data) {
-    Log.report(logvisor::Error, fmt(_SYS_STR("Unable to access '{}'")), file);
+    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Unable to access '{}'")), file);
     return false;
   }
   const std::string& sdata = *data;
@@ -240,7 +241,7 @@ bool Compiler::includeFile(SystemStringView file, std::string& out, int depth) {
     if (std::regex_search(begin, nextBegin, subMatch, regInclude)) {
       std::string path = subMatch[1].str();
       if (path.empty()) {
-        Log.report(logvisor::Error, fmt(_SYS_STR("Empty path provided to include in '{}'")), file);
+        Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Empty path provided to include in '{}'")), file);
         return false;
       }
 
@@ -319,7 +320,7 @@ inline bool StrToBlendFactor(std::string str, boo::BlendFactor& fac) {
   else if (str == "subtract")
     fac = boo::BlendFactor::Subtract;
   else {
-    Log.report(logvisor::Error, fmt("Unrecognized blend mode '{}'"), str);
+    Log.report(logvisor::Error, FMT_STRING("Unrecognized blend mode '{}'"), str);
     return false;
   }
   return true;
@@ -346,7 +347,7 @@ inline bool StrToPrimitive(std::string str, boo::Primitive& prim) {
   else if (str == "patches")
     prim = boo::Primitive::Patches;
   else {
-    Log.report(logvisor::Error, fmt("Unrecognized primitive '{}'"), str);
+    Log.report(logvisor::Error, FMT_STRING("Unrecognized primitive '{}'"), str);
     return false;
   }
   return true;
@@ -381,7 +382,7 @@ inline bool StrToZTest(std::string str, boo::ZTest& ztest) {
   else if (str == "equal")
     ztest = boo::ZTest::Equal;
   else {
-    Log.report(logvisor::Error, fmt("Unrecognized ztest '{}'"), str);
+    Log.report(logvisor::Error, FMT_STRING("Unrecognized ztest '{}'"), str);
     return false;
   }
   return true;
@@ -408,7 +409,7 @@ inline bool StrToCullMode(std::string str, boo::CullMode& cull) {
   else if (str == "frontface")
     cull = boo::CullMode::Frontface;
   else {
-    Log.report(logvisor::Error, fmt("Unrecognized cull mode '{}'"), str);
+    Log.report(logvisor::Error, FMT_STRING("Unrecognized cull mode '{}'"), str);
     return false;
   }
   return true;
@@ -425,7 +426,7 @@ inline bool StrToBool(std::string str, bool& b) {
   else if (str == "false")
     b = false;
   else {
-    Log.report(logvisor::Error, fmt("Unrecognized bool '{}'"), str);
+    Log.report(logvisor::Error, FMT_STRING("Unrecognized bool '{}'"), str);
     return false;
   }
   return true;
@@ -469,7 +470,7 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName,
       return true;
 
     if (shaderName.empty()) {
-      Log.report(logvisor::Error, fmt("`#shader <name>` must be issued before stages"));
+      Log.report(logvisor::Error, FMT_STRING("`#shader <name>` must be issued before stages"));
       return false;
     }
     std::string stage(stageBegin, stageEnd);
@@ -533,48 +534,48 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName,
       shaderBase.clear();
     }
 
-    fmt::print(out.second, fmt("static const boo::VertexElementDescriptor {}_vtxfmtelems[] = {{\n"), shaderName);
+    fmt::print(out.second, FMT_STRING("static const boo::VertexElementDescriptor {}_vtxfmtelems[] = {{\n"), shaderName);
     for (const auto& attr : shaderAttributes) {
       switch (attr.first & boo::VertexSemantic::SemanticMask) {
       case boo::VertexSemantic::Position3:
-        SemanticOut(out.second, attr, fmt("{{boo::VertexSemantic::Position3{}, {}}},\n"));
+        SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::Position3{}, {}}},\n"));
         break;
       case boo::VertexSemantic::Position4:
-        SemanticOut(out.second, attr, fmt("{{boo::VertexSemantic::Position4{}, {}}},\n"));
+        SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::Position4{}, {}}},\n"));
         break;
       case boo::VertexSemantic::Normal3:
-        SemanticOut(out.second, attr, fmt("{{boo::VertexSemantic::Normal3{}, {}}},\n"));
+        SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::Normal3{}, {}}},\n"));
         break;
       case boo::VertexSemantic::Normal4:
-        SemanticOut(out.second, attr, fmt("{{boo::VertexSemantic::Normal4{}, {}}},\n"));
+        SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::Normal4{}, {}}},\n"));
         break;
       case boo::VertexSemantic::Color:
-        SemanticOut(out.second, attr, fmt("{{boo::VertexSemantic::Color{}, {}}},\n"));
+        SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::Color{}, {}}},\n"));
         break;
       case boo::VertexSemantic::ColorUNorm:
-        SemanticOut(out.second, attr, fmt("{{boo::VertexSemantic::ColorUNorm{}, {}}},\n"));
+        SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::ColorUNorm{}, {}}},\n"));
         break;
       case boo::VertexSemantic::UV2:
-        SemanticOut(out.second, attr, fmt("{{boo::VertexSemantic::UV2{}, {}}},\n"));
+        SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::UV2{}, {}}},\n"));
         break;
       case boo::VertexSemantic::UV4:
-        SemanticOut(out.second, attr, fmt("{{boo::VertexSemantic::UV4{}, {}}},\n"));
+        SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::UV4{}, {}}},\n"));
         break;
       case boo::VertexSemantic::Weight:
-        SemanticOut(out.second, attr, fmt("{{boo::VertexSemantic::Weight{}, {}}},\n"));
+        SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::Weight{}, {}}},\n"));
         break;
       case boo::VertexSemantic::ModelView:
-        SemanticOut(out.second, attr, fmt("{{boo::VertexSemantic::ModelView{}, {}}},\n"));
+        SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::ModelView{}, {}}},\n"));
         break;
       default:
-        SemanticOut(out.second, attr, fmt("{{boo::VertexSemantic::None{}, {}}},\n"));
+        SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::None{}, {}}},\n"));
         break;
       }
     }
     out.second << "};\n";
-    fmt::print(out.second, fmt("const boo::VertexFormatInfo Shader_{}::VtxFmt = {{ {}_vtxfmtelems }};\n\n"),
+    fmt::print(out.second, FMT_STRING("const boo::VertexFormatInfo Shader_{}::VtxFmt = {{ {}_vtxfmtelems }};\n\n"),
                shaderName, shaderName);
-    fmt::print(out.second, fmt("const boo::AdditionalPipelineInfo Shader_{}::PipelineInfo = {{\n"), shaderName);
+    fmt::print(out.second, FMT_STRING("const boo::AdditionalPipelineInfo Shader_{}::PipelineInfo = {{\n"), shaderName);
     out.second << BlendFactorToStr(shaderInfo.srcFac);
     out.second << ", ";
     out.second << BlendFactorToStr(shaderInfo.dstFac);
@@ -591,7 +592,7 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName,
     out.second << ", ";
     out.second << CullModeToStr(shaderInfo.culling);
     out.second << ", ";
-    fmt::print(out.second, fmt("{}, "), shaderInfo.patchSize);
+    fmt::print(out.second, FMT_STRING("{}, "), shaderInfo.patchSize);
     out.second << BoolToStr(shaderInfo.overwriteAlpha);
     out.second << ", ";
     out.second << BoolToStr(shaderInfo.depthAttachment);
@@ -631,7 +632,7 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName,
     else if (semantic == "modelview")
       shaderAttributes.push_back(std::make_pair(boo::VertexSemantic::ModelView | orsem, idxNum));
     else {
-      Log.report(logvisor::Error, fmt("Unrecognized vertex semantic '{}'"), semantic);
+      Log.report(logvisor::Error, FMT_STRING("Unrecognized vertex semantic '{}'"), semantic);
       return false;
     }
     return true;
@@ -729,7 +730,7 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName,
       char* endptr;
       shaderInfo.patchSize = uint32_t(strtoul(str.c_str(), &endptr, 0));
       if (endptr == str.c_str()) {
-        Log.report(logvisor::Error, fmt("Non-unsigned-integer value for #patchsize directive"));
+        Log.report(logvisor::Error, FMT_STRING("Non-unsigned-integer value for #patchsize directive"));
         return false;
       }
     } else if (std::regex_search(begin, nextBegin, subMatch, regOverwriteAlpha)) {
@@ -767,7 +768,7 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName,
       if (shader.second.stageHashes[i]) {
         out.first << "template <> constexpr uint64_t Shader_";
         out.first << shader.first;
-        fmt::print(out.first, fmt("::StageHash<{}>() {{ return 0x{:016X}; }}\n"),
+        fmt::print(out.first, FMT_STRING("::StageHash<{}>() {{ return 0x{:016X}; }}\n"),
                    StageNames[i], shader.second.stageHashes[i]);
       }
     }
@@ -800,7 +801,7 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName,
 bool Compiler::compile(std::string_view baseName, std::pair<std::stringstream, std::stringstream>& out) {
   out.first << "#pragma once\n"
                "#include \"hecl/PipelineBase.hpp\"\n\n";
-  fmt::print(out.second, fmt("#include \"{}.hpp\"\n\n"), baseName);
+  fmt::print(out.second, FMT_STRING("#include \"{}.hpp\"\n\n"), baseName);
 
   for (const auto& file : m_inputFiles)
     if (!compileFile(file, baseName, out))

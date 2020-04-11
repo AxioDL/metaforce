@@ -195,11 +195,11 @@ inline void MakeDir(const char* dir) {
   HRESULT err;
   if (!CreateDirectoryA(dir, NULL))
     if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-      LogModule.report(logvisor::Fatal, fmt("MakeDir({})"), dir);
+      LogModule.report(logvisor::Fatal, FMT_STRING("MakeDir({})"), dir);
 #else
   if (mkdir(dir, 0755))
     if (errno != EEXIST)
-      LogModule.report(logvisor::Fatal, fmt("MakeDir({}): {}"), dir, strerror(errno));
+      LogModule.report(logvisor::Fatal, FMT_STRING("MakeDir({}): {}"), dir, strerror(errno));
 #endif
 }
 
@@ -208,7 +208,7 @@ inline void MakeDir(const wchar_t* dir) {
   HRESULT err;
   if (!CreateDirectoryW(dir, NULL))
     if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-      LogModule.report(logvisor::Fatal, fmt(_SYS_STR("MakeDir({})")), dir);
+      LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("MakeDir({})")), dir);
 }
 #endif
 
@@ -274,7 +274,7 @@ inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType 
                &ov);
 #else
     if (flock(fileno(fp), ((lock == FileLockType::Write) ? LOCK_EX : LOCK_SH) | LOCK_NB))
-      LogModule.report(logvisor::Error, fmt("flock {}: {}"), path, strerror(errno));
+      LogModule.report(logvisor::Error, FMT_STRING("flock {}: {}"), path, strerror(errno));
 #endif
   }
 
@@ -376,16 +376,16 @@ inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz) {
   wchar_t* end;
   DWORD ret = GetFullPathNameW(path, 1024, buf, &end);
   if (!ret || ret > 1024)
-    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("GetFullPathNameW {}")), path);
+    LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("GetFullPathNameW {}")), path);
   if (end)
     end[0] = L'\0';
   if (!GetDiskFreeSpaceExW(buf, &freeBytes, nullptr, nullptr))
-    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("GetDiskFreeSpaceExW {}: {}")), path, GetLastError());
+    LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("GetDiskFreeSpaceExW {}: {}")), path, GetLastError());
   return reqSz < freeBytes.QuadPart;
 #else
   struct statvfs svfs;
   if (statvfs(path, &svfs))
-    LogModule.report(logvisor::Fatal, fmt("statvfs {}: {}"), path, strerror(errno));
+    LogModule.report(logvisor::Fatal, FMT_STRING("statvfs {}: {}"), path, strerror(errno));
   return reqSz < svfs.f_frsize * svfs.f_bavail;
 #endif
 }
@@ -611,7 +611,7 @@ public:
         return SystemString(beginIt, absPathForward.cend());
       }
     }
-    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("unable to resolve '{}' as project relative '{}'")), absPath,
+    LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to resolve '{}' as project relative '{}'")), absPath,
                      m_projRoot);
     return SystemString();
   }
@@ -784,7 +784,7 @@ public:
    */
   ProjectPath getParentPath() const {
     if (m_relPath == _SYS_STR("."))
-      LogModule.report(logvisor::Fatal, fmt("attempted to resolve parent of root project path"));
+      LogModule.report(logvisor::Fatal, FMT_STRING("attempted to resolve parent of root project path"));
     size_t pos = m_relPath.rfind(_SYS_STR('/'));
     if (pos == SystemString::npos)
       return ProjectPath(*m_proj, _SYS_STR(""));
@@ -1083,7 +1083,7 @@ public:
    */
   Database::Project& getProject() const {
     if (!m_proj)
-      LogModule.report(logvisor::Fatal, fmt("ProjectPath::getProject() called on unqualified path"));
+      LogModule.report(logvisor::Fatal, FMT_STRING("ProjectPath::getProject() called on unqualified path"));
     return *m_proj;
   }
 

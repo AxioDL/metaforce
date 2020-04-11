@@ -46,20 +46,20 @@ bool XTERM_COLOR = false;
 /* Main usage message */
 static void printHelp(const hecl::SystemChar* pname) {
   if (XTERM_COLOR)
-    fmt::print(fmt(_SYS_STR("" BOLD "HECL" NORMAL "")));
+    fmt::print(FMT_STRING(_SYS_STR("" BOLD "HECL" NORMAL "")));
   else
-    fmt::print(fmt(_SYS_STR("HECL")));
+    fmt::print(FMT_STRING(_SYS_STR("HECL")));
 #if HECL_HAS_NOD
 #define TOOL_LIST "extract|init|cook|package|image|installaddon|help"
 #else
 #define TOOL_LIST "extract|init|cook|package|installaddon|help"
 #endif
 #if HECL_GIT
-  fmt::print(fmt(_SYS_STR(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: {} " TOOL_LIST "\n")), pname);
+  fmt::print(FMT_STRING(_SYS_STR(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: {} " TOOL_LIST "\n")), pname);
 #elif HECL_VER
-  fmt::print(fmt(_SYS_STR(" Version " HECL_VER_S "\nUsage: {} " TOOL_LIST "\n")), pname);
+  fmt::print(FMT_STRING(_SYS_STR(" Version " HECL_VER_S "\nUsage: {} " TOOL_LIST "\n")), pname);
 #else
-  fmt::print(fmt(_SYS_STR("\nUsage: {} " TOOL_LIST "\n")), pname);
+  fmt::print(FMT_STRING(_SYS_STR("\nUsage: {} " TOOL_LIST "\n")), pname);
 #endif
 }
 
@@ -262,7 +262,7 @@ static std::unique_ptr<ToolBase> MakeSelectedTool(hecl::SystemString toolName, T
 
   auto fp = hecl::FopenUnique(toolName.c_str(), _SYS_STR("rb"));
   if (fp == nullptr) {
-    LogModule.report(logvisor::Error, fmt(_SYS_STR("unrecognized tool '{}'")), toolNameLower);
+    LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("unrecognized tool '{}'")), toolNameLower);
     return nullptr;
   }
   fp.reset();
@@ -281,7 +281,7 @@ int main(int argc, const char** argv)
 #endif
 {
   if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage"))) {
-    fmt::print(fmt("{}\n"), HECL_DLPACKAGE);
+    fmt::print(FMT_STRING("{}\n"), HECL_DLPACKAGE);
     return 100;
   }
 
@@ -345,7 +345,7 @@ int main(int argc, const char** argv)
     return 1;
   }
   if (info.verbosityLevel) {
-    LogModule.report(logvisor::Info, fmt(_SYS_STR("Constructed tool '{}' {}\n")), tool->toolName(),
+    LogModule.report(logvisor::Info, FMT_STRING(_SYS_STR("Constructed tool '{}' {}\n")), tool->toolName(),
                      info.verbosityLevel);
   }
 

@@ -38,7 +38,7 @@ public:
             }
           }
           if (!m_spec)
-            LogModule.report(logvisor::Fatal, fmt(_SYS_STR("unable to find data spec '{}'")), specName);
+            LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to find data spec '{}'")), specName);
           continue;
         } else if (arg.size() >= 2 && arg[0] == _SYS_STR('-') && arg[1] == _SYS_STR('-'))
           continue;
@@ -51,7 +51,7 @@ public:
             m_useProj = m_fallbackProj.get();
           } else if (m_fallbackProj->getProjectRootPath() != root)
             LogModule.report(logvisor::Fatal,
-                             fmt(_SYS_STR("hecl cook can only process multiple items in the same project; ")
+                             FMT_STRING(_SYS_STR("hecl cook can only process multiple items in the same project; ")
                                  _SYS_STR("'{}' and '{}' are different projects")),
                              m_fallbackProj->getProjectRootPath().getAbsolutePath(),
                              root.getAbsolutePath());
@@ -61,7 +61,7 @@ public:
     }
     if (!m_useProj)
       LogModule.report(logvisor::Fatal,
-                       fmt("hecl cook must be ran within a project directory or "
+                       FMT_STRING("hecl cook must be ran within a project directory or "
                            "provided a path within a project"));
 
     /* Default case: recursive at root */

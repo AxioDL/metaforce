@@ -56,7 +56,7 @@ class ToolPackage final : public ToolBase {
 public:
   explicit ToolPackage(const ToolPassInfo& info) : ToolBase(info), m_useProj(info.project) {
     if (!info.project)
-      LogModule.report(logvisor::Fatal, fmt("hecl package must be ran within a project directory"));
+      LogModule.report(logvisor::Fatal, FMT_STRING("hecl package must be ran within a project directory"));
 
     /* Scan args */
     if (info.args.size()) {
@@ -77,7 +77,7 @@ public:
             }
           }
           if (!m_spec)
-            LogModule.report(logvisor::Fatal, fmt(_SYS_STR("unable to find data spec '{}'")), specName);
+            LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to find data spec '{}'")), specName);
           continue;
         } else if (arg.size() >= 2 && arg[0] == _SYS_STR('-') && arg[1] == _SYS_STR('-'))
           continue;
@@ -91,7 +91,7 @@ public:
             m_useProj = m_fallbackProj.get();
           } else if (m_fallbackProj->getProjectRootPath() != root)
             LogModule.report(logvisor::Fatal,
-                             fmt(_SYS_STR("hecl package can only process multiple items in the same project; ")
+                             FMT_STRING(_SYS_STR("hecl package can only process multiple items in the same project; ")
                                  _SYS_STR("'{}' and '{}' are different projects")),
                              m_fallbackProj->getProjectRootPath().getAbsolutePath(),
                              root.getAbsolutePath());
@@ -102,7 +102,7 @@ public:
     }
     if (!m_useProj)
       LogModule.report(logvisor::Fatal,
-                       fmt("hecl package must be ran within a project directory or "
+                       FMT_STRING("hecl package must be ran within a project directory or "
                            "provided a path within a project"));
 
     /* Default case: recursive at root */
@@ -155,12 +155,12 @@ public:
 
   int run() override {
     if (XTERM_COLOR)
-      fmt::print(fmt(_SYS_STR("" GREEN BOLD "ABOUT TO PACKAGE:" NORMAL "\n")));
+      fmt::print(FMT_STRING(_SYS_STR("" GREEN BOLD "ABOUT TO PACKAGE:" NORMAL "\n")));
     else
-      fmt::print(fmt(_SYS_STR("ABOUT TO PACKAGE:\n")));
+      fmt::print(FMT_STRING(_SYS_STR("ABOUT TO PACKAGE:\n")));
 
     for (auto& item : m_selectedItems)
-      fmt::print(fmt(_SYS_STR("  {}\n")), item.getRelativePath());
+      fmt::print(FMT_STRING(_SYS_STR("  {}\n")), item.getRelativePath());
     fflush(stdout);
 
     if (continuePrompt()) {
@@ -168,7 +168,7 @@ public:
       hecl::ClientProcess cp(&printer);
       for (const hecl::ProjectPath& path : m_selectedItems) {
         if (!m_useProj->packagePath(path, printer, m_fast, m_spec, &cp))
-          LogModule.report(logvisor::Error, fmt(_SYS_STR("Unable to package {}")), path.getAbsolutePath());
+          LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("Unable to package {}")), path.getAbsolutePath());
       }
       cp.waitUntilComplete();
     }

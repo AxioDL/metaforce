@@ -17,7 +17,7 @@ class ToolImage final : public ToolBase {
 public:
   explicit ToolImage(const ToolPassInfo& info) : ToolBase(info), m_useProj(info.project) {
     if (!info.project)
-      LogModule.report(logvisor::Fatal, fmt("hecl image must be ran within a project directory"));
+      LogModule.report(logvisor::Fatal, FMT_STRING("hecl image must be ran within a project directory"));
 
     /* Scan args */
     if (info.args.size()) {
@@ -40,7 +40,7 @@ public:
     }
     if (!m_useProj)
       LogModule.report(logvisor::Fatal,
-                       fmt("hecl image must be ran within a project directory or "
+                       FMT_STRING("hecl image must be ran within a project directory or "
                            "provided a path within a project"));
   }
 
@@ -75,29 +75,29 @@ public:
 
   int run() override {
     if (XTERM_COLOR)
-      fmt::print(fmt(_SYS_STR("" GREEN BOLD "ABOUT TO IMAGE:" NORMAL "\n")));
+      fmt::print(FMT_STRING(_SYS_STR("" GREEN BOLD "ABOUT TO IMAGE:" NORMAL "\n")));
     else
-      fmt::print(fmt(_SYS_STR("ABOUT TO IMAGE:\n")));
+      fmt::print(FMT_STRING(_SYS_STR("ABOUT TO IMAGE:\n")));
 
-    fmt::print(fmt(_SYS_STR("  {}\n")), m_useProj->getProjectRootPath().getAbsolutePath());
+    fmt::print(FMT_STRING(_SYS_STR("  {}\n")), m_useProj->getProjectRootPath().getAbsolutePath());
     fflush(stdout);
 
     if (continuePrompt()) {
       hecl::ProjectPath outPath(m_useProj->getProjectWorkingPath(), _SYS_STR("out"));
       if (!outPath.isDirectory()) {
-        LogModule.report(logvisor::Error, fmt(_SYS_STR("{} is not a directory")), outPath.getAbsolutePath());
+        LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("{} is not a directory")), outPath.getAbsolutePath());
         return 1;
       }
 
       hecl::ProjectPath bootBinPath(outPath, _SYS_STR("sys/boot.bin"));
       if (!bootBinPath.isFile()) {
-        LogModule.report(logvisor::Error, fmt(_SYS_STR("{} is not a file")), bootBinPath.getAbsolutePath());
+        LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("{} is not a file")), bootBinPath.getAbsolutePath());
         return 1;
       }
 
       athena::io::FileReader r(bootBinPath.getAbsolutePath());
       if (r.hasError()) {
-        LogModule.report(logvisor::Error, fmt(_SYS_STR("unable to open {}")), bootBinPath.getAbsolutePath());
+        LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to open {}")), bootBinPath.getAbsolutePath());
         return 1;
       }
       std::string id = r.readString(6);
@@ -113,7 +113,7 @@ public:
         fileOut += _SYS_STR(".gcm");
         if (nod::DiscBuilderGCN::CalculateTotalSizeRequired(outPath.getAbsolutePath()) == UINT64_MAX)
           return 1;
-        LogModule.report(logvisor::Info, fmt(_SYS_STR("Generating {} as GameCube image")), fileOut);
+        LogModule.report(logvisor::Info, FMT_STRING(_SYS_STR("Generating {} as GameCube image")), fileOut);
         nod::DiscBuilderGCN db(fileOut, progFunc);
         if (db.buildFromDirectory(outPath.getAbsolutePath()) != nod::EBuildResult::Success)
           return 1;
@@ -122,7 +122,7 @@ public:
         bool dualLayer;
         if (nod::DiscBuilderWii::CalculateTotalSizeRequired(outPath.getAbsolutePath(), dualLayer) == UINT64_MAX)
           return 1;
-        LogModule.report(logvisor::Info, fmt(_SYS_STR("Generating {} as {}-layer Wii image")), fileOut,
+        LogModule.report(logvisor::Info, FMT_STRING(_SYS_STR("Generating {} as {}-layer Wii image")), fileOut,
                          dualLayer ? _SYS_STR("dual") : _SYS_STR("single"));
         nod::DiscBuilderWii db(fileOut, dualLayer, progFunc);
         if (db.buildFromDirectory(outPath.getAbsolutePath()) != nod::EBuildResult::Success)

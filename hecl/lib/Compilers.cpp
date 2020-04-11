@@ -54,15 +54,15 @@ struct ShaderCompiler<PlatformType::Vulkan> {
     const char* strings[] = {"#version 330\n", BOO_GLSL_BINDING_HEAD, text.data()};
     shader.setStrings(strings, 3);
     if (!shader.parse(&glslang::DefaultTBuiltInResource, 110, false, messages)) {
-      fmt::print(fmt("{}\n"), text);
-      Log.report(logvisor::Fatal, fmt("unable to compile shader\n{}"), shader.getInfoLog());
+      fmt::print(FMT_STRING("{}\n"), text);
+      Log.report(logvisor::Fatal, FMT_STRING("unable to compile shader\n{}"), shader.getInfoLog());
       return {};
     }
 
     glslang::TProgram prog;
     prog.addShader(&shader);
     if (!prog.link(messages)) {
-      Log.report(logvisor::Fatal, fmt("unable to link shader program\n{}"), prog.getInfoLog());
+      Log.report(logvisor::Fatal, FMT_STRING("unable to link shader program\n{}"), prog.getInfoLog());
       return {};
     }
 
@@ -89,8 +89,8 @@ struct ShaderCompiler<PlatformType::D3D11> {
     ComPtr<ID3DBlob> blobOut;
     if (FAILED(D3DCompilePROC(text.data(), text.size(), "Boo HLSL Source", nullptr, nullptr, "main",
                               D3DShaderTypes[int(S::Enum)], BOO_D3DCOMPILE_FLAG, 0, &blobOut, &errBlob))) {
-      fmt::print(fmt("{}\n"), text);
-      Log.report(logvisor::Fatal, fmt("error compiling shader: {}"), (char*)errBlob->GetBufferPointer());
+      fmt::print(FMT_STRING("{}\n"), text);
+      Log.report(logvisor::Fatal, FMT_STRING("error compiling shader: {}"), (char*)errBlob->GetBufferPointer());
       return {};
     }
     std::pair<StageBinaryData, size_t> ret(MakeStageBinaryData(blobOut->GetBufferSize()), blobOut->GetBufferSize());
@@ -152,7 +152,7 @@ struct ShaderCompiler<PlatformType::Metal> {
 
       pid_t pid = getpid();
       const char* tmpdir = getenv("TMPDIR");
-      std::string libFile = fmt::format(fmt("{}boo_metal_shader{}.metallib"), tmpdir, pid);
+      std::string libFile = fmt::format(FMT_STRING("{}boo_metal_shader{}.metallib"), tmpdir, pid);
 
       /* Pipe source write to compiler */
       pid_t compilerPid = fork();
@@ -171,7 +171,7 @@ struct ShaderCompiler<PlatformType::Metal> {
                "-gline-tables-only", "-MO",
 #endif
                "-", nullptr);
-        fmt::print(stderr, fmt("execlp fail {}\n"), strerror(errno));
+        fmt::print(stderr, FMT_STRING("execlp fail {}\n"), strerror(errno));
         exit(1);
       }
       close(compilerIn[0]);
@@ -187,7 +187,7 @@ struct ShaderCompiler<PlatformType::Metal> {
 
         /* metallib doesn't like outputting to a pipe, so temp file will have to do */
         execlp("xcrun", "xcrun", "-sdk", "macosx", "metallib", "-", "-o", libFile.c_str(), nullptr);
-        fmt::print(stderr, fmt("execlp fail {}\n"), strerror(errno));
+        fmt::print(stderr, FMT_STRING("execlp fail {}\n"), strerror(errno));
         exit(1);
       }
       close(compilerOut[0]);
@@ -198,7 +198,7 @@ struct ShaderCompiler<PlatformType::Metal> {
       while (inRem) {
         ssize_t writeRes = write(compilerIn[1], inPtr, inRem);
         if (writeRes < 0) {
-          fmt::print(stderr, fmt("write fail {}\n"), strerror(errno));
+          fmt::print(stderr, FMT_STRING("write fail {}\n"), strerror(errno));
           break;
         }
         inPtr += writeRes;
@@ -211,24 +211,24 @@ struct ShaderCompiler<PlatformType::Metal> {
       while (waitpid(compilerPid, &compilerStat, 0) < 0) {
         if (errno == EINTR)
           continue;
-        Log.report(logvisor::Fatal, fmt("waitpid fail {}"), strerror(errno));
+        Log.report(logvisor::Fatal, FMT_STRING("waitpid fail {}"), strerror(errno));
         return {};
       }
 
       if (WEXITSTATUS(compilerStat)) {
-        Log.report(logvisor::Fatal, fmt("compile fail"));
+        Log.report(logvisor::Fatal, FMT_STRING("compile fail"));
         return {};
       }
 
       while (waitpid(linkerPid, &linkerStat, 0) < 0) {
         if (errno == EINTR)
           continue;
-        Log.report(logvisor::Fatal, fmt("waitpid fail {}"), strerror(errno));
+        Log.report(logvisor::Fatal, FMT_STRING("waitpid fail {}"), strerror(errno));
         return {};
       }
 
       if (WEXITSTATUS(linkerStat)) {
-        Log.report(logvisor::Fatal, fmt("link fail"));
+        Log.report(logvisor::Fatal, FMT_STRING("link fail"));
         return {};
       }
 

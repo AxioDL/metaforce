@@ -55,9 +55,9 @@ protected:
   bool continuePrompt() {
     if (!m_info.yes) {
       if (XTERM_COLOR)
-        fmt::print(fmt(_SYS_STR("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) ")));
+        fmt::print(FMT_STRING(_SYS_STR("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) ")));
       else
-        fmt::print(fmt(_SYS_STR("\nContinue? (Y/n) ")));
+        fmt::print(FMT_STRING(_SYS_STR("\nContinue? (Y/n) ")));
       fflush(stdout);
 
       int ch;
@@ -73,7 +73,7 @@ protected:
 #endif
       {
         if (ch == 'n' || ch == 'N') {
-          fmt::print(fmt(_SYS_STR("\n")));
+          fmt::print(FMT_STRING(_SYS_STR("\n")));
           return false;
         }
         if (ch == 'y' || ch == 'Y' || ch == '\r' || ch == '\n')
@@ -83,7 +83,7 @@ protected:
       tcsetattr(0, TCSANOW, &tioOld);
 #endif
     }
-    fmt::print(fmt(_SYS_STR("\n")));
+    fmt::print(FMT_STRING(_SYS_STR("\n")));
     return true;
   }
 
@@ -175,27 +175,27 @@ public:
 #endif
   }
 
-  void print(const hecl::SystemChar* str) { fmt::print(m_sout, fmt(_SYS_STR("{}")), str); }
+  void print(const hecl::SystemChar* str) { fmt::print(m_sout, FMT_STRING(_SYS_STR("{}")), str); }
 
   void printBold(const hecl::SystemChar* str) {
     if (XTERM_COLOR)
-      fmt::print(m_sout, fmt(_SYS_STR("" BOLD "{}" NORMAL "")), str);
+      fmt::print(m_sout, FMT_STRING(_SYS_STR("" BOLD "{}" NORMAL "")), str);
     else
-      fmt::print(m_sout, fmt(_SYS_STR("{}")), str);
+      fmt::print(m_sout, FMT_STRING(_SYS_STR("{}")), str);
   }
 
   void secHead(const hecl::SystemChar* headName) {
     if (XTERM_COLOR)
-      fmt::print(m_sout, fmt(_SYS_STR("" BOLD "{}" NORMAL "\n")), headName);
+      fmt::print(m_sout, FMT_STRING(_SYS_STR("" BOLD "{}" NORMAL "\n")), headName);
     else
-      fmt::print(m_sout, fmt(_SYS_STR("{}\n")), headName);
+      fmt::print(m_sout, FMT_STRING(_SYS_STR("{}\n")), headName);
   }
 
   void optionHead(const hecl::SystemChar* flag, const hecl::SystemChar* synopsis) {
     if (XTERM_COLOR)
-      fmt::print(m_sout, fmt(_SYS_STR("" BOLD "{}" NORMAL " ({})\n")), flag, synopsis);
+      fmt::print(m_sout, FMT_STRING(_SYS_STR("" BOLD "{}" NORMAL " ({})\n")), flag, synopsis);
     else
-      fmt::print(m_sout, fmt(_SYS_STR("{} ({})\n")), flag, synopsis);
+      fmt::print(m_sout, FMT_STRING(_SYS_STR("{} ({})\n")), flag, synopsis);
   }
 
   void beginWrap() { m_wrapBuffer.clear(); }
@@ -213,7 +213,7 @@ public:
   void endWrap() {
     _wrapBuf(m_wrapBuffer);
     m_wrapBuffer += _SYS_STR('\n');
-    fmt::print(m_sout, fmt(_SYS_STR("{}")), m_wrapBuffer);
+    fmt::print(m_sout, FMT_STRING(_SYS_STR("{}")), m_wrapBuffer);
     m_wrapBuffer.clear();
   }
 };

@@ -48,7 +48,7 @@ std::string HumanizeNumber(int64_t quotient, size_t len, const char* suffix, int
   if (suffix == nullptr)
     suffix = "";
   if ((flags & HNFlags::Divisor1000) != HNFlags::None && (flags & HNFlags::IECPrefixes) != HNFlags::None)
-    Log.report(logvisor::Fatal, fmt("invalid flags combo"));
+    Log.report(logvisor::Fatal, FMT_STRING("invalid flags combo"));
 
   /* setup parameters */
   remainder = 0;
@@ -109,7 +109,7 @@ std::string HumanizeNumber(int64_t quotient, size_t len, const char* suffix, int
 
   /* Check if enough room for `x y' + suffix */
   if (len < baselen)
-    Log.report(logvisor::Fatal, fmt("buffer size {} insufficient for minimum size {}"), len, baselen);
+    Log.report(logvisor::Fatal, FMT_STRING("buffer size {} insufficient for minimum size {}"), len, baselen);
   len += 1;
 
   if ((scale & int(HNScale::AutoScale)) != 0) {
@@ -142,9 +142,9 @@ std::string HumanizeNumber(int64_t quotient, size_t len, const char* suffix, int
       (flags & HNFlags::Decimal) != HNFlags::None) {
     s1 = (int)quotient + ((remainder * 10 + divisor / 2) / divisor / 10);
     s2 = ((remainder * 10 + divisor / 2) / divisor) % 10;
-    return fmt::format(fmt("{}{}{}{}{}{}"), sign * s1, localeconv()->decimal_point, s2, sep, SCALE2PREFIX(i), suffix);
+    return fmt::format(FMT_STRING("{}{}{}{}{}{}"), sign * s1, localeconv()->decimal_point, s2, sep, SCALE2PREFIX(i), suffix);
   } else
-    return fmt::format(fmt("{}{}{}{}"), sign * (quotient + (remainder + divisor / 2) / divisor), sep,
+    return fmt::format(FMT_STRING("{}{}{}{}"), sign * (quotient + (remainder + divisor / 2) / divisor), sep,
                        SCALE2PREFIX(i), suffix);
 }
 

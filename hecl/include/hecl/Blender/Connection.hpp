@@ -805,7 +805,7 @@ class Connection {
     char readBuf[16];
     _readStr(readBuf, 16);
     if (status != readBuf)
-      BlenderLog.report(logvisor::Fatal, fmt("{}: {}: {}"), m_loadedBlend.getRelativePathUTF8(), action, readBuf);
+      BlenderLog.report(logvisor::Fatal, FMT_STRING("{}: {}: {}"), m_loadedBlend.getRelativePathUTF8(), action, readBuf);
   }
   void _checkReady(std::string_view action) { _checkStatus(action, "READY"sv); }
   void _checkDone(std::string_view action) { _checkStatus(action, "DONE"sv); }
@@ -835,14 +835,14 @@ public:
   PyOutStream beginPythonOut(bool deleteOnError = false) {
     bool expect = false;
     if (!m_lock.compare_exchange_strong(expect, true))
-      BlenderLog.report(logvisor::Fatal, fmt("lock already held for blender::Connection::beginPythonOut()"));
+      BlenderLog.report(logvisor::Fatal, FMT_STRING("lock already held for blender::Connection::beginPythonOut()"));
     return PyOutStream(this, deleteOnError);
   }
 
   DataStream beginData() {
     bool expect = false;
     if (!m_lock.compare_exchange_strong(expect, true))
-      BlenderLog.report(logvisor::Fatal, fmt("lock already held for blender::Connection::beginDataIn()"));
+      BlenderLog.report(logvisor::Fatal, FMT_STRING("lock already held for blender::Connection::beginDataIn()"));
     return DataStream(this);
   }
 
@@ -860,7 +860,7 @@ public:
 template <typename S, typename... Args, typename Char>
 void PyOutStream::format(const S& format, Args&&... args) {
   if (!m_parent || !m_parent->m_lock)
-    BlenderLog.report(logvisor::Fatal, fmt("lock not held for PyOutStream::format()"));
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("lock not held for PyOutStream::format()"));
   fmt::print(*this, format, std::forward<Args>(args)...);
 }
 
