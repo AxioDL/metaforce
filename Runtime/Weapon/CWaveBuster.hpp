@@ -26,7 +26,7 @@ class CWaveBuster : public CGameProjectile {
   std::unique_ptr<CParticleSwoosh> x388_busterSwoosh2Gen;
   std::unique_ptr<CElementGen> x38c_busterSparksGen;
   std::unique_ptr<CElementGen> x390_busterLightGen;
-  CRandom16 x394_rand = {99};
+  CRandom16 x394_rand{99};
   float x39c_ = 0.5f;
   float x3a0_ = 0.5f;
   float x3a4_ = 0.f;

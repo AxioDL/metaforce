@@ -10,7 +10,7 @@
 namespace urde {
 
 class CNewFlameThrower : public CGameProjectile {
-  CRandom16 x2e8_rand = {99};
+  CRandom16 x2e8_rand{99};
   float x2ec_ = 0.f;
   float x2f0_ = 0.f;
   bool x300_ = false;

@@ -44,7 +44,7 @@ class CRainSplashGenerator {
     void SetPoint(const zeus::CVector3f& pos);
   };
   std::vector<SRainSplash> x0_rainSplashes;
-  CRandom16 x10_random = {99};
+  CRandom16 x10_random{99};
   zeus::CVector3f x14_scale;
   float x20_generateTimer = 0.0f;
   float x24_generateInterval = 0.0f;
