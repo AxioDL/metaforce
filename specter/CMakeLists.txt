@@ -66,20 +66,27 @@ add_library(specter
 if (MSVC)
   target_compile_options(specter PRIVATE
     # Enforce various standards compliant behavior.
-    /permissive-
+    $<$<COMPILE_LANGUAGE:CXX>:/permissive->
 
     # Enable standard volatile semantics.
-    /volatile:iso
+    $<$<COMPILE_LANGUAGE:CXX>:/volatile:iso>
 
     # Reports the proper value for the __cplusplus preprocessor macro.
-    /Zc:__cplusplus
+    $<$<COMPILE_LANGUAGE:CXX>:/Zc:__cplusplus>
 
-    # Allow constexpr variables to have explicit external linkage.
-    /Zc:externConstexpr
-
-    # Assume that new throws exceptions, allowing better code generation.
-    /Zc:throwingNew
+    # Use latest C++ standard.
+    $<$<COMPILE_LANGUAGE:CXX>:/std:c++latest>
   )
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    # Flags for MSVC (not clang-cl)
+    target_compile_options(specter PRIVATE
+      # Allow constexpr variables to have explicit external linkage.
+      $<$<COMPILE_LANGUAGE:CXX>:/Zc:externConstexpr>
+
+      # Assume that new throws exceptions, allowing better code generation.
+      $<$<COMPILE_LANGUAGE:CXX>:/Zc:throwingNew>
+    )
+  endif()
 endif()
 
 target_link_libraries(specter PUBLIC
