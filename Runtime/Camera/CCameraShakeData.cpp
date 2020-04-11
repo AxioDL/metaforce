@@ -100,24 +100,24 @@ float CCameraShakeData::GetMaxFMComponent() const {
 }
 
 CCameraShakeData CCameraShakeData::LoadCameraShakeData(CInputStream& in) {
-  float xMag = in.readFloatBig();
+  const float xMag = in.readFloatBig();
   in.readFloatBig();
-  float yMag = in.readFloatBig();
+  const float yMag = in.readFloatBig();
   in.readFloatBig();
-  float zMag = in.readFloatBig();
+  const float zMag = in.readFloatBig();
   in.readFloatBig();
-  float duration = in.readFloatBig();
+  const float duration = in.readFloatBig();
 
-  SCameraShakePoint xAM(0, 0.f, 0.f, duration, 2.f * xMag);
-  SCameraShakePoint yAM(0, 0.f, 0.f, duration, 2.f * yMag);
-  SCameraShakePoint zAM(0, 0.f, 0.f, duration, 2.f * zMag);
-  SCameraShakePoint xFM(0, 0.f, 0.f, 0.5f * duration, 3.f);
-  SCameraShakePoint yFM(0, 0.f, 0.f, 0.5f * duration, 0.f);
-  SCameraShakePoint zFM(0, 0.f, 0.f, 0.5f * duration, 3.f);
+  const SCameraShakePoint xAM(false, 0.f, 0.f, duration, 2.f * xMag);
+  const SCameraShakePoint yAM(false, 0.f, 0.f, duration, 2.f * yMag);
+  const SCameraShakePoint zAM(false, 0.f, 0.f, duration, 2.f * zMag);
+  const SCameraShakePoint xFM(false, 0.f, 0.f, 0.5f * duration, 3.f);
+  const SCameraShakePoint yFM(false, 0.f, 0.f, 0.5f * duration, 0.f);
+  const SCameraShakePoint zFM(false, 0.f, 0.f, 0.5f * duration, 3.f);
 
-  CCameraShakerComponent shakerX(1, xAM, xFM);
-  CCameraShakerComponent shakerY;
-  CCameraShakerComponent shakerZ(1, zAM, zFM);
+  const CCameraShakerComponent shakerX(true, xAM, xFM);
+  const CCameraShakerComponent shakerY;
+  const CCameraShakerComponent shakerZ(true, zAM, zFM);
 
   return {duration, 100.f, 0, zeus::skZero3f, shakerX, shakerY, shakerZ};
 }
