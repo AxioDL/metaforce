@@ -20,13 +20,17 @@ CEnergyProjectile::CEnergyProjectile(bool active, const TToken<CWeaponDescriptio
                                      const zeus::CTransform& xf, EMaterialTypes excludeMat, const CDamageInfo& damage,
                                      TUniqueId uid, TAreaId aid, TUniqueId owner, TUniqueId homingTarget,
                                      EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
-                                     const std::optional<TLockedToken<CGenDescription>>& visorParticle,
-                                     u16 visorSfx, bool sendCollideMsg)
+                                     const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
+                                     bool sendCollideMsg)
 : CGameProjectile(active, desc, "GameProjectile", type, xf, excludeMat, damage, uid, aid, owner, homingTarget, attribs,
                   underwater, scale, visorParticle, visorSfx, sendCollideMsg)
-, x2ec_dir(xf.basis[1])
+, x2ec_dir(xf.frontVector())
 , x2f8_mag(x2ec_dir.magnitude())
-, x2fc_camShake(CCameraShakeData::BuildProjectileCameraShake(0.5f, 0.75f)) {
+, x2fc_camShake(CCameraShakeData::BuildProjectileCameraShake(0.5f, 0.75f))
+, x3d0_24_dead(false)
+, x3d0_25_(false)
+, x3d0_26_(false)
+, x3d0_27_camShakeDirty(false) {
   xe6_27_thermalVisorFlags = 2;
 }
 
