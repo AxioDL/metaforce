@@ -14,6 +14,8 @@ CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, std::string_view name, const
 , xe8_26_landHere((flags & 0x20) != 0u)
 , xe8_27_wallHang((flags & 0x10) != 0u)
 , xe8_28_stay((flags & 0x8) != 0u)
+, xe8_29_((flags & 0x4) != 0u)
+, xe8_30_attackDirection((flags & 0x2) != 0u)
 , xf4_coverTime(coverTime)
 , xf8_24_crouch(crouch)
 , xf8_25_inUse(false) {

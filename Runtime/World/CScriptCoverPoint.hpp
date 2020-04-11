@@ -4,6 +4,7 @@
 #include <string_view>
 
 #include "Runtime/GCNTypes.hpp"
+#include "Runtime/Character/CharacterCommon.hpp"
 #include "Runtime/World/CActor.hpp"
 
 #include <zeus/CAABox.hpp>
@@ -13,6 +14,8 @@ class CScriptCoverPoint : public CActor {
   bool xe8_26_landHere : 1;
   bool xe8_27_wallHang : 1;
   bool xe8_28_stay : 1;
+  bool xe8_29_ : 1;
+  bool xe8_30_attackDirection : 1;
   float xec_cosHorizontalAngle;
   float xf0_sinVerticalAngle;
   float xf4_coverTime;
@@ -42,7 +45,9 @@ public:
   bool Blown(const zeus::CVector3f& pos) const;
   float GetSinSqVerticalAngle() const;
   float GetCosHorizontalAngle() const { return xec_cosHorizontalAngle; }
-  u32 GetAttackDirection() const { return xe8_flags; }
+  pas::ECoverDirection GetAttackDirection() const {
+    return xe8_30_attackDirection ? pas::ECoverDirection::Left : pas::ECoverDirection::Right;
+  }
   void Reserve(TUniqueId id) { xfa_occupant = id; }
 };
 } // namespace urde

@@ -104,7 +104,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     else
       RemoveMaterial(EMaterialTypes::Scannable, mgr);
 
-    if (HasModelData() && x64_modelData->GetAnimationData()) {
+    if (HasModelData() && x64_modelData->HasAnimData()) {
       TAreaId aid = GetAreaId();
       x64_modelData->GetAnimationData()->InitializeEffects(mgr, aid, x64_modelData->GetScale());
     }

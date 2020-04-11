@@ -2082,7 +2082,7 @@ void CSpacePirate::Cover(CStateManager& mgr, EStateMsg msg, float dt) {
   case EStateMsg::Activate:
     if (x450_bodyController->GetCurrentStateId() != pas::EAnimationState::Cover) {
       if (CScriptCoverPoint* cp = GetCoverPoint(mgr, x640_coverPoint)) {
-        x79c_coverDir = (cp->GetAttackDirection() & 0x2) ? pas::ECoverDirection::Left : pas::ECoverDirection::Right;
+        x79c_coverDir = cp->GetAttackDirection();
         x32c_animState = EAnimState::Ready;
         x2e0_destPos = cp->GetTranslation();
         TryCommand(mgr, pas::EAnimationState::Cover, &CPatterned::TryCover, int(x79c_coverDir));
