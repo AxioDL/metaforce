@@ -37,12 +37,12 @@ struct CModelFlags {
   zeus::CColor addColor = zeus::skClear;
   zeus::CAABox mbShadowBox;
 
-  CModelFlags() = default;
-  CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
+  constexpr CModelFlags() = default;
+  constexpr CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
   : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col) {
     /* Blend mode will override this if the surface's original material is opaque */
-    m_noZWrite = !(x2_flags & 0x2);
-    m_depthGreater = (x2_flags & 0x8);
+    m_noZWrite = (x2_flags & 0x2) == 0;
+    m_depthGreater = (x2_flags & 0x8) != 0;
   }
 
   /* Flags
