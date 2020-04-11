@@ -46,7 +46,7 @@ public:
   float GetSinSqVerticalAngle() const;
   float GetCosHorizontalAngle() const { return xec_cosHorizontalAngle; }
   pas::ECoverDirection GetAttackDirection() const {
-    return xe8_30_attackDirection ? pas::ECoverDirection::Left : pas::ECoverDirection::Right;
+    return xe8_30_attackDirection ? pas::ECoverDirection::Right : pas::ECoverDirection::Left;
   }
   void Reserve(TUniqueId id) { xfa_occupant = id; }
 };
