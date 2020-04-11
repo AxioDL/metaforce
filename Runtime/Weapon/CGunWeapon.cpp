@@ -271,17 +271,17 @@ void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CT
 
   if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && x200_beamId != CPlayerState::EBeamId::Ice) {
     /* Hot Draw */
-    zeus::CColor mulColor(flags.x4_color.a(), flags.x4_color.a());
-    zeus::CColor addColor(0.25f, 0.25f);
+    const zeus::CColor mulColor(flags.x4_color.a(), flags.x4_color.a());
+    constexpr zeus::CColor addColor(0.25f, 0.25f);
     if (x218_29_drawHologram) {
       DrawHologram(mgr, xf, flags);
     } else {
-      CModelFlags useFlags(0, 0, 3, zeus::skWhite);
+      constexpr CModelFlags useFlags(0, 0, 3, zeus::skWhite);
       x10_solidModelData->RenderThermal(xf, mulColor, addColor, useFlags);
     }
 
     if (drawSuitArm && xb0_suitArmModelData) {
-      CModelFlags useFlags(0, 0, 3, zeus::skWhite);
+      constexpr CModelFlags useFlags(0, 0, 3, zeus::skWhite);
       xb0_suitArmModelData->RenderThermal(xf, mulColor, addColor, useFlags);
     }
   } else {

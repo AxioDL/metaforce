@@ -520,7 +520,7 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask,
   model.GetModelInst()->SetAmbientColor(zeus::skWhite);
   CGraphics::SetModelMatrix(zeus::lookAt(boid.x0_pos, boid.x0_pos + boid.xc_vel));
   if (thermalHot) {
-    CModelFlags thermFlags(0, 0, 3, zeus::skWhite);
+    constexpr CModelFlags thermFlags(0, 0, 3, zeus::skWhite);
     mData.RenderThermal(zeus::skWhite, zeus::CColor(0.f, 0.25f), thermFlags);
   } else {
     mData.GetAnimationData()->Render(model, flags, std::nullopt, nullptr);

@@ -109,15 +109,15 @@ constexpr std::array chargeShakeTbl{
 constexpr CMaterialFilter sAimFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
 
-const std::array<CModelFlags, 4> kThermalFlags{{
+constexpr std::array<CModelFlags, 4> kThermalFlags{{
     {0, 0, 3, zeus::skWhite},
     {5, 0, 3, zeus::CColor(0.f, 0.5f)},
     {0, 0, 3, zeus::skWhite},
     {0, 0, 3, zeus::skWhite},
 }};
 
-const CModelFlags kHandThermalFlag = {7, 0, 3, zeus::skWhite};
-const CModelFlags kHandHoloFlag = {1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f, 1.f)};
+constexpr CModelFlags kHandThermalFlag{7, 0, 3, zeus::skWhite};
+constexpr CModelFlags kHandHoloFlag{1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f, 1.f)};
 } // Anonymous namespace
 
 float CPlayerGun::CMotionState::gGunExtendDistance = 0.125f;
