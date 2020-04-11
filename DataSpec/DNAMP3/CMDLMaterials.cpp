@@ -46,6 +46,10 @@ void MaterialSet::RegisterMaterialProps(Stream& out) {
 
 static void LoadTexture(Stream& out, const UniqueID64& tex,
                         const PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry) {
+  if (!tex.isValid()) {
+    out << "image = None\n";
+    return;
+  }
   std::string texName = pakRouter.getBestEntryName(tex);
   const nod::Node* node;
   const typename PAKRouter<PAKBridge>::EntryType* texEntry = pakRouter.lookupEntry(tex, &node);

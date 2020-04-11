@@ -601,7 +601,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
   DLReader::DLPrimVert maxIdxs;
   std::vector<atInt16> skinIndices;
   DLReader::ExtraVertTracker extraTracker;
-  for (size_t s = 0; s < lastDlSec; ++s) {
+  for (atUint32 s = 0; s < lastDlSec; ++s) {
     atUint64 secStart = reader.position();
     if (s < matSecCount) {
       if (!s) {
@@ -683,7 +683,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
   unsigned createdUVLayers = 0;
   unsigned surfIdx = 0;
 
-  for (size_t s = 0; s < lastDlSec; ++s) {
+  for (atUint32 s = 0; s < lastDlSec; ++s) {
     atUint64 secStart = reader.position();
     if (s < matSecCount) {
       MaterialSet matSet;
@@ -698,7 +698,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
         atUint32 vertCount = maxIdxs.pos + 1;
         std::vector<atVec3f> positions;
         positions.reserve(vertCount);
-        for (size_t i = 0; i <= maxIdxs.pos; ++i) {
+        for (atUint16 i = 0; i <= maxIdxs.pos; ++i) {
           positions.push_back(reader.readVec3fBig());
           const atVec3f& pos = positions.back();
           os.format(fmt("vert = bm.verts.new(({},{},{}))\n"), pos.simd[0], pos.simd[1], pos.simd[2]);
@@ -712,7 +712,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
         if (rp.first.second && SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
           vertCount += extraTracker.sendAdditionalVertsToBlender(os, rp, 0);
         os.format(fmt("two_face_vert = {}\n"), vertCount);
-        for (size_t i = 0; i <= maxIdxs.pos; ++i) {
+        for (atUint16 i = 0; i <= maxIdxs.pos; ++i) {
           const atVec3f& pos = positions[i];
           os.format(fmt("vert = bm.verts.new(({},{},{}))\n"), pos.simd[0], pos.simd[1], pos.simd[2]);
           if (rp.first.second) {
@@ -730,16 +730,16 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
         /* Normals */
         os << "norm_list = []\n";
         if (shortNormals) {
-          size_t normCount = secSizes[s] / 6;
-          for (size_t i = 0; i < normCount; ++i) {
+          atUint32 normCount = secSizes[s] / 6;
+          for (atUint32 i = 0; i < normCount; ++i) {
             float x = reader.readInt16Big() / 16384.0f;
             float y = reader.readInt16Big() / 16384.0f;
             float z = reader.readInt16Big() / 16384.0f;
             os.format(fmt("norm_list.append(({},{},{}))\n"), x, y, z);
           }
         } else {
-          size_t normCount = secSizes[s] / 12;
-          for (size_t i = 0; i < normCount; ++i) {
+          atUint32 normCount = secSizes[s] / 12;
+          for (atUint32 i = 0; i < normCount; ++i) {
             const atVec3f norm = reader.readVec3fBig();
             os.format(fmt("norm_list.append(({},{},{}))\n"), norm.simd[0], norm.simd[1], norm.simd[2]);
           }
@@ -753,8 +753,8 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
       case 3: {
         /* Float UVs */
         os << "uv_list = []\n";
-        size_t uvCount = secSizes[s] / 8;
-        for (size_t i = 0; i < uvCount; ++i) {
+        atUint32 uvCount = secSizes[s] / 8;
+        for (atUint32 i = 0; i < uvCount; ++i) {
           const atVec2f uv = reader.readVec2fBig();
           os.format(fmt("uv_list.append(({},{}))\n"), uv.simd[0], uv.simd[1]);
         }
@@ -768,8 +768,8 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
           /* Short UVs */
           os << "suv_list = []\n";
           if (shortUVs) {
-            size_t uvCount = secSizes[s] / 4;
-            for (size_t i = 0; i < uvCount; ++i) {
+            atUint32 uvCount = secSizes[s] / 4;
+            for (atUint32 i = 0; i < uvCount; ++i) {
               float x = reader.readInt16Big() / 32768.0f;
               float y = reader.readInt16Big() / 32768.0f;
               os.format(fmt("suv_list.append(({},{}))\n"), x, y);
@@ -1085,7 +1085,7 @@ void NameCMDL(athena::io::IStreamReader& reader, PAKRouter& pakRouter, typename 
   if (head.matSetCount)
     matSecCount = MaterialSet::OneSection() ? 1 : head.matSetCount;
   atUint32 lastDlSec = head.secCount;
-  for (size_t s = 0; s < lastDlSec; ++s) {
+  for (atUint32 s = 0; s < lastDlSec; ++s) {
     atUint64 secStart = reader.position();
     if (s < matSecCount) {
       MaterialSet matSet;
