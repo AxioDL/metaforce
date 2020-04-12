@@ -158,17 +158,16 @@ bool CIEPulse::GetValue(int frame, int& valOut) const {
   int a, b;
   x4_aDuration->GetValue(frame, a);
   x8_bDuration->GetValue(frame, b);
-  int cv = std::max(1, a + b + 1);
+  int cv = a + b + 1;
+  if (cv < 0) {
+    cv = 1;
+  }
 
-  if (b >= 1) {
-    int cv2 = frame % cv;
-    if (cv2 >= a)
-      x10_bVal->GetValue(frame, valOut);
-    else
-      xc_aVal->GetValue(frame, valOut);
-  } else
+  if (b < 1 || frame % cv <= a) {
     xc_aVal->GetValue(frame, valOut);
-
+  } else {
+    x10_bVal->GetValue(frame, valOut);
+  }
   return false;
 }
 
