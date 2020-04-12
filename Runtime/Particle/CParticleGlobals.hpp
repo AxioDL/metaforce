@@ -60,22 +60,22 @@ public:
 };
 
 struct SParticleInstanceTex {
-  zeus::CVector4f pos[4];
+  std::array<zeus::CVector4f, 4> pos;
   zeus::CColor color;
-  zeus::CVector2f uvs[4];
+  std::array<zeus::CVector2f, 4> uvs;
 };
 extern std::vector<SParticleInstanceTex> g_instTexData;
 
 struct SParticleInstanceIndTex {
-  zeus::CVector4f pos[4];
+  std::array<zeus::CVector4f, 4> pos;
   zeus::CColor color;
-  zeus::CVector4f texrTindUVs[4];
+  std::array<zeus::CVector4f, 4> texrTindUVs;
   zeus::CVector4f sceneUVs;
 };
 extern std::vector<SParticleInstanceIndTex> g_instIndTexData;
 
 struct SParticleInstanceNoTex {
-  zeus::CVector4f pos[4];
+  std::array<zeus::CVector4f, 4> pos;
   zeus::CColor color;
 };
 extern std::vector<SParticleInstanceNoTex> g_instNoTexData;
