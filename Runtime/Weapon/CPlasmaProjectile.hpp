@@ -18,10 +18,10 @@
 namespace urde {
 class CPlasmaProjectile : public CBeamProjectile {
 public:
-  struct PlayerEffectResoures : rstl::reserved_vector<u64, 8> {
-    PlayerEffectResoures(u64 a = UINT64_MAX, u64 b = UINT64_MAX, u64 c = UINT64_MAX, u64 d = UINT64_MAX,
-                         u64 e = UINT64_MAX, u64 f = UINT64_MAX, u64 g = UINT64_MAX, u64 h = UINT64_MAX)
-    : rstl::reserved_vector<u64, 8>({a, b, c, d, e, f, g, h}) {}
+  struct PlayerEffectResoures : rstl::reserved_vector<CAssetId, 8> {
+    PlayerEffectResoures(CAssetId a = {}, CAssetId b = {}, CAssetId c = {}, CAssetId d = {},
+                         CAssetId e = {}, CAssetId f = {}, CAssetId g = {}, CAssetId h = {})
+    : rstl::reserved_vector<CAssetId, 8>({a, b, c, d, e, f, g, h}) {}
   };
 private:
   std::vector<TUniqueId> x468_lights;
