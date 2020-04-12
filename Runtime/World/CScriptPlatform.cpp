@@ -15,14 +15,8 @@
 
 namespace urde {
 
-static CMaterialList MakePlatformMaterialList() {
-  CMaterialList ret;
-  ret.Add(EMaterialTypes::Solid);
-  ret.Add(EMaterialTypes::Immovable);
-  ret.Add(EMaterialTypes::Platform);
-  ret.Add(EMaterialTypes::Occluder);
-  return ret;
-}
+constexpr auto skPlatformMaterialList =
+    CMaterialList{EMaterialTypes::Solid, EMaterialTypes::Immovable, EMaterialTypes::Platform, EMaterialTypes::Occluder};
 
 CScriptPlatform::CScriptPlatform(
     TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
@@ -30,7 +24,7 @@ CScriptPlatform::CScriptPlatform(
     bool active, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
     const std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln, bool rainSplashes,
     u32 maxRainSplashes, u32 rainGenRate)
-: CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakePlatformMaterialList(), aabb, SMoverData(15000.f),
+: CPhysicsActor(uid, active, name, info, xf, std::move(mData), skPlatformMaterialList, aabb, SMoverData(15000.f),
                 actParms, 0.3f, 0.1f)
 , x25c_currentSpeed(speed)
 , x28c_initialHealth(hInfo)
