@@ -35,10 +35,11 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override {
-    if (GetActive())
+    if (GetActive()) {
       return x128_;
+    }
 
-    return {};
+    return std::nullopt;
   }
 
   void Touch(CActor&, CStateManager&) override;
