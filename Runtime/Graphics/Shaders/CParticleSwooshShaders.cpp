@@ -96,7 +96,7 @@ void CParticleSwooshShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::C
   };
 
   const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> uniforms{gen.m_uniformBuf.get()};
-  for (size_t i = 0; i < std::size(gen.m_dataBind); ++i) {
+  for (size_t i = 0; i < gen.m_dataBind.size(); ++i) {
     gen.m_dataBind[i] =
         ctx.newShaderDataBinding((*pipeline)[i], gen.m_vertBuf.get(), nullptr, nullptr, uniforms.size(),
                                  uniforms.data(), nullptr, texr ? 1 : 0, textures.data(), nullptr, nullptr);

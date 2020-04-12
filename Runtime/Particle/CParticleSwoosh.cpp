@@ -586,9 +586,9 @@ void CParticleSwoosh::Render3SidedSolidNoSplineNoGaps() {
   if (x15c_swooshes.size() < 2)
     return;
 
-  zeus::CVector3f p0[2];
-  zeus::CVector3f p1[2];
-  zeus::CVector3f p2[2];
+  std::array<zeus::CVector3f, 2> p0;
+  std::array<zeus::CVector3f, 2> p1;
+  std::array<zeus::CVector3f, 2> p2;
 
   int curIdx = x158_curParticle;
   bool lastActive = false;
