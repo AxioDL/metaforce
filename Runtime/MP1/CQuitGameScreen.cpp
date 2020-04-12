@@ -1,5 +1,7 @@
 #include "Runtime/MP1/CQuitGameScreen.hpp"
 
+#include <array>
+
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
@@ -14,11 +16,11 @@
 
 namespace urde::MP1 {
 
-static const int Titles[] = {24, 25, 26, 27, 28};
+constexpr std::array Titles{24, 25, 26, 27, 28};
 
-static const int DefaultSelections[] = {1, 0, 1, 1, 0};
+constexpr std::array DefaultSelections{1, 0, 1, 1, 0};
 
-static const float VerticalOffsets[] = {0.f, 1.6f, 1.f, 0.f, 1.f};
+constexpr std::array VerticalOffsets{0.f, 1.6f, 1.f, 0.f, 1.f};
 
 void CQuitGameScreen::SetColors() {
   x14_tablegroup_quitgame->SetColors(zeus::CColor{0.784313f, 0.784313f, 0.784313f, 1.f},
@@ -37,7 +39,7 @@ void CQuitGameScreen::FinishedLoading() {
 
   static_cast<CGuiTextPane*>(x10_loadedFrame->FindWidget("textpane_title"))
       ->TextSupport()
-      .SetText(g_MainStringTable->GetString(Titles[int(x0_type)]));
+      .SetText(g_MainStringTable->GetString(Titles[size_t(x0_type)]));
 
   static_cast<CGuiTextPane*>(x10_loadedFrame->FindWidget("textpane_yes"))
       ->TextSupport()
@@ -46,7 +48,7 @@ void CQuitGameScreen::FinishedLoading() {
       ->TextSupport()
       .SetText(g_MainStringTable->GetString(23));
 
-  x14_tablegroup_quitgame->SetUserSelection(DefaultSelections[int(x0_type)]);
+  x14_tablegroup_quitgame->SetUserSelection(DefaultSelections[size_t(x0_type)]);
   x14_tablegroup_quitgame->SetWorkersMouseActive(true);
   x10_loadedFrame->SetMouseUpCallback([this](CGuiWidget* widget, bool cancel) { OnWidgetMouseUp(widget, cancel); });
   SetColors();
@@ -83,23 +85,30 @@ EQuitAction CQuitGameScreen::Update(float dt) {
 
 void CQuitGameScreen::Draw() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CQuitGameScreen::Draw", zeus::skPurple);
-  if (x0_type == EQuitType::QuitGame)
+  if (x0_type == EQuitType::QuitGame) {
     m_blackScreen->draw(zeus::CColor(0.f, 0.5f));
+  }
 
-  if (x10_loadedFrame)
-    x10_loadedFrame->Draw(CGuiWidgetDrawParms{1.f, zeus::CVector3f{0.f, 0.f, VerticalOffsets[int(x0_type)]}});
+  if (x10_loadedFrame) {
+    x10_loadedFrame->Draw(CGuiWidgetDrawParms{1.f, zeus::CVector3f{0.f, 0.f, VerticalOffsets[size_t(x0_type)]}});
+  }
 }
 
 void CQuitGameScreen::ProcessUserInput(const CFinalInput& input) {
-  if (input.ControllerIdx() != 0)
+  if (input.ControllerIdx() != 0) {
     return;
-  if (!x10_loadedFrame)
+  }
+
+  if (!x10_loadedFrame) {
     return;
-  x10_loadedFrame->ProcessMouseInput(input,
-    CGuiWidgetDrawParms{1.f, zeus::CVector3f{0.f, 0.f, VerticalOffsets[int(x0_type)]}});
+  }
+
+  x10_loadedFrame->ProcessMouseInput(
+      input, CGuiWidgetDrawParms{1.f, zeus::CVector3f{0.f, 0.f, VerticalOffsets[size_t(x0_type)]}});
   x10_loadedFrame->ProcessUserInput(input);
-  if ((input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) && x0_type != EQuitType::ContinueFromLastSave)
+  if ((input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) && x0_type != EQuitType::ContinueFromLastSave) {
     x18_action = EQuitAction::No;
+  }
 }
 
 CQuitGameScreen::CQuitGameScreen(EQuitType tp) : x0_type(tp) {
