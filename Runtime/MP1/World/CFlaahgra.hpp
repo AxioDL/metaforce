@@ -86,13 +86,6 @@ public:
 };
 
 class CFlaahgra : public CPatterned {
-
-  static const SJointInfo skLeftArmJointList[3];
-  static const SJointInfo skRightArmJointList[3];
-  static const SSphereJointInfo skSphereJointList[5];
-  static constexpr zeus::CColor skDamageColor = zeus::CColor(0.5f, 0.5f, 0.f, 1.f);
-  static constexpr zeus::CColor skUnkColor = zeus::CColor(0.5f, 0.f, 0.f, 1.f);
-  static constexpr zeus::CVector3f skUnkVec1 = zeus::CVector3f(0.5f, 7.f, 0.f);
   s32 x568_ = -1;
   CFlaahgraData x56c_;
   std::unique_ptr<CBoneTracking> x6cc_boneTracking; // Used to be an rstl::pair<bool,CBoneTracking>
@@ -163,8 +156,8 @@ class CFlaahgra : public CPatterned {
   void LoadTokens(CStateManager& mgr);
   void FinalizeLoad(CStateManager& mgr);
   void GetMirrorWaypoints(CStateManager& mgr);
-  void AddCollisionList(const SJointInfo*, int, std::vector<CJointCollisionDescription>&);
-  void AddSphereCollisionList(const SSphereJointInfo*, int, std::vector<CJointCollisionDescription>&);
+  void AddCollisionList(const SJointInfo*, size_t, std::vector<CJointCollisionDescription>&);
+  void AddSphereCollisionList(const SSphereJointInfo*, size_t, std::vector<CJointCollisionDescription>&);
   void SetupCollisionManagers(CStateManager&);
   void sub801ae980(CStateManager&);
   void UpdateCollisionManagers(float, CStateManager&);

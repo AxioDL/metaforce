@@ -22,14 +22,29 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
+constexpr zeus::CColor skDamageColor{0.5f, 0.5f, 0.f, 1.f};
+constexpr zeus::CColor skUnkColor{0.5f, 0.f, 0.f, 1.f};
+constexpr zeus::CVector3f skUnkVec1{0.5f, 7.f, 0.f};
 
-const SJointInfo CFlaahgra::skLeftArmJointList[3]{
-    {"L_elbow", "L_blade", 0.6f, 1.f}, {"L_blade", "L_claw", 0.6f, 1.f}, {"L_CLAW_LCTR", "L_CLAW_END_LCTR", 0.6f, 1.f}};
+constexpr std::array<SJointInfo, 3> skLeftArmJointList{{
+    {"L_elbow", "L_blade", 0.6f, 1.f},
+    {"L_blade", "L_claw", 0.6f, 1.f},
+    {"L_CLAW_LCTR", "L_CLAW_END_LCTR", 0.6f, 1.f},
+}};
 
-const SJointInfo CFlaahgra::skRightArmJointList[3]{
-    {"R_elbow", "R_blade", 0.6f, 1.f}, {"R_blade", "R_claw", 0.6f, 1.f}, {"R_CLAW_LCTR", "R_CLAW_END_LCTR", 0.6f, 1.f}};
-const SSphereJointInfo CFlaahgra::skSphereJointList[5]{
-    {"Head_1", 1.5f}, {"Spine_2", 1.5f}, {"Spine_4", 1.5f}, {"Spine_6", 1.5f}, {"Collar", 1.5f}};
+constexpr std::array<SJointInfo, 3> skRightArmJointList{{
+    {"R_elbow", "R_blade", 0.6f, 1.f},
+    {"R_blade", "R_claw", 0.6f, 1.f},
+    {"R_CLAW_LCTR", "R_CLAW_END_LCTR", 0.6f, 1.f},
+}};
+
+constexpr std::array<SSphereJointInfo, 5> skSphereJointList{{
+    {"Head_1", 1.5f},
+    {"Spine_2", 1.5f},
+    {"Spine_4", 1.5f},
+    {"Spine_6", 1.5f},
+    {"Collar", 1.5f},
+}};
 
 CFlaahgraData::CFlaahgraData(CInputStream& in)
 : x0_(in.readFloatBig())
@@ -444,11 +459,11 @@ void CFlaahgra::GetMirrorWaypoints(CStateManager& mgr) {
   }
 }
 
-void CFlaahgra::AddCollisionList(const SJointInfo* joints, int count,
+void CFlaahgra::AddCollisionList(const SJointInfo* joints, size_t count,
                                  std::vector<CJointCollisionDescription>& outJoints) {
   const CAnimData* animData = GetModelData()->GetAnimationData();
 
-  for (s32 i = 0; i < count; ++i) {
+  for (size_t i = 0; i < count; ++i) {
     const auto& joint = joints[i];
     const CSegId from = animData->GetLocatorSegId(joint.from);
     const CSegId to = animData->GetLocatorSegId(joint.to);
@@ -462,11 +477,11 @@ void CFlaahgra::AddCollisionList(const SJointInfo* joints, int count,
   }
 }
 
-void CFlaahgra::AddSphereCollisionList(const SSphereJointInfo* joints, int count,
+void CFlaahgra::AddSphereCollisionList(const SSphereJointInfo* joints, size_t count,
                                        std::vector<CJointCollisionDescription>& outJoints) {
   const CAnimData* animData = GetModelData()->GetAnimationData();
 
-  for (s32 i = 0; i < count; ++i) {
+  for (size_t i = 0; i < count; ++i) {
     const auto& joint = joints[i];
     const CSegId seg = animData->GetLocatorSegId(joint.name);
 
@@ -499,20 +514,20 @@ void CFlaahgra::SetupHealthInfo(CStateManager& mgr) {
 void CFlaahgra::SetupCollisionManagers(CStateManager& mgr) {
   std::vector<CJointCollisionDescription> leftArmjointList;
   zeus::CVector3f oldScale = GetModelData()->GetScale();
-  leftArmjointList.reserve(3);
-  AddCollisionList(skLeftArmJointList, 3, leftArmjointList);
+  leftArmjointList.reserve(skLeftArmJointList.size());
+  AddCollisionList(skLeftArmJointList.data(), skLeftArmJointList.size(), leftArmjointList);
   x79c_leftArmCollision =
       std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), leftArmjointList, true);
   SetMaterialProperties(x79c_leftArmCollision, mgr);
   std::vector<CJointCollisionDescription> rightArmJointList;
-  rightArmJointList.reserve(3);
-  AddCollisionList(skRightArmJointList, 3, rightArmJointList);
+  rightArmJointList.reserve(skRightArmJointList.size());
+  AddCollisionList(skRightArmJointList.data(), skRightArmJointList.size(), rightArmJointList);
   x7a0_rightArmCollision =
       std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), rightArmJointList, true);
   SetMaterialProperties(x7a0_rightArmCollision, mgr);
   std::vector<CJointCollisionDescription> sphereJointList;
-  sphereJointList.reserve(5);
-  AddSphereCollisionList(skSphereJointList, 5, sphereJointList);
+  sphereJointList.reserve(skSphereJointList.size());
+  AddSphereCollisionList(skSphereJointList.data(), skSphereJointList.size(), sphereJointList);
   x7a4_sphereCollision =
       std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), sphereJointList, true);
   SetMaterialProperties(x7a4_sphereCollision, mgr);
@@ -872,7 +887,8 @@ void CFlaahgra::RattlePlayer(CStateManager& mgr, const zeus::CVector3f& vec) {
 }
 
 void CFlaahgra::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
-  static const pas::ESeverity kSeverities[2]{pas::ESeverity::Zero, pas::ESeverity::One};
+  static constexpr std::array kSeverities{pas::ESeverity::Zero, pas::ESeverity::One};
+
   if (msg == EStateMsg::Activate) {
     x568_ = 0;
     x7d4_ = 0.f;
@@ -881,7 +897,7 @@ void CFlaahgra::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
     SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
     SendScriptMsgs(EScriptObjectState::Retreat, mgr, EScriptObjectMessage::None);
     x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCKnockDownCmd(-GetTransform().frontVector(), kSeverities[u32(x7ac_)]));
+        CBCKnockDownCmd(-GetTransform().frontVector(), kSeverities[size_t(x7ac_)]));
   } else if (msg == EStateMsg::Update) {
     if (x568_ == 0) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Fall) {
@@ -890,7 +906,7 @@ void CFlaahgra::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
         UpdateHeadDamageVulnerability(mgr, true);
       } else {
         x450_bodyController->GetCommandMgr().DeliverCmd(
-            CBCKnockDownCmd(-GetTransform().frontVector(), kSeverities[u32(x7ac_)]));
+            CBCKnockDownCmd(-GetTransform().frontVector(), kSeverities[size_t(x7ac_)]));
       }
     } else if (x568_ == 2) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::LieOnGround) {
@@ -942,12 +958,14 @@ void CFlaahgra::Dead(CStateManager& mgr, EStateMsg msg, float) {
   }
 }
 
-static const pas::ESeverity kStates1[5]{pas::ESeverity::Invalid, pas::ESeverity::Invalid, pas::ESeverity::Invalid,
-                                        pas::ESeverity::Two, pas::ESeverity::Invalid};
-
 void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
-  static const pas::ESeverity kSeverity[5]{pas::ESeverity::Three, pas::ESeverity::Four, pas::ESeverity::One,
-                                           pas::ESeverity::Zero, pas::ESeverity::Invalid};
+  static constexpr std::array kStates1{
+      pas::ESeverity::Invalid, pas::ESeverity::Invalid, pas::ESeverity::Invalid,
+      pas::ESeverity::Two,     pas::ESeverity::Invalid,
+  };
+  static constexpr std::array kSeverity{
+      pas::ESeverity::Three, pas::ESeverity::Four, pas::ESeverity::One, pas::ESeverity::Zero, pas::ESeverity::Invalid,
+  };
 
   if (msg == EStateMsg::Activate) {
     x568_ = 0;
