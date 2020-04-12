@@ -25,11 +25,12 @@
 
 namespace urde {
 
-const zeus::CColor CPatterned::skDamageColor(0.5f, 0.f, 0.f);
-CMaterialList gkPatternedGroundMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid, EMaterialTypes::Orbit,
-                                            EMaterialTypes::GroundCollider, EMaterialTypes::Target);
-CMaterialList gkPatternedFlyerMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid, EMaterialTypes::Orbit,
-                                           EMaterialTypes::Target);
+constexpr zeus::CColor CPatterned::skDamageColor(0.5f, 0.f, 0.f);
+constexpr CMaterialList skPatternedGroundMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
+                                                      EMaterialTypes::Orbit, EMaterialTypes::GroundCollider,
+                                                      EMaterialTypes::Target);
+constexpr CMaterialList skPatternedFlyerMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
+                                                     EMaterialTypes::Orbit, EMaterialTypes::Target);
 
 CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view name, CPatterned::EFlavorType flavor,
                        const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
@@ -41,7 +42,7 @@ CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view nam
                    pInfo.xcc_bodyOrigin +
                        zeus::CVector3f{pInfo.xc4_halfExtent, pInfo.xc4_halfExtent, pInfo.xc8_height}),
       pInfo.x0_mass, pInfo.x54_healthInfo, pInfo.x5c_damageVulnerability,
-      moveType == EMovementType::Flyer ? gkPatternedFlyerMaterialList : gkPatternedGroundMaterialList,
+      moveType == EMovementType::Flyer ? skPatternedFlyerMaterialList : skPatternedGroundMaterialList,
       pInfo.xfc_stateMachineId, actorParms, pInfo.xd8_stepUpHeight, 0.8f)
 , x2fc_minAttackRange(pInfo.x18_minAttackRange)
 , x300_maxAttackRange(pInfo.x1c_maxAttackRange)
@@ -607,7 +608,7 @@ bool CPatterned::NoPathNodes(CStateManager&, float arg) {
   return true;
 }
 
-static const float skActorApproachDistance = 3.f;
+constexpr float skActorApproachDistance = 3.f;
 
 bool CPatterned::PathShagged(CStateManager&, float arg) {
   if (CPathFindSearch* search = GetSearchPath()) {
