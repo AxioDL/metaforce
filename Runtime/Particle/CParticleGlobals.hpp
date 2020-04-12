@@ -13,8 +13,9 @@
 namespace urde {
 class CElementGen;
 class CParticleGlobals {
-  CParticleGlobals()=default;
+  CParticleGlobals() = default;
   static std::unique_ptr<CParticleGlobals> g_ParticleGlobals;
+
 public:
   int m_EmitterTime = 0;
   float m_EmitterTimeReal = 0.f;
@@ -48,7 +49,7 @@ public:
     CElementGen* x4_system;
   };
 
-  SParticleSystem* m_currentParticleSystem;
+  SParticleSystem* m_currentParticleSystem = nullptr;
 
   static CParticleGlobals* instance() {
     if (!g_ParticleGlobals)
