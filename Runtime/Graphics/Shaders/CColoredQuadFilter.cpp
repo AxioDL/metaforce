@@ -115,6 +115,6 @@ void CWideScreenFilter::SetViewportToFull() {
   CGraphics::g_BooMainCommandQueue->setViewport(rect);
 }
 
-const zeus::CRectangle CColoredQuadFilter::DefaultRect = {0.f, 0.f, 1.f, 1.f};
+constexpr zeus::CRectangle CColoredQuadFilter::DefaultRect{0.f, 0.f, 1.f, 1.f};
 
 } // namespace urde
