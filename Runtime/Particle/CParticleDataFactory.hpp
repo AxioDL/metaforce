@@ -30,7 +30,7 @@ struct SParticleModel {
   CModel* m_model = nullptr;
   SParticleModel() = default;
   SParticleModel(CToken&& tok, bool found) : m_token(std::move(tok)), m_found(found) {}
-  operator bool() const { return m_found; }
+  explicit operator bool() const { return m_found; }
 };
 
 struct SChildGeneratorDesc {
@@ -39,7 +39,7 @@ struct SChildGeneratorDesc {
   CGenDescription* m_gen = nullptr;
   SChildGeneratorDesc() = default;
   SChildGeneratorDesc(CToken&& tok, bool found) : m_token(std::move(tok)), m_found(found) {}
-  operator bool() const { return m_found; }
+  explicit operator bool() const { return m_found; }
 };
 
 struct SSwooshGeneratorDesc {
@@ -48,7 +48,7 @@ struct SSwooshGeneratorDesc {
   CSwooshDescription* m_swoosh = nullptr;
   SSwooshGeneratorDesc() = default;
   SSwooshGeneratorDesc(CToken&& tok, bool found) : m_token(std::move(tok)), m_found(found) {}
-  operator bool() const { return m_found; }
+  explicit operator bool() const { return m_found; }
 };
 
 struct SElectricGeneratorDesc {
@@ -57,7 +57,7 @@ struct SElectricGeneratorDesc {
   CElectricDescription* m_electric = nullptr;
   SElectricGeneratorDesc() = default;
   SElectricGeneratorDesc(CToken&& tok, bool found) : m_token(std::move(tok)), m_found(found) {}
-  operator bool() const { return m_found; }
+  explicit operator bool() const { return m_found; }
 };
 
 class CParticleDataFactory {
