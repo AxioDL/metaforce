@@ -1,5 +1,7 @@
 #include "Runtime/World/CGameArea.hpp"
 
+#include <array>
+
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
@@ -43,8 +45,10 @@ CAreaRenderOctTree::CAreaRenderOctTree(const u8* buf) : x0_buf(buf) {
   }
 }
 
-static const u32 ChildCounts[] = {0, 2, 2, 4, 2, 4, 4, 8};
-u32 CAreaRenderOctTree::Node::GetChildCount() const { return ChildCounts[x2_flags]; }
+u32 CAreaRenderOctTree::Node::GetChildCount() const {
+  static constexpr std::array<u32, 8> ChildCounts{0, 2, 2, 4, 2, 4, 4, 8};
+  return ChildCounts[x2_flags];
+}
 
 zeus::CAABox CAreaRenderOctTree::Node::GetNodeBounds(const zeus::CAABox& curAABB, int idx) const {
   zeus::CVector3f center = curAABB.center();
