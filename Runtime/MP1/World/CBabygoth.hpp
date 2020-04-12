@@ -160,7 +160,7 @@ private:
 
   void UpdateShellHealth(CStateManager&);
 
-  bool IsDestinationObstructed(CStateManager&);
+  bool IsDestinationObstructed(const CStateManager& mgr) const;
 
   void DestroyShell(CStateManager& mgr);
 

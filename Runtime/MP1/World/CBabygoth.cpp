@@ -1103,12 +1103,13 @@ bool CBabygoth::Leash(CStateManager& mgr, float) {
   return false;
 }
 
-bool CBabygoth::IsDestinationObstructed(CStateManager& mgr) {
-  for (CEntity* obj : mgr.GetListeningAiObjectList()) {
-    if (TCastToPtr<CAi> ai = obj) {
+bool CBabygoth::IsDestinationObstructed(const CStateManager& mgr) const {
+  for (const CEntity* obj : mgr.GetListeningAiObjectList()) {
+    if (const TCastToConstPtr<CAi> ai = obj) {
       if (ai->GetAreaIdAlways() == GetAreaIdAlways()) {
-        if ((x8b8_backupDestPos - ai->GetTranslation()).magSquared() <= 10.f)
+        if ((x8b8_backupDestPos - ai->GetTranslation()).magSquared() <= 10.f) {
           return true;
+        }
       }
     }
   }
