@@ -27,26 +27,26 @@ class CTargetReticleRenderState {
 public:
   static const CTargetReticleRenderState skZeroRenderState;
 
-  CTargetReticleRenderState(TUniqueId target, float radiusWorld, const zeus::CVector3f& positionWorld, float factor,
-                            float minVpClampScale, bool orbitZoneIdlePosition)
+  constexpr CTargetReticleRenderState(TUniqueId target, float radiusWorld, const zeus::CVector3f& positionWorld,
+                                      float factor, float minVpClampScale, bool orbitZoneIdlePosition)
   : x0_target(target)
   , x4_radiusWorld(radiusWorld)
   , x8_positionWorld(positionWorld)
   , x14_factor(factor)
   , x18_minVpClampScale(minVpClampScale)
   , x1c_orbitZoneIdlePosition(orbitZoneIdlePosition) {}
-  void SetTargetId(TUniqueId id) { x0_target = id; }
-  void SetFactor(float f) { x14_factor = f; }
-  void SetIsOrbitZoneIdlePosition(bool b) { x1c_orbitZoneIdlePosition = b; }
-  float GetMinViewportClampScale() const { return x18_minVpClampScale; }
-  float GetFactor() const { return x14_factor; }
-  float GetRadiusWorld() const { return x4_radiusWorld; }
-  const zeus::CVector3f& GetTargetPositionWorld() const { return x8_positionWorld; }
-  bool GetIsOrbitZoneIdlePosition() const { return x1c_orbitZoneIdlePosition; }
-  void SetTargetPositionWorld(const zeus::CVector3f& pos) { x8_positionWorld = pos; }
-  void SetRadiusWorld(float r) { x4_radiusWorld = r; }
-  TUniqueId GetTargetId() const { return x0_target; }
-  void SetMinViewportClampScale(float s) { x18_minVpClampScale = s; }
+  constexpr void SetTargetId(TUniqueId id) { x0_target = id; }
+  constexpr void SetFactor(float factor) { x14_factor = factor; }
+  constexpr void SetIsOrbitZoneIdlePosition(bool orbit) { x1c_orbitZoneIdlePosition = orbit; }
+  constexpr float GetMinViewportClampScale() const { return x18_minVpClampScale; }
+  constexpr float GetFactor() const { return x14_factor; }
+  constexpr float GetRadiusWorld() const { return x4_radiusWorld; }
+  constexpr const zeus::CVector3f& GetTargetPositionWorld() const { return x8_positionWorld; }
+  constexpr bool GetIsOrbitZoneIdlePosition() const { return x1c_orbitZoneIdlePosition; }
+  constexpr void SetTargetPositionWorld(const zeus::CVector3f& position) { x8_positionWorld = position; }
+  constexpr void SetRadiusWorld(float radius) { x4_radiusWorld = radius; }
+  constexpr TUniqueId GetTargetId() const { return x0_target; }
+  constexpr void SetMinViewportClampScale(float scale) { x18_minVpClampScale = scale; }
   static void InterpolateWithClamp(const CTargetReticleRenderState& a, CTargetReticleRenderState& out,
                                    const CTargetReticleRenderState& b, float t);
 };

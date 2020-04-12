@@ -36,8 +36,8 @@ float offshoot_func(float f1, float f2, float f3) { return (f1 * 0.5f) + std::si
 float calculate_premultiplied_overshoot_offset(float f1) { return 2.f * (M_PIF - std::asin(1.f / f1)); }
 } // Anonymous namespace
 
-const CTargetReticleRenderState CTargetReticleRenderState::skZeroRenderState(kInvalidUniqueId, 1.f,
-                                                                             zeus::skZero3f, 0.f, 1.f, true);
+constexpr CTargetReticleRenderState CTargetReticleRenderState::skZeroRenderState(kInvalidUniqueId, 1.f, zeus::skZero3f,
+                                                                                 0.f, 1.f, true);
 
 CCompoundTargetReticle::SOuterItemInfo::SOuterItemInfo(std::string_view res) : x0_model(g_SimplePool->GetObj(res)) {}
 
