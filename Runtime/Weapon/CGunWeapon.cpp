@@ -178,7 +178,7 @@ void CGunWeapon::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr,
   }
 }
 
-const std::array<s32, 2> CGunWeapon::skShootAnim{4, 3};
+constexpr std::array<s32, 2> CGunWeapon::skShootAnim{4, 3};
 
 void CGunWeapon::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                       CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
