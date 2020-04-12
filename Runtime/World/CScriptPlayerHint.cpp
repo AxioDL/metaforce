@@ -1,5 +1,7 @@
 #include "Runtime/World/CScriptPlayerHint.hpp"
 
+#include <algorithm>
+
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"
 #include "Runtime/World/CActorParameters.hpp"
@@ -19,20 +21,28 @@ CScriptPlayerHint::CScriptPlayerHint(TUniqueId uid, std::string_view name, const
 void CScriptPlayerHint::Accept(IVisitor& visit) { visit.Visit(this); }
 
 void CScriptPlayerHint::AddToObjectList(TUniqueId uid) {
-  for (TUniqueId existId : xe8_objectList)
-    if (uid == existId)
-      return;
-  if (xe8_objectList.size() != 8)
-    xe8_objectList.push_back(uid);
+  const bool inList =
+      std::any_of(xe8_objectList.cbegin(), xe8_objectList.cend(), [uid](const auto id) { return id == uid; });
+  if (inList) {
+    return;
+  }
+
+  if (xe8_objectList.size() == xe8_objectList.capacity()) {
+    return;
+  }
+
+  xe8_objectList.push_back(uid);
 }
 
 void CScriptPlayerHint::RemoveFromObjectList(TUniqueId uid) {
-  for (auto it = xe8_objectList.begin(); it != xe8_objectList.end(); ++it) {
-    if (*it == uid) {
-      xe8_objectList.erase(it);
-      return;
-    }
+  const auto iter =
+      std::find_if(xe8_objectList.cbegin(), xe8_objectList.cend(), [uid](const auto id) { return id == uid; });
+
+  if (iter == xe8_objectList.cend()) {
+    return;
   }
+
+  xe8_objectList.erase(iter);
 }
 
 void CScriptPlayerHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
