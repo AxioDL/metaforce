@@ -1,5 +1,7 @@
 #include "Runtime/MP1/World/CBabygoth.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -21,7 +23,15 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
-const std::string_view CBabygoth::skpMouthDamageJoint = "LCTR_SHEMOUTH"sv;
+constexpr std::string_view skpMouthDamageJoint = "LCTR_SHEMOUTH"sv;
+
+constexpr std::array<SSphereJointInfo, 5> skSphereJointList{{
+    {"L_knee", 1.2f},
+    {"R_knee", 1.2f},
+    {"LCTR_SHEMOUTH", 1.7f},
+    {"Pelvis", 1.2f},
+    {"butt_LCTR", 0.9f},
+}};
 
 CBabygothData::CBabygothData(CInputStream& in)
 : x0_fireballAttackTime(in.readFloatBig())
@@ -298,13 +308,10 @@ void CBabygoth::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
-const SSphereJointInfo CBabygoth::skSphereJointList[skSphereJointCount] = {
-    {"L_knee", 1.2f}, {"R_knee", 1.2f}, {"LCTR_SHEMOUTH", 1.7f}, {"Pelvis", 1.2f}, {"butt_LCTR", 0.9f}};
-
-void CBabygoth::AddSphereCollisionList(const SSphereJointInfo* sphereJointInfo, s32 jointCount,
+void CBabygoth::AddSphereCollisionList(const SSphereJointInfo* sphereJointInfo, size_t jointCount,
                                        std::vector<CJointCollisionDescription>& jointList) {
-  for (s32 i = 0; i < jointCount; ++i) {
-    CSegId seg = GetModelData()->GetAnimationData()->GetLocatorSegId(sphereJointInfo[i].name);
+  for (size_t i = 0; i < jointCount; ++i) {
+    const CSegId seg = GetModelData()->GetAnimationData()->GetLocatorSegId(sphereJointInfo[i].name);
     jointList.push_back(
         CJointCollisionDescription::SphereCollision(seg, sphereJointInfo[i].radius, sphereJointInfo[i].name, 1000.f));
   }
@@ -312,7 +319,7 @@ void CBabygoth::AddSphereCollisionList(const SSphereJointInfo* sphereJointInfo, 
 
 void CBabygoth::SetupCollisionManager(CStateManager& mgr) {
   std::vector<CJointCollisionDescription> joints;
-  AddSphereCollisionList(skSphereJointList, skSphereJointCount, joints);
+  AddSphereCollisionList(skSphereJointList.data(), skSphereJointList.size(), joints);
   x928_colActMgr = std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), joints, false);
   x928_colActMgr->SetActive(mgr, GetActive());
 

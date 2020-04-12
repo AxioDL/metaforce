@@ -63,9 +63,6 @@ public:
   enum class EShellState { Default, CrackOne, CrackTwo, Destroyed };
 
 private:
-  static constexpr s32 skSphereJointCount = 5;
-  static const SSphereJointInfo skSphereJointList[skSphereJointCount];
-  static const std::string_view skpMouthDamageJoint;
   s32 x568_stateProg = -1;
   EShellState x56c_shellState = EShellState::Default;
   CBabygothData x570_babyData;
@@ -115,7 +112,7 @@ private:
   bool xa49_28_onApproachPath : 1;
   bool xa49_29_objectSpaceCollision : 1;
 
-  void AddSphereCollisionList(const SSphereJointInfo*, s32, std::vector<CJointCollisionDescription>&);
+  void AddSphereCollisionList(const SSphereJointInfo*, size_t, std::vector<CJointCollisionDescription>&);
 
   void SetupCollisionManager(CStateManager&);
 
