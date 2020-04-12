@@ -1,5 +1,7 @@
 #include "Runtime/MP1/CMFGame.hpp"
 
+#include <array>
+
 #include "Runtime/CArchitectureQueue.hpp"
 #include "Runtime/MP1/CSamusHud.hpp"
 #include "Runtime/MP1/MP1.hpp"
@@ -286,16 +288,18 @@ CMFGameLoader::CMFGameLoader()
 
 CMFGameLoader::~CMFGameLoader() = default;
 
-static const char* LoadDepPAKs[] = {"TestAnim", "SamusGun", "SamGunFx", nullptr};
-
 void CMFGameLoader::MakeLoadDependencyList() {
+  static constexpr std::array loadDepPAKs{"TestAnim", "SamusGun", "SamGunFx"};
+
   std::vector<SObjectTag> tags;
-  for (int i = 0; LoadDepPAKs[i]; ++i)
-    g_ResFactory->GetTagListForFile(LoadDepPAKs[i], tags);
+  for (const auto pak : loadDepPAKs) {
+    g_ResFactory->GetTagListForFile(pak, tags);
+  }
 
   x1c_loadList.reserve(tags.size());
-  for (const SObjectTag& tag : tags)
+  for (const SObjectTag& tag : tags) {
     x1c_loadList.push_back(g_SimplePool->GetObj(tag));
+  }
 }
 
 CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) {
