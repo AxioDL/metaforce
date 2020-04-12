@@ -67,9 +67,10 @@ void CScriptDock::Think(float dt, CStateManager& mgr) {
 
         if (CObjectList* objs = mgr.GetWorld()->GetArea(aid)->GetAreaObjects()) {
           for (CEntity* ent : *objs) {
-            TCastToPtr<CScriptDock> dock(ent);
-            if (dock && dock->GetDockId() == otherDock)
-              dock->SetLoadConnected(mgr, true);
+            const TCastToPtr<CScriptDock> dock2(ent);
+            if (dock2 && dock2->GetDockId() == otherDock) {
+              dock2->SetLoadConnected(mgr, true);
+            }
           }
         }
       }
