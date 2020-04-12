@@ -128,11 +128,11 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManag
                                                                const CScriptWater* water) {
   CFluidPlaneShader::RenderSetupInfo out;
 
-  float uvT = mgr.GetFluidPlaneManager()->GetUVT();
-  bool hasBumpMap = HasBumpMap() && kEnableWaterBumpMaps;
+  const float uvT = mgr.GetFluidPlaneManager()->GetUVT();
+  const bool hasBumpMap = HasBumpMap() && kEnableWaterBumpMaps;
   bool doubleLightmapBlend = false;
-  bool hasEnvMap = mgr.GetCameraManager()->GetFluidCounter() == 0 && HasEnvMap();
-  bool hasEnvBumpMap = HasEnvBumpMap();
+  const bool hasEnvMap = mgr.GetCameraManager()->GetFluidCounter() == 0 && HasEnvMap();
+  const bool hasEnvBumpMap = HasEnvBumpMap();
   InitializeSineWave();
   CGraphics::SetModelMatrix(xf);
 
@@ -165,8 +165,7 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManag
     curTex++;
   }
 
-  float fluidUVs[3][2];
-  x4c_uvMotion.CalculateFluidTextureOffset(uvT, fluidUVs);
+  const auto fluidUVs = x4c_uvMotion.CalculateFluidTextureOffset(uvT);
 
   out.texMtxs[0][0][0] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
   out.texMtxs[0][1][1] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();

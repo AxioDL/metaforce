@@ -18,11 +18,10 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneDoor::RenderSetup(const CStateMana
                                                                 bool noNormals) {
   CFluidPlaneShader::RenderSetupInfo out;
 
-  float uvT = mgr.GetFluidPlaneManager()->GetUVT();
+  const float uvT = mgr.GetFluidPlaneManager()->GetUVT();
   CGraphics::SetModelMatrix(xf);
 
-  float fluidUVs[3][2];
-  x4c_uvMotion.CalculateFluidTextureOffset(uvT, fluidUVs);
+  const auto fluidUVs = x4c_uvMotion.CalculateFluidTextureOffset(uvT);
 
   out.texMtxs[0][0][0] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
   out.texMtxs[0][1][1] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
