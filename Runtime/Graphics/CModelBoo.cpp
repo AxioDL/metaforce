@@ -309,29 +309,37 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
     m_uniformDataSize = uniBufSize;
     newInst.m_uniformBuffer = ctx.newDynamicBuffer(boo::BufferUse::Uniform, uniBufSize, 1);
 
-    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {geomUniformBuf.get(), geomUniformBuf.get(),
-                                                  newInst.m_uniformBuffer.get(), newInst.m_uniformBuffer.get()};
+    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 4> bufs{
+        geomUniformBuf.get(),
+        geomUniformBuf.get(),
+        newInst.m_uniformBuffer.get(),
+        newInst.m_uniformBuffer.get(),
+    };
 
     /* Binding for each surface */
     newInst.m_shaderDataBindings.reserve(x0_surfaces->size());
 
-    size_t thisOffs[4];
-    size_t thisSizes[4];
+    std::array<size_t, 4> thisOffs;
+    std::array<size_t, 4> thisSizes;
 
-    static const boo::PipelineStage stages[4] = {boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
-                                                 boo::PipelineStage::Fragment, boo::PipelineStage::Vertex};
+    static constexpr std::array stages{
+        boo::PipelineStage::Vertex,
+        boo::PipelineStage::Vertex,
+        boo::PipelineStage::Fragment,
+        boo::PipelineStage::Vertex,
+    };
 
     /* Enumerate surfaces and build data bindings */
     size_t curReflect = reflectOff + 256;
     for (const CBooSurface& surf : *x0_surfaces) {
       const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
 
-      boo::ObjToken<boo::ITexture> texs[12] = {g_Renderer->m_clearTexture.get(), g_Renderer->m_clearTexture.get(),
-                                               g_Renderer->m_clearTexture.get(), g_Renderer->m_clearTexture.get(),
-                                               g_Renderer->m_clearTexture.get(), g_Renderer->m_clearTexture.get(),
-                                               g_Renderer->m_clearTexture.get(), g_Renderer->m_clearTexture.get(),
-                                               g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(),
-                                               g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get()};
+      std::array<boo::ObjToken<boo::ITexture>, 12> texs{
+          g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
+          g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
+          g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->x220_sphereRamp.get(),
+          g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(),
+      };
       if (!g_DummyTextures) {
         for (const auto& ch : mat.chunks) {
           if (auto pass = ch.get_if<MaterialSet::Material::PASS>()) {
@@ -401,9 +409,9 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
           else
             texs[11] = g_Renderer->x220_sphereRamp.get();
         }
-        extendeds.push_back(ctx.newShaderDataBinding(pipeline, newInst.GetBooVBO(*this, ctx), nullptr,
-                                                     m_staticIbo.get(), 4, bufs, stages, thisOffs, thisSizes, 12, texs,
-                                                     nullptr, nullptr));
+        extendeds.push_back(ctx.newShaderDataBinding(
+            pipeline, newInst.GetBooVBO(*this, ctx), nullptr, m_staticIbo.get(), bufs.size(), bufs.data(),
+            stages.data(), thisOffs.data(), thisSizes.data(), texs.size(), texs.data(), nullptr, nullptr));
         idx = EExtendedShader(size_t(idx) + 1);
       }
     }
