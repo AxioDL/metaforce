@@ -253,7 +253,7 @@ struct PEImpl : BigDNA {
     _Basis::gatherDependencies(deps, m_elem);
   }
 
-  operator bool() const { return m_elem.operator bool(); }
+  explicit operator bool() const { return m_elem.operator bool(); }
   auto* get() const { return m_elem.get(); }
   auto* operator->() const { return get(); }
   void reset() { m_elem.reset(); }
@@ -565,7 +565,7 @@ struct IUVElement : IElement {
 struct BoolHelper : IElement {
   AT_DECL_EXPLICIT_DNA_YAMLV_NO_TYPE
   bool value = false;
-  operator bool() const { return value; }
+  explicit operator bool() const { return value; }
   BoolHelper& operator=(bool val) {
     value = val;
     return *this;
@@ -610,7 +610,7 @@ struct ValueHelper : BigDNA {
   std::optional<Tp> value = {};
   void emplace(Tp val) { value.emplace(val); }
   Tp operator*() const { return *value; }
-  operator bool() const { return value.operator bool(); }
+  explicit operator bool() const { return value.operator bool(); }
 };
 
 struct RELifetimeTween : IRealElement {
@@ -1333,7 +1333,7 @@ struct SpawnSystemKeyframeData : BigDNA {
   AT_DECL_EXPLICIT_DNA_YAML
   AT_SUBDECL_DNA
 
-  operator bool() const { return spawns.size() != 0; }
+  explicit operator bool() const { return spawns.size() != 0; }
 
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const {
     for (const auto& p : spawns)
@@ -1347,7 +1347,7 @@ struct ChildResourceFactory : BigDNA {
   IDType id;
   AT_DECL_EXPLICIT_DNA_YAML
   AT_SUBDECL_DNA
-  operator bool() const { return id.isValid(); }
+  explicit operator bool() const { return id.isValid(); }
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const {
     if (id.isValid())
       g_curSpec->flattenDependencies(id, pathsOut);
