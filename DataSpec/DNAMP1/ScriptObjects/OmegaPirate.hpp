@@ -60,7 +60,7 @@ struct OmegaPirate : IScriptObject {
       charAssoc.m_cmdlRigs[cmdlPhazonVeins] = {cskrPhazonVeins, cinfPhazonVeins};
       charAssoc.m_cskrToCharacter[cskrPhazonVeins] =
           std::make_pair(patternedInfo.animationParameters.animationCharacterSet,
-                         fmt::format(fmt("ATTACH.VEINS_{}.CSKR"), cskrPhazonVeins));
+                         fmt::format(FMT_STRING("ATTACH.VEINS_{}.CSKR"), cskrPhazonVeins));
       charAssoc.addAttachmentRig(patternedInfo.animationParameters.animationCharacterSet, cinfPhazonVeins,
                                  cmdlPhazonVeins, "VEINS");
     }

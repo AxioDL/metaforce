@@ -106,7 +106,7 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) {
   if (!GetIsVisible() || !xb8_tex0Tok.IsLoaded()) {
     return;
   }
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CAuiImagePane::Draw {}"), m_name).c_str(), zeus::skCyan);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CAuiImagePane::Draw {}"), m_name).c_str(), zeus::skCyan);
   GetIsFinishedLoadingWidgetSpecific();
   if (!m_filters || m_filters->m_texId != xb8_tex0Tok.GetObjectTag()->id) {
     m_filters.emplace(xb8_tex0Tok);

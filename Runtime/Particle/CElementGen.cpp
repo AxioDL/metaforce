@@ -255,7 +255,7 @@ bool CElementGen::Update(double t) {
   if (pswtElem && !x26d_25_warmedUp) {
     int pswt = 0;
     pswtElem->GetValue(x74_curFrame, pswt);
-    //Log.report(logvisor::Info, fmt("Running warmup on particle system 0x%08x for %d ticks."), desc, pswt);
+    //Log.report(logvisor::Info, FMT_STRING("Running warmup on particle system 0x%08x for %d ticks."), desc, pswt);
     InternalUpdate((1.f / 60.f) * pswt);
     x26d_25_warmedUp = true;
   }
@@ -813,7 +813,7 @@ u32 CElementGen::GetSystemCount() const {
 }
 
 void CElementGen::Render(const CActorLights* actorLights) {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CElementGen::Render {}"),
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::Render {}"),
     *x1c_genDesc.GetObjectTag()).c_str(), zeus::skYellow);
 
   CGenDescription* desc = x1c_genDesc.GetObj();
@@ -898,7 +898,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       g_instNoTexData.reserve(x30_particles.size());
       break;
     default:
-      Log.report(logvisor::Fatal, fmt("unexpected particle shader class"));
+      Log.report(logvisor::Fatal, FMT_STRING("unexpected particle shader class"));
       break;
     }
 
@@ -1310,7 +1310,7 @@ void CElementGen::RenderParticles() {
       g_instNoTexData.reserve(x30_particles.size());
       break;
     default:
-      Log.report(logvisor::Fatal, fmt("unexpected particle shader class"));
+      Log.report(logvisor::Fatal, FMT_STRING("unexpected particle shader class"));
       break;
     }
 
@@ -1499,7 +1499,7 @@ void CElementGen::RenderParticles() {
       g_instNoTexData.reserve(x30_particles.size() * mbspVal);
       break;
     default:
-      Log.report(logvisor::Fatal, fmt("unexpected particle shader class"));
+      Log.report(logvisor::Fatal, FMT_STRING("unexpected particle shader class"));
       break;
     }
     const float mbspFac = 1.f / float(mbspVal);

@@ -43,7 +43,7 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn, const MAPU& mapu, const 
     for (int i = 0; i < 3; ++i)
       wldXf.xf[i].simd.copy_to(wldXfF[i]);
     zeus::simd_floats hexColorF(wld.hexColor.mSimd);
-    os.format(fmt(
+    os.format(FMT_STRING(
         "wldObj = bpy.data.objects.new('{}', None)\n"
         "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
         "mtxd = mtx.decompose()\n"
@@ -62,7 +62,7 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn, const MAPU& mapu, const 
       zeus::simd_floats hexXfF[3];
       for (int i = 0; i < 3; ++i)
         hexXf.xf[i].simd.copy_to(hexXfF[i]);
-      os.format(fmt(
+      os.format(FMT_STRING(
           "obj = bpy.data.objects.new('{}_{}', hexMesh)\n"
           "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
           "mtxd = mtx.decompose()\n"

@@ -363,7 +363,7 @@ public:
   void push_back(const T& d) {
 #ifndef NDEBUG
     if (x0_size == N) {
-      Log.report(logvisor::Fatal, fmt("push_back() called on full rstl::reserved_vector."));
+      Log.report(logvisor::Fatal, FMT_STRING("push_back() called on full rstl::reserved_vector."));
     }
 #endif
 
@@ -374,7 +374,7 @@ public:
   void push_back(T&& d) {
 #ifndef NDEBUG
     if (x0_size == N) {
-      Log.report(logvisor::Fatal, fmt("push_back() called on full rstl::reserved_vector."));
+      Log.report(logvisor::Fatal, FMT_STRING("push_back() called on full rstl::reserved_vector."));
     }
 #endif
 
@@ -386,7 +386,7 @@ public:
   T& emplace_back(_Args&&... args) {
 #ifndef NDEBUG
     if (x0_size == N) {
-      Log.report(logvisor::Fatal, fmt("emplace_back() called on full rstl::reserved_vector."));
+      Log.report(logvisor::Fatal, FMT_STRING("emplace_back() called on full rstl::reserved_vector."));
     }
 #endif
 
@@ -400,7 +400,7 @@ public:
   void pop_back() {
 #ifndef NDEBUG
     if (x0_size == 0) {
-      Log.report(logvisor::Fatal, fmt("pop_back() called on empty rstl::reserved_vector."));
+      Log.report(logvisor::Fatal, FMT_STRING("pop_back() called on empty rstl::reserved_vector."));
     }
 #endif
 
@@ -411,7 +411,7 @@ public:
   iterator insert(const_iterator pos, const T& value) {
 #ifndef NDEBUG
     if (x0_size == N) {
-      Log.report(logvisor::Fatal, fmt("insert() called on full rstl::reserved_vector."));
+      Log.report(logvisor::Fatal, FMT_STRING("insert() called on full rstl::reserved_vector."));
     }
 #endif
 
@@ -432,7 +432,7 @@ public:
   iterator insert(const_iterator pos, T&& value) {
 #ifndef NDEBUG
     if (x0_size == N)
-      Log.report(logvisor::Fatal, fmt("insert() called on full rstl::reserved_vector."));
+      Log.report(logvisor::Fatal, FMT_STRING("insert() called on full rstl::reserved_vector."));
 #endif
     auto target_it = base::_const_cast_iterator(pos);
     if (pos == cend()) {
@@ -451,7 +451,7 @@ public:
   void resize(size_t size) {
 #ifndef NDEBUG
     if (size > N) {
-      Log.report(logvisor::Fatal, fmt("resize() call overflows rstl::reserved_vector."));
+      Log.report(logvisor::Fatal, FMT_STRING("resize() call overflows rstl::reserved_vector."));
     }
 #endif
 
@@ -473,7 +473,7 @@ public:
   void resize(size_t size, const T& value) {
 #ifndef NDEBUG
     if (size > N) {
-      Log.report(logvisor::Fatal, fmt("resize() call overflows rstl::reserved_vector."));
+      Log.report(logvisor::Fatal, FMT_STRING("resize() call overflows rstl::reserved_vector."));
     }
 #endif
 
@@ -495,7 +495,7 @@ public:
   iterator erase(const_iterator pos) {
 #ifndef NDEBUG
     if (x0_size == 0) {
-      Log.report(logvisor::Fatal, fmt("erase() called on empty rstl::reserved_vector."));
+      Log.report(logvisor::Fatal, FMT_STRING("erase() called on empty rstl::reserved_vector."));
     }
 #endif
 
@@ -554,7 +554,7 @@ public:
   [[nodiscard]] T& operator[](size_t idx) {
 #ifndef NDEBUG
     if (idx >= x0_size) {
-      Log.report(logvisor::Fatal, fmt("out of bounds access on reserved_vector."));
+      Log.report(logvisor::Fatal, FMT_STRING("out of bounds access on reserved_vector."));
     }
 #endif
     return _value(idx);
@@ -562,7 +562,7 @@ public:
   [[nodiscard]] const T& operator[](size_t idx) const {
 #ifndef NDEBUG
     if (idx >= x0_size) {
-      Log.report(logvisor::Fatal, fmt("out of bounds access on reserved_vector."));
+      Log.report(logvisor::Fatal, FMT_STRING("out of bounds access on reserved_vector."));
     }
 #endif
     return _value(idx);

@@ -122,7 +122,7 @@ bool CParticleSwooshDataFactory::CreateWPSM(CSwooshDescription* desc, CInputStre
       desc->x45_26_CRND = CPF::GetBool(in);
       break;
     default: {
-      Log.report(logvisor::Fatal, fmt("Unknown SWSH class {} @{}"), clsId, in.position());
+      Log.report(logvisor::Fatal, FMT_STRING("Unknown SWSH class {} @{}"), clsId, in.position());
       return false;
     }
     }

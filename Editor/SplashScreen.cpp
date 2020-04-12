@@ -36,12 +36,12 @@ SplashScreen::SplashScreen(ViewManager& vm, specter::ViewResources& res)
   if (GIT_COMMIT_DATE[0] != '\0' && GIT_COMMIT_HASH[0] != '\0' && GIT_BRANCH[0] != '\0') {
 #ifdef URDE_DLPACKAGE
     if ((URDE_DLPACKAGE)[0])
-      m_buildInfoStr = fmt::format(fmt("{}: {}\n{}: {}\n{}: {}"), vm.translate<locale::release>(),
+      m_buildInfoStr = fmt::format(FMT_STRING("{}: {}\n{}: {}\n{}: {}"), vm.translate<locale::release>(),
                                    URDE_DLPACKAGE, vm.translate<locale::commit>(), GIT_COMMIT_HASH,
                                    vm.translate<locale::date>(), GIT_COMMIT_DATE);
     else
 #endif
-      m_buildInfoStr = fmt::format(fmt("{}: {}\n{}: {}\n{}: {}"), vm.translate<locale::branch>(), GIT_BRANCH,
+      m_buildInfoStr = fmt::format(FMT_STRING("{}: {}\n{}: {}\n{}: {}"), vm.translate<locale::branch>(), GIT_BRANCH,
                                    vm.translate<locale::commit>(), GIT_COMMIT_HASH,
                                    vm.translate<locale::date>(), GIT_COMMIT_DATE);
   }
@@ -65,15 +65,15 @@ void SplashScreen::think() {
     m_openButt.m_view->think();
 
   if (m_newProjBind.m_deferPath.size()) {
-    Log.report(logvisor::Info, fmt(_SYS_STR("Making project '{}'")), m_newProjBind.m_deferPath);
+    Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Making project '{}'")), m_newProjBind.m_deferPath);
     m_vm.projectManager().newProject(m_newProjBind.m_deferPath);
     m_newProjBind.m_deferPath.clear();
   } else if (m_openProjBind.m_deferPath.size()) {
-    Log.report(logvisor::Info, fmt(_SYS_STR("Opening project '{}'")), m_openProjBind.m_deferPath);
+    Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Opening project '{}'")), m_openProjBind.m_deferPath);
     m_vm.projectManager().openProject(m_openProjBind.m_deferPath);
     m_openProjBind.m_deferPath.clear();
   } else if (m_extractProjBind.m_deferPath.size()) {
-    Log.report(logvisor::Info, fmt(_SYS_STR("Extracting game '{}'")), m_extractProjBind.m_deferPath);
+    Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Extracting game '{}'")), m_extractProjBind.m_deferPath);
     m_vm.projectManager().extractGame(m_extractProjBind.m_deferPath);
     m_extractProjBind.m_deferPath.clear();
   }

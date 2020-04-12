@@ -100,7 +100,7 @@ specter::View* SplitSpace::buildContentView(specter::ViewResources& res) {
 
 void SplitSpace::setChildSlot(unsigned slot, std::unique_ptr<Space>&& space) {
   if (slot > 1)
-    Log.report(logvisor::Fatal, fmt("invalid slot {} for SplitView"), slot);
+    Log.report(logvisor::Fatal, FMT_STRING("invalid slot {} for SplitView"), slot);
   m_slots[slot] = std::move(space);
   m_slots[slot]->m_parent = this;
 }
@@ -162,7 +162,7 @@ std::unique_ptr<Space> RootSpace::exchangeSpaceSplitJoin(Space* removeSpace, std
     m_spaceTree.swap(ret);
     m_spaceTree->m_parent = this;
   } else
-    Log.report(logvisor::Fatal, fmt("RootSpace::exchangeSpaceSplitJoin() failure"));
+    Log.report(logvisor::Fatal, FMT_STRING("RootSpace::exchangeSpaceSplitJoin() failure"));
 
   return ret;
 }
@@ -177,7 +177,7 @@ std::unique_ptr<Space> SplitSpace::exchangeSpaceSplitJoin(Space* removeSpace, st
     m_slots[1].swap(ret);
     m_slots[1]->m_parent = this;
   } else
-    Log.report(logvisor::Fatal, fmt("SplitSpace::exchangeSpaceSplitJoin() failure"));
+    Log.report(logvisor::Fatal, FMT_STRING("SplitSpace::exchangeSpaceSplitJoin() failure"));
 
   return ret;
 }

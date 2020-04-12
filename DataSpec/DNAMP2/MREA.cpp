@@ -13,7 +13,7 @@ namespace DNAMP2 {
 
 void MREA::StreamReader::nextBlock() {
   if (m_nextBlk >= m_blkCount)
-    Log.report(logvisor::Fatal, fmt("MREA stream overrun"));
+    Log.report(logvisor::Fatal, FMT_STRING("MREA stream overrun"));
 
   BlockInfo& info = m_blockInfos[m_nextBlk++];
 
@@ -86,7 +86,7 @@ void MREA::StreamReader::seek(atInt64 diff, athena::SeekOrigin whence) {
   }
 
   if (target >= m_totalDecompLen)
-    Log.report(logvisor::Fatal, fmt("MREA stream seek overrun"));
+    Log.report(logvisor::Fatal, FMT_STRING("MREA stream seek overrun"));
 
   /* Determine which block contains position */
   atUint32 dAccum = 0;
@@ -225,7 +225,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-  os.format(fmt(
+  os.format(FMT_STRING(
       "import bpy\n"
       "import bmesh\n"
       "from mathutils import Vector\n"
@@ -272,7 +272,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     drs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
     curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_2>(
         os, drs, pakRouter, entry, dummy, true, true, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec]);
-    os.format(fmt(
+    os.format(FMT_STRING(
         "obj.retro_disable_enviro_visor = {}\n"
         "obj.retro_disable_thermal_visor = {}\n"
         "obj.retro_disable_xray_visor = {}\n"

@@ -150,7 +150,7 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
       desc->xb0_FOFF = CPF::GetRealElement(in);
       break;
     default: {
-      Log.report(logvisor::Fatal, fmt("Unknown WPSM class {} @{}"), clsId, in.position());
+      Log.report(logvisor::Fatal, FMT_STRING("Unknown WPSM class {} @{}"), clsId, in.position());
       return false;
     }
     }

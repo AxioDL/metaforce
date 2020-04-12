@@ -916,7 +916,7 @@ void CStateManager::DrawActorCubeFaces(CActor& actor, int& cubeInst) const {
   }
 
   for (int f = 0; f < 6; ++f) {
-    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CStateManager::DrawActorCubeFaces [{}] {} {} {}"), f,
+    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CStateManager::DrawActorCubeFaces [{}] {} {} {}"), f,
                                             actor.GetUniqueId(), actor.GetEditorId(), actor.GetName())
                                     .c_str(),
                                 zeus::skOrange);
@@ -1211,7 +1211,7 @@ void CStateManager::RecursiveDrawTree(TUniqueId node) {
 void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMessage msg) {
   if (dest && !dest->x30_26_scriptingBlocked) {
     if (sm_logScripting && sm_logScripting->toBoolean())
-      LogModule.report(logvisor::Info, fmt("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
+      LogModule.report(logvisor::Info, FMT_STRING("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
                        dest->GetName(), dest->GetUniqueId());
     dest->AcceptScriptMsg(msg, src, *this);
   }
@@ -1226,7 +1226,7 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
   CEntity* dst = ObjectById(dest);
   if (dst) {
     if (sm_logScripting && sm_logScripting->toBoolean())
-      LogModule.report(logvisor::Info, fmt("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
+      LogModule.report(logvisor::Info, FMT_STRING("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
                        dst->GetName(), dst->GetUniqueId());
     dst->AcceptScriptMsg(msg, src, *this);
   }
@@ -1282,7 +1282,7 @@ void CStateManager::FreeScriptObject(TUniqueId id) {
   }
 
   if (sm_logScripting && sm_logScripting->toBoolean())
-    LogModule.report(logvisor::Info, fmt("Removed '{}'"), ent->GetName());
+    LogModule.report(logvisor::Info, FMT_STRING("Removed '{}'"), ent->GetName());
 }
 
 std::pair<const SScriptObjectStream*, TEditorId> CStateManager::GetBuildForScript(TEditorId id) const {
@@ -1374,16 +1374,16 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
 
   u32 readAmt = in.position() - startPos;
   if (readAmt > length)
-    LogModule.report(logvisor::Fatal, fmt("Script object overread while reading {}"), ScriptObjectTypeToStr(type));
+    LogModule.report(logvisor::Fatal, FMT_STRING("Script object overread while reading {}"), ScriptObjectTypeToStr(type));
   u32 leftover = length - readAmt;
   for (u32 i = 0; i < leftover; ++i)
     in.readByte();
 
   if (error || ent == nullptr) {
-    LogModule.report(logvisor::Error, fmt("Script load error while loading {}"), ScriptObjectTypeToStr(type));
+    LogModule.report(logvisor::Error, FMT_STRING("Script load error while loading {}"), ScriptObjectTypeToStr(type));
     return {kInvalidEditorId, kInvalidUniqueId};
   } else {
-    LogModule.report(logvisor::Info, fmt("Loaded {} in area {}"), ent->GetName(), ent->GetAreaIdAlways());
+    LogModule.report(logvisor::Info, FMT_STRING("Loaded {} in area {}"), ent->GetName(), ent->GetAreaIdAlways());
     return {id, ent->GetUniqueId()};
   }
 }
@@ -2471,7 +2471,7 @@ void CStateManager::AddObject(CEntity& ent) {
   }
 
   if (sm_logScripting && sm_logScripting->toBoolean())
-    LogModule.report(logvisor::Info, fmt("Added '{}'"), ent.GetName());
+    LogModule.report(logvisor::Info, FMT_STRING("Added '{}'"), ent.GetName());
 }
 
 void CStateManager::AddObject(CEntity* ent) {
@@ -2516,7 +2516,7 @@ TUniqueId CStateManager::AllocateUniqueId() {
     ourIndex = x0_nextFreeIndex;
     x0_nextFreeIndex = (x0_nextFreeIndex + 1) & 0x3ff;
     if (x0_nextFreeIndex == lastIndex)
-      LogModule.report(logvisor::Fatal, fmt("Object List Full!"));
+      LogModule.report(logvisor::Fatal, FMT_STRING("Object List Full!"));
   } while (GetAllObjectList().GetObjectByIndex(ourIndex) != nullptr);
 
   x8_idArr[ourIndex] = (x8_idArr[ourIndex] + 1) & 0x3f;

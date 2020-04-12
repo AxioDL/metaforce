@@ -253,7 +253,7 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
   CMemoryInStream r(data.get() + 4, 96 - 4);
   u32 version = r.readUint32Big();
   if (!(version & 0x10000))
-    Log.report(logvisor::Fatal, fmt("Attempted to load non-URDE MREA"));
+    Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-URDE MREA"));
 
   version &= ~0x10000;
   header.version = (version >= 12 && version <= 15) ? version : 0;
@@ -1148,7 +1148,7 @@ SMREAHeader CGameArea::VerifyHeader() const {
   CMemoryInStream r(x110_mreaSecBufs[0].first.get() + 4, x110_mreaSecBufs[0].second - 4);
   u32 version = r.readUint32Big();
   if (!(version & 0x10000))
-    Log.report(logvisor::Fatal, fmt("Attempted to load non-URDE MREA"));
+    Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-URDE MREA"));
   version &= ~0x10000;
   header.version = (version >= 12 && version <= 15) ? version : 0;
   if (!header.version)

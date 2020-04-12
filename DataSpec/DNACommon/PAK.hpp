@@ -31,7 +31,7 @@ public:
   PAKEntryReadStream(std::unique_ptr<atUint8[]>&& buf, atUint64 sz, atUint64 pos)
   : m_buf(std::move(buf)), m_sz(sz), m_pos(pos) {
     if (m_pos >= m_sz)
-      LogDNACommon.report(logvisor::Fatal, fmt("PAK stream cursor overrun"));
+      LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAK stream cursor overrun"));
   }
   void seek(atInt64 pos, athena::SeekOrigin origin) override {
     if (origin == athena::SeekOrigin::Begin) {
@@ -42,7 +42,7 @@ public:
       m_pos = m_sz + pos;
     }
     if (m_pos > m_sz) {
-      LogDNACommon.report(logvisor::Fatal, fmt("PAK stream cursor overrun"));
+      LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAK stream cursor overrun"));
     }
   }
   atUint64 position() const override { return m_pos; }

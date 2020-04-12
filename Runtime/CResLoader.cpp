@@ -210,7 +210,7 @@ bool CResLoader::FindResource(CAssetId id) const {
       return true;
   }
 
-  Log.report(logvisor::Warning, fmt("Unable to find asset {}"), id);
+  Log.report(logvisor::Warning, FMT_STRING("Unable to find asset {}"), id);
   return false;
 }
 
@@ -234,7 +234,7 @@ CPakFile* CResLoader::FindResourceForLoad(CAssetId id) {
     }
   }
 
-  Log.report(logvisor::Error, fmt("Unable to find asset {}"), id);
+  Log.report(logvisor::Error, FMT_STRING("Unable to find asset {}"), id);
   return nullptr;
 }
 

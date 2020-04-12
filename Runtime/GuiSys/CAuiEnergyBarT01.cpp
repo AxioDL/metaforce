@@ -57,7 +57,7 @@ void CAuiEnergyBarT01::Draw(const CGuiWidgetDrawParms& drawParms) {
   if (!xbc_tex || !xbc_tex.IsLoaded() || !xd8_coordFunc) {
     return;
   }
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CAuiEnergyBarT01::Draw {}"), m_name).c_str(), zeus::skCyan);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CAuiEnergyBarT01::Draw {}"), m_name).c_str(), zeus::skCyan);
 
   CGraphics::SetModelMatrix(x34_worldXF);
   m_energyBarShader.updateModelMatrix();

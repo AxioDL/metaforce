@@ -273,6 +273,7 @@ void CParticleDatabase::AddToRendererClipped(const zeus::CFrustum& frustum) cons
 }
 
 CParticleGenInfo* CParticleDatabase::GetParticleEffect(std::string_view name) const {
+  // TODO: Heterogeneous lookup when C++20 available
   auto search = x3c_rendererDrawLoop.find(name.data());
   if (search != x3c_rendererDrawLoop.end())
     return search->second.get();

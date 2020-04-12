@@ -21,7 +21,7 @@ void CAnimFormatUnion::SubConstruct(u8* storage, EAnimFormat fmt, CInputStream& 
     new (storage) CFBStreamedCompression(in, store, true);
     break;
   default:
-    Log.report(logvisor::Fatal, fmt("unable to read ANIM format {}"), int(fmt));
+    Log.report(logvisor::Fatal, FMT_STRING("unable to read ANIM format {}"), int(fmt));
   }
 }
 

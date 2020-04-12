@@ -79,15 +79,15 @@ public:
   PAKRouterBase(const SpecBase& dataSpec) : m_dataSpec(dataSpec) {}
   hecl::Database::Project& getProject() const { return m_dataSpec.getProject(); }
   virtual hecl::ProjectPath getWorking(const UniqueID32&, bool silenceWarnings = false) const {
-    LogDNACommon.report(logvisor::Fatal, fmt("PAKRouter IDType mismatch; expected UniqueID32 specialization"));
+    LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAKRouter IDType mismatch; expected UniqueID32 specialization"));
     return hecl::ProjectPath();
   }
   virtual hecl::ProjectPath getWorking(const UniqueID64&, bool silenceWarnings = false) const {
-    LogDNACommon.report(logvisor::Fatal, fmt("PAKRouter IDType mismatch; expected UniqueID64 specialization"));
+    LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAKRouter IDType mismatch; expected UniqueID64 specialization"));
     return hecl::ProjectPath();
   }
   virtual hecl::ProjectPath getWorking(const UniqueID128&, bool silenceWarnings = false) const {
-    LogDNACommon.report(logvisor::Fatal, fmt("PAKRouter IDType mismatch; expected UniqueID128 specialization"));
+    LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAKRouter IDType mismatch; expected UniqueID128 specialization"));
     return hecl::ProjectPath();
   }
 };

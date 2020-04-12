@@ -45,7 +45,7 @@ struct PPImpl : BigDNA, _Basis {
     constexpr FourCC RefType = uint32_t(_Basis::Type);
     DNAFourCC clsId(r);
     if (clsId != RefType) {
-      LogModule.report(logvisor::Warning, fmt("non {} provided to {} parser"), RefType, RefType);
+      LogModule.report(logvisor::Warning, FMT_STRING("non {} provided to {} parser"), RefType, RefType);
       return;
     }
     clsId.read(r);
@@ -68,7 +68,7 @@ struct PPImpl : BigDNA, _Basis {
           p.read(r);
         }
       })) {
-        LogModule.report(logvisor::Fatal, fmt("Unknown {} class {} @{}"), RefType, clsId, r.position());
+        LogModule.report(logvisor::Fatal, FMT_STRING("Unknown {} class {} @{}"), RefType, clsId, r.position());
       }
       clsId.read(r);
     }
@@ -124,7 +124,7 @@ struct PPImpl : BigDNA, _Basis {
       if (key == "DNAType"sv)
         continue;
       if (key.size() < 4) {
-        LogModule.report(logvisor::Warning, fmt("short FourCC in element '{}'"), key);
+        LogModule.report(logvisor::Warning, FMT_STRING("short FourCC in element '{}'"), key);
         continue;
       }
 
@@ -142,7 +142,7 @@ struct PPImpl : BigDNA, _Basis {
             p.read(r);
           }
         })) {
-          LogModule.report(logvisor::Fatal, fmt("Unknown {} class {}"), RefType, clsId);
+          LogModule.report(logvisor::Fatal, FMT_STRING("Unknown {} class {}"), RefType, clsId);
         }
       }
     }
@@ -201,7 +201,7 @@ struct PEImpl : BigDNA {
       m_elem = std::make_unique<typename Tp::Type>();
       m_elem->read(r);
     })) {
-      LogModule.report(logvisor::Fatal, fmt("Unknown {} class {} @{}"), _PtrType::TypeName, clsId, r.position());
+      LogModule.report(logvisor::Fatal, FMT_STRING("Unknown {} class {} @{}"), _PtrType::TypeName, clsId, r.position());
     }
   }
 
@@ -229,7 +229,7 @@ struct PEImpl : BigDNA {
 
     const auto& [key, value] = mapChildren[0];
     if (key.size() < 4)
-      LogModule.report(logvisor::Fatal, fmt("short FourCC in element '{}'"), key);
+      LogModule.report(logvisor::Fatal, FMT_STRING("short FourCC in element '{}'"), key);
 
     if (auto rec = r.enterSubRecord(key)) {
       const DNAFourCC clsId = key.c_str();
@@ -238,7 +238,7 @@ struct PEImpl : BigDNA {
         m_elem = std::make_unique<typename Tp::Type>();
         m_elem->read(r);
       })) {
-        LogModule.report(logvisor::Fatal, fmt("Unknown {} class {}"), _PtrType::TypeName, clsId);
+        LogModule.report(logvisor::Fatal, FMT_STRING("Unknown {} class {}"), _PtrType::TypeName, clsId);
       }
     }
   }

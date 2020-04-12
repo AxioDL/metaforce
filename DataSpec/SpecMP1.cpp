@@ -69,10 +69,10 @@ struct TextureCache {
     texturePath.makeDirChain(false);
 
     if (const auto fp = hecl::FopenUnique(catalogPath.getAbsolutePath().data(), _SYS_STR("a"))) {
-      fmt::print(fp.get(), fmt("TextureCache: {}\n"), texturePath.getRelativePathUTF8());
+      fmt::print(fp.get(), FMT_STRING("TextureCache: {}\n"), texturePath.getRelativePathUTF8());
     }
 
-    Log.report(logvisor::Level::Info, fmt("Gathering Texture metadata (this can take up to 10 seconds)..."));
+    Log.report(logvisor::Level::Info, FMT_STRING("Gathering Texture metadata (this can take up to 10 seconds)..."));
     std::unordered_map<UniqueID32, TXTR::Meta> metaMap;
 
     pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) {
@@ -92,7 +92,7 @@ struct TextureCache {
 
     athena::io::FileWriter fileW(texturePath.getAbsolutePath());
     yamlW.finish(&fileW);
-    Log.report(logvisor::Level::Info, fmt("Done..."));
+    Log.report(logvisor::Level::Info, FMT_STRING("Done..."));
   }
 
   static void Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
@@ -740,7 +740,7 @@ struct SpecMP1 : SpecBase {
     }
 
     if (!colMesh)
-      Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to find mesh named 'CMESH' in {}")), in.getAbsolutePath());
+      Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to find mesh named 'CMESH' in {}")), in.getAbsolutePath());
 
     std::vector<Light> lights = ds.compileLights();
 
@@ -978,7 +978,7 @@ struct SpecMP1 : SpecBase {
     {
       athena::io::FileReader r(worldPathCooked.getAbsolutePath());
       if (r.hasError())
-        Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to open world {}")), worldPathCooked.getRelativePath());
+        Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to open world {}")), worldPathCooked.getRelativePath());
       mlvl.read(r);
     }
 
@@ -1074,10 +1074,10 @@ struct SpecMP1 : SpecBase {
         if (hecl::ProjectPath mapCookedPath = getCookedPath(mapPath, true)) {
           athena::io::FileReader r(mapCookedPath.getAbsolutePath());
           if (r.hasError())
-            Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to open {}")), mapCookedPath.getRelativePath());
+            Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to open {}")), mapCookedPath.getRelativePath());
 
           if (r.readUint32Big() != 0xDEADF00D)
-            Log.report(logvisor::Fatal, fmt(_SYS_STR("Corrupt MAPW {}")), mapCookedPath.getRelativePath());
+            Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Corrupt MAPW {}")), mapCookedPath.getRelativePath());
           r.readUint32Big();
           atUint32 mapaCount = r.readUint32Big();
           for (atUint32 i = 0; i < mapaCount; ++i) {
@@ -1100,7 +1100,7 @@ struct SpecMP1 : SpecBase {
         for (const auto& tex : textures) {
           urde::SObjectTag texTag = tagFromPath(tex);
           if (!texTag)
-            Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to resolve {}")), tex.getRelativePath());
+            Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to resolve {}")), tex.getRelativePath());
           listOut.push_back(texTag);
         }
       }

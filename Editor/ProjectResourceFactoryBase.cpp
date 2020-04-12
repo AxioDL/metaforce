@@ -22,7 +22,7 @@ void ProjectResourceFactoryBase::BeginBackgroundIndex(hecl::Database::Project& p
 }
 
 bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working) {
-  Log.report(logvisor::Warning, fmt(_SYS_STR("sync-cooking {}")), working.getRelativePath());
+  Log.report(logvisor::Warning, FMT_STRING(_SYS_STR("sync-cooking {}")), working.getRelativePath());
   return m_clientProc.syncCook(working, m_cookSpec.get(), hecl::blender::SharedBlenderToken, false, false);
 }
 
@@ -38,12 +38,12 @@ CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag, co
     u32 length = fr->length();
     std::unique_ptr<u8[]> memBuf = fr->readUBytes(length);
     CFactoryFnReturn ret = m_factoryMgr.MakeObjectFromMemory(tag, std::move(memBuf), length, false, paramXfer, selfRef);
-    Log.report(logvisor::Info, fmt("sync-built {}"), tag);
+    Log.report(logvisor::Info, FMT_STRING("sync-built {}"), tag);
     return ret;
   }
 
   CFactoryFnReturn ret = m_factoryMgr.MakeObject(tag, *fr, paramXfer, selfRef);
-  Log.report(logvisor::Info, fmt("sync-built {}"), tag);
+  Log.report(logvisor::Info, FMT_STRING("sync-built {}"), tag);
   return ret;
 }
 
@@ -53,7 +53,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
 
     /* Ensure requested resource is on the filesystem */
     if (!path.isFileOrGlob()) {
-      Log.report(logvisor::Error, fmt(_SYS_STR("unable to find resource path '{}'")), path.getRelativePath());
+      Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to find resource path '{}'")), path.getRelativePath());
       m_failed = true;
       return;
     }
@@ -66,7 +66,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
       /* Last chance type validation */
       urde::SObjectTag verifyTag = m_parent.TagFromPath(path);
       if (verifyTag.type != tag.type) {
-        Log.report(logvisor::Error, fmt(_SYS_STR("{}: expected type '{}', found '{}'")), path.getRelativePath(),
+        Log.report(logvisor::Error, FMT_STRING(_SYS_STR("{}: expected type '{}', found '{}'")), path.getRelativePath(),
                    tag.type, verifyTag.type);
         m_failed = true;
         return;
@@ -91,7 +91,7 @@ void ProjectResourceFactoryBase::AsyncTask::CookComplete() {
   /* Ensure cooked rep is on the filesystem */
   athena::io::FileReader fr(m_cookedPath.getAbsolutePath(), 32 * 1024, false);
   if (fr.hasError()) {
-    Log.report(logvisor::Error, fmt(_SYS_STR("unable to open cooked resource path '{}'")), m_cookedPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to open cooked resource path '{}'")), m_cookedPath.getAbsolutePath());
     m_failed = true;
     return;
   }
@@ -171,7 +171,7 @@ bool ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag, const he
                                                  std::optional<athena::io::FileReader>& fr) {
   /* Ensure requested resource is on the filesystem */
   if (!path.isFileOrGlob()) {
-    Log.report(logvisor::Error, fmt(_SYS_STR("unable to find resource path '{}'")), path.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to find resource path '{}'")), path.getAbsolutePath());
     return false;
   }
 
@@ -183,7 +183,7 @@ bool ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag, const he
     /* Last chance type validation */
     urde::SObjectTag verifyTag = TagFromPath(path);
     if (verifyTag.type != tag.type) {
-      Log.report(logvisor::Error, fmt(_SYS_STR("{}: expected type '{}', found '{}'")), path.getRelativePath(),
+      Log.report(logvisor::Error, FMT_STRING(_SYS_STR("{}: expected type '{}', found '{}'")), path.getRelativePath(),
                  tag.type, verifyTag.type);
       return false;
     }
@@ -195,7 +195,7 @@ bool ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag, const he
     if (!cooked.isFile() || cooked.getModtime() < path.getModtime()) {
       /* Do a blocking cook here */
       if (!SyncCook(path)) {
-        Log.report(logvisor::Error, fmt(_SYS_STR("unable to cook resource path '{}'")), path.getAbsolutePath());
+        Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to cook resource path '{}'")), path.getAbsolutePath());
         return false;
       }
     }
@@ -204,7 +204,7 @@ bool ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag, const he
   /* Ensure cooked rep is on the filesystem */
   fr.emplace(cooked.getAbsolutePath(), 32 * 1024, false);
   if (fr->hasError()) {
-    Log.report(logvisor::Error, fmt(_SYS_STR("unable to open cooked resource path '{}'")), cooked.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to open cooked resource path '{}'")), cooked.getAbsolutePath());
     return false;
   }
 
@@ -215,7 +215,7 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
                                                               const urde::CVParamTransfer& paramXfer,
                                                               CObjectReference* selfRef) {
   if (!tag.id.IsValid())
-    Log.report(logvisor::Fatal, fmt("attempted to access null id on type '{}'"), tag.type);
+    Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id on type '{}'"), tag.type);
 
   const hecl::ProjectPath* resPath = nullptr;
   if (!WaitForTagReady(tag, resPath))
@@ -243,14 +243,14 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
       }
 
       //*task.xc_targetObjPtr = newObj.get();
-      Log.report(logvisor::Warning, fmt("spin-built {}"), task.x0_tag);
+      Log.report(logvisor::Warning, FMT_STRING("spin-built {}"), task.x0_tag);
 
       _RemoveTask(asyncSearch);
       return newObj;
     } else if (task.m_complete) {
-      Log.report(logvisor::Error, fmt("unable to spin-build {}; Resource requested as cook-only"), task.x0_tag);
+      Log.report(logvisor::Error, FMT_STRING("unable to spin-build {}; Resource requested as cook-only"), task.x0_tag);
     } else {
-      Log.report(logvisor::Error, fmt("unable to spin-build {}"), task.x0_tag);
+      Log.report(logvisor::Error, FMT_STRING("unable to spin-build {}"), task.x0_tag);
     }
 
     _RemoveTask(asyncSearch);
@@ -273,14 +273,14 @@ std::shared_ptr<AsyncTask> ProjectResourceFactoryBase::BuildAsyncInternal(const 
 void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag, const urde::CVParamTransfer& paramXfer,
                                             std::unique_ptr<urde::IObj>* objOut, CObjectReference* selfRef) {
   if (!tag.id.IsValid())
-    Log.report(logvisor::Fatal, fmt("attempted to access null id on type '{}'"), tag.type);
+    Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id on type '{}'"), tag.type);
 
   BuildAsyncInternal(tag, paramXfer, objOut, selfRef);
 }
 
 u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag) {
   if (!tag.id.IsValid())
-    Log.report(logvisor::Fatal, fmt("attempted to access null id on type '{}'"), tag.type);
+    Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id on type '{}'"), tag.type);
 
   /* Ensure resource at requested path is indexed and not cooking */
   const hecl::ProjectPath* resPath = nullptr;
@@ -298,7 +298,7 @@ u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag) {
 std::shared_ptr<urde::IDvdRequest> ProjectResourceFactoryBase::LoadResourceAsync(const urde::SObjectTag& tag,
                                                                                  void* target) {
   if (!tag.id.IsValid())
-    Log.report(logvisor::Fatal, fmt("attempted to access null id"));
+    Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id"));
   if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
     return {};
   return std::static_pointer_cast<urde::IDvdRequest>(
@@ -308,7 +308,7 @@ std::shared_ptr<urde::IDvdRequest> ProjectResourceFactoryBase::LoadResourceAsync
 std::shared_ptr<urde::IDvdRequest> ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
                                                                                      u32 off, u32 size, void* target) {
   if (!tag.id.IsValid())
-    Log.report(logvisor::Fatal, fmt("attempted to access null id"));
+    Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id"));
   if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
     return {};
   return std::static_pointer_cast<urde::IDvdRequest>(
@@ -317,7 +317,7 @@ std::shared_ptr<urde::IDvdRequest> ProjectResourceFactoryBase::LoadResourcePartA
 
 std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::SObjectTag& tag) {
   if (!tag.id.IsValid())
-    Log.report(logvisor::Fatal, fmt("attempted to access null id"));
+    Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id"));
 
   /* Ensure resource at requested path is indexed and not cooking */
   const hecl::ProjectPath* resPath = nullptr;
@@ -335,7 +335,7 @@ std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::S
 std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off,
                                                                           u32 size) {
   if (!tag.id.IsValid())
-    Log.report(logvisor::Fatal, fmt("attempted to access null id"));
+    Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id"));
 
   /* Ensure resource at requested path is indexed and not cooking */
   const hecl::ProjectPath* resPath = nullptr;
@@ -354,7 +354,7 @@ std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadNewResourcePartSync(const 
 
 std::shared_ptr<AsyncTask> ProjectResourceFactoryBase::CookResourceAsync(const urde::SObjectTag& tag) {
   if (!tag.id.IsValid())
-    Log.report(logvisor::Fatal, fmt("attempted to access null id"));
+    Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id"));
   if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
     return {};
   return _AddTask(std::make_shared<AsyncTask>(*this, tag));
@@ -364,7 +364,7 @@ void ProjectResourceFactoryBase::CancelBuild(const urde::SObjectTag& tag) { _Rem
 
 bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag) {
   if (!tag.id.IsValid())
-    Log.report(logvisor::Fatal, fmt("attempted to access null id"));
+    Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id"));
 
   const hecl::ProjectPath* resPath = nullptr;
   if (!WaitForTagReady(tag, resPath))
@@ -400,7 +400,7 @@ bool ProjectResourceFactoryBase::AsyncPumpTask(ItType& it) {
   hecl::ProjectPath path = static_cast<DataSpec::SpecBase&>(*m_cookSpec).pathFromTag(task.x0_tag);
   if (!path) {
     if (!static_cast<DataSpec::SpecBase&>(*m_cookSpec).backgroundIndexRunning()) {
-      Log.report(logvisor::Error, fmt(_SYS_STR("unable to find async load resource ({})")), task.x0_tag);
+      Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to find async load resource ({})")), task.x0_tag);
       it = _RemoveTask(it);
     }
     return true;
@@ -423,14 +423,14 @@ bool ProjectResourceFactoryBase::AsyncPumpTask(ItType& it) {
         }
 
         *task.xc_targetObjPtr = std::move(newObj);
-        Log.report(logvisor::Info, fmt("async-built {}"), task.x0_tag);
+        Log.report(logvisor::Info, FMT_STRING("async-built {}"), task.x0_tag);
       } else if (task.xc_targetDataPtr) {
         /* Buffer only */
         *task.xc_targetDataPtr = std::move(task.x10_loadBuffer);
-        Log.report(logvisor::Info, fmt("async-loaded {}"), task.x0_tag);
+        Log.report(logvisor::Info, FMT_STRING("async-loaded {}"), task.x0_tag);
       } else if (task.xc_targetDataRawPtr) {
         /* Buffer only raw */
-        Log.report(logvisor::Info, fmt("async-loaded {}"), task.x0_tag);
+        Log.report(logvisor::Info, FMT_STRING("async-loaded {}"), task.x0_tag);
       }
     }
 

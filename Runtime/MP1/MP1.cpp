@@ -371,7 +371,7 @@ void CMain::AddOverridePaks() {
    * the higher the number the higer the priority, e.g: Override0 has less priority than Override1 etc.
    */
   for (size_t i = 999; i > 0; --i) {
-    const std::string path = fmt::format(fmt("Override{}"), i);
+    const std::string path = fmt::format(FMT_STRING("Override{}"), i);
     if (CDvdFile::FileExists(path + ".upak")) {
       loader->AddPakFileAsync(path, false, false, true);
     }
@@ -459,13 +459,13 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
   } else {
     CPlayerState::EItemType eType = CPlayerState::ItemNameToType(type);
     if (eType == CPlayerState::EItemType::Invalid) {
-      console->report(hecl::Console::Level::Info, fmt("Invalid item {}"), type);
+      console->report(hecl::Console::Level::Info, FMT_STRING("Invalid item {}"), type);
       return;
     }
     if (eType == CPlayerState::EItemType::HealthRefill) {
       pState->IncrPickup(eType, 9999);
       console->report(hecl::Console::Level::Info,
-                      fmt("Cheater....., Greatly increasing Metroid encounters, have fun!"));
+                      FMT_STRING("Cheater....., Greatly increasing Metroid encounters, have fun!"));
       if (g_StateManager)
         g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
       return;
@@ -495,7 +495,7 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
   }
   if (g_StateManager)
     g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
-  console->report(hecl::Console::Level::Info, fmt("Cheater....., Greatly increasing Metroid encounters, have fun!"));
+  console->report(hecl::Console::Level::Info, FMT_STRING("Cheater....., Greatly increasing Metroid encounters, have fun!"));
 } // namespace MP1
 
 void CMain::Remove(hecl::Console*, const std::vector<std::string>& args) {
@@ -523,9 +523,9 @@ void CMain::God(hecl::Console* con, const std::vector<std::string>&) {
   if (g_GameState && g_GameState->GetPlayerState()) {
     g_GameState->GetPlayerState()->SetCanTakeDamage(!g_GameState->GetPlayerState()->CanTakeDamage());
     if (!g_GameState->GetPlayerState()->CanTakeDamage())
-      con->report(hecl::Console::Level::Info, fmt("God Mode Enabled"));
+      con->report(hecl::Console::Level::Info, FMT_STRING("God Mode Enabled"));
     else
-      con->report(hecl::Console::Level::Info, fmt("God Mode Disabled"));
+      con->report(hecl::Console::Level::Info, FMT_STRING("God Mode Disabled"));
   }
 }
 
@@ -556,7 +556,7 @@ void CMain::ListWorlds(hecl::Console* con, const std::vector<std::string>&) {
       if (pak->IsWorldPak()) {
         for (const auto& named : pak->GetNameList())
           if (named.second.type == SBIG('MLVL')) {
-            con->report(hecl::Console::Level::Info, fmt("{} '{}'"), named.first, named.second.id);
+            con->report(hecl::Console::Level::Info, FMT_STRING("{} '{}'"), named.first, named.second.id);
           }
       }
   }
@@ -674,7 +674,7 @@ void CMain::UpdateDiscordPresence(CAssetId worldSTRG) {
       u32 itemPercent = pState->CalculateItemCollectionRate() * 100 / pState->GetPickupTotal();
       if (DiscordItemPercent != itemPercent) {
         DiscordItemPercent = itemPercent;
-        DiscordState = fmt::format(fmt("{}%"), itemPercent);
+        DiscordState = fmt::format(FMT_STRING("{}%"), itemPercent);
         updated = true;
       }
     }
@@ -690,14 +690,14 @@ void CMain::UpdateDiscordPresence(CAssetId worldSTRG) {
   }
 }
 
-void CMain::HandleDiscordReady(const DiscordUser* request) { DiscordLog.report(logvisor::Info, fmt("Discord Ready")); }
+void CMain::HandleDiscordReady(const DiscordUser* request) { DiscordLog.report(logvisor::Info, FMT_STRING("Discord Ready")); }
 
 void CMain::HandleDiscordDisconnected(int errorCode, const char* message) {
-  DiscordLog.report(logvisor::Warning, fmt("Discord Disconnected: {}"), message);
+  DiscordLog.report(logvisor::Warning, FMT_STRING("Discord Disconnected: {}"), message);
 }
 
 void CMain::HandleDiscordErrored(int errorCode, const char* message) {
-  DiscordLog.report(logvisor::Error, fmt("Discord Error: {}"), message);
+  DiscordLog.report(logvisor::Error, FMT_STRING("Discord Error: {}"), message);
 }
 
 void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarMgr, boo::IWindow* window,
@@ -825,7 +825,7 @@ void CMain::WarmupShaders() {
 
   m_warmupIt = m_warmupTags.begin();
 
-  WarmupLog.report(logvisor::Info, fmt("Began warmup of {} objects"), m_warmupTags.size());
+  WarmupLog.report(logvisor::Info, FMT_STRING("Began warmup of {} objects"), m_warmupTags.size());
 }
 
 bool CMain::Proc() {
@@ -882,7 +882,7 @@ void CMain::Draw() {
     }
     auto startTime = std::chrono::steady_clock::now();
     while (m_warmupIt != m_warmupTags.end()) {
-      WarmupLog.report(logvisor::Info, fmt("[{} / {}] Warming {}"), int(m_warmupIt - m_warmupTags.begin() + 1),
+      WarmupLog.report(logvisor::Info, FMT_STRING("[{} / {}] Warming {}"), int(m_warmupIt - m_warmupTags.begin() + 1),
                        int(m_warmupTags.size()), *m_warmupIt);
 
       if (m_warmupIt->type == FOURCC('CMDL'))
@@ -898,7 +898,7 @@ void CMain::Draw() {
     }
     if (m_warmupIt == m_warmupTags.end()) {
       m_warmupTags = std::vector<SObjectTag>();
-      WarmupLog.report(logvisor::Info, fmt("Finished warmup"));
+      WarmupLog.report(logvisor::Info, FMT_STRING("Finished warmup"));
     }
     return;
   }

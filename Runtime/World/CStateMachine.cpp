@@ -79,7 +79,7 @@ void CStateMachineState::Update(CStateManager& mgr, CAi& ai, float delta) {
         x4_state->CallFunc(mgr, ai, EStateMsg::Deactivate, 0.f);
         x4_state = state;
 #ifndef NDEBUG
-        fmt::print(fmt("{} {} {} - {} {}\n"), ai.GetUniqueId(), ai.GetEditorId(), ai.GetName(),
+        fmt::print(FMT_STRING("{} {} {} - {} {}\n"), ai.GetUniqueId(), ai.GetEditorId(), ai.GetName(),
                    state->xc_name, int(state - x0_machine->GetStateVector().data()));
 #endif
         x8_time = 0.f;

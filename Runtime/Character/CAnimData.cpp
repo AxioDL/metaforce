@@ -86,7 +86,7 @@ CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAn
 
   if (defaultAnim == -1) {
     defaultAnim = 0;
-    Log.report(logvisor::Warning, fmt("Character {} has invalid initial animation, so defaulting to first."),
+    Log.report(logvisor::Warning, FMT_STRING("Character {} has invalid initial animation, so defaulting to first."),
                character.GetCharacterName());
   }
 

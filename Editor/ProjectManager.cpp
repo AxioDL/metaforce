@@ -48,7 +48,7 @@ ProjectManager::ProjectManager(ViewManager& vm)
 bool ProjectManager::newProject(hecl::SystemStringView path) {
   hecl::ProjectRootPath projPath = hecl::SearchForProject(path);
   if (projPath) {
-    Log.report(logvisor::Warning, fmt(_SYS_STR("project already exists at '{}'")), path);
+    Log.report(logvisor::Warning, FMT_STRING(_SYS_STR("project already exists at '{}'")), path);
     return false;
   }
 
@@ -63,7 +63,7 @@ bool ProjectManager::newProject(hecl::SystemStringView path) {
   m_vm.SetupEditorView();
   saveProject();
 
-  m_vm.m_mainWindow->setTitle(fmt::format(fmt(_SYS_STR("{} - URDE [{}]")),
+  m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - URDE [{}]")),
     m_proj->getProjectRootPath().getLastComponent(), m_vm.platformName()));
   m_vm.DismissSplash();
   m_vm.FadeInEditors();
@@ -75,7 +75,7 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
   hecl::SystemString subPath;
   hecl::ProjectRootPath projPath = hecl::SearchForProject(path, subPath);
   if (!projPath) {
-    Log.report(logvisor::Warning, fmt(_SYS_STR("project doesn't exist at '{}'")), path);
+    Log.report(logvisor::Warning, FMT_STRING(_SYS_STR("project doesn't exist at '{}'")), path);
     return false;
   }
 
@@ -103,7 +103,7 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
     if (needsSave)
       saveProject();
 
-    m_vm.m_mainWindow->setTitle(fmt::format(fmt(_SYS_STR("{} - URDE [{}]")),
+    m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - URDE [{}]")),
                                             m_proj->getProjectRootPath().getLastComponent(), m_vm.platformName()));
     m_vm.DismissSplash();
     m_vm.FadeInEditors();

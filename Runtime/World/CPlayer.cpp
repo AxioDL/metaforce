@@ -3948,7 +3948,7 @@ void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr) {
 #ifndef NDEBUG
     if (x310_orbitTargetId != kInvalidUniqueId) {
       if (const CEntity* ent = mgr.GetObjectById(x310_orbitTargetId)) {
-        Log.report(logvisor::Info, fmt("Orbiting {} {}"), ent->GetEditorId(), ent->GetName());
+        Log.report(logvisor::Info, FMT_STRING("Orbiting {} {}"), ent->GetEditorId(), ent->GetName());
       }
     }
 #endif

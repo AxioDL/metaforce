@@ -49,7 +49,7 @@ bool MREA::StreamReader::seekToSection(FourCC sec, const std::vector<atUint32>& 
 void MREA::ReadBabeDeadToBlender_3(hecl::blender::PyOutStream& os, athena::io::IStreamReader& rs) {
   atUint32 bdMagic = rs.readUint32Big();
   if (bdMagic != 0xBABEDEAD)
-    Log.report(logvisor::Fatal, fmt("invalid BABEDEAD magic"));
+    Log.report(logvisor::Fatal, FMT_STRING("invalid BABEDEAD magic"));
   os << "bpy.context.scene.world.use_nodes = True\n"
         "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n"
         "bg_node.inputs[1].default_value = 0.0\n";
@@ -100,7 +100,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-  os.format(fmt(
+  os.format(FMT_STRING(
       "import bpy\n"
       "import bmesh\n"
       "from mathutils import Vector\n"

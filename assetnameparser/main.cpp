@@ -180,7 +180,7 @@ int main(int argc, const char* argv[])
   logvisor::RegisterStandardExceptions();
   logvisor::RegisterConsoleLogger();
   if (argc < 3) {
-    Log.report(logvisor::Error, fmt(_SYS_STR("Usage: {} <input> <output>")), argv[0]);
+    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Usage: {} <input> <output>")), argv[0]);
     return 1;
   }
 
@@ -193,13 +193,13 @@ int main(int argc, const char* argv[])
   if (!doc.LoadFile(docF)) {
     const tinyxml2::XMLElement* elm = doc.RootElement();
     if (strcmp(elm->Name(), "AssetNameMap")) {
-      Log.report(logvisor::Fatal, fmt(_SYS_STR("Invalid database supplied")));
+      Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Invalid database supplied")));
       return 1;
     }
 
     elm = elm->FirstChildElement("AssetNameMap");
     if (elm == nullptr) {
-      Log.report(logvisor::Fatal, fmt(_SYS_STR("Malformed AssetName database")));
+      Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Malformed AssetName database")));
       return 1;
     }
 
@@ -210,7 +210,7 @@ int main(int argc, const char* argv[])
       const tinyxml2::XMLElement* valueElm = elm->FirstChildElement("Value");
 
       if (!keyElm || !valueElm) {
-        Log.report(logvisor::Fatal, fmt(_SYS_STR("Malformed Asset entry, [Key,Value] required")));
+        Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Malformed Asset entry, [Key,Value] required")));
         return 0;
       }
 
@@ -219,7 +219,7 @@ int main(int argc, const char* argv[])
       const tinyxml2::XMLElement* typeElm = valueElm->FirstChildElement("Type");
 
       if (!nameElm || !dirElm || !typeElm) {
-        Log.report(logvisor::Fatal, fmt(_SYS_STR("Malformed Value entry, [Name,Directory,Type] required")));
+        Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Malformed Value entry, [Name,Directory,Type] required")));
         return 0;
       }
       assets.emplace_back();
@@ -233,7 +233,7 @@ int main(int argc, const char* argv[])
 
     FILE* f = Fopen(outPath.c_str(), _SYS_STR("wb"));
     if (!f) {
-      Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to open destination")));
+      Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to open destination")));
       return 0;
     }
 
@@ -261,6 +261,6 @@ int main(int argc, const char* argv[])
   if (docF)
     fclose(docF);
 
-  Log.report(logvisor::Fatal, fmt(_SYS_STR("failed to load")));
+  Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("failed to load")));
   return 1;
 }

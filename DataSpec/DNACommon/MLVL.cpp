@@ -41,7 +41,7 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
     zeus::simd_floats xfMtxF[3];
     for (int i = 0; i < 3; ++i)
       area.transformMtx[i].simd.copy_to(xfMtxF[i]);
-    os.format(fmt(
+    os.format(FMT_STRING(
         "box_mesh = bpy.data.meshes.new('''{}''')\n"
         "bm.to_mesh(box_mesh)\n"
         "bm.free()\n"
@@ -67,7 +67,7 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
       int idx = 0;
       for (const atVec3f& pv : dock.planeVerts) {
         const zeus::CVector3f pvRel = zeus::CVector3f(pv) - pvAvg;
-        os.format(fmt(
+        os.format(FMT_STRING(
             "bm.verts.new(({},{},{}))\n"
             "bm.verts.ensure_lookup_table()\n"),
             pvRel[0], pvRel[1], pvRel[2]);
@@ -76,13 +76,13 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
         ++idx;
       }
       os << "bm.edges.new((bm.verts[-1], bm.verts[0]))\n";
-      os.format(fmt("dockMesh = bpy.data.meshes.new('DOCK_{:02d}_{:02d}')\n"), areaIdx, dockIdx);
+      os.format(FMT_STRING("dockMesh = bpy.data.meshes.new('DOCK_{:02d}_{:02d}')\n"), areaIdx, dockIdx);
       os << "dockObj = bpy.data.objects.new(dockMesh.name, dockMesh)\n"
             "bpy.context.scene.collection.objects.link(dockObj)\n"
             "bm.to_mesh(dockMesh)\n"
             "bm.free()\n"
             "dockObj.parent = box\n";
-      os.format(fmt("dockObj.location = ({},{},{})\n"), float(pvAvg[0]), float(pvAvg[1]), float(pvAvg[2]));
+      os.format(FMT_STRING("dockObj.location = ({},{},{})\n"), float(pvAvg[0]), float(pvAvg[1]), float(pvAvg[2]));
       ++dockIdx;
     }
     ++areaIdx;

@@ -93,7 +93,7 @@ void FRME::Widget::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_read
     widgetInfo = std::make_unique<SLGPInfo>();
     break;
   default:
-    Log.report(logvisor::Fatal, fmt(_SYS_STR("Unsupported FRME widget type {}")), type);
+    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unsupported FRME widget type {}")), type);
   }
 
   /* widgetInfo */
@@ -174,7 +174,7 @@ void FRME::Widget::CAMRInfo::Enumerate<BigDNA::Read>(athena::io::IStreamReader& 
   } else if (projectionType == ProjectionType::Orthographic) {
     projection = std::make_unique<OrthographicProjection>();
   } else {
-    Log.report(logvisor::Fatal, fmt(_SYS_STR("Invalid CAMR projection mode! {}")), int(projectionType));
+    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Invalid CAMR projection mode! {}")), int(projectionType));
   }
 
   projection->read(__dna_reader);
@@ -183,9 +183,9 @@ void FRME::Widget::CAMRInfo::Enumerate<BigDNA::Read>(athena::io::IStreamReader& 
 template <>
 void FRME::Widget::CAMRInfo::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& __dna_writer) {
   if (!projection)
-    Log.report(logvisor::Fatal, fmt(_SYS_STR("Invalid CAMR projection object!")));
+    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Invalid CAMR projection object!")));
   if (projection->type != projectionType)
-    Log.report(logvisor::Fatal, fmt(_SYS_STR("CAMR projection type does not match actual projection type!")));
+    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("CAMR projection type does not match actual projection type!")));
 
   __dna_writer.writeUint32Big(atUint32(projectionType));
   projection->write(__dna_writer);
@@ -306,7 +306,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         "    bpy.context.scene.collection.objects.link(ob_new)\n"
         "    return ob_new\n";
 
-  os.format(fmt(
+  os.format(FMT_STRING(
       "bpy.context.scene.name = '{}'\n"
       "bpy.context.scene.render.resolution_x = 640\n"
       "bpy.context.scene.render.resolution_y = 480\n"
@@ -321,7 +321,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
           "angle = Quaternion((1.0, 0.0, 0.0), 0)\n";
     if (w.type == SBIG('CAMR')) {
       using CAMRInfo = Widget::CAMRInfo;
-      os.format(fmt(
+      os.format(FMT_STRING(
           "cam = bpy.data.cameras.new(name='{}')\n"
           "binding = cam\n"),
           w.header.name);
@@ -329,7 +329,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         if (info->projectionType == CAMRInfo::ProjectionType::Orthographic) {
           CAMRInfo::OrthographicProjection* proj =
               static_cast<CAMRInfo::OrthographicProjection*>(info->projection.get());
-          os.format(fmt(
+          os.format(FMT_STRING(
               "cam.type = 'ORTHO'\n"
               "cam.ortho_scale = {}\n"
               "cam.clip_start = {}\n"
@@ -337,7 +337,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
               std::fabs(proj->right - proj->left), proj->znear, proj->zfar);
         } else if (info->projectionType == CAMRInfo::ProjectionType::Perspective) {
           CAMRInfo::PerspectiveProjection* proj = static_cast<CAMRInfo::PerspectiveProjection*>(info->projection.get());
-          os.format(fmt(
+          os.format(FMT_STRING(
               "cam.type = 'PERSP'\n"
               "cam.lens_unit = 'FOV'\n"
               "cam.clip_start = {}\n"
@@ -345,10 +345,10 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
               "bpy.context.scene.render.resolution_x = 480 * {}\n"),
               proj->znear, proj->zfar, proj->aspect);
           if (proj->aspect > 1.f)
-            os.format(fmt("cam.angle = math.atan2({}, 1.0 / math.tan(math.radians({} / 2.0))) * 2.0\n"), proj->aspect,
+            os.format(FMT_STRING("cam.angle = math.atan2({}, 1.0 / math.tan(math.radians({} / 2.0))) * 2.0\n"), proj->aspect,
                       proj->fov);
           else
-            os.format(fmt("cam.angle = math.radians({})\n"), proj->fov);
+            os.format(FMT_STRING("cam.angle = math.radians({})\n"), proj->fov);
         }
       }
       os << "angle = Quaternion((1.0, 0.0, 0.0), math.radians(90.0))\n";
@@ -358,7 +358,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         switch (info->type) {
         case LITEInfo::ELightType::LocalAmbient: {
           zeus::simd_floats colorF(w.header.color.simd);
-          os.format(fmt(
+          os.format(FMT_STRING(
               "bg_node.inputs[0].default_value = ({},{},{},1.0)\n"
               "bg_node.inputs[1].default_value = {}\n"),
               colorF[0], colorF[1], colorF[2], info->distQ / 8.0);
@@ -370,7 +370,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
           [[fallthrough]];
         default: {
           zeus::simd_floats colorF(w.header.color.simd);
-          os.format(fmt(
+          os.format(FMT_STRING(
               "lamp = bpy.data.lights.new(name='{}', type='POINT')\n"
               "lamp.color = ({}, {}, {})\n"
               "lamp.hecl_falloff_constant = {}\n"
@@ -384,7 +384,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
               w.header.name, colorF[0], colorF[1], colorF[2], info->distC, info->distL, info->distQ, info->angC,
               info->angL, info->angQ, info->loadedIdx);
           if (info->type == LITEInfo::ELightType::Spot)
-            os.format(fmt(
+            os.format(FMT_STRING(
                 "lamp.type = 'SPOT'\n"
                 "lamp.spot_size = {}\n"),
                 info->cutoff);
@@ -413,7 +413,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
         if (resPath.size()) {
           hecl::SystemUTF8Conv resPathView(resPath);
-          os.format(fmt(
+          os.format(FMT_STRING(
               "if '{}' in bpy.data.images:\n"
               "    image = bpy.data.images['{}']\n"
               "else:\n"
@@ -424,7 +424,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
           os << "image = None\n";
         }
 
-        os.format(fmt(
+        os.format(FMT_STRING(
             "material = bpy.data.materials.new('{}')\n"
             "material.use_nodes = True\n"
             "new_nodetree = material.node_tree\n"
@@ -445,7 +445,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
           else
             ti = i;
           zeus::simd_floats f(info->quadCoords[ti].simd);
-          os.format(fmt("verts.append(bm.verts.new(({},{},{})))\n"), f[0], f[1], f[2]);
+          os.format(FMT_STRING("verts.append(bm.verts.new(({},{},{})))\n"), f[0], f[1], f[2]);
         }
         os << "bm.faces.new(verts)\n"
               "bm.loops.layers.uv.new('UV')\n"
@@ -459,9 +459,9 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
           else
             ti = i;
           zeus::simd_floats f(info->uvCoords[ti].simd);
-          os.format(fmt("bm.verts[{}].link_loops[0][bm.loops.layers.uv[0]].uv = ({},{})\n"), i, f[0], f[1]);
+          os.format(FMT_STRING("bm.verts[{}].link_loops[0][bm.loops.layers.uv[0]].uv = ({},{})\n"), i, f[0], f[1]);
         }
-        os.format(fmt(
+        os.format(FMT_STRING(
             "binding = bpy.data.meshes.new('{}')\n"
             "bm.to_mesh(binding)\n"
             "bm.free()\n"
@@ -471,7 +471,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     }
 
     zeus::simd_floats colorF(w.header.color.simd);
-    os.format(fmt(
+    os.format(FMT_STRING(
         "frme_obj = bpy.data.objects.new(name='{}', object_data=binding)\n"
         "frme_obj.pass_index = {}\n"
         "parentName = '{}'\n"
@@ -501,7 +501,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
       os.linkMesh(modelPath.getAbsolutePathUTF8(), pakRouter.getBestEntryName(*cmdlE));
 
-      os.format(fmt("frme_obj.retro_model_light_mask = {}\n"), info->lightMask);
+      os.format(FMT_STRING("frme_obj.retro_model_light_mask = {}\n"), info->lightMask);
       os << "print(obj.name)\n"
             "copy_obj = duplicateObject(obj)\n"
             "copy_obj.parent = frme_obj\n"
@@ -516,7 +516,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
       using PANEInfo = Widget::PANEInfo;
       if (PANEInfo* info = static_cast<PANEInfo*>(w.widgetInfo.get())) {
         zeus::simd_floats f(info->scaleCenter.simd);
-        os.format(fmt(
+        os.format(FMT_STRING(
             "frme_obj.retro_pane_dimensions = ({},{})\n"
             "frme_obj.retro_pane_scale_center = ({},{},{})\n"),
             info->xDim, info->zDim, f[0], f[1], f[2]);
@@ -533,7 +533,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         zeus::simd_floats fillF(info->fillColor.simd);
         zeus::simd_floats outlineF(info->outlineColor.simd);
         zeus::simd_floats extentF(info->blockExtent.simd);
-        os.format(fmt(
+        os.format(FMT_STRING(
             "frme_obj.retro_pane_dimensions = ({},{})\n"
             "frme_obj.retro_pane_scale_center = ({},{},{})\n"
             "frme_obj.retro_textpane_font_path = '{}'\n"
@@ -557,7 +557,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     } else if (w.type == SBIG('TBGP')) {
       using TBGPInfo = Widget::TBGPInfo;
       if (TBGPInfo* info = static_cast<TBGPInfo*>(w.widgetInfo.get())) {
-        os.format(fmt(
+        os.format(FMT_STRING(
             "frme_obj.retro_tablegroup_elem_count = {}\n"
             "frme_obj.retro_tablegroup_elem_default = {}\n"
             "frme_obj.retro_tablegroup_wraparound = {}\n"),
@@ -566,12 +566,12 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     } else if (w.type == SBIG('GRUP')) {
       using GRUPInfo = Widget::GRUPInfo;
       if (GRUPInfo* info = static_cast<GRUPInfo*>(w.widgetInfo.get())) {
-        os.format(fmt("frme_obj.retro_group_default_worker = {}\n"), info->defaultWorker);
+        os.format(FMT_STRING("frme_obj.retro_group_default_worker = {}\n"), info->defaultWorker);
       }
     } else if (w.type == SBIG('SLGP')) {
       using SLGPInfo = Widget::SLGPInfo;
       if (SLGPInfo* info = static_cast<SLGPInfo*>(w.widgetInfo.get())) {
-        os.format(fmt(
+        os.format(FMT_STRING(
             "frme_obj.retro_slider_min = {}\n"
             "frme_obj.retro_slider_max = {}\n"
             "frme_obj.retro_slider_default = {}\n"
@@ -583,12 +583,12 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
       if (ENRGInfo* info = static_cast<ENRGInfo*>(w.widgetInfo.get())) {
         hecl::ProjectPath txtrPath = pakRouter.getWorking(info->texture);
         if (txtrPath)
-          os.format(fmt("frme_obj.retro_energybar_texture_path = '{}'\n"), txtrPath.getRelativePathUTF8());
+          os.format(FMT_STRING("frme_obj.retro_energybar_texture_path = '{}'\n"), txtrPath.getRelativePathUTF8());
       }
     } else if (w.type == SBIG('METR')) {
       using METRInfo = Widget::METRInfo;
       if (METRInfo* info = static_cast<METRInfo*>(w.widgetInfo.get())) {
-        os.format(fmt(
+        os.format(FMT_STRING(
             "frme_obj.retro_meter_no_round_up = {}\n"
             "frme_obj.retro_meter_max_capacity = {}\n"
             "frme_obj.retro_meter_worker_count = {}\n"),
@@ -600,7 +600,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     for (int i = 0; i < 3; ++i)
       w.basis[i].simd.copy_to(xfMtxF[i]);
     zeus::simd_floats originF(w.origin.simd);
-    os.format(fmt(
+    os.format(FMT_STRING(
         "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
         "mtxd = mtx.decompose()\n"
         "frme_obj.rotation_mode = 'QUATERNION'\n"

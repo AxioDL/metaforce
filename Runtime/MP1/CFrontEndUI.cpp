@@ -509,7 +509,7 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
           // Completion percent
           if (data) {
             std::u16string fileStr = g_MainStringTable->GetString((data->x20_hardMode ? 106 : 39) + int(i));
-            str = fileStr + fmt::format(fmt(u"  {:02d}%"), data->x18_itemPercent);
+            str = fileStr + fmt::format(FMT_STRING(u"  {:02d}%"), data->x18_itemPercent);
             break;
           }
           str = g_MainStringTable->GetString(36);
@@ -531,7 +531,7 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
           // Formatted time
           if (data) {
             auto pt = std::div(data->x0_playTime, 3600);
-            str = fmt::format(fmt(u"{:02d}:{:02d}:{:02d}"), pt.quot, pt.rem / 60, pt.rem % 60);
+            str = fmt::format(FMT_STRING(u"{:02d}:{:02d}:{:02d}"), pt.quot, pt.rem / 60, pt.rem % 60);
             break;
           }
           str = g_MainStringTable->GetString(52);
@@ -647,11 +647,11 @@ void CFrontEndUI::SNewFileSelectFrame::DoFileMenuAdvance(CGuiTableGroup* caller)
 
 CFrontEndUI::SFileMenuOption CFrontEndUI::SNewFileSelectFrame::FindFileSelectOption(CGuiFrame* frame, int idx) {
   SFileMenuOption ret;
-  ret.x0_base = frame->FindWidget(fmt::format(fmt("basewidget_file{}"), idx));
-  ret.x4_textpanes[0] = FindTextPanePair(frame, fmt::format(fmt("textpane_filename{}"), idx));
-  ret.x4_textpanes[1] = FindTextPanePair(frame, fmt::format(fmt("textpane_world{}"), idx));
-  ret.x4_textpanes[2] = FindTextPanePair(frame, fmt::format(fmt("textpane_playtime{}"), idx));
-  ret.x4_textpanes[3] = FindTextPanePair(frame, fmt::format(fmt("textpane_date{}"), idx));
+  ret.x0_base = frame->FindWidget(fmt::format(FMT_STRING("basewidget_file{}"), idx));
+  ret.x4_textpanes[0] = FindTextPanePair(frame, fmt::format(FMT_STRING("textpane_filename{}"), idx));
+  ret.x4_textpanes[1] = FindTextPanePair(frame, fmt::format(FMT_STRING("textpane_world{}"), idx));
+  ret.x4_textpanes[2] = FindTextPanePair(frame, fmt::format(FMT_STRING("textpane_playtime{}"), idx));
+  ret.x4_textpanes[3] = FindTextPanePair(frame, fmt::format(FMT_STRING("textpane_date{}"), idx));
   return ret;
 }
 
@@ -1111,14 +1111,14 @@ void CFrontEndUI::SGuiTextPair::SetPairText(std::u16string_view str) {
 CFrontEndUI::SGuiTextPair CFrontEndUI::FindTextPanePair(CGuiFrame* frame, std::string_view name) {
   SGuiTextPair ret;
   ret.x0_panes[0] = static_cast<CGuiTextPane*>(frame->FindWidget(name));
-  ret.x0_panes[1] = static_cast<CGuiTextPane*>(frame->FindWidget(fmt::format(fmt("{}b"), name)));
+  ret.x0_panes[1] = static_cast<CGuiTextPane*>(frame->FindWidget(fmt::format(FMT_STRING("{}b"), name)));
   return ret;
 }
 
 void CFrontEndUI::FindAndSetPairText(CGuiFrame* frame, std::string_view name, std::u16string_view str) {
   CGuiTextPane* w1 = static_cast<CGuiTextPane*>(frame->FindWidget(name));
   w1->TextSupport().SetText(str);
-  CGuiTextPane* w2 = static_cast<CGuiTextPane*>(frame->FindWidget(fmt::format(fmt("{}b"), name)));
+  CGuiTextPane* w2 = static_cast<CGuiTextPane*>(frame->FindWidget(fmt::format(FMT_STRING("{}b"), name)));
   w2->TextSupport().SetText(str);
 }
 
@@ -1532,7 +1532,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::SetRightUIText() {
   const auto& options = GameOptionsRegistry[userSel];
 
   for (int i = 0; i < 5; ++i) {
-    std::string name = fmt::format(fmt("textpane_right{}"), i);
+    std::string name = fmt::format(FMT_STRING("textpane_right{}"), i);
     if (i < static_cast<int>(options.first)) {
       FindTextPanePair(x1c_loadedFrame, name).SetPairText(x20_loadedPauseStrg->GetString(options.second[i].stringId));
       x28_tablegroup_rightmenu->GetWorkerWidget(i)->SetIsSelectable(true);
@@ -1594,7 +1594,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::FinishedLoading() {
 
   // Visor, Display, Sound, Controller
   for (int i = 0; i < 4; ++i) {
-    const std::string name = fmt::format(fmt("textpane_filename{}"), i);
+    const std::string name = fmt::format(FMT_STRING("textpane_filename{}"), i);
     FindTextPanePair(x1c_loadedFrame, name).SetPairText(x20_loadedPauseStrg->GetString(16 + i));
   }
 
@@ -1766,7 +1766,7 @@ void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue) {
   queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, std::make_shared<CSlideShow>()));
 }
 
-std::string CFrontEndUI::GetAttractMovieFileName(int idx) { return fmt::format(fmt("Video/attract{}.thp"), idx); }
+std::string CFrontEndUI::GetAttractMovieFileName(int idx) { return fmt::format(FMT_STRING("Video/attract{}.thp"), idx); }
 
 std::string CFrontEndUI::GetNextAttractMovieFileName() {
   std::string ret = GetAttractMovieFileName(xbc_nextAttract);

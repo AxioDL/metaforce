@@ -61,7 +61,7 @@ static void LoadTexture(Stream& out, const UniqueID64& tex,
   }
   hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
   hecl::SystemUTF8Conv resPathView(resPath);
-  out.format(fmt("if '{}' in bpy.data.images:\n"
+  out.format(FMT_STRING("if '{}' in bpy.data.images:\n"
                  "    image = bpy.data.images['{}']\n"
                  "else:\n"
                  "    image = bpy.data.images.load('''//{}''')\n"
@@ -71,7 +71,7 @@ static void LoadTexture(Stream& out, const UniqueID64& tex,
 
 void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry,
                                     const Material& material, unsigned groupIdx, unsigned matIdx) {
-  out.format(fmt("new_material = bpy.data.materials.new('MAT_{}_{}')\n"), groupIdx, matIdx);
+  out.format(FMT_STRING("new_material = bpy.data.materials.new('MAT_{}_{}')\n"), groupIdx, matIdx);
   out << "new_material.use_fake_user = True\n"
          "new_material.use_nodes = True\n"
          "new_material.use_backface_culling = True\n"
@@ -91,7 +91,7 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
          "\n";
 
   /* Material Flags */
-  out.format(fmt(
+  out.format(FMT_STRING(
       "new_material.retro_enable_bloom = {}\n"
       "new_material.retro_force_lighting_stage = {}\n"
       "new_material.retro_pre_inca_transparency = {}\n"
@@ -146,14 +146,14 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
                  "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['Normal'], tex_node.inputs['Vector']))\n";
           break;
         case Material::UVAnimationUVSource::UV:
-          out.format(fmt("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
+          out.format(FMT_STRING("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
                          "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
                          "tex_uv_node.uv_map = 'UV_{}'\n"), pass->uvSrc);
           break;
         }
-        out.format(fmt("tex_uv_node.label = 'MTX_{}'\n"), texMtxIdx);
+        out.format(FMT_STRING("tex_uv_node.label = 'MTX_{}'\n"), texMtxIdx);
       } else {
-        out.format(fmt("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
+        out.format(FMT_STRING("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
                        "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
                        "tex_uv_node.uv_map = 'UV_{}'\n"), pass->uvSrc);
       }
@@ -179,7 +179,7 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
                  "separate_node.location[0] += 350\n"
                  "separate_node.location[1] += 350\n"
                  "new_nodetree.links.new(tex_node.outputs['Color'], separate_node.inputs[0])\n";
-          out.format(fmt("swap_output = separate_node.outputs[{}]\n"), int(pass->flags.swapColorComponent()));
+          out.format(FMT_STRING("swap_output = separate_node.outputs[{}]\n"), int(pass->flags.swapColorComponent()));
         }
       };
 
@@ -218,7 +218,7 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
           DoSwap();
           out << "new_nodetree.links.new(swap_output, pnode.inputs['INCAA'])\n";
         }
-        out.format(fmt("new_material.retro_inca_color_mod = {}\n"), pass->flags.INCAColorMod() ? "True" : "False");
+        out.format(FMT_STRING("new_material.retro_inca_color_mod = {}\n"), pass->flags.INCAColorMod() ? "True" : "False");
         break;
       case Subtype::RFLV:
         out << "new_nodetree.links.new(tex_node.outputs['Color'], pnode.inputs['RFLV'])\n";
@@ -244,7 +244,7 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
                "new_nodetree.links.new(swap_output, pnode.inputs['XRAYA'])\n";
         break;
       default:
-        Log.report(logvisor::Fatal, fmt("Unknown PASS subtype"));
+        Log.report(logvisor::Fatal, FMT_STRING("Unknown PASS subtype"));
         break;
       }
     } else if (const Material::CLR* clr = chunk.get_if<Material::CLR>()) {
@@ -253,39 +253,39 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
       clr->color.toVec4f().simd.copy_to(vec4);
       switch (Subtype(clr->subtype.toUint32())) {
       case Subtype::CLR:
-        out.format(fmt("pnode.inputs['CLR'].default_value = ({}, {}, {}, 1.0)\n"
+        out.format(FMT_STRING("pnode.inputs['CLR'].default_value = ({}, {}, {}, 1.0)\n"
                        "pnode.inputs['CLRA'].default_value = {}\n"),
                    vec4[0], vec4[1], vec4[2], vec4[3]);
         break;
       case Subtype::DIFB:
-        out.format(fmt("pnode.inputs['DIFBC'].default_value = ({}, {}, {}, 1.0)\n"
+        out.format(FMT_STRING("pnode.inputs['DIFBC'].default_value = ({}, {}, {}, 1.0)\n"
                        "pnode.inputs['DIFBA'].default_value = {}\n"),
                    vec4[0], vec4[1], vec4[2], vec4[3]);
         break;
       default:
-        Log.report(logvisor::Fatal, fmt("Unknown CLR subtype"));
+        Log.report(logvisor::Fatal, FMT_STRING("Unknown CLR subtype"));
         break;
       }
     } else if (const Material::INT* val = chunk.get_if<Material::INT>()) {
       using Subtype = Material::INT::Subtype;
       switch (Subtype(val->subtype.toUint32())) {
       case Subtype::OPAC:
-        out.format(fmt("pnode.inputs['OPAC'].default_value = {}\n"), val->value / 255.f);
+        out.format(FMT_STRING("pnode.inputs['OPAC'].default_value = {}\n"), val->value / 255.f);
         break;
       case Subtype::BLOD:
-        out.format(fmt("pnode.inputs['BLOD'].default_value = {}\n"), val->value / 255.f);
+        out.format(FMT_STRING("pnode.inputs['BLOD'].default_value = {}\n"), val->value / 255.f);
         break;
       case Subtype::BLOI:
-        out.format(fmt("pnode.inputs['BLOI'].default_value = {}\n"), val->value / 255.f);
+        out.format(FMT_STRING("pnode.inputs['BLOI'].default_value = {}\n"), val->value / 255.f);
         break;
       case Subtype::BNIF:
-        out.format(fmt("pnode.inputs['BNIF'].default_value = {}\n"), val->value / 255.f);
+        out.format(FMT_STRING("pnode.inputs['BNIF'].default_value = {}\n"), val->value / 255.f);
         break;
       case Subtype::XRBR:
-        out.format(fmt("pnode.inputs['XRBR'].default_value = {}\n"), val->value / 255.f);
+        out.format(FMT_STRING("pnode.inputs['XRBR'].default_value = {}\n"), val->value / 255.f);
         break;
       default:
-        Log.report(logvisor::Fatal, fmt("Unknown INT subtype"));
+        Log.report(logvisor::Fatal, FMT_STRING("Unknown INT subtype"));
         break;
       }
     }

@@ -18,7 +18,7 @@ s32 CParticleDataFactory::GetInt(CInputStream& in) { return in.readInt32Big(); }
 bool CParticleDataFactory::GetBool(CInputStream& in) {
   FourCC cid = GetClassID(in);
   if (cid != FOURCC('CNST'))
-    Log.report(logvisor::Fatal, fmt("bool element does not begin with CNST"));
+    Log.report(logvisor::Fatal, FMT_STRING("bool element does not begin with CNST"));
   return in.readBool();
 }
 
@@ -984,7 +984,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
       fillDesc->xec_xd8_SELC = GetElectricGeneratorDesc(in, resPool);
       break;
     default: {
-      Log.report(logvisor::Fatal, fmt("Unknown GPSM class {} @{}"), clsId, in.position());
+      Log.report(logvisor::Fatal, FMT_STRING("Unknown GPSM class {} @{}"), clsId, in.position());
       return false;
     }
     }
