@@ -1,5 +1,7 @@
 #include "Runtime/World/CScriptPlatform.hpp"
 
+#include <algorithm>
+
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
@@ -363,12 +365,7 @@ zeus::CAABox CScriptPlatform::GetSortingBounds(const CStateManager& mgr) const {
 }
 
 bool CScriptPlatform::IsRider(TUniqueId id) const {
-  for (const SRiders& rider : x318_riders) {
-    if (rider.x0_uid == id) {
-      return true;
-    }
-  }
-  return false;
+  return std::any_of(x318_riders.cbegin(), x318_riders.cend(), [id](const auto& rider) { return rider.x0_uid == id; });
 }
 
 bool CScriptPlatform::IsSlave(TUniqueId id) const {
