@@ -275,7 +275,7 @@ void CBallCamera::SetState(EBallCameraState state, CStateManager& mgr) {
   x400_state = state;
 }
 
-static const CMaterialFilter BallCameraFilter = CMaterialFilter::MakeIncludeExclude(
+constexpr CMaterialFilter BallCameraFilter = CMaterialFilter::MakeIncludeExclude(
     {EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Player, EMaterialTypes::Character,
                               EMaterialTypes::CameraPassthrough});
 
