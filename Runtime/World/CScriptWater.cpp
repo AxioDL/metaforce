@@ -144,7 +144,7 @@ void CScriptWater::SetupGrid(bool recomputeClipping) {
   x2e8_28_recomputeClipping = recomputeClipping;
 }
 
-static const CMaterialFilter SolidFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
+constexpr CMaterialFilter SolidFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
 
 void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts) {
   if (x2e8_28_recomputeClipping) {
