@@ -256,7 +256,7 @@ void CGunWeapon::TouchHolo(const CStateManager& mgr) {
 }
 
 void CGunWeapon::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  reinterpret_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
+  static_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
 }
 
 void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
