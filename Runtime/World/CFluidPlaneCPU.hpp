@@ -106,13 +106,13 @@ public:
   float GetSpecularMin() const { return x10c_specularMin; }
   float GetReflectionSize() const { return x118_reflectionSize; }
   float GetBumpScale() const { return xfc_bumpScale; }
-  bool HasBumpMap() const { return xb0_bumpMap.operator bool(); }
+  bool HasBumpMap() const { return xb0_bumpMap.HasReference(); }
   const CTexture& GetBumpMap() const { return *xb0_bumpMap; }
-  bool HasEnvMap() const { return xc0_envMap.operator bool(); }
+  bool HasEnvMap() const { return xc0_envMap.HasReference(); }
   const CTexture& GetEnvMap() const { return *xc0_envMap; }
-  bool HasEnvBumpMap() const { return xd0_envBumpMap.operator bool(); }
+  bool HasEnvBumpMap() const { return xd0_envBumpMap.HasReference(); }
   const CTexture& GetEnvBumpMap() const { return *xd0_envBumpMap; }
-  bool HasLightMap() const { return xe0_lightmap.operator bool(); }
+  bool HasLightMap() const { return xe0_lightmap.HasReference(); }
   const CTexture& GetLightMap() const { return *xe0_lightmap; }
   const zeus::CVector3f& GetBumpLightDir() const { return xf0_bumpLightDir; }
   float GetTileSize() const { return x100_tileSize; }

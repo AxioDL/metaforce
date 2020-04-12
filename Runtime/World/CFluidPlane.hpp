@@ -168,10 +168,10 @@ public:
   EFluidType GetFluidType() const { return x44_fluidType; }
   const CFluidUVMotion& GetUVMotion() const { return x4c_uvMotion; }
   const CTexture& GetColorTexture() const { return *x30_texColor; }
-  bool HasColorTexture() const { return x30_texColor.operator bool(); }
+  bool HasColorTexture() const { return x30_texColor.HasReference(); }
   const CTexture& GetTexturePattern1() const { return *x10_texPattern1; }
-  bool HasTexturePattern1() const { return x10_texPattern1.operator bool(); }
+  bool HasTexturePattern1() const { return x10_texPattern1.HasReference(); }
   const CTexture& GetTexturePattern2() const { return *x20_texPattern2; }
-  bool HasTexturePattern2() const { return x20_texPattern2.operator bool(); }
+  bool HasTexturePattern2() const { return x20_texPattern2.HasReference(); }
 };
 } // namespace urde
