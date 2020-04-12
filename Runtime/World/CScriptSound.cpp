@@ -50,7 +50,7 @@ void CScriptSound::PreThink(float dt, CStateManager& mgr) {
   x11d_25_processedThisFrame = false;
 }
 
-static const CMaterialFilter kSolidFilter =
+constexpr CMaterialFilter kSolidFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
 
 float CScriptSound::GetOccludedVolumeAmount(const zeus::CVector3f& pos, const CStateManager& mgr) {
