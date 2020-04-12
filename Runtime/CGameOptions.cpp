@@ -49,7 +49,7 @@ constexpr std::array<SGameOption, 4> ControllerOpts{{
     {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
 }};
 
-const std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistry{{
+constexpr std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistry{{
     {VisorOpts.size(), VisorOpts.data()},
     {DisplayOpts.size(), DisplayOpts.data()},
     {SoundOpts.size(), SoundOpts.data()},
