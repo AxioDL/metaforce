@@ -1,5 +1,7 @@
 #include "Runtime/MP1/World/CWarWasp.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CCharLayoutInfo.hpp"
@@ -883,9 +885,9 @@ float CWarWasp::GetTeamZStratum(s32 team) const {
   return 0.f;
 }
 
-static const float Table[] = {0.4f, 0.6f, 1.f};
-
 float CWarWasp::CalcSeekMagnitude(const CStateManager& mgr) const {
+  static constexpr std::array Table{0.4f, 0.6f, 1.f};
+
   const float ret = ((x708_circleAttackTeam >= 0 && x708_circleAttackTeam < 3) ? Table[x708_circleAttackTeam] : 1.f) * 0.9f;
   if (TCastToConstPtr<CTeamAiMgr> aimgr = mgr.GetObjectById(x674_aiMgr)) {
     if (aimgr->IsPartOfTeam(GetUniqueId())) {
