@@ -11,7 +11,6 @@
 
 namespace urde::MP1 {
 class CEyeball : public CPatterned {
-  static constexpr std::string_view skEyeLocator = "Laser_LCTR"sv;
   float x568_attackDelay;
   float x56c_attackStartTime;
   CBoneTracking x570_boneTracking;
