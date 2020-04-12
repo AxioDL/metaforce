@@ -79,53 +79,58 @@ void CFluidPlaneManager::CreateSplash(TUniqueId splasher, CStateManager& mgr, co
 }
 
 static bool g_RippleMapSetup = false;
-u8 CFluidPlaneManager::RippleValues[64][64] = {};
-u8 CFluidPlaneManager::RippleMins[64] = {};
-u8 CFluidPlaneManager::RippleMaxs[64] = {};
+std::array<std::array<u8, 64>, 64> CFluidPlaneManager::RippleValues{};
+std::array<u8, 64> CFluidPlaneManager::RippleMins{};
+std::array<u8, 64> CFluidPlaneManager::RippleMaxs{};
 boo::ObjToken<boo::ITextureS> CFluidPlaneManager::RippleMapTex;
 
 void CFluidPlaneManager::SetupRippleMap() {
-  if (g_RippleMapSetup)
+  if (g_RippleMapSetup) {
     return;
+  }
   g_RippleMapSetup = true;
 
   float curX = 0.f;
-  for (int i = 0; i < 64; ++i) {
+  for (size_t i = 0; i < 64; ++i) {
     float curY = 0.f;
     float minY = 1.f;
     float maxY = 0.f;
-    for (int j = 0; j < 64; ++j) {
-      float rVal = 1.f - curY;
+    for (size_t j = 0; j < 64; ++j) {
+      const float rVal = 1.f - curY;
       float minX = curY;
       float maxX = 1.25f * (0.25f * rVal + 0.1f) + curY;
-      if (curY < 0.f)
+      if (curY < 0.f) {
         minX = 0.f;
-      else if (maxX > 1.f)
+      } else if (maxX > 1.f) {
         maxX = 1.f;
+      }
 
       float val = 0.f;
       if (curX >= minX && curX <= maxX) {
-        float t = (curX - minX) / (maxX - minX);
-        if (t < 0.4f)
+        const float t = (curX - minX) / (maxX - minX);
+        if (t < 0.4f) {
           val = 2.5f * t;
-        else if (t > 0.75f)
+        } else if (t > 0.75f) {
           val = 4.f * (1.f - t);
-        else
+        } else {
           val = 1.f;
+        }
       }
 
-      auto valA = u8(std::max(int(255.f * val * rVal * rVal) - 1, 0));
+      const auto valA = u8(std::max(int(255.f * val * rVal * rVal) - 1, 0));
       RippleValues[i][j] = valA;
-      if (valA != 0 && curY < minY)
+      if (valA != 0 && curY < minY) {
         minY = curY;
-      if (valA != 0 && curY > maxY)
+      }
+      if (valA != 0 && curY > maxY) {
         maxY = curY;
+      }
 
       curY += (1.f / 63.f);
     }
 
-    auto valB = u8(std::max(int(255.f * minY) - 1, 0));
-    auto valC = u8(std::min(int(255.f * maxY) + 1, 255));
+    const auto valB = u8(std::max(int(255.f * minY) - 1, 0));
+    const auto valC = u8(std::min(int(255.f * maxY) + 1, 255));
     RippleMins[i] = valB;
     RippleMaxs[i] = valC;
     curX += (1.f / 63.f);
@@ -133,7 +138,7 @@ void CFluidPlaneManager::SetupRippleMap() {
 
   CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx) {
     RippleMapTex = ctx.newStaticTexture(64, 64, 1, boo::TextureFormat::I8, boo::TextureClampMode::ClampToBlack,
-                                        RippleValues, 64 * 64);
+                                        RippleValues.data(), 64 * 64);
     return true;
   } BooTrace);
 }
