@@ -1129,7 +1129,7 @@ void CMorphBall::EnterMorphBallState(CStateManager& mgr) {
   x1c20_tireFactor = 0.f;
   UpdateEffects(0.f, mgr);
   x187c_spiderBallState = ESpiderBallState::Inactive;
-  CAnimPlaybackParms parms(0, -1, 1.f, true);
+  constexpr CAnimPlaybackParms parms(0, -1, 1.f, true);
   x58_ballModel->GetAnimationData()->SetAnimation(parms, false);
   x1e20_ballAnimIdx = 0;
   StopEffects();
@@ -1288,7 +1288,7 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, CStateManage
     if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::JumpOrBoost, input) &&
         x187c_spiderBallState != ESpiderBallState::Active) {
       if (x1e20_ballAnimIdx == 0) {
-        CAnimPlaybackParms parms(1, -1, 1.f, true);
+        constexpr CAnimPlaybackParms parms(1, -1, 1.f, true);
         x58_ballModel->GetAnimationData()->SetAnimation(parms, false);
         x1e20_ballAnimIdx = 1;
         x1e24_boostSfxHandle = CSfxManager::SfxStart(SFXsam_ball_charge_lp, 1.f, 0.f, true, 0x7f, true, kInvalidAreaId);
@@ -1298,7 +1298,7 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, CStateManage
         x1de8_boostChargeTime = g_tweakBall->GetBoostBallMaxChargeTime();
     } else {
       if (x1e20_ballAnimIdx == 1) {
-        CAnimPlaybackParms parms(0, -1, 1.f, true);
+        constexpr CAnimPlaybackParms parms(0, -1, 1.f, true);
         x58_ballModel->GetAnimationData()->SetAnimation(parms, false);
         x1e20_ballAnimIdx = 0;
         CSfxManager::RemoveEmitter(x1e24_boostSfxHandle);
@@ -1399,7 +1399,7 @@ void CMorphBall::CancelBoosting() {
   x1de8_boostChargeTime = 0.f;
   x1df4_boostDrainTime = 0.f;
   if (x1e20_ballAnimIdx == 1) {
-    CAnimPlaybackParms parms(0, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(0, -1, 1.f, true);
     x58_ballModel->GetAnimationData()->SetAnimation(parms, false);
     x1e20_ballAnimIdx = 0;
     CSfxManager::SfxStop(x1e24_boostSfxHandle);

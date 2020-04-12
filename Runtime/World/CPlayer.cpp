@@ -5859,7 +5859,7 @@ void CPlayer::SetHudDisable(float staticTimer, float outSpeed, float inSpeed) {
 }
 
 void CPlayer::SetIntoBallReadyAnimation(CStateManager& mgr) {
-  const CAnimPlaybackParms parms(2, -1, 1.f, true);
+  constexpr CAnimPlaybackParms parms(2, -1, 1.f, true);
   x64_modelData->GetAnimationData()->SetAnimation(parms, false);
   x64_modelData->GetAnimationData()->EnableLooping(false);
   x64_modelData->AdvanceAnimation(0.f, mgr, kInvalidAreaId, true);

@@ -131,35 +131,35 @@ void CGrappleArm::SetAnimState(EArmState state) {
   switch (state) {
   case EArmState::IntoGrapple: {
     ResetAuxParams(true);
-    CAnimPlaybackParms parms(0, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(0, -1, 1.f, true);
     x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     x3b2_25_beamActive = false;
     x3b2_24_active = true;
     break;
   }
   case EArmState::IntoGrappleIdle: {
-    CAnimPlaybackParms parms(1, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(1, -1, 1.f, true);
     x0_grappleArmModel->GetAnimationData()->EnableLooping(true);
     x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EArmState::FireGrapple: {
-    CAnimPlaybackParms parms(2, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(2, -1, 1.f, true);
     x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EArmState::ConnectGrapple: {
-    CAnimPlaybackParms parms(3, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(3, -1, 1.f, true);
     x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EArmState::Connected: {
-    CAnimPlaybackParms parms(3, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(3, -1, 1.f, true);
     x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EArmState::OutOfGrapple: {
-    CAnimPlaybackParms parms(4, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(4, -1, 1.f, true);
     x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     DisconnectGrappleBeam();
     break;
