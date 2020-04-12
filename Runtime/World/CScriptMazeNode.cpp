@@ -8,7 +8,7 @@
 
 namespace urde {
 
-atUint32 CScriptMazeNode::sMazeSeeds[300] = {0};
+std::array<u32, 300> CScriptMazeNode::sMazeSeeds{};
 
 CScriptMazeNode::CScriptMazeNode(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                  const zeus::CTransform& xf, bool active, s32 w1, s32 w2, s32 w3,
@@ -29,10 +29,11 @@ void CScriptMazeNode::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptMazeNode::LoadMazeSeeds() {
   const SObjectTag* tag = g_ResFactory->GetResourceIdByName("DUMB_MazeSeeds");
-  u32 resSize = g_ResFactory->ResourceSize(*tag);
-  std::unique_ptr<u8[]> buf = g_ResFactory->LoadResourceSync(*tag);
+  const u32 resSize = g_ResFactory->ResourceSize(*tag);
+  const std::unique_ptr<u8[]> buf = g_ResFactory->LoadResourceSync(*tag);
   CMemoryInStream in(buf.get(), resSize);
-  for (u32 i = 0; i < 300; ++i)
-    sMazeSeeds[i] = in.readUint32Big();
+  for (auto& seed : sMazeSeeds) {
+    seed = in.readUint32Big();
+  }
 }
 } // namespace urde

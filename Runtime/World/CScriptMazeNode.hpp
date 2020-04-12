@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <string_view>
 
 #include "Runtime/RetroTypes.hpp"
@@ -9,7 +10,7 @@
 
 namespace urde {
 class CScriptMazeNode : public CActor {
-  static u32 sMazeSeeds[300];
+  static std::array<u32, 300> sMazeSeeds;
   s32 xe8_;
   s32 xec_;
   s32 xf0_;
