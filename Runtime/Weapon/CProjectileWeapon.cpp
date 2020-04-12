@@ -235,7 +235,7 @@ void CProjectileWeapon::Render() {
   std::vector<CLight> useLights;
   useLights.push_back(CLight::BuildLocalAmbient({}, xc8_ambientLightColor));
   (**x108_model).GetInstance().ActivateLights(useLights);
-  CModelFlags flags(0, 0, 3, zeus::skWhite);
+  constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
   (*x108_model)->Draw(flags);
 }
 

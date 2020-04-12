@@ -83,7 +83,7 @@ void CGunMotion::Update(float dt, CStateManager& mgr) {
 }
 
 void CGunMotion::Draw(const CStateManager& mgr, const zeus::CTransform& xf) const {
-  CModelFlags flags(0, 0, 3, zeus::skWhite);
+  constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
   x0_modelData.Render(mgr, xf, nullptr, flags);
 }
 

@@ -1572,7 +1572,7 @@ void CPlayer::RenderReflectedPlayer(CStateManager& mgr) {
     }
     CPhysicsActor::Render(mgr);
     if (HasTransitionBeamModel()) {
-      const CModelFlags flags(0, 0, 3, zeus::skWhite);
+      constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
       x7f0_ballTransitionBeamModel->Render(mgr, x7f4_gunWorldXf, nullptr, flags);
     }
     break;

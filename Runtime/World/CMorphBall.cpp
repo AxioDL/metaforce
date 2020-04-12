@@ -1674,8 +1674,8 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
   RenderMorphBallTransitionFlash(mgr);
 
   if (x0_player.GetFrozenState()) {
-    CModelFlags fflags(0, 0, 3, zeus::skWhite);
-    x70_frozenBallModel->Render(mgr, zeus::CTransform::Translate(ballToWorld.origin), lights, fflags);
+    constexpr CModelFlags modelFlags(0, 0, 3, zeus::skWhite);
+    x70_frozenBallModel->Render(mgr, zeus::CTransform::Translate(ballToWorld.origin), lights, modelFlags);
   }
 
   RenderIceBreakEffect(mgr);

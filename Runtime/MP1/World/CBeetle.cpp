@@ -162,7 +162,7 @@ void CBeetle::Render(CStateManager& mgr) {
         x5ac_tailModel->Render(mgr, tailXf, x90_actorLights.get(), flags);
       }
     } else if (x5ac_tailModel) {
-      CModelFlags flags(0, 0, 3, zeus::skWhite);
+      constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
       x5ac_tailModel->Render(mgr, tailXf, x90_actorLights.get(), flags);
     }
   }

@@ -1062,7 +1062,7 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
   model.GetModelInst()->SetAmbientColor(boid->x40_ambientLighting);
   CGraphics::SetModelMatrix(boid->GetTransform());
   if (boid->x48_timeToDie > 0.f && !thermalHot) {
-    const CModelFlags useFlags(0, 0, 3, zeus::skWhite);
+    constexpr CModelFlags useFlags(0, 0, 3, zeus::skWhite);
     mData.GetAnimationData()->Render(model, useFlags, std::nullopt, nullptr);
     if (auto iceModel = mData.GetAnimationData()->GetIceModel()) {
       if (!iceModel->GetModelInst()->TryLockTextures()) {
@@ -1075,7 +1075,7 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
       mData.GetAnimationData()->Render(*iceModel, iceFlags, std::nullopt, nullptr);
     }
   } else if (thermalHot) {
-    const CModelFlags thermFlags(5, 0, 3, zeus::skWhite);
+    constexpr CModelFlags thermFlags(5, 0, 3, zeus::skWhite);
     mData.RenderThermal(zeus::skWhite, zeus::CColor(0.f, 0.25f), thermFlags);
   } else {
     mData.GetAnimationData()->Render(model, flags, std::nullopt, nullptr);
