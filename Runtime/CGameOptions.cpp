@@ -58,22 +58,24 @@ constexpr std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegist
 }};
 
 CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
-  for (u8& entry : x0_nesState)
+  for (u8& entry : x0_nesState) {
     entry = stream.ReadEncoded(8);
+  }
 
-  for (bool& entry : x68_)
-    entry = stream.ReadEncoded(8);
+  for (bool& entry : x68_) {
+    entry = stream.ReadEncoded(8) != 0;
+  }
 
   xc0_frozenFpsCount = stream.ReadEncoded(2);
   xc4_frozenBallCount = stream.ReadEncoded(2);
   xc8_powerBombAmmoCount = stream.ReadEncoded(1);
   xcc_logScanPercent = stream.ReadEncoded(7);
-  xd0_24_fusionLinked = stream.ReadEncoded(1);
-  xd0_25_normalModeBeat = stream.ReadEncoded(1);
-  xd0_26_hardModeBeat = stream.ReadEncoded(1);
-  xd0_27_fusionBeat = stream.ReadEncoded(1);
+  xd0_24_fusionLinked = stream.ReadEncoded(1) != 0;
+  xd0_25_normalModeBeat = stream.ReadEncoded(1) != 0;
+  xd0_26_hardModeBeat = stream.ReadEncoded(1) != 0;
+  xd0_27_fusionBeat = stream.ReadEncoded(1) != 0;
   xd0_28_fusionSuitActive = false;
-  xd0_29_allItemsCollected = stream.ReadEncoded(1);
+  xd0_29_allItemsCollected = stream.ReadEncoded(1) != 0;
   xbc_autoMapperKeyState = stream.ReadEncoded(2);
 
   auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
@@ -86,8 +88,9 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
 
   std::vector<bool> cinematicStates;
   cinematicStates.reserve(cinematicCount);
-  for (size_t i = 0; i < cinematicCount; ++i)
-    cinematicStates.push_back(stream.ReadEncoded(1));
+  for (size_t i = 0; i < cinematicCount; ++i) {
+    cinematicStates.push_back(stream.ReadEncoded(1) != 0);
+  }
 
   for (const auto& world : memWorlds) {
     TLockedToken<CSaveWorld> saveWorld =
@@ -101,11 +104,13 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
 }
 
 void CPersistentOptions::PutTo(CBitStreamWriter& w) const {
-  for (const u8 entry : x0_nesState)
+  for (const u8 entry : x0_nesState) {
     w.WriteEncoded(entry, 8);
+  }
 
-  for (const bool entry : x68_)
-    w.WriteEncoded(entry, 8);
+  for (const bool entry : x68_) {
+    w.WriteEncoded(u32(entry), 8);
+  }
 
   w.WriteEncoded(xc0_frozenFpsCount, 2);
   w.WriteEncoded(xc4_frozenBallCount, 2);
@@ -120,11 +125,12 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const {
 
   auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
   for (const auto& world : memWorlds) {
-    TLockedToken<CSaveWorld> saveWorld =
+    const TLockedToken<CSaveWorld> saveWorld =
         g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.second.GetSaveWorldAssetId()});
 
-    for (TEditorId cineId : saveWorld->GetCinematics())
-      w.WriteEncoded(GetCinematicState(world.first, cineId), 1);
+    for (const TEditorId cineId : saveWorld->GetCinematics()) {
+      w.WriteEncoded(u32(GetCinematicState(world.first, cineId)), 1);
+    }
   }
 }
 
@@ -164,11 +170,11 @@ CGameOptions::CGameOptions(CBitStreamReader& stream) {
   x60_hudAlpha = stream.ReadEncoded(8);
   x64_helmetAlpha = stream.ReadEncoded(8);
 
-  x68_24_hudLag = stream.ReadEncoded(1);
-  x68_28_hintSystem = stream.ReadEncoded(1);
-  x68_25_invertY = stream.ReadEncoded(1);
-  x68_26_rumble = stream.ReadEncoded(1);
-  x68_27_swapBeamsControls = stream.ReadEncoded(1);
+  x68_24_hudLag = stream.ReadEncoded(1) != 0;
+  x68_28_hintSystem = stream.ReadEncoded(1) != 0;
+  x68_25_invertY = stream.ReadEncoded(1) != 0;
+  x68_26_rumble = stream.ReadEncoded(1) != 0;
+  x68_27_swapBeamsControls = stream.ReadEncoded(1) != 0;
 }
 
 void CGameOptions::ResetToDefaults() {
@@ -276,7 +282,7 @@ void CGameOptions::SetSfxVolume(s32 vol, bool apply) {
   x58_sfxVol = zeus::clamp(0, vol, 0x7f);
 
   if (apply) {
-    CAudioSys::SysSetSfxVolume(x58_sfxVol, 1, 1, 1);
+    CAudioSys::SysSetSfxVolume(x58_sfxVol, 1, true, true);
     CStreamAudioManager::SetSfxVolume(x58_sfxVol);
     CMoviePlayer::SetSfxVolume(x58_sfxVol);
   }
@@ -442,10 +448,10 @@ void CGameOptions::SetOption(EGameOption option, int value) {
     options.SetHelmetAlpha(value);
     break;
   case EGameOption::HUDLag:
-    options.SetHUDLag(value);
+    options.SetHUDLag(value != 0);
     break;
   case EGameOption::HintSystem:
-    options.SetIsHintSystemEnabled(value);
+    options.SetIsHintSystemEnabled(value != 0);
     break;
   case EGameOption::ScreenBrightness:
     options.SetGamma(value, true);
@@ -469,13 +475,13 @@ void CGameOptions::SetOption(EGameOption option, int value) {
     options.SetSurroundMode(value, true);
     break;
   case EGameOption::ReverseYAxis:
-    options.SetInvertYAxis(value);
+    options.SetInvertYAxis(value != 0);
     break;
   case EGameOption::Rumble:
-    options.SetIsRumbleEnabled(value);
+    options.SetIsRumbleEnabled(value != 0);
     break;
   case EGameOption::SwapBeamControls:
-    options.SetSwapBeamControls(value);
+    options.SetSwapBeamControls(value != 0);
     break;
   default:
     break;
@@ -491,9 +497,9 @@ int CGameOptions::GetOption(EGameOption option) {
   case EGameOption::HelmetOpacity:
     return options.GetHelmetAlpha();
   case EGameOption::HUDLag:
-    return options.GetHUDLag();
+    return int(options.GetHUDLag());
   case EGameOption::HintSystem:
-    return options.GetIsHintSystemEnabled();
+    return int(options.GetIsHintSystemEnabled());
   case EGameOption::ScreenBrightness:
     return options.GetGamma();
   case EGameOption::ScreenOffsetX:
@@ -509,11 +515,11 @@ int CGameOptions::GetOption(EGameOption option) {
   case EGameOption::SoundMode:
     return int(options.GetSurroundMode());
   case EGameOption::ReverseYAxis:
-    return options.GetInvertYAxis();
+    return int(options.GetInvertYAxis());
   case EGameOption::Rumble:
-    return options.GetIsRumbleEnabled();
+    return int(options.GetIsRumbleEnabled());
   case EGameOption::SwapBeamControls:
-    return options.GetSwapBeamControls();
+    return int(options.GetSwapBeamControls());
   default:
     break;
   }
