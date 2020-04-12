@@ -1,5 +1,7 @@
 #include "Runtime/MP1/World/CSpankWeed.hpp"
 
+#include <array>
+
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
@@ -9,6 +11,17 @@
 
 namespace urde::MP1 {
 logvisor::Module SpankLog("urde::MP1::SpankWeed");
+
+constexpr std::array<SSphereJointInfo, 7> kArmCollision{{
+    {"Arm_4", 1.5f},
+    {"Arm_6", 1.f},
+    {"Arm_7", 1.f},
+    {"Arm_8", 1.f},
+    {"Arm_9", 1.f},
+    {"Arm_11", 1.f},
+    {"Swoosh_LCTR", 1.5f},
+}};
+
 CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                        CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
                        float maxDetectionRange, float maxHearingRange, float maxSightRange, float hideTime)
@@ -47,9 +60,6 @@ CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& 
   }
   x460_knockBackController.SetAutoResetImpulse(false);
 }
-
-static const SSphereJointInfo kArmCollision[] = {{"Arm_4", 1.5f}, {"Arm_6", 1.f},  {"Arm_7", 1.f}, {"Arm_8", 1.f},
-                                                 {"Arm_9", 1.f},  {"Arm_11", 1.f}, {"Swoosh_LCTR", 1.5f}};
 
 void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   bool oldActive = GetActive();
