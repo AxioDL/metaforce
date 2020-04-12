@@ -1,5 +1,7 @@
 #include "Runtime/World/CScriptSpecialFunction.hpp"
 
+#include <array>
+
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
 #include "Runtime/CSimplePool.hpp"
@@ -125,8 +127,11 @@ void CScriptSpecialFunction::Think(float dt, CStateManager& mgr) {
     break;
   }
 }
-static const ERumbleFxId fxTranslation[6] = {ERumbleFxId::Twenty,    ERumbleFxId::One,         ERumbleFxId::TwentyOne,
-                                             ERumbleFxId::TwentyTwo, ERumbleFxId::TwentyThree, ERumbleFxId::Zero};
+
+constexpr std::array fxTranslation{
+    ERumbleFxId::Twenty,    ERumbleFxId::One,         ERumbleFxId::TwentyOne,
+    ERumbleFxId::TwentyTwo, ERumbleFxId::TwentyThree, ERumbleFxId::Zero,
+};
 
 void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   if (GetActive() && msg == EScriptObjectMessage::Deactivate && xe8_function == ESpecialFunction::Billboard) {
