@@ -204,7 +204,7 @@ constexpr std::array<CMorphBall::ColorArray, 9> BallSwooshColorsJaggy{{
 }};
 } // Anonymous namespace
 
-const std::array<CMorphBall::ColorArray, 9> CMorphBall::BallGlowColors{{
+constexpr std::array<CMorphBall::ColorArray, 9> CMorphBall::BallGlowColors{{
     {0xff, 0xff, 0xff},
     {0xff, 0xff, 0xff},
     {0xff, 0xff, 0xff},
@@ -216,7 +216,7 @@ const std::array<CMorphBall::ColorArray, 9> CMorphBall::BallGlowColors{{
     {0xff, 0xff, 0xff},
 }};
 
-const std::array<CMorphBall::ColorArray, 9> CMorphBall::BallTransFlashColors{{
+constexpr std::array<CMorphBall::ColorArray, 9> CMorphBall::BallTransFlashColors{{
     {0xc2, 0x7e, 0x10},
     {0x66, 0xc4, 0xff},
     {0x60, 0xff, 0x90},
@@ -228,7 +228,7 @@ const std::array<CMorphBall::ColorArray, 9> CMorphBall::BallTransFlashColors{{
     {0xfb, 0x98, 0x21},
 }};
 
-const std::array<CMorphBall::ColorArray, 9> CMorphBall::BallAuxGlowColors{{
+constexpr std::array<CMorphBall::ColorArray, 9> CMorphBall::BallAuxGlowColors{{
     {0xc2, 0x7e, 0x10},
     {0x66, 0xc4, 0xff},
     {0x6c, 0xff, 0x61},
