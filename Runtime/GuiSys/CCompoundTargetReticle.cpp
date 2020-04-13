@@ -64,8 +64,9 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 , x100_laggingTargetPos(CalculateOrbitZoneReticlePosition(mgr, true))
 , x208_lockonTimer(g_tweakTargeting->GetLockonDuration()) {
   xe0_outerBeamIconSquares.reserve(9);
-  for (u32 i = 0; i < 9; ++i)
+  for (size_t i = 0; i < xe0_outerBeamIconSquares.capacity(); ++i) {
     xe0_outerBeamIconSquares.emplace_back(fmt::format(FMT_STRING("{}{}"), skOuterBeamIconSquareNameBase, i));
+  }
   x34_crosshairs.Lock();
 }
 
