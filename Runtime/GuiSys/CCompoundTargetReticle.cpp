@@ -117,10 +117,10 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   }
   if (x20_prevState != x24_nextState && x28_noDrawTicks <= 0) {
     x20_prevState = x24_nextState;
-    float combat = false;
-    float scan = false;
-    float xray = false;
-    float thermal = false;
+    bool combat = false;
+    bool scan = false;
+    bool xray = false;
+    bool thermal = false;
     switch (x24_nextState) {
     case EReticleState::Combat:
       combat = true;
