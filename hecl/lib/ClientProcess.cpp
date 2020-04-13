@@ -46,6 +46,10 @@ void SetCpuCountOverride(int argc, const SystemChar** argv) {
 }
 
 static int GetCPUCount() {
+  if (CpuCountOverride > 0) {
+    return CpuCountOverride;
+  }
+
   int ret;
 #if _WIN32
   SYSTEM_INFO sysinfo;
@@ -54,9 +58,6 @@ static int GetCPUCount() {
 #else
   ret = sysconf(_SC_NPROCESSORS_ONLN);
 #endif
-
-  if (CpuCountOverride)
-    return std::min(CpuCountOverride, ret);
 
   return ret;
 }
