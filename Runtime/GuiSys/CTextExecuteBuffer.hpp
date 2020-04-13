@@ -37,7 +37,7 @@ class CTextExecuteBuffer {
   u32 xd8_ = 0;
 
 public:
-  CTextExecuteBuffer() { xa8_curWordIt = x0_instList.begin(); }
+  CTextExecuteBuffer() : xa8_curWordIt{x0_instList.begin()} {}
 
   CTextRenderBuffer BuildRenderBuffer(CGuiWidget::EGuiModelDrawFlags df) const;
   CTextRenderBuffer BuildRenderBufferPage(InstList::const_iterator start, InstList::const_iterator pgStart,
