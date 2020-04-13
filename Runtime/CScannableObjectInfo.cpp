@@ -36,18 +36,20 @@ void CScannableObjectInfo::Load(CInputStream& in, u32 version) {
   in.readUint32Big();
   in.readUint32Big();
   x4_stringId = in.readUint32Big();
-  if (version < 4)
+  if (version < 4) {
     x8_totalDownloadTime = in.readFloatBig();
-  else {
-    u32 scanSpeed = in.readUint32Big();
+  } else {
+    const u32 scanSpeed = in.readUint32Big();
     x8_totalDownloadTime = g_tweakGui->GetScanSpeed(scanSpeed);
   }
   xc_category = in.readUint32Big();
-  if (version > 4)
+  if (version > 4) {
     x10_important = in.readBool();
+  }
 
-  for (u32 i = 0; i < 4; i++)
+  for (size_t i = 0; i < x14_buckets.capacity(); i++) {
     x14_buckets.emplace_back(in, version);
+  }
 }
 
 CScannableObjectInfo::SBucket::SBucket(CInputStream& in, u32 version) {
