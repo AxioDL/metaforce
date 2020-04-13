@@ -482,7 +482,7 @@ CHudDecoInterfaceThermal::CHudDecoInterfaceThermal(CGuiFrame& selHud) {
   }
 
   x14_pivotPosition = x78_basewidget_pivot->GetIdlePosition();
-  UpdateHudAlpha();
+  CHudDecoInterfaceThermal::UpdateHudAlpha();
 }
 
 void CHudDecoInterfaceThermal::UpdateVisibility() {
