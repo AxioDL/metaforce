@@ -50,8 +50,8 @@ class CAiState {
   friend class CStateMachineState;
   CAiStateFunc x0_func;
   char xc_name[32] = {};
-  u32 x2c_numTriggers;
-  CAiTrigger* x30_firstTrigger;
+  u32 x2c_numTriggers = 0;
+  CAiTrigger* x30_firstTrigger = nullptr;
 
 public:
   CAiState(CAiStateFunc func, const char* name) {
@@ -88,7 +88,7 @@ class CStateMachineState {
   float x8_time = 0.f;
   float xc_random = 0.f;
   float x10_delay = 0.f;
-  float x14_;
+  float x14_ = 0.f;
   bool x18_24_codeTrigger : 1;
 
 public:
