@@ -283,8 +283,9 @@ CMorphBall::CMorphBall(CPlayer& player, float radius)
 
   kSpiderBallCollisionRadius = GetBallRadius() + 0.2f;
 
-  for (int i = 0; i < 32; ++i)
+  for (size_t i = 0; i < x19e4_spiderElectricGens.capacity(); ++i) {
     x19e4_spiderElectricGens.emplace_back(std::make_unique<CParticleSwoosh>(x19a0_spiderElectric, 0), false);
+  }
 
   LoadAnimationTokens("SamusBallANCS");
   InitializeWakeEffects();
@@ -303,10 +304,9 @@ void CMorphBall::LoadAnimationTokens(std::string_view ancsName) {
 }
 
 void CMorphBall::InitializeWakeEffects() {
-  TToken<CGenDescription> nullParticle =
+  const TToken<CGenDescription> nullParticle =
       CToken(TObjOwnerDerivedFromIObj<CGenDescription>::GetNewDerivedObject(std::make_unique<CGenDescription>()));
-  for (int i = 0; i < 8; ++i)
-    x1b84_wakeEffects.push_back(nullParticle);
+  x1b84_wakeEffects.resize(x1b84_wakeEffects.capacity(), nullParticle);
 
   x1b84_wakeEffects[2] = g_SimplePool->GetObj("DirtWake");
   x1b84_wakeEffects[0] = g_SimplePool->GetObj("PhazonWake");
@@ -317,7 +317,7 @@ void CMorphBall::InitializeWakeEffects() {
   x1b84_wakeEffects[6] = g_SimplePool->GetObj("SandWake");
   x1b84_wakeEffects[7] = g_SimplePool->GetObj("RainWake");
 
-  x1bc8_wakeEffectGens.resize(8);
+  x1bc8_wakeEffectGens.resize(x1b84_wakeEffects.capacity());
   x1bc8_wakeEffectGens[2] = std::make_unique<CElementGen>(x1b84_wakeEffects[2]);
   x1bc8_wakeEffectGens[0] = std::make_unique<CElementGen>(x1b84_wakeEffects[0]);
   x1bc8_wakeEffectGens[1] = std::make_unique<CElementGen>(x1b84_wakeEffects[1]);
