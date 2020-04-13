@@ -27,7 +27,7 @@ private:
   CPFArea* x0_area;
   rstl::reserved_vector<zeus::CVector3f, 16> x4_waypoints;
   u32 xc8_curWaypoint = 0;
-  EResult xcc_result;
+  EResult xcc_result{};
   float xd0_chHeight;
   float xd4_chRadius;
   float xd8_padding = 10.f;
