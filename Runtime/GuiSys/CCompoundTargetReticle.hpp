@@ -120,9 +120,9 @@ private:
   bool x219_missileShot = false;
   bool x21a_fullyCharged = false;
   u8 x21b_ = 0;
-  u32 x21c_;
-  u32 x220_;
-  u32 x228_;
+  u32 x21c_ = 0;
+  u32 x220_ = 0;
+  u32 x228_ = 0;
 
   struct SScanReticuleRenderer {
     std::optional<CLineRenderer> m_lineRenderers[2];
