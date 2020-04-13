@@ -84,10 +84,10 @@ public:
 
   struct SRippleInfo {
     const CRipple& x0_ripple;
-    int x4_fromX;
-    int x8_toX;
-    int xc_fromY;
-    int x10_toY;
+    int x4_fromX = 0;
+    int x8_toX = 0;
+    int xc_fromY = 0;
+    int x10_toY = 0;
     int x14_gfromX;
     int x18_gtoX;
     int x1c_gfromY;
