@@ -15,10 +15,11 @@ CHudBossEnergyInterface::CHudBossEnergyInterface(CGuiFrame& selHud) {
 
   x18_energybart01_bossbar->SetCoordFunc(BossEnergyCoordFunc);
   x18_energybart01_bossbar->SetTesselation(0.2f);
-  ITweakGuiColors::VisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(0);
-  x18_energybart01_bossbar->SetFilledColor(barColors.filled);
-  x18_energybart01_bossbar->SetShadowColor(barColors.shadow);
-  x18_energybart01_bossbar->SetEmptyColor(barColors.empty);
+
+  const auto& [filled, empty, shadow] = g_tweakGuiColors->GetVisorEnergyBarColors(0);
+  x18_energybart01_bossbar->SetFilledColor(filled);
+  x18_energybart01_bossbar->SetShadowColor(shadow);
+  x18_energybart01_bossbar->SetEmptyColor(empty);
 }
 
 void CHudBossEnergyInterface::Update(float dt) {
