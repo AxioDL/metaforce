@@ -71,10 +71,11 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 
 CCompoundTargetReticle::SScanReticuleRenderer::SScanReticuleRenderer() {
   CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    for (int i = 0; i < 2; ++i) {
+    for (size_t i = 0; i < m_lineRenderers.size(); ++i) {
       m_lineRenderers[i].emplace(ctx, CLineRenderer::EPrimitiveMode::Lines, 8, nullptr, true, true);
-      for (int j = 0; j < 4; ++j)
-        m_stripRenderers[i][j].emplace(ctx, CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true, true);
+      for (auto& stripRenderer : m_stripRenderers[i]) {
+        stripRenderer.emplace(ctx, CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true, true);
+      }
     }
     return true;
   } BooTrace);
@@ -822,8 +823,8 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
     float alpha = 0.5f * factor;
     zeus::CColor color = g_tweakGuiColors->GetScanReticuleColor();
     color.a() *= alpha;
-    for (int i = 0; i < 2; ++i) {
-      float lineWidth = i ? 2.5f : 1.f;
+    for (size_t i = 0; i < m_scanRetRenderer.m_lineRenderers.size(); ++i) {
+      float lineWidth = i != 0 ? 2.5f : 1.f;
       auto& rend = *m_scanRetRenderer.m_lineRenderers[i];
       rend.Reset();
       rend.AddVertex({-0.5f, 0.f, 0.f}, color, lineWidth);
@@ -836,17 +837,17 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
       rend.AddVertex({0.f, 0.f, 20.5f}, color, lineWidth);
       rend.Render();
 
-      for (int j = 0; j < 4; ++j) {
+      for (size_t j = 0; j < m_scanRetRenderer.m_stripRenderers[i].size(); ++j) {
         float xSign = j < 2 ? -1.f : 1.f;
-        float zSign = (j & 0x1) ? -1.f : 1.f;
+        float zSign = (j & 0x1) != 0 ? -1.f : 1.f;
         // begin line strip
-        auto& rend = *m_scanRetRenderer.m_stripRenderers[i][j];
-        rend.Reset();
-        rend.AddVertex({0.5f * xSign, 0.f, 0.1f * zSign}, color, lineWidth);
-        rend.AddVertex({0.5f * xSign, 0.f, 0.35f * zSign}, color, lineWidth);
-        rend.AddVertex({0.35f * xSign, 0.f, 0.5f * zSign}, color, lineWidth);
-        rend.AddVertex({0.1f * xSign, 0.f, 0.5f * zSign}, color, lineWidth);
-        rend.Render();
+        auto& stripRend = *m_scanRetRenderer.m_stripRenderers[i][j];
+        stripRend.Reset();
+        stripRend.AddVertex({0.5f * xSign, 0.f, 0.1f * zSign}, color, lineWidth);
+        stripRend.AddVertex({0.5f * xSign, 0.f, 0.35f * zSign}, color, lineWidth);
+        stripRend.AddVertex({0.35f * xSign, 0.f, 0.5f * zSign}, color, lineWidth);
+        stripRend.AddVertex({0.1f * xSign, 0.f, 0.5f * zSign}, color, lineWidth);
+        stripRend.Render();
       }
     }
   }

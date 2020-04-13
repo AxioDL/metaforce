@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <vector>
 
 #include "Runtime/CPlayerState.hpp"
@@ -125,8 +126,8 @@ private:
   u32 x228_ = 0;
 
   struct SScanReticuleRenderer {
-    std::optional<CLineRenderer> m_lineRenderers[2];
-    std::optional<CLineRenderer> m_stripRenderers[2][4];
+    std::array<std::optional<CLineRenderer>, 2> m_lineRenderers;
+    std::array<std::array<std::optional<CLineRenderer>, 4>, 2> m_stripRenderers;
     SScanReticuleRenderer();
   };
   SScanReticuleRenderer m_scanRetRenderer;
