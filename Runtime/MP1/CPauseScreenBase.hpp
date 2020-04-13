@@ -102,7 +102,7 @@ protected:
   void OnWidgetScroll(CGuiWidget* widget, const boo::SScrollDelta& delta, int accumX, int accumY);
 
 public:
-  static std::string GetImagePaneName(u32 i);
+  static std::string GetImagePaneName(size_t i);
 
   CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg, bool isLogBook = false);
 
