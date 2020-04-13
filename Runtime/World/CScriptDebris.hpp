@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <string_view>
 
@@ -50,7 +51,7 @@ private:
   zeus::CVector3f x2b0_scale;
   zeus::CVector3f x2bc_endScale;
   zeus::CVector3f x2c8_collisionNormal;
-  std::unique_ptr<CElementGen> x2d4_particleGens[3]; /* x2d4, x2d8, x2dc */
+  std::array<std::unique_ptr<CElementGen>, 3> x2d4_particleGens; /* x2d4, x2d8, x2dc */
   TReservedAverage<float, 8> x2e0_speedAvg;
 
 public:
