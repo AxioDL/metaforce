@@ -28,7 +28,7 @@ constexpr std::array skComboNames{
 };
 
 constexpr std::array<u16, 5> skSoundId{
-    1810, 1837, 1847, 1842, 1810,
+    SFXsfx0712, SFXsfx072D, SFXwpn_combo_wavebuster, SFXwpn_combo_flamethrower, SFXsfx0712,
 };
 
 CAuxWeapon::CAuxWeapon(TUniqueId playerId)
