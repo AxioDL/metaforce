@@ -844,7 +844,7 @@ bool CMain::Proc() {
     m_firstFrame = false;
   } else {
     using delta_duration = std::chrono::duration<float, std::ratio<1>>;
-    dt = std::min(std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count(), dt);
+    dt = std::min(std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count(), 1 / 30.f);
   }
   m_prevFrameTime = now;
 #endif
