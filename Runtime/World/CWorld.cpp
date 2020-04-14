@@ -712,19 +712,20 @@ bool CWorld::AreSkyNeedsMet() const {
 }
 
 TAreaId CWorld::GetAreaIdForSaveId(s32 saveId) const {
-  if (saveId == -1)
+  if (saveId == -1) {
     return kInvalidAreaId;
-
-  if (x18_areas.size() <= 0)
-    return kInvalidAreaId;
-
-  TAreaId cur = 0;
-  for (const auto& area : x18_areas) {
-    if (area->x88_areaId == saveId)
-      return cur;
-    ++cur;
   }
 
-  return kInvalidAreaId;
+  if (x18_areas.empty()) {
+    return kInvalidAreaId;
+  }
+
+  const auto iter = std::find_if(x18_areas.cbegin(), x18_areas.cend(),
+                                 [saveId](const auto& area) { return area->x88_areaId == saveId; });
+  if (iter == x18_areas.cend()) {
+    return kInvalidAreaId;
+  }
+
+  return TAreaId(std::distance(x18_areas.cbegin(), iter));
 }
 } // namespace urde
