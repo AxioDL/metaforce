@@ -74,7 +74,6 @@ namespace hecl {
 extern CVar* com_enableCheats;
 extern CVar* com_developer;
 extern CVar* com_cubemaps;
-extern CVar* com_variableDt;
 }; // namespace hecl
 
 namespace urde::MP1 {
@@ -706,6 +705,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   InitializeDiscord();
   m_mainWindow = window;
   m_cvarMgr = cvarMgr;
+  m_cvarCommons = std::make_unique<hecl::CVarCommons>(*m_cvarMgr);
   m_console = std::make_unique<hecl::Console>(m_cvarMgr);
   m_console->init(window);
   m_console->registerCommand(
@@ -839,7 +839,7 @@ bool CMain::Proc() {
   }
 
   float dt = 1 / 60.f;
-  if (hecl::com_variableDt->toBoolean()) {
+  if (m_cvarCommons->m_variableDt->toBoolean()) {
     auto now = delta_clock::now();
     if (m_firstFrame) {
       m_firstFrame = false;

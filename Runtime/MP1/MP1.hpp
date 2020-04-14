@@ -39,6 +39,7 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
 #include "World/CScriptMazeNode.hpp"
 #include "hecl/Console.hpp"
+#include "hecl/CVarCommons.hpp"
 
 struct DiscordUser;
 
@@ -239,6 +240,7 @@ private:
   boo::IWindow* m_mainWindow = nullptr;
 
   hecl::CVarManager* m_cvarMgr = nullptr;
+  std::unique_ptr<hecl::CVarCommons> m_cvarCommons;
   std::unique_ptr<hecl::Console> m_console;
   // Warmup state
   std::vector<SObjectTag> m_warmupTags;
