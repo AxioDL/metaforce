@@ -28,10 +28,11 @@ CParticleSwoosh::CParticleSwoosh(const TToken<CSwooshDescription>& desc, int len
 , x1d1_24_constantUv(false) {
   ++g_ParticleSystemAliveCount;
 
-  if (leng > 0)
+  if (leng > 0) {
     x1b4_LENG = leng;
-  else if (CIntElement* leng = x1c_desc->x10_LENG.get())
-    leng->GetValue(0, x1b4_LENG);
+  } else if (CIntElement* lengElement = x1c_desc->x10_LENG.get()) {
+    lengElement->GetValue(0, x1b4_LENG);
+  }
   x1b4_LENG += 1;
 
   if (CIntElement* side = x1c_desc->x18_SIDE.get())
