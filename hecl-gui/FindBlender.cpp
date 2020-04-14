@@ -51,7 +51,7 @@ hecl::SystemString FindBlender(int& major, int& minor) {
       /* No steam; try default */
       wchar_t progFiles[256];
       if (GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256)) {
-        _snwprintf(BLENDER_BIN_BUF, 2048, L"%s\\Blender Foundation\\Blender\\blender.exe", progFiles);
+        _snwprintf(BLENDER_BIN_BUF, 2048, L"%s\\Blender Foundation\\Blender 2.82\\blender.exe", progFiles);
         blenderBin = BLENDER_BIN_BUF;
         if (!RegFileExists(blenderBin))
           blenderBin = nullptr;

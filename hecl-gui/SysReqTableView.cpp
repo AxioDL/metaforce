@@ -125,7 +125,7 @@ SysReqTableModel::SysReqTableModel(QObject* parent) : QAbstractTableModel(parent
   m_osVersion = tr("Linux");
 #endif
   hecl::blender::FindBlender(m_blendMajor, m_blendMinor);
-  if (m_blendMajor) {
+  if (m_blendMajor != 0) {
     m_blendVersionStr = tr("Blender %1.%2").arg(QString::number(m_blendMajor), QString::number(m_blendMinor));
   } else {
     m_blendVersionStr = tr("Not Found");
@@ -200,7 +200,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const {
         return {};
 #endif
       case 5:
-        return tr("Blender 2.81");
+        return tr("Blender 2.82");
       }
     } else if (index.column() == 1) {
       /* Your System */

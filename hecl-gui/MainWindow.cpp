@@ -284,7 +284,7 @@ void MainWindow::onBinaryDownloaded(QuaZip& file) {
     m_ui->downloadErrorLabel->setText(tr("Download successful - Press 'Extract' to continue."), true);
   }
   if (!err && !m_ui->sysReqTable->isBlenderVersionOk()) {
-    m_ui->downloadErrorLabel->setText(tr("Blender 2.81+ must be installed. Please download via Steam or blender.org."));
+    m_ui->downloadErrorLabel->setText(tr("Blender 2.82 must be installed. Please download via Steam or blender.org."));
   }
 }
 
@@ -327,7 +327,7 @@ void MainWindow::enableOperations() {
   }
 
   if (!m_ui->sysReqTable->isBlenderVersionOk()) {
-    insertContinueNote(tr("Blender 2.81+ must be installed. Please download via Steam or blender.org."));
+    insertContinueNote(tr("Blender 2.82 must be installed. Please download via Steam or blender.org."));
   } else if (m_ui->launchBtn->isEnabled()) {
     insertContinueNote(tr("Package complete - Press 'Launch' to start URDE."));
   } else if (m_ui->packageBtn->isEnabled()) {
@@ -552,6 +552,7 @@ void MainWindow::insertContinueNote(const QString& text) {
   m_cursor.insertBlock();
   m_ui->processOutput->ensureCursorVisible();
 }
+
 void MainWindow::onUpdateTrackChanged(int index)  {
   qDebug() << "Track changed from " << m_settings.value(QStringLiteral("update_track")) << " to "
            << skUpdateTracks[index];
