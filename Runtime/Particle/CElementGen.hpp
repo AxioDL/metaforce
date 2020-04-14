@@ -60,7 +60,7 @@ private:
   int x70_internalStartFrame = 0;
   int x74_curFrame = 0;
   double x78_curSeconds = 0.f;
-  float x80_timeDeltaScale;
+  float x80_timeDeltaScale = 0.f;
   int x84_prevFrame = -1;
   bool x88_particleEmission = true;
   float x8c_generatorRemainder = 0.f;
