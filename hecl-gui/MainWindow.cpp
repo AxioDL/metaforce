@@ -321,7 +321,7 @@ void MainWindow::enableOperations() {
   m_ui->launchBtn->setText(tr("Launch"));
 
   m_ui->extractBtn->setEnabled(true);
-  if (QFile::exists(m_path + QStringLiteral("/MP1/.done"))) {
+  if (QFile::exists(m_path + QStringLiteral("/MP1/URDE/texture_cache.yaml"))) {
     m_ui->packageBtn->setEnabled(true);
     if (isPackageComplete())
       m_ui->launchBtn->setEnabled(true);
@@ -357,7 +357,8 @@ bool MainWindow::isPackageComplete() const {
       QFile::exists(m_path + QStringLiteral("/out/files/SamusGun.upak")) &&
       QFile::exists(m_path + QStringLiteral("/out/files/SlideShow.upak")) &&
       QFile::exists(m_path + QStringLiteral("/out/files/TestAnim.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/Tweaks.upak"));
+      QFile::exists(m_path + QStringLiteral("/out/files/Tweaks.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/URDE.upak"));
 }
 
 static bool GetDLPackage(const QString& path, QString& dlPackage) {
