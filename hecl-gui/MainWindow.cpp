@@ -211,6 +211,7 @@ void MainWindow::onLaunch() {
   connect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &MainWindow::onLaunchFinished);
 
   const auto heclProcArguments = QStringList{m_path + QStringLiteral("/out")}
+                                 << QStringLiteral("-l")
                                  << m_settings.value(QStringLiteral("urde_arguments"))
                                         .toStringList()
                                         .join(QLatin1Char{' '})
