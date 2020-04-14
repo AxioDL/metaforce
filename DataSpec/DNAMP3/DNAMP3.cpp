@@ -22,15 +22,10 @@ namespace DataSpec::DNAMP3 {
 logvisor::Module Log("urde::DNAMP3");
 
 static bool GetNoShare(std::string_view name) {
-  if (name == "UniverseArea.pak"sv)
-    return false;
   std::string lowerName(name);
   std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
-  if (!lowerName.compare(0, 7, "metroid"))
-    return false;
-  if (!lowerName.compare(0, 5, "rs5fe"))
-    return false;
-  return true;
+  return !lowerName.starts_with("metroid"sv) && !lowerName.starts_with("frontend"sv) &&
+         !lowerName.starts_with("rs5fe"sv) && !lowerName.starts_with("universearea"sv);
 }
 
 PAKBridge::PAKBridge(const nod::Node& node, bool doExtract)
