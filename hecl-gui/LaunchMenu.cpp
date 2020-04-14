@@ -18,12 +18,9 @@ LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
 #ifdef _WIN32
   initApiAction(QStringLiteral("D3D11"));
   initApiAction(QStringLiteral("Vulkan"));
-  initApiAction(QStringLiteral("OpenGL"));
 #elif defined(__APPLE__)
   initApiAction(QStringLiteral("Metal"));
-  initApiAction(QStringLiteral("OpenGL"));
 #else
-  initApiAction(QStringLiteral("OpenGL"));
   initApiAction(QStringLiteral("Vulkan"));
 #endif
 
