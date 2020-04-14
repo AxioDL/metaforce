@@ -110,9 +110,7 @@ MainWindow::MainWindow(QWidget* parent)
   setPath(m_settings.value(QStringLiteral("working_dir")).toString());
 }
 
-MainWindow::~MainWindow() {
-  KillProcessTree(m_heclProc);
-}
+MainWindow::~MainWindow() { KillProcessTree(m_heclProc); }
 
 void MainWindow::onExtract() {
   if (m_path.isEmpty()) {
@@ -143,7 +141,7 @@ void MainWindow::onExtract() {
   m_ui->heclTabs->setCurrentIndex(0);
 
   disableOperations();
-  m_ui->extractBtn->setText(tr("Cancel"));
+  m_ui->extractBtn->setText(tr("&Cancel"));
   m_ui->extractBtn->setEnabled(true);
   disconnect(m_ui->extractBtn, &QPushButton::clicked, nullptr, nullptr);
   connect(m_ui->extractBtn, &QPushButton::clicked, this, &MainWindow::doHECLTerminate);
@@ -177,7 +175,7 @@ void MainWindow::onPackage() {
   m_ui->heclTabs->setCurrentIndex(0);
 
   disableOperations();
-  m_ui->packageBtn->setText(tr("Cancel"));
+  m_ui->packageBtn->setText(tr("&Cancel"));
   m_ui->packageBtn->setEnabled(true);
   disconnect(m_ui->packageBtn, &QPushButton::clicked, nullptr, nullptr);
   connect(m_ui->packageBtn, &QPushButton::clicked, this, &MainWindow::doHECLTerminate);
@@ -316,9 +314,9 @@ void MainWindow::enableOperations() {
   if (m_heclPath.isEmpty())
     return;
 
-  m_ui->extractBtn->setText(tr("Extract"));
-  m_ui->packageBtn->setText(tr("Package"));
-  m_ui->launchBtn->setText(tr("Launch"));
+  m_ui->extractBtn->setText(tr("&Extract"));
+  m_ui->packageBtn->setText(tr("&Package"));
+  m_ui->launchBtn->setText(tr("&Launch"));
 
   m_ui->extractBtn->setEnabled(true);
   if (QFile::exists(m_path + QStringLiteral("/MP1/URDE/texture_cache.yaml"))) {
@@ -339,26 +337,25 @@ void MainWindow::enableOperations() {
 }
 
 bool MainWindow::isPackageComplete() const {
-  return
-      QFile::exists(m_path + QStringLiteral("/out/files/AudioGrp.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/GGuiSys.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/Metroid1.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/Metroid2.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/Metroid3.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/Metroid4.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/metroid5.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/Metroid6.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/Metroid7.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/Metroid8.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/MidiData.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/MiscData.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/NoARAM.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/SamGunFx.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/SamusGun.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/SlideShow.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/TestAnim.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/Tweaks.upak")) &&
-      QFile::exists(m_path + QStringLiteral("/out/files/URDE.upak"));
+  return QFile::exists(m_path + QStringLiteral("/out/files/AudioGrp.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/GGuiSys.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/Metroid1.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/Metroid2.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/Metroid3.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/Metroid4.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/metroid5.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/Metroid6.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/Metroid7.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/Metroid8.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MidiData.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MiscData.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/NoARAM.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/SamGunFx.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/SamusGun.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/SlideShow.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/TestAnim.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/Tweaks.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/URDE.upak"));
 }
 
 static bool GetDLPackage(const QString& path, QString& dlPackage) {
@@ -421,13 +418,12 @@ bool MainWindow::checkDownloadedBinary() {
     m_ui->downloadErrorLabel->setText({}, true);
     enableOperations();
     return true;
-  } else {
-    m_ui->currentBinaryLabel->setText(tr("none"));
-    m_ui->heclTabs->setCurrentIndex(1);
-    m_ui->downloadErrorLabel->setText(tr("Press 'Download' to fetch latest URDE binary."), true);
-    enableOperations();
   }
 
+  m_ui->currentBinaryLabel->setText(tr("none"));
+  m_ui->heclTabs->setCurrentIndex(1);
+  m_ui->downloadErrorLabel->setText(tr("Press 'Download' to fetch latest URDE binary."), true);
+  enableOperations();
   return false;
 }
 
@@ -555,11 +551,10 @@ void MainWindow::insertContinueNote(const QString& text) {
   m_ui->processOutput->ensureCursorVisible();
 }
 
-void MainWindow::onUpdateTrackChanged(int index)  {
+void MainWindow::onUpdateTrackChanged(int index) {
   qDebug() << "Track changed from " << m_settings.value(QStringLiteral("update_track")) << " to "
            << skUpdateTracks[index];
   m_settings.setValue(QStringLiteral("update_track"), skUpdateTracks[index]);
   m_dlManager.fetchIndex();
   m_ui->devTrackWarning->setVisible(index == 1);
 }
-
