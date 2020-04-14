@@ -17,7 +17,6 @@ CVar* com_developer = nullptr;
 CVar* com_configfile = nullptr;
 CVar* com_enableCheats = nullptr;
 CVar* com_cubemaps = nullptr;
-CVar* com_variableDt = nullptr;
 
 static const std::regex cmdLineRegex("\\+([\\w\\.]+)=([\\w\\.\\-]+)");
 CVarManager* CVarManager::m_instance = nullptr;
@@ -36,8 +35,6 @@ CVarManager::CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary)
       (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden | CVar::EFlags::InternalArchivable));
   com_cubemaps = newCVar("cubemaps", "Enable cubemaps", false,
                          (CVar::EFlags::Game | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
-  com_variableDt = newCVar("variableDt", "Enable variable delta time (experimental)", false,
-                           (CVar::EFlags::Game | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
 }
 
 CVarManager::~CVarManager() {}
@@ -277,15 +274,6 @@ void CVarManager::setCheatsEnabled(bool v, bool setDeserialized) {
     com_enableCheats->m_wasDeserialized = true;
   com_enableCheats->lock();
   com_enableCheats->setModified();
-}
-
-void CVarManager::setVariableDtEnabled(bool v, bool setDeserialized) {
-  com_variableDt->unlock();
-  com_variableDt->fromBoolean(v);
-  if (setDeserialized)
-    com_variableDt->m_wasDeserialized = true;
-  com_variableDt->lock();
-  com_variableDt->setModified();
 }
 
 bool CVarManager::restartRequired() const {

@@ -27,6 +27,14 @@ struct CVarCommons {
   CVar* m_drawSamples = nullptr;
   CVar* m_texAnisotropy = nullptr;
   CVar* m_deepColor = nullptr;
+  CVar* m_variableDt = nullptr;
+
+  CVar* m_debugOverlayPlayerInfo = nullptr;
+  CVar* m_debugOverlayWorldInfo = nullptr;
+  CVar* m_debugOverlayAreaInfo = nullptr;
+  CVar* m_debugOverlayShowFrameCounter = nullptr;
+  CVar* m_debugOverlayShowInGameTime = nullptr;
+  CVar* m_debugOverlayShowResourceStats = nullptr;
 
   CVarCommons(CVarManager& manager) : m_mgr(manager) {
     m_graphicsApi = m_mgr.findOrMakeCVar("graphicsApi"sv, "API to use for rendering graphics"sv, DEFAULT_GRAPHICS_API,
@@ -41,6 +49,30 @@ struct CVarCommons {
     m_deepColor = m_mgr.findOrMakeCVar(
         "deepColor"sv, "Allow framebuffer with color depth greater-then 24-bits"sv, false,
         hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ModifyRestart);
+    m_variableDt =
+        m_mgr.findOrMakeCVar("variableDt", "Enable variable delta time (experimental)", false,
+                             (CVar::EFlags::Game | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
+
+    m_debugOverlayPlayerInfo = m_mgr.findOrMakeCVar(
+        "debugOverlay.playerInfo"sv, "Displays information about the player, such as location and orientation"sv, false,
+        hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_debugOverlayWorldInfo = m_mgr.findOrMakeCVar(
+        "debugOverlay.worldInfo"sv,
+        "Displays information about the current world, such as world asset ID, and areaId"sv, false,
+        hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_debugOverlayAreaInfo = m_mgr.findOrMakeCVar(
+        "debugOverlay.areaInfo"sv,
+        "Displays information about the current area, such as asset ID, object/layer counts, and active layer bits"sv,
+        false, hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_debugOverlayShowFrameCounter =
+        m_mgr.findOrMakeCVar("debugOverlay.showFrameCounter"sv, "Displays the current frame index"sv, false,
+                             hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_debugOverlayShowInGameTime =
+        m_mgr.findOrMakeCVar("debugOverlay.showInGameTime"sv, "Displays the current in game time"sv, false,
+                             hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_debugOverlayShowResourceStats = m_mgr.findOrMakeCVar(
+        "debugOverlay.showResourceStats"sv, "Displays the current live resource object and token counts"sv, false,
+        hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
   }
 
   std::string getGraphicsApi() const { return m_graphicsApi->toLiteral(); }

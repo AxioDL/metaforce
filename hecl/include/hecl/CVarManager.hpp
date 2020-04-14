@@ -16,7 +16,6 @@ extern CVar* com_developer;
 extern CVar* com_configfile;
 extern CVar* com_enableCheats;
 extern CVar* com_cubemaps;
-extern CVar* com_variableDt;
 class CVarManager final {
   using CVarContainer = DNACVAR::CVarContainer;
   template <typename T>
@@ -106,7 +105,6 @@ public:
 
   void setDeveloperMode(bool v, bool setDeserialized = false);
   void setCheatsEnabled(bool v, bool setDeserialized = false);
-  void setVariableDtEnabled(bool v, bool setDeserialized = false);
   bool restartRequired() const;
 
   void parseCommandLine(const std::vector<SystemString>& args);
