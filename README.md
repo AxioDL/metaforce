@@ -3,6 +3,8 @@
 
 **Official Discord Channel:** https://discord.gg/AMBVFuf
 
+![URDE screenshot](assets/urde-screen1.png)
+
 ### Download
 Precompiled builds of the command-line extraction utility (`hecl`) with embedded dataspec libraries are available at https://releases.axiodl.com. This will give you intermediate dumps of original formats as *blender* and *yaml* representations.
 
