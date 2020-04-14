@@ -3,9 +3,6 @@
 #ifndef MP1_USE_BOO
 #define MP1_USE_BOO 0
 #endif
-#ifndef MP1_VARIABLE_DELTA_TIME
-#define MP1_VARIABLE_DELTA_TIME 0
-#endif
 
 #include "IMain.hpp"
 #include "CTweaks.hpp"
@@ -250,11 +247,9 @@ private:
   bool m_loadedPersistentResources = false;
   bool m_doQuit = false;
 
-#if MP1_VARIABLE_DELTA_TIME
   bool m_firstFrame = true;
   using delta_clock = std::chrono::high_resolution_clock;
   std::chrono::time_point<delta_clock> m_prevFrameTime;
-#endif
 
   void InitializeSubsystems();
   static void InitializeDiscord();

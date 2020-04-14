@@ -74,6 +74,7 @@ namespace hecl {
 extern CVar* com_enableCheats;
 extern CVar* com_developer;
 extern CVar* com_cubemaps;
+extern CVar* com_variableDt;
 }; // namespace hecl
 
 namespace urde::MP1 {
@@ -838,16 +839,16 @@ bool CMain::Proc() {
   }
 
   float dt = 1 / 60.f;
-#if MP1_VARIABLE_DELTA_TIME
-  auto now = delta_clock::now();
-  if (m_firstFrame) {
-    m_firstFrame = false;
-  } else {
-    using delta_duration = std::chrono::duration<float, std::ratio<1>>;
-    dt = std::min(std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count(), 1 / 30.f);
+  if (hecl::com_variableDt->toBoolean()) {
+    auto now = delta_clock::now();
+    if (m_firstFrame) {
+      m_firstFrame = false;
+    } else {
+      using delta_duration = std::chrono::duration<float, std::ratio<1>>;
+      dt = std::min(std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count(), 1 / 30.f);
+    }
+    m_prevFrameTime = now;
   }
-  m_prevFrameTime = now;
-#endif
 
   m_console->proc();
   if (!m_console->isOpen()) {
