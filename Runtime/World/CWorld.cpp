@@ -1,5 +1,8 @@
 #include "Runtime/World/CWorld.hpp"
 
+#include <algorithm>
+#include <iterator>
+
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CInGameTweakManagerBase.hpp"
 #include "Runtime/CSimplePool.hpp"
@@ -44,15 +47,17 @@ const IGameArea* CDummyWorld::IGetAreaAlways(TAreaId id) const { return &x18_are
 TAreaId CDummyWorld::IGetCurrentAreaId() const { return x3c_curAreaId; }
 
 TAreaId CDummyWorld::IGetAreaId(CAssetId id) const {
-  int ret = 0;
-  if (!id.IsValid())
+  if (!id.IsValid()) {
     return kInvalidAreaId;
-  for (const CDummyGameArea& area : x18_areas) {
-    if (area.xc_mrea == id)
-      return ret;
-    ++ret;
   }
-  return kInvalidAreaId;
+
+  const auto iter =
+      std::find_if(x18_areas.cbegin(), x18_areas.cend(), [id](const auto& area) { return area->xc_mrea == id; });
+  if (iter == x18_areas.cend()) {
+    return kInvalidAreaId;
+  }
+
+  return TAreaId(std::distance(x18_areas.cbegin(), iter));
 }
 
 CWorld::CRelay::CRelay(CInputStream& in) {
@@ -226,15 +231,17 @@ const IGameArea* CWorld::IGetAreaAlways(TAreaId id) const { return GetAreaAlways
 TAreaId CWorld::IGetCurrentAreaId() const { return x68_curAreaId; }
 
 TAreaId CWorld::IGetAreaId(CAssetId id) const {
-  int ret = 0;
-  if (!id.IsValid())
+  if (!id.IsValid()) {
     return kInvalidAreaId;
-  for (const std::unique_ptr<CGameArea>& area : x18_areas) {
-    if (area->x84_mrea == id)
-      return ret;
-    ++ret;
   }
-  return kInvalidAreaId;
+
+  const auto iter =
+      std::find_if(x18_areas.cbegin(), x18_areas.cend(), [id](const auto& area) { return area->x84_mrea == id; });
+  if (iter == x18_areas.cend()) {
+    return kInvalidAreaId;
+  }
+
+  return TAreaId(std::distance(x18_areas.cbegin(), iter));
 }
 
 void CWorld::MoveToChain(CGameArea* area, EChain chain) {
