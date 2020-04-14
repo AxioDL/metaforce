@@ -100,7 +100,7 @@ private:
   void RenderLines();
   void RenderSwooshes();
   void UpdateCachedTransform();
-  void UpdateLine(int idx, int frame);
+  void UpdateLine(size_t idx, int frame);
   void UpdateElectricalEffects();
   void CalculateFractal(int start, int end, float ampl, float ampd);
   void CalculatePoints();

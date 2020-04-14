@@ -152,7 +152,7 @@ void CParticleElectric::UpdateCachedTransform() {
   x450_29_transformDirty = false;
 }
 
-void CParticleElectric::UpdateLine(int idx, int frame) {
+void CParticleElectric::UpdateLine(size_t idx, int frame) {
   CLineManager& line = *x2e4_lineManagers[idx];
 
   if (CColorElement* lcl1 = x1c_elecDesc->x34_LCL1.get()) {
@@ -191,8 +191,8 @@ void CParticleElectric::UpdateElectricalEffects() {
       continue;
     }
 
-    CParticleGlobals::instance()->SetParticleLifetime(elec.xc_endFrame - elec.x8_startFrame);
-    const int frame = x28_currentFrame - elec.x8_startFrame;
+    CParticleGlobals::instance()->SetParticleLifetime(int(elec.xc_endFrame - elec.x8_startFrame));
+    const int frame = x28_currentFrame - int(elec.x8_startFrame);
     CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(frame);
 
     if (x450_27_haveSSWH) {
@@ -218,7 +218,7 @@ void CParticleElectric::CalculateFractal(int start, int end, float ampl, float a
   const int storeIdx = (start + end) / 2;
   x430_fractalMags[storeIdx] = (x430_fractalMags[start] + x430_fractalMags[end]) * 0.5f + tmp * x14c_randState.Float() -
                                tmp * 0.5f + ampd * x14c_randState.Float() - ampd * 0.5f;
-  if ((start + end) & 1) {
+  if (((start + end) & 1) != 0) {
     x430_fractalMags[end - 1] = x430_fractalMags[end];
   }
 
@@ -362,14 +362,14 @@ void CParticleElectric::CalculatePoints() {
 }
 
 void CParticleElectric::CreateNewParticles(int count) {
-  int allocIdx = 0;
+  size_t allocIdx = 0;
 
   for (int i = 0; i < count; ++i) {
-    if (x3e8_electricManagers.size() < x154_SCNT) {
+    if (x3e8_electricManagers.size() < size_t(x154_SCNT)) {
       const zeus::CTransform cachedRot = xf8_cachedXf.getRotation();
 
-      const int toAdd = x1bc_allocated.size() - allocIdx;
-      for (int j = 0; j < toAdd; ++j, ++allocIdx) {
+      const size_t toAdd = x1bc_allocated.size() - allocIdx;
+      for (size_t j = 0; j < toAdd; ++j, ++allocIdx) {
         if (x1bc_allocated[allocIdx]) {
           continue;
         }
@@ -383,7 +383,7 @@ void CParticleElectric::CreateNewParticles(int count) {
         x3e8_electricManagers.emplace_back(allocIdx, lifetime, x28_currentFrame);
         CParticleElectricManager& elec = x3e8_electricManagers.back();
         CParticleGlobals::instance()->SetParticleLifetime(elec.xc_endFrame - elec.x8_startFrame);
-        const int frame = x28_currentFrame - elec.x8_startFrame;
+        const int frame = x28_currentFrame - int(elec.x8_startFrame);
         CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(frame);
         CalculatePoints();
 
@@ -462,9 +462,9 @@ void CParticleElectric::AddElectricalEffects() {
   }
 
   x15c_genRem += genRate;
-  const int partCount = std::floor(x15c_genRem);
+  const float partCount = std::floor(x15c_genRem);
   x15c_genRem -= partCount;
-  CreateNewParticles(partCount);
+  CreateNewParticles(int(partCount));
 }
 
 void CParticleElectric::BuildBounds() {
@@ -617,7 +617,7 @@ void CParticleElectric::Render(const CActorLights* lights) {
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CParticleElectric::Render {}"),
     *x1c_elecDesc.GetObjectTag()).c_str(), zeus::skYellow);
 
-  if (x3e8_electricManagers.size()) {
+  if (!x3e8_electricManagers.empty()) {
     if (x450_29_transformDirty) {
       UpdateCachedTransform();
     }
@@ -751,7 +751,7 @@ bool CParticleElectric::IsSystemDeletable() const {
     return false;
   }
 
-  if (x3e8_electricManagers.size()) {
+  if (!x3e8_electricManagers.empty()) {
     return false;
   }
 
