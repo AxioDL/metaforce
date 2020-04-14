@@ -395,6 +395,12 @@ bool MainWindow::checkDownloadedBinary() {
   QString urdePath = m_path + QStringLiteral("/urde");
   QString heclPath = m_path + QStringLiteral("/hecl");
   QString visigenPath = m_path + QStringLiteral("/visigen");
+  if (!QFileInfo::exists(urdePath) || !QFileInfo::exists(heclPath) || !QFileInfo::exists(visigenPath)) {
+    const QString dir = QApplication::instance()->applicationDirPath();
+    urdePath = dir + QStringLiteral("/urde");
+    heclPath = dir + QStringLiteral("/hecl");
+    visigenPath = dir + QStringLiteral("/visigen");
+  }
 #endif
   urdePath = QFileInfo(urdePath).absoluteFilePath();
   heclPath = QFileInfo(heclPath).absoluteFilePath();
