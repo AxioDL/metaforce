@@ -214,10 +214,11 @@ void CLogBookScreen::UpdateBodyImagesAndText() {
     pane->SetAnimationParms(zeus::skZero2f, 0.f, 0.f);
   }
 
-  for (int i = 0; i < 4; ++i) {
+  for (size_t i = 0; i < CScannableObjectInfo::NumBuckets; ++i) {
     const CScannableObjectInfo::SBucket& bucket = scan->GetBucket(i);
-    if (bucket.x8_imagePos == UINT32_MAX)
+    if (bucket.x8_imagePos == UINT32_MAX) {
       continue;
+    }
     CAuiImagePane* pane = xf0_imagePanes[bucket.x8_imagePos];
     if (bucket.x14_interval > 0.f) {
       pane->SetAnimationParms(zeus::CVector2f(bucket.xc_size.x, bucket.xc_size.y), bucket.x14_interval,

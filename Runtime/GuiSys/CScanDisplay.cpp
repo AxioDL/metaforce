@@ -71,9 +71,10 @@ void CScanDisplay::CDataDot::SetDestPosition(const zeus::CVector2f& pos) {
 
 CScanDisplay::CScanDisplay(const CGuiFrame& selHud) : xa0_selHud(selHud) {
   x0_dataDot = g_SimplePool->GetObj("TXTR_DataDot");
-  for (int i = 0; i < 4; ++i)
+  for (size_t i = 0; i < xbc_dataDots.capacity(); ++i) {
     xbc_dataDots.emplace_back(x0_dataDot);
-  x170_paneStates.resize(4);
+  }
+  x170_paneStates.resize(x170_paneStates.capacity());
 }
 
 void CScanDisplay::ProcessInput(const CFinalInput& input) {
@@ -139,26 +140,34 @@ void CScanDisplay::ProcessInput(const CFinalInput& input) {
   xb8_dash->SetColor(zeus::CColor(0.53f, 0.84f, 1.f, dashAlpha));
 }
 
-float CScanDisplay::GetDownloadStartTime(int idx) const {
-  if (!x14_scannableInfo)
+float CScanDisplay::GetDownloadStartTime(size_t idx) const {
+  if (!x14_scannableInfo) {
     return 0.f;
-  float nTime = x14_scannableInfo->GetBucket(idx).x4_appearanceRange;
-  float maxTime = 0.f;
-  for (int i = 0; i < 4; ++i) {
-    float iTime = x14_scannableInfo->GetBucket(i).x4_appearanceRange;
-    if (iTime < nTime)
-      maxTime = std::max(iTime, maxTime);
   }
+
+  const float nTime = x14_scannableInfo->GetBucket(idx).x4_appearanceRange;
+  float maxTime = 0.f;
+  for (size_t i = 0; i < CScannableObjectInfo::NumBuckets; ++i) {
+    const float iTime = x14_scannableInfo->GetBucket(i).x4_appearanceRange;
+    if (iTime < nTime) {
+      maxTime = std::max(iTime, maxTime);
+    }
+  }
+
   return maxTime + g_tweakGui->GetScanAppearanceDuration();
 }
 
-float CScanDisplay::GetDownloadFraction(int idx, float scanningTime) const {
-  if (!x14_scannableInfo)
+float CScanDisplay::GetDownloadFraction(size_t idx, float scanningTime) const {
+  if (!x14_scannableInfo) {
     return 0.f;
-  float appearTime = GetDownloadStartTime(idx);
-  float appearRange = x14_scannableInfo->GetBucket(idx).x4_appearanceRange;
-  if (appearTime == appearRange)
+  }
+
+  const float appearTime = GetDownloadStartTime(idx);
+  const float appearRange = x14_scannableInfo->GetBucket(idx).x4_appearanceRange;
+  if (appearTime == appearRange) {
     return 1.f;
+  }
+
   return zeus::clamp(0.f, (scanningTime - appearTime) / (appearRange - appearTime), 1.f);
 }
 
@@ -182,26 +191,26 @@ void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo,
   xa8_message->TextSupport().SetText(u"");
   xac_scrollMessage->TextSupport().SetText(u"");
 
-  for (int i = 0; i < 20; ++i) {
-    CAuiImagePane* pane =
-        static_cast<CAuiImagePane*>(xa0_selHud.FindWidget(MP1::CPauseScreenBase::GetImagePaneName(i)));
+  for (size_t i = 0; i < 20; ++i) {
+    auto* pane = static_cast<CAuiImagePane*>(xa0_selHud.FindWidget(MP1::CPauseScreenBase::GetImagePaneName(i)));
     zeus::CColor color = g_tweakGuiColors->GetScanDisplayImagePaneColor();
     color.a() = 0.f;
     pane->SetColor(color);
     pane->SetTextureID0({}, g_SimplePool);
     pane->SetAnimationParms(zeus::skZero2f, 0.f, 0.f);
-    int pos = -1;
-    for (int j = 0; j < 4; ++j) {
+    size_t pos = SIZE_MAX;
+    for (size_t j = 0; j < CScannableObjectInfo::NumBuckets; ++j) {
       if (x14_scannableInfo->GetBucket(j).x8_imagePos == i) {
         pos = j;
         break;
       }
     }
-    if (pos >= 0)
+    if (pos != SIZE_MAX) {
       x170_paneStates[pos].second = pane;
+    }
   }
 
-  for (int i = 0; i < x170_paneStates.size(); ++i) {
+  for (size_t i = 0; i < x170_paneStates.size(); ++i) {
     std::pair<float, CAuiImagePane*>& state = x170_paneStates[i];
     if (state.second) {
       const CScannableObjectInfo::SBucket& bucket = x14_scannableInfo->GetBucket(i);
@@ -211,22 +220,25 @@ void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo,
       }
       state.second->SetTextureID0(bucket.x0_texture, g_SimplePool);
       state.second->SetFlashFactor(0.f);
-      float startTime = GetDownloadStartTime(i);
-      if (scanTime >= startTime)
+
+      const float startTime = GetDownloadStartTime(i);
+      if (scanTime >= startTime) {
         x170_paneStates[i].first = 0.f;
-      else
+      } else {
         x170_paneStates[i].first = -1.f;
+      }
     }
   }
 
-  CAssetId strId = x14_scannableInfo->GetStringTableId();
-  if (strId.IsValid())
+  const CAssetId strId = x14_scannableInfo->GetStringTableId();
+  if (strId.IsValid()) {
     x194_scanStr = g_SimplePool->GetObj({FOURCC('STRG'), strId});
+  }
 
-  for (int i = 0; i < 4; ++i) {
-    int pos = x14_scannableInfo->GetBucket(i).x8_imagePos;
+  for (size_t i = 0; i < CScannableObjectInfo::NumBuckets; ++i) {
+    const u32 pos = x14_scannableInfo->GetBucket(i).x8_imagePos;
     CDataDot& dot = xbc_dataDots[i];
-    if (pos != -1) {
+    if (pos != UINT32_MAX) {
       if (GetDownloadStartTime(i) - g_tweakGui->GetScanAppearanceDuration() < scanTime) {
         dot.SetAlpha(0.f);
         dot.SetDotState(CDataDot::EDotState::Done);
@@ -243,12 +255,14 @@ void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo,
 }
 
 void CScanDisplay::StopScan() {
-  if (xc_state == EScanState::Done || xc_state == EScanState::Inactive)
+  if (xc_state == EScanState::Done || xc_state == EScanState::Inactive) {
     return;
+  }
 
   xc_state = EScanState::Done;
-  for (int i = 0; i < 4; ++i)
-    xbc_dataDots[i].SetDesiredAlpha(0.f);
+  for (auto& dataDot : xbc_dataDots) {
+    dataDot.SetDesiredAlpha(0.f);
+  }
 }
 
 void CScanDisplay::SetScanMessageTypeEffect(CGuiTextPane* pane, bool type) {
@@ -310,25 +324,30 @@ void CScanDisplay::Update(float dt, float scanningTime) {
     }
   }
 
-  for (int i = 0; i < 4; ++i) {
-    if (x170_paneStates[i].second == nullptr)
+  for (size_t i = 0; i < x170_paneStates.size(); ++i) {
+    if (x170_paneStates[i].second == nullptr) {
       continue;
+    }
+
     if (x170_paneStates[i].first > 0.f) {
       x170_paneStates[i].first = std::max(0.f, x170_paneStates[i].first - dt);
       float tmp;
-      if (x170_paneStates[i].first > g_tweakGui->GetScanPaneFadeOutTime())
+      if (x170_paneStates[i].first > g_tweakGui->GetScanPaneFadeOutTime()) {
         tmp = 1.f -
               (x170_paneStates[i].first - g_tweakGui->GetScanPaneFadeOutTime()) / g_tweakGui->GetScanPaneFadeInTime();
-      else
+      } else {
         tmp = x170_paneStates[i].first / g_tweakGui->GetScanPaneFadeOutTime();
+      }
       x170_paneStates[i].second->SetFlashFactor(tmp * g_tweakGui->GetScanPaneFlashFactor() * x1a8_bodyAlpha);
     }
-    float alphaMul =
+
+    const float alphaMul =
         ((xc_state == EScanState::Downloading) ? GetDownloadFraction(i, scanningTime) : 1.f) * x1a8_bodyAlpha;
     zeus::CColor color = g_tweakGuiColors->GetScanDisplayImagePaneColor();
     color.a() *= alphaMul;
     x170_paneStates[i].second->SetColor(color);
     x170_paneStates[i].second->SetDeResFactor(1.f - alphaMul);
+
     if (GetDownloadStartTime(i) - g_tweakGui->GetScanAppearanceDuration() < scanningTime) {
       CDataDot& dot = xbc_dataDots[i];
       switch (dot.GetDotState()) {
@@ -338,7 +357,7 @@ void CScanDisplay::Update(float dt, float scanningTime) {
         dot.StartTransitionTo(zeus::skZero2f, g_tweakGui->GetScanAppearanceDuration());
         break;
       case CDataDot::EDotState::RevealPane: {
-        float tmp = dot.GetTransitionFactor();
+        const float tmp = dot.GetTransitionFactor();
         if (tmp == 0.f) {
           dot.SetDotState(CDataDot::EDotState::Done);
           dot.SetDesiredAlpha(0.f);
@@ -353,7 +372,7 @@ void CScanDisplay::Update(float dt, float scanningTime) {
     }
   }
 
-  for (int i = 0; i < 4; ++i) {
+  for (size_t i = 0; i < xbc_dataDots.size(); ++i) {
     CDataDot& dot = xbc_dataDots[i];
     switch (dot.GetDotState()) {
     case CDataDot::EDotState::Hidden:

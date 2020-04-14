@@ -536,7 +536,7 @@ void CPauseScreenBase::OnWidgetScroll(CGuiWidget* widget, const boo::SScrollDelt
   }
 }
 
-std::string CPauseScreenBase::GetImagePaneName(u32 i) {
+std::string CPauseScreenBase::GetImagePaneName(size_t i) {
   static constexpr std::array PaneSuffixes{
       "0", "1", "2", "3", "01", "12", "23", "012", "123", "0123",
       "4", "5", "6", "7", "45", "56", "67", "456", "567", "4567",
