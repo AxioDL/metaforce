@@ -1136,8 +1136,7 @@ void CElementGen::RenderLines() {
 
   m_lineRenderer->Reset();
 
-  for (size_t i = 0; i < x30_particles.size(); ++i) {
-    CParticle& particle = x30_particles[i];
+  for (auto& particle : x30_particles) {
     g_currentParticle = &particle;
 
     int partFrame = x74_curFrame - particle.x28_startFrame;
