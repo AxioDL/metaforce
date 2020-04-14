@@ -513,7 +513,7 @@ void CParticleElectric::BuildBounds() {
 }
 
 bool CParticleElectric::Update(double dt) {
-  CGlobalRandom gr(x14c_randState);
+  [[maybe_unused]] CGlobalRandom gr(x14c_randState);
   bool ret = false;
 
   if (x450_25_haveGPSM) {
