@@ -79,11 +79,11 @@ class CParticleSwoosh : public CParticleGen {
   int x1b0_SPLN = 0;
   int x1b4_LENG = 0;
   int x1b8_SIDE = 0;
-  GX::Primitive x1bc_prim;
+  GX::Primitive x1bc_prim{};
   CRandom16 x1c0_rand;
   float x1c4_ = 0.f;
   float x1c8_ = 0.f;
-  float x1cc_TSPN;
+  float x1cc_TSPN = 0.f;
   bool x1d0_24_emitting : 1;
   bool x1d0_25_AALP : 1;
   bool x1d0_26_forceOneUpdate : 1;
