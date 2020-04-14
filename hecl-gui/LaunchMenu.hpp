@@ -4,7 +4,7 @@
 
 namespace hecl {
 struct CVarCommons;
-}
+} // namespace hecl
 
 class QAction;
 
@@ -15,6 +15,7 @@ class LaunchMenu : public QMenu {
   QMenu m_apiMenu;
   QMenu m_msaaMenu;
   QMenu m_anisoMenu;
+  QMenu m_experimentalMenu;
 
   QActionGroup m_apiGroup;
   QActionGroup m_msaaGroup;
@@ -22,6 +23,7 @@ class LaunchMenu : public QMenu {
 
   QAction* m_developerMode = nullptr;
   QAction* m_enableCheats = nullptr;
+  QAction* m_variableDt = nullptr;
 
   void initApiAction(const QString& action);
   void initMsaaAction(const QString& action);
@@ -29,6 +31,7 @@ class LaunchMenu : public QMenu {
   void initDeepColor();
   void initDeveloperMode();
   void initCheats();
+  void initExperimental();
 
 public:
   explicit LaunchMenu(hecl::CVarCommons& commons, QWidget* parent = Q_NULLPTR);
@@ -41,5 +44,6 @@ public slots:
   void deepColorTriggered();
   void developerModeTriggered();
   void cheatsTriggered();
+  void variableDtTriggered();
   void editRuntimeArgs();
 };

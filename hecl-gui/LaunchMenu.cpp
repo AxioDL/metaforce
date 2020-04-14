@@ -11,6 +11,7 @@ LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
 , m_apiMenu(tr("Graphics API"), this)
 , m_msaaMenu(tr("Anti-Aliasing"), this)
 , m_anisoMenu(tr("Anisotropic Filtering"), this)
+, m_experimentalMenu(tr("Experimental Features"), this)
 , m_apiGroup(this)
 , m_msaaGroup(this)
 , m_anisoGroup(this) {
@@ -39,9 +40,11 @@ LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
   m_apiMenu.addActions(m_apiGroup.actions());
   m_msaaMenu.addActions(m_msaaGroup.actions());
   m_anisoMenu.addActions(m_anisoGroup.actions());
+  initExperimental();
   addMenu(&m_apiMenu)->setToolTip(QString::fromUtf8(m_commons.m_graphicsApi->rawHelp().data()));
   addMenu(&m_msaaMenu)->setToolTip(QString::fromUtf8(m_commons.m_drawSamples->rawHelp().data()));
   addMenu(&m_anisoMenu)->setToolTip(QString::fromUtf8(m_commons.m_texAnisotropy->rawHelp().data()));
+  addMenu(&m_experimentalMenu)->setToolTip(QString::fromUtf8(hecl::com_variableDt->rawHelp().data()));
   const QAction* argumentEditor = addAction(tr("Edit Runtime Arguments"));
   connect(argumentEditor, &QAction::triggered, this, &LaunchMenu::editRuntimeArgs);
   initDeepColor();
@@ -99,6 +102,14 @@ void LaunchMenu::initCheats() {
   connect(m_enableCheats, &QAction::triggered, this, &LaunchMenu::cheatsTriggered);
 }
 
+void LaunchMenu::initExperimental() {
+  m_variableDt = m_experimentalMenu.addAction(tr("Variable delta time"));
+  m_variableDt->setToolTip(QString::fromUtf8(hecl::com_variableDt->rawHelp().data()));
+  m_variableDt->setCheckable(true);
+  m_variableDt->setChecked(hecl::com_variableDt->toBoolean());
+  connect(m_variableDt, &QAction::triggered, this, &LaunchMenu::variableDtTriggered);
+}
+
 void LaunchMenu::apiTriggered() {
   QString apiStr = qobject_cast<QAction*>(sender())->text();
   apiStr = apiStr.remove(QLatin1Char{'&'});
@@ -140,6 +151,17 @@ void LaunchMenu::cheatsTriggered() {
   }
 
   hecl::CVarManager::instance()->setCheatsEnabled(isChecked, true);
+  m_commons.serialize();
+}
+
+void LaunchMenu::variableDtTriggered() {
+  const bool isChecked = qobject_cast<QAction*>(sender())->isChecked();
+
+  if (!hecl::com_variableDt->toBoolean() && isChecked) {
+    m_variableDt->setChecked(false);
+  }
+
+  hecl::CVarManager::instance()->setVariableDtEnabled(isChecked, true);
   m_commons.serialize();
 }
 
