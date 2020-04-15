@@ -51,10 +51,10 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneDoor::RenderSetup(const CStateMana
   return out;
 }
 
-/* Used to be part of locked cache
- * These are too big for stack allocation */
-static CFluidPlaneRender::SHFieldSample lc_heights[46][46] = {};
-static u8 lc_flags[9][9] = {};
+// Used to be part of locked cache
+// These are too big for stack allocation
+static CFluidPlane::Heights lc_heights{};
+static CFluidPlane::Flags lc_flags{};
 
 void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb,
                              const zeus::CTransform& xf, const zeus::CTransform& areaXf, bool noNormals,

@@ -27,8 +27,8 @@ class CTextExecuteBuffer {
   CBlockInstruction* xa0_curBlock = nullptr;
   CLineInstruction* xa4_curLine = nullptr;
   InstList::iterator xa8_curWordIt;
-  s32 xac_curY;
-  s32 xb0_curX;
+  s32 xac_curY = 0;
+  s32 xb0_curX = 0;
   s32 xb4_curWordX = 0;
   s32 xb8_curWordY = 0;
   s32 xbc_spaceDistance = 0;
@@ -37,7 +37,7 @@ class CTextExecuteBuffer {
   u32 xd8_ = 0;
 
 public:
-  CTextExecuteBuffer() { xa8_curWordIt = x0_instList.begin(); }
+  CTextExecuteBuffer() : xa8_curWordIt{x0_instList.begin()} {}
 
   CTextRenderBuffer BuildRenderBuffer(CGuiWidget::EGuiModelDrawFlags df) const;
   CTextRenderBuffer BuildRenderBufferPage(InstList::const_iterator start, InstList::const_iterator pgStart,

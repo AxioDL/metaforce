@@ -38,7 +38,7 @@ public:
     CCollisionSurface x50_surface =
       CCollisionSurface(zeus::CVector3f(0.f, 0.f, 1.f), zeus::CVector3f(0.f, 1.f, 0.f),
                         zeus::CVector3f(1.f, 0.f, 0.f), 0xffffffff);
-    float x78_health;
+    float x78_health = 0.f;
     int x7c_framesNotOnSurface : 8;
     int x7c_idx : 10;
     int x7c_remainingLaunchNotOnSurfaceFrames : 8;
@@ -53,6 +53,7 @@ public:
     : x0_xf(xf)
     , x7c_framesNotOnSurface(0)
     , x7c_idx(idx)
+    , x7c_remainingLaunchNotOnSurfaceFrames(0)
     , x80_24_active(false)
     , x80_25_inFrustum(false)
     , x80_26_launched(false)

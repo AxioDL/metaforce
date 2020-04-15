@@ -89,7 +89,6 @@ struct Application : boo::IApplicationCallback {
 
   void initialize(boo::IApplication* app) {
     zeus::detectCPU();
-    createGlobalCVars();
     for (const boo::SystemString& arg : app->getArgs()) {
       if (arg.find(_SYS_STR("--verbosity=")) == 0 || arg.find(_SYS_STR("-v=")) == 0) {
         hecl::SystemUTF8Conv utf8Arg(arg.substr(arg.find_last_of('=') + 1));
@@ -113,27 +112,6 @@ struct Application : boo::IApplicationCallback {
   uint32_t getAnisotropy() const { return m_cvarCommons.getAnisotropy(); }
 
   bool getDeepColor() const { return m_cvarCommons.getDeepColor(); }
-
-  void createGlobalCVars() {
-    m_cvarManager.findOrMakeCVar("debugOverlay.playerInfo"sv,
-                                 "Displays information about the player, such as location and orientation"sv, false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar("debugOverlay.worldInfo"sv,
-                                 "Displays information about the current world, such as world asset ID, and areaId"sv,
-                                 false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar(
-        "debugOverlay.areaInfo"sv,
-        "Displays information about the current area, such as asset ID, object/layer counts, and active layer bits"sv,
-        false, hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar("debugOverlay.showFrameCounter"sv, "Displays the current frame index"sv, false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar("debugOverlay.showInGameTime"sv, "Displays the current in game time"sv, false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar("debugOverlay.showResourceStats"sv,
-                                 "Displays the current live resource object and token counts"sv, false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-  }
 };
 
 } // namespace urde

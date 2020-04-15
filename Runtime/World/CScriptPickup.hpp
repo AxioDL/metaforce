@@ -15,7 +15,7 @@ class CScriptPickup : public CPhysicsActor {
   float x268_fadeInTime;
   float x26c_lifeTime;
   float x270_curTime = 0.f;
-  float x274_tractorTime;
+  float x274_tractorTime = 0.f;
   float x278_delayTimer;
   TLockedToken<CGenDescription> x27c_pickupParticleDesc;
 

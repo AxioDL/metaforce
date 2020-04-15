@@ -34,7 +34,7 @@ class CParticleSwoosh : public CParticleGen {
     float x30_irot;                   // Rotation bias once per system update
     float x34_rotm;                   // Rotation bias once per particle instance
     zeus::CTransform x38_orientation; // Updated by user code
-    int x68_frame;                    // Frame index of evaluated data
+    int x68_frame = 0;                // Frame index of evaluated data
     zeus::CColor x6c_color;           // Updated by COLR
     int x70_startFrame;
     zeus::CVector3f x74_velocity;
@@ -79,11 +79,11 @@ class CParticleSwoosh : public CParticleGen {
   int x1b0_SPLN = 0;
   int x1b4_LENG = 0;
   int x1b8_SIDE = 0;
-  GX::Primitive x1bc_prim;
+  GX::Primitive x1bc_prim{};
   CRandom16 x1c0_rand;
   float x1c4_ = 0.f;
   float x1c8_ = 0.f;
-  float x1cc_TSPN;
+  float x1cc_TSPN = 0.f;
   bool x1d0_24_emitting : 1;
   bool x1d0_25_AALP : 1;
   bool x1d0_26_forceOneUpdate : 1;

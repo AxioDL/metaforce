@@ -78,7 +78,7 @@ class CScriptSpindleCamera : public CGameCamera {
   float x328_maxAzimuthInterpTimer = 0.f;
   bool x32c_outsideClampedAzimuth = false;
   zeus::CVector3f x330_lookDir;
-  bool x33c_24_inResetThink;
+  bool x33c_24_inResetThink = false;
 
   float GetInVar(const SSpindleProperty& seg) const { return x18c_inVars[int(seg.x4_input)]; }
 

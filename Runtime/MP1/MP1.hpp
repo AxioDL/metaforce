@@ -3,9 +3,6 @@
 #ifndef MP1_USE_BOO
 #define MP1_USE_BOO 0
 #endif
-#ifndef MP1_VARIABLE_DELTA_TIME
-#define MP1_VARIABLE_DELTA_TIME 1
-#endif
 
 #include "Runtime/IMain.hpp"
 #include "Runtime/MP1/CTweaks.hpp"
@@ -41,6 +38,7 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
 #include "hecl/Console.hpp"
+#include "hecl/CVarCommons.hpp"
 
 struct DiscordUser;
 
@@ -234,6 +232,7 @@ private:
   boo::IWindow* m_mainWindow = nullptr;
 
   hecl::CVarManager* m_cvarMgr = nullptr;
+  std::unique_ptr<hecl::CVarCommons> m_cvarCommons;
   std::unique_ptr<hecl::Console> m_console;
   // Warmup state
   std::vector<SObjectTag> m_warmupTags;
@@ -242,11 +241,9 @@ private:
   bool m_loadedPersistentResources = false;
   bool m_doQuit = false;
 
-#if MP1_VARIABLE_DELTA_TIME
   bool m_firstFrame = true;
   using delta_clock = std::chrono::high_resolution_clock;
   std::chrono::time_point<delta_clock> m_prevFrameTime;
-#endif
 
   void InitializeSubsystems();
   static void InitializeDiscord();

@@ -34,7 +34,7 @@ CHudDecoInterfaceCombat::CHudDecoInterfaceCombat(CGuiFrame& selHud) {
   x78_basewidget_tickdeco0->SetColor(g_tweakGuiColors->GetTickDecoColor());
   x38_basePosition = x7c_basewidget_frame->GetLocalPosition();
   x44_baseRotation = x7c_basewidget_frame->GetLocalTransform().buildMatrix3f();
-  UpdateHudAlpha();
+  CHudDecoInterfaceCombat::UpdateHudAlpha();
 }
 
 void CHudDecoInterfaceCombat::UpdateVisibility() {
@@ -127,7 +127,7 @@ CHudDecoInterfaceScan::CHudDecoInterfaceScan(CGuiFrame& selHud) : x14_selHud(sel
   x250_basewidget_rightside->SetLocalPosition(x250_basewidget_rightside->RotateO2P(x224_rightsidePosition - sidesPos));
   x234_sidesPositioner = FLT_MAX;
 
-  UpdateHudAlpha();
+  CHudDecoInterfaceScan::UpdateHudAlpha();
 }
 
 void CHudDecoInterfaceScan::UpdateVisibility() {
@@ -377,7 +377,7 @@ CHudDecoInterfaceXRay::CHudDecoInterfaceXRay(CGuiFrame& selHud) {
   if (CGuiWidget* w = selHud.FindWidget("model_threatslider"))
     w->SetDepthWrite(true);
 
-  UpdateHudAlpha();
+  CHudDecoInterfaceXRay::UpdateHudAlpha();
 }
 
 void CHudDecoInterfaceXRay::UpdateVisibility() {
@@ -482,7 +482,7 @@ CHudDecoInterfaceThermal::CHudDecoInterfaceThermal(CGuiFrame& selHud) {
   }
 
   x14_pivotPosition = x78_basewidget_pivot->GetIdlePosition();
-  UpdateHudAlpha();
+  CHudDecoInterfaceThermal::UpdateHudAlpha();
 }
 
 void CHudDecoInterfaceThermal::UpdateVisibility() {

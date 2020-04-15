@@ -79,8 +79,8 @@ private:
   float x1b0_aPulse = 1.f;
   bool x1b4_scanComplete = false;
 
-  float GetDownloadStartTime(int idx) const;
-  float GetDownloadFraction(int idx, float scanningTime) const;
+  float GetDownloadStartTime(size_t idx) const;
+  float GetDownloadFraction(size_t idx, float scanningTime) const;
   static void SetScanMessageTypeEffect(CGuiTextPane* pane, bool type);
 
 public:

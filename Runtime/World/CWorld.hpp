@@ -171,7 +171,7 @@ public:
   void CycleLoadPauseState();
 
   CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId);
-  ~CWorld();
+  ~CWorld() override;
   bool DoesAreaExist(TAreaId area) const;
   const std::vector<std::unique_ptr<CGameArea>>& GetGameAreas() const { return x18_areas; }
 

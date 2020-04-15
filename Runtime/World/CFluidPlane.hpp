@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <optional>
 #include <vector>
@@ -84,10 +85,10 @@ public:
 
   struct SRippleInfo {
     const CRipple& x0_ripple;
-    int x4_fromX;
-    int x8_toX;
-    int xc_fromY;
-    int x10_toY;
+    int x4_fromX = 0;
+    int x8_toX = 0;
+    int xc_fromY = 0;
+    int x10_toY = 0;
     int x14_gfromX;
     int x18_gtoX;
     int x1c_gfromY;
@@ -116,6 +117,10 @@ public:
 };
 
 class CFluidPlane {
+public:
+  using Flags = std::array<std::array<u8, 9>, 9>;
+  using Heights = std::array<std::array<CFluidPlaneRender::SHFieldSample, 46>, 46>;
+
 protected:
   CAssetId x4_texPattern1Id;
   CAssetId x8_texPattern2Id;
@@ -135,12 +140,12 @@ protected:
   float ProjectRippleVelocity(float baseI, float velDot) const;
   float CalculateRippleIntensity(float baseI) const;
 
-  virtual void RenderStripWithRipples(float curY, const CFluidPlaneRender::SHFieldSample (&heights)[46][46],
-                                      const u8 (&flags)[9][9], int startYDiv, const CFluidPlaneRender::SPatchInfo& info,
+  virtual void RenderStripWithRipples(float curY, const Heights& heights, const Flags& flags, int startYDiv,
+                                      const CFluidPlaneRender::SPatchInfo& info,
                                       std::vector<CFluidPlaneShader::Vertex>& vOut,
                                       std::vector<CFluidPlaneShader::PatchVertex>& pvOut);
-  void RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const CFluidPlaneRender::SHFieldSample (&heights)[46][46],
-                   const u8 (&flags)[9][9], bool noRipples, bool flagIs1, std::vector<CFluidPlaneShader::Vertex>& vOut,
+  void RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const Heights& heights, const Flags& flags,
+                   bool noRipples, bool flagIs1, std::vector<CFluidPlaneShader::Vertex>& vOut,
                    std::vector<CFluidPlaneShader::PatchVertex>& pvOut);
 
 public:

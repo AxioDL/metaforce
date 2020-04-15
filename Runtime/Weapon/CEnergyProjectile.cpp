@@ -35,60 +35,74 @@ CEnergyProjectile::CEnergyProjectile(bool active, const TToken<CWeaponDescriptio
 }
 
 void CEnergyProjectile::PlayImpactSound(const zeus::CVector3f& pos, EWeaponCollisionResponseTypes type) {
-  s32 sfxId = x170_projectile.GetSoundIdForCollision(type);
-  if (sfxId >= 0) {
-    CAudioSys::C3DEmitterParmData parmData = {};
-    parmData.x18_maxDist = x170_projectile.GetAudibleRange();
-    parmData.x1c_distComp = x170_projectile.GetAudibleFallOff();
-    parmData.x20_flags = 0x1; // Continuous parameter update
-    parmData.x24_sfxId = CSfxManager::TranslateSFXID(u16(sfxId));
-    parmData.x26_maxVol = 1.f;
-    parmData.x27_minVol = 0.16f;
-    parmData.x29_prio = 0x7f;
-    CSfxHandle hnd = CSfxManager::AddEmitter(parmData, true, 0x7f, false, kInvalidAreaId);
-    if (x2e4_26_waterUpdate)
-      CSfxManager::PitchBend(hnd, -1.f);
+  const s32 sfxId = x170_projectile.GetSoundIdForCollision(type);
+  if (sfxId < 0) {
+    return;
   }
+
+  CAudioSys::C3DEmitterParmData parmData = {};
+  parmData.x18_maxDist = x170_projectile.GetAudibleRange();
+  parmData.x1c_distComp = x170_projectile.GetAudibleFallOff();
+  parmData.x20_flags = 0x1; // Continuous parameter update
+  parmData.x24_sfxId = CSfxManager::TranslateSFXID(u16(sfxId));
+  parmData.x26_maxVol = 1.f;
+  parmData.x27_minVol = 0.16f;
+  parmData.x29_prio = 0x7f;
+
+  const CSfxHandle hnd = CSfxManager::AddEmitter(parmData, true, 0x7f, false, kInvalidAreaId);
+  if (!x2e4_26_waterUpdate) {
+    return;
+  }
+
+  CSfxManager::PitchBend(hnd, -1.f);
 }
 
 void CEnergyProjectile::ChangeProjectileOwner(TUniqueId owner, CStateManager& mgr) {
-  if (TCastToConstPtr<CActor> act = mgr.GetObjectById(owner)) {
-    float rDam = g_tweakPlayerGun->GetRichochetDamage(u32(x110_origDamageInfo.GetWeaponMode().GetType()));
-    x110_origDamageInfo.MultiplyDamageAndRadius(rDam);
-    mgr.RemoveWeaponId(xec_ownerId, xf0_weaponType);
-    xec_ownerId = owner;
-    mgr.AddWeaponId(xec_ownerId, xf0_weaponType);
-
-    /* Can now damage Player */
-    xf8_filter.ExcludeList().Add(EMaterialTypes::Character);
-    xf8_filter.ExcludeList().Remove(EMaterialTypes::Player);
-    xf8_filter = CMaterialFilter::MakeIncludeExclude(xf8_filter.GetIncludeList(), xf8_filter.GetExcludeList());
+  const TCastToConstPtr<CActor> act = mgr.GetObjectById(owner);
+  if (!act) {
+    return;
   }
+
+  const float rDam = g_tweakPlayerGun->GetRichochetDamage(u32(x110_origDamageInfo.GetWeaponMode().GetType()));
+  x110_origDamageInfo.MultiplyDamageAndRadius(rDam);
+  mgr.RemoveWeaponId(xec_ownerId, xf0_weaponType);
+  xec_ownerId = owner;
+  mgr.AddWeaponId(xec_ownerId, xf0_weaponType);
+
+  /* Can now damage Player */
+  xf8_filter.ExcludeList().Add(EMaterialTypes::Character);
+  xf8_filter.ExcludeList().Remove(EMaterialTypes::Player);
+  xf8_filter = CMaterialFilter::MakeIncludeExclude(xf8_filter.GetIncludeList(), xf8_filter.GetExcludeList());
 }
 
 void CEnergyProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   switch (msg) {
   case EScriptObjectMessage::Deleted:
-    if (x2e4_24_active)
+    if (x2e4_24_active) {
       mgr.RemoveWeaponId(xec_ownerId, xf0_weaponType);
+    }
     if (x2e8_sfx) {
       CSfxManager::RemoveEmitter(x2e8_sfx);
       x2e8_sfx.reset();
     }
     break;
   case EScriptObjectMessage::Registered: {
-    if (CElementGen* ps1 = x170_projectile.GetAttachedPS1())
-      if (ps1->SystemHasLight())
+    if (CElementGen* ps1 = x170_projectile.GetAttachedPS1()) {
+      if (ps1->SystemHasLight()) {
         CreateProjectileLight("ProjectileLight_GameProjectile", ps1->GetLight(), mgr);
-    TLockedToken<CWeaponDescription> desc = x170_projectile.GetWeaponDescription();
-    s32 sfx = desc->xa8_PJFX;
+      }
+    }
+    const TLockedToken<CWeaponDescription> desc = x170_projectile.GetWeaponDescription();
+    const s32 sfx = desc->xa8_PJFX;
     if (sfx != -1) {
       float range = 50.f;
       float falloff = 0.2f;
-      if (CRealElement* rnge = desc->xac_RNGE.get())
+      if (CRealElement* rnge = desc->xac_RNGE.get()) {
         rnge->GetValue(0, range);
-      if (CRealElement* foff = desc->xb0_FOFF.get())
+      }
+      if (CRealElement* foff = desc->xb0_FOFF.get()) {
         foff->GetValue(0, falloff);
+      }
 
       CAudioSys::C3DEmitterParmData parmData = {};
       parmData.x0_pos = x170_projectile.GetTranslation();
@@ -117,22 +131,27 @@ void CEnergyProjectile::Accept(IVisitor& visitor) { visitor.Visit(this); }
 static constexpr u64 kCheckMaterial = 0xE3FFFE;
 
 void CEnergyProjectile::ResolveCollisionWithWorld(const CRayCastResult& res, CStateManager& mgr) {
-  EWeaponCollisionResponseTypes crType = CCollisionResponseData::GetWorldCollisionResponseType(
+  const auto crType = CCollisionResponseData::GetWorldCollisionResponseType(
       CMaterialList::BitPosition((res.GetMaterial().GetValue() & 0xffffffff) & kCheckMaterial));
-  if ((xe8_projectileAttribs & (EProjectileAttrib::Wave | EProjectileAttrib::ComboShot)) !=
+
+  if ((xe8_projectileAttribs & (EProjectileAttrib::Wave | EProjectileAttrib::ComboShot)) ==
       (EProjectileAttrib::Wave | EProjectileAttrib::ComboShot)) {
-    /* Not wavebuster */
-    if (Explode(res.GetPoint(), res.GetPlane().normal(), crType, mgr, CDamageVulnerability::NormalVulnerabilty(),
-                kInvalidUniqueId))
-      mgr.ApplyDamageToWorld(xec_ownerId, *this, res.GetPoint(), x12c_curDamageInfo, xf8_filter);
-    x2c2_lastResolvedObj = kInvalidUniqueId;
+    return;
   }
+
+  // Not wavebuster
+  if (Explode(res.GetPoint(), res.GetPlane().normal(), crType, mgr, CDamageVulnerability::NormalVulnerabilty(),
+              kInvalidUniqueId)) {
+    mgr.ApplyDamageToWorld(xec_ownerId, *this, res.GetPoint(), x12c_curDamageInfo, xf8_filter);
+  }
+
+  x2c2_lastResolvedObj = kInvalidUniqueId;
 }
 
 void CEnergyProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr) {
   x2c2_lastResolvedObj = act.GetUniqueId();
-  EWeaponCollisionResponseTypes crType = act.GetCollisionResponseType(
-      res.GetPoint(), x34_transform.basis[1].normalized(), x12c_curDamageInfo.GetWeaponMode(), xe8_projectileAttribs);
+  const auto crType = act.GetCollisionResponseType(res.GetPoint(), x34_transform.basis[1].normalized(),
+                                                   x12c_curDamageInfo.GetWeaponMode(), xe8_projectileAttribs);
   act.Touch(*this, mgr);
   const CDamageVulnerability* dVuln = act.GetDamageVulnerability();
   if (!Explode(res.GetPoint(), res.GetPlane().normal(), crType, mgr, *dVuln, act.GetUniqueId())) {
@@ -142,7 +161,7 @@ void CEnergyProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CAc
     CGameProjectile::ResolveCollisionWithActor(res, act, mgr);
     ApplyDamageToActors(mgr, x12c_curDamageInfo);
   }
-  if (TCastToPtr<CEnergyProjectile> proj = act) {
+  if (const TCastToPtr<CEnergyProjectile> proj = act) {
     proj->Explode(GetTranslation(), x34_transform.basis[1], EWeaponCollisionResponseTypes::OtherProjectile, mgr,
                   *GetDamageVulnerability(), GetUniqueId());
   }
@@ -151,31 +170,36 @@ void CEnergyProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CAc
 void CEnergyProjectile::Think(float dt, CStateManager& mgr) {
   CWeapon::Think(dt, mgr);
   if (mgr.GetWorld()->GetCurrentAreaId() != GetAreaIdAlways() &&
-      (xe8_projectileAttribs & EProjectileAttrib::ArmCannon) == EProjectileAttrib::ArmCannon)
+      (xe8_projectileAttribs & EProjectileAttrib::ArmCannon) == EProjectileAttrib::ArmCannon) {
     mgr.SetActorAreaId(*this, mgr.GetWorld()->GetCurrentAreaId());
+  }
 
   UpdateProjectileMovement(dt, mgr);
   TUniqueId id = kInvalidUniqueId;
-  CRayCastResult res = DoCollisionCheck(id, mgr);
+  const CRayCastResult res = DoCollisionCheck(id, mgr);
   if (res.IsValid()) {
-    if (TCastToPtr<CActor> act = mgr.ObjectById(id))
+    if (const TCastToPtr<CActor> act = mgr.ObjectById(id)) {
       ResolveCollisionWithActor(res, *act, mgr);
-    else
+    } else {
       ResolveCollisionWithWorld(res, mgr);
+    }
   }
 
   x170_projectile.UpdateParticleFX();
-  if (x2e4_24_active && x3d0_26_)
+  if (x2e4_24_active && x3d0_26_) {
     Explode(GetTranslation(), zeus::skUp, EWeaponCollisionResponseTypes::Default, mgr,
             CDamageVulnerability::NormalVulnerabilty(), kInvalidUniqueId);
+  }
 
   if (x2c8_projectileLight != kInvalidUniqueId) {
-    if (TCastToPtr<CGameLight> light = mgr.ObjectById(x2c8_projectileLight)) {
+    if (const TCastToPtr<CGameLight> light = mgr.ObjectById(x2c8_projectileLight)) {
       light->SetTransform(GetTransform());
       light->SetTranslation(GetTranslation());
-      if (CElementGen* ps1 = x170_projectile.GetAttachedPS1())
-        if (ps1->SystemHasLight())
+      if (CElementGen* ps1 = x170_projectile.GetAttachedPS1()) {
+        if (ps1->SystemHasLight()) {
           light->SetLight(ps1->GetLight());
+        }
+      }
     }
   }
 
@@ -185,20 +209,22 @@ void CEnergyProjectile::Think(float dt, CStateManager& mgr) {
   }
 
   x3d4_curTime += dt;
-  if (x3d4_curTime > 45.f || x170_projectile.IsSystemDeletable() || x3d0_24_dead)
+  if (x3d4_curTime > 45.f || x170_projectile.IsSystemDeletable() || x3d0_24_dead) {
     mgr.FreeScriptObject(GetUniqueId());
+  }
 }
 
 void CEnergyProjectile::Render(CStateManager& mgr) {
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CEnergyProjectile::Render WPSC_{}"), x2cc_wpscId).c_str(), zeus::skOrange);
 
-  CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
+  const auto visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
   if (visor == CPlayerState::EPlayerVisor::Combat) {
     if ((xe8_projectileAttribs & EProjectileAttrib::Charged) == EProjectileAttrib::Charged ||
         (xe8_projectileAttribs & EProjectileAttrib::ComboShot) == EProjectileAttrib::ComboShot) {
-      float warpTime = 1.f - float(x170_projectile.GameTime());
-      if (warpTime > 0.f)
+      const float warpTime = 1.f - float(x170_projectile.GameTime());
+      if (warpTime > 0.f) {
         mgr.DrawSpaceWarp(GetTranslation(), warpTime * 0.75f);
+      }
     }
   }
 
@@ -222,11 +248,12 @@ void CEnergyProjectile::Render(CStateManager& mgr) {
 }
 
 void CEnergyProjectile::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
-  auto bounds = x170_projectile.GetBounds();
-  if (bounds && !frustum.aabbFrustumTest(*bounds))
+  const auto bounds = x170_projectile.GetBounds();
+  if (bounds && !frustum.aabbFrustumTest(*bounds)) {
     return;
+  }
 
-  CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
+  const auto visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
   if (visor != CPlayerState::EPlayerVisor::XRay &&
       ((xe8_projectileAttribs & EProjectileAttrib::Ice) != EProjectileAttrib::Ice ||
        mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot)) {
@@ -247,7 +274,8 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
   bool retargetPlayer = false;
   bool deflect = false;
   zeus::CVector3f targetPos;
-  EVulnerability vulnType = dVuln.GetVulnerability(x12c_curDamageInfo.GetWeaponMode(), false);
+  const EVulnerability vulnType = dVuln.GetVulnerability(x12c_curDamageInfo.GetWeaponMode(), false);
+
   if (vulnType == EVulnerability::Deflect) {
     deflect = true;
     EDeflectType deflectType = dVuln.GetDeflectionType(x12c_curDamageInfo.GetWeaponMode());
@@ -259,17 +287,19 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
     case EDeflectType::Three:
       if (deflectType != EDeflectType::Two ||
           (xf0_weaponType != EWeaponType::Missile &&
-           (xe8_projectileAttribs & EProjectileAttrib::ComboShot) != EProjectileAttrib::ComboShot))
-        if (xf8_filter.GetExcludeList().HasMaterial(EMaterialTypes::Player))
+           (xe8_projectileAttribs & EProjectileAttrib::ComboShot) != EProjectileAttrib::ComboShot)) {
+        if (xf8_filter.GetExcludeList().HasMaterial(EMaterialTypes::Player)) {
           retargetPlayer = true;
+        }
+      }
       break;
     default:
       break;
     }
     if (retargetPlayer) {
-      float ang = mgr.GetActiveRandom()->Range(0.f, 2.f * M_PIF);
-      float y = std::sin(ang);
-      float x = std::cos(ang);
+      const float ang = mgr.GetActiveRandom()->Range(0.f, 2.f * M_PIF);
+      const float y = std::sin(ang);
+      const float x = std::cos(ang);
       targetPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f) + zeus::CVector3f(x, 0.f, y);
       ChangeProjectileOwner(hitActor, mgr);
     }
@@ -278,7 +308,8 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
   if (vulnType != EVulnerability::Immune && !deflect) {
     deflect =
         (type == EWeaponCollisionResponseTypes::Unknown15 || type == EWeaponCollisionResponseTypes::EnemyShielded ||
-         (type >= EWeaponCollisionResponseTypes::Unknown69 && type <= EWeaponCollisionResponseTypes::AtomicAlphaReflect));
+         (type >= EWeaponCollisionResponseTypes::Unknown69 &&
+          type <= EWeaponCollisionResponseTypes::AtomicAlphaReflect));
   }
 
   SetTranslation(offsetPos);
@@ -309,29 +340,30 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
       zeus::CVector3f scale = zeus::skOne3f;
       bool camClose = false;
       if (mgr.GetPlayer().GetCameraState() == CPlayer::EPlayerCameraState::FirstPerson) {
-        float mag = (offsetPos - mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation()).magnitude();
+        const float mag = (offsetPos - mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation()).magnitude();
         if (mag < 4.f) {
           scale = zeus::CVector3f(0.75f * (mag * 0.25f) + 0.25f);
           camClose = true;
         }
       }
       u32 explodeFlags = 0x8;
-      if ((xe8_projectileAttribs & EProjectileAttrib::Ice) == EProjectileAttrib::Ice)
+      if ((xe8_projectileAttribs & EProjectileAttrib::Ice) == EProjectileAttrib::Ice) {
         explodeFlags |= 0x4;
-      if (camClose)
+      }
+      if (camClose) {
         explodeFlags |= 0x2;
-      CEntityInfo explosionInfo(GetAreaIdAlways(), CEntity::NullConnectionList);
-      CExplosion* explosion =
-          new CExplosion(*particle, mgr.AllocateUniqueId(), true, explosionInfo, "Projectile collision response",
-                         particleXf, explodeFlags, scale, zeus::skWhite);
+      }
+      const CEntityInfo explosionInfo(GetAreaIdAlways(), CEntity::NullConnectionList);
+      auto* explosion = new CExplosion(*particle, mgr.AllocateUniqueId(), true, explosionInfo,
+                                       "Projectile collision response", particleXf, explodeFlags, scale, zeus::skWhite);
       mgr.AddObject(explosion);
-      if (TCastToPtr<CActor> hActor = mgr.ObjectById(hitActor)) {
+      if (const TCastToPtr<CActor> hActor = mgr.ObjectById(hitActor)) {
         bool validPlat = false;
         CScriptPlatform* plat = TCastToPtr<CScriptPlatform>(hActor.GetPtr()).GetPtr();
         validPlat = plat != nullptr;
         if (!validPlat && hActor->GetMaterialList().HasMaterial(EMaterialTypes::Bomb)) {
           for (CEntity* ent : mgr.GetPlatformAndDoorObjectList()) {
-            if (TCastToPtr<CScriptPlatform> otherPlat = ent) {
+            if (const TCastToPtr<CScriptPlatform> otherPlat = ent) {
               if (otherPlat->IsSlave(hitActor)) {
                 plat = otherPlat.GetPtr();
                 validPlat = true;
@@ -340,8 +372,9 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
             }
           }
         }
-        if (validPlat)
+        if (validPlat) {
           plat->AddSlave(explosion->GetUniqueId(), mgr);
+        }
       }
     } else {
       x3d0_24_dead = true;
@@ -349,13 +382,14 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
 
     if ((xe8_projectileAttribs & (EProjectileAttrib::ComboShot | EProjectileAttrib::Ice)) ==
         (EProjectileAttrib::ComboShot | EProjectileAttrib::Ice)) {
-      /* Ice Spreader */
-      TLockedToken<CGenDescription> iceSpreadParticle = g_SimplePool->GetObj("IceSpread1");
+      // Ice Spreader
+      const TLockedToken<CGenDescription> iceSpreadParticle = g_SimplePool->GetObj("IceSpread1");
+
       u32 flags = (xe6_27_thermalVisorFlags & 0x2) == 0 ? 1 : 0;
       flags |= 0x2;
-      CIceImpact* iceImpact =
-          new CIceImpact(iceSpreadParticle, mgr.AllocateUniqueId(), GetAreaIdAlways(), true, "Ice spread explosion",
-                         particleXf, flags, zeus::skOne3f, zeus::skWhite);
+
+      auto* iceImpact = new CIceImpact(iceSpreadParticle, mgr.AllocateUniqueId(), GetAreaIdAlways(), true,
+                                       "Ice spread explosion", particleXf, flags, zeus::skOne3f, zeus::skWhite);
       mgr.AddObject(iceImpact);
     }
   }

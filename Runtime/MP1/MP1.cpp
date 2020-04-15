@@ -714,6 +714,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   InitializeDiscord();
   m_mainWindow = window;
   m_cvarMgr = cvarMgr;
+  m_cvarCommons = std::make_unique<hecl::CVarCommons>(*m_cvarMgr);
   m_console = std::make_unique<hecl::Console>(m_cvarMgr);
   m_console->init(window);
   m_console->registerCommand(
@@ -847,16 +848,16 @@ bool CMain::Proc() {
   }
 
   float dt = 1 / 60.f;
-#if MP1_VARIABLE_DELTA_TIME
-  auto now = delta_clock::now();
-  if (m_firstFrame) {
-    m_firstFrame = false;
-  } else {
-    using delta_duration = std::chrono::duration<float, std::ratio<1>>;
-    dt = std::min(std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count(), dt);
+  if (m_cvarCommons->m_variableDt->toBoolean()) {
+    auto now = delta_clock::now();
+    if (m_firstFrame) {
+      m_firstFrame = false;
+    } else {
+      using delta_duration = std::chrono::duration<float, std::ratio<1>>;
+      dt = std::min(std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count(), 1 / 30.f);
+    }
+    m_prevFrameTime = now;
   }
-  m_prevFrameTime = now;
-#endif
 
   m_console->proc();
   if (!m_console->isOpen()) {

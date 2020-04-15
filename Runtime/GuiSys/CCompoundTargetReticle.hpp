@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <vector>
 
 #include "Runtime/CPlayerState.hpp"
@@ -120,13 +121,13 @@ private:
   bool x219_missileShot = false;
   bool x21a_fullyCharged = false;
   u8 x21b_ = 0;
-  u32 x21c_;
-  u32 x220_;
-  u32 x228_;
+  u32 x21c_ = 0;
+  u32 x220_ = 0;
+  u32 x228_ = 0;
 
   struct SScanReticuleRenderer {
-    std::optional<CLineRenderer> m_lineRenderers[2];
-    std::optional<CLineRenderer> m_stripRenderers[2][4];
+    std::array<std::optional<CLineRenderer>, 2> m_lineRenderers;
+    std::array<std::array<std::optional<CLineRenderer>, 4>, 2> m_stripRenderers;
     SScanReticuleRenderer();
   };
   SScanReticuleRenderer m_scanRetRenderer;
