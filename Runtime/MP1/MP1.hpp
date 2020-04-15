@@ -134,7 +134,7 @@ class CGameArchitectureSupport
   std::vector<TToken<CAudioGroupSet>> x8c_pendingAudioGroups;
 
   boo::SWindowRect m_windowRect;
-  bool m_rectIsDirty;
+  bool m_rectIsDirty = false;
 
   void destroyed() { x4_archQueue.Push(MakeMsg::CreateRemoveAllIOWins(EArchMsgTarget::IOWinManager)); }
 

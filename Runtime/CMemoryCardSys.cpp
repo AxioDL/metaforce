@@ -525,7 +525,10 @@ void CMemoryCardSys::CommitToDisk(kabufuda::ECardSlot port) {
 
 kabufuda::SystemString CMemoryCardSys::CreateDolphinCard(kabufuda::ECardSlot slot) {
   kabufuda::SystemString path = _CreateDolphinCard(slot);
-  CardProbe(slot);
+  if (CardProbe(slot).x0_error != ECardResult::READY) {
+    return {};
+  }
+
   MountCard(slot);
   FormatCard(slot);
   kabufuda::Card& card = g_CardStates[int(slot)];

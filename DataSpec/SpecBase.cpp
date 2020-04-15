@@ -81,10 +81,10 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
   case ERegion::NTSC_U:
     regstr = &regE;
     break;
-  case ERegion::PAL:
+  case ERegion::NTSC_J:
     regstr = &regJ;
     break;
-  case ERegion::NTSC_J:
+  case ERegion::PAL:
     regstr = &regP;
     break;
   default:

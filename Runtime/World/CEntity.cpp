@@ -45,8 +45,10 @@ void CEntity::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateM
 }
 
 void CEntity::SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, EScriptObjectMessage skipMsg) {
-  for (const SConnection& conn : x20_conns)
-    if (conn.x0_state == state && conn.x4_msg != skipMsg)
+  for (const SConnection& conn : x20_conns) {
+    if (conn.x0_state == state && conn.x4_msg != skipMsg) {
       stateMgr.SendScriptMsg(x8_uid, conn.x8_objId, conn.x4_msg, state);
+    }
+  }
 }
 } // namespace urde
