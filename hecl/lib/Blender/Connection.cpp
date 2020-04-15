@@ -366,10 +366,10 @@ Connection::Connection(int verbosityLevel) {
         wchar_t progFiles[256];
         if (!GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256))
           BlenderLog.report(logvisor::Fatal, FMT_STRING(L"unable to determine 'Program Files' path"));
-        blenderBinBuf = fmt::format(FMT_STRING(L"{}\\Blender Foundation\\Blender\\blender.exe"), progFiles);
+        blenderBinBuf = fmt::format(FMT_STRING(L"{}\\Blender Foundation\\Blender 2.82\\blender.exe"), progFiles);
         blenderBin = blenderBinBuf.c_str();
         if (!RegFileExists(blenderBin))
-          BlenderLog.report(logvisor::Fatal, FMT_STRING(L"unable to find blender.exe"));
+          BlenderLog.report(logvisor::Fatal, FMT_STRING(L"unable to find {}"), blenderBin);
       }
     }
 
