@@ -69,9 +69,9 @@ void CVisorFlare::Update(float dt, const zeus::CVector3f& pos, const CActor* act
       mgr.SetThermalColdScale2(mgr.GetThermalColdScale2() + x24_);
     }
 
-#ifndef NDEBUG
-    printf("%08X %f %f\n", act->GetEditorId().id, x24_, x28_);
-#endif
+//#ifndef NDEBUG
+//    printf("%08X %f %f\n", act->GetEditorId().id, x24_, x28_);
+//#endif
   }
 }
 
