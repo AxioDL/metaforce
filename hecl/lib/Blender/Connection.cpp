@@ -453,11 +453,6 @@ Connection::Connection(int verbosityLevel) {
       std::string writefds = fmt::format(FMT_STRING("{}"), m_readpipe[1]);
       std::string vLevel = fmt::format(FMT_STRING("{}"), verbosityLevel);
 
-#ifdef __APPLE__
-      // Undocumented flag that makes Blender not crash ¯\_(ツ)_/¯
-      setenv("MallocNanoZone", "1", 1);
-#endif
-
       /* Try user-specified blender first */
       if (blenderBin) {
         execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds.c_str(),

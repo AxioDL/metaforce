@@ -475,7 +475,8 @@ try:
             if len(cmdargs) >= 4:
                 bpy.ops.wm.open_mainfile(filepath=cmdargs[3])
             else:
-                bpy.ops.wm.read_homefile()
+                bpy.ops.wm.read_homefile(use_empty=True)
+                bpy.context.scene.world = bpy.data.worlds.new('World')
             loaded_blend = cmdargs[1]
             bpy.context.preferences.filepaths.save_version = 0
             if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=cmdargs[1]):
