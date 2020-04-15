@@ -299,12 +299,19 @@ void MainWindow::disableOperations() {
   m_ui->pathEdit->setEnabled(false);
   m_ui->browseBtn->setEnabled(false);
   m_ui->downloadButton->setEnabled(false);
+  m_ui->warpBtn->setEnabled(false);
 }
 
 void MainWindow::enableOperations() {
   disableOperations();
   m_ui->pathEdit->setEnabled(true);
   m_ui->browseBtn->setEnabled(true);
+
+  if (hecl::com_enableCheats->toBoolean()) {
+    m_ui->warpBtn->show();
+  } else {
+    m_ui->warpBtn->hide();
+  }
 
   if (m_path.isEmpty())
     return;
@@ -321,8 +328,12 @@ void MainWindow::enableOperations() {
   m_ui->extractBtn->setEnabled(true);
   if (QFile::exists(m_path + QStringLiteral("/MP1/URDE/texture_cache.yaml"))) {
     m_ui->packageBtn->setEnabled(true);
-    if (isPackageComplete())
+    if (isPackageComplete()) {
       m_ui->launchBtn->setEnabled(true);
+      if (hecl::com_enableCheats->toBoolean()) {
+        m_ui->warpBtn->setEnabled(true);
+      }
+    }
   }
 
   if (!m_ui->sysReqTable->isBlenderVersionOk()) {

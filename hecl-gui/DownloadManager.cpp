@@ -47,7 +47,7 @@ static const QString Domain = QStringLiteral("https://releases.axiodl.com/");
 static const QString Index = QStringLiteral("index.txt");
 
 void DownloadManager::fetchIndex() {
-  if (m_indexInProgress) {
+  if (m_indexInProgress != nullptr) {
     return;
   }
 
@@ -64,7 +64,7 @@ void DownloadManager::fetchIndex() {
 }
 
 void DownloadManager::fetchBinary(const QString& str, const QString& outPath) {
-  if (m_binaryInProgress) {
+  if (m_binaryInProgress != nullptr) {
     return;
   }
 
@@ -80,7 +80,7 @@ void DownloadManager::fetchBinary(const QString& str, const QString& outPath) {
   connect(m_binaryInProgress, &QNetworkReply::encrypted, this, &DownloadManager::binaryValidateCert);
   connect(m_binaryInProgress, &QNetworkReply::downloadProgress, this, &DownloadManager::binaryDownloadProgress);
 
-  if (m_progBar) {
+  if (m_progBar != nullptr) {
     m_progBar->setEnabled(true);
     m_progBar->setValue(0);
   }

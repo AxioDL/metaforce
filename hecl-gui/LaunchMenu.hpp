@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMenu>
+#include <hecl/CVar.hpp>
 
 namespace hecl {
 struct CVarCommons;
@@ -16,14 +17,19 @@ class LaunchMenu : public QMenu {
   QMenu m_msaaMenu;
   QMenu m_anisoMenu;
   QMenu m_experimentalMenu;
+  QMenu m_developerMenu;
 
   QActionGroup m_apiGroup;
   QActionGroup m_msaaGroup;
   QActionGroup m_anisoGroup;
 
   QAction* m_developerMode = nullptr;
+  QAction* m_developerMenuAction = nullptr;
   QAction* m_enableCheats = nullptr;
   QAction* m_variableDt = nullptr;
+
+  QAction* m_debugOverlayAreaInfo = nullptr;
+  QAction* m_debugOverlayPlayerInfo = nullptr;
 
   void initApiAction(const QString& action);
   void initMsaaAction(const QString& action);
@@ -31,7 +37,9 @@ class LaunchMenu : public QMenu {
   void initDeepColor();
   void initDeveloperMode();
   void initCheats();
-  void initExperimental();
+  void initExperimentalMenu();
+  void initDeveloperMenu();
+  void initCVarAction(QAction* action, hecl::CVar* cvar) const;
 
 public:
   explicit LaunchMenu(hecl::CVarCommons& commons, QWidget* parent = Q_NULLPTR);
@@ -44,6 +52,6 @@ public slots:
   void deepColorTriggered();
   void developerModeTriggered();
   void cheatsTriggered();
-  void variableDtTriggered();
   void editRuntimeArgs();
+  void cvarTriggered();
 };

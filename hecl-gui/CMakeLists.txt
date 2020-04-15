@@ -21,6 +21,9 @@ add_executable(hecl-gui WIN32 MACOSX_BUNDLE
   ArgumentEditor.ui
   Common.cpp
   Common.hpp
+  CVarDialog.cpp
+  CVarDialog.hpp
+  CVarDialog.ui
   DownloadManager.cpp
   DownloadManager.hpp
   ErrorLabel.hpp
@@ -66,7 +69,7 @@ target_compile_definitions(hecl-gui PRIVATE
   -DQT_NO_URL_CAST_FROM_STRING
 
   # Allows for more efficient string concatenation, resulting in less temporaries.
-  -DQT_USE_QSTRINGBUILDER 
+  -DQT_USE_QSTRINGBUILDER
 )
 
 target_link_libraries(hecl-gui PRIVATE
@@ -80,6 +83,7 @@ target_link_libraries(hecl-gui PRIVATE
   xxhash
   z
   zeus
+  RetroDataSpec
 )
 
 target_include_directories(hecl-gui PRIVATE quazip/quazip)
