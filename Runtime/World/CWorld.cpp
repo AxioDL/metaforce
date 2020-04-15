@@ -52,7 +52,7 @@ TAreaId CDummyWorld::IGetAreaId(CAssetId id) const {
   }
 
   const auto iter =
-      std::find_if(x18_areas.cbegin(), x18_areas.cend(), [id](const auto& area) { return area->xc_mrea == id; });
+      std::find_if(x18_areas.cbegin(), x18_areas.cend(), [id](const auto& area) { return area.xc_mrea == id; });
   if (iter == x18_areas.cend()) {
     return kInvalidAreaId;
   }
