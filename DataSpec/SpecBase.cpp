@@ -3,11 +3,12 @@
 #include <cstdlib>
 #endif
 
-#include "SpecBase.hpp"
-#include "Blender/BlenderSupport.hpp"
-#include "DNACommon/DNACommon.hpp"
-#include "DNACommon/TXTR.hpp"
-#include "AssetNameMap.hpp"
+#include "DataSpec/SpecBase.hpp"
+#include "DataSpec/Blender/BlenderSupport.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/TXTR.hpp"
+#include "DataSpec/AssetNameMap.hpp"
+#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
 #include "hecl/ClientProcess.hpp"
 #include "nod/DiscBase.hpp"
 #include "nod/nod.hpp"
@@ -42,7 +43,9 @@ SpecBase::SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Databas
 : hecl::Database::IDataSpec(specEntry)
 , m_project(project)
 , m_pc(pc)
-, m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend") {
+, m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend")
+, m_region(ERegion::Invalid)
+, m_game(EGame::Invalid) {
   AssetNameMap::InitAssetNameMap();
   SpecBase::setThreadProject();
 }
@@ -128,8 +131,7 @@ bool IsPathAudioGroup(const hecl::ProjectPath& path) {
 }
 
 static bool IsPathSong(const hecl::ProjectPath& path) {
-  if (path.getPathType() != hecl::ProjectPath::Type::Glob ||
-      !path.getWithExtension(_SYS_STR(".mid"), true).isFile() ||
+  if (path.getPathType() != hecl::ProjectPath::Type::Glob || !path.getWithExtension(_SYS_STR(".mid"), true).isFile() ||
       !path.getWithExtension(_SYS_STR(".yaml"), true).isFile()) {
     return path.isFile() && path.getLastComponentExt() == _SYS_STR("mid") &&
            path.getWithExtension(_SYS_STR(".yaml"), true).isFile();
@@ -311,7 +313,8 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
         hecl::SystemStringConv chSysName(sub.name);
         if (!sub.cskrId.empty()) {
           hecl::SystemStringConv cskrSysName(sub.cskrId);
-          pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}_{}.CSKR")), chSysName, cskrSysName)));
+          pathsOut.push_back(
+              asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}_{}.CSKR")), chSysName, cskrSysName)));
         } else {
           pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}.CSKR")), chSysName)));
         }
@@ -327,7 +330,8 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
             flattenDependenciesBlend(overlay.mesh, pathsOut, btok);
             pathsOut.push_back(overlay.mesh);
           }
-          pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}.{}_{}.CSKR")), chSysName, overlaySys, overlayCskrId)));
+          pathsOut.push_back(asGlob.ensureAuxInfo(
+              fmt::format(FMT_STRING(_SYS_STR("{}.{}_{}.CSKR")), chSysName, overlaySys, overlayCskrId)));
         }
       }
     };
@@ -345,7 +349,8 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
 
       hecl::SystemStringConv chSysName(att.name);
       hecl::SystemStringConv sysCskrId(att.cskrId);
-      pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("ATTACH.{}_{}.CSKR")), chSysName, sysCskrId)));
+      pathsOut.push_back(
+          asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("ATTACH.{}_{}.CSKR")), chSysName, sysCskrId)));
 
       if (att.armature >= 0) {
         const auto& arm = actor.armatures[att.armature];
@@ -358,8 +363,9 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
       hecl::SystemStringConv actSysName(act.first);
       hecl::SystemStringConv actAnimId(act.second);
       pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}_{}.ANIM")), actSysName, actAnimId)));
-      hecl::SystemString searchPrefix(asGlob.getWithExtension(
-          fmt::format(FMT_STRING(_SYS_STR(".{}_")), actSysName).c_str(), true).getLastComponent());
+      hecl::SystemString searchPrefix(
+          asGlob.getWithExtension(fmt::format(FMT_STRING(_SYS_STR(".{}_")), actSysName).c_str(), true)
+              .getLastComponent());
       hecl::ProjectPath evntPath;
       for (const auto& ent : dEnum) {
         if (hecl::StringUtils::BeginsWith(ent.m_name, searchPrefix.c_str()) &&
@@ -628,8 +634,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
       std::unordered_set<urde::SObjectTag> addedTags;
       addedTags.reserve(buildList.size());
       for (auto& tag : buildList) {
-        if ((i == 0 && tag.type == FOURCC('CMDL')) ||
-            (i == 1 && tag.type != FOURCC('CMDL'))) {
+        if ((i == 0 && tag.type == FOURCC('CMDL')) || (i == 1 && tag.type != FOURCC('CMDL'))) {
           if (addedTags.find(tag) != addedTags.end())
             continue;
           addedTags.insert(tag);
@@ -1010,11 +1015,10 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
           hecl::SystemStringConv overlaySys(overlay.first);
           hecl::SystemStringConv overlayCskrId(overlay.second);
           if (!overlay.second.empty()) {
-            subPath =
-                asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}.{}_{}.CSKR")), subName, overlaySys, overlayCskrId));
+            subPath = asGlob.ensureAuxInfo(
+                fmt::format(FMT_STRING(_SYS_STR("{}.{}_{}.CSKR")), subName, overlaySys, overlayCskrId));
           } else {
-            subPath =
-                asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}.{}.CSKR")), subName, overlaySys));
+            subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}.{}.CSKR")), subName, overlaySys));
           }
           insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
         }
@@ -1026,11 +1030,10 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
         hecl::SystemStringConv attachmentCskrId(attachment.second);
         hecl::ProjectPath subPath;
         if (!attachment.second.empty()) {
-          subPath =
-              asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("ATTACH.{}_{}.CSKR")), attachmentSys, attachmentCskrId));
+          subPath = asGlob.ensureAuxInfo(
+              fmt::format(FMT_STRING(_SYS_STR("ATTACH.{}_{}.CSKR")), attachmentSys, attachmentCskrId));
         } else {
-          subPath =
-              asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("ATTACH.{}.CSKR")), attachmentSys));
+          subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("ATTACH.{}.CSKR")), attachmentSys));
         }
         insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
       }
@@ -1164,8 +1167,8 @@ void SpecBase::backgroundIndexProc() {
             }
           }
         }
-        Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Name index of '{}' loaded; {} names")), getOriginalSpec().m_name,
-                   m_catalogNameToTag.size());
+        Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Name index of '{}' loaded; {} names")),
+                   getOriginalSpec().m_name, m_catalogNameToTag.size());
       }
     }
   }
@@ -1208,15 +1211,16 @@ void SpecBase::waitForIndexComplete() const {
   }
 }
 
-void SpecBase::WriteVersionInfo(hecl::Database::Project &project, const hecl::ProjectPath &pakPath) {
-    hecl::ProjectPath versionPath(pakPath, _SYS_STR("version.yaml"));
-    versionPath.makeDirChain(false);
+void SpecBase::WriteVersionInfo(hecl::Database::Project& project, const hecl::ProjectPath& pakPath) {
+  hecl::ProjectPath versionPath(pakPath, _SYS_STR("version.yaml"));
+  versionPath.makeDirChain(false);
 
-    athena::io::YAMLDocWriter yamlW("URDEVersionData");
-    yamlW.writeString("version", m_version);
-    yamlW.writeByte("region", atUint8(m_region));
-    yamlW.writeBool("is_trilogy", !m_standalone);
-    athena::io::FileWriter fileW(versionPath.getAbsolutePath());
-    yamlW.finish(&fileW);
+  URDEVersionInfo info;
+  info.version = m_version;
+  info.region = m_region;
+  info.game = m_game;
+  info.isTrilogy = !m_standalone;
+  athena::io::FileWriter writer(versionPath.getAbsolutePath());
+  athena::io::ToYAMLStream(info, writer);
 }
 } // namespace DataSpec

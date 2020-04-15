@@ -12,6 +12,7 @@
 #include "hecl/Blender/Token.hpp"
 #include "Runtime/RetroTypes.hpp"
 
+
 namespace nod {
 class DiscBase;
 class Node;
@@ -23,13 +24,8 @@ class YAMLDocWriter;
 } // namespace athena::io
 
 namespace DataSpec {
-enum class ERegion {
-  Invalid = 0,
-  NTSC_U = 'E',
-  PAL = 'P',
-  NTSC_J = 'J'
-};
-
+enum class ERegion;
+enum class EGame;
 struct SpecBase : hecl::Database::IDataSpec {
   /* HECL Adaptors */
   void setThreadProject() override;
@@ -203,9 +199,10 @@ protected:
                          const std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData);
 
   std::unique_ptr<nod::DiscBase> m_disc;
-  bool m_isWii;
-  bool m_standalone;
-  ERegion m_region = ERegion::Invalid;
+  bool m_isWii{};
+  bool m_standalone{};
+  ERegion m_region;
+  EGame m_game;
   std::string m_version;
 
   void WriteVersionInfo(hecl::Database::Project& project, const hecl::ProjectPath& pakPath);

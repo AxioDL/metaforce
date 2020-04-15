@@ -9,6 +9,7 @@ make_dnalist(CMDL
              EGMC
              SAVWCommon
              ParticleCommon
+             URDEVersionInfo
              Tweaks/ITweakPlayerGun)
 
 set(DNACOMMON_SOURCES
@@ -40,6 +41,7 @@ set(DNACOMMON_SOURCES
     RigInverter.hpp RigInverter.cpp
     AROTBuilder.hpp AROTBuilder.cpp
     OBBTreeBuilder.hpp OBBTreeBuilder.cpp
+    URDEVersionInfo.hpp
     Tweaks/ITweak.hpp
     Tweaks/TweakWriter.hpp
     Tweaks/ITweakGame.hpp

@@ -9,6 +9,7 @@
 #include "DataSpec/DNAMP3/MAPA.hpp"
 #include "DataSpec/DNAMP2/STRG.hpp"
 #include "DataSpec/DNACommon/TXTR.hpp"
+#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
 
 #include "hecl/ClientProcess.hpp"
 #include "hecl/Blender/Connection.hpp"
@@ -89,11 +90,7 @@ struct TextureCache {
 };
 
 struct SpecMP3 : SpecBase {
-  bool checkStandaloneID(const char* id) const override {
-    if (!memcmp(id, "RM3", 3))
-      return true;
-    return false;
-  }
+  bool checkStandaloneID(const char* id) const override { return memcmp(id, "RM3", 3) == 0; }
 
   bool doMP3 = false;
   std::vector<const nod::Node*> m_nonPaks;
@@ -122,7 +119,8 @@ struct SpecMP3 : SpecBase {
   , m_feWorkPath(project.getProjectWorkingPath(), _SYS_STR("fe"))
   , m_feCookPath(project.getProjectCookedPath(SpecEntMP3), _SYS_STR("fe"))
   , m_fePakRouter(*this, m_feWorkPath, m_feCookPath) {
-    setThreadProject();
+    m_game = EGame::MetroidPrime3;
+    SpecBase::setThreadProject();
   }
 
   void buildPaks(nod::Node& root, const std::vector<hecl::SystemString>& args, ExtractReport& rep, bool fe) {
@@ -223,13 +221,15 @@ struct SpecMP3 : SpecBase {
     doMP3 = true;
     nod::IPartition* partition = disc.getDataPartition();
     std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
-    const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
-    if (!buildInfo)
+    const char* buildInfo = static_cast<char*>(memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16)) + 19;
+    if (buildInfo == nullptr) {
       return false;
+    }
 
     /* We don't want no stinking demo dammit */
-    if (!strcmp(buildInfo, "Build v3.068 3/2/2006 14:55:13"))
+    if (strcmp(buildInfo, "Build v3.068 3/2/2006 14:55:13") == 0) {
       return false;
+    }
 
     m_version = std::string(buildInfo);
     /* Root Report */
@@ -317,8 +317,8 @@ struct SpecMP3 : SpecBase {
       rep.name = _SYS_STR("MP3");
       rep.desc = _SYS_STR("Metroid Prime 3 ") + regstr;
 
-      std::string buildStr(buildInfo);
-      hecl::SystemStringConv buildView(buildStr);
+      m_version = std::string(buildInfo);
+      hecl::SystemStringConv buildView(m_version);
       rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
 
       /* Iterate PAKs and build level options */

@@ -664,6 +664,7 @@ void CMain::RefreshGameState() {
 }
 
 static logvisor::Module DiscordLog("Discord");
+static logvisor::Module MainLog("MP1::CMain");
 static const char* DISCORD_APPLICATION_ID = "402571593815031819";
 static int64_t DiscordStartTime;
 static CAssetId DiscordWorldSTRG;
@@ -774,6 +775,32 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   x70_tweaks.RegisterTweaks(m_cvarMgr);
   x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
   AddWorldPaks();
+
+  bool loadedVersion = false;
+  if (CDvdFile::FileExists("version.yaml")) {
+    CDvdFile file("version.yaml");
+    if (file) {
+      std::unique_ptr<u8[]> buf = std::make_unique<u8[]>(file.Length());
+      u32 readLen = file.SyncRead(buf.get(), file.Length());
+      if (readLen == file.Length()) {
+        CMemoryInStream memoryInStream(buf.get(), file.Length());
+        athena::io::FromYAMLStream(m_version, memoryInStream);
+        loadedVersion = true;
+        MainLog.report(logvisor::Level::Info, FMT_STRING("Loaded version info"));
+      }
+    }
+  }
+  if (loadedVersion) {
+    if (GetGame() != EGame::MetroidPrime1) {
+      MainLog.report(logvisor::Level::Fatal,
+                     FMT_STRING("Attempted to initialize URDE in MP1 mode with non-MP1 data!!!!"));
+    }
+    boo::SystemStringView versionView(GetVersionString());
+    MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from Metroid Prime version {} from region {}{}"),
+                   versionView, char(GetRegion()), IsTrilogy() ? _SYS_STR(" from trilogy") : _SYS_STR(""));
+  } else {
+    MainLog.report(logvisor::Level::Fatal, FMT_STRING("Unable to load version info"));
+  }
 
   const auto& args = boo::APP->getArgs();
   for (auto it = args.begin(); it != args.end(); ++it) {

@@ -37,6 +37,7 @@
 #include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
+#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
 #include "hecl/Console.hpp"
 #include "hecl/CVarCommons.hpp"
 
@@ -48,6 +49,8 @@ class IObjectStore;
 
 namespace MP1 {
 class CMain;
+using ERegion = DataSpec::ERegion;
+using EGame = DataSpec::EGame;
 
 class CGameGlobalObjects {
   friend class CMain;
@@ -244,6 +247,7 @@ private:
   bool m_firstFrame = true;
   using delta_clock = std::chrono::high_resolution_clock;
   std::chrono::time_point<delta_clock> m_prevFrameTime;
+  DataSpec::URDEVersionInfo m_version;
 
   void InitializeSubsystems();
   static void InitializeDiscord();
@@ -311,6 +315,13 @@ public:
   void ListWorlds(hecl::Console*, const std::vector<std::string>&);
   void Warp(hecl::Console*, const std::vector<std::string>&);
   hecl::Console* Console() const override { return m_console.get(); }
+  bool IsPAL() const { return m_version.region == ERegion::PAL; }
+  bool IsJapanese() const { return m_version.region == ERegion::NTSC_J; }
+  bool IsUSA() const { return m_version.region == ERegion::NTSC_U; }
+  bool IsTrilogy() const { return m_version.isTrilogy; }
+  ERegion GetRegion() const { return m_version.region; }
+  EGame GetGame() const { return m_version.game; }
+  std::string_view GetVersionString() const { return m_version.version; }
 
   int m_warpWorldIdx = -1;
   TAreaId m_warpAreaId = 0;

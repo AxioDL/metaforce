@@ -29,6 +29,7 @@
 #include "DNACommon/DPSC.hpp"
 #include "DNACommon/DGRP.hpp"
 #include "DNACommon/MAPU.hpp"
+#include "DNACommon/URDEVersionInfo.hpp"
 #include "DNACommon/Tweaks/TweakWriter.hpp"
 #include "DNAMP1/Tweaks/CTweakPlayerRes.hpp"
 #include "DNAMP1/Tweaks/CTweakGunRes.hpp"
@@ -46,7 +47,6 @@
 #include "DNAMP1/Tweaks/CTweakPlayerGun.hpp"
 #include "DNAMP1/MazeSeeds.hpp"
 #include "DNAMP1/SnowForces.hpp"
-
 #include "hecl/ClientProcess.hpp"
 #include "hecl/MultiProgressPrinter.hpp"
 #include "hecl/Blender/Connection.hpp"
@@ -145,7 +145,8 @@ struct SpecMP1 : SpecBase {
   , m_workPath(project.getProjectWorkingPath(), _SYS_STR("MP1"))
   , m_cookPath(project.getProjectCookedPath(SpecEntMP1), _SYS_STR("MP1"))
   , m_pakRouter(*this, m_workPath, m_cookPath) {
-    setThreadProject();
+    m_game = EGame::MetroidPrime1;
+    SpecBase::setThreadProject();
   }
 
   void buildPaks(nod::Node& root, const std::vector<hecl::SystemString>& args, ExtractReport& rep) {
@@ -197,8 +198,9 @@ struct SpecMP1 : SpecBase {
 
     /* Sort PAKs alphabetically */
     m_orderedPaks.clear();
-    for (DNAMP1::PAKBridge& dpak : m_paks)
+    for (DNAMP1::PAKBridge& dpak : m_paks) {
       m_orderedPaks[std::string(dpak.getName())] = &dpak;
+    }
 
     /* Assemble extract report */
     rep.childOpts.reserve(m_orderedPaks.size());
@@ -218,9 +220,10 @@ struct SpecMP1 : SpecBase {
                                const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps) override {
     nod::IPartition* partition = disc.getDataPartition();
     m_dolBuf = partition->getDOLBuf();
-    const char* buildInfo = (char*)memmem(m_dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
+    const char* buildInfo =
+        static_cast<char*>(memmem(m_dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16)) + 19;
 
-    if (!buildInfo)
+    if (buildInfo == nullptr)
       return false;
 
     m_version = std::string(buildInfo);
@@ -275,15 +278,15 @@ struct SpecMP1 : SpecBase {
     }
 
     m_dolBuf = dolIt->getBuf();
-    const char* buildInfo = (char*)memmem(m_dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
+    const char* buildInfo = static_cast<char*>(memmem(m_dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16)) + 19;
 
     /* Root Report */
     ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP1");
     rep.desc = _SYS_STR("Metroid Prime ") + regstr;
-    if (buildInfo) {
-      std::string buildStr(buildInfo);
-      hecl::SystemStringConv buildView(buildStr);
+    if (buildInfo != nullptr) {
+      m_version = std::string(buildInfo);
+      hecl::SystemStringConv buildView(m_version);
       rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
     }
 
