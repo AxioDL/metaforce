@@ -23,6 +23,12 @@ class YAMLDocWriter;
 } // namespace athena::io
 
 namespace DataSpec {
+enum class ERegion {
+  Invalid = 0,
+  NTSC_U = 'E',
+  PAL = 'P',
+  NTSC_J = 'J'
+};
 
 struct SpecBase : hecl::Database::IDataSpec {
   /* HECL Adaptors */
@@ -199,6 +205,10 @@ protected:
   std::unique_ptr<nod::DiscBase> m_disc;
   bool m_isWii;
   bool m_standalone;
+  ERegion m_region = ERegion::Invalid;
+  std::string m_version;
+
+  void WriteVersionInfo(hecl::Database::Project& project, const hecl::ProjectPath& pakPath);
 };
 
 bool IsPathAudioGroup(const hecl::ProjectPath& path);

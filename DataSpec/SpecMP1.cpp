@@ -63,7 +63,8 @@ extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
 
 struct TextureCache {
-  static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project, const hecl::ProjectPath& pakPath) {
+  static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project,
+                       const hecl::ProjectPath& pakPath) {
     hecl::ProjectPath texturePath(pakPath, _SYS_STR("texture_cache.yaml"));
     hecl::ProjectPath catalogPath(pakPath, _SYS_STR("!catalog.yaml"));
     texturePath.makeDirChain(false);
@@ -112,9 +113,8 @@ struct TextureCache {
       metaPairs.emplace_back(projectPath.parsedHash32(), meta);
     }
 
-    std::sort(metaPairs.begin(), metaPairs.end(), [](const auto& a, const auto& b) -> bool {
-      return a.first < b.first;
-    });
+    std::sort(metaPairs.begin(), metaPairs.end(),
+              [](const auto& a, const auto& b) -> bool { return a.first < b.first; });
 
     athena::io::FileWriter w(outPath.getAbsolutePath());
     w.writeUint32Big(metaPairs.size());
@@ -223,13 +223,13 @@ struct SpecMP1 : SpecBase {
     if (!buildInfo)
       return false;
 
+    m_version = std::string(buildInfo);
     /* Root Report */
     ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP1");
     rep.desc = _SYS_STR("Metroid Prime ") + regstr;
     if (buildInfo) {
-      std::string buildStr(buildInfo);
-      hecl::SystemStringConv buildView(buildStr);
+      hecl::SystemStringConv buildView(m_version);
       rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
     }
 
@@ -378,6 +378,14 @@ struct SpecMP1 : SpecBase {
     /* Generate Texture Cache containing meta data for every texture file */
     TextureCache::Generate(m_pakRouter, m_project, noAramPath);
 
+    /* Write version data */
+    hecl::ProjectPath versionPath;
+    if (m_standalone) {
+      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files"));
+    } else {
+      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files/MP1"));
+    }
+    WriteVersionInfo(m_project, versionPath);
     return true;
   }
 
@@ -740,7 +748,8 @@ struct SpecMP1 : SpecBase {
     }
 
     if (!colMesh)
-      Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to find mesh named 'CMESH' in {}")), in.getAbsolutePath());
+      Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to find mesh named 'CMESH' in {}")),
+                 in.getAbsolutePath());
 
     std::vector<Light> lights = ds.compileLights();
 
@@ -1131,7 +1140,8 @@ struct SpecMP1 : SpecBase {
   }
 
   void buildPakList(hecl::blender::Token& btok, athena::io::FileWriter& w, const std::vector<urde::SObjectTag>& list,
-                    const std::vector<std::pair<urde::SObjectTag, std::string>>& nameList, atUint64& resTableOffset) override {
+                    const std::vector<std::pair<urde::SObjectTag, std::string>>& nameList,
+                    atUint64& resTableOffset) override {
     w.writeUint32Big(m_pc ? 0x80030005 : 0x00030005);
     w.writeUint32Big(0);
 

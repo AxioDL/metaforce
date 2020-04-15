@@ -61,6 +61,7 @@
 #include "Runtime/Particle/CWeaponDescription.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CStateMachine.hpp"
+#include "Runtime/World/CScriptMazeNode.hpp"
 
 #include <DataSpec/DNAMP1/SFX/Misc.h>
 #include <DataSpec/DNAMP1/SFX/MiscSamus.h>
@@ -342,6 +343,14 @@ CGameGlobalObjects::~CGameGlobalObjects() {
   g_AiFuncMap = nullptr;
   g_GameState = nullptr;
   g_TweakManager = nullptr;
+}
+void CGameGlobalObjects::PostInitialize() {
+    AddPaksAndFactories();
+    LoadTextureCache();
+    LoadStringTable();
+    m_renderer.reset(AllocateRenderer(*xcc_simplePool, *x4_resFactory));
+    CEnvFxManager::Initialize();
+    CScriptMazeNode::LoadMazeSeeds();
 }
 
 void CMain::AddWorldPaks() {

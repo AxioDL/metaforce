@@ -187,12 +187,12 @@ struct SpecMP2 : SpecBase {
     if (!buildInfo)
       return false;
 
+    m_version = std::string(buildInfo);
     /* Root Report */
     ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP2");
     rep.desc = _SYS_STR("Metroid Prime 2 ") + regstr;
-    std::string buildStr(buildInfo);
-    hecl::SystemStringConv buildView(buildStr);
+    hecl::SystemStringConv buildView(m_version);
     rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
 
     /* Iterate PAKs and build level options */
@@ -317,6 +317,14 @@ struct SpecMP2 : SpecBase {
     hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _SYS_STR("MP2/URDE"));
     TextureCache::Generate(m_pakRouter, m_project, noAramPath);
 
+    /* Write version data */
+    hecl::ProjectPath versionPath;
+    if (m_standalone) {
+      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files"));
+    } else {
+      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files/MP2"));
+    }
+    WriteVersionInfo(m_project, versionPath);
     return true;
   }
 

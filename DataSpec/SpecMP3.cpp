@@ -231,12 +231,12 @@ struct SpecMP3 : SpecBase {
     if (!strcmp(buildInfo, "Build v3.068 3/2/2006 14:55:13"))
       return false;
 
+    m_version = std::string(buildInfo);
     /* Root Report */
     ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP3");
     rep.desc = _SYS_STR("Metroid Prime 3 ") + regstr;
-    std::string buildStr(buildInfo);
-    hecl::SystemStringConv buildView(buildStr);
+    hecl::SystemStringConv buildView(m_version);
     rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
 
     /* Iterate PAKs and build level options */
@@ -473,12 +473,20 @@ struct SpecMP3 : SpecBase {
       }
 
       process.waitUntilComplete();
-
-      /* Extract part of .dol for RandomStatic entropy */
-      hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _SYS_STR("MP3/URDE"));
-      /* Generate Texture Cache containing meta data for every texture file */
-      TextureCache::Generate(m_pakRouter, m_project, noAramPath);
     }
+
+    /* Extract part of .dol for RandomStatic entropy */
+    hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _SYS_STR("MP3/URDE"));
+    /* Generate Texture Cache containing meta data for every texture file */
+    TextureCache::Generate(m_pakRouter, m_project, noAramPath);
+    /* Write version data */
+    hecl::ProjectPath versionPath;
+    if (m_standalone) {
+      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files"));
+    } else {
+      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files/MP3"));
+    }
+    WriteVersionInfo(m_project, versionPath);
     return true;
   }
 

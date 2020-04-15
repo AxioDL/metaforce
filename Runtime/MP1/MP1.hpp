@@ -7,40 +7,39 @@
 #define MP1_VARIABLE_DELTA_TIME 1
 #endif
 
-#include "IMain.hpp"
-#include "CTweaks.hpp"
-#include "CPlayMovie.hpp"
-#include "IOStreams.hpp"
-#include "CBasics.hpp"
-#include "CMemoryCardSys.hpp"
-#include "CResFactory.hpp"
-#include "CSimplePool.hpp"
-#include "Character/CAssetFactory.hpp"
-#include "World/CAi.hpp"
-#include "CGameState.hpp"
-#include "CInGameTweakManager.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Character/CAnimData.hpp"
-#include "Particle/CDecalManager.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "Audio/CAudioSys.hpp"
-#include "Input/CInputGenerator.hpp"
-#include "GuiSys/CGuiSys.hpp"
-#include "CIOWinManager.hpp"
-#include "GuiSys/CSplashScreen.hpp"
-#include "CMainFlow.hpp"
-#include "GuiSys/CConsoleOutputWindow.hpp"
-#include "GuiSys/CErrorOutputWindow.hpp"
-#include "GuiSys/CTextParser.hpp"
-#include "CAudioStateWin.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CArchitectureQueue.hpp"
-#include "CTimeProvider.hpp"
-#include "GuiSys/CTextExecuteBuffer.hpp"
+#include "Runtime/IMain.hpp"
+#include "Runtime/MP1/CTweaks.hpp"
+#include "Runtime/MP1/CPlayMovie.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/CBasics.hpp"
+#include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/CResFactory.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Character/CAssetFactory.hpp"
+#include "Runtime/World/CAi.hpp"
+#include "Runtime/CGameState.hpp"
+#include "Runtime/MP1/CInGameTweakManager.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Character/CAnimData.hpp"
+#include "Runtime/Particle/CDecalManager.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Audio/CAudioSys.hpp"
+#include "Runtime/Input/CInputGenerator.hpp"
+#include "Runtime/GuiSys/CGuiSys.hpp"
+#include "Runtime/CIOWinManager.hpp"
+#include "Runtime/GuiSys/CSplashScreen.hpp"
+#include "Runtime/MP1/CMainFlow.hpp"
+#include "Runtime/GuiSys/CConsoleOutputWindow.hpp"
+#include "Runtime/GuiSys/CErrorOutputWindow.hpp"
+#include "Runtime/GuiSys/CTextParser.hpp"
+#include "Runtime/MP1/CAudioStateWin.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/CArchitectureQueue.hpp"
+#include "Runtime/CTimeProvider.hpp"
+#include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
-#include "World/CScriptMazeNode.hpp"
 #include "hecl/Console.hpp"
 
 struct DiscordUser;
@@ -104,14 +103,7 @@ public:
 
   ~CGameGlobalObjects();
 
-  void PostInitialize() {
-    AddPaksAndFactories();
-    LoadTextureCache();
-    LoadStringTable();
-    m_renderer.reset(AllocateRenderer(*xcc_simplePool, *x4_resFactory));
-    CEnvFxManager::Initialize();
-    CScriptMazeNode::LoadMazeSeeds();
-  }
+  void PostInitialize();
 
   void ResetGameState() {
     x134_gameState = std::make_unique<CGameState>();

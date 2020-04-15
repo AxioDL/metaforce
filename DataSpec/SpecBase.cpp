@@ -75,17 +75,19 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
   if (m_standalone && !checkStandaloneID(gameID))
     return false;
 
-  char region = m_disc->getHeader().m_gameID[3];
+  m_region = ERegion(m_disc->getHeader().m_gameID[3]);
   const hecl::SystemString* regstr = &regNONE;
-  switch (region) {
-  case 'E':
+  switch (m_region) {
+  case ERegion::NTSC_U:
     regstr = &regE;
     break;
-  case 'J':
+  case ERegion::PAL:
     regstr = &regJ;
     break;
-  case 'P':
+  case ERegion::NTSC_J:
     regstr = &regP;
+    break;
+  default:
     break;
   }
 
@@ -1206,4 +1208,15 @@ void SpecBase::waitForIndexComplete() const {
   }
 }
 
+void SpecBase::WriteVersionInfo(hecl::Database::Project &project, const hecl::ProjectPath &pakPath) {
+    hecl::ProjectPath versionPath(pakPath, _SYS_STR("version.yaml"));
+    versionPath.makeDirChain(false);
+
+    athena::io::YAMLDocWriter yamlW("URDEVersionData");
+    yamlW.writeString("version", m_version);
+    yamlW.writeByte("region", atUint8(m_region));
+    yamlW.writeBool("is_trilogy", !m_standalone);
+    athena::io::FileWriter fileW(versionPath.getAbsolutePath());
+    yamlW.finish(&fileW);
+}
 } // namespace DataSpec
