@@ -1657,7 +1657,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::FinishedLoading() {
   for (int i = 0; i < 4; ++i) {
     const std::string name = fmt::format(FMT_STRING("textpane_filename{}"), i);
     FindTextPanePair(x1c_loadedFrame, name)
-        .SetPairText(x20_loadedPauseStrg->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 16 : 18 + i));
+        .SetPairText(x20_loadedPauseStrg->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy() ? 16 : 18) + i));
   }
 
   x2c_tablegroup_double->SetVertical(false);
