@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../../DNACommon/Tweaks/ITweakPlayerRes.hpp"
-
+#include "DataSpec/DNACommon/Tweaks/ITweakPlayerRes.hpp"
+// FIXME: Remove this include when it's in the DNA headers
+#include <stdbool.h>
 namespace DataSpec::DNAMP1 {
 
-template <int NewRep>
+template <bool NewRep>
 struct AT_SPECIALIZE_PARMS(true, false) CTweakPlayerRes final : ITweakPlayerRes {
   AT_DECL_DNA_YAML
 

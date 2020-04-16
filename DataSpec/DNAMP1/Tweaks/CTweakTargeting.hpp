@@ -1,9 +1,11 @@
 #pragma once
 
-#include "../../DNACommon/Tweaks/ITweakTargeting.hpp"
+#include "DataSpec/DNACommon/Tweaks/ITweakTargeting.hpp"
+// FIXME: Remove this include when it's in the DNA headers
+#include <stdbool.h>
 
 namespace DataSpec::DNAMP1 {
-template<int NewRep>
+template<bool NewRep>
 struct AT_SPECIALIZE_PARMS(true, false) CTweakTargeting final : public ITweakTargeting {
   AT_DECL_DNA_YAML
   Value<atUint32> x4_targetRadiusMode;
