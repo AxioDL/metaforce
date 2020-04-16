@@ -115,7 +115,8 @@ SysReqTableModel::SysReqTableModel(QObject* parent) : QAbstractTableModel(parent
   if (m_macosPatch == 0) {
     m_osVersion = tr("macOS %1.%2").arg(m_macosMajor, m_macosMinor);
   } else {
-    m_osVersion = tr("macOS %1.%2.%3").arg(m_macosMajor, m_macosMinor, m_macosPatch);
+    m_osVersion = tr("macOS %1.%2.%3")
+                      .arg(QString::number(m_macosMajor), QString::number(m_macosMinor), QString::number(m_macosPatch));
   }
 #elif _WIN32
   m_win7SP1OrGreater = IsWindows7SP1OrGreater();
