@@ -134,7 +134,7 @@ public:
   void EnsureSettings();
   void PutTo(CBitStreamWriter& writer) const;
 
-  float TuneScreenBrightness();
+  float TuneScreenBrightness() const;
   void SetScreenBrightness(s32, bool);
   s32 GetScreenBrightness() const { return x48_screenBrightness; }
   void ApplyGamma();

@@ -266,7 +266,7 @@ CGameOptions::CGameOptions()
   InitSoundMode();
 }
 
-float CGameOptions::TuneScreenBrightness() { return (0.375f * 1.f) + (float(x48_screenBrightness) * 0.25f); }
+float CGameOptions::TuneScreenBrightness() const { return (0.375f * 1.f) + (float(x48_screenBrightness) * 0.25f); }
 
 void CGameOptions::InitSoundMode() { /* If system is mono, force x44 to mono, otherwise honor user preference */
 }
