@@ -50,12 +50,12 @@ constexpr std::array<SGameOption, 4> ControllerOpts{{
 }};
 
 constexpr std::array<SGameOption, 5> VisorOptsNew{{
-                                                   {EGameOption::VisorOpacity, 23, 0.f, 255.f, 1.f, EOptionType::Float},
-                                                   {EGameOption::HelmetOpacity, 24, 0.f, 255.f, 1.f, EOptionType::Float},
-                                                   {EGameOption::HUDLag, 25, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
-                                                   {EGameOption::HintSystem, 26, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
-                                                   {EGameOption::RestoreDefaults, 38, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
-                                               }};
+    {EGameOption::VisorOpacity, 23, 0.f, 255.f, 1.f, EOptionType::Float},
+    {EGameOption::HelmetOpacity, 24, 0.f, 255.f, 1.f, EOptionType::Float},
+    {EGameOption::HUDLag, 25, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::HintSystem, 26, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::RestoreDefaults, 38, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+}};
 
 constexpr std::array<SGameOption, 5> DisplayOptsNew{{
     //{EGameOption::ScreenBrightness, 25, 0.f, 8.f, 1.f, EOptionType::Float},
