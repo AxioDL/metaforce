@@ -428,7 +428,9 @@ struct SpecMP1 : SpecBase {
         return true;
       else if (classType == DNAFont::FONT<UniqueID32>::DNAType())
         return true;
-      else if (classType == DNAMP1::CTweakPlayerRes::DNAType())
+      else if (classType == DNAMP1::CTweakPlayerRes<true>::DNAType())
+        return true;
+      else if (classType == DNAMP1::CTweakPlayerRes<false>::DNAType())
         return true;
       else if (classType == DNAMP1::CTweakGunRes::DNAType())
         return true;
@@ -442,7 +444,9 @@ struct SpecMP1 : SpecBase {
         return true;
       else if (classType == DNAMP1::CTweakAutoMapper::DNAType())
         return true;
-      else if (classType == DNAMP1::CTweakTargeting::DNAType())
+      else if (classType == DNAMP1::CTweakTargeting<true>::DNAType())
+        return true;
+      else if (classType == DNAMP1::CTweakTargeting<false>::DNAType())
         return true;
       else if (classType == DNAMP1::CTweakGui::DNAType())
         return true;
@@ -583,13 +587,15 @@ struct SpecMP1 : SpecBase {
             } else if (className == DataSpec::DNAMP1::SCAN::DNAType()) {
               resTag.type = SBIG('SCAN');
               return true;
-            } else if (className == DataSpec::DNAMP1::CTweakPlayerRes::DNAType() ||
+            } else if (className == DataSpec::DNAMP1::CTweakPlayerRes<true>::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakPlayerRes<false>::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakGunRes::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakSlideShow::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakPlayer::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakCameraBob::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakGame::DNAType() ||
-                       className == DataSpec::DNAMP1::CTweakTargeting::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakTargeting<true>::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakTargeting<false>::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakAutoMapper::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakGui::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakPlayerControl::DNAType() ||
@@ -834,8 +840,12 @@ struct SpecMP1 : SpecBase {
         DNAFont::FONT<UniqueID32> font;
         font.read(reader);
         DNAFont::WriteFONT(font, out);
-      } else if (classStr == DNAMP1::CTweakPlayerRes::DNAType()) {
-        DNAMP1::CTweakPlayerRes playerRes;
+      } else if (classStr == DNAMP1::CTweakPlayerRes<true>::DNAType()) {
+        DNAMP1::CTweakPlayerRes<true> playerRes;
+        playerRes.read(reader);
+        WriteTweak(playerRes, out);
+      } else if (classStr == DNAMP1::CTweakPlayerRes<false>::DNAType()) {
+        DNAMP1::CTweakPlayerRes<false> playerRes;
         playerRes.read(reader);
         WriteTweak(playerRes, out);
       } else if (classStr == DNAMP1::CTweakGunRes::DNAType()) {
@@ -862,8 +872,12 @@ struct SpecMP1 : SpecBase {
         DNAMP1::CTweakAutoMapper autoMapper;
         autoMapper.read(reader);
         WriteTweak(autoMapper, out);
-      } else if (classStr == DNAMP1::CTweakTargeting::DNAType()) {
-        DNAMP1::CTweakTargeting targeting;
+      } else if (classStr == DNAMP1::CTweakTargeting<true>::DNAType()) {
+        DNAMP1::CTweakTargeting<false> targeting;
+        targeting.read(reader);
+        WriteTweak(targeting, out);
+      } else if (classStr == DNAMP1::CTweakTargeting<false>::DNAType()) {
+        DNAMP1::CTweakTargeting<false> targeting;
         targeting.read(reader);
         WriteTweak(targeting, out);
       } else if (classStr == DNAMP1::CTweakGui::DNAType()) {

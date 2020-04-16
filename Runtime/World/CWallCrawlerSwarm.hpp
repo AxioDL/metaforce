@@ -205,7 +205,7 @@ public:
   zeus::CVector3f GetOrbitPosition(const CStateManager&) const override;
   zeus::CVector3f GetAimPosition(const CStateManager&, float) const override;
   const zeus::CVector3f& GetLastKilledOffset() const { return x130_lastKilledOffset; }
-  void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr) {}
+  void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr);
   const std::vector<CBoid>& GetBoids() const { return x108_boids; }
   int GetCurrentLockOnId() const { return x42c_lockOnIdx; }
   bool GetLockOnLocationValid(int id) const { return id >= 0 && id < x108_boids.size() && x108_boids[id].GetActive(); }

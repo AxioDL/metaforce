@@ -835,7 +835,7 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
           const zeus::CAABox aabb = BoxForPosition(r26, r27, r20, x374_boidRadius + 0.5f);
           CAreaCollisionCache ccache(aabb);
           CGameCollision::BuildAreaCollisionCache(mgr, ccache);
-          while (boid) {
+          while (boid != nullptr) {
             r21 += 1;
             if (boid->GetActive()) {
               if (x558_flavor == EFlavor::Scarab) {
@@ -1234,6 +1234,16 @@ zeus::CVector3f CWallCrawlerSwarm::GetAimPosition(const CStateManager&, float dt
   }
 
   return x108_boids[x42c_lockOnIdx].x30_velocity * dt + x124_lastOrbitPosition;
+}
+void CWallCrawlerSwarm::ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr) {
+  for (CBoid& boid : x108_boids) {
+    if (boid.GetActive() && (boid.GetTranslation() - pos).magSquared() < info.GetRadius() * info.GetRadius()) {
+      boid.x78_health -= info.GetRadiusDamage();
+      if (boid.x78_health <= 0.f) {
+        KillBoid(boid, stateMgr, 1.f, 0.1f);
+      }
+    }
+  }
 }
 
 } // namespace urde

@@ -12,7 +12,6 @@
 #include "hecl/Blender/Token.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-
 namespace nod {
 class DiscBase;
 class Node;
@@ -26,6 +25,9 @@ class YAMLDocWriter;
 namespace DataSpec {
 enum class ERegion;
 enum class EGame;
+ERegion getCurrentRegion();
+bool isCurrentSpecWii();
+
 struct SpecBase : hecl::Database::IDataSpec {
   /* HECL Adaptors */
   void setThreadProject() override;
@@ -181,8 +183,8 @@ protected:
   bool m_backgroundRunning = false;
 
   void readCatalog(const hecl::ProjectPath& catalogPath, athena::io::YAMLDocWriter& nameWriter);
-  void insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const urde::SObjectTag& tag,
-                     const hecl::ProjectPath& path, bool dump = true);
+  void insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const urde::SObjectTag& tag, const hecl::ProjectPath& path,
+                     bool dump = true);
   bool addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDocWriter& cacheWriter);
   void backgroundIndexRecursiveProc(const hecl::ProjectPath& path, athena::io::YAMLDocWriter& cacheWriter,
                                     athena::io::YAMLDocWriter& nameWriter, int level);
@@ -206,6 +208,9 @@ protected:
   std::string m_version;
 
   void WriteVersionInfo(hecl::Database::Project& project, const hecl::ProjectPath& pakPath);
+
+  static void setCurRegion(ERegion region);
+  static void setCurSpecIsWii(bool isWii);
 };
 
 bool IsPathAudioGroup(const hecl::ProjectPath& path);

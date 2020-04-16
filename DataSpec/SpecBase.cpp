@@ -39,6 +39,12 @@ static const hecl::SystemChar* MomErr[] = {_SYS_STR("Your metroid is in another 
 
 constexpr uint32_t MomErrCount = std::extent<decltype(MomErr)>::value;
 
+static ERegion g_CurRegion = ERegion::Invalid;
+static bool g_CurSpecIsWii = false;
+
+ERegion getCurrentRegion() { return g_CurRegion; }
+bool isCurrentSpecWii() { return g_CurSpecIsWii; }
+
 SpecBase::SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
 : hecl::Database::IDataSpec(specEntry)
 , m_project(project)
@@ -93,6 +99,9 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
   default:
     break;
   }
+
+  setCurRegion(m_region);
+  setCurSpecIsWii(m_isWii);
 
   if (m_standalone)
     return checkFromStandaloneDisc(*m_disc, *regstr, info.extractArgs, reps);
@@ -1223,4 +1232,11 @@ void SpecBase::WriteVersionInfo(hecl::Database::Project& project, const hecl::Pr
   athena::io::FileWriter writer(versionPath.getAbsolutePath());
   athena::io::ToYAMLStream(info, writer);
 }
+void SpecBase::setCurRegion(ERegion region) {
+  g_CurRegion = region;
+}
+void SpecBase::setCurSpecIsWii(bool isWii) {
+  g_CurSpecIsWii = isWii;
+}
+
 } // namespace DataSpec

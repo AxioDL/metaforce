@@ -1428,11 +1428,14 @@ void CStateManager::InformListeners(const zeus::CVector3f& pos, EListenNoiseType
 
 void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const CDamageVulnerability& vuln,
                                    const zeus::CVector3f& pos, float dampen) {
-  if (vuln.GetVulnerability(info.GetWeaponMode(), false) == EVulnerability::Deflect)
+  if (vuln.GetVulnerability(info.GetWeaponMode(), false) == EVulnerability::Deflect) {
     return;
+  }
+
   CHealthInfo* hInfo = actor.HealthInfo(*this);
-  if (!hInfo)
+  if (hInfo == nullptr) {
     return;
+  }
 
   float dampedPower = (1.f - dampen) * info.GetKnockBackPower();
   if (TCastToPtr<CPlayer> player = actor) {
@@ -1446,30 +1449,34 @@ void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const
       if (TCastToPtr<CPhysicsActor> physActor = actor) {
         zeus::CVector3f kbVec = pos * (dampedPower - hInfo->GetKnockbackResistance()) * physActor->GetMass() * 1.5f;
         if (physActor->GetMaterialList().HasMaterial(EMaterialTypes::Immovable) ||
-            !physActor->GetMaterialList().HasMaterial(EMaterialTypes::Grass))
+            !physActor->GetMaterialList().HasMaterial(EMaterialTypes::Solid)) {
           return;
+        }
         physActor->ApplyImpulseWR(kbVec, zeus::CAxisAngle());
         return;
       }
     }
   }
 
-  if (ai)
+  if (ai) {
     ai->KnockBack(pos, *this, info, dampen == 0.f ? EKnockBackType::Direct : EKnockBackType::Radius, false,
                   dampedPower);
+  }
 }
 
 void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos, float power, float resistance) {
-  if (player.GetMaterialList().HasMaterial(EMaterialTypes::Immovable))
+  if (player.GetMaterialList().HasMaterial(EMaterialTypes::Immovable)) {
     return;
+  }
 
   float usePower;
   if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
     usePower = power * 1000.f;
     CPlayer::ESurfaceRestraints surface =
         player.x2b0_outOfWaterTicks == 2 ? player.x2ac_surfaceRestraint : CPlayer::ESurfaceRestraints::Water;
-    if (surface != CPlayer::ESurfaceRestraints::Normal && player.GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit)
+    if (surface != CPlayer::ESurfaceRestraints::Normal && player.GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit) {
       usePower /= 7.f;
+    }
   } else {
     usePower = power * 500.f;
   }
@@ -1496,15 +1503,17 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
 
   bool bomb = false;
   TCastToConstPtr<CWeapon> weapon = actor;
-  if (weapon)
+  if (weapon) {
     bomb = True(weapon->GetAttribField() & (EProjectileAttrib::Bombs | EProjectileAttrib::PowerBombs));
+  }
 
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   BuildNearList(nearList, aabb, filter, &actor);
   for (TUniqueId id : nearList) {
     CEntity* ent = ObjectById(id);
-    if (!ent)
+    if (ent == nullptr) {
       continue;
+    }
 
     TCastToPtr<CPlayer> player = ent;
     if (bomb && player) {
@@ -1513,20 +1522,24 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
         MP1::CSamusHud::DisplayHudMemo(u"", CHUDMemoParms{0.f, true, true, true});
         player->UnFreeze(*this);
       } else {
-        if ((weapon->GetAttribField() & EProjectileAttrib::Bombs) == EProjectileAttrib::Bombs)
+        if ((weapon->GetAttribField() & EProjectileAttrib::Bombs) == EProjectileAttrib::Bombs) {
           player->BombJump(pos, *this);
+        }
       }
     } else if (ent->GetUniqueId() != damager) {
       TestBombHittingWater(actor, pos, static_cast<CActor&>(*ent));
-      if (TestRayDamage(pos, static_cast<CActor&>(*ent), nearList))
+      if (TestRayDamage(pos, static_cast<CActor&>(*ent), nearList)) {
         ApplyRadiusDamage(actor, pos, static_cast<CActor&>(*ent), info);
+      }
     }
 
-    if (TCastToPtr<CWallCrawlerSwarm> swarm = ent)
+    if (TCastToPtr<CWallCrawlerSwarm> swarm = ent) {
       swarm->ApplyRadiusDamage(pos, info, *this);
+    }
 
-    if (TCastToPtr<CSnakeWeedSwarm> swarm = ent)
+    if (TCastToPtr<CSnakeWeedSwarm> swarm = ent) {
       swarm->ApplyRadiusDamage(pos, info, *this);
+    }
   }
 }
 
@@ -1555,28 +1568,29 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
       ((bounds = a2.GetTouchBounds()) &&
        CCollidableSphere::Sphere_AABox_Bool(zeus::CSphere{pos, info.GetRadius()}, *bounds))) {
     float rad = info.GetRadius();
-    if (rad > FLT_EPSILON)
+    if (rad > FLT_EPSILON) {
       rad = delta.magnitude() / rad;
-    else
+    } else {
       rad = 0.f;
-    if (rad > 0.f)
+    }
+    if (rad > 0.f) {
       delta.normalize();
+    }
 
     bool alive = false;
-    if (CHealthInfo* hInfo = a2.HealthInfo(*this))
-      if (hInfo->GetHP() > 0.f)
+    if (CHealthInfo* hInfo = a2.HealthInfo(*this)) {
+      if (hInfo->GetHP() > 0.f) {
         alive = true;
+      }
+    }
 
-    const CDamageVulnerability* vuln;
-    if (rad > 0.f)
-      vuln = a2.GetDamageVulnerability(pos, delta, info);
-    else
-      vuln = a2.GetDamageVulnerability();
+    const CDamageVulnerability* vuln = rad > 0.f ? a2.GetDamageVulnerability(pos, delta, info) :  a2.GetDamageVulnerability();
 
     if (vuln->WeaponHurts(info.GetWeaponMode(), true)) {
       float dam = info.GetRadiusDamage(*vuln);
-      if (dam > 0.f)
+      if (dam > 0.f) {
         ApplyLocalDamage(pos, delta, a2, dam, info.GetWeaponMode());
+      }
       a2.SendScriptMsgs(EScriptObjectState::Damage, *this, EScriptObjectMessage::None);
       SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::Damage);
     } else {
@@ -1584,8 +1598,9 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
       SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::InvulnDamage);
     }
 
-    if (alive && info.GetKnockBackPower() > 0.f)
+    if (alive && info.GetKnockBackPower() > 0.f) {
       ApplyKnockBack(a2, info, *vuln, (a2.GetTranslation() - a1.GetTranslation()).normalized(), rad);
+    }
   }
 }
 

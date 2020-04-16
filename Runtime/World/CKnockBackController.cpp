@@ -483,8 +483,9 @@ void CKnockBackController::DoKnockBackAnimation(const zeus::CVector3f& backVec, 
   switch (x4_activeParms.x0_animState) {
   case EKnockBackAnimationState::Hurled: {
     float hurlVel = 5.f;
-    if (CHealthInfo* hInfo = parent.HealthInfo(mgr))
+    if (CHealthInfo* hInfo = parent.HealthInfo(mgr)) {
       hurlVel += CalculateExtraHurlVelocity(mgr, magnitude, hInfo->GetKnockbackResistance());
+    }
     hurlVel = std::sqrt(parent.GetGravityConstant() * 0.5f * hurlVel);
     zeus::CVector3f backUpVec = backVec + backVec.magnitude() * zeus::skUp;
     if (backUpVec.canBeNormalized()) {
@@ -520,10 +521,11 @@ void CKnockBackController::ResetKnockBackImpulse(CPatterned& parent, const zeus:
   if (x81_24_autoResetImpulse && x4_activeParms.x0_animState == EKnockBackAnimationState::KnockBack &&
       x4_activeParms.x4_animFollowup != EKnockBackAnimationFollowUp::Freeze) {
     x50_impulseDir = backVec.canBeNormalized() ? backVec.normalized() : -parent.GetTransform().basis[1];
-    if (x60_impulseRemTime <= 0.f)
+    if (x60_impulseRemTime <= 0.f) {
       x5c_impulseMag = magnitude;
-    else
+    } else {
       x5c_impulseMag += magnitude * (1.f - x60_impulseRemTime / ImpulseDurationTable[x20_impulseDurationIdx]);
+    }
     x60_impulseRemTime = ImpulseDurationTable[x20_impulseDurationIdx];
   }
 }
@@ -565,21 +567,25 @@ void CKnockBackController::SetAutoResetImpulse(bool b) {
 void CKnockBackController::Update(float dt, CStateManager& mgr, CPatterned& parent) {
   ApplyImpulse(dt, parent);
   x64_flinchRemTime -= dt;
-  if (TickDeferredTimer(dt))
+  if (TickDeferredTimer(dt)) {
     DoDeferredKnockBack(mgr, parent);
-  if (x82_26_locomotionDuringElectrocution && parent.GetBodyController()->IsElectrocuting())
+  }
+  if (x82_26_locomotionDuringElectrocution && parent.GetBodyController()->IsElectrocuting()) {
     parent.GetBodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::Locomotion));
+  }
 }
 
 EKnockBackWeaponType CKnockBackController::GetKnockBackWeaponType(const CDamageInfo& info, EWeaponType wType,
                                                                   EKnockBackType type) {
   int stacking = 0;
-  if (info.GetWeaponMode().IsCharged())
+  if (info.GetWeaponMode().IsCharged()) {
     stacking = 1;
-  else if (info.GetWeaponMode().IsComboed())
+  } else if (info.GetWeaponMode().IsComboed()) {
     stacking = 2;
-  if (wType > EWeaponType::Phazon)
+  }
+  if (wType > EWeaponType::Phazon) {
     return EKnockBackWeaponType::Invalid;
+  }
   switch (wType) {
   case EWeaponType::Power:
     return EKnockBackWeaponType(type != EKnockBackType::Direct ? stacking : stacking + 1);
@@ -604,6 +610,8 @@ EKnockBackWeaponType CKnockBackController::GetKnockBackWeaponType(const CDamageI
 
 void CKnockBackController::SelectDamageState(CPatterned& parent, const CDamageInfo& info, EWeaponType wType,
                                              EKnockBackType type) {
+
+  x4_activeParms = KnockBackParms();
   EKnockBackWeaponType weaponType = GetKnockBackWeaponType(info, wType, type);
   if (weaponType != EKnockBackWeaponType::Invalid) {
     x4_activeParms =
@@ -616,8 +624,9 @@ void CKnockBackController::KnockBack(const zeus::CVector3f& backVec, CStateManag
                                      const CDamageInfo& info, EKnockBackType type, float magnitude) {
   if (!x82_25_inDeferredKnockBack) {
     zeus::CVector3f vec(backVec.toVec2f());
-    if (!vec.isMagnitudeSafe())
+    if (!vec.isMagnitudeSafe()) {
       vec = -parent.GetTransform().basis[1];
+    }
     SelectDamageState(parent, info, info.GetWeaponMode().GetType(), type);
     DoKnockBackAnimation(vec, mgr, parent, magnitude);
     ResetKnockBackImpulse(parent, vec, 2.f);

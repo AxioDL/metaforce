@@ -63,8 +63,13 @@ void CTweaks::RegisterTweaks(hecl::CVarManager* cvarMgr) {
   /* Targeting */
   tag = g_ResFactory->GetResourceIdByName("Targeting");
   strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
-  g_tweakTargeting = new DataSpec::DNAMP1::CTweakTargeting(*strm);
-  g_tweakTargeting->initCVars(cvarMgr);
+  if (g_Main->IsTrilogy() || g_Main->IsPAL() || g_Main->IsJapanese()) {
+    g_tweakTargeting = new DataSpec::DNAMP1::CTweakTargeting<true>(*strm);
+    g_tweakTargeting->initCVars(cvarMgr);
+  } else {
+    g_tweakTargeting = new DataSpec::DNAMP1::CTweakTargeting<false>(*strm);
+    g_tweakTargeting->initCVars(cvarMgr);
+  }
 
   /* Game */
   tag = g_ResFactory->GetResourceIdByName("Game");
@@ -121,7 +126,12 @@ void CTweaks::RegisterResourceTweaks(hecl::CVarManager* cvarMgr) {
 
   tag = g_ResFactory->GetResourceIdByName("PlayerRes");
   strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
-  g_tweakPlayerRes = new DataSpec::DNAMP1::CTweakPlayerRes(*strm);
+  if (g_Main->IsTrilogy() || g_Main->IsPAL() || g_Main->IsJapanese()) {
+    g_tweakPlayerRes = new DataSpec::DNAMP1::CTweakPlayerRes<true>(*strm);
+  } else {
+    g_tweakPlayerRes = new DataSpec::DNAMP1::CTweakPlayerRes<false>(*strm);
+  }
+
   g_tweakPlayerRes->ResolveResources(*g_ResFactory);
   g_tweakPlayerRes->initCVars(cvarMgr);
 }

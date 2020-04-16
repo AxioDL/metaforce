@@ -497,10 +497,11 @@ void CPatterned::Death(CStateManager& mgr, const zeus::CVector3f& dir, EScriptOb
 void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, const CDamageInfo& info,
                            EKnockBackType type, bool inDeferred, float magnitude) {
   CHealthInfo* hInfo = HealthInfo(mgr);
-  if (!x401_27_phazingOut && !x401_28_burning && hInfo) {
+  if (!x401_27_phazingOut && !x401_28_burning && hInfo != nullptr) {
     x460_knockBackController.KnockBack(backVec, mgr, *this, info, type, magnitude);
-    if (x450_bodyController->IsFrozen() && x460_knockBackController.GetActiveParms().xc_intoFreezeDur >= 0.f)
+    if (x450_bodyController->IsFrozen() && x460_knockBackController.GetActiveParms().xc_intoFreezeDur >= 0.f) {
       x450_bodyController->FrozenBreakout();
+    }
     switch (x460_knockBackController.GetActiveParms().x4_animFollowup) {
     case EKnockBackAnimationFollowUp::Freeze:
       Freeze(mgr, zeus::skZero3f, zeus::CUnitVector3f(x34_transform.transposeRotate(backVec)),
@@ -545,10 +546,11 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
       break;
     case EKnockBackAnimationFollowUp::IceDeath:
       Death(mgr, zeus::skZero3f, EScriptObjectState::DeathRattle);
-      if (x54c_iceDeathExplosionParticle)
+      if (x54c_iceDeathExplosionParticle) {
         MassiveFrozenDeath(mgr);
-      else if (x450_bodyController->IsFrozen())
+      } else if (x450_bodyController->IsFrozen()) {
         x450_bodyController->FrozenBreakout();
+      }
       break;
     default:
       break;
