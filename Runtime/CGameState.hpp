@@ -69,7 +69,7 @@ class CGameState {
   friend class CStateManager;
 
   std::array<bool, 128> x0_{};
-  u32 x80_;
+  u32 x80_ = 0;
   CAssetId x84_mlvlId;
   std::vector<CWorldState> x88_worldStates;
   std::shared_ptr<CPlayerState> x98_playerState;
