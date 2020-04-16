@@ -3,7 +3,7 @@
 #include "../../DNACommon/Tweaks/ITweakTargeting.hpp"
 
 namespace DataSpec::DNAMP1 {
-template<bool NewRep>
+template<int NewRep>
 struct AT_SPECIALIZE_PARMS(true, false) CTweakTargeting final : public ITweakTargeting {
   AT_DECL_DNA_YAML
   Value<atUint32> x4_targetRadiusMode;

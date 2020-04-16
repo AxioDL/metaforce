@@ -4,7 +4,7 @@
 
 namespace DataSpec::DNAMP1 {
 
-template <bool NewRep>
+template <int NewRep>
 struct AT_SPECIALIZE_PARMS(true, false) CTweakPlayerRes final : ITweakPlayerRes {
   AT_DECL_DNA_YAML
 
