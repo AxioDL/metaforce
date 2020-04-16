@@ -104,7 +104,7 @@ CPlayerState::CPlayerState(CBitStreamReader& stream)
   const auto& scanStates = g_MemoryCardSys->GetScanStates();
   x170_scanTimes.reserve(scanStates.size());
   for (const auto& state : scanStates) {
-    float time = stream.ReadEncoded(1) ? 1.f : 1.f;
+    float time = stream.ReadEncoded(1) ? 1.f : 0.f;
     x170_scanTimes.emplace_back(state.first, time);
   }
 
