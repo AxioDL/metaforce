@@ -200,10 +200,11 @@ void CLogBookScreen::UpdateBodyText() {
   if (IsArtifactCategorySelected()) {
     const int headIdx = GetSelectedArtifactHeadScanIndex();
     if (headIdx >= 0 && g_GameState->GetPlayerState()->HasPowerUp(CPlayerState::EItemType(headIdx + 29))) {
-      if (g_Main->IsUSA())
+      if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
         accumStr = std::u16string(u"\n\n\n\n\n\n").append(g_MainStringTable->GetString(105));
-      else
+      } else {
         accumStr = std::u16string(u"\n\n\n\n\n\n").append(g_MainStringTable->GetString(107));
+      }
     }
   }
 

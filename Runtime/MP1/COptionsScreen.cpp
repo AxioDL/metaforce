@@ -179,14 +179,15 @@ bool COptionsScreen::VReady() const { return true; }
 
 void COptionsScreen::VActivate() {
   for (int i = 0; i < 5; ++i) {
-    if (g_Main->IsUSA()) {
+    if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
       xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 16));
     } else {
       xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 18));
     }
   }
 
-  x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(g_Main->IsUSA() ? 15 : 17));
+  x178_textpane_title->TextSupport().SetText(
+      xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 15 : 17));
 
 #if 0
     for (int i=5 ; i<5 ; ++i)
@@ -196,7 +197,7 @@ void COptionsScreen::VActivate() {
   x174_textpane_body->TextSupport().SetJustification(EJustification::Center);
   x174_textpane_body->TextSupport().SetVerticalJustification(EVerticalJustification::Bottom);
 
-  int stringOffset = g_Main->IsUSA() ? 0 : 3;
+  int stringOffset = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 0 : 3;
   static_cast<CGuiTextPane*>(x190_tablegroup_double->GetWorkerWidget(0))
       ->TextSupport()
       .SetText(xc_pauseStrg.GetString(95 + stringOffset));
@@ -237,8 +238,8 @@ void COptionsScreen::ChangedMode(EMode oldMode) {
 void COptionsScreen::UpdateRightTable() {
   CPauseScreenBase::UpdateRightTable();
   const std::pair<int, const SGameOption*>& category =
-      g_Main->IsUSA() ? GameOptionsRegistry[x70_tablegroup_leftlog->GetUserSelection()]
-                      : GameOptionsRegistryNew[x70_tablegroup_leftlog->GetUserSelection()];
+      (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? GameOptionsRegistry[x70_tablegroup_leftlog->GetUserSelection()]
+                                                : GameOptionsRegistryNew[x70_tablegroup_leftlog->GetUserSelection()];
   for (int i = 0; i < 5; ++i) {
     if (i < category.first) {
       xd8_textpane_titles[i]->TextSupport().SetText(xc_pauseStrg.GetString(category.second[i].stringId));

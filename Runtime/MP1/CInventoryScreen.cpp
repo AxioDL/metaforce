@@ -286,7 +286,7 @@ bool CInventoryScreen::HasLeftInventoryItem(int idx) const {
 void CInventoryScreen::VActivate() {
   for (int i = 0; i < 5; ++i) {
     if (HasLeftInventoryItem(i)) {
-      if (g_Main->IsUSA()) {
+      if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
         xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 10));
       } else {
         xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 12));
@@ -297,7 +297,7 @@ void CInventoryScreen::VActivate() {
     }
   }
 
-  if (g_Main->IsUSA()) {
+  if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
     x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(9));
   } else {
     x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(11));
@@ -311,12 +311,12 @@ void CInventoryScreen::UpdateTextBody() {
   x1ac_textLeaveRequested = false;
 
   const SInventoryItem& sel = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()].second[x1c_rightSel];
-  std::u16string entryText = xc_pauseStrg.GetString(g_Main->IsUSA() ? sel.entryStrIdx : sel.entryStrIdx + 3);
+  std::u16string entryText = xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? sel.entryStrIdx : sel.entryStrIdx + 3);
 
   if (sel.idx == 23) // Beam combo
   {
     CPlayerState& playerState = *x4_mgr.GetPlayerState();
-    if (g_Main->IsUSA()) {
+    if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
       entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::SuperMissile) ? 71 : 65);
       entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::IceSpreader) ? 73 : 65);
       entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::Wavebuster) ? 75 : 65);
@@ -467,7 +467,7 @@ void CInventoryScreen::UpdateRightTable() {
     CGuiTextPane* title = xd8_textpane_titles[i];
     if (i < int(size)) {
       if (HasRightInventoryItem(data[i].idx)) {
-        title->TextSupport().SetText(xc_pauseStrg.GetString(g_Main->IsUSA() ? data[i].nameStrIdx : data[i].nameStrIdx + 3));
+        title->TextSupport().SetText(xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? data[i].nameStrIdx : data[i].nameStrIdx + 3));
         x84_tablegroup_rightlog->GetWorkerWidget(i + 1)->SetIsSelectable(true);
         if (i < minSel)
           minSel = i;
