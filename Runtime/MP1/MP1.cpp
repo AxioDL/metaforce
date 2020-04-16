@@ -769,13 +769,6 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       [this](hecl::Console* console, const std::vector<std::string>& args) { Warp(console, args); },
       hecl::SConsoleCommand::ECommandFlags::Normal);
 
-  InitializeSubsystems();
-  AddOverridePaks();
-  x128_globalObjects.PostInitialize();
-  x70_tweaks.RegisterTweaks(m_cvarMgr);
-  x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
-  AddWorldPaks();
-
   bool loadedVersion = false;
   if (CDvdFile::FileExists("version.yaml")) {
     CDvdFile file("version.yaml");
@@ -790,6 +783,14 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       }
     }
   }
+
+  InitializeSubsystems();
+  AddOverridePaks();
+  x128_globalObjects.PostInitialize();
+  x70_tweaks.RegisterTweaks(m_cvarMgr);
+  x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
+  AddWorldPaks();
+
   if (loadedVersion) {
     if (GetGame() != EGame::MetroidPrime1) {
       MainLog.report(logvisor::Level::Fatal,

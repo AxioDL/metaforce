@@ -44,6 +44,7 @@ struct SGameOption {
 
 /** Static registry of Option UI presentation information */
 extern const std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistry;
+extern const std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistryNew;
 
 /** Options tracked persistently between game sessions */
 class CPersistentOptions {

@@ -49,11 +49,50 @@ constexpr std::array<SGameOption, 4> ControllerOpts{{
     {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
 }};
 
+constexpr std::array<SGameOption, 5> VisorOptsNew{{
+                                                   {EGameOption::VisorOpacity, 23, 0.f, 255.f, 1.f, EOptionType::Float},
+                                                   {EGameOption::HelmetOpacity, 24, 0.f, 255.f, 1.f, EOptionType::Float},
+                                                   {EGameOption::HUDLag, 25, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+                                                   {EGameOption::HintSystem, 26, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+                                                   {EGameOption::RestoreDefaults, 38, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+                                               }};
+
+constexpr std::array<SGameOption, 5> DisplayOptsNew{{
+    //{EGameOption::ScreenBrightness, 25, 0.f, 8.f, 1.f, EOptionType::Float},
+    {EGameOption::ScreenBrightness, 28, -100.f, 100.f, 1.f, EOptionType::Float},
+    {EGameOption::ScreenOffsetX, 29, -30.f, 30.f, 1.f, EOptionType::Float},
+    {EGameOption::ScreenOffsetY, 30, -30.f, 30.f, 1.f, EOptionType::Float},
+    {EGameOption::ScreenStretch, 31, -10.f, 10.f, 1.f, EOptionType::Float},
+    {EGameOption::RestoreDefaults, 38, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+}};
+
+constexpr std::array<SGameOption, 4> SoundOptsNew{{
+    {EGameOption::SFXVolume, 32, 0.f, 127.f, 1.f, EOptionType::Float},
+    {EGameOption::MusicVolume, 33, 0.f, 127.f, 1.f, EOptionType::Float},
+    {EGameOption::SoundMode, 34, 0.f, 1.f, 1.f, EOptionType::TripleEnum},
+    {EGameOption::RestoreDefaults, 38, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+}};
+
+constexpr std::array<SGameOption, 4> ControllerOptsNew{{
+    {EGameOption::ReverseYAxis, 35, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::Rumble, 37, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::SwapBeamControls, 37, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::RestoreDefaults, 38, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+}};
+
 constexpr std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistry{{
     {VisorOpts.size(), VisorOpts.data()},
     {DisplayOpts.size(), DisplayOpts.data()},
     {SoundOpts.size(), SoundOpts.data()},
     {ControllerOpts.size(), ControllerOpts.data()},
+    {0, nullptr},
+}};
+
+constexpr std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistryNew{{
+    {VisorOptsNew.size(), VisorOptsNew.data()},
+    {DisplayOptsNew.size(), DisplayOptsNew.data()},
+    {SoundOptsNew.size(), SoundOptsNew.data()},
+    {ControllerOptsNew.size(), ControllerOptsNew.data()},
     {0, nullptr},
 }};
 
@@ -229,7 +268,8 @@ CGameOptions::CGameOptions()
 
 float CGameOptions::TuneScreenBrightness() { return (0.375f * 1.f) + (float(x48_screenBrightness) * 0.25f); }
 
-void CGameOptions::InitSoundMode() { /* If system is mono, force x44 to mono, otherwise honor user preference */ }
+void CGameOptions::InitSoundMode() { /* If system is mono, force x44 to mono, otherwise honor user preference */
+}
 static float BrightnessCopyFilter = 0.f;
 void CGameOptions::SetScreenBrightness(s32 val, bool apply) {
   x48_screenBrightness = zeus::clamp(0, val, 8);
