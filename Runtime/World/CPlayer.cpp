@@ -3323,7 +3323,7 @@ void CPlayer::UpdateAimTargetPrediction(const zeus::CTransform& xf, const CState
     return;
   }
 
-  x9c6_27_aimingAtProjectile = TCastToConstPtr<CGameProjectile>(target.GetPtr());
+  x9c6_27_aimingAtProjectile = TCastToConstPtr<CGameProjectile>(target.GetPtr()).IsValid();
   const zeus::CVector3f instantTarget = target->GetAimPosition(mgr, 0.f);
   const zeus::CVector3f gunToTarget = instantTarget - xf.origin;
   const float timeToTarget = gunToTarget.magnitude() / x490_gun->GetBeamVelocity();
@@ -5076,7 +5076,7 @@ bool CPlayer::ValidateOrbitTargetIdAndPointer(TUniqueId uid, CStateManager& mgr)
   if (uid == kInvalidUniqueId) {
     return false;
   }
-  return TCastToConstPtr<CActor>(mgr.GetObjectById(uid));
+  return TCastToConstPtr<CActor>(mgr.GetObjectById(uid)).IsValid();
 }
 
 zeus::CVector3f CPlayer::GetBallPosition() const {

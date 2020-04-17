@@ -600,7 +600,7 @@ void CSamusHud::UpdateCameraDebugSettings() {
 }
 
 void CSamusHud::UpdateEnergyLow(float dt, const CStateManager& mgr) {
-  bool cineCam = TCastToConstPtr<CCinematicCamera>(mgr.GetCameraManager()->GetCurrentCamera(mgr));
+  const bool cineCam = TCastToConstPtr<CCinematicCamera>(mgr.GetCameraManager()->GetCurrentCamera(mgr)).IsValid();
   float oldTimer = x57c_energyLowTimer;
 
   x57c_energyLowTimer = std::fmod(x57c_energyLowTimer + dt, 0.5f);
