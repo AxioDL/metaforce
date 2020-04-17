@@ -1,5 +1,8 @@
 #include "Runtime/CMemoryCardSys.hpp"
 
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/IMain.hpp"
+
 #include <shlobj.h>
 
 namespace urde {
