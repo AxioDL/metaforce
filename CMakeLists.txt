@@ -88,7 +88,10 @@ if(MSVC)
 
   add_compile_options(
     # Disable exceptions
-    $<$<COMPILE_LANGUAGE:CXX>:/EHsc>
+    $<$<COMPILE_LANGUAGE:CXX>:/EHsc->
+
+    # Disable RTTI
+    $<$<COMPILE_LANGUAGE:CXX>:/GR->
 
     # Enforce various standards compliant behavior.
     $<$<COMPILE_LANGUAGE:CXX>:/permissive->
@@ -102,6 +105,7 @@ if(MSVC)
     # Use latest C++ standard.
     $<$<COMPILE_LANGUAGE:CXX>:/std:c++latest>
   )
+  add_compile_definitions(FMT_EXCEPTIONS=0 _HAS_EXCEPTIONS=0)
 
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # Flags for MSVC (not clang-cl)
