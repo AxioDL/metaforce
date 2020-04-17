@@ -153,12 +153,14 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
   if (oldActive != GetActive()) {
     std::vector<TUniqueId> playIds;
     for (const SConnection& conn : x20_conns) {
-      if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Activate)
+      if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Activate) {
         continue;
+      }
 
-      TUniqueId uid = mgr.GetIdForScript(conn.x8_objId);
-      if (uid != kInvalidUniqueId)
-        playIds.push_back(uid);
+      const TUniqueId scriptId = mgr.GetIdForScript(conn.x8_objId);
+      if (scriptId != kInvalidUniqueId) {
+        playIds.push_back(scriptId);
+      }
     }
 
     if (playIds.size() > 0) {
