@@ -1,8 +1,7 @@
 #pragma once
 
 #include "DataSpec/DNACommon/Tweaks/ITweakPlayerRes.hpp"
-// FIXME: Remove this include when it's in the DNA headers
-#include <stdbool.h>
+
 namespace DataSpec::DNAMP1 {
 
 template <bool NewRep>
@@ -18,8 +17,8 @@ struct AT_SPECIALIZE_PARMS(true, false) CTweakPlayerRes final : ITweakPlayerRes 
   String<-1> m_minesBreakSecondTopIcon;
   String<-1> m_minesBreakSecondBottomIcon;
 
-  String<AT_DNA_COUNT(NewRep==true ? -1 : 0)> m_mapArrowDown;
-  String<AT_DNA_COUNT(NewRep==true ? -1 : 0)> m_mapArrowUp;
+  String<AT_DNA_COUNT(NewRep == true ? -1 : 0)> m_mapArrowDown;
+  String<AT_DNA_COUNT(NewRep == true ? -1 : 0)> m_mapArrowUp;
 
   String<-1> m_lStickN;
   String<-1> m_lStickU;

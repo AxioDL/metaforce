@@ -1,8 +1,6 @@
 #pragma once
 
 #include "DataSpec/DNACommon/Tweaks/ITweakTargeting.hpp"
-// FIXME: Remove this include when it's in the DNA headers
-#include <stdbool.h>
 
 namespace DataSpec::DNAMP1 {
 template<bool NewRep>
