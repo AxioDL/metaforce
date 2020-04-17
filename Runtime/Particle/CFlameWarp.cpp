@@ -19,9 +19,9 @@ void CFlameWarp::ModifyParticles(std::vector<CParticle>& particles) {
   float maxTransp = 0.f;
   u8 idx = 0;
   for (CParticle& particle : particles) {
-    float transp = 1.f - particle.x34_color.a();
+    const float transp = 1.f - particle.x34_color.a();
     if (transp > maxTransp) {
-      float distSq = (particle.x4_pos - x74_warpPoint).magSquared();
+      const float distSq = (particle.x4_pos - x74_warpPoint).magSquared();
       if (distSq > x8c_maxDistSq && distSq < x98_maxInfluenceDistSq) {
         x8c_maxDistSq = distSq;
         maxTransp = transp;
@@ -29,28 +29,30 @@ void CFlameWarp::ModifyParticles(std::vector<CParticle>& particles) {
       }
     }
 
-    if (particle.x2c_lineLengthOrSize < x90_minSize)
+    if (particle.x2c_lineLengthOrSize < x90_minSize) {
       x90_minSize = particle.x2c_lineLengthOrSize;
-    if (particle.x2c_lineLengthOrSize > x94_maxSize)
+    }
+    if (particle.x2c_lineLengthOrSize > x94_maxSize) {
       x94_maxSize = particle.x2c_lineLengthOrSize;
+    }
 
     vec.emplace_back(transp, idx);
 
     if (xa0_25_collisionWarp) {
-      zeus::CVector3f delta = particle.x4_pos - particle.x10_prevPos;
+      const zeus::CVector3f delta = particle.x4_pos - particle.x10_prevPos;
       if (delta.magSquared() >= 0.0011920929f) {
-        zeus::CVector3f deltaNorm = delta.normalized();
-        zeus::CVector3f behindPos = particle.x10_prevPos - deltaNorm * 5.f;
-        zeus::CVector3f fullDelta = particle.x4_pos - behindPos;
-        CRayCastResult result = x9c_stateMgr->RayStaticIntersection(
+        const zeus::CVector3f deltaNorm = delta.normalized();
+        const zeus::CVector3f behindPos = particle.x10_prevPos - deltaNorm * 5.f;
+        const zeus::CVector3f fullDelta = particle.x4_pos - behindPos;
+        const CRayCastResult result = x9c_stateMgr->RayStaticIntersection(
             behindPos, deltaNorm, fullDelta.magnitude(),
             CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough}));
         if (result.IsValid()) {
-          float dist = result.GetPlane().pointToPlaneDist(particle.x4_pos);
+          const float dist = result.GetPlane().pointToPlaneDist(particle.x4_pos);
           if (dist <= 0.f) {
             particle.x4_pos -= result.GetPlane().normal() * dist;
             if (result.GetPlane().normal().dot(particle.x1c_vel) < 0.f) {
-              zeus::CVector3f prevStepPos = particle.x4_pos - particle.x1c_vel;
+              const zeus::CVector3f prevStepPos = particle.x4_pos - particle.x1c_vel;
               particle.x4_pos +=
                   (-result.GetPlane().pointToPlaneDist(prevStepPos) / particle.x1c_vel.dot(result.GetPlane().normal()) -
                    1.f) *
@@ -91,8 +93,9 @@ void CFlameWarp::ResetPosition(const zeus::CVector3f& pos) {
 
 zeus::CAABox CFlameWarp::CalculateBounds() const {
   zeus::CAABox ret;
-  for (const auto& v : x4_collisionPoints)
+  for (const auto& v : x4_collisionPoints) {
     ret.accumulateBounds(v);
+  }
   return ret;
 }
 
