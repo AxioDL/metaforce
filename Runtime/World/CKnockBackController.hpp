@@ -99,14 +99,14 @@ private:
   bool x82_26_locomotionDuringElectrocution : 1;
   void ApplyImpulse(float dt, CPatterned& parent);
   bool TickDeferredTimer(float dt);
-  EKnockBackCharacterState GetKnockBackCharacterState(CPatterned& parent);
-  void ValidateState(CPatterned& parent);
-  float CalculateExtraHurlVelocity(CStateManager& mgr, float magnitude, float kbResistance);
+  EKnockBackCharacterState GetKnockBackCharacterState(const CPatterned& parent) const;
+  void ValidateState(const CPatterned& parent);
+  float CalculateExtraHurlVelocity(CStateManager& mgr, float magnitude, float kbResistance) const;
   void DoKnockBackAnimation(const zeus::CVector3f& backVec, CStateManager& mgr, CPatterned& parent, float magnitude);
-  void ResetKnockBackImpulse(CPatterned& parent, const zeus::CVector3f& backVec, float magnitude);
+  void ResetKnockBackImpulse(const CPatterned& parent, const zeus::CVector3f& backVec, float magnitude);
   void DoDeferredKnockBack(CStateManager& mgr, CPatterned& parent);
   EKnockBackWeaponType GetKnockBackWeaponType(const CDamageInfo& info, EWeaponType wType, EKnockBackType type);
-  void SelectDamageState(CPatterned& parent, const CDamageInfo& info, EWeaponType wType, EKnockBackType type);
+  void SelectDamageState(const CPatterned& parent, const CDamageInfo& info, EWeaponType wType, EKnockBackType type);
 
 public:
   explicit CKnockBackController(EKnockBackVariant variant);

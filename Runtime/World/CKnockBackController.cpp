@@ -400,13 +400,14 @@ bool CKnockBackController::TickDeferredTimer(float dt) {
   return false;
 }
 
-EKnockBackCharacterState CKnockBackController::GetKnockBackCharacterState(CPatterned& parent) {
-  if (parent.GetBodyController()->IsFrozen())
+EKnockBackCharacterState CKnockBackController::GetKnockBackCharacterState(const CPatterned& parent) const {
+  if (parent.GetBodyController()->IsFrozen()) {
     return parent.IsAlive() ? EKnockBackCharacterState::FrozenAlive : EKnockBackCharacterState::FrozenDead;
+  }
   return parent.IsAlive() ? EKnockBackCharacterState::Alive : EKnockBackCharacterState::Dead;
 }
 
-void CKnockBackController::ValidateState(CPatterned& parent) {
+void CKnockBackController::ValidateState(const CPatterned& parent) {
   if (x4_activeParms.x0_animState < x18_minAnimState)
     x4_activeParms.x0_animState = x18_minAnimState;
   else if (x4_activeParms.x0_animState > x1c_maxAnimState)
@@ -472,10 +473,12 @@ void CKnockBackController::ValidateState(CPatterned& parent) {
   }
 }
 
-float CKnockBackController::CalculateExtraHurlVelocity(CStateManager& mgr, float magnitude, float kbResistance) {
-  if (magnitude > kbResistance)
-    return (1.1f - 0.2f * mgr.GetActiveRandom()->Float()) * 2.f * (magnitude - kbResistance);
-  return 0.f;
+float CKnockBackController::CalculateExtraHurlVelocity(CStateManager& mgr, float magnitude, float kbResistance) const {
+  if (magnitude <= kbResistance) {
+    return 0.f;
+  }
+
+  return (1.1f - 0.2f * mgr.GetActiveRandom()->Float()) * 2.f * (magnitude - kbResistance);
 }
 
 void CKnockBackController::DoKnockBackAnimation(const zeus::CVector3f& backVec, CStateManager& mgr, CPatterned& parent,
@@ -517,7 +520,8 @@ void CKnockBackController::DoKnockBackAnimation(const zeus::CVector3f& backVec, 
   }
 }
 
-void CKnockBackController::ResetKnockBackImpulse(CPatterned& parent, const zeus::CVector3f& backVec, float magnitude) {
+void CKnockBackController::ResetKnockBackImpulse(const CPatterned& parent, const zeus::CVector3f& backVec,
+                                                 float magnitude) {
   if (x81_24_autoResetImpulse && x4_activeParms.x0_animState == EKnockBackAnimationState::KnockBack &&
       x4_activeParms.x4_animFollowup != EKnockBackAnimationFollowUp::Freeze) {
     x50_impulseDir = backVec.canBeNormalized() ? backVec.normalized() : -parent.GetTransform().basis[1];
@@ -608,16 +612,18 @@ EKnockBackWeaponType CKnockBackController::GetKnockBackWeaponType(const CDamageI
   }
 }
 
-void CKnockBackController::SelectDamageState(CPatterned& parent, const CDamageInfo& info, EWeaponType wType,
+void CKnockBackController::SelectDamageState(const CPatterned& parent, const CDamageInfo& info, EWeaponType wType,
                                              EKnockBackType type) {
-
   x4_activeParms = KnockBackParms();
-  EKnockBackWeaponType weaponType = GetKnockBackWeaponType(info, wType, type);
-  if (weaponType != EKnockBackWeaponType::Invalid) {
-    x4_activeParms =
-        KnockBackParmsTable[size_t(x0_variant)][size_t(weaponType)][size_t(GetKnockBackCharacterState(parent))];
-    ValidateState(parent);
+
+  const EKnockBackWeaponType weaponType = GetKnockBackWeaponType(info, wType, type);
+  if (weaponType == EKnockBackWeaponType::Invalid) {
+    return;
   }
+
+  x4_activeParms =
+      KnockBackParmsTable[size_t(x0_variant)][size_t(weaponType)][size_t(GetKnockBackCharacterState(parent))];
+  ValidateState(parent);
 }
 
 void CKnockBackController::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, CPatterned& parent,

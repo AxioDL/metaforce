@@ -80,7 +80,7 @@ class CFishCloud : public CActor {
   rstl::reserved_vector<TLockedToken<CGenDescription>, 4> x1c4_particleDescs;
   rstl::reserved_vector<std::unique_ptr<CElementGen>, 4> x1f8_particleGens;
   rstl::reserved_vector<u32, 4> x21c_deathParticleCounts;
-  CModelData::EWhichModel x230_whichModel;
+  CModelData::EWhichModel x230_whichModel{};
   u16 x234_deathSfx;
   zeus::CVector3f x238_partitionPitch;
   zeus::CVector3f x244_ooPartitionPitch;
