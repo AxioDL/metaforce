@@ -190,11 +190,18 @@ void CSaveGameScreen::SetUIText() {
     msgB = 25; // Writing
     break;
   case EUIType::NoCardFound:
-    msgB = 0;  // No card found
-    opt0 = 17; // Continue without saving
-    opt1 = 18; // Retry
-    opt2 = -2;
-    opt2Str = u"Create Dolphin Card";
+    if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
+      msgB = 0;  // No card found
+      opt0 = 17; // Continue without saving
+      opt1 = 18; // Retry
+      opt2 = -2;
+      opt2Str = u"Create Dolphin Card";
+    } else {
+      msgAStr = u"This version of Metroid Prime\nhas a currently unsupported save format.\n";
+      msgBStr = u"&push;&main-color=$ff0000ff;Saving has been disabled.&pop;\n";
+      opt0 = -2;
+      opt0Str = u"Press &image=SI,1.0,0.68,05AF9CAA; to proceed.\n";
+    }
     break;
   case EUIType::NeedsFormatBroken:
     msgB = 1;  // Needs format (card broken)

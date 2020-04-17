@@ -1317,7 +1317,7 @@ CFrontEndUI::SNesEmulatorFrame::SNesEmulatorFrame() {
   CGuiTextProperties props(false, true, EJustification::Left, EVerticalJustification::Center);
   xc_textSupport = std::make_unique<CGuiTextSupport>(deface->id, props, zeus::skWhite, zeus::skBlack, zeus::skWhite, 0,
                                                      0, g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Alpha);
-  xc_textSupport->SetText(g_MainStringTable->GetString(103));
+  xc_textSupport->SetText(g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 103 : 97));
   xc_textSupport->AutoSetExtent();
   xc_textSupport->ClearRenderBuffer();
 }
