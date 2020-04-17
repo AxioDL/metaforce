@@ -372,10 +372,7 @@ CKnockBackController::CKnockBackController(EKnockBackVariant variant)
 , x82_24_(true)
 , x82_25_inDeferredKnockBack(false)
 , x82_26_locomotionDuringElectrocution(false) {
-  for (int i = 0; i < 5; ++i) {
-    x24_.push_back(std::make_pair(0.f, FLT_MAX));
-    x80_availableStates.set(i);
-  }
+  x24_.resize(x24_.capacity(), std::make_pair(0.0f, FLT_MAX));
 }
 
 void CKnockBackController::ApplyImpulse(float dt, CPatterned& parent) {

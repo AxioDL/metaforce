@@ -85,7 +85,7 @@ private:
   u32 x70_ = 0;
   u32 x74_ = 0;
   pas::ESeverity x7c_severity = pas::ESeverity::One;
-  std::bitset<5> x80_availableStates;
+  std::bitset<5> x80_availableStates{0b11111};
   bool x81_24_autoResetImpulse : 1; // t
   bool x81_25_enableFreeze : 1;     // t
   bool x81_26_enableShock : 1;
