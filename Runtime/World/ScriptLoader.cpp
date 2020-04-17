@@ -1052,7 +1052,7 @@ CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream
   color.readRGBABig(in);
   float timeIn = in.readFloatBig();
   float timeOut = in.readFloatBig();
-  CAssetId txtr = in.readUint32Big();
+  CAssetId txtr(in);
 
   return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), name, info, ftype, shape, filterIdx, unk, color,
                                          timeIn, timeOut, txtr, active);

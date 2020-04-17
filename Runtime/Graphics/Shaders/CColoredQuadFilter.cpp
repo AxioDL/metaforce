@@ -34,7 +34,7 @@ static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type) {
   case EFilterType::Multiply:
     return s_MultPipeline;
   default:
-    return {};
+    return s_AlphaPipeline;
   }
 }
 
