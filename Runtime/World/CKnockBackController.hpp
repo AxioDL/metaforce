@@ -99,7 +99,7 @@ private:
   bool x82_26_locomotionDuringElectrocution : 1;
   void ApplyImpulse(float dt, CPatterned& parent);
   bool TickDeferredTimer(float dt);
-  EKnockBackCharacterState GetKnockBackCharacterState(CPatterned& parent);
+  EKnockBackCharacterState GetKnockBackCharacterState(const CPatterned& parent) const;
   void ValidateState(CPatterned& parent);
   float CalculateExtraHurlVelocity(CStateManager& mgr, float magnitude, float kbResistance);
   void DoKnockBackAnimation(const zeus::CVector3f& backVec, CStateManager& mgr, CPatterned& parent, float magnitude);

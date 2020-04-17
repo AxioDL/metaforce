@@ -400,9 +400,10 @@ bool CKnockBackController::TickDeferredTimer(float dt) {
   return false;
 }
 
-EKnockBackCharacterState CKnockBackController::GetKnockBackCharacterState(CPatterned& parent) {
-  if (parent.GetBodyController()->IsFrozen())
+EKnockBackCharacterState CKnockBackController::GetKnockBackCharacterState(const CPatterned& parent) const {
+  if (parent.GetBodyController()->IsFrozen()) {
     return parent.IsAlive() ? EKnockBackCharacterState::FrozenAlive : EKnockBackCharacterState::FrozenDead;
+  }
   return parent.IsAlive() ? EKnockBackCharacterState::Alive : EKnockBackCharacterState::Dead;
 }
 
