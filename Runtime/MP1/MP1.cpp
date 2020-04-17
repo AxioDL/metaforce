@@ -796,7 +796,8 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       MainLog.report(logvisor::Level::Fatal,
                      FMT_STRING("Attempted to initialize URDE in MP1 mode with non-MP1 data!!!!"));
     }
-    boo::SystemStringView versionView(GetVersionString());
+    hecl::SystemStringConv conv(GetVersionString());
+    boo::SystemStringView versionView(conv.sys_str());
     MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from Metroid Prime version {} from region {}{}"),
                    versionView, char(GetRegion()), IsTrilogy() ? _SYS_STR(" from trilogy") : _SYS_STR(""));
   } else {
