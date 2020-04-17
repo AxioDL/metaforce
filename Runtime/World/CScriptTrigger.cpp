@@ -255,7 +255,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
             x148_29_didPhazonDamage = false;
           } else if (x100_damageInfo.GetDamage() > 0.f) {
             const CDamageVulnerability* dVuln = mgr.Player()->GetDamageVulnerability();
-            if (dVuln->WeaponHurts(x100_damageInfo.GetWeaponMode(), 0) &&
+            if (dVuln->WeaponHurts(x100_damageInfo.GetWeaponMode(), false) &&
                 x100_damageInfo.GetWeaponMode().GetType() == EWeaponType::Phazon &&
                 !mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::PhazonSuit)) {
               pl->IncrementEnvironmentDamage();
