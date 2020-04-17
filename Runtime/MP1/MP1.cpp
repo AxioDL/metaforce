@@ -799,7 +799,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
     hecl::SystemStringConv conv(GetVersionString());
     boo::SystemStringView versionView(conv.sys_str());
     MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from Metroid Prime version {} from region {}{}"),
-                   versionView, char(GetRegion()), IsTrilogy() ? _SYS_STR(" from trilogy") : _SYS_STR(""));
+                   versionView, boo::SystemChar(GetRegion()), IsTrilogy() ? _SYS_STR(" from trilogy") : _SYS_STR(""));
   } else {
     MainLog.report(logvisor::Level::Fatal, FMT_STRING("Unable to load version info"));
   }
