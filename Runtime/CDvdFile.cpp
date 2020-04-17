@@ -96,7 +96,7 @@ std::shared_ptr<IDvdRequest> CDvdFile::AsyncSeekRead(void* buf, u32 len, ESeekOr
 }
 
 hecl::ProjectPath CDvdFile::ResolvePath(std::string_view path) {
-  const auto* start = path.begin();
+  auto start = path.begin();
   while (*start == '/') {
     ++start;
   }
