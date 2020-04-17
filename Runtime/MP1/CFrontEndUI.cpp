@@ -125,6 +125,16 @@ void CFrontEndUI::SNewFileSelectFrame::FinishedLoading() {
   x20_tablegroup_fileselect = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_fileselect"));
   x24_model_erase = static_cast<CGuiModel*>(x1c_loadedFrame->FindWidget("model_erase"));
   xf8_model_erase_position = x24_model_erase->GetLocalPosition();
+
+  // TODO: Implement language menu
+  auto langPair = FindTextPanePair(x1c_loadedFrame, "textpane_lang");
+  if (langPair.x0_panes[0] != nullptr) {
+    langPair.x0_panes[0]->SetIsSelectable(false);
+    langPair.x0_panes[0]->SetIsVisible(false);
+    langPair.x0_panes[1]->SetIsSelectable(false);
+    langPair.x0_panes[1]->SetIsVisible(false);
+  }
+
   x28_textpane_erase = FindTextPanePair(x1c_loadedFrame, "textpane_erase");
   x38_textpane_gba = FindTextPanePair(x1c_loadedFrame, "textpane_gba");
   x30_textpane_cheats = FindTextPanePair(x1c_loadedFrame, "textpane_cheats");
@@ -1177,14 +1187,25 @@ void CFrontEndUI::SFrontEndFrame::FinishedLoading() {
   x14_loadedFrme->SetAspectConstraint(1.78f);
 
   x18_tablegroup_mainmenu = static_cast<CGuiTableGroup*>(x14_loadedFrme->FindWidget("tablegroup_mainmenu"));
-  x1c_gbaPair = FindTextPanePair(x14_loadedFrme, "textpane_gba");
+  //TODO: HACK: Implement language menu so this isn't necessary
+  if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
+    x1c_gbaPair = FindTextPanePair(x14_loadedFrme, "textpane_gba");
+  } else {
+    x1c_gbaPair = FindTextPanePair(x14_loadedFrme, "textpane_lang");
+  }
   x1c_gbaPair.SetPairText(g_MainStringTable->GetString(37));
-  x24_cheatPair = FindTextPanePair(x14_loadedFrme, "textpane_cheats");
+  //TODO: HACK: Implement language menu so this isn't necessary
+  if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
+    x24_cheatPair = FindTextPanePair(x14_loadedFrme, "textpane_cheats");
+  } else {
+    x24_cheatPair = FindTextPanePair(x14_loadedFrme, "textpane_options");
+  }
   x24_cheatPair.SetPairText(g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 96 : 90));
 
   FindAndSetPairText(x14_loadedFrme, "textpane_start",
                      g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 67 : 61));
-  FindAndSetPairText(x14_loadedFrme, "textpane_options",
+  //TODO: HACK: Implement language menu so this isn't necessary
+  FindAndSetPairText(x14_loadedFrme, (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? "textpane_options" : "textpane_gba",
                      g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 94 : 88));
   FindAndSetPairText(x14_loadedFrme, "textpane_title",
                      g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 98 : 92));

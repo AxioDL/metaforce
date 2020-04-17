@@ -1049,13 +1049,13 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
     } else {
       x2fc_textpane_hint->TextSupport().SetText(u"");
       std::u16string str = fmt::format(FMT_STRING(u"&image=SI,0.6,1.0,{};"), g_tweakPlayerRes->x24_lStick[x2e4_lStickPos]);
-      str += g_MainStringTable->GetString(46); // Rotate
+      str += g_MainStringTable->GetString(46 + (!g_Main->IsUSA() || g_Main->IsTrilogy())); // Rotate
       x300_textpane_instructions->TextSupport().SetText(str);
       str = fmt::format(FMT_STRING(u"&image=SI,0.6,1.0,{};"), g_tweakPlayerRes->x4c_cStick[x2e8_rStickPos]);
-      str += g_MainStringTable->GetString(47); // Move
+      str += g_MainStringTable->GetString(47 + (!g_Main->IsUSA() || g_Main->IsTrilogy())); // Move
       x304_textpane_instructions1->TextSupport().SetText(str);
       str = fmt::format(FMT_STRING(u"&image={};"), g_tweakPlayerRes->x74_lTrigger[x2ec_lTriggerPos]);
-      str += g_MainStringTable->GetString(48); // Zoom
+      str += g_MainStringTable->GetString(48 + (!g_Main->IsUSA() || g_Main->IsTrilogy())); // Zoom
       str += fmt::format(FMT_STRING(u"&image={};"), g_tweakPlayerRes->x80_rTrigger[x2f0_rTriggerPos]);
       x308_textpane_instructions2->TextSupport().SetText(str);
     }
@@ -1104,10 +1104,10 @@ void CAutoMapper::Update(float dt, CStateManager& mgr) {
     m_frmeInitialized = true;
     static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_left"))
         ->TextSupport()
-        .SetText(g_MainStringTable->GetString(42));
+        .SetText(g_MainStringTable->GetString(42 + (!g_Main->IsUSA() || g_Main->IsTrilogy())));
     static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_yicon"))
         ->TextSupport()
-        .SetText(g_MainStringTable->GetString(43));
+        .SetText(g_MainStringTable->GetString(43 + (!g_Main->IsUSA() || g_Main->IsTrilogy())));
     x2fc_textpane_hint = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_hint"));
     x300_textpane_instructions = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_instructions"));
     x304_textpane_instructions1 = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_instructions1"));
@@ -1115,7 +1115,7 @@ void CAutoMapper::Update(float dt, CStateManager& mgr) {
     CGuiTextPane* mapLegend = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_mapLegend"));
     mapLegend->TextSupport().ClearRenderBuffer();
     mapLegend->TextSupport().SetImageBaseline(true);
-    mapLegend->TextSupport().SetText(g_MainStringTable->GetString(49));
+    mapLegend->TextSupport().SetText(g_MainStringTable->GetString(49 + (!g_Main->IsUSA() || g_Main->IsTrilogy())));
     x30c_basewidget_leftPane = x28_frmeMapScreen->FindWidget("basewidget_leftPane");
     x310_basewidget_yButtonPane = x28_frmeMapScreen->FindWidget("basewidget_yButtonPane");
     x314_basewidget_bottomPane = x28_frmeMapScreen->FindWidget("basewidget_bottomPane");

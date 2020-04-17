@@ -2580,7 +2580,7 @@ std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const {
 void CStateManager::SetBossParams(TUniqueId bossId, float maxEnergy, u32 stringIdx) {
   xf18_bossId = bossId;
   xf1c_totalBossEnergy = maxEnergy;
-  xf20_bossStringIdx = stringIdx;
+  xf20_bossStringIdx = stringIdx - (g_Main->IsUSA() && !g_Main->IsTrilogy() ? 0 : 6);
 }
 
 float CStateManager::IntegrateVisorFog(float f) const {
