@@ -473,10 +473,12 @@ void CKnockBackController::ValidateState(const CPatterned& parent) {
   }
 }
 
-float CKnockBackController::CalculateExtraHurlVelocity(CStateManager& mgr, float magnitude, float kbResistance) {
-  if (magnitude > kbResistance)
-    return (1.1f - 0.2f * mgr.GetActiveRandom()->Float()) * 2.f * (magnitude - kbResistance);
-  return 0.f;
+float CKnockBackController::CalculateExtraHurlVelocity(CStateManager& mgr, float magnitude, float kbResistance) const {
+  if (magnitude <= kbResistance) {
+    return 0.f;
+  }
+
+  return (1.1f - 0.2f * mgr.GetActiveRandom()->Float()) * 2.f * (magnitude - kbResistance);
 }
 
 void CKnockBackController::DoKnockBackAnimation(const zeus::CVector3f& backVec, CStateManager& mgr, CPatterned& parent,

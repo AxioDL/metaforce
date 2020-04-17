@@ -101,7 +101,7 @@ private:
   bool TickDeferredTimer(float dt);
   EKnockBackCharacterState GetKnockBackCharacterState(const CPatterned& parent) const;
   void ValidateState(const CPatterned& parent);
-  float CalculateExtraHurlVelocity(CStateManager& mgr, float magnitude, float kbResistance);
+  float CalculateExtraHurlVelocity(CStateManager& mgr, float magnitude, float kbResistance) const;
   void DoKnockBackAnimation(const zeus::CVector3f& backVec, CStateManager& mgr, CPatterned& parent, float magnitude);
   void ResetKnockBackImpulse(const CPatterned& parent, const zeus::CVector3f& backVec, float magnitude);
   void DoDeferredKnockBack(CStateManager& mgr, CPatterned& parent);
