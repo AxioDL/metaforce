@@ -6,15 +6,11 @@
 
 namespace urde {
 
-CFluidUVMotion::CFluidUVMotion(float timeToWrap, float orientation, const CFluidUVMotion::SFluidLayerMotion& colorLayer,
-                               const CFluidUVMotion::SFluidLayerMotion& pattern1Layer,
-                               const CFluidUVMotion::SFluidLayerMotion& pattern2Layer)
-: x4c_ooTimeToWrap(1.f / timeToWrap), x50_orientation(orientation) {
-  x0_fluidLayers.resize(3);
-  x0_fluidLayers[0] = colorLayer;
-  x0_fluidLayers[1] = pattern1Layer;
-  x0_fluidLayers[2] = pattern2Layer;
-}
+CFluidUVMotion::CFluidUVMotion(float timeToWrap, float orientation, const SFluidLayerMotion& colorLayer,
+                               const SFluidLayerMotion& pattern1Layer, const SFluidLayerMotion& pattern2Layer)
+: x0_fluidLayers{{colorLayer, pattern1Layer, pattern2Layer}}
+, x4c_ooTimeToWrap(1.f / timeToWrap)
+, x50_orientation(orientation) {}
 
 CFluidUVMotion::CFluidUVMotion(float timeToWrap, float orientation)
 : x4c_ooTimeToWrap(1.f / timeToWrap), x50_orientation(orientation) {
