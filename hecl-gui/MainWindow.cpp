@@ -82,6 +82,24 @@ MainWindow::MainWindow(QWidget* parent)
   mFont.setPointSize(10);
   m_ui->processOutput->setFont(mFont);
   m_cursor = QTextCursor(m_ui->processOutput->document());
+  connect(m_ui->saveLogButton, &QPushButton::pressed, this, [this] {
+    QString defaultFileName = QStringLiteral("urde-") + QDateTime::currentDateTime().toString(Qt::DateFormat::ISODate);
+    defaultFileName.replace(QLatin1Char(':'), QLatin1Char('-'));
+    const QString fileName =
+        QFileDialog::getSaveFileName(this, tr("Save Log"), defaultFileName, QStringLiteral("*.log"));
+    if (fileName.isEmpty()) {
+      return;
+    }
+    QFile file = QFile(fileName);
+    if (file.open(QFile::OpenModeFlag::WriteOnly | QFile::OpenModeFlag::Truncate | QFile::OpenModeFlag::Text)) {
+      QTextStream stream(&file);
+      stream << m_ui->processOutput->toPlainText();
+      stream.flush();
+      file.close();
+    } else {
+      QMessageBox::critical(this, tr("Save Log"), tr("Failed to open log file"));
+    }
+  });
 
   m_updateURDEButton = new QPushButton(tr("Update URDE"), m_ui->centralwidget);
   m_ui->gridLayout->addWidget(m_updateURDEButton, 2, 3, 1, 1);
@@ -592,7 +610,7 @@ void MainWindow::initOptions() {
     bool isChecked = state == Qt::Checked;
     if (hecl::com_enableCheats->toBoolean() && !isChecked) {
       m_ui->enableCheatsBox->setChecked(false);
-      m_ui->tweaksOptionsGroup->setVisible(false);
+      // m_ui->tweaksOptionsGroup->setVisible(false);
       m_ui->warpBtn->setVisible(false);
     }
     m_ui->developerOptionsGroup->setVisible(isChecked);
@@ -602,7 +620,7 @@ void MainWindow::initOptions() {
 
   m_ui->enableCheatsBox->setToolTip(QString::fromUtf8(hecl::com_enableCheats->rawHelp().data()));
   m_ui->enableCheatsBox->setChecked(hecl::com_enableCheats->toBoolean());
-  m_ui->tweaksOptionsGroup->setVisible(hecl::com_enableCheats->toBoolean());
+  m_ui->tweaksOptionsGroup->setVisible(false); // hecl::com_enableCheats->toBoolean()
   m_ui->warpBtn->setVisible(hecl::com_enableCheats->toBoolean());
   connect(m_ui->enableCheatsBox, &QCheckBox::stateChanged, this, [this](int state) {
     bool isChecked = state == Qt::Checked;
@@ -610,7 +628,7 @@ void MainWindow::initOptions() {
       m_ui->developerModeBox->setChecked(true);
       m_ui->developerOptionsGroup->setVisible(true);
     }
-    m_ui->tweaksOptionsGroup->setVisible(isChecked);
+    // m_ui->tweaksOptionsGroup->setVisible(isChecked);
     m_ui->warpBtn->setVisible(isChecked);
     hecl::CVarManager::instance()->setCheatsEnabled(isChecked, true);
     m_cvarManager.serialize();
@@ -630,6 +648,32 @@ void MainWindow::initOptions() {
                      hecl::CVarManager::instance()->findOrMakeCVar(
                          "stateManager.logScripting"sv, "Prints object communication to the console", false,
                          hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game));
+
+  m_launchOptionsModel.setStringList(QSettings().value(QStringLiteral("urde_arguments")).toStringList());
+  m_ui->launchOptionsList->setModel(&m_launchOptionsModel);
+
+  connect(m_ui->launchOptionAddButton, &QPushButton::clicked, this, [this] {
+    int row = m_launchOptionsModel.rowCount();
+    if (m_launchOptionsModel.insertRow(row)) {
+      QModelIndex index = m_launchOptionsModel.index(row);
+      m_ui->launchOptionsList->selectionModel()->select(index, QItemSelectionModel::SelectionFlag::ClearAndSelect);
+      m_ui->launchOptionsList->edit(index);
+    }
+  });
+  connect(m_ui->launchOptionDeleteButton, &QPushButton::clicked, this, [this] {
+    QItemSelectionModel* selection = m_ui->launchOptionsList->selectionModel();
+    if (selection == nullptr) {
+      return;
+    }
+    QModelIndexList list = selection->selectedRows();
+    for (QModelIndex index : list) {
+      m_launchOptionsModel.removeRow(index.row());
+    }
+  });
+  connect(&m_launchOptionsModel, &QStringListModel::dataChanged, this,
+          [this]() { QSettings().setValue(QStringLiteral("urde_arguments"), m_launchOptionsModel.stringList()); });
+  connect(&m_launchOptionsModel, &QStringListModel::rowsRemoved, this,
+          [this]() { QSettings().setValue(QStringLiteral("urde_arguments"), m_launchOptionsModel.stringList()); });
 }
 
 void MainWindow::initNumberComboOption(QComboBox* action, hecl::CVar* cvar) {

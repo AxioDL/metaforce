@@ -41,6 +41,7 @@ class MainWindow : public QMainWindow {
   URDEVersion m_recommendedVersion;
   QPushButton* m_updateURDEButton;
   bool m_inContinueNote = false;
+  QStringListModel m_launchOptionsModel;
 
 public:
   explicit MainWindow(QWidget* parent = nullptr);
