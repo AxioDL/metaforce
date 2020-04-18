@@ -62,8 +62,7 @@ MainWindow::MainWindow(QWidget* parent)
 , m_cvarManager(m_fileMgr)
 , m_cvarCommons(m_cvarManager)
 , m_heclProc(this)
-, m_dlManager(this)
-, m_launchMenu(m_cvarCommons, this) {
+, m_dlManager(this) {
   if (m_settings.value(QStringLiteral("urde_arguments")).isNull()) {
     m_settings.setValue(QStringLiteral("urde_arguments"), QStringList{QStringLiteral("--no-shader-warmup")});
   }
@@ -103,6 +102,7 @@ MainWindow::MainWindow(QWidget* parent)
                              std::bind(&MainWindow::onBinaryDownloaded, this, std::placeholders::_1),
                              std::bind(&MainWindow::onBinaryFailed, this));
 
+  initOptions();
   initSlots();
 
   m_dlManager.fetchIndex();
@@ -263,7 +263,7 @@ void MainWindow::onDownloadPressed() {
 }
 
 void MainWindow::onUpdateURDEPressed() {
-  m_ui->heclTabs->setCurrentIndex(1);
+  m_ui->heclTabs->setCurrentIndex(2);
   onDownloadPressed();
 }
 
@@ -326,7 +326,7 @@ void MainWindow::enableOperations() {
   m_ui->launchBtn->setText(tr("&Launch"));
 
   m_ui->extractBtn->setEnabled(true);
-  if (QFile::exists(m_path + QStringLiteral("/MP1/URDE/texture_cache.yaml"))) {
+  if (QFile::exists(m_path + QStringLiteral("/out/files/version.yaml"))) {
     m_ui->packageBtn->setEnabled(true);
     if (isPackageComplete()) {
       m_ui->launchBtn->setEnabled(true);
@@ -388,7 +388,7 @@ bool MainWindow::checkDownloadedBinary() {
   m_heclPath = QString();
 
   if (m_path.isEmpty()) {
-    m_ui->heclTabs->setCurrentIndex(1);
+    m_ui->heclTabs->setCurrentIndex(2);
     m_ui->downloadErrorLabel->setText(tr("Set working directory to continue."), true);
     enableOperations();
     return false;
@@ -438,7 +438,7 @@ bool MainWindow::checkDownloadedBinary() {
   }
 
   m_ui->currentBinaryLabel->setText(tr("none"));
-  m_ui->heclTabs->setCurrentIndex(1);
+  m_ui->heclTabs->setCurrentIndex(2);
   m_ui->downloadErrorLabel->setText(tr("Press 'Download' to fetch latest URDE binary."), true);
   enableOperations();
   return false;
@@ -493,7 +493,6 @@ void MainWindow::initSlots() {
   connect(m_ui->extractBtn, &QPushButton::clicked, this, &MainWindow::onExtract);
   connect(m_ui->packageBtn, &QPushButton::clicked, this, &MainWindow::onPackage);
   connect(m_ui->launchBtn, &QPushButton::clicked, this, &MainWindow::onLaunch);
-  m_ui->launchMenuBtn->setMenu(&m_launchMenu);
 
   connect(m_ui->browseBtn, &QPushButton::clicked, [=]() {
     FileDirDialog dialog(this);
@@ -515,6 +514,7 @@ void MainWindow::initSlots() {
 void MainWindow::setTextTermFormatting(const QString& text) {
   m_inContinueNote = false;
 
+  m_cursor.beginEditBlock();
   QRegExp const escapeSequenceExpression(QStringLiteral(R"(\x1B\[([\d;\?FA]+)([mlh]?))"));
   QTextCharFormat defaultTextCharFormat = m_cursor.charFormat();
   int offset = escapeSequenceExpression.indexIn(text);
@@ -552,6 +552,7 @@ void MainWindow::setTextTermFormatting(const QString& text) {
     }
   }
   m_cursor.setCharFormat(defaultTextCharFormat);
+  m_cursor.endEditBlock();
   m_ui->processOutput->ensureCursorVisible();
 }
 
@@ -574,4 +575,100 @@ void MainWindow::onUpdateTrackChanged(int index) {
   m_settings.setValue(QStringLiteral("update_track"), skUpdateTracks[index]);
   m_dlManager.fetchIndex();
   m_ui->devTrackWarning->setVisible(index == 1);
+}
+
+void MainWindow::initOptions() {
+  initGraphicsApiOption(m_ui->metalOption, CurPlatform != Platform::MacOS, DEFAULT_GRAPHICS_API == "Metal"sv);
+  initGraphicsApiOption(m_ui->vulkanOption, CurPlatform == Platform::MacOS, DEFAULT_GRAPHICS_API == "Vulkan"sv);
+  initGraphicsApiOption(m_ui->d3d11Option, CurPlatform != Platform::Win32, DEFAULT_GRAPHICS_API == "D3D11"sv);
+  initNumberComboOption(m_ui->anistropicFilteringBox, m_cvarCommons.m_texAnisotropy);
+  initNumberComboOption(m_ui->antialiasingBox, m_cvarCommons.m_drawSamples);
+  initCheckboxOption(m_ui->deepColor, m_cvarCommons.m_deepColor);
+
+  m_ui->developerModeBox->setToolTip(QString::fromUtf8(hecl::com_developer->rawHelp().data()));
+  m_ui->developerModeBox->setChecked(hecl::com_developer->toBoolean());
+  m_ui->developerOptionsGroup->setVisible(hecl::com_developer->toBoolean());
+  connect(m_ui->developerModeBox, &QCheckBox::stateChanged, this, [this](int state) {
+    bool isChecked = state == Qt::Checked;
+    if (hecl::com_enableCheats->toBoolean() && !isChecked) {
+      m_ui->enableCheatsBox->setChecked(false);
+      m_ui->tweaksOptionsGroup->setVisible(false);
+      m_ui->warpBtn->setVisible(false);
+    }
+    m_ui->developerOptionsGroup->setVisible(isChecked);
+    hecl::CVarManager::instance()->setDeveloperMode(isChecked, true);
+    m_cvarManager.serialize();
+  });
+
+  m_ui->enableCheatsBox->setToolTip(QString::fromUtf8(hecl::com_enableCheats->rawHelp().data()));
+  m_ui->enableCheatsBox->setChecked(hecl::com_enableCheats->toBoolean());
+  m_ui->tweaksOptionsGroup->setVisible(hecl::com_enableCheats->toBoolean());
+  m_ui->warpBtn->setVisible(hecl::com_enableCheats->toBoolean());
+  connect(m_ui->enableCheatsBox, &QCheckBox::stateChanged, this, [this](int state) {
+    bool isChecked = state == Qt::Checked;
+    if (!hecl::com_developer->toBoolean() && isChecked) {
+      m_ui->developerModeBox->setChecked(true);
+      m_ui->developerOptionsGroup->setVisible(true);
+    }
+    m_ui->tweaksOptionsGroup->setVisible(isChecked);
+    m_ui->warpBtn->setVisible(isChecked);
+    hecl::CVarManager::instance()->setCheatsEnabled(isChecked, true);
+    m_cvarManager.serialize();
+  });
+
+  initCheckboxOption(m_ui->developerModeBox, hecl::com_developer);
+  initCheckboxOption(m_ui->enableCheatsBox, hecl::com_enableCheats);
+  initCheckboxOption(m_ui->variableDtBox, m_cvarCommons.m_variableDt);
+  initCheckboxOption(m_ui->areaInfoOverlayBox, m_cvarCommons.m_debugOverlayAreaInfo);
+  initCheckboxOption(m_ui->playerInfoOverlayBox, m_cvarCommons.m_debugOverlayPlayerInfo);
+  initCheckboxOption(m_ui->worldInfoOverlayBox, m_cvarCommons.m_debugOverlayWorldInfo);
+  initCheckboxOption(m_ui->frameCounterBox, m_cvarCommons.m_debugOverlayShowFrameCounter);
+  initCheckboxOption(m_ui->inGameTimeBox, m_cvarCommons.m_debugOverlayShowInGameTime);
+  initCheckboxOption(m_ui->resourceStatsOverlayBox, m_cvarCommons.m_debugOverlayShowResourceStats);
+  initCheckboxOption(m_ui->logScriptingBox,
+                     // TODO centralize
+                     hecl::CVarManager::instance()->findOrMakeCVar(
+                         "stateManager.logScripting"sv, "Prints object communication to the console", false,
+                         hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game));
+}
+
+void MainWindow::initNumberComboOption(QComboBox* action, hecl::CVar* cvar) {
+  QString itemString;
+  for (int i = 0; !(itemString = action->itemText(i)).isEmpty(); ++i) {
+    if (itemString.toInt() == cvar->toSigned()) {
+      action->setCurrentIndex(i);
+      break;
+    }
+  }
+  action->setToolTip(QString::fromUtf8(cvar->rawHelp().data()));
+  connect(action, static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged), this,
+          [this, cvar](const QString& value) {
+            cvar->fromInteger(value.toInt());
+            m_cvarManager.serialize();
+          });
+}
+
+void MainWindow::initCheckboxOption(QCheckBox* action, hecl::CVar* cvar) {
+  action->setToolTip(QString::fromUtf8(cvar->rawHelp().data()));
+  action->setChecked(cvar->toBoolean());
+  connect(action, &QCheckBox::stateChanged, this, [this, cvar](int state) {
+    cvar->fromBoolean(state == Qt::Checked);
+    m_cvarManager.serialize();
+  });
+}
+
+void MainWindow::initGraphicsApiOption(QRadioButton* action, bool hidden, bool isDefault) {
+  if (hidden) {
+    action->hide();
+    return;
+  }
+  const std::string& currApi = m_cvarCommons.getGraphicsApi();
+  action->setChecked(action->text().compare(QString::fromUtf8(currApi.data()), Qt::CaseInsensitive) == 0 ||
+                     (isDefault && currApi.empty()));
+  connect(action, &QRadioButton::toggled, this, [this, action](bool checked) {
+    if (checked) {
+      m_cvarCommons.setGraphicsApi(action->text().toStdString());
+      m_cvarCommons.serialize();
+    }
+  });
 }

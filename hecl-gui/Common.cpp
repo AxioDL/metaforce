@@ -92,39 +92,74 @@ VectorISA StringToVectorISA(const QString& str) {
 URDEVersion::URDEVersion(const QString& filename) {
   int idx;
   QString useFilename = filename;
-  if ((idx = filename.indexOf(QLatin1Char{'.'})) >= 0) {
+  if ((idx = filename.lastIndexOf(QLatin1Char{'.'})) >= 0) {
     m_extension = QString(filename).remove(0, idx);
     useFilename.truncate(idx);
   }
 
   const QStringList list = useFilename.split(QLatin1Char{'-'});
-  if (list.size() >= 2) {
-    m_version = list[1].toInt();
-  }
-  if (list.size() >= 3) {
-    m_platform = StringToPlatform(list[2]);
-  }
-  if (list.size() >= 4) {
-    m_architecture = StringToArchitecture(list[3]);
-  }
-  if (list.size() >= 5) {
-    m_vectorISA = StringToVectorISA(list[4]);
+  enum {
+    version,
+    platform,
+    architecture,
+    vectorISA,
+    extra
+  } state = version;
+  for (size_t i = 1; i < list.size(); ++i) {
+    if (state == version) {
+      if (m_version.isEmpty()) {
+        m_version = list[i];
+        continue;
+      }
+      bool ok;
+      int patch = list[i].toInt(&ok);
+      if (ok) {
+        m_version += QLatin1Char('-') + QString::number(patch);
+        continue;
+      }
+      state = platform;
+    }
+    if (state == platform) {
+      state = architecture;
+      Platform platValue = StringToPlatform(list[i]);
+      if (platValue != Platform::Invalid) {
+        m_platform = platValue;
+        continue;
+      }
+    }
+    if (state == architecture) {
+      state = vectorISA;
+      Architecture archValue = StringToArchitecture(list[i]);
+      if (archValue != Architecture::Invalid) {
+        m_architecture = archValue;
+        continue;
+      }
+    }
+    if (state == vectorISA) {
+      state = extra;
+      VectorISA isa = StringToVectorISA(list[i]);
+      if (isa != VectorISA::Invalid) {
+        m_vectorISA = isa;
+        continue;
+      }
+    }
+    m_extra += QLatin1Char('-') + list[i];
   }
 }
 
 QString URDEVersion::fileString(bool withExtension) const {
-  if (m_version < 0) {
+  if (m_version.isEmpty()) {
     return {};
   }
 
   if (withExtension && !m_extension.isEmpty()) {
-    return QStringLiteral("urde-%1-%2-%3-%4%5")
-        .arg(QString::number(m_version), PlatformToString(m_platform), ArchitectureToString(m_architecture),
-             VectorISAToString(m_vectorISA), m_extension);
+    return QStringLiteral("urde-%1-%2-%3-%4%5%6")
+        .arg(m_version, PlatformToString(m_platform), ArchitectureToString(m_architecture),
+             VectorISAToString(m_vectorISA), m_extra, m_extension);
   } else {
-    return QStringLiteral("urde-%1-%2-%3-%4")
-        .arg(QString::number(m_version), PlatformToString(m_platform), ArchitectureToString(m_architecture),
-             VectorISAToString(m_vectorISA));
+    return QStringLiteral("urde-%1-%2-%3-%4%5")
+        .arg(m_version, PlatformToString(m_platform), ArchitectureToString(m_architecture),
+             VectorISAToString(m_vectorISA), m_extra);
   }
 }
 

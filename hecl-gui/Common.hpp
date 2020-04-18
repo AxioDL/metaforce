@@ -30,21 +30,23 @@ QString VectorISAToString(VectorISA visa);
 VectorISA StringToVectorISA(const QString& str);
 
 class URDEVersion {
-  int m_version = -1;
+  QString m_version{};
   Platform m_platform = CurPlatform;
   Architecture m_architecture = CurArchitecture;
   VectorISA m_vectorISA = VectorISA::Invalid;
-  QString m_extension;
+  QString m_extension{};
+  QString m_extra{};
 
 public:
   URDEVersion() = default;
   explicit URDEVersion(const QString& filename);
-  bool isValid() const { return m_version >= 0; }
+  bool isValid() const { return !m_version.isEmpty(); }
   QString fileString(bool withExtension) const;
-  int getVersion() const { return m_version; }
+  QString getVersion() const { return m_version; }
   Platform getPlatform() const { return m_platform; }
   Architecture getArchitecture() const { return m_architecture; }
   VectorISA getVectorISA() const { return m_vectorISA; }
+  QString getExtra() const { return m_extra; }
 };
 Q_DECLARE_METATYPE(URDEVersion);
 

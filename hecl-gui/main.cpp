@@ -1,3 +1,8 @@
+#if _WIN32
+#include <QtPlugin>
+Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
+#endif
+
 #include <QApplication>
 #include <QStyleFactory>
 #include "MainWindow.hpp"
@@ -56,9 +61,9 @@ int main(int argc, char* argv[]) {
   darkPalette.setColor(QPalette::Disabled, QPalette::Highlight, QColor(42, 130, 218, 53));
   darkPalette.setColor(QPalette::HighlightedText, Qt::white);
   darkPalette.setColor(QPalette::Disabled, QPalette::HighlightedText, QColor(255, 255, 255, 120));
-  a.setPalette(darkPalette);
+  QApplication::setPalette(darkPalette);
 
   MainWindow w;
   w.show();
-  return a.exec();
+  return QApplication::exec();
 }

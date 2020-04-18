@@ -5,10 +5,12 @@
 #include <QMainWindow>
 #include <QProcess>
 #include <QTextCursor>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QRadioButton>
 
 #include "Common.hpp"
 #include "DownloadManager.hpp"
-#include "LaunchMenu.hpp"
 
 #include <hecl/CVarCommons.hpp>
 #include <hecl/Runtime.hpp>
@@ -20,7 +22,7 @@ class QuaZip;
 
 namespace Ui {
 class MainWindow;
-}
+} // namespace Ui
 
 class MainWindow : public QMainWindow {
   static const QStringList skUpdateTracks;
@@ -35,7 +37,6 @@ class MainWindow : public QMainWindow {
   QString m_heclPath;
   QProcess m_heclProc;
   DownloadManager m_dlManager;
-  LaunchMenu m_launchMenu;
   QSettings m_settings;
   URDEVersion m_recommendedVersion;
   QPushButton* m_updateURDEButton;
@@ -71,4 +72,8 @@ private:
   void disableOperations();
   void enableOperations();
   bool isPackageComplete() const;
+  void initOptions();
+  void initGraphicsApiOption(QRadioButton* action, bool hidden, bool isDefault);
+  void initNumberComboOption(QComboBox* action, hecl::CVar* cvar);
+  void initCheckboxOption(QCheckBox* action, hecl::CVar* cvar);
 };

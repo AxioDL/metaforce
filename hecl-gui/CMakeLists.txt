@@ -4,7 +4,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Network Widgets Xml REQUIRED)
+find_package(Qt5 COMPONENTS Network Widgets Xml Gui REQUIRED)
 
 file(GLOB QUAZIP_SRCS quazip/quazip/*.c quazip/quazip/*.cpp quazip/quazip/*.h)
 list(REMOVE_ITEM QUAZIP_SRCS
@@ -34,8 +34,6 @@ add_executable(hecl-gui WIN32 MACOSX_BUNDLE
   FileDirDialog.hpp
   FindBlender.cpp
   FindBlender.hpp
-  LaunchMenu.cpp
-  LaunchMenu.hpp
   MainWindow.cpp
   MainWindow.hpp
   MainWindow.ui
@@ -73,17 +71,15 @@ target_compile_definitions(hecl-gui PRIVATE
 )
 
 target_link_libraries(hecl-gui PRIVATE
+  Qt5::Core
+  Qt5::Gui
   Qt5::Network
   Qt5::Widgets
   Qt5::Xml
 
-  athena-core
   hecl-light
-  logvisor
-  xxhash
-  z
   zeus
-  RetroDataSpec
+  ${ZLIB_LIBRARIES}
 )
 
 target_include_directories(hecl-gui PRIVATE quazip/quazip)
@@ -111,6 +107,8 @@ if(WIN32)
     platforms/win/hecl-gui.manifest
     platforms/win/hecl-gui.rc
   )
+  # FIXME hack to fix static link with outdated Qt cmake files
+  target_link_libraries(hecl-gui PRIVATE C:/vcpkg/installed/x64-windows-static/$<$<CONFIG:Debug>:debug/>lib/Qt5VulkanSupport$<$<CONFIG:Debug>:d>.lib)
 elseif(APPLE)
   target_sources(hecl-gui PRIVATE platforms/mac/mainicon.icns)
   set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
