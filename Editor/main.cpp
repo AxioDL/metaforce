@@ -207,7 +207,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int) {
   for (int i = 0; i < argc; ++i)
     booArgv[i + 1] = argv[i];
 
-  if (IsClientLoggingEnabled(argc + 1, booArgv))
+  const DWORD outType = GetFileType(GetStdHandle(STD_OUTPUT_HANDLE));
+  if (IsClientLoggingEnabled(argc + 1, booArgv) && outType == FILE_TYPE_UNKNOWN)
     logvisor::CreateWin32Console();
   return wmain(argc + 1, booArgv);
 }

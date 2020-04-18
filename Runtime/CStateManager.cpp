@@ -417,12 +417,7 @@ void CStateManager::SetupParticleHook(const CActor& actor) const {
 void CStateManager::MurderScriptInstanceNames() { xb40_uniqueInstanceNames.clear(); }
 
 std::string CStateManager::HashInstanceName(CInputStream& in) {
-  if (hecl::com_developer && hecl::com_developer->toBoolean()) {
-    return in.readString();
-  } else {
-    while (in.readByte() != 0) {};
-    return "";
-  }
+  return in.readString();
 }
 
 void CStateManager::SetActorAreaId(CActor& actor, TAreaId aid) {
@@ -517,6 +512,7 @@ void CStateManager::BuildDynamicLightListForWorld() {
 }
 
 void CStateManager::DrawDebugStuff() const {
+#ifndef NDEBUG
   for (CEntity* ent : GetActorObjectList()) {
     if (TCastToPtr<CPatterned> ai = ent) {
       if (CPathFindSearch* path = ai->GetSearchPath()) {
@@ -524,6 +520,7 @@ void CStateManager::DrawDebugStuff() const {
       }
     }
   }
+#endif
 }
 
 void CStateManager::RenderCamerasAndAreaLights() {
