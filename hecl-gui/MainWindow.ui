@@ -368,6 +368,13 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
+            <widget class="QCheckBox" name="skipSplashScreensBox">
+             <property name="text">
+              <string>Skip Splash Screens</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QCheckBox" name="developerModeBox">
              <property name="text">
               <string>Developer Mode</string>

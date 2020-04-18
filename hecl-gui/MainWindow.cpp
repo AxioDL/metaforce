@@ -648,6 +648,11 @@ void MainWindow::initOptions() {
                      hecl::CVarManager::instance()->findOrMakeCVar(
                          "stateManager.logScripting"sv, "Prints object communication to the console", false,
                          hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game));
+  initCheckboxOption(m_ui->skipSplashScreensBox,
+                     // TODO centralize
+                     hecl::CVarManager::instance()->findOrMakeCVar(
+                         "tweak.game.SplashScreensDisabled"sv, "Skip splash screens on game startup", false,
+                         hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game));
 
   m_launchOptionsModel.setStringList(QSettings().value(QStringLiteral("urde_arguments")).toStringList());
   m_ui->launchOptionsList->setModel(&m_launchOptionsModel);
