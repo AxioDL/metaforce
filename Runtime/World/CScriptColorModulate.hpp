@@ -30,20 +30,15 @@ private:
   EBlendMode x48_blendMode;
   float x4c_timeA2B;
   float x50_timeB2A;
-  union {
-    struct {
-      bool x54_24_doReverse : 1;
-      bool x54_25_resetTargetWhenDone : 1;
-      bool x54_26_depthCompare : 1;
-      bool x54_27_depthUpdate : 1;
-      bool x54_28_depthBackwards : 1;
-      bool x54_29_reversing : 1;
-      bool x54_30_enable : 1;
-      bool x54_31_dieOnEnd : 1;
-      bool x55_24_isFadeOutHelper : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x54_24_doReverse : 1;
+  bool x54_25_resetTargetWhenDone : 1;
+  bool x54_26_depthCompare : 1;
+  bool x54_27_depthUpdate : 1;
+  bool x54_28_depthBackwards : 1;
+  bool x54_29_reversing : 1;
+  bool x54_30_enable : 1;
+  bool x54_31_dieOnEnd : 1;
+  bool x55_24_isFadeOutHelper : 1;
 
 public:
   CScriptColorModulate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CColor& colorA,

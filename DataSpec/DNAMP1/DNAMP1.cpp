@@ -30,6 +30,7 @@
 #include "PATH.hpp"
 
 #include "DataSpec/DNACommon/Tweaks/TweakWriter.hpp"
+#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
 #include "Tweaks/CTweakPlayerRes.hpp"
 #include "Tweaks/CTweakGunRes.hpp"
 #include "Tweaks/CTweakPlayer.hpp"
@@ -154,7 +155,7 @@ void PAKBridge::build() {
           std::string idStr = area.areaMREAId.toString();
           areaDeps.name = hecl::SystemString(_SYS_STR("MREA_")) + hecl::SystemStringConv(idStr).c_str();
         }
-        hecl::SystemString num = fmt::format(fmt(_SYS_STR("{:02d} ")), ai);
+        hecl::SystemString num = fmt::format(FMT_STRING(_SYS_STR("{:02d} ")), ai);
         areaDeps.name = num + areaDeps.name;
 
         std::string lowerName(hecl::SystemUTF8Conv(areaDeps.name).str());
@@ -178,7 +179,7 @@ void PAKBridge::build() {
           layer.active = layerFlags.flags >> (l - 1) & 0x1;
           layer.name = hecl::StringUtils::TrimWhitespace(layer.name);
 
-          num = fmt::format(fmt(_SYS_STR("{:02d} ")), l - 1);
+          num = fmt::format(FMT_STRING(_SYS_STR("{:02d} ")), l - 1);
           layer.name = num + layer.name;
 
           layer.resources.reserve(area.depLayers[l] - r);
@@ -210,35 +211,35 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssoci
       for (const ANCS::CharacterSet::CharacterInfo& ci : ancs.characterSet.characters) {
         charAssoc.m_cmdlRigs[ci.cmdl] = {ci.cskr, ci.cinf};
         charAssoc.m_cskrToCharacter[ci.cskr] =
-            std::make_pair(entry.id, fmt::format(fmt("{}_{}.CSKR"), ci.name, ci.cskr));
+            std::make_pair(entry.id, fmt::format(FMT_STRING("{}_{}.CSKR"), ci.name, ci.cskr));
         PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdl);
         PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskr);
         PAK::Entry* cinfEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cinf);
-        cmdlEnt->name = fmt::format(fmt("ANCS_{}_{}_model"), id, ci.name);
-        cskrEnt->name = fmt::format(fmt("ANCS_{}_{}_skin"), id, ci.name);
-        cinfEnt->name = fmt::format(fmt("ANCS_{}_{}_skel"), id, ci.name);
+        cmdlEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_model"), id, ci.name);
+        cskrEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_skin"), id, ci.name);
+        cinfEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_skel"), id, ci.name);
         if (ci.cmdlIce.isValid() && ci.cskrIce.isValid()) {
           charAssoc.m_cmdlRigs[ci.cmdlIce] = {ci.cskrIce, ci.cinf};
           charAssoc.m_cskrToCharacter[ci.cskrIce] =
-              std::make_pair(entry.id, fmt::format(fmt("{}.ICE_{}.CSKR"), ci.name, ci.cskrIce));
+              std::make_pair(entry.id, fmt::format(FMT_STRING("{}.ICE_{}.CSKR"), ci.name, ci.cskrIce));
           PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdlIce);
           PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrIce);
-          cmdlEnt->name = fmt::format(fmt("ANCS_{}_{}_icemodel"), id, ci.name);
-          cskrEnt->name = fmt::format(fmt("ANCS_{}_{}_iceskin"), id, ci.name);
+          cmdlEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_icemodel"), id, ci.name);
+          cskrEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_iceskin"), id, ci.name);
         }
       }
       std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>> animInfo;
       ancs.getAnimationResInfo(&pakRouter, animInfo);
       for (auto& [animIdx, animResInfo] : animInfo) {
         PAK::Entry* animEnt = (PAK::Entry*)m_pak.lookupEntry(animResInfo.animId);
-        animEnt->name = fmt::format(fmt("ANCS_{}_{}"), id, animResInfo.name);
+        animEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}"), id, animResInfo.name);
         charAssoc.m_cskrToCharacter[animResInfo.animId] =
-            std::make_pair(entry.id, fmt::format(fmt("{}_{}.ANIM"), animResInfo.name, animResInfo.animId));
+            std::make_pair(entry.id, fmt::format(FMT_STRING("{}_{}.ANIM"), animResInfo.name, animResInfo.animId));
         if (animResInfo.evntId.isValid()) {
           PAK::Entry* evntEnt = (PAK::Entry*)m_pak.lookupEntry(animResInfo.evntId);
-          evntEnt->name = fmt::format(fmt("ANCS_{}_{}_evnt"), id, animResInfo.name);
-          charAssoc.m_cskrToCharacter[animResInfo.evntId] =
-              std::make_pair(entry.id, fmt::format(fmt("{}_{}.evnt.yaml"), animResInfo.name, animResInfo.evntId));
+          evntEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_evnt"), id, animResInfo.name);
+          charAssoc.m_cskrToCharacter[animResInfo.evntId] = std::make_pair(
+              entry.id, fmt::format(FMT_STRING("{}_{}.evnt.yaml"), animResInfo.name, animResInfo.evntId));
         }
       }
     } else if (entry.type == FOURCC('MREA')) {
@@ -275,8 +276,8 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
       hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(&entry).getParentPath();
 
       if (mlvl.worldNameId.isValid())
-        pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath,
-            fmt::format(fmt(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
+        pathOverrides[mlvl.worldNameId] =
+            hecl::ProjectPath(mlvlDirPath, fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
 
       for (const MLVL::Area& area : mlvl.areas) {
         {
@@ -292,8 +293,8 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
 
         hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
         if (area.areaNameId.isValid())
-          pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath,
-              fmt::format(fmt(_SYS_STR("!name_{}.yaml")), area.areaNameId));
+          pathOverrides[area.areaNameId] =
+              hecl::ProjectPath(areaDirPath, fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), area.areaNameId));
       }
 
       if (mlvl.worldMap.isValid()) {
@@ -383,8 +384,14 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     std::string catalogueName;
     std::string name = pak.bestEntryName(pakNode, entry, catalogueName);
     if (!catalogueName.empty()) {
-      if (catalogueName == "PlayerRes"sv)
-        return {ExtractTweak<CTweakPlayerRes>, {_SYS_STR(".yaml")}};
+      if (catalogueName == "PlayerRes"sv) {
+        if (isCurrentSpecWii() || getCurrentRegion() == ERegion::PAL || getCurrentRegion() == ERegion::NTSC_J) {
+          /* We need to use the new rep for these tweaks */
+          return {ExtractTweak<CTweakPlayerRes<true>>, {_SYS_STR(".yaml")}};
+        }
+        /* We need to use the old rep for these tweaks */
+        return {ExtractTweak<CTweakPlayerRes<false>>, {_SYS_STR(".yaml")}};
+      }
       if (catalogueName == "GunRes"sv)
         return {ExtractTweak<CTweakGunRes>, {_SYS_STR(".yaml")}};
       if (catalogueName == "Player"sv)
@@ -395,8 +402,14 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
         return {ExtractTweak<CTweakSlideShow>, {_SYS_STR(".yaml")}};
       if (catalogueName == "Game"sv)
         return {ExtractTweak<CTweakGame>, {_SYS_STR(".yaml")}};
-      if (catalogueName == "Targeting"sv)
-        return {ExtractTweak<CTweakTargeting>, {_SYS_STR(".yaml")}};
+      if (catalogueName == "Targeting"sv) {
+        if (isCurrentSpecWii() || getCurrentRegion() == ERegion::PAL || getCurrentRegion() == ERegion::NTSC_J) {
+          /* We need to use the new rep for these tweaks */
+          return {ExtractTweak<CTweakTargeting<true>>, {_SYS_STR(".yaml")}};
+        }
+        /* We need to use the old rep for these tweaks */
+        return {ExtractTweak<CTweakTargeting<false>>, {_SYS_STR(".yaml")}};
+      }
       if (catalogueName == "Gui"sv)
         return {ExtractTweak<CTweakGui>, {_SYS_STR(".yaml")}};
       if (catalogueName == "AutoMapper"sv)

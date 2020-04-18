@@ -23,10 +23,10 @@ class CRainSplashGenerator {
     u8 x14_ = 3;
     u8 x15_length = 1;
     bool x16_active = true; // used to be one-bit bitfield
-    mutable CLineRenderer m_renderer;
+    CLineRenderer m_renderer;
     explicit SSplashLine(boo::IGraphicsDataFactory::Context& ctx);
     void Update(float dt, CStateManager& mgr);
-    void Draw(float alpha, float dt, const zeus::CVector3f& pos) const;
+    void Draw(float alpha, float dt, const zeus::CVector3f& pos);
     void SetActive() { x16_active = true; }
   };
   struct SRainSplash {
@@ -40,11 +40,11 @@ class CRainSplashGenerator {
     SRainSplash& operator=(SRainSplash&&) = default;
     void Update(float dt, CStateManager& mgr);
     bool IsActive() const;
-    void Draw(float alpha, float dt, const zeus::CVector3f& pos) const;
+    void Draw(float alpha, float dt, const zeus::CVector3f& pos);
     void SetPoint(const zeus::CVector3f& pos);
   };
   std::vector<SRainSplash> x0_rainSplashes;
-  CRandom16 x10_random = {99};
+  CRandom16 x10_random{99};
   zeus::CVector3f x14_scale;
   float x20_generateTimer = 0.0f;
   float x24_generateInterval = 0.0f;
@@ -60,7 +60,7 @@ class CRainSplashGenerator {
   bool x48_25_raining : 1;
   void UpdateRainSplashRange(CStateManager& mgr, int start, int end, float dt);
   void UpdateRainSplashes(CStateManager& mgr, float magnitude, float dt);
-  void DoDraw(const zeus::CTransform& xf) const;
+  void DoDraw(const zeus::CTransform& xf);
   static u32 GetNextBestPt(u32 pt, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn, CRandom16& rand,
                            float minZ);
   void AddPoint(const zeus::CVector3f& pos);
@@ -69,7 +69,7 @@ public:
   CRainSplashGenerator(const zeus::CVector3f& scale, u32 maxSplashes, u32 genRate, float minZ, float alpha);
   void Update(float dt, CStateManager& mgr);
   void GeneratePoints(const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
-  void Draw(const zeus::CTransform& xf) const;
+  void Draw(const zeus::CTransform& xf);
   bool IsRaining() const { return x48_25_raining; }
 };
 

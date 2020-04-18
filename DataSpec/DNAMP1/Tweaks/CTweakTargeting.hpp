@@ -1,9 +1,10 @@
 #pragma once
 
-#include "../../DNACommon/Tweaks/ITweakTargeting.hpp"
+#include "DataSpec/DNACommon/Tweaks/ITweakTargeting.hpp"
 
 namespace DataSpec::DNAMP1 {
-struct CTweakTargeting final : public ITweakTargeting {
+template<bool NewRep>
+struct AT_SPECIALIZE_PARMS(true, false) CTweakTargeting final : public ITweakTargeting {
   AT_DECL_DNA_YAML
   Value<atUint32> x4_targetRadiusMode;
   Value<float> x8_currLockOnExitDuration;
@@ -131,6 +132,69 @@ struct CTweakTargeting final : public ITweakTargeting {
   Value<float> x21c_scanTargetClampMin;
   Value<float> x220_scanTargetClampMax;
   Value<float> x224_angularLagSpeed;
+
+  // RS5
+  Vector<float, AT_DNA_COUNT(NewRep == true ? 1 : 0)> x218_;
+  Vector<float, AT_DNA_COUNT(NewRep == true ? 1 : 0)> x21c_;
+  bool x224_ = true;
+  bool x225_ = false;
+  bool x226_ = true;
+  bool x227_ = true;
+  bool x22c_ = true;
+  bool x22d_ = false;
+  bool x22e_ = true;
+  bool x22f_ = true;
+  bool x234_ = true;
+  bool x235_ = false;
+  bool x236_ = true;
+  bool x237_ = true;
+  zeus::CVector3f x23c_ = zeus::skZero3f;
+
+  float x2c8_ = 0.25f;
+  float x2cc_ = 0.35f;
+  zeus::CColor x2d0_ = (zeus::Comp32)0xb6e6ffff;
+  float x2d4_ = 0.39215687f;
+  zeus::CColor x2d8_ = (zeus::Comp32)0xa82a00ff;
+  float x2dc_ = 0.78431374f;
+  zeus::CVector3f x2e0_ = zeus::CVector3f(0.f, 0.f, 0.46f);
+  float x2ec_ = 0.25f;
+  float x2f0_ = 0.25f;
+  float x2f4_ = 120.f;
+  float x2f8_ = 0.25f;
+  float x2fc_ = 3.5f;
+  float x300_ = 0.35f;
+  zeus::CColor x304_ = (zeus::Comp32)0xa82a00ff;
+  float x308_ = 0.78431374f;
+  zeus::CColor x30c_ = (zeus::Comp32)0x89d6ffff;
+  float x310_ = 0.5019608f;
+  float x314_ = 11.25f;
+  float x318_ = 0.25f;
+  float x31c_ = 0.125f;
+  zeus::CColor x320_ = (zeus::Comp32)0xffca28ff;
+  float x324_ = 0.78431374f;
+  zeus::CColor x328_ = (zeus::Comp32)0x89d6ffff;
+  float x32c_ = 0.19607843f;
+  float x330_ = 0.f;
+  float x334_ = 0.25f;
+  float x338_ = 3.f;
+  float x33c_ = 0.25f;
+  float x340_ = 0.25f;
+  float x344_ = 0.25f;
+  float x348_ = 0.25f;
+  float x34c_ = 45.f;
+  float x350_ = 0.5f;
+  float x354_ = 0.65f;
+  float x358_ = 1.5f;
+  float x35c_ = 0.18f;
+  float x360_ = 0.15f;
+  float x364_ = 0.25f;
+  zeus::CColor x368_ = (zeus::Comp32)0x56c1fb9f;
+  zeus::CColor x36c_ = (zeus::Comp32)0x49c3f6a0;
+  zeus::CColor x370_ = (zeus::Comp32)0x49c3f631;
+  zeus::CColor x374_ = (zeus::Comp32)0xff8930ff;
+  zeus::CColor x378_ = (zeus::Comp32)0xff2f28ff;
+  zeus::CColor x37c_ = (zeus::Comp32)0x93e9ffff;
+  zeus::CColor x380_ = (zeus::Comp32)0xff6b60ff;
 
   CTweakTargeting() = default;
   CTweakTargeting(athena::io::IStreamReader& r) {

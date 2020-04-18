@@ -37,7 +37,13 @@ CGrappleArm::CGrappleArm(const zeus::CVector3f& scale)
 , x398_grappleHitGen(std::make_unique<CElementGen>(x36c_grappleHitDesc))
 , x39c_grappleMuzzleGen(std::make_unique<CElementGen>(x378_grappleMuzzleDesc))
 , x3a0_grappleSwooshGen(std::make_unique<CParticleSwoosh>(x384_grappleSwooshDesc, 0))
-, x3a4_rainSplashGenerator(std::make_unique<CRainSplashGenerator>(scale, 20, 2, 0.f, 0.125f)) {
+, x3a4_rainSplashGenerator(std::make_unique<CRainSplashGenerator>(scale, 20, 2, 0.f, 0.125f))
+, x3b2_24_active(false)
+, x3b2_25_beamActive(false)
+, x3b2_26_grappleHit(false)
+, x3b2_27_armMoving(false)
+, x3b2_28_isGrappling(false)
+, x3b2_29_suitLoading(false) {
   x0_grappleArmModel->SetSortThermal(true);
   xa0_grappleGearModel.SetSortThermal(true);
   xec_grapNoz1Model.SetSortThermal(true);
@@ -125,35 +131,35 @@ void CGrappleArm::SetAnimState(EArmState state) {
   switch (state) {
   case EArmState::IntoGrapple: {
     ResetAuxParams(true);
-    CAnimPlaybackParms parms(0, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(0, -1, 1.f, true);
     x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     x3b2_25_beamActive = false;
     x3b2_24_active = true;
     break;
   }
   case EArmState::IntoGrappleIdle: {
-    CAnimPlaybackParms parms(1, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(1, -1, 1.f, true);
     x0_grappleArmModel->GetAnimationData()->EnableLooping(true);
     x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EArmState::FireGrapple: {
-    CAnimPlaybackParms parms(2, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(2, -1, 1.f, true);
     x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EArmState::ConnectGrapple: {
-    CAnimPlaybackParms parms(3, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(3, -1, 1.f, true);
     x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EArmState::Connected: {
-    CAnimPlaybackParms parms(3, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(3, -1, 1.f, true);
     x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EArmState::OutOfGrapple: {
-    CAnimPlaybackParms parms(4, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(4, -1, 1.f, true);
     x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     DisconnectGrappleBeam();
     break;
@@ -478,7 +484,7 @@ void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransfo
   CGraphics::SetModelMatrix(modelXf * zeus::CTransform::Scale(x0_grappleArmModel->GetScale()));
   // CGraphics::DisableAllLights();
   // g_Renderer->SetAmbientColor(zeus::skWhite);
-  CSkinnedModel& model = const_cast<CSkinnedModel&>(*x50_grappleArmSkeletonModel->GetAnimationData()->GetModelData());
+  CSkinnedModel& model = *x50_grappleArmSkeletonModel->GetAnimationData()->GetModelData();
   model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
   x0_grappleArmModel->GetAnimationData()->Render(model, flags, std::nullopt, nullptr);
   // g_Renderer->SetAmbientColor(zeus::skWhite);

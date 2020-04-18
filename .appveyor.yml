@@ -68,7 +68,7 @@ before_build:
 build_script:
   - mkdir build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -GNinja ..
+  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DLLVM_ROOT_DIR=C:\projects\deps\llvm -GNinja ..
   - ninja urde
 
 #notifications:

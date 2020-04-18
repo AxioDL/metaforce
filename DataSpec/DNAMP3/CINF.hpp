@@ -1,14 +1,8 @@
 #pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
-#include "../DNAMP2/CINF.hpp"
+#include "DataSpec/DNAMP2/CINF.hpp"
 
 namespace DataSpec::DNAMP3 {
-
-struct CINF : DNAMP2::CINF {
-  Delete expl;
-  void sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID64& cinfId) const;
-  static std::string GetCINFArmatureName(const UniqueID64& cinfId);
-};
-
+using CINF = DNAMP2::CINF;
 } // namespace DataSpec::DNAMP3

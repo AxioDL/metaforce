@@ -21,8 +21,8 @@ CRipper::CRipper(TUniqueId uid, std::string_view name, EFlavorType type, const C
       {EMaterialTypes::Solid},
       {EMaterialTypes::NoStaticCollision, EMaterialTypes::NoPlatformCollision, EMaterialTypes::Platform}));
   x460_knockBackController.SetAutoResetImpulse(false);
-  x460_knockBackController.SetAnimationStateRange(EKnockBackAnimationState::KnockBack,
-                                                  EKnockBackAnimationState::Hurled);
+  x460_knockBackController.SetAnimationStateRange(EKnockBackAnimationState::Flinch,
+                                                  EKnockBackAnimationState::KnockBack);
 }
 
 void CRipper::Think(float dt, CStateManager& mgr) {
@@ -33,25 +33,23 @@ void CRipper::Think(float dt, CStateManager& mgr) {
   ProcessGrapplePoint(mgr);
   const CPlayer& pl = mgr.GetPlayer();
   CGrappleArm::EArmState armState = pl.GetPlayerGun()->GetGrappleArm().GetAnimState();
-  if (x598_grapplePoint == kInvalidUniqueId || pl.GetOrbitTargetId() != x598_grapplePoint ||
-      pl.GetGrappleState() == CPlayer::EGrappleState::None) {
-    CPatterned::Think(dt, mgr);
-    if (x59c_24_muted) {
-      SetMuted(false);
-      x59c_24_muted = false;
-    }
-  } else {
-    if (armState == CGrappleArm::EArmState::FireGrapple) {
-      CPatterned::Think(dt, mgr);
-    } else if (armState == CGrappleArm::EArmState::IntoGrappleIdle || armState == CGrappleArm::EArmState::Three) {
+  if (x598_grapplePoint != kInvalidUniqueId && pl.GetOrbitTargetId() == x598_grapplePoint && pl.GetGrappleState() != CPlayer::EGrappleState::None) {
+    if (pl.GetGrappleState() != CPlayer::EGrappleState::Firing && (armState > CGrappleArm::EArmState::Three)) {
       Stop();
       if (!x59c_24_muted) {
         SetMuted(true);
         x59c_24_muted = true;
       }
+    } else {
+      CPatterned::Think(dt, mgr);
+    }
+  } else {
+    CPatterned::Think(dt, mgr);
+    if (x59c_24_muted) {
+      SetMuted(false);
+      x59c_24_muted = false;
     }
   }
-  CPatterned::Think(dt, mgr);
 }
 
 void CRipper::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
@@ -73,7 +71,7 @@ void CRipper::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
     x450_bodyController->Activate(mgr);
     AddMaterial(EMaterialTypes::Immovable, mgr);
     RemoveMaterial(EMaterialTypes::Solid, mgr);
-    if (x3fc_flavor != EFlavorType::One) {
+    if (x3fc_flavor == EFlavorType::One) {
       AddGrapplePoint(mgr);
       RemoveMaterial(EMaterialTypes::Orbit, mgr);
     }
@@ -96,7 +94,7 @@ void CRipper::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
 }
 
 void CRipper::ProcessGrapplePoint(CStateManager& mgr) {
-  if (x3fc_flavor == EFlavorType::One || x598_grapplePoint == kInvalidUniqueId)
+  if (x3fc_flavor != EFlavorType::One || x598_grapplePoint == kInvalidUniqueId)
     return;
 
   if (TCastToPtr<CScriptGrapplePoint> gp = mgr.ObjectById(x598_grapplePoint)) {
@@ -109,7 +107,7 @@ void CRipper::AddGrapplePoint(CStateManager& mgr) {
     return;
 
   x598_grapplePoint = mgr.AllocateUniqueId();
-  mgr.AddObject(new CScriptGrapplePoint(x59a_platformId, "RipperGrapplePoint"sv,
+  mgr.AddObject(new CScriptGrapplePoint(x598_grapplePoint, "RipperGrapplePoint"sv,
                                         CEntityInfo(GetAreaIdAlways(), NullConnectionList), GetTransform(), true, x568_grappleParams));
 }
 

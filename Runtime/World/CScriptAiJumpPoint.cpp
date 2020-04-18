@@ -12,7 +12,8 @@ CScriptAiJumpPoint::CScriptAiJumpPoint(TUniqueId uid, std::string_view name, con
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_apex(apex)
-, xec_touchBounds(xf.origin, xf.origin) {}
+, xec_touchBounds(xf.origin, xf.origin)
+, x108_24(false) {}
 
 void CScriptAiJumpPoint::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

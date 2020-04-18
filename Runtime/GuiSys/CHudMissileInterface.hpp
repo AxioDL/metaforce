@@ -26,16 +26,11 @@ class CHudMissileInterface {
   float x4c_chargeBeamFactor;
   float x50_missileIconAltDeplete = 0.f;
   float x54_missileIconIncrement = 0.f;
-  union {
-    struct {
-      bool x58_24_missilesActive : 1;
-      bool x58_25_visibleDebug : 1;
-      bool x58_26_visibleGame : 1;
-      bool x58_27_hasArrows : 1;
-      bool x58_28_notXRay : 1;
-    };
-    u16 _dummy = 0;
-  };
+  bool x58_24_missilesActive : 1;
+  bool x58_25_visibleDebug : 1;
+  bool x58_26_visibleGame : 1;
+  bool x58_27_hasArrows : 1;
+  bool x58_28_notXRay : 1;
   CGuiWidget* x5c_basewidget_missileicon;
   CGuiTextPane* x60_textpane_missiledigits;
   CAuiEnergyBarT01* x64_energybart01_missilebar;

@@ -18,10 +18,10 @@
 namespace urde {
 class CPlasmaProjectile : public CBeamProjectile {
 public:
-  struct PlayerEffectResoures : rstl::reserved_vector<u64, 8> {
-    PlayerEffectResoures(u64 a = UINT64_MAX, u64 b = UINT64_MAX, u64 c = UINT64_MAX, u64 d = UINT64_MAX,
-                         u64 e = UINT64_MAX, u64 f = UINT64_MAX, u64 g = UINT64_MAX, u64 h = UINT64_MAX)
-    : rstl::reserved_vector<u64, 8>({a, b, c, d, e, f, g, h}) {}
+  struct PlayerEffectResoures : rstl::reserved_vector<CAssetId, 8> {
+    PlayerEffectResoures(CAssetId a = {}, CAssetId b = {}, CAssetId c = {}, CAssetId d = {},
+                         CAssetId e = {}, CAssetId f = {}, CAssetId g = {}, CAssetId h = {})
+    : rstl::reserved_vector<CAssetId, 8>({a, b, c, d, e, f, g, h}) {}
   };
 private:
   std::vector<TUniqueId> x468_lights;
@@ -67,17 +67,12 @@ private:
   TToken<CGenDescription> x538_visorParticle; // Used to be optional
   u16 x544_freezeSfx;
   u16 x546_electricSfx;
-  union {
-    struct {
-      bool x548_24_ : 1;
-      bool x548_25_enableEnergyPulse : 1;
-      bool x548_26_firing : 1;
-      bool x548_27_texturesLoaded : 1;
-      bool x548_28_drawOwnerFirst : 1;
-      bool x548_29_activePlayerPhazon : 1;
-    };
-    u32 _dummy3 = 0;
-  };
+  bool x548_24_ : 1;
+  bool x548_25_enableEnergyPulse : 1;
+  bool x548_26_firing : 1;
+  bool x548_27_texturesLoaded : 1;
+  bool x548_28_drawOwnerFirst : 1;
+  bool x548_29_activePlayerPhazon : 1;
 
   struct RenderObjects {
     CColoredStripShader m_beamStrip1;
@@ -93,14 +88,14 @@ private:
                   boo::ObjToken<boo::ITexture> tex,
                   boo::ObjToken<boo::ITexture> glowTex);
   };
-  mutable std::optional<RenderObjects> m_renderObjs;
+  std::optional<RenderObjects> m_renderObjs;
 
   void SetLightsActive(bool active, CStateManager& mgr);
   void CreatePlasmaLights(u32 sourceId, const CLight& l, CStateManager& mgr);
   void DeletePlasmaLights(CStateManager& mgr);
   void UpdateLights(float expansion, float dt, CStateManager& mgr);
   void UpdateEnergyPulse(float dt);
-  void RenderMotionBlur() const;
+  void RenderMotionBlur();
   void RenderBeam(s32 subdivs, float width, const zeus::CColor& color, s32 flags,
                   CColoredStripShader& shader) const;
   float UpdateBeamState(float dt, CStateManager& mgr);

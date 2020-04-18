@@ -321,7 +321,7 @@ void CPlayerVisor::LockUnlockAssets() {
 #endif
 }
 
-void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingManager* tgtMgr) {
+void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* tgtMgr) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerVisor::DrawScanEffect", zeus::skMagenta);
 
   const bool indicatorsDrawn = DrawScanObjectIndicators(mgr);
@@ -645,7 +645,7 @@ void CPlayerVisor::Update(float dt, const CStateManager& mgr) {
     x58_scanMagInterp = std::max(x58_scanMagInterp - 2.f * dt, scanMag);
 }
 
-void CPlayerVisor::Draw(const CStateManager& mgr, const CTargetingManager* tgtManager) {
+void CPlayerVisor::Draw(const CStateManager& mgr, CTargetingManager* tgtManager) {
   CGraphics::SetAmbientColor(zeus::skWhite);
   CGraphics::DisableAllLights();
   switch (mgr.GetPlayerState()->GetActiveVisor(mgr)) {

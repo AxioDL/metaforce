@@ -9,7 +9,7 @@ CRandom16 CDecal::sDecalRandom;
 bool CDecal::sMoveRedToAlphaBuffer = false;
 
 CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf)
-: x0_description(desc), xc_transform(xf) {
+: x0_description(desc), xc_transform(xf), x5c_29_modelInvalid(false) {
   CGlobalRandom gr(sDecalRandom);
 
   CDecalDescription& desco = *x0_description;
@@ -219,14 +219,14 @@ void CDecal::RenderMdl() {
   CGraphics::SetModelMatrix(worldXf);
 
   if (desc.x5c_24_DMAB) {
-    CModelFlags flags(7, 0, 1, color);
+    const CModelFlags flags(7, 0, 1, color);
     desc.x38_DMDL.m_token->Draw(flags);
   } else {
     if (color.a() == 1.f) {
-      CModelFlags flags(0, 0, 3, zeus::skWhite);
+      constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
       desc.x38_DMDL.m_token->Draw(flags);
     } else {
-      CModelFlags flags(5, 0, 1, color);
+      const CModelFlags flags(5, 0, 1, color);
       desc.x38_DMDL.m_token->Draw(flags);
     }
   }

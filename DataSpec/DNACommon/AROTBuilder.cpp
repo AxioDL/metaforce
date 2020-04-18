@@ -4,7 +4,7 @@
 #include <array>
 
 #include "hecl/Blender/Connection.hpp"
-#include "../DNAMP1/PATH.hpp"
+#include "PATH.hpp"
 
 namespace DataSpec {
 logvisor::Module Log("AROTBuilder");
@@ -140,7 +140,7 @@ void AROTBuilder::Node::nodeCount(size_t& sz, size_t& idxRefs, BitmapPool& bmpPo
   sz += 1;
   poolIdx = bmpPool.addIndices(childIndices);
   if (poolIdx > 65535)
-    Log.report(logvisor::Fatal, fmt("AROT bitmap exceeds 16-bit node addressing; area too complex"));
+    Log.report(logvisor::Fatal, FMT_STRING("AROT bitmap exceeds 16-bit node addressing; area too complex"));
 
   uint32_t childCount = AROTChildCounts[compSubdivs];
   nodeOff = curOff;
@@ -180,7 +180,7 @@ void AROTBuilder::Node::writeNodes(athena::io::MemoryWriter& w, int nodeIdx) {
   if (childNodes.size()) {
     int curIdx = nodeIdx + 1;
     if (curIdx > 65535)
-      Log.report(logvisor::Fatal, fmt("AROT node exceeds 16-bit node addressing; area too complex"));
+      Log.report(logvisor::Fatal, FMT_STRING("AROT node exceeds 16-bit node addressing; area too complex"));
 
     std::array<int, 8> childIndices;
 
@@ -278,10 +278,10 @@ void AROTBuilder::Node::pathCountNodesAndLookups(size_t& nodeCount, size_t& look
   }
 }
 
-void AROTBuilder::Node::pathWrite(DNAMP1::PATH& path, const zeus::CAABox& curAABB) {
+template <class PAKBridge>
+void AROTBuilder::Node::pathWrite(DNAPATH::PATH<PAKBridge>& path, const zeus::CAABox& curAABB) {
   if (childNodes.empty()) {
-    path.octree.emplace_back();
-    DNAMP1::PATH::OctreeNode& n = path.octree.back();
+    auto& n = path.octree.emplace_back();
     n.isLeaf = 1;
     n.aabb[0] = curAABB.min;
     n.aabb[1] = curAABB.max;
@@ -299,8 +299,7 @@ void AROTBuilder::Node::pathWrite(DNAMP1::PATH& path, const zeus::CAABox& curAAB
       children[i] = path.octree.size() - 1;
     }
 
-    path.octree.emplace_back();
-    DNAMP1::PATH::OctreeNode& n = path.octree.back();
+    auto& n = path.octree.emplace_back();
     n.isLeaf = 0;
     n.aabb[0] = curAABB.min;
     n.aabb[1] = curAABB.max;
@@ -310,6 +309,10 @@ void AROTBuilder::Node::pathWrite(DNAMP1::PATH& path, const zeus::CAABox& curAAB
     n.regionStart = 0;
   }
 }
+
+template void AROTBuilder::Node::pathWrite(DNAPATH::PATH<DNAMP1::PAKBridge>& path, const zeus::CAABox& curAABB);
+template void AROTBuilder::Node::pathWrite(DNAPATH::PATH<DNAMP2::PAKBridge>& path, const zeus::CAABox& curAABB);
+template void AROTBuilder::Node::pathWrite(DNAPATH::PATH<DNAMP3::PAKBridge>& path, const zeus::CAABox& curAABB);
 
 void AROTBuilder::build(std::vector<std::vector<uint8_t>>& secs, const zeus::CAABox& fullAabb,
                         const std::vector<zeus::CAABox>& meshAabbs, const std::vector<DNACMDL::Mesh>& meshes) {
@@ -406,15 +409,14 @@ std::pair<std::unique_ptr<uint8_t[]>, uint32_t> AROTBuilder::buildCol(const ColM
   return {std::move(ret), totalSize};
 }
 
-void AROTBuilder::buildPath(DNAMP1::PATH& path) {
+template <class PAKBridge>
+void AROTBuilder::buildPath(DNAPATH::PATH<PAKBridge>& path) {
   /* Accumulate total AABB and gather region boxes */
   std::vector<zeus::CAABox> regionBoxes;
   regionBoxes.reserve(path.regions.size());
   zeus::CAABox fullAABB;
-  for (const DNAMP1::PATH::Region& r : path.regions) {
-    regionBoxes.emplace_back(r.aabb[0], r.aabb[1]);
-    fullAABB.accumulateBounds(regionBoxes.back());
-  }
+  for (const auto& r : path.regions)
+    fullAABB.accumulateBounds(regionBoxes.emplace_back(r.aabb[0], r.aabb[1]));
 
   /* Recursively split */
   BspNodeType dontCare;
@@ -430,5 +432,9 @@ void AROTBuilder::buildPath(DNAMP1::PATH& path) {
   path.octreeRegionLookup.reserve(lookupCount);
   rootNode.pathWrite(path, fullAABB);
 }
+
+template void AROTBuilder::buildPath(DNAPATH::PATH<DNAMP1::PAKBridge>& path);
+template void AROTBuilder::buildPath(DNAPATH::PATH<DNAMP2::PAKBridge>& path);
+template void AROTBuilder::buildPath(DNAPATH::PATH<DNAMP3::PAKBridge>& path);
 
 } // namespace DataSpec

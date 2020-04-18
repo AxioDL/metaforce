@@ -40,8 +40,8 @@ project(urde VERSION 0.1.0)
 # when available. GCC and Clang posess no such flag, and must be
 # manually enforced. CMake, curiously, also doesn't have a "latest"
 # standard flag either.
-if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  set(CMAKE_CXX_STANDARD 17)
+if (NOT MSVC)
+  set(CMAKE_CXX_STANDARD 20)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
@@ -86,30 +86,45 @@ if(MSVC)
   add_compile_options(/IGNORE:4221 /wd4018 /wd4800 /wd4005 /wd4311 /wd4068
       /wd4267 /wd4244 /wd4200 /wd4305 /wd4067 /wd4146 /wd4309 /wd4805 ${VS_OPTIONS})
 
-  if(WINDOWS_STORE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /AI\"$ENV{PROGRAMFILES\(X86\)}/Microsoft Visual Studio/2017/Community/Common7/IDE/VC/vcpackages\" /AI\"$ENV{PROGRAMFILES\(X86\)}/Windows Kits/10/UnionMetadata\"")
-    set(HAVE_WORDS_BIGENDIAN_EXITCODE 0)
-  endif()
+  add_compile_options(
+    # Disable exceptions
+    $<$<COMPILE_LANGUAGE:CXX>:/EHsc->
 
-  add_compile_options(/EHsc)
+    # Disable RTTI
+    $<$<COMPILE_LANGUAGE:CXX>:/GR->
+
+    # Enforce various standards compliant behavior.
+    $<$<COMPILE_LANGUAGE:CXX>:/permissive->
+
+    # Enable standard volatile semantics.
+    $<$<COMPILE_LANGUAGE:CXX>:/volatile:iso>
+
+    # Reports the proper value for the __cplusplus preprocessor macro.
+    $<$<COMPILE_LANGUAGE:CXX>:/Zc:__cplusplus>
+
+    # Use latest C++ standard.
+    $<$<COMPILE_LANGUAGE:CXX>:/std:c++latest>
+  )
+  add_compile_definitions(FMT_EXCEPTIONS=0 _HAS_EXCEPTIONS=0)
 
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    # Flags for MSVC (not clang-cl)
     add_compile_options(
-      /std:c++latest      # Use latest C++ standard.
-      /permissive-        # Enforce various standards compliance features.
-      /Zc:externConstexpr # Allow extern constexpr variables according to the standard.
-      /Zc:throwingNew     # Assume new throws, allowing for better code generation.
+      # Allow constexpr variables to have explicit external linkage.
+      $<$<COMPILE_LANGUAGE:CXX>:/Zc:externConstexpr>
+
+      # Assume that new throws exceptions, allowing better code generation.
+      $<$<COMPILE_LANGUAGE:CXX>:/Zc:throwingNew>
+
+      # Link-time Code Generation for Release builds
+      $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:/GL>
     )
 
-    # Link-time Code Generation for Release builds (excluding clang-cl)
-    set(CMAKE_C_FLAGS_RELEASE "/DNDEBUG /O2 /Oy /GL /Gy /MD")
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO "/DNDEBUG /Zi /O2 /Oy- /GL /Gy /MD")
+    # Link-time Code Generation for Release builds
     set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "/LTCG")
     set(CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO "/LTCG")
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/RELEASE /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO")
     set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG /RELEASE /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO /DEBUGTYPE:cv,fixup")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
   endif()
 
 else()
@@ -144,21 +159,19 @@ else()
   endif()
 
   if(URDE_MSAN)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    add_compile_options(-fsanitize=memory -fsanitize-memory-track-origins -fsanitize-recover=all)
+    add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++> -fsanitize=memory
+                        -fsanitize-memory-track-origins -fsanitize-recover=all)
   endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -fno-exceptions")
-  add_compile_options(-Wall -Wno-multichar -Werror=implicit-fallthrough -Wno-unknown-warning-option
+  add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
+                      $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
+                      -Wall -Wno-multichar -Werror=implicit-fallthrough -Wno-unknown-warning-option
                       -Wno-lto-type-mismatch -Wno-unused-variable -Wno-unused-private-field
                       -Wno-unused-function -Wno-sign-compare -Wno-unknown-pragmas -Werror)
   add_compile_definitions(FMT_EXCEPTIONS=0)
 
   if(APPLE)
-    add_compile_options(-Wno-error=deprecated-declarations)
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -flto=thin")
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -flto=thin")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto=thin")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -flto=thin")
+    add_compile_options(-Wno-error=deprecated-declarations
+                        $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-flto=thin>)
   endif()
 
 endif()

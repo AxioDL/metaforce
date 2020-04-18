@@ -38,27 +38,28 @@ public:
     CCollisionSurface x50_surface =
       CCollisionSurface(zeus::CVector3f(0.f, 0.f, 1.f), zeus::CVector3f(0.f, 1.f, 0.f),
                         zeus::CVector3f(1.f, 0.f, 0.f), 0xffffffff);
-    float x78_health;
+    float x78_health = 0.f;
     int x7c_framesNotOnSurface : 8;
     int x7c_idx : 10;
     int x7c_remainingLaunchNotOnSurfaceFrames : 8;
-
-    union {
-      struct {
-        bool x80_24_active : 1;
-        bool x80_25_inFrustum : 1;
-        bool x80_26_launched : 1;
-        bool x80_27_scarabExplodeTimerEnabled : 1;
-        bool x80_28_nearPlayer : 1;
-      };
-      u32 x80_ = 0;
-    };
+    bool x80_24_active : 1;
+    bool x80_25_inFrustum : 1;
+    bool x80_26_launched : 1;
+    bool x80_27_scarabExplodeTimerEnabled : 1;
+    bool x80_28_nearPlayer : 1;
 
   public:
-    CBoid(const zeus::CTransform& xf, int idx) : x0_xf(xf) {
-      x7c_framesNotOnSurface = 0;
-      x7c_idx = idx;
-    }
+    CBoid(const zeus::CTransform& xf, int idx)
+    : x0_xf(xf)
+    , x7c_framesNotOnSurface(0)
+    , x7c_idx(idx)
+    , x7c_remainingLaunchNotOnSurfaceFrames(0)
+    , x80_24_active(false)
+    , x80_25_inFrustum(false)
+    , x80_26_launched(false)
+    , x80_27_scarabExplodeTimerEnabled(false)
+    , x80_28_nearPlayer(false) {}
+
     zeus::CTransform& Transform() { return x0_xf; }
     zeus::CVector3f& Translation() { return x0_xf.origin; }
     const zeus::CTransform& GetTransform() const { return x0_xf; }
@@ -204,7 +205,7 @@ public:
   zeus::CVector3f GetOrbitPosition(const CStateManager&) const override;
   zeus::CVector3f GetAimPosition(const CStateManager&, float) const override;
   const zeus::CVector3f& GetLastKilledOffset() const { return x130_lastKilledOffset; }
-  void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr) {}
+  void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr);
   const std::vector<CBoid>& GetBoids() const { return x108_boids; }
   int GetCurrentLockOnId() const { return x42c_lockOnIdx; }
   bool GetLockOnLocationValid(int id) const { return id >= 0 && id < x108_boids.size() && x108_boids[id].GetActive(); }

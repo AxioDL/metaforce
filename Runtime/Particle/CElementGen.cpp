@@ -54,11 +54,24 @@ void CElementGen::Initialize() {
 void CElementGen::Shutdown() { CElementGenShaders::Shutdown(); }
 
 CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orientType, EOptionalSystemFlags flags)
-: x1c_genDesc(std::move(gen)), x2c_orientType(orientType), x27c_randState(x94_randomSeed) {
+: x1c_genDesc(std::move(gen))
+, x2c_orientType(orientType)
+, x26c_24_translationDirty(false)
+, x26c_25_LIT_(false)
+, x26c_26_AAPH(false)
+, x26c_27_ZBUF(false)
+, x26c_28_zTest(false)
+, x26c_29_ORNT(false)
+, x26c_30_MBLR(false)
+, x26c_31_LINE(false)
+, x26d_24_FXLL(false)
+, x26d_25_warmedUp(false)
+, x26d_26_modelsUseLights(false)
+, x26d_27_enableOPTS(True(flags & EOptionalSystemFlags::Two))
+, x26d_28_enableADV(false)
+, x27c_randState(x94_randomSeed) {
   CGenDescription* desc = x1c_genDesc.GetObj();
   x28_loadedGenDesc = desc;
-
-  x26d_27_enableOPTS = True(flags & EOptionalSystemFlags::Two);
 
   if (desc->x54_x40_TEXR)
     desc->x54_x40_TEXR->GetValueTexture(0).GetObj();
@@ -242,7 +255,7 @@ bool CElementGen::Update(double t) {
   if (pswtElem && !x26d_25_warmedUp) {
     int pswt = 0;
     pswtElem->GetValue(x74_curFrame, pswt);
-    //Log.report(logvisor::Info, fmt("Running warmup on particle system 0x%08x for %d ticks."), desc, pswt);
+    //Log.report(logvisor::Info, FMT_STRING("Running warmup on particle system 0x%08x for %d ticks."), desc, pswt);
     InternalUpdate((1.f / 60.f) * pswt);
     x26d_25_warmedUp = true;
   }
@@ -800,7 +813,7 @@ u32 CElementGen::GetSystemCount() const {
 }
 
 void CElementGen::Render(const CActorLights* actorLights) {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CElementGen::Render {}"),
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::Render {}"),
     *x1c_genDesc.GetObjectTag()).c_str(), zeus::skYellow);
 
   CGenDescription* desc = x1c_genDesc.GetObj();
@@ -885,7 +898,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       g_instNoTexData.reserve(x30_particles.size());
       break;
     default:
-      Log.report(logvisor::Fatal, fmt("unexpected particle shader class"));
+      Log.report(logvisor::Fatal, FMT_STRING("unexpected particle shader class"));
       break;
     }
 
@@ -1123,8 +1136,7 @@ void CElementGen::RenderLines() {
 
   m_lineRenderer->Reset();
 
-  for (size_t i = 0; i < x30_particles.size(); ++i) {
-    CParticle& particle = x30_particles[i];
+  for (auto& particle : x30_particles) {
     g_currentParticle = &particle;
 
     int partFrame = x74_curFrame - particle.x28_startFrame;
@@ -1297,7 +1309,7 @@ void CElementGen::RenderParticles() {
       g_instNoTexData.reserve(x30_particles.size());
       break;
     default:
-      Log.report(logvisor::Fatal, fmt("unexpected particle shader class"));
+      Log.report(logvisor::Fatal, FMT_STRING("unexpected particle shader class"));
       break;
     }
 
@@ -1486,7 +1498,7 @@ void CElementGen::RenderParticles() {
       g_instNoTexData.reserve(x30_particles.size() * mbspVal);
       break;
     default:
-      Log.report(logvisor::Fatal, fmt("unexpected particle shader class"));
+      Log.report(logvisor::Fatal, FMT_STRING("unexpected particle shader class"));
       break;
     }
     const float mbspFac = 1.f / float(mbspVal);

@@ -204,7 +204,7 @@ constexpr std::array<CMorphBall::ColorArray, 9> BallSwooshColorsJaggy{{
 }};
 } // Anonymous namespace
 
-const std::array<CMorphBall::ColorArray, 9> CMorphBall::BallGlowColors{{
+constexpr std::array<CMorphBall::ColorArray, 9> CMorphBall::BallGlowColors{{
     {0xff, 0xff, 0xff},
     {0xff, 0xff, 0xff},
     {0xff, 0xff, 0xff},
@@ -216,7 +216,7 @@ const std::array<CMorphBall::ColorArray, 9> CMorphBall::BallGlowColors{{
     {0xff, 0xff, 0xff},
 }};
 
-const std::array<CMorphBall::ColorArray, 9> CMorphBall::BallTransFlashColors{{
+constexpr std::array<CMorphBall::ColorArray, 9> CMorphBall::BallTransFlashColors{{
     {0xc2, 0x7e, 0x10},
     {0x66, 0xc4, 0xff},
     {0x60, 0xff, 0x90},
@@ -228,7 +228,7 @@ const std::array<CMorphBall::ColorArray, 9> CMorphBall::BallTransFlashColors{{
     {0xfb, 0x98, 0x21},
 }};
 
-const std::array<CMorphBall::ColorArray, 9> CMorphBall::BallAuxGlowColors{{
+constexpr std::array<CMorphBall::ColorArray, 9> CMorphBall::BallAuxGlowColors{{
     {0xc2, 0x7e, 0x10},
     {0x66, 0xc4, 0xff},
     {0x6c, 0xff, 0x61},
@@ -283,8 +283,9 @@ CMorphBall::CMorphBall(CPlayer& player, float radius)
 
   kSpiderBallCollisionRadius = GetBallRadius() + 0.2f;
 
-  for (int i = 0; i < 32; ++i)
+  for (size_t i = 0; i < x19e4_spiderElectricGens.capacity(); ++i) {
     x19e4_spiderElectricGens.emplace_back(std::make_unique<CParticleSwoosh>(x19a0_spiderElectric, 0), false);
+  }
 
   LoadAnimationTokens("SamusBallANCS");
   InitializeWakeEffects();
@@ -303,10 +304,9 @@ void CMorphBall::LoadAnimationTokens(std::string_view ancsName) {
 }
 
 void CMorphBall::InitializeWakeEffects() {
-  TToken<CGenDescription> nullParticle =
+  const TToken<CGenDescription> nullParticle =
       CToken(TObjOwnerDerivedFromIObj<CGenDescription>::GetNewDerivedObject(std::make_unique<CGenDescription>()));
-  for (int i = 0; i < 8; ++i)
-    x1b84_wakeEffects.push_back(nullParticle);
+  x1b84_wakeEffects.resize(x1b84_wakeEffects.capacity(), nullParticle);
 
   x1b84_wakeEffects[2] = g_SimplePool->GetObj("DirtWake");
   x1b84_wakeEffects[0] = g_SimplePool->GetObj("PhazonWake");
@@ -317,7 +317,7 @@ void CMorphBall::InitializeWakeEffects() {
   x1b84_wakeEffects[6] = g_SimplePool->GetObj("SandWake");
   x1b84_wakeEffects[7] = g_SimplePool->GetObj("RainWake");
 
-  x1bc8_wakeEffectGens.resize(8);
+  x1bc8_wakeEffectGens.resize(x1b84_wakeEffects.capacity());
   x1bc8_wakeEffectGens[2] = std::make_unique<CElementGen>(x1b84_wakeEffects[2]);
   x1bc8_wakeEffectGens[0] = std::make_unique<CElementGen>(x1b84_wakeEffects[0]);
   x1bc8_wakeEffectGens[1] = std::make_unique<CElementGen>(x1b84_wakeEffects[1]);
@@ -1129,7 +1129,7 @@ void CMorphBall::EnterMorphBallState(CStateManager& mgr) {
   x1c20_tireFactor = 0.f;
   UpdateEffects(0.f, mgr);
   x187c_spiderBallState = ESpiderBallState::Inactive;
-  CAnimPlaybackParms parms(0, -1, 1.f, true);
+  constexpr CAnimPlaybackParms parms(0, -1, 1.f, true);
   x58_ballModel->GetAnimationData()->SetAnimation(parms, false);
   x1e20_ballAnimIdx = 0;
   StopEffects();
@@ -1288,7 +1288,7 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, CStateManage
     if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::JumpOrBoost, input) &&
         x187c_spiderBallState != ESpiderBallState::Active) {
       if (x1e20_ballAnimIdx == 0) {
-        CAnimPlaybackParms parms(1, -1, 1.f, true);
+        constexpr CAnimPlaybackParms parms(1, -1, 1.f, true);
         x58_ballModel->GetAnimationData()->SetAnimation(parms, false);
         x1e20_ballAnimIdx = 1;
         x1e24_boostSfxHandle = CSfxManager::SfxStart(SFXsam_ball_charge_lp, 1.f, 0.f, true, 0x7f, true, kInvalidAreaId);
@@ -1298,7 +1298,7 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, CStateManage
         x1de8_boostChargeTime = g_tweakBall->GetBoostBallMaxChargeTime();
     } else {
       if (x1e20_ballAnimIdx == 1) {
-        CAnimPlaybackParms parms(0, -1, 1.f, true);
+        constexpr CAnimPlaybackParms parms(0, -1, 1.f, true);
         x58_ballModel->GetAnimationData()->SetAnimation(parms, false);
         x1e20_ballAnimIdx = 0;
         CSfxManager::RemoveEmitter(x1e24_boostSfxHandle);
@@ -1399,7 +1399,7 @@ void CMorphBall::CancelBoosting() {
   x1de8_boostChargeTime = 0.f;
   x1df4_boostDrainTime = 0.f;
   if (x1e20_ballAnimIdx == 1) {
-    CAnimPlaybackParms parms(0, -1, 1.f, true);
+    constexpr CAnimPlaybackParms parms(0, -1, 1.f, true);
     x58_ballModel->GetAnimationData()->SetAnimation(parms, false);
     x1e20_ballAnimIdx = 0;
     CSfxManager::SfxStop(x1e24_boostSfxHandle);
@@ -1539,7 +1539,7 @@ void CMorphBall::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
 }
 
 void CMorphBall::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  reinterpret_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
+  static_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
 }
 
 void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) const {
@@ -1674,8 +1674,8 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
   RenderMorphBallTransitionFlash(mgr);
 
   if (x0_player.GetFrozenState()) {
-    CModelFlags fflags(0, 0, 3, zeus::skWhite);
-    x70_frozenBallModel->Render(mgr, zeus::CTransform::Translate(ballToWorld.origin), lights, fflags);
+    constexpr CModelFlags modelFlags(0, 0, 3, zeus::skWhite);
+    x70_frozenBallModel->Render(mgr, zeus::CTransform::Translate(ballToWorld.origin), lights, modelFlags);
   }
 
   RenderIceBreakEffect(mgr);

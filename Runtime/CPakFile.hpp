@@ -36,16 +36,11 @@ public:
   };
 
 private:
-  union {
-    struct {
-      bool x28_24_buildDepList : 1;
-      bool x28_25_aramFile : 1;
-      bool x28_26_worldPak : 1;
-      bool x28_27_stashedInARAM : 1;
-      bool m_override : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x28_24_buildDepList : 1;
+  bool x28_25_aramFile : 1;
+  bool x28_26_worldPak : 1;
+  bool x28_27_stashedInARAM : 1;
+  bool m_override : 1;
   enum class EAsyncPhase {
     Warmup = 0,
     InitialHeader = 1,

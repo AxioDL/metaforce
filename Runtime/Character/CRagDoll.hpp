@@ -94,17 +94,12 @@ protected:
   float x54_impactVel = 0.f;
   zeus::CVector3f x58_averageVel;
   float x64_angTimer = 0.f;
-  union {
-    struct {
-      bool x68_24_prevMovingSlowly : 1;
-      bool x68_25_over : 1;
-      bool x68_26_primed : 1;
-      bool x68_27_continueSmallMovements : 1;
-      bool x68_28_noOverTimer : 1;
-      bool x68_29_noAiCollision : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x68_24_prevMovingSlowly : 1;
+  bool x68_25_over : 1;
+  bool x68_26_primed : 1;
+  bool x68_27_continueSmallMovements : 1;
+  bool x68_28_noOverTimer : 1;
+  bool x68_29_noAiCollision : 1;
   void AccumulateForces(float dt, float waterTop);
   void SetNumParticles(int num) { x4_particles.reserve(num); }
   void AddParticle(CSegId id, const zeus::CVector3f& prevPos, const zeus::CVector3f& curPos, float radius);

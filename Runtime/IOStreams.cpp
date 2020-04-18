@@ -8,7 +8,7 @@ namespace urde {
 #if DUMP_BITS
 static void PrintBinary(u32 val, u32 count) {
   for (u32 i = 0; i < count; ++i) {
-    fmt::print(fmt("{}"), (val >> (count - i - 1)) & 0x1);
+    fmt::print(FMT_STRING("{}"), (val >> (count - i - 1)) & 0x1);
   }
 }
 #endif
@@ -57,7 +57,7 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount) {
 #if DUMP_BITS
   std::fputs("READ ", stdout);
   PrintBinary(ret, bitCount);
-  fmt::print(fmt(" {} {}\n"), pos, boff);
+  fmt::print(FMT_STRING(" {} {}\n"), pos, boff);
 #endif
 
   return ret;
@@ -67,7 +67,7 @@ void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount) {
 #if DUMP_BITS
   std::fputs("WRITE ", stdout);
   PrintBinary(val, bitCount);
-  fmt::print(fmt(" {} {}\n"), position(), x18_bitOffset);
+  fmt::print(FMT_STRING(" {} {}\n"), position(), x18_bitOffset);
 #endif
 
   const s32 shiftAmt = x18_bitOffset - s32(bitCount);

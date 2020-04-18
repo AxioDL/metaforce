@@ -7,340 +7,294 @@ namespace DataSpec::DNAMP3 {
 using Material = MaterialSet::Material;
 
 template <>
-void MaterialSet::Material::SectionFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
-  DNAFourCC type;
-  type.read(reader);
-  switch (ISection::Type(type.toUint32())) {
-  case ISection::Type::PASS:
-    section = std::make_unique<SectionPASS>();
-    section->read(reader);
-    break;
-  case ISection::Type::CLR:
-    section = std::make_unique<SectionCLR>();
-    section->read(reader);
-    break;
-  case ISection::Type::INT:
-    section = std::make_unique<SectionINT>();
-    section->read(reader);
-    break;
-  default:
-    section.reset();
-    break;
-  }
-}
-template <>
-void MaterialSet::Material::SectionFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& writer) {
-  if (!section)
-    return;
-  writer.writeUBytes((atUint8*)&section->m_type, 4);
-  section->write(writer);
-}
-template <>
-void MaterialSet::Material::SectionFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {
-  s += 4;
-  section->binarySize(s);
-}
-
-template <>
 void MaterialSet::Material::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
   header.read(reader);
-  sections.clear();
-  do {
-    sections.emplace_back();
-    sections.back().read(reader);
-  } while (sections.back().section);
-  sections.pop_back();
+  chunks.clear();
+  do { chunks.emplace_back().read(reader); } while (!chunks.back().holds_alternative<END>());
+  chunks.pop_back();
 }
 template <>
 void MaterialSet::Material::Enumerate<BigDNA::Write>(typename Write::StreamT& writer) {
   header.write(writer);
-  for (const SectionFactory& section : sections)
-    section.write(writer);
-  writer.writeUBytes((atUint8*)"END ", 4);
+  for (const auto& chunk : chunks)
+    chunk.visit([&](auto& arg) { arg.write(writer); });
+  DNAFourCC(FOURCC('END ')).write(writer);
 }
 template <>
 void MaterialSet::Material::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {
   header.binarySize(s);
-  for (const SectionFactory& section : sections)
-    section.binarySize(s);
+  for (const auto& chunk : chunks)
+    chunk.visit([&](auto& arg) { arg.binarySize(s); });
   s += 4;
 }
 
 void MaterialSet::RegisterMaterialProps(Stream& out) {
-  out << "bpy.types.Material.retro_alpha_test = bpy.props.BoolProperty(name='Retro: Punchthrough Alpha')\n"
+  out << "bpy.types.Material.retro_enable_bloom = bpy.props.BoolProperty(name='Retro: Enable Bloom')\n"
+         "bpy.types.Material.retro_force_lighting_stage = bpy.props.BoolProperty(name='Retro: Force Lighting Stage')\n"
+         "bpy.types.Material.retro_pre_inca_transparency = bpy.props.BoolProperty(name='Retro: Pre-INCA Transparency')\n"
+         "bpy.types.Material.retro_alpha_test = bpy.props.BoolProperty(name='Retro: Alpha Test')\n"
          "bpy.types.Material.retro_shadow_occluder = bpy.props.BoolProperty(name='Retro: Shadow Occluder')\n"
-         "bpy.types.Material.retro_lightmapped = bpy.props.BoolProperty(name='Retro: Lightmapped')\n"
-         "bpy.types.Material.retro_opac = bpy.props.IntProperty(name='Retro: OPAC')\n"
-         "bpy.types.Material.retro_blod = bpy.props.IntProperty(name='Retro: BLOD')\n"
-         "bpy.types.Material.retro_bloi = bpy.props.IntProperty(name='Retro: BLOI')\n"
-         "bpy.types.Material.retro_bnif = bpy.props.IntProperty(name='Retro: BNIF')\n"
-         "bpy.types.Material.retro_xrbr = bpy.props.IntProperty(name='Retro: XRBR')\n"
+         "bpy.types.Material.retro_solid_white = bpy.props.BoolProperty(name='Retro: Solid White Only')\n"
+         "bpy.types.Material.retro_reflection_alpha_target = bpy.props.BoolProperty(name='Retro: Reflection Alpha Target')\n"
+         "bpy.types.Material.retro_solid_color = bpy.props.BoolProperty(name='Retro: Solid Color Only')\n"
+         "bpy.types.Material.retro_exclude_scan = bpy.props.BoolProperty(name='Retro: Exclude From Scan Visor')\n"
+         "bpy.types.Material.retro_xray_opaque = bpy.props.BoolProperty(name='Retro: XRay Opaque')\n"
+         "bpy.types.Material.retro_xray_alpha_target = bpy.props.BoolProperty(name='Retro: XRay Alpha Target')\n"
+         "bpy.types.Material.retro_inca_color_mod = bpy.props.BoolProperty(name='Retro: INCA Color Mod')\n"
          "\n";
+}
+
+static void LoadTexture(Stream& out, const UniqueID64& tex,
+                        const PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry) {
+  if (!tex.isValid()) {
+    out << "image = None\n";
+    return;
+  }
+  std::string texName = pakRouter.getBestEntryName(tex);
+  const nod::Node* node;
+  const typename PAKRouter<PAKBridge>::EntryType* texEntry = pakRouter.lookupEntry(tex, &node);
+  hecl::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
+  if (!txtrPath.isNone()) {
+    txtrPath.makeDirChain(false);
+    PAKEntryReadStream rs = texEntry->beginReadStream(*node);
+    TXTR::Extract(rs, txtrPath);
+  }
+  hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
+  hecl::SystemUTF8Conv resPathView(resPath);
+  out.format(FMT_STRING("if '{}' in bpy.data.images:\n"
+                 "    image = bpy.data.images['{}']\n"
+                 "else:\n"
+                 "    image = bpy.data.images.load('''//{}''')\n"
+                 "    image.name = '{}'\n"
+                 "\n"), texName, texName, resPathView, texName);
 }
 
 void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry,
                                     const Material& material, unsigned groupIdx, unsigned matIdx) {
-  unsigned i;
-
-  out.format(fmt(
-      "new_material = bpy.data.materials.new('MAT_{}_{}')\n"
-      "new_material.use_shadows = True\n"
-      "new_material.use_transparent_shadows = True\n"
-      "new_material.diffuse_color = (1.0,1.0,1.0)\n"
-      "new_material.use_nodes = True\n"
-      "new_material.blend_method = 'BLEND'\n"
-      "new_nodetree = new_material.node_tree\n"
-      "material_node = new_nodetree.nodes['Material']\n"
-      "final_node = new_nodetree.nodes['Output']\n"
-      "\n"
-      "gridder = hecl.Nodegrid(new_nodetree)\n"
-      "gridder.place_node(final_node, 3)\n"
-      "gridder.place_node(material_node, 0)\n"
-      "material_node.material = new_material\n"
-      "\n"
-      "texture_nodes = []\n"
-      "kcolor_nodes = []\n"
-      "color_combiner_nodes = []\n"
-      "alpha_combiner_nodes = []\n"
-      "tex_links = []\n"
-      "tev_reg_sockets = [None]*4\n"
-      "\n"),
-      groupIdx, matIdx);
+  out.format(FMT_STRING("new_material = bpy.data.materials.new('MAT_{}_{}')\n"), groupIdx, matIdx);
+  out << "new_material.use_fake_user = True\n"
+         "new_material.use_nodes = True\n"
+         "new_material.use_backface_culling = True\n"
+         "new_material.show_transparent_back = False\n"
+         "new_material.blend_method = 'BLEND'\n"
+         "new_nodetree = new_material.node_tree\n"
+         "for n in new_nodetree.nodes:\n"
+         "    new_nodetree.nodes.remove(n)\n"
+         "\n"
+         "gridder = hecl.Nodegrid(new_nodetree)\n"
+         "new_nodetree.nodes.remove(gridder.frames[2])\n"
+         "\n"
+         "texture_nodes = []\n"
+         "kcolors = {}\n"
+         "kalphas = {}\n"
+         "tex_links = []\n"
+         "\n";
 
   /* Material Flags */
-  out.format(fmt(
+  out.format(FMT_STRING(
+      "new_material.retro_enable_bloom = {}\n"
+      "new_material.retro_force_lighting_stage = {}\n"
+      "new_material.retro_pre_inca_transparency = {}\n"
       "new_material.retro_alpha_test = {}\n"
       "new_material.retro_shadow_occluder = {}\n"
-      "new_material.diffuse_color = (1, 1, 1, {})\n"),
+      "new_material.retro_solid_white = {}\n"
+      "new_material.retro_reflection_alpha_target = {}\n"
+      "new_material.retro_solid_color = {}\n"
+      "new_material.retro_exclude_scan = {}\n"
+      "new_material.retro_xray_opaque = {}\n"
+      "new_material.retro_xray_alpha_target = {}\n"
+      "new_material.retro_inca_color_mod = False\n"),
+      material.header.flags.enableBloom() ? "True" : "False",
+      material.header.flags.forceLightingStage() ? "True" : "False",
+      material.header.flags.preIncaTransparency() ? "True" : "False",
       material.header.flags.alphaTest() ? "True" : "False",
       material.header.flags.shadowOccluderMesh() ? "True" : "False",
-      material.header.flags.shadowOccluderMesh() ? "0" : "1");
+      material.header.flags.justWhite() ? "True" : "False",
+      material.header.flags.reflectionAlphaTarget() ? "True" : "False",
+      material.header.flags.justSolidColor() ? "True" : "False",
+      material.header.flags.excludeFromScanVisor() ? "True" : "False",
+      material.header.flags.xrayOpaque() ? "True" : "False",
+      material.header.flags.xrayAlphaTarget() ? "True" : "False");
 
-  /* Blend factors */
-  out << "blend_node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-         "blend_node.name = 'Blend'\n"
-         "gridder.place_node(blend_node, 2)\n";
-  if (material.header.flags.alphaBlending())
-    out << "blend_node.node_tree = bpy.data.node_groups['HECLBlendOutput']\n";
-  else if (material.header.flags.additiveBlending())
-    out << "blend_node.node_tree = bpy.data.node_groups['HECLAdditiveOutput']\n";
-  else {
-    out << "blend_node.node_tree = bpy.data.node_groups['HECLOpaqueOutput']\n"
-           "new_material.blend_method = 'OPAQUE'\n";
-  }
+  out << "pnode = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+         "pnode.name = 'Output'\n"
+         "pnode.node_tree = bpy.data.node_groups['RetroShaderMP3']\n"
+         "gridder.place_node(pnode, 1)\n";
 
-  /* Texmap list */
-  out << "tex_maps = []\n"
-         "pnode = None\n"
-         "anode = None\n"
-         "rflv_tex_node = None\n";
+  if (material.header.flags.additiveIncandecence())
+    out << "pnode.inputs['Add INCA'].default_value = 1\n";
 
-  /* Add PASSes */
-  i = 0;
-  unsigned texMapIdx = 0;
-  unsigned texMtxIdx = 0;
-  unsigned kColorIdx = 0;
-  Material::ISection* prevSection = nullptr;
-  for (const Material::SectionFactory& factory : material.sections) {
-    factory.section->constructNode(out, pakRouter, entry, prevSection, i++, texMapIdx, texMtxIdx, kColorIdx);
-    Material::SectionPASS* pass = Material::SectionPASS::castTo(factory.section.get());
-    if (!pass ||
-        (pass && Material::SectionPASS::Subtype(pass->subtype.toUint32()) != Material::SectionPASS::Subtype::RFLV))
-      prevSection = factory.section.get();
-  }
+  int texMtxIdx = 0;
+  for (const auto& chunk : material.chunks) {
+    if (const Material::PASS* pass = chunk.get_if<Material::PASS>()) {
+      LoadTexture(out, pass->txtrId, pakRouter, entry);
+      out << "# Texture\n"
+             "tex_node = new_nodetree.nodes.new('ShaderNodeTexImage')\n"
+             "texture_nodes.append(tex_node)\n"
+             "tex_node.image = image\n";
 
-  /* Connect final PASS */
-  out << "if pnode:\n"
-         "    new_nodetree.links.new(pnode.outputs['Next Color'], final_node.inputs['Color'])\n"
-         "else:\n"
-         "    new_nodetree.links.new(kcolor_nodes[-1][0].outputs[0], final_node.inputs['Color'])\n"
-         "if anode:\n"
-         "    new_nodetree.links.new(anode.outputs['Value'], final_node.inputs['Alpha'])\n"
-         "elif pnode:\n"
-         "    new_nodetree.links.new(pnode.outputs['Next Alpha'], final_node.inputs['Alpha'])\n"
-         "else:\n"
-         "    new_nodetree.links.new(kcolor_nodes[-1][1].outputs[0], final_node.inputs['Alpha'])\n";
-}
+      if (!pass->uvAnim.empty()) {
+        const auto& uva = pass->uvAnim[0];
+        switch (uva.uvSource) {
+        case Material::UVAnimationUVSource::Position:
+        default:
+          out << "tex_uv_node = new_nodetree.nodes.new('ShaderNodeTexCoord')\n"
+                 "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['Window'], tex_node.inputs['Vector']))\n";
+          break;
+        case Material::UVAnimationUVSource::Normal:
+          out << "tex_uv_node = new_nodetree.nodes.new('ShaderNodeTexCoord')\n"
+                 "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['Normal'], tex_node.inputs['Vector']))\n";
+          break;
+        case Material::UVAnimationUVSource::UV:
+          out.format(FMT_STRING("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
+                         "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
+                         "tex_uv_node.uv_map = 'UV_{}'\n"), pass->uvSrc);
+          break;
+        }
+        out.format(FMT_STRING("tex_uv_node.label = 'MTX_{}'\n"), texMtxIdx);
+      } else {
+        out.format(FMT_STRING("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
+                       "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
+                       "tex_uv_node.uv_map = 'UV_{}'\n"), pass->uvSrc);
+      }
 
-void Material::SectionPASS::constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
-                                          const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                                          unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const {
-  /* Add Texture nodes */
-  if (txtrId.isValid()) {
-    std::string texName = pakRouter.getBestEntryName(txtrId);
-    const nod::Node* node;
-    const PAK::Entry* texEntry = pakRouter.lookupEntry(txtrId, &node);
-    hecl::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
-    if (txtrPath.isNone()) {
-      txtrPath.makeDirChain(false);
-      PAKEntryReadStream rs = texEntry->beginReadStream(*node);
-      TXTR::Extract(rs, txtrPath);
+      out << "gridder.place_node(tex_uv_node, 0)\n"
+             "gridder.place_node(tex_node, 0)\n"
+             "tex_uv_node.location[0] -= 120\n"
+             "tex_node.location[0] += 120\n"
+             "tex_node.location[1] += 176\n"
+             "\n";
+
+      if (!pass->uvAnim.empty()) {
+        const auto& uva = pass->uvAnim[0];
+        DNAMP1::MaterialSet::Material::AddTextureAnim(out, uva.anim.mode, texMtxIdx++, uva.anim.vals);
+      }
+
+      auto DoSwap = [&]() {
+        if (pass->flags.swapColorComponent() == Material::SwapColorComponent::Alpha) {
+          out << "swap_output = tex_node.outputs['Alpha']\n";
+        } else {
+          out << "separate_node = new_nodetree.nodes.new('ShaderNodeSeparateRGB')\n"
+                 "gridder.place_node(separate_node, 0, False)\n"
+                 "separate_node.location[0] += 350\n"
+                 "separate_node.location[1] += 350\n"
+                 "new_nodetree.links.new(tex_node.outputs['Color'], separate_node.inputs[0])\n";
+          out.format(FMT_STRING("swap_output = separate_node.outputs[{}]\n"), int(pass->flags.swapColorComponent()));
+        }
+      };
+
+      using Subtype = Material::PASS::Subtype;
+      switch (Subtype(pass->subtype.toUint32())) {
+      case Subtype::DIFF:
+        out << "new_nodetree.links.new(tex_node.outputs['Color'], pnode.inputs['DIFFC'])\n"
+               "new_nodetree.links.new(tex_node.outputs['Alpha'], pnode.inputs['DIFFA'])\n";
+        break;
+      case Subtype::BLOL:
+        DoSwap();
+        out << "new_nodetree.links.new(swap_output, pnode.inputs['BLOL'])\n";
+        break;
+      case Subtype::BLOD:
+        DoSwap();
+        out << "new_nodetree.links.new(swap_output, pnode.inputs['BLOD'])\n";
+        break;
+      case Subtype::CLR:
+        out << "new_nodetree.links.new(tex_node.outputs['Color'], pnode.inputs['CLR'])\n"
+               "new_nodetree.links.new(tex_node.outputs['Alpha'], pnode.inputs['CLRA'])\n";
+        break;
+      case Subtype::TRAN:
+        DoSwap();
+        if (pass->flags.TRANInvert())
+          out << "invert_node = new_nodetree.nodes.new('ShaderNodeInvert')\n"
+                 "gridder.place_node(invert_node, 0, False)\n"
+                 "invert_node.location[0] += 400\n"
+                 "invert_node.location[1] += 350\n"
+                 "new_nodetree.links.new(swap_output, invert_node.inputs['Color'])\n"
+                 "swap_output = invert_node.outputs['Color']\n";
+        out << "new_nodetree.links.new(swap_output, pnode.inputs['TRAN'])\n";
+        break;
+      case Subtype::INCA:
+        out << "new_nodetree.links.new(tex_node.outputs['Color'], pnode.inputs['INCAC'])\n";
+        if (pass->flags.alphaContribution()) {
+          DoSwap();
+          out << "new_nodetree.links.new(swap_output, pnode.inputs['INCAA'])\n";
+        }
+        out.format(FMT_STRING("new_material.retro_inca_color_mod = {}\n"), pass->flags.INCAColorMod() ? "True" : "False");
+        break;
+      case Subtype::RFLV:
+        out << "new_nodetree.links.new(tex_node.outputs['Color'], pnode.inputs['RFLV'])\n";
+        break;
+      case Subtype::RFLD:
+        out << "new_nodetree.links.new(tex_node.outputs['Color'], pnode.inputs['RFLD'])\n"
+               "new_nodetree.links.new(tex_node.outputs['Alpha'], pnode.inputs['RFLDA'])\n";
+        break;
+      case Subtype::LRLD:
+        out << "new_nodetree.links.new(tex_node.outputs['Color'], pnode.inputs['LRLD'])\n";
+        break;
+      case Subtype::LURD:
+        out << "new_nodetree.links.new(tex_node.outputs['Color'], pnode.inputs['LURDC'])\n"
+               "new_nodetree.links.new(tex_node.outputs['Alpha'], pnode.inputs['LURDA'])\n";
+        break;
+      case Subtype::BLOI:
+        DoSwap();
+        out << "new_nodetree.links.new(swap_output, pnode.inputs['BLOI'])\n";
+        break;
+      case Subtype::XRAY:
+        DoSwap();
+        out << "new_nodetree.links.new(tex_node.outputs['Color'], pnode.inputs['XRAYC'])\n"
+               "new_nodetree.links.new(swap_output, pnode.inputs['XRAYA'])\n";
+        break;
+      default:
+        Log.report(logvisor::Fatal, FMT_STRING("Unknown PASS subtype"));
+        break;
+      }
+    } else if (const Material::CLR* clr = chunk.get_if<Material::CLR>()) {
+      using Subtype = Material::CLR::Subtype;
+      athena::simd_floats vec4;
+      clr->color.toVec4f().simd.copy_to(vec4);
+      switch (Subtype(clr->subtype.toUint32())) {
+      case Subtype::CLR:
+        out.format(FMT_STRING("pnode.inputs['CLR'].default_value = ({}, {}, {}, 1.0)\n"
+                       "pnode.inputs['CLRA'].default_value = {}\n"),
+                   vec4[0], vec4[1], vec4[2], vec4[3]);
+        break;
+      case Subtype::DIFB:
+        out.format(FMT_STRING("pnode.inputs['DIFBC'].default_value = ({}, {}, {}, 1.0)\n"
+                       "pnode.inputs['DIFBA'].default_value = {}\n"),
+                   vec4[0], vec4[1], vec4[2], vec4[3]);
+        break;
+      default:
+        Log.report(logvisor::Fatal, FMT_STRING("Unknown CLR subtype"));
+        break;
+      }
+    } else if (const Material::INT* val = chunk.get_if<Material::INT>()) {
+      using Subtype = Material::INT::Subtype;
+      switch (Subtype(val->subtype.toUint32())) {
+      case Subtype::OPAC:
+        out.format(FMT_STRING("pnode.inputs['OPAC'].default_value = {}\n"), val->value / 255.f);
+        break;
+      case Subtype::BLOD:
+        out.format(FMT_STRING("pnode.inputs['BLOD'].default_value = {}\n"), val->value / 255.f);
+        break;
+      case Subtype::BLOI:
+        out.format(FMT_STRING("pnode.inputs['BLOI'].default_value = {}\n"), val->value / 255.f);
+        break;
+      case Subtype::BNIF:
+        out.format(FMT_STRING("pnode.inputs['BNIF'].default_value = {}\n"), val->value / 255.f);
+        break;
+      case Subtype::XRBR:
+        out.format(FMT_STRING("pnode.inputs['XRBR'].default_value = {}\n"), val->value / 255.f);
+        break;
+      default:
+        Log.report(logvisor::Fatal, FMT_STRING("Unknown INT subtype"));
+        break;
+      }
     }
-    hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, txtrId);
-    hecl::SystemUTF8Conv resPathView(resPath);
-    out.format(fmt(
-        "if '{}' in bpy.data.textures:\n"
-        "    image = bpy.data.images['{}']\n"
-        "    texture = bpy.data.textures[image.name]\n"
-        "else:\n"
-        "    image = bpy.data.images.load('''//{}''')\n"
-        "    image.name = '{}'\n"
-        "    texture = bpy.data.textures.new(image.name, 'IMAGE')\n"
-        "    texture.image = image\n"
-        "tex_maps.append(texture)\n"
-        "\n"),
-        texName, texName, resPathView, texName);
-    if (uvAnim.size()) {
-      const UVAnimation& uva = uvAnim[0];
-      DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uva.unk1 + (uva.unk1 < 2 ? 0 : 2)), texMtxIdx,
-                                                texMapIdx++, false);
-      DNAMP1::MaterialSet::Material::AddTextureAnim(out, uva.anim.mode, texMtxIdx++, uva.anim.vals);
-    } else
-      DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uvSrc + 4), -1, texMapIdx++, false);
-  }
-
-  /* Special case for RFLV (environment UV mask) */
-  if (Subtype(subtype.toUint32()) == Subtype::RFLV) {
-    if (txtrId.isValid())
-      out << "rflv_tex_node = texture_nodes[-1]\n";
-    return;
-  }
-
-  /* Add PASS node */
-  bool linkRAS = false;
-  out << "prev_pnode = pnode\n"
-         "pnode = new_nodetree.nodes.new('ShaderNodeGroup')\n";
-  switch (Subtype(subtype.toUint32())) {
-  case Subtype::DIFF: {
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassDIFF']\n";
-    if (txtrId.isValid()) {
-      out << "new_material.hecl_lightmap = texture.name\n"
-          << "texture.image.use_fake_user = True\n";
-    }
-    linkRAS = true;
-    break;
-  }
-  case Subtype::RIML:
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassRIML']\n";
-    if (idx == 0)
-      linkRAS = true;
-    break;
-  case Subtype::BLOL:
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassBLOL']\n";
-    if (idx == 0)
-      linkRAS = true;
-    break;
-  case Subtype::BLOD:
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassBLOD']\n";
-    if (idx == 0)
-      linkRAS = true;
-    break;
-  case Subtype::CLR:
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassCLR']\n";
-    if (idx == 0)
-      linkRAS = true;
-    break;
-  case Subtype::TRAN:
-    if (flags.TRANInvert())
-      out << "pnode.node_tree = bpy.data.node_groups['RetroPassTRANInv']\n";
-    else
-      out << "pnode.node_tree = bpy.data.node_groups['RetroPassTRAN']\n";
-    break;
-  case Subtype::INCA:
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassINCA']\n";
-    break;
-  case Subtype::RFLV:
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassRFLV']\n";
-    break;
-  case Subtype::RFLD:
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassRFLD']\n"
-           "if rflv_tex_node:\n"
-           "    new_nodetree.links.new(rflv_tex_node.outputs['Color'], pnode.inputs['Mask Color'])\n"
-           "    new_nodetree.links.new(rflv_tex_node.outputs['Value'], pnode.inputs['Mask Alpha'])\n";
-    break;
-  case Subtype::LRLD:
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassLRLD']\n";
-    break;
-  case Subtype::LURD:
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassLURD']\n";
-    break;
-  case Subtype::BLOI:
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassBLOI']\n";
-    break;
-  case Subtype::XRAY:
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassXRAY']\n";
-    break;
-  case Subtype::TOON:
-    out << "pnode.node_tree = bpy.data.node_groups['RetroPassTOON']\n";
-    break;
-  default:
-    break;
-  }
-  out << "gridder.place_node(pnode, 2)\n";
-
-  if (txtrId.isValid()) {
-    out << "new_nodetree.links.new(texture_nodes[-1].outputs['Color'], pnode.inputs['Tex Color'])\n"
-           "new_nodetree.links.new(texture_nodes[-1].outputs['Value'], pnode.inputs['Tex Alpha'])\n";
-  }
-
-  if (linkRAS)
-    out << "new_nodetree.links.new(material_node.outputs['Color'], pnode.inputs['Prev Color'])\n"
-           "new_nodetree.links.new(material_node.outputs['Alpha'], pnode.inputs['Prev Alpha'])\n";
-  else if (prevSection) {
-    if (prevSection->m_type == ISection::Type::PASS &&
-        Subtype(static_cast<const SectionPASS*>(prevSection)->subtype.toUint32()) != Subtype::RFLV)
-      out << "new_nodetree.links.new(prev_pnode.outputs['Next Color'], pnode.inputs['Prev Color'])\n"
-             "new_nodetree.links.new(prev_pnode.outputs['Next Alpha'], pnode.inputs['Prev Alpha'])\n";
-    else if (prevSection->m_type == ISection::Type::CLR)
-      out << "new_nodetree.links.new(kcolor_nodes[-1][0].outputs[0], pnode.inputs['Prev Color'])\n"
-             "new_nodetree.links.new(kcolor_nodes[-1][1].outputs[0], pnode.inputs['Prev Alpha'])\n";
-  }
-
-  /* Row Break in gridder */
-  out << "gridder.row_break(2)\n";
-}
-
-void Material::SectionCLR::constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
-                                         const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const {
-  DNAMP1::MaterialSet::Material::AddKcolor(out, color, kColorIdx++);
-  switch (Subtype(subtype.toUint32())) {
-  case Subtype::DIFB:
-    out << "kc_node.label += ' DIFB'\n"
-           "ka_node.label += ' DIFB'\n";
-    break;
-  default:
-    break;
-  }
-}
-
-void Material::SectionINT::constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
-                                         const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const {
-  switch (Subtype(subtype.toUint32())) {
-  case Subtype::OPAC: {
-    GX::Color clr(value);
-    out.format(fmt(
-        "anode = new_nodetree.nodes.new('ShaderNodeValue')\n"
-        "anode.outputs['Value'].default_value = {}\n"),
-        float(clr[3]) / float(0xff));
-    out << "gridder.place_node(anode, 1)\n";
-  } break;
-  case Subtype::BLOD:
-    out.format(fmt("new_material.retro_blod = {}\n"), value);
-    break;
-  case Subtype::BLOI:
-    out.format(fmt("new_material.retro_bloi = {}\n"), value);
-    break;
-  case Subtype::BNIF:
-    out.format(fmt("new_material.retro_bnif = {}\n"), value);
-    break;
-  case Subtype::XRBR:
-    out.format(fmt("new_material.retro_xrbr = {}\n"), value);
-    break;
-  default:
-    break;
   }
 }
 
 } // namespace DataSpec::DNAMP3
+
+AT_SPECIALIZE_TYPED_VARIANT_BIGDNA(DataSpec::DNAMP3::MaterialSet::Material::PASS,
+                                   DataSpec::DNAMP3::MaterialSet::Material::CLR,
+                                   DataSpec::DNAMP3::MaterialSet::Material::INT,
+                                   DataSpec::DNAMP3::MaterialSet::Material::END)

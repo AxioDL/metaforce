@@ -48,35 +48,30 @@ protected:
   float xd0_damageMag;
   float xd4_maxVol = 1.f;
   rstl::reserved_vector<CSfxHandle, 2> xd8_nonLoopingSfxHandles;
-  union {
-    struct {
-      u8 xe4_24_nextNonLoopingSfxHandle : 3;
-      bool xe4_27_notInSortedLists : 1;
-      bool xe4_28_transformDirty : 1;
-      bool xe4_29_actorLightsDirty : 1;
-      bool xe4_30_outOfFrustum : 1;
-      bool xe4_31_calculateLighting : 1;
-      bool xe5_24_shadowEnabled : 1;
-      bool xe5_25_shadowDirty : 1;
-      bool xe5_26_muted : 1;
-      bool xe5_27_useInSortedLists : 1;
-      bool xe5_28_callTouch : 1;
-      bool xe5_29_globalTimeProvider : 1;
-      bool xe5_30_renderUnsorted : 1;
-      bool xe5_31_pointGeneratorParticles : 1;
-      u8 xe6_24_fluidCounter : 3;
-      u8 xe6_27_thermalVisorFlags : 2; // 1: thermal cold, 2: thermal hot
-      bool xe6_29_renderParticleDBInside : 1;
-      bool xe6_30_enablePitchBend : 1;
-      u8 xe6_31_targetableVisorFlags : 4;
-      bool xe7_27_enableRender : 1;
-      bool xe7_28_worldLightingDirty : 1;
-      bool xe7_29_drawEnabled : 1;
-      bool xe7_30_doTargetDistanceTest : 1;
-      bool xe7_31_targetable : 1;
-    };
-    u32 dummy = 0;
-  };
+  u8 xe4_24_nextNonLoopingSfxHandle : 3;
+  bool xe4_27_notInSortedLists : 1;
+  bool xe4_28_transformDirty : 1;
+  bool xe4_29_actorLightsDirty : 1;
+  bool xe4_30_outOfFrustum : 1;
+  bool xe4_31_calculateLighting : 1;
+  bool xe5_24_shadowEnabled : 1;
+  bool xe5_25_shadowDirty : 1;
+  bool xe5_26_muted : 1;
+  bool xe5_27_useInSortedLists : 1;
+  bool xe5_28_callTouch : 1;
+  bool xe5_29_globalTimeProvider : 1;
+  bool xe5_30_renderUnsorted : 1;
+  bool xe5_31_pointGeneratorParticles : 1;
+  u8 xe6_24_fluidCounter : 3;
+  u8 xe6_27_thermalVisorFlags : 2; // 1: thermal cold, 2: thermal hot
+  bool xe6_29_renderParticleDBInside : 1;
+  bool xe6_30_enablePitchBend : 1;
+  u8 xe6_31_targetableVisorFlags : 4;
+  bool xe7_27_enableRender : 1;
+  bool xe7_28_worldLightingDirty : 1;
+  bool xe7_29_drawEnabled : 1;
+  bool xe7_30_doTargetDistanceTest : 1;
+  bool xe7_31_targetable : 1;
 
   boo::ObjToken<boo::ITextureCubeR> m_reflectionCube;
 

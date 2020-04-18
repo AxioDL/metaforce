@@ -125,21 +125,15 @@ protected:
   EBehaviourOrient x30c_behaviourOrient = EBehaviourOrient::MoveDir;
   zeus::CVector3f x310_moveVec;
   zeus::CVector3f x31c_faceVec;
-  union {
-    struct {
-      bool x328_24_inPosition : 1;
-      bool x328_25_verticalMovement : 1;
-      bool x328_26_solidCollision : 1;
-      bool x328_27_onGround : 1;
-      bool x328_28_prevOnGround : 1;
-      bool x328_29_noPatternShagging : 1;
-      bool x328_30_lookAtDeathDir : 1;
-      bool x328_31_energyAttractor : 1;
-      bool x329_24_ : 1;
-    };
-    u32 _dummy = 0;
-  };
-
+  bool x328_24_inPosition : 1;
+  bool x328_25_verticalMovement : 1;
+  bool x328_26_solidCollision : 1;
+  bool x328_27_onGround : 1;
+  bool x328_28_prevOnGround : 1;
+  bool x328_29_noPatternShagging : 1;
+  bool x328_30_lookAtDeathDir : 1;
+  bool x328_31_energyAttractor : 1;
+  bool x329_24_ : 1;
   EAnimState x32c_animState = EAnimState::NotReady;
   CStateMachineState x330_stateMachineState;
   ECharacter x34c_character;
@@ -176,39 +170,32 @@ protected:
   float x3f4_burnThinkRateTimer = 0.f;
   EMoveState x3f8_moveState = EMoveState::Zero;
   EFlavorType x3fc_flavor;
-
-  union {
-    struct {
-      bool x400_24_hitByPlayerProjectile : 1;
-      bool x400_25_alive : 1; // t
-      bool x400_26_ : 1;
-      bool x400_27_fadeToDeath : 1;
-      bool x400_28_pendingMassiveDeath : 1;
-      bool x400_29_pendingMassiveFrozenDeath : 1;
-      bool x400_30_patternShagged : 1;
-      bool x400_31_isFlyer : 1;
-      uint32_t x401_24_pathOverCount : 2;
-      bool x401_26_disableMove : 1;
-      bool x401_27_phazingOut : 1;
-      bool x401_28_burning : 1;
-      bool x401_29_laggedBurnDeath : 1;
-      bool x401_30_pendingDeath : 1;
-      bool x401_31_nextPendingShock : 1;
-      bool x402_24_pendingShock : 1;
-      bool x402_25_lostMassiveFrozenHP : 1;
-      bool x402_26_dieIf80PercFrozen : 1;
-      bool x402_27_noXrayModel : 1;
-      bool x402_28_isMakingBigStrike : 1;
-      bool x402_29_drawParticles : 1; // t
-      bool x402_30_updateThermalFrozenState : 1;
-      bool x402_31_thawed : 1;
-      bool x403_24_keepThermalVisorState : 1;
-      bool x403_25_enableStateMachine : 1;          // t
-      bool x403_26_stateControlledMassiveDeath : 1; // t
-    };
-    u32 _dummy2 = 0;
-  };
-
+  bool x400_24_hitByPlayerProjectile : 1;
+  bool x400_25_alive : 1; // t
+  bool x400_26_ : 1;
+  bool x400_27_fadeToDeath : 1;
+  bool x400_28_pendingMassiveDeath : 1;
+  bool x400_29_pendingMassiveFrozenDeath : 1;
+  bool x400_30_patternShagged : 1;
+  bool x400_31_isFlyer : 1;
+  uint32_t x401_24_pathOverCount : 2;
+  bool x401_26_disableMove : 1;
+  bool x401_27_phazingOut : 1;
+  bool x401_28_burning : 1;
+  bool x401_29_laggedBurnDeath : 1;
+  bool x401_30_pendingDeath : 1;
+  bool x401_31_nextPendingShock : 1;
+  bool x402_24_pendingShock : 1;
+  bool x402_25_lostMassiveFrozenHP : 1;
+  bool x402_26_dieIf80PercFrozen : 1;
+  bool x402_27_noXrayModel : 1;
+  bool x402_28_isMakingBigStrike : 1;
+  bool x402_29_drawParticles : 1; // t
+  bool x402_30_updateThermalFrozenState : 1;
+  bool x402_31_thawed : 1;
+  bool x403_24_keepThermalVisorState : 1;
+  bool x403_25_enableStateMachine : 1;          // t
+  bool x403_26_stateControlledMassiveDeath : 1; // t
   CDamageInfo x404_contactDamage;
   float x420_curDamageRemTime = 0.f;
   float x424_damageWaitTime;

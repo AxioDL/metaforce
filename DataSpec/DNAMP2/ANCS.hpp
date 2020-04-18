@@ -215,9 +215,8 @@ struct ANCS : BigDNA {
       }
 
       if (force || blendType == hecl::ProjectPath::Type::None) {
-        hecl::blender::Connection& conn = btok.getBlenderConnection();
         DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, DNACMDL::SurfaceHeader_2, 4>(
-            conn, ancs, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
+            btok, ancs, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
       }
     }
 

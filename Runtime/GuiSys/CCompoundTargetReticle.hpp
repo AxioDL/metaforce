@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <vector>
 
 #include "Runtime/CPlayerState.hpp"
@@ -27,26 +28,26 @@ class CTargetReticleRenderState {
 public:
   static const CTargetReticleRenderState skZeroRenderState;
 
-  CTargetReticleRenderState(TUniqueId target, float radiusWorld, const zeus::CVector3f& positionWorld, float factor,
-                            float minVpClampScale, bool orbitZoneIdlePosition)
+  constexpr CTargetReticleRenderState(TUniqueId target, float radiusWorld, const zeus::CVector3f& positionWorld,
+                                      float factor, float minVpClampScale, bool orbitZoneIdlePosition)
   : x0_target(target)
   , x4_radiusWorld(radiusWorld)
   , x8_positionWorld(positionWorld)
   , x14_factor(factor)
   , x18_minVpClampScale(minVpClampScale)
   , x1c_orbitZoneIdlePosition(orbitZoneIdlePosition) {}
-  void SetTargetId(TUniqueId id) { x0_target = id; }
-  void SetFactor(float f) { x14_factor = f; }
-  void SetIsOrbitZoneIdlePosition(bool b) { x1c_orbitZoneIdlePosition = b; }
-  float GetMinViewportClampScale() const { return x18_minVpClampScale; }
-  float GetFactor() const { return x14_factor; }
-  float GetRadiusWorld() const { return x4_radiusWorld; }
-  const zeus::CVector3f& GetTargetPositionWorld() const { return x8_positionWorld; }
-  bool GetIsOrbitZoneIdlePosition() const { return x1c_orbitZoneIdlePosition; }
-  void SetTargetPositionWorld(const zeus::CVector3f& pos) { x8_positionWorld = pos; }
-  void SetRadiusWorld(float r) { x4_radiusWorld = r; }
-  TUniqueId GetTargetId() const { return x0_target; }
-  void SetMinViewportClampScale(float s) { x18_minVpClampScale = s; }
+  constexpr void SetTargetId(TUniqueId id) { x0_target = id; }
+  constexpr void SetFactor(float factor) { x14_factor = factor; }
+  constexpr void SetIsOrbitZoneIdlePosition(bool orbit) { x1c_orbitZoneIdlePosition = orbit; }
+  constexpr float GetMinViewportClampScale() const { return x18_minVpClampScale; }
+  constexpr float GetFactor() const { return x14_factor; }
+  constexpr float GetRadiusWorld() const { return x4_radiusWorld; }
+  constexpr const zeus::CVector3f& GetTargetPositionWorld() const { return x8_positionWorld; }
+  constexpr bool GetIsOrbitZoneIdlePosition() const { return x1c_orbitZoneIdlePosition; }
+  constexpr void SetTargetPositionWorld(const zeus::CVector3f& position) { x8_positionWorld = position; }
+  constexpr void SetRadiusWorld(float radius) { x4_radiusWorld = radius; }
+  constexpr TUniqueId GetTargetId() const { return x0_target; }
+  constexpr void SetMinViewportClampScale(float scale) { x18_minVpClampScale = scale; }
   static void InterpolateWithClamp(const CTargetReticleRenderState& a, CTargetReticleRenderState& out,
                                    const CTargetReticleRenderState& b, float t);
 };
@@ -69,7 +70,7 @@ private:
   zeus::CQuaternion x10_laggingOrientation;
   EReticleState x20_prevState = EReticleState::Unspecified;
   EReticleState x24_nextState = EReticleState::Unspecified;
-  mutable u32 x28_noDrawTicks = 0;
+  u32 x28_noDrawTicks = 0;
   float x2c_overshootOffsetHalf;
   float x30_premultOvershootOffset;
   TCachedToken<CModel> x34_crosshairs;
@@ -120,16 +121,16 @@ private:
   bool x219_missileShot = false;
   bool x21a_fullyCharged = false;
   u8 x21b_ = 0;
-  u32 x21c_;
-  u32 x220_;
-  u32 x228_;
+  u32 x21c_ = 0;
+  u32 x220_ = 0;
+  u32 x228_ = 0;
 
   struct SScanReticuleRenderer {
-    std::optional<CLineRenderer> m_lineRenderers[2];
-    std::optional<CLineRenderer> m_stripRenderers[2][4];
+    std::array<std::optional<CLineRenderer>, 2> m_lineRenderers;
+    std::array<std::array<std::optional<CLineRenderer>, 4>, 2> m_stripRenderers;
     SScanReticuleRenderer();
   };
-  mutable SScanReticuleRenderer m_scanRetRenderer;
+  SScanReticuleRenderer m_scanRetRenderer;
 
   void DrawGrapplePoint(const CScriptGrapplePoint& point, float t, const CStateManager& mgr, const zeus::CMatrix3f& rot,
                         bool zEqual) const;
@@ -144,10 +145,10 @@ public:
   void UpdateCurrLockOnGroup(float, const CStateManager&);
   void UpdateNextLockOnGroup(float, const CStateManager&);
   void UpdateOrbitZoneGroup(float, const CStateManager&);
-  void Draw(const CStateManager&, bool hideLockon) const;
+  void Draw(const CStateManager&, bool hideLockon);
   void DrawGrappleGroup(const zeus::CMatrix3f& rot, const CStateManager&, bool) const;
   void DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager&) const;
-  void DrawNextLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager&) const;
+  void DrawNextLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager&);
   void DrawOrbitZoneGroup(const zeus::CMatrix3f& rot, const CStateManager&) const;
   void UpdateTargetParameters(CTargetReticleRenderState&, const CStateManager&);
   float CalculateRadiusWorld(const CActor&, const CStateManager&) const;

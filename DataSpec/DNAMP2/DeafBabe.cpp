@@ -26,12 +26,15 @@ void DeafBabe::BlenderInit(hecl::blender::PyOutStream& os) {
         "               'Rubber':(0.09, 0.02, 0.01)}\n"
         "\n"
         "# Diffuse Color Maker\n"
+        "from mathutils import Color\n"
         "def make_color(index, mat_type, name):\n"
         "    new_mat = bpy.data.materials.new(name)\n"
         "    if mat_type in TYPE_COLORS:\n"
-        "        new_mat.diffuse_color = TYPE_COLORS[mat_type]\n"
+        "        new_mat.diffuse_color = TYPE_COLORS[mat_type] + (1.0,)\n"
         "    else:\n"
-        "        new_mat.diffuse_color.hsv = ((index / 6.0) % 1.0, 1.0-((index // 6) / 6.0), 1)\n"
+        "        col = Color()\n"
+        "        col.hsv = ((index / 6.0) % 1.0, 1.0-((index // 6) / 6.0), 1)\n"
+        "        new_mat.diffuse_color = tuple(col) + (1.0,)\n"
         "    return new_mat\n"
         "\n"
         "bpy.types.Material.retro_unknown = bpy.props.BoolProperty(description='Retro: Unknown (U)')\n"
@@ -262,7 +265,7 @@ void DeafBabe::insertNoClimb(hecl::blender::PyOutStream& os) const {
     if (edgeIdx == -1)
       continue;
     const Edge& edge = edgeVertConnections[edgeIdx];
-    os.format(fmt(
+    os.format(FMT_STRING(
         "edge = col_bm.edges.get((col_bm.verts[{}], col_bm.verts[{}]))\n"
         "if edge:\n"
         "    edge.seam = True\n"),

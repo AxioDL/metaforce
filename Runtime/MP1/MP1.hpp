@@ -3,45 +3,42 @@
 #ifndef MP1_USE_BOO
 #define MP1_USE_BOO 0
 #endif
-#ifndef MP1_VARIABLE_DELTA_TIME
-#define MP1_VARIABLE_DELTA_TIME 0
-#endif
 
-#include "IMain.hpp"
-#include "CTweaks.hpp"
-#include "CPlayMovie.hpp"
-#include "IOStreams.hpp"
-#include "CBasics.hpp"
-#include "CMemoryCardSys.hpp"
-#include "CResFactory.hpp"
-#include "CSimplePool.hpp"
-#include "Character/CAssetFactory.hpp"
-#include "World/CAi.hpp"
-#include "CGameState.hpp"
-#include "CInGameTweakManager.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Character/CAnimData.hpp"
-#include "Particle/CDecalManager.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "Audio/CAudioSys.hpp"
-#include "Input/CInputGenerator.hpp"
-#include "GuiSys/CGuiSys.hpp"
-#include "CIOWinManager.hpp"
-#include "GuiSys/CSplashScreen.hpp"
-#include "CMainFlow.hpp"
-#include "GuiSys/CConsoleOutputWindow.hpp"
-#include "GuiSys/CErrorOutputWindow.hpp"
-#include "GuiSys/CTextParser.hpp"
-#include "CAudioStateWin.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CArchitectureQueue.hpp"
-#include "CTimeProvider.hpp"
-#include "GuiSys/CTextExecuteBuffer.hpp"
+#include "Runtime/IMain.hpp"
+#include "Runtime/MP1/CTweaks.hpp"
+#include "Runtime/MP1/CPlayMovie.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/CBasics.hpp"
+#include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/CResFactory.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Character/CAssetFactory.hpp"
+#include "Runtime/World/CAi.hpp"
+#include "Runtime/CGameState.hpp"
+#include "Runtime/MP1/CInGameTweakManager.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Character/CAnimData.hpp"
+#include "Runtime/Particle/CDecalManager.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Audio/CAudioSys.hpp"
+#include "Runtime/Input/CInputGenerator.hpp"
+#include "Runtime/GuiSys/CGuiSys.hpp"
+#include "Runtime/CIOWinManager.hpp"
+#include "Runtime/GuiSys/CSplashScreen.hpp"
+#include "Runtime/MP1/CMainFlow.hpp"
+#include "Runtime/GuiSys/CConsoleOutputWindow.hpp"
+#include "Runtime/GuiSys/CErrorOutputWindow.hpp"
+#include "Runtime/GuiSys/CTextParser.hpp"
+#include "Runtime/MP1/CAudioStateWin.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/CArchitectureQueue.hpp"
+#include "Runtime/CTimeProvider.hpp"
+#include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
-#include "World/CScriptMazeNode.hpp"
 #include "hecl/Console.hpp"
+#include "hecl/CVarCommons.hpp"
 
 struct DiscordUser;
 
@@ -104,14 +101,7 @@ public:
 
   ~CGameGlobalObjects();
 
-  void PostInitialize() {
-    AddPaksAndFactories();
-    LoadTextureCache();
-    LoadStringTable();
-    m_renderer.reset(AllocateRenderer(*xcc_simplePool, *x4_resFactory));
-    CEnvFxManager::Initialize();
-    CScriptMazeNode::LoadMazeSeeds();
-  }
+  void PostInitialize();
 
   void ResetGameState() {
     x134_gameState = std::make_unique<CGameState>();
@@ -144,7 +134,7 @@ class CGameArchitectureSupport
   std::vector<TToken<CAudioGroupSet>> x8c_pendingAudioGroups;
 
   boo::SWindowRect m_windowRect;
-  bool m_rectIsDirty;
+  bool m_rectIsDirty = false;
 
   void destroyed() { x4_archQueue.Push(MakeMsg::CreateRemoveAllIOWins(EArchMsgTarget::IOWinManager)); }
 
@@ -204,7 +194,7 @@ class CMain : public IMain
   int appMain(boo::IApplication* app);
   void appQuitting(boo::IApplication*) { xe8_b24_finished = true; }
   void appFilesOpen(boo::IApplication*, const std::vector<std::string>& paths) {
-    fmt::print(stderr, fmt("OPENING: "));
+    fmt::print(stderr, FMT_STRING("OPENING: "));
     for (const std::string& path : paths)
       fprintf(stderr, "%s ", path.c_str());
     fprintf(stderr, "\n");
@@ -227,26 +217,22 @@ private:
 
   u32 x130_[10] = {1000000};
 
-  union {
-    struct {
-      bool x160_24_finished : 1;
-      bool x160_25_mfGameBuilt : 1;
-      bool x160_26_screenFading : 1;
-      bool x160_27_ : 1;
-      bool x160_28_manageCard : 1;
-      bool x160_29_ : 1;
-      bool x160_30_ : 1;
-      bool x160_31_cardBusy : 1;
-      bool x161_24_gameFrameDrawn : 1;
-    };
-    u16 _dummy = 0;
-  };
+  bool x160_24_finished : 1;
+  bool x160_25_mfGameBuilt : 1;
+  bool x160_26_screenFading : 1;
+  bool x160_27_ : 1;
+  bool x160_28_manageCard : 1;
+  bool x160_29_ : 1;
+  bool x160_30_ : 1;
+  bool x160_31_cardBusy : 1;
+  bool x161_24_gameFrameDrawn : 1;
 
   std::unique_ptr<CGameArchitectureSupport> x164_archSupport;
 
   boo::IWindow* m_mainWindow = nullptr;
 
   hecl::CVarManager* m_cvarMgr = nullptr;
+  std::unique_ptr<hecl::CVarCommons> m_cvarCommons;
   std::unique_ptr<hecl::Console> m_console;
   // Warmup state
   std::vector<SObjectTag> m_warmupTags;
@@ -255,11 +241,10 @@ private:
   bool m_loadedPersistentResources = false;
   bool m_doQuit = false;
 
-#if MP1_VARIABLE_DELTA_TIME
   bool m_firstFrame = true;
   using delta_clock = std::chrono::high_resolution_clock;
   std::chrono::time_point<delta_clock> m_prevFrameTime;
-#endif
+  DataSpec::URDEVersionInfo m_version;
 
   void InitializeSubsystems();
   static void InitializeDiscord();
@@ -327,6 +312,13 @@ public:
   void ListWorlds(hecl::Console*, const std::vector<std::string>&);
   void Warp(hecl::Console*, const std::vector<std::string>&);
   hecl::Console* Console() const override { return m_console.get(); }
+  bool IsPAL() const override { return m_version.region == ERegion::PAL; }
+  bool IsJapanese() const override { return m_version.region == ERegion::NTSC_J; }
+  bool IsUSA() const override { return m_version.region == ERegion::NTSC_U; }
+  bool IsTrilogy() const override { return m_version.isTrilogy; }
+  ERegion GetRegion() const override { return m_version.region; }
+  EGame GetGame() const override { return m_version.game; }
+  std::string_view GetVersionString() const override{ return m_version.version; }
 
   int m_warpWorldIdx = -1;
   TAreaId m_warpAreaId = 0;

@@ -15,14 +15,13 @@ CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, std::string_view name,
 , x34_animationId(animId)
 , x38_initialLifetime(lifetime)
 , x3c_playbackRate(totalPlayback)
-, x40_lifetime(lifetime) {
-  x44_24_looping = looping;
-  x44_25_isPassive = isPassive;
-  x44_26_fadeOut = fadeOut;
-  x44_27_timedLoop = fadeOut;
-  x44_28_playing = false;
-  x44_29_ = false;
-}
+, x40_lifetime(lifetime)
+, x44_24_looping(looping)
+, x44_25_isPassive(isPassive)
+, x44_26_fadeOut(fadeOut != 0u)
+, x44_27_timedLoop(fadeOut != 0u)
+, x44_28_playing(false)
+, x44_29_(false) {}
 
 void CScriptActorKeyframe::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

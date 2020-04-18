@@ -25,20 +25,15 @@ class CScriptPlayerActor : public CScriptActor {
   float x34c_phazonOffsetAngle = 0.f;
   u32 x350_flags; /* 0x1: suit transition, 0x2: previous suit, 0x4: force reset
                    * 0x8: track in area data, 0x10: keep in state manager */
-  union {
-    struct {
-      bool x354_24_setBoundingBox : 1;
-      bool x354_25_deferOnlineModelData : 1;
-      bool x354_26_deferOfflineModelData : 1;
-      bool x354_27_beamModelLoading : 1;
-      bool x354_28_suitModelLoading : 1;
-      bool x354_29_loading : 1;
-      bool x354_30_enableLoading : 1;
-      bool x354_31_deferOnlineLoad : 1;
-      bool x355_24_areaTrackingLoad : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x354_24_setBoundingBox : 1;
+  bool x354_25_deferOnlineModelData : 1;
+  bool x354_26_deferOfflineModelData : 1;
+  bool x354_27_beamModelLoading : 1;
+  bool x354_28_suitModelLoading : 1;
+  bool x354_29_loading : 1;
+  bool x354_30_enableLoading : 1;
+  bool x354_31_deferOnlineLoad : 1;
+  bool x355_24_areaTrackingLoad : 1;
   TUniqueId x356_nextPlayerActor = kInvalidUniqueId;
 
   u32 GetSuitCharIdx(const CStateManager& mgr, CPlayerState::EPlayerSuit suit) const;

@@ -38,23 +38,23 @@ zeus::CQuaternion CAnimTreeAnimReaderContainer::VGetRotation(const CSegId& seg) 
   return x14_reader->VGetRotation(seg);
 }
 
-u32 CAnimTreeAnimReaderContainer::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity,
-                                                  u32 iterator, u32 unk) const {
+size_t CAnimTreeAnimReaderContainer::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, size_t capacity,
+                                                     size_t iterator, u32 unk) const {
   return x14_reader->GetBoolPOIList(time, listOut, capacity, iterator, unk);
 }
 
-u32 CAnimTreeAnimReaderContainer::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity,
-                                                   u32 iterator, u32 unk) const {
+size_t CAnimTreeAnimReaderContainer::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut,
+                                                      size_t capacity, size_t iterator, u32 unk) const {
   return x14_reader->GetInt32POIList(time, listOut, capacity, iterator, unk);
 }
 
-u32 CAnimTreeAnimReaderContainer::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut,
-                                                      u32 capacity, u32 iterator, u32 unk) const {
+size_t CAnimTreeAnimReaderContainer::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut,
+                                                         size_t capacity, size_t iterator, u32 unk) const {
   return x14_reader->GetParticlePOIList(time, listOut, capacity, iterator, unk);
 }
 
-u32 CAnimTreeAnimReaderContainer::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity,
-                                                   u32 iterator, u32 unk) const {
+size_t CAnimTreeAnimReaderContainer::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut,
+                                                      size_t capacity, size_t iterator, u32 unk) const {
   return x14_reader->GetSoundPOIList(time, listOut, capacity, iterator, unk);
 }
 

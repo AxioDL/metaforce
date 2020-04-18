@@ -6,12 +6,20 @@
 
 namespace urde {
 
-CSlideShow::CSlideShow() : CIOWin("SlideShow"), x5c_slideA(*this), x90_slideB(*this) {
-  x130_ = g_tweakSlideShow->GetX54();
-  x134_24_ = true;
-  x134_30_ = true;
-  x135_24_ = true;
-
+CSlideShow::CSlideShow()
+: CIOWin("SlideShow")
+, x5c_slideA(*this)
+, x90_slideB(*this)
+, x130_(g_tweakSlideShow->GetX54())
+, x134_24_(true)
+, x134_25_(false)
+, x134_26_(false)
+, x134_27_(false)
+, x134_28_disableInput(false)
+, x134_29_(false)
+, x134_30_(true)
+, x134_31_(false)
+, x135_24_(true) {
   const SObjectTag* font = g_ResFactory->GetResourceIdByName(g_tweakSlideShow->GetFont());
   if (font) {
     CGuiTextProperties propsA(false, true, EJustification::Center, EVerticalJustification::Bottom);
@@ -93,7 +101,7 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg, CA
       if (x18_galleryTXTRDeps.empty()) {
         x18_galleryTXTRDeps.reserve(5);
         for (int i = 1; true; ++i) {
-          std::string depResName = fmt::format(fmt("Gallery{:02d}_DGRP"), i);
+          std::string depResName = fmt::format(FMT_STRING("Gallery{:02d}_DGRP"), i);
           if (!LoadTXTRDep(depResName))
             break;
         }

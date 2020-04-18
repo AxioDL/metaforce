@@ -1,13 +1,15 @@
 #include <utility>
 #include <set>
 
-#include "SpecBase.hpp"
-#include "DNAMP3/DNAMP3.hpp"
+#include "DataSpec/SpecBase.hpp"
+#include "DataSpec/DNAMP3/DNAMP3.hpp"
 
-#include "DNAMP3/MLVL.hpp"
-#include "DNAMP3/STRG.hpp"
-#include "DNAMP3/MAPA.hpp"
-#include "DNAMP2/STRG.hpp"
+#include "DataSpec/DNAMP3/MLVL.hpp"
+#include "DataSpec/DNAMP3/STRG.hpp"
+#include "DataSpec/DNAMP3/MAPA.hpp"
+#include "DataSpec/DNAMP2/STRG.hpp"
+#include "DataSpec/DNACommon/TXTR.hpp"
+#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
 
 #include "hecl/ClientProcess.hpp"
 #include "hecl/Blender/Connection.hpp"
@@ -24,12 +26,71 @@ static logvisor::Module Log("urde::SpecMP3");
 extern hecl::Database::DataSpecEntry SpecEntMP3;
 extern hecl::Database::DataSpecEntry SpecEntMP3ORIG;
 
-struct SpecMP3 : SpecBase {
-  bool checkStandaloneID(const char* id) const override {
-    if (!memcmp(id, "RM3", 3))
+struct TextureCache {
+  static void Generate(PAKRouter<DNAMP3::PAKBridge>& pakRouter, hecl::Database::Project& project, const hecl::ProjectPath& pakPath) {
+    hecl::ProjectPath texturePath(pakPath, _SYS_STR("texture_cache.yaml"));
+    hecl::ProjectPath catalogPath(pakPath, _SYS_STR("!catalog.yaml"));
+    texturePath.makeDirChain(false);
+
+    if (const auto fp = hecl::FopenUnique(catalogPath.getAbsolutePath().data(), _SYS_STR("a"))) {
+      fmt::print(fp.get(), FMT_STRING("TextureCache: {}\n"), texturePath.getRelativePathUTF8());
+    }
+
+    Log.report(logvisor::Level::Info, FMT_STRING("Gathering Texture metadata (this can take up to 10 seconds)..."));
+    std::unordered_map<UniqueID64, TXTR::Meta> metaMap;
+
+    pakRouter.enumerateResources([&](const DNAMP3::PAK::Entry* ent) {
+      if (ent->type == FOURCC('TXTR') && metaMap.find(ent->id) == metaMap.end()) {
+        PAKEntryReadStream rs = pakRouter.beginReadStreamForId(ent->id);
+        metaMap[ent->id] = TXTR::GetMetaData(rs);
+      }
       return true;
-    return false;
+    });
+
+    athena::io::YAMLDocWriter yamlW("MP3TextureCache");
+    for (const auto& pair : metaMap) {
+      hecl::ProjectPath path = pakRouter.getWorking(pair.first);
+      auto rec = yamlW.enterSubRecord(path.getRelativePathUTF8());
+      pair.second.write(yamlW);
+    }
+
+    athena::io::FileWriter fileW(texturePath.getAbsolutePath());
+    yamlW.finish(&fileW);
+    Log.report(logvisor::Level::Info, FMT_STRING("Done..."));
   }
+
+  static void Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
+    hecl::Database::Project& project = inPath.getProject();
+    athena::io::YAMLDocReader r;
+    athena::io::FileReader fr(inPath.getAbsolutePath());
+    if (!fr.isOpen() || !r.parse(&fr))
+      return;
+
+    std::vector<std::pair<UniqueID32, TXTR::Meta>> metaPairs;
+    metaPairs.reserve(r.getRootNode()->m_mapChildren.size());
+    for (const auto& node : r.getRootNode()->m_mapChildren) {
+      hecl::ProjectPath projectPath(project, node.first);
+      auto rec = r.enterSubRecord(node.first.c_str());
+      TXTR::Meta meta;
+      meta.read(r);
+      metaPairs.emplace_back(projectPath.parsedHash32(), meta);
+    }
+
+    std::sort(metaPairs.begin(), metaPairs.end(), [](const auto& a, const auto& b) -> bool {
+      return a.first < b.first;
+    });
+
+    athena::io::FileWriter w(outPath.getAbsolutePath());
+    w.writeUint32Big(metaPairs.size());
+    for (const auto& pair : metaPairs) {
+      pair.first.write(w);
+      pair.second.write(w);
+    }
+  }
+};
+
+struct SpecMP3 : SpecBase {
+  bool checkStandaloneID(const char* id) const override { return memcmp(id, "RM3", 3) == 0; }
 
   bool doMP3 = false;
   std::vector<const nod::Node*> m_nonPaks;
@@ -58,7 +119,8 @@ struct SpecMP3 : SpecBase {
   , m_feWorkPath(project.getProjectWorkingPath(), _SYS_STR("fe"))
   , m_feCookPath(project.getProjectCookedPath(SpecEntMP3), _SYS_STR("fe"))
   , m_fePakRouter(*this, m_feWorkPath, m_feCookPath) {
-    setThreadProject();
+    m_game = EGame::MetroidPrime3;
+    SpecBase::setThreadProject();
   }
 
   void buildPaks(nod::Node& root, const std::vector<hecl::SystemString>& args, ExtractReport& rep, bool fe) {
@@ -159,20 +221,22 @@ struct SpecMP3 : SpecBase {
     doMP3 = true;
     nod::IPartition* partition = disc.getDataPartition();
     std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
-    const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
-    if (!buildInfo)
+    const char* buildInfo = static_cast<char*>(memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16)) + 19;
+    if (buildInfo == nullptr) {
       return false;
+    }
 
     /* We don't want no stinking demo dammit */
-    if (!strcmp(buildInfo, "Build v3.068 3/2/2006 14:55:13"))
+    if (strcmp(buildInfo, "Build v3.068 3/2/2006 14:55:13") == 0) {
       return false;
+    }
 
+    m_version = std::string(buildInfo);
     /* Root Report */
     ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP3");
     rep.desc = _SYS_STR("Metroid Prime 3 ") + regstr;
-    std::string buildStr(buildInfo);
-    hecl::SystemStringConv buildView(buildStr);
+    hecl::SystemStringConv buildView(m_version);
     rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
 
     /* Iterate PAKs and build level options */
@@ -253,8 +317,8 @@ struct SpecMP3 : SpecBase {
       rep.name = _SYS_STR("MP3");
       rep.desc = _SYS_STR("Metroid Prime 3 ") + regstr;
 
-      std::string buildStr(buildInfo);
-      hecl::SystemStringConv buildView(buildStr);
+      m_version = std::string(buildInfo);
+      hecl::SystemStringConv buildView(m_version);
       rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
 
       /* Iterate PAKs and build level options */
@@ -410,6 +474,19 @@ struct SpecMP3 : SpecBase {
 
       process.waitUntilComplete();
     }
+
+    /* Extract part of .dol for RandomStatic entropy */
+    hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _SYS_STR("MP3/URDE"));
+    /* Generate Texture Cache containing meta data for every texture file */
+    TextureCache::Generate(m_pakRouter, m_project, noAramPath);
+    /* Write version data */
+    hecl::ProjectPath versionPath;
+    if (m_standalone) {
+      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files"));
+    } else {
+      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files/MP3"));
+    }
+    WriteVersionInfo(m_project, versionPath);
     return true;
   }
 

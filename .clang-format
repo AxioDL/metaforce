@@ -2,6 +2,7 @@
 BasedOnStyle: LLVM
 ColumnLimit: 120
 UseTab: Never
+TabWidth: 4
 ---
 Language: Cpp
 DerivePointerAlignment: false

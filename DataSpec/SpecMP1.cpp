@@ -29,6 +29,7 @@
 #include "DNACommon/DPSC.hpp"
 #include "DNACommon/DGRP.hpp"
 #include "DNACommon/MAPU.hpp"
+#include "DNACommon/URDEVersionInfo.hpp"
 #include "DNACommon/Tweaks/TweakWriter.hpp"
 #include "DNAMP1/Tweaks/CTweakPlayerRes.hpp"
 #include "DNAMP1/Tweaks/CTweakGunRes.hpp"
@@ -46,7 +47,6 @@
 #include "DNAMP1/Tweaks/CTweakPlayerGun.hpp"
 #include "DNAMP1/MazeSeeds.hpp"
 #include "DNAMP1/SnowForces.hpp"
-
 #include "hecl/ClientProcess.hpp"
 #include "hecl/MultiProgressPrinter.hpp"
 #include "hecl/Blender/Connection.hpp"
@@ -63,15 +63,17 @@ extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
 
 struct TextureCache {
-  static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project, const hecl::ProjectPath& pakPath) {
+  static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project,
+                       const hecl::ProjectPath& pakPath) {
     hecl::ProjectPath texturePath(pakPath, _SYS_STR("texture_cache.yaml"));
     hecl::ProjectPath catalogPath(pakPath, _SYS_STR("!catalog.yaml"));
+    texturePath.makeDirChain(false);
 
     if (const auto fp = hecl::FopenUnique(catalogPath.getAbsolutePath().data(), _SYS_STR("a"))) {
-      fmt::print(fp.get(), fmt("TextureCache: {}\n"), texturePath.getRelativePathUTF8());
+      fmt::print(fp.get(), FMT_STRING("TextureCache: {}\n"), texturePath.getRelativePathUTF8());
     }
 
-    Log.report(logvisor::Level::Info, fmt("Gathering Texture metadata (this can take up to 10 seconds)..."));
+    Log.report(logvisor::Level::Info, FMT_STRING("Gathering Texture metadata (this can take up to 10 seconds)..."));
     std::unordered_map<UniqueID32, TXTR::Meta> metaMap;
 
     pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) {
@@ -91,7 +93,7 @@ struct TextureCache {
 
     athena::io::FileWriter fileW(texturePath.getAbsolutePath());
     yamlW.finish(&fileW);
-    Log.report(logvisor::Level::Info, fmt("Done..."));
+    Log.report(logvisor::Level::Info, FMT_STRING("Done..."));
   }
 
   static void Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
@@ -111,9 +113,8 @@ struct TextureCache {
       metaPairs.emplace_back(projectPath.parsedHash32(), meta);
     }
 
-    std::sort(metaPairs.begin(), metaPairs.end(), [](const auto& a, const auto& b) -> bool {
-      return a.first < b.first;
-    });
+    std::sort(metaPairs.begin(), metaPairs.end(),
+              [](const auto& a, const auto& b) -> bool { return a.first < b.first; });
 
     athena::io::FileWriter w(outPath.getAbsolutePath());
     w.writeUint32Big(metaPairs.size());
@@ -144,7 +145,8 @@ struct SpecMP1 : SpecBase {
   , m_workPath(project.getProjectWorkingPath(), _SYS_STR("MP1"))
   , m_cookPath(project.getProjectCookedPath(SpecEntMP1), _SYS_STR("MP1"))
   , m_pakRouter(*this, m_workPath, m_cookPath) {
-    setThreadProject();
+    m_game = EGame::MetroidPrime1;
+    SpecBase::setThreadProject();
   }
 
   void buildPaks(nod::Node& root, const std::vector<hecl::SystemString>& args, ExtractReport& rep) {
@@ -196,8 +198,9 @@ struct SpecMP1 : SpecBase {
 
     /* Sort PAKs alphabetically */
     m_orderedPaks.clear();
-    for (DNAMP1::PAKBridge& dpak : m_paks)
+    for (DNAMP1::PAKBridge& dpak : m_paks) {
       m_orderedPaks[std::string(dpak.getName())] = &dpak;
+    }
 
     /* Assemble extract report */
     rep.childOpts.reserve(m_orderedPaks.size());
@@ -217,18 +220,19 @@ struct SpecMP1 : SpecBase {
                                const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps) override {
     nod::IPartition* partition = disc.getDataPartition();
     m_dolBuf = partition->getDOLBuf();
-    const char* buildInfo = (char*)memmem(m_dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
+    const char* buildInfo =
+        static_cast<char*>(memmem(m_dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16)) + 19;
 
-    if (!buildInfo)
+    if (buildInfo == nullptr)
       return false;
 
+    m_version = std::string(buildInfo);
     /* Root Report */
     ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP1");
     rep.desc = _SYS_STR("Metroid Prime ") + regstr;
     if (buildInfo) {
-      std::string buildStr(buildInfo);
-      hecl::SystemStringConv buildView(buildStr);
+      hecl::SystemStringConv buildView(m_version);
       rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
     }
 
@@ -274,15 +278,15 @@ struct SpecMP1 : SpecBase {
     }
 
     m_dolBuf = dolIt->getBuf();
-    const char* buildInfo = (char*)memmem(m_dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
+    const char* buildInfo = static_cast<char*>(memmem(m_dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16)) + 19;
 
     /* Root Report */
     ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP1");
     rep.desc = _SYS_STR("Metroid Prime ") + regstr;
-    if (buildInfo) {
-      std::string buildStr(buildInfo);
-      hecl::SystemStringConv buildView(buildStr);
+    if (buildInfo != nullptr) {
+      m_version = std::string(buildInfo);
+      hecl::SystemStringConv buildView(m_version);
       rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
     }
 
@@ -377,6 +381,14 @@ struct SpecMP1 : SpecBase {
     /* Generate Texture Cache containing meta data for every texture file */
     TextureCache::Generate(m_pakRouter, m_project, noAramPath);
 
+    /* Write version data */
+    hecl::ProjectPath versionPath;
+    if (m_standalone) {
+      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files"));
+    } else {
+      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files/MP1"));
+    }
+    WriteVersionInfo(m_project, versionPath);
     return true;
   }
 
@@ -416,7 +428,9 @@ struct SpecMP1 : SpecBase {
         return true;
       else if (classType == DNAFont::FONT<UniqueID32>::DNAType())
         return true;
-      else if (classType == DNAMP1::CTweakPlayerRes::DNAType())
+      else if (classType == DNAMP1::CTweakPlayerRes<true>::DNAType())
+        return true;
+      else if (classType == DNAMP1::CTweakPlayerRes<false>::DNAType())
         return true;
       else if (classType == DNAMP1::CTweakGunRes::DNAType())
         return true;
@@ -430,7 +444,9 @@ struct SpecMP1 : SpecBase {
         return true;
       else if (classType == DNAMP1::CTweakAutoMapper::DNAType())
         return true;
-      else if (classType == DNAMP1::CTweakTargeting::DNAType())
+      else if (classType == DNAMP1::CTweakTargeting<true>::DNAType())
+        return true;
+      else if (classType == DNAMP1::CTweakTargeting<false>::DNAType())
         return true;
       else if (classType == DNAMP1::CTweakGui::DNAType())
         return true;
@@ -571,13 +587,15 @@ struct SpecMP1 : SpecBase {
             } else if (className == DataSpec::DNAMP1::SCAN::DNAType()) {
               resTag.type = SBIG('SCAN');
               return true;
-            } else if (className == DataSpec::DNAMP1::CTweakPlayerRes::DNAType() ||
+            } else if (className == DataSpec::DNAMP1::CTweakPlayerRes<true>::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakPlayerRes<false>::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakGunRes::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakSlideShow::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakPlayer::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakCameraBob::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakGame::DNAType() ||
-                       className == DataSpec::DNAMP1::CTweakTargeting::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakTargeting<true>::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakTargeting<false>::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakAutoMapper::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakGui::DNAType() ||
                        className == DataSpec::DNAMP1::CTweakPlayerControl::DNAType() ||
@@ -626,7 +644,7 @@ struct SpecMP1 : SpecBase {
     pathPrefix += pakName;
     pathPrefix += '/';
 
-    std::unique_lock<std::mutex> lk(const_cast<SpecMP1&>(*this).m_backgroundIndexMutex);
+    std::unique_lock lk(m_backgroundIndexMutex);
     for (const auto& tag : m_tagToPath)
       if (!tag.second.getRelativePathUTF8().compare(0, pathPrefix.size(), pathPrefix))
         out.push_back(tag.first);
@@ -739,7 +757,8 @@ struct SpecMP1 : SpecBase {
     }
 
     if (!colMesh)
-      Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to find mesh named 'CMESH' in {}")), in.getAbsolutePath());
+      Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to find mesh named 'CMESH' in {}")),
+                 in.getAbsolutePath());
 
     std::vector<Light> lights = ds.compileLights();
 
@@ -821,8 +840,12 @@ struct SpecMP1 : SpecBase {
         DNAFont::FONT<UniqueID32> font;
         font.read(reader);
         DNAFont::WriteFONT(font, out);
-      } else if (classStr == DNAMP1::CTweakPlayerRes::DNAType()) {
-        DNAMP1::CTweakPlayerRes playerRes;
+      } else if (classStr == DNAMP1::CTweakPlayerRes<true>::DNAType()) {
+        DNAMP1::CTweakPlayerRes<true> playerRes;
+        playerRes.read(reader);
+        WriteTweak(playerRes, out);
+      } else if (classStr == DNAMP1::CTweakPlayerRes<false>::DNAType()) {
+        DNAMP1::CTweakPlayerRes<false> playerRes;
         playerRes.read(reader);
         WriteTweak(playerRes, out);
       } else if (classStr == DNAMP1::CTweakGunRes::DNAType()) {
@@ -849,8 +872,12 @@ struct SpecMP1 : SpecBase {
         DNAMP1::CTweakAutoMapper autoMapper;
         autoMapper.read(reader);
         WriteTweak(autoMapper, out);
-      } else if (classStr == DNAMP1::CTweakTargeting::DNAType()) {
-        DNAMP1::CTweakTargeting targeting;
+      } else if (classStr == DNAMP1::CTweakTargeting<true>::DNAType()) {
+        DNAMP1::CTweakTargeting<false> targeting;
+        targeting.read(reader);
+        WriteTweak(targeting, out);
+      } else if (classStr == DNAMP1::CTweakTargeting<false>::DNAType()) {
+        DNAMP1::CTweakTargeting<false> targeting;
         targeting.read(reader);
         WriteTweak(targeting, out);
       } else if (classStr == DNAMP1::CTweakGui::DNAType()) {
@@ -977,7 +1004,7 @@ struct SpecMP1 : SpecBase {
     {
       athena::io::FileReader r(worldPathCooked.getAbsolutePath());
       if (r.hasError())
-        Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to open world {}")), worldPathCooked.getRelativePath());
+        Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to open world {}")), worldPathCooked.getRelativePath());
       mlvl.read(r);
     }
 
@@ -1073,10 +1100,10 @@ struct SpecMP1 : SpecBase {
         if (hecl::ProjectPath mapCookedPath = getCookedPath(mapPath, true)) {
           athena::io::FileReader r(mapCookedPath.getAbsolutePath());
           if (r.hasError())
-            Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to open {}")), mapCookedPath.getRelativePath());
+            Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to open {}")), mapCookedPath.getRelativePath());
 
           if (r.readUint32Big() != 0xDEADF00D)
-            Log.report(logvisor::Fatal, fmt(_SYS_STR("Corrupt MAPW {}")), mapCookedPath.getRelativePath());
+            Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Corrupt MAPW {}")), mapCookedPath.getRelativePath());
           r.readUint32Big();
           atUint32 mapaCount = r.readUint32Big();
           for (atUint32 i = 0; i < mapaCount; ++i) {
@@ -1099,7 +1126,7 @@ struct SpecMP1 : SpecBase {
         for (const auto& tex : textures) {
           urde::SObjectTag texTag = tagFromPath(tex);
           if (!texTag)
-            Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to resolve {}")), tex.getRelativePath());
+            Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to resolve {}")), tex.getRelativePath());
           listOut.push_back(texTag);
         }
       }
@@ -1130,7 +1157,8 @@ struct SpecMP1 : SpecBase {
   }
 
   void buildPakList(hecl::blender::Token& btok, athena::io::FileWriter& w, const std::vector<urde::SObjectTag>& list,
-                    const std::vector<std::pair<urde::SObjectTag, std::string>>& nameList, atUint64& resTableOffset) override {
+                    const std::vector<std::pair<urde::SObjectTag, std::string>>& nameList,
+                    atUint64& resTableOffset) override {
     w.writeUint32Big(m_pc ? 0x80030005 : 0x00030005);
     w.writeUint32Big(0);
 

@@ -148,7 +148,7 @@ void Buckets::Sort() {
     if (bucket.size() < bucket.capacity())
       bucket.push_back(&drawable);
     // else
-    //    Log.report(logvisor::Fatal, fmt("Full bucket!!!"));
+    //    Log.report(logvisor::Fatal, FMT_STRING("Full bucket!!!"));
   }
 
   u16 bucketIdx = u16(sBuckets->size());
@@ -183,7 +183,7 @@ void Buckets::InsertPlaneObject(float closeDist, float farDist, const zeus::CAAB
 void Buckets::Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype, void* data,
                      const zeus::CPlane& plane, u16 extraSort) {
   if (sData->size() == sData->capacity()) {
-    Log.report(logvisor::Fatal, fmt("Rendering buckets filled to capacity"));
+    Log.report(logvisor::Fatal, FMT_STRING("Rendering buckets filled to capacity"));
     return;
   }
 
@@ -681,7 +681,16 @@ void CBooRenderer::LoadBallFade() {
 }
 
 CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
-: x8_factory(resFac), xc_store(store), x2a8_thermalRand(20) {
+: x8_factory(resFac), xc_store(store), x2a8_thermalRand(20)
+, x318_24_refectionDirty(false)
+, x318_25_drawWireframe(false)
+, x318_26_requestRGBA6(false)
+, x318_27_currentRGBA6(false)
+, x318_28_disableFog(false)
+, x318_29_thermalVisor(false)
+, x318_30_inAreaDraw(false)
+, x318_31_persistRGBA6(false)
+, m_thermalHotPass(false) {
   g_Renderer = this;
   xee_24_ = true;
 
@@ -1397,9 +1406,9 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
             return;
 
           flags.x4_color.r() = alphaVal / 255.f;
-          const CBooModel& model = *item.x10_models[wordModel + j];
-          const_cast<CBooModel&>(model).UpdateUniformData(flags, nullptr, nullptr, 2);
-          const_cast<CBooModel&>(model).VerifyCurrentShader(0);
+          CBooModel& model = *item.x10_models[wordModel + j];
+          model.UpdateUniformData(flags, nullptr, nullptr, 2);
+          model.VerifyCurrentShader(0);
           for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)
             if (surf->GetBounds().intersects(aabb))
               model.DrawSurface(*surf, flags);

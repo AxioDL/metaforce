@@ -173,16 +173,12 @@ public:
 class CAreaCollisionCache {
   zeus::CAABox x0_aabb;
   rstl::reserved_vector<CMetroidAreaCollider::COctreeLeafCache, 3> x18_leafCaches;
-  union {
-    struct {
-      bool x1b40_24_leafOverflow : 1;
-      bool x1b40_25_cacheOverflow : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x1b40_24_leafOverflow : 1;
+  bool x1b40_25_cacheOverflow : 1;
 
 public:
-  explicit CAreaCollisionCache(const zeus::CAABox& aabb) : x0_aabb(aabb) {}
+  explicit CAreaCollisionCache(const zeus::CAABox& aabb)
+  : x0_aabb(aabb), x1b40_24_leafOverflow(false), x1b40_25_cacheOverflow(false) {}
   void ClearCache();
   const zeus::CAABox& GetCacheBounds() const { return x0_aabb; }
   void SetCacheBounds(const zeus::CAABox& aabb) { x0_aabb = aabb; }

@@ -11,7 +11,10 @@ CGuiSliderGroup::CGuiSliderGroup(const CGuiWidgetParms& parms, float min, float 
 , xbc_maxVal(max)
 , xc0_roundedCurVal(def)
 , xc4_curVal(def)
-, xc8_increment(inc) {}
+, xc8_increment(inc)
+, xf4_24_inputPending(false)
+, m_mouseInside(false)
+, m_mouseDown(false) {}
 
 void CGuiSliderGroup::SetSelectionChangedCallback(std::function<void(CGuiSliderGroup*, float)>&& func) {
   xd8_changeCallback = std::move(func);

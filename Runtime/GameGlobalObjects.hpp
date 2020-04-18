@@ -57,11 +57,9 @@ extern class CStateManager* g_StateManager;
 #if USE_DOWNCAST_TWEAKS
 using ITweakGame = DataSpec::DNAMP1::CTweakGame;
 using ITweakPlayer = DataSpec::DNAMP1::CTweakPlayer;
-using ITweakPlayerRes = DataSpec::DNAMP1::CTweakPlayerRes;
 using ITweakPlayerControl = DataSpec::DNAMP1::CTweakPlayerControl;
 using ITweakPlayerGun = DataSpec::DNAMP1::CTweakPlayerGun;
 using ITweakGunRes = DataSpec::DNAMP1::CTweakGunRes;
-using ITweakTargeting = DataSpec::DNAMP1::CTweakTargeting;
 using ITweakAutoMapper = DataSpec::DNAMP1::CTweakAutoMapper;
 using ITweakGui = DataSpec::DNAMP1::CTweakGui;
 using ITweakSlideShow = DataSpec::DNAMP1::CTweakSlideShow;
@@ -71,11 +69,9 @@ using ITweakGuiColors = DataSpec::DNAMP1::CTweakGuiColors;
 #else
 using ITweakGame = DataSpec::ITweakGame;
 using ITweakPlayer = DataSpec::ITweakPlayer;
-using ITweakPlayerRes = DataSpec::ITweakPlayerRes;
 using ITweakPlayerControl = DataSpec::ITweakPlayerControl;
 using ITweakPlayerGun = DataSpec::ITweakPlayerGun;
 using ITweakGunRes = DataSpec::ITweakGunRes;
-using ITweakTargeting = DataSpec::ITweakTargeting;
 using ITweakAutoMapper = DataSpec::ITweakAutoMapper;
 using ITweakGui = DataSpec::ITweakGui;
 using ITweakSlideShow = DataSpec::ITweakSlideShow;
@@ -83,6 +79,8 @@ using ITweakParticle = DataSpec::ITweakParticle;
 using ITweakBall = DataSpec::ITweakBall;
 using ITweakGuiColors = DataSpec::ITweakGuiColors;
 #endif
+using ITweakPlayerRes = DataSpec::ITweakPlayerRes;
+using ITweakTargeting = DataSpec::ITweakTargeting;
 
 extern ITweakGame* g_tweakGame;
 extern ITweakPlayer* g_tweakPlayer;

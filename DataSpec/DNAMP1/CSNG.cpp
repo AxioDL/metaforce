@@ -44,8 +44,8 @@ bool CSNG::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
     r.emplace(songsPath.getAbsolutePath());
   athena::io::YAMLDocWriter ydw("amuse::Songs", r ? &*r : nullptr);
   r = std::nullopt;
-  ydw.writeString(fmt::format(fmt("{:04X}"), head.midiSetupId),
-    fmt::format(fmt("../MidiData/{}"), midPath.getLastComponentUTF8()));
+  ydw.writeString(fmt::format(FMT_STRING("{:04X}"), head.midiSetupId),
+    fmt::format(FMT_STRING("../MidiData/{}"), midPath.getLastComponentUTF8()));
   athena::io::FileWriter w(songsPath.getAbsolutePath());
   ydw.finish(&w);
 

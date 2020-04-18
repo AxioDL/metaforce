@@ -19,7 +19,9 @@ CAmbientAI::CAmbientAI(TUniqueId uid, std::string_view name, const CEntityInfo& 
 , x2d8_impactRange(impactRange)
 , x2dc_defaultAnim(GetModelData()->GetAnimationData()->GetDefaultAnimation())
 , x2e0_alertAnim(alertAnim)
-, x2e4_impactAnim(impactAnim) {
+, x2e4_impactAnim(impactAnim)
+, x2e8_24_dead(false)
+, x2e8_25_animating(false) {
   GetModelData()->GetAnimationData()->EnableLooping(true);
 }
 

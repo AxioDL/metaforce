@@ -79,7 +79,7 @@ void CPathCamera::ProcessInput(const CFinalInput&, CStateManager& mgr) {
   // Empty
 }
 
-static const CMaterialFilter kLineOfSightFilter =
+constexpr CMaterialFilter kLineOfSightFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
 
 void CPathCamera::Reset(const zeus::CTransform&, CStateManager& mgr) {

@@ -32,6 +32,17 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(),
          CActorParameters::None().HotInThermal(hotInThermal), kInvalidUniqueId)
 , x10c_partId(partId)
+, x110_24_enable(active)
+, x110_25_noTimerUnlessAreaOccluded(noTimerUnlessAreaOccluded)
+, x110_26_rebuildSystemsOnActivate(rebuildSystemsOnActivate)
+, x110_27_useRateInverseCamDist(useRateInverseCamDist)
+, x110_28_combatVisorVisible(combatVisorVisible)
+, x110_29_thermalVisorVisible(thermalVisorVisible)
+, x110_30_xrayVisorVisible(xrayVisorVisible)
+, x110_31_anyVisorVisible(xrayVisorVisible && thermalVisorVisible && combatVisorVisible)
+, x111_24_useRateCamDistRange(useRateCamDistRange)
+, x111_25_dieWhenSystemsDone(dieWhenSystemsDone)
+, x111_26_canRender(false)
 , x114_rateInverseCamDist(rateInverseCamDist)
 , x118_rateInverseCamDistSq(rateInverseCamDist * rateInverseCamDist)
 , x11c_rateInverseCamDistRate(rateInverseCamDistRate)
@@ -42,18 +53,6 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
 , x130_duration(duration)
 , x134_durationResetWhileVisible(durationResetWhileVisible)
 , x138_actorLights(lParms.MakeActorLights()) {
-  x110_24_enable = active;
-  x110_25_noTimerUnlessAreaOccluded = noTimerUnlessAreaOccluded;
-  x110_26_rebuildSystemsOnActivate = rebuildSystemsOnActivate;
-  x110_27_useRateInverseCamDist = useRateInverseCamDist;
-  x110_28_combatVisorVisible = combatVisorVisible;
-  x110_29_thermalVisorVisible = thermalVisorVisible;
-  x110_30_xrayVisorVisible = xrayVisorVisible;
-  x110_31_anyVisorVisible = xrayVisorVisible && thermalVisorVisible && combatVisorVisible;
-  x111_24_useRateCamDistRange = useRateCamDistRange;
-  x111_25_dieWhenSystemsDone = dieWhenSystemsDone;
-  x111_26_canRender = false;
-
   if (partId.IsValid()) {
     xf8_particleSystemToken = g_SimplePool->GetObj({FOURCC('PART'), partId});
     x104_particleSystem = std::make_unique<CElementGen>(xf8_particleSystemToken);
@@ -154,12 +153,14 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
     if (GetActive()) {
       std::vector<TUniqueId> playIds;
       for (const SConnection& conn : x20_conns) {
-        if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Activate)
+        if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Activate) {
           continue;
+        }
 
-        TUniqueId connId = mgr.GetIdForScript(conn.x8_objId);
-        if (connId != kInvalidUniqueId)
-          playIds.push_back(connId);
+        const TUniqueId scriptId = mgr.GetIdForScript(conn.x8_objId);
+        if (scriptId != kInvalidUniqueId) {
+          playIds.push_back(scriptId);
+        }
       }
 
       if (!playIds.empty()) {

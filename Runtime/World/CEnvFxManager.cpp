@@ -375,10 +375,10 @@ static zeus::CColor GetFlakeColor(const zeus::CMatrix4f& mvp, const CEnvFxShader
   return zeus::CColor(1.f - zeus::clamp(0.f, screenHeight, 1.f), 1.f);
 }
 
-void CEnvFxManagerGrid::RenderSnowParticles(const zeus::CTransform& camXf) const {
-  zeus::CVector3f xVec = 0.2f * camXf.basis[0];
-  zeus::CVector3f zVec = 0.2f * camXf.basis[2];
-  zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(false) * CGraphics::g_GXModelView.toMatrix4f();
+void CEnvFxManagerGrid::RenderSnowParticles(const zeus::CTransform& camXf) {
+  const zeus::CVector3f xVec = 0.2f * camXf.basis[0];
+  const zeus::CVector3f zVec = 0.2f * camXf.basis[2];
+  const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(false) * CGraphics::g_GXModelView.toMatrix4f();
   auto* bufOut = m_instBuf.access();
   for (const auto& particle : x1c_particles) {
     bufOut->positions[0] = particle.toVec3f();
@@ -396,26 +396,26 @@ void CEnvFxManagerGrid::RenderSnowParticles(const zeus::CTransform& camXf) const
   CGraphics::DrawInstances(0, 4, x1c_particles.size());
 }
 
-void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) const {
+void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) {
   m_lineRenderer.Reset();
-  float zOffset = 2.f * (1.f - std::fabs(camXf.basis[2].dot(zeus::skUp))) + 1.f;
-  zeus::CColor color0(1.f, 10.f / 15.f);
+  const float zOffset = 2.f * (1.f - std::fabs(camXf.basis[2].dot(zeus::skUp))) + 1.f;
+  const zeus::CColor color0(1.f, 10.f / 15.f);
   for (const auto& particle : x1c_particles) {
-    zeus::CVector3f pos0 = particle.toVec3f();
+    const zeus::CVector3f pos0 = particle.toVec3f();
     zeus::CVector3f pos1 = pos0;
     pos1.z() += zOffset;
-    float uvy0 = pos0.z() * 10.f + m_uvyOffset;
-    float uvy1 = pos1.z() * 10.f + m_uvyOffset;
+    const float uvy0 = pos0.z() * 10.f + m_uvyOffset;
+    const float uvy1 = pos1.z() * 10.f + m_uvyOffset;
     m_lineRenderer.AddVertex(pos0, zeus::skWhite, 1.f, {0.f, uvy0});
     m_lineRenderer.AddVertex(pos1, zeus::skClear, 1.f, {0.f, uvy1});
   }
   m_lineRenderer.Render(g_Renderer->IsThermalVisorHotPass(), zeus::CColor(1.f, 0.15f));
 }
 
-void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform& camXf) const {
-  zeus::CVector3f xVec = 0.5f * camXf.basis[0];
-  zeus::CVector3f zVec = 0.5f * camXf.basis[2];
-  zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(false) * CGraphics::g_GXModelView.toMatrix4f();
+void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform& camXf) {
+  const zeus::CVector3f xVec = 0.5f * camXf.basis[0];
+  const zeus::CVector3f zVec = 0.5f * camXf.basis[2];
+  const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(false) * CGraphics::g_GXModelView.toMatrix4f();
   auto* bufOut = m_instBuf.access();
   for (const auto& particle : x1c_particles) {
     bufOut->positions[0] = particle.toVec3f();
@@ -434,7 +434,7 @@ void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform& camXf)
 }
 
 void CEnvFxManagerGrid::Render(const zeus::CTransform& xf, const zeus::CTransform& invXf, const zeus::CTransform& camXf,
-                               float fxDensity, EEnvFxType fxType, const CEnvFxManager& parent) const {
+                               float fxDensity, EEnvFxType fxType, CEnvFxManager& parent) {
   if (!x1c_particles.empty() && x14_block.first) {
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Translate(x4_position.toVec2f() / 256.f));
     parent.m_uniformData.mv = CGraphics::g_GXModelView.toMatrix4f();
@@ -469,7 +469,7 @@ void CEnvFxManagerGrid::Render(const zeus::CTransform& xf, const zeus::CTransfor
   }
 }
 
-void CEnvFxManager::SetupSnowTevs(const CStateManager& mgr) const {
+void CEnvFxManager::SetupSnowTevs(const CStateManager& mgr) {
   mgr.GetCameraManager()->GetCurrentCamera(mgr);
   if (mgr.GetCameraManager()->GetFluidCounter() != 0) {
     g_Renderer->SetWorldFog(ERglFogMode::PerspExp, 0.f, 35.f, zeus::skBlack);
@@ -535,7 +535,7 @@ void CEnvFxManager::SetupUnderwaterTevs(const zeus::CTransform& invXf, const CSt
   // Swap: RGBR
 }
 
-void CEnvFxManager::Render(const CStateManager& mgr) const {
+void CEnvFxManager::Render(const CStateManager& mgr) {
   EEnvFxType fxType = mgr.GetWorld()->GetNeededEnvFx();
   if (fxType != EEnvFxType::None) {
     if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphed ||
@@ -562,7 +562,7 @@ void CEnvFxManager::Render(const CStateManager& mgr) const {
         break;
       }
       m_fogUniformBuf->load(&CGraphics::g_Fog, sizeof(CGraphics::g_Fog));
-      for (const auto& grid : x50_grids)
+      for (auto& grid : x50_grids)
         grid.Render(xf, invXf, camXf, x30_fxDensity, fxType, *this);
       // Backface cull
 

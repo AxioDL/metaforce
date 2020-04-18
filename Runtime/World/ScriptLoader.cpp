@@ -134,7 +134,7 @@ constexpr int skElitePiratePropCount = 41;
 
 static bool EnsurePropertyCount(int count, int expected, const char* structName) {
   if (count < expected) {
-    Log.report(logvisor::Warning, fmt("Insufficient number of props ({}/{}) for {} entity"), count, expected,
+    Log.report(logvisor::Warning, FMT_STRING("Insufficient number of props ({}/{}) for {} entity"), count, expected,
                structName);
     return false;
   }
@@ -700,7 +700,7 @@ CEntity* ScriptLoader::LoadSound(CStateManager& mgr, CInputStream& in, int propC
   s32 pitch = in.readInt32Big();
 
   if (soundId < 0) {
-    Log.report(logvisor::Warning, fmt("Invalid sound ID specified in Sound {} ({}), dropping..."), head.x0_name,
+    Log.report(logvisor::Warning, FMT_STRING("Invalid sound ID specified in Sound {} ({}), dropping..."), head.x0_name,
                info.GetEditorId());
     return nullptr;
   }
@@ -856,7 +856,7 @@ CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int 
 
 CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
   if (propCount > 25) {
-    Log.report(logvisor::Warning, fmt("Too many props ({} > 25) for CameraHint entity"), propCount);
+    Log.report(logvisor::Warning, FMT_STRING("Too many props ({} > 25) for CameraHint entity"), propCount);
     return nullptr;
   }
 
@@ -1054,7 +1054,7 @@ CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream
   color.readRGBABig(in);
   float timeIn = in.readFloatBig();
   float timeOut = in.readFloatBig();
-  CAssetId txtr = in.readUint32Big();
+  CAssetId txtr(in);
 
   return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), name, info, ftype, shape, filterIdx, unk, color,
                                          timeIn, timeOut, txtr, active);
@@ -1364,7 +1364,7 @@ CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in, int
 
   if (animParms.GetCharacter() == 0) {
     Log.report(logvisor::Warning,
-               fmt("SpacePirate <{}> has AnimationInformation property with invalid character selected"), head.x0_name);
+               FMT_STRING("SpacePirate <{}> has AnimationInformation property with invalid character selected"), head.x0_name);
     animParms.SetCharacter(2);
   }
 
@@ -1593,7 +1593,7 @@ CEntity* ScriptLoader::LoadFlickerBat(CStateManager& mgr, CInputStream& in, int 
 
 CEntity* ScriptLoader::LoadPathCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
   if (propCount > 15) {
-    Log.report(logvisor::Warning, fmt("Too many props ({} > 15) for PathCamera entity"), propCount);
+    Log.report(logvisor::Warning, FMT_STRING("Too many props ({} > 15) for PathCamera entity"), propCount);
     return nullptr;
   }
 
@@ -2384,7 +2384,7 @@ CEntity* ScriptLoader::LoadVisorFlare(CStateManager& mgr, CInputStream& in, int 
 CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in, int propCount,
                                            const CEntityInfo& info) {
   if (propCount < 4 || propCount > 26) {
-    Log.report(logvisor::Warning, fmt("Incorrect number of props for WorldTeleporter"));
+    Log.report(logvisor::Warning, FMT_STRING("Incorrect number of props for WorldTeleporter"));
     return nullptr;
   }
 

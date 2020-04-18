@@ -192,7 +192,7 @@ struct ANIM : BigDNA {
     if (m_anim->evnt.isValid()) {
       hecl::SystemStringConv sysStr(animInfo.name);
       hecl::ProjectPath evntYamlPath = outPath.getWithExtension(
-          fmt::format(fmt(_SYS_STR(".{}_{}.evnt.yaml")), sysStr, m_anim->evnt).c_str(), true);
+          fmt::format(FMT_STRING(_SYS_STR(".{}_{}.evnt.yaml")), sysStr, m_anim->evnt).c_str(), true);
       hecl::ProjectPath::Type evntYamlType = evntYamlPath.getPathType();
 
       if (force || evntYamlType == hecl::ProjectPath::Type::None) {

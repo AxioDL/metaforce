@@ -416,7 +416,7 @@ void CSnakeWeedSwarm::RenderBoid(u32 idx, const CBoid& boid, u32& posesToBuild) 
   auto& modelData = *x1b0_modelData[modelIdx];
   auto& model = modelData.PickAnimatedModel(x1c4_which);
   auto& animData = *modelData.GetAnimationData();
-  const CModelFlags useFlags(0, 0, 3, zeus::skWhite);
+  constexpr CModelFlags useFlags(0, 0, 3, zeus::skWhite);
   if (posesToBuild & 1 << modelIdx) {
     posesToBuild &= ~(1 << modelIdx);
     animData.BuildPose();

@@ -1,5 +1,7 @@
 #include "Runtime/MP1/World/CNewIntroBoss.hpp"
 
+#include <array>
+
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Character/CCharLayoutInfo.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
@@ -12,6 +14,27 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
+
+constexpr std::array<SSphereJointInfo, 2> skSphereJoints{{
+    {"Head_1", 1.5f},
+    {"Tail_1", 1.5f},
+}};
+
+constexpr std::array<SOBBJointInfo, 13> skOBBJoints{{
+    {"Pelvis", "Spine_3", {4.f, 1.f, 4.f}},
+    {"Spine_3", "Tail_1", {2.f, 1.f, 2.f}},
+    {"Tail_1", "Tail_2", {1.f, 1.f, 1.f}},
+    {"Tail_2", "Tail_3", {1.f, 1.f, 1.f}},
+    {"Tail_3", "Tail_4", {1.f, 1.f, 1.f}},
+    {"R_shoulder_front", "R_elbow_front", {.5f, .5f, .5f}},
+    {"R_elbow_front", "R_wrist_front", {.5f, .5f, .5f}},
+    {"L_shoulder_front", "L_elbow_front", {.5f, .5f, .5f}},
+    {"L_elbow_front", "L_wrist_front", {.5f, .5f, .5f}},
+    {"R_shoulder_back", "R_elbow_back", {.5f, .5f, .5f}},
+    {"R_elbow_back", "R_wrist_back", {.5f, .5f, .5f}},
+    {"L_shoulder_back", "L_elbow_back", {.5f, .5f, .5f}},
+    {"L_elbow_back", "L_wrist_back", {.5f, .5f, .5f}},
+}};
 
 CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                              CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
@@ -34,24 +57,6 @@ CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntity
 }
 
 void CNewIntroBoss::Accept(IVisitor& visitor) { visitor.Visit(this); }
-
-static const SSphereJointInfo skSphereJoints[] = {{"Head_1", 1.5f}, {"Tail_1", 1.5f}};
-
-static const SOBBJointInfo skOBBJoints[] = {
-    {"Pelvis", "Spine_3", {4.f, 1.f, 4.f}},
-    {"Spine_3", "Tail_1", {2.f, 1.f, 2.f}},
-    {"Tail_1", "Tail_2", {1.f, 1.f, 1.f}},
-    {"Tail_2", "Tail_3", {1.f, 1.f, 1.f}},
-    {"Tail_3", "Tail_4", {1.f, 1.f, 1.f}},
-    {"R_shoulder_front", "R_elbow_front", {.5f, .5f, .5f}},
-    {"R_elbow_front", "R_wrist_front", {.5f, .5f, .5f}},
-    {"L_shoulder_front", "L_elbow_front", {.5f, .5f, .5f}},
-    {"L_elbow_front", "L_wrist_front", {.5f, .5f, .5f}},
-    {"R_shoulder_back", "R_elbow_back", {.5f, .5f, .5f}},
-    {"R_elbow_back", "R_wrist_back", {.5f, .5f, .5f}},
-    {"L_shoulder_back", "L_elbow_back", {.5f, .5f, .5f}},
-    {"L_elbow_back", "L_wrist_back", {.5f, .5f, .5f}},
-};
 
 void CNewIntroBoss::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   if (msg == EScriptObjectMessage::Registered) {

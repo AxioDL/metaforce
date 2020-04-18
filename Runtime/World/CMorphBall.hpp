@@ -111,7 +111,7 @@ private:
   std::unique_ptr<CElementGen> x19e0_effect_morphBallIceBreakGen;
   rstl::reserved_vector<std::pair<std::unique_ptr<CParticleSwoosh>, bool>, 32> x19e4_spiderElectricGens;
   std::list<CSpiderBallElectricityManager> x1b6c_activeSpiderElectricList;
-  CRandom16 x1b80_rand = {99};
+  CRandom16 x1b80_rand{99};
   rstl::reserved_vector<TToken<CGenDescription>, 8> x1b84_wakeEffects;
   rstl::reserved_vector<std::unique_ptr<CElementGen>, 8> x1bc8_wakeEffectGens;
   s32 x1c0c_wakeEffectIdx = -1;

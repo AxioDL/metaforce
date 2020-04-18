@@ -13,7 +13,7 @@ void FONT<IDType>::_read(athena::io::IStreamReader& __dna_reader) {
   DNAFourCC magic;
   magic.read(__dna_reader);
   if (magic != SBIG('FONT')) {
-    LogModule.report(logvisor::Fatal, fmt("Invalid FONT magic '{}'"), magic);
+    LogModule.report(logvisor::Fatal, FMT_STRING("Invalid FONT magic '{}'"), magic);
     return;
   }
   /* version */

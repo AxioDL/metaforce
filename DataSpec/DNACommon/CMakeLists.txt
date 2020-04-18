@@ -4,10 +4,12 @@ make_dnalist(CMDL
              FSM2
              MAPA
              MAPU
+             PATH
              MayaSpline
              EGMC
              SAVWCommon
              ParticleCommon
+             URDEVersionInfo
              Tweaks/ITweakPlayerGun)
 
 set(DNACOMMON_SOURCES
@@ -19,6 +21,7 @@ set(DNACOMMON_SOURCES
     CMDL.cpp
     MAPA.cpp
     MAPU.cpp
+    PATH.hpp PATH.cpp
     STRG.hpp STRG.cpp
     TXTR.hpp TXTR.cpp
     ANCS.hpp ANCS.cpp
@@ -38,6 +41,7 @@ set(DNACOMMON_SOURCES
     RigInverter.hpp RigInverter.cpp
     AROTBuilder.hpp AROTBuilder.cpp
     OBBTreeBuilder.hpp OBBTreeBuilder.cpp
+    URDEVersionInfo.hpp
     Tweaks/ITweak.hpp
     Tweaks/TweakWriter.hpp
     Tweaks/ITweakGame.hpp

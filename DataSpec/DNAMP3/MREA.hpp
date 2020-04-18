@@ -13,6 +13,7 @@ struct MREA {
     StreamReader(athena::io::IStreamReader& source, atUint32 blkCount, atUint32 secIdxCount);
     std::vector<std::pair<DNAFourCC, atUint32>>::const_iterator beginSecIdxs() { return m_secIdxs.begin(); }
     void writeSecIdxs(athena::io::IStreamWriter& writer) const;
+    bool seekToSection(FourCC sec, const std::vector<atUint32>& secSizes);
   };
 
   struct Header : BigDNA {
@@ -83,6 +84,8 @@ struct MREA {
   };
 
   static void ReadBabeDeadToBlender_3(hecl::blender::PyOutStream& os, athena::io::IStreamReader& rs);
+
+  static UniqueID64 GetPATHId(PAKEntryReadStream& rs);
 
   static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                       PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool, hecl::blender::Token& btok,

@@ -132,8 +132,8 @@ void CAnimSourceReaderBase::UpdatePOIStates() {
   }
 }
 
-u32 CAnimSourceReaderBase::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator,
-                                           u32 unk) const {
+size_t CAnimSourceReaderBase::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, size_t capacity,
+                                              size_t iterator, u32 unk) const {
   if (x4_sourceInfo->HasPOIData()) {
     const std::vector<CBoolPOINode>& boolNodes = x4_sourceInfo->GetBoolPOIStream();
     return _getPOIList(time, listOut, capacity, iterator, unk, boolNodes, xc_curTime, *x4_sourceInfo,
@@ -142,8 +142,8 @@ u32 CAnimSourceReaderBase::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINo
   return 0;
 }
 
-u32 CAnimSourceReaderBase::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity,
-                                            u32 iterator, u32 unk) const {
+size_t CAnimSourceReaderBase::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, size_t capacity,
+                                               size_t iterator, u32 unk) const {
   if (x4_sourceInfo->HasPOIData()) {
     const std::vector<CInt32POINode>& int32Nodes = x4_sourceInfo->GetInt32POIStream();
     return _getPOIList(time, listOut, capacity, iterator, unk, int32Nodes, xc_curTime, *x4_sourceInfo,
@@ -152,8 +152,8 @@ u32 CAnimSourceReaderBase::VGetInt32POIList(const CCharAnimTime& time, CInt32POI
   return 0;
 }
 
-u32 CAnimSourceReaderBase::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity,
-                                               u32 iterator, u32 unk) const {
+size_t CAnimSourceReaderBase::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, size_t capacity,
+                                                  size_t iterator, u32 unk) const {
   if (x4_sourceInfo->HasPOIData()) {
     const std::vector<CParticlePOINode>& particleNodes = x4_sourceInfo->GetParticlePOIStream();
     return _getPOIList(time, listOut, capacity, iterator, unk, particleNodes, xc_curTime, *x4_sourceInfo,
@@ -162,8 +162,8 @@ u32 CAnimSourceReaderBase::VGetParticlePOIList(const CCharAnimTime& time, CParti
   return 0;
 }
 
-u32 CAnimSourceReaderBase::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity,
-                                            u32 iterator, u32 unk) const {
+size_t CAnimSourceReaderBase::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, size_t capacity,
+                                               size_t iterator, u32 unk) const {
   if (x4_sourceInfo->HasPOIData()) {
     const std::vector<CSoundPOINode>& soundNodes = x4_sourceInfo->GetSoundPOIStream();
     return _getPOIList(time, listOut, capacity, iterator, unk, soundNodes, xc_curTime, *x4_sourceInfo,

@@ -4,9 +4,11 @@
 #include "MLVL.hpp"
 #include "CMDL.hpp"
 #include "ANCS.hpp"
+#include "CINF.hpp"
 #include "MREA.hpp"
 #include "MAPA.hpp"
 #include "MAPU.hpp"
+#include "PATH.hpp"
 #include "AFSM.hpp"
 #include "SAVW.hpp"
 #include "AGSC.hpp"
@@ -25,7 +27,9 @@ logvisor::Module Log("urde::DNAMP2");
 static bool GetNoShare(std::string_view name) {
   std::string lowerName(name);
   std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
-  if (!lowerName.compare(0, 7, "metroid"))
+  if (lowerName.compare(0, 7, "metroid") == 0)
+    return false;
+  if (lowerName.compare(0, 8, "frontend") == 0)
     return false;
   return true;
 }
@@ -115,7 +119,7 @@ void PAKBridge::build() {
             areaDeps.name = hecl::SystemString(_SYS_STR("MREA_")) + hecl::SystemStringConv(idStr).c_str();
           }
         }
-        hecl::SystemString num = fmt::format(fmt(_SYS_STR("{:02d} ")), ai);
+        hecl::SystemString num = fmt::format(FMT_STRING(_SYS_STR("{:02d} ")), ai);
         areaDeps.name = num + areaDeps.name;
 
         areaDeps.layers.reserve(area.depLayerCount - 1);
@@ -126,7 +130,7 @@ void PAKBridge::build() {
           layer.name = LayerName(mlvl.layerNames[layerIdx++]);
           layer.active = layerFlags.flags >> (l - 1) & 0x1;
           layer.name = hecl::StringUtils::TrimWhitespace(layer.name);
-          num = fmt::format(fmt(_SYS_STR("{:02d} ")), l - 1);
+          num = fmt::format(FMT_STRING(_SYS_STR("{:02d} ")), l - 1);
           layer.name = num + layer.name;
 
           layer.resources.reserve(area.depLayers[l] - r);
@@ -159,13 +163,25 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssoci
       for (const ANCS::CharacterSet::CharacterInfo& ci : ancs.characterSet.characters) {
         charAssoc.m_cmdlRigs[ci.cmdl] = {ci.cskr, ci.cinf};
         charAssoc.m_cskrToCharacter[ci.cskr] =
-            std::make_pair(entry.second.id, fmt::format(fmt("{}_{}.CSKR"), ci.name, ci.cskr));
+            std::make_pair(entry.second.id, fmt::format(FMT_STRING("{}_{}.CSKR"), ci.name, ci.cskr));
         if (ci.cmdlIce.isValid()) {
           charAssoc.m_cmdlRigs[ci.cmdlIce] = {ci.cskrIce, ci.cinf};
           charAssoc.m_cskrToCharacter[ci.cskrIce] =
-              std::make_pair(entry.second.id, fmt::format(fmt("{}.ICE_{}.CSKR"), ci.name, ci.cskrIce));
+              std::make_pair(entry.second.id, fmt::format(FMT_STRING("{}.ICE_{}.CSKR"), ci.name, ci.cskrIce));
         }
       }
+    }
+  }
+}
+
+void PAKBridge::addPATHToMREA(PAKRouter<PAKBridge>& pakRouter,
+                              std::unordered_map<UniqueID32, UniqueID32>& pathToMrea) const {
+  for (const auto& [id, entry] : m_pak.m_entries) {
+    if (entry.type == FOURCC('MREA')) {
+      PAKEntryReadStream rs = entry.beginReadStream(m_node);
+      UniqueID32 pathID = MREA::GetPATHId(rs);
+      if (pathID.isValid())
+        pathToMrea[pathID] = id;
     }
   }
 }
@@ -186,13 +202,23 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
 
       if (mlvl.worldNameId.isValid())
         pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath,
-            fmt::format(fmt(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
+            fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
 
       for (const MLVL::Area& area : mlvl.areas) {
+        {
+          /* Get PATH transform */
+          const nod::Node* areaNode;
+          const PAK::Entry* areaEntry = pakRouter.lookupEntry(area.areaMREAId, &areaNode);
+          PAKEntryReadStream rs = areaEntry->beginReadStream(*areaNode);
+          UniqueID32 pathId = MREA::GetPATHId(rs);
+          if (pathId.isValid())
+            addTo[pathId] = zeus::CMatrix4f(area.transformMtx[0], area.transformMtx[1], area.transformMtx[2], BottomRow)
+                .transposed();
+        }
         hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
         if (area.areaNameId.isValid())
           pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath,
-              fmt::format(fmt(_SYS_STR("!name_{}.yaml")), area.areaNameId));
+              fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), area.areaNameId));
       }
 
       if (mlvl.worldMap.isValid()) {
@@ -234,6 +260,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     return {SAVWCommon::ExtractSAVW<SAVW>, {_SYS_STR(".yaml")}};
   case SBIG('CMDL'):
     return {CMDL::Extract, {_SYS_STR(".blend")}, 1};
+  case SBIG('CINF'):
+    return {CINF::Extract<PAKBridge>, {_SYS_STR(".blend")}, 1};
   case SBIG('ANCS'):
     return {ANCS::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 2};
   case SBIG('MLVL'):
@@ -244,6 +272,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     return {MAPA::Extract, {_SYS_STR(".blend")}, 4};
   case SBIG('MAPU'):
     return {MAPU::Extract, {_SYS_STR(".blend")}, 5};
+  case SBIG('PATH'):
+    return {PATH::Extract, {_SYS_STR(".blend")}, 5};
   case SBIG('FSM2'):
     return {DNAFSM2::ExtractFSM2<UniqueID32>, {_SYS_STR(".yaml")}};
   case SBIG('FONT'):

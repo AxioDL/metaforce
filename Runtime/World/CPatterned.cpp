@@ -25,11 +25,12 @@
 
 namespace urde {
 
-const zeus::CColor CPatterned::skDamageColor(0.5f, 0.f, 0.f);
-CMaterialList gkPatternedGroundMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid, EMaterialTypes::Orbit,
-                                            EMaterialTypes::GroundCollider, EMaterialTypes::Target);
-CMaterialList gkPatternedFlyerMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid, EMaterialTypes::Orbit,
-                                           EMaterialTypes::Target);
+constexpr zeus::CColor CPatterned::skDamageColor(0.5f, 0.f, 0.f);
+constexpr CMaterialList skPatternedGroundMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
+                                                      EMaterialTypes::Orbit, EMaterialTypes::GroundCollider,
+                                                      EMaterialTypes::Target);
+constexpr CMaterialList skPatternedFlyerMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
+                                                     EMaterialTypes::Orbit, EMaterialTypes::Target);
 
 CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view name, CPatterned::EFlavorType flavor,
                        const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
@@ -41,12 +42,21 @@ CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view nam
                    pInfo.xcc_bodyOrigin +
                        zeus::CVector3f{pInfo.xc4_halfExtent, pInfo.xc4_halfExtent, pInfo.xc8_height}),
       pInfo.x0_mass, pInfo.x54_healthInfo, pInfo.x5c_damageVulnerability,
-      moveType == EMovementType::Flyer ? gkPatternedFlyerMaterialList : gkPatternedGroundMaterialList,
+      moveType == EMovementType::Flyer ? skPatternedFlyerMaterialList : skPatternedGroundMaterialList,
       pInfo.xfc_stateMachineId, actorParms, pInfo.xd8_stepUpHeight, 0.8f)
 , x2fc_minAttackRange(pInfo.x18_minAttackRange)
 , x300_maxAttackRange(pInfo.x1c_maxAttackRange)
 , x304_averageAttackTime(pInfo.x20_averageAttackTime)
 , x308_attackTimeVariation(pInfo.x24_attackTimeVariation)
+, x328_24_inPosition(false)
+, x328_25_verticalMovement(moveType == EMovementType::Flyer)
+, x328_26_solidCollision(false)
+, x328_27_onGround(moveType != EMovementType::Flyer)
+, x328_28_prevOnGround(true)
+, x328_29_noPatternShagging(false)
+, x328_30_lookAtDeathDir(true)
+, x328_31_energyAttractor(false)
+, x329_24_(true)
 , x34c_character(character)
 , x388_anim(pInfo.GetAnimationParameters().GetInitialAnimation())
 , x3b4_speed(pInfo.x4_speed)
@@ -61,18 +71,33 @@ CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view nam
 , x3dc_frozenXDamageThreshold(pInfo.xe0_frozenXDamage)
 , x3e0_xDamageDelay(pInfo.xe4_xDamageDelay)
 , x3fc_flavor(flavor)
+, x400_24_hitByPlayerProjectile(false)
+, x400_25_alive(true)
+, x400_26_(false)
+, x400_27_fadeToDeath(false)
+, x400_28_pendingMassiveDeath(false)
+, x400_29_pendingMassiveFrozenDeath(false)
+, x400_30_patternShagged(false)
+, x400_31_isFlyer(moveType == CPatterned::EMovementType::Flyer)
+, x401_24_pathOverCount(0)
+, x401_26_disableMove(false)
+, x401_27_phazingOut(false)
+, x401_28_burning(false)
+, x401_29_laggedBurnDeath(false)
+, x401_30_pendingDeath(false)
+, x401_31_nextPendingShock(false)
+, x402_24_pendingShock(false)
+, x402_25_lostMassiveFrozenHP(false)
+, x402_26_dieIf80PercFrozen(false)
+, x402_27_noXrayModel(false)
+, x402_28_isMakingBigStrike(false)
+, x402_29_drawParticles(true)
+, x402_30_updateThermalFrozenState(x402_31_thawed = actorParms.HasThermalHeat())
+, x402_31_thawed(false)
+, x403_24_keepThermalVisorState(false)
+, x403_25_enableStateMachine(true)          // t
+, x403_26_stateControlledMassiveDeath(true)
 , x460_knockBackController(kbVariant) {
-  x328_25_verticalMovement = moveType == EMovementType::Flyer;
-  x328_27_onGround = moveType != EMovementType::Flyer;
-  x328_28_prevOnGround = true;
-  x328_30_lookAtDeathDir = true;
-  x329_24_ = true;
-  x400_25_alive = true;
-  x400_31_isFlyer = moveType == CPatterned::EMovementType::Flyer;
-  x402_29_drawParticles = true;
-  x402_30_updateThermalFrozenState = x402_31_thawed = actorParms.HasThermalHeat();
-  x403_25_enableStateMachine = true;
-  x403_26_stateControlledMassiveDeath = true;
   x404_contactDamage = pInfo.x34_contactDamageInfo;
   x424_damageWaitTime = pInfo.x50_damageWaitTime;
   x454_deathSfx = pInfo.xe8_deathSfx;
@@ -472,10 +497,11 @@ void CPatterned::Death(CStateManager& mgr, const zeus::CVector3f& dir, EScriptOb
 void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, const CDamageInfo& info,
                            EKnockBackType type, bool inDeferred, float magnitude) {
   CHealthInfo* hInfo = HealthInfo(mgr);
-  if (!x401_27_phazingOut && !x401_28_burning && hInfo) {
+  if (!x401_27_phazingOut && !x401_28_burning && hInfo != nullptr) {
     x460_knockBackController.KnockBack(backVec, mgr, *this, info, type, magnitude);
-    if (x450_bodyController->IsFrozen() && x460_knockBackController.GetActiveParms().xc_intoFreezeDur >= 0.f)
+    if (x450_bodyController->IsFrozen() && x460_knockBackController.GetActiveParms().xc_intoFreezeDur >= 0.f) {
       x450_bodyController->FrozenBreakout();
+    }
     switch (x460_knockBackController.GetActiveParms().x4_animFollowup) {
     case EKnockBackAnimationFollowUp::Freeze:
       Freeze(mgr, zeus::skZero3f, zeus::CUnitVector3f(x34_transform.transposeRotate(backVec)),
@@ -520,10 +546,11 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
       break;
     case EKnockBackAnimationFollowUp::IceDeath:
       Death(mgr, zeus::skZero3f, EScriptObjectState::DeathRattle);
-      if (x54c_iceDeathExplosionParticle)
+      if (x54c_iceDeathExplosionParticle) {
         MassiveFrozenDeath(mgr);
-      else if (x450_bodyController->IsFrozen())
+      } else if (x450_bodyController->IsFrozen()) {
         x450_bodyController->FrozenBreakout();
+      }
       break;
     default:
       break;
@@ -583,7 +610,7 @@ bool CPatterned::NoPathNodes(CStateManager&, float arg) {
   return true;
 }
 
-static const float skActorApproachDistance = 3.f;
+constexpr float skActorApproachDistance = 3.f;
 
 bool CPatterned::PathShagged(CStateManager&, float arg) {
   if (CPathFindSearch* search = GetSearchPath()) {

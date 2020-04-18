@@ -14,16 +14,14 @@ MREA::StreamReader::StreamReader(athena::io::IStreamReader& source, atUint32 blk
   m_blkCount = blkCount;
   m_blockInfos.reserve(blkCount);
   for (atUint32 i = 0; i < blkCount; ++i) {
-    m_blockInfos.emplace_back();
-    BlockInfo& info = m_blockInfos.back();
+    BlockInfo& info = m_blockInfos.emplace_back();
     info.read(source);
     m_totalDecompLen += info.decompSize;
   }
   source.seekAlign32();
   m_secIdxs.reserve(secIdxCount);
   for (atUint32 i = 0; i < secIdxCount; ++i) {
-    m_secIdxs.emplace_back();
-    std::pair<DNAFourCC, atUint32>& idx = m_secIdxs.back();
+    std::pair<DNAFourCC, atUint32>& idx = m_secIdxs.emplace_back();
     idx.first.read(source);
     idx.second = source.readUint32Big();
   }
@@ -39,10 +37,19 @@ void MREA::StreamReader::writeSecIdxs(athena::io::IStreamWriter& writer) const {
   }
 }
 
+bool MREA::StreamReader::seekToSection(FourCC sec, const std::vector<atUint32>& secSizes) {
+  auto search = std::find_if(m_secIdxs.begin(), m_secIdxs.end(), [sec](const auto& s) { return s.first == sec; });
+  if (search != m_secIdxs.end()) {
+    DNAMP2::MREA::StreamReader::seekToSection(search->second, secSizes);
+    return true;
+  }
+  return false;
+}
+
 void MREA::ReadBabeDeadToBlender_3(hecl::blender::PyOutStream& os, athena::io::IStreamReader& rs) {
   atUint32 bdMagic = rs.readUint32Big();
   if (bdMagic != 0xBABEDEAD)
-    Log.report(logvisor::Fatal, fmt("invalid BABEDEAD magic"));
+    Log.report(logvisor::Fatal, FMT_STRING("invalid BABEDEAD magic"));
   os << "bpy.context.scene.world.use_nodes = True\n"
         "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n"
         "bg_node.inputs[1].default_value = 0.0\n";
@@ -93,7 +100,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-  os.format(fmt(
+  os.format(FMT_STRING(
       "import bpy\n"
       "import bmesh\n"
       "from mathutils import Vector\n"
@@ -252,6 +259,21 @@ bool MREA::ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Level::Area& area
     }
   }
   return false;
+}
+
+UniqueID64 MREA::GetPATHId(PAKEntryReadStream& rs) {
+  /* Do extract */
+  Header head;
+  head.read(rs);
+  rs.seekAlign32();
+
+  /* MREA decompression stream */
+  StreamReader drs(rs, head.compressedBlockCount, head.secIndexCount);
+
+  /* Skip to PATH */
+  if (drs.seekToSection(FOURCC('PFL2'), head.secSizes))
+    return {drs};
+  return {};
 }
 
 } // namespace DNAMP3

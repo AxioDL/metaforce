@@ -6,9 +6,8 @@
 
 namespace urde::MP1 {
 
-CPauseScreenBlur::CPauseScreenBlur() : x4_mapLightQuarter(g_SimplePool->GetObj("TXTR_MapLightQuarter")) {
-  x50_25_gameDraw = true;
-}
+CPauseScreenBlur::CPauseScreenBlur()
+: x4_mapLightQuarter(g_SimplePool->GetObj("TXTR_MapLightQuarter")), x50_24_blurring(false), x50_25_gameDraw(true) {}
 
 void CPauseScreenBlur::OnNewInGameGuiState(EInGameGuiState state, CStateManager& stateMgr) {
   switch (state) {

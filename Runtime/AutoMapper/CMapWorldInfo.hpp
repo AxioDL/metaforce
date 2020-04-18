@@ -18,17 +18,17 @@ class CMapWorldInfo {
 
 public:
   CMapWorldInfo() = default;
-  explicit CMapWorldInfo(CBitStreamReader&, const CSaveWorld& saveWorld, CAssetId mlvlId);
+  explicit CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& saveWorld, CAssetId mlvlId);
   void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, CAssetId mlvlId) const;
-  bool IsMapped(TAreaId) const;
-  void SetIsMapped(TAreaId, bool);
+  bool IsMapped(TAreaId aid) const;
+  void SetIsMapped(TAreaId aid, bool mapped);
   void SetDoorVisited(TEditorId eid, bool val);
   bool IsDoorVisited(TEditorId eid) const;
-  bool IsAreaVisited(TAreaId) const;
-  void SetAreaVisited(TAreaId, bool);
-  bool IsWorldVisible(TAreaId) const;
-  bool IsAreaVisible(TAreaId) const;
+  bool IsAreaVisited(TAreaId aid) const;
+  void SetAreaVisited(TAreaId aid, bool visited);
+  bool IsWorldVisible(TAreaId aid) const;
+  bool IsAreaVisible(TAreaId aid) const;
   bool IsAnythingSet() const;
-  void SetMapStationUsed(bool val) { x38_mapStationUsed = val; }
+  void SetMapStationUsed(bool isUsed) { x38_mapStationUsed = isUsed; }
 };
 } // namespace urde

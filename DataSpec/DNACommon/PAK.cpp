@@ -207,7 +207,7 @@ void PAKRouter<BRIDGETYPE>::enterPAKBridge(const BRIDGETYPE& pakBridge) {
     ++pit;
     ++bridgeIdx;
   }
-  LogDNACommon.report(logvisor::Fatal, fmt("PAKBridge provided to PAKRouter::enterPAKBridge() was not part of build()"));
+  LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAKBridge provided to PAKRouter::enterPAKBridge() was not part of build()"));
 }
 
 template <class BRIDGETYPE>
@@ -287,7 +287,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
     return sharedPath.ensureAuxInfo(auxInfo);
   }
 
-  LogDNACommon.report(logvisor::Fatal, fmt("Unable to find entry {}"), entry->id);
+  LogDNACommon.report(logvisor::Fatal, FMT_STRING("Unable to find entry {}"), entry->id);
   return hecl::ProjectPath();
 }
 
@@ -338,7 +338,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const EntryType* entry) const
   if (sharedSearch != m_sharedEntries.end()) {
     return hecl::ProjectPath(m_sharedCooked, getBestEntryName(*entry));
   }
-  LogDNACommon.report(logvisor::Fatal, fmt("Unable to find entry {}"), entry->id);
+  LogDNACommon.report(logvisor::Fatal, FMT_STRING("Unable to find entry {}"), entry->id);
   return hecl::ProjectPath();
 }
 
@@ -353,7 +353,7 @@ hecl::SystemString PAKRouter<BRIDGETYPE>::getResourceRelativePath(const EntryTyp
   const PAKType* pak = m_pak.get();
   if (!pak)
     LogDNACommon.report(logvisor::Fatal,
-                        fmt("PAKRouter::enterPAKBridge() must be called before PAKRouter::getResourceRelativePath()"));
+                        FMT_STRING("PAKRouter::enterPAKBridge() must be called before PAKRouter::getResourceRelativePath()"));
   const typename BRIDGETYPE::PAKType::Entry* be = lookupEntry(b);
   if (!be)
     return hecl::SystemString();
@@ -377,17 +377,17 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const EntryType& entry, bool
 
     if (stdOverride && !pak.m_noShare) {
       if (entry.type == FOURCC('MLVL'))
-        return fmt::format(fmt("!world_{}"), entry.id);
+        return fmt::format(FMT_STRING("!world_{}"), entry.id);
       else if (entry.type == FOURCC('MREA'))
-        return fmt::format(fmt("!area_{}"), entry.id);
+        return fmt::format(FMT_STRING("!area_{}"), entry.id);
       else if (entry.type == FOURCC('MAPA'))
-        return fmt::format(fmt("!map_{}"), entry.id);
+        return fmt::format(FMT_STRING("!map_{}"), entry.id);
       else if (entry.type == FOURCC('PATH'))
-        return fmt::format(fmt("!path_{}"), entry.id);
+        return fmt::format(FMT_STRING("!path_{}"), entry.id);
       else if (entry.type == FOURCC('MAPW'))
-        return fmt::format(fmt("!mapw_{}"), entry.id);
+        return fmt::format(FMT_STRING("!mapw_{}"), entry.id);
       else if (entry.type == FOURCC('SAVW'))
-        return fmt::format(fmt("!savw_{}"), entry.id);
+        return fmt::format(FMT_STRING("!savw_{}"), entry.id);
     }
 
     std::string catalogueName;
@@ -409,17 +409,17 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const IDType& entry, bool st
 
     if (stdOverride && !pak.m_noShare) {
       if (e->type == FOURCC('MLVL'))
-        return fmt::format(fmt("!world_{}"), e->id);
+        return fmt::format(FMT_STRING("!world_{}"), e->id);
       else if (e->type == FOURCC('MREA'))
-        return fmt::format(fmt("!area_{}"), e->id);
+        return fmt::format(FMT_STRING("!area_{}"), e->id);
       else if (e->type == FOURCC('MAPA'))
-        return fmt::format(fmt("!map_{}"), e->id);
+        return fmt::format(FMT_STRING("!map_{}"), e->id);
       else if (e->type == FOURCC('PATH'))
-        return fmt::format(fmt("!path_{}"), e->id);
+        return fmt::format(FMT_STRING("!path_{}"), e->id);
       else if (e->type == FOURCC('MAPW'))
-        return fmt::format(fmt("!mapw_{}"), e->id);
+        return fmt::format(FMT_STRING("!mapw_{}"), e->id);
       else if (e->type == FOURCC('SAVW'))
-        return fmt::format(fmt("!savw_{}"), e->id);
+        return fmt::format(FMT_STRING("!savw_{}"), e->id);
     }
 
     std::string catalogueName;
@@ -495,7 +495,7 @@ const typename BRIDGETYPE::PAKType::Entry* PAKRouter<BRIDGETYPE>::lookupEntry(co
     return nullptr;
 
   if (!m_bridges)
-    LogDNACommon.report(logvisor::Fatal, fmt("PAKRouter::build() must be called before PAKRouter::lookupEntry()"));
+    LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAKRouter::build() must be called before PAKRouter::lookupEntry()"));
 
   const PAKType* pak = m_pak.get();
   const nod::Node* node = m_node.get();
@@ -511,7 +511,7 @@ const typename BRIDGETYPE::PAKType::Entry* PAKRouter<BRIDGETYPE>::lookupEntry(co
   if (currentPAK) {
 #ifndef NDEBUG
     if (!silenceWarnings)
-      LogDNACommon.report(logvisor::Warning, fmt("unable to find PAK entry {} in current PAK"), entry);
+      LogDNACommon.report(logvisor::Warning, FMT_STRING("unable to find PAK entry {} in current PAK"), entry);
 #endif
     return nullptr;
   }
@@ -528,7 +528,7 @@ const typename BRIDGETYPE::PAKType::Entry* PAKRouter<BRIDGETYPE>::lookupEntry(co
 
 #ifndef NDEBUG
   if (!silenceWarnings)
-    LogDNACommon.report(logvisor::Warning, fmt("unable to find PAK entry {}"), entry);
+    LogDNACommon.report(logvisor::Warning, FMT_STRING("unable to find PAK entry {}"), entry);
 #endif
   if (nodeOut)
     *nodeOut = nullptr;
@@ -561,7 +561,7 @@ const zeus::CMatrix4f* PAKRouter<BRIDGETYPE>::lookupMAPATransform(const IDType& 
 template <class BRIDGETYPE>
 hecl::ProjectPath PAKRouter<BRIDGETYPE>::getAreaLayerWorking(const IDType& areaId, int layerIdx) const {
   if (!m_bridges)
-    LogDNACommon.report(logvisor::Fatal, fmt("PAKRouter::build() must be called before PAKRouter::getAreaLayerWorking()"));
+    LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAKRouter::build() must be called before PAKRouter::getAreaLayerWorking()"));
   auto bridgePathIt = m_bridgePaths.cbegin();
   for (const BRIDGETYPE& bridge : *m_bridges) {
     for (const auto& level : bridge.m_levelDeps)
@@ -583,7 +583,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getAreaLayerWorking(const IDType& areaI
                                                              bool& activeOut) const {
   activeOut = false;
   if (!m_bridges)
-    LogDNACommon.report(logvisor::Fatal, fmt("PAKRouter::build() must be called before PAKRouter::getAreaLayerWorking()"));
+    LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAKRouter::build() must be called before PAKRouter::getAreaLayerWorking()"));
   auto bridgePathIt = m_bridgePaths.cbegin();
   for (const BRIDGETYPE& bridge : *m_bridges) {
     for (const auto& level : bridge.m_levelDeps)
@@ -605,7 +605,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getAreaLayerWorking(const IDType& areaI
 template <class BRIDGETYPE>
 hecl::ProjectPath PAKRouter<BRIDGETYPE>::getAreaLayerCooked(const IDType& areaId, int layerIdx) const {
   if (!m_bridges)
-    LogDNACommon.report(logvisor::Fatal, fmt("PAKRouter::build() must be called before PAKRouter::getAreaLayerCooked()"));
+    LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAKRouter::build() must be called before PAKRouter::getAreaLayerCooked()"));
   auto bridgePathIt = m_bridgePaths.cbegin();
   for (const BRIDGETYPE& bridge : *m_bridges) {
     for (const auto& level : bridge.m_levelDeps)
@@ -626,7 +626,7 @@ template <class BRIDGETYPE>
 hecl::ProjectPath PAKRouter<BRIDGETYPE>::getAreaLayerCooked(const IDType& areaId, int layerIdx, bool& activeOut) const {
   activeOut = false;
   if (!m_bridges)
-    LogDNACommon.report(logvisor::Fatal, fmt("PAKRouter::build() must be called before PAKRouter::getAreaLayerCooked()"));
+    LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAKRouter::build() must be called before PAKRouter::getAreaLayerCooked()"));
   auto bridgePathIt = m_bridgePaths.cbegin();
   for (const BRIDGETYPE& bridge : *m_bridges) {
     for (const auto& level : bridge.m_levelDeps)
@@ -648,7 +648,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getAreaLayerCooked(const IDType& areaId
 template <class BRIDGETYPE>
 void PAKRouter<BRIDGETYPE>::enumerateResources(const std::function<bool(const EntryType*)>& func) {
   if (!m_bridges)
-    LogDNACommon.report(logvisor::Fatal, fmt("PAKRouter::build() must be called before PAKRouter::enumerateResources()"));
+    LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAKRouter::build() must be called before PAKRouter::enumerateResources()"));
   for (const auto& entryPair : m_uniqueEntries)
     if (!func(entryPair.second.second))
       return;
@@ -662,7 +662,7 @@ bool PAKRouter<BRIDGETYPE>::mreaHasDupeResources(const IDType& id) const {
   const PAKType* pak = m_pak.get();
   if (!pak)
     LogDNACommon.report(logvisor::Fatal,
-                        fmt("PAKRouter::enterPAKBridge() must be called before PAKRouter::mreaHasDupeResources()"));
+                        FMT_STRING("PAKRouter::enterPAKBridge() must be called before PAKRouter::mreaHasDupeResources()"));
   return pak->mreaHasDupeResources(id);
 }
 

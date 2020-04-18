@@ -70,23 +70,19 @@ class CParasite : public CWallWalker {
   u16 x73c_haltSfx;
   u16 x73e_getUpSfx;
   u16 x740_crouchSfx;
-  union {
-    struct {
-      bool x742_24_receivedTelegraph : 1;
-      bool x742_25_jumpVelDirty : 1;
-      bool x742_26_ : 1;
-      bool x742_27_landed : 1;
-      bool x742_28_onGround : 1;
-      bool x742_29_ : 1;
-      bool x742_30_attackOver : 1;
-      bool x742_31_ : 1;
-      bool x743_24_halted : 1;
-      bool x743_25_vulnerable : 1;
-      bool x743_26_oculusShotAt : 1;
-      bool x743_27_inJump : 1;
-    };
-    u16 _dummy = 0;
-  };
+  bool x742_24_receivedTelegraph : 1;
+  bool x742_25_jumpVelDirty : 1;
+  bool x742_26_ : 1;
+  bool x742_27_landed : 1;
+  bool x742_28_onGround : 1;
+  bool x742_29_ : 1;
+  bool x742_30_attackOver : 1;
+  bool x742_31_ : 1;
+  bool x743_24_halted : 1;
+  bool x743_25_vulnerable : 1;
+  bool x743_26_oculusShotAt : 1;
+  bool x743_27_inJump : 1;
+
   bool CloseToWall(const CStateManager& mgr) const;
   void FaceTarget(const zeus::CVector3f& target);
   TUniqueId RecursiveFindClosestWayPoint(CStateManager& mgr, TUniqueId id, float& dist);

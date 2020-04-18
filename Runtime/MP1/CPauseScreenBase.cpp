@@ -13,14 +13,28 @@
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
+#include "Runtime/IMain.hpp"
 
 namespace urde::MP1 {
 
 CPauseScreenBase::CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg,
                                    bool isLogBook)
-: x4_mgr(mgr), x8_frame(frame), xc_pauseStrg(pauseStrg) {
-  m_isLogBook = isLogBook;
-  m_playRightTableSfx = true;
+: x4_mgr(mgr)
+, x8_frame(frame)
+, xc_pauseStrg(pauseStrg)
+, x198_24_ready(false)
+, x198_25_handledInput(false)
+, x198_26_exitPauseScreen(false)
+, x198_27_canDraw(false)
+, x198_28_pulseTextArrowTop(false)
+, x198_29_pulseTextArrowBottom(false)
+, m_isLogBook(isLogBook)
+, m_bodyUpClicked(false)
+, m_bodyDownClicked(false)
+, m_bodyClicked(false)
+, m_leftClicked(false)
+, m_rightClicked(false)
+, m_playRightTableSfx(true) {
   InitializeFrameGlue();
 }
 
@@ -66,8 +80,8 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x17c_model_textalpha = static_cast<CGuiModel*>(x8_frame.FindWidget("model_textalpha"));
   x184_textpane_yicon = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_yicon"));
   x188_textpane_ytext = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_ytext"));
-  x184_textpane_yicon->TextSupport().SetText(fmt::format(fmt(u"&image={};"), g_tweakPlayerRes->xbc_yButton[0]));
-  x188_textpane_ytext->TextSupport().SetText(xc_pauseStrg.GetString(99));
+  x184_textpane_yicon->TextSupport().SetText(fmt::format(FMT_STRING(u"&image={};"), g_tweakPlayerRes->xbc_yButton[0]));
+  x188_textpane_ytext->TextSupport().SetText(xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 99 : 102));
   x188_textpane_ytext->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
   x18c_slidergroup_slider = static_cast<CGuiSliderGroup*>(x8_frame.FindWidget("slidergroup_slider"));
   x18c_slidergroup_slider->SetMouseActive(true);
@@ -92,18 +106,18 @@ void CPauseScreenBase::InitializeFrameGlue() {
 
   for (int i = 0; i < 5; ++i) {
     xd8_textpane_titles.push_back(
-        static_cast<CGuiTextPane*>(x8_frame.FindWidget(fmt::format(fmt("textpane_title{}"), i + 1))));
+        static_cast<CGuiTextPane*>(x8_frame.FindWidget(fmt::format(FMT_STRING("textpane_title{}"), i + 1))));
     xd8_textpane_titles.back()->TextSupport().SetText(u"");
-    x144_model_titles.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(fmt("model_title{}"), i + 1))));
+    x144_model_titles.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_title{}"), i + 1))));
     m_model_lefttitledecos.push_back(
-      static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(fmt("model_lefttitledeco{}"), i))));
+      static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_lefttitledeco{}"), i))));
     m_model_lefttitledecos.back()->SetMouseActive(true);
     x15c_model_righttitledecos.push_back(
-        static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(fmt("model_righttitledeco{}"), i + 1))));
+        static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_righttitledeco{}"), i + 1))));
     x15c_model_righttitledecos.back()->SetMouseActive(true);
     xa8_textpane_categories.push_back(
-        static_cast<CGuiTextPane*>(x8_frame.FindWidget(fmt::format(fmt("textpane_category{}"), i))));
-    xc0_model_categories.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(fmt("model_category{}"), i))));
+        static_cast<CGuiTextPane*>(x8_frame.FindWidget(fmt::format(FMT_STRING("textpane_category{}"), i))));
+    xc0_model_categories.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_category{}"), i))));
   }
 
   for (int i = 0; i < 20; ++i)
@@ -523,13 +537,13 @@ void CPauseScreenBase::OnWidgetScroll(CGuiWidget* widget, const boo::SScrollDelt
   }
 }
 
-std::string CPauseScreenBase::GetImagePaneName(u32 i) {
+std::string CPauseScreenBase::GetImagePaneName(size_t i) {
   static constexpr std::array PaneSuffixes{
       "0", "1", "2", "3", "01", "12", "23", "012", "123", "0123",
       "4", "5", "6", "7", "45", "56", "67", "456", "567", "4567",
   };
 
-  return fmt::format(fmt("imagepane_pane{}"), PaneSuffixes[i]);
+  return fmt::format(FMT_STRING("imagepane_pane{}"), PaneSuffixes[i]);
 }
 
 } // namespace urde::MP1

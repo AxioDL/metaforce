@@ -18,22 +18,23 @@ CBeetle::CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
                  CModelData&& mData, const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor,
                  CBeetle::EEntranceType entranceType, const CDamageInfo& touchDamage,
                  const CDamageVulnerability& platingVuln, const zeus::CVector3f& tailAimReference,
-                 float initialAttackDelay, float retreatTime, float f3,
-                 const CDamageVulnerability& tailVuln, const CActorParameters& aParams,
-                 const std::optional<CStaticRes>& tailModel)
+                 float initialAttackDelay, float retreatTime, float f3, const CDamageVulnerability& tailVuln,
+                 const CActorParameters& aParams, const std::optional<CStaticRes>& tailModel)
 : CPatterned(ECharacter::Beetle, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Ground,
              EColliderType::One, EBodyType::BiPedal, aParams, EKnockBackVariant(flavor))
 , x56c_entranceType(entranceType)
 , x574_tailAimReference(tailAimReference)
 , x580_f3(f3)
 , x584_touchDamage(touchDamage)
-, x5ac_tailModel(tailModel ? std::optional<CModelData>(CModelData(*tailModel)) :
-                             std::optional<CModelData>())
+, x5ac_tailModel(tailModel ? std::optional<CModelData>(CModelData(*tailModel)) : std::nullopt)
 , x5fc_pathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x744_platingVuln(platingVuln)
 , x7ac_tailVuln(tailVuln)
 , x814_attackDelayTimer(initialAttackDelay)
-, x834_retreatTime(retreatTime) {
+, x834_retreatTime(retreatTime)
+, x838_24_hitSomething(false)
+, x838_25_burrowing(false)
+, x838_26_canSkid(false) {
   x5a0_headbuttDist = GetAnimationDistance(CPASAnimParmData(7, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(1)));
   x5a4_jumpBackwardDist =
       x64_modelData->GetScale().y() *
@@ -161,7 +162,7 @@ void CBeetle::Render(CStateManager& mgr) {
         x5ac_tailModel->Render(mgr, tailXf, x90_actorLights.get(), flags);
       }
     } else if (x5ac_tailModel) {
-      CModelFlags flags(0, 0, 3, zeus::skWhite);
+      constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
       x5ac_tailModel->Render(mgr, tailXf, x90_actorLights.get(), flags);
     }
   }

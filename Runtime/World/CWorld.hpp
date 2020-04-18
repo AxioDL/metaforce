@@ -38,13 +38,15 @@ public:
 };
 
 class CDummyWorld : public IWorld {
-  bool x4_loadMap;
   enum class Phase {
     Loading,
     LoadingMap,
     LoadingMapAreas,
     Done,
-  } x8_phase = Phase::Loading;
+  };
+
+  bool x4_loadMap;
+  Phase x8_phase = Phase::Loading;
   CAssetId xc_mlvlId;
   CAssetId x10_strgId;
   CAssetId x14_savwId;
@@ -112,7 +114,9 @@ private:
     LoadingSkyBox,
     LoadingSoundGroups,
     Done,
-  } x4_phase = Phase::Loading;
+  };
+
+  Phase x4_phase = Phase::Loading;
   CAssetId x8_mlvlId;
   CAssetId xc_strgId;
   CAssetId x10_savwId;
@@ -130,16 +134,10 @@ private:
   IFactory& x64_resFactory;
   TAreaId x68_curAreaId = kInvalidAreaId;
   u32 x6c_loadedAudioGrpCount = 0;
-
-  union {
-    struct {
-      bool x70_24_currentAreaNeedsAllocation : 1;
-      bool x70_25_loadPaused : 1;
-      bool x70_26_skyboxActive : 1;
-      bool x70_27_skyboxVisible : 1;
-    };
-    u32 dummy = 0;
-  };
+  bool x70_24_currentAreaNeedsAllocation : 1;
+  bool x70_25_loadPaused : 1;
+  bool x70_26_skyboxActive : 1;
+  bool x70_27_skyboxVisible : 1;
   std::vector<CSoundGroupData> x74_soundGroupData;
   std::string x84_defAudioTrack;
   std::optional<TLockedToken<CModel>> x94_skyboxWorld;
@@ -173,7 +171,7 @@ public:
   void CycleLoadPauseState();
 
   CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId);
-  ~CWorld();
+  ~CWorld() override;
   bool DoesAreaExist(TAreaId area) const;
   const std::vector<std::unique_ptr<CGameArea>>& GetGameAreas() const { return x18_areas; }
 

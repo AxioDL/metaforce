@@ -1,5 +1,7 @@
 #include "Runtime/World/CGameArea.hpp"
 
+#include <array>
+
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
@@ -43,8 +45,10 @@ CAreaRenderOctTree::CAreaRenderOctTree(const u8* buf) : x0_buf(buf) {
   }
 }
 
-static const u32 ChildCounts[] = {0, 2, 2, 4, 2, 4, 4, 8};
-u32 CAreaRenderOctTree::Node::GetChildCount() const { return ChildCounts[x2_flags]; }
+u32 CAreaRenderOctTree::Node::GetChildCount() const {
+  static constexpr std::array<u32, 8> ChildCounts{0, 2, 2, 4, 2, 4, 4, 8};
+  return ChildCounts[x2_flags];
+}
 
 zeus::CAABox CAreaRenderOctTree::Node::GetNodeBounds(const zeus::CAABox& curAABB, int idx) const {
   zeus::CVector3f center = curAABB.center();
@@ -253,7 +257,7 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
   CMemoryInStream r(data.get() + 4, 96 - 4);
   u32 version = r.readUint32Big();
   if (!(version & 0x10000))
-    Log.report(logvisor::Fatal, fmt("Attempted to load non-URDE MREA"));
+    Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-URDE MREA"));
 
   version &= ~0x10000;
   header.version = (version >= 12 && version <= 15) ? version : 0;
@@ -1148,7 +1152,7 @@ SMREAHeader CGameArea::VerifyHeader() const {
   CMemoryInStream r(x110_mreaSecBufs[0].first.get() + 4, x110_mreaSecBufs[0].second - 4);
   u32 version = r.readUint32Big();
   if (!(version & 0x10000))
-    Log.report(logvisor::Fatal, fmt("Attempted to load non-URDE MREA"));
+    Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-URDE MREA"));
   version &= ~0x10000;
   header.version = (version >= 12 && version <= 15) ? version : 0;
   if (!header.version)

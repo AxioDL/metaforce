@@ -98,7 +98,15 @@ CSamusDoll::CSamusDoll(const CDependencyGroup& suitDgrp, const CDependencyGroup&
                        bool hasGrappleBeam)
 : x10_ballXf(zeus::CTransform::Translate(0.f, 0.f, 0.625f * g_tweakPlayer->GetPlayerBallHalfExtent()))
 , x44_suit(suit)
-, x48_beam(beam) {
+, x48_beam(beam)
+, x270_24_hasSpiderBall(hasSpiderBall)
+, x270_25_hasGrappleBeam(hasGrappleBeam)
+, x270_26_pulseSuit(false)
+, x270_27_pulseBeam(false)
+, x270_28_pulseGrapple(false)
+, x270_29_pulseBoots(false)
+, x270_30_pulseVisor(false)
+, x270_31_loaded(false) {
   x70_fixedRot.rotateZ(M_PIF);
   x90_userInterpRot = xb0_userRot = x70_fixedRot;
   x1d4_spiderBallGlass = g_SimplePool->GetObj(SpiderBallGlassModels[size_t(suit)].first);
@@ -115,8 +123,6 @@ CSamusDoll::CSamusDoll(const CDependencyGroup& suitDgrp, const CDependencyGroup&
   x230_ballTransitionFlash = g_SimplePool->GetObj("MorphBallTransitionFlash");
   x23c_lights.push_back(CLight::BuildDirectional(zeus::skForward, zeus::skWhite));
   x24c_actorLights = std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, false, false, 0.1f);
-  x270_24_hasSpiderBall = hasSpiderBall;
-  x270_25_hasGrappleBeam = hasGrappleBeam;
   x22c_ballInnerGlowGen->SetGlobalScale(zeus::CVector3f(0.625f));
   x0_depToks.reserve(suitDgrp.GetObjectTagVector().size() + ballDgrp.GetObjectTagVector().size());
   for (const SObjectTag& tag : suitDgrp.GetObjectTagVector()) {
@@ -150,7 +156,7 @@ bool CSamusDoll::IsLoaded() const {
 CModelData CSamusDoll::BuildSuitModelData1(CPlayerState::EPlayerSuit suit) {
   CModelData ret(CAnimRes(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id, Character1Idxs[size_t(suit)],
                           zeus::skOne3f, 2, true));
-  CAnimPlaybackParms parms(2, -1, 1.f, true);
+  constexpr CAnimPlaybackParms parms(2, -1, 1.f, true);
   ret.GetAnimationData()->SetAnimation(parms, false);
   return ret;
 }
@@ -158,7 +164,7 @@ CModelData CSamusDoll::BuildSuitModelData1(CPlayerState::EPlayerSuit suit) {
 CModelData CSamusDoll::BuildSuitModelDataBoots(CPlayerState::EPlayerSuit suit) {
   CModelData ret(CAnimRes(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id,
                           CharacterBootsIdxs[size_t(suit)], zeus::skOne3f, 2, true));
-  CAnimPlaybackParms parms(2, -1, 1.f, true);
+  constexpr CAnimPlaybackParms parms(2, -1, 1.f, true);
   ret.GetAnimationData()->SetAnimation(parms, false);
   return ret;
 }

@@ -506,9 +506,9 @@ struct MaterialSet : BigDNA {
           continue;
         }
         if (setIdx < 0)
-          texEntry->name = fmt::format(fmt("{}_{}_{}"), prefix, matIdx, stageIdx);
+          texEntry->name = fmt::format(FMT_STRING("{}_{}_{}"), prefix, matIdx, stageIdx);
         else
-          texEntry->name = fmt::format(fmt("{}_{}_{}_{}"), prefix, setIdx, matIdx, stageIdx);
+          texEntry->name = fmt::format(FMT_STRING("{}_{}_{}_{}"), prefix, setIdx, matIdx, stageIdx);
 
         if (mat.flags.lightmap() && stageIdx == 0) {
           texEntry->name += "light";

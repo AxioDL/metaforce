@@ -109,29 +109,61 @@ constexpr std::array chargeShakeTbl{
 constexpr CMaterialFilter sAimFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
 
-const std::array<CModelFlags, 4> kThermalFlags{{
+constexpr std::array<CModelFlags, 4> kThermalFlags{{
     {0, 0, 3, zeus::skWhite},
     {5, 0, 3, zeus::CColor(0.f, 0.5f)},
     {0, 0, 3, zeus::skWhite},
     {0, 0, 3, zeus::skWhite},
 }};
 
-const CModelFlags kHandThermalFlag = {7, 0, 3, zeus::skWhite};
-const CModelFlags kHandHoloFlag = {1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f, 1.f)};
+constexpr CModelFlags kHandThermalFlag{7, 0, 3, zeus::skWhite};
+constexpr CModelFlags kHandHoloFlag{1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f, 1.f)};
 } // Anonymous namespace
 
 float CPlayerGun::CMotionState::gGunExtendDistance = 0.125f;
 float CPlayerGun::skTractorBeamFactor = 0.5f / CPlayerState::GetMissileComboChargeFactor();
 
 CPlayerGun::CPlayerGun(TUniqueId playerId)
-: x0_lights(8, zeus::CVector3f{-30.f, 0.f, 30.f}, 4, 4, 0, 0, 0, 0.1f)
+: x0_lights(8, zeus::CVector3f{-30.f, 0.f, 30.f}, 4, 4, false, 0, 0, 0.1f)
 , x538_playerId(playerId)
 , x550_camBob(CPlayerCameraBob::ECameraBobType::One, CPlayerCameraBob::GetCameraBobExtent(),
               CPlayerCameraBob::GetCameraBobPeriod())
 , x678_morph(g_tweakPlayerGun->GetGunTransformTime(), g_tweakPlayerGun->GetHoloHoldTime())
 , x6c8_hologramClipCube(zeus::CVector3f(-0.29329199f, 0.f, -0.2481945f),
                         zeus::CVector3f(0.29329199f, 1.292392f, 0.2481945f))
-, x6e0_rightHandModel(CAnimRes(g_tweakGunRes->xc_rightHand, 0, zeus::CVector3f(3.f), 0, true)) {
+, x6e0_rightHandModel(CAnimRes(g_tweakGunRes->xc_rightHand, 0, zeus::CVector3f(3.f), 0, true))
+, x832_24_coolingCharge(false)
+, x832_25_chargeEffectVisible(false)
+, x832_26_comboFiring(false)
+, x832_27_chargeAnimStarted(false)
+, x832_28_readyForShot(false)
+, x832_29_lockedOn(false)
+, x832_30_requestReturnToDefault(false)
+, x832_31_inRestPose(true)
+, x833_24_notFidgeting(true)
+, x833_25_(false)
+, x833_26_(false)
+, x833_27_(false)
+, x833_28_phazonBeamActive(false)
+, x833_29_pointBlankWorldSurface(false)
+, x833_30_canShowAuxMuzzleEffect(true)
+, x833_31_inFreeLook(false)
+, x834_24_charging(false)
+, x834_25_gunMotionFidgeting(false)
+, x834_26_animPlaying(false)
+, x834_27_underwater(false)
+, x834_28_requestImmediateRecharge(false)
+, x834_29_frozen(false)
+, x834_30_inBigStrike(false)
+, x834_31_gunMotionInFidgetBasePosition(false)
+, x835_24_canFirePhazon(false)
+, x835_25_inPhazonBeam(false)
+, x835_26_phazonBeamMorphing(false)
+, x835_27_intoPhazonBeam(false)
+, x835_28_bombReady(false)
+, x835_29_powerBombReady(false)
+, x835_30_inPhazonPool(false)
+, x835_31_actorAttached(false) {
   x354_bombFuseTime = g_tweakPlayerGun->GetBombFuseTime();
   x358_bombDropDelayTime = g_tweakPlayerGun->GetBombDropDelayTime();
   x668_aimVerticalSpeed = g_tweakPlayerGun->GetAimVerticalSpeed();
@@ -155,9 +187,6 @@ CPlayerGun::CPlayerGun(TUniqueId playerId)
       g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), g_tweakGunRes->x24_holoTransition}));
   x82c_shadow = std::make_unique<CWorldShadow>(256, 256, true);
 
-  x832_31_inRestPose = true;
-  x833_24_notFidgeting = true;
-  x833_30_canShowAuxMuzzleEffect = true;
   x6e0_rightHandModel.SetSortThermal(true);
 
   kVerticalAngleTable[2] = g_tweakPlayerGun->GetUpLookAngle();

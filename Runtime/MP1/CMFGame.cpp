@@ -1,5 +1,7 @@
 #include "Runtime/MP1/CMFGame.hpp"
 
+#include <array>
+
 #include "Runtime/CArchitectureQueue.hpp"
 #include "Runtime/MP1/CSamusHud.hpp"
 #include "Runtime/MP1/MP1.hpp"
@@ -14,13 +16,16 @@ namespace urde::MP1 {
 
 CMFGame::CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_ptr<CInGameGuiManager>& guiMgr,
                  const CArchitectureQueue&)
-: CMFGameBase("CMFGame"), x14_stateManager(stateMgr.lock()), x18_guiManager(guiMgr.lock()) {
-  x2a_25_samusAlive = true;
+: CMFGameBase("CMFGame")
+, x14_stateManager(stateMgr.lock())
+, x18_guiManager(guiMgr.lock())
+, x2a_24_initialized(false)
+, x2a_25_samusAlive(true) {
   static_cast<CMain&>(*g_Main).SetMFGameBuilt(true);
 }
 
 CMFGame::~CMFGame() {
-  CMain& main = static_cast<CMain&>(*g_Main);
+  auto& main = static_cast<CMain&>(*g_Main);
   main.SetMFGameBuilt(false);
   main.SetScreenFading(false);
   CDecalManager::Reinitialize();
@@ -253,8 +258,9 @@ void CMFGame::EnterMapScreen() {
   x14_stateManager->SetInMapScreen(true);
 }
 
-CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
-  CMain* m = static_cast<CMain*>(g_Main);
+CMFGameLoader::CMFGameLoader()
+: CMFGameLoaderBase("CMFGameLoader"), x2c_24_initialized(false), x2c_25_transitionFinished(false) {
+  auto* m = static_cast<CMain*>(g_Main);
   switch (m->GetFlowState()) {
   case EFlowState::Default:
   case EFlowState::StateSetter: {
@@ -282,16 +288,18 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
 
 CMFGameLoader::~CMFGameLoader() = default;
 
-static const char* LoadDepPAKs[] = {"TestAnim", "SamusGun", "SamGunFx", nullptr};
-
 void CMFGameLoader::MakeLoadDependencyList() {
+  static constexpr std::array loadDepPAKs{"TestAnim", "SamusGun", "SamGunFx"};
+
   std::vector<SObjectTag> tags;
-  for (int i = 0; LoadDepPAKs[i]; ++i)
-    g_ResFactory->GetTagListForFile(LoadDepPAKs[i], tags);
+  for (const auto pak : loadDepPAKs) {
+    g_ResFactory->GetTagListForFile(pak, tags);
+  }
 
   x1c_loadList.reserve(tags.size());
-  for (const SObjectTag& tag : tags)
+  for (const SObjectTag& tag : tags) {
     x1c_loadList.push_back(g_SimplePool->GetObj(tag));
+  }
 }
 
 CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) {

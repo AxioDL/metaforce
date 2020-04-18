@@ -89,21 +89,20 @@ struct Application : boo::IApplicationCallback {
 
   void initialize(boo::IApplication* app) {
     zeus::detectCPU();
-    createGlobalCVars();
     for (const boo::SystemString& arg : app->getArgs()) {
       if (arg.find(_SYS_STR("--verbosity=")) == 0 || arg.find(_SYS_STR("-v=")) == 0) {
         hecl::SystemUTF8Conv utf8Arg(arg.substr(arg.find_last_of('=') + 1));
         hecl::VerbosityLevel = atoi(utf8Arg.c_str());
-        hecl::LogModule.report(logvisor::Info, fmt("Set verbosity level to {}"), hecl::VerbosityLevel);
+        hecl::LogModule.report(logvisor::Info, FMT_STRING("Set verbosity level to {}"), hecl::VerbosityLevel);
       }
     }
 
     m_cvarManager.parseCommandLine(app->getArgs());
 
     const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
-    Log.report(logvisor::Info, fmt("CPU Name: {}"), cpuInf.cpuBrand);
-    Log.report(logvisor::Info, fmt("CPU Vendor: {}"), cpuInf.cpuVendor);
-    Log.report(logvisor::Info, fmt(_SYS_STR("CPU Features: {}")), CPUFeatureString(cpuInf));
+    Log.report(logvisor::Info, FMT_STRING("CPU Name: {}"), cpuInf.cpuBrand);
+    Log.report(logvisor::Info, FMT_STRING("CPU Vendor: {}"), cpuInf.cpuVendor);
+    Log.report(logvisor::Info, FMT_STRING(_SYS_STR("CPU Features: {}")), CPUFeatureString(cpuInf));
   }
 
   std::string getGraphicsApi() const { return m_cvarCommons.getGraphicsApi(); }
@@ -113,27 +112,6 @@ struct Application : boo::IApplicationCallback {
   uint32_t getAnisotropy() const { return m_cvarCommons.getAnisotropy(); }
 
   bool getDeepColor() const { return m_cvarCommons.getDeepColor(); }
-
-  void createGlobalCVars() {
-    m_cvarManager.findOrMakeCVar("debugOverlay.playerInfo"sv,
-                                 "Displays information about the player, such as location and orientation"sv, false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar("debugOverlay.worldInfo"sv,
-                                 "Displays information about the current world, such as world asset ID, and areaId"sv,
-                                 false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar(
-        "debugOverlay.areaInfo"sv,
-        "Displays information about the current area, such as asset ID, object/layer counts, and active layer bits"sv,
-        false, hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar("debugOverlay.showFrameCounter"sv, "Displays the current frame index"sv, false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar("debugOverlay.showInGameTime"sv, "Displays the current in game time"sv, false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar("debugOverlay.showResourceStats"sv,
-                                 "Displays the current live resource object and token counts"sv, false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-  }
 };
 
 } // namespace urde
@@ -145,11 +123,11 @@ static void SetupBasics(bool logging) {
   auto result = zeus::validateCPU();
   if (!result.first) {
 #if _WIN32 && !WINDOWS_STORE
-    std::wstring msg = fmt::format(fmt(L"ERROR: This build of URDE requires the following CPU features:\n{}\n"),
+    std::wstring msg = fmt::format(FMT_STRING(L"ERROR: This build of URDE requires the following CPU features:\n{}\n"),
                                    urde::CPUFeatureString(result.second));
     MessageBoxW(nullptr, msg.c_str(), L"CPU error", MB_OK | MB_ICONERROR);
 #else
-    fmt::print(stderr, fmt("ERROR: This build of URDE requires the following CPU features:\n{}\n"),
+    fmt::print(stderr, FMT_STRING("ERROR: This build of URDE requires the following CPU features:\n{}\n"),
                urde::CPUFeatureString(result.second));
 #endif
     exit(1);
@@ -176,7 +154,7 @@ int main(int argc, const boo::SystemChar** argv)
 #endif
 {
   if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage"))) {
-    fmt::print(fmt("{}\n"), URDE_DLPACKAGE);
+    fmt::print(FMT_STRING("{}\n"), URDE_DLPACKAGE);
     return 100;
   }
 
@@ -229,7 +207,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int) {
   for (int i = 0; i < argc; ++i)
     booArgv[i + 1] = argv[i];
 
-  if (IsClientLoggingEnabled(argc + 1, booArgv))
+  const DWORD outType = GetFileType(GetStdHandle(STD_OUTPUT_HANDLE));
+  if (IsClientLoggingEnabled(argc + 1, booArgv) && outType == FILE_TYPE_UNKNOWN)
     logvisor::CreateWin32Console();
   return wmain(argc + 1, booArgv);
 }

@@ -93,24 +93,24 @@ CSteadyStateAnimInfo CAnimTreeSequence::VGetSteadyStateAnimInfo() const {
   return x3c_fundamentals.GetSteadyStateAnimInfo();
 }
 
-u32 CAnimTreeSequence::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator,
-                                       u32 unk) const {
+size_t CAnimTreeSequence::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, size_t capacity,
+                                          size_t iterator, u32 unk) const {
   return _getPOIList(time, listOut, capacity, iterator, unk, x3c_fundamentals.GetBoolPointsOfInterest(), x94_curTime);
 }
 
-u32 CAnimTreeSequence::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator,
-                                        u32 unk) const {
+size_t CAnimTreeSequence::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, size_t capacity,
+                                           size_t iterator, u32 unk) const {
   return _getPOIList(time, listOut, capacity, iterator, unk, x3c_fundamentals.GetInt32PointsOfInterest(), x94_curTime);
 }
 
-u32 CAnimTreeSequence::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity,
-                                           u32 iterator, u32 unk) const {
+size_t CAnimTreeSequence::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, size_t capacity,
+                                              size_t iterator, u32 unk) const {
   return _getPOIList(time, listOut, capacity, iterator, unk, x3c_fundamentals.GetParticlePointsOfInterest(),
                      x94_curTime);
 }
 
-u32 CAnimTreeSequence::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator,
-                                        u32 unk) const {
+size_t CAnimTreeSequence::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, size_t capacity,
+                                           size_t iterator, u32 unk) const {
   return _getPOIList(time, listOut, capacity, iterator, unk, x3c_fundamentals.GetSoundPointsOfInterest(), x94_curTime);
 }
 

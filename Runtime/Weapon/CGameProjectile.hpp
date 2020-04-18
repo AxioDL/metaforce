@@ -49,23 +49,18 @@ protected:
   CAssetId x2cc_wpscId;
   std::vector<CProjectileTouchResult> x2d0_touchResults;
   float x2e0_minHomingDist = 0.f;
-  union {
-    struct {
-      bool x2e4_24_active : 1;
-      bool x2e4_25_startedUnderwater : 1;
-      bool x2e4_26_waterUpdate : 1;
-      bool x2e4_27_inWater : 1;
-      bool x2e4_28_sendProjectileCollideMsg : 1;
-    };
-  };
+  bool x2e4_24_active : 1;
+  bool x2e4_25_startedUnderwater : 1;
+  bool x2e4_26_waterUpdate : 1;
+  bool x2e4_27_inWater : 1;
+  bool x2e4_28_sendProjectileCollideMsg : 1;
 
 public:
   CGameProjectile(bool active, const TToken<CWeaponDescription>&, std::string_view name, EWeaponType wType,
                   const zeus::CTransform& xf, EMaterialTypes excludeMat, const CDamageInfo& dInfo, TUniqueId uid,
                   TAreaId aid, TUniqueId owner, TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater,
-                  const zeus::CVector3f& scale,
-                  const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
-                  bool sendCollideMsg);
+                  const zeus::CVector3f& scale, std::optional<TLockedToken<CGenDescription>> visorParticle,
+                  u16 visorSfx, bool sendCollideMsg);
 
   void Accept(IVisitor& visitor) override;
   virtual void ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr);

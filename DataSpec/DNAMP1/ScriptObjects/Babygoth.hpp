@@ -49,7 +49,7 @@ struct Babygoth : IScriptObject {
       charAssoc.m_cmdlRigs[noShellModel] = {noShellSkin, cinf};
       charAssoc.m_cskrToCharacter[noShellSkin] =
           std::make_pair(patternedInfo.animationParameters.animationCharacterSet,
-                         fmt::format(fmt("ATTACH.SHELLESS_{}.CSKR"), noShellSkin));
+                         fmt::format(FMT_STRING("ATTACH.SHELLESS_{}.CSKR"), noShellSkin));
       charAssoc.addAttachmentRig(patternedInfo.animationParameters.animationCharacterSet, {}, noShellModel, "SHELLESS");
     }
   }

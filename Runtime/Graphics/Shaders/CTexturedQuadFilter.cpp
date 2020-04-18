@@ -322,7 +322,7 @@ void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& col
   }
 }
 
-const zeus::CRectangle CTexturedQuadFilter::DefaultRect = {0.f, 0.f, 1.f, 1.f};
+constexpr zeus::CRectangle CTexturedQuadFilter::DefaultRect{0.f, 0.f, 1.f, 1.f};
 
 CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, const boo::ObjToken<boo::ITexture>& tex)
 : CTexturedQuadFilter(tex) {

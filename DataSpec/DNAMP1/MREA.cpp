@@ -20,7 +20,7 @@ namespace DataSpec::DNAMP1 {
 void MREA::ReadBabeDeadToBlender_1_2(hecl::blender::PyOutStream& os, athena::io::IStreamReader& rs) {
   atUint32 bdMagic = rs.readUint32Big();
   if (bdMagic != 0xBABEDEAD)
-    Log.report(logvisor::Fatal, fmt("invalid BABEDEAD magic"));
+    Log.report(logvisor::Fatal, FMT_STRING("invalid BABEDEAD magic"));
   os << "bpy.context.scene.world.use_nodes = True\n"
         "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n"
         "bg_node.inputs[1].default_value = 0.0\n";
@@ -202,7 +202,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         "from mathutils import Vector\n"
         "bpy.context.scene.render.fps = 60\n"
         "\n";
-  os.format(fmt("bpy.context.scene.name = '{}'\n"),
+  os.format(FMT_STRING("bpy.context.scene.name = '{}'\n"),
       pakRouter.getBestEntryName(entry, false));
   DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
@@ -244,7 +244,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     rs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
     curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_1>(
         os, rs, pakRouter, entry, dummy, true, true, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec]);
-    os.format(fmt(
+    os.format(FMT_STRING(
         "obj.retro_disable_enviro_visor = {}\n"
         "obj.retro_disable_thermal_visor = {}\n"
         "obj.retro_disable_xray_visor = {}\n"
@@ -314,7 +314,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         "bpy.context.view_layer.layer_collection.children['Collision'].hide_viewport = True\n";
 
   /* Link MLVL scene as background */
-  os.linkBackground(fmt::format(fmt("//../!world_{}.blend"),
+  os.linkBackground(fmt::format(FMT_STRING("//../!world_{}.blend"),
       pakRouter.getCurrentBridge().getLevelId()), "World"sv);
 
   os.centerView();
@@ -332,7 +332,7 @@ void MREA::Name(const SpecBase& dataSpec, PAKEntryReadStream& rs, PAKRouter<PAKB
   atUint64 secStart = rs.position();
   MaterialSet matSet;
   matSet.read(rs);
-  matSet.nameTextures(pakRouter, fmt::format(fmt("MREA_{}"), entry.id).c_str(), -1);
+  matSet.nameTextures(pakRouter, fmt::format(FMT_STRING("MREA_{}"), entry.id).c_str(), -1);
   rs.seek(secStart + head.secSizes[0], athena::SeekOrigin::Begin);
 
   /* Skip to SCLY */
@@ -700,12 +700,12 @@ bool MREA::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 #if _WIN32
         VisiGenPath += _SYS_STR(".exe");
 #endif
-        hecl::SystemString thrIdx = fmt::format(fmt(_SYS_STR("{}")), hecl::ClientProcess::GetThreadWorkerIdx());
+        hecl::SystemString thrIdx = fmt::format(FMT_STRING(_SYS_STR("{}")), hecl::ClientProcess::GetThreadWorkerIdx());
         hecl::SystemString parPid;
 #if _WIN32
-        parPid = fmt::format(fmt(_SYS_STR("{}")), reinterpret_cast<unsigned long long>(GetCurrentProcess()));
+        parPid = fmt::format(FMT_STRING(_SYS_STR("{}")), reinterpret_cast<unsigned long long>(GetCurrentProcess()));
 #else
-        parPid = fmt::format(fmt(_SYS_STR("{}")), (unsigned long long)getpid());
+        parPid = fmt::format(FMT_STRING(_SYS_STR("{}")), (unsigned long long)getpid());
 #endif
         const hecl::SystemChar* args[] = {VisiGenPath.c_str(),
                                           visiIntOut.getAbsolutePath().data(),
@@ -720,7 +720,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
           r.readBytesToBuf(secs.back().data(), length);
           visiGood = true;
         } else {
-          Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to launch {}")), VisiGenPath);
+          Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to launch {}")), VisiGenPath);
         }
       }
 #endif

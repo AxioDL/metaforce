@@ -7,11 +7,12 @@
 
 namespace urde {
 
-CHudHelmetInterface::CHudHelmetInterface(CGuiFrame& helmetFrame) {
-  x3c_24_helmetVisibleDebug = true;
-  x3c_25_helmetVisibleGame = true;
-  x3c_26_glowVisibleDebug = true;
-  x3c_27_glowVisibleGame = true;
+CHudHelmetInterface::CHudHelmetInterface(CGuiFrame& helmetFrame)
+: x3c_24_helmetVisibleDebug(true)
+, x3c_25_helmetVisibleGame(true)
+, x3c_26_glowVisibleDebug(true)
+, x3c_27_glowVisibleGame(true)
+, x3c_28_hudLagDirty(false) {
   x40_camera = helmetFrame.GetFrameCamera();
   x44_BaseWidget_Pivot = helmetFrame.FindWidget("BaseWidget_Pivot");
   x48_BaseWidget_Helmet = helmetFrame.FindWidget("BaseWidget_Helmet");

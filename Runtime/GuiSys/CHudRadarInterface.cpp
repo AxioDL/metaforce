@@ -28,8 +28,7 @@ CHudRadarInterface::CHudRadarInterface(CGuiFrame& baseHud, CStateManager& stateM
   x40_BaseWidget_RadarStuff->SetColor(g_tweakGuiColors->GetRadarStuffColor());
 }
 
-void CHudRadarInterface::DoDrawRadarPaint(const zeus::CVector3f& translate, float radius,
-                                          const zeus::CColor& color) const {
+void CHudRadarInterface::DoDrawRadarPaint(const zeus::CVector3f& translate, float radius, const zeus::CColor& color) {
   radius *= 4.f;
 
   CRadarPaintShader::Instance& inst = m_paintInsts.emplace_back();
@@ -45,20 +44,23 @@ void CHudRadarInterface::DoDrawRadarPaint(const zeus::CVector3f& translate, floa
 }
 
 void CHudRadarInterface::DrawRadarPaint(const zeus::CVector3f& enemyPos, float radius, float alpha,
-                                        const SRadarPaintDrawParms& parms) const {
-  zeus::CVector2f playerToEnemy = enemyPos.toVec2f() - parms.x0_playerPos.toVec2f();
+                                        const SRadarPaintDrawParms& parms) {
+  const zeus::CVector2f playerToEnemy = enemyPos.toVec2f() - parms.x0_playerPos.toVec2f();
+  const float zDelta = std::fabs(enemyPos.z() - parms.x0_playerPos.z());
 
-  float zDelta = std::fabs(enemyPos.z() - parms.x0_playerPos.z());
-
-  if (playerToEnemy.magnitude() <= parms.x78_xyRadius && zDelta <= parms.x7c_zRadius) {
-    if (zDelta > parms.x80_ZCloseRadius)
-      alpha *= 1.f - (zDelta - parms.x80_ZCloseRadius) / (parms.x7c_zRadius - parms.x80_ZCloseRadius);
-    zeus::CVector2f scopeScaled = playerToEnemy * parms.x70_scopeScalar;
-    zeus::CColor color = g_tweakGuiColors->GetRadarEnemyPaintColor();
-    color.a() *= alpha;
-    color.a() *= parms.x74_alpha;
-    DoDrawRadarPaint(parms.xc_preTranslate * zeus::CVector3f(scopeScaled.x(), 0.f, scopeScaled.y()), radius, color);
+  if (playerToEnemy.magnitude() > parms.x78_xyRadius || zDelta > parms.x7c_zRadius) {
+    return;
   }
+
+  if (zDelta > parms.x80_ZCloseRadius) {
+    alpha *= 1.f - (zDelta - parms.x80_ZCloseRadius) / (parms.x7c_zRadius - parms.x80_ZCloseRadius);
+  }
+
+  const zeus::CVector2f scopeScaled = playerToEnemy * parms.x70_scopeScalar;
+  zeus::CColor color = g_tweakGuiColors->GetRadarEnemyPaintColor();
+  color.a() *= alpha;
+  color.a() *= parms.x74_alpha;
+  DoDrawRadarPaint(parms.xc_preTranslate * zeus::CVector3f(scopeScaled.x(), 0.f, scopeScaled.y()), radius, color);
 }
 
 void CHudRadarInterface::SetIsVisibleGame(bool v) {
@@ -67,29 +69,33 @@ void CHudRadarInterface::SetIsVisibleGame(bool v) {
 }
 
 void CHudRadarInterface::Update(float dt, const CStateManager& mgr) {
-  CPlayerState& playerState = *mgr.GetPlayerState();
-  float visorTransFactor = (playerState.GetCurrentVisor() == CPlayerState::EPlayerVisor::Combat)
-                               ? playerState.GetVisorTransitionFactor()
-                               : 0.f;
+  const CPlayerState& playerState = *mgr.GetPlayerState();
+  const float visorTransFactor = (playerState.GetCurrentVisor() == CPlayerState::EPlayerVisor::Combat)
+                                     ? playerState.GetVisorTransitionFactor()
+                                     : 0.f;
   zeus::CColor color = g_tweakGuiColors->GetRadarStuffColor();
   color.a() *= g_GameState->GameOptions().GetHUDAlpha() / 255.f * visorTransFactor;
   x40_BaseWidget_RadarStuff->SetColor(color);
-  bool tweakVis = g_tweakGui->GetHudVisMode() >= ITweakGui::EHudVisMode::Three;
-  if (tweakVis != x3c_25_visibleDebug) {
-    x3c_25_visibleDebug = tweakVis;
-    x40_BaseWidget_RadarStuff->SetVisibility(x3c_25_visibleDebug && x3c_24_visibleGame, ETraversalMode::Children);
+  const bool tweakVis = g_tweakGui->GetHudVisMode() >= ITweakGui::EHudVisMode::Three;
+
+  if (tweakVis == x3c_25_visibleDebug) {
+    return;
   }
+
+  x3c_25_visibleDebug = tweakVis;
+  x40_BaseWidget_RadarStuff->SetVisibility(x3c_25_visibleDebug && x3c_24_visibleGame, ETraversalMode::Children);
 }
 
-void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const {
+void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) {
   alpha *= g_GameState->GameOptions().GetHUDAlpha() / 255.f;
   if (g_tweakGui->GetHudVisMode() == ITweakGui::EHudVisMode::Zero || !x3c_24_visibleGame || !x0_txtrRadarPaint ||
-      !x0_txtrRadarPaint.IsLoaded())
+      !x0_txtrRadarPaint.IsLoaded()) {
     return;
+  }
 
   SRadarPaintDrawParms drawParms;
 
-  CPlayer& player = mgr.GetPlayer();
+  const CPlayer& player = mgr.GetPlayer();
   if (player.IsOverrideRadarRadius()) {
     drawParms.x78_xyRadius = player.GetRadarXYRadiusOverride();
     drawParms.x7c_zRadius = player.GetRadarZRadiusOverride();
@@ -103,13 +109,13 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const {
   drawParms.x6c_scopeRadius = g_tweakGui->GetRadarScopeCoordRadius();
   drawParms.x70_scopeScalar = drawParms.x6c_scopeRadius / drawParms.x78_xyRadius;
 
-  float camZ =
+  const float camZ =
       zeus::CEulerAngles(zeus::CQuaternion(mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis)).z();
   zeus::CRelAngle angleZ(camZ);
   angleZ.makeRel();
   drawParms.xc_preTranslate = zeus::CTransform::RotateY(angleZ);
   drawParms.x3c_postTranslate = x40_BaseWidget_RadarStuff->GetWorldTransform();
-  float enemyRadius = g_tweakGui->GetRadarEnemyPaintRadius();
+  const float enemyRadius = g_tweakGui->GetRadarEnemyPaintRadius();
 
   m_paintInsts.clear();
   x44_camera->Draw(CGuiWidgetDrawParms{0.f, zeus::CVector3f{}});
@@ -119,7 +125,7 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const {
   playerColor.a() *= alpha;
   DoDrawRadarPaint(zeus::skZero3f, g_tweakGui->GetRadarPlayerPaintRadius(), playerColor);
 
-  zeus::CAABox radarBounds(
+  const zeus::CAABox radarBounds(
       player.GetTranslation().x() - drawParms.x78_xyRadius, player.GetTranslation().y() - drawParms.x78_xyRadius,
       player.GetTranslation().z() - drawParms.x7c_zRadius, player.GetTranslation().x() + drawParms.x78_xyRadius,
       player.GetTranslation().y() + drawParms.x78_xyRadius, player.GetTranslation().z() + drawParms.x7c_zRadius);
@@ -133,15 +139,17 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const {
   drawParms.x0_playerPos = mgr.GetPlayer().GetTranslation();
   drawParms.x74_alpha = alpha;
 
-  for (TUniqueId id : nearList) {
-    if (TCastToConstPtr<CActor> act = mgr.GetObjectById(id)) {
-      if (!act->GetActive())
+  for (const TUniqueId id : nearList) {
+    if (const TCastToConstPtr<CActor> act = mgr.GetObjectById(id)) {
+      if (!act->GetActive()) {
         continue;
-      if (TCastToConstPtr<CWallCrawlerSwarm> swarm = act.GetPtr()) {
-        float radius = enemyRadius * 0.5f;
+      }
+      if (const TCastToConstPtr<CWallCrawlerSwarm> swarm = act.GetPtr()) {
+        const float radius = enemyRadius * 0.5f;
         for (const CWallCrawlerSwarm::CBoid& boid : swarm->GetBoids()) {
-          if (!boid.GetActive())
+          if (!boid.GetActive()) {
             continue;
+          }
           DrawRadarPaint(boid.GetTranslation(), radius, 0.5f, drawParms);
         }
       } else {

@@ -71,19 +71,14 @@ class CSamusDoll {
   CSfxHandle x264_offsetSfx;
   CSfxHandle x268_rotateSfx;
   CSfxHandle x26c_zoomSfx;
-  union {
-    struct {
-      bool x270_24_hasSpiderBall : 1;
-      bool x270_25_hasGrappleBeam : 1;
-      bool x270_26_pulseSuit : 1;
-      bool x270_27_pulseBeam : 1;
-      bool x270_28_pulseGrapple : 1;
-      bool x270_29_pulseBoots : 1;
-      bool x270_30_pulseVisor : 1;
-      bool x270_31_loaded : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x270_24_hasSpiderBall : 1;
+  bool x270_25_hasGrappleBeam : 1;
+  bool x270_26_pulseSuit : 1;
+  bool x270_27_pulseBeam : 1;
+  bool x270_28_pulseGrapple : 1;
+  bool x270_29_pulseBoots : 1;
+  bool x270_30_pulseVisor : 1;
+  bool x270_31_loaded : 1;
 
   static constexpr zeus::CVector3f skInitialOffset{0.0f, 0.0f, 0.8f};
   static CModelData BuildSuitModelData1(CPlayerState::EPlayerSuit suit);

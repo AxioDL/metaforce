@@ -59,11 +59,15 @@ void CRagDoll::CRagDollPlaneConstraint::Update() {
 }
 
 CRagDoll::CRagDoll(float normalGravity, float floatingGravity, float overTime, u32 flags)
-: x44_normalGravity(normalGravity), x48_floatingGravity(floatingGravity), x50_overTimer(overTime) {
-  x68_27_continueSmallMovements = bool(flags & 0x1);
-  x68_28_noOverTimer = bool(flags & 0x2);
-  x68_29_noAiCollision = bool(flags & 0x4);
-}
+: x44_normalGravity(normalGravity)
+, x48_floatingGravity(floatingGravity)
+, x50_overTimer(overTime)
+, x68_24_prevMovingSlowly(false)
+, x68_25_over(false)
+, x68_26_primed(false)
+, x68_27_continueSmallMovements(bool(flags & 0x1))
+, x68_28_noOverTimer(bool(flags & 0x2))
+, x68_29_noAiCollision(bool(flags & 0x4)) {}
 
 void CRagDoll::AccumulateForces(float dt, float waterTop) {
   float fps = 1.f / dt;

@@ -18,7 +18,7 @@ struct SCollisionResponseData {
   bool m_found = false;
   SCollisionResponseData() = default;
   SCollisionResponseData(CToken&& tok, bool found) : m_res(std::move(tok)), m_found(found) {}
-  operator bool() const { return m_found; }
+  explicit operator bool() const { return m_found; }
 };
 
 class CWeaponDescription {
@@ -54,5 +54,9 @@ public:
   s32 xa8_PJFX = -1;
   std::unique_ptr<CRealElement> xac_RNGE;
   std::unique_ptr<CRealElement> xb0_FOFF;
+  // PAL/RS5
+  bool x28_SPS1 = false;
+  bool x29_SPS2 = false;
+  bool x29_FC60 = false;
 };
 } // namespace urde

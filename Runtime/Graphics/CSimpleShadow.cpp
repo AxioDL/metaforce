@@ -27,7 +27,7 @@ zeus::CAABox CSimpleShadow::GetBounds() const {
           {x0_xf.origin.x() + extent, x0_xf.origin.y() + extent, x0_xf.origin.z() + extent}};
 }
 
-void CSimpleShadow::Render(const TLockedToken<CTexture>& tex) const {
+void CSimpleShadow::Render(const TLockedToken<CTexture>& tex) {
   if (!x48_24_collision)
     return;
   SCOPED_GRAPHICS_DEBUG_GROUP("CSimpleShadow::Render", zeus::skGrey);

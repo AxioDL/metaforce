@@ -10,6 +10,7 @@ CGuiWidgetIdDB::CGuiWidgetIdDB() {
 }
 
 s16 CGuiWidgetIdDB::FindWidgetID(std::string_view name) const {
+  // TODO: Heterogeneous lookup when C++20 available
   auto search = x0_dbMap.find(name.data());
   if (search == x0_dbMap.cend())
     return -1;

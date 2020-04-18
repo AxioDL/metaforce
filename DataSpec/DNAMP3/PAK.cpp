@@ -9,7 +9,7 @@ template <>
 void PAK::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader) {
   m_header.read(reader);
   if (m_header.version != 2)
-    Log.report(logvisor::Fatal, fmt("unexpected PAK magic"));
+    Log.report(logvisor::Fatal, FMT_STRING("unexpected PAK magic"));
 
   reader.seek(8, athena::SeekOrigin::Current);
   atUint32 strgSz = reader.readUint32Big();
@@ -141,7 +141,7 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const nod::Node& pak, atUint64&
     } head;
     strm->read(&head, 8);
     if (head.magic != CMPD) {
-      Log.report(logvisor::Error, fmt("invalid CMPD block"));
+      Log.report(logvisor::Error, FMT_STRING("invalid CMPD block"));
       return nullptr;
     }
     head.blockCount = hecl::SBig(head.blockCount);
@@ -206,6 +206,7 @@ const PAK::Entry* PAK::lookupEntry(const UniqueID64& id) const {
 }
 
 const PAK::Entry* PAK::lookupEntry(std::string_view name) const {
+  // TODO: Heterogeneous lookup when C++20 available
   auto result = m_nameMap.find(name.data());
   if (result != m_nameMap.end()) {
     auto result1 = m_entries.find(result->second);
@@ -220,11 +221,11 @@ std::string PAK::bestEntryName(const nod::Node& pakNode, const Entry& entry, std
   for (const NameEntry& nentry : m_nameEntries)
     if (nentry.id == entry.id) {
       catalogueName = nentry.name;
-      return fmt::format(fmt("{}_{}"), nentry.name, entry.id);
+      return fmt::format(FMT_STRING("{}_{}"), nentry.name, entry.id);
     }
 
   /* Otherwise return ID format string */
-  return fmt::format(fmt("{}_{}"), entry.type, entry.id);
+  return fmt::format(FMT_STRING("{}_{}"), entry.type, entry.id);
 }
 
 } // namespace DataSpec::DNAMP3

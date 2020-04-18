@@ -21,9 +21,15 @@
 namespace urde {
 float CCameraManager::sFirstPersonFOV = 55.f;
 
-CCameraManager::CCameraManager(TUniqueId curCameraId) : x0_curCameraId(curCameraId) {
-  CSfxManager::AddListener(CSfxManager::ESfxChannels::Game, zeus::skZero3f, zeus::skZero3f,
-                           {1.f, 0.f, 0.f}, {0.f, 0.f, 1.f}, 50.f, 50.f, 1000.f, 1, 1.f);
+CCameraManager::CCameraManager(TUniqueId curCameraId)
+: x0_curCameraId(curCameraId)
+, xa0_24_pendingRumble(false)
+, xa0_25_rumbling(false)
+, xa0_26_inWater(false)
+, x3b8_24_(false)
+, x3b8_25_(false) {
+  CSfxManager::AddListener(CSfxManager::ESfxChannels::Game, zeus::skZero3f, zeus::skZero3f, {1.f, 0.f, 0.f},
+                           {0.f, 0.f, 1.f}, 50.f, 50.f, 1000.f, 1, 1.f);
   sFirstPersonFOV = g_tweakGame->GetFirstPersonFOV();
 }
 
@@ -398,8 +404,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
           }
         } else {
           if (const TCastToConstPtr<CActor> act = mgr.GetObjectById(bestHint->GetFirstHelper())) {
-            zeus::CVector3f ballPos = mgr.GetPlayer().GetBallPosition();
-            zeus::CVector3f f26 = act->GetTranslation() - ballPos;
+            const zeus::CVector3f f26 = act->GetTranslation() - mgr.GetPlayer().GetBallPosition();
             zeus::CVector3f ballToHelper = f26;
             if (ballToHelper.canBeNormalized()) {
               ballToHelper.normalize();

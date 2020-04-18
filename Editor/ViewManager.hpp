@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hecl/CVarManager.hpp"
+#include "hecl/CVarCommons.hpp"
 #include "boo/audiodev/IAudioVoiceEngine.hpp"
 #include "amuse/BooBackend.hpp"
 #include "ProjectManager.hpp"
@@ -57,9 +58,11 @@ class ViewManager final : public specter::IViewManager {
   class TestGameView : public specter::View {
     ViewManager& m_vm;
     std::unique_ptr<specter::MultiLineTextView> m_debugText;
+    hecl::CVarCommons m_cvarCommons;
 
   public:
-    TestGameView(ViewManager& vm, specter::ViewResources& res, specter::View& parent) : View(res, parent), m_vm(vm) {}
+    TestGameView(ViewManager& vm, specter::ViewResources& res, specter::View& parent, hecl::CVarManager& cvarMgr)
+    : View(res, parent), m_vm(vm), m_cvarCommons(cvarMgr) {}
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
     void draw(boo::IGraphicsCommandQueue* gfxQ) override;
     void think() override;

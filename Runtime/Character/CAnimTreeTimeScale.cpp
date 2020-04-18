@@ -59,43 +59,55 @@ std::optional<std::unique_ptr<IAnimReader>> CAnimTreeTimeScale::VSimplified() {
   return std::nullopt;
 }
 
-u32 CAnimTreeTimeScale::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator,
-                                        u32 unk) const {
-  CCharAnimTime useTime = (time == CCharAnimTime::Infinity()) ? x14_child->VGetTimeRemaining() : GetRealLifeTime(time);
-  u32 ret = x14_child->GetBoolPOIList(useTime, listOut, capacity, iterator, unk);
-  if (x28_targetAccelTime > CCharAnimTime())
-    for (u32 i = 0; i < ret; ++i)
+size_t CAnimTreeTimeScale::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, size_t capacity,
+                                           size_t iterator, u32 unk) const {
+  const CCharAnimTime useTime =
+      time == CCharAnimTime::Infinity() ? x14_child->VGetTimeRemaining() : GetRealLifeTime(time);
+  const size_t ret = x14_child->GetBoolPOIList(useTime, listOut, capacity, iterator, unk);
+  if (x28_targetAccelTime > CCharAnimTime()) {
+    for (size_t i = 0; i < ret; ++i) {
       listOut[iterator + i].SetTime(GetRealLifeTime(listOut[i].GetTime()));
+    }
+  }
   return ret;
 }
 
-u32 CAnimTreeTimeScale::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator,
-                                         u32 unk) const {
-  CCharAnimTime useTime = (time == CCharAnimTime::Infinity()) ? x14_child->VGetTimeRemaining() : GetRealLifeTime(time);
-  u32 ret = x14_child->GetInt32POIList(useTime, listOut, capacity, iterator, unk);
-  if (x28_targetAccelTime > CCharAnimTime())
-    for (u32 i = 0; i < ret; ++i)
+size_t CAnimTreeTimeScale::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, size_t capacity,
+                                            size_t iterator, u32 unk) const {
+  const CCharAnimTime useTime =
+      time == CCharAnimTime::Infinity() ? x14_child->VGetTimeRemaining() : GetRealLifeTime(time);
+  const size_t ret = x14_child->GetInt32POIList(useTime, listOut, capacity, iterator, unk);
+  if (x28_targetAccelTime > CCharAnimTime()) {
+    for (size_t i = 0; i < ret; ++i) {
       listOut[iterator + i].SetTime(GetRealLifeTime(listOut[i].GetTime()));
+    }
+  }
   return ret;
 }
 
-u32 CAnimTreeTimeScale::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity,
-                                            u32 iterator, u32 unk) const {
-  CCharAnimTime useTime = (time == CCharAnimTime::Infinity()) ? x14_child->VGetTimeRemaining() : GetRealLifeTime(time);
-  u32 ret = x14_child->GetParticlePOIList(useTime, listOut, capacity, iterator, unk);
-  if (x28_targetAccelTime > CCharAnimTime())
-    for (u32 i = 0; i < ret; ++i)
+size_t CAnimTreeTimeScale::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, size_t capacity,
+                                               size_t iterator, u32 unk) const {
+  const CCharAnimTime useTime =
+      time == CCharAnimTime::Infinity() ? x14_child->VGetTimeRemaining() : GetRealLifeTime(time);
+  const size_t ret = x14_child->GetParticlePOIList(useTime, listOut, capacity, iterator, unk);
+  if (x28_targetAccelTime > CCharAnimTime()) {
+    for (size_t i = 0; i < ret; ++i) {
       listOut[iterator + i].SetTime(GetRealLifeTime(listOut[i].GetTime()));
+    }
+  }
   return ret;
 }
 
-u32 CAnimTreeTimeScale::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator,
-                                         u32 unk) const {
-  CCharAnimTime useTime = (time == CCharAnimTime::Infinity()) ? x14_child->VGetTimeRemaining() : GetRealLifeTime(time);
-  u32 ret = x14_child->GetSoundPOIList(useTime, listOut, capacity, iterator, unk);
-  if (x28_targetAccelTime > CCharAnimTime())
-    for (u32 i = 0; i < ret; ++i)
+size_t CAnimTreeTimeScale::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, size_t capacity,
+                                            size_t iterator, u32 unk) const {
+  const CCharAnimTime useTime =
+      (time == CCharAnimTime::Infinity()) ? x14_child->VGetTimeRemaining() : GetRealLifeTime(time);
+  const size_t ret = x14_child->GetSoundPOIList(useTime, listOut, capacity, iterator, unk);
+  if (x28_targetAccelTime > CCharAnimTime()) {
+    for (size_t i = 0; i < ret; ++i) {
       listOut[iterator + i].SetTime(GetRealLifeTime(listOut[i].GetTime()));
+    }
+  }
   return ret;
 }
 

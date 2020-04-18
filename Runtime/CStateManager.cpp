@@ -62,7 +62,14 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
 , x8bc_relayTracker(relayTracker)
 , x8c0_mapWorldInfo(mwInfo)
 , x8c4_worldTransManager(wtMgr)
-, x8c8_worldLayerState(layerState) {
+, x8c8_worldLayerState(layerState)
+, xf94_24_readyToRender(false)
+, xf94_25_quitGame(false)
+, xf94_26_generatingObject(false)
+, xf94_27_inMapScreen(false)
+, xf94_28_inSaveUI(false)
+, xf94_29_cinematicPause(false)
+, xf94_30_fullThreat(false) {
   x86c_stateManagerContainer = std::make_unique<CStateManagerContainer>();
   x870_cameraManager = &x86c_stateManagerContainer->x0_cameraManager;
   x874_sortedListManager = &x86c_stateManagerContainer->x3c0_sortedListManager;
@@ -410,12 +417,7 @@ void CStateManager::SetupParticleHook(const CActor& actor) const {
 void CStateManager::MurderScriptInstanceNames() { xb40_uniqueInstanceNames.clear(); }
 
 std::string CStateManager::HashInstanceName(CInputStream& in) {
-  if (hecl::com_developer && hecl::com_developer->toBoolean()) {
-    return in.readString();
-  } else {
-    while (in.readByte() != 0) {};
-    return "";
-  }
+  return in.readString();
 }
 
 void CStateManager::SetActorAreaId(CActor& actor, TAreaId aid) {
@@ -510,6 +512,7 @@ void CStateManager::BuildDynamicLightListForWorld() {
 }
 
 void CStateManager::DrawDebugStuff() const {
+#ifndef NDEBUG
   for (CEntity* ent : GetActorObjectList()) {
     if (TCastToPtr<CPatterned> ai = ent) {
       if (CPathFindSearch* path = ai->GetSearchPath()) {
@@ -517,6 +520,7 @@ void CStateManager::DrawDebugStuff() const {
       }
     }
   }
+#endif
 }
 
 void CStateManager::RenderCamerasAndAreaLights() {
@@ -909,7 +913,7 @@ void CStateManager::DrawActorCubeFaces(CActor& actor, int& cubeInst) const {
   }
 
   for (int f = 0; f < 6; ++f) {
-    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CStateManager::DrawActorCubeFaces [{}] {} {} {}"), f,
+    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CStateManager::DrawActorCubeFaces [{}] {} {} {}"), f,
                                             actor.GetUniqueId(), actor.GetEditorId(), actor.GetName())
                                     .c_str(),
                                 zeus::skOrange);
@@ -1204,7 +1208,7 @@ void CStateManager::RecursiveDrawTree(TUniqueId node) {
 void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMessage msg) {
   if (dest && !dest->x30_26_scriptingBlocked) {
     if (sm_logScripting && sm_logScripting->toBoolean())
-      LogModule.report(logvisor::Info, fmt("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
+      LogModule.report(logvisor::Info, FMT_STRING("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
                        dest->GetName(), dest->GetUniqueId());
     dest->AcceptScriptMsg(msg, src, *this);
   }
@@ -1219,7 +1223,7 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
   CEntity* dst = ObjectById(dest);
   if (dst) {
     if (sm_logScripting && sm_logScripting->toBoolean())
-      LogModule.report(logvisor::Info, fmt("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
+      LogModule.report(logvisor::Info, FMT_STRING("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
                        dst->GetName(), dst->GetUniqueId());
     dst->AcceptScriptMsg(msg, src, *this);
   }
@@ -1275,7 +1279,7 @@ void CStateManager::FreeScriptObject(TUniqueId id) {
   }
 
   if (sm_logScripting && sm_logScripting->toBoolean())
-    LogModule.report(logvisor::Info, fmt("Removed '{}'"), ent->GetName());
+    LogModule.report(logvisor::Info, FMT_STRING("Removed '{}'"), ent->GetName());
 }
 
 std::pair<const SScriptObjectStream*, TEditorId> CStateManager::GetBuildForScript(TEditorId id) const {
@@ -1367,16 +1371,16 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
 
   u32 readAmt = in.position() - startPos;
   if (readAmt > length)
-    LogModule.report(logvisor::Fatal, fmt("Script object overread while reading {}"), ScriptObjectTypeToStr(type));
+    LogModule.report(logvisor::Fatal, FMT_STRING("Script object overread while reading {}"), ScriptObjectTypeToStr(type));
   u32 leftover = length - readAmt;
   for (u32 i = 0; i < leftover; ++i)
     in.readByte();
 
   if (error || ent == nullptr) {
-    LogModule.report(logvisor::Error, fmt("Script load error while loading {}"), ScriptObjectTypeToStr(type));
+    LogModule.report(logvisor::Error, FMT_STRING("Script load error while loading {}"), ScriptObjectTypeToStr(type));
     return {kInvalidEditorId, kInvalidUniqueId};
   } else {
-    LogModule.report(logvisor::Info, fmt("Loaded {} in area {}"), ent->GetName(), ent->GetAreaIdAlways());
+    LogModule.report(logvisor::Info, FMT_STRING("Loaded {} in area {}"), ent->GetName(), ent->GetAreaIdAlways());
     return {id, ent->GetUniqueId()};
   }
 }
@@ -1421,11 +1425,14 @@ void CStateManager::InformListeners(const zeus::CVector3f& pos, EListenNoiseType
 
 void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const CDamageVulnerability& vuln,
                                    const zeus::CVector3f& pos, float dampen) {
-  if (vuln.GetVulnerability(info.GetWeaponMode(), false) == EVulnerability::Deflect)
+  if (vuln.GetVulnerability(info.GetWeaponMode(), false) == EVulnerability::Deflect) {
     return;
+  }
+
   CHealthInfo* hInfo = actor.HealthInfo(*this);
-  if (!hInfo)
+  if (hInfo == nullptr) {
     return;
+  }
 
   float dampedPower = (1.f - dampen) * info.GetKnockBackPower();
   if (TCastToPtr<CPlayer> player = actor) {
@@ -1439,30 +1446,34 @@ void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const
       if (TCastToPtr<CPhysicsActor> physActor = actor) {
         zeus::CVector3f kbVec = pos * (dampedPower - hInfo->GetKnockbackResistance()) * physActor->GetMass() * 1.5f;
         if (physActor->GetMaterialList().HasMaterial(EMaterialTypes::Immovable) ||
-            !physActor->GetMaterialList().HasMaterial(EMaterialTypes::Grass))
+            !physActor->GetMaterialList().HasMaterial(EMaterialTypes::Solid)) {
           return;
+        }
         physActor->ApplyImpulseWR(kbVec, zeus::CAxisAngle());
         return;
       }
     }
   }
 
-  if (ai)
+  if (ai) {
     ai->KnockBack(pos, *this, info, dampen == 0.f ? EKnockBackType::Direct : EKnockBackType::Radius, false,
                   dampedPower);
+  }
 }
 
 void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos, float power, float resistance) {
-  if (player.GetMaterialList().HasMaterial(EMaterialTypes::Immovable))
+  if (player.GetMaterialList().HasMaterial(EMaterialTypes::Immovable)) {
     return;
+  }
 
   float usePower;
   if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
     usePower = power * 1000.f;
     CPlayer::ESurfaceRestraints surface =
         player.x2b0_outOfWaterTicks == 2 ? player.x2ac_surfaceRestraint : CPlayer::ESurfaceRestraints::Water;
-    if (surface != CPlayer::ESurfaceRestraints::Normal && player.GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit)
+    if (surface != CPlayer::ESurfaceRestraints::Normal && player.GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit) {
       usePower /= 7.f;
+    }
   } else {
     usePower = power * 500.f;
   }
@@ -1489,15 +1500,17 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
 
   bool bomb = false;
   TCastToConstPtr<CWeapon> weapon = actor;
-  if (weapon)
+  if (weapon) {
     bomb = True(weapon->GetAttribField() & (EProjectileAttrib::Bombs | EProjectileAttrib::PowerBombs));
+  }
 
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   BuildNearList(nearList, aabb, filter, &actor);
   for (TUniqueId id : nearList) {
     CEntity* ent = ObjectById(id);
-    if (!ent)
+    if (ent == nullptr) {
       continue;
+    }
 
     TCastToPtr<CPlayer> player = ent;
     if (bomb && player) {
@@ -1506,20 +1519,24 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
         MP1::CSamusHud::DisplayHudMemo(u"", CHUDMemoParms{0.f, true, true, true});
         player->UnFreeze(*this);
       } else {
-        if ((weapon->GetAttribField() & EProjectileAttrib::Bombs) == EProjectileAttrib::Bombs)
+        if ((weapon->GetAttribField() & EProjectileAttrib::Bombs) == EProjectileAttrib::Bombs) {
           player->BombJump(pos, *this);
+        }
       }
     } else if (ent->GetUniqueId() != damager) {
       TestBombHittingWater(actor, pos, static_cast<CActor&>(*ent));
-      if (TestRayDamage(pos, static_cast<CActor&>(*ent), nearList))
+      if (TestRayDamage(pos, static_cast<CActor&>(*ent), nearList)) {
         ApplyRadiusDamage(actor, pos, static_cast<CActor&>(*ent), info);
+      }
     }
 
-    if (TCastToPtr<CWallCrawlerSwarm> swarm = ent)
+    if (TCastToPtr<CWallCrawlerSwarm> swarm = ent) {
       swarm->ApplyRadiusDamage(pos, info, *this);
+    }
 
-    if (TCastToPtr<CSnakeWeedSwarm> swarm = ent)
+    if (TCastToPtr<CSnakeWeedSwarm> swarm = ent) {
       swarm->ApplyRadiusDamage(pos, info, *this);
+    }
   }
 }
 
@@ -1548,28 +1565,29 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
       ((bounds = a2.GetTouchBounds()) &&
        CCollidableSphere::Sphere_AABox_Bool(zeus::CSphere{pos, info.GetRadius()}, *bounds))) {
     float rad = info.GetRadius();
-    if (rad > FLT_EPSILON)
+    if (rad > FLT_EPSILON) {
       rad = delta.magnitude() / rad;
-    else
+    } else {
       rad = 0.f;
-    if (rad > 0.f)
+    }
+    if (rad > 0.f) {
       delta.normalize();
+    }
 
     bool alive = false;
-    if (CHealthInfo* hInfo = a2.HealthInfo(*this))
-      if (hInfo->GetHP() > 0.f)
+    if (CHealthInfo* hInfo = a2.HealthInfo(*this)) {
+      if (hInfo->GetHP() > 0.f) {
         alive = true;
+      }
+    }
 
-    const CDamageVulnerability* vuln;
-    if (rad > 0.f)
-      vuln = a2.GetDamageVulnerability(pos, delta, info);
-    else
-      vuln = a2.GetDamageVulnerability();
+    const CDamageVulnerability* vuln = rad > 0.f ? a2.GetDamageVulnerability(pos, delta, info) :  a2.GetDamageVulnerability();
 
     if (vuln->WeaponHurts(info.GetWeaponMode(), true)) {
       float dam = info.GetRadiusDamage(*vuln);
-      if (dam > 0.f)
+      if (dam > 0.f) {
         ApplyLocalDamage(pos, delta, a2, dam, info.GetWeaponMode());
+      }
       a2.SendScriptMsgs(EScriptObjectState::Damage, *this, EScriptObjectMessage::None);
       SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::Damage);
     } else {
@@ -1577,8 +1595,9 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
       SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::InvulnDamage);
     }
 
-    if (alive && info.GetKnockBackPower() > 0.f)
+    if (alive && info.GetKnockBackPower() > 0.f) {
       ApplyKnockBack(a2, info, *vuln, (a2.GetTranslation() - a1.GetTranslation()).normalized(), rad);
+    }
   }
 }
 
@@ -2464,7 +2483,7 @@ void CStateManager::AddObject(CEntity& ent) {
   }
 
   if (sm_logScripting && sm_logScripting->toBoolean())
-    LogModule.report(logvisor::Info, fmt("Added '{}'"), ent.GetName());
+    LogModule.report(logvisor::Info, FMT_STRING("Added '{}'"), ent.GetName());
 }
 
 void CStateManager::AddObject(CEntity* ent) {
@@ -2509,7 +2528,7 @@ TUniqueId CStateManager::AllocateUniqueId() {
     ourIndex = x0_nextFreeIndex;
     x0_nextFreeIndex = (x0_nextFreeIndex + 1) & 0x3ff;
     if (x0_nextFreeIndex == lastIndex)
-      LogModule.report(logvisor::Fatal, fmt("Object List Full!"));
+      LogModule.report(logvisor::Fatal, FMT_STRING("Object List Full!"));
   } while (GetAllObjectList().GetObjectByIndex(ourIndex) != nullptr);
 
   x8_idArr[ourIndex] = (x8_idArr[ourIndex] + 1) & 0x3f;
@@ -2558,7 +2577,7 @@ std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const {
 void CStateManager::SetBossParams(TUniqueId bossId, float maxEnergy, u32 stringIdx) {
   xf18_bossId = bossId;
   xf1c_totalBossEnergy = maxEnergy;
-  xf20_bossStringIdx = stringIdx;
+  xf20_bossStringIdx = stringIdx - (g_Main->IsUSA() && !g_Main->IsTrilogy() ? 0 : 6);
 }
 
 float CStateManager::IntegrateVisorFog(float f) const {

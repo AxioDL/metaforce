@@ -16,7 +16,7 @@ template <class Op>
 void FSM2<IDType>::Enumerate(typename Op::StreamT& s) {
   Do<Op>(athena::io::PropId{"header"}, header, s);
   if (header.magic != SBIG('FSM2')) {
-    LogDNAFSM2.report(logvisor::Fatal, fmt("Invalid FSM2 magic '{}' expected 'FSM2'"), header.magic);
+    LogDNAFSM2.report(logvisor::Fatal, FMT_STRING("Invalid FSM2 magic '{}' expected 'FSM2'"), header.magic);
     return;
   }
 
@@ -29,7 +29,7 @@ void FSM2<IDType>::Enumerate(typename Op::StreamT& s) {
       detail.reset(new FSMV2);
     Do<Op>(athena::io::PropId{"detail"}, static_cast<FSMV2&>(*detail), s);
   } else {
-    LogDNAFSM2.report(logvisor::Fatal, fmt("Invalid FSM2 version '{}'"), header.version);
+    LogDNAFSM2.report(logvisor::Fatal, FMT_STRING("Invalid FSM2 version '{}'"), header.version);
     return;
   }
 }

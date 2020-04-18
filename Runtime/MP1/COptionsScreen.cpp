@@ -1,5 +1,6 @@
 #include "Runtime/MP1/COptionsScreen.hpp"
 
+#include "Runtime/IMain.hpp"
 #include "Runtime/CArchitectureQueue.hpp"
 #include "Runtime/GuiSys/CGuiSliderGroup.hpp"
 #include "Runtime/GuiSys/CGuiTableGroup.hpp"
@@ -154,8 +155,8 @@ void COptionsScreen::ProcessControllerInput(const CFinalInput& input) {
     CPauseScreenBase::ProcessControllerInput(input);
     CGameOptions::TryRestoreDefaults(input, x70_tablegroup_leftlog->GetUserSelection(), x1c_rightSel, false,
                                      rightClicked);
-    if (x70_tablegroup_leftlog->GetUserSelection() == 4 && (input.PA() || leftClicked ||
-                                                            input.PSpecialKey(boo::ESpecialKey::Enter)))
+    if (x70_tablegroup_leftlog->GetUserSelection() == 4 &&
+        (input.PA() || leftClicked || input.PSpecialKey(boo::ESpecialKey::Enter)))
       x19c_quitGame = std::make_unique<CQuitGameScreen>(EQuitType::QuitGame);
   } else {
     CPauseScreenBase::ResetMouseState();
@@ -177,10 +178,16 @@ void COptionsScreen::Draw(float transInterp, float totalAlpha, float yOff) {
 bool COptionsScreen::VReady() const { return true; }
 
 void COptionsScreen::VActivate() {
-  for (int i = 0; i < 5; ++i)
-    xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 16));
+  for (int i = 0; i < 5; ++i) {
+    if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
+      xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 16));
+    } else {
+      xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 18));
+    }
+  }
 
-  x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(15));
+  x178_textpane_title->TextSupport().SetText(
+      xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 15 : 17));
 
 #if 0
     for (int i=5 ; i<5 ; ++i)
@@ -190,22 +197,23 @@ void COptionsScreen::VActivate() {
   x174_textpane_body->TextSupport().SetJustification(EJustification::Center);
   x174_textpane_body->TextSupport().SetVerticalJustification(EVerticalJustification::Bottom);
 
+  int stringOffset = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 0 : 3;
   static_cast<CGuiTextPane*>(x190_tablegroup_double->GetWorkerWidget(0))
       ->TextSupport()
-      .SetText(xc_pauseStrg.GetString(95));
+      .SetText(xc_pauseStrg.GetString(95 + stringOffset));
   static_cast<CGuiTextPane*>(x190_tablegroup_double->GetWorkerWidget(1))
       ->TextSupport()
-      .SetText(xc_pauseStrg.GetString(94));
+      .SetText(xc_pauseStrg.GetString(94 + stringOffset));
 
   static_cast<CGuiTextPane*>(x194_tablegroup_triple->GetWorkerWidget(0))
       ->TextSupport()
-      .SetText(xc_pauseStrg.GetString(96));
+      .SetText(xc_pauseStrg.GetString(96 + stringOffset));
   static_cast<CGuiTextPane*>(x194_tablegroup_triple->GetWorkerWidget(1))
       ->TextSupport()
-      .SetText(xc_pauseStrg.GetString(97));
+      .SetText(xc_pauseStrg.GetString(97 + stringOffset));
   static_cast<CGuiTextPane*>(x194_tablegroup_triple->GetWorkerWidget(2))
       ->TextSupport()
-      .SetText(xc_pauseStrg.GetString(98));
+      .SetText(xc_pauseStrg.GetString(98 + stringOffset));
 
   x18c_slidergroup_slider->SetSelectionChangedCallback(
       [this](CGuiSliderGroup* caller, float value) { OnSliderChanged(caller, value); });
@@ -229,12 +237,15 @@ void COptionsScreen::ChangedMode(EMode oldMode) {
 
 void COptionsScreen::UpdateRightTable() {
   CPauseScreenBase::UpdateRightTable();
-  const std::pair<int, const SGameOption*>& category = GameOptionsRegistry[x70_tablegroup_leftlog->GetUserSelection()];
+  const std::pair<int, const SGameOption*>& category =
+      (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? GameOptionsRegistry[x70_tablegroup_leftlog->GetUserSelection()]
+                                                : GameOptionsRegistryNew[x70_tablegroup_leftlog->GetUserSelection()];
   for (int i = 0; i < 5; ++i) {
-    if (i < category.first)
+    if (i < category.first) {
       xd8_textpane_titles[i]->TextSupport().SetText(xc_pauseStrg.GetString(category.second[i].stringId));
-    else
+    } else {
       xd8_textpane_titles[i]->TextSupport().SetText(u"");
+    }
   }
 }
 

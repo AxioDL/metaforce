@@ -172,7 +172,7 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer() {
 
   std::u16string initStr;
   if (x5c_fontId.IsValid())
-    initStr = fmt::format(fmt(u"&font={};"), x5c_fontId);
+    initStr = fmt::format(FMT_STRING(u"&font={};"), x5c_fontId);
   initStr += x0_string;
 
   g_TextParser->ParseText(*g_TextExecuteBuf, initStr.c_str(), initStr.size(), x14_props.xc_txtrMap);
@@ -219,7 +219,7 @@ void CGuiTextSupport::AutoSetExtent() {
 void CGuiTextSupport::Render() {
   CheckAndRebuildRenderBuffer();
   if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
-    SCOPED_GRAPHICS_DEBUG_GROUP("CGuiTextSupport::Draw", zeus::skBlue);
+    SCOPED_GRAPHICS_DEBUG_GROUP("CGuiTextSupport::Render", zeus::skBlue);
     zeus::CTransform oldModel = CGraphics::g_GXModelMatrix;
     CGraphics::SetModelMatrix(oldModel * zeus::CTransform::Scale(1.f, 1.f, -1.f));
     buf->Render(x2c_geometryColor, x10_curTimeMod900);

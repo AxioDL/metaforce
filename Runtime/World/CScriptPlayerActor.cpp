@@ -25,10 +25,16 @@ CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, std::string_view name, con
                0, 1.f, false, false, false, false)
 , x2e8_suitRes(animRes)
 , x304_beam(beam)
-, x350_flags(flags) {
-  x354_24_setBoundingBox = setBoundingBox;
-  x354_29_loading = true;
-  x354_30_enableLoading = true;
+, x350_flags(flags)
+, x354_24_setBoundingBox(setBoundingBox)
+, x354_25_deferOnlineModelData(false)
+, x354_26_deferOfflineModelData(false)
+, x354_27_beamModelLoading(false)
+, x354_28_suitModelLoading(false)
+, x354_29_loading(true)
+, x354_30_enableLoading(true)
+, x354_31_deferOnlineLoad(false)
+, x355_24_areaTrackingLoad(false) {
   CMaterialList exclude = GetMaterialFilter().GetExcludeList();
   CMaterialList include = GetMaterialFilter().GetIncludeList();
   include.Add(EMaterialTypes::Player);
@@ -211,8 +217,8 @@ void CScriptPlayerActor::Think(float dt, CStateManager& mgr) {
     if (x354_29_loading && !x354_28_suitModelLoading && !x354_27_beamModelLoading && x64_modelData &&
         !x64_modelData->IsNull() && x64_modelData->IsLoaded(0)) {
       if (x355_24_areaTrackingLoad) {
-        const CGameArea* area = mgr.GetWorld()->GetAreaAlways(x4_areaId);
-        --const_cast<CGameArea::CPostConstructed*>(area->GetPostConstructed())->x113c_playerActorsLoading;
+        CGameArea* area = mgr.GetWorld()->GetArea(x4_areaId);
+        --area->GetPostConstructed()->x113c_playerActorsLoading;
         x355_24_areaTrackingLoad = false;
       }
       x354_29_loading = false;
@@ -285,8 +291,8 @@ void CScriptPlayerActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
   case EScriptObjectMessage::InitializedInArea:
     x354_31_deferOnlineLoad = true;
     if (x350_flags & 0x8) {
-      const CGameArea* area = mgr.GetWorld()->GetAreaAlways(x4_areaId);
-      ++const_cast<CGameArea::CPostConstructed*>(area->GetPostConstructed())->x113c_playerActorsLoading;
+      CGameArea* area = mgr.GetWorld()->GetArea(x4_areaId);
+      ++area->GetPostConstructed()->x113c_playerActorsLoading;
       x355_24_areaTrackingLoad = true;
     }
     if (GetActive()) {

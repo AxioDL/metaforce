@@ -12,25 +12,22 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
-CMaterialList MakeDockMaterialList() {
-  CMaterialList list;
-  list.Add(EMaterialTypes::Trigger);
-  list.Add(EMaterialTypes::Immovable);
-  list.Add(EMaterialTypes::AIBlock);
-  return list;
-}
+
+constexpr auto skDockMaterialList =
+    CMaterialList{EMaterialTypes::Trigger, EMaterialTypes::Immovable, EMaterialTypes::AIBlock};
 
 CScriptDock::CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& position,
                          const zeus::CVector3f& extents, s32 dock, TAreaId area, bool active, s32 dockReferenceCount,
                          bool loadConnected)
-: CPhysicsActor(uid, active, name, info, zeus::CTransform(zeus::CMatrix3f(), position),
-                CModelData::CModelDataNull(), MakeDockMaterialList(), zeus::CAABox(-extents * 0.5f, extents * 0.5f),
-                SMoverData(1.f), CActorParameters::None(), 0.3f, 0.1f)
+: CPhysicsActor(uid, active, name, info, zeus::CTransform(zeus::CMatrix3f(), position), CModelData::CModelDataNull(),
+                skDockMaterialList, zeus::CAABox(-extents * 0.5f, extents * 0.5f), SMoverData(1.f),
+                CActorParameters::None(), 0.3f, 0.1f)
 , x258_dockReferenceCount(dockReferenceCount)
 , x25c_dock(dock)
-, x260_area(area) {
-  x268_25_loadConnected = loadConnected;
-}
+, x260_area(area)
+, x268_24_dockReferenced(false)
+, x268_25_loadConnected(loadConnected)
+, x268_26_areaPostConstructed(false) {}
 
 void CScriptDock::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
@@ -70,9 +67,10 @@ void CScriptDock::Think(float dt, CStateManager& mgr) {
 
         if (CObjectList* objs = mgr.GetWorld()->GetArea(aid)->GetAreaObjects()) {
           for (CEntity* ent : *objs) {
-            TCastToPtr<CScriptDock> dock(ent);
-            if (dock && dock->GetDockId() == otherDock)
-              dock->SetLoadConnected(mgr, true);
+            const TCastToPtr<CScriptDock> dock2(ent);
+            if (dock2 && dock2->GetDockId() == otherDock) {
+              dock2->SetLoadConnected(mgr, true);
+            }
           }
         }
       }

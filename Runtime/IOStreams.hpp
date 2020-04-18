@@ -43,7 +43,7 @@ class CBitStreamWriter : public athena::io::MemoryWriter {
 public:
   static constexpr u32 GetBitCount(u32 maxVal) { return CBitStreamReader::GetBitCount(maxVal); }
 
-  CBitStreamWriter(atUint8* data = nullptr, atUint64 length = 0x10) : MemoryWriter(data, length) {}
+  explicit CBitStreamWriter(atUint8* data = nullptr, atUint64 length = 0x10) : MemoryWriter(data, length) {}
 
   void WriteEncoded(u32 val, u32 bitCount);
 
@@ -62,7 +62,7 @@ class CZipInputStream : public CInputStream {
   z_stream x30_zstrm = {};
 
 public:
-  CZipInputStream(std::unique_ptr<CInputStream>&& strm);
+  explicit CZipInputStream(std::unique_ptr<CInputStream>&& strm);
   ~CZipInputStream() override;
   atUint64 readUBytesToBuf(void* buf, atUint64 len) override;
   void seek(atInt64, athena::SeekOrigin) override {}

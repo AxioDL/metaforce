@@ -158,7 +158,15 @@ CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurret
 , x428_targettingLightDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetTargettingLightRes()}))
 , x434_frozenEffectDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetFrozenEffectRes()}))
 , x440_chargingEffectDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetChargingEffectRes()}))
-, x44c_panningEffectDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetPanningEffectRes()})) {
+, x44c_panningEffectDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetPanningEffectRes()}))
+, x560_24_dead(false)
+, x560_25_frozen(false)
+, x560_26_firedWithSetBurst(false)
+, x560_27_burstSet(false)
+, x560_28_hasBeenActivated(false)
+, x560_29_scriptedStart(false)
+, x560_30_needsStopClankSound(true)
+, x560_31_frenzyReverse(false) {
   if (turretData.GetVisorEffectRes().IsValid())
     x458_visorEffectDesc = g_SimplePool->GetObj({SBIG('PART'), turretData.GetVisorEffectRes()});
   x468_idleLight = std::make_unique<CElementGen>(x410_idleLightDesc);
@@ -171,14 +179,6 @@ CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurret
   x514_lastFrontVector = xf.frontVector();
   x544_originalFrontVec = xf.frontVector();
   x550_originalRightVec = xf.rightVector();
-  x560_24_dead = false;
-  x560_25_frozen = false;
-  x560_26_firedWithSetBurst = false;
-  x560_27_burstSet = false;
-  x560_28_hasBeenActivated = false;
-  x560_29_scriptedStart = false;
-  x560_30_needsStopClankSound = true;
-  x560_31_frenzyReverse = false;
 
   if (comp == ETurretComponent::Base && HasModelData() && GetModelData()->HasAnimData())
     GetModelData()->EnableLooping(true);
@@ -394,7 +394,9 @@ void CScriptGunTurret::SetTurretState(ETurretState state, CStateManager& mgr) {
   }
 
   if (state != ETurretState::Invalid && x520_state != state) {
-    fmt::print(fmt("{} {} {} - {}\n"), GetUniqueId(), GetEditorId(), GetName(), StateNames[size_t(state)]);
+#ifndef NDEBUG
+    fmt::print(FMT_STRING("{} {} {} - {}\n"), GetUniqueId(), GetEditorId(), GetName(), StateNames[size_t(state)]);
+#endif
   }
 
   x520_state = state;

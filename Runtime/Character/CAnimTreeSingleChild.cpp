@@ -15,23 +15,23 @@ zeus::CVector3f CAnimTreeSingleChild::VGetOffset(const CSegId& seg) const { retu
 
 zeus::CQuaternion CAnimTreeSingleChild::VGetRotation(const CSegId& seg) const { return x14_child->VGetRotation(seg); }
 
-u32 CAnimTreeSingleChild::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator,
-                                          u32 unk) const {
+size_t CAnimTreeSingleChild::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, size_t capacity,
+                                             size_t iterator, u32 unk) const {
   return x14_child->GetBoolPOIList(time, listOut, capacity, iterator, unk);
 }
 
-u32 CAnimTreeSingleChild::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity,
-                                           u32 iterator, u32 unk) const {
+size_t CAnimTreeSingleChild::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, size_t capacity,
+                                              size_t iterator, u32 unk) const {
   return x14_child->GetInt32POIList(time, listOut, capacity, iterator, unk);
 }
 
-u32 CAnimTreeSingleChild::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity,
-                                              u32 iterator, u32 unk) const {
+size_t CAnimTreeSingleChild::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, size_t capacity,
+                                                 size_t iterator, u32 unk) const {
   return x14_child->GetParticlePOIList(time, listOut, capacity, iterator, unk);
 }
 
-u32 CAnimTreeSingleChild::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity,
-                                           u32 iterator, u32 unk) const {
+size_t CAnimTreeSingleChild::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, size_t capacity,
+                                              size_t iterator, u32 unk) const {
   return x14_child->GetSoundPOIList(time, listOut, capacity, iterator, unk);
 }
 

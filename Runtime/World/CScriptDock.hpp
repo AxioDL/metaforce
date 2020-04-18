@@ -15,14 +15,9 @@ class CScriptDock : public CPhysicsActor {
   s32 x25c_dock;
   TAreaId x260_area;
   EDockState x264_dockState = EDockState::Three;
-  union {
-    struct {
-      bool x268_24_dockReferenced : 1;
-      bool x268_25_loadConnected : 1;
-      bool x268_26_areaPostConstructed : 1;
-    };
-    u8 dummy = 0;
-  };
+  bool x268_24_dockReferenced : 1;
+  bool x268_25_loadConnected : 1;
+  bool x268_26_areaPostConstructed : 1;
 
 public:
   CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& position,

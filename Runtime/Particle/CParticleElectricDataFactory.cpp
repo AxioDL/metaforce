@@ -107,7 +107,7 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInput
       desc->x70_ZERY = CPF::GetBool(in);
       break;
     default: {
-      Log.report(logvisor::Fatal, fmt("Unknown ELSM class {} @{}"), clsId, in.position());
+      Log.report(logvisor::Fatal, FMT_STRING("Unknown ELSM class {} @{}"), clsId, in.position());
       return false;
     }
     }

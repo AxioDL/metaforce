@@ -6,9 +6,13 @@
 #include "DNAMP2/MLVL.hpp"
 #include "DNAMP2/STRG.hpp"
 #include "DNAMP2/AGSC.hpp"
+#include "DNAMP2/PATH.hpp"
 #include "DNAMP2/MAPA.hpp"
 #include "DNAMP1/CSNG.hpp"
 #include "DNACommon/MAPU.hpp"
+#include "DNACommon/PATH.hpp"
+#include "DNACommon/TXTR.hpp"
+#include "DNACommon/URDEVersionInfo.hpp"
 
 #include "hecl/ClientProcess.hpp"
 #include "hecl/Blender/Connection.hpp"
@@ -24,6 +28,69 @@ using namespace std::literals;
 static logvisor::Module Log("urde::SpecMP2");
 extern hecl::Database::DataSpecEntry SpecEntMP2;
 extern hecl::Database::DataSpecEntry SpecEntMP2ORIG;
+
+struct TextureCache {
+  static void Generate(PAKRouter<DNAMP2::PAKBridge>& pakRouter, hecl::Database::Project& project, const hecl::ProjectPath& pakPath) {
+    hecl::ProjectPath texturePath(pakPath, _SYS_STR("texture_cache.yaml"));
+    hecl::ProjectPath catalogPath(pakPath, _SYS_STR("!catalog.yaml"));
+    texturePath.makeDirChain(false);
+
+    if (const auto fp = hecl::FopenUnique(catalogPath.getAbsolutePath().data(), _SYS_STR("a"))) {
+      fmt::print(fp.get(), FMT_STRING("TextureCache: {}\n"), texturePath.getRelativePathUTF8());
+    }
+
+    Log.report(logvisor::Level::Info, FMT_STRING("Gathering Texture metadata (this can take up to 10 seconds)..."));
+    std::unordered_map<UniqueID32, TXTR::Meta> metaMap;
+
+    pakRouter.enumerateResources([&](const DNAMP2::PAK::Entry* ent) {
+      if (ent->type == FOURCC('TXTR') && metaMap.find(ent->id) == metaMap.end()) {
+        PAKEntryReadStream rs = pakRouter.beginReadStreamForId(ent->id);
+        metaMap[ent->id] = TXTR::GetMetaData(rs);
+      }
+      return true;
+    });
+
+    athena::io::YAMLDocWriter yamlW("MP2TextureCache");
+    for (const auto& pair : metaMap) {
+      hecl::ProjectPath path = pakRouter.getWorking(pair.first);
+      auto rec = yamlW.enterSubRecord(path.getRelativePathUTF8());
+      pair.second.write(yamlW);
+    }
+
+    athena::io::FileWriter fileW(texturePath.getAbsolutePath());
+    yamlW.finish(&fileW);
+    Log.report(logvisor::Level::Info, FMT_STRING("Done..."));
+  }
+
+  static void Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
+    hecl::Database::Project& project = inPath.getProject();
+    athena::io::YAMLDocReader r;
+    athena::io::FileReader fr(inPath.getAbsolutePath());
+    if (!fr.isOpen() || !r.parse(&fr))
+      return;
+
+    std::vector<std::pair<UniqueID32, TXTR::Meta>> metaPairs;
+    metaPairs.reserve(r.getRootNode()->m_mapChildren.size());
+    for (const auto& node : r.getRootNode()->m_mapChildren) {
+      hecl::ProjectPath projectPath(project, node.first);
+      auto rec = r.enterSubRecord(node.first.c_str());
+      TXTR::Meta meta;
+      meta.read(r);
+      metaPairs.emplace_back(projectPath.parsedHash32(), meta);
+    }
+
+    std::sort(metaPairs.begin(), metaPairs.end(), [](const auto& a, const auto& b) -> bool {
+      return a.first < b.first;
+    });
+
+    athena::io::FileWriter w(outPath.getAbsolutePath());
+    w.writeUint32Big(metaPairs.size());
+    for (const auto& pair : metaPairs) {
+      pair.first.write(w);
+      pair.second.write(w);
+    }
+  }
+};
 
 struct SpecMP2 : SpecBase {
   bool checkStandaloneID(const char* id) const override {
@@ -45,7 +112,8 @@ struct SpecMP2 : SpecBase {
   , m_workPath(project.getProjectWorkingPath(), _SYS_STR("MP2"))
   , m_cookPath(project.getProjectCookedPath(SpecEntMP2), _SYS_STR("MP2"))
   , m_pakRouter(*this, m_workPath, m_cookPath) {
-    setThreadProject();
+    m_game = EGame::MetroidPrime2;
+    SpecBase::setThreadProject();
   }
 
   void buildPaks(nod::Node& root, const std::vector<hecl::SystemString>& args, ExtractReport& rep) {
@@ -117,16 +185,17 @@ struct SpecMP2 : SpecBase {
                                const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps) override {
     nod::IPartition* partition = disc.getDataPartition();
     std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
-    const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
-    if (!buildInfo)
+    const char* buildInfo = static_cast<char*>(memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16)) + 19;
+    if (buildInfo == nullptr) {
       return false;
+    }
 
+    m_version = std::string(buildInfo);
     /* Root Report */
     ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP2");
     rep.desc = _SYS_STR("Metroid Prime 2 ") + regstr;
-    std::string buildStr(buildInfo);
-    hecl::SystemStringConv buildView(buildStr);
+    hecl::SystemStringConv buildView(m_version);
     rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
 
     /* Iterate PAKs and build level options */
@@ -140,7 +209,7 @@ struct SpecMP2 : SpecBase {
                             const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps) override {
     std::vector<hecl::SystemString> mp2args;
     bool doExtract = false;
-    if (args.size()) {
+    if (!args.empty()) {
       /* Needs filter */
       for (const hecl::SystemString& arg : args) {
         hecl::SystemString lowerArg = arg;
@@ -171,15 +240,15 @@ struct SpecMP2 : SpecBase {
     }
 
     std::unique_ptr<uint8_t[]> dolBuf = dolIt->getBuf();
-    const char* buildInfo = (char*)memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
+    const char* buildInfo = static_cast<char*>(memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16)) + 19;
 
     /* Root Report */
     ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP2");
     rep.desc = _SYS_STR("Metroid Prime 2 ") + regstr;
-    if (buildInfo) {
-      std::string buildStr(buildInfo);
-      hecl::SystemStringConv buildView(buildStr);
+    if (buildInfo != nullptr) {
+      m_version = std::string(buildInfo);
+      hecl::SystemStringConv buildView(m_version);
       rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
     }
 
@@ -247,6 +316,18 @@ struct SpecMP2 : SpecBase {
 
     process.waitUntilComplete();
 
+    /* Generate Texture Cache containing meta data for every texture file */
+    hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _SYS_STR("MP2/URDE"));
+    TextureCache::Generate(m_pakRouter, m_project, noAramPath);
+
+    /* Write version data */
+    hecl::ProjectPath versionPath;
+    if (m_standalone) {
+      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files"));
+    } else {
+      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files/MP2"));
+    }
+    WriteVersionInfo(m_project, versionPath);
     return true;
   }
 
@@ -286,7 +367,11 @@ struct SpecMP2 : SpecBase {
                     hecl::blender::Token& btok, FCookProgress progress) override {}
 
   void cookPathMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
-                    hecl::blender::Token& btok, FCookProgress progress) override {}
+                    hecl::blender::Token& btok, FCookProgress progress) override {
+    PathMesh mesh = ds.compilePathMesh();
+    ds.close();
+    DNAMP2::PATH::Cook(out, in, mesh, btok);
+  }
 
   void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                  hecl::blender::Token& btok, FCookProgress progress) override {}

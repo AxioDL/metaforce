@@ -95,22 +95,16 @@ private:
   EHudVisMode x1ec_hudVisMode;
   u32 x1f0_enablePlayerVisor;
   float x1f4_visorStaticAlpha;
+  bool x1f8_24_ : 1;
+  bool x1f8_25_playerAlive : 1;
+  bool x1f8_26_deferTransition : 1;
+  bool x1f8_27_exitSaveUI : 1;
 
   std::optional<CTexturedQuadFilter> m_deathRenderTexQuad;
   std::optional<CTexturedQuadFilter> m_deathDotQuad;
   CRandomStaticFilter m_randomStatic{EFilterType::Blend};
   CColoredQuadFilter m_deathWhiteout{EFilterType::Blend};
   CColoredQuadFilter m_deathBlackout{EFilterType::Blend};
-
-  union {
-    struct {
-      bool x1f8_24_ : 1;
-      bool x1f8_25_playerAlive : 1;
-      bool x1f8_26_deferTransition : 1;
-      bool x1f8_27_exitSaveUI : 1;
-    };
-    u32 _dummy = 0;
-  };
 
   static std::vector<TLockedToken<CDependencyGroup>> LockPauseScreenDependencies();
   bool CheckDGRPLoadComplete() const;

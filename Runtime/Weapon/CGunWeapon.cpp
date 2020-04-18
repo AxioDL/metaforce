@@ -70,7 +70,13 @@ CGunWeapon::CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId, EM
 , x1c8_playerMaterial(playerMaterial)
 , x200_beamId(GetWeaponIndex(type))
 , x20c_shaderIdx(u32(x200_beamId))
-, x214_ancsId(ancsId) {
+, x214_ancsId(ancsId)
+, x218_24(false)
+, x218_25_enableCharge(false)
+, x218_26_loaded(false)
+, x218_27_subtypeBasePose(false)
+, x218_28_suitArmLocked(false)
+, x218_29_drawHologram(false) {
   AllocResPools(x200_beamId);
   BuildDependencyList(x200_beamId);
 }
@@ -172,7 +178,7 @@ void CGunWeapon::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr,
   }
 }
 
-const std::array<s32, 2> CGunWeapon::skShootAnim{4, 3};
+constexpr std::array<s32, 2> CGunWeapon::skShootAnim{4, 3};
 
 void CGunWeapon::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                       CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
@@ -250,7 +256,7 @@ void CGunWeapon::TouchHolo(const CStateManager& mgr) {
 }
 
 void CGunWeapon::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  reinterpret_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
+  static_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
 }
 
 void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
@@ -265,17 +271,17 @@ void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CT
 
   if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && x200_beamId != CPlayerState::EBeamId::Ice) {
     /* Hot Draw */
-    zeus::CColor mulColor(flags.x4_color.a(), flags.x4_color.a());
-    zeus::CColor addColor(0.25f, 0.25f);
+    const zeus::CColor mulColor(flags.x4_color.a(), flags.x4_color.a());
+    constexpr zeus::CColor addColor(0.25f, 0.25f);
     if (x218_29_drawHologram) {
       DrawHologram(mgr, xf, flags);
     } else {
-      CModelFlags useFlags(0, 0, 3, zeus::skWhite);
+      constexpr CModelFlags useFlags(0, 0, 3, zeus::skWhite);
       x10_solidModelData->RenderThermal(xf, mulColor, addColor, useFlags);
     }
 
     if (drawSuitArm && xb0_suitArmModelData) {
-      CModelFlags useFlags(0, 0, 3, zeus::skWhite);
+      constexpr CModelFlags useFlags(0, 0, 3, zeus::skWhite);
       xb0_suitArmModelData->RenderThermal(xf, mulColor, addColor, useFlags);
     }
   } else {

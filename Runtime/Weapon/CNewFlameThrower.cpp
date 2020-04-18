@@ -8,9 +8,9 @@
 namespace urde {
 
 CNewFlameThrower::CNewFlameThrower(const TToken<CWeaponDescription>& desc, std::string_view name, EWeaponType wType,
-                                   const CAssetId resInfo[8], const zeus::CTransform& xf, EMaterialTypes matType,
-                                   const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
-                                   EProjectileAttrib attribs)
+                                   const std::array<CAssetId, 8>& resInfo, const zeus::CTransform& xf,
+                                   EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid,
+                                   TUniqueId owner, EProjectileAttrib attribs)
 : CGameProjectile(false, desc, name, wType, xf, matType, dInfo, uid, aid, owner, kInvalidUniqueId, attribs, false,
                   zeus::skOne3f, {}, -1, false)
 , x304_mainFire(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), resInfo[0]}))

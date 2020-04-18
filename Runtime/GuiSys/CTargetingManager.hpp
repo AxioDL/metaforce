@@ -13,7 +13,7 @@ public:
   explicit CTargetingManager(const CStateManager& stateMgr);
   bool CheckLoadComplete();
   void Update(float, const CStateManager& stateMgr);
-  void Draw(const CStateManager& stateMgr, bool hideLockon) const;
+  void Draw(const CStateManager& stateMgr, bool hideLockon);
   void Touch();
   CCompoundTargetReticle& CompoundTargetReticle() { return x0_targetReticule; }
 };

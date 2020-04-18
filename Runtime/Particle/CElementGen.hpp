@@ -60,7 +60,7 @@ private:
   int x70_internalStartFrame = 0;
   int x74_curFrame = 0;
   double x78_curSeconds = 0.f;
-  float x80_timeDeltaScale;
+  float x80_timeDeltaScale = 0.f;
   int x84_prevFrame = -1;
   bool x88_particleEmission = true;
   float x8c_generatorRemainder = 0.f;
@@ -87,26 +87,19 @@ private:
   u32 x260_cumulativeParticles = 0;
   u32 x264_recursiveParticleCount = 0;
   int x268_PSLT;
-
-  union {
-    struct {
-      bool x26c_24_translationDirty : 1;
-      bool x26c_25_LIT_ : 1;
-      bool x26c_26_AAPH : 1;
-      bool x26c_27_ZBUF : 1;
-      bool x26c_28_zTest : 1;
-      bool x26c_29_ORNT : 1;
-      bool x26c_30_MBLR : 1;
-      bool x26c_31_LINE : 1;
-      bool x26d_24_FXLL : 1;
-      bool x26d_25_warmedUp : 1;
-      bool x26d_26_modelsUseLights : 1;
-      bool x26d_27_enableOPTS : 1;
-      bool x26d_28_enableADV : 1;
-    };
-    u32 _dummy = 0;
-  };
-
+  bool x26c_24_translationDirty : 1;
+  bool x26c_25_LIT_ : 1;
+  bool x26c_26_AAPH : 1;
+  bool x26c_27_ZBUF : 1;
+  bool x26c_28_zTest : 1;
+  bool x26c_29_ORNT : 1;
+  bool x26c_30_MBLR : 1;
+  bool x26c_31_LINE : 1;
+  bool x26d_24_FXLL : 1;
+  bool x26d_25_warmedUp : 1;
+  bool x26d_26_modelsUseLights : 1;
+  bool x26d_27_enableOPTS : 1;
+  bool x26d_28_enableADV : 1;
   int x270_MBSP = 0;
   int m_maxMBSP = 0;
   ERglLightBits x274_backupLightActive = ERglLightBits::None;

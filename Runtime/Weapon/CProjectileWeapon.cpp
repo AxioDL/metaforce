@@ -15,8 +15,15 @@ CProjectileWeapon::CProjectileWeapon(const TToken<CWeaponDescription>& wDesc, co
 , x10_random(g_GlobalSeed)
 , x14_localToWorldXf(localToWorld)
 , x74_worldOffset(worldOffset)
-, xe4_flags(flags) {
-  x124_24_active = true;
+, xe4_flags(flags)
+, x124_24_active(true)
+, x124_25_APSO(false)
+, x124_26_AP11(false)
+, x124_27_AP21(false)
+, x124_28_AS11(false)
+, x124_29_AS12(false)
+, x124_30_AS13(false)
+, x124_31_VMD2(false) {
   CGlobalRandom gr(x10_random);
   x124_31_VMD2 = x4_weaponDesc->x10_VMD2;
   x124_25_APSO = x4_weaponDesc->x28_APSO;
@@ -201,7 +208,7 @@ void CProjectileWeapon::RenderParticles() const {
     x104_->Render();
 }
 
-void CProjectileWeapon::AddToRenderer() const {
+void CProjectileWeapon::AddToRenderer() {
   if (xfc_APSMGen)
     g_Renderer->AddParticleGen(*xfc_APSMGen);
   if (x100_APS2Gen)
@@ -216,7 +223,7 @@ void CProjectileWeapon::AddToRenderer() const {
     g_Renderer->AddParticleGen(*x104_);
 }
 
-void CProjectileWeapon::Render() const {
+void CProjectileWeapon::Render() {
   if (xf4_curFrame > xe8_lifetime || !x124_24_active || !x108_model)
     return;
 
@@ -227,8 +234,8 @@ void CProjectileWeapon::Render() const {
 
   std::vector<CLight> useLights;
   useLights.push_back(CLight::BuildLocalAmbient({}, xc8_ambientLightColor));
-  const_cast<CModel&>(**x108_model).GetInstance().ActivateLights(useLights);
-  CModelFlags flags(0, 0, 3, zeus::skWhite);
+  (**x108_model).GetInstance().ActivateLights(useLights);
+  constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
   (*x108_model)->Draw(flags);
 }
 

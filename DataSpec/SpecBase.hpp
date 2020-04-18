@@ -23,6 +23,10 @@ class YAMLDocWriter;
 } // namespace athena::io
 
 namespace DataSpec {
+enum class ERegion;
+enum class EGame;
+ERegion getCurrentRegion();
+bool isCurrentSpecWii();
 
 struct SpecBase : hecl::Database::IDataSpec {
   /* HECL Adaptors */
@@ -175,12 +179,12 @@ protected:
 
   hecl::blender::Token m_backgroundBlender;
   std::thread m_backgroundIndexTh;
-  std::mutex m_backgroundIndexMutex;
+  mutable std::mutex m_backgroundIndexMutex;
   bool m_backgroundRunning = false;
 
   void readCatalog(const hecl::ProjectPath& catalogPath, athena::io::YAMLDocWriter& nameWriter);
-  void insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const urde::SObjectTag& tag,
-                     const hecl::ProjectPath& path, bool dump = true);
+  void insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const urde::SObjectTag& tag, const hecl::ProjectPath& path,
+                     bool dump = true);
   bool addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDocWriter& cacheWriter);
   void backgroundIndexRecursiveProc(const hecl::ProjectPath& path, athena::io::YAMLDocWriter& cacheWriter,
                                     athena::io::YAMLDocWriter& nameWriter, int level);
@@ -197,8 +201,16 @@ protected:
                          const std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData);
 
   std::unique_ptr<nod::DiscBase> m_disc;
-  bool m_isWii;
-  bool m_standalone;
+  bool m_isWii{};
+  bool m_standalone{};
+  ERegion m_region;
+  EGame m_game;
+  std::string m_version;
+
+  void WriteVersionInfo(hecl::Database::Project& project, const hecl::ProjectPath& pakPath);
+
+  static void setCurRegion(ERegion region);
+  static void setCurSpecIsWii(bool isWii);
 };
 
 bool IsPathAudioGroup(const hecl::ProjectPath& path);

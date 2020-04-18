@@ -18,6 +18,10 @@ struct MaterialSet : BigDNA {
   void addMaterialEndOff(atUint32) { ++materialCount; }
 
   struct Material : BigDNA {
+    enum class SwapColorComponent { Red, Green, Blue, Alpha };
+    enum class UVAnimationUVSource : atUint16 { Position, Normal, UV };
+    enum class UVAnimationMatrixConfig : atUint16 { NoMtxNoPost, MtxNoPost, NoMtxPost, MtxPost };
+
     AT_DECL_EXPLICIT_DNA
     using VAFlags = DNAMP1::MaterialSet::Material::VAFlags;
     struct Header : BigDNA {
@@ -26,8 +30,18 @@ struct MaterialSet : BigDNA {
       struct Flags : BigDNA {
         AT_DECL_DNA
         Value<atUint32> flags;
-        bool alphaBlending() const { return (flags & 0x8) != 0; }
-        void setAlphaBlending(bool enabled) {
+        bool enableBloom() const { return (flags & 0x1) != 0; }
+        void setEnableBloom(bool enabled) {
+          flags &= ~0x1;
+          flags |= atUint32(enabled) << 0;
+        }
+        bool forceLightingStage() const { return (flags & 0x4) != 0; }
+        void setForceLightingStage(bool enabled) {
+          flags &= ~0x4;
+          flags |= atUint32(enabled) << 2;
+        }
+        bool preIncaTransparency() const { return (flags & 0x8) != 0; }
+        void setPreIncaTransparency(bool enabled) {
           flags &= ~0x8;
           flags |= atUint32(enabled) << 3;
         }
@@ -36,8 +50,8 @@ struct MaterialSet : BigDNA {
           flags &= ~0x10;
           flags |= atUint32(enabled) << 4;
         }
-        bool additiveBlending() const { return (flags & 0x20) != 0; }
-        void setAdditiveBlending(bool enabled) {
+        bool additiveIncandecence() const { return (flags & 0x20) != 0; }
+        void setAdditiveIncandecence(bool enabled) {
           flags &= ~0x20;
           flags |= atUint32(enabled) << 5;
         }
@@ -45,6 +59,36 @@ struct MaterialSet : BigDNA {
         void setShadowOccluderMesh(bool enabled) {
           flags &= ~0x100;
           flags |= atUint32(enabled) << 8;
+        }
+        bool justWhite() const { return (flags & 0x200) != 0; }
+        void setJustWhite(bool enabled) {
+          flags &= ~0x200;
+          flags |= atUint32(enabled) << 9;
+        }
+        bool reflectionAlphaTarget() const { return (flags & 0x400) != 0; }
+        void setReflectionAlphaTarget(bool enabled) {
+          flags &= ~0x400;
+          flags |= atUint32(enabled) << 10;
+        }
+        bool justSolidColor() const { return (flags & 0x800) != 0; }
+        void setJustSolidColor(bool enabled) {
+          flags &= ~0x800;
+          flags |= atUint32(enabled) << 11;
+        }
+        bool excludeFromScanVisor() const { return (flags & 0x4000) != 0; }
+        void setExcludeFromScanVisor(bool enabled) {
+          flags &= ~0x4000;
+          flags |= atUint32(enabled) << 14;
+        }
+        bool xrayOpaque() const { return (flags & 0x8000) != 0; }
+        void setXRayOpaque(bool enabled) {
+          flags &= ~0x8000;
+          flags |= atUint32(enabled) << 15;
+        }
+        bool xrayAlphaTarget() const { return (flags & 0x10000) != 0; }
+        void setXRayAlphaTarget(bool enabled) {
+          flags &= ~0x10000;
+          flags |= atUint32(enabled) << 16;
         }
         bool lightmapUVArray() const { return false; } /* For polymorphic compatibility with MP1/2 */
       } flags;
@@ -58,20 +102,12 @@ struct MaterialSet : BigDNA {
     const Header::Flags& getFlags() const { return header.flags; }
     const VAFlags& getVAFlags() const { return header.vaFlags; }
 
-    struct ISection : BigDNAV {
-      Delete expl;
-      enum class Type : atUint32 { PASS = SBIG('PASS'), CLR = SBIG('CLR '), INT = SBIG('INT ') } m_type;
-      ISection(Type type) : m_type(type) {}
-      virtual void constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
-                                 const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                                 unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const = 0;
+    enum class ChunkType : atUint32 {
+      PASS = 'PASS', CLR = 'CLR ', INT = 'INT ', END = 'END '
     };
-    struct SectionPASS : ISection {
-      SectionPASS() : ISection(ISection::Type::PASS) {}
-      static SectionPASS* castTo(ISection* sec) {
-        return sec->m_type == Type::PASS ? static_cast<SectionPASS*>(sec) : nullptr;
-      }
-      AT_DECL_DNAV
+
+    struct PASS : hecl::TypedRecordBigDNA<ChunkType::PASS> {
+      AT_DECL_DNA
       Value<atUint32> size;
       enum class Subtype : atUint32 {
         DIFF = SBIG('DIFF'),
@@ -93,6 +129,21 @@ struct MaterialSet : BigDNA {
       struct Flags : BigDNA {
         AT_DECL_DNA
         Value<atUint32> flags;
+        SwapColorComponent swapColorComponent() const { return SwapColorComponent(flags & 0x3); }
+        void setSwapColorComponent(SwapColorComponent comp) {
+          flags &= ~0x3;
+          flags |= atUint32(comp) << 0;
+        }
+        bool alphaContribution() const { return (flags & 0x4) != 0; }
+        void setAlphaContribution(bool enabled) {
+          flags &= ~0x4;
+          flags |= atUint32(enabled) << 2;
+        }
+        bool INCAColorMod() const { return (flags & 0x8) != 0; }
+        void setINCAColorMod(bool enabled) {
+          flags &= ~0x8;
+          flags |= atUint32(enabled) << 3;
+        }
         bool TRANInvert() const { return (flags & 0x10) != 0; }
         void setTRANInvert(bool enabled) {
           flags &= ~0x10;
@@ -104,36 +155,21 @@ struct MaterialSet : BigDNA {
       Value<atUint32> uvAnimSize;
       struct UVAnimation : BigDNA {
         AT_DECL_DNA
-        Value<atUint16> unk1;
-        Value<atUint16> unk2;
+        Value<UVAnimationUVSource> uvSource;
+        Value<UVAnimationMatrixConfig> mtxConfig;
         DNAMP1::MaterialSet::Material::UVAnimation anim;
       };
       Vector<UVAnimation, AT_DNA_COUNT(uvAnimSize != 0)> uvAnim;
-
-      void constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
-                         const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const override;
     };
-    struct SectionCLR : ISection {
-      SectionCLR() : ISection(ISection::Type::CLR) {}
-      static SectionCLR* castTo(ISection* sec) {
-        return sec->m_type == Type::CLR ? static_cast<SectionCLR*>(sec) : nullptr;
-      }
-      AT_DECL_DNAV
+    struct CLR : hecl::TypedRecordBigDNA<ChunkType::CLR> {
+      AT_DECL_DNA
       enum class Subtype : atUint32 { CLR = SBIG('CLR '), DIFB = SBIG('DIFB') };
       DNAFourCC subtype;
       GX::Color color;
-
-      void constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
-                         const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const override;
+      CLR() = default;
     };
-    struct SectionINT : ISection {
-      SectionINT() : ISection(ISection::Type::INT) {}
-      static SectionINT* castTo(ISection* sec) {
-        return sec->m_type == Type::INT ? static_cast<SectionINT*>(sec) : nullptr;
-      }
-      AT_DECL_DNAV
+    struct INT : hecl::TypedRecordBigDNA<ChunkType::INT> {
+      AT_DECL_DNA
       enum class Subtype : atUint32 {
         OPAC = SBIG('OPAC'),
         BLOD = SBIG('BLOD'),
@@ -143,16 +179,12 @@ struct MaterialSet : BigDNA {
       };
       DNAFourCC subtype;
       Value<atUint32> value;
-
-      void constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
-                         const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const override;
     };
-    struct SectionFactory : BigDNA {
-      AT_DECL_EXPLICIT_DNA
-      std::unique_ptr<ISection> section;
+    struct END : hecl::TypedRecordBigDNA<ChunkType::END> {
+      AT_DECL_DNA
     };
-    std::vector<SectionFactory> sections;
+    using Chunk = hecl::TypedVariantBigDNA<PASS, CLR, INT, END>;
+    std::vector<Chunk> chunks;
   };
   Vector<Material, AT_DNA_COUNT(materialCount)> materials;
 

@@ -30,8 +30,8 @@ public:
   CCollisionActorManager(CStateManager& mgr, TUniqueId owner, TAreaId area,
                          const std::vector<CJointCollisionDescription>& descs, bool active);
 
-  void Update(float dt, CStateManager& mgr, CCollisionActorManager::EUpdateOptions opts);
-  void Destroy(CStateManager& mgr) const;
+  void Update(float dt, CStateManager& mgr, EUpdateOptions opts);
+  void Destroy(CStateManager& mgr);
   void SetActive(CStateManager& mgr, bool active);
   bool GetActive() const { return x12_active; }
   void AddMaterial(CStateManager& mgr, const CMaterialList& list);

@@ -29,8 +29,8 @@ CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, st
                                      const CBeamInfo& bInfo, const zeus::CTransform& xf, EMaterialTypes matType,
                                      const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                                      const PlayerEffectResoures& res, bool growingBeam, EProjectileAttrib attribs)
-: CBeamProjectile(wDesc, name, wType, xf, bInfo.GetLength(), bInfo.GetRadius(), bInfo.GetTravelSpeed(), matType,
-                  dInfo, uid, aid, owner, attribs, growingBeam)
+: CBeamProjectile(wDesc, name, wType, xf, bInfo.GetLength(), bInfo.GetRadius(), bInfo.GetTravelSpeed(), matType, dInfo,
+                  uid, aid, owner, attribs, growingBeam)
 , x478_beamAttributes(bInfo.GetBeamAttributes())
 , x47c_lifeTime(bInfo.GetLifeTime())
 , x480_pulseSpeed(bInfo.GetPulseSpeed())
@@ -38,7 +38,13 @@ CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, st
 , x488_expansionSpeed(bInfo.GetExpansionSpeed())
 , x48c_(bInfo.GetLength() / 32.f)
 , x490_innerColor(bInfo.GetInnerColor())
-, x494_outerColor(bInfo.GetOuterColor()) {
+, x494_outerColor(bInfo.GetOuterColor())
+, x548_24_(false)
+, x548_25_enableEnergyPulse(true)
+, x548_26_firing(false)
+, x548_27_texturesLoaded(false)
+, x548_28_drawOwnerFirst(growingBeam)
+, x548_29_activePlayerPhazon(false) {
   x4e8_texture = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), bInfo.GetTextureId()});
   x4f4_glowTexture = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), bInfo.GetGlowTextureId()});
   x500_contactFxDesc = g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), bInfo.GetContactFxId()});
@@ -47,14 +53,14 @@ CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, st
   x51c_pulseGen = std::make_unique<CElementGen>(x50c_pulseFxDesc, CElementGen::EModelOrientationType::Normal);
   x524_freezeSteamTxtr = res[0];
   x528_freezeIceTxtr = res[1];
-  if (res[2] != UINT64_MAX)
+  if (res[2].IsValid()) {
     x52c_visorElectric = g_SimplePool->GetObj(SObjectTag{FOURCC('ELSC'), res[2]});
-  if (res[3] != UINT64_MAX)
+  }
+  if (res[3].IsValid()) {
     x538_visorParticle = g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), res[3]});
-  x544_freezeSfx = CSfxManager::TranslateSFXID(res[4]);
-  x546_electricSfx = CSfxManager::TranslateSFXID(res[5]);
-  x548_25_enableEnergyPulse = true;
-  x548_28_drawOwnerFirst = growingBeam;
+  }
+  x544_freezeSfx = CSfxManager::TranslateSFXID(u16(res[4].Value()));
+  x546_electricSfx = CSfxManager::TranslateSFXID(u16(res[5].Value()));
   x518_contactGen->SetGlobalScale(zeus::CVector3f(bInfo.GetContactFxScale()));
   x51c_pulseGen->SetGlobalScale(zeus::CVector3f(bInfo.GetPulseFxScale()));
   x518_contactGen->SetParticleEmission(false);
@@ -134,7 +140,7 @@ void CPlasmaProjectile::UpdateEnergyPulse(float dt) {
   x51c_pulseGen->Update(dt);
 }
 
-void CPlasmaProjectile::RenderMotionBlur() const {
+void CPlasmaProjectile::RenderMotionBlur() {
   CGraphics::SetModelMatrix({});
   zeus::CColor color1 = x494_outerColor;
   zeus::CColor color2 = x494_outerColor;

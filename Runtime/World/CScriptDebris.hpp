@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <string_view>
 
@@ -27,20 +28,15 @@ private:
   float x278_ooDuration = 0.f;
   float x27c_restitution;
   CScriptDebris::EScaleType x280_scaleType = CScriptDebris::EScaleType::NoScale;
-  union {
-    struct {
-      bool x281_24_randomAngImpulse : 1;
-      bool x281_25_particle1GlobalTranslation : 1;
-      bool x281_26_deferDeleteTillParticle1Done : 1;
-      bool x281_27_particle2GlobalTranslation : 1;
-      bool x281_28_deferDeleteTillParticle2Done : 1;
-      bool x281_29_particle3Active : 1;
-      bool x281_30_debrisExtended : 1;
-      bool x281_31_dieOnProjectile : 1;
-      bool x282_24_noBounce : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x281_24_randomAngImpulse : 1;
+  bool x281_25_particle1GlobalTranslation : 1;
+  bool x281_26_deferDeleteTillParticle1Done : 1;
+  bool x281_27_particle2GlobalTranslation : 1;
+  bool x281_28_deferDeleteTillParticle2Done : 1;
+  bool x281_29_particle3Active : 1;
+  bool x281_30_debrisExtended : 1;
+  bool x281_31_dieOnProjectile : 1;
+  bool x282_24_noBounce : 1;
   EOrientationType x283_particleOrs[3] = {};
   float x288_linConeAngle = 0.f;
   float x28c_linMinMag = 0.f;
@@ -55,7 +51,7 @@ private:
   zeus::CVector3f x2b0_scale;
   zeus::CVector3f x2bc_endScale;
   zeus::CVector3f x2c8_collisionNormal;
-  std::unique_ptr<CElementGen> x2d4_particleGens[3]; /* x2d4, x2d8, x2dc */
+  std::array<std::unique_ptr<CElementGen>, 3> x2d4_particleGens; /* x2d4, x2d8, x2dc */
   TReservedAverage<float, 8> x2e0_speedAvg;
 
 public:

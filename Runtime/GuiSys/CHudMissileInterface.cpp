@@ -26,11 +26,10 @@ CHudMissileInterface::CHudMissileInterface(CGuiFrame& selHud, int missileCapacit
 : x0_hudType(hudType)
 , x4_missileCapacity(missileCapacity)
 , x8_numMissles(numMissiles)
-, x4c_chargeBeamFactor(chargeFactor) {
-  x58_24_missilesActive = missilesActive;
-  x58_25_visibleDebug = true;
-  x58_26_visibleGame = true;
-
+, x4c_chargeBeamFactor(chargeFactor)
+, x58_24_missilesActive(missilesActive)
+, x58_25_visibleDebug(true)
+, x58_26_visibleGame(true) {
   x5c_basewidget_missileicon = selHud.FindWidget("basewidget_missileicon");
   x60_textpane_missiledigits = static_cast<CGuiTextPane*>(selHud.FindWidget("textpane_missiledigits"));
   x64_energybart01_missilebar = static_cast<CAuiEnergyBarT01*>(selHud.FindWidget("energybart01_missilebar"));
@@ -217,7 +216,7 @@ void CHudMissileInterface::SetChargeBeamFactor(float t) { x4c_chargeBeamFactor =
 void CHudMissileInterface::SetNumMissiles(int numMissiles, const CStateManager& mgr) {
   numMissiles = zeus::clamp(0, numMissiles, 999);
 
-  x60_textpane_missiledigits->TextSupport().SetText(fmt::format(fmt("{:3d}"), numMissiles));
+  x60_textpane_missiledigits->TextSupport().SetText(fmt::format(FMT_STRING("{:3d}"), numMissiles));
 
   if (x8_numMissles < numMissiles) {
     xc_arrowTimer = g_tweakGui->GetMissileArrowVisTime();

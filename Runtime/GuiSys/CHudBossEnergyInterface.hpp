@@ -10,7 +10,7 @@ class CGuiTextPane;
 class CGuiWidget;
 
 class CHudBossEnergyInterface {
-  float x0_alpha;
+  float x0_alpha = 0.f;
   float x4_fader = 0.f;
   float x8_curEnergy = 0.f;
   float xc_maxEnergy = 0.f;

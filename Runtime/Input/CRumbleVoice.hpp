@@ -32,15 +32,10 @@ struct SAdsrData {
   float xc_decayDur = 0.f;
   float x10_sustainGain = 0.f;
   float x14_releaseDur = 0.f;
-  union {
-    struct {
-      bool x18_24_hasSustain : 1;
-      bool x18_25_autoRelease : 1;
-    };
-    u32 dummy = 0;
-  };
+  bool x18_24_hasSustain : 1;
+  bool x18_25_autoRelease : 1;
 
-  constexpr SAdsrData() noexcept { x18_24_hasSustain = false; x18_25_autoRelease = false; };
+  constexpr SAdsrData() noexcept : x18_24_hasSustain(false), x18_25_autoRelease(false) {}
   constexpr SAdsrData(float attackGain, float autoReleaseDur, float attackDur, float decayDur, float sustainGain,
                       float releaseDur, bool hasSustain, bool autoRelease) noexcept
   : x0_attackGain(attackGain)
@@ -48,10 +43,9 @@ struct SAdsrData {
   , x8_attackDur(attackDur)
   , xc_decayDur(decayDur)
   , x10_sustainGain(sustainGain)
-  , x14_releaseDur(releaseDur) {
-    x18_24_hasSustain = hasSustain;
-    x18_25_autoRelease = autoRelease;
-  }
+  , x14_releaseDur(releaseDur)
+  , x18_24_hasSustain(hasSustain)
+  , x18_25_autoRelease(autoRelease) {}
 };
 
 struct SAdsrDelta {

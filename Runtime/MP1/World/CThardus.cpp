@@ -920,7 +920,7 @@ void CThardus::sub801dae2c(CStateManager& mgr, u32 rockIndex) {
 void CThardus::sub801dc444(CStateManager& mgr, const zeus::CVector3f& pos, CAssetId particle) {
   u32 w = x6f4_;
   ++x6f4_;
-  std::string particleName = fmt::format(fmt("ROCK_EFFECT{}-{}"), particle.Value(), w);
+  std::string particleName = fmt::format(FMT_STRING("ROCK_EFFECT{}-{}"), particle.Value(), w);
   GetModelData()->GetAnimationData()->GetParticleDB().AddAuxiliaryParticleEffect(
       particleName, 0x40, CAuxiliaryParticleData(0, {FOURCC('PART'), particle}, pos, 1.f),
       2.f * GetModelData()->GetScale(), mgr, GetAreaIdAlways(), 0);
@@ -977,7 +977,7 @@ void CThardus::UpdateExcludeList(const std::unique_ptr<CCollisionActorManager>& 
   }
 }
 
-void CThardus::RenderFlare(const CStateManager& mgr, float t) const {
+void CThardus::RenderFlare(const CStateManager& mgr, float t) {
   if (!x91c_flareTexture)
     return;
   if (!m_flareFilter)

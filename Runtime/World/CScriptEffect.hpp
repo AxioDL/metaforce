@@ -19,22 +19,17 @@ class CScriptEffect : public CActor {
   std::unique_ptr<CElementGen> x104_particleSystem;
   TUniqueId x108_lightId = kInvalidUniqueId;
   CAssetId x10c_partId;
-  union {
-    struct {
-      bool x110_24_enable : 1;
-      bool x110_25_noTimerUnlessAreaOccluded : 1;
-      bool x110_26_rebuildSystemsOnActivate : 1;
-      bool x110_27_useRateInverseCamDist : 1;
-      bool x110_28_combatVisorVisible : 1;
-      bool x110_29_thermalVisorVisible : 1;
-      bool x110_30_xrayVisorVisible : 1;
-      bool x110_31_anyVisorVisible : 1;
-      bool x111_24_useRateCamDistRange : 1;
-      bool x111_25_dieWhenSystemsDone : 1;
-      bool x111_26_canRender : 1;
-    };
-    u32 _dummy = 0;
-  };
+  bool x110_24_enable : 1;
+  bool x110_25_noTimerUnlessAreaOccluded : 1;
+  bool x110_26_rebuildSystemsOnActivate : 1;
+  bool x110_27_useRateInverseCamDist : 1;
+  bool x110_28_combatVisorVisible : 1;
+  bool x110_29_thermalVisorVisible : 1;
+  bool x110_30_xrayVisorVisible : 1;
+  bool x110_31_anyVisorVisible : 1;
+  bool x111_24_useRateCamDistRange : 1;
+  bool x111_25_dieWhenSystemsDone : 1;
+  bool x111_26_canRender : 1;
   float x114_rateInverseCamDist;
   float x118_rateInverseCamDistSq;
   float x11c_rateInverseCamDistRate;

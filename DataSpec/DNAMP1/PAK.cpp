@@ -10,7 +10,7 @@ template <>
 void PAK::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
   atUint32 version = reader.readUint32Big();
   if (version != 0x00030005)
-    Log.report(logvisor::Fatal, fmt("unexpected PAK magic"));
+    Log.report(logvisor::Fatal, FMT_STRING("unexpected PAK magic"));
   reader.readUint32Big();
 
   atUint32 nameCount = reader.readUint32Big();
@@ -147,6 +147,7 @@ const PAK::Entry* PAK::lookupEntry(const UniqueID32& id) const {
 }
 
 const PAK::Entry* PAK::lookupEntry(std::string_view name) const {
+  // TODO: Heterogeneous lookup when C++20 available
   auto result = m_nameMap.find(name.data());
   if (result != m_nameMap.end()) {
     auto result1 = m_entries.find(result->second);
@@ -164,19 +165,19 @@ std::string PAK::bestEntryName(const nod::Node& pakNode, const Entry& entry, std
     AGSC::Header header;
     header.read(rs);
     catalogueName = header.groupName;
-    return fmt::format(fmt("{}_{}"), header.groupName, entry.id);
+    return fmt::format(FMT_STRING("{}_{}"), header.groupName, entry.id);
   }
 
   /* Prefer named entries first */
   for (const NameEntry& nentry : m_nameEntries) {
     if (nentry.id == entry.id) {
       catalogueName = nentry.name;
-      return fmt::format(fmt("{}_{}"), nentry.name, entry.id);
+      return fmt::format(FMT_STRING("{}_{}"), nentry.name, entry.id);
     }
   }
 
   /* Otherwise return ID format string */
-  return fmt::format(fmt("{}_{}"), entry.type, entry.id);
+  return fmt::format(FMT_STRING("{}_{}"), entry.type, entry.id);
 }
 
 } // namespace DataSpec::DNAMP1

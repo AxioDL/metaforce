@@ -11,7 +11,7 @@ std::string PAK::bestEntryName(const nod::Node& pakNode, const Entry& entry, std
     AGSC::Header header;
     header.read(rs);
     catalogueName = header.groupName;
-    return fmt::format(fmt("{}_{}"), header.groupName, entry.id);
+    return fmt::format(FMT_STRING("{}_{}"), header.groupName, entry.id);
   }
 
   return DNAMP1::PAK::bestEntryName(pakNode, entry, catalogueName);

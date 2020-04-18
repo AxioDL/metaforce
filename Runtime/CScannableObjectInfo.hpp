@@ -12,6 +12,8 @@ class CScannableObjectInfo {
 public:
   enum class EPanelType {};
 
+  static constexpr size_t NumBuckets = 4;
+
   struct SBucket {
     CAssetId x0_texture;
     float x4_appearanceRange = 0.f;
@@ -29,14 +31,14 @@ private:
   float x8_totalDownloadTime = 0.f;
   u32 xc_category = 0;
   bool x10_important = false;
-  rstl::reserved_vector<SBucket, 4> x14_buckets;
+  rstl::reserved_vector<SBucket, NumBuckets> x14_buckets;
 
 public:
   CScannableObjectInfo(CInputStream&, CAssetId);
   CAssetId GetScannableObjectId() const { return x0_scannableObjectId; }
   CAssetId GetStringTableId() const { return x4_stringId; }
   float GetTotalDownloadTime() const { return x8_totalDownloadTime; }
-  const SBucket& GetBucket(s32 idx) const { return x14_buckets[idx]; }
+  const SBucket& GetBucket(size_t idx) const { return x14_buckets[idx]; }
   u32 GetCategory() const { return xc_category; }
   bool IsImportant() const { return x10_important; }
 };

@@ -14,6 +14,7 @@ struct STRG : ISTRG {
   std::map<std::string, int32_t> names;
 
   int32_t lookupIdx(std::string_view name) const override {
+    // TODO: Heterogeneous lookup when C++20 available
     auto search = names.find(name.data());
     if (search == names.end())
       return -1;
