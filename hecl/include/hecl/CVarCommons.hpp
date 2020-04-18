@@ -51,7 +51,8 @@ struct CVarCommons {
         hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ModifyRestart);
     m_variableDt =
         m_mgr.findOrMakeCVar("variableDt", "Enable variable delta time (experimental)", false,
-                             (CVar::EFlags::Game | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
+                             (hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive |
+                              hecl::CVar::EFlags::ModifyRestart));
 
     m_debugOverlayPlayerInfo = m_mgr.findOrMakeCVar(
         "debugOverlay.playerInfo"sv, "Displays information about the player, such as location and orientation"sv, false,
