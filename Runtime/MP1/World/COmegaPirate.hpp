@@ -28,34 +28,58 @@ private:
   };
 
   TUniqueId x990_launcherId2 = kInvalidUniqueId;
-  int x994_ = 0;
+  enum class EFadeState {
+    Zero,
+    One,
+    Two,
+    Three,
+  } x994_fadeState = EFadeState::Zero;
   float x998_ = 0.f;
-  float x99c_ = 1.f;
-  bool x9a0_ = true;
-  bool x9a1_ = true;
+  float x99c_alpha = 1.f;
+  bool x9a0_visible = true;
+  bool x9a1_fadeIn = true;
   std::vector<std::pair<TUniqueId, std::vector<TUniqueId>>> x9a4_scriptWaypointPlatforms;
   bool x9b4_ = false;
   std::vector<std::pair<TUniqueId, std::string_view>> x9b8_scriptEffects;
-  int x9c8_ = 0;
-  float x9cc_ = 0.f;
-  zeus::CVector3f x9d0_;
+  enum class EScaleState {
+    Zero,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+  } x9c8_scaleState = EScaleState::Zero;
+  float x9cc_scaleTime = 0.f;
+  zeus::CVector3f x9d0_initialScale;
   std::vector<std::pair<TUniqueId, std::string_view>> x9dc_scriptPlatforms;
   bool x9ec_ = false;
-  CSkinnedModel x9f0_;
-  float xa2c_ = 0.f;
-  int xa30_ = 0;
-  float xa34_ = 0.f;
+  CSkinnedModel x9f0_skeletonModel;
+  float xa2c_skeletonAlpha = 0.f;
+  enum class ESkeletonState {
+    Zero,
+    One,
+    Two,
+    Three,
+  } xa30_skeletonState = ESkeletonState::Zero;
+  float xa34_skeletonStateTime = 0.f;
   std::unique_ptr<CCollisionActorManager> xa38_collisionActorMgr1;
   bool xa3c_hearPlayer = false;
-  pas::ELocomotionType xa40_ = pas::ELocomotionType::Relaxed;
+  pas::ELocomotionType xa40_locomotionType = pas::ELocomotionType::Relaxed;
   bool xa44_ = false;
   TUniqueId xa46_ = kInvalidUniqueId;
   TUniqueId xa48_ = kInvalidUniqueId;
   bool xa4a_ = false;
   zeus::CTransform xa4c_initialXf;
-  int xa7c_ = 0;
-  float xa80_ = 1.f;
-  float xa84_ = 0.f;
+  enum class EXRayAlphaState {
+    Zero,
+    One,
+    Two,
+    Three,
+  } xa7c_xrayAlphaState = EXRayAlphaState::Zero;
+  float xa80_xrayAlpha = 1.f;
+  float xa84_xrayAlphaStateTime = 0.f;
   bool xa88_ = false;
   float xa8c_ = 3.f;
   float xa90_ = 1.f;
@@ -71,12 +95,12 @@ private:
   bool xad0_ = false;
   float xad4_cachedSpeed = 1.f;
   bool xad8_cover = false;
-  TUniqueId xada_ = kInvalidUniqueId;
+  TUniqueId xada_waypointId = kInvalidUniqueId;
   bool xadc_ = false;
   bool xadd_ = false;
   u8 xade_ = 0;
-  bool xadf_ = true;
-  bool xae0_ = true;
+  bool xadf_launcher1FollowPlayer = true;
+  bool xae0_launcher2FollowPlayer = true;
   CDamageVulnerability xae4_platformVuln = CDamageVulnerability::NormalVulnerabilty();
   int xb4c_ = 0;
   float xb50_ = 0.f;
@@ -157,10 +181,10 @@ private:
   void TeleportToFurthestPlatform(CStateManager& mgr);
   void sub_8028f6f0(CStateManager& mgr, float dt);
   void sub_8028c704(CStateManager& mgr, float dt);
-  void sub_8028cd04(CStateManager& mgr, float dt);
-  void sub_8028d7e4(CStateManager& mgr, float dt);
-  void sub_8028d690(CStateManager& mgr, float dt);
-  void Destroy(CStateManager& mgr);
+  void UpdateXRayAlpha(CStateManager& mgr, float dt);
+  void UpdateScale(CStateManager& mgr, float dt);
+  void UpdateSkeleton(CStateManager& mgr, float dt);
+  void DeathDestroy(CStateManager& mgr);
   void sub_8028c840(u32 arg, CStateManager& mgr);
   zeus::CVector3f FindGround(const zeus::CVector3f& pos, CStateManager& mgr) const;
 };

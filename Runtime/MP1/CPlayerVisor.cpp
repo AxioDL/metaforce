@@ -372,7 +372,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   const float uvX1 = float(rect.x4_left + rect.xc_width) / float(g_Viewport.x8_width);
   const float uvY0 = float(rect.x8_top) / float(g_Viewport.xc_height);
   const float uvY1 = float(rect.x8_top + rect.x10_height) / float(g_Viewport.xc_height);
-  const std::array<CTexturedQuadFilter::Vert, 4> rttVerts{{
+  std::array<CTexturedQuadFilter::Vert, 4> rttVerts{{
       {{-5.f, 0.f, 4.45f}, {uvX0, uvY0}},
       {{5.f, 0.f, 4.45f}, {uvX1, uvY0}},
       {{-5.f, 0.f, -4.45f}, {uvX0, uvY1}},

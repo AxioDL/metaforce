@@ -131,8 +131,7 @@ void CGrenadeLauncher::PreRender(CStateManager& mgr, const zeus::CFrustum& frust
     // Original code redundantly sets a() = 1.f
     xb4_drawFlags.addColor = x3f4_color3;
   } else {
-    xb4_drawFlags = CModelFlags{5, 0, 3, zeus::skWhite};
-    xb4_drawFlags.addColor = x3f4_color3;
+    xb4_drawFlags = CModelFlags{5, 0, 3, x3f4_color3};
   }
   CActor::PreRender(mgr, frustum);
 }
