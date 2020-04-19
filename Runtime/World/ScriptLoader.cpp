@@ -2,12 +2,12 @@
 
 #include "Editor/ProjectResourceFactoryMP1.hpp"
 
-#include "Runtime/CSimplePool.hpp"
-#include "Runtime/CStateManager.hpp"
-#include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CCinematicCamera.hpp"
 #include "Runtime/Camera/CPathCamera.hpp"
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/MP1/World/CActorContraption.hpp"
 #include "Runtime/MP1/World/CAtomicAlpha.hpp"
 #include "Runtime/MP1/World/CAtomicBeta.hpp"
@@ -24,6 +24,7 @@
 #include "Runtime/MP1/World/CFlaahgraTentacle.hpp"
 #include "Runtime/MP1/World/CFlickerBat.hpp"
 #include "Runtime/MP1/World/CFlyingPirate.hpp"
+#include "Runtime/MP1/World/CIceSheegoth.hpp"
 #include "Runtime/MP1/World/CJellyZap.hpp"
 #include "Runtime/MP1/World/CMagdolite.hpp"
 #include "Runtime/MP1/World/CMetaree.hpp"
@@ -83,8 +84,8 @@
 #include "Runtime/World/CScriptDock.hpp"
 #include "Runtime/World/CScriptDockAreaChange.hpp"
 #include "Runtime/World/CScriptDoor.hpp"
-#include "Runtime/World/CScriptEMPulse.hpp"
 #include "Runtime/World/CScriptEffect.hpp"
+#include "Runtime/World/CScriptEMPulse.hpp"
 #include "Runtime/World/CScriptGenerator.hpp"
 #include "Runtime/World/CScriptGrapplePoint.hpp"
 #include "Runtime/World/CScriptGunTurret.hpp"
@@ -1364,7 +1365,8 @@ CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in, int
 
   if (animParms.GetCharacter() == 0) {
     Log.report(logvisor::Warning,
-               FMT_STRING("SpacePirate <{}> has AnimationInformation property with invalid character selected"), head.x0_name);
+               FMT_STRING("SpacePirate <{}> has AnimationInformation property with invalid character selected"),
+               head.x0_name);
     animParms.SetCharacter(2);
   }
 
@@ -2188,7 +2190,25 @@ CEntity* ScriptLoader::LoadEMPulse(CStateManager& mgr, CInputStream& in, int pro
 }
 
 CEntity* ScriptLoader::LoadIceSheegoth(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 35, "IceSheegoth"))
+    return nullptr;
+
+  SScaledActorHead head = LoadScaledActorHead(in, mgr);
+  const auto [hasProperCount, patternedParmCount] = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!hasProperCount)
+    return nullptr;
+  CPatternedInfo pInfo(in, patternedParmCount);
+  CActorParameters actParms = LoadActorParameters(in);
+  MP1::CIceSheegothData sheegothData(in, propCount);
+
+  const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+  if (!animParms.GetACSFile().IsValid())
+    return nullptr;
+
+  CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale,
+                            animParms.GetInitialAnimation(), true));
+  return new MP1::CIceSheegoth(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData), pInfo,
+                               actParms, sheegothData);
 }
 
 CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

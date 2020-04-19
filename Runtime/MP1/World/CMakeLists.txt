@@ -43,6 +43,7 @@ set(MP1_WORLD_SOURCES
     CThardus.hpp CThardus.cpp
     CThardusRockProjectile.hpp CThardusRockProjectile.cpp
     CTryclops.hpp CTryclops.cpp
+    CIceSheegoth.hpp CIceSheegoth.cpp
     CWarWasp.hpp CWarWasp.cpp
 )
 
