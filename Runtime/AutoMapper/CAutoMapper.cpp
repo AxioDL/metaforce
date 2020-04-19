@@ -1472,7 +1472,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           beaconAlpha = loc.x4_beaconAlpha;
         }
         if (beaconAlpha > 0.f) {
-          const std::array<CTexturedQuadFilter::Vert, 4> verts{{
+          constexpr std::array<CTexturedQuadFilter::Vert, 4> verts{{
               {{-4.f, -8.f, 8.f}, {0.f, 1.f}},
               {{-4.f, -8.f, 0.f}, {0.f, 0.f}},
               {{4.f, -8.f, 8.f}, {1.f, 1.f}},
@@ -1486,7 +1486,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           colorAlpha *= mapAlpha;
           zeus::CColor color = zeus::skWhite;
           color.a() = colorAlpha;
-          filter.drawVerts(color, verts.data());
+          filter.drawVerts(color, verts);
         }
       }
     }

@@ -1,5 +1,6 @@
 #include "Runtime/MP1/World/COmegaPirate.hpp"
 
+#include "Runtime/Camera/CGameCamera.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
@@ -38,13 +39,85 @@ constexpr std::array<SOBBJointInfo, 11> skObbJoints{{
 } // namespace
 
 COmegaPirate::CFlash::CFlash(TUniqueId uid, const CEntityInfo& info, const zeus::CVector3f& pos,
-                             TToken<CTexture>& thermalSpot, float p5)
+                             TLockedToken<CTexture>& thermalSpot, float delay)
 : CActor(uid, true, "Omega Pirate Flash", info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(), {},
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_thermalSpot(thermalSpot)
-, xf4_(p5) {}
+, xf4_delay(delay)
+, m_thermalSpotBlend(EFilterType::Blend, thermalSpot)
+, m_thermalSpotSubtract(EFilterType::Subtract, thermalSpot) {}
 
 void COmegaPirate::CFlash::Accept(IVisitor& visitor) { visitor.Visit(this); }
+
+void COmegaPirate::CFlash::Think(float dt, CStateManager& mgr) {
+  CEntity::Think(dt, mgr);
+  xf4_delay -= dt;
+  if (xf4_delay > 0.f) {
+    return;
+  }
+
+  xf8_ += dt;
+  float intensity = xf8_;
+  if (intensity <= 0.75f) {
+    intensity /= 0.75f;
+  } else {
+    intensity = 1.f - (intensity - 0.75f) / 0.25f;
+  }
+  const CGameCamera* const camera = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+  const zeus::CVector3f dist = (GetTranslation() - camera->GetTranslation()).normalized();
+  float dot = dist.dot(camera->GetTransform().frontVector());
+  float dVar4 = 0.f;
+  if (dot >= 0.f) {
+    dVar4 = dot * dot;
+  }
+  xfc_ = dVar4 * intensity;
+  if (xf8_ > 1.f) {
+    mgr.FreeScriptObject(GetUniqueId());
+  }
+}
+
+void COmegaPirate::CFlash::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+  mgr.RenderLast(GetUniqueId());
+  // if (xf0_thermalSpot == nullptr && xe8_thermalSpotToken.IsLocked() && xe8_thermalSpotToken.HasReference()) {
+  //   xf0_thermalSpot = xe8_thermalSpotToken.GetObj();
+  // }
+}
+
+void COmegaPirate::CFlash::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {}
+
+void COmegaPirate::CFlash::Render(CStateManager& mgr) {
+  const CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
+  if (visor == CPlayerState::EPlayerVisor::Thermal) {
+    return;
+  }
+
+  float alphaMul = 35.f;
+  CTexturedQuadFilter* filter = nullptr;
+  if (visor == CPlayerState::EPlayerVisor::XRay) {
+    // CGraphics::SetBlendMode(ERglBlendMode::Subtract, ERglBlendFactor::One, ERglBlendFactor::Zero,
+    // ERglLogicOp::Clear);
+    filter = &m_thermalSpotSubtract;
+    alphaMul = 60.f;
+  } else {
+    // CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One,
+    // ERglLogicOp::Clear);
+    filter = &m_thermalSpotBlend;
+  }
+
+  CGraphics::SetModelMatrix(zeus::CTransform());
+  zeus::CColor useColor{1.f, std::max(0.f, (xfc_ * alphaMul) / 255.f)};
+
+  const auto rightVec = CGraphics::g_GXModelView.rightVector();
+  const auto upVec = CGraphics::g_GXModelView.upVector();
+  const auto rvS = GetTranslation() - rightVec;
+  const auto rvP = GetTranslation() + rightVec;
+  const std::array<CTexturedQuadFilter::Vert, 4> verts{{
+      {rvS + upVec, {0.f, 0.f}},
+      {rvS - upVec, {1.f, 0.f}},
+      {rvP - upVec, {1.f, 1.f}},
+      {rvP + upVec, {0.f, 1.f}},
+  }};
+  filter->drawVerts(useColor, verts);
+}
 
 COmegaPirate::COmegaPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
@@ -294,7 +367,7 @@ void COmegaPirate::DoubleSnap(CStateManager& mgr, EStateMsg msg, float dt) {
     xa88_ = false;
     xa8c_ = 3.f;
     for (auto& entry : x9dc_scriptPlatforms) {
-      if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
+      if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
         platform->SetActive(true);
         platform->SetDamageVulnerability(xae4_platformVuln);
         platform->AddMaterial(EMaterialTypes::Orbit, EMaterialTypes::Target, mgr);
@@ -317,10 +390,10 @@ void COmegaPirate::DoubleSnap(CStateManager& mgr, EStateMsg msg, float dt) {
       SetState(CElitePirate::EState::Over);
     }
   } else if (msg == EStateMsg::Deactivate) {
-    if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
+    if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
       launcher->SetFollowPlayer(true);
     }
-    if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
+    if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
       launcher->SetFollowPlayer(true);
     }
   }
@@ -330,7 +403,7 @@ void COmegaPirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
   switch (type) {
   case EUserEventType::EggLay:
     if (x990_launcherId2 != kInvalidUniqueId) {
-      if (auto entity = mgr.ObjectById(x990_launcherId2)) {
+      if (auto* entity = mgr.ObjectById(x990_launcherId2)) {
         mgr.SendScriptMsg(entity, GetUniqueId(), EScriptObjectMessage::Action);
       }
     }
@@ -424,7 +497,7 @@ void COmegaPirate::Faint(CStateManager& mgr, EStateMsg msg, float dt) {
       xa8c_ = 0.333f;
     }
     for (const auto& entry : x9dc_scriptPlatforms) {
-      if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
+      if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
         platform->SetActive(true);
       }
     }
@@ -434,7 +507,7 @@ void COmegaPirate::Faint(CStateManager& mgr, EStateMsg msg, float dt) {
       float invAlpha = 1.f - alpha;
       size_t idx = 0;
       for (const auto& entry : x9dc_scriptPlatforms) {
-        if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
+        if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
           if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
             if (xb4c_ > idx) {
               CModelFlags flags{5, 0, 3, zeus::skWhite};
@@ -520,7 +593,7 @@ void COmegaPirate::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
     GetBodyController()->GetCommandMgr().DeliverCmd(
         CBCKnockBackCmd(GetTransform().frontVector(), pas::ESeverity::Five));
     for (const auto& entry : x9dc_scriptPlatforms) {
-      if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
+      if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
         platform->SetActive(false);
       }
     }
@@ -537,7 +610,7 @@ bool COmegaPirate::Landed(CStateManager& mgr, float arg) { return (xb4c_ & 0xe7)
 zeus::CVector3f COmegaPirate::GetOrbitPosition(const CStateManager& mgr) const {
   if (x990_launcherId2 != kInvalidUniqueId &&
       mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal) {
-    if (const auto actor = static_cast<const CActor*>(mgr.GetObjectById(x990_launcherId2))) {
+    if (const auto* actor = static_cast<const CActor*>(mgr.GetObjectById(x990_launcherId2))) {
       return GetLockOnPosition(actor);
     }
   }
@@ -695,7 +768,7 @@ void COmegaPirate::Suck(CStateManager& mgr, EStateMsg msg, float dt) {
     }
   } else if (msg == EStateMsg::Deactivate) {
     for (const auto& entry : x9dc_scriptPlatforms) {
-      if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
+      if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
         platform->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
         platform->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
         platform->SetDisableXRayAlpha(true);
@@ -763,7 +836,7 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
     } else {
       xa38_collisionActorMgr1->SetActive(mgr, true);
       xa9c_collisionActorMgr2->SetActive(mgr, true);
-      if (auto entity = mgr.ObjectById(xa48_)) {
+      if (auto* entity = mgr.ObjectById(xa48_)) {
         entity->SetActive(false);
       }
     }
@@ -772,12 +845,12 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
     xa38_collisionActorMgr1->SetActive(mgr, false);
     if (x9a1_) {
       xa9c_collisionActorMgr2->SetActive(mgr, true);
-      if (auto entity = mgr.ObjectById(xa48_)) {
+      if (auto* entity = mgr.ObjectById(xa48_)) {
         entity->SetActive(true);
       }
     } else {
       xa9c_collisionActorMgr2->SetActive(mgr, false);
-      if (auto entity = mgr.ObjectById(xa48_)) {
+      if (auto* entity = mgr.ObjectById(xa48_)) {
         entity->SetActive(false);
       }
     }
@@ -787,7 +860,7 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
   xa38_collisionActorMgr1->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
   xa9c_collisionActorMgr2->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
 
-  if (auto entity = static_cast<CActor*>(mgr.ObjectById(xa46_))) {
+  if (auto* entity = static_cast<CActor*>(mgr.ObjectById(xa46_))) {
     float hp = GetHealthInfo(mgr)->GetHP();
     *HealthInfo(mgr) = *entity->GetHealthInfo(mgr);
     float hpChange = hp - GetHealthInfo(mgr)->GetHP();
@@ -812,7 +885,7 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
   sub_8028c704(mgr, dt);
 
   for (auto& entry : x9dc_scriptPlatforms) {
-    auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first));
+    auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first));
     if ((!xb78_ && !xb79_) || xa4a_) {
       platform->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
     } else {
@@ -828,7 +901,7 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
       AddMaterial(EMaterialTypes::Target, mgr);
       player.ResetAimTargetPrediction(GetUniqueId());
       for (auto& entry : x9dc_scriptPlatforms) {
-        if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
+        if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
           platform->RemoveMaterial(EMaterialTypes::Target, mgr);
         }
       }
@@ -836,7 +909,7 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
     } else if (!xa4a_) {
       RemoveMaterial(EMaterialTypes::Target, mgr);
       for (auto& entry : x9dc_scriptPlatforms) {
-        if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
+        if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
           platform->AddMaterial(EMaterialTypes::Target, mgr);
         }
       }
@@ -851,10 +924,10 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
     }
   }
 
-  if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
+  if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
     launcher->SetFollowPlayer(xadf_);
   }
-  if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
+  if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
     launcher->SetFollowPlayer(xae0_);
   }
 
@@ -1143,20 +1216,20 @@ void COmegaPirate::sub_8028f6f0(CStateManager& mgr, float dt) {
   x42c_color.a() = x99c_;
 
   if (alpha >= 1.f) {
-    if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
+    if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
       launcher->SetVisible(true);
       launcher->SetColor(zeus::CColor{0.f});
     }
-    if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
+    if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
       launcher->SetVisible(true);
       launcher->SetColor(zeus::CColor{0.f});
     }
   } else {
-    if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
+    if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
       launcher->SetColor(zeus::CColor{1.f, alpha});
       launcher->SetVisible(alpha != 0.f);
     }
-    if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
+    if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
       launcher->SetColor(zeus::CColor{1.f, alpha});
       launcher->SetVisible(alpha != 0.f);
     }
@@ -1218,7 +1291,7 @@ void COmegaPirate::sub_8028cd04(CStateManager& mgr, float dt) {
 }
 
 void COmegaPirate::sub_8028d7e4(CStateManager& mgr, float dt) {
-  auto modelData = GetModelData();
+  auto* modelData = GetModelData();
   zeus::CVector3f scale = modelData->GetScale();
   switch (x9c8_) {
   case 0:
@@ -1255,7 +1328,7 @@ void COmegaPirate::sub_8028d7e4(CStateManager& mgr, float dt) {
     }
     x9cc_ += dt;
     break;
-  case  5:
+  case 5:
     scale.x() = x9d0_.x() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_, 0.25f) / 0.25f));
     if (x9cc_ > 0.25f) {
       x9c8_ = 6;
@@ -1282,14 +1355,14 @@ void COmegaPirate::sub_8028d7e4(CStateManager& mgr, float dt) {
   }
 
   modelData->SetScale(scale);
-  if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
+  if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
     launcher->GetModelData()->SetScale(scale);
   }
-  if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
+  if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
     launcher->GetModelData()->SetScale(scale);
   }
   for (const auto& entry : x9dc_scriptPlatforms) {
-    if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
+    if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
       platform->GetModelData()->SetScale(scale);
     }
   }
@@ -1332,7 +1405,7 @@ void COmegaPirate::Destroy(CStateManager& mgr) {
   SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
   SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::None);
   for (auto& entry : x9dc_scriptPlatforms) {
-    if (auto platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
+    if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
       platform->SetActive(false);
       platform->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
       mgr.FreeScriptObject(entry.first);
@@ -1340,10 +1413,10 @@ void COmegaPirate::Destroy(CStateManager& mgr) {
   }
   x9dc_scriptPlatforms.clear();
 
-  if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
+  if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
     launcher->SetActive(false);
   }
-  if (auto launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
+  if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(x990_launcherId2))) {
     launcher->SetActive(false);
   }
   SetActive(false);

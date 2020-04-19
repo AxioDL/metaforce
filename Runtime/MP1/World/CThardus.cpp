@@ -995,7 +995,7 @@ void CThardus::RenderFlare(const CStateManager& mgr, float t) {
       {{min.x() - offset.x(), min.y() - offset.y(), min.z() - offset.z()}, {1.f, 0.f}},
   }};
 
-  m_flareFilter->drawVerts({t, t}, verts.data());
+  m_flareFilter->drawVerts({t, t}, verts);
 }
 
 #if 0

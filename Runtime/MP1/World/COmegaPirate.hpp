@@ -7,16 +7,24 @@ class COmegaPirate : public CElitePirate {
 private:
   class CFlash : public CActor {
   private:
-    TToken<CTexture> xe8_thermalSpot;
-    int xf0_ = 0;
-    float xf4_;
+    // TToken<CTexture> xe8_thermalSpotToken;
+    // CTexture* xf0_thermalSpot = nullptr;
+    float xf4_delay;
     float xf8_ = 0.f;
     float xfc_ = 0.f;
 
+    CTexturedQuadFilter m_thermalSpotBlend;
+    CTexturedQuadFilter m_thermalSpotSubtract;
+
   public:
-    CFlash(TUniqueId uid, const CEntityInfo& info, const zeus::CVector3f& pos, TToken<CTexture>& thermalSpot, float p5);
+    CFlash(TUniqueId uid, const CEntityInfo& info, const zeus::CVector3f& pos, TLockedToken<CTexture>& thermalSpot,
+           float delay);
 
     void Accept(IVisitor& visitor) override;
+    void Think(float dt, CStateManager& mgr) override;
+    void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+    void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+    void Render(CStateManager& mgr) override;
   };
 
   TUniqueId x990_launcherId2 = kInvalidUniqueId;
@@ -140,7 +148,7 @@ private:
   void AddSphereCollisionList(const SSphereJointInfo* joints, size_t count,
                               std::vector<CJointCollisionDescription>& outJoints) const;
   void AddOBBAutoSizeCollisionList(const SOBBJointInfo* joints, size_t count,
-                           std::vector<CJointCollisionDescription>& outJoints) const;
+                                   std::vector<CJointCollisionDescription>& outJoints) const;
   void SetupCollisionActorInfo1(const std::unique_ptr<CCollisionActorManager>& actMgr, CStateManager& mgr);
   void SetupCollisionActorInfo2(const std::unique_ptr<CCollisionActorManager>& actMgr, CStateManager& mgr);
   void sub_8028cbec(u32 arg, CStateManager& mgr);
