@@ -35,7 +35,7 @@ struct CFinalInput;
 class CPlayerGun {
 public:
   static float skTractorBeamFactor;
-  enum class EMissleMode { Inactive, Active };
+  enum class EMissileMode { Inactive, Active };
   enum class EBWeapon { Bomb, PowerBomb };
   enum class EPhazonBeamState { Inactive, Entering, Exiting, Active };
   enum class EChargePhase {
@@ -141,7 +141,7 @@ private:
   CPlayerState::EBeamId x310_currentBeam = CPlayerState::EBeamId::Power;
   CPlayerState::EBeamId x314_nextBeam = CPlayerState::EBeamId::Power;
   u32 x318_comboAmmoIdx = 0;
-  EMissleMode x31c_missileMode = EMissleMode::Inactive;
+  EMissileMode x31c_missileMode = EMissileMode::Inactive;
   CPlayerState::EBeamId x320_currentAuxBeam = CPlayerState::EBeamId::Power;
   EIdleState x324_idleState = EIdleState::Four;
   float x328_animSfxPitch = 0.f;
@@ -323,7 +323,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   void AsyncLoadSuit(CStateManager& mgr);
   void TouchModel(const CStateManager& stateMgr);
-  EMissleMode GetMissleMode() const { return x31c_missileMode; }
+  EMissileMode GetMissleMode() const { return x31c_missileMode; }
   bool IsFidgeting() const { return x833_24_notFidgeting; }
   bool IsCharging() const { return x834_24_charging; }
   float GetChargeBeamFactor() const { return x340_chargeBeamFactor; }

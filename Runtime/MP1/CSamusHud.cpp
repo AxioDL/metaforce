@@ -139,7 +139,7 @@ void CSamusHud::InitializeFrameGlueMutable(const CStateManager& mgr) {
   CPlayerState& playerState = *mgr.GetPlayerState();
   CPlayerGun& gun = *player.GetPlayerGun();
   float chargeFactor = gun.IsCharging() ? gun.GetChargeBeamFactor() : 0.f;
-  bool missilesActive = gun.GetMissleMode() == CPlayerGun::EMissleMode::Active;
+  bool missilesActive = gun.GetMissleMode() == CPlayerGun::EMissileMode::Active;
   bool lockedOnObj = player.GetOrbitTargetId() != kInvalidUniqueId;
 
   switch (x2bc_nextState) {
@@ -477,7 +477,7 @@ void CSamusHud::UpdateMissile(float dt, const CStateManager& mgr, bool init) {
 
   u32 numMissles = playerState.GetItemAmount(CPlayerState::EItemType::Missiles);
   u32 missileCap = playerState.GetItemCapacity(CPlayerState::EItemType::Missiles);
-  CPlayerGun::EMissleMode missileMode = gun.GetMissleMode();
+  CPlayerGun::EMissileMode missileMode = gun.GetMissleMode();
   float chargeFactor = gun.IsCharging() ? gun.GetChargeBeamFactor() : 0.f;
 
   if (x294_missileIntf)
@@ -491,7 +491,7 @@ void CSamusHud::UpdateMissile(float dt, const CStateManager& mgr, bool init) {
       if (numMissles != x2d8_missileAmount)
         x294_missileIntf->SetNumMissiles(numMissles, mgr);
       if (missileMode != x2ec_missileMode)
-        x294_missileIntf->SetIsMissilesActive(missileMode == CPlayerGun::EMissleMode::Active);
+        x294_missileIntf->SetIsMissilesActive(missileMode == CPlayerGun::EMissileMode::Active);
     }
     x2d8_missileAmount = numMissles;
     x2ec_missileMode = missileMode;
