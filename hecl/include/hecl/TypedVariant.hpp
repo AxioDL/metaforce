@@ -114,13 +114,13 @@ private:
 public:
   template<typename... _Args>
   static constexpr _TypedVariant Build(EnumType tp, _Args&&... args) {
-    return _TypedVariant::_Builder<_Types...>::template _BuildSkip<_Args...>(tp, std::forward<_Args>(args)...);
+    return _Builder<_Types...>::template _BuildSkip<_Args...>(tp, std::forward<_Args>(args)...);
   }
 
   template<typename _Return, typename _Visitor>
   constexpr auto visit(_Visitor&& visitor, _Return&& def) {
-    return std::visit([&](auto& arg) {
-      using T = std::decay_t<decltype(arg)>;
+    return std::visit([&]<typename T0>(T0& arg) {
+      using T = std::decay_t<T0>;
       if constexpr (!T::is_monostate())
         return visitor(arg);
       return def;
@@ -129,8 +129,8 @@ public:
 
   template<typename _Visitor>
   constexpr void visit(_Visitor&& visitor) {
-    std::visit([&](auto& arg) {
-      using T = std::decay_t<decltype(arg)>;
+    std::visit([&]<typename T0>(T0& arg) {
+      using T = std::decay_t<T0>;
       if constexpr (!T::is_monostate())
         visitor(arg);
     }, static_cast<base&>(*this));
@@ -138,8 +138,8 @@ public:
 
   template<typename _Return, typename _Visitor>
   constexpr auto visit(_Visitor&& visitor, _Return&& def) const {
-    return std::visit([&](const auto& arg) {
-      using T = std::decay_t<decltype(arg)>;
+    return std::visit([&]<typename T0>(const T0& arg) {
+      using T = std::decay_t<T0>;
       if constexpr (!T::is_monostate())
         return visitor(arg);
       return def;
@@ -148,8 +148,8 @@ public:
 
   template<typename _Visitor>
   constexpr void visit(_Visitor&& visitor) const {
-    std::visit([&](const auto& arg) {
-      using T = std::decay_t<decltype(arg)>;
+    std::visit([&]<typename T0>(const T0& arg) {
+      using T = std::decay_t<T0>;
       if constexpr (!T::is_monostate())
         visitor(arg);
     }, static_cast<const base&>(*this));
