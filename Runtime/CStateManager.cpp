@@ -1379,6 +1379,7 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
   if (error || ent == nullptr) {
     in.seek(startPos, athena::SeekOrigin::Begin);
     std::string name = HashInstanceName(in);
+    in.seek(length, athena::SeekOrigin::Current);
     LogModule.report(logvisor::Error, FMT_STRING("Script load error while loading {}, name: {}"),
                      ScriptObjectTypeToStr(type), name);
     return {kInvalidEditorId, kInvalidUniqueId};
