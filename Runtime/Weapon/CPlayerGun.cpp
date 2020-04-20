@@ -124,7 +124,7 @@ float CPlayerGun::CMotionState::gGunExtendDistance = 0.125f;
 float CPlayerGun::skTractorBeamFactor = 0.5f / CPlayerState::GetMissileComboChargeFactor();
 
 CPlayerGun::CPlayerGun(TUniqueId playerId)
-: x0_lights(8, zeus::CVector3f{-30.f, 0.f, 30.f}, 4, 4, false, false, 0, 0.1f)
+: x0_lights(8, zeus::CVector3f{-30.f, 0.f, 30.f}, 4, 4, false, false, false, 0.1f)
 , x538_playerId(playerId)
 , x550_camBob(CPlayerCameraBob::ECameraBobType::One, CPlayerCameraBob::GetCameraBobExtent(),
               CPlayerCameraBob::GetCameraBobPeriod())
