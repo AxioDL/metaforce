@@ -69,10 +69,7 @@ CWallCrawlerSwarm::CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_vie
 , x548_numBoids(numBoids)
 , x54c_maxCreatedBoids(maxCreatedBoids)
 , x554_maxLaunches(maxLaunches)
-, x558_flavor(flavor)
-, x560_24_enableLighting(true)
-, x560_25_useSoftwareLight(true)
-, x560_26_modelAssetDirty(false) {
+, x558_flavor(flavor) {
   x168_partitionedBoidLists.resize(125);
   x55c_launchSfx = CSfxManager::TranslateSFXID(launchSfx != -1 ? u16(launchSfx) : u16(0xffff));
   x55e_scatterSfx = CSfxManager::TranslateSFXID(scatterSfx != -1 ? u16(scatterSfx) : u16(0xffff));

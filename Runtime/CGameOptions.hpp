@@ -57,21 +57,15 @@ class CPersistentOptions {
   u32 xc4_frozenBallCount = 0;
   u32 xc8_powerBombAmmoCount = 0;
   u32 xcc_logScanPercent = 0;
-  bool xd0_24_fusionLinked : 1;
-  bool xd0_25_normalModeBeat : 1;
-  bool xd0_26_hardModeBeat : 1;
-  bool xd0_27_fusionBeat : 1;
-  bool xd0_28_fusionSuitActive : 1;
-  bool xd0_29_allItemsCollected : 1;
+  bool xd0_24_fusionLinked : 1 = false;
+  bool xd0_25_normalModeBeat : 1 = false;
+  bool xd0_26_hardModeBeat : 1 = false;
+  bool xd0_27_fusionBeat : 1 = false;
+  bool xd0_28_fusionSuitActive : 1 = false;
+  bool xd0_29_allItemsCollected : 1 = false;
 
 public:
-  CPersistentOptions()
-  : xd0_24_fusionLinked(false)
-  , xd0_25_normalModeBeat(false)
-  , xd0_26_hardModeBeat(false)
-  , xd0_27_fusionBeat(false)
-  , xd0_28_fusionSuitActive(false)
-  , xd0_29_allItemsCollected(false) {}
+  CPersistentOptions() = default;
   explicit CPersistentOptions(CBitStreamReader& stream);
 
   bool GetCinematicState(CAssetId mlvlId, TEditorId cineId) const;

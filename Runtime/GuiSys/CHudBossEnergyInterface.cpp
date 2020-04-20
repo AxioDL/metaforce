@@ -8,7 +8,6 @@
 namespace urde {
 
 CHudBossEnergyInterface::CHudBossEnergyInterface(CGuiFrame& selHud) {
-  x10_24_visible = false;
   x14_basewidget_bossenergystuff = selHud.FindWidget("basewidget_bossenergystuff");
   x18_energybart01_bossbar = static_cast<CAuiEnergyBarT01*>(selHud.FindWidget("energybart01_bossbar"));
   x1c_textpane_boss = static_cast<CGuiTextPane*>(selHud.FindWidget("textpane_boss"));

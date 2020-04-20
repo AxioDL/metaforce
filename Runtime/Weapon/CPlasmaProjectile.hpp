@@ -67,12 +67,12 @@ private:
   TToken<CGenDescription> x538_visorParticle; // Used to be optional
   u16 x544_freezeSfx;
   u16 x546_electricSfx;
-  bool x548_24_ : 1;
-  bool x548_25_enableEnergyPulse : 1;
-  bool x548_26_firing : 1;
-  bool x548_27_texturesLoaded : 1;
+  bool x548_24_ : 1 = false;
+  bool x548_25_enableEnergyPulse : 1 = true;
+  bool x548_26_firing : 1 = false;
+  bool x548_27_texturesLoaded : 1 = false;
   bool x548_28_drawOwnerFirst : 1;
-  bool x548_29_activePlayerPhazon : 1;
+  bool x548_29_activePlayerPhazon : 1 = false;
 
   struct RenderObjects {
     CColoredStripShader m_beamStrip1;

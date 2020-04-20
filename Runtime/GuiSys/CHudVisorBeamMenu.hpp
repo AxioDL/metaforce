@@ -30,9 +30,9 @@ private:
   int x8_selectedItem = 0;
   int xc_pendingSelection = 0;
   float x10_interp = 1.f;
-  bool x14_24_visibleDebug : 1;
-  bool x14_25_visibleGame : 1;
-  bool x14_26_dirty : 1;
+  bool x14_24_visibleDebug : 1 = true;
+  bool x14_25_visibleGame : 1 = true;
+  bool x14_26_dirty : 1 = true;
   CGuiWidget* x18_basewidget_menu;
   CGuiWidget* x1c_basewidget_menutitle;
   CGuiTextPane* x20_textpane_menu;

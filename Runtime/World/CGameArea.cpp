@@ -341,11 +341,6 @@ CAssetId CDummyGameArea::IGetStringTableAssetId() const { return x8_nameSTRG; }
 const zeus::CTransform& CDummyGameArea::IGetTM() const { return x14_transform; }
 
 CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(idx) {
-  xf0_24_postConstructed = false;
-  xf0_25_active = true;
-  xf0_26_tokensReady = false;
-  xf0_27_loadPaused = false;
-  xf0_28_validated = false;
   x8_nameSTRG = in.readUint32Big();
   xc_transform.read34RowMajor(in);
   x3c_invTransform = xc_transform.inverse();
@@ -391,13 +386,7 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(id
   xec_totalResourcesSize += g_ResFactory->ResourceSize(SObjectTag{FOURCC('MREA'), x84_mrea});
 }
 
-CGameArea::CGameArea(CAssetId mreaId) : x84_mrea(mreaId) {
-  xf0_24_postConstructed = false;
-  xf0_25_active = false;
-  xf0_26_tokensReady = false;
-  xf0_27_loadPaused = false;
-  xf0_28_validated = false;
-
+CGameArea::CGameArea(CAssetId mreaId) : x84_mrea(mreaId), xf0_25_active{false} {
   while (StartStreamingMainArea())
     for (auto& req : xf8_loadTransactions)
       req->WaitUntilComplete();

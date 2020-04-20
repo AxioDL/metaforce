@@ -19,9 +19,9 @@ class CHudEnergyInterface {
   int x10_totalEnergyTanks;
   int x14_numTanksFilled;
   float x18_cachedBarEnergy = 0.f;
-  bool x1c_24_ : 1;
-  bool x1c_25_ : 1;
-  bool x1c_26_barDirty : 1;
+  bool x1c_24_ : 1 = true;
+  bool x1c_25_ : 1 = true;
+  bool x1c_26_barDirty : 1 = true;
   bool x1c_27_energyLow : 1;
   CGuiTextPane* x20_textpane_energydigits;
   CAuiMeter* x24_meter_energytanks;

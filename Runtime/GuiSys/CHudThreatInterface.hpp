@@ -23,8 +23,8 @@ class CHudThreatInterface {
   float x48_warningLerpAlpha = 0.f;
   EThreatStatus x4c_threatStatus = EThreatStatus::Normal;
   float x50_warningColorLerp = 0.f;
-  bool x54_24_visibleDebug : 1;
-  bool x54_25_visibleGame : 1;
+  bool x54_24_visibleDebug : 1 = true;
+  bool x54_25_visibleGame : 1 = true;
   bool x54_26_hasArrows : 1;
   bool x54_27_notXRay : 1;
   CGuiWidget* x58_basewidget_threatstuff;

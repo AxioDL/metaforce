@@ -11,9 +11,7 @@ CHudFreeLookInterface::CHudFreeLookInterface(CGuiFrame& selHud, EHudType hudType
 : x4_hudType(hudType)
 , x70_24_inFreeLook(inFreeLook)
 , x70_25_lookControlHeld(lookControlHeld)
-, x70_26_lockedOnObj(lockedOnObj)
-, x70_27_visibleDebug(true)
-, x70_28_visibleGame(true) {
+, x70_26_lockedOnObj(lockedOnObj) {
   x6c_lockOnInterp = (lockedOnObj && hudType == EHudType::Scan) ? 0.f : 1.f;
 
   x74_basewidget_freelookleft = selHud.FindWidget("basewidget_freelookleft");
@@ -93,8 +91,6 @@ CHudFreeLookInterfaceXRay::CHudFreeLookInterfaceXRay(CGuiFrame& selHud, bool inF
                                                      bool lockedOnObj) {
   x20_inFreeLook = inFreeLook;
   x21_lookControlHeld = lookControlHeld;
-  x22_24_visibleDebug = true;
-  x22_25_visibleGame = true;
   x24_basewidget_freelook = selHud.FindWidget("basewidget_freelook");
   x28_model_shield = static_cast<CGuiModel*>(selHud.FindWidget("model_shield"));
   x2c_model_freelookleft = static_cast<CGuiModel*>(selHud.FindWidget("model_freelookleft"));

@@ -141,8 +141,6 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data) {
 CGameState::CGameState() {
   x98_playerState = std::make_shared<CPlayerState>();
   x9c_transManager = std::make_shared<CWorldTransManager>();
-  x228_24_hardMode = false;
-  x228_25_initPowerupsAtFirstSpawn = true;
 
   if (g_MemoryCardSys != nullptr) {
     InitializeMemoryStates();

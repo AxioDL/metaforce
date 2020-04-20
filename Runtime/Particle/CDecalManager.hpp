@@ -18,9 +18,7 @@ class CDecalManager {
     s8 x74_index;
     bool x75_24_notIce : 1;
     SDecal(const std::optional<CDecal>& decal, TAreaId aid, s8 idx, bool notIce)
-    : x0_decal(decal), x70_areaId(aid), x74_index(idx) {
-      x75_24_notIce = notIce;
-    }
+    : x0_decal(decal), x70_areaId(aid), x74_index(idx), x75_24_notIce(notIce) {}
   };
 
   static bool m_PoolInitialized;

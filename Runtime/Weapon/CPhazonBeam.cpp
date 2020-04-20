@@ -20,10 +20,6 @@ CPhazonBeam::CPhazonBeam(CAssetId characterId, EWeaponType type, TUniqueId playe
                       zeus::CVector3f(0.0625f, -0.25f, 0.09375f) * scale.y()) {
   x21c_phazonVeins = g_SimplePool->GetObj("PhazonVeins");
   x228_phazon2nd1 = g_SimplePool->GetObj("Phazon2nd_1");
-  x274_24_loaded = false;
-  x274_25_clipWipeActive = true;
-  x274_26_veinsAlphaActive = false;
-  x274_27_phazonVeinsIdx = false;
   m_aaboxShaderScale.setAABB(x238_aaBoxScale);
   m_aaboxShaderTranslate.setAABB(x250_aaBoxTranslate);
 }

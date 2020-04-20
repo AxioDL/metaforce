@@ -28,10 +28,7 @@ CScriptPickup::CScriptPickup(TUniqueId uid, std::string_view name, const CEntity
 , x264_possibility(possibility)
 , x268_fadeInTime(fadeInTime)
 , x26c_lifeTime(lifeTime)
-, x278_delayTimer(startDelay)
-, x28c_24_generated(false)
-, x28c_25_inTractor(false)
-, x28c_26_enableTractorTest(false) {
+, x278_delayTimer(startDelay) {
   if (pickupEffect.IsValid())
     x27c_pickupParticleDesc = g_SimplePool->GetObj({SBIG('PART'), pickupEffect});
 

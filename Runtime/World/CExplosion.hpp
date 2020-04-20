@@ -17,7 +17,7 @@ class CExplosion : public CEffect {
     const CElectricDescription* xf0_electricDesc;
   };
   bool xf4_24_renderThermalHot : 1;
-  bool xf4_25_ : 1;
+  bool xf4_25_ : 1 = true;
   bool xf4_26_renderXray : 1;
   float xf8_time = 0.f;
 

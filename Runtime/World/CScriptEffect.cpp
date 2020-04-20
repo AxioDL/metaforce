@@ -42,7 +42,6 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
 , x110_31_anyVisorVisible(xrayVisorVisible && thermalVisorVisible && combatVisorVisible)
 , x111_24_useRateCamDistRange(useRateCamDistRange)
 , x111_25_dieWhenSystemsDone(dieWhenSystemsDone)
-, x111_26_canRender(false)
 , x114_rateInverseCamDist(rateInverseCamDist)
 , x118_rateInverseCamDistSq(rateInverseCamDist * rateInverseCamDist)
 , x11c_rateInverseCamDistRate(rateInverseCamDistRate)

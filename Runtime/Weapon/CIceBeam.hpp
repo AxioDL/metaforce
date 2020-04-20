@@ -12,8 +12,8 @@ class CIceBeam final : public CGunWeapon {
   TCachedToken<CGenDescription> x234_ice2nd2;
   std::unique_ptr<CElementGen> x240_smokeGen;
   std::unique_ptr<CElementGen> x244_chargeFx;
-  bool x248_24_loaded : 1;
-  bool x248_25_inEndFx : 1;
+  bool x248_24_loaded : 1 = false;
+  bool x248_25_inEndFx : 1 = false;
   void ReInitVariables();
 
 public:

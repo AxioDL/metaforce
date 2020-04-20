@@ -170,14 +170,14 @@ private:
   zeus::CVector3f x544_originalFrontVec;
   zeus::CVector3f x550_originalRightVec;
   s32 x55c_additiveChargeAnim = -1;
-  bool x560_24_dead : 1;
-  bool x560_25_frozen : 1;
-  bool x560_26_firedWithSetBurst : 1;
-  bool x560_27_burstSet : 1;
-  bool x560_28_hasBeenActivated : 1;
-  bool x560_29_scriptedStart : 1;
-  bool x560_30_needsStopClankSound : 1;
-  bool x560_31_frenzyReverse : 1;
+  bool x560_24_dead : 1 = false;
+  bool x560_25_frozen : 1 = false;
+  bool x560_26_firedWithSetBurst : 1 = false;
+  bool x560_27_burstSet : 1 = false;
+  bool x560_28_hasBeenActivated : 1 = false;
+  bool x560_29_scriptedStart : 1 = false;
+  bool x560_30_needsStopClankSound : 1 = true;
+  bool x560_31_frenzyReverse : 1 = false;
 
 private:
   void SetupCollisionManager(CStateManager&);

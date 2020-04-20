@@ -18,8 +18,7 @@ CBeamProjectile::CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::s
 , x300_intBeamLength(growingBeam ? 0.f : x2ec_maxLength)
 , x304_beamLength(x2ec_maxLength)
 , x308_travelSpeed(travelSpeed)
-, x464_24_growingBeam(growingBeam)
-, x464_25_enableTouchDamage(false) {
+, x464_24_growingBeam(growingBeam) {
   x384_.resize(10);
   x400_pointCache.resize(8);
 }

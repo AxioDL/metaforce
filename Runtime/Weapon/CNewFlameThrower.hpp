@@ -31,11 +31,11 @@ class CNewFlameThrower : public CGameProjectile {
   std::unique_ptr<CParticleSwoosh> x370_swooshFireGen;
   u32 x374_ = 0;
   TAreaId x378_ = kInvalidAreaId;
-  bool x37c_24_renderAuxEffects : 1;
-  bool x37c_25_firing : 1;
-  bool x37c_26_ : 1;
-  bool x37c_27_ : 1;
-  bool x37c_28_ : 1;
+  bool x37c_24_renderAuxEffects : 1 = false;
+  bool x37c_25_firing : 1 = false;
+  bool x37c_26_ : 1 = false;
+  bool x37c_27_ : 1 = true;
+  bool x37c_28_ : 1 = false;
   rstl::reserved_vector<std::vector<std::pair<float, u32>>, 3> x380_;
   u32 x3b4_ = 0;
   rstl::reserved_vector<TUniqueId, 4> x3b8_lightIds;

@@ -47,14 +47,8 @@ CFishCloud::CFishCloud(TUniqueId uid, bool active, std::string_view name, const 
 , x170_weaponKillRadius(weaponKillRadius)
 , x174_containmentRadius(containmentRadius)
 , x234_deathSfx(deathSfx != 0xffffffff ? CSfxManager::TranslateSFXID(u16(deathSfx & 0xffff)) : u16(0xffff))
-, x250_24_randomMovement(false)
-, x250_25_worldSpace(true) // The result of a close_enough paradox (weird inlined test?)
-, x250_26_enableWeaponRepelDamping(false)
-, x250_27_validModel(false)
 , x250_28_killable(killable)
-, x250_29_repelFromThreats(repelFromThreats)
-, x250_30_enablePlayerRepelDamping(false)
-, x250_31_updateWithoutPartitions(false) {
+, x250_29_repelFromThreats(repelFromThreats) {
   x108_modifierSources.reserve(10);
   if (aRes.GetId().IsValid()) {
     x1b0_models.emplace_back(std::make_unique<CModelData>(aRes));

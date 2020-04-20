@@ -19,7 +19,7 @@ class CFire : public CActor {
   bool x148_25_ : 1;
   bool x148_26_ : 1;
   bool x148_27_ : 1;
-  bool x148_28_ : 1;
+  bool x148_28_ : 1 = false;
   bool x148_29_ : 1;
   float x14c_;
   CAssetId x150_;

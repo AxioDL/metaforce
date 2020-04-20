@@ -32,13 +32,10 @@ CScriptDoor::CScriptDoor(TUniqueId uid, std::string_view name, const CEntityInfo
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakeDoorMaterialList(open), aabb, SMoverData(1.f),
                 actParms, 0.3f, 0.1f) {
   x258_animLen = animLen;
-  x2a8_24_closing = false;
   x2a8_25_wasOpen = open;
   x2a8_26_isOpen = open;
-  x2a8_27_conditionsMet = false;
   x2a8_28_projectilesCollide = projectilesCollide;
   x2a8_29_ballDoor = ballDoor;
-  x2a8_30_doClose = false;
   x264_ = GetBoundingBox();
   x284_modelBounds = x64_modelData->GetBounds(xf.getRotation());
   x29c_orbitPos = orbitPos;

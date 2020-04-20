@@ -94,9 +94,9 @@ private:
     constexpr CPowerUp() = default;
     constexpr CPowerUp(u32 amount, u32 capacity) : x0_amount(amount), x4_capacity(capacity) {}
   };
-  bool x0_24_alive : 1;
-  bool x0_25_firingComboBeam : 1;
-  bool x0_26_fusion : 1;
+  bool x0_24_alive : 1 = true;
+  bool x0_25_firingComboBeam : 1 = false;
+  bool x0_26_fusion : 1 = false;
   u32 x4_enabledItems = 0;
   EBeamId x8_currentBeam = EBeamId::Power;
   CHealthInfo xc_health = {99.f, 50.f};
@@ -107,7 +107,7 @@ private:
   rstl::reserved_vector<CPowerUp, 41> x24_powerups;
   std::vector<std::pair<CAssetId, float>> x170_scanTimes;
   std::pair<u32, u32> x180_scanCompletionRate = {};
-  CStaticInterference x188_staticIntf;
+  CStaticInterference x188_staticIntf{5};
 
   bool m_canTakeDamage = true;
 

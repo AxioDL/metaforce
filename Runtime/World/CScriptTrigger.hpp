@@ -54,12 +54,12 @@ protected:
   float x128_forceMagnitude;
   ETriggerFlags x12c_flags;
   zeus::CAABox x130_bounds;
-  bool x148_24_detectCamera : 1;
-  bool x148_25_camSubmerged : 1;
+  bool x148_24_detectCamera : 1 = false;
+  bool x148_25_camSubmerged : 1 = false;
   bool x148_26_deactivateOnEntered : 1;
   bool x148_27_deactivateOnExited : 1;
-  bool x148_28_playerTriggerProc : 1;
-  bool x148_29_didPhazonDamage : 1;
+  bool x148_28_playerTriggerProc : 1 = false;
+  bool x148_29_didPhazonDamage : 1 = false;
 
 public:
   CScriptTrigger(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& pos,

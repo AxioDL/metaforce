@@ -18,19 +18,17 @@ class CFlameWarp : public CWarp {
   float x94_maxSize = FLT_MIN;
   float x98_maxInfluenceDistSq;
   CStateManager* x9c_stateMgr = nullptr;
-  bool xa0_24_activated : 1;
+  bool xa0_24_activated : 1 = false;
   bool xa0_25_collisionWarp : 1;
-  bool xa0_26_processed : 1;
+  bool xa0_26_processed : 1 = false;
 
 public:
   CFlameWarp(float maxInfluenceDist, const zeus::CVector3f& warpPoint, bool collisionWarp)
   : x74_warpPoint(warpPoint)
   , x80_floatingPoint(warpPoint)
-  , x98_maxInfluenceDistSq(maxInfluenceDist * maxInfluenceDist) {
+  , x98_maxInfluenceDistSq(maxInfluenceDist * maxInfluenceDist)
+  , xa0_25_collisionWarp{collisionWarp} {
     x4_collisionPoints.resize(9, warpPoint);
-    xa0_24_activated = false;
-    xa0_25_collisionWarp = collisionWarp;
-    xa0_26_processed = false;
   }
 
   const rstl::reserved_vector<zeus::CVector3f, 9>& GetCollisionPoints() const { return x4_collisionPoints; }

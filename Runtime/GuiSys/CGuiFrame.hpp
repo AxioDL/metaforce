@@ -41,7 +41,7 @@ private:
   int x4c_a;
   int x50_b;
   int x54_c;
-  mutable bool x58_24_loaded : 1;
+  mutable bool x58_24_loaded : 1 = false;
 
   zeus::CTransform m_aspectTransform;
   float m_aspectConstraint = -1.f;

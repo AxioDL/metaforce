@@ -63,12 +63,7 @@ CScriptWater::CScriptWater(
 , x2bc_alpha(alpha)
 , x2c0_tileSize(tileSize)
 , x2e8_24_b4(b4)
-, x2e8_25_morphIn(false)
-, x2e8_26_morphing(false)
-, x2e8_27_allowRender(allowRender)
-, x2e8_28_recomputeClipping(true)
-, x2e8_29_alphaIn(false)
-, x2e8_30_alphaOut(false) {
+, x2e8_27_allowRender(allowRender) {
   zeus::CAABox triggerAABB = GetTriggerBoundsWR();
   x2c4_gridDimX = u32((x2c0_tileSize + triggerAABB.max.x() - triggerAABB.min.x() - 0.01f) / x2c0_tileSize);
   x2c8_gridDimY = u32((x2c0_tileSize + triggerAABB.max.y() - triggerAABB.min.y() - 0.01f) / x2c0_tileSize);

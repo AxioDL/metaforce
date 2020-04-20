@@ -8,8 +8,8 @@ namespace urde {
 class CPlasmaBeam final : public CGunWeapon {
   TCachedToken<CGenDescription> x21c_plasma2nd1;
   std::unique_ptr<CElementGen> x228_chargeFx;
-  bool x22c_24_loaded : 1;
-  bool x22c_25_worldLighingDim : 1;
+  bool x22c_24_loaded : 1 = false;
+  bool x22c_25_worldLighingDim : 1 = false;
   float x230_fireShotDelayTimer = 0.f;
   float x234_fireShotDelay = 0.f;
   float x238_lightingResetDelayTimer = 0.f;

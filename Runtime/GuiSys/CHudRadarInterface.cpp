@@ -20,8 +20,6 @@ namespace urde {
 
 CHudRadarInterface::CHudRadarInterface(CGuiFrame& baseHud, CStateManager& stateMgr) {
   x0_txtrRadarPaint = g_SimplePool->GetObj("TXTR_RadarPaint");
-  x3c_24_visibleGame = true;
-  x3c_25_visibleDebug = true;
   x40_BaseWidget_RadarStuff = baseHud.FindWidget("BaseWidget_RadarStuff");
   x44_camera = baseHud.GetFrameCamera();
   xc_radarStuffXf = x40_BaseWidget_RadarStuff->GetLocalTransform();

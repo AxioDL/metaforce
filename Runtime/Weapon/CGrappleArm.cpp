@@ -37,13 +37,7 @@ CGrappleArm::CGrappleArm(const zeus::CVector3f& scale)
 , x398_grappleHitGen(std::make_unique<CElementGen>(x36c_grappleHitDesc))
 , x39c_grappleMuzzleGen(std::make_unique<CElementGen>(x378_grappleMuzzleDesc))
 , x3a0_grappleSwooshGen(std::make_unique<CParticleSwoosh>(x384_grappleSwooshDesc, 0))
-, x3a4_rainSplashGenerator(std::make_unique<CRainSplashGenerator>(scale, 20, 2, 0.f, 0.125f))
-, x3b2_24_active(false)
-, x3b2_25_beamActive(false)
-, x3b2_26_grappleHit(false)
-, x3b2_27_armMoving(false)
-, x3b2_28_isGrappling(false)
-, x3b2_29_suitLoading(false) {
+, x3a4_rainSplashGenerator(std::make_unique<CRainSplashGenerator>(scale, 20, 2, 0.f, 0.125f)) {
   x0_grappleArmModel->SetSortThermal(true);
   xa0_grappleGearModel.SetSortThermal(true);
   xec_grapNoz1Model.SetSortThermal(true);

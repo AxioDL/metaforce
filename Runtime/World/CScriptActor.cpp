@@ -30,14 +30,10 @@ CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityIn
 , x2d8_shaderIdx(shaderIdx)
 , x2dc_xrayAlpha(xrayAlpha) {
   x2e2_24_noThermalHotZ = noThermalHotZ;
-  x2e2_25_dead = false;
-  x2e2_26_animating = true;
   x2e2_27_xrayAlphaEnabled = !zeus::close_enough(1.f, xrayAlpha);
-  x2e2_28_inXrayAlpha = false;
   x2e2_29_processModelFlags = (x2e2_27_xrayAlphaEnabled || x2e2_24_noThermalHotZ || x2d8_shaderIdx != 0);
   x2e2_30_scaleAdvancementDelta = scaleAdvancementDelta;
   x2e2_31_materialFlag54 = materialFlag54;
-  x2e3_24_isPlayerActor = false;
 
   if (x64_modelData && (x64_modelData->HasAnimData() || x64_modelData->HasNormalModel()) && castsShadow)
     CreateShadow(true);

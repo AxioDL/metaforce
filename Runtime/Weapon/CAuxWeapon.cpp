@@ -39,7 +39,6 @@ CAuxWeapon::CAuxWeapon(TUniqueId playerId)
   x0_missile.GetObj();
   xc_flameMuzzle.GetObj();
   x18_busterMuzzle.GetObj();
-  x80_24_isLoaded = false;
   InitComboData();
 }
 

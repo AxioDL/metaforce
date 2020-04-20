@@ -40,11 +40,11 @@ class CWaveBuster : public CGameProjectile {
   float x3c4_ = 0.f;
   float x3c8_ = 0.f;
   u32 x3cc_ = 0;
-  bool x3d0_24_firing : 1;
-  bool x3d0_25_ : 1;
-  bool x3d0_26_ : 1;
-  bool x3d0_27_ : 1;
-  bool x3d0_28_ : 1;
+  bool x3d0_24_firing : 1 = true;
+  bool x3d0_25_ : 1 = true;
+  bool x3d0_26_ : 1 = false;
+  bool x3d0_27_ : 1 = false;
+  bool x3d0_28_ : 1 = true;
 
 public:
   CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf,

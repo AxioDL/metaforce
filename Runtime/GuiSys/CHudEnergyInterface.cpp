@@ -28,9 +28,6 @@ CHudEnergyInterface::CHudEnergyInterface(CGuiFrame& selHud, float tankEnergy, in
 , xc_tankEnergy(tankEnergy)
 , x10_totalEnergyTanks(totalEnergyTanks)
 , x14_numTanksFilled(numTanksFilled)
-, x1c_24_(true)
-, x1c_25_(true)
-, x1c_26_barDirty(true)
 , x1c_27_energyLow(energyLow) {
   x20_textpane_energydigits = static_cast<CGuiTextPane*>(selHud.FindWidget("textpane_energydigits"));
   x24_meter_energytanks = static_cast<CAuiMeter*>(selHud.FindWidget("meter_energytanks"));

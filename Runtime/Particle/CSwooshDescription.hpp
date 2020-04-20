@@ -31,29 +31,18 @@ public:
   std::unique_ptr<CIntElement> x38_SPLN;
   std::unique_ptr<CUVElement> x3c_TEXR;
   std::unique_ptr<CIntElement> x40_TSPN;
-  bool x44_24_LLRD : 1;
-  bool x44_25_CROS : 1;
-  bool x44_26_VLS1 : 1;
-  bool x44_27_VLS2 : 1;
-  bool x44_28_SROT : 1;
-  bool x44_29_WIRE : 1;
-  bool x44_30_TEXW : 1;
-  bool x44_31_AALP : 1;
-  bool x45_24_ZBUF : 1;
-  bool x45_25_ORNT : 1;
-  bool x45_26_CRND : 1;
+  bool x44_24_LLRD : 1 = false;
+  bool x44_25_CROS : 1 = true;
+  bool x44_26_VLS1 : 1 = false;
+  bool x44_27_VLS2 : 1 = false;
+  bool x44_28_SROT : 1 = false;
+  bool x44_29_WIRE : 1 = false;
+  bool x44_30_TEXW : 1 = false;
+  bool x44_31_AALP : 1 = false;
+  bool x45_24_ZBUF : 1 = false;
+  bool x45_25_ORNT : 1 = false;
+  bool x45_26_CRND : 1 = false;
 
-  CSwooshDescription()
-  : x44_24_LLRD(false)
-  , x44_25_CROS(true)
-  , x44_26_VLS1(false)
-  , x44_27_VLS2(false)
-  , x44_28_SROT(false)
-  , x44_29_WIRE(false)
-  , x44_30_TEXW(false)
-  , x44_31_AALP(false)
-  , x45_24_ZBUF(false)
-  , x45_25_ORNT(false)
-  , x45_26_CRND(false) {}
+  CSwooshDescription() = default;
 };
 } // namespace urde

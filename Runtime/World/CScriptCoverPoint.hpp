@@ -20,7 +20,7 @@ class CScriptCoverPoint : public CActor {
   float xf0_sinVerticalAngle;
   float xf4_coverTime;
   bool xf8_24_crouch : 1;
-  bool xf8_25_inUse : 1;
+  bool xf8_25_inUse : 1 = false;
   TUniqueId xfa_occupant = kInvalidUniqueId;
   TUniqueId xfc_retreating = kInvalidUniqueId;
   std::optional<zeus::CAABox> x100_touchBounds;

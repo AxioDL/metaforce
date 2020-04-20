@@ -89,10 +89,10 @@ class CStateMachineState {
   float xc_random = 0.f;
   float x10_delay = 0.f;
   float x14_ = 0.f;
-  bool x18_24_codeTrigger : 1;
+  bool x18_24_codeTrigger : 1 = false;
 
 public:
-  CStateMachineState() : x18_24_codeTrigger(false) {}
+  CStateMachineState() = default;
 
   CAiState* GetActorState() const { return x4_state; }
 

@@ -49,7 +49,7 @@ protected:
   CAssetId x2cc_wpscId;
   std::vector<CProjectileTouchResult> x2d0_touchResults;
   float x2e0_minHomingDist = 0.f;
-  bool x2e4_24_active : 1;
+  bool x2e4_24_active : 1 = true;
   bool x2e4_25_startedUnderwater : 1;
   bool x2e4_26_waterUpdate : 1;
   bool x2e4_27_inWater : 1;

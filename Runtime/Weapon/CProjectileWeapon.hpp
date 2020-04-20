@@ -53,14 +53,14 @@ class CProjectileWeapon {
   std::unique_ptr<CParticleSwoosh> x118_swoosh1;
   std::unique_ptr<CParticleSwoosh> x11c_swoosh2;
   std::unique_ptr<CParticleSwoosh> x120_swoosh3;
-  bool x124_24_active : 1;
-  bool x124_25_APSO : 1;
-  bool x124_26_AP11 : 1;
-  bool x124_27_AP21 : 1;
-  bool x124_28_AS11 : 1;
-  bool x124_29_AS12 : 1;
-  bool x124_30_AS13 : 1;
-  bool x124_31_VMD2 : 1;
+  bool x124_24_active : 1 = true;
+  bool x124_25_APSO : 1 = false;
+  bool x124_26_AP11 : 1 = false;
+  bool x124_27_AP21 : 1 = false;
+  bool x124_28_AS11 : 1 = false;
+  bool x124_29_AS12 : 1 = false;
+  bool x124_30_AS13 : 1 = false;
+  bool x124_31_VMD2 : 1 = false;
 
 public:
   CProjectileWeapon(const TToken<CWeaponDescription>& wDesc, const zeus::CVector3f& worldOffset,

@@ -70,11 +70,11 @@ private:
   float x38_textStartTime = 0.f;
   float x3c_sfxInterval = 0.0f;
   bool x40_strIdx = false;
-  bool x44_24_transFinished : 1;
-  bool x44_25_stopSoon : 1;
-  bool x44_26_goingUp : 1;
-  bool x44_27_fadeWhite : 1;
-  bool x44_28_textDirty : 1;
+  bool x44_24_transFinished : 1 = true;
+  bool x44_25_stopSoon : 1 = false;
+  bool x44_26_goingUp : 1 = false;
+  bool x44_27_fadeWhite : 1 = false;
+  bool x44_28_textDirty : 1 = false;
 
   CColoredQuadFilter m_fadeToBlack{EFilterType::Blend};
   CTexturedQuadFilter m_dissolve{EFilterType::Blend, CGraphics::g_SpareTexture.get()};
@@ -97,12 +97,7 @@ private:
   void DrawText();
 
 public:
-  CWorldTransManager()
-  : x44_24_transFinished(true)
-  , x44_25_stopSoon(false)
-  , x44_26_goingUp(false)
-  , x44_27_fadeWhite(false)
-  , x44_28_textDirty(false) {}
+  CWorldTransManager() = default;
 
   void Update(float);
   void Draw();

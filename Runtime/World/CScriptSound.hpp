@@ -28,16 +28,16 @@ class CScriptSound : public CActor {
   float x114_pan;
   bool x116_;
   float x118_pitch;
-  bool x11c_24_playRequested : 1;
+  bool x11c_24_playRequested : 1 = false;
   bool x11c_25_looped : 1;
   bool x11c_26_nonEmitter : 1;
   bool x11c_27_autoStart : 1;
   bool x11c_28_occlusionTest : 1;
   bool x11c_29_acoustics : 1;
   bool x11c_30_worldSfx : 1;
-  bool x11c_31_selfFree : 1;
+  bool x11c_31_selfFree : 1 = false;
   bool x11d_24_allowDuplicates : 1;
-  bool x11d_25_processedThisFrame : 1;
+  bool x11d_25_processedThisFrame : 1 = false;
 
   static float GetOccludedVolumeAmount(const zeus::CVector3f& pos, const CStateManager& mgr);
 

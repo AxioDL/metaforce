@@ -86,17 +86,17 @@ private:
   u32 x74_ = 0;
   pas::ESeverity x7c_severity = pas::ESeverity::One;
   std::bitset<5> x80_availableStates{0b11111};
-  bool x81_24_autoResetImpulse : 1; // t
-  bool x81_25_enableFreeze : 1;     // t
-  bool x81_26_enableShock : 1;
-  bool x81_27_enableBurn : 1;            // t
-  bool x81_28_enableBurnDeath : 1;       // t
-  bool x81_29_enableExplodeDeath : 1;    // t
-  bool x81_30_enableLaggedBurnDeath : 1; // t
-  bool x81_31_ : 1;                      // t
-  bool x82_24_ : 1;                      // t
-  bool x82_25_inDeferredKnockBack : 1;
-  bool x82_26_locomotionDuringElectrocution : 1;
+  bool x81_24_autoResetImpulse : 1 = true;
+  bool x81_25_enableFreeze : 1 = true;
+  bool x81_26_enableShock : 1 = false;
+  bool x81_27_enableBurn : 1 = true;
+  bool x81_28_enableBurnDeath : 1 = true;
+  bool x81_29_enableExplodeDeath : 1 = true;
+  bool x81_30_enableLaggedBurnDeath : 1 = true;
+  bool x81_31_ : 1 = true;
+  bool x82_24_ : 1 = true;
+  bool x82_25_inDeferredKnockBack : 1 = false;
+  bool x82_26_locomotionDuringElectrocution : 1 = false;
   void ApplyImpulse(float dt, CPatterned& parent);
   bool TickDeferredTimer(float dt);
   EKnockBackCharacterState GetKnockBackCharacterState(const CPatterned& parent) const;

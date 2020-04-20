@@ -67,12 +67,12 @@ class CScriptWater : public CScriptTrigger {
   std::unique_ptr<u8[]> x2e0_patchIntersects; // 0: all clear, 1: all intersect, 2: partial intersect
   int x2e4_computedGridCellCount = 0;
   bool x2e8_24_b4 : 1;
-  bool x2e8_25_morphIn : 1;
-  bool x2e8_26_morphing : 1;
+  bool x2e8_25_morphIn : 1 = false;
+  bool x2e8_26_morphing : 1 = false;
   bool x2e8_27_allowRender : 1;
-  bool x2e8_28_recomputeClipping : 1;
-  bool x2e8_29_alphaIn : 1;
-  bool x2e8_30_alphaOut : 1;
+  bool x2e8_28_recomputeClipping : 1 = true;
+  bool x2e8_29_alphaIn : 1 = false;
+  bool x2e8_30_alphaOut : 1 = false;
 
   void SetupGrid(bool recomputeClipping);
   void SetupGridClipping(CStateManager& mgr, int computeVerts);

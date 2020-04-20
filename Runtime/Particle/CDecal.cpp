@@ -9,7 +9,7 @@ CRandom16 CDecal::sDecalRandom;
 bool CDecal::sMoveRedToAlphaBuffer = false;
 
 CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf)
-: x0_description(desc), xc_transform(xf), x5c_29_modelInvalid(false) {
+: x0_description(desc), xc_transform(xf) {
   CGlobalRandom gr(sDecalRandom);
 
   CDecalDescription& desco = *x0_description;

@@ -5,7 +5,6 @@
 namespace urde {
 
 CRumbleGenerator::CRumbleGenerator() {
-  xf0_24_disabled = false;
   HardStopAll();
 }
 

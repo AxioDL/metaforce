@@ -18,14 +18,14 @@ protected:
   float x2dc_xrayAlpha;
   TUniqueId x2e0_triggerId = kInvalidUniqueId;
   bool x2e2_24_noThermalHotZ : 1;
-  bool x2e2_25_dead : 1;
-  bool x2e2_26_animating : 1;
+  bool x2e2_25_dead : 1 = false;
+  bool x2e2_26_animating : 1 = true;
   bool x2e2_27_xrayAlphaEnabled : 1;
-  bool x2e2_28_inXrayAlpha : 1;
+  bool x2e2_28_inXrayAlpha : 1 = false;
   bool x2e2_29_processModelFlags : 1;
   bool x2e2_30_scaleAdvancementDelta : 1;
   bool x2e2_31_materialFlag54 : 1;
-  bool x2e3_24_isPlayerActor : 1;
+  bool x2e3_24_isPlayerActor : 1 = false;
 
 public:
   CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,

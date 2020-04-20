@@ -25,9 +25,7 @@ CScriptDock::CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo
 , x258_dockReferenceCount(dockReferenceCount)
 , x25c_dock(dock)
 , x260_area(area)
-, x268_24_dockReferenced(false)
-, x268_25_loadConnected(loadConnected)
-, x268_26_areaPostConstructed(false) {}
+, x268_25_loadConnected(loadConnected) {}
 
 void CScriptDock::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

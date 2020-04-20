@@ -74,13 +74,11 @@ constexpr std::array<float, 5> ComboAmmoPeriods{
 };
 } // Anonymous namespace
 
-CPlayerState::CPlayerState()
-: x0_24_alive(true), x0_25_firingComboBeam(false), x0_26_fusion(false), x188_staticIntf(5) {
+CPlayerState::CPlayerState() {
   x24_powerups.resize(41);
 }
 
-CPlayerState::CPlayerState(CBitStreamReader& stream)
-: x0_24_alive(true), x0_25_firingComboBeam(false), x0_26_fusion(false), x188_staticIntf(5) {
+CPlayerState::CPlayerState(CBitStreamReader& stream) {
   x4_enabledItems = u32(stream.ReadEncoded(32));
 
   const u32 integralHP = u32(stream.ReadEncoded(32));

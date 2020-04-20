@@ -113,11 +113,11 @@ class CGameArea final : public IGameArea {
 
   u32 xec_totalResourcesSize = 0;
 
-  bool xf0_24_postConstructed : 1;
-  bool xf0_25_active : 1;
-  bool xf0_26_tokensReady : 1;
-  bool xf0_27_loadPaused : 1;
-  bool xf0_28_validated : 1;
+  bool xf0_24_postConstructed : 1 = false;
+  bool xf0_25_active : 1 = true;
+  bool xf0_26_tokensReady : 1 = false;
+  bool xf0_27_loadPaused : 1 = false;
+  bool xf0_28_validated : 1 = false;
 
   enum class EPhase {
     LoadHeader,
@@ -229,13 +229,13 @@ public:
     // std::vector<CAramToken> x10f0_tokens;
     u32 x1100_ = 0;
     u32 x1104_ = 0;
-    bool x1108_24_ : 1;
-    bool x1108_25_modelsConstructed : 1;
-    bool x1108_26_ : 1;
-    bool x1108_27_ : 1;
-    bool x1108_28_occlusionPinged : 1;
-    bool x1108_29_pvsHasActors : 1;
-    bool x1108_30_ : 1;
+    bool x1108_24_ : 1 = false;
+    bool x1108_25_modelsConstructed : 1 = false;
+    bool x1108_26_ : 1 = false;
+    bool x1108_27_ : 1 = false;
+    bool x1108_28_occlusionPinged : 1 = false;
+    bool x1108_29_pvsHasActors : 1 = false;
+    bool x1108_30_ : 1 = false;
     std::vector<std::pair<const u8*, u32>> x110c_layerPtrs;
     float x111c_thermalCurrent = 0.f;
     float x1120_thermalSpeed = 0.f;
@@ -247,14 +247,7 @@ public:
     float x1138_weaponWorldLightingTarget = 1.f;
     u32 x113c_playerActorsLoading = 0;
 
-    CPostConstructed()
-    : x1108_24_(false)
-    , x1108_25_modelsConstructed(false)
-    , x1108_26_(false)
-    , x1108_27_(false)
-    , x1108_28_occlusionPinged(false)
-    , x1108_29_pvsHasActors(false)
-    , x1108_30_(false) {}
+    CPostConstructed() = default;
   };
 
 private:

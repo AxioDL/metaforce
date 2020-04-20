@@ -47,18 +47,7 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view n
 , x184_(0.f)
 , x1bc_areaSaveId(aId1)
 , x1c0_layerIdx(aId2)
-, x1c4_item(itemType)
-, x1e4_24_(false)
-, x1e4_25_spinnerCanMove(false)
-, x1e4_26_sfx2Played(true)
-, x1e4_27_sfx3Played(false)
-, x1e4_28_frustumEntered(false)
-, x1e4_29_frustumExited(false)
-, x1e4_30_(false)
-, x1e4_31_inAreaDamage(false)
-, x1e5_24_doSave(false)
-, x1e5_25_playerInArea(false)
-, x1e5_26_displayBillboard(false) {
+, x1c4_item(itemType) {
   if (xe8_function == ESpecialFunction::HUDTarget)
     x1c8_touchBounds = {-1.f, 1.f};
 }
