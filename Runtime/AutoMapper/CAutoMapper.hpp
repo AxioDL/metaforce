@@ -8,6 +8,7 @@
 
 #include "Runtime/rstl.hpp"
 #include "Runtime/RetroTypes.hpp"
+#include "Runtime/AutoMapper/CMapUniverse.hpp"
 #include "Runtime/MP1/CInGameGuiManager.hpp"
 
 #include <zeus/CQuaternion.hpp>
@@ -17,7 +18,6 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CMapUniverse;
 class CMapWorldInfo;
 class CStateManager;
 class IWorld;

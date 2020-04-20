@@ -18,9 +18,10 @@
 
 namespace urde {
 
-static bool IsMediumOrLarge(CActor& act) {
-  if (TCastToConstPtr<CPatterned> pat = act)
+static bool IsMediumOrLarge(const CActor& act) {
+  if (const TCastToConstPtr<CPatterned> pat = act) {
     return pat->GetKnockBackController().GetVariant() != EKnockBackVariant::Small;
+  }
   return false;
 }
 

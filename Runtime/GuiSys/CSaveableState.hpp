@@ -6,12 +6,11 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/GuiSys/CDrawStringOptions.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
+#include "Runtime/GuiSys/CRasterFont.hpp"
 
 #include <zeus/CColor.hpp>
 
 namespace urde {
-class CRasterFont;
-
 class CSaveableState {
   friend class CColorOverrideInstruction;
   friend class CFontInstruction;

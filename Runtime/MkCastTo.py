@@ -132,7 +132,8 @@ headerf.write('''
   operator T*() const { return GetPtr(); }
   T& operator*() const { return *GetPtr(); }
   T* operator->() const { return GetPtr(); }
-  operator bool() const { return ptr != nullptr; }
+  bool IsValid() const { return ptr != nullptr; }
+  explicit operator bool() const { return IsValid(); }
 };
 
 template <class T>
@@ -147,7 +148,8 @@ public:
   operator const T*() const { return GetPtr(); }
   const T& operator*() const { return *GetPtr(); }
   const T* operator->() const { return GetPtr(); }
-  operator bool() const { return TCastToPtr<T>::ptr != nullptr; }
+  bool IsValid() const { return TCastToPtr<T>::ptr != nullptr; }
+  explicit operator bool() const { return IsValid(); }
 };
 
 }

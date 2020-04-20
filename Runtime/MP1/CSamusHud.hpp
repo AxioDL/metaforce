@@ -101,7 +101,7 @@ class CSamusHud {
   bool x2e0_27_energyLow : 1;
   u32 x2e4_ = 0;
   u32 x2e8_ = 0;
-  CPlayerGun::EMissleMode x2ec_missileMode = CPlayerGun::EMissleMode::Inactive;
+  CPlayerGun::EMissileMode x2ec_missileMode = CPlayerGun::EMissileMode::Inactive;
   float x2f0_visorBeamMenuAlpha = 1.f;
   zeus::CVector3f x2f8_fpCamDir;
   zeus::CVector3f x304_basewidgetIdlePos;

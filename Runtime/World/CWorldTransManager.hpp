@@ -14,6 +14,7 @@
 #include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
 
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector2f.hpp>
@@ -21,7 +22,6 @@
 
 namespace urde {
 class CSimplePool;
-class CStringTable;
 
 class CWorldTransManager {
 public:

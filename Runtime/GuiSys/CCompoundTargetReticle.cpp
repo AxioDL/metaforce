@@ -220,7 +220,7 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
         std::max(x214_fullChargeFadeTimer - dt / g_tweakTargeting->GetFullChargeFadeDuration(), 0.f);
   }
 
-  const bool missileActive = gun->GetMissleMode() == CPlayerGun::EMissleMode::Active;
+  const bool missileActive = gun->GetMissleMode() == CPlayerGun::EMissileMode::Active;
   if (missileActive != x1f4_missileActive) {
     if (x1f8_missileBracketTimer != 0.f) {
       x1f8_missileBracketTimer = FLT_EPSILON - x1f8_missileBracketTimer;

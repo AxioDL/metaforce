@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CIOWin.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
@@ -16,7 +17,6 @@
 #include <zeus/CVector2f.hpp>
 
 namespace urde {
-class CDependencyGroup;
 class CTexture;
 
 class CSlideShow : public CIOWin {

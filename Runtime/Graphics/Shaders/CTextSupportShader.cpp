@@ -1,5 +1,6 @@
 #include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
 
+#include "Runtime/GuiSys/CFontImageDef.hpp"
 #include "Runtime/GuiSys/CRasterFont.hpp"
 
 #include <hecl/Pipeline.hpp>

@@ -8,6 +8,7 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
+#include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
 #include "Runtime/World/CDamageVulnerability.hpp"
 #include "Runtime/World/CHealthInfo.hpp"
 #include "Runtime/World/CPhysicsActor.hpp"
@@ -17,8 +18,6 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CCollidableOBBTreeGroup;
-class CCollidableOBBTreeGroupContainer;
 class CFluidPlane;
 
 struct SRiders {
