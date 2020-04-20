@@ -43,7 +43,7 @@ COmegaPirate::CFlash::CFlash(TUniqueId uid, const CEntityInfo& info, const zeus:
 : CActor(uid, true, "Omega Pirate Flash", info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(), {},
          CActorParameters::None(), kInvalidUniqueId)
 , xf4_delay(delay)
-, m_thermalSpotBlend(EFilterType::Blend, thermalSpot)
+, m_thermalSpotAdd(EFilterType::Add, thermalSpot)
 , m_thermalSpotSubtract(EFilterType::Subtract, thermalSpot) {}
 
 void COmegaPirate::CFlash::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -55,8 +55,8 @@ void COmegaPirate::CFlash::Think(float dt, CStateManager& mgr) {
     return;
   }
 
-  xf8_ += dt;
-  float intensity = xf8_;
+  xf8_time += dt;
+  float intensity = xf8_time;
   if (intensity <= 0.75f) {
     intensity /= 0.75f;
   } else {
@@ -69,8 +69,8 @@ void COmegaPirate::CFlash::Think(float dt, CStateManager& mgr) {
   if (dot >= 0.f) {
     dVar4 = dot * dot;
   }
-  xfc_ = dVar4 * intensity;
-  if (xf8_ > 1.f) {
+  xfc_size = dVar4 * intensity;
+  if (xf8_time > 1.f) {
     mgr.FreeScriptObject(GetUniqueId());
   }
 }
@@ -90,33 +90,32 @@ void COmegaPirate::CFlash::Render(CStateManager& mgr) {
     return;
   }
 
-  float alphaMul = 35.f;
+  float sizeMul = 35.f;
   CTexturedQuadFilter* filter = nullptr;
   if (visor == CPlayerState::EPlayerVisor::XRay) {
     // CGraphics::SetBlendMode(ERglBlendMode::Subtract, ERglBlendFactor::One, ERglBlendFactor::Zero,
     // ERglLogicOp::Clear);
     filter = &m_thermalSpotSubtract;
-    alphaMul = 60.f;
+    sizeMul = 60.f;
   } else {
     // CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One,
     // ERglLogicOp::Clear);
-    filter = &m_thermalSpotBlend;
+    filter = &m_thermalSpotAdd;
   }
 
-  CGraphics::SetModelMatrix(zeus::CTransform());
-  zeus::CColor useColor{1.f, std::max(0.f, (xfc_ * alphaMul) / 255.f)};
-
-  const auto rightVec = CGraphics::g_GXModelView.rightVector();
-  const auto upVec = CGraphics::g_GXModelView.upVector();
+  float size = xfc_size * sizeMul;
+  const auto rightVec = size * CGraphics::g_ViewMatrix.rightVector();
+  const auto upVec = size * CGraphics::g_ViewMatrix.upVector();
   const auto rvS = GetTranslation() - rightVec;
   const auto rvP = GetTranslation() + rightVec;
+  CGraphics::SetModelMatrix(zeus::CTransform());
   const std::array<CTexturedQuadFilter::Vert, 4> verts{{
       {rvS + upVec, {0.f, 0.f}},
+      {rvP + upVec, {0.f, 1.f}},
       {rvS - upVec, {1.f, 0.f}},
       {rvP - upVec, {1.f, 1.f}},
-      {rvP + upVec, {0.f, 1.f}},
   }};
-  filter->drawVerts(useColor, verts);
+  filter->drawVerts(zeus::CColor{1.f, std::min(1.f, size)}, verts);
 }
 
 COmegaPirate::COmegaPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
