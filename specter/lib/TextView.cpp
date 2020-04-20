@@ -4,6 +4,7 @@
 #include "utf8proc.h"
 #include "hecl/Pipeline.hpp"
 
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
 #include <freetype/internal/internal.h>
 #include <freetype/internal/ftobjs.h>
 

@@ -4,6 +4,7 @@
 #include "specter/ViewResources.hpp"
 
 #include <boo/System.hpp>
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
 #include <hecl/Pipeline.hpp>
 
 namespace specter {
