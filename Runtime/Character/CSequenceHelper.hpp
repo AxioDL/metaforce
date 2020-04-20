@@ -9,9 +9,9 @@
 #include "Runtime/Character/CInt32POINode.hpp"
 #include "Runtime/Character/CParticlePOINode.hpp"
 #include "Runtime/Character/CSoundPOINode.hpp"
+#include "Runtime/Character/CTransitionDatabaseGame.hpp"
 
 namespace urde {
-class CTransitionDatabaseGame;
 class IMetaAnim;
 
 class CSequenceFundamentals {

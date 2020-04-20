@@ -13,6 +13,7 @@
 #include "Runtime/Character/CAnimCharacterSet.hpp"
 #include "Runtime/Collision/CMaterialList.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CWeaponDescription.hpp"
 #include "Runtime/Weapon/CGunController.hpp"
 #include "Runtime/Weapon/CGunMotion.hpp"
 #include "Runtime/Weapon/CWeaponMgr.hpp"
@@ -25,7 +26,6 @@ namespace urde {
 
 class CActorLights;
 struct CModelFlags;
-class CWeaponDescription;
 
 enum class EChargeState { Normal, Charged };
 

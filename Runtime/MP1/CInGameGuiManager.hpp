@@ -7,6 +7,7 @@
 
 #include "DataSpec/DNACommon/Tweaks/ITweakGui.hpp"
 
+#include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/CStateManager.hpp"
@@ -30,7 +31,6 @@ namespace urde {
 class CActorLights;
 class CArchitectureQueue;
 class CAutoMapper;
-class CDependencyGroup;
 class CGuiCamera;
 class CGuiModel;
 class CModelData;

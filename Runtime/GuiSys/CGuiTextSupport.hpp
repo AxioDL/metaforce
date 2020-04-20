@@ -9,12 +9,12 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
+#include "Runtime/GuiSys/CRasterFont.hpp"
 #include "Runtime/GuiSys/CTextRenderBuffer.hpp"
 
 #include <zeus/CColor.hpp>
 
 namespace urde {
-class CRasterFont;
 class CSimplePool;
 class CTextExecuteBuffer;
 class CTextRenderBuffer;
@@ -33,8 +33,6 @@ enum class EVerticalJustification {
   CenterMono,
   RightMono
 };
-
-enum class EColorType { Main, Outline, Geometry, Foreground, Background };
 
 enum class ETextDirection { Horizontal, Vertical };
 

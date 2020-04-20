@@ -297,9 +297,9 @@ void CFlaahgra::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
     return;
   }
   case EUserEventType::BeginAction: {
-#ifndef NDEBUG
-    printf("BeginAction\n");
-#endif
+//#ifndef NDEBUG
+//    printf("BeginAction\n");
+//#endif
     x8e4_26_ = true;
     x7c4_ = GetEndActionTime();
     break;

@@ -8,6 +8,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/IObj.hpp"
 #include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CModel.hpp"
 
 namespace urde {
 class CColorElement;
@@ -16,7 +17,6 @@ class CEmitterElement;
 class CGenDescription;
 class CIntElement;
 class CModVectorElement;
-class CModel;
 class CRealElement;
 class CSimplePool;
 class CSwooshDescription;
@@ -100,3 +100,9 @@ CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in, const
                                   CObjectReference* selfRef);
 
 } // namespace urde
+
+// FIXME hacky workaround for MSVC; these need to be complete types
+// but introduce circular dependencies if included at the start
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CSwooshDescription.hpp"
+#include "Runtime/Particle/CElectricDescription.hpp"

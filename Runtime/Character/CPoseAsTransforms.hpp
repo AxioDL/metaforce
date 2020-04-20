@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CCharLayoutInfo.hpp"
 #include "Runtime/Character/CSegId.hpp"
 
 #include <zeus/CMatrix3f.hpp>
@@ -12,8 +13,6 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CCharLayoutInfo;
-
 class CPoseAsTransforms {
   friend class CAnimData;
 public:

@@ -5,12 +5,13 @@
 #include <unordered_map>
 #include <vector>
 
-#include "DNACommon/CMDL.hpp"
-#include "DNAMP1/CMDLMaterials.hpp"
+#include "DataSpec/DNACommon/CMDL.hpp"
+#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
-#include "Shaders/CModelShaders.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/Shaders/CModelShaders.hpp"
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <hecl/HMDLMeta.hpp>
@@ -22,7 +23,6 @@ class CLight;
 class CModel;
 class CPoseAsTransforms;
 class CSkinRules;
-class CTexture;
 class IObjectStore;
 
 struct CModelFlags {

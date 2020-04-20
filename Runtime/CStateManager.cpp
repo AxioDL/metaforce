@@ -1357,8 +1357,8 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
   }
 
   CEntity* ent = nullptr;
+  const CEntityInfo info(aid, std::move(conns), id);
   if (loader) {
-    const CEntityInfo info(aid, std::move(conns), id);
     ent = loader(*this, in, propCount, info);
   } else {
     error = true;
@@ -1377,7 +1377,11 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
     in.readByte();
 
   if (error || ent == nullptr) {
-    LogModule.report(logvisor::Error, FMT_STRING("Script load error while loading {}"), ScriptObjectTypeToStr(type));
+    in.seek(startPos, athena::SeekOrigin::Begin);
+    std::string name; //= HashInstanceName(in);
+    LogModule.report(logvisor::Error, FMT_STRING("Script load error while loading {}, name: {}"),
+                     ScriptObjectTypeToStr(type), name);
+    loader(*this, in, propCount, info);
     return {kInvalidEditorId, kInvalidUniqueId};
   } else {
     LogModule.report(logvisor::Info, FMT_STRING("Loaded {} in area {}"), ent->GetName(), ent->GetAreaIdAlways());
