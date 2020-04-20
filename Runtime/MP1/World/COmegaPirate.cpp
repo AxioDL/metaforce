@@ -166,7 +166,7 @@ void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     }
     break;
   case EScriptObjectMessage::Decrement:
-    x9ec_ = true;
+    x9ec_decrement = true;
     break;
   case EScriptObjectMessage::Increment:
     SetShotAt(true, mgr);
@@ -175,7 +175,7 @@ void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     xb7c_[3] -= xb7c_[3] == 0 ? 0 : 1;
     break;
   case EScriptObjectMessage::Reset:
-    xb78_ = true;
+    xb78_codeTrigger = true;
     break;
   case EScriptObjectMessage::SetToMax:
     xa3c_hearPlayer = true;
@@ -185,8 +185,8 @@ void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     break;
   case EScriptObjectMessage::Start:
     x3b4_speed = 1.f;
-    ++xade_;
-    if (xade_ < 4) {
+    ++xade_armorPiecesDestroyed;
+    if (xade_armorPiecesDestroyed < 4) {
       GetBodyController()->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(zeus::skLeft, pas::ESeverity::One));
     }
     break;
@@ -201,8 +201,8 @@ void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     break;
   case EScriptObjectMessage::Action:
     x3b4_speed = 1.f;
-    ++xade_;
-    if (xade_ < 4) {
+    ++xade_armorPiecesDestroyed;
+    if (xade_armorPiecesDestroyed < 4) {
       GetBodyController()->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(zeus::skRight, pas::ESeverity::One));
     }
     break;
@@ -295,14 +295,14 @@ void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
           CBCKnockBackCmd(GetTransform().frontVector(), pas::ESeverity::Eight));
     }
     CElitePirate::AcceptScriptMsg(msg, uid, mgr);
-    if (uid == xa46_ && xa7c_xrayAlphaState == EXRayAlphaState::Two) {
-      xa7c_xrayAlphaState = EXRayAlphaState::Three;
+    if (uid == xa46_ && xa7c_xrayAlphaState == EXRayFadeState::WaitForTrigger) {
+      xa7c_xrayAlphaState = EXRayFadeState::FadeOut;
       xa84_xrayAlphaStateTime = 0.f;
     }
     break;
   case EScriptObjectMessage::InvulnDamage:
     if (const TCastToConstPtr<CGameProjectile> projectile = mgr.GetObjectById(uid)) {
-      if (xa4a_) {
+      if (xa4a_heartVisible) {
         mgr.ApplyDamage(uid, xa46_, projectile->GetOwnerId(), projectile->GetDamageInfo(),
                         CMaterialFilter::MakeInclude({EMaterialTypes::Solid}), zeus::skZero3f);
       }
@@ -326,7 +326,7 @@ void COmegaPirate::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   CElitePirate::Attack(mgr, msg, dt);
 }
 
-bool COmegaPirate::CodeTrigger(CStateManager&, float) { return xb78_; }
+bool COmegaPirate::CodeTrigger(CStateManager&, float) { return xb78_codeTrigger; }
 
 void COmegaPirate::Cover(CStateManager& mgr, EStateMsg msg, float dt) {
   CElitePirate::Cover(mgr, msg, dt);
@@ -349,7 +349,7 @@ bool COmegaPirate::CoverBlown(CStateManager&, float) {
 
 void COmegaPirate::Dizzy(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
-    xa44_ = true;
+    xa44_targetable = true;
   } else if (msg == EStateMsg::Update) {
     GetBodyController()->GetCommandMgr().DeliverCmd(CBCLoopReactionCmd(pas::EReactionType::Two));
   } else if (msg == EStateMsg::Deactivate) {
@@ -362,9 +362,9 @@ void COmegaPirate::DoubleSnap(CStateManager& mgr, EStateMsg msg, float dt) {
     SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
     SetShotAt(false, mgr);
     SetState(CElitePirate::EState::Zero);
-    xa44_ = false;
-    xa4a_ = false;
-    xa88_ = false;
+    xa44_targetable = false;
+    xa4a_heartVisible = false;
+    xa88_xrayFadeInTrigger = false;
     xa8c_ = 3.f;
     for (auto& entry : x9dc_scriptPlatforms) {
       if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
@@ -412,9 +412,9 @@ void COmegaPirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
     x9a1_fadeIn = true;
     break;
   case EUserEventType::FadeOut:
-    if (x994_fadeState != EFadeState::Two && x9a1_fadeIn) {
-      x994_fadeState = EFadeState::One;
-      xa30_skeletonState = ESkeletonState::Three;
+    if (x994_normalFadeState != ENormalFadeState::Two && x9a1_fadeIn) {
+      x994_normalFadeState = ENormalFadeState::One;
+      xa30_skeletonFadeState = ESkeletonFadeState::FadeIn;
     }
     break;
   case EUserEventType::ObjectPickUp:
@@ -470,7 +470,7 @@ void COmegaPirate::Enraged(CStateManager& mgr, EStateMsg msg, float dt) {
 void COmegaPirate::Explode(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     SetState(EState::Zero);
-    xad0_ = false;
+    xad0_scaleUpTrigger = false;
   } else if (msg == EStateMsg::Update) {
     if (GetState() == CElitePirate::EState::Zero) {
       if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Step) {
@@ -491,9 +491,9 @@ void COmegaPirate::Explode(CStateManager& mgr, EStateMsg msg, float dt) {
 void COmegaPirate::Faint(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     GetBodyController()->GetCommandMgr().DeliverCmd(CBCLoopReactionCmd(pas::EReactionType::Zero));
-    xa44_ = true;
-    xa4a_ = true;
-    if (xa7c_xrayAlphaState == EXRayAlphaState::Two) {
+    xa44_targetable = true;
+    xa4a_heartVisible = true;
+    if (xa7c_xrayAlphaState == EXRayFadeState::WaitForTrigger) {
       xa8c_ = 0.333f;
     }
     for (const auto& entry : x9dc_scriptPlatforms) {
@@ -502,17 +502,17 @@ void COmegaPirate::Faint(CStateManager& mgr, EStateMsg msg, float dt) {
       }
     }
   } else if (msg == EStateMsg::Update) {
-    if (xb4c_ < 4 && x9c8_scaleState == EScaleState::Zero && xb58_ >= 2.5f) {
+    if (xb4c_armorPiecesHealed < 4 && x9c8_scaleState == EScaleState::None && xb58_ >= 2.5f) {
       float alpha = std::min(xb50_, 1.f);
       float invAlpha = 1.f - alpha;
       size_t idx = 0;
       for (const auto& entry : x9dc_scriptPlatforms) {
         if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
           if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
-            if (xb4c_ > idx) {
+            if (xb4c_armorPiecesHealed > idx) {
               CModelFlags flags{5, 0, 3, zeus::skBlack};
               platform->SetDrawFlags(flags);
-            } else if (xb4c_ == idx) {
+            } else if (xb4c_armorPiecesHealed == idx) {
               if (!xb6e_) {
                 SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
                 xb6e_ = true;
@@ -528,7 +528,7 @@ void COmegaPirate::Faint(CStateManager& mgr, EStateMsg msg, float dt) {
         ++idx;
       }
       if (xb50_ > 1.f) {
-        ++xb4c_;
+        ++xb4c_armorPiecesHealed;
         xb50_ = 0.f;
         xb58_ = 0.f;
         xb6e_ = false;
@@ -540,15 +540,15 @@ void COmegaPirate::Faint(CStateManager& mgr, EStateMsg msg, float dt) {
   } else if (msg == EStateMsg::Deactivate) {
     GetBodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
     if (xb58_ >= 2.5f) {
-      ++xb4c_;
+      ++xb4c_armorPiecesHealed;
     }
   }
 }
 
 void COmegaPirate::Growth(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
-    x9c8_scaleState = EScaleState::Two;
-    xad0_ = false;
+    x9c8_scaleState = EScaleState::ScaleDownY;
+    xad0_scaleUpTrigger = false;
     RemoveMaterial(EMaterialTypes::RadarObject, EMaterialTypes::Scannable, mgr);
     xb6c_ = false;
     xb6d_ = false;
@@ -570,7 +570,7 @@ void COmegaPirate::Growth(CStateManager& mgr, EStateMsg msg, float dt) {
     }
   } else if (msg == EStateMsg::Deactivate) {
     TeleportToFurthestPlatform(mgr);
-    xad0_ = true;
+    xad0_scaleUpTrigger = true;
     AddMaterial(EMaterialTypes::RadarObject, mgr);
     ProcessSoundEvent(SFXsfx0B28, 1.f, 0, 0.1f, 1000.f, 0.16f, 1.f, zeus::skZero3f, GetTranslation(),
                       mgr.GetNextAreaId(), mgr, false);
@@ -581,7 +581,7 @@ void COmegaPirate::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     SetShotAt(false, mgr);
     SetState(CElitePirate::EState::Two);
-    xade_ = 0;
+    xade_armorPiecesDestroyed = 0;
     xadf_launcher1FollowPlayer = false;
     xae0_launcher2FollowPlayer = false;
     xb68_ = 0;
@@ -602,7 +602,10 @@ void COmegaPirate::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-bool COmegaPirate::Landed(CStateManager& mgr, float arg) { return (xb4c_ & 0xe7) == 0; }
+bool COmegaPirate::Landed(CStateManager& mgr, float arg) {
+  fmt::print(FMT_STRING("OMEGA: {} pieces healed\n"), xb4c_armorPiecesHealed);
+  return xb4c_armorPiecesHealed == 4;
+}
 
 zeus::CVector3f COmegaPirate::GetOrbitPosition(const CStateManager& mgr) const {
   if (x990_launcherId2 != kInvalidUniqueId &&
@@ -669,9 +672,9 @@ void COmegaPirate::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
     SetShotAt(false, mgr);
     SetState(CElitePirate::EState::Zero);
     SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::None);
-    xad0_ = false;
-    xa44_ = false;
-    xa4a_ = false;
+    xad0_scaleUpTrigger = false;
+    xa44_targetable = false;
+    xa4a_heartVisible = false;
     xb5c_ = 0.f;
     xb60_ = 0.f;
     xb64_ = 5.f;
@@ -748,8 +751,8 @@ void COmegaPirate::Skid(CStateManager& mgr, EStateMsg msg, float dt) {
 void COmegaPirate::Suck(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     SetState(CElitePirate::EState::Zero);
-    xa7c_xrayAlphaState = EXRayAlphaState::Three;
-    xa88_ = true;
+    xa7c_xrayAlphaState = EXRayFadeState::FadeOut;
+    xa88_xrayFadeInTrigger = true;
   } else if (msg == EStateMsg::Update) {
     if (GetState() == CElitePirate::EState::Zero) {
       if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Step) {
@@ -776,7 +779,7 @@ void COmegaPirate::Suck(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     xb50_ = 0.f;
     xb58_ = 2.5f;
-    xb4c_ = 0;
+    xb4c_armorPiecesHealed = 0;
   }
 }
 
@@ -822,13 +825,12 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
 
   UpdateActorTransform(mgr, x990_launcherId2, "grenadeLauncher2_LCTR"sv);
 
-  sub_8028f6f0(mgr, dt);
-  UpdateSkeleton(mgr, dt);
+  UpdateNormalAlpha(mgr, dt);
+  UpdateSkeletonAlpha(mgr, dt);
   UpdateXRayAlpha(mgr, dt);
-  if ((!x9a1_fadeIn || xa4a_) && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay &&
-      xa44_) {
+  if ((!x9a1_fadeIn || xa4a_heartVisible) && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay && xa44_targetable) {
     AddMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
-    if (x9c8_scaleState == EScaleState::Four) {
+    if (x9c8_scaleState == EScaleState::WaitForTrigger) {
       xa38_collisionActorMgr1->SetActive(mgr, false);
       xa9c_collisionActorMgr2->SetActive(mgr, false);
     } else {
@@ -884,7 +886,7 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
 
   for (auto& entry : x9dc_scriptPlatforms) {
     auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first));
-    if ((!xb78_ && !xb79_) || xa4a_) {
+    if ((!xb78_codeTrigger && !xb79_) || xa4a_heartVisible) {
       platform->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
     } else {
       platform->AddMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
@@ -904,7 +906,7 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
         }
       }
       player.GetPlayerGun()->GetAuxWeapon().SetNewTarget(GetUniqueId(), mgr);
-    } else if (!xa4a_) {
+    } else if (!xa4a_heartVisible) {
       RemoveMaterial(EMaterialTypes::Target, mgr);
       for (auto& entry : x9dc_scriptPlatforms) {
         if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
@@ -929,8 +931,8 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
     launcher->SetFollowPlayer(xae0_launcher2FollowPlayer);
   }
 
-  if (x9ec_) {
-    x9ec_ = false;
+  if (x9ec_decrement) {
+    x9ec_decrement = false;
     x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "JumpBack"sv);
   }
 
@@ -1142,7 +1144,7 @@ void COmegaPirate::TeleportToFurthestPlatform(CStateManager& mgr) {
     if (TCastToConstPtr<CScriptWaypoint> waypoint = mgr.GetObjectById(entry.first)) {
       auto waypointPos = waypoint->GetTranslation();
       float dist = (mgr.GetPlayer().GetTranslation() - waypointPos).magnitude();
-      if (dist > maxDist && waypoint->GetUniqueId() != xada_waypointId) {
+      if (dist > maxDist && waypoint->GetUniqueId() != xada_lastWaypointId) {
         waypointIdx = i;
         maxDist = dist;
         pos = waypointPos;
@@ -1152,7 +1154,7 @@ void COmegaPirate::TeleportToFurthestPlatform(CStateManager& mgr) {
   SetTranslation(FindGround(pos, mgr));
 
   auto waypointId = x9a4_scriptWaypointPlatforms[waypointIdx].first;
-  xada_waypointId = waypointId;
+  xada_lastWaypointId = waypointId;
   if (TCastToPtr<CScriptWaypoint> waypoint = mgr.ObjectById(waypointId)) {
     waypoint->SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
   }
@@ -1172,46 +1174,46 @@ zeus::CVector3f COmegaPirate::FindGround(const zeus::CVector3f& pos, CStateManag
   return pos;
 }
 
-void COmegaPirate::sub_8028f6f0(CStateManager& mgr, float dt) {
-  if (x994_fadeState == EFadeState::One) {
-    x99c_alpha = 1.f - std::min(x998_, 1.25f) / 1.25f;
-    x42c_color.a() = x99c_alpha;
-    if (x998_ > 1.25f) {
-      x994_fadeState = EFadeState::Two;
+void COmegaPirate::UpdateNormalAlpha(CStateManager& mgr, float dt) {
+  if (x994_normalFadeState == ENormalFadeState::One) {
+    x99c_normalAlpha = 1.f - std::min(x998_normalFadeTime, 1.25f) / 1.25f;
+    x42c_color.a() = x99c_normalAlpha;
+    if (x998_normalFadeTime > 1.25f) {
+      x994_normalFadeState = ENormalFadeState::Two;
       x9a1_fadeIn = false;
-      x998_ = 0.f;
+      x998_normalFadeTime = 0.f;
     }
-    x998_ += dt;
+    x998_normalFadeTime += dt;
     x9a0_visible = true;
-  } else if (x994_fadeState == EFadeState::Two) {
-    x99c_alpha = 0.f;
-    if (x998_ > 1.5f && x9a1_fadeIn) {
+  } else if (x994_normalFadeState == ENormalFadeState::Two) {
+    x99c_normalAlpha = 0.f;
+    if (x998_normalFadeTime > 1.5f && x9a1_fadeIn) {
       CreateFlash(mgr, 0.f);
-      x994_fadeState = EFadeState::Three;
-      x998_ = 0.f;
+      x994_normalFadeState = ENormalFadeState::Three;
+      x998_normalFadeTime = 0.f;
     }
-    x998_ += dt;
+    x998_normalFadeTime += dt;
     x9a0_visible = false;
-  } else if (x994_fadeState == EFadeState::Three) {
-    x99c_alpha = std::min(x998_, 1.f) / 1.25f;
-    if (x998_ > 1.f) {
-      x994_fadeState = EFadeState::Zero;
-      x998_ = 0.f;
+  } else if (x994_normalFadeState == ENormalFadeState::Three) {
+    x99c_normalAlpha = std::min(x998_normalFadeTime, 1.f) / 1.25f;
+    if (x998_normalFadeTime > 1.f) {
+      x994_normalFadeState = ENormalFadeState::Zero;
+      x998_normalFadeTime = 0.f;
     }
-    x998_ += dt;
+    x998_normalFadeTime += dt;
     x9a0_visible = true;
   } else {
-    x99c_alpha = 1.f;
+    x99c_normalAlpha = 1.f;
     x9a0_visible = true;
   }
 
-  float alpha = x99c_alpha;
+  float alpha = x99c_normalAlpha;
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
     alpha = 0.f;
-    x99c_alpha = 1.f;
+    x99c_normalAlpha = 1.f;
     x9a0_visible = true;
   }
-  x42c_color.a() = x99c_alpha;
+  x42c_color.a() = x99c_normalAlpha;
 
   if (alpha >= 1.f) {
     if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
@@ -1262,24 +1264,24 @@ void COmegaPirate::sub_8028c704(CStateManager& mgr, float dt) {
 }
 
 void COmegaPirate::UpdateXRayAlpha(CStateManager& mgr, float dt) {
-  if (xa7c_xrayAlphaState == EXRayAlphaState::One) {
+  if (xa7c_xrayAlphaState == EXRayFadeState::FadeIn) {
     xa80_xrayAlpha = std::min(xa84_xrayAlphaStateTime, xa90_) / xa90_;
     if (xa90_ < xa84_xrayAlphaStateTime) {
-      xa7c_xrayAlphaState = EXRayAlphaState::Zero;
+      xa7c_xrayAlphaState = EXRayFadeState::None;
       xa84_xrayAlphaStateTime = 0.f;
     }
     xa84_xrayAlphaStateTime += dt;
-  } else if (xa7c_xrayAlphaState == EXRayAlphaState::Two) {
+  } else if (xa7c_xrayAlphaState == EXRayFadeState::WaitForTrigger) {
     xa80_xrayAlpha = 0.f;
-    if ((xa94_ < xa84_xrayAlphaStateTime) && !xa88_) {
-      xa7c_xrayAlphaState = EXRayAlphaState::One;
+    if ((xa94_ < xa84_xrayAlphaStateTime) && !xa88_xrayFadeInTrigger) {
+      xa7c_xrayAlphaState = EXRayFadeState::FadeIn;
       xa84_xrayAlphaStateTime = 0.f;
     }
     xa84_xrayAlphaStateTime += dt;
-  } else if (xa7c_xrayAlphaState == EXRayAlphaState::Three) {
+  } else if (xa7c_xrayAlphaState == EXRayFadeState::FadeOut) {
     xa80_xrayAlpha = 1.f - std::min(xa84_xrayAlphaStateTime, xa8c_) / xa8c_;
     if (xa8c_ < xa84_xrayAlphaStateTime) {
-      xa7c_xrayAlphaState = EXRayAlphaState::Two;
+      xa7c_xrayAlphaState = EXRayFadeState::WaitForTrigger;
       xa84_xrayAlphaStateTime = 0.f;
     }
     xa84_xrayAlphaStateTime += dt;
@@ -1292,60 +1294,60 @@ void COmegaPirate::UpdateScale(CStateManager& mgr, float dt) {
   auto* modelData = GetModelData();
   zeus::CVector3f scale = modelData->GetScale();
   switch (x9c8_scaleState) {
-  case EScaleState::Zero:
+  case EScaleState::None:
   default:
     return;
-  case EScaleState::One:
+  case EScaleState::ScaleDownX:
     scale.x() = x9d0_initialScale.x() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_scaleTime, 0.25f) / 0.25f));
     if (x9cc_scaleTime > 0.25f) {
-      x9c8_scaleState = EScaleState::Three;
+      x9c8_scaleState = EScaleState::ScaleDownZ;
       x9cc_scaleTime = 0.f;
     }
     x9cc_scaleTime += dt;
     break;
-  case EScaleState::Two:
+  case EScaleState::ScaleDownY:
     scale.y() = x9d0_initialScale.y() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_scaleTime, 0.25f) / 0.25f));
     if (x9cc_scaleTime > 0.25f) {
-      x9c8_scaleState = EScaleState::One;
+      x9c8_scaleState = EScaleState::ScaleDownX;
       x9cc_scaleTime = 0.f;
     }
     x9cc_scaleTime += dt;
     break;
-  case EScaleState::Three:
+  case EScaleState::ScaleDownZ:
     scale.z() = x9d0_initialScale.z() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_scaleTime, 0.25f) / 0.25f));
     if (x9cc_scaleTime > 0.25f) {
-      x9c8_scaleState = EScaleState::Four;
+      x9c8_scaleState = EScaleState::WaitForTrigger;
       x9cc_scaleTime = 0.f;
     }
     x9cc_scaleTime += dt;
     break;
-  case EScaleState::Four:
-    if (x9cc_scaleTime > 0.1f && xad0_) {
-      x9c8_scaleState = EScaleState::Seven;
+  case EScaleState::WaitForTrigger:
+    if (x9cc_scaleTime > 0.1f && xad0_scaleUpTrigger) {
+      x9c8_scaleState = EScaleState::ScaleUpZ;
       x9cc_scaleTime = 0.f;
     }
     x9cc_scaleTime += dt;
     break;
-  case EScaleState::Five:
-    scale.x() = x9d0_initialScale.x() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_scaleTime, 0.25f) / 0.25f));
+  case EScaleState::ScaleUpX:
+    scale.x() = x9d0_initialScale.x() * std::min(1.f, 0.005f + std::min(x9cc_scaleTime, 0.25f) / 0.25f);
     if (x9cc_scaleTime > 0.25f) {
-      x9c8_scaleState = EScaleState::Six;
+      x9c8_scaleState = EScaleState::ScaleUpY;
       x9cc_scaleTime = 0.f;
     }
     x9cc_scaleTime += dt;
     break;
-  case EScaleState::Six:
-    scale.y() = x9d0_initialScale.y() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_scaleTime, 0.25f) / 0.25f));
+  case EScaleState::ScaleUpY:
+    scale.y() = x9d0_initialScale.y() * std::min(1.f, 0.005f + std::min(x9cc_scaleTime, 0.25f) / 0.25f);
     if (x9cc_scaleTime > 0.25f) {
-      x9c8_scaleState = EScaleState::Zero;
+      x9c8_scaleState = EScaleState::None;
       x9cc_scaleTime = 0.f;
     }
     x9cc_scaleTime += dt;
     break;
-  case EScaleState::Seven:
-    scale.z() = x9d0_initialScale.z() * std::min(1.f, 0.005f + (1.f - std::min(x9cc_scaleTime, 0.25f) / 0.25f));
+  case EScaleState::ScaleUpZ:
+    scale.z() = x9d0_initialScale.z() * std::min(1.f, 0.005f + std::min(x9cc_scaleTime, 0.25f) / 0.25f);
     if (x9cc_scaleTime > 0.25f) {
-      x9c8_scaleState = EScaleState::Five;
+      x9c8_scaleState = EScaleState::ScaleUpX;
       x9cc_scaleTime = 0.f;
     }
     x9cc_scaleTime += dt;
@@ -1366,26 +1368,26 @@ void COmegaPirate::UpdateScale(CStateManager& mgr, float dt) {
   }
 }
 
-void COmegaPirate::UpdateSkeleton(CStateManager& mgr, float dt) {
-  if (xa30_skeletonState == ESkeletonState::One) {
+void COmegaPirate::UpdateSkeletonAlpha(CStateManager& mgr, float dt) {
+  if (xa30_skeletonFadeState == ESkeletonFadeState::FadeOut) {
     xa2c_skeletonAlpha = 1.f - std::min(xa34_skeletonStateTime, 1.f);
     if (xa34_skeletonStateTime > 1.f) {
-      xa30_skeletonState = ESkeletonState::Zero;
+      xa30_skeletonFadeState = ESkeletonFadeState::None;
       xa34_skeletonStateTime = 0.f;
     }
     xa34_skeletonStateTime += dt;
-  } else if (xa30_skeletonState == ESkeletonState::Two) {
+  } else if (xa30_skeletonFadeState == ESkeletonFadeState::Flash) {
     xa2c_skeletonAlpha = 1.f;
     if (xa34_skeletonStateTime > 1.f) {
-      xa30_skeletonState = ESkeletonState::One;
+      xa30_skeletonFadeState = ESkeletonFadeState::FadeOut;
       xa34_skeletonStateTime = 0.f;
       CreateFlash(mgr, 0.75f);
     }
     xa34_skeletonStateTime += dt;
-  } else if (xa30_skeletonState == ESkeletonState::Three) {
+  } else if (xa30_skeletonFadeState == ESkeletonFadeState::FadeIn) {
     xa2c_skeletonAlpha = std::min(xa34_skeletonStateTime, 1.f);
     if (xa34_skeletonStateTime > 1.f) {
-      xa30_skeletonState = ESkeletonState::Two;
+      xa30_skeletonFadeState = ESkeletonFadeState::Flash;
       xa34_skeletonStateTime = 0.f;
     }
     xa34_skeletonStateTime += dt;
@@ -1398,7 +1400,7 @@ void COmegaPirate::DeathDestroy(CStateManager& mgr) {
   RemoveEmitter();
   SetTransform(xa4c_initialXf);
   x9a1_fadeIn = true;
-  xa4a_ = false;
+  xa4a_heartVisible = false;
   SendScriptMsgs(EScriptObjectState::DeathRattle, mgr, EScriptObjectMessage::None);
   SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
   SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::None);

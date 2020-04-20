@@ -28,59 +28,59 @@ private:
   };
 
   TUniqueId x990_launcherId2 = kInvalidUniqueId;
-  enum class EFadeState {
+  enum class ENormalFadeState {
     Zero,
     One,
     Two,
     Three,
-  } x994_fadeState = EFadeState::Zero;
-  float x998_ = 0.f;
-  float x99c_alpha = 1.f;
+  } x994_normalFadeState = ENormalFadeState::Zero;
+  float x998_normalFadeTime = 0.f;
+  float x99c_normalAlpha = 1.f;
   bool x9a0_visible = true;
   bool x9a1_fadeIn = true;
   std::vector<std::pair<TUniqueId, std::vector<TUniqueId>>> x9a4_scriptWaypointPlatforms;
   bool x9b4_ = false;
   std::vector<std::pair<TUniqueId, std::string_view>> x9b8_scriptEffects;
   enum class EScaleState {
-    Zero,
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
-    Seven,
-  } x9c8_scaleState = EScaleState::Zero;
+    None,
+    ScaleDownX,
+    ScaleDownY,
+    ScaleDownZ,
+    WaitForTrigger,
+    ScaleUpX,
+    ScaleUpY,
+    ScaleUpZ,
+  } x9c8_scaleState = EScaleState::None;
   float x9cc_scaleTime = 0.f;
   zeus::CVector3f x9d0_initialScale;
   std::vector<std::pair<TUniqueId, std::string_view>> x9dc_scriptPlatforms;
-  bool x9ec_ = false;
+  bool x9ec_decrement = false;
   CSkinnedModel x9f0_skeletonModel;
   float xa2c_skeletonAlpha = 0.f;
-  enum class ESkeletonState {
-    Zero,
-    One,
-    Two,
-    Three,
-  } xa30_skeletonState = ESkeletonState::Zero;
+  enum class ESkeletonFadeState {
+    None,
+    FadeOut,
+    Flash,
+    FadeIn,
+  } xa30_skeletonFadeState = ESkeletonFadeState::None;
   float xa34_skeletonStateTime = 0.f;
   std::unique_ptr<CCollisionActorManager> xa38_collisionActorMgr1;
   bool xa3c_hearPlayer = false;
   pas::ELocomotionType xa40_locomotionType = pas::ELocomotionType::Relaxed;
-  bool xa44_ = false;
+  bool xa44_targetable = false;
   TUniqueId xa46_ = kInvalidUniqueId;
   TUniqueId xa48_ = kInvalidUniqueId;
-  bool xa4a_ = false;
+  bool xa4a_heartVisible = false;
   zeus::CTransform xa4c_initialXf;
-  enum class EXRayAlphaState {
-    Zero,
-    One,
-    Two,
-    Three,
-  } xa7c_xrayAlphaState = EXRayAlphaState::Zero;
+  enum class EXRayFadeState {
+    None,
+    FadeIn,
+    WaitForTrigger,
+    FadeOut,
+  } xa7c_xrayAlphaState = EXRayFadeState::None;
   float xa80_xrayAlpha = 1.f;
   float xa84_xrayAlphaStateTime = 0.f;
-  bool xa88_ = false;
+  bool xa88_xrayFadeInTrigger = false;
   float xa8c_ = 3.f;
   float xa90_ = 1.f;
   float xa94_ = 1.f;
@@ -92,17 +92,17 @@ private:
   int xac4_ = 0;
   int xac8_ = 0;
   int xacc_ = 0;
-  bool xad0_ = false;
+  bool xad0_scaleUpTrigger = false;
   float xad4_cachedSpeed = 1.f;
   bool xad8_cover = false;
-  TUniqueId xada_waypointId = kInvalidUniqueId;
+  TUniqueId xada_lastWaypointId = kInvalidUniqueId;
   bool xadc_ = false;
   bool xadd_ = false;
-  u8 xade_ = 0;
+  u8 xade_armorPiecesDestroyed = 0;
   bool xadf_launcher1FollowPlayer = true;
   bool xae0_launcher2FollowPlayer = true;
   CDamageVulnerability xae4_platformVuln = CDamageVulnerability::NormalVulnerabilty();
-  int xb4c_ = 0;
+  int xb4c_armorPiecesHealed = 0;
   float xb50_ = 0.f;
   zeus::CColor xb54_platformColor = zeus::skWhite;
   float xb58_ = 2.5f;
@@ -114,7 +114,7 @@ private:
   bool xb6d_ = false;
   bool xb6e_ = false;
   TLockedToken<CTexture> xb70_thermalSpot; // was TToken<CTexture>
-  bool xb78_ = false;
+  bool xb78_codeTrigger = false;
   bool xb79_ = false;
   std::vector<u8> xb7c_;
   float xb8c_ = 0.f; // not initialized in ctr
@@ -179,11 +179,11 @@ private:
   u8 sub_8028c230() const;
   u8 sub_8028bfac() const;
   void TeleportToFurthestPlatform(CStateManager& mgr);
-  void sub_8028f6f0(CStateManager& mgr, float dt);
+  void UpdateNormalAlpha(CStateManager& mgr, float dt);
   void sub_8028c704(CStateManager& mgr, float dt);
   void UpdateXRayAlpha(CStateManager& mgr, float dt);
   void UpdateScale(CStateManager& mgr, float dt);
-  void UpdateSkeleton(CStateManager& mgr, float dt);
+  void UpdateSkeletonAlpha(CStateManager& mgr, float dt);
   void DeathDestroy(CStateManager& mgr);
   void sub_8028c840(u32 arg, CStateManager& mgr);
   zeus::CVector3f FindGround(const zeus::CVector3f& pos, CStateManager& mgr) const;
