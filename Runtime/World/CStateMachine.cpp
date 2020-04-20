@@ -4,6 +4,8 @@
 #include "Runtime/World/CAi.hpp"
 
 namespace urde {
+static logvisor::Module Log("urde::CStateMachine");
+
 CStateMachine::CStateMachine(CInputStream& in) {
   CAiTrigger* lastTrig = nullptr;
   u32 stateCount = in.readUint32Big();
@@ -78,10 +80,8 @@ void CStateMachineState::Update(CStateManager& mgr, CAi& ai, float delta) {
       if (andPassed && state) {
         x4_state->CallFunc(mgr, ai, EStateMsg::Deactivate, 0.f);
         x4_state = state;
-//#ifndef NDEBUG
-//        fmt::print(FMT_STRING("{} {} {} - {} {}\n"), ai.GetUniqueId(), ai.GetEditorId(), ai.GetName(),
-//                   state->xc_name, int(state - x0_machine->GetStateVector().data()));
-//#endif
+        Log.report(logvisor::Info, FMT_STRING("{} {} {} - {} {}"), ai.GetUniqueId(), ai.GetEditorId(), ai.GetName(),
+                   state->xc_name, int(state - x0_machine->GetStateVector().data()));
         x8_time = 0.f;
         x18_24_codeTrigger = false;
         xc_random = mgr.GetActiveRandom()->Float();
