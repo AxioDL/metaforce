@@ -90,14 +90,14 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
   }};
 
   if (noBlur) {
-    quad.drawVerts(useColor, verts.data());
+    quad.drawVerts(useColor, verts);
   } else if ((x14c_deResFactor == 0.f && alpha == 1.f) || tex.GetNumMips() == 1) {
-    quad.drawVerts(useColor, verts.data(), 0.f);
+    quad.drawVerts(useColor, verts, 0.f);
   } else {
     const float tmp = (1.f - x14c_deResFactor) * alpha;
     const float tmp3 = 1.f - tmp * tmp * tmp;
     const float mip = tmp3 * static_cast<float>(tex.GetNumMips() - 1);
-    quad.drawVerts(useColor, verts.data(), mip);
+    quad.drawVerts(useColor, verts, mip);
   }
 }
 

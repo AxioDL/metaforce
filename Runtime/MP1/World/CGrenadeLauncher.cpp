@@ -131,8 +131,7 @@ void CGrenadeLauncher::PreRender(CStateManager& mgr, const zeus::CFrustum& frust
     // Original code redundantly sets a() = 1.f
     xb4_drawFlags.addColor = x3f4_color3;
   } else {
-    xb4_drawFlags = CModelFlags{5, 0, 3, zeus::skWhite};
-    xb4_drawFlags.addColor = x3f4_color3;
+    xb4_drawFlags = CModelFlags{5, 0, 3, x3f4_color3};
   }
   CActor::PreRender(mgr, frustum);
 }
@@ -152,7 +151,7 @@ void CGrenadeLauncher::Think(float dt, CStateManager& mgr) {
 
     UpdateCollision();
     UpdateColor(dt);
-    sub_8022f9e0(mgr, dt);
+    UpdateFollowPlayer(mgr, dt);
     UpdateDamageTime(dt);
 
     const SAdvancementDeltas& deltas = CActor::UpdateAnimation(dt, mgr, true);
@@ -212,13 +211,14 @@ void CGrenadeLauncher::CreateExplosion(CStateManager& mgr) {
   CSfxManager::SfxStart(x2d0_data.GetExplosionSfx(), 1.f, 1.f, false, 0x7f, false, kInvalidAreaId);
 }
 
-void CGrenadeLauncher::sub_8022f9e0(CStateManager& mgr, float dt) {
+void CGrenadeLauncher::UpdateFollowPlayer(CStateManager& mgr, float dt) {
   CModelData* modelData = GetModelData();
   CAnimData* animData = nullptr;
 
-  if (modelData != nullptr && (animData = modelData->GetAnimationData()) != nullptr && x258_started == 1 && x3fe_) {
+  if (modelData != nullptr && (animData = modelData->GetAnimationData()) != nullptr && x258_started == 1 &&
+      x3fe_followPlayer) {
     const zeus::CVector3f target = mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation();
-    const zeus::CVector3f rot = GetTransform().rotate({target.x(), target.y(), 0.f}); // TODO double check
+    const zeus::CVector3f rot = GetTransform().transposeRotate({target.x(), target.y(), 0.f});
 
     if (rot.canBeNormalized()) {
       constexpr float p36d = zeus::degToRad(36.476f);

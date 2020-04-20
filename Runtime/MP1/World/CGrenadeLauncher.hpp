@@ -88,7 +88,7 @@ private:
   float x3f8_explodePlayerDistance;
   bool x3fc_launchGrenade = false;
   bool x3fd_visible = true;
-  bool x3fe_ = true;
+  bool x3fe_followPlayer = true;
 
 public:
   CGrenadeLauncher(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -108,6 +108,10 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void Touch(CActor& act, CStateManager& mgr) override;
 
+  void SetColor(const zeus::CColor& color) { x3f4_color3 = color; }
+  void SetVisible(bool val) { x3fd_visible = val; }
+  void SetFollowPlayer(bool val) { x3fe_followPlayer = val; }
+
   static zeus::CVector3f GrenadeTarget(const CStateManager& mgr);
   static void CalculateGrenadeTrajectory(const zeus::CVector3f& target, const zeus::CVector3f& origin,
                                          const SGrenadeTrajectoryInfo& info, float& angleOut, float& velocityOut);
@@ -117,7 +121,7 @@ private:
   void UpdateColor(float arg);
   void UpdateDamageTime(float arg);
   void CreateExplosion(CStateManager& mgr);
-  void sub_8022f9e0(CStateManager& mgr, float dt);
+  void UpdateFollowPlayer(CStateManager& mgr, float dt);
   void sub_80230438();
   void LaunchGrenade(CStateManager& mgr);
 };

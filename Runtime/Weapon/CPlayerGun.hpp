@@ -356,6 +356,7 @@ public:
   void DropBomb(EBWeapon weapon, CStateManager& mgr);
   TUniqueId DropPowerBomb(CStateManager& mgr);
   void SetActorAttached(bool b) { x835_31_actorAttached = b; }
+  CAuxWeapon& GetAuxWeapon() const { return *x744_auxWeapon; }
 };
 
 } // namespace urde

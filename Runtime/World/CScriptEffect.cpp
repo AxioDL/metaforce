@@ -75,6 +75,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
     xf4_electric->SetGlobalTranslation(xf.origin);
     xf4_electric->SetGlobalScale(scale);
     xf4_electric->SetParticleEmission(active);
+    xf4_electric->SetModulationColor(lParms.GetNoLightsAmbient());
   }
   xe7_29_drawEnabled = true;
 }
@@ -96,7 +97,6 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
         x104_particleSystem->SetOrientation(newXf);
         x104_particleSystem->SetGlobalTranslation(GetTranslation());
         x104_particleSystem->SetGlobalScale(scale);
-        x104_particleSystem->SetParticleEmission(oldActive);
         x104_particleSystem->SetModulationColor(color);
         x104_particleSystem->SetModelsUseLights(x138_actorLights != nullptr);
       }
@@ -110,7 +110,6 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
         xf4_electric->SetOrientation(newXf);
         xf4_electric->SetGlobalTranslation(GetTranslation());
         xf4_electric->SetGlobalScale(scale);
-        xf4_electric->SetParticleEmission(oldActive);
         xf4_electric->SetModulationColor(color);
       }
     }
@@ -151,28 +150,30 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
   mgr.SendScriptMsg(light, uid, msg);
 
   if (oldActive != GetActive()) {
-    std::vector<TUniqueId> playIds;
-    for (const SConnection& conn : x20_conns) {
-      if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Activate) {
-        continue;
+    if (GetActive()) {
+      std::vector<TUniqueId> playIds;
+      for (const SConnection& conn : x20_conns) {
+        if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Activate) {
+          continue;
+        }
+
+        const TUniqueId scriptId = mgr.GetIdForScript(conn.x8_objId);
+        if (scriptId != kInvalidUniqueId) {
+          playIds.push_back(scriptId);
+        }
       }
 
-      const TUniqueId scriptId = mgr.GetIdForScript(conn.x8_objId);
-      if (scriptId != kInvalidUniqueId) {
-        playIds.push_back(scriptId);
-      }
-    }
-
-    if (playIds.size() > 0) {
-      TCastToConstPtr<CActor> otherAct =
-          mgr.GetObjectById(playIds[u32(0.99f * playIds.size() * mgr.GetActiveRandom()->Float())]);
-      if (otherAct) {
-        if (light)
-          light->SetTransform(otherAct->GetTransform());
-        else
+      if (!playIds.empty()) {
+        TCastToConstPtr<CActor> otherAct =
+            mgr.GetObjectById(playIds[u32(0.99f * playIds.size() * mgr.GetActiveRandom()->Float())]);
+        if (otherAct) {
           SetTransform(otherAct->GetTransform());
+          if (light)
+            light->SetTransform(otherAct->GetTransform());
+        }
       }
     }
+
     x110_24_enable = true;
     if (x104_particleSystem)
       x104_particleSystem->SetParticleEmission(GetActive());

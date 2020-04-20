@@ -45,12 +45,12 @@ void CScanDisplay::CDataDot::Draw(const zeus::CColor& col, float radius) {
     CGraphics::SetModelMatrix(xf);
     zeus::CColor useColor = col;
     useColor.a() *= x24_alpha;
-    const CTexturedQuadFilter::Vert verts[4] = {
+    const std::array<CTexturedQuadFilter::Vert, 4> verts{{
         {{-radius, 0.f, radius}, {0.f, 1.f}},
         {{-radius, 0.f, -radius}, {0.f, 0.f}},
         {{radius, 0.f, radius}, {1.f, 1.f}},
         {{radius, 0.f, -radius}, {1.f, 0.f}},
-    };
+    }};
     m_quad.drawVerts(useColor, verts);
   }
 }

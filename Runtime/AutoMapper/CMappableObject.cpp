@@ -170,13 +170,13 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
       m_texQuadFilter.emplace(EFilterType::Add, tex, CTexturedQuadFilter::ZTest::GEqual);
     }
 
-    const std::array<CTexturedQuadFilter::Vert, 4> verts{{
+    constexpr std::array<CTexturedQuadFilter::Vert, 4> verts{{
         {{-2.6f, 0.f, 2.6f}, {0.f, 1.f}},
         {{-2.6f, 0.f, -2.6f}, {0.f, 0.f}},
         {{2.6f, 0.f, 2.6f}, {1.f, 1.f}},
         {{2.6f, 0.f, -2.6f}, {1.f, 0.f}},
     }};
-    m_texQuadFilter->drawVerts(iconColor, verts.data());
+    m_texQuadFilter->drawVerts(iconColor, verts);
   }
 }
 

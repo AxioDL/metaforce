@@ -53,7 +53,7 @@ public:
   CTexturedQuadFilter& operator=(CTexturedQuadFilter&&) = default;
   void draw(const zeus::CColor& color, float uvScale, const zeus::CRectangle& rect = DefaultRect, float z = 0.f);
   void drawCropped(const zeus::CColor& color, float uvScale);
-  void drawVerts(const zeus::CColor& color, const Vert verts[4], float lod = 0.f);
+  void drawVerts(const zeus::CColor& color, std::array<Vert, 4> verts, float lod = 0.f);
   void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t);
   const TLockedToken<CTexture>& GetTex() const { return m_tex; }
   const boo::ObjToken<boo::ITexture>& GetBooTex() const { return m_booTex; }

@@ -39,10 +39,12 @@ void CSimpleShadow::Render(const TLockedToken<CTexture>& tex) {
     m_filter.emplace(EFilterType::InvDstMultiply, tex, CTexturedQuadFilter::ZTest::LEqual);
 
   float radius = x34_radius * x30_scale;
-  CTexturedQuadFilter::Vert verts[] = {{{-radius, 0.f, -radius}, {0.f, 0.f}},
-                                       {{radius, 0.f, -radius}, {0.f, 1.f}},
-                                       {{-radius, 0.f, radius}, {1.f, 0.f}},
-                                       {{radius, 0.f, radius}, {1.f, 1.f}}};
+  const std::array<CTexturedQuadFilter::Vert, 4> verts{{
+      {{-radius, 0.f, -radius}, {0.f, 0.f}},
+      {{radius, 0.f, -radius}, {0.f, 1.f}},
+      {{-radius, 0.f, radius}, {1.f, 0.f}},
+      {{radius, 0.f, radius}, {1.f, 1.f}},
+  }};
   m_filter->drawVerts(zeus::skWhite, verts);
 }
 

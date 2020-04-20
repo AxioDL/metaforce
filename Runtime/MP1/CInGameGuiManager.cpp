@@ -614,11 +614,11 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
 
       if (!m_deathRenderTexQuad)
         m_deathRenderTexQuad.emplace(EFilterType::Blend, CGraphics::g_SpareTexture.get());
-      m_deathRenderTexQuad->drawVerts(zeus::CColor(1.f, colT), verts.data());
+      m_deathRenderTexQuad->drawVerts(zeus::CColor(1.f, colT), verts);
 
       if (!m_deathDotQuad)
         m_deathDotQuad.emplace(EFilterType::Multiply, x50_deathDot);
-      m_deathDotQuad->drawVerts(zeus::CColor(1.f, colT), verts.data());
+      m_deathDotQuad->drawVerts(zeus::CColor(1.f, colT), verts);
     }
   }
 }

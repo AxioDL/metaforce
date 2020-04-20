@@ -935,7 +935,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
   rot = orient * rot;
 
   CParticleGlobals::instance()->SetEmitterTime(x74_curFrame);
-  zeus::CColor col = {1.f, 1.f, 1.f, 1.f};
+  zeus::CColor col = x338_moduColor;
 
   zeus::CVector3f pmopVec;
   auto matrixIt = x50_parentMatrices.begin();
@@ -992,8 +992,10 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
     }
 
     CColorElement* pmcl = desc->x78_x64_PMCL.get();
-    if (pmcl)
+    if (pmcl) {
       pmcl->GetValue(partFrame, col);
+      col *= x338_moduColor;
+    }
 
     CGraphics::SetModelMatrix((x10c_globalScaleTransform * partTrans) * x178_localScaleTransform);
 
@@ -1040,11 +1042,10 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
         model->Draw({5, 0, 1, zeus::CColor(1.f, 0.5f)});
       } else if (desc->x44_31_x31_25_PMAB) {
         model->Draw({7, 0, 1, col});
+      } else if (1.f == col.a()) {
+        model->Draw({0, 0, 3, zeus::skWhite});
       } else {
-        if (1.f == col.a())
-          model->Draw({0, 0, 3, zeus::skWhite});
-        else
-          model->Draw({5, 0, 1, col});
+        model->Draw({5, 0, 1, zeus::CColor(1.f, col.a())});
       }
     }
 
