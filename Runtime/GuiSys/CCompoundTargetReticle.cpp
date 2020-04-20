@@ -29,7 +29,6 @@ constexpr char skLockDaggerAssetName[] = "CMDL_LockDagger0";
 constexpr char skGrappleReticleAssetName[] = "CMDL_Grapple";
 constexpr char skXRayRingModelName[] = "CMDL_XRayRetRing";
 constexpr char skThermalReticleAssetName[] = "CMDL_ThermalRet";
-[[maybe_unused]] constexpr char skOrbitPointAssetName[] = "CMDL_OrbitPoint";
 
 float offshoot_func(float f1, float f2, float f3) { return (f1 * 0.5f) + std::sin((f3 - 0.5f) * f2); }
 
