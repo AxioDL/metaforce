@@ -23,12 +23,12 @@ public:
 
   void WaitUntilComplete() override {
     while (!m_complete.load() && !m_cancel.load()) {
-      std::unique_lock<std::mutex> lk(CDvdFile::m_WaitMutex);
+      std::unique_lock lk{CDvdFile::m_WaitMutex};
     }
   }
   bool IsComplete() override { return m_complete.load(); }
   void PostCancelRequest() override {
-    std::unique_lock<std::mutex> waitlk(CDvdFile::m_WaitMutex);
+    std::unique_lock waitlk{CDvdFile::m_WaitMutex};
     m_cancel.store(true);
   }
 
@@ -61,15 +61,16 @@ std::condition_variable CDvdFile::m_WorkerCV;
 std::mutex CDvdFile::m_WaitMutex;
 std::atomic_bool CDvdFile::m_WorkerRun = {false};
 std::vector<std::shared_ptr<IDvdRequest>> CDvdFile::m_RequestQueue;
+
 void CDvdFile::WorkerProc() {
   logvisor::RegisterThreadName("CDvdFile");
   while (m_WorkerRun.load()) {
-    std::unique_lock<std::mutex> lk(CDvdFile::m_WorkerMutex);
-    while (!CDvdFile::m_RequestQueue.empty()) {
+    std::unique_lock lk{m_WorkerMutex};
+    while (!m_RequestQueue.empty()) {
       std::vector<std::shared_ptr<IDvdRequest>> swapQueue;
-      swapQueue.swap(CDvdFile::m_RequestQueue);
+      swapQueue.swap(m_RequestQueue);
       lk.unlock();
-      std::unique_lock<std::mutex> waitlk(CDvdFile::m_WaitMutex);
+      std::unique_lock waitlk{m_WaitMutex};
       for (std::shared_ptr<IDvdRequest>& req : swapQueue) {
         auto& concreteReq = static_cast<CFileDvdRequest&>(*req);
         concreteReq.DoRequest();
@@ -88,7 +89,7 @@ void CDvdFile::WorkerProc() {
 std::shared_ptr<IDvdRequest> CDvdFile::AsyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int off,
                                                      std::function<void(u32)>&& cb) {
   std::shared_ptr<IDvdRequest> ret = std::make_shared<CFileDvdRequest>(*this, buf, len, whence, off, std::move(cb));
-  std::unique_lock<std::mutex> lk(CDvdFile::m_WorkerMutex);
+  std::unique_lock lk{m_WorkerMutex};
   m_RequestQueue.emplace_back(ret);
   lk.unlock();
   m_WorkerCV.notify_one();

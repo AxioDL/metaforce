@@ -991,7 +991,7 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
   /* Classify intermediate into tag */
   urde::SObjectTag pathTag = buildTagFromPath(path);
   if (pathTag) {
-    std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
+    std::unique_lock lk{m_backgroundIndexMutex};
     bool useGlob = false;
 
     /* Special multi-resource intermediates */

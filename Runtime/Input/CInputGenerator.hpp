@@ -93,21 +93,21 @@ public:
     }
     void controllerDisconnected(unsigned idx) override {
       /* Controller thread */
-      std::unique_lock<std::mutex> lk(m_stateLock);
+      std::unique_lock lk{m_stateLock};
       m_statusChanges[idx].store(EStatusChange::Disconnected);
       m_states[idx].reset();
     }
     void controllerUpdate(unsigned idx, boo::EDolphinControllerType,
                           const boo::DolphinControllerState& state) override {
       /* Controller thread */
-      std::unique_lock<std::mutex> lk(m_stateLock);
+      std::unique_lock lk{m_stateLock};
       m_states[idx] = state;
     }
 
     std::array<CFinalInput, 4> m_lastUpdates;
     const CFinalInput& getFinalInput(unsigned idx, float dt, float leftDiv, float rightDiv) {
       /* Game thread */
-      std::unique_lock<std::mutex> lk(m_stateLock);
+      std::unique_lock lk{m_stateLock};
       boo::DolphinControllerState state = m_states[idx];
       lk.unlock();
       state.clamp(); /* PADClamp equivalent */
