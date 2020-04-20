@@ -24,7 +24,7 @@ class CIceSheegothData {
   float x170_;
   float x174_;
   CAssetId x178_;
-  CAssetId x17c_;
+  CAssetId x17c_fireBreathResId;
   CDamageInfo x180_;
   CAssetId x19c_;
   CAssetId x1a0_;
@@ -47,23 +47,31 @@ class CIceSheegothData {
 public:
   CIceSheegothData(CInputStream& in, s32 propertyCount);
 
-  CDamageVulnerability Get_x80() const { return x80_; }
-  CAssetId Get_x150() const { return x150_; }
-  CDamageInfo Get_x154() const { return x154_; }
-  float Get_x170() const { return x170_; }
-  float Get_x174() const { return x174_; }
-  CAssetId Get_x178() const { return x178_; }
-  CAssetId Get_x1a0() const { return x1a0_; }
-  CAssetId Get_x1a4() const { return x1a4_; }
-  CAssetId Get_x1a8() const { return x1a8_; }
-  CAssetId Get_x1ac() const { return x1ac_; }
-  float Get_x1b0() const { return x1b0_; }
-  CDamageInfo Get_x1b8() const { return x1b8_; }
+  [[nodiscard]] CDamageVulnerability Get_x80() const { return x80_; }
+  [[nodiscard]] CAssetId Get_x150() const { return x150_; }
+  [[nodiscard]] CDamageInfo Get_x154() const { return x154_; }
+  [[nodiscard]] float Get_x170() const { return x170_; }
+  [[nodiscard]] float Get_x174() const { return x174_; }
+  [[nodiscard]] CAssetId Get_x178() const { return x178_; }
+  [[nodiscard]] CAssetId GetFireBreathResId() const { return x17c_fireBreathResId;}
+  [[nodiscard]] CDamageInfo GetFireBreathDamage() const { return x180_; }
+  [[nodiscard]] CAssetId Get_x1a0() const { return x1a0_; }
+  [[nodiscard]] CAssetId Get_x1a4() const { return x1a4_; }
+  [[nodiscard]] CAssetId Get_x1a8() const { return x1a8_; }
+  [[nodiscard]] CAssetId Get_x1ac() const { return x1ac_; }
+  [[nodiscard]] float Get_x1b0() const { return x1b0_; }
+  [[nodiscard]] CDamageInfo Get_x1b8() const { return x1b8_; }
+  [[nodiscard]] float Get_x1e0() const { return x1e0_; }
+  [[nodiscard]] CAssetId Get_x1e4() const { return x1e4_; }
+  [[nodiscard]] s16 Get_x1e8() const { return x1e8_; }
+  [[nodiscard]] CAssetId Get_x1ec() const { return x1ec_; }
+  [[nodiscard]] bool Get_x1f0_24() const { return x1f0_24_; }
+  [[nodiscard]] bool Get_x1f0_25() const { return x1f0_25_; }
 };
 
 class CIceSheegoth : public CPatterned {
   s32 x568_ = -1;
-  CIceSheegothData x56c_;
+  CIceSheegothData x56c_sheegothData;
   CPathFindSearch x760_;
   CPathFindSearch x844_;
   s32 x928_ = 0;
@@ -90,7 +98,7 @@ class CIceSheegoth : public CPatterned {
   std::unique_ptr<CCollisionActorManager> xa2c_collisionManager;
   CCollidableAABox xa30_;
   CProjectileInfo xa58_;
-  TUniqueId xa80_ = kInvalidUniqueId;
+  TUniqueId xa80_flameThrowerId = kInvalidUniqueId;
   TToken<CWeaponDescription> xa84_;
   TCachedToken<CGenDescription> xa8c_;
   //bool xa98_;
@@ -143,7 +151,19 @@ class CIceSheegoth : public CPatterned {
   void AddCollisionList(const SJointInfo* info, size_t count, std::vector<CJointCollisionDescription>& vecOut);
   void SetupCollisionActorManager(CStateManager& mgr);
   void SetupHealthInfo(CStateManager& mgr);
-
+  void AttractProjectiles(CStateManager& mgr);
+  void sub_801a0b8c(float dt);
+  void sub_8019e6f0(CStateManager& mgr);
+  void sub_8019eb50(CStateManager& mgr);
+  void PreventWorldCollisions(float dt, CStateManager& mgr);
+  void sub_8019f680(CStateManager& mgr);
+  void sub_8019f5cc(float dt, CStateManager& mgr);
+  void sub_8019ee18(u32 i) { x928_ = i; }
+  void UpdateParticleEffects(float dt, CStateManager& mgr);
+  bool sub_801a1794(CStateManager& mgr) const {
+    const CHealthInfo* hInfo = GetHealthInfo(mgr);
+    return hInfo != nullptr && hInfo->GetHP() < 0.3f * x970_;
+  }
 public:
   DEFINE_PATTERNED(IceSheeegoth);
   CIceSheegoth(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform& xf, CModelData&& mData,

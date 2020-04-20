@@ -1,35 +1,13 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
-    <MarkdownNavigatorCodeStyleSettings>
-      <option name="RIGHT_MARGIN" value="72" />
-    </MarkdownNavigatorCodeStyleSettings>
-    <Objective-C>
-      <option name="INDENT_NAMESPACE_MEMBERS" value="0" />
-      <option name="INDENT_C_STRUCT_MEMBERS" value="2" />
-      <option name="INDENT_CLASS_MEMBERS" value="2" />
-      <option name="INDENT_INSIDE_CODE_BLOCK" value="2" />
-      <option name="SPACE_WITHIN_TEMPLATE_DOUBLE_GT" value="false" />
-      <option name="SPACE_BEFORE_POINTER_IN_DECLARATION" value="false" />
-      <option name="SPACE_AFTER_POINTER_IN_DECLARATION" value="true" />
-      <option name="SPACE_BEFORE_REFERENCE_IN_DECLARATION" value="false" />
-      <option name="SPACE_AFTER_REFERENCE_IN_DECLARATION" value="true" />
-    </Objective-C>
     <Objective-C-extensions>
       <extensions>
-        <pair source="cpp" header="hpp" fileNamingConvention="NONE" />
+        <pair source="cpp" header="hpp" fileNamingConvention="PASCAL_CASE" />
         <pair source="c" header="h" fileNamingConvention="NONE" />
       </extensions>
     </Objective-C-extensions>
     <clangFormatSettings>
       <option name="ENABLED" value="true" />
     </clangFormatSettings>
-    <codeStyleSettings language="ObjectiveC">
-      <option name="INDENT_CASE_FROM_SWITCH" value="false" />
-      <indentOptions>
-        <option name="INDENT_SIZE" value="2" />
-        <option name="CONTINUATION_INDENT_SIZE" value="2" />
-        <option name="TAB_SIZE" value="2" />
-      </indentOptions>
-    </codeStyleSettings>
   </code_scheme>
 </component>
