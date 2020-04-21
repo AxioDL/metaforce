@@ -3032,7 +3032,7 @@ CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int p
 
   return new MP1::CMagdolite(mgr.AllocateUniqueId(), actorHead.x0_name, info, actorHead.x10_transform,
                              std::move(modelData), pInfo, actorParameters, f1, f2, damageInfo1, damageInfo2,
-                             damageVulnerability1, damageVulnerability2, modelId, skinId, f3, f4, f5, f6, flameInfo, f7,
+                             damageVulnerability1, damageVulnerability2, modelId, skinId, f6, f3, f4, f5, flameInfo, f7,
                              f8, f9);
 }
 

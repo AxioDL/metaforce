@@ -65,8 +65,6 @@ void CStateMachineState::Update(CStateManager& mgr, CAi& ai, float delta) {
   if (x4_state) {
     x8_time += delta;
     x4_state->CallFunc(mgr, ai, EStateMsg::Update, delta);
-    fmt::print(FMT_STRING("Update: {} {} {} - {} {}\n"), ai.GetUniqueId(), ai.GetEditorId(), ai.GetName(),
-               x4_state->xc_name, int(x4_state - x0_machine->GetStateVector().data()));
     for (int i = 0; i < x4_state->GetNumTriggers(); ++i) {
       CAiTrigger* trig = x4_state->GetTrig(i);
       CAiState* state = nullptr;

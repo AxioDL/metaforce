@@ -76,28 +76,30 @@ void CMagdolite::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
   case EScriptObjectMessage::Damage:
   case EScriptObjectMessage::InvulnDamage:
     if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(uid)) {
-      if (proj->GetOwnerId() == mgr.GetPlayer().GetUniqueId() &&
-          (GetBodyController()->GetPercentageFrozen() <= 0.f ||
-           x5bc_.GetVulnerability(proj->GetDamageInfo().GetWeaponMode(), false) == EVulnerability::Deflect)) {
-        if (x70c_curHealth - HealthInfo(mgr)->GetHP() <= x574_minHp &&
-            x624_.GetVulnerability(proj->GetDamageInfo().GetWeaponMode(), false) != EVulnerability::Deflect) {
-          x400_24_hitByPlayerProjectile = true;
-        } else {
-          x70c_curHealth = HealthInfo(mgr)->GetHP();
-          x754_24_retreat = true;
+      if (proj->GetOwnerId() == mgr.GetPlayer().GetUniqueId()) {
+        if (GetBodyController()->GetPercentageFrozen() <= 0.f ||
+            x5bc_.GetVulnerability(proj->GetDamageInfo().GetWeaponMode(), false) == EVulnerability::Deflect) {
+          float hp = HealthInfo(mgr)->GetHP();
+          if (x70c_curHealth - hp <= x574_minHp) {
+            if (x624_.GetVulnerability(proj->GetDamageInfo().GetWeaponMode(), false) != EVulnerability::Deflect) {
+              x400_24_hitByPlayerProjectile = true;
+            }
+          } else {
+            x70c_curHealth = hp;
+            x754_24_retreat = true;
+          }
+        } else if (x400_24_hitByPlayerProjectile) {
+          x754_26_lostMyHead = true;
+          x401_30_pendingDeath = true;
         }
-      } else if (x400_24_hitByPlayerProjectile) {
-        x754_26_lostMyHead = true;
-        x401_30_pendingDeath = true;
       }
     }
     return;
-  case EScriptObjectMessage::SuspendedMove: {
+  case EScriptObjectMessage::SuspendedMove:
     if (x580_collisionManager) {
       x580_collisionManager->SetMovable(mgr, false);
     }
     break;
-  }
   case EScriptObjectMessage::Registered: {
     x450_bodyController->Activate(mgr);
     RemoveMaterial(EMaterialTypes::Solid, mgr);
@@ -249,7 +251,7 @@ void CMagdolite::Think(float dt, CStateManager& mgr) {
     }
     x580_collisionManager->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
     zeus::CTransform headXf = GetLocatorTransform("head"sv);
-    MoveCollisionPrimitive(headXf.rotate(GetModelData()->GetScale() * headXf.origin));
+    MoveCollisionPrimitive(GetTransform().rotate(GetModelData()->GetScale() * headXf.origin));
     xe4_27_notInSortedLists = true;
   }
 
