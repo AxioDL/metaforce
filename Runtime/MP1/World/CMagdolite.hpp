@@ -20,16 +20,16 @@ private:
   float x57c_;
   std::unique_ptr<CCollisionActorManager> x580_collisionManager;
   CBoneTracking x584_boneTracker;
-  CDamageVulnerability x5bc_;
-  CDamageVulnerability x624_;
+  CDamageVulnerability x5bc_instaKillVulnerability;
+  CDamageVulnerability x624_normalVulnerability;
   // CRefData* x68c_;
   TLockedToken<CSkinnedModel> x690_headlessModel;
   rstl::reserved_vector<TUniqueId, 4> x69c_;
-  CFlameInfo x6a8_;
+  CFlameInfo x6a8_flameInfo;
   TUniqueId x6c8_flameThrowerId = kInvalidUniqueId;
-  TLockedToken<CWeaponDescription> x6cc_; // was TToken<CWeaponDescription>
-  CDamageInfo x6d4_;
-  CDamageInfo x6f0_;
+  TLockedToken<CWeaponDescription> x6cc_flameThrowerDesc; // was TToken<CWeaponDescription>
+  CDamageInfo x6d4_flameThrowerDamage;
+  CDamageInfo x6f0_headContactDamage;
   float x70c_curHealth = 0.f; // not init in ctr
   zeus::CVector3f x710_attackOffset;
   zeus::CVector3f x71c_attackTarget;
