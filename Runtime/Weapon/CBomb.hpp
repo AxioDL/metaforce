@@ -22,9 +22,9 @@ class CBomb : public CWeapon {
   std::unique_ptr<CElementGen> x184_particle2;
   TUniqueId x188_lightId = kInvalidUniqueId;
   const CGenDescription* x18c_particle2Obj;
-  bool x190_24_isNotDetonated : 1;
-  bool x190_25_beingDragged : 1;
-  bool x190_26_disableFuse : 1;
+  bool x190_24_isNotDetonated : 1 = true;
+  bool x190_25_beingDragged : 1 = false;
+  bool x190_26_disableFuse : 1 = false;
 
 public:
   CBomb(const TCachedToken<CGenDescription>& particle1, const TCachedToken<CGenDescription>& particle2, TUniqueId uid,

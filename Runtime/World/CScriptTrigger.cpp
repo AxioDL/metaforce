@@ -21,12 +21,8 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEnti
 , x128_forceMagnitude(forceField.magnitude())
 , x12c_flags(triggerFlags)
 , x130_bounds(bounds)
-, x148_24_detectCamera(false)
-, x148_25_camSubmerged(false)
 , x148_26_deactivateOnEntered(deactivateOnEntered)
-, x148_27_deactivateOnExited(deactivateOnExited)
-, x148_28_playerTriggerProc(false)
-, x148_29_didPhazonDamage(false) {
+, x148_27_deactivateOnExited(deactivateOnExited) {
   SetCallTouch(false);
 }
 

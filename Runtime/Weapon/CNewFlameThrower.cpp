@@ -27,11 +27,6 @@ CNewFlameThrower::CNewFlameThrower(const TToken<CWeaponDescription>& desc, std::
   x334_secondarySparks.GetObj();
   x340_swooshCenter.GetObj();
   x34c_swooshFire.GetObj();
-  x37c_24_renderAuxEffects = false;
-  x37c_25_firing = false;
-  x37c_26_ = false;
-  x37c_27_ = true;
-  x37c_28_ = false;
   x380_.resize(3);
 }
 

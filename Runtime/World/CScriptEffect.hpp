@@ -29,7 +29,7 @@ class CScriptEffect : public CActor {
   bool x110_31_anyVisorVisible : 1;
   bool x111_24_useRateCamDistRange : 1;
   bool x111_25_dieWhenSystemsDone : 1;
-  bool x111_26_canRender : 1;
+  bool x111_26_canRender : 1 = false;
   float x114_rateInverseCamDist;
   float x118_rateInverseCamDistSq;
   float x11c_rateInverseCamDistRate;

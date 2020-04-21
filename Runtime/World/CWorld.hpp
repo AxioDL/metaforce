@@ -134,10 +134,10 @@ private:
   IFactory& x64_resFactory;
   TAreaId x68_curAreaId = kInvalidAreaId;
   u32 x6c_loadedAudioGrpCount = 0;
-  bool x70_24_currentAreaNeedsAllocation : 1;
-  bool x70_25_loadPaused : 1;
-  bool x70_26_skyboxActive : 1;
-  bool x70_27_skyboxVisible : 1;
+  bool x70_24_currentAreaNeedsAllocation : 1 = true;
+  bool x70_25_loadPaused : 1 = false;
+  bool x70_26_skyboxActive : 1 = false;
+  bool x70_27_skyboxVisible : 1 = false;
   std::vector<CSoundGroupData> x74_soundGroupData;
   std::string x84_defAudioTrack;
   std::optional<TLockedToken<CModel>> x94_skyboxWorld;

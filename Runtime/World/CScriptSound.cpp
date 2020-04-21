@@ -28,16 +28,13 @@ CScriptSound::CScriptSound(TUniqueId uid, std::string_view name, const CEntityIn
 , x114_pan(pan / 64.f - 1.f)
 , x116_(w6)
 , x118_pitch(pitch / 8192.f)
-, x11c_24_playRequested(false)
 , x11c_25_looped(looped)
 , x11c_26_nonEmitter(nonEmitter)
 , x11c_27_autoStart(autoStart)
 , x11c_28_occlusionTest(occlusionTest)
 , x11c_29_acoustics(acoustics)
 , x11c_30_worldSfx(worldSfx)
-, x11c_31_selfFree(false)
-, x11d_24_allowDuplicates(allowDuplicates)
-, x11d_25_processedThisFrame(false) {
+, x11d_24_allowDuplicates(allowDuplicates) {
   if (x11c_30_worldSfx && (!x11c_26_nonEmitter || !x11c_25_looped))
     x11c_30_worldSfx = false;
 }

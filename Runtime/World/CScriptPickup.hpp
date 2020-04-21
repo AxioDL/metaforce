@@ -19,9 +19,9 @@ class CScriptPickup : public CPhysicsActor {
   float x278_delayTimer;
   TLockedToken<CGenDescription> x27c_pickupParticleDesc;
 
-  bool x28c_24_generated : 1;
-  bool x28c_25_inTractor : 1;
-  bool x28c_26_enableTractorTest : 1;
+  bool x28c_24_generated : 1 = false;
+  bool x28c_25_inTractor : 1 = false;
+  bool x28c_26_enableTractorTest : 1 = false;
 
 public:
   CScriptPickup(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,

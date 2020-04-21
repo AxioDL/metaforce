@@ -20,10 +20,7 @@ CScriptMazeNode::CScriptMazeNode(TUniqueId uid, std::string_view name, const CEn
 , xf0_(w2)
 , x100_(vec1)
 , x110_(vec2)
-, x120_(vec3)
-, x13c_24_(true)
-, x13c_25_(false)
-, x13c_26_(false) {}
+, x120_(vec3) {}
 
 void CScriptMazeNode::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

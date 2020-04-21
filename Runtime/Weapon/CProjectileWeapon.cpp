@@ -15,15 +15,7 @@ CProjectileWeapon::CProjectileWeapon(const TToken<CWeaponDescription>& wDesc, co
 , x10_random(g_GlobalSeed)
 , x14_localToWorldXf(localToWorld)
 , x74_worldOffset(worldOffset)
-, xe4_flags(flags)
-, x124_24_active(true)
-, x124_25_APSO(false)
-, x124_26_AP11(false)
-, x124_27_AP21(false)
-, x124_28_AS11(false)
-, x124_29_AS12(false)
-, x124_30_AS13(false)
-, x124_31_VMD2(false) {
+, xe4_flags(flags) {
   CGlobalRandom gr(x10_random);
   x124_31_VMD2 = x4_weaponDesc->x10_VMD2;
   x124_25_APSO = x4_weaponDesc->x28_APSO;

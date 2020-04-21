@@ -16,8 +16,8 @@ private:
   bool x44_25_isPassive : 1;
   bool x44_26_fadeOut : 1;
   bool x44_27_timedLoop : 1;
-  bool x44_28_playing : 1;
-  bool x44_29_ : 1;
+  bool x44_28_playing : 1 = false;
+  bool x44_29_ : 1 = false;
 
 public:
   CScriptActorKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 animId, bool looping,

@@ -14,8 +14,8 @@ class CScriptCameraHintTrigger : public CActor {
   zeus::CVector3f x124_scale;
   bool x130_24_deactivateOnEnter : 1;
   bool x130_25_deactivateOnExit : 1;
-  bool x130_26_playerInside : 1;
-  bool x130_27_playerWasInside : 1;
+  bool x130_26_playerInside : 1 = false;
+  bool x130_27_playerWasInside : 1 = false;
 
 public:
   CScriptCameraHintTrigger(TUniqueId uid, bool active, std::string_view name,

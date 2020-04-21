@@ -38,7 +38,6 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
                                                                                                                  : 0.1f)
 , x2c0_homingTargetId(homingTarget)
 , x2cc_wpscId(wDesc.GetObjectTag()->id)
-, x2e4_24_active(true)
 , x2e4_25_startedUnderwater(underwater)
 , x2e4_26_waterUpdate(underwater)
 , x2e4_27_inWater(underwater)

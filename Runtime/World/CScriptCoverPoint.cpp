@@ -17,8 +17,7 @@ CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, std::string_view name, const
 , xe8_29_((flags & 0x4) != 0u)
 , xe8_30_attackDirection((flags & 0x2) != 0u)
 , xf4_coverTime(coverTime)
-, xf8_24_crouch(crouch)
-, xf8_25_inUse(false) {
+, xf8_24_crouch(crouch) {
   xec_cosHorizontalAngle = std::cos(zeus::degToRad(horizontalAngle) * 0.5f);
   xf0_sinVerticalAngle = std::sin(zeus::degToRad(verticalAngle) * 0.5f);
   x100_touchBounds.emplace(xf.origin, xf.origin);

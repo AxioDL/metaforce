@@ -16,9 +16,9 @@ class CScriptWorldTeleporter : public CEntity {
   CAssetId x34_worldId;
   CAssetId x38_areaId;
   ETeleporterType x3c_type = ETeleporterType::NoTransition;
-  bool x40_24_upElevator : 1;
-  bool x40_25_inTransition : 1;
-  bool x40_27_fadeWhite : 1;
+  bool x40_24_upElevator : 1 = false;
+  bool x40_25_inTransition : 1 = false;
+  bool x40_27_fadeWhite : 1 = false;
   float x44_charFadeIn = 0.1f;
   float x48_charsPerSecond = 8.0f;
   float x4c_showDelay = 0.0f;

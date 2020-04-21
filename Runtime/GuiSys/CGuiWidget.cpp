@@ -18,14 +18,7 @@ CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
   xb6_24_pg = parms.xd_g;
   xb6_25_isVisible = parms.xa_defaultVisible;
   xb6_26_isActive = parms.xb_defaultActive;
-  xb6_27_isSelectable = true;
-  xb6_28_eventLock = false;
   xb6_29_cullFaces = parms.xc_cullFaces;
-  xb6_30_depthGreater = false;
-  xb6_31_depthTest = true;
-  xb7_24_depthWrite = false;
-  xb7_25_ = true;
-  m_mouseActive = false;
   RecalcWidgetColor(ETraversalMode::Single);
 }
 

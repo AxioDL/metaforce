@@ -12,7 +12,7 @@ class CScriptAiJumpPoint : public CActor {
 private:
   float xe8_apex;
   zeus::CAABox xec_touchBounds;
-  bool x108_24 : 1;
+  bool x108_24 : 1 = false;
   TUniqueId x10a_occupant = kInvalidUniqueId;
   TUniqueId x10c_currentWaypoint = kInvalidUniqueId;
   TUniqueId x10e_nextWaypoint = kInvalidUniqueId;

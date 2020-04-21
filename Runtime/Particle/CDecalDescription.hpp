@@ -23,7 +23,7 @@ struct SQuadDescr {
 
 class CDecalDescription {
 public:
-  CDecalDescription() : x5c_24_DMAB(false), x5c_25_DMOO(false) {}
+  CDecalDescription() = default;
 
   SQuadDescr x0_Quads[2];
   SParticleModel x38_DMDL;
@@ -32,8 +32,8 @@ public:
   std::unique_ptr<CVectorElement> x50_DMRT;
   std::unique_ptr<CVectorElement> x54_DMSC;
   std::unique_ptr<CColorElement> x58_DMCL;
-  bool x5c_24_DMAB : 1;
-  bool x5c_25_DMOO : 1;
+  bool x5c_24_DMAB : 1 = false;
+  bool x5c_25_DMOO : 1 = false;
 };
 
 } // namespace urde

@@ -15,14 +15,11 @@ class CGunController {
   CGSFidget x30_fidget;
   EGunState x50_gunState = EGunState::Inactive;
   s32 x54_curAnimId = -1;
-  bool x58_24_animDone : 1;
-  bool x58_25_enteredComboFire : 1;
+  bool x58_24_animDone : 1 = true;
+  bool x58_25_enteredComboFire : 1 = false;
 
 public:
-  explicit CGunController(CModelData& modelData) : x0_modelData(modelData) {
-    x58_24_animDone = true;
-    x58_25_enteredComboFire = false;
-  }
+  explicit CGunController(CModelData& modelData) : x0_modelData(modelData) {}
 
   void UnLoadFidget() { x30_fidget.UnLoadAnim(); }
   void LoadFidgetAnimAsync(CStateManager& mgr, s32 type, s32 gunId, s32 animSet);

@@ -24,7 +24,6 @@ CScriptBallTrigger::CScriptBallTrigger(TUniqueId uid, std::string_view name, con
 , x150_force(f1)
 , x154_minAngle(f2)
 , x158_maxDistance(f3)
-, x168_24_canApplyForce(false)
 , x168_25_stopPlayer(b2) {
 
   if (vec.canBeNormalized())

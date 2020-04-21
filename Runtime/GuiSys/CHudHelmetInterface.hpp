@@ -12,11 +12,11 @@ class CHudHelmetInterface {
   zeus::CMatrix3f x0_hudLagRotation;
   zeus::CVector3f x24_pivotPosition;
   zeus::CVector3f x30_hudLagPosition;
-  bool x3c_24_helmetVisibleDebug : 1;
-  bool x3c_25_helmetVisibleGame : 1;
-  bool x3c_26_glowVisibleDebug : 1;
-  bool x3c_27_glowVisibleGame : 1;
-  bool x3c_28_hudLagDirty : 1;
+  bool x3c_24_helmetVisibleDebug : 1 = true;
+  bool x3c_25_helmetVisibleGame : 1 = true;
+  bool x3c_26_glowVisibleDebug : 1 = true;
+  bool x3c_27_glowVisibleGame : 1 = true;
+  bool x3c_28_hudLagDirty : 1 = false;
   CGuiCamera* x40_camera;
   CGuiWidget* x44_BaseWidget_Pivot;
   CGuiWidget* x48_BaseWidget_Helmet;

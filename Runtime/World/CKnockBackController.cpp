@@ -359,19 +359,7 @@ constexpr std::array<std::array<std::array<CKnockBackController::KnockBackParms,
 
 constexpr std::array ImpulseDurationTable{0.1f, 0.3f};
 
-CKnockBackController::CKnockBackController(EKnockBackVariant variant)
-: x0_variant(variant)
-, x81_24_autoResetImpulse(true)
-, x81_25_enableFreeze(true)
-, x81_26_enableShock(false)
-, x81_27_enableBurn(true)
-, x81_28_enableBurnDeath(true)
-, x81_29_enableExplodeDeath(true)
-, x81_30_enableLaggedBurnDeath(true)
-, x81_31_(true)
-, x82_24_(true)
-, x82_25_inDeferredKnockBack(false)
-, x82_26_locomotionDuringElectrocution(false) {
+CKnockBackController::CKnockBackController(EKnockBackVariant variant) : x0_variant(variant) {
   x24_.resize(x24_.capacity(), std::make_pair(0.0f, FLT_MAX));
 }
 

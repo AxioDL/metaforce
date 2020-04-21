@@ -20,8 +20,7 @@ CScriptShadowProjector::CScriptShadowProjector(TUniqueId uid, std::string_view n
 , xfc_opacity(opacity)
 , x100_opacityRecip(opacity < 0.00001 ? 1.f : opacityQ / opacity)
 , x10c_textureSize(textureSize)
-, x110_24_persistent(persistent)
-, x110_25_shadowInvalidated(false) {}
+, x110_24_persistent(persistent) {}
 
 void CScriptShadowProjector::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

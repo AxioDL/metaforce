@@ -27,10 +27,7 @@ CBomb::CBomb(const TCachedToken<CGenDescription>& particle1, const TCachedToken<
                                                CElementGen::EOptionalSystemFlags::One))
 , x184_particle2(std::make_unique<CElementGen>(particle2, CElementGen::EModelOrientationType::Normal,
                                                CElementGen::EOptionalSystemFlags::One))
-, x18c_particle2Obj(particle2.GetObj())
-, x190_24_isNotDetonated(true)
-, x190_25_beingDragged(false)
-, x190_26_disableFuse(false) {
+, x18c_particle2Obj(particle2.GetObj()) {
   x180_particle1->SetGlobalTranslation(xf.origin);
   x184_particle2->SetGlobalTranslation(xf.origin);
 }

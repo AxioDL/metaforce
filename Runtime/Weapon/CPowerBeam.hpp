@@ -13,8 +13,8 @@ class CPowerBeam final : public CGunWeapon {
   std::unique_ptr<CElementGen> x238_power2ndGen;
   float x23c_smokeTimer = 0.f;
   ESmokeState x240_smokeState = ESmokeState::Inactive;
-  bool x244_24 : 1;
-  bool x244_25_loaded : 1;
+  bool x244_24 : 1 = false;
+  bool x244_25_loaded : 1 = false;
   void ReInitVariables();
 
 public:

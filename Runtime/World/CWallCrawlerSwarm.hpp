@@ -39,26 +39,17 @@ public:
       CCollisionSurface(zeus::CVector3f(0.f, 0.f, 1.f), zeus::CVector3f(0.f, 1.f, 0.f),
                         zeus::CVector3f(1.f, 0.f, 0.f), 0xffffffff);
     float x78_health = 0.f;
-    int x7c_framesNotOnSurface : 8;
+    int x7c_framesNotOnSurface : 8 = 0;
     int x7c_idx : 10;
-    int x7c_remainingLaunchNotOnSurfaceFrames : 8;
-    bool x80_24_active : 1;
-    bool x80_25_inFrustum : 1;
-    bool x80_26_launched : 1;
-    bool x80_27_scarabExplodeTimerEnabled : 1;
-    bool x80_28_nearPlayer : 1;
+    int x7c_remainingLaunchNotOnSurfaceFrames : 8 = 0;
+    bool x80_24_active : 1 = false;
+    bool x80_25_inFrustum : 1 = false;
+    bool x80_26_launched : 1 = false;
+    bool x80_27_scarabExplodeTimerEnabled : 1 = false;
+    bool x80_28_nearPlayer : 1 = false;
 
   public:
-    CBoid(const zeus::CTransform& xf, int idx)
-    : x0_xf(xf)
-    , x7c_framesNotOnSurface(0)
-    , x7c_idx(idx)
-    , x7c_remainingLaunchNotOnSurfaceFrames(0)
-    , x80_24_active(false)
-    , x80_25_inFrustum(false)
-    , x80_26_launched(false)
-    , x80_27_scarabExplodeTimerEnabled(false)
-    , x80_28_nearPlayer(false) {}
+    CBoid(const zeus::CTransform& xf, int idx) : x0_xf(xf), x7c_idx(idx) {}
 
     zeus::CTransform& Transform() { return x0_xf; }
     zeus::CVector3f& Translation() { return x0_xf.origin; }
@@ -123,9 +114,9 @@ private:
   EFlavor x558_flavor;
   u16 x55c_launchSfx;
   u16 x55e_scatterSfx;
-  bool x560_24_enableLighting : 1;
-  bool x560_25_useSoftwareLight : 1;
-  bool x560_26_modelAssetDirty : 1;
+  bool x560_24_enableLighting : 1 = true;
+  bool x560_25_useSoftwareLight : 1 = true;
+  bool x560_26_modelAssetDirty : 1 = false;
 
   void AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which);
   void AddDoorRepulsors(CStateManager& mgr);

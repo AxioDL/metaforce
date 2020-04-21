@@ -13,11 +13,7 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view n
                                                bool active, CAssetId worldId, CAssetId areaId)
 : CEntity(uid, info, active, name)
 , x34_worldId(worldId)
-, x38_areaId(areaId)
-, x3c_type(ETeleporterType::NoTransition)
-, x40_24_upElevator(false)
-, x40_25_inTransition(false)
-, x40_27_fadeWhite(false) {}
+, x38_areaId(areaId) {}
 
 CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                bool active, CAssetId worldId, CAssetId areaId, CAssetId playerAncs,
@@ -30,8 +26,6 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view n
 , x38_areaId(areaId)
 , x3c_type(ETeleporterType::Elevator)
 , x40_24_upElevator(upElevator)
-, x40_25_inTransition(false)
-, x40_27_fadeWhite(false)
 , x50_playerAnim(playerAncs, charIdx, defaultAnim)
 , x5c_playerScale(playerScale)
 , x68_platformModel(platformModel)
@@ -50,8 +44,6 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view n
 , x34_worldId(worldId)
 , x38_areaId(areaId)
 , x3c_type(ETeleporterType::Text)
-, x40_24_upElevator(false)
-, x40_25_inTransition(false)
 , x40_27_fadeWhite(fadeWhite)
 , x44_charFadeIn(charFadeIn)
 , x48_charsPerSecond(charsPerSecond)

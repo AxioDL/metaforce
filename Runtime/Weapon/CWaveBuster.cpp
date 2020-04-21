@@ -24,11 +24,6 @@ CWaveBuster::CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType typ
   x388_busterSwoosh2Gen = std::make_unique<CParticleSwoosh>(x360_busterSwoosh2, 0);
   x38c_busterSparksGen = std::make_unique<CElementGen>(x36c_busterSparks);
   x390_busterLightGen = std::make_unique<CElementGen>(x378_busterLight);
-  x3d0_24_firing = true;
-  x3d0_25_ = true;
-  x3d0_26_ = false;
-  x3d0_27_ = false;
-  x3d0_28_ = true;
 }
 
 void CWaveBuster::UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr) {}

@@ -99,17 +99,17 @@ private:
   s32 x1c0_layerIdx;
   CPlayerState::EItemType x1c4_item;
   std::optional<zeus::CAABox> x1c8_touchBounds;
-  bool x1e4_24_ : 1;
-  bool x1e4_25_spinnerCanMove : 1;
-  bool x1e4_26_sfx2Played : 1;
-  bool x1e4_27_sfx3Played : 1;
-  bool x1e4_28_frustumEntered : 1;
-  bool x1e4_29_frustumExited : 1;
-  bool x1e4_30_ : 1;
-  bool x1e4_31_inAreaDamage : 1;
-  bool x1e5_24_doSave : 1;
-  bool x1e5_25_playerInArea : 1;
-  bool x1e5_26_displayBillboard : 1;
+  bool x1e4_24_ : 1 = false;
+  bool x1e4_25_spinnerCanMove : 1 = false;
+  bool x1e4_26_sfx2Played : 1 = true;
+  bool x1e4_27_sfx3Played : 1 = false;
+  bool x1e4_28_frustumEntered : 1 = false;
+  bool x1e4_29_frustumExited : 1 = false;
+  bool x1e4_30_ : 1 = false;
+  bool x1e4_31_inAreaDamage : 1 = false;
+  bool x1e5_24_doSave : 1 = false;
+  bool x1e5_25_playerInArea : 1 = false;
+  bool x1e5_26_displayBillboard : 1 = false;
   TLockedToken<CTexture> x1e8_; // Used to be optional
 public:
   CScriptSpecialFunction(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, ESpecialFunction,

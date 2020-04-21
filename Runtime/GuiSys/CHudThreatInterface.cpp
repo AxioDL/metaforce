@@ -23,8 +23,6 @@ constexpr std::array IconTranslateRanges{
 
 CHudThreatInterface::CHudThreatInterface(CGuiFrame& selHud, EHudType hudType, float threatDist)
 : x4_hudType(hudType), x10_threatDist(threatDist) {
-  x54_24_visibleDebug = true;
-  x54_25_visibleGame = true;
   x58_basewidget_threatstuff = selHud.FindWidget("basewidget_threatstuff");
   x5c_basewidget_threaticon = selHud.FindWidget("basewidget_threaticon");
   x60_model_threatarrowup = static_cast<CGuiModel*>(selHud.FindWidget("model_threatarrowup"));

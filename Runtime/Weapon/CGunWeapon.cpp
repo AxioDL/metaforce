@@ -70,13 +70,7 @@ CGunWeapon::CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId, EM
 , x1c8_playerMaterial(playerMaterial)
 , x200_beamId(GetWeaponIndex(type))
 , x20c_shaderIdx(u32(x200_beamId))
-, x214_ancsId(ancsId)
-, x218_24(false)
-, x218_25_enableCharge(false)
-, x218_26_loaded(false)
-, x218_27_subtypeBasePose(false)
-, x218_28_suitArmLocked(false)
-, x218_29_drawHologram(false) {
+, x214_ancsId(ancsId) {
   AllocResPools(x200_beamId);
   BuildDependencyList(x200_beamId);
 }

@@ -19,7 +19,7 @@ class CGunMotion {
   CModelData x0_modelData;
   CGunController x4c_gunController;
   std::vector<CToken> xa8_anims;
-  bool xb8_24_animPlaying : 1;
+  bool xb8_24_animPlaying : 1 = false;
 
   void LoadAnimations();
 

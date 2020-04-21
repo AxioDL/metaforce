@@ -9,8 +9,7 @@
 #include <zeus/Math.hpp>
 
 namespace urde {
-CBurstFire::CBurstFire(const SBurst* const* burstDefs, s32 firstBurstCount)
-: x10_firstBurstCounter(firstBurstCount), x14_24_shouldFire(false), x14_25_avoidAccuracy(false) {
+CBurstFire::CBurstFire(const SBurst* const* burstDefs, s32 firstBurstCount) : x10_firstBurstCounter(firstBurstCount) {
   while (*burstDefs) {
     x1c_burstDefs.push_back(*burstDefs);
     ++burstDefs;

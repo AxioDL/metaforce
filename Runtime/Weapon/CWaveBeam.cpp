@@ -23,8 +23,6 @@ CWaveBeam::CWaveBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId,
   x228_wave2nd1 = g_SimplePool->GetObj("Wave2nd_1");
   x234_wave2nd2 = g_SimplePool->GetObj("Wave2nd_2");
   x240_wave2nd3 = g_SimplePool->GetObj("Wave2nd_3");
-  x258_24_loaded = false;
-  x258_25_effectTimerActive = false;
 }
 
 void CWaveBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {

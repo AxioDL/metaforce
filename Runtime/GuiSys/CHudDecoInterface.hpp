@@ -43,8 +43,8 @@ class CHudDecoInterfaceCombat : public IHudDecoInterface {
   zeus::CVector3f x2c_camPos;
   zeus::CVector3f x38_basePosition;
   zeus::CMatrix3f x44_baseRotation;
-  bool x68_24_visDebug : 1;
-  bool x68_25_visGame : 1;
+  bool x68_24_visDebug : 1 = true;
+  bool x68_25_visGame : 1 = true;
   CGuiCamera* x6c_camera;
   CGuiWidget* x70_basewidget_pivot;
   CGuiWidget* x74_basewidget_deco;
@@ -86,8 +86,8 @@ class CHudDecoInterfaceScan : public IHudDecoInterface {
   float x234_sidesPositioner;
   float x238_scanningTextAlpha = 0.f;
   float x23c_scanBarAlpha = 0.f;
-  bool x240_24_visDebug : 1;
-  bool x240_25_visGame : 1;
+  bool x240_24_visDebug : 1 = true;
+  bool x240_25_visGame : 1 = true;
   CGuiCamera* x244_camera;
   CGuiWidget* x248_basewidget_pivot;
   CGuiWidget* x24c_basewidget_leftside;
@@ -133,8 +133,8 @@ class CHudDecoInterfaceXRay : public IHudDecoInterface {
   zeus::CVector3f x60_seekerPosition;
   zeus::CVector3f x6c_;
   zeus::CMatrix3f x78_;
-  bool x9c_24_visDebug : 1;
-  bool x9c_25_visGame : 1;
+  bool x9c_24_visDebug : 1 = true;
+  bool x9c_25_visGame : 1 = true;
   CGuiCamera* xa0_camera;
   CGuiWidget* xa4_basewidget_pivot;
   CGuiWidget* xa8_basewidget_seeker;
@@ -165,8 +165,8 @@ class CHudDecoInterfaceThermal : public IHudDecoInterface {
   zeus::CVector3f x5c_reticulePosition;
   float x68_lockonScale = 5.f;
   float x6c_retflashTimer = 0.f;
-  bool x70_24_visDebug : 1;
-  bool x70_25_visGame : 1;
+  bool x70_24_visDebug : 1 = true;
+  bool x70_25_visGame : 1 = true;
   CGuiCamera* x74_camera;
   CGuiWidget* x78_basewidget_pivot;
   CGuiWidget* x7c_basewidget_reticle;

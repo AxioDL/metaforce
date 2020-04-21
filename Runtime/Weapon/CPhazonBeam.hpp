@@ -17,10 +17,10 @@ class CPhazonBeam final : public CGunWeapon {
   float x268_clipWipeScale = 0.f;
   float x26c_clipWipeTranslate = 0.f;
   float x270_indirectAlpha = 1.f;
-  bool x274_24_loaded : 1;
-  bool x274_25_clipWipeActive : 1;
-  bool x274_26_veinsAlphaActive : 1;
-  bool x274_27_phazonVeinsIdx : 1;
+  bool x274_24_loaded : 1 = false;
+  bool x274_25_clipWipeActive : 1 = true;
+  bool x274_26_veinsAlphaActive : 1 = false;
+  bool x274_27_phazonVeinsIdx : 1 = false;
   float x278_fireTime = 1.f / 3.f;
   CAABoxShader m_aaboxShaderScale{true};
   CAABoxShader m_aaboxShaderTranslate{true};

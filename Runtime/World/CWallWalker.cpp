@@ -24,12 +24,7 @@ CWallWalker::CWallWalker(ECharacter chr, TUniqueId uid, std::string_view name, E
 , x5cc_bendingHackAnim(
       GetModelData()->GetAnimationData()->GetCharacterInfo().GetAnimationIndex("BendingAnimationHack"sv))
 , x5d0_walkerType(wType)
-, x5d6_24_alignToFloor(false)
-, x5d6_25_hasAlignSurface(false)
-, x5d6_26_playerObstructed(false)
-, x5d6_27_disableMove(disableMove)
-, x5d6_28_addBendingWeight(true)
-, x5d6_29_applyBendingHack(false) {}
+, x5d6_27_disableMove(disableMove) {}
 
 void CWallWalker::OrientToSurfaceNormal(const zeus::CVector3f& normal, float clampAngle) {
   float dot = x34_transform.basis[2].dot(normal);

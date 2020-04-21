@@ -56,8 +56,8 @@ public:
     zeus::CVector3f xec_particleOffsetScale = zeus::skOne3f;
     zeus::CTransform xf8_iceXf;
     CActorModelParticles& x128_parent;
-    bool x12c_24_thermalCold : 1;
-    bool x12c_25_thermalHot : 1;
+    bool x12c_24_thermalCold : 1 = false;
+    bool x12c_25_thermalHot : 1 = false;
     float x130_remTime = 10.f;
     mutable u8 x134_lockDeps = 0;
     bool UpdateOnFire(float dt, CActor* actor, CStateManager& mgr);

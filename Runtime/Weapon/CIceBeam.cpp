@@ -13,8 +13,6 @@ CIceBeam::CIceBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId, E
   x21c_iceSmoke = g_SimplePool->GetObj("IceSmoke");
   x228_ice2nd1 = g_SimplePool->GetObj("Ice2nd_1");
   x234_ice2nd2 = g_SimplePool->GetObj("Ice2nd_2");
-  x248_24_loaded = false;
-  x248_25_inEndFx = false;
 }
 
 void CIceBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {

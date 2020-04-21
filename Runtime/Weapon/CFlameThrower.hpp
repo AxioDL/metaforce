@@ -31,8 +31,8 @@ private:
   CAssetId x3f4_playerSteamTxtr;
   s16 x3f8_playerHitSfx;
   CAssetId x3fc_playerIceTxtr;
-  bool x400_24_active : 1;
-  bool x400_25_particlesActive : 1;
+  bool x400_24_active : 1 = false;
+  bool x400_25_particlesActive : 1 = false;
   bool x400_26_ : 1;
   bool x400_27_coneCollision : 1; /* Z-sort and finer collision detection */
 

@@ -22,8 +22,6 @@ void IHudDecoInterface::ProcessInput(const CFinalInput& input) {}
 float IHudDecoInterface::GetHudTextAlpha() const { return 1.f; }
 
 CHudDecoInterfaceCombat::CHudDecoInterfaceCombat(CGuiFrame& selHud) {
-  x68_24_visDebug = true;
-  x68_25_visGame = true;
   x6c_camera = selHud.GetFrameCamera();
   x2c_camPos = x6c_camera->GetLocalPosition();
   x70_basewidget_pivot = selHud.FindWidget("basewidget_pivot");
@@ -86,8 +84,6 @@ void CHudDecoInterfaceCombat::UpdateHudAlpha() {
 CHudDecoInterfaceScan::CHudDecoInterfaceScan(CGuiFrame& selHud) : x14_selHud(selHud), x18_scanDisplay(selHud) {
   x4_scanHudFlat = g_SimplePool->GetObj("FRME_ScanHudFlat");
   x234_sidesPositioner = g_tweakGui->GetScanSidesPositionStart();
-  x240_24_visDebug = true;
-  x240_25_visGame = true;
   x244_camera = selHud.GetFrameCamera();
   x248_basewidget_pivot = selHud.FindWidget("basewidget_pivot");
   x24c_basewidget_leftside = selHud.FindWidget("basewidget_leftside");
@@ -354,9 +350,6 @@ CHudDecoInterfaceXRay::CHudDecoInterfaceXRay(CGuiFrame& selHud) {
   xa0_camera = selHud.GetFrameCamera();
   x30_camPos = xa0_camera->GetLocalPosition();
 
-  x9c_24_visDebug = true;
-  x9c_25_visGame = true;
-
   xa4_basewidget_pivot = selHud.FindWidget("basewidget_pivot");
   xa8_basewidget_seeker = selHud.FindWidget("basewidget_seeker");
   xac_basewidget_rotate = selHud.FindWidget("basewidget_rotate");
@@ -439,9 +432,6 @@ void CHudDecoInterfaceXRay::UpdateHudAlpha() {
 }
 
 CHudDecoInterfaceThermal::CHudDecoInterfaceThermal(CGuiFrame& selHud) {
-  x70_24_visDebug = true;
-  x70_25_visGame = true;
-
   x74_camera = selHud.GetFrameCamera();
   x2c_camPos = x74_camera->GetLocalPosition();
 

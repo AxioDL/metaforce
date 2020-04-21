@@ -18,7 +18,6 @@ CExplosion::CExplosion(const TLockedToken<CGenDescription>& particle, TUniqueId 
                                                               : CElementGen::EOptionalSystemFlags::One);
   xf0_particleDesc = particle.GetObj();
   xf4_24_renderThermalHot = flags & 0x4;
-  xf4_25_ = true;
   xf4_26_renderXray = flags & 0x8;
   xe6_27_thermalVisorFlags = flags & 0x1 ? 1 : 2;
   xe8_particleGen->SetGlobalTranslation(xf.origin);
@@ -34,7 +33,6 @@ CExplosion::CExplosion(const TLockedToken<CElectricDescription>& electric, TUniq
   xe8_particleGen = std::make_unique<CParticleElectric>(electric);
   xf0_electricDesc = electric.GetObj();
   xf4_24_renderThermalHot = flags & 0x4;
-  xf4_25_ = true;
   xf4_26_renderXray = flags & 0x8;
   xe6_27_thermalVisorFlags = flags & 0x1 ? 1 : 2;
   xe8_particleGen->SetGlobalTranslation(xf.origin);

@@ -19,9 +19,7 @@ CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, std::string_view name,
 , x44_24_looping(looping)
 , x44_25_isPassive(isPassive)
 , x44_26_fadeOut(fadeOut != 0u)
-, x44_27_timedLoop(fadeOut != 0u)
-, x44_28_playing(false)
-, x44_29_(false) {}
+, x44_27_timedLoop(fadeOut != 0u) {}
 
 void CScriptActorKeyframe::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

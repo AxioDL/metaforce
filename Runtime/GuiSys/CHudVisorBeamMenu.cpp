@@ -50,10 +50,6 @@ constexpr std::array<u16, 2> SelectionSfxs{
 CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
                                      const rstl::reserved_vector<bool, 4>& enables)
 : x0_baseHud(baseHud), x4_type(type) {
-  x14_24_visibleDebug = true;
-  x14_25_visibleGame = true;
-  x14_26_dirty = true;
-
   x7c_animDur = g_tweakGui->GetBeamVisorMenuAnimTime();
   x80_24_swapBeamControls = g_GameState->GameOptions().GetSwapBeamControls();
 

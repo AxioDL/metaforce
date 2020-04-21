@@ -27,8 +27,8 @@ class CHudMissileInterface {
   float x50_missileIconAltDeplete = 0.f;
   float x54_missileIconIncrement = 0.f;
   bool x58_24_missilesActive : 1;
-  bool x58_25_visibleDebug : 1;
-  bool x58_26_visibleGame : 1;
+  bool x58_25_visibleDebug : 1 = true;
+  bool x58_26_visibleGame : 1 = true;
   bool x58_27_hasArrows : 1;
   bool x58_28_notXRay : 1;
   CGuiWidget* x5c_basewidget_missileicon;

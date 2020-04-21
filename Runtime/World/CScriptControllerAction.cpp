@@ -14,8 +14,7 @@ CScriptControllerAction::CScriptControllerAction(TUniqueId uid, std::string_view
 , x34_command(command)
 , x38_mapScreenSubaction(w1)
 , x3c_24_mapScreenResponse(mapScreenResponse)
-, x3c_25_deactivateOnClose(deactivateOnClose)
-, x3c_26_pressed(false) {}
+, x3c_25_deactivateOnClose(deactivateOnClose) {}
 
 void CScriptControllerAction::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

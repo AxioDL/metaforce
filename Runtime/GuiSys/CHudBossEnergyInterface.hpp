@@ -14,7 +14,7 @@ class CHudBossEnergyInterface {
   float x4_fader = 0.f;
   float x8_curEnergy = 0.f;
   float xc_maxEnergy = 0.f;
-  bool x10_24_visible : 1;
+  bool x10_24_visible : 1 = false;
   CGuiWidget* x14_basewidget_bossenergystuff;
   CAuiEnergyBarT01* x18_energybart01_bossbar;
   CGuiTextPane* x1c_textpane_boss;

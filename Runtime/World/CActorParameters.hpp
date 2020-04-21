@@ -18,20 +18,16 @@ class CActorParameters {
   std::pair<CAssetId, CAssetId> x44_xrayAssets = {};
   std::pair<CAssetId, CAssetId> x4c_thermalAssets = {};
   CVisorParameters x54_visorParms;
-  bool x58_24_globalTimeProvider : 1;
-  bool x58_25_thermalHeat : 1;
-  bool x58_26_renderUnsorted : 1;
-  bool x58_27_noSortThermal : 1;
+  bool x58_24_globalTimeProvider : 1 = true;
+  bool x58_25_thermalHeat : 1 = false;
+  bool x58_26_renderUnsorted : 1 = false;
+  bool x58_27_noSortThermal : 1 = false;
   float x5c_fadeInTime = 0.f;
   float x60_fadeOutTime = 0.f;
   float x64_thermalMag = 0.f;
 
 public:
-  CActorParameters()
-  : x58_24_globalTimeProvider(true)
-  , x58_25_thermalHeat(false)
-  , x58_26_renderUnsorted(false)
-  , x58_27_noSortThermal(false) {}
+  CActorParameters() = default;
   CActorParameters(const CLightParameters& lightParms, const CScannableParameters& scanParms,
                    const std::pair<CAssetId, CAssetId>& xrayAssets, const std::pair<CAssetId, CAssetId>& thermalAssets,
                    const CVisorParameters& visorParms, bool globalTimeProvider, bool thermalHeat, bool renderUnsorted,

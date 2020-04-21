@@ -39,25 +39,25 @@ public:
   // std::unique_ptr<CVectorElement> x38_ILOC;
   // std::unique_ptr<CVectorElement> x3c_IVEC;
   std::unique_ptr<CEmitterElement> x40_x2c_EMTR;
-  bool x44_28_x30_28_SORT : 1;
-  bool x44_30_x31_24_MBLR : 1;
-  bool x44_24_x30_24_LINE : 1;
-  bool x44_29_x30_29_LIT_ : 1;
-  bool x44_26_x30_26_AAPH : 1;
-  bool x44_27_x30_27_ZBUF : 1;
-  bool x44_25_x30_25_FXLL : 1;
-  bool x44_31_x31_25_PMAB : 1;
-  bool x45_29_x31_31_VMD4 : 1;
-  bool x45_28_x31_30_VMD3 : 1;
-  bool x45_27_x31_29_VMD2 : 1;
-  bool x45_26_x31_28_VMD1 : 1;
-  bool x45_31_x32_25_OPTS : 1;
-  bool x45_24_x31_26_PMUS : 1;
-  bool x45_25_x31_27_PMOO : 1;
-  bool x45_30_x32_24_CIND : 1;
+  bool x44_28_x30_28_SORT : 1 = false;
+  bool x44_30_x31_24_MBLR : 1 = false;
+  bool x44_24_x30_24_LINE : 1 = false;
+  bool x44_29_x30_29_LIT_ : 1 = false;
+  bool x44_26_x30_26_AAPH : 1 = false;
+  bool x44_27_x30_27_ZBUF : 1 = false;
+  bool x44_25_x30_25_FXLL : 1 = false;
+  bool x44_31_x31_25_PMAB : 1 = false;
+  bool x45_29_x31_31_VMD4 : 1 = false;
+  bool x45_28_x31_30_VMD3 : 1 = false;
+  bool x45_27_x31_29_VMD2 : 1 = false;
+  bool x45_26_x31_28_VMD1 : 1 = false;
+  bool x45_31_x32_25_OPTS : 1 = false;
+  bool x45_24_x31_26_PMUS : 1 = false;
+  bool x45_25_x31_27_PMOO : 1 = true;
+  bool x45_30_x32_24_CIND : 1 = false;
   /* 0-00 additions */
-  bool x30_30_ORNT : 1;
-  bool x30_31_RSOP : 1;
+  bool x30_30_ORNT : 1 = false;
+  bool x30_31_RSOP : 1 = false;
   std::unique_ptr<CIntElement> x48_x34_MBSP;
   std::unique_ptr<CRealElement> x4c_x38_SIZE;
   std::unique_ptr<CRealElement> x50_x3c_ROTA;
@@ -107,25 +107,7 @@ public:
   /* Custom additions */
   std::unique_ptr<CColorElement> m_bevelGradient; /* FourCC BGCL */
 
-  CGenDescription()
-  : x44_28_x30_28_SORT(false)
-  , x44_30_x31_24_MBLR(false)
-  , x44_24_x30_24_LINE(false)
-  , x44_29_x30_29_LIT_(false)
-  , x44_26_x30_26_AAPH(false)
-  , x44_27_x30_27_ZBUF(false)
-  , x44_25_x30_25_FXLL(false)
-  , x44_31_x31_25_PMAB(false)
-  , x45_29_x31_31_VMD4(false)
-  , x45_28_x31_30_VMD3(false)
-  , x45_27_x31_29_VMD2(false)
-  , x45_26_x31_28_VMD1(false)
-  , x45_31_x32_25_OPTS(false)
-  , x45_24_x31_26_PMUS(false)
-  , x45_25_x31_27_PMOO(true)
-  , x45_30_x32_24_CIND(false)
-  , x30_30_ORNT(false)
-  , x30_31_RSOP(false) {}
+  CGenDescription() = default;
 };
 
 } // namespace urde

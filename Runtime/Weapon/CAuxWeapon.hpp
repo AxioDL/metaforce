@@ -24,7 +24,7 @@ class CAuxWeapon {
   CPlayerState::EBeamId x74_firingBeamId = CPlayerState::EBeamId::Invalid;
   CPlayerState::EBeamId x78_loadBeamId = CPlayerState::EBeamId::Power;
   CSfxHandle x7c_comboSfx;
-  bool x80_24_isLoaded : 1;
+  bool x80_24_isLoaded : 1 = false;
   void InitComboData();
   void FreeComboVoiceId();
   void DeleteFlameThrower(CStateManager& mgr);

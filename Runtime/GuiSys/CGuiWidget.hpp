@@ -75,14 +75,14 @@ protected:
   bool xb6_24_pg : 1;
   bool xb6_25_isVisible : 1;
   bool xb6_26_isActive : 1;
-  bool xb6_27_isSelectable : 1;
-  bool xb6_28_eventLock : 1;
+  bool xb6_27_isSelectable : 1 = true;
+  bool xb6_28_eventLock : 1 = false;
   bool xb6_29_cullFaces : 1;
-  bool xb6_30_depthGreater : 1;
-  bool xb6_31_depthTest : 1;
-  bool xb7_24_depthWrite : 1;
-  bool xb7_25_ : 1;
-  bool m_mouseActive : 1;
+  bool xb6_30_depthGreater : 1 = false;
+  bool xb6_31_depthTest : 1 = true;
+  bool xb7_24_depthWrite : 1 = false;
+  bool xb7_25_ : 1 = true;
+  bool m_mouseActive : 1 = false;
 
   std::optional<boo::SScrollDelta> m_lastScroll;
   boo::SScrollDelta m_integerScroll;

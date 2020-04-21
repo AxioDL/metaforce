@@ -39,12 +39,7 @@ CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, st
 , x48c_(bInfo.GetLength() / 32.f)
 , x490_innerColor(bInfo.GetInnerColor())
 , x494_outerColor(bInfo.GetOuterColor())
-, x548_24_(false)
-, x548_25_enableEnergyPulse(true)
-, x548_26_firing(false)
-, x548_27_texturesLoaded(false)
-, x548_28_drawOwnerFirst(growingBeam)
-, x548_29_activePlayerPhazon(false) {
+, x548_28_drawOwnerFirst(growingBeam) {
   x4e8_texture = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), bInfo.GetTextureId()});
   x4f4_glowTexture = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), bInfo.GetGlowTextureId()});
   x500_contactFxDesc = g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), bInfo.GetContactFxId()});

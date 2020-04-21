@@ -20,11 +20,7 @@ CScriptColorModulate::CScriptColorModulate(TUniqueId uid, std::string_view name,
 , x54_25_resetTargetWhenDone(resetTargetWhenDone)
 , x54_26_depthCompare(depthCompare)
 , x54_27_depthUpdate(depthUpdate)
-, x54_28_depthBackwards(depthBackwards)
-, x54_29_reversing(false)
-, x54_30_enable(false)
-, x54_31_dieOnEnd(false)
-, x55_24_isFadeOutHelper(false) {}
+, x54_28_depthBackwards(depthBackwards) {}
 
 void CScriptColorModulate::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

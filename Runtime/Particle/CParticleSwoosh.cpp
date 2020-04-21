@@ -16,16 +16,7 @@ CParticleSwoosh::CParticleSwoosh(const TToken<CSwooshDescription>& desc, int len
 , x1c0_rand(x1c_desc->x45_26_CRND ? std::chrono::duration_cast<std::chrono::microseconds>(
                                         std::chrono::steady_clock::now().time_since_epoch())
                                         .count()
-                                  : 99)
-, x1d0_24_emitting(true)
-, x1d0_25_AALP(false)
-, x1d0_26_forceOneUpdate(false)
-, x1d0_27_renderGaps(false)
-, x1d0_28_LLRD(false)
-, x1d0_29_VLS1(false)
-, x1d0_30_VLS2(false)
-, x1d0_31_constantTex(false)
-, x1d1_24_constantUv(false) {
+                                  : 99) {
   ++g_ParticleSystemAliveCount;
 
   if (leng > 0) {

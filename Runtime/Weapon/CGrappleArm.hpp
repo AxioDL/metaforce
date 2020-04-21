@@ -75,12 +75,12 @@ private:
   CPlayerState::EPlayerSuit x3a8_loadedSuit = CPlayerState::EPlayerSuit::Invalid;
   float x3ac_pitchBend = 0.f;
   s16 x3b0_rumbleHandle = -1;
-  bool x3b2_24_active : 1;
-  bool x3b2_25_beamActive : 1;
-  bool x3b2_26_grappleHit : 1;
-  bool x3b2_27_armMoving : 1;
-  bool x3b2_28_isGrappling : 1;
-  bool x3b2_29_suitLoading : 1;
+  bool x3b2_24_active : 1 = false;
+  bool x3b2_25_beamActive : 1 = false;
+  bool x3b2_26_grappleHit : 1 = false;
+  bool x3b2_27_armMoving : 1 = false;
+  bool x3b2_28_isGrappling : 1 = false;
+  bool x3b2_29_suitLoading : 1 = false;
 
   static float g_GrappleBeamAnglePhaseDelta;
   static float g_GrappleBeamXWaveAmplitude;

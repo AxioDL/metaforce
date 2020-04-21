@@ -31,8 +31,6 @@ CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::strin
 , x3f4_playerSteamTxtr(playerSteamTxtr)
 , x3f8_playerHitSfx(playerHitSfx)
 , x3fc_playerIceTxtr(playerIceTxtr)
-, x400_24_active(false)
-, x400_25_particlesActive(false)
 , x400_26_((flameInfo.GetAttributes() & 1) == 0)
 , x400_27_coneCollision((flameInfo.GetAttributes() & 0x2) != 0) {}
 

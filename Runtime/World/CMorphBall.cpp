@@ -271,12 +271,6 @@ CMorphBall::CMorphBall(CPlayer& player, float radius)
   x1c14_worldShadow = std::make_unique<CWorldShadow>(128, 128, false);
   x1c18_actorLights = std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, false, false, 0.1f);
   x1c1c_rainSplashGen = std::make_unique<CRainSplashGenerator>(x58_ballModel->GetScale(), 40, 2, 0.15f, 0.5f);
-  x1de4_24_inBoost = false;
-  x1de4_25_boostEnabled = true;
-  x1df8_24_inHalfPipeMode = false;
-  x1df8_25_inHalfPipeModeInAir = false;
-  x1df8_26_touchedHalfPipeRecently = false;
-  x1df8_27_ballCloseToCollision = false;
 
   x19d4_spiderBallMagnetEffectGen->SetParticleEmission(false);
   x19d4_spiderBallMagnetEffectGen->Update(1.0 / 60.0);

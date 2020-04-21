@@ -13,8 +13,6 @@ CScriptActorRotate::CScriptActorRotate(TUniqueId uid, std::string_view name, con
 : CEntity(uid, info, active, name)
 , x34_rotation(rotation)
 , x40_maxTime(maxTime)
-, x58_24_updateRotation(false)
-, x58_25_skipSpiderBallWaypoints(false)
 , x58_26_updateActors(updateActors)
 , x58_27_updateOnCreation(updateOnCreation) {}
 
