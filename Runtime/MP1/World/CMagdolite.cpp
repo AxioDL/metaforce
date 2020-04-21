@@ -172,7 +172,7 @@ void CMagdolite::SetupCollisionActors(CStateManager& mgr) {
 
   for (int i = 0; i < x580_collisionManager->GetNumCollisionActors(); ++i) {
     const auto& desc = x580_collisionManager->GetCollisionDescFromIndex(i);
-    if (desc.GetName().compare("Top_LCTR"sv) != 0 && desc.GetName().compare("Bottom_LCTR"sv) != 0) {
+    if (desc.GetName() == "Top_LCTR"sv || desc.GetName() == "Bottom_LCTR"sv) {
       if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(desc.GetCollisionActorId())) {
         colAct->AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
         x69c_.push_back(colAct->GetUniqueId());
@@ -577,8 +577,7 @@ bool CMagdolite::Leash(CStateManager& mgr, float arg) {
 }
 
 bool CMagdolite::HasAttackPattern(CStateManager& mgr, float arg) {
-  bool ret = FindSuitableTarget(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow) != kInvalidUniqueId;
-  return ret;
+  return FindSuitableTarget(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow) != kInvalidUniqueId;
 }
 
 bool CMagdolite::LineOfSight(CStateManager& mgr, float arg) {
