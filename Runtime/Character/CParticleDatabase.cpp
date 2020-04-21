@@ -10,10 +10,7 @@
 
 namespace urde {
 
-CParticleDatabase::CParticleDatabase() {
-  xb4_24_updatesEnabled = true;
-  xb4_25_anySystemsDrawnWithModel = false;
-}
+CParticleDatabase::CParticleDatabase() = default;
 
 void CParticleDatabase::CacheParticleDesc(const SObjectTag& tag) {}
 

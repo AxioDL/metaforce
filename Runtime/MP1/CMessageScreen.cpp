@@ -12,7 +12,6 @@
 namespace urde::MP1 {
 
 CMessageScreen::CMessageScreen(CAssetId msg, float delayTime) : x74_delayTime(delayTime) {
-  x78_24_exit = false;
   x0_msg = g_SimplePool->GetObj({FOURCC('STRG'), msg});
   xc_msgScreen = g_SimplePool->GetObj("FRME_MsgScreen");
 }

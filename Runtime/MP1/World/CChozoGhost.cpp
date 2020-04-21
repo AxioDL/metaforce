@@ -99,18 +99,6 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
 , x660_midChance(midChance)
 , x664_24_behaviorEnabled(w1)
 , x664_25_flinch(!w1)
-, x664_26_alert(false)
-, x664_27_onGround(false)
-, x664_28_(false)
-, x664_29_fadedIn(false)
-, x664_30_fadedOut(false)
-, x664_31_(false)
-, x665_24_(true)
-, x665_25_(false)
-, x665_26_shouldSwoosh(false)
-, x665_27_playerInLeashRange(false)
-, x665_28_inRange(false)
-, x665_29_aggressive(false)
 , x680_behaveType(x664_24_behaviorEnabled ? EBehaveType::Attack : EBehaveType::None)
 , x68c_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
                     EBoneTrackingFlags::None) {

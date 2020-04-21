@@ -19,22 +19,7 @@ namespace urde::MP1 {
 
 CPauseScreenBase::CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg,
                                    bool isLogBook)
-: x4_mgr(mgr)
-, x8_frame(frame)
-, xc_pauseStrg(pauseStrg)
-, x198_24_ready(false)
-, x198_25_handledInput(false)
-, x198_26_exitPauseScreen(false)
-, x198_27_canDraw(false)
-, x198_28_pulseTextArrowTop(false)
-, x198_29_pulseTextArrowBottom(false)
-, m_isLogBook(isLogBook)
-, m_bodyUpClicked(false)
-, m_bodyDownClicked(false)
-, m_bodyClicked(false)
-, m_leftClicked(false)
-, m_rightClicked(false)
-, m_playRightTableSfx(true) {
+: x4_mgr(mgr), x8_frame(frame), xc_pauseStrg(pauseStrg), m_isLogBook(isLogBook) {
   InitializeFrameGlue();
 }
 

@@ -30,7 +30,7 @@ public:
 };
 
 class CMetroid : public CPatterned {
-  bool x9bf_29_ : 1;
+  bool x9bf_29_ : 1 = false;
 
 public:
   DEFINE_PATTERNED(Metroid)

@@ -279,8 +279,8 @@ public:
     float x38_rowPitch = 0.f;
     CSfxHandle x3c_sliderSfx;
     CRumbleGenerator x40_rumbleGen;
-    bool x134_24_visible : 1;
-    bool x134_25_exitOptions : 1;
+    bool x134_24_visible : 1 = true;
+    bool x134_25_exitOptions : 1 = false;
 
     std::unique_ptr<CGameOptionsTouchBar> m_touchBar;
     bool m_touchBarInValue = false;

@@ -33,14 +33,14 @@ class CWarWasp : public CPatterned {
   float x718_circleBurstOffTotemAngle = zeus::degToRad(90.f);
   TLockedToken<CGenDescription> x71c_projectileVisorParticle; // Used to be optional
   u16 x72c_projectileVisorSfx;
-  bool x72e_24_jumpBackRepeat : 1;
-  bool x72e_25_canApplyDamage : 1;
+  bool x72e_24_jumpBackRepeat : 1 = true;
+  bool x72e_25_canApplyDamage : 1 = false;
   bool x72e_26_initiallyInactive : 1;
-  bool x72e_27_teamMatesMelee : 1;
-  bool x72e_28_inProjectileAttack : 1;
-  bool x72e_29_pathObstructed : 1;
-  bool x72e_30_isRetreating : 1;
-  bool x72e_31_heardNoise : 1;
+  bool x72e_27_teamMatesMelee : 1 = false;
+  bool x72e_28_inProjectileAttack : 1 = false;
+  bool x72e_29_pathObstructed : 1 = false;
+  bool x72e_30_isRetreating : 1 = false;
+  bool x72e_31_heardNoise : 1 = false;
 
   void SwarmAdd(CStateManager& mgr);
   void SwarmRemove(CStateManager& mgr);

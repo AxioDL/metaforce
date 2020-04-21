@@ -18,8 +18,8 @@ class CJellyZap : public CPatterned {
   float x5ac_;
   float x5b0_;
   float x5b4_;
-  bool x5b8_24_ : 1;
-  bool x5b8_25_ : 1;
+  bool x5b8_24_ : 1 = false;
+  bool x5b8_25_ : 1 = false;
   bool x5b8_26_ : 1;
 
   void AddSelfToFishCloud(CStateManager&, float, float, bool);

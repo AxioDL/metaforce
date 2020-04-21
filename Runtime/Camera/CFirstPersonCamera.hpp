@@ -14,7 +14,7 @@ class CFirstPersonCamera : public CGameCamera {
   zeus::CTransform x190_gunFollowXf;
   float x1c0_pitch = 0.f;
   TUniqueId x1c4_pitchId = kInvalidUniqueId;
-  bool x1c6_24_deferBallTransitionProcessing : 1;
+  bool x1c6_24_deferBallTransitionProcessing : 1 = false;
   zeus::CVector3f x1c8_closeInVec;
   float x1d4_closeInTimer = 0.f;
   void _fovListener(hecl::CVar* cv);

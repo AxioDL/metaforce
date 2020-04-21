@@ -79,21 +79,7 @@ CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& in
                         g_SimplePool->GetObj({SBIG('WPSC'), babyData.x44_fireBreathWeapon})
                         : g_SimplePool->GetObj("FlameThrower"sv))
 , x98c_dVuln(pInfo.GetDamageVulnerability())
-, xa00_shellHitPoints(babyData.GetShellHitPoints())
-, xa48_24_isAlert(false)
-, xa48_25_(false)
-, xa48_26_inProjectileAttack(false)
-, xa48_27_(false)
-, xa48_28_pendingAttackContactDamage(false)
-, xa48_29_hasBeenEnraged(false)
-, xa48_30_heardPlayerFire(false)
-, xa48_31_approachNeedsPathSearch(true)
-, xa49_24_gettingUp(false)
-, xa49_25_shouldStepBackwards(false)
-, xa49_26_readyForTeam(false)
-, xa49_27_locomotionValid(false)
-, xa49_28_onApproachPath(false)
-, xa49_29_objectSpaceCollision(false) {
+, xa00_shellHitPoints(babyData.GetShellHitPoints()) {
   TLockedToken<CModel> model = g_SimplePool->GetObj({SBIG('CMDL'), babyData.x138_noShellModel});
   TLockedToken<CSkinRules> skin = g_SimplePool->GetObj({SBIG('CSKR'), babyData.x13c_noShellSkin});
   xa08_noShellModel =

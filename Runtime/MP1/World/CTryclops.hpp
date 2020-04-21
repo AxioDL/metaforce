@@ -19,10 +19,10 @@ class CTryclops : public CPatterned {
   u32 x690_ = 0;
   TUniqueId x694_bombId = kInvalidUniqueId;
   TUniqueId x696_ = kInvalidUniqueId;
-  bool x698_24_ : 1;
-  bool x698_25_ : 1;
-  bool x698_26_ : 1;
-  bool x698_27_dizzy : 1;
+  bool x698_24_ : 1 = false;
+  bool x698_25_ : 1 = false;
+  bool x698_26_ : 1 = false;
+  bool x698_27_dizzy : 1 = false;
   bool sub8025dbd0(CStateManager&) { return false; }
   void LaunchPlayer(CStateManager& mgr, const zeus::CTransform& xf, float);
   void DragBomb(CStateManager& mgr, const zeus::CTransform& xf);

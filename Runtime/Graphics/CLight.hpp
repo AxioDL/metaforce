@@ -37,16 +37,13 @@ class CLight {
   u32 x40_lightId = 0; // Serves as unique key
   mutable float x44_cachedRadius = 0.f;
   mutable float x48_cachedIntensity = 0.f;
-  mutable bool x4c_24_intensityDirty : 1;
-  mutable bool x4c_25_radiusDirty : 1;
+  mutable bool x4c_24_intensityDirty : 1 = true;
+  mutable bool x4c_25_radiusDirty : 1 = true;
 
   float CalculateLightRadius() const;
 
 public:
-  CLight() {
-    x4c_24_intensityDirty = true;
-    x4c_25_radiusDirty = true;
-  }
+  CLight() = default;
 
   CLight(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeus::CColor& color, float distC, float distL,
          float distQ, float angleC, float angleL, float angleQ);

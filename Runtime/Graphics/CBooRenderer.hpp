@@ -105,7 +105,7 @@ class CBooRenderer final : public IRenderer {
   u32 xe0_pvsAreaIdx = 0;
 
   // boo::ITextureS* xe4_blackTex = nullptr;
-  bool xee_24_ : 1;
+  bool xee_24_ : 1 = true;
 
   boo::ObjToken<boo::ITexture> m_clearTexture;
   boo::ObjToken<boo::ITexture> m_blackTexture;
@@ -152,15 +152,15 @@ class CBooRenderer final : public IRenderer {
   // std::unique_ptr<CTexture> x314_phazonSuitMask;
   CPhazonSuitFilter m_phazonSuitFilter;
 
-  bool x318_24_refectionDirty : 1;
-  bool x318_25_drawWireframe : 1;
-  bool x318_26_requestRGBA6 : 1;
-  bool x318_27_currentRGBA6 : 1;
-  bool x318_28_disableFog : 1;
-  bool x318_29_thermalVisor : 1;
-  bool x318_30_inAreaDraw : 1;
-  bool x318_31_persistRGBA6 : 1;
-  bool m_thermalHotPass : 1;
+  bool x318_24_refectionDirty : 1 = false;
+  bool x318_25_drawWireframe : 1 = false;
+  bool x318_26_requestRGBA6 : 1 = false;
+  bool x318_27_currentRGBA6 : 1 = false;
+  bool x318_28_disableFog : 1 = false;
+  bool x318_29_thermalVisor : 1 = false;
+  bool x318_30_inAreaDraw : 1 = false;
+  bool x318_31_persistRGBA6 : 1 = false;
+  bool m_thermalHotPass : 1 = false;
 
   void GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx);
   void GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx);

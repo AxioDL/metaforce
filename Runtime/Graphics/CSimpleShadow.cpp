@@ -6,11 +6,7 @@
 namespace urde {
 
 CSimpleShadow::CSimpleShadow(float scale, float userAlpha, float maxObjHeight, float displacement)
-: x30_scale(scale), x38_userAlpha(userAlpha), x40_maxObjHeight(maxObjHeight), x44_displacement(displacement) {
-  x48_24_collision = false;
-  x48_25_alwaysCalculateRadius = true;
-  x48_26_radiusCalculated = false;
-}
+: x30_scale(scale), x38_userAlpha(userAlpha), x40_maxObjHeight(maxObjHeight), x44_displacement(displacement) {}
 
 zeus::CAABox CSimpleShadow::GetMaxShadowBox(const zeus::CAABox& aabb) const {
   float extent = x34_radius * x30_scale;

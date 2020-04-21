@@ -100,8 +100,8 @@ private:
   float xec_preLoadSeconds;
   u32 xf0_preLoadFrames = 0;
   bool xf4_24_loop : 1;
-  bool xf4_25_hasAudio : 1;
-  bool xf4_26_fieldFlip : 1;
+  bool xf4_25_hasAudio : 1 = false;
+  bool xf4_26_fieldFlip : 1 = false;
   bool m_deinterlace : 1;
   u32 xf8_ = 0;
   u32 xfc_fieldIndex = 0;

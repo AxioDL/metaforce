@@ -31,10 +31,7 @@ CBeetle::CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
 , x744_platingVuln(platingVuln)
 , x7ac_tailVuln(tailVuln)
 , x814_attackDelayTimer(initialAttackDelay)
-, x834_retreatTime(retreatTime)
-, x838_24_hitSomething(false)
-, x838_25_burrowing(false)
-, x838_26_canSkid(false) {
+, x834_retreatTime(retreatTime) {
   x5a0_headbuttDist = GetAnimationDistance(CPASAnimParmData(7, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(1)));
   x5a4_jumpBackwardDist =
       x64_modelData->GetScale().y() *

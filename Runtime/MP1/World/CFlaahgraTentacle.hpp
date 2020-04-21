@@ -19,7 +19,7 @@ class CFlaahgraTentacle : public CPatterned {
   TUniqueId x57c_tentacleTipAct = kInvalidUniqueId;
   zeus::CVector3f x580_forceVector;
   TUniqueId x58c_triggerId = kInvalidUniqueId;
-  bool x58e_24_ : 1;
+  bool x58e_24_ : 1 = false;
 
   void AddSphereCollisionList(const SSphereJointInfo* sphereJoints, size_t jointCount,
                               std::vector<CJointCollisionDescription>& outJoints);

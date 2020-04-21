@@ -20,7 +20,6 @@ CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf
               nearz, farz, aspect, watchedObj, false, 0)
 , x188_orbitCameraSpeed(orbitCameraSpeed)
 , x190_gunFollowXf(xf) {
-  x1c6_24_deferBallTransitionProcessing = false;
   DataSpec::DNAMP1::tw_fov->addListener([this](hecl::CVar* cv) { _fovListener(cv); });
 }
 

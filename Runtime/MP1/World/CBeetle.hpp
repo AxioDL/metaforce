@@ -38,9 +38,9 @@ private:
   zeus::CVector3f x824_predictPos;
   float x830_intoGroundFactor = 1.f;
   float x834_retreatTime;
-  bool x838_24_hitSomething : 1;
-  bool x838_25_burrowing : 1;
-  bool x838_26_canSkid : 1;
+  bool x838_24_hitSomething : 1 = false;
+  bool x838_25_burrowing : 1 = false;
+  bool x838_26_canSkid : 1 = false;
 
   void SquadAdd(CStateManager& mgr);
   void SquadRemove(CStateManager& mgr);

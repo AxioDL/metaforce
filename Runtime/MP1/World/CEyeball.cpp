@@ -29,17 +29,9 @@ CEyeball::CEyeball(TUniqueId uid, std::string_view name, CPatterned::EFlavorType
 , x5e0_beamPulseFxId(beamPulseFxId)
 , x5e4_beamTextureId(beamTextureId)
 , x5e8_beamGlowTextureId(beamGlowTextureId)
+, x5f4_animIdxs{static_cast<s32>(anim0), static_cast<s32>(anim1), static_cast<s32>(anim2), static_cast<s32>(anim3)}
 , x604_beamSfxId(CSfxManager::TranslateSFXID(beamSfx))
-, x60c_24_canAttack(false)
-, x60c_25_playerInRange(false)
-, x60c_26_alert(false)
-, x60c_27_attackDisabled(attackDisabled)
-, x60c_28_firingBeam(false) {
-  x5f4_animIdxs[0] = anim0;
-  x5f4_animIdxs[1] = anim1;
-  x5f4_animIdxs[2] = anim2;
-  x5f4_animIdxs[3] = anim3;
-
+, x60c_27_attackDisabled(attackDisabled) {
   x460_knockBackController.SetAutoResetImpulse(false);
 }
 
@@ -192,19 +184,22 @@ void CEyeball::Active(CStateManager& mgr, EStateMsg msg, float) {
 }
 
 void CEyeball::UpdateAnimation() {
-  if (std::fabs(GetModelData()->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv) - 0.f) >= 0.00001f)
+  if (std::fabs(GetModelData()->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv) - 0.f) >= 0.00001f) {
     return;
+  }
 
   x5f0_currentAnim = (x5f0_currentAnim + 1) & 3;
-  for (u32 i = 0; i < 4; ++i) {
-    if (x5f4_animIdxs[x5f0_currentAnim] != -1)
+  for (size_t i = 0; i < x5f4_animIdxs.size(); ++i) {
+    if (x5f4_animIdxs[x5f0_currentAnim] != -1) {
       break;
+    }
 
     x5f0_currentAnim = (x5f0_currentAnim + 1) & 3;
   }
-  s32 animIdx = x5f4_animIdxs[x5f0_currentAnim];
-  if (animIdx != -1)
+  const s32 animIdx = x5f4_animIdxs[x5f0_currentAnim];
+  if (animIdx != -1) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCScriptedCmd(animIdx, false, false, 0.f));
+  }
 }
 
 void CEyeball::ResetBeamState(CStateManager& mgr) {

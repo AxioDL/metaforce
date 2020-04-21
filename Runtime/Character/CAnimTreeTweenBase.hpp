@@ -14,7 +14,7 @@ class CAnimTreeTweenBase : public CAnimTreeDoubleChild {
 protected:
   int x1c_flags;
   bool x20_24_b1 : 1;
-  u8 x20_25_cullSelector : 2;
+  u8 x20_25_cullSelector : 2 = 0;
 
 public:
   CAnimTreeTweenBase(bool, const std::weak_ptr<CAnimTreeNode>& a, const std::weak_ptr<CAnimTreeNode>& b, int,

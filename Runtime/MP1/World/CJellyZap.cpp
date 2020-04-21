@@ -28,8 +28,6 @@ CJellyZap::CJellyZap(TUniqueId uid, std::string_view name, const CEntityInfo& in
 , x5ac_(f6)
 , x5b0_(f7)
 , x5b4_(f12)
-, x5b8_24_(false)
-, x5b8_25_(false)
 , x5b8_26_(b1) {
   UpdateThermalFrozenState(true);
   x50c_baseDamageMag = 0.f;

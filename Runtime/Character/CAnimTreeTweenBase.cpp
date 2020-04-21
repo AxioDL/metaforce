@@ -9,10 +9,7 @@ s32 CAnimTreeTweenBase::sAdvancementDepth = 0;
 
 CAnimTreeTweenBase::CAnimTreeTweenBase(bool b1, const std::weak_ptr<CAnimTreeNode>& a,
                                        const std::weak_ptr<CAnimTreeNode>& b, int flags, std::string_view name)
-: CAnimTreeDoubleChild(a, b, name), x1c_flags(flags) {
-  x20_24_b1 = b1;
-  x20_25_cullSelector = 0;
-}
+: CAnimTreeDoubleChild(a, b, name), x1c_flags(flags), x20_24_b1{b1} {}
 
 void CAnimTreeTweenBase::VGetWeightedReaders(
     rstl::reserved_vector<std::pair<float, std::weak_ptr<IAnimReader>>, 16>& out, float w) const {

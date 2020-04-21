@@ -37,9 +37,7 @@ CPuddleSpore::CPuddleSpore(TUniqueId uid, std::string_view name, EFlavorType fla
 , x594_height(pInfo.GetHeight())
 , x5a0_(CalculateBoundingBox(), GetMaterialList())
 , x5d0_(g_SimplePool->GetObj({SBIG('PART'), glowFx}))
-, x5ec_projectileInfo(weapon, dInfo)
-, x614_24(false)
-, x614_25(false) {
+, x5ec_projectileInfo(weapon, dInfo) {
   x5dc_elemGens.reserve(kEyeCount);
   for (u32 i = 0; i < kEyeCount; ++i)
     x5dc_elemGens.emplace_back(std::make_unique<CElementGen>(x5d0_));

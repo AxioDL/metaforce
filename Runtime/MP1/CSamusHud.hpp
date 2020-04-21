@@ -95,9 +95,9 @@ class CSamusHud {
   u32 x2d4_totalEnergyTanks = 0;
   u32 x2d8_missileAmount = 0;
   u32 x2dc_missileCapacity = 0;
-  bool x2e0_24_inFreeLook : 1;
-  bool x2e0_25_lookControlHeld : 1;
-  bool x2e0_26_latestFirstPerson : 1;
+  bool x2e0_24_inFreeLook : 1 = false;
+  bool x2e0_25_lookControlHeld : 1 = false;
+  bool x2e0_26_latestFirstPerson : 1 = true;
   bool x2e0_27_energyLow : 1;
   u32 x2e4_ = 0;
   u32 x2e8_ = 0;

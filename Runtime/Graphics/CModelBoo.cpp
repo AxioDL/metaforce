@@ -178,8 +178,6 @@ CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurf
 , m_pipelines(&shader.m_shaders)
 , x1c_textures(shader.x0_textures)
 , x20_aabb(aabb)
-, x40_24_texturesLoaded(false)
-, x40_25_modelVisible(0)
 , x41_mask(renderMask)
 , m_staticVbo(vbo)
 , m_staticIbo(ibo) {

@@ -15,8 +15,7 @@ CRipper::CRipper(TUniqueId uid, std::string_view name, EFlavorType type, const C
                  const CActorParameters& actParms, const CGrappleParameters& grappleParms)
 : CPatterned(ECharacter::Ripper, uid, name, type, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::Medium)
-, x568_grappleParams(grappleParms)
-, x59c_24_muted(false) {
+, x568_grappleParams(grappleParms) {
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
       {EMaterialTypes::Solid},
       {EMaterialTypes::NoStaticCollision, EMaterialTypes::NoPlatformCollision, EMaterialTypes::Platform}));

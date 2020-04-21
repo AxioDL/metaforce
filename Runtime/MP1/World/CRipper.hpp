@@ -10,7 +10,7 @@ class CRipper : public CPatterned {
   CGrappleParameters x568_grappleParams;
   TUniqueId x598_grapplePoint = kInvalidUniqueId;
   TUniqueId x59a_platformId = kInvalidUniqueId;
-  bool x59c_24_muted : 1;
+  bool x59c_24_muted : 1 = false;
 
   void ProcessGrapplePoint(CStateManager&);
   void AddGrapplePoint(CStateManager&);

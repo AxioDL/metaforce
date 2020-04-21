@@ -93,21 +93,6 @@ CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& in
 , x820_(xf.origin)
 , x8a0_(xf.frontVector())
 , x8ac_(animRes) {
-  x8e4_24_loaded = false;
-  x8e4_25_loading = false;
-  x8e4_26_ = false;
-  x8e4_27_ = false;
-  x8e4_28_ = false;
-  x8e4_29_getup = false;
-  x8e4_30_ = false;
-  x8e4_31_ = false;
-  x8e5_24_ = false;
-  x8e5_25_ = false;
-  x8e5_26_ = false;
-  x8e5_27_ = false;
-  x8e5_28_ = false;
-  x8e5_29_ = true;
-  x8e5_30_ = false;
   x6dc_.Token().Lock();
   x704_.Token().Lock();
   x7dc_.SetDamage(0.5f * x7dc_.GetDamage());

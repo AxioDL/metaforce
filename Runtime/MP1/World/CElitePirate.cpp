@@ -85,17 +85,7 @@ CElitePirate::CElitePirate(TUniqueId uid, std::string_view name, const CEntityIn
                     EBoneTrackingFlags::None)
 , x738_collisionAabb(GetBoundingBox(), GetMaterialList())
 , x7a0_initialSpeed(x3b4_speed)
-, x7d0_pathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
-, x8c0_(5.f)
-, x988_24_damageOn(false)
-, x988_25_attackingRightClaw(false)
-, x988_26_attackingLeftClaw(false)
-, x988_27_shotAt(false)
-, x988_28_alert(false)
-, x988_29_shockWaveAnim(false)
-, x988_30_calledForBackup(false)
-, x988_31_running(false)
-, x989_24_onPath(false) {
+, x7d0_pathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f) {
   if (x5d8_data.GetX20().IsValid()) {
     x760_energyAbsorbDesc = g_SimplePool->GetObj({SBIG('PART'), x5d8_data.GetX20()});
   }

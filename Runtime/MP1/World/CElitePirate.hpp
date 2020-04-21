@@ -127,16 +127,16 @@ private:
   u32 x7cc_activeMaterialSet = 0;
   CPathFindSearch x7d0_pathFindSearch;
   zeus::CVector3f x8b4_targetDestPos;
-  SUnknownStruct x8c0_;
-  bool x988_24_damageOn : 1;
-  bool x988_25_attackingRightClaw : 1;
-  bool x988_26_attackingLeftClaw : 1;
-  bool x988_27_shotAt : 1;
-  bool x988_28_alert : 1;
-  bool x988_29_shockWaveAnim : 1;
-  bool x988_30_calledForBackup : 1;
-  bool x988_31_running : 1;
-  bool x989_24_onPath : 1;
+  SUnknownStruct x8c0_{5.0f};
+  bool x988_24_damageOn : 1 = false;
+  bool x988_25_attackingRightClaw : 1 = false;
+  bool x988_26_attackingLeftClaw : 1 = false;
+  bool x988_27_shotAt : 1 = false;
+  bool x988_28_alert : 1 = false;
+  bool x988_29_shockWaveAnim : 1 = false;
+  bool x988_30_calledForBackup : 1 = false;
+  bool x988_31_running : 1 = false;
+  bool x989_24_onPath : 1 = false;
 
 public:
   DEFINE_PATTERNED(ElitePirate)

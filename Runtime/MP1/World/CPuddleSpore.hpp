@@ -29,8 +29,8 @@ class CPuddleSpore : public CPatterned {
   TToken<CGenDescription> x5d0_;
   std::vector<std::unique_ptr<CElementGen>> x5dc_elemGens; // originally a vector of CElementGen
   CProjectileInfo x5ec_projectileInfo;
-  bool x614_24 : 1;
-  bool x614_25 : 1;
+  bool x614_24 : 1 = false;
+  bool x614_25 : 1 = false;
 
   bool HitShell(const zeus::CVector3f&) const;
   void KnockPlayer(CStateManager&, float);

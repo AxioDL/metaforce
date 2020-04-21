@@ -143,8 +143,8 @@ private:
   zeus::CAABox x20_aabb;
   CBooSurface* x38_firstUnsortedSurface = nullptr;
   CBooSurface* x3c_firstSortedSurface = nullptr;
-  bool x40_24_texturesLoaded : 1;
-  bool x40_25_modelVisible : 1;
+  bool x40_24_texturesLoaded : 1 = false;
+  bool x40_25_modelVisible : 1 = false;
   u8 x41_mask;
   u32 x44_areaInstanceIdx = UINT32_MAX;
 

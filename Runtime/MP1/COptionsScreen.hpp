@@ -15,7 +15,7 @@ class COptionsScreen : public CPauseScreenBase {
   CSfxHandle x1a4_sliderSfx;
   CRumbleGenerator x1a8_rumble;
   float x29c_optionAlpha = 0.f;
-  bool x2a0_24_inOptionBody : 1;
+  bool x2a0_24_inOptionBody : 1 = false;
 
   void UpdateOptionView();
   void ResetOptionWidgetVisibility();

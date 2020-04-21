@@ -63,24 +63,15 @@ class CBCJumpCmd : public CBodyStateCmd {
   pas::EJumpType x8_type = pas::EJumpType::Normal;
   zeus::CVector3f xc_waypoint1;
   zeus::CVector3f x18_waypoint2;
-  bool x24_24_wallJump : 1;
-  bool x24_25_startInJumpLoop : 1;
+  bool x24_24_wallJump : 1 = false;
+  bool x24_25_startInJumpLoop : 1 = false;
 
 public:
-  explicit CBCJumpCmd() : CBodyStateCmd(EBodyStateCmd::Jump) {
-    x24_24_wallJump = false;
-    x24_25_startInJumpLoop = false;
-  }
+  explicit CBCJumpCmd() : CBodyStateCmd(EBodyStateCmd::Jump) {}
   explicit CBCJumpCmd(const zeus::CVector3f& wp1, pas::EJumpType type, bool startInLoop = false)
-  : CBodyStateCmd(EBodyStateCmd::Jump), x8_type(type), xc_waypoint1(wp1) {
-    x24_24_wallJump = false;
-    x24_25_startInJumpLoop = startInLoop;
-  }
+  : CBodyStateCmd(EBodyStateCmd::Jump), x8_type(type), xc_waypoint1(wp1), x24_25_startInJumpLoop{startInLoop} {}
   explicit CBCJumpCmd(const zeus::CVector3f& wp1, const zeus::CVector3f& wp2, pas::EJumpType type)
-  : CBodyStateCmd(EBodyStateCmd::Jump), x8_type(type), xc_waypoint1(wp1), x18_waypoint2(wp2) {
-    x24_24_wallJump = true;
-    x24_25_startInJumpLoop = false;
-  }
+  : CBodyStateCmd(EBodyStateCmd::Jump), x8_type(type), xc_waypoint1(wp1), x18_waypoint2(wp2), x24_24_wallJump{true} {}
   pas::EJumpType GetJumpType() const { return x8_type; }
   const zeus::CVector3f& GetJumpTarget() const { return xc_waypoint1; }
   const zeus::CVector3f& GetSecondJumpTarget() const { return x18_waypoint2; }
@@ -92,30 +83,22 @@ class CBCGenerateCmd : public CBodyStateCmd {
   pas::EGenerateType x8_type = pas::EGenerateType::Invalid;
   zeus::CVector3f xc_targetPos;
   s32 x18_animId = -1;
-  bool x1c_24_targetTransform : 1;
-  bool x1c_25_overrideAnim : 1;
+  bool x1c_24_targetTransform : 1 = false;
+  bool x1c_25_overrideAnim : 1 = false;
 
 public:
-  explicit CBCGenerateCmd() : CBodyStateCmd(EBodyStateCmd::Generate) {
-    x1c_24_targetTransform = false;
-    x1c_25_overrideAnim = false;
-  }
+  explicit CBCGenerateCmd() : CBodyStateCmd(EBodyStateCmd::Generate) {}
   explicit CBCGenerateCmd(pas::EGenerateType type)
-  : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type) {
-    x1c_24_targetTransform = false;
-    x1c_25_overrideAnim = false;
-  }
+  : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type) {}
   explicit CBCGenerateCmd(pas::EGenerateType type, s32 animId)
-  : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type), x18_animId(animId) {
-    x1c_24_targetTransform = false;
-    x1c_25_overrideAnim = animId != -1;
-  }
+  : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type), x18_animId(animId), x1c_25_overrideAnim{animId != -1} {}
   explicit CBCGenerateCmd(pas::EGenerateType type, const zeus::CVector3f& vec, bool targetTransform = false,
                           bool overrideAnim = false)
-  : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type), xc_targetPos(vec) {
-    x1c_24_targetTransform = targetTransform;
-    x1c_25_overrideAnim = overrideAnim;
-  }
+  : CBodyStateCmd(EBodyStateCmd::Generate)
+  , x8_type(type)
+  , xc_targetPos(vec)
+  , x1c_24_targetTransform{targetTransform}
+  , x1c_25_overrideAnim{overrideAnim} {}
   pas::EGenerateType GetGenerateType() const { return x8_type; }
   const zeus::CVector3f& GetExitTargetPos() const { return xc_targetPos; }
   bool HasExitTargetPos() const { return x1c_24_targetTransform; }
@@ -206,20 +189,14 @@ public:
 
 class CBCScriptedCmd : public CBodyStateCmd {
   s32 x8_anim = -1;
-  bool xc_24_loopAnim : 1;
-  bool xc_25_timedLoop : 1;
+  bool xc_24_loopAnim : 1 = false;
+  bool xc_25_timedLoop : 1 = false;
   float x10_loopDur = 0.f;
 
 public:
-  explicit CBCScriptedCmd() : CBodyStateCmd(EBodyStateCmd::Scripted) {
-    xc_24_loopAnim = false;
-    xc_25_timedLoop = false;
-  }
+  explicit CBCScriptedCmd() : CBodyStateCmd(EBodyStateCmd::Scripted) {}
   explicit CBCScriptedCmd(int i, bool b1, bool b2, float f)
-  : CBodyStateCmd(EBodyStateCmd::Scripted), x8_anim(i), x10_loopDur(f) {
-    xc_24_loopAnim = b1;
-    xc_25_timedLoop = b2;
-  }
+  : CBodyStateCmd(EBodyStateCmd::Scripted), x8_anim(i), xc_24_loopAnim{b1}, xc_25_timedLoop{b2}, x10_loopDur(f) {}
   s32 GetAnimId() const { return x8_anim; }
   bool IsLooped() const { return xc_24_loopAnim; }
   bool GetUseLoopDuration() const { return xc_25_timedLoop; }

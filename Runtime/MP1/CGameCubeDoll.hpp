@@ -16,7 +16,7 @@ class CGameCubeDoll {
   std::vector<CLight> x8_lights;
   std::unique_ptr<CActorLights> x18_actorLights;
   float x1c_fader = 0.f;
-  bool x20_24_loaded : 1;
+  bool x20_24_loaded : 1 = false;
   void UpdateActorLights();
 
 public:

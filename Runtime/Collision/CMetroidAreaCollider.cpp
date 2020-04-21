@@ -166,9 +166,7 @@ CMovingAABoxComponents::CMovingAABoxComponents(const zeus::CAABox& aabb, const z
   }
 }
 
-CMetroidAreaCollider::COctreeLeafCache::COctreeLeafCache(const CAreaOctTree& octTree) : x0_octTree(octTree) {
-  x908_24_overflow = false;
-}
+CMetroidAreaCollider::COctreeLeafCache::COctreeLeafCache(const CAreaOctTree& octTree) : x0_octTree(octTree) {}
 
 void CMetroidAreaCollider::COctreeLeafCache::AddLeaf(const CAreaOctTree::Node& node) {
   if (x4_nodeCache.size() == x4_nodeCache.capacity()) {

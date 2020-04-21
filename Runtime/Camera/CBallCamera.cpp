@@ -57,34 +57,11 @@ CBallCamera::CBallCamera(TUniqueId uid, TUniqueId watchedId, const zeus::CTransf
 , x250_ballCameraCentroidDistanceSpring(g_tweakBall->GetBallCameraCentroidDistanceSpringConstant(),
                                         g_tweakBall->GetBallCameraCentroidDistanceSpringMax(),
                                         g_tweakBall->GetBallCameraCentroidDistanceSpringTardis())
-, x37c_camSpline(false)
 , x41c_ballCameraChaseSpring(g_tweakBall->GetBallCameraChaseSpringConstant(),
                              g_tweakBall->GetBallCameraChaseSpringMax(), g_tweakBall->GetBallCameraChaseSpringTardis())
 , x448_ballCameraBoostSpring(g_tweakBall->GetBallCameraBoostSpringConstant(),
                              g_tweakBall->GetBallCameraBoostSpringMax(),
                              g_tweakBall->GetBallCameraBoostSpringTardis()) {
-  x18c_24_ = true;
-  x18c_25_chaseAllowed = true;
-  x18c_26_boostAllowed = true;
-  x18c_27_obscureAvoidance = true;
-  x18c_28_volumeCollider = true;
-  x18c_29_clampAttitude = false;
-  x18c_30_clampAzimuth = false;
-  x18c_31_clearLOS = true;
-  x18d_24_prevClearLOS = true;
-  x18d_25_avoidGeometryFull = false;
-  x18d_26_lookAtBall = false;
-  x18d_27_forceProcessing = false;
-  x18d_28_obtuseDirection = false;
-  x18d_29_noElevationInterp = false;
-  x18d_30_directElevation = false;
-  x18d_31_overrideLookDir = false;
-  x18e_24_noElevationVelClamp = false;
-  x18e_25_noSpline = false;
-  x18e_26_ = false;
-  x18e_27_nearbyDoorClosed = false;
-  x18e_28_nearbyDoorClosing = false;
-
   x190_curMinDistance = g_tweakBall->GetBallCameraMinSpeedDistance();
   x194_targetMinDistance = g_tweakBall->GetBallCameraMinSpeedDistance();
   x198_maxDistance = g_tweakBall->GetBallCameraMaxSpeedDistance();

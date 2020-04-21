@@ -52,7 +52,6 @@ constexpr zeus::CColor ArtifactPostColor{1.f, 0.63f, 0.02f, 1.f};
 CArtifactDoll::CArtifactDoll() {
   x10_lights.resize(2, CLight::BuildDirectional(zeus::skForward, zeus::skWhite));
   x20_actorLights = std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, false, false, 0.1f);
-  x28_24_loaded = false;
   x0_models.reserve(ArtifactPieceModels.size());
   for (const char* const model : ArtifactPieceModels) {
     x0_models.emplace_back(g_SimplePool->GetObj(model));

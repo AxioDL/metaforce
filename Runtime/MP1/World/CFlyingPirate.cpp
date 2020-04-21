@@ -112,8 +112,7 @@ CFlyingPirate::CFlyingPirateRagDoll::CFlyingPirateRagDoll(CStateManager& mgr, CF
 , x6c_actor(actor)
 , x88_sfx(w1)
 , x9c_(w2)
-, xa4_(actor->GetDestPos() - actor->GetTranslation())
-, xb0_24_(false) {
+, xa4_(actor->GetDestPos() - actor->GetTranslation()) {
   actor->RemoveMaterial(EMaterialTypes::Solid, EMaterialTypes::AIBlock, EMaterialTypes::GroundCollider, mgr);
   actor->HealthInfo(mgr)->SetHP(-1.f);
   SetNumParticles(skParts.size());
@@ -311,25 +310,6 @@ CFlyingPirate::CFlyingPirate(TUniqueId uid, std::string_view name, const CEntity
 , x568_data(in, propCount)
 , x6a0_24_isFlyingPirate(x568_data.x8_type == EFlyingPirateType::FlyingPirate)
 , x6a0_25_isAquaPirate(x568_data.x8_type == EFlyingPirateType::AquaPirate)
-, x6a0_26_hearShot(false)
-, x6a0_27_canPatrol(false)
-, x6a0_28_(false)
-, x6a0_29_checkForProjectiles(false)
-, x6a0_30_(false)
-, x6a0_31_canSeePlayer(true)
-, x6a1_24_prevInCineCam(false)
-, x6a1_25_(false)
-, x6a1_26_isAttackingObject(false)
-, x6a1_27_(false)
-, x6a1_28_(false)
-, x6a1_29_isMoving(false)
-, x6a1_30_spinToDeath(false)
-, x6a1_31_stopped(false)
-, x6a2_24_aggressive(false)
-, x6a2_25_aggressionChecked(false)
-, x6a2_26_jetpackActive(false)
-, x6a2_27_sparksActive(false)
-, x6a2_28_(false)
 , x6a8_pathFindSearch(nullptr, x6a0_25_isAquaPirate ? 2 : 3, pInfo.GetHalfExtent(), pInfo.GetHeight(),
                       pInfo.GetPathfindingIndex())
 , x7a0_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),

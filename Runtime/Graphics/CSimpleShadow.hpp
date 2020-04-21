@@ -19,9 +19,9 @@ class CSimpleShadow {
   float x3c_heightAlpha = 1.f;
   float x40_maxObjHeight;
   float x44_displacement;
-  bool x48_24_collision : 1;
-  bool x48_25_alwaysCalculateRadius : 1;
-  bool x48_26_radiusCalculated : 1;
+  bool x48_24_collision : 1 = false;
+  bool x48_25_alwaysCalculateRadius : 1 = true;
+  bool x48_26_radiusCalculated : 1 = false;
   std::optional<CTexturedQuadFilter> m_filter;
 
 public:

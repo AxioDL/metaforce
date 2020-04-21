@@ -10,10 +10,7 @@
 namespace urde::MP1 {
 
 COptionsScreen::COptionsScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg)
-: CPauseScreenBase(mgr, frame, pauseStrg) {
-  x1a0_gameCube = std::make_unique<CGameCubeDoll>();
-  x2a0_24_inOptionBody = false;
-}
+: CPauseScreenBase(mgr, frame, pauseStrg), x1a0_gameCube{std::make_unique<CGameCubeDoll>()} {}
 
 COptionsScreen::~COptionsScreen() { CSfxManager::SfxStop(x1a4_sliderSfx); }
 

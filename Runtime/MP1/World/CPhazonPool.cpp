@@ -22,8 +22,7 @@ CPhazonPool::CPhazonPool(TUniqueId uid, std::string_view name, const CEntityInfo
 , x1c0_(p19)
 , x1c8_(p18)
 , x1d8_(p11)
-, x1e0_24_(p15)
-, x1e0_25_(false) {
+, x1e0_24_(p15) {
   if (w3.IsValid()) {
     x170_elementGen1 = std::make_unique<CElementGen>(g_SimplePool->GetObj(SObjectTag{SBIG('PART'), w3}));
     x170_elementGen1->SetParticleEmission(false);
