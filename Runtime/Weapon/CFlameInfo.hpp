@@ -11,6 +11,7 @@ class CFlameInfo {
   CAssetId x8_flameFxId;
   s32 xc_length;
   float x10_;
+  // float x14_;
   float x18_;
   float x1c_;
 

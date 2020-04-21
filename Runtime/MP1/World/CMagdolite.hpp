@@ -8,22 +8,9 @@ namespace urde {
 class CCollisionActorManager;
 class CSkinnedModel;
 class CWeaponDescription;
+
 namespace MP1 {
 class CMagdolite : public CPatterned {
-public:
-  class CMagdoliteData {
-    u32 x0_propertyCount;
-    u32 x4_;
-    CAssetId x8_;
-    u32 xc_;
-    float x10_;
-    float x18_;
-    float x1c_;
-
-  public:
-    explicit CMagdoliteData(CInputStream&);
-  };
-
 private:
   float x568_initialDelay;
   float x56c_minDelay;
@@ -35,15 +22,15 @@ private:
   CBoneTracking x584_boneTracker;
   CDamageVulnerability x5bc_;
   CDamageVulnerability x624_;
-  /* x68c_ */
+  // CRefData* x68c_;
   TLockedToken<CSkinnedModel> x690_headlessModel;
-  rstl::reserved_vector<TUniqueId, 5> x69c_;
+  rstl::reserved_vector<TUniqueId, 4> x69c_;
   CFlameInfo x6a8_;
   TUniqueId x6c8_flameThrowerId = kInvalidUniqueId;
-  TLockedToken<CWeaponDescription> x6cc_;
+  TLockedToken<CWeaponDescription> x6cc_; // was TToken<CWeaponDescription>
   CDamageInfo x6d4_;
   CDamageInfo x6f0_;
-  float x70c_curHealth;
+  float x70c_curHealth = 0.f; // not init in ctr
   zeus::CVector3f x710_attackOffset;
   zeus::CVector3f x71c_attackTarget;
   zeus::CVector3f x728_cachedTarget;
@@ -70,20 +57,22 @@ private:
   void LaunchFlameThrower(CStateManager& mgr, bool fire);
   void UpdateOrientation(CStateManager& mgr);
   TUniqueId FindSuitableTarget(CStateManager& mgr, EScriptObjectState state, EScriptObjectMessage msg);
+
 public:
   DEFINE_PATTERNED(Magdolite)
-  CMagdolite(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
-             const CPatternedInfo&, const CActorParameters&, float, float, const CDamageInfo&, const CDamageInfo&,
-             const CDamageVulnerability&, const CDamageVulnerability&, CAssetId, CAssetId, float, float, float, float,
-             const CFlameInfo& flameInfo, float, float, float);
 
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  CMagdolite(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+             CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float f1, float f2,
+             const CDamageInfo& dInfo1, const CDamageInfo& dInfo2, const CDamageVulnerability& dVuln1,
+             const CDamageVulnerability& dVuln2, CAssetId modelId, CAssetId skinId, float f3, float f4, float f5,
+             float f6, const CFlameInfo& magData, float f7, float f8, float f9);
+
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
-  void Touch(CActor&, CStateManager&) override {};
+  void Touch(CActor& actor, CStateManager& mgr) override{};
   const CDamageVulnerability* GetDamageVulnerability() const override {
     return x400_25_alive ? CAi::GetDamageVulnerability() : &CDamageVulnerability::ImmuneVulnerabilty();
   }
-
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
                                                      const CDamageInfo&) const override {
     return GetDamageVulnerability();

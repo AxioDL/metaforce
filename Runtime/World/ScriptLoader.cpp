@@ -2998,14 +2998,16 @@ CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int p
   SScaledActorHead actorHead = LoadScaledActorHead(in, mgr);
 
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actorParameters = LoadActorParameters(in);
 
-  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   float f1 = in.readFloatBig();
   float f2 = in.readFloatBig();

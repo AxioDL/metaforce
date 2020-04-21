@@ -64,10 +64,11 @@ CMagdolite::CMagdolite(TUniqueId uid, std::string_view name, const CEntityInfo& 
 , x74c_(f9) {
   x460_knockBackController.SetAutoResetImpulse(false);
   x460_knockBackController.SetEnableBurn(false);
+  // redundant
+  // x690_headlessModel->SetLayoutInfo(GetModelData()->GetAnimationData()->GetModelData()->GetLayoutInfo());
 }
 
 void CMagdolite::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
-
   switch (msg) {
   case EScriptObjectMessage::Touched:
     ApplyContactDamage(uid, mgr);
@@ -92,8 +93,9 @@ void CMagdolite::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     }
     return;
   case EScriptObjectMessage::SuspendedMove: {
-    if (x580_collisionManager)
+    if (x580_collisionManager) {
       x580_collisionManager->SetMovable(mgr, false);
+    }
     break;
   }
   case EScriptObjectMessage::Registered: {
@@ -158,7 +160,8 @@ void CMagdolite::SetupCollisionActors(CStateManager& mgr) {
         animData->GetLocatorSegId(info.from), animData->GetLocatorSegId(info.to), info.bounds,
         CJointCollisionDescription::EOrientationType::One, info.to, 200.f));
   }
-  x580_collisionManager.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), joints, GetActive()));
+  x580_collisionManager =
+      std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), joints, GetActive());
 
   for (int i = 0; i < x580_collisionManager->GetNumCollisionActors(); ++i) {
     const auto& desc = x580_collisionManager->GetCollisionDescFromIndex(i);
@@ -179,8 +182,9 @@ void CMagdolite::SetupCollisionActors(CStateManager& mgr) {
 }
 
 void CMagdolite::CreateFlameThrower(CStateManager& mgr) {
-  if (x6c8_flameThrowerId != kInvalidUniqueId)
+  if (x6c8_flameThrowerId != kInvalidUniqueId) {
     return;
+  }
 
   x6c8_flameThrowerId = mgr.AllocateUniqueId();
   mgr.AddObject(new CFlameThrower(x6cc_, "Magdolite_Flame"sv, EWeaponType::Plasma, x6a8_, {},
@@ -190,11 +194,12 @@ void CMagdolite::CreateFlameThrower(CStateManager& mgr) {
 
 void CMagdolite::LaunchFlameThrower(CStateManager& mgr, bool fire) {
   if ((!fire || x754_30_inProjectileAttack) && IsAlive()) {
-    if (CFlameThrower* fl = static_cast<CFlameThrower*>(mgr.ObjectById(x6c8_flameThrowerId))) {
-      if (!fire)
+    if (auto* fl = static_cast<CFlameThrower*>(mgr.ObjectById(x6c8_flameThrowerId))) {
+      if (!fire) {
         fl->Reset(mgr, false);
-      else
+      } else {
         fl->Fire(GetTransform(), mgr, false);
+      }
     }
     x754_27_flameThrowerActive = fire;
   }
@@ -202,8 +207,9 @@ void CMagdolite::LaunchFlameThrower(CStateManager& mgr, bool fire) {
 
 void CMagdolite::Think(float dt, CStateManager& mgr) {
   CPatterned::Think(dt, mgr);
-  if (!GetActive())
+  if (!GetActive()) {
     return;
+  }
 
   x758_ += dt;
   if (GetBodyController()->GetPercentageFrozen() > 0.f && x754_27_flameThrowerActive) {
@@ -211,7 +217,7 @@ void CMagdolite::Think(float dt, CStateManager& mgr) {
   }
 
   if (!IsAlive()) {
-    if (CFlameThrower* fl = static_cast<CFlameThrower*>(mgr.ObjectById(x6c8_flameThrowerId))) {
+    if (auto* fl = static_cast<CFlameThrower*>(mgr.ObjectById(x6c8_flameThrowerId))) {
       fl->SetTransform(GetLctrTransform("LCTR_MAGMOUTH"sv), dt);
     }
   }
@@ -237,7 +243,7 @@ void CMagdolite::Think(float dt, CStateManager& mgr) {
       x584_boneTracker.PreRender(mgr, *GetModelData()->GetAnimationData(), GetTransform(), GetModelData()->GetScale(),
                                  *GetBodyController());
 
-      if (CFlameThrower* fl = static_cast<CFlameThrower*>(mgr.ObjectById(x6c8_flameThrowerId))) {
+      if (auto* fl = static_cast<CFlameThrower*>(mgr.ObjectById(x6c8_flameThrowerId))) {
         fl->SetTransform(GetLctrTransform("LCTR_MAGMOUTH"sv), dt);
       }
     }
@@ -248,10 +254,11 @@ void CMagdolite::Think(float dt, CStateManager& mgr) {
   }
 
   if (x750_aiStage == 2) {
-    if (x738_ * 0.5f <= x734_)
+    if (x738_ * 0.5f <= x734_) {
       x740_ -= x73c_ * dt;
-    else
+    } else {
       x740_ += x73c_ * dt;
+    }
     x734_ += x740_ * dt;
     SetTranslation(GetTranslation() - zeus::CVector3f{0.f, 0.f, x740_ * dt});
     if (GetTranslation().z() < x728_cachedTarget.z()) {
@@ -272,8 +279,8 @@ void CMagdolite::Think(float dt, CStateManager& mgr) {
     }
   }
 }
-void CMagdolite::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
 
+void CMagdolite::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   if (type == EUserEventType::DamageOff) {
     LaunchFlameThrower(mgr, false);
   } else if (type == EUserEventType::DamageOn) {
@@ -285,9 +292,11 @@ void CMagdolite::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, 
   }
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
+
 void CMagdolite::Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) {
-  if (!IsAlive())
+  if (!IsAlive()) {
     return;
+  }
   zeus::CTransform tmpXf = GetTransform();
   SetTransform(GetLctrTransform("head"sv));
   SendScriptMsgs(EScriptObjectState::MassiveDeath, mgr, EScriptObjectMessage::None);
@@ -296,11 +305,11 @@ void CMagdolite::Death(CStateManager& mgr, const zeus::CVector3f& direction, ESc
   GetModelData()->GetAnimationData()->SubstituteModelData(x690_headlessModel);
   x460_knockBackController.SetEnableFreeze(false);
   GetBodyController()->UnFreeze();
-  if (!x754_26_lostMyHead)
+  if (!x754_26_lostMyHead) {
     x460_knockBackController.SetSeverity(pas::ESeverity::Two);
-  else
+  } else {
     GetModelData()->GetAnimationData()->SubstituteModelData(x690_headlessModel);
-
+  }
   CPatterned::Death(mgr, direction, state);
 }
 
@@ -328,18 +337,21 @@ void CMagdolite::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) {
     UpdateOrientation(mgr);
   }
 }
+
 void CMagdolite::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
     x754_24_retreat = false;
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerateNoXf, 0);
-    if (x32c_animState == EAnimState::Repeat)
+    if (x32c_animState == EAnimState::Repeat) {
       GetBodyController()->SetLocomotionType(pas::ELocomotionType::Relaxed);
+    }
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
   }
 }
+
 void CMagdolite::Deactivate(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
@@ -347,12 +359,14 @@ void CMagdolite::Deactivate(CStateManager& mgr, EStateMsg msg, float arg) {
     x584_boneTracker.SetActive(false);
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryStep, int(pas::EStepDirection::Down));
-    if (x32c_animState == EAnimState::Repeat)
+    if (x32c_animState == EAnimState::Repeat) {
       GetBodyController()->SetLocomotionType(pas::ELocomotionType::Internal7);
+    }
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
   }
 }
+
 void CMagdolite::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
@@ -365,25 +379,28 @@ void CMagdolite::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
     float fVar2 = 0.f;
     if (fVar1 >= 0.f) {
       fVar2 = fVar1;
-      if (x748_ < fVar1)
+      if (x748_ < fVar1) {
         fVar2 = x748_;
+      }
     }
     x728_cachedTarget = x71c_attackTarget - zeus::CVector3f(0.f, 0.f, fVar1 - fVar2);
     x740_ = 0.f;
     x734_ = 0.f;
     x738_ = fVar2;
     x73c_ = (2.f * x738_) / (x744_ * x744_);
-    if (GetTranslation().z() <= x728_cachedTarget.z())
+    if (GetTranslation().z() <= x728_cachedTarget.z()) {
       x750_aiStage = 1;
-    else
+    } else {
       x750_aiStage = 2;
+    }
     x754_30_inProjectileAttack = true;
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, 1);
     zeus::CVector3f direction = (mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f()).normalized();
     float angle = zeus::CVector3f::getAngleDiff(GetTransform().basis[1], direction);
-    if (GetTransform().basis[0].dot(direction) > 0.f)
+    if (GetTransform().basis[0].dot(direction) > 0.f) {
       angle *= -1.f;
+    }
 
     if ((57.29f * angle) <= x3b8_turnSpeed && (57.29f * angle) < -x3b8_turnSpeed) {
       angle = zeus::degToRad(-x3b8_turnSpeed);
@@ -404,6 +421,7 @@ void CMagdolite::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
     x754_30_inProjectileAttack = false;
   }
 }
+
 void CMagdolite::Active(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     GetBodyController()->SetLocomotionType(pas::ELocomotionType::Lurk);
@@ -416,8 +434,9 @@ void CMagdolite::Active(CStateManager& mgr, EStateMsg msg, float arg) {
     zeus::CVector3f posDiff = (mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f());
     if (posDiff.canBeNormalized()) {
       posDiff.normalize();
-      if (GetTransform().basis[1].dot(posDiff) < x578_losMaxDistance)
+      if (GetTransform().basis[1].dot(posDiff) < x578_losMaxDistance) {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCLocomotionCmd({}, posDiff, 1.f));
+      }
     }
   } else if (msg == EStateMsg::Deactivate) {
     x330_stateMachineState.SetDelay(((x570_maxDelay - x56c_minDelay) * mgr.GetActiveRandom()->Float()) + x56c_minDelay);
@@ -436,6 +455,7 @@ void CMagdolite::InActive(CStateManager& mgr, EStateMsg msg, float arg) {
     xe7_27_enableRender = true;
   }
 }
+
 void CMagdolite::GetUp(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
@@ -443,12 +463,14 @@ void CMagdolite::GetUp(CStateManager& mgr, EStateMsg msg, float arg) {
     x754_28_alert = true;
     AddMaterial(EMaterialTypes::Orbit, EMaterialTypes::Target, mgr);
   } else if (msg == EStateMsg::Update) {
-    if (!x754_25_up)
+    if (!x754_25_up) {
       TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryStep, int(pas::EStepDirection::Forward));
-    else
+    } else {
       TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryStep, int(pas::EStepDirection::Up));
-    if (x32c_animState == EAnimState::Repeat)
+    }
+    if (x32c_animState == EAnimState::Repeat) {
       GetBodyController()->SetLocomotionType(pas::ELocomotionType::Lurk);
+    }
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
     x754_28_alert = false;
@@ -477,6 +499,7 @@ void CMagdolite::Lurk(CStateManager& mgr, EStateMsg msg, float arg) {
     x754_25_up = true;
   }
 }
+
 void CMagdolite::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
@@ -523,8 +546,9 @@ void CMagdolite::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
     x754_28_alert = true;
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerate, 1);
-    if (x32c_animState == EAnimState::Repeat)
+    if (x32c_animState == EAnimState::Repeat) {
       GetBodyController()->SetLocomotionType(pas::ELocomotionType::Internal7);
+    }
   } else if (msg == EStateMsg::Deactivate) {
     x754_28_alert = false;
     x32c_animState = EAnimState::NotReady;
@@ -535,8 +559,9 @@ bool CMagdolite::InAttackPosition(CStateManager& mgr, float arg) {
   zeus::CTransform xf = GetLctrTransform("head"sv);
   zeus::CVector3f plAimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
   zeus::CVector3f diff = (plAimPos - GetTranslation());
-  if (GetTranslation().z() < plAimPos.z() && plAimPos.z() < xf.origin.z())
+  if (GetTranslation().z() < plAimPos.z() && plAimPos.z() < xf.origin.z()) {
     diff.z() = 0.f;
+  }
 
   if (std::fabs(diff.magnitude()) >= FLT_EPSILON) {
     return ((1.f / diff.magnitude()) * diff).dot(GetTransform().basis[1]) < x578_losMaxDistance;
@@ -555,13 +580,15 @@ bool CMagdolite::HasAttackPattern(CStateManager& mgr, float arg) {
   bool ret = FindSuitableTarget(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow) != kInvalidUniqueId;
   return ret;
 }
+
 bool CMagdolite::LineOfSight(CStateManager& mgr, float arg) {
   zeus::CTransform mouthXf = GetLctrTransform("LCTR_MAGMOUTH"sv);
   zeus::CVector3f diff = x710_attackOffset - mouthXf.origin;
   if (diff.canBeNormalized()) {
     diff.normalize();
-    if (diff.dot(GetTransform().basis[1]) < x578_losMaxDistance)
+    if (diff.dot(GetTransform().basis[1]) < x578_losMaxDistance) {
       return false;
+    }
   }
 
   bool ret = mgr.RayCollideWorld(
@@ -571,15 +598,16 @@ bool CMagdolite::LineOfSight(CStateManager& mgr, float arg) {
       this);
   return ret;
 }
-bool CMagdolite::ShouldRetreat(CStateManager& mgr, float arg) {
-  return x754_24_retreat;
-}
+
+bool CMagdolite::ShouldRetreat(CStateManager& mgr, float arg) { return x754_24_retreat; }
+
 void CMagdolite::UpdateOrientation(CStateManager& mgr) {
   zeus::CVector3f plDiff = (mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f());
   plDiff = plDiff.normalized();
   float angle = zeus::CVector3f::getAngleDiff(GetTransform().basis[1], plDiff);
-  if (GetTransform().basis[0].dot(plDiff) > 0.f)
+  if (GetTransform().basis[0].dot(plDiff) > 0.f) {
     angle *= -1.f;
+  }
   zeus::CQuaternion q = GetTransform().basis;
   q.rotateZ(angle);
   SetTransform(q.toTransform(GetTranslation()));
@@ -593,12 +621,14 @@ TUniqueId CMagdolite::FindSuitableTarget(CStateManager& mgr, EScriptObjectState 
 
   TUniqueId tmpId = kInvalidUniqueId;
   for (const auto& conn : x20_conns) {
-    if (conn.x0_state != state || conn.x4_msg != msg)
+    if (conn.x0_state != state || conn.x4_msg != msg) {
       continue;
+    }
     TUniqueId uid = mgr.GetIdForScript(conn.x8_objId);
     if (const CEntity* ent = mgr.GetObjectById(uid)) {
-      if (!ent->GetActive())
+      if (!ent->GetActive()) {
         continue;
+      }
 
       if (TCastToConstPtr<CScriptWaypoint> wp = ent) {
         ++wpCount;
@@ -617,17 +647,20 @@ TUniqueId CMagdolite::FindSuitableTarget(CStateManager& mgr, EScriptObjectState 
     int skipCount = mgr.GetActiveRandom()->Next();
     skipCount = skipCount - (skipCount / wpCount) * wpCount;
     for (const auto& conn : x20_conns) {
-      if (conn.x0_state != state || conn.x4_msg != msg)
+      if (conn.x0_state != state || conn.x4_msg != msg) {
         continue;
+      }
       TUniqueId uid = mgr.GetIdForScript(conn.x8_objId);
       if (const CEntity* ent = mgr.GetObjectById(uid)) {
-        if (!ent->GetActive())
+        if (!ent->GetActive()) {
           continue;
+        }
 
         if (TCastToConstPtr<CScriptWaypoint>(ent)) {
           tmpId = uid;
-          if (skipCount == 0)
+          if (skipCount == 0) {
             break;
+          }
           --skipCount;
         }
       }
