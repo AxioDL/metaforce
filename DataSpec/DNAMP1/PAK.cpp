@@ -32,7 +32,6 @@ void PAK::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
   for (atUint32 e = 0; e < count; ++e) {
     entries.emplace_back();
     entries.back().read(reader);
-    const auto& ent = entries.back();
   }
   for (atUint32 e = 0; e < count; ++e) {
     Entry& entry = entries[e];
