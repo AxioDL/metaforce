@@ -1,6 +1,7 @@
 #include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 #include "Runtime/Graphics/CGraphics.hpp"
@@ -26,39 +27,41 @@ CCameraBlurFilter::CCameraBlurFilter() {
   CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
     m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 4);
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
-    boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-    boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get()};
-    m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr, 1, bufs, stages, nullptr, nullptr,
-                                          1, texs, nullptr, nullptr);
+    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
+    constexpr std::array stages{boo::PipelineStage::Vertex};
+    const std::array<boo::ObjToken<boo::ITexture>, 1> texs{CGraphics::g_SpareTexture.get()};
+    m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
+                                          stages.data(), nullptr, nullptr, texs.size(), texs.data(), nullptr, nullptr);
     return true;
   } BooTrace);
 }
 
 void CCameraBlurFilter::draw(float amount, bool clearDepth) {
-  if (amount <= 0.f)
+  if (amount <= 0.f) {
     return;
+  }
+
   SCOPED_GRAPHICS_DEBUG_GROUP("CCameraBlurFilter::draw", zeus::skMagenta);
 
-  SClipScreenRect clipRect(g_Viewport);
+  const SClipScreenRect clipRect(g_Viewport);
   CGraphics::ResolveSpareTexture(clipRect, 0, clearDepth);
-  float aspect = CGraphics::g_CroppedViewport.xc_width / float(CGraphics::g_CroppedViewport.x10_height);
+  const float aspect = float(CGraphics::g_CroppedViewport.xc_width) / float(CGraphics::g_CroppedViewport.x10_height);
 
-  float xFac = CGraphics::g_CroppedViewport.xc_width / float(g_Viewport.x8_width);
-  float yFac = CGraphics::g_CroppedViewport.x10_height / float(g_Viewport.xc_height);
-  float xBias = CGraphics::g_CroppedViewport.x4_left / float(g_Viewport.x8_width);
-  float yBias = CGraphics::g_CroppedViewport.x8_top / float(g_Viewport.xc_height);
+  const float xFac = float(CGraphics::g_CroppedViewport.xc_width) / float(g_Viewport.x8_width);
+  const float yFac = float(CGraphics::g_CroppedViewport.x10_height) / float(g_Viewport.xc_height);
+  const float xBias = float(CGraphics::g_CroppedViewport.x4_left) / float(g_Viewport.x8_width);
+  const float yBias = float(CGraphics::g_CroppedViewport.x8_top) / float(g_Viewport.xc_height);
 
-  Vert verts[4] = {
+  const std::array<Vert, 4> verts{{
       {{-1.0, -1.0}, {xBias, yBias}},
       {{-1.0, 1.0}, {xBias, yBias + yFac}},
       {{1.0, -1.0}, {xBias + xFac, yBias}},
       {{1.0, 1.0}, {xBias + xFac, yBias + yFac}},
-  };
-  m_vbo->load(verts, sizeof(verts));
+  }};
+  m_vbo->load(verts.data(), sizeof(verts));
 
-  for (int i = 0; i < 6; ++i) {
-    float tmp = i;
+  for (size_t i = 0; i < m_uniform.m_uv.size(); ++i) {
+    auto tmp = static_cast<float>(i);
     tmp *= 2.f * M_PIF;
     tmp /= 6.f;
 

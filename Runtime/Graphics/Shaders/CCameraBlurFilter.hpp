@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <zeus/CVector4f.hpp>
 
@@ -7,7 +8,7 @@ namespace urde {
 
 class CCameraBlurFilter {
   struct Uniform {
-    zeus::CVector4f m_uv[6];
+    std::array<zeus::CVector4f, 6> m_uv;
     float m_opacity = 1.f;
   };
 
