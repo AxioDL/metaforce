@@ -2684,7 +2684,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
         x300_fallingTime > 0.3f) {
       if (x258_movementState != EPlayerMovementState::Falling) {
         float hardThres = 30.f * 2.f * -g_tweakPlayer->GetNormalGravAccel();
-        hardThres = (hardThres != 0.f) ? hardThres * std::sqrt(hardThres) : 0.f;
+        hardThres = (hardThres != 0.f) ? hardThres * (1.f / std::sqrt(hardThres)) : 0.f;
         const float landVol = zeus::clamp(95.f, 1.6f * -x794_lastVelocity.z() + 95.f, 127.f) / 127.f;
         u16 landSfx;
         if (-x794_lastVelocity.z() < hardThres) {
@@ -5157,8 +5157,8 @@ void CPlayer::BombJump(const zeus::CVector3f& pos, CStateManager& mgr) {
           x9d4_bombJumpCheckDelayFrames = 2;
         }
       }
-      CSfxHandle hnd = CSfxManager::AddEmitter(SFXsam_ball_jump, GetTranslation(), zeus::skZero3f, false,
-                                               false, 0x7f, kInvalidAreaId);
+      CSfxHandle hnd = CSfxManager::AddEmitter(SFXsam_ball_jump, GetTranslation(), zeus::skZero3f, false, false, 0x7f,
+                                               kInvalidAreaId);
       ApplySubmergedPitchBend(hnd);
     }
   }
@@ -5504,9 +5504,8 @@ bool CPlayer::SidewaysDashAllowed(float strafeInput, float forwardInput, const C
     }
   } else {
     if (x304_orbitState != EPlayerOrbitState::NoOrbit && g_tweakPlayer->GetDashEnabled() &&
-        ControlMapper::GetPressInput(ControlMapper::ECommands::JumpOrBoost, input) &&
-        x288_startingJumpTimeout > 0.f && std::fabs(strafeInput) >= std::fabs(forwardInput) &&
-        std::fabs(strafeInput) > 0.01f) {
+        ControlMapper::GetPressInput(ControlMapper::ECommands::JumpOrBoost, input) && x288_startingJumpTimeout > 0.f &&
+        std::fabs(strafeInput) >= std::fabs(forwardInput) && std::fabs(strafeInput) > 0.01f) {
       const float threshold = std::sqrt(strafeInput * strafeInput + forwardInput * forwardInput) /
                               CalculateLeftStickEdgePosition(strafeInput, forwardInput).magnitude();
       if (threshold >= g_tweakPlayer->GetDashStrafeInputThreshold()) {
@@ -5585,8 +5584,7 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
 
   const float f3 = strafeVel / orbitToPlayer.magnitude();
   const float f2 = dt * (x37c_sidewaysDashing ? M_PIF : (M_PIF * 2.f / 3.f));
-  useOrbitToPlayer =
-      zeus::CQuaternion::fromAxisAngle(zeus::skUp, zeus::clamp(-f2, f3, f2)).transform(orbitToPlayer);
+  useOrbitToPlayer = zeus::CQuaternion::fromAxisAngle(zeus::skUp, zeus::clamp(-f2, f3, f2)).transform(orbitToPlayer);
   orbitPointFlattened += useOrbitToPlayer;
   if (!ControlMapper::GetDigitalInput(ControlMapper::ECommands::JumpOrBoost, input)) {
     x388_dashButtonHoldTime = 0.f;
