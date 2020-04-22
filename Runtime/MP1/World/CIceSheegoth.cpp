@@ -223,6 +223,7 @@ void CIceSheegoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, C
   case EScriptObjectMessage::InitializedInArea: {
     x760_pathSearch.SetArea(mgr.GetWorld()->GetArea(GetAreaIdAlways())->GetPostConstructed()->x10bc_pathArea);
     x844_approachSearch.SetArea(mgr.GetWorld()->GetArea(GetAreaIdAlways())->GetPostConstructed()->x10bc_pathArea);
+    // TODO: Remove this
     mgr.SetBossParams(GetUniqueId(), GetHealthInfo(mgr)->GetHP(), 0);
     break;
   }
@@ -561,8 +562,10 @@ void CIceSheegoth::AddSphereCollisionList(const SSphereJointInfo* info, size_t c
       continue;
     }
     vecOut.push_back(CJointCollisionDescription::SphereCollision(id, joint.radius, joint.name, 1000.f));
+    xb1c_.push_back(id);
   }
 }
+
 void CIceSheegoth::AddCollisionList(const SJointInfo* info, size_t count,
                                     std::vector<CJointCollisionDescription>& vecOut) {
   for (size_t i = 0; i < count; ++i) {
@@ -593,15 +596,14 @@ void CIceSheegoth::SetupCollisionActorManager(CStateManager& mgr) {
     const auto& desc = xa2c_collisionManager->GetCollisionDescFromIndex(i);
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(desc.GetCollisionActorId())) {
       colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
-      if (desc.GetName().find("LCTR_SHEMOUTH"sv) != std::string_view::npos) {
+      if (desc.GetName() == "LCTR_SHEMOUTH"sv) {
         xaf8_mouthCollider = desc.GetCollisionActorId();
         colAct->SetDamageVulnerability(x98c_mouthVulnerability);
-      } else if (desc.GetName().find("Jaw_end_LCTR"sv) != std::string_view::npos) {
+      } else if (desc.GetName() == "Jaw_end_LCTR"sv) {
         colAct->SetDamageVulnerability(CDamageVulnerability::PassThroughVulnerabilty());
-      } else if (desc.GetName().find("Ice_Shards_LCTR"sv) != std::string_view::npos) {
+      } else if (desc.GetName() == "Ice_Shards_LCTR"sv) {
         colAct->SetWeaponCollisionResponseType(EWeaponCollisionResponseTypes::None);
-      } else if (desc.GetName().find("GillL_LCTR"sv) != std::string_view::npos ||
-                 desc.GetName().find("GillR_LCTR"sv) != std::string_view::npos) {
+      } else if (desc.GetName() == "GillL_LCTR"sv || desc.GetName() == "GillR_LCTR"sv) {
         xafc_.emplace_back(desc.GetCollisionActorId());
       } else {
         xb04_.emplace_back(desc.GetCollisionActorId());
@@ -675,7 +677,43 @@ void CIceSheegoth::sub_8019eb50(CStateManager& mgr) {
     }
   }
 }
-void CIceSheegoth::PreventWorldCollisions(float dt, CStateManager& mgr) {}
+void CIceSheegoth::PreventWorldCollisions(float dt, CStateManager& mgr) {
+  if (GetBodyController()->GetLocomotionType() == pas::ELocomotionType::Crouch || !IsOnGround() ||
+      mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed) {
+    return;
+  }
+
+  zeus::CAABox ourBox = GetModelData()->GetBounds(GetTransform());
+  zeus::CAABox plBox = mgr.GetPlayer().GetBoundingBox();
+  if (!ourBox.intersects(plBox)) {
+    return;
+  }
+
+  zeus::CVector3f maxDeviation = zeus::skZero3f;
+  float lastMag = 0.f;
+  zeus::CVector3f predictedTrans = PredictMotion(dt).x0_translation;
+  for (CSegId uid : xb1c_) {
+    auto deviation = xa2c_collisionManager->GetDeviation(mgr, uid);
+    if (!deviation) {
+      continue;
+    }
+    const zeus::CVector3f curDeviation = ((*deviation) + predictedTrans);
+    if (curDeviation.magnitude() > lastMag) {
+      maxDeviation = curDeviation;
+      lastMag = curDeviation.magnitude();
+    }
+  }
+
+  if (lastMag <= (0.6f * GetModelData()->GetScale().y())) {
+    return;
+  }
+
+  zeus::CVector3f posDiff = GetTranslation() - mgr.GetPlayer().GetTranslation();
+  const zeus::CVector3f direction = GetTransform().transposeRotate(
+      (posDiff.dot(posDiff * maxDeviation.normalized()) / posDiff.magSquared()) * posDiff);
+  ApplyImpulseOR(GetMoveToORImpulseWR(direction, dt), zeus::CAxisAngle{});
+}
+
 void CIceSheegoth::sub_8019f680(CStateManager& mgr) {}
 void CIceSheegoth::sub_8019f5cc(float dt, CStateManager& mgr) {}
 void CIceSheegoth::UpdateParticleEffects(float dt, CStateManager& mgr) {}

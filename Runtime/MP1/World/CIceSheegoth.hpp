@@ -121,7 +121,8 @@ class CIceSheegoth : public CPatterned {
   TUniqueId xaf6_ = kInvalidUniqueId;
   TUniqueId xaf8_mouthCollider = kInvalidUniqueId;
   rstl::reserved_vector<TUniqueId, 2> xafc_;
-  rstl::reserved_vector<TUniqueId, 11> xb04_;
+  rstl::reserved_vector<TUniqueId, 10> xb04_;
+  rstl::reserved_vector<CSegId, 7> xb1c_;
   bool xb28_24_shotAt : 1;
   bool xb28_25_ : 1;
   bool xb28_26_ : 1;
