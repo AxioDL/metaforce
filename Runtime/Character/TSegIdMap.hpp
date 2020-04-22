@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <array>
 #include <memory>
 #include <utility>
 
@@ -13,7 +13,7 @@ class TSegIdMap {
   CSegId x0_boneCount = 0;
   CSegId x1_capacity = 0;
   u32 x4_maxCapacity = 100;
-  std::pair<CSegId, CSegId> x8_indirectionMap[100];
+  std::array<std::pair<CSegId, CSegId>, 100> x8_indirectionMap;
   std::unique_ptr<T[]> xd0_bones;
   CSegId xd4_curPrevBone = 0;
 
