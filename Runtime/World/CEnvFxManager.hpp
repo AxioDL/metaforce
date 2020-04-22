@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <vector>
 
 #include "Runtime/CToken.hpp"
@@ -32,14 +33,10 @@ public:
     struct {
       s16 x, y, z;
     };
-    s16 v[3];
+    std::array<s16, 3> v{};
   };
-  CVectorFixed8_8() { x = y = z = 0; }
-  CVectorFixed8_8(s16 xi, s16 yi, s16 zi) {
-    x = xi;
-    y = yi;
-    z = zi;
-  }
+  CVectorFixed8_8() = default;
+  CVectorFixed8_8(s16 xi, s16 yi, s16 zi) : v{xi, yi, zi} {}
   CVectorFixed8_8(const zeus::CVector3f& vec) {
     zeus::simd_floats f(vec.mSimd);
     x = s16(f[0] * 256.f);
