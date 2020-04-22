@@ -59,12 +59,41 @@ void CElectricBeamProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CSt
   }
 
   x484_ -= dt;
-  float f2 = zeus::close_enough(x47c_, 0.f) && x48c_ != 0 ? 1.f : -1.f;
-  /* TODO: Finish */
+  if (zeus::close_enough(x47c_, 0.f)) {
+    x480_ = 1.f;
+  } else {
+    float fVar1 = x48c_ ? 1.f : -1.f;
+    x480_ = std::min(1.f, dt * (fVar1 / x47c_) + x480_);
+    if (x480_ < 0.f) {
+      ResetBeam(mgr, true);
+    }
+  }
+
+  CBeamProjectile::UpdateFx(xf, dt, mgr);
+
+  x478_elementGen->SetModulationColor(zeus::CColor::lerp(zeus::skBlack, zeus::skWhite, x480_));
+  bool hasDamage = GetDamageType() != EDamageType::None;
+  if (hasDamage) {
+    x478_elementGen->SetGlobalOrientation(zeus::lookAt(zeus::skZero3f, GetSurfaceNormal(), zeus::skUp));
+    x478_elementGen->SetGlobalTranslation(GetCurrentPos() + (0.001f * GetSurfaceNormal()));
+  }
+  x478_elementGen->SetParticleEmission(hasDamage);
+  x478_elementGen->Update(dt);
+
+  x468_electric->SetModulationColor(zeus::CColor::lerp(zeus::skBlack, zeus::skWhite, x480_));
+  x468_electric->SetParticleEmission(true);
+  zeus::CVector3f dist = GetCurrentPos() - GetBeamTransform().origin;
+  if (dist.canBeNormalized()) {
+    dist.normalize();
+  }
+  x468_electric->SetOverrideIPos(GetBeamTransform().origin);
+  x468_electric->SetOverrideIVel(dist);
+  x468_electric->SetOverrideFPos(GetCurrentPos());
+  x468_electric->SetOverrideFVel(-dist);
+  x468_electric->Update(dt);
 }
 
-void CElectricBeamProjectile::ResetBeam(CStateManager& mgr, bool b)
-{
+void CElectricBeamProjectile::ResetBeam(CStateManager& mgr, bool b) {
   if (b) {
     SetActive(false);
     x478_elementGen->SetParticleEmission(false);

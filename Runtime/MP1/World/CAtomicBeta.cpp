@@ -50,10 +50,11 @@ void CAtomicBeta::CreateBeams(CStateManager& mgr) {
   const SElectricBeamInfo beamInfo{x600_electricWeapon, 50.f, x634_beamRadius, 10.f, x62c_beamParticle, x630_, x638_};
 
   for (size_t i = 0; i < kBombCount; ++i) {
-    x568_projectileIds.push_back(mgr.AllocateUniqueId());
+    const TUniqueId id = mgr.AllocateUniqueId();
+    x568_projectileIds.push_back(id);
     mgr.AddObject(new CElectricBeamProjectile(x608_, EWeaponType::AI, beamInfo, {}, EMaterialTypes::Character,
-                                              x610_projectileDamage, x568_projectileIds[i], GetAreaIdAlways(),
-                                              GetUniqueId(), EProjectileAttrib::None));
+                                              x610_projectileDamage, id, GetAreaIdAlways(), GetUniqueId(),
+                                              EProjectileAttrib::None));
   }
 }
 
@@ -62,9 +63,9 @@ void CAtomicBeta::UpdateBeams(CStateManager& mgr, bool fireBeam) {
     return;
   }
 
-  for (size_t i = 0; i < kBombCount; ++i) {
-    //zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
-    //zeus::CTransform newXf = zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::skUp);
+  for (size_t i = 0; i < x568_projectileIds.size(); ++i) {
+    // zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
+    // zeus::CTransform newXf = zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::skUp);
     if (auto* const proj = static_cast<CElectricBeamProjectile*>(mgr.ObjectById(x568_projectileIds[i]))) {
       if (fireBeam) {
         proj->Fire(GetTransform() * GetScaledLocatorTransform(skBombLocators[i]), mgr, false);
@@ -130,19 +131,20 @@ void CAtomicBeta::Think(float dt, CStateManager& mgr) {
     UpdateOrCreateEmitter(x654_, x648_, GetTranslation(), 96 / 127.f);
     DestroyEmitter(x64c_);
   } else {
+    UpdateBeams(mgr, false);
     DestroyEmitter(x650_);
     DestroyEmitter(x654_);
     UpdateOrCreateEmitter(x64c_, x644_, GetTranslation(), 96 / 127.f);
   }
 
-  for (size_t i = 0; i < kBombCount; ++i) {
+  // was hardcoded to 3 (kBombCount), but that segfaults after FreeBeams
+  for (size_t i = 0; i < x568_projectileIds.size(); ++i) {
     if (auto* const proj = static_cast<CElectricBeamProjectile*>(mgr.ObjectById(x568_projectileIds[i]))) {
       if (!proj->GetActive()) {
         continue;
       }
-
       const zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
-      proj->UpdateFx(zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::skUp), dt, mgr);
+      proj->UpdateFx(zeus::lookAt(xf.origin, xf.origin + xf.frontVector(), zeus::skUp), dt, mgr);
     }
   }
 
@@ -168,6 +170,6 @@ void CAtomicBeta::Death(CStateManager& mgr, const zeus::CVector3f& dir, EScriptO
 
 bool CAtomicBeta::IsPlayerBeamChargedEnough(const CStateManager& mgr) {
   const CPlayerGun* gun = mgr.GetPlayer().GetPlayerGun();
-  return (gun->IsCharging() ? gun->GetChargeBeamFactor() : 0.f) > .1f;
+  return (gun->IsCharging() ? gun->GetChargeBeamFactor() : 0.f) > 0.1f;
 }
 } // namespace urde::MP1

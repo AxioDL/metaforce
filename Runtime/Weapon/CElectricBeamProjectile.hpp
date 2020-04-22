@@ -14,9 +14,10 @@ struct SElectricBeamInfo {
   float x18_;
   float x1c_;
 };
+
 class CElectricBeamProjectile : public CBeamProjectile {
   std::unique_ptr<CParticleElectric> x468_electric;
-  TToken<CGenDescription> x46c_genDescription;
+  TCachedToken<CGenDescription> x46c_genDescription;
   std::unique_ptr<CElementGen> x478_elementGen;
   float x47c_;
   float x480_;
