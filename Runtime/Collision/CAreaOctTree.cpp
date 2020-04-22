@@ -276,7 +276,7 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
   } else if (x20_nodeType == ETreeType::Branch) {
     if (GetChildFlags() == 0xA) // 2 leaves
     {
-      SRayResult tmpRes[2];
+      std::array<SRayResult, 2> tmpRes;
       for (int i = 0; i < 2; ++i) {
         Node child = GetChild(i);
         float tf1 = lT;
@@ -308,17 +308,20 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
 
     zeus::CVector3f lowPoint = line.origin + lT * line.dir;
     zeus::CVector3f highPoint = line.origin + hT * line.dir;
-    int comps[] = {-1, -1, -1, 0};
-    float compT[3];
+    std::array<int, 4> comps{-1, -1, -1, 0};
+    std::array<float, 3> compT;
 
     int numComps = 0;
-    for (int i = 0; i < 3; ++i) {
-      if (lowPoint[i] >= center[i] || highPoint[i] <= center[i])
-        if (highPoint[i] >= center[i] || lowPoint[i] <= center[i])
+    for (size_t i = 0; i < compT.size(); ++i) {
+      if (lowPoint[i] >= center[i] || highPoint[i] <= center[i]) {
+        if (highPoint[i] >= center[i] || lowPoint[i] <= center[i]) {
           continue;
-      if (_close_enough(line.dir[i], 0.f, 0.000099999997f))
+        }
+      }
+      if (_close_enough(line.dir[i], 0.f, 0.000099999997f)) {
         continue;
-      comps[numComps++] = i;
+      }
+      comps[numComps++] = static_cast<int>(i);
       compT[i] = dirRecip[i] * (center[i] - line.origin[i]);
     }
 
