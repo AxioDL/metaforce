@@ -422,8 +422,9 @@ void CScriptGunTurret::LaunchProjectile(CStateManager& mgr) {
     mgr.AddObject(proj);
     auto pair =
     x64_modelData->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
-    CPASAnimParmData(18, CPASAnimParm::FromEnum(1), CPASAnimParm::FromReal32(90.f),
-      CPASAnimParm::FromEnum(skStateToLocoTypeLookup[size_t(x520_state)])), -1);
+        CPASAnimParmData(pas::EAnimationState::ProjectileAttack, CPASAnimParm::FromEnum(1),
+                         CPASAnimParm::FromReal32(90.f),
+                         CPASAnimParm::FromEnum(skStateToLocoTypeLookup[size_t(x520_state)])), -1);
     if (pair.first > 0.f) {
       x64_modelData->EnableLooping(false);
       x64_modelData->GetAnimationData()->SetAnimation(CAnimPlaybackParms(pair.second, -1, 1.f, true), false);
@@ -433,7 +434,7 @@ void CScriptGunTurret::LaunchProjectile(CStateManager& mgr) {
 
 void CScriptGunTurret::PlayAdditiveFlinchAnimation(CStateManager& mgr) {
   auto pair = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
-      CPASAnimParmData(23), *mgr.GetActiveRandom(), -1);
+      CPASAnimParmData(pas::EAnimationState::AdditiveFlinch), *mgr.GetActiveRandom(), -1);
   if (pair.first > 0.f)
     GetModelData()->GetAnimationData()->AddAdditiveAnimation(pair.second, 1.f, false, true);
 }
@@ -695,7 +696,7 @@ void CScriptGunTurret::UpdateTurretAnimation() {
     return;
   }
 
-  const auto parmData = CPASAnimParmData(5, CPASAnimParm::FromEnum(0),
+  const auto parmData = CPASAnimParmData(pas::EAnimationState::Locomotion, CPASAnimParm::FromEnum(0),
                                          CPASAnimParm::FromEnum(skStateToLocoTypeLookup[size_t(x520_state)]));
   const auto pair =
       GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(parmData, -1);
@@ -1150,7 +1151,7 @@ void CScriptGunTurret::PlayAdditiveChargingAnimation(CStateManager& mgr) {
       return;
 
     auto pair = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
-        CPASAnimParmData(24, CPASAnimParm::FromEnum(2)), *mgr.GetActiveRandom(), -1);
+        CPASAnimParmData(pas::EAnimationState::AdditiveReaction, CPASAnimParm::FromEnum(2)), *mgr.GetActiveRandom(), -1);
     if (pair.first > 0.f) {
       x55c_additiveChargeAnim = pair.second;
       GetModelData()->GetAnimationData()->AddAdditiveAnimation(pair.second, 1.f, true, false);

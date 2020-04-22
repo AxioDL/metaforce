@@ -498,8 +498,8 @@ void CKnockBackController::DoKnockBackAnimation(const zeus::CVector3f& backVec, 
     break;
   }
   case EKnockBackAnimationState::Flinch: {
-    const std::pair<float, s32> bestAnim =
-        parent.GetBodyController()->GetPASDatabase().FindBestAnimation(CPASAnimParmData(23), *mgr.GetActiveRandom(), -1);
+    const std::pair<float, s32> bestAnim = parent.GetBodyController()->GetPASDatabase().FindBestAnimation(
+        CPASAnimParmData(pas::EAnimationState::AdditiveFlinch), *mgr.GetActiveRandom(), -1);
     if (bestAnim.first > 0.f) {
       parent.GetModelData()->GetAnimationData()->AddAdditiveAnimation(bestAnim.second, 1.f, false, true);
       x64_flinchRemTime =

@@ -954,8 +954,8 @@ void CPatterned::BuildBodyController(EBodyType bodyType) {
     return;
 
   x450_bodyController = std::make_unique<CBodyController>(*this, x3b8_turnSpeed, bodyType);
-  auto anim =
-      x450_bodyController->GetPASDatabase().FindBestAnimation(CPASAnimParmData(24, CPASAnimParm::FromEnum(0)), -1);
+  auto anim = x450_bodyController->GetPASDatabase().FindBestAnimation(
+      CPASAnimParmData(pas::EAnimationState::AdditiveReaction, CPASAnimParm::FromEnum(0)), -1);
   x460_knockBackController.x81_26_enableShock = anim.first > 0.f;
 }
 

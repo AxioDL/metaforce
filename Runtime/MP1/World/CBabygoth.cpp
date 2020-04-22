@@ -97,7 +97,7 @@ CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& in
   x460_knockBackController.SetEnableShock(true);
   x460_knockBackController.SetEnableExplodeDeath(true);
   x8d4_stepBackwardDist =
-      GetAnimationDistance(CPASAnimParmData(3, CPASAnimParm::FromEnum(1), CPASAnimParm::FromEnum(0))) *
+      GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::Step, CPASAnimParm::FromEnum(1), CPASAnimParm::FromEnum(0))) *
       GetModelData()->GetScale().y(); // B_backward_sheegoth
   xa08_noShellModel->SetLayoutInfo(GetModelData()->GetAnimationData()->GetModelData()->GetLayoutInfo());
   MakeThermalColdAndHot();

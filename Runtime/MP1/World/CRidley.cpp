@@ -298,7 +298,8 @@ CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
   }
 
   xae4_ = GetModelData()->GetScale().x() *
-          GetAnimationDistance(CPASAnimParmData(7, CPASAnimParm::FromEnum(4), CPASAnimParm::FromEnum(3)));
+          GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::MeleeAttack, CPASAnimParm::FromEnum(4),
+                                                CPASAnimParm::FromEnum(3)));
   x460_knockBackController.SetAnimationStateRange(EKnockBackAnimationState::Flinch, EKnockBackAnimationState::Flinch);
   x460_knockBackController.SetEnableBurn(false);
   x460_knockBackController.SetEnableFreeze(false);

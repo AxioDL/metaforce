@@ -32,10 +32,10 @@ CBeetle::CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
 , x7ac_tailVuln(tailVuln)
 , x814_attackDelayTimer(initialAttackDelay)
 , x834_retreatTime(retreatTime) {
-  x5a0_headbuttDist = GetAnimationDistance(CPASAnimParmData(7, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(1)));
+  x5a0_headbuttDist = GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::MeleeAttack, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(1)));
   x5a4_jumpBackwardDist =
       x64_modelData->GetScale().y() *
-      GetAnimationDistance(CPASAnimParmData(3, CPASAnimParm::FromEnum(1), CPASAnimParm::FromEnum(0)));
+      GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::Step, CPASAnimParm::FromEnum(1), CPASAnimParm::FromEnum(0)));
   MakeThermalColdAndHot();
   if (x3fc_flavor == EFlavorType::One)
     x460_knockBackController.SetLocomotionDuringElectrocution(true);
