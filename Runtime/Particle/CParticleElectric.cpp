@@ -274,6 +274,7 @@ void CParticleElectric::CalculatePoints() {
   }
 
   if (points.size() == 4) {
+    x420_calculatedVerts[0] = points[0];
     const int segs = x150_SSEG - 1;
     const float segDiv = 1.f / float(segs);
     float curDiv = segDiv;
