@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Editor/ProjectResourceFactoryBase.hpp"
 #include "Runtime/CObjectList.hpp"
 #include "Runtime/CToken.hpp"
@@ -210,7 +212,8 @@ public:
     struct MapEntry {
       s16 x0_id = -1;
       TUniqueId x4_uid = kInvalidUniqueId;
-    } xa8_pvsEntityMap[1024];
+    };
+    std::array<MapEntry, 1024> xa8_pvsEntityMap;
     u32 x10a8_pvsVersion = 0;
     TLockedToken<CPFArea> x10ac_pathToken;
     // bool x10b8_ = 0; optional flag for CToken
