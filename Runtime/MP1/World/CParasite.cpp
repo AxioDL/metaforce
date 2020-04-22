@@ -58,19 +58,7 @@ CParasite::CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, c
 , x714_iceZoomerJointHP(iceZoomerJointHP)
 , x73c_haltSfx(CSfxManager::TranslateSFXID(haltSfx))
 , x73e_getUpSfx(CSfxManager::TranslateSFXID(getUpSfx))
-, x740_crouchSfx(CSfxManager::TranslateSFXID(crouchSfx))
-, x742_24_receivedTelegraph(false)
-, x742_25_jumpVelDirty(false)
-, x742_26_(false)
-, x742_27_landed(false)
-, x742_28_onGround(true)
-, x742_29_(false)
-, x742_30_attackOver(true)
-, x742_31_(false)
-, x743_24_halted(false)
-, x743_25_vulnerable(false)
-, x743_26_oculusShotAt(false)
-, x743_27_inJump(false) {
+, x740_crouchSfx(CSfxManager::TranslateSFXID(crouchSfx)) {
   switch (x5d0_walkerType) {
   case EWalkerType::Geemer:
     x460_knockBackController.SetEnableFreeze(false);

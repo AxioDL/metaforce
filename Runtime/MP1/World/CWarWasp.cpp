@@ -27,14 +27,7 @@ CWarWasp::CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info
 , x684_(dInfo1)
 , x6d4_projectileInfo(projectileWeapon, projectileDamage)
 , x72c_projectileVisorSfx(CSfxManager::TranslateSFXID(projecileVisorSfx))
-, x72e_24_jumpBackRepeat(true)
-, x72e_25_canApplyDamage(false)
-, x72e_26_initiallyInactive(!pInfo.GetActive())
-, x72e_27_teamMatesMelee(false)
-, x72e_28_inProjectileAttack(false)
-, x72e_29_pathObstructed(false)
-, x72e_30_isRetreating(false)
-, x72e_31_heardNoise(false) {
+, x72e_26_initiallyInactive(!pInfo.GetActive()) {
   x6d4_projectileInfo.Token().Lock();
   UpdateTouchBounds();
   SetCoefficientOfRestitutionModifier(0.1f);

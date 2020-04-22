@@ -24,7 +24,6 @@ CFlaahgraTentacle::CFlaahgraTentacle(TUniqueId uid, std::string_view name, const
                                      const CActorParameters& actParms)
 : CPatterned(ECharacter::FlaahgraTentacle, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Large) {
-  x58e_24_ = false;
   GetActorLights()->SetCastShadows(false);
   x460_knockBackController.SetAutoResetImpulse(false);
   CreateShadow(false);

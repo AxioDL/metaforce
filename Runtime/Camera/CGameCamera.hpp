@@ -22,7 +22,7 @@ protected:
   float x164_zfar;
   float x168_aspect;
   u32 x16c_controllerIdx;
-  bool x170_24_perspDirty : 1;
+  bool x170_24_perspDirty : 1 = true;
   bool x170_25_disablesInput : 1;
   float x174_delayTime = 0.f;
   float x178_perspInterpRemTime = 0.f;

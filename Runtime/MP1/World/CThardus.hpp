@@ -14,10 +14,10 @@ class CThardus : public CPatterned {
   class CThardusSomething {
     TUniqueId x0_ = kInvalidUniqueId;
     zeus::CVector3f x4_;
-    bool x10_24_ : 1;
+    bool x10_24_ : 1 = false;
 
   public:
-    CThardusSomething() : x10_24_(false) {}
+    CThardusSomething() = default;
   };
   u32 x568_;
   TUniqueId x56c_ = kInvalidUniqueId;

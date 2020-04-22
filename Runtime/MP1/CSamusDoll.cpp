@@ -100,13 +100,7 @@ CSamusDoll::CSamusDoll(const CDependencyGroup& suitDgrp, const CDependencyGroup&
 , x44_suit(suit)
 , x48_beam(beam)
 , x270_24_hasSpiderBall(hasSpiderBall)
-, x270_25_hasGrappleBeam(hasGrappleBeam)
-, x270_26_pulseSuit(false)
-, x270_27_pulseBeam(false)
-, x270_28_pulseGrapple(false)
-, x270_29_pulseBoots(false)
-, x270_30_pulseVisor(false)
-, x270_31_loaded(false) {
+, x270_25_hasGrappleBeam(hasGrappleBeam) {
   x70_fixedRot.rotateZ(M_PIF);
   x90_userInterpRot = xb0_userRot = x70_fixedRot;
   x1d4_spiderBallGlass = g_SimplePool->GetObj(SpiderBallGlassModels[size_t(suit)].first);

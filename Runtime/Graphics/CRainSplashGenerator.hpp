@@ -56,8 +56,8 @@ class CRainSplashGenerator {
   u32 x3c_queueHead = 0;
   u32 x40_queueSize = 0;
   u32 x44_genRate;
-  bool x48_24 : 1;
-  bool x48_25_raining : 1;
+  bool x48_24 : 1 = false;
+  bool x48_25_raining : 1 = true;
   void UpdateRainSplashRange(CStateManager& mgr, int start, int end, float dt);
   void UpdateRainSplashes(CStateManager& mgr, float magnitude, float dt);
   void DoDraw(const zeus::CTransform& xf);

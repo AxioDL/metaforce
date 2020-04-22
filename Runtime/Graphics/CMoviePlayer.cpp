@@ -143,8 +143,6 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
 : CDvdFile(path)
 , xec_preLoadSeconds(preLoadSeconds)
 , xf4_24_loop(loop)
-, xf4_25_hasAudio(false)
-, xf4_26_fieldFlip(false)
 , m_deinterlace(deinterlace) {
   /* Read THP header information */
   u8 buf[64];

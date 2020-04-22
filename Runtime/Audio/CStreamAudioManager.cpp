@@ -446,9 +446,9 @@ public:
 private:
   dspadpcm_header x0_header;
   std::string x60_fileName; // arg1
-  bool x70_24_unclaimed : 1;
-  bool x70_25_headerReadCancelled : 1;
-  u8 x70_26_headerReadState : 2; // 0: not read 1: reading 2: read
+  bool x70_24_unclaimed : 1 = true;
+  bool x70_25_headerReadCancelled : 1 = false;
+  u8 x70_26_headerReadState : 2 = 0; // 0: not read 1: reading 2: read
   s8 x71_companionRight = -1;
   s8 x72_companionLeft = -1;
   float x73_volume = 0.f;
@@ -460,13 +460,11 @@ private:
   static std::array<CDSPStreamManager, 4> g_Streams;
 
 public:
-  CDSPStreamManager() : x70_24_unclaimed(true), x70_25_headerReadCancelled(false), x70_26_headerReadState(0) {}
+  CDSPStreamManager() = default;
 
   CDSPStreamManager(std::string_view fileName, s32 handle, float volume, bool oneshot)
   : x60_fileName(fileName)
   , x70_24_unclaimed(!CDvdFile::FileExists(fileName))
-  , x70_25_headerReadCancelled(false)
-  , x70_26_headerReadState(0)
   , x73_volume(volume)
   , x74_oneshot(oneshot)
   , x78_handleId(handle) {}

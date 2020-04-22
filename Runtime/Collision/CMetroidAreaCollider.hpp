@@ -120,7 +120,7 @@ public:
     friend class CMetroidAreaCollider;
     const CAreaOctTree& x0_octTree;
     rstl::reserved_vector<CAreaOctTree::Node, 64> x4_nodeCache;
-    bool x908_24_overflow : 1;
+    bool x908_24_overflow : 1 = false;
 
   public:
     explicit COctreeLeafCache(const CAreaOctTree& octTree);
@@ -173,12 +173,11 @@ public:
 class CAreaCollisionCache {
   zeus::CAABox x0_aabb;
   rstl::reserved_vector<CMetroidAreaCollider::COctreeLeafCache, 3> x18_leafCaches;
-  bool x1b40_24_leafOverflow : 1;
-  bool x1b40_25_cacheOverflow : 1;
+  bool x1b40_24_leafOverflow : 1 = false;
+  bool x1b40_25_cacheOverflow : 1 = false;
 
 public:
-  explicit CAreaCollisionCache(const zeus::CAABox& aabb)
-  : x0_aabb(aabb), x1b40_24_leafOverflow(false), x1b40_25_cacheOverflow(false) {}
+  explicit CAreaCollisionCache(const zeus::CAABox& aabb) : x0_aabb(aabb) {}
   void ClearCache();
   const zeus::CAABox& GetCacheBounds() const { return x0_aabb; }
   void SetCacheBounds(const zeus::CAABox& aabb) { x0_aabb = aabb; }

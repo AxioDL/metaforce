@@ -30,9 +30,9 @@ class CLogBookScreen : public CPauseScreenBase {
     LeavingPause = 1,
     LeftPause = 2
   } x25c_leavePauseState = ELeavePauseState::InPause;
-  bool x260_24_loaded : 1;
-  bool x260_25_inTextScroll : 1;
-  bool x260_26_exitTextScroll : 1;
+  bool x260_24_loaded : 1 = false;
+  bool x260_25_inTextScroll : 1 = false;
+  bool x260_26_exitTextScroll : 1 = false;
 
   void InitializeLogBook();
   void UpdateRightTitles();

@@ -236,17 +236,7 @@ void CGameArchitectureSupport::specialKeyUp(boo::ESpecialKey key, boo::EModifier
 
 CMain::CMain(IFactory* resFactory, CSimplePool* resStore, boo::IGraphicsDataFactory* gfxFactory,
              boo::IGraphicsCommandQueue* cmdQ, const boo::ObjToken<boo::ITextureR>& spareTex)
-: m_booSetter(gfxFactory, cmdQ, spareTex)
-, x128_globalObjects(resFactory, resStore)
-, x160_24_finished(false)
-, x160_25_mfGameBuilt(false)
-, x160_26_screenFading(false)
-, x160_27_(false)
-, x160_28_manageCard(false)
-, x160_29_(false)
-, x160_30_(false)
-, x160_31_cardBusy(false)
-, x161_24_gameFrameDrawn(false) {
+: m_booSetter(gfxFactory, cmdQ, spareTex), x128_globalObjects(resFactory, resStore) {
   xe4_gameplayResult = EGameplayResult::Playing;
   g_Main = this;
 }

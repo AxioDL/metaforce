@@ -68,8 +68,8 @@ private:
   std::unique_ptr<CElementGen> x2a8_elementGen3;
   std::unique_ptr<CElementGen> x2ac_elementGen4;
   float x2b0_explodePlayerDistance;
-  bool x2b4_24_exploded : 1;
-  bool x2b4_25_ : 1;
+  bool x2b4_24_exploded : 1 = false;
+  bool x2b4_25_ : 1 = false;
 
 public:
   CBouncyGrenade(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,

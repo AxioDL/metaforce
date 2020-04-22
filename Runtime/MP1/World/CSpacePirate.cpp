@@ -181,7 +181,6 @@ CSpacePirate::CSpacePirateData::CSpacePirateData(urde::CInputStream& in, u32 pro
 
 CPirateRagDoll::CPirateRagDoll(CStateManager& mgr, CSpacePirate* sp, u16 thudSfx, u32 flags)
 : CRagDoll(-sp->GetGravityConstant(), -3.f, 8.f, flags), x6c_spacePirate(sp), x70_thudSfx(thudSfx) {
-  xb0_24_initSfx = true;
   x6c_spacePirate->RemoveMaterial(EMaterialTypes::Solid, EMaterialTypes::AIBlock, EMaterialTypes::GroundCollider, mgr);
   x6c_spacePirate->HealthInfo(mgr)->SetHP(-1.f);
   SetNumParticles(14);
@@ -408,38 +407,6 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
   x635_30_floatingCorpse = bool(x568_pirateData.x18_flags & 0x10000);
   x635_31_ragdollNoAiCollision = bool(x568_pirateData.x18_flags & 0x20000);
   x636_24_trooper = bool(x568_pirateData.x18_flags & 0x40000);
-  x636_25_hearNoise = false;
-  x636_26_enableMeleeAttack = false;
-  x636_27_ = false;
-  x636_28_ = false;
-  x636_29_enableRetreat = false;
-  x636_30_shuffleClose = false;
-  x636_31_inAttackState = false;
-  x637_24_enablePatrol = false;
-  x637_25_enableAim = false;
-  x637_26_hearPlayerFire = false;
-  x637_27_inProjectilePath = false;
-  x637_28_noPlayerLos = false;
-  x637_29_inWallHang = false;
-  x637_30_jumpVelSet = false;
-  x637_31_prevInCineCam = false;
-  x638_24_pendingFrenzyChance = false;
-  x638_25_appliedBladeDamage = false;
-  x638_26_alwaysAggressive = false;
-  x638_27_coverCheck = false;
-  x638_28_enableDodge = false;
-  x638_29_noPlayerDodge = false;
-  x638_30_ragdollOver = false;
-  x638_31_mayStartAttack = false;
-  x639_24_ = false;
-  x639_25_useJumpBackJump = false;
-  x639_26_started = false;
-  x639_27_inRange = false;
-  x639_28_satUp = false;
-  x639_29_enableBreakDodge = false;
-  x639_30_closeMelee = false;
-  x639_31_sentAttackMsg = false;
-  x63a_24_normalDodge = false;
 
   x758_headSeg = x64_modelData->GetAnimationData()->GetLocatorSegId("Head_1"sv);
   x7b6_gunSeg = x64_modelData->GetAnimationData()->GetLocatorSegId("R_gun_LCTR"sv);

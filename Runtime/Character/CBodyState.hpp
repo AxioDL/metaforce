@@ -146,15 +146,12 @@ public:
 class CBSLoopAttack : public CBodyState {
   pas::ELoopState x4_state = pas::ELoopState::Invalid;
   pas::ELoopAttackType x8_loopAttackType = pas::ELoopAttackType::Invalid;
-  bool xc_24_waitForAnimOver : 1;
-  bool xc_25_advance : 1;
+  bool xc_24_waitForAnimOver : 1 = false;
+  bool xc_25_advance : 1 = false;
   pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
-  CBSLoopAttack() {
-    xc_24_waitForAnimOver = false;
-    xc_25_advance = false;
-  }
+  CBSLoopAttack() = default;
   bool CanShoot() const override { return true; }
   void Start(CBodyController& bc, CStateManager& mgr) override;
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
@@ -164,12 +161,12 @@ public:
 class CBSLoopReaction : public CBodyState {
   pas::ELoopState x4_state = pas::ELoopState::Invalid;
   pas::EReactionType x8_reactionType = pas::EReactionType::Invalid;
-  bool xc_24_loopHit : 1;
+  bool xc_24_loopHit : 1 = false;
   pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
   bool PlayExitAnimation(CBodyController& bc, CStateManager& mgr) const;
 
 public:
-  CBSLoopReaction() { xc_24_loopHit = false; }
+  CBSLoopReaction() = default;
   void Start(CBodyController& bc, CStateManager& mgr) override;
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
   void Shutdown(CBodyController&) override {}
@@ -202,23 +199,18 @@ class CBSJump : public CBodyState {
   zeus::CVector3f xc_waypoint1;
   zeus::CVector3f x18_velocity;
   zeus::CVector3f x24_waypoint2;
-  bool x30_24_bodyForceSet : 1;
-  bool x30_25_wallJump : 1;
-  bool x30_26_wallBounceRight : 1;
-  bool x30_27_wallBounceComplete : 1;
-  bool x30_28_startInJumpLoop : 1;
+  bool x30_24_bodyForceSet : 1 = false;
+  bool x30_25_wallJump : 1 = false;
+  bool x30_26_wallBounceRight : 1 = false;
+  bool x30_27_wallBounceComplete : 1 = false;
+  bool x30_28_startInJumpLoop : 1 = false;
   pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
   bool CheckForWallJump(CBodyController& bc, CStateManager& mgr);
   void CheckForLand(CBodyController& bc, CStateManager& mgr);
   void PlayJumpLoop(CStateManager& mgr, CBodyController& bc);
 
 public:
-  CBSJump()
-  : x30_24_bodyForceSet(false)
-  , x30_25_wallJump(false)
-  , x30_26_wallBounceRight(false)
-  , x30_27_wallBounceComplete(false)
-  , x30_28_startInJumpLoop(false) {}
+  CBSJump() = default;
   bool IsMoving() const override { return true; }
   bool ApplyHeadTracking() const override { return false; }
   bool CanShoot() const override;
@@ -238,7 +230,7 @@ class CBSHurled : public CBodyState {
   float x18_curTime = 0.f;
   mutable zeus::CVector3f x1c_lastTranslation;
   mutable float x28_landedDur = 0.f;
-  bool x2c_24_needsRecover : 1;
+  bool x2c_24_needsRecover : 1 = false;
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
   void Recover(CStateManager& mgr, CBodyController& bc, pas::EHurledState state);
   void PlayStrikeWallAnimation(CBodyController& bc, CStateManager& mgr);
@@ -247,7 +239,7 @@ class CBSHurled : public CBodyState {
   bool ShouldStartLand(float dt, CBodyController& bc) const;
 
 public:
-  CBSHurled() { x2c_24_needsRecover = false; }
+  CBSHurled() = default;
   bool IsMoving() const override { return true; }
   bool IsInAir(const CBodyController&) const override { return true; }
   bool ApplyHeadTracking() const override { return false; }
@@ -278,13 +270,13 @@ public:
 };
 
 class CBSScripted : public CBodyState {
-  bool x4_24_loopAnim : 1;
-  bool x4_25_timedLoop : 1;
+  bool x4_24_loopAnim : 1 = false;
+  bool x4_25_timedLoop : 1 = false;
   float x8_remTime = 0.f;
   pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
 
 public:
-  CBSScripted() : x4_24_loopAnim(false), x4_25_timedLoop(false) {}
+  CBSScripted() = default;
   bool ApplyHeadTracking() const override { return false; }
   void Start(CBodyController& bc, CStateManager& mgr) override;
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
@@ -310,8 +302,8 @@ class CBSWallHang : public CBodyState {
   pas::EWallHangState x4_state = pas::EWallHangState::Invalid;
   TUniqueId x8_wpId = kInvalidUniqueId;
   zeus::CVector3f xc_launchVel;
-  bool x18_24_launched : 1;
-  bool x18_25_needsExit : 1;
+  bool x18_24_launched : 1 = false;
+  bool x18_25_needsExit : 1 = false;
   pas::EAnimationState GetBodyStateTransition(float dt, const CBodyController& bc) const;
   void FixInPlace(CBodyController& bc);
   bool CheckForLand(CBodyController& bc, CStateManager& mgr);
@@ -319,7 +311,7 @@ class CBSWallHang : public CBodyState {
   void SetLaunchVelocity(CBodyController& bc);
 
 public:
-  CBSWallHang() : x18_24_launched(false), x18_25_needsExit(false) {}
+  CBSWallHang() = default;
   bool IsMoving() const override { return true; }
   bool CanShoot() const override { return x4_state == pas::EWallHangState::WallHang; }
   bool IsInAir(const CBodyController& bc) const override;

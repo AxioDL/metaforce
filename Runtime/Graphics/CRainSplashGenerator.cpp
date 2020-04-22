@@ -12,8 +12,6 @@ CRainSplashGenerator::CRainSplashGenerator(const zeus::CVector3f& scale, u32 max
 : x14_scale(scale), x2c_minZ(minZ) {
   x30_alpha = std::min(1.f, alpha);
   x44_genRate = std::min(maxSplashes, genRate);
-  x48_24 = false;
-  x48_25_raining = true;
   x0_rainSplashes.reserve(maxSplashes);
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     for (u32 i = 0; i < maxSplashes; ++i)

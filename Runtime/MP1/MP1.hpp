@@ -217,15 +217,15 @@ private:
 
   u32 x130_[10] = {1000000};
 
-  bool x160_24_finished : 1;
-  bool x160_25_mfGameBuilt : 1;
-  bool x160_26_screenFading : 1;
-  bool x160_27_ : 1;
-  bool x160_28_manageCard : 1;
-  bool x160_29_ : 1;
-  bool x160_30_ : 1;
-  bool x160_31_cardBusy : 1;
-  bool x161_24_gameFrameDrawn : 1;
+  bool x160_24_finished : 1 = false;
+  bool x160_25_mfGameBuilt : 1 = false;
+  bool x160_26_screenFading : 1 = false;
+  bool x160_27_ : 1 = false;
+  bool x160_28_manageCard : 1 = false;
+  bool x160_29_ : 1 = false;
+  bool x160_30_ : 1 = false;
+  bool x160_31_cardBusy : 1 = false;
+  bool x161_24_gameFrameDrawn : 1 = false;
 
   std::unique_ptr<CGameArchitectureSupport> x164_archSupport;
 

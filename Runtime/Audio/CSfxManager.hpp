@@ -60,16 +60,16 @@ public:
     s16 xa_prio;
     // CSfxHandle xc_handle;
     TAreaId x10_area;
-    bool x14_24_isActive : 1;
-    bool x14_25_isPlaying : 1;
+    bool x14_24_isActive : 1 = true;
+    bool x14_25_isPlaying : 1 = false;
     bool x14_26_looped : 1;
-    bool x14_27_inArea : 1;
-    bool x14_28_isReleased : 1;
+    bool x14_27_inArea : 1 = true;
+    bool x14_28_isReleased : 1 = false;
     bool x14_29_useAcoustics : 1;
 
   protected:
-    bool m_isEmitter : 1;
-    bool m_isClosed : 1;
+    bool m_isEmitter : 1 = false;
+    bool m_isClosed : 1 = false;
 
   public:
     virtual ~CBaseSfxWrapper() = default;
@@ -112,14 +112,8 @@ public:
     CBaseSfxWrapper(bool looped, s16 prio, /*const CSfxHandle& handle,*/ bool useAcoustics, TAreaId area)
     : xa_prio(prio)
     , /*xc_handle(handle),*/ x10_area(area)
-    , x14_24_isActive(true)
-    , x14_25_isPlaying(false)
     , x14_26_looped(looped)
-    , x14_27_inArea(true)
-    , x14_28_isReleased(false)
-    , x14_29_useAcoustics(useAcoustics)
-    , m_isEmitter(false)
-    , m_isClosed(false) {}
+    , x14_29_useAcoustics(useAcoustics) {}
   };
 
   class CSfxEmitterWrapper : public CBaseSfxWrapper {

@@ -27,11 +27,7 @@ CTryclops::CTryclops(urde::TUniqueId uid, std::string_view name, const CEntityIn
 , x67c_(f1)
 , x680_(std::cos(zeus::degToRad(0.5f * f2)))
 , x684_(f3)
-, x688_launchSpeed(f4)
-, x698_24_(false)
-, x698_25_(false)
-, x698_26_(false)
-, x698_27_dizzy(false) {
+, x688_launchSpeed(f4) {
   CreateShadow(false);
   MakeThermalColdAndHot();
   x460_knockBackController.SetAutoResetImpulse(false);

@@ -25,9 +25,9 @@ class CPuddleToadGamma final : public CPatterned {
   zeus::CVector3f x5cc_suckPoint;
   zeus::CVector3f x5d8_damageablePoint;
   std::unique_ptr<CCollidableOBBTreeGroup> x5e4_collisionTreePrim;
-  bool x5e8_24_playerInside : 1;
-  bool x5e8_25_waitTimerActive : 1;
-  bool x5e8_26_shotPlayer : 1;
+  bool x5e8_24_playerInside : 1 = false;
+  bool x5e8_25_waitTimerActive : 1 = false;
+  bool x5e8_26_shotPlayer : 1 = false;
 
   void SetSolid(CStateManager&, bool);
 

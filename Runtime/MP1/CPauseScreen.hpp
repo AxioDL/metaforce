@@ -44,16 +44,16 @@ private:
   bool x90_resourcesLoaded = false;
   bool x91_initialTransition = true;
 
-  bool m_returnClicked : 1;
-  bool m_nextClicked : 1;
-  bool m_backClicked : 1;
-  bool m_lClicked : 1;
-  bool m_rClicked : 1;
-  bool m_returnDown : 1;
-  bool m_nextDown : 1;
-  bool m_backDown : 1;
-  bool m_lDown : 1;
-  bool m_rDown : 1;
+  bool m_returnClicked : 1 = false;
+  bool m_nextClicked : 1 = false;
+  bool m_backClicked : 1 = false;
+  bool m_lClicked : 1 = false;
+  bool m_rClicked : 1 = false;
+  bool m_returnDown : 1 = false;
+  bool m_nextDown : 1 = false;
+  bool m_backDown : 1 = false;
+  bool m_lDown : 1 = false;
+  bool m_rDown : 1 = false;
 
   std::unique_ptr<CPauseScreenBase> BuildPauseSubScreen(ESubScreen subscreen, const CStateManager& mgr,
                                                         CGuiFrame& frame) const;

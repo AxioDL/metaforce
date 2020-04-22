@@ -97,20 +97,20 @@ private:
   TToken<CGenDescription> xa20_crackTwoParticle;
   TToken<CGenDescription> xa2c_destroyShellParticle;
   TLockedToken<CGenDescription> xa38_intermediateCrackParticle; // Used to be an optional, not necessary in URDE
-  bool xa48_24_isAlert : 1;
-  bool xa48_25_ : 1;
-  bool xa48_26_inProjectileAttack : 1;
-  bool xa48_27_ : 1;
-  bool xa48_28_pendingAttackContactDamage : 1;
-  bool xa48_29_hasBeenEnraged : 1;
-  bool xa48_30_heardPlayerFire : 1;
-  bool xa48_31_approachNeedsPathSearch : 1;
-  bool xa49_24_gettingUp : 1;
-  bool xa49_25_shouldStepBackwards : 1;
-  bool xa49_26_readyForTeam : 1;
-  bool xa49_27_locomotionValid : 1;
-  bool xa49_28_onApproachPath : 1;
-  bool xa49_29_objectSpaceCollision : 1;
+  bool xa48_24_isAlert : 1 = false;
+  bool xa48_25_ : 1 = false;
+  bool xa48_26_inProjectileAttack : 1 = false;
+  bool xa48_27_ : 1 = false;
+  bool xa48_28_pendingAttackContactDamage : 1 = false;
+  bool xa48_29_hasBeenEnraged : 1 = false;
+  bool xa48_30_heardPlayerFire : 1 = false;
+  bool xa48_31_approachNeedsPathSearch : 1 = true;
+  bool xa49_24_gettingUp : 1 = false;
+  bool xa49_25_shouldStepBackwards : 1 = false;
+  bool xa49_26_readyForTeam : 1 = false;
+  bool xa49_27_locomotionValid : 1 = false;
+  bool xa49_28_onApproachPath : 1 = false;
+  bool xa49_29_objectSpaceCollision : 1 = false;
 
   void AddSphereCollisionList(const SSphereJointInfo*, size_t, std::vector<CJointCollisionDescription>&);
 

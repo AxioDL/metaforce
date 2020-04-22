@@ -25,11 +25,6 @@ CPauseScreen::CPauseScreen(ESubScreen subscreen, const CDependencyGroup& suitDgr
   x60_loadTok = g_ResFactory->LoadResourceAsync(frmeTag, x5c_frmePauseScreenBuf.get());
   CSfxManager::SfxStart(SFXui_pause_screen_enter, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
   x7c_screens.resize(2);
-  m_returnDown = false;
-  m_nextDown = false;
-  m_backDown = false;
-  m_lDown = false;
-  m_rDown = false;
 }
 
 CPauseScreen::~CPauseScreen() {

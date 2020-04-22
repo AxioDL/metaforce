@@ -18,9 +18,7 @@ CMFGame::CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_p
                  const CArchitectureQueue&)
 : CMFGameBase("CMFGame")
 , x14_stateManager(stateMgr.lock())
-, x18_guiManager(guiMgr.lock())
-, x2a_24_initialized(false)
-, x2a_25_samusAlive(true) {
+, x18_guiManager(guiMgr.lock()) {
   static_cast<CMain&>(*g_Main).SetMFGameBuilt(true);
 }
 
@@ -258,8 +256,7 @@ void CMFGame::EnterMapScreen() {
   x14_stateManager->SetInMapScreen(true);
 }
 
-CMFGameLoader::CMFGameLoader()
-: CMFGameLoaderBase("CMFGameLoader"), x2c_24_initialized(false), x2c_25_transitionFinished(false) {
+CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
   auto* m = static_cast<CMain*>(g_Main);
   switch (m->GetFlowState()) {
   case EFlowState::Default:

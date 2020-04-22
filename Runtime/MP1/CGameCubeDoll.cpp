@@ -10,7 +10,6 @@ CGameCubeDoll::CGameCubeDoll() {
   x0_model = g_SimplePool->GetObj("CMDL_GameCube");
   x8_lights.push_back(CLight::BuildDirectional(zeus::skForward, zeus::skWhite));
   x18_actorLights = std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, false, false, 0.1f);
-  x20_24_loaded = false;
 }
 
 void CGameCubeDoll::UpdateActorLights() {

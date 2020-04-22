@@ -68,7 +68,7 @@ private:
     u16 x9c_;
     CSfxHandle xa0_;
     zeus::CVector3f xa4_;
-    bool xb0_24_ : 1;
+    bool xb0_24_ : 1 = false;
 
   public:
     CFlyingPirateRagDoll(CStateManager& mgr, CFlyingPirate* actor, u16 w1, u16 w2);
@@ -145,27 +145,27 @@ private:
   rstl::reserved_vector<TCachedToken<CGenDescription>, 3> x65c_particleGenDescs;
   // was rstl::reserved_vector<rstl::optional_object<CElementGen *>, 3>
   rstl::reserved_vector<std::unique_ptr<CElementGen>, 3> x684_particleGens;
-  bool x6a0_24_isFlyingPirate : 1;
-  bool x6a0_25_isAquaPirate : 1;
-  bool x6a0_26_hearShot : 1;
-  bool x6a0_27_canPatrol : 1;
-  bool x6a0_28_ : 1;
-  bool x6a0_29_checkForProjectiles : 1;
-  bool x6a0_30_ : 1;
-  bool x6a0_31_canSeePlayer : 1;
-  bool x6a1_24_prevInCineCam : 1;
-  bool x6a1_25_ : 1;
-  bool x6a1_26_isAttackingObject : 1;
-  bool x6a1_27_ : 1;
-  bool x6a1_28_ : 1;
-  bool x6a1_29_isMoving : 1;
-  bool x6a1_30_spinToDeath : 1;
-  bool x6a1_31_stopped : 1;
-  bool x6a2_24_aggressive : 1;
-  bool x6a2_25_aggressionChecked : 1;
-  bool x6a2_26_jetpackActive : 1;
-  bool x6a2_27_sparksActive : 1;
-  bool x6a2_28_ : 1;
+  bool x6a0_24_isFlyingPirate : 1 = false;
+  bool x6a0_25_isAquaPirate : 1 = false;
+  bool x6a0_26_hearShot : 1 = false;
+  bool x6a0_27_canPatrol : 1 = false;
+  bool x6a0_28_ : 1 = false;
+  bool x6a0_29_checkForProjectiles : 1 = false;
+  bool x6a0_30_ : 1 = false;
+  bool x6a0_31_canSeePlayer : 1 = true;
+  bool x6a1_24_prevInCineCam : 1 = false;
+  bool x6a1_25_ : 1 = false;
+  bool x6a1_26_isAttackingObject : 1 = false;
+  bool x6a1_27_ : 1 = false;
+  bool x6a1_28_ : 1 = false;
+  bool x6a1_29_isMoving : 1 = false;
+  bool x6a1_30_spinToDeath : 1 = false;
+  bool x6a1_31_stopped : 1 = false;
+  bool x6a2_24_aggressive : 1 = false;
+  bool x6a2_25_aggressionChecked : 1 = false;
+  bool x6a2_26_jetpackActive : 1 = false;
+  bool x6a2_27_sparksActive : 1 = false;
+  bool x6a2_28_ : 1 = false;
   TUniqueId x6a4_currentCoverPoint = kInvalidUniqueId;
   TUniqueId x6a6_id2 = kInvalidUniqueId;
   CPathFindSearch x6a8_pathFindSearch;

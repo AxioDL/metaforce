@@ -17,9 +17,6 @@ CFlickerBat::CFlickerBat(TUniqueId uid, std::string_view name, CPatterned::EFlav
 : CPatterned(ECharacter::FlickerBat, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              colType, EBodyType::Pitchable, actParms, EKnockBackVariant::Small)
 , x574_state(EFlickerBatState(startsHidden))
-, x580_24_wasInXray(false)
-, x580_25_heardShot(false)
-, x580_26_inLOS(false)
 , x580_27_enableLOSCheck(enableLineOfSight) {
   SetupPlayerCollision(startsHidden);
   x3d8_xDamageThreshold = 0.f;

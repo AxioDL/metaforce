@@ -16,7 +16,7 @@ class CInterpolationCamera : public CGameCamera {
   float x1d0_positionSpeed = 0.f;
   float x1d4_rotationSpeed = 0.f;
   float x1d8_ = 0.f;
-  bool x1d8_24_sinusoidal : 1;
+  bool x1d8_24_sinusoidal : 1 = false;
   float x1dc_closeInAngle = M_PIF * 2.f;
 
   bool InterpolateSinusoidal(zeus::CTransform& xf, const zeus::CVector3f& targetOrigin, const zeus::CVector3f& lookPos,

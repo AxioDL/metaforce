@@ -124,14 +124,14 @@ private:
   u32 x214_passedParticleCount = 0;
   u32 x218_passedSoundCount = 0;
   s32 x21c_particleLightIdx = 0;
-  bool x220_24_animating : 1;
-  bool x220_25_loop : 1;
-  bool x220_26_aligningPos : 1;
-  bool x220_27_ : 1;
-  bool x220_28_ : 1;
-  bool x220_29_animationJustStarted : 1;
-  bool x220_30_poseBuilt : 1;
-  bool x220_31_poseCached : 1;
+  bool x220_24_animating : 1 = false;
+  bool x220_25_loop : 1 = false;
+  bool x220_26_aligningPos : 1 = false;
+  bool x220_27_ : 1 = false;
+  bool x220_28_ : 1 = false;
+  bool x220_29_animationJustStarted : 1 = false;
+  bool x220_30_poseBuilt : 1 = false;
+  bool x220_31_poseCached : 1 = false;
   CPoseAsTransforms x224_pose;
   CHierarchyPoseBuilder x2fc_poseBuilder;
 

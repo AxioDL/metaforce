@@ -32,7 +32,7 @@ private:
   u32 x1d8_;
   u32 x1dc_ = 0;
   bool x1e0_24_ : 1;
-  bool x1e0_25_ : 1;
+  bool x1e0_25_ : 1 = false;
 
 public:
   CPhazonPool(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,

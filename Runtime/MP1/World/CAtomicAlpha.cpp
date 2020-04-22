@@ -23,7 +23,6 @@ CAtomicAlpha::CAtomicAlpha(TUniqueId uid, std::string_view name, const CEntityIn
                            CAssetId cmdl, bool invisible, bool b2)
 : CPatterned(ECharacter::AtomicAlpha, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::Medium)
-, x568_24_inRange(false)
 , x568_25_invisible(invisible)
 , x568_26_applyBeamAttraction(b2)
 , x56c_bomdDropDelay(bombDropDelay)

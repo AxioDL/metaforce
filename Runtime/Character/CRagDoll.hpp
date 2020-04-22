@@ -26,15 +26,12 @@ protected:
     zeus::CVector3f x20_velocity;
     zeus::CVector3f x2c_impactResponseDelta;
     float x38_impactFrameVel = 0.f;
-    bool x3c_24_impactPending : 1;
-    bool x3c_25_ : 1;
+    bool x3c_24_impactPending : 1 = false;
+    bool x3c_25_ : 1 = false;
 
   public:
     CRagDollParticle(CSegId id, const zeus::CVector3f& curPos, float radius, const zeus::CVector3f& prevPos)
-    : x0_id(id), x4_curPos(curPos), x10_radius(radius), x14_prevPos(prevPos) {
-      x3c_24_impactPending = false;
-      x3c_25_ = false;
-    }
+    : x0_id(id), x4_curPos(curPos), x10_radius(radius), x14_prevPos(prevPos) {}
     CSegId GetBone() const { return x0_id; }
     const zeus::CVector3f& GetPosition() const { return x4_curPos; }
     zeus::CVector3f& Position() { return x4_curPos; }
@@ -94,9 +91,9 @@ protected:
   float x54_impactVel = 0.f;
   zeus::CVector3f x58_averageVel;
   float x64_angTimer = 0.f;
-  bool x68_24_prevMovingSlowly : 1;
-  bool x68_25_over : 1;
-  bool x68_26_primed : 1;
+  bool x68_24_prevMovingSlowly : 1 = false;
+  bool x68_25_over : 1 = false;
+  bool x68_26_primed : 1 = false;
   bool x68_27_continueSmallMovements : 1;
   bool x68_28_noOverTimer : 1;
   bool x68_29_noAiCollision : 1;

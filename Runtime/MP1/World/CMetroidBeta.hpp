@@ -75,14 +75,14 @@ class CMetroidBeta : public CPatterned {
   float x834_ = 0.f;
   CRandom16 x838_ = CRandom16(1469);
   float x83c_;
-  bool x840_24_ : 1;
-  bool x840_25_ : 1;
-  bool x840_26_ : 1;
-  bool x840_27_ : 1;
-  bool x840_28_ : 1;
-  bool x840_29_ : 1;
-  bool x840_30_ : 1;
-  bool x840_31_ : 1;
+  bool x840_24_ : 1 = false;
+  bool x840_25_ : 1 = false;
+  bool x840_26_ : 1 = false;
+  bool x840_27_ : 1 = false;
+  bool x840_28_ : 1 = false;
+  bool x840_29_ : 1 = false;
+  bool x840_30_ : 1 = false;
+  bool x840_31_ : 1 = false;
 
   void CreateCollisionActorManager(CStateManager& mgr);
   void AddSphereJoints(SSphereJointInfo* sphereJoints, s32 count, std::vector<CJointCollisionDescription>& joints);

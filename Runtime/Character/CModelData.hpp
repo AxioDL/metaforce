@@ -62,8 +62,8 @@ class CModelData {
   zeus::CVector3f x0_scale;
   bool xc_ = false;
   std::unique_ptr<CAnimData> x10_animData;
-  bool x14_24_renderSorted : 1;
-  bool x14_25_sortThermal : 1;
+  bool x14_24_renderSorted : 1 = false;
+  bool x14_25_sortThermal : 1 = false;
   zeus::CColor x18_ambientColor;
 
   TLockedToken<CModel> x1c_normalModel;

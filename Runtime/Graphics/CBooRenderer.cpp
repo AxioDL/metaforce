@@ -681,18 +681,8 @@ void CBooRenderer::LoadBallFade() {
 }
 
 CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
-: x8_factory(resFac), xc_store(store), x2a8_thermalRand(20)
-, x318_24_refectionDirty(false)
-, x318_25_drawWireframe(false)
-, x318_26_requestRGBA6(false)
-, x318_27_currentRGBA6(false)
-, x318_28_disableFog(false)
-, x318_29_thermalVisor(false)
-, x318_30_inAreaDraw(false)
-, x318_31_persistRGBA6(false)
-, m_thermalHotPass(false) {
+: x8_factory(resFac), xc_store(store), x2a8_thermalRand(20) {
   g_Renderer = this;
-  xee_24_ = true;
 
   m_staticEntropy = store.GetObj("RandomStaticEntropy");
 
