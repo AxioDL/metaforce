@@ -125,9 +125,10 @@ void CAmbientAI::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
 }
 
 std::optional<zeus::CAABox> CAmbientAI::GetTouchBounds() const {
-  if (GetActive())
+  if (GetActive()) {
     return {GetBoundingBox()};
-  return {};
+  }
+  return std::nullopt;
 }
 
 void CAmbientAI::RandomizePlaybackRate(CStateManager& mgr) {
