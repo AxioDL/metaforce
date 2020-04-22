@@ -36,7 +36,7 @@ CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& 
   SetCallTouch(false);
   CreateShadow(false);
 
-  zeus::CVector3f modelScale = GetModelData()->GetScale();
+  const zeus::CVector3f modelScale = GetModelData()->GetScale();
   if (modelScale.x() != modelScale.y() || modelScale.x() != modelScale.z()) {
     float scale = modelScale.magnitude() / std::sqrt(3.f);
 

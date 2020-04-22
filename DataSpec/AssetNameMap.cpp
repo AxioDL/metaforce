@@ -66,7 +66,7 @@ void InitAssetNameMap() {
 }
 
 const std::string* TranslateIdToName(const UniqueID32& id) {
-  if (g_AssetNameMap.find(id.toUint64()) == g_AssetNameMap.end())
+  if (g_AssetNameMap.find(id.toUint64()) == g_AssetNameMap.cend())
     return nullptr;
 
   return &g_AssetNameMap[id.toUint64()].name;

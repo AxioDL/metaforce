@@ -3,6 +3,7 @@
 #include "DNAMP1.hpp"
 #include "PAK.hpp"
 #include "AGSC.hpp"
+#include "DataSpec/AssetNameMap.hpp"
 
 namespace DataSpec::DNAMP1 {
 
@@ -31,6 +32,7 @@ void PAK::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
   for (atUint32 e = 0; e < count; ++e) {
     entries.emplace_back();
     entries.back().read(reader);
+    const auto& ent = entries.back();
   }
   for (atUint32 e = 0; e < count; ++e) {
     Entry& entry = entries[e];
@@ -174,6 +176,11 @@ std::string PAK::bestEntryName(const nod::Node& pakNode, const Entry& entry, std
       catalogueName = nentry.name;
       return fmt::format(FMT_STRING("{}_{}"), nentry.name, entry.id);
     }
+  }
+
+  /* Prefer asset name map second */
+  if (const auto* name = AssetNameMap::TranslateIdToName(entry.id)) {
+    return fmt::format(FMT_STRING("{}_{}"), *name, entry.id);
   }
 
   /* Otherwise return ID format string */

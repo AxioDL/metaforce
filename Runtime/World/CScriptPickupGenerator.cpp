@@ -140,7 +140,7 @@ void CScriptPickupGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
         float r = stateMgr.GetActiveRandom()->Range(0.f, totalProb);
         float f2 = 0.f;
         size_t count = 0;
-        for (const auto id : pickupTemplates) {
+        for (const auto& id : pickupTemplates) {
           if (r >= f2 && r <= f2 + id.first)
             break;
           f2 += id.first;

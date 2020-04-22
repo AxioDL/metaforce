@@ -190,9 +190,9 @@ int main(int argc, const char* argv[])
   tinyxml2::XMLDocument doc;
   std::vector<SAsset> assets;
   FILE* docF = Fopen(inPath.c_str(), _SYS_STR("rb"));
-  if (!doc.LoadFile(docF)) {
+  if (doc.LoadFile(docF) == tinyxml2::XML_SUCCESS) {
     const tinyxml2::XMLElement* elm = doc.RootElement();
-    if (strcmp(elm->Name(), "AssetNameMap")) {
+    if (strcmp(elm->Name(), "AssetNameMap") != 0) {
       Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Invalid database supplied")));
       return 1;
     }
@@ -205,11 +205,11 @@ int main(int argc, const char* argv[])
 
     elm = elm->FirstChildElement("Asset");
 
-    while (elm) {
+    while (elm != nullptr ) {
       const tinyxml2::XMLElement* keyElm = elm->FirstChildElement("Key");
       const tinyxml2::XMLElement* valueElm = elm->FirstChildElement("Value");
 
-      if (!keyElm || !valueElm) {
+      if (keyElm == nullptr || valueElm == nullptr) {
         Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Malformed Asset entry, [Key,Value] required")));
         return 0;
       }
@@ -217,22 +217,27 @@ int main(int argc, const char* argv[])
       const tinyxml2::XMLElement* nameElm = valueElm->FirstChildElement("Name");
       const tinyxml2::XMLElement* dirElm = valueElm->FirstChildElement("Directory");
       const tinyxml2::XMLElement* typeElm = valueElm->FirstChildElement("Type");
+      const tinyxml2::XMLElement* autoGenNameElm = valueElm->FirstChildElement("AutoGenName");
+      const tinyxml2::XMLElement* autoGenDirElm = valueElm->FirstChildElement("AutoGenDir");
 
-      if (!nameElm || !dirElm || !typeElm) {
+      if (nameElm == nullptr || dirElm == nullptr || typeElm == nullptr) {
         Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Malformed Value entry, [Name,Directory,Type] required")));
         return 0;
       }
       assets.emplace_back();
-      SAsset& asset = assets.back();
-      asset.type = typeElm->GetText();
-      asset.id = strtoull(keyElm->GetText(), nullptr, 16);
-      asset.name = nameElm->GetText();
-      asset.dir = dirElm->GetText();
+      bool autoGen = strncasecmp(autoGenNameElm->GetText(), "true", 4) == 0 && strncasecmp(autoGenDirElm->GetText(), "true", 4) == 0;
+      if (!autoGen) {
+        SAsset& asset = assets.back();
+        asset.type = typeElm->GetText();
+        asset.id = strtoull(keyElm->GetText(), nullptr, 16);
+        asset.name = nameElm->GetText();
+        asset.dir = dirElm->GetText();
+      }
       elm = elm->NextSiblingElement("Asset");
     }
 
     FILE* f = Fopen(outPath.c_str(), _SYS_STR("wb"));
-    if (!f) {
+    if (f == nullptr) {
       Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to open destination")));
       return 0;
     }
