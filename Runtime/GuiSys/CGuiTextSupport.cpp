@@ -211,7 +211,7 @@ const std::pair<zeus::CVector2i, zeus::CVector2i>& CGuiTextSupport::GetBounds() 
 }
 
 void CGuiTextSupport::AutoSetExtent() {
-  auto& bounds = GetBounds();
+  const auto& bounds = GetBounds();
   x34_extentX = bounds.second.x;
   x38_extentY = bounds.second.y;
 }
