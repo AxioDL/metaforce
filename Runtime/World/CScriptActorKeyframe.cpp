@@ -91,10 +91,11 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr) {
 void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr) {
   CEntity* ent = mgr.ObjectById(uid);
   CActor* act = nullptr;
-  if (TCastToPtr<CScriptActor> tmp = ent)
-    act = tmp;
-  else if (TCastToPtr<CScriptPlatform> tmp = ent)
-    act = tmp;
+  if (const TCastToPtr<CScriptActor> actor = ent) {
+    act = actor.GetPtr();
+  } else if (const TCastToPtr<CScriptPlatform> platform = ent) {
+    act = platform.GetPtr();
+  }
 
   if (act) {
     if (!act->GetActive())
