@@ -19,7 +19,18 @@ class CSimplePool;
 class CTextExecuteBuffer;
 class CTextRenderBuffer;
 
-enum class EJustification { Left = 0, Center, Right, Full, NLeft, NCenter, NRight, LeftMono, CenterMono, RightMono };
+enum class EJustification {
+  Left = 0,
+  Center,
+  Right,
+  Full,
+  NLeft,
+  NCenter,
+  NRight,
+  LeftMono,
+  CenterMono,
+  RightMono,
+};
 
 enum class EVerticalJustification {
   Top = 0,
@@ -31,10 +42,13 @@ enum class EVerticalJustification {
   NBottom,
   TopMono,
   CenterMono,
-  RightMono
+  RightMono,
 };
 
-enum class ETextDirection { Horizontal, Vertical };
+enum class ETextDirection {
+  Horizontal,
+  Vertical,
+};
 
 class CGuiTextProperties {
   friend class CGuiTextSupport;
