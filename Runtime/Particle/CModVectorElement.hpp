@@ -78,14 +78,14 @@ class CMVEBounce : public CModVectorElement {
   std::unique_ptr<CVectorElement> x8_planeNormal;
   std::unique_ptr<CRealElement> xc_friction;
   std::unique_ptr<CRealElement> x10_restitution;
-  bool x14_planePrecomputed;
+  bool x14_planePrecomputed = false;
   bool x15_dieOnPenetrate;
   zeus::CVector3f x18_planeValidatedNormal;
-  float x24_planeD;
+  float x24_planeD = 0.0f;
 
 public:
-  CMVEBounce(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
-             std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d, bool e);
+  CMVEBounce(std::unique_ptr<CVectorElement>&& planePoint, std::unique_ptr<CVectorElement>&& planeNormal,
+             std::unique_ptr<CRealElement>&& friction, std::unique_ptr<CRealElement>&& restitution, bool e);
   bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const override;
 };
 
