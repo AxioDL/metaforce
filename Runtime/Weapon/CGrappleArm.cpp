@@ -185,43 +185,55 @@ void CGrappleArm::GrappleBeamConnected() {
 }
 
 void CGrappleArm::RenderGrappleBeam(const CStateManager& mgr, const zeus::CVector3f& pos) {
-  if (x3b2_24_active && !x3b2_29_suitLoading) {
-    zeus::CTransform tmpXf = zeus::CTransform::Translate(pos) * x220_xf;
-    if (x3b2_25_beamActive) {
-      if (x3b2_26_grappleHit)
-        x398_grappleHitGen->Render();
-      x394_grappleClawGen->Render();
-      x3a0_grappleSwooshGen->Render();
-      x390_grappleSegmentGen->Render();
-      zeus::CTransform backupViewMtx = CGraphics::g_ViewMatrix;
-      CGraphics::SetViewPointMatrix(tmpXf.inverse() * backupViewMtx);
-      CGraphics::SetModelMatrix(zeus::CTransform());
-      x39c_grappleMuzzleGen->Render();
-      CGraphics::SetViewPointMatrix(backupViewMtx);
-    }
+  if (!x3b2_24_active || x3b2_29_suitLoading) {
+    return;
   }
+
+  const zeus::CTransform tmpXf = zeus::CTransform::Translate(pos) * x220_xf;
+  if (!x3b2_25_beamActive) {
+    return;
+  }
+
+  if (x3b2_26_grappleHit) {
+    x398_grappleHitGen->Render();
+  }
+
+  x394_grappleClawGen->Render();
+  x3a0_grappleSwooshGen->Render();
+  x390_grappleSegmentGen->Render();
+  const zeus::CTransform backupViewMtx = CGraphics::g_ViewMatrix;
+  CGraphics::SetViewPointMatrix(tmpXf.inverse() * backupViewMtx);
+  CGraphics::SetModelMatrix(zeus::CTransform());
+  x39c_grappleMuzzleGen->Render();
+  CGraphics::SetViewPointMatrix(backupViewMtx);
 }
 
 void CGrappleArm::TouchModel(const CStateManager& mgr) const {
-  if (x3b2_24_active && !x3b2_29_suitLoading) {
-    x0_grappleArmModel->Touch(mgr, 0);
-    if (x50_grappleArmSkeletonModel)
-      x50_grappleArmSkeletonModel->Touch(mgr, 0);
-    if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GrappleBeam)) {
-      xa0_grappleGearModel.Touch(mgr, 0);
-      xec_grapNoz1Model.Touch(mgr, 0);
-      x138_grapNoz2Model.Touch(mgr, 0);
-    }
+  if (!x3b2_24_active || x3b2_29_suitLoading) {
+    return;
+  }
+
+  x0_grappleArmModel->Touch(mgr, 0);
+  if (x50_grappleArmSkeletonModel) {
+    x50_grappleArmSkeletonModel->Touch(mgr, 0);
+  }
+
+  if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GrappleBeam)) {
+    xa0_grappleGearModel.Touch(mgr, 0);
+    xec_grapNoz1Model.Touch(mgr, 0);
+    x138_grapNoz2Model.Touch(mgr, 0);
   }
 }
 
 void CGrappleArm::LoadSuitPoll() {
-  if (NWeaponTypes::are_tokens_ready(x19c_suitDeps[int(x3a8_loadedSuit)])) {
-    x0_grappleArmModel.emplace(CAnimRes(g_tweakGunRes->x8_grappleArm, int(x3a8_loadedSuit), x31c_scale, 41, false));
-    x0_grappleArmModel->SetSortThermal(true);
-    x328_gunController = std::make_unique<CGunController>(*x0_grappleArmModel);
-    x3b2_29_suitLoading = false;
+  if (!NWeaponTypes::are_tokens_ready(x19c_suitDeps[size_t(x3a8_loadedSuit)])) {
+    return;
   }
+
+  x0_grappleArmModel.emplace(CAnimRes(g_tweakGunRes->x8_grappleArm, int(x3a8_loadedSuit), x31c_scale, 41, false));
+  x0_grappleArmModel->SetSortThermal(true);
+  x328_gunController = std::make_unique<CGunController>(*x0_grappleArmModel);
+  x3b2_29_suitLoading = false;
 }
 
 void CGrappleArm::BuildXRayModel() {
@@ -467,10 +479,13 @@ void CGrappleArm::Update(float grappleSwingT, float dt, CStateManager& mgr) {
 }
 
 void CGrappleArm::PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos) {
-  if (x3b2_24_active && !x3b2_29_suitLoading) {
-    x0_grappleArmModel->GetAnimationData()->PreRender();
-    if (x50_grappleArmSkeletonModel)
-      x50_grappleArmSkeletonModel->GetAnimationData()->PreRender();
+  if (!x3b2_24_active || x3b2_29_suitLoading) {
+    return;
+  }
+
+  x0_grappleArmModel->GetAnimationData()->PreRender();
+  if (x50_grappleArmSkeletonModel) {
+    x50_grappleArmSkeletonModel->GetAnimationData()->PreRender();
   }
 }
 
@@ -491,37 +506,41 @@ void CGrappleArm::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CV
 
 void CGrappleArm::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags,
                          const CActorLights* lights) {
-  if (x3b2_24_active && !x3b2_29_suitLoading) {
-    SCOPED_GRAPHICS_DEBUG_GROUP("CGrappleArm::Render", zeus::skOrange);
-    zeus::CTransform modelXf = zeus::CTransform::Translate(pos) * x220_xf * x2e0_auxXf;
-    if (x50_grappleArmSkeletonModel)
-      RenderXRayModel(mgr, modelXf, flags);
+  if (!x3b2_24_active || x3b2_29_suitLoading) {
+    return;
+  }
 
-    CModelFlags useFlags;
-    const CActorLights* useLights;
-    if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay) {
-      useFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, 0.25f));
-      useLights = nullptr;
-    } else {
-      useFlags = flags;
-      useLights = lights;
-    }
+  SCOPED_GRAPHICS_DEBUG_GROUP("CGrappleArm::Render", zeus::skOrange);
+  const zeus::CTransform modelXf = zeus::CTransform::Translate(pos) * x220_xf * x2e0_auxXf;
+  if (x50_grappleArmSkeletonModel) {
+    RenderXRayModel(mgr, modelXf, flags);
+  }
 
-    if (x3a4_rainSplashGenerator && x3a4_rainSplashGenerator->IsRaining())
-      CSkinnedModel::SetPointGeneratorFunc(x3a4_rainSplashGenerator.get(), PointGenerator);
+  CModelFlags useFlags;
+  const CActorLights* useLights;
+  if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay) {
+    useFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, 0.25f));
+    useLights = nullptr;
+  } else {
+    useFlags = flags;
+    useLights = lights;
+  }
 
-    x0_grappleArmModel->Render(mgr, modelXf, useLights, useFlags);
+  if (x3a4_rainSplashGenerator && x3a4_rainSplashGenerator->IsRaining()) {
+    CSkinnedModel::SetPointGeneratorFunc(x3a4_rainSplashGenerator.get(), PointGenerator);
+  }
 
-    if (x3a4_rainSplashGenerator && x3a4_rainSplashGenerator->IsRaining()) {
-      CSkinnedModel::ClearPointGeneratorFunc();
-      x3a4_rainSplashGenerator->Draw(modelXf);
-    }
+  x0_grappleArmModel->Render(mgr, modelXf, useLights, useFlags);
 
-    if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GrappleBeam)) {
-      xa0_grappleGearModel.Render(mgr, modelXf * x250_grapLocatorXf, useLights, useFlags);
-      xec_grapNoz1Model.Render(mgr, modelXf * x280_grapNozLoc1Xf, useLights, useFlags);
-      x138_grapNoz2Model.Render(mgr, modelXf * x2b0_grapNozLoc2Xf, useLights, useFlags);
-    }
+  if (x3a4_rainSplashGenerator && x3a4_rainSplashGenerator->IsRaining()) {
+    CSkinnedModel::ClearPointGeneratorFunc();
+    x3a4_rainSplashGenerator->Draw(modelXf);
+  }
+
+  if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GrappleBeam)) {
+    xa0_grappleGearModel.Render(mgr, modelXf * x250_grapLocatorXf, useLights, useFlags);
+    xec_grapNoz1Model.Render(mgr, modelXf * x280_grapNozLoc1Xf, useLights, useFlags);
+    x138_grapNoz2Model.Render(mgr, modelXf * x2b0_grapNozLoc2Xf, useLights, useFlags);
   }
 }
 
