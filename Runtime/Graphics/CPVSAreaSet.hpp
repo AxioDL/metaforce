@@ -18,7 +18,7 @@ class CPVSAreaSet {
   const u8* x1c_lightLeaves;
   CPVSVisOctree x20_octree;
 
-  CPVSVisSet _GetLightSet(u32 lightIdx) const {
+  CPVSVisSet _GetLightSet(size_t lightIdx) const {
     CPVSVisSet ret;
     ret.SetFromMemory(x20_octree.GetNumObjects(), x20_octree.GetNumLights(), x1c_lightLeaves + x10_leafSize * lightIdx);
     return ret;
@@ -31,10 +31,10 @@ public:
   u32 Get1stLightIndex(u32 lightIdx) const { return x0_numFeatures + x8_num2ndLights + lightIdx; }
   u32 Get2ndLightIndex(u32 lightIdx) const { return x0_numFeatures + lightIdx; }
   bool Has2ndLayerLights() const { return x8_num2ndLights != 0; }
-  u32 GetEntityIdByIndex(int idx) const { return x18_entityIndex[idx]; }
+  u32 GetEntityIdByIndex(size_t idx) const { return x18_entityIndex[idx]; }
   const CPVSVisOctree& GetVisOctree() const { return x20_octree; }
-  CPVSVisSet Get1stLightSet(u32 lightIdx) const { return _GetLightSet(x8_num2ndLights + lightIdx); }
-  CPVSVisSet Get2ndLightSet(u32 lightIdx) const { return _GetLightSet(lightIdx); }
+  CPVSVisSet Get1stLightSet(size_t lightIdx) const { return _GetLightSet(x8_num2ndLights + lightIdx); }
+  CPVSVisSet Get2ndLightSet(size_t lightIdx) const { return _GetLightSet(lightIdx); }
 };
 
 } // namespace urde

@@ -862,16 +862,19 @@ void CGameArea::Validate(CStateManager& mgr) {
 
   LoadScriptObjects(mgr);
 
-  CPVSAreaSet* pvs = x12c_postConstructed->xa0_pvs.get();
+  const CPVSAreaSet* pvs = x12c_postConstructed->xa0_pvs.get();
   if (pvs && x12c_postConstructed->x1108_29_pvsHasActors) {
-    for (int i = 0; i < pvs->GetNumActors(); ++i) {
-      TEditorId entId = pvs->GetEntityIdByIndex(i) | (x4_selfIdx << 16);
-      TUniqueId id = mgr.GetIdForScript(entId);
-      if (id != kInvalidUniqueId) {
-        CPostConstructed::MapEntry& ent = x12c_postConstructed->xa8_pvsEntityMap[id.Value()];
-        ent.x0_id = i + (pvs->GetNumFeatures() - pvs->GetNumActors());
-        ent.x4_uid = id;
+    for (size_t i = 0; i < pvs->GetNumActors(); ++i) {
+      const TEditorId entId = pvs->GetEntityIdByIndex(i) | (x4_selfIdx << 16);
+      const TUniqueId id = mgr.GetIdForScript(entId);
+
+      if (id == kInvalidUniqueId) {
+        continue;
       }
+
+      CPostConstructed::MapEntry& ent = x12c_postConstructed->xa8_pvsEntityMap[id.Value()];
+      ent.x0_id = static_cast<s16>(i + (pvs->GetNumFeatures() - pvs->GetNumActors()));
+      ent.x4_uid = id;
     }
   }
 
