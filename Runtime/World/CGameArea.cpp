@@ -1,6 +1,7 @@
 #include "Runtime/World/CGameArea.hpp"
 
 #include <array>
+#include <cstring>
 
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CSimplePool.hpp"
@@ -247,22 +248,27 @@ static std::vector<SObjectTag> ReadDependencyList(CInputStream& in) {
 }
 
 std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& area) {
-  SObjectTag tag = {SBIG('MREA'), area.IGetAreaAssetId()};
+  const SObjectTag tag = {SBIG('MREA'), area.IGetAreaAssetId()};
   std::unique_ptr<u8[]> data = g_ResFactory->LoadNewResourcePartSync(tag, 0, 96);
 
-  if (*reinterpret_cast<u32*>(data.get()) != SBIG(0xDEADBEEF))
+  u32 magic{};
+  std::memcpy(&magic, data.get(), sizeof(u32));
+  if (magic != SBIG(0xDEADBEEF)) {
     return {};
+  }
 
-  SMREAHeader header;
   CMemoryInStream r(data.get() + 4, 96 - 4);
   u32 version = r.readUint32Big();
-  if (!(version & 0x10000))
+  if ((version & 0x10000) == 0) {
     Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-URDE MREA"));
-
+  }
   version &= ~0x10000;
+
+  SMREAHeader header;
   header.version = (version >= 12 && version <= 15) ? version : 0;
-  if (!header.version)
+  if (!header.version) {
     return {};
+  }
 
   header.xf.read34RowMajor(r);
   header.modelCount = r.readUint32Big();
@@ -743,7 +749,9 @@ bool CGameArea::StartStreamingMainArea() {
 void CGameArea::ReloadAllUnloadedTextures() {}
 
 u32 CGameArea::GetNumPartSizes() const {
-  return hecl::SBig(*reinterpret_cast<u32*>(x110_mreaSecBufs[0].first.get() + 60));
+  u32 value{};
+  std::memcpy(&value, x110_mreaSecBufs[0].first.get() + 60, sizeof(u32));
+  return hecl::SBig(value);
 }
 
 void CGameArea::AllocNewAreaData(int offset, int size) {
@@ -1135,20 +1143,28 @@ void CGameArea::ClearTokenList() {
 u32 CGameArea::GetPreConstructedSize() const { return 0; }
 
 SMREAHeader CGameArea::VerifyHeader() const {
-  if (x110_mreaSecBufs.empty())
+  if (x110_mreaSecBufs.empty()) {
     return {};
-  if (*reinterpret_cast<u32*>(x110_mreaSecBufs[0].first.get()) != SBIG(0xDEADBEEF))
-    return {};
+  }
 
-  SMREAHeader header;
+  u32 magic{};
+  std::memcpy(&magic, x110_mreaSecBufs[0].first.get(), sizeof(u32));
+  if (magic != SBIG(0xDEADBEEF)) {
+    return {};
+  }
+
   CMemoryInStream r(x110_mreaSecBufs[0].first.get() + 4, x110_mreaSecBufs[0].second - 4);
   u32 version = r.readUint32Big();
-  if (!(version & 0x10000))
+  if ((version & 0x10000) == 0) {
     Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-URDE MREA"));
+  }
   version &= ~0x10000;
+
+  SMREAHeader header;
   header.version = (version >= 12 && version <= 15) ? version : 0;
-  if (!header.version)
+  if (!header.version) {
     return {};
+  }
 
   header.xf.read34RowMajor(r);
   header.modelCount = r.readUint32Big();
