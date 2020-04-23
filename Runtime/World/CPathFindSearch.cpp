@@ -315,8 +315,8 @@ bool CPathFindSearch::Search(rstl::reserved_vector<CPFRegion*, 4>& regs1, const 
           } else {
             /* Compute next heuristic */
             x0_area->ClosedSet().Rmv(linkReg->GetIndex());
-            float h = (p2 - linkReg->GetCentroid()).magnitude();
-            linkReg->Data()->Setup(reg, g, h);
+            const float nextHeuristic = (p2 - linkReg->GetCentroid()).magnitude();
+            linkReg->Data()->Setup(reg, g, nextHeuristic);
           }
 
           /* Make next potential candidate */
