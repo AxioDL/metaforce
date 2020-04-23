@@ -1509,11 +1509,11 @@ void CMorphBall::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
 
   x0_player.GetActorLights()->BuildDynamicLightList(mgr, ballAABB);
   if (x0_player.GetActorLights()->HasShadowLight()) {
-    CCollidableSphere sphere = x38_collisionSphere;
-    sphere.SetSphereCenter(zeus::skZero3f);
+    CCollidableSphere collisionSphere = x38_collisionSphere;
+    collisionSphere.SetSphereCenter(zeus::skZero3f);
     x1c14_worldShadow->BuildLightShadowTexture(mgr, x0_player.GetAreaIdAlways(),
                                                x0_player.GetActorLights()->GetShadowLightIndex(),
-                                               sphere.CalculateAABox(GetBallToWorld()), false, false);
+                                               collisionSphere.CalculateAABox(GetBallToWorld()), false, false);
   } else {
     x1c14_worldShadow->ResetBlur();
   }
