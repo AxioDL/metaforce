@@ -25,7 +25,7 @@ public:
   virtual bool HasConstantUV() const = 0;
 };
 
-struct CUVEConstant : public CUVElement {
+class CUVEConstant : public CUVElement {
   TLockedToken<CTexture> x4_tex;
 
 public:
@@ -38,7 +38,7 @@ public:
   bool HasConstantUV() const override { return true; }
 };
 
-struct CUVEAnimTexture : public CUVElement {
+class CUVEAnimTexture : public CUVElement {
   TLockedToken<CTexture> x4_tex;
   int x10_tileW, x14_tileH, x18_strideW, x1c_strideH;
   int x20_tiles;
