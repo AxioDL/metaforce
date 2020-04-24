@@ -26,7 +26,7 @@ CCEKeyframeEmitter::CCEKeyframeEmitter(CInputStream& in) {
   }
 }
 
-bool CCEKeyframeEmitter::GetValue(int frame, zeus::CColor& valOut) const {
+bool CCEKeyframeEmitter::GetValue([[maybe_unused]] int frame, zeus::CColor& valOut) const {
   if (!x4_percent) {
     int emitterTime = CParticleGlobals::instance()->m_EmitterTime;
     int calcKey = emitterTime;
@@ -64,7 +64,7 @@ bool CCEConstant::GetValue(int frame, zeus::CColor& valOut) const {
   return false;
 }
 
-bool CCEFastConstant::GetValue(int frame, zeus::CColor& valOut) const {
+bool CCEFastConstant::GetValue([[maybe_unused]] int frame, zeus::CColor& valOut) const {
   valOut = x4_val;
   return false;
 }
