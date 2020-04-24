@@ -56,8 +56,8 @@ void InitAssetNameMap() {
   Log.report(logvisor::Info, FMT_STRING("Initializing asset name database..."));
 
   /* First load the 32bit map for MP1/2 */
-  if (ASSET_NAME_MP32_DECOMPRESSED_SZ) {
-    auto decompressed = new uint8_t[ASSET_NAME_MP32_DECOMPRESSED_SZ];
+  if (ASSET_NAME_MP32_DECOMPRESSED_SZ != 0u) {
+    auto* decompressed = new uint8_t[ASSET_NAME_MP32_DECOMPRESSED_SZ];
     athena::io::Compression::decompressZlib(ASSET_NAME_MP32, ASSET_NAME_MP32_SZ, decompressed,
                                             ASSET_NAME_MP32_DECOMPRESSED_SZ);
     athena::io::MemoryReader ar(decompressed, ASSET_NAME_MP32_DECOMPRESSED_SZ);
@@ -65,11 +65,11 @@ void InitAssetNameMap() {
     delete[](decompressed);
   } else {
     Log.report(logvisor::Warning,
-               fmt(_SYS_STR("AssetNameMap32 unavailable; Assets will not have proper filenames for most files.")));
+               FMT_STRING(_SYS_STR("AssetNameMap32 unavailable; Assets will not have proper filenames for most files.")));
   }
   /* Now load the 64bit map for MP3 */
-  if (ASSET_NAME_MP64_DECOMPRESSED_SZ) {
-    auto decompressed = new uint8_t[ASSET_NAME_MP64_DECOMPRESSED_SZ];
+  if (ASSET_NAME_MP64_DECOMPRESSED_SZ != 0u) {
+    auto* decompressed = new uint8_t[ASSET_NAME_MP64_DECOMPRESSED_SZ];
     athena::io::Compression::decompressZlib(ASSET_NAME_MP64, ASSET_NAME_MP64_SZ, decompressed,
                                             ASSET_NAME_MP64_DECOMPRESSED_SZ);
     athena::io::MemoryReader ar(decompressed, ASSET_NAME_MP64_DECOMPRESSED_SZ);
@@ -77,7 +77,7 @@ void InitAssetNameMap() {
     delete[](decompressed);
   } else {
     Log.report(logvisor::Warning,
-               fmt(_SYS_STR("AssetNameMap64 unavailable; Assets will not have proper filenames for most files.")));
+               FMT_STRING(_SYS_STR("AssetNameMap64 unavailable; Assets will not have proper filenames for most files.")));
   }
   g_AssetNameMapInit = true;
 }
