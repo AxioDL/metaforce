@@ -18,8 +18,9 @@ const CTextureInfo* CTextureCache::GetTextureInfo(CAssetId id) const {
   return &it->second;
 }
 
-CFactoryFnReturn FTextureCacheFactory(const SObjectTag& tag, CInputStream& in,
-                                      const CVParamTransfer& vparms, CObjectReference* selfRef) {
+CFactoryFnReturn FTextureCacheFactory([[maybe_unused]] const SObjectTag& tag, CInputStream& in,
+                                      [[maybe_unused]] const CVParamTransfer& vparms,
+                                      [[maybe_unused]] CObjectReference* selfRef) {
   return TToken<CTextureCache>::GetIObjObjectFor(std::make_unique<CTextureCache>(in));
 }
 }
