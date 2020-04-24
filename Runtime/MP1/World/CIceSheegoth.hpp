@@ -63,7 +63,7 @@ public:
   [[nodiscard]] float Get_x1b0() const { return x1b0_; }
   [[nodiscard]] CDamageInfo Get_x1b8() const { return x1b8_; }
   [[nodiscard]] float Get_x1d8() const { return x1d8_; }
-  [[nodiscard]] float Get_x1dc() const  { return x1dc_; }
+  [[nodiscard]] float Get_x1dc() const { return x1dc_; }
   [[nodiscard]] float GetMaxInterestTime() const { return x1e0_maxInterestTime; }
   [[nodiscard]] CAssetId Get_x1e4() const { return x1e4_; }
   [[nodiscard]] s16 Get_x1e8() const { return x1e8_; }
@@ -123,7 +123,7 @@ class CIceSheegoth : public CPatterned {
   CSegId xaf4_mouthLocator;
   TUniqueId xaf6_ = kInvalidUniqueId;
   TUniqueId xaf8_mouthCollider = kInvalidUniqueId;
-  rstl::reserved_vector<TUniqueId, 2> xafc_;
+  rstl::reserved_vector<TUniqueId, 2> xafc_gillColliders;
   rstl::reserved_vector<TUniqueId, 10> xb04_;
   rstl::reserved_vector<CSegId, 7> xb1c_;
   bool xb28_24_shotAt : 1;
@@ -142,10 +142,10 @@ class CIceSheegoth : public CPatterned {
   bool xb29_29_ : 1;
 
   void UpdateTouchBounds();
-  bool sub_8019fc84(TUniqueId uid) { return xaf8_mouthCollider == uid; }
-  bool sub_8019fc40(const CEntity* ent) const {
-    return std::find_if(xafc_.cbegin(), xafc_.cend(), [&ent](TUniqueId uid) { return uid == ent->GetUniqueId(); }) !=
-           xafc_.cend();
+  bool IsMouthCollider(TUniqueId uid) { return xaf8_mouthCollider == uid; }
+  bool IsGillCollider(const CEntity* ent) const {
+    return std::find_if(xafc_gillColliders.cbegin(), xafc_gillColliders.cend(),
+                        [&ent](TUniqueId uid) { return uid == ent->GetUniqueId(); }) != xafc_gillColliders.cend();
   }
   void sub_8019ebf0(CStateManager& mgr, float damage);
   void ApplyWeaponDamage(CStateManager& mgr, TUniqueId sender);
@@ -157,12 +157,12 @@ class CIceSheegoth : public CPatterned {
   void SetupCollisionActorManager(CStateManager& mgr);
   void SetupHealthInfo(CStateManager& mgr);
   void AttractProjectiles(CStateManager& mgr);
-  void sub_801a0b8c(float dt);
+  void UpdateTimers(float dt);
   void sub_8019e6f0(CStateManager& mgr);
   void SetPassthroughVulnerability(CStateManager& mgr);
   void PreventWorldCollisions(float dt, CStateManager& mgr);
   void UpdateHealthInfo(CStateManager& mgr);
-  void sub_8019f5cc(float dt, CStateManager& mgr);
+  void SetSteeringSpeed(float dt, CStateManager& mgr);
   void SetPathFindMode(EPathFindMode mode) { x928_pathFindMode = mode; }
   void UpdateParticleEffects(float dt, CStateManager& mgr);
   bool sub_801a1794(CStateManager& mgr) const {
@@ -174,7 +174,7 @@ class CIceSheegoth : public CPatterned {
   bool sub_8019ecdc(CStateManager& mgr, float minAngle);
   void SetMouthVulnerability(CStateManager& mgr, bool isVulnerable);
   void SetGillVulnerability(CStateManager& mgr, bool isVulnerable);
-  void sub_801a0708(CStateManager& mgr);
+  void ShakePlayer(CStateManager& mgr);
   void SetCollisionActorExtendedTouchBounds(CStateManager& mgr, const zeus::CVector3f& extents);
 
   void UpdateAttackPosition(CStateManager& mgr, zeus::CVector3f& attackPos);

@@ -2,6 +2,9 @@
 
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+#include "Runtime/Camera/CCameraShakeData.hpp"
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
@@ -142,7 +145,7 @@ void CIceSheegoth::Think(float dt, CStateManager& mgr) {
 
   CPatterned::Think(dt, mgr);
   AttractProjectiles(mgr);
-  sub_801a0b8c(dt);
+  UpdateTimers(dt);
   sub_8019e6f0(mgr);
   if (!IsAlive()) {
     x974_ = std::max(0.f, x974_ - (dt * x56c_sheegothData.Get_x170()));
@@ -163,7 +166,7 @@ void CIceSheegoth::Think(float dt, CStateManager& mgr) {
   xa2c_collisionManager->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
   PreventWorldCollisions(dt, mgr);
   UpdateHealthInfo(mgr);
-  sub_8019f5cc(dt, mgr);
+  SetSteeringSpeed(dt, mgr);
   UpdateParticleEffects(dt, mgr);
   UpdateThermalFrozenState(x428_damageCooldownTimer > 0.f);
 }
@@ -236,7 +239,7 @@ void CIceSheegoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, C
           }
         } else {
           TakeDamage(zeus::skZero3f, 0.f);
-          if (sub_8019fc40(colAct)) {
+          if (IsGillCollider(colAct)) {
             x97c_ = 0.2f;
             x980_ = GetTransform().basis[1];
           }
@@ -284,6 +287,7 @@ void CIceSheegoth::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& m
 }
 
 void CIceSheegoth::Render(CStateManager& mgr) { CPatterned::Render(mgr); }
+
 zeus::CVector3f CIceSheegoth::GetAimPosition(const CStateManager& mgr, float dt) const {
   return CPatterned::GetAimPosition(mgr, dt);
 }
@@ -347,7 +351,7 @@ void CIceSheegoth::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
     }
     break;
   case EUserEventType::ScreenShake:
-    sub_801a0708(mgr);
+    ShakePlayer(mgr);
     return;
   case EUserEventType::BecomeShootThrough:
     SetPassthroughVulnerability(mgr);
@@ -491,6 +495,7 @@ void CIceSheegoth::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
     }
   }
 }
+
 void CIceSheegoth::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     x568_ = 0;
@@ -739,6 +744,7 @@ void CIceSheegoth::Approach(CStateManager& mgr, EStateMsg msg, float dt) {
     x3b4_speed = x94c_;
   }
 }
+
 void CIceSheegoth::Enraged(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     x568_ = 0;
@@ -827,10 +833,7 @@ bool CIceSheegoth::InDetectionRange(CStateManager& mgr, float arg) {
 }
 
 bool CIceSheegoth::SpotPlayer(CStateManager& mgr, float arg) {
-  if (!xb28_24_shotAt) {
-    return CPatterned::SpotPlayer(mgr, arg);
-  }
-  return true;
+  return xb28_24_shotAt || CPatterned::SpotPlayer(mgr, arg);
 }
 
 bool CIceSheegoth::AnimOver(CStateManager& mgr, float arg) { return x568_ == 4; }
@@ -928,7 +931,7 @@ void CIceSheegoth::ApplyContactDamage(TUniqueId sender, CStateManager& mgr) {
     if (colAct->GetHealthInfo(mgr)->GetHP() <= 0.f) {
       return;
     }
-    bool bVar5 = (xb28_29_ && !xb28_25_ && xb28_28_) ? true : sub_8019fc84(sender);
+    bool bVar5 = (xb28_29_ && !xb28_25_ && xb28_28_) ? true : IsMouthCollider(sender);
 
     if (colAct->GetLastTouchedObject() == mgr.GetPlayer().GetUniqueId()) {
       if (bVar5) {
@@ -979,7 +982,7 @@ void CIceSheegoth::SetupCollisionActorManager(CStateManager& mgr) {
   xa2c_collisionManager->SetActive(mgr, GetActive());
   xa2c_collisionManager->AddMaterial(mgr, EMaterialTypes::CameraPassthrough);
   xb04_.clear();
-  xafc_.clear();
+  xafc_gillColliders.clear();
 
   for (size_t i = 0; i < xa2c_collisionManager->GetNumCollisionActors(); ++i) {
     const auto& desc = xa2c_collisionManager->GetCollisionDescFromIndex(i);
@@ -993,7 +996,7 @@ void CIceSheegoth::SetupCollisionActorManager(CStateManager& mgr) {
       } else if (desc.GetName() == "Ice_Shards_LCTR"sv) {
         colAct->SetWeaponCollisionResponseType(EWeaponCollisionResponseTypes::None);
       } else if (desc.GetName() == "GillL_LCTR"sv || desc.GetName() == "GillR_LCTR"sv) {
-        xafc_.emplace_back(desc.GetCollisionActorId());
+        xafc_gillColliders.emplace_back(desc.GetCollisionActorId());
       } else {
         xb04_.emplace_back(desc.GetCollisionActorId());
         colAct->SetDamageVulnerability(x56c_sheegothData.Get_x80());
@@ -1011,7 +1014,7 @@ void CIceSheegoth::SetupCollisionActorManager(CStateManager& mgr) {
 void CIceSheegoth::SetupHealthInfo(CStateManager& mgr) {
   CHealthInfo* thisHealth = HealthInfo(mgr);
   x970_maxHp = thisHealth->GetHP();
-  for (auto& id : xafc_) {
+  for (auto& id : xafc_gillColliders) {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(id)) {
       *colAct->HealthInfo(mgr) = *thisHealth;
     }
@@ -1057,7 +1060,23 @@ void CIceSheegoth::CreateFlameThrower(CStateManager& mgr) {
                                   x56c_sheegothData.Get_x1ec()));
 }
 void CIceSheegoth::AttractProjectiles(CStateManager& mgr) {}
-void CIceSheegoth::sub_801a0b8c(float dt) {}
+void CIceSheegoth::UpdateTimers(float dt) {
+  if (x954_attackTimeLeft > 0.f) {
+    x954_attackTimeLeft -= (xb29_27_ ? 2.f : 1.f) * dt;
+  }
+  if (x960_ > 0.f) {
+    x960_ -= dt;
+  }
+  if (x97c_ > 0.f) {
+    x97c_ -= dt;
+  }
+  if (x958_ > 0.f) {
+    x958_ -= dt;
+  }
+  if (x968_interestTimer < x56c_sheegothData.GetMaxInterestTime()) {
+    x968_interestTimer += dt;
+  }
+}
 void CIceSheegoth::sub_8019e6f0(CStateManager& mgr) {}
 void CIceSheegoth::SetPassthroughVulnerability(CStateManager& mgr) {
   for (size_t i = 0; i < xa2c_collisionManager->GetNumCollisionActors(); ++i) {
@@ -1114,7 +1133,7 @@ void CIceSheegoth::UpdateHealthInfo(CStateManager& mgr) {
     hpDelta = std::max(hpDelta, x970_maxHp - colAct->GetHealthInfo(mgr)->GetHP());
   }
 
-  for (TUniqueId uid : xafc_) {
+  for (TUniqueId uid : xafc_gillColliders) {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
       hpDelta = std::max(hpDelta, x970_maxHp - colAct->GetHealthInfo(mgr)->GetHP());
     }
@@ -1130,7 +1149,7 @@ void CIceSheegoth::UpdateHealthInfo(CStateManager& mgr) {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(xaf8_mouthCollider)) {
       colAct->HealthInfo(mgr)->SetHP(x970_maxHp);
     }
-    for (TUniqueId uid : xafc_) {
+    for (TUniqueId uid : xafc_gillColliders) {
       if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
         colAct->HealthInfo(mgr)->SetHP(x970_maxHp);
       }
@@ -1145,8 +1164,21 @@ void CIceSheegoth::UpdateHealthInfo(CStateManager& mgr) {
     Death(mgr, zeus::skZero3f, EScriptObjectState::DeathRattle);
   }
 }
-void CIceSheegoth::sub_8019f5cc(float dt, CStateManager& mgr) {}
+
+void CIceSheegoth::SetSteeringSpeed(float dt, CStateManager& mgr) {
+  const float steeringSpeedRange = x95c_ > 0.f ? 1.f : x944_;
+
+  if (steeringSpeedRange > x948_) {
+    x948_ = std::max(steeringSpeedRange, x948_ - (2.f * dt));
+  } else if (steeringSpeedRange < x948_) {
+    x948_ = std::min(steeringSpeedRange, x948_ + (2.f * dt));
+  }
+
+  GetBodyController()->GetCommandMgr().SetSteeringSpeedRange(x948_, x948_);
+}
+
 void CIceSheegoth::UpdateParticleEffects(float dt, CStateManager& mgr) {}
+
 void CIceSheegoth::UpdateAttackPosition(CStateManager& mgr, zeus::CVector3f& attackPos) {
   attackPos = GetTranslation();
   if (x954_attackTimeLeft > 0.f) {
@@ -1159,6 +1191,7 @@ void CIceSheegoth::UpdateAttackPosition(CStateManager& mgr, zeus::CVector3f& att
     attackPos += x2fc_minAttackRange * distVec.normalized();
   }
 }
+
 bool CIceSheegoth::sub_8019ecdc(CStateManager& mgr, float minAngle) {
   const zeus::CVector3f plAimPos =
       mgr.GetPlayer().GetAimPosition(mgr, GetModelData()->GetAnimationData()->GetSpeedScale() > 0.f
@@ -1173,7 +1206,7 @@ void CIceSheegoth::SetMouthVulnerability(CStateManager& mgr, bool isVulnerable) 
   }
 }
 void CIceSheegoth::SetGillVulnerability(CStateManager& mgr, bool isVulnerable) {
-  for (TUniqueId uid : xafc_) {
+  for (TUniqueId uid : xafc_gillColliders) {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
       colAct->SetDamageVulnerability(isVulnerable ? x56c_sheegothData.Get_x18()
                                                   : CDamageVulnerability::ImmuneVulnerabilty());
@@ -1189,5 +1222,34 @@ void CIceSheegoth::SetCollisionActorExtendedTouchBounds(CStateManager& mgr, cons
     }
   }
 }
-void CIceSheegoth::sub_801a0708(CStateManager& mgr) {}
+void CIceSheegoth::ShakePlayer(CStateManager& mgr) {
+  const zeus::CVector3f posDiff = mgr.GetPlayer().GetTranslation() - GetTranslation();
+  const float magnitude = (0.5f - (0.01f * posDiff.magnitude()));
+  if (magnitude > 0.f) {
+    bool applyImpulseToPlayer = true;
+    if (mgr.GetPlayer().GetSurfaceRestraint() != CPlayer::ESurfaceRestraints::Air &&
+        !mgr.GetPlayer().IsInWaterMovement()) {
+      if (mgr.GetCameraManager()->GetCurrentCameraId() ==
+          mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId()) {
+        mgr.GetCameraManager()->AddCameraShaker(
+            CCameraShakeData::BuildPatternedExplodeShakeData(GetTranslation(), 0.5f, magnitude, 50.f), true);
+      }
+      applyImpulseToPlayer = xb28_27_;
+    }
+
+    if (applyImpulseToPlayer) {
+      const zeus::CVector3f direction = magnitude * ((xb28_27_ ? 40.f : 25.f) * zeus::skUp);
+      zeus::CVector3f impulse = zeus::skZero3f;
+      if (x978_ < posDiff.magnitude() && xb28_27_ && posDiff.toVec2f().canBeNormalized()) {
+        impulse = magnitude * (12.5f * posDiff.toVec2f().normalized());
+      }
+      mgr.GetPlayer().ApplyImpulseWR(mgr.GetPlayer().GetMass() * (direction + impulse), zeus::CAxisAngle{});
+      mgr.GetPlayer().SetMoveState(CPlayer::EPlayerMovementState::ApplyJump, mgr);
+    }
+  }
+
+  if (xb28_28_) {
+    sub_8019ebf0(mgr, 0.25f * x56c_sheegothData.Get_x170());
+  }
+}
 } // namespace urde::MP1
