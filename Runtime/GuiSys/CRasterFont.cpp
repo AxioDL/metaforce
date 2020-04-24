@@ -210,8 +210,8 @@ bool CRasterFont::IsFinishedLoading() const {
   return true;
 }
 
-std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
-                                         CObjectReference* selfRef) {
+std::unique_ptr<IObj> FRasterFontFactory([[maybe_unused]] const SObjectTag& tag, CInputStream& in,
+                                         const CVParamTransfer& vparms, [[maybe_unused]] CObjectReference* selfRef) {
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
   return TToken<CRasterFont>::GetIObjObjectFor(std::make_unique<CRasterFont>(in, *sp));
 }
