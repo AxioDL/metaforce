@@ -26,7 +26,7 @@ CVEKeyframeEmitter::CVEKeyframeEmitter(CInputStream& in) {
   }
 }
 
-bool CVEKeyframeEmitter::GetValue(int frame, zeus::CVector3f& valOut) const {
+bool CVEKeyframeEmitter::GetValue([[maybe_unused]] int frame, zeus::CVector3f& valOut) const {
   if (!x4_percent) {
     int emitterTime = CParticleGlobals::instance()->m_EmitterTime;
     int calcKey = emitterTime;
@@ -171,7 +171,7 @@ bool CVEConstant::GetValue(int frame, zeus::CVector3f& valOut) const {
   return false;
 }
 
-bool CVEFastConstant::GetValue(int frame, zeus::CVector3f& valOut) const {
+bool CVEFastConstant::GetValue([[maybe_unused]] int frame, zeus::CVector3f& valOut) const {
   valOut = x4_val;
   return false;
 }

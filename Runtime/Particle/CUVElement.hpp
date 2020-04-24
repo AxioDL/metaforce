@@ -30,8 +30,10 @@ struct CUVEConstant : public CUVElement {
 
 public:
   explicit CUVEConstant(TToken<CTexture>&& tex) : x4_tex(std::move(tex)) {}
-  TLockedToken<CTexture> GetValueTexture(int frame) const override { return TLockedToken<CTexture>(x4_tex); }
-  void GetValueUV(int frame, SUVElementSet& valOut) const override { valOut = {0.f, 0.f, 1.f, 1.f}; }
+  TLockedToken<CTexture> GetValueTexture([[maybe_unused]] int frame) const override {
+    return TLockedToken<CTexture>(x4_tex);
+  }
+  void GetValueUV([[maybe_unused]] int frame, SUVElementSet& valOut) const override { valOut = {0.f, 0.f, 1.f, 1.f}; }
   bool HasConstantTexture() const override { return true; }
   bool HasConstantUV() const override { return true; }
 };
@@ -48,7 +50,9 @@ public:
   CUVEAnimTexture(TToken<CTexture>&& tex, std::unique_ptr<CIntElement>&& tileW, std::unique_ptr<CIntElement>&& tileH,
                   std::unique_ptr<CIntElement>&& strideW, std::unique_ptr<CIntElement>&& strideH,
                   std::unique_ptr<CIntElement>&& cycleFrames, bool loop);
-  TLockedToken<CTexture> GetValueTexture(int frame) const override { return TLockedToken<CTexture>(x4_tex); }
+  TLockedToken<CTexture> GetValueTexture([[maybe_unused]] int frame) const override {
+    return TLockedToken<CTexture>(x4_tex);
+  }
   void GetValueUV(int frame, SUVElementSet& valOut) const override;
   bool HasConstantTexture() const override { return true; }
   bool HasConstantUV() const override { return false; }
