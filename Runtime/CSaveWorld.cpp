@@ -82,8 +82,9 @@ s32 CSaveWorld::GetDoorIndex(const TEditorId& id) const {
   return it - x34_doors.begin();
 }
 
-CFactoryFnReturn FSaveWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
-                                   CObjectReference* selfRef) {
+CFactoryFnReturn FSaveWorldFactory([[maybe_unused]] const SObjectTag& tag, CInputStream& in,
+                                   [[maybe_unused]] const CVParamTransfer& param,
+                                   [[maybe_unused]] CObjectReference* selfRef) {
   return TToken<CSaveWorld>::GetIObjObjectFor(std::make_unique<CSaveWorld>(in));
 }
 
