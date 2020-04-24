@@ -498,7 +498,7 @@ void CIceSheegoth::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
     xb28_25_ = true;
     x2e0_destPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
     SetPathFindMode(EPathFindMode::Normal);
-    PathFind(mgr, msg, dt);
+    CPatterned::PathFind(mgr, msg, dt);
     SetCollisionActorExtendedTouchBounds(mgr, zeus::CVector3f{2.f});
     x95c_ = 0.f;
   } else if (msg == EStateMsg::Update) {
@@ -518,7 +518,7 @@ void CIceSheegoth::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
         if (GetTransform().frontVector().dot(mgr.GetPlayer().GetTranslation() - mouthXf.origin) > 0.f) {
           SetPathFindMode(EPathFindMode::Normal);
           if (GetSearchPath() != nullptr && !PathShagged(mgr, 0.f)) {
-            PathFind(mgr, EStateMsg::Update, dt);
+            CPatterned::PathFind(mgr, EStateMsg::Update, dt);
           } else {
             x568_ = 4;
           }
@@ -712,7 +712,7 @@ void CIceSheegoth::Approach(CStateManager& mgr, EStateMsg msg, float dt) {
           x2e0_destPos = GetTranslation();
         }
         x92c_lastDest = x2e0_destPos;
-        PathFind(mgr, EStateMsg::Activate, dt);
+        CPatterned::PathFind(mgr, EStateMsg::Activate, dt);
         if (!xb29_27_) {
           GetBodyController()->GetCommandMgr().ClearLocomotionCmds();
         }
@@ -722,7 +722,7 @@ void CIceSheegoth::Approach(CStateManager& mgr, EStateMsg msg, float dt) {
 
     if (x56c_sheegothData.Get_x1f0_24() && GetSearchPath() != nullptr && !PathShagged(mgr, 0.f) &&
         x760_pathSearch.GetCurrentWaypoint() < x760_pathSearch.GetWaypoints().size() - 1) {
-      PathFind(mgr, EStateMsg::Update, dt);
+      CPatterned::PathFind(mgr, EStateMsg::Update, dt);
     } else {
       const zeus::CVector3f posDiff = mgr.GetPlayer().GetTranslation() - GetTranslation();
       if (sub_8019ecdc(mgr, zeus::degToRad(15.f)) && posDiff.canBeNormalized()) {
