@@ -94,7 +94,7 @@ enum class EGetupType { Invalid = -1, Zero = 0, One = 1, Two = 2 };
 
 enum class ELoopState { Invalid = -1, Begin, Loop, End };
 
-enum class ELoopAttackType { Invalid = -1 };
+enum class ELoopAttackType { Invalid = -1, Zero };
 
 enum class EGenerateType { Invalid = -1, Zero, One, Two, Three, Four, Five, Six, Seven, Eight };
 

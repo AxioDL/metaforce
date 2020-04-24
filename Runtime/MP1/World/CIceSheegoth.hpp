@@ -25,7 +25,7 @@ class CIceSheegothData {
   float x174_;
   CAssetId x178_;
   CAssetId x17c_fireBreathResId;
-  CDamageInfo x180_;
+  CDamageInfo x180_fireBreathDamage;
   CAssetId x19c_;
   CAssetId x1a0_;
   CAssetId x1a4_;
@@ -37,7 +37,7 @@ class CIceSheegothData {
   s16 x1d4_;
   float x1d8_;
   float x1dc_;
-  float x1e0_;
+  float x1e0_maxInterestTime;
   CAssetId x1e4_;
   s16 x1e8_;
   CAssetId x1ec_;
@@ -46,6 +46,7 @@ class CIceSheegothData {
 
 public:
   CIceSheegothData(CInputStream& in, s32 propertyCount);
+  [[nodiscard]] CDamageVulnerability Get_x18() const { return x18_; }
   [[nodiscard]] CDamageVulnerability Get_x80() const { return x80_; }
   [[nodiscard]] CDamageVulnerability Get_xe8() const { return xe8_; }
   [[nodiscard]] CAssetId Get_x150() const { return x150_; }
@@ -54,14 +55,16 @@ public:
   [[nodiscard]] float Get_x174() const { return x174_; }
   [[nodiscard]] CAssetId Get_x178() const { return x178_; }
   [[nodiscard]] CAssetId GetFireBreathResId() const { return x17c_fireBreathResId; }
-  [[nodiscard]] CDamageInfo GetFireBreathDamage() const { return x180_; }
+  [[nodiscard]] CDamageInfo GetFireBreathDamage() const { return x180_fireBreathDamage; }
   [[nodiscard]] CAssetId Get_x1a0() const { return x1a0_; }
   [[nodiscard]] CAssetId Get_x1a4() const { return x1a4_; }
   [[nodiscard]] CAssetId Get_x1a8() const { return x1a8_; }
   [[nodiscard]] CAssetId Get_x1ac() const { return x1ac_; }
   [[nodiscard]] float Get_x1b0() const { return x1b0_; }
   [[nodiscard]] CDamageInfo Get_x1b8() const { return x1b8_; }
-  [[nodiscard]] float GetMaxInterestTime() const { return x1e0_; }
+  [[nodiscard]] float Get_x1d8() const { return x1d8_; }
+  [[nodiscard]] float Get_x1dc() const  { return x1dc_; }
+  [[nodiscard]] float GetMaxInterestTime() const { return x1e0_maxInterestTime; }
   [[nodiscard]] CAssetId Get_x1e4() const { return x1e4_; }
   [[nodiscard]] s16 Get_x1e8() const { return x1e8_; }
   [[nodiscard]] CAssetId Get_x1ec() const { return x1ec_; }
@@ -76,7 +79,7 @@ class CIceSheegoth : public CPatterned {
   CPathFindSearch x760_pathSearch;
   CPathFindSearch x844_approachSearch;
   EPathFindMode x928_pathFindMode = EPathFindMode::Normal;
-  zeus::CVector3f x92c_ = zeus::skZero3f;
+  zeus::CVector3f x92c_lastDest = zeus::skZero3f;
   zeus::CVector3f x938_ = zeus::skZero3f;
   float x944_ = 1.f;
   float x948_ = 1.f;
@@ -89,7 +92,7 @@ class CIceSheegoth : public CPatterned {
   /* x964_ */
   float x968_interestTimer = 0.f;
   float x96c_ = 2.f;
-  float x970_ = 0.f;
+  float x970_maxHp = 0.f;
   float x974_;
   float x978_ = 0.f;
   float x97c_ = 0.f;
@@ -156,20 +159,23 @@ class CIceSheegoth : public CPatterned {
   void AttractProjectiles(CStateManager& mgr);
   void sub_801a0b8c(float dt);
   void sub_8019e6f0(CStateManager& mgr);
-  void sub_8019eb50(CStateManager& mgr);
+  void SetPassthroughVulnerability(CStateManager& mgr);
   void PreventWorldCollisions(float dt, CStateManager& mgr);
-  void sub_8019f680(CStateManager& mgr);
+  void UpdateHealthInfo(CStateManager& mgr);
   void sub_8019f5cc(float dt, CStateManager& mgr);
   void SetPathFindMode(EPathFindMode mode) { x928_pathFindMode = mode; }
   void UpdateParticleEffects(float dt, CStateManager& mgr);
   bool sub_801a1794(CStateManager& mgr) const {
     const CHealthInfo* hInfo = GetHealthInfo(mgr);
-    return hInfo != nullptr && hInfo->GetHP() < 0.3f * x970_;
+    return hInfo != nullptr && hInfo->GetHP() < 0.3f * x970_maxHp;
   }
 
   bool sub_8019ecbc() const { return xb28_27_ || xb29_26_; }
   bool sub_8019ecdc(CStateManager& mgr, float minAngle);
-  void sub_8019e894(CStateManager& mgr, bool b1);
+  void SetMouthVulnerability(CStateManager& mgr, bool isVulnerable);
+  void SetGillVulnerability(CStateManager& mgr, bool isVulnerable);
+  void sub_801a0708(CStateManager& mgr);
+  void SetCollisionActorExtendedTouchBounds(CStateManager& mgr, const zeus::CVector3f& extents);
 
   void UpdateAttackPosition(CStateManager& mgr, zeus::CVector3f& attackPos);
 

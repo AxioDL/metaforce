@@ -88,8 +88,7 @@ class CBCGenerateCmd : public CBodyStateCmd {
 
 public:
   explicit CBCGenerateCmd() : CBodyStateCmd(EBodyStateCmd::Generate) {}
-  explicit CBCGenerateCmd(pas::EGenerateType type)
-  : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type) {}
+  explicit CBCGenerateCmd(pas::EGenerateType type) : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type) {}
   explicit CBCGenerateCmd(pas::EGenerateType type, s32 animId)
   : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type), x18_animId(animId), x1c_25_overrideAnim{animId != -1} {}
   explicit CBCGenerateCmd(pas::EGenerateType type, const zeus::CVector3f& vec, bool targetTransform = false,
@@ -159,7 +158,8 @@ class CBCLoopHitReactionCmd : public CBodyStateCmd {
 
 public:
   explicit CBCLoopHitReactionCmd() : CBodyStateCmd(EBodyStateCmd::LoopHitReaction) {}
-  explicit CBCLoopHitReactionCmd(pas::EReactionType type) : CBodyStateCmd(EBodyStateCmd::LoopHitReaction), x8_type(type) {}
+  explicit CBCLoopHitReactionCmd(pas::EReactionType type)
+  : CBodyStateCmd(EBodyStateCmd::LoopHitReaction), x8_type(type) {}
   pas::EReactionType GetReactionType() const { return x8_type; }
 };
 
@@ -256,13 +256,14 @@ public:
 
 class CBCLoopAttackCmd : public CBodyStateCmd {
   pas::ELoopAttackType x8_type = pas::ELoopAttackType::Invalid;
-  u32 xc_waitForAnimOver = 0;
+  bool xc_waitForAnimOver = false;
 
 public:
   explicit CBCLoopAttackCmd() : CBodyStateCmd(EBodyStateCmd::LoopAttack) {}
-  explicit CBCLoopAttackCmd(pas::ELoopAttackType type) : CBodyStateCmd(EBodyStateCmd::LoopAttack), x8_type(type) {}
+  explicit CBCLoopAttackCmd(pas::ELoopAttackType type, bool waitForAnimOver = false)
+  : CBodyStateCmd(EBodyStateCmd::LoopAttack), x8_type(type), xc_waitForAnimOver(waitForAnimOver) {}
   pas::ELoopAttackType GetAttackType() const { return x8_type; }
-  bool WaitForAnimOver() const { return xc_waitForAnimOver == 1; }
+  bool WaitForAnimOver() const { return xc_waitForAnimOver; }
 };
 
 class CBCTauntCmd : public CBodyStateCmd {
