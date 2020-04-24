@@ -457,6 +457,6 @@ public:
   static float g_EscapeShakeCountdown;
   static bool g_EscapeShakeCountdownInit;
 
-  void SetWarping(bool v) { m_warping = true; }
+  void SetWarping(bool warp) { m_warping = warp; }
 };
 } // namespace urde
