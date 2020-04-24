@@ -73,7 +73,7 @@ const char16_t* CStringTable::GetString(s32 str) const {
 void CStringTable::SetLanguage(s32 lang) { mCurrentLanguage = languages[lang]; }
 
 CFactoryFnReturn FStringTableFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer&,
-                                     CObjectReference* selfRef) {
+                                     [[maybe_unused]] CObjectReference* selfRef) {
   return TToken<CStringTable>::GetIObjObjectFor(std::make_unique<CStringTable>(in));
 }
 
