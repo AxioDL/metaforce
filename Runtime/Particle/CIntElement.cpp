@@ -25,7 +25,7 @@ CIEKeyframeEmitter::CIEKeyframeEmitter(CInputStream& in) {
     x18_keys.push_back(in.readInt32Big());
 }
 
-bool CIEKeyframeEmitter::GetValue(int frame, int& valOut) const {
+bool CIEKeyframeEmitter::GetValue([[maybe_unused]] int frame, int& valOut) const {
   if (!x4_percent) {
     int emitterTime = CParticleGlobals::instance()->m_EmitterTime;
     int calcKey = emitterTime;
@@ -110,7 +110,7 @@ int CIEAdd::GetMaxValue() const {
   return a + b;
 }
 
-bool CIEConstant::GetValue(int frame, int& valOut) const {
+bool CIEConstant::GetValue([[maybe_unused]] int frame, int& valOut) const {
   valOut = x4_val;
   return false;
 }
@@ -226,21 +226,21 @@ bool CIETimeScale::GetValue(int frame, int& valOut) const {
 
 int CIETimeScale::GetMaxValue() const { return 10000; /* Assume 10000 frames max (not ideal estimate) */ }
 
-bool CIEGetCumulativeParticleCount::GetValue(int frame, int& valOut) const {
+bool CIEGetCumulativeParticleCount::GetValue([[maybe_unused]] int frame, int& valOut) const {
   valOut = CParticleGlobals::instance()->m_currentParticleSystem->x4_system->GetCumulativeParticleCount();
   return false;
 }
 
 int CIEGetCumulativeParticleCount::GetMaxValue() const { return 256; }
 
-bool CIEGetActiveParticleCount::GetValue(int frame, int& valOut) const {
+bool CIEGetActiveParticleCount::GetValue([[maybe_unused]] int frame, int& valOut) const {
   valOut = CParticleGlobals::instance()->m_currentParticleSystem->x4_system->GetParticleCount();
   return false;
 }
 
 int CIEGetActiveParticleCount::GetMaxValue() const { return 256; }
 
-bool CIEGetEmitterTime::GetValue(int frame, int& valOut) const {
+bool CIEGetEmitterTime::GetValue([[maybe_unused]] int frame, int& valOut) const {
   valOut = CParticleGlobals::instance()->m_currentParticleSystem->x4_system->GetEmitterTime();
   return false;
 }
