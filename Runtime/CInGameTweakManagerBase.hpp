@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -51,17 +52,17 @@ protected:
 
 public:
   bool HasTweakValue(std::string_view name) const {
-    for (const CTweakValue& val : x0_values)
-      if (val.GetName() == name)
-        return true;
-    return false;
+    return std::any_of(x0_values.cbegin(), x0_values.cend(),
+                       [name](const auto& value) { return value.GetName() == name; });
   }
 
   const CTweakValue* GetTweakValue(std::string_view name) const {
-    for (const CTweakValue& val : x0_values)
-      if (val.GetName() == name)
-        return &val;
-    return nullptr;
+    const auto iter = std::find_if(x0_values.cbegin(), x0_values.cend(),
+                                   [name](const auto& value) { return value.GetName() == name; });
+    if (iter == x0_values.cend()) {
+      return nullptr;
+    }
+    return &*iter;
   }
 
   bool ReadFromMemoryCard(std::string_view name) { return true; }
