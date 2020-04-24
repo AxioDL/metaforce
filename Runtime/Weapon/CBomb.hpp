@@ -41,7 +41,7 @@ public:
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   void SetVelocityWR(const zeus::CVector3f& vel) { x158_velocity = vel; }
   void SetConstantAccelerationWR(const zeus::CVector3f& acc) { x164_acceleration = acc; }
-  void SetFuseDisabled(bool b) { x190_26_disableFuse = false; }
+  void SetFuseDisabled(bool disabled) { x190_26_disableFuse = disabled; }
   void SetIsBeingDragged(bool b) { x190_25_beingDragged = b; }
   bool IsBeingDragged() const { return x190_25_beingDragged; }
 };
