@@ -26,7 +26,7 @@ CREKeyframeEmitter::CREKeyframeEmitter(CInputStream& in) {
     x18_keys.push_back(in.readFloatBig());
 }
 
-bool CREKeyframeEmitter::GetValue(int frame, float& valOut) const {
+bool CREKeyframeEmitter::GetValue([[maybe_unused]] int frame, float& valOut) const {
   if (!x4_percent) {
     int emitterTime = CParticleGlobals::instance()->m_EmitterTime;
     int calcKey = emitterTime;
@@ -63,7 +63,7 @@ bool CRELifetimeTween::GetValue(int frame, float& valOut) const {
   return false;
 }
 
-bool CREConstant::GetValue(int frame, float& valOut) const {
+bool CREConstant::GetValue([[maybe_unused]] int frame, float& valOut) const {
   valOut = x4_val;
   return false;
 }
