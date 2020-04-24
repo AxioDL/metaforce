@@ -26,6 +26,7 @@ public:
   };
   enum class EType {};
 
+private:
   EType x0_type;
   std::string x4_key;
   std::string x14_str;
