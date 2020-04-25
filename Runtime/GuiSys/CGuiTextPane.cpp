@@ -132,23 +132,22 @@ bool CGuiTextPane::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2
 }
 
 std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
-  CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
-  zeus::CVector2f dim = zeus::CVector2f::ReadBig(in);
-  zeus::CVector3f vec = zeus::CVector3f::ReadBig(in);
-  u32 fontId = in.readUint32Big();
-  bool wordWrap = in.readBool();
-  bool horizontal = in.readBool();
-  EJustification justification = EJustification(in.readUint32Big());
-  EVerticalJustification vJustification = EVerticalJustification(in.readUint32Big());
-  CGuiTextProperties props(wordWrap, horizontal, justification, vJustification);
+  const CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
+  const zeus::CVector2f dim = zeus::CVector2f::ReadBig(in);
+  const zeus::CVector3f vec = zeus::CVector3f::ReadBig(in);
+  const u32 fontId = in.readUint32Big();
+  const bool wordWrap = in.readBool();
+  const bool horizontal = in.readBool();
+  const auto justification = EJustification(in.readUint32Big());
+  const auto vJustification = EVerticalJustification(in.readUint32Big());
+  const CGuiTextProperties props(wordWrap, horizontal, justification, vJustification);
   zeus::CColor fontCol;
   fontCol.readRGBABig(in);
   zeus::CColor outlineCol;
   outlineCol.readRGBABig(in);
-  int extentX = in.readFloatBig();
-  int extentY = in.readFloatBig();
-  std::shared_ptr<CGuiTextPane> ret =
-      std::make_shared<CGuiTextPane>(parms, sp, dim, vec, fontId, props, fontCol, outlineCol, extentX, extentY);
+  const int extentX = static_cast<int>(in.readFloatBig());
+  const int extentY = static_cast<int>(in.readFloatBig());
+  auto ret = std::make_shared<CGuiTextPane>(parms, sp, dim, vec, fontId, props, fontCol, outlineCol, extentX, extentY);
   ret->ParseBaseInfo(frame, in, parms);
   ret->InitializeBuffers();
   ret->TextSupport().SetText(u"");
