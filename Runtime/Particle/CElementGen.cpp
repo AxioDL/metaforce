@@ -342,7 +342,7 @@ void CElementGen::AccumulateBounds(const zeus::CVector3f& pos, float size) {
   x2ec_maxSize = std::max(size, x2ec_maxSize);
 }
 
-void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 particleFrame) {
+void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, s32 particleFrame) {
   if (activeParticleCount >= x60_advValues.size()) {
     CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
     return;
@@ -353,25 +353,33 @@ void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 par
   std::array<float, 8>& arr = x60_advValues[activeParticleCount];
   CParticleGlobals::instance()->m_particleAccessParameters = &arr;
 
-  if (CRealElement* adv1 = desc->x10c_ADV1.get())
+  if (CRealElement* adv1 = desc->x10c_ADV1.get()) {
     adv1->GetValue(particleFrame, arr[0]);
-  if (CRealElement* adv2 = desc->x110_ADV2.get())
+  }
+  if (CRealElement* adv2 = desc->x110_ADV2.get()) {
     adv2->GetValue(particleFrame, arr[1]);
-  if (CRealElement* adv3 = desc->x114_ADV3.get())
+  }
+  if (CRealElement* adv3 = desc->x114_ADV3.get()) {
     adv3->GetValue(particleFrame, arr[2]);
-  if (CRealElement* adv4 = desc->x118_ADV4.get())
+  }
+  if (CRealElement* adv4 = desc->x118_ADV4.get()) {
     adv4->GetValue(particleFrame, arr[3]);
-  if (CRealElement* adv5 = desc->x11c_ADV5.get())
+  }
+  if (CRealElement* adv5 = desc->x11c_ADV5.get()) {
     adv5->GetValue(particleFrame, arr[4]);
-  if (CRealElement* adv6 = desc->x120_ADV6.get())
+  }
+  if (CRealElement* adv6 = desc->x120_ADV6.get()) {
     adv6->GetValue(particleFrame, arr[5]);
-  if (CRealElement* adv7 = desc->x124_ADV7.get())
+  }
+  if (CRealElement* adv7 = desc->x124_ADV7.get()) {
     adv7->GetValue(particleFrame, arr[6]);
-  if (CRealElement* adv8 = desc->x128_ADV8.get())
+  }
+  if (CRealElement* adv8 = desc->x128_ADV8.get()) {
     adv8->GetValue(particleFrame, arr[7]);
+  }
 }
 
-bool CElementGen::UpdateVelocitySource(size_t idx, u32 particleFrame, CParticle& particle) {
+bool CElementGen::UpdateVelocitySource(size_t idx, s32 particleFrame, CParticle& particle) {
   bool err;
   if (x278_hasVMD[idx]) {
     zeus::CVector3f localVel = x208_orientationInverse * particle.x1c_vel;
@@ -430,11 +438,12 @@ void CElementGen::UpdateExistingParticles() {
     g_currentParticle = &particle;
 
     CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
-    int particleFrame = x74_curFrame - particle.x28_startFrame;
+    const int particleFrame = x74_curFrame - particle.x28_startFrame;
     CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(particleFrame);
 
-    if (x26d_28_enableADV)
+    if (x26d_28_enableADV) {
       UpdateAdvanceAccessParameters(x25c_activeParticleCount, particleFrame);
+    }
 
     ++x25c_activeParticleCount;
 

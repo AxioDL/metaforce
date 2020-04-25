@@ -163,8 +163,8 @@ public:
   static void Initialize();
   static void Shutdown();
 
-  void UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 particleFrame);
-  bool UpdateVelocitySource(size_t idx, u32 particleFrame, CParticle& particle);
+  void UpdateAdvanceAccessParameters(u32 activeParticleCount, s32 particleFrame);
+  bool UpdateVelocitySource(size_t idx, s32 particleFrame, CParticle& particle);
   void UpdateExistingParticles();
   void CreateNewParticles(int);
   void UpdatePSTranslationAndOrientation();
