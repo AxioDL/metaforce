@@ -33,7 +33,7 @@ class CElementGen : public CParticleGen {
 
 public:
   static void SetGlobalSeed(u16 seed) { g_GlobalSeed = seed; }
-  static void SetSubtractBlend(bool s) { g_subtractBlend = s; }
+  static void SetSubtractBlend(bool subtract) { g_subtractBlend = subtract; }
   enum class EModelOrientationType { Normal, One };
   enum class EOptionalSystemFlags { None, One, Two };
   enum class LightType { None = 0, Custom = 1, Directional = 2, Spot = 3 };
@@ -166,10 +166,10 @@ public:
   void UpdateAdvanceAccessParameters(u32 activeParticleCount, s32 particleFrame);
   bool UpdateVelocitySource(size_t idx, s32 particleFrame, CParticle& particle);
   void UpdateExistingParticles();
-  void CreateNewParticles(int);
+  void CreateNewParticles(int count);
   void UpdatePSTranslationAndOrientation();
-  void UpdateChildParticleSystems(double);
-  std::unique_ptr<CParticleGen> ConstructChildParticleSystem(const TToken<CGenDescription>&) const;
+  void UpdateChildParticleSystems(double dt);
+  std::unique_ptr<CParticleGen> ConstructChildParticleSystem(const TToken<CGenDescription>& desc) const;
   void UpdateLightParameters();
   void BuildParticleSystemBounds();
   u32 GetEmitterTime() const { return x74_curFrame; }
@@ -179,26 +179,26 @@ public:
   u32 GetParticleCountAll() const { return x264_recursiveParticleCount; }
   void EndLifetime();
   void ForceParticleCreation(int amount);
-  float GetExternalVar(int i) const { return x9c_externalVars[i]; }
-  void SetExternalVar(int i, float v) { x9c_externalVars[i] = v; }
+  float GetExternalVar(int index) const { return x9c_externalVars[index]; }
+  void SetExternalVar(int index, float var) { x9c_externalVars[index] = var; }
 
-  bool InternalUpdate(double);
+  bool InternalUpdate(double dt);
   void RenderModels(const CActorLights* actLights);
   void RenderLines();
   void RenderParticles();
   void RenderParticlesIndirectTexture();
 
-  bool Update(double) override;
-  void Render(const CActorLights* = nullptr) override;
-  void SetOrientation(const zeus::CTransform&) override;
-  void SetTranslation(const zeus::CVector3f&) override;
-  void SetGlobalOrientation(const zeus::CTransform&) override;
-  void SetGlobalTranslation(const zeus::CVector3f&) override;
-  void SetGlobalScale(const zeus::CVector3f&) override;
-  void SetLocalScale(const zeus::CVector3f&) override;
+  bool Update(double t) override;
+  void Render(const CActorLights* actorLights = nullptr) override;
+  void SetOrientation(const zeus::CTransform& orientation) override;
+  void SetTranslation(const zeus::CVector3f& translation) override;
+  void SetGlobalOrientation(const zeus::CTransform& orientation) override;
+  void SetGlobalTranslation(const zeus::CVector3f& translation) override;
+  void SetGlobalScale(const zeus::CVector3f& scale) override;
+  void SetLocalScale(const zeus::CVector3f& scale) override;
   void SetGlobalOrientAndTrans(const zeus::CTransform& xf);
-  void SetParticleEmission(bool) override;
-  void SetModulationColor(const zeus::CColor&) override;
+  void SetParticleEmission(bool enabled) override;
+  void SetModulationColor(const zeus::CColor& color) override;
   void SetGeneratorRate(float rate) override;
   const zeus::CTransform& GetOrientation() const override;
   const zeus::CVector3f& GetTranslation() const override;
@@ -219,9 +219,9 @@ public:
   size_t GetNumActiveChildParticles() const { return x290_activePartChildren.size(); }
   CParticleGen& GetActiveChildParticle(size_t idx) const { return *x290_activePartChildren[idx]; }
   bool IsIndirectTextured() const { return x28_loadedGenDesc->x54_x40_TEXR && x28_loadedGenDesc->x58_x44_TIND; }
-  void SetModelsUseLights(bool v) { x26d_26_modelsUseLights = v; }
+  void SetModelsUseLights(bool useLights) { x26d_26_modelsUseLights = useLights; }
   void SetZTest(bool z) { x26c_28_zTest = z; }
-  static void SetMoveRedToAlphaBuffer(bool);
+  static void SetMoveRedToAlphaBuffer(bool move);
 
   s32 GetMaxParticles() const { return x90_MAXP; }
 };
