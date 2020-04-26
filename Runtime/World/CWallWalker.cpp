@@ -108,12 +108,13 @@ void CWallWalker::GotoNextWaypoint(CStateManager& mgr) {
 void CWallWalker::PreThink(float dt, CStateManager& mgr) {
   CPatterned::PreThink(dt, mgr);
   if (!GetActive() || x5d6_26_playerObstructed || x5bc_patrolPauseRemTime > 0.f || x5d6_27_disableMove ||
-      x450_bodyController->IsFrozen() || !x5d6_24_alignToFloor)
+      x450_bodyController->IsFrozen() || !x5d6_24_alignToFloor) {
     return;
+  }
 
-  zeus::CQuaternion quat(GetTransform().buildMatrix3f());
+  // In GM8Ev0, the game binary also constructs two unused quaternions here.
+
   AddMotionState(PredictMotion(dt));
-  zeus::CQuaternion quat2(GetTransform().buildMatrix3f());
   ClearForcesAndTorques();
   if (x5d6_25_hasAlignSurface) {
     zeus::CPlane plane = x568_alignNormal.GetPlane();
