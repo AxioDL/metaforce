@@ -15,8 +15,7 @@ public:
   enum class EWalkerType { Parasite = 0, Oculus = 1, Geemer = 2, IceZoomer = 3, Seedling = 4 };
 
 protected:
-  CCollisionSurface x568_alignNormal =
-      CCollisionSurface(zeus::CVector3f(), zeus::skForward, zeus::skRight, -1);
+  CCollisionSurface x568_alignNormal{zeus::CVector3f(), zeus::skForward, zeus::skRight, -1};
   CCollidableSphere x590_colSphere;
   float x5b0_collisionCloseMargin;
   float x5b4_alignAngVel;
