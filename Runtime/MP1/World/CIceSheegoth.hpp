@@ -46,6 +46,10 @@ class CIceSheegothData {
 
 public:
   CIceSheegothData(CInputStream& in, s32 propertyCount);
+  [[nodiscard]] float Get_x0() const { return x0_; }
+  [[nodiscard]] float Get_x4() const { return x4_; }
+  [[nodiscard]] zeus::CVector3f Get_x8() const { return x8_; }
+  [[nodiscard]] float Get_x14() const { return x14_; }
   [[nodiscard]] CDamageVulnerability Get_x18() const { return x18_; }
   [[nodiscard]] CDamageVulnerability Get_x80() const { return x80_; }
   [[nodiscard]] CDamageVulnerability Get_xe8() const { return xe8_; }
@@ -56,12 +60,14 @@ public:
   [[nodiscard]] CAssetId Get_x178() const { return x178_; }
   [[nodiscard]] CAssetId GetFireBreathResId() const { return x17c_fireBreathResId; }
   [[nodiscard]] CDamageInfo GetFireBreathDamage() const { return x180_fireBreathDamage; }
+  [[nodiscard]] CAssetId Get_x19c() const { return x19c_; }
   [[nodiscard]] CAssetId Get_x1a0() const { return x1a0_; }
   [[nodiscard]] CAssetId Get_x1a4() const { return x1a4_; }
   [[nodiscard]] CAssetId Get_x1a8() const { return x1a8_; }
   [[nodiscard]] CAssetId Get_x1ac() const { return x1ac_; }
   [[nodiscard]] float Get_x1b0() const { return x1b0_; }
   [[nodiscard]] CDamageInfo Get_x1b8() const { return x1b8_; }
+  [[nodiscard]] s16 Get_x1d4() const { return x1d4_; }
   [[nodiscard]] float Get_x1d8() const { return x1d8_; }
   [[nodiscard]] float Get_x1dc() const { return x1dc_; }
   [[nodiscard]] float GetMaxInterestTime() const { return x1e0_maxInterestTime; }
@@ -119,9 +125,9 @@ class CIceSheegoth : public CPatterned {
   TCachedToken<CGenDescription> xadc_;
   // bool xae8_;
   std::unique_ptr<CElementGen> xaec_;
-  CSfxHandle xaf0_;
+  CSfxHandle xaf0_crackleSfx;
   CSegId xaf4_mouthLocator;
-  TUniqueId xaf6_ = kInvalidUniqueId;
+  TUniqueId xaf6_iceShardsCollider = kInvalidUniqueId;
   TUniqueId xaf8_mouthCollider = kInvalidUniqueId;
   rstl::reserved_vector<TUniqueId, 2> xafc_gillColliders;
   rstl::reserved_vector<TUniqueId, 10> xb04_;
@@ -139,7 +145,7 @@ class CIceSheegoth : public CPatterned {
   bool xb29_26_ : 1;
   bool xb29_27_ : 1;
   bool xb29_28_ : 1;
-  bool xb29_29_ : 1;
+  bool xb29_29_scanned : 1;
 
   void UpdateTouchBounds();
   bool IsMouthCollider(TUniqueId uid) { return xaf8_mouthCollider == uid; }
@@ -158,7 +164,7 @@ class CIceSheegoth : public CPatterned {
   void SetupHealthInfo(CStateManager& mgr);
   void AttractProjectiles(CStateManager& mgr);
   void UpdateTimers(float dt);
-  void sub_8019e6f0(CStateManager& mgr);
+  void UpdateScanState(CStateManager& mgr);
   void SetPassthroughVulnerability(CStateManager& mgr);
   void PreventWorldCollisions(float dt, CStateManager& mgr);
   void UpdateHealthInfo(CStateManager& mgr);
@@ -178,6 +184,9 @@ class CIceSheegoth : public CPatterned {
   void SetCollisionActorExtendedTouchBounds(CStateManager& mgr, const zeus::CVector3f& extents);
 
   void UpdateAttackPosition(CStateManager& mgr, zeus::CVector3f& attackPos);
+  zeus::CVector3f GetEnergyAttractionPos(CStateManager& mgr) const;
+  bool ShouldAttractProjectile(const CGameProjectile& proj, CStateManager& mgr) const;
+  bool IsClosestSheegoth(CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 1024> nearList, const zeus::CVector3f projectileOffset) const;
 
 public:
   DEFINE_PATTERNED(IceSheeegoth);
@@ -189,7 +198,6 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
-  void Render(CStateManager& mgr) override;
   [[nodiscard]] const CDamageVulnerability* GetDamageVulnerability() const override {
     return &CDamageVulnerability::PassThroughVulnerabilty();
   }
