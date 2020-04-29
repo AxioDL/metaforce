@@ -45,7 +45,7 @@ void CScriptAiJumpPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId oth
 std::optional<zeus::CAABox> CScriptAiJumpPoint::GetTouchBounds() const { return xec_touchBounds; }
 
 bool CScriptAiJumpPoint::GetInUse(TUniqueId uid) const {
-  return x108_24 || x110_timeRemaining > 0.f || x10a_occupant != kInvalidUniqueId || uid != kInvalidUniqueId ||
-      uid != x10a_occupant;
+  return x108_24_inUse || x110_timeRemaining > 0.f ||
+         (x10a_occupant != kInvalidUniqueId && uid != kInvalidUniqueId && x10a_occupant != uid);
 }
 } // namespace urde
