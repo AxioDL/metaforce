@@ -23,15 +23,15 @@ void CGroundMovement::CheckFalling(CPhysicsActor& actor, CStateManager& mgr, flo
     }
   }
 
-  if (!oob) {
-    mgr.SendScriptMsg(&actor, kInvalidUniqueId, EScriptObjectMessage::Falling);
-  } else {
+  if (oob) {
     mgr.SendScriptMsg(&actor, kInvalidUniqueId, EScriptObjectMessage::OnFloor);
     actor.SetAngularVelocityWR(actor.GetAngularVelocityWR() * 0.98f);
     zeus::CVector3f vel = actor.GetTransform().transposeRotate(actor.GetVelocity());
     vel.z() = 0.f;
     actor.SetVelocityOR(vel);
     actor.SetMomentumWR(zeus::skZero3f);
+  } else {
+    mgr.SendScriptMsg(&actor, kInvalidUniqueId, EScriptObjectMessage::Falling);
   }
 }
 
@@ -83,22 +83,20 @@ void CGroundMovement::MoveGroundCollider(CStateManager& mgr, CPhysicsActor& acto
   float resolved = 0.f;
   collisionList.Clear();
   TUniqueId stepZId = kInvalidUniqueId;
-  if (stepDown >= 0.f) {
-    if (MoveGroundColliderZ(cache, mgr, actor, actor.GetMaterialFilter(), useColliderList, -stepDown, resolved,
-                            collisionList, stepZId)) {
-      if (collisionList.GetCount() > 0) {
-        CCollisionInfoList filteredList;
-        CollisionUtil::FilterByClosestNormal(zeus::CVector3f{0.f, 0.f, 1.f}, collisionList, filteredList);
-        if (filteredList.GetCount() > 0) {
-          if (CGameCollision::IsFloor(filteredList.Front().GetMaterialLeft(),
-                                      filteredList.Front().GetNormalLeft())) {
-            if (TCastToPtr<CScriptPlatform> plat = mgr.ObjectById(stepZId))
-              mgr.SendScriptMsg(plat.GetPtr(), actor.GetUniqueId(), EScriptObjectMessage::AddPlatformRider);
-            CGameCollision::SendMaterialMessage(mgr, filteredList.Front().GetMaterialLeft(), actor);
-            mgr.SendScriptMsg(&actor, kInvalidUniqueId, EScriptObjectMessage::OnFloor);
-          } else {
-            CheckFalling(actor, mgr, dt);
+  if (stepDown >= 0.f && MoveGroundColliderZ(cache, mgr, actor, actor.GetMaterialFilter(), useColliderList, -stepDown,
+                                             resolved, collisionList, stepZId)) {
+    if (collisionList.GetCount() > 0) {
+      CCollisionInfoList filteredList;
+      CollisionUtil::FilterByClosestNormal(zeus::CVector3f{0.f, 0.f, 1.f}, collisionList, filteredList);
+      if (filteredList.GetCount() > 0) {
+        if (CGameCollision::IsFloor(filteredList.Front().GetMaterialLeft(), filteredList.Front().GetNormalLeft())) {
+          if (TCastToPtr<CScriptPlatform> plat = mgr.ObjectById(stepZId)) {
+            mgr.SendScriptMsg(plat.GetPtr(), actor.GetUniqueId(), EScriptObjectMessage::AddPlatformRider);
           }
+          CGameCollision::SendMaterialMessage(mgr, filteredList.Front().GetMaterialLeft(), actor);
+          mgr.SendScriptMsg(&actor, kInvalidUniqueId, EScriptObjectMessage::OnFloor);
+        } else {
+          CheckFalling(actor, mgr, dt);
         }
       }
     }
@@ -173,7 +171,7 @@ bool CGroundMovement::ResolveUpDown(CAreaCollisionCache& cache, CStateManager& m
 
 bool CGroundMovement::MoveGroundColliderZ(CAreaCollisionCache& cache, CStateManager& mgr, CPhysicsActor& actor,
                                           const CMaterialFilter& filter,
-                                          rstl::reserved_vector<TUniqueId, 1024>& nearList, float amt, float&,
+                                          rstl::reserved_vector<TUniqueId, 1024>& nearList, float amt, float& resolved,
                                           CCollisionInfoList& list, TUniqueId& idOut) {
   actor.MoveCollisionPrimitive({0.f, 0.f, amt});
 
@@ -186,16 +184,18 @@ bool CGroundMovement::MoveGroundColliderZ(CAreaCollisionCache& cache, CStateMana
     }
 
     zeus::CAABox actorAABB = actor.GetBoundingBox();
-    float zextent;
-    if (amt > 0.f)
+    float zextent = 0.f;
+    if (amt > 0.f) {
       zextent = aabb.min.z() - actorAABB.max.z() - 0.02f + amt;
-    else
+    } else {
       zextent = aabb.max.z() - actorAABB.min.z() + 0.02f + amt;
+    }
 
     actor.MoveCollisionPrimitive({0.f, 0.f, zextent});
 
     if (!CGameCollision::DetectCollisionBoolean_Cached(mgr, cache, *actor.GetCollisionPrimitive(),
                                                        actor.GetPrimitiveTransform(), filter, nearList)) {
+      resolved = zextent;
       actor.SetTranslation(actor.GetTranslation() + zeus::CVector3f(0.f, 0.f, zextent));
       actor.MoveCollisionPrimitive(zeus::skZero3f);
     }

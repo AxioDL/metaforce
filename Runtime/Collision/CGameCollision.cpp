@@ -225,9 +225,7 @@ bool CGameCollision::CanBlock(const CMaterialList& mat, const zeus::CVector3f& v
 }
 
 bool CGameCollision::IsFloor(const CMaterialList& mat, const zeus::CVector3f& v) {
-  if (mat.HasMaterial(EMaterialTypes::Floor))
-    return true;
-  return (v.z() > 0.85f);
+  return mat.HasMaterial(EMaterialTypes::Floor) || v.z() > 0.85f;
 }
 
 void CGameCollision::SendMaterialMessage(CStateManager& mgr, const CMaterialList& mat, CActor& act) {
