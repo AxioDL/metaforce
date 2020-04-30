@@ -324,7 +324,7 @@ void CHudDecoInterfaceScan::Update(float dt, const CStateManager& stateMgr) {
 void CHudDecoInterfaceScan::Draw() {
   x18_scanDisplay.Draw();
   if (x10_loadedScanHudFlat) {
-    x10_loadedScanHudFlat->Draw(CGuiWidgetDrawParms::Default);
+    x10_loadedScanHudFlat->Draw(CGuiWidgetDrawParms::Default());
   }
 }
 

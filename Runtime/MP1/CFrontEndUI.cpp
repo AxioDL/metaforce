@@ -296,7 +296,7 @@ CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input, CFr
 
 void CFrontEndUI::SNewFileSelectFrame::Draw() const {
   if (x1c_loadedFrame && x10c_saveReady)
-    x1c_loadedFrame->Draw(CGuiWidgetDrawParms::Default);
+    x1c_loadedFrame->Draw(CGuiWidgetDrawParms::Default());
 }
 
 void CFrontEndUI::SNewFileSelectFrame::HandleActiveChange(CGuiTableGroup* active) {
@@ -909,7 +909,7 @@ void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::FinishedLoading() {
   SetUIText(EUIType::InsertPak);
 }
 
-void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::Draw() { x8_frme->Draw(CGuiWidgetDrawParms::Default); }
+void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::Draw() { x8_frme->Draw(CGuiWidgetDrawParms::Default()); }
 
 CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SGBALinkFrame(CGuiFrame* linkFrame, CGBASupport* support,
                                                              bool linkInProgress)
@@ -1103,7 +1103,7 @@ void CFrontEndUI::SFusionBonusFrame::Draw() const {
   if (x0_gbaLinkFrame)
     x0_gbaLinkFrame->Draw();
   else if (x24_loadedFrame)
-    x24_loadedFrame->Draw(CGuiWidgetDrawParms::Default);
+    x24_loadedFrame->Draw(CGuiWidgetDrawParms::Default());
 }
 
 void CFrontEndUI::SFusionBonusFrame::DoCancel(CGuiTableGroup* caller) {
@@ -1289,7 +1289,7 @@ CFrontEndUI::SFrontEndFrame::ProcessUserInput(const CFinalInput& input, CFrontEn
   return x4_action;
 }
 
-void CFrontEndUI::SFrontEndFrame::Draw() const { x14_loadedFrme->Draw(CGuiWidgetDrawParms::Default); }
+void CFrontEndUI::SFrontEndFrame::Draw() const { x14_loadedFrme->Draw(CGuiWidgetDrawParms::Default()); }
 
 void CFrontEndUI::SFrontEndFrame::HandleActiveChange(CGuiTableGroup* active) {
   active->SetColors(zeus::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});

@@ -1429,7 +1429,7 @@ void CSamusHud::Draw(const CStateManager& mgr, float alpha, CInGameGuiManager::E
     }
 
     if (x274_loadedFrmeBaseHud) {
-      x274_loadedFrmeBaseHud->Draw(CGuiWidgetDrawParms::Default);
+      x274_loadedFrmeBaseHud->Draw(CGuiWidgetDrawParms::Default());
     }
   }
 
