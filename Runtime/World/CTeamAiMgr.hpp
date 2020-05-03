@@ -114,6 +114,6 @@ public:
   static bool CanAcceptAttacker(EAttackType type, CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId);
   static bool AddAttacker(EAttackType type, CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId);
 
-  static TUniqueId GetTeamAiMgr(CAi& ai, CStateManager& mgr);
+  static TUniqueId GetTeamAiMgr(const CAi& ai, const CStateManager& mgr);
 };
 } // namespace urde

@@ -361,12 +361,13 @@ bool CTeamAiMgr::AddAttacker(EAttackType type, CStateManager& mgr, TUniqueId mgr
   return false;
 }
 
-TUniqueId CTeamAiMgr::GetTeamAiMgr(CAi& ai, CStateManager& mgr) {
+TUniqueId CTeamAiMgr::GetTeamAiMgr(const CAi& ai, const CStateManager& mgr) {
   for (const auto& conn : ai.GetConnectionList()) {
     if (conn.x0_state == EScriptObjectState::Active && conn.x4_msg == EScriptObjectMessage::Play) {
-      TUniqueId id = mgr.GetIdForScript(conn.x8_objId);
-      if (TCastToConstPtr<CTeamAiMgr> aimgr = mgr.GetObjectById(id))
+      const TUniqueId id = mgr.GetIdForScript(conn.x8_objId);
+      if (const TCastToConstPtr<CTeamAiMgr> aimgr = mgr.GetObjectById(id)) {
         return aimgr->GetUniqueId();
+      }
     }
   }
   return kInvalidUniqueId;
