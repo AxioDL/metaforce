@@ -11,7 +11,7 @@ class CTargetingManager {
 
 public:
   explicit CTargetingManager(const CStateManager& stateMgr);
-  bool CheckLoadComplete();
+  bool CheckLoadComplete() const;
   void Update(float, const CStateManager& stateMgr);
   void Draw(const CStateManager& stateMgr, bool hideLockon);
   void Touch();

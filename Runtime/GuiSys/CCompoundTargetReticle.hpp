@@ -139,7 +139,7 @@ public:
   explicit CCompoundTargetReticle(const CStateManager&);
 
   void SetLeadingOrientation(const zeus::CQuaternion& o) { x0_leadingOrientation = o; }
-  bool CheckLoadComplete() { return true; }
+  bool CheckLoadComplete() const { return true; }
   EReticleState GetDesiredReticleState(const CStateManager&) const;
   void Update(float, const CStateManager&);
   void UpdateCurrLockOnGroup(float, const CStateManager&);
