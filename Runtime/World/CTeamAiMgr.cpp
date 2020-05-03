@@ -1,5 +1,7 @@
 #include "Runtime/World/CTeamAiMgr.hpp"
 
+#include <algorithm>
+
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
@@ -301,20 +303,15 @@ void CTeamAiMgr::ClearTeamAiRole(TUniqueId aiId) {
 }
 
 s32 CTeamAiMgr::GetNumAssignedOfRole(CTeamAiRole::ETeamAiRole testRole) const {
-  s32 ret = 0;
-  for (const auto& role : x58_roles)
-    if (role.GetTeamAiRole() == testRole)
-      ++ret;
-  return ret;
+  return static_cast<s32>(std::count_if(x58_roles.cbegin(), x58_roles.cend(),
+                                        [testRole](const auto& role) { return role.GetTeamAiRole() == testRole; }));
 }
 
 s32 CTeamAiMgr::GetNumAssignedAiRoles() const {
-  s32 ret = 0;
-  for (const auto& role : x58_roles)
-    if (role.GetTeamAiRole() > CTeamAiRole::ETeamAiRole::Initial &&
-        role.GetTeamAiRole() <= CTeamAiRole::ETeamAiRole::Unassigned)
-      ++ret;
-  return ret;
+  return static_cast<s32>(std::count_if(x58_roles.cbegin(), x58_roles.cend(), [](const auto& role) {
+    const auto aiRole = role.GetTeamAiRole();
+    return aiRole > CTeamAiRole::ETeamAiRole::Initial && aiRole <= CTeamAiRole::ETeamAiRole::Unassigned;
+  }));
 }
 
 CTeamAiRole* CTeamAiMgr::GetTeamAiRole(CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId) {
