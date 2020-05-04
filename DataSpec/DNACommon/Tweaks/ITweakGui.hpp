@@ -125,6 +125,11 @@ struct ITweakGui : ITweak {
   virtual float GetHudLightAttMulConstant() const = 0;
   virtual float GetHudLightAttMulLinear() const = 0;
   virtual float GetHudLightAttMulQuadratic() const = 0;
+  virtual std::string_view GetCreditsTable() const = 0;
+  virtual std::string_view GetCreditsFont() const =0;
+  virtual std::string_view GetJapaneseCreditsFont() const=0;
+  virtual const zeus::CColor& GetCreditsTextFontColor() const=0;
+  virtual const zeus::CColor& GetCreditsTextBorderColor() const=0;
 
   static float FaceReflectionDistanceDebugValueToActualValue(float v) { return 0.015f * v + 0.2f; }
   static float FaceReflectionHeightDebugValueToActualValue(float v) { return 0.005f * v - 0.05f; }

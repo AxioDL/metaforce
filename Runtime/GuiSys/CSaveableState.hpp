@@ -35,6 +35,7 @@ protected:
 
 public:
   CSaveableState() : x54_colors(3, zeus::skBlack), x64_colorOverrides(16) {}
+  const TLockedToken<CRasterFont>& GetFont() const { return x48_font; }
 
   bool IsFinishedLoading() const;
 };

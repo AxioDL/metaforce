@@ -129,6 +129,17 @@ public:
   void SetVerticalJustification(EVerticalJustification j);
   void SetImageBaseline(bool b);
   bool GetIsTextSupportFinishedLoading();
+  float GetCurTimeMod900() const { return x10_curTimeMod900; }
+  s32 GetExtentX() const { return x34_extentX; }
+  void SetExtentX(s32 extent) {
+    x34_extentX = extent;
+    ClearRenderBuffer();
+  }
+  s32 GetExtentY() const { return x38_extentY; }
+  void SetExtentY(s32 extent) {
+    x38_extentY = extent;
+    ClearRenderBuffer();
+  }
   float GetCurTime() const { return x3c_curTime; }
   void SetCurTime(float t) { x3c_curTime = t; }
   std::u16string_view GetString() const { return x0_string; }

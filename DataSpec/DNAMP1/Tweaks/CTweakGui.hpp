@@ -160,9 +160,9 @@ struct CTweakGui final : ITweakGui {
   Value<float> x2c0_hudLightAttMulQuadratic;
   Value<atUint32> m_scanSpeedsCount;
   Vector<float, AT_DNA_COUNT(m_scanSpeedsCount)> x2c4_scanSpeeds;
-  String<-1> x2d0_;
-  String<-1> x2e0_;
-  String<-1> x2f0_;
+  String<-1> x2d0_creditsTable;
+  String<-1> x2e0_creditsFont;
+  String<-1> x2f0_japaneseCreditsFont;
   DNAColor x300_;
   DNAColor x304_;
   Value<float> x308_;
@@ -301,6 +301,11 @@ struct CTweakGui final : ITweakGui {
   float GetHudLightAttMulConstant() const override { return x2b8_hudLightAttMulConstant; }
   float GetHudLightAttMulLinear() const override { return x2bc_hudLightAttMulLinear; }
   float GetHudLightAttMulQuadratic() const override { return x2c0_hudLightAttMulQuadratic; }
+  std::string_view GetCreditsTable() const override { return x2d0_creditsTable; }
+  std::string_view GetCreditsFont() const override { return x2e0_creditsFont; }
+  std::string_view GetJapaneseCreditsFont() const override { return x2f0_japaneseCreditsFont; }
+  const zeus::CColor& GetCreditsTextFontColor() const override { return x300_; }
+  const zeus::CColor& GetCreditsTextBorderColor() const override { return x304_; }
 
   float GetScanSpeed(int idx) const override {
     if (idx < 0 || size_t(idx) >= x2c4_scanSpeeds.size())

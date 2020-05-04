@@ -229,7 +229,7 @@ void CTextExecuteBuffer::MoveWordLTR() {
           ->get());
 
   // Dunno what's up with this in the original; seems fine without
-  // x0_instList.emplace(xa8_curWordIt, std::make_shared<CWordInstruction>());
+  x0_instList.emplace(xa8_curWordIt, std::make_shared<CWordInstruction>());
 
   ++xa0_curBlock->x34_lineCount;
 }
@@ -263,7 +263,7 @@ void CTextExecuteBuffer::TerminateLine() {
 }
 
 void CTextExecuteBuffer::TerminateLineLTR() {
-  if (!xa4_curLine->xc_curY /*&& x18_textState.IsFinishedLoading()*/) {
+  if (!xa4_curLine->xc_curY && x18_textState.IsFinishedLoading()) {
     xa4_curLine->xc_curY = std::max(xa4_curLine->GetHeight(), x18_textState.x48_font->GetCarriageAdvance());
   }
 
@@ -280,7 +280,7 @@ void CTextExecuteBuffer::AddPopState() {
   x18_textState = xc4_stateStack.back();
   xc4_stateStack.pop_back();
 
-  if (!xa4_curLine->x8_curX) {
+  if (xa4_curLine->x8_curX == 0) {
     xa4_curLine->x28_just = x18_textState.x80_just;
     xa4_curLine->x2c_vjust = x18_textState.x84_vjust;
   }

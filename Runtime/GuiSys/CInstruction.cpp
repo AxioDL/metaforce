@@ -162,7 +162,13 @@ void CLineSpacingInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer*
 
 void CLineSpacingInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const { Invoke(state, buf); }
 
-void CPopStateInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const { state.PopState(); }
+void CPopStateInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const {
+  const auto& oldFont = state.GetFont();
+  state.PopState();
+  if (oldFont.GetObj() != state.GetFont().GetObj()) {
+    buf->AddFontChange(state.GetFont());
+  }
+}
 
 void CPopStateInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const { Invoke(state, buf); }
 

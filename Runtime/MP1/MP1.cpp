@@ -70,6 +70,9 @@
 #include <DataSpec/DNAMP1/SFX/Weapons.h>
 #include <DataSpec/DNAMP1/SFX/ZZZ.h>
 
+
+#include "Runtime/MP1/CCredits.hpp"
+
 #include <discord_rpc.h>
 
 namespace metaforce::MP1 {
@@ -106,6 +109,9 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
   CStreamAudioManager::SetMusicVolume(0x7f);
   m->ResetGameState();
 
+  std::shared_ptr<CIOWin> credits = std::make_shared<CCredits>();
+  x58_ioWinManager.AddIOWin(credits, 1000, 10000);
+/*
   if (!g_tweakGame->GetSplashScreensDisabled()) {
     std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
     x58_ioWinManager.AddIOWin(splash, 1000, 10000);
@@ -125,6 +131,7 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
 
   g_GuiSys = &x44_guiSys;
   g_GameState->GameOptions().EnsureSettings();
+  */
 }
 
 void CGameArchitectureSupport::UpdateTicks(float dt) {
