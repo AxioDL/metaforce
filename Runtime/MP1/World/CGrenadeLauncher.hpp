@@ -43,25 +43,25 @@ public:
 struct SGrenadeLauncherData {
 private:
   SBouncyGrenadeData x0_grenadeData;
-  CAssetId x3c_grenadeCmdl;
-  CAssetId x40_launcherExplodeGenDesc;
-  u16 x44_launcherExplodeSfx;
-  SGrenadeTrajectoryInfo x48_trajectoryInfo;
+  CAssetId x3c_grenadeModelId;
+  CAssetId x40_shootParticleGenDescId;
+  u16 x44_shootSfxId;
+  SGrenadeTrajectoryInfo x48_grenadeTrajectoryInfo;
 
 public:
-  SGrenadeLauncherData(const SBouncyGrenadeData& data, CAssetId w1, CAssetId w2, u16 sfx,
-                       const SGrenadeTrajectoryInfo& trajectoryInfo)
+  SGrenadeLauncherData(const SBouncyGrenadeData& data, CAssetId grenadeModelId, CAssetId shootParticleGenDescId,
+                       u16 shootSfxId, const SGrenadeTrajectoryInfo& grenadeTrajectoryInfo)
   : x0_grenadeData(data)
-  , x3c_grenadeCmdl(w1)
-  , x40_launcherExplodeGenDesc(w2)
-  , x44_launcherExplodeSfx(sfx)
-  , x48_trajectoryInfo(trajectoryInfo){};
+  , x3c_grenadeModelId(grenadeModelId)
+  , x40_shootParticleGenDescId(shootParticleGenDescId)
+  , x44_shootSfxId(shootSfxId)
+  , x48_grenadeTrajectoryInfo(grenadeTrajectoryInfo){};
 
   [[nodiscard]] const SBouncyGrenadeData& GetGrenadeData() const { return x0_grenadeData; }
-  [[nodiscard]] CAssetId GetGrenadeModelId() const { return x3c_grenadeCmdl; }
-  [[nodiscard]] CAssetId GetExplosionGenDescId() const { return x40_launcherExplodeGenDesc; }
-  [[nodiscard]] u16 GetExplosionSfx() const { return x44_launcherExplodeSfx; }
-  [[nodiscard]] const SGrenadeTrajectoryInfo& GetGrenadeTrajectoryInfo() const { return x48_trajectoryInfo; }
+  [[nodiscard]] CAssetId GetGrenadeModelId() const { return x3c_grenadeModelId; }
+  [[nodiscard]] CAssetId GetShootParticleGenDescId() const { return x40_shootParticleGenDescId; }
+  [[nodiscard]] u16 GetShootSfxId() const { return x44_shootSfxId; }
+  [[nodiscard]] const SGrenadeTrajectoryInfo& GetGrenadeTrajectoryInfo() const { return x48_grenadeTrajectoryInfo; }
 };
 
 class CGrenadeLauncher : public CPhysicsActor {
@@ -84,7 +84,7 @@ private:
   float x3e8_thermalMag;
   float x3ec_damageTimer = 0.f;
   zeus::CColor x3f0_color2{0.5f, 0.f, 0.f};
-  zeus::CColor x3f4_color3{0.f};
+  zeus::CColor x3f4_damageAddColor{0.f};
   float x3f8_explodePlayerDistance;
   bool x3fc_launchGrenade = false;
   bool x3fd_visible = true;
@@ -108,7 +108,7 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void Touch(CActor& act, CStateManager& mgr) override;
 
-  void SetColor(const zeus::CColor& color) { x3f4_color3 = color; }
+  void SetAddColor(const zeus::CColor& color) { x3f4_damageAddColor = color; }
   void SetVisible(bool val) { x3fd_visible = val; }
   void SetFollowPlayer(bool val) { x3fe_followPlayer = val; }
 
@@ -122,7 +122,7 @@ private:
   void UpdateDamageTime(float arg);
   void CreateExplosion(CStateManager& mgr);
   void UpdateFollowPlayer(CStateManager& mgr, float dt);
-  void sub_80230438();
+  void UpdateStartAnimation();
   void LaunchGrenade(CStateManager& mgr);
 };
 } // namespace urde::MP1

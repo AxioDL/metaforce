@@ -39,7 +39,7 @@ private:
   bool x9a0_visible = true;
   bool x9a1_fadeIn = true;
   std::vector<std::pair<TUniqueId, std::vector<TUniqueId>>> x9a4_scriptWaypointPlatforms;
-  bool x9b4_ = false;
+  bool x9b4_lostAllHp = false;
   std::vector<std::pair<TUniqueId, std::string_view>> x9b8_scriptEffects;
   enum class EScaleState {
     None,
@@ -81,9 +81,9 @@ private:
   float xa80_xrayAlpha = 1.f;
   float xa84_xrayAlphaStateTime = 0.f;
   bool xa88_xrayFadeInTrigger = false;
-  float xa8c_ = 3.f;
-  float xa90_ = 1.f;
-  float xa94_ = 1.f;
+  float xa8c_xrayFadeOutTime = 3.f;
+  float xa90_xrayFadeInTime = 1.f;
+  float xa94_xrayFadeTriggerTime = 1.f;
   float xa98_maxEnergy = 0.f;
   std::unique_ptr<CCollisionActorManager> xa9c_collisionActorMgr2;
   std::vector<std::pair<TUniqueId, std::string_view>> xaa0_scriptSounds;
@@ -96,28 +96,28 @@ private:
   float xad4_cachedSpeed = 1.f;
   bool xad8_cover = false;
   TUniqueId xada_lastWaypointId = kInvalidUniqueId;
-  bool xadc_ = false;
-  bool xadd_ = false;
+  // bool xadc_ = false;
+  // bool xadd_ = false;
   u8 xade_armorPiecesDestroyed = 0;
   bool xadf_launcher1FollowPlayer = true;
   bool xae0_launcher2FollowPlayer = true;
   CDamageVulnerability xae4_platformVuln = CDamageVulnerability::NormalVulnerabilty();
   int xb4c_armorPiecesHealed = 0;
-  float xb50_ = 0.f;
+  float xb50_armorPieceHealTime = 0.f;
   zeus::CColor xb54_platformColor = zeus::skWhite;
-  float xb58_ = 2.5f;
-  float xb5c_ = 0.f;
-  float xb60_ = 0.f;
-  float xb64_ = 17.f;
+  float xb58_healTime = 2.5f;
+  float xb5c_hpLost = 0.f;
+  float xb60_hpLostInPhase = 0.f;
+  float xb64_stateTime = 17.f;
   int xb68_ = 0;
-  bool xb6c_ = false;
-  bool xb6d_ = false;
-  bool xb6e_ = false;
+  bool xb6c_exit1Sent = false;
+  bool xb6d_exit2Sent = false;
+  bool xb6e_armorPieceActivated = false;
   TLockedToken<CTexture> xb70_thermalSpot; // was TToken<CTexture>
   bool xb78_codeTrigger = false;
-  bool xb79_ = false;
+  bool xb79_bossPhaseActive = false;
   std::vector<u8> xb7c_;
-  float xb8c_ = 0.f; // not initialized in ctr
+  float xb8c_avoidStaticCollisionTime = 0.f; // not initialized in ctr
 
 public:
   COmegaPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -163,7 +163,8 @@ public:
   void SetupHealthInfo(CStateManager& mgr) override;
   void SetLaunchersActive(CStateManager& mgr, bool val) override;
   SShockWaveData GetShockWaveData() const override {
-    return {GetData().GetXF8(), GetData().GetXFC(), 24.78255f, GetData().GetX118(), GetData().GetX11C()};
+    return {GetData().GetShockwaveParticleDescId(), GetData().GetShockwaveDamageInfo(), 24.78255f,
+            GetData().GetShockwaveWeaponDescId(), GetData().GetShockwaveElectrocuteSfxId()};
   }
 
 private:

@@ -17,13 +17,13 @@ CShockWave::CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& 
                        TUniqueId parent, const SShockWaveData& data, float minActiveTime, float knockback)
 : CActor(uid, true, name, info, xf, CModelData::CModelDataNull(), {EMaterialTypes::Projectile},
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_id1(parent)
+, xe8_parentId(parent)
 , xec_damageInfo(data.GetDamageInfo())
 , x108_elementGenDesc(g_SimplePool->GetObj({SBIG('PART'), data.GetParticleDescId()}))
 , x110_elementGen(std::make_unique<CElementGen>(x108_elementGenDesc))
 , x114_data(data)
-, x150_(data.GetX24())
-, x154_(data.GetX2C())
+, x150_radius(data.GetInitialRadius())
+, x154_expansionSpeed(data.GetInitialExpansionSpeed())
 , x15c_minActiveTime(minActiveTime)
 , x160_knockback(knockback) {
   if (data.GetWeaponDescId().IsValid()) {
@@ -59,10 +59,11 @@ void CShockWave::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr
 }
 
 std::optional<zeus::CAABox> CShockWave::GetTouchBounds() const {
-  if (x150_ <= 0.f) {
+  if (x150_radius <= 0.f) {
     return std::nullopt;
   }
-  return zeus::CAABox({-x150_, -x150_, 0.f}, {x150_, x150_, 1.f}).getTransformedAABox(GetTransform());
+  return zeus::CAABox({-x150_radius, -x150_radius, 0.f}, {x150_radius, x150_radius, 1.f})
+      .getTransformedAABox(GetTransform());
 }
 
 void CShockWave::Render(CStateManager& mgr) {
@@ -74,13 +75,13 @@ void CShockWave::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {
     x110_elementGen->Update(dt);
     x158_activeTime += dt;
-    x150_ += x154_ * dt;
-    x154_ += dt * x114_data.GetX30();
-    x110_elementGen->SetExternalVar(0, x150_);
+    x150_radius += x154_expansionSpeed * dt;
+    x154_expansionSpeed += dt * x114_data.GetSpeedIncrease();
+    x110_elementGen->SetExternalVar(0, x150_radius);
     for (size_t i = 0; i < x110_elementGen->GetNumActiveChildParticles(); ++i) {
       auto& particle = static_cast<CElementGen&>(x110_elementGen->GetActiveChildParticle(i));
       if (particle.Get4CharId() == SBIG('PART')) {
-        particle.SetExternalVar(0, x150_);
+        particle.SetExternalVar(0, x150_radius);
       }
     }
     if (x16c_hitPlayerInAir) {
@@ -108,16 +109,16 @@ void CShockWave::Touch(CActor& actor, CStateManager& mgr) {
     return;
   }
 
-  bool isParent = xe8_id1 == actor.GetUniqueId();
+  bool isParent = xe8_parentId == actor.GetUniqueId();
   if (TCastToConstPtr<CCollisionActor> cactor = mgr.GetObjectById(actor.GetUniqueId())) {
-    isParent = xe8_id1 == cactor->GetOwnerId();
+    isParent = xe8_parentId == cactor->GetOwnerId();
   }
   if (isParent) {
     return;
   }
 
-  float mmax = x150_ * x150_;
-  float mmin = mmax * x114_data.GetX28() * x114_data.GetX28();
+  float mmax = x150_radius * x150_radius;
+  float mmin = mmax * x114_data.GetWidthPercent() * x114_data.GetWidthPercent();
   zeus::CVector3f dist = actor.GetTranslation() - GetTranslation();
   CDamageInfo damageInfo = xec_damageInfo;
   float knockBackScale = std::max(0.f, 1.f - x160_knockback * x158_activeTime);

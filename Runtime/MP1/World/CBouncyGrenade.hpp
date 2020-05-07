@@ -9,13 +9,13 @@
 #include <zeus/CTransform.hpp>
 
 namespace urde::MP1 {
-struct SGrenadeUnknownStruct {
+struct SGrenadeVelocityInfo {
 private:
   float x0_mass;
-  float x4_speed; // wrong name probably
+  float x4_speed;
 
 public:
-  explicit SGrenadeUnknownStruct(CInputStream& in) : x0_mass(in.readFloatBig()), x4_speed(in.readFloatBig()) {}
+  explicit SGrenadeVelocityInfo(CInputStream& in) : x0_mass(in.readFloatBig()), x4_speed(in.readFloatBig()) {}
 
   [[nodiscard]] float GetMass() const { return x0_mass; }
   [[nodiscard]] float GetSpeed() const { return x4_speed; }
@@ -23,7 +23,7 @@ public:
 
 struct SBouncyGrenadeData {
 private:
-  SGrenadeUnknownStruct x0_;
+  SGrenadeVelocityInfo x0_velocityInfo;
   CDamageInfo x8_damageInfo;
   CAssetId x24_elementGenId1;
   CAssetId x28_elementGenId2;
@@ -34,19 +34,20 @@ private:
   u16 x3a_explodeSfx;
 
 public:
-  SBouncyGrenadeData(const SGrenadeUnknownStruct& unkStruct, const CDamageInfo& damageInfo, CAssetId w1, CAssetId w2,
-                     CAssetId w3, CAssetId w4, u32 w5, u16 s1, u16 s2)
-  : x0_(unkStruct)
+  SBouncyGrenadeData(const SGrenadeVelocityInfo& velocityInfo, const CDamageInfo& damageInfo, CAssetId elementGenId1,
+                     CAssetId elementGenId2, CAssetId elementGenId3, CAssetId elementGenId4, u32 numBounces,
+                     u16 bounceSfxId, u16 explodeSfxId)
+  : x0_velocityInfo(velocityInfo)
   , x8_damageInfo(damageInfo)
-  , x24_elementGenId1(w1)
-  , x28_elementGenId2(w2)
-  , x2c_elementGenId3(w3)
-  , x30_elementGenId4(w4)
-  , x34_numBounces(w5)
-  , x38_bounceSfx(s1)
-  , x3a_explodeSfx(s2){};
+  , x24_elementGenId1(elementGenId1)
+  , x28_elementGenId2(elementGenId2)
+  , x2c_elementGenId3(elementGenId3)
+  , x30_elementGenId4(elementGenId4)
+  , x34_numBounces(numBounces)
+  , x38_bounceSfx(bounceSfxId)
+  , x3a_explodeSfx(explodeSfxId){};
 
-  [[nodiscard]] const SGrenadeUnknownStruct& GetUnkStruct() const { return x0_; }
+  [[nodiscard]] const SGrenadeVelocityInfo& GetUnkStruct() const { return x0_velocityInfo; }
   [[nodiscard]] const CDamageInfo& GetDamageInfo() const { return x8_damageInfo; }
   [[nodiscard]] CAssetId GetElementGenId1() const { return x24_elementGenId1; }
   [[nodiscard]] CAssetId GetElementGenId2() const { return x28_elementGenId2; }
