@@ -27,10 +27,12 @@ CScriptVisorGoo::CScriptVisorGoo(TUniqueId uid, std::string_view name, const CEn
 , x110_farProb(farProb)
 , x114_color(color) {
   x118_24_angleTest = !forceShow;
-  if (particle.IsValid())
+  if (particle.IsValid()) {
     xe8_particleDesc = g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), particle});
-  if (electric.IsValid())
+  }
+  if (electric.IsValid()) {
     xf0_electricDesc = g_SimplePool->GetObj(SObjectTag{FOURCC('ELSC'), electric});
+  }
 }
 
 void CScriptVisorGoo::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -40,10 +42,11 @@ void CScriptVisorGoo::Think(float, CStateManager& mgr) {
     bool loaded = false;
     if (xfc_particleId.IsValid()) {
       if (xe8_particleDesc.IsLoaded()) {
-        if (x100_electricId.IsValid())
+        if (x100_electricId.IsValid()) {
           loaded = xf0_electricDesc.IsLoaded();
-        else
+        } else {
           loaded = true;
+        }
       }
     } else {
       loaded = xf0_electricDesc.IsLoaded();
@@ -52,11 +55,11 @@ void CScriptVisorGoo::Think(float, CStateManager& mgr) {
     if (loaded) {
       bool showGoo = false;
       if (mgr.GetPlayer().GetCameraState() == CPlayer::EPlayerCameraState::FirstPerson) {
-        zeus::CVector3f eyeToGoo = GetTranslation() - mgr.GetPlayer().GetEyePosition();
-        float eyeToGooDist = eyeToGoo.magnitude();
+        const zeus::CVector3f eyeToGoo = GetTranslation() - mgr.GetPlayer().GetEyePosition();
+        const float eyeToGooDist = eyeToGoo.magnitude();
         if (eyeToGooDist >= x104_minDist && eyeToGooDist <= x108_maxDist) {
           if (x118_24_angleTest) {
-            float angle = zeus::radToDeg(
+            const float angle = zeus::radToDeg(
                 std::acos(mgr.GetCameraManager()->GetCurrentCameraTransform(mgr).basis[1].normalized().dot(
                     eyeToGoo.normalized())));
             float angleThresh = 45.f;
@@ -64,13 +67,14 @@ void CScriptVisorGoo::Think(float, CStateManager& mgr) {
               angleThresh *= 4.f / eyeToGooDist;
               angleThresh = std::min(90.f, angleThresh);
             }
-            if (angle <= angleThresh)
+            if (angle <= angleThresh) {
               showGoo = true;
+            }
           } else {
             showGoo = true;
           }
           if (showGoo) {
-            float t = (x108_maxDist - eyeToGooDist) / (x108_maxDist - x104_minDist);
+            const float t = (x108_maxDist - eyeToGooDist) / (x108_maxDist - x104_minDist);
             if (mgr.GetActiveRandom()->Float() * 100.f <= (1.f - t) * x110_farProb + t * x10c_nearProb) {
               mgr.AddObject(new CHUDBillboardEffect(
                   xfc_particleId.IsValid() ? std::make_optional(xe8_particleDesc) : std::nullopt,
@@ -90,10 +94,12 @@ void CScriptVisorGoo::Think(float, CStateManager& mgr) {
 void CScriptVisorGoo::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr) {
   switch (msg) {
   case EScriptObjectMessage::Activate:
-    if (xfc_particleId.IsValid())
+    if (xfc_particleId.IsValid()) {
       xe8_particleDesc.Lock();
-    if (x100_electricId.IsValid())
+    }
+    if (x100_electricId.IsValid()) {
       xf0_electricDesc.Lock();
+    }
     break;
   default:
     break;
