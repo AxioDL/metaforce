@@ -29,11 +29,13 @@ CScriptPickup::CScriptPickup(TUniqueId uid, std::string_view name, const CEntity
 , x268_fadeInTime(fadeInTime)
 , x26c_lifeTime(lifeTime)
 , x278_delayTimer(startDelay) {
-  if (pickupEffect.IsValid())
+  if (pickupEffect.IsValid()) {
     x27c_pickupParticleDesc = g_SimplePool->GetObj({SBIG('PART'), pickupEffect});
+  }
 
-  if (x64_modelData && x64_modelData->GetAnimationData())
+  if (x64_modelData && x64_modelData->GetAnimationData()) {
     x64_modelData->GetAnimationData()->SetAnimation(CAnimPlaybackParms(0, -1, 1.f, true), false);
+  }
 
   if (x278_delayTimer != 0.f) {
     xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, 1.f, 1.f, 0.f));
@@ -45,8 +47,9 @@ CScriptPickup::CScriptPickup(TUniqueId uid, std::string_view name, const CEntity
 void CScriptPickup::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptPickup::Think(float dt, CStateManager& mgr) {
-  if (!GetActive())
+  if (!GetActive()) {
     return;
+  }
 
   if (x278_delayTimer >= 0.f) {
     CPhysicsActor::Stop();
@@ -55,8 +58,9 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
   }
 
   x270_curTime += dt;
-  if (x28c_25_inTractor && (x26c_lifeTime - x270_curTime) < 2.f)
+  if (x28c_25_inTractor && (x26c_lifeTime - x270_curTime) < 2.f) {
     x270_curTime = zeus::max(x270_curTime - 2.f * dt, x26c_lifeTime - 2.f - FLT_EPSILON);
+  }
 
   CModelFlags drawFlags{0, 0, 3, zeus::CColor(1.f, 1.f, 1.f, 1.f)};
 
@@ -70,10 +74,11 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
     }
   } else if (x26c_lifeTime != 0.f) {
     float alpha = 1.f;
-    if (x26c_lifeTime < 2.f)
+    if (x26c_lifeTime < 2.f) {
       alpha = 1.f - (x26c_lifeTime / x270_curTime);
-    else if ((x26c_lifeTime - x270_curTime) < 2.f)
+    } else if ((x26c_lifeTime - x270_curTime) < 2.f) {
       alpha = (x26c_lifeTime - x270_curTime) * 0.5f;
+    }
 
     drawFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, alpha));
     drawFlags.x2_flags &= 0xFFFC;
@@ -101,12 +106,13 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
     }
     SetVelocityWR(posDelta);
   } else if (x28c_24_generated) {
-    float chargeFactor =
+    const float chargeFactor =
         mgr.GetPlayer().GetPlayerGun()->IsCharging() ? mgr.GetPlayer().GetPlayerGun()->GetChargeBeamFactor() : 0.f;
 
     if (chargeFactor > CPlayerGun::skTractorBeamFactor) {
-      zeus::CVector3f posDelta = GetTranslation() - mgr.GetCameraManager()->GetFirstPersonCamera()->GetTranslation();
-      float relFov = zeus::CRelAngle(zeus::degToRad(g_tweakGame->GetFirstPersonFOV())).asRel();
+      const zeus::CVector3f posDelta =
+          GetTranslation() - mgr.GetCameraManager()->GetFirstPersonCamera()->GetTranslation();
+      const float relFov = zeus::CRelAngle(zeus::degToRad(g_tweakGame->GetFirstPersonFOV())).asRel();
       if (mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().
           frontVector().dot(posDelta.normalized()) > std::cos(relFov) &&
           posDelta.magSquared() < (30.f * 30.f)) {
@@ -117,24 +123,25 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
     }
   }
 
-  if (x26c_lifeTime != 0.f && x270_curTime > x26c_lifeTime)
+  if (x26c_lifeTime != 0.f && x270_curTime > x26c_lifeTime) {
     mgr.FreeScriptObject(GetUniqueId());
+  }
 }
 
 void CScriptPickup::Touch(CActor& act, CStateManager& mgr) {
   if (GetActive() && x278_delayTimer < 0.f && TCastToPtr<CPlayer>(act)) {
     if (x258_itemType >= CPlayerState::EItemType::Truth && x258_itemType <= CPlayerState::EItemType::Newborn) {
-      CAssetId id = MP1::CArtifactDoll::GetArtifactHeadScanFromItemType(x258_itemType);
-      if (id.IsValid())
+      const CAssetId id = MP1::CArtifactDoll::GetArtifactHeadScanFromItemType(x258_itemType);
+      if (id.IsValid()) {
         mgr.GetPlayerState()->SetScanTime(id, 0.5f);
+      }
     }
 
     if (x27c_pickupParticleDesc) {
       if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::Thermal) {
         mgr.AddObject(new CExplosion(x27c_pickupParticleDesc, mgr.AllocateUniqueId(), true,
                                      CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList, kInvalidEditorId),
-                                     "Explosion - Pickup Effect", x34_transform, 0, zeus::skOne3f,
-                                     zeus::skWhite));
+                                     "Explosion - Pickup Effect", x34_transform, 0, zeus::skOne3f, zeus::skWhite));
       }
     }
 
@@ -144,8 +151,8 @@ void CScriptPickup::Touch(CActor& act, CStateManager& mgr) {
     SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
 
     if (x260_capacity > 0) {
-      u32 total = mgr.GetPlayerState()->GetPickupTotal();
-      u32 colRate = mgr.GetPlayerState()->CalculateItemCollectionRate();
+      const u32 total = mgr.GetPlayerState()->GetPickupTotal();
+      const u32 colRate = mgr.GetPlayerState()->CalculateItemCollectionRate();
       if (total == colRate) {
         CPersistentOptions& opts = g_GameState->SystemOptions();
         mgr.QueueMessage(
