@@ -22,16 +22,19 @@ CScriptCameraFilterKeyframe::CScriptCameraFilterKeyframe(TUniqueId uid, std::str
 void CScriptCameraFilterKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
   switch (msg) {
   case EScriptObjectMessage::Increment:
-    if (GetActive())
+    if (GetActive()) {
       stateMgr.GetCameraFilterPass(x3c_filterIdx).SetFilter(x34_type, x38_shape, x48_timeIn, x44_color, x50_txtr);
+    }
     break;
   case EScriptObjectMessage::Decrement:
-    if (GetActive())
+    if (GetActive()) {
       stateMgr.GetCameraFilterPass(x3c_filterIdx).DisableFilter(x4c_timeOut);
+    }
     break;
   case EScriptObjectMessage::Deactivate:
-    if (GetActive())
+    if (GetActive()) {
       stateMgr.GetCameraFilterPass(x3c_filterIdx).DisableFilter(0.f);
+    }
     break;
   default:
     break;
