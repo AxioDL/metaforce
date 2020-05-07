@@ -62,9 +62,10 @@ void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
         player->Teleport(GetTransform(), stateMgr, true);
         player->SetSpawnedMorphBallState(CPlayer::EPlayerMorphBallState(x10c_25_morphed), stateMgr);
 
-        if (area->IsPostConstructed() && area->GetOcclusionState() == CGameArea::EOcclusionState::Visible)
+        if (area->IsPostConstructed() && area->GetOcclusionState() == CGameArea::EOcclusionState::Visible) {
           CWorld::PropogateAreaChain(CGameArea::EOcclusionState::Occluded,
                                      stateMgr.GetWorld()->GetArea(stateMgr.GetNextAreaId()), stateMgr.GetWorld());
+        }
       } else {
         player->Teleport(GetTransform(), stateMgr, true);
         player->SetSpawnedMorphBallState(CPlayer::EPlayerMorphBallState(x10c_25_morphed), stateMgr);
@@ -76,9 +77,10 @@ void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
 }
 
 u32 CScriptSpawnPoint::GetPowerup(CPlayerState::EItemType item) const {
-  int idx = int(item);
-  if (idx >= int(CPlayerState::EItemType::Max) || idx < 0)
+  const auto idx = static_cast<int>(item);
+  if (item >= CPlayerState::EItemType::Max || idx < 0) {
     return x64_itemCounts.front();
+  }
   return x64_itemCounts[idx];
 }
 } // namespace urde
