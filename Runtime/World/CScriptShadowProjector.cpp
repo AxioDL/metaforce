@@ -25,56 +25,67 @@ CScriptShadowProjector::CScriptShadowProjector(TUniqueId uid, std::string_view n
 void CScriptShadowProjector::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptShadowProjector::Think(float dt, CStateManager& mgr) {
-  if (GetActive() && x110_25_shadowInvalidated) {
-    xfc_opacity = (x100_opacityRecip * xfc_opacity) - dt;
-    if (dt > 0.f)
-      return;
-
-    x108_projectedShadow.reset();
-
-    x110_25_shadowInvalidated = false;
-    SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+  if (!GetActive() || !x110_25_shadowInvalidated) {
+    return;
   }
+
+  xfc_opacity = (x100_opacityRecip * xfc_opacity) - dt;
+  if (dt > 0.f) {
+    return;
+  }
+
+  x108_projectedShadow.reset();
+
+  x110_25_shadowInvalidated = false;
+  SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
 }
 
 void CScriptShadowProjector::CreateProjectedShadow() {
-  if (!GetActive() || x104_target == kInvalidUniqueId || xfc_opacity <= 0.f)
+  if (!GetActive() || x104_target == kInvalidUniqueId || xfc_opacity <= 0.f) {
     x108_projectedShadow.reset();
-  else
+  } else {
     x108_projectedShadow.reset(new CProjectedShadow(x10c_textureSize, x10c_textureSize, x110_24_persistent));
+  }
 }
 
 void CScriptShadowProjector::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, uid, mgr);
   if (msg == EScriptObjectMessage::Decrement) {
-    if (x110_24_persistent)
+    if (x110_24_persistent) {
       return;
+    }
 
-    if (xfc_opacity <= 0.f)
+    if (xfc_opacity <= 0.f) {
       return;
+    }
 
     x110_25_shadowInvalidated = true;
   } else if (msg == EScriptObjectMessage::InitializedInArea) {
     for (const SConnection& conn : x20_conns) {
-      if (conn.x0_state != EScriptObjectState::Play)
+      if (conn.x0_state != EScriptObjectState::Play) {
         continue;
+      }
 
       const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId)));
-      if (!act)
+      if (!act) {
         continue;
+      }
+
       const CModelData* mData = act->GetModelData();
-      if (!mData || (!mData->GetAnimationData() && !mData->GetNormalModel()))
+      if (!mData || (!mData->GetAnimationData() && !mData->GetNormalModel())) {
         continue;
+      }
 
       x104_target = act->GetUniqueId();
     }
-    if (x104_target == kInvalidUniqueId)
+    if (x104_target == kInvalidUniqueId) {
       mgr.FreeScriptObject(GetUniqueId());
-    else
+    } else {
       CreateProjectedShadow();
-
-  } else if (msg == EScriptObjectMessage::Activate)
+    }
+  } else if (msg == EScriptObjectMessage::Activate) {
     CreateProjectedShadow();
+  }
 }
 
 void CScriptShadowProjector::PreRender(CStateManager&, const zeus::CFrustum&) {}
