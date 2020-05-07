@@ -23,10 +23,11 @@ CScriptDistanceFog::CScriptDistanceFog(TUniqueId uid, std::string_view name, con
 , x60_explicit(expl)
 
 {
-  if (zeus::close_enough(rangeDelta, zeus::skZero2f) && zeus::close_enough(colorDelta, 0.f))
+  if (zeus::close_enough(rangeDelta, zeus::skZero2f) && zeus::close_enough(colorDelta, 0.f)) {
     x61_nonZero = false;
-  else
+  } else {
     x61_nonZero = true;
+  }
 }
 
 void CScriptDistanceFog::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -34,24 +35,29 @@ void CScriptDistanceFog::Accept(IVisitor& visitor) { visitor.Visit(this); }
 void CScriptDistanceFog::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 
-  if (x4_areaId == kInvalidAreaId || !GetActive())
+  if (x4_areaId == kInvalidAreaId || !GetActive()) {
     return;
+  }
 
   if (msg == EScriptObjectMessage::InitializedInArea) {
-    if (!x60_explicit)
+    if (!x60_explicit) {
       return;
+    }
+
     CGameArea::CAreaFog* fog = stateMgr.GetWorld()->GetArea(x4_areaId)->GetAreaFog();
-    if (x34_mode == ERglFogMode::None)
+    if (x34_mode == ERglFogMode::None) {
       fog->DisableFog();
-    else
+    } else {
       fog->SetFogExplicit(x34_mode, x38_color, x3c_range);
+    }
   } else if (msg == EScriptObjectMessage::Action) {
     if (x61_nonZero) {
       CGameArea::CAreaFog* fog = stateMgr.GetWorld()->GetArea(x4_areaId)->GetAreaFog();
-      if (x34_mode == ERglFogMode::None)
+      if (x34_mode == ERglFogMode::None) {
         fog->RollFogOut(x48_rangeDelta.x(), x44_colorDelta, x38_color);
-      else
+      } else {
         fog->FadeFog(x34_mode, x38_color, x3c_range, x44_colorDelta, x48_rangeDelta);
+      }
     }
 
     CWorld* world = stateMgr.GetWorld();
