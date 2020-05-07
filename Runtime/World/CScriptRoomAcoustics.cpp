@@ -36,23 +36,26 @@ void CScriptRoomAcoustics::DisableAuxCallbacks() {
 }
 
 void CScriptRoomAcoustics::EnableAuxCallbacks() {
-  if (!x30_24_active)
+  if (!x30_24_active) {
     return;
+  }
 
   bool applied = true;
-  if (x38_revHi)
+  if (x38_revHi) {
     CSfxManager::PrepareReverbHiCallback(x3c_revHiInfo);
-  else if (x54_chorus)
+  } else if (x54_chorus) {
     CSfxManager::PrepareChorusCallback(x58_chorusInfo);
-  else if (x64_revStd)
+  } else if (x64_revStd) {
     CSfxManager::PrepareReverbStdCallback(x68_revStdInfo);
-  else if (x7c_delay)
+  } else if (x7c_delay) {
     CSfxManager::PrepareDelayCallback(x80_delayInfo);
-  else
+  } else {
     applied = false;
+  }
 
-  if (applied)
+  if (applied) {
     CAudioSys::SetVolumeScale(x34_volumeScale);
+  }
   s_ActiveAcousticsAreaId = x4_areaId;
 }
 
