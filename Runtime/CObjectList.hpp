@@ -47,8 +47,6 @@ public:
     bool operator!=(const iterator& other) const { return m_id != other.m_id; }
     CEntity* operator*() const { return m_list.GetObjectByIndex(m_id); }
   };
-  iterator begin() { return iterator(*this, x2008_firstId); }
-  iterator end() { return iterator(*this, -1); }
 
   class const_iterator {
     friend class CObjectList;
@@ -64,8 +62,13 @@ public:
     bool operator!=(const iterator& other) const { return m_id != other.m_id; }
     const CEntity* operator*() const { return m_list.GetObjectByIndex(m_id); }
   };
-  const_iterator cbegin() const { return const_iterator(*this, x2008_firstId); }
-  const_iterator cend() const { return const_iterator(*this, -1); }
+
+  [[nodiscard]] iterator begin() { return iterator(*this, x2008_firstId); }
+  [[nodiscard]] iterator end() { return iterator(*this, -1); }
+  [[nodiscard]] const_iterator begin() const { return const_iterator(*this, x2008_firstId); }
+  [[nodiscard]] const_iterator end() const { return const_iterator(*this, -1); }
+  [[nodiscard]] const_iterator cbegin() const { return const_iterator(*this, x2008_firstId); }
+  [[nodiscard]] const_iterator cend() const { return const_iterator(*this, -1); }
 
   CObjectList(EGameObjectList listEnum);
   virtual ~CObjectList() = default;
