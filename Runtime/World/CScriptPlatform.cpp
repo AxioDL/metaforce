@@ -7,6 +7,7 @@
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Collision/CMaterialList.hpp"
 #include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CScriptColorModulate.hpp"
 #include "Runtime/World/CScriptTrigger.hpp"
@@ -24,26 +25,22 @@ CScriptPlatform::CScriptPlatform(TUniqueId uid, std::string_view name, const CEn
                                  const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParms,
                                  const zeus::CAABox& aabb, float speed, bool detectCollision, float xrayAlpha,
                                  bool active, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
-                                 std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>  dcln,
-                                 bool rainSplashes, u32 maxRainSplashes, u32 rainGenRate)
+                                 std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> dcln, bool rainSplashes,
+                                 u32 maxRainSplashes, u32 rainGenRate)
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData), skPlatformMaterialList, aabb, SMoverData(15000.f),
                 actParms, 0.3f, 0.1f)
 , x25c_currentSpeed(speed)
+, x268_fadeInTime(actParms.GetFadeInTime())
+, x26c_fadeOutTime(actParms.GetFadeOutTime())
 , x28c_initialHealth(hInfo)
 , x294_health(hInfo)
 , x29c_damageVuln(dVuln)
-, x304_treeGroupContainer(std::move(dcln)) {
-  x348_xrayAlpha = xrayAlpha;
-  x34c_maxRainSplashes = maxRainSplashes;
-  x350_rainGenRate = rainGenRate;
-  x356_24_dead = false;
-  x356_25_controlledAnimation = false;
-  x356_26_detectCollision = detectCollision;
-  x356_27_squishedRider = false;
-  x356_28_rainSplashes = rainSplashes;
-  x356_29_setXrayDrawFlags = false;
-  x356_30_disableXrayAlpha = false;
-  x356_31_xrayFog = true;
+, x304_treeGroupContainer(std::move(dcln))
+, x348_xrayAlpha(xrayAlpha)
+, x34c_maxRainSplashes(maxRainSplashes)
+, x350_rainGenRate(rainGenRate)
+, x356_26_detectCollision(detectCollision)
+, x356_28_rainSplashes(rainSplashes) {
   CActor::SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
       CMaterialList(EMaterialTypes::Solid),
       CMaterialList(EMaterialTypes::NoStaticCollision, EMaterialTypes::NoPlatformCollision, EMaterialTypes::Platform)));
@@ -139,11 +136,10 @@ void CScriptPlatform::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
     break;
   }
   case EScriptObjectMessage::Increment: {
-    if (GetActive()) {
-      CScriptColorModulate::FadeInHelper(mgr, GetUniqueId(), x268_fadeInTime);
-    } else {
+    if (!GetActive()) {
       mgr.SendScriptMsg(this, GetUniqueId(), EScriptObjectMessage::Activate);
     }
+    CScriptColorModulate::FadeInHelper(mgr, GetUniqueId(), x268_fadeInTime);
     break;
   }
   case EScriptObjectMessage::Decrement:
@@ -418,7 +414,7 @@ void CScriptPlatform::AddRider(std::vector<SRiders>& riders, TUniqueId riderId, 
 
 void CScriptPlatform::AddSlave(TUniqueId id, CStateManager& mgr) {
   const auto& search = std::find_if(x338_slavesDynamic.begin(), x338_slavesDynamic.end(),
-                                   [id](const SRiders& r) { return r.x0_uid == id; });
+                                    [id](const SRiders& r) { return r.x0_uid == id; });
   if (search != x338_slavesDynamic.end()) {
     return;
   }

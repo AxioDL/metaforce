@@ -52,19 +52,14 @@ class CScriptPlatform : public CPhysicsActor {
   u32 x34c_maxRainSplashes;
   u32 x350_rainGenRate;
   TUniqueId x354_boundsTrigger = kInvalidUniqueId;
-  union {
-    struct {
-      bool x356_24_dead : 1;
-      bool x356_25_controlledAnimation : 1;
-      bool x356_26_detectCollision : 1;
-      bool x356_27_squishedRider : 1;
-      bool x356_28_rainSplashes : 1;
-      bool x356_29_setXrayDrawFlags : 1;
-      bool x356_30_disableXrayAlpha : 1;
-      bool x356_31_xrayFog : 1;
-    };
-    u32 x356_dummy = 0;
-  };
+  bool x356_24_dead : 1 = false;
+  bool x356_25_controlledAnimation : 1 = false;
+  bool x356_26_detectCollision : 1;
+  bool x356_27_squishedRider : 1 = false;
+  bool x356_28_rainSplashes : 1;
+  bool x356_29_setXrayDrawFlags : 1 = false;
+  bool x356_30_disableXrayAlpha : 1 = false;
+  bool x356_31_xrayFog : 1 = true;
 
   void DragSlave(CStateManager& mgr, rstl::reserved_vector<u16, 1024>& draggedSet, CActor* actor,
                  const zeus::CVector3f& delta);

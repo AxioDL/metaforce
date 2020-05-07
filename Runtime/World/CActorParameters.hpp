@@ -63,5 +63,7 @@ public:
   float GetThermalMag() const { return x64_thermalMag; }
   const std::pair<CAssetId, CAssetId>& GetXRayAssets() const { return x44_xrayAssets; }
   const std::pair<CAssetId, CAssetId>& GetThermalAssets() const { return x4c_thermalAssets; }
+  float GetFadeInTime() const { return x5c_fadeInTime; }
+  float GetFadeOutTime() const { return x60_fadeOutTime; }
 };
 } // namespace urde
