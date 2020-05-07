@@ -17,16 +17,18 @@ CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, std::string_view name, con
 void CScriptMemoryRelay::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptMemoryRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
-  if (x34_26_ignoreMessages)
+  if (x34_26_ignoreMessages) {
     return;
+  }
 
   if (msg == EScriptObjectMessage::Deactivate) {
     stateMgr.GetRelayTracker()->RemoveRelay(xc_editorId);
     return;
   } else if (msg == EScriptObjectMessage::Activate) {
     stateMgr.GetRelayTracker()->AddRelay(xc_editorId);
-    if (!x34_25_skipSendActive)
+    if (!x34_25_skipSendActive) {
       SendScriptMsgs(EScriptObjectState::Active, stateMgr, EScriptObjectMessage::None);
+    }
 
     return;
   }
