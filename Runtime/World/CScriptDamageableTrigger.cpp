@@ -8,16 +8,17 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
-CActorParameters MakeDamageableTriggerActorParms(const CActorParameters& aParams, const CVisorParameters& vParams) {
+static CActorParameters MakeDamageableTriggerActorParms(const CActorParameters& aParams, const CVisorParameters& vParams) {
   CActorParameters ret = aParams;
   ret.SetVisorParameters(vParams);
   return ret;
 }
 
-CMaterialList MakeDamageableTriggerMaterial(CScriptDamageableTrigger::ECanOrbit canOrbit) {
-  if (canOrbit == CScriptDamageableTrigger::ECanOrbit::Orbit)
+static constexpr CMaterialList MakeDamageableTriggerMaterial(CScriptDamageableTrigger::ECanOrbit canOrbit) {
+  if (canOrbit == CScriptDamageableTrigger::ECanOrbit::Orbit) {
     return CMaterialList(EMaterialTypes::Orbit, EMaterialTypes::Trigger, EMaterialTypes::Immovable,
                          EMaterialTypes::NonSolidDamageable, EMaterialTypes::ExcludeFromLineOfSightTest);
+  }
   return CMaterialList(EMaterialTypes::Trigger, EMaterialTypes::Immovable, EMaterialTypes::NonSolidDamageable,
                        EMaterialTypes::ExcludeFromLineOfSightTest);
 }
