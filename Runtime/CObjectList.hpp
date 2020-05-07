@@ -44,7 +44,8 @@ public:
       m_id = m_list.GetNextObjectIndex(m_id);
       return *this;
     }
-    bool operator!=(const iterator& other) const { return m_id != other.m_id; }
+    bool operator==(const iterator& other) const { return m_id == other.m_id; }
+    bool operator!=(const iterator& other) const { return !operator==(other); }
     CEntity* operator*() const { return m_list.GetObjectByIndex(m_id); }
   };
 
@@ -59,7 +60,8 @@ public:
       m_id = m_list.GetNextObjectIndex(m_id);
       return *this;
     }
-    bool operator!=(const iterator& other) const { return m_id != other.m_id; }
+    bool operator==(const iterator& other) const { return m_id == other.m_id; }
+    bool operator!=(const iterator& other) const { return !operator==(other); }
     const CEntity* operator*() const { return m_list.GetObjectByIndex(m_id); }
   };
 
