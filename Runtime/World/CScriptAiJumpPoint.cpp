@@ -17,8 +17,9 @@ CScriptAiJumpPoint::CScriptAiJumpPoint(TUniqueId uid, std::string_view name, con
 void CScriptAiJumpPoint::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptAiJumpPoint::Think(float dt, CStateManager&) {
-  if (x110_timeRemaining <= 0)
+  if (x110_timeRemaining <= 0) {
     return;
+  }
 
   x110_timeRemaining -= dt;
 }
@@ -26,15 +27,16 @@ void CScriptAiJumpPoint::Think(float dt, CStateManager&) {
 void CScriptAiJumpPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, other, mgr);
 
-  if (msg != EScriptObjectMessage::InitializedInArea)
+  if (msg != EScriptObjectMessage::InitializedInArea) {
     return;
+  }
 
   for (SConnection& conn : x20_conns) {
-    if (conn.x0_state != EScriptObjectState::Arrived || conn.x4_msg != EScriptObjectMessage::Next)
+    if (conn.x0_state != EScriptObjectState::Arrived || conn.x4_msg != EScriptObjectMessage::Next) {
       continue;
+    }
 
-    const CScriptWaypoint* wpnt =
-        static_cast<const CScriptWaypoint*>(mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId)));
+    const auto* wpnt = static_cast<const CScriptWaypoint*>(mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId)));
     if (wpnt) {
       x10c_currentWaypoint = wpnt->GetUniqueId();
       x10e_nextWaypoint = wpnt->NextWaypoint(mgr);
