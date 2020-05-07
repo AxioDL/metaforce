@@ -22,10 +22,12 @@ void CScriptBeam::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptBeam::Think(float dt, CStateManager& mgr) {
   if (CPlasmaProjectile* proj = static_cast<CPlasmaProjectile*>(mgr.ObjectById(x154_projectileId))) {
-    if (proj->GetActive())
+    if (proj->GetActive()) {
       proj->UpdateFx(x34_transform, dt, mgr);
-  } else
+    }
+  } else {
     x154_projectileId = kInvalidUniqueId;
+  }
 }
 
 void CScriptBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr) {
