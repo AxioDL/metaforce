@@ -131,10 +131,11 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
     for (const SConnection& conn : x20_conns) {
       if ((conn.x0_state == EScriptObjectState::Modify && conn.x4_msg == EScriptObjectMessage::Follow) ||
           (conn.x0_state == EScriptObjectState::InheritBounds && conn.x4_msg == EScriptObjectMessage::Activate)) {
-        auto search = mgr.GetIdListForScript(conn.x8_objId);
+        const auto search = mgr.GetIdListForScript(conn.x8_objId);
         for (auto it = search.first; it != search.second; ++it) {
-          if (TCastToConstPtr<CScriptTrigger>(mgr.GetObjectById(it->second)))
+          if (TCastToConstPtr<CScriptTrigger>(mgr.GetObjectById(it->second))) {
             x13c_triggerId = it->second;
+          }
         }
       }
     }
@@ -145,7 +146,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
 
   CActor::AcceptScriptMsg(msg, uid, mgr);
 
-  TCastToPtr<CActor> light = mgr.ObjectById(x108_lightId);
+  const TCastToPtr<CActor> light = mgr.ObjectById(x108_lightId);
   mgr.SendScriptMsg(light, uid, msg);
 
   if (oldActive != GetActive()) {
@@ -163,24 +164,28 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
       }
 
       if (!playIds.empty()) {
-        TCastToConstPtr<CActor> otherAct =
+        const TCastToConstPtr<CActor> otherAct =
             mgr.GetObjectById(playIds[u32(0.99f * playIds.size() * mgr.GetActiveRandom()->Float())]);
         if (otherAct) {
           SetTransform(otherAct->GetTransform());
-          if (light)
+          if (light) {
             light->SetTransform(otherAct->GetTransform());
+          }
         }
       }
     }
 
     x110_24_enable = true;
-    if (x104_particleSystem)
+    if (x104_particleSystem) {
       x104_particleSystem->SetParticleEmission(GetActive());
-    if (xf4_electric)
+    }
+    if (xf4_electric) {
       xf4_electric->SetParticleEmission(GetActive());
+    }
 
-    if (GetActive())
+    if (GetActive()) {
       x12c_remTime = zeus::max(x12c_remTime, x130_duration);
+    }
   }
 }
 
@@ -188,24 +193,27 @@ void CScriptEffect::PreRender(CStateManager& mgr, const zeus::CFrustum&) {
   if (x110_27_useRateInverseCamDist || x111_24_useRateCamDistRange) {
     float genRate = 1.f;
     const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
-    float camMagSq = (cam->GetTranslation() - GetTranslation()).magSquared();
+    const float camMagSq = (cam->GetTranslation() - GetTranslation()).magSquared();
 
     float camMag = 0.f;
-    if (camMagSq > 0.001f)
+    if (camMagSq > 0.001f) {
       camMag = std::sqrt(camMagSq);
-    if (x110_27_useRateInverseCamDist && camMagSq < x118_rateInverseCamDistSq)
+    }
+    if (x110_27_useRateInverseCamDist && camMagSq < x118_rateInverseCamDistSq) {
       genRate = (1.f - x11c_rateInverseCamDistRate) * (camMag / x114_rateInverseCamDist) + x11c_rateInverseCamDistRate;
+    }
     if (x111_24_useRateCamDistRange) {
-      float t = zeus::min(1.f, zeus::max(0.f, camMag - x120_rateCamDistRangeMin) /
-                                   (x124_rateCamDistRangeMax - x120_rateCamDistRangeMin));
+      const float t = zeus::min(1.f, zeus::max(0.f, camMag - x120_rateCamDistRangeMin) /
+                                         (x124_rateCamDistRangeMax - x120_rateCamDistRangeMin));
       genRate = (1.f - t) * genRate + t * x128_rateCamDistRangeFarRate;
     }
 
     x104_particleSystem->SetGeneratorRate(genRate);
   }
 
-  if (!mgr.GetObjectById(x13c_triggerId))
+  if (!mgr.GetObjectById(x13c_triggerId)) {
     x13c_triggerId = kInvalidUniqueId;
+  }
 }
 
 void CScriptEffect::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
@@ -271,21 +279,23 @@ void CScriptEffect::Think(float dt, CStateManager& mgr) {
       xf4_electric->SetGlobalTranslation(x34_transform.origin);
     }
 
-    if (TCastToPtr<CActor> act = mgr.ObjectById(x108_lightId))
+    if (const TCastToPtr<CActor> act = mgr.ObjectById(x108_lightId)) {
       act->SetTransform(GetTransform());
+    }
 
     xe4_28_transformDirty = false;
   }
 
   if (x110_25_noTimerUnlessAreaOccluded) {
     const CGameArea* area = mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways());
-    CGameArea::EOcclusionState visible =
-        area->IsPostConstructed() ? area->GetOcclusionState() : CGameArea::EOcclusionState::Occluded;
+    const auto visible = area->IsPostConstructed() ? area->GetOcclusionState() : CGameArea::EOcclusionState::Occluded;
 
-    if (visible == CGameArea::EOcclusionState::Occluded && x12c_remTime <= 0.f)
+    if (visible == CGameArea::EOcclusionState::Occluded && x12c_remTime <= 0.f) {
       return;
-  } else if (x12c_remTime <= 0.f)
+    }
+  } else if (x12c_remTime <= 0.f) {
     return;
+  }
 
   x12c_remTime -= dt;
 
@@ -301,9 +311,10 @@ void CScriptEffect::Think(float dt, CStateManager& mgr) {
     }
 
     if (x108_lightId != kInvalidUniqueId) {
-      if (TCastToPtr<CGameLight> light = mgr.ObjectById(x108_lightId)) {
-        if (x30_24_active)
+      if (const TCastToPtr<CGameLight> light = mgr.ObjectById(x108_lightId)) {
+        if (x30_24_active) {
           light->SetLight(x104_particleSystem->GetLight());
+        }
       }
     }
 
@@ -317,21 +328,24 @@ void CScriptEffect::Think(float dt, CStateManager& mgr) {
   }
 
   if (x104_particleSystem) {
-    if (xb4_drawFlags.x0_blendMode != 0)
+    if (xb4_drawFlags.x0_blendMode != 0) {
       x104_particleSystem->SetModulationColor(xb4_drawFlags.x4_color);
-    else
+    } else {
       x104_particleSystem->SetModulationColor(zeus::skWhite);
+    }
   }
 }
 
 void CScriptEffect::CalculateRenderBounds() {
   std::optional<zeus::CAABox> particleBounds;
-  if (x104_particleSystem)
+  if (x104_particleSystem) {
     particleBounds = x104_particleSystem->GetBounds();
+  }
 
   std::optional<zeus::CAABox> electricBounds;
-  if (xf4_electric)
+  if (xf4_electric) {
     electricBounds = xf4_electric->GetBounds();
+  }
 
   if (particleBounds || electricBounds) {
     zeus::CAABox renderBounds = zeus::CAABox();
@@ -352,20 +366,22 @@ void CScriptEffect::CalculateRenderBounds() {
 }
 
 zeus::CAABox CScriptEffect::GetSortingBounds(const CStateManager& mgr) const {
-  if (x13c_triggerId == kInvalidUniqueId)
+  if (x13c_triggerId == kInvalidUniqueId) {
     return x9c_renderBounds;
-  else
-    return static_cast<const CScriptTrigger*>(mgr.GetObjectById(x13c_triggerId))->GetTriggerBoundsWR();
+  }
+
+  return static_cast<const CScriptTrigger*>(mgr.GetObjectById(x13c_triggerId))->GetTriggerBoundsWR();
 }
 
 bool CScriptEffect::AreBothSystemsDeleteable() const {
-  bool ret = true;
-  if (x104_particleSystem && !x104_particleSystem->IsSystemDeletable())
-    ret = false;
+  if (x104_particleSystem && !x104_particleSystem->IsSystemDeletable()) {
+    return false;
+  }
 
-  if (xf4_electric && !xf4_electric->IsSystemDeletable())
-    ret = false;
+  if (xf4_electric && !xf4_electric->IsSystemDeletable()) {
+    return false;
+  }
 
-  return ret;
+  return true;
 }
 } // namespace urde
