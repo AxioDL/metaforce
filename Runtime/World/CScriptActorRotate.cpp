@@ -25,8 +25,9 @@ void CScriptActorRotate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
   }
 
   if (msg == EScriptObjectMessage::Action || msg == EScriptObjectMessage::Next ||
-      (msg == EScriptObjectMessage::Registered && x58_27_updateOnCreation))
+      (msg == EScriptObjectMessage::Registered && x58_27_updateOnCreation)) {
     UpdateActors(msg == EScriptObjectMessage::Next, mgr);
+  }
 
   CEntity::AcceptScriptMsg(msg, uid, mgr);
 }
@@ -39,28 +40,31 @@ void CScriptActorRotate::Think(float dt, CStateManager& mgr) {
       x44_currentTime = x40_maxTime;
     }
 
-    float timeOffset = x44_currentTime / x40_maxTime;
+    const float timeOffset = x44_currentTime / x40_maxTime;
 
     for (const auto& actorPair : x48_actors) {
-      if (TCastToPtr<CActor> act = mgr.ObjectById(actorPair.first)) {
-        zeus::CTransform xf = zeus::CTransform::RotateZ(zeus::degToRad(timeOffset * x34_rotation.z())) *
-                              zeus::CTransform::RotateY(zeus::degToRad(timeOffset * x34_rotation.y())) *
-                              zeus::CTransform::RotateX(zeus::degToRad(timeOffset * x34_rotation.x()));
+      if (const TCastToPtr<CActor> act = mgr.ObjectById(actorPair.first)) {
+        const zeus::CTransform xf = zeus::CTransform::RotateZ(zeus::degToRad(timeOffset * x34_rotation.z())) *
+                                    zeus::CTransform::RotateY(zeus::degToRad(timeOffset * x34_rotation.y())) *
+                                    zeus::CTransform::RotateX(zeus::degToRad(timeOffset * x34_rotation.x()));
         zeus::CTransform localRot = actorPair.second * xf;
         localRot.origin = act->GetTranslation();
         act->SetTransform(localRot);
 
-        if (TCastToPtr<CScriptPlatform> plat = mgr.ObjectById(actorPair.first))
+        if (const TCastToPtr<CScriptPlatform> plat = mgr.ObjectById(actorPair.first)) {
           UpdatePlatformRiders(*plat.GetPtr(), xf, mgr);
+        }
       }
     }
 
     if (x58_24_updateRotation) {
-      if (!x58_25_skipSpiderBallWaypoints)
+      if (!x58_25_skipSpiderBallWaypoints) {
         UpdateSpiderBallWaypoints(mgr);
+      }
 
-      if (x58_26_updateActors)
+      if (x58_26_updateActors) {
         UpdateActors(false, mgr);
+      }
     }
   }
 }
@@ -73,7 +77,7 @@ void CScriptActorRotate::UpdatePlatformRiders(CScriptPlatform& plat, const zeus:
 void CScriptActorRotate::UpdatePlatformRiders(std::vector<SRiders>& riders, CScriptPlatform& plat,
                                               const zeus::CTransform& xf, CStateManager& mgr) {
   for (SRiders& rider : riders) {
-    if (TCastToPtr<CActor> act = mgr.ObjectById(rider.x0_uid)) {
+    if (const TCastToPtr<CActor> act = mgr.ObjectById(rider.x0_uid)) {
       zeus::CTransform& riderXf = rider.x8_transform;
       act->SetTransform(rider.x8_transform);
       act->SetTranslation(act->GetTranslation() + plat.GetTranslation());
@@ -81,28 +85,34 @@ void CScriptActorRotate::UpdatePlatformRiders(std::vector<SRiders>& riders, CScr
       if (x58_24_updateRotation) {
         riderXf = {act->GetTransform().basis, act->GetTranslation() - plat.GetTranslation()};
 
-        if (TCastToPtr<CScriptSpiderBallWaypoint> wp = act.GetPtr())
+        if (TCastToConstPtr<CScriptSpiderBallWaypoint>(act.GetPtr())) {
           x58_25_skipSpiderBallWaypoints = true;
+        }
       }
 
-      if (TCastToPtr<CScriptPlatform> plat2 = mgr.ObjectById(rider.x0_uid))
+      if (const TCastToPtr<CScriptPlatform> plat2 = mgr.ObjectById(rider.x0_uid)) {
         UpdatePlatformRiders(*plat2.GetPtr(), xf, mgr);
+      }
     }
   }
 }
 
 void CScriptActorRotate::UpdateActors(bool next, CStateManager& mgr) {
-  if (x58_24_updateRotation)
+  if (x58_24_updateRotation) {
     return;
+  }
 
   x48_actors.clear();
 
   for (const SConnection& conn : x20_conns) {
-    if (conn.x0_state == EScriptObjectState::Play && conn.x4_msg == EScriptObjectMessage::Play) {
-      auto search = mgr.GetIdListForScript(conn.x8_objId);
-      for (auto it = search.first; it != search.second; ++it) {
-        if (TCastToPtr<CActor> act = mgr.ObjectById(it->second))
-          x48_actors[it->second] = act->GetTransform().getRotation();
+    if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Play) {
+      continue;
+    }
+
+    auto search = mgr.GetIdListForScript(conn.x8_objId);
+    for (auto it = search.first; it != search.second; ++it) {
+      if (const TCastToConstPtr<CActor> act = mgr.ObjectById(it->second)) {
+        x48_actors[it->second] = act->GetTransform().getRotation();
       }
     }
   }
@@ -118,17 +128,18 @@ void CScriptActorRotate::UpdateActors(bool next, CStateManager& mgr) {
 void CScriptActorRotate::UpdateSpiderBallWaypoints(CStateManager& mgr) {
   rstl::reserved_vector<TUniqueId, 1024> waypointIds;
   CObjectList& objectList = mgr.GetAllObjectList();
-  for (CEntity* ent : objectList) {
-    if (TCastToPtr<CScriptSpiderBallWaypoint> wp = ent)
+  for (const CEntity* ent : objectList) {
+    if (const TCastToConstPtr<CScriptSpiderBallWaypoint> wp = ent) {
       waypointIds.push_back(wp->GetUniqueId());
+    }
   }
 
   for (const TUniqueId& uid : waypointIds) {
-    CScriptSpiderBallWaypoint* wp = static_cast<CScriptSpiderBallWaypoint*>(mgr.ObjectById(uid));
+    auto* wp = static_cast<CScriptSpiderBallWaypoint*>(mgr.ObjectById(uid));
     if (wp) {
 #if 0
-             wp->sub_801187B4(mgr);
-             wp->xe4_27_ = true;
+      wp->sub_801187B4(mgr);
+      wp->xe4_27_ = true;
 #endif
     }
   }
