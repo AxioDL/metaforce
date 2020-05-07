@@ -38,9 +38,11 @@ void CScriptWaypoint::AddToRenderer(const zeus::CFrustum&, CStateManager&) {
 }
 
 TUniqueId CScriptWaypoint::FollowWaypoint(CStateManager& mgr) const {
-  for (const SConnection& conn : x20_conns)
-    if (conn.x0_state == EScriptObjectState::Arrived && conn.x4_msg == EScriptObjectMessage::Follow)
+  for (const SConnection& conn : x20_conns) {
+    if (conn.x0_state == EScriptObjectState::Arrived && conn.x4_msg == EScriptObjectMessage::Follow) {
       return mgr.GetIdForScript(conn.x8_objId);
+    }
+  }
   return kInvalidUniqueId;
 }
 
@@ -48,16 +50,20 @@ TUniqueId CScriptWaypoint::NextWaypoint(CStateManager& mgr) const {
   rstl::reserved_vector<TUniqueId, 10> ids;
   for (const SConnection& conn : x20_conns) {
     if (conn.x0_state == EScriptObjectState::Arrived && conn.x4_msg == EScriptObjectMessage::Next) {
-      TUniqueId id = mgr.GetIdForScript(conn.x8_objId);
-      if (id != kInvalidUniqueId)
-        if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(id))
-          if (wp->GetActive())
+      const TUniqueId id = mgr.GetIdForScript(conn.x8_objId);
+      if (id != kInvalidUniqueId) {
+        if (const TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(id)) {
+          if (wp->GetActive()) {
             ids.push_back(wp->GetUniqueId());
+          }
+        }
+      }
     }
   }
 
-  if (ids.size() == 0)
+  if (ids.empty()) {
     return kInvalidUniqueId;
+  }
 
   return ids[int(mgr.GetActiveRandom()->Float() * ids.size() * 0.99f)];
 }
