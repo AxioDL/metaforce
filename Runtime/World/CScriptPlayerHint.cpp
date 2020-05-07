@@ -57,8 +57,9 @@ void CScriptPlayerHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
     x108_mpId = kInvalidUniqueId;
     if ((x104_overrideFlags & 0x4000) != 0) {
       for (const SConnection& conn : x20_conns) {
-        if (conn.x0_state != EScriptObjectState::Play)
+        if (conn.x0_state != EScriptObjectState::Play) {
           continue;
+        }
         x108_mpId = mgr.GetIdForScript(conn.x8_objId);
         if (TCastToConstPtr<MP1::CMetroidPrimeRelay> mpRelay = mgr.GetObjectById(x108_mpId)) {
           x108_mpId = mpRelay->GetMetroidPrimeExoId();
