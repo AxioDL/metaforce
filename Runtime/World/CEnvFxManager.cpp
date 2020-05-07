@@ -206,7 +206,7 @@ void CEnvFxManager::UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, cons
       if (type == EEnvFxType::UnderwaterFlake) {
         grid.x14_block = std::make_pair(true, float(-FLT_MAX));
       } else {
-        CMaterialFilter filter =
+        constexpr auto filter =
             CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid, EMaterialTypes::Trigger},
                                                 {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::SeeThrough});
         zeus::CVector3f pos = xf * zeus::CVector3f((grid.x4_position + grid.xc_extent * 0).toVec2f() / 256.f) +

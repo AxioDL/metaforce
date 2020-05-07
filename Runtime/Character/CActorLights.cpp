@@ -302,7 +302,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
   x0_areaLights.clear();
 
   /* Filter for performing final light visibility test */
-  CMaterialFilter filter = CMaterialFilter::MakeIncludeExclude(
+  constexpr auto filter = CMaterialFilter::MakeIncludeExclude(
       CMaterialList(EMaterialTypes::Solid),
       CMaterialList(EMaterialTypes::Projectile, EMaterialTypes::ProjectilePassthrough, EMaterialTypes::SeeThrough));
   u32 mostSigLightIdx = 0;
