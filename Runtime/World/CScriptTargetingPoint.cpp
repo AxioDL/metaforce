@@ -16,13 +16,15 @@ void CScriptTargetingPoint::Accept(IVisitor& visitor) { visitor.Visit(this); }
 void CScriptTargetingPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, uid, mgr);
 
-  if (msg == EScriptObjectMessage::Deactivate || msg == EScriptObjectMessage::Activate)
+  if (msg == EScriptObjectMessage::Deactivate || msg == EScriptObjectMessage::Activate) {
     CEntity::SendScriptMsgs(EScriptObjectState::Attack, mgr, EScriptObjectMessage::None);
+  }
 }
 
 void CScriptTargetingPoint::Think(float dt, CStateManager&) {
-  if (xec_time <= 0.f)
+  if (xec_time <= 0.f) {
     return;
+  }
 
   xec_time -= dt;
 }
