@@ -70,7 +70,7 @@ public:
   [[nodiscard]] const_iterator cbegin() const { return const_iterator(*this, x2008_firstId); }
   [[nodiscard]] const_iterator cend() const { return const_iterator(*this, -1); }
 
-  CObjectList(EGameObjectList listEnum);
+  explicit CObjectList(EGameObjectList listEnum);
   virtual ~CObjectList() = default;
 
   void AddObject(CEntity& entity);
