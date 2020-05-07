@@ -17,16 +17,18 @@ CScriptMidi::CScriptMidi(TUniqueId id, const CEntityInfo& info, std::string_view
 }
 
 void CScriptMidi::StopInternal(float fadeTime) {
-  if (x3c_handle) {
-    CMidiManager::Stop(x3c_handle, fadeTime);
-    x3c_handle.reset();
+  if (!x3c_handle) {
+    return;
   }
+
+  CMidiManager::Stop(x3c_handle, fadeTime);
+  x3c_handle.reset();
 }
 
 void CScriptMidi::Stop(CStateManager& mgr, float fadeTime) {
   const CWorld* wld = mgr.GetWorld();
   const CGameArea* area = wld->GetAreaAlways(x4_areaId);
-  std::string twkName =
+  const std::string twkName =
       CInGameTweakManagerBase::GetIdentifierForMidiEvent(wld->IGetWorldAssetId(), area->GetAreaAssetId(), x10_name);
   if (g_TweakManager->HasTweakValue(twkName)) {
     const CTweakValue::Audio& audio = g_TweakManager->GetTweakValue(twkName)->GetAudio();
@@ -40,7 +42,7 @@ void CScriptMidi::Play(CStateManager& mgr, float fadeTime) {
   u32 volume = x48_volume;
   const CWorld* wld = mgr.GetWorld();
   const CGameArea* area = wld->GetAreaAlways(x4_areaId);
-  std::string twkName =
+  const std::string twkName =
       CInGameTweakManagerBase::GetIdentifierForMidiEvent(wld->IGetWorldAssetId(), area->GetAreaAssetId(), x10_name);
   if (g_TweakManager->HasTweakValue(twkName)) {
     const CTweakValue::Audio& audio = g_TweakManager->GetTweakValue(twkName)->GetAudio();
@@ -58,12 +60,14 @@ void CScriptMidi::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CSt
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
   switch (msg) {
   case EScriptObjectMessage::Play:
-    if (GetActive())
+    if (GetActive()) {
       Play(stateMgr, x40_fadeInTime);
+    }
     break;
   case EScriptObjectMessage::Stop:
-    if (GetActive())
+    if (GetActive()) {
       Stop(stateMgr, x44_fadeOutTime);
+    }
     break;
   case EScriptObjectMessage::Deactivate:
     StopInternal(0.f);
