@@ -21,8 +21,9 @@ CScriptVisorFlare::CScriptVisorFlare(TUniqueId uid, std::string_view name, const
 void CScriptVisorFlare::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptVisorFlare::Think(float dt, CStateManager& stateMgr) {
-  if (GetActive())
+  if (GetActive()) {
     xe8_flare.Update(dt, GetTranslation(), this, stateMgr);
+  }
 }
 
 void CScriptVisorFlare::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
