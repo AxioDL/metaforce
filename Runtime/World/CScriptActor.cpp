@@ -35,11 +35,13 @@ CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityIn
   x2e2_30_scaleAdvancementDelta = scaleAdvancementDelta;
   x2e2_31_materialFlag54 = materialFlag54;
 
-  if (x64_modelData && (x64_modelData->HasAnimData() || x64_modelData->HasNormalModel()) && castsShadow)
+  if (x64_modelData && (x64_modelData->HasAnimData() || x64_modelData->HasNormalModel()) && castsShadow) {
     CreateShadow(true);
+  }
 
-  if (x64_modelData && x64_modelData->HasAnimData())
+  if (x64_modelData && x64_modelData->HasAnimData()) {
     x64_modelData->EnableLooping(looping);
+  }
 
   x150_momentum = zeus::CVector3f(0.f, 0.f, zMomentum);
 }
@@ -50,10 +52,11 @@ void CScriptActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
   switch (msg) {
   case EScriptObjectMessage::InitializedInArea:
     for (const SConnection& conn : x20_conns) {
-      if (conn.x0_state != EScriptObjectState::InheritBounds || conn.x4_msg != EScriptObjectMessage::Activate)
+      if (conn.x0_state != EScriptObjectState::InheritBounds || conn.x4_msg != EScriptObjectMessage::Activate) {
         continue;
+      }
 
-      auto search = mgr.GetIdListForScript(conn.x8_objId);
+      const auto search = mgr.GetIdListForScript(conn.x8_objId);
       for (auto it = search.first; it != search.second; ++it) {
         if (TCastToConstPtr<CScriptTrigger>(mgr.GetObjectById(it->second))) {
           x2e0_triggerId = it->second;
@@ -62,8 +65,9 @@ void CScriptActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
       }
     }
 
-    if (x2e2_31_materialFlag54)
+    if (x2e2_31_materialFlag54) {
       CActor::AddMaterial(EMaterialTypes::Unknown54, mgr);
+    }
     break;
   case EScriptObjectMessage::Reset:
     x2e2_25_dead = false;
@@ -86,23 +90,25 @@ void CScriptActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
 }
 
 void CScriptActor::Think(float dt, CStateManager& mgr) {
-  if (!GetActive())
+  if (!GetActive()) {
     return;
+  }
 
   if (HasModelData() && x64_modelData->HasAnimData()) {
-    bool timeRemaining = x64_modelData->GetAnimationData()->IsAnimTimeRemaining(dt - FLT_EPSILON, "Whole Body");
-    bool loop = x64_modelData->GetIsLoop();
+    const bool timeRemaining = x64_modelData->GetAnimationData()->IsAnimTimeRemaining(dt - FLT_EPSILON, "Whole Body");
+    const bool loop = x64_modelData->GetIsLoop();
 
-    SAdvancementDeltas deltas = CActor::UpdateAnimation(dt, mgr, true);
+    const SAdvancementDeltas deltas = CActor::UpdateAnimation(dt, mgr, true);
 
     if (timeRemaining || loop) {
       x2e2_26_animating = true;
 
-      if (x2e2_30_scaleAdvancementDelta)
+      if (x2e2_30_scaleAdvancementDelta) {
         MoveToOR(x34_transform.rotate(x64_modelData->GetScale() * x34_transform.transposeRotate(deltas.x0_posDelta)),
                  dt);
-      else
+      } else {
         MoveToOR(deltas.x0_posDelta, dt);
+      }
 
       //if (TCastToPtr<MP1::CActorContraption>(this))
         //printf("DEL %f\n", zeus::radToDeg(zeus::CEulerAngles(deltas.xc_rotDelta).z()));
@@ -125,43 +131,49 @@ void CScriptActor::Think(float dt, CStateManager& mgr) {
 void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CActor::PreRender(mgr, frustum);
 
-  if (xe4_30_outOfFrustum && TCastToPtr<CCinematicCamera>(mgr.GetCameraManager()->GetCurrentCamera(mgr)))
+  if (xe4_30_outOfFrustum && TCastToConstPtr<CCinematicCamera>(mgr.GetCameraManager()->GetCurrentCamera(mgr))) {
     xe4_30_outOfFrustum = false;
+  }
 
   if (!xe4_30_outOfFrustum && x2e2_29_processModelFlags) {
     if (x2e2_27_xrayAlphaEnabled) {
-      zeus::CColor col(1.f, x2dc_xrayAlpha);
-      CModelFlags xrayFlags(5, 0, 3, col);
+      const zeus::CColor col(1.f, x2dc_xrayAlpha);
+      const CModelFlags xrayFlags(5, 0, 3, col);
       if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
         xb4_drawFlags = xrayFlags;
         x2e2_28_inXrayAlpha = true;
       } else if (x2e2_28_inXrayAlpha) {
         x2e2_28_inXrayAlpha = false;
-        if (xb4_drawFlags == xrayFlags)
+        if (xb4_drawFlags == xrayFlags) {
           xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
+        }
       }
     }
 
     if (x2e2_24_noThermalHotZ && xe6_27_thermalVisorFlags == 2) {
-      if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal)
+      if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
         xb4_drawFlags.x2_flags &= ~3; // Disable Z test/update
-      else
+      } else {
         xb4_drawFlags.x2_flags |= 3; // Enable Z test/update
+      }
     }
 
-    if (x2d8_shaderIdx != 0)
+    if (x2d8_shaderIdx != 0) {
       xb4_drawFlags.x1_matSetIdx = u8(x2d8_shaderIdx);
+    }
   }
 
-  if (mgr.GetObjectById(x2e0_triggerId) == nullptr)
+  if (mgr.GetObjectById(x2e0_triggerId) == nullptr) {
     x2e0_triggerId = kInvalidUniqueId;
+  }
 }
 
 zeus::CAABox CScriptActor::GetSortingBounds(const CStateManager& mgr) const {
   if (x2e0_triggerId != kInvalidUniqueId) {
-    TCastToConstPtr<CScriptTrigger> trigger(mgr.GetObjectById(x2e0_triggerId));
-    if (trigger)
+    const TCastToConstPtr<CScriptTrigger> trigger(mgr.GetObjectById(x2e0_triggerId));
+    if (trigger) {
       return trigger->GetTriggerBoundsWR();
+    }
   }
 
   return CActor::GetSortingBounds(mgr);
@@ -173,9 +185,10 @@ EWeaponCollisionResponseTypes CScriptActor::GetCollisionResponseType(const zeus:
                                                                      EProjectileAttrib w) const {
   const CDamageVulnerability* dVuln = GetDamageVulnerability();
   if (dVuln->GetVulnerability(wMode, false) == EVulnerability::Deflect) {
-    EDeflectType deflectType = dVuln->GetDeflectionType(wMode);
-    if (deflectType < EDeflectType::Four && deflectType >= EDeflectType::One)
+    const EDeflectType deflectType = dVuln->GetDeflectionType(wMode);
+    if (deflectType < EDeflectType::Four && deflectType >= EDeflectType::One) {
       return EWeaponCollisionResponseTypes::Unknown15;
+    }
   }
   return CActor::GetCollisionResponseType(v1, v2, wMode, w);
 }

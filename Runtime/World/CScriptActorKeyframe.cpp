@@ -28,12 +28,14 @@ void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
     if (GetActive()) {
       if (!x44_25_isPassive) {
         for (const SConnection& conn : x20_conns) {
-          if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Play)
+          if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Play) {
             continue;
+          }
 
-          auto search = mgr.GetIdListForScript(conn.x8_objId);
-          for (auto it = search.first; it != search.second; ++it)
+          const auto search = mgr.GetIdListForScript(conn.x8_objId);
+          for (auto it = search.first; it != search.second; ++it) {
             UpdateEntity(it->second, mgr);
+          }
         }
       }
 
@@ -62,19 +64,23 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr) {
 
   x44_28_playing = false;
   for (const SConnection& conn : x20_conns) {
-    if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Play)
+    if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Play) {
       continue;
+    }
+
     CEntity* ent = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId));
-    if (TCastToPtr<CScriptActor> act = ent) {
+    if (const TCastToPtr<CScriptActor> act = ent) {
       if (act->HasModelData() && act->GetModelData()->HasAnimData()) {
         CAnimData* animData = act->GetModelData()->GetAnimationData();
-        if (animData->IsAdditiveAnimation(x34_animationId))
+        if (animData->IsAdditiveAnimation(x34_animationId)) {
           animData->DelAdditiveAnimation(x34_animationId);
+        }
 
-        if (animData->GetDefaultAnimation() == x34_animationId)
+        if (animData->GetDefaultAnimation() == x34_animationId) {
           animData->EnableLooping(false);
+        }
       }
-    } else if (TCastToPtr<CPatterned> ai = ent) {
+    } else if (const TCastToPtr<CPatterned> ai = ent) {
       CAnimData* animData = ai->GetModelData()->GetAnimationData();
       if (animData->IsAdditiveAnimation(x34_animationId)) {
         animData->DelAdditiveAnimation(x34_animationId);
@@ -98,8 +104,9 @@ void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr) {
   }
 
   if (act) {
-    if (!act->GetActive())
+    if (!act->GetActive()) {
       mgr.SendScriptMsg(act, GetUniqueId(), EScriptObjectMessage::Activate);
+    }
     act->SetDrawFlags({0, 0, 3, zeus::skWhite});
     if (act->HasModelData() && act->GetModelData()->HasAnimData()) {
       CAnimData* animData = act->GetModelData()->GetAnimationData();
