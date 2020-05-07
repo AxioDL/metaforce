@@ -31,10 +31,11 @@ void CScriptPointOfInterest::AddToRenderer(const zeus::CFrustum&, CStateManager&
 void CScriptPointOfInterest::Render(CStateManager&) {}
 
 void CScriptPointOfInterest::CalculateRenderBounds() {
-  if (xe8_pointSize == 0.f)
+  if (xe8_pointSize == 0.f) {
     CActor::CalculateRenderBounds();
-  else
+  } else {
     x9c_renderBounds = zeus::CAABox(x34_transform.origin - xe8_pointSize, x34_transform.origin + xe8_pointSize);
+  }
 }
 
 std::optional<zeus::CAABox> CScriptPointOfInterest::GetTouchBounds() const {
