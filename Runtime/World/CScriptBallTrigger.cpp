@@ -12,7 +12,7 @@
 namespace urde {
 
 static zeus::CAABox calculate_ball_aabox() {
-  float extent = 0.33f * g_tweakPlayer->GetPlayerBallHalfExtent();
+  const float extent = 0.33f * g_tweakPlayer->GetPlayerBallHalfExtent();
   return {-extent, extent};
 }
 
@@ -26,8 +26,9 @@ CScriptBallTrigger::CScriptBallTrigger(TUniqueId uid, std::string_view name, con
 , x158_maxDistance(f3)
 , x168_25_stopPlayer(b2) {
 
-  if (vec.canBeNormalized())
+  if (vec.canBeNormalized()) {
     x15c_forceAngle = vec.normalized();
+  }
 }
 
 void CScriptBallTrigger::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -42,8 +43,10 @@ void CScriptBallTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
 }
 
 void CScriptBallTrigger::Think(float dt, CStateManager& mgr) {
-  if (!GetActive())
+  if (!GetActive()) {
     return;
+  }
+
   CScriptTrigger::Think(dt, mgr);
   CPlayer& player = mgr.GetPlayer();
 
@@ -58,33 +61,36 @@ void CScriptBallTrigger::Think(float dt, CStateManager& mgr) {
   const float distance = radiusPosDif.magnitude();
 
   if (!x168_24_canApplyForce) {
-    if (distance < ballRadius)
+    if (distance < ballRadius) {
       x168_24_canApplyForce = true;
-    else {
-      zeus::CVector3f offset = radiusPosDif.normalized();
+    } else {
+      const zeus::CVector3f offset = radiusPosDif.normalized();
       if (std::cos(zeus::degToRad(x154_minAngle)) < (-offset).dot(x15c_forceAngle) && distance < x158_maxDistance) {
-        float force = zeus::min((1.f / dt * distance), x150_force * (distance * distance));
+        const float force = zeus::min((1.f / dt * distance), x150_force * (distance * distance));
         player.ApplyForceWR(force * (player.GetMass() * offset), zeus::CAxisAngle());
       }
     }
   }
 
   if (x148_28_playerTriggerProc) {
-    zeus::CVector3f offset = GetTranslation() - zeus::CVector3f(0.f, 0.f, ballRadius);
-    if (x168_25_stopPlayer)
+    const zeus::CVector3f offset = GetTranslation() - zeus::CVector3f(0.f, 0.f, ballRadius);
+    if (x168_25_stopPlayer) {
       player.Stop();
+    }
     player.MoveToWR(offset, dt);
-  } else
+  } else {
     x168_24_canApplyForce = false;
+  }
 }
 
 void CScriptBallTrigger::InhabitantAdded(CActor& act, CStateManager& /*mgr*/) {
-  if (TCastToPtr<CPlayer> player = act)
+  if (const TCastToPtr<CPlayer> player = act) {
     player->GetMorphBall()->SetBallBoostState(CMorphBall::EBallBoostState::BoostDisabled);
+  }
 }
 
 void CScriptBallTrigger::InhabitantExited(CActor& act, CStateManager&) {
-  if (TCastToPtr<CPlayer> player = act) {
+  if (const TCastToPtr<CPlayer> player = act) {
     player->GetMorphBall()->SetBallBoostState(CMorphBall::EBallBoostState::BoostAvailable);
     x168_24_canApplyForce = false;
   }
