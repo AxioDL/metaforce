@@ -16,8 +16,9 @@ void CScriptRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CS
   if (msg == EScriptObjectMessage::Deleted) {
     UpdateObjectRef(stateMgr);
   } else if (msg == EScriptObjectMessage::SetToZero) {
-    if (!x30_24_active)
+    if (!x30_24_active) {
       return;
+    }
 
     x38_sendCount++;
     TUniqueId tmp = stateMgr.GetLastRelayId();
@@ -39,8 +40,9 @@ void CScriptRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CS
 }
 
 void CScriptRelay::Think(float, CStateManager& stateMgr) {
-  if (x38_sendCount == 0)
+  if (x38_sendCount == 0) {
     return;
+  }
 
   while (x38_sendCount != 0) {
     x38_sendCount--;
@@ -56,9 +58,10 @@ void CScriptRelay::UpdateObjectRef(CStateManager& stateMgr) {
       *tmp = x34_nextRelay;
       return;
     }
-    CScriptRelay* obj = static_cast<CScriptRelay*>(stateMgr.ObjectById(*tmp));
-    if (obj == nullptr)
+    auto* obj = static_cast<CScriptRelay*>(stateMgr.ObjectById(*tmp));
+    if (obj == nullptr) {
       return;
+    }
     tmp = &obj->x34_nextRelay;
   }
 }
