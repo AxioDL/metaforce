@@ -8,10 +8,46 @@
 #include "Runtime/World/ScriptLoader.hpp"
 
 namespace urde::MP1 {
+namespace {
+constexpr CDamageVulnerability CDamageVulnerability_80571c64{
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Immune,
+    EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
+};
+
+constexpr CDamageVulnerability CDamageVulnerability_80571e6c{
+    EVulnerability::Deflect, EVulnerability::Immune,  EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
+};
+
+constexpr CDamageVulnerability CDamageVulnerability_80571ed4{
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Immune,  EVulnerability::Deflect,
+    EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
+};
+
+constexpr CDamageVulnerability CDamageVulnerability_80571f3c{
+    EVulnerability::Immune,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
+};
+
+constexpr CDamageVulnerability CDamageVulnerability_80571fa4{
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
+};
+} // namespace
 
 CMetroidData::CMetroidData(CInputStream& in)
-: x0_dVuln1(in)
-, x68_dVuln2(in)
+: x0_frozenVulnerability(in)
+, x68_energyDrainVulnerability(in)
 , xd0_(in.readFloatBig())
 , xd4_(in.readFloatBig())
 , xd8_(in.readFloatBig())
@@ -118,6 +154,36 @@ EWeaponCollisionResponseTypes CMetroid::GetCollisionResponseType(const zeus::CVe
     types = EWeaponCollisionResponseTypes::Unknown58;
   }
   return types;
+}
+
+const CDamageVulnerability* CMetroid::GetDamageVulnerability() const {
+  if (IsSuckingEnergy()) {
+    if (x9c0_24_) {
+      return &x56c_data.GetEnergyDrainVulnerability();
+    }
+    return &CDamageVulnerability_80571fa4;
+  }
+  if (x9bf_25_ && !x450_bodyController->IsFrozen()) {
+    return &x56c_data.GetEnergyDrainVulnerability();
+  }
+  if (x450_bodyController->GetPercentageFrozen() > 0.f) {
+    return &x56c_data.GetFrozenVulnerability();
+  }
+  if (x3fc_flavor == CPatterned::EFlavorType::Two) {
+    if (x7cc_animParmsidx == 1) {
+      return &CDamageVulnerability_80571c64;
+    }
+    if (x7cc_animParmsidx == 2) {
+      return &CDamageVulnerability_80571e6c;
+    }
+    if (x7cc_animParmsidx == 3) {
+      return &CDamageVulnerability_80571ed4;
+    }
+    if (x7cc_animParmsidx == 4) {
+      return &CDamageVulnerability_80571f3c;
+    }
+  }
+  return CAi::GetDamageVulnerability();
 }
 
 } // namespace urde::MP1

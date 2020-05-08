@@ -16,8 +16,8 @@ namespace urde::MP1 {
 class CMetroidData {
 private:
   static constexpr u32 skNumProperties = 20;
-  CDamageVulnerability x0_dVuln1;
-  CDamageVulnerability x68_dVuln2;
+  CDamageVulnerability x0_frozenVulnerability;
+  CDamageVulnerability x68_energyDrainVulnerability;
   float xd0_;
   float xd4_;
   float xd8_;
@@ -33,6 +33,8 @@ private:
 public:
   explicit CMetroidData(CInputStream& in);
   static u32 GetNumProperties() { return skNumProperties; }
+  const CDamageVulnerability& GetFrozenVulnerability() const { return x0_frozenVulnerability; }
+  const CDamageVulnerability& GetEnergyDrainVulnerability() const { return x68_energyDrainVulnerability; }
   bool GetStartsInWall() { return x128_24_startsInWall; }
 };
 
@@ -187,7 +189,7 @@ private:
   float GetDamageMultiplier() { return 0.5f * (GetGrowthStage() - 1.f) + 1.f; }
   float GetGrowthStage();
   zeus::CVector3f GetAttackTargetPos(CStateManager& mgr);
-  bool IsSuckingEnergy();
+  bool IsSuckingEnergy() const;
   void UpdateVolume();
   void UpdateTouchBounds();
 };
