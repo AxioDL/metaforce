@@ -381,8 +381,8 @@ void CScriptGunTurret::SetupCollisionManager(CStateManager& mgr) {
   x49c_collisionManager->SetActive(mgr, GetActive());
 
   for (int i = 0; i < x49c_collisionManager->GetNumCollisionActors(); ++i) {
-    auto& desc = x49c_collisionManager->GetCollisionDescFromIndex(i);
-    if (TCastToPtr<CCollisionActor> cAct = mgr.ObjectById(desc.GetCollisionActorId())) {
+    const auto& desc = x49c_collisionManager->GetCollisionDescFromIndex(i);
+    if (const TCastToPtr<CCollisionActor> cAct = mgr.ObjectById(desc.GetCollisionActorId())) {
       cAct->AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
       cAct->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Player},
         {EMaterialTypes::Character, EMaterialTypes::NoStaticCollision, EMaterialTypes::NoPlatformCollision}));

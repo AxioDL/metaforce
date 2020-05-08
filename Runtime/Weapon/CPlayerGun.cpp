@@ -1515,11 +1515,12 @@ void CPlayerGun::UpdateWeaponFire(float dt, const CPlayerState& playerState, CSt
     if (!x835_31_actorAttached) {
       x835_28_bombReady = true;
       if (x53a_powerBomb != kInvalidUniqueId && !mgr.CanCreateProjectile(x538_playerId, EWeaponType::PowerBomb, 1)) {
-        auto* pb = static_cast<const CPowerBomb*>(mgr.GetObjectById(x53a_powerBomb));
-        if (pb && pb->GetCurTime() <= 4.25f)
+        const auto* pb = static_cast<const CPowerBomb*>(mgr.GetObjectById(x53a_powerBomb));
+        if (pb && pb->GetCurTime() <= 4.25f) {
           x835_28_bombReady = false;
-        else
+        } else {
           x53a_powerBomb = kInvalidUniqueId;
+        }
       }
       if (((pressedStates & 0x1) != 0 || x32c_chargePhase != EChargePhase::NotCharging) &&
           mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::MorphBallBombs)) {
@@ -2088,9 +2089,9 @@ void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustum& frust
 }
 
 void CPlayerGun::RenderEnergyDrainEffects(const CStateManager& mgr) const {
-  if (TCastToConstPtr<CPlayer> player = mgr.GetObjectById(x538_playerId)) {
+  if (const TCastToConstPtr<CPlayer> player = mgr.GetObjectById(x538_playerId)) {
     for (const auto& source : player->GetEnergyDrain().GetEnergyDrainSources()) {
-      if (auto* metroid = CPatterned::CastTo<MP1::CMetroidBeta>(mgr.GetObjectById(source.GetEnergyDrainSourceId()))) {
+      if (const auto* metroid = CPatterned::CastTo<MP1::CMetroidBeta>(mgr.GetObjectById(source.GetEnergyDrainSourceId()))) {
         metroid->RenderHitGunEffect();
         return;
       }

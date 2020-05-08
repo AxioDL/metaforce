@@ -53,11 +53,12 @@ void CWallWalker::AlignToFloor(CStateManager& mgr, float radius, const zeus::CVe
   zeus::CAABox aabb(newPos - margin, newPos + margin);
   CAreaCollisionCache ccache(aabb);
   CGameCollision::BuildAreaCollisionCache(mgr, ccache);
-  if (x5d6_25_hasAlignSurface)
+  if (x5d6_25_hasAlignSurface) {
     x5d6_25_hasAlignSurface = PointOnSurface(x568_alignNormal, newPos);
+  }
   if (!x5d6_25_hasAlignSurface || !(x5d4_thinkCounter & 0x3)) {
-    for (auto& leaf : ccache) {
-      for (auto& node : leaf) {
+    for (const auto& leaf : ccache) {
+      for (const auto& node : leaf) {
         CAreaOctTree::TriListReference triArr = node.GetTriangleArray();
         for (u16 i = 0; i < triArr.GetSize(); ++i) {
           u16 triIdx = triArr.GetAt(i);

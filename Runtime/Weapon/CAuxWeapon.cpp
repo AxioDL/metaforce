@@ -326,16 +326,20 @@ void CAuxWeapon::RenderMuzzleFx() const {
 }
 
 TUniqueId CAuxWeapon::HasTarget(const CStateManager& mgr) const {
-  if (x74_firingBeamId == CPlayerState::EBeamId::Wave)
-    if (auto* wb = static_cast<const CWaveBuster*>(mgr.GetObjectById(x70_waveBusterId)))
+  if (x74_firingBeamId == CPlayerState::EBeamId::Wave) {
+    if (const auto* wb = static_cast<const CWaveBuster*>(mgr.GetObjectById(x70_waveBusterId))) {
       return wb->GetHomingTargetId();
+    }
+  }
   return kInvalidUniqueId;
 }
 
 void CAuxWeapon::SetNewTarget(TUniqueId targetId, CStateManager& mgr) {
-  if (x74_firingBeamId == CPlayerState::EBeamId::Wave)
-    if (auto* wb = static_cast<CWaveBuster*>(mgr.ObjectById(x70_waveBusterId)))
+  if (x74_firingBeamId == CPlayerState::EBeamId::Wave) {
+    if (auto* wb = static_cast<CWaveBuster*>(mgr.ObjectById(x70_waveBusterId))) {
       wb->SetNewTarget(targetId);
+    }
+  }
 }
 
 } // namespace urde

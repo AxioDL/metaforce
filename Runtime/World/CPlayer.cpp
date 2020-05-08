@@ -1267,7 +1267,7 @@ static CAssetId UpdatePersistentScanPercent(u32 prevLogScans, u32 logScans, u32 
   if (scanPercentProgStep > prevScanPercentProgStep) {
     const char* const messageResBase = UnlockMessageResBases[zeus::clamp(0, scanPercentProgStep - 1, 1)];
     const auto message = std::string(messageResBase).append(1,  firstTime ? '1' : '2');
-    const auto id = g_ResFactory->GetResourceIdByName(message);
+    const auto* const id = g_ResFactory->GetResourceIdByName(message);
     if (id != nullptr) {
       return id->id;
     }

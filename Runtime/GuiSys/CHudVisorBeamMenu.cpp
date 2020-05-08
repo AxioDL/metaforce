@@ -13,23 +13,23 @@
 namespace urde {
 
 constexpr std::array BaseMenuNames{
-    "BaseWidget_VisorMenu",
-    "BaseWidget_BeamMenu",
+    "BaseWidget_VisorMenu"sv,
+    "BaseWidget_BeamMenu"sv,
 };
 
 constexpr std::array TextNames{
-    "TextPane_VisorMenu",
-    "TextPane_BeamMenu",
+    "TextPane_VisorMenu"sv,
+    "TextPane_BeamMenu"sv,
 };
 
 constexpr std::array BaseTitleNames{
-    "basewidget_visormenutitle",
-    "basewidget_beammenutitle",
+    "basewidget_visormenutitle"sv,
+    "basewidget_beammenutitle"sv,
 };
 
 constexpr std::array ModelNames{
-    "model_visor",
-    "model_beam",
+    "model_visor"sv,
+    "model_beam"sv,
 };
 
 constexpr std::array<std::array<char, 4>, 2> MenuItemOrders{{

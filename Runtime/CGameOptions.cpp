@@ -117,7 +117,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
   xd0_29_allItemsCollected = stream.ReadEncoded(1) != 0;
   xbc_autoMapperKeyState = stream.ReadEncoded(2);
 
-  auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
+  const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
   size_t cinematicCount = 0;
   for (const auto& world : memWorlds) {
     TLockedToken<CSaveWorld> saveWorld =
@@ -162,7 +162,7 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const {
   w.WriteEncoded(xd0_29_allItemsCollected, 1);
   w.WriteEncoded(xbc_autoMapperKeyState, 2);
 
-  auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
+  const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
   for (const auto& world : memWorlds) {
     const TLockedToken<CSaveWorld> saveWorld =
         g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.second.GetSaveWorldAssetId()});
