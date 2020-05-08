@@ -52,26 +52,34 @@ class CPFRegion {
 public:
   CPFRegion() = default;
   explicit CPFRegion(CMemoryInStream& in);
+
   void SetData(CPFRegionData* data) { x4c_regionData = data; }
-  CPFRegionData* Data() const { return x4c_regionData; }
+  CPFRegionData* Data() { return x4c_regionData; }
+  const CPFRegionData* Data() const { return x4c_regionData; }
+
   u32 GetIndex() const { return x24_regionIdx; }
   float GetHeight() const { return x14_height; }
   const CPFLink* GetPathLink() const;
   u32 GetNumLinks() const { return x8_numLinks; }
   u32 GetFlags() const { return x10_flags; }
   const CPFLink* GetLink(u32 i) const { return xc_startLink + i; }
+
   void SetCentroid(const zeus::CVector3f& c) { x28_centroid = c; }
   const zeus::CVector3f& GetCentroid() const { return x28_centroid; }
+
   void Fixup(CPFArea& area, u32& maxRegionNodes);
   bool IsPointInside(const zeus::CVector3f& point) const;
+
   const zeus::CVector3f& GetNormal() const { return x18_normal; }
   u32 GetNumNodes() const { return x0_numNodes; }
   const CPFNode* GetNode(u32 i) const { return x4_startNode + i; }
+
   float PointHeight(const zeus::CVector3f& point) const;
   bool FindClosestPointOnPolygon(const std::vector<zeus::CVector3f>&, const zeus::CVector3f&, const zeus::CVector3f&,
                                  bool) const;
   bool FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const zeus::CVector3f& point, u32 flags,
                      float paddingSq) const;
+
   void SetLinkTo(u32 idx);
   void DropToGround(zeus::CVector3f& point) const;
   zeus::CVector3f GetLinkMidPoint(const CPFLink& link) const;
