@@ -162,14 +162,17 @@ bool CPFRegion::FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const ze
   return found;
 }
 
-void CPFRegion::SetLinkTo(s32 idx) {
-  if (x8_numLinks <= 0)
+void CPFRegion::SetLinkTo(u32 idx) {
+  if (x8_numLinks <= 0) {
     return;
-  for (u32 i = 0; i < x8_numLinks; ++i)
+  }
+
+  for (u32 i = 0; i < x8_numLinks; ++i) {
     if (xc_startLink[i].GetRegion() == idx) {
       Data()->SetPathLink(i);
       return;
     }
+  }
 }
 
 void CPFRegion::DropToGround(zeus::CVector3f& point) const {

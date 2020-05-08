@@ -72,7 +72,7 @@ public:
                                  bool) const;
   bool FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const zeus::CVector3f& point, u32 flags,
                      float paddingSq) const;
-  void SetLinkTo(s32 idx);
+  void SetLinkTo(u32 idx);
   void DropToGround(zeus::CVector3f& point) const;
   zeus::CVector3f GetLinkMidPoint(const CPFLink& link) const;
   zeus::CVector3f FitThroughLink2d(const zeus::CVector3f& p1, const CPFLink& link, const zeus::CVector3f& p2,
