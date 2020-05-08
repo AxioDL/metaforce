@@ -9,35 +9,35 @@
 
 namespace urde::MP1 {
 namespace {
-constexpr CDamageVulnerability CDamageVulnerability_80571c64{
+constexpr CDamageVulnerability skGammaRedDamageVulnerability{
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Immune,
     EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
 };
 
-constexpr CDamageVulnerability CDamageVulnerability_80571e6c{
+constexpr CDamageVulnerability skGammaWhiteDamageVulnerability{
     EVulnerability::Deflect, EVulnerability::Immune,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
 };
 
-constexpr CDamageVulnerability CDamageVulnerability_80571ed4{
+constexpr CDamageVulnerability skGammaPurpleDamageVulnerability{
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Immune,  EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
 };
 
-constexpr CDamageVulnerability CDamageVulnerability_80571f3c{
+constexpr CDamageVulnerability skGammaOrangeDamageVulnerability{
     EVulnerability::Immune,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
 };
 
-constexpr CDamageVulnerability CDamageVulnerability_80571fa4{
+constexpr CDamageVulnerability skNormalDamageVulnerability{
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
@@ -69,7 +69,7 @@ CMetroid::CMetroid(TUniqueId uid, std::string_view name, EFlavorType flavor, con
 , x56c_data(metroidData)
 , x6a0_collisionPrimitive(zeus::CSphere{zeus::skZero3f, 0.9f * GetModelData()->GetScale().y()}, GetMaterialList())
 , x6c0_pathFindSearch(nullptr, 3, pInfo.GetPathfindingIndex(), 1.f, 1.f)
-, x7cc_animParmsidx(flavor == EFlavorType::Two ? 0 : 1)
+, x7cc_gammaType(flavor == EFlavorType::Two ? EGammaType::Red : EGammaType::Normal)
 , x7d0_scale1(GetModelData()->GetScale())
 , x7dc_scale2(GetModelData()->GetScale())
 , x7e8_scale3(GetModelData()->GetScale())
@@ -161,7 +161,7 @@ const CDamageVulnerability* CMetroid::GetDamageVulnerability() const {
     if (x9c0_24_) {
       return &x56c_data.GetEnergyDrainVulnerability();
     }
-    return &CDamageVulnerability_80571fa4;
+    return &skNormalDamageVulnerability;
   }
   if (x9bf_25_ && !x450_bodyController->IsFrozen()) {
     return &x56c_data.GetEnergyDrainVulnerability();
@@ -170,17 +170,17 @@ const CDamageVulnerability* CMetroid::GetDamageVulnerability() const {
     return &x56c_data.GetFrozenVulnerability();
   }
   if (x3fc_flavor == CPatterned::EFlavorType::Two) {
-    if (x7cc_animParmsidx == 1) {
-      return &CDamageVulnerability_80571c64;
+    if (x7cc_gammaType == EGammaType::Red) {
+      return &skGammaRedDamageVulnerability;
     }
-    if (x7cc_animParmsidx == 2) {
-      return &CDamageVulnerability_80571e6c;
+    if (x7cc_gammaType == EGammaType::White) {
+      return &skGammaWhiteDamageVulnerability;
     }
-    if (x7cc_animParmsidx == 3) {
-      return &CDamageVulnerability_80571ed4;
+    if (x7cc_gammaType == EGammaType::Purple) {
+      return &skGammaPurpleDamageVulnerability;
     }
-    if (x7cc_animParmsidx == 4) {
-      return &CDamageVulnerability_80571f3c;
+    if (x7cc_gammaType == EGammaType::Orange) {
+      return &skGammaOrangeDamageVulnerability;
     }
   }
   return CAi::GetDamageVulnerability();

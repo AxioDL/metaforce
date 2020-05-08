@@ -64,7 +64,14 @@ private:
     Two,
     Three,
   } x7c8_ = EUnknown::Zero;
-  int x7cc_animParmsidx;
+  enum class EGammaType {
+    Invalid = -1,
+    Normal,
+    Red,
+    White,
+    Purple,
+    Orange,
+  } x7cc_gammaType;
   zeus::CVector3f x7d0_scale1;
   zeus::CVector3f x7dc_scale2;
   zeus::CVector3f x7e8_scale3;
@@ -163,7 +170,7 @@ private:
   bool IsHunterAttacking(CStateManager& mgr);
   bool IsAttackInProgress(CStateManager& mgr);
   void ComputeSuckPiratePosRot(CStateManager& mgr, zeus::CVector3f& outVec, zeus::CQuaternion& outQuat);
-  int GetRandomAnimParmsIdx(CStateManager& mgr, int prevIdx);
+  EGammaType GetRandomGammaType(CStateManager& mgr, EGammaType previous);
   void SpawnGammaMetroid(CStateManager& mgr);
   bool ShouldSpawnGammaMetroid();
   void ComputeSuckPlayerPosRot(CStateManager& mgr, zeus::CVector3f& outVec, zeus::CQuaternion& outQuat);
