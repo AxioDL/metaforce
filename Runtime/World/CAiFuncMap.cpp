@@ -6,6 +6,7 @@
 namespace urde {
 CAiFuncMap::CAiFuncMap() {
   /* Ai States */
+  x0_stateFuncs.reserve(55);
   x0_stateFuncs.emplace("Patrol", &CAi::Patrol);
   x0_stateFuncs.emplace("FollowPattern", &CAi::FollowPattern);
   x0_stateFuncs.emplace("Dead", &CAi::Dead);
@@ -63,6 +64,7 @@ CAiFuncMap::CAiFuncMap() {
   x0_stateFuncs.emplace("PodAttack", &CAi::PodAttack);
 
   /* Ai Triggers */
+  x10_triggerFuncs.reserve(68);
   x10_triggerFuncs.emplace("InAttackPosition", &CAi::InAttackPosition);
   x10_triggerFuncs.emplace("Leash", &CAi::Leash);
   x10_triggerFuncs.emplace("OffLine", &CAi::OffLine);
