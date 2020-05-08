@@ -236,7 +236,8 @@ void CGameArchitectureSupport::specialKeyUp(boo::ESpecialKey key, boo::EModifier
 
 CMain::CMain(IFactory* resFactory, CSimplePool* resStore, boo::IGraphicsDataFactory* gfxFactory,
              boo::IGraphicsCommandQueue* cmdQ, const boo::ObjToken<boo::ITextureR>& spareTex)
-: m_booSetter(gfxFactory, cmdQ, spareTex), x128_globalObjects(resFactory, resStore) {
+: m_booSetter(gfxFactory, cmdQ, spareTex)
+, x128_globalObjects(std::make_unique<CGameGlobalObjects>(resFactory, resStore)) {
   xe4_gameplayResult = EGameplayResult::Playing;
   g_Main = this;
 }
@@ -388,7 +389,7 @@ void CMain::AddOverridePaks() {
 void CMain::ResetGameState() {
   CPersistentOptions sysOpts = g_GameState->SystemOptions();
   CGameOptions gameOpts = g_GameState->GameOptions();
-  x128_globalObjects.ResetGameState();
+  x128_globalObjects->ResetGameState();
   g_GameState->ImportPersistentOptions(sysOpts);
   g_GameState->SetGameOptions(gameOpts);
   g_GameState->GetPlayerState()->SetIsFusionEnabled(g_GameState->SystemOptions().GetPlayerFusionSuitActive());
@@ -411,7 +412,7 @@ void CMain::MemoryCardInitializePump() {
     return;
   }
 
-  std::unique_ptr<CMemoryCardSys>& memSys = x128_globalObjects.x0_memoryCardSys;
+  std::unique_ptr<CMemoryCardSys>& memSys = x128_globalObjects->x0_memoryCardSys;
   if (!memSys) {
     memSys = std::make_unique<CMemoryCardSys>();
   }
@@ -632,8 +633,8 @@ void CMain::Warp(hecl::Console* con, const std::vector<std::string>& args) {
 
 void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx) {
   bool fusionBackup = g_GameState->SystemOptions().GetPlayerFusionSuitActive();
-  x128_globalObjects.x134_gameState = std::make_unique<CGameState>(r, idx);
-  g_GameState = x128_globalObjects.x134_gameState.get();
+  x128_globalObjects->x134_gameState = std::make_unique<CGameState>(r, idx);
+  g_GameState = x128_globalObjects->x134_gameState.get();
   g_GameState->SystemOptions().SetPlayerFusionSuitActive(fusionBackup);
   g_GameState->GetPlayerState()->SetIsFusionEnabled(fusionBackup);
   g_GameState->HintOptions().SetNextHintTime();
@@ -645,7 +646,7 @@ void CMain::RefreshGameState() {
   std::vector<u8> saveData = g_GameState->BackupBuf();
   CGameOptions gameOpts = g_GameState->GameOptions();
   CBitStreamReader r(saveData.data(), saveData.size());
-  x128_globalObjects.StreamInGameState(r, g_GameState->GetFileIdx());
+  x128_globalObjects->StreamInGameState(r, g_GameState->GetFileIdx());
   g_GameState->SetPersistentOptions(sysOpts);
   g_GameState->SetGameOptions(gameOpts);
   g_GameState->GameOptions().EnsureSettings();
@@ -776,7 +777,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
 
   InitializeSubsystems();
   AddOverridePaks();
-  x128_globalObjects.PostInitialize();
+  x128_globalObjects->PostInitialize();
   x70_tweaks.RegisterTweaks(m_cvarMgr);
   x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
   AddWorldPaks();
@@ -788,8 +789,9 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
     }
     hecl::SystemStringConv conv(GetVersionString());
     boo::SystemStringView versionView(conv.sys_str());
-    MainLog.report(logvisor::Level::Info, FMT_STRING(_SYS_STR("Loading data from Metroid Prime version {} from region {}{}")),
-                   versionView, boo::SystemChar(GetRegion()), IsTrilogy() ? _SYS_STR(" from trilogy") : _SYS_STR(""));
+    MainLog.report(logvisor::Level::Info,
+                   FMT_STRING(_SYS_STR("Loading data from Metroid Prime version {} from region {}{}")), versionView,
+                   boo::SystemChar(GetRegion()), IsTrilogy() ? _SYS_STR(" from trilogy") : _SYS_STR(""));
   } else {
     MainLog.report(logvisor::Level::Fatal, FMT_STRING("Unable to load version info"));
   }
@@ -889,7 +891,7 @@ bool CMain::Proc() {
   if (m_warmupTags.size())
     return false;
   if (!m_loadedPersistentResources) {
-    x128_globalObjects.m_gameResFactory->LoadPersistentResources(*g_SimplePool);
+    x128_globalObjects->m_gameResFactory->LoadPersistentResources(*g_SimplePool);
     m_loadedPersistentResources = true;
   }
 
@@ -977,7 +979,7 @@ void CMain::ShutdownSubsystems() {
 
 void CMain::Shutdown() {
   m_console->unregisterCommand("Give");
-  x128_globalObjects.m_gameResFactory->UnloadPersistentResources();
+  x128_globalObjects->m_gameResFactory->UnloadPersistentResources();
   x164_archSupport.reset();
   ShutdownSubsystems();
   CParticleSwooshShaders::Shutdown();
@@ -1011,6 +1013,37 @@ void CMain::Shutdown() {
 }
 
 boo::IWindow* CMain::GetMainWindow() const { return m_mainWindow; }
+
+#if 0
+int CMain::RsMain(int argc, boo::SystemChar** argv, boo::IAudioVoiceEngine* voiceEngine,
+                  amuse::IBackendVoiceAllocator& backend) {
+  // PPCSetFpIEEEMode();
+  // uVar21 = OSGetTime();
+  // LCEnable();
+  x128_globalObjects = std::make_unique<CGameGlobalObjects>(nullptr, nullptr);
+  xf0_.resize(4, 0.3f);
+  x104_.resize(4, 0.2f);
+  x118_ = 0.3f;
+  x11c_ = 0.2f;
+  InitializeSubsystems();
+  x128_globalObjects->PostInitialize(); // COsContext*, CMemorySys*
+  x70_tweaks.RegisterTweaks(m_cvarMgr);
+  AddWorldPaks();
+
+  std::string msg;
+  if (!g_TweakManager->ReadFromMemoryCard("AudioTweaks"sv)) {
+    msg = "Loaded audio tweaks from memory card\n"s;
+  } else {
+    msg = "FAILED to load audio tweaks from memory card\n";
+  }
+
+  FillInAssetIDs();
+  x164_archSupport = std::make_unique<CGameArchitectureSupport>(*this, voiceEngine, backend);
+  x164_archSupport->PreloadAudio();
+
+  return 0;
+}
+#endif
 
 #if MP1_USE_BOO
 

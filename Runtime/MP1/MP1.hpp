@@ -206,17 +206,32 @@ private:
               const boo::ObjToken<boo::ITextureR>& spareTex);
   } m_booSetter;
 
+  // COsContext x0_osContext;
   // CMemorySys x6c_memSys;
   CTweaks x70_tweaks;
   EGameplayResult xe4_gameplayResult;
-
-  /* urde addition: these are simply initialized along with everything else */
-  CGameGlobalObjects x128_globalObjects;
-
+  double xe8_;
+  rstl::reserved_vector<float, 4> xf0_;
+  rstl::reserved_vector<float, 4> x104_;
+  float x118_;
+  float x11c_;
+  float x120_;
+  float x124_;
+  std::unique_ptr<CGameGlobalObjects> x128_globalObjects;
   EFlowState x12c_flowState = EFlowState::Default;
-
-  u32 x130_[10] = {1000000};
-
+  rstl::reserved_vector<u32, 10> x130_{{
+      1000000,
+      1000000,
+      1000000,
+      1000000,
+      1000000,
+      1000000,
+      1000000,
+      1000000,
+      1000000,
+      1000000,
+  }};
+  // u32 x15c_ = 0;
   bool x160_24_finished : 1 = false;
   bool x160_25_mfGameBuilt : 1 = false;
   bool x160_26_screenFading : 1 = false;
@@ -226,11 +241,9 @@ private:
   bool x160_30_ : 1 = false;
   bool x160_31_cardBusy : 1 = false;
   bool x161_24_gameFrameDrawn : 1 = false;
-
   std::unique_ptr<CGameArchitectureSupport> x164_archSupport;
 
   boo::IWindow* m_mainWindow = nullptr;
-
   hecl::CVarManager* m_cvarMgr = nullptr;
   std::unique_ptr<hecl::CVarCommons> m_cvarCommons;
   std::unique_ptr<hecl::Console> m_console;
@@ -269,7 +282,7 @@ public:
 
   static void UpdateDiscordPresence(CAssetId worldSTRG = {});
 
-  // int RsMain(int argc, const boo::SystemChar* argv[]);
+  // int RsMain(int argc, boo::SystemChar** argv, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend);
   void Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarManager, boo::IWindow* window,
             boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) override;
   void WarmupShaders() override;
@@ -318,7 +331,7 @@ public:
   bool IsTrilogy() const override { return m_version.isTrilogy; }
   ERegion GetRegion() const override { return m_version.region; }
   EGame GetGame() const override { return m_version.game; }
-  std::string_view GetVersionString() const override{ return m_version.version; }
+  std::string_view GetVersionString() const override { return m_version.version; }
 
   int m_warpWorldIdx = -1;
   TAreaId m_warpAreaId = 0;
