@@ -13,7 +13,7 @@ namespace urde {
 class CCollisionActorManager;
 class CElementGen;
 class CParticleSwoosh;
-}
+} // namespace urde
 
 namespace urde::MP1 {
 
@@ -40,6 +40,7 @@ class CMetroidBetaData {
 public:
   explicit CMetroidBetaData(CInputStream&);
 };
+
 class CMetroidBeta : public CPatterned {
   s32 x568_progState = -1;
   CMetroidBetaData x56c_metroidBetaData;
@@ -89,12 +90,14 @@ class CMetroidBeta : public CPatterned {
   void SetCollisionActorHealthAndVulnerability(CStateManager& mgr);
   void RemoveFromTeam(CStateManager& mgr);
   void AddToTeam(CStateManager& mgr);
+
 public:
   DEFINE_PATTERNED(MetroidBeta)
   CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms,
                const CMetroidBetaData& metroidData);
 
+  void Accept(IVisitor& visitor) override { visitor.Visit(this); }
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;

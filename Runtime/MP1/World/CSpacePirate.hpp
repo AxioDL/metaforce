@@ -136,7 +136,7 @@ private:
   bool x638_27_coverCheck : 1 = false;
   bool x638_28_enableDodge : 1 = false;
   bool x638_29_noPlayerDodge : 1 = false;
-  bool x638_30_ragdollOver : 1 = false;
+  bool x638_30_allEnergyDrained : 1 = false;
   bool x638_31_mayStartAttack : 1 = false;
   bool x639_24_ : 1 = false;
   bool x639_25_useJumpBackJump : 1 = false;
@@ -329,5 +329,6 @@ public:
   float GetGravityConstant() const override;
   CProjectileInfo* GetProjectileInfo() override;
   bool GetEnableAim() const { return x637_25_enableAim; }
+  bool AllEnergyDrained() const { return x638_30_allEnergyDrained; }
 };
 } // namespace urde::MP1

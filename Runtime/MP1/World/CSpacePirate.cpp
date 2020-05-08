@@ -821,7 +821,7 @@ void CSpacePirate::Think(float dt, CStateManager& mgr) {
       x400_27_fadeToDeath = true;
       AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
       x3e8_alphaDelta = -0.333333f;
-      x638_30_ragdollOver = true;
+      x638_30_allEnergyDrained = true;
       SetMomentumWR(zeus::skZero3f);
       CPhysicsActor::Stop();
     }
@@ -1070,7 +1070,7 @@ void CSpacePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
   switch (type) {
   case EUserEventType::BeginAction:
     RemoveMaterial(EMaterialTypes::Solid, mgr);
-    x638_30_ragdollOver = true;
+    x638_30_allEnergyDrained = true;
     handled = true;
     break;
   case EUserEventType::EndAction:
@@ -2360,7 +2360,7 @@ bool CSpacePirate::ShouldDodge(CStateManager& mgr, float arg) {
     }
     if (!ret) {
       if (const CMetroid* metroid = CPatterned::CastTo<CMetroid>(mgr.GetObjectById(x7c0_targetId))) {
-        if (metroid->GetX9BF_29() &&
+        if (metroid->IsAttacking() &&
             (GetTranslation() - metroid->GetTranslation()).dot(metroid->GetTransform().basis[1]) > 0.f) {
           ret = true;
         }

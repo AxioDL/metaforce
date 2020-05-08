@@ -79,6 +79,7 @@ void CMetroidBeta::Think(float dt, CStateManager& mgr) {
   // sub801c0da4(dt, mgr);
   // sub801c21b4(dt, mgr);
 }
+
 void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
   switch (msg) {

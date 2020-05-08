@@ -69,5 +69,6 @@ public:
   const CAnimationParameters& GetAnimationParameters() const { return xec_animParams; }
   u32 GetPathfindingIndex() const { return x10c_pathfindingIndex; }
   bool GetActive() const { return xf8_active; }
+  void SetActive(bool active) { xf8_active = active; }
 };
 } // namespace urde
