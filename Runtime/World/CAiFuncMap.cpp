@@ -137,7 +137,7 @@ CAiFuncMap::CAiFuncMap() {
   CAi::CreateFuncLookup(this);
 }
 
-CAiStateFunc CAiFuncMap::GetStateFunc(const char* func) const {
+CAiStateFunc CAiFuncMap::GetStateFunc(std::string_view func) const {
   const auto iter = x0_stateFuncs.find(func);
 
   if (iter == x0_stateFuncs.cend()) {
@@ -147,7 +147,7 @@ CAiStateFunc CAiFuncMap::GetStateFunc(const char* func) const {
   return iter->second;
 }
 
-CAiTriggerFunc CAiFuncMap::GetTriggerFunc(const char* func) const {
+CAiTriggerFunc CAiFuncMap::GetTriggerFunc(std::string_view func) const {
   const auto iter = x10_triggerFuncs.find(func);
 
   if (iter == x10_triggerFuncs.cend()) {

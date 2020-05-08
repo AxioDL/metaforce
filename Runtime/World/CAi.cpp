@@ -78,9 +78,9 @@ void CAi::FluidFXThink(EFluidState state, CScriptWater& water, urde::CStateManag
   water.GetFluidPlane().AddRipple(GetMass(), GetUniqueId(), center, GetVelocity(), water, mgr, pos);
 }
 
-CAiStateFunc CAi::GetStateFunc(const char* func) { return m_FuncMap->GetStateFunc(func); }
+CAiStateFunc CAi::GetStateFunc(std::string_view func) { return m_FuncMap->GetStateFunc(func); }
 
-CAiTriggerFunc CAi::GetTrigerFunc(const char* func) { return m_FuncMap->GetTriggerFunc(func); }
+CAiTriggerFunc CAi::GetTriggerFunc(std::string_view func) { return m_FuncMap->GetTriggerFunc(func); }
 
 const CStateMachine* CAi::GetStateMachine() const { return x2c8_stateMachine.GetObj(); }
 void CAi::CreateFuncLookup(CAiFuncMap* funcMap) { m_FuncMap = funcMap; }

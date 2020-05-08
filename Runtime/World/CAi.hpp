@@ -36,8 +36,8 @@ public:
       const CMaterialList& list, CAssetId fsm, const CActorParameters&, float f1, float f2);
 
   static void CreateFuncLookup(CAiFuncMap* funcMap);
-  static CAiStateFunc GetStateFunc(const char* func);
-  static CAiTriggerFunc GetTrigerFunc(const char* func);
+  static CAiStateFunc GetStateFunc(std::string_view func);
+  static CAiTriggerFunc GetTriggerFunc(std::string_view func);
 
   const CStateMachine* GetStateMachine() const;
 
