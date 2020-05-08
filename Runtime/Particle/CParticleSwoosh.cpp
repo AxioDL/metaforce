@@ -57,7 +57,7 @@ CParticleSwoosh::CParticleSwoosh(const TToken<CSwooshDescription>& desc, int len
                                  0.f, 0.f, zeus::skClear);
     }
 
-    SetOrientation(zeus::CTransform());
+    CParticleSwoosh::SetOrientation(zeus::CTransform());
 
     x16c_p0.resize(x1b8_SIDE);
     x17c_p1.resize(x1b8_SIDE);
