@@ -24,7 +24,7 @@ constexpr CCameraShakeData skHardShake{
 };
 
 constexpr std::array skComboNames{
-    "SuperMissile", "IceCombo", "WaveBuster", "FlameThrower", "SuperMissile",
+    "SuperMissile"sv, "IceCombo"sv, "WaveBuster"sv, "FlameThrower"sv, "SuperMissile"sv,
 };
 
 constexpr std::array<u16, 5> skSoundId{
