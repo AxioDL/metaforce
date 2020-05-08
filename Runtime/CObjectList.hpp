@@ -69,8 +69,8 @@ public:
   [[nodiscard]] iterator end() { return iterator(*this, -1); }
   [[nodiscard]] const_iterator begin() const { return const_iterator(*this, x2008_firstId); }
   [[nodiscard]] const_iterator end() const { return const_iterator(*this, -1); }
-  [[nodiscard]] const_iterator cbegin() const { return const_iterator(*this, x2008_firstId); }
-  [[nodiscard]] const_iterator cend() const { return const_iterator(*this, -1); }
+  [[nodiscard]] const_iterator cbegin() const { return begin(); }
+  [[nodiscard]] const_iterator cend() const { return end(); }
 
   explicit CObjectList(EGameObjectList listEnum);
   virtual ~CObjectList() = default;
