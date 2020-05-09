@@ -2010,7 +2010,7 @@ CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propC
 CEntity* ScriptLoader::LoadMetroid(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
   if (!EnsurePropertyCount(propCount, MP1::CMetroidData::GetNumProperties(), "Metroid"))
     return nullptr;
-#if 0
+
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
   zeus::CTransform xf = LoadEditorTransform(in);
@@ -2028,12 +2028,8 @@ CEntity* ScriptLoader::LoadMetroid(CStateManager& mgr, CInputStream& in, int pro
 
   CModelData mData(
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
-   return new MP1::CMetroid(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, actParms,
-   metData,
-                          kInvalidUniqueId);
-#else
-  return nullptr;
-#endif
+  return new MP1::CMetroid(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, actParms, metData,
+                           kInvalidUniqueId);
 }
 
 CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, int propCount,

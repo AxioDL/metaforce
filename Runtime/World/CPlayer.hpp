@@ -584,6 +584,7 @@ public:
   float GetStaticTimer() const { return x740_staticTimer; }
   float GetDeathTime() const { return x9f4_deathTime; }
   const CPlayerEnergyDrain& GetEnergyDrain() const { return x274_energyDrain; }
+  CPlayerEnergyDrain& GetEnergyDrain() { return x274_energyDrain; }
   EPlayerZoneInfo GetOrbitZone() const { return x330_orbitZoneMode; }
   EPlayerZoneType GetOrbitType() const { return x334_orbitType; }
   const zeus::CTransform& GetFirstPersonCameraTransform(const CStateManager& mgr) const;

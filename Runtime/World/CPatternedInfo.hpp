@@ -42,7 +42,7 @@ class CPatternedInfo {
   CAssetId xfc_stateMachineId;
   float x100_intoFreezeDur;
   float x104_outofFreezeDur;
-  float x108_;
+  float x108_freezeDur;
 
   u32 x10c_pathfindingIndex;
 

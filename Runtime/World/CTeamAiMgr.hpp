@@ -26,7 +26,8 @@ private:
   zeus::CVector3f x1c_position;
 
 public:
-  CTeamAiRole(TUniqueId ownerId, ETeamAiRole a, ETeamAiRole b, ETeamAiRole c)
+  CTeamAiRole(TUniqueId ownerId, ETeamAiRole a = ETeamAiRole::Invalid, ETeamAiRole b = ETeamAiRole::Invalid,
+              ETeamAiRole c = ETeamAiRole::Invalid)
   : x0_ownerId(ownerId), x4_roleA(a), x8_roleB(b), xc_roleC(c) {}
   TUniqueId GetOwnerId() const { return x0_ownerId; }
   bool HasTeamAiRole() const { return false; }

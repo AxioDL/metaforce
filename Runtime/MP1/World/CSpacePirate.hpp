@@ -330,5 +330,7 @@ public:
   CProjectileInfo* GetProjectileInfo() override;
   bool GetEnableAim() const { return x637_25_enableAim; }
   bool AllEnergyDrained() const { return x638_30_allEnergyDrained; }
+  TUniqueId GetAttachedActor() const { return x7b4_attachedActor; }
+  bool IsTrooper() const { return x636_24_trooper; }
 };
 } // namespace urde::MP1

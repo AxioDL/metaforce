@@ -73,7 +73,7 @@ CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view nam
   x458_iceShatterSfx = pInfo.x134_iceShatterSfx;
   x4f4_intoFreezeDur = pInfo.x100_intoFreezeDur;
   x4f8_outofFreezeDur = pInfo.x104_outofFreezeDur;
-  x4fc_ = pInfo.x108_;
+  x4fc_freezeDur = pInfo.x108_freezeDur;
   x508_colliderType = colliderType;
   x50c_baseDamageMag = actorParms.GetThermalMag();
   x514_deathExplosionOffset = pInfo.x110_particle1Scale;

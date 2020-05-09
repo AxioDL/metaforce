@@ -214,7 +214,7 @@ protected:
   float x4f0_predictedLeashTime = 0.f;
   float x4f4_intoFreezeDur;
   float x4f8_outofFreezeDur;
-  float x4fc_;
+  float x4fc_freezeDur;
   float x500_preThinkDt = 0.f;
   float x504_damageDur = 0.f;
   EColliderType x508_colliderType;
