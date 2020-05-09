@@ -1308,18 +1308,24 @@ CStateManager::GetIdListForScript(TEditorId id) const {
 
 void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector<TEditorId>& idsOut) {
   in.readUByte();
-  int objCount = in.readUint32Big();
+
+  const u32 objCount = in.readUint32Big();
   idsOut.reserve(idsOut.size() + objCount);
-  for (int i = 0; i < objCount; ++i) {
-    EScriptObjectType objType = EScriptObjectType(in.readUByte());
-    u32 objSize = in.readUint32Big();
-    u32 pos = in.position();
-    auto id = LoadScriptObject(aid, objType, objSize, in);
-    if (id.first == kInvalidEditorId)
+
+  for (u32 i = 0; i < objCount; ++i) {
+    const auto objType = static_cast<EScriptObjectType>(in.readUByte());
+    const u32 objSize = in.readUint32Big();
+    const u32 pos = static_cast<u32>(in.position());
+    const auto id = LoadScriptObject(aid, objType, objSize, in);
+    if (id.first == kInvalidEditorId) {
       continue;
-    auto build = GetBuildForScript(id.first);
-    if (build.first)
+    }
+
+    const auto build = GetBuildForScript(id.first);
+    if (build.first) {
       continue;
+    }
+
     x8a4_loadedScriptObjects[id.first] = SScriptObjectStream{objType, pos, objSize};
     idsOut.push_back(id.first);
   }
