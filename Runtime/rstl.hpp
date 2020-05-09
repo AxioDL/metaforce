@@ -270,10 +270,10 @@ private:
   destroy(Tp& t, std::enable_if_t<!std::is_destructible_v<Tp> || std::is_trivially_destructible_v<Tp>>* = nullptr) {}
 
 public:
-  reserved_vector() noexcept(std::is_nothrow_constructible_v<T>) : x0_size(0) {}
+  constexpr reserved_vector() noexcept(std::is_nothrow_constructible_v<T>) : x0_size(0) {}
 
   template <size_t LN>
-  reserved_vector(const T (&l)[LN]) noexcept(std::is_nothrow_copy_constructible_v<T>) : x0_size(LN) {
+  constexpr reserved_vector(const T (&l)[LN]) noexcept(std::is_nothrow_copy_constructible_v<T>) : x0_size(LN) {
     static_assert(LN <= N, "initializer array too large for reserved_vector");
     for (size_t i = 0; i < LN; ++i) {
       ::new (static_cast<void*>(std::addressof(_value(i)))) T(l[i]);
