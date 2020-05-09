@@ -20,7 +20,7 @@ private:
   CDamageVulnerability x68_energyDrainVulnerability;
   float xd0_;
   float xd4_maxEnergyDrainAllowed;
-  float xd8_;
+  float xd8_telegraphAttackTime;
   float xdc_stage2GrowthScale;
   float xe0_stage2GrowthEnergy;
   float xe4_explosionGrowthEnergy;
@@ -36,6 +36,7 @@ public:
   const CDamageVulnerability& GetFrozenVulnerability() const { return x0_frozenVulnerability; }
   const CDamageVulnerability& GetEnergyDrainVulnerability() const { return x68_energyDrainVulnerability; }
   float GetMaxEnergyDrainAllowed() const { return xd4_maxEnergyDrainAllowed; }
+  float GetTelegraphAttackTime() const { return xd8_telegraphAttackTime; }
   float GetStage2GrowthScale() const { return xdc_stage2GrowthScale; }
   float GetStage2GrowthEnergy() const { return xe0_stage2GrowthEnergy; }
   float GetExplosionGrowthEnergy() const { return xe4_explosionGrowthEnergy; }
@@ -132,25 +133,24 @@ public:
   void Touch(CActor& act, CStateManager& mgr) override;
 
   void Attack(CStateManager& mgr, EStateMsg msg, float dt) override;
-  //  void Dodge(CStateManager& mgr, EStateMsg msg, float dt) override;
-  //  void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;
-  //  void Generate(CStateManager& mgr, EStateMsg msg, float arg) override;
-  //  void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType type, bool
-  //  inDeferred,
-  //                 float magnitude) override;
+  void Dodge(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;
+  void Generate(CStateManager& mgr, EStateMsg msg, float arg) override;
+  void KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const CDamageInfo& info, EKnockBackType type,
+                 bool inDeferred, float magnitude) override;
   void PathFind(CStateManager& mgr, EStateMsg msg, float arg) override;
   //  void Patrol(CStateManager& mgr, EStateMsg msg, float arg) override;
   //  void TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) override;
-  //  void TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) override;
+    void TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) override;
   //  void TurnAround(CStateManager& mgr, EStateMsg msg, float dt) override;
   //  void WallHang(CStateManager& mgr, EStateMsg msg, float dt) override;
 
   bool AnimOver(CStateManager&, float arg) override { return x568_state == EState::Over; }
   bool AggressionCheck(CStateManager& mgr, float arg) override;
-  //  bool Attacked(CStateManager& mgr, float arg) override;
-  //  bool AttackOver(CStateManager& mgr, float arg) override;
-  //  bool InAttackPosition(CStateManager& mgr, float arg) override;
-  //  bool InDetectionRange(CStateManager& mgr, float arg) override;
+  bool Attacked(CStateManager& mgr, float arg) override;
+  bool AttackOver(CStateManager& mgr, float arg) override;
+  bool InAttackPosition(CStateManager& mgr, float arg) override;
+  bool InDetectionRange(CStateManager& mgr, float arg) override;
   //  bool InPosition(CStateManager& mgr, float arg) override;
   //  bool InRange(CStateManager& mgr, float arg) override;
   //  bool Inside(CStateManager& mgr, float arg) override;
