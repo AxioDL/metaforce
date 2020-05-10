@@ -114,11 +114,14 @@ constexpr std::array<std::array<SSomeRidleyStruct2, 12>, 5> skSomeRidleyStruct{{
     }},
 }};
 
-constexpr std::array<SSomeRidleyStruct, 5> skSomeStruct{{{4, 6, 50.f, 50.f, 0.f, 33.f, 0.f, 1, 0, 0, 0, 0},
-                                                         {4, 6, 20.f, 20.f, 60.f, 50.f, 0.f, 2, 0, 0, 0, 0},
-                                                         {4, 6, 40.f, 40.f, 20.f, 50.f, 50.f, 2, 1, 0, 0, 0},
-                                                         {3, 5, 10.f, 15.f, 75.f, 100.f, 25.f, 2, 0, 0, 0, 0},
-                                                         {3, 5, 30.f, 30.f, 40.f, 50.f, 50.f, 2, 1, 0, 0, 0}}};
+constexpr std::array<SSomeRidleyStruct, 5> skSomeStruct{{
+    {4, 6, 50.f, 50.f, 0.f, 33.f, 0.f, 1, 0, 0, 0, 0},
+    {4, 6, 20.f, 20.f, 60.f, 50.f, 0.f, 2, 0, 0, 0, 0},
+    {4, 6, 40.f, 40.f, 20.f, 50.f, 50.f, 2, 1, 0, 0, 0},
+    {3, 5, 10.f, 15.f, 75.f, 100.f, 25.f, 2, 0, 0, 0, 0},
+    {3, 5, 30.f, 30.f, 40.f, 50.f, 50.f, 2, 1, 0, 0, 0},
+}};
+
 constexpr std::array skWingBones{
     "L_wingBone1_1"sv,    "L_wingBone1_2"sv,    "L_wingBone2_1"sv,    "L_wingBone2_2"sv,    "L_wingBone3_1"sv,
     "L_wingBone3_2"sv,    "L_wingFlesh1_1"sv,   "L_wingFlesh1_2"sv,   "L_wingFlesh2_1"sv,   "L_wingFlesh2_2"sv,
