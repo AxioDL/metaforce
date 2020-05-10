@@ -18,9 +18,7 @@
 #include "Runtime/World/CScriptWaypoint.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
-namespace MP1 {
-
+namespace urde::MP1 {
 namespace {
 struct SSomeRidleyStruct {
   u32 x0_;
@@ -1682,5 +1680,4 @@ void CRidley::sub80253710(urde::CStateManager& mgr) {
   if (frontMag > 0.f && diffMag < x2fc_minAttackRange && xb08_ != 4)
     xb0c_ = 4;
 }
-} // namespace MP1
-} // namespace urde
+} // namespace urde::MP1
