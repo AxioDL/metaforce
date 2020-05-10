@@ -32,6 +32,11 @@ void CWaveBuster::ResetBeam(bool deactivate) {}
 
 void CWaveBuster::SetNewTarget(TUniqueId id) {}
 
+void CWaveBuster::AddToRenderer([[maybe_unused]] const zeus::CFrustum& frustum, CStateManager& mgr) {
+  const auto bounds = GetSortingBounds(mgr);
+  EnsureRendered(mgr, x2e8_originalXf.origin, bounds);
+}
+
 std::optional<zeus::CAABox> CWaveBuster::GetTouchBounds() const {
   if (x3d0_28_) {
     return std::nullopt;

@@ -55,6 +55,7 @@ public:
   void ResetBeam(bool deactivate);
   void SetNewTarget(TUniqueId id);
 
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
 };
 
