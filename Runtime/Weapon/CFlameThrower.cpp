@@ -38,7 +38,7 @@ void CFlameThrower::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CFlameThrower::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   if (msg == EScriptObjectMessage::Registered) {
-    xe6_27_thermalVisorFlags |= 2;
+    xe6_27_thermalVisorFlags = 2;
     mgr.AddWeaponId(xec_ownerId, xf0_weaponType);
   } else if (msg == EScriptObjectMessage::Deleted) {
     mgr.RemoveWeaponId(xec_ownerId, xf0_weaponType);
