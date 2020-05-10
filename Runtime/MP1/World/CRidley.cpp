@@ -139,7 +139,7 @@ constexpr std::array skWingEffects{
     "WingSmokeSmall5"sv,
     "WingSmokeSmall6"sv,
     "WingSmokeSmall7"sv,
-    "WingSmokeSmall8"sv
+    "WingSmokeSmall8"sv,
     "WingFire1"sv,
     "WingFire2"sv,
     "WingFire3"sv,
