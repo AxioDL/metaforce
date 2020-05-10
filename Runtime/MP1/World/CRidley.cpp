@@ -294,8 +294,8 @@ CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
     xce0_->SetParticleEmission(false);
 
   const auto& animData = GetModelData()->GetAnimationData();
-  for (size_t i = 0; i < skWingBones.size(); ++i) {
-    xce4_wingBoneIds.push_back(animData->GetLocatorSegId(skWingBones[i]));
+  for (const auto& wingBone : skWingBones) {
+    xce4_wingBoneIds.push_back(animData->GetLocatorSegId(wingBone));
   }
 
   xae4_ = GetModelData()->GetScale().x() *
