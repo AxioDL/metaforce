@@ -187,12 +187,14 @@ struct SSomeRidleyStruct3 {
   float x14_;
 };
 
-constexpr std::array<SSomeRidleyStruct3, 6> skFloats{{{0.0, 20.0, 40.0, 0.0, 0.0, 40.0},
-                                                      {0.0, 0.0, 70.0, 0.0, 0.0, 30.0},
-                                                      {0.0, 60.0, 0.0, 0.0, 0.0, 40.0},
-                                                      {0.0, 40.0, 30.0, 0.0, 0.0, 30.0},
-                                                      {0.0, 0.0, 50.0, 0.0, 0.0, 50.0},
-                                                      {0.0, 40.0, 60.0, 0.0, 0.0, 0.0}}};
+constexpr std::array<SSomeRidleyStruct3, 6> skFloats{{
+    {0.0, 20.0, 40.0, 0.0, 0.0, 40.0},
+    {0.0, 0.0, 70.0, 0.0, 0.0, 30.0},
+    {0.0, 60.0, 0.0, 0.0, 0.0, 40.0},
+    {0.0, 40.0, 30.0, 0.0, 0.0, 30.0},
+    {0.0, 0.0, 50.0, 0.0, 0.0, 50.0},
+    {0.0, 40.0, 60.0, 0.0, 0.0, 0.0},
+}};
 
 constexpr CDamageVulnerability skDirectNormal{EVulnerability::DirectNormal, EVulnerability::DirectNormal,
                                               EVulnerability::DirectNormal, EVulnerability::DirectNormal,
