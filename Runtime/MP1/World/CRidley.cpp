@@ -167,7 +167,7 @@ constexpr std::array<SOBBRadiiJointInfo, 4> skTail{{
 constexpr std::array<SSphereJointInfo, 10> skSphereJoints{{
     {"Skeleton_Root", 0.6f},
     {"Spine_2", 0.6f},
-    {"breastPlate_LCTR", 0.6f},
+    {"breastPlate_LCTR", 0.3f},
     {"Head_1", 0.6f},
     {"L_wrist", 0.5f},
     {"R_wrist", 0.5f},
