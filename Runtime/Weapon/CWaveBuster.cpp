@@ -3,6 +3,8 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
+#include "TCastTo.hpp" // Generated file, do not modify include path
+
 namespace urde {
 
 CWaveBuster::CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf,
@@ -31,6 +33,8 @@ void CWaveBuster::UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& 
 void CWaveBuster::ResetBeam(bool deactivate) {}
 
 void CWaveBuster::SetNewTarget(TUniqueId id) {}
+
+void CWaveBuster::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CWaveBuster::AddToRenderer([[maybe_unused]] const zeus::CFrustum& frustum, CStateManager& mgr) {
   const auto bounds = GetSortingBounds(mgr);
