@@ -193,22 +193,22 @@ constexpr std::array<SSomeRidleyStruct3, 6> skFloats{{{0.0, 20.0, 40.0, 0.0, 0.0
                                                       {0.0, 0.0, 50.0, 0.0, 0.0, 50.0},
                                                       {0.0, 40.0, 60.0, 0.0, 0.0, 0.0}}};
 
-const CDamageVulnerability skDirectNormal{EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EDeflectType::None};
-const CDamageVulnerability skIceWeakness{EVulnerability::DirectNormal, EVulnerability::DirectWeak,
-                                         EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                         EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                         EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                         EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                         EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                         EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                         EVulnerability::DirectNormal, EDeflectType::None};
+constexpr CDamageVulnerability skDirectNormal{EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EDeflectType::None};
+constexpr CDamageVulnerability skIceWeakness{EVulnerability::DirectNormal, EVulnerability::DirectWeak,
+                                             EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                             EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                             EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                             EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                             EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                             EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                             EVulnerability::DirectNormal, EDeflectType::None};
 } // namespace
 CRidleyData::CRidleyData(CInputStream& in, u32 propCount)
 : x0_(in)
