@@ -56,6 +56,7 @@ public:
   void SetNewTarget(TUniqueId id);
 
   void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId senderId, CStateManager& mgr) override;
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
 };
