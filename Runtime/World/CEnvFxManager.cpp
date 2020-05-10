@@ -178,10 +178,10 @@ void CEnvFxManager::CalculateSnowForces(const CVectorFixed8_8& zVec,
 
 void CEnvFxManager::BuildBlockObjectList(rstl::reserved_vector<TUniqueId, 1024>& list, CStateManager& mgr) {
   for (CEntity* ent : mgr.GetAllObjectList()) {
-    TCastToPtr<CScriptTrigger> trig = ent;
+    const TCastToConstPtr<CScriptTrigger> trig = ent;
     if (trig && True(trig->GetTriggerFlags() & ETriggerFlags::BlockEnvironmentalEffects)) {
       list.push_back(ent->GetUniqueId());
-    } else if (TCastToPtr<CScriptWater> water = ent) {
+    } else if (TCastToConstPtr<CScriptWater>(ent)) {
       list.push_back(ent->GetUniqueId());
     }
   }
