@@ -2176,7 +2176,7 @@ void CMorphBall::ApplyGravity(CStateManager& mgr) {
   }
 }
 
-void CMorphBall::SpinToSpeed(float holdMag, zeus::CVector3f torque, float mag) {
+void CMorphBall::SpinToSpeed(float holdMag, const zeus::CVector3f& torque, float mag) {
   x0_player.ApplyTorqueWR(torque * ((holdMag - x0_player.GetAngularVelocityWR().getVector().magnitude()) * mag));
 }
 
