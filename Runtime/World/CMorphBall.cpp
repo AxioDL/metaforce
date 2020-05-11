@@ -2190,7 +2190,7 @@ float CMorphBall::ComputeMaxSpeed() const {
 constexpr CDamageInfo kBallDamage = {CWeaponMode(EWeaponType::BoostBall), 50000.f, 0.f, 0.f};
 
 void CMorphBall::Touch(CActor& actor, CStateManager& mgr) {
-  if (const TCastToPtr<CPhysicsActor> act = actor) {
+  if (const TCastToConstPtr<CPhysicsActor> act = actor) {
     if (x1de4_24_inBoost && (act->GetVelocity() - x0_player.GetVelocity()).magnitude() >
                                 g_tweakBall->GetBoostBallMinRelativeSpeedForDamage()) {
       mgr.ApplyDamage(x0_player.GetUniqueId(), actor.GetUniqueId(), x0_player.GetUniqueId(), kBallDamage,
