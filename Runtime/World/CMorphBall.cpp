@@ -2168,12 +2168,13 @@ float CMorphBall::CalculateSurfaceFriction() const {
   return friction;
 }
 
-void CMorphBall::ApplyGravity(CStateManager& mgr) {
-  if (x0_player.CheckSubmerged() && !mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit)) {
-    x0_player.SetMomentumWR(zeus::CVector3f(0.f, 0.f, g_tweakBall->GetBallWaterGravity() * x0_player.GetMass()));
-  } else {
-    x0_player.SetMomentumWR(zeus::CVector3f(0.f, 0.f, g_tweakBall->GetBallGravity() * x0_player.GetMass()));
-  }
+void CMorphBall::ApplyGravity(const CStateManager& mgr) {
+  const float mass = x0_player.GetMass();
+  const bool hasGravitySuit = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit);
+  const bool useWaterGravity = x0_player.CheckSubmerged() && !hasGravitySuit;
+  const float gravity = useWaterGravity ? g_tweakBall->GetBallWaterGravity() : g_tweakBall->GetBallGravity();
+
+  x0_player.SetMomentumWR(zeus::CVector3f(0.f, 0.f, gravity * mass));
 }
 
 void CMorphBall::SpinToSpeed(float holdMag, const zeus::CVector3f& torque, float mag) {
