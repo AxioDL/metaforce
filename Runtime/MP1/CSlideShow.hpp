@@ -98,7 +98,6 @@ private:
   bool x135_24_ : 1 = true;
 
   bool LoadTXTRDep(std::string_view name);
-  static bool AreAllDepsLoaded(const std::vector<TLockedToken<CDependencyGroup>>& deps);
 
 public:
   CSlideShow();
