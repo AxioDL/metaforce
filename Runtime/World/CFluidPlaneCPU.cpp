@@ -29,17 +29,17 @@ CFluidPlaneCPU::CTurbulence::CTurbulence(float speed, float distance, float freq
     x24_tableCount = kTableSize;
     x28_heightSelPitch = x24_tableCount;
     x20_table.reset(new float[x24_tableCount]);
-    float anglePitch = 2.f * M_PIF / x28_heightSelPitch;
-    float freqConstant = 0.5f * (x8_freqMax + xc_freqMin);
-    float freqLinear = 0.5f * (x8_freqMax - xc_freqMin);
-    float phaseConstant = 0.5f * (x10_phaseMax + x14_phaseMin);
-    float phaseLinear = 0.5f * (x10_phaseMax - x14_phaseMin);
-    float amplitudeConstant = 0.5f * (x18_amplitudeMax + x1c_amplitudeMin);
-    float amplitudeLinear = 0.5f * (x18_amplitudeMax - x1c_amplitudeMin);
+    const float anglePitch = 2.f * M_PIF / x28_heightSelPitch;
+    const float freqConstant = 0.5f * (x8_freqMax + xc_freqMin);
+    const float freqLinear = 0.5f * (x8_freqMax - xc_freqMin);
+    const float phaseConstant = 0.5f * (x10_phaseMax + x14_phaseMin);
+    const float phaseLinear = 0.5f * (x10_phaseMax - x14_phaseMin);
+    const float amplitudeConstant = 0.5f * (x18_amplitudeMax + x1c_amplitudeMin);
+    const float amplitudeLinear = 0.5f * (x18_amplitudeMax - x1c_amplitudeMin);
 
     float curAng = 0.f;
-    for (int i = 0; i < x24_tableCount; ++i, curAng += anglePitch) {
-      float angCos = std::cos(curAng);
+    for (size_t i = 0; i < x24_tableCount; ++i, curAng += anglePitch) {
+      const float angCos = std::cos(curAng);
       x20_table[i] = (amplitudeLinear * angCos + amplitudeConstant) *
                      std::sin((freqLinear * angCos + freqConstant) * curAng + (phaseLinear * angCos + phaseConstant));
     }
