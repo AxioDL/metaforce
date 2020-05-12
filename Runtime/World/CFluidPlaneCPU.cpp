@@ -10,9 +10,9 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-#define kTableSize 2048
-
 namespace urde {
+constexpr u32 kTableSize = 2048;
+
 CFluidPlaneCPU::CTurbulence::CTurbulence(float speed, float distance, float freqMax, float freqMin, float phaseMax,
                                          float phaseMin, float amplitudeMax, float amplitudeMin)
 : x0_speed(speed)
