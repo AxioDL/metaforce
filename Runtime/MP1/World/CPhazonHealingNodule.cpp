@@ -162,7 +162,7 @@ void CPhazonHealingNodule::UpdateParticleElectric(CStateManager& mgr) {
   if (!x57c_particleElectric) {
     return;
   }
-  if (auto* entity = static_cast<const CPatterned*>(mgr.GetObjectById(x56e_connId))) {
+  if (const auto* entity = static_cast<const CPatterned*>(mgr.GetObjectById(x56e_connId))) {
     const auto electricityLctrXf = GetLctrTransform("Electricity_LCTR"sv);
     const auto actorLctrXf = entity->GetLctrTransform(x58c_actorLctr);
     x57c_particleElectric->SetOverrideIPos(electricityLctrXf.origin);
