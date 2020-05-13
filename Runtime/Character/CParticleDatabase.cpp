@@ -205,36 +205,39 @@ void CParticleDatabase::Update(float dt, const CPoseAsTransforms& pose, const CC
 }
 
 void CParticleDatabase::RenderParticleGenMap(const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map) {
-  for (auto& e : map) {
+  for (const auto& e : map) {
     e.second->Render();
   }
 }
 
 void CParticleDatabase::RenderParticleGenMapMasked(const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map,
                                                    int mask, int target) {
-  for (auto& e : map) {
-    if ((e.second->GetFlags() & mask) == target)
+  for (const auto& e : map) {
+    if ((e.second->GetFlags() & mask) == target) {
       e.second->Render();
+    }
   }
 }
 
 void CParticleDatabase::AddToRendererClippedParticleGenMap(
     const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map, const zeus::CFrustum& frustum) {
-  for (auto& e : map) {
-    auto bounds = e.second->GetBounds();
-    if (bounds && frustum.aabbFrustumTest(*bounds))
+  for (const auto& e : map) {
+    const auto bounds = e.second->GetBounds();
+    if (bounds && frustum.aabbFrustumTest(*bounds)) {
       e.second->AddToRenderer();
+    }
   }
 }
 
 void CParticleDatabase::AddToRendererClippedParticleGenMapMasked(
     const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map, const zeus::CFrustum& frustum, int mask,
     int target) {
-  for (auto& e : map) {
+  for (const auto& e : map) {
     if ((e.second->GetFlags() & mask) == target) {
-      auto bounds = e.second->GetBounds();
-      if (bounds && frustum.aabbFrustumTest(*bounds))
+      const auto bounds = e.second->GetBounds();
+      if (bounds && frustum.aabbFrustumTest(*bounds)) {
         e.second->AddToRenderer();
+      }
     }
   }
 }

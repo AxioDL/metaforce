@@ -248,10 +248,10 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
 
 void CElitePirate::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CPatterned::PreRender(mgr, frustum);
-  auto modelData = GetModelData();
+  auto* modelData = GetModelData();
   x6f8_boneTracking.PreRender(mgr, *modelData->GetAnimationData(), GetTransform(), modelData->GetScale(),
                               *x450_bodyController);
-  auto numMaterialSets = modelData->GetNumMaterialSets();
+  const auto numMaterialSets = modelData->GetNumMaterialSets();
   xb4_drawFlags.x1_matSetIdx =
       numMaterialSets - 1 < x7cc_activeMaterialSet ? numMaterialSets - 1 : x7cc_activeMaterialSet;
 }
@@ -757,7 +757,7 @@ void CElitePirate::SetupHealthInfo(CStateManager& mgr) {
   x7b4_hp = health->GetHP();
   if (HasWeakPointHead()) {
     if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(x770_collisionHeadId)) {
-      auto actHealth = actor->HealthInfo(mgr);
+      auto* actHealth = actor->HealthInfo(mgr);
       actHealth->SetHP(health->GetHP());
       actHealth->SetKnockbackResistance(health->GetKnockbackResistance());
       actor->SetDamageVulnerability(x56c_vulnerability);
@@ -940,13 +940,15 @@ void CElitePirate::CreateEnergyAbsorb(CStateManager& mgr, const zeus::CTransform
 
 void CElitePirate::SetupLauncherHealthInfo(CStateManager& mgr, TUniqueId uid) {
   const CHealthInfo* const health = HealthInfo(mgr);
-  if (uid != kInvalidUniqueId) {
-    if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {
-      auto actHealth = actor->HealthInfo(mgr);
-      actHealth->SetHP(x5d8_data.GetLauncherHP());
-      actHealth->SetKnockbackResistance(health->GetKnockbackResistance());
-      actor->SetDamageVulnerability(x56c_vulnerability);
-    }
+  if (uid == kInvalidUniqueId) {
+    return;
+  }
+
+  if (const TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {
+    auto* actHealth = actor->HealthInfo(mgr);
+    actHealth->SetHP(x5d8_data.GetLauncherHP());
+    actHealth->SetKnockbackResistance(health->GetKnockbackResistance());
+    actor->SetDamageVulnerability(x56c_vulnerability);
   }
 }
 
@@ -954,7 +956,7 @@ void CElitePirate::SetLauncherActive(CStateManager& mgr, bool val, TUniqueId uid
   if (uid == kInvalidUniqueId) {
     return;
   }
-  if (auto entity = mgr.ObjectById(uid)) {
+  if (auto* entity = mgr.ObjectById(uid)) {
     mgr.SendScriptMsg(entity, GetUniqueId(), val ? EScriptObjectMessage::Start : EScriptObjectMessage::Stop);
   }
 }
