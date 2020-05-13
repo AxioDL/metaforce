@@ -19,8 +19,6 @@ std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CParticleSwooshShaders::m_noT
 std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CParticleSwooshShaders::m_noTexAdditiveZWrite;
 std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CParticleSwooshShaders::m_noTexAdditiveNoZWrite;
 
-static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
-
 void CParticleSwooshShaders::Initialize() {
   m_texZWrite = {hecl::conv->convert(Shader_CParticleSwooshShaderTexZWrite{}),
                  hecl::conv->convert(Shader_CParticleSwooshShaderTexZWriteAWrite{})};

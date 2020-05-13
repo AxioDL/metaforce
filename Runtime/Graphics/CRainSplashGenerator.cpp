@@ -151,13 +151,13 @@ void CRainSplashGenerator::Update(float dt, CStateManager& mgr) {
 
 u32 CRainSplashGenerator::GetNextBestPt(u32 pt, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn,
                                         CRandom16& rand, float minZ) {
-  auto& refVert = vn[pt];
+  const auto& refVert = vn[pt];
   float maxDist = 0.f;
   u32 nextPt = pt;
   for (int i = 0; i < 3; ++i) {
-    auto idx = u32(rand.Range(0, int(vn.size() - 1)));
-    auto& vert = vn[idx];
-    float distSq = (refVert.first - vert.first).magSquared();
+    const auto idx = u32(rand.Range(0, int(vn.size() - 1)));
+    const auto& vert = vn[idx];
+    const float distSq = (refVert.first - vert.first).magSquared();
     if (distSq > maxDist && vert.second.dot(zeus::skUp) >= 0.f &&
         (vert.first.z() <= 0.f || vert.first.z() > minZ)) {
       nextPt = idx;

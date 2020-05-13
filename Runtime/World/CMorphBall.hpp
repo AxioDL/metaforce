@@ -249,8 +249,8 @@ public:
   void ComputeLiftForces(const zeus::CVector3f& controlForce, const zeus::CVector3f& velocity,
                          const CStateManager& mgr);
   float CalculateSurfaceFriction() const;
-  void ApplyGravity(CStateManager& mgr);
-  void SpinToSpeed(float holdMag, zeus::CVector3f torque, float mag);
+  void ApplyGravity(const CStateManager& mgr);
+  void SpinToSpeed(float holdMag, const zeus::CVector3f& torque, float mag);
   float ComputeMaxSpeed() const;
   void Touch(CActor& actor, CStateManager& mgr);
   bool IsClimbable(const CCollisionInfo& cinfo) const;

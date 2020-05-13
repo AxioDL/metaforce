@@ -340,12 +340,13 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
       };
       if (!g_DummyTextures) {
         for (const auto& ch : mat.chunks) {
-          if (auto pass = ch.get_if<MaterialSet::Material::PASS>()) {
+          if (const auto* const pass = ch.get_if<MaterialSet::Material::PASS>()) {
             auto search = x1c_textures.find(pass->texId.toUint32());
             boo::ObjToken<boo::ITexture> btex;
-            if (search != x1c_textures.cend() && (btex = search->second.GetObj()->GetBooTexture()))
+            if (search != x1c_textures.cend() && (btex = search->second.GetObj()->GetBooTexture())) {
               texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;
-          } else if (auto pass = ch.get_if<MaterialSet::Material::CLR>()) {
+            }
+          } else if (const auto* const pass = ch.get_if<MaterialSet::Material::CLR>()) {
             boo::ObjToken<boo::ITexture> btex = g_Renderer->GetColorTexture(zeus::CColor(pass->color));
             texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;
           }
@@ -424,7 +425,7 @@ void CBooModel::MakeTexturesFromMats(const MaterialSet& matSet,
                                      IObjectStore& store) {
   for (const auto& mat : matSet.materials) {
     for (const auto& chunk : mat.chunks) {
-      if (auto pass = chunk.get_if<MaterialSet::Material::PASS>()) {
+      if (const auto* const pass = chunk.get_if<MaterialSet::Material::PASS>()) {
         toksOut.emplace(std::make_pair(pass->texId.toUint32(), store.GetObj({SBIG('TXTR'), pass->texId.toUint32()})));
       }
     }
@@ -485,8 +486,8 @@ bool CBooModel::TryLockTextures() {
     }
 
     if (allLoad) {
-      for (auto& pipeline : *m_pipelines) {
-        for (auto& subpipeline : *pipeline.second) {
+      for (const auto& pipeline : *m_pipelines) {
+        for (const auto& subpipeline : *pipeline.second) {
           if (!subpipeline->isReady()) {
             allLoad = false;
             break;
@@ -682,7 +683,7 @@ void CBooModel::WarmupDrawSurface(const CBooSurface& surf) const {
     return;
   const ModelInstance& inst = m_instances[m_uniUpdateCount - 1];
 
-  for (auto& binding : inst.m_shaderDataBindings[surf.selfIdx]) {
+  for (const auto& binding : inst.m_shaderDataBindings[surf.selfIdx]) {
     CGraphics::SetShaderDataBinding(binding);
     CGraphics::DrawArrayIndexed(surf.m_data.idxStart, std::min(u32(3), surf.m_data.idxCount));
   }
@@ -865,7 +866,7 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
     }
     u8* bufOrig = bufOut;
     for (const auto& chunk : mat.chunks) {
-      if (auto pass = chunk.get_if<MaterialSet::Material::PASS>()) {
+      if (const auto* const pass = chunk.get_if<MaterialSet::Material::PASS>()) {
         ProcessAnimation(bufOut, *pass);
       }
     }
@@ -1289,14 +1290,14 @@ bool CModel::IsLoaded(int shaderIdx) const {
 size_t CModel::GetPoolVertexOffset(size_t idx) const { return m_hmdlMeta.vertStride * idx; }
 
 zeus::CVector3f CModel::GetPoolVertex(size_t idx) const {
-  auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolVertexOffset(idx));
+  const auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolVertexOffset(idx));
   return {floats};
 }
 
 size_t CModel::GetPoolNormalOffset(size_t idx) const { return m_hmdlMeta.vertStride * idx + 12; }
 
 zeus::CVector3f CModel::GetPoolNormal(size_t idx) const {
-  auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolNormalOffset(idx));
+  const auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolNormalOffset(idx));
   return {floats};
 }
 
