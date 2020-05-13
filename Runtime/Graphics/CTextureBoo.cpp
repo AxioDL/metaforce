@@ -1,5 +1,7 @@
 #include "Runtime/Graphics/CTexture.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
@@ -20,7 +22,7 @@ struct RGBA8 {
 struct DXT1Block {
   u16 color1;
   u16 color2;
-  u8 lines[4];
+  std::array<u8, 4> lines;
 };
 
 /* GX uses this upsampling technique to extract full 8-bit range */
@@ -74,24 +76,24 @@ size_t CTexture::ComputeMippedBlockCountDXT1() const {
 }
 
 void CTexture::BuildI4FromGCN(CInputStream& in) {
-  size_t texelCount = ComputeMippedTexelCount();
+  const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
   int w = x4_w;
   int h = x6_h;
   RGBA8* targetMip = buf.get();
   for (u32 mip = 0; mip < x8_mips; ++mip) {
-    int bwidth = (w + 7) / 8;
-    int bheight = (h + 7) / 8;
+    const int bwidth = (w + 7) / 8;
+    const int bheight = (h + 7) / 8;
     for (int by = 0; by < bheight; ++by) {
-      int baseY = by * 8;
+      const int baseY = by * 8;
       for (int bx = 0; bx < bwidth; ++bx) {
-        int baseX = bx * 8;
+        const int baseX = bx * 8;
         for (int y = 0; y < 8; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
-          u8 source[4];
-          in.readBytesToBuf(source, 4);
-          for (int x = 0; x < 8; ++x) {
+          std::array<u8, 4> source;
+          in.readBytesToBuf(source.data(), source.size());
+          for (size_t x = 0; x < 8; ++x) {
             target[x].r = Convert4To8(source[x / 2] >> ((x & 1) ? 0 : 4) & 0xf);
             target[x].g = target[x].r;
             target[x].b = target[x].r;
@@ -101,10 +103,12 @@ void CTexture::BuildI4FromGCN(CInputStream& in) {
       }
     }
     targetMip += w * h;
-    if (w > 1)
+    if (w > 1) {
       w /= 2;
-    if (h > 1)
+    }
+    if (h > 1) {
       h /= 2;
+    }
   }
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -116,24 +120,24 @@ void CTexture::BuildI4FromGCN(CInputStream& in) {
 }
 
 void CTexture::BuildI8FromGCN(CInputStream& in) {
-  size_t texelCount = ComputeMippedTexelCount();
+  const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
   int w = x4_w;
   int h = x6_h;
   RGBA8* targetMip = buf.get();
   for (u32 mip = 0; mip < x8_mips; ++mip) {
-    int bwidth = (w + 7) / 8;
-    int bheight = (h + 3) / 4;
+    const int bwidth = (w + 7) / 8;
+    const int bheight = (h + 3) / 4;
     for (int by = 0; by < bheight; ++by) {
-      int baseY = by * 4;
+      const int baseY = by * 4;
       for (int bx = 0; bx < bwidth; ++bx) {
-        int baseX = bx * 8;
+        const int baseX = bx * 8;
         for (int y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
-          u8 source[8];
-          in.readBytesToBuf(source, 8);
-          for (int x = 0; x < 8; ++x) {
+          std::array<u8, 8> source;
+          in.readBytesToBuf(source.data(), source.size());
+          for (size_t x = 0; x < source.size(); ++x) {
             target[x].r = source[x];
             target[x].g = source[x];
             target[x].b = source[x];
@@ -143,10 +147,12 @@ void CTexture::BuildI8FromGCN(CInputStream& in) {
       }
     }
     targetMip += w * h;
-    if (w > 1)
+    if (w > 1) {
       w /= 2;
-    if (h > 1)
+    }
+    if (h > 1) {
       h /= 2;
+    }
   }
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -158,25 +164,25 @@ void CTexture::BuildI8FromGCN(CInputStream& in) {
 }
 
 void CTexture::BuildIA4FromGCN(CInputStream& in) {
-  size_t texelCount = ComputeMippedTexelCount();
+  const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
   int w = x4_w;
   int h = x6_h;
   RGBA8* targetMip = buf.get();
   for (u32 mip = 0; mip < x8_mips; ++mip) {
-    int bwidth = (w + 7) / 8;
-    int bheight = (h + 3) / 4;
+    const int bwidth = (w + 7) / 8;
+    const int bheight = (h + 3) / 4;
     for (int by = 0; by < bheight; ++by) {
-      int baseY = by * 4;
+      const int baseY = by * 4;
       for (int bx = 0; bx < bwidth; ++bx) {
-        int baseX = bx * 8;
+        const int baseX = bx * 8;
         for (int y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
-          u8 source[8];
-          in.readBytesToBuf(source, 8);
-          for (int x = 0; x < 8; ++x) {
-            u8 intensity = Convert4To8(source[x] >> 4 & 0xf);
+          std::array<u8, 8> source;
+          in.readBytesToBuf(source.data(), source.size());
+          for (size_t x = 0; x < source.size(); ++x) {
+            const u8 intensity = Convert4To8(source[x] >> 4 & 0xf);
             target[x].r = intensity;
             target[x].g = intensity;
             target[x].b = intensity;
@@ -186,10 +192,12 @@ void CTexture::BuildIA4FromGCN(CInputStream& in) {
       }
     }
     targetMip += w * h;
-    if (w > 1)
+    if (w > 1) {
       w /= 2;
-    if (h > 1)
+    }
+    if (h > 1) {
       h /= 2;
+    }
   }
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -201,25 +209,25 @@ void CTexture::BuildIA4FromGCN(CInputStream& in) {
 }
 
 void CTexture::BuildIA8FromGCN(CInputStream& in) {
-  size_t texelCount = ComputeMippedTexelCount();
+  const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
   int w = x4_w;
   int h = x6_h;
   RGBA8* targetMip = buf.get();
   for (u32 mip = 0; mip < x8_mips; ++mip) {
-    int bwidth = (w + 3) / 4;
-    int bheight = (h + 3) / 4;
+    const int bwidth = (w + 3) / 4;
+    const int bheight = (h + 3) / 4;
     for (int by = 0; by < bheight; ++by) {
-      int baseY = by * 4;
+      const int baseY = by * 4;
       for (int bx = 0; bx < bwidth; ++bx) {
-        int baseX = bx * 4;
+        const int baseX = bx * 4;
         for (int y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
-          u16 source[4];
-          in.readBytesToBuf(source, 8);
-          for (int x = 0; x < 4; ++x) {
-            u8 intensity = source[x] >> 8;
+          std::array<u16, 4> source;
+          in.readBytesToBuf(source.data(), sizeof(source));
+          for (size_t x = 0; x < source.size(); ++x) {
+            const u8 intensity = source[x] >> 8;
             target[x].r = intensity;
             target[x].g = intensity;
             target[x].b = intensity;
@@ -229,10 +237,12 @@ void CTexture::BuildIA8FromGCN(CInputStream& in) {
       }
     }
     targetMip += w * h;
-    if (w > 1)
+    if (w > 1) {
       w /= 2;
-    if (h > 1)
+    }
+    if (h > 1) {
       h /= 2;
+    }
   }
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -285,7 +295,7 @@ static std::vector<RGBA8> DecodePalette(int numEntries, CInputStream& in) {
 }
 
 void CTexture::BuildC4FromGCN(CInputStream& in) {
-  size_t texelCount = ComputeMippedTexelCount();
+  const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
   std::vector<RGBA8> palette = DecodePalette(16, in);
 
@@ -293,26 +303,29 @@ void CTexture::BuildC4FromGCN(CInputStream& in) {
   int h = x6_h;
   RGBA8* targetMip = buf.get();
   for (u32 mip = 0; mip < x8_mips; ++mip) {
-    int bwidth = (w + 7) / 8;
-    int bheight = (h + 7) / 8;
+    const int bwidth = (w + 7) / 8;
+    const int bheight = (h + 7) / 8;
     for (int by = 0; by < bheight; ++by) {
-      int baseY = by * 8;
+      const int baseY = by * 8;
       for (int bx = 0; bx < bwidth; ++bx) {
-        int baseX = bx * 8;
+        const int baseX = bx * 8;
         for (int y = 0; y < 8; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
-          u8 source[4];
-          in.readBytesToBuf(source, 4);
-          for (int x = 0; x < 8; ++x)
+          std::array<u8, 4> source;
+          in.readBytesToBuf(source.data(), source.size());
+          for (size_t x = 0; x < 8; ++x) {
             target[x] = palette[source[x / 2] >> ((x & 1) ? 0 : 4) & 0xf];
+          }
         }
       }
     }
     targetMip += w * h;
-    if (w > 1)
+    if (w > 1) {
       w /= 2;
-    if (h > 1)
+    }
+    if (h > 1) {
       h /= 2;
+    }
   }
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -324,7 +337,7 @@ void CTexture::BuildC4FromGCN(CInputStream& in) {
 }
 
 void CTexture::BuildC8FromGCN(CInputStream& in) {
-  size_t texelCount = ComputeMippedTexelCount();
+  const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
   std::vector<RGBA8> palette = DecodePalette(256, in);
 
@@ -332,26 +345,29 @@ void CTexture::BuildC8FromGCN(CInputStream& in) {
   int h = x6_h;
   RGBA8* targetMip = buf.get();
   for (u32 mip = 0; mip < x8_mips; ++mip) {
-    int bwidth = (w + 7) / 8;
-    int bheight = (h + 3) / 4;
+    const int bwidth = (w + 7) / 8;
+    const int bheight = (h + 3) / 4;
     for (int by = 0; by < bheight; ++by) {
-      int baseY = by * 4;
+      const int baseY = by * 4;
       for (int bx = 0; bx < bwidth; ++bx) {
-        int baseX = bx * 8;
+        const int baseX = bx * 8;
         for (int y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
-          u8 source[8];
-          in.readBytesToBuf(source, 8);
-          for (int x = 0; x < 8; ++x)
+          std::array<u8, 8> source;
+          in.readBytesToBuf(source.data(), source.size());
+          for (size_t x = 0; x < source.size(); ++x) {
             target[x] = palette[source[x]];
+          }
         }
       }
     }
     targetMip += w * h;
-    if (w > 1)
+    if (w > 1) {
       w /= 2;
-    if (h > 1)
+    }
+    if (h > 1) {
       h /= 2;
+    }
   }
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -365,23 +381,23 @@ void CTexture::BuildC8FromGCN(CInputStream& in) {
 void CTexture::BuildC14X2FromGCN(CInputStream& in) {}
 
 void CTexture::BuildRGB565FromGCN(CInputStream& in) {
-  size_t texelCount = ComputeMippedTexelCount();
+  const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
   int w = x4_w;
   int h = x6_h;
   RGBA8* targetMip = buf.get();
   for (u32 mip = 0; mip < x8_mips; ++mip) {
-    int bwidth = (w + 3) / 4;
-    int bheight = (h + 3) / 4;
+    const int bwidth = (w + 3) / 4;
+    const int bheight = (h + 3) / 4;
     for (int by = 0; by < bheight; ++by) {
-      int baseY = by * 4;
+      const int baseY = by * 4;
       for (int bx = 0; bx < bwidth; ++bx) {
-        int baseX = bx * 4;
+        const int baseX = bx * 4;
         for (int y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
-          for (int x = 0; x < 4; ++x) {
-            u16 texel = in.readUint16Big();
+          for (size_t x = 0; x < 4; ++x) {
+            const u16 texel = in.readUint16Big();
             target[x].r = Convert5To8(texel >> 11 & 0x1f);
             target[x].g = Convert6To8(texel >> 5 & 0x3f);
             target[x].b = Convert5To8(texel & 0x1f);
@@ -391,10 +407,12 @@ void CTexture::BuildRGB565FromGCN(CInputStream& in) {
       }
     }
     targetMip += w * h;
-    if (w > 1)
+    if (w > 1) {
       w /= 2;
-    if (h > 1)
+    }
+    if (h > 1) {
       h /= 2;
+    }
   }
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -413,17 +431,17 @@ void CTexture::BuildRGB5A3FromGCN(CInputStream& in) {
   int h = x6_h;
   RGBA8* targetMip = buf.get();
   for (u32 mip = 0; mip < x8_mips; ++mip) {
-    int bwidth = (w + 3) / 4;
-    int bheight = (h + 3) / 4;
+    const int bwidth = (w + 3) / 4;
+    const int bheight = (h + 3) / 4;
     for (int by = 0; by < bheight; ++by) {
-      int baseY = by * 4;
+      const int baseY = by * 4;
       for (int bx = 0; bx < bwidth; ++bx) {
-        int baseX = bx * 4;
+        const int baseX = bx * 4;
         for (int y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
-          for (int x = 0; x < 4; ++x) {
-            u16 texel = in.readUint16Big();
-            if (texel & 0x8000) {
+          for (size_t x = 0; x < 4; ++x) {
+            const u16 texel = in.readUint16Big();
+            if ((texel & 0x8000) != 0) {
               target[x].r = Convert5To8(texel >> 10 & 0x1f);
               target[x].g = Convert5To8(texel >> 5 & 0x1f);
               target[x].b = Convert5To8(texel & 0x1f);
@@ -439,10 +457,12 @@ void CTexture::BuildRGB5A3FromGCN(CInputStream& in) {
       }
     }
     targetMip += w * h;
-    if (w > 1)
+    if (w > 1) {
       w /= 2;
-    if (h > 1)
+    }
+    if (h > 1) {
       h /= 2;
+    }
   }
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -454,26 +474,26 @@ void CTexture::BuildRGB5A3FromGCN(CInputStream& in) {
 }
 
 void CTexture::BuildRGBA8FromGCN(CInputStream& in) {
-  size_t texelCount = ComputeMippedTexelCount();
+  const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
   int w = x4_w;
   int h = x6_h;
   RGBA8* targetMip = buf.get();
   for (u32 mip = 0; mip < x8_mips; ++mip) {
-    int bwidth = (w + 3) / 4;
-    int bheight = (h + 3) / 4;
+    const int bwidth = (w + 3) / 4;
+    const int bheight = (h + 3) / 4;
     for (int by = 0; by < bheight; ++by) {
-      int baseY = by * 4;
+      const int baseY = by * 4;
       for (int bx = 0; bx < bwidth; ++bx) {
-        int baseX = bx * 4;
+        const int baseX = bx * 4;
         for (int c = 0; c < 2; ++c) {
           for (int y = 0; y < 4; ++y) {
             RGBA8* target = targetMip + (baseY + y) * w + baseX;
-            u8 source[8];
-            in.readBytesToBuf(source, 8);
-            for (int x = 0; x < 4; ++x) {
-              if (c) {
+            std::array<u8, 8> source;
+            in.readBytesToBuf(source.data(), source.size());
+            for (size_t x = 0; x < 4; ++x) {
+              if (c != 0) {
                 target[x].g = source[x * 2];
                 target[x].b = source[x * 2 + 1];
               } else {
@@ -486,10 +506,12 @@ void CTexture::BuildRGBA8FromGCN(CInputStream& in) {
       }
     }
     targetMip += w * h;
-    if (w > 1)
+    if (w > 1) {
       w /= 2;
-    if (h > 1)
+    }
+    if (h > 1) {
       h /= 2;
+    }
   }
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -501,29 +523,29 @@ void CTexture::BuildRGBA8FromGCN(CInputStream& in) {
 }
 
 void CTexture::BuildDXT1FromGCN(CInputStream& in) {
-  size_t blockCount = ComputeMippedBlockCountDXT1();
+  const size_t blockCount = ComputeMippedBlockCountDXT1();
   std::unique_ptr<DXT1Block[]> buf(new DXT1Block[blockCount]);
 
   int w = x4_w / 4;
   int h = x6_h / 4;
   DXT1Block* targetMip = buf.get();
   for (u32 mip = 0; mip < x8_mips; ++mip) {
-    int bwidth = (w + 1) / 2;
-    int bheight = (h + 1) / 2;
+    const int bwidth = (w + 1) / 2;
+    const int bheight = (h + 1) / 2;
     for (int by = 0; by < bheight; ++by) {
-      int baseY = by * 2;
+      const int baseY = by * 2;
       for (int bx = 0; bx < bwidth; ++bx) {
-        int baseX = bx * 2;
+        const int baseX = bx * 2;
         for (int y = 0; y < 2; ++y) {
           DXT1Block* target = targetMip + (baseY + y) * w + baseX;
-          DXT1Block source[2];
-          in.readBytesToBuf(source, 16);
-          for (int x = 0; x < 2; ++x) {
+          std::array<DXT1Block, 2> source;
+          in.readBytesToBuf(source.data(), sizeof(source));
+          for (size_t x = 0; x < source.size(); ++x) {
             target[x].color1 = hecl::SBig(source[x].color1);
             target[x].color2 = hecl::SBig(source[x].color2);
-            for (u32 i = 0; i < 4; ++i) {
-              u8 ind[4];
-              u8 packed = source[x].lines[i];
+            for (size_t i = 0; i < 4; ++i) {
+              std::array<u8, 4> ind;
+              const u8 packed = source[x].lines[i];
               ind[3] = packed & 0x3;
               ind[2] = (packed >> 2) & 0x3;
               ind[1] = (packed >> 4) & 0x3;
@@ -536,10 +558,12 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in) {
     }
     targetMip += w * h;
 
-    if (w > 1)
+    if (w > 1) {
       w /= 2;
-    if (h > 1)
+    }
+    if (h > 1) {
       h /= 2;
+    }
   }
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -604,10 +628,9 @@ void CTexture::BuildC8Font(const void* data, EFontType ftype) {
     break;
   }
 
-  uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
+  const uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
   const u8* texels = reinterpret_cast<const u8*>(data) + 4 + nentries * 4;
-  std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount * layerCount]);
-  memset(buf.get(), 0, texelCount * layerCount * 4);
+  auto buf = std::make_unique<RGBA8[]>(texelCount * layerCount);
 
   size_t w = x4_w;
   size_t h = x6_h;
