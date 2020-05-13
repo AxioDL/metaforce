@@ -7,28 +7,43 @@
 #include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
-static logvisor::Module Log("urde::CTextureBoo");
+namespace {
+logvisor::Module Log("urde::CTextureBoo");
+
+struct RGBA8 {
+  u8 r;
+  u8 g;
+  u8 b;
+  u8 a;
+};
+
+struct DXT1Block {
+  u16 color1;
+  u16 color2;
+  u8 lines[4];
+};
 
 /* GX uses this upsampling technique to extract full 8-bit range */
-constexpr uint8_t Convert3To8(uint8_t v) {
+constexpr u8 Convert3To8(u8 v) {
   /* Swizzle bits: 00000123 -> 12312312 */
   return (v << 5) | (v << 2) | (v >> 1);
 }
 
-constexpr uint8_t Convert4To8(uint8_t v) {
+constexpr u8 Convert4To8(u8 v) {
   /* Swizzle bits: 00001234 -> 12341234 */
   return (v << 4) | v;
 }
 
-constexpr uint8_t Convert5To8(uint8_t v) {
+constexpr u8 Convert5To8(u8 v) {
   /* Swizzle bits: 00012345 -> 12345123 */
   return (v << 3) | (v >> 2);
 }
 
-constexpr uint8_t Convert6To8(uint8_t v) {
+constexpr u8 Convert6To8(u8 v) {
   /* Swizzle bits: 00123456 -> 12345612 */
   return (v << 2) | (v >> 4);
 }
+} // Anonymous namespace
 
 size_t CTexture::ComputeMippedTexelCount() const {
   size_t w = x4_w;
@@ -57,13 +72,6 @@ size_t CTexture::ComputeMippedBlockCountDXT1() const {
   }
   return ret;
 }
-
-struct RGBA8 {
-  u8 r;
-  u8 g;
-  u8 b;
-  u8 a;
-};
 
 void CTexture::BuildI4FromGCN(CInputStream& in) {
   size_t texelCount = ComputeMippedTexelCount();
@@ -491,12 +499,6 @@ void CTexture::BuildRGBA8FromGCN(CInputStream& in) {
     return true;
   } BooTrace);
 }
-
-struct DXT1Block {
-  uint16_t color1;
-  uint16_t color2;
-  uint8_t lines[4];
-};
 
 void CTexture::BuildDXT1FromGCN(CInputStream& in) {
   size_t blockCount = ComputeMippedBlockCountDXT1();
