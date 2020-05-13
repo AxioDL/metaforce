@@ -350,7 +350,7 @@ void CMagdolite::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
     x32c_animState = EAnimState::Ready;
     x754_24_retreat = false;
   } else if (msg == EStateMsg::Update) {
-    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerateNoXf, 0);
+    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerate, 0);
     if (x32c_animState == EAnimState::Repeat) {
       GetBodyController()->SetLocomotionType(pas::ELocomotionType::Relaxed);
     }
@@ -552,7 +552,7 @@ void CMagdolite::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
     GetBodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::NextState));
     x754_28_alert = true;
   } else if (msg == EStateMsg::Update) {
-    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerate, 1);
+    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerateNoXf, 1);
     if (x32c_animState == EAnimState::Repeat) {
       GetBodyController()->SetLocomotionType(pas::ELocomotionType::Internal7);
     }

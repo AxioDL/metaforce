@@ -405,7 +405,7 @@ void CChozoGhost::Deactivate(CStateManager& mgr, EStateMsg msg, float) {
     x32c_animState = EAnimState::Ready;
     x665_24_ = true;
   } else if (msg == EStateMsg::Update) {
-    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerate, 1);
+    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerateNoXf, 1);
     if (x32c_animState == EAnimState::Repeat)
       GetBodyController()->SetLocomotionType(pas::ELocomotionType::Relaxed);
   } else if (msg == EStateMsg::Deactivate) {
