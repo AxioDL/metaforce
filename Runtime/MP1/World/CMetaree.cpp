@@ -15,7 +15,7 @@ CMetaree::CMetaree(TUniqueId uid, std::string_view name, EFlavorType flavor, con
 : CPatterned(ECharacter::Metaree, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              EColliderType::Zero, bodyType, aParms, EKnockBackVariant::Small)
 , x568_delay(f3)
-, x56c_(f4)
+, x56c_haltDelay(f4)
 , x570_dropHeight(f1)
 , x574_offset(v1)
 , x580_attackSpeed(f2)
@@ -29,10 +29,11 @@ void CMetaree::Accept(IVisitor& visitor) { visitor.Visit(this); }
 void CMetaree::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
 
-  if (msg == EScriptObjectMessage::Start)
+  if (msg == EScriptObjectMessage::Start) {
     x5ca_25_started = true;
-  else if (msg == EScriptObjectMessage::Registered)
+  } else if (msg == EScriptObjectMessage::Registered) {
     x450_bodyController->Activate(mgr);
+  }
 }
 
 void CMetaree::Think(float dt, CStateManager& mgr) {
@@ -46,8 +47,9 @@ void CMetaree::Think(float dt, CStateManager& mgr) {
 }
 
 void CMetaree::Explode(CStateManager& mgr, EStateMsg msg, float) {
-  if (msg != EStateMsg::Activate)
+  if (msg != EStateMsg::Activate) {
     return;
+  }
 
   mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), x5ac_damageInfo,
                   CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
@@ -55,12 +57,14 @@ void CMetaree::Explode(CStateManager& mgr, EStateMsg msg, float) {
 }
 
 void CMetaree::Touch(CActor& act, CStateManager& mgr) {
-  if (!x400_25_alive)
+  if (!x400_25_alive) {
     return;
+  }
 
   if (TCastToPtr<CGameProjectile> projectile = act) {
-    if (projectile->GetOwnerId() != mgr.GetPlayer().GetUniqueId())
+    if (projectile->GetOwnerId() != mgr.GetPlayer().GetUniqueId()) {
       return;
+    }
 
     x400_24_hitByPlayerProjectile = true;
     x590_projectileDelta = projectile->GetTranslation() - projectile->GetPreviousPos();
@@ -68,8 +72,9 @@ void CMetaree::Touch(CActor& act, CStateManager& mgr) {
 }
 
 void CMetaree::CollidedWith(TUniqueId id, const CCollisionInfoList& colList, CStateManager& mgr) {
-  if (!x400_25_alive || colList.GetCount() <= 0)
+  if (!x400_25_alive || colList.GetCount() <= 0) {
     return;
+  }
 
   mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), x5ac_damageInfo,
                          CMaterialFilter::MakeInclude({EMaterialTypes::Player}));
@@ -79,15 +84,15 @@ void CMetaree::CollidedWith(TUniqueId id, const CCollisionInfoList& colList, CSt
 
 void CMetaree::Flee(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
-    ApplyImpulseWR(5.f * (GetMass() * (x590_projectileDelta * zeus::CVector3f{1.f, 1.f, 0.f})),
-                   zeus::CAxisAngle());
+    ApplyImpulseWR(5.f * (GetMass() * (x590_projectileDelta * zeus::CVector3f{1.f, 1.f, 0.f})), zeus::CAxisAngle());
 
     SetMomentumWR({0.f, 0.f, -GetGravityConstant() * GetMass()});
     SetTranslation(GetTranslation());
     x5a8_ = 0;
   } else if (msg == EStateMsg::Update) {
-    if (x5a8_ != 0)
+    if (x5a8_ != 0) {
       return;
+    }
 
     if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::LieOnGround) {
       x5a8_ = 1;
@@ -99,8 +104,9 @@ void CMetaree::Flee(CStateManager& mgr, EStateMsg msg, float) {
 }
 
 void CMetaree::Dead(CStateManager& mgr, EStateMsg msg, float) {
-  if (msg != EStateMsg::Activate)
+  if (msg != EStateMsg::Activate) {
     return;
+  }
 
   mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), x5ac_damageInfo,
                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Player}, {}));
@@ -116,9 +122,9 @@ void CMetaree::Attack(CStateManager&, EStateMsg msg, float) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Combat);
     x59c_velocity = x580_attackSpeed * dir;
   } else if (msg == EStateMsg::Update) {
-    if (x450_bodyController->GetPercentageFrozen() == 0.f)
+    if (x450_bodyController->GetPercentageFrozen() == 0.f) {
       SetVelocityWR(x59c_velocity);
-    else {
+    } else {
       Stop();
       SetVelocityWR({});
     }
@@ -126,15 +132,17 @@ void CMetaree::Attack(CStateManager&, EStateMsg msg, float) {
 }
 
 void CMetaree::Halt(CStateManager& mgr, EStateMsg msg, float) {
-  if (msg != EStateMsg::Activate)
+  if (msg != EStateMsg::Activate) {
     return;
+  }
 
   Stop();
-  SetVelocityWR({});
-  SetMomentumWR({});
+  SetVelocityWR(zeus::skZero3f);
+  SetMomentumWR(zeus::skZero3f);
   x450_bodyController->SetLocomotionType(pas::ELocomotionType::Lurk);
   x584_lookPos = x574_offset + mgr.GetPlayer().GetTranslation();
   SetTransform(zeus::lookAt(GetTranslation(), x584_lookPos));
+  x330_stateMachineState.SetDelay(x56c_haltDelay);
 }
 
 void CMetaree::Active(CStateManager& mgr, EStateMsg msg, float) {
@@ -153,8 +161,7 @@ void CMetaree::Active(CStateManager& mgr, EStateMsg msg, float) {
 
 void CMetaree::InActive(CStateManager&, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
-    const auto locomotionType = x5ca_26_deactivated ? pas::ELocomotionType::Crouch
-                                                    : pas::ELocomotionType::Relaxed;
+    const auto locomotionType = x5ca_26_deactivated ? pas::ELocomotionType::Crouch : pas::ELocomotionType::Relaxed;
     x450_bodyController->SetLocomotionType(locomotionType);
   } else if (msg == EStateMsg::Deactivate) {
     x5ca_26_deactivated = true;
@@ -162,8 +169,9 @@ void CMetaree::InActive(CStateManager&, EStateMsg msg, float) {
 }
 
 bool CMetaree::InRange(CStateManager& mgr, float arg) {
-  if (x5ca_25_started)
+  if (x5ca_25_started) {
     return true;
+  }
 
   return CPatterned::InRange(mgr, arg);
 }
