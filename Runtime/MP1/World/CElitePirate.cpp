@@ -1,5 +1,8 @@
 #include "Runtime/MP1/World/CElitePirate.hpp"
 
+#include <algorithm>
+#include <array>
+
 #include "Runtime/Camera/CFirstPersonCamera.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
@@ -884,12 +887,7 @@ bool CElitePirate::IsArmClawCollider(std::string_view name, std::string_view loc
   if (name == locator) {
     return true;
   }
-  for (size_t i = 0; i < infoCount; ++i) {
-    if (name == info[i].from) {
-      return true;
-    }
-  }
-  return false;
+  return std::any_of(info, info + infoCount, [&name](const auto& entry) { return entry.from == name; });
 }
 
 void CElitePirate::CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid) {
