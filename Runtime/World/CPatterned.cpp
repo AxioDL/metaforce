@@ -25,7 +25,6 @@
 
 namespace urde {
 
-constexpr zeus::CColor CPatterned::skDamageColor(0.5f, 0.f, 0.f);
 constexpr CMaterialList skPatternedGroundMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
                                                       EMaterialTypes::Orbit, EMaterialTypes::GroundCollider,
                                                       EMaterialTypes::Target);

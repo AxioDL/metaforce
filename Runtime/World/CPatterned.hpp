@@ -31,7 +31,7 @@ using CPatternedTryFunc = void (CPatterned::*)(CStateManager&, int);
 
 class CPatterned : public CAi {
 public:
-  static const zeus::CColor skDamageColor;
+  static constexpr zeus::CColor skDamageColor{0.5f, 0.f, 0.f};
   enum class ECharacter {
     AtomicAlpha = 0,
     AtomicBeta = 1,
