@@ -3,6 +3,8 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
+#include "TCastTo.hpp" // Generated file, do not modify include path
+
 namespace urde {
 
 CWaveBuster::CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf,
@@ -31,6 +33,33 @@ void CWaveBuster::UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& 
 void CWaveBuster::ResetBeam(bool deactivate) {}
 
 void CWaveBuster::SetNewTarget(TUniqueId id) {}
+
+void CWaveBuster::Accept(IVisitor& visitor) { visitor.Visit(this); }
+
+void CWaveBuster::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId senderId, CStateManager& mgr) {
+  if (msg == EScriptObjectMessage::Deleted) {
+    DeleteProjectileLight(mgr);
+  } else if (msg == EScriptObjectMessage::Registered) {
+    if (x390_busterLightGen != nullptr && x390_busterLightGen->SystemHasLight()) {
+      const CLight light = x390_busterLightGen->GetLight();
+      CreateProjectileLight("WaveBuster_Light", light, mgr);
+    }
+
+    // Thermal hot
+    xe6_27_thermalVisorFlags = 2;
+
+    x318_ = x2e8_originalXf.origin;
+    x324_ = x34_transform.origin;
+    x330_ = x34_transform.origin;
+  }
+
+  CGameProjectile::AcceptScriptMsg(msg, senderId, mgr);
+}
+
+void CWaveBuster::AddToRenderer([[maybe_unused]] const zeus::CFrustum& frustum, CStateManager& mgr) {
+  const auto bounds = GetSortingBounds(mgr);
+  EnsureRendered(mgr, x2e8_originalXf.origin, bounds);
+}
 
 std::optional<zeus::CAABox> CWaveBuster::GetTouchBounds() const {
   if (x3d0_28_) {

@@ -4,7 +4,7 @@ namespace urde {
 
 CGuiPane::CGuiPane(const CGuiWidgetParms& parms, const zeus::CVector2f& dim, const zeus::CVector3f& scaleCenter)
 : CGuiWidget(parms), xb8_dim(dim), xc8_scaleCenter(scaleCenter) {
-  InitializeBuffers();
+  CGuiPane::InitializeBuffers();
 }
 
 void CGuiPane::ScaleDimensions(const zeus::CVector3f& scale) {

@@ -14,9 +14,9 @@ namespace urde {
 class CElementGen;
 class CScriptDebris : public CPhysicsActor {
 public:
-  enum class EScaleType { NoScale, EndsToZero };
+  enum class EScaleType : u8 { NoScale, EndsToZero };
 
-  enum class EOrientationType { NotOriented, AlongVelocity, ToObject, AlongCollisionNormal };
+  enum class EOrientationType : u8 { NotOriented, AlongVelocity, ToObject, AlongCollisionNormal };
 
 private:
   zeus::CVector3f x258_velocity;

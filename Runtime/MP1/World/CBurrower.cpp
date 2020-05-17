@@ -228,7 +228,7 @@ void CBurrower::Active(CStateManager& mgr, EStateMsg msg, float dt) {
     x6ac_24_doFacePlayer = true;
     x32c_animState = EAnimState::Ready;
   } else if (msg == EStateMsg::Update) {
-    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerate, 0);
+    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerateNoXf, 0);
   } else if (msg == EStateMsg::Deactivate) {
     x6ac_24_doFacePlayer = false;
     x6ac_25_inAir = true;
@@ -267,7 +267,7 @@ void CBurrower::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
   } else if (msg == EStateMsg::Update) {
-    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerate, 1);
+    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerateNoXf, 1);
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
     if (x678_trailParticle) {

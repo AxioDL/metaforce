@@ -1267,7 +1267,7 @@ static CAssetId UpdatePersistentScanPercent(u32 prevLogScans, u32 logScans, u32 
   if (scanPercentProgStep > prevScanPercentProgStep) {
     const char* const messageResBase = UnlockMessageResBases[zeus::clamp(0, scanPercentProgStep - 1, 1)];
     const auto message = std::string(messageResBase).append(1,  firstTime ? '1' : '2');
-    const auto id = g_ResFactory->GetResourceIdByName(message);
+    const auto* const id = g_ResFactory->GetResourceIdByName(message);
     if (id != nullptr) {
       return id->id;
     }
@@ -2376,46 +2376,55 @@ bool CPlayer::SetAreaPlayerHint(const CScriptPlayerHint& hint, CStateManager& mg
 }
 
 void CPlayer::AddToPlayerHintRemoveList(TUniqueId id, CStateManager& mgr) {
-  if (const TCastToConstPtr<CScriptPlayerHint> hint = mgr.ObjectById(id)) {
-    for (const TUniqueId existId : x93c_playerHintsToRemove) {
-      if (id == existId) {
-        return;
-      }
-    }
+  const TCastToConstPtr<CScriptPlayerHint> hint = mgr.ObjectById(id);
+  if (!hint) {
+    return;
+  }
 
-    if (x93c_playerHintsToRemove.size() != 32) {
-      x93c_playerHintsToRemove.push_back(id);
+  for (const TUniqueId existId : x93c_playerHintsToRemove) {
+    if (id == existId) {
+      return;
     }
+  }
+
+  if (x93c_playerHintsToRemove.size() != 32) {
+    x93c_playerHintsToRemove.push_back(id);
   }
 }
 
 void CPlayer::AddToPlayerHintAddList(TUniqueId id, CStateManager& mgr) {
-  if (const TCastToConstPtr<CScriptPlayerHint> hint = mgr.ObjectById(id)) {
-    for (const TUniqueId existId : x980_playerHintsToAdd) {
-      if (id == existId) {
-        return;
-      }
-    }
+  const TCastToConstPtr<CScriptPlayerHint> hint = mgr.ObjectById(id);
+  if (!hint) {
+    return;
+  }
 
-    if (x980_playerHintsToAdd.size() != 32) {
-      x980_playerHintsToAdd.push_back(id);
+  for (const TUniqueId existId : x980_playerHintsToAdd) {
+    if (id == existId) {
+      return;
     }
+  }
+
+  if (x980_playerHintsToAdd.size() != 32) {
+    x980_playerHintsToAdd.push_back(id);
   }
 }
 
 void CPlayer::DeactivatePlayerHint(TUniqueId id, CStateManager& mgr) {
-  if (TCastToPtr<CScriptPlayerHint> hint = mgr.ObjectById(id)) {
-    for (const TUniqueId existId : x93c_playerHintsToRemove) {
-      if (id == existId) {
-        return;
-      }
-    }
+  const TCastToPtr<CScriptPlayerHint> hint = mgr.ObjectById(id);
+  if (!hint) {
+    return;
+  }
 
-    if (x93c_playerHintsToRemove.size() != 32) {
-      x93c_playerHintsToRemove.push_back(id);
-      hint->ClearObjectList();
-      hint->SetDeactivated();
+  for (const TUniqueId existId : x93c_playerHintsToRemove) {
+    if (id == existId) {
+      return;
     }
+  }
+
+  if (x93c_playerHintsToRemove.size() != 32) {
+    x93c_playerHintsToRemove.push_back(id);
+    hint->ClearObjectList();
+    hint->SetDeactivated();
   }
 }
 
@@ -3233,7 +3242,9 @@ void CPlayer::UpdateGunTransform(const zeus::CVector3f& gunPos, CStateManager& m
 
 void CPlayer::UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManager& mgr) {
   zeus::CTransform assistXf = xf;
-  if (TCastToConstPtr<CActor> target = mgr.GetObjectById(x3f4_aimTarget)) {
+  const TCastToConstPtr<CActor> target = mgr.GetObjectById(x3f4_aimTarget);
+
+  if (target) {
     zeus::CVector3f gunToTarget = x480_assistedTargetAim - xf.origin;
     zeus::CVector3f gunToTargetFlat = gunToTarget;
     gunToTargetFlat.z() = 0.f;
@@ -4646,7 +4657,7 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
       }
       break;
     case EPlayerOrbitState::OrbitObject:
-      if (const TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(x310_orbitTargetId)) {
+      if (TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(x310_orbitTargetId))) {
         if (ValidateCurrentOrbitTargetId(mgr) == EOrbitValidationResult::OK) {
           UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
         } else {
@@ -4729,7 +4740,7 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
     case EPlayerOrbitState::NoOrbit:
       break;
     case EPlayerOrbitState::OrbitObject:
-      if (TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(x310_orbitTargetId)) {
+      if (TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(x310_orbitTargetId))) {
         BreakGrapple(EPlayerOrbitRequest::Default, mgr);
       } else {
         SetOrbitRequest(EPlayerOrbitRequest::StopOrbit, mgr);

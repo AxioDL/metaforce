@@ -349,7 +349,7 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
   const TUniqueId targetId = mgr.GetPlayer().GetOrbitTargetId();
   if (targetId != xf0_targetId) {
     if (targetId != kInvalidUniqueId) {
-      if (const TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(targetId)) {
+      if (TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(targetId))) {
         CSfxManager::SfxStart(SFXui_lockon_grapple, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
       } else {
         CSfxManager::SfxStart(SFXui_lockon_poi, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);

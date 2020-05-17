@@ -33,12 +33,15 @@ void CGuiSliderGroup::StartIncreasing() {
 }
 
 bool CGuiSliderGroup::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const {
-  if (xcc_sliderRangeWidgets[0]->GetWidgetTypeID() != FOURCC('MODL'))
+  if (xcc_sliderRangeWidgets[0]->GetWidgetTypeID() != FOURCC('MODL')) {
     return false;
+  }
+
   CGuiModel* bar = static_cast<CGuiModel*>(xcc_sliderRangeWidgets[0]);
-  auto& modelTok = bar->GetModel();
-  if (!modelTok || !modelTok.IsLoaded())
+  const auto& modelTok = bar->GetModel();
+  if (!modelTok || !modelTok.IsLoaded()) {
     return false;
+  }
 
   const zeus::CVector3f& s0 = xcc_sliderRangeWidgets[0]->GetIdlePosition();
   const zeus::CVector3f& s1 = xcc_sliderRangeWidgets[1]->GetIdlePosition();

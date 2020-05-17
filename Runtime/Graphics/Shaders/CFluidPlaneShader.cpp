@@ -204,10 +204,10 @@ CFluidPlaneShader::CFluidPlaneShader(EFluidType type, const TLockedToken<CTextur
 , m_envBumpMap(envBumpMap)
 , m_lightmap(lightmap)
 , m_rippleMap(rippleMap) {
-  SFluidPlaneShaderInfo shaderInfo(type, m_patternTex1.operator bool(), m_patternTex2.operator bool(),
-                                   m_colorTex.operator bool(), m_bumpMap.operator bool(), m_envMap.operator bool(),
-                                   m_envBumpMap.operator bool(), m_lightmap.operator bool(),
-                                   m_rippleMap.operator bool(), doubleLightmapBlend, additive);
+  SFluidPlaneShaderInfo shaderInfo(type, m_patternTex1.HasReference(), m_patternTex2.HasReference(),
+                                   m_colorTex.HasReference(), m_bumpMap.HasReference(), m_envMap.HasReference(),
+                                   m_envBumpMap.HasReference(), m_lightmap.HasReference(), m_rippleMap.operator bool(),
+                                   doubleLightmapBlend, additive);
   m_pipelines = _cache.GetOrBuildShader(shaderInfo);
   PrepareBinding(maxVertCount);
 }
@@ -216,8 +216,8 @@ CFluidPlaneShader::CFluidPlaneShader(const TLockedToken<CTexture>& patternTex1,
                                      const TLockedToken<CTexture>& patternTex2, const TLockedToken<CTexture>& colorTex,
                                      u32 maxVertCount)
 : m_patternTex1(patternTex1), m_patternTex2(patternTex2), m_colorTex(colorTex) {
-  SFluidPlaneDoorShaderInfo shaderInfo(m_patternTex1.operator bool(), m_patternTex2.operator bool(),
-                                       m_colorTex.operator bool());
+  SFluidPlaneDoorShaderInfo shaderInfo(m_patternTex1.HasReference(), m_patternTex2.HasReference(),
+                                       m_colorTex.HasReference());
   m_pipelines = _cache.GetOrBuildShader(shaderInfo);
   PrepareBinding(maxVertCount);
 }

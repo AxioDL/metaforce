@@ -68,7 +68,7 @@ float CGuiTextSupport::GetCurrentAnimationOverAge() const {
   if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
     if (x50_typeEnable) {
       if (x40_primStartTimes.size()) {
-        auto& lastTime = x40_primStartTimes.back();
+        const auto& lastTime = x40_primStartTimes.back();
         ret = std::max(ret, (buf->GetPrimitiveCount() - lastTime.second) / x58_chRate + lastTime.first);
       } else {
         ret = std::max(ret, buf->GetPrimitiveCount() / x58_chRate);

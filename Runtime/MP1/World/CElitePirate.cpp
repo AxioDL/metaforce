@@ -1,5 +1,6 @@
 #include "Runtime/MP1/World/CElitePirate.hpp"
 
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
 #include "Runtime/CSimplePool.hpp"
@@ -248,10 +249,10 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
 
 void CElitePirate::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CPatterned::PreRender(mgr, frustum);
-  auto modelData = GetModelData();
+  auto* modelData = GetModelData();
   x6f8_boneTracking.PreRender(mgr, *modelData->GetAnimationData(), GetTransform(), modelData->GetScale(),
                               *x450_bodyController);
-  auto numMaterialSets = modelData->GetNumMaterialSets();
+  const auto numMaterialSets = modelData->GetNumMaterialSets();
   xb4_drawFlags.x1_matSetIdx =
       numMaterialSets - 1 < x7cc_activeMaterialSet ? numMaterialSets - 1 : x7cc_activeMaterialSet;
 }
@@ -292,27 +293,22 @@ zeus::CVector3f CElitePirate::GetAimPosition(const CStateManager& mgr, float) co
 }
 
 void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
-  bool handled = false;
   switch (type) {
   case EUserEventType::Projectile:
     if (x772_launcherId != kInvalidUniqueId) {
       CEntity* launcher = mgr.ObjectById(x772_launcherId);
       mgr.SendScriptMsg(launcher, GetUniqueId(), EScriptObjectMessage::Action);
     }
-    handled = true;
-    break;
+    return;
   case EUserEventType::DamageOn:
-    handled = true;
     x988_24_damageOn = true;
-    break;
+    return;
   case EUserEventType::DamageOff:
-    handled = true;
     x988_24_damageOn = false;
-    break;
+    return;
   case EUserEventType::ScreenShake:
-    HasWeakPointHead();
-    handled = true;
-    break;
+    ShakeCamera(mgr);
+    return;
   case EUserEventType::BeginAction: {
     const zeus::CVector3f origin = GetTranslation();
     const zeus::CVector3f front = GetTransform().frontVector();
@@ -325,8 +321,7 @@ void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
     mgr.AddObject(new CShockWave(mgr.AllocateUniqueId(), "Shock Wave", {GetAreaIdAlways(), CEntity::NullConnectionList},
                                  xf, GetUniqueId(), GetShockWaveData(), IsElitePirate() ? 2.f : 1.3f,
                                  IsElitePirate() ? 0.4f : 0.5f));
-    handled = true;
-    break;
+    return;
   }
   case EUserEventType::BecomeShootThrough:
     if (HasWeakPointHead()) {
@@ -338,14 +333,11 @@ void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
         }
       }
     }
-    handled = true;
-    break;
+    return;
   default:
     break;
   }
-  if (!handled) {
-    CPatterned::DoUserAnimEvent(mgr, node, type, dt);
-  }
+  CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
 const CCollisionPrimitive* CElitePirate::GetCollisionPrimitive() const { return &x738_collisionAabb; }
@@ -757,7 +749,7 @@ void CElitePirate::SetupHealthInfo(CStateManager& mgr) {
   x7b4_hp = health->GetHP();
   if (HasWeakPointHead()) {
     if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(x770_collisionHeadId)) {
-      auto actHealth = actor->HealthInfo(mgr);
+      auto* actHealth = actor->HealthInfo(mgr);
       actHealth->SetHP(health->GetHP());
       actHealth->SetKnockbackResistance(health->GetKnockbackResistance());
       actor->SetDamageVulnerability(x56c_vulnerability);
@@ -940,13 +932,15 @@ void CElitePirate::CreateEnergyAbsorb(CStateManager& mgr, const zeus::CTransform
 
 void CElitePirate::SetupLauncherHealthInfo(CStateManager& mgr, TUniqueId uid) {
   const CHealthInfo* const health = HealthInfo(mgr);
-  if (uid != kInvalidUniqueId) {
-    if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {
-      auto actHealth = actor->HealthInfo(mgr);
-      actHealth->SetHP(x5d8_data.GetLauncherHP());
-      actHealth->SetKnockbackResistance(health->GetKnockbackResistance());
-      actor->SetDamageVulnerability(x56c_vulnerability);
-    }
+  if (uid == kInvalidUniqueId) {
+    return;
+  }
+
+  if (const TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {
+    auto* actHealth = actor->HealthInfo(mgr);
+    actHealth->SetHP(x5d8_data.GetLauncherHP());
+    actHealth->SetKnockbackResistance(health->GetKnockbackResistance());
+    actor->SetDamageVulnerability(x56c_vulnerability);
   }
 }
 
@@ -954,7 +948,7 @@ void CElitePirate::SetLauncherActive(CStateManager& mgr, bool val, TUniqueId uid
   if (uid == kInvalidUniqueId) {
     return;
   }
-  if (auto entity = mgr.ObjectById(uid)) {
+  if (auto* entity = mgr.ObjectById(uid)) {
     mgr.SendScriptMsg(entity, GetUniqueId(), val ? EScriptObjectMessage::Start : EScriptObjectMessage::Stop);
   }
 }
@@ -1176,6 +1170,25 @@ bool CElitePirate::IsClosestEnergyAttractor(const CStateManager& mgr,
     }
   }
   return true;
+}
+
+void CElitePirate::ShakeCamera(CStateManager& mgr) {
+  CPlayer& player = mgr.GetPlayer();
+  const float distance = (GetTranslation() - player.GetTranslation()).magnitude();
+  const float scale = x988_29_shockWaveAnim ? 1.f : 0.25f;
+  const float magnitude = (scale * GetModelData()->GetScale().magnitude()) - (0.005f * distance);
+  if (magnitude <= 0.f || player.GetSurfaceRestraint() == CPlayer::ESurfaceRestraints::Air ||
+      player.IsInWaterMovement()) {
+    return;
+  }
+  if (player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed) {
+    const float intensity = x988_29_shockWaveAnim ? 20.f : 10.f;
+    player.ApplyImpulseWR(player.GetMass() * intensity * zeus::skUp, zeus::CAxisAngle{});
+    player.SetMoveState(CPlayer::EPlayerMovementState::ApplyJump, mgr);
+  } else if (mgr.GetCameraManager()->GetCurrentCameraId() ==
+             mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId()) {
+    mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData{0.5f, magnitude}, true);
+  }
 }
 
 zeus::CVector3f CElitePirate::SPositionHistory::GetValue(const zeus::CVector3f& pos, const zeus::CVector3f& face) {

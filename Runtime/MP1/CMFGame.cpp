@@ -289,7 +289,7 @@ void CMFGameLoader::MakeLoadDependencyList() {
   static constexpr std::array loadDepPAKs{"TestAnim", "SamusGun", "SamGunFx"};
 
   std::vector<SObjectTag> tags;
-  for (const auto pak : loadDepPAKs) {
+  for (const auto* const pak : loadDepPAKs) {
     g_ResFactory->GetTagListForFile(pak, tags);
   }
 

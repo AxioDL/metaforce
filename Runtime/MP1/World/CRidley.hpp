@@ -105,11 +105,11 @@ class CRidley : public CPatterned {
   float xab4_ = 20.f;
   float xab8_ = 12.f;
   float xabc_ = 40.f;
-  float xac0_ = 10;
+  float xac0_ = 10.f;
   zeus::CAABox xac4_ = zeus::skInvertedBox;
   float xadc_;
   float xae0_;
-  u32 xae4_;
+  float xae4_;
   float xae8_;
   zeus::CVector3f xaec_;
   zeus::CVector3f xaf8_;
@@ -195,7 +195,8 @@ class CRidley : public CPatterned {
 
   void sub80253710(CStateManager& mgr);
   bool sub80253960() {
-    return (GetTranslation()  + (1.75f * GetTransform().basis[1]) - xa84_.origin).magnitude() < 1.75f * (xab4_ + xabc_);
+    const float mag = ((GetTranslation() + ((0.5f * xae4_) * GetTransform().frontVector())) - xa84_.origin).magnitude();
+    return mag < 0.5f * (xab4_ + xabc_);
   }
 
 public:

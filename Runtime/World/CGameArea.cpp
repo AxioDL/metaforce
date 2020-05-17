@@ -1199,7 +1199,7 @@ void CGameArea::SetAreaAttributes(const CScriptAreaAttributes* areaAttributes) {
 bool CGameArea::CAreaObjectList::IsQualified(const CEntity& ent) const { return (ent.GetAreaIdAlways() == x200c_areaIdx); }
 void CGameArea::WarmupShaders(const SObjectTag& mreaTag) {
   // Calling this version of the constructor performs warmup implicitly
-  CGameArea area(mreaTag.id);
+  [[maybe_unused]] CGameArea area(mreaTag.id);
 }
 
 } // namespace urde

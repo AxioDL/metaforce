@@ -320,9 +320,10 @@ public:
   void TryCommand(CStateManager& mgr, pas::EAnimationState state, CPatternedTryFunc func, int arg);
   void TryLoopReaction(CStateManager& mgr, int arg);
   void TryProjectileAttack(CStateManager& mgr, int arg);
+  void TryMeleeAttack_TargetPos(CStateManager& mgr, int arg);
   void TryMeleeAttack(CStateManager& mgr, int arg);
-  void TryGenerate(CStateManager& mgr, int arg);
   void TryGenerateNoXf(CStateManager& mgr, int arg);
+  void TryGenerate(CStateManager& mgr, int arg);
   void TryJump(CStateManager& mgr, int arg);
   void TryTurn(CStateManager& mgr, int arg);
   void TryGetUp(CStateManager& mgr, int arg);
@@ -334,6 +335,7 @@ public:
   void TryCover(CStateManager& mgr, int arg);
   void TryWallHang(CStateManager& mgr, int arg);
   void TryKnockBack(CStateManager& mgr, int arg);
+  void TryKnockBack_Front(CStateManager& mgr, int arg);
   void TryGenerateDeactivate(CStateManager& mgr, int arg);
   void TryStep(CStateManager& mgr, int arg);
 

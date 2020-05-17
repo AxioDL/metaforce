@@ -1,10 +1,16 @@
 #include "Runtime/MP1/CSlideShow.hpp"
 
-#include "Editor/ProjectManager.hpp"
+#include <algorithm>
 
+#include "Editor/ProjectManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
+namespace {
+bool AreAllDepsLoaded(const std::vector<TLockedToken<CDependencyGroup>>& deps) {
+  return std::all_of(deps.cbegin(), deps.cend(), [](const auto& dep) { return dep.IsLoaded(); });
+}
+} // Anonymous namespace
 
 CSlideShow::CSlideShow() : CIOWin("SlideShow"), x130_(g_tweakSlideShow->GetX54()) {
   const SObjectTag* font = g_ResFactory->GetResourceIdByName(g_tweakSlideShow->GetFont());
@@ -56,14 +62,6 @@ bool CSlideShow::LoadTXTRDep(std::string_view name) {
     return true;
   }
   return false;
-}
-
-bool CSlideShow::AreAllDepsLoaded(const std::vector<TLockedToken<CDependencyGroup>>& deps) {
-  for (const TLockedToken<CDependencyGroup>& token : deps) {
-    if (!token.IsLoaded())
-      return false;
-  }
-  return true;
 }
 
 CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) {

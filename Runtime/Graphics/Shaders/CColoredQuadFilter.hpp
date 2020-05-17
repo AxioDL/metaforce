@@ -42,7 +42,7 @@ public:
   explicit CWideScreenFilter(EFilterType type) : m_top(type), m_bottom(type) {}
   explicit CWideScreenFilter(EFilterType type, const TLockedToken<CTexture>&) : CWideScreenFilter(type) {}
   void draw(const zeus::CColor& color, float t);
-  void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t);
+  void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t) { draw(color, t); }
 
   static float SetViewportToMatch(float t);
   static void SetViewportToFull();

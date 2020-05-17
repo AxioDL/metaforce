@@ -89,6 +89,7 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
 , x281_27_particle2GlobalTranslation(particle2GlobalTranslation)
 , x281_28_deferDeleteTillParticle2Done(deferDeleteTillParticle2Done)
 , x281_30_debrisExtended(true)
+, x281_31_dieOnProjectile(dieOnProjectile)
 , x282_24_noBounce(noBounce)
 , x288_linConeAngle(linConeAngle)
 , x28c_linMinMag(linMinMag)

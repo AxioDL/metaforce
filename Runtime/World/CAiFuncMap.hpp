@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace urde {
@@ -13,12 +13,12 @@ using CAiStateFunc = void (CAi::*)(CStateManager&, EStateMsg, float);
 using CAiTriggerFunc = bool (CAi::*)(CStateManager&, float);
 
 class CAiFuncMap {
-  std::unordered_map<std::string, CAiStateFunc> x0_stateFuncs;
-  std::unordered_map<std::string, CAiTriggerFunc> x10_triggerFuncs;
+  std::unordered_map<std::string_view, CAiStateFunc> x0_stateFuncs;
+  std::unordered_map<std::string_view, CAiTriggerFunc> x10_triggerFuncs;
 
 public:
   CAiFuncMap();
-  CAiStateFunc GetStateFunc(const char*) const;
-  CAiTriggerFunc GetTriggerFunc(const char*) const;
+  CAiStateFunc GetStateFunc(std::string_view func) const;
+  CAiTriggerFunc GetTriggerFunc(std::string_view func) const;
 };
 } // namespace urde

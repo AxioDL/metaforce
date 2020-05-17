@@ -38,7 +38,7 @@ void CFlameThrower::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CFlameThrower::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   if (msg == EScriptObjectMessage::Registered) {
-    xe6_27_thermalVisorFlags |= 2;
+    xe6_27_thermalVisorFlags = 2;
     mgr.AddWeaponId(xec_ownerId, xf0_weaponType);
   } else if (msg == EScriptObjectMessage::Deleted) {
     mgr.RemoveWeaponId(xec_ownerId, xf0_weaponType);
@@ -227,12 +227,12 @@ void CFlameThrower::Think(float dt, CStateManager& mgr) {
   if (r28 && x34c_flameWarp.IsProcessed()) {
     x318_flameBounds = x34c_flameWarp.CalculateBounds();
     TUniqueId id = kInvalidUniqueId;
-    CRayCastResult res = DoCollisionCheck(id, x318_flameBounds, mgr);
-    if (TCastToPtr<CActor> act = mgr.ObjectById(id)) {
+    const CRayCastResult res = DoCollisionCheck(id, x318_flameBounds, mgr);
+    if (TCastToConstPtr<CActor>(mgr.ObjectById(id))) {
       ApplyDamageToActor(mgr, id, dt);
     } else if (res.IsValid()) {
-      CMaterialFilter useFilter = xf8_filter;
-      CDamageInfo useDInfo = CDamageInfo(x12c_curDamageInfo, dt);
+      const CMaterialFilter useFilter = xf8_filter;
+      const CDamageInfo useDInfo = CDamageInfo(x12c_curDamageInfo, dt);
       mgr.ApplyDamageToWorld(xec_ownerId, *this, res.GetPoint(), useDInfo, useFilter);
     }
   }

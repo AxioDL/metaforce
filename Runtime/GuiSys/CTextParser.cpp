@@ -5,7 +5,7 @@
 
 namespace urde {
 
-static float u16stof(char16_t* str) {
+static float u16stof(const char16_t* str) {
   char cstr[16];
   int i;
   for (i = 0; i < 15 && str[i] != u'\0'; ++i)

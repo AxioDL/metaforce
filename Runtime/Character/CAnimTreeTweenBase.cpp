@@ -25,10 +25,11 @@ void CAnimTreeTweenBase::VGetSegStatementSet(const CSegIdList& list, CSegStateme
   if (w >= 1.f) {
     x18_b->VGetSegStatementSet(list, setOut);
   } else if (sStack > 3) {
-    auto& n = w > 0.5f ? x18_b : x14_a;
+    const auto& n = w > 0.5f ? x18_b : x14_a;
     auto ptr = n->GetBestUnblendedChild();
-    if (!ptr)
+    if (!ptr) {
       ptr = n;
+    }
     ptr->VGetSegStatementSet(list, setOut);
   } else {
     CSegStatementSet setA, setB;
@@ -61,7 +62,7 @@ void CAnimTreeTweenBase::VGetSegStatementSet(const CSegIdList& list, CSegStateme
   if (w >= 1.f) {
     x18_b->VGetSegStatementSet(list, setOut, time);
   } else if (sStack > 3) {
-    auto& n = w > 0.5f ? x18_b : x14_a;
+    const auto& n = w > 0.5f ? x18_b : x14_a;
     n->GetBestUnblendedChild()->VGetSegStatementSet(list, setOut, time);
   } else {
     CSegStatementSet setA, setB;

@@ -75,7 +75,7 @@ void CBeamProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CStateManag
   mgr.BuildNearList(nearList, x36c_, CMaterialFilter::MakeExclude({EMaterialTypes::ProjectilePassthrough}), nullptr);
   TUniqueId collideId = kInvalidUniqueId;
   CRayCastResult res = RayCollisionCheckWithWorld(collideId, x298_previousPos, beamEnd, x300_intBeamLength, nearList, mgr);
-  if (TCastToPtr<CActor> act = mgr.ObjectById(collideId)) {
+  if (TCastToConstPtr<CActor>(mgr.ObjectById(collideId))) {
     SetCollisionResultData(EDamageType::Actor, res, collideId);
     if (x464_25_enableTouchDamage)
       ApplyDamageToActors(mgr, CDamageInfo(x12c_curDamageInfo, dt));

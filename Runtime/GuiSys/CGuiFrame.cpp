@@ -187,11 +187,14 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp) {
 }
 
 void CGuiFrame::ProcessUserInput(const CFinalInput& input) const {
-  if (input.ControllerIdx() != 0)
+  if (input.ControllerIdx() != 0) {
     return;
-  for (auto& widget : x2c_widgets) {
-    if (widget->GetIsActive())
+  }
+
+  for (const auto& widget : x2c_widgets) {
+    if (widget->GetIsActive()) {
       widget->ProcessUserInput(input);
+    }
   }
 }
 

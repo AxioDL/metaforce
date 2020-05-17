@@ -88,8 +88,6 @@ void CWideScreenFilter::draw(const zeus::CColor& color, float t) {
   }
 }
 
-void CWideScreenFilter::DrawFilter(EFilterShape shape, const zeus::CColor& color, float t) {}
-
 float CWideScreenFilter::SetViewportToMatch(float t) {
   if (g_Viewport.aspect < 1.7777f) {
     float targetHeight = g_Viewport.x8_width / 1.7777f;

@@ -244,5 +244,6 @@ private:
                          const zeus::CVector3f& vec) const;
   bool IsClosestEnergyAttractor(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 1024>& charNearList,
                                 const zeus::CVector3f& projectilePos) const;
+  void ShakeCamera(CStateManager& mgr);
 };
 } // namespace urde::MP1

@@ -643,7 +643,7 @@ std::optional<zeus::CAABox> CFishCloud::GetTouchBounds() const {
 
 void CFishCloud::CreateBoidDeathParticle(CBoid& b) const {
   auto it = x21c_deathParticleCounts.begin();
-  for (auto& p : x1f8_particleGens) {
+  for (const auto& p : x1f8_particleGens) {
     p->SetParticleEmission(true);
     p->SetTranslation(b.x0_pos);
     p->ForceParticleCreation(*it);

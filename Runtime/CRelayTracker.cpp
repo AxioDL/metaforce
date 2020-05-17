@@ -42,7 +42,7 @@ void CRelayTracker::RemoveRelay(TEditorId id) {
     return;
   }
 
-  x0_relayStates.erase(std::remove(x0_relayStates.begin(), x0_relayStates.end(), id), x0_relayStates.end());
+  std::erase(x0_relayStates, id);
 }
 
 void CRelayTracker::SendMsgs(TAreaId areaId, CStateManager& stateMgr) {

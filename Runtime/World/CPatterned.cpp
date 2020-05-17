@@ -881,15 +881,20 @@ void CPatterned::TryLoopReaction(CStateManager& mgr, int arg) {
 void CPatterned::TryProjectileAttack(CStateManager&, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCProjectileAttackCmd(pas::ESeverity(arg), x2e0_destPos, false));
 }
+
+void CPatterned::TryMeleeAttack_TargetPos(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::ESeverity(arg), x2e0_destPos));
+}
+
 void CPatterned::TryMeleeAttack(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::ESeverity(arg)));
 }
 
-void CPatterned::TryGenerate(CStateManager& mgr, int arg) {
+void CPatterned::TryGenerateNoXf(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType(arg), x2e0_destPos, false));
 }
 
-void CPatterned::TryGenerateNoXf(CStateManager& mgr, int arg) {
+void CPatterned::TryGenerate(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Zero, x2e0_destPos, true));
 }
 
@@ -939,6 +944,10 @@ void CPatterned::TryWallHang(CStateManager& mgr, int arg) {
 
 void CPatterned::TryKnockBack(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTranslation(), pas::ESeverity(arg)));
+}
+
+void CPatterned::TryKnockBack_Front(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTransform().frontVector(), pas::ESeverity(arg)));
 }
 
 void CPatterned::TryGenerateDeactivate(urde::CStateManager& mgr, int arg) {

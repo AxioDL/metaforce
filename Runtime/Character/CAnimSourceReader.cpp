@@ -106,24 +106,27 @@ void CAnimSourceReaderBase::UpdatePOIStates() {
   const std::vector<CSoundPOINode>& soundNodes = x4_sourceInfo->GetSoundPOIStream();
 
   while (x14_passedBoolCount < boolNodes.size() && boolNodes[x14_passedBoolCount].GetTime() <= xc_curTime) {
-    auto& node = boolNodes[x14_passedBoolCount];
-    if (node.GetIndex() >= 0)
+    const auto& node = boolNodes[x14_passedBoolCount];
+    if (node.GetIndex() >= 0) {
       x24_boolStates[node.GetIndex()].second = node.GetValue();
+    }
     ++x14_passedBoolCount;
   }
 
   while (x18_passedIntCount < int32Nodes.size() && int32Nodes[x18_passedIntCount].GetTime() <= xc_curTime) {
-    auto& node = int32Nodes[x18_passedIntCount];
-    if (node.GetIndex() >= 0)
+    const auto& node = int32Nodes[x18_passedIntCount];
+    if (node.GetIndex() >= 0) {
       x34_int32States[node.GetIndex()].second = node.GetValue();
+    }
     ++x18_passedIntCount;
   }
 
   while (x1c_passedParticleCount < particleNodes.size() &&
          particleNodes[x1c_passedParticleCount].GetTime() <= xc_curTime) {
-    auto& node = particleNodes[x1c_passedParticleCount];
-    if (node.GetIndex() >= 0)
+    const auto& node = particleNodes[x1c_passedParticleCount];
+    if (node.GetIndex() >= 0) {
       x44_particleStates[node.GetIndex()].second = node.GetParticleData().GetParentedMode();
+    }
     ++x1c_passedParticleCount;
   }
 
