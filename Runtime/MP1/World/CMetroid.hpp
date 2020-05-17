@@ -101,7 +101,7 @@ private:
   bool x9bf_29_isAttacking : 1 = false;
   bool x9bf_30_ : 1 = false;
   bool x9bf_31_ : 1 = false;
-  bool x9c0_24_isPlayerMorphed : 1 = false;
+  bool x9c0_24_isEnergyDrainVulnerable : 1 = false;
 
 public:
   DEFINE_PATTERNED(Metroid)
@@ -140,11 +140,11 @@ public:
   void KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const CDamageInfo& info, EKnockBackType type,
                  bool inDeferred, float magnitude) override;
   void PathFind(CStateManager& mgr, EStateMsg msg, float arg) override;
-  //  void Patrol(CStateManager& mgr, EStateMsg msg, float arg) override;
-  //  void TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void Patrol(CStateManager& mgr, EStateMsg msg, float arg) override;
+  void TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) override;
   void TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) override;
-  //  void TurnAround(CStateManager& mgr, EStateMsg msg, float dt) override;
-  //  void WallHang(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void TurnAround(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void WallHang(CStateManager& mgr, EStateMsg msg, float dt) override;
 
   bool AnimOver(CStateManager&, float arg) override { return x568_state == EState::Over; }
   bool AggressionCheck(CStateManager& mgr, float arg) override;
@@ -152,24 +152,24 @@ public:
   bool AttackOver(CStateManager& mgr, float arg) override;
   bool InAttackPosition(CStateManager& mgr, float arg) override;
   bool InDetectionRange(CStateManager& mgr, float arg) override;
-  //  bool InPosition(CStateManager& mgr, float arg) override;
-  //  bool InRange(CStateManager& mgr, float arg) override;
-  //  bool Inside(CStateManager& mgr, float arg) override;
-  //  bool Leash(CStateManager& mgr, float arg) override;
-  //  bool LostInterest(CStateManager& mgr, float arg) override;
-  //  bool PatternShagged(CStateManager& mgr, float arg) override;
+  bool InPosition(CStateManager& mgr, float arg) override;
+  bool InRange(CStateManager& mgr, float arg) override;
+  bool Inside(CStateManager& mgr, float arg) override;
+  bool Leash(CStateManager& mgr, float arg) override;
+  bool LostInterest(CStateManager& mgr, float arg) override;
+  bool PatternShagged(CStateManager& mgr, float arg) override;
   bool ShotAt(CStateManager& mgr, float arg) override { return x9bf_26_shotAt; }
   bool ShouldAttack(CStateManager& mgr, float arg) override;
-  //  bool ShouldDodge(CStateManager& mgr, float arg) override;
-  //  bool ShouldTurn(CStateManager& mgr, float arg) override;
+  bool ShouldDodge(CStateManager& mgr, float arg) override;
+  bool ShouldTurn(CStateManager& mgr, float arg) override;
   bool ShouldWallHang(CStateManager& mgr, float arg) override { return x56c_data.GetStartsInWall(); }
-  //  bool SpotPlayer(CStateManager& mgr, float arg) override;
+  bool SpotPlayer(CStateManager& mgr, float arg) override;
 
   bool IsAttacking() const { return x9bf_29_isAttacking; }
 
 private:
   float ComputeMorphingPlayerSuckZPos(const CPlayer& player) const;
-  bool IsPirateValidTarget(CSpacePirate* target, CStateManager& mgr);
+  bool IsPirateValidTarget(const CSpacePirate* target, CStateManager& mgr);
   bool CanAttack(CStateManager& mgr);
   void UpdateAttackChance(CStateManager& mgr, float dt);
   bool IsPlayerUnderwater(CStateManager& mgr);
