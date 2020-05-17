@@ -619,5 +619,6 @@ public:
   const zeus::CVector3f& GetOrbitPoint() const { return x314_orbitPoint; }
   float GetAverageSpeed() const;
   bool IsInWaterMovement() const { return x9c4_31_inWaterMovement; }
+  void SetNoDamageLoopSfx(bool val) { x9c7_24_noDamageLoopSfx = val; }
 };
 } // namespace urde

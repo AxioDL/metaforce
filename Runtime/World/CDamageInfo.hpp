@@ -16,7 +16,7 @@ class CDamageInfo {
   float xc_radiusDamage = 0.f;
   float x10_radius = 0.f;
   float x14_knockback = 0.f;
-  bool x18_noImmunity = false;
+  bool x18_24_noImmunity : 1 = false;
 
 public:
   constexpr CDamageInfo() = default;
@@ -53,8 +53,8 @@ public:
   float GetRadiusDamage() const { return xc_radiusDamage; }
   void SetRadiusDamage(float r) { xc_radiusDamage = r; }
   float GetRadiusDamage(const CDamageVulnerability& dVuln) const;
-  bool NoImmunity() const { return x18_noImmunity; }
-  void SetNoImmunity(bool b) { x18_noImmunity = b; }
+  bool NoImmunity() const { return x18_24_noImmunity; }
+  void SetNoImmunity(bool b) { x18_24_noImmunity = b; }
   void MultiplyDamage(float m) {
     x8_damage *= m;
     xc_radiusDamage *= m;

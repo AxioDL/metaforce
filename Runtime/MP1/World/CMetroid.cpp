@@ -1,6 +1,7 @@
 #include "Runtime/MP1/World/CMetroid.hpp"
 
 #include "Runtime/CStateManager.hpp"
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
@@ -47,12 +48,18 @@ constexpr CDamageVulnerability skNormalDamageVulnerability{
 };
 
 constexpr auto skPirateSuckJoint = "Head_1"sv;
+
+constexpr std::array skJointNameList = {
+    "Head_1"sv,        "L_ankle"sv,    "L_elbow"sv,       "L_hip"sv,   "L_knee"sv,  "L_shoulder"sv,
+    "L_varias2_SDK"sv, "L_wrist"sv,    "Pelvis"sv,        "R_ankle"sv, "R_elbow"sv, "R_hip"sv,
+    "R_knee"sv,        "R_shoulder"sv, "R_varias2_SDK"sv, "Spine_1"sv, "Spine_2"sv,
+};
 } // namespace
 
 CMetroidData::CMetroidData(CInputStream& in)
 : x0_frozenVulnerability(in)
 , x68_energyDrainVulnerability(in)
-, xd0_(in.readFloatBig())
+, xd0_energyDrainPerSec(in.readFloatBig())
 , xd4_maxEnergyDrainAllowed(in.readFloatBig())
 , xd8_telegraphAttackTime(in.readFloatBig())
 , xdc_stage2GrowthScale(in.readFloatBig())
@@ -162,7 +169,7 @@ EWeaponCollisionResponseTypes CMetroid::GetCollisionResponseType(const zeus::CVe
 
 const CDamageVulnerability* CMetroid::GetDamageVulnerability() const {
   if (IsSuckingEnergy()) {
-    if (x9c0_24_) {
+    if (x9c0_24_isPlayerMorphed) {
       return &x56c_data.GetEnergyDrainVulnerability();
     }
     return &skNormalDamageVulnerability;
@@ -338,7 +345,74 @@ bool CMetroid::IsAttackInProgress(CStateManager& mgr) {
 }
 
 void CMetroid::SuckEnergyFromTarget(CStateManager& mgr, float dt) {
-  // TODO
+  x9c0_24_isPlayerMorphed = false;
+  if (x7b0_attackTarget == kInvalidUniqueId) {
+    return;
+  }
+  if (x7c8_ == EUnknown::One) {
+    InterpolateToPosRot(mgr, 0.4f);
+    CPlayer& player = mgr.GetPlayer();
+    if (x7b0_attackTarget == player.GetUniqueId()) {
+      x402_28_isMakingBigStrike = true;
+      x504_damageDur = 0.2f;
+      mgr.SendScriptMsg(&player, GetUniqueId(), EScriptObjectMessage::Damage);
+    }
+    x7c0_ = 0.f;
+  } else if (x7c8_ == EUnknown::Two) {
+    CPlayer& player = mgr.GetPlayer();
+    if (TCastToPtr<CActor> actor = mgr.ObjectById(x7b0_attackTarget)) {
+      CHealthInfo* healthInfo = actor->HealthInfo(mgr);
+      if (healthInfo != nullptr) {
+        const float damage = dt * x56c_data.GetEnergyDrainPerSec() * GetDamageMultiplier();
+        x7bc_ += damage;
+        if (x7b0_attackTarget == player.GetUniqueId()) {
+          player.SetNoDamageLoopSfx(true);
+          constexpr auto filter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
+          constexpr CWeaponMode mode{EWeaponType::PoisonWater};
+          CDamageInfo info{mode, damage, 0.f, 0.f};
+          info.SetNoImmunity(true);
+          mgr.ApplyDamage(GetUniqueId(), x7b0_attackTarget, GetUniqueId(), info, filter, zeus::skZero3f);
+          player.SetNoDamageLoopSfx(false);
+          x9c0_24_isPlayerMorphed = player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed;
+        } else {
+          x9c0_24_isPlayerMorphed = true;
+          constexpr auto filter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
+          constexpr CWeaponMode mode{EWeaponType::Power};
+          CDamageInfo info{mode, damage, 0.f, 0.f};
+          info.SetNoImmunity(true);
+          mgr.ApplyDamage(GetUniqueId(), x7b0_attackTarget, GetUniqueId(), info, filter, zeus::skZero3f);
+        }
+        if (GetGrowthStage() <= 2.f) {
+          TakeDamage(zeus::skZero3f, 0.f);
+        } else {
+          ApplyGrowth(damage);
+        }
+      }
+    }
+    float arg = 0.95f;
+    if (x7b0_attackTarget == player.GetUniqueId()) {
+      auto morphBallState = player.GetMorphballTransitionState();
+      if (morphBallState != CPlayer::EPlayerMorphBallState::Unmorphed &&
+          morphBallState != CPlayer::EPlayerMorphBallState::Morphed) {
+        arg = 0.4f;
+      }
+      if (morphBallState == CPlayer::EPlayerMorphBallState::Unmorphed) {
+        const float magnitude = std::clamp(std::abs(std::sin(zeus::degToRad(90.f) * x7c0_)), 0.f, 1.f);
+        mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), magnitude, 0.2f);
+        if (player.GetStaticTimer() < 0.2f) {
+          player.SetHudDisable(0.2f, 0.5f, 2.5f);
+        }
+      }
+      x402_28_isMakingBigStrike = true;
+      x504_damageDur = 0.2f;
+    }
+    InterpolateToPosRot(mgr, arg);
+    x7c0_ += dt;
+  } else if (x7c8_ == EUnknown::Three) {
+    const zeus::CQuaternion zRot = zeus::CQuaternion::fromAxisAngle({0.0f, 0.0f, 1.0f}, GetYaw());
+    const zeus::CQuaternion rot = zeus::CQuaternion::slerpShort(GetTransform().basis, zRot, 0.95f);
+    SetRotation(rot.normalized());
+  }
 }
 
 void CMetroid::RestoreSolidCollision(CStateManager& mgr) {
@@ -951,7 +1025,6 @@ bool CMetroid::InAttackPosition(CStateManager& mgr, float arg) {
       if (attackDir.canBeNormalized()) {
         constexpr auto filter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid, EMaterialTypes::AIBlock});
         float mag = attackDir.magnitude();
-        // TODO double check boolean
         return mgr.RayStaticIntersection(pos, (1.f / mag) * attackDir, mag, filter).IsInvalid();
       }
     }
@@ -1013,6 +1086,101 @@ void CMetroid::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) {
       CTeamAiMgr::ResetTeamAiRole(CTeamAiMgr::EAttackType::Melee, mgr, x698_teamAiMgrId, GetUniqueId(), false);
     }
   }
+}
+
+void CMetroid::InterpolateToPosRot(CStateManager& mgr, float dt) {
+  zeus::CVector3f pos;
+  zeus::CQuaternion rot;
+  ComputeSuckTargetPosRot(mgr, pos, rot);
+  const float oneMinusDt = 1.f - dt;
+  const auto posInterp = GetTranslation() * oneMinusDt + pos * dt;
+  const auto quatInterp = zeus::CQuaternion::slerpShort(GetTransform().basis, rot, dt);
+  SetTransform(quatInterp.toTransform(posInterp));
+}
+
+void CMetroid::ComputeSuckTargetPosRot(CStateManager& mgr, zeus::CVector3f& outPos, zeus::CQuaternion& outRot) {
+  const auto xf = GetTransform();
+  outPos = xf.origin;
+  outRot = xf.basis;
+  if (x7b0_attackTarget == mgr.GetPlayer().GetUniqueId()) {
+    ComputeSuckPlayerPosRot(mgr, outPos, outRot);
+  } else {
+    ComputeSuckPiratePosRot(mgr, outPos, outRot);
+  }
+}
+
+void CMetroid::ComputeSuckPlayerPosRot(CStateManager& mgr, zeus::CVector3f& outPos, zeus::CQuaternion& outRot) {
+  CPlayer& player = mgr.GetPlayer();
+  const zeus::CTransform playerXf = player.GetTransform();
+  outPos = playerXf.origin;
+  const auto& scale = GetModelData()->GetScale();
+  const auto morphBallState = player.GetMorphballTransitionState();
+  if (morphBallState == CPlayer::EPlayerMorphBallState::Morphing) {
+    outPos += zeus::CVector3f{0.f, 0.f, 0.4f + ComputeMorphingPlayerSuckZPos(player)};
+    outPos += 0.5f * playerXf.frontVector() - player.GetMorphBall()->GetBallRadius() * GetTransform().upVector();
+    const auto xRot = zeus::CQuaternion::fromAxisAngle(zeus::skRight, zeus::degToRad(-90.f));
+    const auto yRot = zeus::CQuaternion::fromAxisAngle(zeus::skForward, 0.f);
+    const auto zRot = zeus::CQuaternion::fromAxisAngle(zeus::skUp, M_PIF);
+    outRot = zeus::CQuaternion{playerXf.basis} * (zRot * xRot * yRot);
+  } else if (morphBallState == CPlayer::EPlayerMorphBallState::Unmorphed) {
+    const zeus::CQuaternion camRot = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().basis;
+    outRot = camRot * zeus::CQuaternion::fromAxisAngle(zeus::skUp, M_PIF);
+    const zeus::CMatrix3f camMtx = camRot.toTransform().basis;
+    const zeus::CVector3f forward = camMtx * zeus::skForward;
+    const zeus::CVector3f up = (-0.6f * scale.y()) * (camMtx * zeus::skUp);
+    outPos += zeus::CVector3f{0.f, 0.f, player.GetEyeHeight()} + up + forward;
+  } else if (morphBallState == CPlayer::EPlayerMorphBallState::Morphed) {
+    const float ballRadius = player.GetMorphBall()->GetBallRadius();
+    outPos += (2.f * ballRadius + 0.25f) * zeus::skUp;
+    outPos -= ballRadius * (scale.y() * GetTransform().upVector());
+    const auto xRot = zeus::CQuaternion::fromAxisAngle(zeus::skRight, zeus::degToRad(-90.f));
+    const auto yRot = zeus::CQuaternion::fromAxisAngle(zeus::skForward, 0.f);
+    const auto zRot = zeus::CQuaternion::fromAxisAngle(zeus::skUp, GetYaw());
+    outRot = zRot * xRot * yRot;
+  } else if (morphBallState == CPlayer::EPlayerMorphBallState::Unmorphing) {
+    outPos += zeus::CVector3f{0.f, 0.f, 0.4f + ComputeMorphingPlayerSuckZPos(player)};
+    outPos += 0.5f * playerXf.frontVector() - player.GetMorphBall()->GetBallRadius() * GetTransform().upVector();
+    const auto xRot = zeus::CQuaternion::fromAxisAngle(zeus::skRight, zeus::degToRad(-90.f));
+    const auto yRot = zeus::CQuaternion::fromAxisAngle(zeus::skForward, 0.f);
+    const auto zRot = zeus::CQuaternion::fromAxisAngle(zeus::skUp, M_PIF);
+    outRot = zeus::CQuaternion{playerXf.basis} * (zRot * xRot * yRot);
+
+    float morphT = 0.f;
+    if (player.GetMorphDuration() != 0.f) {
+      morphT = std::clamp(player.GetMorphTime() / player.GetMorphDuration(), 0.f, 1.f);
+    }
+    if (morphT > 0.75f) {
+      const zeus::CQuaternion camRot = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().basis;
+      const zeus::CQuaternion rot = camRot * zeus::CQuaternion::fromAxisAngle(zeus::skUp, M_PIF);
+      const zeus::CMatrix3f camMtx = camRot.toTransform().basis;
+      const zeus::CVector3f forward = camMtx * zeus::skForward;
+      const zeus::CVector3f up = (-0.6f * scale.y()) * (camMtx * zeus::skUp);
+      const zeus::CVector3f pos = playerXf.origin + zeus::CVector3f{0.f, 0.f, player.GetEyeHeight()} + up + forward;
+      const float t = (morphT - 0.75f) / 0.25f;
+      outRot = zeus::CQuaternion::slerpShort(outRot, rot, t);
+      outPos = zeus::CVector3f::lerp(outPos, pos, t); // outPos * (1.f - t) + (pos * t);
+    }
+  }
+}
+
+void CMetroid::ComputeSuckPiratePosRot(CStateManager& mgr, zeus::CVector3f& outPos, zeus::CQuaternion& outRot) {
+  // TODO
+}
+
+float CMetroid::ComputeMorphingPlayerSuckZPos(const CPlayer& player) const {
+  float ret = 0.f;
+  const CModelData* modelData = player.GetModelData();
+  const float scaleZ = modelData->GetScale().z();
+  if (modelData != nullptr && modelData->GetAnimationData() != nullptr && modelData->GetNormalModel()) {
+    for (const auto& joint : skJointNameList) {
+      const zeus::CTransform xf = player.GetLocatorTransform(joint);
+      const float z = xf.origin.z() * scaleZ;
+      if (z > ret) {
+        ret = z;
+      }
+    }
+  }
+  return ret;
 }
 
 } // namespace urde::MP1

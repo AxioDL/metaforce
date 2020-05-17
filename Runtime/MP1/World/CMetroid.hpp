@@ -18,7 +18,7 @@ private:
   static constexpr u32 skNumProperties = 20;
   CDamageVulnerability x0_frozenVulnerability;
   CDamageVulnerability x68_energyDrainVulnerability;
-  float xd0_;
+  float xd0_energyDrainPerSec;
   float xd4_maxEnergyDrainAllowed;
   float xd8_telegraphAttackTime;
   float xdc_stage2GrowthScale;
@@ -35,6 +35,7 @@ public:
   static u32 GetNumProperties() { return skNumProperties; }
   const CDamageVulnerability& GetFrozenVulnerability() const { return x0_frozenVulnerability; }
   const CDamageVulnerability& GetEnergyDrainVulnerability() const { return x68_energyDrainVulnerability; }
+  float GetEnergyDrainPerSec() const { return xd0_energyDrainPerSec; }
   float GetMaxEnergyDrainAllowed() const { return xd4_maxEnergyDrainAllowed; }
   float GetTelegraphAttackTime() const { return xd8_telegraphAttackTime; }
   float GetStage2GrowthScale() const { return xdc_stage2GrowthScale; }
@@ -100,7 +101,7 @@ private:
   bool x9bf_29_isAttacking : 1 = false;
   bool x9bf_30_ : 1 = false;
   bool x9bf_31_ : 1 = false;
-  bool x9c0_24_ : 1 = false;
+  bool x9c0_24_isPlayerMorphed : 1 = false;
 
 public:
   DEFINE_PATTERNED(Metroid)
@@ -141,7 +142,7 @@ public:
   void PathFind(CStateManager& mgr, EStateMsg msg, float arg) override;
   //  void Patrol(CStateManager& mgr, EStateMsg msg, float arg) override;
   //  void TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) override;
-    void TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) override;
   //  void TurnAround(CStateManager& mgr, EStateMsg msg, float dt) override;
   //  void WallHang(CStateManager& mgr, EStateMsg msg, float dt) override;
 
@@ -174,12 +175,12 @@ private:
   bool IsPlayerUnderwater(CStateManager& mgr);
   bool IsHunterAttacking(CStateManager& mgr);
   bool IsAttackInProgress(CStateManager& mgr);
-  void ComputeSuckPiratePosRot(CStateManager& mgr, zeus::CVector3f& outVec, zeus::CQuaternion& outQuat);
+  void ComputeSuckPiratePosRot(CStateManager& mgr, zeus::CVector3f& outPos, zeus::CQuaternion& outRot);
   EGammaType GetRandomGammaType(CStateManager& mgr, EGammaType previous);
   void SpawnGammaMetroid(CStateManager& mgr);
   bool ShouldSpawnGammaMetroid();
-  void ComputeSuckPlayerPosRot(CStateManager& mgr, zeus::CVector3f& outVec, zeus::CQuaternion& outQuat);
-  void ComputeSuckTargetPosRot(CStateManager& mgr, zeus::CVector3f& outVec, zeus::CQuaternion& outQuat);
+  void ComputeSuckPlayerPosRot(CStateManager& mgr, zeus::CVector3f& outPos, zeus::CQuaternion& outRot);
+  void ComputeSuckTargetPosRot(CStateManager& mgr, zeus::CVector3f& outPos, zeus::CQuaternion& outRot);
   void InterpolateToPosRot(CStateManager& mgr, float dt);
   void SuckEnergyFromTarget(CStateManager& mgr, float dt);
   bool ShouldReleaseFromTarget(CStateManager& mgr);
