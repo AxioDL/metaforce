@@ -34,7 +34,7 @@ public:
     using difference_type = std::ptrdiff_t;
     using pointer = T*;
     using reference = T&;
-    using iterator_category = std::random_access_iterator_tag;
+    using iterator_category = std::contiguous_iterator_tag;
 
     const T& operator*() const { return *m_val; }
     const T* operator->() const { return m_val; }
