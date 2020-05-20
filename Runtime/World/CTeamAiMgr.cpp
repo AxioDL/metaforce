@@ -10,15 +10,22 @@
 namespace urde {
 
 struct TeamAiRoleSorter {
+  enum class Type {
+    OwnerID,
+    Distance,
+    TeamAIRole,
+  };
+
   zeus::CVector3f x0_pos;
-  s32 xc_type;
+  Type xc_type;
+
   bool operator()(const CTeamAiRole& a, const CTeamAiRole& b) const {
-    float aDist = (x0_pos - a.GetTeamPosition()).magSquared();
-    float bDist = (x0_pos - b.GetTeamPosition()).magSquared();
+    const float aDist = (x0_pos - a.GetTeamPosition()).magSquared();
+    const float bDist = (x0_pos - b.GetTeamPosition()).magSquared();
     switch (xc_type) {
-    case 0:
+    case Type::OwnerID:
       return a.GetOwnerId() < b.GetOwnerId();
-    case 1:
+    case Type::Distance:
       return aDist < bDist;
     default:
       if (a.GetTeamAiRole() == b.GetTeamAiRole())
@@ -27,7 +34,7 @@ struct TeamAiRoleSorter {
         return a.GetTeamAiRole() < b.GetTeamAiRole();
     }
   }
-  TeamAiRoleSorter(const zeus::CVector3f& pos, s32 type) : x0_pos(pos), xc_type(type) {}
+  TeamAiRoleSorter(const zeus::CVector3f& pos, Type type) : x0_pos(pos), xc_type(type) {}
 };
 
 CTeamAiData::CTeamAiData(CInputStream& in, s32 propCount)
@@ -90,7 +97,7 @@ void CTeamAiMgr::ResetRoles(CStateManager& mgr) {
 }
 
 void CTeamAiMgr::SpacingSort(CStateManager& mgr, const zeus::CVector3f& pos) {
-  const TeamAiRoleSorter sorter(pos, 2);
+  const TeamAiRoleSorter sorter(pos, TeamAiRoleSorter::Type::TeamAIRole);
   std::sort(x58_roles.begin(), x58_roles.end(), sorter);
   float tierStagger = 4.5f;
   for (const auto& role : x58_roles) {
@@ -123,7 +130,7 @@ void CTeamAiMgr::SpacingSort(CStateManager& mgr, const zeus::CVector3f& pos) {
       }
     }
   }
-  const TeamAiRoleSorter sorter2(pos, 0);
+  const TeamAiRoleSorter sorter2(pos, TeamAiRoleSorter::Type::OwnerID);
   std::sort(x58_roles.begin(), x58_roles.end(), sorter2);
 }
 
@@ -166,7 +173,7 @@ void CTeamAiMgr::UpdateRoles(CStateManager& mgr) {
   ResetRoles(mgr);
 
   const zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
-  const TeamAiRoleSorter sorter(aimPos, 1);
+  const TeamAiRoleSorter sorter(aimPos, TeamAiRoleSorter::Type::Distance);
   std::sort(x58_roles.begin(), x58_roles.end(), sorter);
 
   AssignRoles(CTeamAiRole::ETeamAiRole::Melee, x34_data.x4_meleeCount);
@@ -180,7 +187,7 @@ void CTeamAiMgr::UpdateRoles(CStateManager& mgr) {
     }
   }
 
-  const TeamAiRoleSorter sorter2(aimPos, 0);
+  const TeamAiRoleSorter sorter2(aimPos, TeamAiRoleSorter::Type::OwnerID);
   std::sort(x58_roles.begin(), x58_roles.end(), sorter2);
   x88_timeDirty = 0.f;
 }
