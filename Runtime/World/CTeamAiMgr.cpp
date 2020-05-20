@@ -90,27 +90,29 @@ void CTeamAiMgr::ResetRoles(CStateManager& mgr) {
 }
 
 void CTeamAiMgr::SpacingSort(CStateManager& mgr, const zeus::CVector3f& pos) {
-  TeamAiRoleSorter sorter(pos, 2);
+  const TeamAiRoleSorter sorter(pos, 2);
   std::sort(x58_roles.begin(), x58_roles.end(), sorter);
   float tierStagger = 4.5f;
   for (const auto& role : x58_roles) {
-    if (TCastToPtr<CAi> ai = mgr.ObjectById(role.GetOwnerId())) {
-      float length = (ai->GetBaseBoundingBox().max.y() - ai->GetBaseBoundingBox().min.y()) * 1.5f;
-      if (length > tierStagger)
+    if (const TCastToConstPtr<CAi> ai = mgr.ObjectById(role.GetOwnerId())) {
+      const float length = (ai->GetBaseBoundingBox().max.y() - ai->GetBaseBoundingBox().min.y()) * 1.5f;
+      if (length > tierStagger) {
         tierStagger = length;
+      }
     }
   }
   float curTierDist = tierStagger;
   int tierTeamSize = 0;
   int maxTierTeamSize = 3;
   for (auto& role : x58_roles) {
-    if (TCastToPtr<CAi> ai = mgr.ObjectById(role.GetOwnerId())) {
+    if (const TCastToConstPtr<CAi> ai = mgr.ObjectById(role.GetOwnerId())) {
       zeus::CVector3f delta = ai->GetTranslation() - pos;
       zeus::CVector3f newPos;
-      if (delta.canBeNormalized())
+      if (delta.canBeNormalized()) {
         newPos = pos + delta.normalized() * curTierDist;
-      else
+      } else {
         newPos = pos + ai->GetTransform().basis[1] * curTierDist;
+      }
       role.x1c_position = newPos;
       role.x1c_position.z() = ai->GetTranslation().z();
       tierTeamSize += 1;
@@ -121,7 +123,7 @@ void CTeamAiMgr::SpacingSort(CStateManager& mgr, const zeus::CVector3f& pos) {
       }
     }
   }
-  TeamAiRoleSorter sorter2(pos, 0);
+  const TeamAiRoleSorter sorter2(pos, 0);
   std::sort(x58_roles.begin(), x58_roles.end(), sorter2);
 }
 
@@ -132,24 +134,29 @@ void CTeamAiMgr::PositionTeam(CStateManager& mgr) {
     SpacingSort(mgr, aimPos);
     break;
   default:
-    for (auto& role : x58_roles)
-      if (TCastToPtr<CAi> ai = mgr.ObjectById(role.GetOwnerId()))
+    for (auto& role : x58_roles) {
+      if (const TCastToConstPtr<CAi> ai = mgr.ObjectById(role.GetOwnerId())) {
         role.x1c_position = ai->GetOrigin(mgr, role, aimPos);
+      }
+    }
     break;
   }
 }
 
 void CTeamAiMgr::AssignRoles(CTeamAiRole::ETeamAiRole assRole, s32 count) {
-  if (count == 0)
+  if (count == 0) {
     return;
+  }
+
   s32 lastIdx = 0;
   for (auto& role : x58_roles) {
     if (role.GetTeamAiRole() == CTeamAiRole::ETeamAiRole::Initial) {
       if (role.x4_roleA == assRole || role.x8_roleB == assRole || role.xc_roleC == assRole) {
         role.x10_curRole = assRole;
         role.x14_roleIndex = lastIdx++;
-        if (lastIdx == count)
+        if (lastIdx == count) {
           return;
+        }
       }
     }
   }
@@ -157,26 +164,34 @@ void CTeamAiMgr::AssignRoles(CTeamAiRole::ETeamAiRole assRole, s32 count) {
 
 void CTeamAiMgr::UpdateRoles(CStateManager& mgr) {
   ResetRoles(mgr);
-  zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
-  TeamAiRoleSorter sorter(aimPos, 1);
+
+  const zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
+  const TeamAiRoleSorter sorter(aimPos, 1);
   std::sort(x58_roles.begin(), x58_roles.end(), sorter);
+
   AssignRoles(CTeamAiRole::ETeamAiRole::Melee, x34_data.x4_meleeCount);
   AssignRoles(CTeamAiRole::ETeamAiRole::Ranged, x34_data.x8_rangedCount);
   AssignRoles(CTeamAiRole::ETeamAiRole::Unknown, x34_data.xc_unknownCount);
+
   for (auto& role : x58_roles) {
     if (role.GetTeamAiRole() <= CTeamAiRole::ETeamAiRole::Initial ||
-        role.GetTeamAiRole() > CTeamAiRole::ETeamAiRole::Unassigned)
+        role.GetTeamAiRole() > CTeamAiRole::ETeamAiRole::Unassigned) {
       role.SetTeamAiRole(CTeamAiRole::ETeamAiRole::Unassigned);
+    }
   }
-  TeamAiRoleSorter sorter2(aimPos, 0);
+
+  const TeamAiRoleSorter sorter2(aimPos, 0);
   std::sort(x58_roles.begin(), x58_roles.end(), sorter2);
   x88_timeDirty = 0.f;
 }
 
 void CTeamAiMgr::Think(float dt, CStateManager& mgr) {
   CEntity::Think(dt, mgr);
-  if (ShouldUpdateRoles(dt))
+
+  if (ShouldUpdateRoles(dt)) {
     UpdateRoles(mgr);
+  }
+
   PositionTeam(mgr);
   x90_timeSinceMelee += dt;
   x94_timeSinceRanged += dt;
