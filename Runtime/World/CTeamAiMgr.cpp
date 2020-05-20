@@ -65,20 +65,19 @@ void CTeamAiMgr::UpdateTeamCaptain() {
 }
 
 bool CTeamAiMgr::ShouldUpdateRoles(float dt) {
-  if (x58_roles.empty())
+  if (x58_roles.empty()) {
     return false;
-
-  x88_timeDirty += dt;
-  if (x88_timeDirty >= 1.5f)
-    return true;
-
-  for (const auto& role : x58_roles) {
-    if (role.GetTeamAiRole() <= CTeamAiRole::ETeamAiRole::Initial ||
-        role.GetTeamAiRole() > CTeamAiRole::ETeamAiRole::Unassigned)
-      return true;
   }
 
-  return false;
+  x88_timeDirty += dt;
+  if (x88_timeDirty >= 1.5f) {
+    return true;
+  }
+
+  return std::any_of(x58_roles.cbegin(), x58_roles.cend(), [](const auto& role) {
+    return role.GetTeamAiRole() <= CTeamAiRole::ETeamAiRole::Initial ||
+           role.GetTeamAiRole() > CTeamAiRole::ETeamAiRole::Unassigned;
+  });
 }
 
 void CTeamAiMgr::ResetRoles(CStateManager& mgr) {
