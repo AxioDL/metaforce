@@ -7,10 +7,13 @@ namespace urde {
 CStaticInterference::CStaticInterference(size_t sourceCount) { m_sources.reserve(sourceCount); }
 
 void CStaticInterference::RemoveSource(TUniqueId id) {
-  auto iter = std::find_if(m_sources.begin(), m_sources.end(),
-                           [id](const CStaticInterferenceSource& src) -> bool { return src.id == id; });
-  if (iter != m_sources.end())
-    m_sources.erase(iter);
+  const auto iter = std::find_if(m_sources.cbegin(), m_sources.cend(), [id](const auto& src) { return src.id == id; });
+
+  if (iter == m_sources.cend()) {
+    return;
+  }
+
+  m_sources.erase(iter);
 }
 
 void CStaticInterference::Update(CStateManager&, float dt) {
@@ -44,15 +47,17 @@ float CStaticInterference::GetTotalInterference() const {
 
 void CStaticInterference::AddSource(TUniqueId id, float magnitude, float duration) {
   magnitude = zeus::clamp(0.f, magnitude, 1.f);
-  auto search = std::find_if(m_sources.begin(), m_sources.end(),
-                             [id](CStaticInterferenceSource& source) { return source.id == id; });
-  if (search != m_sources.end()) {
+  const auto search = std::find_if(m_sources.begin(), m_sources.end(),
+                                   [id](const CStaticInterferenceSource& source) { return source.id == id; });
+  if (search != m_sources.cend()) {
     search->magnitude = magnitude;
     search->timeLeft = duration;
     return;
   }
-  if (m_sources.size() < m_sources.capacity())
+
+  if (m_sources.size() < m_sources.capacity()) {
     m_sources.push_back({id, magnitude, duration});
+  }
 }
 
 } // namespace urde
