@@ -4,7 +4,7 @@
 
 namespace urde {
 
-CStaticInterference::CStaticInterference(int sourceCount) { m_sources.reserve(sourceCount); }
+CStaticInterference::CStaticInterference(size_t sourceCount) { m_sources.reserve(sourceCount); }
 
 void CStaticInterference::RemoveSource(TUniqueId id) {
   auto iter = std::find_if(m_sources.begin(), m_sources.end(),
