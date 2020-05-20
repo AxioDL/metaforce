@@ -66,7 +66,7 @@ CScannableObjectInfo::SBucket::SBucket(CInputStream& in, u32 version) {
 }
 
 CFactoryFnReturn FScannableObjectInfoFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer&,
-                                             CObjectReference* selfRef) {
+                                             CObjectReference*) {
   return TToken<CScannableObjectInfo>::GetIObjObjectFor(std::make_unique<CScannableObjectInfo>(in, tag.id));
 }
 } // namespace urde
