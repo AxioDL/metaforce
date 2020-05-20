@@ -110,9 +110,6 @@ void CScriptActor::Think(float dt, CStateManager& mgr) {
         MoveToOR(deltas.x0_posDelta, dt);
       }
 
-      //if (TCastToPtr<MP1::CActorContraption>(this))
-        //printf("DEL %f\n", zeus::radToDeg(zeus::CEulerAngles(deltas.xc_rotDelta).z()));
-        //printf("DEL %f %f %f %f\n", float(deltas.xc_rotDelta[0]), float(deltas.xc_rotDelta[1]), float(deltas.xc_rotDelta[2]), float(deltas.xc_rotDelta[3]));
       RotateToOR(deltas.xc_rotDelta, dt);
     }
 
