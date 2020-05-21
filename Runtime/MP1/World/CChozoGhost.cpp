@@ -299,13 +299,15 @@ void CChozoGhost::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
 
 void CChozoGhost::KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const CDamageInfo& info,
                             EKnockBackType type, bool inDeferred, float magnitude) {
-  if (!IsAlive())
+  if (!IsAlive()) {
     x460_knockBackController.SetAvailableState(EKnockBackAnimationState::Hurled, false);
-  else if (!x460_knockBackController.TestAvailableState(EKnockBackAnimationState::KnockBack) &&
-           info.GetWeaponMode().IsCharged())
+  } else if (!x460_knockBackController.TestAvailableState(EKnockBackAnimationState::KnockBack) &&
+             info.GetWeaponMode().IsCharged()) {
     x460_knockBackController.SetAnimationStateRange(EKnockBackAnimationState::Hurled, EKnockBackAnimationState::Fall);
+  }
 
   CPatterned::KnockBack(dir, mgr, info, type, inDeferred, magnitude);
+  x460_knockBackController.SetAnimationStateRange(EKnockBackAnimationState::Flinch, EKnockBackAnimationState::Fall);
   if (!IsAlive()) {
     Stop();
     x150_momentum.zeroOut();
