@@ -86,7 +86,7 @@ CMetroid::CMetroid(TUniqueId uid, std::string_view name, EFlavorType flavor, con
 , x7e8_scale3(GetModelData()->GetScale())
 , x81c_patternedInfo(pInfo)
 , x954_actParams(aParms)
-, x9bc_(other) {
+, x9bc_parent(other) {
   x808_loopAttackDistance =
       GetAnimationDistance(CPASAnimParmData{9, CPASAnimParm::FromEnum(2), CPASAnimParm::FromEnum(3)});
   UpdateTouchBounds();
@@ -115,6 +115,7 @@ void CMetroid::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
     SwarmRemove(mgr);
     break;
   case EScriptObjectMessage::Damage:
+  case EScriptObjectMessage::InvulnDamage:
     if (TCastToConstPtr<CGameProjectile> projectile = mgr.GetObjectById(uid)) {
       const CDamageInfo& damageInfo = projectile->GetDamageInfo();
       if (GetDamageVulnerability()->WeaponHits(damageInfo.GetWeaponMode(), false)) {
@@ -160,11 +161,9 @@ void CMetroid::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
 EWeaponCollisionResponseTypes CMetroid::GetCollisionResponseType(const zeus::CVector3f& vec1,
                                                                  const zeus::CVector3f& vec2, const CWeaponMode& mode,
                                                                  EProjectileAttrib attribute) const {
-  EWeaponCollisionResponseTypes types = EWeaponCollisionResponseTypes::Unknown33;
-  if (!GetDamageVulnerability()->WeaponHurts(mode, false) && x450_bodyController->GetPercentageFrozen() <= 0.f) {
-    types = EWeaponCollisionResponseTypes::Unknown58;
-  }
-  return types;
+  return !GetDamageVulnerability()->WeaponHurts(mode, false) && x450_bodyController->GetPercentageFrozen() <= 0.f
+             ? EWeaponCollisionResponseTypes::Unknown58
+             : EWeaponCollisionResponseTypes::Unknown33;
 }
 
 const CDamageVulnerability* CMetroid::GetDamageVulnerability() const {
@@ -174,7 +173,7 @@ const CDamageVulnerability* CMetroid::GetDamageVulnerability() const {
     }
     return &skNormalDamageVulnerability;
   }
-  if (x9bf_25_ && !x450_bodyController->IsFrozen()) {
+  if (x9bf_25_growing && !x450_bodyController->IsFrozen()) {
     return &x56c_data.GetEnergyDrainVulnerability();
   }
   if (x450_bodyController->GetPercentageFrozen() > 0.f) {
@@ -349,7 +348,7 @@ void CMetroid::SuckEnergyFromTarget(CStateManager& mgr, float dt) {
   if (x7b0_attackTarget == kInvalidUniqueId) {
     return;
   }
-  if (x7c8_ == EUnknown::One) {
+  if (x7c8_attackState == EAttackState::Attached) {
     InterpolateToPosRot(mgr, 0.4f);
     CPlayer& player = mgr.GetPlayer();
     if (x7b0_attackTarget == player.GetUniqueId()) {
@@ -357,14 +356,14 @@ void CMetroid::SuckEnergyFromTarget(CStateManager& mgr, float dt) {
       x504_damageDur = 0.2f;
       mgr.SendScriptMsg(&player, GetUniqueId(), EScriptObjectMessage::Damage);
     }
-    x7c0_ = 0.f;
-  } else if (x7c8_ == EUnknown::Two) {
+    x7c0_energyDrainTime = 0.f;
+  } else if (x7c8_attackState == EAttackState::Draining) {
     CPlayer& player = mgr.GetPlayer();
     if (TCastToPtr<CActor> actor = mgr.ObjectById(x7b0_attackTarget)) {
       CHealthInfo* healthInfo = actor->HealthInfo(mgr);
       if (healthInfo != nullptr) {
         const float damage = dt * x56c_data.GetEnergyDrainPerSec() * GetDamageMultiplier();
-        x7bc_ += damage;
+        x7bc_energyDrained += damage;
         if (x7b0_attackTarget == player.GetUniqueId()) {
           player.SetNoDamageLoopSfx(true);
           constexpr auto filter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
@@ -373,7 +372,8 @@ void CMetroid::SuckEnergyFromTarget(CStateManager& mgr, float dt) {
           info.SetNoImmunity(true);
           mgr.ApplyDamage(GetUniqueId(), x7b0_attackTarget, GetUniqueId(), info, filter, zeus::skZero3f);
           player.SetNoDamageLoopSfx(false);
-          x9c0_24_isEnergyDrainVulnerable = player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed;
+          x9c0_24_isEnergyDrainVulnerable =
+              player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed;
         } else {
           x9c0_24_isEnergyDrainVulnerable = true;
           constexpr auto filter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
@@ -397,7 +397,7 @@ void CMetroid::SuckEnergyFromTarget(CStateManager& mgr, float dt) {
         arg = 0.4f;
       }
       if (morphBallState == CPlayer::EPlayerMorphBallState::Unmorphed) {
-        const float magnitude = std::clamp(std::abs(std::sin(zeus::degToRad(90.f) * x7c0_)), 0.f, 1.f);
+        const float magnitude = std::clamp(std::abs(std::sin(zeus::degToRad(90.f) * x7c0_energyDrainTime)), 0.f, 1.f);
         mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), magnitude, 0.2f);
         if (player.GetStaticTimer() < 0.2f) {
           player.SetHudDisable(0.2f, 0.5f, 2.5f);
@@ -407,8 +407,8 @@ void CMetroid::SuckEnergyFromTarget(CStateManager& mgr, float dt) {
       x504_damageDur = 0.2f;
     }
     InterpolateToPosRot(mgr, arg);
-    x7c0_ += dt;
-  } else if (x7c8_ == EUnknown::Three) {
+    x7c0_energyDrainTime += dt;
+  } else if (x7c8_attackState == EAttackState::Over) {
     const zeus::CQuaternion zRot = zeus::CQuaternion::fromAxisAngle({0.0f, 0.0f, 1.0f}, GetYaw());
     const zeus::CQuaternion rot = zeus::CQuaternion::slerpShort(GetTransform().basis, zRot, 0.95f);
     SetRotation(rot.normalized());
@@ -418,22 +418,22 @@ void CMetroid::SuckEnergyFromTarget(CStateManager& mgr, float dt) {
 void CMetroid::RestoreSolidCollision(CStateManager& mgr) {
   constexpr auto filter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid, EMaterialTypes::AIBlock});
   const zeus::CVector3f& pos = GetTranslation();
-  if (x9bf_30_ && !CGameCollision::DetectStaticCollisionBoolean(mgr, x6a0_collisionPrimitive, GetTransform(), filter)) {
+  if (x9bf_30_restoreSolidCollision &&
+      !CGameCollision::DetectStaticCollisionBoolean(mgr, x6a0_collisionPrimitive, GetTransform(), filter)) {
     bool add = true;
-    if (!x80c_.isZero()) {
-      const zeus::CVector3f dir = pos - x80c_;
+    if (!x80c_detachPos.isZero()) {
+      const zeus::CVector3f dir = pos - x80c_detachPos;
       float mag = dir.magnitude();
       if (mag > 0.f) {
-        // TODO double check bool
-        add = mgr.RayStaticIntersection(x80c_, (1.f / mag) * dir, mag, filter).IsInvalid();
+        add = mgr.RayStaticIntersection(x80c_detachPos, (1.f / mag) * dir, mag, filter).IsInvalid();
       }
     }
     if (add) {
       AddMaterial(EMaterialTypes::Solid, mgr);
-      x9bf_30_ = false;
+      x9bf_30_restoreSolidCollision = false;
     }
   }
-  if (x9bf_31_) {
+  if (x9bf_31_restoreCharacterCollision) {
     constexpr auto nearFilter =
         CMaterialFilter::MakeInclude({EMaterialTypes::Solid, EMaterialTypes::Player, EMaterialTypes::Character});
     float radius = x808_loopAttackDistance * GetModelData()->GetScale().y();
@@ -441,7 +441,7 @@ void CMetroid::RestoreSolidCollision(CStateManager& mgr) {
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     mgr.BuildNearList(nearList, box, nearFilter, this);
     if (!CGameCollision::DetectDynamicCollisionBoolean(x6a0_collisionPrimitive, GetTransform(), nearList, mgr)) {
-      x9bf_31_ = false;
+      x9bf_31_restoreCharacterCollision = false;
       CMaterialFilter matFilter = GetMaterialFilter();
       matFilter.ExcludeList().Remove({EMaterialTypes::Character, EMaterialTypes::Player});
       SetMaterialFilter(matFilter);
@@ -457,19 +457,19 @@ void CMetroid::PreventWorldCollisions(CStateManager& mgr, float dt) {
         // why not use mgr.GetPlayer()? :thonking:
         float mass = 300.f;
         if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed) {
-          float scale = std::min(1.f, 1.33f * x7c0_);
+          float scale = std::min(1.f, 1.33f * x7c0_energyDrainTime);
           mass = 300.f * (1.f - scale) + 7500.f * scale;
         }
         CGameCollision::AvoidStaticCollisionWithinRadius(mgr, *actor, 8, dt, 0.25f, size, mass, 0.5f);
       }
     }
     x7c4_ = 0.f;
-  } else if (!x9bf_30_ && !x9bf_31_) {
+  } else if (!x9bf_30_restoreSolidCollision && !x9bf_31_restoreCharacterCollision) {
     x7c4_ = 0.f;
   } else {
     x7c4_ += dt;
     if (x7c4_ <= 6.f) {
-      if (x9bf_30_ && 0.25f < x7c4_) {
+      if (x9bf_30_restoreSolidCollision && 0.25f < x7c4_) {
         RemoveMaterial(EMaterialTypes::Solid, mgr);
       }
     } else {
@@ -503,21 +503,23 @@ void CMetroid::SwarmAdd(CStateManager& mgr) {
 }
 
 void CMetroid::ApplyGrowth(float arg) {
-  x7f8_ += arg;
-  const float energy = std::clamp(x7f8_ / x56c_data.GetStage2GrowthEnergy(), 0.f, 1.f);
+  x7f8_growthEnergy += arg;
+  const float energy = std::clamp(x7f8_growthEnergy / x56c_data.GetStage2GrowthEnergy(), 0.f, 1.f);
   const float scale = x56c_data.GetStage2GrowthScale() - x7e8_scale3.y();
   x7d0_scale1 = zeus::CVector3f{energy * scale + x7e8_scale3.y()};
   TakeDamage(zeus::skZero3f, 0.f);
 }
 
-bool CMetroid::IsSuckingEnergy() const { return x7c8_ == EUnknown::Two && !x450_bodyController->IsFrozen(); }
+bool CMetroid::IsSuckingEnergy() const {
+  return x7c8_attackState == EAttackState::Draining && !x450_bodyController->IsFrozen();
+}
 
 void CMetroid::UpdateVolume() {
   // TODO
 }
 
 void CMetroid::UpdateTouchBounds() {
-  const zeus::CTransform& locXf = GetLocatorTransform("lockon_target_LCTR"sv);
+  const zeus::CTransform locXf = GetLocatorTransform("lockon_target_LCTR"sv);
   x6a0_collisionPrimitive.SetSphereCenter(locXf * GetModelData()->GetScale());
 }
 
@@ -525,8 +527,8 @@ void CMetroid::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     if (AttachToTarget(mgr)) {
       x568_state = EState::One;
-      x7bc_ = 0.f;
-      x7c8_ = EUnknown::One;
+      x7bc_energyDrained = 0.f;
+      x7c8_attackState = EAttackState::Attached;
       x9bf_29_isAttacking = true;
       RemoveMaterial(EMaterialTypes::Orbit, EMaterialTypes::Target, mgr);
       mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
@@ -544,7 +546,7 @@ void CMetroid::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
       }
     } else if (x568_state == EState::Two) {
       if (GetModelData()->GetAnimationData()->GetIsLoop()) {
-        x7c8_ = EUnknown::Two;
+        x7c8_attackState = EAttackState::Draining;
       }
       const CPlayer& player = mgr.GetPlayer();
       if (x7b0_attackTarget == player.GetUniqueId() && player.GetAttachedActor() == GetUniqueId() &&
@@ -555,7 +557,7 @@ void CMetroid::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
         if (ShouldReleaseFromTarget(mgr)) {
           GetBodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
           DetachFromTarget(mgr);
-          x7c8_ = EUnknown::Three;
+          x7c8_attackState = EAttackState::Over;
         }
       } else {
         x568_state = EState::Over;
@@ -564,7 +566,7 @@ void CMetroid::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   } else if (msg == EStateMsg::Deactivate) {
     CTeamAiMgr::ResetTeamAiRole(CTeamAiMgr::EAttackType::Melee, mgr, x698_teamAiMgrId, GetUniqueId(), false);
     x7b4_attackChance = x308_attackTimeVariation * mgr.GetActiveRandom()->Float() + x304_averageAttackTime;
-    x7c8_ = EUnknown::Zero;
+    x7c8_attackState = EAttackState::None;
     DetachFromTarget(mgr);
     x9bf_29_isAttacking = false;
     SetTransform({zeus::CQuaternion::fromAxisAngle({0.f, 0.f, 1.f}, GetYaw()), GetTranslation()});
@@ -604,7 +606,7 @@ void CMetroid::DetachFromTarget(CStateManager& mgr) {
         xf = player.GetTransform();
       }
       mgr.GetPlayer().GetEnergyDrain().RemoveEnergyDrainSource(GetUniqueId());
-      x80c_ = player.GetAimPosition(mgr, 0.f);
+      x80c_detachPos = player.GetAimPosition(mgr, 0.f);
       target = &player;
     }
   } else if (x7b0_attackTarget != kInvalidUniqueId) {
@@ -613,14 +615,14 @@ void CMetroid::DetachFromTarget(CStateManager& mgr) {
         pirate->DetachActorFromPirate();
         vec = pirate->GetTransform().frontVector();
         xf = pirate->GetTransform();
-        x80c_ = GetTranslation();
+        x80c_detachPos = GetTranslation();
         target = pirate;
       }
     }
   }
   SetupExitFaceHugDirection(target, mgr, vec, xf);
-  x9bf_31_ = true;
-  x9bf_30_ = true;
+  x9bf_31_restoreCharacterCollision = true;
+  x9bf_30_restoreSolidCollision = true;
 }
 
 bool CMetroid::ShouldReleaseFromTarget(CStateManager& mgr) {
@@ -629,7 +631,7 @@ bool CMetroid::ShouldReleaseFromTarget(CStateManager& mgr) {
   }
   CPlayer& player = mgr.GetPlayer();
   if (x7b0_attackTarget == player.GetUniqueId()) {
-    if (x7bc_ >= x56c_data.GetMaxEnergyDrainAllowed() * GetDamageMultiplier() || IsPlayerUnderwater(mgr)) {
+    if (x7bc_energyDrained >= x56c_data.GetMaxEnergyDrainAllowed() * GetDamageMultiplier() || IsPlayerUnderwater(mgr)) {
       return true;
     }
     if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphed) {
@@ -673,7 +675,7 @@ bool CMetroid::IsHunterAttacking(CStateManager& mgr) {
 }
 
 float CMetroid::GetGrowthStage() {
-  const float energy = x7f8_;
+  const float energy = x7f8_growthEnergy;
   const float stage2GrowthEnergy = x56c_data.GetStage2GrowthEnergy();
   if (energy < stage2GrowthEnergy) {
     return 1.f + energy / stage2GrowthEnergy;
@@ -784,9 +786,9 @@ void CMetroid::SetUpPathFindBehavior(CStateManager& mgr) {
   const zeus::CVector3f dir = GetDestPos() - targetPos;
   if (dir.canBeNormalized()) {
     constexpr auto filter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid, EMaterialTypes::AIBlock});
-    float mag = dir.magnitude();
-    const zeus::CVector3f dirScaled = (1.f / mag) * dir;
-    const auto result = mgr.RayStaticIntersection(targetPos, dirScaled, mag, filter);
+    const float length = dir.magnitude();
+    const zeus::CVector3f dirScaled = (1.f / length) * dir;
+    const auto result = mgr.RayStaticIntersection(targetPos, dirScaled, length, filter);
     if (result.IsValid()) {
       SetDestPos(targetPos + 0.5f * result.GetT() * dirScaled);
       x9bf_28_ = true;
@@ -870,18 +872,18 @@ void CMetroid::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     if (ShouldSpawnGammaMetroid()) {
       SpawnGammaMetroid(mgr);
-    } else if (x7f8_ >= x56c_data.GetExplosionGrowthEnergy()) {
+    } else if (x7f8_growthEnergy >= x56c_data.GetExplosionGrowthEnergy()) {
       MassiveDeath(mgr);
     }
     x568_state = EState::One;
     x7dc_scale2 = GetModelData()->GetScale();
-    x9bf_25_ = true;
+    x9bf_25_growing = true;
   } else if (msg == EStateMsg::Update) {
     CBodyController* bodyController = GetBodyController();
     if (x568_state == EState::One) {
       if (bodyController->GetCurrentStateId() == pas::EAnimationState::Generate) {
-        x7f4_ = bodyController->GetAnimTimeRemaining();
-        x568_state = x7f4_ > 0.f ? EState::Two : EState::Over;
+        x7f4_growthDuration = bodyController->GetAnimTimeRemaining();
+        x568_state = x7f4_growthDuration > 0.f ? EState::Two : EState::Over;
       } else if (Attacked(mgr, 0.f)) {
         bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Two));
       } else {
@@ -892,10 +894,10 @@ void CMetroid::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
         bool inside = false;
         if (!bodyController->IsFrozen() && ((inside = Inside(mgr, 3.f)) || Attacked(mgr, 0.f))) {
           float timeRem = bodyController->GetAnimTimeRemaining();
-          float clamp = std::clamp(1.f - (timeRem / x7f4_), 0.f, 1.f);
+          float clamp = std::clamp(1.f - (timeRem / x7f4_growthDuration), 0.f, 1.f);
           zeus::CVector3f scale;
           if (0.25f <= clamp) {
-            float dVar13 = 0.75f * x7f4_;
+            float dVar13 = 0.75f * x7f4_growthDuration;
             const zeus::CVector3f v = 0.5f * x7dc_scale2;
             scale = v + (dVar13 - timeRem) * (1.f / dVar13) * (x7d0_scale1 - v);
           } else {
@@ -912,10 +914,10 @@ void CMetroid::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
       }
     }
   } else if (msg == EStateMsg::Deactivate) {
-    x7f4_ = 0.f;
-    x9bf_25_ = false;
+    x7f4_growthDuration = 0.f;
+    x9bf_25_growing = false;
     if (Attacked(mgr, 0.f)) {
-      x7fc_ = x7f8_;
+      x7fc_lastGrowthEnergy = x7f8_growthEnergy;
       GetModelData()->SetScale(x7d0_scale1);
     }
     UpdateVolume();
@@ -932,7 +934,7 @@ void CMetroid::SpawnGammaMetroid(CStateManager& mgr) {
 }
 
 void CMetroid::ApplySplitGammas(CStateManager& mgr, float arg) {
-  auto* metroid = CPatterned::CastTo<CMetroid>(mgr.ObjectById(x9bc_));
+  auto* metroid = CPatterned::CastTo<CMetroid>(mgr.ObjectById(x9bc_parent));
   if (metroid == nullptr) {
     return;
   }
@@ -947,9 +949,9 @@ void CMetroid::KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const C
   const CDamageVulnerability* vulnerability = GetDamageVulnerability();
   float percentFrozen = GetBodyController()->GetPercentageFrozen();
   const CWeaponMode& mode = info.GetWeaponMode();
-  if (x7c8_ == EUnknown::Two) {
+  if (x7c8_attackState == EAttackState::Draining) {
     if (vulnerability->WeaponHits(mode, false)) {
-      x7bc_ = x56c_data.GetMaxEnergyDrainAllowed() * GetDamageMultiplier();
+      x7bc_energyDrained = x56c_data.GetMaxEnergyDrainAllowed() * GetDamageMultiplier();
     }
   } else if (vulnerability->WeaponHurts(mode, false)) {
     x7b4_attackChance = x308_attackTimeVariation * mgr.GetActiveRandom()->Float() + x304_averageAttackTime;
@@ -961,16 +963,16 @@ void CMetroid::KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const C
              (mode.IsCharged() || mode.IsComboed() || mode.GetType() == EWeaponType::Missile) &&
              !ShouldSpawnGammaMetroid()) {
     CPatterned::KnockBack(dir, mgr, info, type, inDeferred, magnitude);
-    x800_ = x804_;
+    x800_seekTime = x804_maxSeekTime;
   }
 }
 
 bool CMetroid::Attacked(CStateManager& mgr, float arg) {
-  if (x7f8_ - x7fc_ > 0.f) {
-    if (x7fc_ < x56c_data.GetStage2GrowthEnergy()) {
-      return x56c_data.GetStage2GrowthEnergy() <= x7f8_;
+  if (x7f8_growthEnergy - x7fc_lastGrowthEnergy > 0.f) {
+    if (x7fc_lastGrowthEnergy < x56c_data.GetStage2GrowthEnergy()) {
+      return x56c_data.GetStage2GrowthEnergy() <= x7f8_growthEnergy;
     }
-    if (x56c_data.GetExplosionGrowthEnergy() <= x7f8_) {
+    if (x56c_data.GetExplosionGrowthEnergy() <= x7f8_growthEnergy) {
       return true;
     }
   }
@@ -1035,7 +1037,7 @@ bool CMetroid::InAttackPosition(CStateManager& mgr, float arg) {
 bool CMetroid::InDetectionRange(CStateManager& mgr, float arg) {
   if (x7b0_attackTarget == kInvalidUniqueId) {
     if ((x9bf_24_alert || CPatterned::InDetectionRange(mgr, arg)) && !IsPlayerUnderwater(mgr) &&
-        mgr.GetPlayer().GetAreaIdAlways() != GetAreaIdAlways()) {
+        mgr.GetPlayer().GetAreaIdAlways() == GetAreaIdAlways()) {
       return true;
     }
     // TODO attack pirates
@@ -1055,7 +1057,7 @@ void CMetroid::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     x568_state = EState::Zero;
     x7b8_telegraphAttackTime = x56c_data.GetTelegraphAttackTime();
-    x800_ = 0.f;
+    x800_seekTime = 0.f;
     GetBodyController()->GetCommandMgr().ClearLocomotionCmds();
     GetBodyController()->SetLocomotionType(pas::ELocomotionType::Combat);
   } else if (msg == EStateMsg::Update) {
@@ -1072,11 +1074,11 @@ void CMetroid::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) {
         x568_state = EState::Two;
         const float distance = 1.25f * (GetAttackTargetPos(mgr) - GetTranslation()).magnitude();
         const float speed = x3b4_speed > 0.f ? 1.15f / x3b4_speed : 0.f;
-        x804_ = speed + (distance / GetBodyController()->GetBodyStateInfo().GetMaxSpeed());
+        x804_maxSeekTime = speed + (distance / GetBodyController()->GetBodyStateInfo().GetMaxSpeed());
         GetBodyController()->SetTurnSpeed(x3b4_speed > 0.f ? 20.f / x3b4_speed : 20.f);
       }
     } else if (x568_state == EState::Two) {
-      x800_ += dt;
+      x800_seekTime += dt;
       const zeus::CVector3f move = x45c_steeringBehaviors.Seek(*this, GetAttackTargetPos(mgr));
       GetBodyController()->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(move, zeus::skZero3f, 1.f));
     }
@@ -1207,10 +1209,10 @@ bool CMetroid::InRange(CStateManager& mgr, float arg) {
 }
 
 bool CMetroid::Inside(CStateManager& mgr, float arg) {
-  if (x9bc_ == kInvalidUniqueId) {
+  if (x9bc_parent == kInvalidUniqueId) {
     return false;
   }
-  if (const auto* other = CPatterned::CastTo<CMetroid>(mgr.GetObjectById(x9bc_))) {
+  if (const auto* other = CPatterned::CastTo<CMetroid>(mgr.GetObjectById(x9bc_parent))) {
     float radius = x6a0_collisionPrimitive.GetSphere().radius;
     if (arg > 0.f) {
       radius *= arg;
@@ -1268,14 +1270,47 @@ bool CMetroid::PatternShagged(CStateManager& mgr, float arg) {
     return true;
   }
   if (x568_state == EState::Two) {
-    return x804_ <= x800_;
+    return x800_seekTime >= x804_maxSeekTime;
   }
   return false;
 }
 
 bool CMetroid::ShouldDodge(CStateManager& mgr, float arg) {
-  // TODO
-  return CAi::ShouldDodge(mgr, arg);
+  CPlayer& player = mgr.GetPlayer();
+  if (x3fc_flavor == CPatterned::EFlavorType::Two || x7b0_attackTarget != player.GetUniqueId() ||
+      GetAreaIdAlways() != player.GetAreaIdAlways()) {
+    return false;
+  }
+  const CTeamAiRole* const aiRole = CTeamAiMgr::GetTeamAiRole(mgr, x698_teamAiMgrId, GetUniqueId());
+  if (aiRole == nullptr || aiRole->GetTeamAiRole() != CTeamAiRole::ETeamAiRole::Melee) {
+    return false;
+  }
+  const auto& xf = GetTransform();
+  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  mgr.BuildNearList(nearList, zeus::CAABox{xf.origin - 9.f, xf.origin + 9.f},
+                    CMaterialFilter::MakeInclude({EMaterialTypes::Projectile}), nullptr);
+  if (nearList.empty()) {
+    return false;
+  }
+  const auto front = xf.frontVector();
+  for (const auto id : nearList) {
+    if (TCastToConstPtr<CGameProjectile> projectile = mgr.GetObjectById(id)) {
+      if (!projectile->HasAttrib(EProjectileAttrib::Ice)) {
+        continue;
+      }
+      const auto dir = projectile->GetTranslation() - xf.origin;
+      if (zeus::CVector3f::getAngleDiff(front, dir) >= zeus::degToRad(10.f)) {
+        continue;
+      }
+      pas::EStepDirection dodgeDirection = pas::EStepDirection::Right;
+      if (xf.rightVector().dot(dir) <= 0.f) {
+        dodgeDirection = pas::EStepDirection::Left;
+      }
+      x818_dodgeDirection = dodgeDirection;
+      return true;
+    }
+  }
+  return false;
 }
 
 bool CMetroid::ShouldTurn(CStateManager& mgr, float arg) {
@@ -1327,8 +1362,28 @@ void CMetroid::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
 }
 
 void CMetroid::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
-  // TODO
-  CPatterned::TargetPatrol(mgr, msg, dt);
+  if (msg == EStateMsg::Activate) {
+    GetBodyController()->SetLocomotionType(pas::ELocomotionType::Relaxed);
+    x7b0_attackTarget = kInvalidUniqueId;
+    x9bf_26_shotAt = false;
+    if (HasPatrolPath(mgr, 0.f)) {
+      CPatterned::Patrol(mgr, msg, dt);
+      CPatterned::UpdateDest(mgr);
+    } else {
+      CPatterned::SetDestPos(x3a0_latestLeashPosition);
+    }
+    x7a4_ = GetDestPos();
+    if (GetSearchPath() != nullptr) {
+      CPatterned::PathFind(mgr, msg, dt);
+    }
+  } else if (msg == EStateMsg::Update) {
+    if (GetSearchPath() == nullptr || PathShagged(mgr, 0.f)) {
+      CPatterned::Patrol(mgr, msg, dt);
+    } else {
+      CPatterned::PathFind(mgr, msg, dt);
+    }
+    ApplySeparationBehavior(mgr, 9.f);
+  }
 }
 
 void CMetroid::TurnAround(CStateManager& mgr, EStateMsg msg, float dt) {
@@ -1344,8 +1399,33 @@ void CMetroid::TurnAround(CStateManager& mgr, EStateMsg msg, float dt) {
 }
 
 void CMetroid::WallHang(CStateManager& mgr, EStateMsg msg, float dt) {
-  // TODO
-  CAi::WallHang(mgr, msg, dt);
+  if (msg == EStateMsg::Activate) {
+    GetBodyController()->SetLocomotionType(pas::ELocomotionType::Crouch);
+    x568_state = EState::Zero;
+    RemoveMaterial(EMaterialTypes::Solid, mgr);
+    x9bf_30_restoreSolidCollision = false;
+  } else if (msg == EStateMsg::Update) {
+    if (x568_state == EState::Zero) {
+      if (x9bf_24_alert) {
+        x568_state = EState::One;
+        x9bf_30_restoreSolidCollision = true;
+        x80c_detachPos.zeroOut();
+      }
+    } else if (x568_state == EState::One) {
+      if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Generate) {
+        x568_state = EState::Two;
+      } else {
+        GetBodyController()->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Zero, zeus::skZero3f));
+      }
+    } else if (x568_state == EState::Two) {
+      if (GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Generate) {
+        x568_state = EState::Over;
+      }
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    GetBodyController()->SetLocomotionType(pas::ELocomotionType::Relaxed);
+    x9bf_27_ = true;
+  }
 }
 
 } // namespace urde::MP1

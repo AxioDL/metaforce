@@ -61,15 +61,15 @@ private:
   TUniqueId x7b0_attackTarget = kInvalidUniqueId;
   float x7b4_attackChance = 0.f;
   float x7b8_telegraphAttackTime = 0.f;
-  float x7bc_ = 0.f;
-  float x7c0_ = 0.f;
+  float x7bc_energyDrained = 0.f;
+  float x7c0_energyDrainTime = 0.f;
   float x7c4_ = 0.f;
-  enum class EUnknown {
-    Zero,
-    One,
-    Two,
-    Three,
-  } x7c8_ = EUnknown::Zero;
+  enum class EAttackState {
+    None,
+    Attached,
+    Draining,
+    Over,
+  } x7c8_attackState = EAttackState::None;
   enum class EGammaType {
     Invalid = -1,
     Normal,
@@ -81,26 +81,26 @@ private:
   zeus::CVector3f x7d0_scale1;
   zeus::CVector3f x7dc_scale2;
   zeus::CVector3f x7e8_scale3;
-  float x7f4_ = 0.f;
-  float x7f8_ = 0.f;
-  float x7fc_ = 0.f;
-  float x800_ = 0.f;
-  float x804_ = 0.f;
+  float x7f4_growthDuration = 0.f;
+  float x7f8_growthEnergy = 0.f;
+  float x7fc_lastGrowthEnergy = 0.f;
+  float x800_seekTime = 0.f;
+  float x804_maxSeekTime = 0.f;
   float x808_loopAttackDistance = 0.f;
-  zeus::CVector3f x80c_;
+  zeus::CVector3f x80c_detachPos;
   pas::EStepDirection x818_dodgeDirection = pas::EStepDirection::Invalid;
   CPatternedInfo x81c_patternedInfo;
   CActorParameters x954_actParams;
-  TUniqueId x9bc_;
+  TUniqueId x9bc_parent;
   u8 x9be_ = 0;
   bool x9bf_24_alert : 1 = false;
-  bool x9bf_25_ : 1 = false;
+  bool x9bf_25_growing : 1 = false;
   bool x9bf_26_shotAt : 1 = false;
   bool x9bf_27_ : 1 = false;
   bool x9bf_28_ : 1 = false;
   bool x9bf_29_isAttacking : 1 = false;
-  bool x9bf_30_ : 1 = false;
-  bool x9bf_31_ : 1 = false;
+  bool x9bf_30_restoreSolidCollision : 1 = false;
+  bool x9bf_31_restoreCharacterCollision : 1 = false;
   bool x9c0_24_isEnergyDrainVulnerable : 1 = false;
 
 public:
