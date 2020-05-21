@@ -26,7 +26,7 @@ void CFontRenderState::SetColor(EColorType tp, const CTextColor& col) {
   case EColorType::Main:
   case EColorType::Outline:
   case EColorType::Geometry:
-    x54_colors[int(tp)] = col;
+    x54_colors[size_t(tp)] = col;
     break;
   case EColorType::Foreground:
     x54_colors[0] = col;
