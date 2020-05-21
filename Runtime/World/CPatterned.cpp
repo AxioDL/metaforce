@@ -152,19 +152,22 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(uid)) {
       const CDamageInfo& info = proj->GetDamageInfo();
       if (info.GetWeaponMode().GetType() == EWeaponType::Wave) {
-        if (x460_knockBackController.x81_26_enableShock && info.GetWeaponMode().IsComboed() && HealthInfo(mgr)) {
+        if (x460_knockBackController.x81_26_enableShock && info.GetWeaponMode().IsComboed() &&
+            HealthInfo(mgr) != nullptr) {
           x401_31_nextPendingShock = true;
-          KnockBack(GetTransform().frontVector(), mgr, info, EKnockBackType::Radius, false, info.GetKnockBackPower());
+          KnockBack(GetTransform().frontVector(), mgr, info, EKnockBackType::Direct, false, info.GetKnockBackPower());
           x460_knockBackController.DeferKnockBack(EWeaponType::Wave);
         }
       } else if (info.GetWeaponMode().GetType() == EWeaponType::Plasma) {
-        if (x460_knockBackController.x81_27_enableBurn && info.GetWeaponMode().IsCharged() && HealthInfo(mgr)) {
-          KnockBack(GetTransform().frontVector(), mgr, info, EKnockBackType::Radius, false, info.GetKnockBackPower());
+        if (x460_knockBackController.x81_27_enableBurn && info.GetWeaponMode().IsCharged() &&
+            HealthInfo(mgr) != nullptr) {
+          KnockBack(GetTransform().frontVector(), mgr, info, EKnockBackType::Direct, false, info.GetKnockBackPower());
           x460_knockBackController.DeferKnockBack(EWeaponType::Plasma);
         }
       }
-      if (mgr.GetPlayer().GetUniqueId() == proj->GetOwnerId())
+      if (mgr.GetPlayer().GetUniqueId() == proj->GetOwnerId()) {
         x400_24_hitByPlayerProjectile = true;
+      }
     }
     break;
   }
@@ -1724,6 +1727,5 @@ bool CPatterned::ApplyBoneTracking() const {
 
   return false;
 }
-
 
 } // namespace urde

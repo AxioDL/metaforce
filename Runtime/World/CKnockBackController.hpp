@@ -13,7 +13,7 @@ namespace urde {
 class CDamageInfo;
 class CPatterned;
 
-enum class EKnockBackType { Direct, Radius };
+enum class EKnockBackType { Radius, Direct };
 
 enum class EKnockBackVariant { Small, Medium, Large };
 

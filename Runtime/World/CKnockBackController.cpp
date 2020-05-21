@@ -417,16 +417,14 @@ void CKnockBackController::ValidateState(const CPatterned& parent) {
                x80_availableStates.test(1) && x4_activeParms.x0_animState >= EKnockBackAnimationState::Flinch) {
       useState = EKnockBackAnimationState::Flinch;
     }
-  } else {
-    if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::Fall) && x80_availableStates.test(4) &&
-        (x4_activeParms.x0_animState >= EKnockBackAnimationState::Fall ||
-         (!parent.GetBodyController()->HasBodyState(pas::EAnimationState::Hurled) &&
-          x4_activeParms.x0_animState >= EKnockBackAnimationState::Hurled))) {
-      useState = EKnockBackAnimationState::Fall;
-    } else if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::Hurled) && x80_availableStates.test(3) &&
-               x4_activeParms.x0_animState >= EKnockBackAnimationState::Hurled) {
-      useState = EKnockBackAnimationState::Hurled;
-    }
+  } else if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::Fall) && x80_availableStates.test(4) &&
+      (x4_activeParms.x0_animState >= EKnockBackAnimationState::Fall ||
+       (!parent.GetBodyController()->HasBodyState(pas::EAnimationState::Hurled) &&
+        x4_activeParms.x0_animState >= EKnockBackAnimationState::Hurled))) {
+    useState = EKnockBackAnimationState::Fall;
+  } else if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::Hurled) && x80_availableStates.test(3) &&
+             x4_activeParms.x0_animState >= EKnockBackAnimationState::Hurled) {
+    useState = EKnockBackAnimationState::Hurled;
   }
 
   x4_activeParms.x0_animState =
@@ -444,8 +442,6 @@ void CKnockBackController::ValidateState(const CPatterned& parent) {
     disableFollowup = !x81_27_enableBurn;
     break;
   case EKnockBackAnimationFollowUp::ExplodeDeath:
-    disableFollowup = !x81_29_enableExplodeDeath;
-    break;
   case EKnockBackAnimationFollowUp::IceDeath:
     disableFollowup = !x81_29_enableExplodeDeath;
     break;
@@ -514,16 +510,17 @@ void CKnockBackController::DoKnockBackAnimation(const zeus::CVector3f& backVec, 
 
 void CKnockBackController::ResetKnockBackImpulse(const CPatterned& parent, const zeus::CVector3f& backVec,
                                                  float magnitude) {
-  if (x81_24_autoResetImpulse && x4_activeParms.x0_animState == EKnockBackAnimationState::KnockBack &&
-      x4_activeParms.x4_animFollowup != EKnockBackAnimationFollowUp::Freeze) {
-    x50_impulseDir = backVec.canBeNormalized() ? backVec.normalized() : -parent.GetTransform().basis[1];
-    if (x60_impulseRemTime <= 0.f) {
-      x5c_impulseMag = magnitude;
-    } else {
-      x5c_impulseMag += magnitude * (1.f - x60_impulseRemTime / ImpulseDurationTable[x20_impulseDurationIdx]);
-    }
-    x60_impulseRemTime = ImpulseDurationTable[x20_impulseDurationIdx];
+  if (!x81_24_autoResetImpulse || x4_activeParms.x0_animState != EKnockBackAnimationState::KnockBack ||
+      x4_activeParms.x4_animFollowup == EKnockBackAnimationFollowUp::Freeze) {
+    return;
   }
+  x50_impulseDir = backVec.canBeNormalized() ? backVec.normalized() : -parent.GetTransform().frontVector();
+  if (x60_impulseRemTime <= 0.f) {
+    x5c_impulseMag = magnitude;
+  } else {
+    x5c_impulseMag += magnitude * (1.f - x60_impulseRemTime / ImpulseDurationTable[x20_impulseDurationIdx]);
+  }
+  x60_impulseRemTime = ImpulseDurationTable[x20_impulseDurationIdx];
 }
 
 void CKnockBackController::DoDeferredKnockBack(CStateManager& mgr, CPatterned& parent) {
@@ -537,7 +534,7 @@ void CKnockBackController::DoDeferredKnockBack(CStateManager& mgr, CPatterned& p
       ResetKnockBackImpulse(parent, backVec, 2.f);
       x82_25_inDeferredKnockBack = true;
       parent.KnockBack(backVec, mgr, CDamageInfo(CWeaponMode{x14_deferWeaponType, false, true, false}, 0.f, 0.f, 10.f),
-                       EKnockBackType::Radius, x82_25_inDeferredKnockBack, 10.f);
+                       EKnockBackType::Direct, x82_25_inDeferredKnockBack, 10.f);
       x82_25_inDeferredKnockBack = false;
     }
   }
@@ -584,15 +581,11 @@ EKnockBackWeaponType CKnockBackController::GetKnockBackWeaponType(const CDamageI
     stacking = 2;
   }
 
-  if (wType > EWeaponType::Phazon) {
-    return EKnockBackWeaponType::Invalid;
-  }
-
   switch (wType) {
   case EWeaponType::Power:
-    return EKnockBackWeaponType(type != EKnockBackType::Direct ? stacking : stacking + 1);
+    return EKnockBackWeaponType(type != EKnockBackType::Radius ? stacking : stacking + 1);
   case EWeaponType::Ice:
-    return EKnockBackWeaponType(type != EKnockBackType::Direct ? stacking + 8 : stacking + 9);
+    return EKnockBackWeaponType(type != EKnockBackType::Radius ? stacking + 8 : stacking + 9);
   case EWeaponType::Wave:
     return EKnockBackWeaponType(stacking + 4);
   case EWeaponType::Plasma:
@@ -632,7 +625,7 @@ void CKnockBackController::KnockBack(const zeus::CVector3f& backVec, CStateManag
 
   zeus::CVector3f vec(backVec.toVec2f());
   if (!vec.isMagnitudeSafe()) {
-    vec = -parent.GetTransform().basis[1];
+    vec = -parent.GetTransform().frontVector();
   }
 
   SelectDamageState(parent, info, info.GetWeaponMode().GetType(), type);

@@ -183,7 +183,7 @@ void CBabygoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
               CrackShell(mgr, xa38_intermediateCrackParticle, xf, x570_babyData.GetShellCrackSfx(), false);
             }
           }
-          KnockBack(GetTransform().frontVector(), mgr, wp->GetDamageInfo(), EKnockBackType::Radius, false,
+          KnockBack(GetTransform().frontVector(), mgr, wp->GetDamageInfo(), EKnockBackType::Direct, false,
                     wp->GetDamageInfo().GetKnockBackPower());
         }
       }

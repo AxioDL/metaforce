@@ -217,7 +217,7 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
           x428_damageCooldownTimer = 0.33f;
           const auto& damageInfo = projectile->GetDamageInfo();
           KnockBack(projectile->GetTranslation() - projectile->GetPreviousPos(), mgr, damageInfo,
-                    EKnockBackType::Radius, false, damageInfo.GetKnockBackPower());
+                    EKnockBackType::Direct, false, damageInfo.GetKnockBackPower());
           CPatterned::AcceptScriptMsg(msg, uid, mgr);
         } else if (uid == x79c_energyAttractorId && x760_energyAbsorbDesc->IsLoaded()) {
           CreateEnergyAbsorb(mgr, projectile->GetTransform());

@@ -525,7 +525,7 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
 
       if (!dontKnockback) {
         if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
-          KnockBack(proj->GetTranslation() - proj->GetPreviousPos(), mgr, proj->GetDamageInfo(), EKnockBackType::Radius,
+          KnockBack(proj->GetTranslation() - proj->GetPreviousPos(), mgr, proj->GetDamageInfo(), EKnockBackType::Direct,
                     false, proj->GetDamageInfo().GetKnockBackPower());
         }
       }

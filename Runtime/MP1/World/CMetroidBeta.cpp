@@ -118,7 +118,7 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
             x840_31_ = true;
             x83c_ += 1.f;
           }
-          KnockBack(proj->GetTranslation() - proj->GetPreviousPos(), mgr, dInfo, EKnockBackType::Radius, false,
+          KnockBack(proj->GetTranslation() - proj->GetPreviousPos(), mgr, dInfo, EKnockBackType::Direct, false,
                     dInfo.GetKnockBackPower());
         }
         if (x840_25_)
