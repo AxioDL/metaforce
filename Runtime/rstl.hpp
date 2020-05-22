@@ -5,6 +5,7 @@
 #include <optional>
 #include <type_traits>
 #include <vector>
+#include <iterator>
 
 #ifndef NDEBUG
 #include <logvisor/logvisor.hpp>
@@ -34,7 +35,12 @@ public:
     using difference_type = std::ptrdiff_t;
     using pointer = T*;
     using reference = T&;
+// atdna workaround
+#if __cplusplus > 201703L
     using iterator_category = std::contiguous_iterator_tag;
+#else
+    using iterator_category = std::random_access_iterator_tag;
+#endif
 
     const T& operator*() const { return *m_val; }
     const T* operator->() const { return m_val; }
