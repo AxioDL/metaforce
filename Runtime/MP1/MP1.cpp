@@ -692,8 +692,8 @@ void CMain::UpdateDiscordPresence(CAssetId worldSTRG) {
   }
 
   if (g_GameState != nullptr) {
-    if (CPlayerState* pState = g_GameState->GetPlayerState().get()) {
-      u32 itemPercent = pState->CalculateItemCollectionRate() * 100 / pState->GetPickupTotal();
+    if (const CPlayerState* pState = g_GameState->GetPlayerState().get()) {
+      const u32 itemPercent = pState->CalculateItemCollectionRate() * 100 / pState->GetPickupTotal();
       if (DiscordItemPercent != itemPercent) {
         DiscordItemPercent = itemPercent;
         DiscordState = fmt::format(FMT_STRING("{}%"), itemPercent);

@@ -220,15 +220,12 @@ protected:
   const CCollisionActorManager& GetCollisionActorManager() const { return *x5d4_collisionActorMgr; }
 
 private:
-  bool IsArmClawCollider(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 7>& vec) const;
   void AddSphereCollisionList(const SSphereJointInfo* joints, size_t count,
                               std::vector<CJointCollisionDescription>& outJoints) const;
   void AddCollisionList(const SJointInfo* joints, size_t count,
                         std::vector<CJointCollisionDescription>& outJoints) const;
   void SetupCollisionManager(CStateManager& mgr);
   void SetupCollisionActorInfo(CStateManager& mgr);
-  bool IsArmClawCollider(std::string_view name, std::string_view locator, const SJointInfo* info,
-                         size_t infoCount) const;
   void ApplyDamageToHead(CStateManager& mgr, TUniqueId uid);
   void CreateEnergyAbsorb(CStateManager& mgr, const zeus::CTransform& xf);
   bool CanKnockBack(const CDamageInfo& info) const;

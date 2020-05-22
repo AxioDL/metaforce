@@ -112,7 +112,7 @@ void CScriptActorRotate::UpdateActors(bool next, CStateManager& mgr) {
     auto search = mgr.GetIdListForScript(conn.x8_objId);
     for (auto it = search.first; it != search.second; ++it) {
       if (const TCastToConstPtr<CActor> act = mgr.ObjectById(it->second)) {
-        x48_actors[it->second] = act->GetTransform().getRotation();
+        x48_actors.insert_or_assign(it->second, act->GetTransform().getRotation());
       }
     }
   }

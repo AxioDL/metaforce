@@ -119,7 +119,7 @@ public:
 
   CHealthInfo& GetHealthInfo();
   const CHealthInfo& GetHealthInfo() const;
-  u32 GetPickupTotal() { return 99; }
+  u32 GetPickupTotal() const { return 99; }
   void SetIsFusionEnabled(bool val) { x0_26_fusion = val; }
   bool IsFusionEnabled() const { return x0_26_fusion; }
   EPlayerSuit GetCurrentSuit() const;

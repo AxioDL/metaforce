@@ -1,5 +1,8 @@
 #include "Runtime/MP1/World/CElitePirate.hpp"
 
+#include <algorithm>
+#include <array>
+
 #include "Runtime/Camera/CFirstPersonCamera.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
@@ -39,7 +42,22 @@ constexpr std::array<SSphereJointInfo, 7> skSphereJointList{{
     {"L_Ball", 0.8f},
     {"R_Ball", 0.8f},
 }};
-} // namespace
+
+// The following used to be member functions, but are made internal as
+// they alter no internal state.
+
+// Used to be a member function with a pointer and size in GM8Ev0
+bool IsArmClawCollider(std::string_view name, std::string_view locator, const std::array<SJointInfo, 3>& info) {
+  if (name == locator) {
+    return true;
+  }
+  return std::any_of(info.cbegin(), info.cend(), [&name](const auto& entry) { return entry.from == name; });
+}
+
+bool IsArmClawCollider(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 7>& vec) {
+  return std::find(vec.cbegin(), vec.cend(), uid) != vec.cend();
+}
+} // Anonymous namespace
 
 CElitePirateData::CElitePirateData(CInputStream& in, u32 propCount)
 : x0_tauntInterval(in.readFloatBig())
@@ -784,10 +802,6 @@ void CElitePirate::SetShotAt(bool val, CStateManager& mgr) {
   }
 }
 
-bool CElitePirate::IsArmClawCollider(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 7>& vec) const {
-  return std::find(vec.begin(), vec.end(), uid) != vec.end();
-}
-
 void CElitePirate::AddCollisionList(const SJointInfo* joints, size_t count,
                                     std::vector<CJointCollisionDescription>& outJoints) const {
   const CAnimData* animData = GetModelData()->GetAnimationData();
@@ -855,11 +869,9 @@ void CElitePirate::SetupCollisionActorInfo(CStateManager& mgr) {
       if (TCastToPtr<CCollisionActor> act = mgr.ObjectById(uid)) {
         if (colDesc.GetName() == "Head_1"sv) {
           x770_collisionHeadId = uid;
-        } else if (IsArmClawCollider(colDesc.GetName(), "R_Palm_LCTR"sv, skRightArmJointList.data(),
-                                     skRightArmJointList.size())) {
+        } else if (IsArmClawCollider(colDesc.GetName(), "R_Palm_LCTR"sv, skRightArmJointList)) {
           x774_collisionRJointIds.push_back(uid);
-        } else if (IsArmClawCollider(colDesc.GetName(), "L_Palm_LCTR"sv, skLeftArmJointList.data(),
-                                     skLeftArmJointList.size())) {
+        } else if (IsArmClawCollider(colDesc.GetName(), "L_Palm_LCTR"sv, skLeftArmJointList)) {
           x788_collisionLJointIds.push_back(uid);
         }
         if (uid != x770_collisionHeadId) {
@@ -877,19 +889,6 @@ void CElitePirate::SetupCollisionActorInfo(CStateManager& mgr) {
     act->SetWeaponCollisionResponseType(EWeaponCollisionResponseTypes::None);
   }
   x5d4_collisionActorMgr->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
-}
-
-bool CElitePirate::IsArmClawCollider(std::string_view name, std::string_view locator, const SJointInfo* info,
-                                     size_t infoCount) const {
-  if (name == locator) {
-    return true;
-  }
-  for (size_t i = 0; i < infoCount; ++i) {
-    if (name == info[i].from) {
-      return true;
-    }
-  }
-  return false;
 }
 
 void CElitePirate::CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid) {
