@@ -6,9 +6,11 @@
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptWater.hpp"
 #include "Runtime/World/CTeamAiMgr.hpp"
 #include "Runtime/World/CWorld.hpp"
 #include "Runtime/World/ScriptLoader.hpp"
+#include "Runtime/MP1/World/CMetroidBeta.hpp"
 
 namespace urde::MP1 {
 namespace {
@@ -514,9 +516,7 @@ bool CMetroid::IsSuckingEnergy() const {
   return x7c8_attackState == EAttackState::Draining && !x450_bodyController->IsFrozen();
 }
 
-void CMetroid::UpdateVolume() {
-  // TODO
-}
+void CMetroid::UpdateVolume() { SetVolume(0.25f * std::clamp(GetGrowthStage() - 1.f, 0.f, 1.f) + 0.75f); }
 
 void CMetroid::UpdateTouchBounds() {
   const zeus::CTransform locXf = GetLocatorTransform("lockon_target_LCTR"sv);
@@ -656,6 +656,9 @@ void CMetroid::DisableSolidCollision(CMetroid* target) {
 
 void CMetroid::SetupExitFaceHugDirection(CActor* actor, CStateManager& mgr, const zeus::CVector3f& vec,
                                          const zeus::CTransform& xf) {
+  if (actor == nullptr || x7c8_attackState == EAttackState::Over) {
+    return;
+  }
   // TODO
 }
 
@@ -665,12 +668,32 @@ bool CMetroid::PreDamageSpacePirate(CStateManager& mgr) {
 }
 
 bool CMetroid::IsPlayerUnderwater(CStateManager& mgr) {
-  // TODO
+  CPlayer& player = mgr.GetPlayer();
+  if (player.GetFluidCounter() != 0) {
+    const TUniqueId fluidId = player.GetFluidId();
+    if (fluidId != kInvalidUniqueId) {
+      const zeus::CVector3f aimPos = player.GetAimPosition(mgr, 0.f);
+      if (TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(fluidId)) {
+        const zeus::CAABox triggerBounds = water->GetTriggerBoundsWR();
+        return aimPos.z() < triggerBounds.max.z();
+      }
+    }
+    return true;
+  }
   return false;
 }
 
 bool CMetroid::IsHunterAttacking(CStateManager& mgr) {
-  // TODO
+  if (TCastToConstPtr<CTeamAiMgr> aiMgr = mgr.GetObjectById(x698_teamAiMgrId)) {
+    if (!aiMgr->HasRangedAttackers()) {
+      return false;
+    }
+    for (const auto id : aiMgr->GetRangedAttackers()) {
+      if (CPatterned::CastTo<CMetroidBeta>(mgr.GetObjectById(id)) != nullptr) {
+        return true;
+      }
+    }
+  }
   return false;
 }
 

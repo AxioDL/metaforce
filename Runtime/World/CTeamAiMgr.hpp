@@ -104,7 +104,9 @@ public:
   void RemoveRangedAttacker(TUniqueId aiId);
 
   bool HasMeleeAttackers() const { return !x68_meleeAttackers.empty(); }
+  const std::vector<TUniqueId>& GetMeleeAttackers() const { return x68_meleeAttackers; }
   bool HasRangedAttackers() const { return !x78_rangedAttackers.empty(); }
+  const std::vector<TUniqueId>& GetRangedAttackers() const { return x78_rangedAttackers; }
   s32 GetNumRoles() const { return x58_roles.size(); }
   const std::vector<CTeamAiRole>& GetRoles() const { return x58_roles; }
   s32 GetMaxMeleeAttackerCount() const { return x34_data.x10_maxMeleeAttackerCount; }
