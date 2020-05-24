@@ -353,7 +353,7 @@ add_subdirectory(visigen)
 add_dependencies(hecl visigen)
 
 if (NOT WINDOWS_STORE AND NOT NX)
-  find_package(Qt5Widgets)
+  find_package(Qt5Widgets PATHS /usr/local/opt/qt)
   if (Qt5Widgets_FOUND)
     message(STATUS "Qt5 found, hecl-gui will be built")
     add_subdirectory(hecl-gui)
