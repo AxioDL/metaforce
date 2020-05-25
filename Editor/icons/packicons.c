@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
         fflush(stdout);
 
 #if _WIN32
-        snprintf(command, 2048, " --export-png=\"%s/icon_pack.png\" --export-width=%d --export-height=%d \"%s\"",
+        snprintf(command, 2048, " --export-filename=\"%s/icon_pack.png\" --export-width=%d --export-height=%d \"%s\"",
                  TMPDIR, i, i, argv[2]);
 
         STARTUPINFOA sinfo = {sizeof(STARTUPINFOA)};
@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
         CloseHandle(pinfo.hProcess);
 
 #else
-        snprintf(command, 2048, "%s --export-png=\"%s/icon_pack.png\" --export-width=%d --export-height=%d \"%s\"",
+        snprintf(command, 2048, "%s --export-filename=\"%s/icon_pack.png\" --export-width=%d --export-height=%d \"%s\"",
                  argv[1], TMPDIR, i, i, argv[2]);
         fp = popen(command, "r");
         if (!fp)
