@@ -12,7 +12,7 @@ Everything else is much too experimental to make portable/stable release builds 
 
 ### Platform Support
 * Windows 7+ (64-bit support only)
-* macOS 10.11+
+* macOS 10.11+ (10.15+ / Xcode 11.5+ to build)
 * Linux
     * Arch is known to function with [`glx` vendor setup instructions](https://wiki.archlinux.org/index.php/Category:Graphics) *(main development/testing OS)*
     * **[WIP]** Vulkan loader detection is also integrated into the cmake for Linux
@@ -34,20 +34,22 @@ Everything else is much too experimental to make portable/stable release builds 
 
 ### Build Prerequisites:
 * [CMake 3.13+](https://cmake.org)
-    * For Windows: Install `CMake Tools` in Visual Studio
+    * Windows: Install `CMake Tools` in Visual Studio
+    * macOS: `brew install cmake`
 * [Python 3+](https://python.org)
-    * For Windows: [Microsoft Store](https://go.microsoft.com/fwlink?linkID=2082640)
-    * Verify it's added to `%PATH%` by typing `python` in `cmd`.
+    * Windows: [Microsoft Store](https://go.microsoft.com/fwlink?linkID=2082640)
+        * Verify it's added to `%PATH%` by typing `python` in `cmd`.
+    * macOS: `brew install python@3`
 * LLVM development package *(headers and libs)*
     * [Specialized Windows Package](https://axiodl.com/files/LLVM-9.0.1-win64.exe)
-    * [Specialized macOS Package](https://axiodl.com/files/LLVM-9.0.1-Darwin.tar.xz)
+    * macOS: `brew install --force-bottle llvm`
 * **[Windows]** [Visual Studio 2019 Community](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
     * Select `C++ Development` and verify the following packages are included:
         * `Windows 10 SDK`
         * `CMake Tools`
         * `C++ Clang Compiler`
         * `C++ Clang-cl`
-* **[macOS]** [Xcode Tools](https://developer.apple.com/xcode/download/)
+* **[macOS]** [Xcode 1.15+](https://developer.apple.com/xcode/download/)
 * **[Linux]** recent development packages of `udev`, `x11`, `xcb`, `xinput`, `glx`, `asound`
 
 ### Prep Directions
@@ -101,7 +103,7 @@ The build will **not** work with the normal VS compiler!
 #### Xcode
 
 ```sh
-cmake -G Xcode -DCMAKE_BUILD_TYPE=Debug -DLLVM_ROOT_DIR=<path-to-llvm-dev-package> ../urde
+cmake -G Xcode -DCMAKE_BUILD_TYPE=Debug ../urde
 ```
 
 Then open `urde.xcodeproj`

@@ -35,8 +35,8 @@ public:
     using difference_type = std::ptrdiff_t;
     using pointer = T*;
     using reference = T&;
-// atdna workaround
-#if __cplusplus > 201703L
+// atdna / Apple Clang workaround
+#if __cplusplus > 201703L && !defined(__APPLE__)
     using iterator_category = std::contiguous_iterator_tag;
 #else
     using iterator_category = std::random_access_iterator_tag;
