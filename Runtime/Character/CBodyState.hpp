@@ -235,8 +235,8 @@ class CBSHurled : public CBodyState {
   void Recover(CStateManager& mgr, CBodyController& bc, pas::EHurledState state);
   void PlayStrikeWallAnimation(CBodyController& bc, CStateManager& mgr);
   void PlayLandAnimation(CBodyController& bc, CStateManager& mgr);
-  bool ShouldStartStrikeWall(CBodyController& bc) const;
-  bool ShouldStartLand(float dt, CBodyController& bc) const;
+  bool ShouldStartStrikeWall(const CBodyController& bc) const;
+  bool ShouldStartLand(float dt, const CBodyController& bc) const;
 
 public:
   CBSHurled() = default;

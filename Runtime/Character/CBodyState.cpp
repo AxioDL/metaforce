@@ -1173,7 +1173,7 @@ void CBSHurled::PlayLandAnimation(CBodyController& bc, CStateManager& mgr) {
   }
 }
 
-bool CBSHurled::ShouldStartStrikeWall(CBodyController& bc) const {
+bool CBSHurled::ShouldStartStrikeWall(const CBodyController& bc) const {
   if (const TCastToConstPtr<CPatterned> ai = bc.GetOwner()) {
     if (ai->MadeSolidCollision()) {
       if (!ai->IsOnGround()) {
@@ -1184,7 +1184,7 @@ bool CBSHurled::ShouldStartStrikeWall(CBodyController& bc) const {
   return false;
 }
 
-bool CBSHurled::ShouldStartLand(float dt, CBodyController& bc) const {
+bool CBSHurled::ShouldStartLand(float dt, const CBodyController& bc) const {
   bool ret = true;
   if (const TCastToConstPtr<CPatterned> ai = bc.GetOwner()) {
     ret = false;
