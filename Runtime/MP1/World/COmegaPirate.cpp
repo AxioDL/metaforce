@@ -213,8 +213,8 @@ void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     if (uid == x990_launcherId2 && x990_launcherId2 != kInvalidUniqueId) {
       SetShotAt(true, mgr);
     }
-    if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {
-      if (TCastToPtr<CPlayer> player = mgr.ObjectById(actor->GetLastTouchedObject())) {
+    if (const TCastToConstPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {
+      if (const TCastToConstPtr<CPlayer> player = mgr.ObjectById(actor->GetLastTouchedObject())) {
         if (x420_curDamageRemTime <= 0.f) {
           mgr.ApplyDamage(GetUniqueId(), player->GetUniqueId(), GetUniqueId(), GetContactDamage(),
                           CMaterialFilter::MakeInclude({EMaterialTypes::Solid}), zeus::skZero3f);
@@ -257,7 +257,7 @@ void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
       }
 
       if (conn.x4_msg == EScriptObjectMessage::Activate) {
-        if (TCastToPtr<CScriptEffect> effect = mgr.ObjectById(connId)) {
+        if (const TCastToConstPtr<CScriptEffect> effect = mgr.ObjectById(connId)) {
           x9b8_scriptEffects.emplace_back(connId, effect->GetName());
         } else if (TCastToPtr<CScriptPlatform> platform = mgr.ObjectById(connId)) {
           x9dc_scriptPlatforms.emplace_back(connId, platform->GetName());
@@ -269,11 +269,11 @@ void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
           platform->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(includes, excludes));
           xae4_platformVuln = *platform->GetDamageVulnerability();
           xb54_platformColor = platform->GetDrawFlags().x4_color;
-        } else if (TCastToPtr<CScriptSound> sound = mgr.ObjectById(connId)) {
+        } else if (const TCastToConstPtr<CScriptSound> sound = mgr.ObjectById(connId)) {
           xaa0_scriptSounds.emplace_back(connId, sound->GetName());
         }
       } else if (conn.x4_msg == EScriptObjectMessage::Follow) {
-        if (TCastToPtr<CScriptWaypoint> waypoint = mgr.ObjectById(connId)) {
+        if (const TCastToConstPtr<CScriptWaypoint> waypoint = mgr.ObjectById(connId)) {
           std::vector<TUniqueId> waypointPlatformIds;
           waypointPlatformIds.reserve(3);
           for (const SConnection& waypointConn : waypoint->GetConnectionList()) {
@@ -1141,9 +1141,9 @@ void COmegaPirate::TeleportToFurthestPlatform(CStateManager& mgr) {
   zeus::CVector3f pos;
   for (size_t i = 0; i < x9a4_scriptWaypointPlatforms.size(); ++i) {
     const auto& entry = x9a4_scriptWaypointPlatforms[i];
-    if (TCastToConstPtr<CScriptWaypoint> waypoint = mgr.GetObjectById(entry.first)) {
-      auto waypointPos = waypoint->GetTranslation();
-      float dist = (mgr.GetPlayer().GetTranslation() - waypointPos).magnitude();
+    if (const TCastToConstPtr<CScriptWaypoint> waypoint = mgr.GetObjectById(entry.first)) {
+      const auto waypointPos = waypoint->GetTranslation();
+      const float dist = (mgr.GetPlayer().GetTranslation() - waypointPos).magnitude();
       if (dist > maxDist && waypoint->GetUniqueId() != xada_lastWaypointId) {
         waypointIdx = i;
         maxDist = dist;
