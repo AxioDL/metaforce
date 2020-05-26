@@ -360,7 +360,7 @@ void COmegaPirate::DoubleSnap(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
     SetShotAt(false, mgr);
-    SetState(CElitePirate::EState::Zero);
+    SetState(EState::Zero);
     xa44_targetable = false;
     xa4a_heartVisible = false;
     xa88_xrayFadeInTrigger = false;
@@ -377,16 +377,15 @@ void COmegaPirate::DoubleSnap(CStateManager& mgr, EStateMsg msg, float dt) {
     xb64_stateTime = 17.f;
     AddMaterial(EMaterialTypes::Scannable, mgr);
   } else if (msg == EStateMsg::Update) {
-    if (GetState() == CElitePirate::EState::Zero) {
+    if (GetState() == EState::Zero) {
       if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Step) {
-        SetState(CElitePirate::EState::Two);
+        SetState(EState::Two);
       } else {
         GetBodyController()->GetCommandMgr().DeliverCmd(
             CBCStepCmd(pas::EStepDirection::Backward, pas::EStepType::BreakDodge));
       }
-    } else if (GetState() == CElitePirate::EState::Two &&
-               GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
-      SetState(CElitePirate::EState::Over);
+    } else if (GetState() == EState::Two && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
+      SetState(EState::Over);
     }
   } else if (msg == EStateMsg::Deactivate) {
     if (auto* launcher = static_cast<CGrenadeLauncher*>(mgr.ObjectById(GetLauncherId()))) {
@@ -450,15 +449,14 @@ void COmegaPirate::Enraged(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     SetState(EState::Zero);
   } else if (msg == EStateMsg::Update) {
-    if (GetState() == CElitePirate::EState::Zero) {
+    if (GetState() == EState::Zero) {
       if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Taunt) {
-        SetState(CElitePirate::EState::Two);
+        SetState(EState::Two);
       } else {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCTauntCmd(pas::ETauntType::Zero));
       }
-    } else if (GetState() == CElitePirate::EState::Two &&
-               GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Taunt) {
-      SetState(CElitePirate::EState::Over);
+    } else if (GetState() == EState::Two && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Taunt) {
+      SetState(EState::Over);
     }
   } else if (msg == EStateMsg::Deactivate) {
     xadf_launcher1FollowPlayer = true;
@@ -471,16 +469,15 @@ void COmegaPirate::Explode(CStateManager& mgr, EStateMsg msg, float dt) {
     SetState(EState::Zero);
     xad0_scaleUpTrigger = false;
   } else if (msg == EStateMsg::Update) {
-    if (GetState() == CElitePirate::EState::Zero) {
+    if (GetState() == EState::Zero) {
       if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Step) {
-        SetState(CElitePirate::EState::Two);
+        SetState(EState::Two);
       } else {
         GetBodyController()->GetCommandMgr().DeliverCmd(
             CBCStepCmd(pas::EStepDirection::Forward, pas::EStepType::Dodge));
       }
-    } else if (GetState() == CElitePirate::EState::Two &&
-               GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
-      SetState(CElitePirate::EState::Over);
+    } else if (GetState() == EState::Two && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
+      SetState(EState::Over);
     }
   } else if (msg == EStateMsg::Deactivate) {
     GetBodyController()->SetLocomotionType(xa40_locomotionType);
@@ -579,7 +576,7 @@ void COmegaPirate::Growth(CStateManager& mgr, EStateMsg msg, float dt) {
 void COmegaPirate::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     SetShotAt(false, mgr);
-    SetState(CElitePirate::EState::Two);
+    SetState(EState::Two);
     xade_armorPiecesDestroyed = 0;
     xadf_launcher1FollowPlayer = false;
     xae0_launcher2FollowPlayer = false;
@@ -594,9 +591,8 @@ void COmegaPirate::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
       }
     }
   } else if (msg == EStateMsg::Update) {
-    if (GetState() == CElitePirate::EState::Two &&
-        GetBodyController()->GetCurrentStateId() != pas::EAnimationState::KnockBack) {
-      SetState(CElitePirate::EState::Over);
+    if (GetState() == EState::Two && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::KnockBack) {
+      SetState(EState::Over);
     }
   }
 }
@@ -669,7 +665,7 @@ void COmegaPirate::Render(CStateManager& mgr) {
 void COmegaPirate::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     SetShotAt(false, mgr);
-    SetState(CElitePirate::EState::Zero);
+    SetState(EState::Zero);
     SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::None);
     xad0_scaleUpTrigger = false;
     xa44_targetable = false;
@@ -679,16 +675,15 @@ void COmegaPirate::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
     xb64_stateTime = 5.f;
     ++xb68_;
   } else if (msg == EStateMsg::Update) {
-    if (GetState() == CElitePirate::EState::Zero) {
+    if (GetState() == EState::Zero) {
       if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Step) {
-        SetState(CElitePirate::EState::Two);
+        SetState(EState::Two);
       } else {
         GetBodyController()->GetCommandMgr().DeliverCmd(
             CBCStepCmd(pas::EStepDirection::Forward, pas::EStepType::BreakDodge));
       }
-    } else if (GetState() == CElitePirate::EState::Two &&
-               GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
-      SetState(CElitePirate::EState::Over);
+    } else if (GetState() == EState::Two && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
+      SetState(EState::Over);
     }
   }
 }
@@ -733,37 +728,35 @@ void COmegaPirate::Skid(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     SetState(EState::Zero);
   } else if (msg == EStateMsg::Update) {
-    if (GetState() == CElitePirate::EState::Zero) {
+    if (GetState() == EState::Zero) {
       if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Step) {
-        SetState(CElitePirate::EState::Two);
+        SetState(EState::Two);
       } else {
         GetBodyController()->GetCommandMgr().DeliverCmd(
             CBCStepCmd(pas::EStepDirection::Forward, pas::EStepType::Normal));
       }
-    } else if (GetState() == CElitePirate::EState::Two &&
-               GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
-      SetState(CElitePirate::EState::Over);
+    } else if (GetState() == EState::Two && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
+      SetState(EState::Over);
     }
   }
 }
 
 void COmegaPirate::Suck(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
-    SetState(CElitePirate::EState::Zero);
+    SetState(EState::Zero);
     xa7c_xrayAlphaState = EXRayFadeState::FadeOut;
     xa88_xrayFadeInTrigger = true;
   } else if (msg == EStateMsg::Update) {
-    if (GetState() == CElitePirate::EState::Zero) {
+    if (GetState() == EState::Zero) {
       if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Step) {
-        SetState(CElitePirate::EState::Two);
+        SetState(EState::Two);
       } else {
         GetBodyController()->GetCommandMgr().DeliverCmd(
             CBCStepCmd(pas::EStepDirection::Backward, pas::EStepType::Normal));
         GetBodyController()->SetLocomotionType(pas::ELocomotionType::Relaxed);
       }
-    } else if (GetState() == CElitePirate::EState::Two &&
-               GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
-      SetState(CElitePirate::EState::Over);
+    } else if (GetState() == EState::Two && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
+      SetState(EState::Over);
     }
   } else if (msg == EStateMsg::Deactivate) {
     for (const auto& entry : x9dc_scriptPlatforms) {
@@ -952,17 +945,16 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
 
 void COmegaPirate::WallDetach(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
-    SetState(CElitePirate::EState::Zero);
+    SetState(EState::Zero);
   } else if (msg == EStateMsg::Update) {
-    if (GetState() == CElitePirate::EState::Zero) {
+    if (GetState() == EState::Zero) {
       if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Step) {
-        SetState(CElitePirate::EState::Two);
+        SetState(EState::Two);
       } else {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Left, pas::EStepType::Dodge));
       }
-    } else if (GetState() == CElitePirate::EState::Two &&
-               GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
-      SetState(CElitePirate::EState::Over);
+    } else if (GetState() == EState::Two && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
+      SetState(EState::Over);
     }
   } else if (msg == EStateMsg::Deactivate) {
     mgr.SetBossParams(GetUniqueId(), xa98_maxEnergy, 89);
