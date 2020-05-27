@@ -8,7 +8,7 @@ CStaticInterference::CStaticInterference(size_t sourceCount) { x0_sources.reserv
 
 void CStaticInterference::RemoveSource(TUniqueId id) {
   const auto iter =
-      std::find_if(x0_sources.cbegin(), x0_sources.cend(), [id](const auto& src) { return src.id == id; });
+      std::find_if(x0_sources.cbegin(), x0_sources.cend(), [id](const auto& src) { return src.x0_id == id; });
 
   if (iter == x0_sources.cend()) {
     return;
