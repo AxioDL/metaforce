@@ -19,35 +19,31 @@ class CCharLayoutInfo;
 class CPoseAsTransforms;
 
 class CParticleDatabase {
+  using DrawMap = std::map<std::string, std::unique_ptr<CParticleGenInfo>, std::less<>>;
+
   std::map<CAssetId, std::shared_ptr<TLockedToken<CGenDescription>>> x0_particleDescs;
   std::map<CAssetId, std::shared_ptr<TLockedToken<CSwooshDescription>>> x14_swooshDescs;
   std::map<CAssetId, std::shared_ptr<TLockedToken<CElectricDescription>>> x28_electricDescs;
-  std::map<std::string, std::unique_ptr<CParticleGenInfo>> x3c_rendererDrawLoop;
-  std::map<std::string, std::unique_ptr<CParticleGenInfo>> x50_firstDrawLoop;
-  std::map<std::string, std::unique_ptr<CParticleGenInfo>> x64_lastDrawLoop;
-  std::map<std::string, std::unique_ptr<CParticleGenInfo>> x78_rendererDraw;
-  std::map<std::string, std::unique_ptr<CParticleGenInfo>> x8c_firstDraw;
-  std::map<std::string, std::unique_ptr<CParticleGenInfo>> xa0_lastDraw;
+  DrawMap x3c_rendererDrawLoop;
+  DrawMap x50_firstDrawLoop;
+  DrawMap x64_lastDrawLoop;
+  DrawMap x78_rendererDraw;
+  DrawMap x8c_firstDraw;
+  DrawMap xa0_lastDraw;
   bool xb4_24_updatesEnabled : 1 = true;
   bool xb4_25_anySystemsDrawnWithModel : 1 = false;
 
-  static void SetModulationColorAllActiveEffectsForParticleDB(
-      const zeus::CColor& color, std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map);
-  static void SuspendAllActiveEffectsForParticleDB(CStateManager& mgr,
-                                                   std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map);
-  static void DeleteAllLightsForParticleDB(CStateManager& mgr,
-                                           std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map);
-  static void RenderParticleGenMap(const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map);
-  static void RenderParticleGenMapMasked(const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map, int mask,
-                                         int target);
-  static void AddToRendererClippedParticleGenMap(const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map,
-                                                 const zeus::CFrustum& frustum);
-  static void
-  AddToRendererClippedParticleGenMapMasked(const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map,
-                                           const zeus::CFrustum& frustum, int mask, int target);
+  static void SetModulationColorAllActiveEffectsForParticleDB(const zeus::CColor& color, DrawMap& map);
+  static void SuspendAllActiveEffectsForParticleDB(CStateManager& mgr, DrawMap& map);
+  static void DeleteAllLightsForParticleDB(CStateManager& mgr, DrawMap& map);
+  static void RenderParticleGenMap(const DrawMap& map);
+  static void RenderParticleGenMapMasked(const DrawMap& map, int mask, int target);
+  static void AddToRendererClippedParticleGenMap(const DrawMap& map, const zeus::CFrustum& frustum);
+  static void AddToRendererClippedParticleGenMapMasked(const DrawMap& map, const zeus::CFrustum& frustum, int mask,
+                                                       int target);
   static void UpdateParticleGenDB(float dt, const CPoseAsTransforms& pose, const CCharLayoutInfo& charInfo,
                                   const zeus::CTransform& xf, const zeus::CVector3f& vec, CStateManager& stateMgr,
-                                  std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map, bool deleteIfDone);
+                                  DrawMap& map, bool deleteIfDone);
 
 public:
   CParticleDatabase();
