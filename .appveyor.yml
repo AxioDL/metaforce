@@ -6,7 +6,7 @@ clone_depth: 1
 platform:
   - x64
 
-build_cloud: APOLLO
+build_cloud: AXIODL-BUILDBOT
 image: Windows
 
 build:
