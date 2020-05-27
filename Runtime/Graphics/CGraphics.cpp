@@ -35,7 +35,7 @@ SViewport g_Viewport = {
 };
 u32 CGraphics::g_FrameCounter = 0;
 
-constexpr std::array<zeus::CMatrix3f, 6> CGraphics::skCubeBasisMats{{
+const std::array<zeus::CMatrix3f, 6> CGraphics::skCubeBasisMats{{
     /* Right */
     {0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, -1.f},
     /* Left */

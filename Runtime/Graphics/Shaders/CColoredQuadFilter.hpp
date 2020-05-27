@@ -27,7 +27,8 @@ class CColoredQuadFilter {
 public:
   static void Initialize();
   static void Shutdown();
-  static const zeus::CRectangle DefaultRect;
+  static constexpr zeus::CRectangle DefaultRect{0.f, 0.f, 1.f, 1.f};
+
   explicit CColoredQuadFilter(EFilterType type);
   explicit CColoredQuadFilter(EFilterType type, const TLockedToken<CTexture>&) : CColoredQuadFilter(type) {}
   void draw(const zeus::CColor& color, const zeus::CRectangle& rect = DefaultRect);

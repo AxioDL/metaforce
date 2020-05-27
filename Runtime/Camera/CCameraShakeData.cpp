@@ -122,7 +122,7 @@ CCameraShakeData CCameraShakeData::LoadCameraShakeData(CInputStream& in) {
   return {duration, 100.f, 0, zeus::skZero3f, shakerX, shakerY, shakerZ};
 }
 
-constexpr CCameraShakeData CCameraShakeData::skChargedShotCameraShakeData{
+const CCameraShakeData CCameraShakeData::skChargedShotCameraShakeData{
     0.3f,
     100.f,
     0,

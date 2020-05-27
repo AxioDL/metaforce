@@ -44,7 +44,7 @@ public:
   };
   static void Initialize();
   static void Shutdown();
-  static const zeus::CRectangle DefaultRect;
+  static constexpr zeus::CRectangle DefaultRect{0.f, 0.f, 1.f, 1.f};
   explicit CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ZTest zTest = ZTest::None);
   explicit CTexturedQuadFilter(EFilterType type, const boo::ObjToken<boo::ITexture>& tex, ZTest zTest = ZTest::None);
   CTexturedQuadFilter(const CTexturedQuadFilter&) = delete;
