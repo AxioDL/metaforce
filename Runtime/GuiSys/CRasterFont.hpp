@@ -81,10 +81,10 @@ public:
 };
 
 class CFontInfo {
-  [[maybe_unused]] bool x0_ = false;
-  [[maybe_unused]] bool x1_ = false;
-  [[maybe_unused]] s32 x4_ = 0;
-  [[maybe_unused]] s32 x8_fontSize = 0;
+  bool x0_ = false;
+  bool x1_ = false;
+  s32 x4_ = 0;
+  s32 x8_fontSize = 0;
   char xc_name[64] = "";
 
 public:
