@@ -112,17 +112,12 @@ build:linux:avx2:
   variables:
     <<: *build_variables
     URDE_VECTOR_ISA: avx2
-    
+
 .build:win32: &win32_definition
   stage: build
   tags:
     - win32
   script:
-    - set PATH=C:\projects\deps\ninja;%PATH%
-    - set PATH=C:\projects\deps\cmake\cmake-3.16.4-win64-x64\bin;%PATH%
-    # - set PATH=C:\projects\deps\llvm\bin;%PATH%
-    # - set CC=clang-cl -mrtm
-    # - set CXX=clang-cl -mrtm
     - 'call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64'
     - mkdir build
     - cd build
