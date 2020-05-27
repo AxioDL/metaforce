@@ -131,22 +131,22 @@ build:linux:avx2:
       cmake
       -GNinja
       -DCMAKE_BUILD_TYPE=RelWithDebInfo
-      -DURDE_DLPACKAGE=urde-%CI_PIPELINE_ID%-win32-x86_64-%URDE_VECTOR_ISA%
-      -DURDE_VECTOR_ISA=%URDE_VECTOR_ISA%
+      -DURDE_DLPACKAGE="urde-$env:CI_PIPELINE_ID-win32-x86_64-$env:URDE_VECTOR_ISA"
+      -DURDE_VECTOR_ISA="$env:URDE_VECTOR_ISA"
       -DLLVM_ROOT_DIR=C:\projects\deps\llvm
       ..
     - ninja urde hecl visigen
-    - 'copy Binaries\urde.exe "%CI_PROJECT_DIR%\urde.exe"'
-    - 'pdbcopy Binaries\urde.pdb "%CI_PROJECT_DIR%\urde.pdb" -p'
-    - 'copy Binaries\hecl.exe "%CI_PROJECT_DIR%\hecl.exe"'
-    - 'pdbcopy Binaries\hecl.pdb "%CI_PROJECT_DIR%\hecl.pdb" -p'
-    - 'copy Binaries\visigen.exe "%CI_PROJECT_DIR%\visigen.exe"'
-    - 'pdbcopy Binaries\visigen.pdb "%CI_PROJECT_DIR%\visigen.pdb" -p'
+    - 'copy Binaries\urde.exe "$env:CI_PROJECT_DIR\urde.exe"'
+    - 'pdbcopy Binaries\urde.pdb "$env:CI_PROJECT_DIR\urde.pdb" -p'
+    - 'copy Binaries\hecl.exe "$env:CI_PROJECT_DIR\hecl.exe"'
+    - 'pdbcopy Binaries\hecl.pdb "$env:CI_PROJECT_DIR\hecl.pdb" -p'
+    - 'copy Binaries\visigen.exe "$env:CI_PROJECT_DIR\visigen.exe"'
+    - 'pdbcopy Binaries\visigen.pdb "$env:CI_PROJECT_DIR\visigen.pdb" -p'
   only:
     - release
     - dev
   artifacts:
-    name: "urde-%CI_PIPELINE_ID%-win32-x86_64-%URDE_VECTOR_ISA%"
+    name: "urde-$env:CI_PIPELINE_ID-win32-x86_64-$env:URDE_VECTOR_ISA"
     paths:
       - urde.exe
       - urde.pdb
