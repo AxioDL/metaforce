@@ -169,8 +169,10 @@ else()
   endif()
   add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
                       $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
-                      -Wall -Wno-multichar -Werror=implicit-fallthrough -Wno-unknown-warning-option
-                      -Wno-lto-type-mismatch -Wno-unused-variable -Wno-unused-private-field
+                      $<$<CXX_COMPILER_ID:Clang>:-Wno-unknown-warning-option>
+                      $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-private-field>
+                      -Wall -Wno-multichar -Werror=implicit-fallthrough
+                      -Wno-lto-type-mismatch -Wno-unused-variable 
                       -Wno-unused-function -Wno-sign-compare -Wno-unknown-pragmas -Werror)
   add_compile_definitions(FMT_EXCEPTIONS=0)
 
