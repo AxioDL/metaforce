@@ -23,6 +23,8 @@
 #endif
 #include <Windows.h>
 #include <cwchar>
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
 #if UNICODE
 #define IS_UCS2 1
 #endif
