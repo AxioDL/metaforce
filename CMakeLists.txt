@@ -172,7 +172,7 @@ else()
                       $<$<CXX_COMPILER_ID:Clang>:-Wno-unknown-warning-option>
                       $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-private-field>
                       -Wall -Wno-multichar -Werror=implicit-fallthrough
-                      -Wno-lto-type-mismatch -Wno-unused-variable 
+                      -Wno-lto-type-mismatch -Wno-unused-variable -Wno-unused-result
                       -Wno-unused-function -Wno-sign-compare -Wno-unknown-pragmas -Werror)
   add_compile_definitions(FMT_EXCEPTIONS=0)
 
