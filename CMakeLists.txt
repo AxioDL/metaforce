@@ -169,11 +169,15 @@ else()
   endif()
   add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
                       $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
-                      $<$<CXX_COMPILER_ID:Clang>:-Wno-unknown-warning-option>
-                      $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-private-field>
                       -Wall -Wno-multichar -Werror=implicit-fallthrough
-                      -Wno-lto-type-mismatch -Wno-unused-variable -Wno-unused-result
+                      -Wno-unused-variable -Wno-unused-result
                       -Wno-unused-function -Wno-sign-compare -Wno-unknown-pragmas -Werror)
+  # doesn't work with generator expression in add_compile_options?
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    add_compile_options(-Wno-unknown-warning-option -Wno-unused-private-field)
+  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    add_compile_options(-Wno-lto-type-mismatch)
+  endif()
   add_compile_definitions(FMT_EXCEPTIONS=0)
 
   if(APPLE)
