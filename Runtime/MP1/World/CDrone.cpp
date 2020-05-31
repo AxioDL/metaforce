@@ -301,7 +301,7 @@ void CDrone::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   }
 }
 
-void CDrone::Render(const CStateManager& mgr) const {
+void CDrone::Render(CStateManager& mgr) {
   bool isOne = x3fc_flavor == EFlavorType::One;
   if (!isOne || GetModelAlphau8(mgr) != 0) {
     if (isOne && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
@@ -811,10 +811,13 @@ bool CDrone::LineOfSight(CStateManager& mgr, float arg) {
                                           {EMaterialTypes::Player, EMaterialTypes::ProjectilePassthrough}),
       this);
 }
+
 bool CDrone::ShouldMove(CStateManager& mgr, float arg) { return x644_ <= 0.f; }
+
 bool CDrone::CodeTrigger(CStateManager& mgr, float arg) { return x834_29_codeTrigger; }
-void CDrone::Burn(float duration, float damage) { /* Intentionally empty */
-}
+
+void CDrone::Burn(float duration, float damage) { /* Intentionally empty */ }
+
 CPathFindSearch* CDrone::GetSearchPath() { return &x6b0_pathFind; }
 
 void CDrone::BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat,
@@ -823,6 +826,7 @@ void CDrone::BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat,
   mgr.BuildNearList(listOut, zeus::CAABox(pos - radius, pos + radius),
                     CMaterialFilter::MakeIncludeExclude({includeMat}, {excludeMat}), nullptr);
 }
+
 void CDrone::SetLightEnabled(CStateManager& mgr, bool activate) {
   mgr.SendScriptMsgAlways(x578_lightId, GetUniqueId(),
                           activate ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);
@@ -848,6 +852,7 @@ bool CDrone::HitShield(const zeus::CVector3f& dir) const {
 
   return false;
 }
+
 void CDrone::AddToTeam(CStateManager& mgr) const {
   if (x688_teamMgr == kInvalidUniqueId) {
     return;
@@ -858,6 +863,7 @@ void CDrone::AddToTeam(CStateManager& mgr) const {
                               CTeamAiRole::ETeamAiRole::Invalid);
   }
 }
+
 void CDrone::RemoveFromTeam(CStateManager& mgr) const {
   if (TCastToPtr<CTeamAiMgr> teamMgr = mgr.ObjectById(x688_teamMgr)) {
     if (teamMgr->IsPartOfTeam(GetUniqueId())) {
@@ -865,6 +871,7 @@ void CDrone::RemoveFromTeam(CStateManager& mgr) const {
     }
   }
 }
+
 void CDrone::UpdateLaser(CStateManager& mgr, u32 laserIdx, bool b1) {
   // TODO: Finish
 }
@@ -902,6 +909,7 @@ void CDrone::StrafeFromCompanions(CStateManager& mgr) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Right, pas::EStepType::Normal));
   }
 }
+
 void CDrone::UpdateScanner(CStateManager& mgr, float dt) {
   x5d4_ = zeus::CRelAngle::MakeRelativeAngle(1.2f * dt + x5d4_);
   x5d8_ = zeus::CRelAngle::MakeRelativeAngle(x5d8_);
@@ -923,8 +931,13 @@ void CDrone::UpdateScanner(CStateManager& mgr, float dt) {
     }
   }
 }
+
 void CDrone::sub_80163c40(float, CStateManager& mgr) {}
+
 void CDrone::sub_801633a8(CStateManager& mgr) {}
+
 void CDrone::sub_8015f25c(float dt, CStateManager& mgr) {}
+
 void CDrone::sub_8015f158(float dt) {}
+
 } // namespace urde::MP1

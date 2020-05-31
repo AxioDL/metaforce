@@ -76,7 +76,7 @@ class CDrone : public CPatterned {
   CSfxHandle x7d0_;
   rstl::reserved_vector<TUniqueId, 2> x7d4_ = {{kInvalidUniqueId, kInvalidUniqueId}};
   rstl::reserved_vector<zeus::CVector3f, 2> x7e0_ = {{zeus::skZero3f, zeus::skZero3f}};
-  rstl::reserved_vector<zeus::CVector3f, 2> x7fc_ = {{zeus::skZero3f, zeus::skZero3f}};;
+  rstl::reserved_vector<zeus::CVector3f, 2> x7fc_ = {{zeus::skZero3f, zeus::skZero3f}};
   rstl::reserved_vector<float, 2> x818_ = {{0.f, 0.f}};
   rstl::reserved_vector<bool, 2> x824_ = {{false, false}};
   std::unique_ptr<CModelData> x82c_shieldModel;
@@ -93,6 +93,7 @@ class CDrone : public CPatterned {
   bool x835_24_ : 1;
   bool x835_25_ : 1;
   bool x835_26_ : 1;
+
   void UpdateTouchBounds(float radius);
   bool HitShield(const zeus::CVector3f& dir) const;
   void AddToTeam(CStateManager& mgr) const;
@@ -106,6 +107,7 @@ class CDrone : public CPatterned {
   void sub_801633a8(CStateManager& mgr);
   void sub_8015f25c(float dt, CStateManager& mgr);
   void sub_8015f158(float dt);
+
 public:
   DEFINE_PATTERNED(Drone);
   CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -120,7 +122,7 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  void Render(const CStateManager& mgr) const override;
+  void Render(CStateManager& mgr) override;
   bool CanRenderUnsorted(const CStateManager& mgr) const override;
   const CDamageVulnerability* GetDamageVulnerability() const override { return CAi::GetDamageVulnerability(); }
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,

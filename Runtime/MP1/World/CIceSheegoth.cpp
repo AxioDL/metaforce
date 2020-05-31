@@ -762,6 +762,7 @@ void CIceSheegoth::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float dt)
     xb28_26_ = false;
   }
 }
+
 void CIceSheegoth::Flinch(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     x568_ = 0;
@@ -1104,6 +1105,7 @@ void CIceSheegoth::SetupCollisionActorManager(CStateManager& mgr) {
   AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
   xa2c_collisionManager->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
 }
+
 void CIceSheegoth::SetupHealthInfo(CStateManager& mgr) {
   CHealthInfo* thisHealth = HealthInfo(mgr);
   x970_maxHp = thisHealth->GetHP();
@@ -1223,6 +1225,7 @@ void CIceSheegoth::UpdateTimers(float dt) {
     x968_interestTimer += dt;
   }
 }
+
 void CIceSheegoth::UpdateScanState(CStateManager& mgr) {
   if (!xb29_29_scanned && GetScannableObjectInfo() != nullptr &&
       zeus::close_enough(1.f, mgr.GetPlayerState()->GetScanTime(GetScannableObjectInfo()->GetScannableObjectId()))) {
@@ -1412,11 +1415,13 @@ bool CIceSheegoth::sub_8019ecdc(CStateManager& mgr, float minAngle) {
   return zeus::CVector2f::getAngleDiff(GetTransform().basis[1].toVec2f(),
                                        plAimPos.toVec2f() - GetTranslation().toVec2f()) > minAngle;
 }
+
 void CIceSheegoth::SetMouthVulnerability(CStateManager& mgr, bool isVulnerable) {
   if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(xaf8_mouthCollider)) {
     colAct->SetDamageVulnerability(isVulnerable ? x56c_sheegothData.Get_xe8() : x98c_mouthVulnerability);
   }
 }
+
 void CIceSheegoth::SetGillVulnerability(CStateManager& mgr, bool isVulnerable) {
   for (TUniqueId uid : xafc_gillColliders) {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
@@ -1467,6 +1472,7 @@ void CIceSheegoth::ShakePlayer(CStateManager& mgr) {
     sub_8019ebf0(mgr, 0.25f * x56c_sheegothData.Get_x170());
   }
 }
+
 zeus::CVector3f CIceSheegoth::GetEnergyAttractionPos(CStateManager& mgr) const {
   if (const TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(xaf6_iceShardsCollider)) {
     return colAct->GetTranslation();
@@ -1474,6 +1480,7 @@ zeus::CVector3f CIceSheegoth::GetEnergyAttractionPos(CStateManager& mgr) const {
 
   return GetTranslation();
 }
+
 bool CIceSheegoth::ShouldAttractProjectile(const CGameProjectile& proj, CStateManager& mgr) const {
   if (proj.GetType() != EWeaponType::Missile && proj.GetType() != EWeaponType::Plasma &&
       (!proj.GetDamageInfo().GetWeaponMode().IsComboed() || proj.GetType() != EWeaponType::Power)) {
@@ -1500,6 +1507,7 @@ bool CIceSheegoth::ShouldAttractProjectile(const CGameProjectile& proj, CStateMa
 
   return false;
 }
+
 bool CIceSheegoth::IsClosestSheegoth(CStateManager& mgr, rstl::reserved_vector<TUniqueId, 1024> nearList,
                                      zeus::CVector3f projectileOffset) const {
 

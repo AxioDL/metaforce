@@ -69,7 +69,9 @@ bool CPuddleSpore::HitShell(const zeus::CVector3f& point) const {
   return (distance <= -0.5f || distance >= 0.5f);
 }
 
-void CPuddleSpore::KnockPlayer(CStateManager&, float) {}
+void CPuddleSpore::KnockPlayer(CStateManager& mgr, float arg) {
+  // TODO implement
+}
 
 void CPuddleSpore::UpdateBoundingState(const zeus::CAABox& box, CStateManager& mgr, float dt) {
   SetBoundingBox(box);

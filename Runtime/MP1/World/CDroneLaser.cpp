@@ -42,12 +42,12 @@ void CDroneLaser::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CS
   }
 }
 
-void CDroneLaser::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CDroneLaser::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   g_Renderer->AddParticleGen(*x104_beamParticle);
   EnsureRendered(mgr);
 }
 
-void CDroneLaser::Render(const CStateManager& mgr) const {
+void CDroneLaser::Render(CStateManager& mgr) {
   // g_Renderer->SetDepthReadWrite(true, true);
   RenderBeam(4, 0.01f, zeus::CColor(1.f, .9f, .9f, 1.f), true);
   // g_Renderer->SetDepthReadWrite(true, false);
@@ -64,9 +64,12 @@ void CDroneLaser::CalculateRenderBounds() {
   box.accumulateBounds(xe8_ - (mag1 * GetTransform().basis[2]));
   x9c_renderBounds = box;
 }
+
 void CDroneLaser::SetScannerLightActive(CStateManager& mgr, bool activate) {
   mgr.SendScriptMsgAlways(xf4_scannerLight, GetUniqueId(),
                           activate ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);
 }
+
 void CDroneLaser::RenderBeam(u32 w, float f, const zeus::CColor& col, bool) const {}
+
 } // namespace urde::MP1
