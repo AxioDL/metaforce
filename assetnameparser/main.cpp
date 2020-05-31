@@ -30,7 +30,9 @@
 #endif
 #endif
 
-static logvisor::Module Log("AssetNameParser");
+namespace {
+logvisor::Module Log("AssetNameParser");
+
 // TODO: Clean this up
 #undef bswap16
 #undef bswap32
@@ -148,7 +150,7 @@ typedef std::string SystemString;
 typedef struct stat Sstat;
 #endif
 
-static FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock = FileLockType::None) {
+FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock = FileLockType::None) {
 #if IS_UCS2
   FILE* fp = _wfopen(path, mode);
   if (!fp)
@@ -172,6 +174,7 @@ static FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType 
 
   return fp;
 }
+} // Anonymous namespace
 
 #if _WIN32
 int wmain(int argc, const wchar_t* argv[])
