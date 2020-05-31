@@ -259,18 +259,18 @@ int main(int argc, const char* argv[])
 
     uint32_t assetCount = SBig(uint32_t(assets.size()));
     FourCC sentinel(SBIG('AIDM'));
-    fwrite(&sentinel, 1, sizeof(sentinel), f.get());
-    fwrite(&assetCount, 1, sizeof(assetCount), f.get());
+    fwrite(&sentinel, sizeof(sentinel), 1, f.get());
+    fwrite(&assetCount, sizeof(assetCount), 1, f.get());
     for (const SAsset& asset : assets) {
-      fwrite(&asset.type, 1, sizeof(asset.type), f.get());
+      fwrite(&asset.type, sizeof(asset.type), 1, f.get());
       uint64_t id = SBig(asset.id);
-      fwrite(&id, 1, sizeof(id), f.get());
+      fwrite(&id, sizeof(id), 1, f.get());
       uint32_t tmp = SBig(uint32_t(asset.name.length()));
-      fwrite(&tmp, 1, sizeof(tmp), f.get());
+      fwrite(&tmp, sizeof(tmp), 1, f.get());
       fwrite(asset.name.c_str(), 1, SBig(tmp), f.get());
       tmp = SBig(uint32_t(asset.dir.length()));
-      fwrite(&tmp, 1, sizeof(tmp), f.get());
-      fwrite(asset.dir.c_str(), 1, SBig(tmp), f.get());
+      fwrite(&tmp, sizeof(tmp), 1, f.get());
+      fwrite(asset.dir.c_str(), SBig(tmp), 1, f.get());
     }
     fflush(f.get());
     return 0;
