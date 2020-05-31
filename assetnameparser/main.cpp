@@ -135,19 +135,19 @@ struct SAsset {
 enum class FileLockType { None = 0, Read, Write };
 
 #if IS_UCS2
-typedef wchar_t SystemChar;
-typedef std::wstring SystemString;
+using SystemChar = wchar_t;
+using SystemString = std::wstring;
 #ifndef _SYS_STR
 #define _SYS_STR(val) L##val
 #endif
-typedef struct _stat Sstat;
+using Sstat = struct _stat;
 #else
-typedef char SystemChar;
-typedef std::string SystemString;
+using SystemChar = char;
+using SystemString = std::string;
 #ifndef _SYS_STR
 #define _SYS_STR(val) val
 #endif
-typedef struct stat Sstat;
+using Sstat = struct stat;
 #endif
 
 FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock = FileLockType::None) {
