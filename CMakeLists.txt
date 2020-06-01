@@ -173,7 +173,7 @@ else()
                       -Wno-unused-variable -Wno-unused-result
                       -Wno-unused-function -Wno-sign-compare -Wno-unknown-pragmas -Werror)
   # doesn't work with generator expression in add_compile_options?
-  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     add_compile_options(-Wno-unknown-warning-option -Wno-unused-private-field)
   elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_compile_options(-Wno-lto-type-mismatch)
