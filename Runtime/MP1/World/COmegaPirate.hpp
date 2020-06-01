@@ -122,7 +122,7 @@ private:
 public:
   COmegaPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, CElitePirateData data,
-               CAssetId w1, CAssetId w2, CAssetId w3);
+               CAssetId skeletonModelId, CAssetId skeletonSkinRulesId, CAssetId skeletonLayoutInfoId);
 
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;

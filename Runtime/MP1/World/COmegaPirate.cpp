@@ -120,10 +120,11 @@ void COmegaPirate::CFlash::Render(CStateManager& mgr) {
 
 COmegaPirate::COmegaPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
-                           CElitePirateData data, CAssetId w1, CAssetId w2, CAssetId w3)
+                           CElitePirateData data, CAssetId skeletonModelId, CAssetId skeletonSkinRulesId,
+                           CAssetId skeletonLayoutInfoId)
 : CElitePirate(uid, name, info, xf, std::move(mData), pInfo, actParms, data)
 , x9d0_initialScale(GetModelData()->GetScale())
-, x9f0_skeletonModel(*g_SimplePool, w1, w2, w3, 0, 0)
+, x9f0_skeletonModel(*g_SimplePool, skeletonModelId, skeletonSkinRulesId, skeletonLayoutInfoId, 0, 0)
 , xb70_thermalSpot(g_SimplePool->GetObj("Thermal_Spot_2"sv)) {
   x9a4_scriptWaypointPlatforms.reserve(3);
   x9b8_scriptEffects.reserve(24);
