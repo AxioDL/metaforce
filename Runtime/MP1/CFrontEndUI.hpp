@@ -371,6 +371,7 @@ private:
 
 public:
   CFrontEndUI();
+  ~CFrontEndUI();
   void StartSlideShow(CArchitectureQueue& queue);
   std::string GetAttractMovieFileName(int idx);
   std::string GetNextAttractMovieFileName();
