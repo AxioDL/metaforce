@@ -357,6 +357,7 @@ void CScriptPlayerActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
       x354_28_suitModelLoading = false;
       x354_30_enableLoading = false;
       SetModelData(std::make_unique<CModelData>(CModelData::CModelDataNull()));
+      SetActive(false);
     }
     break;
   case EScriptObjectMessage::Deleted:
