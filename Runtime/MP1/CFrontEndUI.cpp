@@ -1844,6 +1844,12 @@ CFrontEndUI::CFrontEndUI() : CIOWin("FrontEndUI") {
   m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
 }
 
+CFrontEndUI::~CFrontEndUI() {
+  if (x14_phase >= EPhase::DisplayFrontEnd) {
+    CAudioSys::RemoveAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
+  }
+}
+
 void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue) {
   xf4_curAudio->StopMixing();
   queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, std::make_shared<CSlideShow>()));

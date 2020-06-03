@@ -3659,11 +3659,14 @@ CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int
     return nullptr;
   }
 
+  const CAssetId skeletonModelId{in};
+  const CAssetId skeletonSkinRulesId{in};
+  const CAssetId skeletonLayoutInfoId{in};
   CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
                             actHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
-
   return new MP1::COmegaPirate(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform, std::move(mData),
-                               pInfo, actParms, elitePirateData, CAssetId(in), CAssetId(in), CAssetId(in));
+                               pInfo, actParms, elitePirateData, skeletonModelId, skeletonSkinRulesId,
+                               skeletonLayoutInfoId);
 }
 
 CEntity* ScriptLoader::LoadPhazonPool(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
