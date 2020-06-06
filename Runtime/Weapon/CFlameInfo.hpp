@@ -19,8 +19,8 @@ public:
   CFlameInfo(s32, s32, CAssetId, s32, float, float, float);
   CFlameInfo(CInputStream& in);
 
-  s32 GetAttributes() const { return x4_attributes; }
-  s32 GetLength() const { return xc_length; }
-  CAssetId GetFlameFxId() const { return x8_flameFxId; }
+  [[nodiscard]] s32 GetAttributes() const { return x4_attributes; }
+  [[nodiscard]] s32 GetLength() const { return xc_length; }
+  [[nodiscard]] CAssetId GetFlameFxId() const { return x8_flameFxId; }
 };
 } // namespace urde

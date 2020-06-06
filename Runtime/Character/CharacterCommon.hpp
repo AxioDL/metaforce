@@ -96,7 +96,7 @@ enum class ELoopState { Invalid = -1, Begin, Loop, End };
 
 enum class ELoopAttackType { Invalid = -1, Zero, One, Two, Three };
 
-enum class EGenerateType { Invalid = -1, Zero, One, Two, Three, Four, Five, Six, Seven };
+enum class EGenerateType { Invalid = -1, Zero, One, Two, Three, Four, Five, Six, Seven, Eight };
 
 enum class ESlideType { Invalid = -1, Zero = 0 };
 

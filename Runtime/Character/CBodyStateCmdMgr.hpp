@@ -258,14 +258,14 @@ public:
 
 class CBCLoopAttackCmd : public CBodyStateCmd {
   pas::ELoopAttackType x8_type = pas::ELoopAttackType::Invalid;
-  u32 xc_waitForAnimOver = 0;
+  bool xc_waitForAnimOver = false;
 
 public:
   constexpr explicit CBCLoopAttackCmd() : CBodyStateCmd(EBodyStateCmd::LoopAttack) {}
-  constexpr explicit CBCLoopAttackCmd(pas::ELoopAttackType type)
-  : CBodyStateCmd(EBodyStateCmd::LoopAttack), x8_type(type) {}
+  constexpr explicit CBCLoopAttackCmd(pas::ELoopAttackType type, bool waitForAnimOver = false)
+  : CBodyStateCmd(EBodyStateCmd::LoopAttack), x8_type(type), xc_waitForAnimOver(waitForAnimOver) {}
   constexpr pas::ELoopAttackType GetAttackType() const { return x8_type; }
-  constexpr bool WaitForAnimOver() const { return xc_waitForAnimOver == 1; }
+  constexpr bool WaitForAnimOver() const { return xc_waitForAnimOver ; }
 };
 
 class CBCTauntCmd : public CBodyStateCmd {

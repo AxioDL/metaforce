@@ -77,7 +77,7 @@ void CStateMachineState::Update(CStateManager& mgr, CAi& ai, float delta) {
           trig = trig->GetAnd();
         }
       }
-      if (andPassed && state) {
+      if (andPassed && state != nullptr) {
         x4_state->CallFunc(mgr, ai, EStateMsg::Deactivate, 0.f);
         x4_state = state;
         Log.report(logvisor::Info, FMT_STRING("{} {} {} - {} {}"), ai.GetUniqueId(), ai.GetEditorId(), ai.GetName(),
