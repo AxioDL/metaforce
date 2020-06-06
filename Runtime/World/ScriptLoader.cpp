@@ -27,6 +27,7 @@
 #include "Runtime/MP1/World/CJellyZap.hpp"
 #include "Runtime/MP1/World/CMagdolite.hpp"
 #include "Runtime/MP1/World/CMetaree.hpp"
+#include "Runtime/MP1/World/CDrone.hpp"
 #include "Runtime/MP1/World/CMetroid.hpp"
 #include "Runtime/MP1/World/CMetroidBeta.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"
@@ -2003,8 +2004,93 @@ CEntity* ScriptLoader::LoadPointOfInterest(CStateManager& mgr, CInputStream& in,
                                     pointSize);
 }
 
+std::optional<CVisorFlare::CFlareDef> LoadFlareDef(CInputStream& in) {
+  if (in.readUint32Big() == 4) {
+    CAssetId textureId(in);
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    zeus::CColor color = zeus::CColor::ReadRGBABig(in);
+    if (textureId.IsValid()) {
+      return {CVisorFlare::CFlareDef(g_SimplePool->GetObj({SBIG('TXTR'), textureId}), f1, f2, color)};
+    }
+  }
+
+  return {};
+}
+
 CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  return nullptr;
+  if (propCount != 45 && EnsurePropertyCount(propCount, 45, "Drone"))
+    return nullptr;
+
+  std::string name = mgr.HashInstanceName(in);
+  CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
+  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
+  float f1 = in.readFloatBig();
+  const auto [patternedValid, patternedPropCount] = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!patternedValid)
+    return nullptr;
+  CPatternedInfo pInfo(in, patternedPropCount);
+  CActorParameters actParms = LoadActorParameters(in);
+  CDamageInfo dInfo1(in);
+  u32 w1 = in.readUint32Big();
+  CDamageInfo dInfo2(in);
+  CAssetId aId1(in);
+  in.seek(4); // Unused
+  CAssetId aId2(in);
+  std::optional<CVisorFlare::CFlareDef> def1 = LoadFlareDef(in);
+  std::optional<CVisorFlare::CFlareDef> def2 = LoadFlareDef(in);
+  std::optional<CVisorFlare::CFlareDef> def3 = LoadFlareDef(in);
+  std::optional<CVisorFlare::CFlareDef> def4 = LoadFlareDef(in);
+  std::optional<CVisorFlare::CFlareDef> def5 = LoadFlareDef(in);
+  std::vector<CVisorFlare::CFlareDef> flares(5);
+  if (def1)
+    flares.push_back(*def1);
+  if (def2)
+    flares.push_back(*def2);
+  if (def3)
+    flares.push_back(*def3);
+  if (def4)
+    flares.push_back(*def4);
+  if (def4)
+    flares.push_back(*def4);
+
+  const auto& animParms = pInfo.GetAnimationParameters();
+  if (g_ResFactory->GetResourceTypeById(animParms.GetACSFile()) != SBIG('ANCS'))
+    return nullptr;
+
+  float f2 = in.readFloatBig();
+  float f3 = in.readFloatBig();
+  float f4 = in.readFloatBig();
+  float f5 = in.readFloatBig();
+  float f6 = in.readFloatBig();
+  float f7 = in.readFloatBig();
+  float f8 = in.readFloatBig();
+  float f9 = in.readFloatBig();
+  float f10 = in.readFloatBig();
+  float f11 = in.readFloatBig();
+  float f12 = in.readFloatBig();
+  float f13 = in.readFloatBig();
+  float f14 = in.readFloatBig();
+  float f15 = in.readFloatBig();
+  float f16 = in.readFloatBig();
+  float f17 = in.readFloatBig();
+  float f18 = in.readFloatBig();
+  float f19 = in.readFloatBig();
+  float f20 = in.readFloatBig();
+  CAssetId crscId(in);
+  float f21 = in.readFloatBig();
+  float f22 = in.readFloatBig();
+  float f23 = in.readFloatBig();
+  float f24 = in.readFloatBig();
+  s32 soundId = in.readUint32Big();
+  bool b1 = in.readBool();
+  CModelData mData(
+      CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
+  return new MP1::CDrone(mgr.AllocateUniqueId(), name, flavor, info, xf, f1, std::move(mData), pInfo, actParms,
+                         CPatterned::EMovementType::Flyer, CPatterned::EColliderType::One, EBodyType::Pitchable, dInfo1,
+                         aId2, dInfo2, aId2, flares, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16,
+                         f17, f18, f19, f20, crscId, f21, f22, f23, f24, soundId, b1);
 }
 
 CEntity* ScriptLoader::LoadMetroid(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
