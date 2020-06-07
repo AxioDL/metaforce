@@ -177,6 +177,8 @@ constexpr std::array<u16, 24> skRightStepSounds{
     SFXsam_b_wlkorg_01,
 };
 
+constexpr float RCP_2PI = 0.15915494;
+
 constexpr std::array<std::pair<CPlayerState::EItemType, ControlMapper::ECommands>, 4> skVisorToItemMapping{{
     {CPlayerState::EItemType::CombatVisor, ControlMapper::ECommands::NoVisor},
     {CPlayerState::EItemType::XRayVisor, ControlMapper::ECommands::XrayVisor},
@@ -301,8 +303,14 @@ s32 CPlayer::ChooseTransitionToAnimation(float dt, CStateManager& mgr) const {
     return 2; // B_readytoball_samus
   }
 
-  const zeus::CRelAngle velAng = std::atan2(localVelFlat.x(), localVelFlat.y());
-  const float velDeg = velAng.asDegrees();
+  float velAng = std::atan2(-localVelFlat.x(), localVelFlat.y());
+  constexpr float twoPi = zeus::degToRad(360.f);
+  if (velAng > twoPi) {
+    velAng = velAng - static_cast<int>(velAng * RCP_2PI) * twoPi;
+  } else if (velAng < 0.f) {
+    velAng = twoPi + (velAng - static_cast<int>(velAng * RCP_2PI) * twoPi);
+  }
+  const float velDeg = zeus::radToDeg(velAng);
   if (velDeg >= 45.f && velDeg <= 315.f) {
     return 1; // B_readytostationarybackwards_samus
   }
@@ -312,7 +320,6 @@ s32 CPlayer::ChooseTransitionToAnimation(float dt, CStateManager& mgr) const {
   }
 
   return 4; // B_runtoballfoward_samus
-
 }
 
 void CPlayer::TransitionToMorphBallState(float dt, CStateManager& mgr) {
