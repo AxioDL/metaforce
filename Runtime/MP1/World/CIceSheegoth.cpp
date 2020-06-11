@@ -174,7 +174,7 @@ void CIceSheegoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, C
   }
   case EScriptObjectMessage::Touched: {
     ApplyContactDamage(sender, mgr);
-    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(sender)) {
+    if (const TCastToConstPtr<CCollisionActor> colAct = mgr.ObjectById(sender)) {
       if (const TCastToConstPtr<CWeapon> wp = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
         if (wp->GetOwnerId() == mgr.GetPlayer().GetUniqueId()) {
           xb28_24_shotAt = true;
@@ -216,7 +216,7 @@ void CIceSheegoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, C
     break;
   }
   case EScriptObjectMessage::Damage: {
-    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(sender)) {
+    if (const TCastToConstPtr<CCollisionActor> colAct = mgr.ObjectById(sender)) {
       if (const TCastToConstPtr<CWeapon> wp = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
         if (sender == xaf6_iceShardsCollider && !xb28_27_) {
           sub_8019ebf0(mgr, wp->GetDamageInfo().GetDamage());
@@ -226,7 +226,7 @@ void CIceSheegoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, C
           }
         } else {
           TakeDamage(zeus::skZero3f, 0.f);
-          if (IsGillCollider(colAct)) {
+          if (IsGillCollider(colAct.GetPtr())) {
             x97c_ = 0.2f;
             x980_ = GetTransform().basis[1];
           }
@@ -242,7 +242,7 @@ void CIceSheegoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, C
   }
   case EScriptObjectMessage::InvulnDamage: {
     if (sender == xaf6_iceShardsCollider && !xb28_27_) {
-      if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(sender)) {
+      if (const TCastToConstPtr<CCollisionActor> colAct = mgr.ObjectById(sender)) {
         if (const TCastToConstPtr<CWeapon> wp = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
           sub_8019ebf0(mgr, wp->GetDamageInfo().GetDamage());
           if (!xaec_ || xaec_->IsSystemDeletable()) {
@@ -1270,34 +1270,34 @@ void CIceSheegoth::UpdateHealthInfo(CStateManager& mgr) {
   }
 
   float hpDelta = 0.f;
-  if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(xaf8_mouthCollider)) {
+  if (const TCastToConstPtr<CCollisionActor> colAct = mgr.ObjectById(xaf8_mouthCollider)) {
     hpDelta = std::max(hpDelta, x970_maxHp - colAct->GetHealthInfo(mgr)->GetHP());
   }
 
-  for (TUniqueId uid : xafc_gillColliders) {
-    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+  for (const TUniqueId uid : xafc_gillColliders) {
+    if (const TCastToConstPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
       hpDelta = std::max(hpDelta, x970_maxHp - colAct->GetHealthInfo(mgr)->GetHP());
     }
   }
 
-  for (TUniqueId uid : xb04_) {
-    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+  for (const TUniqueId uid : xb04_) {
+    if (const TCastToConstPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
       hpDelta = std::max(hpDelta, x970_maxHp - colAct->GetHealthInfo(mgr)->GetHP());
     }
   }
   HealthInfo(mgr)->SetHP(HealthInfo(mgr)->GetHP() - hpDelta);
   if (GetHealthInfo(mgr)->GetHP() > 0.f) {
-    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(xaf8_mouthCollider)) {
+    if (const TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(xaf8_mouthCollider)) {
       colAct->HealthInfo(mgr)->SetHP(x970_maxHp);
     }
-    for (TUniqueId uid : xafc_gillColliders) {
-      if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+    for (const TUniqueId uid : xafc_gillColliders) {
+      if (const TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
         colAct->HealthInfo(mgr)->SetHP(x970_maxHp);
       }
     }
 
-    for (TUniqueId uid : xb04_) {
-      if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+    for (const TUniqueId uid : xb04_) {
+      if (const TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
         colAct->HealthInfo(mgr)->SetHP(x970_maxHp);
       }
     }
