@@ -148,8 +148,8 @@ class CIceSheegoth : public CPatterned {
   bool xb29_29_scanned : 1 = false;
 
   void UpdateTouchBounds();
-  bool IsMouthCollider(TUniqueId uid) { return xaf8_mouthCollider == uid; }
-  bool IsGillCollider(const CEntity* ent) const {
+  [[nodiscard]] bool IsMouthCollider(TUniqueId uid) const { return xaf8_mouthCollider == uid; }
+  [[nodiscard]] bool IsGillCollider(const CEntity* ent) const {
     return std::find_if(xafc_gillColliders.cbegin(), xafc_gillColliders.cend(),
                         [&ent](TUniqueId uid) { return uid == ent->GetUniqueId(); }) != xafc_gillColliders.cend();
   }
