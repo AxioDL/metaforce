@@ -65,19 +65,7 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
 , x6b0_pathFind(nullptr, 3 + int(b1), pInfo.GetPathfindingIndex(), 1.f, 2.4f)
 , x7cc_(CSfxManager::TranslateSFXID(sId))
 , x82c_shieldModel(std::make_unique<CModelData>(CStaticRes{aId2, zeus::skOne3f}))
-, x832_a(0)
-, x832_b(0)
-, x834_24_(false)
-, x834_25_(false)
-, x834_26_(false)
-, x834_27_(false)
-, x834_28_(false)
-, x834_29_codeTrigger(false)
-, x834_30_visible(false)
-, x834_31_(false)
-, x835_24_(false)
-, x835_25_(b1)
-, x835_26_(false) {
+, x835_25_(b1) {
   UpdateTouchBounds(pInfo.GetHalfExtent());
   x460_knockBackController.SetEnableShock(true);
   x460_knockBackController.SetAvailableState(EKnockBackAnimationState::Hurled, false);
