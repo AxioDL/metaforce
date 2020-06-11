@@ -186,8 +186,8 @@ class CIceSheegoth : public CPatterned {
   void UpdateAttackPosition(CStateManager& mgr, zeus::CVector3f& attackPos);
   zeus::CVector3f GetEnergyAttractionPos(CStateManager& mgr) const;
   bool ShouldAttractProjectile(const CGameProjectile& proj, CStateManager& mgr) const;
-  bool IsClosestSheegoth(CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 1024> nearList,
-                         const zeus::CVector3f projectileOffset) const;
+  bool IsClosestSheegoth(CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                         const zeus::CVector3f& projectileOffset) const;
 
 public:
   DEFINE_PATTERNED(IceSheeegoth);

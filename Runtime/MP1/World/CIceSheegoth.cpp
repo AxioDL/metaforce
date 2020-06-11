@@ -1493,12 +1493,11 @@ bool CIceSheegoth::ShouldAttractProjectile(const CGameProjectile& proj, CStateMa
   return false;
 }
 
-bool CIceSheegoth::IsClosestSheegoth(CStateManager& mgr, rstl::reserved_vector<TUniqueId, 1024> nearList,
-                                     zeus::CVector3f projectileOffset) const {
-
+bool CIceSheegoth::IsClosestSheegoth(CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                     const zeus::CVector3f& projectileOffset) const {
   zeus::CVector3f diff = projectileOffset - GetTranslation();
   const float diffMag = diff.magSquared();
-  for (TUniqueId uid : nearList) {
+  for (const TUniqueId uid : nearList) {
     const CIceSheegoth* goth = CPatterned::CastTo<CIceSheegoth>(mgr.GetObjectById(uid));
     if (!goth || goth->GetUniqueId() == GetUniqueId())
       continue;
