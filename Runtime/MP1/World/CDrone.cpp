@@ -536,10 +536,12 @@ void CDrone::TargetPlayer(CStateManager& mgr, EStateMsg msg, float dt) {
 }
 
 void CDrone::TargetCover(CStateManager& mgr, EStateMsg msg, float dt) {
-  if (msg != EStateMsg::Update)
+  if (msg != EStateMsg::Update) {
     return;
-  /* Don't ask I have no idea.... */
-  const zeus::CVector3f vec = {1.f * x5e4_ * 0.f, 1.f * x5e4_ * 0.f, 1.f * x5e4_ * 0.f};
+  }
+
+  // Don't ask I have no idea....
+  const zeus::CVector3f vec{1.f * x5e4_ * 0.f, 1.f * x5e4_ * 0.f, 1.f * x5e4_ * 1.f};
   ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(vec), 1.f), {});
 }
 
