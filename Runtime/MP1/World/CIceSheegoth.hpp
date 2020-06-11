@@ -132,20 +132,20 @@ class CIceSheegoth : public CPatterned {
   rstl::reserved_vector<TUniqueId, 2> xafc_gillColliders;
   rstl::reserved_vector<TUniqueId, 10> xb04_;
   rstl::reserved_vector<CSegId, 7> xb1c_;
-  bool xb28_24_shotAt : 1;
-  bool xb28_25_ : 1;
-  bool xb28_26_ : 1;
-  bool xb28_27_ : 1;
-  bool xb28_28_ : 1;
-  bool xb28_29_ : 1;
-  bool xb28_30_ : 1;
-  bool xb28_31_ : 1;
-  bool xb29_24_ : 1;
-  bool xb29_25_ : 1;
-  bool xb29_26_ : 1;
-  bool xb29_27_ : 1;
-  bool xb29_28_ : 1;
-  bool xb29_29_scanned : 1;
+  bool xb28_24_shotAt : 1 = false;
+  bool xb28_25_ : 1 = false;
+  bool xb28_26_ : 1 = false;
+  bool xb28_27_ : 1 = false;
+  bool xb28_28_ : 1 = false;
+  bool xb28_29_ : 1 = false;
+  bool xb28_30_ : 1 = false;
+  bool xb28_31_ : 1 = false;
+  bool xb29_24_ : 1 = false;
+  bool xb29_25_ : 1 = false;
+  bool xb29_26_ : 1 = false;
+  bool xb29_27_ : 1 = false;
+  bool xb29_28_ : 1 = false;
+  bool xb29_29_scanned : 1 = false;
 
   void UpdateTouchBounds();
   bool IsMouthCollider(TUniqueId uid) { return xaf8_mouthCollider == uid; }

@@ -106,22 +106,7 @@ CIceSheegoth::CIceSheegoth(TUniqueId uid, std::string_view name, const CEntityIn
                                       CElementGen::EOptionalSystemFlags::One))
 , xac8_(g_SimplePool->GetObj({SBIG('ELSC'), sheegothData.Get_x1ac()}))
 , xad8_(std::make_unique<CParticleElectric>(xac8_))
-, xadc_(g_SimplePool->GetObj({SBIG('PART'), sheegothData.Get_x19c()}))
-, xb28_24_shotAt(false)
-, xb28_25_(false)
-, xb28_26_(false)
-, xb28_27_(false)
-, xb28_28_(false)
-, xb28_29_(false)
-, xb28_30_(false)
-, xb28_31_(false)
-, xb29_24_(false)
-, xb29_25_(false)
-, xb29_26_(false)
-, xb29_27_(false)
-, xb29_28_(false)
-, xb29_29_scanned(false) {
-
+, xadc_(g_SimplePool->GetObj({SBIG('PART'), sheegothData.Get_x19c()})) {
   UpdateTouchBounds();
   x460_knockBackController.SetEnableFreeze(false);
   x460_knockBackController.SetX82_24(false);
