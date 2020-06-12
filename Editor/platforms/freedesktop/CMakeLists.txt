@@ -1,6 +1,6 @@
 add_executable(mkwmicon mkwmicon.c)
 target_include_directories(mkwmicon PRIVATE ${LIBPNG_INCLUDE_DIR})
-target_link_libraries(mkwmicon ${PNG_LIB} ${ZLIB_LIBRARIES})
+target_link_libraries(mkwmicon ${ZLIB_LIBRARIES} ${PNG_LIBRARIES})
 
 macro(declare_wmicon_target)
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/Editor/platforms/freedesktop/mainicon_netwm.bin
