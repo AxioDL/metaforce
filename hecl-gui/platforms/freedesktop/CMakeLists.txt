@@ -1,5 +1,5 @@
 add_executable(mkqticon mkqticon.c)
-target_link_libraries(mkqticon ${PNG_LIB} ${ZLIB_LIBRARIES})
+target_link_libraries(mkqticon ${PNG_LIBRARIES} ${ZLIB_LIBRARIES})
 target_include_directories(mkqticon PRIVATE ${LIBPNG_INCLUDE_DIR})
 
 macro(declare_qticon_target)
