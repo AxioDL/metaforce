@@ -88,27 +88,40 @@ hecl::SystemString FindBlender(int& major, int& minor) {
   if (!blenderBin)
     return {};
 
-  hecl::SystemString command = hecl::SystemString(_SYS_STR("\"")) + blenderBin + _SYS_STR("\" --version");
 #if _WIN32
-  FILE* fp = _wpopen(command.c_str(), _SYS_STR("r"));
+  DWORD handle = 0;
+  DWORD infoSize = GetFileVersionInfoSizeW(blenderBin, &handle);
+
+  if (infoSize != NULL) {
+    auto* infoData = new char[infoSize];
+    if (GetFileVersionInfoW(blenderBin, handle, infoSize, infoData)) {
+      UINT size = 0;
+      LPVOID lpBuffer = nullptr;
+      if (VerQueryValueW(infoData, L"\\", &lpBuffer, &size) && size != 0u) {
+        auto* verInfo = static_cast<VS_FIXEDFILEINFO*>(lpBuffer);
+        if (verInfo->dwSignature == 0xfeef04bd) {
+          major = static_cast<int>((verInfo->dwFileVersionMS >> 16) & 0xffff);
+          minor = static_cast<int>((verInfo->dwFileVersionMS >> 0 & 0xffff) * 10 +
+                                   (verInfo->dwFileVersionLS >> 16 & 0xffff));
+        }
+      }
+    }
+    delete[] infoData;
+  }
 #else
+  hecl::SystemString command = hecl::SystemString(_SYS_STR("\"")) + blenderBin + _SYS_STR("\" --version");
   FILE* fp = popen(command.c_str(), "r");
-#endif
   char versionBuf[256];
   size_t rdSize = fread(versionBuf, 1, 255, fp);
   versionBuf[rdSize] = '\0';
-#if _WIN32
-  _pclose(fp);
-#else
   pclose(fp);
-#endif
 
   std::cmatch match;
   if (std::regex_search(versionBuf, match, regBlenderVersion)) {
     major = atoi(match[1].str().c_str());
     minor = atoi(match[2].str().c_str());
-    return blenderBin;
   }
+#endif
 
   return blenderBin;
 }

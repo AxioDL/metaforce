@@ -1,4 +1,5 @@
-#if _WIN32
+#if defined(_WIN32) && !defined(_DLL)
+// Static linking on Windows
 #include <QtPlugin>
 Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
 #endif

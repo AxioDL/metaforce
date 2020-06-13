@@ -107,8 +107,10 @@ if(WIN32)
     platforms/win/hecl-gui.manifest
     platforms/win/hecl-gui.rc
   )
-  # FIXME hack to fix static link with outdated Qt cmake files
-  target_link_libraries(hecl-gui PRIVATE C:/vcpkg/installed/x64-windows-static/$<$<CONFIG:Debug>:debug/>lib/Qt5VulkanSupport$<$<CONFIG:Debug>:d>.lib)
+  # Check for static linking
+  if(NOT "$<TARGET_PROPERTY:hecl-gui,MSVC_RUNTIME_LIBRARY>" MATCHES "DLL$")
+    target_link_libraries(hecl-gui PRIVATE Qt5::QWindowsIntegrationPlugin)
+  endif()
 elseif(APPLE)
   target_sources(hecl-gui PRIVATE platforms/mac/mainicon.icns)
   set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
