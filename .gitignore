@@ -6,3 +6,6 @@ version.h
 docs/*
 .idea/
 Editor/platforms/win/urde.rc
+.vs/
+out/
+cmake-build-*/
