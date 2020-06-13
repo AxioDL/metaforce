@@ -12,24 +12,19 @@
       "ctestCommandArgs": "",
       "variables": [
         {
-          "name": "CMAKE_PREFIX_PATH",
-          "value": "C:\\Qt\\5.14.2\\msvc2017_64",
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
           "type": "FILEPATH"
         },
         {
-          "name": "CMAKE_CXX_FLAGS",
-          "value": "-m64 -fdiagnostics-absolute-paths",
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows-static",
           "type": "STRING"
         },
         {
-          "name": "CMAKE_C_FLAGS",
-          "value": "-m64 -fdiagnostics-absolute-paths",
+          "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
+          "value": "MultiThreadedDebug",
           "type": "STRING"
-        },
-        {
-          "name": "CMAKE_LINKER",
-          "value": "C:\\Program Files\\LLVM\\bin\\lld-link.exe",
-          "type": "FILEPATH"
         },
         {
           "name": "CMAKE_C_COMPILER",
@@ -42,22 +37,17 @@
           "type": "FILEPATH"
         },
         {
-          "name": "CMAKE_C_COMPILER_RANLIB",
-          "value": "C:\\Program Files\\LLVM\\bin\\llvm-ranlib.exe",
+          "name": "CMAKE_LINKER",
+          "value": "C:\\Program Files\\LLVM\\bin\\lld-link.exe",
           "type": "FILEPATH"
         },
         {
-          "name": "CMAKE_C_COMPILER_AR",
+          "name": "CMAKE_AR",
           "value": "C:\\Program Files\\LLVM\\bin\\llvm-ar.exe",
           "type": "FILEPATH"
         },
         {
-          "name": "CMAKE_CXX_COMPILER_AR",
-          "value": "C:\\Program Files\\LLVM\\bin\\llvm-ar.exe",
-          "type": "FILEPATH"
-        },
-        {
-          "name": "CMAKE_CXX_COMPILER_RANLIB",
+          "name": "CMAKE_RANLIB",
           "value": "C:\\Program Files\\LLVM\\bin\\llvm-ranlib.exe",
           "type": "FILEPATH"
         }
@@ -67,32 +57,27 @@
       "name": "x64-Clang-Release",
       "generator": "Ninja",
       "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "clang_cl_x64" ],
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "clang_cl_x64" ],
       "variables": [
         {
-          "name": "CMAKE_PREFIX_PATH",
-          "value": "C:\\Qt\\5.14.2\\msvc2017_64",
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
           "type": "FILEPATH"
         },
         {
-          "name": "CMAKE_CXX_FLAGS",
-          "value": "-m64 -fdiagnostics-absolute-paths",
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows-static",
           "type": "STRING"
         },
         {
-          "name": "CMAKE_C_FLAGS",
-          "value": "-m64 -fdiagnostics-absolute-paths",
+          "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
+          "value": "MultiThreaded",
           "type": "STRING"
-        },
-        {
-          "name": "CMAKE_LINKER",
-          "value": "C:\\Program Files\\LLVM\\bin\\lld-link.exe",
-          "type": "FILEPATH"
         },
         {
           "name": "CMAKE_C_COMPILER",
@@ -105,52 +90,19 @@
           "type": "FILEPATH"
         },
         {
-          "name": "CMAKE_C_COMPILER_RANLIB",
-          "value": "C:\\Program Files\\LLVM\\bin\\llvm-ranlib.exe",
+          "name": "CMAKE_LINKER",
+          "value": "C:\\Program Files\\LLVM\\bin\\lld-link.exe",
           "type": "FILEPATH"
         },
         {
-          "name": "CMAKE_C_COMPILER_AR",
+          "name": "CMAKE_AR",
           "value": "C:\\Program Files\\LLVM\\bin\\llvm-ar.exe",
           "type": "FILEPATH"
         },
         {
-          "name": "CMAKE_CXX_COMPILER_AR",
-          "value": "C:\\Program Files\\LLVM\\bin\\llvm-ar.exe",
-          "type": "FILEPATH"
-        },
-        {
-          "name": "CMAKE_CXX_COMPILER_RANLIB",
+          "name": "CMAKE_RANLIB",
           "value": "C:\\Program Files\\LLVM\\bin\\llvm-ranlib.exe",
           "type": "FILEPATH"
-        }
-      ]
-    },
-    {
-      "name": "x64-MSVC-Release",
-      "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
-      "buildRoot": "${projectDir}\\out\\build\\${name}",
-      "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
-      "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x64" ],
-      "variables": [
-        {
-          "name": "CMAKE_PREFIX_PATH",
-          "value": "C:\\Qt\\5.14.2\\msvc2017_64",
-          "type": "FILEPATH"
-        },
-        {
-          "name": "CMAKE_CXX_FLAGS",
-          "value": "",
-          "type": "STRING"
-        },
-        {
-          "name": "CMAKE_C_FLAGS",
-          "value": "",
-          "type": "STRING"
         }
       ]
     },
@@ -163,12 +115,60 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x64" ],
+      "inheritEnvironments": [ "msvc_x64_x64" ],
       "variables": [
         {
-          "name": "CMAKE_PREFIX_PATH",
-          "value": "C:\\Qt\\5.14.2\\msvc2017_64",
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
           "type": "FILEPATH"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows-static",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
+          "value": "MultiThreadedDebug",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_CXX_FLAGS",
+          "value": "",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_FLAGS",
+          "value": "",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "x64-MSVC-Release",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows-static",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
+          "value": "MultiThreaded",
+          "type": "STRING"
         },
         {
           "name": "CMAKE_CXX_FLAGS",
