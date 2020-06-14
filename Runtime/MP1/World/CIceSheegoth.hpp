@@ -248,7 +248,7 @@ public:
   CPathFindSearch* GetSearchPath() override {
     return x928_pathFindMode == EPathFindMode::Normal ? &x760_pathSearch : &x844_approachSearch;
   }
-  [[nodiscard]] constexpr float GetGravityConstant() const override { return 10.f * 24.525f; }
+  [[nodiscard]] float GetGravityConstant() const override { return 10.f * 24.525f; }
   CProjectileInfo* GetProjectileInfo() override { return &xa58_; }
 };
 } // namespace MP1
