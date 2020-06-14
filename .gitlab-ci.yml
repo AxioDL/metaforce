@@ -131,9 +131,12 @@ build:linux:avx2:
       cmake
       -GNinja
       -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
       -DURDE_DLPACKAGE="urde-$env:CI_PIPELINE_ID-win32-x86_64-$env:URDE_VECTOR_ISA"
       -DURDE_VECTOR_ISA="$env:URDE_VECTOR_ISA"
       -DLLVM_ROOT_DIR=C:\projects\deps\llvm
+      -DCMAKE_C_FLAGS=
+      -DCMAKE_CXX_FLAGS=
       ..
     - ninja urde hecl visigen
     - 'copy Binaries\urde.exe "$env:CI_PROJECT_DIR\urde.exe"'

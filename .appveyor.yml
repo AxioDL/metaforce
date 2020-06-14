@@ -53,14 +53,8 @@ before_build:
   # Configure cmake
   - set PATH=C:\projects\deps\cmake\cmake-3.16.4-win64-x64\bin;%PATH%
   - cmake --version
-  # Configure LLVM
-  - set PATH=C:\projects\deps\llvm\bin;%PATH%
-  - llvm-config --version
-  - clang-cl -v
-  - set CC=clang-cl -mrtm
-  - set CXX=clang-cl -mrtm
   # Configure VS
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat" amd64
   # Fetch submodules
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init --recursive
@@ -68,7 +62,7 @@ before_build:
 build_script:
   - mkdir build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DLLVM_ROOT_DIR=C:\projects\deps\llvm -GNinja ..
+  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DLLVM_ROOT_DIR=C:\projects\deps\llvm -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= -GNinja ..
   - ninja urde
 
 #notifications:
