@@ -79,7 +79,6 @@ target_link_libraries(hecl-gui PRIVATE
 
   hecl-light
   zeus
-  ${ZLIB_LIBRARIES}
 )
 
 target_include_directories(hecl-gui PRIVATE quazip/quazip)
