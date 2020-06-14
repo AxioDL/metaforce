@@ -34,4 +34,5 @@ set(PNG_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "PNG include path" FO
 else()
 set(PNG_LIBRARIES ${PNG_LIB} CACHE PATH "PNG libraries" FORCE)
 find_path(PNG_INCLUDE_DIR png.h)
+set(PNG_INCLUDE_DIR ${PNG_INCLUDE_DIR} CACHE PATH "PNG include path" FORCE)
 endif()
