@@ -13,6 +13,9 @@ list(REMOVE_ITEM QUAZIP_SRCS
 )
 if (NOT MSVC)
   set_source_files_properties(${QUAZIP_SRCS} PROPERTIES COMPILE_OPTIONS -Wno-deprecated-declarations)
+  set(QUAZIP_LIBS ${ZLIB_LIBRARIES})
+else()
+  set(QUAZIP_LIBS "")
 endif()
 
 add_executable(hecl-gui WIN32 MACOSX_BUNDLE
@@ -79,6 +82,7 @@ target_link_libraries(hecl-gui PRIVATE
 
   hecl-light
   zeus
+  ${QUAZIP_LIBS}
 )
 
 target_include_directories(hecl-gui PRIVATE quazip/quazip)
