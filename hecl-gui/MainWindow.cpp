@@ -503,7 +503,7 @@ void MainWindow::setPath(const QString& path) {
 }
 
 void MainWindow::initSlots() {
-  connect(&m_heclProc, &QProcess::readyRead, [=]() {
+  connect(&m_heclProc, &QProcess::readyRead, [this]() {
     const QByteArray bytes = m_heclProc.readAll();
     setTextTermFormatting(QString::fromUtf8(bytes));
   });
@@ -512,7 +512,7 @@ void MainWindow::initSlots() {
   connect(m_ui->packageBtn, &QPushButton::clicked, this, &MainWindow::onPackage);
   connect(m_ui->launchBtn, &QPushButton::clicked, this, &MainWindow::onLaunch);
 
-  connect(m_ui->browseBtn, &QPushButton::clicked, [=]() {
+  connect(m_ui->browseBtn, &QPushButton::clicked, [this]() {
     FileDirDialog dialog(this);
     dialog.setDirectory(m_path);
     dialog.setWindowTitle(tr("Select Working Directory"));
@@ -690,9 +690,9 @@ void MainWindow::initNumberComboOption(QComboBox* action, hecl::CVar* cvar) {
     }
   }
   action->setToolTip(QString::fromUtf8(cvar->rawHelp().data()));
-  connect(action, static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged), this,
-          [this, cvar](const QString& value) {
-            cvar->fromInteger(value.toInt());
+  connect(action, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+          [this, action, cvar](const int i) {
+            cvar->fromInteger(action->itemText(i).toInt());
             m_cvarManager.serialize();
           });
 }

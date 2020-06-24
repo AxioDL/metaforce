@@ -12,7 +12,7 @@ namespace hecl::blender {
 #define DEFAULT_BLENDER_BIN "blender"
 #endif
 
-static const std::regex regBlenderVersion(R"(Blender ([0-9]+).([0-9]+) )",
+static const std::regex regBlenderVersion(R"(Blender (\d+)\.(\d+)(?:\.(\d+))?)",
                                           std::regex::ECMAScript | std::regex::optimize);
 
 static bool RegFileExists(const hecl::SystemChar* path) {

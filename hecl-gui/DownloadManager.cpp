@@ -58,8 +58,7 @@ void DownloadManager::fetchIndex() {
 
   m_indexInProgress = m_netManager.get(QNetworkRequest(url));
   connect(m_indexInProgress, &QNetworkReply::finished, this, &DownloadManager::indexFinished);
-  connect(m_indexInProgress, qOverload<QNetworkReply::NetworkError>(&QNetworkReply::error), this,
-          &DownloadManager::indexError);
+  connect(m_indexInProgress, &QNetworkReply::errorOccurred, this, &DownloadManager::indexError);
   connect(m_indexInProgress, &QNetworkReply::encrypted, this, &DownloadManager::indexValidateCert);
 }
 
@@ -75,8 +74,7 @@ void DownloadManager::fetchBinary(const QString& str, const QString& outPath) {
   const auto url = QUrl(QStringLiteral("%1%2/%3/%4").arg(Domain, track, CurPlatformString, str));
   m_binaryInProgress = m_netManager.get(QNetworkRequest(url));
   connect(m_binaryInProgress, &QNetworkReply::finished, this, &DownloadManager::binaryFinished);
-  connect(m_binaryInProgress, qOverload<QNetworkReply::NetworkError>(&QNetworkReply::error), this,
-          &DownloadManager::binaryError);
+  connect(m_binaryInProgress, &QNetworkReply::errorOccurred, this, &DownloadManager::binaryError);
   connect(m_binaryInProgress, &QNetworkReply::encrypted, this, &DownloadManager::binaryValidateCert);
   connect(m_binaryInProgress, &QNetworkReply::downloadProgress, this, &DownloadManager::binaryDownloadProgress);
 
