@@ -57,7 +57,7 @@ void CScriptBallTrigger::Think(float dt, CStateManager& mgr) {
 
   const float ballRadius = player.GetMorphBall()->GetBallRadius();
   const zeus::CVector3f radiusPosDif =
-      (player.GetTranslation() - (player.GetTranslation() + zeus::CVector3f{0.f, 0.f, ballRadius}));
+      GetTranslation() - (player.GetTranslation() + zeus::CVector3f{0.f, 0.f, ballRadius});
   const float distance = radiusPosDif.magnitude();
 
   if (!x168_24_canApplyForce) {
@@ -78,8 +78,6 @@ void CScriptBallTrigger::Think(float dt, CStateManager& mgr) {
       player.Stop();
     }
     player.MoveToWR(offset, dt);
-  } else {
-    x168_24_canApplyForce = false;
   }
 }
 
