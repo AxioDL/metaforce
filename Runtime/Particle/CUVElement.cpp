@@ -49,8 +49,11 @@ void CUVEAnimTexture::GetValueUV(int frame, SUVElementSet& valOut) const {
 
   int tile = int(cvf);
   if (x24_loop) {
-    if (cvf >= float(x20_tiles)) {
-      tile = int(cvf) % x20_tiles;
+    // HACK
+    // Check bad values for cvf
+    tile = !(std::isnan(cvf) || std::isinf(cvf)) && int(cvf) >= 0 ? int(cvf) : 0;
+    if (tile >= x20_tiles) {
+      tile = tile % x20_tiles;
     }
   } else {
     if (cvf >= float(x20_tiles)) {

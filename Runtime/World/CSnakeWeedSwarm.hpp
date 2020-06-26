@@ -106,10 +106,11 @@ public:
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
   void Touch(CActor&, CStateManager&) override;
   void Think(float, CStateManager&) override;
+  void HandleRadiusDamage(float radius, CStateManager& mgr, const zeus::CVector3f& pos);
+  float GetWeaponDamageRadius() const { return x100_weaponDamageRadius; }
 
 private:
   void AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which);
-  void HandleRadiusDamage(float radius, CStateManager& mgr, const zeus::CVector3f& pos);
   void FindGround(const CStateManager& mgr);
   zeus::CAABox GetBoidBox() const;
   int GetNumBoidsY() const;
