@@ -53,6 +53,10 @@ before_build:
   # Configure cmake
   - set PATH=C:\projects\deps\cmake\cmake-3.16.4-win64-x64\bin;%PATH%
   - cmake --version
+  # Configure LLVM
+  - set PATH=C:\projects\deps\llvm\bin;%PATH%
+  - llvm-config --version
+  - clang-cl -v
   # Configure VS
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat" amd64
   # Fetch submodules
@@ -62,7 +66,8 @@ before_build:
 build_script:
   - mkdir build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DLLVM_ROOT_DIR=C:\projects\deps\llvm -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= -GNinja ..
+  # -DCMAKE_LINKER=lld-link -DCMAKE_AR=llvm-ar -DCMAKE_RANLIB=llvm-ranlib
+  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DLLVM_ROOT_DIR=C:\projects\deps\llvm -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -GNinja ..
   - ninja urde
 
 #notifications:
