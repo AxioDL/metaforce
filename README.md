@@ -1,5 +1,5 @@
 ## URDE
-**Status:** In-Game with 0-00 (v1.088) only
+**Status:** Metroid Prime 1 In-Game (all retail GC versions)
 
 **Official Discord Channel:** https://discord.gg/AMBVFuf
 
@@ -11,13 +11,11 @@ Precompiled builds of the command-line extraction utility (`hecl`) with embedded
 Everything else is much too experimental to make portable/stable release builds (for now)
 
 ### Platform Support
-* Windows 7+ (64-bit support only)
-* macOS 10.11+ (10.15+ / Xcode 11.5+ to build)
-* Linux
+* Windows 10 (64-bit, D3D11 / Vulkan)
+* macOS 10.15+ (Metal)
+* Linux (Vulkan)
     * Arch is known to function with [`glx` vendor setup instructions](https://wiki.archlinux.org/index.php/Category:Graphics) *(main development/testing OS)*
-    * **[WIP]** Vulkan loader detection is also integrated into the cmake for Linux
-* **[Coming Soon]** FreeBSD
-    * Much multimedia functionality is in place, but not fully tested
+    * Other distros with reasonably up-to-date packages will work (specific packages TBD)
     
 ### Usage
 
@@ -60,11 +58,22 @@ mkdir urde-build
 cd urde-build
 ```
 
-### Build Directions
-
-#### ninja
+### Update Directions
 
 ```sh
+cd urde
+git pull
+git submodule update --recursive
+```
+
+### Build Directions
+
+For Windows, it's recommended to use Visual Studio. See below.
+
+#### ninja (Windows/macOS/Linux)
+
+```sh
+cd urde-build
 cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja ../urde
 ninja
 ```
@@ -74,36 +83,31 @@ ninja
 - Use clang+lld (faster linking): `-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++`
 - Optimize for current CPU (resulting binaries are not portable): `-DURDE_VECTOR_ISA=native`
 
-#### CLion
+#### CLion (Windows/macOS/Linux)
 *(main development / debugging IDE)*
 
 Open the repository's `CMakeLists.txt`.
 
-Configure CMake options via `File` > `Settings` > `Build, Execution, Deployment` > `CMake`.
+Optionally configure CMake options via `File` > `Settings` > `Build, Execution, Deployment` > `CMake`.
 
-It's recommended to create a new `Toolchain` with `clang`/`clang++` and configure the CMake profiles to use it.
-
-#### Qt Creator
+#### Qt Creator (Windows/macOS/Linux)
 
 Open the repository's `CMakeLists.txt` via File > Open File or Project.
 
 Configure the desired CMake targets to build in the *Projects* area of the IDE.
 
-Build / Debug / Run on Windows, macOS and Linux in a unified way.
-
-#### Visual Studio
+#### Visual Studio (Windows)
 
 Verify all required VS packages are installed from the above **Build Prerequisites** section.
 
-Open the `urde` directory in Visual Studio (automatically imports CMake configuration).
+Open the `urde` directory in Visual Studio (imports CMake configuration).
 
-Follow [these instructions to use clang-cl](https://docs.microsoft.com/en-us/cpp/build/clang-support-cmake?view=vs-2019).
-The build will **not** work with the normal VS compiler!
+MSVC and clang-cl configurations should import automatically.
 
-#### Xcode
+#### Xcode (macOS)
 
 ```sh
-cmake -G Xcode -DCMAKE_BUILD_TYPE=Debug ../urde
+cmake -G Xcode ../urde
 ```
 
 Then open `urde.xcodeproj`
