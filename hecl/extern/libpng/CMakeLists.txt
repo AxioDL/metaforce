@@ -1,4 +1,4 @@
-if(NOT WIN32) # remove when specter/freetype is gone
+if(NOT WIN32 AND NOT APPLe) # remove WIN32 when specter/freetype is gone
 find_library(PNG_LIB NAMES png libpng)
 endif()
 if(NOT PNG_LIB)
