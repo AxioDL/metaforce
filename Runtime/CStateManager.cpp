@@ -519,7 +519,7 @@ void CStateManager::BuildDynamicLightListForWorld() {
     return;
   }
 
-  if (GetLightObjectList().size()) {
+  if (GetLightObjectList().size() == 0) {
     return;
   }
 
