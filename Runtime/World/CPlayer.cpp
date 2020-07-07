@@ -596,7 +596,6 @@ void CPlayer::UpdateMorphBallTransition(float dt, CStateManager& mgr) {
     break;
   case EPlayerMorphBallState::Morphing:
     ClearForcesAndTorques();
-    ClearForcesAndTorques();
     SetAngularVelocityWR(zeus::CAxisAngle());
     if (x574_morphTime >= x578_morphDuration || mgr.GetCameraManager()->IsInCinematicCamera()) {
       if (CanEnterMorphBallState(mgr, 1.f)) {
