@@ -2,7 +2,7 @@
 BasedOnStyle: LLVM
 ColumnLimit: 120
 UseTab: Never
-TabWidth: 4
+TabWidth: 2
 ---
 Language: Cpp
 DerivePointerAlignment: false
@@ -10,11 +10,11 @@ PointerAlignment: Left
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: false
 IndentCaseLabels: false
-AllowShortBlocksOnASingleLine: true
+AllowShortBlocksOnASingleLine: Always
 AlignOperands: true
 AlignTrailingComments: true
 AlwaysBreakBeforeMultilineStrings: true
-AlwaysBreakTemplateDeclarations: true
+AlwaysBreakTemplateDeclarations: Yes
 BreakConstructorInitializersBeforeComma: true
 AlwaysBreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None
