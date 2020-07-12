@@ -23,7 +23,7 @@ class CTryclops : public CPatterned {
   bool x698_25_ : 1 = false;
   bool x698_26_ : 1 = false;
   bool x698_27_dizzy : 1 = false;
-  bool sub8025dbd0(CStateManager&) { return false; }
+  bool sub8025dbd0(CStateManager& mgr);
   void LaunchPlayer(CStateManager& mgr, const zeus::CTransform& xf, float);
   void DragBomb(CStateManager& mgr, const zeus::CTransform& xf);
   void ApplySeparation(CStateManager&);
@@ -37,8 +37,9 @@ class CTryclops : public CPatterned {
 
 public:
   DEFINE_PATTERNED(Tryclops)
-  CTryclops(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
-            const CPatternedInfo&, const CActorParameters&, float, float, float, float);
+  CTryclops(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+            CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float f1, float f2,
+            float f3, float launchSpeed);
 
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;

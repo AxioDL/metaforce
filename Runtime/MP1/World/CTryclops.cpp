@@ -1,6 +1,7 @@
 #include "Runtime/MP1/World/CTryclops.hpp"
 
 #include "Runtime/CStateManager.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Weapon/CBomb.hpp"
 #include "Runtime/World/CGameArea.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
@@ -18,16 +19,16 @@ const CDamageVulnerability CTryclops::skVulnerabilities = CDamageVulnerability(
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::Two);
 
-CTryclops::CTryclops(urde::TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
-                     urde::CModelData&& mData, const urde::CPatternedInfo& pInfo,
-                     const urde::CActorParameters& actParms, float f1, float f2, float f3, float f4)
+CTryclops::CTryclops(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+                     CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float f1,
+                     float f2, float f3, float launchSpeed)
 : CPatterned(ECharacter::Tryclops, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Ground, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Small)
 , x568_pathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x67c_(f1)
 , x680_(std::cos(zeus::degToRad(0.5f * f2)))
 , x684_(f3)
-, x688_launchSpeed(f4) {
+, x688_launchSpeed(launchSpeed) {
   CreateShadow(false);
   MakeThermalColdAndHot();
   x460_knockBackController.SetAutoResetImpulse(false);
@@ -602,6 +603,43 @@ void CTryclops::AttractBomb(CStateManager& mgr, float arg) {
         (GetLctrTransform("ballGrab_locator"sv).origin + zeus::CVector3f(0.f, 0.f, -.3f) - bomb->GetTranslation())
             .normalized());
   }
+}
+
+bool CTryclops::sub8025dbd0(CStateManager& mgr) {
+  const auto result = mgr.RayStaticIntersection(GetLctrTransform("Skeleton_Root").origin, GetTransform().frontVector(),
+                                                3.f, CMaterialFilter::skPassEverything);
+  if (result.IsValid()) {
+    return true;
+  }
+
+  const auto& player = mgr.GetPlayer();
+  const float ballRadius = player.GetMorphBall()->GetBallRadius();
+  constexpr CMaterialList matList{EMaterialTypes::Player, EMaterialTypes::Solid};
+  const CCollidableSphere colSphere{zeus::CSphere{GetTranslation() + zeus::CVector3f{0.f, 0.f, ballRadius}, ballRadius},
+                                    matList};
+  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  mgr.BuildColliderList(nearList, player, colSphere.CalculateLocalAABox());
+  constexpr CMaterialFilter matFilter{
+      {EMaterialTypes::Solid}, {EMaterialTypes::Player}, CMaterialFilter::EFilterType::IncludeExclude};
+  const zeus::CTransform skIdentity4f{}; // TODO move to zeus & make constexpr
+  if (CGameCollision::DetectStaticCollisionBoolean(mgr, colSphere, skIdentity4f, matFilter)) {
+    return true;
+  }
+
+  for (const TUniqueId id : nearList) {
+    if (id == GetUniqueId()) {
+      continue;
+    }
+    if (TCastToConstPtr<CPhysicsActor> actor = mgr.GetObjectById(id)) {
+      if (CCollisionPrimitive::CollideBoolean(
+              {colSphere, matFilter, actor->GetPrimitiveTransform()},
+              {*actor->GetCollisionPrimitive(), CMaterialFilter::skPassEverything, skIdentity4f})) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 } // namespace urde::MP1
