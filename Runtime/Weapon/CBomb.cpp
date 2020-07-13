@@ -22,6 +22,7 @@ CBomb::CBomb(const TCachedToken<CGenDescription>& particle1, const TCachedToken<
               {EMaterialTypes::Projectile, EMaterialTypes::Bomb}),
           {EMaterialTypes::Projectile, EMaterialTypes::Bomb}, dInfo, EProjectileAttrib::Bombs,
           CModelData::CModelDataNull())
+, x170_prevLocation(xf.origin)
 , x17c_fuseTime(f1)
 , x180_particle1(std::make_unique<CElementGen>(particle1, CElementGen::EModelOrientationType::Normal,
                                                CElementGen::EOptionalSystemFlags::One))
