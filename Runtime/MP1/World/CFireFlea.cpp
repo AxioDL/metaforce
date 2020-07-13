@@ -60,7 +60,7 @@ CFireFlea::CFireFlea(TUniqueId uid, std::string_view name, const CEntityInfo& in
 : CPatterned(ECharacter::FireFlea, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::Small)
 , x56c_(f1)
-, xd8c_pathFind(nullptr, 2, pInfo.GetPathfindingIndex(), 1.f, 1.f) {
+, xd8c_pathFind(nullptr, 3, pInfo.GetPathfindingIndex(), 1.f, 1.f) {
   CMaterialFilter filter = GetMaterialFilter();
   filter.ExcludeList().Add(EMaterialTypes::Character);
   SetMaterialFilter(filter);
