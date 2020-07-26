@@ -10,6 +10,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/MP1/CSamusHud.hpp"
 #include "Runtime/MP1/World/CThardusRockProjectile.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CDestroyableRock.hpp"
 #include "Runtime/World/CGameLight.hpp"
@@ -22,6 +23,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 #include <DataSpec/DNAMP1/SFX/IceWorld.h>
+#include <DataSpec/DNAMP1/SFX/Thardus.h>
 namespace urde::MP1 {
 namespace {
 constexpr std::array<SSphereJointInfo, 7> skDamageableSphereJointInfoList1{{
@@ -428,6 +430,44 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
     break;
   }
   case EScriptObjectMessage::Damage: {
+    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+      TUniqueId lastTouchedObj = colAct->GetLastTouchedObject();
+      TUniqueId targetRock = kInvalidUniqueId;
+
+      for (size_t i = 0; i < x5f0_rockColliders->GetNumCollisionActors(); ++i) {
+        const CJointCollisionDescription& desc = x5f0_rockColliders->GetCollisionDescFromIndex(i);
+        if (desc.GetCollisionActorId() == uid) {
+          targetRock = x610_destroyableRocks[i];
+        }
+      }
+
+      if (targetRock == kInvalidUniqueId) {
+        break;
+      }
+      if (CDestroyableRock* rock = static_cast<CDestroyableRock*>(mgr.ObjectById(targetRock))) {
+        if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(lastTouchedObj)) {
+          if (GetBodyController()->GetBodyStateInfo().GetCurrentAdditiveStateId() !=
+                  pas::EAnimationState::AdditiveReaction &&
+              rock->Get_x324() <= 0.f) {
+            GetBodyController()->GetCommandMgr().DeliverCmd(
+                CBCAdditiveReactionCmd(pas::EAdditiveReactionType::Five, 1.f, false));
+          }
+
+          rock->TakeDamage(zeus::skZero3f, 0.f);
+          const bool thermalInactive = mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Thermal;
+          if (thermalInactive || (!thermalInactive && x7c4_ != 3)) {
+            sub801dc444(mgr, proj->GetTranslation(), x6d0_);
+          }
+          if (!rock->IsUsingPhazonModel()) {
+            ProcessSoundEvent(x75c_, 1.f, 0, 0.1f, 1000.f, 0.16f, 1.f, zeus::skZero3f, rock->GetTranslation(),
+                              mgr.GetNextAreaId(), mgr, true);
+          } else {
+            ProcessSoundEvent(SFXsfx0AC0, 1.f, 0, 0.1f, 1000.f, 0.16f, 1.f, zeus::skZero3f, rock->GetTranslation(),
+                              mgr.GetNextAreaId(), mgr, false);
+          }
+        }
+      }
+    }
     break;
   }
   default:
@@ -559,8 +599,8 @@ void CThardus::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 void CThardus::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) { CAi::LoopedAttack(mgr, msg, arg); }
-void CThardus::DoubleSnap(CStateManager& mgr, EStateMsg msg, float arg) { }
-void CThardus::Shuffle(CStateManager& mgr, EStateMsg msg, float arg) {  }
+void CThardus::DoubleSnap(CStateManager& mgr, EStateMsg msg, float arg) {}
+void CThardus::Shuffle(CStateManager& mgr, EStateMsg msg, float arg) {}
 void CThardus::GetUp(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg != EStateMsg::Activate)
     return;
@@ -611,6 +651,7 @@ void CThardus::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
     }
   }
 }
+
 void CThardus::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     for (TUniqueId uid : x798_) {
@@ -782,11 +823,16 @@ bool CThardus::InRange(CStateManager& mgr, float arg) {
   return (mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f()).magnitude() <
          10.f * GetModelData()->GetScale().x();
 }
+
 bool CThardus::PatternOver(CStateManager& mgr, float arg) { return !x574_waypoints.empty() || x93b_; }
 bool CThardus::AnimOver(CStateManager& mgr, float arg) { return x5ec_ == 3; }
-bool CThardus::InPosition(CStateManager& mgr, float arg) { return CPatterned::InPosition(mgr, arg); }
-bool CThardus::ShouldTurn(CStateManager& mgr, float arg) { return CAi::ShouldTurn(mgr, arg); }
-bool CThardus::HitSomething(CStateManager& mgr, float arg) { return CAi::HitSomething(mgr, arg); }
+bool CThardus::InPosition(CStateManager& mgr, float arg) { return x660_repulsors.size() > 3; }
+bool CThardus::ShouldTurn(CStateManager& mgr, float arg) {
+  return std::fabs(zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(),
+                                                 mgr.GetPlayer().GetTranslation().toVec2f() -
+                                                     GetTranslation().toVec2f())) > zeus::degToRad(30.f);
+}
+bool CThardus::HitSomething(CStateManager& mgr, float arg) { return mgr.GetPlayer().GetFrozenState(); }
 
 void CThardus::GatherWaypoints(urde::CScriptWaypoint* wp, urde::CStateManager& mgr,
                                rstl::reserved_vector<TUniqueId, 16>& uids) {

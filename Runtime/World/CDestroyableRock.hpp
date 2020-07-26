@@ -51,6 +51,7 @@ public:
 
   void Think(float dt, CStateManager& mgr) override;
 
+  float Get_x324() const { return x324_; }
   void Set_x32c(float val) { x32c_thermalMag = val; }
   void SetIsCold(bool v) { x334_isCold = v; }
   bool IsUsingPhazonModel() const { return x335_usePhazonModel; }

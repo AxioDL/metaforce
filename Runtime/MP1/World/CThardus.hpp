@@ -149,9 +149,11 @@ class CThardus : public CPatterned {
     }
   }
   void sub801dae2c(CStateManager& mgr, u32 rockIndex);
+
   void sub801dc444(CStateManager& mgr, const zeus::CVector3f& pos, CAssetId particle);
   void sub801dbc5c(CStateManager& mgr, CDestroyableRock* rock);
   void sub801dbbdc(CStateManager& mgr, CDestroyableRock* rock);
+  bool sub801dc2c8() { return (x610_destroyableRocks.size() - 1) > x648_currentRock; }
   void UpdateNonDestroyableCollisionActorMaterials(EUpdateMaterialMode mode, EMaterialTypes mat, CStateManager& mgr);
   void UpdateExcludeList(const std::unique_ptr<CCollisionActorManager>& colMgr, EUpdateMaterialMode mode,
                          EMaterialTypes mat, CStateManager& mgr);
@@ -164,6 +166,10 @@ class CThardus : public CPatterned {
   zeus::CVector3f sub801de434(const CStateManager& mgr) const { return {}; }
 
   std::optional<CTexturedQuadFilter> m_flareFilter;
+
+  void DoDoubleSnap(CStateManager& mgr) {
+    x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "DoubleSnap"sv);
+  }
 
 public:
   DEFINE_PATTERNED(Thardus);
