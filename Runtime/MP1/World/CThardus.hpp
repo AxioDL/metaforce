@@ -23,7 +23,7 @@ class CThardus : public CPatterned {
   TUniqueId x56c_ = kInvalidUniqueId;
   u32 x570_ = 0;
   std::vector<TUniqueId> x574_waypoints;
-  u32 x5c4_ = 1;
+  s32 x5c4_ = 1;
   bool x5c8_heardPlayer = false;
   /* NOTE(phil) These two vectors used to vectors of CModelData, They have been converted to vectors of CStaticRes due
    * to the use of move semantics to prevent deep copies */
@@ -170,6 +170,8 @@ class CThardus : public CPatterned {
   void DoDoubleSnap(CStateManager& mgr) {
     x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "DoubleSnap"sv);
   }
+
+  zeus::CVector2f sub801dac30(CStateManager& mgr) const;
 
 public:
   DEFINE_PATTERNED(Thardus);

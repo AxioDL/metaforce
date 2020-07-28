@@ -430,7 +430,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
     break;
   }
   case EScriptObjectMessage::Damage: {
-    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+    if (TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(uid)) {
       TUniqueId lastTouchedObj = colAct->GetLastTouchedObject();
       TUniqueId targetRock = kInvalidUniqueId;
 
@@ -438,6 +438,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
         const CJointCollisionDescription& desc = x5f0_rockColliders->GetCollisionDescFromIndex(i);
         if (desc.GetCollisionActorId() == uid) {
           targetRock = x610_destroyableRocks[i];
+          break;
         }
       }
 
@@ -455,7 +456,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
 
           rock->TakeDamage(zeus::skZero3f, 0.f);
           const bool thermalInactive = mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Thermal;
-          if (thermalInactive || (!thermalInactive && x7c4_ != 3)) {
+          if (thermalInactive || x7c4_ != 3) {
             sub801dc444(mgr, proj->GetTranslation(), x6d0_);
           }
           if (!rock->IsUsingPhazonModel()) {
@@ -576,6 +577,7 @@ void CThardus::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
     x93d_ = false;
   }
 }
+
 void CThardus::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x5ec_ = 0;
@@ -598,9 +600,44 @@ void CThardus::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
     }
   }
 }
-void CThardus::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) { CAi::LoopedAttack(mgr, msg, arg); }
+void CThardus::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x658_ = 0;
+    // x660_repulsors TODO(phil): Determine I have the type correct
+    x570_ = 0;
+    // x574_ TODO(phil): Determine I have the type correct
+    sub801dec80();
+    x93b_ = false;
+    x5c4_ = -1;
+  } else if (msg == EStateMsg::Update) {
+    const zeus::CVector3f thisPos = GetTranslation();
+    if (x658_ == 1) {
+      const zeus::CVector3f offset = thisPos + {0.f, 0.f, 10.f};
+      CRayCastResult result = mgr.RayStaticIntersection(
+          offset, zeus::CQuaternion(GetTransform().buildMatrix3f()).toTransform() * {0.f, 1.f, 0.f}, 100.f,
+          CMaterialFilter::MakeInclude({EMaterialTypes::Wall, EMaterialTypes::Floor, EMaterialTypes::Ceiling}));
+      if (result.IsValid()) {
+        zeus::CVector2f vec = sub801dac30(mgr);
+        if (vec != zeus::skZero2f) {
+          x650_ = vec;
+        } else {
+          x8d8_ = result.GetPoint();
+          x8e4_ = offset;
+          if ((result.GetPoint() - offset).magnitude() < 20.f) {
+            x658_ = 2;
+            x8d4_ = true;
+          }
+        }
+      }
+    } else {
+    }
+  }
+}
+
 void CThardus::DoubleSnap(CStateManager& mgr, EStateMsg msg, float arg) {}
+
 void CThardus::Shuffle(CStateManager& mgr, EStateMsg msg, float arg) {}
+
 void CThardus::GetUp(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg != EStateMsg::Activate)
     return;
@@ -631,6 +668,7 @@ void CThardus::Suck(CStateManager& mgr, EStateMsg msg, float arg) {
     x689_ = true;
   }
 }
+
 void CThardus::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x5ec_ = 0;
@@ -698,6 +736,7 @@ void CThardus::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
     }
   }
 }
+
 void CThardus::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x5ec_ = 0;
@@ -714,6 +753,7 @@ void CThardus::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float arg) {
     }
   }
 }
+
 void CThardus::Explode(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x5ec_ = 0;
@@ -740,6 +780,7 @@ void CThardus::Explode(CStateManager& mgr, EStateMsg msg, float arg) {
     x93d_ = false;
   }
 }
+
 void CThardus::Cover(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     SetState(1, mgr);
@@ -752,6 +793,7 @@ void CThardus::Cover(CStateManager& mgr, EStateMsg msg, float arg) {
     x690_ = 1.f;
   }
 }
+
 void CThardus::Enraged(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x5ec_ = 0;
@@ -772,6 +814,7 @@ void CThardus::Enraged(CStateManager& mgr, EStateMsg msg, float arg) {
     x908_ = false;
   }
 }
+
 void CThardus::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x5ec_ = 0;
@@ -795,6 +838,7 @@ void CThardus::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
     }
   }
 }
+
 void CThardus::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x5ec_ = 0;
@@ -1069,4 +1113,5 @@ zeus::CVector3f CThardus::sub801de550(const CStateManager& mgr) const {
 
   return {};
 }
+zeus::CVector2f CThardus::sub801dac30(CStateManager& mgr) const { return {}; }
 } // namespace urde::MP1
