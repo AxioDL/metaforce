@@ -215,10 +215,10 @@ void CCinematicCamera::Think(float dt, CStateManager& mgr) {
 
     x1ec_t += dt;
     if (x1ec_t > x1e8_duration) {
-      for (size_t i = x1f4_passedViewPoint + 1; i < x1a8_viewPointArrivals.size(); ++i) {
+      for (auto i = static_cast<size_t>(x1f4_passedViewPoint) + 1; i < x1a8_viewPointArrivals.size(); ++i) {
         SendArrivedMsg(x1a8_viewPointArrivals[i], mgr);
       }
-      for (size_t i = x1f8_passedTarget + 1; i < x1c8_targetArrivals.size(); ++i) {
+      for (auto i = static_cast<size_t>(x1f8_passedTarget) + 1; i < x1c8_targetArrivals.size(); ++i) {
         SendArrivedMsg(x1c8_targetArrivals[i], mgr);
       }
       DeactivateSelf(mgr);
@@ -306,7 +306,7 @@ void CCinematicCamera::CalculateMoveOutofIntoEyePosition(bool outOfEye, CStateMa
     behindDelta = -behindDelta;
   }
 
-  for (int i = 0; i < 2; ++i) {
+  for (size_t i = 0; i < 2; ++i) {
     x188_viewPoints[outOfEye ? i : x188_viewPoints.size() - (2 - i)] = behindPos;
     x198_viewOrientations[outOfEye ? i : x198_viewOrientations.size() - (2 - i)] = q;
     x1b8_targets[outOfEye ? i : x1b8_targets.size() - (2 - i)] = eyePos;
