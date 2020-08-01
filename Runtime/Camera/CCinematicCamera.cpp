@@ -48,49 +48,49 @@ void CCinematicCamera::WasDeactivated(CStateManager& mgr) {
 
 zeus::CVector3f CCinematicCamera::GetInterpolatedSplinePoint(const std::vector<zeus::CVector3f>& points, int& idxOut,
                                                              float tin) const {
-  if (points.size() > 0) {
-    const float cycleT = std::fmod(tin, x1e8_duration);
-    const float durPerPoint = x1e8_duration / float(points.size() - 1);
-    idxOut = int(cycleT / durPerPoint);
-    const float t = (cycleT - float(idxOut) * durPerPoint) / durPerPoint;
-
-    if (points.size() == 1) {
-      return points.front();
-    }
-    if (points.size() == 2) {
-      return (points[1] - points[0]) * t + points[0];
-    }
-
-    zeus::CVector3f ptA;
-    if (idxOut > 0) {
-      ptA = points[idxOut - 1];
-    } else {
-      ptA = points[0] - (points[1] - points[0]);
-    }
-
-    const zeus::CVector3f ptB = points[idxOut];
-    zeus::CVector3f ptC;
-    if (size_t(idxOut + 1) >= points.size()) {
-      const zeus::CVector3f& tmpA = points[points.size() - 1];
-      const zeus::CVector3f& tmpB = points[points.size() - 2];
-      ptC = tmpA - (tmpB - tmpA);
-    } else {
-      ptC = points[idxOut + 1];
-    }
-
-    zeus::CVector3f ptD;
-    if (size_t(idxOut + 2) >= points.size()) {
-      const zeus::CVector3f& tmpA = points[points.size() - 1];
-      const zeus::CVector3f& tmpB = points[points.size() - 2];
-      ptD = tmpA - (tmpB - tmpA);
-    } else {
-      ptD = points[idxOut + 2];
-    }
-
-    return zeus::getCatmullRomSplinePoint(ptA, ptB, ptC, ptD, t);
+  if (points.empty()) {
+    return {};
   }
 
-  return {};
+  const float cycleT = std::fmod(tin, x1e8_duration);
+  const float durPerPoint = x1e8_duration / float(points.size() - 1);
+  idxOut = int(cycleT / durPerPoint);
+  const float t = (cycleT - float(idxOut) * durPerPoint) / durPerPoint;
+
+  if (points.size() == 1) {
+    return points.front();
+  }
+  if (points.size() == 2) {
+    return (points[1] - points[0]) * t + points[0];
+  }
+
+  zeus::CVector3f ptA;
+  if (idxOut > 0) {
+    ptA = points[idxOut - 1];
+  } else {
+    ptA = points[0] - (points[1] - points[0]);
+  }
+
+  const zeus::CVector3f ptB = points[idxOut];
+  zeus::CVector3f ptC;
+  if (size_t(idxOut + 1) >= points.size()) {
+    const zeus::CVector3f& tmpA = points[points.size() - 1];
+    const zeus::CVector3f& tmpB = points[points.size() - 2];
+    ptC = tmpA - (tmpB - tmpA);
+  } else {
+    ptC = points[idxOut + 1];
+  }
+
+  zeus::CVector3f ptD;
+  if (size_t(idxOut + 2) >= points.size()) {
+    const zeus::CVector3f& tmpA = points[points.size() - 1];
+    const zeus::CVector3f& tmpB = points[points.size() - 2];
+    ptD = tmpA - (tmpB - tmpA);
+  } else {
+    ptD = points[idxOut + 2];
+  }
+
+  return zeus::getCatmullRomSplinePoint(ptA, ptB, ptC, ptD, t);
 }
 
 zeus::CQuaternion CCinematicCamera::GetInterpolatedOrientation(const std::vector<zeus::CQuaternion>& rotations,
