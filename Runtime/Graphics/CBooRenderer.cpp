@@ -1144,7 +1144,7 @@ void CBooRenderer::DrawXRayOutline(const zeus::CAABox& aabb) {
 
       for (u32 c = 0; c < item.x4_octTree->x14_bitmapWordCount; ++c) {
         for (u32 b = 0; b < 32; ++b) {
-          if (bitmap[c] & (1 << b)) {
+          if ((bitmap[c] & (1U << b)) != 0) {
             CBooModel* model = item.x10_models[c * 32 + b];
             model->UpdateUniformData(flags, nullptr, nullptr);
             const CBooSurface* surf = model->x38_firstUnsortedSurface;
@@ -1311,13 +1311,14 @@ void CBooRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const
     u32 wordModel = 0;
     for (u32 i = 0; i < item.x4_octTree->x14_bitmapWordCount; ++i, wordModel += 32) {
       u32& word = modelBits[curWord + i];
-      if (!word)
+      if (word == 0) {
         continue;
-      for (int j = 0; j < 32; ++j) {
-        if ((1 << j) & word) {
+      }
+      for (u32 j = 0; j < 32; ++j) {
+        if (((1U << j) & word) != 0) {
           const zeus::CAABox& modelAABB = item.x10_models[wordModel + j]->x20_aabb;
           if (!modelAABB.intersects(aabb))
-            word &= ~(1 << j);
+            word &= ~(1U << j);
         }
       }
     }
@@ -1343,14 +1344,16 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
     u32 wordModel = 0;
     for (u32 i = 0; i < item.x4_octTree->x14_bitmapWordCount; ++i, wordModel += 32) {
       const u32& word = modelBits[curWord + i];
-      if (!word)
+      if (word == 0) {
         continue;
-      for (int j = 0; j < 32; ++j) {
-        if ((1 << j) & word) {
-          if (alphaVal > 255)
+      }
+      for (u32 j = 0; j < 32; ++j) {
+        if (((1U << j) & word) != 0) {
+          if (alphaVal > 255) {
             return alphaVal;
+          }
 
-          flags.x4_color.a() = alphaVal / 255.f;
+          flags.x4_color.a() = static_cast<float>(alphaVal) / 255.f;
           CBooModel& model = *item.x10_models[wordModel + j];
           model.UpdateUniformData(flags, nullptr, nullptr, 3);
           model.VerifyCurrentShader(0);
@@ -1388,14 +1391,16 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
     u32 wordModel = 0;
     for (u32 i = 0; i < item.x4_octTree->x14_bitmapWordCount; ++i, wordModel += 32) {
       const u32& word = modelBits[curWord + i];
-      if (!word)
+      if (word == 0) {
         continue;
-      for (int j = 0; j < 32; ++j) {
-        if ((1 << j) & word) {
-          if (alphaVal > 255)
+      }
+      for (u32 j = 0; j < 32; ++j) {
+        if (((1U << j) & word) != 0) {
+          if (alphaVal > 255) {
             return;
+          }
 
-          flags.x4_color.r() = alphaVal / 255.f;
+          flags.x4_color.r() = static_cast<float>(alphaVal) / 255.f;
           CBooModel& model = *item.x10_models[wordModel + j];
           model.UpdateUniformData(flags, nullptr, nullptr, 2);
           model.VerifyCurrentShader(0);
