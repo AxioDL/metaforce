@@ -35,7 +35,7 @@ class CCollidableOBBTree : public CCollisionPrimitive {
   u32 x14_tries = 0;
   u32 x18_misses = 0;
   u32 x1c_hits = 0;
-  static u32 sTableIndex;
+  static inline u32 sTableIndex = 0;
   bool LineIntersectsLeaf(const COBBTree::CLeafData& leaf, CRayCastInfo& info) const;
   bool LineIntersectsOBBTree(const COBBTree::CNode& n0, const COBBTree::CNode& n1, CRayCastInfo& info) const;
   bool LineIntersectsOBBTree(const COBBTree::CNode& node, CRayCastInfo& info) const;

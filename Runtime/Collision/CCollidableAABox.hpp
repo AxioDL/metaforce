@@ -12,7 +12,7 @@ bool AABox_AABox_Bool(const CInternalCollisionStructure&);
 } // namespace Collide
 
 class CCollidableAABox : public CCollisionPrimitive {
-  static u32 sTableIndex;
+  static inline u32 sTableIndex = UINT32_MAX;
 
   zeus::CAABox x10_aabox;
 

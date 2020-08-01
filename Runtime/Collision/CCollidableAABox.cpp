@@ -7,7 +7,6 @@
 
 namespace urde {
 constexpr CCollisionPrimitive::Type sType(CCollidableAABox::SetStaticTableIndex, "CCollidableAABox");
-u32 CCollidableAABox::sTableIndex = -1;
 
 CCollidableAABox::CCollidableAABox() = default;
 

@@ -24,7 +24,7 @@ public:
 };
 
 class CCollidableOBBTreeGroup : public CCollisionPrimitive {
-  static u32 sTableIndex;
+  static inline u32 sTableIndex = UINT32_MAX;
   const CCollidableOBBTreeGroupContainer* x10_container;
 
 public:

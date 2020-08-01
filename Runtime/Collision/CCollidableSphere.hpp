@@ -14,7 +14,7 @@ bool Sphere_Sphere_Bool(const CInternalCollisionStructure&);
 } // namespace Collide
 
 class CCollidableSphere : public CCollisionPrimitive {
-  static u32 sTableIndex;
+  static inline u32 sTableIndex = UINT32_MAX;
 
   zeus::CSphere x10_sphere;
 
