@@ -8,20 +8,6 @@
 
 namespace urde {
 
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_texAlpha;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_texAdditive;
-
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_noTexAlpha;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_noTexAdditive;
-
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_texAlphaZ;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_texAdditiveZ;
-
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_noTexAlphaZ;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_noTexAdditiveZ;
-
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_noTexAlphaZGEqual;
-
 void CLineRendererShaders::Initialize() {
   CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx) {
     m_texAlpha = {hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAlpha{}),
