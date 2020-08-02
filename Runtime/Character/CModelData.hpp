@@ -92,7 +92,7 @@ public:
 
   SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
   void Render(const CStateManager& stateMgr, const zeus::CTransform& xf, const CActorLights* lights,
-              const CModelFlags& drawFlags) const;
+              const CModelFlags& drawFlags);
   bool IsLoaded(int shaderIdx) const;
   static EWhichModel GetRenderingModel(const CStateManager& stateMgr);
   CSkinnedModel& PickAnimatedModel(EWhichModel which) const;
@@ -122,8 +122,8 @@ public:
   void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
                      const CModelFlags& flags) const;
   void RenderUnsortedParts(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights,
-                           const CModelFlags& drawFlags) const;
-  void Render(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights, const CModelFlags& drawFlags) const;
+                           const CModelFlags& drawFlags);
+  void Render(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights, const CModelFlags& drawFlags);
 
   void InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
                    const zeus::CColor& color0, const zeus::CColor& color1);

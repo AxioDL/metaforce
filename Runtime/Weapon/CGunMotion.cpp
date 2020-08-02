@@ -81,7 +81,7 @@ void CGunMotion::Update(float dt, CStateManager& mgr) {
     xb8_24_animPlaying = false;
 }
 
-void CGunMotion::Draw(const CStateManager& mgr, const zeus::CTransform& xf) const {
+void CGunMotion::Draw(const CStateManager& mgr, const zeus::CTransform& xf) {
   constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
   x0_modelData.Render(mgr, xf, nullptr, flags);
 }

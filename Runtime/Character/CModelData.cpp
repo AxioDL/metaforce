@@ -46,7 +46,7 @@ SAdvancementDeltas CModelData::GetAdvancementDeltas(const CCharAnimTime& a, cons
 }
 
 void CModelData::Render(const CStateManager& stateMgr, const zeus::CTransform& xf, const CActorLights* lights,
-                        const CModelFlags& drawFlags) const {
+                        const CModelFlags& drawFlags) {
   Render(GetRenderingModel(stateMgr), xf, lights, drawFlags);
 }
 
@@ -284,7 +284,7 @@ void CModelData::Touch(EWhichModel which, int shaderIdx) const {
 }
 
 void CModelData::Touch(const CStateManager& stateMgr, int shaderIdx) const {
-  Touch(const_cast<CModelData&>(*this).GetRenderingModel(stateMgr), shaderIdx);
+  Touch(GetRenderingModel(stateMgr), shaderIdx);
 }
 
 void CModelData::RenderThermal(const zeus::CColor& mulColor, const zeus::CColor& addColor,
@@ -312,10 +312,10 @@ void CModelData::RenderThermal(const zeus::CTransform& xf, const zeus::CColor& m
 }
 
 void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
-                                     const CModelFlags& drawFlags) const {
+                                     const CModelFlags& drawFlags) {
   if ((x14_25_sortThermal && which == EWhichModel::ThermalHot) || x10_animData || !x1c_normalModel ||
       drawFlags.x0_blendMode > 4) {
-    const_cast<CModelData*>(this)->x14_24_renderSorted = false;
+    x14_24_renderSorted = false;
     return;
   }
 
@@ -333,11 +333,11 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
   model->DrawNormal(drawFlags, nullptr, nullptr);
   // Set ambient to white
   CGraphics::DisableAllLights();
-  const_cast<CModelData*>(this)->x14_24_renderSorted = true;
+  x14_24_renderSorted = true;
 }
 
 void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
-                        const CModelFlags& drawFlags) const {
+                        const CModelFlags& drawFlags) {
   if (x14_25_sortThermal && which == EWhichModel::ThermalHot) {
     zeus::CColor mul(drawFlags.x4_color.a(), drawFlags.x4_color.a());
     RenderThermal(xf, mul, {0.f, 0.f, 0.f, 0.25f}, drawFlags);
@@ -373,7 +373,7 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CAc
 
     // Set ambient to white
     CGraphics::DisableAllLights();
-    const_cast<CModelData*>(this)->x14_24_renderSorted = false;
+    x14_24_renderSorted = false;
   }
 }
 

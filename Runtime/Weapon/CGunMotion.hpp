@@ -31,7 +31,7 @@ public:
   void BasePosition(bool bigStrikeReset);
   void EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 parm2);
   void Update(float dt, CStateManager& mgr);
-  void Draw(const CStateManager& mgr, const zeus::CTransform& xf) const;
+  void Draw(const CStateManager& mgr, const zeus::CTransform& xf);
   s32 GetFreeLookSetId() const { return x4c_gunController.GetFreeLookSetId(); }
   CGunController& GunController() { return x4c_gunController; }
   bool IsAnimPlaying() const { return xb8_24_animPlaying; }

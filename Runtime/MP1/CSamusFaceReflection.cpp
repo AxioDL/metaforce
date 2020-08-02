@@ -31,7 +31,7 @@ void CSamusFaceReflection::PreDraw(const CStateManager& mgr) {
   }
 }
 
-void CSamusFaceReflection::Draw(const CStateManager& mgr) const {
+void CSamusFaceReflection::Draw(const CStateManager& mgr) {
   if (x70_hidden)
     return;
 
