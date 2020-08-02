@@ -448,15 +448,15 @@ zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* 
     return {};
   }
 
-  zeus::CTransform ret;
   if (time || !x220_31_poseCached) {
     const_cast<CAnimData*>(this)->RecalcPoseBuilder(time);
     const_cast<CAnimData*>(this)->x220_31_poseCached = time == nullptr;
   }
 
-  if (!x220_30_poseBuilt)
+  zeus::CTransform ret;
+  if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildTransform(id, ret);
-  else {
+  } else {
     ret.setRotation(x224_pose.GetTransformMinusOffset(id));
     ret.origin = x224_pose.GetOffset(id);
   }
