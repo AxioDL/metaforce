@@ -184,14 +184,14 @@ private:
   void WarmupDrawSurfaces() const;
   void WarmupDrawSurface(const CBooSurface& surf) const;
 
-  static zeus::CVector3f g_PlayerPosition;
-  static float g_ModSeconds;
-  static float g_TransformedTime;
-  static float g_TransformedTime2;
-  static CBooModel* g_LastModelCached;
+  static inline zeus::CVector3f g_PlayerPosition;
+  static inline float g_ModSeconds = 0.0f;
+  static inline float g_TransformedTime = 0.0f;
+  static inline float g_TransformedTime2 = 0.0f;
+  static inline CBooModel* g_LastModelCached = nullptr;
 
-  static bool g_DummyTextures;
-  static bool g_RenderModelBlack;
+  static inline bool g_DummyTextures = false;
+  static inline bool g_RenderModelBlack = false;
 
 public:
   ~CBooModel();
@@ -230,25 +230,25 @@ public:
   void ClearUniformCounter() { m_uniUpdateCount = 0; }
   static void ClearModelUniformCounters();
 
-  static bool g_DrawingOccluders;
+  static inline bool g_DrawingOccluders = false;
   static void SetDrawingOccluders(bool occ) { g_DrawingOccluders = occ; }
 
   static void SetNewPlayerPositionAndTime(const zeus::CVector3f& pos);
 
-  static zeus::CVector3f g_ReflectViewPos;
+  static inline zeus::CVector3f g_ReflectViewPos;
   static void KillCachedViewDepState();
   static void EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf, zeus::CMatrix4f* mtxsOut,
                                        float& alphaOut);
 
-  static boo::ObjToken<boo::ITexture> g_shadowMap;
-  static zeus::CTransform g_shadowTexXf;
+  static inline boo::ObjToken<boo::ITexture> g_shadowMap;
+  static inline zeus::CTransform g_shadowTexXf;
   static void EnableShadowMaps(const boo::ObjToken<boo::ITexture>& map, const zeus::CTransform& texXf);
   static void DisableShadowMaps();
 
-  static boo::ObjToken<boo::ITexture> g_disintegrateTexture;
+  static inline boo::ObjToken<boo::ITexture> g_disintegrateTexture;
   static void SetDisintegrateTexture(const boo::ObjToken<boo::ITexture>& map) { g_disintegrateTexture = map; }
 
-  static boo::ObjToken<boo::ITextureCubeR> g_reflectionCube;
+  static inline boo::ObjToken<boo::ITextureCubeR> g_reflectionCube;
   static void SetReflectionCube(const boo::ObjToken<boo::ITextureCubeR>& map) { g_reflectionCube = map; }
 
   static void SetDummyTextures(bool b) { g_DummyTextures = b; }

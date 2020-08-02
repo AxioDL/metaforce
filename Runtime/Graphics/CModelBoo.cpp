@@ -43,8 +43,6 @@ constexpr zeus::CMatrix4f DisintegratePost{
 };
 } // Anonymous namespace
 
-bool CBooModel::g_DrawingOccluders = false;
-
 void CBooModel::Shutdown() {
   g_shadowMap.reset();
   g_disintegrateTexture.reset();
@@ -57,10 +55,6 @@ void CBooModel::ClearModelUniformCounters() {
     model->ClearUniformCounter();
 }
 
-zeus::CVector3f CBooModel::g_PlayerPosition = {};
-float CBooModel::g_ModSeconds = 0.f;
-float CBooModel::g_TransformedTime = 0.f;
-float CBooModel::g_TransformedTime2 = 0.f;
 void CBooModel::SetNewPlayerPositionAndTime(const zeus::CVector3f& pos) {
   g_PlayerPosition = pos;
   KillCachedViewDepState();
@@ -73,13 +67,7 @@ void CBooModel::SetNewPlayerPositionAndTime(const zeus::CVector3f& pos) {
   g_TransformedTime2 = 1.f / -(0.015f * std::sin(g_ModSeconds * 1.5f + 1.f) - 1.f);
 }
 
-CBooModel* CBooModel::g_LastModelCached = nullptr;
 void CBooModel::KillCachedViewDepState() { g_LastModelCached = nullptr; }
-
-bool CBooModel::g_DummyTextures = false;
-bool CBooModel::g_RenderModelBlack = false;
-
-zeus::CVector3f CBooModel::g_ReflectViewPos = {};
 
 void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf, zeus::CMatrix4f* mtxsOut,
                                          float& alphaOut) {
@@ -145,11 +133,6 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
     }
   }
 }
-
-boo::ObjToken<boo::ITexture> CBooModel::g_shadowMap;
-zeus::CTransform CBooModel::g_shadowTexXf;
-boo::ObjToken<boo::ITexture> CBooModel::g_disintegrateTexture;
-boo::ObjToken<boo::ITextureCubeR> CBooModel::g_reflectionCube;
 
 void CBooModel::EnableShadowMaps(const boo::ObjToken<boo::ITexture>& map, const zeus::CTransform& texXf) {
   g_shadowMap = map;
