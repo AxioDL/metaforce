@@ -128,7 +128,7 @@ void CFireFlea::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-zeus::CVector3f CFireFlea::FindSafeRoute(CStateManager& mgr, const zeus::CVector3f& forward) {
+zeus::CVector3f CFireFlea::FindSafeRoute(CStateManager& mgr, const zeus::CVector3f& forward) const {
   const float mag = forward.magnitude();
   if (mag <= 0.f) {
     return {};
@@ -171,11 +171,11 @@ zeus::CVector3f CFireFlea::FindSafeRoute(CStateManager& mgr, const zeus::CVector
   return -forward;
 }
 
-bool CFireFlea::CheckNearWater(const CStateManager& mgr, const zeus::CVector3f& dir) {
+bool CFireFlea::CheckNearWater(const CStateManager& mgr, const zeus::CVector3f& dir) const {
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   mgr.BuildNearList(nearList, GetTranslation(), dir, 2.f, CMaterialFilter::skPassEverything, nullptr);
 
-  for (TUniqueId id : nearList) {
+  for (const TUniqueId id : nearList) {
     if (TCastToConstPtr<CScriptWater>(mgr.GetObjectById(id)))
       return true;
   }
