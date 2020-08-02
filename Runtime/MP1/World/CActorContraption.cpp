@@ -83,21 +83,22 @@ void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, const CInt32POI
 }
 
 CFlameThrower* MP1::CActorContraption::CreateFlameThrower(std::string_view name, CStateManager& mgr) {
-  auto it = std::find_if(x2e8_children.begin(), x2e8_children.end(),
-                         [&name](const std::pair<TUniqueId, std::string>& p) { return p.second == name; });
+  const auto it = std::find_if(x2e8_children.cbegin(), x2e8_children.cend(),
+                               [&name](const auto& p) { return p.second == name; });
 
-  if (it == x2e8_children.end()) {
-    TUniqueId id = mgr.AllocateUniqueId();
-    CFlameInfo flameInfo(6, 6, x308_flameFxId, 20, 0.5f, 1.f, 1.f);
-    CFlameThrower* ret = new CFlameThrower(x300_flameThrowerGen, name, EWeaponType::Missile, flameInfo,
-                                           zeus::CTransform(), EMaterialTypes::CollisionActor, x30c_dInfo, id,
-                                           GetAreaId(), GetUniqueId(), EProjectileAttrib::None, -1, -1, -1);
-
-    x2e8_children.emplace_back(id, name);
-
-    mgr.AddObject(ret);
-    return ret;
+  if (it != x2e8_children.cend()) {
+    return static_cast<CFlameThrower*>(mgr.ObjectById(it->first));
   }
-  return static_cast<CFlameThrower*>(mgr.ObjectById(it->first));
+
+  const TUniqueId id = mgr.AllocateUniqueId();
+  const CFlameInfo flameInfo(6, 6, x308_flameFxId, 20, 0.5f, 1.f, 1.f);
+  auto* ret = new CFlameThrower(x300_flameThrowerGen, name, EWeaponType::Missile, flameInfo, zeus::CTransform(),
+                                EMaterialTypes::CollisionActor, x30c_dInfo, id, GetAreaId(), GetUniqueId(),
+                                EProjectileAttrib::None, -1, -1, -1);
+
+  x2e8_children.emplace_back(id, name);
+
+  mgr.AddObject(ret);
+  return ret;
 }
 } // namespace urde
