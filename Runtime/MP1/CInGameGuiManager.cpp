@@ -23,23 +23,24 @@
 namespace urde::MP1 {
 
 constexpr std::array InGameGuiDGRPs{
-    "InGameGui_DGRP",      "Ice_DGRP",         "Phazon_DGRP",   "Plasma_DGRP",      "Power_DGRP",     "Wave_DGRP",
-    "BallTransition_DGRP", "GravitySuit_DGRP", "Ice_Anim_DGRP", "Plasma_Anim_DGRP", "PowerSuit_DGRP", "Power_Anim_DGRP",
-    "VariaSuit_DGRP",      "Wave_Anim_DGRP",
+    "InGameGui_DGRP"sv, "Ice_DGRP"sv,         "Phazon_DGRP"sv,         "Plasma_DGRP"sv,
+    "Power_DGRP"sv,     "Wave_DGRP"sv,        "BallTransition_DGRP"sv, "GravitySuit_DGRP"sv,
+    "Ice_Anim_DGRP"sv,  "Plasma_Anim_DGRP"sv, "PowerSuit_DGRP"sv,      "Power_Anim_DGRP"sv,
+    "VariaSuit_DGRP"sv, "Wave_Anim_DGRP"sv,
 };
 
 constexpr std::array PauseScreenDGRPs{
-    "InventorySuitPower_DGRP",         "InventorySuitVaria_DGRP",        "InventorySuitGravity_DGRP",
-    "InventorySuitPhazon_DGRP",        "InventorySuitFusionPower_DGRP",  "InventorySuitFusionVaria_DGRP",
-    "InventorySuitFusionGravity_DGRP", "InventorySuitFusionPhazon_DGRP", "SamusBallANCS_DGRP",
-    "SamusSpiderBallANCS_DGRP",        "PauseScreenDontDump_DGRP",       "PauseScreenDontDump_NoARAM_DGRP",
-    "PauseScreenTokens_DGRP",
+    "InventorySuitPower_DGRP"sv,         "InventorySuitVaria_DGRP"sv,        "InventorySuitGravity_DGRP"sv,
+    "InventorySuitPhazon_DGRP"sv,        "InventorySuitFusionPower_DGRP"sv,  "InventorySuitFusionVaria_DGRP"sv,
+    "InventorySuitFusionGravity_DGRP"sv, "InventorySuitFusionPhazon_DGRP"sv, "SamusBallANCS_DGRP"sv,
+    "SamusSpiderBallANCS_DGRP"sv,        "PauseScreenDontDump_DGRP"sv,       "PauseScreenDontDump_NoARAM_DGRP"sv,
+    "PauseScreenTokens_DGRP"sv,
 };
 
 std::vector<TLockedToken<CDependencyGroup>> CInGameGuiManager::LockPauseScreenDependencies() {
   std::vector<TLockedToken<CDependencyGroup>> ret;
   ret.reserve(PauseScreenDGRPs.size());
-  for (const char* const dgrp : PauseScreenDGRPs) {
+  for (const auto& dgrp : PauseScreenDGRPs) {
     ret.emplace_back(g_SimplePool->GetObj(dgrp));
   }
   return ret;
@@ -188,7 +189,7 @@ CInGameGuiManager::CInGameGuiManager(CStateManager& stateMgr, CArchitectureQueue
   x1f4_visorStaticAlpha = stateMgr.GetPlayer().GetVisorStaticAlpha();
 
   xc8_inGameGuiDGRPs.reserve(InGameGuiDGRPs.size());
-  for (const char* const dgrp : InGameGuiDGRPs) {
+  for (const auto& dgrp : InGameGuiDGRPs) {
     xc8_inGameGuiDGRPs.emplace_back(g_SimplePool->GetObj(dgrp));
   }
 }
