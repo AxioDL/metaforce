@@ -348,25 +348,26 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
   SMoveObjectResult result;
 
   if (!applyJump) {
-    SMovementOptions opts;
-    opts.x0_setWaterLandingForce = false;
-    opts.x4_waterLandingForceCoefficient = 0.f;
-    opts.x8_minimumWaterLandingForce = 0.f;
-    opts.xc_anyZThreshold = 0.37f;
-    opts.x10_downwardZThreshold = 0.25f;
-    opts.x14_waterLandingVelocityReduction = 0.f;
-    opts.x18_dampForceAndMomentum = true;
-    opts.x19_alwaysClip = false;
-    opts.x1a_disableClipForFloorOnly = noJump;
-    opts.x1c_maxCollisionCycles = 4;
-    opts.x20_minimumTranslationDelta = 0.002f;
-    opts.x24_dampedNormalCoefficient = 0.f;
-    opts.x28_dampedDeltaCoefficient = 1.f;
-    opts.x2c_floorElasticForce = 0.f;
-    opts.x30_wallElasticConstant = 0.02f;
-    opts.x3c_floorPlaneNormal = player.GetLastFloorPlaneNormal();
-    opts.x34_wallElasticLinear = 0.2f;
-    opts.x38_maxPositiveVerticalVelocity = player.GetMaximumPlayerPositiveVerticalVelocity(mgr);
+    const SMovementOptions opts{
+        .x0_setWaterLandingForce = false,
+        .x4_waterLandingForceCoefficient = 0.f,
+        .x8_minimumWaterLandingForce = 0.f,
+        .xc_anyZThreshold = 0.37f,
+        .x10_downwardZThreshold = 0.25f,
+        .x14_waterLandingVelocityReduction = 0.f,
+        .x18_dampForceAndMomentum = true,
+        .x19_alwaysClip = false,
+        .x1a_disableClipForFloorOnly = noJump,
+        .x1c_maxCollisionCycles = 4,
+        .x20_minimumTranslationDelta = 0.002f,
+        .x24_dampedNormalCoefficient = 0.f,
+        .x28_dampedDeltaCoefficient = 1.f,
+        .x2c_floorElasticForce = 0.f,
+        .x30_wallElasticConstant = 0.02f,
+        .x34_wallElasticLinear = 0.2f,
+        .x38_maxPositiveVerticalVelocity = player.GetMaximumPlayerPositiveVerticalVelocity(mgr),
+        .x3c_floorPlaneNormal = player.GetLastFloorPlaneNormal(),
+    };
 
     if (noJump) {
       zeus::CVector3f vel = player.GetVelocity();
@@ -473,24 +474,25 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
       }
     }
   } else {
-    SMovementOptions opts;
-    opts.x0_setWaterLandingForce = true;
-    opts.x4_waterLandingForceCoefficient = dampUnderwater ? 35.f : 1.f;
-    opts.x8_minimumWaterLandingForce = dampUnderwater ? 5.f : 0.f;
-    opts.xc_anyZThreshold = dampUnderwater ? 0.05f : 0.37f;
-    opts.x10_downwardZThreshold = dampUnderwater ? 0.01f : 0.25f;
-    opts.x14_waterLandingVelocityReduction = dampUnderwater ? 0.2f : 0.f;
-    opts.x18_dampForceAndMomentum = false;
-    opts.x19_alwaysClip = false;
-    opts.x1a_disableClipForFloorOnly = false;
-    opts.x1c_maxCollisionCycles = 4;
-    opts.x20_minimumTranslationDelta = 0.002f;
-    opts.x24_dampedNormalCoefficient = 0.f;
-    opts.x28_dampedDeltaCoefficient = 1.f;
-    opts.x2c_floorElasticForce = 0.1f;
-    opts.x30_wallElasticConstant = 0.2f;
-    opts.x3c_floorPlaneNormal = player.GetLastFloorPlaneNormal();
-    opts.x38_maxPositiveVerticalVelocity = player.GetMaximumPlayerPositiveVerticalVelocity(mgr);
+    const SMovementOptions opts{
+        .x0_setWaterLandingForce = true,
+        .x4_waterLandingForceCoefficient = dampUnderwater ? 35.f : 1.f,
+        .x8_minimumWaterLandingForce = dampUnderwater ? 5.f : 0.f,
+        .xc_anyZThreshold = dampUnderwater ? 0.05f : 0.37f,
+        .x10_downwardZThreshold = dampUnderwater ? 0.01f : 0.25f,
+        .x14_waterLandingVelocityReduction = dampUnderwater ? 0.2f : 0.f,
+        .x18_dampForceAndMomentum = false,
+        .x19_alwaysClip = false,
+        .x1a_disableClipForFloorOnly = false,
+        .x1c_maxCollisionCycles = 4,
+        .x20_minimumTranslationDelta = 0.002f,
+        .x24_dampedNormalCoefficient = 0.f,
+        .x28_dampedDeltaCoefficient = 1.f,
+        .x2c_floorElasticForce = 0.1f,
+        .x30_wallElasticConstant = 0.2f,
+        .x38_maxPositiveVerticalVelocity = player.GetMaximumPlayerPositiveVerticalVelocity(mgr),
+        .x3c_floorPlaneNormal = player.GetLastFloorPlaneNormal(),
+    };
 
     material = MoveObjectAnalytical(mgr, actor, dt, useNearList, cache, opts, result);
   }
