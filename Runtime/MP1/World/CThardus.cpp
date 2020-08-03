@@ -205,8 +205,8 @@ void CThardus::Think(float dt, CStateManager& mgr) {
           act->AddMaterial(EMaterialTypes::Orbit, mgr);
           act->AddMaterial(EMaterialTypes::Target, mgr);
         } else {
-          RemoveMaterial(EMaterialTypes::Orbit, mgr);
-          RemoveMaterial(EMaterialTypes::Target, mgr);
+          act->RemoveMaterial(EMaterialTypes::Orbit, mgr);
+          act->RemoveMaterial(EMaterialTypes::Target, mgr);
         }
       }
     }
@@ -267,7 +267,10 @@ void CThardus::Think(float dt, CStateManager& mgr) {
     UpdateExcludeList(x5f4_, EUpdateMaterialMode::Remove, EMaterialTypes::Player, mgr);
     UpdateExcludeList(x5f8_, EUpdateMaterialMode::Remove, EMaterialTypes::Player, mgr);
   }
+
+  sub801db148(mgr);
 }
+
 void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
 
@@ -302,7 +305,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
       if (TCastToPtr<CPlayer> pl = mgr.ObjectById(colAct->GetLastTouchedObject())) {
         if (x420_curDamageRemTime > 0.f)
           break;
-        u32 rand = mgr.GetActiveRandom()->Next();
+        u32 rand = static_cast<u32>(mgr.GetActiveRandom()->Next());
         float damageMult = 1.f;
         zeus::CVector3f knockBack = zeus::skForward;
         if (x644_ == 1) {
@@ -529,7 +532,6 @@ void CThardus::Dead(CStateManager& mgr, EStateMsg msg, float arg) {
 }
 void CThardus::PathFind(CStateManager& mgr, EStateMsg msg, float arg) {
   CPatterned::PathFind(mgr, msg, arg);
-  return;
   if (msg == EStateMsg::Activate) {
     x2e0_destPos = sub801de550(mgr);
     x7e4_ = x7d8_ = x2e0_destPos;
@@ -612,9 +614,9 @@ void CThardus::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   } else if (msg == EStateMsg::Update) {
     const zeus::CVector3f thisPos = GetTranslation();
     if (x658_ == 1) {
-      const zeus::CVector3f offset = thisPos + {0.f, 0.f, 10.f};
+      const zeus::CVector3f offset = thisPos + zeus::CVector3f{0.f, 0.f, 10.f};
       CRayCastResult result = mgr.RayStaticIntersection(
-          offset, zeus::CQuaternion(GetTransform().buildMatrix3f()).toTransform() * {0.f, 1.f, 0.f}, 100.f,
+          offset, zeus::CQuaternion(GetTransform().buildMatrix3f()).toTransform() * zeus::CVector3f{0.f, 1.f, 0.f}, 100.f,
           CMaterialFilter::MakeInclude({EMaterialTypes::Wall, EMaterialTypes::Floor, EMaterialTypes::Ceiling}));
       if (result.IsValid()) {
         zeus::CVector2f vec = sub801dac30(mgr);
@@ -629,8 +631,21 @@ void CThardus::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
           }
         }
       }
-    } else {
+    } else if (x658_ == 0) {
+      zeus::CVector3f dir = (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized();
+      zeus::CVector2f vec = sub801dac30(mgr);
+      if (vec == zeus::skZero2f) {
+        x650_ = vec;
+      } else {
+        x650_ = dir.toVec2f().normalized();
+      }
+
+      if (dir.magnitude() < x698_) {
+        x658_ = 1;
+      }
     }
+    GetBodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd{EBodyStateCmd::MaintainVelocity});
+    GetBodyController()->GetCommandMgr().DeliverCmd(CBCLocomotionCmd{zeus::CVector3f(x650_), zeus::skZero3f, 1.f});
   }
 }
 
@@ -722,6 +737,8 @@ void CThardus::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
       break;
     case 6:
       severity = pas::ESeverity::Five;
+      break;
+    default:
       break;
     }
 
@@ -1046,7 +1063,7 @@ void CThardus::UpdateNonDestroyableCollisionActorMaterials(EUpdateMaterialMode m
       else if (mode == EUpdateMaterialMode::Add)
         col->AddMaterial(mat, mgr);
 
-      *col->HealthInfo(mgr) = CHealthInfo(1000000.0, 10.f);
+      *col->HealthInfo(mgr) = CHealthInfo(1000000.0f, 10.f);
     }
   }
 }
