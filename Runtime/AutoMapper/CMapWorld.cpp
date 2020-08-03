@@ -27,30 +27,40 @@ struct Circle {
   Circle(const Circle2& circ2) : x0_point(circ2.x0_point), x8_radius(std::sqrt(circ2.x8_radiusSq)) {}
 };
 
-Circle2 ExactCircle1(const zeus::CVector2f* a) { return {*a, 0.f}; }
+Circle2 ExactCircle1(const zeus::CVector2f* a) {
+  return {
+      .x0_point = *a,
+      .x8_radiusSq = 0.f,
+  };
+}
 
 Circle2 ExactCircle2(const zeus::CVector2f* a, const zeus::CVector2f* b) {
-  Circle2 ret = {};
-  ret.x0_point = 0.5f * (*a + *b);
-  ret.x8_radiusSq = (*b - *a).magSquared() * 0.25f;
-  return ret;
+  return {
+    .x0_point = 0.5f * (*a + *b),
+    .x8_radiusSq = (*b - *a).magSquared() * 0.25f,
+  };
 }
 
 Circle2 ExactCircle3(const zeus::CVector2f* a, const zeus::CVector2f* b, const zeus::CVector2f* c) {
-  Circle2 ret = {};
-  zeus::CVector2f d1 = *b - *a;
-  zeus::CVector2f d2 = *c - *a;
-  float cross = d1.cross(d2);
-  zeus::CVector2f magVec(d1.magSquared() * 0.5f, d2.magSquared() * 0.5f);
+  const zeus::CVector2f d1 = *b - *a;
+  const zeus::CVector2f d2 = *c - *a;
+  const float cross = d1.cross(d2);
+  const zeus::CVector2f magVec(d1.magSquared() * 0.5f, d2.magSquared() * 0.5f);
+
   if (std::fabs(cross) > 0.01f) {
-    zeus::CVector2f tmp((d2.y() * magVec.x() - d1.y() * magVec.y()) / cross,
-                        (d1.x() * magVec.y() - d2.x() * magVec.x()) / cross);
-    ret.x0_point = *a + tmp;
-    ret.x8_radiusSq = tmp.magSquared();
+    const zeus::CVector2f tmp((d2.y() * magVec.x() - d1.y() * magVec.y()) / cross,
+                              (d1.x() * magVec.y() - d2.x() * magVec.x()) / cross);
+
+    return {
+        .x0_point = *a + tmp,
+        .x8_radiusSq = tmp.magSquared(),
+    };
   } else {
-    ret.x8_radiusSq = FLT_MAX;
+    return {
+        .x0_point = zeus::skZero2f,
+        .x8_radiusSq = FLT_MAX,
+    };
   }
-  return ret;
 }
 
 bool PointInsideCircle(const zeus::CVector2f& point, const Circle2& circ, float& intersect) {
@@ -59,7 +69,7 @@ bool PointInsideCircle(const zeus::CVector2f& point, const Circle2& circ, float&
 }
 
 Circle2 UpdateSupport1(int idx, const zeus::CVector2f** list, Support& support) {
-  Circle2 ret = ExactCircle2(list[support.x4_[0]], list[idx]);
+  const Circle2 ret = ExactCircle2(list[support.x4_[0]], list[idx]);
   support.x0_ = 2;
   support.x4_[1] = idx;
   return ret;
