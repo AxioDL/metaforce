@@ -1,5 +1,6 @@
 #include "Runtime/MP1/CInGameGuiManager.hpp"
 
+#include <algorithm>
 #include <array>
 
 #include "Runtime/CDependencyGroup.hpp"
@@ -47,13 +48,10 @@ std::vector<TLockedToken<CDependencyGroup>> CInGameGuiManager::LockPauseScreenDe
 }
 
 bool CInGameGuiManager::CheckDGRPLoadComplete() const {
-  for (const auto& dgrp : x5c_pauseScreenDGRPs)
-    if (!dgrp.IsLoaded())
-      return false;
-  for (const auto& dgrp : xc8_inGameGuiDGRPs)
-    if (!dgrp.IsLoaded())
-      return false;
-  return true;
+  const auto isLoaded = [](const auto& entry) { return entry.IsLoaded(); };
+
+  return std::all_of(x5c_pauseScreenDGRPs.cbegin(), x5c_pauseScreenDGRPs.cend(), isLoaded) &&
+         std::all_of(xc8_inGameGuiDGRPs.cbegin(), xc8_inGameGuiDGRPs.cend(), isLoaded);
 }
 
 void CInGameGuiManager::BeginStateTransition(EInGameGuiState state, CStateManager& stateMgr) {
