@@ -25,6 +25,7 @@ namespace urde::MP1 {
 constexpr zeus::CColor skDamageColor{0.5f, 0.5f, 0.f, 1.f};
 constexpr zeus::CColor skUnkColor{0.5f, 0.f, 0.f, 1.f};
 constexpr zeus::CVector3f skUnkVec1{0.5f, 7.f, 0.f};
+constexpr zeus::CVector3f skUnkVec2{12.f, 12.f, 12.f};
 
 constexpr std::array<SJointInfo, 3> skLeftArmJointList{{
     {"L_elbow", "L_blade", 0.6f, 1.f},
@@ -962,8 +963,8 @@ void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
         x568_ = kStates1[x7a8_] != pas::ESeverity::Invalid ? 1 : 2;
 
         if (sub801ae670()) {
-          SetCollisionActorBounds(mgr, x79c_leftArmCollision, skUnkVec1);
-          SetCollisionActorBounds(mgr, x7a0_rightArmCollision, skUnkVec1);
+          SetCollisionActorBounds(mgr, x79c_leftArmCollision, skUnkVec2);
+          SetCollisionActorBounds(mgr, x7a0_rightArmCollision, skUnkVec2);
         }
 
         x798_animState = x450_bodyController->GetBodyStateInfo().GetCurrentStateId();
