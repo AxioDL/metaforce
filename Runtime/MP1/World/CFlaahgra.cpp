@@ -1298,10 +1298,11 @@ void CFlaahgraPlants::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
 
   if (msg == EScriptObjectMessage::Registered) {
     xe8_elementGen->SetParticleEmission(true);
+    SetActive(true);
     if (x16c_colAct == kInvalidUniqueId) {
       x16c_colAct = mgr.AllocateUniqueId();
       CCollisionActor* colAct = new CCollisionActor(x16c_colAct, GetAreaIdAlways(), GetUniqueId(),
-                                                    x130_obbox.extents + zeus::CVector3f(10.f, 0.f, 10.f), {}, true,
+                                                    x130_obbox.extents + zeus::CVector3f(0.f, 5.f, 10.f), {}, true,
                                                     0.001f, "Flaahgra Plants"sv);
 
       colAct->SetTransform(GetTransform());
