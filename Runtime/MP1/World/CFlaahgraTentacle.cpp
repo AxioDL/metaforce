@@ -28,8 +28,10 @@ CFlaahgraTentacle::CFlaahgraTentacle(TUniqueId uid, std::string_view name, const
   x460_knockBackController.SetAutoResetImpulse(false);
   CreateShadow(false);
 }
-void CFlaahgraTentacle::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
 
+void CFlaahgraTentacle::Accept(IVisitor& visitor) { visitor.Visit(this); }
+
+void CFlaahgraTentacle::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {
   case EScriptObjectMessage::Registered: {
     x450_bodyController->Activate(mgr);
@@ -122,11 +124,9 @@ void CFlaahgraTentacle::SetupCollisionManager(CStateManager& mgr) {
   for (u32 i = 0; i < x56c_collisionManager->GetNumCollisionActors(); ++i) {
     const CJointCollisionDescription& desc = x56c_collisionManager->GetCollisionDescFromIndex(i);
     if (const TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(desc.GetCollisionActorId())) {
-      colAct->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Player},
-          {EMaterialTypes::Character,
-           EMaterialTypes::CollisionActor,
-           EMaterialTypes::NoStaticCollision,
-           EMaterialTypes::NoPlatformCollision}));
+      colAct->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
+          {EMaterialTypes::Player}, {EMaterialTypes::Character, EMaterialTypes::CollisionActor,
+                                     EMaterialTypes::NoStaticCollision, EMaterialTypes::NoPlatformCollision}));
       colAct->AddMaterial(EMaterialTypes::ScanPassthrough);
       colAct->SetDamageVulnerability(*GetDamageVulnerability());
 
@@ -138,8 +138,8 @@ void CFlaahgraTentacle::SetupCollisionManager(CStateManager& mgr) {
 
   RemoveMaterial(EMaterialTypes::Solid, EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
   AddMaterial(EMaterialTypes::Scannable, mgr);
-
 }
+
 zeus::CVector3f CFlaahgraTentacle::GetAimPosition(const CStateManager& mgr, float dt) const {
   if (const TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(x57c_tentacleTipAct)) {
     return colAct->GetTranslation();
@@ -147,6 +147,7 @@ zeus::CVector3f CFlaahgraTentacle::GetAimPosition(const CStateManager& mgr, floa
 
   return CPatterned::GetAimPosition(mgr, dt);
 }
+
 void CFlaahgraTentacle::ExtractTentacle(CStateManager& mgr) {
   if (!Inside(mgr, 0.f)) {
     return;
@@ -165,6 +166,7 @@ void CFlaahgraTentacle::RetractTentacle(CStateManager& mgr) {
     trigger->SetForceVector({});
   }
 }
+
 void CFlaahgraTentacle::SaveBombSlotInfo(CStateManager& mgr) {
   for (const SConnection& conn : GetConnectionList()) {
     if (conn.x0_state != EScriptObjectState::Modify || conn.x4_msg != EScriptObjectMessage::ToggleActive) {
@@ -190,7 +192,7 @@ bool CFlaahgraTentacle::ShouldAttack(CStateManager& mgr, float) {
   }
 
   if (const TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(x57c_tentacleTipAct)) {
-    const float mag = (colAct->GetTranslation().toVec2f() - mgr.GetPlayer().GetTranslation().toVec2f()).magSquared();
+    const float mag = (mgr.GetPlayer().GetTranslation().toVec2f() - colAct->GetTranslation().toVec2f()).magSquared();
     return mag >= (x2fc_minAttackRange * x2fc_minAttackRange) && mag <= (x300_maxAttackRange * x300_maxAttackRange);
   }
 
@@ -208,16 +210,16 @@ void CFlaahgraTentacle::Attack(CStateManager& mgr, EStateMsg msg, float) {
         x450_bodyController->GetCommandMgr().DeliverCmd(
             CBCMeleeAttackCmd((x578_ > 0.f ? pas::ESeverity::Zero : pas::ESeverity::One), {}));
       }
-
-    } else if (x568_ == 2 && x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::MeleeAttack) {
+    } else if (x568_ == 2 &&
+               x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::MeleeAttack) {
       x568_ = 3;
     }
-
   } else if (msg == EStateMsg::Deactivate) {
     x574_ = (x308_attackTimeVariation * mgr.GetActiveRandom()->Float()) + x304_averageAttackTime;
     x578_ = 0.f;
   }
 }
+
 void CFlaahgraTentacle::Retreat(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Update) {
     if (!x58e_24_) {
@@ -229,7 +231,7 @@ void CFlaahgraTentacle::Retreat(CStateManager& mgr, EStateMsg msg, float) {
     }
 
     if (const TCastToConstPtr<CScriptTrigger> trigger = mgr.ObjectById(x58c_triggerId)) {
-      if (trigger->IsPlayerTriggerProc()) {
+      if (!trigger->IsPlayerTriggerProc()) {
         x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
       }
     }
@@ -237,6 +239,7 @@ void CFlaahgraTentacle::Retreat(CStateManager& mgr, EStateMsg msg, float) {
     x58e_24_ = false;
   }
 }
+
 void CFlaahgraTentacle::InActive(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x570_ = 0.f;
@@ -258,4 +261,15 @@ void CFlaahgraTentacle::InActive(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
+void CFlaahgraTentacle::Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) {
+  if (!IsAlive()) {
+    return;
+  }
+  x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Dead");
+  if (GetBodyController()->GetPercentageFrozen() > 0.f) {
+    GetBodyController()->UnFreeze();
+  }
+  x400_25_alive = false;
 }
+
+} // namespace urde::MP1
