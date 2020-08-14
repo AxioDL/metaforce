@@ -1284,6 +1284,7 @@ CFlaahgraPlants::CFlaahgraPlants(const TToken<CGenDescription>& genDesc, const C
          CMaterialList(EMaterialTypes::Projectile), actParms, kInvalidUniqueId)
 , xe8_elementGen(std::make_unique<CElementGen>(genDesc))
 , xf0_ownerId(owner)
+, xf4_damageInfo(dInfo)
 , x130_obbox(xf, extents) {
   xe8_elementGen->SetOrientation(xf.getRotation());
   xe8_elementGen->SetTranslation(xf.origin);
@@ -1320,6 +1321,7 @@ void CFlaahgraPlants::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
     mgr.FreeScriptObject(x16c_colAct);
   }
 }
+
 void CFlaahgraPlants::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {
     xe8_elementGen->Update(dt);
@@ -1331,7 +1333,7 @@ void CFlaahgraPlants::Think(float dt, CStateManager& mgr) {
 }
 
 void CFlaahgraPlants::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
-  g_Renderer->AddParticleGen(*xe8_elementGen.get());
+  g_Renderer->AddParticleGen(*xe8_elementGen);
   CActor::AddToRenderer(frustum, mgr);
 }
 
@@ -1354,5 +1356,12 @@ void CFlaahgraPlants::Touch(CActor& act, CStateManager& mgr) {
   mgr.ApplyDamage(GetUniqueId(), act.GetUniqueId(), GetUniqueId(), dInfo,
                   CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}),
                   diffVec.dot(GetTransform().basis[0]) > 0.f ? GetTransform().basis[0] : -GetTransform().basis[0]);
+}
+
+std::optional<zeus::CAABox> CFlaahgraPlants::GetTouchBounds() const {
+  if (!GetActive()) {
+    return {};
+  }
+  return x110_aabox;
 }
 } // namespace urde::MP1

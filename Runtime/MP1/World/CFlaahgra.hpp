@@ -82,7 +82,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
-  std::optional<zeus::CAABox> GetTouchBounds() const override { return x110_aabox; }
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Touch(CActor&, CStateManager&) override;
 };
 
