@@ -280,12 +280,49 @@ void CFlaahgra::Death(CStateManager& mgr, const zeus::CVector3f& dir, EScriptObj
 void CFlaahgra::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   switch (type) {
   case EUserEventType::Projectile: {
+    const auto lctrXf = GetLctrTransform(node.GetLocatorName());
+    const auto attackTargetPos = GetAttackTargetPos(mgr);
+    if (x7b4_ == 0 || x7b4_ == 1) {
+      if (x72c_ == 0) {
+        x730_.clear();
+        auto& player = mgr.GetPlayer();
+        const auto interceptPos =
+            GetProjectileInfo()->PredictInterceptPos(lctrXf.origin, attackTargetPos, player, false, dt);
+        x730_.push_back(interceptPos);
+        const auto& xf = GetTransform();
+        auto basis = xf.basis;
+        const auto rot = zeus::CMatrix3f::RotateZ(zeus::degToRad(x7b4_ == 1 ? -4.f : 4.f));
+        for (int i = 1; i < x730_.capacity(); ++i) {
+          basis = basis * rot;
+          const auto vec = basis * xf.transposeRotate(interceptPos - xf.origin);
+          x730_.push_back(zeus::CVector3f{xf.origin.x() + vec.x(), xf.origin.y() + vec.y(), interceptPos.z()});
+        }
+        if (x72c_ > -1 && x730_.size() > x72c_) {
+          CreateProjectile(zeus::lookAt(lctrXf.origin, x730_[x72c_]), mgr);
+          x72c_++;
+        }
+      }
+    } else {
+      CPlayer& player = mgr.GetPlayer();
+      const auto interceptPos =
+          GetProjectileInfo()->PredictInterceptPos(lctrXf.origin, attackTargetPos, player, false, dt);
+      auto target = interceptPos;
+      auto dir = interceptPos - lctrXf.origin;
+      dir.z() = 0.f;
+      const auto frontVec = GetTransform().frontVector();
+      if (zeus::CVector3f::getAngleDiff(frontVec, dir) > zeus::degToRad(45.f)) {
+        if (dir.canBeNormalized()) {
+          target = lctrXf.origin +
+                   (dir.magnitude() * zeus::CVector3f::slerp(frontVec, dir.normalized(), zeus::degToRad(45.f)));
+        } else {
+          target = lctrXf.origin + dir.magnitude() * lctrXf.frontVector();
+        }
+      }
+      CreateProjectile(zeus::lookAt(lctrXf.origin, target), mgr);
+    }
     return;
   }
   case EUserEventType::BeginAction: {
-//#ifndef NDEBUG
-//    printf("BeginAction\n");
-//#endif
     x8e4_26_ = true;
     x7c4_ = GetEndActionTime();
     break;
@@ -844,7 +881,8 @@ void CFlaahgra::Generate(CStateManager& mgr, EStateMsg msg, float) {
     x7c0_ = 11.f;
   }
 }
-zeus::CVector3f CFlaahgra::GetAttacktargetPos(const CStateManager& mgr) const {
+
+zeus::CVector3f CFlaahgra::GetAttackTargetPos(const CStateManager& mgr) const {
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed)
     return mgr.GetPlayer().GetMorphBall()->GetBallToWorld().origin;
 
@@ -1222,6 +1260,21 @@ void CFlaahgra::Enraged(CStateManager&, EStateMsg msg, float) {
   } else if (msg == EStateMsg::Deactivate) {
     x7d0_ = 0.f;
   }
+}
+
+CFlaahgraProjectile* CFlaahgra::CreateProjectile(const zeus::CTransform& xf, CStateManager& mgr) {
+  CProjectileInfo* projectileInfo = GetProjectileInfo();
+  if (!projectileInfo->Token() || !mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, 6)) {
+    return nullptr;
+  }
+  CDamageInfo damageInfo = projectileInfo->GetDamage();
+  if (x788_ > 1) {
+    damageInfo.SetDamage(damageInfo.GetDamage() * 1.33f);
+  }
+  auto* projectile = new CFlaahgraProjectile(x8e4_30_, projectileInfo->Token(), xf, damageInfo, mgr.AllocateUniqueId(),
+                                             GetAreaIdAlways(), GetUniqueId());
+  mgr.AddObject(projectile);
+  return projectile;
 }
 
 CFlaahgraPlants::CFlaahgraPlants(const TToken<CGenDescription>& genDesc, const CActorParameters& actParms,

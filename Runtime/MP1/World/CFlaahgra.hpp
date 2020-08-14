@@ -7,6 +7,7 @@
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/Collision/CJointCollisionDescription.hpp"
+#include "Runtime/MP1/World/CFlaahgraProjectile.hpp"
 #include "Runtime/Weapon/CProjectileInfo.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CAnimationParameters.hpp"
@@ -88,13 +89,13 @@ public:
 class CFlaahgra : public CPatterned {
   s32 x568_ = -1;
   CFlaahgraData x56c_;
-  std::unique_ptr<CBoneTracking> x6cc_boneTracking; // Used to be an rstl::pair<bool,CBoneTracking>
+  std::unique_ptr<CBoneTracking> x6cc_boneTracking; // Used to be an rstl::optional_object<CBoneTracking*>
   TUniqueId x6d0_rendererId = kInvalidUniqueId;
   TToken<CGenDescription> x6d4_;
   CProjectileInfo x6dc_;
   CProjectileInfo x704_;
   s32 x72c_ = -1;
-  u32 x730_ = 0;
+  rstl::reserved_vector<zeus::CVector3f, 5> x730_;
   rstl::reserved_vector<TUniqueId, 4> x770_mirrorWaypoints;
   TUniqueId x77c_ = kInvalidUniqueId;
   u32 x780_ = 1;
@@ -174,7 +175,7 @@ class CFlaahgra : public CPatterned {
   void UpdateScale(float, float, float);
   float GetEndActionTime() const;
   void SetupHealthInfo(CStateManager&);
-  zeus::CVector3f GetAttacktargetPos(const CStateManager&) const;
+  zeus::CVector3f GetAttackTargetPos(const CStateManager& mgr) const;
   void RattlePlayer(CStateManager& mgr, const zeus::CVector3f& vec);
   bool sub801e4f8() const { return x7a8_ == 0 || x7a8_ == 1; }
   void sub801ade80();
@@ -182,6 +183,7 @@ class CFlaahgra : public CPatterned {
 
   u32 sub801ae828(const CStateManager&) const;
   zeus::CVector3f sub801ae754(const CStateManager&) const;
+  CFlaahgraProjectile* CreateProjectile(const zeus::CTransform& xf, CStateManager& mgr);
 
   TUniqueId GetMirrorNearestPlayer(const CStateManager&) const;
 
