@@ -724,6 +724,7 @@ void CFlaahgra::UpdateHealthInfo(CStateManager& mgr) {
     }
   }
 }
+
 void CFlaahgra::UpdateAimPosition(CStateManager& mgr, float dt) {
   if (TCastToConstPtr<CCollisionActor> head = mgr.GetObjectById(x80c_headActor)) {
     pas::EAnimationState animState = x450_bodyController->GetBodyStateInfo().GetCurrentStateId();
@@ -731,21 +732,22 @@ void CFlaahgra::UpdateAimPosition(CStateManager& mgr, float dt) {
       return;
 
     zeus::CVector3f vec;
-    if (x780_ != 0 && !x8e4_28_ && !sub801e4f8())
+    if (x780_ == 0 || x8e4_28_ || sub_801ae638() || sub801e4f8())
       vec = head->GetTranslation();
     else
-      vec = GetTranslation() + zeus::CVector3f(0.f, 0.f, 3.7674999f) +
-            (zeus::CVector3f(0.f, 0.f, 4.1550002f) * GetModelData()->GetScale());
+      vec = GetTranslation() + zeus::CVector3f(0.f, 0.f, 3.7675f) +
+            (zeus::CVector3f(0.f, 0.f, 4.155f) * GetModelData()->GetScale());
 
     zeus::CVector3f diff = vec - x820_;
     if (diff.canBeNormalized()) {
       if (diff.magnitude() > (125.f * dt))
-        x820_ += ((1.f / diff.magnitude()) * diff) * (125.f * dt);
+        x820_ += (125.f * dt) * (1.f / diff.magnitude()) * diff;
       else
         x820_ = vec;
     }
   }
 }
+
 void CFlaahgra::SetMaterialProperties(const std::unique_ptr<CCollisionActorManager>& actMgr, CStateManager& mgr) {
   for (u32 i = 0; i < actMgr->GetNumCollisionActors(); ++i) {
     TUniqueId uid = actMgr->GetCollisionDescFromIndex(i).GetCollisionActorId();
@@ -758,6 +760,7 @@ void CFlaahgra::SetMaterialProperties(const std::unique_ptr<CCollisionActorManag
     }
   }
 }
+
 bool CFlaahgra::ShouldTurn(CStateManager& mgr, float) {
   zeus::CVector2f posDiff = mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f();
   zeus::CVector2f frontVec = x34_transform.frontVector().toVec2f();
@@ -1290,6 +1293,10 @@ CFlaahgraProjectile* CFlaahgra::CreateProjectile(const zeus::CTransform& xf, CSt
                                              GetAreaIdAlways(), GetUniqueId());
   mgr.AddObject(projectile);
   return projectile;
+}
+
+bool CFlaahgra::sub_801ae638() {
+  return GetBodyController()->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::ProjectileAttack;
 }
 
 CFlaahgraPlants::CFlaahgraPlants(const TToken<CGenDescription>& genDesc, const CActorParameters& actParms,

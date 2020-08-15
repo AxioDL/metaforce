@@ -186,6 +186,7 @@ class CFlaahgra : public CPatterned {
   CFlaahgraProjectile* CreateProjectile(const zeus::CTransform& xf, CStateManager& mgr);
 
   TUniqueId GetMirrorNearestPlayer(const CStateManager&) const;
+  bool sub_801ae638();
 
 public:
   DEFINE_PATTERNED(Flaahgra);
