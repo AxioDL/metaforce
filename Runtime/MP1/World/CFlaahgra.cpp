@@ -355,6 +355,7 @@ void CFlaahgra::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
                                                    CMaterialFilter::MakeInclude({EMaterialTypes::Floor}));
 
     if (res.IsValid()) {
+      xf.origin = res.GetPoint();
       CFlaahgraPlants* plants = new CFlaahgraPlants(x6d4_, x56c_.xd8_, mgr.AllocateUniqueId(), GetAreaIdAlways(),
                                                     GetUniqueId(), xf, x56c_.xbc_, {5.f, 10.f, 5.f});
       mgr.AddObject(plants);
