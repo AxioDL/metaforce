@@ -659,7 +659,7 @@ void CFlaahgra::FadeOut(CStateManager& mgr, EStateMsg msg, float) {
   x7c0_ = 2.f;
   x780_ = 3;
   x8e4_29_getup = false;
-  x430_damageColor = skDamageColor;
+  x430_damageColor = skFlaahgraDamageColor;
   x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::NextState));
   x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
   x8e5_29_ = false;
@@ -817,7 +817,7 @@ void CFlaahgra::GetUp(CStateManager& mgr, EStateMsg msg, float) {
     x8e4_29_getup = false;
     SetCollisionActorBounds(mgr, x79c_leftArmCollision, {});
     SetCollisionActorBounds(mgr, x7a0_rightArmCollision, {});
-    x430_damageColor = skDamageColor;
+    x430_damageColor = skFlaahgraDamageColor;
   }
 }
 
@@ -849,7 +849,7 @@ void CFlaahgra::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
     x79c_leftArmCollision->SetActive(mgr, true);
     x7a0_rightArmCollision->SetActive(mgr, true);
     x8e4_29_getup = false;
-    x430_damageColor = skDamageColor;
+    x430_damageColor = skFlaahgraDamageColor;
   }
 }
 
