@@ -120,7 +120,6 @@ CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& in
 }
 
 void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
-
   switch (msg) {
   case EScriptObjectMessage::InitializedInArea: {
     if (!x8e4_25_loading && !x8e4_24_loaded) {
@@ -196,19 +195,21 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
 
           if ((x56c_.x140_ - proj->GetDamageInfo().GetDamage()) >= x810_) {
             x450_bodyController->GetCommandMgr().DeliverCmd(CBCLoopHitReactionCmd(pas::EReactionType::One));
-          } else if (uid == x80c_headActor) {
-            if (proj->GetDamageInfo().GetWeaponMode().IsCharged() ||
-                proj->GetDamageInfo().GetWeaponMode().IsComboed() ||
-                proj->GetDamageInfo().GetWeaponMode().GetType() == EWeaponType::Missile) {
-              x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(-GetTranslation(), pas::ESeverity::One));
-            }
+          } else if (uid == x80c_headActor &&
+                     (proj->GetDamageInfo().GetWeaponMode().IsCharged() ||
+                      proj->GetDamageInfo().GetWeaponMode().IsComboed() ||
+                      proj->GetDamageInfo().GetWeaponMode().GetType() == EWeaponType::Missile)) {
+            x450_bodyController->GetCommandMgr().DeliverCmd(
+                CBCKnockBackCmd(-GetTransform().frontVector(), pas::ESeverity::One));
           }
         } else {
           if (x8e5_30_)
             TakeDamage({}, 0.f);
 
-          if (proj->GetDamageInfo().GetWeaponMode().IsCharged() || proj->GetDamageInfo().GetWeaponMode().IsComboed() ||
-              proj->GetDamageInfo().GetWeaponMode().GetType() == EWeaponType::Missile) {
+          if (uid == x80c_headActor &&
+              (proj->GetDamageInfo().GetWeaponMode().IsCharged() ||
+               proj->GetDamageInfo().GetWeaponMode().IsComboed() ||
+               proj->GetDamageInfo().GetWeaponMode().GetType() == EWeaponType::Missile)) {
             x450_bodyController->GetCommandMgr().DeliverCmd(CBCAdditiveFlinchCmd(1.f));
           }
         }
