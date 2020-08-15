@@ -29,13 +29,13 @@ constexpr zeus::CVector3f skUnkVec2{12.f, 12.f, 12.f};
 
 constexpr std::array<SJointInfo, 3> skLeftArmJointList{{
     {"L_elbow", "L_blade", 0.6f, 1.f},
-    {"L_blade", "L_claw", 0.6f, 1.f},
+    {"L_blade", "L_CLAW_LCTR", 0.6f, 1.f},
     {"L_CLAW_LCTR", "L_CLAW_END_LCTR", 0.6f, 1.f},
 }};
 
 constexpr std::array<SJointInfo, 3> skRightArmJointList{{
     {"R_elbow", "R_blade", 0.6f, 1.f},
-    {"R_blade", "R_claw", 0.6f, 1.f},
+    {"R_blade", "R_CLAW_LCTR", 0.6f, 1.f},
     {"R_CLAW_LCTR", "R_CLAW_END_LCTR", 0.6f, 1.f},
 }};
 
@@ -397,6 +397,7 @@ void CFlaahgra::ResetModelDataAndBodyController() {
       std::make_unique<CBoneTracking>(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f),
                                       zeus::degToRad(180.f), EBoneTrackingFlags::None);
 }
+
 void CFlaahgra::GatherAssets(CStateManager& mgr) {
   if (x8e4_24_loaded)
     return;
@@ -442,6 +443,7 @@ void CFlaahgra::LoadTokens(CStateManager& mgr) {
     }
   }
 }
+
 void CFlaahgra::FinalizeLoad(CStateManager& mgr) {
   x8e4_24_loaded = true;
   if (x8e4_25_loading) {
@@ -540,25 +542,30 @@ void CFlaahgra::SetupHealthInfo(CStateManager& mgr) {
 }
 
 void CFlaahgra::SetupCollisionManagers(CStateManager& mgr) {
-  std::vector<CJointCollisionDescription> leftArmjointList;
   zeus::CVector3f oldScale = GetModelData()->GetScale();
-  leftArmjointList.reserve(skLeftArmJointList.size());
-  AddCollisionList(skLeftArmJointList.data(), skLeftArmJointList.size(), leftArmjointList);
+  GetModelData()->SetScale(zeus::CVector3f{x56c_.x4_ * 1.f});
+
+  std::vector<CJointCollisionDescription> leftArmJointList;
+  leftArmJointList.reserve(skLeftArmJointList.size());
+  AddCollisionList(skLeftArmJointList.data(), skLeftArmJointList.size(), leftArmJointList);
   x79c_leftArmCollision =
-      std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), leftArmjointList, true);
+      std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), leftArmJointList, true);
   SetMaterialProperties(x79c_leftArmCollision, mgr);
+
   std::vector<CJointCollisionDescription> rightArmJointList;
   rightArmJointList.reserve(skRightArmJointList.size());
   AddCollisionList(skRightArmJointList.data(), skRightArmJointList.size(), rightArmJointList);
   x7a0_rightArmCollision =
       std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), rightArmJointList, true);
   SetMaterialProperties(x7a0_rightArmCollision, mgr);
+
   std::vector<CJointCollisionDescription> sphereJointList;
   sphereJointList.reserve(skSphereJointList.size());
   AddSphereCollisionList(skSphereJointList.data(), skSphereJointList.size(), sphereJointList);
   x7a4_sphereCollision =
       std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), sphereJointList, true);
   SetMaterialProperties(x7a4_sphereCollision, mgr);
+
   SetupHealthInfo(mgr);
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
       {EMaterialTypes::Solid},
