@@ -687,7 +687,7 @@ void CFlaahgra::UpdateSmallScaleReGrowth(float dt) {
   if (!x8e4_29_getup || x7d8_ > 6.f)
     return;
 
-  x430_damageColor = zeus::CColor::lerp(skUnkColor, zeus::skBlack, std::round(std::fabs(M_PIF * std::cos(x7d8_))));
+  x430_damageColor = zeus::CColor::lerp(zeus::skBlack, skUnkColor, std::fabs(M_PIF * std::cos(x7d8_)));
   TakeDamage({}, 0.f);
   x7d8_ += dt;
 }
