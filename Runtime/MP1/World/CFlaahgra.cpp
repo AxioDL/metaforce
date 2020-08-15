@@ -753,8 +753,8 @@ void CFlaahgra::SetMaterialProperties(const std::unique_ptr<CCollisionActorManag
     TUniqueId uid = actMgr->GetCollisionDescFromIndex(i).GetCollisionActorId();
     if (CCollisionActor* colAct = static_cast<CCollisionActor*>(mgr.ObjectById(uid))) {
       colAct->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
-          {EMaterialTypes::Player},
-          {EMaterialTypes::Trigger, EMaterialTypes::CollisionActor, EMaterialTypes::Immovable}));
+          {EMaterialTypes::Player}, {EMaterialTypes::Trigger, EMaterialTypes::CollisionActor,
+                                     EMaterialTypes::NoStaticCollision, EMaterialTypes::Immovable}));
       colAct->AddMaterial(EMaterialTypes::Trigger, EMaterialTypes::ScanPassthrough, mgr);
       colAct->SetDamageVulnerability(*GetDamageVulnerability());
     }
