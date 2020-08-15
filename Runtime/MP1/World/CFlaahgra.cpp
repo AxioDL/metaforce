@@ -596,12 +596,12 @@ void CFlaahgra::CalculateFallDirection() {
 
   float curDist = FLT_MIN;
   for (const zeus::CVector3f& v : vec) {
-    if (right.dot(v) <= 0.f) {
+    if (right.dot(v) < 0.f) {
       continue;
     }
 
     float dist = front.dot(v);
-    if (curDist < dist) {
+    if (dist > curDist) {
       x894_fallDirection = v;
       curDist = dist;
     }
@@ -630,7 +630,7 @@ bool CFlaahgra::ShouldAttack(CStateManager& mgr, float) {
 
 void CFlaahgra::UpdateHeadDamageVulnerability(CStateManager& mgr, bool b) {
   if (TCastToPtr<CCollisionActor> head = mgr.ObjectById(x80c_headActor)) {
-    head->SetDamageVulnerability(b ? *GetDamageVulnerability() : x56c_.x10_);
+    head->SetDamageVulnerability(b ? x56c_.x10_ : *GetDamageVulnerability());
   }
 }
 
