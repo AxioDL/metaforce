@@ -22,7 +22,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
-constexpr zeus::CColor skDamageColor{0.5f, 0.5f, 0.f, 1.f};
+constexpr zeus::CColor skFlaahgraDamageColor{0.5f, 0.5f, 0.f, 1.f};
 constexpr zeus::CColor skUnkColor{0.5f, 0.f, 0.f, 1.f};
 constexpr zeus::CVector3f skUnkVec1{0.5f, 7.f, 0.f};
 constexpr zeus::CVector3f skUnkVec2{12.f, 12.f, 12.f};
@@ -79,6 +79,7 @@ void CFlaahgraRenderer::AddToRenderer(const zeus::CFrustum& frustum, CStateManag
     }
   }
 }
+
 void CFlaahgraRenderer::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -94,6 +95,7 @@ CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& in
 , x820_(xf.origin)
 , x8a0_(xf.frontVector())
 , x8ac_(animRes) {
+  xe7_30_doTargetDistanceTest = false;
   x6dc_.Token().Lock();
   x704_.Token().Lock();
   x7dc_.SetDamage(0.5f * x7dc_.GetDamage());
@@ -104,7 +106,7 @@ CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& in
   x90_actorLights->SetMaxDynamicLights(1);
   x460_knockBackController.SetAutoResetImpulse(false);
   x460_knockBackController.SetEnableLaggedBurnDeath(false);
-  x430_damageColor = skDamageColor;
+  x430_damageColor = skFlaahgraDamageColor;
   LoadDependencies(x56c_.x158_);
 
   float curAngle = zeus::degToRad(17.5f);
@@ -371,6 +373,7 @@ void CFlaahgra::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
 
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
+
 void CFlaahgra::LoadDependencies(CAssetId dgrpId) {
   if (!dgrpId.IsValid()) {
     ResetModelDataAndBodyController();
