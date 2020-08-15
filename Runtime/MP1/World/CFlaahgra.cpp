@@ -587,20 +587,23 @@ void CFlaahgra::sub801ae980(CStateManager& mgr) {
   ++x788_;
 }
 
-void CFlaahgra::sub801ade80() {
-  x894_ = (x7ac_ == 0 ? -GetTransform().basis[0] : GetTransform().basis[0]);
+void CFlaahgra::CalculateFallDirection() {
+  const auto front = GetTransform().frontVector();
+  const auto right = x7ac_ ? GetTransform().rightVector() : -GetTransform().rightVector();
+  x894_fallDirection = right;
 
-  const rstl::reserved_vector<zeus::CVector3f, 4>& vec = (x7ac_ == 0 ? x860_ : x82c_);
+  const rstl::reserved_vector<zeus::CVector3f, 4>& vec = x7ac_ ? x82c_ : x860_;
 
   float curDist = FLT_MIN;
   for (const zeus::CVector3f& v : vec) {
-    if (v.magSquared() < 0.f)
+    if (right.dot(v) <= 0.f) {
       continue;
+    }
 
-    float dist = GetTransform().basis[1].dot(v);
-    if (dist > curDist) {
+    float dist = front.dot(v);
+    if (curDist < dist) {
+      x894_fallDirection = v;
       curDist = dist;
-      x894_ = v;
     }
   }
 }
@@ -938,7 +941,7 @@ void CFlaahgra::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
     if (x568_ == 0) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Fall) {
         x568_ = 2;
-        sub801ade80();
+        CalculateFallDirection();
         UpdateHeadDamageVulnerability(mgr, true);
       } else {
         x450_bodyController->GetCommandMgr().DeliverCmd(
@@ -950,7 +953,7 @@ void CFlaahgra::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
         if (x7d4_ >= x56c_.xc_)
           x568_ = 4;
       } else {
-        x450_bodyController->FaceDirection(x894_, arg);
+        x450_bodyController->FaceDirection(x894_fallDirection, arg);
       }
     }
   } else if (msg == EStateMsg::Deactivate) {

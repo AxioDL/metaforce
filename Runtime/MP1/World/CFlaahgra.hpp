@@ -130,7 +130,7 @@ class CFlaahgra : public CPatterned {
   zeus::CVector3f x820_;
   rstl::reserved_vector<zeus::CVector3f, 4> x82c_;
   rstl::reserved_vector<zeus::CVector3f, 4> x860_;
-  zeus::CVector3f x894_;
+  zeus::CVector3f x894_fallDirection;
   zeus::CVector3f x8a0_;
   CAnimRes x8ac_;
   std::optional<TToken<CDependencyGroup>> x8c8_depGroup;
@@ -178,7 +178,7 @@ class CFlaahgra : public CPatterned {
   zeus::CVector3f GetAttackTargetPos(const CStateManager& mgr) const;
   void RattlePlayer(CStateManager& mgr, const zeus::CVector3f& vec);
   bool sub801e4f8() const { return x7a8_ == 0 || x7a8_ == 1; }
-  void sub801ade80();
+  void CalculateFallDirection();
   void UpdateHeadDamageVulnerability(CStateManager&, bool);
 
   u32 sub801ae828(const CStateManager&) const;
