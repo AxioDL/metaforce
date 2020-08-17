@@ -1222,6 +1222,7 @@ void CFlaahgra::Cover(CStateManager& mgr, EStateMsg msg, float) {
     x7b0_ ^= 1;
   }
 }
+
 void CFlaahgra::SpecialAttack(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     x568_ = 0;
@@ -1238,10 +1239,22 @@ void CFlaahgra::SpecialAttack(CStateManager& mgr, EStateMsg msg, float) {
             CBCProjectileAttackCmd(pas::ESeverity::Eight, mgr.GetPlayer().GetTranslation(), false));
       }
     } else if (x568_ == 2) {
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::ProjectileAttack) {}
+      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::ProjectileAttack) {
+        x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+      } else {
+        x568_ = 4;
+      }
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x7c0_ = (x308_attackTimeVariation * mgr.GetActiveRandom()->Float() + x304_averageAttackTime) / (1.f + x788_);
+    x8e4_30_ = false;
+    x7b4_ = -1;
+    if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::ProjectileAttack) {
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::NextState));
     }
   }
 }
+
 bool CFlaahgra::CoverCheck(CStateManager& mgr, float) {
   if (x7f8_ <= 0 && x7bc_ > 0.f)
     return false;
