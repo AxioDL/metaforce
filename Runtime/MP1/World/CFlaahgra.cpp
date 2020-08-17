@@ -1169,6 +1169,13 @@ void CFlaahgra::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
         x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
       }
     }
+  } else if (msg == EStateMsg::Deactivate) {
+    x7c0_ = (x308_attackTimeVariation * mgr.GetActiveRandom()->Float() + x304_averageAttackTime) / (1.f + x788_);
+    x7b4_ = -1;
+    x72c_ = -1;
+    if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::ProjectileAttack) {
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::NextState));
+    }
   }
 }
 void CFlaahgra::Cover(CStateManager& mgr, EStateMsg msg, float) {
