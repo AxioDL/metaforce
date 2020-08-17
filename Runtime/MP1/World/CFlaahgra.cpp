@@ -868,6 +868,7 @@ void CFlaahgra::SetCollisionActorBounds(CStateManager& mgr, const std::unique_pt
     }
   }
 }
+
 void CFlaahgra::UpdateScale(float t, float min, float max) {
   float scale = (t * (max - min) + min);
   GetModelData()->SetScale(zeus::skOne3f * scale);
@@ -926,7 +927,7 @@ void CFlaahgra::RattlePlayer(CStateManager& mgr, const zeus::CVector3f& vec) {
 
     mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData(2.f, 0.75f), true);
   } else {
-    player.ApplyImpulseWR((mgr.GetPlayer().GetMass() * 0.75f) * (25.f * zeus::skUp), {});
+    player.ApplyImpulseWR(mgr.GetPlayer().GetMass() * 0.75f * 25.f * zeus::skUp, {});
     player.SetMoveState(CPlayer::EPlayerMovementState::ApplyJump, mgr);
   }
 }
@@ -1005,8 +1006,7 @@ void CFlaahgra::Dead(CStateManager& mgr, EStateMsg msg, float) {
 
 void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   static constexpr std::array kStates1{
-      pas::ESeverity::Invalid, pas::ESeverity::Invalid, pas::ESeverity::Invalid,
-      pas::ESeverity::Two,     pas::ESeverity::Invalid,
+      -1, -1, -1, 2, -1,
   };
   static constexpr std::array kSeverity{
       pas::ESeverity::Three, pas::ESeverity::Four, pas::ESeverity::One, pas::ESeverity::Zero, pas::ESeverity::Invalid,
@@ -1019,15 +1019,15 @@ void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   } else if (msg == EStateMsg::Update) {
     if (x568_ == 0) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::MeleeAttack) {
-        x568_ = kStates1[x7a8_] != pas::ESeverity::Invalid ? 1 : 2;
+        x568_ = kStates1[x7a8_] != -1 ? 1 : 2;
 
         if (sub801ae670()) {
           SetCollisionActorBounds(mgr, x79c_leftArmCollision, skUnkVec2);
           SetCollisionActorBounds(mgr, x7a0_rightArmCollision, skUnkVec2);
         }
 
-        x798_animState = x450_bodyController->GetBodyStateInfo().GetCurrentStateId();
         x78c_ = sub801ae754(mgr);
+        x798_animState = x450_bodyController->GetBodyStateInfo().GetCurrentStateId();
       } else {
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(kSeverity[x7a8_]));
       }
@@ -1038,10 +1038,11 @@ void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
         if (x798_animState != x450_bodyController->GetBodyStateInfo().GetCurrentStateId()) {
           x568_ = 2;
         } else {
+          x450_bodyController->GetCommandMgr().DeliverTargetVector(x78c_);
           if (!ShouldAttack(mgr, 0.f))
             return;
 
-          x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(kStates1[x7a8_]));
+          x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(kSeverity[kStates1[x7a8_]]));
         }
       }
     } else if (x568_ == 2) {
@@ -1055,7 +1056,7 @@ void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
     SetCollisionActorBounds(mgr, x7a0_rightArmCollision, {});
 
     if (sub801ae670())
-      x7c0_ = (1.f + x788_) / (x308_attackTimeVariation * mgr.GetActiveRandom()->Float() + x304_averageAttackTime);
+      x7c0_ = (x308_attackTimeVariation * mgr.GetActiveRandom()->Float() + x304_averageAttackTime) / (1.f + x788_);
 
     x7a8_ = -1;
 
