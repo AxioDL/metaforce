@@ -829,6 +829,7 @@ void CFlaahgra::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
     x568_ = 0;
     x8e4_26_ = false;
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Two));
+    x784_ = x780_;
     x81c_ = GetModelData()->GetScale().z();
   } else if (msg == EStateMsg::Update) {
     if (x568_ == 0) {
@@ -838,9 +839,11 @@ void CFlaahgra::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Two));
     } else if (x568_ == 2) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Generate) {
+        if (x8e4_26_) {
+          UpdateScale((x7c4_ > 0.f ? 1.f - (GetEndActionTime() / x7c4_) : 1.f), x81c_, x56c_.x4_);
+        }
+      } else {
         x568_ = 4;
-      } else if (x8e4_26_) {
-        UpdateScale((x7c4_ > 0.f ? 1.f - (GetEndActionTime() / x7c4_) : 1.f), x81c_, x56c_.x4_);
       }
 
       x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
