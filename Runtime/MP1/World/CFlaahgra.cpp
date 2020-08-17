@@ -839,11 +839,9 @@ void CFlaahgra::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Two));
     } else if (x568_ == 2) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Generate) {
-        if (x8e4_26_) {
-          UpdateScale((x7c4_ > 0.f ? 1.f - (GetEndActionTime() / x7c4_) : 1.f), x81c_, x56c_.x4_);
-        }
-      } else {
         x568_ = 4;
+      } else if (x8e4_26_) {
+        UpdateScale((x7c4_ > 0.f ? 1.f - (GetEndActionTime() / x7c4_) : 1.f), x81c_, x56c_.x4_);
       }
 
       x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
@@ -1078,6 +1076,7 @@ u32 CFlaahgra::sub801ae828(const CStateManager& mgr) const {
 
   return 0;
 }
+
 zeus::CVector3f CFlaahgra::sub801ae754(const CStateManager& mgr) const {
   float dt = (sub801ae650() && mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed
                   ? 0.75f
@@ -1105,6 +1104,7 @@ void CFlaahgra::Dizzy(CStateManager&, EStateMsg msg, float arg) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
   }
 }
+
 void CFlaahgra::Suck(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     x568_ = 0;
@@ -1124,7 +1124,6 @@ void CFlaahgra::Suck(CStateManager& mgr, EStateMsg msg, float) {
         UpdateScale(x7c4_ > 0.0f ? 1.f - (GetEndActionTime() / x7c4_) : 1.f, x56c_.x4_, x56c_.x0_);
       }
     }
-
   } else if (msg == EStateMsg::Deactivate) {
     x8e4_26_ = false;
     x780_ = 2;
@@ -1132,6 +1131,7 @@ void CFlaahgra::Suck(CStateManager& mgr, EStateMsg msg, float) {
     x7a0_rightArmCollision->SetActive(mgr, false);
   }
 }
+
 void CFlaahgra::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     x568_ = 0;
