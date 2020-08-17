@@ -193,6 +193,7 @@ public:
   CFlaahgra(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, const CAnimRes&,
             const CPatternedInfo&, const CActorParameters&, const CFlaahgraData&);
 
+  void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager&) override;
   void PreThink(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;

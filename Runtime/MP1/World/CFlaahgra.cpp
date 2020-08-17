@@ -119,6 +119,8 @@ CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& in
   }
 }
 
+void CFlaahgra::Accept(IVisitor& visitor) { visitor.Visit(this); }
+
 void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {
   case EScriptObjectMessage::InitializedInArea: {
