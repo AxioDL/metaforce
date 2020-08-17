@@ -734,7 +734,7 @@ void CFlaahgra::UpdateAimPosition(CStateManager& mgr, float dt) {
       return;
 
     zeus::CVector3f vec;
-    if (x780_ == 0 || x8e4_28_ || sub_801ae638() || sub801e4f8())
+    if (x780_ == 0 || x8e4_28_ || sub_801ae638() || sub801ae650())
       vec = head->GetTranslation();
     else
       vec = GetTranslation() + zeus::CVector3f(0.f, 0.f, 3.7675f) +

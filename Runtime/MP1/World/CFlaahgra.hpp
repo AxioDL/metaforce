@@ -177,7 +177,6 @@ class CFlaahgra : public CPatterned {
   void SetupHealthInfo(CStateManager&);
   zeus::CVector3f GetAttackTargetPos(const CStateManager& mgr) const;
   void RattlePlayer(CStateManager& mgr, const zeus::CVector3f& vec);
-  bool sub801e4f8() const { return x7a8_ == 0 || x7a8_ == 1; }
   void CalculateFallDirection();
   void UpdateHeadDamageVulnerability(CStateManager&, bool);
 
