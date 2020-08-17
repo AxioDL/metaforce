@@ -1178,8 +1178,9 @@ void CFlaahgra::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
     }
   }
 }
+
 void CFlaahgra::Cover(CStateManager& mgr, EStateMsg msg, float) {
-  static pas::ESeverity severities[2]{pas::ESeverity::Eight, pas::ESeverity::Seven};
+  static constexpr std::array severities{pas::ESeverity::Eight, pas::ESeverity::Seven};
   if (msg == EStateMsg::Activate) {
     x77c_ = GetMirrorNearestPlayer(mgr);
     x568_ = (x77c_ == kInvalidUniqueId ? 4 : 1);
