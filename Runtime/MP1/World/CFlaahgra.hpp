@@ -190,7 +190,7 @@ class CFlaahgra : public CPatterned {
 public:
   DEFINE_PATTERNED(Flaahgra);
   CFlaahgra(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, const CAnimRes&,
-            const CPatternedInfo&, const CActorParameters&, const CFlaahgraData&);
+            const CPatternedInfo&, const CActorParameters&, CFlaahgraData );
 
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager&) override;
@@ -215,6 +215,8 @@ public:
     return x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::LoopReaction;
   }
   bool CoverCheck(CStateManager&, float) override;
+  bool ShouldSpecialAttack(CStateManager& mgr, float arg) override;
+  bool ShouldFire(CStateManager& mgr, float arg) override;
 
   void FadeIn(CStateManager&, EStateMsg, float) override;
   void FadeOut(CStateManager&, EStateMsg, float) override;

@@ -84,10 +84,10 @@ void CFlaahgraRenderer::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                      const CAnimRes& animRes, const CPatternedInfo& pInfo, const CActorParameters& actParms,
-                     const CFlaahgraData& flaahgraData)
+                     CFlaahgraData flaahgraData)
 : CPatterned(ECharacter::Flaahgra, uid, name, EFlavorType::Zero, info, xf, CModelData::CModelDataNull(), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Large)
-, x56c_(flaahgraData)
+, x56c_(std::move(flaahgraData))
 , x6d4_(g_SimplePool->GetObj({SBIG('PART'), x56c_.xb8_}))
 , x6dc_(x56c_.x78_, x56c_.x7c_)
 , x704_(x56c_.x98_, x56c_.x9c_)
@@ -611,10 +611,10 @@ void CFlaahgra::CalculateFallDirection() {
 }
 
 bool CFlaahgra::ShouldAttack(CStateManager& mgr, float) {
-  if (x788_ <= 0 || x788_ > 3 || x7c0_ > 0.f || mgr.GetPlayer().IsInWaterMovement() || x8e4_31_)
+  CPlayer& player = mgr.GetPlayer();
+  if (x788_ <= 0 || x788_ > 3 || x7c0_ > 0.f || player.IsInWaterMovement() || x8e4_31_)
     return false;
 
-  CPlayer& player = mgr.GetPlayer();
   zeus::CVector2f diff = player.GetTranslation().toVec2f() - GetTranslation().toVec2f();
 
   float dist = diff.magSquared();
@@ -622,12 +622,12 @@ bool CFlaahgra::ShouldAttack(CStateManager& mgr, float) {
   float minSq = x2fc_minAttackRange * x2fc_minAttackRange;
   float maxSq = x300_maxAttackRange * x300_maxAttackRange;
 
-  if ((player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed || dist < minSq ||
-       dist > maxSq) &&
-      (x7cc_ > 0.f || player.GetVelocity().magSquared() < 25.f))
-    return false;
-
-  return zeus::CVector2f::getAngleDiff(GetTransform().basis[1].toVec2f(), diff) < zeus::degToRad(45.f);
+  if ((player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed && minSq <= dist &&
+       dist <= maxSq) ||
+      (x7cc_ <= 0.f && player.GetVelocity().magSquared() > 25.f)) {
+    return zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(), diff) < zeus::degToRad(45.f);
+  }
+  return false;
 }
 
 void CFlaahgra::UpdateHeadDamageVulnerability(CStateManager& mgr, bool b) {
@@ -705,7 +705,7 @@ void CFlaahgra::UpdateHealthInfo(CStateManager& mgr) {
   }
 
   if (x780_ == 3) {
-    if (!IsDizzy(mgr, 0.f))
+    if (IsDizzy(mgr, 0.f))
       x814_ += tmp;
     else
       x810_ += tmp;
@@ -1324,6 +1324,19 @@ CFlaahgraProjectile* CFlaahgra::CreateProjectile(const zeus::CTransform& xf, CSt
 
 bool CFlaahgra::sub_801ae638() {
   return GetBodyController()->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::ProjectileAttack;
+}
+
+bool CFlaahgra::ShouldSpecialAttack(CStateManager& mgr, float arg) {
+  return !(x788_ < 0 || x788_ > 3 || !ShouldFire(mgr, arg) || x788_ < 2) && x8e5_24_;
+}
+
+bool CFlaahgra::ShouldFire(CStateManager& mgr, float arg) {
+  CPlayer& player = mgr.GetPlayer();
+  if (x7c0_ > 0.f || player.IsInWaterMovement()) {
+    return false;
+  }
+  const auto dir = player.GetTranslation().toVec2f() - GetTranslation().toVec2f();
+  return zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(), dir) < zeus::degToRad(45.f);
 }
 
 CFlaahgraPlants::CFlaahgraPlants(const TToken<CGenDescription>& genDesc, const CActorParameters& actParms,
