@@ -68,7 +68,7 @@ class CWarWasp : public CPatterned {
   zeus::CVector3f CalcShuffleDest(const CStateManager& mgr) const;
 
 public:
-  DEFINE_PATTERNED(WarWasp)
+  DEFINE_PATTERNED(WarWasp);
   CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
            CModelData&& mData, const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor, CPatterned::EColliderType,
            const CDamageInfo& dInfo1, const CActorParameters&, CAssetId projectileWeapon,

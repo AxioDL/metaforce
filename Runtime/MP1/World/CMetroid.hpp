@@ -104,7 +104,7 @@ private:
   bool x9c0_24_isEnergyDrainVulnerable : 1 = false;
 
 public:
-  DEFINE_PATTERNED(Metroid)
+  DEFINE_PATTERNED(Metroid);
   CMetroid(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
            const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms,
            const CMetroidData& metroidData, TUniqueId);

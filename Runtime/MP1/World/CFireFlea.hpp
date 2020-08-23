@@ -37,7 +37,7 @@ class CFireFlea : public CPatterned {
   bool CheckNearWater(const CStateManager&, const zeus::CVector3f& dir) const;
 
 public:
-  DEFINE_PATTERNED(FireFlea)
+  DEFINE_PATTERNED(FireFlea);
 
   CFireFlea(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CActorParameters&, const CPatternedInfo&, float);

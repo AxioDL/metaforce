@@ -31,7 +31,7 @@ class CJellyZap : public CPatterned {
   bool sub801d8190() const { return x568_ != 1; }
 
 public:
-  DEFINE_PATTERNED(JellyZap)
+  DEFINE_PATTERNED(JellyZap);
 
   CJellyZap(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&, const CDamageInfo&,
             bool, float, float, float, float, float, float, float, float, float, float, float, float,

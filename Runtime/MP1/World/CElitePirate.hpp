@@ -146,7 +146,7 @@ private:
   bool x989_24_onPath : 1 = false;
 
 public:
-  DEFINE_PATTERNED(ElitePirate)
+  DEFINE_PATTERNED(ElitePirate);
 
   CElitePirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,

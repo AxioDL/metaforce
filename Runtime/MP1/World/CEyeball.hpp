@@ -39,7 +39,7 @@ class CEyeball : public CPatterned {
   void ResetBeamState(CStateManager&);
 
 public:
-  DEFINE_PATTERNED(EyeBall)
+  DEFINE_PATTERNED(EyeBall);
 
   CEyeball(TUniqueId uid, std::string_view name, CPatterned::EFlavorType flavor, const CEntityInfo& info,
            const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, float attackDelay,

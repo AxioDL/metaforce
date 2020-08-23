@@ -37,7 +37,7 @@ class CPuddleSpore : public CPatterned {
   void UpdateBoundingState(const zeus::CAABox&, CStateManager&, float);
 
 public:
-  DEFINE_PATTERNED(PuddleSpore)
+  DEFINE_PATTERNED(PuddleSpore);
 
   CPuddleSpore(TUniqueId, std::string_view, EFlavorType, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                const CPatternedInfo&, EColliderType, CAssetId, float, float, float, float, float,

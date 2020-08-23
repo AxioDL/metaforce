@@ -135,7 +135,7 @@ class CThardus : public CPatterned {
   void sub801dbf34(float dt, CStateManager& mgr);
   bool sub801dc2c8() const { return (x610_destroyableRocks.size() - 1) == x648_currentRock; }
   void _DoSuckState(CStateManager& mgr) { x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Suck"sv); }
-  void sub801de9f8(CStateManager& mgr){};
+  void sub801de9f8(CStateManager& mgr) {}
   void sub801dd608(CStateManager& mgr);
   void sub801dcfa4(CStateManager& mgr);
   void sub80deadc(CStateManager& mgr) {
@@ -166,7 +166,7 @@ class CThardus : public CPatterned {
   std::optional<CTexturedQuadFilter> m_flareFilter;
 
 public:
-  DEFINE_PATTERNED(Thardus)
+  DEFINE_PATTERNED(Thardus);
   CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
            CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
            std::vector<CStaticRes> mData1, std::vector<CStaticRes> mData2, CAssetId particle1, CAssetId particle2,

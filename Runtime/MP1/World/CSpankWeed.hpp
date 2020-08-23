@@ -29,7 +29,7 @@ class CSpankWeed : public CPatterned {
   float GetPlayerDistance(CStateManager&) const;
 
 public:
-  DEFINE_PATTERNED(SpankWeed)
+  DEFINE_PATTERNED(SpankWeed);
 
   CSpankWeed(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
              const CActorParameters&, const CPatternedInfo&, float, float, float, float);

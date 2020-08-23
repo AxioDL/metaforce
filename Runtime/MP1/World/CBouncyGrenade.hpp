@@ -45,7 +45,7 @@ public:
   , x30_elementGenId4(elementGenId4)
   , x34_numBounces(numBounces)
   , x38_bounceSfx(bounceSfxId)
-  , x3a_explodeSfx(explodeSfxId){};
+  , x3a_explodeSfx(explodeSfxId) {}
 
   [[nodiscard]] const SGrenadeVelocityInfo& GetUnkStruct() const { return x0_velocityInfo; }
   [[nodiscard]] const CDamageInfo& GetDamageInfo() const { return x8_damageInfo; }

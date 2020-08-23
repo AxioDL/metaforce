@@ -32,7 +32,7 @@ class CAtomicAlpha : public CPatterned {
   rstl::reserved_vector<SBomb, skBombCount> x6dc_bombLocators;
 
 public:
-  DEFINE_PATTERNED(AtomicAlpha)
+  DEFINE_PATTERNED(AtomicAlpha);
 
   CAtomicAlpha(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                const CActorParameters&, const CPatternedInfo&, CAssetId, const CDamageInfo&, float, float, float,

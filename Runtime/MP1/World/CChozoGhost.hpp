@@ -98,7 +98,7 @@ private:
   void FindBestAnchor(CStateManager& mgr);
 
 public:
-  DEFINE_PATTERNED(ChozoGhost)
+  DEFINE_PATTERNED(ChozoGhost);
 
   CChozoGhost(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
               const CActorParameters&, const CPatternedInfo&, float, float, float, float, CAssetId, const CDamageInfo&,

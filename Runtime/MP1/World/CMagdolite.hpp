@@ -59,7 +59,7 @@ private:
   TUniqueId FindSuitableTarget(CStateManager& mgr, EScriptObjectState state, EScriptObjectMessage msg);
 
 public:
-  DEFINE_PATTERNED(Magdolite)
+  DEFINE_PATTERNED(Magdolite);
 
   CMagdolite(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
              CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float f1, float f2,
@@ -69,7 +69,7 @@ public:
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
-  void Touch(CActor& actor, CStateManager& mgr) override{};
+  void Touch(CActor& actor, CStateManager& mgr) override {}
   const CDamageVulnerability* GetDamageVulnerability() const override {
     return x400_25_alive ? CAi::GetDamageVulnerability() : &CDamageVulnerability::ImmuneVulnerabilty();
   }

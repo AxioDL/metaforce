@@ -92,7 +92,7 @@ class CMetroidBeta : public CPatterned {
   void AddToTeam(CStateManager& mgr);
 
 public:
-  DEFINE_PATTERNED(MetroidBeta)
+  DEFINE_PATTERNED(MetroidBeta);
   CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms,
                const CMetroidBetaData& metroidData);

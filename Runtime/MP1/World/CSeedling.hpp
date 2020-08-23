@@ -23,7 +23,7 @@ class CSeedling : public CWallWalker {
   void LaunchNeedles(CStateManager&);
 
 public:
-  DEFINE_PATTERNED(Seedling)
+  DEFINE_PATTERNED(Seedling);
   CSeedling(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CPatternedInfo&, const CActorParameters&, CAssetId, CAssetId, const CDamageInfo&, const CDamageInfo&,
             float, float, float, float);

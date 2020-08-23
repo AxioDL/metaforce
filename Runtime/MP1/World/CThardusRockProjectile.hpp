@@ -14,7 +14,7 @@ class CThardusRockProjectile : public CPatterned {
   u32 x590_ = 0;
 
 public:
-  DEFINE_PATTERNED(ThardusRockProjectile)
+  DEFINE_PATTERNED(ThardusRockProjectile);
   CThardusRockProjectile(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                          CModelData&& modelData, const CActorParameters& aParms, const CPatternedInfo& patternedInfo,
                          std::vector<std::unique_ptr<CModelData>>&& mDataVec, CAssetId, float);

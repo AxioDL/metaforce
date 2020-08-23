@@ -26,7 +26,7 @@ class CMetaree : public CPatterned {
   u32 x5cc_;
 
 public:
-  DEFINE_PATTERNED(Metaree)
+  DEFINE_PATTERNED(Metaree);
   CMetaree(TUniqueId, std::string_view, EFlavorType, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
            const CPatternedInfo&, const CDamageInfo&, float, const zeus::CVector3f&, float, EBodyType, float, float,
            const CActorParameters&);

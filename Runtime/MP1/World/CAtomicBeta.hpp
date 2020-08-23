@@ -46,7 +46,7 @@ class CAtomicBeta final : public CPatterned {
   void DestroyEmitter(CSfxHandle&);
 
 public:
-  DEFINE_PATTERNED(AtomicBeta)
+  DEFINE_PATTERNED(AtomicBeta);
   CAtomicBeta(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
               const CActorParameters&, const CPatternedInfo&, CAssetId, CAssetId, const CDamageInfo&, CAssetId, float,
               float, float, const CDamageVulnerability&, float, float, float, s16, s16, s16, float);

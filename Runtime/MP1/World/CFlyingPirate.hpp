@@ -17,7 +17,7 @@ enum class EFlyingPirateType : u32 {
 
 class CFlyingPirate : public CPatterned {
 public:
-  DEFINE_PATTERNED(FlyingPirate)
+  DEFINE_PATTERNED(FlyingPirate);
 
 private:
   class CFlyingPirateData {

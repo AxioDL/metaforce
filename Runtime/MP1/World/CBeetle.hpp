@@ -50,7 +50,7 @@ private:
   s32 FindFurthestRetreatPoint(CStateManager& mgr) const;
 
 public:
-  DEFINE_PATTERNED(Beetle)
+  DEFINE_PATTERNED(Beetle);
   CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
           const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor, CBeetle::EEntranceType entranceType,
           const CDamageInfo& touchDamage, const CDamageVulnerability& platingVuln,

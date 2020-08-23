@@ -281,7 +281,7 @@ public:
   TUniqueId GetIdForScript(TEditorId) const;
   std::pair<std::multimap<TEditorId, TUniqueId>::const_iterator, std::multimap<TEditorId, TUniqueId>::const_iterator>
       GetIdListForScript(TEditorId) const;
-  std::multimap<TEditorId, TUniqueId>::const_iterator GetIdListEnd() const { return x890_scriptIdMap.cend(); };
+  std::multimap<TEditorId, TUniqueId>::const_iterator GetIdListEnd() const { return x890_scriptIdMap.cend(); }
   void LoadScriptObjects(TAreaId, CInputStream& in, std::vector<TEditorId>& idsOut);
   void InitializeScriptObjects(const std::vector<TEditorId>& objIds);
   std::pair<TEditorId, TUniqueId> LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in);

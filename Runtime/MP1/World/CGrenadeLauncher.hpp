@@ -55,7 +55,7 @@ public:
   , x3c_grenadeModelId(grenadeModelId)
   , x40_shootParticleGenDescId(shootParticleGenDescId)
   , x44_shootSfxId(shootSfxId)
-  , x48_grenadeTrajectoryInfo(grenadeTrajectoryInfo){};
+  , x48_grenadeTrajectoryInfo(grenadeTrajectoryInfo) {}
 
   [[nodiscard]] const SBouncyGrenadeData& GetGrenadeData() const { return x0_grenadeData; }
   [[nodiscard]] CAssetId GetGrenadeModelId() const { return x3c_grenadeModelId; }

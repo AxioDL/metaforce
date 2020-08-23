@@ -40,7 +40,7 @@ class CSpacePirate : public CPatterned {
   friend class CPirateRagDoll;
 
 public:
-  DEFINE_PATTERNED(SpacePirate)
+  DEFINE_PATTERNED(SpacePirate);
 private:
   class CSpacePirateData {
     friend class CSpacePirate;

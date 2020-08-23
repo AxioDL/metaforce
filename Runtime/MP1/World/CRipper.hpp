@@ -19,7 +19,7 @@ class CRipper : public CPatterned {
   void RemovePlatform(CStateManager&);
 
 public:
-  DEFINE_PATTERNED(Ripper)
+  DEFINE_PATTERNED(Ripper);
   CRipper(TUniqueId uid, std::string_view name, EFlavorType type, const CEntityInfo& info, const zeus::CTransform& xf,
           CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
           const CGrappleParameters& grappleParms);

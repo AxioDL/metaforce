@@ -38,7 +38,7 @@ class CPuddleToadGamma final : public CPatterned {
   void SetPlayerPosition(CStateManager&, const zeus::CVector3f&);
 
 public:
-  DEFINE_PATTERNED(PuddleToad)
+  DEFINE_PATTERNED(PuddleToad);
 
   CPuddleToadGamma(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                    const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,

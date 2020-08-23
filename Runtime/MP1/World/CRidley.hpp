@@ -200,7 +200,7 @@ class CRidley : public CPatterned {
   }
 
 public:
-  DEFINE_PATTERNED(Ridley)
+  DEFINE_PATTERNED(Ridley);
   CRidley(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&, const CPatternedInfo&,
           const CActorParameters&, CInputStream&, u32);
 

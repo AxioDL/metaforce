@@ -177,7 +177,7 @@ private:
   void UpdateAttack(CStateManager& mgr, float dt);
 
 public:
-  DEFINE_PATTERNED(Babygoth)
+  DEFINE_PATTERNED(Babygoth);
 
   CBabygoth(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CPatternedInfo&, const CActorParameters&, const CBabygothData&);

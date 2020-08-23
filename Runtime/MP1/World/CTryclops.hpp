@@ -36,7 +36,7 @@ class CTryclops : public CPatterned {
   void AttractBomb(CStateManager& mgr, float);
 
 public:
-  DEFINE_PATTERNED(Tryclops)
+  DEFINE_PATTERNED(Tryclops);
   CTryclops(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
             CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float f1, float f2,
             float f3, float launchSpeed);

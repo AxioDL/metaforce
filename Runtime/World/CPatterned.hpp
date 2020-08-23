@@ -19,7 +19,7 @@
 #include <zeus/CVector3f.hpp>
 
 #ifndef DEFINE_PATTERNED
-#define DEFINE_PATTERNED(type) static constexpr ECharacter CharacterType = ECharacter::type;
+#define DEFINE_PATTERNED(type) static constexpr ECharacter CharacterType = ECharacter::type
 #endif
 
 namespace urde {
