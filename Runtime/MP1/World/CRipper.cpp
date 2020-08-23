@@ -2,6 +2,7 @@
 
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Weapon/CPlayerGun.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CPlayer.hpp"
@@ -148,4 +149,39 @@ CRipperControlledPlatform::CRipperControlledPlatform(
                   active, CHealthInfo(FLT_MAX, 10.f), CDamageVulnerability::ImmuneVulnerabilty(), colTree, false, 1, 1)
 , x358_owner(owner)
 , x35c_yaw(GetYaw()) {}
+
+constexpr float RCP_2PI = 0.15915494f;
+constexpr float M_2PI = 6.2831855f;
+
+zeus::CQuaternion CRipperControlledPlatform::Move(float arg, CStateManager& mgr) {
+  if (const auto* actor = static_cast<CActor*>(mgr.ObjectById(x358_owner))) {
+    MoveToWR(GetTranslation() + (actor->GetTranslation() - GetTranslation()), arg);
+    float yawDiff = actor->GetYaw() - x35c_yaw;
+    float zRot = yawDiff - static_cast<float>(static_cast<int>(yawDiff * RCP_2PI)) * M_2PI;
+    if (zRot < 0.f) {
+      zRot += M_2PI;
+    }
+    if (zRot > M_PIF) {
+      zRot -= M_2PI;
+    }
+    const auto quat = zeus::CQuaternion::fromAxisAngle({0.0f, 0.0f, 1.0f}, zRot);
+    RotateToOR(quat, arg);
+
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    rstl::reserved_vector<TUniqueId, 1024> filteredNearList;
+    mgr.BuildColliderList(nearList, *this, GetMotionVolume(arg));
+    for (const TUniqueId id : nearList) {
+      if (!IsRider(id) && !IsSlave(id)) {
+        filteredNearList.push_back(id);
+      }
+    }
+
+    xf8_24_movable = true;
+    CGameCollision::Move(mgr, *this, arg, &filteredNearList);
+    xf8_24_movable = false;
+    x35c_yaw = GetYaw();
+    return quat;
+  }
+  return {};
+}
 } // namespace urde::MP1
