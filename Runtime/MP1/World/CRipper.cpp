@@ -25,14 +25,14 @@ CRipper::CRipper(TUniqueId uid, std::string_view name, EFlavorType type, const C
 }
 
 void CRipper::Think(float dt, CStateManager& mgr) {
-
   if (!GetActive())
     return;
 
   ProcessGrapplePoint(mgr);
   const CPlayer& pl = mgr.GetPlayer();
   CGrappleArm::EArmState armState = pl.GetPlayerGun()->GetGrappleArm().GetAnimState();
-  if (x598_grapplePoint != kInvalidUniqueId && pl.GetOrbitTargetId() == x598_grapplePoint && pl.GetGrappleState() != CPlayer::EGrappleState::None) {
+  if (x598_grapplePoint != kInvalidUniqueId && pl.GetOrbitTargetId() == x598_grapplePoint &&
+      pl.GetGrappleState() != CPlayer::EGrappleState::None) {
     if (pl.GetGrappleState() != CPlayer::EGrappleState::Firing && (armState > CGrappleArm::EArmState::Three)) {
       Stop();
       if (!x59c_24_muted) {
@@ -82,10 +82,13 @@ void CRipper::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
     break;
   }
 }
+
 void CRipper::KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const CDamageInfo& dInfo, EKnockBackType kb,
                         bool inDeferred, float mag) {
   CPatterned::KnockBack(dir, mgr, dInfo, kb, inDeferred, mag);
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(-dir, pas::ESeverity::One));
 }
+
 void CRipper::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
   x450_bodyController->GetCommandMgr().SetSteeringBlendMode(ESteeringBlendMode::FullSpeed);
   x450_bodyController->GetCommandMgr().SetSteeringSpeedRange(1.f, 1.f);
@@ -107,7 +110,8 @@ void CRipper::AddGrapplePoint(CStateManager& mgr) {
 
   x598_grapplePoint = mgr.AllocateUniqueId();
   mgr.AddObject(new CScriptGrapplePoint(x598_grapplePoint, "RipperGrapplePoint"sv,
-                                        CEntityInfo(GetAreaIdAlways(), NullConnectionList), GetTransform(), true, x568_grappleParams));
+                                        CEntityInfo(GetAreaIdAlways(), NullConnectionList), GetTransform(), true,
+                                        x568_grappleParams));
 }
 
 void CRipper::RemoveGrapplePoint(CStateManager& mgr) {
@@ -123,8 +127,11 @@ void CRipper::AddPlatform(CStateManager& mgr) {
   x59a_platformId = mgr.AllocateUniqueId();
   const zeus::CAABox bounds = GetModelData()->GetBounds(GetTransform().getRotation());
 
-  mgr.AddObject(new CRipperControlledPlatform(x59a_platformId, GetUniqueId(), "Ripper Controlled Platform"sv,
-      CEntityInfo(GetAreaIdAlways(), NullConnectionList), GetTransform(), bounds, GetActive(), {}));
+  const auto& platform = new CRipperControlledPlatform(x59a_platformId, GetUniqueId(), "Ripper Controlled Platform"sv,
+                                                       CEntityInfo(GetAreaIdAlways(), NullConnectionList),
+                                                       GetTransform(), bounds, GetActive(), {});
+  mgr.AddObject(platform);
+  platform->AddMaterial(EMaterialTypes::ProjectilePassthrough);
 }
 
 void CRipper::RemovePlatform(CStateManager& mgr) {
@@ -133,11 +140,12 @@ void CRipper::RemovePlatform(CStateManager& mgr) {
   mgr.FreeScriptObject(x59a_platformId);
   x59a_platformId = kInvalidUniqueId;
 }
+
 CRipperControlledPlatform::CRipperControlledPlatform(
     TUniqueId uid, TUniqueId owner, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
     const zeus::CAABox& bounds, bool active, const std::optional<TLockedToken<CCollidableOBBTreeGroup>>& colTree)
 : CScriptPlatform(uid, name, info, xf, CModelData::CModelDataNull(), CActorParameters::None(), bounds, 0.f, false, 1.f,
-                  active, CHealthInfo(FLT_MAX, 10.f), CDamageVulnerability::ImmuneVulnerabilty(), colTree, 0, 1, 1)
+                  active, CHealthInfo(FLT_MAX, 10.f), CDamageVulnerability::ImmuneVulnerabilty(), colTree, false, 1, 1)
 , x358_owner(owner)
 , x35c_yaw(GetYaw()) {}
-}
+} // namespace urde::MP1

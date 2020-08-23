@@ -17,6 +17,7 @@ class CRipper : public CPatterned {
   void RemoveGrapplePoint(CStateManager&);
   void AddPlatform(CStateManager&);
   void RemovePlatform(CStateManager&);
+
 public:
   DEFINE_PATTERNED(Ripper)
   CRipper(TUniqueId uid, std::string_view name, EFlavorType type, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -41,8 +42,9 @@ public:
 class CRipperControlledPlatform : public CScriptPlatform {
   TUniqueId x358_owner;
   float x35c_yaw;
+
 public:
   CRipperControlledPlatform(TUniqueId, TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&,
                             const zeus::CAABox&, bool, const std::optional<TLockedToken<CCollidableOBBTreeGroup>>&);
 };
-}
+} // namespace urde::MP1
