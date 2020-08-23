@@ -180,6 +180,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
         break;
       }
       case EScriptObjectMessage::SetToMax: {
+        x16c_ = x104_float3;
         SendScriptMsgs(EScriptObjectState::Play, mgr, EScriptObjectMessage::None);
         break;
       }
@@ -659,9 +660,9 @@ void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr
       if (const TCastToPtr<CScriptPlatform> plat = mgr.ObjectById((*it).second)) {
         if (plat->HasModelData() && plat->GetModelData()->HasAnimData()) {
           plat->SetControlledAnimation(true);
-          if (!x1e4_24_) {
-            x13c_ = plat->GetTransform();
-            x1e4_24_ = true;
+          if (!x1e4_24_spinnerInitializedXf) {
+            x13c_spinnerInitialXf = plat->GetTransform();
+            x1e4_24_spinnerInitializedXf = true;
           }
 
           float f28 = x138_;
@@ -692,7 +693,7 @@ void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr
               x138_ = f28 - twoByDt;
             }
           } else if (mode == ESpinnerControllerMode::One) {
-            x138_ = (0.1f * x16c_) * xfc_float1 + f28;
+            x138_ = (0.01f * x16c_) * xfc_float1 + f28;
 
             if (!noBackward) {
               x138_ -= f29;
@@ -715,7 +716,7 @@ void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr
           }
 
           bool r23 = true;
-          f28 = x138_ - f28;
+          f28 = x138_ - f28; // always 0?
           if (zeus::close_enough(x138_, 1.f, FLT_EPSILON)) {
             if (!x1e4_27_sfx3Played) {
               if (x174_sfx3 != 0xFFFF) {
@@ -746,14 +747,9 @@ void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr
             x1e4_26_sfx2Played = false;
           }
 
-          // local_1ac = x184_.GetAverage();
           if (r23) {
             if (x170_sfx1 != 0xFFFF) {
-              if (r23) { // ?
-                x184_.AddValue(0.f <= f28 ? 100 : 0x7f);
-              } else {
-                x184_.AddValue(0.f);
-              }
+              x184_.AddValue(0.f <= f28 ? 100 : 0x7f);
               const std::optional<float> avg = x184_.GetAverage();
               AddOrUpdateEmitter(0.f <= f28 ? x108_float4 : 1.f, x178_sfxHandle, x170_sfx1, GetTranslation(),
                                  avg.value());
@@ -767,7 +763,7 @@ void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr
           animData->SetPhase(0.f);
           animData->SetPlaybackRate(1.f);
           const SAdvancementDeltas& deltas = plat->UpdateAnimation(dur, mgr, true);
-          plat->SetTransform(x13c_ * deltas.xc_rotDelta.toTransform(deltas.x0_posDelta));
+          plat->SetTransform(x13c_spinnerInitialXf * deltas.xc_rotDelta.toTransform(deltas.x0_posDelta));
         }
       }
     }
