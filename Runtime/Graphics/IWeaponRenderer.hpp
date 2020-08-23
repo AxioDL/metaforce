@@ -6,12 +6,12 @@ class CParticleGen;
 class IWeaponRenderer {
 public:
   virtual ~IWeaponRenderer() = default;
-  virtual void AddParticleGen(const CParticleGen&) = 0;
+  virtual void AddParticleGen(CParticleGen&) = 0;
 };
 
 class CDefaultWeaponRenderer : public IWeaponRenderer {
 public:
-  void AddParticleGen(const CParticleGen&) override;
+  void AddParticleGen(CParticleGen&) override;
 };
 
 } // namespace urde
