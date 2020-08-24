@@ -24,12 +24,12 @@ CAtomicBeta::CAtomicBeta(TUniqueId uid, std::string_view name, const CEntityInfo
                          float f6, s16 sId1, s16 sId2, s16 sId3, float f7)
 : CPatterned(ECharacter::AtomicBeta, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::RestrictedFlyer, actParms, EKnockBackVariant::Small)
-, x578_(f5)
-, x57c_(f6)
-, x580_(f7)
-, x584_(x578_)
+, x578_minSpeed(f5)
+, x57c_maxSpeed(f6)
+, x580_speedStep(f7)
+, x584_currentSpeed(x578_minSpeed)
 , x588_frozenDamage(dVuln)
-, x5f0_(f4)
+, x5f0_moveSpeed(f4)
 , x5f4_(xf.basis[1])
 , x600_electricWeapon(g_SimplePool->GetObj({SBIG('ELSC'), electricId}))
 , x608_(g_SimplePool->GetObj({SBIG('WPSC'), weaponId}))
@@ -148,10 +148,10 @@ void CAtomicBeta::Think(float dt, CStateManager& mgr) {
     }
   }
 
-  float speed = x580_ * (dt * (IsPlayerBeamChargedEnough(mgr) ? 1.f : -1.f)) + x584_;
-  x584_ = zeus::clamp(x578_, speed, x57c_);
-  x3b4_speed = x584_;
-  x450_bodyController->SetRestrictedFlyerMoveSpeed(x5f0_ * x584_);
+  float speed = x580_speedStep * (dt * (IsPlayerBeamChargedEnough(mgr) ? 1.f : -1.f)) + x584_currentSpeed;
+  x584_currentSpeed = zeus::clamp(x578_minSpeed, speed, x57c_maxSpeed);
+  x3b4_speed = x584_currentSpeed;
+  x450_bodyController->SetRestrictedFlyerMoveSpeed(x5f0_moveSpeed * x584_currentSpeed);
 }
 
 const CDamageVulnerability* CAtomicBeta::GetDamageVulnerability() const {
