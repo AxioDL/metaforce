@@ -20,7 +20,7 @@ class CAtomicAlpha : public CPatterned {
   bool x568_24_inRange : 1 = false;
   bool x568_25_invisible : 1;
   bool x568_26_applyBeamAttraction : 1;
-  float x56c_bomdDropDelay;
+  float x56c_bombDropDelay;
   float x570_bombReappearDelay;
   float x574_bombRappearTime;
   float x578_bombTime = 0.f;

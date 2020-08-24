@@ -25,7 +25,7 @@ CAtomicAlpha::CAtomicAlpha(TUniqueId uid, std::string_view name, const CEntityIn
              EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::Medium)
 , x568_25_invisible(invisible)
 , x568_26_applyBeamAttraction(b2)
-, x56c_bomdDropDelay(bombDropDelay)
+, x56c_bombDropDelay(bombDropDelay)
 , x570_bombReappearDelay(f2)
 , x574_bombRappearTime(f3)
 , x580_pathFind(nullptr, 3, pInfo.GetPathfindingIndex(), 1.f, 1.f)
@@ -65,6 +65,7 @@ void CAtomicAlpha::Render(CStateManager& mgr) {
     x690_bombModel.Render(mgr, locatorXf, x90_actorLights.get(), flags);
   }
 }
+
 void CAtomicAlpha::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay && x568_25_invisible) {
     return;
@@ -88,26 +89,29 @@ void CAtomicAlpha::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
   if (type == EUserEventType::Projectile) {
     zeus::CVector3f origin = GetLctrTransform(node.GetLocatorName()).origin;
     zeus::CTransform xf = zeus::lookAt(origin, origin + zeus::skDown, zeus::skUp);
-    LaunchProjectile(xf, mgr, 4, EProjectileAttrib::None, false, {}, 0xFFFF, false, zeus::CVector3f(1.f));
+    LaunchProjectile(xf, mgr, 4, EProjectileAttrib::None, false, {}, 0xFFFF, false, zeus::skOne3f);
     x578_bombTime = 0.f;
-    x57c_curBomb = (x57c_curBomb + 1) & (x6dc_bombLocators.size() - 1);
+    x6dc_bombLocators[x57c_curBomb].x14_scaleTime = 0.f;
+    x57c_curBomb = (x57c_curBomb + 1) % x6dc_bombLocators.size();
   } else
     CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
 bool CAtomicAlpha::Leash(CStateManager& mgr, float) {
-  if ((mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() <=
-      x3cc_playerLeashRadius * x3cc_playerLeashRadius)
-    return false;
-
-  return x3d4_curPlayerLeashTime > x3d0_playerLeashTime;
+  return (mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() >
+             x3cc_playerLeashRadius * x3cc_playerLeashRadius &&
+         x3d4_curPlayerLeashTime > x3d0_playerLeashTime;
 }
 
 bool CAtomicAlpha::AggressionCheck(CStateManager& mgr, float) {
-  const CPlayerGun* playerGun = mgr.GetPlayer().GetPlayerGun();
+  if (!x568_26_applyBeamAttraction) {
+    return false;
+  }
   float factor = 0.f;
-  if (x568_26_applyBeamAttraction && playerGun->IsCharging())
+  const CPlayerGun* playerGun = mgr.GetPlayer().GetPlayerGun();
+  if (playerGun->IsCharging()) {
     factor = playerGun->GetChargeBeamFactor();
+  }
   return factor > 0.1f;
 }
 
@@ -131,7 +135,7 @@ void CAtomicAlpha::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
     x578_bombTime = 0.f;
   } else if (msg == EStateMsg::Update) {
     if (x568_24_inRange) {
-      if (x578_bombTime >= x56c_bomdDropDelay &&
+      if (x578_bombTime >= x56c_bombDropDelay &&
           x6dc_bombLocators[0].x14_scaleTime > (x570_bombReappearDelay + x574_bombRappearTime)) {
         x450_bodyController->SetLocomotionType(x6dc_bombLocators[x57c_curBomb].x10_locomotionType);
       } else {
