@@ -46,11 +46,10 @@ CPuddleSpore::CPuddleSpore(TUniqueId uid, std::string_view name, EFlavorType fla
 }
 
 zeus::CAABox CPuddleSpore::CalculateBoundingBox() const {
-  return {
-      ((zeus::CVector3f(-x590_halfExtent, -x590_halfExtent, x598_) + x584_bodyOrigin) * 0.5f) +
-          (GetBaseBoundingBox().min * 0.95f),
-      ((zeus::CVector3f(x590_halfExtent, x590_halfExtent, (x594_height * x59c_) + x598_) + x584_bodyOrigin) * 0.5f) +
-          (GetBaseBoundingBox().max * 0.95f)};
+  return {(zeus::CVector3f(-x590_halfExtent, -x590_halfExtent, x598_) + x584_bodyOrigin) * 0.05f +
+              GetBaseBoundingBox().min * 0.95f,
+          (zeus::CVector3f(x590_halfExtent, x590_halfExtent, x594_height * x59c_ + x598_) + x584_bodyOrigin) * 0.05f +
+              GetBaseBoundingBox().max * 0.95f};
 }
 
 void CPuddleSpore::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
