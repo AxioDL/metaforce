@@ -3469,8 +3469,8 @@ CEntity* ScriptLoader::LoadAtomicBeta(CStateManager& mgr, CInputStream& in, int 
   CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
                             animParms.GetInitialAnimation(), true));
   return new MP1::CAtomicBeta(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, std::move(mData),
-                              actParms, pInfo, electricId, weaponId, dInfo, particleId, f1, f2, f3, dVuln, f4, f5, f6,
-                              sId1, sId2, sId3, f7);
+                              actParms, pInfo, electricId, weaponId, dInfo, particleId, f1, f2, f7, dVuln, f3, f4, f5,
+                              sId1, sId2, sId3, f6);
 }
 
 CEntity* ScriptLoader::LoadIceZoomer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
