@@ -195,7 +195,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
         if (!IsDizzy(mgr, 0.f) && x450_bodyController->HasBodyState(pas::EAnimationState::LoopReaction)) {
           TakeDamage({}, 0.f);
 
-          if ((x56c_data.x140_ - proj->GetDamageInfo().GetDamage()) >= x810_) {
+          if (x56c_data.x140_ - proj->GetDamageInfo().GetDamage() <= x810_) {
             x450_bodyController->GetCommandMgr().DeliverCmd(CBCLoopHitReactionCmd(pas::EReactionType::One));
           } else if (uid == x80c_headActor &&
                      (proj->GetDamageInfo().GetWeaponMode().IsCharged() ||
