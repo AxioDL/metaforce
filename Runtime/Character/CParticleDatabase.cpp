@@ -441,7 +441,7 @@ void CParticleDatabase::InsertParticleGen(bool oneShot, int flags, std::string_v
     }
   }
 
-  useMap->insert(std::make_pair(std::string(name), std::move(gen)));
+  useMap->emplace(name, std::move(gen));
 
   if ((flags & 0x60) != 0) {
     xb4_25_anySystemsDrawnWithModel = true;
