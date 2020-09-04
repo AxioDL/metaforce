@@ -366,7 +366,7 @@ Connection::Connection(int verbosityLevel) {
         wchar_t progFiles[256];
         if (!GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256))
           BlenderLog.report(logvisor::Fatal, FMT_STRING(L"unable to determine 'Program Files' path"));
-        blenderBinBuf = fmt::format(FMT_STRING(L"{}\\Blender Foundation\\Blender 2.83\\blender.exe"), progFiles);
+        blenderBinBuf = fmt::format(FMT_STRING(L"{}\\Blender Foundation\\Blender 2.90\\blender.exe"), progFiles);
         blenderBin = blenderBinBuf.c_str();
         if (!RegFileExists(blenderBin))
           BlenderLog.report(logvisor::Fatal, FMT_STRING(L"unable to find {}"), blenderBin);
@@ -527,9 +527,9 @@ Connection::Connection(int verbosityLevel) {
       else
         BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to find blender at '{}'")), DEFAULT_BLENDER_BIN);
 #endif
-    } else if (lineStr == "NOT281") {
+    } else if (lineStr == "NOT290") {
       _closePipe();
-      BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Installed blender version must be >= 2.81")));
+      BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Installed blender version must be >= 2.90")));
     } else if (lineStr == "NOADDON") {
       _closePipe();
       if (blenderAddonPath != _SYS_STR("SKIPINSTALL"))
