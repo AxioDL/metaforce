@@ -83,7 +83,8 @@ MainWindow::MainWindow(QWidget* parent)
   m_ui->processOutput->setFont(mFont);
   m_cursor = QTextCursor(m_ui->processOutput->document());
   connect(m_ui->saveLogButton, &QPushButton::pressed, this, [this] {
-    QString defaultFileName = QStringLiteral("urde-") + QDateTime::currentDateTime().toString(Qt::DateFormat::ISODate);
+    QString defaultFileName = QStringLiteral("urde-") + QDateTime::currentDateTime().toString(Qt::DateFormat::ISODate) +
+                              QStringLiteral(".log");
     defaultFileName.replace(QLatin1Char(':'), QLatin1Char('-'));
     const QString fileName =
         QFileDialog::getSaveFileName(this, tr("Save Log"), defaultFileName, QStringLiteral("*.log"));
@@ -524,6 +525,9 @@ void MainWindow::initSlots() {
       return;
 
     setPath(dialog.selectedFiles().at(0));
+  });
+  connect(m_ui->pathEdit, &QLineEdit::editingFinished, [this]() {
+    setPath(m_ui->pathEdit->text());
   });
 
   connect(m_ui->downloadButton, &QPushButton::clicked, this, &MainWindow::onDownloadPressed);
