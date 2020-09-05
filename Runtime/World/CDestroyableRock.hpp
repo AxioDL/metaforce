@@ -17,6 +17,7 @@ class CDestroyableRock : public CAi {
   bool x334_isCold = false;
   bool x335_usePhazonModel = false;
   CHealthInfo x338_healthInfo;
+  bool x340_;
   bool x341_;
 
 public:
@@ -61,6 +62,8 @@ public:
     /* This used to be in the constructor, since we can't store CModelData directly in the class we must set it here */
     GetModelData()->SetSortThermal(true);
   }
+
+  void Set_x340(bool v) { x340_ = v; }
 };
 
 } // namespace urde

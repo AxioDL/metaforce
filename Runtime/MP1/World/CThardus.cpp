@@ -616,8 +616,8 @@ void CThardus::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
     if (x658_ == 1) {
       const zeus::CVector3f offset = thisPos + zeus::CVector3f{0.f, 0.f, 10.f};
       CRayCastResult result = mgr.RayStaticIntersection(
-          offset, zeus::CQuaternion(GetTransform().buildMatrix3f()).toTransform() * zeus::CVector3f{0.f, 1.f, 0.f}, 100.f,
-          CMaterialFilter::MakeInclude({EMaterialTypes::Wall, EMaterialTypes::Floor, EMaterialTypes::Ceiling}));
+          offset, zeus::CQuaternion(GetTransform().buildMatrix3f()).toTransform() * zeus::CVector3f{0.f, 1.f, 0.f},
+          100.f, CMaterialFilter::MakeInclude({EMaterialTypes::Wall, EMaterialTypes::Floor, EMaterialTypes::Ceiling}));
       if (result.IsValid()) {
         zeus::CVector2f vec = sub801dac30(mgr);
         if (vec != zeus::skZero2f) {
@@ -1131,4 +1131,43 @@ zeus::CVector3f CThardus::sub801de550(const CStateManager& mgr) const {
   return {};
 }
 zeus::CVector2f CThardus::sub801dac30(CStateManager& mgr) const { return {}; }
+bool CThardus::sub801db5b4(CStateManager& mgr) const {
+  if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
+    return !x93a_ || x7c4_ == 0;
+  }
+
+  return true;
+}
+void CThardus::ApplyCameraShake(float magnitude, float sfxDistance, float duration, CStateManager& mgr, const zeus::CVector3f& v1,
+                           const zeus::CVector3f& v2) {
+  float bounceIntensity = std::max(0.f, -((v1 - mgr.GetPlayer().GetTranslation()).magnitude() * (magnitude / sfxDistance) - magnitude));
+  if (mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId() == mgr.GetCameraManager()->GetCurrentCameraId()) {
+    mgr.GetCameraManager()->AddCameraShaker(
+        CCameraShakeData::BuildMissileCameraShake(duration, magnitude, sfxDistance, GetTranslation()), true);
+  }
+
+  if (x908_) {
+    BouncePlayer(bounceIntensity, mgr);
+  }
+}
+void CThardus::BouncePlayer(float intensity, CStateManager& mgr) {
+  if (intensity <= 0.f) {
+    return;
+  }
+
+  zeus::CVector3f posDiff = GetTranslation() - mgr.GetPlayer().GetTranslation();
+  CPlayer::ESurfaceRestraints restraints = mgr.GetPlayer().GetSurfaceRestraint();
+  if (restraints != CPlayer::ESurfaceRestraints::Air && !mgr.GetPlayer().IsInWaterMovement()) {
+    zeus::CVector3f baseImpulse = intensity * (40.f * zeus::skUp);
+    zeus::CVector3f additionalImpulse;
+    if (posDiff.magnitude() > 10.f) {
+      zeus::CVector3f tmpVec = posDiff.toVec2f();
+      if (tmpVec.canBeNormalized()) {
+        additionalImpulse = intensity * (12.5f * tmpVec.normalized());
+      }
+    }
+    mgr.GetPlayer().ApplyImpulseWR(mgr.GetPlayer().GetMass() * (baseImpulse + additionalImpulse), zeus::CAxisAngle());
+    mgr.GetPlayer().SetMoveState(CPlayer::EPlayerMovementState::ApplyJump, mgr);
+  }
+}
 } // namespace urde::MP1

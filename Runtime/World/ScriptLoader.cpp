@@ -2878,11 +2878,11 @@ CEntity* ScriptLoader::LoadThardusRockProjectile(CStateManager& mgr, CInputStrea
   if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
     return nullptr;
 
-  std::vector<std::unique_ptr<CModelData>> mDataVec;
+  std::vector<CStaticRes> mDataVec;
   CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), 0, actorHead.x40_scale,
                             pInfo.GetAnimationParameters().GetInitialAnimation(), true));
   mDataVec.reserve(3);
-  mDataVec.emplace_back(std::make_unique<CModelData>(CStaticRes(modelId, zeus::skOne3f)));
+  mDataVec.emplace_back(modelId, zeus::skOne3f);
   return new MP1::CThardusRockProjectile(mgr.AllocateUniqueId(), actorHead.x0_name, info, actorHead.x10_transform,
                                          std::move(mData), actParms, pInfo, std::move(mDataVec), stateMachine, f1);
 }

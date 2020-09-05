@@ -173,7 +173,7 @@ class CThardus : public CPatterned {
 
   zeus::CVector2f sub801dac30(CStateManager& mgr) const;
   void sub801db148(CStateManager& mgr) const {}
-
+  void BouncePlayer(float f1, CStateManager& mgr);
 public:
   DEFINE_PATTERNED(Thardus);
   CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -234,6 +234,10 @@ public:
   bool ShouldCallForBackup(CStateManager& mgr, float arg) override { return x330_stateMachineState.GetTime() > .5f; }
 
   CPathFindSearch* GetSearchPath() override { return &x7f0_pathFindSearch; }
+
+  u32 Get_x7c4() const { return x7c4_; }
+  bool sub801db5b4(CStateManager& mgr) const;
+  void ApplyCameraShake(float magnitude, float sfxDistance, float duration, CStateManager& mgr, const zeus::CVector3f& v1, const zeus::CVector3f& v2);
 };
 } // namespace MP1
 } // namespace urde
