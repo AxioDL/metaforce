@@ -94,14 +94,36 @@ void CThardusRockProjectile::GetUp(CStateManager& mgr, EStateMsg msg, float dt) 
       if (thardus != nullptr && !x5dc_) {
         x5dc_ = true;
         sub80203824(mgr, x5cc_, result.GetPoint(), GetModelData()->GetScale(), 0);
+        ProcessSoundEvent(SFXsfx07AE, 1.f, 0, 0.1f, 1.f, 0.16f, 1.f, zeus::skZero3f, GetTranslation(),
+                          mgr.GetNextAreaId(), mgr, false);
       }
-    } else if (mgr.GetCameraManager()->GetCurrentCameraId() == mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId()) {
+    } else if (mgr.GetCameraManager()->GetCurrentCameraId() ==
+               mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId()) {
+      const CCameraShakeData data = CCameraShakeData::BuildMissileCameraShake(0.25f, 0.5f, 50.f, GetTranslation());
+      mgr.GetCameraManager()->AddCameraShaker(data, true);
+    }
 
+    if (x574_ == EAnimState::NotReady) {
+      if (GetBodyController()->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Getup) {
+        x574_ = EAnimState::Repeat;
+      } else {
+        GetBodyController()->GetCommandMgr().DeliverCmd(CBCGetupCmd{pas::EGetupType::Zero});
+      }
+    } else if (x574_ == EAnimState::Repeat &&
+               GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Getup) {
+      x574_ = EAnimState::Over;
     }
   }
 }
 
-void CThardusRockProjectile::Lurk(CStateManager& mgr, EStateMsg msg, float dt) { CAi::Lurk(mgr, msg, dt); }
+void CThardusRockProjectile::Lurk(CStateManager& mgr, EStateMsg msg, float dt) {
+  if (msg != EStateMsg::Update) {
+    return;
+  }
+
+  GetBodyController()->GetCommandMgr().DeliverCmd(
+      CBCLocomotionCmd{zeus::skZero3f, (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized(), 1.f});
+}
 
 bool CThardusRockProjectile::Delay(CStateManager& mgr, float arg) { return x5a8_ < x330_stateMachineState.GetTime(); }
 
