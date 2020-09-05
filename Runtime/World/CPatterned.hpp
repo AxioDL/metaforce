@@ -84,7 +84,7 @@ public:
   enum class EBehaviourOrient { MoveDir, Constant, Destination };
   enum class EBehaviourModifiers { Zero };
   enum class EPatrolState { Invalid = -1, Patrol, Pause, Done };
-  enum class EAnimState { NotReady, Ready, Repeat, Over };
+  enum class EAnimState { NotReady, Ready, Repeat, Over, Invalid = -1 };
   class CPatternNode {
     zeus::CVector3f x0_pos;
     zeus::CVector3f xc_forward;

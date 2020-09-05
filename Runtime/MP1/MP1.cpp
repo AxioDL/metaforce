@@ -880,6 +880,7 @@ void CMain::WarmupShaders() {
     }
     return true;
   });
+  
 
   m_warmupIt = m_warmupTags.begin();
 
@@ -887,6 +888,7 @@ void CMain::WarmupShaders() {
 }
 
 bool CMain::Proc() {
+  CRandom16::ResetNumNextCalls();
   // Warmup cycle overrides update
   if (m_warmupTags.size())
     return false;

@@ -2779,10 +2779,7 @@ void CStateManager::DeferStateTransition(EStateManagerTransition t) {
 
 bool CStateManager::CanShowMapScreen() const {
   const CHintOptions::SHintState* curDispHint = g_GameState->HintOptions().GetCurrentDisplayedHint();
-  if (curDispHint == nullptr || curDispHint->CanContinue()) {
-    return true;
-  }
-  return false;
+  return curDispHint == nullptr || curDispHint->CanContinue();
 }
 
 std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const {

@@ -120,6 +120,7 @@ void ViewManager::TestGameView::think() {
       }
     }
 
+    overlayText += fmt::format(FMT_STRING("CRandom16::Next calls: {}\n"), urde::CRandom16::GetNumNextCalls());
     if (m_cvarCommons.m_debugOverlayShowResourceStats->toBoolean())
       overlayText += fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects());
 

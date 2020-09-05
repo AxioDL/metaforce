@@ -172,6 +172,7 @@ class CThardus : public CPatterned {
   }
 
   zeus::CVector2f sub801dac30(CStateManager& mgr) const;
+  void sub801db148(CStateManager& mgr) const {}
 
 public:
   DEFINE_PATTERNED(Thardus);
