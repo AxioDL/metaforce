@@ -35,6 +35,7 @@ struct CVarCommons {
   CVar* m_debugOverlayShowFrameCounter = nullptr;
   CVar* m_debugOverlayShowInGameTime = nullptr;
   CVar* m_debugOverlayShowResourceStats = nullptr;
+  CVar* m_logFile = nullptr;
 
   CVarCommons(CVarManager& manager) : m_mgr(manager) {
     m_graphicsApi = m_mgr.findOrMakeCVar("graphicsApi"sv, "API to use for rendering graphics"sv, DEFAULT_GRAPHICS_API,
@@ -49,10 +50,9 @@ struct CVarCommons {
     m_deepColor = m_mgr.findOrMakeCVar(
         "deepColor"sv, "Allow framebuffer with color depth greater-then 24-bits"sv, false,
         hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ModifyRestart);
-    m_variableDt =
-        m_mgr.findOrMakeCVar("variableDt", "Enable variable delta time (experimental)", false,
-                             (hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive |
-                              hecl::CVar::EFlags::ModifyRestart));
+    m_variableDt = m_mgr.findOrMakeCVar(
+        "variableDt", "Enable variable delta time (experimental)", false,
+        (hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ModifyRestart));
 
     m_debugOverlayPlayerInfo = m_mgr.findOrMakeCVar(
         "debugOverlay.playerInfo"sv, "Displays information about the player, such as location and orientation"sv, false,
@@ -74,6 +74,9 @@ struct CVarCommons {
     m_debugOverlayShowResourceStats = m_mgr.findOrMakeCVar(
         "debugOverlay.showResourceStats"sv, "Displays the current live resource object and token counts"sv, false,
         hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_logFile = m_mgr.findOrMakeCVar("logFile"sv, "Any log prints will be stored to this file upon exit"sv, "app.log"sv,
+                                     hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive |
+                                     hecl::CVar::EFlags::ModifyRestart);
   }
 
   std::string getGraphicsApi() const { return m_graphicsApi->toLiteral(); }
@@ -91,6 +94,11 @@ struct CVarCommons {
   bool getDeepColor() const { return m_deepColor->toBoolean(); }
 
   void setDeepColor(bool b) { m_deepColor->fromBoolean(b); }
+
+  std::string getLogFile() const { return m_logFile->toLiteral(); };
+
+  void setLogFile(std::string_view log) { m_logFile->fromLiteral(log); }
+
 
   void serialize() { m_mgr.serialize(); }
 };

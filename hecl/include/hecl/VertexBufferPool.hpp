@@ -15,10 +15,10 @@
 
 namespace hecl {
 
-#define HECL_VBUFPOOL_ALLOCATION_BLOCK 262144
+#define HECL_VBUFPOOL_ALLOCATION_BLOCK 524288
 
 /** This class provides a uniform structure for packing instanced vertex-buffer
- *  data with consistent stride into a vector of 256K 'Buckets'.
+ *  data with consistent stride into a vector of 512K 'Buckets'.
  *
  *  This results in a space-efficient way of managing GPU data of things like UI
  *  widgets. These can potentially have numerous binding instances, so this avoids
