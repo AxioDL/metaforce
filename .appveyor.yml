@@ -46,8 +46,8 @@ install:
   - set LLVM_VERSION=10.0.1
   - set LLVM_URL="https://axiodl.com/files/LLVM-%LLVM_VERSION%-win64.exe"
   - set LLVM_ROOT_DIR=C:\projects\deps\llvm-%LLVM_VERSION%
-  - if not exist LLVM-%LLVM_VERSION%-win64.exe appveyor DownloadFile %LLVM_URL% -FileName LLVM-%LLVM_VERSION%-win64.exe
-  - if not exist llvm-%LLVM_VERSION% LLVM-%LLVM_VERSION%-win64.exe /S /D=%LLVM_ROOT_DIR%
+  - if not exist "LLVM-%LLVM_VERSION%-win64.exe" appveyor DownloadFile %LLVM_URL% -FileName LLVM-%LLVM_VERSION%-win64.exe
+  - if not exist "llvm-%LLVM_VERSION%" LLVM-%LLVM_VERSION%-win64.exe /S /D=%LLVM_ROOT_DIR%
 
 before_build:
   # Configure ninja
