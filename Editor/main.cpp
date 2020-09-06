@@ -7,6 +7,7 @@
 #include "hecl/hecl.hpp"
 #include "hecl/CVarCommons.hpp"
 #include "hecl/Console.hpp"
+#include "fmt/chrono.h"
 
 static logvisor::Module AthenaLog("Athena");
 static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, fmt::string_view fmt,
@@ -167,7 +168,11 @@ int main(int argc, const boo::SystemChar** argv)
   hecl::SystemStringView logFile = hecl::SystemStringConv(cvarCmns.getLogFile()).sys_str();
   hecl::SystemString logFilePath;
   if (!logFile.empty()) {
-    logFilePath = fmt::format(FMT_STRING(_SYS_STR("{}/{}")), fileMgr.getStoreRoot(), logFile);
+    std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    char buf[100];
+    std::strftime(buf, 100, "%Y-%m-%d_%H-%M-%S", std::localtime(&time));
+    hecl::SystemString timeStr = hecl::SystemStringConv(buf).c_str();
+    logFilePath = fmt::format(FMT_STRING(_SYS_STR("{}/{}-{}")), fileMgr.getStoreRoot(), timeStr, logFile);
     logvisor::RegisterFileLogger(logFilePath.c_str());
   }
 
