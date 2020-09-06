@@ -39,7 +39,7 @@ Everything else is much too experimental to make portable/stable release builds 
         * Verify it's added to `%PATH%` by typing `python` in `cmd`.
     * macOS: `brew install python@3`
 * LLVM development package *(headers and libs)*
-    * [Specialized Windows Package](https://axiodl.com/files/LLVM-9.0.1-win64-lld.exe)
+    * [Specialized Windows Package](https://axiodl.com/files/LLVM-10.0.1-win64.exe)
     * macOS: `brew install --force-bottle llvm`
 * **[Windows]** [Visual Studio 2019 Community](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
     * Select `C++ Development` and verify the following packages are included:

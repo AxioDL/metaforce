@@ -35,26 +35,29 @@ install:
   ############################################################################
   # Install a recent CMake
   ############################################################################
-  - set CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v3.16.4/cmake-3.16.4-win64-x64.zip"
+  - set CMAKE_VERSION=3.16.4
+  - set CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v%CMAKE_VERSION%/cmake-%CMAKE_VERSION%-win64-x64.zip"
   - if not exist cmake.zip appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
   - if not exist cmake 7z x cmake.zip -oC:\projects\deps\cmake > nul
 
   ############################################################################
   # Install custom LLVM
   ############################################################################
-  - set LLVM_URL="https://axiodl.com/files/LLVM-9.0.1-win64.exe"
-  - if not exist llvm.exe appveyor DownloadFile %LLVM_URL% -FileName llvm.exe
-  - if not exist llvm llvm.exe /S /D=C:\projects\deps\llvm
+  - set LLVM_VERSION=10.0.1
+  - set LLVM_URL="https://axiodl.com/files/LLVM-%LLVM_VERSION%-win64.exe"
+  - set LLVM_ROOT_DIR=C:\projects\deps\llvm-%LLVM_VERSION%
+  - if not exist LLVM-%LLVM_VERSION%-win64.exe appveyor DownloadFile %LLVM_URL% -FileName LLVM-%LLVM_VERSION%-win64.exe
+  - if not exist llvm-%LLVM_VERSION% LLVM-%LLVM_VERSION%-win64.exe /S /D=%LLVM_ROOT_DIR%
 
 before_build:
   # Configure ninja
   - set PATH=C:\projects\deps\ninja;%PATH%
   - ninja --version
   # Configure cmake
-  - set PATH=C:\projects\deps\cmake\cmake-3.16.4-win64-x64\bin;%PATH%
+  - set PATH=C:\projects\deps\cmake\cmake-%CMAKE_VERSION%-win64-x64\bin;%PATH%
   - cmake --version
   # Configure LLVM
-  - set PATH=C:\projects\deps\llvm\bin;%PATH%
+  - set PATH=%LLVM_ROOT_DIR%\bin;%PATH%
   - llvm-config --version
   - clang-cl -v
   # Configure VS
@@ -66,8 +69,7 @@ before_build:
 build_script:
   - mkdir build
   - cd build
-  # -DCMAKE_LINKER=lld-link -DCMAKE_AR=llvm-ar -DCMAKE_RANLIB=llvm-ranlib
-  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DLLVM_ROOT_DIR=C:\projects\deps\llvm -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -GNinja ..
+  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DLLVM_ROOT_DIR=%LLVM_ROOT_DIR% -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_LINKER=lld-link -DCMAKE_AR=llvm-ar -DCMAKE_RANLIB=llvm-ranlib -GNinja ..
   - ninja urde
 
 #notifications:
