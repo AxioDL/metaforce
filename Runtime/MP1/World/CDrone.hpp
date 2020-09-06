@@ -70,11 +70,12 @@ class CDrone : public CPatterned {
   zeus::CVector3f x7ac_lightPos;
   float x7b8_ = 0.f;
   float x7bc_ = 0.f;
+  float x7c0_ = 0.f;
   float x7c4_ = 0.f;
   s32 x7c8_ = 0;
   s16 x7cc_;
   CSfxHandle x7d0_;
-  rstl::reserved_vector<TUniqueId, 2> x7d4_ = {{kInvalidUniqueId, kInvalidUniqueId}};
+  rstl::reserved_vector<TUniqueId, 2> x7d8_ = {{kInvalidUniqueId, kInvalidUniqueId}};
   rstl::reserved_vector<zeus::CVector3f, 2> x7e0_ = {{zeus::skZero3f, zeus::skZero3f}};
   rstl::reserved_vector<zeus::CVector3f, 2> x7fc_ = {{zeus::skZero3f, zeus::skZero3f}};
   rstl::reserved_vector<float, 2> x818_ = {{0.f, 0.f}};

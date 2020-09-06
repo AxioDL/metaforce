@@ -218,7 +218,7 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
   }
   case EScriptObjectMessage::Deactivate:
   case EScriptObjectMessage::Deleted: {
-    for (TUniqueId& unkId : x7d4_) {
+    for (TUniqueId& unkId : x7d8_) {
       if (unkId != kInvalidUniqueId) {
         mgr.FreeScriptObject(unkId);
         unkId = kInvalidUniqueId;
@@ -228,9 +228,11 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
     mgr.GetPlayerState()->GetStaticInterference().RemoveSource(GetUniqueId());
     if (x578_lightId != kInvalidUniqueId) {
       mgr.FreeScriptObject(x578_lightId);
+      x578_lightId = kInvalidUniqueId;
     }
     if (x57a_ != kInvalidUniqueId) {
       mgr.FreeScriptObject(x57a_);
+      x57a_ = kInvalidUniqueId;
     }
 
     if (x7d0_) {
@@ -243,7 +245,7 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
     x834_29_codeTrigger = true;
     break;
   case EScriptObjectMessage::OnFloor:
-    if (!x835_26_ && x834_24_) {
+    if (!x835_26_ && x834_24_ && !IsAlive()) {
       x835_26_ = true;
       MassiveFrozenDeath(mgr);
     }
@@ -822,10 +824,12 @@ void CDrone::SetLightEnabled(CStateManager& mgr, bool activate) {
                           activate ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);
 }
 
-void CDrone::SetVisorFlareEnabled(CStateManager& mgr, bool activate) {}
+void CDrone::SetVisorFlareEnabled(CStateManager& mgr, bool activate) {
+  // TODO implement
+}
 
 void CDrone::UpdateVisorFlare(CStateManager& mgr) {
-  // TODO: Finish
+  // TODO implement
 }
 
 void CDrone::UpdateTouchBounds(float radius) {
