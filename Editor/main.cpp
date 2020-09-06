@@ -48,17 +48,17 @@ static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf) {
 }
 
 struct Application : boo::IApplicationCallback {
-  hecl::Runtime::FileStoreManager m_fileMgr;
-  hecl::CVarManager m_cvarManager;
-  hecl::CVarCommons m_cvarCommons;
+  hecl::Runtime::FileStoreManager& m_fileMgr;
+  hecl::CVarManager& m_cvarManager;
+  hecl::CVarCommons& m_cvarCommons;
   std::unique_ptr<ViewManager> m_viewManager;
 
   std::atomic_bool m_running = {true};
 
-  Application()
-  : m_fileMgr(_SYS_STR("urde"))
-  , m_cvarManager(m_fileMgr)
-  , m_cvarCommons(m_cvarManager)
+  Application(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr, hecl::CVarCommons& cvarCmns)
+  : m_fileMgr(fileMgr)
+  , m_cvarManager(cvarMgr)
+  , m_cvarCommons(cvarCmns)
   , m_viewManager(std::make_unique<ViewManager>(m_fileMgr, m_cvarManager)) {}
 
   virtual ~Application() = default;
@@ -89,6 +89,7 @@ struct Application : boo::IApplicationCallback {
 
   void initialize(boo::IApplication* app) {
     zeus::detectCPU();
+
     for (const boo::SystemString& arg : app->getArgs()) {
       if (arg.find(_SYS_STR("--verbosity=")) == 0 || arg.find(_SYS_STR("-v=")) == 0) {
         hecl::SystemUTF8Conv utf8Arg(arg.substr(arg.find_last_of('=') + 1));
@@ -159,6 +160,17 @@ int main(int argc, const boo::SystemChar** argv)
   }
 
   SetupBasics(IsClientLoggingEnabled(argc, argv));
+  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("urde")};
+  hecl::CVarManager cvarMgr{fileMgr};
+  hecl::CVarCommons cvarCmns{cvarMgr};
+
+  hecl::SystemStringView logFile = hecl::SystemStringConv(cvarCmns.getLogFile()).sys_str();
+  hecl::SystemString logFilePath;
+  if (!logFile.empty()) {
+    logFilePath = fmt::format(FMT_STRING(_SYS_STR("{}/{}")), fileMgr.getStoreRoot(), logFile);
+    fmt::print(FMT_STRING("{}\n"), logFilePath);
+    logvisor::RegisterFileLogger(logFilePath.c_str());
+  }
 
   if (hecl::SystemChar* cwd = hecl::Getcwd(CwdBuf, 1024)) {
     if (hecl::PathRelative(argv[0]))
@@ -172,7 +184,7 @@ int main(int argc, const boo::SystemChar** argv)
   /* Handle -j argument */
   hecl::SetCpuCountOverride(argc, argv);
 
-  urde::Application appCb;
+  urde::Application appCb(fileMgr, cvarMgr, cvarCmns);
   int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, appCb, _SYS_STR("urde"), _SYS_STR("URDE"), argc,
                                 argv, appCb.getGraphicsApi(), appCb.getSamples(), appCb.getAnisotropy(),
                                 appCb.getDeepColor(), false);
