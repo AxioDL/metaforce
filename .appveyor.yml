@@ -28,7 +28,7 @@ install:
   ############################################################################
   # Install Ninja
   ############################################################################
-  - set NINJA_URL="https://github.com/ninja-build/ninja/releases/download/v1.10.0/ninja-win.zip"
+  - set NINJA_URL=https://github.com/ninja-build/ninja/releases/download/v1.10.0/ninja-win.zip
   - if not exist ninja.zip appveyor DownloadFile %NINJA_URL% -FileName ninja.zip
   - if not exist ninja 7z x ninja.zip -oC:\projects\deps\ninja > nul
 
@@ -36,7 +36,7 @@ install:
   # Install a recent CMake
   ############################################################################
   - set CMAKE_VERSION=3.16.4
-  - set CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v%CMAKE_VERSION%/cmake-%CMAKE_VERSION%-win64-x64.zip"
+  - set CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v%CMAKE_VERSION%/cmake-%CMAKE_VERSION%-win64-x64.zip
   - if not exist cmake.zip appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
   - if not exist cmake 7z x cmake.zip -oC:\projects\deps\cmake > nul
 
@@ -44,10 +44,10 @@ install:
   # Install custom LLVM
   ############################################################################
   - set LLVM_VERSION=10.0.1
-  - set LLVM_URL="https://axiodl.com/files/LLVM-%LLVM_VERSION%-win64.exe"
-  - set LLVM_ROOT_DIR="C:\projects\deps\llvm-%LLVM_VERSION%"
+  - set LLVM_URL=https://axiodl.com/files/LLVM-%LLVM_VERSION%-win64.exe
+  - set LLVM_ROOT_DIR=C:\projects\deps\llvm-%LLVM_VERSION%
   - if not exist "LLVM-%LLVM_VERSION%-win64.exe" appveyor DownloadFile %LLVM_URL% -FileName "LLVM-%LLVM_VERSION%-win64.exe"
-  - if not exist "llvm-%LLVM_VERSION%" LLVM-%LLVM_VERSION%-win64.exe /S "/D=%LLVM_ROOT_DIR%"
+  - if not exist "llvm-%LLVM_VERSION%" "LLVM-%LLVM_VERSION%-win64.exe" /S "/D=%LLVM_ROOT_DIR%"
 
 before_build:
   # Configure ninja
