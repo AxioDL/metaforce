@@ -168,7 +168,6 @@ int main(int argc, const boo::SystemChar** argv)
   hecl::SystemString logFilePath;
   if (!logFile.empty()) {
     logFilePath = fmt::format(FMT_STRING(_SYS_STR("{}/{}")), fileMgr.getStoreRoot(), logFile);
-    fmt::print(FMT_STRING("{}\n"), logFilePath);
     logvisor::RegisterFileLogger(logFilePath.c_str());
   }
 
