@@ -143,7 +143,7 @@ void CThardusRockProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
                                        std::move(mData), 0.f, hInfo, CDamageVulnerability::NormalVulnerabilty(),
                                        GetMaterialList(), x59c_stateMachine, actParms, x57c_[i], 1);
       rock->Set_x340(false);
-      rock->Set_x32c(x50c_baseDamageMag);
+      rock->SetThermalMag(x50c_baseDamageMag);
       mgr.AddObject(rock);
       x58c_destroyableRocks.push_back(uid);
     }
@@ -355,7 +355,7 @@ void CThardusRockProjectile::ExplodeAndShake(CStateManager& mgr, const zeus::CVe
 
   if (auto thardus = static_cast<CThardus*>(mgr.ObjectById(x5d0_thardusId))) {
     DoExplosion(mgr, x5c8_, pos, GetModelData()->GetScale(), 0);
-    thardus->ApplyCameraShake(0.75f, 125.f, 1.f, mgr, pos, pos);
+    thardus->ApplyCameraShake(0.75f, 125.f, 1.f, mgr, pos);
   }
 }
 void CThardusRockProjectile::ModifyActorMaterial(CStateManager& mgr, bool remove, EMaterialTypes mat) {

@@ -24,7 +24,7 @@ public:
   zeus::CVector3f Cohesion(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, 1024>& list,
                            float dampingRadius, const CStateManager& mgr) const;
   zeus::CVector2f Flee2D(const CPhysicsActor& actor, const zeus::CVector2f& v0) const;
-  zeus::CVector2f Arrival2D(const CPhysicsActor& actor, const zeus::CVector2f& v0, float f1) const;
+  zeus::CVector2f Arrival2D(const CPhysicsActor& actor, const zeus::CVector2f& v0) const;
   static bool SolveQuadratic(float, float, float, float&, float&);
   static bool SolveCubic(const rstl::reserved_vector<float, 4>& in, rstl::reserved_vector<float, 4>& out);
   static bool SolveQuartic(const rstl::reserved_vector<float, 5>& in, rstl::reserved_vector<float, 4>& out);

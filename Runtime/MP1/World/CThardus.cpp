@@ -18,6 +18,7 @@
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CScriptDistanceFog.hpp"
 #include "Runtime/World/CScriptWaypoint.hpp"
+#include "Runtime/World/CRepulsor.hpp"
 #include "Runtime/World/CWorld.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
@@ -127,7 +128,93 @@ CThardus::CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info
   SetMass(100000.f);
 }
 
-void CThardus::sub801dbf34(float dt, CStateManager& mgr) {}
+void CThardus::sub801dbf34(float dt, CStateManager& mgr) {
+  if (x7c4_ == 0) {
+    x93a_ = false;
+    return;
+  }
+
+  bool bVar9 = false;
+  float dVar15 = 0.f;
+  float dVar13 = 1.f;
+  if (x928_currentRockId != kInvalidUniqueId) {
+    if (TCastToPtr<CActor> rock = mgr.ObjectById(x928_currentRockId)) {
+      x92c_currentRockPos = rock->GetTranslation();
+    } else {
+      x928_currentRockId = kInvalidUniqueId;
+    }
+  }
+
+  if (!x939_) {
+    CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+    zeus::CVector3f posDiff = x92c_currentRockPos - cam->GetTranslation();
+    zeus::CVector3f camFront = cam->GetTransform().frontVector();
+    zeus::CVector3f direction = posDiff.normalized();
+    dVar13 = 0.f;
+    float dVar11 = direction.dot(camFront);
+    if (dVar13 <= dVar11) {
+      dVar13 = dVar11 * dVar11;
+    }
+  }
+
+  if (x7c4_ == 2) {
+    dVar15 = -(x7b8_ <= 2.f ? x7b8_ : 2.f) * 0.5f - 1.f; // std::min doesn't quite cut the mustard here
+    if (x7b8_ > 2.f) {
+      x7c4_ = 0;
+      x7b8_ = 0.f;
+      x7c0_ = 0.f;
+    }
+    x7b8_ += dt;
+  } else if (x7c4_ == 1) {
+    dVar15 = (x7b8_ <= 0.25f ? x7b8_ : 0.25f) / 0.25f;
+
+    if (x7b8_ > 0.25f) {
+      x7c4_ = 3;
+      x7b8_ = 0.f;
+    }
+    x7b8_ += dt;
+    if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal) {
+      x688_ = true;
+    }
+  } else if (x7c4_ == 3) {
+    dVar15 = 1.f;
+    if (x7bc_ < x7b8_ && !x938_) {
+      x7c4_ = 2;
+      x7b8_ = 0.f;
+    }
+
+    x7b8_ += dt;
+    if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal) {
+      bVar9 = false;
+      x688_ = true;
+      if (x938_ && dVar13 > 0.75f) {
+        bVar9 = true;
+      }
+    }
+  }
+
+  x7c0_ = dVar15 * dVar13;
+  const float mag = 0.8f * (dVar15 * dVar13);
+  mgr.SetThermalColdScale2(mgr.GetThermalColdScale2() + mag);
+  x50c_baseDamageMag = mag;
+
+  if (x93a_ != bVar9) {
+    if (bVar9) {
+      CSamusHud::DisplayHudMemo(g_MainStringTable->GetString(18), CHUDMemoParms(5.f, true, false, false));
+    }
+    x93a_ = bVar9;
+  }
+}
+
+void CThardus::sub801de9f8(CStateManager& mgr) {
+  float dVar5 = mgr.GetActiveRandom()->Float();
+  if (!sub801dc2c8() || dVar5 >= 0.3f) {
+
+  } else {
+    x93b_ = true;
+  }
+}
+
 void CThardus::sub801dd608(CStateManager& mgr) {
   zeus::CVector3f scale = GetModelData()->GetScale();
   CAnimData* animData = GetModelData()->GetAnimationData();
@@ -140,7 +227,59 @@ void CThardus::sub801dd608(CStateManager& mgr) {
       gl->SetTransform(xf);
   }
 }
-void CThardus::sub801dcfa4(CStateManager& mgr) {}
+void CThardus::sub801dcfa4(CStateManager& mgr) {
+  for (size_t j = 0; j < x5f0_rockColliders->GetNumCollisionActors(); ++j) {
+    const auto& jInfo = x5f0_rockColliders->GetCollisionDescFromIndex(j);
+    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(jInfo.GetCollisionActorId())) {
+      if (!colAct->GetActive()) {
+        continue;
+      }
+      TUniqueId rockId = x610_destroyableRocks[j];
+      if (auto rock = static_cast<CDestroyableRock*>(mgr.ObjectById(rockId))) {
+        if (x909_) {
+          *rock->HealthInfo(mgr) = CHealthInfo(x90c_[j], 0.f);
+        }
+        if (j == x648_currentRock && !x93d_) {
+          colAct->SetDamageVulnerability(*rock->GetDamageVulnerability());
+          rock->SetThermalMag(0.8f);
+        } else {
+          colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
+          rock->SetThermalMag(0.f);
+        }
+
+        CHealthInfo* hInfo = colAct->HealthInfo(mgr);
+        if (hInfo) {
+          if (hInfo->GetHP() > 0.f) {
+            *rock->HealthInfo(mgr) = *hInfo;
+            if (!x909_) {
+              x90c_[j] = hInfo->GetHP();
+            }
+          } else if (!rock->IsUsingPhazonModel()) {
+            sub801dae2c(mgr, j);
+            DoFaint(mgr);
+          } else {
+            rock->SetActive(false);
+            colAct->SetActive(false);
+            mgr.ObjectById(x6c0_rockLights[j])->SetActive(false);
+            ++x648_currentRock;
+            DoFlinch(mgr);
+            const bool isThermalActive = mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Thermal;
+            if (isThermalActive || (!isThermalActive && x7c4_ != 3)) {
+              sub801dc444(mgr, GetTranslation(), x6d8_);
+            }
+            ProcessSoundEvent(x758_, 1.f, 0, 0.1f, 1000.f, 0.16f, 1.f, zeus::skZero3f, GetTranslation(),
+                              mgr.GetNextAreaId(), mgr, true);
+
+            if (sub801dc2c8() && !x8f0_) {
+              DoDoubleSnap(mgr);
+            }
+            sub801dbc40();
+          }
+        }
+      }
+    }
+  }
+}
 
 void CThardus::Think(float dt, CStateManager& mgr) {
   if (!GetActive() && x450_bodyController->GetActive()) {
@@ -165,8 +304,9 @@ void CThardus::Think(float dt, CStateManager& mgr) {
   if (!sub801dc2c8()) {
     if (x648_currentRock < x610_destroyableRocks.size() - 2)
       x690_ = 1.f;
-    else
+    else {
       x690_ = 1.f;
+    }
   } else {
     x690_ = 1.f;
     SendScriptMsgs(EScriptObjectState::DeactivateState, mgr, EScriptObjectMessage::None);
@@ -268,7 +408,7 @@ void CThardus::Think(float dt, CStateManager& mgr) {
     UpdateExcludeList(x5f8_, EUpdateMaterialMode::Remove, EMaterialTypes::Player, mgr);
   }
 
-  sub801db148(mgr);
+  UpdateHealthInfo(mgr);
 }
 
 void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
@@ -401,21 +541,21 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
 
     for (const SConnection& conn : GetConnectionList()) {
       TUniqueId connId = mgr.GetIdForScript(conn.x8_objId);
-      if (connId == kInvalidUniqueId)
+      if (connId == kInvalidUniqueId) {
         continue;
+      }
 
       if (conn.x0_state == EScriptObjectState::Patrol) {
         if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(connId)) {
           rstl::reserved_vector<TUniqueId, 16> wpIds;
           GatherWaypoints(wp, mgr, wpIds);
-          for (const auto& id : wpIds)
-            x574_waypoints.push_back(id);
+          x578_waypoints.push_back(wpIds);
         } else if (CPatterned* p = CPatterned::CastTo<CThardusRockProjectile>(mgr.ObjectById(connId))) {
           x5fc_projectileId = connId;
           x60c_projectileEditorId = conn.x8_objId;
           p->SetActive(false);
         } else if (TCastToConstPtr<CRepulsor>(mgr.GetObjectById(connId))) {
-          x660_repulsors.push_back(connId);
+          x664_repulsors.push_back(connId);
         } else if (TCastToConstPtr<CScriptDistanceFog>(mgr.GetObjectById(connId))) {
           x64c_fog = connId;
         }
@@ -452,7 +592,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
         if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(lastTouchedObj)) {
           if (GetBodyController()->GetBodyStateInfo().GetCurrentAdditiveStateId() !=
                   pas::EAnimationState::AdditiveReaction &&
-              rock->Get_x324() <= 0.f) {
+              rock->GetThrmalMag() <= 0.f) {
             GetBodyController()->GetCommandMgr().DeliverCmd(
                 CBCAdditiveReactionCmd(pas::EAdditiveReactionType::Five, 1.f, false));
           }
@@ -487,14 +627,20 @@ void CThardus::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
     xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
   }
 }
+
 void CThardus::Render(CStateManager& mgr) {
   CPatterned::Render(mgr);
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal && x7c4_ != 0) {
     RenderFlare(mgr, x7c0_);
   }
 }
-void CThardus::Touch(CActor& act, CStateManager& mgr) { CPatterned::Touch(act, mgr); }
+
+void CThardus::Touch(CActor& act, CStateManager& mgr) {
+  // Intentionally empty
+}
+
 zeus::CVector3f CThardus::GetOrbitPosition(const CStateManager& mgr) const { return GetAimPosition(mgr, 0.f); }
+
 zeus::CVector3f CThardus::GetAimPosition(const CStateManager& mgr, float dt) const {
   return GetLctrTransform(x93c_ ? "center_LCTR"sv : "Neck_1"sv).origin;
 }
@@ -504,8 +650,54 @@ zeus::CAABox CThardus::GetSortingBounds(const CStateManager& mgr) const {
 }
 
 void CThardus::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
-  CPatterned::DoUserAnimEvent(mgr, node, type, dt);
+  switch (type) {
+  case EUserEventType::Projectile: {
+    break;
+  }
+  case EUserEventType::LoopedSoundStop:
+    CPatterned::DoUserAnimEvent(mgr, node, type, dt);
+    break;
+  case EUserEventType::AlignTargetPos: {
+    SetState(2, mgr);
+    break;
+  }
+  case EUserEventType::Delete:
+    CPatterned::DoUserAnimEvent(mgr, node, type, dt);
+    break;
+  case EUserEventType::DamageOn: {
+
+    break;
+  }
+  case EUserEventType::DamageOff: {
+    x7c8_ = false;
+    x7cc_ = zeus::skZero3f;
+    break;
+  }
+  case EUserEventType::Landing: {
+    x93c_ = false;
+    break;
+  }
+  case EUserEventType::TakeOff: {
+    break;
+  }
+  case EUserEventType::FadeIn: {
+    break;
+  }
+  case EUserEventType::FadeOut: {
+    if (x644_ == 1) {
+      x93c_ = true;
+      x688_ = true;
+    }
+    break;
+  }
+  case EUserEventType::ScreenShake:
+    ApplyCameraShake(1.25f, 125.f, 1.f, mgr, GetTranslation());
+    [[fallthrough]];
+  default:
+    break;
+  }
 }
+
 void CThardus::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x658_ = -1;
@@ -524,12 +716,14 @@ void CThardus::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
     x94d_ = false;
   }
 }
+
 void CThardus::Dead(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     SetTransform(x764_startTransform);
   }
   CPatterned::Dead(mgr, msg, arg);
 }
+
 void CThardus::PathFind(CStateManager& mgr, EStateMsg msg, float arg) {
   CPatterned::PathFind(mgr, msg, arg);
   if (msg == EStateMsg::Activate) {
@@ -537,11 +731,19 @@ void CThardus::PathFind(CStateManager& mgr, EStateMsg msg, float arg) {
     x7e4_ = x7d8_ = x2e0_destPos;
     CPatterned::PathFind(mgr, EStateMsg::Activate, arg);
   } else if (msg == EStateMsg::Update) {
-
+    if ((GetTranslation().toVec2f() - x7e4_.toVec2f()).magnitude() < 10.f) {
+      x2e0_destPos = sub801de434(mgr);
+      x7d8_ = x2e0_destPos;
+      x7e4_ = x7d8_;
+      CPatterned::PathFind(mgr, EStateMsg::Activate, arg);
+      ++x660_;
+    }
+    x650_ = sub801dc60c(arg, mgr);
   } else if (msg == EStateMsg::Deactivate) {
     x8d4_ = false;
   }
 }
+
 void CThardus::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x5ec_ = 0;
@@ -562,6 +764,7 @@ void CThardus::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
     }
   }
 }
+
 void CThardus::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x5ec_ = 0;
@@ -602,12 +805,13 @@ void CThardus::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
     }
   }
 }
+
 void CThardus::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x658_ = 0;
-    // x660_repulsors TODO(phil): Determine I have the type correct
+    x660_ = 0;
     x570_ = 0;
-    // x574_ TODO(phil): Determine I have the type correct
+    x574_ = 0;
     sub801dec80();
     x93b_ = false;
     x5c4_ = -1;
@@ -649,13 +853,18 @@ void CThardus::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CThardus::DoubleSnap(CStateManager& mgr, EStateMsg msg, float arg) {}
+void CThardus::DoubleSnap(CStateManager& mgr, EStateMsg msg, float arg) {
+  // Intentionally empty
+}
 
-void CThardus::Shuffle(CStateManager& mgr, EStateMsg msg, float arg) {}
+void CThardus::Shuffle(CStateManager& mgr, EStateMsg msg, float arg) {
+  // Intentionally empty
+}
 
 void CThardus::GetUp(CStateManager& mgr, EStateMsg msg, float arg) {
-  if (msg != EStateMsg::Activate)
+  if (msg != EStateMsg::Activate) {
     return;
+  }
   RemoveMaterial(EMaterialTypes::RadarObject, mgr);
 }
 
@@ -885,9 +1094,9 @@ bool CThardus::InRange(CStateManager& mgr, float arg) {
          10.f * GetModelData()->GetScale().x();
 }
 
-bool CThardus::PatternOver(CStateManager& mgr, float arg) { return !x574_waypoints.empty() || x93b_; }
+bool CThardus::PatternOver(CStateManager& mgr, float arg) { return x570_ != 0 || x93b_; }
 bool CThardus::AnimOver(CStateManager& mgr, float arg) { return x5ec_ == 3; }
-bool CThardus::InPosition(CStateManager& mgr, float arg) { return x660_repulsors.size() > 3; }
+bool CThardus::InPosition(CStateManager& mgr, float arg) { return x660_ > 3; }
 bool CThardus::ShouldTurn(CStateManager& mgr, float arg) {
   return std::fabs(zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(),
                                                  mgr.GetPlayer().GetTranslation().toVec2f() -
@@ -969,10 +1178,10 @@ void CThardus::_SetupCollisionManagers(CStateManager& mgr) {
       if (CDestroyableRock* rock = static_cast<CDestroyableRock*>(mgr.ObjectById(x610_destroyableRocks[i]))) {
         if (i == 0) {
           colAct->SetDamageVulnerability(*rock->GetDamageVulnerability());
-          rock->Set_x32c(0.8f);
+          rock->SetThermalMag(0.8f);
         } else {
           colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
-          rock->Set_x32c(0.f);
+          rock->SetThermalMag(0.f);
         }
 
         *colAct->HealthInfo(mgr) = *rock->HealthInfo(mgr);
@@ -1011,7 +1220,7 @@ void CThardus::sub801dae2c(CStateManager& mgr, u32 rockIndex) {
       hInfo = rockCol->HealthInfo(mgr);
       hInfo->SetHP(hp);
       hInfo->SetKnockbackResistance(2.f);
-      CGameLight* light = static_cast<CGameLight*>(mgr.ObjectById(x6c0_rockLights[rockIndex]));
+      auto light = static_cast<CGameLight*>(mgr.ObjectById(x6c0_rockLights[rockIndex]));
       light->SetActive(true);
       if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal ||
           (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Thermal && x7c4_ != 3)) {
@@ -1085,10 +1294,13 @@ void CThardus::UpdateExcludeList(const std::unique_ptr<CCollisionActorManager>& 
 }
 
 void CThardus::RenderFlare(const CStateManager& mgr, float t) {
-  if (!x91c_flareTexture)
+  if (!x91c_flareTexture) {
     return;
-  if (!m_flareFilter)
+  }
+
+  if (!m_flareFilter) {
     m_flareFilter.emplace(EFilterType::Add, x91c_flareTexture);
+  }
 
   const float scale = 30.f * t;
   zeus::CVector3f offset = scale * CGraphics::g_ViewMatrix.basis[2];
@@ -1124,13 +1336,94 @@ void CThardus::RenderFlare(const CStateManager& mgr, float t) {
   CGraphics::StreamEnd();
 #endif
 
-zeus::CVector3f CThardus::sub801de550(const CStateManager& mgr) const {
-  if (x570_)
-    return {};
+zeus::CVector3f CThardus::sub801de550(CStateManager& mgr) {
 
-  return {};
+  s8 wpIdx = -1;
+  s8 pathIdx = -1;
+  if (!x578_waypoints.empty()) {
+    zeus::CVector2f thisPos = GetTranslation().toVec2f();
+    std::vector<u32> unkVec;
+    unkVec.reserve(x578_waypoints.size());
+    for (const auto& path : x578_waypoints) {
+      float maxDist = 1000000.f;
+      u32 lastIdx = 0;
+      for (size_t i = 0; i < path.size(); ++i) {
+        TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(path[i]);
+        const float curDist = (wp->GetTranslation().toVec2f() - thisPos).magnitude();
+        if (curDist < maxDist) {
+          lastIdx = i;
+          maxDist = curDist;
+        }
+      }
+
+      unkVec.push_back(lastIdx);
+    }
+    zeus::CVector2f plVec = mgr.GetPlayer().GetTranslation().toVec2f();
+
+    float maxDist = 0.f;
+    float curDist = 0.f;
+
+    for (size_t i = 0; i < x578_waypoints.size(); ++i) {
+      TCastToConstPtr<CScriptWaypoint> wp1 = mgr.GetObjectById(x578_waypoints[i][unkVec[i]]);
+      TCastToConstPtr<CScriptWaypoint> wp2 = mgr.GetObjectById(wp1->NextWaypoint(mgr));
+      const float wp1Dist = (wp1->GetTranslation().toVec2f() - mgr.GetPlayer().GetTranslation().toVec2f()).magnitude();
+      const float wp2Dist = (wp2->GetTranslation().toVec2f() - mgr.GetPlayer().GetTranslation().toVec2f()).magnitude();
+      if (curDist < wp1Dist && wp1Dist <= wp2Dist) {
+        curDist = wp1Dist;
+        pathIdx = i;
+      }
+
+      if (maxDist < wp1Dist) {
+        maxDist = wp1Dist;
+        wpIdx = i;
+      }
+    }
+
+    if (pathIdx == -1) {
+      pathIdx = wpIdx;
+    }
+  }
+
+  if (pathIdx == -1 || wpIdx == -1) {
+    return {};
+  }
+
+  x8f1_curPatrolPath = pathIdx;
+  x8f2_curPatrolPathWaypoint = wpIdx;
+  return TCastToConstPtr<CScriptWaypoint>(mgr.GetObjectById(x578_waypoints[pathIdx][wpIdx]))->GetTranslation();
 }
-zeus::CVector2f CThardus::sub801dac30(CStateManager& mgr) const { return {}; }
+
+zeus::CVector3f CThardus::sub801de434(CStateManager& mgr) {
+  if (x8f1_curPatrolPath == -1 || x8f2_curPatrolPathWaypoint == -1) {
+    return {};
+  }
+  s8 tmpWpIdx = x8f2_curPatrolPathWaypoint;
+  x8f2_curPatrolPathWaypoint = (x8f2_curPatrolPathWaypoint + 1) % x578_waypoints[x8f1_curPatrolPath].size();
+  return TCastToConstPtr<CScriptWaypoint>(
+             mgr.GetObjectById(x578_waypoints[x8f1_curPatrolPath][x8f2_curPatrolPathWaypoint]))
+      ->GetTranslation();
+}
+
+zeus::CVector2f CThardus::sub801dac30(CStateManager& mgr) const {
+  zeus::CVector2f ret;
+  zeus::CVector3f pos = GetTranslation();
+  for (const auto& repulsor : x664_repulsors) {
+    TCastToConstPtr<CRepulsor> rep = mgr.GetObjectById(repulsor);
+    const zeus::CVector2f repPos = rep->GetTranslation().toVec2f();
+    const float dist = (pos - repPos).magSquared();
+    if (dist < (rep->GetAffectRadius() * rep->GetAffectRadius())) {
+      // std::sqrt(dist);
+      x45c_steeringBehaviors.Flee2D(*this, repPos);
+      break;
+    }
+  }
+
+  if (ret != zeus::skZero2f) {
+    ret = x45c_steeringBehaviors.Arrival2D(*this, x764_startTransform.origin.toVec2f());
+  }
+  return ret;
+}
+
 bool CThardus::sub801db5b4(CStateManager& mgr) const {
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
     return !x93a_ || x7c4_ == 0;
@@ -1138,9 +1431,11 @@ bool CThardus::sub801db5b4(CStateManager& mgr) const {
 
   return true;
 }
-void CThardus::ApplyCameraShake(float magnitude, float sfxDistance, float duration, CStateManager& mgr, const zeus::CVector3f& v1,
-                           const zeus::CVector3f& v2) {
-  float bounceIntensity = std::max(0.f, -((v1 - mgr.GetPlayer().GetTranslation()).magnitude() * (magnitude / sfxDistance) - magnitude));
+
+void CThardus::ApplyCameraShake(float magnitude, float sfxDistance, float duration, CStateManager& mgr,
+                                const zeus::CVector3f& v1) {
+  float bounceIntensity =
+      std::max(0.f, -((v1 - mgr.GetPlayer().GetTranslation()).magnitude() * (magnitude / sfxDistance) - magnitude));
   if (mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId() == mgr.GetCameraManager()->GetCurrentCameraId()) {
     mgr.GetCameraManager()->AddCameraShaker(
         CCameraShakeData::BuildMissileCameraShake(duration, magnitude, sfxDistance, GetTranslation()), true);
@@ -1150,6 +1445,22 @@ void CThardus::ApplyCameraShake(float magnitude, float sfxDistance, float durati
     BouncePlayer(bounceIntensity, mgr);
   }
 }
+
+void CThardus::UpdateHealthInfo(CStateManager& mgr) {
+  // TODO: This isn't quite right, need to figure out why
+  float hp = 0.f;
+  for (size_t i = 0; i < x610_destroyableRocks.size(); ++i) {
+    float fVar1 = x648_currentRock == (x610_destroyableRocks.size() - 1) ? 2.f * x6a4_ : x6a4_;
+    if (auto rock = static_cast<CDestroyableRock*>(mgr.ObjectById(x610_destroyableRocks[i]))) {
+      if (!rock->IsUsingPhazonModel()) {
+        hp += fVar1;
+      }
+      hp += rock->GetHealthInfo(mgr)->GetHP();
+    }
+  }
+  HealthInfo(mgr)->SetHP(hp);
+}
+
 void CThardus::BouncePlayer(float intensity, CStateManager& mgr) {
   if (intensity <= 0.f) {
     return;
@@ -1169,5 +1480,34 @@ void CThardus::BouncePlayer(float intensity, CStateManager& mgr) {
     mgr.GetPlayer().ApplyImpulseWR(mgr.GetPlayer().GetMass() * (baseImpulse + additionalImpulse), zeus::CAxisAngle());
     mgr.GetPlayer().SetMoveState(CPlayer::EPlayerMovementState::ApplyJump, mgr);
   }
+}
+
+void CThardus::sub801dbc40() {
+  x7b8_ = FLT_EPSILON + x7bc_;
+  x938_ = false;
+}
+zeus::CVector2f CThardus::sub801dc60c(float arg, CStateManager& mgr) {
+  zeus::CVector2f ret;
+  if (GetSearchPath()) {
+    if (GetSearchPath()->GetResult() == CPathFindSearch::EResult::Success) {
+      CPatterned::PathFind(mgr, EStateMsg::Update, arg);
+      ret = GetBodyController()->GetCommandMgr().GetMoveVector().toVec2f();
+    } else {
+      ret = x45c_steeringBehaviors.Arrival(*this, x7d8_, 0.f).toVec2f();
+    }
+  }
+
+  if (x8d4_ || (!x8d4_ && x7f0_pathFindSearch.OnPath(GetTranslation()) != CPathFindSearch::EResult::Success)) {
+    zeus::CVector2f vec = sub801dac30(mgr);
+    if (vec != zeus::skZero2f) {
+      return vec;
+    }
+  }
+
+  if (ret != zeus::skZero2f) {
+    return x45c_steeringBehaviors.Arrival(*this, x7d8_, 0.f).toVec2f();
+  }
+
+  return ret;
 }
 } // namespace urde::MP1

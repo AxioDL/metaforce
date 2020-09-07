@@ -22,7 +22,8 @@ class CThardus : public CPatterned {
   u32 x568_;
   TUniqueId x56c_ = kInvalidUniqueId;
   u32 x570_ = 0;
-  std::vector<TUniqueId> x574_waypoints;
+  u32 x574_ = 0;
+  rstl::reserved_vector<rstl::reserved_vector<TUniqueId, 16>, 2> x578_waypoints;
   s32 x5c4_ = 1;
   bool x5c8_heardPlayer = false;
   /* NOTE(phil) These two vectors used to vectors of CModelData, They have been converted to vectors of CStaticRes due
@@ -50,7 +51,8 @@ class CThardus : public CPatterned {
   zeus::CVector2f x650_ = zeus::CVector2f(0.f, 1.f);
   s32 x658_ = -1;
   s32 x65c_ = -1;
-  std::vector<TUniqueId> x660_repulsors;
+  u32 x660_ = 0;
+  rstl::reserved_vector<TUniqueId, 16> x664_repulsors;
   bool x688_ = false;
   bool x689_ = false;
   u32 x68c_ = 0;
@@ -97,6 +99,8 @@ class CThardus : public CPatterned {
   zeus::CVector3f x8d8_;
   zeus::CVector3f x8e4_;
   bool x8f0_ = false;
+  s8 x8f1_curPatrolPath = -1;
+  s8 x8f2_curPatrolPathWaypoint = -1;
   std::vector<TUniqueId> x8f4_waypoints;
   CSfxHandle x904_ = 0;
   bool x908_ = false;
@@ -134,12 +138,11 @@ class CThardus : public CPatterned {
   void sub801dd4fc(const std::unique_ptr<CCollisionActorManager>& colMgr);
   void sub801dbf34(float dt, CStateManager& mgr);
   bool sub801dc2c8() const { return (x610_destroyableRocks.size() - 1) == x648_currentRock; }
-  void _DoSuckState(CStateManager& mgr) { x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Suck"sv); }
-  void sub801de9f8(CStateManager& mgr) {}
+  void sub801de9f8(CStateManager& mgr);
   void sub801dd608(CStateManager& mgr);
   void sub801dcfa4(CStateManager& mgr);
   void sub80deadc(CStateManager& mgr) {
-    if (x574_waypoints.empty()) {
+    if (x578_waypoints.empty()) {
       sub801de9f8(mgr);
     } else {
       if (sub801dc2c8() || x5c4_ != 0 || x944_ <= 0.f)
@@ -162,18 +165,29 @@ class CThardus : public CPatterned {
   void _BuildSphereJointList(const SSphereJointInfo* arr, size_t count, std::vector<CJointCollisionDescription>& list);
   void _BuildAABoxJointList(const SAABoxJointInfo* arr, size_t count, std::vector<CJointCollisionDescription>& list);
   void RenderFlare(const CStateManager& mgr, float t);
-  zeus::CVector3f sub801de550(const CStateManager& mgr) const;
-  zeus::CVector3f sub801de434(const CStateManager& mgr) const { return {}; }
+  zeus::CVector3f sub801de550(CStateManager& mgr);
+  zeus::CVector3f sub801de434(CStateManager& mgr);
+  zeus::CVector2f sub801dc60c(float f1, CStateManager& mgr);
+  void sub801dbc40();
 
   std::optional<CTexturedQuadFilter> m_flareFilter;
 
   void DoDoubleSnap(CStateManager& mgr) {
     x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "DoubleSnap"sv);
   }
+  void DoFaint(CStateManager& mgr) {
+    if (x644_ != 1) {
+      x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Faint"sv);
+    }
+  }
+  void DoFlinch(CStateManager& mgr) { x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Flinch"sv); }
+  void _DoSuckState(CStateManager& mgr) { x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Suck"sv); }
+
 
   zeus::CVector2f sub801dac30(CStateManager& mgr) const;
-  void sub801db148(CStateManager& mgr) const {}
+  void UpdateHealthInfo(CStateManager& mgr);
   void BouncePlayer(float f1, CStateManager& mgr);
+
 public:
   DEFINE_PATTERNED(Thardus);
   CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -228,7 +242,8 @@ public:
   bool AggressionCheck(CStateManager& mgr, float arg) override { return x330_stateMachineState.GetTime() > 0.1f; }
   bool AttackOver(CStateManager& mgr, float arg) override { return true; }
   bool ShouldTaunt(CStateManager& mgr, float arg) override { return false; }
-  bool ShouldMove(CStateManager& mgr, float arg) override { return x68c_ < x574_waypoints.size() || x93b_; }
+  bool ShouldMove(CStateManager& mgr, float arg) override { return x68c_ < x578_waypoints.size() || x93b_; }
+  bool StartAttack(CStateManager& mgr, float arg) override { return true; }
   bool CodeTrigger(CStateManager& mgr, float arg) override { return x95c_doCodeTrigger; }
   bool IsDizzy(CStateManager& mgr, float arg) override { return x330_stateMachineState.GetTime() > 4.f; }
   bool ShouldCallForBackup(CStateManager& mgr, float arg) override { return x330_stateMachineState.GetTime() > .5f; }
@@ -237,7 +252,8 @@ public:
 
   u32 Get_x7c4() const { return x7c4_; }
   bool sub801db5b4(CStateManager& mgr) const;
-  void ApplyCameraShake(float magnitude, float sfxDistance, float duration, CStateManager& mgr, const zeus::CVector3f& v1, const zeus::CVector3f& v2);
+  void ApplyCameraShake(float magnitude, float sfxDistance, float duration, CStateManager& mgr,
+                        const zeus::CVector3f& v1);
 };
 } // namespace MP1
 } // namespace urde
