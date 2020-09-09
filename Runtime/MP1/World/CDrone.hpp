@@ -11,7 +11,6 @@ namespace MP1 {
 class CDrone : public CPatterned {
   CAssetId x568_;
   TLockedToken<CCollisionResponseData> x56c_;
-  CCollisionResponseData* x574_;
   TUniqueId x578_lightId = kInvalidUniqueId;
   TUniqueId x57a_ = kInvalidUniqueId;
   std::vector<CVisorFlare::CFlareDef> x57c_flares;
