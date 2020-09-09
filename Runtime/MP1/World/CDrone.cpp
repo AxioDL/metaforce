@@ -768,6 +768,8 @@ bool CDrone::SpotPlayer(CStateManager& mgr, float arg) {
 
 bool CDrone::AnimOver(CStateManager& mgr, float arg) { return x7c8_ == 2; }
 
+bool CDrone::AttackOver(CStateManager& mgr, float arg) { return x834_31_attackOver; }
+
 bool CDrone::ShouldAttack(CStateManager& mgr, float arg) {
   if (x5d0_ > 0.f)
     return false;

@@ -154,6 +154,7 @@ public:
   bool InRange(CStateManager&, float arg) override;
   bool SpotPlayer(CStateManager&, float arg) override;
   bool AnimOver(CStateManager&, float arg) override;
+  bool AttackOver(CStateManager& mgr, float arg) override;
   bool ShouldAttack(CStateManager&, float arg) override;
   bool HearShot(CStateManager&, float arg) override;
   bool CoverCheck(CStateManager&, float arg) override;
