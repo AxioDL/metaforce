@@ -31,7 +31,7 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
                float f17, float f18, float f19, float f20, CAssetId crscId, float f21, float f22, float f23, float f24,
                s32 sId, bool b1)
 : CPatterned(ECharacter::Drone, uid, name, flavor, info, xf, std::move(mData), pInfo, movement, colliderType, bodyType,
-             actParms, EKnockBackVariant(flavor == EFlavorType::Zero))
+             actParms, flavor == EFlavorType::Zero ? EKnockBackVariant::Medium : EKnockBackVariant::Large)
 , x568_(aId1)
 , x56c_(g_SimplePool->GetObj({SBIG('CRSC'), crscId}))
 , x57c_flares(std::move(flares))
