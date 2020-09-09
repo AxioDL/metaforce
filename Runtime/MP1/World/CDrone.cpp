@@ -315,7 +315,7 @@ void CDrone::Render(CStateManager& mgr) {
 }
 
 bool CDrone::CanRenderUnsorted(const CStateManager& mgr) const {
-  if (zeus::close_enough(x5dc_, 0.f))
+  if (!zeus::close_enough(x5dc_, 0.f))
     return false;
   return CPatterned::CanRenderUnsorted(mgr);
 }
