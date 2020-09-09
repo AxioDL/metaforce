@@ -61,7 +61,7 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
 , x65c_(f21)
 , x660_(f22)
 , x664_(f24)
-, x690_(zeus::CSphere({0.f, 0.f, 1.8f}, 1.1f), CActor::GetMaterialList())
+, x690_colSphere(zeus::CSphere({0.f, 0.f, 1.8f}, 1.1f), CActor::GetMaterialList())
 , x6b0_pathFind(nullptr, 3 + int(b1), pInfo.GetPathfindingIndex(), 1.f, 2.4f)
 , x7cc_(CSfxManager::TranslateSFXID(sId))
 , x82c_shieldModel(std::make_unique<CModelData>(CStaticRes{aId2, zeus::skOne3f}))
@@ -281,6 +281,10 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
   }
 }
 
+void CDrone::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+  CPatterned::AddToRenderer(frustum, mgr);
+}
+
 void CDrone::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CPatterned::PreRender(mgr, frustum);
   if (x3fc_flavor == EFlavorType::One) {
@@ -401,7 +405,7 @@ void CDrone::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUse
 
 const CCollisionPrimitive* CDrone::GetCollisionPrimitive() const {
   if (!x834_28_)
-    return &x690_;
+    return &x690_colSphere;
   return CPatterned::GetCollisionPrimitive();
 }
 
