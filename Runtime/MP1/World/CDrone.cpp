@@ -835,6 +835,8 @@ void CDrone::UpdateVisorFlare(CStateManager& mgr) {
 void CDrone::UpdateTouchBounds(float radius) {
   const zeus::CTransform xf = GetLctrTransform("Skeleton_Root"sv);
   const zeus::CVector3f diff = xf.origin - GetTranslation();
+  x690_colSphere.SetSphereCenter(diff);
+  x690_colSphere.SetSphereRadius(radius);
   SetBoundingBox(zeus::CAABox{diff - radius, diff + radius});
   x6b0_pathFind.SetCharacterRadius(0.25f + radius);
 }
