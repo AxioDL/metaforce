@@ -155,6 +155,7 @@ public:
 
   CGenDescription* GetDesc() { return x1c_genDesc.GetObj(); }
   const SObjectTag* GetDescTag() const { return x1c_genDesc.GetObjectTag(); }
+  CGenDescription* GetLoadedDesc() { return x28_loadedGenDesc; }
 
   static bool g_ParticleSystemInitialized;
   static int g_ParticleAliveCount;
@@ -224,6 +225,10 @@ public:
   static void SetMoveRedToAlphaBuffer(bool move);
 
   s32 GetMaxParticles() const { return x90_MAXP; }
+  s32 GetMaxMaxParticles() const { return m_maxMAXP; }
+
+  std::vector<CParticle> const& GetParticles() const { return x30_particles; }
+  std::vector<CParticle> &GetParticles() { return x30_particles; }
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 
