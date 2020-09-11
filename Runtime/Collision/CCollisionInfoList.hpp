@@ -58,5 +58,35 @@ public:
   auto end() const noexcept { return x0_list.end(); }
   auto begin() noexcept { return x0_list.begin(); }
   auto begin() const noexcept { return x0_list.begin(); }
+
+  
+
+  
+  void AccumulateNewContactsInto(CCollisionInfoList& other_list) {
+    for (CCollisionInfo const& cur_info : x0_list) {
+      bool dont_add_new_info = false;
+      for (CCollisionInfo& other_info : other_list) {
+        if (!zeus::close_enough(other_info.GetPoint(), cur_info.GetPoint(), 0.1f)) {
+          continue;
+        }
+        zeus::CVector3f norm = other_info.GetNormalLeft().normalized();
+        if (zeus::close_enough(norm, cur_info.GetNormalLeft(), 1.2f)) {
+          dont_add_new_info = true;
+          other_info.x0_point = (other_info.x0_point + cur_info.x0_point) * 0.5f;
+          other_info.x38_materialLeft.Add(cur_info.x38_materialLeft);
+          other_info.x40_materialRight.Add(cur_info.x40_materialRight);
+          other_info.x48_normalLeft = other_info.x48_normalLeft + cur_info.x48_normalLeft;
+          break;
+        }
+      }
+      if (!dont_add_new_info) {
+        other_list.Add(cur_info, false);
+      }
+    }
+    for (CCollisionInfo& other_info : other_list.x0_list) {
+      other_info.x48_normalLeft.normalize();
+      other_info.x54_normalRight = -other_info.x48_normalLeft;
+    }
+  }
 };
 } // namespace urde

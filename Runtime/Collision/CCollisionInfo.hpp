@@ -9,6 +9,8 @@
 
 namespace urde {
 class CCollisionInfo {
+  friend class CCollisionInfoList;
+
   zeus::CVector3f x0_point;
   zeus::CVector3f xc_extentX;
   zeus::CVector3f x18_extentY;

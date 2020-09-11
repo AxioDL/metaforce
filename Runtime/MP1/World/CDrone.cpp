@@ -31,7 +31,7 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
                float f17, float f18, float f19, float f20, CAssetId crscId, float f21, float f22, float f23, float f24,
                s32 sId, bool b1)
 : CPatterned(ECharacter::Drone, uid, name, flavor, info, xf, std::move(mData), pInfo, movement, colliderType, bodyType,
-             actParms, EKnockBackVariant(flavor == EFlavorType::Zero))
+             actParms, flavor == EFlavorType::Zero ? EKnockBackVariant::Medium : EKnockBackVariant::Large)
 , x568_(aId1)
 , x56c_(g_SimplePool->GetObj({SBIG('CRSC'), crscId}))
 , x57c_flares(std::move(flares))
@@ -61,7 +61,7 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
 , x65c_(f21)
 , x660_(f22)
 , x664_(f24)
-, x690_(zeus::CSphere({0.f, 0.f, 1.8f}, 1.1f), CActor::GetMaterialList())
+, x690_colSphere(zeus::CSphere({0.f, 0.f, 1.8f}, 1.1f), CActor::GetMaterialList())
 , x6b0_pathFind(nullptr, 3 + int(b1), pInfo.GetPathfindingIndex(), 1.f, 2.4f)
 , x7cc_(CSfxManager::TranslateSFXID(sId))
 , x82c_shieldModel(std::make_unique<CModelData>(CStaticRes{aId2, zeus::skOne3f}))
@@ -218,7 +218,7 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
   }
   case EScriptObjectMessage::Deactivate:
   case EScriptObjectMessage::Deleted: {
-    for (TUniqueId& unkId : x7d4_) {
+    for (TUniqueId& unkId : x7d8_) {
       if (unkId != kInvalidUniqueId) {
         mgr.FreeScriptObject(unkId);
         unkId = kInvalidUniqueId;
@@ -228,9 +228,11 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
     mgr.GetPlayerState()->GetStaticInterference().RemoveSource(GetUniqueId());
     if (x578_lightId != kInvalidUniqueId) {
       mgr.FreeScriptObject(x578_lightId);
+      x578_lightId = kInvalidUniqueId;
     }
     if (x57a_ != kInvalidUniqueId) {
       mgr.FreeScriptObject(x57a_);
+      x57a_ = kInvalidUniqueId;
     }
 
     if (x7d0_) {
@@ -243,7 +245,7 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
     x834_29_codeTrigger = true;
     break;
   case EScriptObjectMessage::OnFloor:
-    if (!x835_26_ && x834_24_) {
+    if (!x835_26_ && x834_24_ && !IsAlive()) {
       x835_26_ = true;
       MassiveFrozenDeath(mgr);
     }
@@ -277,6 +279,10 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
   default:
     break;
   }
+}
+
+void CDrone::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+  CPatterned::AddToRenderer(frustum, mgr);
 }
 
 void CDrone::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
@@ -313,7 +319,7 @@ void CDrone::Render(CStateManager& mgr) {
 }
 
 bool CDrone::CanRenderUnsorted(const CStateManager& mgr) const {
-  if (zeus::close_enough(x5dc_, 0.f))
+  if (!zeus::close_enough(x5dc_, 0.f))
     return false;
   return CPatterned::CanRenderUnsorted(mgr);
 }
@@ -399,7 +405,7 @@ void CDrone::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUse
 
 const CCollisionPrimitive* CDrone::GetCollisionPrimitive() const {
   if (!x834_28_)
-    return &x690_;
+    return &x690_colSphere;
   return CPatterned::GetCollisionPrimitive();
 }
 
@@ -766,6 +772,8 @@ bool CDrone::SpotPlayer(CStateManager& mgr, float arg) {
 
 bool CDrone::AnimOver(CStateManager& mgr, float arg) { return x7c8_ == 2; }
 
+bool CDrone::AttackOver(CStateManager& mgr, float arg) { return x834_31_attackOver; }
+
 bool CDrone::ShouldAttack(CStateManager& mgr, float arg) {
   if (x5d0_ > 0.f)
     return false;
@@ -822,15 +830,19 @@ void CDrone::SetLightEnabled(CStateManager& mgr, bool activate) {
                           activate ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);
 }
 
-void CDrone::SetVisorFlareEnabled(CStateManager& mgr, bool activate) {}
+void CDrone::SetVisorFlareEnabled(CStateManager& mgr, bool activate) {
+  // TODO implement
+}
 
 void CDrone::UpdateVisorFlare(CStateManager& mgr) {
-  // TODO: Finish
+  // TODO implement
 }
 
 void CDrone::UpdateTouchBounds(float radius) {
   const zeus::CTransform xf = GetLctrTransform("Skeleton_Root"sv);
   const zeus::CVector3f diff = xf.origin - GetTranslation();
+  x690_colSphere.SetSphereCenter(diff);
+  x690_colSphere.SetSphereRadius(radius);
   SetBoundingBox(zeus::CAABox{diff - radius, diff + radius});
   x6b0_pathFind.SetCharacterRadius(0.25f + radius);
 }

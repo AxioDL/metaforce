@@ -11,7 +11,6 @@ namespace MP1 {
 class CDrone : public CPatterned {
   CAssetId x568_;
   TLockedToken<CCollisionResponseData> x56c_;
-  CCollisionResponseData* x574_;
   TUniqueId x578_lightId = kInvalidUniqueId;
   TUniqueId x57a_ = kInvalidUniqueId;
   std::vector<CVisorFlare::CFlareDef> x57c_flares;
@@ -63,18 +62,19 @@ class CDrone : public CPatterned {
   zeus::CVector3f x670_;
   zeus::CVector3f x67c_;
   TUniqueId x688_teamMgr = kInvalidUniqueId;
-  CCollidableSphere x690_;
+  CCollidableSphere x690_colSphere;
   CPathFindSearch x6b0_pathFind;
   zeus::CAxisAngle x794_;
   zeus::CVector3f x7a0_;
   zeus::CVector3f x7ac_lightPos;
   float x7b8_ = 0.f;
   float x7bc_ = 0.f;
+  float x7c0_ = 0.f;
   float x7c4_ = 0.f;
   s32 x7c8_ = 0;
   s16 x7cc_;
   CSfxHandle x7d0_;
-  rstl::reserved_vector<TUniqueId, 2> x7d4_ = {{kInvalidUniqueId, kInvalidUniqueId}};
+  rstl::reserved_vector<TUniqueId, 2> x7d8_ = {{kInvalidUniqueId, kInvalidUniqueId}};
   rstl::reserved_vector<zeus::CVector3f, 2> x7e0_ = {{zeus::skZero3f, zeus::skZero3f}};
   rstl::reserved_vector<zeus::CVector3f, 2> x7fc_ = {{zeus::skZero3f, zeus::skZero3f}};
   rstl::reserved_vector<float, 2> x818_ = {{0.f, 0.f}};
@@ -89,7 +89,7 @@ class CDrone : public CPatterned {
   bool x834_28_ : 1 = false;
   bool x834_29_codeTrigger : 1 = false;
   bool x834_30_visible : 1 = false;
-  bool x834_31_ : 1 = false;
+  bool x834_31_attackOver : 1 = false;
   bool x835_24_ : 1 = false;
   bool x835_25_ : 1;
   bool x835_26_ : 1 = false;
@@ -121,6 +121,7 @@ public:
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
   void Render(CStateManager& mgr) override;
   bool CanRenderUnsorted(const CStateManager& mgr) const override;
@@ -154,6 +155,7 @@ public:
   bool InRange(CStateManager&, float arg) override;
   bool SpotPlayer(CStateManager&, float arg) override;
   bool AnimOver(CStateManager&, float arg) override;
+  bool AttackOver(CStateManager& mgr, float arg) override;
   bool ShouldAttack(CStateManager&, float arg) override;
   bool HearShot(CStateManager&, float arg) override;
   bool CoverCheck(CStateManager&, float arg) override;
