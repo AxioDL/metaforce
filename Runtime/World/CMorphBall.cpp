@@ -326,10 +326,9 @@ void CMorphBall::InitializeWakeEffects() {
 std::unique_ptr<CModelData> CMorphBall::GetMorphBallModel(const char* name, float radius) {
   const SObjectTag* tag = g_ResFactory->GetResourceIdByName(name);
   if (tag->type == FOURCC('CMDL')) {
-    return std::make_unique<CModelData>(CStaticRes(tag->id, zeus::CVector3f(radius * 2.f)));
-  } else {
-    return std::make_unique<CModelData>(CAnimRes(tag->id, 0, zeus::CVector3f(radius * 2.f), 0, false));
+    return std::make_unique<CModelData>(CStaticRes(tag->id, zeus::CVector3f(2.f * radius)));
   }
+  return std::make_unique<CModelData>(CAnimRes(tag->id, 0, zeus::CVector3f(2.f * radius), 0, false));
 }
 
 void CMorphBall::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
@@ -376,7 +375,7 @@ void CMorphBall::DrawBallShadow(const CStateManager& mgr) {
   default:
     break;
   }
-  x1e50_shadow->Render(mgr, alpha);
+  //x1e50_shadow->Render(mgr, alpha);
 }
 
 void CMorphBall::DeleteBallShadow() { x1e50_shadow.reset(); }
