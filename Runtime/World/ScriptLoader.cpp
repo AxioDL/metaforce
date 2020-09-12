@@ -1,12 +1,10 @@
 #include "Runtime/World/ScriptLoader.hpp"
 
-#include "Editor/ProjectResourceFactoryMP1.hpp"
-
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
 #include "Runtime/Camera/CCinematicCamera.hpp"
 #include "Runtime/Camera/CPathCamera.hpp"
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
-#include "Runtime/CSimplePool.hpp"
-#include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/MP1/World/CActorContraption.hpp"
 #include "Runtime/MP1/World/CAtomicAlpha.hpp"
@@ -16,6 +14,7 @@
 #include "Runtime/MP1/World/CBloodFlower.hpp"
 #include "Runtime/MP1/World/CBurrower.hpp"
 #include "Runtime/MP1/World/CChozoGhost.hpp"
+#include "Runtime/MP1/World/CDrone.hpp"
 #include "Runtime/MP1/World/CElitePirate.hpp"
 #include "Runtime/MP1/World/CEnergyBall.hpp"
 #include "Runtime/MP1/World/CEyeball.hpp"
@@ -28,7 +27,6 @@
 #include "Runtime/MP1/World/CJellyZap.hpp"
 #include "Runtime/MP1/World/CMagdolite.hpp"
 #include "Runtime/MP1/World/CMetaree.hpp"
-#include "Runtime/MP1/World/CDrone.hpp"
 #include "Runtime/MP1/World/CMetroid.hpp"
 #include "Runtime/MP1/World/CMetroidBeta.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"
@@ -85,8 +83,8 @@
 #include "Runtime/World/CScriptDock.hpp"
 #include "Runtime/World/CScriptDockAreaChange.hpp"
 #include "Runtime/World/CScriptDoor.hpp"
-#include "Runtime/World/CScriptEffect.hpp"
 #include "Runtime/World/CScriptEMPulse.hpp"
+#include "Runtime/World/CScriptEffect.hpp"
 #include "Runtime/World/CScriptGenerator.hpp"
 #include "Runtime/World/CScriptGrapplePoint.hpp"
 #include "Runtime/World/CScriptGunTurret.hpp"
@@ -151,7 +149,7 @@ struct SActorHead {
 struct SScaledActorHead : SActorHead {
   zeus::CVector3f x40_scale;
 
-  SScaledActorHead(SActorHead&& head) : SActorHead(std::move(head)) {}
+  explicit SScaledActorHead(SActorHead&& head) : SActorHead(std::move(head)) {}
 };
 
 static zeus::CTransform LoadEditorTransform(CInputStream& in) {
@@ -180,7 +178,7 @@ static SActorHead LoadActorHead(CInputStream& in, CStateManager& stateMgr) {
 }
 
 static SScaledActorHead LoadScaledActorHead(CInputStream& in, CStateManager& stateMgr) {
-  SScaledActorHead ret = LoadActorHead(in, stateMgr);
+  SScaledActorHead ret{LoadActorHead(in, stateMgr)};
   ret.x40_scale.readBig(in);
   return ret;
 }
@@ -919,16 +917,16 @@ CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int 
   u32 prio = in.readUint32Big();
   auto behaviour = CBallCamera::EBallCameraBehaviour(in.readUint32Big());
   u32 overrideFlags = LoadParameterFlags(in);
-  overrideFlags |= in.readBool() << 22;
+  overrideFlags |= static_cast<int>(in.readBool()) << 22;
   float minDist = in.readFloatBig();
-  overrideFlags |= in.readBool() << 23;
+  overrideFlags |= static_cast<int>(in.readBool()) << 23;
   float maxDist = in.readFloatBig();
-  overrideFlags |= in.readBool() << 24;
+  overrideFlags |= static_cast<int>(in.readBool()) << 24;
   float backwardsDist = in.readFloatBig();
-  overrideFlags |= in.readBool() << 25;
+  overrideFlags |= static_cast<int>(in.readBool()) << 25;
   zeus::CVector3f lookAtOffset;
   lookAtOffset.readBig(in);
-  overrideFlags |= in.readBool() << 26;
+  overrideFlags |= static_cast<int>(in.readBool()) << 26;
   zeus::CVector3f chaseLookAtOffset;
   chaseLookAtOffset.readBig(in);
   zeus::CVector3f ballToCam;
@@ -937,9 +935,9 @@ CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int 
   float fov = in.readFloatBig();
   overrideFlags |= static_cast<int>(in.readBool()) << 28;
   float attitudeRange = zeus::degToRad(in.readFloatBig());
-  overrideFlags |= in.readBool() << 29;
+  overrideFlags |= static_cast<int>(in.readBool()) << 29;
   float azimuthRange = zeus::degToRad(in.readFloatBig());
-  overrideFlags |= in.readBool() << 30;
+  overrideFlags |= static_cast<int>(in.readBool()) << 30;
   float anglePerSecond = zeus::degToRad(in.readFloatBig());
   float clampVelRange = in.readFloatBig();
   float clampRotRange = zeus::degToRad(in.readFloatBig());
@@ -1190,8 +1188,9 @@ u32 TransformDamagableTriggerFlags(CStateManager& mgr, TAreaId aId, u32 flags) {
 
 CEntity* ScriptLoader::LoadDamageableTrigger(CStateManager& mgr, CInputStream& in, int propCount,
                                              const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 12, "DamageableTrigger"))
+  if (!EnsurePropertyCount(propCount, 12, "DamageableTrigger")) {
     return nullptr;
+  }
 
   std::string name = mgr.HashInstanceName(in);
   zeus::CVector3f position(zeus::CVector3f::ReadBig(in));
@@ -1305,8 +1304,9 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
   _bumpLightDir.readBig(in);
 
   zeus::CVector3f bumpLightDir = _bumpLightDir;
-  if (!bumpLightDir.canBeNormalized())
+  if (!bumpLightDir.canBeNormalized()) {
     bumpLightDir.assign(0.f, 0.f, -1.f);
+  }
 
   float bumpScale = 1.f / in.readFloatBig();
   float morphInTime = in.readFloatBig();
@@ -1522,14 +1522,14 @@ CEntity* ScriptLoader::LoadMetroidBeta(CStateManager& mgr, CInputStream& in, int
     return nullptr;
   }
 
-#if 0
+#if 1
   std::string name = mgr.HashInstanceName(in);
   zeus::CTransform xf = LoadEditorTransform(in);
   zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
   if (!pair.first) {
     return nullptr;
-}
+  }
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
@@ -1761,8 +1761,9 @@ CEntity* ScriptLoader::LoadPuddleSpore(CStateManager& mgr, CInputStream& in, int
   CDamageInfo dInfo(in);
 
   const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
-  if (g_ResFactory->GetResourceTypeById(animParms.GetACSFile()) != SBIG('ANCS'))
+  if (g_ResFactory->GetResourceTypeById(animParms.GetACSFile()) != SBIG('ANCS')) {
     return nullptr;
+  }
 
   CModelData mData(
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
@@ -1803,8 +1804,9 @@ CEntity* ScriptLoader::LoadPuddleToadGamma(CStateManager& mgr, CInputStream& in,
   zeus::CTransform xf = LoadEditorTransform(in);
   zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
@@ -1879,8 +1881,9 @@ CEntity* ScriptLoader::LoadFireFlea(CStateManager& mgr, CInputStream& in, int pr
   in.readBool();
   float f1 = in.readFloatBig();
 
-  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
                             acthead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
@@ -1973,8 +1976,9 @@ CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in,
   s16 w6 = in.readUint32Big() & 0xFFFF;
   s16 w7 = in.readUint32Big() & 0xFFFF;
   if (specialFunction == CScriptSpecialFunction::ESpecialFunction::FogVolume ||
-      specialFunction == CScriptSpecialFunction::ESpecialFunction::RadialDamage)
+      specialFunction == CScriptSpecialFunction::ESpecialFunction::RadialDamage) {
     return nullptr;
+  }
 
   return new CScriptSpecialFunction(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, specialFunction,
                                     str, f1, f2, f3, f4, zeus::skZero3f, zeus::skBlack, active1, CDamageInfo(), w2, w3,
@@ -2000,8 +2004,9 @@ CEntity* ScriptLoader::LoadSpankWeed(CStateManager& mgr, CInputStream& in, int p
   float hideTime = in.readFloatBig();
 
   const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
-  if (!animParms.GetACSFile().IsValid())
+  if (!animParms.GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
                             animParms.GetInitialAnimation(), true));
@@ -2118,7 +2123,7 @@ CEntity* ScriptLoader::LoadPickupGenerator(CStateManager& mgr, CInputStream& in,
 }
 
 CEntity* ScriptLoader::LoadAIKeyframe(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (auto kf = static_cast<CScriptActorKeyframe*>(LoadActorKeyframe(mgr, in, propCount, info))) {
+  if (auto* kf = static_cast<CScriptActorKeyframe*>(LoadActorKeyframe(mgr, in, propCount, info))) {
     kf->SetIsPassive(true);
     return kf;
   }
@@ -2165,8 +2170,9 @@ CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propC
   zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
   float f1 = in.readFloatBig();
   const auto [patternedValid, patternedPropCount] = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!patternedValid)
+  if (!patternedValid) {
     return nullptr;
+  }
   CPatternedInfo pInfo(in, patternedPropCount);
   CActorParameters actParms = LoadActorParameters(in);
   CDamageInfo dInfo1(in);
@@ -2198,8 +2204,9 @@ CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propC
   }
 
   const auto& animParms = pInfo.GetAnimationParameters();
-  if (g_ResFactory->GetResourceTypeById(animParms.GetACSFile()) != SBIG('ANCS'))
+  if (g_ResFactory->GetResourceTypeById(animParms.GetACSFile()) != SBIG('ANCS')) {
     return nullptr;
+  }
 
   float f2 = in.readFloatBig();
   float f3 = in.readFloatBig();
@@ -2236,8 +2243,9 @@ CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propC
 }
 
 CEntity* ScriptLoader::LoadMetroid(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, MP1::CMetroidData::GetNumProperties(), "Metroid"))
+  if (!EnsurePropertyCount(propCount, MP1::CMetroidData::GetNumProperties(), "Metroid")) {
     return nullptr;
+  }
 
   std::string name = mgr.HashInstanceName(in);
   auto flavor = CPatterned::EFlavorType(in.readUint32Big());
@@ -2737,8 +2745,9 @@ CEntity* ScriptLoader::LoadJellyZap(CStateManager& mgr, CInputStream& in, int pr
 
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
@@ -2839,7 +2848,7 @@ CEntity* ScriptLoader::LoadThardus(CStateManager& mgr, CInputStream& in, int pro
     return nullptr;
   }
 
-  CStaticRes staticRes[2][7];
+  std::array<std::array<CStaticRes, 7>, 2> staticRes;
   staticRes[0][6] = CStaticRes(CAssetId(in), zeus::skOne3f); // Head_Collision_LCTR
   staticRes[0][5] = CStaticRes(CAssetId(in), zeus::skOne3f); // L_Back_Rock_Collision_LCTR
   staticRes[0][4] = CStaticRes(CAssetId(in), zeus::skOne3f); // R_Back_Rock_Collision_LCTR
@@ -2876,8 +2885,8 @@ CEntity* ScriptLoader::LoadThardus(CStateManager& mgr, CInputStream& in, int pro
   int sfxID2 = in.readUint32Big();
   int sfxID3 = in.readUint32Big();
   int sfxID4 = in.readUint32Big();
-  std::vector<CStaticRes> mData1(std::rbegin(staticRes[0]), std::rend(staticRes[0]));
-  std::vector<CStaticRes> mData2(std::rbegin(staticRes[1]), std::rend(staticRes[1]));
+  std::vector<CStaticRes> mData1(staticRes[0].rbegin(), staticRes[0].rend());
+  std::vector<CStaticRes> mData2(staticRes[1].rbegin(), staticRes[1].rend());
 
   CModelData mData(CAnimRes(animParms.GetACSFile(), 0, actHead.x40_scale, animParms.GetInitialAnimation(), true));
   return new MP1::CThardus(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform, std::move(mData),
@@ -3066,8 +3075,9 @@ CEntity* ScriptLoader::LoadThardusRockProjectile(CStateManager& mgr, CInputStrea
   float f1 = in.readFloatBig();
   CAssetId modelId(in);
   CAssetId stateMachine(in);
-  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   std::vector<std::unique_ptr<CModelData>> mDataVec;
   CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), 0, actorHead.x40_scale,
@@ -3149,8 +3159,10 @@ CEntity* ScriptLoader::LoadGunTurret(CStateManager& mgr, CInputStream& in, int p
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
   zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, collisionOffset);
 
-  if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
+  if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) ||
+      collisionExtent.isZero()) {
     aabb = mData.GetBounds(xf.getRotation());
+  }
 
   return new CScriptGunTurret(mgr.AllocateUniqueId(), name, component, info, xf, std::move(mData), aabb, hInfo, dVuln,
                               actParms, turretData);
@@ -3194,8 +3206,9 @@ CEntity* ScriptLoader::LoadBabygoth(CStateManager& mgr, CInputStream& in, int pr
   CActorParameters actParms = LoadActorParameters(in);
   MP1::CBabygothData babyData(in);
 
-  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
                             actHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
@@ -3214,8 +3227,9 @@ CEntity* ScriptLoader::LoadEyeball(CStateManager& mgr, CInputStream& in, int pro
   zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
 
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
@@ -3233,8 +3247,9 @@ CEntity* ScriptLoader::LoadEyeball(CStateManager& mgr, CInputStream& in, int pro
   u32 anim3 = in.readUint32Big();
   u32 beamSfx = in.readUint32Big();
 
-  if (g_ResFactory->GetResourceTypeById(pInfo.GetAnimationParameters().GetACSFile()) != SBIG('ANCS'))
+  if (g_ResFactory->GetResourceTypeById(pInfo.GetAnimationParameters().GetACSFile()) != SBIG('ANCS')) {
     return nullptr;
+  }
 
   bool attackDisabled = in.readBool();
 
@@ -3247,8 +3262,9 @@ CEntity* ScriptLoader::LoadEyeball(CStateManager& mgr, CInputStream& in, int pro
 }
 
 CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 5, "RadialDamage"))
+  if (!EnsurePropertyCount(propCount, 5, "RadialDamage")) {
     return nullptr;
+  }
 
   std::string name = mgr.HashInstanceName(in);
   zeus::CVector3f center = zeus::CVector3f::ReadBig(in);
@@ -3264,8 +3280,9 @@ CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, in
 
 CEntity* ScriptLoader::LoadCameraPitchVolume(CStateManager& mgr, CInputStream& in, int propCount,
                                              const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 8, "CameraPitchVolume"))
+  if (!EnsurePropertyCount(propCount, 8, "CameraPitchVolume")) {
     return nullptr;
+  }
 
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
   bool active = in.readBool();
@@ -3279,8 +3296,9 @@ CEntity* ScriptLoader::LoadCameraPitchVolume(CStateManager& mgr, CInputStream& i
 
 CEntity* ScriptLoader::LoadEnvFxDensityController(CStateManager& mgr, CInputStream& in, int propCount,
                                                   const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 4, "EnvFxDensityController"))
+  if (!EnsurePropertyCount(propCount, 4, "EnvFxDensityController")) {
     return nullptr;
+  }
 
   std::string name = mgr.HashInstanceName(in);
   bool active = in.readBool();
@@ -3294,8 +3312,9 @@ CEntity* ScriptLoader::LoadEnvFxDensityController(CStateManager& mgr, CInputStre
 }
 
 CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 22, "Magdolite"))
+  if (!EnsurePropertyCount(propCount, 22, "Magdolite")) {
     return nullptr;
+  }
 
   SScaledActorHead actorHead = LoadScaledActorHead(in, mgr);
 
@@ -3339,8 +3358,9 @@ CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int p
 }
 
 CEntity* ScriptLoader::LoadTeamAIMgr(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 8, "TeamAiMgr"))
+  if (!EnsurePropertyCount(propCount, 8, "TeamAiMgr")) {
     return nullptr;
+  }
 
   std::string name = mgr.HashInstanceName(in);
   CTeamAiData data(in, propCount);
@@ -3349,8 +3369,9 @@ CEntity* ScriptLoader::LoadTeamAIMgr(CStateManager& mgr, CInputStream& in, int p
 
 CEntity* ScriptLoader::LoadSnakeWeedSwarm(CStateManager& mgr, CInputStream& in, int propCount,
                                           const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 25, "SnakeWeedSwarm") || propCount > 29)
+  if (!EnsurePropertyCount(propCount, 25, "SnakeWeedSwarm") || propCount > 29) {
     return nullptr;
+  }
 
   std::string name = mgr.HashInstanceName(in);
   zeus::CVector3f pos = zeus::CVector3f::ReadBig(in);
@@ -3392,8 +3413,9 @@ CEntity* ScriptLoader::LoadSnakeWeedSwarm(CStateManager& mgr, CInputStream& in, 
 
 CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in, int propCount,
                                             const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 15, "ActorContraption"))
+  if (!EnsurePropertyCount(propCount, 15, "ActorContraption")) {
     return nullptr;
+  }
 
   SScaledActorHead head = LoadScaledActorHead(in, mgr);
   zeus::CVector3f collisionExtent = zeus::CVector3f::ReadBig(in);
@@ -3408,8 +3430,9 @@ CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in
   CDamageInfo dInfo(in);
   bool active = in.readBool();
 
-  if (!g_ResFactory->GetResourceTypeById(animParams.GetACSFile()).IsValid())
+  if (!g_ResFactory->GetResourceTypeById(animParams.GetACSFile()).IsValid()) {
     return nullptr;
+  }
 
   zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, collisionOrigin);
   CMaterialList list;
@@ -3419,25 +3442,30 @@ CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in
   CModelData data(CAnimRes(animParams.GetACSFile(), animParams.GetCharacter(), head.x40_scale,
                            animParams.GetInitialAnimation(), true));
 
-  if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
+  if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) ||
+      collisionExtent.isZero()) {
     aabb = data.GetBounds(head.x10_transform.getRotation());
+  }
 
   return new MP1::CActorContraption(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data),
                                     aabb, list, mass, zMomentum, hInfo, dVuln, actParams, flameFxId, dInfo, active);
 }
 
 CEntity* ScriptLoader::LoadOculus(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 15, "Oculus"))
+  if (!EnsurePropertyCount(propCount, 15, "Oculus")) {
     return nullptr;
+  }
 
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
-  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   float f1 = in.readFloatBig();
   float f2 = in.readFloatBig();
@@ -3459,19 +3487,22 @@ CEntity* ScriptLoader::LoadOculus(CStateManager& mgr, CInputStream& in, int prop
 }
 
 CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 16, "Geemer"))
+  if (!EnsurePropertyCount(propCount, 16, "Geemer")) {
     return nullptr;
+  }
   SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
 
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
 
-  if (pInfo.GetAnimationParameters().GetACSFile() == CAssetId())
+  if (pInfo.GetAnimationParameters().GetACSFile() == CAssetId()) {
     return nullptr;
+  }
 
   float advanceWpRadius = in.readFloatBig();
   float f2 = in.readFloatBig();
@@ -3496,8 +3527,9 @@ CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in, int prop
 }
 
 CEntity* ScriptLoader::LoadSpindleCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 24, "SpindleCamera"))
+  if (!EnsurePropertyCount(propCount, 24, "SpindleCamera")) {
     return nullptr;
+  }
 
   SActorHead aHead = LoadActorHead(in, mgr);
   bool active = in.readBool();
@@ -3541,13 +3573,15 @@ CEntity* ScriptLoader::LoadSpindleCamera(CStateManager& mgr, CInputStream& in, i
 }
 
 CEntity* ScriptLoader::LoadAtomicAlpha(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 14, "AtomicAlpha"))
+  if (!EnsurePropertyCount(propCount, 14, "AtomicAlpha")) {
     return nullptr;
+  }
 
   SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
@@ -3570,8 +3604,9 @@ CEntity* ScriptLoader::LoadAtomicAlpha(CStateManager& mgr, CInputStream& in, int
 
 CEntity* ScriptLoader::LoadCameraHintTrigger(CStateManager& mgr, CInputStream& in, int propCount,
                                              const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 7, "CameraHintTrigger"))
+  if (!EnsurePropertyCount(propCount, 7, "CameraHintTrigger")) {
     return nullptr;
+  }
 
   SActorHead aHead = LoadActorHead(in, mgr);
   zeus::CVector3f scale = 0.5f * zeus::CVector3f::ReadBig(in);
@@ -3580,18 +3615,20 @@ CEntity* ScriptLoader::LoadCameraHintTrigger(CStateManager& mgr, CInputStream& i
   bool deactivateOnExit = in.readBool();
 
   zeus::CTransform xfRot = aHead.x10_transform.getRotation();
-  if (xfRot == zeus::CTransform())
+  if (xfRot == zeus::CTransform()) {
     return new CScriptTrigger(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform.origin,
                               zeus::CAABox(-scale, scale), CDamageInfo(), zeus::skZero3f, ETriggerFlags::DetectPlayer,
                               active, deactivateOnEnter, deactivateOnExit);
+  }
 
   return new CScriptCameraHintTrigger(mgr.AllocateUniqueId(), active, aHead.x0_name, info, scale, aHead.x10_transform,
                                       deactivateOnEnter, deactivateOnExit);
 }
 
 CEntity* ScriptLoader::LoadRumbleEffect(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 6, "RumbleEffect"))
+  if (!EnsurePropertyCount(propCount, 6, "RumbleEffect")) {
     return nullptr;
+  }
 
   std::string name = mgr.HashInstanceName(in);
   zeus::CVector3f position;
@@ -3608,8 +3645,9 @@ CEntity* ScriptLoader::LoadRumbleEffect(CStateManager& mgr, CInputStream& in, in
 }
 
 CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 16, "AmbientAI"))
+  if (!EnsurePropertyCount(propCount, 16, "AmbientAI")) {
     return nullptr;
+  }
 
   SScaledActorHead head = LoadScaledActorHead(in, mgr);
   zeus::CVector3f collisionExtent = zeus::CVector3f::ReadBig(in);
@@ -3625,8 +3663,9 @@ CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in, int p
   s32 impactAnim = in.readInt32Big();
   bool active = in.readBool();
 
-  if (!g_ResFactory->GetResourceTypeById(animParms.GetACSFile()).IsValid())
+  if (!g_ResFactory->GetResourceTypeById(animParms.GetACSFile()).IsValid()) {
     return nullptr;
+  }
 
   zeus::CAABox aabox = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, collisionOffset);
 
@@ -3634,20 +3673,24 @@ CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in, int p
 
   CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale,
                             animParms.GetInitialAnimation(), true));
-  if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
+  if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) ||
+      collisionExtent.isZero()) {
     aabox = mData.GetBounds(head.x10_transform.getRotation());
+  }
 
   return new CAmbientAI(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData), aabox,
                         matList, mass, hInfo, dVuln, actParms, alertRange, impactRange, alertAnim, impactAnim, active);
 }
 
 CEntity* ScriptLoader::LoadAtomicBeta(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 21, "AtomicBeta"))
+  if (!EnsurePropertyCount(propCount, 21, "AtomicBeta")) {
     return nullptr;
+  }
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
   CAssetId electricId(in);
@@ -3674,18 +3717,21 @@ CEntity* ScriptLoader::LoadAtomicBeta(CStateManager& mgr, CInputStream& in, int 
 }
 
 CEntity* ScriptLoader::LoadIceZoomer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 16, "IceZoomer"))
+  if (!EnsurePropertyCount(propCount, 16, "IceZoomer")) {
     return nullptr;
+  }
   SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
   const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
-  if (!animParms.GetACSFile().IsValid())
+  if (!animParms.GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   float advanceWpRadius = in.readFloatBig();
   float f2 = in.readFloatBig();
@@ -3708,17 +3754,20 @@ CEntity* ScriptLoader::LoadIceZoomer(CStateManager& mgr, CInputStream& in, int p
 }
 
 CEntity* ScriptLoader::LoadPuffer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 16, "Puffer"))
+  if (!EnsurePropertyCount(propCount, 16, "Puffer")) {
     return nullptr;
+  }
 
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
-  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   CActorParameters actorParameters = LoadActorParameters(in);
   float hoverSpeed = in.readFloatBig();
@@ -3740,19 +3789,22 @@ CEntity* ScriptLoader::LoadPuffer(CStateManager& mgr, CInputStream& in, int prop
 }
 
 CEntity* ScriptLoader::LoadTryclops(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 10, "Tryclops"))
+  if (!EnsurePropertyCount(propCount, 10, "Tryclops")) {
     return nullptr;
+  }
 
   SScaledActorHead actorHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
 
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
 
-  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   CActorParameters actorParameters = LoadActorParameters(in);
   float f1 = in.readFloatBig();
@@ -3768,18 +3820,21 @@ CEntity* ScriptLoader::LoadTryclops(CStateManager& mgr, CInputStream& in, int pr
 }
 
 CEntity* ScriptLoader::LoadRidley(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 47, "Ridley"))
+  if (!EnsurePropertyCount(propCount, 47, "Ridley")) {
     return nullptr;
+  }
 
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
-  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
                             aHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
@@ -3788,18 +3843,21 @@ CEntity* ScriptLoader::LoadRidley(CStateManager& mgr, CInputStream& in, int prop
 }
 
 CEntity* ScriptLoader::LoadSeedling(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 14, "Seedling"))
+  if (!EnsurePropertyCount(propCount, 14, "Seedling")) {
     return nullptr;
+  }
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
 
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
 
-  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   CActorParameters actParms = LoadActorParameters(in);
   CAssetId needleId(in);
@@ -3819,8 +3877,9 @@ CEntity* ScriptLoader::LoadSeedling(CStateManager& mgr, CInputStream& in, int pr
 
 CEntity* ScriptLoader::LoadThermalHeatFader(CStateManager& mgr, CInputStream& in, int propCount,
                                             const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 4, "ThermalHeatFader"))
+  if (!EnsurePropertyCount(propCount, 4, "ThermalHeatFader")) {
     return nullptr;
+  }
 
   std::string name = mgr.HashInstanceName(in);
   bool active = in.readBool();
@@ -3831,18 +3890,21 @@ CEntity* ScriptLoader::LoadThermalHeatFader(CStateManager& mgr, CInputStream& in
 }
 
 CEntity* ScriptLoader::LoadBurrower(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 13, "Burrower"))
+  if (!EnsurePropertyCount(propCount, 13, "Burrower")) {
     return nullptr;
+  }
 
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
 
-  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   CActorParameters actParms = LoadActorParameters(in);
   CAssetId w1(in);
@@ -3862,14 +3924,16 @@ CEntity* ScriptLoader::LoadBurrower(CStateManager& mgr, CInputStream& in, int pr
 }
 
 CEntity* ScriptLoader::LoadBeam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 7, "Beam"))
+  if (!EnsurePropertyCount(propCount, 7, "Beam")) {
     return nullptr;
+  }
 
   SActorHead aHead = LoadActorHead(in, mgr);
   bool active = in.readBool();
   u32 weaponDescId = in.readUint32Big();
-  if (!g_ResFactory->GetResourceTypeById(weaponDescId).IsValid())
+  if (!g_ResFactory->GetResourceTypeById(weaponDescId).IsValid()) {
     return nullptr;
+  }
 
   CBeamInfo beamInfo(in);
   CDamageInfo dInfo(in);
@@ -3881,8 +3945,9 @@ CEntity* ScriptLoader::LoadBeam(CStateManager& mgr, CInputStream& in, int propCo
 
 CEntity* ScriptLoader::LoadWorldLightFader(CStateManager& mgr, CInputStream& in, int propCount,
                                            const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 4, "WorldLightFader"))
+  if (!EnsurePropertyCount(propCount, 4, "WorldLightFader")) {
     return nullptr;
+  }
 
   std::string name = mgr.HashInstanceName(in);
   bool active = in.readBool();
@@ -3900,11 +3965,13 @@ CEntity* ScriptLoader::LoadMetroidPrimeStage2(CStateManager& mgr, CInputStream& 
 
 CEntity* ScriptLoader::LoadMetroidPrimeStage1(CStateManager& mgr, CInputStream& in, int propCount,
                                               const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 22, "MetroidPrimeStage1"))
+  if (!EnsurePropertyCount(propCount, 22, "MetroidPrimeStage1")) {
     return nullptr;
+  }
   u32 version = in.readUint32Big();
-  if (version != 3)
+  if (version != 3) {
     return nullptr;
+  }
 
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
   bool active = in.readBool();
@@ -3918,8 +3985,9 @@ CEntity* ScriptLoader::LoadMetroidPrimeStage1(CStateManager& mgr, CInputStream& 
   CHealthInfo hInfo2(in);
   u32 w3 = in.readUint32Big();
   rstl::reserved_vector<MP1::SPrimeExoRoomParameters, 4> roomParms;
-  for (int i = 0; i < 4; ++i)
+  for (int i = 0; i < 4; ++i) {
     roomParms.emplace_back(in);
+  }
   u32 w4 = in.readUint32Big();
   u32 w5 = in.readUint32Big();
   MP1::SPrimeExoParameters primeParms(in);
@@ -3930,8 +3998,9 @@ CEntity* ScriptLoader::LoadMetroidPrimeStage1(CStateManager& mgr, CInputStream& 
 }
 
 CEntity* ScriptLoader::LoadMazeNode(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 10, "MazeNode"))
+  if (!EnsurePropertyCount(propCount, 10, "MazeNode")) {
     return nullptr;
+  }
 
   SActorHead aHead = LoadActorHead(in, mgr);
   bool active = in.readBool();
@@ -3989,7 +4058,7 @@ CEntity* ScriptLoader::LoadPhazonPool(CStateManager& mgr, CInputStream& in, int 
   u32 u1 = in.readUint32Big();
   CDamageInfo dInfo{in};
   zeus::CVector3f orientedForce{in.readVec3f()};
-  ETriggerFlags triggerFlags = static_cast<ETriggerFlags>(in.readUint32Big());
+  auto triggerFlags = static_cast<ETriggerFlags>(in.readUint32Big());
   float f1 = in.readFloatBig();
   float f2 = in.readFloatBig();
   float f3 = in.readFloatBig();
@@ -4033,8 +4102,9 @@ CEntity* ScriptLoader::LoadPhazonHealingNodule(CStateManager& mgr, CInputStream&
 
 CEntity* ScriptLoader::LoadNewCameraShaker(CStateManager& mgr, CInputStream& in, int propCount,
                                            const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 8, "NewCameraShaker"))
+  if (!EnsurePropertyCount(propCount, 8, "NewCameraShaker")) {
     return nullptr;
+  }
 
   std::string name = mgr.HashInstanceName(in);
   zeus::CVector3f sfxPos = zeus::CVector3f::ReadBig(in);
@@ -4053,8 +4123,9 @@ CEntity* ScriptLoader::LoadNewCameraShaker(CStateManager& mgr, CInputStream& in,
 
 CEntity* ScriptLoader::LoadShadowProjector(CStateManager& mgr, CInputStream& in, int propCount,
                                            const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 10, "ShadowProjector"))
+  if (!EnsurePropertyCount(propCount, 10, "ShadowProjector")) {
     return nullptr;
+  }
 
   std::string name = mgr.HashInstanceName(in);
   zeus::CVector3f position(zeus::CVector3f::ReadBig(in));
@@ -4071,18 +4142,21 @@ CEntity* ScriptLoader::LoadShadowProjector(CStateManager& mgr, CInputStream& in,
 }
 
 CEntity* ScriptLoader::LoadEnergyBall(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 16, "EnergyBall"))
+  if (!EnsurePropertyCount(propCount, 16, "EnergyBall")) {
     return nullptr;
+  }
 
   SScaledActorHead actorHead = LoadScaledActorHead(in, mgr);
   const auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
   const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
-  if (!animParms.GetACSFile().IsValid())
+  if (!animParms.GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   CActorParameters actParms = LoadActorParameters(in);
   u32 w1 = in.readUint32Big();
