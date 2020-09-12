@@ -2,12 +2,12 @@
 
 #include <array>
 
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
 #include "Runtime/Camera/CCameraManager.hpp"
 #include "Runtime/Camera/CFirstPersonCamera.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
-#include "Runtime/CSimplePool.hpp"
-#include "Runtime/CStateManager.hpp"
 #include "Runtime/MP1/CSamusHud.hpp"
 #include "Runtime/MP1/World/CThardusRockProjectile.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
@@ -16,10 +16,11 @@
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CRepulsor.hpp"
 #include "Runtime/World/CScriptDistanceFog.hpp"
 #include "Runtime/World/CScriptWaypoint.hpp"
-#include "Runtime/World/CRepulsor.hpp"
 #include "Runtime/World/CWorld.hpp"
+#include "Runtime/MP1/World/CIceAttackProjectile.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -209,7 +210,16 @@ void CThardus::sub801dbf34(float dt, CStateManager& mgr) {
 void CThardus::sub801de9f8(CStateManager& mgr) {
   float dVar5 = mgr.GetActiveRandom()->Float();
   if (!sub801dc2c8() || dVar5 >= 0.3f) {
-
+    const float local_28 = std::max(0.f, dVar5 - 0.19999999f);
+    if (local_28 > 0.8f) {
+      x5c4_ = 2;
+    } else if (local_28 >= 0.4f) {
+      x5c4_ = 1;
+    } else {
+      x5c4_ = 0;
+    }
+    ++x574_;
+    x944_ = 0.3f;
   } else {
     x93b_ = true;
   }
@@ -221,10 +231,12 @@ void CThardus::sub801dd608(CStateManager& mgr) {
   for (size_t i = 0; i < x610_destroyableRocks.size(); ++i) {
     zeus::CTransform xf =
         GetTransform() * (zeus::CTransform::Scale(scale) * animData->GetLocatorTransform(skRockJoints[i], nullptr));
-    if (TCastToPtr<CActor> act = mgr.ObjectById(x610_destroyableRocks[i]))
+    if (TCastToPtr<CActor> act = mgr.ObjectById(x610_destroyableRocks[i])) {
       act->SetTransform(xf);
-    if (TCastToPtr<CGameLight> gl = mgr.ObjectById(x6c0_rockLights[i]))
+    }
+    if (TCastToPtr<CGameLight> gl = mgr.ObjectById(x6c0_rockLights[i])) {
       gl->SetTransform(xf);
+    }
   }
 }
 void CThardus::sub801dcfa4(CStateManager& mgr) {
@@ -652,6 +664,16 @@ zeus::CAABox CThardus::GetSortingBounds(const CStateManager& mgr) const {
 void CThardus::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   switch (type) {
   case EUserEventType::Projectile: {
+    zeus::CTransform wristXf = GetLctrTransform("L_wrist"sv);
+    CRayCastResult res = mgr.RayStaticIntersection(wristXf.origin, zeus::skDown, 100.f,
+                                                   CMaterialFilter::MakeInclude(EMaterialTypes::Solid));
+    zeus::CTransform xf = zeus::lookAt(res.GetPoint() + zeus::CVector3f{0.f, 0.f, 1.f}, GetTranslation());
+    xf.rotateLocalZ(zeus::degToRad(mgr.GetActiveRandom()->Range(-5.f, 5.f)));
+    mgr.AddObject(new CIceAttackProjectile(
+        g_SimplePool->GetObj({SBIG('PART'), x600_}), g_SimplePool->GetObj({SBIG('PART'), x604_}),
+        g_SimplePool->GetObj({SBIG('PART'), x608_}), mgr.AllocateUniqueId(), GetAreaIdAlways(),
+        mgr.GetPlayer().GetUniqueId(), true, xf, CDamageInfo(CWeaponMode::Ice(), 6.f, 0.f, 0.f), zeus::CAABox(0.f, 1.f),
+        x6ac_, zeus::degToRad(42.f), x6e8_, x6ec_, SFXsfx0AAD, x6f0_));
     break;
   }
   case EUserEventType::LoopedSoundStop:
@@ -1170,8 +1192,8 @@ void CThardus::_SetupCollisionManagers(CStateManager& mgr) {
   list.clear();
   x634_nonDestroyableActors.reserve(x5f4_->GetNumCollisionActors() + x5f0_rockColliders->GetNumCollisionActors() +
                                     x5f8_->GetNumCollisionActors());
-  sub801dd4fc(x5f4_);
-  sub801dd4fc(x5f8_);
+  FindNonDestroyableActors(x5f4_);
+  FindNonDestroyableActors(x5f8_);
   for (size_t i = 0; i < x5f0_rockColliders->GetNumCollisionActors(); ++i) {
     const auto& colDesc = x5f0_rockColliders->GetCollisionDescFromIndex(i);
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(colDesc.GetCollisionActorId())) {
@@ -1190,7 +1212,7 @@ void CThardus::_SetupCollisionManagers(CStateManager& mgr) {
   }
 }
 
-void CThardus::sub801dd4fc(const std::unique_ptr<CCollisionActorManager>& colMgr) {
+void CThardus::FindNonDestroyableActors(const std::unique_ptr<CCollisionActorManager>& colMgr) {
   for (size_t i = 0; i < colMgr->GetNumCollisionActors(); ++i) {
     const auto& colDesc = colMgr->GetCollisionDescFromIndex(i);
     TUniqueId uid = colDesc.GetCollisionActorId();
@@ -1202,8 +1224,9 @@ void CThardus::sub801dd4fc(const std::unique_ptr<CCollisionActorManager>& colMgr
       }
     }
 
-    if (!foundBone)
+    if (!foundBone) {
       x634_nonDestroyableActors.push_back(uid);
+    }
   }
 }
 
@@ -1243,16 +1266,19 @@ void CThardus::sub801dc444(CStateManager& mgr, const zeus::CVector3f& pos, CAsse
 }
 
 void CThardus::sub801dbc5c(CStateManager& mgr, CDestroyableRock* rock) {
-  if (!x938_) {
-    x938_ = true;
-    x939_ = false;
-    sub801dbbdc(mgr, rock);
+  if (x938_) {
+    return;
   }
+
+  x938_ = true;
+  x939_ = false;
+  sub801dbbdc(mgr, rock);
 }
 
 void CThardus::sub801dbbdc(CStateManager& mgr, CDestroyableRock* rock) {
-  if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal)
+  if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal) {
     x688_ = true;
+  }
 
   if (x7c4_ == 0 || x7c4_ == 2) {
     x7c4_ = 1;
@@ -1425,11 +1451,7 @@ zeus::CVector2f CThardus::sub801dac30(CStateManager& mgr) const {
 }
 
 bool CThardus::sub801db5b4(CStateManager& mgr) const {
-  if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
-    return !x93a_ || x7c4_ == 0;
-  }
-
-  return true;
+  return mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal ? !x93a_ || x7c4_ == 0 : true;
 }
 
 void CThardus::ApplyCameraShake(float magnitude, float sfxDistance, float duration, CStateManager& mgr,
@@ -1486,9 +1508,10 @@ void CThardus::sub801dbc40() {
   x7b8_ = FLT_EPSILON + x7bc_;
   x938_ = false;
 }
+
 zeus::CVector2f CThardus::sub801dc60c(float arg, CStateManager& mgr) {
   zeus::CVector2f ret;
-  if (GetSearchPath()) {
+  if (GetSearchPath() != nullptr) {
     if (GetSearchPath()->GetResult() == CPathFindSearch::EResult::Success) {
       CPatterned::PathFind(mgr, EStateMsg::Update, arg);
       ret = GetBodyController()->GetCommandMgr().GetMoveVector().toVec2f();
@@ -1510,4 +1533,5 @@ zeus::CVector2f CThardus::sub801dc60c(float arg, CStateManager& mgr) {
 
   return ret;
 }
+
 } // namespace urde::MP1

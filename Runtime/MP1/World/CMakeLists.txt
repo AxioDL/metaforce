@@ -51,6 +51,7 @@ set(MP1_WORLD_SOURCES
     CTryclops.hpp CTryclops.cpp
     CIceSheegoth.hpp CIceSheegoth.cpp
     CWarWasp.hpp CWarWasp.cpp
+    CIceAttackProjectile.hpp CIceAttackProjectile.cpp
 )
 
 runtime_add_list(World MP1_WORLD_SOURCES)

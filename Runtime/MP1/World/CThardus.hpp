@@ -135,7 +135,7 @@ class CThardus : public CPatterned {
 
   void GatherWaypoints(CScriptWaypoint* wp, CStateManager& mgr, rstl::reserved_vector<TUniqueId, 16>& uids);
   void sub801dec80() { x68c_ = 20000; }
-  void sub801dd4fc(const std::unique_ptr<CCollisionActorManager>& colMgr);
+  void FindNonDestroyableActors(const std::unique_ptr<CCollisionActorManager>& colMgr);
   void sub801dbf34(float dt, CStateManager& mgr);
   bool sub801dc2c8() const { return (x610_destroyableRocks.size() - 1) == x648_currentRock; }
   void sub801de9f8(CStateManager& mgr);
