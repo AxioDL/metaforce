@@ -169,6 +169,7 @@ class CThardus : public CPatterned {
   zeus::CVector3f sub801de434(CStateManager& mgr);
   zeus::CVector2f sub801dc60c(float f1, CStateManager& mgr);
   void sub801dbc40();
+  void UpdateNonDestroyableActors(bool remove, EMaterialTypes mat, CStateManager& mgr);
 
   std::optional<CTexturedQuadFilter> m_flareFilter;
 

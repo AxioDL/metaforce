@@ -9,6 +9,7 @@
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
 #include "Runtime/MP1/CSamusHud.hpp"
+#include "Runtime/MP1/World/CIceAttackProjectile.hpp"
 #include "Runtime/MP1/World/CThardusRockProjectile.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/World/CActorParameters.hpp"
@@ -20,7 +21,6 @@
 #include "Runtime/World/CScriptDistanceFog.hpp"
 #include "Runtime/World/CScriptWaypoint.hpp"
 #include "Runtime/World/CWorld.hpp"
-#include "Runtime/MP1/World/CIceAttackProjectile.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -29,7 +29,7 @@
 namespace urde::MP1 {
 namespace {
 constexpr std::array<SSphereJointInfo, 7> skDamageableSphereJointInfoList1{{
-    {"R_Knee", 1.f},
+    {"R_knee", 1.f},
     {"R_Elbow_Collision_LCTR", 1.5f},
     {"L_Elbow_Collision_LCTR", 1.5f},
     {"L_Knee_Collision_LCTR", 1.f},
@@ -52,7 +52,7 @@ constexpr std::array<SAABoxJointInfo, 2> skFootCollision{{
 }};
 
 constexpr std::array skSearchJointNames{
-    "R_Knee"sv,
+    "R_knee"sv,
     "R_Elbow_Collision_LCTR"sv,
     "L_Elbow_Collision_LCTR"sv,
     "L_Knee_Collision_LCTR"sv,
@@ -314,9 +314,9 @@ void CThardus::Think(float dt, CStateManager& mgr) {
   sub801dbf34(dt, mgr);
 
   if (!sub801dc2c8()) {
-    if (x648_currentRock < x610_destroyableRocks.size() - 2)
+    if (x648_currentRock < x610_destroyableRocks.size() - 2) {
       x690_ = 1.f;
-    else {
+    } else {
       x690_ = 1.f;
     }
   } else {
@@ -347,12 +347,15 @@ void CThardus::Think(float dt, CStateManager& mgr) {
   sub801dd608(mgr);
   sub801dcfa4(mgr);
 
-  if (x610_destroyableRocks.size() <= x648_currentRock)
+  if (x610_destroyableRocks.size() <= x648_currentRock) {
     Death(mgr, zeus::skZero3f, EScriptObjectState::DeathRattle);
+  }
 
   if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal) {
+    x402_29_drawParticles = false;
+    UpdateNonDestroyableCollisionActorMaterials(EUpdateMaterialMode::Remove, EMaterialTypes::ProjectilePassthrough, mgr);
     for (size_t i = 0; i < x610_destroyableRocks.size(); ++i) {
-      if (CActor* act = static_cast<CActor*>(mgr.ObjectById(x610_destroyableRocks[i]))) {
+      if (auto* act = static_cast<CActor*>(mgr.ObjectById(x610_destroyableRocks[i]))) {
         if (x648_currentRock == i && !x688_ && !x93c_ && !x909_ && !x93d_) {
           act->AddMaterial(EMaterialTypes::Orbit, mgr);
           act->AddMaterial(EMaterialTypes::Target, mgr);
@@ -362,14 +365,16 @@ void CThardus::Think(float dt, CStateManager& mgr) {
         }
       }
     }
-    if (x688_)
+    if (x688_) {
       x688_ = false;
+    }
 
   } else {
-    UpdateNonDestroyableCollisionActorMaterials(EUpdateMaterialMode::Remove, EMaterialTypes::ProjectilePassthrough,
+    x402_29_drawParticles = true;
+    UpdateNonDestroyableCollisionActorMaterials(EUpdateMaterialMode::Add, EMaterialTypes::ProjectilePassthrough,
                                                 mgr);
     for (size_t i = 0; i < x610_destroyableRocks.size(); ++i) {
-      if (CActor* act = static_cast<CActor*>(mgr.ObjectById(x610_destroyableRocks[i]))) {
+      if (auto* act = static_cast<CActor*>(mgr.ObjectById(x610_destroyableRocks[i]))) {
         if (!x688_ && !x93c_ && !x909_ && !x93d_) {
           bool found = act->GetName().find("Neck_1"sv) != std::string::npos;
           if (!found || !x6b0_[x648_currentRock] || x648_currentRock == x610_destroyableRocks.size() - 1) {
@@ -394,6 +399,7 @@ void CThardus::Think(float dt, CStateManager& mgr) {
       }
     }
   }
+
   if (x644_ == 1) {
     UpdateExcludeList(x5f0_rockColliders, EUpdateMaterialMode::Add, EMaterialTypes::Player, mgr);
     UpdateExcludeList(x5f4_, EUpdateMaterialMode::Add, EMaterialTypes::Player, mgr);
@@ -604,7 +610,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
         if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(lastTouchedObj)) {
           if (GetBodyController()->GetBodyStateInfo().GetCurrentAdditiveStateId() !=
                   pas::EAnimationState::AdditiveReaction &&
-              rock->GetThrmalMag() <= 0.f) {
+              rock->Get_x324() <= 0.f) {
             GetBodyController()->GetCommandMgr().DeliverCmd(
                 CBCAdditiveReactionCmd(pas::EAdditiveReactionType::Five, 1.f, false));
           }
@@ -993,8 +999,9 @@ void CThardus::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float arg) {
       if (GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::ProjectileAttack) {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCProjectileAttackCmd(pas::ESeverity::One, {}, false));
         x5ec_ = 0;
-      } else
+      } else {
         x5ec_ = 2;
+      }
     } else if (x5ec_ == 2 &&
                GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::ProjectileAttack) {
       x5ec_ = 3;
@@ -1243,7 +1250,7 @@ void CThardus::sub801dae2c(CStateManager& mgr, u32 rockIndex) {
       hInfo = rockCol->HealthInfo(mgr);
       hInfo->SetHP(hp);
       hInfo->SetKnockbackResistance(2.f);
-      auto light = static_cast<CGameLight*>(mgr.ObjectById(x6c0_rockLights[rockIndex]));
+      auto* light = static_cast<CGameLight*>(mgr.ObjectById(x6c0_rockLights[rockIndex]));
       light->SetActive(true);
       if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal ||
           (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Thermal && x7c4_ != 3)) {
@@ -1293,10 +1300,11 @@ void CThardus::UpdateNonDestroyableCollisionActorMaterials(EUpdateMaterialMode m
                                                            urde::CStateManager& mgr) {
   for (const auto& uid : x634_nonDestroyableActors) {
     if (TCastToPtr<CCollisionActor> col = mgr.ObjectById(uid)) {
-      if (mode == EUpdateMaterialMode::Remove)
+      if (mode == EUpdateMaterialMode::Remove) {
         col->RemoveMaterial(mat, mgr);
-      else if (mode == EUpdateMaterialMode::Add)
+      } else if (mode == EUpdateMaterialMode::Add) {
         col->AddMaterial(mat, mgr);
+      }
 
       *col->HealthInfo(mgr) = CHealthInfo(1000000.0f, 10.f);
     }
@@ -1308,10 +1316,11 @@ void CThardus::UpdateExcludeList(const std::unique_ptr<CCollisionActorManager>& 
   for (size_t i = 0; i < colMgr->GetNumCollisionActors(); ++i) {
     if (TCastToPtr<CActor> colAct = mgr.ObjectById(colMgr->GetCollisionDescFromIndex(i).GetCollisionActorId())) {
       CMaterialList exclude = colAct->GetMaterialFilter().GetExcludeList();
-      if (mode == EUpdateMaterialMode::Remove)
+      if (mode == EUpdateMaterialMode::Remove) {
         exclude.Remove(w2);
-      else if (mode == EUpdateMaterialMode::Add)
+      } else if (mode == EUpdateMaterialMode::Add) {
         exclude.Add(w2);
+      }
 
       colAct->SetMaterialFilter(
           CMaterialFilter::MakeIncludeExclude(colAct->GetMaterialFilter().GetIncludeList(), exclude));
@@ -1471,7 +1480,7 @@ void CThardus::ApplyCameraShake(float magnitude, float sfxDistance, float durati
 void CThardus::UpdateHealthInfo(CStateManager& mgr) {
   // TODO: This isn't quite right, need to figure out why
   float hp = 0.f;
-  for (size_t i = 0; i < x610_destroyableRocks.size(); ++i) {
+  for (size_t i = x648_currentRock; i < x610_destroyableRocks.size(); ++i) {
     float fVar1 = x648_currentRock == (x610_destroyableRocks.size() - 1) ? 2.f * x6a4_ : x6a4_;
     if (auto rock = static_cast<CDestroyableRock*>(mgr.ObjectById(x610_destroyableRocks[i]))) {
       if (!rock->IsUsingPhazonModel()) {
@@ -1533,5 +1542,4 @@ zeus::CVector2f CThardus::sub801dc60c(float arg, CStateManager& mgr) {
 
   return ret;
 }
-
 } // namespace urde::MP1
