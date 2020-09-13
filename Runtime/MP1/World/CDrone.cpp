@@ -793,7 +793,8 @@ bool CDrone::Leash(CStateManager& mgr, float arg) {
 }
 
 bool CDrone::InRange(CStateManager& mgr, float arg) {
-  return (mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() < x300_maxAttackRange * x300_maxAttackRange;
+  float mag = (mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared();
+  return mag > x2fc_minAttackRange * x2fc_minAttackRange && mag < x300_maxAttackRange * x300_maxAttackRange;
 }
 
 bool CDrone::SpotPlayer(CStateManager& mgr, float arg) {
