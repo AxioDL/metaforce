@@ -64,7 +64,7 @@ class CThardus : public CPatterned {
   float x6a4_;
   float x6a8_;
   float x6ac_;
-  std::vector<bool> x6b0_;
+  std::vector<bool> x6b0_destroyedRocks;
   std::vector<TUniqueId> x6c0_rockLights;
   CAssetId x6d0_;
   CAssetId x6d4_;
@@ -105,7 +105,7 @@ class CThardus : public CPatterned {
   CSfxHandle x904_ = 0;
   bool x908_ = false;
   bool x909_ = false;
-  std::vector<float> x90c_;
+  std::vector<float> x90c_rockHealths;
   TLockedToken<CTexture> x91c_flareTexture;
   TUniqueId x928_currentRockId;
   zeus::CVector3f x92c_currentRockPos;

@@ -249,7 +249,7 @@ void CThardus::sub801dcfa4(CStateManager& mgr) {
       TUniqueId rockId = x610_destroyableRocks[j];
       if (auto* rock = static_cast<CDestroyableRock*>(mgr.ObjectById(rockId))) {
         if (x909_) {
-          *rock->HealthInfo(mgr) = CHealthInfo(x90c_[j], 0.f);
+          *rock->HealthInfo(mgr) = CHealthInfo(x90c_rockHealths[j], 0.f);
         }
         if (j == x648_currentRock && !x93d_) {
           colAct->SetDamageVulnerability(*rock->GetDamageVulnerability());
@@ -264,7 +264,7 @@ void CThardus::sub801dcfa4(CStateManager& mgr) {
           if (hInfo->GetHP() > 0.f) {
             *rock->HealthInfo(mgr) = *hInfo;
             if (!x909_) {
-              x90c_[j] = hInfo->GetHP();
+              x90c_rockHealths[j] = hInfo->GetHP();
             }
           } else if (!rock->IsUsingPhazonModel()) {
             sub801dae2c(mgr, j);
@@ -385,9 +385,9 @@ void CThardus::Think(float dt, CStateManager& mgr) {
       if (auto* act = static_cast<CActor*>(mgr.ObjectById(x610_destroyableRocks[i]))) {
         if (!x688_ && !x93c_ && !x909_ && !x93d_) {
           bool found = act->GetName().find("Neck_1"sv) != std::string::npos;
-          if (!found || !x6b0_[x648_currentRock] || x648_currentRock == x610_destroyableRocks.size() - 1) {
-            if (!x6b0_[i]) {
-              if (!found || x6b0_[i]) {
+          if (!found || !x6b0_destroyedRocks[x648_currentRock] || x648_currentRock == x610_destroyableRocks.size() - 1) {
+            if (!x6b0_destroyedRocks[i]) {
+              if (!found || x6b0_destroyedRocks[i]) {
                 act->RemoveMaterial(EMaterialTypes::Orbit, mgr);
                 act->RemoveMaterial(EMaterialTypes::Target, mgr);
               }
@@ -503,9 +503,9 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
   }
   case EScriptObjectMessage::Registered: {
     x610_destroyableRocks.reserve(x5cc_.size());
-    x6b0_.reserve(x5cc_.size());
+    x6b0_destroyedRocks.reserve(x5cc_.size());
     x6c0_rockLights.reserve(x5cc_.size());
-    x90c_.reserve(x5cc_.size());
+    x90c_rockHealths.reserve(x5cc_.size());
     for (size_t i = 0; i < x5cc_.size(); ++i) {
       float health = (i == x5cc_.size() - 1) ? 2.f * x6a8_ : x6a8_;
       TUniqueId rockId = mgr.AllocateUniqueId();
@@ -526,14 +526,14 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
                            {}, {}, {}, {}, true, true, false, false, 0.f, 0.f, 1.f),
           x5dc_[i], 0));
       x610_destroyableRocks.push_back(rockId);
-      x6b0_.push_back(false);
+      x6b0_destroyedRocks.push_back(false);
       TUniqueId lightId = mgr.AllocateUniqueId();
       auto* gl = new CGameLight(lightId, GetAreaIdAlways(), false, ""sv, {}, GetUniqueId(),
                                 CLight::BuildPoint({}, zeus::skBlue), 0, 0, 0.f);
       gl->SetActive(false);
       mgr.AddObject(gl);
       x6c0_rockLights.push_back(lightId);
-      x90c_.push_back(health);
+      x90c_rockHealths.push_back(health);
     }
 
     AddMaterial(EMaterialTypes::ScanPassthrough, mgr);
@@ -1299,12 +1299,15 @@ void CThardus::sub801dae2c(CStateManager& mgr, u32 rockIndex) {
       hInfo = rockCol->HealthInfo(mgr);
       hInfo->SetHP(hp);
       hInfo->SetKnockbackResistance(2.f);
+      x6b0_destroyedRocks[rockIndex] = true;
+      rock->SetThermalMag(1.5f);
       auto* light = static_cast<CGameLight*>(mgr.ObjectById(x6c0_rockLights[rockIndex]));
       light->SetActive(true);
       if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal ||
           (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Thermal && x7c4_ != 3)) {
         sub801dc444(mgr, GetTranslation(), x6d4_);
       }
+      x90c_rockHealths[rockIndex] = hp;
       sub801dbc5c(mgr, rock);
       ProcessSoundEvent(x760_, 1.f, 0, 0.1f, 1000.f, 0.16f, 1.f, zeus::skZero3f, GetTranslation(), mgr.GetNextAreaId(),
                         mgr, true);
