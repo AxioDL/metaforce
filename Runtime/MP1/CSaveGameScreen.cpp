@@ -1,9 +1,9 @@
 #include "Runtime/MP1/CSaveGameScreen.hpp"
 
+#include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/GuiSys/CGuiTableGroup.hpp"
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
@@ -26,8 +26,9 @@ void CSaveGameScreen::ResetCardDriver() {
 }
 
 CIOWin::EMessageReturn CSaveGameScreen::Update(float dt) {
-  if (!PumpLoad())
+  if (!PumpLoad()) {
     return CIOWin::EMessageReturn::Normal;
+  }
 
   x50_loadedFrame->Update(dt);
   x6c_cardDriver->Update();
@@ -36,8 +37,9 @@ CIOWin::EMessageReturn CSaveGameScreen::Update(float dt) {
     if (x90_needsDriverReset) {
       ResetCardDriver();
       x90_needsDriverReset = false;
-    } else
+    } else {
       x80_iowRet = CIOWin::EMessageReturn::Exit;
+    }
   } else if (x6c_cardDriver->x10_state == EState::CardCheckDone && x10_uiType != EUIType::NotOriginalCard) {
     if (x6c_cardDriver->x28_cardSerial != x8_serial) {
       if (x93_inGame) {
@@ -51,22 +53,27 @@ CIOWin::EMessageReturn CSaveGameScreen::Update(float dt) {
       x6c_cardDriver->IndexFiles();
     }
   } else if (x6c_cardDriver->x10_state == EState::Ready) {
-    if (x90_needsDriverReset)
+    if (x90_needsDriverReset) {
       x6c_cardDriver->StartFileCreateTransactional();
+    }
   }
 
-  if (x80_iowRet != CIOWin::EMessageReturn::Normal)
+  if (x80_iowRet != CIOWin::EMessageReturn::Normal) {
     return x80_iowRet;
+  }
 
   EUIType oldTp = x10_uiType;
   x10_uiType = SelectUIType();
-  if (oldTp != x10_uiType || x91_uiTextDirty)
+  if (oldTp != x10_uiType || x91_uiTextDirty) {
     SetUIText();
+  }
 
   if (x6c_cardDriver->x10_state == EState::NoCard) {
     auto res = CMemoryCardSys::CardProbe(kabufuda::ECardSlot::SlotA);
-    if (res.x0_error == CMemoryCardSys::ECardResult::READY || res.x0_error == CMemoryCardSys::ECardResult::WRONGDEVICE)
+    if (res.x0_error == CMemoryCardSys::ECardResult::READY ||
+        res.x0_error == CMemoryCardSys::ECardResult::WRONGDEVICE) {
       ResetCardDriver();
+    }
   } else if (x6c_cardDriver->x10_state == EState::CardFormatted) {
     ResetCardDriver();
   } else if (x6c_cardDriver->x10_state == EState::FileBad && x6c_cardDriver->x14_error == EError::FileMissing) {
@@ -77,21 +84,29 @@ CIOWin::EMessageReturn CSaveGameScreen::Update(float dt) {
 }
 
 bool CSaveGameScreen::PumpLoad() {
-  if (x50_loadedFrame)
+  if (x50_loadedFrame != nullptr) {
     return true;
-  if (!x14_txtrSaveBanner.IsLoaded())
+  }
+  if (!x14_txtrSaveBanner.IsLoaded()) {
     return false;
-  if (!x20_txtrSaveIcon0.IsLoaded())
+  }
+  if (!x20_txtrSaveIcon0.IsLoaded()) {
     return false;
-  if (!x2c_txtrSaveIcon1.IsLoaded())
+  }
+  if (!x2c_txtrSaveIcon1.IsLoaded()) {
     return false;
-  if (!x38_strgMemoryCard.IsLoaded())
+  }
+  if (!x38_strgMemoryCard.IsLoaded()) {
     return false;
-  for (TLockedToken<CSaveWorld>& savw : x70_saveWorlds)
-    if (!savw.IsLoaded())
+  }
+  for (TLockedToken<CSaveWorld>& savw : x70_saveWorlds) {
+    if (!savw.IsLoaded()) {
       return false;
-  if (!x44_frmeGenericMenu.IsLoaded())
+    }
+  }
+  if (!x44_frmeGenericMenu.IsLoaded()) {
     return false;
+  }
 
   x50_loadedFrame = x44_frmeGenericMenu.GetObj();
   x50_loadedFrame->SetAspectConstraint(1.78f);
@@ -106,8 +121,9 @@ bool CSaveGameScreen::PumpLoad() {
   x58_tablegroup_choices->SetMenuSelectionChangeCallback(
       [this](CGuiTableGroup* caller, int oldSel) { DoSelectionChange(caller, oldSel); });
 
-  if (x0_saveCtx == ESaveContext::InGame)
+  if (x0_saveCtx == ESaveContext::InGame) {
     x6c_cardDriver->StartCardProbe();
+  }
 
   x10_uiType = SelectUIType();
   SetUIText();
@@ -115,8 +131,9 @@ bool CSaveGameScreen::PumpLoad() {
 }
 
 CSaveGameScreen::EUIType CSaveGameScreen::SelectUIType() const {
-  if (x6c_cardDriver->x10_state == EState::NoCard)
+  if (x6c_cardDriver->x10_state == EState::NoCard) {
     return EUIType::NoCardFound;
+  }
 
   switch (x10_uiType) {
   case EUIType::ProgressWillBeLost:
@@ -128,40 +145,49 @@ CSaveGameScreen::EUIType CSaveGameScreen::SelectUIType() const {
   }
 
   if (CMemoryCardDriver::IsCardBusy(x6c_cardDriver->x10_state)) {
-    if (CMemoryCardDriver::IsCardWriting(x6c_cardDriver->x10_state))
+    if (CMemoryCardDriver::IsCardWriting(x6c_cardDriver->x10_state)) {
       return EUIType::BusyWriting;
+    }
     return EUIType::BusyReading;
   }
 
   if (x6c_cardDriver->x10_state == EState::Ready) {
-    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardStillFull)
+    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardStillFull) {
       return EUIType::StillInsufficientSpace;
+    }
     return EUIType::SaveReady;
   }
 
-  if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardBroken)
+  if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardBroken) {
     return EUIType::NeedsFormatBroken;
+  }
 
-  if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardWrongCharacterSet)
+  if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardWrongCharacterSet) {
     return EUIType::NeedsFormatEncoding;
+  }
 
-  if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardWrongDevice)
+  if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardWrongDevice) {
     return EUIType::WrongDevice;
+  }
 
   if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardFull) {
-    if (x6c_cardDriver->x10_state == EState::CardCheckFailed)
+    if (x6c_cardDriver->x10_state == EState::CardCheckFailed) {
       return EUIType::InsufficientSpaceBadCheck;
+    }
     return EUIType::InsufficientSpaceOKCheck;
   }
 
-  if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardNon8KSectors)
+  if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardNon8KSectors) {
     return EUIType::IncompatibleCard;
+  }
 
-  if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::FileCorrupted)
+  if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::FileCorrupted) {
     return EUIType::SaveCorrupt;
+  }
 
-  if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardIOError)
+  if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardIOError) {
     return EUIType::CardDamaged;
+  }
 
   return EUIType::Empty;
 }
@@ -232,10 +258,10 @@ void CSaveGameScreen::SetUIText() {
     opt2 = 19; // Manage memory card
     break;
   case EUIType::InsufficientSpaceBadCheck:
-    msgB = bool(x0_saveCtx) + 9; // Insufficient space A or B
-    opt0 = 17;                   // Continue without saving
-    opt1 = 18;                   // Retry
-    opt2 = 19;                   // Manage memory card
+    msgB = static_cast<int>(bool(x0_saveCtx)) + 9; // Insufficient space A or B
+    opt0 = 17;                                     // Continue without saving
+    opt1 = 18;                                     // Retry
+    opt2 = 19;                                     // Manage memory card
     break;
   case EUIType::IncompatibleCard:
     msgB = 7;  // Incompatible card
@@ -290,22 +316,27 @@ void CSaveGameScreen::SetUIText() {
     break;
   }
 
-  if (msgA > -1)
+  if (msgA > -1) {
     msgAStr = x38_strgMemoryCard->GetString(msgA);
-  if (msgB > -1)
+  }
+  if (msgB > -1) {
     msgBStr = x38_strgMemoryCard->GetString(msgB);
+  }
   x54_textpane_message->TextSupport().SetText(msgAStr + msgBStr);
 
-  if (opt0 > -1)
+  if (opt0 > -1) {
     opt0Str = x38_strgMemoryCard->GetString(opt0);
+  }
   x5c_textpane_choice0->TextSupport().SetText(opt0Str);
 
-  if (opt1 > -1)
+  if (opt1 > -1) {
     opt1Str = x38_strgMemoryCard->GetString(opt1);
+  }
   x60_textpane_choice1->TextSupport().SetText(opt1Str);
 
-  if (opt2 > -1)
+  if (opt2 > -1) {
     opt2Str = x38_strgMemoryCard->GetString(opt2);
+  }
   x64_textpane_choice2->TextSupport().SetText(opt2Str);
 
   x68_textpane_choice3->TextSupport().SetText(opt3Str);
@@ -328,8 +359,9 @@ void CSaveGameScreen::SetUIColors() {
 
 void CSaveGameScreen::Draw() const {
   SCOPED_GRAPHICS_DEBUG_GROUP("CSaveGameScreen::Draw", zeus::skPurple);
-  if (x50_loadedFrame)
+  if (x50_loadedFrame != nullptr) {
     x50_loadedFrame->Draw(CGuiWidgetDrawParms::Default());
+  }
 }
 
 void CSaveGameScreen::ContinueWithoutSaving() {
@@ -337,7 +369,7 @@ void CSaveGameScreen::ContinueWithoutSaving() {
   g_GameState->SetCardSerial(0);
 }
 
-void CSaveGameScreen::DoAdvance(CGuiTableGroup* caller) {
+void CSaveGameScreen::DoAdvance([[maybe_unused]] CGuiTableGroup* caller) {
   int userSel = x58_tablegroup_choices->GetUserSelection();
   int sfx = -1;
 
@@ -348,10 +380,11 @@ void CSaveGameScreen::DoAdvance(CGuiTableGroup* caller) {
   case EUIType::IncompatibleCard:
     if (userSel == 0) {
       /* Continue without saving */
-      if (x0_saveCtx == ESaveContext::InGame)
+      if (x0_saveCtx == ESaveContext::InGame) {
         x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
-      else
+      } else {
         ContinueWithoutSaving();
+      }
       sfx = x8c_navBackSfx;
     } else if (userSel == 1) {
       /* Retry */
@@ -369,10 +402,11 @@ void CSaveGameScreen::DoAdvance(CGuiTableGroup* caller) {
   case EUIType::NeedsFormatEncoding:
     if (userSel == 0) {
       /* Continue without saving */
-      if (x0_saveCtx == ESaveContext::InGame)
+      if (x0_saveCtx == ESaveContext::InGame) {
         x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
-      else
+      } else {
         ContinueWithoutSaving();
+      }
       sfx = x8c_navBackSfx;
     } else if (userSel == 1) {
       /* Retry */
@@ -390,10 +424,11 @@ void CSaveGameScreen::DoAdvance(CGuiTableGroup* caller) {
   case EUIType::InsufficientSpaceOKCheck:
     if (userSel == 0) {
       /* Continue without saving */
-      if (x0_saveCtx == ESaveContext::InGame)
+      if (x0_saveCtx == ESaveContext::InGame) {
         x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
-      else
+      } else {
         ContinueWithoutSaving();
+      }
       sfx = x8c_navBackSfx;
     } else if (userSel == 1) {
       /* Retry */
@@ -405,8 +440,9 @@ void CSaveGameScreen::DoAdvance(CGuiTableGroup* caller) {
         x10_uiType = EUIType::ProgressWillBeLost;
         x91_uiTextDirty = true;
         sfx = x84_navConfirmSfx;
-      } else
+      } else {
         static_cast<MP1::CMain*>(g_Main)->SetManageCard(true);
+      }
     }
     break;
 
@@ -417,10 +453,11 @@ void CSaveGameScreen::DoAdvance(CGuiTableGroup* caller) {
       sfx = x84_navConfirmSfx;
     } else if (userSel == 1) {
       /* Continue without saving */
-      if (x0_saveCtx == ESaveContext::InGame)
+      if (x0_saveCtx == ESaveContext::InGame) {
         x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
-      else
+      } else {
         ContinueWithoutSaving();
+      }
       sfx = x8c_navBackSfx;
     } else if (userSel == 2) {
       /* Retry */
@@ -524,17 +561,18 @@ void CSaveGameScreen::DoAdvance(CGuiTableGroup* caller) {
     break;
   }
 
-  if (sfx >= 0)
+  if (sfx >= 0) {
     CSfxManager::SfxStart(sfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+  }
 }
 
-void CSaveGameScreen::DoSelectionChange(CGuiTableGroup* caller, int oldSel) {
+void CSaveGameScreen::DoSelectionChange([[maybe_unused]] CGuiTableGroup* caller, [[maybe_unused]] int oldSel) {
   SetUIColors();
   CSfxManager::SfxStart(x88_navMoveSfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
 void CSaveGameScreen::ProcessUserInput(const CFinalInput& input) {
-  if (x50_loadedFrame) {
+  if (x50_loadedFrame != nullptr) {
     x50_loadedFrame->ProcessUserInput(input);
 
     int tbOpt = m_touchBar->PopOption();
@@ -550,10 +588,11 @@ void CSaveGameScreen::StartGame(int idx) {
   const CGameState::GameFileStateInfo* info = x6c_cardDriver->GetGameFileStateInfo(idx);
   x6c_cardDriver->ExportPersistentOptions();
   x6c_cardDriver->BuildNewFileSlot(idx);
-  if (!info)
+  if (info == nullptr) {
     x6c_cardDriver->StartFileCreateTransactional();
-  else
+  } else {
     x80_iowRet = CIOWin::EMessageReturn::Exit;
+  }
 }
 
 void CSaveGameScreen::SaveNESState() {
@@ -593,7 +632,7 @@ CSaveGameScreen::CSaveGameScreen(ESaveContext saveCtx, u64 serial)
 
   x70_saveWorlds.reserve(g_MemoryCardSys->GetMemoryWorlds().size());
   for (const std::pair<CAssetId, CSaveWorldMemory>& wld : g_MemoryCardSys->GetMemoryWorlds()) {
-    x70_saveWorlds.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), wld.second.GetSaveWorldAssetId()}));
+    x70_saveWorlds.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), wld.second.GetSaveWorldAssetId()}));
   }
 }
 
