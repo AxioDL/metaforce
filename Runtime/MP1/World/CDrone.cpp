@@ -476,7 +476,7 @@ void CDrone::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
 
 void CDrone::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
-    zeus::CVector3f searchOff = GetTranslation() + zeus::CVector3f{0.f, 0.f, x664_};
+    auto searchOff = GetDestPos();
     CPathFindSearch::EResult res = GetSearchPath()->Search(GetTranslation(), searchOff);
     if (res != CPathFindSearch::EResult::Success &&
         (res == CPathFindSearch::EResult::NoDestPoint || res == CPathFindSearch::EResult::NoPath)) {
@@ -486,7 +486,9 @@ void CDrone::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
         SetDestPos(searchOff);
       }
     }
-    x834_30_visible = true;
+    if (x3fc_flavor == CPatterned::EFlavorType::One) {
+      x834_30_visible = true;
+    }
   } else if (msg == EStateMsg::Update) {
     CPatterned::PathFind(mgr, msg, dt);
     x450_bodyController->GetCommandMgr().BlendSteeringCmds();
@@ -494,9 +496,9 @@ void CDrone::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
     if (moveVec.canBeNormalized()) {
       moveVec.normalize();
       ApplyImpulseWR(GetMass() * (x5e4_ * moveVec), {});
-      zeus::CVector3f target = (mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation());
+      const auto target = (mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()).normalized();
       x450_bodyController->GetCommandMgr().DeliverCmd(
-          CBCLocomotionCmd(FLT_EPSILON * GetTransform().basis[1], target.normalized(), 1.f));
+          CBCLocomotionCmd(FLT_EPSILON * GetTransform().frontVector(), target, 1.f));
       x450_bodyController->GetCommandMgr().DeliverTargetVector(target);
       StrafeFromCompanions(mgr);
       if (x630_ <= 0.f) {
