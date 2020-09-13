@@ -624,18 +624,18 @@ void CDrone::Dodge(CStateManager& mgr, EStateMsg msg, float dt) {
   } else if (msg == EStateMsg::Update) {
     if (x7c8_ == 0) {
       GetBodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::NextState));
-      if (x58c_ == 5) {
+      if (x58c_prevDodgeDir == pas::EStepDirection::Down) {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Left, pas::EStepType::Dodge));
-        x58c_ = 2;
-      } else if (x58c_ == 4) {
+        x58c_prevDodgeDir = pas::EStepDirection::Left;
+      } else if (x58c_prevDodgeDir == pas::EStepDirection::Up) {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Down, pas::EStepType::Dodge));
-        x58c_ = 5;
-      } else if (x58c_ == 3) {
+        x58c_prevDodgeDir = pas::EStepDirection::Down;
+      } else if (x58c_prevDodgeDir == pas::EStepDirection::Right) {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Up, pas::EStepType::Dodge));
-        x58c_ = 4;
-      } else if (x58c_ == 2) {
+        x58c_prevDodgeDir = pas::EStepDirection::Up;
+      } else if (x58c_prevDodgeDir == pas::EStepDirection::Left) {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Right, pas::EStepType::Dodge));
-        x58c_ = 3;
+        x58c_prevDodgeDir = pas::EStepDirection::Right;
       }
       x7c8_ = 1;
     } else if (x7c8_ == 1 &&

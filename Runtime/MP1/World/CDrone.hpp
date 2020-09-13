@@ -14,7 +14,7 @@ class CDrone : public CPatterned {
   TUniqueId x578_lightId = kInvalidUniqueId;
   TUniqueId x57a_ = kInvalidUniqueId;
   std::vector<CVisorFlare::CFlareDef> x57c_flares;
-  u32 x58c_ = 2;
+  pas::EStepDirection x58c_prevDodgeDir = pas::EStepDirection::Left;
   CDamageInfo x590_;
   CDamageInfo x5ac_;
   float x5c8_ = 0.f;
