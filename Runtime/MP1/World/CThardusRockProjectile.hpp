@@ -52,6 +52,7 @@ public:
   void Render(CStateManager& mgr) override;
   void sub80203d58() {
     x328_25_verticalMovement = false;
+    Stop();
     x150_momentum = {0.f, 0.f, 2.f * -GetWeight()};
     x56c_ = 3;
   }

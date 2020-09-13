@@ -127,10 +127,11 @@ class CThardus : public CPatterned {
 
   void SetState(s32 state, CStateManager& mgr) {
     x644_ = state;
-    if (state == 2)
+    if (state == 2) {
       SendScriptMsgs(EScriptObjectState::Patrol, mgr, EScriptObjectMessage::None);
-    else if (state == 1)
+    } else if (state == 1) {
       SendScriptMsgs(EScriptObjectState::Retreat, mgr, EScriptObjectMessage::None);
+    }
   }
 
   void GatherWaypoints(CScriptWaypoint* wp, CStateManager& mgr, rstl::reserved_vector<TUniqueId, 16>& uids);
@@ -169,7 +170,6 @@ class CThardus : public CPatterned {
   zeus::CVector3f sub801de434(CStateManager& mgr);
   zeus::CVector2f sub801dc60c(float f1, CStateManager& mgr);
   void sub801dbc40();
-  void UpdateNonDestroyableActors(bool remove, EMaterialTypes mat, CStateManager& mgr);
 
   std::optional<CTexturedQuadFilter> m_flareFilter;
 
