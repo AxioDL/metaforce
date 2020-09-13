@@ -777,7 +777,7 @@ void CDrone::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) {
 void CDrone::PathFindEx(CStateManager& mgr, EStateMsg msg, float dt) {
   CPatterned::PathFind(mgr, msg, dt);
   if (msg == EStateMsg::Activate) {
-    zeus::CVector3f searchOff = GetTranslation() + zeus::CVector3f{0.f, 0.f, x664_};
+    auto searchOff = mgr.GetPlayer().GetTranslation() + zeus::CVector3f{0.f, 0.f, x664_};
     CPathFindSearch::EResult res = GetSearchPath()->Search(GetTranslation(), searchOff);
     if (res != CPathFindSearch::EResult::Success &&
         (res == CPathFindSearch::EResult::NoDestPoint || res == CPathFindSearch::EResult::NoPath)) {
