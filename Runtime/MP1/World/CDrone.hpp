@@ -25,7 +25,7 @@ class CDrone : public CPatterned {
   float x5dc_ = 0.f;
   float x5e0_ = 0.f;
   float x5e4_;
-  float x5e8_shieldTime = 0.f;
+  mutable float x5e8_shieldTime = 0.f;
   float x5ec_turnSpeed;
   float x5f0_;
   float x5f4_;

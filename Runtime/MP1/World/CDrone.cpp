@@ -347,6 +347,7 @@ void CDrone::Touch(CActor& act, CStateManager& mgr) {
 EWeaponCollisionResponseTypes CDrone::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f& dir,
                                                                const CWeaponMode&, EProjectileAttrib) const {
   if (x3fc_flavor == EFlavorType::One && HitShield(-dir)) {
+    x5e8_shieldTime = 1.f;
     return EWeaponCollisionResponseTypes::Unknown86;
   }
   return EWeaponCollisionResponseTypes::Unknown36;
