@@ -327,7 +327,8 @@ bool CDrone::CanRenderUnsorted(const CStateManager& mgr) const {
 const CDamageVulnerability* CDrone::GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f& dir,
                                                            const CDamageInfo&) const {
   if (x3fc_flavor == EFlavorType::One && HitShield(-dir)) {
-    return &CDamageVulnerability::ImmuneVulnerabilty();
+    x5e8_shieldTime = 1.f;
+    return &CDamageVulnerability::ReflectVulnerabilty();
   }
   return CAi::GetDamageVulnerability();
 }
