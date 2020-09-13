@@ -78,7 +78,7 @@ class CDrone : public CPatterned {
   rstl::reserved_vector<zeus::CVector3f, 2> x7e0_ = {{zeus::skZero3f, zeus::skZero3f}};
   rstl::reserved_vector<zeus::CVector3f, 2> x7fc_ = {{zeus::skZero3f, zeus::skZero3f}};
   rstl::reserved_vector<float, 2> x818_ = {{0.f, 0.f}};
-  rstl::reserved_vector<bool, 2> x824_ = {{false, false}};
+  rstl::reserved_vector<bool, 2> x824_activeLasers = {{false, false}};
   std::unique_ptr<CModelData> x82c_shieldModel;
   u8 x832_a : 3 = 0;
   u8 x832_b : 3 = 0;
@@ -107,6 +107,7 @@ class CDrone : public CPatterned {
   void sub_801633a8(CStateManager& mgr);
   void sub_8015f25c(float dt, CStateManager& mgr);
   void sub_8015f158(float dt);
+  void sub_80165984(CStateManager& mgr, const zeus::CTransform& xf);
 
 public:
   DEFINE_PATTERNED(Drone);

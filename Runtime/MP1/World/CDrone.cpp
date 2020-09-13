@@ -62,7 +62,7 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
 , x660_(f22)
 , x664_(f24)
 , x690_colSphere(zeus::CSphere({0.f, 0.f, 1.8f}, 1.1f), CActor::GetMaterialList())
-, x6b0_pathFind(nullptr, 3 + int(b1), pInfo.GetPathfindingIndex(), 1.f, 2.4f)
+, x6b0_pathFind(nullptr, 3 + int(b1) /* TODO double check */, pInfo.GetPathfindingIndex(), 1.f, 2.4f)
 , x7cc_(CSfxManager::TranslateSFXID(sId))
 , x82c_shieldModel(std::make_unique<CModelData>(CStaticRes{aId2, zeus::skOne3f}))
 , x835_25_(b1) {
@@ -83,9 +83,9 @@ void CDrone::Think(float dt, CStateManager& mgr) {
     }
   }
 
-  if (GetBodyController()->IsElectrocuting() && (x824_[0] || x824_[1])) {
-    x824_[0] = false;
-    x824_[1] = false;
+  if (GetBodyController()->IsElectrocuting() && (x824_activeLasers[0] || x824_activeLasers[1])) {
+    x824_activeLasers[0] = false;
+    x824_activeLasers[1] = false;
     UpdateLaser(mgr, 0, false);
     UpdateLaser(mgr, 1, false);
     SetVisorFlareEnabled(mgr, false);
@@ -112,7 +112,7 @@ void CDrone::Think(float dt, CStateManager& mgr) {
     x644_ -= dt;
   }
 
-  if (x824_[0] || (x824_[1] && IsAlive())) {
+  if (x824_activeLasers[0] || (x824_activeLasers[1] && IsAlive())) {
     sub_80163c40(dt, mgr);
     UpdateVisorFlare(mgr);
   }
@@ -356,7 +356,7 @@ void CDrone::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUse
   // TODO: Finish
   switch (type) {
   case EUserEventType::Projectile:
-    // sub80165984(mgr, GetLctrTransform(node.GetLocatorName()));
+    sub_80165984(mgr, GetLctrTransform(node.GetLocatorName()));
     return;
   case EUserEventType::Delete:
     if (x7d0_) {
@@ -367,23 +367,25 @@ void CDrone::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUse
     break;
   case EUserEventType::DamageOn: {
     if (IsAlive() && x835_24_) {
-      UpdateLaser(mgr, 0, true);
-      x824_[0] = true;
-      SetVisorFlareEnabled(mgr, true);
-    } else if (x3fc_flavor == EFlavorType::One) {
-      UpdateLaser(mgr, 1, true);
-      x824_[1] = true;
+      if (!x824_activeLasers[0]) {
+        UpdateLaser(mgr, 0, true);
+        x824_activeLasers[0] = true;
+        SetVisorFlareEnabled(mgr, true);
+      } else if (x3fc_flavor == EFlavorType::One) {
+        UpdateLaser(mgr, 1, true);
+        x824_activeLasers[1] = true;
+      }
     }
     return;
   }
   case EUserEventType::DamageOff: {
-    if (x824_[0]) {
+    if (x824_activeLasers[0]) {
       UpdateLaser(mgr, 0, false);
-      x824_[0] = false;
+      x824_activeLasers[0] = false;
       SetVisorFlareEnabled(mgr, false);
     } else if (x3fc_flavor == EFlavorType::One) {
       UpdateLaser(mgr, 1, false);
-      x824_[1] = false;
+      x824_activeLasers[1] = false;
     }
     return;
   }
@@ -413,8 +415,8 @@ void CDrone::Death(CStateManager& mgr, const zeus::CVector3f& direction, EScript
   if (!IsAlive())
     return;
 
-  x824_[0] = false;
-  x824_[1] = false;
+  x824_activeLasers[0] = false;
+  x824_activeLasers[1] = false;
   UpdateLaser(mgr, 0, false);
   UpdateLaser(mgr, 1, false);
   SetVisorFlareEnabled(mgr, false);
@@ -546,7 +548,43 @@ void CDrone::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
 }
 
 void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
-  // TODO: Finish
+  if (msg == EStateMsg::Activate) {
+    x7c8_ = 0;
+    x834_31_attackOver = false;
+    const auto playerAimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
+    const auto frontVec = GetTransform().frontVector();
+    zeus::CVector3f out;
+    if ((playerAimPos - GetTranslation()).normalized().dot(frontVec) >= 0.8f) {
+      out = playerAimPos;
+    } else {
+      out = GetTranslation() + 10.f * frontVec;
+    }
+    // TODO complete
+  } else if (msg == EStateMsg::Update) {
+    if (x7c8_ == 0) {
+      if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::ProjectileAttack) {
+        x7c8_ = 1;
+      } else {
+        GetBodyController()->GetCommandMgr().DeliverCmd(
+            CBCProjectileAttackCmd(pas::ESeverity::Two, mgr.GetPlayer().GetTranslation(), false));
+      }
+    } else if (x7c8_ == 1) {
+      if (GetBodyController()->GetCurrentStateId() != pas::EAnimationState::ProjectileAttack) {
+        x7c8_ = 2;
+      }
+    }
+    if (x630_ <= 0.f) {
+      x634_ = 0.f;
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x824_activeLasers[0] = false;
+    x824_activeLasers[1] = false;
+    UpdateLaser(mgr, 0, false);
+    UpdateLaser(mgr, 1, false);
+    SetVisorFlareEnabled(mgr, false);
+    x5d0_ = x5f4_;
+    x835_24_ = false;
+  }
 }
 
 void CDrone::Active(CStateManager& mgr, EStateMsg msg, float dt) {
@@ -814,7 +852,9 @@ bool CDrone::ShouldMove(CStateManager& mgr, float arg) { return x644_ <= 0.f; }
 
 bool CDrone::CodeTrigger(CStateManager& mgr, float arg) { return x834_29_codeTrigger; }
 
-void CDrone::Burn(float duration, float damage) { /* Intentionally empty */ }
+void CDrone::Burn(float duration, float damage) {
+  // Intentionally empty
+}
 
 CPathFindSearch* CDrone::GetSearchPath() { return &x6b0_pathFind; }
 
@@ -878,7 +918,9 @@ void CDrone::UpdateLaser(CStateManager& mgr, u32 laserIdx, bool b1) {
   // TODO: Finish
 }
 
-void CDrone::FireProjectile(CStateManager& mgr, const zeus::CTransform& xf, const TToken<CWeaponDescription>& weapon) {}
+void CDrone::FireProjectile(CStateManager& mgr, const zeus::CTransform& xf, const TToken<CWeaponDescription>& weapon) {
+  // TODO implement
+}
 
 void CDrone::StrafeFromCompanions(CStateManager& mgr) {
   if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Step)
@@ -934,12 +976,25 @@ void CDrone::UpdateScanner(CStateManager& mgr, float dt) {
   }
 }
 
-void CDrone::sub_80163c40(float, CStateManager& mgr) {}
+void CDrone::sub_80163c40(float, CStateManager& mgr) {
+  // TODO implement
+}
 
-void CDrone::sub_801633a8(CStateManager& mgr) {}
+void CDrone::sub_801633a8(CStateManager& mgr) {
+  // TODO implement
+}
 
-void CDrone::sub_8015f25c(float dt, CStateManager& mgr) {}
+void CDrone::sub_8015f25c(float dt, CStateManager& mgr) {
+  // TODO implement
+}
 
-void CDrone::sub_8015f158(float dt) {}
+void CDrone::sub_8015f158(float dt) {
+  // TODO implement
+}
+
+void CDrone::sub_80165984(CStateManager& mgr, const zeus::CTransform& xf) {
+  /*constexpr*/ float sin60 = std::sqrt(3.f) / 2.f;
+  // TODO implement
+}
 
 } // namespace urde::MP1
