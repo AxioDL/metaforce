@@ -35,6 +35,7 @@ struct CVarCommons {
   CVar* m_debugOverlayShowFrameCounter = nullptr;
   CVar* m_debugOverlayShowInGameTime = nullptr;
   CVar* m_debugOverlayShowResourceStats = nullptr;
+  CVar* m_debugOverlayShowRandomStats = nullptr;
   CVar* m_logFile = nullptr;
 
   CVarCommons(CVarManager& manager) : m_mgr(manager) {
@@ -74,9 +75,12 @@ struct CVarCommons {
     m_debugOverlayShowResourceStats = m_mgr.findOrMakeCVar(
         "debugOverlay.showResourceStats"sv, "Displays the current live resource object and token counts"sv, false,
         hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_debugOverlayShowRandomStats = m_mgr.findOrMakeCVar(
+        "debugOverlay.showRandomStats", "Displays the current number of random calls per frame"sv, false,
+        hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
     m_logFile = m_mgr.findOrMakeCVar("logFile"sv, "Any log prints will be stored to this file upon exit"sv, "app.log"sv,
                                      hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive |
-                                     hecl::CVar::EFlags::ModifyRestart);
+                                         hecl::CVar::EFlags::ModifyRestart);
   }
 
   std::string getGraphicsApi() const { return m_graphicsApi->toLiteral(); }
@@ -98,7 +102,6 @@ struct CVarCommons {
   std::string getLogFile() const { return m_logFile->toLiteral(); };
 
   void setLogFile(std::string_view log) { m_logFile->fromLiteral(log); }
-
 
   void serialize() { m_mgr.serialize(); }
 };
