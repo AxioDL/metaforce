@@ -603,23 +603,21 @@ void CDrone::Flee(CStateManager& mgr, EStateMsg msg, float dt) {
     if (mgr.RayStaticIntersection(GetTranslation(), -GetTransform().frontVector(), 4.f,
                                   CMaterialFilter::MakeInclude({EMaterialTypes::Solid}))
             .IsValid()) {
-      x832_b = mgr.GetActiveRandom()->Float() > 0.5f ? 1 : 2;
+      x832_b = mgr.GetActiveRandom()->Float() >= 0.5f ? 1 : 2;
     }
   } else if (msg == EStateMsg::Update) {
     if (x7c8_ == 0) {
       if (GetBodyController()->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Step) {
         x7c8_ = 1;
-      } else {
-        if (x832_b == 0) {
-          GetBodyController()->GetCommandMgr().DeliverCmd(
-              CBCStepCmd(pas::EStepDirection::Backward, pas::EStepType::BreakDodge));
-        } else if (x832_b == 1) {
-          GetBodyController()->GetCommandMgr().DeliverCmd(
-              CBCStepCmd(pas::EStepDirection::Left, pas::EStepType::Normal));
-        } else if (x832_b == 2) {
-          GetBodyController()->GetCommandMgr().DeliverCmd(
-              CBCStepCmd(pas::EStepDirection::Right, pas::EStepType::Normal));
-        }
+      } else if (x832_b == 0) {
+        GetBodyController()->GetCommandMgr().DeliverCmd(
+            CBCStepCmd(pas::EStepDirection::Backward, pas::EStepType::BreakDodge));
+      } else if (x832_b == 1) {
+        GetBodyController()->GetCommandMgr().DeliverCmd(
+            CBCStepCmd(pas::EStepDirection::Left, pas::EStepType::Normal));
+      } else if (x832_b == 2) {
+        GetBodyController()->GetCommandMgr().DeliverCmd(
+            CBCStepCmd(pas::EStepDirection::Right, pas::EStepType::Normal));
       }
     } else if (x7c8_ == 1 &&
                GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Step) {
@@ -888,8 +886,8 @@ void CDrone::UpdateTouchBounds(float radius) {
 }
 
 bool CDrone::HitShield(const zeus::CVector3f& dir) const {
-  if (x3fc_flavor == EFlavorType::One && zeus::close_enough(x5dc_, 0.f)) {
-    return GetLctrTransform("Shield_LCTR"sv).basis[1].dot(dir.normalized()) > 0.85f;
+  if (x3fc_flavor == EFlavorType::One && !zeus::close_enough(x5dc_, 0.f)) {
+    return GetLctrTransform("Shield_LCTR"sv).frontVector().dot(dir.normalized()) > 0.85f;
   }
 
   return false;
