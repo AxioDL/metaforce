@@ -908,7 +908,7 @@ void CThardus::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
     } else if (x658_ == 0) {
       zeus::CVector3f dir = (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized();
       zeus::CVector2f vec = sub801dac30(mgr);
-      if (vec == zeus::skZero2f) {
+      if (vec != zeus::skZero2f) {
         x650_ = vec;
       } else {
         x650_ = dir.toVec2f().normalized();
@@ -1585,7 +1585,7 @@ zeus::CVector2f CThardus::sub801dc60c(float arg, CStateManager& mgr) {
     }
   }
 
-  if (ret != zeus::skZero2f) {
+  if (ret == zeus::skZero2f) {
     return x45c_steeringBehaviors.Arrival(*this, x7d8_, 0.f).toVec2f();
   }
 

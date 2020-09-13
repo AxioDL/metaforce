@@ -64,7 +64,7 @@ class CThardus : public CPatterned {
   float x6a4_;
   float x6a8_;
   float x6ac_;
-  std::vector<bool> x6b0_; /* TODO: Determine real value */
+  std::vector<bool> x6b0_;
   std::vector<TUniqueId> x6c0_rockLights;
   CAssetId x6d0_;
   CAssetId x6d4_;
@@ -157,7 +157,7 @@ class CThardus : public CPatterned {
   void sub801dc444(CStateManager& mgr, const zeus::CVector3f& pos, CAssetId particle);
   void sub801dbc5c(CStateManager& mgr, CDestroyableRock* rock);
   void sub801dbbdc(CStateManager& mgr, CDestroyableRock* rock);
-  bool sub801dc2c8() { return (x610_destroyableRocks.size() - 1) > x648_currentRock; }
+  bool sub801dc2c8() { return x648_currentRock == (x610_destroyableRocks.size() - 1); }
   void UpdateNonDestroyableCollisionActorMaterials(EUpdateMaterialMode mode, EMaterialTypes mat, CStateManager& mgr);
   void UpdateExcludeList(const std::unique_ptr<CCollisionActorManager>& colMgr, EUpdateMaterialMode mode,
                          EMaterialTypes mat, CStateManager& mgr);
@@ -243,7 +243,7 @@ public:
   bool AggressionCheck(CStateManager& mgr, float arg) override { return x330_stateMachineState.GetTime() > 0.1f; }
   bool AttackOver(CStateManager& mgr, float arg) override { return true; }
   bool ShouldTaunt(CStateManager& mgr, float arg) override { return false; }
-  bool ShouldMove(CStateManager& mgr, float arg) override { return x68c_ < x578_waypoints.size() || x93b_; }
+  bool ShouldMove(CStateManager& mgr, float arg) override { return x68c_ < x574_ || x93b_; }
   bool StartAttack(CStateManager& mgr, float arg) override { return true; }
   bool CodeTrigger(CStateManager& mgr, float arg) override { return x95c_doCodeTrigger; }
   bool IsDizzy(CStateManager& mgr, float arg) override { return x330_stateMachineState.GetTime() > 4.f; }
