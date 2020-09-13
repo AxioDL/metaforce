@@ -825,11 +825,11 @@ bool CDrone::ShouldAttack(CStateManager& mgr, float arg) {
 bool CDrone::HearShot(CStateManager& mgr, float arg) {
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   BuildNearList(EMaterialTypes::Projectile, EMaterialTypes::Player, nearList, 10.f, mgr);
-  return std::find_if(nearList.begin(), nearList.end(), [&mgr](TUniqueId uid) {
+  return std::any_of(nearList.begin(), nearList.end(), [&mgr](TUniqueId uid) {
            if (TCastToConstPtr<CWeapon> wp = mgr.GetObjectById(uid))
              return wp->GetType() != EWeaponType::AI;
            return false;
-         }) != nearList.end();
+         });
 }
 
 bool CDrone::CoverCheck(CStateManager& mgr, float arg) {
