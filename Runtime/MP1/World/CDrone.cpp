@@ -767,9 +767,9 @@ void CDrone::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) {
     x330_stateMachineState.SetDelay(x660_);
     GetBodyController()->SetLocomotionType(pas::ELocomotionType::Internal10);
   } else if (msg == EStateMsg::Update) {
-    GetBodyController()->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(GetTransform().basis[1], zeus::skZero3f, 1.f));
+    GetBodyController()->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(GetTransform().frontVector(), zeus::skZero3f, 1.f));
     zeus::CVector3f local_74 =
-        (mgr.GetPlayer().GetAimPosition(mgr, 0.f) + mgr.GetPlayer().GetTranslation()) - GetTranslation();
+        0.5f * (mgr.GetPlayer().GetAimPosition(mgr, 0.f) + mgr.GetPlayer().GetTranslation()) - GetTranslation();
     if (((x668_ < x664_ && local_74.z() > 0.f) || (x668_ > x664_)) && local_74.canBeNormalized()) {
       ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(dt * (x5e4_ * local_74.normalized())), dt),
                      zeus::CAxisAngle());
