@@ -992,8 +992,20 @@ void CDrone::StrafeFromCompanions(CStateManager& mgr) {
 }
 
 void CDrone::UpdateScanner(CStateManager& mgr, float dt) {
-  x5d4_ = zeus::CRelAngle::MakeRelativeAngle(1.2f * dt + x5d4_);
-  x5d8_ = zeus::CRelAngle::MakeRelativeAngle(x5d8_);
+  constexpr float deg360 = zeus::degToRad(360.f);
+  x5d4_ = 1.2f * dt + x5d4_;
+  if (x5d4_ > deg360) {
+    x5d4_ -= deg360;
+  }
+  if (x5d4_ < 0.f) {
+    x5d4_ = 0.f;
+  }
+  if (x5d8_ > deg360) {
+    x5d8_ -= deg360;
+  }
+  if (x5d8_ < 0.f) {
+    x5d8_ = 0.f;
+  }
   float angle = zeus::clamp(0.f, 0.5f * (1.f + std::sin(x5d4_)), 1.f);
   if (std::fpclassify(angle) != FP_SUBNORMAL)
     x5d8_ += 0.03f * std::pow(angle, 5.f);
@@ -1001,7 +1013,7 @@ void CDrone::UpdateScanner(CStateManager& mgr, float dt) {
       GetTransform().rotate(zeus::CVector3f(0.5f * std::cos(x5d8_), 1.f, 0.5f * std::sin(2.05f * x5d8_)).normalized());
   TUniqueId id;
   rstl::reserved_vector<TUniqueId, 1024> nearList;
-  nearList.push_back(GetUniqueId());
+  nearList.push_back(mgr.GetPlayer().GetUniqueId());
   auto res = mgr.RayWorldIntersection(
       id, GetLctrTransform("Beacon_LCTR"sv).origin + (0.2f * vec), vec, 10000.f,
       CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough}), nearList);
