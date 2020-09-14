@@ -206,7 +206,7 @@ void CChozoGhost::Render(CStateManager& mgr) {
 
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
     CElementGen::SetSubtractBlend(true);
-    CElementGen::g_ParticleSystemInitialized = true;
+    CElementGen::SetMoveRedToAlphaBuffer(true);
     CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
     mgr.SetupFogForArea3XRange(GetAreaIdAlways());
   }
@@ -218,7 +218,7 @@ void CChozoGhost::Render(CStateManager& mgr) {
     GetModelData()->GetAnimationData()->GetParticleDB().RenderSystemsToBeDrawnLast();
     mgr.SetupFogForArea(GetAreaIdAlways());
     CElementGen::SetSubtractBlend(false);
-    CElementGen::g_ParticleSystemInitialized = false;
+    CElementGen::SetMoveRedToAlphaBuffer(false);
   }
 }
 
