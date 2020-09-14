@@ -460,12 +460,12 @@ void CDrone::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
   } else if (msg == EStateMsg::Update) {
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     BuildNearList(EMaterialTypes::Character, EMaterialTypes::Player, nearList, 5.f, mgr);
-    if (nearList.empty())
-      return;
-    zeus::CVector3f sep = x45c_steeringBehaviors.Separation(
-        *this, static_cast<const CActor*>(mgr.GetObjectById(nearList[0]))->GetTranslation(), 5.f);
-    if (!sep.isZero()) {
-      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(sep, zeus::skZero3f, 0.5f));
+    if (!nearList.empty()) {
+      zeus::CVector3f sep = x45c_steeringBehaviors.Separation(
+          *this, static_cast<const CActor*>(mgr.GetObjectById(nearList[0]))->GetTranslation(), 5.f);
+      if (!sep.isZero()) {
+        x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(sep, zeus::skZero3f, 0.5f));
+      }
     }
   } else if (msg == EStateMsg::Deactivate) {
     SetLightEnabled(mgr, false);
