@@ -963,15 +963,15 @@ void CDrone::StrafeFromCompanions(CStateManager& mgr) {
     }
   }
 
-  if (nearestPos.isZero())
+  if (nearestPos.isZero() || minDist > x61c_ * x61c_)
     return;
 
-  zeus::CVector3f off = nearestPos - GetTranslation();
-  const float rightOff = GetTransform().basis[0].dot(off);
-  if (rightOff > -0.2f && rightOff < 0.2f) {
-    x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Left, pas::EStepType::Normal));
-  } else {
+  const auto off = nearestPos - GetTranslation();
+  const float rightOff = GetTransform().rightVector().dot(off);
+  if (rightOff < -0.2f) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Right, pas::EStepType::Normal));
+  } else if (rightOff > 0.2f) {
+    x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Left, pas::EStepType::Normal));
   }
 }
 
