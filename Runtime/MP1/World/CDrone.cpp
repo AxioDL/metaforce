@@ -288,7 +288,7 @@ void CDrone::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
 void CDrone::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CPatterned::PreRender(mgr, frustum);
   if (x3fc_flavor == EFlavorType::One) {
-    if (HasModelData() && GetModelData()->HasAnimData()) {
+    if (HasModelData() && GetModelData()->HasAnimData() && GetModelData()->HasNormalModel()) {
       if (GetModelAlphau8(mgr) == 0)
         GetModelData()->GetAnimationData()->BuildPose();
     }

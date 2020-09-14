@@ -66,6 +66,7 @@ class CModelData {
   bool x14_25_sortThermal : 1 = false;
   zeus::CColor x18_ambientColor;
 
+  // were rstl::optional_object<TCachedToken<CModel>>
   TLockedToken<CModel> x1c_normalModel;
   TLockedToken<CModel> x2c_xrayModel;
   TLockedToken<CModel> x3c_infraModel;
