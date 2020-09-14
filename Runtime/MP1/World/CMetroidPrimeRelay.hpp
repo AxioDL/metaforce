@@ -28,13 +28,17 @@ class CMetroidPrimeRelay : public CEntity {
   u32 xcb4_w5;
   rstl::reserved_vector<SPrimeExoRoomParameters, 4> xcb8_roomParms;
 
+  void ForwardMessageToMetroidPrimeExo(EScriptObjectMessage msg, CStateManager& mgr);
+  void GetOrBuildMetroidPrimeExo(CStateManager& mgr);
 public:
   CMetroidPrimeRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                      const zeus::CTransform& xf, const zeus::CVector3f& scale, SPrimeExoParameters&& parms, float f1,
                      float f2, float f3, u32 w1, bool b1, u32 w2, const CHealthInfo& hInfo1, const CHealthInfo& hInfo2,
                      u32 w3, u32 w4, u32 w5, rstl::reserved_vector<SPrimeExoRoomParameters, 4>&& roomParms);
   void Accept(IVisitor& visitor) override;
-  TUniqueId GetMetroidPrimeExoId() const { return x34_mpUid; }
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr) override;
+  [[nodiscard]] TUniqueId GetMetroidPrimeExoId() const { return x34_mpUid; }
+  void SetMetroidPrimeExoId(TUniqueId uid) { x34_mpUid = uid; }
 };
 
 } // namespace urde::MP1
