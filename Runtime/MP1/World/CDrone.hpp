@@ -9,7 +9,7 @@ namespace urde {
 class CWeaponDescription;
 namespace MP1 {
 class CDrone : public CPatterned {
-  CAssetId x568_;
+  CAssetId x568_laserParticlesId;
   TLockedToken<CCollisionResponseData> x56c_;
   TUniqueId x578_lightId = kInvalidUniqueId;
   TUniqueId x57a_ = kInvalidUniqueId;
@@ -98,7 +98,7 @@ class CDrone : public CPatterned {
   bool HitShield(const zeus::CVector3f& dir) const;
   void AddToTeam(CStateManager& mgr) const;
   void RemoveFromTeam(CStateManager& mgr) const;
-  void UpdateLaser(CStateManager& mgr, u32 laserIdx, bool b1);
+  void UpdateLaser(CStateManager& mgr, u32 laserIdx, bool active);
   void FireProjectile(CStateManager& mgr, const zeus::CTransform& xf, const TToken<CWeaponDescription>& weapon);
   void StrafeFromCompanions(CStateManager& mgr);
   void UpdateScanner(CStateManager& mgr, float dt);

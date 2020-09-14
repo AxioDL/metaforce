@@ -13,10 +13,11 @@
 namespace urde::MP1 {
 CDroneLaser::CDroneLaser(TUniqueId uid, TAreaId aId, const zeus::CTransform& xf, CAssetId particle)
 : CActor(uid, true, "DroneLaser"sv, CEntityInfo(aId, CEntity::NullConnectionList), xf, CModelData::CModelDataNull(),
-         CMaterialList(EMaterialTypes::NoStepLogic), CActorParameters::None(), kInvalidUniqueId)
+         CMaterialList(EMaterialTypes::NoStepLogic), CActorParameters::None().HotInThermal(true), kInvalidUniqueId)
 , xf8_beamDesc(g_SimplePool->GetObj({SBIG('PART'), particle}))
 , x104_beamParticle(std::make_unique<CElementGen>(xf8_beamDesc, CElementGen::EModelOrientationType::Normal,
                                                   CElementGen::EOptionalSystemFlags::One)) {}
+
 void CDroneLaser::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CDroneLaser::Think(float dt, CStateManager& mgr) { x104_beamParticle->Update(dt); }

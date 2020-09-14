@@ -5,6 +5,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/MP1/World/CDroneLaser.hpp"
 #include "Runtime/Particle/CWeaponDescription.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/Weapon/CWeapon.hpp"
@@ -32,7 +33,7 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
                s32 sId, bool b1)
 : CPatterned(ECharacter::Drone, uid, name, flavor, info, xf, std::move(mData), pInfo, movement, colliderType, bodyType,
              actParms, flavor == EFlavorType::Zero ? EKnockBackVariant::Medium : EKnockBackVariant::Large)
-, x568_(aId1)
+, x568_laserParticlesId(aId1)
 , x56c_(g_SimplePool->GetObj({SBIG('CRSC'), crscId}))
 , x57c_flares(std::move(flares))
 , x590_(dInfo1)
@@ -347,7 +348,7 @@ void CDrone::Touch(CActor& act, CStateManager& mgr) {
   if (TCastToPtr<CWeapon> weapon = act) {
     if (IsAlive()) {
       x834_24_ = weapon->GetType() == EWeaponType::Wave;
-      if (HitShield(weapon->GetTranslation() - GetTranslation())) {
+      if (x3fc_flavor == CPatterned::EFlavorType::One && HitShield(weapon->GetTranslation() - GetTranslation())) {
         x5e8_shieldTime = 1.f;
       }
     }
@@ -942,8 +943,16 @@ void CDrone::RemoveFromTeam(CStateManager& mgr) const {
   }
 }
 
-void CDrone::UpdateLaser(CStateManager& mgr, u32 laserIdx, bool b1) {
-  // TODO: Finish
+void CDrone::UpdateLaser(CStateManager& mgr, u32 laserIdx, bool active) {
+  if (active) {
+    if (x7d8_[laserIdx] == kInvalidUniqueId) {
+      x7d8_[laserIdx] = mgr.AllocateUniqueId();
+      mgr.AddObject(new CDroneLaser(x7d8_[laserIdx], GetAreaIdAlways(), GetTransform(), x568_laserParticlesId));
+    }
+  }
+  if (CEntity* ent = mgr.ObjectById(x7d8_[laserIdx])) {
+    mgr.SendScriptMsg(ent, GetUniqueId(), active ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);
+  }
 }
 
 void CDrone::FireProjectile(CStateManager& mgr, const zeus::CTransform& xf, const TToken<CWeaponDescription>& weapon) {
