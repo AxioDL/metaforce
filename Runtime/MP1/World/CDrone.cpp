@@ -518,17 +518,19 @@ void CDrone::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
 void CDrone::TargetPlayer(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     x3b8_turnSpeed = x5ec_turnSpeed;
+    x450_bodyController->SetTurnSpeed(x5ec_turnSpeed);
     if (x450_bodyController->GetLocomotionType() != pas::ELocomotionType::Combat)
       x450_bodyController->SetLocomotionType(pas::ELocomotionType::Combat);
+    x450_bodyController->BodyStateInfo().SetMaximumPitch(zeus::degToRad(60.f));
     SetDestPos(mgr.GetPlayer().GetAimPosition(mgr, 0.f));
     x400_24_hitByPlayerProjectile = false;
     if (x3fc_flavor == EFlavorType::One)
       x834_30_visible = true;
-    x330_stateMachineState.SetDelay(std::max(0.f, x624_));
+    x330_stateMachineState.SetDelay(std::max(0.3f, x624_));
   } else if (msg == EStateMsg::Update) {
     zeus::CVector3f target = (mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()).normalized();
     x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCLocomotionCmd(FLT_EPSILON * GetTransform().basis[1], target, 1.f));
+        CBCLocomotionCmd(FLT_EPSILON * GetTransform().frontVector(), target, 1.f));
     x450_bodyController->GetCommandMgr().DeliverTargetVector(target);
     StrafeFromCompanions(mgr);
     if (x630_ <= 0.f)
