@@ -299,6 +299,8 @@ void CDrone::Render(CStateManager& mgr) {
   bool isOne = x3fc_flavor == EFlavorType::One;
   if (!isOne || GetModelAlphau8(mgr) != 0) {
     if (isOne && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
+      CElementGen::SetSubtractBlend(true);
+      CElementGen::SetMoveRedToAlphaBuffer(true);
       CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
       GetModelData()->GetAnimationData()->GetParticleDB().RenderSystemsToBeDrawnFirst();
       mgr.SetupFogForArea3XRange(GetAreaIdAlways());
@@ -307,13 +309,15 @@ void CDrone::Render(CStateManager& mgr) {
     if (isOne && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
       CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
       GetModelData()->GetAnimationData()->GetParticleDB().RenderSystemsToBeDrawnLast();
-      mgr.SetupFogForArea3XRange(GetAreaIdAlways());
+      mgr.SetupFogForArea(GetAreaIdAlways());
+      CElementGen::SetSubtractBlend(false);
+      CElementGen::SetMoveRedToAlphaBuffer(false);
     }
 
-    if (isOne && zeus::close_enough(x5dc_, 0)) {
+    if (isOne && !zeus::close_enough(x5dc_, 0)) {
       x82c_shieldModel->Render(
           mgr, GetLctrTransform("Shield_LCTR"sv), GetActorLights(),
-          CModelFlags{8, 0, 3, zeus::CColor::lerp({1.f, 0.f, 0.f, 1.f}, zeus::skWhite, x5e8_shieldTime)});
+          CModelFlags{8, 0, 3, zeus::CColor::lerp({1.f, 1.f, 1.f, x5dc_}, {1.f, 0.f, 0.f, 1.f}, x5e8_shieldTime)});
     }
   }
 }
@@ -355,7 +359,6 @@ EWeaponCollisionResponseTypes CDrone::GetCollisionResponseType(const zeus::CVect
 }
 
 void CDrone::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
-  // TODO: Finish
   switch (type) {
   case EUserEventType::Projectile:
     sub_80165984(mgr, GetLctrTransform(node.GetLocatorName()));
