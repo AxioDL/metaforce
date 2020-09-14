@@ -803,13 +803,13 @@ bool CDrone::InRange(CStateManager& mgr, float arg) {
 }
 
 bool CDrone::SpotPlayer(CStateManager& mgr, float arg) {
-  if ((mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() > x3bc_detectionRange)
+  if ((mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() > x3bc_detectionRange * x3bc_detectionRange)
     return false;
 
   if (!LineOfSight(mgr, arg))
     return false;
 
-  return (GetTransform().basis[1] + x5cc_ * GetTransform().basis[0])
+  return (GetTransform().frontVector() + x5cc_ * GetTransform().rightVector())
              .normalized()
              .dot((mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()).normalized()) > 0.5f;
 }
