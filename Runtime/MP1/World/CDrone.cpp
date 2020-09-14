@@ -828,6 +828,21 @@ bool CDrone::ShouldAttack(CStateManager& mgr, float arg) {
   return true;
 }
 
+bool CDrone::ShouldFire(CStateManager& mgr, float arg) {
+  if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed || x624_ > 0.f) {
+    return false;
+  }
+  const zeus::CVector3f playerAimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
+  constexpr auto matFilter =
+      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid, EMaterialTypes::Character},
+                                          {EMaterialTypes::Player, EMaterialTypes::ProjectilePassthrough});
+  bool result = mgr.RayCollideWorld(GetLctrTransform("R_GUN_TOP_LCTR"sv).origin, playerAimPos, matFilter, this);
+  if (!result) {
+    return false;
+  }
+  return mgr.RayCollideWorld(GetLctrTransform("L_GUN_TOP_LCTR"sv).origin, playerAimPos, matFilter, this);
+}
+
 bool CDrone::HearShot(CStateManager& mgr, float arg) {
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   BuildNearList(EMaterialTypes::Projectile, EMaterialTypes::Player, nearList, 10.f, mgr);

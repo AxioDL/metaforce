@@ -158,6 +158,7 @@ public:
   bool AnimOver(CStateManager&, float arg) override;
   bool AttackOver(CStateManager& mgr, float arg) override;
   bool ShouldAttack(CStateManager&, float arg) override;
+  bool ShouldFire(CStateManager& mgr, float arg) override;
   bool HearShot(CStateManager&, float arg) override;
   bool CoverCheck(CStateManager&, float arg) override;
   bool LineOfSight(CStateManager&, float arg) override;
