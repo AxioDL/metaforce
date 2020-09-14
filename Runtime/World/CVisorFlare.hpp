@@ -16,7 +16,7 @@ class CTexture;
 class CVisorFlare {
 public:
   enum class EBlendMode {
-
+    Zero = 0,
   };
   class CFlareDef {
     TToken<CTexture> x0_tex;

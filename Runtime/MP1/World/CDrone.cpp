@@ -12,6 +12,7 @@
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptVisorFlare.hpp"
 #include "Runtime/World/CScriptWater.hpp"
 #include "Runtime/World/CTeamAiMgr.hpp"
 #include "Runtime/World/CWorld.hpp"
@@ -182,8 +183,8 @@ void CDrone::Think(float dt, CStateManager& mgr) {
     x66c_ -= dt;
   } else {
     x668_elevation = mgr.RayStaticIntersection(GetTranslation(), zeus::skDown, 10000.f,
-                                      CMaterialFilter::MakeInclude({EMaterialTypes::Solid}))
-                .GetT();
+                                               CMaterialFilter::MakeInclude({EMaterialTypes::Solid}))
+                         .GetT();
     x66c_ = 0.f;
   }
 
@@ -236,9 +237,9 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
       mgr.FreeScriptObject(x578_lightId);
       x578_lightId = kInvalidUniqueId;
     }
-    if (x57a_ != kInvalidUniqueId) {
-      mgr.FreeScriptObject(x57a_);
-      x57a_ = kInvalidUniqueId;
+    if (x57a_visorFlareId != kInvalidUniqueId) {
+      mgr.FreeScriptObject(x57a_visorFlareId);
+      x57a_visorFlareId = kInvalidUniqueId;
     }
 
     if (x7d0_) {
@@ -628,11 +629,9 @@ void CDrone::Flee(CStateManager& mgr, EStateMsg msg, float dt) {
         GetBodyController()->GetCommandMgr().DeliverCmd(
             CBCStepCmd(pas::EStepDirection::Backward, pas::EStepType::BreakDodge));
       } else if (x832_b == 1) {
-        GetBodyController()->GetCommandMgr().DeliverCmd(
-            CBCStepCmd(pas::EStepDirection::Left, pas::EStepType::Normal));
+        GetBodyController()->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Left, pas::EStepType::Normal));
       } else if (x832_b == 2) {
-        GetBodyController()->GetCommandMgr().DeliverCmd(
-            CBCStepCmd(pas::EStepDirection::Right, pas::EStepType::Normal));
+        GetBodyController()->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Right, pas::EStepType::Normal));
       }
     } else if (x7c8_ == 1 &&
                GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Step) {
@@ -775,7 +774,8 @@ void CDrone::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) {
     x330_stateMachineState.SetDelay(x660_);
     GetBodyController()->SetLocomotionType(pas::ELocomotionType::Internal10);
   } else if (msg == EStateMsg::Update) {
-    GetBodyController()->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(GetTransform().frontVector(), zeus::skZero3f, 1.f));
+    GetBodyController()->GetCommandMgr().DeliverCmd(
+        CBCLocomotionCmd(GetTransform().frontVector(), zeus::skZero3f, 1.f));
     zeus::CVector3f local_74 =
         0.5f * (mgr.GetPlayer().GetAimPosition(mgr, 0.f) + mgr.GetPlayer().GetTranslation()) - GetTranslation();
     if (((x668_elevation < x664_ && local_74.z() > 0.f) || (x668_elevation > x664_)) && local_74.canBeNormalized()) {
@@ -855,10 +855,10 @@ bool CDrone::HearShot(CStateManager& mgr, float arg) {
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   BuildNearList(EMaterialTypes::Projectile, EMaterialTypes::Player, nearList, 10.f, mgr);
   return std::any_of(nearList.begin(), nearList.end(), [&mgr](TUniqueId uid) {
-           if (TCastToConstPtr<CWeapon> wp = mgr.GetObjectById(uid))
-             return wp->GetType() != EWeaponType::AI;
-           return false;
-         });
+    if (TCastToConstPtr<CWeapon> wp = mgr.GetObjectById(uid))
+      return wp->GetType() != EWeaponType::AI;
+    return false;
+  });
 }
 
 bool CDrone::CoverCheck(CStateManager& mgr, float arg) {
@@ -900,11 +900,29 @@ void CDrone::SetLightEnabled(CStateManager& mgr, bool activate) {
 }
 
 void CDrone::SetVisorFlareEnabled(CStateManager& mgr, bool activate) {
-  // TODO implement
+  if (!IsAlive()) {
+    return;
+  }
+  CScriptVisorFlare* flare = TCastToPtr<CScriptVisorFlare>{mgr.ObjectById(x57a_visorFlareId)};
+  if (flare == nullptr && activate) {
+    x57a_visorFlareId = mgr.AllocateUniqueId();
+    flare = new CScriptVisorFlare(x57a_visorFlareId, "DroneVisorFlare"sv,
+                                  CEntityInfo{GetAreaIdAlways(), CEntity::NullConnectionList}, activate,
+                                  GetLctrTransform("Beacon_LCTR"sv).origin, CVisorFlare::EBlendMode::Zero, true, 0.1f,
+                                  1.f, 2.f, 0, 0, x57c_flares);
+    mgr.AddObject(flare);
+  }
+  mgr.SendScriptMsg(flare, GetUniqueId(), activate ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);
 }
 
 void CDrone::UpdateVisorFlare(CStateManager& mgr) {
-  // TODO implement
+  TCastToPtr<CScriptVisorFlare> flare = mgr.ObjectById(x57a_visorFlareId);
+  SetVisorFlareEnabled(
+      mgr, (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized().dot(GetTransform().frontVector()) > 0.f);
+  if (flare) {
+    const auto beaconXf = GetLctrTransform("Beacon_LCTR"sv);
+    flare->SetTranslation(beaconXf.origin + (0.1f * beaconXf.frontVector()));
+  }
 }
 
 void CDrone::UpdateTouchBounds(float radius) {

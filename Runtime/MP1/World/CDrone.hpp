@@ -12,7 +12,7 @@ class CDrone : public CPatterned {
   CAssetId x568_laserParticlesId;
   TLockedToken<CCollisionResponseData> x56c_;
   TUniqueId x578_lightId = kInvalidUniqueId;
-  TUniqueId x57a_ = kInvalidUniqueId;
+  TUniqueId x57a_visorFlareId = kInvalidUniqueId;
   std::vector<CVisorFlare::CFlareDef> x57c_flares;
   pas::EStepDirection x58c_prevDodgeDir = pas::EStepDirection::Left;
   CDamageInfo x590_;
