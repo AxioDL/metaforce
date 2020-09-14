@@ -823,7 +823,7 @@ bool CDrone::ShouldAttack(CStateManager& mgr, float arg) {
     return false;
   if (TCastToPtr<CTeamAiMgr> teamMgr = mgr.ObjectById(x688_teamMgr)) {
     if (teamMgr->HasTeamAiRole(GetUniqueId()))
-      teamMgr->AddRangedAttacker(GetUniqueId());
+      return teamMgr->AddRangedAttacker(GetUniqueId());
   }
   return true;
 }
