@@ -77,12 +77,15 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
 void CDrone::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CDrone::Think(float dt, CStateManager& mgr) {
-  if (x3fc_flavor != EFlavorType::One) {
-    if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay) {
+  if (x3fc_flavor == EFlavorType::One) {
+    if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
+      x42c_color.a() = 1.f;
+    } else {
       x42c_color.a() = std::max(0.f, x428_damageCooldownTimer / 0.33f);
     }
   }
 
+  x403_25_enableStateMachine = !GetBodyController()->IsElectrocuting();
   if (GetBodyController()->IsElectrocuting() && (x824_activeLasers[0] || x824_activeLasers[1])) {
     x824_activeLasers[0] = false;
     x824_activeLasers[1] = false;
@@ -113,7 +116,7 @@ void CDrone::Think(float dt, CStateManager& mgr) {
   }
 
   if (x824_activeLasers[0] || (x824_activeLasers[1] && IsAlive())) {
-    sub_80163c40(dt, mgr);
+    sub_80163c40(mgr, dt);
     UpdateVisorFlare(mgr);
   }
 
@@ -125,14 +128,14 @@ void CDrone::Think(float dt, CStateManager& mgr) {
   if (x834_28_ && dist < x60c_ * x60c_) {
     mgr.GetPlayerState()->GetStaticInterference().RemoveSource(GetUniqueId());
     mgr.GetPlayerState()->GetStaticInterference().AddSource(
-        GetUniqueId(), std::max(0.f, mgr.GetPlayerState()->GetStaticInterference().GetTotalInterference() - x608_),
+        GetUniqueId(), std::max(0.f, x608_ - mgr.GetPlayerState()->GetStaticInterference().GetTotalInterference()),
         0.2f);
   }
 
   if (!x834_28_ && dist < x614_ * x614_) {
     mgr.GetPlayerState()->GetStaticInterference().RemoveSource(GetUniqueId());
     mgr.GetPlayerState()->GetStaticInterference().AddSource(
-        GetUniqueId(), std::max(0.f, mgr.GetPlayerState()->GetStaticInterference().GetTotalInterference() - x610_),
+        GetUniqueId(), std::max(0.f, x610_ - mgr.GetPlayerState()->GetStaticInterference().GetTotalInterference()),
         0.2f);
   }
 
@@ -154,13 +157,15 @@ void CDrone::Think(float dt, CStateManager& mgr) {
     if (!x834_30_visible) {
       x5dc_ = zeus::max(0.f, x5dc_ - (3.f * dt));
     } else {
-      x5dc_ = zeus::max(0.f, x5dc_ + (3.f * dt));
+      x5dc_ = zeus::min(1.f, x5dc_ + (3.f * dt));
     }
     x5e8_shieldTime = zeus::max(0.f, x5e8_shieldTime - dt);
 
-    if (zeus::close_enough(x5dc_, 0.f) && x7d0_) {
-      CSfxManager::RemoveEmitter(x7d0_);
-      x7d0_.reset();
+    if (zeus::close_enough(x5dc_, 0.f)) {
+      if (x7d0_) {
+        CSfxManager::RemoveEmitter(x7d0_);
+        x7d0_.reset();
+      }
     } else if (!x7d0_ && IsAlive()) {
       x7d0_ = CSfxManager::AddEmitter(SFXsfx00DD, GetTranslation(), zeus::skZero3f, true, true, 127, GetAreaIdAlways());
     }
@@ -175,7 +180,7 @@ void CDrone::Think(float dt, CStateManager& mgr) {
   if (x66c_ > 0.f) {
     x66c_ -= dt;
   } else {
-    x668_ = mgr.RayStaticIntersection(GetTranslation(), zeus::skDown, 1000.f,
+    x668_elevation = mgr.RayStaticIntersection(GetTranslation(), zeus::skDown, 10000.f,
                                       CMaterialFilter::MakeInclude({EMaterialTypes::Solid}))
                 .GetT();
     x66c_ = 0.f;
@@ -183,7 +188,7 @@ void CDrone::Think(float dt, CStateManager& mgr) {
 
   if (IsAlive() && x835_25_) {
     zeus::CAABox box = GetBoundingBox();
-    box.accumulateBounds(20.f * zeus::skDown);
+    box.accumulateBounds(GetTranslation() + 20.f * zeus::skDown);
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     mgr.BuildNearList(nearList, GetBoundingBox(), CMaterialFilter::MakeInclude({EMaterialTypes::Trigger}), this);
     for (TUniqueId id : nearList) {
@@ -194,17 +199,17 @@ void CDrone::Think(float dt, CStateManager& mgr) {
           if (waterBox.max.z() - GetTranslation().z() < 1.5f) {
             z = 60.f;
           }
-          ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(z * zeus::skDown), dt),
+          ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(z * (dt * zeus::skDown)), dt),
                          zeus::CAxisAngle());
         }
       }
     }
   }
-  if (IsAlive() && x668_ < x664_) {
+  if (IsAlive() && x668_elevation < x664_) {
     ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(dt * (1.f * zeus::skUp)), dt),
                    zeus::CAxisAngle());
-    xe7_31_targetable = IsAlive();
   }
+  xe7_31_targetable = IsAlive();
 }
 
 void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
@@ -772,7 +777,7 @@ void CDrone::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) {
     GetBodyController()->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(GetTransform().frontVector(), zeus::skZero3f, 1.f));
     zeus::CVector3f local_74 =
         0.5f * (mgr.GetPlayer().GetAimPosition(mgr, 0.f) + mgr.GetPlayer().GetTranslation()) - GetTranslation();
-    if (((x668_ < x664_ && local_74.z() > 0.f) || (x668_ > x664_)) && local_74.canBeNormalized()) {
+    if (((x668_elevation < x664_ && local_74.z() > 0.f) || (x668_elevation > x664_)) && local_74.canBeNormalized()) {
       ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(dt * (x5e4_ * local_74.normalized())), dt),
                      zeus::CAxisAngle());
     }
@@ -999,7 +1004,7 @@ void CDrone::UpdateScanner(CStateManager& mgr, float dt) {
   }
 }
 
-void CDrone::sub_80163c40(float, CStateManager& mgr) {
+void CDrone::sub_80163c40(CStateManager& mgr, float dt) {
   // TODO implement
 }
 

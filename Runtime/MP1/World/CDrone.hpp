@@ -57,7 +57,7 @@ class CDrone : public CPatterned {
   float x65c_;
   float x660_;
   float x664_;
-  float x668_ = 0.f;
+  float x668_elevation = 0.f;
   float x66c_ = 0.f;
   zeus::CVector3f x670_;
   zeus::CVector3f x67c_;
@@ -103,11 +103,12 @@ class CDrone : public CPatterned {
   void StrafeFromCompanions(CStateManager& mgr);
   void UpdateScanner(CStateManager& mgr, float dt);
 
-  void sub_80163c40(float, CStateManager& mgr);
+  void sub_80163c40(CStateManager& mgr, float dt);
   void sub_801633a8(CStateManager& mgr);
   void sub_8015f25c(float dt, CStateManager& mgr);
   void sub_8015f158(float dt);
   void sub_80165984(CStateManager& mgr, const zeus::CTransform& xf);
+  void sub_801656d4(const zeus::CTransform& xf, CStateManager& mgr);
 
 public:
   DEFINE_PATTERNED(Drone);
