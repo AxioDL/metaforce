@@ -100,9 +100,13 @@ void CBouncyGrenade::Render(CStateManager& mgr) {
   if (!x2b4_24_exploded) {
     GetModelData()->Render(mgr, GetTransform(), nullptr, {0, 0, 3, zeus::skWhite});
   } else if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
+    CElementGen::SetSubtractBlend(true);
+    CElementGen::SetMoveRedToAlphaBuffer(true);
     CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
     x2a4_elementGen2->Render();
     mgr.SetupFogForArea(GetAreaIdAlways());
+    CElementGen::SetSubtractBlend(false);
+    CElementGen::SetMoveRedToAlphaBuffer(false);
   }
 }
 
