@@ -72,12 +72,12 @@ class CDrone : public CPatterned {
   float x7c0_ = 0.f;
   float x7c4_ = 0.f;
   s32 x7c8_ = 0;
-  s16 x7cc_;
+  u16 x7cc_laserSfx;
   CSfxHandle x7d0_;
   rstl::reserved_vector<TUniqueId, 2> x7d8_laserIds = {{kInvalidUniqueId, kInvalidUniqueId}};
-  rstl::reserved_vector<zeus::CVector3f, 2> x7e0_ = {{zeus::skZero3f, zeus::skZero3f}};
-  rstl::reserved_vector<zeus::CVector3f, 2> x7fc_ = {{zeus::skZero3f, zeus::skZero3f}};
-  rstl::reserved_vector<float, 2> x818_ = {{0.f, 0.f}};
+  rstl::reserved_vector<zeus::CVector3f, 2> x7e0_lasersStart = {{zeus::skZero3f, zeus::skZero3f}};
+  rstl::reserved_vector<zeus::CVector3f, 2> x7fc_lasersEnd = {{zeus::skZero3f, zeus::skZero3f}};
+  rstl::reserved_vector<float, 2> x818_lasersTime = {{0.f, 0.f}};
   rstl::reserved_vector<bool, 2> x824_activeLasers = {{false, false}};
   std::unique_ptr<CModelData> x82c_shieldModel;
   u8 x832_a : 3 = 0;
@@ -103,7 +103,7 @@ class CDrone : public CPatterned {
   void StrafeFromCompanions(CStateManager& mgr);
   void UpdateScanner(CStateManager& mgr, float dt);
 
-  void sub_80163c40(CStateManager& mgr, float dt);
+  void UpdateLasers(CStateManager& mgr, float dt);
   void sub_801633a8(CStateManager& mgr);
   void sub_8015f25c(float dt, CStateManager& mgr);
   void sub_8015f158(float dt);

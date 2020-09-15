@@ -65,7 +65,7 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
 , x664_(f24)
 , x690_colSphere(zeus::CSphere({0.f, 0.f, 1.8f}, 1.1f), CActor::GetMaterialList())
 , x6b0_pathFind(nullptr, 3 + int(b1) /* TODO double check */, pInfo.GetPathfindingIndex(), 1.f, 2.4f)
-, x7cc_(CSfxManager::TranslateSFXID(sId))
+, x7cc_laserSfx(CSfxManager::TranslateSFXID(sId))
 , x82c_shieldModel(std::make_unique<CModelData>(CStaticRes{aId2, zeus::skOne3f}))
 , x835_25_(b1) {
   UpdateTouchBounds(pInfo.GetHalfExtent());
@@ -118,7 +118,7 @@ void CDrone::Think(float dt, CStateManager& mgr) {
   }
 
   if (x824_activeLasers[0] || (x824_activeLasers[1] && IsAlive())) {
-    sub_80163c40(mgr, dt);
+    UpdateLasers(mgr, dt);
     UpdateVisorFlare(mgr);
   }
 
@@ -505,6 +505,7 @@ void CDrone::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
     zeus::CVector3f moveVec = x450_bodyController->GetCommandMgr().GetMoveVector();
     if (moveVec.canBeNormalized()) {
       moveVec.normalize();
+      x450_bodyController->GetCommandMgr().ClearLocomotionCmds();
       ApplyImpulseWR(GetMass() * (x5e4_ * moveVec), {});
       const auto target = (mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()).normalized();
       x450_bodyController->GetCommandMgr().DeliverCmd(
@@ -578,28 +579,28 @@ void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     s32 state = mgr.GetActiveRandom()->Next() % 4;
     if (state == 0) {
-      x7e0_[0] = out + (3.f * xf.rightVector()) - (4.f * xf.upVector());
-      x7fc_[0] = out - (3.f * xf.rightVector()) + (4.f * xf.upVector());
-      x7e0_[1] = out - (3.f * xf.rightVector()) - (4.f * xf.upVector());
-      x7fc_[1] = out + (3.f * xf.rightVector()) + (4.f * xf.upVector());
+      x7e0_lasersStart[0] = out + (3.f * xf.rightVector()) - (4.f * xf.upVector());
+      x7fc_lasersEnd[0] = out - (3.f * xf.rightVector()) + (4.f * xf.upVector());
+      x7e0_lasersStart[1] = out - (3.f * xf.rightVector()) - (4.f * xf.upVector());
+      x7fc_lasersEnd[1] = out + (3.f * xf.rightVector()) + (4.f * xf.upVector());
     } else if (state == 1) {
-      x7e0_[0] = out + (3.f * xf.rightVector()) + (4.f * xf.upVector());
-      x7fc_[0] = out - (3.f * xf.rightVector()) - (4.f * xf.upVector());
-      x7e0_[1] = out - (3.f * xf.rightVector()) + (4.f * xf.upVector());
-      x7fc_[1] = out + (3.f * xf.rightVector()) - (4.f * xf.upVector());
+      x7e0_lasersStart[0] = out + (3.f * xf.rightVector()) + (4.f * xf.upVector());
+      x7fc_lasersEnd[0] = out - (3.f * xf.rightVector()) - (4.f * xf.upVector());
+      x7e0_lasersStart[1] = out - (3.f * xf.rightVector()) + (4.f * xf.upVector());
+      x7fc_lasersEnd[1] = out + (3.f * xf.rightVector()) - (4.f * xf.upVector());
     } else if (state == 2) {
-      x7e0_[0] = out - (4.f * xf.rightVector()) - (3.f * xf.upVector());
-      x7fc_[0] = out + (4.f * xf.rightVector()) + (3.f * xf.upVector());
-      x7e0_[1] = out + (4.f * xf.rightVector()) - (3.f * xf.upVector());
-      x7fc_[1] = out - (4.f * xf.rightVector()) + (3.f * xf.upVector());
+      x7e0_lasersStart[0] = out - (4.f * xf.rightVector()) - (3.f * xf.upVector());
+      x7fc_lasersEnd[0] = out + (4.f * xf.rightVector()) + (3.f * xf.upVector());
+      x7e0_lasersStart[1] = out + (4.f * xf.rightVector()) - (3.f * xf.upVector());
+      x7fc_lasersEnd[1] = out - (4.f * xf.rightVector()) + (3.f * xf.upVector());
     } else if (state == 3) {
-      x7e0_[0] = out - (4.f * xf.rightVector()) + (3.f * xf.upVector());
-      x7fc_[0] = out + (4.f * xf.rightVector()) - (3.f * xf.upVector());
-      x7e0_[1] = out + (4.f * xf.rightVector()) + (3.f * xf.upVector());
-      x7fc_[1] = out - (4.f * xf.rightVector()) - (3.f * xf.upVector());
+      x7e0_lasersStart[0] = out - (4.f * xf.rightVector()) + (3.f * xf.upVector());
+      x7fc_lasersEnd[0] = out + (4.f * xf.rightVector()) - (3.f * xf.upVector());
+      x7e0_lasersStart[1] = out + (4.f * xf.rightVector()) + (3.f * xf.upVector());
+      x7fc_lasersEnd[1] = out - (4.f * xf.rightVector()) - (3.f * xf.upVector());
     }
-    x818_[0] = 0.f;
-    x818_[1] = 0.f;
+    x818_lasersTime[0] = 0.f;
+    x818_lasersTime[1] = 0.f;
     x835_24_ = true;
   } else if (msg == EStateMsg::Update) {
     if (x7c8_ == 0) {
@@ -1066,8 +1067,49 @@ void CDrone::UpdateScanner(CStateManager& mgr, float dt) {
   }
 }
 
-void CDrone::sub_80163c40(CStateManager& mgr, float dt) {
-  // TODO implement
+void CDrone::UpdateLasers(CStateManager& mgr, float dt) {
+  constexpr auto matFilter =
+      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
+  const auto beaconXf = GetLctrTransform("Beacon_LCTR"sv);
+  for (size_t i = 0; i < x818_lasersTime.size(); ++i) {
+    if (x818_lasersTime[i] >= 1.f || !x824_activeLasers[i]) {
+      continue;
+    }
+    x818_lasersTime[i] += dt;
+    const auto vec =
+        (x7e0_lasersStart[i] * (1.f - x818_lasersTime[i]) + (x7fc_lasersEnd[i] * x818_lasersTime[i]) - beaconXf.origin)
+            .normalized();
+    auto box = zeus::skInvertedBox;
+    box.accumulateBounds(GetTranslation() + 1000.f * vec);
+    box.accumulateBounds(GetTranslation());
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    mgr.BuildNearList(nearList, box, matFilter, nullptr);
+    TUniqueId id;
+    const auto result = mgr.RayWorldIntersection(id, beaconXf.origin + 2.f * vec, vec, 10000.f, matFilter, nearList);
+    if (result.IsInvalid()) {
+      continue;
+    }
+    if (x7d8_laserIds[i] != kInvalidUniqueId) {
+      if (auto* laser = static_cast<CDroneLaser*>(mgr.ObjectById(x7d8_laserIds[i]))) {
+        laser->SetTransform(beaconXf);
+        laser->sub_80167754(mgr, result.GetPoint(), result.GetPlane().normal());
+      }
+    }
+    if (TCastToPtr<CPlayer> player = mgr.ObjectById(id)) {
+      if (x420_curDamageRemTime <= 0.f) {
+        mgr.ApplyDamage(GetUniqueId(), player->GetUniqueId(), GetUniqueId(), GetContactDamage(),
+                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
+        x420_curDamageRemTime = x424_damageWaitTime;
+        mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), 0.3f, 1.f);
+        CSfxManager::AddEmitter(x7cc_laserSfx, result.GetPoint(), zeus::skZero3f, true, false, 127, GetAreaIdAlways());
+      }
+    }
+    if (id != GetUniqueId() && TCastToPtr<CAi>{mgr.ObjectById(id)}) {
+      x834_31_attackOver = true;
+      float rem = GetModelData()->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv);
+      UpdateAnimation(rem, mgr, true);
+    }
+  }
 }
 
 void CDrone::sub_801633a8(CStateManager& mgr) {
