@@ -99,8 +99,6 @@ struct Application : boo::IApplicationCallback {
       }
     }
 
-    m_cvarManager.parseCommandLine(app->getArgs());
-
     const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
     Log.report(logvisor::Info, FMT_STRING("CPU Name: {}"), cpuInf.cpuBrand);
     Log.report(logvisor::Info, FMT_STRING("CPU Vendor: {}"), cpuInf.cpuVendor);
@@ -114,6 +112,8 @@ struct Application : boo::IApplicationCallback {
   uint32_t getAnisotropy() const { return m_cvarCommons.getAnisotropy(); }
 
   bool getDeepColor() const { return m_cvarCommons.getDeepColor(); }
+
+  int64_t getTargetFrameTime() { return m_cvarCommons.getVariableFrameTime() ? 0 : 1000000000L / 60; }
 };
 
 } // namespace urde
@@ -165,6 +165,11 @@ int main(int argc, const boo::SystemChar** argv)
   hecl::CVarManager cvarMgr{fileMgr};
   hecl::CVarCommons cvarCmns{cvarMgr};
 
+  std::vector<boo::SystemString> args;
+  for (int i = 1; i < argc; ++i)
+    args.push_back(argv[i]);
+  cvarMgr.parseCommandLine(args);
+
   hecl::SystemStringView logFile = hecl::SystemStringConv(cvarCmns.getLogFile()).sys_str();
   hecl::SystemString logFilePath;
   if (!logFile.empty()) {
@@ -191,7 +196,7 @@ int main(int argc, const boo::SystemChar** argv)
   urde::Application appCb(fileMgr, cvarMgr, cvarCmns);
   int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, appCb, _SYS_STR("urde"), _SYS_STR("URDE"), argc,
                                 argv, appCb.getGraphicsApi(), appCb.getSamples(), appCb.getAnisotropy(),
-                                appCb.getDeepColor(), false);
+                                appCb.getDeepColor(), appCb.getTargetFrameTime(), false);
   // printf("IM DYING!!\n");
   return ret;
 }
