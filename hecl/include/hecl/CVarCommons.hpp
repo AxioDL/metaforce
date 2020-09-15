@@ -99,6 +99,10 @@ struct CVarCommons {
 
   void setDeepColor(bool b) { m_deepColor->fromBoolean(b); }
 
+  bool getVariableFrameTime() const { return m_variableDt->toBoolean(); }
+
+  void setVariableFrameTime(bool b) { m_variableDt->fromBoolean(b); }
+
   std::string getLogFile() const { return m_logFile->toLiteral(); };
 
   void setLogFile(std::string_view log) { m_logFile->fromLiteral(log); }
