@@ -71,6 +71,19 @@ void CDroneLaser::SetScannerLightActive(CStateManager& mgr, bool activate) {
                           activate ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);
 }
 
-void CDroneLaser::RenderBeam(u32 w, float f, const zeus::CColor& col, bool) const {}
+void CDroneLaser::RenderBeam(u32 w, float f, const zeus::CColor& col, bool) const {
+  // TODO
+}
+
+void CDroneLaser::sub_80167754(CStateManager& mgr, const zeus::CVector3f& pos, const zeus::CVector3f& look) {
+  xe8_ = pos;
+  if (xf4_scannerLight != kInvalidUniqueId) {
+    if (TCastToPtr<CGameLight> light = mgr.ObjectById(xf4_scannerLight)) {
+      light->SetTranslation(pos - 0.5f * (pos - GetTranslation()));
+    }
+  }
+  x104_beamParticle->SetOrientation(zeus::lookAt(zeus::skZero3f, look));
+  x104_beamParticle->SetTranslation(pos);
+}
 
 } // namespace urde::MP1

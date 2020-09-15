@@ -21,6 +21,8 @@ public:
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   void Render(CStateManager& mgr) override;
   void CalculateRenderBounds() override;
+
+  void sub_80167754(CStateManager& mgr, const zeus::CVector3f& pos, const zeus::CVector3f& look);
 };
 } // namespace MP1
 } // namespace urde
