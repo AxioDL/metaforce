@@ -82,7 +82,7 @@ class CDrone : public CPatterned {
   std::unique_ptr<CModelData> x82c_shieldModel;
   u8 x832_a : 3 = 0;
   u8 x832_b : 3 = 0;
-  bool x834_24_ : 1 = false;
+  bool x834_24_waveHit : 1 = false;
   bool x834_25_ : 1 = false;
   bool x834_26_ : 1 = false;
   bool x834_27_ : 1 = false;

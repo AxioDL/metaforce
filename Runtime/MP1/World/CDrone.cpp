@@ -252,7 +252,7 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
     x834_29_codeTrigger = true;
     break;
   case EScriptObjectMessage::OnFloor:
-    if (!x835_26_ && x834_24_ && !IsAlive()) {
+    if (!x835_26_ && x834_24_waveHit && !IsAlive()) {
       x835_26_ = true;
       MassiveFrozenDeath(mgr);
     }
@@ -348,7 +348,7 @@ void CDrone::Touch(CActor& act, CStateManager& mgr) {
   CPatterned::Touch(act, mgr);
   if (TCastToPtr<CWeapon> weapon = act) {
     if (IsAlive()) {
-      x834_24_ = weapon->GetType() == EWeaponType::Wave;
+      x834_24_waveHit = weapon->GetType() == EWeaponType::Wave;
       if (x3fc_flavor == CPatterned::EFlavorType::One && HitShield(weapon->GetTranslation() - GetTranslation())) {
         x5e8_shieldTime = 1.f;
       }
@@ -433,7 +433,7 @@ void CDrone::Death(CStateManager& mgr, const zeus::CVector3f& direction, EScript
   UpdateLaser(mgr, 1, false);
   SetVisorFlareEnabled(mgr, false);
 
-  if (x3e4_lastHP - HealthInfo(mgr)->GetHP() < x3d8_xDamageThreshold || x834_24_) {
+  if (x3e4_lastHP - HealthInfo(mgr)->GetHP() < x3d8_xDamageThreshold || x834_24_waveHit) {
     x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Dead"sv);
   } else {
     x834_28_ = true;
@@ -1161,7 +1161,7 @@ void CDrone::sub_801656d4(const zeus::CTransform& xf, CStateManager& mgr) {
 void CDrone::Dead(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x460_knockBackController.SetAutoResetImpulse(false);
-    if (x834_31_attackOver) {
+    if (x834_24_waveHit) {
       SetMomentumWR({0.f, 0.f, -GetWeight()});
     } else {
       Stop();
@@ -1173,7 +1173,7 @@ void CDrone::Dead(CStateManager& mgr, EStateMsg msg, float arg) {
     SetVisorFlareEnabled(mgr, false);
     x7c8_ = 0;
   } else if (msg == EStateMsg::Update && x7c0_ == 0) {
-    if (x834_31_attackOver) {
+    if (x834_24_waveHit) {
       GetBodyController()->GetCommandMgr().DeliverCmd(CBCHurledCmd());
       x7c8_ = 1;
     } else {
