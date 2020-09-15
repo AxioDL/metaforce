@@ -1158,4 +1158,30 @@ void CDrone::sub_801656d4(const zeus::CTransform& xf, CStateManager& mgr) {
   mgr.sub_80044098(*x56c_.GetObj(), result, id, x5ac_.GetWeaponMode(), 1, xe6_27_thermalVisorFlags);
 }
 
+void CDrone::Dead(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x460_knockBackController.SetAutoResetImpulse(false);
+    if (x834_31_attackOver) {
+      SetMomentumWR({0.f, 0.f, -GetWeight()});
+    } else {
+      Stop();
+      SetVelocityWR(zeus::skZero3f);
+      SetMomentumWR(zeus::skZero3f);
+    }
+    x401_26_disableMove = true;
+    x5c8_ = 0.f;
+    SetVisorFlareEnabled(mgr, false);
+    x7c8_ = 0;
+  } else if (msg == EStateMsg::Update && x7c0_ == 0) {
+    if (x834_31_attackOver) {
+      GetBodyController()->GetCommandMgr().DeliverCmd(CBCHurledCmd());
+      x7c8_ = 1;
+    } else {
+      GetBodyController()->GetCommandMgr().DeliverCmd(CBCKnockDownCmd(zeus::skZero3f, pas::ESeverity::Zero));
+      x7c8_ = 1;
+      Stop();
+    }
+  }
+}
+
 } // namespace urde::MP1

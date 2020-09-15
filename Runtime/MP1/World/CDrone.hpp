@@ -166,6 +166,7 @@ public:
   bool ShouldMove(CStateManager&, float arg) override;
   bool CodeTrigger(CStateManager&, float arg) override;
   void Burn(float duration, float damage) override;
+  void Dead(CStateManager& mgr, EStateMsg msg, float arg) override;
   CPathFindSearch* GetSearchPath() override;
   virtual void BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat,
                              rstl::reserved_vector<TUniqueId, 1024>& listOut, float radius, CStateManager& mgr);
