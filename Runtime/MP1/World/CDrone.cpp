@@ -225,7 +225,7 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
   }
   case EScriptObjectMessage::Deactivate:
   case EScriptObjectMessage::Deleted: {
-    for (TUniqueId& unkId : x7d8_) {
+    for (TUniqueId& unkId : x7d8_laserIds) {
       if (unkId != kInvalidUniqueId) {
         mgr.FreeScriptObject(unkId);
         unkId = kInvalidUniqueId;
@@ -568,14 +568,39 @@ void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
     x7c8_ = 0;
     x834_31_attackOver = false;
     const auto playerAimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
-    const auto frontVec = GetTransform().frontVector();
+    const auto& xf = GetTransform();
+    const auto frontVec = xf.frontVector();
     zeus::CVector3f out;
     if ((playerAimPos - GetTranslation()).normalized().dot(frontVec) >= 0.8f) {
       out = playerAimPos;
     } else {
       out = GetTranslation() + 10.f * frontVec;
     }
-    // TODO complete
+    s32 state = mgr.GetActiveRandom()->Next() % 4;
+    if (state == 0) {
+      x7e0_[0] = out + (3.f * xf.rightVector()) - (4.f * xf.upVector());
+      x7fc_[0] = out - (3.f * xf.rightVector()) + (4.f * xf.upVector());
+      x7e0_[1] = out - (3.f * xf.rightVector()) - (4.f * xf.upVector());
+      x7fc_[1] = out + (3.f * xf.rightVector()) + (4.f * xf.upVector());
+    } else if (state == 1) {
+      x7e0_[0] = out + (3.f * xf.rightVector()) + (4.f * xf.upVector());
+      x7fc_[0] = out - (3.f * xf.rightVector()) - (4.f * xf.upVector());
+      x7e0_[1] = out - (3.f * xf.rightVector()) + (4.f * xf.upVector());
+      x7fc_[1] = out + (3.f * xf.rightVector()) - (4.f * xf.upVector());
+    } else if (state == 2) {
+      x7e0_[0] = out - (4.f * xf.rightVector()) - (3.f * xf.upVector());
+      x7fc_[0] = out + (4.f * xf.rightVector()) + (3.f * xf.upVector());
+      x7e0_[1] = out + (4.f * xf.rightVector()) - (3.f * xf.upVector());
+      x7fc_[1] = out - (4.f * xf.rightVector()) + (3.f * xf.upVector());
+    } else if (state == 3) {
+      x7e0_[0] = out - (4.f * xf.rightVector()) + (3.f * xf.upVector());
+      x7fc_[0] = out + (4.f * xf.rightVector()) - (3.f * xf.upVector());
+      x7e0_[1] = out + (4.f * xf.rightVector()) + (3.f * xf.upVector());
+      x7fc_[1] = out - (4.f * xf.rightVector()) - (3.f * xf.upVector());
+    }
+    x818_[0] = 0.f;
+    x818_[1] = 0.f;
+    x835_24_ = true;
   } else if (msg == EStateMsg::Update) {
     if (x7c8_ == 0) {
       if (GetBodyController()->GetCurrentStateId() == pas::EAnimationState::ProjectileAttack) {
@@ -962,11 +987,11 @@ void CDrone::RemoveFromTeam(CStateManager& mgr) const {
 }
 
 void CDrone::UpdateLaser(CStateManager& mgr, u32 laserIdx, bool active) {
-  if (active && x7d8_[laserIdx] == kInvalidUniqueId) {
-    x7d8_[laserIdx] = mgr.AllocateUniqueId();
-    mgr.AddObject(new CDroneLaser(x7d8_[laserIdx], GetAreaIdAlways(), GetTransform(), x568_laserParticlesId));
+  if (active && x7d8_laserIds[laserIdx] == kInvalidUniqueId) {
+    x7d8_laserIds[laserIdx] = mgr.AllocateUniqueId();
+    mgr.AddObject(new CDroneLaser(x7d8_laserIds[laserIdx], GetAreaIdAlways(), GetTransform(), x568_laserParticlesId));
   }
-  if (CEntity* ent = mgr.ObjectById(x7d8_[laserIdx])) {
+  if (CEntity* ent = mgr.ObjectById(x7d8_laserIds[laserIdx])) {
     mgr.SendScriptMsg(ent, GetUniqueId(), active ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);
   }
 }
