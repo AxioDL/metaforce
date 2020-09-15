@@ -5,12 +5,12 @@
 
 #include "Runtime/CIOWin.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/RetroTypes.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/MP1/CMemoryCardDriver.hpp"
 #include "Runtime/MP1/CSaveGameScreenTouchBar.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
-class CGuiFrame;
 class CGuiTableGroup;
 class CGuiTextPane;
 class CSaveWorld;
