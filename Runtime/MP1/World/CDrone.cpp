@@ -962,11 +962,9 @@ void CDrone::RemoveFromTeam(CStateManager& mgr) const {
 }
 
 void CDrone::UpdateLaser(CStateManager& mgr, u32 laserIdx, bool active) {
-  if (active) {
-    if (x7d8_[laserIdx] == kInvalidUniqueId) {
-      x7d8_[laserIdx] = mgr.AllocateUniqueId();
-      mgr.AddObject(new CDroneLaser(x7d8_[laserIdx], GetAreaIdAlways(), GetTransform(), x568_laserParticlesId));
-    }
+  if (active && x7d8_[laserIdx] == kInvalidUniqueId) {
+    x7d8_[laserIdx] = mgr.AllocateUniqueId();
+    mgr.AddObject(new CDroneLaser(x7d8_[laserIdx], GetAreaIdAlways(), GetTransform(), x568_laserParticlesId));
   }
   if (CEntity* ent = mgr.ObjectById(x7d8_[laserIdx])) {
     mgr.SendScriptMsg(ent, GetUniqueId(), active ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);
@@ -1061,7 +1059,36 @@ void CDrone::sub_8015f158(float dt) {
 
 void CDrone::sub_80165984(CStateManager& mgr, const zeus::CTransform& xf) {
   /*constexpr*/ float sin60 = std::sqrt(3.f) / 2.f;
-  // TODO implement
+  const auto playerAimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
+  const auto distNorm = (playerAimPos - xf.origin).normalized();
+  if (distNorm.dot(xf.frontVector()) <= sin60) {
+    sub_801656d4(xf, mgr);
+  } else {
+    zeus::CVector3f vec;
+    if (mgr.GetActiveRandom()->Float() > 0.2f) {
+      const auto lookAt = zeus::lookAt(xf.origin, playerAimPos);
+      vec = zeus::CQuaternion::fromAxisAngle(lookAt.frontVector(), mgr.GetActiveRandom()->Range(0.f, M_PIF))
+                .transform(4.f * lookAt.rightVector());
+    }
+    sub_801656d4(zeus::lookAt(xf.origin, playerAimPos + vec), mgr);
+  }
+}
+
+void CDrone::sub_801656d4(const zeus::CTransform& xf, CStateManager& mgr) {
+  constexpr auto matFilter =
+      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
+  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  mgr.BuildNearList(nearList, xf.origin, xf.frontVector(), 100000.f, matFilter, this);
+  TUniqueId id;
+  const auto result = mgr.RayWorldIntersection(id, xf.origin, xf.frontVector(), 100000.f, matFilter, nearList);
+  if (result.IsInvalid()) {
+    return;
+  }
+  if (id == mgr.GetPlayer().GetUniqueId()) {
+    mgr.ApplyDamage(GetUniqueId(), id, GetUniqueId(), x5ac_,
+                    CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
+  }
+  mgr.sub_80044098(*x56c_.GetObj(), result, id, x5ac_.GetWeaponMode(), 1, xe6_27_thermalVisorFlags);
 }
 
 } // namespace urde::MP1

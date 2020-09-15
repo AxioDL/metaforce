@@ -457,6 +457,9 @@ public:
   static float g_EscapeShakeCountdown;
   static bool g_EscapeShakeCountdownInit;
 
+  void sub_80044098(const CCollisionResponseData& colRespData, const CRayCastResult& rayCast, TUniqueId uid,
+                    const CWeaponMode& weaponMode, uint w1, u8 thermalFlags);
+
   void SetWarping(bool warp) { m_warping = warp; }
 };
 } // namespace urde

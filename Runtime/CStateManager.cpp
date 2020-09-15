@@ -2813,4 +2813,9 @@ float CStateManager::IntegrateVisorFog(float f) const {
 
 float CStateManager::g_EscapeShakeCountdown;
 bool CStateManager::g_EscapeShakeCountdownInit = false;
+
+void CStateManager::sub_80044098(const CCollisionResponseData& colRespData, const CRayCastResult& rayCast,
+                                 TUniqueId uid, const CWeaponMode& weaponMode, uint w1, u8 thermalFlags) {
+  // TODO implement
+}
 } // namespace urde
