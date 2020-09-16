@@ -121,9 +121,13 @@ SAdvancementResults CAnimTreeTransition::VAdvanceView(const CCharAnimTime& time)
     res = AdvanceViewForTransitionalPeriod(transTimeRem);
     if (res.x0_remTime != transTimeRem)
       return res;
+
+    // NOTE: URDE can hit an infinite loop if transTimeRem
+    // becomes negative (floating point inaccuracy).
+    // This line was moved into this branch as a workaround.
+    res.x0_remTime = time - transTimeRem;
   }
 
-  res.x0_remTime = time - transTimeRem;
   return res;
 }
 
