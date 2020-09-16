@@ -2014,7 +2014,7 @@ float CBSBiPedLocomotion::UpdateStrafe(float vel, CBodyController& bc, pas::ELoc
         maxComp = i;
       }
     }
-    const int strafeKey = maxComp * 2 + localVec[maxComp] > 0.f ? 0 : 1;
+    const int strafeKey = maxComp * 2 + (localVec[maxComp] > 0.f ? 0 : 1);
     const pas::ELocomotionAnim strafeType = Strafes[strafeKey];
     const float rate = vel * GetLocomotionSpeed(x4_locomotionType, strafeType);
     if (anim != strafeType) {
