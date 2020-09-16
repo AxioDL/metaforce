@@ -1321,8 +1321,10 @@ void CPatterned::UpdateDest(CStateManager& mgr) {
 void CPatterned::ApproachDest(CStateManager& mgr) {
   zeus::CVector3f faceVec = mgr.GetPlayer().GetTranslation() - GetTranslation();
   zeus::CVector3f moveVec = x2e0_destPos - GetTranslation();
-  if (!x328_25_verticalMovement)
+  if (!x328_25_verticalMovement) {
     moveVec.z() = 0.f;
+    faceVec.z() = 0.f;
+  }
   zeus::CVector3f pathLine = x2e0_destPos - x2ec_reflectedDestPos;
   if (pathLine.dot(moveVec) <= 0.f)
     x328_24_inPosition = true;
@@ -1348,18 +1350,20 @@ void CPatterned::ApproachDest(CStateManager& mgr) {
     }
     x31c_faceVec = faceVec;
     x310_moveVec = x3b0_moveSpeed * moveVec;
-    pas::EStepDirection stepDir;
     if (!KnockbackWhenFrozen()) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x310_moveVec, x31c_faceVec, 1.f));
     } else if (x30c_behaviourOrient == EBehaviourOrient::MoveDir ||
                !x450_bodyController->HasBodyState(pas::EAnimationState::Step)) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x310_moveVec, zeus::skZero3f, 1.f));
-    } else if ((stepDir = GetStepDirection(x310_moveVec)) != pas::EStepDirection::Forward) {
-      x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(stepDir, pas::EStepType::Normal));
     } else {
-      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x310_moveVec, zeus::skZero3f, 1.f));
+      pas::EStepDirection stepDir = GetStepDirection(x310_moveVec);
+      if (stepDir == pas::EStepDirection::Forward) {
+        x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x310_moveVec, zeus::skZero3f, 1.f));
+      } else {
+        x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(stepDir, pas::EStepType::Normal));
+      }
+      x450_bodyController->GetCommandMgr().DeliverTargetVector(x31c_faceVec);
     }
-    x450_bodyController->GetCommandMgr().DeliverTargetVector(x31c_faceVec);
   } else if (x450_bodyController->GetBodyStateInfo().GetMaxSpeed() > FLT_EPSILON) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(
         (x138_velocity.magnitude() / x450_bodyController->GetBodyStateInfo().GetMaxSpeed()) * x34_transform.basis[1],
