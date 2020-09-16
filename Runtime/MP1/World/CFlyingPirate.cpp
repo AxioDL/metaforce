@@ -1,8 +1,8 @@
 #include "Runtime/MP1/World/CFlyingPirate.hpp"
 
-#include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/MP1/World/CSpacePirate.hpp"
@@ -898,6 +898,7 @@ void CFlyingPirate::Jump(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Combat);
     x328_25_verticalMovement = true;
+    RemoveMaterial(EMaterialTypes::GroundCollider, mgr);
     x150_momentum.zeroOut();
     x888_ = 10.f;
     UpdateParticleEffects(mgr, 1.f, true);
