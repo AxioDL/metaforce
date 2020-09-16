@@ -226,10 +226,10 @@ void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
   std::vector<CLight> thisLights;
   thisLights.reserve(4);
 
-  if (x300_dynamicLights.size()) {
+  if (!x300_dynamicLights.empty()) {
     u32 lightOctreeWordCount = 0;
     const u32* lightOctreeWords = nullptr;
-    if (item && model.x44_areaInstanceIdx != UINT32_MAX) {
+    if (item != nullptr && model.x44_areaInstanceIdx != UINT32_MAX) {
       lightOctreeWordCount = item->x4_octTree->x14_bitmapWordCount;
       lightOctreeWords = item->x1c_lightOctreeWords.data();
     }
@@ -237,10 +237,10 @@ void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
     std::array<float, 4> lightRads{-1.f, -1.f, -1.f, -1.f};
     std::array<CLight*, 4> lightRefs{};
     auto it = x300_dynamicLights.begin();
-    for (size_t i = 0; i < thisLights.size() && it != x300_dynamicLights.end();
+    for (size_t i = 0; i < thisLights.capacity() && it != x300_dynamicLights.end();
          ++it, lightOctreeWords += lightOctreeWordCount) {
       CLight& refLight = *it;
-      if (lightOctreeWords && !TestBit(lightOctreeWords, model.x44_areaInstanceIdx)) {
+      if (lightOctreeWords != nullptr && !TestBit(lightOctreeWords, model.x44_areaInstanceIdx)) {
         continue;
       }
 
