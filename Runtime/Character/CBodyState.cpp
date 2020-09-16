@@ -2139,7 +2139,7 @@ float CBSNewFlyerLocomotion::UpdateLocomotionAnimation(float dt, float velMag, C
           maxComp = i;
         }
       }
-      const int strafeKey = maxComp * 2 + localVec[maxComp] > 0.f ? 0 : 1;
+      const int strafeKey = maxComp * 2 + (localVec[maxComp] > 0.f ? 0 : 1);
       strafeType = RunStrafes[strafeKey];
     }
 
