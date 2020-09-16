@@ -101,8 +101,10 @@ void CAnimData::InitializeEffects(CStateManager& mgr, TAreaId aId, const zeus::C
   for (const auto& effects : xc_charInfo.GetEffectList()) {
     for (const auto& effect : effects.second) {
       x120_particleDB.CacheParticleDesc(effect.GetParticleTag());
-      x120_particleDB.AddParticleEffect(effect.GetSegmentName(), effect.GetFlags(), CParticleData(), scale, mgr, aId,
-                                        true, x21c_particleLightIdx);
+      const CParticleData data{effect.GetParticleTag(), effect.GetSegmentName(), effect.GetScale(),
+                               effect.GetParentedMode()};
+      x120_particleDB.AddParticleEffect(effect.GetComponentName(), effect.GetFlags(), data, scale, mgr, aId, true,
+                                        x21c_particleLightIdx);
       x120_particleDB.SetParticleEffectState(effect.GetComponentName(), false, mgr);
     }
   }
@@ -258,9 +260,7 @@ std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager() { return x10
 
 void CAnimData::SetPhase(float ph) { x1f8_animRoot->VSetPhase(ph); }
 
-void CAnimData::Touch(const CSkinnedModel& model, int shadIdx) const {
-  model.GetModelInst()->Touch(shadIdx);
-}
+void CAnimData::Touch(const CSkinnedModel& model, int shadIdx) const { model.GetModelInst()->Touch(shadIdx); }
 
 SAdvancementDeltas CAnimData::GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const {
   return x1f8_animRoot->VGetAdvancementResults(a, b).x8_deltas;
