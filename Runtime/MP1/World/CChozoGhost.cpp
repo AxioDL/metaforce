@@ -208,6 +208,7 @@ void CChozoGhost::Render(CStateManager& mgr) {
     CElementGen::SetSubtractBlend(true);
     CElementGen::SetMoveRedToAlphaBuffer(true);
     CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
+    GetModelData()->GetAnimationData()->GetParticleDB().RenderSystemsToBeDrawnFirst();
     mgr.SetupFogForArea3XRange(GetAreaIdAlways());
   }
 
