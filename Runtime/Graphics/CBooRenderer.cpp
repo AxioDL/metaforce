@@ -223,8 +223,9 @@ CBooRenderer::CAreaListItem::CAreaListItem(const std::vector<CMetroidModelInstan
 CBooRenderer::CAreaListItem::~CAreaListItem() = default;
 
 void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model) {
+  constexpr size_t lightCount = 4;
   std::vector<CLight> thisLights;
-  thisLights.reserve(4);
+  thisLights.reserve(lightCount);
 
   if (!x300_dynamicLights.empty()) {
     u32 lightOctreeWordCount = 0;
@@ -234,10 +235,10 @@ void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
       lightOctreeWords = item->x1c_lightOctreeWords.data();
     }
 
-    std::array<float, 4> lightRads{-1.f, -1.f, -1.f, -1.f};
-    std::array<CLight*, 4> lightRefs{};
+    std::array<float, lightCount> lightRads{-1.f, -1.f, -1.f, -1.f};
+    std::array<CLight*, lightCount> lightRefs{};
     auto it = x300_dynamicLights.begin();
-    for (size_t i = 0; i < thisLights.capacity() && it != x300_dynamicLights.end();
+    for (size_t i = 0; i < lightCount && it != x300_dynamicLights.end();
          ++it, lightOctreeWords += lightOctreeWordCount) {
       CLight& refLight = *it;
       if (lightOctreeWords != nullptr && !TestBit(lightOctreeWords, model.x44_areaInstanceIdx)) {
