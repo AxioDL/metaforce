@@ -48,7 +48,7 @@ CParticleGenInfoGeneric::CParticleGenInfoGeneric(const SObjectTag& part, const s
     x88_lightId = _initializeLight(system, stateMgr, areaId, lightId);
 }
 
-void CParticleGenInfoGeneric::AddToRenderer() { g_Renderer->AddParticleGen(*x84_system.get()); }
+void CParticleGenInfoGeneric::AddToRenderer() { g_Renderer->AddParticleGen(*x84_system); }
 
 void CParticleGenInfoGeneric::Render() { x84_system->Render(); }
 
@@ -116,6 +116,10 @@ void CParticleGenInfoGeneric::SetGlobalScale(const zeus::CVector3f& scale) { x84
 
 void CParticleGenInfoGeneric::SetParticleEmission(bool isActive, CStateManager& stateMgr) {
   x84_system->SetParticleEmission(isActive);
+
+  if (x88_lightId == kInvalidUniqueId) {
+    return;
+  }
 
   if (const TCastToPtr<CGameLight> gl = stateMgr.ObjectById(x88_lightId)) {
     gl->SetActive(isActive);
