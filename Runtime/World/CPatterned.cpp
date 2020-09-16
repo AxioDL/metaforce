@@ -712,7 +712,7 @@ void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     case EStateMsg::Update: {
       if (search->GetCurrentWaypoint() < search->GetWaypoints().size() - 1) {
-        if (x328_24_inPosition || x328_27_onGround)
+        if (x328_25_verticalMovement || x328_27_onGround)
           x401_24_pathOverCount += 1;
         zeus::CVector3f biasedPos = GetTranslation() + 0.3f * zeus::skUp;
         x2ec_reflectedDestPos = biasedPos - (x2e0_destPos - biasedPos);
