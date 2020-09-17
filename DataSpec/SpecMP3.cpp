@@ -99,6 +99,7 @@ struct SpecMP3 : SpecBase {
 
   hecl::ProjectPath m_workPath;
   hecl::ProjectPath m_cookPath;
+  hecl::ProjectPath m_outPath;
   PAKRouter<DNAMP3::PAKBridge> m_pakRouter;
 
   /* These are populated when extracting MPT's frontend (uses MP3's DataSpec) */
@@ -109,6 +110,7 @@ struct SpecMP3 : SpecBase {
 
   hecl::ProjectPath m_feWorkPath;
   hecl::ProjectPath m_feCookPath;
+  hecl::ProjectPath m_feOutPath;
   PAKRouter<DNAMP3::PAKBridge> m_fePakRouter;
 
   SpecMP3(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
@@ -386,8 +388,8 @@ struct SpecMP3 : SpecBase {
       hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _SYS_STR("out"));
       outPath.makeDir();
       disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
-      hecl::ProjectPath mp3OutPath(outPath, m_standalone ? _SYS_STR("files") : _SYS_STR("files/MP3"));
-      mp3OutPath.makeDirChain(true);
+      m_outPath = {outPath, m_standalone ? _SYS_STR("files") : _SYS_STR("files/MP3")};
+      m_outPath.makeDirChain(true);
 
       currentTarget = _SYS_STR("MP3 Root");
       progress.print(currentTarget.c_str(), _SYS_STR(""), 0.0);
@@ -396,7 +398,7 @@ struct SpecMP3 : SpecBase {
       nodeCount = m_nonPaks.size();
       // TODO: Make this more granular
       for (const nod::Node* node : m_nonPaks) {
-        node->extractToDirectory(mp3OutPath.getAbsolutePath(), ctx);
+        node->extractToDirectory(m_outPath.getAbsolutePath(), ctx);
         prog++;
       }
       ctx.progressCB = nullptr;
@@ -438,8 +440,8 @@ struct SpecMP3 : SpecBase {
       hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _SYS_STR("out"));
       outPath.makeDir();
       disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
-      hecl::ProjectPath feOutPath(outPath, m_standalone ? _SYS_STR("files") : _SYS_STR("files/fe"));
-      feOutPath.makeDirChain(true);
+      m_feOutPath = {outPath, _SYS_STR("files/fe")};
+      m_feOutPath.makeDirChain(true);
 
       currentTarget = _SYS_STR("fe Root");
       progress.print(currentTarget.c_str(), _SYS_STR(""), 0.0);
@@ -448,7 +450,7 @@ struct SpecMP3 : SpecBase {
 
       // TODO: Make this more granular
       for (const nod::Node* node : m_feNonPaks) {
-        node->extractToDirectory(feOutPath.getAbsolutePath(), ctx);
+        node->extractToDirectory(m_feOutPath.getAbsolutePath(), ctx);
         prog++;
       }
       progress.print(currentTarget.c_str(), _SYS_STR(""), 1.0);
@@ -475,18 +477,22 @@ struct SpecMP3 : SpecBase {
       process.waitUntilComplete();
     }
 
-    /* Extract part of .dol for RandomStatic entropy */
-    hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _SYS_STR("MP3/URDE"));
     /* Generate Texture Cache containing meta data for every texture file */
-    TextureCache::Generate(m_pakRouter, m_project, noAramPath);
-    /* Write version data */
-    hecl::ProjectPath versionPath;
-    if (m_standalone) {
-      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files"));
-    } else {
-      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files/MP3"));
+    if (doMP3) {
+      hecl::ProjectPath noAramPath(m_workPath, _SYS_STR("URDE"));
+      TextureCache::Generate(m_pakRouter, m_project, noAramPath);
     }
-    WriteVersionInfo(m_project, versionPath);
+    if (doMPTFE) {
+      hecl::ProjectPath noAramPath(m_feWorkPath, _SYS_STR("URDE"));
+      TextureCache::Generate(m_fePakRouter, m_project, noAramPath);
+    }
+    /* Write version data */
+    if (doMP3) {
+      WriteVersionInfo(m_project, m_outPath);
+    }
+    if (doMPTFE) {
+      WriteVersionInfo(m_project, m_feOutPath);
+    }
     return true;
   }
 
