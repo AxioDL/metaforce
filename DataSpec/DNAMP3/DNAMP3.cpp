@@ -25,7 +25,8 @@ static bool GetNoShare(std::string_view name) {
   std::string lowerName(name);
   std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
   return !lowerName.starts_with("metroid"sv) && !lowerName.starts_with("frontend"sv) &&
-         !lowerName.starts_with("rs5fe"sv) && !lowerName.starts_with("universearea"sv);
+         !lowerName.starts_with("rs5fe"sv) && !lowerName.starts_with("universearea"sv) &&
+         !lowerName.starts_with("mp1fe"sv);
 }
 
 PAKBridge::PAKBridge(const nod::Node& node, bool doExtract)
