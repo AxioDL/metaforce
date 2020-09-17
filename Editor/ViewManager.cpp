@@ -160,7 +160,12 @@ void ViewManager::RootSpaceViewBuilt(specter::View* view) {
 
 void ViewManager::ProjectChanged(hecl::Database::Project& proj) {
   CDvdFile::Shutdown();
-  CDvdFile::Initialize(hecl::ProjectPath(proj.getProjectWorkingPath(), _SYS_STR("out/files")));
+  // FIXME trilogy hack
+  hecl::ProjectPath projectPath(proj.getProjectWorkingPath(), _SYS_STR("out/files/MP1"));
+  if (!projectPath.isDirectory()) {
+    projectPath = hecl::ProjectPath(proj.getProjectWorkingPath(), _SYS_STR("out/files"));
+  }
+  CDvdFile::Initialize(projectPath);
 }
 
 void ViewManager::SetupEditorView() {
