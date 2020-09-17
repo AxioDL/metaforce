@@ -384,6 +384,10 @@ void CMain::AddOverridePaks() {
   if (CDvdFile::FileExists("URDE.upak")) {
     loader->AddPakFile("URDE", false, false, true);
   }
+
+  if (CDvdFile::FileExists("RS5.upak")) {
+    loader->AddPakFile("RS5", false, false, true);
+  }
 }
 
 void CMain::ResetGameState() {
@@ -880,7 +884,7 @@ void CMain::WarmupShaders() {
     }
     return true;
   });
-  
+
 
   m_warmupIt = m_warmupTags.begin();
 
