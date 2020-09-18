@@ -147,7 +147,7 @@ CRayCastResult CFlameThrower::DoCollisionCheck(TUniqueId& idOut, const zeus::CAA
       lookXf.origin = delta * 0.5f + colPoints[i - 1];
       const zeus::COBBox obb(lookXf, {curRadius, delta.magnitude() * 0.5f, curRadius});
 
-      for (const TUniqueId id : nearList) {
+      for (const auto& id : nearList) {
         if (auto* act = static_cast<CActor*>(mgr.ObjectById(id))) {
           const CProjectileTouchResult tres = CanCollideWith(*act, mgr);
           if (tres.GetActorId() == kInvalidUniqueId) {

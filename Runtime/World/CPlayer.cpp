@@ -2290,7 +2290,7 @@ void CPlayer::UpdatePhazonDamage(float dt, CStateManager& mgr) {
       if (CGameCollision::DetectStaticCollisionBoolean(mgr, prim, zeus::CTransform(), filter)) {
         touchingPhazon = true;
       } else {
-        for (const TUniqueId id : nearList) {
+        for (const auto& id : nearList) {
           if (const TCastToConstPtr<CPhysicsActor> act = mgr.GetObjectById(id)) {
             const CInternalCollisionStructure::CPrimDesc prim0(prim, filter, zeus::CTransform());
             const CInternalCollisionStructure::CPrimDesc prim1(
@@ -2387,7 +2387,7 @@ void CPlayer::AddToPlayerHintRemoveList(TUniqueId id, CStateManager& mgr) {
     return;
   }
 
-  for (const TUniqueId existId : x93c_playerHintsToRemove) {
+  for (const auto& existId : x93c_playerHintsToRemove) {
     if (id == existId) {
       return;
     }
@@ -2404,7 +2404,7 @@ void CPlayer::AddToPlayerHintAddList(TUniqueId id, CStateManager& mgr) {
     return;
   }
 
-  for (const TUniqueId existId : x980_playerHintsToAdd) {
+  for (const auto& existId : x980_playerHintsToAdd) {
     if (id == existId) {
       return;
     }
@@ -2421,7 +2421,7 @@ void CPlayer::DeactivatePlayerHint(TUniqueId id, CStateManager& mgr) {
     return;
   }
 
-  for (const TUniqueId existId : x93c_playerHintsToRemove) {
+  for (const auto& existId : x93c_playerHintsToRemove) {
     if (id == existId) {
       return;
     }
@@ -2448,7 +2448,7 @@ void CPlayer::UpdatePlayerHints(CStateManager& mgr) {
   }
 
   bool needsNewHint = false;
-  for (const TUniqueId id : x93c_playerHintsToRemove) {
+  for (const auto& id : x93c_playerHintsToRemove) {
     for (auto it = x838_playerHints.begin(); it != x838_playerHints.end();) {
       if (it->second == id) {
         it = x838_playerHints.erase(it);
@@ -2463,7 +2463,7 @@ void CPlayer::UpdatePlayerHints(CStateManager& mgr) {
   x93c_playerHintsToRemove.clear();
 
   bool addedHint = false;
-  for (const TUniqueId id : x980_playerHintsToAdd) {
+  for (const auto& id : x980_playerHintsToAdd) {
     if (const TCastToConstPtr<CScriptPlayerHint> hint = mgr.ObjectById(id)) {
       bool exists = false;
       for (auto& p : x838_playerHints) {
@@ -4252,7 +4252,7 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUni
   const float boxTop = (GetOrbitZoneIdealYScaled(int(info)) - vpHHalf) / vpHHalf;
   const CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
 
-  for (const TUniqueId id : list) {
+  for (const auto& id : list) {
     if (const auto* act = static_cast<CActor*>(mgr.ObjectById(id))) {
       if (act->GetUniqueId() != GetUniqueId() && ValidateObjectForMode(act->GetUniqueId(), mgr)) {
         const zeus::CVector3f aimPos = act->GetAimPosition(mgr, 0.f);
@@ -4349,7 +4349,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids, EP
 
   const CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
 
-  for (const TUniqueId id : ids) {
+  for (const auto& id : ids) {
     if (const TCastToConstPtr<CActor> act = mgr.ObjectById(id)) {
       const zeus::CVector3f orbitPos = act->GetOrbitPosition(mgr);
       zeus::CVector3f eyeToOrbit = orbitPos - eyePos;
@@ -4484,7 +4484,7 @@ void CPlayer::FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, 1024>&
   const CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
   const zeus::CVector3f eyePos = GetEyePosition();
 
-  for (const TUniqueId id : nearObjects) {
+  for (const auto& id : nearObjects) {
     if (const TCastToConstPtr<CActor> act = mgr.GetObjectById(id)) {
       if (GetUniqueId() == act->GetUniqueId()) {
         continue;
@@ -4576,7 +4576,7 @@ void CPlayer::AddOrbitDisableSource(CStateManager& mgr, TUniqueId addId) {
     return;
   }
 
-  for (const TUniqueId uid : x9e4_orbitDisableList) {
+  for (const auto& uid : x9e4_orbitDisableList) {
     if (uid == addId) {
       return;
     }

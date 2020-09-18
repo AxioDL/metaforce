@@ -835,7 +835,7 @@ void CScriptSpecialFunction::ThinkChaffTarget(float dt, CStateManager& mgr) {
   mgr.BuildNearList(nearList, box, CMaterialFilter::MakeInclude({EMaterialTypes::Projectile}), nullptr);
   CCameraFilterPassPoly& filter = mgr.GetCameraFilterPass(7);
 
-  for (const TUniqueId uid : nearList) {
+  for (const auto& uid : nearList) {
     if (const TCastToPtr<CEnergyProjectile> proj = mgr.ObjectById(uid)) {
       if (proj->GetHomingTargetId() == GetUniqueId()) {
         proj->Set3d0_26(true);

@@ -473,7 +473,7 @@ bool CGameCollision::DetectStaticCollisionBoolean_Cached(const CStateManager& mg
 bool CGameCollision::DetectDynamicCollisionBoolean(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
                                                    const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                                    const CStateManager& mgr) {
-  for (const TUniqueId id : nearList) {
+  for (const auto& id : nearList) {
     if (const TCastToConstPtr<CPhysicsActor> actor = mgr.GetObjectById(id)) {
       const CInternalCollisionStructure::CPrimDesc p0(prim, CMaterialFilter::skPassEverything, xf);
       const CInternalCollisionStructure::CPrimDesc p1(
@@ -643,7 +643,7 @@ bool CGameCollision::DetectStaticCollision_Cached_Moving(const CStateManager& mg
 bool CGameCollision::DetectDynamicCollision(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
                                             const rstl::reserved_vector<TUniqueId, 1024>& nearList, TUniqueId& idOut,
                                             CCollisionInfoList& list, const CStateManager& mgr) {
-  for (const TUniqueId id : nearList) {
+  for (const auto& id : nearList) {
     if (const TCastToConstPtr<CPhysicsActor> actor = mgr.GetObjectById(id)) {
       const CInternalCollisionStructure::CPrimDesc p0(prim, CMaterialFilter::skPassEverything, xf);
       const CInternalCollisionStructure::CPrimDesc p1(
@@ -663,7 +663,7 @@ bool CGameCollision::DetectDynamicCollisionMoving(const CCollisionPrimitive& pri
                                                   const zeus::CVector3f& dir, TUniqueId& idOut, CCollisionInfo& infoOut,
                                                   double& dOut, const CStateManager& mgr) {
   bool ret = false;
-  for (const TUniqueId id : nearList) {
+  for (const auto& id : nearList) {
     double d = dOut;
     CCollisionInfo info;
     if (const TCastToConstPtr<CPhysicsActor> actor = mgr.GetObjectById(id)) {

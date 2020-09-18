@@ -563,7 +563,7 @@ void CFlyingPirate::CheckForProjectiles(CStateManager& mgr) {
 
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   mgr.BuildNearList(nearList, box, CMaterialFilter::MakeInclude(EMaterialTypes::Projectile), this);
-  for (const auto id : nearList) {
+  for (const auto& id : nearList) {
     if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(id)) {
       zeus::CVector3f dist = GetBoundingBox().center() - proj->GetTranslation();
       if (dist.isMagnitudeSafe()) {

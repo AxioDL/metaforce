@@ -1316,7 +1316,7 @@ bool CMetroid::ShouldDodge(CStateManager& mgr, float arg) {
     return false;
   }
   const auto front = xf.frontVector();
-  for (const auto id : nearList) {
+  for (const auto& id : nearList) {
     if (TCastToConstPtr<CGameProjectile> projectile = mgr.GetObjectById(id)) {
       if (!projectile->HasAttrib(EProjectileAttrib::Ice)) {
         continue;

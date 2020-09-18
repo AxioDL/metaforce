@@ -293,7 +293,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
   }
 
   bool inactiveHintRemoved = false;
-  for (const TUniqueId id : x2b0_inactiveCameraHints) {
+  for (const auto& id : x2b0_inactiveCameraHints) {
     if (const TCastToConstPtr<CScriptCameraHint> hint = mgr.GetObjectById(id)) {
       if (hint->GetHelperCount() == 0 || hint->GetInactive()) {
         for (auto it = xac_cameraHints.begin(); it != xac_cameraHints.end(); ++it) {
@@ -313,7 +313,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
   x2b0_inactiveCameraHints.clear();
 
   bool activeHintAdded = false;
-  for (const TUniqueId id : x334_activeCameraHints) {
+  for (const auto& id : x334_activeCameraHints) {
     if (const TCastToConstPtr<CScriptCameraHint> hint = mgr.GetObjectById(id)) {
       bool activeHintPresent = false;
       for (auto it = xac_cameraHints.begin(); it != xac_cameraHints.end(); ++it) {

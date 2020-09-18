@@ -20,7 +20,7 @@ CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& savw, C
     SetIsMapped(i, mapped);
   }
 
-  for (const TEditorId doorId : savw.GetDoors()) {
+  for (const auto& doorId : savw.GetDoors()) {
     SetDoorVisited(doorId, reader.ReadEncoded(1) != 0);
   }
 
@@ -46,7 +46,7 @@ void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, CAss
     }
   }
 
-  for (const TEditorId doorId : savw.GetDoors()) {
+  for (const auto& doorId : savw.GetDoors()) {
     writer.WriteEncoded(u32(IsDoorVisited(doorId)), 1);
   }
 

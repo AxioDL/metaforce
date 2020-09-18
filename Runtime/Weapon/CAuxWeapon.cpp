@@ -43,7 +43,7 @@ CAuxWeapon::CAuxWeapon(TUniqueId playerId)
 }
 
 void CAuxWeapon::InitComboData() {
-  for (const auto comboName : skComboNames) {
+  for (const auto& comboName : skComboNames) {
     x28_combos.push_back(g_SimplePool->GetObj(comboName));
   }
 }

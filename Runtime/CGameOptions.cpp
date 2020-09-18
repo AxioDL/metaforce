@@ -167,7 +167,7 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const {
     const TLockedToken<CSaveWorld> saveWorld =
         g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.second.GetSaveWorldAssetId()});
 
-    for (const TEditorId cineId : saveWorld->GetCinematics()) {
+    for (const auto& cineId : saveWorld->GetCinematics()) {
       w.WriteEncoded(u32(GetCinematicState(world.first, cineId)), 1);
     }
   }

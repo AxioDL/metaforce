@@ -61,7 +61,7 @@ void CScriptSpiderBallWaypoint::AddPreviousWaypoint(TUniqueId uid) { xec_waypoin
 
 TUniqueId CScriptSpiderBallWaypoint::PreviousWaypoint(const CStateManager& mgr,
                                                       ECheckActiveWaypoint checkActive) const {
-  for (const TUniqueId id : xec_waypoints) {
+  for (const auto& id : xec_waypoints) {
     if (const CEntity* ent = mgr.GetObjectById(id)) {
       if (checkActive == ECheckActiveWaypoint::SkipCheck) {
         return id;

@@ -742,7 +742,7 @@ bool CMorphBall::FindClosestSpiderBallWaypoint(CStateManager& mgr, const zeus::C
   mgr.BuildNearList(nearList, aabb, CMaterialFilter::skPassEverything, nullptr);
   float minDist = 2.1f;
 
-  for (const TUniqueId id : nearList) {
+  for (const auto& id : nearList) {
     if (const TCastToConstPtr<CScriptSpiderBallAttractionSurface> surface = mgr.GetObjectById(id)) {
       const zeus::CUnitVector3f surfaceNorm(surface->GetTransform().basis[1]);
       const zeus::CPlane plane(surfaceNorm, surface->GetTranslation().dot(surfaceNorm));
@@ -774,7 +774,7 @@ bool CMorphBall::FindClosestSpiderBallWaypoint(CStateManager& mgr, const zeus::C
     }
   }
 
-  for (const TUniqueId id : nearList) {
+  for (const auto& id : nearList) {
     if (const TCastToConstPtr<CScriptSpiderBallWaypoint> wp = mgr.GetObjectById(id)) {
       const CScriptSpiderBallWaypoint* closestWp = nullptr;
       zeus::CVector3f worldPoint;
@@ -1916,7 +1916,7 @@ bool CMorphBall::BallCloseToCollision(const CStateManager& mgr, float dist, cons
     return true;
   }
 
-  for (const TUniqueId id : nearList) {
+  for (const auto& id : nearList) {
     if (const TCastToConstPtr<CPhysicsActor> act = mgr.GetObjectById(id)) {
       if (CCollisionPrimitive::CollideBoolean(
               {sphere, filter, zeus::CTransform()},

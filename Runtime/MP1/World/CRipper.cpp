@@ -170,7 +170,7 @@ zeus::CQuaternion CRipperControlledPlatform::Move(float arg, CStateManager& mgr)
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     rstl::reserved_vector<TUniqueId, 1024> filteredNearList;
     mgr.BuildColliderList(nearList, *this, GetMotionVolume(arg));
-    for (const TUniqueId id : nearList) {
+    for (const auto& id : nearList) {
       if (!IsRider(id) && !IsSlave(id)) {
         filteredNearList.push_back(id);
       }

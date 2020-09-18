@@ -1274,13 +1274,13 @@ void CIceSheegoth::UpdateHealthInfo(CStateManager& mgr) {
     hpDelta = std::max(hpDelta, x970_maxHp - colAct->GetHealthInfo(mgr)->GetHP());
   }
 
-  for (const TUniqueId uid : xafc_gillColliders) {
+  for (const auto& uid : xafc_gillColliders) {
     if (const TCastToConstPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
       hpDelta = std::max(hpDelta, x970_maxHp - colAct->GetHealthInfo(mgr)->GetHP());
     }
   }
 
-  for (const TUniqueId uid : xb04_) {
+  for (const auto& uid : xb04_) {
     if (const TCastToConstPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
       hpDelta = std::max(hpDelta, x970_maxHp - colAct->GetHealthInfo(mgr)->GetHP());
     }
@@ -1290,13 +1290,13 @@ void CIceSheegoth::UpdateHealthInfo(CStateManager& mgr) {
     if (const TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(xaf8_mouthCollider)) {
       colAct->HealthInfo(mgr)->SetHP(x970_maxHp);
     }
-    for (const TUniqueId uid : xafc_gillColliders) {
+    for (const auto& uid : xafc_gillColliders) {
       if (const TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
         colAct->HealthInfo(mgr)->SetHP(x970_maxHp);
       }
     }
 
-    for (const TUniqueId uid : xb04_) {
+    for (const auto& uid : xb04_) {
       if (const TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
         colAct->HealthInfo(mgr)->SetHP(x970_maxHp);
       }
@@ -1497,7 +1497,7 @@ bool CIceSheegoth::IsClosestSheegoth(CStateManager& mgr, const rstl::reserved_ve
                                      const zeus::CVector3f& projectileOffset) const {
   zeus::CVector3f diff = projectileOffset - GetTranslation();
   const float diffMag = diff.magSquared();
-  for (const TUniqueId uid : nearList) {
+  for (const auto& uid : nearList) {
     const CIceSheegoth* goth = CPatterned::CastTo<CIceSheegoth>(mgr.GetObjectById(uid));
     if (!goth || goth->GetUniqueId() == GetUniqueId())
       continue;

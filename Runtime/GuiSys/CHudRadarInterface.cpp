@@ -137,7 +137,7 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) {
   drawParms.x0_playerPos = mgr.GetPlayer().GetTranslation();
   drawParms.x74_alpha = alpha;
 
-  for (const TUniqueId id : nearList) {
+  for (const auto& id : nearList) {
     if (const TCastToConstPtr<CActor> act = mgr.GetObjectById(id)) {
       if (!act->GetActive()) {
         continue;

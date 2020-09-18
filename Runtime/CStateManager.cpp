@@ -369,7 +369,7 @@ TAreaId CStateManager::GetVisAreaId() const {
   BuildNearList(nearList, camAABB,
                 CMaterialFilter(EMaterialTypes::AIBlock, CMaterialList(), CMaterialFilter::EFilterType::Include),
                 nullptr);
-  for (const TUniqueId id : nearList) {
+  for (const auto& id : nearList) {
     if (const TCastToConstPtr<CScriptDock> dock = GetObjectById(id)) {
       if (dock->GetAreaId() == curArea && dock->HasPointCrossedDock(*this, camTranslation)) {
         return dock->GetCurrentConnectedAreaId(*this);
@@ -752,7 +752,7 @@ void CStateManager::DrawWorld() {
     SetupFogForArea(*areaArr[areaCount - 1]);
   }
 
-  for (const TUniqueId id : x86c_stateManagerContainer->xf370_) {
+  for (const auto& id : x86c_stateManagerContainer->xf370_) {
     if (auto* ent = static_cast<CActor*>(ObjectById(id))) {
       if (!thermal || (ent->xe6_27_thermalVisorFlags & 1) != 0) {
         ent->Render(*this);
@@ -831,7 +831,7 @@ void CStateManager::DrawWorld() {
   if (thermal) {
     if (x86c_stateManagerContainer->xf39c_renderLast.size()) {
       CGraphics::SetDepthRange(DEPTH_SCREEN_ACTORS, DEPTH_GUN);
-      for (const TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast) {
+      for (const auto& id : x86c_stateManagerContainer->xf39c_renderLast) {
         if (auto* actor = static_cast<CActor*>(ObjectById(id))) {
           if ((actor->xe6_27_thermalVisorFlags & 1) != 0) {
             actor->Render(*this);
@@ -843,7 +843,7 @@ void CStateManager::DrawWorld() {
     g_Renderer->DoThermalBlendCold();
     xf34_thermalFlag = EThermalDrawFlag::Hot;
 
-    for (const TUniqueId id : x86c_stateManagerContainer->xf370_) {
+    for (const auto& id : x86c_stateManagerContainer->xf370_) {
       if (auto* actor = static_cast<CActor*>(ObjectById(id))) {
         if ((actor->xe6_27_thermalVisorFlags & 2) != 0) {
           actor->Render(*this);
@@ -909,7 +909,7 @@ void CStateManager::DrawWorld() {
 
   if (x86c_stateManagerContainer->xf39c_renderLast.size()) {
     CGraphics::SetDepthRange(DEPTH_SCREEN_ACTORS, DEPTH_GUN);
-    for (const TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast) {
+    for (const auto& id : x86c_stateManagerContainer->xf39c_renderLast) {
       if (auto* actor = static_cast<CActor*>(ObjectById(id))) {
         if (!thermal || actor->xe6_27_thermalVisorFlags & 0x2) {
           actor->Render(*this);
@@ -1502,7 +1502,7 @@ std::pair<TEditorId, TUniqueId> CStateManager::GenerateObject(TEditorId eid) {
 }
 
 void CStateManager::InitScriptObjects(const std::vector<TEditorId>& ids) {
-  for (const TEditorId id : ids) {
+  for (const auto& id : ids) {
     if (id == kInvalidEditorId) {
       continue;
     }
@@ -1619,7 +1619,7 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
 
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   BuildNearList(nearList, aabb, filter, &actor);
-  for (const TUniqueId id : nearList) {
+  for (const auto& id : nearList) {
     CEntity* ent = ObjectById(id);
     if (ent == nullptr) {
       continue;
@@ -1658,7 +1658,7 @@ void CStateManager::ProcessRadiusDamage(const CActor& damager, CActor& damagee, 
   const zeus::CAABox aabb(damager.GetTranslation() - info.GetRadius(), damager.GetTranslation() + info.GetRadius());
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   BuildNearList(nearList, aabb, filter, nullptr);
-  for (const TUniqueId id : nearList) {
+  for (const auto& id : nearList) {
     CEntity* ent = ObjectById(id);
     if (ent == nullptr || ent->GetUniqueId() == damager.GetUniqueId() || ent->GetUniqueId() == senderId ||
         ent->GetUniqueId() == damagee.GetUniqueId()) {
@@ -2317,7 +2317,7 @@ void CStateManager::CrossTouchActors() {
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     BuildNearList(nearList, *touchAABB, filter, &actor);
 
-    for (const TUniqueId id : nearList) {
+    for (const auto& id : nearList) {
       auto* ent2 = static_cast<CActor*>(ObjectById(id));
       if (!ent2) {
         continue;
@@ -2388,7 +2388,7 @@ void CStateManager::ShowPausedHUDMemo(CAssetId strg, float time) {
 }
 
 void CStateManager::ClearGraveyard() {
-  for (const TUniqueId id : x854_objectGraveyard) {
+  for (const auto& id : x854_objectGraveyard) {
     CEntity* ent = GetAllObjectList().GetValidObjectById(id);
     RemoveObject(id);
     std::default_delete<CEntity>()(ent);

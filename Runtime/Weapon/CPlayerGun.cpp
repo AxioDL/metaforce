@@ -200,7 +200,7 @@ void CPlayerGun::InitBombData() {
 }
 
 void CPlayerGun::InitMuzzleData() {
-  for (const auto muzzleID : g_tweakGunRes->xa4_auxMuzzle) {
+  for (const auto& muzzleID : g_tweakGunRes->xa4_auxMuzzle) {
     x7c0_auxMuzzleEffects.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), muzzleID}));
     x800_auxMuzzleGenerators.emplace_back(std::make_unique<CElementGen>(x7c0_auxMuzzleEffects.back()));
     x800_auxMuzzleGenerators.back()->SetParticleEmission(false);

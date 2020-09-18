@@ -112,7 +112,7 @@ void CSeedling::Render(CStateManager& mgr) {
     flags.x2_flags = 3;
     flags.x4_color = zeus::skWhite;
 
-    for (const std::string_view sv : skNeedleLocators[index]) {
+    for (const auto& sv : skNeedleLocators[index]) {
       x6bc_spikeData->Render(mgr, GetLctrTransform(sv), x90_actorLights.get(), flags);
     }
   }
@@ -208,7 +208,7 @@ bool CSeedling::ShouldAttack(CStateManager& mgr, float) {
 
 void CSeedling::LaunchNeedles(CStateManager& mgr) {
   const auto& needleLocators = skNeedleLocators[size_t(x722_25_curNeedleCluster)];
-  for (const std::string_view needle : needleLocators) {
+  for (const auto& needle : needleLocators) {
     LaunchProjectile(GetLctrTransform(needle), mgr, int(needleLocators.size()), EProjectileAttrib::None, true, {},
                      0xFFFF, false, GetModelData()->GetScale());
   }
