@@ -1254,12 +1254,13 @@ void CElementGen::RenderParticles() {
     moveRedToAlphaBuffer = true;
 
   if (g_subtractBlend) {
-    if (moveRedToAlphaBuffer)
+    // FIXME should there be NoTex specializations for RedToAlpha?
+    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
       CGraphics::SetShaderDataBinding(m_redToAlphaSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
     else
       CGraphics::SetShaderDataBinding(m_normalSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
   } else {
-    if (moveRedToAlphaBuffer)
+    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
       CGraphics::SetShaderDataBinding(m_redToAlphaDataBind[g_Renderer->IsThermalVisorHotPass()]);
     else
       CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
