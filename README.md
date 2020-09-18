@@ -1,5 +1,5 @@
 ## URDE
-**Status:** Metroid Prime 1 In-Game (all retail GC versions)
+**Status:** Metroid Prime 1 In-Game (all retail GC & Wii versions)
 
 **Official Discord Channel:** https://discord.gg/AMBVFuf
 
@@ -17,12 +17,22 @@ Everything else is much too experimental to make portable/stable release builds 
     * Arch is known to function with [`glx` vendor setup instructions](https://wiki.archlinux.org/index.php/Category:Graphics) *(main development/testing OS)*
     * Other distros with reasonably up-to-date packages will work (specific packages TBD)
     
-### Usage
+### Usage (GC versions)
 
 * Extract ISO: `hecl extract [path].iso -o mp1`
   * `mp1` can be substituted with the directory name of your choice
 * Repackage game for URDE: `cd mp1; hecl package`
 * Run URDE: `urde mp1/out`
+
+### Usage (Wii versions)
+
+NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly without converting to ISO.
+
+* Extract ISO or NFS: `hecl extract [path].[iso/nfs] -o mpt`
+  * `mpt` can be substituted with the directory name of your choice
+* Repackage game for URDE: `cd mpt; hecl package MP1`
+  * The `MP1` parameter is important here.
+* Run URDE: `urde mpt/out`
 
 #### URDE options (non-exhaustive)
 
