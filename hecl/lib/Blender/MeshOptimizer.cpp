@@ -234,7 +234,7 @@ Mesh::Surface MeshOptimizer::generate_surface(std::vector<uint32_t>& island_face
   ret.aabbMin.val.simd = athena::simd<float>(FLT_MAX);
   ret.aabbMax.val.simd = athena::simd<float>(-FLT_MAX);
   for (const auto& f : island_faces) {
-    for (const auto& l : faces[f].loops) {
+    for (const auto l : faces[f].loops) {
       const Vertex& v = verts[loops[l].vert];
       for (int c = 0; c < 3; ++c) {
         if (v.co.val.simd[c] < ret.aabbMin.val.simd[c])
@@ -357,7 +357,7 @@ void MeshOptimizer::optimize(Mesh& mesh, int max_skin_banks) const {
           continue;
         if (b_skin.size()) {
           bool brk = false;
-          for (const auto& l : faces[f].loops) {
+          for (const auto l : faces[f].loops) {
             const Vertex& v = verts[loops[l].vert];
             uint32_t skin_idx = get_skin_idx(v);
             if (skin_slot_set.find(skin_idx) == skin_slot_set.end()) {
