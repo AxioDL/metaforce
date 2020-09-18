@@ -1909,6 +1909,12 @@ PNG_INTERNAL_FUNCTION(void, png_init_filter_functions_neon,
    (png_structp png_ptr, unsigned int bpp), PNG_EMPTY);
 #endif
 
+#if __has_attribute(fallthrough)
+#define FALLTHROUGH __attribute__((fallthrough))
+#else
+#define FALLTHROUGH
+#endif
+
 /* Maintainer: Put new private prototypes here ^ */
 
 #include "pngdebug.h"

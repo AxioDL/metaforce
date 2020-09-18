@@ -1872,7 +1872,7 @@ png_create_colormap_entry(png_image_read_control *display,
          {
             case 4:
                entry[afirst ? 0 : 3] = (png_uint_16)alpha;
-               /* FALL THROUGH */
+               FALLTHROUGH;
 
             case 3:
                if (alpha < 65535)
@@ -1894,7 +1894,7 @@ png_create_colormap_entry(png_image_read_control *display,
 
             case 2:
                entry[1 ^ afirst] = (png_uint_16)alpha;
-               /* FALL THROUGH */
+               FALLTHROUGH;
 
             case 1:
                if (alpha < 65535)
@@ -1923,6 +1923,7 @@ png_create_colormap_entry(png_image_read_control *display,
          {
             case 4:
                entry[afirst ? 0 : 3] = (png_byte)alpha;
+               FALLTHROUGH;
             case 3:
                entry[afirst + (2 ^ bgr)] = (png_byte)blue;
                entry[afirst + 1] = (png_byte)green;
@@ -1931,6 +1932,7 @@ png_create_colormap_entry(png_image_read_control *display,
 
             case 2:
                entry[1 ^ afirst] = (png_byte)alpha;
+               FALLTHROUGH;
             case 1:
                entry[afirst] = (png_byte)green;
                break;
@@ -2851,7 +2853,7 @@ png_image_read_colormap(png_voidp argument)
       case P_sRGB:
          /* Change to 8-bit sRGB */
          png_set_alpha_mode_fixed(png_ptr, PNG_ALPHA_PNG, PNG_GAMMA_sRGB);
-         /* FALL THROUGH */
+         FALLTHROUGH;
 
       case P_FILE:
          if (png_ptr->bit_depth > 8)
@@ -3170,7 +3172,7 @@ png_image_read_colormapped(png_voidp argument)
             break;
 
          /* goto bad_output; */
-         /* FALL THROUGH */
+         FALLTHROUGH;
 
       default:
       bad_output:
