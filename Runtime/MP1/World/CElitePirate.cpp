@@ -998,7 +998,7 @@ void CElitePirate::AttractProjectiles(CStateManager& mgr) {
 
   rstl::reserved_vector<TUniqueId, 1024> charNearList;
   mgr.BuildNearList(charNearList, aabb, CMaterialFilter::MakeInclude({EMaterialTypes::Character}), nullptr);
-  for (const TUniqueId projId : projNearList) {
+  for (const auto& projId : projNearList) {
     TCastToPtr<CGameProjectile> projectile = mgr.ObjectById(projId);
     if (!projectile || projectile->GetType() == EWeaponType::Missile ||
         projectile->GetOwnerId() != mgr.GetPlayer().GetUniqueId() ||
@@ -1117,7 +1117,7 @@ void CElitePirate::UpdateHealthInfo(CStateManager& mgr) {
 
 void CElitePirate::ExtendTouchBounds(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 7>& uids,
                                      const zeus::CVector3f& vec) const {
-  for (const TUniqueId uid : uids) {
+  for (const auto& uid : uids) {
     if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(uid)) {
       actor->SetExtendedTouchBounds(vec);
     }
@@ -1160,7 +1160,7 @@ bool CElitePirate::IsClosestEnergyAttractor(const CStateManager& mgr,
                                             const rstl::reserved_vector<TUniqueId, 1024>& charNearList,
                                             const zeus::CVector3f& projectilePos) const {
   const float distance = (projectilePos - GetTranslation()).magSquared();
-  for (const auto id : charNearList) {
+  for (const auto& id : charNearList) {
     if (const TCastToConstPtr<CPatterned> actor = mgr.GetObjectById(id)) {
       if (actor->GetUniqueId() != GetUniqueId() && actor->IsEnergyAttractor() &&
           (projectilePos - actor->GetTranslation()).magSquared() < distance) {

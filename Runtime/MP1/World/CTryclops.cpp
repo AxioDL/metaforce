@@ -645,7 +645,7 @@ bool CTryclops::sub8025dbd0(CStateManager& mgr) {
     return true;
   }
 
-  for (const TUniqueId id : nearList) {
+  for (const auto& id : nearList) {
     if (id == GetUniqueId()) {
       continue;
     }

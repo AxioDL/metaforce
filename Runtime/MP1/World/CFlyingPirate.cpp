@@ -185,7 +185,7 @@ void CFlyingPirate::CFlyingPirateRagDoll::PreRender(const zeus::CVector3f& v, CM
     CAnimData* const animData = mData.GetAnimationData();
     const CCharLayoutInfo& layout = animData->GetCharLayoutInfo();
     CHierarchyPoseBuilder& poseBuilder = animData->PoseBuilder();
-    for (const auto id : layout.GetSegIdList().GetList()) {
+    for (const auto& id : layout.GetSegIdList().GetList()) {
       if (layout.GetRootNode()->GetBoneMap()[id].x10_children.size() > 1) {
         poseBuilder.GetTreeMap()[id].x4_rotation = zeus::CQuaternion();
       }
@@ -541,7 +541,7 @@ void CFlyingPirate::CalculateRenderBounds() {
 }
 
 bool CFlyingPirate::CanFireMissiles(CStateManager& mgr) {
-  for (const auto seg : x864_missileSegments) {
+  for (const auto& seg : x864_missileSegments) {
     const zeus::CTransform xf = GetLctrTransform(seg);
     const zeus::CVector3f dir = xf.origin + (3.f * xf.frontVector());
     CMaterialList matList(EMaterialTypes::Player, EMaterialTypes::ProjectilePassthrough);
@@ -597,7 +597,7 @@ bool CFlyingPirate::CoverCheck(CStateManager& mgr, float) {
 bool CFlyingPirate::CoverFind(CStateManager& mgr, float) {
   float closestMag = x568_data.x0_maxCoverDistance * x568_data.x0_maxCoverDistance;
   CScriptCoverPoint* closest = nullptr;
-  for (const auto& entity : *mgr.ObjectListById(EGameObjectList::PlatformAndDoor)) {
+  for (const auto entity : *mgr.ObjectListById(EGameObjectList::PlatformAndDoor)) {
     if (TCastToPtr<CScriptCoverPoint> cover = entity) {
       if (cover->GetActive() && cover->ShouldLandHere() && !cover->GetInUse(x8_uid) &&
           cover->GetAreaIdAlways() == x4_areaId) {
@@ -762,7 +762,7 @@ pas::EStepDirection CFlyingPirate::GetDodgeDirection(CStateManager& mgr, float a
   bool canDodgeUp = true;
   bool canDodgeDown = true;
   pas::EStepDirection direction = pas::EStepDirection::Invalid;
-  for (const auto& entity : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
+  for (const auto entity : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
     if (entity == this)
       continue;
     if (TCastToPtr<CPhysicsActor> actor = entity) {
@@ -1437,7 +1437,7 @@ void CFlyingPirate::Taunt(CStateManager& mgr, EStateMsg msg, float) {
     const TUniqueId playerUid = mgr.GetPlayer().GetUniqueId();
     x7a0_boneTracking.SetTarget(playerUid);
     bool foundPirate = false;
-    for (const auto& obj : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
+    for (const auto obj : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
       if (const CSpacePirate* const pirate = CPatterned::CastTo<CSpacePirate>(obj)) {
         if (pirate->GetEnableAim() && pirate->IsAlive() && pirate->GetAreaIdAlways() == x4_areaId &&
             (pirate->GetTranslation() - GetTranslation()).magSquared() <
@@ -1579,7 +1579,7 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
             const zeus::CVector3f dist =
                 (GetBoundingBox().center() - mgr.GetPlayer().GetAimPosition(mgr, 0.f)).normalized();
             if (dist.magSquared() < 0.9f) {
-              for (const auto& obj : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
+              for (const auto obj : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
                 if (const auto* pirate = CPatterned::CastTo<const CSpacePirate>(obj)) {
                   if (pirate->GetEnableAim() && pirate->GetAreaIdAlways() == x4_areaId) {
                     x7e4_ += 0.2f;

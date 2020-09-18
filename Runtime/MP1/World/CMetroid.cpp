@@ -247,7 +247,7 @@ void CMetroid::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) {
         mgr.BuildNearList(nearList, zeus::CAABox{pos - range, pos + range},
                           CMaterialFilter::MakeInclude({EMaterialTypes::Character}), nullptr);
         CSpacePirate* closestPirate = nullptr;
-        for (const auto id : nearList) {
+        for (const auto& id : nearList) {
           if (auto* pirate = CPatterned::CastTo<CSpacePirate>(mgr.ObjectById(id))) {
             if (IsPirateValidTarget(pirate, mgr)) {
               float distSq = (pirate->GetTranslation() - pos).magSquared();
@@ -688,7 +688,7 @@ bool CMetroid::IsHunterAttacking(CStateManager& mgr) {
     if (!aiMgr->HasRangedAttackers()) {
       return false;
     }
-    for (const auto id : aiMgr->GetRangedAttackers()) {
+    for (const auto& id : aiMgr->GetRangedAttackers()) {
       if (CPatterned::CastTo<CMetroidBeta>(mgr.GetObjectById(id)) != nullptr) {
         return true;
       }
