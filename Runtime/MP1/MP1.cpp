@@ -378,15 +378,19 @@ void CMain::AddOverridePaks() {
   /* Make sure all Override paks are ready before attempting to load URDE.upak */
   loader->WaitForPakFileLoadingComplete();
 
+  /* Load Trilogy PAKs */
+  if (CDvdFile::FileExists("RS5.upak")) {
+    loader->AddPakFile("RS5", false, false, true);
+  }
+  if (CDvdFile::FileExists("Strings.upak")) {
+    loader->AddPakFile("Strings", false, false, true);
+  }
+
   /* Attempt to load URDE.upak
    * NOTE(phil): Should we fatal here if it's not found?
    */
   if (CDvdFile::FileExists("URDE.upak")) {
     loader->AddPakFile("URDE", false, false, true);
-  }
-
-  if (CDvdFile::FileExists("RS5.upak")) {
-    loader->AddPakFile("RS5", false, false, true);
   }
 }
 
