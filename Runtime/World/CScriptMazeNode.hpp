@@ -10,7 +10,7 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde {
-struct CUnknownMazeNodeItem {
+struct CScriptMazeStateCell {
   bool x0_24_ : 1 = false;
   bool x0_25_ : 1 = false;
   bool x0_26_ : 1 = false;
@@ -23,17 +23,22 @@ struct CUnknownMazeNodeItem {
   bool x1_25_ : 1 = false;
   bool x1_26_ : 1 = false;
 };
-class CUnknownMazeNode {
+
+class CScriptMazeState {
   CRandom16 x0_rand{0};
-  std::array<CUnknownMazeNodeItem, 63> x4_arr{};
+  std::array<CScriptMazeStateCell, 63> x4_arr{};
   s32 x84_;
   s32 x88_;
   s32 x8c_;
   s32 x90_;
   bool x94_24_initialized : 1 = false;
 
-  CUnknownMazeNode(s32 w1, s32 w2, s32 w3, s32 w4) : x84_(w1), x88_(w2), x8c_(w3), x90_(w4) {}
+public:
+  CScriptMazeState(s32 w1, s32 w2, s32 w3, s32 w4) : x84_(w1), x88_(w2), x8c_(w3), x90_(w4) {}
+  void Reset(s32 seed);
+  void Initialize();
 };
+
 class CScriptMazeNode : public CActor {
   static std::array<s32, 300> sMazeSeeds;
   s32 xe8_;
@@ -57,6 +62,7 @@ public:
                   const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&);
 
   void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   static void LoadMazeSeeds();
 
 private:

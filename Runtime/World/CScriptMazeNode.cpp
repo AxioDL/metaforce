@@ -26,6 +26,30 @@ CScriptMazeNode::CScriptMazeNode(TUniqueId uid, std::string_view name, const CEn
 
 void CScriptMazeNode::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
+void CScriptMazeNode::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
+  if (GetActive()) {
+    if (msg == EScriptObjectMessage::Action) {
+      // TODO
+    } else if (msg == EScriptObjectMessage::SetToZero) {
+      // TODO
+    } else if (msg == EScriptObjectMessage::Deactivate) {
+      // TODO
+    } else if (msg == EScriptObjectMessage::InitializedInArea) {
+      if (mgr.GetCurrentMaze() == nullptr) {
+        auto maze = std::make_unique<CScriptMazeState>(4, 4, 5, 3);
+        maze->Reset(sMazeSeeds[mgr.GetActiveRandom()->Next() % sMazeSeeds.size()]);
+        maze->Initialize();
+        // sub_802899c8
+        mgr.SetCurrentMaze(std::move(maze));
+      }
+    } else if (msg == EScriptObjectMessage::Deleted) {
+      mgr.ClearCurrentMaze();
+      Reset(mgr);
+    }
+  }
+  CActor::AcceptScriptMsg(msg, uid, mgr);
+}
+
 void CScriptMazeNode::LoadMazeSeeds() {
   const SObjectTag* tag = g_ResFactory->GetResourceIdByName("DUMB_MazeSeeds");
   const u32 resSize = g_ResFactory->ResourceSize(*tag);
@@ -78,5 +102,65 @@ void CScriptMazeNode::Reset(CStateManager& mgr) {
   xfc_actorId = kInvalidUniqueId;
   x10c_triggerId = kInvalidUniqueId;
   x11c_effectId = kInvalidUniqueId;
+}
+
+void CScriptMazeState::Reset(s32 seed) {
+  x0_rand.SetSeed(seed);
+  x94_24_initialized = false;
+  x4_arr.fill({});
+  // TODO wtf is the rest?
+}
+
+void CScriptMazeState::Initialize() {
+  std::array<size_t, 66> arr{};
+  arr[0] = x84_ + x88_ * 9;
+  x4_arr[arr[0]].x1_26_ = true;
+  size_t i = 1;
+  while (true) {
+    if (arr[0] == x8c_ + x90_ * 9) {
+      break;
+    }
+    if (x4_arr[arr[0]].x0_24_) {
+      if (!x4_arr[arr[0] - 9].x1_26_) {
+        arr[i] = arr[0] - 9;
+        i++;
+      }
+    }
+    if (x4_arr[arr[0]].x0_25_) {
+      if (!x4_arr[arr[0] + 1].x1_26_) {
+        arr[i] = arr[0] + 1;
+        i++;
+      }
+    }
+    if (x4_arr[arr[0]].x0_26_) {
+      if (!x4_arr[arr[0] + 9].x1_26_) {
+        arr[i] = arr[0] + 9;
+        i++;
+      }
+    }
+    if (x4_arr[arr[0]].x0_27_) {
+      if (!x4_arr[arr[0] - 1].x1_26_) {
+        arr[i] = arr[0] - 1;
+        i++;
+      }
+    }
+    if (arr[0] == arr[i - 1]) {
+      i--;
+    }
+    arr[0] = arr[i - 1];
+    x4_arr[arr[0]].x1_26_ = true;
+  }
+  size_t* v = &arr[i];
+  while (true) {
+    if (i == 0) {
+      break;
+    }
+    i--;
+    v--;
+    if (x4_arr[*v].x1_26_) {
+      x4_arr[*v].x1_25_ = true;
+    }
+  }
+  x94_24_initialized = true;
 }
 } // namespace urde
