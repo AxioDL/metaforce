@@ -441,14 +441,14 @@ void CDrone::Death(CStateManager& mgr, const zeus::CVector3f& direction, EScript
       SetTransform(zeus::lookAt(GetTranslation(), GetTranslation() - direction) *
                    zeus::CTransform::RotateX(zeus::degToRad(45.f)));
     }
-
-    if (x450_bodyController->GetPercentageFrozen() > 0.f) {
-      x450_bodyController->UnFreeze();
-    }
-
-    x400_25_alive = false;
-    SendScriptMsgs(state, mgr, EScriptObjectMessage::None);
   }
+
+  if (x450_bodyController->GetPercentageFrozen() > 0.f) {
+    x450_bodyController->UnFreeze();
+  }
+
+  x400_25_alive = false;
+  SendScriptMsgs(state, mgr, EScriptObjectMessage::None);
 }
 
 void CDrone::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, const CDamageInfo& info, EKnockBackType type,
