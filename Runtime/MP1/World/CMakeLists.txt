@@ -32,6 +32,7 @@ set(MP1_WORLD_SOURCES
     CMetroidPrimeExo.hpp CMetroidPrimeExo.cpp
     CMetroidPrimeProjectile.hpp CMetroidPrimeProjectile.cpp
     CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
+    CMetroidPrimeEssence.hpp CMetroidPrimeEssence.cpp
     CNewIntroBoss.hpp CNewIntroBoss.cpp
     COmegaPirate.hpp COmegaPirate.cpp
     CParasite.hpp CParasite.cpp
