@@ -238,6 +238,113 @@ void CScriptMazeState::Initialize() {
 }
 
 void CScriptMazeState::sub_802899c8() {
+  if (!x94_24_initialized) {
+    Initialize();
+  }
+  s32 iVar5 = x0_rand.Next();
+  s32 iVar1 = ((iVar5 / 5) * -5) + 9;
+  s32 iVar6 = x0_rand.Next();
+  s32 iVar2 = ((iVar6 / 5) * -5) + 21;
+  s32 iVar7 = x0_rand.Next();
+  s32 iVar3 = ((iVar7 / 5) * -5) + 33;
+  s32 iVar16 = ((x0_rand.Next() / 5) * -5) + 13;
+  s32 iVar9 = ((x0_rand.Next() / 5) * -5) + 29;
 
+  u32 uVar10 = -1;
+  s32 iVar11 = 0;
+
+  s32 iVar4 = x84_;
+  s32 iVar8 = x88_;
+  s32 iVar13 = x84_;
+  s32 iVar15 = x88_;
+
+  s32 iVar12;
+  do {
+    if (iVar13 == x8c_ && iVar15 == x90_) {
+      return;
+    }
+    if (iVar11 == iVar5 + iVar1 || iVar11 == iVar6 + iVar2 || iVar11 == iVar7 + iVar3) {
+      if (uVar10 == 2) {
+        x4_arr[iVar13 + iVar15 * skMazeColumns].x0_28_ = true;
+        x4_arr[iVar8 * skMazeColumns].x0_30_ = true;
+      } else if (uVar10 == 0) {
+        x4_arr[iVar13 + iVar15 * skMazeColumns].x0_30_ = true;
+        x4_arr[iVar8 * skMazeColumns].x0_28_ = true;
+      } else if (uVar10 == 1) {
+        x4_arr[iVar13 + iVar15 * skMazeColumns].x0_31_ = true;
+        x4_arr[iVar8 * skMazeColumns].x0_29_ = true;
+      } else if (uVar10 == 3) {
+        x4_arr[iVar13 + iVar15 * skMazeColumns].x0_29_ = true;
+        x4_arr[iVar8 * skMazeColumns].x0_31_ = true;
+      }
+    }
+    iVar12 = iVar13;
+
+    s32 iVar14;
+    if ((iVar15 < 1 || uVar10 == 2 || !x4_arr[iVar13 + iVar15 * skMazeColumns].x0_24_) ||
+        !x4_arr[iVar13 + (iVar15 - 1) * skMazeColumns].x1_25_) {
+      if (iVar15 < 6 && uVar10 != 0 && x4_arr[iVar13 + iVar15 * skMazeColumns].x0_26_ &&
+          x4_arr[iVar13 + (iVar15 + 1) * skMazeColumns].x1_25_) {
+        uVar10 = 2;
+        iVar14 = iVar15 + 1;
+      } else {
+        iVar14 = iVar15;
+        if (iVar13 < 1 || uVar10 == 1 || !x4_arr[iVar13 + iVar15 * skMazeColumns].x0_27_ ||
+            !x4_arr[(iVar13 + iVar15 * skMazeColumns) - 1].x1_25_) {
+          if (iVar13 > skMazeRows) {
+            return;
+          }
+          if (uVar10 == 3) {
+            return;
+          }
+          s32 iVar4_ = iVar13 + iVar15 * skMazeColumns;
+          if (!x4_arr[iVar4_].x0_25_) {
+            return;
+          }
+          if (!x4_arr[iVar4_ + 1].x1_25_) {
+            return;
+          }
+          uVar10 = 1;
+          iVar12 = iVar13 + 1;
+        } else {
+          uVar10 = 3;
+          iVar12 = iVar13 - 1;
+        }
+      }
+    } else {
+      uVar10 = 0;
+      iVar14 = iVar15 - 1;
+    }
+    if (iVar11 == iVar16 || iVar11 == iVar9) {
+      if (iVar13 == 0 || iVar15 == 0 || iVar13 == 8 || iVar15 == 6) {
+        if (iVar11 == iVar16) {
+          iVar16++;
+        } else {
+          iVar9++;
+        }
+      } else {
+        auto& cell = x4_arr[iVar13 + iVar15 * skMazeColumns];
+        cell.x1_24_ = true;
+        if (uVar10 == 2) {
+          x4_arr[iVar12 + iVar14 * skMazeColumns].x0_24_ = false;
+          cell.x0_26_ = false;
+        } else if (uVar10 == 0) {
+          x4_arr[iVar12 + iVar14 * skMazeColumns].x0_26_ = false;
+          cell.x0_24_ = false;
+        } else if (uVar10 == 1) {
+          x4_arr[iVar12 + iVar14 * skMazeColumns].x0_27_ = false;
+          cell.x0_25_ = false;
+        } else if (uVar10 == 3) {
+          x4_arr[iVar12 + iVar14 * skMazeColumns].x0_25_ = false;
+          cell.x0_27_ = false;
+        }
+      }
+    }
+    iVar11++;
+    iVar4 = iVar13;
+    iVar8 = iVar15;
+    iVar13 = iVar12;
+    iVar15 = iVar14;
+  } while (true);
 }
 } // namespace urde
