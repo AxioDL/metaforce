@@ -28,6 +28,7 @@
 #include "Runtime/World/CFluidPlaneManager.hpp"
 #include "Runtime/World/ScriptLoader.hpp"
 #include "Runtime/World/ScriptObjectSupport.hpp"
+#include "Runtime/World/CScriptMazeNode.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector2f.hpp>
@@ -190,7 +191,7 @@ private:
   std::list<TUniqueId> xf3c_activeFlickerBats;
   std::list<TUniqueId> xf54_activeParasites;
   TUniqueId xf6c_playerActorHead = kInvalidUniqueId;
-  u32 xf70_ = 0;
+  std::unique_ptr<CUnknownMazeNode> xf70_currentMaze;
 
   TUniqueId xf74_lastTrigger = kInvalidUniqueId;
   TUniqueId xf76_lastRelay = kInvalidUniqueId;
