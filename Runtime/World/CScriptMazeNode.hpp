@@ -61,5 +61,6 @@ public:
 
 private:
   void GenerateObjects(CStateManager& mgr);
+  void Reset(CStateManager& mgr);
 };
 } // namespace urde

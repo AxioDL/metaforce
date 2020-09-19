@@ -50,8 +50,7 @@ void CScriptMazeNode::GenerateObjects(CStateManager& mgr) {
       mgr.SetIsGeneratingObject(true);
       const auto genObj = mgr.GenerateObject(conn.x8_objId);
       mgr.SetIsGeneratingObject(wasGeneratingObject);
-      auto* actor = static_cast<CActor*>(mgr.ObjectById(genObj.second));
-      if (actor != nullptr) {
+      if (auto* actor = static_cast<CActor*>(mgr.ObjectById(genObj.second))) {
         mgr.SendScriptMsg(actor, GetUniqueId(), EScriptObjectMessage::Activate);
         if (scriptEffect) {
           actor->SetTranslation(GetTranslation() + x120_effectPos);
@@ -68,5 +67,16 @@ void CScriptMazeNode::GenerateObjects(CStateManager& mgr) {
       }
     }
   }
+}
+
+void CScriptMazeNode::Reset(CStateManager& mgr) {
+  mgr.FreeScriptObject(x11c_effectId);
+  mgr.FreeScriptObject(xfc_actorId);
+  mgr.FreeScriptObject(x10c_triggerId);
+  mgr.FreeScriptObject(xf4_);
+  xf4_ = kInvalidUniqueId;
+  xfc_actorId = kInvalidUniqueId;
+  x10c_triggerId = kInvalidUniqueId;
+  x11c_effectId = kInvalidUniqueId;
 }
 } // namespace urde
