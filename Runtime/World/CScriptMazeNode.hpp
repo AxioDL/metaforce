@@ -10,6 +10,9 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde {
+constexpr u32 skMazeRows = 7;
+constexpr u32 skMazeColumns = 9;
+
 struct CScriptMazeStateCell {
   bool x0_24_ : 1 = false;
   bool x0_25_ : 1 = false;
@@ -26,7 +29,7 @@ struct CScriptMazeStateCell {
 
 class CScriptMazeState {
   CRandom16 x0_rand{0};
-  std::array<CScriptMazeStateCell, 63> x4_arr{};
+  std::array<CScriptMazeStateCell, skMazeRows * skMazeColumns> x4_arr{};
   s32 x84_;
   s32 x88_;
   s32 x8c_;
@@ -37,6 +40,7 @@ public:
   CScriptMazeState(s32 w1, s32 w2, s32 w3, s32 w4) : x84_(w1), x88_(w2), x8c_(w3), x90_(w4) {}
   void Reset(s32 seed);
   void Initialize();
+  void sub_802899c8();
 };
 
 class CScriptMazeNode : public CActor {

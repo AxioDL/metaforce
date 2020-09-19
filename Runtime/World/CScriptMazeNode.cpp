@@ -39,7 +39,7 @@ void CScriptMazeNode::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
         auto maze = std::make_unique<CScriptMazeState>(4, 4, 5, 3);
         maze->Reset(sMazeSeeds[mgr.GetActiveRandom()->Next() % sMazeSeeds.size()]);
         maze->Initialize();
-        // sub_802899c8
+        maze->sub_802899c8();
         mgr.SetCurrentMaze(std::move(maze));
       }
     } else if (msg == EScriptObjectMessage::Deleted) {
@@ -108,21 +108,94 @@ void CScriptMazeState::Reset(s32 seed) {
   x0_rand.SetSeed(seed);
   x94_24_initialized = false;
   x4_arr.fill({});
-  // TODO wtf is the rest?
+
+  std::array<size_t, 4> local_20{};
+  size_t i = skMazeColumns * skMazeRows - 1;
+  size_t iVar7 = 0;
+  while (i != 0) {
+    size_t acc = 0;
+    if (iVar7 - 9 > 0) {
+      auto& cell = x4_arr[iVar7 - 9];
+      if (!cell.x0_24_ && !cell.x0_25_ && !cell.x0_26_ && !cell.x0_27_) {
+        acc = 1;
+        local_20[0] = 0;
+      }
+    }
+    size_t uVar6 = acc;
+    size_t iVar8 = iVar7 + 1;
+    if (iVar7 < 61 && iVar8 % skMazeColumns != 0) {
+      auto& cell = x4_arr[iVar8];
+      if (!cell.x0_24_ && !cell.x0_25_ && !cell.x0_26_ && !cell.x0_27_) {
+        uVar6 = acc + 1;
+        local_20[acc] = 1;
+      }
+    }
+    acc = uVar6;
+    if (iVar7 + skMazeColumns < 63) {
+      auto& cell = x4_arr[iVar7 + skMazeColumns];
+      if (!cell.x0_24_ && !cell.x0_25_ && !cell.x0_26_ && !cell.x0_27_) {
+        acc = uVar6 + 1;
+        local_20[uVar6] = 2;
+      }
+    }
+    uVar6 = acc;
+    if (iVar7 > 0 && iVar7 % skMazeColumns != 0) {
+      auto& cell = x4_arr[iVar7 - 1];
+      if (!cell.x0_24_ && !cell.x0_25_ && !cell.x0_26_ && !cell.x0_27_) {
+        uVar6 = acc + 1;
+        local_20[acc] = 3;
+      }
+    }
+    if (uVar6 == 0) {
+      bool cont;
+      do {
+        iVar7++;
+        if (iVar7 > 62) {
+          iVar7 = 0;
+        }
+        cont = false;
+        auto& cell = x4_arr[iVar7];
+        if (!cell.x0_24_ && !cell.x0_25_ && !cell.x0_26_ && !cell.x0_27_) {
+          cont = true;
+        }
+      } while (cont);
+    } else {
+      i--;
+      s32 rand = x0_rand.Next();
+      s32 iVar5 = local_20[rand - (rand / uVar6) * uVar6];
+      if (iVar5 == 2) {
+        x4_arr[iVar7].x0_26_ = true;
+        x4_arr[iVar7 + skMazeColumns].x0_24_ = true;
+        iVar7 += skMazeColumns;
+      } else if (iVar5 == 0) {
+        x4_arr[iVar7].x0_24_ = true;
+        x4_arr[iVar7 - skMazeColumns].x0_26_ = true;
+        iVar7 -= skMazeColumns;
+      } else if (iVar5 == 1) {
+        x4_arr[iVar7].x0_25_ = true;
+        x4_arr[iVar7 + 1].x0_27_ = true;
+        iVar7++;
+      } else if (iVar5 == 3) {
+        x4_arr[iVar7].x0_27_ = true;
+        x4_arr[iVar7 - 1].x0_25_ = true;
+        iVar7--;
+      }
+    }
+  }
 }
 
 void CScriptMazeState::Initialize() {
   std::array<size_t, 66> arr{};
-  arr[0] = x84_ + x88_ * 9;
+  arr[0] = x84_ + x88_ * skMazeColumns;
   x4_arr[arr[0]].x1_26_ = true;
   size_t i = 1;
   while (true) {
-    if (arr[0] == x8c_ + x90_ * 9) {
+    if (arr[0] == x8c_ + x90_ * skMazeColumns) {
       break;
     }
     if (x4_arr[arr[0]].x0_24_) {
-      if (!x4_arr[arr[0] - 9].x1_26_) {
-        arr[i] = arr[0] - 9;
+      if (!x4_arr[arr[0] - skMazeColumns].x1_26_) {
+        arr[i] = arr[0] - skMazeColumns;
         i++;
       }
     }
@@ -133,8 +206,8 @@ void CScriptMazeState::Initialize() {
       }
     }
     if (x4_arr[arr[0]].x0_26_) {
-      if (!x4_arr[arr[0] + 9].x1_26_) {
-        arr[i] = arr[0] + 9;
+      if (!x4_arr[arr[0] + skMazeColumns].x1_26_) {
+        arr[i] = arr[0] + skMazeColumns;
         i++;
       }
     }
@@ -162,5 +235,9 @@ void CScriptMazeState::Initialize() {
     }
   }
   x94_24_initialized = true;
+}
+
+void CScriptMazeState::sub_802899c8() {
+
 }
 } // namespace urde
