@@ -1,7 +1,7 @@
 #include "Runtime/World/CScriptMazeNode.hpp"
 
-#include "Runtime/Character/CModelData.hpp"
 #include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CModelData.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 
@@ -18,8 +18,8 @@ CScriptMazeNode::CScriptMazeNode(TUniqueId uid, std::string_view name, const CEn
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(),
          kInvalidUniqueId)
 , xe8_col(w1)
-, xec_row(w1)
-, xf0_(w2)
+, xec_row(w2)
+, xf0_(w3)
 , x100_actorPos(actorPos)
 , x110_triggerPos(triggerPos)
 , x120_effectPos(effectPos) {}
@@ -68,6 +68,7 @@ void CScriptMazeNode::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
               actor->SetTranslation(origin + x120_effectPos);
               mgr.SendScriptMsg(actor, GetUniqueId(), EScriptObjectMessage::Activate);
             }
+            break;
           }
         }
         if (x13c_24_) {
@@ -376,14 +377,15 @@ void CScriptMazeState::sub_802899c8() {
     Initialize();
   }
 
-  s32 iVar5 = x0_rand.Next();
-  s32 iVar1 = ((iVar5 / 5) * -5) + 9;
-  s32 iVar6 = x0_rand.Next();
-  s32 iVar2 = ((iVar6 / 5) * -5) + 21;
-  s32 iVar7 = x0_rand.Next();
-  s32 iVar3 = ((iVar7 / 5) * -5) + 33;
-  s32 iVar16 = ((x0_rand.Next() / 5) * -5) + 13;
-  s32 iVar9 = ((x0_rand.Next() / 5) * -5) + 29;
+  auto GetRandom = [this](s32 offset) constexpr {
+    s32 tmp = x0_rand.Next();
+    return tmp + ((tmp / 5) * -5) + offset;
+  };
+  s32 rand1 = GetRandom(9);
+  s32 rand2 = GetRandom(21);
+  s32 rand3 = GetRandom(33);
+  s32 rand4 = GetRandom(13);
+  s32 rand5 = GetRandom(29);
 
   u32 uVar10 = -1;
   s32 idx = 0;
@@ -395,7 +397,7 @@ void CScriptMazeState::sub_802899c8() {
 
   s32 nextCol;
   while (col != x8c_ || row != x90_) {
-    if (idx == iVar5 + iVar1 || idx == iVar6 + iVar2 || idx == iVar7 + iVar3) {
+    if (idx == rand1 || idx == rand2 || idx == rand3) {
       if (uVar10 == 2) {
         GetCell(col, row).x0_28_ = true;
         GetCell(prevCol, prevRow).x0_30_ = true;
@@ -444,12 +446,12 @@ void CScriptMazeState::sub_802899c8() {
       uVar10 = 0;
       nextRow = row - 1;
     }
-    if (idx == iVar16 || idx == iVar9) {
+    if (idx == rand4 || idx == rand5) {
       if (col == 0 || row == 0 || col == 8 || row == 6) {
-        if (idx == iVar16) {
-          iVar16++;
+        if (idx == rand4) {
+          rand4++;
         } else {
-          iVar9++;
+          rand5++;
         }
       } else {
         auto& cell = GetCell(col, row);

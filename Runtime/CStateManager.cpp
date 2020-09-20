@@ -2749,9 +2749,9 @@ TUniqueId CStateManager::AllocateUniqueId() {
   s16 ourIndex;
   do {
     ourIndex = x0_nextFreeIndex;
-    x0_nextFreeIndex = (x0_nextFreeIndex + 1) & 0x3ff;
+    x0_nextFreeIndex = (ourIndex + 1) & 0x3ff;
     if (x0_nextFreeIndex == lastIndex) {
-      LogModule.report(logvisor::Fatal, FMT_STRING("Object List Full!"));
+      LogModule.report(logvisor::Fatal, FMT_STRING("Object list full!"));
     }
   } while (GetAllObjectList().GetObjectByIndex(ourIndex) != nullptr);
 

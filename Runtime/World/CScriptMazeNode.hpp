@@ -54,7 +54,7 @@ class CScriptMazeNode : public CActor {
   s32 xec_row;
   s32 xf0_;
   TUniqueId xf4_ = kInvalidUniqueId;
-  float xf8_msgTimer = 0.f;
+  float xf8_msgTimer = 1.f;
   TUniqueId xfc_actorId = kInvalidUniqueId;
   zeus::CVector3f x100_actorPos;
   TUniqueId x10c_triggerId = kInvalidUniqueId;
@@ -62,13 +62,14 @@ class CScriptMazeNode : public CActor {
   TUniqueId x11c_effectId = kInvalidUniqueId;
   zeus::CVector3f x120_effectPos;
   std::vector<TUniqueId> x12c_;
-  bool x13c_24_ : 1 = true;
+  bool x13c_24_ : 1 = false;
   bool x13c_25_ : 1 = false;
-  bool x13c_26_ : 1 = false;
+  bool x13c_26_ : 1 = true;
 
 public:
-  CScriptMazeNode(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool, s32, s32, s32,
-                  const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&);
+  CScriptMazeNode(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+                  bool active, s32 w1, s32 w2, s32 w3, const zeus::CVector3f& actorPos,
+                  const zeus::CVector3f& triggerPos, const zeus::CVector3f& effectPos);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
