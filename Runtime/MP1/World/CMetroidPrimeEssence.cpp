@@ -4,13 +4,15 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/World/CGameArea.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptWaypoint.hpp"
 #include "Runtime/World/CWorld.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
 
 #include "DataSpec/DNAMP1/SFX/MetroidPrime.h"
 
@@ -39,7 +41,10 @@ CMetroidPrimeEssence::CMetroidPrimeEssence(urde::TUniqueId uid, std::string_view
 , x664_(electric)
 , x698_(dInfo)
 , x6b4_(xf.origin)
-, x70c_(CSfxManager::TranslateSFXID(w1)) {}
+, x70c_(CSfxManager::TranslateSFXID(w1)) {
+  CreateShadow(false);
+  MakeThermalColdAndHot();
+}
 
 void CMetroidPrimeEssence::Think(float dt, CStateManager& mgr) {
   if (!GetActive()) {
@@ -112,7 +117,7 @@ void CMetroidPrimeEssence::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId o
   }
   case EScriptObjectMessage::InitializedInArea: {
     x574_searchPath.SetArea(mgr.GetWorld()->GetArea(GetAreaIdAlways())->GetPostConstructed()->x10bc_pathArea);
-    x704_ = GetWaypointForState(mgr, EScriptObjectState::Play, EScriptObjectMessage::Activate);
+    x704_bossUtilityWaypointId = GetWaypointForState(mgr, EScriptObjectState::Play, EScriptObjectMessage::Activate);
     break;
   }
   case EScriptObjectMessage::Damage: {
@@ -170,6 +175,42 @@ zeus::CVector3f CMetroidPrimeEssence::GetAimPosition(const CStateManager& mgr, f
 
 void CMetroidPrimeEssence::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type,
                                            float dt) {
+
+  switch (type) {
+  case EUserEventType::EggLay: {
+    if (x70e_29_ && x6d8_ != 0 && x6e4_ < x6f8_) {
+      const float ang1 = zeus::degToRad(22.5f) * mgr.GetActiveRandom()->Range(-1, 1);
+      const float ang2 = zeus::degToRad(45.0f) * mgr.GetActiveRandom()->Range(-1, 1);
+      zeus::CVector3f pos =
+          x668_ * zeus::CVector3f{2.f * -std::sin(ang1), (2.f * (2.f * std::cos(ang1)) * std::sin(ang2)),
+                                  2.f * ((2.f * std::cos(ang1)) * std::cos(ang2))};
+      if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x704_bossUtilityWaypointId)) {
+        wp->SetTransform(zeus::lookAt(pos, mgr.GetPlayer().GetTranslation()));
+        if (sub8027e870(wp->GetTransform(), mgr)) {
+          SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+        }
+      }
+    }
+    return;
+  }
+  case EUserEventType::BeginAction: {
+    SShockWaveData data(x660_, x698_, 2.f, x664_, x70c_);
+    // TODO: Need to fix CElementGen accessing null ParticleAccessParameters
+    // data.SetSpeedIncrease(180.f);
+    DropShockwave(mgr, data);
+    ShakeCamera(mgr, 1.f);
+    return;
+  }
+  case EUserEventType::Activate: {
+    sub8027d824(mgr);
+    return;
+  }
+  case EUserEventType::Deactivate:
+    x70e_27_ = false;
+    [[fallthrough]];
+  default:
+    break;
+  }
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
@@ -178,8 +219,8 @@ void CMetroidPrimeEssence::Death(CStateManager& mgr, const zeus::CVector3f& dire
     return;
   }
 
-  sub8027ee88(mgr);
-  sub8027d790(mgr, false);
+  KillAiInArea(mgr);
+  SetParticleEffectState(mgr, false);
   if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x706_lockOnTargetCollider)) {
     colAct->AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
   }
@@ -197,7 +238,7 @@ void CMetroidPrimeEssence::Dead(CStateManager& mgr, EStateMsg msg, float dt) {
 void CMetroidPrimeEssence::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
   CPatterned::PathFind(mgr, msg, dt);
   if (msg == EStateMsg::Update) {
-    sub8027cb40(GetTranslation());
+    sub8027cb40(mgr.GetPlayer().GetTranslation());
   }
 }
 
@@ -207,19 +248,21 @@ void CMetroidPrimeEssence::Halt(CStateManager& mgr, EStateMsg msg, float dt) {
 
 void CMetroidPrimeEssence::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
-    zeus::CTransform xf = zeus::lookAt(GetTranslation(), mgr.GetPlayer().GetTranslation());
+    zeus::CVector3f lookPos = mgr.GetPlayer().GetTranslation();
+    lookPos.z() = GetTranslation().z();
+    zeus::CTransform xf = zeus::lookAt(GetTranslation(), lookPos);
     xf.origin = GetTranslation();
     SetTransform(xf);
   } else if (msg == EStateMsg::Deactivate) {
     mgr.SetBossParams(GetUniqueId(), GetHealthInfo(mgr)->GetHP(), 91);
-    sub8027d790(mgr, true);
+    SetParticleEffectState(mgr, true);
   }
 }
 
 void CMetroidPrimeEssence::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
-    x700_ = sub8027cfd4(mgr, 1);
+    x700_ = sub8027cfd4(mgr, true);
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryStep, x700_);
   } else if (msg == EStateMsg::Deactivate) {
@@ -291,7 +334,7 @@ void CMetroidPrimeEssence::TelegraphAttack(CStateManager& mgr, EStateMsg msg, fl
 void CMetroidPrimeEssence::Dodge(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
-    x700_ = sub8027cfd4(mgr, 0);
+    x700_ = sub8027cfd4(mgr, false);
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryStep, x700_);
   } else if (msg == EStateMsg::Deactivate) {
@@ -408,21 +451,19 @@ void CMetroidPrimeEssence::sub8027cee0(CStateManager& mgr) {
   }
 }
 
-u32 CMetroidPrimeEssence::sub8027cfd4(CStateManager& mgr, u32 w1) {
+u32 CMetroidPrimeEssence::sub8027cfd4(CStateManager& mgr, bool w1) {
+  size_t startIndex = static_cast<size_t>(!w1);
   zeus::CTransform xf = GetTargetTransform(mgr);
-  u32 uVar1 = zeus::countLeadingZeros(w1);
-  uVar1 >>= 5;
-  std::array<zeus::CVector3f, 2> vec;
-  const zeus::CVector3f* dir = &vec[uVar1];
-  vec[0] = -xf.frontVector();
-  vec[1] = -xf.rightVector();
-  u32 uVar5 = 1 << uVar1;
-  for (size_t i = uVar1; i < 3; ++i) {
-    CRayCastResult res = mgr.RayStaticIntersection(xf.origin, *dir, 20.f, CMaterialFilter::skPassEverything);
+  std::array<zeus::CVector3f, 3> directions;
+  directions[0] = -xf.frontVector();
+  directions[2] = xf.rightVector();
+  directions[1] = -directions[2];
+  u32 uVar5 = 1 << size_t(startIndex);
+  for (size_t i = size_t(startIndex); i < 3; ++i) {
+    CRayCastResult res = mgr.RayStaticIntersection(xf.origin, directions[i], 20.f, CMaterialFilter::skPassEverything);
     if (res.IsInvalid()) {
       uVar5 |= 1 << i;
     }
-    ++dir;
   }
 
   u32 uVar3 = 0;
@@ -438,7 +479,7 @@ u32 CMetroidPrimeEssence::sub8027cfd4(CStateManager& mgr, u32 w1) {
     } else if (numBits < 2) {
       uVar3 = uVar5 >> 1;
     } else if (numBits == 3) {
-      uVar3 = mgr.GetActiveRandom()->Range(uVar1, 2);
+      uVar3 = mgr.GetActiveRandom()->Range(startIndex, 2);
     }
   }
 
@@ -482,17 +523,79 @@ void CMetroidPrimeEssence::ShakeCamera(CStateManager& mgr, float f1) {
   mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData(0.5f, mag), true);
 }
 
-void CMetroidPrimeEssence::sub8027d52c(CStateManager& mgr, const SShockWaveData& shockWaveData) {}
+void CMetroidPrimeEssence::DropShockwave(CStateManager& mgr, const SShockWaveData& shockWaveData) {
+  CRayCastResult res = RayStaticIntersection(mgr);
+  if (res.IsInvalid()) {
+    return;
+  }
 
-CRayCastResult CMetroidPrimeEssence::sub8027d704(CStateManager& mgr) { return CRayCastResult(); }
+  mgr.AddObject(new CShockWave(mgr.AllocateUniqueId(), "Shockwave", CEntityInfo(GetAreaIdAlways(), NullConnectionList),
+                               zeus::CTransform::Translate(res.GetPoint()), GetUniqueId(), shockWaveData, 1.5f, 0.5f));
+}
 
-void CMetroidPrimeEssence::sub8027d790(CStateManager& mgr, bool active) {}
+CRayCastResult CMetroidPrimeEssence::RayStaticIntersection(CStateManager& mgr) {
+  return mgr.RayStaticIntersection(GetTranslation(), -zeus::skUp, 30.f, CMaterialFilter::skPassEverything);
+}
 
-void CMetroidPrimeEssence::sub8027d824(CStateManager& mgr) {}
+void CMetroidPrimeEssence::SetParticleEffectState(CStateManager& mgr, bool active) {
+  GetModelData()->GetAnimationData()->SetParticleEffectState("Eyes"sv, active, mgr);
+  GetModelData()->GetAnimationData()->SetParticleEffectState("Head"sv, active, mgr);
+}
 
-bool CMetroidPrimeEssence::sub8027e870(const zeus::CTransform& xf, CStateManager& mgr) { return false; }
+void CMetroidPrimeEssence::sub8027d824(CStateManager& mgr) {
+  CRayCastResult res = RayStaticIntersection(mgr);
+  if (res.IsInvalid()) {
+    return;
+  }
 
-void CMetroidPrimeEssence::sub8027ee88(CStateManager& mgr) {}
+  x668_ = zeus::CTransform::Translate(res.GetPoint());
+  if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x704_bossUtilityWaypointId)) {
+    wp->SetTransform(x668_);
+    SendScriptMsgs(EScriptObjectState::AboutToMassivelyDie, mgr, EScriptObjectMessage::None);
+    x70e_29_ = true;
+  }
+}
+
+bool CMetroidPrimeEssence::sub8027e870(const zeus::CTransform& xf, CStateManager& mgr) {
+  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  mgr.BuildNearList(nearList, {xf.origin - 2.f, xf.origin + 2.f}, CMaterialFilter::MakeInclude(EMaterialTypes::AIBlock),
+                    this);
+
+  CCollidableSphere sphere({zeus::skZero3f, 2.f}, CMaterialList(EMaterialTypes::Solid, EMaterialTypes::AIBlock));
+  CCollisionInfoList infoList;
+  TUniqueId tmpId = kInvalidUniqueId;
+  CGameCollision::DetectCollision(
+      mgr, sphere, xf,
+      CMaterialFilter::MakeIncludeExclude(
+          {EMaterialTypes ::Solid, EMaterialTypes ::Player, EMaterialTypes ::Character, EMaterialTypes ::AIBlock},
+          {EMaterialTypes ::ProjectilePassthrough}),
+      nearList, tmpId, infoList);
+
+  if (infoList.GetCount() >= 1) {
+    return false;
+  }
+
+  if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x706_lockOnTargetCollider)) {
+    zeus::CVector3f direction = (xf.origin - colAct->GetTranslation()).normalized();
+    CRayCastResult res =
+        mgr.RayStaticIntersection(colAct->GetTranslation(), direction, direction.magnitude(),
+                                  CMaterialFilter::MakeExclude({EMaterialTypes::ProjectilePassthrough}));
+    if (res.IsInvalid()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void CMetroidPrimeEssence::KillAiInArea(CStateManager& mgr) {
+  for (auto* ent : mgr.GetListeningAiObjectList()) {
+    if (TCastToPtr<CAi> ai = ent) {
+      if (ai != this && ai->GetActive() && ai->GetAreaIdAlways() == GetAreaIdAlways()) {
+        static_cast<CPatterned*>(ai.GetPtr())->MassiveDeath(mgr);
+      }
+    }
+  }
+}
 
 void CMetroidPrimeEssence::CountListeningAi(CStateManager& mgr) {
   x6e0_ = 0;
@@ -511,7 +614,7 @@ void CMetroidPrimeEssence::UpdatePhase(float dt, CStateManager& mgr) {
     GetModelData()->SetScale(zeus::CVector3f((x6cc_ - x6d0_) + x6d0_));
     if (!x70e_28_) {
       AddMaterial(EMaterialTypes::Orbit, EMaterialTypes::Target, mgr);
-      sub8027d790(mgr, true);
+      SetParticleEffectState(mgr, true);
       x70e_28_ = true;
     }
   } else {
@@ -519,7 +622,7 @@ void CMetroidPrimeEssence::UpdatePhase(float dt, CStateManager& mgr) {
     GetModelData()->SetScale(zeus::CVector3f((x6cc_ - x6d0_) + x6d0_));
     if (x70e_28_) {
       RemoveMaterial(EMaterialTypes::Orbit, EMaterialTypes::Target, mgr);
-      sub8027d790(mgr, false);
+      SetParticleEffectState(mgr, false);
       x70e_28_ = false;
     }
   }

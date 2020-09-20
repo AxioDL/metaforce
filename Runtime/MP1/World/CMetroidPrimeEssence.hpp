@@ -35,7 +35,7 @@ class CMetroidPrimeEssence : public CPatterned {
   u32 x6f8_ = 2;
   u32 x6fc_ = 0;
   u32 x700_ = 1;
-  TUniqueId x704_ = kInvalidUniqueId;
+  TUniqueId x704_bossUtilityWaypointId = kInvalidUniqueId;
   TUniqueId x706_lockOnTargetCollider = kInvalidUniqueId;
   CSfxHandle x708_;
   s16 x70c_;
@@ -53,16 +53,16 @@ class CMetroidPrimeEssence : public CPatterned {
   zeus::CTransform GetTargetTransform(CStateManager& mgr);
   void sub8027ce5c(float f1);
   void sub8027cee0(CStateManager& mgr);
-  u32 sub8027cfd4(CStateManager& mgr, u32 w1);
+  u32 sub8027cfd4(CStateManager& mgr, bool w1);
   void DoPhaseTransition(CStateManager& mgr);
   u32 sub8027d428() { return 2; /* Decided by fair dice roll, guaranteed to be random */}
   void ShakeCamera(CStateManager& mgr, float f1);
-  void sub8027d52c(CStateManager& mgr, const SShockWaveData& shockWaveData);
-  CRayCastResult sub8027d704(CStateManager& mgr);
-  void sub8027d790(CStateManager& mgr, bool active);
+  void DropShockwave(CStateManager& mgr, const SShockWaveData& shockWaveData);
+  CRayCastResult RayStaticIntersection(CStateManager& mgr);
+  void SetParticleEffectState(CStateManager& mgr, bool active);
   void sub8027d824(CStateManager& mgr);
   bool sub8027e870(const zeus::CTransform& xf, CStateManager& mgr);
-  void sub8027ee88(CStateManager& mgr);
+  void KillAiInArea(CStateManager& mgr);
   void CountListeningAi(CStateManager& mgr);
   void UpdatePhase(float dt, CStateManager& mgr);
   void UpdateHealth(CStateManager& mgr);
