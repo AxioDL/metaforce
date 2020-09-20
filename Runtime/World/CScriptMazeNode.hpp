@@ -41,15 +41,20 @@ public:
   void Reset(s32 seed);
   void Initialize();
   void sub_802899c8();
+
+  [[nodiscard]] CScriptMazeStateCell& GetCell(u32 col, u32 row) { return x4_arr[col + row * skMazeColumns]; }
+  [[nodiscard]] const CScriptMazeStateCell& GetCell(u32 col, u32 row) const {
+    return x4_arr[col + row * skMazeColumns];
+  }
 };
 
 class CScriptMazeNode : public CActor {
   static std::array<s32, 300> sMazeSeeds;
-  s32 xe8_;
-  s32 xec_;
+  s32 xe8_col;
+  s32 xec_row;
   s32 xf0_;
   TUniqueId xf4_ = kInvalidUniqueId;
-  float xf8_ = 0.f;
+  float xf8_msgTimer = 0.f;
   TUniqueId xfc_actorId = kInvalidUniqueId;
   zeus::CVector3f x100_actorPos;
   TUniqueId x10c_triggerId = kInvalidUniqueId;
@@ -67,10 +72,13 @@ public:
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
+  void Think(float dt, CStateManager& mgr) override;
+
   static void LoadMazeSeeds();
 
 private:
   void GenerateObjects(CStateManager& mgr);
   void Reset(CStateManager& mgr);
+  void SendScriptMsgs(CStateManager& mgr, EScriptObjectMessage msg);
 };
 } // namespace urde

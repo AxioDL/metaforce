@@ -17,8 +17,8 @@ CScriptMazeNode::CScriptMazeNode(TUniqueId uid, std::string_view name, const CEn
                                  const zeus::CVector3f& effectPos)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(),
          kInvalidUniqueId)
-, xe8_(w1)
-, xec_(w1)
+, xe8_col(w1)
+, xec_row(w1)
 , xf0_(w2)
 , x100_actorPos(actorPos)
 , x110_triggerPos(triggerPos)
@@ -29,11 +29,127 @@ void CScriptMazeNode::Accept(IVisitor& visitor) { visitor.Visit(this); }
 void CScriptMazeNode::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   if (GetActive()) {
     if (msg == EScriptObjectMessage::Action) {
-      // TODO
+      if (auto* maze = mgr.GetCurrentMaze()) {
+        bool shouldGenObjs = false;
+        auto& cell = maze->GetCell(xe8_col, xec_row);
+        if (xf0_ == 0 && cell.x0_24_) {
+          if (cell.x0_28_) {
+            shouldGenObjs = true;
+            x13c_25_ = true;
+          }
+        } else if (xf0_ == 1 && cell.x0_25_) {
+          if (cell.x0_29_) {
+            shouldGenObjs = true;
+            x13c_25_ = true;
+          }
+        } else {
+          shouldGenObjs = true;
+        }
+        if (shouldGenObjs) {
+          GenerateObjects(mgr);
+        }
+        if (xf0_ == 1 && cell.x1_24_) {
+          x13c_24_ = true;
+        }
+        if (x13c_25_) {
+          const auto origin = GetTranslation();
+          for (const auto& conn : GetConnectionList()) {
+            if (conn.x0_state != EScriptObjectState::Modify || conn.x4_msg != EScriptObjectMessage::Activate) {
+              continue;
+            }
+
+            bool wasGeneratingObject = mgr.GetIsGeneratingObject();
+            mgr.SetIsGeneratingObject(true);
+            const auto genObj = mgr.GenerateObject(conn.x8_objId);
+            mgr.SetIsGeneratingObject(wasGeneratingObject);
+
+            xf4_ = genObj.second;
+            if (TCastToPtr<CActor> actor = mgr.ObjectById(genObj.second)) {
+              actor->SetTranslation(origin + x120_effectPos);
+              mgr.SendScriptMsg(actor, GetUniqueId(), EScriptObjectMessage::Activate);
+            }
+          }
+        }
+        if (x13c_24_) {
+          size_t count = 0;
+          for (const auto& conn : GetConnectionList()) {
+            if ((conn.x0_state == EScriptObjectState::Closed || conn.x0_state == EScriptObjectState::DeactivateState) &&
+                conn.x4_msg == EScriptObjectMessage::Activate) {
+              count++;
+            }
+          }
+          x12c_.reserve(count);
+          for (const auto& conn : GetConnectionList()) {
+            if ((conn.x0_state == EScriptObjectState::Closed || conn.x0_state == EScriptObjectState::DeactivateState) &&
+                conn.x4_msg == EScriptObjectMessage::Activate) {
+              bool wasGeneratingObject = mgr.GetIsGeneratingObject();
+              mgr.SetIsGeneratingObject(true);
+              const auto genObj = mgr.GenerateObject(conn.x8_objId);
+              mgr.SetIsGeneratingObject(wasGeneratingObject);
+
+              x12c_.push_back(genObj.second);
+              if (TCastToPtr<CActor> actor = mgr.ObjectById(genObj.second)) {
+                actor->SetTransform(GetTransform());
+                if (conn.x0_state == EScriptObjectState::Closed) {
+                  mgr.SendScriptMsg(actor, GetUniqueId(), EScriptObjectMessage::Activate);
+                }
+              }
+            }
+          }
+        }
+      }
     } else if (msg == EScriptObjectMessage::SetToZero) {
-      // TODO
+      auto* maze = mgr.GetCurrentMaze();
+      if (x13c_24_ && maze != nullptr && std::any_of(x12c_.cbegin(), x12c_.cend(), [=](auto v) { return v == uid; })) {
+        for (const auto& id : x12c_) {
+          if (auto* ent = mgr.ObjectById(id)) {
+            if (ent->GetActive()) {
+              mgr.SendScriptMsg(ent, GetUniqueId(), EScriptObjectMessage::Activate);
+            } else {
+              mgr.FreeScriptObject(ent->GetUniqueId());
+            }
+          }
+        }
+        for (const auto& ent : mgr.GetAllObjectList()) {
+          if (TCastToPtr<CScriptMazeNode> node = ent) {
+            s32 col = xe8_col - 1;
+            if (node->xe8_col == col && node->xec_row == xec_row && node->xf0_ == 1) {
+              auto& cell = maze->GetCell(col, xec_row);
+              if (!cell.x0_25_) {
+                cell.x0_25_ = true;
+                node->Reset(mgr);
+                node->x13c_25_ = false;
+              }
+            }
+            if (node->xe8_col == xe8_col && node->xec_row == xec_row && node->xf0_ == 1) {
+              auto& cell = maze->GetCell(xe8_col, xec_row);
+              if (!cell.x0_25_) {
+                cell.x0_25_ = true;
+                node->Reset(mgr);
+                node->x13c_25_ = false;
+              }
+            }
+            if (node->xe8_col == xe8_col && node->xec_row == xec_row && node->xf0_ == 0) {
+              auto& cell = maze->GetCell(xe8_col, xec_row);
+              if (!cell.x0_24_) {
+                cell.x0_24_ = true;
+                node->Reset(mgr);
+                node->x13c_25_ = false;
+              }
+            }
+            if (node->xe8_col == xe8_col && node->xec_row == xec_row + 1 && node->xf0_ == 0) {
+              auto& cell = maze->GetCell(xe8_col, xec_row + 1);
+              if (!cell.x0_24_) {
+                cell.x0_24_ = true;
+                node->Reset(mgr);
+                node->x13c_25_ = false;
+              }
+            }
+          }
+        }
+      }
     } else if (msg == EScriptObjectMessage::Deactivate) {
-      // TODO
+      Reset(mgr);
     } else if (msg == EScriptObjectMessage::InitializedInArea) {
       if (mgr.GetCurrentMaze() == nullptr) {
         auto maze = std::make_unique<CScriptMazeState>(4, 4, 5, 3);
@@ -48,6 +164,23 @@ void CScriptMazeNode::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
     }
   }
   CActor::AcceptScriptMsg(msg, uid, mgr);
+}
+
+void CScriptMazeNode::Think(float dt, CStateManager& mgr) {
+  if (!GetActive() || !x13c_25_) {
+    return;
+  }
+  xf8_msgTimer -= dt;
+  if (xf8_msgTimer <= 0.f) {
+    xf8_msgTimer = 1.f;
+    if (x13c_26_) {
+      x13c_26_ = false;
+      SendScriptMsgs(mgr, EScriptObjectMessage::Deactivate);
+    } else {
+      x13c_26_ = true;
+      SendScriptMsgs(mgr, EScriptObjectMessage::Activate);
+    }
+  }
 }
 
 void CScriptMazeNode::LoadMazeSeeds() {
@@ -104,6 +237,13 @@ void CScriptMazeNode::Reset(CStateManager& mgr) {
   x11c_effectId = kInvalidUniqueId;
 }
 
+void CScriptMazeNode::SendScriptMsgs(CStateManager& mgr, EScriptObjectMessage msg) {
+  mgr.SendScriptMsg(x11c_effectId, GetUniqueId(), msg);
+  mgr.SendScriptMsg(xfc_actorId, GetUniqueId(), msg);
+  mgr.SendScriptMsg(x10c_triggerId, GetUniqueId(), msg);
+  mgr.SendScriptMsg(xf4_, GetUniqueId(), msg);
+}
+
 void CScriptMazeState::Reset(s32 seed) {
   x0_rand.SetSeed(seed);
   x94_24_initialized = false;
@@ -115,7 +255,7 @@ void CScriptMazeState::Reset(s32 seed) {
   while (i != 0) {
     size_t acc = 0;
     if (iVar7 - 9 > 0) {
-      auto& cell = x4_arr[iVar7 - 9];
+      auto& cell = x4_arr[iVar7 - skMazeColumns];
       if (!cell.x0_24_ && !cell.x0_25_ && !cell.x0_26_ && !cell.x0_27_) {
         acc = 1;
         local_20[0] = 0;
@@ -189,10 +329,7 @@ void CScriptMazeState::Initialize() {
   arr[0] = x84_ + x88_ * skMazeColumns;
   x4_arr[arr[0]].x1_26_ = true;
   size_t i = 1;
-  while (true) {
-    if (arr[0] == x8c_ + x90_ * skMazeColumns) {
-      break;
-    }
+  while (arr[0] != x8c_ + x90_ * skMazeColumns) {
     if (x4_arr[arr[0]].x0_24_) {
       if (!x4_arr[arr[0] - skMazeColumns].x1_26_) {
         arr[i] = arr[0] - skMazeColumns;
@@ -224,10 +361,7 @@ void CScriptMazeState::Initialize() {
     x4_arr[arr[0]].x1_26_ = true;
   }
   size_t* v = &arr[i];
-  while (true) {
-    if (i == 0) {
-      break;
-    }
+  while (i != 0) {
     i--;
     v--;
     if (x4_arr[*v].x1_26_) {
@@ -241,6 +375,7 @@ void CScriptMazeState::sub_802899c8() {
   if (!x94_24_initialized) {
     Initialize();
   }
+
   s32 iVar5 = x0_rand.Next();
   s32 iVar1 = ((iVar5 / 5) * -5) + 9;
   s32 iVar6 = x0_rand.Next();
@@ -251,53 +386,47 @@ void CScriptMazeState::sub_802899c8() {
   s32 iVar9 = ((x0_rand.Next() / 5) * -5) + 29;
 
   u32 uVar10 = -1;
-  s32 iVar11 = 0;
+  s32 idx = 0;
 
-  s32 iVar4 = x84_;
-  s32 iVar8 = x88_;
-  s32 iVar13 = x84_;
-  s32 iVar15 = x88_;
+  s32 prevCol = x84_;
+  s32 prevRow = x88_;
+  s32 col = x84_;
+  s32 row = x88_;
 
-  s32 iVar12;
-  do {
-    if (iVar13 == x8c_ && iVar15 == x90_) {
-      return;
-    }
-    if (iVar11 == iVar5 + iVar1 || iVar11 == iVar6 + iVar2 || iVar11 == iVar7 + iVar3) {
+  s32 nextCol;
+  while (col != x8c_ || row != x90_) {
+    if (idx == iVar5 + iVar1 || idx == iVar6 + iVar2 || idx == iVar7 + iVar3) {
       if (uVar10 == 2) {
-        x4_arr[iVar13 + iVar15 * skMazeColumns].x0_28_ = true;
-        x4_arr[iVar8 * skMazeColumns].x0_30_ = true;
+        GetCell(col, row).x0_28_ = true;
+        GetCell(prevCol, prevRow).x0_30_ = true;
       } else if (uVar10 == 0) {
-        x4_arr[iVar13 + iVar15 * skMazeColumns].x0_30_ = true;
-        x4_arr[iVar8 * skMazeColumns].x0_28_ = true;
+        GetCell(col, row).x0_30_ = true;
+        GetCell(prevCol, prevRow).x0_28_ = true;
       } else if (uVar10 == 1) {
-        x4_arr[iVar13 + iVar15 * skMazeColumns].x0_31_ = true;
-        x4_arr[iVar8 * skMazeColumns].x0_29_ = true;
+        GetCell(col, row).x0_31_ = true;
+        GetCell(prevCol, prevRow).x0_29_ = true;
       } else if (uVar10 == 3) {
-        x4_arr[iVar13 + iVar15 * skMazeColumns].x0_29_ = true;
-        x4_arr[iVar8 * skMazeColumns].x0_31_ = true;
+        GetCell(col, row).x0_29_ = true;
+        GetCell(prevCol, prevRow).x0_31_ = true;
       }
     }
-    iVar12 = iVar13;
+    nextCol = col;
 
-    s32 iVar14;
-    if ((iVar15 < 1 || uVar10 == 2 || !x4_arr[iVar13 + iVar15 * skMazeColumns].x0_24_) ||
-        !x4_arr[iVar13 + (iVar15 - 1) * skMazeColumns].x1_25_) {
-      if (iVar15 < 6 && uVar10 != 0 && x4_arr[iVar13 + iVar15 * skMazeColumns].x0_26_ &&
-          x4_arr[iVar13 + (iVar15 + 1) * skMazeColumns].x1_25_) {
+    s32 nextRow;
+    if (row < 1 || uVar10 == 2 || !GetCell(col, row).x0_24_ || !GetCell(col, row - 1).x1_25_) {
+      if (row < 6 && uVar10 != 0 && GetCell(col, row).x0_26_ && GetCell(col, row + 1).x1_25_) {
         uVar10 = 2;
-        iVar14 = iVar15 + 1;
+        nextRow = row + 1;
       } else {
-        iVar14 = iVar15;
-        if (iVar13 < 1 || uVar10 == 1 || !x4_arr[iVar13 + iVar15 * skMazeColumns].x0_27_ ||
-            !x4_arr[(iVar13 + iVar15 * skMazeColumns) - 1].x1_25_) {
-          if (iVar13 > skMazeRows) {
+        nextRow = row;
+        if (col < 1 || uVar10 == 1 || !GetCell(col, row).x0_27_ || !x4_arr[(col + row * skMazeColumns) - 1].x1_25_) {
+          if (col > skMazeRows) {
             return;
           }
           if (uVar10 == 3) {
             return;
           }
-          s32 iVar4_ = iVar13 + iVar15 * skMazeColumns;
+          s32 iVar4_ = col + row * skMazeColumns;
           if (!x4_arr[iVar4_].x0_25_) {
             return;
           }
@@ -305,46 +434,46 @@ void CScriptMazeState::sub_802899c8() {
             return;
           }
           uVar10 = 1;
-          iVar12 = iVar13 + 1;
+          nextCol = col + 1;
         } else {
           uVar10 = 3;
-          iVar12 = iVar13 - 1;
+          nextCol = col - 1;
         }
       }
     } else {
       uVar10 = 0;
-      iVar14 = iVar15 - 1;
+      nextRow = row - 1;
     }
-    if (iVar11 == iVar16 || iVar11 == iVar9) {
-      if (iVar13 == 0 || iVar15 == 0 || iVar13 == 8 || iVar15 == 6) {
-        if (iVar11 == iVar16) {
+    if (idx == iVar16 || idx == iVar9) {
+      if (col == 0 || row == 0 || col == 8 || row == 6) {
+        if (idx == iVar16) {
           iVar16++;
         } else {
           iVar9++;
         }
       } else {
-        auto& cell = x4_arr[iVar13 + iVar15 * skMazeColumns];
+        auto& cell = GetCell(col, row);
         cell.x1_24_ = true;
         if (uVar10 == 2) {
-          x4_arr[iVar12 + iVar14 * skMazeColumns].x0_24_ = false;
+          GetCell(nextCol, nextRow).x0_24_ = false;
           cell.x0_26_ = false;
         } else if (uVar10 == 0) {
-          x4_arr[iVar12 + iVar14 * skMazeColumns].x0_26_ = false;
+          GetCell(nextCol, nextRow).x0_26_ = false;
           cell.x0_24_ = false;
         } else if (uVar10 == 1) {
-          x4_arr[iVar12 + iVar14 * skMazeColumns].x0_27_ = false;
+          GetCell(nextCol, nextRow).x0_27_ = false;
           cell.x0_25_ = false;
         } else if (uVar10 == 3) {
-          x4_arr[iVar12 + iVar14 * skMazeColumns].x0_25_ = false;
+          GetCell(nextCol, nextRow).x0_25_ = false;
           cell.x0_27_ = false;
         }
       }
     }
-    iVar11++;
-    iVar4 = iVar13;
-    iVar8 = iVar15;
-    iVar13 = iVar12;
-    iVar15 = iVar14;
-  } while (true);
+    idx++;
+    prevCol = col;
+    prevRow = row;
+    col = nextCol;
+    row = nextRow;
+  };
 }
 } // namespace urde
