@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cassert>
 #include <string_view>
 
 #include "Runtime/CRandom16.hpp"
@@ -10,8 +11,8 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde {
-constexpr u32 skMazeRows = 7;
-constexpr u32 skMazeColumns = 9;
+constexpr s32 skMazeRows = 7;
+constexpr s32 skMazeColumns = 9;
 
 struct CScriptMazeStateCell {
   bool x0_24_ : 1 = false;
@@ -29,27 +30,35 @@ struct CScriptMazeStateCell {
 
 class CScriptMazeState {
   CRandom16 x0_rand{0};
-  std::array<CScriptMazeStateCell, skMazeRows * skMazeColumns> x4_arr{};
-  s32 x84_;
-  s32 x88_;
-  s32 x8c_;
-  s32 x90_;
+  std::array<CScriptMazeStateCell, skMazeRows * skMazeColumns> x4_cells{};
+  s32 x84_startCol;
+  s32 x88_startRow;
+  s32 x8c_endCol;
+  s32 x90_endRow;
   bool x94_24_initialized : 1 = false;
 
 public:
-  CScriptMazeState(s32 w1, s32 w2, s32 w3, s32 w4) : x84_(w1), x88_(w2), x8c_(w3), x90_(w4) {}
+  CScriptMazeState(s32 w1, s32 w2, s32 w3, s32 w4) : x84_startCol(w1), x88_startRow(w2), x8c_endCol(w3), x90_endRow(w4) {}
   void Reset(s32 seed);
   void Initialize();
   void sub_802899c8();
 
-  [[nodiscard]] CScriptMazeStateCell& GetCell(u32 col, u32 row) { return x4_arr[col + row * skMazeColumns]; }
-  [[nodiscard]] const CScriptMazeStateCell& GetCell(u32 col, u32 row) const {
-    return x4_arr[col + row * skMazeColumns];
+  [[nodiscard]] CScriptMazeStateCell& GetCell(u32 col, u32 row) {
+#ifndef NDEBUG
+    assert(col < skMazeColumns);
+    assert(row < skMazeRows);
+#endif
+    return x4_cells[col + row * skMazeColumns];
+  }
+  [[nodiscard]] CScriptMazeStateCell& GetCell(u32 idx) {
+#ifndef NDEBUG
+    assert(idx < x4_cells.size());
+#endif
+    return x4_cells[idx];
   }
 };
 
 class CScriptMazeNode : public CActor {
-  static std::array<s32, 300> sMazeSeeds;
   s32 xe8_col;
   s32 xec_row;
   s32 xf0_;
