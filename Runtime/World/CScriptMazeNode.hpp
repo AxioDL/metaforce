@@ -11,46 +11,63 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde {
+constexpr s32 skMazeCols = 9;
 constexpr s32 skMazeRows = 7;
-constexpr s32 skMazeColumns = 9;
+constexpr s32 skTargetCol = 4;
+constexpr s32 skTargetRow = 4;
+constexpr s32 skEnterCol = 5;
+constexpr s32 skEnterRow = 3;
 
-struct CScriptMazeStateCell {
-  bool x0_24_ : 1 = false;
-  bool x0_25_ : 1 = false;
-  bool x0_26_ : 1 = false;
-  bool x0_27_ : 1 = false;
-  bool x0_28_ : 1 = false;
-  bool x0_29_ : 1 = false;
-  bool x0_30_ : 1 = false;
-  bool x0_31_ : 1 = false;
-  bool x1_24_ : 1 = false;
-  bool x1_25_ : 1 = false;
-  bool x1_26_ : 1 = false;
+enum class ESide {
+  Invalid = -1,
+  Top = 0,
+  Right = 1,
+  Bottom = 2,
+  Left = 3,
 };
 
-class CScriptMazeState {
+struct SMazeCell {
+  bool x0_24_openTop : 1 = false;
+  bool x0_25_openRight : 1 = false;
+  bool x0_26_openBottom : 1 = false;
+  bool x0_27_openLeft : 1 = false;
+  bool x0_28_gateTop : 1 = false;
+  bool x0_29_gateRight : 1 = false;
+  bool x0_30_gateBottom : 1 = false;
+  bool x0_31_gateLeft : 1 = false;
+  bool x1_24_puddle : 1 = false;
+  bool x1_25_onPath : 1 = false;
+  bool x1_26_checked : 1 = false;
+
+  [[nodiscard]] constexpr bool IsOpen() const {
+    return x0_24_openTop || x0_25_openRight || x0_26_openBottom || x0_27_openLeft;
+  }
+};
+
+class CMazeState {
   CRandom16 x0_rand{0};
-  std::array<CScriptMazeStateCell, skMazeRows * skMazeColumns> x4_cells{};
-  s32 x84_startCol;
-  s32 x88_startRow;
-  s32 x8c_endCol;
-  s32 x90_endRow;
+  std::array<SMazeCell, skMazeRows * skMazeCols> x4_cells{};
+  s32 x84_targetCol;
+  s32 x88_targetRow;
+  s32 x8c_enterCol;
+  s32 x90_enterRow;
   bool x94_24_initialized : 1 = false;
 
 public:
-  CScriptMazeState(s32 w1, s32 w2, s32 w3, s32 w4) : x84_startCol(w1), x88_startRow(w2), x8c_endCol(w3), x90_endRow(w4) {}
+  CMazeState(s32 targetCol, s32 targetRow, s32 enterCol, s32 enterRow)
+  : x84_targetCol(targetCol), x88_targetRow(targetRow), x8c_enterCol(enterCol), x90_enterRow(enterRow) {}
   void Reset(s32 seed);
   void Initialize();
-  void sub_802899c8();
+  void GenerateObstacles();
 
-  [[nodiscard]] CScriptMazeStateCell& GetCell(u32 col, u32 row) {
+  [[nodiscard]] SMazeCell& GetCell(u32 col, u32 row) {
 #ifndef NDEBUG
-    assert(col < skMazeColumns);
+    assert(col < skMazeCols);
     assert(row < skMazeRows);
 #endif
-    return x4_cells[col + row * skMazeColumns];
+    return x4_cells[col + row * skMazeCols];
   }
-  [[nodiscard]] CScriptMazeStateCell& GetCell(u32 idx) {
+  [[nodiscard]] SMazeCell& GetCell(u32 idx) {
 #ifndef NDEBUG
     assert(idx < x4_cells.size());
 #endif
@@ -61,8 +78,8 @@ public:
 class CScriptMazeNode : public CActor {
   s32 xe8_col;
   s32 xec_row;
-  s32 xf0_;
-  TUniqueId xf4_ = kInvalidUniqueId;
+  ESide xf0_side;
+  TUniqueId xf4_gateEffectId = kInvalidUniqueId;
   float xf8_msgTimer = 1.f;
   TUniqueId xfc_actorId = kInvalidUniqueId;
   zeus::CVector3f x100_actorPos;
@@ -70,14 +87,14 @@ class CScriptMazeNode : public CActor {
   zeus::CVector3f x110_triggerPos;
   TUniqueId x11c_effectId = kInvalidUniqueId;
   zeus::CVector3f x120_effectPos;
-  std::vector<TUniqueId> x12c_;
-  bool x13c_24_ : 1 = false;
-  bool x13c_25_ : 1 = false;
-  bool x13c_26_ : 1 = true;
+  std::vector<TUniqueId> x12c_puddleObjectIds;
+  bool x13c_24_hasPuddle : 1 = false;
+  bool x13c_25_hasGate : 1 = false;
+  bool x13c_26_gateActive : 1 = true;
 
 public:
   CScriptMazeNode(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
-                  bool active, s32 w1, s32 w2, s32 w3, const zeus::CVector3f& actorPos,
+                  bool active, s32 col, s32 row, s32 side, const zeus::CVector3f& actorPos,
                   const zeus::CVector3f& triggerPos, const zeus::CVector3f& effectPos);
 
   void Accept(IVisitor& visitor) override;

@@ -191,7 +191,7 @@ private:
   std::list<TUniqueId> xf3c_activeFlickerBats;
   std::list<TUniqueId> xf54_activeParasites;
   TUniqueId xf6c_playerActorHead = kInvalidUniqueId;
-  std::unique_ptr<CScriptMazeState> xf70_currentMaze;
+  std::unique_ptr<CMazeState> xf70_currentMaze;
 
   TUniqueId xf74_lastTrigger = kInvalidUniqueId;
   TUniqueId xf76_lastRelay = kInvalidUniqueId;
@@ -420,9 +420,9 @@ public:
     return static_cast<CPlatformAndDoorList&>(*x808_objLists[7]);
   }
   std::pair<u32, u32> CalculateScanCompletionRate() const;
-  void SetCurrentMaze(std::unique_ptr<CScriptMazeState> maze) { xf70_currentMaze = std::move(maze); }
+  void SetCurrentMaze(std::unique_ptr<CMazeState> maze) { xf70_currentMaze = std::move(maze); }
   void ClearCurrentMaze() { xf70_currentMaze.reset(); }
-  CScriptMazeState* GetCurrentMaze() { return xf70_currentMaze.get(); }
+  CMazeState* GetCurrentMaze() { return xf70_currentMaze.get(); }
   void SetLastTriggerId(TUniqueId uid) { xf74_lastTrigger = uid; }
   TUniqueId GetLastTriggerId() const { return xf74_lastTrigger; }
   void SetLastRelayId(TUniqueId uid) { xf76_lastRelay = uid; }
