@@ -469,8 +469,6 @@ void CMazeState::GenerateObstacles() {
   };
 }
 
-static logvisor::Module Log("CMazeState");
-
 #ifndef NDEBUG
 void CMazeState::DebugRender() {
   m_renderer.Reset();
