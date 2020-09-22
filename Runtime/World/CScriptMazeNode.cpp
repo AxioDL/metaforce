@@ -1,5 +1,7 @@
 #include "Runtime/World/CScriptMazeNode.hpp"
 
+#include <ranges>
+
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Character/CModelData.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -10,6 +12,10 @@
 namespace urde {
 
 std::array<s32, 300> sMazeSeeds;
+
+#ifndef NDEBUG
+std::array<zeus::CVector3f, skMazeRows * skMazeCols> sDebugCellPos;
+#endif
 
 CScriptMazeNode::CScriptMazeNode(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                  const zeus::CTransform& xf, bool active, s32 col, s32 row, s32 side,
@@ -153,12 +159,20 @@ void CScriptMazeNode::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
       Reset(mgr);
     } else if (msg == EScriptObjectMessage::InitializedInArea) {
       if (mgr.GetCurrentMaze() == nullptr) {
-        auto maze = std::make_unique<CMazeState>(skTargetCol, skTargetRow, skEnterCol, skEnterRow);
+        auto maze = std::make_unique<CMazeState>(skEnterCol, skEnterRow, skTargetCol, skTargetRow);
         maze->Reset(sMazeSeeds[mgr.GetActiveRandom()->Next() % sMazeSeeds.size()]);
         maze->Initialize();
         maze->GenerateObstacles();
         mgr.SetCurrentMaze(std::move(maze));
       }
+#ifndef NDEBUG
+      if (xf0_side == ESide::Right) {
+        sDebugCellPos[xe8_col + xec_row * skMazeCols] = GetTranslation();
+      } else if (xe8_col == skMazeCols - 1) {
+        // Last column does not have right nodes, but we can infer the position
+        sDebugCellPos[xe8_col + xec_row * skMazeCols] = GetTranslation() - zeus::CVector3f{1.1875f, -0.1215f, 1.2187f};
+      }
+#endif
     } else if (msg == EScriptObjectMessage::Deleted) {
       mgr.ClearCurrentMaze();
       Reset(mgr);
@@ -301,10 +315,10 @@ void CMazeState::Reset(s32 seed) {
 
 void CMazeState::Initialize() {
   std::array<s32, skMazeRows * skMazeCols> path{};
-  path[0] = x84_targetCol + x88_targetRow * skMazeCols;
+  path[0] = x84_enterCol + x88_enterRow * skMazeCols;
   GetCell(path[0]).x1_26_checked = true;
   s32 pathLength = 1;
-  while (path[0] != x8c_enterCol + x90_enterRow * skMazeCols) {
+  while (path[0] != x8c_targetCol + x90_targetRow * skMazeCols) {
     if (GetCell(path[0]).x0_24_openTop) {
       if (!GetCell(path[0] - skMazeCols).x1_26_checked) {
         path[pathLength] = path[0] - skMazeCols;
@@ -342,6 +356,11 @@ void CMazeState::Initialize() {
     auto& cell = GetCell(*idx);
     if (cell.x1_26_checked) {
       cell.x1_25_onPath = true;
+#ifndef NDEBUG
+      if (pathLength > 0) {
+        m_path.push_back(*idx);
+      }
+#endif
     }
   }
   x94_24_initialized = true;
@@ -365,12 +384,12 @@ void CMazeState::GenerateObstacles() {
   ESide side = ESide::Invalid;
   s32 idx = 0;
 
-  s32 prevCol = x84_targetCol;
-  s32 prevRow = x88_targetRow;
-  s32 col = x84_targetCol;
-  s32 row = x88_targetRow;
+  s32 prevCol = x84_enterCol;
+  s32 prevRow = x88_enterRow;
+  s32 col = x84_enterCol;
+  s32 row = x88_enterRow;
 
-  while (col != x8c_enterCol || row != x90_enterRow) {
+  while (col != x8c_targetCol || row != x90_targetRow) {
     if (idx == gate1Idx || idx == gate2Idx || idx == gate3Idx) {
       if (side == ESide::Bottom) {
         GetCell(col, row).x0_28_gateTop = true;
@@ -447,4 +466,25 @@ void CMazeState::GenerateObstacles() {
     row = nextRow;
   };
 }
+
+static logvisor::Module Log("CMazeState");
+
+#ifndef NDEBUG
+void CMazeState::DebugRender() {
+  m_renderer.Reset();
+  m_renderer.AddVertex(sDebugCellPos[skEnterCol + skEnterRow * skMazeCols], zeus::skBlue, 2.f);
+  for (s32 i = m_path.size() - 1; i >= 0; --i) {
+    s32 idx = m_path[i];
+    zeus::CVector3f pos;
+    if (idx == skMazeCols - 1) {
+      // 8,0 has no node, infer from 8,1
+      pos = sDebugCellPos[idx + skMazeCols] + zeus::CVector3f{4.f, 0.f, 0.f};
+    } else {
+      pos = sDebugCellPos[idx];
+    }
+    m_renderer.AddVertex(pos, zeus::skBlue, 2.f);
+  }
+  m_renderer.Render();
+}
+#endif
 } // namespace urde

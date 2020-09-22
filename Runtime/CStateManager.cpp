@@ -537,12 +537,16 @@ void CStateManager::BuildDynamicLightListForWorld() {
 
 void CStateManager::DrawDebugStuff() const {
 #ifndef NDEBUG
+  CGraphics::SetModelMatrix(zeus::CTransform());
   for (CEntity* ent : GetActorObjectList()) {
     if (const TCastToPtr<CPatterned> ai = ent) {
       if (CPathFindSearch* path = ai->GetSearchPath()) {
         path->DebugDraw();
       }
     }
+  }
+  if (xf70_currentMaze) {
+    xf70_currentMaze->DebugRender();
   }
 #endif
 }

@@ -5,6 +5,7 @@
 #include <string_view>
 
 #include "Runtime/CRandom16.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CActor.hpp"
 
@@ -13,10 +14,10 @@
 namespace urde {
 constexpr s32 skMazeCols = 9;
 constexpr s32 skMazeRows = 7;
-constexpr s32 skTargetCol = 4;
-constexpr s32 skTargetRow = 4;
-constexpr s32 skEnterCol = 5;
-constexpr s32 skEnterRow = 3;
+constexpr s32 skEnterCol = 4;
+constexpr s32 skEnterRow = 4;
+constexpr s32 skTargetCol = 5;
+constexpr s32 skTargetRow = 3;
 
 enum class ESide {
   Invalid = -1,
@@ -47,18 +48,27 @@ struct SMazeCell {
 class CMazeState {
   CRandom16 x0_rand{0};
   std::array<SMazeCell, skMazeRows * skMazeCols> x4_cells{};
-  s32 x84_targetCol;
-  s32 x88_targetRow;
-  s32 x8c_enterCol;
-  s32 x90_enterRow;
+  s32 x84_enterCol;
+  s32 x88_enterRow;
+  s32 x8c_targetCol;
+  s32 x90_targetRow;
   bool x94_24_initialized : 1 = false;
 
+#ifndef NDEBUG
+  std::vector<s32> m_path;
+  CLineRenderer m_renderer = {CLineRenderer::EPrimitiveMode::LineStrip, skMazeRows * skMazeCols, {}, true};
+#endif
+
 public:
-  CMazeState(s32 targetCol, s32 targetRow, s32 enterCol, s32 enterRow)
-  : x84_targetCol(targetCol), x88_targetRow(targetRow), x8c_enterCol(enterCol), x90_enterRow(enterRow) {}
+  CMazeState(s32 enterCol, s32 enterRow, s32 targetCol, s32 targetRow)
+  : x84_enterCol(enterCol), x88_enterRow(enterRow), x8c_targetCol(targetCol), x90_targetRow(targetRow) {}
   void Reset(s32 seed);
   void Initialize();
   void GenerateObstacles();
+
+#ifndef NDEBUG
+  void DebugRender();
+#endif
 
   [[nodiscard]] SMazeCell& GetCell(u32 col, u32 row) {
 #ifndef NDEBUG
