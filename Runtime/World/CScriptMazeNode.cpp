@@ -173,10 +173,12 @@ void CScriptMazeNode::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
         sDebugCellPos[xe8_col + xec_row * skMazeCols] = GetTranslation() - zeus::CVector3f{1.1875f, -0.1215f, 1.2187f};
       }
 #endif
-    } else if (msg == EScriptObjectMessage::Deleted) {
-      mgr.ClearCurrentMaze();
-      Reset(mgr);
     }
+  }
+  // URDE change: used to be in the above if branch
+  if (msg == EScriptObjectMessage::Deleted) {
+    mgr.ClearCurrentMaze();
+    Reset(mgr);
   }
   CActor::AcceptScriptMsg(msg, uid, mgr);
 }
