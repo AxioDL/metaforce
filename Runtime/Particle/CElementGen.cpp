@@ -1038,7 +1038,9 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       if (g_subtractBlend) {
         model->Draw({5, 0, 1, zeus::CColor(1.f, 0.5f)});
       } else if (desc->x44_31_x31_25_PMAB) {
-        model->Draw({7, 0, 1, col});
+        CModelFlags flags{7, 0, 1, col};
+        flags.m_extendedShader = EExtendedShader::ForcedAdditiveNoZWrite;
+        model->Draw(flags);
       } else if (1.f == col.a()) {
         model->Draw({0, 0, 3, zeus::skWhite});
       } else {
