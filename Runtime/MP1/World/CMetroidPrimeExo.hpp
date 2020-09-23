@@ -194,6 +194,7 @@ class CMetroidPrimeExo : public CPatterned {
   float x1088_ = 0.f;
   CCameraShakeData x108c_;
   u32 x1160_ = 0;
+  u32 x1254_ = -1;
   u32 x1258_ = 0;
   CCameraShakeData x1294_;
   CCameraShakeData x1368_;
@@ -248,6 +249,7 @@ class CMetroidPrimeExo : public CPatterned {
   void sub80277c04(CStateManager& mgr);
   void sub80277e30(CStateManager& mgr);
   void sub80278044(float f1, CStateManager& mgr);
+  void sub80278130(const zeus::CColor& col);
   void sub802781e0(const zeus::CColor& col);
   void sub8027815c(float f1);
   void sub8027827c(TUniqueId uid, CStateManager& mgr);
@@ -257,9 +259,9 @@ class CMetroidPrimeExo : public CPatterned {
   void sub802788c8(CStateManager& mgr);
   void sub8027894c(CStateManager& mgr);
   void sub80278b60(CStateManager& mgr, bool b1);
-  void sub80278bd8(float f1, CStateManager& mgr);
+  void UpdateBoneTracking(float f1, CStateManager& mgr);
   void sub80278cc8(TUniqueId uid, CStateManager& mgr);
-  void sub80278f14(float, CStateManager& mgr);
+  void UpdateCollision(floatdt, CStateManager& mgr);
   void sub8027903c();
   void sub8027c22c(int w1, int w2);
   void SetupCollisionActorManager(CStateManager& mgr);
@@ -311,6 +313,7 @@ public:
   bool ShouldDoubleSnap(CStateManager& mgr,float arg) override;
   bool InPosition(CStateManager& mgr,float arg) override;
   bool ShouldTurn(CStateManager& mgr,float arg) override;
+  bool ShouldJumpBack(CStateManager& mgr, float arg) override { return x1254_ == 11; }
   bool CoverCheck(CStateManager& mgr,float arg) override;
   bool CoverFind(CStateManager& mgr,float arg) override;
   bool CoveringFire(CStateManager& mgr,float arg) override;

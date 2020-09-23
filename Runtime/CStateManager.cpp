@@ -8,6 +8,7 @@
 #include "Runtime/Camera/CGameCamera.hpp"
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollidableSphere.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Collision/CMaterialFilter.hpp"
@@ -545,6 +546,8 @@ void CStateManager::DrawDebugStuff() const {
       }
     } else if (const TCastToPtr<CGameLight> light = ent) {
       light->DebugDraw();
+    } else if (const TCastToPtr<CCollisionActor> colAct = ent) {
+      colAct->DebugDraw();
     }
   }
 

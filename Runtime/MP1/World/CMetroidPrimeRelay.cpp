@@ -30,7 +30,7 @@ CMetroidPrimeRelay::CMetroidPrimeRelay(TUniqueId uid, std::string_view name, con
 
 void CMetroidPrimeRelay::Accept(IVisitor& visitor) { visitor.Visit(this); }
 void CMetroidPrimeRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr) {
-  if (x34_mpUid == objId) {
+  if (x34_mpUid != objId) {
     ForwardMessageToMetroidPrimeExo(msg, mgr);
   }
   if (msg == EScriptObjectMessage::InitializedInArea) {
