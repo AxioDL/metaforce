@@ -294,8 +294,8 @@ std::unique_ptr<CEmitterElement> CParticleDataFactory::GetEmitterElement(CInputS
     auto e = GetRealElement(in);
     auto f = GetRealElement(in);
     auto g = GetRealElement(in);
-    return std::make_unique<CVEAngleSphere>(std::move(a), std::move(b), std::move(c), std::move(d), std::move(e),
-                                            std::move(f), std::move(g));
+    return std::make_unique<CVEAngleSphere>(std::move(a), std::move(f), std::move(g), std::move(b), std::move(c),
+                                            std::move(d), std::move(e));
   }
   default:
     break;

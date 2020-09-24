@@ -56,8 +56,8 @@ bool CVEAngleSphere::GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f&
   x18_angleXRange->GetValue(frame, f);
   x1c_angleYRange->GetValue(frame, g);
   CRandom16* rand = CRandom16::GetRandomNumber();
-  d = zeus::degToRad(d + ((0.5f * (f * rand->Float())) - f));
-  e = zeus::degToRad(e + ((0.5f * (g * rand->Float())) - g));
+  d = zeus::degToRad(d + (0.5f * f - f * rand->Float()));
+  e = zeus::degToRad(e + (0.5f * g - g * rand->Float()));
 
   float cosD = std::cos(d);
   pPos.x() = a.x() + (b * (-std::sin(e) * cosD));

@@ -1247,12 +1247,12 @@ struct VESphere : IEmitterElement {
 struct VEAngleSphere : IEmitterElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory sphereOrigin;
-  RealElementFactory sphereRadius;
-  RealElementFactory magnitude;
   RealElementFactory angleXBias;
   RealElementFactory angleYBias;
   RealElementFactory angleXRange;
   RealElementFactory angleYRange;
+  RealElementFactory sphereRadius;
+  RealElementFactory magnitude;
   std::string_view ClassID() const override { return "ASPH"sv; }
 };
 

@@ -23,7 +23,7 @@ struct CParticle {
   int x28_startFrame = 0;
   float x2c_lineLengthOrSize = 0.f;
   float x30_lineWidthOrRota = 0.f;
-  zeus::CColor x34_color = {0.f, 0.f, 0.f, 1.f};
+  zeus::CColor x34_color = {1.f, 0.f, 1.f, 1.f};
 };
 
 class CParticleGen {
