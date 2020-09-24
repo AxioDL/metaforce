@@ -209,6 +209,8 @@ std::unique_ptr<CModVectorElement> CParticleDataFactory::GetModVectorElement(CIn
       a->GetValue(0, af);
       b->GetValue(0, bf);
       c->GetValue(0, cf);
+      // NOTE: 0-00 bug uses the value of a for each element
+      // Other versions unknown
       return std::make_unique<CMVEFastConstant>(af, bf, cf);
     } else {
       return std::make_unique<CMVEConstant>(std::move(a), std::move(b), std::move(c));
