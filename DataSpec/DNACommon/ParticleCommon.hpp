@@ -917,9 +917,9 @@ struct IEMultiply : IIntElement {
 
 struct IESampleAndHold : IIntElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  IntElementFactory val;
   IntElementFactory waitMin;
   IntElementFactory waitMax;
+  IntElementFactory val;
   std::string_view ClassID() const override { return "SPAH"sv; }
 };
 

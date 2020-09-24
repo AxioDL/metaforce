@@ -662,7 +662,7 @@ std::unique_ptr<CIntElement> CParticleDataFactory::GetIntElement(CInputStream& i
     auto a = GetIntElement(in);
     auto b = GetIntElement(in);
     auto c = GetIntElement(in);
-    return std::make_unique<CIESampleAndHold>(std::move(a), std::move(b), std::move(c));
+    return std::make_unique<CIESampleAndHold>(std::move(c), std::move(a), std::move(b));
   }
   case SBIG('RAND'): {
     auto a = GetIntElement(in);
