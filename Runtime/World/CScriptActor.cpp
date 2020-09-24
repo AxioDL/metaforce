@@ -43,7 +43,7 @@ CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityIn
     x64_modelData->EnableLooping(looping);
   }
 
-  x150_momentum = zeus::CVector3f(0.f, 0.f, zMomentum);
+  x150_momentum = zeus::CVector3f(0.f, 0.f, -zMomentum);
 }
 
 void CScriptActor::Accept(IVisitor& visitor) { visitor.Visit(this); }
