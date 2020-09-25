@@ -547,6 +547,9 @@ void CStateManager::DrawDebugStuff() const {
     } else if (const TCastToPtr<CGameLight> light = ent) {
       light->DebugDraw();
     } else if (const TCastToPtr<CCollisionActor> colAct = ent) {
+      if (colAct->GetUniqueId() == x870_cameraManager->GetBallCamera()->GetCollisionActorId()) {
+        continue;
+      }
       colAct->DebugDraw();
     }
   }
