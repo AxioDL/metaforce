@@ -95,6 +95,11 @@ void CGameProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId /*uid*
     DeleteProjectileLight(mgr);
 }
 
+void CGameProjectile::Render(CStateManager& mgr) {
+  x170_projectile.Render();
+  CWeapon::Render(mgr);
+}
+
 EProjectileAttrib CGameProjectile::GetBeamAttribType(EWeaponType wType) {
   if (wType == EWeaponType::Ice)
     return EProjectileAttrib::Ice;

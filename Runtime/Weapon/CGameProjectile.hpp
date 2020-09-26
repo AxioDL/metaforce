@@ -24,8 +24,7 @@ class CProjectileTouchResult {
   std::optional<CRayCastResult> x4_result;
 
 public:
-  CProjectileTouchResult(TUniqueId id, const std::optional<CRayCastResult>& result)
-  : x0_id(id), x4_result(result) {}
+  CProjectileTouchResult(TUniqueId id, const std::optional<CRayCastResult>& result) : x0_id(id), x4_result(result) {}
   TUniqueId GetActorId() const { return x0_id; }
   bool HasRayCastResult() const { return x4_result.operator bool(); }
   const CRayCastResult& GetRayCastResult() const { return *x4_result; }
@@ -65,6 +64,7 @@ public:
   void Accept(IVisitor& visitor) override;
   virtual void ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr);
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Render(CStateManager& mgr) override;
   static EProjectileAttrib GetBeamAttribType(EWeaponType wType);
   void DeleteProjectileLight(CStateManager&);
   void CreateProjectileLight(std::string_view, const CLight&, CStateManager&);
