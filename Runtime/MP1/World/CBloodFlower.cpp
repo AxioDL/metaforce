@@ -120,7 +120,7 @@ void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateMana
   CProjectileInfo* proj = GetProjectileInfo();
   TLockedToken<CWeaponDescription> projToken = proj->Token();
 
-  if (!projToken)
+  if (!projToken || !mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, w1))
     return;
 
   zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
@@ -129,16 +129,16 @@ void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateMana
   float f2 = (zDiff > 0.f ? var_f1 : -zDiff + var_f1);
   if (zDiff > 0.f)
     var_f1 = zDiff + var_f1;
-  float f7 = std::sqrt(2.f * f2 / 4.9050002f) + std::sqrt(2.f * var_f1 / 4.9050002f);
+  float f7 = std::sqrt(2.f * f2 / 4.905f) + std::sqrt(2.f * var_f1 / 4.905f);
   float f4 = 1.f / f7;
   zeus::CVector3f vel{f4 * (aimPos.x() - xf.origin.x()), f4 * (aimPos.y() - xf.origin.y()),
-                      2.4525001f * f7 + (-zDiff / f7)};
+                      2.4525f * f7 + (-zDiff / f7)};
   if (CTargetableProjectile* targProj =
           CreateArcProjectile(mgr, GetProjectileInfo()->Token(), zeus::CTransform::Translate(xf.origin),
                               GetProjectileInfo()->GetDamage(), kInvalidUniqueId)) {
     targProj->ProjectileWeapon().SetVelocity(CProjectileWeapon::GetTickPeriod() * vel);
     targProj->ProjectileWeapon().SetGravity(CProjectileWeapon::GetTickPeriod() *
-                                            zeus::CVector3f(0.f, 0.f, -4.9050002f));
+                                            zeus::CVector3f(0.f, 0.f, -4.905f));
     mgr.AddObject(targProj);
   }
 }
@@ -149,7 +149,8 @@ void CBloodFlower::Render(CStateManager& mgr) {
 }
 
 EWeaponCollisionResponseTypes CBloodFlower::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                                     const CWeaponMode& weaponMode, EProjectileAttrib) const {
+                                                                     const CWeaponMode& weaponMode,
+                                                                     EProjectileAttrib) const {
   const auto* const damageVulnerability = GetDamageVulnerability();
 
   if (damageVulnerability->WeaponHurts(weaponMode, false)) {
@@ -251,11 +252,12 @@ CTargetableProjectile* CBloodFlower::CreateArcProjectile(CStateManager& mgr, con
                                                          const zeus::CTransform& xf, const CDamageInfo& damage,
                                                          TUniqueId uid) {
 
-  if (!x578_projectileDesc)
+  if (!x578_projectileDesc) {
     return nullptr;
+  }
 
   TUniqueId projId = mgr.AllocateUniqueId();
-  CTargetableProjectile* targProj = new CTargetableProjectile(
+  auto* targProj = new CTargetableProjectile(
       desc, EWeaponType::AI, xf, EMaterialTypes::Character, damage, x5dc_projectileDamage, projId, GetAreaIdAlways(),
       GetUniqueId(), x578_projectileDesc, uid, EProjectileAttrib::None, {x5c4_visorParticle}, x5d4_visorSfx, false);
   if (mgr.GetPlayer().GetOrbitTargetId() == GetUniqueId()) {
