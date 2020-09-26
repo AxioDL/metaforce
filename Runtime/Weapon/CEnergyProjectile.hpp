@@ -10,10 +10,10 @@ class CEnergyProjectile : public CGameProjectile {
   zeus::CVector3f x2ec_dir;
   float x2f8_mag;
   CCameraShakeData x2fc_camShake;
-  bool x3d0_24_dead : 1;
-  bool x3d0_25_ : 1;
-  bool x3d0_26_ : 1;
-  bool x3d0_27_camShakeDirty : 1;
+  bool x3d0_24_dead : 1 = false;
+  bool x3d0_25_ : 1 = false;
+  bool x3d0_26_ : 1 = false;
+  bool x3d0_27_camShakeDirty : 1 = false;
   float x3d4_curTime = 0.f;
   void StopProjectile(CStateManager& mgr);
 
