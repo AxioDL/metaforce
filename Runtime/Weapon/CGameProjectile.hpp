@@ -42,7 +42,7 @@ protected:
   double x2b8_curHomingTime = x2a8_homingDt;
   TUniqueId x2c0_homingTargetId;
   TUniqueId x2c2_lastResolvedObj = kInvalidUniqueId;
-  TUniqueId x2c4_ = kInvalidUniqueId;
+  TUniqueId x2c4_hitProjectileOwner = kInvalidUniqueId;
   TUniqueId x2c6_pendingDamagee = kInvalidUniqueId;
   TUniqueId x2c8_projectileLight = kInvalidUniqueId;
   CAssetId x2cc_wpscId;
@@ -88,5 +88,6 @@ public:
   TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }
   zeus::CVector3f GetPreviousPos() const { return x298_previousPos; }
   void SetMinHomingDistance(float dist) { x2e0_minHomingDist = dist; }
+  void SetHitProjectileOwner(TUniqueId id) { x2c4_hitProjectileOwner = id; }
 };
 } // namespace urde

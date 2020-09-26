@@ -158,6 +158,7 @@ void CEnergyProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CAc
     ApplyDamageToActors(mgr, x12c_curDamageInfo);
   }
   if (const TCastToPtr<CEnergyProjectile> proj = act) {
+    proj->SetHitProjectileOwner(xec_ownerId);
     proj->Explode(GetTranslation(), x34_transform.basis[1], EWeaponCollisionResponseTypes::OtherProjectile, mgr,
                   *GetDamageVulnerability(), GetUniqueId());
   }
