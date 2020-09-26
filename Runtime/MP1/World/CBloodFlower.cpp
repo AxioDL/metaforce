@@ -104,7 +104,7 @@ void CBloodFlower::Think(float dt, CStateManager& mgr) {
 void CBloodFlower::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   if (type == EUserEventType::Projectile) {
     if (x58c_projectileState == 1 && x5bc_projectileDelay <= 0.f) {
-      LaunchPollenProjectile(GetLocatorTransform(node.GetLocatorName()), mgr, x614_, 5);
+      LaunchPollenProjectile(GetLctrTransform(node.GetLocatorName()), mgr, x614_, 5);
       x58c_projectileState = 0;
       x5bc_projectileDelay = 0.5f;
     }
@@ -116,11 +116,11 @@ void CBloodFlower::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
-void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateManager& mgr, float var_f1, s32 w1) {
+void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateManager& mgr, float var_f1, s32 maxProjectiles) {
   CProjectileInfo* proj = GetProjectileInfo();
   TLockedToken<CWeaponDescription> projToken = proj->Token();
 
-  if (!projToken || !mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, w1))
+  if (!projToken || !mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, maxProjectiles))
     return;
 
   zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
