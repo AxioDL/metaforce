@@ -29,14 +29,14 @@ public:
   }
   void PlayImpactSound(const zeus::CVector3f& pos, EWeaponCollisionResponseTypes type);
   void ChangeProjectileOwner(TUniqueId owner, CStateManager& mgr);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
-  void Accept(IVisitor& visitor);
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  void Accept(IVisitor& visitor) override;
   void ResolveCollisionWithWorld(const CRayCastResult& res, CStateManager& mgr);
-  void ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr);
-  void Think(float dt, CStateManager& mgr);
-  void Render(CStateManager& mgr);
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr);
-  void Touch(CActor& act, CStateManager& mgr);
+  void ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void Render(CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void Touch(CActor& act, CStateManager& mgr) override;
   virtual bool Explode(const zeus::CVector3f& pos, const zeus::CVector3f& normal, EWeaponCollisionResponseTypes type,
                        CStateManager& mgr, const CDamageVulnerability& dVuln, TUniqueId hitActor);
   void Set3d0_26(bool v) { x3d0_26_ = v; }
