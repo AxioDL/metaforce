@@ -698,6 +698,7 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
                               EProjectileAttrib::None, false, zeus::skOne3f, {}, -1, false);
     mgr.AddObject(proj);
     proj->SetCameraShake(x568_data.xcc_);
+    proj->SetMinHomingDistance(20.f);
     return;
   }
   case EUserEventType::EggLay: {
@@ -711,14 +712,14 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
         break;
       }
 
-      zeus::CVector3f vec =
-          zeus::CVector3f(mgr.GetActiveRandom()->Range(-1.f, 1.f), 1.f, mgr.GetActiveRandom()->Range(-1.f, 1.f));
-      vec = GetLctrTransform(xa30_breastPlateSegId) * vec;
-
-      auto* proj = new CEnergyProjectile(
-          true, xc3c_.Token(), EWeaponType::AI, zeus::lookAt(vec + mgr.GetPlayer().GetTranslation(), vec),
-          EMaterialTypes::Character, xc3c_.GetDamage(), mgr.AllocateUniqueId(), GetAreaIdAlways(), GetUniqueId(),
-          mgr.GetPlayer().GetUniqueId(), EProjectileAttrib::None, false, zeus::skOne3f, {}, -1, false);
+      const float x = mgr.GetActiveRandom()->Range(-1.f, 1.f);
+      const float z = mgr.GetActiveRandom()->Range(-1.f, 1.f);
+      const auto vec = GetLctrTransform(xa30_breastPlateSegId) * zeus::CVector3f{x, 1.f, z};
+      const auto dir = mgr.GetPlayer().GetTranslation() + zeus::CVector3f{10.f * x, 10.f * z, 0.f};
+      auto* proj = new CEnergyProjectile(true, xc3c_.Token(), EWeaponType::AI, zeus::lookAt(vec, dir),
+                                         EMaterialTypes::Character, xc3c_.GetDamage(), mgr.AllocateUniqueId(),
+                                         GetAreaIdAlways(), GetUniqueId(), mgr.GetPlayer().GetUniqueId(),
+                                         EProjectileAttrib::None, false, zeus::skOne3f, {}, -1, false);
 
       mgr.AddObject(proj);
       proj->SetCameraShake(x568_data.xcc_);
