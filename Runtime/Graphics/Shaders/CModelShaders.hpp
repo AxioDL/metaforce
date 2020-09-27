@@ -45,7 +45,7 @@ enum class EExtendedShader : uint8_t {
   Disintegrate,
   ForcedAdditiveNoZWriteDepthGreater,
   ThermalCold,
-  LightingAlphaWrite,
+  LightingAlphaWriteNoZTest,
   LightingCubeReflection,
   LightingCubeReflectionWorldShadow,
   MAX

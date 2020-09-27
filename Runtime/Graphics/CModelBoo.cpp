@@ -578,7 +578,7 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
   if (intermediateExtended == EExtendedShader::Lighting) {
     /* Transform lighting into thermal cold if the thermal visor is active */
     if (g_Renderer->IsThermalVisorHotPass())
-      return EExtendedShader::LightingAlphaWrite;
+      return EExtendedShader::LightingAlphaWriteNoZTest;
     else if (g_Renderer->IsThermalVisorActive())
       return EExtendedShader::ThermalCold;
     if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Opaque) {

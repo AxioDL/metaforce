@@ -149,9 +149,9 @@ static std::array<hecl::Backend::ExtensionSlot, 26> g_ExtensionSlots{{
     /* Thermal cold shading */
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Original, false, false, true, false, false, false, true},
-    /* Normal lit shading with alpha */
+    /* Normal lit shading with alpha without depth test */
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface},
+     hecl::Backend::ZTest::None, hecl::Backend::CullMode::Backface},
     /* Normal lit shading with cube reflection */
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
