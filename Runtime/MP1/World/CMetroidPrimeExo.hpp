@@ -4,6 +4,7 @@
 #include "Runtime/Character/CBoneTracking.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeProjectile.hpp"
 #include "Runtime/Weapon/CBeamInfo.hpp"
+#include "Runtime/Weapon/CPlasmaProjectile.hpp"
 #include "Runtime/Weapon/CProjectileInfo.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CPatterned.hpp"
@@ -35,24 +36,11 @@ struct SPrimeStruct2B {
   explicit SPrimeStruct2B(CInputStream& in);
 };
 
-struct SPrimeStruct5 {
-  u32 x0_propertyCount;
-  CAssetId x4_;
-  u32 x8_;
-  CAssetId xc_;
-  CAssetId x10_;
-  u32 x14_;
-  u32 x18_;
-  u32 x1c_;
-  u32 x20_;
-  explicit SPrimeStruct5(CInputStream& in);
-};
-
 struct SPrimeStruct4 {
   CBeamInfo x0_beamInfo;
   u32 x44_;
   CDamageInfo x48_dInfo1;
-  SPrimeStruct5 x64_struct5;
+  CPlasmaProjectile::PlayerEffectResources x64_struct5;
   float x88_;
   CDamageInfo x8c_dInfo2;
   explicit SPrimeStruct4(CInputStream& in);
@@ -62,8 +50,7 @@ struct SPrimeStruct6 {
   u32 x0_propertyCount;
   CDamageVulnerability x4_damageVulnerability;
   zeus::CColor x6c_color;
-  u32 x70_;
-  u32 x74_;
+  std::array<u32, 2> x70_;
   explicit SPrimeStruct6(CInputStream& in);
 };
 
@@ -98,12 +85,22 @@ struct SPrimeExoParameters {
 struct SPrimeExoRoomParameters {
   rstl::reserved_vector<float, 14> x0_;
   explicit SPrimeExoRoomParameters(CInputStream& in);
+
+  float GetFloatValue(size_t idx) const { return x0_[idx]; }
 };
 
 class CMetroidPrimeExo : public CPatterned {
+  class CPhysicsDummy : public CPhysicsActor {
+  public:
+    CPhysicsDummy(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info)
+    : CPhysicsActor(uid, active, name, info, {}, CModelData::CModelDataNull(),
+                    CMaterialList(EMaterialTypes::Target, EMaterialTypes::ExcludeFromRadar), zeus::CAABox{-1.f, 1.f},
+                    SMoverData(1.f), CActorParameters::None(), 0.3f, 0.1f) {}
+    void Accept(IVisitor& visitor) override;
+  };
   TUniqueId x568_relayId = kInvalidUniqueId;
   std::unique_ptr<CCollisionActorManager> x56c_collisionManager;
-  u32 x570_ = 1;
+  s32 x570_ = 1;
   u32 x574_ = 1;
   u32 x578_ = 0;
   u32 x57c_ = 0;
@@ -128,8 +125,7 @@ class CMetroidPrimeExo : public CPatterned {
   bool x8f4_26_ : 1 = false;
   bool x8f4_27_ : 1 = false;
   bool x8f4_28_ : 1 = false;
-  zeus::CVector3f x8f8_;
-  zeus::CVector3f x904_;
+  zeus::CAABox x8f8_;
   float x910_ = 5.f;
   bool x914_24_ : 1 = false;
   s32 x918_ = -1;
@@ -139,11 +135,12 @@ class CMetroidPrimeExo : public CPatterned {
   float x928_ = 5.f;
   u32 x92c_ = 0;
   SPrimeStruct2B x930_;
-  // x96c_;
+  rstl::reserved_vector<CBeamInfo, 4> x96c_;
   rstl::reserved_vector<CProjectileInfo, 4> xa80_;
-  rstl::reserved_vector<TUniqueId, 4> xb24_;
-  rstl::reserved_vector<SPrimeStruct5, 4> xb30_;
-  // xbc4_;
+  rstl::reserved_vector<TUniqueId, 4> xb24_plasmaProjectileIds = {{kInvalidUniqueId, kInvalidUniqueId, kInvalidUniqueId,
+                                                                  kInvalidUniqueId}};
+  rstl::reserved_vector<CPlasmaProjectile::PlayerEffectResources, 4> xb30_;
+  rstl::reserved_vector<CDamageInfo, 4> xbc4_;
   TLockedToken<CGenDescription> xc48_;
   std::unique_ptr<CElementGen> xc54_;
   s32 xc58_ = -1;
@@ -163,19 +160,19 @@ class CMetroidPrimeExo : public CPatterned {
   std::unique_ptr<CParticleElectric> xfb0_;
   float xfb4_ = 0.f;
   float xfb8_ = 0.f;
-  CSfxHandle  xfbc_;
+  CSfxHandle xfbc_;
   bool xfc0_ = false;
   bool xfc1_ = false;
-  u32 xfc4_ = 0;
-  u32 xfd8_ = 0;
-  u32 xfec_ = 0;
-  u32 x1000_ = 0;
+  rstl::reserved_vector<TToken<CGenDescription>, 2> xfc4_;
+  rstl::reserved_vector<TToken<CSwooshDescription>, 2> xfd8_;
+  rstl::reserved_vector<std::unique_ptr<CElementGen>, 2> xfec_;
+  rstl::reserved_vector<std::unique_ptr<CParticleSwoosh>, 2> x1000_;
   TToken<CGenDescription> x1014_;
   TToken<CGenDescription> x101c_;
   std::unique_ptr<CElementGen> x1024_;
   rstl::reserved_vector<float, 2> x102c_;
   rstl::reserved_vector<float, 2> x1038_;
-  TUniqueId x1044_ = kInvalidUniqueId;
+  TUniqueId x1044_billboardId = kInvalidUniqueId;
   TUniqueId x1046_ = kInvalidUniqueId;
   float x1048_ = 0.f;
   float x104c_ = 75.f;
@@ -184,8 +181,7 @@ class CMetroidPrimeExo : public CPatterned {
   bool x1054_25_ : 1 = false;
   bool x1054_26_ : 1 = false;
   bool x1054_27_ : 1 = false;
-  u32 x1058_ = 0;
-  u32 x106c_ = 0;
+  rstl::reserved_vector<TUniqueId, 2> x106c_energyBallIds;
   float x1074_ = 0.f;
   s32 x1078_ = -1;
   float x107c_ = 0.f;
@@ -193,9 +189,9 @@ class CMetroidPrimeExo : public CPatterned {
   float x1084_ = 0.f;
   float x1088_ = 0.f;
   CCameraShakeData x108c_;
-  u32 x1160_ = 0;
-  u32 x1254_ = -1;
-  u32 x1258_ = 0;
+  rstl::reserved_vector<SPrimeExoRoomParameters, 4> x1160_;
+  s32 x1254_ = -1;
+  rstl::reserved_vector<float, 14> x1258_;
   CCameraShakeData x1294_;
   CCameraShakeData x1368_;
   std::unique_ptr<CProjectedShadow> x143c_;
@@ -203,18 +199,17 @@ class CMetroidPrimeExo : public CPatterned {
   bool x1444_24_ : 1 = false;
   bool x1444_25_ : 1 = false;
 
-
   void sub802738d4(CStateManager& mgr);
-  void sub80273910(float dt, CStateManager& mgr);
-  void sub80273c78(CStateManager& mgr);
+  void UpdateEnergyBalls(float dt, CStateManager& mgr);
+  u32 CountEnergyBalls(CStateManager& mgr);
   void sub80273d38(CStateManager& mgr);
-  void sub80273f10(CStateManager& mgr);
+  void UpdatePhysicsDummy(CStateManager& mgr);
   void sub80274054(CStateManager& mgr);
   void sub802740cc(CStateManager& mgr);
-  void sub802740fc(CStateManager& mgr);
+  void CreatePhysicsDummy(CStateManager& mgr);
   void sub802743e0(CStateManager& mgr, u32);
   void sub8027444c(CStateManager& mgr);
-  void sub8027447c(CStateManager& mgr);
+  void CreateHUDBillBoard(CStateManager& mgr);
   void sub802747b8(float f1, CStateManager& mgr, const zeus::CVector3f& vec);
   void sub80274e6c(float f1, CStateManager& mgr);
   void sub802755ac(CStateManager& mgr, bool b1);
@@ -222,15 +217,15 @@ class CMetroidPrimeExo : public CPatterned {
   void sub8027571c(CStateManager& mgr);
   void UpdateTimers(float mgr);
   void sub80275800(CStateManager& mgr);
-  void sub802759a8(CStateManager& mgr, int w1, int w2);
-  void sub80275b04(CStateManager& mgr, int w1, int w2);
+  void sub802759a8(CStateManager& mgr, u32 w1);
+  float sub80275b04(const SPrimeExoRoomParameters& roomParms, int w2);
   void sub80275b68();
-  void sub80275c60(CStateManager& mgr, int w1, int w2);
-  void sub80275d68(int w1);
+  void sub80275c60(CStateManager& mgr, int w1);
+  bool sub80275d68(int w1);
   void sub80275e14(int w1);
-  void sub80275e34(int w1);
+  u32 sub80275e34(int w1) const;
   void sub80275e54(float f1, CStateManager& mgr);
-  void sub80276164(float f1, CStateManager& mgr);
+  void UpdateSfxEmitter(float f1, CStateManager& mgr);
   void sub80276204(CStateManager& mgr, bool b1);
   void sub8027639c(CStateManager& mgr, bool b1);
   void SetActorAreaId(CStateManager& mgr, TUniqueId uid, TAreaId aid);
@@ -247,24 +242,25 @@ class CMetroidPrimeExo : public CPatterned {
   zeus::CVector3f sub80778c4(CStateManager& mgr);
   void sub80277b74(CStateManager& mgr);
   void sub80277c04(CStateManager& mgr);
-  void sub80277e30(CStateManager& mgr);
-  void sub80278044(float f1, CStateManager& mgr);
+  void UpdateContactDamage(CStateManager& mgr);
+  void UpdateColorChange(float f1, CStateManager& mgr);
   void sub80278130(const zeus::CColor& col);
   void sub802781e0(const zeus::CColor& col);
-  void sub8027815c(float f1);
+  void UpdateHeadAnimation(float f1);
   void sub8027827c(TUniqueId uid, CStateManager& mgr);
   void sub80278508(CStateManager& mgr, int w1, bool b1);
   void sub802786fc(CStateManager& mgr);
-  void sub80278800(CStateManager& mgr, bool b);
+  void SetEyesParticleEffectState(CStateManager& mgr, bool b);
   void UpdateHeadHealthInfo(CStateManager& mgr);
   void UpdateHealthInfo(CStateManager& mgr);
   void SetBoneTrackingTarget(CStateManager& mgr, bool active);
   void UpdateBoneTracking(float f1, CStateManager& mgr);
   void sub80278cc8(TUniqueId uid, CStateManager& mgr);
   void UpdateCollision(float dt, CStateManager& mgr);
-  void sub8027903c();
+  void SetupBoneTracking();
   void sub8027c22c(int w1, int w2);
   void SetupCollisionActorManager(CStateManager& mgr);
+
 public:
   DEFINE_PATTERNED(MetroidPrimeExo);
   CMetroidPrimeExo(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -282,10 +278,10 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
-  void Render(CStateManager &mgr) override;
-  bool CanRenderUnsorted(const CStateManager &mgr) const override;
-  void Touch(CActor &act, CStateManager &mgr) override;
-  void DoUserAnimEvent(CStateManager &mgr, const CInt32POINode &node, EUserEventType type, float dt) override;
+  void Render(CStateManager& mgr) override;
+  bool CanRenderUnsorted(const CStateManager& mgr) const override;
+  void Touch(CActor& act, CStateManager& mgr) override;
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
   void SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Run(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Attack(CStateManager& mgr, EStateMsg msg, float arg) override;
@@ -306,28 +302,28 @@ public:
   void SpecialAttack(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Growth(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Land(CStateManager& mgr, EStateMsg msg, float arg) override;
-  bool TooClose(CStateManager& mgr,float arg) override;
-  bool InMaxRange(CStateManager& mgr,float arg) override;
-  bool PlayerSpot(CStateManager& mgr,float arg) override;
-  bool ShouldAttack(CStateManager& mgr,float arg) override;
-  bool ShouldDoubleSnap(CStateManager& mgr,float arg) override;
-  bool InPosition(CStateManager& mgr,float arg) override;
-  bool ShouldTurn(CStateManager& mgr,float arg) override;
+  bool TooClose(CStateManager& mgr, float arg) override;
+  bool InMaxRange(CStateManager& mgr, float arg) override;
+  bool PlayerSpot(CStateManager& mgr, float arg) override;
+  bool ShouldAttack(CStateManager& mgr, float arg) override;
+  bool ShouldDoubleSnap(CStateManager& mgr, float arg) override;
+  bool InPosition(CStateManager& mgr, float arg) override;
+  bool ShouldTurn(CStateManager& mgr, float arg) override;
   bool ShouldJumpBack(CStateManager& mgr, float arg) override { return x1254_ == 11; }
-  bool CoverCheck(CStateManager& mgr,float arg) override;
-  bool CoverFind(CStateManager& mgr,float arg) override;
-  bool CoveringFire(CStateManager& mgr,float arg) override;
-  bool AggressionCheck(CStateManager& mgr,float arg) override;
-  bool AttackOver(CStateManager& mgr,float arg) override;
-  bool ShouldFire(CStateManager& mgr,float arg) override;
-  bool ShouldFlinch(CStateManager& mgr,float arg) override;
-  bool ShouldRetreat(CStateManager& mgr,float arg) override;
-  bool ShouldCrouch(CStateManager& mgr,float arg) override;
-  bool ShouldMove(CStateManager& mgr,float arg) override;
-  bool AIStage(CStateManager& mgr,float arg) override;
-  bool StartAttack(CStateManager& mgr,float arg) override;
-  bool ShouldSpecialAttack(CStateManager& mgr,float arg) override;
-  bool CodeTrigger(CStateManager& mgr,float arg) override;
+  bool CoverCheck(CStateManager& mgr, float arg) override;
+  bool CoverFind(CStateManager& mgr, float arg) override;
+  bool CoveringFire(CStateManager& mgr, float arg) override;
+  bool AggressionCheck(CStateManager& mgr, float arg) override;
+  bool AttackOver(CStateManager& mgr, float arg) override;
+  bool ShouldFire(CStateManager& mgr, float arg) override;
+  bool ShouldFlinch(CStateManager& mgr, float arg) override;
+  bool ShouldRetreat(CStateManager& mgr, float arg) override;
+  bool ShouldCrouch(CStateManager& mgr, float arg) override;
+  bool ShouldMove(CStateManager& mgr, float arg) override;
+  bool AIStage(CStateManager& mgr, float arg) override;
+  bool StartAttack(CStateManager& mgr, float arg) override;
+  bool ShouldSpecialAttack(CStateManager& mgr, float arg) override;
+  bool CodeTrigger(CStateManager& mgr, float arg) override;
   CProjectileInfo* GetProjectileInfo() override;
 };
 

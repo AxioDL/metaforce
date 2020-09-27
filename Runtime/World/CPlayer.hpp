@@ -621,5 +621,6 @@ public:
   float GetAverageSpeed() const;
   bool IsInWaterMovement() const { return x9c4_31_inWaterMovement; }
   void SetNoDamageLoopSfx(bool val) { x9c7_24_noDamageLoopSfx = val; }
+  void SetAccelerationChangeTimer(float time) { x2d4_accelerationChangeTimer = time; }
 };
 } // namespace urde
