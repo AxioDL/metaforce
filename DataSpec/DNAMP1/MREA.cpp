@@ -358,21 +358,21 @@ void MREA::Name(const SpecBase& dataSpec, PAKEntryReadStream& rs, PAKRouter<PAKB
 
 void MREA::MeshHeader::VisorFlags::setFromBlenderProps(const std::unordered_map<std::string, std::string>& props) {
   auto search = props.find("retro_disable_enviro_visor");
-  if (search != props.cend() && search->second == "True")
+  if (search != props.cend() && search->second == "1")
     setDisableEnviro(true);
   search = props.find("retro_disable_thermal_visor");
-  if (search != props.cend() && search->second == "True")
+  if (search != props.cend() && search->second == "1")
     setDisableThermal(true);
   search = props.find("retro_disable_xray_visor");
-  if (search != props.cend() && search->second == "True")
+  if (search != props.cend() && search->second == "1")
     setDisableXray(true);
   search = props.find("retro_thermal_level");
   if (search != props.cend()) {
-    if (search->second == "COOL")
+    if (search->second == "0")
       setThermalLevel(ThermalLevel::Cool);
-    else if (search->second == "HOT")
+    else if (search->second == "1")
       setThermalLevel(ThermalLevel::Hot);
-    else if (search->second == "WARM")
+    else if (search->second == "2")
       setThermalLevel(ThermalLevel::Warm);
   }
 }

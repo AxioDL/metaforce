@@ -1047,7 +1047,7 @@ void CGameArea::FillInStaticGeometry(bool textures) {
     matSet.InitializeLayout(nullptr);
     ++secIt;
   }
-  
+
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     /* Reserve extra buffers for 16 cubemaps and shadow rendering */
     matSet.m_geomLayout->ReserveSharedBuffers(ctx, 96 + int(EWorldShadowMode::MAX));
@@ -1092,7 +1092,7 @@ void CGameArea::FillInStaticGeometry(bool textures) {
 
       TToken<CModel> nullModel;
       inst.m_instance = std::make_unique<CBooModel>(nullModel, nullptr, &inst.m_surfaces, matSet, vbo, ibo,
-                                                    inst.x34_aabb, inst.x0_visorFlags, 0);
+                                                    inst.x34_aabb, static_cast<u8>(inst.x0_visorFlags), 0);
     }
 
     return true;
