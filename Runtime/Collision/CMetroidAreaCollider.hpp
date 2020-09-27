@@ -93,8 +93,8 @@ class CMetroidAreaCollider {
   static u32 g_TrianglesProcessed;
   static u32 g_DupTrianglesProcessed;
   static u16 g_DupPrimitiveCheckCount;
-  static std::array<u16, 0x5000> g_DupVertexList;
-  static std::array<u16, 0xC000> g_DupEdgeList;
+  static std::array<u16, 0x2800> g_DupVertexList;
+  static std::array<u16, 0x6000> g_DupEdgeList;
   static std::array<u16, 0x4000> g_DupTriangleList;
   static bool AABoxCollisionCheckBoolean_Internal(const CAreaOctTree::Node& node, const CBooleanAABoxAreaCache& cache);
   static bool AABoxCollisionCheck_Internal(const CAreaOctTree::Node& node, const CAABoxAreaCache& cache);

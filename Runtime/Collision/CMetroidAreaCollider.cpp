@@ -11,8 +11,8 @@ u32 CMetroidAreaCollider::g_RejectedByClip = 0;
 u32 CMetroidAreaCollider::g_TrianglesProcessed = 0;
 u32 CMetroidAreaCollider::g_DupTrianglesProcessed = 0;
 u16 CMetroidAreaCollider::g_DupPrimitiveCheckCount = 0;
-std::array<u16, 0x5000> CMetroidAreaCollider::g_DupVertexList{};
-std::array<u16, 0xC000> CMetroidAreaCollider::g_DupEdgeList{};
+std::array<u16, 0x2800> CMetroidAreaCollider::g_DupVertexList{};
+std::array<u16, 0x6000> CMetroidAreaCollider::g_DupEdgeList{};
 std::array<u16, 0x4000> CMetroidAreaCollider::g_DupTriangleList{};
 
 CAABoxAreaCache::CAABoxAreaCache(const zeus::CAABox& aabb, const std::array<zeus::CPlane, 6>& pl,
