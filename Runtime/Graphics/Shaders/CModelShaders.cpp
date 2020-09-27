@@ -80,7 +80,7 @@ constexpr std::array<hecl::Backend::TextureInfo, 2> DisintegrateTextures{{
     {TexCoordSource::Position, 1, false}, // Ashy tex
 }};
 
-static std::array<hecl::Backend::ExtensionSlot, 26> g_ExtensionSlots{{
+static std::array<hecl::Backend::ExtensionSlot, size_t(EExtendedShader::MAX)> g_ExtensionSlots{{
     /* Default solid shading */
     {},
     /* Normal lit shading */
@@ -149,9 +149,12 @@ static std::array<hecl::Backend::ExtensionSlot, 26> g_ExtensionSlots{{
     /* Thermal cold shading */
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Original, false, false, true, false, false, false, true},
-    /* Normal lit shading with alpha without depth test */
+    /* Normal lit shading with alpha */
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
-     hecl::Backend::ZTest::None, hecl::Backend::CullMode::Backface},
+     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface},
+    /* Normal lit shading with alpha without Z-write or depth test */
+    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
+     hecl::Backend::ZTest::None, hecl::Backend::CullMode::Backface, true},
     /* Normal lit shading with cube reflection */
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
@@ -160,7 +163,7 @@ static std::array<hecl::Backend::ExtensionSlot, 26> g_ExtensionSlots{{
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
 }};
 
-constexpr std::array<const char*, 26> ShaderMacros{
+constexpr std::array<const char*, size_t(EExtendedShader::MAX)> ShaderMacros{
     "URDE_LIGHTING",
     "URDE_LIGHTING",
     "URDE_THERMAL_HOT",
@@ -184,6 +187,7 @@ constexpr std::array<const char*, 26> ShaderMacros{
     "URDE_DISINTEGRATE",
     "URDE_LIGHTING",
     "URDE_THERMAL_COLD",
+    "URDE_LIGHTING",
     "URDE_LIGHTING",
     "URDE_LIGHTING_CUBE_REFLECTION",
     "URDE_LIGHTING_CUBE_REFLECTION_SHADOW",
