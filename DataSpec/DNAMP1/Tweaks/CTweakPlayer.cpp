@@ -1,8 +1,93 @@
 #include "CTweakPlayer.hpp"
 #include "zeus/Math.hpp"
 
-namespace DataSpec::DNAMP1 {
+#include <hecl/CVar.hpp>
+#include <hecl/CVarManager.hpp>
 
+#define DEFINE_CVAR_GLOBAL(name)                                                                                       \
+  constexpr std::string_view sk##name = std::string_view("tweak.player." #name);                                       \
+  hecl::CVar* tw_##name = nullptr;
+
+#define CREATE_CVAR(name, help, value, flags)                                                                          \
+  tw_##name = mgr->findOrMakeCVar(sk##name, help, value, flags);                                                       \
+  if (tw_##name->wasDeserialized()) {                                                                                  \
+    tw_##name->toValue(value);                                                                                         \
+  }                                                                                                                    \
+  tw_##name->addListener([this](hecl::CVar* cv) { _tweakListener(cv); });
+
+#define UPDATE_CVAR(name, cv, value)                                                                                   \
+  if ((cv) == tw_##name) {                                                                                             \
+    (cv)->toValue(value);                                                                                              \
+    return;                                                                                                            \
+  }
+
+namespace DataSpec::DNAMP1 {
+namespace {
+static constexpr hecl::CVar::EFlags skDefaultFlags =
+    hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Cheat | hecl::CVar::EFlags::Archive;
+DEFINE_CVAR_GLOBAL(MaxTranslationAccelerationNormal);
+DEFINE_CVAR_GLOBAL(MaxTranslationAccelerationAir);
+DEFINE_CVAR_GLOBAL(MaxTranslationAccelerationIce);
+DEFINE_CVAR_GLOBAL(MaxTranslationAccelerationOrganic);
+DEFINE_CVAR_GLOBAL(MaxTranslationAccelerationWater);
+DEFINE_CVAR_GLOBAL(MaxTranslationAccelerationLava);
+DEFINE_CVAR_GLOBAL(MaxTranslationAccelerationPhazon);
+DEFINE_CVAR_GLOBAL(MaxTranslationAccelerationShrubbery);
+DEFINE_CVAR_GLOBAL(MaxRotationAccelerationNormal);
+DEFINE_CVAR_GLOBAL(MaxRotationAccelerationAir);
+DEFINE_CVAR_GLOBAL(MaxRotationAccelerationIce);
+DEFINE_CVAR_GLOBAL(MaxRotationAccelerationOrganic);
+DEFINE_CVAR_GLOBAL(MaxRotationAccelerationWater);
+DEFINE_CVAR_GLOBAL(MaxRotationAccelerationLava);
+DEFINE_CVAR_GLOBAL(MaxRotationAccelerationPhazon);
+DEFINE_CVAR_GLOBAL(MaxRotationAccelerationShrubbery);
+DEFINE_CVAR_GLOBAL(TranslationFrictionNormal);
+DEFINE_CVAR_GLOBAL(TranslationFrictionAir);
+DEFINE_CVAR_GLOBAL(TranslationFrictionIce);
+DEFINE_CVAR_GLOBAL(TranslationFrictionOrganic);
+DEFINE_CVAR_GLOBAL(TranslationFrictionWater);
+DEFINE_CVAR_GLOBAL(TranslationFrictionLava);
+DEFINE_CVAR_GLOBAL(TranslationFrictionPhazon);
+DEFINE_CVAR_GLOBAL(TranslationFrictionShrubbery);
+DEFINE_CVAR_GLOBAL(RotationFrictionNormal);
+DEFINE_CVAR_GLOBAL(RotationFrictionAir);
+DEFINE_CVAR_GLOBAL(RotationFrictionIce);
+DEFINE_CVAR_GLOBAL(RotationFrictionOrganic);
+DEFINE_CVAR_GLOBAL(RotationFrictionWater);
+DEFINE_CVAR_GLOBAL(RotationFrictionLava);
+DEFINE_CVAR_GLOBAL(RotationFrictionPhazon);
+DEFINE_CVAR_GLOBAL(RotationFrictionShrubbery);
+DEFINE_CVAR_GLOBAL(RotationMaxSpeedNormal);
+DEFINE_CVAR_GLOBAL(RotationMaxSpeedAir);
+DEFINE_CVAR_GLOBAL(RotationMaxSpeedIce);
+DEFINE_CVAR_GLOBAL(RotationMaxSpeedOrganic);
+DEFINE_CVAR_GLOBAL(RotationMaxSpeedWater);
+DEFINE_CVAR_GLOBAL(RotationMaxSpeedLava);
+DEFINE_CVAR_GLOBAL(RotationMaxSpeedPhazon);
+DEFINE_CVAR_GLOBAL(RotationMaxSpeedShrubbery);
+DEFINE_CVAR_GLOBAL(TranslationMaxSpeedNormal);
+DEFINE_CVAR_GLOBAL(TranslationMaxSpeedAir);
+DEFINE_CVAR_GLOBAL(TranslationMaxSpeedIce);
+DEFINE_CVAR_GLOBAL(TranslationMaxSpeedOrganic);
+DEFINE_CVAR_GLOBAL(TranslationMaxSpeedWater);
+DEFINE_CVAR_GLOBAL(TranslationMaxSpeedLava);
+DEFINE_CVAR_GLOBAL(TranslationMaxSpeedPhazon);
+DEFINE_CVAR_GLOBAL(TranslationMaxSpeedShrubbery);
+DEFINE_CVAR_GLOBAL(NormalGravityAcceleration);
+DEFINE_CVAR_GLOBAL(FluidGravityAcceleration);
+DEFINE_CVAR_GLOBAL(VerticalJumpAcceleration);
+DEFINE_CVAR_GLOBAL(HorizontalJumpAcceleration);
+DEFINE_CVAR_GLOBAL(WaterJumpFactor);
+DEFINE_CVAR_GLOBAL(WaterBallJumpFactor);
+DEFINE_CVAR_GLOBAL(LavaJumpFactor);
+DEFINE_CVAR_GLOBAL(LavaBallJumpFactor);
+DEFINE_CVAR_GLOBAL(PhazonJumpFactor);
+DEFINE_CVAR_GLOBAL(PhazonBallJumpFactor);
+DEFINE_CVAR_GLOBAL(AllowedJumpTime);
+DEFINE_CVAR_GLOBAL(AllowedDoubleJumpTime);
+DEFINE_CVAR_GLOBAL(MinimumJumpTime);
+DEFINE_CVAR_GLOBAL(MinimumDoubleJumpTime);
+} // namespace
 template <>
 void CTweakPlayer::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_reader) {
   /* x4_maxTranslationalAcceleration[0] */
@@ -1900,9 +1985,168 @@ void CTweakPlayer::FixupValues() {
 }
 
 std::string_view CTweakPlayer::DNAType() { return "DataSpec::DNAMP1::CTweakPlayer"sv; }
-
 template <>
 void CTweakPlayer::Enumerate<BigDNA::BinarySize>(size_t& __isz) {
   __isz += 785;
+}
+
+void CTweakPlayer::_tweakListener(hecl::CVar* cv) {
+  UPDATE_CVAR(MaxTranslationAccelerationNormal, cv, x4_maxTranslationalAcceleration[0]);
+  UPDATE_CVAR(MaxTranslationAccelerationAir, cv, x4_maxTranslationalAcceleration[1]);
+  UPDATE_CVAR(MaxTranslationAccelerationIce, cv, x4_maxTranslationalAcceleration[2]);
+  UPDATE_CVAR(MaxTranslationAccelerationOrganic, cv, x4_maxTranslationalAcceleration[3]);
+  UPDATE_CVAR(MaxTranslationAccelerationWater, cv, x4_maxTranslationalAcceleration[4]);
+  UPDATE_CVAR(MaxTranslationAccelerationLava, cv, x4_maxTranslationalAcceleration[5]);
+  UPDATE_CVAR(MaxTranslationAccelerationPhazon, cv, x4_maxTranslationalAcceleration[6]);
+  UPDATE_CVAR(MaxRotationAccelerationShrubbery, cv, x24_maxRotationalAcceleration[7]);
+  UPDATE_CVAR(MaxRotationAccelerationNormal, cv, x24_maxRotationalAcceleration[0]);
+  UPDATE_CVAR(MaxRotationAccelerationAir, cv, x24_maxRotationalAcceleration[1]);
+  UPDATE_CVAR(MaxRotationAccelerationIce, cv, x24_maxRotationalAcceleration[2]);
+  UPDATE_CVAR(MaxRotationAccelerationOrganic, cv, x24_maxRotationalAcceleration[3]);
+  UPDATE_CVAR(MaxRotationAccelerationWater, cv, x24_maxRotationalAcceleration[4]);
+  UPDATE_CVAR(MaxRotationAccelerationLava, cv, x24_maxRotationalAcceleration[5]);
+  UPDATE_CVAR(MaxRotationAccelerationPhazon, cv, x24_maxRotationalAcceleration[6]);
+  UPDATE_CVAR(MaxRotationAccelerationShrubbery, cv, x24_maxRotationalAcceleration[7]);
+  UPDATE_CVAR(TranslationFrictionNormal, cv, x44_translationFriction[0]);
+  UPDATE_CVAR(TranslationFrictionAir, cv, x44_translationFriction[1]);
+  UPDATE_CVAR(TranslationFrictionIce, cv, x44_translationFriction[2]);
+  UPDATE_CVAR(TranslationFrictionOrganic, cv, x44_translationFriction[3]);
+  UPDATE_CVAR(TranslationFrictionWater, cv, x44_translationFriction[4]);
+  UPDATE_CVAR(TranslationFrictionLava, cv, x44_translationFriction[5]);
+  UPDATE_CVAR(TranslationFrictionPhazon, cv, x44_translationFriction[6]);
+  UPDATE_CVAR(TranslationFrictionShrubbery, cv, x44_translationFriction[7]);
+  UPDATE_CVAR(RotationFrictionNormal, cv, x44_translationFriction[2]);
+  UPDATE_CVAR(RotationFrictionIce, cv, x44_translationFriction[2]);
+  UPDATE_CVAR(RotationFrictionOrganic, cv, x44_translationFriction[3]);
+  UPDATE_CVAR(RotationFrictionWater, cv, x44_translationFriction[4]);
+  UPDATE_CVAR(RotationFrictionLava, cv, x44_translationFriction[5]);
+  UPDATE_CVAR(RotationFrictionPhazon, cv, x44_translationFriction[6]);
+  UPDATE_CVAR(RotationFrictionShrubbery, cv, x44_translationFriction[7]);
+  UPDATE_CVAR(RotationMaxSpeedNormal, cv, x84_rotationMaxSpeed[2]);
+  UPDATE_CVAR(RotationMaxSpeedIce, cv, x84_rotationMaxSpeed[2]);
+  UPDATE_CVAR(RotationMaxSpeedOrganic, cv, x84_rotationMaxSpeed[3]);
+  UPDATE_CVAR(RotationMaxSpeedWater, cv, x84_rotationMaxSpeed[4]);
+  UPDATE_CVAR(RotationMaxSpeedLava, cv, x84_rotationMaxSpeed[5]);
+  UPDATE_CVAR(RotationMaxSpeedPhazon, cv, x84_rotationMaxSpeed[6]);
+  UPDATE_CVAR(RotationMaxSpeedShrubbery, cv, x84_rotationMaxSpeed[7]);
+  UPDATE_CVAR(TranslationMaxSpeedNormal, cv, xa4_translationMaxSpeed[2]);
+  UPDATE_CVAR(TranslationMaxSpeedIce, cv, xa4_translationMaxSpeed[2]);
+  UPDATE_CVAR(TranslationMaxSpeedOrganic, cv, xa4_translationMaxSpeed[3]);
+  UPDATE_CVAR(TranslationMaxSpeedWater, cv, xa4_translationMaxSpeed[4]);
+  UPDATE_CVAR(TranslationMaxSpeedLava, cv, xa4_translationMaxSpeed[5]);
+  UPDATE_CVAR(TranslationMaxSpeedPhazon, cv, xa4_translationMaxSpeed[6]);
+  UPDATE_CVAR(TranslationMaxSpeedShrubbery, cv, xa4_translationMaxSpeed[7]);
+}
+
+void CTweakPlayer::initCVars(hecl::CVarManager* mgr) {
+  CREATE_CVAR(MaxTranslationAccelerationNormal,
+              "Max translation acceleration allowed to the player under normal circumstances",
+              x4_maxTranslationalAcceleration[0], skDefaultFlags);
+  CREATE_CVAR(MaxTranslationAccelerationAir, "Max translation acceleration allowed to the player while in air",
+              x4_maxTranslationalAcceleration[1], skDefaultFlags);
+  CREATE_CVAR(MaxTranslationAccelerationIce, "Max translation acceleration allowed to the player while on ice surfaces",
+              x4_maxTranslationalAcceleration[2], skDefaultFlags);
+  CREATE_CVAR(MaxTranslationAccelerationOrganic,
+              "Max translation acceleration allowed to the player while on organic surfaces",
+              x4_maxTranslationalAcceleration[3], skDefaultFlags);
+  CREATE_CVAR(MaxTranslationAccelerationWater, "Max translation acceleration allowed to the player while in water",
+              x4_maxTranslationalAcceleration[4], skDefaultFlags);
+  CREATE_CVAR(MaxTranslationAccelerationLava, "Max translation acceleration allowed to the player while in lava",
+              x4_maxTranslationalAcceleration[5], skDefaultFlags);
+  CREATE_CVAR(MaxTranslationAccelerationPhazon, "Max translation acceleration allowed to the player while in phazon",
+              x4_maxTranslationalAcceleration[6], skDefaultFlags);
+  CREATE_CVAR(MaxTranslationAccelerationShrubbery,
+              "Max translation acceleration allowed to the player while in shrubbery",
+              x4_maxTranslationalAcceleration[7], skDefaultFlags);
+  CREATE_CVAR(MaxRotationAccelerationNormal,
+              "Max rotation acceleration allowed to the player under normal circumstances",
+              x24_maxRotationalAcceleration[0], skDefaultFlags);
+  CREATE_CVAR(MaxRotationAccelerationAir, "Max rotation acceleration allowed to the player while in air",
+              x24_maxRotationalAcceleration[1], skDefaultFlags);
+  CREATE_CVAR(MaxRotationAccelerationIce, "Max rotation acceleration allowed to the player while on ice surfaces",
+              x24_maxRotationalAcceleration[2], skDefaultFlags);
+  CREATE_CVAR(MaxRotationAccelerationOrganic,
+              "Max rotation acceleration allowed to the player while on organic surfaces",
+              x24_maxRotationalAcceleration[3], skDefaultFlags);
+  CREATE_CVAR(MaxRotationAccelerationWater, "Max rotation acceleration allowed to the player while in water",
+              x24_maxRotationalAcceleration[4], skDefaultFlags);
+  CREATE_CVAR(MaxRotationAccelerationLava, "Max rotation acceleration allowed to the player while in lava",
+              x24_maxRotationalAcceleration[5], skDefaultFlags);
+  CREATE_CVAR(MaxRotationAccelerationPhazon, "Max rotation acceleration allowed to the player while in phazon",
+              x24_maxRotationalAcceleration[6], skDefaultFlags);
+  CREATE_CVAR(MaxRotationAccelerationShrubbery, "Max rotation acceleration allowed to the player while in shrubbery",
+              x24_maxRotationalAcceleration[7], skDefaultFlags);
+  CREATE_CVAR(TranslationFrictionNormal, "Translation friction allowed to the player under normal circumstances",
+              x44_translationFriction[0], skDefaultFlags);
+  CREATE_CVAR(TranslationFrictionAir, "Translation friction allowed to the player while in air",
+              x44_translationFriction[1], skDefaultFlags);
+  CREATE_CVAR(TranslationFrictionIce, "Translation friction allowed to the player while on ice surfaces",
+              x44_translationFriction[2], skDefaultFlags);
+  CREATE_CVAR(TranslationFrictionOrganic, "Translation friction allowed to the player while on organic surfaces",
+              x44_translationFriction[3], skDefaultFlags);
+  CREATE_CVAR(TranslationFrictionWater, "Translation friction allowed to the player while in water",
+              x44_translationFriction[4], skDefaultFlags);
+  CREATE_CVAR(TranslationFrictionLava, "Translation friction allowed to the player while in lava",
+              x44_translationFriction[5], skDefaultFlags);
+  CREATE_CVAR(TranslationFrictionPhazon, "Translation friction allowed to the player while in phazon",
+              x44_translationFriction[6], skDefaultFlags);
+  CREATE_CVAR(TranslationFrictionShrubbery, "Translation friction allowed to the player while in shrubbery",
+              x44_translationFriction[7], skDefaultFlags);
+  CREATE_CVAR(RotationFrictionNormal, "Rotation friction allowed to the player under normal circumstances",
+              x44_translationFriction[0], skDefaultFlags);
+  CREATE_CVAR(RotationFrictionAir, "Rotation friction allowed to the player while in air", x44_translationFriction[1],
+              skDefaultFlags);
+  CREATE_CVAR(RotationFrictionIce, "Rotation friction allowed to the player while on ice surfaces",
+              x44_translationFriction[2], skDefaultFlags);
+  CREATE_CVAR(RotationFrictionOrganic, "Rotation friction allowed to the player while on organic surfaces",
+              x44_translationFriction[3], skDefaultFlags);
+  CREATE_CVAR(RotationFrictionWater, "Rotation friction allowed to the player while in water",
+              x44_translationFriction[4], skDefaultFlags);
+  CREATE_CVAR(RotationFrictionLava, "Rotation friction allowed to the player while in lava", x44_translationFriction[5],
+              skDefaultFlags);
+  CREATE_CVAR(RotationFrictionPhazon, "Rotation friction allowed to the player while in phazon",
+              x44_translationFriction[6], skDefaultFlags);
+  CREATE_CVAR(RotationFrictionShrubbery, "Rotation friction allowed to the player while in shrubbery",
+              x44_translationFriction[7], skDefaultFlags);
+  CREATE_CVAR(RotationMaxSpeedNormal, "Rotation max speed allowed to the player under normal circumstances",
+              x84_rotationMaxSpeed[0], skDefaultFlags);
+  CREATE_CVAR(RotationMaxSpeedAir, "Rotation max speed allowed to the player while in air", x84_rotationMaxSpeed[1],
+              skDefaultFlags);
+  CREATE_CVAR(RotationMaxSpeedIce, "Rotation max speed allowed to the player while on ice surfaces",
+              x84_rotationMaxSpeed[2], skDefaultFlags);
+  CREATE_CVAR(RotationMaxSpeedOrganic, "Rotation max speed allowed to the player while on organic surfaces",
+              x84_rotationMaxSpeed[3], skDefaultFlags);
+  CREATE_CVAR(RotationMaxSpeedWater, "Rotation max speed allowed to the player while in water", x84_rotationMaxSpeed[4],
+              skDefaultFlags);
+  CREATE_CVAR(RotationMaxSpeedLava, "Rotation max speed allowed to the player while in lava", x84_rotationMaxSpeed[5],
+              skDefaultFlags);
+  CREATE_CVAR(RotationMaxSpeedPhazon, "Rotation max speed allowed to the player while in phazon",
+              x84_rotationMaxSpeed[6], skDefaultFlags);
+  CREATE_CVAR(RotationMaxSpeedShrubbery, "Rotation max speed allowed to the player while in shrubbery",
+              x84_rotationMaxSpeed[7], skDefaultFlags);
+  CREATE_CVAR(TranslationMaxSpeedNormal, "Translation max speed allowed to the player under normal circumstances",
+              xa4_translationMaxSpeed[0], skDefaultFlags);
+  CREATE_CVAR(TranslationMaxSpeedNormal, "Translation max speed allowed to the player under normal circumstances",
+              xa4_translationMaxSpeed[1], skDefaultFlags);
+  CREATE_CVAR(TranslationMaxSpeedIce, "Translation max speed allowed to the player while on ice surfaces",
+              xa4_translationMaxSpeed[2], skDefaultFlags);
+  CREATE_CVAR(TranslationMaxSpeedOrganic, "Translation max speed allowed to the player while on organic surfaces",
+              xa4_translationMaxSpeed[3], skDefaultFlags);
+  CREATE_CVAR(TranslationMaxSpeedWater, "Translation max speed allowed to the player while in water",
+              xa4_translationMaxSpeed[4], skDefaultFlags);
+  CREATE_CVAR(TranslationMaxSpeedLava, "Translation max speed allowed to the player while in lava",
+              xa4_translationMaxSpeed[5], skDefaultFlags);
+  CREATE_CVAR(TranslationMaxSpeedPhazon, "Translation max speed allowed to the player while in phazon",
+              xa4_translationMaxSpeed[6], skDefaultFlags);
+  CREATE_CVAR(TranslationMaxSpeedShrubbery, "Translation max speed allowed to the player while in shrubbery",
+              xa4_translationMaxSpeed[7], skDefaultFlags);
+  CREATE_CVAR(NormalGravityAcceleration, "Gravity applied to the player under normal circumstances",
+              xc4_normalGravAccel, skDefaultFlags);
+  CREATE_CVAR(FluidGravityAcceleration, "Gravity applied to the player while in water", xc8_fluidGravAccel,
+              skDefaultFlags);
+  CREATE_CVAR(VerticalJumpAcceleration, "Vertical acceleration applied while jumping", xcc_verticalJumpAccel,
+              skDefaultFlags);
+  CREATE_CVAR(HorizontalJumpAcceleration, "Horizontal acceleration while jump (e.g, while scan dashing)",
+              xd0_horizontalJumpAccel, skDefaultFlags);
 }
 } // namespace DataSpec::DNAMP1
