@@ -4,24 +4,12 @@
 #include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
-#include <hecl/Pipeline.hpp>
-#include <zeus/CVector2f.hpp>
+#include "zeus/CVector2f.hpp"
 
 namespace urde {
 
-static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
-
-void CThermalColdFilter::Initialize() { s_Pipeline = hecl::conv->convert(Shader_CThermalColdFilter{}); }
-
-void CThermalColdFilter::Shutdown() { s_Pipeline.reset(); }
-
 CThermalColdFilter::CThermalColdFilter() {
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    struct Vert {
-      zeus::CVector2f m_pos;
-      zeus::CVector2f m_uv;
-      zeus::CVector2f m_uvNoise;
-    };
     const std::array<Vert, 4> verts{{
         {{-1.f, -1.f}, {0.f, 0.f}, {0.f, 0.f}},
         {{-1.f, 1.f}, {0.f, 1.f}, {0.f, 448.f}},

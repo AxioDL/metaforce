@@ -5,12 +5,30 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 
 #include <amuse/DSPCodec.hpp>
-#include <boo/graphicsdev/GLSLMacros.hpp>
-#include <hecl/Pipeline.hpp>
-#include <specter/View.hpp>
 #include <turbojpeg.h>
 
+#include "CMoviePlayer.cpp.hshhead"
+
 namespace urde {
+using namespace hsh::pipeline;
+
+struct CMoviePlayerPipeline : pipeline<color_attachment<>> {
+  CMoviePlayerPipeline(hsh::vertex_buffer<TexUVVert> vbo, hsh::uniform_buffer<ViewBlock> uniBuf, hsh::texture2d Y,
+                       hsh::texture2d U, hsh::texture2d V) {
+    position = uniBuf->m_mv * hsh::float4(vbo->m_pos, 1.0);
+
+    hsh::float3 yuv;
+    yuv.x = Y.sample<float>(vbo->m_uv).x;
+    yuv.y = U.sample<float>(vbo->m_uv).x;
+    yuv.z = V.sample<float>(vbo->m_uv).x;
+    yuv.x = 1.1643 * (yuv.x - 0.0625);
+    yuv.y = yuv.y - 0.5;
+    yuv.z = yuv.z - 0.5;
+    color_out[0] =
+        hsh::float4(yuv.x + 1.5958 * yuv.z, yuv.x - 0.39173 * yuv.y - 0.81290 * yuv.z, yuv.x + 2.017 * yuv.y, 1.0) *
+        uniBuf->m_color;
+  }
+};
 
 /* used in the original to look up fixed-point dividends on a
  * MIDI-style volume scale (0-127) -> (n/0x8000) */
@@ -27,7 +45,6 @@ static const u16 StaticVolumeLookup[] = {
     0x6CA2, 0x6E80, 0x7061, 0x7247, 0x7430, 0x761E, 0x7810, 0x7A06, 0x7C00, 0x7DFE, 0x8000};
 
 /* shared boo resources */
-static boo::ObjToken<boo::IShaderPipeline> YUVShaderPipeline;
 static tjhandle TjHandle = nullptr;
 
 /* RSF audio state */
@@ -46,15 +63,9 @@ static float SfxVolume = 1.f;
 static const char* BlockNames[] = {"SpecterViewBlock"};
 static const char* TexNames[] = {"texY", "texU", "texV"};
 
-void CMoviePlayer::Initialize() {
-  YUVShaderPipeline = hecl::conv->convert(Shader_CMoviePlayerShader{});
-  TjHandle = tjInitDecompress();
-}
+void CMoviePlayer::Initialize() { TjHandle = tjInitDecompress(); }
 
-void CMoviePlayer::Shutdown() {
-  YUVShaderPipeline.reset();
-  tjDestroy(TjHandle);
-}
+void CMoviePlayer::Shutdown() { tjDestroy(TjHandle); }
 
 void CMoviePlayer::THPHeader::swapBig() {
   magic = hecl::SBig(magic);
@@ -149,12 +160,12 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
   /* Read THP header information */
   u8 buf[64];
   SyncRead(buf, 64);
-  memmove(&x28_thpHead, buf, 48);
+  std::memcpy(&x28_thpHead, buf, 48);
   x28_thpHead.swapBig();
 
   u32 cur = x28_thpHead.componentDataOffset;
   SyncSeekRead(buf, 32, ESeekOrigin::Begin, cur);
-  memmove(&x58_thpComponents, buf, 20);
+  std::memcpy(&x58_thpComponents, buf, 20);
   cur += 20;
   x58_thpComponents.swapBig();
 
@@ -162,13 +173,13 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     switch (x58_thpComponents.comps[i]) {
     case THPComponents::Type::Video:
       SyncSeekRead(buf, 32, ESeekOrigin::Begin, cur);
-      memmove(&x6c_videoInfo, buf, 8);
+      std::memcpy(&x6c_videoInfo, buf, 8);
       cur += 8;
       x6c_videoInfo.swapBig();
       break;
     case THPComponents::Type::Audio:
       SyncSeekRead(buf, 32, ESeekOrigin::Begin, cur);
-      memmove(&x74_audioInfo, buf, 12);
+      std::memcpy(&x74_audioInfo, buf, 12);
       cur += 12;
       x74_audioInfo.swapBig();
       xf4_25_hasAudio = true;
@@ -200,50 +211,36 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     xa0_bufferQueue.reserve(xf0_preLoadFrames);
 
   /* All set for GPU resources */
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_blockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(m_viewVertBlock), 1);
-    m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(specter::View::TexShaderVert), 4);
+  m_blockBuf = hsh::create_dynamic_uniform_buffer<ViewBlock>();
+  m_vertBuf = hsh::create_dynamic_vertex_buffer<TexUVVert>(4);
 
-    /* Allocate textures here (rather than at decode time) */
-    x80_textures.reserve(3);
-    for (int i = 0; i < 3; ++i) {
-      CTHPTextureSet& set = x80_textures.emplace_back();
-      if (deinterlace) {
-        /* urde addition: this way interlaced THPs don't look horrible */
-        set.Y[0] = ctx.newDynamicTexture(x6c_videoInfo.width, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
-                                         boo::TextureClampMode::Repeat);
-        set.Y[1] = ctx.newDynamicTexture(x6c_videoInfo.width, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
-                                         boo::TextureClampMode::Repeat);
-        set.U = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
-                                      boo::TextureClampMode::Repeat);
-        set.V = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
-                                      boo::TextureClampMode::Repeat);
+  /* Allocate textures here (rather than at decode time) */
+  x80_textures.reserve(3);
+  for (int i = 0; i < 3; ++i) {
+    CTHPTextureSet& set = x80_textures.emplace_back();
+    if (deinterlace) {
+      /* urde addition: this way interlaced THPs don't look horrible */
+      set.Y[0] = hsh::create_dynamic_texture2d({x6c_videoInfo.width, x6c_videoInfo.height / 2}, hsh::R8_UNORM, 1);
+      set.Y[0] = hsh::create_dynamic_texture2d({x6c_videoInfo.width, x6c_videoInfo.height / 2}, hsh::R8_UNORM, 1);
+      set.U = hsh::create_dynamic_texture2d({x6c_videoInfo.width / 2, x6c_videoInfo.height / 2}, hsh::R8_UNORM, 1);
+      set.V = hsh::create_dynamic_texture2d({x6c_videoInfo.width / 2, x6c_videoInfo.height / 2}, hsh::R8_UNORM, 1);
 
-        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_blockBuf.get()};
-        for (int j = 0; j < 2; ++j) {
-          boo::ObjToken<boo::ITexture> texs[] = {set.Y[j].get(), set.U.get(), set.V.get()};
-          set.binding[j] = ctx.newShaderDataBinding(YUVShaderPipeline, m_vertBuf.get(), nullptr, nullptr, 1, bufs,
-                                                    nullptr, 3, texs, nullptr, nullptr);
-        }
-      } else {
-        /* normal progressive presentation */
-        set.Y[0] = ctx.newDynamicTexture(x6c_videoInfo.width, x6c_videoInfo.height, boo::TextureFormat::I8,
-                                         boo::TextureClampMode::Repeat);
-        set.U = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
-                                      boo::TextureClampMode::Repeat);
-        set.V = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
-                                      boo::TextureClampMode::Repeat);
+      set.binding[0].hsh_bind_even(
+          CMoviePlayerPipeline(m_vertBuf.get(), m_blockBuf.get(), set.Y[0].get(), set.U.get(), set.V.get()));
+      set.binding[1].hsh_bind_odd(
+          CMoviePlayerPipeline(m_vertBuf.get(), m_blockBuf.get(), set.Y[1].get(), set.U.get(), set.V.get()));
+    } else {
+      /* normal progressive presentation */
+      set.Y[0] = hsh::create_dynamic_texture2d({x6c_videoInfo.width, x6c_videoInfo.height}, hsh::R8_UNORM, 1);
+      set.U = hsh::create_dynamic_texture2d({x6c_videoInfo.width / 2, x6c_videoInfo.height / 2}, hsh::R8_UNORM, 1);
+      set.V = hsh::create_dynamic_texture2d({x6c_videoInfo.width / 2, x6c_videoInfo.height / 2}, hsh::R8_UNORM, 1);
 
-        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_blockBuf.get()};
-        boo::ObjToken<boo::ITexture> texs[] = {set.Y[0].get(), set.U.get(), set.V.get()};
-        set.binding[0] = ctx.newShaderDataBinding(YUVShaderPipeline, m_vertBuf.get(), nullptr, nullptr, 1, bufs,
-                                                  nullptr, 3, texs, nullptr, nullptr);
-      }
-      if (xf4_25_hasAudio)
-        set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);
+      set.binding[0].hsh_bind_prog(
+          CMoviePlayerPipeline(m_vertBuf.get(), m_blockBuf.get(), set.Y[0].get(), set.U.get(), set.V.get()));
     }
-    return true;
-  } BooTrace);
+    if (xf4_25_hasAudio)
+      set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);
+  }
 
   /* Temporary planar YUV decode buffer, resulting planes copied to Boo */
   m_yuvBuf.reset(new uint8_t[tjBufSizeYUV(x6c_videoInfo.width, x6c_videoInfo.height, TJ_420)]);
@@ -258,7 +255,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
   SetFrame({-0.5f, 0.5f, 0.f}, {-0.5f, -0.5f, 0.f}, {0.5f, -0.5f, 0.f}, {0.5f, 0.5f, 0.f});
 
   m_viewVertBlock.finalAssign(m_viewVertBlock);
-  m_blockBuf->load(&m_viewVertBlock, sizeof(m_viewVertBlock));
+  m_blockBuf.load(m_viewVertBlock);
 }
 
 void CMoviePlayer::SetStaticAudioVolume(int vol) {
@@ -282,9 +279,9 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples) {
   /* No audio frames ready */
   if (xd4_audioSlot == UINT32_MAX) {
     if (in)
-      memmove(out, in, samples * 4);
+      std::memcpy(out, in, samples * 4);
     else
-      memset(out, 0, samples * 4);
+      std::memset(out, 0, samples * 4);
     return;
   }
 
@@ -319,9 +316,9 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples) {
     } else {
       /* urde addition: failsafe for buffer overrun */
       if (in)
-        memmove(out, in, samples * 4);
+        std::memcpy(out, in, samples * 4);
       else
-        memset(out, 0, samples * 4);
+        std::memset(out, 0, samples * 4);
       // fprintf(stderr, "dropped %d samples\n", samples);
       return;
     }
@@ -403,7 +400,7 @@ void CMoviePlayer::SetFrame(const zeus::CVector3f& a, const zeus::CVector3f& b, 
   m_frame[1].m_pos = b;
   m_frame[2].m_pos = d;
   m_frame[3].m_pos = c;
-  m_vertBuf->load(m_frame, sizeof(m_frame));
+  m_vertBuf.load(m_frame);
 }
 
 void CMoviePlayer::DrawFrame() {
@@ -413,8 +410,7 @@ void CMoviePlayer::DrawFrame() {
 
   /* draw appropriate field */
   CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
-  CGraphics::SetShaderDataBinding(tex.binding[m_deinterlace ? (xfc_fieldIndex != 0) : 0]);
-  CGraphics::DrawArray(0, 4);
+  tex.binding[m_deinterlace ? (xfc_fieldIndex != 0) : 0].draw(0, 4);
 
   /* ensure second field is being displayed by VI to signal advance
    * (faked in urde with continuous xor) */
@@ -530,33 +526,33 @@ void CMoviePlayer::DecodeFromRead(const void* data) {
 
       if (m_deinterlace) {
         /* Deinterlace into 2 discrete 60-fps half-res textures */
-        u8* mappedData = (u8*)tex.Y[0]->map(planeSizeHalf);
+        u8* mappedData = (u8*)tex.Y[0].map();
         for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
-          memmove(mappedData + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2),
-                  x6c_videoInfo.width);
+          std::memcpy(mappedData + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2),
+                      x6c_videoInfo.width);
         }
-        tex.Y[0]->unmap();
+        tex.Y[0].unmap();
 
-        mappedData = (u8*)tex.Y[1]->map(planeSizeHalf);
+        mappedData = (u8*)tex.Y[1].map();
         for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
-          memmove(mappedData + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
-                  x6c_videoInfo.width);
+          std::memcpy(mappedData + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
+                      x6c_videoInfo.width);
         }
-        tex.Y[1]->unmap();
+        tex.Y[1].unmap();
 
-        tex.U->load(m_yuvBuf.get() + planeSize, planeSizeQuarter);
-        tex.V->load(m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter);
+        tex.U.load(m_yuvBuf.get() + planeSize, planeSizeQuarter);
+        tex.V.load(m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter);
       } else {
         /* Direct planar load */
-        tex.Y[0]->load(m_yuvBuf.get(), planeSize);
-        tex.U->load(m_yuvBuf.get() + planeSize, planeSizeQuarter);
-        tex.V->load(m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter);
+        tex.Y[0].load(m_yuvBuf.get(), planeSize);
+        tex.U.load(m_yuvBuf.get() + planeSize, planeSizeQuarter);
+        tex.V.load(m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter);
       }
 
       break;
     }
     case THPComponents::Type::Audio:
-      memset(tex.audioBuf.get(), 0, x28_thpHead.maxAudioSamples * 4);
+      std::memset(tex.audioBuf.get(), 0, x28_thpHead.maxAudioSamples * 4);
       tex.audioSamples = THPAudioDecode(tex.audioBuf.get(), (u8*)inptr, x74_audioInfo.numChannels == 2);
       tex.playedSamples = 0;
       inptr += frameHeader.audioSize;

@@ -219,13 +219,13 @@ public:
     std::unique_ptr<CAreaFog> x10c4_areaFog;
     const u8* x10c8_sclyBuf = nullptr;
     u32 x10d0_sclySize = 0;
-    u32 x10d4_ = 0;
+    void* x10d4_firstGeomPtr = nullptr;
     const CScriptAreaAttributes* x10d8_areaAttributes = nullptr;
     EOcclusionState x10dc_occlusionState = EOcclusionState::Occluded;
     u32 x10e0_ = 0;
     float x10e4_occludedTime = 5.f;
     u32 x10e8_ = -1;
-    u32 x10ec_ = 0;
+    u32 x10ec_firstGeomSection = 0; // Always 2
     // std::vector<CAramToken> x10f0_tokens;
     u32 x1100_ = 0;
     u32 x1104_ = 0;
@@ -258,7 +258,7 @@ public:
   };
 
 private:
-  std::vector<std::pair<std::unique_ptr<u8[]>, int>> x110_mreaSecBufs;
+  std::vector<std::pair<std::unique_ptr<u8[]>, int>> x110_mreaSecBufs; // 12 byte elements (auto_ptr, int)
   std::vector<std::pair<const u8*, int>> m_resolvedBufs;
   u32 x124_secCount = 0;
   u32 x128_mreaDataOffset = 0;

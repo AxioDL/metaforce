@@ -19,8 +19,8 @@ CMessageScreen::CMessageScreen(CAssetId msg, float delayTime) : x74_delayTime(de
 
 void CMessageScreen::ProcessControllerInput(const CFinalInput& input) {
   if (!x18_loadedMsgScreen || x74_delayTime > 0.f || !(input.PA() ||
-                                                       input.PSpecialKey(boo::ESpecialKey::Enter) ||
-                                                       input.PMouseButton(boo::EMouseButton::Primary)))
+                                                       input.PKey('\n') ||
+                                                       input.PMouseButton(boo2::MouseButton::Primary)))
     return;
 
   if (x1c_textpane_message->TextSupport().GetCurTime() < x1c_textpane_message->TextSupport().GetTotalAnimationTime()) {

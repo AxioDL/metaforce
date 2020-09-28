@@ -4,35 +4,34 @@
 #include <cstddef>
 #include <vector>
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
-#include <zeus/CRectangle.hpp>
-#include <zeus/CVector4f.hpp>
-
-namespace zeus {
-class CVector3f;
-}
+#include "zeus/CRectangle.hpp"
+#include "zeus/CVector4f.hpp"
 
 namespace urde {
 
 class CFogVolumePlaneShader {
-  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 4> m_dataBinds;
-  std::vector<zeus::CVector4f> m_verts;
+  template <size_t I>
+  friend struct CFogVolumePlanePipeline;
+  struct Vert {
+    hsh::float4 pos;
+    Vert(hsh::float4 pos) : pos(pos) {}
+  };
+
+  hsh::dynamic_owner<hsh::vertex_buffer<Vert>> m_vbo;
+  std::array<hsh::binding, 4> m_dataBinds;
+  std::vector<Vert> m_verts;
   size_t m_vertCapacity = 0;
 
   void CommitResources(size_t capacity);
 
 public:
-  static void Initialize();
-  static void Shutdown();
   static const zeus::CRectangle DefaultRect;
-  void reset(int numVerts) {
+  void reset(size_t numVerts) {
     m_verts.clear();
     m_verts.reserve(numVerts);
   }
-  void addFan(const zeus::CVector3f* verts, int numVerts);
-  void draw(int pass);
+  void addFan(const zeus::CVector3f* verts, size_t numVerts);
+  void draw(size_t pass);
 };
 
 } // namespace urde

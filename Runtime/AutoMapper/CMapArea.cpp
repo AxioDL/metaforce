@@ -107,43 +107,41 @@ void CMapArea::PostConstruct() {
     m_surfaces.emplace_back(x40_surfaceStart + j).PostConstruct(x44_buf.get(), index);
   }
 
-  CGraphics::CommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx) {
-    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, m_verts.data(), 16, m_verts.size());
-    m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, index.data(), 4, index.size());
+  m_vbo = hsh::create_vertex_buffer<CMapSurfaceShader::Vert>(m_verts);
+  m_ibo = hsh::create_index_buffer<u32>(index);
 
-    /* Only the map universe specifies Always; it draws a maximum of 1016 instances */
-    size_t instCount = (xc_visibilityMode == EVisMode::Always) ? 1024 : 1;
+  /* Only the map universe specifies Always; it draws a maximum of 1016 instances */
+  size_t instCount = (xc_visibilityMode == EVisMode::Always) ? 1024 : 1;
 
-    for (u32 i = 0; i < x30_surfaceCount; ++i) {
-      CMapAreaSurface& surf = m_surfaces[i];
-      surf.m_instances.reserve(instCount);
-      for (u32 inst = 0; inst < instCount; ++inst) {
-        CMapAreaSurface::Instance& instance = surf.m_instances.emplace_back(ctx, m_vbo, m_ibo);
+  for (u32 i = 0; i < x30_surfaceCount; ++i) {
+    CMapAreaSurface& surf = m_surfaces[i];
+    surf.m_instances.reserve(instCount);
+    for (u32 inst = 0; inst < instCount; ++inst) {
+      CMapAreaSurface::Instance& instance = surf.m_instances.emplace_back(m_vbo, m_ibo);
 
-        athena::io::MemoryReader r(surf.x1c_outlineOffset, INT_MAX);
-        u32 outlineCount = r.readUint32Big();
+      athena::io::MemoryReader r(surf.x1c_outlineOffset, INT_MAX);
+      u32 outlineCount = r.readUint32Big();
 
-        std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
-        linePrims.reserve(outlineCount * 2);
-        for (u32 j = 0; j < 2; ++j) {
-          r.seek(4, athena::SeekOrigin::Begin);
-          for (u32 k = 0; k < outlineCount; ++k) {
-            const u32 count = r.readUint32Big();
-            r.seek(count);
-            r.seekAlign4();
-            linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false, false, true);
-          }
+      std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
+      linePrims.reserve(outlineCount * 2);
+      for (u32 j = 0; j < 2; ++j) {
+        r.seek(4, athena::SeekOrigin::Begin);
+        for (u32 k = 0; k < outlineCount; ++k) {
+          const u32 count = r.readUint32Big();
+          r.seek(count);
+          r.seekAlign4();
+          linePrims.emplace_back(CLineRenderer::EPrimitiveMode::LineStrip, count, hsh::texture2d{}, false,
+                                 hsh::GEqual);
         }
       }
     }
+  }
 
-    for (u32 i = 0; i < x28_mappableObjCount; ++i) {
-      CMappableObject& mapObj = m_mappableObjects[i];
-      if (CMappableObject::IsDoorType(mapObj.GetType()))
-        mapObj.CreateDoorSurface(ctx);
-    }
-    return true;
-  } BooTrace);
+  for (u32 i = 0; i < x28_mappableObjCount; ++i) {
+    CMappableObject& mapObj = m_mappableObjects[i];
+    if (CMappableObject::IsDoorType(mapObj.GetType()))
+      mapObj.CreateDoorSurface();
+  }
 }
 
 bool CMapArea::GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const {
@@ -256,7 +254,7 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
   m_primCount = index.size() - m_primStart;
 }
 
-void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::CColor& surfColor,
+void CMapArea::CMapAreaSurface::Draw(const CMapSurfaceShader::Vert* verts, const zeus::CColor& surfColor,
                                      const zeus::CColor& lineColor, float lineWidth, size_t instIdx) {
   if (instIdx >= m_instances.size()) {
     return;
@@ -288,7 +286,7 @@ void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::C
         u32 count = r.readUint32Big();
         for (u32 v = 0; v < count; ++v) {
           u8 idx = r.readUByte();
-          prim.AddVertex(verts[idx], color, width);
+          prim.AddVertex(verts[idx].pos, color, width);
         }
         r.seekAlign4();
         prim.Render();

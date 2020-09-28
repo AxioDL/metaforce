@@ -2,9 +2,6 @@
 
 #include "Runtime/CToken.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-#include <zeus/CColor.hpp>
-
 namespace urde {
 class CTexture;
 
@@ -13,19 +10,21 @@ enum class EFilterType;
 
 class CRandomStaticFilter {
   struct Uniform {
-    zeus::CColor color;
+    hsh::float4 color;
     float randOff;
     float discardThres;
   };
-  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+  struct Vert {
+    hsh::float2 m_pos;
+    hsh::float2 m_uv;
+  };
+  hsh::owner<hsh::vertex_buffer<Vert>> m_vbo;
+  hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
+  hsh::binding m_dataBind;
   Uniform m_uniform;
   bool m_cookieCutter;
 
 public:
-  static void Initialize();
-  static void Shutdown();
   explicit CRandomStaticFilter(EFilterType type, bool cookieCutter = false);
   explicit CRandomStaticFilter(EFilterType type, const TLockedToken<CTexture>&) : CRandomStaticFilter(type) {}
   void draw(const zeus::CColor& color, float t);

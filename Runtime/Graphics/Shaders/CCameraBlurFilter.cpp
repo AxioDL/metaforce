@@ -5,34 +5,32 @@
 
 #include "Runtime/Graphics/CGraphics.hpp"
 
-#include <hecl/Pipeline.hpp>
-#include <zeus/CVector2f.hpp>
+#include "CCameraBlurFilter.cpp.hshhead"
 
 namespace urde {
-namespace {
-struct Vert {
-  zeus::CVector2f m_pos;
-  zeus::CVector2f m_uv;
+using namespace hsh::pipeline;
+
+struct CCameraBlurFilterPipeline : pipeline<color_attachment<>> {
+  CCameraBlurFilterPipeline(hsh::vertex_buffer<CCameraBlurFilter::Vert> vbo,
+                            hsh::uniform_buffer<CCameraBlurFilter::Uniform> ubo,
+                            hsh::render_texture2d tex) {
+    position = hsh::float4(vbo->m_pos, 0.f, 1.f);
+
+    hsh::float4 colorSample = tex.sample<float>(vbo->m_uv) * 0.14285715f;
+    colorSample += tex.sample<float>(vbo->m_uv + ubo->m_uv[0]) * 0.14285715f;
+    colorSample += tex.sample<float>(vbo->m_uv + ubo->m_uv[1]) * 0.14285715f;
+    colorSample += tex.sample<float>(vbo->m_uv + ubo->m_uv[2]) * 0.14285715f;
+    colorSample += tex.sample<float>(vbo->m_uv + ubo->m_uv[3]) * 0.14285715f;
+    colorSample += tex.sample<float>(vbo->m_uv + ubo->m_uv[4]) * 0.14285715f;
+    colorSample += tex.sample<float>(vbo->m_uv + ubo->m_uv[5]) * 0.14285715f;
+    color_out[0] = hsh::float4(colorSample.xyz(), ubo->m_opacity);
+  }
 };
 
-boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
-} // Anonymous namespace
-
-void CCameraBlurFilter::Initialize() { s_Pipeline = hecl::conv->convert(Shader_CCameraBlurFilter{}); }
-
-void CCameraBlurFilter::Shutdown() { s_Pipeline.reset(); }
-
 CCameraBlurFilter::CCameraBlurFilter() {
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 4);
-    m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
-    boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-    boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get()};
-    m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr, 1, bufs, stages, nullptr, nullptr,
-                                          1, texs, nullptr, nullptr);
-    return true;
-  } BooTrace);
+  m_vbo = hsh::create_dynamic_vertex_buffer<Vert>(4);
+  m_uniBuf = hsh::create_dynamic_uniform_buffer<Uniform>();
+  m_dataBind.hsh_bind(CCameraBlurFilterPipeline(m_vbo.get(), m_uniBuf.get(), CGraphics::g_SpareTexture.get_color(0)));
 }
 
 void CCameraBlurFilter::draw(float amount, bool clearDepth) {
@@ -55,7 +53,7 @@ void CCameraBlurFilter::draw(float amount, bool clearDepth) {
       {{1.0, -1.0}, {xBias + xFac, yBias}},
       {{1.0, 1.0}, {xBias + xFac, yBias + yFac}},
   };
-  m_vbo->load(verts, sizeof(verts));
+  m_vbo.load(verts);
 
   for (int i = 0; i < 6; ++i) {
     float tmp = i;
@@ -68,14 +66,12 @@ void CCameraBlurFilter::draw(float amount, bool clearDepth) {
     float amtY = std::sin(tmp);
     amtY *= amount / 448.f;
 
-    m_uniform.m_uv[i][0] = amtX * xFac;
-    m_uniform.m_uv[i][1] = amtY * yFac;
+    m_uniform.m_uv[i].x = amtX * xFac;
+    m_uniform.m_uv[i].y = amtY * yFac;
   }
   m_uniform.m_opacity = std::min(amount / 2.f, 1.f);
-  m_uniBuf->load(&m_uniform, sizeof(m_uniform));
-
-  CGraphics::SetShaderDataBinding(m_dataBind);
-  CGraphics::DrawArray(0, 4);
+  m_uniBuf.load(m_uniform);
+  m_dataBind.draw(0, 4);
 }
 
 } // namespace urde

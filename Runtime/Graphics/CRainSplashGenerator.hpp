@@ -24,7 +24,7 @@ class CRainSplashGenerator {
     u8 x15_length = 1;
     bool x16_active = true; // used to be one-bit bitfield
     CLineRenderer m_renderer;
-    explicit SSplashLine(boo::IGraphicsDataFactory::Context& ctx);
+    explicit SSplashLine();
     void Update(float dt, CStateManager& mgr);
     void Draw(float alpha, float dt, const zeus::CVector3f& pos);
     void SetActive() { x16_active = true; }
@@ -33,7 +33,7 @@ class CRainSplashGenerator {
     rstl::reserved_vector<SSplashLine, 4> x0_lines;
     zeus::CVector3f x64_pos;
     float x70_ = 0.f;
-    explicit SRainSplash(boo::IGraphicsDataFactory::Context& ctx);
+    explicit SRainSplash();
     SRainSplash(const SRainSplash&) = delete;
     SRainSplash& operator=(const SRainSplash&) = delete;
     SRainSplash(SRainSplash&&) = default;

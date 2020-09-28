@@ -4,9 +4,9 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-#include <amuse/amuse.hpp>
-#include <boo/audiodev/IAudioVoiceEngine.hpp>
-#include <zeus/CVector3f.hpp>
+#include "amuse/amuse.hpp"
+#include "boo2/audiodev/IAudioVoiceEngine.hpp"
+#include "zeus/CVector3f.hpp"
 
 namespace urde {
 class CAudioGroupSet;
@@ -21,7 +21,7 @@ public:
 
 private:
   static CAudioSys* g_SharedSys;
-  boo::IAudioVoiceEngine* m_voiceEngine;
+  boo2::IAudioVoiceEngine* m_voiceEngine;
   amuse::Engine m_engine;
   static void _UpdateVolume();
 
@@ -38,7 +38,7 @@ public:
     bool x28_important; // Can't be allocated over, regardless of priority
     u8 x29_prio;
   };
-  CAudioSys(boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend, u8, u8, u8, u8, u32)
+  CAudioSys(boo2::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend, u8, u8, u8, u8, u32)
   : m_voiceEngine(voiceEngine), m_engine(backend) {
     g_SharedSys = this;
   }
@@ -46,7 +46,7 @@ public:
 
   static void AddAudioGroup(const amuse::AudioGroupData& data) { g_SharedSys->m_engine.addAudioGroup(data); }
   static void RemoveAudioGroup(const amuse::AudioGroupData& data) { g_SharedSys->m_engine.removeAudioGroup(data); }
-  static boo::IAudioVoiceEngine* GetVoiceEngine() { return g_SharedSys->m_voiceEngine; }
+  static boo2::IAudioVoiceEngine* GetVoiceEngine() { return g_SharedSys->m_voiceEngine; }
   static amuse::Engine& GetAmuseEngine() { return g_SharedSys->m_engine; }
   static void SetSurroundMode(ESurroundModes mode) {}
   static TLockedToken<CAudioGroupSet> FindGroupSet(std::string_view name);

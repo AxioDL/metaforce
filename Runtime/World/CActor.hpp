@@ -73,7 +73,7 @@ protected:
   bool xe7_30_doTargetDistanceTest : 1;
   bool xe7_31_targetable : 1;
 
-  boo::ObjToken<boo::ITextureCubeR> m_reflectionCube;
+  hsh::owner<hsh::texturecube> m_reflectionCube;
 
   void _CreateShadow();
   void _CreateReflectionCube();

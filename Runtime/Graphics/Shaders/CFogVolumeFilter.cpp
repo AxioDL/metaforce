@@ -12,25 +12,8 @@
 
 namespace urde {
 
-static boo::ObjToken<boo::IShaderPipeline> s_1WayPipeline;
-static boo::ObjToken<boo::IShaderPipeline> s_2WayPipeline;
-
-void CFogVolumeFilter::Initialize() {
-  s_1WayPipeline = hecl::conv->convert(Shader_CFogVolumeFilter1Way{});
-  s_2WayPipeline = hecl::conv->convert(Shader_CFogVolumeFilter2Way{});
-}
-
-void CFogVolumeFilter::Shutdown() {
-  s_1WayPipeline.reset();
-  s_2WayPipeline.reset();
-}
-
 CFogVolumeFilter::CFogVolumeFilter() {
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    struct Vert {
-      zeus::CVector2f m_pos;
-      zeus::CVector2f m_uv;
-    };
     constexpr std::array<Vert, 4> verts{{
         {{-1.0, -1.0}, {0.0, 0.0}},
         {{-1.0, 1.0}, {0.0, 1.0}},

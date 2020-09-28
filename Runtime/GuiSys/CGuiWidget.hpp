@@ -8,11 +8,9 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/GuiSys/CGuiObject.hpp"
 
-#include <boo/IWindow.hpp>
-
-#include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
-#include <zeus/CVector3f.hpp>
+#include "zeus/CColor.hpp"
+#include "zeus/CTransform.hpp"
+#include "zeus/CVector3f.hpp"
 
 namespace urde {
 class CGuiFrame;
@@ -84,8 +82,8 @@ protected:
   bool xb7_25_ : 1;
   bool m_mouseActive : 1;
 
-  std::optional<boo::SScrollDelta> m_lastScroll;
-  boo::SScrollDelta m_integerScroll;
+  std::optional<hsh::offset2dF> m_lastScroll;
+  hsh::offset2dF m_integerScroll;
 
   std::string m_name;
 

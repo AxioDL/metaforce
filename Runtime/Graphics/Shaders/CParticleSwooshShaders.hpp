@@ -2,11 +2,7 @@
 
 #include <array>
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
-#include <zeus/CColor.hpp>
-#include <zeus/CVector2f.hpp>
-#include <zeus/CVector3f.hpp>
+#include "hsh/hsh.h"
 
 namespace urde {
 class CParticleSwoosh;
@@ -16,27 +12,17 @@ public:
   enum class EShaderClass { Tex, NoTex };
 
   struct Vert {
-    zeus::CVector3f m_pos;
-    zeus::CVector2f m_uv;
-    zeus::CColor m_color;
+    hsh::float3 m_pos;
+    hsh::float2 m_uv;
+    hsh::float4 m_color;
   };
 
-private:
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texZWrite;
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texNoZWrite;
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texAdditiveZWrite;
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texAdditiveNoZWrite;
+  struct Uniform {
+    hsh::float4x4 m_xf;
+  };
 
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexZWrite;
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexNoZWrite;
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAdditiveZWrite;
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAdditiveNoZWrite;
-
-public:
-  static void Initialize();
-  static void Shutdown();
   static EShaderClass GetShaderClass(CParticleSwoosh& gen);
-  static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CParticleSwoosh& gen);
+  static void BuildShaderDataBinding(CParticleSwoosh& gen);
 };
 
 } // namespace urde

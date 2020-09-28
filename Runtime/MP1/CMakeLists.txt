@@ -1,11 +1,5 @@
 add_subdirectory(World)
 
-if(APPLE)
-  set(MP1_PLAT_SOURCES
-      CFrontEndUITouchBarMac.mm
-      CSaveGameScreenTouchBarMac.mm)
-endif()
-
 set(MP1_SOURCES
     CTweaks.hpp CTweaks.cpp
     CInGameTweakManager.hpp
@@ -14,11 +8,9 @@ set(MP1_SOURCES
     CMFGame.hpp CMFGame.cpp
     CPlayMovie.hpp CPlayMovie.cpp
     CFrontEndUI.hpp CFrontEndUI.cpp
-    CFrontEndUITouchBar.hpp CFrontEndUITouchBar.cpp
     CPreFrontEnd.hpp CPreFrontEnd.cpp
     CSlideShow.hpp CSlideShow.cpp
     CSaveGameScreen.hpp CSaveGameScreen.cpp
-    CSaveGameScreenTouchBar.hpp CSaveGameScreenTouchBar.cpp
     CMemoryCardDriver.hpp CMemoryCardDriver.cpp
     CQuitGameScreen.hpp CQuitGameScreen.cpp
     CMessageScreen.hpp CMessageScreen.cpp

@@ -10,12 +10,9 @@
 #include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/Graphics/Shaders/CEnvFxShaders.hpp"
 
-#include <hecl/UniformBufferPool.hpp>
-#include <hecl/VertexBufferPool.hpp>
-
-#include <zeus/CAABox.hpp>
-#include <zeus/CTransform.hpp>
-#include <zeus/CVector2i.hpp>
+#include "zeus/CAABox.hpp"
+#include "zeus/CTransform.hpp"
+#include "zeus/CVector2i.hpp"
 
 namespace urde {
 class CActor;
@@ -64,12 +61,12 @@ class CEnvFxManagerGrid {
   std::pair<bool, float> x14_block = {false, FLT_MAX}; /* Blocked-bool, Z-coordinate */
   std::vector<CVectorFixed8_8> x1c_particles;
 
-  hecl::VertexBufferPool<CEnvFxShaders::Instance>::Token m_instBuf;
-  hecl::UniformBufferPool<CEnvFxShaders::Uniform>::Token m_uniformBuf;
+  hsh::dynamic_owner<hsh::vertex_buffer<CEnvFxShaders::Instance>> m_instBuf;
+  hsh::dynamic_owner<hsh::uniform_buffer<CEnvFxShaders::Uniform>> m_uniformBuf;
   CLineRenderer m_lineRenderer;
 
-  boo::ObjToken<boo::IShaderDataBinding> m_snowBinding;
-  boo::ObjToken<boo::IShaderDataBinding> m_underwaterBinding;
+  hsh::binding m_snowBinding;
+  hsh::binding m_underwaterBinding;
 
   float m_uvyOffset = 0.f;
 
@@ -79,8 +76,7 @@ class CEnvFxManagerGrid {
 
 public:
   CEnvFxManagerGrid(const zeus::CVector2i& position, const zeus::CVector2i& extent,
-                    std::vector<CVectorFixed8_8> initialParticles, int reserve, CEnvFxManager& parent,
-                    boo::IGraphicsDataFactory::Context& ctx);
+                    std::vector<CVectorFixed8_8> initialParticles, int reserve, CEnvFxManager& parent);
   void Render(const zeus::CTransform& xf, const zeus::CTransform& invXf, const zeus::CTransform& camXf, float fxDensity,
               EEnvFxType fxType, CEnvFxManager& parent);
 };
@@ -89,10 +85,8 @@ class CEnvFxManager {
   friend class CEnvFxManagerGrid;
   friend class CEnvFxShaders;
 
-  hecl::VertexBufferPool<CEnvFxShaders::Instance> m_instPool;
-  hecl::UniformBufferPool<CEnvFxShaders::Uniform> m_uniformPool;
   CEnvFxShaders::Uniform m_uniformData;
-  boo::ObjToken<boo::IGraphicsBufferD> m_fogUniformBuf;
+  hsh::dynamic_owner<hsh::uniform_buffer<CGraphics::CFogState>> m_fogUniformBuf;
 
   zeus::CAABox x0_particleBounds = zeus::CAABox(-63.5f, 63.5f);
   zeus::CVector3f x18_focusCellPosition = zeus::skZero3f;

@@ -260,31 +260,16 @@ void CNESEmulator::InitializeEmulator() {
   // mainLoopRuns = nesPAL ? DOTS*ppuCycleTimer : DOTS*ppuCycleTimer;
   // mainLoopPos = mainLoopRuns;
 
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    // Nearest-neighbor FTW!
-    m_texture = ctx.newDynamicTexture(VISIBLE_DOTS, linesToDraw, boo::TextureFormat::RGBA8,
-                                      boo::TextureClampMode::ClampToEdgeNearest);
-    if (ctx.platform() == boo::IGraphicsDataFactory::Platform::OpenGL) {
-      Vert verts[4] = {
-          {{-1.f, -1.f, 0.f}, {0.f, 1.f}},
-          {{-1.f, 1.f, 0.f}, {0.f, 0.f}},
-          {{1.f, -1.f, 0.f}, {1.f, 1.f}},
-          {{1.f, 1.f, 0.f}, {1.f, 0.f}},
-      };
-      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
-    } else {
-      Vert verts[4] = {
-          {{-1.f, 1.f, 0.f}, {0.f, 1.f}},
-          {{-1.f, -1.f, 0.f}, {0.f, 0.f}},
-          {{1.f, 1.f, 0.f}, {1.f, 1.f}},
-          {{1.f, -1.f, 0.f}, {1.f, 0.f}},
-      };
-      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
-    }
-    m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-    m_shadBind = CNESShader::BuildShaderDataBinding(ctx, m_vbo, m_uniBuf, m_texture);
-    return true;
-  } BooTrace);
+  m_texture = hsh::create_dynamic_texture2d<float>({VISIBLE_DOTS, linesToDraw}, hsh::RGBA8_UNORM, 1);
+  constexpr TexUVVert verts[4] = {
+      {{-1.f, -1.f, 0.f}, {0.f, 1.f}},
+      {{-1.f, 1.f, 0.f}, {0.f, 0.f}},
+      {{1.f, -1.f, 0.f}, {1.f, 1.f}},
+      {{1.f, 1.f, 0.f}, {1.f, 0.f}},
+  };
+  m_vbo = hsh::create_vertex_buffer<TexUVVert>(verts);
+  m_uniBuf = hsh::create_dynamic_uniform_buffer<ViewBlock>();
+  m_shadBind = CNESShader::BuildShaderDataBinding(m_vbo.get(), m_uniBuf.get(), m_texture.get());
 
   // double useFreq = 223740;
   double useFreq = apuGetFrequency();
@@ -377,7 +362,7 @@ int CNESEmulator::audioUpdate() {
 
 static constexpr uint32_t AudioFrameSz = 2 * sizeof(int16_t);
 
-size_t CNESEmulator::supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data) {
+size_t CNESEmulator::supplyAudio(boo2::IAudioVoice& voice, size_t frames, int16_t* data) {
   uint32_t remFrames = uint32_t(frames);
   while (remFrames) {
     if (m_posInTailBuf == apuGetMaxBufSize()) {
@@ -413,7 +398,7 @@ void CNESEmulator::NesEmuMainLoop(bool forceDraw) {
       emuMainTimesSkipped++;
 #endif
       // printf("LC RENDER: %d\n", loopCount);
-      m_texture->load(textureImage, visibleImg);
+      m_texture.load(textureImage, visibleImg);
       emuRenderFrame = false;
       break;
     }
@@ -605,11 +590,11 @@ void CNESEmulator::ProcessUserInput(const CFinalInput& input, int) {
   if (GetPasswordEntryState() != EPasswordEntryState::NotPasswordScreen) {
     // Don't swap A/B
     inValReads[BUTTON_A] = input.DA() || input.DSpecialKey(boo::ESpecialKey::Enter) ||
-                           input.DMouseButton(boo::EMouseButton::Primary);
-    inValReads[BUTTON_B] = input.DB() || input.DSpecialKey(boo::ESpecialKey::Esc);
+                           input.DMouseButton(boo2::MouseButton::Primary);
+    inValReads[BUTTON_B] = input.DB() || input.DSpecialKey(boo2::Keycode::ESC);
   } else {
     // Prime controls (B jumps, A shoots)
-    inValReads[BUTTON_B] = input.DA() || input.DY() || input.DMouseButton(boo::EMouseButton::Primary);
+    inValReads[BUTTON_B] = input.DA() || input.DY() || input.DMouseButton(boo2::MouseButton::Primary);
     inValReads[BUTTON_A] = input.DB() || input.DX() || input.DKey(' ');
   }
 
@@ -618,7 +603,7 @@ void CNESEmulator::ProcessUserInput(const CFinalInput& input, int) {
   inValReads[BUTTON_LEFT] = input.DDPLeft() || input.DLALeft();
   inValReads[BUTTON_RIGHT] = input.DDPRight() || input.DLARight();
   inValReads[BUTTON_SELECT] = input.DZ() || input.DKey('\t');
-  inValReads[BUTTON_START] = input.DStart() || input.DSpecialKey(boo::ESpecialKey::Esc);
+  inValReads[BUTTON_START] = input.DStart() || input.DSpecialKey(boo2::Keycode::ESC);
 }
 
 bool CNESEmulator::CheckForGameOver(const u8* vram, u8* passwordOut) {

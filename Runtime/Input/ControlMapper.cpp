@@ -158,7 +158,7 @@ constexpr std::array<ControlMapper::EKBMFunctionList, 70> skKBMMapping{
     ControlMapper::EKBMFunctionList::KeyPress + 's',                            // LookUp,
     ControlMapper::EKBMFunctionList::KeyPress + 'w',                            // LookDown,
     ControlMapper::EKBMFunctionList::KeyPress + ' ',                            // JumpOrBoost = 10,
-    ControlMapper::EKBMFunctionList::MousePress + boo::EMouseButton::Primary,   // FireOrBomb = 11,
+    ControlMapper::EKBMFunctionList::MousePress + boo2::MouseButton::Primary,   // FireOrBomb = 11,
     ControlMapper::EKBMFunctionList::MousePress + boo::EMouseButton::Secondary, // MissileOrPowerBomb = 12,
     ControlMapper::EKBMFunctionList::KeyPress + 'c',                            // Morph,
     ControlMapper::EKBMFunctionList::None,                                      // AimUp,

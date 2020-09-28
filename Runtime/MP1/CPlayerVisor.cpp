@@ -14,7 +14,8 @@
 
 namespace urde::MP1 {
 
-CPlayerVisor::CPlayerVisor(CStateManager&) : x108_newScanPane(EFilterType::Blend, CGraphics::g_SpareTexture.get()) {
+CPlayerVisor::CPlayerVisor(CStateManager&)
+: x108_newScanPane(EFilterType::Blend, CGraphics::g_SpareTexture.get_color(0)) {
   x25_24_visorTransitioning = false;
   x25_25_ = false;
   xcc_scanFrameCorner = g_SimplePool->GetObj("CMDL_ScanFrameCorner");
@@ -372,18 +373,12 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   const float uvX1 = float(rect.x4_left + rect.xc_width) / float(g_Viewport.x8_width);
   const float uvY0 = float(rect.x8_top) / float(g_Viewport.xc_height);
   const float uvY1 = float(rect.x8_top + rect.x10_height) / float(g_Viewport.xc_height);
-  CTexturedQuadFilter::Vert rttVerts[4] = {
+  std::array<CTexturedQuadFilter::Vert, 4> rttVerts{{
       {{-5.f, 0.f, 4.45f}, {uvX0, uvY0}},
       {{5.f, 0.f, 4.45f}, {uvX1, uvY0}},
       {{-5.f, 0.f, -4.45f}, {uvX0, uvY1}},
       {{5.f, 0.f, -4.45f}, {uvX1, uvY1}},
-  };
-  if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL) {
-    rttVerts[0].m_uv.y() = uvY1;
-    rttVerts[1].m_uv.y() = uvY1;
-    rttVerts[2].m_uv.y() = uvY0;
-    rttVerts[3].m_uv.y() = uvY0;
-  }
+  }};
   x108_newScanPane.drawVerts(zeus::CColor(1.f, transFactor), rttVerts);
 
   // No cull faces

@@ -5,10 +5,10 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-#include <zeus/CColor.hpp>
-#include <zeus/CMatrix4f.hpp>
-#include <zeus/CVector3f.hpp>
-#include <zeus/CVector4f.hpp>
+#include "zeus/CColor.hpp"
+#include "zeus/CMatrix4f.hpp"
+#include "zeus/CVector3f.hpp"
+#include "zeus/CVector4f.hpp"
 
 namespace urde {
 class CElementGen;
@@ -59,29 +59,29 @@ public:
 };
 
 struct SParticleInstanceTex {
-  zeus::CVector4f pos[4];
-  zeus::CColor color;
-  zeus::CVector2f uvs[4];
+  std::array<hsh::float4, 4> pos;
+  hsh::float4 color;
+  std::array<hsh::float2, 4> uvs;
 };
 extern std::vector<SParticleInstanceTex> g_instTexData;
 
 struct SParticleInstanceIndTex {
-  zeus::CVector4f pos[4];
-  zeus::CColor color;
-  zeus::CVector4f texrTindUVs[4];
-  zeus::CVector4f sceneUVs;
+  std::array<hsh::float4, 4> pos;
+  hsh::float4 color;
+  std::array<hsh::float4, 4> texrTindUVs;
+  hsh::float4 sceneUVs;
 };
 extern std::vector<SParticleInstanceIndTex> g_instIndTexData;
 
 struct SParticleInstanceNoTex {
-  zeus::CVector4f pos[4];
-  zeus::CColor color;
+  std::array<hsh::float4, 4> pos;
+  hsh::float4 color;
 };
 extern std::vector<SParticleInstanceNoTex> g_instNoTexData;
 
 struct SParticleUniforms {
-  zeus::CMatrix4f mvp;
-  zeus::CColor moduColor;
+  hsh::float4x4 mvp;
+  hsh::float4 moduColor;
 };
 
 } // namespace urde

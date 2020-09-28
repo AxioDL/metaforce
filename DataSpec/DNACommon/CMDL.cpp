@@ -132,8 +132,8 @@ public:
         m_extraVerts[pos] = {std::make_pair(skin, 0)};
         return skin;
       }
-      std::vector<std::pair<atInt16, atUint16>>& vertTrack = search->second;
-      for (const std::pair<atInt16, atUint16>& s : vertTrack)
+      auto& vertTrack = search->second;
+      for (const auto& s : vertTrack)
         if (s.first == skin)
           return vertTrack.front().first;
       vertTrack.push_back(std::make_pair(skin, m_nextOverPos++));
@@ -145,8 +145,8 @@ public:
       atUint32 addedVerts = 0;
       atUint32 nextVert = 1;
       while (nextVert < m_nextOverPos) {
-        for (const std::pair<atUint16, std::vector<std::pair<atInt16, atUint16>>>& ev : m_extraVerts) {
-          for (const std::pair<atInt16, atUint16>& se : ev.second) {
+        for (const auto& ev : m_extraVerts) {
+          for (const auto& se : ev.second) {
             if (se.second == nextVert) {
               os.format(FMT_STRING(
                   "bm.verts.ensure_lookup_table()\n"
@@ -167,7 +167,7 @@ public:
       auto search = m_extraVerts.find(pos);
       if (search == m_extraVerts.end())
         return -1;
-      const std::vector<std::pair<atInt16, atUint16>>& vertTrack = search->second;
+      const auto& vertTrack = search->second;
       if (vertTrack.front().first == skin)
         return pos;
       for (auto it = vertTrack.begin() + 1; it != vertTrack.end(); ++it)
@@ -1277,7 +1277,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
   /* Write sections */
   athena::io::FileWriter writer(outPath.getAbsolutePath());
   head.write(writer);
-  std::vector<size_t>::const_iterator padIt = paddingSizes.cbegin();
+  auto padIt = paddingSizes.cbegin();
 
   /* Material Sets */
   for (const MaterialSet& mset : matSets) {
@@ -1435,7 +1435,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
   std::vector<MaterialSet> matSets;
   matSets.reserve(mesh.materialSets.size());
 
-  for (const std::vector<Material>& mset : mesh.materialSets) {
+  for (const auto& mset : mesh.materialSets) {
     matSets.emplace_back();
     MaterialSet& targetMSet = matSets.back();
 
@@ -1493,7 +1493,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
 
   /* Surfaces */
   size_t endOff = 0;
-  for (const hecl::blender::HMDLBuffers::Surface& surf : bufs.m_surfaces) {
+  for (const auto& surf : bufs.m_surfaces) {
     (void)surf;
     head.secSizes.push_back(64);
     paddingSizes.push_back(0);
@@ -1504,7 +1504,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
   /* Write sections */
   athena::io::FileWriter writer(outPath.getAbsolutePath());
   head.write(writer);
-  std::vector<size_t>::const_iterator padIt = paddingSizes.cbegin();
+  auto padIt = paddingSizes.cbegin();
 
   /* Material Sets */
   for (const MaterialSet& mset : matSets) {

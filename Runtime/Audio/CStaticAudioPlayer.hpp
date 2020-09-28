@@ -10,8 +10,8 @@
 
 #include "g721.h"
 
-#include <boo/audiodev/IAudioVoice.hpp>
-#include <boo/audiodev/IAudioVoiceEngine.hpp>
+#include "boo2/audiodev/IAudioVoice.hpp"
+#include "boo2/audiodev/IAudioVoiceEngine.hpp"
 
 namespace urde {
 class IDvdRequest;
@@ -42,10 +42,10 @@ class CStaticAudioPlayer {
     return val;
   }
 
-  struct AudioVoiceCallback : boo::IAudioVoiceCallback {
+  struct AudioVoiceCallback : boo2::IAudioVoiceCallback {
     CStaticAudioPlayer& m_parent;
-    void preSupplyAudio(boo::IAudioVoice&, double) override {}
-    size_t supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data) override {
+    void preSupplyAudio(boo2::IAudioVoice&, double) override {}
+    size_t supplyAudio(boo2::IAudioVoice& voice, size_t frames, int16_t* data) override {
       if (m_parent.IsReady()) {
         m_parent.x38_dvdRequests.clear();
         m_parent.Decode(data, frames);
@@ -55,10 +55,10 @@ class CStaticAudioPlayer {
     }
     explicit AudioVoiceCallback(CStaticAudioPlayer& p) : m_parent(p) {}
   } m_voiceCallback;
-  boo::ObjToken<boo::IAudioVoice> m_voice;
+  boo2::ObjToken<boo2::IAudioVoice> m_voice;
 
 public:
-  CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, std::string_view path, int loopStart, int loopEnd);
+  CStaticAudioPlayer(boo2::IAudioVoiceEngine& engine, std::string_view path, int loopStart, int loopEnd);
   CStaticAudioPlayer(std::string_view path, int loopStart, int loopEnd)
   : CStaticAudioPlayer(*CAudioSys::GetVoiceEngine(), path, loopStart, loopEnd) {}
 

@@ -3,12 +3,11 @@
 #include <memory>
 #include <vector>
 
+#include "Graphics/CGraphics.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
-#include <specter/View.hpp>
-
-#include <zeus/CVector2f.hpp>
-#include <zeus/CVector3f.hpp>
+#include "zeus/CVector2f.hpp"
+#include "zeus/CVector3f.hpp"
 
 namespace urde {
 
@@ -17,7 +16,7 @@ protected:
   zeus::CVector2f xb8_dim;
 
   /* Originally a vert-buffer pointer for GX */
-  std::vector<specter::View::TexShaderVert> xc0_verts;
+  std::vector<TexUVVert> xc0_verts;
   // u32 x104_ = 4; /* vert count */
 
   zeus::CVector3f xc8_scaleCenter;

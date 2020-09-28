@@ -98,7 +98,7 @@ void CQuitGameScreen::ProcessUserInput(const CFinalInput& input) {
   x10_loadedFrame->ProcessMouseInput(input,
     CGuiWidgetDrawParms{1.f, zeus::CVector3f{0.f, 0.f, VerticalOffsets[int(x0_type)]}});
   x10_loadedFrame->ProcessUserInput(input);
-  if ((input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) && x0_type != EQuitType::ContinueFromLastSave)
+  if ((input.PB() || input.PSpecialKey(boo2::Keycode::ESC)) && x0_type != EQuitType::ContinueFromLastSave)
     x18_action = EQuitAction::No;
 }
 

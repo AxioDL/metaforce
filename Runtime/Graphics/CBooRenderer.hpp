@@ -107,24 +107,29 @@ class CBooRenderer final : public IRenderer {
   // boo::ITextureS* xe4_blackTex = nullptr;
   bool xee_24_ : 1;
 
-  boo::ObjToken<boo::ITexture> m_clearTexture;
-  boo::ObjToken<boo::ITexture> m_blackTexture;
-  boo::ObjToken<boo::ITexture> m_whiteTexture;
-  std::unordered_map<zeus::CColor, boo::ObjToken<boo::ITexture>> m_colorTextures;
+  hsh::owner<hsh::texture2d> m_clearTexture;
+  hsh::owner<hsh::texture2d> m_blackTexture;
+  hsh::owner<hsh::texture2d> m_whiteTexture;
+  std::unordered_map<zeus::CColor, hsh::owner<hsh::texture2d>> m_colorTextures;
 
-  boo::ObjToken<boo::ITextureR> x14c_reflectionTex;
+  hsh::owner<hsh::render_texture2d> x14c_reflectionTex;
   // boo::ITextureS* x150_mirrorRamp = nullptr;
-  boo::ObjToken<boo::ITextureS> x1b8_fogVolumeRamp;
-  boo::ObjToken<boo::ITextureS> x220_sphereRamp;
+  hsh::owner<hsh::texture2d> x1b8_fogVolumeRamp;
+  hsh::owner<hsh::texture2d> x220_sphereRamp;
   TLockedToken<CTexture> m_thermoPaletteTex;
-  boo::ObjToken<boo::ITexture> x288_thermoPalette;
+  hsh::owner<hsh::texture2d> x288_thermoPalette;
   TLockedToken<CTexture> m_ballFadeTex;
-  boo::ObjToken<boo::ITexture> m_ballFade;
-  boo::ObjToken<boo::ITextureR> m_ballShadowId;
-  boo::ObjToken<boo::IGraphicsBufferS> m_scanLinesEvenVBO;
-  boo::ObjToken<boo::IGraphicsBufferS> m_scanLinesOddVBO;
-  int m_ballShadowIdW = 64;
-  int m_ballShadowIdH = 64;
+  hsh::owner<hsh::texture2d> m_ballFade;
+  hsh::owner<hsh::render_texture2d> m_ballShadowId;
+
+  struct ScanlinesVert {
+    hsh::float3 pos;
+  };
+  hsh::owner<hsh::vertex_buffer<ScanlinesVert>> m_scanLinesEvenVBO;
+  hsh::owner<hsh::vertex_buffer<ScanlinesVert>> m_scanLinesOddVBO;
+
+  uint32_t m_ballShadowIdW = 64;
+  uint32_t m_ballShadowIdH = 64;
 
   CRandom16 x2a8_thermalRand;
   std::list<CFogVolumeListItem> x2ac_fogVolumes;
@@ -162,9 +167,9 @@ class CBooRenderer final : public IRenderer {
   bool x318_31_persistRGBA6 : 1;
   bool m_thermalHotPass : 1;
 
-  void GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx);
-  void GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx);
-  void GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx);
+  void GenerateFogVolumeRampTex();
+  void GenerateSphereRampTex();
+  void GenerateScanLinesVBO();
   void LoadThermoPalette();
   void LoadBallFade();
 
@@ -270,27 +275,23 @@ public:
   void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const CModel* model,
                              const CSkinnedModel* sModel);
 
-  const boo::ObjToken<boo::ITexture>& GetThermoPalette() const { return x288_thermoPalette; }
-  const boo::ObjToken<boo::ITextureS>& GetFogRampTex() const { return x1b8_fogVolumeRamp; }
-  const boo::ObjToken<boo::ITexture>& GetRandomStaticEntropyTex() const { return m_staticEntropy->GetBooTexture(); }
-  const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesEvenVBO() const { return m_scanLinesEvenVBO; }
-  const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesOddVBO() const { return m_scanLinesOddVBO; }
+  auto GetThermoPalette() const { return x288_thermoPalette.get(); }
+  auto GetFogRampTex() const { return x1b8_fogVolumeRamp.get(); }
+  auto GetRandomStaticEntropyTex() const { return m_staticEntropy->GetBooTexture(); }
+  auto GetScanLinesEvenVBO() const { return m_scanLinesEvenVBO.get(); }
+  auto GetScanLinesOddVBO() const { return m_scanLinesOddVBO.get(); }
 
-  const boo::ObjToken<boo::ITexture>& GetClearTexture() const { return m_clearTexture; }
-  const boo::ObjToken<boo::ITexture>& GetBlackTexture() const { return m_blackTexture; }
-  const boo::ObjToken<boo::ITexture>& GetWhiteTexture() const { return m_whiteTexture; }
+  auto GetClearTexture() const { return m_clearTexture.get(); }
+  auto GetBlackTexture() const { return m_blackTexture.get(); }
+  auto GetWhiteTexture() const { return m_whiteTexture.get(); }
 
-  boo::ObjToken<boo::ITexture> GetColorTexture(const zeus::CColor& color);
+  hsh::texture2d GetColorTexture(const zeus::CColor& color);
 
-  static void BindMainDrawTarget() { CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture); }
-  void BindReflectionDrawTarget() { CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex); }
-  void BindBallShadowIdTarget() {
-    CGraphics::g_BooMainCommandQueue->setRenderTarget(m_ballShadowId);
-    SetViewport(0, 0, m_ballShadowIdW, m_ballShadowIdH);
-  }
+  static void BindMainDrawTarget() { CGraphics::g_SpareTexture.attach(); }
+  void BindReflectionDrawTarget() { x14c_reflectionTex.attach(); }
+  void BindBallShadowIdTarget() { m_ballShadowId.attach(); }
   void ResolveBallShadowIdTarget() {
-    CGraphics::g_BooMainCommandQueue->resolveBindTexture(
-        m_ballShadowId, boo::SWindowRect(0, 0, m_ballShadowIdW, m_ballShadowIdH), false, 0, true, false);
+    m_ballShadowId.resolve_color_binding(0, hsh::rect2d({0, 0}, {m_ballShadowIdW, m_ballShadowIdH}), false);
   }
 
   void FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;
@@ -300,6 +301,8 @@ public:
 
   bool IsThermalVisorActive() const { return x318_29_thermalVisor; }
   bool IsThermalVisorHotPass() const { return m_thermalHotPass; }
+
+  bool IsInAreaDraw() const { return x318_30_inAreaDraw; }
 };
 
 } // namespace urde

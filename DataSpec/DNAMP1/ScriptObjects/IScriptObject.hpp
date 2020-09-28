@@ -3,7 +3,6 @@
 #include "../DNAMP1.hpp"
 #include "../SAVW.hpp"
 #include "zeus/CAABox.hpp"
-#include "specter/genie.hpp"
 
 #include <cstdio>
 

@@ -155,7 +155,7 @@ void COptionsScreen::ProcessControllerInput(const CFinalInput& input) {
     CGameOptions::TryRestoreDefaults(input, x70_tablegroup_leftlog->GetUserSelection(), x1c_rightSel, false,
                                      rightClicked);
     if (x70_tablegroup_leftlog->GetUserSelection() == 4 && (input.PA() || leftClicked ||
-                                                            input.PSpecialKey(boo::ESpecialKey::Enter)))
+                                                            input.PKey('\n')))
       x19c_quitGame = std::make_unique<CQuitGameScreen>(EQuitType::QuitGame);
   } else {
     CPauseScreenBase::ResetMouseState();

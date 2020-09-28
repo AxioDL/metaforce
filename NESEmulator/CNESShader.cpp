@@ -1,24 +1,22 @@
 #include "CNESShader.hpp"
 #include "Graphics/CGraphics.hpp"
-#include "hecl/Pipeline.hpp"
+
+#include "CNESShader.cpp.hshhead"
 
 namespace urde::MP1 {
 
-boo::ObjToken<boo::IShaderPipeline> CNESShader::g_Pipeline;
+using namespace hsh::pipeline;
 
-void CNESShader::Initialize() { g_Pipeline = hecl::conv->convert(Shader_CNESShader{}); }
+struct NESPipeline : public pipeline<color_attachment<>> {
+  NESPipeline(hsh::vertex_buffer<TexUVVert> vbo, hsh::uniform_buffer<ViewBlock> uniBuf, hsh::texture2d tex) {
+    position = uniBuf->m_mv * hsh::float4(vbo->m_pos, 1.0);
+    color_out[0] = uniBuf->m_color * tex.sample<float>(vbo->m_uv);
+  }
+};
 
-boo::ObjToken<boo::IShaderDataBinding> CNESShader::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                                          boo::ObjToken<boo::IGraphicsBufferS> vbo,
-                                                                          boo::ObjToken<boo::IGraphicsBufferD> uniBuf,
-                                                                          boo::ObjToken<boo::ITextureD> tex) {
-  boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {uniBuf.get()};
-  boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-  boo::ObjToken<boo::ITexture> texs[] = {tex.get()};
-  return ctx.newShaderDataBinding(g_Pipeline, vbo.get(), nullptr, nullptr, 1, bufs, stages, nullptr, nullptr, 1, texs,
-                                  nullptr, nullptr);
+void CNESShader::BuildShaderDataBinding(hsh::binding& binding, hsh::vertex_buffer<TexUVVert> vbo,
+                                        hsh::uniform_buffer<ViewBlock> uniBuf, hsh::texture2d tex) {
+  binding.hsh_bind(NESPipeline(vbo, uniBuf, tex));
 }
-
-void CNESShader::Shutdown() { g_Pipeline.reset(); }
 
 } // namespace urde::MP1

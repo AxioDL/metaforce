@@ -1,120 +1,73 @@
 #include "Runtime/Graphics/Shaders/CLineRendererShaders.hpp"
-
-#include <utility>
-
 #include "Runtime/Graphics/CLineRenderer.hpp"
-
-#include <hecl/Pipeline.hpp>
+#include "CLineRendererShaders.cpp.hshhead"
 
 namespace urde {
+using namespace hsh::pipeline;
 
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_texAlpha;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_texAdditive;
-
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_noTexAlpha;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_noTexAdditive;
-
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_texAlphaZ;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_texAdditiveZ;
-
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_noTexAlphaZ;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_noTexAdditiveZ;
-
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CLineRendererShaders::m_noTexAlphaZGEqual;
-
-void CLineRendererShaders::Initialize() {
-  CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx) {
-    m_texAlpha = {hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAlpha{}),
-                  hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAlphaAWrite{})};
-    m_texAdditive = {hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAdditive{}),
-                     hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAdditiveAWrite{})};
-    m_noTexAlpha = {hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAlpha{}),
-                    hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAlphaAWrite{})};
-    m_noTexAdditive = {hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAdditive{}),
-                       hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAdditiveAWrite{})};
-    m_texAlphaZ = {hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAlphaZ{}),
-                   hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAlphaZAWrite{})};
-    m_texAdditiveZ = {hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAdditiveZ{}),
-                      hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAdditiveZAWrite{})};
-    m_noTexAlphaZ = {hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAlphaZ{}),
-                     hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAlphaZAWrite{})};
-    m_noTexAdditiveZ = {hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAdditiveZ{}),
-                        hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAdditiveZAWrite{})};
-    m_noTexAlphaZGEqual = {hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAlphaZGEqual{}),
-                           hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAlphaZGEqualAWrite{})};
-    return true;
-  } BooTrace);
-}
-
-void CLineRendererShaders::Shutdown() {
-  for (auto& s : m_texAlpha) s.reset();
-  for (auto& s : m_texAdditive) s.reset();
-  for (auto& s : m_noTexAlpha) s.reset();
-  for (auto& s : m_noTexAdditive) s.reset();
-  for (auto& s : m_texAlphaZ) s.reset();
-  for (auto& s : m_texAdditiveZ) s.reset();
-  for (auto& s : m_noTexAlphaZ) s.reset();
-  for (auto& s : m_noTexAdditiveZ) s.reset();
-  for (auto& s : m_noTexAlphaZGEqual) s.reset();
-}
-
-void CLineRendererShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,
-                                                  const boo::ObjToken<boo::ITexture>& texture, bool additive,
-                                                  bool zTest, bool zGEqual) {
-  std::array<boo::ObjToken<boo::IShaderPipeline>, 2>* pipeline = nullptr;
-
-  if (zGEqual) {
-    pipeline = &m_noTexAlphaZGEqual;
-  } else if (zTest) {
-    if (texture) {
-      if (additive)
-        pipeline = &m_texAdditiveZ;
-      else
-        pipeline = &m_texAlphaZ;
-    } else {
-      if (additive)
-        pipeline = &m_noTexAdditiveZ;
-      else
-        pipeline = &m_noTexAlphaZ;
-    }
-  } else {
-    if (texture) {
-      if (additive)
-        pipeline = &m_texAdditive;
-      else
-        pipeline = &m_texAlpha;
-    } else {
-      if (additive)
-        pipeline = &m_noTexAdditive;
-      else
-        pipeline = &m_noTexAlpha;
-    }
+template <bool Additive, bool AlphaWrite, hsh::Compare ZComp>
+struct CLineRendererTexPipeline
+: pipeline<std::conditional_t<Additive, AdditiveAttachment<AlphaWrite>, BlendAttachment<AlphaWrite>>,
+           depth_compare<ZComp>> {
+  CLineRendererTexPipeline(hsh::vertex_buffer<CLineRenderer::SDrawVertTex> vbo,
+                           hsh::uniform_buffer<CLineRenderer::SDrawUniform> uniBuf HSH_VAR_STAGE(fragment),
+                           hsh::texture2d tex) {
+    this->position = vbo->pos;
+    hsh::float4 colorIn = vbo->color * uniBuf->moduColor * tex.sample<float>(vbo->uv);
+    FOG_SHADER(uniBuf->fog)
+    FOG_OUT(this->color_out[0], uniBuf->fog, colorIn)
   }
+};
+template struct CLineRendererTexPipeline<false, false, hsh::Always>;
+template struct CLineRendererTexPipeline<false, false, hsh::LEqual>;
+template struct CLineRendererTexPipeline<false, false, hsh::Greater>;
+template struct CLineRendererTexPipeline<false, true, hsh::Always>;
+template struct CLineRendererTexPipeline<false, true, hsh::LEqual>;
+template struct CLineRendererTexPipeline<false, true, hsh::Greater>;
+template struct CLineRendererTexPipeline<true, false, hsh::Always>;
+template struct CLineRendererTexPipeline<true, false, hsh::LEqual>;
+template struct CLineRendererTexPipeline<true, false, hsh::Greater>;
+template struct CLineRendererTexPipeline<true, true, hsh::Always>;
+template struct CLineRendererTexPipeline<true, true, hsh::LEqual>;
+template struct CLineRendererTexPipeline<true, true, hsh::Greater>;
 
-  size_t texCount = 0;
-  std::array<boo::ObjToken<boo::ITexture>, 1> textures;
+template <bool Additive, bool AlphaWrite, hsh::Compare ZComp>
+struct CLineRendererNoTexPipeline
+: pipeline<std::conditional_t<Additive, AdditiveAttachment<AlphaWrite>, BlendAttachment<AlphaWrite>>,
+           depth_compare<ZComp>> {
+  CLineRendererNoTexPipeline(hsh::vertex_buffer<CLineRenderer::SDrawVertTex> vbo,
+                             hsh::uniform_buffer<CLineRenderer::SDrawUniform> uniBuf HSH_VAR_STAGE(fragment)) {
+    this->position = vbo->pos;
+    hsh::float4 colorIn = vbo->color * uniBuf->moduColor;
+    FOG_SHADER(uniBuf->fog)
+    FOG_OUT(this->color_out[0], uniBuf->fog, colorIn)
+  }
+};
+template struct CLineRendererNoTexPipeline<false, false, hsh::Always>;
+template struct CLineRendererNoTexPipeline<false, false, hsh::LEqual>;
+template struct CLineRendererNoTexPipeline<false, false, hsh::Greater>;
+template struct CLineRendererNoTexPipeline<false, true, hsh::Always>;
+template struct CLineRendererNoTexPipeline<false, true, hsh::LEqual>;
+template struct CLineRendererNoTexPipeline<false, true, hsh::Greater>;
+template struct CLineRendererNoTexPipeline<true, false, hsh::Always>;
+template struct CLineRendererNoTexPipeline<true, false, hsh::LEqual>;
+template struct CLineRendererNoTexPipeline<true, false, hsh::Greater>;
+template struct CLineRendererNoTexPipeline<true, true, hsh::Always>;
+template struct CLineRendererNoTexPipeline<true, true, hsh::LEqual>;
+template struct CLineRendererNoTexPipeline<true, true, hsh::Greater>;
 
-  std::pair<boo::ObjToken<boo::IGraphicsBufferD>, hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp>
-      vbufInfo;
-  std::pair<boo::ObjToken<boo::IGraphicsBufferD>, hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp>
-      ubufInfo = renderer.m_uniformBuf.getBufferInfo();
+void CLineRendererShaders::BindShader(CLineRenderer& renderer, hsh::texture2d texture, bool additive,
+                                      hsh::Compare zcomp) {
   if (texture) {
-    vbufInfo = renderer.m_vertBufTex.getBufferInfo();
-    textures[0] = texture;
-    texCount = 1;
+    renderer.m_shaderBind[0].hsh_tex_bind(CLineRendererTexPipeline<additive, false, zcomp>(
+        renderer.m_vertBuf.get(), renderer.m_uniformBuf.get(), texture));
+    renderer.m_shaderBind[1].hsh_tex_bind_awrite(CLineRendererTexPipeline<additive, true, zcomp>(
+        renderer.m_vertBuf.get(), renderer.m_uniformBuf.get(), texture));
   } else {
-    vbufInfo = renderer.m_vertBufNoTex.getBufferInfo();
-  }
-
-  const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> uniforms{ubufInfo.first.get()};
-  constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Fragment};
-  const std::array<size_t, 1> ubufOffs{size_t(ubufInfo.second)};
-  const std::array<size_t, 1> ubufSizes{sizeof(CLineRenderer::SDrawUniform)};
-
-  for (size_t i = 0; i < renderer.m_shaderBind.size(); ++i) {
-    renderer.m_shaderBind[i] = ctx.newShaderDataBinding(
-        (*pipeline)[i], vbufInfo.first.get(), nullptr, nullptr, uniforms.size(), uniforms.data(), stages.data(),
-        ubufOffs.data(), ubufSizes.data(), texCount, textures.data(), nullptr, nullptr, vbufInfo.second);
+    renderer.m_shaderBind[0].hsh_notex_bind(
+        CLineRendererNoTexPipeline<additive, false, zcomp>(renderer.m_vertBuf.get(), renderer.m_uniformBuf.get()));
+    renderer.m_shaderBind[1].hsh_notex_bind_awrite(
+        CLineRendererNoTexPipeline<additive, true, zcomp>(renderer.m_vertBuf.get(), renderer.m_uniformBuf.get()));
   }
 }
 

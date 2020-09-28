@@ -12,6 +12,7 @@
 #include "Runtime/Graphics/Shaders/CElementGenShaders.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CParticleGen.hpp"
+#include "Runtime/Particle/CParticleGlobals.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
@@ -141,17 +142,13 @@ public:
                        EOptionalSystemFlags flags = EOptionalSystemFlags::One);
   ~CElementGen() override;
 
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBind;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalSubDataBind;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBind;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaSubDataBind;
-  boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
+  hsh::dynamic_owner<hsh::vertex_buffer_typeless> m_instBuf;
+  hsh::dynamic_owner<hsh::uniform_buffer<SParticleUniforms>> m_uniformBuf;
 
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBindPmus;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBindPmus;
-  boo::ObjToken<boo::IGraphicsBufferD> m_instBufPmus;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBufPmus;
+  hsh::dynamic_owner<hsh::vertex_buffer_typeless> m_instBufPmus;
+  hsh::dynamic_owner<hsh::uniform_buffer<SParticleUniforms>> m_uniformBufPmus;
+
+  CElementGenShaders m_shaderBuilder;
 
   CGenDescription* GetDesc() { return x1c_genDesc.GetObj(); }
   const SObjectTag* GetDescTag() const { return x1c_genDesc.GetObjectTag(); }
@@ -161,7 +158,6 @@ public:
   static int g_ParticleSystemAliveCount;
   static bool sMoveRedToAlphaBuffer;
   static void Initialize();
-  static void Shutdown();
 
   void UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 particleFrame);
   bool UpdateVelocitySource(size_t idx, u32 particleFrame, CParticle& particle);

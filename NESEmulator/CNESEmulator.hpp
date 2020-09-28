@@ -2,9 +2,9 @@
 
 #include "RetroTypes.hpp"
 #include "zeus/CColor.hpp"
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include "boo/audiodev/IAudioVoice.hpp"
+#include "boo2/audiodev/IAudioVoice.hpp"
 #include "zeus/CMatrix4f.hpp"
+#include "Graphics/CGraphics.hpp"
 
 namespace urde {
 struct CFinalInput;
@@ -14,7 +14,7 @@ namespace MP1 {
 
 #define NUM_AUDIO_BUFFERS 4
 
-class CNESEmulator final : public boo::IAudioVoiceCallback {
+class CNESEmulator final : public boo2::IAudioVoiceCallback {
 public:
   enum class EPasswordEntryState { NotPasswordScreen, NotEntered, Entered };
 
@@ -24,20 +24,10 @@ private:
   std::unique_ptr<u8[]> m_nesEmuPBuf;
   std::shared_ptr<IDvdRequest> m_dvdReq;
 
-  struct Vert {
-    zeus::CVector3f m_pos;
-    zeus::CVector2f m_uv;
-  };
-
-  struct Uniform {
-    zeus::CMatrix4f m_matrix;
-    zeus::CColor m_color;
-  };
-
-  boo::ObjToken<boo::ITextureD> m_texture;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
-  boo::ObjToken<boo::IShaderDataBinding> m_shadBind;
+  hsh::dynamic_owner<hsh::texture2d> m_texture;
+  hsh::dynamic_owner<hsh::uniform_buffer<ViewBlock>> m_uniBuf;
+  hsh::owner<hsh::vertex_buffer<TexUVVert>> m_vbo;
+  hsh::binding m_shadBind;
 
   std::unique_ptr<u8[]> m_audioBufBlock;
   u8* m_audioBufs[NUM_AUDIO_BUFFERS];
@@ -46,7 +36,7 @@ private:
   uint32_t m_procBufs = NUM_AUDIO_BUFFERS;
   uint32_t m_posInHeadBuf = 0;
   uint32_t m_posInTailBuf = 0;
-  boo::ObjToken<boo::IAudioVoice> m_booVoice;
+  boo2::ObjToken<boo2::IAudioVoice> m_booVoice;
 
   // void* x4_loadBuf;
   // void* x8_rom;
@@ -81,8 +71,8 @@ public:
   EPasswordEntryState GetPasswordEntryState() const { return x34_passwordEntryState; }
 
   int audioUpdate();
-  void preSupplyAudio(boo::IAudioVoice& voice, double dt) {}
-  size_t supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data);
+  void preSupplyAudio(boo2::IAudioVoice& voice, double dt) override {}
+  size_t supplyAudio(boo2::IAudioVoice& voice, size_t frames, int16_t* data) override;
 };
 
 } // namespace MP1

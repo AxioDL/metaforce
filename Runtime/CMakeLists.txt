@@ -10,6 +10,18 @@ macro(runtime_add_list rel_path a_list)
   set(${a_list} "${tmp_list}" PARENT_SCOPE)
 endmacro(runtime_add_list)
 
+macro(runtime_add_hsh rel_path)
+  set(tmp_list ${HSH_SOURCES})
+  foreach(path ${ARGN})
+    if(IS_ABSOLUTE ${path})
+      list(APPEND tmp_list "${path}")
+    else()
+      list(APPEND tmp_list "${rel_path}/${path}")
+    endif()
+  endforeach(path)
+  set(HSH_SOURCES ${tmp_list} PARENT_SCOPE)
+endmacro(runtime_add_hsh)
+
 add_subdirectory(Audio)
 add_subdirectory(Character)
 add_subdirectory(Graphics)
@@ -21,6 +33,8 @@ add_subdirectory(AutoMapper)
 add_subdirectory(GuiSys)
 add_subdirectory(Input)
 add_subdirectory(Particle)
+
+hsh_sources(${HSH_SOURCES})
 
 if(WIN32)
   list(APPEND PLAT_SRCS CMemoryCardSysWin.cpp)
@@ -38,15 +52,6 @@ add_custom_command(OUTPUT TCastTo.hpp TCastTo.cpp DEPENDS MkCastTo.py
 add_subdirectory(MP1)
 add_subdirectory(MP2)
 add_subdirectory(MP3)
-
-if(APPLE)
-  set_source_files_properties(MP1/CFrontEndUITouchBarMac.mm
-                              MP1/CSaveGameScreenTouchBarMac.mm
-                              CGameOptionsTouchBarMac.mm
-                              PROPERTIES COMPILE_FLAGS -fobjc-arc)
-  bintoc(startButton.cpp Resources/startButton@2x.png START_BUTTON_2X)
-  list(APPEND PLAT_SRCS startButton.cpp CGameOptionsTouchBarMac.mm)
-endif()
 
 set(RUNTIME_SOURCES_A
     RetroTypes.hpp RetroTypes.cpp
@@ -88,7 +93,6 @@ set(RUNTIME_SOURCES_B
     IObjectStore.hpp
     CSimplePool.hpp CSimplePool.cpp
     CGameOptions.hpp CGameOptions.cpp
-    CGameOptionsTouchBar.hpp CGameOptionsTouchBar.cpp
     CStaticInterference.hpp CStaticInterference.cpp
     CCRC32.hpp CCRC32.cpp
     IFactory.hpp
@@ -132,7 +136,7 @@ endif()
 endfunction()
 
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-set(RUNTIME_LIBRARIES ${HECL_APPLICATION_REPS_TARGETS_LIST} RetroDataSpec NESEmulator
+set(RUNTIME_LIBRARIES RetroDataSpec NESEmulator
         libjpeg-turbo jbus kabufuda discord-rpc logvisor)
 
 if(MSVC)
@@ -143,8 +147,14 @@ if(MSVC)
   target_include_directories(RuntimeCommonB PUBLIC ${RUNTIME_INCLUDES})
   target_link_libraries(RuntimeCommonB PUBLIC ${RUNTIME_LIBRARIES})
   target_link_libraries(RuntimeCommon PUBLIC RuntimeCommonB)
+  target_hsh(RuntimeCommon)
+  target_hsh(RuntimeCommonB)
 else()
   add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A} ${RUNTIME_SOURCES_B})
   target_include_directories(RuntimeCommon PUBLIC ${RUNTIME_INCLUDES})
   target_link_libraries(RuntimeCommon PUBLIC ${RUNTIME_LIBRARIES})
+  target_hsh(RuntimeCommon)
 endif()
+
+add_executable(urde CMain.hpp CMain.cpp)
+target_link_libraries(urde PUBLIC RuntimeCommon)

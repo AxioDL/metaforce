@@ -9,15 +9,10 @@
 #include "Runtime/GuiSys/CFontImageDef.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
-#include <hecl/UniformBufferPool.hpp>
-#include <hecl/VertexBufferPool.hpp>
-
-#include <zeus/CColor.hpp>
-#include <zeus/CMatrix4f.hpp>
-#include <zeus/CVector2f.hpp>
-#include <zeus/CVector2i.hpp>
+#include "zeus/CColor.hpp"
+#include "zeus/CMatrix4f.hpp"
+#include "zeus/CVector2f.hpp"
+#include "zeus/CVector2i.hpp"
 
 namespace urde {
 class CGlyph;
@@ -62,8 +57,7 @@ private:
 
 #else
   /* Boo-specific text-rendering functionality */
-  hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf;
-  hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf2;
+  hsh::dynamic_owner<hsh::uniform_buffer<CTextSupportShader::Uniform>> m_uniBuf, m_uniBuf2;
 
   struct BooFontCharacters;
   std::vector<BooFontCharacters> m_fontCharacters;

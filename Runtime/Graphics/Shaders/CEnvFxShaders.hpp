@@ -2,13 +2,6 @@
 
 #include <array>
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
-#include <zeus/CColor.hpp>
-#include <zeus/CMatrix4f.hpp>
-#include <zeus/CVector2f.hpp>
-#include <zeus/CVector3f.hpp>
-
 namespace urde {
 class CEnvFxManager;
 class CEnvFxManagerGrid;
@@ -16,25 +9,18 @@ class CEnvFxManagerGrid;
 class CEnvFxShaders {
 public:
   struct Instance {
-    std::array<zeus::CVector3f, 4> positions;
-    zeus::CColor color;
-    std::array<zeus::CVector2f, 4> uvs;
+    std::array<hsh::float3, 4> positions;
+    hsh::float4 color;
+    std::array<hsh::float2, 4> uvs;
   };
   struct Uniform {
-    zeus::CMatrix4f mv;
-    zeus::CMatrix4f proj;
-    zeus::CMatrix4f envMtx;
-    zeus::CColor moduColor;
+    hsh::float4x4 mv;
+    hsh::float4x4 proj;
+    hsh::float4x4 envMtx;
+    hsh::float4 moduColor;
   };
 
-private:
-  static boo::ObjToken<boo::IShaderPipeline> m_snowPipeline;
-  static boo::ObjToken<boo::IShaderPipeline> m_underwaterPipeline;
-
-public:
-  static void Initialize();
-  static void Shutdown();
-  static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CEnvFxManager& fxMgr,
+  static void BuildShaderDataBinding(CEnvFxManager& fxMgr,
                                      CEnvFxManagerGrid& grid);
 };
 

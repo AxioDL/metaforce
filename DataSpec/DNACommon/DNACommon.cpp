@@ -1,20 +1,19 @@
 #include "DNACommon.hpp"
 #include "PAK.hpp"
-#include "boo/ThreadLocalPtr.hpp"
 
 namespace DataSpec {
 
 logvisor::Module LogDNACommon("urde::DNACommon");
-ThreadLocalPtr<SpecBase> g_curSpec;
-ThreadLocalPtr<PAKRouterBase> g_PakRouter;
-ThreadLocalPtr<hecl::blender::Token> g_ThreadBlenderToken;
-ThreadLocalPtr<hecl::Database::Project> UniqueIDBridge::s_Project;
+thread_local SpecBase* g_curSpec;
+thread_local PAKRouterBase* g_PakRouter;
+thread_local hecl::blender::Token* g_ThreadBlenderToken;
+thread_local hecl::Database::Project* UniqueIDBridge::s_Project;
 UniqueID32 UniqueID32::kInvalidId;
 
 template <class IDType>
 hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const IDType& id, bool silenceWarnings) {
   /* Try PAKRouter first (only available at extract) */
-  PAKRouterBase* pakRouter = g_PakRouter.get();
+  PAKRouterBase* pakRouter = g_PakRouter;
   if (pakRouter) {
     hecl::ProjectPath path = pakRouter->getWorking(id, silenceWarnings);
     if (path)
@@ -22,7 +21,7 @@ hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const IDType& id, bool si
   }
 
   /* Try project cache second (populated with paths read from YAML resources) */
-  hecl::Database::Project* project = s_Project.get();
+  hecl::Database::Project* project = s_Project;
   if (!project) {
     if (pakRouter) {
       if (hecl::VerbosityLevel >= 1 && !silenceWarnings && id.isValid())
@@ -51,7 +50,7 @@ template <class IDType>
 hecl::ProjectPath UniqueIDBridge::MakePathFromString(std::string_view str) {
   if (str.empty())
     return {};
-  hecl::Database::Project* project = s_Project.get();
+  hecl::Database::Project* project = s_Project;
   if (!project)
     LogDNACommon.report(logvisor::Fatal, FMT_STRING("UniqueIDBridge::setGlobalProject must be called before MakePathFromString"));
   hecl::ProjectPath path = hecl::ProjectPath(*project, str);
@@ -61,7 +60,7 @@ hecl::ProjectPath UniqueIDBridge::MakePathFromString(std::string_view str) {
 template hecl::ProjectPath UniqueIDBridge::MakePathFromString<UniqueID32>(std::string_view str);
 template hecl::ProjectPath UniqueIDBridge::MakePathFromString<UniqueID64>(std::string_view str);
 
-void UniqueIDBridge::SetThreadProject(hecl::Database::Project& project) { s_Project.reset(&project); }
+void UniqueIDBridge::SetThreadProject(hecl::Database::Project& project) { s_Project = &project; }
 
 /** PAK 32-bit Unique ID */
 template <>

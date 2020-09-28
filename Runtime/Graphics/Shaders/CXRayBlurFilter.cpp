@@ -4,42 +4,50 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
-#include <hecl/Pipeline.hpp>
-#include <zeus/CVector2f.hpp>
+#include "zeus/CVector2f.hpp"
+
+#include "CXRayBlurFilter.cpp.hshhead"
 
 namespace urde {
+using namespace hsh::pipeline;
 
-static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+struct CXRayBlurFilterPipeline : pipeline<color_attachment<>> {
+  CXRayBlurFilterPipeline(hsh::vertex_buffer<CXRayBlurFilter::Vert> vbo,
+                          hsh::uniform_buffer<CXRayBlurFilter::Uniform> ubo,
+                          hsh::render_texture2d sceneTex, hsh::texture2d paletteTex) {
+    hsh::float2 uv0 = (ubo->m_uv[0] * hsh::float4(vbo->m_uv, 0.0, 1.0)).xy();
+    hsh::float2 uv1 = (ubo->m_uv[1] * hsh::float4(vbo->m_uv, 0.0, 1.0)).xy();
+    hsh::float2 uv2 = (ubo->m_uv[2] * hsh::float4(vbo->m_uv, 0.0, 1.0)).xy();
+    hsh::float2 uv3 = (ubo->m_uv[3] * hsh::float4(vbo->m_uv, 0.0, 1.0)).xy();
+    hsh::float2 uv4 = (ubo->m_uv[4] * hsh::float4(vbo->m_uv, 0.0, 1.0)).xy();
+    hsh::float2 uv5 = (ubo->m_uv[5] * hsh::float4(vbo->m_uv, 0.0, 1.0)).xy();
+    hsh::float2 uv6 = (ubo->m_uv[6] * hsh::float4(vbo->m_uv, 0.0, 1.0)).xy();
+    hsh::float2 uv7 = (ubo->m_uv[7] * hsh::float4(vbo->m_uv, 0.0, 1.0)).xy();
+    position = hsh::float4(vbo->m_pos, 1.0);
 
-void CXRayBlurFilter::Initialize() { s_Pipeline = hecl::conv->convert(Shader_CXRayBlurFilter{}); }
+    hsh::float4 colorSample = paletteTex.sample(hsh::float2(hsh::dot(sceneTex.sample(uv0), kRGBToYPrime) * 0.98 + 0.01, 0.5)) * 0.125;
+    colorSample += paletteTex.sample(hsh::float2(hsh::dot(sceneTex.sample(uv1), kRGBToYPrime) * 0.98 + 0.01, 0.5)) * 0.125;
+    colorSample += paletteTex.sample(hsh::float2(hsh::dot(sceneTex.sample(uv2), kRGBToYPrime) * 0.98 + 0.01, 0.5)) * 0.125;
+    colorSample += paletteTex.sample(hsh::float2(hsh::dot(sceneTex.sample(uv3), kRGBToYPrime) * 0.98 + 0.01, 0.5)) * 0.125;
+    colorSample += paletteTex.sample(hsh::float2(hsh::dot(sceneTex.sample(uv4), kRGBToYPrime) * 0.98 + 0.01, 0.5)) * 0.125;
+    colorSample += paletteTex.sample(hsh::float2(hsh::dot(sceneTex.sample(uv5), kRGBToYPrime) * 0.98 + 0.01, 0.5)) * 0.125;
+    colorSample += paletteTex.sample(hsh::float2(hsh::dot(sceneTex.sample(uv6), kRGBToYPrime) * 0.98 + 0.01, 0.5)) * 0.125;
+    colorSample += paletteTex.sample(hsh::float2(hsh::dot(sceneTex.sample(uv7), kRGBToYPrime) * 0.98 + 0.01, 0.5)) * 0.125;
+    color_out[0] = colorSample;
+  }
+};
 
-void CXRayBlurFilter::Shutdown() { s_Pipeline.reset(); }
-
-CXRayBlurFilter::CXRayBlurFilter(TLockedToken<CTexture>& tex) : m_paletteTex(tex), m_booTex(tex->GetPaletteTexture()) {
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    struct Vert {
-      zeus::CVector2f m_pos;
-      zeus::CVector2f m_uv;
-    };
-    const std::array<Vert, 4> verts{{
-        {{-1.f, -1.f}, {0.f, 0.f}},
-        {{-1.f, 1.f}, {0.f, 1.f}},
-        {{1.f, -1.f}, {1.f, 0.f}},
-        {{1.f, 1.f}, {1.f, 1.f}},
-    }};
-    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), 32, verts.size());
-    m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-
-    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
-    constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
-    const std::array<boo::ObjToken<boo::ITexture>, 2> texs{
-        CGraphics::g_SpareTexture.get(),
-        m_booTex,
-    };
-    m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
-                                          stages.data(), nullptr, nullptr, texs.size(), texs.data(), nullptr, nullptr);
-    return true;
-  } BooTrace);
+CXRayBlurFilter::CXRayBlurFilter(TLockedToken<CTexture>& tex) : m_paletteTex(tex) {
+  const std::array<Vert, 4> verts{{
+                                      {{-1.f, -1.f}, {0.f, 0.f}},
+                                      {{-1.f, 1.f}, {0.f, 1.f}},
+                                      {{1.f, -1.f}, {1.f, 0.f}},
+                                      {{1.f, 1.f}, {1.f, 1.f}},
+                                  }};
+  m_vbo = hsh::create_vertex_buffer<Vert, 4>(verts);
+  m_uniBuf = hsh::create_dynamic_uniform_buffer<Uniform>();
+  m_dataBind = hsh_binding(CXRayBlurFilterPipeline(m_vbo.get(), m_uniBuf.get(), CGraphics::g_SpareTexture.get_color(0),
+                                                   m_paletteTex->GetPaletteTexture()));
 }
 
 void CXRayBlurFilter::draw(float amount) {
@@ -59,10 +67,9 @@ void CXRayBlurFilter::draw(float amount) {
     m_uniform.m_uv[i][3][0] = uvOffset;
     m_uniform.m_uv[i][3][1] = uvOffset;
   }
-  m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
-  CGraphics::SetShaderDataBinding(m_dataBind);
-  CGraphics::DrawArray(0, 4);
+  m_uniBuf.load(m_uniform);
+  m_dataBind.draw(0, 4);
 }
 
 } // namespace urde

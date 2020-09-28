@@ -8,7 +8,7 @@
 #include "Runtime/Graphics/CTexture.hpp"
 
 namespace urde {
-std::array<zeus::CVector3f, 8> CMappableObject::skDoorVerts{};
+std::array<CMappableObject::Vert, 8> CMappableObject::skDoorVerts{};
 
 constexpr std::array<u32, 24> DoorIndices{
     6, 4, 2, 0, 3, 1, 7, 5, 1, 0, 5, 4, 7, 6, 3, 2, 3, 2, 1, 0, 5, 4, 7, 6,
@@ -118,10 +118,10 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
       CLineRenderer& line = ds.m_outline;
       const u32* baseIdx = &DoorIndices[s * 4];
       line.Reset();
-      line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
-      line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
-      line.AddVertex(skDoorVerts[baseIdx[3]], colors.second, 1.f);
-      line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
+      line.AddVertex(skDoorVerts[baseIdx[0]].m_pos, colors.second, 1.f);
+      line.AddVertex(skDoorVerts[baseIdx[1]].m_pos, colors.second, 1.f);
+      line.AddVertex(skDoorVerts[baseIdx[3]].m_pos, colors.second, 1.f);
+      line.AddVertex(skDoorVerts[baseIdx[2]].m_pos, colors.second, 1.f);
       line.Render();
     }
   } else {
@@ -176,7 +176,7 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
         {{2.6f, 0.f, 2.6f}, {1.f, 1.f}},
         {{2.6f, 0.f, -2.6f}, {1.f, 0.f}},
     }};
-    m_texQuadFilter->drawVerts(iconColor, verts.data());
+    m_texQuadFilter->drawVerts(iconColor, verts);
   }
 }
 
@@ -188,10 +188,10 @@ void CMappableObject::DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, 
   CLineRenderer& line = ds.m_outline;
   const u32* baseIdx = &DoorIndices[surfIdx * 4];
   line.Reset();
-  line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
-  line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
-  line.AddVertex(skDoorVerts[baseIdx[3]], colors.second, 1.f);
-  line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
+  line.AddVertex(skDoorVerts[baseIdx[0]].m_pos, colors.second, 1.f);
+  line.AddVertex(skDoorVerts[baseIdx[1]].m_pos, colors.second, 1.f);
+  line.AddVertex(skDoorVerts[baseIdx[3]].m_pos, colors.second, 1.f);
+  line.AddVertex(skDoorVerts[baseIdx[2]].m_pos, colors.second, 1.f);
   line.Render();
 }
 
@@ -236,8 +236,8 @@ bool CMappableObject::IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& 
   }
 }
 
-boo::ObjToken<boo::IGraphicsBufferS> CMappableObject::g_doorVbo;
-boo::ObjToken<boo::IGraphicsBufferS> CMappableObject::g_doorIbo;
+hsh::owner<hsh::vertex_buffer<CMappableObject::Vert>> CMappableObject::g_doorVbo;
+hsh::owner<hsh::index_buffer<u32>> CMappableObject::g_doorIbo;
 
 void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks) {
   const zeus::CVector3f& center = tweaks.GetDoorCenter();
@@ -254,11 +254,8 @@ void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks) {
   doorVerts[6].assign(.2f * -centerF[2], centerF[1], 0.f);
   doorVerts[7].assign(.2f * -centerF[2], centerF[1], 2.f * centerF[0]);
 
-  CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx) {
-    g_doorVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, skDoorVerts.data(), 16, skDoorVerts.size());
-    g_doorIbo = ctx.newStaticBuffer(boo::BufferUse::Index, DoorIndices.data(), 4, DoorIndices.size());
-    return true;
-  } BooTrace);
+  g_doorVbo = hsh::create_vertex_buffer(skDoorVerts);
+  g_doorIbo = hsh::create_index_buffer(DoorIndices);
 }
 
 void CMappableObject::Shutdown() {

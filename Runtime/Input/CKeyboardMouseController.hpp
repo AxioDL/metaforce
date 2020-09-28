@@ -1,17 +1,18 @@
 #pragma once
 
 #include <array>
-#include <boo/IWindow.hpp>
+#include "boo2/boo2.hpp"
 
 namespace urde {
 
 struct CKeyboardMouseControllerData {
   std::array<bool, 256> m_charKeys{};
-  std::array<bool, 26> m_specialKeys{};
+  std::array<bool, 256> m_specialKeys{};
   std::array<bool, 6> m_mouseButtons{};
-  boo::EModifierKey m_modMask = boo::EModifierKey::None;
-  boo::SWindowCoord m_mouseCoord;
-  boo::SScrollDelta m_accumScroll;
+  boo2::KeyModifier m_modMask = boo2::KeyModifier::None;
+  hsh::offset2dF m_mouseCoord;
+  hsh::offset2dF m_mouseCoordNorm;
+  hsh::offset2dF m_accumScroll;
 };
 
 } // namespace urde

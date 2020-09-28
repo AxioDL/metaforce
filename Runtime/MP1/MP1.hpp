@@ -41,7 +41,6 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
 #include "World/CScriptMazeNode.hpp"
-#include "hecl/Console.hpp"
 
 struct DiscordUser;
 
@@ -143,37 +142,40 @@ class CGameArchitectureSupport
   EAudioLoadStatus x88_audioLoadStatus = EAudioLoadStatus::Uninitialized;
   std::vector<TToken<CAudioGroupSet>> x8c_pendingAudioGroups;
 
-  boo::SWindowRect m_windowRect;
+  hsh::rect2d m_windowRect;
   bool m_rectIsDirty;
 
   void destroyed() { x4_archQueue.Push(MakeMsg::CreateRemoveAllIOWins(EArchMsgTarget::IOWinManager)); }
 
-  void resized(const boo::SWindowRect& rect) {
+  void resized(const hsh::rect2d& rect) {
     m_windowRect = rect;
     m_rectIsDirty = true;
   }
 
 public:
-  CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend);
+  CGameArchitectureSupport(CMain& parent, boo2::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend);
   ~CGameArchitectureSupport();
 
-  void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) {
-    x30_inputGenerator.mouseDown(coord, button, mods);
+  void mouseDown(const hsh::offset2dF& offset,
+                 boo2::MouseButton button, boo2::KeyModifier mods) {
+    x30_inputGenerator.mouseDown(offset, button, mods);
   }
-  void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) {
-    x30_inputGenerator.mouseUp(coord, button, mods);
+  void mouseUp(const hsh::offset2dF& offset,
+               boo2::MouseButton button, boo2::KeyModifier mods) {
+    x30_inputGenerator.mouseUp(offset, button, mods);
   }
-  void mouseMove(const boo::SWindowCoord& coord) { x30_inputGenerator.mouseMove(coord); }
-  void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll) {
-    x30_inputGenerator.scroll(coord, scroll);
+  void mouseMove(const hsh::offset2dF& offset,
+                 boo2::KeyModifier mods) { x30_inputGenerator.mouseMove(offset, mods); }
+  void scroll(const hsh::offset2dF& scroll, boo2::KeyModifier mods) {
+    x30_inputGenerator.scroll(scroll, mods);
   }
-  void charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat);
-  void charKeyUp(unsigned long charCode, boo::EModifierKey mods) { x30_inputGenerator.charKeyUp(charCode, mods); }
-  void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat);
+  void charKeyDown(unsigned long charCode, boo2::KeyModifier mods);
+  void charKeyUp(unsigned long charCode, boo2::KeyModifier mods) { x30_inputGenerator.charKeyUp(charCode, mods); }
+  void specialKeyDown(boo2::Keycode key, boo2::KeyModifier mods);
 
-  void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods);
-  void modKeyDown(boo::EModifierKey mod, bool isRepeat) { x30_inputGenerator.modKeyDown(mod, isRepeat); }
-  void modKeyUp(boo::EModifierKey mod) { x30_inputGenerator.modKeyUp(mod); }
+  void specialKeyUp(boo2::Keycode key, boo2::KeyModifier mods);
+  void modKeyDown(boo2::KeyModifier mod) { x30_inputGenerator.modKeyDown(mod); }
+  void modKeyUp(boo2::KeyModifier mod) { x30_inputGenerator.modKeyUp(mod); }
 
   void PreloadAudio();
   bool LoadAudio();
@@ -183,7 +185,7 @@ public:
   void Draw();
 
   bool isRectDirty() const { return m_rectIsDirty; }
-  const boo::SWindowRect& getWindowRect() {
+  const hsh::rect2d& getWindowRect() {
     m_rectIsDirty = false;
     return m_windowRect;
   }
@@ -211,11 +213,6 @@ class CMain : public IMain
   }
 #endif
 private:
-  struct BooSetter {
-    BooSetter(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cmdQ,
-              const boo::ObjToken<boo::ITextureR>& spareTex);
-  } m_booSetter;
-
   // CMemorySys x6c_memSys;
   CTweaks x70_tweaks;
   EGameplayResult xe4_gameplayResult;
@@ -239,10 +236,7 @@ private:
 
   std::unique_ptr<CGameArchitectureSupport> x164_archSupport;
 
-  boo::IWindow* m_mainWindow = nullptr;
-
   hecl::CVarManager* m_cvarMgr = nullptr;
-  std::unique_ptr<hecl::Console> m_console;
   // Warmup state
   std::vector<SObjectTag> m_warmupTags;
   std::vector<SObjectTag>::iterator m_warmupIt;
@@ -264,8 +258,7 @@ private:
   static void HandleDiscordErrored(int errorCode, const char* message);
 
 public:
-  CMain(IFactory* resFactory, CSimplePool* resStore, boo::IGraphicsDataFactory* gfxFactory,
-        boo::IGraphicsCommandQueue* cmdQ, const boo::ObjToken<boo::ITextureR>& spareTex);
+  CMain(IFactory* resFactory, CSimplePool* resStore, hsh::surface surface);
   void RegisterResourceTweaks();
   void AddWorldPaks();
   void AddOverridePaks();
@@ -280,13 +273,12 @@ public:
   static void UpdateDiscordPresence(CAssetId worldSTRG = {});
 
   // int RsMain(int argc, const boo::SystemChar* argv[]);
-  void Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarManager, boo::IWindow* window,
-            boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) override;
+  void Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarManager,
+            boo2::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) override;
   void WarmupShaders() override;
   bool Proc() override;
   void Draw() override;
   void Shutdown() override;
-  boo::IWindow* GetMainWindow() const override;
 
   void MemoryCardInitializePump();
 
@@ -314,6 +306,7 @@ public:
   CGameArchitectureSupport* GetArchSupport() const { return x164_archSupport.get(); }
 
   size_t GetExpectedIdSize() const override { return sizeof(u32); }
+#if 0
   void quit(hecl::Console*, const std::vector<std::string>&) { m_doQuit = true; }
   void Give(hecl::Console*, const std::vector<std::string>&);
   void Remove(hecl::Console*, const std::vector<std::string>&);
@@ -321,7 +314,7 @@ public:
   void Teleport(hecl::Console*, const std::vector<std::string>&);
   void ListWorlds(hecl::Console*, const std::vector<std::string>&);
   void Warp(hecl::Console*, const std::vector<std::string>&);
-  hecl::Console* Console() const override { return m_console.get(); }
+#endif
 
   int m_warpWorldIdx = -1;
   TAreaId m_warpAreaId = 0;

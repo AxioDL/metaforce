@@ -4,8 +4,6 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/World/CRippleManager.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
 namespace urde {
 
 class CStateManager;
@@ -47,7 +45,7 @@ public:
   static u8 RippleValues[64][64];
   static u8 RippleMins[64];
   static u8 RippleMaxs[64];
-  static boo::ObjToken<boo::ITextureS> RippleMapTex;
+  static hsh::owner<hsh::texture2d> RippleMapTex;
 
   CFluidPlaneManager();
   void StartFrame(bool);

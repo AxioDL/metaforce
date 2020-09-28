@@ -20,6 +20,9 @@ class ShaderTag;
 
 namespace urde {
 class CLight;
+class CModelFlags;
+class CBooSurface;
+class CBooModel;
 
 enum class EExtendedShader : uint8_t {
   Flat,
@@ -51,59 +54,78 @@ enum class EExtendedShader : uint8_t {
   MAX
 };
 
+enum class EShaderType : uint8_t {
+  DiffuseOnly,
+  Normal,
+  Dynamic,
+  DynamicAlpha,
+  DynamicCharacter
+};
+
+enum class EPostType : uint8_t {
+  Normal,
+  ThermalHot,
+  ThermalCold,
+  Solid,
+  MBShadow,
+  Disintegrate
+};
+
 class CModelShaders {
   friend class CModel;
+  hsh::binding m_dataBind;
 
 public:
-  struct Light {
-    zeus::CVector3f pos;
-    zeus::CVector3f dir;
-    zeus::CColor color = zeus::skClear;
-    std::array<float, 4> linAtt{1.f, 0.f, 0.f};
-    std::array<float, 4> angAtt{1.f, 0.f, 0.f};
+  template <uint32_t NCol, uint32_t NUv, uint32_t NWeight>
+  struct VertData {
+    hsh::float3 posIn;
+    hsh::float3 normIn;
+    std::array<hsh::float4, NCol> colIn;
+    std::array<hsh::float2, NUv> uvIn;
+    std::array<hsh::float4, NWeight> weightIn;
   };
 
-  struct LightingUniform {
+  template <uint32_t NSkinSlots>
+  struct VertUniform {
+    std::array<hsh::float4x4, NSkinSlots> objs;
+    std::array<hsh::float4x4, NSkinSlots> objsInv;
+    hsh::float4x4 mv;
+    hsh::float4x4 mvInv;
+    hsh::float4x4 proj;
+  };
+
+  struct TCGMatrix {
+    hsh::float4x4 mtx;
+    hsh::float4x4 postMtx;
+  };
+
+  struct ReflectMtx {
+    hsh::float4x4 indMtx;
+    hsh::float4x4 reflectMtx;
+    float reflectAlpha;
+  };
+
+  struct Light {
+    alignas(16) hsh::float3 pos;
+    alignas(16) hsh::float3 dir;
+    alignas(16) hsh::float4 color;
+    alignas(16) hsh::float3 linAtt;
+    alignas(16) hsh::float3 angAtt;
+  };
+
+  struct FragmentUniform {
     std::array<Light, URDE_MAX_LIGHTS> lights;
-    zeus::CColor ambient;
-    std::array<zeus::CColor, 3> colorRegs;
-    zeus::CColor mulColor;
-    zeus::CColor addColor;
+    hsh::float4 ambient;
+    hsh::float4 lightmapMul;
+    hsh::float4 flagsColor;
     CGraphics::CFogState fog;
 
     void ActivateLights(const std::vector<CLight>& lts);
   };
 
-  struct ThermalUniform {
-    zeus::CColor mulColor;
-    zeus::CColor addColor;
-  };
-
-  struct SolidUniform {
-    zeus::CColor solidColor;
-  };
-
-  struct MBShadowUniform {
-    zeus::CVector4f shadowUp;
-    float shadowId;
-  };
-
-  struct OneTextureUniform {
-    zeus::CColor addColor;
-    CGraphics::CFogState fog;
-  };
-
-  static void Initialize();
-  static void Shutdown();
-
-  using ShaderPipelinesData = std::array<boo::ObjToken<boo::IShaderPipeline>, size_t(EExtendedShader::MAX)>;
-  using ShaderPipelines = std::shared_ptr<ShaderPipelinesData>;
+  hsh::binding& SetCurrent(const CModelFlags& modelFlags, const CBooSurface& surface, const CBooModel& model);
 
   using Material = DataSpec::DNAMP1::HMDLMaterialSet::Material;
-  static ShaderPipelines BuildExtendedShader(const hecl::Backend::ShaderTag& tag, const Material& material);
-
-private:
-  static std::unordered_map<uint64_t, ShaderPipelines> g_ShaderPipelines;
 };
 
 } // namespace urde

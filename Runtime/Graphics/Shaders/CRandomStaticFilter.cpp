@@ -6,28 +6,7 @@
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/CBooRenderer.hpp"
 
-#include <hecl/Pipeline.hpp>
-
 namespace urde {
-
-static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
-static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
-static boo::ObjToken<boo::IShaderPipeline> s_MultPipeline;
-static boo::ObjToken<boo::IShaderPipeline> s_CookieCutterPipeline;
-
-void CRandomStaticFilter::Initialize() {
-  s_AlphaPipeline = hecl::conv->convert(Shader_CRandomStaticFilterAlpha{});
-  s_AddPipeline = hecl::conv->convert(Shader_CRandomStaticFilterAdd{});
-  s_MultPipeline = hecl::conv->convert(Shader_CRandomStaticFilterMult{});
-  s_CookieCutterPipeline = hecl::conv->convert(Shader_CRandomStaticFilterCookieCutter{});
-}
-
-void CRandomStaticFilter::Shutdown() {
-  s_AlphaPipeline.reset();
-  s_AddPipeline.reset();
-  s_MultPipeline.reset();
-  s_CookieCutterPipeline.reset();
-}
 
 static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type) {
   switch (type) {
@@ -44,10 +23,6 @@ static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type) {
 
 CRandomStaticFilter::CRandomStaticFilter(EFilterType type, bool cookieCutter) : m_cookieCutter(cookieCutter) {
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    struct Vert {
-      zeus::CVector2f m_pos;
-      zeus::CVector2f m_uv;
-    };
     const std::array<Vert, 4> verts{{
         {{-1.f, -1.f}, {0.f, 0.f}},
         {{-1.f, 1.f}, {0.f, 448.f}},

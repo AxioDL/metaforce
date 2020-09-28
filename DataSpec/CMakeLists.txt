@@ -69,10 +69,9 @@ add_library(RetroDataSpec
             AssetNameMap64.bin AssetNameMap64.cpp
             RetroMasterShader.cpp)
 
-get_target_property(HECL_INCLUDES hecl-full INCLUDE_DIRECTORIES)
 target_include_directories(RetroDataSpec PUBLIC ${LIBPNG_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR}
-                           ${HECL_INCLUDES} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
-target_link_libraries(RetroDataSpec PUBLIC amuse zeus nod specter squish ${PNG_LIB} ${ZLIB_LIBRARIES} lzokay logvisor)
+                           ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
+target_link_libraries(RetroDataSpec PUBLIC amuse zeus nod squish hecl-full ${PNG_LIB} ${ZLIB_LIBRARIES} lzokay logvisor)
 if(COMMAND add_sanitizers)
   add_sanitizers(RetroDataSpec)
 endif()

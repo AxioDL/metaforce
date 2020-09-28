@@ -1,6 +1,6 @@
 #pragma once
 
-#include "boo/graphicsdev/glew.h"
+#include "glew.h"
 #include "hecl/SystemChar.hpp"
 #include "zeus/CColor.hpp"
 #include "zeus/CMatrix4f.hpp"

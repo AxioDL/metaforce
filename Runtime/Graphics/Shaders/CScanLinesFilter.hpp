@@ -2,8 +2,7 @@
 
 #include "Runtime/CToken.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-#include <zeus/CColor.hpp>
+#include "zeus/CColor.hpp"
 
 namespace urde {
 class CTexture;
@@ -15,14 +14,12 @@ class CScanLinesFilter {
   struct Uniform {
     zeus::CColor color;
   };
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+  hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
+  hsh::binding m_dataBind;
   Uniform m_uniform;
   bool m_even;
 
 public:
-  static void Initialize();
-  static void Shutdown();
   explicit CScanLinesFilter(EFilterType type, bool even);
   void draw(const zeus::CColor& color);
   void DrawFilter(EFilterShape, const zeus::CColor& color, float) { draw(color); }

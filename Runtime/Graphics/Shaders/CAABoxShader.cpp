@@ -9,19 +9,6 @@
 
 namespace urde {
 
-static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
-static boo::ObjToken<boo::IShaderPipeline> s_zOnlyPipeline;
-
-void CAABoxShader::Initialize() {
-  s_Pipeline = hecl::conv->convert(Shader_CAABoxShader{});
-  s_zOnlyPipeline = hecl::conv->convert(Shader_CAABoxShaderZOnly{});
-}
-
-void CAABoxShader::Shutdown() {
-  s_Pipeline.reset();
-  s_zOnlyPipeline.reset();
-}
-
 CAABoxShader::CAABoxShader(bool zOnly) {
   CGraphics::CommitResources([this, zOnly](boo::IGraphicsDataFactory::Context& ctx) {
     m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(zeus::CVector3f), 34);

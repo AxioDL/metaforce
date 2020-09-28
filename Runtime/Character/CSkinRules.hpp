@@ -6,8 +6,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Character/CSkinBank.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-#include <zeus/CVector3f.hpp>
+#include "zeus/CVector3f.hpp"
 
 namespace urde {
 class CPoseAsTransforms;

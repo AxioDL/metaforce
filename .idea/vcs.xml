@@ -6,18 +6,15 @@
     <mapping directory="$PROJECT_DIR$/NESEmulator/fixNES" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/amuse" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/assetnameparser/tinyxml2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/boo2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/boo2/logvisor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/boo2/logvisor/fmt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/discord-rpc" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl-gui" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/athena" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/athena/extern/fmt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/athena/extern/lzokay" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/hecl/extern/boo" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/hecl/extern/boo/glslang" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/hecl/extern/boo/lib/graphicsdev/nx/libdrm_nouveau" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/hecl/extern/boo/lib/graphicsdev/nx/mesa" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/hecl/extern/boo/logvisor" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/hecl/extern/boo/logvisor/fmt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/libSquish" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/libjpeg-turbo" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/jbus" vcs="Git" />
@@ -28,8 +25,6 @@
     <mapping directory="$PROJECT_DIR$/rapidjson" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/rapidjson/thirdparty/gtest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sanitizers-cmake" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/specter" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/specter/freetype2" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/specter/zeus" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/zeus" vcs="Git" />
   </component>
 </project>

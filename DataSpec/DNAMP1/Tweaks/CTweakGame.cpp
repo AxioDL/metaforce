@@ -1,5 +1,4 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
-#include "Runtime/Camera/CCameraManager.hpp"
 
 #include <hecl/CVar.hpp>
 #include <hecl/CVarManager.hpp>

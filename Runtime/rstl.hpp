@@ -10,6 +10,8 @@
 #include <logvisor/logvisor.hpp>
 #endif
 
+#include "hsh/hsh.h"
+
 namespace rstl {
 
 #ifndef NDEBUG
@@ -567,6 +569,8 @@ public:
 #endif
     return _value(idx);
   }
+
+  operator hsh::detail::ArrayProxy<T>() const { return hsh::detail::ArrayProxy(data(), size()); }
 };
 
 /**
@@ -621,6 +625,8 @@ public:
 
   [[nodiscard]] T& operator[](size_t idx) { return _value(idx); }
   [[nodiscard]] const T& operator[](size_t idx) const { return _value(idx); }
+
+  operator hsh::detail::ArrayProxy<T>() const { return hsh::detail::ArrayProxy(data(), size()); }
 };
 
 template <class ForwardIt, class T>

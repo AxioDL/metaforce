@@ -9,10 +9,8 @@
 #include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
-#include <zeus/CAABox.hpp>
-#include <zeus/CVector3f.hpp>
+#include "zeus/CAABox.hpp"
+#include "zeus/CVector3f.hpp"
 
 namespace urde {
 class IWorld;
@@ -29,9 +27,9 @@ public:
     struct Instance {
       CMapSurfaceShader m_surfacePrims;
       std::vector<CLineRenderer> m_linePrims;
-      Instance(boo::IGraphicsDataFactory::Context& ctx, const boo::ObjToken<boo::IGraphicsBufferS>& vbo,
-               const boo::ObjToken<boo::IGraphicsBufferS>& ibo)
-      : m_surfacePrims(ctx, vbo, ibo) {}
+      Instance(hsh::vertex_buffer<CMapSurfaceShader::Vert> vbo,
+               hsh::index_buffer<u32> ibo)
+      : m_surfacePrims(vbo, ibo) {}
       Instance(Instance&&) = default;
       Instance& operator=(Instance&&) = default;
     };
@@ -41,7 +39,7 @@ public:
     explicit CMapAreaSurface(const void* surfBuf);
     CMapAreaSurface(CMapAreaSurface&&) = default;
     void PostConstruct(const u8* buf, std::vector<u32>& index);
-    void Draw(const zeus::CVector3f* verts, const zeus::CColor& surfColor, const zeus::CColor& lineColor,
+    void Draw(const CMapSurfaceShader::Vert* verts, const zeus::CColor& surfColor, const zeus::CColor& lineColor,
               float lineWidth, size_t instIdx = 0);
     const zeus::CVector3f& GetNormal() const { return x0_normal; }
     const zeus::CVector3f& GetCenterPosition() const { return xc_centroid; }
@@ -61,12 +59,12 @@ private:
   u8* x38_moStart;
   std::vector<CMappableObject> m_mappableObjects;
   u8* x3c_vertexStart;
-  std::vector<zeus::CVector3f> m_verts;
+  std::vector<CMapSurfaceShader::Vert> m_verts;
   u8* x40_surfaceStart;
   std::vector<CMapAreaSurface> m_surfaces;
   std::unique_ptr<u8[]> x44_buf;
-  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
+  hsh::owner<hsh::vertex_buffer<CMapSurfaceShader::Vert>> m_vbo;
+  hsh::owner<hsh::index_buffer<u32>> m_ibo;
 
 public:
   explicit CMapArea(CInputStream& in, u32 size);
@@ -82,7 +80,7 @@ public:
   u32 GetNumSurfaces() const { return m_surfaces.size(); }
   zeus::CTransform GetAreaPostTransform(const IWorld& world, TAreaId aid) const;
   static const zeus::CVector3f& GetAreaPostTranslate(const IWorld& world, TAreaId aid);
-  const zeus::CVector3f* GetVertices() const { return m_verts.data(); }
+  const CMapSurfaceShader::Vert* GetVertices() const { return m_verts.data(); }
 };
 
 CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&, CObjectReference*);

@@ -258,7 +258,7 @@ private:
   bool x835_30_inPhazonPool : 1;
   bool x835_31_actorAttached : 1;
 
-  CTexturedQuadFilter m_screenQuad{EFilterType::Blend, CGraphics::g_SpareTexture.get(),
+  CTexturedQuadFilter m_screenQuad{EFilterType::Blend, CGraphics::g_SpareTexture.get_color(0),
                                    CTexturedQuadFilter::ZTest::GEqualZWrite};
   CAABoxShader m_aaboxShader{true};
 

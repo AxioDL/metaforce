@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-#include <boo/IWindow.hpp>
+#include "boo2/boo2.hpp"
 
 namespace urde {
 struct CFinalInput;
@@ -126,12 +126,12 @@ constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionL
   return ControlMapper::EKBMFunctionList(static_cast<T>(a) + static_cast<T>(b));
 }
 
-constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, boo::ESpecialKey b) {
+constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, boo2::Keycode b) {
   using T = std::underlying_type_t<ControlMapper::EKBMFunctionList>;
   return ControlMapper::EKBMFunctionList(static_cast<T>(a) + static_cast<T>(b));
 }
 
-constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, boo::EMouseButton b) {
+constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, boo2::MouseButton b) {
   using T = std::underlying_type_t<ControlMapper::EKBMFunctionList>;
   return ControlMapper::EKBMFunctionList(static_cast<T>(a) + static_cast<T>(b));
 }

@@ -97,7 +97,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
 
 void SpecBase::doExtract(const ExtractPassInfo& info, const hecl::MultiProgressPrinter& progress) {
   setThreadProject();
-  DataSpec::g_curSpec.reset(this);
+  DataSpec::g_curSpec = this;
   if (!Blender::BuildMasterShader(m_masterShader))
     Log.report(logvisor::Fatal, FMT_STRING("Unable to build master shader blend"));
   if (m_isWii) {
@@ -196,7 +196,7 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
 void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath, bool fast,
                       hecl::blender::Token& btok, FCookProgress progress) {
   cookedPath.makeDirChain(false);
-  DataSpec::g_curSpec.reset(this);
+  DataSpec::g_curSpec = this;
 
   hecl::ProjectPath asBlend;
   if (path.getPathType() == hecl::ProjectPath::Type::Glob)
@@ -386,8 +386,8 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
 
 void SpecBase::flattenDependencies(const hecl::ProjectPath& path, std::vector<hecl::ProjectPath>& pathsOut,
                                    hecl::blender::Token& btok, int charIdx) {
-  DataSpec::g_curSpec.reset(this);
-  g_ThreadBlenderToken.reset(&btok);
+  DataSpec::g_curSpec = this;
+  g_ThreadBlenderToken = &btok;
 
   hecl::ProjectPath asBlend;
   if (path.getPathType() == hecl::ProjectPath::Type::Glob)
@@ -408,13 +408,13 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path, std::vector<he
 void SpecBase::flattenDependencies(const UniqueID32& id, std::vector<hecl::ProjectPath>& pathsOut, int charIdx) {
   hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
   if (path)
-    flattenDependencies(path, pathsOut, *g_ThreadBlenderToken.get(), charIdx);
+    flattenDependencies(path, pathsOut, *g_ThreadBlenderToken, charIdx);
 }
 
 void SpecBase::flattenDependencies(const UniqueID64& id, std::vector<hecl::ProjectPath>& pathsOut, int charIdx) {
   hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
   if (path)
-    flattenDependencies(path, pathsOut, *g_ThreadBlenderToken.get(), charIdx);
+    flattenDependencies(path, pathsOut, *g_ThreadBlenderToken, charIdx);
 }
 
 bool SpecBase::canPackage(const hecl::ProjectPath& path) {

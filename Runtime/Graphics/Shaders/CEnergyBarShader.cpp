@@ -5,15 +5,7 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
-#include <hecl/Pipeline.hpp>
-
 namespace urde {
-
-static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
-
-void CEnergyBarShader::Initialize() { s_Pipeline = hecl::conv->convert(Shader_CEnergyBarShader{}); }
-
-void CEnergyBarShader::Shutdown() { s_Pipeline.reset(); }
 
 void CEnergyBarShader::updateModelMatrix() {
   m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();

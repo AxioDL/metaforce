@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Input/CKeyboardMouseController.hpp"
 
-#include <boo/inputdev/DolphinSmashAdapter.hpp>
+#include "boo2/inputdev/DolphinSmashAdapter.hpp"
 
 namespace urde {
 
@@ -72,7 +72,7 @@ struct CFinalInput {
   float m_rightMul = 1.f;
 
   CFinalInput();
-  CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput, float leftDiv,
+  CFinalInput(int cIdx, float dt, const boo2::DolphinControllerState& data, const CFinalInput& prevInput, float leftDiv,
               float rightDiv);
   CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData& data, const CFinalInput& prevInput);
 
@@ -161,14 +161,14 @@ struct CFinalInput {
   CFinalInput ScaleAnalogueSticks(float leftDiv, float rightDiv) const;
 
   bool PKey(char k) const { return m_kbm && m_PCharKeys[size_t(k)]; }
-  bool PSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_PSpecialKeys[size_t(k)]; }
-  bool PMouseButton(boo::EMouseButton k) const { return m_kbm && m_PMouseButtons[size_t(k)]; }
+  bool PSpecialKey(boo2::Keycode k) const { return m_kbm && m_PSpecialKeys[size_t(k)]; }
+  bool PMouseButton(boo2::MouseButton k) const { return m_kbm && m_PMouseButtons[size_t(k)]; }
   bool DKey(char k) const { return m_kbm && m_kbm->m_charKeys[size_t(k)]; }
-  bool DSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_kbm->m_specialKeys[size_t(k)]; }
-  bool DMouseButton(boo::EMouseButton k) const { return m_kbm && m_kbm->m_mouseButtons[size_t(k)]; }
+  bool DSpecialKey(boo2::Keycode k) const { return m_kbm && m_kbm->m_specialKeys[size_t(k)]; }
+  bool DMouseButton(boo2::MouseButton k) const { return m_kbm && m_kbm->m_mouseButtons[size_t(k)]; }
   float AKey(char k) const { return DKey(k) ? 1.f : 0.f; }
-  float ASpecialKey(boo::ESpecialKey k) const { return DSpecialKey(k) ? 1.f : 0.f; }
-  float AMouseButton(boo::EMouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }
+  float ASpecialKey(boo2::Keycode k) const { return DSpecialKey(k) ? 1.f : 0.f; }
+  float AMouseButton(boo2::MouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }
 
   const std::optional<CKeyboardMouseControllerData>& GetKBM() const { return m_kbm; }
 };

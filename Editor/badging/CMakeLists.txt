@@ -40,4 +40,3 @@ bintoc(badge.cpp ${CMAKE_CURRENT_BINARY_DIR}/badge.bin URDE_BADGE)
 add_library(UrdeBadging
     badge.cpp badge.bin
     Badging.hpp Badging.cpp)
-target_link_libraries(UrdeBadging PUBLIC specter)

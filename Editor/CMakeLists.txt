@@ -72,7 +72,7 @@ elseif(UNIX)
   set(URDE_PLAT_LIBS rt)
 endif()
 
-add_executable(urde WIN32 MACOSX_BUNDLE
+add_executable(urde-old WIN32 MACOSX_BUNDLE
                main.cpp ${PLAT_SRCS}
                Space.hpp Space.cpp
                SplashScreen.hpp SplashScreen.cpp
@@ -85,40 +85,40 @@ add_executable(urde WIN32 MACOSX_BUNDLE
                Resource.hpp Resource.cpp
                Camera.hpp Camera.cpp
                GameMode.hpp GameMode.cpp)
-target_atdna(urde atdna_Space.cpp Space.hpp)
-target_atdna(urde atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
-target_atdna(urde atdna_ModelViewer.cpp ModelViewer.hpp)
-target_atdna(urde atdna_ParticleEditor.cpp ParticleEditor.hpp)
-target_atdna(urde atdna_InformationCenter.cpp InformationCenter.hpp)
-target_atdna(urde atdna_GameMode.cpp GameMode.hpp)
+target_atdna(urde-old atdna_Space.cpp Space.hpp)
+target_atdna(urde-old atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
+target_atdna(urde-old atdna_ModelViewer.cpp ModelViewer.hpp)
+target_atdna(urde-old atdna_ParticleEditor.cpp ParticleEditor.hpp)
+target_atdna(urde-old atdna_InformationCenter.cpp InformationCenter.hpp)
+target_atdna(urde-old atdna_GameMode.cpp GameMode.hpp)
 
-target_compile_definitions(urde PUBLIC URDE_DLPACKAGE="${URDE_DLPACKAGE}")
+target_compile_definitions(urde-old PUBLIC URDE_DLPACKAGE="${URDE_DLPACKAGE}")
 
-target_include_directories(urde PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+target_include_directories(urde-old PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR})
 
-target_link_libraries(urde
+target_link_libraries(urde-old
                       UrdeIcons
                       UrdeBadging
                       RuntimeCommon
                       ${URDE_PLAT_LIBS})
 if(COMMAND add_sanitizers)
-  add_sanitizers(urde)
+  add_sanitizers(urde-old)
 endif()
 
-set_target_properties(urde PROPERTIES
+set_target_properties(urde-old PROPERTIES
                       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_BINARY_DIR}/Info.plist"
                       MACOSX_BUNDLE_BUNDLE_NAME "urde")
 
 if (NOT WINDOWS_STORE)
   if(APPLE)
-    add_custom_command(TARGET urde POST_BUILD
+    add_custom_command(TARGET urde-old POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:urde>)
-    add_custom_command(TARGET urde POST_BUILD
+    add_custom_command(TARGET urde-old POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:urde>)
   endif()
-  add_dependencies(urde visigen hecl)
+  add_dependencies(urde-old visigen hecl)
 else()
-  set_property(TARGET urde PROPERTY VS_WINRT_COMPONENT TRUE)
+  set_property(TARGET urde-old PROPERTY VS_WINRT_COMPONENT TRUE)
   # This should match the Package.appxmanifest
-  set_property(TARGET urde PROPERTY VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION "10.0.14393.0")
+  set_property(TARGET urde-old PROPERTY VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION "10.0.14393.0")
 endif()

@@ -1,24 +1,27 @@
 #pragma once
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-#include <zeus/CVector4f.hpp>
+#include "hsh/hsh.h"
+#include "zeus/CVector4f.hpp"
 
 namespace urde {
 
 class CCameraBlurFilter {
+  friend struct CCameraBlurFilterPipeline;
+  struct Vert {
+    hsh::float2 m_pos;
+    hsh::float2 m_uv;
+  };
   struct Uniform {
-    zeus::CVector4f m_uv[6];
+    hsh::aligned_array<hsh::float2, 6> m_uv;
     float m_opacity = 1.f;
   };
 
-  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+  hsh::dynamic_owner<hsh::vertex_buffer<Vert>> m_vbo;
+  hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
+  hsh::binding m_dataBind;
   Uniform m_uniform;
 
 public:
-  static void Initialize();
-  static void Shutdown();
   CCameraBlurFilter();
   void draw(float amount, bool clearDepth = false);
 };

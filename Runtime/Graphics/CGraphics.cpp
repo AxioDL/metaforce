@@ -119,12 +119,6 @@ void CGraphics::EndScene() {
   g_InterruptLastFrameUsedAbove ^= 1;
   g_LastFrameUsedAbove = g_InterruptLastFrameUsedAbove;
 
-  /* Flush text instance buffers just before GPU command list submission */
-  CTextSupportShader::UpdateBuffers();
-
-  /* Same with line renderer */
-  CLineRenderer::UpdateBuffers();
-
   ++g_FrameCounter;
 }
 
@@ -186,24 +180,9 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect, 
                            0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn, 0.f, 0.f, -1.f, 0.f);
   }
 
-  switch (g_BooPlatform) {
-  case boo::IGraphicsDataFactory::Platform::OpenGL:
-  default: {
-    return zeus::CMatrix4f(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
-                           0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn, 0.f, 0.f, -1.f, 0.f);
-  }
-  case boo::IGraphicsDataFactory::Platform::D3D11:
-  case boo::IGraphicsDataFactory::Platform::Metal: {
-    zeus::CMatrix4f mat2(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
-                         0.f, 0.f, st.x18_far / fmn, st.x14_near * st.x18_far / fmn, 0.f, 0.f, -1.f, 0.f);
-    return PlusOneZ * mat2;
-  }
-  case boo::IGraphicsDataFactory::Platform::Vulkan: {
-    zeus::CMatrix4f mat2(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
-                         0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn, 0.f, 0.f, -1.f, 0.f);
-    return VulkanCorrect * mat2;
-  }
-  }
+  zeus::CMatrix4f mat2(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
+                       0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn, 0.f, 0.f, -1.f, 0.f);
+  return VulkanCorrect * mat2;
 }
 
 zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer) {
@@ -221,27 +200,10 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer) {
                              0.f, -1.f, 0.f);
     }
 
-    switch (g_BooPlatform) {
-    case boo::IGraphicsDataFactory::Platform::OpenGL:
-    default: {
-      return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * g_Proj.x14_near / tmb,
-                             tpb / tmb, 0.f, 0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn, 0.f,
-                             0.f, -1.f, 0.f);
-    }
-    case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::Metal: {
-      zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * g_Proj.x14_near / tmb,
-                           tpb / tmb, 0.f, 0.f, 0.f, g_Proj.x18_far / fmn, g_Proj.x14_near * g_Proj.x18_far / fmn, 0.f,
-                           0.f, -1.f, 0.f);
-      return PlusOneZ * mat2;
-    }
-    case boo::IGraphicsDataFactory::Platform::Vulkan: {
-      zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * g_Proj.x14_near / tmb,
-                           tpb / tmb, 0.f, 0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn, 0.f,
-                           0.f, -1.f, 0.f);
-      return VulkanCorrect * mat2;
-    }
-    }
+    zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * g_Proj.x14_near / tmb,
+                         tpb / tmb, 0.f, 0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn, 0.f,
+                         0.f, -1.f, 0.f);
+    return VulkanCorrect * mat2;
   } else {
     float rml = g_Proj.x8_right - g_Proj.x4_left;
     float rpl = g_Proj.x8_right + g_Proj.x4_left;
@@ -255,24 +217,9 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer) {
                              -fpn / fmn, 0.f, 0.f, 0.f, 1.f);
     }
 
-    switch (g_BooPlatform) {
-    case boo::IGraphicsDataFactory::Platform::OpenGL:
-    default: {
-      return zeus::CMatrix4f(2.f / rml, 0.f, 0.f, -rpl / rml, 0.f, 2.f / tmb, 0.f, -tpb / tmb, 0.f, 0.f, -2.f / fmn,
-                             -fpn / fmn, 0.f, 0.f, 0.f, 1.f);
-    }
-    case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::Metal: {
-      zeus::CMatrix4f mat2(2.f / rml, 0.f, 0.f, -rpl / rml, 0.f, 2.f / tmb, 0.f, -tpb / tmb, 0.f, 0.f, 1.f / fmn,
-                           g_Proj.x14_near / fmn, 0.f, 0.f, 0.f, 1.f);
-      return PlusOneZ * mat2;
-    }
-    case boo::IGraphicsDataFactory::Platform::Vulkan: {
-      zeus::CMatrix4f mat2(2.f / rml, 0.f, 0.f, -rpl / rml, 0.f, 2.f / tmb, 0.f, -tpb / tmb, 0.f, 0.f, -2.f / fmn,
-                           -fpn / fmn, 0.f, 0.f, 0.f, 1.f);
-      return VulkanCorrect * mat2;
-    }
-    }
+    zeus::CMatrix4f mat2(2.f / rml, 0.f, 0.f, -rpl / rml, 0.f, 2.f / tmb, 0.f, -tpb / tmb, 0.f, 0.f, -2.f / fmn,
+                         -fpn / fmn, 0.f, 0.f, 0.f, 1.f);
+    return VulkanCorrect * mat2;
   }
 }
 

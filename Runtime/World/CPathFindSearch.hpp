@@ -13,7 +13,7 @@ namespace urde {
 class CPathFindSearch;
 
 class CPathFindVisualizer {
-  CLineRenderer m_spline = {CLineRenderer::EPrimitiveMode::LineStrip, 16, {}, true};
+  CLineRenderer m_spline = {CLineRenderer::EPrimitiveMode::LineStrip, 16, hsh::texture2d{}, true};
 
 public:
   void Draw(const CPathFindSearch& path);

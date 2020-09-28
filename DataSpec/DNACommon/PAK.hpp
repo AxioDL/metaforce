@@ -9,7 +9,6 @@
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 
-#include <boo/ThreadLocalPtr.hpp>
 #include <zeus/CMatrix4f.hpp>
 #include <zeus/Global.hpp>
 
@@ -153,13 +152,13 @@ public:
 private:
   const std::vector<BRIDGETYPE>* m_bridges = nullptr;
   std::vector<std::pair<hecl::ProjectPath, hecl::ProjectPath>> m_bridgePaths;
-  ThreadLocalPtr<void> m_curBridgeIdx;
+  static thread_local void* m_curBridgeIdx;
   const hecl::ProjectPath& m_gameWorking;
   const hecl::ProjectPath& m_gameCooked;
   hecl::ProjectPath m_sharedWorking;
   hecl::ProjectPath m_sharedCooked;
-  ThreadLocalPtr<const PAKType> m_pak;
-  ThreadLocalPtr<const nod::Node> m_node;
+  static thread_local const PAKType* m_pak;
+  static thread_local const nod::Node* m_node;
   std::unordered_map<IDType, std::pair<size_t, const EntryType*>> m_uniqueEntries;
   std::unordered_map<IDType, std::pair<size_t, const EntryType*>> m_sharedEntries;
   std::unordered_map<IDType, hecl::ProjectPath> m_overrideEntries;
@@ -179,7 +178,7 @@ public:
   void build(std::vector<BRIDGETYPE>& bridges, std::function<void(float)> progress);
 
   void enterPAKBridge(const BRIDGETYPE& pakBridge);
-  const BRIDGETYPE& getCurrentBridge() const { return (*m_bridges)[reinterpret_cast<intptr_t>(m_curBridgeIdx.get())]; }
+  const BRIDGETYPE& getCurrentBridge() const { return (*m_bridges)[reinterpret_cast<intptr_t>(m_curBridgeIdx)]; }
 
   using PAKRouterBase::getWorking;
   hecl::ProjectPath getWorking(const EntryType* entry, const ResExtractor<BRIDGETYPE>& extractor) const;
@@ -230,5 +229,9 @@ public:
 
   bool mreaHasDupeResources(const IDType& id) const;
 };
+
+template <class BRIDGETYPE> thread_local void* PAKRouter<BRIDGETYPE>::m_curBridgeIdx;
+template <class BRIDGETYPE> thread_local const typename PAKRouter<BRIDGETYPE>::PAKType* PAKRouter<BRIDGETYPE>::m_pak;
+template <class BRIDGETYPE> thread_local const nod::Node* PAKRouter<BRIDGETYPE>::m_node;
 
 } // namespace DataSpec

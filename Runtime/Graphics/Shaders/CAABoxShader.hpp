@@ -1,9 +1,7 @@
 #pragma once
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
-#include <zeus/CColor.hpp>
-#include <zeus/CMatrix4f.hpp>
+#include "zeus/CColor.hpp"
+#include "zeus/CMatrix4f.hpp"
 
 namespace zeus {
 class CAABox;
@@ -12,18 +10,19 @@ class CAABox;
 namespace urde {
 
 class CAABoxShader {
-  struct Uniform {
-    zeus::CMatrix4f m_xf;
-    zeus::CColor m_color;
+  struct Vert {
+    hsh::float3 m_pos;
   };
-  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+  struct Uniform {
+    hsh::float4x4 m_xf;
+    hsh::float4 m_color;
+  };
+  hsh::owner<hsh::vertex_buffer<Vert>> m_vbo;
+  hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
+  hsh::binding m_dataBind;
   Uniform m_uniform;
 
 public:
-  static void Initialize();
-  static void Shutdown();
   explicit CAABoxShader(bool zOnly = false);
   void setAABB(const zeus::CAABox& aabb);
   void draw(const zeus::CColor& color);

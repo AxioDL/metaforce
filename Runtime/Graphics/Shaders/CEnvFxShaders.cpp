@@ -5,18 +5,6 @@
 #include <hecl/Pipeline.hpp>
 
 namespace urde {
-boo::ObjToken<boo::IShaderPipeline> CEnvFxShaders::m_snowPipeline;
-boo::ObjToken<boo::IShaderPipeline> CEnvFxShaders::m_underwaterPipeline;
-
-void CEnvFxShaders::Initialize() {
-  m_snowPipeline = hecl::conv->convert(Shader_CEnvFxSnowShader{});
-  m_underwaterPipeline = hecl::conv->convert(Shader_CEnvFxUnderwaterShader{});
-}
-
-void CEnvFxShaders::Shutdown() {
-  m_snowPipeline.reset();
-  m_underwaterPipeline.reset();
-}
 
 void CEnvFxShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CEnvFxManager& fxMgr,
                                            CEnvFxManagerGrid& grid) {

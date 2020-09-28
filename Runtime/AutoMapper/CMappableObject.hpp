@@ -18,10 +18,16 @@ class CMapWorldInfo;
 class CStateManager;
 
 class CMappableObject {
-  static boo::ObjToken<boo::IGraphicsBufferS> g_doorVbo;
-  static boo::ObjToken<boo::IGraphicsBufferS> g_doorIbo;
-
 public:
+  struct Vert {
+    hsh::float3 m_pos;
+    void assign(float x, float y, float z) {
+      m_pos = hsh::float3(x, y, z);
+    }
+  };
+  static hsh::owner<hsh::vertex_buffer<Vert>> g_doorVbo;
+  static hsh::owner<hsh::index_buffer<u32>> g_doorIbo;
+
   enum class EMappableObjectType {
     BlueDoor = 0,
     ShieldDoor = 1,
@@ -53,7 +59,7 @@ public:
   enum class EVisMode { Always, MapStationOrVisit, Visit, Never, MapStationOrVisit2 };
 
 private:
-  static std::array<zeus::CVector3f, 8> skDoorVerts;
+  static std::array<CMappableObject::Vert, 8> skDoorVerts;
 
   EMappableObjectType x0_type;
   EVisMode x4_visibilityMode;
@@ -64,9 +70,9 @@ private:
   struct DoorSurface {
     CMapSurfaceShader m_surface;
     CLineRenderer m_outline;
-    explicit DoorSurface(boo::IGraphicsDataFactory::Context& ctx)
-    : m_surface(ctx, g_doorVbo, g_doorIbo)
-    , m_outline(ctx, CLineRenderer::EPrimitiveMode::LineLoop, 5, nullptr, false, false, true) {}
+    explicit DoorSurface()
+    : m_surface(g_doorVbo.get(), g_doorIbo.get())
+    , m_outline(CLineRenderer::EPrimitiveMode::LineLoop, 5, hsh::texture2d{}, false, hsh::GEqual) {}
   };
   std::optional<DoorSurface> m_doorSurface;
   std::optional<CTexturedQuadFilter> m_texQuadFilter;
@@ -87,7 +93,7 @@ public:
   bool IsDoorConnectedToVisitedArea(const CStateManager&) const;
   bool IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& mwInfo) const;
   bool GetIsSeen() const;
-  void CreateDoorSurface(boo::IGraphicsDataFactory::Context& ctx) { m_doorSurface.emplace(ctx); }
+  void CreateDoorSurface() { m_doorSurface.emplace(); }
 
   static void ReadAutoMapperTweaks(const ITweakAutoMapper&);
   static bool GetTweakIsMapVisibilityCheat();

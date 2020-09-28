@@ -81,7 +81,7 @@ void CScanDisplay::ProcessInput(const CFinalInput& input) {
     return;
 
   if (xc_state == EScanState::DownloadComplete && x1a4_xAlpha == 0.f) {
-    if (input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || input.PMouseButton(boo::EMouseButton::Primary)) {
+    if (input.PA() || input.PKey('\n') || input.PMouseButton(boo2::MouseButton::Primary)) {
       if (xa8_message->TextSupport().GetCurTime() < xa8_message->TextSupport().GetTotalAnimationTime()) {
         xa8_message->TextSupport().SetCurTime(xa8_message->TextSupport().GetTotalAnimationTime());
       } else {
@@ -93,7 +93,7 @@ void CScanDisplay::ProcessInput(const CFinalInput& input) {
   } else if (xc_state == EScanState::ViewingScan) {
     int oldCounter = x1ac_pageCounter;
     int totalPages = xac_scrollMessage->TextSupport().GetTotalPageCount();
-    if ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || input.PMouseButton(boo::EMouseButton::Primary)) &&
+    if ((input.PA() || input.PKey('\n') || input.PMouseButton(boo2::MouseButton::Primary)) &&
         totalPages != -1) {
       CGuiTextSupport& supp = !x1ac_pageCounter ? xa8_message->TextSupport() : xac_scrollMessage->TextSupport();
       if (supp.GetCurTime() < supp.GetTotalAnimationTime())

@@ -7,25 +7,7 @@
 #include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
-#include <hecl/Pipeline.hpp>
-
 namespace urde {
-
-static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
-static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
-static boo::ObjToken<boo::IShaderPipeline> s_MultPipeline;
-
-void CScanLinesFilter::Initialize() {
-  s_AlphaPipeline = hecl::conv->convert(Shader_CScanLinesFilterAlpha{});
-  s_AddPipeline = hecl::conv->convert(Shader_CScanLinesFilterAdd{});
-  s_MultPipeline = hecl::conv->convert(Shader_CScanLinesFilterMult{});
-}
-
-void CScanLinesFilter::Shutdown() {
-  s_AlphaPipeline.reset();
-  s_AddPipeline.reset();
-  s_MultPipeline.reset();
-}
 
 static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type) {
   switch (type) {

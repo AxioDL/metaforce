@@ -47,3 +47,12 @@ set(GRAPHICS_SOURCES
     Shaders/CEnvFxShaders.hpp Shaders/CEnvFxShaders.cpp)
 
 runtime_add_list(Graphics GRAPHICS_SOURCES)
+
+runtime_add_hsh(Graphics
+        CMoviePlayer.cpp
+        Shaders/CLineRendererShaders.cpp
+        Shaders/CColoredQuadFilter.cpp
+        Shaders/CTexturedQuadFilter.cpp
+        Shaders/CCameraBlurFilter.cpp
+        Shaders/CFogVolumePlaneShader.cpp
+        )

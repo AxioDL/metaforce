@@ -1,9 +1,6 @@
 [submodule "hecl"]
 	path = hecl
 	url = ../hecl.git
-[submodule "specter"]
-	path = specter
-	url = ../specter.git
 [submodule "nod"]
 	path = nod
 	url = ../nod.git
@@ -37,3 +34,9 @@
 [submodule "Editor/locale"]
 	path = Editor/locale
 	url = ../urde-translations.git
+[submodule "boo2"]
+	path = boo2
+	url = ../boo2.git
+[submodule "zeus"]
+	path = zeus
+	url = ../zeus.git

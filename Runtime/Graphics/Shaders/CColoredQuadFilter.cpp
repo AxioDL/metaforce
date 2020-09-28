@@ -5,61 +5,32 @@
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
-#include <hecl/Pipeline.hpp>
+#include "CColoredQuadFilter.cpp.hshhead"
 
 namespace urde {
+using namespace hsh::pipeline;
 
-static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
-static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
-static boo::ObjToken<boo::IShaderPipeline> s_MultPipeline;
-
-void CColoredQuadFilter::Initialize() {
-  s_AlphaPipeline = hecl::conv->convert(Shader_CColoredQuadFilter{});
-  s_AddPipeline = hecl::conv->convert(Shader_CColoredQuadFilterAdd{});
-  s_MultPipeline = hecl::conv->convert(Shader_CColoredQuadFilterMul{});
-}
-
-void CColoredQuadFilter::Shutdown() {
-  s_AlphaPipeline.reset();
-  s_AddPipeline.reset();
-  s_MultPipeline.reset();
-}
-
-static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type) {
-  switch (type) {
-  case EFilterType::Blend:
-    return s_AlphaPipeline;
-  case EFilterType::Add:
-    return s_AddPipeline;
-  case EFilterType::Multiply:
-    return s_MultPipeline;
-  default:
-    return {};
+template <EFilterType Type>
+struct CColoredQuadFilterPipeline : FilterPipeline<Type> {
+  CColoredQuadFilterPipeline(hsh::vertex_buffer<CColoredQuadFilter::Vert> vbo,
+                             hsh::uniform_buffer<CColoredQuadFilter::Uniform> uniBuf) {
+    this->position = hsh::float4(vbo->m_pos, 1.f);
+    this->color_out[0] = uniBuf->m_color;
   }
-}
+};
 
 CColoredQuadFilter::CColoredQuadFilter(EFilterType type) {
-  CGraphics::CommitResources([this, type](boo::IGraphicsDataFactory::Context& ctx) {
-    struct Vert {
-      zeus::CVector2f m_pos;
-    };
+  constexpr std::array<Vert, 4> verts{{
+      {{0.f, 0.f, 0.f}},
+      {{0.f, 1.f, 0.f}},
+      {{1.f, 0.f, 0.f}},
+      {{1.f, 1.f, 0.f}},
+  }};
 
-    const std::array<Vert, 4> verts{{
-        {{0.0, 0.0}},
-        {{0.0, 1.0}},
-        {{1.0, 0.0}},
-        {{1.0, 1.0}},
-    }};
+  m_vbo = hsh::create_vertex_buffer(verts);
+  m_uniBuf = hsh::create_dynamic_uniform_buffer<Uniform>();
 
-    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), 16, verts.size());
-    m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-
-    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
-    constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
-    m_dataBind = ctx.newShaderDataBinding(SelectPipeline(type), m_vbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
-                                          stages.data(), nullptr, nullptr, 0, nullptr, nullptr, nullptr);
-    return true;
-  } BooTrace);
+  m_dataBind.hsh_bind(CColoredQuadFilterPipeline<type>(m_vbo.get(), m_uniBuf.get()));
 }
 
 void CColoredQuadFilter::draw(const zeus::CColor& color, const zeus::CRectangle& rect) {
@@ -70,10 +41,9 @@ void CColoredQuadFilter::draw(const zeus::CColor& color, const zeus::CRectangle&
   m_uniform.m_matrix[3][0] = rect.position.x() * 2.f - 1.f;
   m_uniform.m_matrix[3][1] = rect.position.y() * 2.f - 1.f;
   m_uniform.m_color = color;
-  m_uniBuf->load(&m_uniform, sizeof(m_uniform));
+  m_uniBuf.load(m_uniform);
 
-  CGraphics::SetShaderDataBinding(m_dataBind);
-  CGraphics::DrawArray(0, 4);
+  m_dataBind.draw(0, 4);
 }
 
 void CWideScreenFilter::draw(const zeus::CColor& color, float t) {
@@ -94,12 +64,12 @@ float CWideScreenFilter::SetViewportToMatch(float t) {
   if (g_Viewport.aspect < 1.7777f) {
     float targetHeight = g_Viewport.x8_width / 1.7777f;
     float delta = (g_Viewport.xc_height - targetHeight) * t / 2.f;
-    boo::SWindowRect rect = {};
-    rect.size[0] = g_Viewport.x8_width;
-    rect.size[1] = g_Viewport.xc_height - delta * 2.f;
-    rect.location[1] = delta;
+    hsh::viewport rect{};
+    rect.width = g_Viewport.x8_width;
+    rect.height = g_Viewport.xc_height - delta * 2.f;
+    rect.y = delta;
     CGraphics::g_CroppedViewport = rect;
-    CGraphics::g_BooMainCommandQueue->setViewport(rect);
+    CGraphics::g_SpareTexture.attach(rect);
     return 1.7777f;
   } else {
     SetViewportToFull();
@@ -108,11 +78,11 @@ float CWideScreenFilter::SetViewportToMatch(float t) {
 }
 
 void CWideScreenFilter::SetViewportToFull() {
-  boo::SWindowRect rect = {};
-  rect.size[0] = g_Viewport.x8_width;
-  rect.size[1] = g_Viewport.xc_height;
+  hsh::viewport rect{};
+  rect.width = g_Viewport.x8_width;
+  rect.height = g_Viewport.xc_height;
   CGraphics::g_CroppedViewport = rect;
-  CGraphics::g_BooMainCommandQueue->setViewport(rect);
+  CGraphics::g_SpareTexture.attach(rect);
 }
 
 const zeus::CRectangle CColoredQuadFilter::DefaultRect = {0.f, 0.f, 1.f, 1.f};

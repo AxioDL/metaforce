@@ -12,10 +12,9 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Shaders/CModelShaders.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-#include <hecl/HMDLMeta.hpp>
-#include <zeus/CAABox.hpp>
-#include <zeus/CColor.hpp>
+#include "hecl/HMDLMeta.hpp"
+#include "zeus/CAABox.hpp"
+#include "zeus/CColor.hpp"
 
 namespace urde {
 class CLight;
@@ -28,6 +27,7 @@ class IObjectStore;
 struct CModelFlags {
   u8 x0_blendMode = 0; /* 2: add color, >6: additive, >4: blend, else opaque */
   u8 x1_matSetIdx = 0;
+  EPostType m_postType = EPostType::Normal;
   EExtendedShader m_extendedShader = EExtendedShader::Lighting;
   bool m_noCull = false;
   bool m_noZWrite = false;
@@ -80,7 +80,7 @@ struct CBooSurface {
 using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
 
 struct GeometryUniformLayout {
-  mutable std::vector<boo::ObjToken<boo::IGraphicsBufferD>> m_sharedBuffer;
+  mutable std::vector<hsh::dynamic_owner<hsh::uniform_buffer_typeless>> m_sharedBuffer;
   size_t m_geomBufferSize = 0;
   size_t m_skinBankCount = 0;
   size_t m_weightVecCount = 0;
@@ -93,28 +93,33 @@ struct GeometryUniformLayout {
 
   GeometryUniformLayout(const CModel* model, const MaterialSet* matSet);
   void Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
-              const MaterialSet* matSet, const boo::ObjToken<boo::IGraphicsBufferD>& buf,
+              const MaterialSet* matSet, hsh::dynamic_owner<hsh::uniform_buffer_typeless>& buf,
               const CBooModel* parent) const;
 
-  void ReserveSharedBuffers(boo::IGraphicsDataFactory::Context& ctx, int size);
-  boo::ObjToken<boo::IGraphicsBufferD> GetSharedBuffer(int idx) const;
+  hsh::dynamic_owner<hsh::uniform_buffer_typeless> AllocateVertUniformBuffer() const;
+  void ReserveSharedBuffers(size_t size);
+  hsh::uniform_buffer_typeless GetSharedBuffer(size_t idx) const;
 };
 
 struct SShader {
   std::unordered_map<CAssetId, TCachedToken<CTexture>> x0_textures;
-  std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
   MaterialSet m_matSet;
   std::optional<GeometryUniformLayout> m_geomLayout;
   int m_matSetIdx;
   explicit SShader(int idx) : m_matSetIdx(idx) {
     x0_textures.clear();
-    m_shaders.clear();
   }
   void InitializeLayout(const CModel* model) { m_geomLayout.emplace(model, &m_matSet); }
   void UnlockTextures();
-  CModelShaders::ShaderPipelines BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat);
-  void BuildShaders(const hecl::HMDLMeta& meta, std::unordered_map<int, CModelShaders::ShaderPipelines>& shaders);
-  void BuildShaders(const hecl::HMDLMeta& meta) { BuildShaders(meta, m_shaders); }
+};
+
+struct VertexFormat {
+  uint8_t NSkinSlots;
+  uint8_t NCol;
+  uint8_t NUv;
+  uint8_t NWeight;
+  explicit VertexFormat(const hecl::HMDLMeta& meta)
+  : NSkinSlots(meta.weightCount * 4), NCol(meta.colorCount), NUv(meta.uvCount), NWeight(meta.weightCount) {}
 };
 
 class CBooModel {
@@ -124,6 +129,7 @@ class CBooModel {
   friend class CModel;
   friend class CSkinnedModel;
   friend struct GeometryUniformLayout;
+  friend class CModelShaders;
 
 public:
   enum class ESurfaceSelection { UnsortedOnly, SortedOnly, All };
@@ -137,8 +143,8 @@ private:
   std::vector<CBooSurface>* x0_surfaces;
   const MaterialSet* x4_matSet;
   const GeometryUniformLayout* m_geomLayout;
+  VertexFormat m_vtxFmt;
   int m_matSetIdx = -1;
-  const std::unordered_map<int, CModelShaders::ShaderPipelines>* m_pipelines;
   std::unordered_map<CAssetId, TCachedToken<CTexture>> x1c_textures;
   zeus::CAABox x20_aabb;
   CBooSurface* x38_firstUnsortedSurface = nullptr;
@@ -159,22 +165,22 @@ private:
   /* urde addition: boo! */
   size_t m_uniformDataSize = 0;
   struct ModelInstance {
-    boo::ObjToken<boo::IGraphicsBufferD> m_geomUniformBuffer;
-    boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuffer;
-    std::vector<std::vector<boo::ObjToken<boo::IShaderDataBinding>>> m_shaderDataBindings;
-    boo::ObjToken<boo::IGraphicsBufferD> m_dynamicVbo;
+    hsh::dynamic_owner<hsh::uniform_buffer_typeless> m_geomUniformBuffer;
+    hsh::dynamic_owner<hsh::uniform_buffer_typeless> m_uniformBuffer;
+    std::vector<std::vector<hsh::binding>> m_shaderDataBindings;
+    hsh::dynamic_owner<hsh::vertex_buffer_typeless> m_dynamicVbo;
 
-    boo::ObjToken<boo::IGraphicsBuffer> GetBooVBO(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
+    hsh::vertex_buffer_typeless GetBooVBO(const CBooModel& model);
   };
   std::vector<ModelInstance> m_instances;
   ModelInstance m_ballShadowInstance;
 
-  boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
-  boo::ObjToken<boo::IGraphicsBufferS> m_staticIbo;
+  hsh::vertex_buffer_typeless m_staticVbo;
+  hsh::index_buffer<u32> m_staticIbo;
 
-  boo::ObjToken<boo::ITexture> m_lastDrawnShadowMap;
-  boo::ObjToken<boo::ITexture> m_lastDrawnOneTexture;
-  boo::ObjToken<boo::ITextureCubeR> m_lastDrawnReflectionCube;
+  hsh::texture2d m_lastDrawnShadowMap;
+  hsh::texture2d m_lastDrawnOneTexture;
+  hsh::texturecube m_lastDrawnReflectionCube;
 
   ModelInstance* PushNewModelInstance(int sharedLayoutBuf = -1);
   void DrawAlphaSurfaces(const CModelFlags& flags) const;
@@ -196,7 +202,8 @@ private:
 public:
   ~CBooModel();
   CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
-            const boo::ObjToken<boo::IGraphicsBufferS>& vbo, const boo::ObjToken<boo::IGraphicsBufferS>& ibo,
+            hsh::vertex_buffer_typeless vbo,
+            hsh::index_buffer<u32> ibo,
             const zeus::CAABox& aabb, u8 renderMask, int numInsts);
 
   static void MakeTexturesFromMats(const MaterialSet& matSet,
@@ -209,14 +216,13 @@ public:
   void SetAmbientColor(const zeus::CColor& color) { m_lightingData.ambient = color; }
   void DisableAllLights();
   void RemapMaterialData(SShader& shader);
-  void RemapMaterialData(SShader& shader, const std::unordered_map<int, CModelShaders::ShaderPipelines>& pipelines);
   bool TryLockTextures();
   void UnlockTextures();
   void SyncLoadTextures();
   void Touch(int shaderIdx);
   void VerifyCurrentShader(int shaderIdx);
-  boo::ObjToken<boo::IGraphicsBufferD> UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
-                                                         const CPoseAsTransforms* pose, int sharedLayoutBuf = -1);
+  hsh::dynamic_owner<hsh::vertex_buffer_typeless>* UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
+                                                        const CPoseAsTransforms* pose, int sharedLayoutBuf = -1);
   void DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
   void DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
   void Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
@@ -240,16 +246,16 @@ public:
   static void EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf, zeus::CMatrix4f* mtxsOut,
                                        float& alphaOut);
 
-  static boo::ObjToken<boo::ITexture> g_shadowMap;
+  static hsh::texture2d g_shadowMap;
   static zeus::CTransform g_shadowTexXf;
-  static void EnableShadowMaps(const boo::ObjToken<boo::ITexture>& map, const zeus::CTransform& texXf);
+  static void EnableShadowMaps(hsh::texture2d map, const zeus::CTransform& texXf);
   static void DisableShadowMaps();
 
-  static boo::ObjToken<boo::ITexture> g_disintegrateTexture;
-  static void SetDisintegrateTexture(const boo::ObjToken<boo::ITexture>& map) { g_disintegrateTexture = map; }
+  static hsh::texture2d g_disintegrateTexture;
+  static void SetDisintegrateTexture(hsh::texture2d map) { g_disintegrateTexture = map; }
 
-  static boo::ObjToken<boo::ITextureCubeR> g_reflectionCube;
-  static void SetReflectionCube(const boo::ObjToken<boo::ITextureCubeR>& map) { g_reflectionCube = map; }
+  static hsh::texturecube g_reflectionCube;
+  static void SetReflectionCube(hsh::texturecube map) { g_reflectionCube = map; }
 
   static void SetDummyTextures(bool b) { g_DummyTextures = b; }
   static void SetRenderModelBlack(bool b) { g_RenderModelBlack = b; }
@@ -274,11 +280,11 @@ class CModel {
   // CModel* x34_prev = nullptr;
   int x38_lastFrame;
 
-  /* urde addition: boo! */
-  boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
+  /* urde addition: boo2! */
+  hsh::owner<hsh::vertex_buffer_typeless> m_staticVbo;
   hecl::HMDLMeta m_hmdlMeta;
   std::unique_ptr<uint8_t[]> m_dynamicVertexData;
-  boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
+  hsh::owner<hsh::index_buffer<u32>> m_ibo;
 
 public:
   using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
@@ -301,12 +307,15 @@ public:
   zeus::CVector3f GetPoolVertex(size_t idx) const;
   size_t GetPoolNormalOffset(size_t idx) const;
   zeus::CVector3f GetPoolNormal(size_t idx) const;
-  void ApplyVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf,
+  void ApplyVerticesCPU(hsh::owner<hsh::vertex_buffer_typeless>& vertBuf,
                         const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const;
-  void RestoreVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf) const;
+  void RestoreVerticesCPU(hsh::owner<hsh::vertex_buffer_typeless>& vertBuf) const;
 
   void _WarmupShaders();
   static void WarmupShaders(const SObjectTag& cmdlTag);
+
+  const uint8_t* GetDynamicVertexData() const { return m_dynamicVertexData.get() }
+  const hecl::HMDLMeta& GetHMDLMeta() const { return m_hmdlMeta; }
 };
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,

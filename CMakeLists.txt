@@ -279,10 +279,9 @@ set(HECL_DATASPEC_PUSHES
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3ORIG);")
 
-add_subdirectory(hecl/shaderc)
-include(hecl/ApplicationTools.cmake)
-add_subdirectory(specter/shaders)
-add_subdirectory(Shaders)
+# TODO: Fix weirdness
+find_package(hsh REQUIRED)
+add_subdirectory(boo2)
 add_subdirectory(hecl)
 target_include_directories(hecl-full PRIVATE ${CMAKE_SOURCE_DIR})
 target_include_directories(hecl-light PRIVATE ${CMAKE_SOURCE_DIR})
@@ -294,21 +293,6 @@ if(NOT TARGET bintoc)
   find_package(hecl-bintoc REQUIRED)
 endif()
 
-bintoc(CModelShaders.common.glsl.cpp Shaders/CModelShaders.common.glsl CMODELSHADERS_COMMON_GLSL)
-bintoc(CModelShaders.vert.glsl.cpp Shaders/CModelShaders.vert.glsl CMODELSHADERS_VERT_GLSL)
-bintoc(CModelShaders.frag.glsl.cpp Shaders/CModelShaders.frag.glsl CMODELSHADERS_FRAG_GLSL)
-bintoc(CModelShaders.common.hlsl.cpp Shaders/CModelShaders.common.hlsl CMODELSHADERS_COMMON_HLSL)
-bintoc(CModelShaders.vert.hlsl.cpp Shaders/CModelShaders.vert.hlsl CMODELSHADERS_VERT_HLSL)
-bintoc(CModelShaders.frag.hlsl.cpp Shaders/CModelShaders.frag.hlsl CMODELSHADERS_FRAG_HLSL)
-bintoc(CModelShaders.common.metal.cpp Shaders/CModelShaders.common.metal CMODELSHADERS_COMMON_METAL)
-bintoc(CModelShaders.vert.metal.cpp Shaders/CModelShaders.vert.metal CMODELSHADERS_VERT_METAL)
-bintoc(CModelShaders.frag.metal.cpp Shaders/CModelShaders.frag.metal CMODELSHADERS_FRAG_METAL)
-add_library(CModelShaders
-    CModelShaders.common.glsl.cpp CModelShaders.vert.glsl.cpp CModelShaders.frag.glsl.cpp
-    CModelShaders.common.hlsl.cpp CModelShaders.vert.hlsl.cpp CModelShaders.frag.hlsl.cpp
-    CModelShaders.common.metal.cpp CModelShaders.vert.metal.cpp CModelShaders.frag.metal.cpp)
-target_link_libraries(shader_CModelShaders PUBLIC CModelShaders)
-
 if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
   find_package(atdna REQUIRED)
@@ -318,9 +302,7 @@ if(NOT TARGET atdna)
 endif()
 
 add_subdirectory(amuse)
-add_subdirectory(specter)
-target_include_directories(specter PRIVATE ${CMAKE_SOURCE_DIR})
-target_link_libraries(specter PRIVATE nod)
+add_subdirectory(zeus)
 add_subdirectory(assetnameparser)
 add_compile_definitions(URDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
 add_subdirectory(DataSpec)

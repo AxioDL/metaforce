@@ -8,16 +8,14 @@
 #include "Runtime/Graphics/Shaders/CModelShaders.hpp"
 #include "Runtime/World/CFluidPlaneManager.hpp"
 
-#include "Shaders/shader_CFluidPlaneShader.hpp"
-
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
-#include <zeus/CColor.hpp>
-#include <zeus/CMatrix4f.hpp>
-#include <zeus/CVector3f.hpp>
-#include <zeus/CVector4f.hpp>
+#include "zeus/CColor.hpp"
+#include "zeus/CMatrix4f.hpp"
+#include "zeus/CVector3f.hpp"
+#include "zeus/CVector4f.hpp"
 
 namespace urde {
+
+enum class EFluidType { NormalWater, PoisonWater, Lava, PhazonFluid, Four, ThickLava };
 
 class CFluidPlaneShader {
 public:
@@ -53,34 +51,9 @@ public:
   };
 
 private:
-  struct ShaderPair {
-    boo::ObjToken<boo::IShaderPipeline> m_regular;
-    boo::ObjToken<boo::IShaderPipeline> m_tessellation;
-    void reset() {
-      m_regular.reset();
-      m_tessellation.reset();
-    }
-  };
-
   struct BindingPair {
-    boo::ObjToken<boo::IShaderDataBinding> m_regular;
-    boo::ObjToken<boo::IShaderDataBinding> m_tessellation;
+    hsh::binding m_regular, m_tessellation;
   };
-
-  class Cache {
-    std::array<ShaderPair, 1024> m_cache{};
-    std::array<ShaderPair, 8> m_doorCache{};
-    ShaderPair& CacheSlot(const SFluidPlaneShaderInfo& info, int i) { return m_cache[i]; }
-    ShaderPair& CacheSlot(const SFluidPlaneDoorShaderInfo& info, int i) { return m_doorCache[i]; }
-    static u16 MakeCacheKey(const SFluidPlaneShaderInfo& info);
-    static u16 MakeCacheKey(const SFluidPlaneDoorShaderInfo& info);
-
-  public:
-    template <class T>
-    ShaderPair GetOrBuildShader(const T& info);
-    void Clear();
-  };
-  static Cache _cache;
 
   struct Ripple {
     zeus::CVector4f center; // time, distFalloff
@@ -106,37 +79,11 @@ private:
   TLockedToken<CTexture> m_envMap;
   TLockedToken<CTexture> m_envBumpMap;
   TLockedToken<CTexture> m_lightmap;
-  boo::ObjToken<boo::ITextureS> m_rippleMap;
-  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferD> m_pvbo;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  ShaderPair m_pipelines;
+  hsh::texture2d m_rippleMap;
+  hsh::dynamic_owner<hsh::vertex_buffer<Vertex>> m_vbo;
+  hsh::dynamic_owner<hsh::vertex_buffer<PatchVertex>> m_pvbo;
+  hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
   BindingPair m_dataBind;
-  int m_lastBind = -1;
-
-#if BOO_HAS_GL
-  static ShaderPair BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
-  static ShaderPair BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
-  BindingPair BuildBinding(boo::GLDataFactory::Context& ctx, const ShaderPair& pipeline);
-#endif
-#if _WIN32
-  static ShaderPair BuildShader(boo::D3D11DataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
-  static ShaderPair BuildShader(boo::D3D11DataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
-  BindingPair BuildBinding(boo::D3D11DataFactory::Context& ctx, const ShaderPair& pipeline);
-#endif
-#if BOO_HAS_METAL
-  static ShaderPair BuildShader(boo::MetalDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
-  static ShaderPair BuildShader(boo::MetalDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
-  BindingPair BuildBinding(boo::MetalDataFactory::Context& ctx, const ShaderPair& pipeline);
-#endif
-#if BOO_HAS_VULKAN
-  static ShaderPair BuildShader(boo::VulkanDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
-  static ShaderPair BuildShader(boo::VulkanDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
-  BindingPair BuildBinding(boo::VulkanDataFactory::Context& ctx, const ShaderPair& pipeline);
-#endif
-
-  template <class F>
-  static void _Shutdown();
 
   void PrepareBinding(u32 maxVertCount);
 
@@ -145,34 +92,20 @@ public:
                     const TLockedToken<CTexture>& patternTex2, const TLockedToken<CTexture>& colorTex,
                     const TLockedToken<CTexture>& bumpMap, const TLockedToken<CTexture>& envMap,
                     const TLockedToken<CTexture>& envBumpMap, const TLockedToken<CTexture>& lightmap,
-                    const boo::ObjToken<boo::ITextureS>& rippleMap, bool doubleLightmapBlend, bool additive,
+                    hsh::texture2d rippleMap, bool doubleLightmapBlend, bool additive,
                     u32 maxVertCount);
   CFluidPlaneShader(const TLockedToken<CTexture>& patternTex1, const TLockedToken<CTexture>& patternTex2,
                     const TLockedToken<CTexture>& colorTex, u32 maxVertCount);
   void prepareDraw(const RenderSetupInfo& info);
   void prepareDraw(const RenderSetupInfo& info, const zeus::CVector3f& waterCenter, const CRippleManager& rippleManager,
                    const zeus::CColor& colorMul, float rippleNormResolution);
-  void bindRegular() {
-    if (m_lastBind != 0) {
-      CGraphics::SetShaderDataBinding(m_dataBind.m_regular);
-      m_lastBind = 0;
-    }
+  void drawRegular(u32 start, u32 count) {
+    m_dataBind.m_regular.draw(start, count);
   }
-  bool bindTessellation() {
-    if (m_lastBind != 1) {
-      CGraphics::SetShaderDataBinding(m_dataBind.m_tessellation);
-      m_lastBind = 1;
-    }
-    return true;
+  void drawTessellation(u32 start, u32 count) {
+    m_dataBind.m_tessellation.draw(start, count);
   }
-  void doneDrawing() { m_lastBind = -1; }
   void loadVerts(const std::vector<Vertex>& verts, const std::vector<PatchVertex>& pVerts);
-  bool isReady() const {
-    return m_pipelines.m_regular->isReady() &&
-    (!m_pipelines.m_tessellation || m_pipelines.m_tessellation->isReady());
-  }
-
-  static void Shutdown();
 };
 
 } // namespace urde

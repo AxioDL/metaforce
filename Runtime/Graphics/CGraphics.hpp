@@ -7,8 +7,7 @@
 
 #include "DataSpec/DNACommon/GX.hpp"
 
-#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include "hsh/hsh.h"
 
 #include <hecl/CVar.hpp>
 #include <hecl/Runtime.hpp>
@@ -117,19 +116,19 @@ extern SViewport g_Viewport;
 
 struct SClipScreenRect {
   bool x0_valid = false;
-  int x4_left = 0;
-  int x8_top = 0;
-  int xc_width = 0;
-  int x10_height = 0;
-  int x14_dstWidth = 0;
+  int32_t x4_left = 0;
+  int32_t x8_top = 0;
+  uint32_t xc_width = 0;
+  uint32_t x10_height = 0;
+  uint32_t x14_dstWidth = 0;
   float x18_uvXMin = 0.f;
   float x1c_uvXMax = 0.f;
   float x20_uvYMin = 0.f;
   float x24_uvYMax = 0.f;
 
   SClipScreenRect() = default;
-  SClipScreenRect(bool valid, int left, int top, int width, int height, int dstWidth, float uvXMin, float uvXMax,
-                  float uvYMin, float uvYMax)
+  SClipScreenRect(bool valid, int32_t left, int32_t top, uint32_t width, uint32_t height, uint32_t dstWidth,
+                  float uvXMin, float uvXMax, float uvYMin, float uvYMax)
   : x0_valid(valid)
   , x4_left(left)
   , x8_top(top)
@@ -141,12 +140,20 @@ struct SClipScreenRect {
   , x20_uvYMin(uvYMin)
   , x24_uvYMax(uvYMax) {}
 
-  SClipScreenRect(const boo::SWindowRect& rect) {
-    x4_left = rect.location[0];
-    x8_top = rect.location[1];
-    xc_width = rect.size[0];
-    x10_height = rect.size[1];
-    x14_dstWidth = rect.size[0];
+  SClipScreenRect(const hsh::rect2d& rect) {
+    x4_left = rect.offset.x;
+    x8_top = rect.offset.y;
+    xc_width = rect.extent.w;
+    x10_height = rect.extent.h;
+    x14_dstWidth = rect.extent.w;
+  }
+
+  SClipScreenRect(const hsh::viewport& rect) {
+    x4_left = rect.x;
+    x8_top = rect.y;
+    xc_width = rect.width;
+    x10_height = rect.height;
+    x14_dstWidth = rect.width;
   }
 
   SClipScreenRect(const SViewport& vp) {
@@ -217,14 +224,15 @@ class CTevPass {
   CTevOp x38_alphaOp;
 
 public:
-  CTevPass(const ColorPass& colPass, const AlphaPass& alphaPass, const CTevOp& colorOp = CTevOp(), const CTevOp alphaOp = CTevOp())
-      : x0_id(++sNextUniquePass)
-      , x4_colorPass(colPass)
-      , x14_alphaPass(alphaPass)
-      , x24_colorOp(colorOp)
-      , x38_alphaOp(alphaOp) {}
+  CTevPass(const ColorPass& colPass, const AlphaPass& alphaPass, const CTevOp& colorOp = CTevOp(),
+           const CTevOp alphaOp = CTevOp())
+  : x0_id(++sNextUniquePass)
+  , x4_colorPass(colPass)
+  , x14_alphaPass(alphaPass)
+  , x24_colorOp(colorOp)
+  , x38_alphaOp(alphaOp) {}
 };
-};
+}; // namespace CTevCombiners
 
 class CGraphics {
 public:
@@ -239,7 +247,7 @@ public:
   };
 
   struct CFogState {
-    zeus::CColor m_color;
+    hsh::float4 m_color;
     float m_A = 0.f;
     float m_B = 0.5f;
     float m_C = 0.f;
@@ -311,51 +319,24 @@ public:
   static u32 g_FrameCounter;
   static u32 GetFrameCounter() { return g_FrameCounter; }
 
-  static boo::IGraphicsDataFactory::Platform g_BooPlatform;
-  static const boo::SystemChar* g_BooPlatformName;
-  static boo::IGraphicsDataFactory* g_BooFactory;
-  static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
-  static boo::ObjToken<boo::ITextureR> g_SpareTexture;
+  static hsh::owner<hsh::render_texture2d> g_SpareTexture;
 
   static const std::array<zeus::CMatrix3f, 6> skCubeBasisMats;
 
-  static void InitializeBoo(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cc,
-                            const boo::ObjToken<boo::ITextureR>& spareTex) {
-    g_BooPlatform = factory->platform();
-    g_BooPlatformName = factory->platformName();
-    g_BooFactory = factory;
-    g_BooMainCommandQueue = cc;
-    g_SpareTexture = spareTex;
-  }
+  static void InitializeBoo(hsh::surface surface) { g_SpareTexture = hsh::create_render_texture2d(surface, 4, 1); }
 
-  static void ShutdownBoo() {
-    g_BooFactory = nullptr;
-    g_BooMainCommandQueue = nullptr;
-    g_SpareTexture.reset();
-  }
+  static void ShutdownBoo() { g_SpareTexture.reset(); }
 
-  static const boo::SystemChar* PlatformName() { return g_BooPlatformName; }
-
-  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs) {
-    g_BooFactory->commitTransaction(commitFunc __BooTraceArgsUse);
-  }
-
-  static void SetShaderDataBinding(const boo::ObjToken<boo::IShaderDataBinding>& binding) {
-    g_BooMainCommandQueue->setShaderDataBinding(binding);
-  }
   static void ResolveSpareTexture(const SClipScreenRect& rect, int bindIdx = 0, bool clearDepth = false) {
-    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
-    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, true, false, clearDepth);
+    hsh::rect2d wrect = {{rect.x4_left, rect.x8_top}, {rect.xc_width, rect.x10_height}};
+    g_SpareTexture.resolve_color_binding(bindIdx, wrect);
+    if (clearDepth)
+      hsh::clear_attachments(false, true);
   }
   static void ResolveSpareDepth(const SClipScreenRect& rect, int bindIdx = 0) {
-    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
-    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, false, true);
+    hsh::rect2d wrect = {{rect.x4_left, rect.x8_top}, {rect.xc_width, rect.x10_height}};
+    g_SpareTexture.resolve_depth_binding(bindIdx, wrect);
   }
-  static void DrawInstances(size_t start, size_t count, size_t instCount, size_t startInst = 0) {
-    g_BooMainCommandQueue->drawInstances(start, count, instCount, startInst);
-  }
-  static void DrawArray(size_t start, size_t count) { g_BooMainCommandQueue->draw(start, count); }
-  static void DrawArrayIndexed(size_t start, size_t count) { g_BooMainCommandQueue->drawIndexed(start, count); }\
 
   static const CTevCombiners::CTevPass sTevPass805a564c;
   static const CTevCombiners::CTevPass sTevPass805a5698;
@@ -409,8 +390,135 @@ public:
     m_vec.emplace_back(std::forward<_Args>(args)...);
   }
 
-  void Draw() const { CGraphics::DrawArray(m_start, m_vec.size() - m_start); }
+  template <class T>
+  void Draw(T& binding) const {
+    binding.draw(m_start, m_vec.size() - m_start);
+  }
 };
+
+struct ViewBlock {
+  hsh::float4x4 m_mv;
+  hsh::float4 m_color = zeus::skWhite;
+  void setViewRect(const hsh::rect2d& root, const hsh::rect2d& sub) {
+    m_mv[0][0] = 2.0f / root.extent.w;
+    m_mv[1][1] = 2.0f / root.extent.h;
+    m_mv[3][0] = sub.offset.x * m_mv[0][0] - 1.0f;
+    m_mv[3][1] = sub.offset.y * m_mv[1][1] - 1.0f;
+  }
+  void finalAssign(const ViewBlock& other) {
+    m_mv = other.m_mv;
+    m_color = other.m_color;
+  }
+};
+
+struct TexUVVert {
+  hsh::float3 m_pos;
+  hsh::float2 m_uv;
+};
+
+enum class AlphaMode { NoAlpha, AlphaWrite, AlphaReplace };
+
+template <AlphaMode Alpha, hsh::BlendFactor BF>
+struct AlphaSrc {
+  static constexpr hsh::BlendFactor Factor = BF;
+};
+template <hsh::BlendFactor BF>
+struct AlphaSrc<AlphaMode::AlphaReplace, BF> {
+  static constexpr hsh::BlendFactor Factor = hsh::One;
+};
+
+template <AlphaMode Alpha, hsh::BlendFactor BF>
+struct AlphaDst {
+  static constexpr hsh::BlendFactor Factor = BF;
+};
+template <hsh::BlendFactor BF>
+struct AlphaDst<AlphaMode::AlphaReplace, BF> {
+  static constexpr hsh::BlendFactor Factor = hsh::Zero;
+};
+
+template <AlphaMode Alpha = AlphaMode::NoAlpha>
+using BlendAttachmentExt =
+    hsh::pipeline::color_attachment<hsh::SrcAlpha, hsh::InvSrcAlpha, hsh::Add, AlphaSrc<Alpha, hsh::SrcAlpha>::Factor,
+                                    AlphaDst<Alpha, hsh::InvSrcAlpha>::Factor, hsh::Add,
+                                    hsh::ColorComponentFlags(
+                                        hsh::CC_Red | hsh::CC_Green | hsh::CC_Blue |
+                                        (Alpha != AlphaMode::NoAlpha ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
+template <AlphaMode Alpha = AlphaMode::NoAlpha>
+using AdditiveAttachmentExt =
+    hsh::pipeline::color_attachment<hsh::SrcAlpha, hsh::One, hsh::Add, AlphaSrc<Alpha, hsh::SrcAlpha>::Factor,
+                                    AlphaDst<Alpha, hsh::One>::Factor, hsh::Add,
+                                    hsh::ColorComponentFlags(
+                                        hsh::CC_Red | hsh::CC_Green | hsh::CC_Blue |
+                                        (Alpha != AlphaMode::NoAlpha ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
+template <AlphaMode Alpha = AlphaMode::NoAlpha>
+using MultiplyAttachmentExt =
+    hsh::pipeline::color_attachment<hsh::Zero, hsh::SrcColor, hsh::Add, AlphaSrc<Alpha, hsh::Zero>::Factor,
+                                    AlphaDst<Alpha, hsh::SrcAlpha>::Factor, hsh::Add,
+                                    hsh::ColorComponentFlags(
+                                        hsh::CC_Red | hsh::CC_Green | hsh::CC_Blue |
+                                        (Alpha != AlphaMode::NoAlpha ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
+template <AlphaMode Alpha = AlphaMode::NoAlpha>
+using SubtractAttachmentExt = hsh::pipeline::color_attachment<
+    hsh::SrcAlpha, hsh::One, hsh::ReverseSubtract, AlphaSrc<Alpha, hsh::SrcAlpha>::Factor,
+    AlphaDst<Alpha, hsh::One>::Factor, Alpha == AlphaMode::AlphaReplace ? hsh::Add : hsh::ReverseSubtract,
+    hsh::ColorComponentFlags(hsh::CC_Red | hsh::CC_Green | hsh::CC_Blue |
+                             (Alpha != AlphaMode::NoAlpha ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
+
+template <AlphaMode Alpha = AlphaMode::NoAlpha>
+using InvDstMultiplyAttachmentExt =
+hsh::pipeline::color_attachment<hsh::Zero, hsh::InvDstColor, hsh::Add, AlphaSrc<Alpha, hsh::Zero>::Factor,
+    AlphaDst<Alpha, hsh::InvDstAlpha>::Factor, hsh::Add,
+    hsh::ColorComponentFlags(
+        hsh::CC_Red | hsh::CC_Green | hsh::CC_Blue |
+        (Alpha != AlphaMode::NoAlpha ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
+
+template <AlphaMode Alpha = AlphaMode::NoAlpha>
+using NoColorAttachmentExt =
+hsh::pipeline::color_attachment<hsh::Zero, hsh::SrcColor, hsh::Add, AlphaSrc<Alpha, hsh::Zero>::Factor,
+    AlphaDst<Alpha, hsh::SrcAlpha>::Factor, hsh::Add,
+    hsh::ColorComponentFlags(
+        (Alpha != AlphaMode::NoAlpha ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
+
+template <bool AlphaWrite = false>
+using BlendAttachment = BlendAttachmentExt<AlphaWrite ? AlphaMode::AlphaWrite : AlphaMode::NoAlpha>;
+template <bool AlphaWrite = false>
+using AdditiveAttachment = AdditiveAttachmentExt<AlphaWrite ? AlphaMode::AlphaWrite : AlphaMode::NoAlpha>;
+template <bool AlphaWrite = false>
+using MultiplyAttachment = MultiplyAttachmentExt<AlphaWrite ? AlphaMode::AlphaWrite : AlphaMode::NoAlpha>;
+template <bool AlphaWrite = false>
+using SubtractAttachment = SubtractAttachmentExt<AlphaWrite ? AlphaMode::AlphaWrite : AlphaMode::NoAlpha>;
+template <bool AlphaWrite = false>
+using InvDstMultiplyAttachment = InvDstMultiplyAttachmentExt<AlphaWrite ? AlphaMode::AlphaWrite : AlphaMode::NoAlpha>;
+template <bool AlphaWrite = false>
+using NoColorAttachment = NoColorAttachmentExt<AlphaWrite ? AlphaMode::AlphaWrite : AlphaMode::NoAlpha>;
+
+#define FOG_SHADER(fog)                                                                                                \
+  float fogZ;                                                                                                          \
+  float fogF = hsh::saturate(((fog).m_A / ((fog).m_B - this->position.z)) - (fog).m_C);                                \
+  switch ((fog).m_mode) {                                                                                              \
+  case ERglFogMode::PerspLin:                                                                                          \
+    fogZ = fogF;                                                                                                       \
+    break;                                                                                                             \
+  case ERglFogMode::PerspExp:                                                                                          \
+    fogZ = 1.0 - hsh::exp2(-8.0 * fogF);                                                                               \
+    break;                                                                                                             \
+  case ERglFogMode::PerspExp2:                                                                                         \
+    fogZ = 1.0 - hsh::exp2(-8.0 * fogF * fogF);                                                                        \
+    break;                                                                                                             \
+  case ERglFogMode::PerspRevExp:                                                                                       \
+    fogZ = hsh::exp2(-8.0 * (1.0 - fogF));                                                                             \
+    break;                                                                                                             \
+  case ERglFogMode::PerspRevExp2:                                                                                      \
+    fogF = 1.0 - fogF;                                                                                                 \
+    fogZ = hsh::exp2(-8.0 * fogF * fogF);                                                                              \
+    break;                                                                                                             \
+  default:                                                                                                             \
+    fogZ = 0.0;                                                                                                        \
+    break;                                                                                                             \
+  }
+
+#define FOG_OUT(out, fog, colorIn)                                                                                     \
+  out = hsh::float4(hsh::lerp((colorIn), (fog).m_color, hsh::saturate(fogZ)).xyz(), (colorIn).w);
 
 #ifdef BOO_GRAPHICS_DEBUG_GROUPS
 class GraphicsDebugGroup {
@@ -419,14 +527,13 @@ class GraphicsDebugGroup {
   void operator delete(void*);
   void* operator new[](size_t);
   void operator delete[](void*);
+
 public:
   explicit GraphicsDebugGroup(const char* name, const zeus::CColor& color = zeus::skWhite) {
     zeus::simd_floats f(color.mSimd);
     CGraphics::g_BooMainCommandQueue->pushDebugGroup(name, f.array());
   }
-  ~GraphicsDebugGroup() {
-    CGraphics::g_BooMainCommandQueue->popDebugGroup();
-  }
+  ~GraphicsDebugGroup() { CGraphics::g_BooMainCommandQueue->popDebugGroup(); }
 };
 #define SCOPED_GRAPHICS_DEBUG_GROUP(...) GraphicsDebugGroup _GfxDbg_(__VA_ARGS__);
 #else

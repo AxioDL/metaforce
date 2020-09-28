@@ -99,7 +99,7 @@ protected:
   void OnRightTableCancel(CGuiTableGroup* caller);
 
   void OnWidgetMouseUp(CGuiWidget* widget, bool cancel);
-  void OnWidgetScroll(CGuiWidget* widget, const boo::SScrollDelta& delta, int accumX, int accumY);
+  void OnWidgetScroll(CGuiWidget* widget, const hsh::offset2dF& delta, int accumX, int accumY);
 
 public:
   static std::string GetImagePaneName(u32 i);

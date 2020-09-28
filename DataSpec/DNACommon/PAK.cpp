@@ -184,7 +184,7 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
     }
 
     /* Write catalog */
-    intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
+    intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx);
     const hecl::ProjectPath& pakPath = m_bridgePaths[curBridgeIdx].first;
     pakPath.makeDirChain(true);
     athena::io::FileWriter writer(hecl::ProjectPath(pakPath, "!catalog.yaml").getAbsolutePath());
@@ -194,14 +194,14 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
 
 template <class BRIDGETYPE>
 void PAKRouter<BRIDGETYPE>::enterPAKBridge(const BRIDGETYPE& pakBridge) {
-  g_PakRouter.reset(this);
+  g_PakRouter = this;
   auto pit = m_bridgePaths.begin();
   size_t bridgeIdx = 0;
   for (const BRIDGETYPE& bridge : *m_bridges) {
     if (&bridge == &pakBridge) {
-      m_pak.reset(&pakBridge.getPAK());
-      m_node.reset(&pakBridge.getNode());
-      m_curBridgeIdx.reset(reinterpret_cast<void*>(bridgeIdx));
+      m_pak = &pakBridge.getPAK();
+      m_node = &pakBridge.getNode();
+      m_curBridgeIdx = reinterpret_cast<void*>(bridgeIdx);
       return;
     }
     ++pit;
@@ -234,8 +234,8 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
   if (overrideSearch != m_overrideEntries.end())
     return overrideSearch->second;
 
-  const PAKType* pak = m_pak.get();
-  intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
+  const PAKType* pak = m_pak;
+  intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx);
   if (pak && pak->m_noShare) {
     const EntryType* singleSearch = pak->lookupEntry(entry->id);
     if (singleSearch) {
@@ -295,7 +295,7 @@ template <class BRIDGETYPE>
 hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry) const {
   if (!entry)
     return hecl::ProjectPath();
-  return getWorking(entry, BRIDGETYPE::LookupExtractor(*m_node.get(), *m_pak.get(), *entry));
+  return getWorking(entry, BRIDGETYPE::LookupExtractor(*m_node, *m_pak, *entry));
 }
 
 template <class BRIDGETYPE>
@@ -314,8 +314,8 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const EntryType* entry) const
         overrideSearch->second, m_dataSpec.getDataSpecEntry()));
   }
 
-  const PAKType* pak = m_pak.get();
-  intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
+  const PAKType* pak = m_pak;
+  intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx);
   if (pak && pak->m_noShare) {
     const EntryType* singleSearch = pak->lookupEntry(entry->id);
     if (singleSearch) {
@@ -349,8 +349,8 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const IDType& id, bool silenc
 
 template <class BRIDGETYPE>
 hecl::SystemString PAKRouter<BRIDGETYPE>::getResourceRelativePath(const EntryType& a, const IDType& b) const {
-  const nod::Node* node = m_node.get();
-  const PAKType* pak = m_pak.get();
+  const nod::Node* node = m_node;
+  const PAKType* pak = m_pak;
   if (!pak)
     LogDNACommon.report(logvisor::Fatal,
                         FMT_STRING("PAKRouter::enterPAKBridge() must be called before PAKRouter::getResourceRelativePath()"));
@@ -440,7 +440,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
   for (unsigned w = 0; count < sz; ++w) {
     for (const auto& item : m_pak->m_firstEntries) {
       const auto* entryPtr = m_pak->lookupEntry(item);
-      ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*m_node.get(), *m_pak.get(), *entryPtr);
+      ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*m_node, *m_pak, *entryPtr);
       if (extractor.weight != w)
         continue;
 
@@ -449,7 +449,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
       float thisFac = ++count / fsz;
       progress(bestNameView.c_str(), thisFac);
 
-      const nod::Node* node = m_node.get();
+      const nod::Node* node = m_node;
 
       hecl::ProjectPath working = getWorking(entryPtr, extractor);
       working.makeDirChain(false);
@@ -497,8 +497,8 @@ const typename BRIDGETYPE::PAKType::Entry* PAKRouter<BRIDGETYPE>::lookupEntry(co
   if (!m_bridges)
     LogDNACommon.report(logvisor::Fatal, FMT_STRING("PAKRouter::build() must be called before PAKRouter::lookupEntry()"));
 
-  const PAKType* pak = m_pak.get();
-  const nod::Node* node = m_node.get();
+  const PAKType* pak = m_pak;
+  const nod::Node* node = m_node;
   if (pak) {
     const EntryType* ent = pak->lookupEntry(entry);
     if (ent) {
@@ -659,7 +659,7 @@ void PAKRouter<BRIDGETYPE>::enumerateResources(const std::function<bool(const En
 
 template <class BRIDGETYPE>
 bool PAKRouter<BRIDGETYPE>::mreaHasDupeResources(const IDType& id) const {
-  const PAKType* pak = m_pak.get();
+  const PAKType* pak = m_pak;
   if (!pak)
     LogDNACommon.report(logvisor::Fatal,
                         FMT_STRING("PAKRouter::enterPAKBridge() must be called before PAKRouter::mreaHasDupeResources()"));

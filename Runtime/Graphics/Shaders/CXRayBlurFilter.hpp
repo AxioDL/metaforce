@@ -3,27 +3,27 @@
 #include <array>
 
 #include "Runtime/CToken.hpp"
-
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-#include <zeus/CMatrix4f.hpp>
+#include "zeus/CMatrix4f.hpp"
 
 namespace urde {
 class CTexture;
 
 class CXRayBlurFilter {
+  friend struct CXRayBlurFilterPipeline;
+  struct Vert {
+    hsh::float2 m_pos;
+    hsh::float2 m_uv;
+  };
   struct Uniform {
-    std::array<zeus::CMatrix4f, 8> m_uv;
+    std::array<hsh::float4x4, 8> m_uv;
   };
   TLockedToken<CTexture> m_paletteTex;
-  boo::ObjToken<boo::ITexture> m_booTex;
-  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+  hsh::owner<hsh::vertex_buffer<Vert>> m_vbo;
+  hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
+  hsh::binding m_dataBind;
   Uniform m_uniform;
 
 public:
-  static void Initialize();
-  static void Shutdown();
   explicit CXRayBlurFilter(TLockedToken<CTexture>& tex);
   void draw(float amount);
 };

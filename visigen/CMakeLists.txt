@@ -7,12 +7,12 @@ if (NOT MSVC)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
-
 add_executable(visigen
   VISIBuilder.cpp
   VISIBuilder.hpp
   VISIRenderer.cpp
   VISIRenderer.hpp
+  glew.c
 )
 
 if(MSVC)
@@ -42,11 +42,16 @@ set_target_properties(visigen PROPERTIES COMPILE_DEFINITIONS URDE_DLPACKAGE="${U
 if(APPLE)
   find_library(OPENGL_LIBRARY OpenGL)
   target_link_libraries(visigen PRIVATE ${OPENGL_LIBRARY})
+else()
+  include(FindPkgConfig)
+  pkg_check_modules(xstuff IMPORTED_TARGET x11 gl)
+  target_link_libraries(visigen PRIVATE PkgConfig::xstuff)
+  target_compile_options(visigen PRIVATE -pthread)
+  target_link_options(visigen PRIVATE -pthread)
 endif()
 
 target_link_libraries(visigen PRIVATE
   athena-core
-  glew
   hecl-light
   logvisor
   lzokay

@@ -5,30 +5,12 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
-#include <hecl/Pipeline.hpp>
-
-#include <zeus/CColor.hpp>
-#include <zeus/CVector2f.hpp>
-#include <zeus/CVector3f.hpp>
-#include <zeus/CVector4f.hpp>
+#include "zeus/CColor.hpp"
+#include "zeus/CVector2f.hpp"
+#include "zeus/CVector3f.hpp"
+#include "zeus/CVector4f.hpp"
 
 namespace urde {
-
-static boo::ObjToken<boo::IShaderPipeline> s_IndPipeline;
-static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
-static boo::ObjToken<boo::IShaderPipeline> s_BlurPipeline;
-
-void CPhazonSuitFilter::Initialize() {
-  s_IndPipeline = hecl::conv->convert(Shader_CPhazonSuitFilterInd{});
-  s_Pipeline = hecl::conv->convert(Shader_CPhazonSuitFilterNoInd{});
-  s_BlurPipeline = hecl::conv->convert(Shader_CPhazonSuitFilterBlur{});
-}
-
-void CPhazonSuitFilter::Shutdown() {
-  s_IndPipeline.reset();
-  s_Pipeline.reset();
-  s_BlurPipeline.reset();
-}
 
 void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPhazonSuitFilter::drawBlurPasses", zeus::skMagenta);
@@ -39,10 +21,6 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
       m_uniBufBlurY = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CVector4f), 1);
       m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CVector4f) * 2, 1);
 
-      struct BlurVert {
-        zeus::CVector3f pos;
-        zeus::CVector2f uv;
-      };
       const std::array<BlurVert, 4> blurVerts{{
           {{-1.f, 1.f, 0.f}, {0.f, 1.f}},
           {{-1.f, -1.f, 0.f}, {0.f, 0.f}},
@@ -51,12 +29,6 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
       }};
       m_blurVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, blurVerts.data(), sizeof(BlurVert), blurVerts.size());
 
-      struct Vert {
-        zeus::CVector3f pos;
-        zeus::CVector2f screenUv;
-        zeus::CVector2f indUv;
-        zeus::CVector2f maskUv;
-      };
       const std::array<Vert, 4> verts{{
           {{-1.f, 1.f, 0.f}, {0.01f, 0.99f}, {0.f, 4.f}, {0.f, 1.f}},
           {{-1.f, -1.f, 0.f}, {0.01f, 0.01f}, {0.f, 0.f}, {0.f, 0.f}},
@@ -139,10 +111,7 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
 
 void CPhazonSuitFilter::draw(const zeus::CColor& color, float indScale, float indOffX, float indOffY) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPhazonSuitFilter::draw", zeus::skMagenta);
-  struct Uniform {
-    zeus::CColor color;
-    zeus::CVector4f indScaleOff;
-  } uniform = {color, zeus::CVector4f(indScale, indScale, indOffX, indOffY)};
+  Uniform uniform = {color, zeus::CVector4f(indScale, indScale, indOffX, indOffY)};
 
   m_uniBuf->load(&uniform, sizeof(Uniform));
   CGraphics::SetShaderDataBinding(m_dataBind);

@@ -54,7 +54,7 @@ struct SDSPStreamInfo {
   explicit SDSPStreamInfo(const CDSPStreamManager& stream);
 };
 
-struct SDSPStream : boo::IAudioVoiceCallback {
+struct SDSPStream : boo2::IAudioVoiceCallback {
   bool x0_active;
   bool x1_oneshot;
   s32 x4_ownerId;
@@ -155,7 +155,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
   s16 m_prev1 = 0;
   s16 m_prev2 = 0;
 
-  void preSupplyAudio(boo::IAudioVoice&, double) override {}
+  void preSupplyAudio(boo2::IAudioVoice&, double) override {}
 
   unsigned decompressChunk(unsigned readToSample, int16_t*& data) {
     unsigned startSamp = m_curSample;
@@ -180,7 +180,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
     return m_curSample - startSamp;
   }
 
-  size_t supplyAudio(boo::IAudioVoice&, size_t frames, int16_t* data) override {
+  size_t supplyAudio(boo2::IAudioVoice&, size_t frames, int16_t* data) override {
     if (!x0_active) {
       memset(data, 0, frames * 2);
       return frames;
@@ -235,7 +235,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
 
     return frames;
   }
-  boo::ObjToken<boo::IAudioVoice> m_booVoice;
+  boo2::ObjToken<boo2::IAudioVoice> m_booVoice;
 
   void DoAllocateStream() {
     xd4_ringBuffer.reset(new u8[0x11DC0]);
@@ -307,8 +307,8 @@ struct SDSPStream : boo::IAudioVoiceCallback {
       return;
     }
     std::array<float, 8> coefs{};
-    coefs[size_t(boo::AudioChannel::FrontLeft)] = m_leftgain * vol;
-    coefs[size_t(boo::AudioChannel::FrontRight)] = m_rightgain * vol;
+    coefs[size_t(boo2::AudioChannel::FrontLeft)] = m_leftgain * vol;
+    coefs[size_t(boo2::AudioChannel::FrontRight)] = m_rightgain * vol;
     m_booVoice->setMonoChannelLevels(nullptr, coefs.data(), true);
   }
 

@@ -7,7 +7,6 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/MP1/CMemoryCardDriver.hpp"
-#include "Runtime/MP1/CSaveGameScreenTouchBar.hpp"
 
 namespace urde {
 class CGuiFrame;
@@ -82,8 +81,6 @@ private:
   bool x91_uiTextDirty = false;
   bool x92_savingDisabled = false;
   bool x93_inGame;
-
-  std::unique_ptr<CSaveGameScreenTouchBar> m_touchBar;
 
   void ContinueWithoutSaving();
 

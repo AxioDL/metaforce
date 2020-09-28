@@ -5,16 +5,15 @@
 #include "athena/DNAYaml.hpp"
 #include "hecl/Database.hpp"
 #include "../SpecBase.hpp"
-#include "boo/ThreadLocalPtr.hpp"
 #include "zeus/CColor.hpp"
 
 namespace DataSpec {
 struct SpecBase;
 
 extern logvisor::Module LogDNACommon;
-extern ThreadLocalPtr<SpecBase> g_curSpec;
-extern ThreadLocalPtr<class PAKRouterBase> g_PakRouter;
-extern ThreadLocalPtr<hecl::blender::Token> g_ThreadBlenderToken;
+extern thread_local SpecBase* g_curSpec;
+extern thread_local class PAKRouterBase* g_PakRouter;
+extern thread_local hecl::blender::Token* g_ThreadBlenderToken;
 
 /* This comes up a great deal */
 using BigDNA = athena::io::DNA<athena::Endian::Big>;
@@ -98,7 +97,7 @@ class UniqueIDBridge {
   friend class UniqueID32;
   friend class UniqueID64;
 
-  static ThreadLocalPtr<hecl::Database::Project> s_Project;
+  static thread_local hecl::Database::Project* s_Project;
 
 public:
   template <class IDType>

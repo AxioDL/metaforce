@@ -9,8 +9,6 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
 namespace urde {
 class CVParamTransfer;
 class CTextureInfo;
@@ -32,8 +30,7 @@ private:
   u16 x4_w;
   u16 x6_h;
   u32 x8_mips;
-  boo::ObjToken<boo::ITexture> m_booTex;
-  boo::ObjToken<boo::ITexture> m_paletteTex;
+  hsh::owner<hsh::texture_typeless> m_booTex, m_paletteTex;
   std::unique_ptr<u8[]> m_otex;
   EFontType m_ftype = EFontType::None;
   const CTextureInfo* m_textureInfo;
@@ -69,10 +66,10 @@ public:
   u16 GetHeight() const { return x6_h; }
   u32 GetNumMips() const { return x8_mips; }
   void Load(int slot, EClampMode clamp) const;
-  const boo::ObjToken<boo::ITexture>& GetBooTexture() const { return m_booTex; }
-  const boo::ObjToken<boo::ITexture>& GetPaletteTexture() const { return m_paletteTex; }
+  hsh::texture_typeless GetBooTexture() const { return m_booTex.get(); }
+  hsh::texture_typeless GetPaletteTexture() const { return m_paletteTex.get(); }
   std::unique_ptr<u8[]> BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut, std::unique_ptr<u8[]>& paletteOut) const;
-  const boo::ObjToken<boo::ITexture>& GetFontTexture(EFontType tp);
+  hsh::texture_typeless GetFontTexture(EFontType tp);
 
   const CTextureInfo* GetTextureInfo() const { return m_textureInfo; }
 };

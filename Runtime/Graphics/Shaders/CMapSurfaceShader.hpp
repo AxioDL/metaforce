@@ -2,29 +2,30 @@
 
 #include "Runtime/GCNTypes.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
-#include <zeus/CColor.hpp>
-#include <zeus/CMatrix4f.hpp>
+#include "zeus/CColor.hpp"
+#include "zeus/CMatrix4f.hpp"
 
 namespace urde {
 
 class CMapSurfaceShader {
+public:
   struct Uniform {
-    zeus::CMatrix4f mtx;
-    zeus::CColor color;
+    hsh::float4x4 mtx;
+    hsh::float4 color;
+  };
+  struct Vert {
+    hsh::float3 pos;
+    Vert() = default;
+    Vert(float x, float y, float z) : pos(x, y, z) {}
   };
 
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+private:
+  hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
+  hsh::binding m_dataBind;
 
 public:
-  static void Initialize();
-  static void Shutdown();
-  CMapSurfaceShader(boo::IGraphicsDataFactory::Context& ctx, const boo::ObjToken<boo::IGraphicsBufferS>& vbo,
-                    const boo::ObjToken<boo::IGraphicsBufferS>& ibo);
+  CMapSurfaceShader(hsh::vertex_buffer<Vert> vbo,
+                    hsh::index_buffer<uint32_t> ibo);
   void draw(const zeus::CColor& color, u32 start, u32 count);
 };
 

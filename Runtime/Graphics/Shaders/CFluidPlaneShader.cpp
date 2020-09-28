@@ -3,123 +3,7 @@
 #include "Runtime/World/CRipple.hpp"
 #include "Runtime/World/CRippleManager.hpp"
 
-#include <hecl/Pipeline.hpp>
-
 namespace urde {
-
-CFluidPlaneShader::Cache CFluidPlaneShader::_cache = {};
-
-u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneShaderInfo& info) {
-  u16 ret = 0;
-
-  switch (info.m_type) {
-  case EFluidType::NormalWater:
-  case EFluidType::PhazonFluid:
-  case EFluidType::Four:
-    if (info.m_hasLightmap) {
-      ret |= 1 << 2;
-      if (info.m_doubleLightmapBlend)
-        ret |= 1 << 3;
-    }
-
-    if (!info.m_hasEnvMap && info.m_hasEnvBumpMap)
-      ret |= 1 << 4;
-
-    if (info.m_hasEnvMap)
-      ret |= 1 << 5;
-
-    break;
-
-  case EFluidType::PoisonWater:
-    ret |= 1;
-
-    if (info.m_hasLightmap) {
-      ret |= 1 << 2;
-      if (info.m_doubleLightmapBlend)
-        ret |= 1 << 3;
-    }
-
-    if (info.m_hasEnvBumpMap)
-      ret |= 1 << 4;
-
-    break;
-
-  case EFluidType::Lava:
-    ret |= 2;
-
-    if (info.m_hasBumpMap)
-      ret |= 1 << 2;
-
-    break;
-
-  case EFluidType::ThickLava:
-    ret |= 3;
-
-    if (info.m_hasBumpMap)
-      ret |= 1 << 2;
-
-    break;
-  }
-
-  if (info.m_hasPatternTex1)
-    ret |= 1 << 6;
-  if (info.m_hasPatternTex2)
-    ret |= 1 << 7;
-  if (info.m_hasColorTex)
-    ret |= 1 << 8;
-
-  if (info.m_additive)
-    ret |= 1 << 9;
-
-  return ret;
-}
-
-u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneDoorShaderInfo& info) {
-  u16 ret = 0;
-
-  if (info.m_hasPatternTex1)
-    ret |= 1 << 0;
-  if (info.m_hasPatternTex2)
-    ret |= 1 << 1;
-  if (info.m_hasColorTex)
-    ret |= 1 << 2;
-
-  return ret;
-}
-
-template <>
-CFluidPlaneShader::ShaderPair
-CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneShaderInfo>(const SFluidPlaneShaderInfo& info) {
-  u16 key = MakeCacheKey(info);
-  auto& slot = CacheSlot(info, key);
-  if (slot.m_regular)
-    return slot;
-
-  slot.m_regular = hecl::conv->convert(Shader_CFluidPlaneShader{info, false});
-  if (info.m_tessellation)
-    slot.m_tessellation = hecl::conv->convert(Shader_CFluidPlaneShader{info, true});
-
-  return slot;
-}
-template <>
-CFluidPlaneShader::ShaderPair
-CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneDoorShaderInfo>(const SFluidPlaneDoorShaderInfo& info) {
-  u16 key = MakeCacheKey(info);
-  auto& slot = CacheSlot(info, key);
-  if (slot.m_regular)
-    return slot;
-
-  slot.m_regular = hecl::conv->convert(Shader_CFluidPlaneDoorShader{info});
-
-  return slot;
-}
-
-void CFluidPlaneShader::Cache::Clear() {
-  for (auto& p : m_cache)
-    p.reset();
-  for (auto& p : m_doorCache)
-    p.reset();
-}
 
 void CFluidPlaneShader::PrepareBinding(u32 maxVertCount) {
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -187,8 +71,6 @@ void CFluidPlaneShader::PrepareBinding(u32 maxVertCount) {
     return true;
   } BooTrace);
 }
-
-void CFluidPlaneShader::Shutdown() { _cache.Clear(); }
 
 CFluidPlaneShader::CFluidPlaneShader(EFluidType type, const TLockedToken<CTexture>& patternTex1,
                                      const TLockedToken<CTexture>& patternTex2, const TLockedToken<CTexture>& colorTex,

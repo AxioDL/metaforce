@@ -122,9 +122,9 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
     x19c_samusDoll->BeginViewInterpolate(absViewInterp == 0.f);
     if (absViewInterp == 0.f) {
       if (const auto& kbm = input.GetKBM()) {
-        m_lastMouseCoord = zeus::CVector2f(kbm->m_mouseCoord.norm[0], kbm->m_mouseCoord.norm[1]);
+        m_lastMouseCoord = zeus::CVector2f(kbm->m_mouseCoordNorm.x, kbm->m_mouseCoordNorm.y);
         m_lastAccumScroll = kbm->m_accumScroll;
-        m_dollScroll = boo::SScrollDelta();
+        m_dollScroll = hsh::offset2dF{};
       }
     }
   }
@@ -133,7 +133,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
     if (input.PStart()) {
       x19c_samusDoll->BeginViewInterpolate(false);
       x198_26_exitPauseScreen = true;
-    } else if (input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) {
+    } else if (input.PB() || input.PSpecialKey(boo2::Keycode::ESC)) {
       x19c_samusDoll->BeginViewInterpolate(false);
     }
   }
@@ -154,13 +154,13 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
     float zoomOut = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapZoomOut, input);
 
     if (const auto& kbm = input.GetKBM()) {
-      zeus::CVector2f mouseCoord = zeus::CVector2f(kbm->m_mouseCoord.norm[0], kbm->m_mouseCoord.norm[1]);
+      zeus::CVector2f mouseCoord = zeus::CVector2f(kbm->m_mouseCoordNorm.x, kbm->m_mouseCoordNorm.y);
       zeus::CVector2f mouseDelta = mouseCoord - m_lastMouseCoord;
       m_lastMouseCoord = mouseCoord;
       mouseDelta.x() *= g_Viewport.aspect;
       mouseDelta *= 100.f;
-      if (kbm->m_mouseButtons[size_t(boo::EMouseButton::Middle)] ||
-          kbm->m_mouseButtons[size_t(boo::EMouseButton::Secondary)]) {
+      if (kbm->m_mouseButtons[size_t(boo2::MouseButton::Middle)] ||
+          kbm->m_mouseButtons[size_t(boo2::MouseButton::Secondary)]) {
         if (float(mouseDelta.x()) < 0.f)
           moveRight += -mouseDelta.x();
         else if (float(mouseDelta.x()) > 0.f)
@@ -170,7 +170,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
         else if (float(mouseDelta.y()) > 0.f)
           moveBack += mouseDelta.y();
       }
-      if (kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
+      if (kbm->m_mouseButtons[size_t(boo2::MouseButton::Primary)]) {
         if (float(mouseDelta.x()) < 0.f)
           circleRight += -mouseDelta.x();
         else if (float(mouseDelta.x()) > 0.f)
@@ -183,16 +183,16 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
 
       m_dollScroll += kbm->m_accumScroll - m_lastAccumScroll;
       m_lastAccumScroll = kbm->m_accumScroll;
-      if (m_dollScroll.delta[1] > 0.0) {
+      if (m_dollScroll.y > 0.0) {
         zoomIn = 1.f;
-        m_dollScroll.delta[1] = std::max(0.0, m_dollScroll.delta[1] - (15.0 / 60.0));
-      } else if (m_dollScroll.delta[1] < 0.0) {
+        m_dollScroll.y = std::max(0.0, m_dollScroll.y - (15.0 / 60.0));
+      } else if (m_dollScroll.y < 0.0) {
         if (x19c_samusDoll->IsZoomedOut()) {
           x19c_samusDoll->BeginViewInterpolate(false);
           return;
         }
         zoomOut = 1.f;
-        m_dollScroll.delta[1] = std::min(0.0, m_dollScroll.delta[1] + (15.0 / 60.0));
+        m_dollScroll.y = std::min(0.0, m_dollScroll.y + (15.0 / 60.0));
       }
     }
 
@@ -212,7 +212,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
         if (input.PLAUp() || m_bodyUpClicked)
           newPage = std::max(oldPage - 1, 0);
         else if (input.PLADown() || m_bodyDownClicked ||
-                 ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || m_bodyClicked) && !lastPage))
+                 ((input.PA() || input.PKey('\n') || m_bodyClicked) && !lastPage))
           newPage = std::min(oldPage + 1, totalCount - 1);
         x174_textpane_body->TextSupport().SetPage(newPage);
         if (oldPage != newPage)
@@ -224,8 +224,8 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
         x198_28_pulseTextArrowTop = false;
       }
       if (!x1ac_textLeaveRequested)
-        x1ac_textLeaveRequested = input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
-          ((input.PA() || m_bodyClicked || input.PSpecialKey(boo::ESpecialKey::Enter)) && lastPage);
+        x1ac_textLeaveRequested = input.PB() || input.PSpecialKey(boo2::Keycode::ESC) ||
+          ((input.PA() || m_bodyClicked || input.PKey('\n')) && lastPage);
       x1ad_textViewing = !x1ac_textLeaveRequested;
     } else {
       x198_29_pulseTextArrowBottom = false;

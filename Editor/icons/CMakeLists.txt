@@ -60,4 +60,3 @@ endif()
 
 bintoc(icons_dat.cpp ${CMAKE_CURRENT_BINARY_DIR}/icons.bin URDE_ICONS)
 add_library(UrdeIcons icons.cpp icons.hpp icons.bin icons_dat.cpp)
-target_link_libraries(UrdeIcons PUBLIC specter)

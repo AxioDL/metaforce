@@ -6,9 +6,7 @@
 #include "Runtime/CDvdFile.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-#include <specter/View.hpp>
-#include <zeus/CVector3f.hpp>
+#include "Graphics/CGraphics.hpp"
 
 namespace urde {
 
@@ -69,13 +67,13 @@ private:
   };
 
   struct CTHPTextureSet {
-    boo::ObjToken<boo::ITextureD> Y[2];
-    boo::ObjToken<boo::ITextureD> U;
-    boo::ObjToken<boo::ITextureD> V;
+    std::array<hsh::dynamic_owner<hsh::texture2d>, 2> Y;
+    hsh::dynamic_owner<hsh::texture2d> U;
+    hsh::dynamic_owner<hsh::texture2d> V;
     u32 playedSamples = 0;
     u32 audioSamples = 0;
     std::unique_ptr<s16[]> audioBuf;
-    boo::ObjToken<boo::IShaderDataBinding> binding[2];
+    std::array<hsh::binding, 2> binding;
   };
   std::vector<CTHPTextureSet> x80_textures;
   std::unique_ptr<uint8_t[]> x90_requestBuf;
@@ -108,11 +106,11 @@ private:
 
   std::unique_ptr<uint8_t[]> m_yuvBuf;
 
-  specter::View::ViewBlock m_viewVertBlock;
-  boo::ObjToken<boo::IGraphicsBufferD> m_blockBuf;
-  boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
+  ViewBlock m_viewVertBlock;
+  hsh::dynamic_owner<hsh::uniform_buffer<ViewBlock>> m_blockBuf;
 
-  specter::View::TexShaderVert m_frame[4];
+  std::array<TexUVVert, 4> m_frame;
+  hsh::dynamic_owner<hsh::vertex_buffer<TexUVVert>> m_vertBuf;
 
   static u32 THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo);
   void DecodeFromRead(const void* data);

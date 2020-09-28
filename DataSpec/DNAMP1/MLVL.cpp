@@ -265,7 +265,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
       /* Gather memory relays, scans, and dependencies */
       {
-        g_ThreadBlenderToken.reset(&btok);
+        g_ThreadBlenderToken = &btok;
         std::vector<hecl::ProjectPath> depPaths;
         std::vector<hecl::ProjectPath> lazyPaths;
         for (std::unique_ptr<IScriptObject>& obj : layer.objects) {

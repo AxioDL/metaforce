@@ -208,7 +208,7 @@ void CPauseScreen::ProcessControllerInput(const CStateManager& mgr, const CFinal
   if (InputEnabled()) {
     bool invalid = x8_curSubscreen == ESubScreen::ToGame;
     if (useInput.PStart() ||
-        ((useInput.PB() || useInput.PSpecialKey(boo::ESpecialKey::Esc)) && bExits) ||
+        ((useInput.PB() || useInput.PSpecialKey(boo2::Keycode::ESC)) && bExits) ||
         (x7c_screens[x78_activeIdx] && x7c_screens[x78_activeIdx]->ShouldExitPauseScreen())) {
       CSfxManager::SfxStart(SFXui_pause_screen_exit, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
       StartTransition(0.5f, mgr, ESubScreen::ToGame, 2);

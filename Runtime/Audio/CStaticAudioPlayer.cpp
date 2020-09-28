@@ -7,7 +7,7 @@ namespace urde {
 
 #define RSF_BUFFER_SIZE 0x20000
 
-CStaticAudioPlayer::CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, std::string_view path, int loopStart,
+CStaticAudioPlayer::CStaticAudioPlayer(boo2::IAudioVoiceEngine& engine, std::string_view path, int loopStart,
                                        int loopEnd)
 : x0_path(path)
 , x1c_loopStartSamp(loopStart & 0xfffffffe)

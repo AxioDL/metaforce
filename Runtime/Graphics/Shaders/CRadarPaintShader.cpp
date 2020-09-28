@@ -5,15 +5,7 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
-#include <hecl/Pipeline.hpp>
-
 namespace urde {
-
-static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
-
-void CRadarPaintShader::Initialize() { s_Pipeline = hecl::conv->convert(Shader_CRadarPaintShader{}); }
-
-void CRadarPaintShader::Shutdown() { s_Pipeline.reset(); }
 
 void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CTexture* tex) {
   if (!instances.size())

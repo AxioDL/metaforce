@@ -127,7 +127,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
       if (input.ControllerIdx() == 0) {
         const CEntity* cam = x14_stateManager->GetCameraManager()->GetCurrentCamera(*x14_stateManager);
         TCastToConstPtr<CCinematicCamera> cineCam = cam;
-        if (input.PStart() || input.PSpecialKey(boo::ESpecialKey::Esc)) {
+        if (input.PStart() || input.PSpecialKey(boo2::Keycode::ESC)) {
           if (cineCam && x14_stateManager->GetSkipCinematicSpecialFunction() != kInvalidUniqueId) {
             CMidiManager::StopAll();
             x28_skippedCineCam = cineCam->GetUniqueId();
@@ -347,9 +347,6 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
       return EMessageReturn::Exit;
 
     x1c_loadList.clear();
-
-    if (!CGraphics::g_BooFactory->areShadersReady())
-      return EMessageReturn::Exit;
 
     wtMgr->StartTextFadeOut();
     x2c_25_transitionFinished = wtMgr->IsTransitionFinished();

@@ -3,17 +3,9 @@
 #include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
-#include <hecl/Pipeline.hpp>
-
 #define WARP_RAMP_RES 32
 
 namespace urde {
-
-static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
-
-void CSpaceWarpFilter::Initialize() { s_Pipeline = hecl::conv->convert(Shader_CSpaceWarpFilter{}); }
-
-void CSpaceWarpFilter::Shutdown() { s_Pipeline.reset(); }
 
 void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& ctx) {
   std::array<std::array<std::array<u8, 4>, WARP_RAMP_RES + 1>, WARP_RAMP_RES + 1> data{};
@@ -41,10 +33,6 @@ CSpaceWarpFilter::CSpaceWarpFilter() {
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     GenerateWarpRampTex(ctx);
 
-    struct Vert {
-      zeus::CVector2f m_pos;
-      zeus::CVector2f m_uv;
-    };
     const std::array<Vert, 4> verts{{
         {{-1.f, -1.f}, {0.f, 0.f}},
         {{-1.f, 1.f}, {0.f, 1.f}},

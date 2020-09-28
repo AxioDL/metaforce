@@ -6,6 +6,7 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Particle/CDecalDescription.hpp"
+#include "Runtime/Particle/CParticleGlobals.hpp"
 
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
@@ -20,10 +21,9 @@ struct CQuadDecal {
   CQuadDecal() : x0_24_invalid(true) {}
   CQuadDecal(s32 i, float f) : x0_24_invalid(true), x4_lifetime(i), x8_rotation(f) {}
 
-  boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_normalDataBind;
-  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaDataBind;
+  hsh::dynamic_owner<hsh::vertex_buffer_typeless> m_instBuf;
+  hsh::dynamic_owner<hsh::uniform_buffer<SParticleUniforms>> m_uniformBuf;
+  hsh::binding m_dataBind;
 };
 
 class CDecal {

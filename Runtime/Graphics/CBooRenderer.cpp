@@ -15,12 +15,11 @@
 #include <algorithm>
 #include <array>
 
-#include <boo/System.hpp>
-#include <logvisor/logvisor.hpp>
-#include <zeus/CColor.hpp>
-#include <zeus/CUnitVector.hpp>
-#include <zeus/CVector3d.hpp>
-#include <zeus/CVector4f.hpp>
+#include "logvisor/logvisor.hpp"
+#include "zeus/CColor.hpp"
+#include "zeus/CUnitVector.hpp"
+#include "zeus/CVector3d.hpp"
+#include "zeus/CVector4f.hpp"
 
 #define FOGVOL_RAMP_RES 256
 #define FOGVOL_FAR 750.0

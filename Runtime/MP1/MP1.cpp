@@ -2,30 +2,6 @@
 
 #include <array>
 
-#include "NESEmulator/CNESShader.hpp"
-
-#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
-#include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
-#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
-#include "Runtime/Graphics/Shaders/CColoredStripShader.hpp"
-#include "Runtime/Graphics/Shaders/CEnergyBarShader.hpp"
-#include "Runtime/Graphics/Shaders/CEnvFxShaders.hpp"
-#include "Runtime/Graphics/Shaders/CFluidPlaneShader.hpp"
-#include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
-#include "Runtime/Graphics/Shaders/CModelShaders.hpp"
-#include "Runtime/Graphics/Shaders/CParticleSwooshShaders.hpp"
-#include "Runtime/Graphics/Shaders/CPhazonSuitFilter.hpp"
-#include "Runtime/Graphics/Shaders/CRadarPaintShader.hpp"
-#include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
-#include "Runtime/Graphics/Shaders/CScanLinesFilter.hpp"
-#include "Runtime/Graphics/Shaders/CSpaceWarpFilter.hpp"
-#include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
-#include "Runtime/Graphics/Shaders/CThermalColdFilter.hpp"
-#include "Runtime/Graphics/Shaders/CThermalHotFilter.hpp"
-#include "Runtime/Graphics/Shaders/CWorldShadowShader.hpp"
-#include "Runtime/Graphics/Shaders/CXRayBlurFilter.hpp"
-
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CGameHintInfo.hpp"
 #include "Runtime/CSaveWorld.hpp"
@@ -92,7 +68,7 @@ constexpr std::array<AudioGroupInfo, 5> StaticAudioGroups{{
 }};
 } // Anonymous namespace
 
-CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
+CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo2::IAudioVoiceEngine* voiceEngine,
                                                    amuse::IBackendVoiceAllocator& backend)
 : m_parent(parent)
 , x0_audioSys(voiceEngine, backend, 0, 0, 0, 0, 0)
@@ -223,25 +199,20 @@ CGameArchitectureSupport::~CGameArchitectureSupport() {
   CStreamAudioManager::Shutdown();
 }
 
-void CGameArchitectureSupport::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat) {
-  x30_inputGenerator.charKeyDown(charCode, mods, isRepeat);
-  m_parent.m_console->handleCharCode(charCode, mods, isRepeat);
+void CGameArchitectureSupport::charKeyDown(unsigned long charCode, boo2::KeyModifier mods) {
+  x30_inputGenerator.charKeyDown(charCode, mods);
 }
 
-void CGameArchitectureSupport::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat) {
-  x30_inputGenerator.specialKeyDown(key, mods, isRepeat);
-  m_parent.m_console->handleSpecialKeyDown(key, mods, isRepeat);
+void CGameArchitectureSupport::specialKeyDown(boo2::Keycode key, boo2::KeyModifier mods) {
+  x30_inputGenerator.specialKeyDown(key, mods);
 }
 
-void CGameArchitectureSupport::specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods) {
+void CGameArchitectureSupport::specialKeyUp(boo2::Keycode key, boo2::KeyModifier mods) {
   x30_inputGenerator.specialKeyUp(key, mods);
-  m_parent.m_console->handleSpecialKeyUp(key, mods);
 }
 
-CMain::CMain(IFactory* resFactory, CSimplePool* resStore, boo::IGraphicsDataFactory* gfxFactory,
-             boo::IGraphicsCommandQueue* cmdQ, const boo::ObjToken<boo::ITextureR>& spareTex)
-: m_booSetter(gfxFactory, cmdQ, spareTex)
-, x128_globalObjects(resFactory, resStore)
+CMain::CMain(IFactory* resFactory, CSimplePool* resStore, hsh::surface surface)
+: x128_globalObjects(resFactory, resStore)
 , x160_24_finished(false)
 , x160_25_mfGameBuilt(false)
 , x160_26_screenFading(false)
@@ -251,36 +222,9 @@ CMain::CMain(IFactory* resFactory, CSimplePool* resStore, boo::IGraphicsDataFact
 , x160_30_(false)
 , x160_31_cardBusy(false)
 , x161_24_gameFrameDrawn(false) {
+  CGraphics::InitializeBoo(surface);
   xe4_gameplayResult = EGameplayResult::Playing;
   g_Main = this;
-}
-
-CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cmdQ,
-                            const boo::ObjToken<boo::ITextureR>& spareTex) {
-  CGraphics::InitializeBoo(factory, cmdQ, spareTex);
-  CParticleSwooshShaders::Initialize();
-  CThermalColdFilter::Initialize();
-  CThermalHotFilter::Initialize();
-  CSpaceWarpFilter::Initialize();
-  CCameraBlurFilter::Initialize();
-  CXRayBlurFilter::Initialize();
-  CFogVolumePlaneShader::Initialize();
-  CFogVolumeFilter::Initialize();
-  CEnergyBarShader::Initialize();
-  CRadarPaintShader::Initialize();
-  CMapSurfaceShader::Initialize();
-  CPhazonSuitFilter::Initialize();
-  CAABoxShader::Initialize();
-  CWorldShadowShader::Initialize();
-  CColoredQuadFilter::Initialize();
-  CColoredStripShader::Initialize();
-  CTexturedQuadFilter::Initialize();
-  CTexturedQuadFilterAlpha::Initialize();
-  CTextSupportShader::Initialize();
-  CScanLinesFilter::Initialize();
-  CRandomStaticFilter::Initialize();
-  CEnvFxShaders::Initialize();
-  CNESShader::Initialize();
 }
 
 void CMain::RegisterResourceTweaks() {}
@@ -397,14 +341,11 @@ void CMain::ResetGameState() {
 
 void CMain::InitializeSubsystems() {
   CBasics::Initialize();
-  CModelShaders::Initialize();
   CMoviePlayer::Initialize();
-  CLineRenderer::Initialize();
   CElementGen::Initialize();
   CAnimData::InitializeCache();
   CDecalManager::Initialize();
   CGBASupport::Initialize();
-  CGraphics::g_BooFactory->waitUntilShadersReady();
 }
 
 void CMain::MemoryCardInitializePump() {
@@ -439,6 +380,7 @@ void CMain::EnsureWorldPaksReady() {}
 void CMain::EnsureWorldPakReady(CAssetId mlvl) { /* TODO: Schedule resource list load for World Pak containing mlvl */
 }
 
+#if 0
 void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
   if (args.size() < 1 || (!g_GameState || !g_GameState->GetPlayerState()))
     return;
@@ -609,6 +551,7 @@ void CMain::Warp(hecl::Console* con, const std::vector<std::string>& args) {
   g_StateManager->SetWarping(true);
   g_StateManager->SetShouldQuitGame(true);
 }
+#endif
 
 void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx) {
   bool fusionBackup = g_GameState->SystemOptions().GetPlayerFusionSuitActive();
@@ -700,11 +643,11 @@ void CMain::HandleDiscordErrored(int errorCode, const char* message) {
   DiscordLog.report(logvisor::Error, FMT_STRING("Discord Error: {}"), message);
 }
 
-void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarMgr, boo::IWindow* window,
-                 boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) {
+void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarMgr,
+                 boo2::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) {
   InitializeDiscord();
-  m_mainWindow = window;
   m_cvarMgr = cvarMgr;
+#if 0
   m_console = std::make_unique<hecl::Console>(m_cvarMgr);
   m_console->init(window);
   m_console->registerCommand(
@@ -734,6 +677,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       "Warp"sv, "Warps to a given area and world"sv, "[worldname] areaId"sv,
       [this](hecl::Console* console, const std::vector<std::string>& args) { Warp(console, args); },
       hecl::SConsoleCommand::ECommandFlags::Normal);
+#endif
 
   InitializeSubsystems();
   AddOverridePaks();
@@ -742,7 +686,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
   AddWorldPaks();
 
-  const auto& args = boo::APP->getArgs();
+  const auto& args = boo2::Args;
   for (auto it = args.begin(); it != args.end(); ++it) {
     if (*it == _SYS_STR("--warp") && args.end() - it >= 3) {
       const hecl::SystemChar* worldIdxStr = (*(it + 1)).c_str();
@@ -849,14 +793,11 @@ bool CMain::Proc() {
   m_prevFrameTime = now;
 #endif
 
-  m_console->proc();
-  if (!m_console->isOpen()) {
-    CGBASupport::GlobalPoll();
-    x164_archSupport->UpdateTicks(dt);
-    x164_archSupport->Update(dt);
-    CSfxManager::Update(dt);
-    CStreamAudioManager::Update(dt);
-  }
+  CGBASupport::GlobalPoll();
+  x164_archSupport->UpdateTicks(dt);
+  x164_archSupport->Update(dt);
+  CSfxManager::Update(dt);
+  CStreamAudioManager::Update(dt);
 
   if (x164_archSupport->GetIOWinManager().IsEmpty() || CheckReset()) {
     CStreamAudioManager::StopAll();
@@ -877,7 +818,7 @@ void CMain::Draw() {
   // Warmup cycle overrides draw
   if (m_warmupTags.size()) {
     if (m_needsWarmupClear) {
-      CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
+      hsh::clear_attachments();
       m_needsWarmupClear = false;
     }
     auto startTime = std::chrono::steady_clock::now();
@@ -903,58 +844,27 @@ void CMain::Draw() {
     return;
   }
 
-  CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
+  hsh::clear_attachments();
   x164_archSupport->Draw();
-  m_console->draw(CGraphics::g_BooMainCommandQueue);
 }
 
 void CMain::ShutdownSubsystems() {
   CMoviePlayer::Shutdown();
-  CLineRenderer::Shutdown();
   CDecalManager::Shutdown();
-  CElementGen::Shutdown();
   CAnimData::FreeCache();
   CMemoryCardSys::Shutdown();
-  CModelShaders::Shutdown();
   CMappableObject::Shutdown();
 }
 
 void CMain::Shutdown() {
-  m_console->unregisterCommand("Give");
   x128_globalObjects.m_gameResFactory->UnloadPersistentResources();
   x164_archSupport.reset();
   ShutdownSubsystems();
-  CParticleSwooshShaders::Shutdown();
-  CThermalColdFilter::Shutdown();
-  CThermalHotFilter::Shutdown();
-  CSpaceWarpFilter::Shutdown();
-  CCameraBlurFilter::Shutdown();
-  CXRayBlurFilter::Shutdown();
-  CFogVolumePlaneShader::Shutdown();
-  CFogVolumeFilter::Shutdown();
-  CEnergyBarShader::Shutdown();
-  CRadarPaintShader::Shutdown();
-  CMapSurfaceShader::Shutdown();
-  CPhazonSuitFilter::Shutdown();
-  CAABoxShader::Shutdown();
-  CWorldShadowShader::Shutdown();
-  CColoredQuadFilter::Shutdown();
-  CColoredStripShader::Shutdown();
-  CTexturedQuadFilter::Shutdown();
-  CTexturedQuadFilterAlpha::Shutdown();
-  CTextSupportShader::Shutdown();
-  CScanLinesFilter::Shutdown();
-  CRandomStaticFilter::Shutdown();
-  CEnvFxShaders::Shutdown();
-  CFluidPlaneShader::Shutdown();
   CFluidPlaneManager::RippleMapTex.reset();
-  CNESShader::Shutdown();
   CBooModel::Shutdown();
   CGraphics::ShutdownBoo();
   ShutdownDiscord();
 }
-
-boo::IWindow* CMain::GetMainWindow() const { return m_mainWindow; }
 
 #if MP1_USE_BOO
 

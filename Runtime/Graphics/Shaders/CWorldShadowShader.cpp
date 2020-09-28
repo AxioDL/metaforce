@@ -5,23 +5,9 @@
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
-#include <hecl/Pipeline.hpp>
-#include <zeus/CVector3f.hpp>
+#include "zeus/CVector3f.hpp"
 
 namespace urde {
-
-static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
-static boo::ObjToken<boo::IShaderPipeline> s_ZPipeline;
-
-void CWorldShadowShader::Initialize() {
-  s_Pipeline = hecl::conv->convert(Shader_CWorldShadowShader{});
-  s_ZPipeline = hecl::conv->convert(Shader_CWorldShadowShaderZ{});
-}
-
-void CWorldShadowShader::Shutdown() {
-  s_Pipeline.reset();
-  s_ZPipeline.reset();
-}
 
 CWorldShadowShader::CWorldShadowShader(u32 w, u32 h) : m_w(w), m_h(h) {
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {

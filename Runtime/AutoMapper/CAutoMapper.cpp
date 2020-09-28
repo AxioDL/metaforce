@@ -488,7 +488,7 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
   std::array<float, 4> dirs{};
   bool mouseHeld = false;
   if (const auto& kbm = input.GetKBM()) {
-    if (kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
+    if (kbm->m_mouseButtons[size_t(boo2::MouseButton::Primary)]) {
       mouseHeld = true;
       if (float(m_mouseDelta.x()) < 0.f)
         dirs[3] = -m_mouseDelta.x();
@@ -604,14 +604,14 @@ void CAutoMapper::ProcessMapZoomInput(const CFinalInput& input, const CStateMana
   if (const auto& kbm = input.GetKBM()) {
     m_mapScroll += kbm->m_accumScroll - m_lastAccumScroll;
     m_lastAccumScroll = kbm->m_accumScroll;
-    if (m_mapScroll.delta[1] > 0.0) {
+    if (m_mapScroll.y > 0.0) {
       in = true;
-      zoomSpeed = std::max(1.f, float(m_mapScroll.delta[1]));
-      m_mapScroll.delta[1] = std::max(0.0, m_mapScroll.delta[1] - (15.0 / 60.0));
-    } else if (m_mapScroll.delta[1] < 0.0) {
+      zoomSpeed = std::max(1.f, float(m_mapScroll.y));
+      m_mapScroll.y = std::max(0.0, m_mapScroll.y - (15.0 / 60.0));
+    } else if (m_mapScroll.y < 0.0) {
       out = true;
-      zoomSpeed = std::max(1.f, float(-m_mapScroll.delta[1]));
-      m_mapScroll.delta[1] = std::min(0.0, m_mapScroll.delta[1] + (15.0 / 60.0));
+      zoomSpeed = std::max(1.f, float(-m_mapScroll.y));
+      m_mapScroll.y = std::min(0.0, m_mapScroll.y + (15.0 / 60.0));
     }
   }
 
@@ -648,7 +648,7 @@ void CAutoMapper::ProcessMapZoomInput(const CFinalInput& input, const CStateMana
   }
 
   if (oldDist == xa8_renderStates[0].x18_camDist)
-    m_mapScroll.delta[1] = 0.0;
+    m_mapScroll.y = 0.0;
   SetShouldZoomingSoundBePlaying(oldDist != xa8_renderStates[0].x18_camDist);
 }
 
@@ -660,8 +660,8 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
 
   bool mouseHeld = false;
   if (const auto& kbm = input.GetKBM()) {
-    if (kbm->m_mouseButtons[size_t(boo::EMouseButton::Middle)] ||
-        kbm->m_mouseButtons[size_t(boo::EMouseButton::Secondary)]) {
+    if (kbm->m_mouseButtons[size_t(boo2::MouseButton::Middle)] ||
+        kbm->m_mouseButtons[size_t(boo2::MouseButton::Secondary)]) {
       mouseHeld = true;
       if (float(m_mouseDelta.x()) < 0.f)
         right += -m_mouseDelta.x();
@@ -787,10 +787,10 @@ void CAutoMapper::SetShouldRotatingSoundBePlaying(bool shouldBePlaying) {
 void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager& mgr) {
   zeus::CMatrix3f camRot = xa8_renderStates[0].x8_camOrientation.toTransform().buildMatrix3f();
   if (x1bc_state == EAutoMapperState::MapScreen) {
-    if ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter)) && x328_ == 0 && HasCurrentMapUniverseWorld())
+    if ((input.PA() || input.PKey('\n')) && x328_ == 0 && HasCurrentMapUniverseWorld())
       BeginMapperStateTransition(EAutoMapperState::MapScreenUniverse, mgr);
   } else if (x1bc_state == EAutoMapperState::MapScreenUniverse &&
-             (input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter))) {
+             (input.PA() || input.PKey('\n'))) {
     const CMapUniverse::CMapWorldData& mapuWld = x8_mapu->GetMapWorldData(x9c_worldIdx);
     zeus::CVector3f pointLocal = mapuWld.GetWorldTransform().inverse() * xa8_renderStates[0].x20_areaPoint;
     if (mapuWld.GetWorldAssetId() != g_GameState->CurrentWorldAssetId()) {
@@ -805,7 +805,7 @@ void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager&
   }
 
   x2f4_aButtonPos = 0;
-  if (input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter))
+  if (input.PA() || input.PKey('\n'))
     x2f4_aButtonPos = 1;
 
   if (IsInPlayerControlState()) {
@@ -813,7 +813,7 @@ void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager&
     x2f0_rTriggerPos = 0;
 
     if (const auto& kbm = input.GetKBM()) {
-      zeus::CVector2f mouseCoord = zeus::CVector2f(kbm->m_mouseCoord.norm[0], kbm->m_mouseCoord.norm[1]);
+      zeus::CVector2f mouseCoord = zeus::CVector2f(kbm->m_mouseCoordNorm.x, kbm->m_mouseCoordNorm.y);
       if (!m_lastMouseCoord) {
         m_lastMouseCoord.emplace(mouseCoord);
       } else {
@@ -1081,7 +1081,7 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
     }
   }
 
-  if (input.PZ() || input.PKey('\t') || input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) {
+  if (input.PZ() || input.PKey('\t') || input.PB() || input.PSpecialKey(boo2::Keycode::ESC)) {
     if (x328_ == 0) {
       if (CanLeaveMapScreenInternal(mgr)) {
         LeaveMapScreen(mgr);
@@ -1486,7 +1486,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           colorAlpha *= mapAlpha;
           zeus::CColor color = zeus::skWhite;
           color.a() = colorAlpha;
-          filter.drawVerts(color, verts.data());
+          filter.drawVerts(color, verts);
         }
       }
     }
