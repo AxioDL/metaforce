@@ -75,31 +75,120 @@ public:
   std::string help() const;
   std::string value() const { return m_value; }
 
+  template <typename T>
+  bool toValue(T& value) const { return false; }
   atVec2f toVec2f(bool* isValid = nullptr) const;
-  atVec2d toVec2d(bool* isValie = nullptr) const;
+  template<>
+  bool toValue(atVec2f& value) const {
+    bool isValid = false;
+    value = toVec2f(&isValid);
+    return isValid;
+  }
+  atVec2d toVec2d(bool* isValid = nullptr) const;
+  template<>
+  bool toValue(atVec2d& value) const {
+    bool isValid = false;
+    value = toVec2d(&isValid);
+    return isValid;
+  }
   atVec3f toVec3f(bool* isValid = nullptr) const;
-  atVec3d toVec3d(bool* isValie = nullptr) const;
+  template<>
+  bool toValue(atVec3f& value) const {
+    bool isValid = false;
+    value = toVec3f(&isValid);
+    return isValid;
+  }
+  atVec3d toVec3d(bool* isValid = nullptr) const;
+  template<>
+  bool toValue(atVec3d& value) const {
+    bool isValid = false;
+    value = toVec3d(&isValid);
+    return isValid;
+  }
   atVec4f toVec4f(bool* isValid = nullptr) const;
-  atVec4d toVec4d(bool* isValie = nullptr) const;
+  template<>
+  bool toValue(atVec4f& value) const {
+    bool isValid = false;
+    value = toVec4f(&isValid);
+    return isValid;
+  }
+  atVec4d toVec4d(bool* isValid = nullptr) const;
+  template<>
+  bool toValue(atVec4d& value) const {
+    bool isValid = false;
+    value = toVec4d(&isValid);
+    return isValid;
+  }
   double toReal(bool* isValid = nullptr) const;
+  template<>
+  bool toValue(double& value) const {
+    bool isValid = false;
+    value = toReal(&isValid);
+    return isValid;
+  }
   bool toBoolean(bool* isValid = nullptr) const;
+  template<>
+  bool toValue(bool& value) const {
+    bool isValid = false;
+    value = toBoolean(&isValid);
+    return isValid;
+  }
   int32_t toSigned(bool* isValid = nullptr) const;
+  template<>
+  bool toValue(int32_t& value) const {
+    bool isValid = false;
+    value = toSigned(&isValid);
+    return isValid;
+  }
   uint32_t toUnsigned(bool* isValid = nullptr) const;
+  template<>
+  bool toValue(uint32_t& value) const {
+    bool isValid = false;
+    value = toUnsigned(&isValid);
+    return isValid;
+  }
   std::wstring toWideLiteral(bool* isValid = nullptr) const;
+  template<>
+  bool toValue(std::wstring& value) const {
+    bool isValid = false;
+    value = toWideLiteral(&isValid);
+    return isValid;
+  }
   std::string toLiteral(bool* isValid = nullptr) const;
+  template<>
+  bool toValue(std::string& value) const {
+    bool isValid = false;
+    value = toLiteral(&isValid);
+    return isValid;
+  }
 
+  template <typename T>
+  bool fromValue(T value) {}
   bool fromVec2f(const atVec2f& val);
+  template<> bool fromValue(const atVec2f& val) { return fromVec2f(val); }
   bool fromVec2d(const atVec2d& val);
+  template<> bool fromValue(const atVec2d& val) { return fromVec2d(val); }
   bool fromVec3f(const atVec3f& val);
+  template<> bool fromValue(const atVec3f& val) { return fromVec3f(val); }
   bool fromVec3d(const atVec3d& val);
+  template<> bool fromValue(const atVec3d& val) { return fromVec3d(val); }
   bool fromVec4f(const atVec4f& val);
+  template<> bool fromValue(const atVec4f& val) { return fromVec4f(val); }
   bool fromVec4d(const atVec4d& val);
+  template<> bool fromValue(const atVec4d& val) { return fromVec4d(val); }
   bool fromReal(double val);
+  template<> bool fromValue(float val) { return fromReal(val); }
+  template<> bool fromValue(double val) { return fromReal(val); }
   bool fromBoolean(bool val);
+  template<> bool fromValue(bool val) { return fromBoolean(val); }
   bool fromInteger(int32_t val);
+  template<> bool fromValue(int32_t val) { return fromInteger(val); }
   bool fromInteger(uint32_t val);
+  template<> bool fromValue(uint32_t val) { return fromInteger(val); }
   bool fromLiteral(std::string_view val);
+  template<> bool fromValue(std::string_view val) { return fromLiteral(val); }
   bool fromLiteral(std::wstring_view val);
+  template<> bool fromValue(std::wstring_view val) { return fromLiteral(val); }
   bool fromLiteralToType(std::string_view val);
   bool fromLiteralToType(std::wstring_view val);
 
