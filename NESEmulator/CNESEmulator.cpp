@@ -260,7 +260,7 @@ void CNESEmulator::InitializeEmulator() {
   // mainLoopRuns = nesPAL ? DOTS*ppuCycleTimer : DOTS*ppuCycleTimer;
   // mainLoopPos = mainLoopRuns;
 
-  m_texture = hsh::create_dynamic_texture2d<float>({VISIBLE_DOTS, linesToDraw}, hsh::RGBA8_UNORM, 1);
+  m_texture = hsh::create_dynamic_texture2d({VISIBLE_DOTS, linesToDraw}, hsh::RGBA8_UNORM, 1);
   constexpr TexUVVert verts[4] = {
       {{-1.f, -1.f, 0.f}, {0.f, 1.f}},
       {{-1.f, 1.f, 0.f}, {0.f, 0.f}},
