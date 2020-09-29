@@ -6,63 +6,58 @@
 #include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
+#include "CColoredStripShader.cpp.hshhead"
+
 namespace urde {
+using namespace hsh::pipeline;
 
-static const boo::ObjToken<boo::IShaderPipeline>& SelectPipeline(CColoredStripShader::Mode mode) {
-  switch (mode) {
-  case CColoredStripShader::Mode::Alpha:
-  default:
-    return s_Pipeline;
-  case CColoredStripShader::Mode::Additive:
-    return s_AdditivePipeline;
-  case CColoredStripShader::Mode::FullAdditive:
-    return s_FullAdditivePipeline;
-  case CColoredStripShader::Mode::Subtractive:
-    return s_SubtractivePipeline;
+template <CColoredStripShader::Mode Mode>
+struct CColoredStripShaderColorAttachment : color_attachment<> {};
+template <>
+struct CColoredStripShaderColorAttachment<CColoredStripShader::Mode::Alpha> : BlendAttachment<> {};
+template <>
+struct CColoredStripShaderColorAttachment<CColoredStripShader::Mode::Additive> : AdditiveAttachment<> {};
+// TODO following are wrong
+template <>
+struct CColoredStripShaderColorAttachment<CColoredStripShader::Mode::FullAdditive> : MultiplyAttachment<> {};
+template <>
+struct CColoredStripShaderColorAttachment<CColoredStripShader::Mode::Subtractive> : SubtractAttachment<> {};
+
+template <CColoredStripShader::Mode Mode>
+// TODO typename == hsh bug?
+struct CColoredStripShaderPipeline : pipeline<typename CColoredStripShaderColorAttachment<Mode>::color_attachment,
+                                              depth_compare<hsh::LEqual>, depth_write<false>> {
+  CColoredStripShaderPipeline(hsh::vertex_buffer<CColoredStripShader::Vert> vbo,
+                              hsh::uniform_buffer<CColoredStripShader::Uniform> uniBuf, hsh::texture2d tex) {
+    this->position = uniBuf->m_matrix * hsh::float4(vbo->m_pos, 1.f);
+    this->color_out[0] = vbo->m_color * uniBuf->m_color * tex.sample<float>(vbo->m_uv);
   }
-}
+};
+template struct CColoredStripShaderPipeline<CColoredStripShader::Mode::Alpha>;
+template struct CColoredStripShaderPipeline<CColoredStripShader::Mode::Additive>;
+template struct CColoredStripShaderPipeline<CColoredStripShader::Mode::FullAdditive>;
+template struct CColoredStripShaderPipeline<CColoredStripShader::Mode::Subtractive>;
 
-void CColoredStripShader::BuildResources(boo::IGraphicsDataFactory::Context& ctx, size_t maxVerts, Mode mode,
-                                         boo::ObjToken<boo::ITexture> tex) {
-  m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vert), maxVerts);
-  m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
+CColoredStripShader::CColoredStripShader(size_t maxVerts, Mode mode, hsh::texture2d tex) {
+  m_vbo = hsh::create_dynamic_vertex_buffer<Vert>(maxVerts);
+  m_uniBuf = hsh::create_dynamic_uniform_buffer<Uniform>();
 
-  const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
-  constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
-  std::array<boo::ObjToken<boo::ITexture>, 1> texs;
-  if (tex) {
-    texs[0] = tex;
-  } else {
-    texs[0] = g_Renderer->GetWhiteTexture();
+  if (!tex) {
+    tex = g_Renderer->GetWhiteTexture();
   }
-
-  m_dataBind = ctx.newShaderDataBinding(SelectPipeline(mode), m_vbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
-                                        stages.data(), nullptr, nullptr, texs.size(), texs.data(), nullptr, nullptr);
-}
-
-CColoredStripShader::CColoredStripShader(size_t maxVerts, Mode mode, boo::ObjToken<boo::ITexture> tex) {
-  CGraphics::CommitResources([this, maxVerts, mode, tex](boo::IGraphicsDataFactory::Context& ctx) {
-    BuildResources(ctx, maxVerts, mode, tex);
-    return true;
-  } BooTrace);
-}
-
-CColoredStripShader::CColoredStripShader(boo::IGraphicsDataFactory::Context& ctx, size_t maxVerts, Mode mode,
-                                         boo::ObjToken<boo::ITexture> tex) {
-  BuildResources(ctx, maxVerts, mode, tex);
+  m_dataBind.hsh_bind(CColoredStripShaderPipeline<mode>(m_vbo.get(), m_uniBuf.get(), tex));
 }
 
 void CColoredStripShader::draw(const zeus::CColor& color, size_t numVerts, const Vert* verts) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CColoredStripShader::draw", zeus::skMagenta);
 
-  m_vbo->load(verts, sizeof(Vert) * numVerts);
+  m_vbo.load(hsh::detail::ArrayProxy{verts, numVerts});
 
   m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
   m_uniform.m_color = color;
-  m_uniBuf->load(&m_uniform, sizeof(m_uniform));
+  m_uniBuf.load(m_uniform);
 
-  CGraphics::SetShaderDataBinding(m_dataBind);
-  CGraphics::DrawArray(0, numVerts);
+  m_dataBind.draw(0, numVerts);
 }
 
-}
+} // namespace urde
