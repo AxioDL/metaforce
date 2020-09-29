@@ -131,7 +131,8 @@ CPlayerGun::CPlayerGun(TUniqueId playerId)
 , x678_morph(g_tweakPlayerGun->GetGunTransformTime(), g_tweakPlayerGun->GetHoloHoldTime())
 , x6c8_hologramClipCube(zeus::CVector3f(-0.29329199f, 0.f, -0.2481945f),
                         zeus::CVector3f(0.29329199f, 1.292392f, 0.2481945f))
-, x6e0_rightHandModel(CAnimRes(g_tweakGunRes->xc_rightHand, 0, zeus::CVector3f(3.f), 0, true)) {
+, x6e0_rightHandModel(CAnimRes(g_tweakGunRes->xc_rightHand, 0, zeus::CVector3f(3.f), 0, true))
+, m_aaboxShader(x6c8_hologramClipCube, true) {
   x354_bombFuseTime = g_tweakPlayerGun->GetBombFuseTime();
   x358_bombDropDelayTime = g_tweakPlayerGun->GetBombDropDelayTime();
   x668_aimVerticalSpeed = g_tweakPlayerGun->GetAimVerticalSpeed();
@@ -175,8 +176,6 @@ CPlayerGun::CPlayerGun(TUniqueId playerId)
   x550_camBob.SetPlayerVelocity(zeus::skZero3f);
   x550_camBob.SetBobMagnitude(0.f);
   x550_camBob.SetBobTimeScale(0.f);
-
-  m_aaboxShader.setAABB(x6c8_hologramClipCube);
 }
 
 void CPlayerGun::InitBeamData() {

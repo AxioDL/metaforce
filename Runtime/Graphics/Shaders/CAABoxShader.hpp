@@ -1,15 +1,15 @@
 #pragma once
 
-#include "zeus/CColor.hpp"
-#include "zeus/CMatrix4f.hpp"
+#include "hsh/hsh.h"
 
 namespace zeus {
+class CColor;
 class CAABox;
-}
+} // namespace zeus
 
 namespace urde {
-
 class CAABoxShader {
+public:
   struct Vert {
     hsh::float3 m_pos;
   };
@@ -17,14 +17,15 @@ class CAABoxShader {
     hsh::float4x4 m_xf;
     hsh::float4 m_color;
   };
+
+private:
   hsh::owner<hsh::vertex_buffer<Vert>> m_vbo;
   hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
   hsh::binding m_dataBind;
-  Uniform m_uniform;
+  Uniform m_uniform{};
 
 public:
-  explicit CAABoxShader(bool zOnly = false);
-  void setAABB(const zeus::CAABox& aabb);
+  CAABoxShader(const zeus::CAABox& aabb, bool zOnly = false);
   void draw(const zeus::CColor& color);
 };
 

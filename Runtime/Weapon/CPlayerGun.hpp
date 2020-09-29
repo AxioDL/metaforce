@@ -258,7 +258,7 @@ private:
 
   CTexturedQuadFilter m_screenQuad{EFilterType::Blend, CGraphics::g_SpareTexture.get_color(0),
                                    CTexturedQuadFilter::ZTest::GEqualZWrite};
-  CAABoxShader m_aaboxShader{true};
+  CAABoxShader m_aaboxShader;
 
   void InitBeamData();
   void InitBombData();

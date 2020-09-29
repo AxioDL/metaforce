@@ -17,11 +17,11 @@ CPhazonBeam::CPhazonBeam(CAssetId characterId, EWeaponType type, TUniqueId playe
 , x238_aaBoxScale(zeus::CVector3f(-0.14664599f, 0.f, -0.14909725f) * scale.y(),
                   zeus::CVector3f(0.14664599f, 0.64619601f, 0.14909725f) * scale.y())
 , x250_aaBoxTranslate(zeus::CVector3f(-0.0625f, 0.f, -0.09375f) * scale.y(),
-                      zeus::CVector3f(0.0625f, -0.25f, 0.09375f) * scale.y()) {
+                      zeus::CVector3f(0.0625f, -0.25f, 0.09375f) * scale.y())
+, m_aaboxShaderScale(x238_aaBoxScale, true)
+, m_aaboxShaderTranslate(x250_aaBoxTranslate, true) {
   x21c_phazonVeins = g_SimplePool->GetObj("PhazonVeins");
   x228_phazon2nd1 = g_SimplePool->GetObj("Phazon2nd_1");
-  m_aaboxShaderScale.setAABB(x238_aaBoxScale);
-  m_aaboxShaderTranslate.setAABB(x250_aaBoxTranslate);
 }
 
 void CPhazonBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
