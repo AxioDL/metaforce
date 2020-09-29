@@ -28,18 +28,16 @@ CScriptSound::CScriptSound(TUniqueId uid, std::string_view name, const CEntityIn
 , x114_pan(pan / 64.f - 1.f)
 , x116_(w6)
 , x118_pitch(pitch / 8192.f)
-, x11c_24_playRequested(false)
 , x11c_25_looped(looped)
 , x11c_26_nonEmitter(nonEmitter)
 , x11c_27_autoStart(autoStart)
 , x11c_28_occlusionTest(occlusionTest)
 , x11c_29_acoustics(acoustics)
 , x11c_30_worldSfx(worldSfx)
-, x11c_31_selfFree(false)
-, x11d_24_allowDuplicates(allowDuplicates)
-, x11d_25_processedThisFrame(false) {
-  if (x11c_30_worldSfx && (!x11c_26_nonEmitter || !x11c_25_looped))
+, x11d_24_allowDuplicates(allowDuplicates) {
+  if (x11c_30_worldSfx && (!x11c_26_nonEmitter || !x11c_25_looped)) {
     x11c_30_worldSfx = false;
+  }
 }
 
 void CScriptSound::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -50,16 +48,16 @@ void CScriptSound::PreThink(float dt, CStateManager& mgr) {
   x11d_25_processedThisFrame = false;
 }
 
-static const CMaterialFilter kSolidFilter =
+constexpr CMaterialFilter kSolidFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
 
 float CScriptSound::GetOccludedVolumeAmount(const zeus::CVector3f& pos, const CStateManager& mgr) {
-  zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
-  zeus::CVector3f soundToCam = camXf.origin - pos;
-  float soundToCamMag = soundToCam.magnitude();
-  zeus::CVector3f soundToCamNorm = soundToCam * (1.f / soundToCamMag);
-  zeus::CVector3f thirdEdge = zeus::skUp - soundToCamNorm * soundToCamNorm.dot(zeus::skUp);
-  zeus::CVector3f cross = soundToCamNorm.cross(thirdEdge);
+  const zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+  const zeus::CVector3f soundToCam = camXf.origin - pos;
+  const float soundToCamMag = soundToCam.magnitude();
+  const zeus::CVector3f soundToCamNorm = soundToCam * (1.f / soundToCamMag);
+  const zeus::CVector3f thirdEdge = zeus::skUp - soundToCamNorm * soundToCamNorm.dot(zeus::skUp);
+  const zeus::CVector3f cross = soundToCamNorm.cross(thirdEdge);
   static float kInfluenceAmount = 3.f / soundToCamMag;
   static float kInfluenceIncrement = kInfluenceAmount;
 
@@ -67,12 +65,13 @@ float CScriptSound::GetOccludedVolumeAmount(const zeus::CVector3f& pos, const CS
   int invalCount = 0;
   float f17 = -kInfluenceAmount;
   while (f17 <= kInfluenceAmount) {
-    zeus::CVector3f angledDir = thirdEdge * f17 + soundToCamNorm;
+    const zeus::CVector3f angledDir = thirdEdge * f17 + soundToCamNorm;
     float f16 = -kInfluenceAmount;
     while (f16 <= kInfluenceAmount) {
       if (mgr.RayStaticIntersection(pos, (cross * f16 + angledDir).normalized(), soundToCamMag, kSolidFilter)
-              .IsInvalid())
+              .IsInvalid()) {
         ++invalCount;
+      }
       ++totalCount;
       f16 += kInfluenceIncrement;
     }
@@ -87,8 +86,9 @@ void CScriptSound::Think(float dt, CStateManager& mgr) {
     mgr.FreeScriptObject(GetUniqueId());
   } else if (GetActive()) {
     if (!x11c_25_looped && x11c_27_autoStart && !x11c_24_playRequested && xec_sfxHandle &&
-        !CSfxManager::IsPlaying(xec_sfxHandle))
+        !CSfxManager::IsPlaying(xec_sfxHandle)) {
       mgr.FreeScriptObject(GetUniqueId());
+    }
 
     if (!x11c_26_nonEmitter && xec_sfxHandle) {
       if (xf8_updateTimer <= 0.f) {
@@ -102,17 +102,18 @@ void CScriptSound::Think(float dt, CStateManager& mgr) {
     if (xec_sfxHandle && !x11c_26_nonEmitter && x11c_28_occlusionTest) {
       if (xe8_occUpdateTimer <= 0.f && sFirstInFrame) {
         sFirstInFrame = false;
-        float occVol = GetOccludedVolumeAmount(GetTranslation(), mgr);
-        float newMaxVol = std::max(occVol * x10e_vol, x10c_minVol);
+        const float occVol = GetOccludedVolumeAmount(GetTranslation(), mgr);
+        const float newMaxVol = std::max(occVol * x10e_vol, x10c_minVol);
         if (newMaxVol != xf0_maxVol) {
           xf0_maxVol = newMaxVol;
-          float delta = xf0_maxVol - xf2_maxVolUpd;
+          const float delta = xf0_maxVol - xf2_maxVolUpd;
           xf4_maxVolUpdDelta = delta / 10.5f;
           if (xf4_maxVolUpdDelta == 0.f) {
-            if (xf2_maxVolUpd < xf0_maxVol)
+            if (xf2_maxVolUpd < xf0_maxVol) {
               xf4_maxVolUpdDelta = 1.f / 127.f;
-            else
+            } else {
               xf4_maxVolUpdDelta = -1.f / 127.f;
+            }
           }
         }
         xe8_occUpdateTimer = 0.5f;
@@ -122,10 +123,12 @@ void CScriptSound::Think(float dt, CStateManager& mgr) {
 
       if (xf2_maxVolUpd != xf0_maxVol) {
         xf2_maxVolUpd += xf4_maxVolUpdDelta;
-        if (xf4_maxVolUpdDelta > 0.f && xf2_maxVolUpd > xf0_maxVol)
+        if (xf4_maxVolUpdDelta > 0.f && xf2_maxVolUpd > xf0_maxVol) {
           xf2_maxVolUpd = xf0_maxVol;
-        if (xf4_maxVolUpdDelta < 0.f && xf2_maxVolUpd < xf0_maxVol)
+        }
+        if (xf4_maxVolUpdDelta < 0.f && xf2_maxVolUpd < xf0_maxVol) {
           xf2_maxVolUpd = xf0_maxVol;
+        }
         CSfxManager::UpdateEmitter(xec_sfxHandle, GetTranslation(), zeus::skZero3f, xf2_maxVolUpd);
       }
     }
@@ -138,8 +141,9 @@ void CScriptSound::Think(float dt, CStateManager& mgr) {
       }
     }
 
-    if (x118_pitch != 0.f && xec_sfxHandle)
+    if (x118_pitch != 0.f && xec_sfxHandle) {
       CSfxManager::PitchBend(xec_sfxHandle, x118_pitch);
+    }
   }
 }
 
@@ -148,28 +152,33 @@ void CScriptSound::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
 
   switch (msg) {
   case EScriptObjectMessage::Registered: {
-    if (GetActive() && x11c_27_autoStart)
+    if (GetActive() && x11c_27_autoStart) {
       x11c_24_playRequested = true;
+    }
     x11c_31_selfFree = mgr.GetIsGeneratingObject();
   } break;
   case EScriptObjectMessage::Play: {
-    if (GetActive())
+    if (GetActive()) {
       PlaySound(mgr);
+    }
   } break;
   case EScriptObjectMessage::Stop: {
-    if (GetActive())
+    if (GetActive()) {
       StopSound(mgr);
+    }
   } break;
   case EScriptObjectMessage::Deactivate: {
     StopSound(mgr);
   } break;
   case EScriptObjectMessage::Activate: {
-    if (GetActive())
+    if (GetActive()) {
       x11c_24_playRequested = true;
+    }
   } break;
   case EScriptObjectMessage::Deleted: {
-    if (!x11c_30_worldSfx)
+    if (!x11c_30_worldSfx) {
       StopSound(mgr);
+    }
   } break;
   default:
     break;
@@ -177,29 +186,32 @@ void CScriptSound::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
 }
 
 void CScriptSound::PlaySound(CStateManager& mgr) {
-  if ((x11d_24_allowDuplicates || !xec_sfxHandle || xec_sfxHandle->IsClosed()) && !x11d_25_processedThisFrame) {
-    x11d_25_processedThisFrame = true;
-    if (x11c_26_nonEmitter) {
-      if (!x11c_30_worldSfx || !mgr.GetWorld()->HasGlobalSound(x100_soundId)) {
-        xec_sfxHandle = CSfxManager::SfxStart(x100_soundId, x10e_vol, x114_pan, x11c_29_acoustics, x112_prio,
-                                              x11c_25_looped, x11c_30_worldSfx ? kInvalidAreaId : GetAreaIdAlways());
-        if (x11c_30_worldSfx)
-          mgr.GetWorld()->AddGlobalSound(xec_sfxHandle);
+  if ((!x11d_24_allowDuplicates && xec_sfxHandle && !xec_sfxHandle->IsClosed()) || x11d_25_processedThisFrame) {
+    return;
+  }
+
+  x11d_25_processedThisFrame = true;
+  if (x11c_26_nonEmitter) {
+    if (!x11c_30_worldSfx || !mgr.GetWorld()->HasGlobalSound(x100_soundId)) {
+      xec_sfxHandle = CSfxManager::SfxStart(x100_soundId, x10e_vol, x114_pan, x11c_29_acoustics, x112_prio,
+                                            x11c_25_looped, x11c_30_worldSfx ? kInvalidAreaId : GetAreaIdAlways());
+      if (x11c_30_worldSfx) {
+        mgr.GetWorld()->AddGlobalSound(xec_sfxHandle);
       }
-    } else {
-      float occVol = x11c_28_occlusionTest ? GetOccludedVolumeAmount(GetTranslation(), mgr) : 1.f;
-      xf0_maxVol = xf2_maxVolUpd = x10e_vol * occVol;
-      CAudioSys::C3DEmitterParmData data = {};
-      data.x0_pos = GetTranslation();
-      data.x18_maxDist = x104_maxDist;
-      data.x1c_distComp = x108_distComp;
-      data.x20_flags = 1; // Continuous parameter update
-      data.x24_sfxId = x100_soundId;
-      data.x26_maxVol = xf0_maxVol;
-      data.x27_minVol = x10c_minVol;
-      data.x29_prio = 0x7f;
-      xec_sfxHandle = CSfxManager::AddEmitter(data, x11c_29_acoustics, x112_prio, x11c_25_looped, GetAreaIdAlways());
     }
+  } else {
+    const float occVol = x11c_28_occlusionTest ? GetOccludedVolumeAmount(GetTranslation(), mgr) : 1.f;
+    xf0_maxVol = xf2_maxVolUpd = x10e_vol * occVol;
+    CAudioSys::C3DEmitterParmData data = {};
+    data.x0_pos = GetTranslation();
+    data.x18_maxDist = x104_maxDist;
+    data.x1c_distComp = x108_distComp;
+    data.x20_flags = 1; // Continuous parameter update
+    data.x24_sfxId = x100_soundId;
+    data.x26_maxVol = xf0_maxVol;
+    data.x27_minVol = x10c_minVol;
+    data.x29_prio = 0x7f;
+    xec_sfxHandle = CSfxManager::AddEmitter(data, x11c_29_acoustics, x112_prio, x11c_25_looped, GetAreaIdAlways());
   }
 }
 

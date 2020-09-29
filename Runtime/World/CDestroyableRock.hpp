@@ -17,6 +17,7 @@ class CDestroyableRock : public CAi {
   bool x334_isCold = false;
   bool x335_usePhazonModel = false;
   CHealthInfo x338_healthInfo;
+  bool x340_;
   bool x341_;
 
 public:
@@ -51,7 +52,8 @@ public:
 
   void Think(float dt, CStateManager& mgr) override;
 
-  void Set_x32c(float val) { x32c_thermalMag = val; }
+  float Get_x324() const { return x324_; }
+  void SetThermalMag(float val) { x32c_thermalMag = val; }
   void SetIsCold(bool v) { x334_isCold = v; }
   bool IsUsingPhazonModel() const { return x335_usePhazonModel; }
   void UsePhazonModel() {
@@ -60,6 +62,8 @@ public:
     /* This used to be in the constructor, since we can't store CModelData directly in the class we must set it here */
     GetModelData()->SetSortThermal(true);
   }
+
+  void Set_x340(bool v) { x340_ = v; }
 };
 
 } // namespace urde

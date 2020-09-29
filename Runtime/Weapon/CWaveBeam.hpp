@@ -15,8 +15,8 @@ class CWaveBeam final : public CGunWeapon {
   float x24c_effectTimer = 0.f;
   std::unique_ptr<CParticleElectric> x250_chargeElec;
   std::unique_ptr<CElementGen> x254_chargeFx;
-  bool x258_24_loaded : 1;
-  bool x258_25_effectTimerActive : 1;
+  bool x258_24_loaded : 1 = false;
+  bool x258_25_effectTimerActive : 1 = false;
   void ReInitVariables();
 
 public:

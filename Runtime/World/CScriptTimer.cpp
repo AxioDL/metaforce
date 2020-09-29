@@ -19,8 +19,9 @@ CScriptTimer::CScriptTimer(TUniqueId uid, std::string_view name, const CEntityIn
 void CScriptTimer::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptTimer::Think(float dt, CStateManager& mgr) {
-  if (GetActive() && IsTiming())
+  if (GetActive() && IsTiming()) {
     ApplyTime(dt, mgr);
+  }
 }
 
 void CScriptTimer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
@@ -47,24 +48,32 @@ bool CScriptTimer::IsTiming() const { return x42_isTiming; }
 void CScriptTimer::StartTiming(bool isTiming) { x42_isTiming = isTiming; }
 
 void CScriptTimer::Reset(CStateManager& mgr) {
-  float rDt = mgr.GetActiveRandom()->Float();
+  const float rDt = mgr.GetActiveRandom()->Float();
   x34_time = (x3c_maxRandDelay * rDt) + x38_startTime;
 }
 
 void CScriptTimer::ApplyTime(float dt, CStateManager& mgr) {
-  if (x34_time <= 0.f || !GetActive())
+  if (x34_time <= 0.f || !GetActive()) {
     return;
+  }
 
   x34_time -= dt;
-  if (x34_time <= 0.f) {
-    SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
-
-    x42_isTiming = false;
-    if (x40_loop) {
-      Reset(mgr);
-      if (x41_autoStart)
-        x42_isTiming = true;
-    }
+  if (x34_time > 0.f) {
+    return;
   }
+
+  SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+
+  x42_isTiming = false;
+  if (!x40_loop) {
+    return;
+  }
+
+  Reset(mgr);
+  if (!x41_autoStart) {
+    return;
+  }
+
+  x42_isTiming = true;
 }
 } // namespace urde

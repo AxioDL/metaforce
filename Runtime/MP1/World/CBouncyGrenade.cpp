@@ -22,9 +22,7 @@ CBouncyGrenade::CBouncyGrenade(TUniqueId uid, std::string_view name, const CEnti
 , x2a4_elementGen2(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId2()})))
 , x2a8_elementGen3(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId3()})))
 , x2ac_elementGen4(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId4()})))
-, x2b0_explodePlayerDistance(explodePlayerDistance)
-, x2b4_24_exploded(false)
-, x2b4_25_(false) {
+, x2b0_explodePlayerDistance(explodePlayerDistance) {
   SetMomentumWR({0.f, 0.f, -GravityConstant() * GetMass()});
   SetVelocityWR(velocity * xf.frontVector());
   x2a0_elementGen1->SetParticleEmission(false);
@@ -102,9 +100,13 @@ void CBouncyGrenade::Render(CStateManager& mgr) {
   if (!x2b4_24_exploded) {
     GetModelData()->Render(mgr, GetTransform(), nullptr, {0, 0, 3, zeus::skWhite});
   } else if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
+    CElementGen::SetSubtractBlend(true);
+    CElementGen::SetMoveRedToAlphaBuffer(true);
     CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
     x2a4_elementGen2->Render();
     mgr.SetupFogForArea(GetAreaIdAlways());
+    CElementGen::SetSubtractBlend(false);
+    CElementGen::SetMoveRedToAlphaBuffer(false);
   }
 }
 

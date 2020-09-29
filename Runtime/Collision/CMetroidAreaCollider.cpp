@@ -11,8 +11,8 @@ u32 CMetroidAreaCollider::g_RejectedByClip = 0;
 u32 CMetroidAreaCollider::g_TrianglesProcessed = 0;
 u32 CMetroidAreaCollider::g_DupTrianglesProcessed = 0;
 u16 CMetroidAreaCollider::g_DupPrimitiveCheckCount = 0;
-std::array<u16, 0x5000> CMetroidAreaCollider::g_DupVertexList{};
-std::array<u16, 0xC000> CMetroidAreaCollider::g_DupEdgeList{};
+std::array<u16, 0x2800> CMetroidAreaCollider::g_DupVertexList{};
+std::array<u16, 0x6000> CMetroidAreaCollider::g_DupEdgeList{};
 std::array<u16, 0x4000> CMetroidAreaCollider::g_DupTriangleList{};
 
 CAABoxAreaCache::CAABoxAreaCache(const zeus::CAABox& aabb, const std::array<zeus::CPlane, 6>& pl,
@@ -166,9 +166,7 @@ CMovingAABoxComponents::CMovingAABoxComponents(const zeus::CAABox& aabb, const z
   }
 }
 
-CMetroidAreaCollider::COctreeLeafCache::COctreeLeafCache(const CAreaOctTree& octTree) : x0_octTree(octTree) {
-  x908_24_overflow = false;
-}
+CMetroidAreaCollider::COctreeLeafCache::COctreeLeafCache(const CAreaOctTree& octTree) : x0_octTree(octTree) {}
 
 void CMetroidAreaCollider::COctreeLeafCache::AddLeaf(const CAreaOctTree::Node& node) {
   if (x4_nodeCache.size() == x4_nodeCache.capacity()) {

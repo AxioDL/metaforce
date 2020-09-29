@@ -31,8 +31,6 @@ CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::strin
 , x3f4_playerSteamTxtr(playerSteamTxtr)
 , x3f8_playerHitSfx(playerHitSfx)
 , x3fc_playerIceTxtr(playerIceTxtr)
-, x400_24_active(false)
-, x400_25_particlesActive(false)
 , x400_26_((flameInfo.GetAttributes() & 1) == 0)
 , x400_27_coneCollision((flameInfo.GetAttributes() & 0x2) != 0) {}
 
@@ -40,7 +38,7 @@ void CFlameThrower::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CFlameThrower::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   if (msg == EScriptObjectMessage::Registered) {
-    xe6_27_thermalVisorFlags |= 2;
+    xe6_27_thermalVisorFlags = 2;
     mgr.AddWeaponId(xec_ownerId, xf0_weaponType);
   } else if (msg == EScriptObjectMessage::Deleted) {
     mgr.RemoveWeaponId(xec_ownerId, xf0_weaponType);
@@ -149,7 +147,7 @@ CRayCastResult CFlameThrower::DoCollisionCheck(TUniqueId& idOut, const zeus::CAA
       lookXf.origin = delta * 0.5f + colPoints[i - 1];
       const zeus::COBBox obb(lookXf, {curRadius, delta.magnitude() * 0.5f, curRadius});
 
-      for (const TUniqueId id : nearList) {
+      for (const auto& id : nearList) {
         if (auto* act = static_cast<CActor*>(mgr.ObjectById(id))) {
           const CProjectileTouchResult tres = CanCollideWith(*act, mgr);
           if (tres.GetActorId() == kInvalidUniqueId) {
@@ -229,12 +227,12 @@ void CFlameThrower::Think(float dt, CStateManager& mgr) {
   if (r28 && x34c_flameWarp.IsProcessed()) {
     x318_flameBounds = x34c_flameWarp.CalculateBounds();
     TUniqueId id = kInvalidUniqueId;
-    CRayCastResult res = DoCollisionCheck(id, x318_flameBounds, mgr);
-    if (TCastToPtr<CActor> act = mgr.ObjectById(id)) {
+    const CRayCastResult res = DoCollisionCheck(id, x318_flameBounds, mgr);
+    if (TCastToConstPtr<CActor>(mgr.ObjectById(id))) {
       ApplyDamageToActor(mgr, id, dt);
     } else if (res.IsValid()) {
-      CMaterialFilter useFilter = xf8_filter;
-      CDamageInfo useDInfo = CDamageInfo(x12c_curDamageInfo, dt);
+      const CMaterialFilter useFilter = xf8_filter;
+      const CDamageInfo useDInfo = CDamageInfo(x12c_curDamageInfo, dt);
       mgr.ApplyDamageToWorld(xec_ownerId, *this, res.GetPoint(), useDInfo, useFilter);
     }
   }

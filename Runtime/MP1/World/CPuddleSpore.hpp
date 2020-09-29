@@ -26,18 +26,18 @@ class CPuddleSpore : public CPatterned {
   CCollidableAABox x5a0_;
   u32 x5c8_ = 0;
   u32 x5cc_ = 0;
-  TToken<CGenDescription> x5d0_;
+  TCachedToken<CGenDescription> x5d0_;
   std::vector<std::unique_ptr<CElementGen>> x5dc_elemGens; // originally a vector of CElementGen
   CProjectileInfo x5ec_projectileInfo;
-  bool x614_24 : 1;
-  bool x614_25 : 1;
+  bool x614_24 : 1 = false;
+  bool x614_25 : 1 = false;
 
   bool HitShell(const zeus::CVector3f&) const;
   void KnockPlayer(CStateManager&, float);
   void UpdateBoundingState(const zeus::CAABox&, CStateManager&, float);
 
 public:
-  DEFINE_PATTERNED(PuddleSpore)
+  DEFINE_PATTERNED(PuddleSpore);
 
   CPuddleSpore(TUniqueId, std::string_view, EFlavorType, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                const CPatternedInfo&, EColliderType, CAssetId, float, float, float, float, float,

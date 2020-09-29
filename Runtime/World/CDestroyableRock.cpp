@@ -28,7 +28,12 @@ void CDestroyableRock::PreRender(CStateManager& mgr, const zeus::CFrustum& frust
     if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
       xb4_drawFlags = CModelFlags(0, 0, 1, zeus::skWhite);
     } else {
-      if (x330_.r() >= 1.f && x330_.g() >= 1.f && x330_.b() >= 1.f) {
+      u8 r;
+      u8 g;
+      u8 b;
+      u8 a;
+      x330_.toRGBA8(r, g, b, a);
+      if ((r & g & b) == 0xFF) {
         xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
       } else {
         x330_.a() = 1.f;
@@ -40,13 +45,16 @@ void CDestroyableRock::PreRender(CStateManager& mgr, const zeus::CFrustum& frust
   CActor::PreRender(mgr, frustum);
 }
 void CDestroyableRock::Think(float dt, CStateManager& mgr) {
-  if (!GetActive())
+  if (!GetActive()) {
     return;
+  }
 
   float damageMag = x32c_thermalMag;
   if (x324_ > 0.f) {
-    x324_ = zeus::max(0.f, x324_ - dt);
-    x330_ = zeus::CColor::lerp(zeus::skBlack, zeus::CColor(0.5, 0.f, 0.f, 1.f), x324_);
+    x324_ = std::max(0.f, x324_ - dt);
+    zeus::CColor tmpColor = zeus::CColor(0.5, 0.f, 0.f, 1.f);
+    // TODO: Use skBlack once CModelFlags is properly reverse engineered
+    x330_ = zeus::CColor::lerp(/*zeus::skBlack*/ zeus::skWhite, tmpColor, x324_);
     damageMag = ((x335_usePhazonModel ? 0.5f : 0.25f) * x324_) + damageMag;
   }
   xd0_damageMag = damageMag;

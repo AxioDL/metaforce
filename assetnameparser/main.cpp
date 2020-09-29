@@ -1,8 +1,10 @@
-#include <iostream>
 #include <cstdint>
+#include <iostream>
+#include <memory>
 #include <vector>
+
+#include <logvisor/logvisor.hpp>
 #include "tinyxml2/tinyxml2.h"
-#include "logvisor/logvisor.hpp"
 
 #ifndef _WIN32
 #include <cstdlib>
@@ -23,12 +25,16 @@
 #endif
 #include <Windows.h>
 #include <cwchar>
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
 #if UNICODE
 #define IS_UCS2 1
 #endif
 #endif
 
-static logvisor::Module Log("AssetNameParser");
+namespace {
+logvisor::Module Log("AssetNameParser");
+
 // TODO: Clean this up
 #undef bswap16
 #undef bswap32
@@ -131,45 +137,54 @@ struct SAsset {
 enum class FileLockType { None = 0, Read, Write };
 
 #if IS_UCS2
-typedef wchar_t SystemChar;
-typedef std::wstring SystemString;
+using SystemChar = wchar_t;
+using SystemString = std::wstring;
 #ifndef _SYS_STR
 #define _SYS_STR(val) L##val
 #endif
-typedef struct _stat Sstat;
+using Sstat = struct _stat;
 #else
-typedef char SystemChar;
-typedef std::string SystemString;
+using SystemChar = char;
+using SystemString = std::string;
 #ifndef _SYS_STR
 #define _SYS_STR(val) val
 #endif
-typedef struct stat Sstat;
+using Sstat = struct stat;
 #endif
 
-static FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock = FileLockType::None) {
+struct FILEDeleter {
+  void operator()(FILE* file) const { std::fclose(file); }
+};
+using FILEPtr = std::unique_ptr<FILE, FILEDeleter>;
+
+FILEPtr Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock = FileLockType::None) {
 #if IS_UCS2
-  FILE* fp = _wfopen(path, mode);
-  if (!fp)
+  FILEPtr fp{_wfopen(path, mode)};
+  if (!fp) {
     return nullptr;
+  }
 #else
-  FILE* fp = fopen(path, mode);
-  if (!fp)
+  FILEPtr fp{std::fopen(path, mode)};
+  if (!fp) {
     return nullptr;
+  }
 #endif
 
   if (lock != FileLockType::None) {
 #if _WIN32
     OVERLAPPED ov = {};
-    LockFileEx((HANDLE)(uintptr_t)_fileno(fp), (lock == FileLockType::Write) ? LOCKFILE_EXCLUSIVE_LOCK : 0, 0, 0, 1,
-               &ov);
+    LockFileEx((HANDLE)(uintptr_t)_fileno(fp.get()), (lock == FileLockType::Write) ? LOCKFILE_EXCLUSIVE_LOCK : 0, 0, 0,
+               1, &ov);
 #else
-    if (flock(fileno(fp), ((lock == FileLockType::Write) ? LOCK_EX : LOCK_SH) | LOCK_NB))
-      fprintf(stderr, "flock %s: %s", path, strerror(errno));
+    if (flock(fileno(fp.get()), ((lock == FileLockType::Write) ? LOCK_EX : LOCK_SH) | LOCK_NB)) {
+      std::fprintf(stderr, "flock %s: %s", path, strerror(errno));
+    }
 #endif
   }
 
   return fp;
 }
+} // Anonymous namespace
 
 #if _WIN32
 int wmain(int argc, const wchar_t* argv[])
@@ -189,10 +204,10 @@ int main(int argc, const char* argv[])
 
   tinyxml2::XMLDocument doc;
   std::vector<SAsset> assets;
-  FILE* docF = Fopen(inPath.c_str(), _SYS_STR("rb"));
-  if (!doc.LoadFile(docF)) {
+  FILEPtr docF = Fopen(inPath.c_str(), _SYS_STR("rb"));
+  if (doc.LoadFile(docF.get()) == tinyxml2::XML_SUCCESS) {
     const tinyxml2::XMLElement* elm = doc.RootElement();
-    if (strcmp(elm->Name(), "AssetNameMap")) {
+    if (strcmp(elm->Name(), "AssetNameMap") != 0) {
       Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Invalid database supplied")));
       return 1;
     }
@@ -205,11 +220,11 @@ int main(int argc, const char* argv[])
 
     elm = elm->FirstChildElement("Asset");
 
-    while (elm) {
+    while (elm != nullptr ) {
       const tinyxml2::XMLElement* keyElm = elm->FirstChildElement("Key");
       const tinyxml2::XMLElement* valueElm = elm->FirstChildElement("Value");
 
-      if (!keyElm || !valueElm) {
+      if (keyElm == nullptr || valueElm == nullptr) {
         Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Malformed Asset entry, [Key,Value] required")));
         return 0;
       }
@@ -217,49 +232,49 @@ int main(int argc, const char* argv[])
       const tinyxml2::XMLElement* nameElm = valueElm->FirstChildElement("Name");
       const tinyxml2::XMLElement* dirElm = valueElm->FirstChildElement("Directory");
       const tinyxml2::XMLElement* typeElm = valueElm->FirstChildElement("Type");
+      const tinyxml2::XMLElement* autoGenNameElm = valueElm->FirstChildElement("AutoGenName");
+      const tinyxml2::XMLElement* autoGenDirElm = valueElm->FirstChildElement("AutoGenDir");
 
-      if (!nameElm || !dirElm || !typeElm) {
+      if (nameElm == nullptr || dirElm == nullptr || typeElm == nullptr) {
         Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Malformed Value entry, [Name,Directory,Type] required")));
         return 0;
       }
       assets.emplace_back();
-      SAsset& asset = assets.back();
-      asset.type = typeElm->GetText();
-      asset.id = strtoull(keyElm->GetText(), nullptr, 16);
-      asset.name = nameElm->GetText();
-      asset.dir = dirElm->GetText();
+      bool autoGen = strncasecmp(autoGenNameElm->GetText(), "true", 4) == 0 && strncasecmp(autoGenDirElm->GetText(), "true", 4) == 0;
+      if (!autoGen) {
+        SAsset& asset = assets.back();
+        asset.type = typeElm->GetText();
+        asset.id = strtoull(keyElm->GetText(), nullptr, 16);
+        asset.name = nameElm->GetText();
+        asset.dir = dirElm->GetText();
+      }
       elm = elm->NextSiblingElement("Asset");
     }
 
-    FILE* f = Fopen(outPath.c_str(), _SYS_STR("wb"));
-    if (!f) {
+    FILEPtr f = Fopen(outPath.c_str(), _SYS_STR("wb"));
+    if (f == nullptr) {
       Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to open destination")));
       return 0;
     }
 
     uint32_t assetCount = SBig(uint32_t(assets.size()));
     FourCC sentinel(SBIG('AIDM'));
-    fwrite(&sentinel, 1, 4, f);
-    fwrite(&assetCount, 1, 4, f);
+    fwrite(&sentinel, sizeof(sentinel), 1, f.get());
+    fwrite(&assetCount, sizeof(assetCount), 1, f.get());
     for (const SAsset& asset : assets) {
-      fwrite(&asset.type, 1, 4, f);
+      fwrite(&asset.type, sizeof(asset.type), 1, f.get());
       uint64_t id = SBig(asset.id);
-      fwrite(&id, 1, 8, f);
+      fwrite(&id, sizeof(id), 1, f.get());
       uint32_t tmp = SBig(uint32_t(asset.name.length()));
-      fwrite(&tmp, 1, 4, f);
-      fwrite(asset.name.c_str(), 1, SBig(tmp), f);
+      fwrite(&tmp, sizeof(tmp), 1, f.get());
+      fwrite(asset.name.c_str(), 1, SBig(tmp), f.get());
       tmp = SBig(uint32_t(asset.dir.length()));
-      fwrite(&tmp, 1, 4, f);
-      fwrite(asset.dir.c_str(), 1, SBig(tmp), f);
+      fwrite(&tmp, sizeof(tmp), 1, f.get());
+      fwrite(asset.dir.c_str(), SBig(tmp), 1, f.get());
     }
-    fflush(f);
-    fclose(f);
-    fclose(docF);
+    fflush(f.get());
     return 0;
   }
-
-  if (docF)
-    fclose(docF);
 
   Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("failed to load")));
   return 1;

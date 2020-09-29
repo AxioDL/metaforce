@@ -37,9 +37,7 @@ CPuddleSpore::CPuddleSpore(TUniqueId uid, std::string_view name, EFlavorType fla
 , x594_height(pInfo.GetHeight())
 , x5a0_(CalculateBoundingBox(), GetMaterialList())
 , x5d0_(g_SimplePool->GetObj({SBIG('PART'), glowFx}))
-, x5ec_projectileInfo(weapon, dInfo)
-, x614_24(false)
-, x614_25(false) {
+, x5ec_projectileInfo(weapon, dInfo) {
   x5dc_elemGens.reserve(kEyeCount);
   for (u32 i = 0; i < kEyeCount; ++i)
     x5dc_elemGens.emplace_back(std::make_unique<CElementGen>(x5d0_));
@@ -48,11 +46,10 @@ CPuddleSpore::CPuddleSpore(TUniqueId uid, std::string_view name, EFlavorType fla
 }
 
 zeus::CAABox CPuddleSpore::CalculateBoundingBox() const {
-  return {
-      ((zeus::CVector3f(-x590_halfExtent, -x590_halfExtent, x598_) + x584_bodyOrigin) * 0.5f) +
-          (GetBaseBoundingBox().min * 0.95f),
-      ((zeus::CVector3f(x590_halfExtent, x590_halfExtent, (x594_height * x59c_) + x598_) + x584_bodyOrigin) * 0.5f) +
-          (GetBaseBoundingBox().max * 0.95f)};
+  return {(zeus::CVector3f(-x590_halfExtent, -x590_halfExtent, x598_) + x584_bodyOrigin) * 0.05f +
+              GetBaseBoundingBox().min * 0.95f,
+          (zeus::CVector3f(x590_halfExtent, x590_halfExtent, x594_height * x59c_ + x598_) + x584_bodyOrigin) * 0.05f +
+              GetBaseBoundingBox().max * 0.95f};
 }
 
 void CPuddleSpore::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
@@ -71,7 +68,9 @@ bool CPuddleSpore::HitShell(const zeus::CVector3f& point) const {
   return (distance <= -0.5f || distance >= 0.5f);
 }
 
-void CPuddleSpore::KnockPlayer(CStateManager&, float) {}
+void CPuddleSpore::KnockPlayer(CStateManager& mgr, float arg) {
+  // TODO implement
+}
 
 void CPuddleSpore::UpdateBoundingState(const zeus::CAABox& box, CStateManager& mgr, float dt) {
   SetBoundingBox(box);

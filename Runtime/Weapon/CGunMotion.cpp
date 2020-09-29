@@ -8,7 +8,6 @@ namespace urde {
 
 CGunMotion::CGunMotion(CAssetId ancsId, const zeus::CVector3f& scale)
 : x0_modelData(CAnimRes(ancsId, 0, scale, 0, false), 1), x4c_gunController(x0_modelData) {
-  xb8_24_animPlaying = false;
   LoadAnimations();
 }
 
@@ -82,8 +81,8 @@ void CGunMotion::Update(float dt, CStateManager& mgr) {
     xb8_24_animPlaying = false;
 }
 
-void CGunMotion::Draw(const CStateManager& mgr, const zeus::CTransform& xf) const {
-  CModelFlags flags(0, 0, 3, zeus::skWhite);
+void CGunMotion::Draw(const CStateManager& mgr, const zeus::CTransform& xf) {
+  constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
   x0_modelData.Render(mgr, xf, nullptr, flags);
 }
 

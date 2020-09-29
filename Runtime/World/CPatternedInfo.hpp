@@ -42,7 +42,7 @@ class CPatternedInfo {
   CAssetId xfc_stateMachineId;
   float x100_intoFreezeDur;
   float x104_outofFreezeDur;
-  float x108_;
+  float x108_freezeDur;
 
   u32 x10c_pathfindingIndex;
 
@@ -69,5 +69,6 @@ public:
   const CAnimationParameters& GetAnimationParameters() const { return xec_animParams; }
   u32 GetPathfindingIndex() const { return x10c_pathfindingIndex; }
   bool GetActive() const { return xf8_active; }
+  void SetActive(bool active) { xf8_active = active; }
 };
 } // namespace urde

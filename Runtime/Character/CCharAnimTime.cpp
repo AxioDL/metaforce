@@ -51,7 +51,7 @@ bool CCharAnimTime::operator==(const CCharAnimTime& other) const {
   }
 
   if (other.x4_type == EType::Infinity)
-    return x0_time * other.x0_time < 0.f;
+    return x0_time * other.x0_time > 0.f;
 
   return false;
 }
@@ -107,12 +107,12 @@ bool CCharAnimTime::operator<(const CCharAnimTime& other) const {
 
     if (other.x4_type == EType::NonZero)
       return other.x0_time > 0.f;
-    return other.x0_time < 0.f;
-  } else {
-    if (x4_type == EType::Infinity)
-      return x0_time < 0.f && other.x0_time > 0.f;
-    return x0_time < other.x0_time;
+    return other.x0_time > 0.f; // ?
   }
+
+  if (other.x4_type == EType::Infinity)
+    return x0_time < 0.f && other.x0_time > 0.f;
+  return x0_time < 0.f;
 }
 
 CCharAnimTime& CCharAnimTime::operator*=(const CCharAnimTime& other) {

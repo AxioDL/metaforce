@@ -16,12 +16,12 @@ class CAtomicBeta final : public CPatterned {
   static constexpr u32 kBombCount = 3;
   rstl::reserved_vector<TUniqueId, kBombCount> x568_projectileIds;
   bool x574_beamFired = false;
-  float x578_;
-  float x57c_;
-  float x580_;
-  float x584_;
+  float x578_minSpeed;
+  float x57c_maxSpeed;
+  float x580_speedStep;
+  float x584_currentSpeed;
   CDamageVulnerability x588_frozenDamage;
-  float x5f0_;
+  float x5f0_moveSpeed;
   zeus::CVector3f x5f4_;
   TToken<CElectricDescription> x600_electricWeapon;
   TToken<CWeaponDescription> x608_;
@@ -46,7 +46,7 @@ class CAtomicBeta final : public CPatterned {
   void DestroyEmitter(CSfxHandle&);
 
 public:
-  DEFINE_PATTERNED(AtomicBeta)
+  DEFINE_PATTERNED(AtomicBeta);
   CAtomicBeta(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
               const CActorParameters&, const CPatternedInfo&, CAssetId, CAssetId, const CDamageInfo&, CAssetId, float,
               float, float, const CDamageVulnerability&, float, float, float, s16, s16, s16, float);

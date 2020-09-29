@@ -178,10 +178,10 @@ void CEnvFxManager::CalculateSnowForces(const CVectorFixed8_8& zVec,
 
 void CEnvFxManager::BuildBlockObjectList(rstl::reserved_vector<TUniqueId, 1024>& list, CStateManager& mgr) {
   for (CEntity* ent : mgr.GetAllObjectList()) {
-    TCastToPtr<CScriptTrigger> trig = ent;
+    const TCastToConstPtr<CScriptTrigger> trig = ent;
     if (trig && True(trig->GetTriggerFlags() & ETriggerFlags::BlockEnvironmentalEffects)) {
       list.push_back(ent->GetUniqueId());
-    } else if (TCastToPtr<CScriptWater> water = ent) {
+    } else if (TCastToConstPtr<CScriptWater>(ent)) {
       list.push_back(ent->GetUniqueId());
     }
   }
@@ -206,7 +206,7 @@ void CEnvFxManager::UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, cons
       if (type == EEnvFxType::UnderwaterFlake) {
         grid.x14_block = std::make_pair(true, float(-FLT_MAX));
       } else {
-        CMaterialFilter filter =
+        constexpr auto filter =
             CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid, EMaterialTypes::Trigger},
                                                 {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::SeeThrough});
         zeus::CVector3f pos = xf * zeus::CVector3f((grid.x4_position + grid.xc_extent * 0).toVec2f() / 256.f) +

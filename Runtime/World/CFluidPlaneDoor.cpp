@@ -18,11 +18,10 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneDoor::RenderSetup(const CStateMana
                                                                 bool noNormals) {
   CFluidPlaneShader::RenderSetupInfo out;
 
-  float uvT = mgr.GetFluidPlaneManager()->GetUVT();
+  const float uvT = mgr.GetFluidPlaneManager()->GetUVT();
   CGraphics::SetModelMatrix(xf);
 
-  float fluidUVs[3][2];
-  x4c_uvMotion.CalculateFluidTextureOffset(uvT, fluidUVs);
+  const auto fluidUVs = x4c_uvMotion.CalculateFluidTextureOffset(uvT);
 
   out.texMtxs[0][0][0] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
   out.texMtxs[0][1][1] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
@@ -52,10 +51,10 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneDoor::RenderSetup(const CStateMana
   return out;
 }
 
-/* Used to be part of locked cache
- * These are too big for stack allocation */
-static CFluidPlaneRender::SHFieldSample lc_heights[46][46] = {};
-static u8 lc_flags[9][9] = {};
+// Used to be part of locked cache
+// These are too big for stack allocation
+static CFluidPlane::Heights lc_heights{};
+static CFluidPlane::Flags lc_flags{};
 
 void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb,
                              const zeus::CTransform& xf, const zeus::CTransform& areaXf, bool noNormals,

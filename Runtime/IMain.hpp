@@ -5,12 +5,16 @@
 #include "amuse/amuse.hpp"
 #include "boo2/audiodev/IAudioVoiceEngine.hpp"
 #include "hecl/Runtime.hpp"
+#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
 
 namespace hecl {
 class CVarManager;
 } // namespace hecl
 
 namespace urde {
+using ERegion = DataSpec::ERegion;
+using EGame = DataSpec::EGame;
+
 class CStopwatch;
 enum class EGameplayResult { None, Win, Lose, Playing };
 
@@ -36,5 +40,12 @@ public:
   virtual void SetFlowState(EFlowState) = 0;
   virtual size_t GetExpectedIdSize() const = 0;
   virtual void WarmupShaders() = 0;
+  virtual EGame GetGame() const =0;
+  virtual ERegion GetRegion() const =0;
+  virtual bool IsPAL() const = 0;
+  virtual bool IsJapanese() const = 0;
+  virtual bool IsUSA() const = 0;
+  virtual bool IsTrilogy() const = 0;
+  virtual std::string_view GetVersionString() const=0;
 };
 } // namespace urde

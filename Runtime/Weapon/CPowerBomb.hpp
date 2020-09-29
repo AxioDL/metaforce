@@ -12,8 +12,8 @@ namespace urde {
 class CElementGen;
 
 class CPowerBomb : public CWeapon {
-  bool x158_24_canStartFilter : 1;
-  bool x158_25_filterEnabled : 1;
+  bool x158_24_canStartFilter : 1 = true;
+  bool x158_25_filterEnabled : 1 = false;
   float x15c_curTime = 0.f;
   float x160_curRadius = 0.f;
   float x164_radiusIncrement;

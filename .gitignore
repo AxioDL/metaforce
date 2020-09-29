@@ -4,7 +4,8 @@ version.h
 .DS_Store
 *.autosave
 docs/*
-.idea/dictionaries
-.idea/workspace.xml
-.idea/misc.xml
+.idea/
 Editor/platforms/win/urde.rc
+.vs/
+out/
+cmake-build-*/

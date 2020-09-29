@@ -19,9 +19,7 @@ CAmbientAI::CAmbientAI(TUniqueId uid, std::string_view name, const CEntityInfo& 
 , x2d8_impactRange(impactRange)
 , x2dc_defaultAnim(GetModelData()->GetAnimationData()->GetDefaultAnimation())
 , x2e0_alertAnim(alertAnim)
-, x2e4_impactAnim(impactAnim)
-, x2e8_24_dead(false)
-, x2e8_25_animating(false) {
+, x2e4_impactAnim(impactAnim) {
   GetModelData()->GetAnimationData()->EnableLooping(true);
 }
 
@@ -127,9 +125,10 @@ void CAmbientAI::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
 }
 
 std::optional<zeus::CAABox> CAmbientAI::GetTouchBounds() const {
-  if (GetActive())
+  if (GetActive()) {
     return {GetBoundingBox()};
-  return {};
+  }
+  return std::nullopt;
 }
 
 void CAmbientAI::RandomizePlaybackRate(CStateManager& mgr) {

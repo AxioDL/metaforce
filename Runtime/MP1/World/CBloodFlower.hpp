@@ -45,7 +45,7 @@ class CBloodFlower : public CPatterned {
                                              const CDamageInfo&, TUniqueId);
 
 public:
-  DEFINE_PATTERNED(BloodFlower)
+  DEFINE_PATTERNED(BloodFlower);
 
   CBloodFlower(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                const CPatternedInfo&, CAssetId, CAssetId, const CActorParameters&, CAssetId, const CDamageInfo&,

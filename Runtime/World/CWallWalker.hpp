@@ -15,8 +15,7 @@ public:
   enum class EWalkerType { Parasite = 0, Oculus = 1, Geemer = 2, IceZoomer = 3, Seedling = 4 };
 
 protected:
-  CCollisionSurface x568_alignNormal =
-      CCollisionSurface(zeus::CVector3f(), zeus::skForward, zeus::skRight, -1);
+  CCollisionSurface x568_alignNormal{zeus::CVector3f(), zeus::skForward, zeus::skRight, UINT32_MAX};
   CCollidableSphere x590_colSphere;
   float x5b0_collisionCloseMargin;
   float x5b4_alignAngVel;
@@ -28,12 +27,12 @@ protected:
   s32 x5cc_bendingHackAnim;
   EWalkerType x5d0_walkerType;
   s16 x5d4_thinkCounter = 0;
-  bool x5d6_24_alignToFloor : 1;
-  bool x5d6_25_hasAlignSurface : 1;
-  bool x5d6_26_playerObstructed : 1;
+  bool x5d6_24_alignToFloor : 1 = false;
+  bool x5d6_25_hasAlignSurface : 1 = false;
+  bool x5d6_26_playerObstructed : 1 = false;
   bool x5d6_27_disableMove : 1;
-  bool x5d6_28_addBendingWeight : 1;
-  bool x5d6_29_applyBendingHack : 1;
+  bool x5d6_28_addBendingWeight : 1 = true;
+  bool x5d6_29_applyBendingHack : 1 = false;
   static zeus::CVector3f ProjectVectorToPlane(const zeus::CVector3f& pt, const zeus::CVector3f& plane) {
     return pt - plane * pt.dot(plane);
   }

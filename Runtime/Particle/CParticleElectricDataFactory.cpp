@@ -5,8 +5,6 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
-#include "Runtime/Particle/CGenDescription.hpp"
-#include "Runtime/Particle/CSwooshDescription.hpp"
 
 namespace urde {
 static logvisor::Module Log("urde::CParticleElectricDataFactory");

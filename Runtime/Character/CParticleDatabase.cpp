@@ -10,10 +10,7 @@
 
 namespace urde {
 
-CParticleDatabase::CParticleDatabase() {
-  xb4_24_updatesEnabled = true;
-  xb4_25_anySystemsDrawnWithModel = false;
-}
+CParticleDatabase::CParticleDatabase() = default;
 
 void CParticleDatabase::CacheParticleDesc(const SObjectTag& tag) {}
 
@@ -38,11 +35,11 @@ void CParticleDatabase::CacheParticleDesc(const CCharacterInfo::CParticleResData
   }
 }
 
-void CParticleDatabase::SetModulationColorAllActiveEffectsForParticleDB(
-    const zeus::CColor& color, std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map) {
+void CParticleDatabase::SetModulationColorAllActiveEffectsForParticleDB(const zeus::CColor& color, DrawMap& map) {
   for (auto& e : map) {
-    if (e.second)
+    if (e.second) {
       e.second->SetModulationColor(color);
+    }
   }
 }
 
@@ -55,8 +52,7 @@ void CParticleDatabase::SetModulationColorAllActiveEffects(const zeus::CColor& c
   SetModulationColorAllActiveEffectsForParticleDB(color, xa0_lastDraw);
 }
 
-void CParticleDatabase::SuspendAllActiveEffectsForParticleDB(
-    CStateManager& mgr, std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map) {
+void CParticleDatabase::SuspendAllActiveEffectsForParticleDB(CStateManager& mgr, DrawMap& map) {
   for (auto& e : map) {
     e.second->SetParticleEmission(false, mgr);
   }
@@ -68,8 +64,7 @@ void CParticleDatabase::SuspendAllActiveEffects(CStateManager& stateMgr) {
   SuspendAllActiveEffectsForParticleDB(stateMgr, x64_lastDrawLoop);
 }
 
-void CParticleDatabase::DeleteAllLightsForParticleDB(CStateManager& mgr,
-                                                     std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map) {
+void CParticleDatabase::DeleteAllLightsForParticleDB(CStateManager& mgr, DrawMap& map) {
   for (auto& e : map) {
     e.second->DeleteLight(mgr);
   }
@@ -86,9 +81,7 @@ void CParticleDatabase::DeleteAllLights(CStateManager& mgr) {
 
 void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& pose, const CCharLayoutInfo& charInfo,
                                             const zeus::CTransform& xf, const zeus::CVector3f& scale,
-                                            CStateManager& stateMgr,
-                                            std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map,
-                                            bool deleteIfDone) {
+                                            CStateManager& stateMgr, DrawMap& map, bool deleteIfDone) {
   for (auto it = map.begin(); it != map.end();) {
     CParticleGenInfo& info = *it->second;
     if (info.GetIsActive()) {
@@ -207,37 +200,37 @@ void CParticleDatabase::Update(float dt, const CPoseAsTransforms& pose, const CC
       (x50_firstDrawLoop.size() || x64_lastDrawLoop.size() || x8c_firstDraw.size() || xa0_lastDraw.size());
 }
 
-void CParticleDatabase::RenderParticleGenMap(const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map) {
-  for (auto& e : map) {
+void CParticleDatabase::RenderParticleGenMap(const DrawMap& map) {
+  for (const auto& e : map) {
     e.second->Render();
   }
 }
 
-void CParticleDatabase::RenderParticleGenMapMasked(const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map,
-                                                   int mask, int target) {
-  for (auto& e : map) {
-    if ((e.second->GetFlags() & mask) == target)
-      e.second->Render();
-  }
-}
-
-void CParticleDatabase::AddToRendererClippedParticleGenMap(
-    const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map, const zeus::CFrustum& frustum) {
-  for (auto& e : map) {
-    auto bounds = e.second->GetBounds();
-    if (bounds && frustum.aabbFrustumTest(*bounds))
-      e.second->AddToRenderer();
-  }
-}
-
-void CParticleDatabase::AddToRendererClippedParticleGenMapMasked(
-    const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map, const zeus::CFrustum& frustum, int mask,
-    int target) {
-  for (auto& e : map) {
+void CParticleDatabase::RenderParticleGenMapMasked(const DrawMap& map, int mask, int target) {
+  for (const auto& e : map) {
     if ((e.second->GetFlags() & mask) == target) {
-      auto bounds = e.second->GetBounds();
-      if (bounds && frustum.aabbFrustumTest(*bounds))
+      e.second->Render();
+    }
+  }
+}
+
+void CParticleDatabase::AddToRendererClippedParticleGenMap(const DrawMap& map, const zeus::CFrustum& frustum) {
+  for (const auto& e : map) {
+    const auto bounds = e.second->GetBounds();
+    if (bounds && frustum.aabbFrustumTest(*bounds)) {
+      e.second->AddToRenderer();
+    }
+  }
+}
+
+void CParticleDatabase::AddToRendererClippedParticleGenMapMasked(const DrawMap& map, const zeus::CFrustum& frustum,
+                                                                 int mask, int target) {
+  for (const auto& e : map) {
+    if ((e.second->GetFlags() & mask) == target) {
+      const auto bounds = e.second->GetBounds();
+      if (bounds && frustum.aabbFrustumTest(*bounds)) {
         e.second->AddToRenderer();
+      }
     }
   }
 }
@@ -273,25 +266,30 @@ void CParticleDatabase::AddToRendererClipped(const zeus::CFrustum& frustum) cons
 }
 
 CParticleGenInfo* CParticleDatabase::GetParticleEffect(std::string_view name) const {
-  // TODO: Heterogeneous lookup when C++20 available
-  auto search = x3c_rendererDrawLoop.find(name.data());
-  if (search != x3c_rendererDrawLoop.end())
+  if (const auto search = x3c_rendererDrawLoop.find(name); search != x3c_rendererDrawLoop.cend()) {
     return search->second.get();
-  search = x50_firstDrawLoop.find(name.data());
-  if (search != x50_firstDrawLoop.end())
+  }
+
+  if (const auto search = x50_firstDrawLoop.find(name); search != x50_firstDrawLoop.cend()) {
     return search->second.get();
-  search = x64_lastDrawLoop.find(name.data());
-  if (search != x64_lastDrawLoop.end())
+  }
+
+  if (const auto search = x64_lastDrawLoop.find(name); search != x64_lastDrawLoop.cend()) {
     return search->second.get();
-  search = x78_rendererDraw.find(name.data());
-  if (search != x78_rendererDraw.end())
+  }
+
+  if (const auto search = x78_rendererDraw.find(name); search != x78_rendererDraw.cend()) {
     return search->second.get();
-  search = x8c_firstDraw.find(name.data());
-  if (search != x8c_firstDraw.end())
+  }
+
+  if (const auto search = x8c_firstDraw.find(name); search != x8c_firstDraw.cend()) {
     return search->second.get();
-  search = xa0_lastDraw.find(name.data());
-  if (search != xa0_lastDraw.end())
+  }
+
+  if (const auto search = xa0_lastDraw.find(name); search != xa0_lastDraw.cend()) {
     return search->second.get();
+  }
+
   return nullptr;
 }
 
@@ -424,27 +422,30 @@ void CParticleDatabase::AddParticleEffect(std::string_view name, int flags, cons
 
 void CParticleDatabase::InsertParticleGen(bool oneShot, int flags, std::string_view name,
                                           std::unique_ptr<CParticleGenInfo>&& gen) {
-  std::map<std::string, std::unique_ptr<CParticleGenInfo>>* useMap;
+  DrawMap* useMap;
   if (oneShot) {
-    if (flags & 0x40)
+    if ((flags & 0x40) != 0) {
       useMap = &xa0_lastDraw;
-    else if (flags & 0x20)
+    } else if ((flags & 0x20) != 0) {
       useMap = &x8c_firstDraw;
-    else
+    } else {
       useMap = &x78_rendererDraw;
+    }
   } else {
-    if (flags & 0x40)
+    if ((flags & 0x40) != 0) {
       useMap = &x64_lastDrawLoop;
-    else if (flags & 0x20)
+    } else if ((flags & 0x20) != 0) {
       useMap = &x50_firstDrawLoop;
-    else
+    } else {
       useMap = &x3c_rendererDrawLoop;
+    }
   }
 
-  useMap->insert(std::make_pair(std::string(name), std::move(gen)));
+  useMap->emplace(name, std::move(gen));
 
-  if (flags & 0x60)
+  if ((flags & 0x60) != 0) {
     xb4_25_anySystemsDrawnWithModel = true;
+  }
 }
 
 } // namespace urde

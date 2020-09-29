@@ -66,7 +66,7 @@ struct SObjectTag {
 };
 
 struct TEditorId {
-  u32 id = u32(-1);
+  u32 id = UINT32_MAX;
 
   constexpr TEditorId() noexcept = default;
   constexpr TEditorId(u32 idin) noexcept : id(idin) {}
@@ -83,7 +83,7 @@ struct TEditorId {
 #define kInvalidEditorId TEditorId()
 
 struct TUniqueId {
-  u16 id = u16(-1);
+  u16 id = UINT16_MAX;
 
   constexpr TUniqueId() noexcept = default;
   constexpr TUniqueId(u16 value, u16 version) noexcept : id(value | (version << 10)) {}

@@ -69,9 +69,9 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
     const zeus::CVector2f res(xb8_tex0Tok->GetWidth(), xb8_tex0Tok->GetHeight());
     const zeus::CVector2f tmp = res / x138_tileSize;
     const zeus::CVector2f tmpRecip = x138_tileSize / res;
-    const float x0 = tmpRecip.x() * (frame % int(tmp.x()));
+    const float x0 = tmpRecip.x() * static_cast<float>(frame % static_cast<int>(tmp.x()));
     const float x1 = x0 + tmpRecip.x();
-    const float y0 = tmpRecip.y() * (frame % int(tmp.y()));
+    const float y0 = tmpRecip.y() * static_cast<float>(frame % static_cast<int>(tmp.y()));
     const float y1 = y0 + tmpRecip.y();
     vec.push_back(zeus::CVector2f(x0, y0));
     vec.push_back(zeus::CVector2f(x0, y1));
@@ -90,14 +90,14 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
   }};
 
   if (noBlur) {
-    quad.drawVerts(useColor, verts.data());
+    quad.drawVerts(useColor, verts);
   } else if ((x14c_deResFactor == 0.f && alpha == 1.f) || tex.GetNumMips() == 1) {
-    quad.drawVerts(useColor, verts.data(), 0.f);
+    quad.drawVerts(useColor, verts, 0.f);
   } else {
     const float tmp = (1.f - x14c_deResFactor) * alpha;
     const float tmp3 = 1.f - tmp * tmp * tmp;
-    const float mip = tmp3 * (tex.GetNumMips() - 1);
-    quad.drawVerts(useColor, verts.data(), mip);
+    const float mip = tmp3 * static_cast<float>(tex.GetNumMips() - 1);
+    quad.drawVerts(useColor, verts, mip);
   }
 }
 
@@ -117,11 +117,11 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) {
   // SetZUpdate(xac_drawFlags == EGuiModelDrawFlags::Shadeless || xac_drawFlags == EGuiModelDrawFlags::Opaque);
   float blur0 = 1.f;
   float blur1 = 0.f;
-  int frame0 = x144_frameTimer;
+  const int frame0 = static_cast<int>(x144_frameTimer);
   int frame1 = 0;
   if (x140_interval < 1.f && x140_interval > 0.f) {
     zeus::CVector2f tmp = zeus::CVector2f(xb8_tex0Tok->GetWidth(), xb8_tex0Tok->GetHeight()) / x138_tileSize;
-    frame1 = (frame0 + 1) % int(tmp.x() * tmp.y());
+    frame1 = (frame0 + 1) % static_cast<int>(tmp.x() * tmp.y());
     if (x148_fadeDuration == 0.f)
       blur1 = 1.f;
     else

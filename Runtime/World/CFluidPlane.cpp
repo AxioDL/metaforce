@@ -83,8 +83,7 @@ void CFluidPlane::AddRipple(const CRipple& ripple, const CScriptWater& water, CS
   mgr.GetFluidPlaneManager()->RippleManager().AddRipple(ripple);
 }
 
-void CFluidPlane::RenderStripWithRipples(float curY, const CFluidPlaneRender::SHFieldSample (&heights)[46][46],
-                                         const u8 (&flags)[9][9], int startYDiv,
+void CFluidPlane::RenderStripWithRipples(float curY, const Heights& heights, const Flags& flags, int startYDiv,
                                          const CFluidPlaneRender::SPatchInfo& info,
                                          std::vector<CFluidPlaneShader::Vertex>& vOut,
                                          std::vector<CFluidPlaneShader::PatchVertex>& pvOut) {
@@ -310,8 +309,7 @@ void CFluidPlane::RenderStripWithRipples(float curY, const CFluidPlaneRender::SH
   }
 }
 
-void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info,
-                              const CFluidPlaneRender::SHFieldSample (&heights)[46][46], const u8 (&flags)[9][9],
+void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const Heights& heights, const Flags& flags,
                               bool noRipples, bool flagIs1, std::vector<CFluidPlaneShader::Vertex>& vOut,
                               std::vector<CFluidPlaneShader::PatchVertex>& pvOut) {
   if (noRipples) {

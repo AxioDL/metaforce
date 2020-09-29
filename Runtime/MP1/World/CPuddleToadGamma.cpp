@@ -37,10 +37,7 @@ CPuddleToadGamma::CPuddleToadGamma(TUniqueId uid, std::string_view name, EFlavor
 , x5b4_localShootDir(localShootDir)
 , x5c0_playerShootSpeed(playerShootSpeed)
 , x5c4_shouldAttackWaitTime(shouldAttackWaitTime)
-, x5c8_spotPlayerWaitTime(spotPlayerWaitTime)
-, x5e8_24_playerInside(false)
-, x5e8_25_waitTimerActive(false)
-, x5e8_26_shotPlayer(false) {
+, x5c8_spotPlayerWaitTime(spotPlayerWaitTime) {
   x401_26_disableMove = true;
   x460_knockBackController.SetEnableBurn(false);
   x460_knockBackController.SetEnableLaggedBurnDeath(false);

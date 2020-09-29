@@ -6,7 +6,7 @@ clone_depth: 1
 platform:
   - x64
 
-build_cloud: APOLLO
+build_cloud: AXIODL-BUILDBOT
 image: Windows
 
 build:
@@ -28,23 +28,23 @@ install:
   ############################################################################
   # Install Ninja
   ############################################################################
-  - set NINJA_URL="https://github.com/ninja-build/ninja/releases/download/v1.10.0/ninja-win.zip"
+  - set NINJA_URL=https://github.com/ninja-build/ninja/releases/download/v1.10.0/ninja-win.zip
   - if not exist ninja.zip appveyor DownloadFile %NINJA_URL% -FileName ninja.zip
   - if not exist ninja 7z x ninja.zip -oC:\projects\deps\ninja > nul
 
   ############################################################################
   # Install a recent CMake
   ############################################################################
-  - set CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v3.16.4/cmake-3.16.4-win64-x64.zip"
+  - set CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v3.16.4/cmake-3.16.4-win64-x64.zip
   - if not exist cmake.zip appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
   - if not exist cmake 7z x cmake.zip -oC:\projects\deps\cmake > nul
 
   ############################################################################
   # Install custom LLVM
   ############################################################################
-  - set LLVM_URL="https://axiodl.com/files/LLVM-9.0.1-win64.exe"
-  - if not exist llvm.exe appveyor DownloadFile %LLVM_URL% -FileName llvm.exe
-  - if not exist llvm llvm.exe /S /D=C:\projects\deps\llvm
+  - set LLVM_URL=https://axiodl.com/files/LLVM-10.0.1-win64.exe
+  - if not exist LLVM-10.0.1-win64.exe appveyor DownloadFile %LLVM_URL% -FileName LLVM-10.0.1-win64.exe
+  - if not exist llvm-10.0.1 LLVM-10.0.1-win64.exe /S /D=C:\projects\deps\llvm-10.0.1
 
 before_build:
   # Configure ninja
@@ -54,13 +54,11 @@ before_build:
   - set PATH=C:\projects\deps\cmake\cmake-3.16.4-win64-x64\bin;%PATH%
   - cmake --version
   # Configure LLVM
-  - set PATH=C:\projects\deps\llvm\bin;%PATH%
+  - set PATH=C:\projects\deps\llvm-10.0.1\bin;%PATH%
   - llvm-config --version
   - clang-cl -v
-  - set CC=clang-cl -mrtm
-  - set CXX=clang-cl -mrtm
   # Configure VS
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat" amd64
   # Fetch submodules
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init --recursive
@@ -68,7 +66,7 @@ before_build:
 build_script:
   - mkdir build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DLLVM_ROOT_DIR=C:\projects\deps\llvm -GNinja ..
+  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DLLVM_ROOT_DIR=C:\projects\deps\llvm-10.0.1 -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_LINKER=lld-link -DCMAKE_AR=llvm-ar -DCMAKE_RANLIB=llvm-ranlib -GNinja ..
   - ninja urde
 
 #notifications:

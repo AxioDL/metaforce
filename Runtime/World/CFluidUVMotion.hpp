@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
 
@@ -38,6 +40,8 @@ private:
   float x50_orientation;
 
 public:
+  using FluidOffsets = std::array<std::array<float, 2>, 3>;
+
   CFluidUVMotion(float timeToWrap, float orientation, const SFluidLayerMotion& colorLayer,
                  const SFluidLayerMotion& pattern1Layer, const SFluidLayerMotion& pattern2Layer);
   CFluidUVMotion(float timeToWrap, float orientation);
@@ -45,6 +49,8 @@ public:
   const rstl::reserved_vector<SFluidLayerMotion, 3>& GetFluidLayers() const { return x0_fluidLayers; }
   float GetOrientation() const { return x50_orientation; }
   float GetOOTimeToWrapTexPage() const { return x4c_ooTimeToWrap; }
-  void CalculateFluidTextureOffset(float, float[3][2]) const;
+
+  // In game binaries this uses an out pointer instead of return by value.
+  FluidOffsets CalculateFluidTextureOffset(float t) const;
 };
 } // namespace urde

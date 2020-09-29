@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../../DNACommon/Tweaks/ITweakPlayerRes.hpp"
+#include "DataSpec/DNACommon/Tweaks/ITweakPlayerRes.hpp"
 
 namespace DataSpec::DNAMP1 {
 
-struct CTweakPlayerRes final : ITweakPlayerRes {
+template <bool NewRep>
+struct AT_SPECIALIZE_PARMS(true, false) CTweakPlayerRes final : ITweakPlayerRes {
   AT_DECL_DNA_YAML
 
   String<-1> m_saveStationIcon;
@@ -15,6 +16,9 @@ struct CTweakPlayerRes final : ITweakPlayerRes {
   String<-1> m_minesBreakFirstBottomIcon;
   String<-1> m_minesBreakSecondTopIcon;
   String<-1> m_minesBreakSecondBottomIcon;
+
+  String<AT_DNA_COUNT(NewRep == true ? -1 : 0)> m_mapArrowDown;
+  String<AT_DNA_COUNT(NewRep == true ? -1 : 0)> m_mapArrowUp;
 
   String<-1> m_lStickN;
   String<-1> m_lStickU;

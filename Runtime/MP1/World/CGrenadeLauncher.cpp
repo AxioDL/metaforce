@@ -26,8 +26,8 @@ CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const C
 , x350_grenadeActorParams(actParams)
 , x3e8_thermalMag(actParams.GetThermalMag())
 , x3f8_explodePlayerDistance(f1) {
-  if (data.GetExplosionGenDescId().IsValid()) {
-    x3b8_particleGenDesc = g_SimplePool->GetObj({SBIG('PART'), data.GetExplosionGenDescId()});
+  if (data.GetShootParticleGenDescId().IsValid()) {
+    x3b8_particleGenDesc = g_SimplePool->GetObj({SBIG('PART'), data.GetShootParticleGenDescId()});
   }
   GetModelData()->EnableLooping(true);
   const CPASDatabase& pasDatabase = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();
@@ -92,13 +92,13 @@ void CGrenadeLauncher::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
   case EScriptObjectMessage::Start:
     if (x2cc_parentId == uid && x258_started != 1) {
       x258_started = 1;
-      sub_80230438();
+      UpdateStartAnimation();
     }
     break;
   case EScriptObjectMessage::Stop:
     if (x2cc_parentId == uid && x258_started != 0) {
       x258_started = 0;
-      sub_80230438();
+      UpdateStartAnimation();
     }
     break;
   case EScriptObjectMessage::Action:
@@ -107,7 +107,7 @@ void CGrenadeLauncher::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
     }
     break;
   case EScriptObjectMessage::Registered:
-    sub_80230438();
+    UpdateStartAnimation();
     break;
   case EScriptObjectMessage::Damage:
     x3ec_damageTimer = 0.33f;
@@ -126,13 +126,12 @@ std::optional<zeus::CAABox> CGrenadeLauncher::GetTouchBounds() const {
 }
 
 void CGrenadeLauncher::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
-  if (x3f4_color3.a() == 1.f) {
+  if (x3f4_damageAddColor.a() == 1.f) {
     xb4_drawFlags = CModelFlags{2, 0, 3, zeus::skWhite};
     // Original code redundantly sets a() = 1.f
-    xb4_drawFlags.addColor = x3f4_color3;
+    xb4_drawFlags.addColor = x3f4_damageAddColor;
   } else {
-    xb4_drawFlags = CModelFlags{5, 0, 3, zeus::skWhite};
-    xb4_drawFlags.addColor = x3f4_color3;
+    xb4_drawFlags = CModelFlags{5, 0, 3, x3f4_damageAddColor};
   }
   CActor::PreRender(mgr, frustum);
 }
@@ -152,7 +151,7 @@ void CGrenadeLauncher::Think(float dt, CStateManager& mgr) {
 
     UpdateCollision();
     UpdateColor(dt);
-    sub_8022f9e0(mgr, dt);
+    UpdateFollowPlayer(mgr, dt);
     UpdateDamageTime(dt);
 
     const SAdvancementDeltas& deltas = CActor::UpdateAnimation(dt, mgr, true);
@@ -197,7 +196,8 @@ void CGrenadeLauncher::UpdateDamageTime(float arg) {
     xd0_damageMag = x3e8_thermalMag;
   } else {
     x3ec_damageTimer = std::max(0.f, x3ec_damageTimer - arg);
-    x3f4_color3 = zeus::CColor::lerp(zeus::skBlack, x3f0_color2, std::clamp(x3ec_damageTimer / 0.33f, 0.f, 1.f));
+    x3f4_damageAddColor =
+        zeus::CColor::lerp(zeus::skBlack, x3f0_color2, std::clamp(x3ec_damageTimer / 0.33f, 0.f, 1.f));
     xd0_damageMag = 5.f * x3ec_damageTimer + x3e8_thermalMag;
   }
 }
@@ -209,16 +209,17 @@ void CGrenadeLauncher::CreateExplosion(CStateManager& mgr) {
   mgr.AddObject(new CExplosion(*x3b8_particleGenDesc, mgr.AllocateUniqueId(), true,
                                {GetAreaIdAlways(), CEntity::NullConnectionList}, "Grenade Launcher Explode Fx"sv,
                                GetTransform(), 0, GetModelData()->GetScale(), zeus::skWhite));
-  CSfxManager::SfxStart(x2d0_data.GetExplosionSfx(), 1.f, 1.f, false, 0x7f, false, kInvalidAreaId);
+  CSfxManager::SfxStart(x2d0_data.GetShootSfxId(), 1.f, 1.f, false, 0x7f, false, kInvalidAreaId);
 }
 
-void CGrenadeLauncher::sub_8022f9e0(CStateManager& mgr, float dt) {
+void CGrenadeLauncher::UpdateFollowPlayer(CStateManager& mgr, float dt) {
   CModelData* modelData = GetModelData();
   CAnimData* animData = nullptr;
 
-  if (modelData != nullptr && (animData = modelData->GetAnimationData()) != nullptr && x258_started == 1 && x3fe_) {
+  if (modelData != nullptr && (animData = modelData->GetAnimationData()) != nullptr && x258_started == 1 &&
+      x3fe_followPlayer) {
     const zeus::CVector3f target = mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation();
-    const zeus::CVector3f rot = GetTransform().rotate({target.x(), target.y(), 0.f}); // TODO double check
+    const zeus::CVector3f rot = GetTransform().transposeRotate({target.x(), target.y(), 0.f});
 
     if (rot.canBeNormalized()) {
       constexpr float p36d = zeus::degToRad(36.476f);
@@ -275,11 +276,11 @@ void CGrenadeLauncher::sub_8022f9e0(CStateManager& mgr, float dt) {
   }
 }
 
-void CGrenadeLauncher::sub_80230438() {
+void CGrenadeLauncher::UpdateStartAnimation() {
   CModelData* modelData = GetModelData();
   CAnimData* animData;
-  if (modelData == nullptr || (animData = modelData->GetAnimationData()) == nullptr || x258_started <= -1 ||
-      x258_started >= 2) {
+  if (modelData == nullptr || (animData = modelData->GetAnimationData()) == nullptr || x258_started < 0 ||
+      x258_started > 1) {
     return;
   }
 

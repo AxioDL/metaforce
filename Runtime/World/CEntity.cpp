@@ -12,8 +12,6 @@ CEntity::CEntity(TUniqueId uniqueId, const CEntityInfo& info, bool active, std::
 , x10_name(name)
 , x20_conns(info.GetConnectionList())
 , x30_24_active(active)
-, x30_25_inGraveyard(false)
-, x30_26_scriptingBlocked(false)
 , x30_27_inUse(x4_areaId != kInvalidAreaId) {}
 
 void CEntity::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
@@ -45,8 +43,10 @@ void CEntity::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateM
 }
 
 void CEntity::SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, EScriptObjectMessage skipMsg) {
-  for (const SConnection& conn : x20_conns)
-    if (conn.x0_state == state && conn.x4_msg != skipMsg)
+  for (const SConnection& conn : x20_conns) {
+    if (conn.x0_state == state && conn.x4_msg != skipMsg) {
       stateMgr.SendScriptMsg(x8_uid, conn.x8_objId, conn.x4_msg, state);
+    }
+  }
 }
 } // namespace urde

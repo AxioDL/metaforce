@@ -19,27 +19,28 @@ class CFileDvdRequest : public IDvdRequest {
   std::function<void(u32)> m_callback;
 
 public:
-  ~CFileDvdRequest() override { PostCancelRequest(); }
+  ~CFileDvdRequest() override { CFileDvdRequest::PostCancelRequest(); }
 
   void WaitUntilComplete() override {
     while (!m_complete.load() && !m_cancel.load()) {
-      std::unique_lock<std::mutex> lk(CDvdFile::m_WaitMutex);
+      std::unique_lock lk{CDvdFile::m_WaitMutex};
     }
   }
   bool IsComplete() override { return m_complete.load(); }
   void PostCancelRequest() override {
-    std::unique_lock<std::mutex> waitlk(CDvdFile::m_WaitMutex);
+    std::unique_lock waitlk{CDvdFile::m_WaitMutex};
     m_cancel.store(true);
   }
 
-  EMediaType GetMediaType() const override { return EMediaType::File; }
+  [[nodiscard]] EMediaType GetMediaType() const override { return EMediaType::File; }
 
   CFileDvdRequest(CDvdFile& file, void* buf, u32 len, ESeekOrigin whence, int off, std::function<void(u32)>&& cb)
   : m_reader(file.m_reader), m_buf(buf), m_len(len), m_whence(whence), m_offset(off), m_callback(std::move(cb)) {}
 
   void DoRequest() {
-    if (m_cancel.load())
+    if (m_cancel.load()) {
       return;
+    }
     u32 readLen;
     if (m_whence == ESeekOrigin::Cur && m_offset == 0) {
       readLen = m_reader->readBytesToBuf(m_buf, m_len);
@@ -47,8 +48,9 @@ public:
       m_reader->seek(m_offset, athena::SeekOrigin(m_whence));
       readLen = m_reader->readBytesToBuf(m_buf, m_len);
     }
-    if (m_callback)
+    if (m_callback) {
       m_callback(readLen);
+    }
     m_complete.store(true);
   }
 };
@@ -59,25 +61,27 @@ std::condition_variable CDvdFile::m_WorkerCV;
 std::mutex CDvdFile::m_WaitMutex;
 std::atomic_bool CDvdFile::m_WorkerRun = {false};
 std::vector<std::shared_ptr<IDvdRequest>> CDvdFile::m_RequestQueue;
+
 void CDvdFile::WorkerProc() {
   logvisor::RegisterThreadName("CDvdFile");
   while (m_WorkerRun.load()) {
-    std::unique_lock<std::mutex> lk(CDvdFile::m_WorkerMutex);
-    while (CDvdFile::m_RequestQueue.size()) {
+    std::unique_lock lk{m_WorkerMutex};
+    while (!m_RequestQueue.empty()) {
       std::vector<std::shared_ptr<IDvdRequest>> swapQueue;
-      swapQueue.swap(CDvdFile::m_RequestQueue);
+      swapQueue.swap(m_RequestQueue);
       lk.unlock();
-      std::unique_lock<std::mutex> waitlk(CDvdFile::m_WaitMutex);
+      std::unique_lock waitlk{m_WaitMutex};
       for (std::shared_ptr<IDvdRequest>& req : swapQueue) {
-        CFileDvdRequest& concreteReq = static_cast<CFileDvdRequest&>(*req);
+        auto& concreteReq = static_cast<CFileDvdRequest&>(*req);
         concreteReq.DoRequest();
       }
       waitlk.unlock();
       swapQueue.clear();
       lk.lock();
     }
-    if (!m_WorkerRun.load())
+    if (!m_WorkerRun.load()) {
       break;
+    }
     m_WorkerCV.wait(lk);
   }
 }
@@ -85,7 +89,7 @@ void CDvdFile::WorkerProc() {
 std::shared_ptr<IDvdRequest> CDvdFile::AsyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int off,
                                                      std::function<void(u32)>&& cb) {
   std::shared_ptr<IDvdRequest> ret = std::make_shared<CFileDvdRequest>(*this, buf, len, whence, off, std::move(cb));
-  std::unique_lock<std::mutex> lk(CDvdFile::m_WorkerMutex);
+  std::unique_lock lk{m_WorkerMutex};
   m_RequestQueue.emplace_back(ret);
   lk.unlock();
   m_WorkerCV.notify_one();
@@ -94,12 +98,15 @@ std::shared_ptr<IDvdRequest> CDvdFile::AsyncSeekRead(void* buf, u32 len, ESeekOr
 
 hecl::ProjectPath CDvdFile::ResolvePath(std::string_view path) {
   auto start = path.begin();
-  while (*start == '/') ++start;
+  while (*start == '/') {
+    ++start;
+  }
   std::string lowerChStr(start, path.end());
   std::transform(lowerChStr.begin(), lowerChStr.end(), lowerChStr.begin(), ::tolower);
   auto search = m_caseInsensitiveMap.find(lowerChStr);
-  if (search == m_caseInsensitiveMap.end())
+  if (search == m_caseInsensitiveMap.end()) {
     return {};
+  }
   return hecl::ProjectPath(m_DvdRoot, search->second);
 }
 
@@ -120,19 +127,22 @@ void CDvdFile::RecursiveBuildCaseInsensitiveMap(const hecl::ProjectPath& path, s
 void CDvdFile::Initialize(const hecl::ProjectPath& path) {
   m_DvdRoot = path;
   RecursiveBuildCaseInsensitiveMap(path, path.getAbsolutePathUTF8().length() + 1);
-  if (m_WorkerRun.load())
+  if (m_WorkerRun.load()) {
     return;
+  }
   m_WorkerRun.store(true);
   m_WorkerThread = std::thread(WorkerProc);
 }
 
 void CDvdFile::Shutdown() {
-  if (!m_WorkerRun.load())
+  if (!m_WorkerRun.load()) {
     return;
+  }
   m_WorkerRun.store(false);
   m_WorkerCV.notify_one();
-  if (m_WorkerThread.joinable())
+  if (m_WorkerThread.joinable()) {
     m_WorkerThread.join();
+  }
   m_RequestQueue.clear();
 }
 

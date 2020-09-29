@@ -12,6 +12,9 @@ namespace urde {
 class CFluidUVMotion;
 
 class CFluidPlaneCPU : public CFluidPlane {
+public:
+  using SineTable = std::array<float, 256>;
+
 protected:
   class CTurbulence {
     float x0_speed;
@@ -60,28 +63,22 @@ protected:
   u32 m_maxVertCount;
   bool m_tessellation = false;
 
-  bool m_cachedDoubleLightmapBlend;
-  bool m_cachedAdditive;
+  bool m_cachedDoubleLightmapBlend = false;
+  bool m_cachedAdditive = false;
 
   static bool PrepareRipple(const CRipple& ripple, const CFluidPlaneRender::SPatchInfo& info,
                             CFluidPlaneRender::SRippleInfo& rippleOut);
-  void ApplyTurbulence(float t, CFluidPlaneRender::SHFieldSample (&heights)[46][46], const u8 (&flags)[9][9],
-                       const float sineWave[256], const CFluidPlaneRender::SPatchInfo& info,
-                       const zeus::CVector3f& areaCenter) const;
-  void ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInfo,
-                   CFluidPlaneRender::SHFieldSample (&heights)[46][46], u8 (&flags)[9][9], const float sineWave[256],
-                   const CFluidPlaneRender::SPatchInfo& info) const;
-  void ApplyRipples(const rstl::reserved_vector<CFluidPlaneRender::SRippleInfo, 32>& rippleInfos,
-                    CFluidPlaneRender::SHFieldSample (&heights)[46][46], u8 (&flags)[9][9], const float sineWave[256],
-                    const CFluidPlaneRender::SPatchInfo& info) const;
-  static void UpdatePatchNoNormals(CFluidPlaneRender::SHFieldSample (&heights)[46][46], const u8 (&flags)[9][9],
-                                   const CFluidPlaneRender::SPatchInfo& info);
-  static void UpdatePatchWithNormals(CFluidPlaneRender::SHFieldSample (&heights)[46][46], const u8 (&flags)[9][9],
-                                     const CFluidPlaneRender::SPatchInfo& info);
-  bool UpdatePatch(float time, const CFluidPlaneRender::SPatchInfo& info,
-                   CFluidPlaneRender::SHFieldSample (&heights)[46][46], u8 (&flags)[9][9],
-                   const zeus::CVector3f& areaCenter, const std::optional<CRippleManager>& rippleManager,
-                   int fromX, int toX, int fromY, int toY) const;
+  void ApplyTurbulence(float t, Heights& heights, const Flags& flags, const SineTable& sineWave,
+                       const CFluidPlaneRender::SPatchInfo& info, const zeus::CVector3f& areaCenter) const;
+  void ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInfo, Heights& heights, Flags& flags,
+                   const SineTable& sineWave, const CFluidPlaneRender::SPatchInfo& info) const;
+  void ApplyRipples(const rstl::reserved_vector<CFluidPlaneRender::SRippleInfo, 32>& rippleInfos, Heights& heights,
+                    Flags& flags, const SineTable& sineWave, const CFluidPlaneRender::SPatchInfo& info) const;
+  static void UpdatePatchNoNormals(Heights& heights, const Flags& flags, const CFluidPlaneRender::SPatchInfo& info);
+  static void UpdatePatchWithNormals(Heights& heights, const Flags& flags, const CFluidPlaneRender::SPatchInfo& info);
+  bool UpdatePatch(float time, const CFluidPlaneRender::SPatchInfo& info, Heights& heights, Flags& flags,
+                   const zeus::CVector3f& areaCenter, const std::optional<CRippleManager>& rippleManager, int fromX,
+                   int toX, int fromY, int toY) const;
 
 public:
   CFluidPlaneCPU(CAssetId texPattern1, CAssetId texPattern2, CAssetId texColor, CAssetId bumpMap, CAssetId envMap,
@@ -106,13 +103,13 @@ public:
   float GetSpecularMin() const { return x10c_specularMin; }
   float GetReflectionSize() const { return x118_reflectionSize; }
   float GetBumpScale() const { return xfc_bumpScale; }
-  bool HasBumpMap() const { return xb0_bumpMap.operator bool(); }
+  bool HasBumpMap() const { return xb0_bumpMap.HasReference(); }
   const CTexture& GetBumpMap() const { return *xb0_bumpMap; }
-  bool HasEnvMap() const { return xc0_envMap.operator bool(); }
+  bool HasEnvMap() const { return xc0_envMap.HasReference(); }
   const CTexture& GetEnvMap() const { return *xc0_envMap; }
-  bool HasEnvBumpMap() const { return xd0_envBumpMap.operator bool(); }
+  bool HasEnvBumpMap() const { return xd0_envBumpMap.HasReference(); }
   const CTexture& GetEnvBumpMap() const { return *xd0_envBumpMap; }
-  bool HasLightMap() const { return xe0_lightmap.operator bool(); }
+  bool HasLightMap() const { return xe0_lightmap.HasReference(); }
   const CTexture& GetLightMap() const { return *xe0_lightmap; }
   const zeus::CVector3f& GetBumpLightDir() const { return xf0_bumpLightDir; }
   float GetTileSize() const { return x100_tileSize; }

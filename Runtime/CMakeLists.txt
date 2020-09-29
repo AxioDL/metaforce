@@ -136,7 +136,7 @@ endif()
 endfunction()
 
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-set(RUNTIME_LIBRARIES RetroDataSpec NESEmulator
+set(RUNTIME_LIBRARIES RetroDataSpec AssetNameMapNull NESEmulator
         libjpeg-turbo jbus kabufuda discord-rpc logvisor)
 
 if(MSVC)

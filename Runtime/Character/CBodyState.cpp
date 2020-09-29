@@ -1173,7 +1173,7 @@ void CBSHurled::PlayLandAnimation(CBodyController& bc, CStateManager& mgr) {
   }
 }
 
-bool CBSHurled::ShouldStartStrikeWall(CBodyController& bc) const {
+bool CBSHurled::ShouldStartStrikeWall(const CBodyController& bc) const {
   if (const TCastToConstPtr<CPatterned> ai = bc.GetOwner()) {
     if (ai->MadeSolidCollision()) {
       if (!ai->IsOnGround()) {
@@ -1184,7 +1184,7 @@ bool CBSHurled::ShouldStartStrikeWall(CBodyController& bc) const {
   return false;
 }
 
-bool CBSHurled::ShouldStartLand(float dt, CBodyController& bc) const {
+bool CBSHurled::ShouldStartLand(float dt, const CBodyController& bc) const {
   bool ret = true;
   if (const TCastToConstPtr<CPatterned> ai = bc.GetOwner()) {
     ret = false;
@@ -2014,7 +2014,7 @@ float CBSBiPedLocomotion::UpdateStrafe(float vel, CBodyController& bc, pas::ELoc
         maxComp = i;
       }
     }
-    const int strafeKey = maxComp * 2 + localVec[maxComp] > 0.f ? 0 : 1;
+    const int strafeKey = maxComp * 2 + (localVec[maxComp] > 0.f ? 0 : 1);
     const pas::ELocomotionAnim strafeType = Strafes[strafeKey];
     const float rate = vel * GetLocomotionSpeed(x4_locomotionType, strafeType);
     if (anim != strafeType) {
@@ -2139,7 +2139,7 @@ float CBSNewFlyerLocomotion::UpdateLocomotionAnimation(float dt, float velMag, C
           maxComp = i;
         }
       }
-      const int strafeKey = maxComp * 2 + localVec[maxComp] > 0.f ? 0 : 1;
+      const int strafeKey = maxComp * 2 + (localVec[maxComp] > 0.f ? 0 : 1);
       strafeType = RunStrafes[strafeKey];
     }
 

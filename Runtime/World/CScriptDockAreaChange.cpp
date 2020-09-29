@@ -15,15 +15,17 @@ void CScriptDockAreaChange::Accept(IVisitor& visitor) { visitor.Visit(this); }
 void CScriptDockAreaChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
   if (msg == EScriptObjectMessage::Action && GetActive()) {
     for (SConnection conn : x20_conns) {
-      if (conn.x0_state != EScriptObjectState::Play)
+      if (conn.x0_state != EScriptObjectState::Play) {
         continue;
+      }
 
-      auto search = stateMgr.GetIdListForScript(conn.x8_objId);
+      const auto search = stateMgr.GetIdListForScript(conn.x8_objId);
       for (auto it = search.first; it != search.second; ++it) {
-        TUniqueId id = it->second;
-        TCastToPtr<CScriptDock> dock(stateMgr.ObjectById(id));
-        if (dock)
+        const TUniqueId id = it->second;
+        const TCastToPtr<CScriptDock> dock(stateMgr.ObjectById(id));
+        if (dock) {
           dock->SetDockReference(stateMgr, x34_dockReference);
+        }
       }
     }
 

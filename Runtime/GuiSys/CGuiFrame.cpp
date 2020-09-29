@@ -17,7 +17,7 @@
 namespace urde {
 
 CGuiFrame::CGuiFrame(CAssetId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp)
-: x0_id(id), x8_guiSys(sys), x4c_a(a), x50_b(b), x54_c(c), x58_24_loaded(false) {
+: x0_id(id), x8_guiSys(sys), x4c_a(a), x50_b(b), x54_c(c) {
   x3c_lights.reserve(8);
   m_indexedLights.reserve(8);
   x10_rootWidget = std::make_unique<CGuiWidget>(CGuiWidget::CGuiWidgetParms(
@@ -187,11 +187,14 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp) {
 }
 
 void CGuiFrame::ProcessUserInput(const CFinalInput& input) const {
-  if (input.ControllerIdx() != 0)
+  if (input.ControllerIdx() != 0) {
     return;
-  for (auto& widget : x2c_widgets) {
-    if (widget->GetIsActive())
+  }
+
+  for (const auto& widget : x2c_widgets) {
+    if (widget->GetIsActive()) {
       widget->ProcessUserInput(input);
+    }
   }
 }
 

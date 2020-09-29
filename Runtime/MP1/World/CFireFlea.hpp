@@ -33,11 +33,11 @@ class CFireFlea : public CPatterned {
   CPathFindSearch xd8c_pathFind;
 
   static s32 sLightIdx;
-  zeus::CVector3f FindSafeRoute(CStateManager& mgr, const zeus::CVector3f& forward);
-  bool CheckNearWater(const CStateManager&, const zeus::CVector3f& dir);
+  zeus::CVector3f FindSafeRoute(CStateManager& mgr, const zeus::CVector3f& forward) const;
+  bool CheckNearWater(const CStateManager&, const zeus::CVector3f& dir) const;
 
 public:
-  DEFINE_PATTERNED(FireFlea)
+  DEFINE_PATTERNED(FireFlea);
 
   CFireFlea(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CActorParameters&, const CPatternedInfo&, float);

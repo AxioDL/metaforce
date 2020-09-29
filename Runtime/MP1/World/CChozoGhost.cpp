@@ -99,18 +99,6 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
 , x660_midChance(midChance)
 , x664_24_behaviorEnabled(w1)
 , x664_25_flinch(!w1)
-, x664_26_alert(false)
-, x664_27_onGround(false)
-, x664_28_(false)
-, x664_29_fadedIn(false)
-, x664_30_fadedOut(false)
-, x664_31_(false)
-, x665_24_(true)
-, x665_25_(false)
-, x665_26_shouldSwoosh(false)
-, x665_27_playerInLeashRange(false)
-, x665_28_inRange(false)
-, x665_29_aggressive(false)
 , x680_behaveType(x664_24_behaviorEnabled ? EBehaveType::Attack : EBehaveType::None)
 , x68c_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
                     EBoneTrackingFlags::None) {
@@ -218,8 +206,9 @@ void CChozoGhost::Render(CStateManager& mgr) {
 
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
     CElementGen::SetSubtractBlend(true);
-    CElementGen::g_ParticleSystemInitialized = true;
+    CElementGen::SetMoveRedToAlphaBuffer(true);
     CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
+    GetModelData()->GetAnimationData()->GetParticleDB().RenderSystemsToBeDrawnFirst();
     mgr.SetupFogForArea3XRange(GetAreaIdAlways());
   }
 
@@ -230,7 +219,7 @@ void CChozoGhost::Render(CStateManager& mgr) {
     GetModelData()->GetAnimationData()->GetParticleDB().RenderSystemsToBeDrawnLast();
     mgr.SetupFogForArea(GetAreaIdAlways());
     CElementGen::SetSubtractBlend(false);
-    CElementGen::g_ParticleSystemInitialized = false;
+    CElementGen::SetMoveRedToAlphaBuffer(false);
   }
 }
 
@@ -311,13 +300,15 @@ void CChozoGhost::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
 
 void CChozoGhost::KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const CDamageInfo& info,
                             EKnockBackType type, bool inDeferred, float magnitude) {
-  if (!IsAlive())
+  if (!IsAlive()) {
     x460_knockBackController.SetAvailableState(EKnockBackAnimationState::Hurled, false);
-  else if (!x460_knockBackController.TestAvailableState(EKnockBackAnimationState::KnockBack) &&
-           info.GetWeaponMode().IsCharged())
+  } else if (!x460_knockBackController.TestAvailableState(EKnockBackAnimationState::KnockBack) &&
+             info.GetWeaponMode().IsCharged()) {
     x460_knockBackController.SetAnimationStateRange(EKnockBackAnimationState::Hurled, EKnockBackAnimationState::Fall);
+  }
 
   CPatterned::KnockBack(dir, mgr, info, type, inDeferred, magnitude);
+  x460_knockBackController.SetAnimationStateRange(EKnockBackAnimationState::Flinch, EKnockBackAnimationState::Fall);
   if (!IsAlive()) {
     Stop();
     x150_momentum.zeroOut();
@@ -417,7 +408,7 @@ void CChozoGhost::Deactivate(CStateManager& mgr, EStateMsg msg, float) {
     x32c_animState = EAnimState::Ready;
     x665_24_ = true;
   } else if (msg == EStateMsg::Update) {
-    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerate, 1);
+    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerateNoXf, 1);
     if (x32c_animState == EAnimState::Repeat)
       GetBodyController()->SetLocomotionType(pas::ELocomotionType::Relaxed);
   } else if (msg == EStateMsg::Deactivate) {

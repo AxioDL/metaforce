@@ -4,6 +4,8 @@
 #include "Runtime/World/CAi.hpp"
 
 namespace urde {
+static logvisor::Module Log("urde::CStateMachine");
+
 CStateMachine::CStateMachine(CInputStream& in) {
   CAiTrigger* lastTrig = nullptr;
   u32 stateCount = in.readUint32Big();
@@ -12,7 +14,7 @@ CStateMachine::CStateMachine(CInputStream& in) {
 
   for (u32 i = 0; i < stateCount; ++i) {
     std::string name = in.readString(31, false);
-    CAiStateFunc func = CAi::GetStateFunc(name.c_str());
+    CAiStateFunc func = CAi::GetStateFunc(name);
     x0_states.emplace_back(func, name.c_str());
   }
 
@@ -26,14 +28,14 @@ CStateMachine::CStateMachine(CInputStream& in) {
     x0_states[i].SetTriggers(firstTrig);
     x10_triggers.resize(x10_triggers.size() + x0_states[i].GetNumTriggers());
 
-    for (u32 j = 0; j < x0_states[i].GetNumTriggers(); ++j) {
-      u32 triggerCount = in.readUint32Big();
-      u32 lastTriggerIdx = triggerCount - 1;
+    for (s32 j = 0; j < x0_states[i].GetNumTriggers(); ++j) {
+      const u32 triggerCount = in.readUint32Big();
+      const u32 lastTriggerIdx = triggerCount - 1;
       for (u32 k = 0; k < triggerCount; ++k) {
         std::string name = in.readString(31, false);
-        bool isNot = name.front() == '!';
-        CAiTriggerFunc func = CAi::GetTrigerFunc(isNot ? name.c_str() + 1 : name.c_str());
-        float arg = in.readFloatBig();
+        const bool isNot = name.front() == '!';
+        const CAiTriggerFunc func = CAi::GetTriggerFunc(isNot ? name.c_str() + 1 : name.c_str());
+        const float arg = in.readFloatBig();
         CAiTrigger* newTrig;
         if (k < lastTriggerIdx) {
           newTrig = &x10_triggers.emplace_back();
@@ -75,13 +77,11 @@ void CStateMachineState::Update(CStateManager& mgr, CAi& ai, float delta) {
           trig = trig->GetAnd();
         }
       }
-      if (andPassed && state) {
+      if (andPassed && state != nullptr) {
         x4_state->CallFunc(mgr, ai, EStateMsg::Deactivate, 0.f);
         x4_state = state;
-#ifndef NDEBUG
-        fmt::print(FMT_STRING("{} {} {} - {} {}\n"), ai.GetUniqueId(), ai.GetEditorId(), ai.GetName(),
+        Log.report(logvisor::Info, FMT_STRING("{} {} {} - {} {}"), ai.GetUniqueId(), ai.GetEditorId(), ai.GetName(),
                    state->xc_name, int(state - x0_machine->GetStateVector().data()));
-#endif
         x8_time = 0.f;
         x18_24_codeTrigger = false;
         xc_random = mgr.GetActiveRandom()->Float();

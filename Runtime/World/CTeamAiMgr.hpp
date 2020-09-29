@@ -26,7 +26,8 @@ private:
   zeus::CVector3f x1c_position;
 
 public:
-  CTeamAiRole(TUniqueId ownerId, ETeamAiRole a, ETeamAiRole b, ETeamAiRole c)
+  CTeamAiRole(TUniqueId ownerId, ETeamAiRole a = ETeamAiRole::Invalid, ETeamAiRole b = ETeamAiRole::Invalid,
+              ETeamAiRole c = ETeamAiRole::Invalid)
   : x0_ownerId(ownerId), x4_roleA(a), x8_roleB(b), xc_roleC(c) {}
   TUniqueId GetOwnerId() const { return x0_ownerId; }
   bool HasTeamAiRole() const { return false; }
@@ -103,7 +104,9 @@ public:
   void RemoveRangedAttacker(TUniqueId aiId);
 
   bool HasMeleeAttackers() const { return !x68_meleeAttackers.empty(); }
+  const std::vector<TUniqueId>& GetMeleeAttackers() const { return x68_meleeAttackers; }
   bool HasRangedAttackers() const { return !x78_rangedAttackers.empty(); }
+  const std::vector<TUniqueId>& GetRangedAttackers() const { return x78_rangedAttackers; }
   s32 GetNumRoles() const { return x58_roles.size(); }
   const std::vector<CTeamAiRole>& GetRoles() const { return x58_roles; }
   s32 GetMaxMeleeAttackerCount() const { return x34_data.x10_maxMeleeAttackerCount; }
@@ -114,6 +117,6 @@ public:
   static bool CanAcceptAttacker(EAttackType type, CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId);
   static bool AddAttacker(EAttackType type, CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId);
 
-  static TUniqueId GetTeamAiMgr(CAi& ai, CStateManager& mgr);
+  static TUniqueId GetTeamAiMgr(const CAi& ai, const CStateManager& mgr);
 };
 } // namespace urde

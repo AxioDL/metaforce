@@ -37,9 +37,9 @@ public:
 
 private:
   bool x28_24_buildDepList : 1;
-  bool x28_25_aramFile : 1;
+  bool x28_25_aramFile : 1 = false;
   bool x28_26_worldPak : 1;
-  bool x28_27_stashedInARAM : 1;
+  bool x28_27_stashedInARAM : 1 = false;
   bool m_override : 1;
   enum class EAsyncPhase {
     Warmup = 0,

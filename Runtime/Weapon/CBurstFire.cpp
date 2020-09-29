@@ -9,8 +9,7 @@
 #include <zeus/Math.hpp>
 
 namespace urde {
-CBurstFire::CBurstFire(const SBurst* const* burstDefs, s32 firstBurstCount)
-: x10_firstBurstCounter(firstBurstCount), x14_24_shouldFire(false), x14_25_avoidAccuracy(false) {
+CBurstFire::CBurstFire(const SBurst* const* burstDefs, s32 firstBurstCount) : x10_firstBurstCounter(firstBurstCount) {
   while (*burstDefs) {
     x1c_burstDefs.push_back(*burstDefs);
     ++burstDefs;
@@ -19,18 +18,22 @@ CBurstFire::CBurstFire(const SBurst* const* burstDefs, s32 firstBurstCount)
 
 void CBurstFire::Update(CStateManager& mgr, float dt) {
   x14_24_shouldFire = false;
-  if (x18_curBursts) {
-    x8_timeToNextShot -= dt;
-    if (x8_timeToNextShot < 0.f) {
-      x4_angleIdx += 1;
-      if (x18_curBursts->x4_shotAngles[x4_angleIdx] > 0) {
-        x14_24_shouldFire = true;
-        x8_timeToNextShot = x18_curBursts->x24_timeToNextShot;
-        x8_timeToNextShot += (mgr.GetActiveRandom()->Float() - 0.5f) * x18_curBursts->x28_timeToNextShotVariance;
-      } else {
-        x18_curBursts = nullptr;
-      }
-    }
+  if (!x18_curBursts) {
+    return;
+  }
+
+  x8_timeToNextShot -= dt;
+  if (x8_timeToNextShot >= 0.f) {
+    return;
+  }
+
+  x4_angleIdx += 1;
+  if (x18_curBursts->x4_shotAngles[x4_angleIdx] > 0) {
+    x14_24_shouldFire = true;
+    x8_timeToNextShot = x18_curBursts->x24_timeToNextShot;
+    x8_timeToNextShot += (mgr.GetActiveRandom()->Float() - 0.5f) * x18_curBursts->x28_timeToNextShotVariance;
+  } else {
+    x18_curBursts = nullptr;
   }
 }
 
@@ -67,18 +70,25 @@ void CBurstFire::Start(CStateManager& mgr) {
 }
 
 zeus::CVector3f CBurstFire::GetError(float xMag, float zMag) const {
-  zeus::CVector3f ret;
-  if (x14_24_shouldFire && x18_curBursts) {
-    s32 r0 = x18_curBursts->x4_shotAngles[x4_angleIdx];
-    if (x14_25_avoidAccuracy && (r0 == 4 || r0 == 12))
-      r0 = x4_angleIdx > 0 ? x18_curBursts->x4_shotAngles[x4_angleIdx - 1]
-                           : x18_curBursts->x4_shotAngles[x4_angleIdx + 1];
-    if (r0 > 0) {
-      float angle = r0 * zeus::degToRad(-22.5f);
-      ret.x() = std::cos(angle) * xMag;
-      ret.z() = std::sin(angle) * zMag;
-    }
+  if (!x14_24_shouldFire || !x18_curBursts) {
+    return {};
   }
+
+  s32 r0 = x18_curBursts->x4_shotAngles[x4_angleIdx];
+  if (x14_25_avoidAccuracy && (r0 == 4 || r0 == 12)) {
+    r0 =
+        x4_angleIdx > 0 ? x18_curBursts->x4_shotAngles[x4_angleIdx - 1] : x18_curBursts->x4_shotAngles[x4_angleIdx + 1];
+  }
+
+  if (r0 <= 0) {
+    return {};
+  }
+
+  const float angle = r0 * zeus::degToRad(-22.5f);
+  zeus::CVector3f ret;
+  ret.x() = std::cos(angle) * xMag;
+  ret.z() = std::sin(angle) * zMag;
+
   return ret;
 }
 

@@ -42,9 +42,7 @@ CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& in
 , x5d8_searchPath(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x6bc_spikeData(std::make_unique<CModelData>(CStaticRes(needleId, GetModelData()->GetScale())))
 , x6c0_projectileInfo(weaponId, dInfo1)
-, x6e8_deathDamage(dInfo2)
-, x722_24_renderOnlyClusterA(true)
-, x722_25_curNeedleCluster(false) {
+, x6e8_deathDamage(dInfo2) {
   x6c0_projectileInfo.Token().Lock();
   CreateShadow(false);
   MakeThermalColdAndHot();
@@ -114,7 +112,7 @@ void CSeedling::Render(CStateManager& mgr) {
     flags.x2_flags = 3;
     flags.x4_color = zeus::skWhite;
 
-    for (const std::string_view sv : skNeedleLocators[index]) {
+    for (const auto& sv : skNeedleLocators[index]) {
       x6bc_spikeData->Render(mgr, GetLctrTransform(sv), x90_actorLights.get(), flags);
     }
   }
@@ -210,7 +208,7 @@ bool CSeedling::ShouldAttack(CStateManager& mgr, float) {
 
 void CSeedling::LaunchNeedles(CStateManager& mgr) {
   const auto& needleLocators = skNeedleLocators[size_t(x722_25_curNeedleCluster)];
-  for (const std::string_view needle : needleLocators) {
+  for (const auto& needle : needleLocators) {
     LaunchProjectile(GetLctrTransform(needle), mgr, int(needleLocators.size()), EProjectileAttrib::None, true, {},
                      0xFFFF, false, GetModelData()->GetScale());
   }

@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+# Allow target_link_libraries with targets in other directories
 cmake_policy(SET CMP0079 NEW)
+# Set MSVC runtime library flags from CMAKE_MSVC_RUNTIME_LIBRARY
+cmake_policy(SET CMP0091 NEW)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
 
@@ -88,7 +91,10 @@ if(MSVC)
 
   add_compile_options(
     # Disable exceptions
-    $<$<COMPILE_LANGUAGE:CXX>:/EHsc>
+    $<$<COMPILE_LANGUAGE:CXX>:/EHsc->
+
+    # Disable RTTI
+    $<$<COMPILE_LANGUAGE:CXX>:/GR->
 
     # Enforce various standards compliant behavior.
     $<$<COMPILE_LANGUAGE:CXX>:/permissive->
@@ -102,6 +108,7 @@ if(MSVC)
     # Use latest C++ standard.
     $<$<COMPILE_LANGUAGE:CXX>:/std:c++latest>
   )
+  add_compile_definitions(FMT_EXCEPTIONS=0 _HAS_EXCEPTIONS=0)
 
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # Flags for MSVC (not clang-cl)
@@ -153,6 +160,11 @@ else()
   if (HAS_NO_PLT)
     add_compile_options(-fno-plt)
   endif()
+  check_cxx_compiler_flag(-fno-asynchronous-unwind-tables HAS_NO_ASYNC_UNWIND_TABLES)
+  if (HAS_NO_ASYNC_UNWIND_TABLES)
+    # Binary size reduction
+    add_compile_options(-fno-asynchronous-unwind-tables)
+  endif()
 
   if(URDE_MSAN)
     add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++> -fsanitize=memory
@@ -160,9 +172,15 @@ else()
   endif()
   add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
                       $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
-                      -Wall -Wno-multichar -Werror=implicit-fallthrough -Wno-unknown-warning-option
-                      -Wno-lto-type-mismatch -Wno-unused-variable -Wno-unused-private-field
+                      -Wall -Wno-multichar -Werror=implicit-fallthrough
+                      -Wno-unused-variable -Wno-unused-result
                       -Wno-unused-function -Wno-sign-compare -Wno-unknown-pragmas -Werror)
+  # doesn't work with generator expression in add_compile_options?
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    add_compile_options(-Wno-unknown-warning-option -Wno-unused-private-field)
+  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    add_compile_options(-Wno-lto-type-mismatch)
+  endif()
   add_compile_definitions(FMT_EXCEPTIONS=0)
 
   if(APPLE)
@@ -203,7 +221,7 @@ endif()
 if(USE_LD_LLD)
   execute_process(COMMAND ${CMAKE_C_COMPILER} -fuse-ld=lld -Wl,--version ERROR_QUIET OUTPUT_VARIABLE LD_VERSION)
   if("${LD_VERSION}" MATCHES "LLD")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld -Wl,--build-id=uuid")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
     if(USE_LTO)
       add_compile_options(-flto=thin)
@@ -224,8 +242,8 @@ if(USE_LD_GOLD)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
     if(USE_LTO)
-      add_compile_options(-flto=thin)
-      add_link_options(-flto=thin)
+      add_compile_options(-flto)
+      add_link_options(-flto)
       message(STATUS "GNU gold linker enabled with LTO.")
     else()
       message(STATUS "GNU gold linker enabled.")
@@ -251,7 +269,7 @@ add_subdirectory(nod)
 
 set(HECL_DLPACKAGE ${URDE_DLPACKAGE})
 
-set(DATA_SPEC_LIBS RetroDataSpec)
+set(DATA_SPEC_LIBS RetroDataSpec AssetNameMap)
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */
 namespace DataSpec
@@ -326,7 +344,7 @@ add_subdirectory(visigen)
 add_dependencies(hecl visigen)
 
 if (NOT WINDOWS_STORE AND NOT NX)
-  find_package(Qt5Widgets)
+  find_package(Qt5Widgets PATHS /usr/local/opt/qt)
   if (Qt5Widgets_FOUND)
     message(STATUS "Qt5 found, hecl-gui will be built")
     add_subdirectory(hecl-gui)

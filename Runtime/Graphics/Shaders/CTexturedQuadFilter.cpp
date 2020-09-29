@@ -140,8 +140,6 @@ void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& col
   }
 }
 
-const zeus::CRectangle CTexturedQuadFilter::DefaultRect = {0.f, 0.f, 1.f, 1.f};
-
 template <typename Tex>
 CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, Tex tex) {
   m_vbo = hsh::create_dynamic_vertex_buffer<Vert>(16);

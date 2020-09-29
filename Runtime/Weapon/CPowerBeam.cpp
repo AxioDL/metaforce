@@ -12,8 +12,6 @@ CPowerBeam::CPowerBeam(CAssetId characterId, EWeaponType type, TUniqueId playerI
 : CGunWeapon(characterId, type, playerId, playerMaterial, scale) {
   x21c_shotSmoke = g_SimplePool->GetObj("ShotSmoke");
   x228_power2nd1 = g_SimplePool->GetObj("Power2nd_1");
-  x244_24 = false;
-  x244_25_loaded = false;
 }
 
 void CPowerBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {

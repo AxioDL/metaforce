@@ -1,5 +1,7 @@
 #include "Runtime/Weapon/CPhazonBeam.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CBooRenderer.hpp"
@@ -18,10 +20,6 @@ CPhazonBeam::CPhazonBeam(CAssetId characterId, EWeaponType type, TUniqueId playe
                       zeus::CVector3f(0.0625f, -0.25f, 0.09375f) * scale.y()) {
   x21c_phazonVeins = g_SimplePool->GetObj("PhazonVeins");
   x228_phazon2nd1 = g_SimplePool->GetObj("Phazon2nd_1");
-  x274_24_loaded = false;
-  x274_25_clipWipeActive = true;
-  x274_26_veinsAlphaActive = false;
-  x274_27_phazonVeinsIdx = false;
   m_aaboxShaderScale.setAABB(x238_aaBoxScale);
   m_aaboxShaderTranslate.setAABB(x250_aaBoxTranslate);
 }
@@ -77,8 +75,6 @@ void CPhazonBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr
   CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
 
-static const u16 kSoundId[] = {SFXwpn_fire_phazon_normal, SFXwpn_fire_power_charged};
-
 void CPhazonBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                        CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
   if (chargeState == EChargeState::Normal) {
@@ -95,7 +91,8 @@ void CPhazonBeam::Fire(bool underwater, float dt, EChargeState chargeState, cons
     CGunWeapon::Fire(underwater, dt, chargeState, xf, mgr, homingTarget, chargeFactor1, chargeFactor2);
   }
 
-  NWeaponTypes::play_sfx(kSoundId[int(chargeState)], underwater, false, 0.165f);
+  static constexpr std::array<u16, 2> soundId{SFXwpn_fire_phazon_normal, SFXwpn_fire_power_charged};
+  NWeaponTypes::play_sfx(soundId[size_t(chargeState)], underwater, false, 0.165f);
 }
 
 void CPhazonBeam::Update(float dt, CStateManager& mgr) {

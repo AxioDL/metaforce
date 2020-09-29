@@ -4,8 +4,8 @@ find_library(M_LIB m)
 if(NOT M_LIB)
   unset(M_LIB CACHE)
 endif()
-target_link_libraries(packicons ${PNG_LIB} ${ZLIB_LIBRARIES} ${M_LIB})
-target_include_directories(packicons PRIVATE ${LIBPNG_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
+target_link_libraries(packicons ${PNG_LIBRARIES} ${ZLIB_LIBRARIES} ${M_LIB})
+target_include_directories(packicons PRIVATE ${PNG_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
 ##################
 # Package Export #

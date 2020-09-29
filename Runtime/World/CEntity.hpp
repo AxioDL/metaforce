@@ -22,8 +22,8 @@ protected:
   std::string x10_name;
   std::vector<SConnection> x20_conns;
   bool x30_24_active : 1;
-  bool x30_25_inGraveyard : 1;
-  bool x30_26_scriptingBlocked : 1;
+  bool x30_25_inGraveyard : 1 = false;
+  bool x30_26_scriptingBlocked : 1 = false;
   bool x30_27_inUse : 1;
 
 public:

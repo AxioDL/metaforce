@@ -8,17 +8,17 @@
 namespace urde {
 
 CHudBossEnergyInterface::CHudBossEnergyInterface(CGuiFrame& selHud) {
-  x10_24_visible = false;
   x14_basewidget_bossenergystuff = selHud.FindWidget("basewidget_bossenergystuff");
   x18_energybart01_bossbar = static_cast<CAuiEnergyBarT01*>(selHud.FindWidget("energybart01_bossbar"));
   x1c_textpane_boss = static_cast<CGuiTextPane*>(selHud.FindWidget("textpane_boss"));
 
   x18_energybart01_bossbar->SetCoordFunc(BossEnergyCoordFunc);
   x18_energybart01_bossbar->SetTesselation(0.2f);
-  ITweakGuiColors::VisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(0);
-  x18_energybart01_bossbar->SetFilledColor(barColors.filled);
-  x18_energybart01_bossbar->SetShadowColor(barColors.shadow);
-  x18_energybart01_bossbar->SetEmptyColor(barColors.empty);
+
+  const auto& [filled, empty, shadow] = g_tweakGuiColors->GetVisorEnergyBarColors(0);
+  x18_energybart01_bossbar->SetFilledColor(filled);
+  x18_energybart01_bossbar->SetShadowColor(shadow);
+  x18_energybart01_bossbar->SetEmptyColor(empty);
 }
 
 void CHudBossEnergyInterface::Update(float dt) {

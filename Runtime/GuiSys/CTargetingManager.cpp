@@ -9,8 +9,8 @@ namespace urde {
 
 CTargetingManager::CTargetingManager(const CStateManager& mgr) : x0_targetReticule(mgr) {}
 
-bool CTargetingManager::CheckLoadComplete() {
-  return (x0_targetReticule.CheckLoadComplete() && x21c_orbitPointMarker.CheckLoadComplete());
+bool CTargetingManager::CheckLoadComplete() const {
+  return x0_targetReticule.CheckLoadComplete() && x21c_orbitPointMarker.CheckLoadComplete();
 }
 
 void CTargetingManager::Update(float dt, const CStateManager& stateMgr) {

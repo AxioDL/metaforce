@@ -96,15 +96,13 @@ bool CMVETimeChain::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& 
     return x4_a->GetValue(frame, pVel, pPos);
 }
 
-CMVEBounce::CMVEBounce(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
-                       std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d, bool e)
-: x4_planePoint(std::move(a))
-, x8_planeNormal(std::move(b))
-, xc_friction(std::move(c))
-, x10_restitution(std::move(d))
-, x14_planePrecomputed(false)
-, x15_dieOnPenetrate(e)
-, x24_planeD(0.0) {
+CMVEBounce::CMVEBounce(std::unique_ptr<CVectorElement>&& planePoint, std::unique_ptr<CVectorElement>&& planeNormal,
+                       std::unique_ptr<CRealElement>&& friction, std::unique_ptr<CRealElement>&& restitution, bool e)
+: x4_planePoint(std::move(planePoint))
+, x8_planeNormal(std::move(planeNormal))
+, xc_friction(std::move(friction))
+, x10_restitution(std::move(restitution))
+, x15_dieOnPenetrate(e) {
   if (x4_planePoint && x8_planeNormal && x4_planePoint->IsFastConstant() && x8_planeNormal->IsFastConstant()) {
     /* Precompute Hesse normal form of plane (for penetration testing)
      * https://en.wikipedia.org/wiki/Hesse_normal_form */
@@ -202,17 +200,16 @@ bool CMVEPulse::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos
   int a, b;
   x4_aDuration->GetValue(frame, a);
   x8_bDuration->GetValue(frame, b);
-  int cv = std::max(1, a + b + 1);
+  int cv = a + b + 1;
+  if (cv < 0) {
+    cv = 1;
+  }
 
-  if (b >= 1) {
-    int cv2 = frame % cv;
-    if (cv2 >= a)
-      x10_bVal->GetValue(frame, pVel, pPos);
-    else
-      xc_aVal->GetValue(frame, pVel, pPos);
-  } else
+  if (b < 1 || frame % cv <= a) {
     xc_aVal->GetValue(frame, pVel, pPos);
-
+  } else {
+    x10_bVal->GetValue(frame, pVel, pPos);
+  }
   return false;
 }
 

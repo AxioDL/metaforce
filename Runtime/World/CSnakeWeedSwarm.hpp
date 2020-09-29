@@ -67,9 +67,9 @@ private:
   float x128_distanceBelowGround;
   // u32 x12c_ = 0;
   std::vector<CBoid> x134_boids;
-  bool x140_24_hasGround : 1;
-  bool x140_25_modelAssetDirty : 1;
-  bool x140_26_playerTouching : 1;
+  bool x140_24_hasGround : 1 = false;
+  bool x140_25_modelAssetDirty : 1 = false;
+  bool x140_26_playerTouching : 1 = false;
   zeus::CAABox x144_touchBounds = zeus::skInvertedBox;
   CDamageInfo x15c_damageInfo;
   // x178_ / x19c_: vectors of CSkinnedModel*, not needed
@@ -106,10 +106,11 @@ public:
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
   void Touch(CActor&, CStateManager&) override;
   void Think(float, CStateManager&) override;
+  void HandleRadiusDamage(float radius, CStateManager& mgr, const zeus::CVector3f& pos);
+  float GetWeaponDamageRadius() const { return x100_weaponDamageRadius; }
 
 private:
   void AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which);
-  void HandleRadiusDamage(float radius, CStateManager& mgr, const zeus::CVector3f& pos);
   void FindGround(const CStateManager& mgr);
   zeus::CAABox GetBoidBox() const;
   int GetNumBoidsY() const;

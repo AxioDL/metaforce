@@ -209,6 +209,8 @@ std::unique_ptr<CModVectorElement> CParticleDataFactory::GetModVectorElement(CIn
       a->GetValue(0, af);
       b->GetValue(0, bf);
       c->GetValue(0, cf);
+      // NOTE: 0-00 bug uses the value of a for each element
+      // Other versions unknown
       return std::make_unique<CMVEFastConstant>(af, bf, cf);
     } else {
       return std::make_unique<CMVEConstant>(std::move(a), std::move(b), std::move(c));
@@ -294,8 +296,8 @@ std::unique_ptr<CEmitterElement> CParticleDataFactory::GetEmitterElement(CInputS
     auto e = GetRealElement(in);
     auto f = GetRealElement(in);
     auto g = GetRealElement(in);
-    return std::make_unique<CVEAngleSphere>(std::move(a), std::move(b), std::move(c), std::move(d), std::move(e),
-                                            std::move(f), std::move(g));
+    return std::make_unique<CVEAngleSphere>(std::move(a), std::move(f), std::move(g), std::move(b), std::move(c),
+                                            std::move(d), std::move(e));
   }
   default:
     break;
@@ -660,7 +662,7 @@ std::unique_ptr<CIntElement> CParticleDataFactory::GetIntElement(CInputStream& i
     auto a = GetIntElement(in);
     auto b = GetIntElement(in);
     auto c = GetIntElement(in);
-    return std::make_unique<CIESampleAndHold>(std::move(a), std::move(b), std::move(c));
+    return std::make_unique<CIESampleAndHold>(std::move(c), std::move(a), std::move(b));
   }
   case SBIG('RAND'): {
     auto a = GetIntElement(in);

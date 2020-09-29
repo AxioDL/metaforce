@@ -125,6 +125,16 @@ void CFrontEndUI::SNewFileSelectFrame::FinishedLoading() {
   x20_tablegroup_fileselect = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_fileselect"));
   x24_model_erase = static_cast<CGuiModel*>(x1c_loadedFrame->FindWidget("model_erase"));
   xf8_model_erase_position = x24_model_erase->GetLocalPosition();
+
+  // TODO: Implement language menu
+  auto langPair = FindTextPanePair(x1c_loadedFrame, "textpane_lang");
+  if (langPair.x0_panes[0] != nullptr) {
+    langPair.x0_panes[0]->SetIsSelectable(false);
+    langPair.x0_panes[0]->SetIsVisible(false);
+    langPair.x0_panes[1]->SetIsSelectable(false);
+    langPair.x0_panes[1]->SetIsVisible(false);
+  }
+
   x28_textpane_erase = FindTextPanePair(x1c_loadedFrame, "textpane_erase");
   x38_textpane_gba = FindTextPanePair(x1c_loadedFrame, "textpane_gba");
   x30_textpane_cheats = FindTextPanePair(x1c_loadedFrame, "textpane_cheats");
@@ -134,10 +144,11 @@ void CFrontEndUI::SNewFileSelectFrame::FinishedLoading() {
   x40_tablegroup_popup = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_popup"));
   x44_model_dash7 = static_cast<CGuiModel*>(x1c_loadedFrame->FindWidget("model_dash7"));
   x60_textpane_cancel = static_cast<CGuiTextPane*>(x1c_loadedFrame->FindWidget("textpane_cancel"));
-  FindAndSetPairText(x1c_loadedFrame, "textpane_title", g_MainStringTable->GetString(97));
+  FindAndSetPairText(x1c_loadedFrame, "textpane_title",
+                     g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 97 : 92));
   CGuiTextPane* proceed = static_cast<CGuiTextPane*>(x1c_loadedFrame->FindWidget("textpane_proceed"));
   if (proceed)
-    proceed->TextSupport().SetText(g_MainStringTable->GetString(85));
+    proceed->TextSupport().SetText(g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 85 : 79));
   x40_tablegroup_popup->SetIsVisible(false);
   x40_tablegroup_popup->SetIsActive(false);
   x40_tablegroup_popup->SetVertical(false);
@@ -244,7 +255,7 @@ CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input) {
 
 void CFrontEndUI::SNewFileSelectFrame::Draw() const {
   if (x1c_loadedFrame && x10c_saveReady)
-    x1c_loadedFrame->Draw(CGuiWidgetDrawParms::Default);
+    x1c_loadedFrame->Draw(CGuiWidgetDrawParms::Default());
 }
 
 void CFrontEndUI::SNewFileSelectFrame::HandleActiveChange(CGuiTableGroup* active) {
@@ -284,8 +295,10 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateEraseGamePopup() {
   x8_subMenu = ESubMenu::EraseGamePopup;
   HandleActiveChange(x40_tablegroup_popup);
 
-  x48_textpane_popupadvance.SetPairText(g_MainStringTable->GetString(95));
-  x50_textpane_popupcancel.SetPairText(g_MainStringTable->GetString(38));
+  x48_textpane_popupadvance.SetPairText(
+      g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 95 : 89));
+  x50_textpane_popupcancel.SetPairText(
+      g_MainStringTable->GetString(38)); // This string is unmodified in PAL/NTSCJ/Trilogy
 
   x64_fileSelections[x20_tablegroup_fileselect->GetUserSelection()].x0_base->SetColor(zeus::CColor{1.f, 1.f, 1.f, 0.f});
   x44_model_dash7->SetVisibility(false, ETraversalMode::Children);
@@ -324,19 +337,25 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateNewGamePopup() {
   PlayAdvanceSfx();
 
   if (g_GameState->SystemOptions().GetPlayerBeatNormalMode()) {
-    x48_textpane_popupadvance.SetPairText(g_MainStringTable->GetString(102));
-    x50_textpane_popupcancel.SetPairText(g_MainStringTable->GetString(94));
-    x58_textpane_popupextra.SetPairText(g_MainStringTable->GetString(101));
+    x48_textpane_popupadvance.SetPairText(
+        g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 102 : 96));
+    x50_textpane_popupcancel.SetPairText(
+        g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 94 : 88));
+    x58_textpane_popupextra.SetPairText(
+        g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 101 : 95));
     CGuiWidget* worker = x40_tablegroup_popup->GetWorkerWidget(2);
     worker->SetIsSelectable(true);
     worker->SetVisibility(true, ETraversalMode::Children);
     x44_model_dash7->SetVisibility(true, ETraversalMode::Children);
   } else {
-    x48_textpane_popupadvance.SetPairText(g_MainStringTable->GetString(67));
-    x50_textpane_popupcancel.SetPairText(g_MainStringTable->GetString(94));
+    x48_textpane_popupadvance.SetPairText(
+        g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 67 : 61));
+    x50_textpane_popupcancel.SetPairText(
+        g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 94 : 88));
     x44_model_dash7->SetVisibility(false, ETraversalMode::Children);
   }
-  x60_textpane_cancel->TextSupport().SetText(g_MainStringTable->GetString(82));
+  x60_textpane_cancel->TextSupport().SetText(
+      g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 82 : 76));
 }
 
 void CFrontEndUI::SNewFileSelectFrame::ResetFrame() {
@@ -376,7 +395,8 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateErase() {
     }
   }
 
-  x60_textpane_cancel->TextSupport().SetText(g_MainStringTable->GetString(82));
+  x60_textpane_cancel->TextSupport().SetText(
+      g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 82 : 76));
   HandleActiveChange(x20_tablegroup_fileselect);
 }
 
@@ -396,13 +416,19 @@ void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents() {
     }
   }
 
-  StartTextAnimating(x28_textpane_erase.x0_panes[0], g_MainStringTable->GetString(38), 60.f);
-  StartTextAnimating(x38_textpane_gba.x0_panes[0], g_MainStringTable->GetString(37), 60.f);
-  StartTextAnimating(x30_textpane_cheats.x0_panes[0], g_MainStringTable->GetString(96), 60.f);
+  StartTextAnimating(x28_textpane_erase.x0_panes[0], g_MainStringTable->GetString(38),
+                     60.f); // This string is unmodified in PAL/NTSCJ/Trilogy
+  StartTextAnimating(x38_textpane_gba.x0_panes[0], g_MainStringTable->GetString(37),
+                     60.f); // This string is unmodified in PAL/NTSCJ/Trilogy
+  StartTextAnimating(x30_textpane_cheats.x0_panes[0],
+                     g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 96 : 90), 60.f);
 
-  StartTextAnimating(x28_textpane_erase.x0_panes[1], g_MainStringTable->GetString(38), 60.f);
-  StartTextAnimating(x38_textpane_gba.x0_panes[1], g_MainStringTable->GetString(37), 60.f);
-  StartTextAnimating(x30_textpane_cheats.x0_panes[1], g_MainStringTable->GetString(96), 60.f);
+  StartTextAnimating(x28_textpane_erase.x0_panes[1], g_MainStringTable->GetString(38),
+                     60.f); // This string is unmodified in PAL/NTSCJ/Trilogy
+  StartTextAnimating(x38_textpane_gba.x0_panes[1], g_MainStringTable->GetString(37),
+                     60.f); // This string is unmodified in PAL/NTSCJ/Trilogy
+  StartTextAnimating(x30_textpane_cheats.x0_panes[1],
+                     g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 96 : 90), 60.f);
 
   if (hasSave) {
     x28_textpane_erase.x0_panes[0]->SetIsSelectable(true);
@@ -429,6 +455,27 @@ void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents() {
   HandleActiveChange(x20_tablegroup_fileselect);
 }
 
+std::u16string GetTimeString(const CGameState::GameFileStateInfo* data) {
+  if (data) {
+    auto pt = std::div(data->x0_playTime, 3600);
+#if FE_USE_SECONDS_IN_ELAPSED
+    return fmt::format(FMT_STRING(u"{:02d}:{:02d}:{:02d}"), pt.quot, pt.rem / 60, pt.rem % 60);
+#else
+    return fmt::format(FMT_STRING(u"{:02d}:{:02d}"), pt.quot, pt.rem / 60);
+#endif
+  }
+  if (!g_Main->IsUSA() || g_Main->IsTrilogy())
+    return g_MainStringTable->GetString(53);
+  return g_MainStringTable->GetString(52);
+}
+
+std::u16string GetElapsedString(const CGameState::GameFileStateInfo* data) {
+  if (!g_Main->IsUSA() || g_Main->IsTrilogy())
+    return g_MainStringTable->GetString(data ? 55 : 54);
+
+  return std::u16string(g_MainStringTable->GetString(data ? 54 : 53));
+}
+
 void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
   for (size_t i = 0; i < x64_fileSelections.size(); ++i) {
     SFileMenuOption& option = x64_fileSelections[i];
@@ -448,7 +495,11 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
         case 0:
           // Completion percent
           if (data) {
-            std::u16string fileStr = g_MainStringTable->GetString((data->x20_hardMode ? 106 : 39) + int(i));
+            int strIdx = (data->x20_hardMode ? 106 : 39);
+            if ((!g_Main->IsUSA() || g_Main->IsTrilogy()))
+              strIdx = (strIdx == 106 ? 100 : 40);
+
+            std::u16string fileStr = g_MainStringTable->GetString(strIdx + int(i));
             str = fileStr + fmt::format(FMT_STRING(u"  {:02d}%"), data->x18_itemPercent);
             break;
           }
@@ -464,38 +515,38 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
             }
             break;
           }
-          str = g_MainStringTable->GetString(51);
+          str = g_MainStringTable->GetString(51 + int(!g_Main->IsUSA() || g_Main->IsTrilogy()));
           break;
-#if FE_USE_SECONDS_IN_ELAPSED
-          case 2:
-          // Formatted time
-          if (data) {
-            auto pt = std::div(data->x0_playTime, 3600);
-            str = fmt::format(FMT_STRING(u"{:02d}:{:02d}:{:02d}"), pt.quot, pt.rem / 60, pt.rem % 60);
-            break;
-          }
-          str = g_MainStringTable->GetString(52);
-          break;
-        case 3:
-          // "Elapsed"
-          str = std::u16string(u"    ") + std::u16string(g_MainStringTable->GetString(data ? 54 : 53));
-          break;
-#else
         case 2:
-          // Formatted time
-          if (data) {
-            auto pt = std::div(data->x0_playTime, 3600);
-            str = hecl::Char16Format(L"%02d:%02d", pt.quot, pt.rem / 60);
-            break;
+#if FE_USE_SECONDS_IN_ELAPSED
+          if (!g_Main->IsUSA() || g_Main->IsTrilogy()) {
+            str = GetElapsedString(data);
+          } else {
+            str = GetTimeString(data);
           }
-          str = g_MainStringTable->GetString(52);
-          break;
-
-        case 3:
-          // "Elapsed"
-          str = g_MainStringTable->GetString(data ? 54 : 53);
-          break;
+#else
+          if (!g_Main->IsUSA() || g_Main->IsTrilogy()) {
+            str = GetElapsedString(data);
+          } else {
+            str = GetTimeString(data);
+          }
 #endif
+          break;
+        case 3:
+#if FE_USE_SECONDS_IN_ELAPSED
+          if (!g_Main->IsUSA() || g_Main->IsTrilogy()) {
+            str = GetTimeString(data);
+          } else {
+            str = std::u16string(u"    ") + GetElapsedString(data);
+          }
+#else
+          if (!g_Main->IsUSA() || g_Main->IsTrilogy()) {
+            str = GetTimeString(data);
+          } else {
+            str = std::u16string(u"    ") + GetElapsedString(data);
+          }
+#endif
+          break;
 
         default:
           break;
@@ -620,54 +671,54 @@ void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SetUIText(EUIType tp) {
 
   switch (tp) {
   case EUIType::InsertPak:
-    instructions = 73; // Insert Game Pak
-    no = 82;
-    yes = 83;
+    instructions = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 73 : 67; // Insert Game Pak
+    no = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 82 : 76;
+    yes = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 83 : 77;
     pakoutVisible = true;
     circleGbaVisible = true;
     break;
   case EUIType::ConnectSocket:
-    instructions = 68; // Connect socket
-    no = 82;
-    yes = 83;
+    instructions = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 68 : 62; // Connect socket
+    no = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 82 : 76;
+    yes = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 83 : 77;
     cableVisible = true;
     circleGcVisible = true;
     circleGbaVisible = true;
     break;
   case EUIType::PressStartAndSelect:
-    instructions = 74; // Hold start and select
-    no = 82;
-    yes = 83;
+    instructions = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 74 : 68; // Hold start and select
+    no = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 82 : 76;
+    yes = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 83 : 77;
     cableVisible = true;
     circleStartVisible = true;
     gbaScreenVisible = true;
     break;
   case EUIType::BeginLink:
-    instructions = 75; // Begin link?
-    no = 82;
-    yes = 83;
+    instructions = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 75 : 69; // Begin link?
+    no = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 82 : 76;
+    yes = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 83 : 77;
     cableVisible = true;
     gbaScreenVisible = true;
     break;
   case EUIType::TurnOffGBA:
-    instructions = 76; // Turn off GBA
-    no = 82;
-    yes = 83;
+    instructions = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 76 : 70; // Turn off GBA
+    no = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 82 : 76;
+    yes = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 83 : 77;
     cableVisible = true;
     gbaScreenVisible = true;
     circleStartVisible = true;
     break;
   case EUIType::Linking:
     x4_gbaSupport->StartLink();
-    instructions = 72; // Linking
+    instructions = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 72 : 66; // Linking
     cableVisible = true;
     gbaScreenVisible = true;
     connectVisible = true;
     break;
   case EUIType::LinkFailed:
-    instructions = 69; // Link failed
-    no = 82;
-    yes = 83;
+    instructions = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 69 : 63; // Link failed
+    no = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 82 : 76;
+    yes = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 83 : 77;
     cableVisible = true;
     circleGcVisible = true;
     circleGbaVisible = true;
@@ -675,8 +726,8 @@ void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SetUIText(EUIType tp) {
     gbaScreenVisible = true;
     break;
   case EUIType::LinkCompleteOrLinking:
-    yes = 83;
-    instructions = x40_linkInProgress + 71; // Complete or linking
+    yes = (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 83 : 77;
+    instructions = x40_linkInProgress + (g_Main->IsUSA() && !g_Main->IsTrilogy() ? 71 : 65); // Complete or linking
     cableVisible = true;
     gbaScreenVisible = true;
     break;
@@ -714,8 +765,8 @@ void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SetUIText(EUIType tp) {
   x0_uiType = tp;
 }
 
-CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EAction CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::ProcessUserInput(
-    const CFinalInput& input, bool linkInProgress) {
+CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EAction
+CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::ProcessUserInput(const CFinalInput& input, bool linkInProgress) {
   if (linkInProgress != x40_linkInProgress) {
     x40_linkInProgress = linkInProgress;
     SetUIText(x0_uiType);
@@ -729,9 +780,7 @@ CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EAction CFrontEndUI::SFusionBonus
   case EUIType::LinkFailed:
   case EUIType::LinkCompleteOrLinking:
   case EUIType::TurnOffGBA:
-    if (input.PA() ||
-        input.PKey('\n') ||
-        input.PMouseButton(boo2::MouseButton::Primary)) {
+    if (input.PA() || input.PKey('\n') || input.PMouseButton(boo2::MouseButton::Primary)) {
       PlayAdvanceSfx();
       SetUIText(NextLinkUI[size_t(x0_uiType)]);
     } else if (input.PB() || input.PSpecialKey(boo2::Keycode::ESC)) {
@@ -795,7 +844,7 @@ void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::FinishedLoading() {
   SetUIText(EUIType::InsertPak);
 }
 
-void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::Draw() { x8_frme->Draw(CGuiWidgetDrawParms::Default); }
+void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::Draw() { x8_frme->Draw(CGuiWidgetDrawParms::Default()); }
 
 CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SGBALinkFrame(CGuiFrame* linkFrame, CGBASupport* support,
                                                              bool linkInProgress)
@@ -811,18 +860,23 @@ void CFrontEndUI::SFusionBonusFrame::FinishedLoading() {
   x2c_tablegroup_fusionsuit = static_cast<CGuiTableGroup*>(x24_loadedFrame->FindWidget("tablegroup_fusionsuit"));
   x30_textpane_instructions = FindTextPanePair(x24_loadedFrame, "textpane_instructions");
 
-  FindAndSetPairText(x24_loadedFrame, "textpane_nes", g_MainStringTable->GetString(66));
-  FindAndSetPairText(x24_loadedFrame, "textpane_fusionsuit", g_MainStringTable->GetString(63));
-  FindAndSetPairText(x24_loadedFrame, "textpane_fusionsuitno", g_MainStringTable->GetString(65));
-  FindAndSetPairText(x24_loadedFrame, "textpane_fusionsuityes", g_MainStringTable->GetString(64));
-  FindAndSetPairText(x24_loadedFrame, "textpane_title", g_MainStringTable->GetString(100));
+  FindAndSetPairText(x24_loadedFrame, "textpane_nes",
+                     g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 66 : 60));
+  FindAndSetPairText(x24_loadedFrame, "textpane_fusionsuit",
+                     g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 63 : 57));
+  FindAndSetPairText(x24_loadedFrame, "textpane_fusionsuitno",
+                     g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 65 : 59));
+  FindAndSetPairText(x24_loadedFrame, "textpane_fusionsuityes",
+                     g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 64 : 58));
+  FindAndSetPairText(x24_loadedFrame, "textpane_title",
+                     g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 100 : 94));
 
   static_cast<CGuiTextPane*>(x24_loadedFrame->FindWidget("textpane_proceed"))
       ->TextSupport()
-      .SetText(g_MainStringTable->GetString(85));
+      .SetText(g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 85 : 79));
   static_cast<CGuiTextPane*>(x24_loadedFrame->FindWidget("textpane_cancel"))
       ->TextSupport()
-      .SetText(g_MainStringTable->GetString(82));
+      .SetText(g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 82 : 76));
 
   x2c_tablegroup_fusionsuit->SetIsActive(false);
   x2c_tablegroup_fusionsuit->SetIsVisible(false);
@@ -886,22 +940,26 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI) {
   if (x28_tablegroup_options->GetUserSelection() == 1) {
     /* Fusion Suit */
     if (x3a_mpNotComplete)
-      instructionStr = g_MainStringTable->GetString(80); // MP not complete
+      instructionStr =
+          g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 80 : 74); // MP not complete
     else if (!showFusionSuit)
-      instructionStr = g_MainStringTable->GetString(78); // To enable fusion suit
+      instructionStr =
+          g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 78 : 72); // To enable fusion suit
   } else {
     /* NES Metroid */
     if (x39_fusionNotComplete)
-      instructionStr = g_MainStringTable->GetString(79); // You have not completed fusion
+      instructionStr = g_MainStringTable->GetString(
+          (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 79 : 73); // You have not completed fusion
     else if (!g_GameState->SystemOptions().GetPlayerBeatFusion())
-      instructionStr = g_MainStringTable->GetString(77); // To play NES Metroid
+      instructionStr =
+          g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 77 : 71); // To play NES Metroid
   }
 
   x30_textpane_instructions.SetPairText(instructionStr);
 }
 
-CFrontEndUI::SFusionBonusFrame::EAction CFrontEndUI::SFusionBonusFrame::ProcessUserInput(
-    const CFinalInput& input, CSaveGameScreen* sui) {
+CFrontEndUI::SFusionBonusFrame::EAction
+CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSaveGameScreen* sui) {
   x8_action = EAction::None;
 
   if (sui)
@@ -943,7 +1001,7 @@ void CFrontEndUI::SFusionBonusFrame::Draw() const {
   if (x0_gbaLinkFrame)
     x0_gbaLinkFrame->Draw();
   else if (x24_loadedFrame)
-    x24_loadedFrame->Draw(CGuiWidgetDrawParms::Default);
+    x24_loadedFrame->Draw(CGuiWidgetDrawParms::Default());
 }
 
 void CFrontEndUI::SFusionBonusFrame::DoCancel(CGuiTableGroup* caller) {
@@ -1026,18 +1084,32 @@ void CFrontEndUI::SFrontEndFrame::FinishedLoading() {
   x14_loadedFrme->SetAspectConstraint(1.78f);
 
   x18_tablegroup_mainmenu = static_cast<CGuiTableGroup*>(x14_loadedFrme->FindWidget("tablegroup_mainmenu"));
-  x1c_gbaPair = FindTextPanePair(x14_loadedFrme, "textpane_gba");
+  //TODO: HACK: Implement language menu so this isn't necessary
+  if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
+    x1c_gbaPair = FindTextPanePair(x14_loadedFrme, "textpane_gba");
+  } else {
+    x1c_gbaPair = FindTextPanePair(x14_loadedFrme, "textpane_lang");
+  }
   x1c_gbaPair.SetPairText(g_MainStringTable->GetString(37));
-  x24_cheatPair = FindTextPanePair(x14_loadedFrme, "textpane_cheats");
-  x24_cheatPair.SetPairText(g_MainStringTable->GetString(96));
+  //TODO: HACK: Implement language menu so this isn't necessary
+  if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
+    x24_cheatPair = FindTextPanePair(x14_loadedFrme, "textpane_cheats");
+  } else {
+    x24_cheatPair = FindTextPanePair(x14_loadedFrme, "textpane_options");
+  }
+  x24_cheatPair.SetPairText(g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 96 : 90));
 
-  FindAndSetPairText(x14_loadedFrme, "textpane_start", g_MainStringTable->GetString(67));
-  FindAndSetPairText(x14_loadedFrme, "textpane_options", g_MainStringTable->GetString(94));
-  FindAndSetPairText(x14_loadedFrme, "textpane_title", g_MainStringTable->GetString(98));
+  FindAndSetPairText(x14_loadedFrme, "textpane_start",
+                     g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 67 : 61));
+  //TODO: HACK: Implement language menu so this isn't necessary
+  FindAndSetPairText(x14_loadedFrme, (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? "textpane_options" : "textpane_gba",
+                     g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 94 : 88));
+  FindAndSetPairText(x14_loadedFrme, "textpane_title",
+                     g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 98 : 92));
 
   CGuiTextPane* proceed = static_cast<CGuiTextPane*>(x14_loadedFrme->FindWidget("textpane_proceed"));
   if (proceed)
-    proceed->TextSupport().SetText(g_MainStringTable->GetString(85));
+    proceed->TextSupport().SetText(g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 85 : 79));
 
   x18_tablegroup_mainmenu->SetMenuAdvanceCallback([this](CGuiTableGroup* caller) { DoAdvance(caller); });
   x18_tablegroup_mainmenu->SetMenuSelectionChangeCallback(
@@ -1085,13 +1157,14 @@ CFrontEndUI::SFrontEndFrame::ProcessUserInput(const CFinalInput& input) {
   return x4_action;
 }
 
-void CFrontEndUI::SFrontEndFrame::Draw() const { x14_loadedFrme->Draw(CGuiWidgetDrawParms::Default); }
+void CFrontEndUI::SFrontEndFrame::Draw() const { x14_loadedFrme->Draw(CGuiWidgetDrawParms::Default()); }
 
 void CFrontEndUI::SFrontEndFrame::HandleActiveChange(CGuiTableGroup* active) {
   active->SetColors(zeus::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 }
 
-void CFrontEndUI::SFrontEndFrame::DoCancel(CGuiTableGroup* caller) { /* Intentionally empty */ }
+void CFrontEndUI::SFrontEndFrame::DoCancel(CGuiTableGroup* caller) { /* Intentionally empty */
+}
 
 void CFrontEndUI::SFrontEndFrame::DoSelectionChange(CGuiTableGroup* caller, int oldSel) {
   CSfxManager::SfxStart(SFXfnt_selection_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
@@ -1131,10 +1204,9 @@ CFrontEndUI::SNesEmulatorFrame::SNesEmulatorFrame() {
 
   const SObjectTag* deface = g_ResFactory->GetResourceIdByName("FONT_Deface14B");
   CGuiTextProperties props(false, true, EJustification::Left, EVerticalJustification::Center);
-  xc_textSupport = std::make_unique<CGuiTextSupport>(deface->id, props, zeus::skWhite, zeus::skBlack,
-                                                     zeus::skWhite, 0, 0, g_SimplePool,
-                                                     CGuiWidget::EGuiModelDrawFlags::Alpha);
-  xc_textSupport->SetText(g_MainStringTable->GetString(103));
+  xc_textSupport = std::make_unique<CGuiTextSupport>(deface->id, props, zeus::skWhite, zeus::skBlack, zeus::skWhite, 0,
+                                                     0, g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Alpha);
+  xc_textSupport->SetText(g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 103 : 97));
   xc_textSupport->AutoSetExtent();
   xc_textSupport->ClearRenderBuffer();
 }
@@ -1283,7 +1355,7 @@ void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveGameScreen* saveUi) const {
   }
 }
 
-CFrontEndUI::SOptionsFrontEndFrame::SOptionsFrontEndFrame() : x134_24_visible(true), x134_25_exitOptions(false) {
+CFrontEndUI::SOptionsFrontEndFrame::SOptionsFrontEndFrame() {
   x4_frme = g_SimplePool->GetObj("FRME_OptionsFrontEnd");
   x10_pauseScreen = g_SimplePool->GetObj("STRG_PauseScreen");
 }
@@ -1400,7 +1472,8 @@ void CFrontEndUI::SOptionsFrontEndFrame::HandleRightSelectionChange() {
 
 void CFrontEndUI::SOptionsFrontEndFrame::SetRightUIText() {
   const int userSel = x24_tablegroup_leftmenu->GetUserSelection();
-  const auto& options = GameOptionsRegistry[userSel];
+  const auto& options =
+      (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? GameOptionsRegistry[userSel] : GameOptionsRegistryNew[userSel];
 
   for (int i = 0; i < 5; ++i) {
     std::string name = fmt::format(FMT_STRING("textpane_right{}"), i);
@@ -1449,24 +1522,31 @@ void CFrontEndUI::SOptionsFrontEndFrame::FinishedLoading() {
   x34_slidergroup_slider->SetSelectionChangedCallback(
       [this](CGuiSliderGroup* caller, float value) { DoSliderChange(caller, value); });
 
-  FindTextPanePair(x1c_loadedFrame, "textpane_double0").SetPairText(x20_loadedPauseStrg->GetString(95)); // Off
-  FindTextPanePair(x1c_loadedFrame, "textpane_double1").SetPairText(x20_loadedPauseStrg->GetString(94)); // On
-  FindTextPanePair(x1c_loadedFrame, "textpane_triple0").SetPairText(x20_loadedPauseStrg->GetString(96)); // Mono
-  FindTextPanePair(x1c_loadedFrame, "textpane_triple1").SetPairText(x20_loadedPauseStrg->GetString(97)); // Stereo
-  FindTextPanePair(x1c_loadedFrame, "textpane_triple2").SetPairText(x20_loadedPauseStrg->GetString(98)); // Dolby
+  FindTextPanePair(x1c_loadedFrame, "textpane_double0")
+      .SetPairText(x20_loadedPauseStrg->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 95 : 98)); // Off
+  FindTextPanePair(x1c_loadedFrame, "textpane_double1")
+      .SetPairText(x20_loadedPauseStrg->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 94 : 97)); // On
+  FindTextPanePair(x1c_loadedFrame, "textpane_triple0")
+      .SetPairText(x20_loadedPauseStrg->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 96 : 99)); // Mono
+  FindTextPanePair(x1c_loadedFrame, "textpane_triple1")
+      .SetPairText(x20_loadedPauseStrg->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 97 : 100)); // Stereo
+  FindTextPanePair(x1c_loadedFrame, "textpane_triple2")
+      .SetPairText(x20_loadedPauseStrg->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 98 : 101)); // Dolby
 
-  FindTextPanePair(x1c_loadedFrame, "textpane_title").SetPairText(g_MainStringTable->GetString(99)); // OPTIONS
+  FindTextPanePair(x1c_loadedFrame, "textpane_title")
+      .SetPairText(g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 99 : 93)); // OPTIONS
 
   if (CGuiTextPane* proceed = static_cast<CGuiTextPane*>(x1c_loadedFrame->FindWidget("textpane_proceed")))
-    proceed->TextSupport().SetText(g_MainStringTable->GetString(85));
+    proceed->TextSupport().SetText(g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 85 : 79));
 
   if (CGuiTextPane* cancel = static_cast<CGuiTextPane*>(x1c_loadedFrame->FindWidget("textpane_cancel")))
-    cancel->TextSupport().SetText(g_MainStringTable->GetString(82));
+    cancel->TextSupport().SetText(g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 82 : 76));
 
   // Visor, Display, Sound, Controller
   for (int i = 0; i < 4; ++i) {
     const std::string name = fmt::format(FMT_STRING("textpane_filename{}"), i);
-    FindTextPanePair(x1c_loadedFrame, name).SetPairText(x20_loadedPauseStrg->GetString(16 + i));
+    FindTextPanePair(x1c_loadedFrame, name)
+        .SetPairText(x20_loadedPauseStrg->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy() ? 16 : 18) + i));
   }
 
   x2c_tablegroup_double->SetVertical(false);
@@ -1568,12 +1648,20 @@ CFrontEndUI::CFrontEndUI() : CIOWin("FrontEndUI") {
     ++xc0_attractCount;
 }
 
+CFrontEndUI::~CFrontEndUI() {
+  if (x14_phase >= EPhase::DisplayFrontEnd) {
+    CAudioSys::RemoveAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
+  }
+}
+
 void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue) {
   xf4_curAudio->StopMixing();
   queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, std::make_shared<CSlideShow>()));
 }
 
-std::string CFrontEndUI::GetAttractMovieFileName(int idx) { return fmt::format(FMT_STRING("Video/attract{}.thp"), idx); }
+std::string CFrontEndUI::GetAttractMovieFileName(int idx) {
+  return fmt::format(FMT_STRING("Video/attract{}.thp"), idx);
+}
 
 std::string CFrontEndUI::GetNextAttractMovieFileName() {
   std::string ret = GetAttractMovieFileName(xbc_nextAttract);
@@ -1895,20 +1983,16 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
 
   if (x50_curScreen != x54_nextScreen) {
     if (x54_nextScreen == EScreen::AttractMovie &&
-        (input.PStart() || input.PA() ||
-         input.PSpecialKey(boo2::Keycode::ESC) ||
-         input.PKey('\n') ||
-         input.PMouseButton(boo2::MouseButton::Primary))) {
+        (input.PStart() || input.PA() || input.PSpecialKey(boo2::Keycode::ESC) ||
+         input.PKey('\n') || input.PMouseButton(boo2::MouseButton::Primary))) {
       /* Player wants to return to opening credits from attract movie */
       SetFadeBlackTimer(std::min(1.f, x58_fadeBlackTimer));
       PlayAdvanceSfx();
       return;
     }
 
-    if (input.PA() || input.PStart() ||
-        input.PSpecialKey(boo2::Keycode::ESC) ||
-        input.PKey('\n') ||
-        input.PMouseButton(boo2::MouseButton::Primary)) {
+    if (input.PA() || input.PStart() || input.PSpecialKey(boo2::Keycode::ESC) ||
+        input.PKey('\n') || input.PMouseButton(boo2::MouseButton::Primary)) {
       if (x50_curScreen == EScreen::OpenCredits && x54_nextScreen == EScreen::Title && x58_fadeBlackTimer > 1.f) {
         /* Player is too impatient to view opening credits */
         xd0_playerSkipToTitle = true;
@@ -1918,10 +2002,8 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
     }
   } else {
     if (x50_curScreen == EScreen::Title) {
-      if (input.PStart() || input.PA() ||
-          input.PSpecialKey(boo2::Keycode::ESC) ||
-          input.PKey('\n') ||
-          input.PMouseButton(boo2::MouseButton::Primary)) {
+      if (input.PStart() || input.PA() || input.PSpecialKey(boo2::Keycode::ESC) ||
+          input.PKey('\n') || input.PMouseButton(boo2::MouseButton::Primary)) {
         if (x58_fadeBlackTimer < 30.f - g_tweakGame->GetPressStartDelay()) {
           /* Proceed to file select UI */
           CSfxManager::SfxStart(FETransitionBackSFX[x18_rndA][0], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);

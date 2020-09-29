@@ -34,13 +34,13 @@ public:
   zeus::CAABox x284_modelBounds;
   zeus::CVector3f x29c_orbitPos;
 
-  bool x2a8_24_closing : 1;
+  bool x2a8_24_closing : 1 = false;
   bool x2a8_25_wasOpen : 1;
   bool x2a8_26_isOpen : 1;
-  bool x2a8_27_conditionsMet : 1;
+  bool x2a8_27_conditionsMet : 1 = false;
   bool x2a8_28_projectilesCollide : 1;
   bool x2a8_29_ballDoor : 1;
-  bool x2a8_30_doClose : 1;
+  bool x2a8_30_doClose : 1 = false;
 
 public:
   CScriptDoor(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CTransform&, CModelData&&,

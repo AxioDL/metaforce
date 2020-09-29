@@ -43,8 +43,6 @@ constexpr zeus::CMatrix4f DisintegratePost{
 };
 } // Anonymous namespace
 
-bool CBooModel::g_DrawingOccluders = false;
-
 void CBooModel::Shutdown() {
   g_shadowMap.reset();
   g_disintegrateTexture.reset();
@@ -57,10 +55,6 @@ void CBooModel::ClearModelUniformCounters() {
     model->ClearUniformCounter();
 }
 
-zeus::CVector3f CBooModel::g_PlayerPosition = {};
-float CBooModel::g_ModSeconds = 0.f;
-float CBooModel::g_TransformedTime = 0.f;
-float CBooModel::g_TransformedTime2 = 0.f;
 void CBooModel::SetNewPlayerPositionAndTime(const zeus::CVector3f& pos) {
   g_PlayerPosition = pos;
   KillCachedViewDepState();
@@ -73,13 +67,7 @@ void CBooModel::SetNewPlayerPositionAndTime(const zeus::CVector3f& pos) {
   g_TransformedTime2 = 1.f / -(0.015f * std::sin(g_ModSeconds * 1.5f + 1.f) - 1.f);
 }
 
-CBooModel* CBooModel::g_LastModelCached = nullptr;
 void CBooModel::KillCachedViewDepState() { g_LastModelCached = nullptr; }
-
-bool CBooModel::g_DummyTextures = false;
-bool CBooModel::g_RenderModelBlack = false;
-
-zeus::CVector3f CBooModel::g_ReflectViewPos = {};
 
 void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf, zeus::CMatrix4f* mtxsOut,
                                          float& alphaOut) {
@@ -177,8 +165,6 @@ CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurf
 , m_matSetIdx(shader.m_matSetIdx)
 , x1c_textures(shader.x0_textures)
 , x20_aabb(aabb)
-, x40_24_texturesLoaded(false)
-, x40_25_modelVisible(false)
 , x41_mask(renderMask)
 , m_staticVbo(vbo)
 , m_staticIbo(ibo) {
@@ -365,36 +351,45 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
   m_uniformDataSize = uniBufSize;
   newInst.m_uniformBuffer = ctx.newDynamicBuffer(boo::BufferUse::Uniform, uniBufSize, 1);
 
-  boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {geomUniformBuf.get(), geomUniformBuf.get(),
-                                                newInst.m_uniformBuffer.get(), newInst.m_uniformBuffer.get()};
+  const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 4> bufs {
+      geomUniformBuf.get(),
+      geomUniformBuf.get(),
+      newInst.m_uniformBuffer.get(),
+      newInst.m_uniformBuffer.get(),
+    };
 
   /* Binding for each surface */
   newInst.m_shaderDataBindings.reserve(x0_surfaces->size());
 
-  size_t thisOffs[4];
-  size_t thisSizes[4];
+  std::array<size_t, 4> thisOffs;
+  std::array<size_t, 4> thisSizes;
 
-  static const boo::PipelineStage stages[4] = {boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
-                                               boo::PipelineStage::Fragment, boo::PipelineStage::Vertex};
+  static constexpr std::array stages{
+      boo::PipelineStage::Vertex,
+      boo::PipelineStage::Vertex,
+      boo::PipelineStage::Fragment,
+      boo::PipelineStage::Vertex,
+    };
 
   /* Enumerate surfaces and build data bindings */
   size_t curReflect = reflectOff + 256;
   for (const CBooSurface& surf : *x0_surfaces) {
     const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
 
-    boo::ObjToken<boo::ITexture> texs[12] = {
+    std::array<boo::ObjToken<boo::ITexture>, 12> texs{
         g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
         g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
-        g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->x220_sphereRamp.get(),
-        g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get()};
+        g_Renderer->m_whiteTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->x220_sphereRamp.get(),
+        g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(),
+    };
     if (!g_DummyTextures) {
       for (const auto& ch : mat.chunks) {
-        if (auto pass = ch.get_if<MaterialSet::Material::PASS>()) {
+        if (const auto* const pass = ch.get_if<MaterialSet::Material::PASS>()) {
           auto search = x1c_textures.find(pass->texId.toUint32());
           boo::ObjToken<boo::ITexture> btex;
-          if (search != x1c_textures.cend() && (btex = search->second.GetObj()->GetBooTexture()))
-            texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;
-        } else if (auto pass = ch.get_if<MaterialSet::Material::CLR>()) {
+          if (search != x1c_textures.cend() && (btex = search->second.GetObj()->GetBooTexture())){
+            texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;}
+        } else if (const auto* const pass = ch.get_if<MaterialSet::Material::CLR>()) {
           boo::ObjToken<boo::ITexture> btex = g_Renderer->GetColorTexture(zeus::CColor(pass->color));
           texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;
         }
@@ -457,7 +452,8 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
           texs[11] = g_Renderer->x220_sphereRamp.get();
       }
       extendeds.push_back(ctx.newShaderDataBinding(pipeline, newInst.GetBooVBO(*this, ctx), nullptr, m_staticIbo.get(),
-                                                   4, bufs, stages, thisOffs, thisSizes, 12, texs, nullptr, nullptr));
+                                                   bufs.size(), bufs.data(),
+            stages.data(), thisOffs.data(), thisSizes.data(), texs.size(), texs.data(), nullptr, nullptr));
       idx = EExtendedShader(size_t(idx) + 1);
     }
   }
@@ -470,7 +466,7 @@ void CBooModel::MakeTexturesFromMats(const MaterialSet& matSet,
                                      IObjectStore& store) {
   for (const auto& mat : matSet.materials) {
     for (const auto& chunk : mat.chunks) {
-      if (auto pass = chunk.get_if<MaterialSet::Material::PASS>()) {
+      if (const auto* const pass = chunk.get_if<MaterialSet::Material::PASS>()) {
         toksOut.emplace(std::make_pair(pass->texId.toUint32(), store.GetObj({SBIG('TXTR'), pass->texId.toUint32()})));
       }
     }
@@ -612,7 +608,7 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
   if (intermediateExtended == EExtendedShader::Lighting) {
     /* Transform lighting into thermal cold if the thermal visor is active */
     if (g_Renderer->IsThermalVisorHotPass())
-      return EExtendedShader::LightingAlphaWrite;
+      return noZWrite ? EExtendedShader::LightingAlphaWriteNoZTestNoZWrite : EExtendedShader::LightingAlphaWrite;
     else if (g_Renderer->IsThermalVisorActive())
       return EExtendedShader::ThermalCold;
     if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Opaque) {
@@ -700,7 +696,7 @@ void CBooModel::WarmupDrawSurface(const CBooSurface& surf) const {
     return;
   const ModelInstance& inst = m_instances[m_uniUpdateCount - 1];
 
-  for (auto& binding : inst.m_shaderDataBindings[surf.selfIdx]) {
+  for (const auto& binding : inst.m_shaderDataBindings[surf.selfIdx]) {
     CGraphics::SetShaderDataBinding(binding);
     CGraphics::DrawArrayIndexed(surf.m_data.idxStart, std::min(u32(3), surf.m_data.idxCount));
   }
@@ -883,7 +879,7 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
     }
     u8* bufOrig = bufOut;
     for (const auto& chunk : mat.chunks) {
-      if (auto pass = chunk.get_if<MaterialSet::Material::PASS>()) {
+      if (const auto* const pass = chunk.get_if<MaterialSet::Material::PASS>()) {
         ProcessAnimation(bufOut, *pass);
       }
     }
@@ -1308,14 +1304,14 @@ bool CModel::IsLoaded(int shaderIdx) const {
 size_t CModel::GetPoolVertexOffset(size_t idx) const { return m_hmdlMeta.vertStride * idx; }
 
 zeus::CVector3f CModel::GetPoolVertex(size_t idx) const {
-  auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolVertexOffset(idx));
+  const auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolVertexOffset(idx));
   return {floats};
 }
 
 size_t CModel::GetPoolNormalOffset(size_t idx) const { return m_hmdlMeta.vertStride * idx + 12; }
 
 zeus::CVector3f CModel::GetPoolNormal(size_t idx) const {
-  auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolNormalOffset(idx));
+  const auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolNormalOffset(idx));
   return {floats};
 }
 

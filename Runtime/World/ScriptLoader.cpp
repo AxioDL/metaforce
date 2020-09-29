@@ -2,12 +2,12 @@
 
 #include "Editor/ProjectResourceFactoryMP1.hpp"
 
-#include "Runtime/CSimplePool.hpp"
-#include "Runtime/CStateManager.hpp"
-#include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CCinematicCamera.hpp"
 #include "Runtime/Camera/CPathCamera.hpp"
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/MP1/World/CActorContraption.hpp"
 #include "Runtime/MP1/World/CAtomicAlpha.hpp"
 #include "Runtime/MP1/World/CAtomicBeta.hpp"
@@ -24,15 +24,19 @@
 #include "Runtime/MP1/World/CFlaahgraTentacle.hpp"
 #include "Runtime/MP1/World/CFlickerBat.hpp"
 #include "Runtime/MP1/World/CFlyingPirate.hpp"
+#include "Runtime/MP1/World/CIceSheegoth.hpp"
 #include "Runtime/MP1/World/CJellyZap.hpp"
 #include "Runtime/MP1/World/CMagdolite.hpp"
 #include "Runtime/MP1/World/CMetaree.hpp"
+#include "Runtime/MP1/World/CDrone.hpp"
 #include "Runtime/MP1/World/CMetroid.hpp"
 #include "Runtime/MP1/World/CMetroidBeta.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"
 #include "Runtime/MP1/World/CNewIntroBoss.hpp"
 #include "Runtime/MP1/World/COmegaPirate.hpp"
 #include "Runtime/MP1/World/CParasite.hpp"
+#include "Runtime/MP1/World/CPhazonHealingNodule.hpp"
+#include "Runtime/MP1/World/CPhazonPool.hpp"
 #include "Runtime/MP1/World/CPuddleSpore.hpp"
 #include "Runtime/MP1/World/CPuddleToadGamma.hpp"
 #include "Runtime/MP1/World/CPuffer.hpp"
@@ -81,8 +85,8 @@
 #include "Runtime/World/CScriptDock.hpp"
 #include "Runtime/World/CScriptDockAreaChange.hpp"
 #include "Runtime/World/CScriptDoor.hpp"
-#include "Runtime/World/CScriptEMPulse.hpp"
 #include "Runtime/World/CScriptEffect.hpp"
+#include "Runtime/World/CScriptEMPulse.hpp"
 #include "Runtime/World/CScriptGenerator.hpp"
 #include "Runtime/World/CScriptGrapplePoint.hpp"
 #include "Runtime/World/CScriptGunTurret.hpp"
@@ -1052,7 +1056,7 @@ CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream
   color.readRGBABig(in);
   float timeIn = in.readFloatBig();
   float timeOut = in.readFloatBig();
-  CAssetId txtr = in.readUint32Big();
+  CAssetId txtr(in);
 
   return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), name, info, ftype, shape, filterIdx, unk, color,
                                          timeIn, timeOut, txtr, active);
@@ -1362,7 +1366,8 @@ CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in, int
 
   if (animParms.GetCharacter() == 0) {
     Log.report(logvisor::Warning,
-               FMT_STRING("SpacePirate <{}> has AnimationInformation property with invalid character selected"), head.x0_name);
+               FMT_STRING("SpacePirate <{}> has AnimationInformation property with invalid character selected"),
+               head.x0_name);
     animParms.SetCharacter(2);
   }
 
@@ -2001,14 +2006,99 @@ CEntity* ScriptLoader::LoadPointOfInterest(CStateManager& mgr, CInputStream& in,
                                     pointSize);
 }
 
+std::optional<CVisorFlare::CFlareDef> LoadFlareDef(CInputStream& in) {
+  if (in.readUint32Big() == 4) {
+    CAssetId textureId(in);
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    zeus::CColor color = zeus::CColor::ReadRGBABig(in);
+    if (textureId.IsValid()) {
+      return {CVisorFlare::CFlareDef(g_SimplePool->GetObj({SBIG('TXTR'), textureId}), f1, f2, color)};
+    }
+  }
+
+  return {};
+}
+
 CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  return nullptr;
+  if (propCount != 45 && EnsurePropertyCount(propCount, 45, "Drone"))
+    return nullptr;
+
+  std::string name = mgr.HashInstanceName(in);
+  CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
+  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
+  float f1 = in.readFloatBig();
+  const auto [patternedValid, patternedPropCount] = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!patternedValid)
+    return nullptr;
+  CPatternedInfo pInfo(in, patternedPropCount);
+  CActorParameters actParms = LoadActorParameters(in);
+  CDamageInfo dInfo1(in);
+  u32 w1 = in.readUint32Big();
+  CDamageInfo dInfo2(in);
+  CAssetId aId1(in);
+  in.seek(4); // Unused
+  CAssetId aId2(in);
+  std::optional<CVisorFlare::CFlareDef> def1 = LoadFlareDef(in);
+  std::optional<CVisorFlare::CFlareDef> def2 = LoadFlareDef(in);
+  std::optional<CVisorFlare::CFlareDef> def3 = LoadFlareDef(in);
+  std::optional<CVisorFlare::CFlareDef> def4 = LoadFlareDef(in);
+  std::optional<CVisorFlare::CFlareDef> def5 = LoadFlareDef(in);
+  std::vector<CVisorFlare::CFlareDef> flares(5);
+  if (def1)
+    flares.push_back(*def1);
+  if (def2)
+    flares.push_back(*def2);
+  if (def3)
+    flares.push_back(*def3);
+  if (def4)
+    flares.push_back(*def4);
+  if (def4)
+    flares.push_back(*def4);
+
+  const auto& animParms = pInfo.GetAnimationParameters();
+  if (g_ResFactory->GetResourceTypeById(animParms.GetACSFile()) != SBIG('ANCS'))
+    return nullptr;
+
+  float f2 = in.readFloatBig();
+  float f3 = in.readFloatBig();
+  float f4 = in.readFloatBig();
+  float f5 = in.readFloatBig();
+  float f6 = in.readFloatBig();
+  float f7 = in.readFloatBig();
+  float f8 = in.readFloatBig();
+  float f9 = in.readFloatBig();
+  float f10 = in.readFloatBig();
+  float f11 = in.readFloatBig();
+  float f12 = in.readFloatBig();
+  float f13 = in.readFloatBig();
+  float f14 = in.readFloatBig();
+  float f15 = in.readFloatBig();
+  float f16 = in.readFloatBig();
+  float f17 = in.readFloatBig();
+  float f18 = in.readFloatBig();
+  float f19 = in.readFloatBig();
+  float f20 = in.readFloatBig();
+  CAssetId crscId(in);
+  float f21 = in.readFloatBig();
+  float f22 = in.readFloatBig();
+  float f23 = in.readFloatBig();
+  float f24 = in.readFloatBig();
+  s32 soundId = in.readUint32Big();
+  bool b1 = in.readBool();
+  CModelData mData(
+      CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
+  return new MP1::CDrone(mgr.AllocateUniqueId(), name, flavor, info, xf, f1, std::move(mData), pInfo, actParms,
+                         CPatterned::EMovementType::Flyer, CPatterned::EColliderType::One, EBodyType::Pitchable, dInfo1,
+                         aId1, dInfo2, aId2, flares, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16,
+                         f17, f18, f19, f20, crscId, f21, f22, f23, f24, soundId, b1);
 }
 
 CEntity* ScriptLoader::LoadMetroid(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
   if (!EnsurePropertyCount(propCount, MP1::CMetroidData::GetNumProperties(), "Metroid"))
     return nullptr;
-#if 0
+
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
   zeus::CTransform xf = LoadEditorTransform(in);
@@ -2026,12 +2116,8 @@ CEntity* ScriptLoader::LoadMetroid(CStateManager& mgr, CInputStream& in, int pro
 
   CModelData mData(
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
-   return new MP1::CMetroid(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, actParms,
-   metData,
-                          kInvalidUniqueId);
-#else
-  return nullptr;
-#endif
+  return new MP1::CMetroid(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, actParms, metData,
+                           kInvalidUniqueId);
 }
 
 CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, int propCount,
@@ -2186,7 +2272,25 @@ CEntity* ScriptLoader::LoadEMPulse(CStateManager& mgr, CInputStream& in, int pro
 }
 
 CEntity* ScriptLoader::LoadIceSheegoth(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 35, "IceSheegoth"))
+    return nullptr;
+
+  SScaledActorHead head = LoadScaledActorHead(in, mgr);
+  const auto [hasProperCount, patternedParmCount] = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!hasProperCount)
+    return nullptr;
+  CPatternedInfo pInfo(in, patternedParmCount);
+  CActorParameters actParms = LoadActorParameters(in);
+  MP1::CIceSheegothData sheegothData(in, propCount);
+
+  const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+  if (!animParms.GetACSFile().IsValid())
+    return nullptr;
+
+  CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale,
+                            animParms.GetInitialAnimation(), true));
+  return new MP1::CIceSheegoth(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData), pInfo,
+                               actParms, sheegothData);
 }
 
 CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -2774,11 +2878,11 @@ CEntity* ScriptLoader::LoadThardusRockProjectile(CStateManager& mgr, CInputStrea
   if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
     return nullptr;
 
-  std::vector<std::unique_ptr<CModelData>> mDataVec;
+  std::vector<CStaticRes> mDataVec;
   CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), 0, actorHead.x40_scale,
                             pInfo.GetAnimationParameters().GetInitialAnimation(), true));
   mDataVec.reserve(3);
-  mDataVec.emplace_back(std::make_unique<CModelData>(CStaticRes(modelId, zeus::skOne3f)));
+  mDataVec.emplace_back(modelId, zeus::skOne3f);
   return new MP1::CThardusRockProjectile(mgr.AllocateUniqueId(), actorHead.x0_name, info, actorHead.x10_transform,
                                          std::move(mData), actParms, pInfo, std::move(mDataVec), stateMachine, f1);
 }
@@ -2996,14 +3100,16 @@ CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int p
   SScaledActorHead actorHead = LoadScaledActorHead(in, mgr);
 
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actorParameters = LoadActorParameters(in);
 
-  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
     return nullptr;
+  }
 
   float f1 = in.readFloatBig();
   float f2 = in.readFloatBig();
@@ -3017,7 +3123,7 @@ CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int p
   float f4 = in.readFloatBig();
   float f5 = in.readFloatBig();
   float f6 = in.readFloatBig();
-  MP1::CMagdolite::CMagdoliteData magData(in);
+  CFlameInfo flameInfo(in);
   float f7 = in.readFloatBig();
   float f8 = in.readFloatBig();
   float f9 = in.readFloatBig();
@@ -3028,7 +3134,7 @@ CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int p
 
   return new MP1::CMagdolite(mgr.AllocateUniqueId(), actorHead.x0_name, info, actorHead.x10_transform,
                              std::move(modelData), pInfo, actorParameters, f1, f2, damageInfo1, damageInfo2,
-                             damageVulnerability1, damageVulnerability2, modelId, skinId, f3, f4, f5, f6, magData, f7,
+                             damageVulnerability1, damageVulnerability2, modelId, skinId, f6, f3, f4, f5, flameInfo, f7,
                              f8, f9);
 }
 
@@ -3363,8 +3469,8 @@ CEntity* ScriptLoader::LoadAtomicBeta(CStateManager& mgr, CInputStream& in, int 
   CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
                             animParms.GetInitialAnimation(), true));
   return new MP1::CAtomicBeta(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, std::move(mData),
-                              actParms, pInfo, electricId, weaponId, dInfo, particleId, f1, f2, f3, dVuln, f4, f5, f6,
-                              sId1, sId2, sId3, f7);
+                              actParms, pInfo, electricId, weaponId, dInfo, particleId, f1, f2, f7, dVuln, f3, f4, f5,
+                              sId1, sId2, sId3, f6);
 }
 
 CEntity* ScriptLoader::LoadIceZoomer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -3645,7 +3751,6 @@ CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int
     return nullptr;
   }
 
-#if 0
   SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
   if (!pair.first) {
@@ -3660,23 +3765,70 @@ CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int
     return nullptr;
   }
 
+  const CAssetId skeletonModelId{in};
+  const CAssetId skeletonSkinRulesId{in};
+  const CAssetId skeletonLayoutInfoId{in};
   CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
                             actHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
-
   return new MP1::COmegaPirate(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform, std::move(mData),
-                               pInfo, actParms, elitePirateData, CAssetId(in), CAssetId(in), CAssetId(in));
-#else
-  return nullptr;
-#endif
+                               pInfo, actParms, elitePirateData, skeletonModelId, skeletonSkinRulesId,
+                               skeletonLayoutInfoId);
 }
 
 CEntity* ScriptLoader::LoadPhazonPool(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 18, "PhazonPool")) {
+    return nullptr;
+  }
+
+  SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
+  bool active = in.readBool();
+  CAssetId w1{in};
+  CAssetId w2{in};
+  CAssetId w3{in};
+  CAssetId w4{in};
+  u32 u1 = in.readUint32Big();
+  CDamageInfo dInfo{in};
+  zeus::CVector3f orientedForce{in.readVec3f()};
+  ETriggerFlags triggerFlags = static_cast<ETriggerFlags>(in.readUint32Big());
+  float f1 = in.readFloatBig();
+  float f2 = in.readFloatBig();
+  float f3 = in.readFloatBig();
+  bool b2 = in.readBool();
+  float f4 = in.readFloatBig();
+
+  return new MP1::CPhazonPool(mgr.AllocateUniqueId(), actHead.x0_name, info,
+                              zeus::CTransform::Translate(actHead.x10_transform.origin), actHead.x40_scale, active, w1,
+                              w2, w3, w4, u1, dInfo, orientedForce, triggerFlags, b2, f1, f2, f3, f4);
 }
 
 CEntity* ScriptLoader::LoadPhazonHealingNodule(CStateManager& mgr, CInputStream& in, int propCount,
                                                const CEntityInfo& info) {
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 9, "PhazonHealingNodule")) {
+    return nullptr;
+  }
+
+  SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
+  auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pair.first) {
+    return nullptr;
+  }
+
+  CPatternedInfo pInfo(in, pair.second);
+  CActorParameters actParms = LoadActorParameters(in);
+
+  in.readBool();
+  CAssetId w1{in};
+  std::string w2 = in.readString();
+
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
+    return nullptr;
+  }
+
+  CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
+                            actHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
+
+  return new MP1::CPhazonHealingNodule(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform,
+                                       std::move(mData), actParms, pInfo, w1, std::move(w2));
 }
 
 CEntity* ScriptLoader::LoadNewCameraShaker(CStateManager& mgr, CInputStream& in, int propCount,

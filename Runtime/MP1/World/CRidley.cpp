@@ -18,9 +18,7 @@
 #include "Runtime/World/CScriptWaypoint.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
-namespace MP1 {
-
+namespace urde::MP1 {
 namespace {
 struct SSomeRidleyStruct {
   u32 x0_;
@@ -116,11 +114,14 @@ constexpr std::array<std::array<SSomeRidleyStruct2, 12>, 5> skSomeRidleyStruct{{
     }},
 }};
 
-constexpr std::array<SSomeRidleyStruct, 5> skSomeStruct{{{4, 6, 50.f, 50.f, 0.f, 33.f, 0.f, 1, 0, 0, 0, 0},
-                                                         {4, 6, 20.f, 20.f, 60.f, 50.f, 0.f, 2, 0, 0, 0, 0},
-                                                         {4, 6, 40.f, 40.f, 20.f, 50.f, 50.f, 2, 1, 0, 0, 0},
-                                                         {3, 5, 10.f, 15.f, 75.f, 100.f, 25.f, 2, 0, 0, 0, 0},
-                                                         {3, 5, 30.f, 30.f, 40.f, 50.f, 50.f, 2, 1, 0, 0, 0}}};
+constexpr std::array<SSomeRidleyStruct, 5> skSomeStruct{{
+    {4, 6, 50.f, 50.f, 0.f, 33.f, 0.f, 1, 0, 0, 0, 0},
+    {4, 6, 20.f, 20.f, 60.f, 50.f, 0.f, 2, 0, 0, 0, 0},
+    {4, 6, 40.f, 40.f, 20.f, 50.f, 50.f, 2, 1, 0, 0, 0},
+    {3, 5, 10.f, 15.f, 75.f, 100.f, 25.f, 2, 0, 0, 0, 0},
+    {3, 5, 30.f, 30.f, 40.f, 50.f, 50.f, 2, 1, 0, 0, 0},
+}};
+
 constexpr std::array skWingBones{
     "L_wingBone1_1"sv,    "L_wingBone1_2"sv,    "L_wingBone2_1"sv,    "L_wingBone2_2"sv,    "L_wingBone3_1"sv,
     "L_wingBone3_2"sv,    "L_wingFlesh1_1"sv,   "L_wingFlesh1_2"sv,   "L_wingFlesh2_1"sv,   "L_wingFlesh2_2"sv,
@@ -131,47 +132,32 @@ constexpr std::array skWingBones{
 };
 
 constexpr std::array skWingEffects{
-    "WingSmokeSmall1"sv,
-    "WingSmokeSmall2"sv,
-    "WingSmokeSmall3"sv,
-    "WingSmokeSmall4"sv,
-    "WingSmokeSmall5"sv,
-    "WingSmokeSmall6"sv,
-    "WingSmokeSmall7"sv,
-    "WingSmokeSmall8"sv
-    "WingFire1"sv,
-    "WingFire2"sv,
-    "WingFire3"sv,
-    "WingFire4"sv,
-    "WingFire5"sv,
-    "WingFire6"sv,
-    "WingFire7"sv,
-    "WingFire8"sv,
-    "WingSparks1"sv,
-    "WingSparks2"sv,
-    "WingSparks3"sv,
-    "WingSparks4"sv,
-    "WingSparks5"sv,
-    "WingSparks6"sv,
-    "WingSparks7"sv,
-    "WingSparks8"sv,
+    "WingSmokeSmall1"sv, "WingSmokeSmall2"sv, "WingSmokeSmall3"sv, "WingSmokeSmall4"sv, "WingSmokeSmall5"sv,
+    "WingSmokeSmall6"sv, "WingSmokeSmall7"sv, "WingSmokeSmall8"sv, "WingFire1"sv,       "WingFire2"sv,
+    "WingFire3"sv,       "WingFire4"sv,       "WingFire5"sv,       "WingFire6"sv,       "WingFire7"sv,
+    "WingFire8"sv,       "WingSparks1"sv,     "WingSparks2"sv,     "WingSparks3"sv,     "WingSparks4"sv,
+    "WingSparks5"sv,     "WingSparks6"sv,     "WingSparks7"sv,     "WingSparks8"sv,
 };
 
-constexpr std::array<SOBBRadiiJointInfo, 4> skTail{{{"Tail_1", "Tail_3", 0.66f},
-                                                    {"Tail_3", "Tail_5", 0.66f},
-                                                    {"Tail_5", "Tail_7", 0.66f},
-                                                    {"Tail_7", "Tail_9", 0.66f}}};
+constexpr std::array<SOBBRadiiJointInfo, 4> skTail{{
+    {"Tail_1", "Tail_3", 0.66f},
+    {"Tail_3", "Tail_5", 0.66f},
+    {"Tail_5", "Tail_7", 0.66f},
+    {"Tail_7", "Tail_9", 0.66f},
+}};
 
-constexpr std::array<SSphereJointInfo, 10> skSphereJoints{{{"Skeleton_Root", 0.6f},
-                                                           {"Spine_2", 0.6f},
-                                                           {"breastPlate_LCTR", 0.6f},
-                                                           {"Head_1", 0.6f},
-                                                           {"L_wrist", 0.5f},
-                                                           {"R_wrist", 0.5f},
-                                                           {"L_ankle", 0.6f},
-                                                           {"R_ankle", 0.6f},
-                                                           {"L_pinky_1", 0.4f},
-                                                           {"R_pinky_1", 0.4f}}};
+constexpr std::array<SSphereJointInfo, 10> skSphereJoints{{
+    {"Skeleton_Root", 0.6f},
+    {"Spine_2", 0.6f},
+    {"breastPlate_LCTR", 0.3f},
+    {"Head_1", 0.6f},
+    {"L_wrist", 0.5f},
+    {"R_wrist", 0.5f},
+    {"L_ankle", 0.6f},
+    {"R_ankle", 0.6f},
+    {"L_pinky_1", 0.4f},
+    {"R_pinky_1", 0.4f},
+}};
 
 struct SSomeRidleyStruct3 {
   float x0_;
@@ -182,29 +168,31 @@ struct SSomeRidleyStruct3 {
   float x14_;
 };
 
-constexpr std::array<SSomeRidleyStruct3, 6> skFloats{{{0.0, 20.0, 40.0, 0.0, 0.0, 40.0},
-                                                      {0.0, 0.0, 70.0, 0.0, 0.0, 30.0},
-                                                      {0.0, 60.0, 0.0, 0.0, 0.0, 40.0},
-                                                      {0.0, 40.0, 30.0, 0.0, 0.0, 30.0},
-                                                      {0.0, 0.0, 50.0, 0.0, 0.0, 50.0},
-                                                      {0.0, 40.0, 60.0, 0.0, 0.0, 0.0}}};
+constexpr std::array<SSomeRidleyStruct3, 6> skFloats{{
+    {0.0, 20.0, 40.0, 0.0, 0.0, 40.0},
+    {0.0, 0.0, 70.0, 0.0, 0.0, 30.0},
+    {0.0, 60.0, 0.0, 0.0, 0.0, 40.0},
+    {0.0, 40.0, 30.0, 0.0, 0.0, 30.0},
+    {0.0, 0.0, 50.0, 0.0, 0.0, 50.0},
+    {0.0, 40.0, 60.0, 0.0, 0.0, 0.0},
+}};
 
-const CDamageVulnerability skDirectNormal{EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                          EVulnerability::DirectNormal, EDeflectType::None};
-const CDamageVulnerability skIceWeakness{EVulnerability::DirectNormal, EVulnerability::DirectWeak,
-                                         EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                         EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                         EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                         EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                         EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                         EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                         EVulnerability::DirectNormal, EDeflectType::None};
+constexpr CDamageVulnerability skDirectNormal{EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                              EVulnerability::DirectNormal, EDeflectType::None};
+constexpr CDamageVulnerability skIceWeakness{EVulnerability::DirectNormal, EVulnerability::DirectWeak,
+                                             EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                             EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                             EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                             EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                             EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                             EVulnerability::DirectNormal, EVulnerability::DirectNormal,
+                                             EVulnerability::DirectNormal, EDeflectType::None};
 } // namespace
 CRidleyData::CRidleyData(CInputStream& in, u32 propCount)
 : x0_(in)
@@ -260,31 +248,6 @@ CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
 , x998_(CStaticRes(x568_data.x28_, GetModelData()->GetScale()))
 , x9e4_(CStaticRes(x568_data.x2c_, GetModelData()->GetScale()))
 , xa30_breastPlateSegId(GetModelData()->GetAnimationData()->GetLocatorSegId("breastPlate_LCTR"sv))
-, xa31_24_(true)
-, xa31_25_(true)
-, xa31_26_(false)
-, xa31_27_(false)
-, xa31_28_(false)
-, xa31_29_(false)
-, xa31_30_(false)
-, xa31_31_(false)
-, xa32_24_(false)
-, xa32_25_(false)
-, xa32_26_(false)
-, xa32_28_shotAt(false)
-, xa32_29_(false)
-, xa32_31_(true)
-, xa33_24_(false)
-, xa33_25_(true)
-, xa33_26_(false)
-, xa33_27_(true)
-, xa33_28_(false)
-, xa33_29_doStrafe(false)
-, xa33_30_(false)
-, xa33_31_(false)
-, xa34_24_(false)
-, xa34_25_(false)
-, xa34_26_(false)
 , xa38_(CStaticRes(x568_data.x24_, 4.f * GetModelData()->GetScale()))
 , xadc_(44.f * GetModelData()->GetScale().z())
 , xae0_(20.f * GetModelData()->GetScale().x())
@@ -310,12 +273,13 @@ CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
   xc14_.Token().Lock();
   xc3c_.Token().Lock();
 
-  if (xce0_)
+  if (xce0_) {
     xce0_->SetParticleEmission(false);
+  }
 
   const auto& animData = GetModelData()->GetAnimationData();
-  for (size_t i = 0; i < skWingBones.size(); ++i) {
-    xce4_wingBoneIds.push_back(animData->GetLocatorSegId(skWingBones[i]));
+  for (const auto& wingBone : skWingBones) {
+    xce4_wingBoneIds.push_back(animData->GetLocatorSegId(wingBone));
   }
 
   xae4_ = GetModelData()->GetScale().x() *
@@ -365,7 +329,6 @@ void CRidley::SetupCollisionActorManager(urde::CStateManager& mgr) {
   include.Remove(EMaterialTypes::Platform);
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(include, exclude));
   AddMaterial(EMaterialTypes::ProjectilePassthrough);
-  // mgr.SendScriptMsg(this, GetUniqueId(), EScriptObjectMessage::Reset);
 }
 
 void CRidley::SetupCollisionActors(CStateManager& mgr) {
@@ -408,7 +371,7 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
   case EScriptObjectMessage::Reset: {
     xa34_26_ = true;
     if (!GetActive()) {
-      AcceptScriptMsg(EScriptObjectMessage::Activate, uid, mgr);
+      CPatterned::AcceptScriptMsg(EScriptObjectMessage::Activate, uid, mgr);
     }
     break;
   }
@@ -437,8 +400,9 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
   }
   case EScriptObjectMessage::InitializedInArea: {
     TUniqueId wpId = GetWaypointForState(mgr, EScriptObjectState::Patrol, EScriptObjectMessage::Follow);
-    if (wpId == kInvalidUniqueId)
+    if (wpId == kInvalidUniqueId) {
       break;
+    }
 
     if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(wpId)) {
       xa84_ = wp->GetTransform();
@@ -462,14 +426,27 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
       colAct->HealthInfo(mgr)->SetHP(1000.f);
       bool dontKnockback = false;
       if (xc64_aiStage == 2) {
-        if (xa33_28_) {
-          dontKnockback = true;
-        } else {
+        if (!xa33_28_) {
           bool r26 = false;
           xb10_ -= lowHealth;
           xb24_ = 0.33f;
           x430_damageColor = zeus::CColor(0.5f, 0.f, 0.f);
-          if (xb10_ <= 0.f) {
+          if (xb10_ > 0.f) {
+            if (xb10_ >= xcbc_&& xa33_26_ && !xa31_31_ && lowHealth > x568_data.x3f4_) {
+                dontKnockback = true;
+                x450_bodyController->GetCommandMgr().DeliverCmd(
+                    CBCKnockBackCmd(GetTransform().basis[1], pas::ESeverity::Zero));
+            } else {
+              xa32_27_ = true;
+              dontKnockback = true;
+              xcb0_ += 1;
+              xcb0_ = xcb0_ < 5 ? xcb0_ : 4;
+              r26 = true;
+              xcbc_ = .2f * float(5 - (xcb0_ + 1)) * xcb8_;
+              xcb4_ = 0;
+              xcc8_ = 2.f * 0.33f;
+            }
+          } else {
             xc64_aiStage = 3;
             xa31_25_ = false;
             sub80257650(mgr);
@@ -482,83 +459,73 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
 
             xcc8_ = 2.f * 0.33f;
             xb10_ = 0.f;
-          } else {
-            if (xb10_ < xcbc_) {
-              xa32_27_ = true;
-              dontKnockback = true;
-              xcb0_ += 1;
-              xcb0_ = xcb0_ < 5 ? xcb0_ : 4;
-              r26 = true;
-              xcbc_ = .2f * (5 - (xcb0_ + 1)) * xcb8_;
-              xcb4_ = 0;
-              xcc8_ = 2.f * 0.33f;
-            } else if (xa33_26_ && !xa31_31_ && lowHealth > x568_data.x3f4_) {
-              dontKnockback = true;
-              x450_bodyController->GetCommandMgr().DeliverCmd(
-                  CBCKnockBackCmd(GetTransform().basis[1], pas::ESeverity::Zero));
-            }
           }
           sub80256914(2.f * 0.33f, r26);
+        } else {
+          dontKnockback = true;
         }
       } else if (xc64_aiStage == 3) {
         if (xa32_29_) {
           zeus::CTransform xf = GetLctrTransform(xb90_headSegId);
-          if (xf.basis[1].dot(mgr.GetPlayer().GetTranslation() - xf.origin) < 0.5f) {
-            dontKnockback = true;
+          if ((mgr.GetPlayer().GetTranslation() - xf.origin).dot(xf.frontVector()) < 0.5f) {
+            HealthInfo(mgr)->SetHP(xb1c_ + xb10_ + xb18_);
+            break;
+          }
+        }
+
+        TakeDamage(zeus::skForward, 1.f);
+        xb20_ = 0.33f;
+        if (xa32_29_) {
+          if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
+            CWeaponMode wMode = proj->GetDamageInfo().GetWeaponMode();
+            if (wMode.IsCharged() || wMode.IsComboed() || wMode.GetType() == EWeaponType::Missile) {
+              xb14_ = 0.f;
+            }
+            xb14_ -= lowHealth;
+            xb24_ = 0.33f;
+            x430_damageColor = zeus::CColor(0.5f, 0.f, 0.f);
+            if (xb10_ <= 0.f) {
+              xa32_29_ = false;
+              dontKnockback = true;
+              xa32_28_shotAt = true;
+              xb14_ = x568_data.x38_;
+            }
+          }
+        } else if (xa31_27_) {
+          x430_damageColor = zeus::CColor(0.5f, 0.f, 0.f);
+          if (xb18_ > 0.f) {
+            xb18_ -= lowHealth;
+            if (xb18_ <= 0.f) {
+              xa31_26_ = true;
+              dontKnockback = true;
+              xb18_ = 0.f;
+              xcbc_ = 0.6667f * x568_data.x40_;
+            } else if (xb18_ < xcbc_) {
+              x450_bodyController->GetCommandMgr().DeliverCmd(
+                  CBCKnockBackCmd(GetTransform().basis[1], pas::ESeverity::Six));
+              xcbc_ -= (0.333f * x568_data.x3c_);
+            }
           } else {
-            TakeDamage(zeus::skForward, 1.f);
-            xb20_ = 0.33f;
-            if (xa32_29_) {
-              if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
-                CWeaponMode wMode = proj->GetDamageInfo().GetWeaponMode();
-                if (!wMode.IsCharged() && !wMode.IsComboed() && wMode.GetType() == EWeaponType::Missile)
-                  xb14_ = 0.f;
-                xb14_ -= lowHealth;
-                xb24_ = 0.33f;
-                x430_damageColor = zeus::CColor(0.5f, 0.f, 0.f);
-                if (xb10_ <= 0.f) {
-                  xa32_29_ = false;
-                  dontKnockback = true;
-                  xa32_28_shotAt = true;
-                  xb14_ = x568_data.x38_;
-                }
-              }
-            } else if (xa31_27_) {
-              x430_damageColor = zeus::CColor(0.5f, 0.f, 0.f);
-              if (xb18_ > 0.f) {
-                xb18_ -= lowHealth;
-                if (xb18_ <= 0.f) {
-                  xa31_26_ = true;
-                  dontKnockback = true;
-                  xb18_ = 0.f;
-                  xcbc_ = 0.6667 * x568_data.x40_;
-                } else if (xb18_ < xcbc_) {
-                  x450_bodyController->GetCommandMgr().DeliverCmd(
-                      CBCKnockBackCmd(GetTransform().basis[1], pas::ESeverity::Six));
-                  xcbc_ -= (0.333f * x568_data.x3c_);
-                }
-              }
-            } else {
-              xb1c_ -= lowHealth;
-              if (xb1c_ <= 0.f) {
-                x401_30_pendingDeath = true;
-                mgr.GetPlayer().SetIsOverrideRadarRadius(false);
-                xb1c_ = 0.f;
-              } else if (xb1c_ < xcbc_) {
-                dontKnockback = true;
-                x450_bodyController->GetCommandMgr().DeliverCmd(
-                    CBCKnockBackCmd(GetTransform().basis[1], pas::ESeverity::Six));
-                xcbc_ -= (0.333f * x568_data.x40_);
-              }
+            xb1c_ -= lowHealth;
+            if (xb1c_ <= 0.f) {
+              x401_30_pendingDeath = true;
+              mgr.GetPlayer().SetIsOverrideRadarRadius(false);
+              xb1c_ = 0.f;
+            } else if (xb1c_ < xcbc_) {
+              dontKnockback = true;
+              x450_bodyController->GetCommandMgr().DeliverCmd(
+                  CBCKnockBackCmd(GetTransform().basis[1], pas::ESeverity::Six));
+              xcbc_ -= (0.333f * x568_data.x40_);
             }
           }
         }
       }
+
       HealthInfo(mgr)->SetHP(xb1c_ + xb10_ + xb18_);
 
       if (!dontKnockback) {
         if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
-          KnockBack(proj->GetTranslation() - proj->GetPreviousPos(), mgr, proj->GetDamageInfo(), EKnockBackType::Radius,
+          KnockBack(proj->GetTranslation() - proj->GetPreviousPos(), mgr, proj->GetDamageInfo(), EKnockBackType::Direct,
                     false, proj->GetDamageInfo().GetKnockBackPower());
         }
       }
@@ -567,29 +534,27 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
   }
   case EScriptObjectMessage::InvulnDamage: {
     /* This code never executes, should have a `TCastTo<CCollisionActor>` followed by `GetLastTouchedObject` */
-    if (TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(uid)) {
-      if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
-        TUniqueId tmpId = kInvalidUniqueId;
-        bool doDamage = false;
-        if (xc64_aiStage == 3) {
-          if (!xa32_29_ && xa31_27_) {
-            tmpId = x98a_breastPlateId;
-            doDamage = true;
-          } else {
-            tmpId = x988_headId;
-            doDamage = true;
-          }
-        } else if (xc64_aiStage == 2 && !xa31_31_) {
+    if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(uid)) {
+      TUniqueId tmpId = kInvalidUniqueId;
+      bool doDamage = false;
+      if (xc64_aiStage == 3) {
+        if (!xa32_29_ && xa31_27_) {
           tmpId = x98a_breastPlateId;
           doDamage = true;
+        } else {
+          tmpId = x988_headId;
+          doDamage = true;
         }
+      } else if (xc64_aiStage == 2 && !xa31_31_) {
+        tmpId = x98a_breastPlateId;
+        doDamage = true;
+      }
 
-        if (doDamage) {
-          CDamageInfo info = proj->GetDamageInfo();
-          info.SetRadius(0.f);
-          mgr.ApplyDamage(uid, tmpId, proj->GetOwnerId(), info,
-                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
-        }
+      if (doDamage) {
+        CDamageInfo info = proj->GetDamageInfo();
+        info.SetRadius(0.f);
+        mgr.ApplyDamage(uid, tmpId, proj->GetOwnerId(), info,
+                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
       }
     }
     break;
@@ -618,8 +583,9 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
 }
 
 void CRidley::Think(float dt, CStateManager& mgr) {
-  if (!GetActive())
+  if (!GetActive()) {
     return;
+  }
 
   sub802560d0(dt);
   CPatterned::Think(dt, mgr);
@@ -633,6 +599,7 @@ void CRidley::Think(float dt, CStateManager& mgr) {
   sub80256624(dt, mgr);
   xb2c_.Update(dt);
 }
+
 void CRidley::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CPatterned::PreRender(mgr, frustum);
   xb2c_.PreRender(mgr, *GetModelData()->GetAnimationData(), x34_transform, GetModelData()->GetScale(),
@@ -646,10 +613,11 @@ void CRidley::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
 
   CPlayerState::EPlayerVisor r28 = mgr.GetPlayerState()->GetActiveVisor(mgr);
   bool atLastMat = GetModelData()->GetNumMaterialSets() == (matSet + 1);
-  if (r28 == CPlayerState::EPlayerVisor::Thermal && atLastMat)
+  if (r28 == CPlayerState::EPlayerVisor::Thermal && atLastMat) {
     xb4_drawFlags.x2_flags |= 0x40;
-  else
+  } else {
     xb4_drawFlags.x2_flags &= 0x40;
+  }
   xb4_drawFlags.x1_matSetIdx = matSet;
 
   if (xa33_27_) {
@@ -674,7 +642,7 @@ void CRidley::Render(CStateManager& mgr) {
   if (xb24_ > 0.f) {
     multiplyColor = zeus::CColor::lerp(zeus::skWhite, x430_damageColor, xb24_ / 0.33f);
   }
-  g_Renderer->SetWorldLightMultiplyColor(multiplyColor);
+  g_Renderer->SetGXRegister1Color(multiplyColor);
 
   const zeus::CTransform xf = GetLctrTransform(xa30_breastPlateSegId);
 
@@ -703,29 +671,34 @@ void CRidley::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
     g_Renderer->AddParticleGen(*xce0_);
   }
 }
+
 void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   switch (type) {
   case EUserEventType::Projectile: {
-    if (xc64_aiStage != 2)
+    if (xc64_aiStage != 2) {
       return;
+    }
 
     if (!xc14_.Token().IsLoaded()) {
       xc14_.Token().GetObj();
       return;
     }
 
-    if (!mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, 9))
+    if (!mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, 9)) {
       return;
+    }
+
     zeus::CTransform xf = GetLctrTransform(xa30_breastPlateSegId) * zeus::CTransform::RotateX(zeus::degToRad(-90.f));
     xf = xf * zeus::CTransform::RotateY(
                   std::atan2(mgr.GetActiveRandom()->Range(-1.f, 1.f), mgr.GetActiveRandom()->Range(-1.f, 1.f)));
     xf.origin = xf * zeus::CVector3f(0.f, 1.f, 1.f);
-    CEnergyProjectile* proj =
+    auto* proj =
         new CEnergyProjectile(true, xc14_.Token(), EWeaponType::AI, xf, EMaterialTypes::Character, xc14_.GetDamage(),
                               mgr.AllocateUniqueId(), GetAreaIdAlways(), GetUniqueId(), mgr.GetPlayer().GetUniqueId(),
                               EProjectileAttrib::None, false, zeus::skOne3f, {}, -1, false);
     mgr.AddObject(proj);
     proj->SetCameraShake(x568_data.xcc_);
+    proj->SetMinHomingDistance(20.f);
     return;
   }
   case EUserEventType::EggLay: {
@@ -735,17 +708,18 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
         break;
       }
 
-      if (!mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, 6))
+      if (!mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, 8)) {
         break;
+      }
 
-      zeus::CVector3f vec =
-          zeus::CVector3f(mgr.GetActiveRandom()->Range(-1.f, 1.f), 1.f, mgr.GetActiveRandom()->Range(-1.f, 1.f));
-      vec = GetLctrTransform(xa30_breastPlateSegId) * vec;
-
-      CEnergyProjectile* proj = new CEnergyProjectile(
-          true, xc3c_.Token(), EWeaponType::AI, zeus::lookAt(vec + mgr.GetPlayer().GetTranslation(), vec),
-          EMaterialTypes::Character, xc3c_.GetDamage(), mgr.AllocateUniqueId(), GetAreaIdAlways(), GetUniqueId(),
-          mgr.GetPlayer().GetUniqueId(), EProjectileAttrib::None, false, zeus::skOne3f, {}, -1, false);
+      const float x = mgr.GetActiveRandom()->Range(-1.f, 1.f);
+      const float z = mgr.GetActiveRandom()->Range(-1.f, 1.f);
+      const auto vec = GetLctrTransform(xa30_breastPlateSegId) * zeus::CVector3f{x, 1.f, z};
+      const auto dir = mgr.GetPlayer().GetTranslation() + zeus::CVector3f{10.f * x, 10.f * z, 0.f};
+      auto* proj = new CEnergyProjectile(true, xc3c_.Token(), EWeaponType::AI, zeus::lookAt(vec, dir),
+                                         EMaterialTypes::Character, xc3c_.GetDamage(), mgr.AllocateUniqueId(),
+                                         GetAreaIdAlways(), GetUniqueId(), mgr.GetPlayer().GetUniqueId(),
+                                         EProjectileAttrib::None, false, zeus::skOne3f, {}, -1, false);
 
       mgr.AddObject(proj);
       proj->SetCameraShake(x568_data.xcc_);
@@ -757,16 +731,18 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
   case EUserEventType::DamageOn: {
     if (xc64_aiStage == 3) {
       sub8025784c(mgr);
-    } else if (xc64_aiStage == 2)
+    } else if (xc64_aiStage == 2) {
       xa33_28_ = false;
+    }
 
     break;
   }
   case EUserEventType::DamageOff: {
     if (xc64_aiStage == 3) {
       sub80257650(mgr);
-    } else if (xc64_aiStage == 2 && !xa33_31_)
+    } else if (xc64_aiStage == 2 && !xa33_31_) {
       xa33_28_ = true;
+    }
 
     break;
   }
@@ -781,18 +757,21 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
     return;
   }
   case EUserEventType::ScreenShake: {
-    if ((mgr.GetPlayer().GetTranslation() - GetTranslation()).magnitude() >= x568_data.x388_)
+    if ((mgr.GetPlayer().GetTranslation() - GetTranslation()).magnitude() >= x568_data.x388_) {
       break;
+    }
     mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), x568_data.x298_,
                     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
     break;
   }
   case EUserEventType::BeginAction: {
-    if (xa32_25_ && !xa31_29_)
+    if (xa32_25_ && !xa31_29_) {
       FirePlasma(mgr);
+    }
 
-    if (!xa31_31_ || !xa32_26_)
+    if (!xa31_31_ || !xa32_26_) {
       break;
+    }
 
     xbf0_ = xa84_.basis[0];
     zeus::CVector3f ourPos = GetTranslation();
@@ -801,12 +780,13 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
     }
     xbfc_ = xbf0_;
     xbe4_ = xa84_.origin - xabc_ * xbf0_;
-    xbe4_ *= zeus::CVector3f((mgr.GetPlayer().GetTranslation() - xa84_.origin).dot(xa84_.basis[1]));
+    xbe4_ += (mgr.GetPlayer().GetTranslation() - xa84_.origin).dot(xa84_.frontVector()) * xa84_.frontVector();
     break;
   }
   case EUserEventType::EndAction: {
-    if (xa31_29_)
+    if (xa31_29_) {
       ResetPlasmaProjectile(mgr, false);
+    }
     break;
   }
   case EUserEventType::IkLock: {
@@ -826,8 +806,9 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
     break;
   }
   case EUserEventType::SoundPlay: {
-    if (xa32_25_)
+    if (xa32_25_) {
       break;
+    }
 
     xcac_ = CSfxManager::AddEmitter({GetTranslation(), {}, 1000.f, 0.1f, 1, x568_data.x294_, 127, 63, false, 127}, true,
                                     -1, false, kInvalidAreaId);
@@ -892,7 +873,7 @@ void CRidley::FirePlasma(urde::CStateManager& mgr) {
                                         false, EProjectileAttrib::KeepInCinematic));
   }
 
-  if (CPlasmaProjectile* proj = static_cast<CPlasmaProjectile*>(mgr.ObjectById(xb64_plasmaProjectile))) {
+  if (auto* proj = static_cast<CPlasmaProjectile*>(mgr.ObjectById(xb64_plasmaProjectile))) {
     proj->Fire(GetLctrTransform(xb91_mouthSegId), mgr, false);
     if (!xca8_) {
       xca8_ = CSfxManager::AddEmitter({GetTranslation(), {}, 1000.f, 0.1f, 1, x568_data.xa8_, 127, 63, false, 127},
@@ -935,8 +916,9 @@ void CRidley::sub802560d0(float dt) {
   } else if (xaec_.isMagnitudeSafe()) {
     const float mag = xaec_.magnitude();
     float magScale = 0.2f;
-    if (xaf8_.magSquared() == 0.f)
+    if (xaf8_.magSquared() == 0.f) {
       magScale *= 3.f;
+    }
     xaec_ = -((zeus::clamp(0.f, dt * (magScale * mag), 0.5f) * mag) - mag) * ((1.f / mag) * xaec_);
     ApplyImpulseWR(GetMass() * xaec_, {});
   }
@@ -949,18 +931,19 @@ void CRidley::sub802563a8(float dt) {
     zeus::CVector3f posDiff = GetTranslation() - xa84_.origin;
     float mag = posDiff.magnitude();
     posDiff *= zeus::CVector3f(1.f / mag);
-    if (xab4_ + -6.f * zeus::clamp(-1.f, posDiff.dot(xa84_.basis[1]), 0.f) < mag)
-      if (GetVelocity().dot(posDiff) > 0.f)
-        Stop();
+    if (xab4_ + -6.f * zeus::clamp(-1.f, posDiff.dot(xa84_.basis[1]), 0.f) < mag && GetVelocity().dot(posDiff) > 0.f) {
+      Stop();
+    }
 
     MoveToInOneFrameWR(GetTranslation() - posDiff, dt);
   }
 }
 
 void CRidley::sub80256b14(float dt, CStateManager& mgr) {
-  if (CPlasmaProjectile* proj = static_cast<CPlasmaProjectile*>(mgr.ObjectById(xb64_plasmaProjectile))) {
-    if (!proj->GetActive())
+  if (auto* proj = static_cast<CPlasmaProjectile*>(mgr.ObjectById(xb64_plasmaProjectile))) {
+    if (!proj->GetActive()) {
       return;
+    }
 
     zeus::CTransform mouthXf = GetLctrTransform(xb91_mouthSegId);
     if (xc64_aiStage == 3) {
@@ -1036,28 +1019,26 @@ void CRidley::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
   xa32_27_ = false;
   xa33_26_ = true;
 }
+
 void CRidley::Dead(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg != EStateMsg::Activate)
     return;
   mgr.SetBossParams(kInvalidUniqueId, 0.f, 0);
 }
+
 void CRidley::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg != EStateMsg::Activate)
     return;
 
   xa34_26_ = false;
-  zeus::CVector3f vec;
-  vec.x() = 0.f;
-  vec.y() = xabc_;
-  vec.z() = xac0_ - xadc_;
-  SetTranslation(xa84_ * vec);
+  SetTranslation(xa84_ * zeus::CVector3f{0.f, xabc_, xac0_ - xadc_});
   x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::NextState));
 }
 
 void CRidley::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    xbe4_ = (GetTranslation() + zeus::skUp) - (8.f * GetTransform().basis[0]);
-    xbfc_ = xbf0_ = GetTransform().basis[0];
+    xbe4_ = (GetTranslation() + zeus::skUp) - (8.f * GetTransform().rightVector());
+    xbfc_ = xbf0_ = GetTransform().rightVector();
     xc08_ = xc0c_ = 0.f;
     xc10_ = 240.f;
     x32c_animState = EAnimState::Ready;
@@ -1133,7 +1114,7 @@ void CRidley::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
       xbe4_ += (90.f * arg) * xbf0_;
     }
 
-    if (xa32_24_ && xcac_ != 0) {
+    if (xa32_24_ && xcac_) {
       CSfxManager::UpdateEmitter(xca8_, GetTranslation(), {}, 127);
     }
     if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Step)
@@ -1143,17 +1124,21 @@ void CRidley::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
       zeus::CVector3f local_54 = xbc4_ - GetTranslation();
       float mag = local_54.magnitude();
       if (mag <= 2.f || local_54.dot(xbc4_ - x2ec_reflectedDestPos) <= 0.f) {
-        pas::EStepDirection dir = pas::EStepDirection::Right;
-        if (xa32_31_)
+        auto dir = pas::EStepDirection::Right;
+        if (xa32_31_) {
           dir = pas::EStepDirection::Left;
-        if (xcc0_ == 3)
-          dir = pas::EStepDirection::Up;
-        else if (xcc0_ == 2)
-          dir = pas::EStepDirection::Forward;
+        }
 
-        pas::EStepType type = pas::EStepType::Normal;
-        if (xa33_24_)
+        if (xcc0_ == 3) {
+          dir = pas::EStepDirection::Up;
+        } else if (xcc0_ == 2) {
+          dir = pas::EStepDirection::Forward;
+        }
+
+        auto type = pas::EStepType::Normal;
+        if (xa33_24_) {
           type = pas::EStepType::BreakDodge;
+        }
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(dir, type));
         xa31_30_ = true;
       } else {
@@ -1168,7 +1153,7 @@ void CRidley::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   } else if (msg == EStateMsg::Deactivate) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
     if (xa32_25_) {
-      ResetPlasmaProjectile(mgr, 1);
+      ResetPlasmaProjectile(mgr, true);
     }
 
     if (xa32_24_) {
@@ -1227,7 +1212,7 @@ void CRidley::JumpBack(CStateManager& mgr, EStateMsg msg, float arg) {
     xc78_ = 0.f;
 
   } else if (msg == EStateMsg::Update) {
-    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerate, 4);
+    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerateNoXf, 4);
 
     if (x32c_animState == EAnimState::Repeat) {
       x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
@@ -1263,9 +1248,11 @@ void CRidley::DoubleSnap(CStateManager& mgr, EStateMsg msg, float arg) {
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
     x402_28_isMakingBigStrike = false;
+    x504_damageDur = 0.f;
     xc8c_ = GetContactDamage();
   }
 }
+
 void CRidley::CoverAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
@@ -1298,6 +1285,7 @@ void CRidley::Crouch(urde::CStateManager& mgr, urde::EStateMsg msg, float arg) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(zeus::skZero3f, faceDir, 1.f));
   }
 }
+
 void CRidley::FadeOut(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
@@ -1309,12 +1297,13 @@ void CRidley::FadeOut(CStateManager& mgr, EStateMsg msg, float arg) {
 
     xb68_.SetDamage(x568_data.x3fc_);
   } else if (msg == EStateMsg::Update) {
-    TryCommand(mgr, pas::EAnimationState::KnockBack, &CPatterned::TryKnockBack, 5);
+    TryCommand(mgr, pas::EAnimationState::KnockBack, &CPatterned::TryKnockBack_Front, 5);
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
     xcbc_ = 0.6667f * x568_data.x3c_;
   }
 }
+
 void CRidley::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
@@ -1325,6 +1314,7 @@ void CRidley::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
     x32c_animState = EAnimState::NotReady;
   }
 }
+
 void CRidley::Flee(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     zeus::CVector3f destPos =
@@ -1336,6 +1326,7 @@ void CRidley::Flee(CStateManager& mgr, EStateMsg msg, float arg) {
     x450_bodyController->FaceDirection((x2e0_destPos - GetTranslation()).normalized(), arg);
   }
 }
+
 void CRidley::Lurk(urde::CStateManager& mgr, urde::EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     if (!xa33_25_) {
@@ -1368,6 +1359,7 @@ void CRidley::Lurk(urde::CStateManager& mgr, urde::EStateMsg msg, float arg) {
     FacePlayer(10.f * arg, mgr);
   }
 }
+
 void CRidley::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
@@ -1382,24 +1374,26 @@ void CRidley::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
     xa33_31_ = false;
   }
 }
+
 void CRidley::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     sub80257744(mgr);
     x32c_animState = EAnimState::Ready;
   } else if (msg == EStateMsg::Update) {
-    TryCommand(mgr, pas::EAnimationState::KnockBack, &CPatterned::TryKnockBack, 3);
+    TryCommand(mgr, pas::EAnimationState::KnockBack, &CPatterned::TryKnockBack_Front, 3);
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
     sub80257650(mgr);
     xa32_28_shotAt = false;
   }
 }
+
 void CRidley::Hurled(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg != EStateMsg::Activate)
     return;
 
   sub80257650(mgr);
-  x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTransform().basis[1], pas::ESeverity::Four));
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTransform().frontVector(), pas::ESeverity::Four));
 }
 
 void CRidley::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float arg) {
@@ -1417,17 +1411,20 @@ void CRidley::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float arg) {
     xa32_25_ = false;
   }
 }
+
 void CRidley::Jump(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
     xc88_ = (mgr.GetPlayer().GetTranslation() - GetTranslation()).magnitude() <= xae4_ ? 4 : 5;
     x402_28_isMakingBigStrike = x568_data.x3ac_ > 0.f;
+    x504_damageDur = x568_data.x3ac_;
     xc8c_ = x568_data.x390_;
     sub80256580();
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, xc88_);
-    if (x330_stateMachineState.GetTime() < 1.75f)
+    if (x330_stateMachineState.GetTime() < 1.75f) {
       FacePlayer(arg, mgr);
+    }
   } else if (msg == EStateMsg::Deactivate) {
     AddMaterial(EMaterialTypes::Orbit, EMaterialTypes::Target, mgr);
     x402_28_isMakingBigStrike = false;
@@ -1437,24 +1434,27 @@ void CRidley::Jump(CStateManager& mgr, EStateMsg msg, float arg) {
     xa34_25_ = false;
   }
 }
+
 void CRidley::Explode(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     xa32_27_ = false;
     x32c_animState = EAnimState::Ready;
   } else if (msg == EStateMsg::Update) {
-    TryCommand(mgr, pas::EAnimationState::KnockBack, &CPatterned::TryKnockBack, 2);
+    TryCommand(mgr, pas::EAnimationState::KnockBack, &CPatterned::TryKnockBack_Front, 2);
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
   }
 }
+
 void CRidley::Dodge(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
+    const zeus::CVector3f vec = zeus::CVector3f{GetTranslation().toVec2f() - xa84_.origin.toVec2f()}.normalized();
+    float dist = zeus::clamp(0.f, 2.f * vec.dot(xa84_.rightVector()) + 1.f, 1.f);
+
     xc84_ = 2;
-    float dist = zeus::clamp(
-        0.f, zeus::CVector3f(GetTranslation().toVec2f() - xa84_.origin.toVec2f()).normalized().dot(xa84_.basis[0]),
-        1.f);
-    if (dist < mgr.GetActiveRandom()->Float())
+    if (dist < mgr.GetActiveRandom()->Float()) {
       xc84_ = 3;
+    }
     x32c_animState = EAnimState::Ready;
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryDodge, xc84_);
@@ -1463,31 +1463,34 @@ void CRidley::Dodge(CStateManager& mgr, EStateMsg msg, float arg) {
       zeus::CVector3f someVec(((xa84_.origin.x() + xabc_) * vec.x()) - GetTranslation().x(),
                               ((xa84_.origin.y() + xabc_) * vec.y()) - GetTranslation().y(),
                               ((xa84_.origin.z() + xac0_) - GetTranslation().z()));
-      if (someVec.magnitude() > 1.f)
+      if (someVec.magnitude() > 1.f) {
         someVec.normalize();
+      }
 
       sub80255fe8(10.f, arg, someVec);
-    } else {
-      x450_bodyController->FaceDirection((xa84_.origin - GetTranslation()).normalized(), arg);
     }
+
+    x450_bodyController->FaceDirection((xa84_.origin - GetTranslation()).normalized(), arg);
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
   }
 }
+
 void CRidley::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
   } else if (msg == EStateMsg::Update) {
-    TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryDodge, 5);
+    TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryDodge, 5); // Down
   } else {
     x32c_animState = EAnimState::NotReady;
   }
 }
+
 void CRidley::Approach(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     zeus::CVector3f direction = (GetTranslation() - xa84_.origin).normalized();
-    zeus::CVector3f destPos(xa84_.origin.x() + xab4_ * direction.x(), xa84_.origin.y() + xab4_ * direction.y(),
-                            (xae8_ + xa84_.origin.z()) - 1.f);
+    zeus::CVector3f destPos = xa84_.origin.toVec2f() + xab4_ * direction.toVec2f();
+    destPos.z() = (xae8_ + xa84_.origin.z()) - 1.f;
     SetDestPos(destPos);
     xa33_26_ = false;
     if (xc64_aiStage == 3 && !xa34_24_) {
@@ -1527,6 +1530,7 @@ void CRidley::SpecialAttack(CStateManager& mgr, EStateMsg msg, float arg) {
     x32c_animState = EAnimState::NotReady;
   }
 }
+
 void CRidley::Land(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     zeus::CVector3f diff = zeus::CVector3f(mgr.GetPlayer().GetTranslation().x() - xa84_.origin.x(),
@@ -1546,7 +1550,7 @@ void CRidley::Land(CStateManager& mgr, EStateMsg msg, float arg) {
     x402_28_isMakingBigStrike = x568_data.x38c_ > 0.f;
     x504_damageDur = x568_data.x38c_;
   } else if (msg == EStateMsg::Update) {
-    TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, 8);
+    TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack_TargetPos, 8);
 
     if (x32c_animState == EAnimState::Repeat) {
       x450_bodyController->SetLocomotionType(pas::ELocomotionType::Combat);
@@ -1567,6 +1571,7 @@ void CRidley::Land(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 bool CRidley::Attacked(CStateManager& mgr, float arg) { return xa31_24_ && xa31_26_; }
+
 bool CRidley::TooClose(CStateManager& mgr, float arg) {
   if (xb0c_ == 4)
     return true;
@@ -1582,24 +1587,32 @@ bool CRidley::TooClose(CStateManager& mgr, float arg) {
 
   return false;
 }
-bool CRidley::InRange(CStateManager& mgr, float arg) {
-  float mag = (GetTranslation() - x2e0_destPos).magnitude();
-  return mag < 2.f;
-}
+
+bool CRidley::InRange(CStateManager& mgr, float arg) { return (GetTranslation() - x2e0_destPos).magnitude() < 2.f; }
+
 bool CRidley::ShouldAttack(CStateManager& mgr, float arg) {
   return (xc64_aiStage == 3 && xb0c_ == 2) || (xc64_aiStage == 2 && xb04_ == 0);
 }
+
 bool CRidley::ShouldDoubleSnap(CStateManager& mgr, float arg) { return xa33_30_; }
+
 bool CRidley::ShouldTurn(CStateManager& mgr, float arg) { return xb04_ == 5; }
+
 bool CRidley::HitSomething(CStateManager& mgr, float arg) { return xa32_27_ || xc64_aiStage == 3; }
+
 bool CRidley::AttackOver(CStateManager& mgr, float arg) { return xcc4_ == 0; }
+
 bool CRidley::ShouldTaunt(CStateManager& mgr, float arg) {
   return (xc64_aiStage == 3 && xb0c_ == 1) || (xc64_aiStage == 2 && xb04_ == 4);
 }
 bool CRidley::ShouldFire(CStateManager& mgr, float arg) { return xc64_aiStage == 2 && xb04_ == 2; }
+
 bool CRidley::ShouldDodge(CStateManager& mgr, float arg) { return xb04_ == 3; }
+
 bool CRidley::ShouldRetreat(CStateManager& mgr, float arg) { return xa34_26_; }
+
 bool CRidley::ShouldCrouch(CStateManager& mgr, float arg) { return xb04_ == 1; }
+
 bool CRidley::ShouldMove(urde::CStateManager& mgr, float arg) {
   if (xb0c_ == 5) {
     xa34_25_ = true;
@@ -1617,12 +1630,16 @@ bool CRidley::ShouldMove(urde::CStateManager& mgr, float arg) {
   return false;
 }
 bool CRidley::ShotAt(CStateManager& mgr, float arg) { return xa32_28_shotAt; }
+
 bool CRidley::SetAIStage(CStateManager& mgr, float arg) {
   xc64_aiStage = arg;
   return true;
 }
+
 bool CRidley::AIStage(CStateManager& mgr, float arg) { return xc64_aiStage >= arg; }
+
 bool CRidley::ShouldStrafe(CStateManager& mgr, float arg) { return xa33_29_doStrafe; }
+
 bool CRidley::IsDizzy(CStateManager& mgr, float arg) {
   if (xb0c_ == 3)
     return true;
@@ -1637,13 +1654,15 @@ bool CRidley::IsDizzy(CStateManager& mgr, float arg) {
 
   return false;
 }
+
 void CRidley::sub80255fe8(float f1, float f2, const zeus::CVector3f& vec) {
-  xaf8_ = (0.2f * (f1 * f1)) * vec;
+  xaf8_ = (f1 * (0.2f * f1)) * vec;
   xaec_ += f2 * xaf8_;
   if (xaec_.magnitude() > f1) {
     xaec_ = f1 * xaec_.normalized();
   }
 }
+
 void CRidley::sub80255e5c(CStateManager& mgr) {
   zeus::CVector3f posDiff = mgr.GetPlayer().GetTranslation() - GetTranslation();
   if (posDiff.magnitude() < 8.f) {
@@ -1652,6 +1671,7 @@ void CRidley::sub80255e5c(CStateManager& mgr) {
     mgr.GetPlayer().ApplyImpulseWR(impulse, {});
   }
 }
+
 void CRidley::FacePlayer(float arg, CStateManager& mgr) {
   x450_bodyController->FaceDirection((mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized(), arg);
 }
@@ -1703,5 +1723,4 @@ void CRidley::sub80253710(urde::CStateManager& mgr) {
   if (frontMag > 0.f && diffMag < x2fc_minAttackRange && xb08_ != 4)
     xb0c_ = 4;
 }
-} // namespace MP1
-} // namespace urde
+} // namespace urde::MP1

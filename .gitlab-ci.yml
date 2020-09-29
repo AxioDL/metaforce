@@ -13,7 +13,6 @@
       cmake
       -GNinja
       -DCMAKE_BUILD_TYPE=RelWithDebInfo
-      -DLLVM_ROOT_DIR=/opt/urde-llvm
       -DURDE_DLPACKAGE=urde-$CI_PIPELINE_ID-macos-x86_64-$URDE_VECTOR_ISA
       -DURDE_VECTOR_ISA=$URDE_VECTOR_ISA
       ..
@@ -72,7 +71,7 @@ build:macos:avx2:
       -DURDE_DLPACKAGE=urde-$CI_PIPELINE_ID-linux-x86_64-$URDE_VECTOR_ISA
       -DURDE_VECTOR_ISA=$URDE_VECTOR_ISA
       ..
-    - ninja urde hecl visigen
+    - nice -n19 ninja -j8 urde hecl visigen
     - cp Binaries/urde $CI_PROJECT_DIR
     - strip --strip-debug -o $CI_PROJECT_DIR/urde Binaries/urde
     - rm -r $CI_PROJECT_DIR/hecl
@@ -113,34 +112,44 @@ build:linux:avx2:
   variables:
     <<: *build_variables
     URDE_VECTOR_ISA: avx2
-    
+
 .build:win32: &win32_definition
   stage: build
   tags:
     - win32
   script:
-    - 'call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64'
+    - cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
+    - >
+      Get-Content "$env:temp\vcvars.txt" | Foreach-Object {
+        if ($_ -match "^(.*?)=(.*)$") {
+          Set-Content "env:\$($matches[1])" $matches[2]
+        }
+      }
     - mkdir build
     - cd build
     - >
       cmake
       -GNinja
       -DCMAKE_BUILD_TYPE=RelWithDebInfo
-      -DURDE_DLPACKAGE=urde-%CI_PIPELINE_ID%-win32-x86_64-%URDE_VECTOR_ISA%
-      -DURDE_VECTOR_ISA=%URDE_VECTOR_ISA%
+      -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+      -DURDE_DLPACKAGE="urde-$env:CI_PIPELINE_ID-win32-x86_64-$env:URDE_VECTOR_ISA"
+      -DURDE_VECTOR_ISA="$env:URDE_VECTOR_ISA"
+      -DLLVM_ROOT_DIR=C:\projects\deps\llvm
+      -DCMAKE_C_FLAGS=
+      -DCMAKE_CXX_FLAGS=
       ..
     - ninja urde hecl visigen
-    - 'copy Binaries\urde.exe "%CI_PROJECT_DIR%\urde.exe"'
-    - 'pdbcopy Binaries\urde.pdb "%CI_PROJECT_DIR%\urde.pdb" -p'
-    - 'copy Binaries\hecl.exe "%CI_PROJECT_DIR%\hecl.exe"'
-    - 'pdbcopy Binaries\hecl.pdb "%CI_PROJECT_DIR%\hecl.pdb" -p'
-    - 'copy Binaries\visigen.exe "%CI_PROJECT_DIR%\visigen.exe"'
-    - 'pdbcopy Binaries\visigen.pdb "%CI_PROJECT_DIR%\visigen.pdb" -p'
+    - 'copy Binaries\urde.exe "$env:CI_PROJECT_DIR\urde.exe"'
+    - 'pdbcopy Binaries\urde.pdb "$env:CI_PROJECT_DIR\urde.pdb" -p'
+    - 'copy Binaries\hecl.exe "$env:CI_PROJECT_DIR\hecl.exe"'
+    - 'pdbcopy Binaries\hecl.pdb "$env:CI_PROJECT_DIR\hecl.pdb" -p'
+    - 'copy Binaries\visigen.exe "$env:CI_PROJECT_DIR\visigen.exe"'
+    - 'pdbcopy Binaries\visigen.pdb "$env:CI_PROJECT_DIR\visigen.pdb" -p'
   only:
     - release
     - dev
   artifacts:
-    name: "urde-%CI_PIPELINE_ID%-win32-x86_64-%URDE_VECTOR_ISA%"
+    name: "urde-$env:CI_PIPELINE_ID-win32-x86_64-$env:URDE_VECTOR_ISA"
     paths:
       - urde.exe
       - urde.pdb

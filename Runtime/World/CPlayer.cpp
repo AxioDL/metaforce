@@ -177,6 +177,8 @@ constexpr std::array<u16, 24> skRightStepSounds{
     SFXsam_b_wlkorg_01,
 };
 
+constexpr float RCP_2PI = 0.15915494;
+
 constexpr std::array<std::pair<CPlayerState::EItemType, ControlMapper::ECommands>, 4> skVisorToItemMapping{{
     {CPlayerState::EItemType::CombatVisor, ControlMapper::ECommands::NoVisor},
     {CPlayerState::EItemType::XRayVisor, ControlMapper::ECommands::XrayVisor},
@@ -221,33 +223,7 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
                 stepDown)
 , x2d8_fpBounds(aabb)
 , x7d0_animRes(resId, 0, playerScale, 0, true)
-, x7d8_beamScale(playerScale)
-, x9c4_24_visorChangeRequested(false)
-, x9c4_25_showCrosshairs(false)
-, x9c4_26_(true)
-, x9c4_27_canEnterMorphBall(true)
-, x9c4_28_canLeaveMorphBall(true)
-, x9c4_29_spiderBallControlXY(false)
-, x9c4_30_controlDirOverride(false)
-, x9c4_31_inWaterMovement(false)
-, x9c5_24_(false)
-, x9c5_25_splashUpdated(false)
-, x9c5_26_(false)
-, x9c5_27_camSubmerged(false)
-, x9c5_28_slidingOnWall(false)
-, x9c5_29_hitWall(false)
-, x9c5_30_selectFluidBallSound(false)
-, x9c5_31_stepCameraZBiasDirty(true)
-, x9c6_24_extendTargetDistance(false)
-, x9c6_25_interpolatingControlDir(false)
-, x9c6_26_outOfBallLookAtHint(false)
-, x9c6_27_aimingAtProjectile(false)
-, x9c6_28_aligningGrappleSwingTurn(false)
-, x9c6_29_disableInput(false)
-, x9c6_30_newScanScanning(false)
-, x9c6_31_overrideRadarRadius(false)
-, x9c7_24_noDamageLoopSfx(false)
-, x9c7_25_outOfBallLookAtHintActor(false) {
+, x7d8_beamScale(playerScale) {
   x490_gun = std::make_unique<CPlayerGun>(uid);
   x49c_gunHolsterRemTime = g_tweakPlayerGun->GetGunNotFiringTime();
   x4a0_failsafeTest = std::make_unique<CFailsafeTest>();
@@ -327,8 +303,14 @@ s32 CPlayer::ChooseTransitionToAnimation(float dt, CStateManager& mgr) const {
     return 2; // B_readytoball_samus
   }
 
-  const zeus::CRelAngle velAng = std::atan2(localVelFlat.x(), localVelFlat.y());
-  const float velDeg = velAng.asDegrees();
+  float velAng = std::atan2(-localVelFlat.x(), localVelFlat.y());
+  constexpr float twoPi = zeus::degToRad(360.f);
+  if (velAng > twoPi) {
+    velAng = velAng - static_cast<int>(velAng * RCP_2PI) * twoPi;
+  } else if (velAng < 0.f) {
+    velAng = twoPi + (velAng - static_cast<int>(velAng * RCP_2PI) * twoPi);
+  }
+  const float velDeg = zeus::radToDeg(velAng);
   if (velDeg >= 45.f && velDeg <= 315.f) {
     return 1; // B_readytostationarybackwards_samus
   }
@@ -338,7 +320,6 @@ s32 CPlayer::ChooseTransitionToAnimation(float dt, CStateManager& mgr) const {
   }
 
   return 4; // B_runtoballfoward_samus
-
 }
 
 void CPlayer::TransitionToMorphBallState(float dt, CStateManager& mgr) {
@@ -614,7 +595,6 @@ void CPlayer::UpdateMorphBallTransition(float dt, CStateManager& mgr) {
     }
     break;
   case EPlayerMorphBallState::Morphing:
-    ClearForcesAndTorques();
     ClearForcesAndTorques();
     SetAngularVelocityWR(zeus::CAxisAngle());
     if (x574_morphTime >= x578_morphDuration || mgr.GetCameraManager()->IsInCinematicCamera()) {
@@ -1293,7 +1273,7 @@ static CAssetId UpdatePersistentScanPercent(u32 prevLogScans, u32 logScans, u32 
   if (scanPercentProgStep > prevScanPercentProgStep) {
     const char* const messageResBase = UnlockMessageResBases[zeus::clamp(0, scanPercentProgStep - 1, 1)];
     const auto message = std::string(messageResBase).append(1,  firstTime ? '1' : '2');
-    const auto id = g_ResFactory->GetResourceIdByName(message);
+    const auto* const id = g_ResFactory->GetResourceIdByName(message);
     if (id != nullptr) {
       return id->id;
     }
@@ -1572,7 +1552,7 @@ void CPlayer::RenderReflectedPlayer(CStateManager& mgr) {
     }
     CPhysicsActor::Render(mgr);
     if (HasTransitionBeamModel()) {
-      const CModelFlags flags(0, 0, 3, zeus::skWhite);
+      constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
       x7f0_ballTransitionBeamModel->Render(mgr, x7f4_gunWorldXf, nullptr, flags);
     }
     break;
@@ -2310,7 +2290,7 @@ void CPlayer::UpdatePhazonDamage(float dt, CStateManager& mgr) {
       if (CGameCollision::DetectStaticCollisionBoolean(mgr, prim, zeus::CTransform(), filter)) {
         touchingPhazon = true;
       } else {
-        for (const TUniqueId id : nearList) {
+        for (const auto& id : nearList) {
           if (const TCastToConstPtr<CPhysicsActor> act = mgr.GetObjectById(id)) {
             const CInternalCollisionStructure::CPrimDesc prim0(prim, filter, zeus::CTransform());
             const CInternalCollisionStructure::CPrimDesc prim1(
@@ -2402,46 +2382,55 @@ bool CPlayer::SetAreaPlayerHint(const CScriptPlayerHint& hint, CStateManager& mg
 }
 
 void CPlayer::AddToPlayerHintRemoveList(TUniqueId id, CStateManager& mgr) {
-  if (const TCastToConstPtr<CScriptPlayerHint> hint = mgr.ObjectById(id)) {
-    for (const TUniqueId existId : x93c_playerHintsToRemove) {
-      if (id == existId) {
-        return;
-      }
-    }
+  const TCastToConstPtr<CScriptPlayerHint> hint = mgr.ObjectById(id);
+  if (!hint) {
+    return;
+  }
 
-    if (x93c_playerHintsToRemove.size() != 32) {
-      x93c_playerHintsToRemove.push_back(id);
+  for (const auto& existId : x93c_playerHintsToRemove) {
+    if (id == existId) {
+      return;
     }
+  }
+
+  if (x93c_playerHintsToRemove.size() != 32) {
+    x93c_playerHintsToRemove.push_back(id);
   }
 }
 
 void CPlayer::AddToPlayerHintAddList(TUniqueId id, CStateManager& mgr) {
-  if (const TCastToConstPtr<CScriptPlayerHint> hint = mgr.ObjectById(id)) {
-    for (const TUniqueId existId : x980_playerHintsToAdd) {
-      if (id == existId) {
-        return;
-      }
-    }
+  const TCastToConstPtr<CScriptPlayerHint> hint = mgr.ObjectById(id);
+  if (!hint) {
+    return;
+  }
 
-    if (x980_playerHintsToAdd.size() != 32) {
-      x980_playerHintsToAdd.push_back(id);
+  for (const auto& existId : x980_playerHintsToAdd) {
+    if (id == existId) {
+      return;
     }
+  }
+
+  if (x980_playerHintsToAdd.size() != 32) {
+    x980_playerHintsToAdd.push_back(id);
   }
 }
 
 void CPlayer::DeactivatePlayerHint(TUniqueId id, CStateManager& mgr) {
-  if (TCastToPtr<CScriptPlayerHint> hint = mgr.ObjectById(id)) {
-    for (const TUniqueId existId : x93c_playerHintsToRemove) {
-      if (id == existId) {
-        return;
-      }
-    }
+  const TCastToPtr<CScriptPlayerHint> hint = mgr.ObjectById(id);
+  if (!hint) {
+    return;
+  }
 
-    if (x93c_playerHintsToRemove.size() != 32) {
-      x93c_playerHintsToRemove.push_back(id);
-      hint->ClearObjectList();
-      hint->SetDeactivated();
+  for (const auto& existId : x93c_playerHintsToRemove) {
+    if (id == existId) {
+      return;
     }
+  }
+
+  if (x93c_playerHintsToRemove.size() != 32) {
+    x93c_playerHintsToRemove.push_back(id);
+    hint->ClearObjectList();
+    hint->SetDeactivated();
   }
 }
 
@@ -2459,7 +2448,7 @@ void CPlayer::UpdatePlayerHints(CStateManager& mgr) {
   }
 
   bool needsNewHint = false;
-  for (const TUniqueId id : x93c_playerHintsToRemove) {
+  for (const auto& id : x93c_playerHintsToRemove) {
     for (auto it = x838_playerHints.begin(); it != x838_playerHints.end();) {
       if (it->second == id) {
         it = x838_playerHints.erase(it);
@@ -2474,7 +2463,7 @@ void CPlayer::UpdatePlayerHints(CStateManager& mgr) {
   x93c_playerHintsToRemove.clear();
 
   bool addedHint = false;
-  for (const TUniqueId id : x980_playerHintsToAdd) {
+  for (const auto& id : x980_playerHintsToAdd) {
     if (const TCastToConstPtr<CScriptPlayerHint> hint = mgr.ObjectById(id)) {
       bool exists = false;
       for (auto& p : x838_playerHints) {
@@ -2710,7 +2699,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
         x300_fallingTime > 0.3f) {
       if (x258_movementState != EPlayerMovementState::Falling) {
         float hardThres = 30.f * 2.f * -g_tweakPlayer->GetNormalGravAccel();
-        hardThres = (hardThres != 0.f) ? hardThres * std::sqrt(hardThres) : 0.f;
+        hardThres = (hardThres != 0.f) ? hardThres * (1.f / std::sqrt(hardThres)) : 0.f;
         const float landVol = zeus::clamp(95.f, 1.6f * -x794_lastVelocity.z() + 95.f, 127.f) / 127.f;
         u16 landSfx;
         if (-x794_lastVelocity.z() < hardThres) {
@@ -3259,7 +3248,9 @@ void CPlayer::UpdateGunTransform(const zeus::CVector3f& gunPos, CStateManager& m
 
 void CPlayer::UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManager& mgr) {
   zeus::CTransform assistXf = xf;
-  if (TCastToConstPtr<CActor> target = mgr.GetObjectById(x3f4_aimTarget)) {
+  const TCastToConstPtr<CActor> target = mgr.GetObjectById(x3f4_aimTarget);
+
+  if (target) {
     zeus::CVector3f gunToTarget = x480_assistedTargetAim - xf.origin;
     zeus::CVector3f gunToTargetFlat = gunToTarget;
     gunToTargetFlat.z() = 0.f;
@@ -3323,7 +3314,7 @@ void CPlayer::UpdateAimTargetPrediction(const zeus::CTransform& xf, const CState
     return;
   }
 
-  x9c6_27_aimingAtProjectile = TCastToConstPtr<CGameProjectile>(target.GetPtr());
+  x9c6_27_aimingAtProjectile = TCastToConstPtr<CGameProjectile>(target.GetPtr()).IsValid();
   const zeus::CVector3f instantTarget = target->GetAimPosition(mgr, 0.f);
   const zeus::CVector3f gunToTarget = instantTarget - xf.origin;
   const float timeToTarget = gunToTarget.magnitude() / x490_gun->GetBeamVelocity();
@@ -4261,7 +4252,7 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUni
   const float boxTop = (GetOrbitZoneIdealYScaled(int(info)) - vpHHalf) / vpHHalf;
   const CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
 
-  for (const TUniqueId id : list) {
+  for (const auto& id : list) {
     if (const auto* act = static_cast<CActor*>(mgr.ObjectById(id))) {
       if (act->GetUniqueId() != GetUniqueId() && ValidateObjectForMode(act->GetUniqueId(), mgr)) {
         const zeus::CVector3f aimPos = act->GetAimPosition(mgr, 0.f);
@@ -4358,7 +4349,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids, EP
 
   const CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
 
-  for (const TUniqueId id : ids) {
+  for (const auto& id : ids) {
     if (const TCastToConstPtr<CActor> act = mgr.ObjectById(id)) {
       const zeus::CVector3f orbitPos = act->GetOrbitPosition(mgr);
       zeus::CVector3f eyeToOrbit = orbitPos - eyePos;
@@ -4493,7 +4484,7 @@ void CPlayer::FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, 1024>&
   const CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
   const zeus::CVector3f eyePos = GetEyePosition();
 
-  for (const TUniqueId id : nearObjects) {
+  for (const auto& id : nearObjects) {
     if (const TCastToConstPtr<CActor> act = mgr.GetObjectById(id)) {
       if (GetUniqueId() == act->GetUniqueId()) {
         continue;
@@ -4585,7 +4576,7 @@ void CPlayer::AddOrbitDisableSource(CStateManager& mgr, TUniqueId addId) {
     return;
   }
 
-  for (const TUniqueId uid : x9e4_orbitDisableList) {
+  for (const auto& uid : x9e4_orbitDisableList) {
     if (uid == addId) {
       return;
     }
@@ -4672,7 +4663,7 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
       }
       break;
     case EPlayerOrbitState::OrbitObject:
-      if (const TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(x310_orbitTargetId)) {
+      if (TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(x310_orbitTargetId))) {
         if (ValidateCurrentOrbitTargetId(mgr) == EOrbitValidationResult::OK) {
           UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
         } else {
@@ -4755,7 +4746,7 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
     case EPlayerOrbitState::NoOrbit:
       break;
     case EPlayerOrbitState::OrbitObject:
-      if (TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(x310_orbitTargetId)) {
+      if (TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(x310_orbitTargetId))) {
         BreakGrapple(EPlayerOrbitRequest::Default, mgr);
       } else {
         SetOrbitRequest(EPlayerOrbitRequest::StopOrbit, mgr);
@@ -5076,7 +5067,7 @@ bool CPlayer::ValidateOrbitTargetIdAndPointer(TUniqueId uid, CStateManager& mgr)
   if (uid == kInvalidUniqueId) {
     return false;
   }
-  return TCastToConstPtr<CActor>(mgr.GetObjectById(uid));
+  return TCastToConstPtr<CActor>(mgr.GetObjectById(uid)).IsValid();
 }
 
 zeus::CVector3f CPlayer::GetBallPosition() const {
@@ -5183,8 +5174,8 @@ void CPlayer::BombJump(const zeus::CVector3f& pos, CStateManager& mgr) {
           x9d4_bombJumpCheckDelayFrames = 2;
         }
       }
-      CSfxHandle hnd = CSfxManager::AddEmitter(SFXsam_ball_jump, GetTranslation(), zeus::skZero3f, false,
-                                               false, 0x7f, kInvalidAreaId);
+      CSfxHandle hnd = CSfxManager::AddEmitter(SFXsam_ball_jump, GetTranslation(), zeus::skZero3f, false, false, 0x7f,
+                                               kInvalidAreaId);
       ApplySubmergedPitchBend(hnd);
     }
   }
@@ -5530,9 +5521,8 @@ bool CPlayer::SidewaysDashAllowed(float strafeInput, float forwardInput, const C
     }
   } else {
     if (x304_orbitState != EPlayerOrbitState::NoOrbit && g_tweakPlayer->GetDashEnabled() &&
-        ControlMapper::GetPressInput(ControlMapper::ECommands::JumpOrBoost, input) &&
-        x288_startingJumpTimeout > 0.f && std::fabs(strafeInput) >= std::fabs(forwardInput) &&
-        std::fabs(strafeInput) > 0.01f) {
+        ControlMapper::GetPressInput(ControlMapper::ECommands::JumpOrBoost, input) && x288_startingJumpTimeout > 0.f &&
+        std::fabs(strafeInput) >= std::fabs(forwardInput) && std::fabs(strafeInput) > 0.01f) {
       const float threshold = std::sqrt(strafeInput * strafeInput + forwardInput * forwardInput) /
                               CalculateLeftStickEdgePosition(strafeInput, forwardInput).magnitude();
       if (threshold >= g_tweakPlayer->GetDashStrafeInputThreshold()) {
@@ -5611,8 +5601,7 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
 
   const float f3 = strafeVel / orbitToPlayer.magnitude();
   const float f2 = dt * (x37c_sidewaysDashing ? M_PIF : (M_PIF * 2.f / 3.f));
-  useOrbitToPlayer =
-      zeus::CQuaternion::fromAxisAngle(zeus::skUp, zeus::clamp(-f2, f3, f2)).transform(orbitToPlayer);
+  useOrbitToPlayer = zeus::CQuaternion::fromAxisAngle(zeus::skUp, zeus::clamp(-f2, f3, f2)).transform(orbitToPlayer);
   orbitPointFlattened += useOrbitToPlayer;
   if (!ControlMapper::GetDigitalInput(ControlMapper::ECommands::JumpOrBoost, input)) {
     x388_dashButtonHoldTime = 0.f;
@@ -5859,7 +5848,7 @@ void CPlayer::SetHudDisable(float staticTimer, float outSpeed, float inSpeed) {
 }
 
 void CPlayer::SetIntoBallReadyAnimation(CStateManager& mgr) {
-  const CAnimPlaybackParms parms(2, -1, 1.f, true);
+  constexpr CAnimPlaybackParms parms(2, -1, 1.f, true);
   x64_modelData->GetAnimationData()->SetAnimation(parms, false);
   x64_modelData->GetAnimationData()->EnableLooping(false);
   x64_modelData->AdvanceAnimation(0.f, mgr, kInvalidAreaId, true);

@@ -14,9 +14,9 @@ private:
   EFlickerBatState x574_state;
   float x578_fadeRemTime = 1.f;
   float x57c_ooFadeDur = 0.f;
-  bool x580_24_wasInXray : 1;
-  bool x580_25_heardShot : 1;
-  bool x580_26_inLOS : 1;
+  bool x580_24_wasInXray : 1 = false;
+  bool x580_25_heardShot : 1 = false;
+  bool x580_26_inLOS : 1 = false;
   bool x580_27_enableLOSCheck : 1;
 
   void NotifyNeighbors(CStateManager&);
@@ -24,7 +24,7 @@ private:
   void SetHeardShot(bool heardShot) { x580_25_heardShot = heardShot; }
 
 public:
-  DEFINE_PATTERNED(FlickerBat)
+  DEFINE_PATTERNED(FlickerBat);
   CFlickerBat(TUniqueId, std::string_view name, EFlavorType, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
               const CPatternedInfo&, EColliderType, bool, const CActorParameters&, bool);
 

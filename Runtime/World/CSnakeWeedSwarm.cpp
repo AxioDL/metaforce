@@ -42,9 +42,6 @@ CSnakeWeedSwarm::CSnakeWeedSwarm(TUniqueId uid, bool active, std::string_view na
 , x120_scaleMin(scaleMin)
 , x124_scaleMax(scaleMax)
 , x128_distanceBelowGround(distanceBelowGround)
-, x140_24_hasGround(false)
-, x140_25_modelAssetDirty(false)
-, x140_26_playerTouching(false)
 , x15c_damageInfo(dInfo)
 , x1c8_boidPositions(std::make_unique<std::vector<zeus::CVector3f>>())
 , x1cc_boidPlacement(std::make_unique<std::vector<EBoidPlacement>>())
@@ -416,7 +413,7 @@ void CSnakeWeedSwarm::RenderBoid(u32 idx, const CBoid& boid, u32& posesToBuild) 
   auto& modelData = *x1b0_modelData[modelIdx];
   auto& model = modelData.PickAnimatedModel(x1c4_which);
   auto& animData = *modelData.GetAnimationData();
-  const CModelFlags useFlags(0, 0, 3, zeus::skWhite);
+  constexpr CModelFlags useFlags(0, 0, 3, zeus::skWhite);
   if (posesToBuild & 1 << modelIdx) {
     posesToBuild &= ~(1 << modelIdx);
     animData.BuildPose();

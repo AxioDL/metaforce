@@ -49,7 +49,38 @@ constexpr std::array<SGameOption, 4> ControllerOpts{{
     {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
 }};
 
-const std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistry{{
+constexpr std::array<SGameOption, 5> VisorOptsNew{{
+    {EGameOption::VisorOpacity, 23, 0.f, 255.f, 1.f, EOptionType::Float},
+    {EGameOption::HelmetOpacity, 24, 0.f, 255.f, 1.f, EOptionType::Float},
+    {EGameOption::HUDLag, 25, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::HintSystem, 26, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::RestoreDefaults, 38, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+}};
+
+constexpr std::array<SGameOption, 5> DisplayOptsNew{{
+    //{EGameOption::ScreenBrightness, 25, 0.f, 8.f, 1.f, EOptionType::Float},
+    {EGameOption::ScreenBrightness, 28, -100.f, 100.f, 1.f, EOptionType::Float},
+    {EGameOption::ScreenOffsetX, 29, -30.f, 30.f, 1.f, EOptionType::Float},
+    {EGameOption::ScreenOffsetY, 30, -30.f, 30.f, 1.f, EOptionType::Float},
+    {EGameOption::ScreenStretch, 31, -10.f, 10.f, 1.f, EOptionType::Float},
+    {EGameOption::RestoreDefaults, 38, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+}};
+
+constexpr std::array<SGameOption, 4> SoundOptsNew{{
+    {EGameOption::SFXVolume, 32, 0.f, 127.f, 1.f, EOptionType::Float},
+    {EGameOption::MusicVolume, 33, 0.f, 127.f, 1.f, EOptionType::Float},
+    {EGameOption::SoundMode, 34, 0.f, 1.f, 1.f, EOptionType::TripleEnum},
+    {EGameOption::RestoreDefaults, 38, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+}};
+
+constexpr std::array<SGameOption, 4> ControllerOptsNew{{
+    {EGameOption::ReverseYAxis, 35, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::Rumble, 37, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::SwapBeamControls, 37, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::RestoreDefaults, 38, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+}};
+
+constexpr std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistry{{
     {VisorOpts.size(), VisorOpts.data()},
     {DisplayOpts.size(), DisplayOpts.data()},
     {SoundOpts.size(), SoundOpts.data()},
@@ -57,26 +88,36 @@ const std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistry{{
     {0, nullptr},
 }};
 
-CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
-  for (u8& entry : x0_nesState)
-    entry = stream.ReadEncoded(8);
+constexpr std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistryNew{{
+    {VisorOptsNew.size(), VisorOptsNew.data()},
+    {DisplayOptsNew.size(), DisplayOptsNew.data()},
+    {SoundOptsNew.size(), SoundOptsNew.data()},
+    {ControllerOptsNew.size(), ControllerOptsNew.data()},
+    {0, nullptr},
+}};
 
-  for (bool& entry : x68_)
+CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
+  for (u8& entry : x0_nesState) {
     entry = stream.ReadEncoded(8);
+  }
+
+  for (bool& entry : x68_) {
+    entry = stream.ReadEncoded(8) != 0;
+  }
 
   xc0_frozenFpsCount = stream.ReadEncoded(2);
   xc4_frozenBallCount = stream.ReadEncoded(2);
   xc8_powerBombAmmoCount = stream.ReadEncoded(1);
   xcc_logScanPercent = stream.ReadEncoded(7);
-  xd0_24_fusionLinked = stream.ReadEncoded(1);
-  xd0_25_normalModeBeat = stream.ReadEncoded(1);
-  xd0_26_hardModeBeat = stream.ReadEncoded(1);
-  xd0_27_fusionBeat = stream.ReadEncoded(1);
+  xd0_24_fusionLinked = stream.ReadEncoded(1) != 0;
+  xd0_25_normalModeBeat = stream.ReadEncoded(1) != 0;
+  xd0_26_hardModeBeat = stream.ReadEncoded(1) != 0;
+  xd0_27_fusionBeat = stream.ReadEncoded(1) != 0;
   xd0_28_fusionSuitActive = false;
-  xd0_29_allItemsCollected = stream.ReadEncoded(1);
+  xd0_29_allItemsCollected = stream.ReadEncoded(1) != 0;
   xbc_autoMapperKeyState = stream.ReadEncoded(2);
 
-  auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
+  const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
   size_t cinematicCount = 0;
   for (const auto& world : memWorlds) {
     TLockedToken<CSaveWorld> saveWorld =
@@ -86,8 +127,9 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
 
   std::vector<bool> cinematicStates;
   cinematicStates.reserve(cinematicCount);
-  for (size_t i = 0; i < cinematicCount; ++i)
-    cinematicStates.push_back(stream.ReadEncoded(1));
+  for (size_t i = 0; i < cinematicCount; ++i) {
+    cinematicStates.push_back(stream.ReadEncoded(1) != 0);
+  }
 
   for (const auto& world : memWorlds) {
     TLockedToken<CSaveWorld> saveWorld =
@@ -101,11 +143,13 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
 }
 
 void CPersistentOptions::PutTo(CBitStreamWriter& w) const {
-  for (const u8 entry : x0_nesState)
+  for (const u8 entry : x0_nesState) {
     w.WriteEncoded(entry, 8);
+  }
 
-  for (const bool entry : x68_)
-    w.WriteEncoded(entry, 8);
+  for (const bool entry : x68_) {
+    w.WriteEncoded(u32(entry), 8);
+  }
 
   w.WriteEncoded(xc0_frozenFpsCount, 2);
   w.WriteEncoded(xc4_frozenBallCount, 2);
@@ -118,13 +162,14 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const {
   w.WriteEncoded(xd0_29_allItemsCollected, 1);
   w.WriteEncoded(xbc_autoMapperKeyState, 2);
 
-  auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
+  const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
   for (const auto& world : memWorlds) {
-    TLockedToken<CSaveWorld> saveWorld =
+    const TLockedToken<CSaveWorld> saveWorld =
         g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.second.GetSaveWorldAssetId()});
 
-    for (TEditorId cineId : saveWorld->GetCinematics())
-      w.WriteEncoded(GetCinematicState(world.first, cineId), 1);
+    for (const auto& cineId : saveWorld->GetCinematics()) {
+      w.WriteEncoded(u32(GetCinematicState(world.first, cineId)), 1);
+    }
   }
 }
 
@@ -164,11 +209,11 @@ CGameOptions::CGameOptions(CBitStreamReader& stream) {
   x60_hudAlpha = stream.ReadEncoded(8);
   x64_helmetAlpha = stream.ReadEncoded(8);
 
-  x68_24_hudLag = stream.ReadEncoded(1);
-  x68_28_hintSystem = stream.ReadEncoded(1);
-  x68_25_invertY = stream.ReadEncoded(1);
-  x68_26_rumble = stream.ReadEncoded(1);
-  x68_27_swapBeamsControls = stream.ReadEncoded(1);
+  x68_24_hudLag = stream.ReadEncoded(1) != 0;
+  x68_28_hintSystem = stream.ReadEncoded(1) != 0;
+  x68_25_invertY = stream.ReadEncoded(1) != 0;
+  x68_26_rumble = stream.ReadEncoded(1) != 0;
+  x68_27_swapBeamsControls = stream.ReadEncoded(1) != 0;
 }
 
 void CGameOptions::ResetToDefaults() {
@@ -221,15 +266,19 @@ CGameOptions::CGameOptions()
   InitSoundMode();
 }
 
-float CGameOptions::TuneScreenBrightness() { return (0.375f * 1.f) + (float(x48_screenBrightness) * 0.25f); }
+float CGameOptions::TuneScreenBrightness() const { return (0.375f * 1.f) + (float(x48_screenBrightness) * 0.25f); }
 
-void CGameOptions::InitSoundMode() { /* If system is mono, force x44 to mono, otherwise honor user preference */ }
+void CGameOptions::InitSoundMode() { /* If system is mono, force x44 to mono, otherwise honor user preference */
+}
 static float BrightnessCopyFilter = 0.f;
-void CGameOptions::SetScreenBrightness(s32 val, bool apply) {
-  x48_screenBrightness = zeus::clamp(0, val, 8);
+void CGameOptions::SetScreenBrightness(s32 value, bool apply) {
+  x48_screenBrightness = zeus::clamp(0, value, 8);
 
-  if (apply)
-    BrightnessCopyFilter = TuneScreenBrightness();
+  if (!apply) {
+    return;
+  }
+
+  BrightnessCopyFilter = TuneScreenBrightness();
 }
 
 void CGameOptions::ApplyGamma() {
@@ -241,51 +290,60 @@ void CGameOptions::ApplyGamma() {
   CGraphics::g_BooFactory->setDisplayGamma(gammaT);
 }
 
-void CGameOptions::SetGamma(s32 val, bool apply) {
-  m_gamma = zeus::clamp(-100, val, 100);
+void CGameOptions::SetGamma(s32 value, bool apply) {
+  m_gamma = zeus::clamp(-100, value, 100);
 
-  if (apply)
-    ApplyGamma();
+  if (!apply) {
+    return;
+  }
+
+  ApplyGamma();
 }
 
-void CGameOptions::SetScreenPositionX(s32 pos, bool apply) {
-  x4c_screenXOffset = zeus::clamp(-30, pos, 30);
+void CGameOptions::SetScreenPositionX(s32 position, bool apply) {
+  x4c_screenXOffset = zeus::clamp(-30, position, 30);
 
   if (apply) {
     /* TOOD: CGraphics related funcs */
   }
 }
 
-void CGameOptions::SetScreenPositionY(s32 pos, bool apply) {
-  x50_screenYOffset = zeus::clamp(-30, pos, 30);
+void CGameOptions::SetScreenPositionY(s32 position, bool apply) {
+  x50_screenYOffset = zeus::clamp(-30, position, 30);
 
   if (apply) {
     /* TOOD: CGraphics related funcs */
   }
 }
 
-void CGameOptions::SetScreenStretch(s32 st, bool apply) {
-  x54_screenStretch = zeus::clamp(-10, st, 10);
+void CGameOptions::SetScreenStretch(s32 stretch, bool apply) {
+  x54_screenStretch = zeus::clamp(-10, stretch, 10);
 
   if (apply) {
     /* TOOD: CGraphics related funcs */
   }
 }
 
-void CGameOptions::SetSfxVolume(s32 vol, bool apply) {
-  x58_sfxVol = zeus::clamp(0, vol, 0x7f);
+void CGameOptions::SetSfxVolume(s32 volume, bool apply) {
+  x58_sfxVol = zeus::clamp(0, volume, 0x7f);
 
-  if (apply) {
-    CAudioSys::SysSetSfxVolume(x58_sfxVol, 1, 1, 1);
-    CStreamAudioManager::SetSfxVolume(x58_sfxVol);
-    CMoviePlayer::SetSfxVolume(x58_sfxVol);
+  if (!apply) {
+    return;
   }
+
+  CAudioSys::SysSetSfxVolume(x58_sfxVol, 1, true, true);
+  CStreamAudioManager::SetSfxVolume(x58_sfxVol);
+  CMoviePlayer::SetSfxVolume(x58_sfxVol);
 }
 
-void CGameOptions::SetMusicVolume(s32 vol, bool apply) {
-  x5c_musicVol = zeus::clamp(0, vol, 0x7f);
-  if (apply)
-    CStreamAudioManager::SetMusicVolume(x5c_musicVol);
+void CGameOptions::SetMusicVolume(s32 volume, bool apply) {
+  x5c_musicVol = zeus::clamp(0, volume, 0x7f);
+
+  if (!apply) {
+    return;
+  }
+
+  CStreamAudioManager::SetMusicVolume(x5c_musicVol);
 }
 
 void CGameOptions::SetHUDAlpha(u32 alpha) { x60_hudAlpha = alpha; }
@@ -325,7 +383,7 @@ void CGameOptions::SetControls(int controls) {
   ResetControllerAssets(controls);
 }
 
-const std::array<std::pair<CAssetId, CAssetId>, 5> CStickToDPadRemap{{
+constexpr std::array<std::pair<CAssetId, CAssetId>, 5> CStickToDPadRemap{{
     {0x2A13C23E, 0xF13452F8},
     {0xA91A7703, 0xC042EC91},
     {0x12A12131, 0x5F556002},
@@ -333,7 +391,7 @@ const std::array<std::pair<CAssetId, CAssetId>, 5> CStickToDPadRemap{{
     {0xCD7B1ACA, 0x8ADA8184},
 }};
 
-const std::array<std::pair<CAssetId, CAssetId>, 5> CStickOutlineToDPadRemap{{
+constexpr std::array<std::pair<CAssetId, CAssetId>, 5> CStickOutlineToDPadRemap{{
     {0x1A29C0E6, 0xF13452F8},
     {0x5D9F9796, 0xC042EC91},
     {0x951546A8, 0x5F556002},
@@ -442,10 +500,10 @@ void CGameOptions::SetOption(EGameOption option, int value) {
     options.SetHelmetAlpha(value);
     break;
   case EGameOption::HUDLag:
-    options.SetHUDLag(value);
+    options.SetHUDLag(value != 0);
     break;
   case EGameOption::HintSystem:
-    options.SetIsHintSystemEnabled(value);
+    options.SetIsHintSystemEnabled(value != 0);
     break;
   case EGameOption::ScreenBrightness:
     options.SetGamma(value, true);
@@ -469,13 +527,13 @@ void CGameOptions::SetOption(EGameOption option, int value) {
     options.SetSurroundMode(value, true);
     break;
   case EGameOption::ReverseYAxis:
-    options.SetInvertYAxis(value);
+    options.SetInvertYAxis(value != 0);
     break;
   case EGameOption::Rumble:
-    options.SetIsRumbleEnabled(value);
+    options.SetIsRumbleEnabled(value != 0);
     break;
   case EGameOption::SwapBeamControls:
-    options.SetSwapBeamControls(value);
+    options.SetSwapBeamControls(value != 0);
     break;
   default:
     break;
@@ -491,9 +549,9 @@ int CGameOptions::GetOption(EGameOption option) {
   case EGameOption::HelmetOpacity:
     return options.GetHelmetAlpha();
   case EGameOption::HUDLag:
-    return options.GetHUDLag();
+    return int(options.GetHUDLag());
   case EGameOption::HintSystem:
-    return options.GetIsHintSystemEnabled();
+    return int(options.GetIsHintSystemEnabled());
   case EGameOption::ScreenBrightness:
     return options.GetGamma();
   case EGameOption::ScreenOffsetX:
@@ -509,11 +567,11 @@ int CGameOptions::GetOption(EGameOption option) {
   case EGameOption::SoundMode:
     return int(options.GetSurroundMode());
   case EGameOption::ReverseYAxis:
-    return options.GetInvertYAxis();
+    return int(options.GetInvertYAxis());
   case EGameOption::Rumble:
-    return options.GetIsRumbleEnabled();
+    return int(options.GetIsRumbleEnabled());
   case EGameOption::SwapBeamControls:
-    return options.GetSwapBeamControls();
+    return int(options.GetSwapBeamControls());
   default:
     break;
   }

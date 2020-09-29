@@ -271,8 +271,8 @@ public:
     float x38_rowPitch = 0.f;
     CSfxHandle x3c_sliderSfx;
     CRumbleGenerator x40_rumbleGen;
-    bool x134_24_visible : 1;
-    bool x134_25_exitOptions : 1;
+    bool x134_24_visible : 1 = true;
+    bool x134_25_exitOptions : 1 = false;
 
     bool m_touchBarInValue = false;
     bool m_touchBarValueDirty = false;
@@ -360,6 +360,7 @@ private:
 
 public:
   CFrontEndUI();
+  ~CFrontEndUI();
   void StartSlideShow(CArchitectureQueue& queue);
   std::string GetAttractMovieFileName(int idx);
   std::string GetNextAttractMovieFileName();

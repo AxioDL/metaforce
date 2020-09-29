@@ -52,18 +52,39 @@ static bool BoxLineTest(const zeus::CAABox& aabb, const zeus::CLine& line, float
   return lT <= hT;
 }
 
-static const int SomeIndexA[] = {1, 2, 4};
+constexpr std::array SomeIndexA{1, 2, 4};
 
-static const int SomeIndexB[] = {1, 2, 0};
+constexpr std::array SomeIndexB{1, 2, 0};
 
-static const int SomeIndexC[8][8] = {{0, 1, 2, 4, 5, 6, 8, 0xA}, {0, 1, 2, 3, 5, 6, 8, 0xA}, {0, 1, 2, 4, 5, 6, 9, 0xB},
-                                     {0, 1, 2, 3, 5, 6, 9, 0xC}, {0, 1, 2, 4, 5, 7, 8, 0xD}, {0, 1, 2, 3, 5, 7, 8, 0xE},
-                                     {0, 1, 2, 4, 5, 7, 9, 0xF}, {0, 1, 2, 3, 5, 7, 9, 0xF}};
+constexpr std::array<std::array<int, 8>, 8> SomeIndexC{{
+    {0, 1, 2, 4, 5, 6, 8, 0xA},
+    {0, 1, 2, 3, 5, 6, 8, 0xA},
+    {0, 1, 2, 4, 5, 6, 9, 0xB},
+    {0, 1, 2, 3, 5, 6, 9, 0xC},
+    {0, 1, 2, 4, 5, 7, 8, 0xD},
+    {0, 1, 2, 3, 5, 7, 8, 0xE},
+    {0, 1, 2, 4, 5, 7, 9, 0xF},
+    {0, 1, 2, 3, 5, 7, 9, 0xF},
+}};
 
-static const std::pair<int, std::array<int, 3>> SubdivIndex[16] = {
-    {0, {0, 0, 0}}, {1, {0, 0, 0}}, {1, {1, 0, 0}}, {2, {0, 1, 0}}, {2, {1, 0, 0}}, {1, {2, 0, 0}},
-    {2, {0, 2, 0}}, {2, {2, 0, 0}}, {2, {2, 1, 0}}, {2, {1, 2, 0}}, {3, {0, 2, 1}}, {3, {1, 0, 2}},
-    {3, {0, 1, 2}}, {3, {2, 1, 0}}, {3, {2, 0, 1}}, {3, {1, 2, 0}}};
+constexpr std::array<std::pair<int, std::array<int, 3>>, 16> SubdivIndex{{
+    {0, {0, 0, 0}},
+    {1, {0, 0, 0}},
+    {1, {1, 0, 0}},
+    {2, {0, 1, 0}},
+    {2, {1, 0, 0}},
+    {1, {2, 0, 0}},
+    {2, {0, 2, 0}},
+    {2, {2, 0, 0}},
+    {2, {2, 1, 0}},
+    {2, {1, 2, 0}},
+    {3, {0, 2, 1}},
+    {3, {1, 0, 2}},
+    {3, {0, 1, 2}},
+    {3, {2, 1, 0}},
+    {3, {2, 0, 1}},
+    {3, {1, 2, 0}},
+}};
 
 bool CAreaOctTree::Node::LineTestInternal(const zeus::CLine& line, const CMaterialFilter& filter, float lT, float hT,
                                           float maxT, const zeus::CVector3f& vec) const {
@@ -149,7 +170,7 @@ bool CAreaOctTree::Node::LineTestInternal(const zeus::CLine& line, const CMateri
     int r28 = 0;
     int r25 = 0;
     int r26 = 0;
-    for (int i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < 3; ++i) {
       if (r6[i] >= center[i])
         r28 |= SomeIndexA[i];
       if (r7[i] >= center[i])
@@ -255,7 +276,7 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
   } else if (x20_nodeType == ETreeType::Branch) {
     if (GetChildFlags() == 0xA) // 2 leaves
     {
-      SRayResult tmpRes[2];
+      std::array<SRayResult, 2> tmpRes;
       for (int i = 0; i < 2; ++i) {
         Node child = GetChild(i);
         float tf1 = lT;
@@ -287,17 +308,20 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
 
     zeus::CVector3f lowPoint = line.origin + lT * line.dir;
     zeus::CVector3f highPoint = line.origin + hT * line.dir;
-    int comps[] = {-1, -1, -1, 0};
-    float compT[3];
+    std::array<int, 4> comps{-1, -1, -1, 0};
+    std::array<float, 3> compT;
 
     int numComps = 0;
-    for (int i = 0; i < 3; ++i) {
-      if (lowPoint[i] >= center[i] || highPoint[i] <= center[i])
-        if (highPoint[i] >= center[i] || lowPoint[i] <= center[i])
+    for (size_t i = 0; i < compT.size(); ++i) {
+      if (lowPoint[i] >= center[i] || highPoint[i] <= center[i]) {
+        if (highPoint[i] >= center[i] || lowPoint[i] <= center[i]) {
           continue;
-      if (_close_enough(line.dir[i], 0.f, 0.000099999997f))
+        }
+      }
+      if (_close_enough(line.dir[i], 0.f, 0.000099999997f)) {
         continue;
-      comps[numComps++] = i;
+      }
+      comps[numComps++] = static_cast<int>(i);
       compT[i] = dirRecip[i] * (center[i] - line.origin[i]);
     }
 

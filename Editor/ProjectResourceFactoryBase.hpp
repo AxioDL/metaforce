@@ -73,7 +73,7 @@ public:
   };
 
 protected:
-  const hecl::Database::Project* m_proj = nullptr;
+  hecl::Database::Project* m_proj = nullptr;
   const hecl::Database::DataSpecEntry* m_origSpec = nullptr;
   const hecl::Database::DataSpecEntry* m_pcSpec = nullptr;
   /* Used to resolve cooked paths */
@@ -155,9 +155,7 @@ public:
   void Shutdown() { CancelBackgroundIndex(); }
   bool IsBusy() const { return m_asyncLoadMap.size() != 0; }
 
-  SObjectTag TagFromPath(hecl::SystemStringView path) const {
-    return TagFromPath(hecl::ProjectPath(*(hecl::Database::Project*)m_proj, path));
-  }
+  SObjectTag TagFromPath(hecl::SystemStringView path) const { return TagFromPath(hecl::ProjectPath(*m_proj, path)); }
 
   ~ProjectResourceFactoryBase() override { Shutdown(); }
 };

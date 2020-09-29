@@ -16,40 +16,43 @@ CScriptCameraHintTrigger::CScriptCameraHintTrigger(TUniqueId uid, bool active, s
 , xe8_obb(xf, scale)
 , x124_scale(scale)
 , x130_24_deactivateOnEnter(deactivateOnEnter)
-, x130_25_deactivateOnExit(deactivateOnExit)
-, x130_26_playerInside(false)
-, x130_27_playerWasInside(false) {}
+, x130_25_deactivateOnExit(deactivateOnExit) {}
 
 void CScriptCameraHintTrigger::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptCameraHintTrigger::Think(float dt, CStateManager& mgr) {
-  if (!GetActive())
+  if (!GetActive()) {
     return;
+  }
 
   if (x130_26_playerInside && !x130_27_playerWasInside) {
     x130_27_playerWasInside = true;
     SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
-    if (x130_24_deactivateOnEnter)
+    if (x130_24_deactivateOnEnter) {
       mgr.SendScriptMsg(this, kInvalidUniqueId, EScriptObjectMessage::Deactivate);
+    }
   }
 
   if (!x130_26_playerInside && x130_27_playerWasInside) {
     x130_27_playerWasInside = false;
     SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::None);
-    if (x130_25_deactivateOnExit)
+    if (x130_25_deactivateOnExit) {
       mgr.SendScriptMsg(this, kInvalidUniqueId, EScriptObjectMessage::Deactivate);
+    }
   }
 
-  if (x130_26_playerInside)
+  if (x130_26_playerInside) {
     SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::None);
+  }
 
   x130_26_playerInside = false;
 }
 
 void CScriptCameraHintTrigger::Touch(CActor& other, CStateManager& mgr) {
-  if (TCastToPtr<CPlayer>(other)) {
-    if (auto tb = other.GetTouchBounds())
+  if (TCastToConstPtr<CPlayer>(other)) {
+    if (const auto tb = other.GetTouchBounds()) {
       x130_26_playerInside = xe8_obb.OBBIntersectsBox(zeus::COBBox::FromAABox(*tb, {}));
+    }
   }
 }
 

@@ -38,7 +38,6 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
                                                                                                                  : 0.1f)
 , x2c0_homingTargetId(homingTarget)
 , x2cc_wpscId(wDesc.GetObjectTag()->id)
-, x2e4_24_active(true)
 , x2e4_25_startedUnderwater(underwater)
 , x2e4_26_waterUpdate(underwater)
 , x2e4_27_inWater(underwater)
@@ -94,6 +93,11 @@ void CGameProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId /*uid*
     }
   } else if (msg == EScriptObjectMessage::Deleted)
     DeleteProjectileLight(mgr);
+}
+
+void CGameProjectile::Render(CStateManager& mgr) {
+  x170_projectile.Render();
+  CWeapon::Render(mgr);
 }
 
 EProjectileAttrib CGameProjectile::GetBeamAttribType(EWeaponType wType) {

@@ -16,8 +16,6 @@ namespace urde::MP1 {
 
 CPlayerVisor::CPlayerVisor(CStateManager&)
 : x108_newScanPane(EFilterType::Blend, CGraphics::g_SpareTexture.get_color(0)) {
-  x25_24_visorTransitioning = false;
-  x25_25_ = false;
   xcc_scanFrameCorner = g_SimplePool->GetObj("CMDL_ScanFrameCorner");
   xd8_scanFrameCenterSide = g_SimplePool->GetObj("CMDL_ScanFrameCenterSide");
   xe4_scanFrameCenterTop = g_SimplePool->GetObj("CMDL_ScanFrameCenterTop");

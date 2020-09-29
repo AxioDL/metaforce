@@ -52,7 +52,7 @@ class CNewIntroBoss : public CPatterned {
   void StopRumble(CStateManager&);
 
 public:
-  DEFINE_PATTERNED(NewIntroBoss)
+  DEFINE_PATTERNED(NewIntroBoss);
   CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                 CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float minTurnAngle,
                 CAssetId projectile, const CDamageInfo& dInfo, CAssetId beamContactFxId, CAssetId beamPulseFxId,

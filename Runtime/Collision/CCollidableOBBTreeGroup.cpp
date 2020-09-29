@@ -9,7 +9,6 @@
 
 namespace urde {
 constexpr CCollisionPrimitive::Type sType(CCollidableOBBTreeGroup::SetStaticTableIndex, "CCollidableOBBTreeGroup");
-u32 CCollidableOBBTreeGroup::sTableIndex = -1;
 
 CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(CInputStream& in) {
   const u32 treeCount = in.readUint32Big();

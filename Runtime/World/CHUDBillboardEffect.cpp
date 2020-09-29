@@ -23,10 +23,6 @@ CHUDBillboardEffect::CHUDBillboardEffect(const std::optional<TToken<CGenDescript
   xec_translation = translation;
   xec_translation.y() += dist;
   xf8_localScale = scale1 * scale0;
-  x104_24_renderAsParticleGen = true;
-  x104_25_enableRender = false;
-  x104_26_isElementGen = false;
-  x104_27_runIndefinitely = false;
 
   if (particle) {
     x104_26_isElementGen = true;

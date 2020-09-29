@@ -32,10 +32,10 @@ struct SAdsrData {
   float xc_decayDur = 0.f;
   float x10_sustainGain = 0.f;
   float x14_releaseDur = 0.f;
-  bool x18_24_hasSustain : 1;
-  bool x18_25_autoRelease : 1;
+  bool x18_24_hasSustain : 1 = false;
+  bool x18_25_autoRelease : 1 = false;
 
-  constexpr SAdsrData() noexcept : x18_24_hasSustain(false), x18_25_autoRelease(false) {}
+  constexpr SAdsrData() noexcept = default;
   constexpr SAdsrData(float attackGain, float autoReleaseDur, float attackDur, float decayDur, float sustainGain,
                       float releaseDur, bool hasSustain, bool autoRelease) noexcept
   : x0_attackGain(attackGain)

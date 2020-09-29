@@ -8,34 +8,6 @@
 
 namespace urde {
 
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_texZTestZWrite;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_texNoZTestZWrite;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_texZTestNoZWrite;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_texNoZTestNoZWrite;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_texAdditiveZTest;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_texAdditiveNoZTest;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_texRedToAlphaZTest;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_texRedToAlphaNoZTest;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_texZTestNoZWriteSub;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_texNoZTestNoZWriteSub;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_texRedToAlphaZTestSub;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_texRedToAlphaNoZTestSub;
-
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_indTexZWrite;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_indTexNoZWrite;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_indTexAdditive;
-
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_cindTexZWrite;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_cindTexNoZWrite;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_cindTexAdditive;
-
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_noTexZTestZWrite;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_noTexNoZTestZWrite;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_noTexZTestNoZWrite;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_noTexNoZTestNoZWrite;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_noTexAdditiveZTest;
-std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CElementGenShaders::m_noTexAdditiveNoZTest;
-
 void CElementGenShaders::Initialize() {
   m_texZTestZWrite = {hecl::conv->convert(Shader_CElementGenShaderTexZTestZWrite{}),
                       hecl::conv->convert(Shader_CElementGenShaderTexZTestZWrite{})};

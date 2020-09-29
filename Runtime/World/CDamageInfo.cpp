@@ -12,7 +12,7 @@ CDamageInfo::CDamageInfo(const DataSpec::SShotParam& other)
 , xc_radiusDamage(other.radiusDamage)
 , x10_radius(other.radius)
 , x14_knockback(other.knockback)
-, x18_noImmunity(other.noImmunity) {}
+, x18_24_noImmunity(other.noImmunity) {}
 
 CDamageInfo& CDamageInfo::operator=(const DataSpec::SShotParam& other) {
   x0_weaponMode = CWeaponMode(EWeaponType(other.weaponType), other.charged, other.combo, other.instaKill);
@@ -20,7 +20,7 @@ CDamageInfo& CDamageInfo::operator=(const DataSpec::SShotParam& other) {
   xc_radiusDamage = other.radiusDamage;
   x10_radius = other.radius;
   x14_knockback = other.knockback;
-  x18_noImmunity = other.noImmunity;
+  x18_24_noImmunity = other.noImmunity;
   return *this;
 }
 
@@ -36,10 +36,12 @@ float CDamageInfo::GetDamage(const CDamageVulnerability& dVuln) const {
 
 float CDamageInfo::GetRadiusDamage(const CDamageVulnerability& dVuln) const {
   EVulnerability vuln = dVuln.GetVulnerability(x0_weaponMode, false);
-  if (vuln == EVulnerability::Deflect)
+  if (vuln == EVulnerability::Deflect) {
     return 0.f;
-  else if (vuln == EVulnerability::Weak)
+  }
+  if (vuln == EVulnerability::Weak) {
     return 2.f * xc_radiusDamage;
+  }
 
   return xc_radiusDamage;
 }
@@ -50,6 +52,6 @@ CDamageInfo::CDamageInfo(const CDamageInfo& other, float dt) {
   xc_radiusDamage = x8_damage;
   x10_radius = other.x10_radius;
   x14_knockback = other.x14_knockback;
-  x18_noImmunity = true;
+  x18_24_noImmunity = true;
 }
 } // namespace urde

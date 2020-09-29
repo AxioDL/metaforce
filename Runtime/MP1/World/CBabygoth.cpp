@@ -1,5 +1,7 @@
 #include "Runtime/MP1/World/CBabygoth.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -21,7 +23,15 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
-const std::string_view CBabygoth::skpMouthDamageJoint = "LCTR_SHEMOUTH"sv;
+constexpr std::string_view skpMouthDamageJoint = "LCTR_SHEMOUTH"sv;
+
+constexpr std::array<SSphereJointInfo, 5> skSphereJointList{{
+    {"L_knee", 1.2f},
+    {"R_knee", 1.2f},
+    {"LCTR_SHEMOUTH", 1.7f},
+    {"Pelvis", 1.2f},
+    {"butt_LCTR", 0.9f},
+}};
 
 CBabygothData::CBabygothData(CInputStream& in)
 : x0_fireballAttackTime(in.readFloatBig())
@@ -69,21 +79,7 @@ CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& in
                         g_SimplePool->GetObj({SBIG('WPSC'), babyData.x44_fireBreathWeapon})
                         : g_SimplePool->GetObj("FlameThrower"sv))
 , x98c_dVuln(pInfo.GetDamageVulnerability())
-, xa00_shellHitPoints(babyData.GetShellHitPoints())
-, xa48_24_isAlert(false)
-, xa48_25_(false)
-, xa48_26_inProjectileAttack(false)
-, xa48_27_(false)
-, xa48_28_pendingAttackContactDamage(false)
-, xa48_29_hasBeenEnraged(false)
-, xa48_30_heardPlayerFire(false)
-, xa48_31_approachNeedsPathSearch(true)
-, xa49_24_gettingUp(false)
-, xa49_25_shouldStepBackwards(false)
-, xa49_26_readyForTeam(false)
-, xa49_27_locomotionValid(false)
-, xa49_28_onApproachPath(false)
-, xa49_29_objectSpaceCollision(false) {
+, xa00_shellHitPoints(babyData.GetShellHitPoints()) {
   TLockedToken<CModel> model = g_SimplePool->GetObj({SBIG('CMDL'), babyData.x138_noShellModel});
   TLockedToken<CSkinRules> skin = g_SimplePool->GetObj({SBIG('CSKR'), babyData.x13c_noShellSkin});
   xa08_noShellModel =
@@ -187,7 +183,7 @@ void CBabygoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
               CrackShell(mgr, xa38_intermediateCrackParticle, xf, x570_babyData.GetShellCrackSfx(), false);
             }
           }
-          KnockBack(GetTransform().frontVector(), mgr, wp->GetDamageInfo(), EKnockBackType::Radius, false,
+          KnockBack(GetTransform().frontVector(), mgr, wp->GetDamageInfo(), EKnockBackType::Direct, false,
                     wp->GetDamageInfo().GetKnockBackPower());
         }
       }
@@ -298,13 +294,10 @@ void CBabygoth::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
-const SSphereJointInfo CBabygoth::skSphereJointList[skSphereJointCount] = {
-    {"L_knee", 1.2f}, {"R_knee", 1.2f}, {"LCTR_SHEMOUTH", 1.7f}, {"Pelvis", 1.2f}, {"butt_LCTR", 0.9f}};
-
-void CBabygoth::AddSphereCollisionList(const SSphereJointInfo* sphereJointInfo, s32 jointCount,
+void CBabygoth::AddSphereCollisionList(const SSphereJointInfo* sphereJointInfo, size_t jointCount,
                                        std::vector<CJointCollisionDescription>& jointList) {
-  for (s32 i = 0; i < jointCount; ++i) {
-    CSegId seg = GetModelData()->GetAnimationData()->GetLocatorSegId(sphereJointInfo[i].name);
+  for (size_t i = 0; i < jointCount; ++i) {
+    const CSegId seg = GetModelData()->GetAnimationData()->GetLocatorSegId(sphereJointInfo[i].name);
     jointList.push_back(
         CJointCollisionDescription::SphereCollision(seg, sphereJointInfo[i].radius, sphereJointInfo[i].name, 1000.f));
   }
@@ -312,7 +305,7 @@ void CBabygoth::AddSphereCollisionList(const SSphereJointInfo* sphereJointInfo, 
 
 void CBabygoth::SetupCollisionManager(CStateManager& mgr) {
   std::vector<CJointCollisionDescription> joints;
-  AddSphereCollisionList(skSphereJointList, skSphereJointCount, joints);
+  AddSphereCollisionList(skSphereJointList.data(), skSphereJointList.size(), joints);
   x928_colActMgr = std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), joints, false);
   x928_colActMgr->SetActive(mgr, GetActive());
 
@@ -1096,12 +1089,13 @@ bool CBabygoth::Leash(CStateManager& mgr, float) {
   return false;
 }
 
-bool CBabygoth::IsDestinationObstructed(CStateManager& mgr) {
-  for (CEntity* obj : mgr.GetListeningAiObjectList()) {
-    if (TCastToPtr<CAi> ai = obj) {
+bool CBabygoth::IsDestinationObstructed(const CStateManager& mgr) const {
+  for (const CEntity* obj : mgr.GetListeningAiObjectList()) {
+    if (const TCastToConstPtr<CAi> ai = obj) {
       if (ai->GetAreaIdAlways() == GetAreaIdAlways()) {
-        if ((x8b8_backupDestPos - ai->GetTranslation()).magSquared() <= 10.f)
+        if ((x8b8_backupDestPos - ai->GetTranslation()).magSquared() <= 10.f) {
           return true;
+        }
       }
     }
   }

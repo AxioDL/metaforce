@@ -17,8 +17,6 @@ CPlasmaBeam::CPlasmaBeam(CAssetId characterId, EWeaponType type, TUniqueId playe
                          const zeus::CVector3f& scale)
 : CGunWeapon(characterId, type, playerId, playerMaterial, scale) {
   x21c_plasma2nd1 = g_SimplePool->GetObj("Plasma2nd_1");
-  x22c_24_loaded = false;
-  x22c_25_worldLighingDim = false;
 }
 
 void CPlasmaBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {

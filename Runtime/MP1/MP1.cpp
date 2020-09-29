@@ -37,6 +37,7 @@
 #include "Runtime/Particle/CWeaponDescription.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CStateMachine.hpp"
+#include "Runtime/World/CScriptMazeNode.hpp"
 
 #include <DataSpec/DNAMP1/SFX/Misc.h>
 #include <DataSpec/DNAMP1/SFX/MiscSamus.h>
@@ -45,12 +46,6 @@
 #include <DataSpec/DNAMP1/SFX/ZZZ.h>
 
 #include <discord_rpc.h>
-
-namespace hecl {
-extern CVar* com_enableCheats;
-extern CVar* com_developer;
-extern CVar* com_cubemaps;
-}; // namespace hecl
 
 namespace urde::MP1 {
 namespace {
@@ -74,7 +69,7 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo2::IAudioVo
 , x0_audioSys(voiceEngine, backend, 0, 0, 0, 0, 0)
 , x30_inputGenerator(g_tweakPlayer->GetLeftLogicalThreshold(), g_tweakPlayer->GetRightLogicalThreshold())
 , x44_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero) {
-  CMain* m = static_cast<CMain*>(g_Main);
+  auto* m = static_cast<CMain*>(g_Main);
 
   x30_inputGenerator.startScanning();
   g_InputGenerator = &x30_inputGenerator;
@@ -120,8 +115,9 @@ void CGameArchitectureSupport::Update(float dt) {
 }
 
 bool CGameArchitectureSupport::LoadAudio() {
-  if (x88_audioLoadStatus == EAudioLoadStatus::Loaded)
+  if (x88_audioLoadStatus == EAudioLoadStatus::Loaded) {
     return true;
+  }
 
   for (int i = 0; i < 5; ++i) {
     TToken<CAudioGroupSet>& tok = x8c_pendingAudioGroups[i];
@@ -212,16 +208,7 @@ void CGameArchitectureSupport::specialKeyUp(boo2::Keycode key, boo2::KeyModifier
 }
 
 CMain::CMain(IFactory* resFactory, CSimplePool* resStore, hsh::surface surface)
-: x128_globalObjects(resFactory, resStore)
-, x160_24_finished(false)
-, x160_25_mfGameBuilt(false)
-, x160_26_screenFading(false)
-, x160_27_(false)
-, x160_28_manageCard(false)
-, x160_29_(false)
-, x160_30_(false)
-, x160_31_cardBusy(false)
-, x161_24_gameFrameDrawn(false) {
+: x128_globalObjects(std::make_unique<CGameGlobalObjects>(resFactory, resStore)) {
   CGraphics::InitializeBoo(surface);
   xe4_gameplayResult = EGameplayResult::Playing;
   g_Main = this;
@@ -287,17 +274,28 @@ CGameGlobalObjects::~CGameGlobalObjects() {
   g_GameState = nullptr;
   g_TweakManager = nullptr;
 }
+void CGameGlobalObjects::PostInitialize() {
+  AddPaksAndFactories();
+  LoadTextureCache();
+  LoadStringTable();
+  m_renderer.reset(AllocateRenderer(*xcc_simplePool, *x4_resFactory));
+  CEnvFxManager::Initialize();
+  CScriptMazeNode::LoadMazeSeeds();
+}
 
 void CMain::AddWorldPaks() {
   CResLoader* loader = g_ResFactory->GetResLoader();
-  if (!loader)
+  if (loader == nullptr) {
     return;
+  }
+
   auto pakPrefix = g_tweakGame->GetWorldPrefix();
   for (int i = 0; i < 9; ++i) {
     std::string path(pakPrefix);
 
-    if (i != 0)
-      path += '0' + i;
+    if (i != 0) {
+      path += '0' + char(i);
+    }
 
     if (CDvdFile::FileExists(path + ".upak")) {
       loader->AddPakFileAsync(path, false, true);
@@ -308,8 +306,9 @@ void CMain::AddWorldPaks() {
 
 void CMain::AddOverridePaks() {
   CResLoader* loader = g_ResFactory->GetResLoader();
-  if (!loader)
+  if (loader == nullptr) {
     return;
+  }
 
   /* Inversely load each pak starting at 999, to ensure proper priority order
    * the higher the number the higer the priority, e.g: Override0 has less priority than Override1 etc.
@@ -323,17 +322,26 @@ void CMain::AddOverridePaks() {
   /* Make sure all Override paks are ready before attempting to load URDE.upak */
   loader->WaitForPakFileLoadingComplete();
 
+  /* Load Trilogy PAKs */
+  if (CDvdFile::FileExists("RS5.upak")) {
+    loader->AddPakFile("RS5", false, false, true);
+  }
+  if (CDvdFile::FileExists("Strings.upak")) {
+    loader->AddPakFile("Strings", false, false, true);
+  }
+
   /* Attempt to load URDE.upak
    * NOTE(phil): Should we fatal here if it's not found?
    */
-  if (CDvdFile::FileExists("URDE.upak"))
+  if (CDvdFile::FileExists("URDE.upak")) {
     loader->AddPakFile("URDE", false, false, true);
+  }
 }
 
 void CMain::ResetGameState() {
   CPersistentOptions sysOpts = g_GameState->SystemOptions();
   CGameOptions gameOpts = g_GameState->GameOptions();
-  x128_globalObjects.ResetGameState();
+  x128_globalObjects->ResetGameState();
   g_GameState->ImportPersistentOptions(sysOpts);
   g_GameState->SetGameOptions(gameOpts);
   g_GameState->GetPlayerState()->SetIsFusionEnabled(g_GameState->SystemOptions().GetPlayerFusionSuitActive());
@@ -349,11 +357,11 @@ void CMain::InitializeSubsystems() {
 }
 
 void CMain::MemoryCardInitializePump() {
-  if (g_MemoryCardSys) {
+  if (g_MemoryCardSys != nullptr) {
     return;
   }
 
-  std::unique_ptr<CMemoryCardSys>& memSys = x128_globalObjects.x0_memoryCardSys;
+  std::unique_ptr<CMemoryCardSys>& memSys = x128_globalObjects->x0_memoryCardSys;
   if (!memSys) {
     memSys = std::make_unique<CMemoryCardSys>();
   }
@@ -370,8 +378,9 @@ void CMain::FillInAssetIDs() {
 }
 
 bool CMain::LoadAudio() {
-  if (x164_archSupport)
+  if (x164_archSupport) {
     return x164_archSupport->LoadAudio();
+  }
   return true;
 }
 
@@ -382,8 +391,9 @@ void CMain::EnsureWorldPakReady(CAssetId mlvl) { /* TODO: Schedule resource list
 
 #if 0
 void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
-  if (args.size() < 1 || (!g_GameState || !g_GameState->GetPlayerState()))
+  if (args.empty() || (g_GameState == nullptr || !g_GameState->GetPlayerState())) {
     return;
+  }
 
   std::string type = args[0];
   athena::utility::tolower(type);
@@ -408,8 +418,9 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
       pState->IncrPickup(eType, 9999);
       console->report(hecl::Console::Level::Info,
                       FMT_STRING("Cheater....., Greatly increasing Metroid encounters, have fun!"));
-      if (g_StateManager)
+      if (g_StateManager != nullptr) {
         g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
+      }
       return;
     }
 
@@ -426,23 +437,28 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
       if (eType == CPlayerState::EItemType::Missiles) {
         u32 tmp = ((u32(itemAmt) / 5) + (itemAmt % 5)) * 5;
         pState->ReInitalizePowerUp(eType, tmp);
-      } else
+      } else {
         pState->ReInitalizePowerUp(eType, itemAmt);
+      }
     }
 
-    if (itemAmt > 0)
+    if (itemAmt > 0) {
       pState->IncrPickup(eType, u32(itemAmt));
-    else
+    } else {
       pState->DecrPickup(eType, zeus::clamp(0u, u32(abs(itemAmt)), pState->GetItemAmount(eType)));
+    }
   }
-  if (g_StateManager)
+  if (g_StateManager != nullptr) {
     g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
-  console->report(hecl::Console::Level::Info, FMT_STRING("Cheater....., Greatly increasing Metroid encounters, have fun!"));
+  }
+  console->report(hecl::Console::Level::Info,
+                  FMT_STRING("Cheater....., Greatly increasing Metroid encounters, have fun!"));
 } // namespace MP1
 
 void CMain::Remove(hecl::Console*, const std::vector<std::string>& args) {
-  if (args.size() < 1 || (!g_GameState || !g_GameState->GetPlayerState()))
+  if (args.empty() || (g_GameState == nullptr || !g_GameState->GetPlayerState())) {
     return;
+  }
 
   std::string type = args[0];
   athena::utility::tolower(type);
@@ -455,37 +471,42 @@ void CMain::Remove(hecl::Console*, const std::vector<std::string>& args) {
     CPlayerState::EItemType eType = CPlayerState::ItemNameToType(type);
     if (eType != CPlayerState::EItemType::Invalid) {
       pState->ReInitalizePowerUp(eType, 0);
-      if (g_StateManager)
+      if (g_StateManager != nullptr) {
         g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
+      }
     }
   }
 }
 
 void CMain::God(hecl::Console* con, const std::vector<std::string>&) {
-  if (g_GameState && g_GameState->GetPlayerState()) {
+  if (g_GameState != nullptr && g_GameState->GetPlayerState()) {
     g_GameState->GetPlayerState()->SetCanTakeDamage(!g_GameState->GetPlayerState()->CanTakeDamage());
-    if (!g_GameState->GetPlayerState()->CanTakeDamage())
+    if (!g_GameState->GetPlayerState()->CanTakeDamage()) {
       con->report(hecl::Console::Level::Info, FMT_STRING("God Mode Enabled"));
-    else
+    } else {
       con->report(hecl::Console::Level::Info, FMT_STRING("God Mode Disabled"));
+    }
   }
 }
 
 void CMain::Teleport(hecl::Console*, const std::vector<std::string>& args) {
-  if (!g_StateManager || args.size() < 3)
+  if (g_StateManager == nullptr || args.size() < 3) {
     return;
+  }
 
   zeus::CVector3f loc;
-  for (u32 i = 0; i < 3; ++i)
+  for (u32 i = 0; i < 3; ++i) {
     loc[i] = strtof(args[i].c_str(), nullptr);
+  }
 
   zeus::CTransform xf = g_StateManager->Player()->GetTransform();
   xf.origin = loc;
 
   if (args.size() >= 6) {
     zeus::CVector3f angle;
-    for (u32 i = 0; i < 3; ++i)
+    for (u32 i = 0; i < 3; ++i) {
       angle[i] = zeus::degToRad(strtof(args[i + 3].c_str(), nullptr));
+    }
     xf.setRotation(zeus::CMatrix3f(zeus::CQuaternion(angle)));
   }
   g_StateManager->Player()->Teleport(xf, *g_StateManager, false);
@@ -493,41 +514,47 @@ void CMain::Teleport(hecl::Console*, const std::vector<std::string>& args) {
 
 void CMain::ListWorlds(hecl::Console* con, const std::vector<std::string>&) {
 
-  if (g_ResFactory && g_ResFactory->GetResLoader()) {
-    for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks())
+  if (g_ResFactory != nullptr && g_ResFactory->GetResLoader() != nullptr) {
+    for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks()) {
       if (pak->IsWorldPak()) {
-        for (const auto& named : pak->GetNameList())
+        for (const auto& named : pak->GetNameList()) {
           if (named.second.type == SBIG('MLVL')) {
             con->report(hecl::Console::Level::Info, FMT_STRING("{} '{}'"), named.first, named.second.id);
           }
+        }
       }
+    }
   }
 }
 
 void CMain::Warp(hecl::Console* con, const std::vector<std::string>& args) {
-  if (!g_StateManager)
+  if (g_StateManager == nullptr) {
     return;
+  }
 
-  if (args.size() < 1)
+  if (args.empty()) {
     return;
+  }
 
-  TAreaId aId;
+  TAreaId aId = 0;
   std::string worldName;
   if (args.size() == 2) {
     worldName = args[0];
     athena::utility::tolower(worldName);
     aId = strtol(args[1].c_str(), nullptr, 10);
-  } else
+  } else {
     aId = strtol(args[0].c_str(), nullptr, 10);
+  }
 
-  if (!worldName.empty() && g_ResFactory && g_ResFactory->GetResLoader()) {
+  if (!worldName.empty() && g_ResFactory != nullptr && g_ResFactory->GetResLoader() != nullptr) {
     bool found = false;
 
     for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks()) {
-      if (found)
+      if (found) {
         break;
+      }
       if (pak->IsWorldPak()) {
-        for (const auto& named : pak->GetNameList())
+        for (const auto& named : pak->GetNameList()) {
           if (named.second.type == SBIG('MLVL')) {
             std::string name = named.first;
             athena::utility::tolower(name);
@@ -537,14 +564,16 @@ void CMain::Warp(hecl::Console* con, const std::vector<std::string>& args) {
               break;
             }
           }
+        }
       }
     }
   }
 
   g_GameState->GetWorldTransitionManager()->DisableTransition();
 
-  if (aId >= g_GameState->CurrentWorldState().GetLayerState()->GetAreaCount())
+  if (aId >= g_GameState->CurrentWorldState().GetLayerState()->GetAreaCount()) {
     aId = 0;
+  }
 
   g_GameState->CurrentWorldState().SetAreaId(aId);
   g_Main->SetFlowState(EFlowState::None);
@@ -555,8 +584,8 @@ void CMain::Warp(hecl::Console* con, const std::vector<std::string>& args) {
 
 void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx) {
   bool fusionBackup = g_GameState->SystemOptions().GetPlayerFusionSuitActive();
-  x128_globalObjects.x134_gameState = std::make_unique<CGameState>(r, idx);
-  g_GameState = x128_globalObjects.x134_gameState.get();
+  x128_globalObjects->x134_gameState = std::make_unique<CGameState>(r, idx);
+  g_GameState = x128_globalObjects->x134_gameState.get();
   g_GameState->SystemOptions().SetPlayerFusionSuitActive(fusionBackup);
   g_GameState->GetPlayerState()->SetIsFusionEnabled(fusionBackup);
   g_GameState->HintOptions().SetNextHintTime();
@@ -568,7 +597,7 @@ void CMain::RefreshGameState() {
   std::vector<u8> saveData = g_GameState->BackupBuf();
   CGameOptions gameOpts = g_GameState->GameOptions();
   CBitStreamReader r(saveData.data(), saveData.size());
-  x128_globalObjects.StreamInGameState(r, g_GameState->GetFileIdx());
+  x128_globalObjects->StreamInGameState(r, g_GameState->GetFileIdx());
   g_GameState->SetPersistentOptions(sysOpts);
   g_GameState->SetGameOptions(gameOpts);
   g_GameState->GameOptions().EnsureSettings();
@@ -577,6 +606,7 @@ void CMain::RefreshGameState() {
 }
 
 static logvisor::Module DiscordLog("Discord");
+static logvisor::Module MainLog("MP1::CMain");
 static const char* DISCORD_APPLICATION_ID = "402571593815031819";
 static int64_t DiscordStartTime;
 static CAssetId DiscordWorldSTRG;
@@ -612,9 +642,9 @@ void CMain::UpdateDiscordPresence(CAssetId worldSTRG) {
     updated = true;
   }
 
-  if (g_GameState) {
-    if (CPlayerState* pState = g_GameState->GetPlayerState().get()) {
-      u32 itemPercent = pState->CalculateItemCollectionRate() * 100 / pState->GetPickupTotal();
+  if (g_GameState != nullptr) {
+    if (const CPlayerState* pState = g_GameState->GetPlayerState().get()) {
+      const u32 itemPercent = pState->CalculateItemCollectionRate() * 100 / pState->GetPickupTotal();
       if (DiscordItemPercent != itemPercent) {
         DiscordItemPercent = itemPercent;
         DiscordState = fmt::format(FMT_STRING("{}%"), itemPercent);
@@ -633,7 +663,9 @@ void CMain::UpdateDiscordPresence(CAssetId worldSTRG) {
   }
 }
 
-void CMain::HandleDiscordReady(const DiscordUser* request) { DiscordLog.report(logvisor::Info, FMT_STRING("Discord Ready")); }
+void CMain::HandleDiscordReady(const DiscordUser* request) {
+  DiscordLog.report(logvisor::Info, FMT_STRING("Discord Ready"));
+}
 
 void CMain::HandleDiscordDisconnected(int errorCode, const char* message) {
   DiscordLog.report(logvisor::Warning, FMT_STRING("Discord Disconnected: {}"), message);
@@ -647,6 +679,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
                  boo2::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) {
   InitializeDiscord();
   m_cvarMgr = cvarMgr;
+  m_cvarCommons = std::make_unique<hecl::CVarCommons>(*m_cvarMgr);
 #if 0
   m_console = std::make_unique<hecl::Console>(m_cvarMgr);
   m_console->init(window);
@@ -679,12 +712,41 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       hecl::SConsoleCommand::ECommandFlags::Normal);
 #endif
 
+  bool loadedVersion = false;
+  if (CDvdFile::FileExists("version.yaml")) {
+    CDvdFile file("version.yaml");
+    if (file) {
+      std::unique_ptr<u8[]> buf = std::make_unique<u8[]>(file.Length());
+      u32 readLen = file.SyncRead(buf.get(), file.Length());
+      if (readLen == file.Length()) {
+        CMemoryInStream memoryInStream(buf.get(), file.Length());
+        athena::io::FromYAMLStream(m_version, memoryInStream);
+        loadedVersion = true;
+        MainLog.report(logvisor::Level::Info, FMT_STRING("Loaded version info"));
+      }
+    }
+  }
+
   InitializeSubsystems();
   AddOverridePaks();
-  x128_globalObjects.PostInitialize();
+  x128_globalObjects->PostInitialize();
   x70_tweaks.RegisterTweaks(m_cvarMgr);
   x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
   AddWorldPaks();
+
+  if (loadedVersion) {
+    if (GetGame() != EGame::MetroidPrime1) {
+      MainLog.report(logvisor::Level::Fatal,
+                     FMT_STRING("Attempted to initialize URDE in MP1 mode with non-MP1 data!!!!"));
+    }
+    hecl::SystemStringConv conv(GetVersionString());
+    boo::SystemStringView versionView(conv.sys_str());
+    MainLog.report(logvisor::Level::Info,
+                   FMT_STRING(_SYS_STR("Loading data from Metroid Prime version {} from region {}{}")), versionView,
+                   boo::SystemChar(GetRegion()), IsTrilogy() ? _SYS_STR(" from trilogy") : _SYS_STR(""));
+  } else {
+    MainLog.report(logvisor::Level::Fatal, FMT_STRING("Unable to load version info"));
+  }
 
   const auto& args = boo2::Args;
   for (auto it = args.begin(); it != args.end(); ++it) {
@@ -692,13 +754,15 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       const hecl::SystemChar* worldIdxStr = (*(it + 1)).c_str();
       const hecl::SystemChar* areaIdxStr = (*(it + 2)).c_str();
 
-      hecl::SystemChar* endptr;
+      hecl::SystemChar* endptr = nullptr;
       m_warpWorldIdx = TAreaId(hecl::StrToUl(worldIdxStr, &endptr, 0));
-      if (endptr == worldIdxStr)
+      if (endptr == worldIdxStr) {
         m_warpWorldIdx = 0;
+      }
       m_warpAreaId = TAreaId(hecl::StrToUl(areaIdxStr, &endptr, 0));
-      if (endptr == areaIdxStr)
+      if (endptr == areaIdxStr) {
         m_warpAreaId = 0;
+      }
 
       bool found = false;
       for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks()) {
@@ -721,7 +785,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
             if (*cur == _SYS_STR('1'))
               m_warpLayerBits |= u64(1) << (cur - layerStr);
         } else if (layerStr[0] == _SYS_STR('0') && layerStr[1] == _SYS_STR('x')) {
-          m_warpMemoryRelays.push_back(TAreaId(hecl::StrToUl(layerStr + 2, nullptr, 16)));
+          m_warpMemoryRelays.emplace_back(TAreaId(hecl::StrToUl(layerStr + 2, nullptr, 16)));
         }
         ++it;
       }
@@ -735,21 +799,22 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   x164_archSupport = std::make_unique<CGameArchitectureSupport>(*this, voiceEngine, backend);
   g_archSupport = x164_archSupport.get();
   x164_archSupport->PreloadAudio();
-  std::srand(static_cast<unsigned int>(std::time(nullptr)));
+  std::srand(static_cast<u32>(std::time(nullptr)));
   // g_TweakManager->ReadFromMemoryCard("AudioTweaks");
 }
 
 static logvisor::Module WarmupLog("ShaderWarmup");
 
 void CMain::WarmupShaders() {
-  if (m_warmupTags.size())
+  if (!m_warmupTags.empty())
     return;
 
   m_needsWarmupClear = true;
   size_t modelCount = 0;
   g_ResFactory->EnumerateResources([&](const SObjectTag& tag) {
-    if (tag.type == FOURCC('CMDL') || tag.type == FOURCC('MREA'))
+    if (tag.type == FOURCC('CMDL') || tag.type == FOURCC('MREA')) {
       ++modelCount;
+    }
     return true;
   });
   m_warmupTags.reserve(modelCount);
@@ -759,13 +824,15 @@ void CMain::WarmupShaders() {
 
   g_ResFactory->EnumerateResources([&](const SObjectTag& tag) {
     if (tag.type == FOURCC('CMDL') || tag.type == FOURCC('MREA')) {
-      if (addedTags.find(tag) != addedTags.end())
+      if (addedTags.find(tag) != addedTags.end()) {
         return true;
+      }
       addedTags.insert(tag);
       m_warmupTags.push_back(tag);
     }
     return true;
   });
+
 
   m_warmupIt = m_warmupTags.begin();
 
@@ -773,25 +840,26 @@ void CMain::WarmupShaders() {
 }
 
 bool CMain::Proc() {
+  CRandom16::ResetNumNextCalls();
   // Warmup cycle overrides update
   if (m_warmupTags.size())
     return false;
   if (!m_loadedPersistentResources) {
-    x128_globalObjects.m_gameResFactory->LoadPersistentResources(*g_SimplePool);
+    x128_globalObjects->m_gameResFactory->LoadPersistentResources(*g_SimplePool);
     m_loadedPersistentResources = true;
   }
 
   float dt = 1 / 60.f;
-#if MP1_VARIABLE_DELTA_TIME
-  auto now = delta_clock::now();
-  if (m_firstFrame) {
-    m_firstFrame = false;
-  } else {
-    using delta_duration = std::chrono::duration<float, std::ratio<1>>;
-    dt = std::min(std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count(), dt);
+  if (m_cvarCommons->m_variableDt->toBoolean()) {
+    auto now = delta_clock::now();
+    if (m_firstFrame) {
+      m_firstFrame = false;
+    } else {
+      using delta_duration = std::chrono::duration<float, std::ratio<1>>;
+      dt = std::min(std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count(), 1 / 30.f);
+    }
+    m_prevFrameTime = now;
   }
-  m_prevFrameTime = now;
-#endif
 
   CGBASupport::GlobalPoll();
   x164_archSupport->UpdateTicks(dt);
@@ -857,7 +925,7 @@ void CMain::ShutdownSubsystems() {
 }
 
 void CMain::Shutdown() {
-  x128_globalObjects.m_gameResFactory->UnloadPersistentResources();
+  x128_globalObjects->m_gameResFactory->UnloadPersistentResources();
   x164_archSupport.reset();
   ShutdownSubsystems();
   CFluidPlaneManager::RippleMapTex.reset();
@@ -865,6 +933,37 @@ void CMain::Shutdown() {
   CGraphics::ShutdownBoo();
   ShutdownDiscord();
 }
+
+#if 0
+int CMain::RsMain(int argc, boo::SystemChar** argv, boo::IAudioVoiceEngine* voiceEngine,
+                  amuse::IBackendVoiceAllocator& backend) {
+  // PPCSetFpIEEEMode();
+  // uVar21 = OSGetTime();
+  // LCEnable();
+  x128_globalObjects = std::make_unique<CGameGlobalObjects>(nullptr, nullptr);
+  xf0_.resize(4, 0.3f);
+  x104_.resize(4, 0.2f);
+  x118_ = 0.3f;
+  x11c_ = 0.2f;
+  InitializeSubsystems();
+  x128_globalObjects->PostInitialize(); // COsContext*, CMemorySys*
+  x70_tweaks.RegisterTweaks(m_cvarMgr);
+  AddWorldPaks();
+
+  std::string msg;
+  if (!g_TweakManager->ReadFromMemoryCard("AudioTweaks"sv)) {
+    msg = "Loaded audio tweaks from memory card\n"s;
+  } else {
+    msg = "FAILED to load audio tweaks from memory card\n";
+  }
+
+  FillInAssetIDs();
+  x164_archSupport = std::make_unique<CGameArchitectureSupport>(*this, voiceEngine, backend);
+  x164_archSupport->PreloadAudio();
+
+  return 0;
+}
+#endif
 
 #if MP1_USE_BOO
 

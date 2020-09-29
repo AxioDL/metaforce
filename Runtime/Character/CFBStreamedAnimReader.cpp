@@ -11,12 +11,11 @@
 namespace urde {
 
 void CFBStreamedAnimReaderTotals::Allocate(u32 chanCount) {
-  u32 chan2 = chanCount * 2;
-  u32 chan32 = chanCount * 32;
+  const u32 chan2 = chanCount * 2;
+  const u32 chan32 = chanCount * 32;
 
-  size_t sz = chan32 + chanCount + chan2 + chan32;
-  x0_buffer.reset(new u8[sz]);
-  memset(x0_buffer.get(), 0, sz);
+  const size_t sz = chan32 + chanCount + chan2 + chan32;
+  x0_buffer = std::make_unique<u8[]>(sz);
   x4_cumulativeInts32 = reinterpret_cast<s32*>(x0_buffer.get());
   x8_hasTrans1 = reinterpret_cast<u8*>(x4_cumulativeInts32 + chanCount * 8);
   xc_segIds2 = reinterpret_cast<u16*>(x8_hasTrans1 + chanCount);

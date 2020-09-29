@@ -18,7 +18,6 @@ CGameCamera::CGameCamera(TUniqueId uid, bool active, std::string_view name, cons
 , x164_zfar(zfar)
 , x168_aspect(aspect)
 , x16c_controllerIdx(controllerIdx)
-, x170_24_perspDirty(true)
 , x170_25_disablesInput(disableInput)
 , x180_perspInterpStartFov(fovy)
 , x184_perspInterpEndFov(fovy) {

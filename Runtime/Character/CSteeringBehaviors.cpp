@@ -93,7 +93,7 @@ zeus::CVector2f CSteeringBehaviors::Flee2D(const CPhysicsActor& actor, const zeu
     return actor.GetTransform().basis[1].toVec2f();
 }
 
-zeus::CVector2f CSteeringBehaviors::Arrival2D(const CPhysicsActor& actor, const zeus::CVector2f& v0, float f1) const {
+zeus::CVector2f CSteeringBehaviors::Arrival2D(const CPhysicsActor& actor, const zeus::CVector2f& v0) const {
   zeus::CVector2f diffVec = v0 - actor.GetTranslation().toVec2f();
   if (diffVec.magSquared() > FLT_EPSILON)
     return diffVec.normalized();

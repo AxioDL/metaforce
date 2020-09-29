@@ -13,27 +13,13 @@
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
+#include "Runtime/IMain.hpp"
 
 namespace urde::MP1 {
 
 CPauseScreenBase::CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg,
                                    bool isLogBook)
-: x4_mgr(mgr)
-, x8_frame(frame)
-, xc_pauseStrg(pauseStrg)
-, x198_24_ready(false)
-, x198_25_handledInput(false)
-, x198_26_exitPauseScreen(false)
-, x198_27_canDraw(false)
-, x198_28_pulseTextArrowTop(false)
-, x198_29_pulseTextArrowBottom(false)
-, m_isLogBook(isLogBook)
-, m_bodyUpClicked(false)
-, m_bodyDownClicked(false)
-, m_bodyClicked(false)
-, m_leftClicked(false)
-, m_rightClicked(false)
-, m_playRightTableSfx(true) {
+: x4_mgr(mgr), x8_frame(frame), xc_pauseStrg(pauseStrg), m_isLogBook(isLogBook) {
   InitializeFrameGlue();
 }
 
@@ -80,7 +66,7 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x184_textpane_yicon = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_yicon"));
   x188_textpane_ytext = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_ytext"));
   x184_textpane_yicon->TextSupport().SetText(fmt::format(FMT_STRING(u"&image={};"), g_tweakPlayerRes->xbc_yButton[0]));
-  x188_textpane_ytext->TextSupport().SetText(xc_pauseStrg.GetString(99));
+  x188_textpane_ytext->TextSupport().SetText(xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 99 : 102));
   x188_textpane_ytext->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
   x18c_slidergroup_slider = static_cast<CGuiSliderGroup*>(x8_frame.FindWidget("slidergroup_slider"));
   x18c_slidergroup_slider->SetMouseActive(true);
@@ -536,7 +522,7 @@ void CPauseScreenBase::OnWidgetScroll(CGuiWidget* widget, const hsh::offset2dF& 
   }
 }
 
-std::string CPauseScreenBase::GetImagePaneName(u32 i) {
+std::string CPauseScreenBase::GetImagePaneName(size_t i) {
   static constexpr std::array PaneSuffixes{
       "0", "1", "2", "3", "01", "12", "23", "012", "123", "0123",
       "4", "5", "6", "7", "45", "56", "67", "456", "567", "4567",

@@ -24,11 +24,11 @@ constexpr CCameraShakeData skHardShake{
 };
 
 constexpr std::array skComboNames{
-    "SuperMissile", "IceCombo", "WaveBuster", "FlameThrower", "SuperMissile",
+    "SuperMissile"sv, "IceCombo"sv, "WaveBuster"sv, "FlameThrower"sv, "SuperMissile"sv,
 };
 
 constexpr std::array<u16, 5> skSoundId{
-    1810, 1837, 1847, 1842, 1810,
+    SFXsfx0712, SFXsfx072D, SFXwpn_combo_wavebuster, SFXwpn_combo_flamethrower, SFXsfx0712,
 };
 
 CAuxWeapon::CAuxWeapon(TUniqueId playerId)
@@ -39,12 +39,11 @@ CAuxWeapon::CAuxWeapon(TUniqueId playerId)
   x0_missile.GetObj();
   xc_flameMuzzle.GetObj();
   x18_busterMuzzle.GetObj();
-  x80_24_isLoaded = false;
   InitComboData();
 }
 
 void CAuxWeapon::InitComboData() {
-  for (const auto comboName : skComboNames) {
+  for (const auto& comboName : skComboNames) {
     x28_combos.push_back(g_SimplePool->GetObj(comboName));
   }
 }
@@ -210,19 +209,21 @@ void CAuxWeapon::CreateFlameThrower(const zeus::CTransform& xf, CStateManager& m
   if (x6e_flameThrowerId != kInvalidUniqueId)
     return;
 
-  CAssetId resInfo[] = {NWeaponTypes::get_asset_id_from_name("NFTMainFire"),
-                        NWeaponTypes::get_asset_id_from_name("NFTMainSmoke"),
-                        NWeaponTypes::get_asset_id_from_name("NFTSwooshCenter"),
-                        NWeaponTypes::get_asset_id_from_name("NFTSwooshFire"),
-                        NWeaponTypes::get_asset_id_from_name("NFTSecondarySmoke"),
-                        NWeaponTypes::get_asset_id_from_name("NFTSecondaryFire"),
-                        NWeaponTypes::get_asset_id_from_name("NFTSecondarySparks"),
-                        {}};
+  const std::array<CAssetId, 8> resInfo{
+      NWeaponTypes::get_asset_id_from_name("NFTMainFire"),
+      NWeaponTypes::get_asset_id_from_name("NFTMainSmoke"),
+      NWeaponTypes::get_asset_id_from_name("NFTSwooshCenter"),
+      NWeaponTypes::get_asset_id_from_name("NFTSwooshFire"),
+      NWeaponTypes::get_asset_id_from_name("NFTSecondarySmoke"),
+      NWeaponTypes::get_asset_id_from_name("NFTSecondaryFire"),
+      NWeaponTypes::get_asset_id_from_name("NFTSecondarySparks"),
+      {},
+  };
   x6e_flameThrowerId = mgr.AllocateUniqueId();
-  CNewFlameThrower* ft = new CNewFlameThrower(
-      x28_combos[3], "Player_FlameThrower", EWeaponType::Plasma, resInfo, xf, EMaterialTypes::Player,
-      CGunWeapon::GetShotDamageInfo(g_tweakPlayerGun->GetComboShotInfo(3), mgr), x6e_flameThrowerId, kInvalidAreaId,
-      x6c_playerId, EProjectileAttrib::None);
+  auto* ft = new CNewFlameThrower(x28_combos[3], "Player_FlameThrower", EWeaponType::Plasma, resInfo, xf,
+                                  EMaterialTypes::Player,
+                                  CGunWeapon::GetShotDamageInfo(g_tweakPlayerGun->GetComboShotInfo(3), mgr),
+                                  x6e_flameThrowerId, kInvalidAreaId, x6c_playerId, EProjectileAttrib::None);
   mgr.AddObject(ft);
   ft->Think(dt, mgr);
   ft->StartFiring(xf, mgr);
@@ -325,16 +326,20 @@ void CAuxWeapon::RenderMuzzleFx() const {
 }
 
 TUniqueId CAuxWeapon::HasTarget(const CStateManager& mgr) const {
-  if (x74_firingBeamId == CPlayerState::EBeamId::Wave)
-    if (auto* wb = static_cast<const CWaveBuster*>(mgr.GetObjectById(x70_waveBusterId)))
+  if (x74_firingBeamId == CPlayerState::EBeamId::Wave) {
+    if (const auto* wb = static_cast<const CWaveBuster*>(mgr.GetObjectById(x70_waveBusterId))) {
       return wb->GetHomingTargetId();
+    }
+  }
   return kInvalidUniqueId;
 }
 
 void CAuxWeapon::SetNewTarget(TUniqueId targetId, CStateManager& mgr) {
-  if (x74_firingBeamId == CPlayerState::EBeamId::Wave)
-    if (auto* wb = static_cast<CWaveBuster*>(mgr.ObjectById(x70_waveBusterId)))
+  if (x74_firingBeamId == CPlayerState::EBeamId::Wave) {
+    if (auto* wb = static_cast<CWaveBuster*>(mgr.ObjectById(x70_waveBusterId))) {
       wb->SetNewTarget(targetId);
+    }
+  }
 }
 
 } // namespace urde

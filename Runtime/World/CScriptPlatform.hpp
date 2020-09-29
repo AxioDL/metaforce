@@ -8,6 +8,7 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
+#include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
 #include "Runtime/World/CDamageVulnerability.hpp"
 #include "Runtime/World/CHealthInfo.hpp"
 #include "Runtime/World/CPhysicsActor.hpp"
@@ -17,8 +18,6 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CCollidableOBBTreeGroup;
-class CCollidableOBBTreeGroupContainer;
 class CFluidPlane;
 
 struct SRiders {
@@ -31,7 +30,7 @@ struct SRiders {
 };
 
 class CScriptPlatform : public CPhysicsActor {
-  u32 x254_;
+  // u32 x254_;
   TUniqueId x258_currentWaypoint = kInvalidUniqueId;
   TUniqueId x25a_targetWaypoint = kInvalidUniqueId;
   float x25c_currentSpeed;
@@ -53,19 +52,14 @@ class CScriptPlatform : public CPhysicsActor {
   u32 x34c_maxRainSplashes;
   u32 x350_rainGenRate;
   TUniqueId x354_boundsTrigger = kInvalidUniqueId;
-  union {
-    struct {
-      bool x356_24_dead : 1;
-      bool x356_25_controlledAnimation : 1;
-      bool x356_26_detectCollision : 1;
-      bool x356_27_squishedRider : 1;
-      bool x356_28_rainSplashes : 1;
-      bool x356_29_setXrayDrawFlags : 1;
-      bool x356_30_disableXrayAlpha : 1;
-      bool x356_31_xrayFog : 1;
-    };
-    u32 x356_dummy = 0;
-  };
+  bool x356_24_dead : 1 = false;
+  bool x356_25_controlledAnimation : 1 = false;
+  bool x356_26_detectCollision : 1;
+  bool x356_27_squishedRider : 1 = false;
+  bool x356_28_rainSplashes : 1;
+  bool x356_29_setXrayDrawFlags : 1 = false;
+  bool x356_30_disableXrayAlpha : 1 = false;
+  bool x356_31_xrayFog : 1 = true;
 
   void DragSlave(CStateManager& mgr, rstl::reserved_vector<u16, 1024>& draggedSet, CActor* actor,
                  const zeus::CVector3f& delta);
@@ -83,8 +77,8 @@ public:
                   CModelData&& mData, const CActorParameters& actParms, const zeus::CAABox& aabb, float speed,
                   bool detectCollision, float xrayAlpha, bool active, const CHealthInfo& hInfo,
                   const CDamageVulnerability& dVuln,
-                  const std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln,
-                  bool rainSplashes, u32 maxRainSplashes, u32 rainGenRate);
+                  std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>  dcln, bool rainSplashes,
+                  u32 maxRainSplashes, u32 rainGenRate);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
@@ -112,8 +106,11 @@ public:
   TUniqueId GetWaypoint(CStateManager&);
 
   const CDamageVulnerability* GetDamageVulnerability() const override { return &x29c_damageVuln; }
+  void SetDamageVulnerability(const CDamageVulnerability& vuln) { x29c_damageVuln = vuln; }
   CHealthInfo* HealthInfo(CStateManager&) override { return &x294_health; }
   void SetControlledAnimation(bool controlled) { x356_25_controlledAnimation = controlled; }
+  void SetDisableXRayAlpha(bool val) { x356_30_disableXrayAlpha = val; }
+  void SetXRayFog(bool val) { x356_31_xrayFog = val; }
 
   virtual void SplashThink(const zeus::CAABox&, const CFluidPlane&, float, CStateManager&) const;
   virtual zeus::CQuaternion Move(float, CStateManager&);

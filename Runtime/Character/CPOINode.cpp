@@ -31,9 +31,9 @@ CPOINode::CPOINode(CInputStream& in)
 , x30_charIdx(in.readInt32Big())
 , x34_flags(in.readInt32Big()) {}
 
-bool CPOINode::operator>(const CPOINode& other) const { return x1c_time < other.x1c_time; }
+bool CPOINode::operator>(const CPOINode& other) const { return x1c_time > other.x1c_time; }
 
-bool CPOINode::operator<(const CPOINode& other) const { return x1c_time > other.x1c_time; }
+bool CPOINode::operator<(const CPOINode& other) const { return x1c_time < other.x1c_time; }
 
 template <class T>
 size_t _getPOIList(const CCharAnimTime& time, T* listOut, size_t capacity, size_t iterator, u32 unk1,

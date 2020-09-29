@@ -5,11 +5,11 @@
 
 #include "Runtime/CIOWin.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/RetroTypes.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/MP1/CMemoryCardDriver.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
-class CGuiFrame;
 class CGuiTableGroup;
 class CGuiTextPane;
 class CSaveWorld;
@@ -65,12 +65,12 @@ private:
   TLockedToken<CStringTable> x38_strgMemoryCard;
   TLockedToken<CGuiFrame> x44_frmeGenericMenu;
   CGuiFrame* x50_loadedFrame = nullptr;
-  CGuiTextPane* x54_textpane_message;
-  CGuiTableGroup* x58_tablegroup_choices;
-  CGuiTextPane* x5c_textpane_choice0;
-  CGuiTextPane* x60_textpane_choice1;
-  CGuiTextPane* x64_textpane_choice2;
-  CGuiTextPane* x68_textpane_choice3;
+  CGuiTextPane* x54_textpane_message{};
+  CGuiTableGroup* x58_tablegroup_choices{};
+  CGuiTextPane* x5c_textpane_choice0{};
+  CGuiTextPane* x60_textpane_choice1{};
+  CGuiTextPane* x64_textpane_choice2{};
+  CGuiTextPane* x68_textpane_choice3{};
   std::unique_ptr<CMemoryCardDriver> x6c_cardDriver;
   std::vector<TLockedToken<CSaveWorld>> x70_saveWorlds;
   CIOWin::EMessageReturn x80_iowRet = CIOWin::EMessageReturn::Normal;
@@ -90,7 +90,7 @@ public:
   CIOWin::EMessageReturn Update(float dt);
   void SetInGame(bool v) { x93_inGame = v; }
   bool PumpLoad();
-  EUIType SelectUIType() const;
+  [[nodiscard]] EUIType SelectUIType() const;
   void SetUIText();
   void SetUIColors();
   void Draw() const;
@@ -102,9 +102,9 @@ public:
   void StartGame(int idx);
   void SaveNESState();
   void EraseGame(int idx);
-  const CGameState::GameFileStateInfo* GetGameData(int idx) const;
-  EUIType GetUIType() const { return x10_uiType; }
-  bool IsSavingDisabled() const { return x92_savingDisabled; }
+  [[nodiscard]] const CGameState::GameFileStateInfo* GetGameData(int idx) const;
+  [[nodiscard]] EUIType GetUIType() const { return x10_uiType; }
+  [[nodiscard]] bool IsSavingDisabled() const { return x92_savingDisabled; }
   explicit CSaveGameScreen(ESaveContext saveCtx, u64 serial);
 };
 

@@ -80,18 +80,18 @@ class CFishCloud : public CActor {
   rstl::reserved_vector<TLockedToken<CGenDescription>, 4> x1c4_particleDescs;
   rstl::reserved_vector<std::unique_ptr<CElementGen>, 4> x1f8_particleGens;
   rstl::reserved_vector<u32, 4> x21c_deathParticleCounts;
-  CModelData::EWhichModel x230_whichModel;
+  CModelData::EWhichModel x230_whichModel{};
   u16 x234_deathSfx;
   zeus::CVector3f x238_partitionPitch;
   zeus::CVector3f x244_ooPartitionPitch;
-  bool x250_24_randomMovement : 1;
-  bool x250_25_worldSpace : 1;
-  bool x250_26_enableWeaponRepelDamping : 1;
-  bool x250_27_validModel : 1;
+  bool x250_24_randomMovement : 1 = false;
+  bool x250_25_worldSpace : 1 = true; // The result of a close_enough paradox (weird inlined test?)
+  bool x250_26_enableWeaponRepelDamping : 1 = false;
+  bool x250_27_validModel : 1 = false;
   bool x250_28_killable : 1;
   bool x250_29_repelFromThreats : 1;
-  bool x250_30_enablePlayerRepelDamping : 1;
-  bool x250_31_updateWithoutPartitions : 1;
+  bool x250_30_enablePlayerRepelDamping : 1 = false;
+  bool x250_31_updateWithoutPartitions : 1 = false;
 
   void UpdateParticles(float dt);
   void UpdatePartitionList();

@@ -9,8 +9,6 @@
 
 namespace urde {
 
-u32 CCollidableOBBTree::sTableIndex = 0;
-
 CCollidableOBBTree::CCollidableOBBTree(const COBBTree* tree, const urde::CMaterialList& material)
 : CCollisionPrimitive(material), x10_tree(tree) {}
 

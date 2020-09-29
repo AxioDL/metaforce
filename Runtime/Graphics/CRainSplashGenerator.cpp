@@ -12,8 +12,6 @@ CRainSplashGenerator::CRainSplashGenerator(const zeus::CVector3f& scale, u32 max
 : x14_scale(scale), x2c_minZ(minZ) {
   x30_alpha = std::min(1.f, alpha);
   x44_genRate = std::min(maxSplashes, genRate);
-  x48_24 = false;
-  x48_25_raining = true;
   x0_rainSplashes.reserve(maxSplashes);
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     for (u32 i = 0; i < maxSplashes; ++i)
@@ -153,13 +151,13 @@ void CRainSplashGenerator::Update(float dt, CStateManager& mgr) {
 
 u32 CRainSplashGenerator::GetNextBestPt(u32 pt, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn,
                                         CRandom16& rand, float minZ) {
-  auto& refVert = vn[pt];
+  const auto& refVert = vn[pt];
   float maxDist = 0.f;
   u32 nextPt = pt;
   for (int i = 0; i < 3; ++i) {
-    auto idx = u32(rand.Range(0, int(vn.size() - 1)));
-    auto& vert = vn[idx];
-    float distSq = (refVert.first - vert.first).magSquared();
+    const auto idx = u32(rand.Range(0, int(vn.size() - 1)));
+    const auto& vert = vn[idx];
+    const float distSq = (refVert.first - vert.first).magSquared();
     if (distSq > maxDist && vert.second.dot(zeus::skUp) >= 0.f &&
         (vert.first.z() <= 0.f || vert.first.z() > minZ)) {
       nextPt = idx;

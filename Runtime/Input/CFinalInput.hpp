@@ -10,57 +10,57 @@
 namespace urde {
 
 struct CFinalInput {
-  float x0_dt;
-  u32 x4_controllerIdx;
-  float x8_anaLeftX;
-  float xc_anaLeftY;
-  float x10_anaRightX;
-  float x14_anaRightY;
-  float x18_anaLeftTrigger;
-  float x1c_anaRightTrigger;
+  float x0_dt = 0.0f;
+  u32 x4_controllerIdx = 0;
+  float x8_anaLeftX = 0.0f;
+  float xc_anaLeftY = 0.0f;
+  float x10_anaRightX = 0.0f;
+  float x14_anaRightY = 0.0f;
+  float x18_anaLeftTrigger = 0.0f;
+  float x1c_anaRightTrigger = 0.0f;
 
   /* These were originally per-axis bools, requiring two logical tests
    * at read-time; now they're logical cardinal-direction states
    * (negative values indicated) */
-  bool x20_enableAnaLeftXP : 1;
-  bool x20_enableAnaLeftNegXP : 1;
-  bool x21_enableAnaLeftYP : 1;
-  bool x21_enableAnaLeftNegYP : 1;
-  bool x22_enableAnaRightXP : 1;
-  bool x22_enableAnaRightNegXP : 1;
-  bool x23_enableAnaRightYP : 1;
-  bool x23_enableAnaRightNegYP : 1;
+  bool x20_enableAnaLeftXP : 1 = false;
+  bool x20_enableAnaLeftNegXP : 1 = false;
+  bool x21_enableAnaLeftYP : 1 = false;
+  bool x21_enableAnaLeftNegYP : 1 = false;
+  bool x22_enableAnaRightXP : 1 = false;
+  bool x22_enableAnaRightNegXP : 1 = false;
+  bool x23_enableAnaRightYP : 1 = false;
+  bool x23_enableAnaRightNegYP : 1 = false;
 
   /* These were originally redundantly-compared floats;
    * now the logical state is stored directly */
-  bool x24_anaLeftTriggerP : 1;
-  bool x28_anaRightTriggerP : 1;
+  bool x24_anaLeftTriggerP : 1 = false;
+  bool x28_anaRightTriggerP : 1 = false;
 
-  bool x2c_b24_A : 1;
-  bool x2c_b25_B : 1;
-  bool x2c_b26_X : 1;
-  bool x2c_b27_Y : 1;
-  bool x2c_b28_Z : 1;
-  bool x2c_b29_L : 1;
-  bool x2c_b30_R : 1;
-  bool x2c_b31_DPUp : 1;
-  bool x2d_b24_DPRight : 1;
-  bool x2d_b25_DPDown : 1;
-  bool x2d_b26_DPLeft : 1;
-  bool x2d_b27_Start : 1;
+  bool x2c_b24_A : 1 = false;
+  bool x2c_b25_B : 1 = false;
+  bool x2c_b26_X : 1 = false;
+  bool x2c_b27_Y : 1 = false;
+  bool x2c_b28_Z : 1 = false;
+  bool x2c_b29_L : 1 = false;
+  bool x2c_b30_R : 1 = false;
+  bool x2c_b31_DPUp : 1 = false;
+  bool x2d_b24_DPRight : 1 = false;
+  bool x2d_b25_DPDown : 1 = false;
+  bool x2d_b26_DPLeft : 1 = false;
+  bool x2d_b27_Start : 1 = false;
 
-  bool x2d_b28_PA : 1;
-  bool x2d_b29_PB : 1;
-  bool x2d_b30_PX : 1;
-  bool x2d_b31_PY : 1;
-  bool x2e_b24_PZ : 1;
-  bool x2e_b25_PL : 1;
-  bool x2e_b26_PR : 1;
-  bool x2e_b27_PDPUp : 1;
-  bool x2e_b28_PDPRight : 1;
-  bool x2e_b29_PDPDown : 1;
-  bool x2e_b30_PDPLeft : 1;
-  bool x2e_b31_PStart : 1;
+  bool x2d_b28_PA : 1 = false;
+  bool x2d_b29_PB : 1 = false;
+  bool x2d_b30_PX : 1 = false;
+  bool x2d_b31_PY : 1 = false;
+  bool x2e_b24_PZ : 1 = false;
+  bool x2e_b25_PL : 1 = false;
+  bool x2e_b26_PR : 1 = false;
+  bool x2e_b27_PDPUp : 1 = false;
+  bool x2e_b28_PDPRight : 1 = false;
+  bool x2e_b29_PDPDown : 1 = false;
+  bool x2e_b30_PDPLeft : 1 = false;
+  bool x2e_b31_PStart : 1 = false;
 
   std::optional<CKeyboardMouseControllerData> m_kbm;
 

@@ -21,13 +21,7 @@
 namespace urde {
 float CCameraManager::sFirstPersonFOV = 55.f;
 
-CCameraManager::CCameraManager(TUniqueId curCameraId)
-: x0_curCameraId(curCameraId)
-, xa0_24_pendingRumble(false)
-, xa0_25_rumbling(false)
-, xa0_26_inWater(false)
-, x3b8_24_(false)
-, x3b8_25_(false) {
+CCameraManager::CCameraManager(TUniqueId curCameraId) : x0_curCameraId(curCameraId) {
   CSfxManager::AddListener(CSfxManager::ESfxChannels::Game, zeus::skZero3f, zeus::skZero3f, {1.f, 0.f, 0.f},
                            {0.f, 0.f, 1.f}, 50.f, 50.f, 1000.f, 1, 1.f);
   sFirstPersonFOV = g_tweakGame->GetFirstPersonFOV();
@@ -299,7 +293,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
   }
 
   bool inactiveHintRemoved = false;
-  for (const TUniqueId id : x2b0_inactiveCameraHints) {
+  for (const auto& id : x2b0_inactiveCameraHints) {
     if (const TCastToConstPtr<CScriptCameraHint> hint = mgr.GetObjectById(id)) {
       if (hint->GetHelperCount() == 0 || hint->GetInactive()) {
         for (auto it = xac_cameraHints.begin(); it != xac_cameraHints.end(); ++it) {
@@ -319,7 +313,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
   x2b0_inactiveCameraHints.clear();
 
   bool activeHintAdded = false;
-  for (const TUniqueId id : x334_activeCameraHints) {
+  for (const auto& id : x334_activeCameraHints) {
     if (const TCastToConstPtr<CScriptCameraHint> hint = mgr.GetObjectById(id)) {
       bool activeHintPresent = false;
       for (auto it = xac_cameraHints.begin(); it != xac_cameraHints.end(); ++it) {

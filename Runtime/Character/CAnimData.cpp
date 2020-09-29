@@ -55,14 +55,6 @@ CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAn
 , x1fc_transMgr(std::move(transMgr))
 , x204_charIdx(charIdx)
 , x208_defaultAnim(defaultAnim)
-, x220_24_animating(false)
-, x220_25_loop(false)
-, x220_26_aligningPos(false)
-, x220_27_(false)
-, x220_28_(false)
-, x220_29_animationJustStarted(false)
-, x220_30_poseBuilt(false)
-, x220_31_poseCached(false)
 , x224_pose(layout->GetSegIdList().GetList().size())
 , x2fc_poseBuilder(CLayoutDescription{layout})
 , m_drawInstCount(drawInstCount) {
@@ -109,8 +101,10 @@ void CAnimData::InitializeEffects(CStateManager& mgr, TAreaId aId, const zeus::C
   for (const auto& effects : xc_charInfo.GetEffectList()) {
     for (const auto& effect : effects.second) {
       x120_particleDB.CacheParticleDesc(effect.GetParticleTag());
-      x120_particleDB.AddParticleEffect(effect.GetSegmentName(), effect.GetFlags(), CParticleData(), scale, mgr, aId,
-                                        true, x21c_particleLightIdx);
+      const CParticleData data{effect.GetParticleTag(), effect.GetSegmentName(), effect.GetScale(),
+                               effect.GetParentedMode()};
+      x120_particleDB.AddParticleEffect(effect.GetComponentName(), effect.GetFlags(), data, scale, mgr, aId, true,
+                                        x21c_particleLightIdx);
       x120_particleDB.SetParticleEffectState(effect.GetComponentName(), false, mgr);
     }
   }
@@ -266,9 +260,7 @@ std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager() { return x10
 
 void CAnimData::SetPhase(float ph) { x1f8_animRoot->VSetPhase(ph); }
 
-void CAnimData::Touch(const CSkinnedModel& model, int shadIdx) const {
-  model.GetModelInst()->Touch(shadIdx);
-}
+void CAnimData::Touch(const CSkinnedModel& model, int shadIdx) const { model.GetModelInst()->Touch(shadIdx); }
 
 SAdvancementDeltas CAnimData::GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const {
   return x1f8_animRoot->VGetAdvancementResults(a, b).x8_deltas;
@@ -456,15 +448,15 @@ zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* 
     return {};
   }
 
-  zeus::CTransform ret;
   if (time || !x220_31_poseCached) {
     const_cast<CAnimData*>(this)->RecalcPoseBuilder(time);
     const_cast<CAnimData*>(this)->x220_31_poseCached = time == nullptr;
   }
 
-  if (!x220_30_poseBuilt)
+  zeus::CTransform ret;
+  if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildTransform(id, ret);
-  else {
+  } else {
     ret.setRotation(x224_pose.GetTransformMinusOffset(id));
     ret.origin = x224_pose.GetOffset(id);
   }

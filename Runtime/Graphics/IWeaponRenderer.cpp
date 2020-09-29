@@ -4,6 +4,6 @@
 
 namespace urde {
 
-void CDefaultWeaponRenderer::AddParticleGen(const CParticleGen& gen) { ((CParticleGen&)gen).Render(); }
+void CDefaultWeaponRenderer::AddParticleGen(CParticleGen& gen) { gen.Render(); }
 
 } // namespace urde

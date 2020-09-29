@@ -1,8 +1,26 @@
 #include "Runtime/Character/CFBStreamedCompression.hpp"
 
+#include <cstring>
+#include <type_traits>
 #include "Runtime/Character/CFBStreamedAnimReader.hpp"
 
 namespace urde {
+namespace {
+template <typename T>
+T ReadValue(const u8* data) {
+  static_assert(std::is_trivially_copyable_v<T>);
+
+  T value = 0;
+  std::memcpy(&value, data, sizeof(value));
+  return value;
+}
+
+template <typename T>
+void WriteValue(u8* data, T value) {
+  static_assert(std::is_trivially_copyable_v<T>);
+  std::memcpy(data, &value, sizeof(value));
+}
+} // Anonymous namespace
 
 CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& objStore, bool pc) : m_pc(pc) {
   x0_scratchSize = in.readUint32Big();
@@ -16,39 +34,44 @@ CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& o
   x10_averageVelocity = CalculateAverageVelocity(GetPerChannelHeaders());
 }
 
-const u32* CFBStreamedCompression::GetTimes() const { return reinterpret_cast<const u32*>(xc_rotsAndOffs.get() + 9); }
+const u32* CFBStreamedCompression::GetTimes() const { return xc_rotsAndOffs.get() + 9; }
 
 const u8* CFBStreamedCompression::GetPerChannelHeaders() const {
-  const u32* bitmap = reinterpret_cast<const u32*>(xc_rotsAndOffs.get() + 9);
-  u32 bitmapWordCount = (bitmap[0] + 31) / 32;
+  const u32* bitmap = GetTimes();
+  const u32 bitmapWordCount = (bitmap[0] + 31) / 32;
   return reinterpret_cast<const u8*>(bitmap + bitmapWordCount + 1);
 }
 
 const u8* CFBStreamedCompression::GetBitstreamPointer() const {
-  const u32* bitmap = reinterpret_cast<const u32*>(xc_rotsAndOffs.get() + 9);
-  u32 bitmapWordCount = (bitmap[0] + 31) / 32;
+  const u32* bitmap = GetTimes();
+  const u32 bitmapWordCount = (bitmap[0] + 31) / 32;
 
   const u8* chans = reinterpret_cast<const u8*>(bitmap + bitmapWordCount + 1);
-  u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
+  const u32 boneChanCount = ReadValue<u32>(chans);
+
   chans += 4;
 
   if (m_pc) {
-    for (unsigned b = 0; b < boneChanCount; ++b) {
+    for (u32 b = 0; b < boneChanCount; ++b) {
       chans += 20;
 
-      u32 tCount = *reinterpret_cast<const u32*>(chans);
+      const u32 tCount = ReadValue<u32>(chans);
+
       chans += 4;
-      if (tCount)
+      if (tCount != 0) {
         chans += 12;
+      }
     }
   } else {
-    for (unsigned b = 0; b < boneChanCount; ++b) {
+    for (u32 b = 0; b < boneChanCount; ++b) {
       chans += 15;
 
-      u16 tCount = *reinterpret_cast<const u16*>(chans);
+      const u16 tCount = ReadValue<u16>(chans);
+
       chans += 2;
-      if (tCount)
+      if (tCount != 0) {
         chans += 9;
+      }
     }
   }
 
@@ -60,19 +83,20 @@ std::unique_ptr<u32[]> CFBStreamedCompression::GetRotationsAndOffsets(u32 words,
 
   Header head;
   head.read(in);
-  *reinterpret_cast<Header*>(ret.get()) = head;
+  std::memcpy(ret.get(), &head, sizeof(head));
 
   u32* bitmapOut = &ret[9];
-  u32 bitmapBitCount = in.readUint32Big();
+  const u32 bitmapBitCount = in.readUint32Big();
   bitmapOut[0] = bitmapBitCount;
-  u32 bitmapWordCount = (bitmapBitCount + 31) / 32;
-  for (u32 i = 0; i < bitmapWordCount; ++i)
+  const u32 bitmapWordCount = (bitmapBitCount + 31) / 32;
+  for (u32 i = 0; i < bitmapWordCount; ++i) {
     bitmapOut[i + 1] = in.readUint32Big();
+  }
 
   in.readUint32Big();
   u8* chans = reinterpret_cast<u8*>(bitmapOut + bitmapWordCount + 1);
   u8* bs = ReadBoneChannelDescriptors(chans, in);
-  u32 bsWords = ComputeBitstreamWords(chans);
+  const u32 bsWords = ComputeBitstreamWords(chans);
 
   u32* bsPtr = reinterpret_cast<u32*>(bs);
   for (u32 w = 0; w < bsWords; ++w)
@@ -82,58 +106,58 @@ std::unique_ptr<u32[]> CFBStreamedCompression::GetRotationsAndOffsets(u32 words,
 }
 
 u8* CFBStreamedCompression::ReadBoneChannelDescriptors(u8* out, CInputStream& in) const {
-  u32 boneChanCount = in.readUint32Big();
-  *reinterpret_cast<u32*>(out) = boneChanCount;
+  const u32 boneChanCount = in.readUint32Big();
+  WriteValue(out, boneChanCount);
   out += 4;
 
   if (m_pc) {
-    for (unsigned b = 0; b < boneChanCount; ++b) {
-      *reinterpret_cast<u32*>(out) = in.readUint32Big();
+    for (u32 b = 0; b < boneChanCount; ++b) {
+      WriteValue(out, in.readUint32Big());
       out += 4;
 
-      *reinterpret_cast<u32*>(out) = in.readUint32Big();
+      WriteValue(out, in.readUint32Big());
       out += 4;
 
       for (int i = 0; i < 3; ++i) {
-        *reinterpret_cast<u32*>(out) = in.readUint32Big();
+        WriteValue(out, in.readUint32Big());
         out += 4;
       }
 
-      u32 tCount = in.readUint32Big();
-      *reinterpret_cast<u32*>(out) = tCount;
+      const u32 tCount = in.readUint32Big();
+      WriteValue(out, tCount);
       out += 4;
 
-      if (tCount) {
+      if (tCount != 0) {
         for (int i = 0; i < 3; ++i) {
-          *reinterpret_cast<u32*>(out) = in.readUint32Big();
+          WriteValue(out, in.readUint32Big());
           out += 4;
         }
       }
     }
   } else {
-    for (unsigned b = 0; b < boneChanCount; ++b) {
-      *reinterpret_cast<u32*>(out) = in.readUint32Big();
+    for (u32 b = 0; b < boneChanCount; ++b) {
+      WriteValue(out, in.readUint32Big());
       out += 4;
 
-      *reinterpret_cast<u16*>(out) = in.readUint16Big();
+      WriteValue(out, in.readUint16Big());
       out += 2;
 
       for (int i = 0; i < 3; ++i) {
-        *reinterpret_cast<s16*>(out) = in.readInt16Big();
+        WriteValue(out, in.readInt16Big());
         out += 2;
-        *reinterpret_cast<u8*>(out) = in.readUByte();
+        WriteValue(out, in.readUByte());
         out += 1;
       }
 
-      u16 tCount = in.readUint16Big();
-      *reinterpret_cast<u16*>(out) = tCount;
+      const u16 tCount = in.readUint16Big();
+      WriteValue(out, tCount);
       out += 2;
 
-      if (tCount) {
+      if (tCount != 0) {
         for (int i = 0; i < 3; ++i) {
-          *reinterpret_cast<s16*>(out) = in.readInt16Big();
+          WriteValue(out, in.readInt16Big());
           out += 2;
-          *reinterpret_cast<u8*>(out) = in.readUByte();
+          WriteValue(out, in.readUByte());
           out += 1;
         }
       }
@@ -144,43 +168,43 @@ u8* CFBStreamedCompression::ReadBoneChannelDescriptors(u8* out, CInputStream& in
 }
 
 u32 CFBStreamedCompression::ComputeBitstreamWords(const u8* chans) const {
-  u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
+  const u32 boneChanCount = ReadValue<u32>(chans);
   chans += 4;
 
   u32 keyCount;
 
   u32 totalBits = 0;
   if (m_pc) {
-    keyCount = *reinterpret_cast<const u32*>(chans + 0x4);
+    keyCount = ReadValue<u32>(chans + 0x4);
     for (u32 c = 0; c < boneChanCount; ++c) {
       chans += 0x8;
       totalBits += 1;
-      totalBits += *reinterpret_cast<const u32*>(chans) & 0xff;
-      totalBits += *reinterpret_cast<const u32*>(chans + 0x4) & 0xff;
-      totalBits += *reinterpret_cast<const u32*>(chans + 0x8) & 0xff;
-      u32 tKeyCount = *reinterpret_cast<const u32*>(chans + 0xc);
+      totalBits += ReadValue<u32>(chans) & 0xff;
+      totalBits += ReadValue<u32>(chans + 0x4) & 0xff;
+      totalBits += ReadValue<u32>(chans + 0x8) & 0xff;
+      const u32 tKeyCount = ReadValue<u32>(chans + 0xc);
       chans += 0x10;
-      if (tKeyCount) {
-        totalBits += *reinterpret_cast<const u32*>(chans) & 0xff;
-        totalBits += *reinterpret_cast<const u32*>(chans + 0x4) & 0xff;
-        totalBits += *reinterpret_cast<const u32*>(chans + 0x8) & 0xff;
+      if (tKeyCount != 0) {
+        totalBits += ReadValue<u32>(chans) & 0xff;
+        totalBits += ReadValue<u32>(chans + 0x4) & 0xff;
+        totalBits += ReadValue<u32>(chans + 0x8) & 0xff;
         chans += 0xc;
       }
     }
   } else {
-    keyCount = *reinterpret_cast<const u16*>(chans + 0x4);
+    keyCount = ReadValue<u16>(chans + 0x4);
     for (u32 c = 0; c < boneChanCount; ++c) {
       chans += 0x6;
       totalBits += 1;
-      totalBits += *reinterpret_cast<const u8*>(chans + 0x2);
-      totalBits += *reinterpret_cast<const u8*>(chans + 0x5);
-      totalBits += *reinterpret_cast<const u8*>(chans + 0x8);
-      u16 tKeyCount = *reinterpret_cast<const u16*>(chans + 0x9);
+      totalBits += ReadValue<u8>(chans + 0x2);
+      totalBits += ReadValue<u8>(chans + 0x5);
+      totalBits += ReadValue<u8>(chans + 0x8);
+      const u16 tKeyCount = ReadValue<u16>(chans + 0x9);
       chans += 0xb;
-      if (tKeyCount) {
-        totalBits += *reinterpret_cast<const u8*>(chans + 0x2);
-        totalBits += *reinterpret_cast<const u8*>(chans + 0x5);
-        totalBits += *reinterpret_cast<const u8*>(chans + 0x8);
+      if (tKeyCount != 0) {
+        totalBits += ReadValue<u8>(chans + 0x2);
+        totalBits += ReadValue<u8>(chans + 0x5);
+        totalBits += ReadValue<u8>(chans + 0x8);
         chans += 0x9;
       }
     }
@@ -190,38 +214,42 @@ u32 CFBStreamedCompression::ComputeBitstreamWords(const u8* chans) const {
 }
 
 float CFBStreamedCompression::CalculateAverageVelocity(const u8* chans) const {
-  u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
+  const u32 boneChanCount = ReadValue<u32>(chans);
   chans += 4;
 
   u32 keyCount;
   u32 rootIdx = 0;
   if (m_pc) {
-    keyCount = *reinterpret_cast<const u32*>(chans + 0x4);
+    keyCount = ReadValue<u32>(chans + 0x4);
     for (u32 c = 0; c < boneChanCount; ++c) {
-      u32 boneId = *reinterpret_cast<const u32*>(chans);
-      if (boneId == 3)
+      const u32 boneId = ReadValue<u32>(chans);
+      if (boneId == 3) {
         break;
+      }
       ++rootIdx;
 
       chans += 0x8;
-      u32 tKeyCount = *reinterpret_cast<const u32*>(chans + 0xc);
+      const u32 tKeyCount = ReadValue<u32>(chans + 0xc);
       chans += 0x10;
-      if (tKeyCount)
+      if (tKeyCount != 0) {
         chans += 0xc;
+      }
     }
   } else {
-    keyCount = *reinterpret_cast<const u16*>(chans + 0x4);
+    keyCount = ReadValue<u16>(chans + 0x4);
     for (u32 c = 0; c < boneChanCount; ++c) {
-      u32 boneId = *reinterpret_cast<const u32*>(chans);
-      if (boneId == 3)
+      const u32 boneId = ReadValue<u32>(chans);
+      if (boneId == 3) {
         break;
+      }
       ++rootIdx;
 
       chans += 0x6;
-      u16 tKeyCount = *reinterpret_cast<const u16*>(chans + 0x9);
+      const u16 tKeyCount = ReadValue<u16>(chans + 0x9);
       chans += 0xb;
-      if (tKeyCount)
+      if (tKeyCount != 0) {
         chans += 0x9;
+      }
     }
   }
 

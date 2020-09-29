@@ -2,7 +2,7 @@
 
 namespace urde {
 
-const RumbleFXTable RumbleFxTable{{
+constexpr RumbleFXTable RumbleFxTable{{
     /* attackGain, autoReleaseDur, attackDur, decayDur, sustainGain, releaseDur, hasSustain, autoRelease */
     {0.48f, 0.f, 0.3f, 0.125f, 0.1f, 0.5f, false, false},
     {0.66f, 0.f, 0.11f, 0.175f, 0.42f, 0.375f, false, false},

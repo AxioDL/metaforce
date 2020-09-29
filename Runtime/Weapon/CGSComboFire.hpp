@@ -11,11 +11,11 @@ class CGSComboFire {
   s32 x4_loopState = -1; // In, loop, out
   s32 x8_cueAnimId = -1;
   s32 xc_gunId = -1;
-  bool x10_24_over : 1;
-  bool x10_25_idle : 1;
+  bool x10_24_over : 1 = false;
+  bool x10_25_idle : 1 = false;
 
 public:
-  CGSComboFire() : x10_24_over(false), x10_25_idle(false) {}
+  CGSComboFire() = default;
 
   bool IsComboOver() const { return x10_24_over; }
   s32 GetLoopState() const { return x4_loopState; }

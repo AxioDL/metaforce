@@ -26,7 +26,6 @@ CFire::CFire(TToken<CGenDescription> effect, TUniqueId uid, TAreaId aId, bool ac
 , x148_25_(b3)
 , x148_26_(b4)
 , x148_27_(b4 && b3 && b2)
-, x148_28_(false)
 , x148_29_(b1)
 , x14c_(f2)
 , x150_(visorEffect)

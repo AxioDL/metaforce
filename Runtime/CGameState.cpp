@@ -24,15 +24,16 @@ union BitsToDouble {
 };
 
 CWorldLayerState::CWorldLayerState(CBitStreamReader& reader, const CSaveWorld& saveWorld) {
-  u32 bitCount = reader.ReadEncoded(10);
+  const u32 bitCount = reader.ReadEncoded(10);
   x10_saveLayers.reserve(bitCount);
 
   for (u32 i = 0; i < bitCount; ++i) {
-    bool bit = reader.ReadEncoded(1);
-    if (bit)
+    const bool bit = reader.ReadEncoded(1) != 0;
+    if (bit) {
       x10_saveLayers.setBit(i);
-    else
+    } else {
       x10_saveLayers.unsetBit(i);
+    }
   }
 }
 
@@ -53,11 +54,14 @@ void CWorldLayerState::PutTo(CBitStreamWriter& writer) const {
 }
 
 void CWorldLayerState::InitializeWorldLayers(const std::vector<CWorldLayers::Area>& layers) {
-  if (x0_areaLayers.size())
+  if (!x0_areaLayers.empty()) {
     return;
+  }
+
   x0_areaLayers = layers;
-  if (x10_saveLayers.getBitCount() == 0)
+  if (x10_saveLayers.getBitCount() == 0) {
     return;
+  }
 
   u32 a = 0;
   u32 b = 0;
@@ -102,9 +106,9 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data) {
   }
   ret.x14_timestamp = stream.ReadEncoded(32);
 
-  ret.x20_hardMode = stream.ReadEncoded(1);
+  ret.x20_hardMode = stream.ReadEncoded(1) != 0;
   stream.ReadEncoded(1);
-  CAssetId origMLVL = u32(stream.ReadEncoded(32));
+  const CAssetId origMLVL = u32(stream.ReadEncoded(32));
   ret.x8_mlvlId = origMLVL;
 
   BitsToDouble conv;
@@ -137,10 +141,10 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data) {
 CGameState::CGameState() {
   x98_playerState = std::make_shared<CPlayerState>();
   x9c_transManager = std::make_shared<CWorldTransManager>();
-  x228_24_hardMode = false;
-  x228_25_initPowerupsAtFirstSpawn = true;
-  if (g_MemoryCardSys)
+
+  if (g_MemoryCardSys != nullptr) {
     InitializeMemoryStates();
+  }
 }
 
 CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx) : x20c_saveFileIdx(saveIdx) {
@@ -153,8 +157,8 @@ CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx) : x20c_saveFileIdx
   }
   stream.ReadEncoded(32);
 
-  x228_24_hardMode = stream.ReadEncoded(1);
-  x228_25_initPowerupsAtFirstSpawn = stream.ReadEncoded(1);
+  x228_24_hardMode = stream.ReadEncoded(1) != 0;
+  x228_25_initPowerupsAtFirstSpawn = stream.ReadEncoded(1) != 0;
   x84_mlvlId = u32(stream.ReadEncoded(32));
   MP1::CMain::EnsureWorldPakReady(x84_mlvlId);
 

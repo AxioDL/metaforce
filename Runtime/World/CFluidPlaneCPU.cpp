@@ -10,9 +10,9 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-#define kTableSize 2048
-
 namespace urde {
+constexpr u32 kTableSize = 2048;
+
 CFluidPlaneCPU::CTurbulence::CTurbulence(float speed, float distance, float freqMax, float freqMin, float phaseMax,
                                          float phaseMin, float amplitudeMax, float amplitudeMin)
 : x0_speed(speed)
@@ -25,27 +25,29 @@ CFluidPlaneCPU::CTurbulence::CTurbulence(float speed, float distance, float freq
 , x1c_amplitudeMin(amplitudeMin)
 , x2c_ooTurbSpeed(1.f / x0_speed)
 , x30_ooTurbDistance(1.f / x4_distance) {
-  if (x18_amplitudeMax != 0.f || x1c_amplitudeMin != 0.f) {
-    x24_tableCount = kTableSize;
-    x28_heightSelPitch = x24_tableCount;
-    x20_table.reset(new float[x24_tableCount]);
-    float anglePitch = 2.f * M_PIF / x28_heightSelPitch;
-    float freqConstant = 0.5f * (x8_freqMax + xc_freqMin);
-    float freqLinear = 0.5f * (x8_freqMax - xc_freqMin);
-    float phaseConstant = 0.5f * (x10_phaseMax + x14_phaseMin);
-    float phaseLinear = 0.5f * (x10_phaseMax - x14_phaseMin);
-    float amplitudeConstant = 0.5f * (x18_amplitudeMax + x1c_amplitudeMin);
-    float amplitudeLinear = 0.5f * (x18_amplitudeMax - x1c_amplitudeMin);
-
-    float curAng = 0.f;
-    for (int i = 0; i < x24_tableCount; ++i, curAng += anglePitch) {
-      float angCos = std::cos(curAng);
-      x20_table[i] = (amplitudeLinear * angCos + amplitudeConstant) *
-                     std::sin((freqLinear * angCos + freqConstant) * curAng + (phaseLinear * angCos + phaseConstant));
-    }
-
-    x34_hasTurbulence = true;
+  if (x18_amplitudeMax == 0.f && x1c_amplitudeMin == 0.f) {
+    return;
   }
+
+  x24_tableCount = kTableSize;
+  x28_heightSelPitch = x24_tableCount;
+  x20_table.reset(new float[x24_tableCount]);
+  const float anglePitch = 2.f * M_PIF / x28_heightSelPitch;
+  const float freqConstant = 0.5f * (x8_freqMax + xc_freqMin);
+  const float freqLinear = 0.5f * (x8_freqMax - xc_freqMin);
+  const float phaseConstant = 0.5f * (x10_phaseMax + x14_phaseMin);
+  const float phaseLinear = 0.5f * (x10_phaseMax - x14_phaseMin);
+  const float amplitudeConstant = 0.5f * (x18_amplitudeMax + x1c_amplitudeMin);
+  const float amplitudeLinear = 0.5f * (x18_amplitudeMax - x1c_amplitudeMin);
+
+  float curAng = 0.f;
+  for (size_t i = 0; i < x24_tableCount; ++i, curAng += anglePitch) {
+    const float angCos = std::cos(curAng);
+    x20_table[i] = (amplitudeLinear * angCos + amplitudeConstant) *
+                   std::sin((freqLinear * angCos + freqConstant) * curAng + (phaseLinear * angCos + phaseConstant));
+  }
+
+  x34_hasTurbulence = true;
 }
 
 CFluidPlaneCPU::CFluidPlaneCPU(CAssetId texPattern1, CAssetId texPattern2, CAssetId texColor, CAssetId bumpMap,
@@ -110,14 +112,15 @@ void CFluidPlaneCPU::CalculateLightmapMatrix(const zeus::CTransform& areaXf, con
 }
 
 static bool sSineWaveInitialized = false;
-static float sGlobalSineWave[256] = {};
-static const float* InitializeSineWave() {
-  if (sSineWaveInitialized)
-    return sGlobalSineWave;
-  for (int i = 0; i < 256; ++i)
-    sGlobalSineWave[i] = std::sin(2.f * M_PIF * (i / 256.f));
+static CFluidPlaneCPU::SineTable sGlobalSineWave{};
+static void InitializeSineWave() {
+  if (sSineWaveInitialized) {
+    return;
+  }
+  for (size_t i = 0; i < sGlobalSineWave.size(); ++i) {
+    sGlobalSineWave[i] = std::sin(2.f * M_PIF * (float(i) / 256.f));
+  }
   sSineWaveInitialized = true;
-  return sGlobalSineWave;
 }
 
 #define kEnableWaterBumpMaps true
@@ -128,11 +131,11 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManag
                                                                const CScriptWater* water) {
   CFluidPlaneShader::RenderSetupInfo out;
 
-  float uvT = mgr.GetFluidPlaneManager()->GetUVT();
-  bool hasBumpMap = HasBumpMap() && kEnableWaterBumpMaps;
+  const float uvT = mgr.GetFluidPlaneManager()->GetUVT();
+  const bool hasBumpMap = HasBumpMap() && kEnableWaterBumpMaps;
   bool doubleLightmapBlend = false;
-  bool hasEnvMap = mgr.GetCameraManager()->GetFluidCounter() == 0 && HasEnvMap();
-  bool hasEnvBumpMap = HasEnvBumpMap();
+  const bool hasEnvMap = mgr.GetCameraManager()->GetFluidCounter() == 0 && HasEnvMap();
+  const bool hasEnvBumpMap = HasEnvBumpMap();
   InitializeSineWave();
   CGraphics::SetModelMatrix(xf);
 
@@ -165,8 +168,7 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManag
     curTex++;
   }
 
-  float fluidUVs[3][2];
-  x4c_uvMotion.CalculateFluidTextureOffset(uvT, fluidUVs);
+  const auto fluidUVs = x4c_uvMotion.CalculateFluidTextureOffset(uvT);
 
   out.texMtxs[0][0][0] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
   out.texMtxs[0][1][1] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
@@ -304,8 +306,7 @@ bool CFluidPlaneCPU::PrepareRipple(const CRipple& ripple, const CFluidPlaneRende
   return !(rippleOut.x14_gfromX > rippleOut.x18_gtoX || rippleOut.x1c_gfromY > rippleOut.x20_gtoY);
 }
 
-void CFluidPlaneCPU::ApplyTurbulence(float t, CFluidPlaneRender::SHFieldSample (&heights)[46][46],
-                                     const u8 (&flags)[9][9], const float sineWave[256],
+void CFluidPlaneCPU::ApplyTurbulence(float t, Heights& heights, const Flags& flags, const SineTable& sineWave,
                                      const CFluidPlaneRender::SPatchInfo& info,
                                      const zeus::CVector3f& areaCenter) const {
   if (!HasTurbulence()) {
@@ -335,9 +336,8 @@ void CFluidPlaneCPU::ApplyTurbulence(float t, CFluidPlaneRender::SHFieldSample (
   }
 }
 
-void CFluidPlaneCPU::ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInfo,
-                                 CFluidPlaneRender::SHFieldSample (&heights)[46][46], u8 (&flags)[9][9],
-                                 const float sineWave[256], const CFluidPlaneRender::SPatchInfo& info) const {
+void CFluidPlaneCPU::ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInfo, Heights& heights, Flags& flags,
+                                 const SineTable& sineWave, const CFluidPlaneRender::SPatchInfo& info) const {
   float lookupT = 256.f *
                   (1.f - rippleInfo.x0_ripple.GetTime() * rippleInfo.x0_ripple.GetOOTimeFalloff() *
                              rippleInfo.x0_ripple.GetOOTimeFalloff()) *
@@ -410,8 +410,9 @@ void CFluidPlaneCPU::ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInf
 
             float divDist = (divDistSq != 0.f) ? std::sqrt(divDistSq) : 0.f;
             if (u8 rippleV = CFluidPlaneManager::RippleValues[lifeIdx][int(divDist * distFalloff)]) {
-              heights[k][l].height += rippleV * rippleInfo.x0_ripple.GetLookupAmplitude() *
-                                      sineWave[int(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT) & 0xff];
+              heights[k][l].height +=
+                  rippleV * rippleInfo.x0_ripple.GetLookupAmplitude() *
+                  sineWave[size_t(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT) & 0xff];
             } else {
               heights[k][l].height += 0.f;
             }
@@ -461,8 +462,9 @@ void CFluidPlaneCPU::ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInf
 
               float divDist = (divDistSq != 0.f) ? std::sqrt(divDistSq) : 0.f;
               if (u8 rippleV = CFluidPlaneManager::RippleValues[lifeIdx][int(divDist * distFalloff)]) {
-                heights[k][l].height += rippleV * rippleInfo.x0_ripple.GetLookupAmplitude() *
-                                        sineWave[int(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT) & 0xff];
+                heights[k][l].height +=
+                    rippleV * rippleInfo.x0_ripple.GetLookupAmplitude() *
+                    sineWave[size_t(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT) & 0xff];
               } else {
                 heights[k][l].height += 0.f;
               }
@@ -486,8 +488,8 @@ void CFluidPlaneCPU::ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInf
 }
 
 void CFluidPlaneCPU::ApplyRipples(const rstl::reserved_vector<CFluidPlaneRender::SRippleInfo, 32>& rippleInfos,
-                                  CFluidPlaneRender::SHFieldSample (&heights)[46][46], u8 (&flags)[9][9],
-                                  const float sineWave[256], const CFluidPlaneRender::SPatchInfo& info) const {
+                                  Heights& heights, Flags& flags, const SineTable& sineWave,
+                                  const CFluidPlaneRender::SPatchInfo& info) const {
   for (const CFluidPlaneRender::SRippleInfo& rippleInfo : rippleInfos)
     ApplyRipple(rippleInfo, heights, flags, sineWave, info);
   for (int i = 0; i < CFluidPlaneRender::numTilesInHField; ++i)
@@ -500,7 +502,7 @@ void CFluidPlaneCPU::ApplyRipples(const rstl::reserved_vector<CFluidPlaneRender:
     flags[CFluidPlaneRender::numTilesInHField + 1][i + 1] |= 2;
 }
 
-void CFluidPlaneCPU::UpdatePatchNoNormals(CFluidPlaneRender::SHFieldSample (&heights)[46][46], const u8 (&flags)[9][9],
+void CFluidPlaneCPU::UpdatePatchNoNormals(Heights& heights, const Flags& flags,
                                           const CFluidPlaneRender::SPatchInfo& info) {
   for (int i = 1; i <= (info.x1_ySubdivs + CFluidPlaneRender::numSubdivisionsInTile - 2) /
                            CFluidPlaneRender::numSubdivisionsInTile;
@@ -559,8 +561,8 @@ void CFluidPlaneCPU::UpdatePatchNoNormals(CFluidPlaneRender::SHFieldSample (&hei
   }
 }
 
-void CFluidPlaneCPU::UpdatePatchWithNormals(CFluidPlaneRender::SHFieldSample (&heights)[46][46],
-                                            const u8 (&flags)[9][9], const CFluidPlaneRender::SPatchInfo& info) {
+void CFluidPlaneCPU::UpdatePatchWithNormals(Heights& heights, const Flags& flags,
+                                            const CFluidPlaneRender::SPatchInfo& info) {
   float normalScale = -(2.f * info.x18_rippleResolution);
   float nz = 0.25f * 2.f * info.x18_rippleResolution;
   int curGridY = info.x2e_tileY * info.x2a_gridDimX - 1 + info.x28_tileX;
@@ -697,11 +699,9 @@ void CFluidPlaneCPU::UpdatePatchWithNormals(CFluidPlaneRender::SHFieldSample (&h
   }
 }
 
-bool CFluidPlaneCPU::UpdatePatch(float time, const CFluidPlaneRender::SPatchInfo& info,
-                                 CFluidPlaneRender::SHFieldSample (&heights)[46][46], u8 (&flags)[9][9],
-                                 const zeus::CVector3f& areaCenter,
-                                 const std::optional<CRippleManager>& rippleManager, int fromX, int toX,
-                                 int fromY, int toY) const {
+bool CFluidPlaneCPU::UpdatePatch(float time, const CFluidPlaneRender::SPatchInfo& info, Heights& heights, Flags& flags,
+                                 const zeus::CVector3f& areaCenter, const std::optional<CRippleManager>& rippleManager,
+                                 int fromX, int toX, int fromY, int toY) const {
   rstl::reserved_vector<CFluidPlaneRender::SRippleInfo, 32> rippleInfos;
   if (rippleManager) {
     for (const CRipple& ripple : rippleManager->GetRipples()) {
@@ -731,10 +731,10 @@ bool CFluidPlaneCPU::UpdatePatch(float time, const CFluidPlaneRender::SPatchInfo
   return false;
 }
 
-/* Used to be part of locked cache
- * These are too big for stack allocation */
-static CFluidPlaneRender::SHFieldSample lc_heights[46][46] = {};
-static u8 lc_flags[9][9] = {};
+// Used to be part of locked cache
+// These are too big for stack allocation
+static CFluidPlane::Heights lc_heights{};
+static CFluidPlane::Flags lc_flags{};
 
 void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
                             const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,

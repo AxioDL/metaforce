@@ -1,5 +1,7 @@
 #include "Runtime/GuiSys/CFontImageDef.hpp"
 
+#include <algorithm>
+
 #include "Runtime/Graphics/CTexture.hpp"
 
 namespace urde {
@@ -19,10 +21,7 @@ CFontImageDef::CFontImageDef(const TToken<CTexture>& tex, const zeus::CVector2f&
 }
 
 bool CFontImageDef::IsLoaded() const {
-  for (const TToken<CTexture>& tok : x4_texs)
-    if (!tok.IsLoaded())
-      return false;
-  return true;
+  return std::all_of(x4_texs.cbegin(), x4_texs.cend(), [](const auto& token) { return token.IsLoaded(); });
 }
 
 s32 CFontImageDef::CalculateBaseline() const {

@@ -14,10 +14,7 @@
 namespace urde::MP1 {
 
 CLogBookScreen::CLogBookScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg)
-: CPauseScreenBase(mgr, frame, pauseStrg, true)
-, x260_24_loaded(false)
-, x260_25_inTextScroll(false)
-, x260_26_exitTextScroll(false) {
+: CPauseScreenBase(mgr, frame, pauseStrg, true) {
   x19c_scanCompletes.resize(5);
   x200_viewScans.resize(5);
   x258_artifactDoll = std::make_unique<CArtifactDoll>();
@@ -200,7 +197,11 @@ void CLogBookScreen::UpdateBodyText() {
   if (IsArtifactCategorySelected()) {
     const int headIdx = GetSelectedArtifactHeadScanIndex();
     if (headIdx >= 0 && g_GameState->GetPlayerState()->HasPowerUp(CPlayerState::EItemType(headIdx + 29))) {
-      accumStr = std::u16string(u"\n\n\n\n\n\n").append(g_MainStringTable->GetString(105));
+      if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
+        accumStr = std::u16string(u"\n\n\n\n\n\n").append(g_MainStringTable->GetString(105));
+      } else {
+        accumStr = std::u16string(u"\n\n\n\n\n\n").append(g_MainStringTable->GetString(107));
+      }
     }
   }
 
@@ -214,10 +215,11 @@ void CLogBookScreen::UpdateBodyImagesAndText() {
     pane->SetAnimationParms(zeus::skZero2f, 0.f, 0.f);
   }
 
-  for (int i = 0; i < 4; ++i) {
+  for (size_t i = 0; i < CScannableObjectInfo::NumBuckets; ++i) {
     const CScannableObjectInfo::SBucket& bucket = scan->GetBucket(i);
-    if (bucket.x8_imagePos == UINT32_MAX)
+    if (bucket.x8_imagePos == UINT32_MAX) {
       continue;
+    }
     CAuiImagePane* pane = xf0_imagePanes[bucket.x8_imagePos];
     if (bucket.x14_interval > 0.f) {
       pane->SetAnimationParms(zeus::CVector2f(bucket.xc_size.x, bucket.xc_size.y), bucket.x14_interval,

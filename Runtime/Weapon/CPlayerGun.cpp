@@ -109,61 +109,29 @@ constexpr std::array chargeShakeTbl{
 constexpr CMaterialFilter sAimFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
 
-const std::array<CModelFlags, 4> kThermalFlags{{
+constexpr std::array<CModelFlags, 4> kThermalFlags{{
     {0, 0, 3, zeus::skWhite},
     {5, 0, 3, zeus::CColor(0.f, 0.5f)},
     {0, 0, 3, zeus::skWhite},
     {0, 0, 3, zeus::skWhite},
 }};
 
-const CModelFlags kHandThermalFlag = {7, 0, 3, zeus::skWhite};
-const CModelFlags kHandHoloFlag = {1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f, 1.f)};
+constexpr CModelFlags kHandThermalFlag{7, 0, 3, zeus::skWhite};
+constexpr CModelFlags kHandHoloFlag{1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f, 1.f)};
 } // Anonymous namespace
 
 float CPlayerGun::CMotionState::gGunExtendDistance = 0.125f;
 float CPlayerGun::skTractorBeamFactor = 0.5f / CPlayerState::GetMissileComboChargeFactor();
 
 CPlayerGun::CPlayerGun(TUniqueId playerId)
-: x0_lights(8, zeus::CVector3f{-30.f, 0.f, 30.f}, 4, 4, 0, 0, 0, 0.1f)
+: x0_lights(8, zeus::CVector3f{-30.f, 0.f, 30.f}, 4, 4, false, false, false, 0.1f)
 , x538_playerId(playerId)
 , x550_camBob(CPlayerCameraBob::ECameraBobType::One, CPlayerCameraBob::GetCameraBobExtent(),
               CPlayerCameraBob::GetCameraBobPeriod())
 , x678_morph(g_tweakPlayerGun->GetGunTransformTime(), g_tweakPlayerGun->GetHoloHoldTime())
 , x6c8_hologramClipCube(zeus::CVector3f(-0.29329199f, 0.f, -0.2481945f),
                         zeus::CVector3f(0.29329199f, 1.292392f, 0.2481945f))
-, x6e0_rightHandModel(CAnimRes(g_tweakGunRes->xc_rightHand, 0, zeus::CVector3f(3.f), 0, true))
-, x832_24_coolingCharge(false)
-, x832_25_chargeEffectVisible(false)
-, x832_26_comboFiring(false)
-, x832_27_chargeAnimStarted(false)
-, x832_28_readyForShot(false)
-, x832_29_lockedOn(false)
-, x832_30_requestReturnToDefault(false)
-, x832_31_inRestPose(true)
-, x833_24_notFidgeting(true)
-, x833_25_(false)
-, x833_26_(false)
-, x833_27_(false)
-, x833_28_phazonBeamActive(false)
-, x833_29_pointBlankWorldSurface(false)
-, x833_30_canShowAuxMuzzleEffect(true)
-, x833_31_inFreeLook(false)
-, x834_24_charging(false)
-, x834_25_gunMotionFidgeting(false)
-, x834_26_animPlaying(false)
-, x834_27_underwater(false)
-, x834_28_requestImmediateRecharge(false)
-, x834_29_frozen(false)
-, x834_30_inBigStrike(false)
-, x834_31_gunMotionInFidgetBasePosition(false)
-, x835_24_canFirePhazon(false)
-, x835_25_inPhazonBeam(false)
-, x835_26_phazonBeamMorphing(false)
-, x835_27_intoPhazonBeam(false)
-, x835_28_bombReady(false)
-, x835_29_powerBombReady(false)
-, x835_30_inPhazonPool(false)
-, x835_31_actorAttached(false) {
+, x6e0_rightHandModel(CAnimRes(g_tweakGunRes->xc_rightHand, 0, zeus::CVector3f(3.f), 0, true)) {
   x354_bombFuseTime = g_tweakPlayerGun->GetBombFuseTime();
   x358_bombDropDelayTime = g_tweakPlayerGun->GetBombDropDelayTime();
   x668_aimVerticalSpeed = g_tweakPlayerGun->GetAimVerticalSpeed();
@@ -232,7 +200,7 @@ void CPlayerGun::InitBombData() {
 }
 
 void CPlayerGun::InitMuzzleData() {
-  for (const auto muzzleID : g_tweakGunRes->xa4_auxMuzzle) {
+  for (const auto& muzzleID : g_tweakGunRes->xa4_auxMuzzle) {
     x7c0_auxMuzzleEffects.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), muzzleID}));
     x800_auxMuzzleGenerators.emplace_back(std::make_unique<CElementGen>(x7c0_auxMuzzleEffects.back()));
     x800_auxMuzzleGenerators.back()->SetParticleEmission(false);
@@ -501,7 +469,7 @@ void CPlayerGun::ResetCharge(CStateManager& mgr, bool resetBeam) {
         x2f8_stateFlags &= 0xFFE9;
       }
       x318_comboAmmoIdx = 0;
-      x31c_missileMode = EMissleMode::Inactive;
+      x31c_missileMode = EMissileMode::Inactive;
     }
   }
 
@@ -587,7 +555,7 @@ void CPlayerGun::Reset(CStateManager& mgr, bool b1) {
         x2f8_stateFlags &= 0xFFE9;
       }
       x318_comboAmmoIdx = 0;
-      x31c_missileMode = EMissleMode::Inactive;
+      x31c_missileMode = EMissileMode::Inactive;
     }
   } else {
     x2f8_stateFlags &= ~0x7;
@@ -784,7 +752,7 @@ void CPlayerGun::CancelFiring(CStateManager& mgr) {
       x2f8_stateFlags &= 0xFFE9;
     }
     x318_comboAmmoIdx = 0;
-    x31c_missileMode = EMissleMode::Inactive;
+    x31c_missileMode = EMissileMode::Inactive;
   }
   if (x32c_chargePhase != EChargePhase::NotCharging) {
     x72c_currentBeam->ActivateCharge(false, false);
@@ -820,8 +788,7 @@ void CPlayerGun::StopContinuousBeam(CStateManager& mgr, bool b1) {
   } else if (x833_28_phazonBeamActive) {
     if (static_cast<CPhazonBeam*>(x72c_currentBeam)->IsFiring())
       static_cast<CPhazonBeam*>(x72c_currentBeam)->StopBeam(mgr, b1);
-  } else if (x310_currentBeam == CPlayerState::EBeamId::Plasma) // Plasma
-  {
+  } else if (x310_currentBeam == CPlayerState::EBeamId::Plasma) {
     if (static_cast<CPlasmaBeam*>(x72c_currentBeam)->IsFiring())
       static_cast<CPlasmaBeam*>(x72c_currentBeam)->StopBeam(mgr, b1);
   }
@@ -839,35 +806,34 @@ void CPlayerGun::CMotionState::Update(bool firing, float dt, zeus::CTransform& x
 
   if (x0_24_extendParabola && x20_state == EMotionState::LockOn) {
     float extendT = xc_curExtendDist / gGunExtendDistance;
-    xf = xf * zeus::CTransform::RotateZ(zeus::degToRad(extendT * -4.f * (extendT - 1.f) * 15.f));
-  } else {
-    if (x24_fireState == EFireState::StartFire || x24_fireState == EFireState::Firing) {
-      if (std::fabs(x14_rotationT - 1.f) < 0.1f) {
-        x18_startRotation = x1c_endRotation;
-        x14_rotationT = 0.f;
-        if (x24_fireState == EFireState::StartFire) {
-          x1c_endRotation = mgr.GetActiveRandom()->Next() % 15;
-          x1c_endRotation *= (mgr.GetActiveRandom()->Next() % 100) > 45 ? 1.f : -1.f;
-        } else {
-          x1c_endRotation = 0.f;
-          if (x18_startRotation == x1c_endRotation) {
-            x10_curRotation = x1c_endRotation;
-            x24_fireState = EFireState::NotFiring;
-          }
-        }
+    xf = xf * zeus::CTransform(zeus::CMatrix3f::RotateZ(zeus::degToRad(extendT * -4.f * (extendT - 1.f) * 15.f)),
+                               {0.f, xc_curExtendDist, 0.f});
+  } else if (x24_fireState == EFireState::StartFire || x24_fireState == EFireState::Firing) {
+    if (std::fabs(x14_rotationT - 1.f) < 0.1f) {
+      x18_startRotation = x1c_endRotation;
+      x14_rotationT = 0.f;
+      if (x24_fireState == EFireState::StartFire) {
+        x1c_endRotation = mgr.GetActiveRandom()->Next() % 15;
+        x1c_endRotation *= (mgr.GetActiveRandom()->Next() % 100) > 45 ? 1.f : -1.f;
       } else {
-        x10_curRotation = (x1c_endRotation - x18_startRotation) * x14_rotationT + x18_startRotation;
+        x1c_endRotation = 0.f;
+        if (x18_startRotation == x1c_endRotation) {
+          x10_curRotation = x1c_endRotation;
+          x24_fireState = EFireState::NotFiring;
+        }
       }
-
-      x14_rotationT += (1.f - x14_rotationT) * 0.8f * (10.f * dt);
-      zeus::CTransform tmpXf =
-          zeus::CQuaternion::fromAxisAngle(xf.basis[1], zeus::degToRad(x10_curRotation)).toTransform() *
-          xf.getRotation();
-      tmpXf.origin = xf.origin;
-      xf = tmpXf * zeus::CTransform::Translate(0.f, xc_curExtendDist, 0.f);
     } else {
-      xf = xf * zeus::CTransform::Translate(0.f, xc_curExtendDist, 0.f);
+      x10_curRotation = (x1c_endRotation - x18_startRotation) * x14_rotationT + x18_startRotation;
     }
+
+    x14_rotationT += (1.f - x14_rotationT) * 0.8f * (10.f * dt);
+    zeus::CTransform tmpXf =
+        zeus::CQuaternion::fromAxisAngle(xf.frontVector(), zeus::degToRad(x10_curRotation)).toTransform() *
+        xf.getRotation();
+    tmpXf.origin = xf.origin;
+    xf = tmpXf * zeus::CTransform::Translate(0.f, xc_curExtendDist, 0.f);
+  } else {
+    xf = xf * zeus::CTransform::Translate(0.f, xc_curExtendDist, 0.f);
   }
 
   switch (x20_state) {
@@ -1272,7 +1238,7 @@ void CPlayerGun::UpdateAuxWeapons(float dt, const zeus::CTransform& targetXf, CS
         x2f8_stateFlags &= 0xFFE9;
       }
       x318_comboAmmoIdx = 0;
-      x31c_missileMode = EMissleMode::Inactive;
+      x31c_missileMode = EMissileMode::Inactive;
     }
   } else if (x833_28_phazonBeamActive) {
     static_cast<CPhazonBeam*>(x72c_currentBeam)->UpdateBeam(dt, targetXf, x418_beamLocalXf.origin, mgr);
@@ -1549,11 +1515,12 @@ void CPlayerGun::UpdateWeaponFire(float dt, const CPlayerState& playerState, CSt
     if (!x835_31_actorAttached) {
       x835_28_bombReady = true;
       if (x53a_powerBomb != kInvalidUniqueId && !mgr.CanCreateProjectile(x538_playerId, EWeaponType::PowerBomb, 1)) {
-        auto* pb = static_cast<const CPowerBomb*>(mgr.GetObjectById(x53a_powerBomb));
-        if (pb && pb->GetCurTime() <= 4.25f)
+        const auto* pb = static_cast<const CPowerBomb*>(mgr.GetObjectById(x53a_powerBomb));
+        if (pb && pb->GetCurTime() <= 4.25f) {
           x835_28_bombReady = false;
-        else
+        } else {
           x53a_powerBomb = kInvalidUniqueId;
+        }
       }
       if (((pressedStates & 0x1) != 0 || x32c_chargePhase != EChargePhase::NotCharging) &&
           mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::MorphBallBombs)) {
@@ -1581,7 +1548,7 @@ void CPlayerGun::UpdateWeaponFire(float dt, const CPlayerState& playerState, CSt
             x2f8_stateFlags &= ~0x1;
             x2f8_stateFlags |= 0x6;
             x318_comboAmmoIdx = 1;
-            x31c_missileMode = EMissleMode::Active;
+            x31c_missileMode = EMissileMode::Active;
           }
           FireSecondary(dt, mgr);
         } else {
@@ -1875,7 +1842,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
         x2f8_stateFlags &= ~0x1;
         x2f8_stateFlags |= 0x6;
         x318_comboAmmoIdx = 1;
-        x31c_missileMode = EMissleMode::Active;
+        x31c_missileMode = EMissileMode::Active;
         break;
       case ENextState::ExitMissile:
         if ((x2f8_stateFlags & 0x8) != 0x8) {
@@ -1883,7 +1850,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
           x2f8_stateFlags &= 0xFFE9;
         }
         x318_comboAmmoIdx = 0;
-        x31c_missileMode = EMissleMode::Inactive;
+        x31c_missileMode = EMissileMode::Inactive;
         x390_cooldown = x72c_currentBeam->GetWeaponInfo().x0_coolDown;
         break;
       case ENextState::MissileReload:
@@ -1905,7 +1872,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
           x2f8_stateFlags &= 0xFFE9;
         }
         x318_comboAmmoIdx = 0;
-        x31c_missileMode = EMissleMode::Inactive;
+        x31c_missileMode = EMissileMode::Inactive;
         break;
       case ENextState::EnterPhazonBeam:
         if (x75c_phazonBeam->IsLoaded())
@@ -1970,7 +1937,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
     zeus::CAABox aabb = x72c_currentBeam->GetBounds().getTransformedAABox(x4a8_gunWorldXf);
     mgr.BuildNearList(nearList, aabb, sAimFilter, &player);
     TUniqueId bestId = kInvalidUniqueId;
-    zeus::CVector3f dir = x4a8_gunWorldXf.basis[1].normalized();
+    zeus::CVector3f dir = x4a8_gunWorldXf.frontVector().normalized();
     zeus::CVector3f pos = dir * -0.5f + x4a8_gunWorldXf.origin;
     CRayCastResult result = mgr.RayWorldIntersection(bestId, pos, dir, 3.5f, sAimFilter, nearList);
     x833_29_pointBlankWorldSurface = result.IsValid();
@@ -2122,9 +2089,9 @@ void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustum& frust
 }
 
 void CPlayerGun::RenderEnergyDrainEffects(const CStateManager& mgr) const {
-  if (TCastToConstPtr<CPlayer> player = mgr.GetObjectById(x538_playerId)) {
+  if (const TCastToConstPtr<CPlayer> player = mgr.GetObjectById(x538_playerId)) {
     for (const auto& source : player->GetEnergyDrain().GetEnergyDrainSources()) {
-      if (auto* metroid = CPatterned::CastTo<MP1::CMetroidBeta>(mgr.GetObjectById(source.GetEnergyDrainSourceId()))) {
+      if (const auto* metroid = CPatterned::CastTo<MP1::CMetroidBeta>(mgr.GetObjectById(source.GetEnergyDrainSourceId()))) {
         metroid->RenderHitGunEffect();
         return;
       }

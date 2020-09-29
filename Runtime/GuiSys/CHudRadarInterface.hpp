@@ -29,8 +29,8 @@ class CHudRadarInterface {
   };
   TLockedToken<CTexture> x0_txtrRadarPaint;
   zeus::CTransform xc_radarStuffXf;
-  bool x3c_24_visibleGame : 1;
-  bool x3c_25_visibleDebug : 1;
+  bool x3c_24_visibleGame : 1 = true;
+  bool x3c_25_visibleDebug : 1 = true;
   CGuiWidget* x40_BaseWidget_RadarStuff;
   CGuiCamera* x44_camera;
   CRadarPaintShader m_paintShader;

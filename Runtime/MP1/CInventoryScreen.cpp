@@ -1,61 +1,69 @@
 #include "Runtime/MP1/CInventoryScreen.hpp"
 
+#include <array>
+
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/GuiSys/CGuiModel.hpp"
 #include "Runtime/GuiSys/CGuiTableGroup.hpp"
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 #include "Runtime/Input/ControlMapper.hpp"
+#include "Runtime/IMain.hpp"
 
 namespace urde::MP1 {
-
+namespace {
 struct SInventoryItem {
   u32 idx;
   u32 nameStrIdx;
   u32 entryStrIdx;
 };
 
-static const SInventoryItem ArmCannonItems[] = {
+constexpr std::array<SInventoryItem, 5> ArmCannonItems{{
     {0, 0x24, 0x46}, // Power Beam
     {1, 0x25, 0x48}, // Ice Beam
     {2, 0x26, 0x4a}, // Wave Beam
     {3, 0x27, 0x4c}, // Plasma Beam
     {4, 0x28, 0x4e}, // Phazon Beam
-};
+}};
 
-static const SInventoryItem MorphballItems[] = {
+constexpr std::array<SInventoryItem, 5> MorphballItems{{
     {5, 0x2e, 0x57}, // Morph Ball
     {6, 0x2f, 0x58}, // Boost Ball
     {7, 0x30, 0x59}, // Spider Ball
     {8, 0x31, 0x5a}, // Morph Ball Bomb
     {9, 0x32, 0x5b}, // Power Bomb
-};
+}};
 
-static const SInventoryItem SuitItems[] = {
+constexpr std::array<SInventoryItem, 5> SuitItems{{
     {10, 0x33, 0x52}, // Power Suit
     {11, 0x34, 0x53}, // Varia Suit
     {12, 0x35, 0x54}, // Gravity Suit
     {13, 0x36, 0x55}, // Phazon Suit
     {14, 0x37, 0x56}, // Energy Tank
-};
+}};
 
-static const SInventoryItem VisorItems[] = {
+constexpr std::array<SInventoryItem, 4> VisorItems{{
     {15, 0x38, 0x42}, // Combat Visor
     {16, 0x39, 0x43}, // Scan Visor
     {17, 0x3a, 0x44}, // X-Ray Visor
     {18, 0x3b, 0x45}, // Thermal Visor
-};
+}};
 
-static const SInventoryItem SecondaryItems[] = {
+constexpr std::array<SInventoryItem, 5> SecondaryItems{{
     {19, 0x3c, 0x4f}, // Space Jump Boots
     {20, 0x3d, 0x50}, // Grapple Beam
     {21, 0x3e, 0x51}, // Missile Launcher
     {22, 0x3f, 0x5c}, // Charge Beam
     {23, 0x40, 0x5d}, // Beam Combo
-};
+}};
 
-static const std::pair<u32, const SInventoryItem*> InventoryRegistry[] = {
-    {5, ArmCannonItems}, {5, MorphballItems}, {5, SuitItems}, {4, VisorItems}, {5, SecondaryItems},
-};
+constexpr std::array<std::pair<size_t, const SInventoryItem*>, 5> InventoryRegistry{{
+    {ArmCannonItems.size(), ArmCannonItems.data()},
+    {MorphballItems.size(), MorphballItems.data()},
+    {SuitItems.size(), SuitItems.data()},
+    {VisorItems.size(), VisorItems.data()},
+    {SecondaryItems.size(), SecondaryItems.data()},
+}};
+} // Anonymous namespace
 
 CInventoryScreen::CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg,
                                    const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp)
@@ -278,14 +286,22 @@ bool CInventoryScreen::HasLeftInventoryItem(int idx) const {
 void CInventoryScreen::VActivate() {
   for (int i = 0; i < 5; ++i) {
     if (HasLeftInventoryItem(i)) {
-      xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 10));
+      if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
+        xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 10));
+      } else {
+        xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 12));
+      }
     } else {
       xa8_textpane_categories[i]->TextSupport().SetText(u"??????");
       x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
     }
   }
 
-  x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(9));
+  if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
+    x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(9));
+  } else {
+    x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(11));
+  }
   x180_basewidget_yicon->SetVisibility(true, ETraversalMode::Children);
 }
 
@@ -295,15 +311,22 @@ void CInventoryScreen::UpdateTextBody() {
   x1ac_textLeaveRequested = false;
 
   const SInventoryItem& sel = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()].second[x1c_rightSel];
-  std::u16string entryText = xc_pauseStrg.GetString(sel.entryStrIdx);
+  std::u16string entryText = xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? sel.entryStrIdx : sel.entryStrIdx + 3);
 
   if (sel.idx == 23) // Beam combo
   {
     CPlayerState& playerState = *x4_mgr.GetPlayerState();
-    entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::SuperMissile) ? 71 : 65);
-    entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::IceSpreader) ? 73 : 65);
-    entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::Wavebuster) ? 75 : 65);
-    entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::Flamethrower) ? 77 : 65);
+    if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
+      entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::SuperMissile) ? 71 : 65);
+      entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::IceSpreader) ? 73 : 65);
+      entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::Wavebuster) ? 75 : 65);
+      entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::Flamethrower) ? 77 : 65);
+    } else {
+      entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::SuperMissile) ? 73 : 68);
+      entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::IceSpreader) ? 75 : 68);
+      entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::Wavebuster) ? 78 : 68);
+      entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::Flamethrower) ? 79 : 68);
+    }
   }
 
   x174_textpane_body->TextSupport().SetText(entryText, true);
@@ -437,14 +460,14 @@ bool CInventoryScreen::IsRightInventoryItemEquipped(int idx) const {
 
 void CInventoryScreen::UpdateRightTable() {
   CPauseScreenBase::UpdateRightTable();
-  const std::pair<u32, const SInventoryItem*>& category = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()];
+  const auto& [size, data] = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()];
 
   int minSel = INT_MAX;
   for (int i = 0; i < 5; ++i) {
     CGuiTextPane* title = xd8_textpane_titles[i];
-    if (i < category.first) {
-      if (HasRightInventoryItem(category.second[i].idx)) {
-        title->TextSupport().SetText(xc_pauseStrg.GetString(category.second[i].nameStrIdx));
+    if (i < int(size)) {
+      if (HasRightInventoryItem(data[i].idx)) {
+        title->TextSupport().SetText(xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? data[i].nameStrIdx : data[i].nameStrIdx + 3));
         x84_tablegroup_rightlog->GetWorkerWidget(i + 1)->SetIsSelectable(true);
         if (i < minSel)
           minSel = i;
@@ -476,7 +499,7 @@ bool CInventoryScreen::ShouldRightTableAdvance() const {
 }
 
 u32 CInventoryScreen::GetRightTableCount() const {
-  return InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()].first;
+  return u32(InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()].first);
 }
 
 bool CInventoryScreen::IsRightLogDynamic() const { return true; }
@@ -484,9 +507,9 @@ bool CInventoryScreen::IsRightLogDynamic() const { return true; }
 void CInventoryScreen::UpdateRightLogColors(bool active, const zeus::CColor& activeColor,
                                             const zeus::CColor& inactiveColor) {
   x80_basewidget_rightlog->SetColor(active ? zeus::skWhite : zeus::CColor(1.f, 0.71f));
-  const std::pair<u32, const SInventoryItem*>& cat = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()];
+  const auto& [size, data] = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()];
   for (u32 i = 0; i < 5; ++i) {
-    if (i < cat.first && IsRightInventoryItemEquipped(cat.second[i].idx)) {
+    if (i < size && IsRightInventoryItemEquipped(data[i].idx)) {
       x15c_model_righttitledecos[i]->SetColor(g_tweakGuiColors->GetPauseItemBlueColor());
       xd8_textpane_titles[i]->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemBlueColor());
     } else {
@@ -498,16 +521,17 @@ void CInventoryScreen::UpdateRightLogColors(bool active, const zeus::CColor& act
 
 void CInventoryScreen::UpdateRightLogHighlight(bool active, int idx, const zeus::CColor& activeColor,
                                                const zeus::CColor& inactiveColor) {
-  zeus::CColor actColor = g_tweakGuiColors->GetPauseItemAmberColor() * activeColor;
-  zeus::CColor inactColor = g_tweakGuiColors->GetPauseItemAmberColor() * inactiveColor;
+  const zeus::CColor actColor = g_tweakGuiColors->GetPauseItemAmberColor() * activeColor;
+  const zeus::CColor inactColor = g_tweakGuiColors->GetPauseItemAmberColor() * inactiveColor;
 
-  const std::pair<u32, const SInventoryItem*>& cat = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()];
-  for (u32 i = 0; i < 5; ++i) {
-    bool act = i == idx && active;
-    if (i < cat.first && IsRightInventoryItemEquipped(cat.second[i].idx) && act)
+  const auto& [size, data] = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()];
+  for (s32 i = 0; i < 5; ++i) {
+    const bool act = i == idx && active;
+    if (i < int(size) && IsRightInventoryItemEquipped(data[i].idx) && act) {
       x8c_model_righthighlight->SetColor(g_tweakGuiColors->GetPauseItemBlueColor());
-    else if (act)
+    } else if (act) {
       x8c_model_righthighlight->SetColor(actColor);
+    }
     x144_model_titles[i]->SetColor(act ? actColor : inactColor);
   }
 }

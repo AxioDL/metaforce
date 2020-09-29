@@ -21,7 +21,7 @@ TBINDING11 uniform samplerCube reflectionTex;
 TBINDING11 uniform sampler2D reflectionTex;
 #endif
 
-const vec3 kRGBToYPrime = vec3(0.257, 0.504, 0.098);
+const vec3 kRGBToYPrime = vec3(0.299, 0.587, 0.114);
 
 /*
 #if defined(ALPHA_%s)

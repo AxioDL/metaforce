@@ -4,35 +4,39 @@
 
 namespace urde {
 
-CStaticInterference::CStaticInterference(int sourceCount) { m_sources.reserve(sourceCount); }
+CStaticInterference::CStaticInterference(size_t sourceCount) { x0_sources.reserve(sourceCount); }
 
 void CStaticInterference::RemoveSource(TUniqueId id) {
-  auto iter = std::find_if(m_sources.begin(), m_sources.end(),
-                           [id](const CStaticInterferenceSource& src) -> bool { return src.id == id; });
-  if (iter != m_sources.end())
-    m_sources.erase(iter);
+  const auto iter =
+      std::find_if(x0_sources.cbegin(), x0_sources.cend(), [id](const auto& src) { return src.x0_id == id; });
+
+  if (iter == x0_sources.cend()) {
+    return;
+  }
+
+  x0_sources.erase(iter);
 }
 
 void CStaticInterference::Update(CStateManager&, float dt) {
   std::vector<CStaticInterferenceSource> newSources;
-  newSources.reserve(m_sources.size());
-  for (CStaticInterferenceSource& src : m_sources) {
-    if (src.timeLeft >= 0.f) {
-      src.timeLeft -= dt;
+  newSources.reserve(x0_sources.size());
+  for (CStaticInterferenceSource& src : x0_sources) {
+    if (src.x8_timeLeft >= 0.f) {
+      src.x8_timeLeft -= dt;
       newSources.push_back(src);
     }
   }
-  m_sources = std::move(newSources);
+  x0_sources = std::move(newSources);
 }
 
 float CStaticInterference::GetTotalInterference() const {
   float validAccum = 0.f;
   float invalidAccum = 0.f;
-  for (const CStaticInterferenceSource& src : m_sources) {
-    if (src.id == kInvalidUniqueId)
-      invalidAccum += src.magnitude;
+  for (const CStaticInterferenceSource& src : x0_sources) {
+    if (src.x0_id == kInvalidUniqueId)
+      invalidAccum += src.x4_magnitude;
     else
-      validAccum += src.magnitude;
+      validAccum += src.x4_magnitude;
   }
   if (validAccum > 0.80000001f)
     validAccum = 0.80000001f;
@@ -44,15 +48,17 @@ float CStaticInterference::GetTotalInterference() const {
 
 void CStaticInterference::AddSource(TUniqueId id, float magnitude, float duration) {
   magnitude = zeus::clamp(0.f, magnitude, 1.f);
-  auto search = std::find_if(m_sources.begin(), m_sources.end(),
-                             [id](CStaticInterferenceSource& source) { return source.id == id; });
-  if (search != m_sources.end()) {
-    search->magnitude = magnitude;
-    search->timeLeft = duration;
+  const auto search = std::find_if(x0_sources.begin(), x0_sources.end(),
+                                   [id](const CStaticInterferenceSource& source) { return source.x0_id == id; });
+  if (search != x0_sources.cend()) {
+    search->x4_magnitude = magnitude;
+    search->x8_timeLeft = duration;
     return;
   }
-  if (m_sources.size() < m_sources.capacity())
-    m_sources.push_back({id, magnitude, duration});
+
+  if (x0_sources.size() < x0_sources.capacity()) {
+    x0_sources.push_back({id, magnitude, duration});
+  }
 }
 
 } // namespace urde

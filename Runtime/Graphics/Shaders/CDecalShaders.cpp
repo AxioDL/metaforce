@@ -8,13 +8,6 @@
 
 namespace urde {
 
-boo::ObjToken<boo::IShaderPipeline> CDecalShaders::m_texZTestNoZWrite;
-boo::ObjToken<boo::IShaderPipeline> CDecalShaders::m_texAdditiveZTest;
-boo::ObjToken<boo::IShaderPipeline> CDecalShaders::m_texRedToAlphaZTest;
-
-boo::ObjToken<boo::IShaderPipeline> CDecalShaders::m_noTexZTestNoZWrite;
-boo::ObjToken<boo::IShaderPipeline> CDecalShaders::m_noTexAdditiveZTest;
-
 void CDecalShaders::Initialize() {
   m_texZTestNoZWrite = hecl::conv->convert(Shader_CDecalShaderTexZTest{});
   m_texAdditiveZTest = hecl::conv->convert(Shader_CDecalShaderTexAdditiveZTest{});

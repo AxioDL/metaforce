@@ -38,7 +38,7 @@ protected:
   CTexturedQuadFilter() = default;
 
 public:
-  static const zeus::CRectangle DefaultRect;
+  static constexpr zeus::CRectangle DefaultRect{0.f, 0.f, 1.f, 1.f};
   explicit CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ZTest zTest = ZTest::None);
   template <typename Tex>
   explicit CTexturedQuadFilter(EFilterType type, Tex tex, ZTest zTest = ZTest::None);

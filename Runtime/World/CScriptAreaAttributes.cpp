@@ -25,8 +25,9 @@ void CScriptAreaAttributes::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptAreaAttributes::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
-  if (x4_areaId == kInvalidAreaId)
+  if (x4_areaId == kInvalidAreaId) {
     return;
+  }
 
   if (msg == EScriptObjectMessage::InitializedInArea) {
     CGameArea* area = stateMgr.GetWorld()->GetArea(x4_areaId);
@@ -35,8 +36,9 @@ void CScriptAreaAttributes::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
   } else if (msg == EScriptObjectMessage::Deleted) {
     CGameArea* area = stateMgr.GetWorld()->GetArea(x4_areaId);
 
-    if (!area->IsPostConstructed())
+    if (!area->IsPostConstructed()) {
       return;
+    }
 
     area->SetAreaAttributes(nullptr);
   }

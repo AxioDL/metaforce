@@ -28,27 +28,21 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
 , x27c_restitution(restitution)
 , x280_scaleType(scaleType)
 , x281_24_randomAngImpulse(randomAngImpulse)
-, x281_25_particle1GlobalTranslation(false)
-, x281_26_deferDeleteTillParticle1Done(false)
-, x281_27_particle2GlobalTranslation(false)
-, x281_28_deferDeleteTillParticle2Done(false)
-, x281_29_particle3Active(false)
-, x281_30_debrisExtended(false)
-, x281_31_dieOnProjectile(false)
-, x282_24_noBounce(false)
 , x2b0_scale(mData.GetScale())
 , x2e0_speedAvg(2.f) {
-  if (scaleType == EScaleType::NoScale)
+  if (scaleType == EScaleType::NoScale) {
     x2bc_endScale = mData.GetScale();
-  else if (scaleType == EScaleType::EndsToZero)
+  } else if (scaleType == EScaleType::EndsToZero) {
     x2bc_endScale = zeus::skZero3f;
-  else
+  } else {
     x2bc_endScale.splat(5.f);
+  }
 
   xe7_30_doTargetDistanceTest = false;
 
-  if (x90_actorLights)
+  if (x90_actorLights) {
     x90_actorLights->SetAreaUpdateFramePeriod(x90_actorLights->GetAreaUpdateFramePeriod() * 2);
+  }
 
   SetUseInSortedLists(false);
 
@@ -65,8 +59,9 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
 
   x150_momentum = zeus::CVector3f(0.f, 0.f, -CPhysicsActor::GravityConstant() * xe8_mass);
 
-  if (x90_actorLights)
+  if (x90_actorLights) {
     x90_actorLights->SetAmbienceGenerated(true);
+  }
 }
 
 CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -93,9 +88,8 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
 , x281_26_deferDeleteTillParticle1Done(deferDeleteTillParticle1Done)
 , x281_27_particle2GlobalTranslation(particle2GlobalTranslation)
 , x281_28_deferDeleteTillParticle2Done(deferDeleteTillParticle2Done)
-, x281_29_particle3Active(false)
 , x281_30_debrisExtended(true)
-, x281_31_dieOnProjectile(false)
+, x281_31_dieOnProjectile(dieOnProjectile)
 , x282_24_noBounce(noBounce)
 , x288_linConeAngle(linConeAngle)
 , x28c_linMinMag(linMinMag)
@@ -178,13 +172,16 @@ void CScriptDebris::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& 
 }
 
 static zeus::CVector3f debris_cone(CStateManager& mgr, float coneAng, float minMag, float maxMag) {
-  float mag = mgr.GetActiveRandom()->Float() * (maxMag - minMag) + minMag;
-  float side = 1.f - (1.f - std::cos(zeus::degToRad(coneAng * 0.5f))) * mgr.GetActiveRandom()->Float();
+  const float mag = mgr.GetActiveRandom()->Float() * (maxMag - minMag) + minMag;
+  const float side = 1.f - (1.f - std::cos(zeus::degToRad(coneAng * 0.5f))) * mgr.GetActiveRandom()->Float();
+
   float hyp = std::max(0.f, 1.f - side * side);
-  if (hyp != 0.f)
+  if (hyp != 0.f) {
     hyp = std::sqrt(hyp);
+  }
   hyp *= mag;
-  float ang = mgr.GetActiveRandom()->Float() * 2.f * M_PIF;
+
+  const float ang = mgr.GetActiveRandom()->Float() * 2.f * M_PIF;
   return {std::cos(ang) * hyp, std::sin(ang) * hyp, mag * side};
 }
 
@@ -211,20 +208,23 @@ void CScriptDebris::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, 
       }
       ApplyImpulseWR(linImpulse, angImpulse);
     } else {
-      zeus::CVector3f linImpulse = debris_cone(mgr, x288_linConeAngle, x28c_linMinMag, x290_linMaxMag);
-      zeus::CVector3f angImpulse = debris_cone(mgr, 360.f, x294_angMinMag, x298_angMaxMag);
+      const zeus::CVector3f linImpulse = debris_cone(mgr, x288_linConeAngle, x28c_linMinMag, x290_linMaxMag);
+      const zeus::CVector3f angImpulse = debris_cone(mgr, 360.f, x294_angMinMag, x298_angMaxMag);
       ApplyImpulseOR(linImpulse, angImpulse);
       x274_duration = mgr.GetActiveRandom()->Float() * (x2a0_maxDuration - x29c_minDuration) + x29c_minDuration;
     }
 
-    if (x2d4_particleGens[0])
+    if (x2d4_particleGens[0]) {
       x2d4_particleGens[0]->SetParticleEmission(true);
-    if (x2d4_particleGens[1])
+    }
+    if (x2d4_particleGens[1]) {
       x2d4_particleGens[1]->SetParticleEmission(true);
+    }
     break;
   case EScriptObjectMessage::OnFloor:
-    if (!x282_24_noBounce)
+    if (!x282_24_noBounce) {
       ApplyImpulseWR(-x27c_restitution * xfc_constantForce, -x27c_restitution * x108_angularMomentum);
+    }
     break;
   default:
     break;
@@ -234,8 +234,9 @@ void CScriptDebris::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, 
 }
 
 void CScriptDebris::Think(float dt, CStateManager& mgr) {
-  if (!GetActive())
+  if (!GetActive()) {
     return;
+  }
 
   x270_curTime += dt;
   bool done = x270_curTime >= x274_duration;
@@ -244,17 +245,17 @@ void CScriptDebris::Think(float dt, CStateManager& mgr) {
     if (x270_curTime >= x274_duration) {
       x2d4_particleGens[0]->SetParticleEmission(false);
     } else {
-      if (x281_25_particle1GlobalTranslation)
+      if (x281_25_particle1GlobalTranslation) {
         x2d4_particleGens[0]->SetGlobalTranslation(GetTranslation());
-      else
+      } else {
         x2d4_particleGens[0]->SetTranslation(GetTranslation());
+      }
 
       if (x283_particleOrs[0] == EOrientationType::AlongVelocity) {
         if (x138_velocity.canBeNormalized()) {
-          zeus::CVector3f normVel = x138_velocity.normalized();
-          zeus::CTransform orient =
-              zeus::lookAt(zeus::skZero3f, normVel,
-                           std::fabs(normVel.z()) < 0.99f ? zeus::skUp : zeus::skForward);
+          const zeus::CVector3f normVel = x138_velocity.normalized();
+          const zeus::CTransform orient =
+              zeus::lookAt(zeus::skZero3f, normVel, std::fabs(normVel.z()) < 0.99f ? zeus::skUp : zeus::skForward);
           x2d4_particleGens[0]->SetOrientation(orient);
         }
       } else if (x283_particleOrs[0] == EOrientationType::ToObject) {
@@ -262,28 +263,30 @@ void CScriptDebris::Think(float dt, CStateManager& mgr) {
       }
     }
 
-    if (x281_26_deferDeleteTillParticle1Done && x2d4_particleGens[0]->GetParticleCount() != 0)
+    if (x281_26_deferDeleteTillParticle1Done && x2d4_particleGens[0]->GetParticleCount() != 0) {
       done = false;
+    }
 
-    if (x270_curTime < x274_duration || x281_26_deferDeleteTillParticle1Done)
+    if (x270_curTime < x274_duration || x281_26_deferDeleteTillParticle1Done) {
       x2d4_particleGens[0]->Update(dt);
+    }
   }
 
   if (x2d4_particleGens[1]) {
     if (x270_curTime >= x274_duration) {
       x2d4_particleGens[1]->SetParticleEmission(false);
     } else {
-      if (x281_27_particle2GlobalTranslation)
+      if (x281_27_particle2GlobalTranslation) {
         x2d4_particleGens[1]->SetGlobalTranslation(GetTranslation());
-      else
+      } else {
         x2d4_particleGens[1]->SetTranslation(GetTranslation());
+      }
 
       if (x283_particleOrs[1] == EOrientationType::AlongVelocity) {
         if (x138_velocity.canBeNormalized()) {
-          zeus::CVector3f normVel = x138_velocity.normalized();
-          zeus::CTransform orient =
-              zeus::lookAt(zeus::skZero3f, normVel,
-                           std::fabs(normVel.z()) < 0.99f ? zeus::skUp : zeus::skForward);
+          const zeus::CVector3f normVel = x138_velocity.normalized();
+          const zeus::CTransform orient =
+              zeus::lookAt(zeus::skZero3f, normVel, std::fabs(normVel.z()) < 0.99f ? zeus::skUp : zeus::skForward);
           x2d4_particleGens[1]->SetOrientation(orient);
         }
       } else if (x283_particleOrs[1] == EOrientationType::ToObject) {
@@ -291,11 +294,13 @@ void CScriptDebris::Think(float dt, CStateManager& mgr) {
       }
     }
 
-    if (x281_28_deferDeleteTillParticle2Done && x2d4_particleGens[1]->GetParticleCount() != 0)
+    if (x281_28_deferDeleteTillParticle2Done && x2d4_particleGens[1]->GetParticleCount() != 0) {
       done = false;
+    }
 
-    if (x270_curTime < x274_duration || x281_28_deferDeleteTillParticle2Done)
+    if (x270_curTime < x274_duration || x281_28_deferDeleteTillParticle2Done) {
       x2d4_particleGens[1]->Update(dt);
+    }
   }
 
   /* End particle */
@@ -305,21 +310,20 @@ void CScriptDebris::Think(float dt, CStateManager& mgr) {
 
       if (x283_particleOrs[2] == EOrientationType::AlongVelocity) {
         if (x138_velocity.canBeNormalized()) {
-          zeus::CVector3f normVel = x138_velocity.normalized();
-          zeus::CTransform orient =
-              zeus::lookAt(zeus::skZero3f, normVel,
-                           std::fabs(normVel.z()) < 0.99f ? zeus::skUp : zeus::skForward);
+          const zeus::CVector3f normVel = x138_velocity.normalized();
+          const zeus::CTransform orient =
+              zeus::lookAt(zeus::skZero3f, normVel, std::fabs(normVel.z()) < 0.99f ? zeus::skUp : zeus::skForward);
           x2d4_particleGens[2]->SetOrientation(orient);
         }
       } else if (x283_particleOrs[2] == EOrientationType::ToObject) {
         x2d4_particleGens[2]->SetOrientation(x34_transform.getRotation());
       } else if (x283_particleOrs[2] == EOrientationType::AlongCollisionNormal) {
-        if (x2c8_collisionNormal.magSquared() == 0.f)
+        if (x2c8_collisionNormal.magSquared() == 0.f) {
           x2c8_collisionNormal = zeus::skUp;
-        zeus::CTransform orient =
+        }
+        const zeus::CTransform orient =
             zeus::lookAt(zeus::skZero3f, x2c8_collisionNormal,
-                         std::fabs(x2c8_collisionNormal.dot(zeus::skUp)) > 0.99f ? zeus::skRight
-                                                                                            : zeus::skUp);
+                         std::fabs(x2c8_collisionNormal.dot(zeus::skUp)) > 0.99f ? zeus::skRight : zeus::skUp);
         x2d4_particleGens[2]->SetOrientation(orient);
       }
 
@@ -328,15 +332,17 @@ void CScriptDebris::Think(float dt, CStateManager& mgr) {
 
     if (x281_29_particle3Active) {
       x2d4_particleGens[2]->Update(dt);
-      if (!x2d4_particleGens[2]->IsSystemDeletable())
+      if (!x2d4_particleGens[2]->IsSystemDeletable()) {
         done = false;
+      }
     }
   }
 
   if (x64_modelData && !x64_modelData->IsNull()) {
-    float t = x270_curTime / x274_duration > x2ac_scaleOutStartT
-                  ? (x270_curTime - x2ac_scaleOutStartT * x274_duration) / ((1.f - x2ac_scaleOutStartT) * x274_duration)
-                  : 0.f;
+    const float t =
+        x270_curTime / x274_duration > x2ac_scaleOutStartT
+            ? (x270_curTime - x2ac_scaleOutStartT * x274_duration) / ((1.f - x2ac_scaleOutStartT) * x274_duration)
+            : 0.f;
     x64_modelData->SetScale(zeus::CVector3f::lerp(x2b0_scale, x2bc_endScale, t));
   }
 
@@ -352,19 +358,22 @@ void CScriptDebris::Think(float dt, CStateManager& mgr) {
   }
 
   if (xf8_24_movable) {
-    float speed = x138_velocity.magnitude();
+    const float speed = x138_velocity.magnitude();
     x2e0_speedAvg.AddValue(speed);
-    if (x2e0_speedAvg.GetAverage() < 0.1f)
+    if (x2e0_speedAvg.GetAverage() < 0.1f) {
       xf8_24_movable = false;
+    }
   }
 }
 
 void CScriptDebris::Touch(CActor& other, CStateManager& mgr) {
-  if (x281_31_dieOnProjectile) {
-    if (TCastToPtr<CGameProjectile>(other)) {
-      SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
-      mgr.FreeScriptObject(x8_uid);
-    }
+  if (!x281_31_dieOnProjectile) {
+    return;
+  }
+
+  if (TCastToPtr<CGameProjectile>(other)) {
+    SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
+    mgr.FreeScriptObject(x8_uid);
   }
 }
 
@@ -379,12 +388,13 @@ void CScriptDebris::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
   CActor::PreRender(mgr, frustum);
 
   float t = x270_curTime / x274_duration;
-  if (t < x2a4_colorInT)
+  if (t < x2a4_colorInT) {
     t = x2a4_colorInT > 0.f ? 1.f - x270_curTime / (x274_duration * x2a4_colorInT) : 0.f;
-  else if (t > x2a8_colorOutT)
+  } else if (t > x2a8_colorOutT) {
     t = (x270_curTime - x274_duration * x2a8_colorOutT) / (x274_duration * (1.f - x2a8_colorOutT));
-  else
+  } else {
     t = 0.f;
+  }
 
   xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor::lerp(zeus::skWhite, x268_endsColor, t));
 }
@@ -392,8 +402,9 @@ void CScriptDebris::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
 void CScriptDebris::Render(CStateManager& mgr) { CPhysicsActor::Render(mgr); }
 
 void CScriptDebris::CollidedWith(TUniqueId, const CCollisionInfoList& colList, CStateManager&) {
-  if (colList.GetCount() == 0)
+  if (colList.GetCount() == 0) {
     return;
+  }
 
   if (x282_24_noBounce) {
     x274_duration = x270_curTime;

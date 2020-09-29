@@ -48,49 +48,49 @@ void CCinematicCamera::WasDeactivated(CStateManager& mgr) {
 
 zeus::CVector3f CCinematicCamera::GetInterpolatedSplinePoint(const std::vector<zeus::CVector3f>& points, int& idxOut,
                                                              float tin) const {
-  if (points.size() > 0) {
-    const float cycleT = std::fmod(tin, x1e8_duration);
-    const float durPerPoint = x1e8_duration / float(points.size() - 1);
-    idxOut = int(cycleT / durPerPoint);
-    const float t = (cycleT - float(idxOut) * durPerPoint) / durPerPoint;
-
-    if (points.size() == 1) {
-      return points.front();
-    }
-    if (points.size() == 2) {
-      return (points[1] - points[0]) * t + points[0];
-    }
-
-    zeus::CVector3f ptA;
-    if (idxOut > 0) {
-      ptA = points[idxOut - 1];
-    } else {
-      ptA = points[0] - (points[1] - points[0]);
-    }
-
-    const zeus::CVector3f ptB = points[idxOut];
-    zeus::CVector3f ptC;
-    if (size_t(idxOut + 1) >= points.size()) {
-      const zeus::CVector3f& tmpA = points[points.size() - 1];
-      const zeus::CVector3f& tmpB = points[points.size() - 2];
-      ptC = tmpA - (tmpB - tmpA);
-    } else {
-      ptC = points[idxOut + 1];
-    }
-
-    zeus::CVector3f ptD;
-    if (size_t(idxOut + 2) >= points.size()) {
-      const zeus::CVector3f& tmpA = points[points.size() - 1];
-      const zeus::CVector3f& tmpB = points[points.size() - 2];
-      ptD = tmpA - (tmpB - tmpA);
-    } else {
-      ptD = points[idxOut + 2];
-    }
-
-    return zeus::getCatmullRomSplinePoint(ptA, ptB, ptC, ptD, t);
+  if (points.empty()) {
+    return {};
   }
 
-  return {};
+  const float cycleT = std::fmod(tin, x1e8_duration);
+  const float durPerPoint = x1e8_duration / float(points.size() - 1);
+  idxOut = int(cycleT / durPerPoint);
+  const float t = (cycleT - float(idxOut) * durPerPoint) / durPerPoint;
+
+  if (points.size() == 1) {
+    return points.front();
+  }
+  if (points.size() == 2) {
+    return (points[1] - points[0]) * t + points[0];
+  }
+
+  zeus::CVector3f ptA;
+  if (idxOut > 0) {
+    ptA = points[idxOut - 1];
+  } else {
+    ptA = points[0] - (points[1] - points[0]);
+  }
+
+  const zeus::CVector3f ptB = points[idxOut];
+  zeus::CVector3f ptC;
+  if (size_t(idxOut + 1) >= points.size()) {
+    const zeus::CVector3f& tmpA = points[points.size() - 1];
+    const zeus::CVector3f& tmpB = points[points.size() - 2];
+    ptC = tmpA - (tmpB - tmpA);
+  } else {
+    ptC = points[idxOut + 1];
+  }
+
+  zeus::CVector3f ptD;
+  if (size_t(idxOut + 2) >= points.size()) {
+    const zeus::CVector3f& tmpA = points[points.size() - 1];
+    const zeus::CVector3f& tmpB = points[points.size() - 2];
+    ptD = tmpA - (tmpB - tmpA);
+  } else {
+    ptD = points[idxOut + 2];
+  }
+
+  return zeus::getCatmullRomSplinePoint(ptA, ptB, ptC, ptD, t);
 }
 
 zeus::CQuaternion CCinematicCamera::GetInterpolatedOrientation(const std::vector<zeus::CQuaternion>& rotations,
@@ -215,10 +215,10 @@ void CCinematicCamera::Think(float dt, CStateManager& mgr) {
 
     x1ec_t += dt;
     if (x1ec_t > x1e8_duration) {
-      for (size_t i = x1f4_passedViewPoint + 1; i < x1a8_viewPointArrivals.size(); ++i) {
+      for (auto i = static_cast<size_t>(x1f4_passedViewPoint) + 1; i < x1a8_viewPointArrivals.size(); ++i) {
         SendArrivedMsg(x1a8_viewPointArrivals[i], mgr);
       }
-      for (size_t i = x1f8_passedTarget + 1; i < x1c8_targetArrivals.size(); ++i) {
+      for (auto i = static_cast<size_t>(x1f8_passedTarget) + 1; i < x1c8_targetArrivals.size(); ++i) {
         SendArrivedMsg(x1c8_targetArrivals[i], mgr);
       }
       DeactivateSelf(mgr);
@@ -306,7 +306,7 @@ void CCinematicCamera::CalculateMoveOutofIntoEyePosition(bool outOfEye, CStateMa
     behindDelta = -behindDelta;
   }
 
-  for (int i = 0; i < 2; ++i) {
+  for (size_t i = 0; i < 2; ++i) {
     x188_viewPoints[outOfEye ? i : x188_viewPoints.size() - (2 - i)] = behindPos;
     x198_viewOrientations[outOfEye ? i : x198_viewOrientations.size() - (2 - i)] = q;
     x1b8_targets[outOfEye ? i : x1b8_targets.size() - (2 - i)] = eyePos;

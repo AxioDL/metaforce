@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CIOWin.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
@@ -16,7 +17,6 @@
 #include <zeus/CVector2f.hpp>
 
 namespace urde {
-class CDependencyGroup;
 class CTexture;
 
 class CSlideShow : public CIOWin {
@@ -58,8 +58,8 @@ private:
   float x58_ = 0.f;
   */
 
-  SSlideData x5c_slideA;
-  SSlideData x90_slideB;
+  SSlideData x5c_slideA{*this};
+  SSlideData x90_slideB{*this};
 
   std::unique_ptr<CGuiTextSupport> xc4_textA;
   std::unique_ptr<CGuiTextSupport> xc8_textB;
@@ -87,18 +87,17 @@ private:
   float x12c_ = 32.f;
   */
   float x130_;
-  bool x134_24_ : 1;
-  bool x134_25_ : 1;
-  bool x134_26_ : 1;
-  bool x134_27_ : 1;
-  bool x134_28_disableInput : 1;
-  bool x134_29_ : 1;
-  bool x134_30_ : 1;
-  bool x134_31_ : 1;
-  bool x135_24_ : 1;
+  bool x134_24_ : 1 = true;
+  bool x134_25_ : 1 = false;
+  bool x134_26_ : 1 = false;
+  bool x134_27_ : 1 = false;
+  bool x134_28_disableInput : 1 = false;
+  bool x134_29_ : 1 = false;
+  bool x134_30_ : 1 = true;
+  bool x134_31_ : 1 = false;
+  bool x135_24_ : 1 = true;
 
   bool LoadTXTRDep(std::string_view name);
-  static bool AreAllDepsLoaded(const std::vector<TLockedToken<CDependencyGroup>>& deps);
 
 public:
   CSlideShow();

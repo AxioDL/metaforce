@@ -24,12 +24,12 @@ CAtomicBeta::CAtomicBeta(TUniqueId uid, std::string_view name, const CEntityInfo
                          float f6, s16 sId1, s16 sId2, s16 sId3, float f7)
 : CPatterned(ECharacter::AtomicBeta, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::RestrictedFlyer, actParms, EKnockBackVariant::Small)
-, x578_(f5)
-, x57c_(f6)
-, x580_(f7)
-, x584_(x578_)
+, x578_minSpeed(f5)
+, x57c_maxSpeed(f6)
+, x580_speedStep(f7)
+, x584_currentSpeed(x578_minSpeed)
 , x588_frozenDamage(dVuln)
-, x5f0_(f4)
+, x5f0_moveSpeed(f4)
 , x5f4_(xf.basis[1])
 , x600_electricWeapon(g_SimplePool->GetObj({SBIG('ELSC'), electricId}))
 , x608_(g_SimplePool->GetObj({SBIG('WPSC'), weaponId}))
@@ -50,10 +50,11 @@ void CAtomicBeta::CreateBeams(CStateManager& mgr) {
   const SElectricBeamInfo beamInfo{x600_electricWeapon, 50.f, x634_beamRadius, 10.f, x62c_beamParticle, x630_, x638_};
 
   for (size_t i = 0; i < kBombCount; ++i) {
-    x568_projectileIds.push_back(mgr.AllocateUniqueId());
+    const TUniqueId id = mgr.AllocateUniqueId();
+    x568_projectileIds.push_back(id);
     mgr.AddObject(new CElectricBeamProjectile(x608_, EWeaponType::AI, beamInfo, {}, EMaterialTypes::Character,
-                                              x610_projectileDamage, x568_projectileIds[i], GetAreaIdAlways(),
-                                              GetUniqueId(), EProjectileAttrib::None));
+                                              x610_projectileDamage, id, GetAreaIdAlways(), GetUniqueId(),
+                                              EProjectileAttrib::None));
   }
 }
 
@@ -62,9 +63,9 @@ void CAtomicBeta::UpdateBeams(CStateManager& mgr, bool fireBeam) {
     return;
   }
 
-  for (size_t i = 0; i < kBombCount; ++i) {
-    //zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
-    //zeus::CTransform newXf = zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::skUp);
+  for (size_t i = 0; i < x568_projectileIds.size(); ++i) {
+    // zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
+    // zeus::CTransform newXf = zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::skUp);
     if (auto* const proj = static_cast<CElectricBeamProjectile*>(mgr.ObjectById(x568_projectileIds[i]))) {
       if (fireBeam) {
         proj->Fire(GetTransform() * GetScaledLocatorTransform(skBombLocators[i]), mgr, false);
@@ -130,26 +131,27 @@ void CAtomicBeta::Think(float dt, CStateManager& mgr) {
     UpdateOrCreateEmitter(x654_, x648_, GetTranslation(), 96 / 127.f);
     DestroyEmitter(x64c_);
   } else {
+    UpdateBeams(mgr, false);
     DestroyEmitter(x650_);
     DestroyEmitter(x654_);
     UpdateOrCreateEmitter(x64c_, x644_, GetTranslation(), 96 / 127.f);
   }
 
-  for (size_t i = 0; i < kBombCount; ++i) {
+  // was hardcoded to 3 (kBombCount), but that segfaults after FreeBeams
+  for (size_t i = 0; i < x568_projectileIds.size(); ++i) {
     if (auto* const proj = static_cast<CElectricBeamProjectile*>(mgr.ObjectById(x568_projectileIds[i]))) {
       if (!proj->GetActive()) {
         continue;
       }
-
       const zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
-      proj->UpdateFx(zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::skUp), dt, mgr);
+      proj->UpdateFx(zeus::lookAt(xf.origin, xf.origin + xf.frontVector(), zeus::skUp), dt, mgr);
     }
   }
 
-  float speed = x580_ * (dt * (IsPlayerBeamChargedEnough(mgr) ? 1.f : -1.f)) + x584_;
-  x584_ = zeus::clamp(x578_, speed, x57c_);
-  x3b4_speed = x584_;
-  x450_bodyController->SetRestrictedFlyerMoveSpeed(x5f0_ * x584_);
+  float speed = x580_speedStep * (dt * (IsPlayerBeamChargedEnough(mgr) ? 1.f : -1.f)) + x584_currentSpeed;
+  x584_currentSpeed = zeus::clamp(x578_minSpeed, speed, x57c_maxSpeed);
+  x3b4_speed = x584_currentSpeed;
+  x450_bodyController->SetRestrictedFlyerMoveSpeed(x5f0_moveSpeed * x584_currentSpeed);
 }
 
 const CDamageVulnerability* CAtomicBeta::GetDamageVulnerability() const {
@@ -168,6 +170,6 @@ void CAtomicBeta::Death(CStateManager& mgr, const zeus::CVector3f& dir, EScriptO
 
 bool CAtomicBeta::IsPlayerBeamChargedEnough(const CStateManager& mgr) {
   const CPlayerGun* gun = mgr.GetPlayer().GetPlayerGun();
-  return (gun->IsCharging() ? gun->GetChargeBeamFactor() : 0.f) > .1f;
+  return (gun->IsCharging() ? gun->GetChargeBeamFactor() : 0.f) > 0.1f;
 }
 } // namespace urde::MP1

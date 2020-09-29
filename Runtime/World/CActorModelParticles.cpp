@@ -18,9 +18,10 @@
 
 namespace urde {
 
-static bool IsMediumOrLarge(CActor& act) {
-  if (TCastToConstPtr<CPatterned> pat = act)
+static bool IsMediumOrLarge(const CActor& act) {
+  if (const TCastToConstPtr<CPatterned> pat = act) {
     return pat->GetKnockBackController().GetVariant() != EKnockBackVariant::Small;
+  }
   return false;
 }
 
@@ -28,9 +29,7 @@ CActorModelParticles::CItem::CItem(const CEntity& ent, CActorModelParticles& par
 : x0_id(ent.GetUniqueId())
 , x4_areaId(ent.GetAreaIdAlways())
 , xdc_ashy(parent.x48_ashy)
-, x128_parent(parent)
-, x12c_24_thermalCold(false)
-, x12c_25_thermalHot(false) {
+, x128_parent(parent) {
   x8_onFireGens.resize(8);
 }
 

@@ -68,7 +68,7 @@ float CGuiTextSupport::GetCurrentAnimationOverAge() const {
   if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
     if (x50_typeEnable) {
       if (x40_primStartTimes.size()) {
-        auto& lastTime = x40_primStartTimes.back();
+        const auto& lastTime = x40_primStartTimes.back();
         ret = std::max(ret, (buf->GetPrimitiveCount() - lastTime.second) / x58_chRate + lastTime.first);
       } else {
         ret = std::max(ret, buf->GetPrimitiveCount() / x58_chRate);
@@ -211,7 +211,7 @@ const std::pair<zeus::CVector2i, zeus::CVector2i>& CGuiTextSupport::GetBounds() 
 }
 
 void CGuiTextSupport::AutoSetExtent() {
-  auto& bounds = GetBounds();
+  const auto& bounds = GetBounds();
   x34_extentX = bounds.second.x;
   x38_extentY = bounds.second.y;
 }
@@ -219,7 +219,7 @@ void CGuiTextSupport::AutoSetExtent() {
 void CGuiTextSupport::Render() {
   CheckAndRebuildRenderBuffer();
   if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
-    SCOPED_GRAPHICS_DEBUG_GROUP("CGuiTextSupport::Draw", zeus::skBlue);
+    SCOPED_GRAPHICS_DEBUG_GROUP("CGuiTextSupport::Render", zeus::skBlue);
     zeus::CTransform oldModel = CGraphics::g_GXModelMatrix;
     CGraphics::SetModelMatrix(oldModel * zeus::CTransform::Scale(1.f, 1.f, -1.f));
     buf->Render(x2c_geometryColor, x10_curTimeMod900);
@@ -230,17 +230,21 @@ void CGuiTextSupport::Render() {
 void CGuiTextSupport::SetGeometryColor(const zeus::CColor& col) { x2c_geometryColor = col; }
 
 void CGuiTextSupport::SetOutlineColor(const zeus::CColor& col) {
-  if (col != x28_outlineColor) {
-    ClearRenderBuffer();
-    x28_outlineColor = col;
+  if (col == x28_outlineColor) {
+    return;
   }
+
+  ClearRenderBuffer();
+  x28_outlineColor = col;
 }
 
 void CGuiTextSupport::SetFontColor(const zeus::CColor& col) {
-  if (col != x24_fontColor) {
-    ClearRenderBuffer();
-    x24_fontColor = col;
+  if (col == x24_fontColor) {
+    return;
   }
+
+  ClearRenderBuffer();
+  x24_fontColor = col;
 }
 
 void CGuiTextSupport::AddText(std::u16string_view str) {
@@ -253,14 +257,16 @@ void CGuiTextSupport::AddText(std::u16string_view str) {
 }
 
 void CGuiTextSupport::SetText(std::u16string_view str, bool multipage) {
-  if (x0_string != str) {
-    x40_primStartTimes.clear();
-    x3c_curTime = 0.f;
-    x0_string = str;
-    ClearRenderBuffer();
-    x308_multipageFlag = multipage;
-    x304_pageCounter = 0;
+  if (x0_string == str) {
+    return;
   }
+
+  x40_primStartTimes.clear();
+  x3c_curTime = 0.f;
+  x0_string = str;
+  ClearRenderBuffer();
+  x308_multipageFlag = multipage;
+  x304_pageCounter = 0;
 }
 
 void CGuiTextSupport::SetText(std::string_view str, bool multipage) { SetText(hecl::UTF8ToChar16(str), multipage); }
@@ -286,24 +292,30 @@ bool CGuiTextSupport::_GetIsTextSupportFinishedLoading() {
 }
 
 void CGuiTextSupport::SetJustification(EJustification j) {
-  if (j != x14_props.x4_justification) {
-    x14_props.x4_justification = j;
-    ClearRenderBuffer();
+  if (j == x14_props.x4_justification) {
+    return;
   }
+
+  x14_props.x4_justification = j;
+  ClearRenderBuffer();
 }
 
 void CGuiTextSupport::SetVerticalJustification(EVerticalJustification j) {
-  if (j != x14_props.x8_vertJustification) {
-    x14_props.x8_vertJustification = j;
-    ClearRenderBuffer();
+  if (j == x14_props.x8_vertJustification) {
+    return;
   }
+
+  x14_props.x8_vertJustification = j;
+  ClearRenderBuffer();
 }
 
 void CGuiTextSupport::SetImageBaseline(bool b) {
-  if (b != x30_imageBaseline) {
-    x30_imageBaseline = b;
-    ClearRenderBuffer();
+  if (b == x30_imageBaseline) {
+    return;
   }
+
+  x30_imageBaseline = b;
+  ClearRenderBuffer();
 }
 
 bool CGuiTextSupport::GetIsTextSupportFinishedLoading() {
@@ -312,10 +324,12 @@ bool CGuiTextSupport::GetIsTextSupportFinishedLoading() {
 }
 
 void CGuiTextSupport::SetControlTXTRMap(const std::vector<std::pair<CAssetId, CAssetId>>* txtrMap) {
-  if (x14_props.xc_txtrMap != txtrMap) {
-    x14_props.xc_txtrMap = txtrMap;
-    ClearRenderBuffer();
+  if (x14_props.xc_txtrMap == txtrMap) {
+    return;
   }
+
+  x14_props.xc_txtrMap = txtrMap;
+  ClearRenderBuffer();
 }
 
 int CGuiTextSupport::GetTotalPageCount() {

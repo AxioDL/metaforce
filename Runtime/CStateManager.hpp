@@ -28,6 +28,7 @@
 #include "Runtime/World/CFluidPlaneManager.hpp"
 #include "Runtime/World/ScriptLoader.hpp"
 #include "Runtime/World/ScriptObjectSupport.hpp"
+#include "Runtime/World/CScriptMazeNode.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector2f.hpp>
@@ -190,7 +191,7 @@ private:
   std::list<TUniqueId> xf3c_activeFlickerBats;
   std::list<TUniqueId> xf54_activeParasites;
   TUniqueId xf6c_playerActorHead = kInvalidUniqueId;
-  u32 xf70_ = 0;
+  std::unique_ptr<CMazeState> xf70_currentMaze;
 
   TUniqueId xf74_lastTrigger = kInvalidUniqueId;
   TUniqueId xf76_lastRelay = kInvalidUniqueId;
@@ -202,13 +203,13 @@ private:
   CAssetId xf88_;
   float xf8c_ = 0.f;
   EStateManagerTransition xf90_deferredTransition = EStateManagerTransition::InGame;
-  bool xf94_24_readyToRender : 1;
-  bool xf94_25_quitGame : 1;
-  bool xf94_26_generatingObject : 1;
-  bool xf94_27_inMapScreen : 1;
-  bool xf94_28_inSaveUI : 1;
-  bool xf94_29_cinematicPause : 1;
-  bool xf94_30_fullThreat : 1;
+  bool xf94_24_readyToRender : 1 = false;
+  bool xf94_25_quitGame : 1 = false;
+  bool xf94_26_generatingObject : 1 = false;
+  bool xf94_27_inMapScreen : 1 = false;
+  bool xf94_28_inSaveUI : 1 = false;
+  bool xf94_29_cinematicPause : 1 = false;
+  bool xf94_30_fullThreat : 1 = false;
 
   CColoredQuadFilter m_deathWhiteout{EFilterType::Add};
   CColoredQuadFilter m_escapeWhiteout{EFilterType::Add};
@@ -281,7 +282,7 @@ public:
   TUniqueId GetIdForScript(TEditorId) const;
   std::pair<std::multimap<TEditorId, TUniqueId>::const_iterator, std::multimap<TEditorId, TUniqueId>::const_iterator>
       GetIdListForScript(TEditorId) const;
-  std::multimap<TEditorId, TUniqueId>::const_iterator GetIdListEnd() const { return x890_scriptIdMap.cend(); };
+  std::multimap<TEditorId, TUniqueId>::const_iterator GetIdListEnd() const { return x890_scriptIdMap.cend(); }
   void LoadScriptObjects(TAreaId, CInputStream& in, std::vector<TEditorId>& idsOut);
   void InitializeScriptObjects(const std::vector<TEditorId>& objIds);
   std::pair<TEditorId, TUniqueId> LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in);
@@ -419,6 +420,9 @@ public:
     return static_cast<CPlatformAndDoorList&>(*x808_objLists[7]);
   }
   std::pair<u32, u32> CalculateScanCompletionRate() const;
+  void SetCurrentMaze(std::unique_ptr<CMazeState> maze) { xf70_currentMaze = std::move(maze); }
+  void ClearCurrentMaze() { xf70_currentMaze.reset(); }
+  CMazeState* GetCurrentMaze() { return xf70_currentMaze.get(); }
   void SetLastTriggerId(TUniqueId uid) { xf74_lastTrigger = uid; }
   TUniqueId GetLastTriggerId() const { return xf74_lastTrigger; }
   void SetLastRelayId(TUniqueId uid) { xf76_lastRelay = uid; }
@@ -457,6 +461,9 @@ public:
   static float g_EscapeShakeCountdown;
   static bool g_EscapeShakeCountdownInit;
 
-  void SetWarping(bool v) { m_warping = true; }
+  void sub_80044098(const CCollisionResponseData& colRespData, const CRayCastResult& rayCast, TUniqueId uid,
+                    const CWeaponMode& weaponMode, u32 w1, u8 thermalFlags);
+
+  void SetWarping(bool warp) { m_warping = warp; }
 };
 } // namespace urde

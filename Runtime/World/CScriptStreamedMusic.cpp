@@ -52,14 +52,18 @@ CScriptStreamedMusic::CScriptStreamedMusic(TUniqueId id, const CEntityInfo& info
 , x50_volume(volume) {}
 
 void CScriptStreamedMusic::Stop(CStateManager& mgr) {
-  if (x45_fileIsDsp)
-    StopStream(mgr);
+  if (!x45_fileIsDsp) {
+    return;
+  }
+
+  StopStream(mgr);
 }
 
 void CScriptStreamedMusic::Play(CStateManager& mgr) {
   TweakOverride(mgr);
-  if (x45_fileIsDsp)
+  if (x45_fileIsDsp) {
     StartStream(mgr);
+  }
 }
 
 void CScriptStreamedMusic::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -68,20 +72,24 @@ void CScriptStreamedMusic::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId o
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
   switch (msg) {
   case EScriptObjectMessage::Play:
-    if (x30_24_active)
+    if (x30_24_active) {
       Play(stateMgr);
+    }
     break;
   case EScriptObjectMessage::Stop:
-    if (x30_24_active)
+    if (x30_24_active) {
       Stop(stateMgr);
+    }
     break;
   case EScriptObjectMessage::Increment:
-    if (x45_fileIsDsp)
+    if (x45_fileIsDsp) {
       CStreamAudioManager::FadeBackIn(!x46_loop, x48_fadeIn);
+    }
     break;
   case EScriptObjectMessage::Decrement:
-    if (x45_fileIsDsp)
+    if (x45_fileIsDsp) {
       CStreamAudioManager::TemporaryFadeOut(!x46_loop, x4c_fadeOut);
+    }
     break;
   default:
     break;

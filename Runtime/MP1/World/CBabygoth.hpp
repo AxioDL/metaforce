@@ -63,9 +63,6 @@ public:
   enum class EShellState { Default, CrackOne, CrackTwo, Destroyed };
 
 private:
-  static constexpr s32 skSphereJointCount = 5;
-  static const SSphereJointInfo skSphereJointList[skSphereJointCount];
-  static const std::string_view skpMouthDamageJoint;
   s32 x568_stateProg = -1;
   EShellState x56c_shellState = EShellState::Default;
   CBabygothData x570_babyData;
@@ -100,22 +97,22 @@ private:
   TToken<CGenDescription> xa20_crackTwoParticle;
   TToken<CGenDescription> xa2c_destroyShellParticle;
   TLockedToken<CGenDescription> xa38_intermediateCrackParticle; // Used to be an optional, not necessary in URDE
-  bool xa48_24_isAlert : 1;
-  bool xa48_25_ : 1;
-  bool xa48_26_inProjectileAttack : 1;
-  bool xa48_27_ : 1;
-  bool xa48_28_pendingAttackContactDamage : 1;
-  bool xa48_29_hasBeenEnraged : 1;
-  bool xa48_30_heardPlayerFire : 1;
-  bool xa48_31_approachNeedsPathSearch : 1;
-  bool xa49_24_gettingUp : 1;
-  bool xa49_25_shouldStepBackwards : 1;
-  bool xa49_26_readyForTeam : 1;
-  bool xa49_27_locomotionValid : 1;
-  bool xa49_28_onApproachPath : 1;
-  bool xa49_29_objectSpaceCollision : 1;
+  bool xa48_24_isAlert : 1 = false;
+  bool xa48_25_ : 1 = false;
+  bool xa48_26_inProjectileAttack : 1 = false;
+  bool xa48_27_ : 1 = false;
+  bool xa48_28_pendingAttackContactDamage : 1 = false;
+  bool xa48_29_hasBeenEnraged : 1 = false;
+  bool xa48_30_heardPlayerFire : 1 = false;
+  bool xa48_31_approachNeedsPathSearch : 1 = true;
+  bool xa49_24_gettingUp : 1 = false;
+  bool xa49_25_shouldStepBackwards : 1 = false;
+  bool xa49_26_readyForTeam : 1 = false;
+  bool xa49_27_locomotionValid : 1 = false;
+  bool xa49_28_onApproachPath : 1 = false;
+  bool xa49_29_objectSpaceCollision : 1 = false;
 
-  void AddSphereCollisionList(const SSphereJointInfo*, s32, std::vector<CJointCollisionDescription>&);
+  void AddSphereCollisionList(const SSphereJointInfo*, size_t, std::vector<CJointCollisionDescription>&);
 
   void SetupCollisionManager(CStateManager&);
 
@@ -163,7 +160,7 @@ private:
 
   void UpdateShellHealth(CStateManager&);
 
-  bool IsDestinationObstructed(CStateManager&);
+  bool IsDestinationObstructed(const CStateManager& mgr) const;
 
   void DestroyShell(CStateManager& mgr);
 
@@ -180,7 +177,7 @@ private:
   void UpdateAttack(CStateManager& mgr, float dt);
 
 public:
-  DEFINE_PATTERNED(Babygoth)
+  DEFINE_PATTERNED(Babygoth);
 
   CBabygoth(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CPatternedInfo&, const CActorParameters&, const CBabygothData&);

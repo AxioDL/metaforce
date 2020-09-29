@@ -1,5 +1,8 @@
 #include "Runtime/World/CGameArea.hpp"
 
+#include <array>
+#include <cstring>
+
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
@@ -43,8 +46,10 @@ CAreaRenderOctTree::CAreaRenderOctTree(const u8* buf) : x0_buf(buf) {
   }
 }
 
-static const u32 ChildCounts[] = {0, 2, 2, 4, 2, 4, 4, 8};
-u32 CAreaRenderOctTree::Node::GetChildCount() const { return ChildCounts[x2_flags]; }
+u32 CAreaRenderOctTree::Node::GetChildCount() const {
+  static constexpr std::array<u32, 8> ChildCounts{0, 2, 2, 4, 2, 4, 4, 8};
+  return ChildCounts[x2_flags];
+}
 
 zeus::CAABox CAreaRenderOctTree::Node::GetNodeBounds(const zeus::CAABox& curAABB, int idx) const {
   zeus::CVector3f center = curAABB.center();
@@ -243,22 +248,27 @@ static std::vector<SObjectTag> ReadDependencyList(CInputStream& in) {
 }
 
 std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& area) {
-  SObjectTag tag = {SBIG('MREA'), area.IGetAreaAssetId()};
+  const SObjectTag tag = {SBIG('MREA'), area.IGetAreaAssetId()};
   std::unique_ptr<u8[]> data = g_ResFactory->LoadNewResourcePartSync(tag, 0, 96);
 
-  if (*reinterpret_cast<u32*>(data.get()) != SBIG(0xDEADBEEF))
+  u32 magic{};
+  std::memcpy(&magic, data.get(), sizeof(u32));
+  if (magic != SBIG(0xDEADBEEF)) {
     return {};
+  }
 
-  SMREAHeader header;
   CMemoryInStream r(data.get() + 4, 96 - 4);
   u32 version = r.readUint32Big();
-  if (!(version & 0x10000))
+  if ((version & 0x10000) == 0) {
     Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-URDE MREA"));
-
+  }
   version &= ~0x10000;
+
+  SMREAHeader header;
   header.version = (version >= 12 && version <= 15) ? version : 0;
-  if (!header.version)
+  if (!header.version) {
     return {};
+  }
 
   header.xf.read34RowMajor(r);
   header.modelCount = r.readUint32Big();
@@ -337,11 +347,6 @@ CAssetId CDummyGameArea::IGetStringTableAssetId() const { return x8_nameSTRG; }
 const zeus::CTransform& CDummyGameArea::IGetTM() const { return x14_transform; }
 
 CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(idx) {
-  xf0_24_postConstructed = false;
-  xf0_25_active = true;
-  xf0_26_tokensReady = false;
-  xf0_27_loadPaused = false;
-  xf0_28_validated = false;
   x8_nameSTRG = in.readUint32Big();
   xc_transform.read34RowMajor(in);
   x3c_invTransform = xc_transform.inverse();
@@ -387,13 +392,7 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(id
   xec_totalResourcesSize += g_ResFactory->ResourceSize(SObjectTag{FOURCC('MREA'), x84_mrea});
 }
 
-CGameArea::CGameArea(CAssetId mreaId) : x84_mrea(mreaId) {
-  xf0_24_postConstructed = false;
-  xf0_25_active = false;
-  xf0_26_tokensReady = false;
-  xf0_27_loadPaused = false;
-  xf0_28_validated = false;
-
+CGameArea::CGameArea(CAssetId mreaId) : x84_mrea(mreaId), xf0_25_active{false} {
   while (StartStreamingMainArea())
     for (auto& req : xf8_loadTransactions)
       req->WaitUntilComplete();
@@ -750,7 +749,9 @@ bool CGameArea::StartStreamingMainArea() {
 void CGameArea::ReloadAllUnloadedTextures() {}
 
 u32 CGameArea::GetNumPartSizes() const {
-  return hecl::SBig(*reinterpret_cast<u32*>(x110_mreaSecBufs[0].first.get() + 60));
+  u32 value{};
+  std::memcpy(&value, x110_mreaSecBufs[0].first.get() + 60, sizeof(u32));
+  return hecl::SBig(value);
 }
 
 void CGameArea::AllocNewAreaData(int offset, int size) {
@@ -869,16 +870,19 @@ void CGameArea::Validate(CStateManager& mgr) {
 
   LoadScriptObjects(mgr);
 
-  CPVSAreaSet* pvs = x12c_postConstructed->xa0_pvs.get();
+  const CPVSAreaSet* pvs = x12c_postConstructed->xa0_pvs.get();
   if (pvs && x12c_postConstructed->x1108_29_pvsHasActors) {
-    for (int i = 0; i < pvs->GetNumActors(); ++i) {
-      TEditorId entId = pvs->GetEntityIdByIndex(i) | (x4_selfIdx << 16);
-      TUniqueId id = mgr.GetIdForScript(entId);
-      if (id != kInvalidUniqueId) {
-        CPostConstructed::MapEntry& ent = x12c_postConstructed->xa8_pvsEntityMap[id.Value()];
-        ent.x0_id = i + (pvs->GetNumFeatures() - pvs->GetNumActors());
-        ent.x4_uid = id;
+    for (size_t i = 0; i < pvs->GetNumActors(); ++i) {
+      const TEditorId entId = pvs->GetEntityIdByIndex(i) | (x4_selfIdx << 16);
+      const TUniqueId id = mgr.GetIdForScript(entId);
+
+      if (id == kInvalidUniqueId) {
+        continue;
       }
+
+      CPostConstructed::MapEntry& ent = x12c_postConstructed->xa8_pvsEntityMap[id.Value()];
+      ent.x0_id = static_cast<s16>(i + (pvs->GetNumFeatures() - pvs->GetNumActors()));
+      ent.x4_uid = id;
     }
   }
 
@@ -1043,7 +1047,7 @@ void CGameArea::FillInStaticGeometry(bool textures) {
     matSet.InitializeLayout(nullptr);
     ++secIt;
   }
-  
+
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     /* Reserve extra buffers for 16 cubemaps and shadow rendering */
     matSet.m_geomLayout->ReserveSharedBuffers(ctx, 96 + int(EWorldShadowMode::MAX));
@@ -1088,7 +1092,7 @@ void CGameArea::FillInStaticGeometry(bool textures) {
 
       TToken<CModel> nullModel;
       inst.m_instance = std::make_unique<CBooModel>(nullModel, nullptr, &inst.m_surfaces, matSet, vbo, ibo,
-                                                    inst.x34_aabb, inst.x0_visorFlags, 0);
+                                                    inst.x34_aabb, static_cast<u8>(inst.x0_visorFlags), 0);
     }
 
     return true;
@@ -1139,20 +1143,28 @@ void CGameArea::ClearTokenList() {
 u32 CGameArea::GetPreConstructedSize() const { return 0; }
 
 SMREAHeader CGameArea::VerifyHeader() const {
-  if (x110_mreaSecBufs.empty())
+  if (x110_mreaSecBufs.empty()) {
     return {};
-  if (*reinterpret_cast<u32*>(x110_mreaSecBufs[0].first.get()) != SBIG(0xDEADBEEF))
-    return {};
+  }
 
-  SMREAHeader header;
+  u32 magic{};
+  std::memcpy(&magic, x110_mreaSecBufs[0].first.get(), sizeof(u32));
+  if (magic != SBIG(0xDEADBEEF)) {
+    return {};
+  }
+
   CMemoryInStream r(x110_mreaSecBufs[0].first.get() + 4, x110_mreaSecBufs[0].second - 4);
   u32 version = r.readUint32Big();
-  if (!(version & 0x10000))
+  if ((version & 0x10000) == 0) {
     Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-URDE MREA"));
+  }
   version &= ~0x10000;
+
+  SMREAHeader header;
   header.version = (version >= 12 && version <= 15) ? version : 0;
-  if (!header.version)
+  if (!header.version) {
     return {};
+  }
 
   header.xf.read34RowMajor(r);
   header.modelCount = r.readUint32Big();
@@ -1187,7 +1199,7 @@ void CGameArea::SetAreaAttributes(const CScriptAreaAttributes* areaAttributes) {
 bool CGameArea::CAreaObjectList::IsQualified(const CEntity& ent) const { return (ent.GetAreaIdAlways() == x200c_areaIdx); }
 void CGameArea::WarmupShaders(const SObjectTag& mreaTag) {
   // Calling this version of the constructor performs warmup implicitly
-  CGameArea area(mreaTag.id);
+  [[maybe_unused]] CGameArea area(mreaTag.id);
 }
 
 } // namespace urde

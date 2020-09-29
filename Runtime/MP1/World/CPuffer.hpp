@@ -27,7 +27,7 @@ class CPuffer : public CPatterned {
   void sub8025bfa4(CStateManager&);
 
 public:
-  DEFINE_PATTERNED(Puffer)
+  DEFINE_PATTERNED(Puffer);
 
   CPuffer(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
           const CActorParameters&, const CPatternedInfo&, float, CAssetId, const CDamageInfo&, CAssetId, float, bool,

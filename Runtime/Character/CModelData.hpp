@@ -62,10 +62,11 @@ class CModelData {
   zeus::CVector3f x0_scale;
   bool xc_ = false;
   std::unique_ptr<CAnimData> x10_animData;
-  bool x14_24_renderSorted : 1;
-  bool x14_25_sortThermal : 1;
+  bool x14_24_renderSorted : 1 = false;
+  bool x14_25_sortThermal : 1 = false;
   zeus::CColor x18_ambientColor;
 
+  // were rstl::optional_object<TCachedToken<CModel>>
   TLockedToken<CModel> x1c_normalModel;
   TLockedToken<CModel> x2c_xrayModel;
   TLockedToken<CModel> x3c_infraModel;
@@ -92,7 +93,7 @@ public:
 
   SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
   void Render(const CStateManager& stateMgr, const zeus::CTransform& xf, const CActorLights* lights,
-              const CModelFlags& drawFlags) const;
+              const CModelFlags& drawFlags);
   bool IsLoaded(int shaderIdx) const;
   static EWhichModel GetRenderingModel(const CStateManager& stateMgr);
   CSkinnedModel& PickAnimatedModel(EWhichModel which) const;
@@ -122,8 +123,8 @@ public:
   void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
                      const CModelFlags& flags) const;
   void RenderUnsortedParts(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights,
-                           const CModelFlags& drawFlags) const;
-  void Render(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights, const CModelFlags& drawFlags) const;
+                           const CModelFlags& drawFlags);
+  void Render(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights, const CModelFlags& drawFlags);
 
   void InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
                    const zeus::CColor& color0, const zeus::CColor& color1);

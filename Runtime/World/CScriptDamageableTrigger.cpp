@@ -8,16 +8,17 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
-CActorParameters MakeDamageableTriggerActorParms(const CActorParameters& aParams, const CVisorParameters& vParams) {
+static CActorParameters MakeDamageableTriggerActorParms(const CActorParameters& aParams, const CVisorParameters& vParams) {
   CActorParameters ret = aParams;
   ret.SetVisorParameters(vParams);
   return ret;
 }
 
-CMaterialList MakeDamageableTriggerMaterial(CScriptDamageableTrigger::ECanOrbit canOrbit) {
-  if (canOrbit == CScriptDamageableTrigger::ECanOrbit::Orbit)
+static constexpr CMaterialList MakeDamageableTriggerMaterial(CScriptDamageableTrigger::ECanOrbit canOrbit) {
+  if (canOrbit == CScriptDamageableTrigger::ECanOrbit::Orbit) {
     return CMaterialList(EMaterialTypes::Orbit, EMaterialTypes::Trigger, EMaterialTypes::Immovable,
                          EMaterialTypes::NonSolidDamageable, EMaterialTypes::ExcludeFromLineOfSightTest);
+  }
   return CMaterialList(EMaterialTypes::Trigger, EMaterialTypes::Immovable, EMaterialTypes::NonSolidDamageable,
                        EMaterialTypes::ExcludeFromLineOfSightTest);
 }
@@ -37,10 +38,6 @@ CScriptDamageableTrigger::CScriptDamageableTrigger(TUniqueId uid, std::string_vi
 , x174_dVuln(dVuln)
 , x1dc_faceFlag(faceFlag)
 , x254_fluidPlane(patternTex1, patternTex2, colorTex, 1.f, 2, EFluidType::NormalWater, 1.f, CFluidUVMotion(6.f, 0.f))
-, x300_24_notOccluded(false)
-, x300_25_alphaOut(false)
-, x300_26_outOfFrustum(false)
-, x300_27_invulnerable(false)
 , x300_28_canOrbit(canOrbit == ECanOrbit::Orbit) {
   if (x1dc_faceFlag & 0x1) {
     x244_faceTranslate = zeus::CVector3f(0.f, x14c_bounds.max.y(), 0.f);
@@ -70,23 +67,26 @@ void CScriptDamageableTrigger::Accept(IVisitor& visitor) { visitor.Visit(this); 
 void CScriptDamageableTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   switch (msg) {
   case EScriptObjectMessage::Deactivate:
-    if (x30_24_active && x300_25_alphaOut)
+    if (x30_24_active && x300_25_alphaOut) {
       return;
+    }
     [[fallthrough]];
   case EScriptObjectMessage::Activate:
     if (!x30_24_active || x300_25_alphaOut) {
       x250_alphaTimer = 0.f;
       x16c_hInfo = x164_origHInfo;
       x300_25_alphaOut = false;
-      if (x300_28_canOrbit)
+      if (x300_28_canOrbit) {
         AddMaterial(EMaterialTypes::Orbit, mgr);
+      }
       SetLinkedObjectAlpha(0.f, mgr);
       x1e0_alpha = 0.f;
     }
     break;
   case EScriptObjectMessage::Damage:
-    if (x300_27_invulnerable)
+    if (x300_27_invulnerable) {
       x16c_hInfo = x164_origHInfo;
+    }
     break;
   case EScriptObjectMessage::Increment:
     x300_27_invulnerable = true;
@@ -111,8 +111,8 @@ EWeaponCollisionResponseTypes CScriptDamageableTrigger::GetCollisionResponseType
 
 void CScriptDamageableTrigger::Render(CStateManager& mgr) {
   if (x30_24_active && x1dc_faceFlag != 0 && std::fabs(x1e0_alpha) >= 0.00001f) {
-    zeus::CAABox aabb = x14c_bounds.getTransformedAABox(x214_faceDirInv);
-    zeus::CTransform xf = x34_transform * zeus::CTransform::Translate(x244_faceTranslate) * x1e4_faceDir;
+    const zeus::CAABox aabb = x14c_bounds.getTransformedAABox(x214_faceDirInv);
+    const zeus::CTransform xf = x34_transform * zeus::CTransform::Translate(x244_faceTranslate) * x1e4_faceDir;
     x254_fluidPlane.Render(mgr, x1e0_alpha, aabb, xf, zeus::CTransform(), false, xe8_frustum, {},
                            kInvalidUniqueId, nullptr, 0, 0, zeus::skZero3f);
   }
@@ -130,19 +130,24 @@ void CScriptDamageableTrigger::AddToRenderer(const zeus::CFrustum& /*frustum*/, 
 
 void CScriptDamageableTrigger::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   x300_26_outOfFrustum = !frustum.aabbFrustumTest(x14c_bounds.getTransformedAABox(x34_transform));
-  if (!x300_26_outOfFrustum) {
-    xe8_frustum = frustum;
-    CActor::PreRender(mgr, frustum);
+
+  if (x300_26_outOfFrustum) {
+    return;
   }
+
+  xe8_frustum = frustum;
+  CActor::PreRender(mgr, frustum);
 }
 
 void CScriptDamageableTrigger::SetLinkedObjectAlpha(float a, CStateManager& mgr) {
   for (const SConnection& conn : x20_conns) {
-    if (conn.x0_state != EScriptObjectState::MaxReached || conn.x4_msg != EScriptObjectMessage::Activate)
+    if (conn.x0_state != EScriptObjectState::MaxReached || conn.x4_msg != EScriptObjectMessage::Activate) {
       continue;
-    if (TCastToPtr<CScriptActor> act = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId))) {
-      if (!act->GetActive())
+    }
+    if (const TCastToPtr<CScriptActor> act = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId))) {
+      if (!act->GetActive()) {
         act->SetActive(true);
+      }
       act->SetDrawFlags(CModelFlags(5, 0, 3, zeus::CColor(1.f, a)));
     }
   }
@@ -150,33 +155,37 @@ void CScriptDamageableTrigger::SetLinkedObjectAlpha(float a, CStateManager& mgr)
 
 float CScriptDamageableTrigger::GetPuddleAlphaScale() const {
   if (x250_alphaTimer <= 0.75f) {
-    if (x300_25_alphaOut)
+    if (x300_25_alphaOut) {
       return 1.f - x250_alphaTimer / 0.75f;
+    }
     return x250_alphaTimer / 0.75f;
   }
 
-  if (x300_25_alphaOut)
+  if (x300_25_alphaOut) {
     return 0.f;
+  }
   return 1.f;
 }
 
 void CScriptDamageableTrigger::Think(float dt, CStateManager& mgr) {
-  if (!GetActive())
+  if (!GetActive()) {
     return;
+  }
 
   const CGameArea* area = mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways());
-  CGameArea::EOcclusionState occState =
-      area->IsPostConstructed() ? area->GetOcclusionState() : CGameArea::EOcclusionState::Occluded;
+  const auto occState = area->IsPostConstructed() ? area->GetOcclusionState() : CGameArea::EOcclusionState::Occluded;
   x300_24_notOccluded = occState == CGameArea::EOcclusionState::Visible;
 
   if (x300_25_alphaOut) {
     if (x250_alphaTimer >= 0.75f) {
       SetActive(false);
       for (const SConnection& conn : x20_conns) {
-        if (conn.x0_state != EScriptObjectState::MaxReached || conn.x4_msg != EScriptObjectMessage::Activate)
+        if (conn.x0_state != EScriptObjectState::MaxReached || conn.x4_msg != EScriptObjectMessage::Activate) {
           continue;
-        if (TCastToPtr<CScriptActor> act = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId)))
+        }
+        if (const TCastToPtr<CScriptActor> act = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId))) {
           act->SetActive(false);
+        }
       }
 
       SetLinkedObjectAlpha(0.f, mgr);
@@ -190,10 +199,11 @@ void CScriptDamageableTrigger::Think(float dt, CStateManager& mgr) {
     x250_alphaTimer = 0.f;
   }
 
-  if (x250_alphaTimer <= 0.75f)
+  if (x250_alphaTimer <= 0.75f) {
     x250_alphaTimer += dt;
+  }
 
-  float objAlpha = GetPuddleAlphaScale();
+  const float objAlpha = GetPuddleAlphaScale();
   x1e0_alpha = 0.2f * objAlpha;
   SetLinkedObjectAlpha(objAlpha, mgr);
 }

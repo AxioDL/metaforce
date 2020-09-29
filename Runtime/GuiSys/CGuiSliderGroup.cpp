@@ -11,10 +11,7 @@ CGuiSliderGroup::CGuiSliderGroup(const CGuiWidgetParms& parms, float min, float 
 , xbc_maxVal(max)
 , xc0_roundedCurVal(def)
 , xc4_curVal(def)
-, xc8_increment(inc)
-, xf4_24_inputPending(false)
-, m_mouseInside(false)
-, m_mouseDown(false) {}
+, xc8_increment(inc) {}
 
 void CGuiSliderGroup::SetSelectionChangedCallback(std::function<void(CGuiSliderGroup*, float)>&& func) {
   xd8_changeCallback = std::move(func);
@@ -36,12 +33,15 @@ void CGuiSliderGroup::StartIncreasing() {
 }
 
 bool CGuiSliderGroup::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const {
-  if (xcc_sliderRangeWidgets[0]->GetWidgetTypeID() != FOURCC('MODL'))
+  if (xcc_sliderRangeWidgets[0]->GetWidgetTypeID() != FOURCC('MODL')) {
     return false;
+  }
+
   CGuiModel* bar = static_cast<CGuiModel*>(xcc_sliderRangeWidgets[0]);
-  auto& modelTok = bar->GetModel();
-  if (!modelTok || !modelTok.IsLoaded())
+  const auto& modelTok = bar->GetModel();
+  if (!modelTok || !modelTok.IsLoaded()) {
     return false;
+  }
 
   const zeus::CVector3f& s0 = xcc_sliderRangeWidgets[0]->GetIdlePosition();
   const zeus::CVector3f& s1 = xcc_sliderRangeWidgets[1]->GetIdlePosition();

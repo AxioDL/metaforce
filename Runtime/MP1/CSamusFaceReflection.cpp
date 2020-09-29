@@ -16,7 +16,7 @@ CSamusFaceReflection::CSamusFaceReflection(CStateManager& stateMgr)
 : x0_modelData(CAnimRes(g_ResFactory->GetResourceIdByName("ACS_SamusFace")->id, 0, zeus::skOne3f, 0, true))
 , x4c_lights(std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, false, false, 0.1f)) {
   x60_lookDir = zeus::skForward;
-  CAnimPlaybackParms parms(0, -1, 1.f, true);
+  constexpr CAnimPlaybackParms parms(0, -1, 1.f, true);
   x0_modelData.GetAnimationData()->SetAnimation(parms, false);
 }
 
@@ -31,7 +31,7 @@ void CSamusFaceReflection::PreDraw(const CStateManager& mgr) {
   }
 }
 
-void CSamusFaceReflection::Draw(const CStateManager& mgr) const {
+void CSamusFaceReflection::Draw(const CStateManager& mgr) {
   if (x70_hidden)
     return;
 

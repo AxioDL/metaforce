@@ -69,10 +69,7 @@ CWallCrawlerSwarm::CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_vie
 , x548_numBoids(numBoids)
 , x54c_maxCreatedBoids(maxCreatedBoids)
 , x554_maxLaunches(maxLaunches)
-, x558_flavor(flavor)
-, x560_24_enableLighting(true)
-, x560_25_useSoftwareLight(true)
-, x560_26_modelAssetDirty(false) {
+, x558_flavor(flavor) {
   x168_partitionedBoidLists.resize(125);
   x55c_launchSfx = CSfxManager::TranslateSFXID(launchSfx != -1 ? u16(launchSfx) : u16(0xffff));
   x55e_scatterSfx = CSfxManager::TranslateSFXID(scatterSfx != -1 ? u16(scatterSfx) : u16(0xffff));
@@ -835,7 +832,7 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
           const zeus::CAABox aabb = BoxForPosition(r26, r27, r20, x374_boidRadius + 0.5f);
           CAreaCollisionCache ccache(aabb);
           CGameCollision::BuildAreaCollisionCache(mgr, ccache);
-          while (boid) {
+          while (boid != nullptr) {
             r21 += 1;
             if (boid->GetActive()) {
               if (x558_flavor == EFlavor::Scarab) {
@@ -1062,7 +1059,7 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
   model.GetModelInst()->SetAmbientColor(boid->x40_ambientLighting);
   CGraphics::SetModelMatrix(boid->GetTransform());
   if (boid->x48_timeToDie > 0.f && !thermalHot) {
-    const CModelFlags useFlags(0, 0, 3, zeus::skWhite);
+    constexpr CModelFlags useFlags(0, 0, 3, zeus::skWhite);
     mData.GetAnimationData()->Render(model, useFlags, std::nullopt, nullptr);
     if (auto iceModel = mData.GetAnimationData()->GetIceModel()) {
       if (!iceModel->GetModelInst()->TryLockTextures()) {
@@ -1075,7 +1072,7 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
       mData.GetAnimationData()->Render(*iceModel, iceFlags, std::nullopt, nullptr);
     }
   } else if (thermalHot) {
-    const CModelFlags thermFlags(5, 0, 3, zeus::skWhite);
+    constexpr CModelFlags thermFlags(5, 0, 3, zeus::skWhite);
     mData.RenderThermal(zeus::skWhite, zeus::CColor(0.f, 0.25f), thermFlags);
   } else {
     mData.GetAnimationData()->Render(model, flags, std::nullopt, nullptr);
@@ -1234,6 +1231,16 @@ zeus::CVector3f CWallCrawlerSwarm::GetAimPosition(const CStateManager&, float dt
   }
 
   return x108_boids[x42c_lockOnIdx].x30_velocity * dt + x124_lastOrbitPosition;
+}
+void CWallCrawlerSwarm::ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr) {
+  for (CBoid& boid : x108_boids) {
+    if (boid.GetActive() && (boid.GetTranslation() - pos).magSquared() < info.GetRadius() * info.GetRadius()) {
+      boid.x78_health -= info.GetRadiusDamage();
+      if (boid.x78_health <= 0.f) {
+        KillBoid(boid, stateMgr, 1.f, 0.1f);
+      }
+    }
+  }
 }
 
 } // namespace urde

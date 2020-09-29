@@ -20,10 +20,10 @@ public:
 
 private:
   EWhichMovie x18_which;
-  bool x78_24_ : 1;
-  bool x78_25_ : 1;
-  bool x78_26_resultsScreen : 1;
-  bool x78_27_ : 1;
+  bool x78_24_ : 1 = false;
+  bool x78_25_ : 1 = false;
+  bool x78_26_resultsScreen : 1 = false;
+  bool x78_27_ : 1 = false;
 
   static bool IsResultsScreen(EWhichMovie which);
 

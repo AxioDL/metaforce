@@ -15,10 +15,11 @@
 namespace DataSpec::DNAANCS {
 
 template <class PAKRouter, class ANCSDNA, class MaterialSet, class SurfaceHeader, atUint32 CMDLVersion>
-bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, const hecl::ProjectPath& outPath,
+bool ReadANCSToBlender(hecl::blender::Token& btok, const ANCSDNA& ancs, const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter, const typename PAKRouter::EntryType& entry, const SpecBase& dataspec,
                        std::function<void(const hecl::SystemChar*)> fileChanged, bool force) {
-  /* Extract character CMDL/CSKR first */
+  auto& conn = btok.getBlenderConnection();
+  /* Extract character CMDL/CSKR/CINF first */
   std::vector<CharacterResInfo<typename PAKRouter::IDType>> chResInfo;
   ancs.getCharacterResInfo(chResInfo);
   for (const auto& info : chResInfo) {
@@ -49,11 +50,19 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
         conn.saveBlend();
       }
     }
+    if (const typename PAKRouter::EntryType* cinfE = pakRouter.lookupEntry(info.cinf, &node, true, false)) {
+      hecl::ProjectPath cinfPath = pakRouter.getWorking(cinfE);
+      if (cinfPath.getPathType() == hecl::ProjectPath::Type::None) {
+        PAKEntryReadStream rs = cinfE->beginReadStream(*node);
+        ANCSDNA::CINFType::Extract(dataspec, rs, cinfPath, pakRouter, *cinfE, false, btok, fileChanged);
+      }
+    }
   }
 
-  /* Extract attachment CMDL/CSKRs first */
+  /* Extract attachment CMDL/CSKR/CINFs first */
   auto attRange = pakRouter.lookupCharacterAttachmentRigs(entry.id);
   for (auto it = attRange.first; it != attRange.second; ++it) {
+    auto cinfid = it->second.first.cinf;
     auto cmdlid = it->second.first.cmdl;
 
     const nod::Node* node;
@@ -61,8 +70,9 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
       hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
       if (force || cmdlPath.isNone()) {
         cmdlPath.makeDirChain(false);
-        if (!conn.createBlend(cmdlPath, hecl::blender::BlendType::Mesh))
+        if (!conn.createBlend(cmdlPath, hecl::blender::BlendType::Mesh)) {
           return false;
+        }
 
         std::string bestName = pakRouter.getBestEntryName(*cmdlE);
         hecl::SystemStringConv bestNameView(bestName);
@@ -82,6 +92,15 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
             conn, rs, pakRouter, *cmdlE, dataspec, rigPair);
 
         conn.saveBlend();
+      }
+    }
+    if (cinfid.isValid()) {
+      if (const typename PAKRouter::EntryType* cinfE = pakRouter.lookupEntry(cinfid, &node, true, false)) {
+        hecl::ProjectPath cinfPath = pakRouter.getWorking(cinfE);
+        if (cinfPath.getPathType() == hecl::ProjectPath::Type::None) {
+          PAKEntryReadStream rs = cinfE->beginReadStream(*node);
+          ANCSDNA::CINFType::Extract(dataspec, rs, cinfPath, pakRouter, *cinfE, false, btok, fileChanged);
+        }
       }
     }
   }
@@ -253,17 +272,17 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
 
 template bool
 ReadANCSToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::ANCS, DNAMP1::MaterialSet, DNACMDL::SurfaceHeader_1, 2>(
-    hecl::blender::Connection& conn, const DNAMP1::ANCS& ancs, const hecl::ProjectPath& outPath,
+    hecl::blender::Token& btok, const DNAMP1::ANCS& ancs, const hecl::ProjectPath& outPath,
     PAKRouter<DNAMP1::PAKBridge>& pakRouter, const typename PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
     const SpecBase& dataspec, std::function<void(const hecl::SystemChar*)> fileChanged, bool force);
 template bool
 ReadANCSToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::ANCS, DNAMP2::MaterialSet, DNACMDL::SurfaceHeader_2, 4>(
-    hecl::blender::Connection& conn, const DNAMP2::ANCS& ancs, const hecl::ProjectPath& outPath,
+    hecl::blender::Token& btok, const DNAMP2::ANCS& ancs, const hecl::ProjectPath& outPath,
     PAKRouter<DNAMP2::PAKBridge>& pakRouter, const typename PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
     const SpecBase& dataspec, std::function<void(const hecl::SystemChar*)> fileChanged, bool force);
 template bool
 ReadANCSToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::CHAR, DNAMP3::MaterialSet, DNACMDL::SurfaceHeader_3, 4>(
-    hecl::blender::Connection& conn, const DNAMP3::CHAR& ancs, const hecl::ProjectPath& outPath,
+    hecl::blender::Token& btok, const DNAMP3::CHAR& ancs, const hecl::ProjectPath& outPath,
     PAKRouter<DNAMP3::PAKBridge>& pakRouter, const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
     const SpecBase& dataspec, std::function<void(const hecl::SystemChar*)> fileChanged, bool force);
 

@@ -26,15 +26,7 @@ CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, std::string_view name, con
 , x2e8_suitRes(animRes)
 , x304_beam(beam)
 , x350_flags(flags)
-, x354_24_setBoundingBox(setBoundingBox)
-, x354_25_deferOnlineModelData(false)
-, x354_26_deferOfflineModelData(false)
-, x354_27_beamModelLoading(false)
-, x354_28_suitModelLoading(false)
-, x354_29_loading(true)
-, x354_30_enableLoading(true)
-, x354_31_deferOnlineLoad(false)
-, x355_24_areaTrackingLoad(false) {
+, x354_24_setBoundingBox(setBoundingBox) {
   CMaterialList exclude = GetMaterialFilter().GetExcludeList();
   CMaterialList include = GetMaterialFilter().GetIncludeList();
   include.Add(EMaterialTypes::Player);
@@ -101,27 +93,33 @@ u32 CScriptPlayerActor::GetNextSuitCharIdx(const CStateManager& mgr) const {
 }
 
 void CScriptPlayerActor::LoadSuit(u32 charIdx) {
-  if (charIdx != x310_loadedCharIdx) {
-    TToken<CCharacterFactory> fac = g_CharFactoryBuilder->GetFactory(x2e8_suitRes);
-    const CCharacterInfo& chInfo = fac->GetCharInfo(charIdx);
-    x320_suitModel = g_SimplePool->GetObj({FOURCC('CMDL'), chInfo.GetModelId()});
-    x324_suitSkin = g_SimplePool->GetObj({FOURCC('CSKR'), chInfo.GetSkinRulesId()});
-    x354_28_suitModelLoading = true;
-    x310_loadedCharIdx = charIdx;
+  if (charIdx == x310_loadedCharIdx) {
+    return;
   }
+
+  const TToken<CCharacterFactory> fac = g_CharFactoryBuilder->GetFactory(x2e8_suitRes);
+  const CCharacterInfo& chInfo = fac->GetCharInfo(charIdx);
+  x320_suitModel = g_SimplePool->GetObj({FOURCC('CMDL'), chInfo.GetModelId()});
+  x324_suitSkin = g_SimplePool->GetObj({FOURCC('CSKR'), chInfo.GetSkinRulesId()});
+  x354_28_suitModelLoading = true;
+  x310_loadedCharIdx = charIdx;
 }
 
 void CScriptPlayerActor::LoadBeam(CPlayerState::EBeamId beam) {
-  if (beam != x30c_setBeamId) {
-    x31c_beamModel = g_SimplePool->GetObj({FOURCC('CMDL'), g_tweakPlayerRes->GetBeamCineModel(beam)});
-    x354_27_beamModelLoading = true;
-    x30c_setBeamId = beam;
+  if (beam == x30c_setBeamId) {
+    return;
   }
+
+  x31c_beamModel = g_SimplePool->GetObj({FOURCC('CMDL'), g_tweakPlayerRes->GetBeamCineModel(beam)});
+  x354_27_beamModelLoading = true;
+  x30c_setBeamId = beam;
 }
 
 void CScriptPlayerActor::PumpBeamModel(CStateManager& mgr) {
-  if (!x31c_beamModel || !x31c_beamModel.IsLoaded())
+  if (!x31c_beamModel || !x31c_beamModel.IsLoaded()) {
     return;
+  }
+
   BuildBeamModelData();
   x314_beamModelData->Touch(mgr, 0);
   mgr.GetWorld()->CycleLoadPauseState();
@@ -135,8 +133,9 @@ void CScriptPlayerActor::BuildBeamModelData() {
 }
 
 void CScriptPlayerActor::PumpSuitModel(CStateManager& mgr) {
-  if (!x320_suitModel || !x320_suitModel.IsLoaded() || !x324_suitSkin || !x324_suitSkin.IsLoaded())
+  if (!x320_suitModel || !x320_suitModel.IsLoaded() || !x324_suitSkin || !x324_suitSkin.IsLoaded()) {
     return;
+  }
 
   x320_suitModel->Touch(0);
   mgr.GetWorld()->CycleLoadPauseState();
@@ -170,13 +169,16 @@ void CScriptPlayerActor::SetupOfflineModelData() {
 }
 
 void CScriptPlayerActor::SetupOnlineModelData() {
-  if (x310_loadedCharIdx != x2e8_suitRes.GetCharacterNodeId() || !x64_modelData || !x64_modelData->HasAnimData()) {
-    x2e8_suitRes.SetCharacterNodeId(x310_loadedCharIdx);
-    SetModelData(std::make_unique<CModelData>(x2e8_suitRes));
-    CAnimPlaybackParms parms(x2e8_suitRes.GetDefaultAnim(), -1, 1.f, true);
-    x64_modelData->GetAnimationData()->SetAnimation(parms, false);
-    if (x354_24_setBoundingBox)
-      SetBoundingBox(x64_modelData->GetBounds(GetTransform().getRotation()));
+  if (x310_loadedCharIdx == x2e8_suitRes.GetCharacterNodeId() && x64_modelData && x64_modelData->HasAnimData()) {
+    return;
+  }
+
+  x2e8_suitRes.SetCharacterNodeId(x310_loadedCharIdx);
+  SetModelData(std::make_unique<CModelData>(x2e8_suitRes));
+  const CAnimPlaybackParms parms(x2e8_suitRes.GetDefaultAnim(), -1, 1.f, true);
+  x64_modelData->GetAnimationData()->SetAnimation(parms, false);
+  if (x354_24_setBoundingBox) {
+    SetBoundingBox(x64_modelData->GetBounds(GetTransform().getRotation()));
   }
 }
 
@@ -191,8 +193,8 @@ void CScriptPlayerActor::Think(float dt, CStateManager& mgr) {
   }
 
   if (x354_30_enableLoading) {
-    if (!(x350_flags & 0x1)) {
-      u32 tmpIdx = GetSuitCharIdx(mgr, pState.GetCurrentSuitRaw());
+    if ((x350_flags & 0x1) == 0) {
+      const u32 tmpIdx = GetSuitCharIdx(mgr, pState.GetCurrentSuitRaw());
       if (tmpIdx != x310_loadedCharIdx) {
         SetModelData(std::make_unique<CModelData>(CModelData::CModelDataNull()));
         LoadSuit(tmpIdx);
@@ -202,16 +204,19 @@ void CScriptPlayerActor::Think(float dt, CStateManager& mgr) {
 
     LoadBeam(x304_beam != CPlayerState::EBeamId::Invalid ? x304_beam : pState.GetCurrentBeam());
 
-    if (x354_27_beamModelLoading)
+    if (x354_27_beamModelLoading) {
       PumpBeamModel(mgr);
+    }
 
-    if (x354_28_suitModelLoading)
+    if (x354_28_suitModelLoading) {
       PumpSuitModel(mgr);
+    }
 
     if (!x354_29_loading) {
       if (x354_28_suitModelLoading || x354_27_beamModelLoading || !x64_modelData || x64_modelData->IsNull() ||
-          !x64_modelData->IsLoaded(0))
+          !x64_modelData->IsLoaded(0)) {
         x354_29_loading = true;
+      }
     }
 
     if (x354_29_loading && !x354_28_suitModelLoading && !x354_27_beamModelLoading && x64_modelData &&
@@ -227,11 +232,13 @@ void CScriptPlayerActor::Think(float dt, CStateManager& mgr) {
   }
 
   if (x2e8_suitRes.GetCharacterNodeId() == 3) {
-    if (!x338_phazonIndirectTexture)
+    if (!x338_phazonIndirectTexture) {
       x338_phazonIndirectTexture = g_SimplePool->GetObj("PhazonIndirectTexture");
+    }
   } else {
-    if (x338_phazonIndirectTexture)
+    if (x338_phazonIndirectTexture) {
       x338_phazonIndirectTexture = TLockedToken<CTexture>();
+    }
   }
 
   if (x338_phazonIndirectTexture) {
@@ -244,10 +251,13 @@ void CScriptPlayerActor::Think(float dt, CStateManager& mgr) {
 
 void CScriptPlayerActor::SetupEnvFx(CStateManager& mgr, bool set) {
   if (set) {
-    if (mgr.GetWorld()->GetNeededEnvFx() == EEnvFxType::Rain)
-      if (x64_modelData && !x64_modelData->IsNull())
-        if (mgr.GetEnvFxManager()->GetRainMagnitude() != 0.f)
+    if (mgr.GetWorld()->GetNeededEnvFx() == EEnvFxType::Rain) {
+      if (x64_modelData && !x64_modelData->IsNull()) {
+        if (mgr.GetEnvFxManager()->GetRainMagnitude() != 0.f) {
           mgr.GetActorModelParticles()->AddRainSplashGenerator(*this, mgr, 250, 10, 1.2f);
+        }
+      }
+    }
   } else {
     mgr.GetActorModelParticles()->RemoveRainSplashGenerator(*this);
   }
@@ -269,7 +279,7 @@ void CScriptPlayerActor::SetIntoStateManager(CStateManager& mgr, bool set) {
         return;
       }
 
-      TCastToPtr<CScriptActor> act = mgr.ObjectById(paId);
+      const TCastToPtr<CScriptActor> act = mgr.ObjectById(paId);
       if (act && act->IsPlayerActor()) {
         other = static_cast<CScriptPlayerActor*>(act.GetPtr());
         paId = other->x356_nextPlayerActor;
@@ -302,15 +312,16 @@ void CScriptPlayerActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
     break;
   case EScriptObjectMessage::Activate:
     if (!GetActive()) {
-      if (x350_flags & 0x1)
+      if ((x350_flags & 0x1) != 0) {
         LoadSuit(GetNextSuitCharIdx(mgr));
+      }
       SetIntoStateManager(mgr, true);
       SetupEnvFx(mgr, true);
       x354_30_enableLoading = true;
     }
     break;
   case EScriptObjectMessage::Increment:
-    if (x350_flags & 0x1) {
+    if ((x350_flags & 0x1) != 0) {
       x354_25_deferOnlineModelData = false;
       x354_26_deferOfflineModelData = true;
       mgr.GetPlayer().AsyncLoadSuit(mgr);
@@ -318,12 +329,14 @@ void CScriptPlayerActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
     break;
   case EScriptObjectMessage::Deactivate:
     if (GetActive()) {
-      if (!(x350_flags & 0x10))
+      if ((x350_flags & 0x10) == 0) {
         SetIntoStateManager(mgr, false);
+      }
       SetupEnvFx(mgr, false);
     }
-    if (!(x350_flags & 0x4))
+    if ((x350_flags & 0x4) == 0) {
       break;
+    }
     [[fallthrough]];
   case EScriptObjectMessage::Reset:
     if (GetActive() || msg == EScriptObjectMessage::Reset) {
@@ -344,6 +357,7 @@ void CScriptPlayerActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
       x354_28_suitModelLoading = false;
       x354_30_enableLoading = false;
       SetModelData(std::make_unique<CModelData>(CModelData::CModelDataNull()));
+      SetActive(false);
     }
     break;
   case EScriptObjectMessage::Deleted:
@@ -363,13 +377,15 @@ void CScriptPlayerActor::SetActive(bool active) {
 
 void CScriptPlayerActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   if (x328_backupModelData) {
-    if (x348_deallocateBackupCountdown == 0)
+    if (x348_deallocateBackupCountdown == 0) {
       x328_backupModelData = TLockedToken<CSkinnedModel>();
-    else
+    } else {
       --x348_deallocateBackupCountdown;
+    }
   }
-  if (x2e8_suitRes.GetCharacterNodeId() == 3)
+  if (x2e8_suitRes.GetCharacterNodeId() == 3) {
     g_Renderer->AllocatePhazonSuitMaskTexture();
+  }
   xb4_drawFlags.m_extendedShader = EExtendedShader::LightingCubeReflection;
   CScriptActor::PreRender(mgr, frustum);
 }
@@ -384,7 +400,7 @@ void CScriptPlayerActor::AddToRenderer(const zeus::CFrustum& frustum, CStateMana
 void CScriptPlayerActor::Render(CStateManager& mgr) {
   CBooModel::SetReflectionCube(m_reflectionCube);
 
-  bool phazonSuit = x2e8_suitRes.GetCharacterNodeId() == 3;
+  const bool phazonSuit = x2e8_suitRes.GetCharacterNodeId() == 3;
   if (phazonSuit) {
     // Draw into alpha buffer
     CModelFlags flags = xb4_drawFlags;
@@ -409,31 +425,35 @@ void CScriptPlayerActor::Render(CStateManager& mgr) {
   if (phazonSuit) {
     zeus::CVector3f vecFromCam =
         GetBoundingBox().center() - mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation();
-    float radius = zeus::clamp(0.25f, (6.f - vecFromCam.magnitude()) / 6.f, 2.f);
-    float offsetX = std::sin(x34c_phazonOffsetAngle);
-    float offsetY = std::sin(x34c_phazonOffsetAngle) * 0.5f;
+    const float radius = zeus::clamp(0.25f, (6.f - vecFromCam.magnitude()) / 6.f, 2.f);
+    const float offsetX = std::sin(x34c_phazonOffsetAngle);
+    const float offsetY = std::sin(x34c_phazonOffsetAngle) * 0.5f;
     g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, 1.f), x338_phazonIndirectTexture, zeus::skWhite,
                                              radius, 0.05f, offsetX, offsetY);
   }
 }
 
 void CScriptPlayerActor::TouchModels_Internal(const CStateManager& mgr) const {
-  if (x64_modelData && !x64_modelData->IsNull())
+  if (x64_modelData && !x64_modelData->IsNull()) {
     x64_modelData->Touch(mgr, 0);
+  }
 
-  if (x318_suitModelData && !x318_suitModelData->IsNull())
+  if (x318_suitModelData && !x318_suitModelData->IsNull()) {
     x318_suitModelData->Touch(mgr, 0);
+  }
 
-  if (!x354_27_beamModelLoading)
-    if (x314_beamModelData && !x314_beamModelData->IsNull())
+  if (!x354_27_beamModelLoading) {
+    if (x314_beamModelData && !x314_beamModelData->IsNull()) {
       x314_beamModelData->Touch(mgr, 0);
+    }
+  }
 }
 
 void CScriptPlayerActor::TouchModels(const CStateManager& mgr) const {
   TouchModels_Internal(mgr);
   TUniqueId paId = x356_nextPlayerActor;
   while (paId != kInvalidUniqueId) {
-    TCastToConstPtr<CScriptActor> act = mgr.GetObjectById(paId);
+    const TCastToConstPtr<CScriptActor> act = mgr.GetObjectById(paId);
     if (act && act->IsPlayerActor()) {
       const auto* pa = static_cast<const CScriptPlayerActor*>(act.GetPtr());
       pa->TouchModels_Internal(mgr);

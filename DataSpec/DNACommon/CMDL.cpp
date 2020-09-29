@@ -145,14 +145,14 @@ public:
       atUint32 addedVerts = 0;
       atUint32 nextVert = 1;
       while (nextVert < m_nextOverPos) {
-        for (const auto& ev : m_extraVerts) {
-          for (const auto& se : ev.second) {
+        for (const auto& [ev, evVec] : m_extraVerts) {
+          for (const auto& se : evVec) {
             if (se.second == nextVert) {
               os.format(FMT_STRING(
                   "bm.verts.ensure_lookup_table()\n"
                   "orig_vert = bm.verts[{}]\n"
                   "vert = bm.verts.new(orig_vert.co)\n"),
-                  ev.first + baseVert);
+                  ev + baseVert);
               rp.first.second->weightVertex(os, *rp.second.second, se.first);
               ++nextVert;
               ++addedVerts;

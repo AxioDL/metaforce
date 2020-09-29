@@ -30,10 +30,10 @@ private:
   zeus::CVector3f x244_faceTranslate;
   float x250_alphaTimer = 0.f;
   CFluidPlaneDoor x254_fluidPlane;
-  bool x300_24_notOccluded : 1;
-  bool x300_25_alphaOut : 1;
-  bool x300_26_outOfFrustum : 1;
-  bool x300_27_invulnerable : 1;
+  bool x300_24_notOccluded : 1 = false;
+  bool x300_25_alphaOut : 1 = false;
+  bool x300_26_outOfFrustum : 1 = false;
+  bool x300_27_invulnerable : 1 = false;
   bool x300_28_canOrbit : 1;
 
   void SetLinkedObjectAlpha(float a, CStateManager& mgr);

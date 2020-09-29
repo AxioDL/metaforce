@@ -7,16 +7,16 @@ namespace urde {
 class CStateManager;
 
 struct CStaticInterferenceSource {
-  TUniqueId id;
-  float magnitude;
-  float timeLeft;
+  TUniqueId x0_id;
+  float x4_magnitude;
+  float x8_timeLeft;
 };
 
 class CStaticInterference {
-  std::vector<CStaticInterferenceSource> m_sources;
+  std::vector<CStaticInterferenceSource> x0_sources;
 
 public:
-  explicit CStaticInterference(int sourceCount);
+  explicit CStaticInterference(size_t sourceCount);
   void RemoveSource(TUniqueId id);
   void Update(CStateManager&, float dt);
   float GetTotalInterference() const;

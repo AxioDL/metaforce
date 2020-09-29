@@ -28,7 +28,7 @@ class CColoredQuadFilter {
   Uniform m_uniform;
 
 public:
-  static const zeus::CRectangle DefaultRect;
+  static constexpr zeus::CRectangle DefaultRect{0.f, 0.f, 1.f, 1.f};
   explicit CColoredQuadFilter(EFilterType type);
   explicit CColoredQuadFilter(EFilterType type, const TLockedToken<CTexture>&) : CColoredQuadFilter(type) {}
   void draw(const zeus::CColor& color, const zeus::CRectangle& rect = DefaultRect);
@@ -43,7 +43,7 @@ public:
   explicit CWideScreenFilter(EFilterType type) : m_top(type), m_bottom(type) {}
   explicit CWideScreenFilter(EFilterType type, const TLockedToken<CTexture>&) : CWideScreenFilter(type) {}
   void draw(const zeus::CColor& color, float t);
-  void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t);
+  void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t) { draw(color, t); }
 
   static float SetViewportToMatch(float t);
   static void SetViewportToFull();

@@ -26,7 +26,7 @@ CCEKeyframeEmitter::CCEKeyframeEmitter(CInputStream& in) {
   }
 }
 
-bool CCEKeyframeEmitter::GetValue(int frame, zeus::CColor& valOut) const {
+bool CCEKeyframeEmitter::GetValue([[maybe_unused]] int frame, zeus::CColor& valOut) const {
   if (!x4_percent) {
     int emitterTime = CParticleGlobals::instance()->m_EmitterTime;
     int calcKey = emitterTime;
@@ -64,7 +64,7 @@ bool CCEConstant::GetValue(int frame, zeus::CColor& valOut) const {
   return false;
 }
 
-bool CCEFastConstant::GetValue(int frame, zeus::CColor& valOut) const {
+bool CCEFastConstant::GetValue([[maybe_unused]] int frame, zeus::CColor& valOut) const {
   valOut = x4_val;
   return false;
 }
@@ -123,17 +123,16 @@ bool CCEPulse::GetValue(int frame, zeus::CColor& valOut) const {
   int a, b;
   x4_aDuration->GetValue(frame, a);
   x8_bDuration->GetValue(frame, b);
-  int cv = zeus::max(1, a + b + 1);
+  int cv = a + b + 1;
+  if (cv < 0) {
+    cv = 1;
+  }
 
-  if (b >= 1) {
-    int cv2 = frame % cv;
-    if (cv2 >= a)
-      x10_bVal->GetValue(frame, valOut);
-    else
-      xc_aVal->GetValue(frame, valOut);
-  } else
+  if (b < 1 || frame % cv <= a) {
     xc_aVal->GetValue(frame, valOut);
-
+  } else {
+    x10_bVal->GetValue(frame, valOut);
+  }
   return false;
 }
 

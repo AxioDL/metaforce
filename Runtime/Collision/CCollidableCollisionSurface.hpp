@@ -5,7 +5,7 @@
 
 namespace urde {
 class CCollidableCollisionSurface {
-  static u32 sTableIndex;
+  static inline u32 sTableIndex = UINT32_MAX;
 
 public:
   static const CCollisionPrimitive::Type& GetType();

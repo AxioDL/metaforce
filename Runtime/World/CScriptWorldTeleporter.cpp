@@ -13,11 +13,7 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view n
                                                bool active, CAssetId worldId, CAssetId areaId)
 : CEntity(uid, info, active, name)
 , x34_worldId(worldId)
-, x38_areaId(areaId)
-, x3c_type(ETeleporterType::NoTransition)
-, x40_24_upElevator(false)
-, x40_25_inTransition(false)
-, x40_27_fadeWhite(false) {}
+, x38_areaId(areaId) {}
 
 CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                bool active, CAssetId worldId, CAssetId areaId, CAssetId playerAncs,
@@ -30,8 +26,6 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view n
 , x38_areaId(areaId)
 , x3c_type(ETeleporterType::Elevator)
 , x40_24_upElevator(upElevator)
-, x40_25_inTransition(false)
-, x40_27_fadeWhite(false)
 , x50_playerAnim(playerAncs, charIdx, defaultAnim)
 , x5c_playerScale(playerScale)
 , x68_platformModel(platformModel)
@@ -50,8 +44,6 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view n
 , x34_worldId(worldId)
 , x38_areaId(areaId)
 , x3c_type(ETeleporterType::Text)
-, x40_24_upElevator(false)
-, x40_25_inTransition(false)
 , x40_27_fadeWhite(fadeWhite)
 , x44_charFadeIn(charFadeIn)
 , x48_charsPerSecond(charsPerSecond)
@@ -105,27 +97,29 @@ void CScriptWorldTeleporter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
 }
 
 void CScriptWorldTeleporter::StartTransition(CStateManager& mgr) {
-  if (!x40_25_inTransition) {
-    const auto& transMgr = mgr.WorldTransManager();
-    switch (x3c_type) {
-    case ETeleporterType::NoTransition:
-      transMgr->DisableTransition();
-      break;
-    case ETeleporterType::Elevator:
-      if (x50_playerAnim.GetACSFile().IsValid() && x50_playerAnim.GetCharacter() != u32(-1)) {
-        transMgr->EnableTransition(CAnimRes(x50_playerAnim.GetACSFile(), x50_playerAnim.GetCharacter(), x5c_playerScale,
-                                            x50_playerAnim.GetInitialAnimation(), true),
-                                   x68_platformModel, x6c_platformScale, x78_backgroundModel, x7c_backgroundScale,
-                                   x40_24_upElevator);
-        x40_25_inTransition = true;
-      }
-      break;
-    case ETeleporterType::Text:
-      transMgr->EnableTransition(x8c_fontId, x90_stringId, 0, x40_27_fadeWhite, x44_charFadeIn, x48_charsPerSecond,
-                                 x4c_showDelay);
+  if (x40_25_inTransition) {
+    return;
+  }
+
+  const auto& transMgr = mgr.WorldTransManager();
+  switch (x3c_type) {
+  case ETeleporterType::NoTransition:
+    transMgr->DisableTransition();
+    break;
+  case ETeleporterType::Elevator:
+    if (x50_playerAnim.GetACSFile().IsValid() && x50_playerAnim.GetCharacter() != u32(-1)) {
+      transMgr->EnableTransition(CAnimRes(x50_playerAnim.GetACSFile(), x50_playerAnim.GetCharacter(), x5c_playerScale,
+                                          x50_playerAnim.GetInitialAnimation(), true),
+                                 x68_platformModel, x6c_platformScale, x78_backgroundModel, x7c_backgroundScale,
+                                 x40_24_upElevator);
       x40_25_inTransition = true;
-      break;
     }
+    break;
+  case ETeleporterType::Text:
+    transMgr->EnableTransition(x8c_fontId, x90_stringId, 0, x40_27_fadeWhite, x44_charFadeIn, x48_charsPerSecond,
+                               x4c_showDelay);
+    x40_25_inTransition = true;
+    break;
   }
 }
 

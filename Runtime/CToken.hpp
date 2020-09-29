@@ -107,7 +107,7 @@ public:
   TToken(std::unique_ptr<T>&& obj) : CToken(GetIObjObjectFor(std::move(obj))) {}
   TToken& operator=(std::unique_ptr<T>&& obj) {
     *this = CToken(GetIObjObjectFor(std::move(obj)));
-    return this;
+    return *this;
   }
   virtual void Unlock() { CToken::Unlock(); }
   virtual void Lock() { CToken::Lock(); }

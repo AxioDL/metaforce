@@ -8,9 +8,7 @@ CPakFile::CPakFile(std::string_view filename, bool buildDepList, bool worldPak, 
     Log.report(logvisor::Fatal, FMT_STRING("{}: Unable to open"), GetPath());
   x28_24_buildDepList = buildDepList;
   //x28_24_buildDepList = true; // Always do this so URDE can rapidly pre-warm shaders
-  x28_25_aramFile = false;
   x28_26_worldPak = worldPak;
-  x28_27_stashedInARAM = false;
   m_override = override;
 }
 

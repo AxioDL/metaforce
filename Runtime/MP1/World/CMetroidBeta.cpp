@@ -56,15 +56,7 @@ CMetroidBeta::CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityIn
 , x824_(std::make_unique<CParticleSwoosh>(x7f0_, 0))
 , x828_(std::make_unique<CElementGen>(x7fc_))
 , x82c_(std::make_unique<CElementGen>(x808_))
-, x830_(std::make_unique<CElementGen>(x814_))
-, x840_24_(false)
-, x840_25_(false)
-, x840_26_(false)
-, x840_27_(false)
-, x840_28_(false)
-, x840_29_(false)
-, x840_30_(false)
-, x840_31_(false) {
+, x830_(std::make_unique<CElementGen>(x814_)) {
   x820_->SetParticleEmission(false);
   x828_->SetParticleEmission(false);
   x82c_->SetParticleEmission(false);
@@ -87,6 +79,7 @@ void CMetroidBeta::Think(float dt, CStateManager& mgr) {
   // sub801c0da4(dt, mgr);
   // sub801c21b4(dt, mgr);
 }
+
 void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
   switch (msg) {
@@ -125,7 +118,7 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
             x840_31_ = true;
             x83c_ += 1.f;
           }
-          KnockBack(proj->GetTranslation() - proj->GetPreviousPos(), mgr, dInfo, EKnockBackType::Radius, false,
+          KnockBack(proj->GetTranslation() - proj->GetPreviousPos(), mgr, dInfo, EKnockBackType::Direct, false,
                     dInfo.GetKnockBackPower());
         }
         if (x840_25_)

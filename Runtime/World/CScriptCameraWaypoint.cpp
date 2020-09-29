@@ -18,7 +18,7 @@ void CScriptCameraWaypoint::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptCameraWaypoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, uid, mgr);
-  if (!GetActive() && msg == EScriptObjectMessage::Arrived)
+  if (GetActive() && msg == EScriptObjectMessage::Arrived)
     SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
 }
 

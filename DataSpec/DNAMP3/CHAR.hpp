@@ -283,9 +283,8 @@ struct CHAR : BigDNA {
       }
 
       if (force || blendType == hecl::ProjectPath::Type::None) {
-        hecl::blender::Connection& conn = btok.getBlenderConnection();
         DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, CHAR, MaterialSet, DNACMDL::SurfaceHeader_3, 4>(
-            conn, aChar, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
+            btok, aChar, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
       }
     }
 

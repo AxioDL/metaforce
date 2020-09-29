@@ -20,31 +20,31 @@ private:
   float x10_attackChance;
   float x14_shotAtTime;
   float x18_shotAtTimeVariance;
-  float x1c_;
-  CAssetId x20_;
-  u16 x24_sfxAbsorb;
+  float x1c_projectileAttractionRadius;
+  CAssetId x20_energyAbsorbParticleDescId;
+  u16 x24_energyAbsorbSfxId;
   CActorParameters x28_launcherActParams;
   CAnimationParameters x90_launcherAnimParams;
-  CAssetId x9c_;
-  u16 xa0_;
-  CAssetId xa4_;
-  CDamageInfo xa8_;
+  CAssetId x9c_launcherParticleGenDescId;
+  u16 xa0_launcherSfxId;
+  CAssetId xa4_grenadeModelId;
+  CDamageInfo xa8_grenadeDamageInfo;
   float xc4_launcherHp;
-  CAssetId xc8_;
-  CAssetId xcc_;
-  CAssetId xd0_;
-  CAssetId xd4_;
-  SGrenadeUnknownStruct xd8_;
-  SGrenadeTrajectoryInfo xe0_trajectoryInfo;
+  CAssetId xc8_grenadeElementGenDescId1;
+  CAssetId xcc_grenadeElementGenDescId2;
+  CAssetId xd0_grenadeElementGenDescId3;
+  CAssetId xd4_grenadeElementGenDescId4;
+  SGrenadeVelocityInfo xd8_grenadeVelocityInfo;
+  SGrenadeTrajectoryInfo xe0_grenadeTrajectoryInfo;
   u32 xf0_grenadeNumBounces;
-  u16 xf4_;
-  u16 xf6_;
-  CAssetId xf8_;
-  CDamageInfo xfc_;
-  CAssetId x118_;
-  u16 x11c_;
-  bool x11e_;
-  bool x11f_;
+  u16 xf4_grenadeBounceSfxId;
+  u16 xf6_grenadeExplodeSfxId;
+  CAssetId xf8_shockwaveParticleDescId;
+  CDamageInfo xfc_shockwaveDamageInfo;
+  CAssetId x118_shockwaveWeaponDescId;
+  u16 x11c_shockwaveElectrocuteSfxId;
+  bool x11e_canCallForBackup;
+  bool x11f_fastWhenAttractingEnergy;
 
 public:
   CElitePirateData(CInputStream&, u32 propCount);
@@ -54,48 +54,56 @@ public:
   [[nodiscard]] float GetAttackChance() const { return x10_attackChance; }
   [[nodiscard]] float GetShotAtTime() const { return x14_shotAtTime; }
   [[nodiscard]] float GetShotAtTimeVariance() const { return x18_shotAtTimeVariance; }
-  [[nodiscard]] float GetX1C() const { return x1c_; }
-  [[nodiscard]] CAssetId GetX20() const { return x20_; }
-  [[nodiscard]] u16 GetSFXAbsorb() const { return x24_sfxAbsorb; }
+  [[nodiscard]] float GetProjectileAttractionRadius() const { return x1c_projectileAttractionRadius; }
+  [[nodiscard]] CAssetId GetEnergyAbsorbParticleDescId() const { return x20_energyAbsorbParticleDescId; }
+  [[nodiscard]] u16 GetEnergyAbsorbSfxId() const { return x24_energyAbsorbSfxId; }
   [[nodiscard]] const CActorParameters& GetLauncherActParams() const { return x28_launcherActParams; }
   [[nodiscard]] const CAnimationParameters& GetLauncherAnimParams() const { return x90_launcherAnimParams; }
   [[nodiscard]] float GetLauncherHP() const { return xc4_launcherHp; }
-  [[nodiscard]] const SGrenadeTrajectoryInfo& GetGrenadeTrajectoryInfo() const { return xe0_trajectoryInfo; }
-  [[nodiscard]] CAssetId GetXF8() const { return xf8_; }
-  [[nodiscard]] const CDamageInfo& GetXFC() const { return xfc_; }
-  [[nodiscard]] CAssetId GetX118() const { return x118_; }
-  [[nodiscard]] u16 GetX11C() const { return x11c_; }
-  [[nodiscard]] bool GetX11E() const { return x11e_; }
-  [[nodiscard]] bool GetX11F() const { return x11f_; }
+  [[nodiscard]] const SGrenadeTrajectoryInfo& GetGrenadeTrajectoryInfo() const { return xe0_grenadeTrajectoryInfo; }
+  [[nodiscard]] CAssetId GetShockwaveParticleDescId() const { return xf8_shockwaveParticleDescId; }
+  [[nodiscard]] const CDamageInfo& GetShockwaveDamageInfo() const { return xfc_shockwaveDamageInfo; }
+  [[nodiscard]] CAssetId GetShockwaveWeaponDescId() const { return x118_shockwaveWeaponDescId; }
+  [[nodiscard]] u16 GetShockwaveElectrocuteSfxId() const { return x11c_shockwaveElectrocuteSfxId; }
+  [[nodiscard]] bool CanCallForBackup() const { return x11e_canCallForBackup; }
+  [[nodiscard]] bool IsFastWhenAttractingEnergy() const { return x11f_fastWhenAttractingEnergy; }
 
   [[nodiscard]] SBouncyGrenadeData GetBouncyGrenadeData() const {
-    return {xd8_, xa8_, xc8_, xcc_, xd0_, xd4_, xf0_grenadeNumBounces, xf4_, xf6_};
+    return {
+        xd8_grenadeVelocityInfo,      xa8_grenadeDamageInfo,        xc8_grenadeElementGenDescId1,
+        xcc_grenadeElementGenDescId2, xd0_grenadeElementGenDescId3, xd4_grenadeElementGenDescId4,
+        xf0_grenadeNumBounces,        xf4_grenadeBounceSfxId,       xf6_grenadeExplodeSfxId,
+    };
   }
   [[nodiscard]] SGrenadeLauncherData GetGrenadeLauncherData() const {
-    return {GetBouncyGrenadeData(), xa4_, x9c_, xa0_, xe0_trajectoryInfo};
+    return {
+        GetBouncyGrenadeData(), xa4_grenadeModelId,        x9c_launcherParticleGenDescId,
+        xa0_launcherSfxId,      xe0_grenadeTrajectoryInfo,
+    };
   }
 };
 
 class CElitePirate : public CPatterned {
-private:
-  struct SUnknownStruct {
-  private:
-    float x0_;
-    rstl::reserved_vector<zeus::CVector3f, 16> x4_;
-
-  public:
-    explicit SUnknownStruct(float f) : x0_(f * f) {}
-    zeus::CVector3f GetValue(const zeus::CVector3f& v1, const zeus::CVector3f& v2);
-    void AddValue(const zeus::CVector3f& vec);
-    void Clear() { x4_.clear(); }
-  };
-
+protected:
   enum class EState {
     Invalid = -1,
     Zero = 0,
     One = 1,
     Two = 2,
     Over = 3,
+  };
+
+private:
+  struct SPositionHistory {
+  private:
+    float x0_magSquared;
+    rstl::reserved_vector<zeus::CVector3f, 16> x4_values;
+
+  public:
+    explicit SPositionHistory(float mag) : x0_magSquared(mag * mag) {}
+    zeus::CVector3f GetValue(const zeus::CVector3f& pos, const zeus::CVector3f& face);
+    void AddValue(const zeus::CVector3f& pos);
+    void Clear() { x4_values.clear(); }
   };
 
   EState x568_state = EState::Invalid;
@@ -111,7 +119,7 @@ private:
   TUniqueId x772_launcherId = kInvalidUniqueId;
   rstl::reserved_vector<TUniqueId, 7> x774_collisionRJointIds;
   rstl::reserved_vector<TUniqueId, 7> x788_collisionLJointIds;
-  TUniqueId x79c_ = kInvalidUniqueId;
+  TUniqueId x79c_energyAttractorId = kInvalidUniqueId;
   float x7a0_initialSpeed;
   float x7a4_steeringSpeed = 1.f;
   float x7a8_pathShaggedTime = 0.f;
@@ -126,19 +134,19 @@ private:
   u32 x7cc_activeMaterialSet = 0;
   CPathFindSearch x7d0_pathFindSearch;
   zeus::CVector3f x8b4_targetDestPos;
-  SUnknownStruct x8c0_;
-  bool x988_24_damageOn : 1;
-  bool x988_25_attackingRightClaw : 1;
-  bool x988_26_attackingLeftClaw : 1;
-  bool x988_27_shotAt : 1;
-  bool x988_28_alert : 1;
-  bool x988_29_shockWaveAnim : 1;
-  bool x988_30_calledForBackup : 1;
-  bool x988_31_running : 1;
-  bool x989_24_onPath : 1;
+  SPositionHistory x8c0_positionHistory{5.0f};
+  bool x988_24_damageOn : 1 = false;
+  bool x988_25_attackingRightClaw : 1 = false;
+  bool x988_26_attackingLeftClaw : 1 = false;
+  bool x988_27_shotAt : 1 = false;
+  bool x988_28_alert : 1 = false;
+  bool x988_29_shockWaveAnim : 1 = false;
+  bool x988_30_calledForBackup : 1 = false;
+  bool x988_31_running : 1 = false;
+  bool x989_24_onPath : 1 = false;
 
 public:
-  DEFINE_PATTERNED(ElitePirate)
+  DEFINE_PATTERNED(ElitePirate);
 
   CElitePirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
@@ -189,27 +197,37 @@ public:
   virtual void SetupHealthInfo(CStateManager& mgr);
   virtual void SetLaunchersActive(CStateManager& mgr, bool val);
   virtual SShockWaveData GetShockWaveData() const {
-    return {x5d8_data.GetXF8(), x5d8_data.GetXFC(), x5d8_data.GetX118(), x5d8_data.GetX11C()};
+    return {x5d8_data.GetShockwaveParticleDescId(), x5d8_data.GetShockwaveDamageInfo(), 16.5217f,
+            x5d8_data.GetShockwaveWeaponDescId(), x5d8_data.GetShockwaveElectrocuteSfxId()};
   }
 
-private:
-  void SetupPathFindSearch();
+protected:
   void SetShotAt(bool val, CStateManager& mgr);
-  bool IsArmClawCollider(TUniqueId uid, const rstl::reserved_vector<TUniqueId, 7>& vec) const;
+  void CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid);
+  zeus::CVector3f GetLockOnPosition(const CActor* actor) const;
+  bool ShouldFireFromLauncher(CStateManager& mgr, TUniqueId launcherId);
+  bool ShouldCallForBackupFromLauncher(const CStateManager& mgr, TUniqueId uid) const;
+  void SetupLauncherHealthInfo(CStateManager& mgr, TUniqueId uid);
+  void SetLauncherActive(CStateManager& mgr, bool val, TUniqueId uid);
+  void SetupPathFindSearch();
+  void UpdateActorTransform(CStateManager& mgr, TUniqueId& uid, std::string_view name);
+
+  const CElitePirateData& GetData() const { return x5d8_data; }
+  EState GetState() const { return x568_state; }
+  void SetState(EState state) { x568_state = state; }
+  TUniqueId GetLauncherId() const { return x772_launcherId; }
+  void SetAlert(bool val) { x988_28_alert = val; }
+  const CCollisionActorManager& GetCollisionActorManager() const { return *x5d4_collisionActorMgr; }
+
+private:
   void AddSphereCollisionList(const SSphereJointInfo* joints, size_t count,
                               std::vector<CJointCollisionDescription>& outJoints) const;
   void AddCollisionList(const SJointInfo* joints, size_t count,
                         std::vector<CJointCollisionDescription>& outJoints) const;
   void SetupCollisionManager(CStateManager& mgr);
   void SetupCollisionActorInfo(CStateManager& mgr);
-  bool IsArmClawCollider(std::string_view name, std::string_view locator, const SJointInfo* info,
-                         size_t infoCount) const;
-  void CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid);
   void ApplyDamageToHead(CStateManager& mgr, TUniqueId uid);
   void CreateEnergyAbsorb(CStateManager& mgr, const zeus::CTransform& xf);
-  void SetupLauncherHealthInfo(CStateManager& mgr, TUniqueId uid);
-  void SetLauncherActive(CStateManager& mgr, bool val, TUniqueId uid);
-  zeus::CVector3f GetLockOnPosition(const CActor* actor) const;
   bool CanKnockBack(const CDamageInfo& info) const;
   void UpdateDestPos(CStateManager& mgr);
   void CheckAttackChance(CStateManager& mgr);
@@ -218,13 +236,11 @@ private:
   bool IsAttractingEnergy() const;
   void UpdateTimers(float dt);
   void UpdatePositionHistory();
-  void UpdateActorTransform(CStateManager& mgr, TUniqueId& uid, std::string_view name);
   void UpdateHealthInfo(CStateManager& mgr);
   void ExtendTouchBounds(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 7>& uids,
                          const zeus::CVector3f& vec) const;
-  bool ShouldFireFromLauncher(CStateManager& mgr, TUniqueId launcherId);
-  bool ShouldCallForBackupFromLauncher(const CStateManager& mgr, TUniqueId uid) const;
   bool IsClosestEnergyAttractor(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 1024>& charNearList,
                                 const zeus::CVector3f& projectilePos) const;
+  void ShakeCamera(CStateManager& mgr);
 };
-} // namespace urde
+} // namespace urde::MP1

@@ -6,6 +6,7 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
 #include "Runtime/Graphics/Shaders/CXRayBlurFilter.hpp"
 
@@ -13,8 +14,6 @@
 #include "zeus/CColor.hpp"
 
 namespace urde {
-class CTexture;
-
 enum class EFilterType {
   Passthru,
   Multiply,

@@ -73,43 +73,43 @@ class CRidley : public CPatterned {
   CModelData x998_;
   CModelData x9e4_;
   CSegId xa30_breastPlateSegId;
-  bool xa31_24_ : 1;
-  bool xa31_25_ : 1;
-  bool xa31_26_ : 1;
-  bool xa31_27_ : 1;
-  bool xa31_28_ : 1;
-  bool xa31_29_ : 1;
-  bool xa31_30_ : 1;
-  bool xa31_31_ : 1;
-  bool xa32_24_ : 1;
-  bool xa32_25_ : 1;
-  bool xa32_26_ : 1;
-  bool xa32_27_ : 1;
-  bool xa32_28_shotAt : 1;
-  bool xa32_29_ : 1;
-  bool xa32_30_ : 1;
-  bool xa32_31_ : 1;
-  bool xa33_24_ : 1;
-  bool xa33_25_ : 1;
-  bool xa33_26_ : 1;
-  bool xa33_27_ : 1;
-  bool xa33_28_ : 1;
-  bool xa33_29_doStrafe : 1;
-  bool xa33_30_ : 1;
-  bool xa33_31_ : 1;
-  bool xa34_24_ : 1;
-  bool xa34_25_ : 1;
-  bool xa34_26_ : 1;
+  bool xa31_24_ : 1 = true;
+  bool xa31_25_ : 1 = true;
+  bool xa31_26_ : 1 = false;
+  bool xa31_27_ : 1 = false;
+  bool xa31_28_ : 1 = false;
+  bool xa31_29_ : 1 = false;
+  bool xa31_30_ : 1 = false;
+  bool xa31_31_ : 1 = false;
+  bool xa32_24_ : 1 = false;
+  bool xa32_25_ : 1 = false;
+  bool xa32_26_ : 1 = false;
+  bool xa32_27_ : 1 = false;
+  bool xa32_28_shotAt : 1 = false;
+  bool xa32_29_ : 1 = false;
+  bool xa32_30_ : 1 = false;
+  bool xa32_31_ : 1 = true;
+  bool xa33_24_ : 1 = false;
+  bool xa33_25_ : 1 = true;
+  bool xa33_26_ : 1 = false;
+  bool xa33_27_ : 1 = true;
+  bool xa33_28_ : 1 = false;
+  bool xa33_29_doStrafe : 1 = false;
+  bool xa33_30_ : 1 = false;
+  bool xa33_31_ : 1 = false;
+  bool xa34_24_ : 1 = false;
+  bool xa34_25_ : 1 = false;
+  bool xa34_26_ : 1 = false;
   CModelData xa38_;
   zeus::CTransform xa84_;
   float xab4_ = 20.f;
   float xab8_ = 12.f;
   float xabc_ = 40.f;
-  float xac0_ = 10;
+  float xac0_ = 10.f;
   zeus::CAABox xac4_ = zeus::skInvertedBox;
   float xadc_;
   float xae0_;
-  u32 xae4_;
+  float xae4_;
   float xae8_;
   zeus::CVector3f xaec_;
   zeus::CVector3f xaf8_;
@@ -195,11 +195,12 @@ class CRidley : public CPatterned {
 
   void sub80253710(CStateManager& mgr);
   bool sub80253960() {
-    return (GetTranslation()  + (1.75f * GetTransform().basis[1]) - xa84_.origin).magnitude() < 1.75f * (xab4_ + xabc_);
+    const float mag = ((GetTranslation() + ((0.5f * xae4_) * GetTransform().frontVector())) - xa84_.origin).magnitude();
+    return mag < 0.5f * (xab4_ + xabc_);
   }
 
 public:
-  DEFINE_PATTERNED(Ridley)
+  DEFINE_PATTERNED(Ridley);
   CRidley(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&, const CPatternedInfo&,
           const CActorParameters&, CInputStream&, u32);
 

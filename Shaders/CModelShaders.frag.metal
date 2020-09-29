@@ -1,4 +1,4 @@
-constant float3 kRGBToYPrime = float3(0.257, 0.504, 0.098);
+constant float3 kRGBToYPrime = float3(0.299, 0.587, 0.114);
 
 /*
 #if defined(ALPHA_%s)

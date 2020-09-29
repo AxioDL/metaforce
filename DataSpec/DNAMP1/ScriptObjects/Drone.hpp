@@ -18,9 +18,9 @@ struct Drone : IScriptObject {
   DamageInfo damageInfo1;
   Value<atUint32> unknown3;
   DamageInfo damageInfo2;
-  Value<atUint32> unknown4;
-  Value<atUint32> unknown5;
-  Value<atUint32> unknown6;
+  UniqueID32 unknown4;
+  Value<atUint32> unused;
+  UniqueID32 unknown6;
   FlareDefinition flareDefinition1;
   FlareDefinition flareDefinition2;
   FlareDefinition flareDefinition3;
@@ -73,6 +73,8 @@ struct Drone : IScriptObject {
 
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
                           std::vector<hecl::ProjectPath>& lazyOut) const override {
+    g_curSpec->flattenDependencies(unknown4, pathsOut);
+    g_curSpec->flattenDependencies(unknown6, pathsOut);
     g_curSpec->flattenDependencies(crsc, pathsOut);
     flareDefinition1.depIDs(pathsOut);
     flareDefinition2.depIDs(pathsOut);

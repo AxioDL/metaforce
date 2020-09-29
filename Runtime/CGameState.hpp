@@ -69,7 +69,7 @@ class CGameState {
   friend class CStateManager;
 
   std::array<bool, 128> x0_{};
-  u32 x80_;
+  u32 x80_ = 0;
   CAssetId x84_mlvlId;
   std::vector<CWorldState> x88_worldStates;
   std::shared_ptr<CPlayerState> x98_playerState;
@@ -81,8 +81,8 @@ class CGameState {
   u32 x20c_saveFileIdx = 0;
   u64 x210_cardSerial = 0;
   std::vector<u8> x218_backupBuf;
-  bool x228_24_hardMode : 1;
-  bool x228_25_initPowerupsAtFirstSpawn : 1;
+  bool x228_24_hardMode : 1 = false;
+  bool x228_25_initPowerupsAtFirstSpawn : 1 = true;
 
 public:
   CGameState();

@@ -10,7 +10,9 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Particle/CParticleGen.hpp"
+#include "Runtime/Particle/CParticleSwoosh.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
@@ -19,8 +21,6 @@
 
 namespace urde {
 class CElectricDescription;
-class CElementGen;
-class CParticleSwoosh;
 
 class CParticleElectric : public CParticleGen {
   static u16 g_GlobalSeed;
@@ -85,12 +85,12 @@ private:
   std::vector<zeus::CVector3f> x420_calculatedVerts;
   std::vector<float> x430_fractalMags;
   std::vector<zeus::CVector3f> x440_fractalOffsets;
-  bool x450_24_emitting : 1;
-  bool x450_25_haveGPSM : 1;
-  bool x450_26_haveEPSM : 1;
-  bool x450_27_haveSSWH : 1;
-  bool x450_28_haveLWD : 1;
-  bool x450_29_transformDirty : 1;
+  bool x450_24_emitting : 1 = true;
+  bool x450_25_haveGPSM : 1 = false;
+  bool x450_26_haveEPSM : 1 = false;
+  bool x450_27_haveSSWH : 1 = false;
+  bool x450_28_haveLWD : 1 = false;
+  bool x450_29_transformDirty : 1 = true;
 
   size_t m_nextLineRenderer = 0;
   std::vector<std::unique_ptr<CLineRenderer>> m_lineRenderers;
@@ -100,7 +100,7 @@ private:
   void RenderLines();
   void RenderSwooshes();
   void UpdateCachedTransform();
-  void UpdateLine(int idx, int frame);
+  void UpdateLine(size_t idx, int frame);
   void UpdateElectricalEffects();
   void CalculateFractal(int start, int end, float ampl, float ampd);
   void CalculatePoints();

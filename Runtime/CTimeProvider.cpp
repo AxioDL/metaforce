@@ -3,21 +3,24 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 
 namespace urde {
-CTimeProvider* CTimeProvider::g_currentTimeProvider = nullptr;
-CTimeProvider::CTimeProvider(const float& time) : x0_currentTime(time), x8_lastProvider(g_currentTimeProvider) {
-  if (x8_lastProvider != nullptr)
-    x8_lastProvider->x4_first = false;
+static CTimeProvider* s_currentTimeProvider = nullptr;
 
-  g_currentTimeProvider = this;
+CTimeProvider::CTimeProvider(const float& time) : x0_currentTime(time), x8_lastProvider(s_currentTimeProvider) {
+  if (x8_lastProvider != nullptr) {
+    x8_lastProvider->x4_first = false;
+  }
+
+  s_currentTimeProvider = this;
 
   CGraphics::SetExternalTimeProvider(this);
 }
 
 CTimeProvider::~CTimeProvider() {
-  g_currentTimeProvider = x8_lastProvider;
-  if (g_currentTimeProvider)
-    g_currentTimeProvider->x4_first = true;
-  CGraphics::SetExternalTimeProvider(g_currentTimeProvider);
+  s_currentTimeProvider = x8_lastProvider;
+  if (s_currentTimeProvider != nullptr) {
+    s_currentTimeProvider->x4_first = true;
+  }
+  CGraphics::SetExternalTimeProvider(s_currentTimeProvider);
 }
 
 } // namespace urde

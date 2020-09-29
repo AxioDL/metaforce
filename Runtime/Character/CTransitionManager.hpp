@@ -4,12 +4,12 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/Character/CAnimSysContext.hpp"
+#include "Runtime/Character/CTransitionDatabaseGame.hpp"
 
 namespace urde {
 class CAnimTreeNode;
 class CRandom16;
 class CSimplePool;
-class CTransitionDatabaseGame;
 
 class CTransitionManager {
   CAnimSysContext x0_animCtx;

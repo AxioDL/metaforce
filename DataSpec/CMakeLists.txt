@@ -42,11 +42,11 @@ bintoc(RetroMasterShader.cpp Blender/RetroMasterShader.py RETRO_MASTER_SHADER)
 # Download asset name databases
 add_custom_command(OUTPUT AssetNameMap32.bin COMMAND ${CMAKE_COMMAND} ARGS -P
                    ${CMAKE_CURRENT_SOURCE_DIR}/AssetMap32Download.cmake)
-bintoc(AssetNameMap32.cpp ${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap32.bin ASSET_NAME_MP32)
+bintoc_compress(AssetNameMap32.cpp ${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap32.bin ASSET_NAME_MP32)
 
 add_custom_command(OUTPUT AssetNameMap64.bin COMMAND ${CMAKE_COMMAND} ARGS -P
                    ${CMAKE_CURRENT_SOURCE_DIR}/AssetMap64Download.cmake)
-bintoc(AssetNameMap64.cpp ${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap64.bin ASSET_NAME_MP64)
+bintoc_compress(AssetNameMap64.cpp ${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap64.bin ASSET_NAME_MP64)
 
 # Each game's DataSpec implementation
 add_library(RetroDataSpec
@@ -65,13 +65,16 @@ add_library(RetroDataSpec
             Blender/RetroMasterShader.py
             AssetNameMap.hpp
             AssetNameMap.cpp
-            AssetNameMap32.bin AssetNameMap32.cpp
-            AssetNameMap64.bin AssetNameMap64.cpp
             RetroMasterShader.cpp)
+add_library(AssetNameMap
+        AssetNameMap32.bin AssetNameMap32.cpp
+        AssetNameMap64.bin AssetNameMap64.cpp)
+add_library(AssetNameMapNull
+        AssetNameMapNull.cpp)
 
-target_include_directories(RetroDataSpec PUBLIC ${LIBPNG_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR}
+target_include_directories(RetroDataSpec PUBLIC ${PNG_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR}
                            ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
-target_link_libraries(RetroDataSpec PUBLIC amuse zeus nod squish hecl-full ${PNG_LIB} ${ZLIB_LIBRARIES} lzokay logvisor)
+target_link_libraries(RetroDataSpec PUBLIC amuse zeus nod squish hecl-full ${PNG_LIBRARIES} ${ZLIB_LIBRARIES} lzokay logvisor)
 if(COMMAND add_sanitizers)
   add_sanitizers(RetroDataSpec)
 endif()

@@ -21,10 +21,10 @@ class CIkChain {
   zeus::CQuaternion x24_holdRot;
   zeus::CVector3f x34_holdPos;
   float x40_time = 0.f;
-  bool x44_24_activated : 1;
+  bool x44_24_activated : 1 = false;
 
 public:
-  CIkChain() : x44_24_activated(false) {}
+  CIkChain() = default;
 
   bool GetActive() const { return x44_24_activated; }
   void Update(float);

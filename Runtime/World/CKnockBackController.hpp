@@ -13,7 +13,7 @@ namespace urde {
 class CDamageInfo;
 class CPatterned;
 
-enum class EKnockBackType { Direct, Radius };
+enum class EKnockBackType { Radius, Direct };
 
 enum class EKnockBackVariant { Small, Medium, Large };
 
@@ -85,28 +85,28 @@ private:
   u32 x70_ = 0;
   u32 x74_ = 0;
   pas::ESeverity x7c_severity = pas::ESeverity::One;
-  std::bitset<5> x80_availableStates;
-  bool x81_24_autoResetImpulse : 1; // t
-  bool x81_25_enableFreeze : 1;     // t
-  bool x81_26_enableShock : 1;
-  bool x81_27_enableBurn : 1;            // t
-  bool x81_28_enableBurnDeath : 1;       // t
-  bool x81_29_enableExplodeDeath : 1;    // t
-  bool x81_30_enableLaggedBurnDeath : 1; // t
-  bool x81_31_ : 1;                      // t
-  bool x82_24_ : 1;                      // t
-  bool x82_25_inDeferredKnockBack : 1;
-  bool x82_26_locomotionDuringElectrocution : 1;
+  std::bitset<5> x80_availableStates{0b11111};
+  bool x81_24_autoResetImpulse : 1 = true;
+  bool x81_25_enableFreeze : 1 = true;
+  bool x81_26_enableShock : 1 = false;
+  bool x81_27_enableBurn : 1 = true;
+  bool x81_28_enableBurnDeath : 1 = true;
+  bool x81_29_enableExplodeDeath : 1 = true;
+  bool x81_30_enableLaggedBurnDeath : 1 = true;
+  bool x81_31_ : 1 = true;
+  bool x82_24_ : 1 = true;
+  bool x82_25_inDeferredKnockBack : 1 = false;
+  bool x82_26_locomotionDuringElectrocution : 1 = false;
   void ApplyImpulse(float dt, CPatterned& parent);
   bool TickDeferredTimer(float dt);
-  EKnockBackCharacterState GetKnockBackCharacterState(CPatterned& parent);
-  void ValidateState(CPatterned& parent);
-  float CalculateExtraHurlVelocity(CStateManager& mgr, float magnitude, float kbResistance);
+  EKnockBackCharacterState GetKnockBackCharacterState(const CPatterned& parent) const;
+  void ValidateState(const CPatterned& parent);
+  float CalculateExtraHurlVelocity(CStateManager& mgr, float magnitude, float kbResistance) const;
   void DoKnockBackAnimation(const zeus::CVector3f& backVec, CStateManager& mgr, CPatterned& parent, float magnitude);
-  void ResetKnockBackImpulse(CPatterned& parent, const zeus::CVector3f& backVec, float magnitude);
+  void ResetKnockBackImpulse(const CPatterned& parent, const zeus::CVector3f& backVec, float magnitude);
   void DoDeferredKnockBack(CStateManager& mgr, CPatterned& parent);
   EKnockBackWeaponType GetKnockBackWeaponType(const CDamageInfo& info, EWeaponType wType, EKnockBackType type);
-  void SelectDamageState(CPatterned& parent, const CDamageInfo& info, EWeaponType wType, EKnockBackType type);
+  void SelectDamageState(const CPatterned& parent, const CDamageInfo& info, EWeaponType wType, EKnockBackType type);
 
 public:
   explicit CKnockBackController(EKnockBackVariant variant);

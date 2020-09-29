@@ -18,8 +18,7 @@ CBeamProjectile::CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::s
 , x300_intBeamLength(growingBeam ? 0.f : x2ec_maxLength)
 , x304_beamLength(x2ec_maxLength)
 , x308_travelSpeed(travelSpeed)
-, x464_24_growingBeam(growingBeam)
-, x464_25_enableTouchDamage(false) {
+, x464_24_growingBeam(growingBeam) {
   x384_.resize(10);
   x400_pointCache.resize(8);
 }
@@ -76,7 +75,7 @@ void CBeamProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CStateManag
   mgr.BuildNearList(nearList, x36c_, CMaterialFilter::MakeExclude({EMaterialTypes::ProjectilePassthrough}), nullptr);
   TUniqueId collideId = kInvalidUniqueId;
   CRayCastResult res = RayCollisionCheckWithWorld(collideId, x298_previousPos, beamEnd, x300_intBeamLength, nearList, mgr);
-  if (TCastToPtr<CActor> act = mgr.ObjectById(collideId)) {
+  if (TCastToConstPtr<CActor>(mgr.ObjectById(collideId))) {
     SetCollisionResultData(EDamageType::Actor, res, collideId);
     if (x464_25_enableTouchDamage)
       ApplyDamageToActors(mgr, CDamageInfo(x12c_curDamageInfo, dt));

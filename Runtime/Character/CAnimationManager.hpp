@@ -3,13 +3,12 @@
 #include <memory>
 
 #include "Runtime/CToken.hpp"
+#include "Runtime/Character/CAnimationDatabaseGame.hpp"
 #include "Runtime/Character/CAnimSysContext.hpp"
 
 namespace urde {
 class CAnimTreeNode;
-class CAnimationDatabaseGame;
 class CSimplePool;
-class CTransitionDatabaseGame;
 class IMetaAnim;
 
 struct CMetaAnimTreeBuildOrders;

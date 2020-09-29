@@ -31,8 +31,8 @@ class CPlayerVisor {
   CPlayerState::EPlayerVisor x1c_curVisor = CPlayerState::EPlayerVisor::Combat;
   CPlayerState::EPlayerVisor x20_nextVisor = CPlayerState::EPlayerVisor::Combat;
   float x24_visorSfxVol = 1.f; // used to be u8
-  bool x25_24_visorTransitioning : 1;
-  bool x25_25_ : 1;
+  bool x25_24_visorTransitioning : 1 = false;
+  bool x25_25_ : 1 = false;
   float x28_ = 0.f;
   float x2c_scanDimInterp = 1.f;
   EScanWindowState x30_prevState = EScanWindowState::NotInScanVisor;

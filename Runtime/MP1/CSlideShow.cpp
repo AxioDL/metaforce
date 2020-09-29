@@ -1,25 +1,18 @@
 #include "Runtime/MP1/CSlideShow.hpp"
 
-#include "Editor/ProjectManager.hpp"
+#include <algorithm>
 
+#include "Editor/ProjectManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
+namespace {
+bool AreAllDepsLoaded(const std::vector<TLockedToken<CDependencyGroup>>& deps) {
+  return std::all_of(deps.cbegin(), deps.cend(), [](const auto& dep) { return dep.IsLoaded(); });
+}
+} // Anonymous namespace
 
-CSlideShow::CSlideShow()
-: CIOWin("SlideShow")
-, x5c_slideA(*this)
-, x90_slideB(*this)
-, x130_(g_tweakSlideShow->GetX54())
-, x134_24_(true)
-, x134_25_(false)
-, x134_26_(false)
-, x134_27_(false)
-, x134_28_disableInput(false)
-, x134_29_(false)
-, x134_30_(true)
-, x134_31_(false)
-, x135_24_(true) {
+CSlideShow::CSlideShow() : CIOWin("SlideShow"), x130_(g_tweakSlideShow->GetX54()) {
   const SObjectTag* font = g_ResFactory->GetResourceIdByName(g_tweakSlideShow->GetFont());
   if (font) {
     CGuiTextProperties propsA(false, true, EJustification::Center, EVerticalJustification::Bottom);
@@ -36,27 +29,27 @@ CSlideShow::CSlideShow()
   xf8_stickTextures.reserve(18);
   x108_buttonTextures.reserve(8);
   SObjectTag txtrTag(FOURCC('TXTR'), 0);
-  for (const ITweakPlayerRes::ResId lStickId : g_tweakPlayerRes->x24_lStick) {
+  for (const auto& lStickId : g_tweakPlayerRes->x24_lStick) {
     txtrTag.id = lStickId;
     xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
   }
-  for (const ITweakPlayerRes::ResId cStickId : g_tweakPlayerRes->x4c_cStick) {
+  for (const auto& cStickId : g_tweakPlayerRes->x4c_cStick) {
     txtrTag.id = cStickId;
     xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
   }
-  for (const ITweakPlayerRes::ResId lTriggerId : g_tweakPlayerRes->x74_lTrigger) {
+  for (const auto& lTriggerId : g_tweakPlayerRes->x74_lTrigger) {
     txtrTag.id = lTriggerId;
     xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
   }
-  for (const ITweakPlayerRes::ResId rTriggerId : g_tweakPlayerRes->x80_rTrigger) {
+  for (const auto& rTriggerId : g_tweakPlayerRes->x80_rTrigger) {
     txtrTag.id = rTriggerId;
     xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
   }
-  for (const ITweakPlayerRes::ResId bButtonId : g_tweakPlayerRes->xa4_bButton) {
+  for (const auto& bButtonId : g_tweakPlayerRes->xa4_bButton) {
     txtrTag.id = bButtonId;
     xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
   }
-  for (const ITweakPlayerRes::ResId yButtonId : g_tweakPlayerRes->xbc_yButton) {
+  for (const auto& yButtonId : g_tweakPlayerRes->xbc_yButton) {
     txtrTag.id = yButtonId;
     xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
   }
@@ -69,14 +62,6 @@ bool CSlideShow::LoadTXTRDep(std::string_view name) {
     return true;
   }
   return false;
-}
-
-bool CSlideShow::AreAllDepsLoaded(const std::vector<TLockedToken<CDependencyGroup>>& deps) {
-  for (const TLockedToken<CDependencyGroup>& token : deps) {
-    if (!token.IsLoaded())
-      return false;
-  }
-  return true;
 }
 
 CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) {

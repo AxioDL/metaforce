@@ -81,7 +81,7 @@ constexpr std::array<hecl::Backend::TextureInfo, 2> DisintegrateTextures{{
     {TexCoordSource::Position, 1, false}, // Ashy tex
 }};
 
-static std::array<hecl::Backend::ExtensionSlot, 26> g_ExtensionSlots{{
+static std::array<hecl::Backend::ExtensionSlot, size_t(EExtendedShader::MAX)> g_ExtensionSlots{{
     /* Default solid shading */
     {},
     /* Normal lit shading */
@@ -153,6 +153,9 @@ static std::array<hecl::Backend::ExtensionSlot, 26> g_ExtensionSlots{{
     /* Normal lit shading with alpha */
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface},
+    /* Normal lit shading with alpha without Z-write or depth test */
+    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
+     hecl::Backend::ZTest::None, hecl::Backend::CullMode::Backface, true},
     /* Normal lit shading with cube reflection */
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},

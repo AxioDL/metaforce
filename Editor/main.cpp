@@ -7,6 +7,7 @@
 #include "hecl/hecl.hpp"
 #include "hecl/CVarCommons.hpp"
 #include "hecl/Console.hpp"
+#include "fmt/chrono.h"
 
 static logvisor::Module AthenaLog("Athena");
 static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, fmt::string_view fmt,
@@ -48,17 +49,17 @@ static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf) {
 }
 
 struct Application : boo::IApplicationCallback {
-  hecl::Runtime::FileStoreManager m_fileMgr;
-  hecl::CVarManager m_cvarManager;
-  hecl::CVarCommons m_cvarCommons;
+  hecl::Runtime::FileStoreManager& m_fileMgr;
+  hecl::CVarManager& m_cvarManager;
+  hecl::CVarCommons& m_cvarCommons;
   std::unique_ptr<ViewManager> m_viewManager;
 
   std::atomic_bool m_running = {true};
 
-  Application()
-  : m_fileMgr(_SYS_STR("urde"))
-  , m_cvarManager(m_fileMgr)
-  , m_cvarCommons(m_cvarManager)
+  Application(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr, hecl::CVarCommons& cvarCmns)
+  : m_fileMgr(fileMgr)
+  , m_cvarManager(cvarMgr)
+  , m_cvarCommons(cvarCmns)
   , m_viewManager(std::make_unique<ViewManager>(m_fileMgr, m_cvarManager)) {}
 
   virtual ~Application() = default;
@@ -89,7 +90,7 @@ struct Application : boo::IApplicationCallback {
 
   void initialize(boo::IApplication* app) {
     zeus::detectCPU();
-    createGlobalCVars();
+
     for (const boo::SystemString& arg : app->getArgs()) {
       if (arg.find(_SYS_STR("--verbosity=")) == 0 || arg.find(_SYS_STR("-v=")) == 0) {
         hecl::SystemUTF8Conv utf8Arg(arg.substr(arg.find_last_of('=') + 1));
@@ -97,8 +98,6 @@ struct Application : boo::IApplicationCallback {
         hecl::LogModule.report(logvisor::Info, FMT_STRING("Set verbosity level to {}"), hecl::VerbosityLevel);
       }
     }
-
-    m_cvarManager.parseCommandLine(app->getArgs());
 
     const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
     Log.report(logvisor::Info, FMT_STRING("CPU Name: {}"), cpuInf.cpuBrand);
@@ -114,26 +113,7 @@ struct Application : boo::IApplicationCallback {
 
   bool getDeepColor() const { return m_cvarCommons.getDeepColor(); }
 
-  void createGlobalCVars() {
-    m_cvarManager.findOrMakeCVar("debugOverlay.playerInfo"sv,
-                                 "Displays information about the player, such as location and orientation"sv, false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar("debugOverlay.worldInfo"sv,
-                                 "Displays information about the current world, such as world asset ID, and areaId"sv,
-                                 false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar(
-        "debugOverlay.areaInfo"sv,
-        "Displays information about the current area, such as asset ID, object/layer counts, and active layer bits"sv,
-        false, hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar("debugOverlay.showFrameCounter"sv, "Displays the current frame index"sv, false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar("debugOverlay.showInGameTime"sv, "Displays the current in game time"sv, false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-    m_cvarManager.findOrMakeCVar("debugOverlay.showResourceStats"sv,
-                                 "Displays the current live resource object and token counts"sv, false,
-                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
-  }
+  int64_t getTargetFrameTime() { return m_cvarCommons.getVariableFrameTime() ? 0 : 1000000000L / 60; }
 };
 
 } // namespace urde
@@ -181,6 +161,25 @@ int main(int argc, const boo::SystemChar** argv)
   }
 
   SetupBasics(IsClientLoggingEnabled(argc, argv));
+  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("urde")};
+  hecl::CVarManager cvarMgr{fileMgr};
+  hecl::CVarCommons cvarCmns{cvarMgr};
+
+  std::vector<boo::SystemString> args;
+  for (int i = 1; i < argc; ++i)
+    args.push_back(argv[i]);
+  cvarMgr.parseCommandLine(args);
+
+  hecl::SystemStringView logFile = hecl::SystemStringConv(cvarCmns.getLogFile()).sys_str();
+  hecl::SystemString logFilePath;
+  if (!logFile.empty()) {
+    std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    char buf[100];
+    std::strftime(buf, 100, "%Y-%m-%d_%H-%M-%S", std::localtime(&time));
+    hecl::SystemString timeStr = hecl::SystemStringConv(buf).c_str();
+    logFilePath = fmt::format(FMT_STRING(_SYS_STR("{}/{}-{}")), fileMgr.getStoreRoot(), timeStr, logFile);
+    logvisor::RegisterFileLogger(logFilePath.c_str());
+  }
 
   if (hecl::SystemChar* cwd = hecl::Getcwd(CwdBuf, 1024)) {
     if (hecl::PathRelative(argv[0]))
@@ -194,10 +193,10 @@ int main(int argc, const boo::SystemChar** argv)
   /* Handle -j argument */
   hecl::SetCpuCountOverride(argc, argv);
 
-  urde::Application appCb;
+  urde::Application appCb(fileMgr, cvarMgr, cvarCmns);
   int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, appCb, _SYS_STR("urde"), _SYS_STR("URDE"), argc,
                                 argv, appCb.getGraphicsApi(), appCb.getSamples(), appCb.getAnisotropy(),
-                                appCb.getDeepColor(), false);
+                                appCb.getDeepColor(), appCb.getTargetFrameTime(), false);
   // printf("IM DYING!!\n");
   return ret;
 }
@@ -229,7 +228,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int) {
   for (int i = 0; i < argc; ++i)
     booArgv[i + 1] = argv[i];
 
-  if (IsClientLoggingEnabled(argc + 1, booArgv))
+  const DWORD outType = GetFileType(GetStdHandle(STD_OUTPUT_HANDLE));
+  if (IsClientLoggingEnabled(argc + 1, booArgv) && outType == FILE_TYPE_UNKNOWN)
     logvisor::CreateWin32Console();
   return wmain(argc + 1, booArgv);
 }

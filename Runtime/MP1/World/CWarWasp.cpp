@@ -1,5 +1,7 @@
 #include "Runtime/MP1/World/CWarWasp.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CCharLayoutInfo.hpp"
@@ -25,14 +27,7 @@ CWarWasp::CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info
 , x684_(dInfo1)
 , x6d4_projectileInfo(projectileWeapon, projectileDamage)
 , x72c_projectileVisorSfx(CSfxManager::TranslateSFXID(projecileVisorSfx))
-, x72e_24_jumpBackRepeat(true)
-, x72e_25_canApplyDamage(false)
-, x72e_26_initiallyInactive(!pInfo.GetActive())
-, x72e_27_teamMatesMelee(false)
-, x72e_28_inProjectileAttack(false)
-, x72e_29_pathObstructed(false)
-, x72e_30_isRetreating(false)
-, x72e_31_heardNoise(false) {
+, x72e_26_initiallyInactive(!pInfo.GetActive()) {
   x6d4_projectileInfo.Token().Lock();
   UpdateTouchBounds();
   SetCoefficientOfRestitutionModifier(0.1f);
@@ -883,9 +878,9 @@ float CWarWasp::GetTeamZStratum(s32 team) const {
   return 0.f;
 }
 
-static const float Table[] = {0.4f, 0.6f, 1.f};
-
 float CWarWasp::CalcSeekMagnitude(const CStateManager& mgr) const {
+  static constexpr std::array Table{0.4f, 0.6f, 1.f};
+
   const float ret = ((x708_circleAttackTeam >= 0 && x708_circleAttackTeam < 3) ? Table[x708_circleAttackTeam] : 1.f) * 0.9f;
   if (TCastToConstPtr<CTeamAiMgr> aimgr = mgr.GetObjectById(x674_aiMgr)) {
     if (aimgr->IsPartOfTeam(GetUniqueId())) {

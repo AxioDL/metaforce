@@ -51,19 +51,7 @@ void CElementGen::Initialize() {
 CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orientType, EOptionalSystemFlags flags)
 : x1c_genDesc(std::move(gen))
 , x2c_orientType(orientType)
-, x26c_24_translationDirty(false)
-, x26c_25_LIT_(false)
-, x26c_26_AAPH(false)
-, x26c_27_ZBUF(false)
-, x26c_28_zTest(false)
-, x26c_29_ORNT(false)
-, x26c_30_MBLR(false)
-, x26c_31_LINE(false)
-, x26d_24_FXLL(false)
-, x26d_25_warmedUp(false)
-, x26d_26_modelsUseLights(false)
 , x26d_27_enableOPTS(True(flags & EOptionalSystemFlags::Two))
-, x26d_28_enableADV(false)
 , x27c_randState(x94_randomSeed) {
   CGenDescription* desc = x1c_genDesc.GetObj();
   x28_loadedGenDesc = desc;
@@ -359,7 +347,7 @@ void CElementGen::AccumulateBounds(const zeus::CVector3f& pos, float size) {
   x2ec_maxSize = std::max(size, x2ec_maxSize);
 }
 
-void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 particleFrame) {
+void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, s32 particleFrame) {
   if (activeParticleCount >= x60_advValues.size()) {
     CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
     return;
@@ -370,25 +358,33 @@ void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 par
   std::array<float, 8>& arr = x60_advValues[activeParticleCount];
   CParticleGlobals::instance()->m_particleAccessParameters = &arr;
 
-  if (CRealElement* adv1 = desc->x10c_ADV1.get())
+  if (CRealElement* adv1 = desc->x10c_ADV1.get()) {
     adv1->GetValue(particleFrame, arr[0]);
-  if (CRealElement* adv2 = desc->x110_ADV2.get())
+  }
+  if (CRealElement* adv2 = desc->x110_ADV2.get()) {
     adv2->GetValue(particleFrame, arr[1]);
-  if (CRealElement* adv3 = desc->x114_ADV3.get())
+  }
+  if (CRealElement* adv3 = desc->x114_ADV3.get()) {
     adv3->GetValue(particleFrame, arr[2]);
-  if (CRealElement* adv4 = desc->x118_ADV4.get())
+  }
+  if (CRealElement* adv4 = desc->x118_ADV4.get()) {
     adv4->GetValue(particleFrame, arr[3]);
-  if (CRealElement* adv5 = desc->x11c_ADV5.get())
+  }
+  if (CRealElement* adv5 = desc->x11c_ADV5.get()) {
     adv5->GetValue(particleFrame, arr[4]);
-  if (CRealElement* adv6 = desc->x120_ADV6.get())
+  }
+  if (CRealElement* adv6 = desc->x120_ADV6.get()) {
     adv6->GetValue(particleFrame, arr[5]);
-  if (CRealElement* adv7 = desc->x124_ADV7.get())
+  }
+  if (CRealElement* adv7 = desc->x124_ADV7.get()) {
     adv7->GetValue(particleFrame, arr[6]);
-  if (CRealElement* adv8 = desc->x128_ADV8.get())
+  }
+  if (CRealElement* adv8 = desc->x128_ADV8.get()) {
     adv8->GetValue(particleFrame, arr[7]);
+  }
 }
 
-bool CElementGen::UpdateVelocitySource(size_t idx, u32 particleFrame, CParticle& particle) {
+bool CElementGen::UpdateVelocitySource(size_t idx, s32 particleFrame, CParticle& particle) {
   bool err;
   if (x278_hasVMD[idx]) {
     zeus::CVector3f localVel = x208_orientationInverse * particle.x1c_vel;
@@ -447,11 +443,12 @@ void CElementGen::UpdateExistingParticles() {
     g_currentParticle = &particle;
 
     CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
-    int particleFrame = x74_curFrame - particle.x28_startFrame;
+    const int particleFrame = x74_curFrame - particle.x28_startFrame;
     CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(particleFrame);
 
-    if (x26d_28_enableADV)
+    if (x26d_28_enableADV) {
       UpdateAdvanceAccessParameters(x25c_activeParticleCount, particleFrame);
+    }
 
     ++x25c_activeParticleCount;
 
@@ -943,7 +940,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
   rot = orient * rot;
 
   CParticleGlobals::instance()->SetEmitterTime(x74_curFrame);
-  zeus::CColor col = {1.f, 1.f, 1.f, 1.f};
+  zeus::CColor col = x338_moduColor;
 
   zeus::CVector3f pmopVec;
   auto matrixIt = x50_parentMatrices.begin();
@@ -1000,8 +997,10 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
     }
 
     CColorElement* pmcl = desc->x78_x64_PMCL.get();
-    if (pmcl)
+    if (pmcl) {
       pmcl->GetValue(partFrame, col);
+      col *= x338_moduColor;
+    }
 
     CGraphics::SetModelMatrix((x10c_globalScaleTransform * partTrans) * x178_localScaleTransform);
 
@@ -1047,12 +1046,13 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       if (g_subtractBlend) {
         model->Draw({5, 0, 1, zeus::CColor(1.f, 0.5f)});
       } else if (desc->x44_31_x31_25_PMAB) {
-        model->Draw({7, 0, 1, col});
+        CModelFlags flags{7, 0, 1, col};
+        flags.m_extendedShader = EExtendedShader::ForcedAdditiveNoZWrite;
+        model->Draw(flags);
+      } else if (1.f == col.a()) {
+        model->Draw({0, 0, 3, zeus::skWhite});
       } else {
-        if (1.f == col.a())
-          model->Draw({0, 0, 3, zeus::skWhite});
-        else
-          model->Draw({5, 0, 1, col});
+        model->Draw({5, 0, 1, zeus::CColor(1.f, col.a())});
       }
     }
 
@@ -1144,8 +1144,7 @@ void CElementGen::RenderLines() {
 
   m_lineRenderer->Reset();
 
-  for (size_t i = 0; i < x30_particles.size(); ++i) {
-    CParticle& particle = x30_particles[i];
+  for (auto& particle : x30_particles) {
     g_currentParticle = &particle;
 
     int partFrame = x74_curFrame - particle.x28_startFrame;
@@ -1267,12 +1266,13 @@ void CElementGen::RenderParticles() {
   // TODO: Implement in builder
 #if 0
   if (g_subtractBlend) {
-    if (moveRedToAlphaBuffer)
+    // FIXME should there be NoTex specializations for RedToAlpha?
+    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
       CGraphics::SetShaderDataBinding(m_redToAlphaSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
     else
       CGraphics::SetShaderDataBinding(m_normalSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
   } else {
-    if (moveRedToAlphaBuffer)
+    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
       CGraphics::SetShaderDataBinding(m_redToAlphaDataBind[g_Renderer->IsThermalVisorHotPass()]);
     else
       CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);

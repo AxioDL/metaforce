@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -13,6 +14,7 @@
 #include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
 
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector2f.hpp>
@@ -20,7 +22,6 @@
 
 namespace urde {
 class CSimplePool;
-class CStringTable;
 
 class CWorldTransManager {
 public:
@@ -31,7 +32,7 @@ public:
     CModelData x1c_samusModelData;
     CModelData x68_beamModelData;
     CModelData xb4_platformModelData;
-    CModelData x100_bgModelData[3];
+    std::array<CModelData, 3> x100_bgModelData;
     TLockedToken<CModel> x14c_beamModel;
     TLockedToken<CModel> x158_suitModel;
     TLockedToken<CSkinRules> x164_suitSkin;
@@ -57,23 +58,23 @@ private:
   std::unique_ptr<CGuiTextSupport> x8_textData;
   TLockedToken<CStringTable> xc_strTable;
   u8 x14_ = 0;
-  float x18_bgOffset;
-  float x1c_bgHeight;
+  float x18_bgOffset = 0.0f;
+  float x1c_bgHeight = 0.0f;
   CRandom16 x20_random = CRandom16(99);
   u16 x24_sfx = 1189;
   CSfxHandle x28_sfxHandle;
   u8 x2c_volume = 127;
   u8 x2d_panning = 64;
   ETransType x30_type = ETransType::Disabled;
-  float x34_stopTime;
+  float x34_stopTime = 0.0f;
   float x38_textStartTime = 0.f;
-  float x3c_sfxInterval;
-  bool x40_strIdx;
-  bool x44_24_transFinished : 1;
-  bool x44_25_stopSoon : 1;
-  bool x44_26_goingUp : 1;
-  bool x44_27_fadeWhite : 1;
-  bool x44_28_textDirty : 1;
+  float x3c_sfxInterval = 0.0f;
+  bool x40_strIdx = false;
+  bool x44_24_transFinished : 1 = true;
+  bool x44_25_stopSoon : 1 = false;
+  bool x44_26_goingUp : 1 = false;
+  bool x44_27_fadeWhite : 1 = false;
+  bool x44_28_textDirty : 1 = false;
 
   CColoredQuadFilter m_fadeToBlack{EFilterType::Blend};
   CTexturedQuadFilter m_dissolve{EFilterType::Blend, CGraphics::g_SpareTexture.get_color(0)};
@@ -96,12 +97,7 @@ private:
   void DrawText();
 
 public:
-  CWorldTransManager()
-  : x44_24_transFinished(true)
-  , x44_25_stopSoon(false)
-  , x44_26_goingUp(false)
-  , x44_27_fadeWhite(false)
-  , x44_28_textDirty(false) {}
+  CWorldTransManager() = default;
 
   void Update(float);
   void Draw();

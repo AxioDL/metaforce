@@ -132,10 +132,10 @@ void CResLoader::GetTagListForFile(const char* pakName, std::vector<SObjectTag>&
 bool CResLoader::_GetTagListForFile(std::vector<SObjectTag>& out, const std::string& path,
                                     const std::unique_ptr<CPakFile>& file) const {
   if (CStringExtras::CompareCaseInsensitive(file->GetPath(), path)) {
-    auto& depList = file->GetDepList();
+    const auto& depList = file->GetDepList();
     out.reserve(depList.size());
     for (const auto& dep : depList) {
-      auto resInfo = file->GetResInfo(dep);
+      const auto* const resInfo = file->GetResInfo(dep);
       out.emplace_back(resInfo->GetType(), dep);
     }
     return true;

@@ -44,6 +44,7 @@ struct SGameOption {
 
 /** Static registry of Option UI presentation information */
 extern const std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistry;
+extern const std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistryNew;
 
 /** Options tracked persistently between game sessions */
 class CPersistentOptions {
@@ -56,41 +57,35 @@ class CPersistentOptions {
   u32 xc4_frozenBallCount = 0;
   u32 xc8_powerBombAmmoCount = 0;
   u32 xcc_logScanPercent = 0;
-  bool xd0_24_fusionLinked : 1;
-  bool xd0_25_normalModeBeat : 1;
-  bool xd0_26_hardModeBeat : 1;
-  bool xd0_27_fusionBeat : 1;
-  bool xd0_28_fusionSuitActive : 1;
-  bool xd0_29_allItemsCollected : 1;
+  bool xd0_24_fusionLinked : 1 = false;
+  bool xd0_25_normalModeBeat : 1 = false;
+  bool xd0_26_hardModeBeat : 1 = false;
+  bool xd0_27_fusionBeat : 1 = false;
+  bool xd0_28_fusionSuitActive : 1 = false;
+  bool xd0_29_allItemsCollected : 1 = false;
 
 public:
-  CPersistentOptions()
-  : xd0_24_fusionLinked(false)
-  , xd0_25_normalModeBeat(false)
-  , xd0_26_hardModeBeat(false)
-  , xd0_27_fusionBeat(false)
-  , xd0_28_fusionSuitActive(false)
-  , xd0_29_allItemsCollected(false) {}
+  CPersistentOptions() = default;
   explicit CPersistentOptions(CBitStreamReader& stream);
 
   bool GetCinematicState(CAssetId mlvlId, TEditorId cineId) const;
   void SetCinematicState(CAssetId mlvlId, TEditorId cineId, bool state);
   u32 GetAutoMapperKeyState() const { return xbc_autoMapperKeyState; }
-  void SetAutoMapperKeyState(u32 s) { xbc_autoMapperKeyState = s; }
+  void SetAutoMapperKeyState(u32 state) { xbc_autoMapperKeyState = state; }
   bool GetPlayerLinkedFusion() const { return xd0_24_fusionLinked; }
-  void SetPlayerLinkedFusion(bool v) { xd0_24_fusionLinked = v; }
+  void SetPlayerLinkedFusion(bool fusionLinked) { xd0_24_fusionLinked = fusionLinked; }
   bool GetPlayerBeatNormalMode() const { return xd0_25_normalModeBeat; }
-  void SetPlayerBeatNormalMode(bool v) { xd0_25_normalModeBeat = v; }
+  void SetPlayerBeatNormalMode(bool normalModeBeat) { xd0_25_normalModeBeat = normalModeBeat; }
   bool GetPlayerBeatHardMode() const { return xd0_26_hardModeBeat; }
-  void SetPlayerBeatHardMode(bool v) { xd0_26_hardModeBeat = v; }
+  void SetPlayerBeatHardMode(bool hardModeBeat) { xd0_26_hardModeBeat = hardModeBeat; }
   bool GetPlayerBeatFusion() const { return xd0_27_fusionBeat; }
-  void SetPlayerBeatFusion(bool v) { xd0_27_fusionBeat = v; }
+  void SetPlayerBeatFusion(bool fusionBeat) { xd0_27_fusionBeat = fusionBeat; }
   bool GetPlayerFusionSuitActive() const { return xd0_28_fusionSuitActive; }
-  void SetPlayerFusionSuitActive(bool v) { xd0_28_fusionSuitActive = v; }
+  void SetPlayerFusionSuitActive(bool fusionSuitActive) { xd0_28_fusionSuitActive = fusionSuitActive; }
   bool GetAllItemsCollected() const { return xd0_29_allItemsCollected; }
-  void SetAllItemsCollected(bool v) { xd0_29_allItemsCollected = v; }
+  void SetAllItemsCollected(bool allItemsCollected) { xd0_29_allItemsCollected = allItemsCollected; }
   u32 GetLogScanPercent() const { return xcc_logScanPercent; }
-  void SetLogScanPercent(u32 v) { xcc_logScanPercent = v; }
+  void SetLogScanPercent(u32 percent) { xcc_logScanPercent = percent; }
   void IncrementFrozenFpsCount() { xc0_frozenFpsCount = std::min(int(xc0_frozenFpsCount + 1), 3); }
   bool GetShowFrozenFpsMessage() const { return xc0_frozenFpsCount != 3; }
   void IncrementFrozenBallCount() { xc4_frozenBallCount = std::min(int(xc4_frozenBallCount + 1), 3); }
@@ -133,37 +128,37 @@ public:
   void EnsureSettings();
   void PutTo(CBitStreamWriter& writer) const;
 
-  float TuneScreenBrightness();
-  void SetScreenBrightness(s32, bool);
+  float TuneScreenBrightness() const;
+  void SetScreenBrightness(s32 value, bool apply);
   s32 GetScreenBrightness() const { return x48_screenBrightness; }
   void ApplyGamma();
-  void SetGamma(s32, bool);
+  void SetGamma(s32 value, bool apply);
   s32 GetGamma() const { return m_gamma; }
-  void SetScreenPositionX(s32, bool);
+  void SetScreenPositionX(s32 position, bool apply);
   s32 GetScreenPositionX() const { return x4c_screenXOffset; }
-  void SetScreenPositionY(s32, bool);
+  void SetScreenPositionY(s32 position, bool apply);
   s32 GetScreenPositionY() const { return x50_screenYOffset; }
-  void SetScreenStretch(s32, bool);
+  void SetScreenStretch(s32 stretch, bool apply);
   s32 GetScreenStretch() const { return x54_screenStretch; }
-  void SetSfxVolume(s32, bool);
+  void SetSfxVolume(s32 volume, bool apply);
   s32 GetSfxVolume() const { return x58_sfxVol; }
-  void SetMusicVolume(s32, bool);
+  void SetMusicVolume(s32 volume, bool apply);
   s32 GetMusicVolume() const { return x5c_musicVol; }
-  void SetHUDAlpha(u32);
+  void SetHUDAlpha(u32 alpha);
   u32 GetHUDAlpha() const { return x60_hudAlpha; }
-  void SetHelmetAlpha(u32);
+  void SetHelmetAlpha(u32 alpha);
   u32 GetHelmetAlpha() const { return x64_helmetAlpha; }
-  void SetHUDLag(bool);
+  void SetHUDLag(bool lag);
   bool GetHUDLag() const { return x68_24_hudLag; }
   void SetSurroundMode(int mode, bool apply);
   CAudioSys::ESurroundModes GetSurroundMode() const;
-  void SetInvertYAxis(bool);
+  void SetInvertYAxis(bool invert);
   bool GetInvertYAxis() const { return x68_25_invertY; }
-  void SetIsRumbleEnabled(bool);
+  void SetIsRumbleEnabled(bool rumble);
   bool GetIsRumbleEnabled() const { return x68_26_rumble; }
-  void SetSwapBeamControls(bool);
+  void SetSwapBeamControls(bool swap);
   bool GetSwapBeamControls() const { return x68_27_swapBeamsControls; }
-  void SetIsHintSystemEnabled(bool);
+  void SetIsHintSystemEnabled(bool hints);
   bool GetIsHintSystemEnabled() const { return x68_28_hintSystem; }
   void SetControls(int controls);
   void ResetControllerAssets(int controls);

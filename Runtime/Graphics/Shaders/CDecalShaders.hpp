@@ -7,12 +7,12 @@ struct CQuadDecal;
 
 class CDecalShaders {
 private:
-  static boo::ObjToken<boo::IShaderPipeline> m_texZTestNoZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_texAdditiveZTest;
-  static boo::ObjToken<boo::IShaderPipeline> m_texRedToAlphaZTest;
+  static inline boo::ObjToken<boo::IShaderPipeline> m_texZTestNoZWrite;
+  static inline boo::ObjToken<boo::IShaderPipeline> m_texAdditiveZTest;
+  static inline boo::ObjToken<boo::IShaderPipeline> m_texRedToAlphaZTest;
 
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexZTestNoZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveZTest;
+  static inline boo::ObjToken<boo::IShaderPipeline> m_noTexZTestNoZWrite;
+  static inline boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveZTest;
 
 public:
   static void Initialize();

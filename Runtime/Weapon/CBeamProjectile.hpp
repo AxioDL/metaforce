@@ -35,7 +35,7 @@ private:
   rstl::reserved_vector<zeus::CVector3f, 10> x384_;
   rstl::reserved_vector<zeus::CVector3f, 8> x400_pointCache;
   bool x464_24_growingBeam : 1;
-  bool x464_25_enableTouchDamage : 1;
+  bool x464_25_enableTouchDamage : 1 = false;
 
   void SetCollisionResultData(EDamageType dType, CRayCastResult& res, TUniqueId id);
 

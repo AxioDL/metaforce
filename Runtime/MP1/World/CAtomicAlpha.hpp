@@ -17,10 +17,10 @@ class CAtomicAlpha : public CPatterned {
     SBomb(const std::string_view locator, pas::ELocomotionType locomotionType)
     : x0_locatorName(locator), x10_locomotionType(locomotionType) {}
   };
-  bool x568_24_inRange : 1;
+  bool x568_24_inRange : 1 = false;
   bool x568_25_invisible : 1;
   bool x568_26_applyBeamAttraction : 1;
-  float x56c_bomdDropDelay;
+  float x56c_bombDropDelay;
   float x570_bombReappearDelay;
   float x574_bombRappearTime;
   float x578_bombTime = 0.f;
@@ -32,7 +32,7 @@ class CAtomicAlpha : public CPatterned {
   rstl::reserved_vector<SBomb, skBombCount> x6dc_bombLocators;
 
 public:
-  DEFINE_PATTERNED(AtomicAlpha)
+  DEFINE_PATTERNED(AtomicAlpha);
 
   CAtomicAlpha(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                const CActorParameters&, const CPatternedInfo&, CAssetId, const CDamageInfo&, float, float, float,

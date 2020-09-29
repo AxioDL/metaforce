@@ -62,18 +62,18 @@ private:
   u32 x660_midChance;
   bool x664_24_behaviorEnabled : 1;
   bool x664_25_flinch : 1;
-  bool x664_26_alert : 1;
-  bool x664_27_onGround : 1;
-  bool x664_28_ : 1;
-  bool x664_29_fadedIn : 1;
-  bool x664_30_fadedOut : 1;
-  bool x664_31_ : 1;
-  bool x665_24_ : 1;
-  bool x665_25_ : 1;
-  bool x665_26_shouldSwoosh : 1;
-  bool x665_27_playerInLeashRange : 1;
-  bool x665_28_inRange : 1;
-  bool x665_29_aggressive : 1;
+  bool x664_26_alert : 1 = false;
+  bool x664_27_onGround : 1 = false;
+  bool x664_28_ : 1 = false;
+  bool x664_29_fadedIn : 1 = false;
+  bool x664_30_fadedOut : 1 = false;
+  bool x664_31_ : 1 = false;
+  bool x665_24_ : 1 = true;
+  bool x665_25_ : 1 = false;
+  bool x665_26_shouldSwoosh : 1 = false;
+  bool x665_27_playerInLeashRange : 1 = false;
+  bool x665_28_inRange : 1 = false;
+  bool x665_29_aggressive : 1 = false;
   float x668_ = 0.f;
   float x66c_ = 0.f;
   float x670_ = 0.f;
@@ -98,7 +98,7 @@ private:
   void FindBestAnchor(CStateManager& mgr);
 
 public:
-  DEFINE_PATTERNED(ChozoGhost)
+  DEFINE_PATTERNED(ChozoGhost);
 
   CChozoGhost(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
               const CActorParameters&, const CPatternedInfo&, float, float, float, float, CAssetId, const CDamageInfo&,

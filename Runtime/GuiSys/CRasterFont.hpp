@@ -8,7 +8,6 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/GuiSys/CGuiTextSupport.hpp"
 
 #include <zeus/CVector2i.hpp>
 
@@ -16,6 +15,8 @@ namespace urde {
 class CDrawStringOptions;
 class CTextRenderBuffer;
 class IObjectStore;
+
+enum class EColorType { Main, Outline, Geometry, Foreground, Background };
 
 /* NOTE: Is this a good place for CGlyph and CKernPair? */
 class CGlyph {
@@ -80,10 +81,10 @@ public:
 };
 
 class CFontInfo {
-  [[maybe_unused]] bool x0_ = false;
-  [[maybe_unused]] bool x1_ = false;
-  [[maybe_unused]] s32 x4_ = 0;
-  [[maybe_unused]] s32 x8_fontSize = 0;
+  bool x0_ = false;
+  bool x1_ = false;
+  s32 x4_ = 0;
+  s32 x8_fontSize = 0;
   char xc_name[64] = "";
 
 public:

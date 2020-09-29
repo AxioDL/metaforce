@@ -12,7 +12,7 @@ class CRumbleGenerator {
   std::array<float, 4> xc0_periodTime;
   std::array<float, 4> xd0_onTime;
   std::array<EMotorState, 4> xe0_commandArray;
-  bool xf0_24_disabled : 1;
+  bool xf0_24_disabled : 1 = false;
 
 public:
   CRumbleGenerator();

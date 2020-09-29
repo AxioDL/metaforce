@@ -16,12 +16,12 @@
 
 namespace hecl::Backend {
 class ShaderTag;
-}
+} // namespace hecl::Backend
 
 namespace urde {
 class CLight;
-class CModelFlags;
-class CBooSurface;
+struct CModelFlags;
+struct CBooSurface;
 class CBooModel;
 
 enum class EExtendedShader : uint8_t {
@@ -49,6 +49,7 @@ enum class EExtendedShader : uint8_t {
   ForcedAdditiveNoZWriteDepthGreater,
   ThermalCold,
   LightingAlphaWrite,
+  LightingAlphaWriteNoZTestNoZWrite,
   LightingCubeReflection,
   LightingCubeReflectionWorldShadow,
   MAX

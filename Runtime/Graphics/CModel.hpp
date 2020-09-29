@@ -5,12 +5,13 @@
 #include <unordered_map>
 #include <vector>
 
-#include "DNACommon/CMDL.hpp"
-#include "DNAMP1/CMDLMaterials.hpp"
+#include "DataSpec/DNACommon/CMDL.hpp"
+#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
-#include "Shaders/CModelShaders.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/Shaders/CModelShaders.hpp"
 
 #include "hecl/HMDLMeta.hpp"
 #include "zeus/CAABox.hpp"
@@ -21,7 +22,6 @@ class CLight;
 class CModel;
 class CPoseAsTransforms;
 class CSkinRules;
-class CTexture;
 class IObjectStore;
 
 struct CModelFlags {
@@ -149,8 +149,8 @@ private:
   zeus::CAABox x20_aabb;
   CBooSurface* x38_firstUnsortedSurface = nullptr;
   CBooSurface* x3c_firstSortedSurface = nullptr;
-  bool x40_24_texturesLoaded : 1;
-  bool x40_25_modelVisible : 1;
+  bool x40_24_texturesLoaded : 1 = false;
+  bool x40_25_modelVisible : 1 = false;
   u8 x41_mask;
   u32 x44_areaInstanceIdx = UINT32_MAX;
 
@@ -190,14 +190,14 @@ private:
   void WarmupDrawSurfaces() const;
   void WarmupDrawSurface(const CBooSurface& surf) const;
 
-  static zeus::CVector3f g_PlayerPosition;
-  static float g_ModSeconds;
-  static float g_TransformedTime;
-  static float g_TransformedTime2;
-  static CBooModel* g_LastModelCached;
+  static inline zeus::CVector3f g_PlayerPosition;
+  static inline float g_ModSeconds = 0.0f;
+  static inline float g_TransformedTime = 0.0f;
+  static inline float g_TransformedTime2 = 0.0f;
+  static inline CBooModel* g_LastModelCached = nullptr;
 
-  static bool g_DummyTextures;
-  static bool g_RenderModelBlack;
+  static inline bool g_DummyTextures = false;
+  static inline bool g_RenderModelBlack = false;
 
 public:
   ~CBooModel();
@@ -236,12 +236,12 @@ public:
   void ClearUniformCounter() { m_uniUpdateCount = 0; }
   static void ClearModelUniformCounters();
 
-  static bool g_DrawingOccluders;
+  static inline bool g_DrawingOccluders = false;
   static void SetDrawingOccluders(bool occ) { g_DrawingOccluders = occ; }
 
   static void SetNewPlayerPositionAndTime(const zeus::CVector3f& pos);
 
-  static zeus::CVector3f g_ReflectViewPos;
+  static inline zeus::CVector3f g_ReflectViewPos;
   static void KillCachedViewDepState();
   static void EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf, zeus::CMatrix4f* mtxsOut,
                                        float& alphaOut);
@@ -314,7 +314,7 @@ public:
   void _WarmupShaders();
   static void WarmupShaders(const SObjectTag& cmdlTag);
 
-  const uint8_t* GetDynamicVertexData() const { return m_dynamicVertexData.get() }
+  const uint8_t* GetDynamicVertexData() const { return m_dynamicVertexData.get(); }
   const hecl::HMDLMeta& GetHMDLMeta() const { return m_hmdlMeta; }
 };
 

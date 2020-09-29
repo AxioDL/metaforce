@@ -20,8 +20,8 @@ class CPauseScreenBlur {
   EState x14_nextState = EState::InGame;
   float x18_blurAmt = 0.f;
   CCameraBlurPass x1c_camBlur;
-  bool x50_24_blurring : 1;
-  bool x50_25_gameDraw : 1;
+  bool x50_24_blurring : 1 = false;
+  bool x50_25_gameDraw : 1 = true;
 
   CTexturedQuadFilter m_quarterFilter{EFilterType::Multiply, x4_mapLightQuarter};
   CScanLinesFilterEven m_linesFilter{EFilterType::Multiply};

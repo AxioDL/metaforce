@@ -25,8 +25,6 @@ CPowerBomb::CPowerBomb(const TToken<CGenDescription>& particle, TUniqueId uid, T
                                           {EMaterialTypes::Projectile, EMaterialTypes::PowerBomb}),
       {EMaterialTypes::Projectile, EMaterialTypes::PowerBomb}, dInfo, EProjectileAttrib::PowerBombs,
       CModelData::CModelDataNull())
-, x158_24_canStartFilter(true)
-, x158_25_filterEnabled(false)
 , x164_radiusIncrement(dInfo.GetRadius() / 2.5f)
 , x168_particle(std::make_unique<CElementGen>(particle))
 , x16c_radius(dInfo.GetRadius()) {
@@ -64,25 +62,27 @@ void CPowerBomb::Think(float dt, CStateManager& mgr) {
 
     if (x15c_curTime > 2.5f)
       x158_24_canStartFilter = false;
-  } else if (x15c_curTime > 3.75 && x158_25_filterEnabled) {
-    mgr.GetCameraFilterPass(6).DisableFilter(.5f);
-    x158_25_filterEnabled = false;
-  }
+  } else {
+    if (x15c_curTime > 3.75 && x158_25_filterEnabled) {
+      mgr.GetCameraFilterPass(6).DisableFilter(.5f);
+      x158_25_filterEnabled = false;
+    }
 
-  if (x15c_curTime > 7.f) {
-    if (x168_particle->IsSystemDeletable())
+    if (x15c_curTime > 7.f) {
+      if (x168_particle->IsSystemDeletable())
+        mgr.FreeScriptObject(GetUniqueId());
+    }
+
+    if (x15c_curTime > 30.f) {
       mgr.FreeScriptObject(GetUniqueId());
-  }
-
-  if (x15c_curTime > 30.f) {
-    mgr.FreeScriptObject(GetUniqueId());
-    return;
+      return;
+    }
   }
 
   if (x15c_curTime > 1.f && x15c_curTime < 4.f) {
     x110_origDamageInfo.SetRadius(x160_curRadius);
     ApplyDynamicDamage(GetTranslation(), mgr);
-    x160_curRadius += x164_radiusIncrement;
+    x160_curRadius += dt * x164_radiusIncrement;
   }
 
   x168_particle->Update(dt);

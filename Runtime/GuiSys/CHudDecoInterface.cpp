@@ -22,8 +22,6 @@ void IHudDecoInterface::ProcessInput(const CFinalInput& input) {}
 float IHudDecoInterface::GetHudTextAlpha() const { return 1.f; }
 
 CHudDecoInterfaceCombat::CHudDecoInterfaceCombat(CGuiFrame& selHud) {
-  x68_24_visDebug = true;
-  x68_25_visGame = true;
   x6c_camera = selHud.GetFrameCamera();
   x2c_camPos = x6c_camera->GetLocalPosition();
   x70_basewidget_pivot = selHud.FindWidget("basewidget_pivot");
@@ -34,7 +32,7 @@ CHudDecoInterfaceCombat::CHudDecoInterfaceCombat(CGuiFrame& selHud) {
   x78_basewidget_tickdeco0->SetColor(g_tweakGuiColors->GetTickDecoColor());
   x38_basePosition = x7c_basewidget_frame->GetLocalPosition();
   x44_baseRotation = x7c_basewidget_frame->GetLocalTransform().buildMatrix3f();
-  UpdateHudAlpha();
+  CHudDecoInterfaceCombat::UpdateHudAlpha();
 }
 
 void CHudDecoInterfaceCombat::UpdateVisibility() {
@@ -86,8 +84,6 @@ void CHudDecoInterfaceCombat::UpdateHudAlpha() {
 CHudDecoInterfaceScan::CHudDecoInterfaceScan(CGuiFrame& selHud) : x14_selHud(selHud), x18_scanDisplay(selHud) {
   x4_scanHudFlat = g_SimplePool->GetObj("FRME_ScanHudFlat");
   x234_sidesPositioner = g_tweakGui->GetScanSidesPositionStart();
-  x240_24_visDebug = true;
-  x240_25_visGame = true;
   x244_camera = selHud.GetFrameCamera();
   x248_basewidget_pivot = selHud.FindWidget("basewidget_pivot");
   x24c_basewidget_leftside = selHud.FindWidget("basewidget_leftside");
@@ -127,7 +123,7 @@ CHudDecoInterfaceScan::CHudDecoInterfaceScan(CGuiFrame& selHud) : x14_selHud(sel
   x250_basewidget_rightside->SetLocalPosition(x250_basewidget_rightside->RotateO2P(x224_rightsidePosition - sidesPos));
   x234_sidesPositioner = FLT_MAX;
 
-  UpdateHudAlpha();
+  CHudDecoInterfaceScan::UpdateHudAlpha();
 }
 
 void CHudDecoInterfaceScan::UpdateVisibility() {
@@ -328,7 +324,7 @@ void CHudDecoInterfaceScan::Update(float dt, const CStateManager& stateMgr) {
 void CHudDecoInterfaceScan::Draw() {
   x18_scanDisplay.Draw();
   if (x10_loadedScanHudFlat) {
-    x10_loadedScanHudFlat->Draw(CGuiWidgetDrawParms::Default);
+    x10_loadedScanHudFlat->Draw(CGuiWidgetDrawParms::Default());
   }
 }
 
@@ -354,9 +350,6 @@ CHudDecoInterfaceXRay::CHudDecoInterfaceXRay(CGuiFrame& selHud) {
   xa0_camera = selHud.GetFrameCamera();
   x30_camPos = xa0_camera->GetLocalPosition();
 
-  x9c_24_visDebug = true;
-  x9c_25_visGame = true;
-
   xa4_basewidget_pivot = selHud.FindWidget("basewidget_pivot");
   xa8_basewidget_seeker = selHud.FindWidget("basewidget_seeker");
   xac_basewidget_rotate = selHud.FindWidget("basewidget_rotate");
@@ -377,7 +370,7 @@ CHudDecoInterfaceXRay::CHudDecoInterfaceXRay(CGuiFrame& selHud) {
   if (CGuiWidget* w = selHud.FindWidget("model_threatslider"))
     w->SetDepthWrite(true);
 
-  UpdateHudAlpha();
+  CHudDecoInterfaceXRay::UpdateHudAlpha();
 }
 
 void CHudDecoInterfaceXRay::UpdateVisibility() {
@@ -439,9 +432,6 @@ void CHudDecoInterfaceXRay::UpdateHudAlpha() {
 }
 
 CHudDecoInterfaceThermal::CHudDecoInterfaceThermal(CGuiFrame& selHud) {
-  x70_24_visDebug = true;
-  x70_25_visGame = true;
-
   x74_camera = selHud.GetFrameCamera();
   x2c_camPos = x74_camera->GetLocalPosition();
 
@@ -482,7 +472,7 @@ CHudDecoInterfaceThermal::CHudDecoInterfaceThermal(CGuiFrame& selHud) {
   }
 
   x14_pivotPosition = x78_basewidget_pivot->GetIdlePosition();
-  UpdateHudAlpha();
+  CHudDecoInterfaceThermal::UpdateHudAlpha();
 }
 
 void CHudDecoInterfaceThermal::UpdateVisibility() {

@@ -10,36 +10,40 @@ private:
   u32 x0_ = 8;
   CAssetId x4_particleDesc;
   CDamageInfo x8_damageInfo;
-  float x24_ = 0.f;
-  float x28_ = 0.5f;
-  float x2c_ = 16.5217f;
-  float x30_ = 0.f;
+  float x24_initialRadius = 0.f;
+  float x28_widthPercent = 0.5f;
+  float x2c_initialExpansionSpeed;
+  float x30_speedIncrease = 0.f;
   CAssetId x34_weaponDesc;
   u16 x38_electrocuteSfx;
 
 public:
-  SShockWaveData(CAssetId part, const CDamageInfo& dInfo, CAssetId weapon, u16 sfx)
-  : x4_particleDesc(part), x8_damageInfo(dInfo), x34_weaponDesc(weapon), x38_electrocuteSfx(sfx) {}
+  SShockWaveData(CAssetId part, const CDamageInfo& dInfo, float initialExpansionSpeed, CAssetId weapon, u16 sfx)
+  : x4_particleDesc(part)
+  , x8_damageInfo(dInfo)
+  , x2c_initialExpansionSpeed(initialExpansionSpeed)
+  , x34_weaponDesc(weapon)
+  , x38_electrocuteSfx(sfx) {}
 
   [[nodiscard]] CAssetId GetParticleDescId() const { return x4_particleDesc; }
   [[nodiscard]] const CDamageInfo& GetDamageInfo() const { return x8_damageInfo; }
-  [[nodiscard]] float GetX24() const { return x24_; }
-  [[nodiscard]] float GetX28() const { return x28_; }
-  [[nodiscard]] float GetX2C() const { return x2c_; }
-  [[nodiscard]] float GetX30() const { return x30_; }
+  [[nodiscard]] float GetInitialRadius() const { return x24_initialRadius; }
+  [[nodiscard]] float GetWidthPercent() const { return x28_widthPercent; }
+  [[nodiscard]] float GetInitialExpansionSpeed() const { return x2c_initialExpansionSpeed; }
+  [[nodiscard]] float GetSpeedIncrease() const { return x30_speedIncrease; }
   [[nodiscard]] CAssetId GetWeaponDescId() const { return x34_weaponDesc; }
   [[nodiscard]] u16 GetElectrocuteSfx() const { return x38_electrocuteSfx; }
 };
 
 class CShockWave : public CActor {
 private:
-  TUniqueId xe8_id1;
+  TUniqueId xe8_parentId;
   CDamageInfo xec_damageInfo;
   TToken<CGenDescription> x108_elementGenDesc;
   std::unique_ptr<CElementGen> x110_elementGen;
   SShockWaveData x114_data;
-  float x150_;
-  float x154_;
+  float x150_radius;
+  float x154_expansionSpeed;
   float x158_activeTime = 0.f;
   float x15c_minActiveTime;
   float x160_knockback;

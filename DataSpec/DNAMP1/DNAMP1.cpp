@@ -30,6 +30,7 @@
 #include "PATH.hpp"
 
 #include "DataSpec/DNACommon/Tweaks/TweakWriter.hpp"
+#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
 #include "Tweaks/CTweakPlayerRes.hpp"
 #include "Tweaks/CTweakGunRes.hpp"
 #include "Tweaks/CTweakPlayer.hpp"
@@ -237,8 +238,8 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssoci
         if (animResInfo.evntId.isValid()) {
           PAK::Entry* evntEnt = (PAK::Entry*)m_pak.lookupEntry(animResInfo.evntId);
           evntEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_evnt"), id, animResInfo.name);
-          charAssoc.m_cskrToCharacter[animResInfo.evntId] =
-              std::make_pair(entry.id, fmt::format(FMT_STRING("{}_{}.evnt.yaml"), animResInfo.name, animResInfo.evntId));
+          charAssoc.m_cskrToCharacter[animResInfo.evntId] = std::make_pair(
+              entry.id, fmt::format(FMT_STRING("{}_{}.evnt.yaml"), animResInfo.name, animResInfo.evntId));
         }
       }
     } else if (entry.type == FOURCC('MREA')) {
@@ -275,8 +276,8 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
       hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(&entry).getParentPath();
 
       if (mlvl.worldNameId.isValid())
-        pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath,
-            fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
+        pathOverrides[mlvl.worldNameId] =
+            hecl::ProjectPath(mlvlDirPath, fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
 
       for (const MLVL::Area& area : mlvl.areas) {
         {
@@ -292,8 +293,8 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
 
         hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
         if (area.areaNameId.isValid())
-          pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath,
-              fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), area.areaNameId));
+          pathOverrides[area.areaNameId] =
+              hecl::ProjectPath(areaDirPath, fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), area.areaNameId));
       }
 
       if (mlvl.worldMap.isValid()) {
@@ -383,8 +384,14 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     std::string catalogueName;
     std::string name = pak.bestEntryName(pakNode, entry, catalogueName);
     if (!catalogueName.empty()) {
-      if (catalogueName == "PlayerRes"sv)
-        return {ExtractTweak<CTweakPlayerRes>, {_SYS_STR(".yaml")}};
+      if (catalogueName == "PlayerRes"sv) {
+        if (isCurrentSpecWii() || getCurrentRegion() == ERegion::PAL || getCurrentRegion() == ERegion::NTSC_J) {
+          /* We need to use the new rep for these tweaks */
+          return {ExtractTweak<CTweakPlayerRes<true>>, {_SYS_STR(".yaml")}};
+        }
+        /* We need to use the old rep for these tweaks */
+        return {ExtractTweak<CTweakPlayerRes<false>>, {_SYS_STR(".yaml")}};
+      }
       if (catalogueName == "GunRes"sv)
         return {ExtractTweak<CTweakGunRes>, {_SYS_STR(".yaml")}};
       if (catalogueName == "Player"sv)
@@ -395,8 +402,14 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
         return {ExtractTweak<CTweakSlideShow>, {_SYS_STR(".yaml")}};
       if (catalogueName == "Game"sv)
         return {ExtractTweak<CTweakGame>, {_SYS_STR(".yaml")}};
-      if (catalogueName == "Targeting"sv)
-        return {ExtractTweak<CTweakTargeting>, {_SYS_STR(".yaml")}};
+      if (catalogueName == "Targeting"sv) {
+        if (isCurrentSpecWii() || getCurrentRegion() == ERegion::PAL || getCurrentRegion() == ERegion::NTSC_J) {
+          /* We need to use the new rep for these tweaks */
+          return {ExtractTweak<CTweakTargeting<true>>, {_SYS_STR(".yaml")}};
+        }
+        /* We need to use the old rep for these tweaks */
+        return {ExtractTweak<CTweakTargeting<false>>, {_SYS_STR(".yaml")}};
+      }
       if (catalogueName == "Gui"sv)
         return {ExtractTweak<CTweakGui>, {_SYS_STR(".yaml")}};
       if (catalogueName == "AutoMapper"sv)

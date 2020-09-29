@@ -13,6 +13,7 @@
 #include "Runtime/Character/CAnimCharacterSet.hpp"
 #include "Runtime/Collision/CMaterialList.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CWeaponDescription.hpp"
 #include "Runtime/Weapon/CGunController.hpp"
 #include "Runtime/Weapon/CGunMotion.hpp"
 #include "Runtime/Weapon/CWeaponMgr.hpp"
@@ -25,7 +26,6 @@ namespace urde {
 
 class CActorLights;
 struct CModelFlags;
-class CWeaponDescription;
 
 enum class EChargeState { Normal, Charged };
 
@@ -84,13 +84,13 @@ protected:
   // 0x1: load request, 0x2: muzzle fx, 0x4: projectile data, 0x8: anims, 0x10: everything else
   u32 x210_loadFlags = 0;
   CAssetId x214_ancsId;
-  bool x218_24 : 1;
-  bool x218_25_enableCharge : 1;
-  bool x218_26_loaded : 1;
+  bool x218_24 : 1 = false;
+  bool x218_25_enableCharge : 1 = false;
+  bool x218_26_loaded : 1 = false;
   // Initialize in selected beam's pose, rather than power beam's pose
-  bool x218_27_subtypeBasePose : 1;
-  bool x218_28_suitArmLocked : 1;
-  bool x218_29_drawHologram : 1;
+  bool x218_27_subtypeBasePose : 1 = false;
+  bool x218_28_suitArmLocked : 1 = false;
+  bool x218_29_drawHologram : 1 = false;
 
   void AllocResPools(CPlayerState::EBeamId beam);
   void FreeResPools();

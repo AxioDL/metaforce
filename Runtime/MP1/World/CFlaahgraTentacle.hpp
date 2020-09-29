@@ -19,7 +19,7 @@ class CFlaahgraTentacle : public CPatterned {
   TUniqueId x57c_tentacleTipAct = kInvalidUniqueId;
   zeus::CVector3f x580_forceVector;
   TUniqueId x58c_triggerId = kInvalidUniqueId;
-  bool x58e_24_ : 1;
+  bool x58e_24_ : 1 = false;
 
   void AddSphereCollisionList(const SSphereJointInfo* sphereJoints, size_t jointCount,
                               std::vector<CJointCollisionDescription>& outJoints);
@@ -27,11 +27,13 @@ class CFlaahgraTentacle : public CPatterned {
   void ExtractTentacle(CStateManager&);
   void RetractTentacle(CStateManager&);
   void SaveBombSlotInfo(CStateManager&);
+
 public:
   DEFINE_PATTERNED(FlaahgraTentacle);
   CFlaahgraTentacle(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                     const CPatternedInfo&, const CActorParameters&);
 
+  void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
 
@@ -49,5 +51,6 @@ public:
   void Attack(CStateManager&, EStateMsg, float) override;
   void Retreat(CStateManager&, EStateMsg, float) override;
   void InActive(CStateManager&, EStateMsg, float) override;
+  void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;
 };
-}
+} // namespace urde::MP1

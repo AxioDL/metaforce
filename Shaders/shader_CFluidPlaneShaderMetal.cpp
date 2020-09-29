@@ -376,7 +376,7 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
   if (info.m_hasEnvMap)
     fmt::print(out, FMT_STRING(",texture2d<float> envMap [[ texture({}) ]]"), nextTex++);
   if (info.m_hasEnvBumpMap)
-    fmt::print(out, FMT_STRING(",exture2d<float> envBumpMap [[ texture({}) ]]"), nextTex++);
+    fmt::print(out, FMT_STRING(",texture2d<float> envBumpMap [[ texture({}) ]]"), nextTex++);
   if (info.m_hasLightmap)
     fmt::print(out, FMT_STRING(",texture2d<float> lightMap [[ texture({}) ]]"), nextTex++);
   out << '\n';

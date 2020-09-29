@@ -975,9 +975,8 @@ bool ANCS::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     }
 
     if (force || blendType == hecl::ProjectPath::Type::None) {
-      hecl::blender::Connection& conn = btok.getBlenderConnection();
       DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, DNACMDL::SurfaceHeader_1, 2>(
-          conn, ancs, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
+          btok, ancs, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
     }
   }
 

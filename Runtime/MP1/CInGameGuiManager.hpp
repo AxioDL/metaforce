@@ -7,6 +7,7 @@
 
 #include "DataSpec/DNACommon/Tweaks/ITweakGui.hpp"
 
+#include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/CStateManager.hpp"
@@ -30,7 +31,6 @@ namespace urde {
 class CActorLights;
 class CArchitectureQueue;
 class CAutoMapper;
-class CDependencyGroup;
 class CGuiCamera;
 class CGuiModel;
 class CModelData;
@@ -95,10 +95,10 @@ private:
   EHudVisMode x1ec_hudVisMode;
   u32 x1f0_enablePlayerVisor;
   float x1f4_visorStaticAlpha;
-  bool x1f8_24_ : 1;
-  bool x1f8_25_playerAlive : 1;
-  bool x1f8_26_deferTransition : 1;
-  bool x1f8_27_exitSaveUI : 1;
+  bool x1f8_24_ : 1 = false;
+  bool x1f8_25_playerAlive : 1 = true;
+  bool x1f8_26_deferTransition : 1 = false;
+  bool x1f8_27_exitSaveUI : 1 = true;
 
   std::optional<CTexturedQuadFilter> m_deathRenderTexQuad;
   std::optional<CTexturedQuadFilter> m_deathDotQuad;

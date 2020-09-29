@@ -26,8 +26,8 @@ class CAmbientAI : public CPhysicsActor {
   s32 x2dc_defaultAnim;
   s32 x2e0_alertAnim;
   s32 x2e4_impactAnim;
-  bool x2e8_24_dead : 1;
-  bool x2e8_25_animating : 1;
+  bool x2e8_24_dead : 1 = false;
+  bool x2e8_25_animating : 1 = false;
 
 public:
   CAmbientAI(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,

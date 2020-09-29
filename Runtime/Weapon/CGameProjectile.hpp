@@ -24,8 +24,7 @@ class CProjectileTouchResult {
   std::optional<CRayCastResult> x4_result;
 
 public:
-  CProjectileTouchResult(TUniqueId id, const std::optional<CRayCastResult>& result)
-  : x0_id(id), x4_result(result) {}
+  CProjectileTouchResult(TUniqueId id, const std::optional<CRayCastResult>& result) : x0_id(id), x4_result(result) {}
   TUniqueId GetActorId() const { return x0_id; }
   bool HasRayCastResult() const { return x4_result.operator bool(); }
   const CRayCastResult& GetRayCastResult() const { return *x4_result; }
@@ -43,13 +42,13 @@ protected:
   double x2b8_curHomingTime = x2a8_homingDt;
   TUniqueId x2c0_homingTargetId;
   TUniqueId x2c2_lastResolvedObj = kInvalidUniqueId;
-  TUniqueId x2c4_ = kInvalidUniqueId;
+  TUniqueId x2c4_hitProjectileOwner = kInvalidUniqueId;
   TUniqueId x2c6_pendingDamagee = kInvalidUniqueId;
   TUniqueId x2c8_projectileLight = kInvalidUniqueId;
   CAssetId x2cc_wpscId;
   std::vector<CProjectileTouchResult> x2d0_touchResults;
   float x2e0_minHomingDist = 0.f;
-  bool x2e4_24_active : 1;
+  bool x2e4_24_active : 1 = true;
   bool x2e4_25_startedUnderwater : 1;
   bool x2e4_26_waterUpdate : 1;
   bool x2e4_27_inWater : 1;
@@ -65,6 +64,7 @@ public:
   void Accept(IVisitor& visitor) override;
   virtual void ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr);
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Render(CStateManager& mgr) override;
   static EProjectileAttrib GetBeamAttribType(EWeaponType wType);
   void DeleteProjectileLight(CStateManager&);
   void CreateProjectileLight(std::string_view, const CLight&, CStateManager&);
@@ -88,5 +88,6 @@ public:
   TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }
   zeus::CVector3f GetPreviousPos() const { return x298_previousPos; }
   void SetMinHomingDistance(float dist) { x2e0_minHomingDist = dist; }
+  void SetHitProjectileOwner(TUniqueId id) { x2c4_hitProjectileOwner = id; }
 };
 } // namespace urde

@@ -20,10 +20,10 @@ class CHUDBillboardEffect : public CEffect {
   std::unique_ptr<CParticleGen> xe8_generator;
   zeus::CVector3f xec_translation;
   zeus::CVector3f xf8_localScale;
-  bool x104_24_renderAsParticleGen : 1;
-  bool x104_25_enableRender : 1;
-  bool x104_26_isElementGen : 1;
-  bool x104_27_runIndefinitely : 1;
+  bool x104_24_renderAsParticleGen : 1 = true;
+  bool x104_25_enableRender : 1 = false;
+  bool x104_26_isElementGen : 1 = false;
+  bool x104_27_runIndefinitely : 1 = false;
   float x108_timeoutTimer = 0.f;
   static u32 g_IndirectTexturedBillboardCount;
   static u32 g_BillboardCount;

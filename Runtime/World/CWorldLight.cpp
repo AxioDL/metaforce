@@ -57,14 +57,12 @@ CLight CWorldLight::GetAsCGraphicsLight() const {
         CLight::BuildSpot(x10_position, x1c_direction.normalized(),
                           zeus::CColor{x4_color.x(), x4_color.y(), x4_color.z(), 1.f}, x2c_cutoffAngle * .5f);
 
-    float c, l, q;
-    std::tie(c, l, q) = CalculateLightFalloff(x3c_falloff, x28_q);
-
-    light.SetAttenuation(c, l, q);
+    const auto [constant, linear, quadratic] = CalculateLightFalloff(x3c_falloff, x28_q);
+    light.SetAttenuation(constant, linear, quadratic);
     return light;
   }
-  float distC, distL, distQ;
-  std::tie(distC, distL, distQ) = CalculateLightFalloff(x3c_falloff, x28_q);
+
+  const auto [distC, distL, distQ] = CalculateLightFalloff(x3c_falloff, x28_q);
   return CLight::BuildCustom(x10_position, zeus::CVector3f{0.f, 1.f, 0.f},
                              zeus::CColor{x4_color.x(), x4_color.y(), x4_color.z(), 1.f}, distC, distL, distQ, 1.f, 0.f,
                              0.f);

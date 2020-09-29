@@ -17,7 +17,7 @@ set(GUISYS_SOURCES
     CGuiTextPane.hpp CGuiTextPane.cpp
     CGuiTextSupport.hpp CGuiTextSupport.cpp
     CGuiWidget.hpp CGuiWidget.cpp
-    CGuiWidgetDrawParms.hpp CGuiWidgetDrawParms.cpp
+    CGuiWidgetDrawParms.hpp
     CSplashScreen.hpp CSplashScreen.cpp
     CGuiCompoundWidget.hpp CGuiCompoundWidget.cpp
     CSaveableState.hpp CSaveableState.cpp

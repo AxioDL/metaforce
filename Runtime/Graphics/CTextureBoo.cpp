@@ -1,5 +1,7 @@
 #include "Runtime/Graphics/CTexture.hpp"
 
+#include <array>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
@@ -7,28 +9,37 @@
 #include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
-static logvisor::Module Log("urde::CTextureBoo");
+namespace {
+logvisor::Module Log("urde::CTextureBoo");
+
+struct RGBA8 {
+  u8 r;
+  u8 g;
+  u8 b;
+  u8 a;
+};
 
 /* GX uses this upsampling technique to extract full 8-bit range */
-constexpr uint8_t Convert3To8(uint8_t v) {
+constexpr u8 Convert3To8(u8 v) {
   /* Swizzle bits: 00000123 -> 12312312 */
-  return (v << 5) | (v << 2) | (v >> 1);
+  return static_cast<u8>((u32{v} << 5) | (u32{v} << 2) | (u32{v} >> 1));
 }
 
-constexpr uint8_t Convert4To8(uint8_t v) {
+constexpr u8 Convert4To8(u8 v) {
   /* Swizzle bits: 00001234 -> 12341234 */
-  return (v << 4) | v;
+  return static_cast<u8>((u32{v} << 4) | u32{v});
 }
 
-constexpr uint8_t Convert5To8(uint8_t v) {
+constexpr u8 Convert5To8(u8 v) {
   /* Swizzle bits: 00012345 -> 12345123 */
-  return (v << 3) | (v >> 2);
+  return static_cast<u8>((u32{v} << 3) | (u32{v} >> 2));
 }
 
-constexpr uint8_t Convert6To8(uint8_t v) {
+constexpr u8 Convert6To8(u8 v) {
   /* Swizzle bits: 00123456 -> 12345612 */
-  return (v << 2) | (v >> 4);
+  return static_cast<u8>((u32{v} << 2) | (u32{v} >> 4));
 }
+} // Anonymous namespace
 
 size_t CTexture::ComputeMippedTexelCount() const {
   size_t w = x4_w;
@@ -57,13 +68,6 @@ size_t CTexture::ComputeMippedBlockCountDXT1() const {
   }
   return ret;
 }
-
-struct RGBA8 {
-  u8 r;
-  u8 g;
-  u8 b;
-  u8 a;
-};
 
 void CTexture::BuildI4FromGCN(CInputStream& in) {
   m_booTex = hsh::create_texture2d({x4_w, x6_h}, hsh::RGBA8_UNORM, x8_mips, [&](void* data, std::size_t size) {
@@ -478,10 +482,9 @@ void CTexture::BuildC8Font(const void* data, EFontType ftype) {
     break;
   }
 
-  uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
+  const uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
   const u8* texels = reinterpret_cast<const u8*>(data) + 4 + nentries * 4;
-  std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount * layerCount]);
-  memset(buf.get(), 0, texelCount * layerCount * 4);
+  auto buf = std::make_unique<RGBA8[]>(texelCount * layerCount);
 
   size_t w = x4_w;
   size_t h = x6_h;

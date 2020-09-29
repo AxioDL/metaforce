@@ -9,6 +9,12 @@ set(MP1_WORLD_SOURCES
     CBurrower.hpp CBurrower.cpp
     CChozoGhost.hpp CChozoGhost.cpp
     CElitePirate.hpp CElitePirate.cpp
+    CDrone.hpp CDrone.cpp
+    CDroneLaser.hpp CDroneLaser.cpp
+    CSpacePirate.hpp CSpacePirate.cpp
+    CParasite.hpp CParasite.cpp
+    CBabygoth.hpp CBabygoth.cpp
+    CTryclops.hpp CTryclops.cpp
     CEnergyBall.hpp CEnergyBall.cpp
     CEyeball.hpp CEyeball.cpp
     CFireFlea.hpp CFireFlea.cpp
@@ -29,6 +35,8 @@ set(MP1_WORLD_SOURCES
     CNewIntroBoss.hpp CNewIntroBoss.cpp
     COmegaPirate.hpp COmegaPirate.cpp
     CParasite.hpp CParasite.cpp
+    CPhazonHealingNodule.hpp CPhazonHealingNodule.cpp
+    CPhazonPool.hpp CPhazonPool.cpp
     CPuddleSpore.hpp CPuddleSpore.cpp
     CPuddleToadGamma.hpp CPuddleToadGamma.cpp
     CPuffer.hpp CPuffer.cpp
@@ -41,7 +49,9 @@ set(MP1_WORLD_SOURCES
     CThardus.hpp CThardus.cpp
     CThardusRockProjectile.hpp CThardusRockProjectile.cpp
     CTryclops.hpp CTryclops.cpp
+    CIceSheegoth.hpp CIceSheegoth.cpp
     CWarWasp.hpp CWarWasp.cpp
+    CIceAttackProjectile.hpp CIceAttackProjectile.cpp
 )
 
 runtime_add_list(World MP1_WORLD_SOURCES)

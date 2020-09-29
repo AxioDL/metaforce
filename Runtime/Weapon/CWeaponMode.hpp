@@ -5,12 +5,12 @@
 namespace urde {
 class CWeaponMode {
   EWeaponType x0_weaponType = EWeaponType::None;
-  bool x4_24_charged : 1;
-  bool x4_25_comboed : 1;
-  bool x4_26_instantKill : 1;
+  bool x4_24_charged : 1 = false;
+  bool x4_25_comboed : 1 = false;
+  bool x4_26_instantKill : 1 = false;
 
 public:
-  constexpr CWeaponMode() : x4_24_charged{false}, x4_25_comboed{false}, x4_26_instantKill{false} {}
+  constexpr CWeaponMode() = default;
   constexpr explicit CWeaponMode(EWeaponType type, bool charged = false, bool comboed = false, bool instaKill = false)
   : x0_weaponType(type), x4_24_charged(charged), x4_25_comboed(comboed), x4_26_instantKill(instaKill) {}
   constexpr EWeaponType GetType() const { return x0_weaponType; }

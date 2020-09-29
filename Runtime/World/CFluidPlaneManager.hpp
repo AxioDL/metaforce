@@ -42,9 +42,9 @@ class CFluidPlaneManager {
   static void SetupRippleMap();
 
 public:
-  static u8 RippleValues[64][64];
-  static u8 RippleMins[64];
-  static u8 RippleMaxs[64];
+  static std::array<std::array<u8, 64>, 64> RippleValues;
+  static std::array<u8, 64> RippleMins;
+  static std::array<u8, 64> RippleMaxs;
   static hsh::owner<hsh::texture2d> RippleMapTex;
 
   CFluidPlaneManager();

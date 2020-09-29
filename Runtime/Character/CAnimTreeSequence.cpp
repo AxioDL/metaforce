@@ -53,7 +53,8 @@ SAdvancementResults CAnimTreeSequence::VAdvanceView(const CCharAnimTime& dt) {
   }
 
   CCharAnimTime remTime = dt;
-  while (remTime.GreaterThanZero() && x38_curIdx < x28_sequence.size()) {
+  // Note: EpsilonZero check added
+  while (remTime.GreaterThanZero() && !remTime.EpsilonZero() && x38_curIdx < x28_sequence.size()) {
     CCharAnimTime chRem = curChild->VGetTimeRemaining();
     if (chRem.EqualsZero()) {
       ++x38_curIdx;
@@ -86,7 +87,7 @@ SAdvancementResults CAnimTreeSequence::VAdvanceView(const CCharAnimTime& dt) {
 CCharAnimTime CAnimTreeSequence::VGetTimeRemaining() const {
   if (x38_curIdx == x28_sequence.size() - 1)
     return x14_child->VGetTimeRemaining();
-  return x3c_fundamentals.GetSteadyStateAnimInfo().GetDuration() - x94_curTime.GetSeconds();
+  return x3c_fundamentals.GetSteadyStateAnimInfo().GetDuration() - x94_curTime;
 }
 
 CSteadyStateAnimInfo CAnimTreeSequence::VGetSteadyStateAnimInfo() const {

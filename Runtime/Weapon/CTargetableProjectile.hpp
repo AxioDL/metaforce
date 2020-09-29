@@ -23,6 +23,7 @@ public:
   zeus::CVector3f GetAimPosition(const CStateManager&, float) const override;
   bool Explode(const zeus::CVector3f& pos, const zeus::CVector3f& normal, EWeaponCollisionResponseTypes type,
                CStateManager& mgr, const CDamageVulnerability& dVuln, TUniqueId hitActor) override;
+  void ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr) override;
 };
 
 } // namespace urde

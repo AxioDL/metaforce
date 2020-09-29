@@ -123,10 +123,10 @@ bool CMemoryCardSys::InitializePump() {
 
       x20_scanStates.reserve(x20_scanStates.size() + savw.GetScans().size());
       for (const CSaveWorld::SScanState& scan : savw.GetScans()) {
-        auto existingSearch = std::find_if(x20_scanStates.begin(), x20_scanStates.end(), [&](const auto& test) {
+        const auto scanStateIter = std::find_if(x20_scanStates.cbegin(), x20_scanStates.cend(), [&](const auto& test) {
           return test.first == scan.x0_id && test.second == scan.x4_category;
         });
-        if (existingSearch == x20_scanStates.end()) {
+        if (scanStateIter == x20_scanStates.cend()) {
           x20_scanStates.emplace_back(scan.x0_id, scan.x4_category);
           ++x30_scanCategoryCounts[int(scan.x4_category)];
         }
@@ -525,7 +525,10 @@ void CMemoryCardSys::CommitToDisk(kabufuda::ECardSlot port) {
 
 kabufuda::SystemString CMemoryCardSys::CreateDolphinCard(kabufuda::ECardSlot slot) {
   kabufuda::SystemString path = _CreateDolphinCard(slot);
-  CardProbe(slot);
+  if (CardProbe(slot).x0_error != ECardResult::READY) {
+    return {};
+  }
+
   MountCard(slot);
   FormatCard(slot);
   kabufuda::Card& card = g_CardStates[int(slot)];

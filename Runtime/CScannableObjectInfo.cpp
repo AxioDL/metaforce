@@ -4,26 +4,30 @@
 
 namespace urde {
 CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, CAssetId resId) : x0_scannableObjectId(resId) {
-  u32 version = in.readUint32Big();
+  const u32 version = in.readUint32Big();
   Load(in, version);
 
-  for (u32 i = 0; i < x14_buckets.size(); ++i) {
-    x14_buckets[i].x4_appearanceRange *= x8_totalDownloadTime;
+  for (auto& bucket : x14_buckets) {
+    bucket.x4_appearanceRange *= x8_totalDownloadTime;
   }
 
-  float appearanceOffset = g_tweakGui->GetScanAppearanceDuration();
-  for (u32 i = 0; i < x14_buckets.size(); ++i) {
-    if (x14_buckets[i].x8_imagePos != -1) {
-      x8_totalDownloadTime += appearanceOffset;
-      for (u32 j = i; j < x14_buckets.size(); j++)
-        x14_buckets[j].x4_appearanceRange += appearanceOffset;
+  const float appearanceOffset = g_tweakGui->GetScanAppearanceDuration();
+  for (size_t i = 0; i < x14_buckets.size(); ++i) {
+    if (x14_buckets[i].x8_imagePos == UINT32_MAX) {
+      continue;
+    }
+
+    x8_totalDownloadTime += appearanceOffset;
+    for (size_t j = i; j < x14_buckets.size(); j++) {
+      x14_buckets[j].x4_appearanceRange += appearanceOffset;
     }
   }
 
-  for (u32 i = 0; i < x14_buckets.size() - 1; ++i) {
-    for (u32 j = i + 1; j < x14_buckets.size(); ++j) {
-      if (x14_buckets[i].x8_imagePos == x14_buckets[j].x8_imagePos && x14_buckets[i].x8_imagePos != -1)
-        x14_buckets[j].x8_imagePos = -1;
+  for (size_t i = 0; i < x14_buckets.size() - 1; ++i) {
+    for (size_t j = i + 1; j < x14_buckets.size(); ++j) {
+      if (x14_buckets[i].x8_imagePos == x14_buckets[j].x8_imagePos && x14_buckets[i].x8_imagePos != UINT32_MAX) {
+        x14_buckets[j].x8_imagePos = UINT32_MAX;
+      }
     }
   }
 }
@@ -32,18 +36,20 @@ void CScannableObjectInfo::Load(CInputStream& in, u32 version) {
   in.readUint32Big();
   in.readUint32Big();
   x4_stringId = in.readUint32Big();
-  if (version < 4)
+  if (version < 4) {
     x8_totalDownloadTime = in.readFloatBig();
-  else {
-    u32 scanSpeed = in.readUint32Big();
+  } else {
+    const u32 scanSpeed = in.readUint32Big();
     x8_totalDownloadTime = g_tweakGui->GetScanSpeed(scanSpeed);
   }
   xc_category = in.readUint32Big();
-  if (version > 4)
+  if (version > 4) {
     x10_important = in.readBool();
+  }
 
-  for (u32 i = 0; i < 4; i++)
+  for (size_t i = 0; i < x14_buckets.capacity(); i++) {
     x14_buckets.emplace_back(in, version);
+  }
 }
 
 CScannableObjectInfo::SBucket::SBucket(CInputStream& in, u32 version) {
@@ -60,7 +66,7 @@ CScannableObjectInfo::SBucket::SBucket(CInputStream& in, u32 version) {
 }
 
 CFactoryFnReturn FScannableObjectInfoFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer&,
-                                             CObjectReference* selfRef) {
+                                             CObjectReference*) {
   return TToken<CScannableObjectInfo>::GetIObjObjectFor(std::make_unique<CScannableObjectInfo>(in, tag.id));
 }
 } // namespace urde

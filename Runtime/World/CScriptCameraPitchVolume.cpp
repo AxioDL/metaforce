@@ -22,20 +22,20 @@ CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, bool active, s
 , x124_upPitch(upPitch)
 , x128_downPitch(downPitch)
 , x12c_scale(scale * skScaleFactor)
-, x138_maxInterpDistance(maxInterpDistance)
-, x13c_24_entered(false)
-, x13c_25_occupied(false) {}
+, x138_maxInterpDistance(maxInterpDistance) {}
 
 void CScriptCameraPitchVolume::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptCameraPitchVolume::Think(float, CStateManager& mgr) {
-  if (!GetActive())
+  if (!GetActive()) {
     return;
+  }
 
-  if (x13c_24_entered && !x13c_25_occupied)
+  if (x13c_24_entered && !x13c_25_occupied) {
     Entered(mgr);
-  else if (!x13c_24_entered && x13c_25_occupied)
+  } else if (!x13c_24_entered && x13c_25_occupied) {
     Exited(mgr);
+  }
 
   x13c_24_entered = false;
 }
@@ -45,13 +45,15 @@ std::optional<zeus::CAABox> CScriptCameraPitchVolume::GetTouchBounds() const {
 }
 
 void CScriptCameraPitchVolume::Touch(CActor& act, CStateManager& mgr) {
-  TCastToPtr<CPlayer> pl(act);
-  if (!pl)
+  const TCastToConstPtr<CPlayer> pl(act);
+  if (!pl) {
     return;
+  }
 
-  auto plBox = pl->GetTouchBounds();
-  if (!plBox)
+  const auto plBox = pl->GetTouchBounds();
+  if (!plBox) {
     return;
+  }
 
   x13c_24_entered = xe8_obbox.AABoxIntersectsBox(plBox.value());
 }

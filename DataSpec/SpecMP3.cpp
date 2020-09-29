@@ -9,6 +9,7 @@
 #include "DataSpec/DNAMP3/MAPA.hpp"
 #include "DataSpec/DNAMP2/STRG.hpp"
 #include "DataSpec/DNACommon/TXTR.hpp"
+#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
 
 #include "hecl/ClientProcess.hpp"
 #include "hecl/Blender/Connection.hpp"
@@ -89,11 +90,7 @@ struct TextureCache {
 };
 
 struct SpecMP3 : SpecBase {
-  bool checkStandaloneID(const char* id) const override {
-    if (!memcmp(id, "RM3", 3))
-      return true;
-    return false;
-  }
+  bool checkStandaloneID(const char* id) const override { return memcmp(id, "RM3", 3) == 0; }
 
   bool doMP3 = false;
   std::vector<const nod::Node*> m_nonPaks;
@@ -102,6 +99,7 @@ struct SpecMP3 : SpecBase {
 
   hecl::ProjectPath m_workPath;
   hecl::ProjectPath m_cookPath;
+  hecl::ProjectPath m_outPath;
   PAKRouter<DNAMP3::PAKBridge> m_pakRouter;
 
   /* These are populated when extracting MPT's frontend (uses MP3's DataSpec) */
@@ -112,6 +110,7 @@ struct SpecMP3 : SpecBase {
 
   hecl::ProjectPath m_feWorkPath;
   hecl::ProjectPath m_feCookPath;
+  hecl::ProjectPath m_feOutPath;
   PAKRouter<DNAMP3::PAKBridge> m_fePakRouter;
 
   SpecMP3(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
@@ -122,7 +121,8 @@ struct SpecMP3 : SpecBase {
   , m_feWorkPath(project.getProjectWorkingPath(), _SYS_STR("fe"))
   , m_feCookPath(project.getProjectCookedPath(SpecEntMP3), _SYS_STR("fe"))
   , m_fePakRouter(*this, m_feWorkPath, m_feCookPath) {
-    setThreadProject();
+    m_game = EGame::MetroidPrime3;
+    SpecBase::setThreadProject();
   }
 
   void buildPaks(nod::Node& root, const std::vector<hecl::SystemString>& args, ExtractReport& rep, bool fe) {
@@ -223,20 +223,22 @@ struct SpecMP3 : SpecBase {
     doMP3 = true;
     nod::IPartition* partition = disc.getDataPartition();
     std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
-    const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
-    if (!buildInfo)
+    const char* buildInfo = static_cast<char*>(memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16)) + 19;
+    if (buildInfo == nullptr) {
       return false;
+    }
 
     /* We don't want no stinking demo dammit */
-    if (!strcmp(buildInfo, "Build v3.068 3/2/2006 14:55:13"))
+    if (strcmp(buildInfo, "Build v3.068 3/2/2006 14:55:13") == 0) {
       return false;
+    }
 
+    m_version = std::string(buildInfo);
     /* Root Report */
     ExtractReport& rep = reps.emplace_back();
     rep.name = _SYS_STR("MP3");
     rep.desc = _SYS_STR("Metroid Prime 3 ") + regstr;
-    std::string buildStr(buildInfo);
-    hecl::SystemStringConv buildView(buildStr);
+    hecl::SystemStringConv buildView(m_version);
     rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
 
     /* Iterate PAKs and build level options */
@@ -317,8 +319,8 @@ struct SpecMP3 : SpecBase {
       rep.name = _SYS_STR("MP3");
       rep.desc = _SYS_STR("Metroid Prime 3 ") + regstr;
 
-      std::string buildStr(buildInfo);
-      hecl::SystemStringConv buildView(buildStr);
+      m_version = std::string(buildInfo);
+      hecl::SystemStringConv buildView(m_version);
       rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
 
       /* Iterate PAKs and build level options */
@@ -386,8 +388,8 @@ struct SpecMP3 : SpecBase {
       hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _SYS_STR("out"));
       outPath.makeDir();
       disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
-      hecl::ProjectPath mp3OutPath(outPath, m_standalone ? _SYS_STR("files") : _SYS_STR("files/MP3"));
-      mp3OutPath.makeDirChain(true);
+      m_outPath = {outPath, m_standalone ? _SYS_STR("files") : _SYS_STR("files/MP3")};
+      m_outPath.makeDirChain(true);
 
       currentTarget = _SYS_STR("MP3 Root");
       progress.print(currentTarget.c_str(), _SYS_STR(""), 0.0);
@@ -396,7 +398,7 @@ struct SpecMP3 : SpecBase {
       nodeCount = m_nonPaks.size();
       // TODO: Make this more granular
       for (const nod::Node* node : m_nonPaks) {
-        node->extractToDirectory(mp3OutPath.getAbsolutePath(), ctx);
+        node->extractToDirectory(m_outPath.getAbsolutePath(), ctx);
         prog++;
       }
       ctx.progressCB = nullptr;
@@ -438,8 +440,8 @@ struct SpecMP3 : SpecBase {
       hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _SYS_STR("out"));
       outPath.makeDir();
       disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
-      hecl::ProjectPath feOutPath(outPath, m_standalone ? _SYS_STR("files") : _SYS_STR("files/fe"));
-      feOutPath.makeDirChain(true);
+      m_feOutPath = {outPath, _SYS_STR("files/fe")};
+      m_feOutPath.makeDirChain(true);
 
       currentTarget = _SYS_STR("fe Root");
       progress.print(currentTarget.c_str(), _SYS_STR(""), 0.0);
@@ -448,7 +450,7 @@ struct SpecMP3 : SpecBase {
 
       // TODO: Make this more granular
       for (const nod::Node* node : m_feNonPaks) {
-        node->extractToDirectory(feOutPath.getAbsolutePath(), ctx);
+        node->extractToDirectory(m_feOutPath.getAbsolutePath(), ctx);
         prog++;
       }
       progress.print(currentTarget.c_str(), _SYS_STR(""), 1.0);
@@ -473,11 +475,23 @@ struct SpecMP3 : SpecBase {
       }
 
       process.waitUntilComplete();
+    }
 
-      /* Extract part of .dol for RandomStatic entropy */
-      hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _SYS_STR("MP3/URDE"));
-      /* Generate Texture Cache containing meta data for every texture file */
+    /* Generate Texture Cache containing meta data for every texture file */
+    if (doMP3) {
+      hecl::ProjectPath noAramPath(m_workPath, _SYS_STR("URDE"));
       TextureCache::Generate(m_pakRouter, m_project, noAramPath);
+    }
+    if (doMPTFE) {
+      hecl::ProjectPath noAramPath(m_feWorkPath, _SYS_STR("URDE"));
+      TextureCache::Generate(m_fePakRouter, m_project, noAramPath);
+    }
+    /* Write version data */
+    if (doMP3) {
+      WriteVersionInfo(m_project, m_outPath);
+    }
+    if (doMPTFE) {
+      WriteVersionInfo(m_project, m_feOutPath);
     }
     return true;
   }

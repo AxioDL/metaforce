@@ -1,5 +1,7 @@
 #include "Runtime/GuiSys/CSplashScreen.hpp"
 
+#include <array>
+
 #include "Runtime/CArchitectureMessage.hpp"
 #include "Runtime/CArchitectureQueue.hpp"
 #include "Runtime/CSimplePool.hpp"
@@ -8,12 +10,12 @@
 
 namespace urde {
 
-static const char* SplashTextures[]{"TXTR_NintendoLogo", "TXTR_RetroLogo", "TXTR_DolbyLogo"};
+constexpr std::array SplashTextures{"TXTR_NintendoLogo"sv, "TXTR_RetroLogo"sv, "TXTR_DolbyLogo"sv};
 
 CSplashScreen::CSplashScreen(ESplashScreen which)
 : CIOWin("SplashScreen")
 , x14_which(which)
-, m_quad(EFilterType::Blend, g_SimplePool->GetObj(SplashTextures[int(which)])) {}
+, m_quad(EFilterType::Blend, g_SimplePool->GetObj(SplashTextures[size_t(which)])) {}
 
 CIOWin::EMessageReturn CSplashScreen::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) {
   switch (msg.GetType()) {

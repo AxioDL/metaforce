@@ -15,18 +15,18 @@ CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const
                                      bool defaultSpawn, bool active, bool morphed)
 : CEntity(uid, info, active, name), x34_xf(xf), x64_itemCounts(itemCounts) {
 #ifndef NDEBUG
-  x64_itemCounts[int(CPlayerState::EItemType::MorphBall)] = 1;
-  x64_itemCounts[int(CPlayerState::EItemType::MorphBallBombs)] = 1;
-  x64_itemCounts[int(CPlayerState::EItemType::PhazonSuit)] = 1;
-  x64_itemCounts[int(CPlayerState::EItemType::ThermalVisor)] = 1;
-  x64_itemCounts[int(CPlayerState::EItemType::XRayVisor)] = 1;
-  x64_itemCounts[int(CPlayerState::EItemType::GrappleBeam)] = 1;
-  x64_itemCounts[int(CPlayerState::EItemType::BoostBall)] = 1;
-  x64_itemCounts[int(CPlayerState::EItemType::ChargeBeam)] = 1;
-  x64_itemCounts[int(CPlayerState::EItemType::PowerBombs)] = 8;
-  x64_itemCounts[int(CPlayerState::EItemType::SpaceJumpBoots)] = 1;
-  x64_itemCounts[int(CPlayerState::EItemType::Missiles)] =
-    std::max(x64_itemCounts[int(CPlayerState::EItemType::Missiles)], u32(5));
+  x64_itemCounts[size_t(CPlayerState::EItemType::MorphBall)] = 1;
+  x64_itemCounts[size_t(CPlayerState::EItemType::MorphBallBombs)] = 1;
+  x64_itemCounts[size_t(CPlayerState::EItemType::PhazonSuit)] = 1;
+  x64_itemCounts[size_t(CPlayerState::EItemType::ThermalVisor)] = 1;
+  x64_itemCounts[size_t(CPlayerState::EItemType::XRayVisor)] = 1;
+  x64_itemCounts[size_t(CPlayerState::EItemType::GrappleBeam)] = 1;
+  x64_itemCounts[size_t(CPlayerState::EItemType::BoostBall)] = 1;
+  x64_itemCounts[size_t(CPlayerState::EItemType::ChargeBeam)] = 1;
+  x64_itemCounts[size_t(CPlayerState::EItemType::PowerBombs)] = 8;
+  x64_itemCounts[size_t(CPlayerState::EItemType::SpaceJumpBoots)] = 1;
+  x64_itemCounts[size_t(CPlayerState::EItemType::Missiles)] =
+    std::max(x64_itemCounts[size_t(CPlayerState::EItemType::Missiles)], u32(5));
 #endif
   x10c_24_firstSpawn = defaultSpawn;
   x10c_25_morphed = morphed;
@@ -62,9 +62,10 @@ void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
         player->Teleport(GetTransform(), stateMgr, true);
         player->SetSpawnedMorphBallState(CPlayer::EPlayerMorphBallState(x10c_25_morphed), stateMgr);
 
-        if (area->IsPostConstructed() && area->GetOcclusionState() == CGameArea::EOcclusionState::Visible)
+        if (area->IsPostConstructed() && area->GetOcclusionState() == CGameArea::EOcclusionState::Visible) {
           CWorld::PropogateAreaChain(CGameArea::EOcclusionState::Occluded,
                                      stateMgr.GetWorld()->GetArea(stateMgr.GetNextAreaId()), stateMgr.GetWorld());
+        }
       } else {
         player->Teleport(GetTransform(), stateMgr, true);
         player->SetSpawnedMorphBallState(CPlayer::EPlayerMorphBallState(x10c_25_morphed), stateMgr);
@@ -76,9 +77,10 @@ void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
 }
 
 u32 CScriptSpawnPoint::GetPowerup(CPlayerState::EItemType item) const {
-  int idx = int(item);
-  if (idx >= int(CPlayerState::EItemType::Max) || idx < 0)
+  const auto idx = static_cast<size_t>(item);
+  if (item >= CPlayerState::EItemType::Max) {
     return x64_itemCounts.front();
+  }
   return x64_itemCounts[idx];
 }
 } // namespace urde

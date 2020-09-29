@@ -13,23 +13,23 @@
 namespace urde {
 
 constexpr std::array BaseMenuNames{
-    "BaseWidget_VisorMenu",
-    "BaseWidget_BeamMenu",
+    "BaseWidget_VisorMenu"sv,
+    "BaseWidget_BeamMenu"sv,
 };
 
 constexpr std::array TextNames{
-    "TextPane_VisorMenu",
-    "TextPane_BeamMenu",
+    "TextPane_VisorMenu"sv,
+    "TextPane_BeamMenu"sv,
 };
 
 constexpr std::array BaseTitleNames{
-    "basewidget_visormenutitle",
-    "basewidget_beammenutitle",
+    "basewidget_visormenutitle"sv,
+    "basewidget_beammenutitle"sv,
 };
 
 constexpr std::array ModelNames{
-    "model_visor",
-    "model_beam",
+    "model_visor"sv,
+    "model_beam"sv,
 };
 
 constexpr std::array<std::array<char, 4>, 2> MenuItemOrders{{
@@ -50,10 +50,6 @@ constexpr std::array<u16, 2> SelectionSfxs{
 CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
                                      const rstl::reserved_vector<bool, 4>& enables)
 : x0_baseHud(baseHud), x4_type(type) {
-  x14_24_visibleDebug = true;
-  x14_25_visibleGame = true;
-  x14_26_dirty = true;
-
   x7c_animDur = g_tweakGui->GetBeamVisorMenuAnimTime();
   x80_24_swapBeamControls = g_GameState->GameOptions().GetSwapBeamControls();
 

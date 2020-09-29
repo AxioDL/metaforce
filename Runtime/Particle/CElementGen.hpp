@@ -34,7 +34,7 @@ class CElementGen : public CParticleGen {
 
 public:
   static void SetGlobalSeed(u16 seed) { g_GlobalSeed = seed; }
-  static void SetSubtractBlend(bool s) { g_subtractBlend = s; }
+  static void SetSubtractBlend(bool subtract) { g_subtractBlend = subtract; }
   enum class EModelOrientationType { Normal, One };
   enum class EOptionalSystemFlags { None, One, Two };
   enum class LightType { None = 0, Custom = 1, Directional = 2, Spot = 3 };
@@ -61,7 +61,7 @@ private:
   int x70_internalStartFrame = 0;
   int x74_curFrame = 0;
   double x78_curSeconds = 0.f;
-  float x80_timeDeltaScale;
+  float x80_timeDeltaScale = 0.f;
   int x84_prevFrame = -1;
   bool x88_particleEmission = true;
   float x8c_generatorRemainder = 0.f;
@@ -88,19 +88,19 @@ private:
   u32 x260_cumulativeParticles = 0;
   u32 x264_recursiveParticleCount = 0;
   int x268_PSLT;
-  bool x26c_24_translationDirty : 1;
-  bool x26c_25_LIT_ : 1;
-  bool x26c_26_AAPH : 1;
-  bool x26c_27_ZBUF : 1;
-  bool x26c_28_zTest : 1;
-  bool x26c_29_ORNT : 1;
-  bool x26c_30_MBLR : 1;
-  bool x26c_31_LINE : 1;
-  bool x26d_24_FXLL : 1;
-  bool x26d_25_warmedUp : 1;
-  bool x26d_26_modelsUseLights : 1;
+  bool x26c_24_translationDirty : 1 = false;
+  bool x26c_25_LIT_ : 1 = false;
+  bool x26c_26_AAPH : 1 = false;
+  bool x26c_27_ZBUF : 1 = false;
+  bool x26c_28_zTest : 1 = false;
+  bool x26c_29_ORNT : 1 = false;
+  bool x26c_30_MBLR : 1 = false;
+  bool x26c_31_LINE : 1 = false;
+  bool x26d_24_FXLL : 1 = false;
+  bool x26d_25_warmedUp : 1 = false;
+  bool x26d_26_modelsUseLights : 1 = false;
   bool x26d_27_enableOPTS : 1;
-  bool x26d_28_enableADV : 1;
+  bool x26d_28_enableADV : 1 = false;
   int x270_MBSP = 0;
   int m_maxMBSP = 0;
   ERglLightBits x274_backupLightActive = ERglLightBits::None;
@@ -152,6 +152,7 @@ public:
 
   CGenDescription* GetDesc() { return x1c_genDesc.GetObj(); }
   const SObjectTag* GetDescTag() const { return x1c_genDesc.GetObjectTag(); }
+  CGenDescription* GetLoadedDesc() { return x28_loadedGenDesc; }
 
   static bool g_ParticleSystemInitialized;
   static int g_ParticleAliveCount;
@@ -159,13 +160,13 @@ public:
   static bool sMoveRedToAlphaBuffer;
   static void Initialize();
 
-  void UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 particleFrame);
-  bool UpdateVelocitySource(size_t idx, u32 particleFrame, CParticle& particle);
+  void UpdateAdvanceAccessParameters(u32 activeParticleCount, s32 particleFrame);
+  bool UpdateVelocitySource(size_t idx, s32 particleFrame, CParticle& particle);
   void UpdateExistingParticles();
-  void CreateNewParticles(int);
+  void CreateNewParticles(int count);
   void UpdatePSTranslationAndOrientation();
-  void UpdateChildParticleSystems(double);
-  std::unique_ptr<CParticleGen> ConstructChildParticleSystem(const TToken<CGenDescription>&) const;
+  void UpdateChildParticleSystems(double dt);
+  std::unique_ptr<CParticleGen> ConstructChildParticleSystem(const TToken<CGenDescription>& desc) const;
   void UpdateLightParameters();
   void BuildParticleSystemBounds();
   u32 GetEmitterTime() const { return x74_curFrame; }
@@ -175,26 +176,26 @@ public:
   u32 GetParticleCountAll() const { return x264_recursiveParticleCount; }
   void EndLifetime();
   void ForceParticleCreation(int amount);
-  float GetExternalVar(int i) const { return x9c_externalVars[i]; }
-  void SetExternalVar(int i, float v) { x9c_externalVars[i] = v; }
+  float GetExternalVar(int index) const { return x9c_externalVars[index]; }
+  void SetExternalVar(int index, float var) { x9c_externalVars[index] = var; }
 
-  bool InternalUpdate(double);
+  bool InternalUpdate(double dt);
   void RenderModels(const CActorLights* actLights);
   void RenderLines();
   void RenderParticles();
   void RenderParticlesIndirectTexture();
 
-  bool Update(double) override;
-  void Render(const CActorLights* = nullptr) override;
-  void SetOrientation(const zeus::CTransform&) override;
-  void SetTranslation(const zeus::CVector3f&) override;
-  void SetGlobalOrientation(const zeus::CTransform&) override;
-  void SetGlobalTranslation(const zeus::CVector3f&) override;
-  void SetGlobalScale(const zeus::CVector3f&) override;
-  void SetLocalScale(const zeus::CVector3f&) override;
+  bool Update(double t) override;
+  void Render(const CActorLights* actorLights = nullptr) override;
+  void SetOrientation(const zeus::CTransform& orientation) override;
+  void SetTranslation(const zeus::CVector3f& translation) override;
+  void SetGlobalOrientation(const zeus::CTransform& orientation) override;
+  void SetGlobalTranslation(const zeus::CVector3f& translation) override;
+  void SetGlobalScale(const zeus::CVector3f& scale) override;
+  void SetLocalScale(const zeus::CVector3f& scale) override;
   void SetGlobalOrientAndTrans(const zeus::CTransform& xf);
-  void SetParticleEmission(bool) override;
-  void SetModulationColor(const zeus::CColor&) override;
+  void SetParticleEmission(bool enabled) override;
+  void SetModulationColor(const zeus::CColor& color) override;
   void SetGeneratorRate(float rate) override;
   const zeus::CTransform& GetOrientation() const override;
   const zeus::CVector3f& GetTranslation() const override;
@@ -215,11 +216,15 @@ public:
   size_t GetNumActiveChildParticles() const { return x290_activePartChildren.size(); }
   CParticleGen& GetActiveChildParticle(size_t idx) const { return *x290_activePartChildren[idx]; }
   bool IsIndirectTextured() const { return x28_loadedGenDesc->x54_x40_TEXR && x28_loadedGenDesc->x58_x44_TIND; }
-  void SetModelsUseLights(bool v) { x26d_26_modelsUseLights = v; }
+  void SetModelsUseLights(bool useLights) { x26d_26_modelsUseLights = useLights; }
   void SetZTest(bool z) { x26c_28_zTest = z; }
-  static void SetMoveRedToAlphaBuffer(bool);
+  static void SetMoveRedToAlphaBuffer(bool move);
 
   s32 GetMaxParticles() const { return x90_MAXP; }
+  s32 GetMaxMaxParticles() const { return m_maxMAXP; }
+
+  std::vector<CParticle> const& GetParticles() const { return x30_particles; }
+  std::vector<CParticle> &GetParticles() { return x30_particles; }
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 

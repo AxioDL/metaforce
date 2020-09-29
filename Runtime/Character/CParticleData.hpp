@@ -22,6 +22,8 @@ private:
 
 public:
   CParticleData() = default;
+  CParticleData(const SObjectTag& tag, std::string_view boneName, float scale, EParentedMode mode)
+  : x4_particle(tag), xc_boneName(boneName), x1c_scale(scale), x20_parentMode(mode) {}
   explicit CParticleData(CInputStream& in);
   u32 GetDuration() const { return x0_duration; }
   const SObjectTag& GetTag() const { return x4_particle; }

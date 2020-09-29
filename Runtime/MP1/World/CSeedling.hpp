@@ -18,12 +18,12 @@ class CSeedling : public CWallWalker {
   zeus::CAABox x704_modelBounds = zeus::skNullBox;
   float x71c_attackCoolOff = 0.f;
   TUniqueId x720_prevObj = kInvalidUniqueId;
-  bool x722_24_renderOnlyClusterA : 1;
-  bool x722_25_curNeedleCluster : 1;
+  bool x722_24_renderOnlyClusterA : 1 = true;
+  bool x722_25_curNeedleCluster : 1 = false;
   void LaunchNeedles(CStateManager&);
 
 public:
-  DEFINE_PATTERNED(Seedling)
+  DEFINE_PATTERNED(Seedling);
   CSeedling(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CPatternedInfo&, const CActorParameters&, CAssetId, CAssetId, const CDamageInfo&, const CDamageInfo&,
             float, float, float, float);

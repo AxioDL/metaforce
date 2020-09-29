@@ -12,6 +12,7 @@ public:
   explicit CRandom16(s32 seed = 99) : m_seed(seed) {}
 
   s32 Next() {
+    IncrementNumNextCalls();
     m_seed = (m_seed * 0x41c64e6d) + 0x00003039;
     return (m_seed >> 16) & 0xffff;
   }
@@ -28,6 +29,9 @@ public:
 
   static CRandom16* GetRandomNumber() { return g_randomNumber; }
   static void SetRandomNumber(CRandom16* rnd) { g_randomNumber = rnd; }
+  static void IncrementNumNextCalls();
+  static u32 GetNumNextCalls();
+  static void ResetNumNextCalls();
 };
 
 class CGlobalRandom {

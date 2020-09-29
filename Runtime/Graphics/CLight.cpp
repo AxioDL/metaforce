@@ -55,9 +55,7 @@ CLight::CLight(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeu
 , x2c_distQ(distQ)
 , x30_angleC(angleC)
 , x34_angleL(angleL)
-, x38_angleQ(angleQ)
-, x4c_24_intensityDirty(true)
-, x4c_25_radiusDirty(true) {}
+, x38_angleQ(angleQ) {}
 
 CLight::CLight(ELightType type, const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeus::CColor& color,
                float cutoff)
@@ -65,9 +63,7 @@ CLight::CLight(ELightType type, const zeus::CVector3f& pos, const zeus::CVector3
 , xc_dir(dir)
 , x18_color(color)
 , x1c_type(type)
-, x20_spotCutoff(cutoff)
-, x4c_24_intensityDirty(true)
-, x4c_25_radiusDirty(true) {
+, x20_spotCutoff(cutoff) {
   switch (type) {
   case ELightType::Spot: {
     const float cosCutoff = std::cos(zeus::degToRad(cutoff));

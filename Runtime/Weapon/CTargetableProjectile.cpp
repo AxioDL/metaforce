@@ -35,24 +35,30 @@ bool CTargetableProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVec
                                     const CDamageVulnerability& dVuln, TUniqueId hitActor) {
   bool ret = CEnergyProjectile::Explode(pos, normal, type, mgr, dVuln, hitActor);
 
-  if (x2e4_24_active || x2c4_ == kInvalidUniqueId || x2c4_ != mgr.GetPlayer().GetUniqueId())
+  if (x2e4_24_active || x2c4_hitProjectileOwner == kInvalidUniqueId ||
+      x2c4_hitProjectileOwner != mgr.GetPlayer().GetUniqueId()) {
     return ret;
+  }
 
   if (TCastToConstPtr<CActor> act = mgr.GetObjectById(xec_ownerId)) {
     TUniqueId uid = mgr.AllocateUniqueId();
-    zeus::CTransform xf =
-        zeus::lookAt(x170_projectile.GetTranslation(), act->GetAimPosition(mgr, 0.f), zeus::skUp);
-    CEnergyProjectile* projectile = new CEnergyProjectile(
-        true, x3d8_weaponDesc, xf0_weaponType, xf, EMaterialTypes::Player, x3e0_damage, uid, GetAreaIdAlways(),
-        kInvalidUniqueId, xec_ownerId, EProjectileAttrib::None, false, zeus::skOne3f, {}, 0xFFFF, false);
+    zeus::CTransform xf = zeus::lookAt(x170_projectile.GetTranslation(), act->GetAimPosition(mgr, 0.f), zeus::skUp);
+    auto* projectile = new CEnergyProjectile(true, x3d8_weaponDesc, xf0_weaponType, xf, EMaterialTypes::Player,
+                                             x3e0_damage, uid, GetAreaIdAlways(), x2c4_hitProjectileOwner, xec_ownerId,
+                                             EProjectileAttrib::None, false, zeus::skOne3f, {}, 0xFFFF, false);
     mgr.AddObject(projectile);
     projectile->AddMaterial(EMaterialTypes::Orbit);
     mgr.GetPlayer().ResetAimTargetPrediction(uid);
     mgr.GetPlayer().SetOrbitTargetId(uid, mgr);
-    x2c4_ = kInvalidUniqueId;
+    x2c4_hitProjectileOwner = kInvalidUniqueId;
   }
 
   return ret;
+}
+
+void CTargetableProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr) {
+  SetTransform(zeus::lookAt(GetTranslation(), GetAimPosition(mgr, 0.1f)));
+  CEnergyProjectile::ResolveCollisionWithActor(res, act, mgr);
 }
 
 } // namespace urde

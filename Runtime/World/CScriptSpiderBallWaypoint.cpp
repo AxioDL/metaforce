@@ -17,15 +17,17 @@ void CScriptSpiderBallWaypoint::Accept(IVisitor& visitor) { visitor.Visit(this);
 void CScriptSpiderBallWaypoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, uid, mgr);
 
-  if (msg == EScriptObjectMessage::InitializedInArea)
+  if (msg == EScriptObjectMessage::InitializedInArea) {
     BuildWaypointListAndBounds(mgr);
-  else if (msg == EScriptObjectMessage::Arrived)
+  } else if (msg == EScriptObjectMessage::Arrived) {
     SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
+  }
 }
 
 void CScriptSpiderBallWaypoint::AccumulateBounds(const zeus::CVector3f& v) {
-  if (!xfc_aabox)
+  if (!xfc_aabox) {
     xfc_aabox.emplace(v, v);
+  }
   xfc_aabox->accumulateBounds(v);
 }
 
@@ -33,7 +35,7 @@ void CScriptSpiderBallWaypoint::BuildWaypointListAndBounds(CStateManager& mgr) {
   u32 validConnections = 0;
   for (const SConnection& conn : x20_conns) {
     if (conn.x0_state == EScriptObjectState::Arrived && conn.x4_msg == EScriptObjectMessage::Next) {
-      TUniqueId uid = mgr.GetIdForScript(conn.x8_objId);
+      const TUniqueId uid = mgr.GetIdForScript(conn.x8_objId);
       if (uid != kInvalidUniqueId) {
         static_cast<CScriptSpiderBallWaypoint*>(mgr.ObjectById(uid))->AddPreviousWaypoint(GetUniqueId());
         ++validConnections;
@@ -41,9 +43,9 @@ void CScriptSpiderBallWaypoint::BuildWaypointListAndBounds(CStateManager& mgr) {
     }
   }
 
-  if (validConnections == 0)
+  if (validConnections == 0) {
     AccumulateBounds(x34_transform.origin);
-  else {
+  } else {
     CScriptSpiderBallWaypoint* curWaypoint = this;
     TUniqueId uid = curWaypoint->NextWaypoint(mgr, ECheckActiveWaypoint::SkipCheck);
     while (uid != kInvalidUniqueId) {
@@ -59,12 +61,14 @@ void CScriptSpiderBallWaypoint::AddPreviousWaypoint(TUniqueId uid) { xec_waypoin
 
 TUniqueId CScriptSpiderBallWaypoint::PreviousWaypoint(const CStateManager& mgr,
                                                       ECheckActiveWaypoint checkActive) const {
-  for (TUniqueId id : xec_waypoints) {
+  for (const auto& id : xec_waypoints) {
     if (const CEntity* ent = mgr.GetObjectById(id)) {
-      if (checkActive == ECheckActiveWaypoint::SkipCheck)
+      if (checkActive == ECheckActiveWaypoint::SkipCheck) {
         return id;
-      else if (ent->GetActive())
+      }
+      if (ent->GetActive()) {
         return id;
+      }
     }
   }
 
@@ -74,13 +78,15 @@ TUniqueId CScriptSpiderBallWaypoint::PreviousWaypoint(const CStateManager& mgr,
 TUniqueId CScriptSpiderBallWaypoint::NextWaypoint(const CStateManager& mgr, ECheckActiveWaypoint checkActive) const {
   for (const SConnection& conn : x20_conns) {
     if (conn.x0_state == EScriptObjectState::Arrived && conn.x4_msg == EScriptObjectMessage::Next) {
-      TUniqueId uid = mgr.GetIdForScript(conn.x8_objId);
+      const TUniqueId uid = mgr.GetIdForScript(conn.x8_objId);
       if (uid != kInvalidUniqueId) {
         if (const CEntity* ent = mgr.GetObjectById(uid)) {
-          if (checkActive == ECheckActiveWaypoint::SkipCheck)
+          if (checkActive == ECheckActiveWaypoint::SkipCheck) {
             return ent->GetUniqueId();
-          else if (ent->GetActive())
+          }
+          if (ent->GetActive()) {
             return ent->GetUniqueId();
+          }
         }
       }
     }
@@ -96,26 +102,32 @@ void CScriptSpiderBallWaypoint::GetClosestPointAlongWaypoints(CStateManager& mgr
                                                               zeus::CVector3f& deltaBetweenPoints,
                                                               float deltaBetweenInterpDist,
                                                               zeus::CVector3f& interpDeltaBetweenPoints) const {
-  const CScriptSpiderBallWaypoint* wp = this;
-  while (wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::SkipCheck) != kInvalidUniqueId)
+  const auto* wp = this;
+  while (wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::SkipCheck) != kInvalidUniqueId) {
     wp = static_cast<const CScriptSpiderBallWaypoint*>(
         mgr.GetObjectById(wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::SkipCheck)));
+  }
+
   float minPointToBallDistSq = maxPointToBallDist * maxPointToBallDist;
-  float deltaBetweenInterpDistSq = deltaBetweenInterpDist * deltaBetweenInterpDist;
+  const float deltaBetweenInterpDistSq = deltaBetweenInterpDist * deltaBetweenInterpDist;
   zeus::CVector3f lastPoint = wp->GetTranslation();
   zeus::CVector3f lastDelta;
   bool computeDelta = wp->GetActive();
+
   while (true) {
     if (wp->NextWaypoint(mgr, ECheckActiveWaypoint::Check) != kInvalidUniqueId) {
       if (computeDelta) {
-        const CScriptSpiderBallWaypoint* prevWp = wp;
+        const auto* prevWp = wp;
         wp = static_cast<const CScriptSpiderBallWaypoint*>(
             mgr.GetObjectById(wp->NextWaypoint(mgr, ECheckActiveWaypoint::Check)));
-        zeus::CVector3f thisDelta = wp->GetTranslation() - lastPoint;
-        zeus::CVector3f lastPointToBall = ballPos - lastPoint;
-        if (prevWp->PreviousWaypoint(mgr, ECheckActiveWaypoint::Check) == kInvalidUniqueId)
+
+        const zeus::CVector3f thisDelta = wp->GetTranslation() - lastPoint;
+        const zeus::CVector3f lastPointToBall = ballPos - lastPoint;
+        if (prevWp->PreviousWaypoint(mgr, ECheckActiveWaypoint::Check) == kInvalidUniqueId) {
           lastDelta = thisDelta;
-        float pointToBallDistSq = lastPointToBall.magSquared();
+        }
+
+        const float pointToBallDistSq = lastPointToBall.magSquared();
         if (pointToBallDistSq < minPointToBallDistSq) {
           minPointToBallDistSq = pointToBallDistSq;
           closestPoint = lastPoint;
@@ -123,12 +135,13 @@ void CScriptSpiderBallWaypoint::GetClosestPointAlongWaypoints(CStateManager& mgr
           interpDeltaBetweenPoints = (thisDelta.normalized() + lastDelta.normalized()) * 0.5f;
           closestWaypoint = wp;
         }
-        float projectedT = lastPointToBall.dot(thisDelta);
+
+        const float projectedT = lastPointToBall.dot(thisDelta);
         if (projectedT >= 0.f) {
-          float normT = projectedT / thisDelta.magSquared();
+          const float normT = projectedT / thisDelta.magSquared();
           if (normT < 1.f) {
-            zeus::CVector3f projectedPoint = zeus::CVector3f::lerp(lastPoint, wp->GetTranslation(), normT);
-            float projToBallDistSq = (ballPos - projectedPoint).magSquared();
+            const zeus::CVector3f projectedPoint = zeus::CVector3f::lerp(lastPoint, wp->GetTranslation(), normT);
+            const float projToBallDistSq = (ballPos - projectedPoint).magSquared();
             if (projToBallDistSq < minPointToBallDistSq) {
               minPointToBallDistSq = projToBallDistSq;
               closestPoint = projectedPoint;
@@ -143,7 +156,7 @@ void CScriptSpiderBallWaypoint::GetClosestPointAlongWaypoints(CStateManager& mgr
               } else if (wp->NextWaypoint(mgr, ECheckActiveWaypoint::Check) != kInvalidUniqueId) {
                 lastToProjDist = (projectedPoint - wp->GetTranslation()).magnitude();
                 if (lastToProjDist < deltaBetweenInterpDist) {
-                  float t = lastToProjDist / deltaBetweenInterpDist;
+                  const float t = lastToProjDist / deltaBetweenInterpDist;
                   interpDeltaBetweenPoints =
                       zeus::CVector3f::lerp(((static_cast<const CScriptSpiderBallWaypoint*>(
                                                   mgr.GetObjectById(wp->NextWaypoint(mgr, ECheckActiveWaypoint::Check)))
@@ -178,15 +191,17 @@ void CScriptSpiderBallWaypoint::GetClosestPointAlongWaypoints(CStateManager& mgr
     }
   }
 
-  if ((ballPos - lastPoint).magSquared() < minPointToBallDistSq) {
-    closestPoint = lastPoint;
-    if (wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::Check) != kInvalidUniqueId) {
-      wp = static_cast<const CScriptSpiderBallWaypoint*>(
-          mgr.GetObjectById(wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::SkipCheck)));
-      deltaBetweenPoints = lastPoint - wp->GetTranslation();
-      interpDeltaBetweenPoints = deltaBetweenPoints;
-    }
-    closestWaypoint = wp;
+  if ((ballPos - lastPoint).magSquared() >= minPointToBallDistSq) {
+    return;
   }
+
+  closestPoint = lastPoint;
+  if (wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::Check) != kInvalidUniqueId) {
+    wp = static_cast<const CScriptSpiderBallWaypoint*>(
+      mgr.GetObjectById(wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::SkipCheck)));
+    deltaBetweenPoints = lastPoint - wp->GetTranslation();
+    interpDeltaBetweenPoints = deltaBetweenPoints;
+  }
+  closestWaypoint = wp;
 }
 } // namespace urde

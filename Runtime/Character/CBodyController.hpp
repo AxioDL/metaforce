@@ -28,11 +28,11 @@ class CBodyController {
   EBodyType x2f4_bodyType;
   s32 x2f8_curAnim = -1;
   float x2fc_turnSpeed;
-  bool x300_24_animationOver : 1;
-  bool x300_25_active : 1;
-  bool x300_26_frozen : 1;
-  bool x300_27_hasBeenFrozen : 1;
-  bool x300_28_playDeathAnims : 1;
+  bool x300_24_animationOver : 1 = false;
+  bool x300_25_active : 1 = false;
+  bool x300_26_frozen : 1 = false;
+  bool x300_27_hasBeenFrozen : 1 = false;
+  bool x300_28_playDeathAnims : 1 = true;
   float x304_intoFreezeDur = 0.f;
   float x308_frozenDur = 0.f;
   float x30c_breakoutDur = 0.f;

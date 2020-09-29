@@ -1,0 +1,237 @@
+﻿{
+  "configurations": [
+    {
+      "name": "x64-Clang-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "clang_cl_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
+          "value": "MultiThreadedDebug",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_COMPILER",
+          "value": "C:\\Program Files\\LLVM\\bin\\clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_CXX_COMPILER",
+          "value": "C:\\Program Files\\LLVM\\bin\\clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_LINKER",
+          "value": "C:\\Program Files\\LLVM\\bin\\lld-link.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_AR",
+          "value": "C:\\Program Files\\LLVM\\bin\\llvm-ar.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_RANLIB",
+          "value": "C:\\Program Files\\LLVM\\bin\\llvm-ranlib.exe",
+          "type": "FILEPATH"
+        }
+      ]
+    },
+    {
+      "name": "x64-Clang-Release",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "clang_cl_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
+          "value": "MultiThreaded",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_COMPILER",
+          "value": "C:\\Program Files\\LLVM\\bin\\clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_CXX_COMPILER",
+          "value": "C:\\Program Files\\LLVM\\bin\\clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_LINKER",
+          "value": "C:\\Program Files\\LLVM\\bin\\lld-link.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_AR",
+          "value": "C:\\Program Files\\LLVM\\bin\\llvm-ar.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_RANLIB",
+          "value": "C:\\Program Files\\LLVM\\bin\\llvm-ranlib.exe",
+          "type": "FILEPATH"
+        }
+      ]
+    },
+    {
+      "name": "x64-Clang-Release-vcpkg",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "clang_cl_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows-static",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
+          "value": "MultiThreaded",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_COMPILER",
+          "value": "C:\\Program Files\\LLVM\\bin\\clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_CXX_COMPILER",
+          "value": "C:\\Program Files\\LLVM\\bin\\clang-cl.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_LINKER",
+          "value": "C:\\Program Files\\LLVM\\bin\\lld-link.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_AR",
+          "value": "C:\\Program Files\\LLVM\\bin\\llvm-ar.exe",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "CMAKE_RANLIB",
+          "value": "C:\\Program Files\\LLVM\\bin\\llvm-ranlib.exe",
+          "type": "FILEPATH"
+        }
+      ]
+    },
+    {
+      "name": "x64-MSVC-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
+          "value": "MultiThreadedDebug",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_CXX_FLAGS",
+          "value": "",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_FLAGS",
+          "value": "",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "x64-MSVC-Release",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
+          "value": "MultiThreaded",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_CXX_FLAGS",
+          "value": "",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_FLAGS",
+          "value": "",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "x64-MSVC-Release-vcpkg",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows-static",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
+          "value": "MultiThreaded",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_CXX_FLAGS",
+          "value": "",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_FLAGS",
+          "value": "",
+          "type": "STRING"
+        }
+      ]
+    }
+  ]
+}

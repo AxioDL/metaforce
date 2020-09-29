@@ -35,7 +35,7 @@ struct CFinalInput;
 class CPlayerGun {
 public:
   static float skTractorBeamFactor;
-  enum class EMissleMode { Inactive, Active };
+  enum class EMissileMode { Inactive, Active };
   enum class EBWeapon { Bomb, PowerBomb };
   enum class EPhazonBeamState { Inactive, Entering, Exiting, Active };
   enum class EChargePhase {
@@ -82,15 +82,13 @@ private:
     float x18_transitionFactor = 1.f;
     EDir x1c_dir = EDir::Done;
     EGunState x20_gunState = EGunState::OutWipeDone;
-    bool x24_24_morphing : 1;
-    bool x24_25_weaponChanged : 1;
+    bool x24_24_morphing : 1 = false;
+    bool x24_25_weaponChanged : 1 = false;
 
   public:
     CGunMorph(float gunTransformTime, float holoHoldTime)
     : x4_gunTransformTime(gunTransformTime)
-    , x10_holoHoldTime(std::fabs(holoHoldTime))
-    , x24_24_morphing(false)
-    , x24_25_weaponChanged(false) {}
+    , x10_holoHoldTime(std::fabs(holoHoldTime)) {}
     float GetYLerp() const { return x0_yLerp; }
     float GetTransitionFactor() const { return x18_transitionFactor; }
     EGunState GetGunState() const { return x20_gunState; }
@@ -141,7 +139,7 @@ private:
   CPlayerState::EBeamId x310_currentBeam = CPlayerState::EBeamId::Power;
   CPlayerState::EBeamId x314_nextBeam = CPlayerState::EBeamId::Power;
   u32 x318_comboAmmoIdx = 0;
-  EMissleMode x31c_missileMode = EMissleMode::Inactive;
+  EMissileMode x31c_missileMode = EMissileMode::Inactive;
   CPlayerState::EBeamId x320_currentAuxBeam = CPlayerState::EBeamId::Power;
   EIdleState x324_idleState = EIdleState::Four;
   float x328_animSfxPitch = 0.f;
@@ -222,41 +220,41 @@ private:
   std::unique_ptr<CWorldShadow> x82c_shadow;
   s16 x830_chargeRumbleHandle = -1;
 
-  bool x832_24_coolingCharge : 1;
-  bool x832_25_chargeEffectVisible : 1;
-  bool x832_26_comboFiring : 1;
-  bool x832_27_chargeAnimStarted : 1;
-  bool x832_28_readyForShot : 1;
-  bool x832_29_lockedOn : 1;
-  bool x832_30_requestReturnToDefault : 1;
-  bool x832_31_inRestPose : 1;
+  bool x832_24_coolingCharge : 1 = false;
+  bool x832_25_chargeEffectVisible : 1 = false;
+  bool x832_26_comboFiring : 1 = false;
+  bool x832_27_chargeAnimStarted : 1 = false;
+  bool x832_28_readyForShot : 1 = false;
+  bool x832_29_lockedOn : 1 = false;
+  bool x832_30_requestReturnToDefault : 1 = false;
+  bool x832_31_inRestPose : 1 = true;
 
-  bool x833_24_notFidgeting : 1;
-  bool x833_25_ : 1;
-  bool x833_26_ : 1;
-  bool x833_27_ : 1;
-  bool x833_28_phazonBeamActive : 1;
-  bool x833_29_pointBlankWorldSurface : 1;
-  bool x833_30_canShowAuxMuzzleEffect : 1;
-  bool x833_31_inFreeLook : 1;
+  bool x833_24_notFidgeting : 1 = true;
+  bool x833_25_ : 1 = false;
+  bool x833_26_ : 1 = false;
+  bool x833_27_ : 1 = false;
+  bool x833_28_phazonBeamActive : 1 = false;
+  bool x833_29_pointBlankWorldSurface : 1 = false;
+  bool x833_30_canShowAuxMuzzleEffect : 1 = true;
+  bool x833_31_inFreeLook : 1 = false;
 
-  bool x834_24_charging : 1;
-  bool x834_25_gunMotionFidgeting : 1;
-  bool x834_26_animPlaying : 1;
-  bool x834_27_underwater : 1;
-  bool x834_28_requestImmediateRecharge : 1;
-  bool x834_29_frozen : 1;
-  bool x834_30_inBigStrike : 1;
-  bool x834_31_gunMotionInFidgetBasePosition : 1;
+  bool x834_24_charging : 1 = false;
+  bool x834_25_gunMotionFidgeting : 1 = false;
+  bool x834_26_animPlaying : 1 = false;
+  bool x834_27_underwater : 1 = false;
+  bool x834_28_requestImmediateRecharge : 1 = false;
+  bool x834_29_frozen : 1 = false;
+  bool x834_30_inBigStrike : 1 = false;
+  bool x834_31_gunMotionInFidgetBasePosition : 1 = false;
 
-  bool x835_24_canFirePhazon : 1;
-  bool x835_25_inPhazonBeam : 1;
-  bool x835_26_phazonBeamMorphing : 1;
-  bool x835_27_intoPhazonBeam : 1;
-  bool x835_28_bombReady : 1;
-  bool x835_29_powerBombReady : 1;
-  bool x835_30_inPhazonPool : 1;
-  bool x835_31_actorAttached : 1;
+  bool x835_24_canFirePhazon : 1 = false;
+  bool x835_25_inPhazonBeam : 1 = false;
+  bool x835_26_phazonBeamMorphing : 1 = false;
+  bool x835_27_intoPhazonBeam : 1 = false;
+  bool x835_28_bombReady : 1 = false;
+  bool x835_29_powerBombReady : 1 = false;
+  bool x835_30_inPhazonPool : 1 = false;
+  bool x835_31_actorAttached : 1 = false;
 
   CTexturedQuadFilter m_screenQuad{EFilterType::Blend, CGraphics::g_SpareTexture.get_color(0),
                                    CTexturedQuadFilter::ZTest::GEqualZWrite};
@@ -323,7 +321,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   void AsyncLoadSuit(CStateManager& mgr);
   void TouchModel(const CStateManager& stateMgr);
-  EMissleMode GetMissleMode() const { return x31c_missileMode; }
+  EMissileMode GetMissleMode() const { return x31c_missileMode; }
   bool IsFidgeting() const { return x833_24_notFidgeting; }
   bool IsCharging() const { return x834_24_charging; }
   float GetChargeBeamFactor() const { return x340_chargeBeamFactor; }
@@ -356,6 +354,7 @@ public:
   void DropBomb(EBWeapon weapon, CStateManager& mgr);
   TUniqueId DropPowerBomb(CStateManager& mgr);
   void SetActorAttached(bool b) { x835_31_actorAttached = b; }
+  CAuxWeapon& GetAuxWeapon() const { return *x744_auxWeapon; }
 };
 
 } // namespace urde

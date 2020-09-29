@@ -5,10 +5,10 @@
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/GCNTypes.hpp"
+#include "Runtime/Character/CTransitionDatabaseGame.hpp"
 
 namespace urde {
 class CSimplePool;
-class CTransitionDatabaseGame;
 
 struct CAnimSysContext {
   TToken<CTransitionDatabaseGame> x0_transDB;

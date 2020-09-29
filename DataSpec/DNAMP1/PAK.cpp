@@ -3,6 +3,7 @@
 #include "DNAMP1.hpp"
 #include "PAK.hpp"
 #include "AGSC.hpp"
+#include "DataSpec/AssetNameMap.hpp"
 
 namespace DataSpec::DNAMP1 {
 
@@ -174,6 +175,11 @@ std::string PAK::bestEntryName(const nod::Node& pakNode, const Entry& entry, std
       catalogueName = nentry.name;
       return fmt::format(FMT_STRING("{}_{}"), nentry.name, entry.id);
     }
+  }
+
+  /* Prefer asset name map second */
+  if (const auto* name = AssetNameMap::TranslateIdToName(entry.id)) {
+    return fmt::format(FMT_STRING("{}_{}"), *name, entry.id);
   }
 
   /* Otherwise return ID format string */

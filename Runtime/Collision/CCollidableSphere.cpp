@@ -7,7 +7,6 @@
 
 namespace urde {
 constexpr CCollisionPrimitive::Type sType(CCollidableSphere::SetStaticTableIndex, "CCollidableSphere");
-u32 CCollidableSphere::sTableIndex = -1;
 
 namespace Collide {
 

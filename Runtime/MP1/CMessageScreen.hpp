@@ -36,7 +36,7 @@ class CMessageScreen {
   u32 x6c_page = 0;
   float x70_blurAmt = 0.f;
   float x74_delayTime;
-  bool x78_24_exit : 1;
+  bool x78_24_exit : 1 = false;
 
 public:
   explicit CMessageScreen(CAssetId msg, float time);

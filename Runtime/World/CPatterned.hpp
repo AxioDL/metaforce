@@ -19,7 +19,7 @@
 #include <zeus/CVector3f.hpp>
 
 #ifndef DEFINE_PATTERNED
-#define DEFINE_PATTERNED(type) static constexpr ECharacter CharacterType = ECharacter::type;
+#define DEFINE_PATTERNED(type) static constexpr ECharacter CharacterType = ECharacter::type
 #endif
 
 namespace urde {
@@ -31,7 +31,7 @@ using CPatternedTryFunc = void (CPatterned::*)(CStateManager&, int);
 
 class CPatterned : public CAi {
 public:
-  static const zeus::CColor skDamageColor;
+  static constexpr zeus::CColor skDamageColor{0.5f, 0.f, 0.f};
   enum class ECharacter {
     AtomicAlpha = 0,
     AtomicBeta = 1,
@@ -84,7 +84,7 @@ public:
   enum class EBehaviourOrient { MoveDir, Constant, Destination };
   enum class EBehaviourModifiers { Zero };
   enum class EPatrolState { Invalid = -1, Patrol, Pause, Done };
-  enum class EAnimState { NotReady, Ready, Repeat, Over };
+  enum class EAnimState { NotReady, Ready, Repeat, Over, Invalid = -1 };
   class CPatternNode {
     zeus::CVector3f x0_pos;
     zeus::CVector3f xc_forward;
@@ -125,15 +125,15 @@ protected:
   EBehaviourOrient x30c_behaviourOrient = EBehaviourOrient::MoveDir;
   zeus::CVector3f x310_moveVec;
   zeus::CVector3f x31c_faceVec;
-  bool x328_24_inPosition : 1;
+  bool x328_24_inPosition : 1 = false;
   bool x328_25_verticalMovement : 1;
-  bool x328_26_solidCollision : 1;
+  bool x328_26_solidCollision : 1 = false;
   bool x328_27_onGround : 1;
-  bool x328_28_prevOnGround : 1;
-  bool x328_29_noPatternShagging : 1;
-  bool x328_30_lookAtDeathDir : 1;
-  bool x328_31_energyAttractor : 1;
-  bool x329_24_ : 1;
+  bool x328_28_prevOnGround : 1 = true;
+  bool x328_29_noPatternShagging : 1 = false;
+  bool x328_30_lookAtDeathDir : 1 = true;
+  bool x328_31_energyAttractor : 1 = false;
+  bool x329_24_ : 1 = true;
   EAnimState x32c_animState = EAnimState::NotReady;
   CStateMachineState x330_stateMachineState;
   ECharacter x34c_character;
@@ -170,32 +170,32 @@ protected:
   float x3f4_burnThinkRateTimer = 0.f;
   EMoveState x3f8_moveState = EMoveState::Zero;
   EFlavorType x3fc_flavor;
-  bool x400_24_hitByPlayerProjectile : 1;
-  bool x400_25_alive : 1; // t
-  bool x400_26_ : 1;
-  bool x400_27_fadeToDeath : 1;
-  bool x400_28_pendingMassiveDeath : 1;
-  bool x400_29_pendingMassiveFrozenDeath : 1;
-  bool x400_30_patternShagged : 1;
+  bool x400_24_hitByPlayerProjectile : 1 = false;
+  bool x400_25_alive : 1 = true;
+  bool x400_26_ : 1 = false;
+  bool x400_27_fadeToDeath : 1 = false;
+  bool x400_28_pendingMassiveDeath : 1 = false;
+  bool x400_29_pendingMassiveFrozenDeath : 1 = false;
+  bool x400_30_patternShagged : 1 = false;
   bool x400_31_isFlyer : 1;
-  uint32_t x401_24_pathOverCount : 2;
-  bool x401_26_disableMove : 1;
-  bool x401_27_phazingOut : 1;
-  bool x401_28_burning : 1;
-  bool x401_29_laggedBurnDeath : 1;
-  bool x401_30_pendingDeath : 1;
-  bool x401_31_nextPendingShock : 1;
-  bool x402_24_pendingShock : 1;
-  bool x402_25_lostMassiveFrozenHP : 1;
-  bool x402_26_dieIf80PercFrozen : 1;
-  bool x402_27_noXrayModel : 1;
-  bool x402_28_isMakingBigStrike : 1;
-  bool x402_29_drawParticles : 1; // t
+  uint32_t x401_24_pathOverCount : 2 = 0;
+  bool x401_26_disableMove : 1 = false;
+  bool x401_27_phazingOut : 1 = false;
+  bool x401_28_burning : 1 = false;
+  bool x401_29_laggedBurnDeath : 1 = false;
+  bool x401_30_pendingDeath : 1 = false;
+  bool x401_31_nextPendingShock : 1 = false;
+  bool x402_24_pendingShock : 1 = false;
+  bool x402_25_lostMassiveFrozenHP : 1 = false;
+  bool x402_26_dieIf80PercFrozen : 1 = false;
+  bool x402_27_noXrayModel : 1 = false;
+  bool x402_28_isMakingBigStrike : 1 = false;
+  bool x402_29_drawParticles : 1 = true;
   bool x402_30_updateThermalFrozenState : 1;
-  bool x402_31_thawed : 1;
-  bool x403_24_keepThermalVisorState : 1;
-  bool x403_25_enableStateMachine : 1;          // t
-  bool x403_26_stateControlledMassiveDeath : 1; // t
+  bool x402_31_thawed : 1 = false;
+  bool x403_24_keepThermalVisorState : 1 = false;
+  bool x403_25_enableStateMachine : 1 = true;
+  bool x403_26_stateControlledMassiveDeath : 1 = true;
   CDamageInfo x404_contactDamage;
   float x420_curDamageRemTime = 0.f;
   float x424_damageWaitTime;
@@ -214,7 +214,7 @@ protected:
   float x4f0_predictedLeashTime = 0.f;
   float x4f4_intoFreezeDur;
   float x4f8_outofFreezeDur;
-  float x4fc_;
+  float x4fc_freezeDur;
   float x500_preThinkDt = 0.f;
   float x504_damageDur = 0.f;
   EColliderType x508_colliderType;
@@ -320,7 +320,9 @@ public:
   void TryCommand(CStateManager& mgr, pas::EAnimationState state, CPatternedTryFunc func, int arg);
   void TryLoopReaction(CStateManager& mgr, int arg);
   void TryProjectileAttack(CStateManager& mgr, int arg);
+  void TryMeleeAttack_TargetPos(CStateManager& mgr, int arg);
   void TryMeleeAttack(CStateManager& mgr, int arg);
+  void TryGenerateNoXf(CStateManager& mgr, int arg);
   void TryGenerate(CStateManager& mgr, int arg);
   void TryJump(CStateManager& mgr, int arg);
   void TryTurn(CStateManager& mgr, int arg);
@@ -333,7 +335,9 @@ public:
   void TryCover(CStateManager& mgr, int arg);
   void TryWallHang(CStateManager& mgr, int arg);
   void TryKnockBack(CStateManager& mgr, int arg);
+  void TryKnockBack_Front(CStateManager& mgr, int arg);
   void TryGenerateDeactivate(CStateManager& mgr, int arg);
+  void TryStep(CStateManager& mgr, int arg);
 
   virtual bool KnockbackWhenFrozen() const { return true; }
   virtual void MassiveDeath(CStateManager& mgr);
@@ -361,6 +365,7 @@ public:
   const CBodyController* GetBodyController() const { return x450_bodyController.get(); }
   CBodyController* GetBodyController() { return x450_bodyController.get(); }
   const CKnockBackController& GetKnockBackController() const { return x460_knockBackController; }
+  CKnockBackController& GetKnockBackController() { return x460_knockBackController; }
   void SetupPlayerCollision(bool);
   CGameProjectile* LaunchProjectile(const zeus::CTransform& gunXf, CStateManager& mgr, int maxAllowed,
                                     EProjectileAttrib attrib, bool playerHoming,
