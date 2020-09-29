@@ -11,7 +11,7 @@
 namespace urde {
 using namespace hsh::pipeline;
 
-struct CCameraBlurFilterPipeline : pipeline<color_attachment<>> {
+struct CCameraBlurFilterPipeline : pipeline<BlendAttachment<>, depth_write<false>> {
   CCameraBlurFilterPipeline(hsh::vertex_buffer<CCameraBlurFilter::Vert> vbo,
                             hsh::uniform_buffer<CCameraBlurFilter::Uniform> ubo,
                             hsh::render_texture2d tex) {
