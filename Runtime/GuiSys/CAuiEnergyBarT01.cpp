@@ -118,7 +118,8 @@ void CAuiEnergyBarT01::Draw(const CGuiWidgetDrawParms& drawParms) {
     }
   }
 
-  m_energyBarShader.draw(filledColor, m_verts[0], shadowColor, m_verts[1], emptyColor, m_verts[2], xbc_tex.GetObj());
+  hsh::texture2d tex = xbc_tex.GetObj()->GetBooTexture();
+  m_energyBarShader.draw(filledColor, m_verts[0], shadowColor, m_verts[1], emptyColor, m_verts[2], tex);
 }
 
 void CAuiEnergyBarT01::SetCurrEnergy(float e, ESetMode mode) {

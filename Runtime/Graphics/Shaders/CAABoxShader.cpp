@@ -11,7 +11,8 @@ using namespace hsh::pipeline;
 
 template <bool zOnly>
 struct CAABoxShaderPipeline
-: pipeline<std::conditional_t<zOnly, NoColorAttachment<>, BlendAttachment<>>, depth_compare<hsh::LEqual>> {
+: pipeline<topology<hsh::TriangleStrip>, std::conditional_t<zOnly, NoColorAttachment<>, BlendAttachment<>>,
+           depth_compare<hsh::LEqual>> {
   CAABoxShaderPipeline(hsh::vertex_buffer<CAABoxShader::Vert> vbo, hsh::uniform_buffer<CAABoxShader::Uniform> uniBuf) {
     this->position = uniBuf->m_xf * hsh::float4(vbo->m_pos, 1.f);
     this->color_out[0] = uniBuf->m_color;

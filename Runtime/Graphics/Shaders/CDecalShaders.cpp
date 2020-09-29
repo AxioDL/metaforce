@@ -11,7 +11,8 @@ using namespace hsh::pipeline;
 
 template <bool Additive, bool RedToAlpha>
 struct CDecalShaderTexPipeline
-: pipeline<std::conditional_t<Additive, std::conditional_t<RedToAlpha, MultiplyAttachment<>, AdditiveAttachment<>>,
+: pipeline<topology<hsh::TriangleStrip>,
+           std::conditional_t<Additive, std::conditional_t<RedToAlpha, MultiplyAttachment<>, AdditiveAttachment<>>,
                               BlendAttachment<>>,
            depth_compare<hsh::LEqual>, depth_write<false>> {
   CDecalShaderTexPipeline(hsh::vertex_buffer<SParticleInstanceTex> vbo, hsh::uniform_buffer<SParticleUniforms> uniBuf,

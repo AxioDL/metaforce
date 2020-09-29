@@ -25,8 +25,9 @@ struct CColoredStripShaderColorAttachment<CColoredStripShader::Mode::Subtractive
 
 template <CColoredStripShader::Mode Mode>
 // TODO typename == hsh bug?
-struct CColoredStripShaderPipeline : pipeline<typename CColoredStripShaderColorAttachment<Mode>::color_attachment,
-                                              depth_compare<hsh::LEqual>, depth_write<false>> {
+struct CColoredStripShaderPipeline
+: pipeline<topology<hsh::TriangleStrip>, typename CColoredStripShaderColorAttachment<Mode>::color_attachment,
+           depth_compare<hsh::LEqual>, depth_write<false>> {
   CColoredStripShaderPipeline(hsh::vertex_buffer<CColoredStripShader::Vert> vbo,
                               hsh::uniform_buffer<CColoredStripShader::Uniform> uniBuf, hsh::texture2d tex) {
     this->position = uniBuf->m_matrix * hsh::float4(vbo->m_pos, 1.f);
