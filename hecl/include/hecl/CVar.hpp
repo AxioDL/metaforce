@@ -75,8 +75,8 @@ public:
   std::string help() const;
   std::string value() const { return m_value; }
 
-  template <typename T>
-  bool toValue(T& value) const { return false; }
+  template <class T>
+  bool toValue(T& value) const;
   atVec2f toVec2f(bool* isValid = nullptr) const;
   template<>
   bool toValue(atVec2f& value) const {
@@ -121,6 +121,11 @@ public:
   }
   double toReal(bool* isValid = nullptr) const;
   template<>
+  bool toValue(float& value) const {
+    bool isValid = false;
+    value = static_cast<float>(toReal(&isValid));
+    return isValid;
+  }
   bool toValue(double& value) const {
     bool isValid = false;
     value = toReal(&isValid);
