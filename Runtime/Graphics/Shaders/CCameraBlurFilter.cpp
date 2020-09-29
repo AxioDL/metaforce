@@ -1,9 +1,9 @@
 #include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
 
-#include <algorithm>
 #include <array>
 #include <cmath>
 
+#include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
 #include "CCameraBlurFilter.cpp.hshhead"
@@ -11,7 +11,7 @@
 namespace urde {
 using namespace hsh::pipeline;
 
-struct CCameraBlurFilterPipeline : pipeline<BlendAttachment<>, depth_write<false>> {
+struct CCameraBlurFilterPipeline : FilterPipeline<EFilterType::Blend> {
   CCameraBlurFilterPipeline(hsh::vertex_buffer<CCameraBlurFilter::Vert> vbo,
                             hsh::uniform_buffer<CCameraBlurFilter::Uniform> ubo,
                             hsh::render_texture2d tex) {

@@ -28,31 +28,38 @@ enum class EFilterType {
 };
 
 template <EFilterType FT, hsh::Compare ZComp = hsh::Always>
-struct FilterPipeline : hsh::pipeline::pipeline<hsh::pipeline::color_attachment<>> {};
+struct FilterPipeline : hsh::pipeline::pipeline<hsh::pipeline::color_attachment<>,
+                                                hsh::pipeline::depth_write<false>> {};
 
 template <hsh::Compare ZComp>
 struct FilterPipeline<EFilterType::Passthru, ZComp>
-: hsh::pipeline::pipeline<hsh::pipeline::color_attachment<>, hsh::pipeline::depth_compare<ZComp>> {};
+: hsh::pipeline::pipeline<hsh::pipeline::color_attachment<>, hsh::pipeline::depth_compare<ZComp>,
+                          hsh::pipeline::depth_write<false>> {};
 
 template <hsh::Compare ZComp>
 struct FilterPipeline<EFilterType::Multiply, ZComp>
-: hsh::pipeline::pipeline<MultiplyAttachment<false>, hsh::pipeline::depth_compare<ZComp>> {};
+: hsh::pipeline::pipeline<MultiplyAttachment<false>, hsh::pipeline::depth_compare<ZComp>,
+                          hsh::pipeline::depth_write<false>> {};
 
 template <hsh::Compare ZComp>
 struct FilterPipeline<EFilterType::Add, ZComp>
-: hsh::pipeline::pipeline<AdditiveAttachment<false>, hsh::pipeline::depth_compare<ZComp>> {};
+: hsh::pipeline::pipeline<AdditiveAttachment<false>, hsh::pipeline::depth_compare<ZComp>,
+                          hsh::pipeline::depth_write<false>> {};
 
 template <hsh::Compare ZComp>
 struct FilterPipeline<EFilterType::Blend, ZComp>
-: hsh::pipeline::pipeline<BlendAttachment<false>, hsh::pipeline::depth_compare<ZComp>> {};
+: hsh::pipeline::pipeline<BlendAttachment<false>, hsh::pipeline::depth_compare<ZComp>,
+                          hsh::pipeline::depth_write<false>> {};
 
 template <hsh::Compare ZComp>
 struct FilterPipeline<EFilterType::NoColor, ZComp>
-: hsh::pipeline::pipeline<NoColorAttachmentExt<AlphaMode::AlphaReplace>, hsh::pipeline::depth_compare<ZComp>> {};
+: hsh::pipeline::pipeline<NoColorAttachmentExt<AlphaMode::AlphaReplace>, hsh::pipeline::depth_compare<ZComp>,
+                          hsh::pipeline::depth_write<false>> {};
 
 template <hsh::Compare ZComp>
 struct FilterPipeline<EFilterType::InvDstMultiply, ZComp>
-: hsh::pipeline::pipeline<InvDstMultiplyAttachmentExt<AlphaMode::AlphaReplace>, hsh::pipeline::depth_compare<ZComp>> {};
+: hsh::pipeline::pipeline<InvDstMultiplyAttachmentExt<AlphaMode::AlphaReplace>, hsh::pipeline::depth_compare<ZComp>,
+                          hsh::pipeline::depth_write<false>> {};
 
 enum class EFilterShape {
   Fullscreen,
