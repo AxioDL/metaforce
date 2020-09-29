@@ -116,11 +116,11 @@ extern SViewport g_Viewport;
 
 struct SClipScreenRect {
   bool x0_valid = false;
-  int32_t x4_left = 0;
-  int32_t x8_top = 0;
-  uint32_t xc_width = 0;
-  uint32_t x10_height = 0;
-  uint32_t x14_dstWidth = 0;
+  s32 x4_left = 0;
+  s32 x8_top = 0;
+  u32 xc_width = 0;
+  u32 x10_height = 0;
+  u32 x14_dstWidth = 0;
   float x18_uvXMin = 0.f;
   float x1c_uvXMax = 0.f;
   float x20_uvYMin = 0.f;

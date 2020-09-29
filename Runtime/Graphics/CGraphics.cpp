@@ -317,8 +317,8 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const zeus::CVector3f& p1, const
   // int finalMinY = std::max(minY, 0 /* ViewportY origin */);
   // int finalMaxY = std::min(maxY, int(g_Viewport.xc_height));
 
-  int width = maxX2 - minX2;
-  int height = maxY2 - minY2;
+  u32 width = maxX2 - minX2;
+  u32 height = maxY2 - minY2;
   return {true,
           minX2,
           minY2,
