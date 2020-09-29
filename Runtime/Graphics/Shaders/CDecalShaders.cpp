@@ -4,69 +4,51 @@
 
 #include "Runtime/Particle/CDecal.hpp"
 
-#include <hecl/Pipeline.hpp>
+#include "CDecalShaders.cpp.hshhead"
 
 namespace urde {
+using namespace hsh::pipeline;
 
-void CDecalShaders::Initialize() {
-  m_texZTestNoZWrite = hecl::conv->convert(Shader_CDecalShaderTexZTest{});
-  m_texAdditiveZTest = hecl::conv->convert(Shader_CDecalShaderTexAdditiveZTest{});
-  m_texRedToAlphaZTest = hecl::conv->convert(Shader_CDecalShaderTexRedToAlphaZTest{});
-  m_noTexZTestNoZWrite = hecl::conv->convert(Shader_CDecalShaderNoTexZTest{});
-  m_noTexAdditiveZTest = hecl::conv->convert(Shader_CDecalShaderNoTexAdditiveZTest{});
-}
+template <bool Additive, bool RedToAlpha>
+struct CDecalShaderTexPipeline
+: pipeline<std::conditional_t<Additive, std::conditional_t<RedToAlpha, MultiplyAttachment<>, AdditiveAttachment<>>,
+                              BlendAttachment<>>,
+           depth_compare<hsh::LEqual>, depth_write<false>> {
+  CDecalShaderTexPipeline(hsh::vertex_buffer<SParticleInstanceTex> vbo, hsh::uniform_buffer<SParticleUniforms> uniBuf,
+                          hsh::texture2d tex) {
+    this->position = uniBuf->mvp * vbo->pos[this->vertex_id];
+    this->color_out[0] = vbo->color * uniBuf->moduColor * tex.sample<float>(vbo->uvs[this->vertex_id]);
+    if constexpr (RedToAlpha) {
+      this->color_out[0].w = this->color_out[0].x;
+    }
+  }
+};
+template struct CDecalShaderTexPipeline<true, true>;
+template struct CDecalShaderTexPipeline<true, false>;
+template struct CDecalShaderTexPipeline<false, false>;
 
-void CDecalShaders::Shutdown() {
-  m_texZTestNoZWrite.reset();
-  m_texAdditiveZTest.reset();
-  m_texRedToAlphaZTest.reset();
-  m_noTexZTestNoZWrite.reset();
-  m_noTexAdditiveZTest.reset();
-}
+template <bool Additive>
+struct CDecalShaderNoTexPipeline : pipeline<std::conditional_t<Additive, AdditiveAttachment<>, BlendAttachment<>>,
+                                            depth_compare<hsh::LEqual>, depth_write<!Additive>> {
+  CDecalShaderNoTexPipeline(hsh::vertex_buffer<SParticleInstanceTex> vbo,
+                            hsh::uniform_buffer<SParticleUniforms> uniBuf) {
+    this->position = uniBuf->mvp * vbo->pos[this->vertex_id];
+    this->color_out[0] = vbo->color * uniBuf->moduColor;
+  }
+};
+template struct CDecalShaderNoTexPipeline<true>;
+template struct CDecalShaderNoTexPipeline<false>;
 
-void CDecalShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CQuadDecal& decal) {
-  boo::ObjToken<boo::IShaderPipeline> regPipeline;
-  boo::ObjToken<boo::IShaderPipeline> redToAlphaPipeline;
-
+hsh::binding& CDecalShaders::BuildShaderDataBinding(CQuadDecal& decal, hsh::texture2d tex) {
+  bool additive = decal.m_desc->x18_ADD;
   if (decal.m_desc->x14_TEX) {
-    if (decal.m_desc->x18_ADD)
-      regPipeline = m_texAdditiveZTest;
-    else
-      regPipeline = m_texZTestNoZWrite;
-    redToAlphaPipeline = m_texRedToAlphaZTest;
+    bool redToAlpha = additive && CDecal::GetMoveRedToAlphaBuffer();
+    m_dataBind.hsh_tex_bind(
+        CDecalShaderTexPipeline<additive, redToAlpha>(decal.m_instBuf.get(), decal.m_uniformBuf.get(), tex));
   } else {
-    if (decal.m_desc->x18_ADD)
-      regPipeline = m_noTexAdditiveZTest;
-    else
-      regPipeline = m_noTexZTestNoZWrite;
+    m_dataBind.hsh_notex_bind(CDecalShaderNoTexPipeline<additive>(decal.m_instBuf.get(), decal.m_uniformBuf.get()));
   }
-
-  const SQuadDescr* const desc = decal.m_desc;
-  const CUVElement* const texr = desc->x14_TEX.get();
-  size_t texCount = 0;
-  std::array<boo::ObjToken<boo::ITexture>, 1> textures;
-
-  if (texr != nullptr) {
-    textures[0] = texr->GetValueTexture(0).GetObj()->GetBooTexture();
-    texCount = 1;
-  }
-
-  if (!decal.m_instBuf) {
-    return;
-  }
-
-  std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> uniforms{decal.m_uniformBuf.get()};
-
-  if (regPipeline) {
-    decal.m_normalDataBind =
-        ctx.newShaderDataBinding(regPipeline, nullptr, decal.m_instBuf.get(), nullptr, uniforms.size(), uniforms.data(),
-                                 nullptr, texCount, textures.data(), nullptr, nullptr);
-  }
-  if (redToAlphaPipeline) {
-    decal.m_redToAlphaDataBind =
-        ctx.newShaderDataBinding(redToAlphaPipeline, nullptr, decal.m_instBuf.get(), nullptr, uniforms.size(),
-                                 uniforms.data(), nullptr, texCount, textures.data(), nullptr, nullptr);
-  }
+  return m_dataBind;
 }
 
 } // namespace urde

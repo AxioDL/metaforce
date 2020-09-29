@@ -57,4 +57,5 @@ runtime_add_hsh(Graphics
         Shaders/CFogVolumePlaneShader.cpp
         Shaders/CAABoxShader.cpp
         Shaders/CColoredStripShader.cpp
+        Shaders/CDecalShaders.cpp
         )

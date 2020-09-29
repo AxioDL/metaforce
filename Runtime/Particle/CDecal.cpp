@@ -1,7 +1,6 @@
 #include "Runtime/Particle/CDecal.hpp"
 
 #include "Runtime/Graphics/CModel.hpp"
-#include "Runtime/Graphics/Shaders/CDecalShaders.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
 
 namespace urde {
@@ -18,38 +17,36 @@ CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf
 
   CDecalDescription* d = x0_description.GetObj();
   if (d->x38_DMDL) {
-    if (d->x48_DLFT)
+    if (d->x48_DLFT) {
       d->x48_DLFT->GetValue(0, x54_modelLifetime);
-    else
+    } else {
       x54_modelLifetime = 0x7FFFFF;
+    }
 
-    if (d->x50_DMRT)
+    if (d->x50_DMRT) {
       d->x50_DMRT->GetValue(0, x60_rotation);
+    }
   } else {
     x5c_29_modelInvalid = true;
   }
-
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    for (auto& decal : x3c_decalQuads) {
-      if (decal.m_desc->x14_TEX) {
-        decal.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SParticleInstanceTex), 1);
-      } else {
-        decal.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SParticleInstanceNoTex), 1);
-      }
-      decal.m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-      CDecalShaders::BuildShaderDataBinding(ctx, decal);
-    }
-    return true;
-  } BooTrace);
 }
 
 bool CDecal::InitQuad(CQuadDecal& quad, const SQuadDescr& desc) {
   quad.m_desc = &desc;
   if (desc.x14_TEX) {
-    if (desc.x0_LFT)
+    quad.m_instBuf = hsh::create_dynamic_vertex_buffer<SParticleInstanceTex>(1);
+  } else {
+    quad.m_instBuf = hsh::create_dynamic_vertex_buffer<SParticleInstanceNoTex>(1);
+  }
+  quad.m_uniformBuf = hsh::create_dynamic_uniform_buffer<SParticleUniforms>();
+
+  if (desc.x14_TEX) {
+    if (desc.x0_LFT) {
       desc.x0_LFT->GetValue(0, quad.x4_lifetime);
-    else
+    } else {
       quad.x4_lifetime = 0x7FFFFF;
+    }
+
     if (desc.x8_ROT) {
       desc.x8_ROT->GetValue(0, quad.x8_rotation);
       quad.x0_24_invalid = desc.x8_ROT->IsConstant();
@@ -57,13 +54,16 @@ bool CDecal::InitQuad(CQuadDecal& quad, const SQuadDescr& desc) {
 
     if (desc.x4_SZE) {
       quad.x0_24_invalid = desc.x4_SZE->IsConstant();
-      float size = 1.f;
-      desc.x4_SZE->GetValue(0, size);
-      quad.x0_24_invalid = size <= 1.f;
+      if (!quad.x0_24_invalid) {
+        float size = 1.f;
+        desc.x4_SZE->GetValue(0, size);
+        quad.x0_24_invalid = size <= 1.f;
+      }
     }
 
-    if (desc.xc_OFF)
+    if (desc.xc_OFF) {
       quad.x0_24_invalid = desc.xc_OFF->IsFastConstant();
+    }
     return false;
   }
 
@@ -75,18 +75,20 @@ void CDecal::SetGlobalSeed(u16 seed) { sDecalRandom.SetSeed(seed); }
 
 void CDecal::SetMoveRedToAlphaBuffer(bool move) { sMoveRedToAlphaBuffer = move; }
 
-void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
+void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) {
   zeus::CColor color = zeus::skWhite;
   float size = 1.f;
   zeus::CVector3f offset;
-  if (CColorElement* clr = desc.x10_CLR.get())
+  if (CColorElement* clr = desc.x10_CLR.get()) {
     clr->GetValue(x58_frameIdx, color);
+  }
   if (CRealElement* sze = desc.x4_SZE.get()) {
     sze->GetValue(x58_frameIdx, size);
     size *= 0.5f;
   }
-  if (CRealElement* rot = desc.x8_ROT.get())
+  if (CRealElement* rot = desc.x8_ROT.get()) {
     rot->GetValue(x58_frameIdx, decal.x8_rotation);
+  }
   if (CVectorElement* off = desc.xc_OFF.get()) {
     off->GetValue(x58_frameIdx, offset);
     offset.y() = 0.f;
@@ -96,71 +98,69 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
   CGraphics::SetModelMatrix(modXf);
 
   SParticleUniforms uniformData = {
-      CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
-  decal.m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
-
-  bool redToAlpha = sMoveRedToAlphaBuffer && desc.x18_ADD && desc.x14_TEX;
+      CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(),
+      {1.f, 1.f, 1.f, 1.f},
+  };
+  decal.m_uniformBuf.load(uniformData);
 
   SUVElementSet uvSet = {0.f, 1.f, 0.f, 1.f};
   if (CUVElement* tex = desc.x14_TEX.get()) {
     TLockedToken<CTexture> texObj = tex->GetValueTexture(x58_frameIdx);
-    if (!texObj.IsLoaded())
+    if (!texObj.IsLoaded()) {
       return;
+    }
     tex->GetValueUV(x58_frameIdx, uvSet);
-    if (redToAlpha)
-      CGraphics::SetShaderDataBinding(decal.m_redToAlphaDataBind);
-    else
-      CGraphics::SetShaderDataBinding(decal.m_normalDataBind);
 
     g_instTexData.clear();
     g_instTexData.reserve(1);
 
     SParticleInstanceTex& inst = g_instTexData.emplace_back();
     if (decal.x8_rotation == 0.f) {
-      inst.pos[0] = zeus::CVector3f(-size, 0.001f, size);
-      inst.pos[1] = zeus::CVector3f(size, 0.001f, size);
-      inst.pos[2] = zeus::CVector3f(-size, 0.001f, -size);
-      inst.pos[3] = zeus::CVector3f(size, 0.001f, -size);
+      inst.pos[0] = hsh::float4(-size, 0.001f, size, 1.f);
+      inst.pos[1] = hsh::float4(size, 0.001f, size, 1.f);
+      inst.pos[2] = hsh::float4(-size, 0.001f, -size, 1.f);
+      inst.pos[3] = hsh::float4(size, 0.001f, -size, 1.f);
     } else {
       float ang = zeus::degToRad(decal.x8_rotation);
       float sinSize = std::sin(ang) * size;
       float cosSize = std::cos(ang) * size;
-      inst.pos[0] = zeus::CVector3f(sinSize - cosSize, 0.001f, cosSize + sinSize);
-      inst.pos[1] = zeus::CVector3f(cosSize + sinSize, 0.001f, cosSize - sinSize);
-      inst.pos[2] = zeus::CVector3f(-(cosSize + sinSize), 0.001f, -(cosSize - sinSize));
-      inst.pos[3] = zeus::CVector3f(-sinSize + cosSize, 0.001f, -cosSize - sinSize);
+      inst.pos[0] = hsh::float4(sinSize - cosSize, 0.001f, cosSize + sinSize, 1.f);
+      inst.pos[1] = hsh::float4(cosSize + sinSize, 0.001f, cosSize - sinSize, 1.f);
+      inst.pos[2] = hsh::float4(-(cosSize + sinSize), 0.001f, -(cosSize - sinSize), 1.f);
+      inst.pos[3] = hsh::float4(-sinSize + cosSize, 0.001f, -cosSize - sinSize, 1.f);
     }
     inst.color = color;
-    inst.uvs[0] = zeus::CVector2f(uvSet.xMin, uvSet.yMin);
-    inst.uvs[1] = zeus::CVector2f(uvSet.xMax, uvSet.yMin);
-    inst.uvs[2] = zeus::CVector2f(uvSet.xMin, uvSet.yMax);
-    inst.uvs[3] = zeus::CVector2f(uvSet.xMax, uvSet.yMax);
+    inst.uvs[0] = hsh::float2(uvSet.xMin, uvSet.yMin);
+    inst.uvs[1] = hsh::float2(uvSet.xMax, uvSet.yMin);
+    inst.uvs[2] = hsh::float2(uvSet.xMin, uvSet.yMax);
+    inst.uvs[3] = hsh::float2(uvSet.xMax, uvSet.yMax);
 
-    decal.m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-    CGraphics::DrawInstances(0, 4, g_instTexData.size());
+    decal.m_instBuf.load(hsh::detail::ArrayProxy{g_instTexData.data(), g_instTexData.size()});
+    m_shaderBuilder.BuildShaderDataBinding(decal, texObj->GetBooTexture())
+        .draw_instanced(0, 4, g_instIndTexData.size());
   } else {
     g_instNoTexData.clear();
     g_instNoTexData.reserve(1);
 
     SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
     if (decal.x8_rotation == 0.f) {
-      inst.pos[0] = zeus::CVector3f(-size, 0.001f, size);
-      inst.pos[1] = zeus::CVector3f(size, 0.001f, size);
-      inst.pos[2] = zeus::CVector3f(-size, 0.001f, -size);
-      inst.pos[3] = zeus::CVector3f(size, 0.001f, -size);
+      inst.pos[0] = hsh::float4(-size, 0.001f, size, 1.f);
+      inst.pos[1] = hsh::float4(size, 0.001f, size, 1.f);
+      inst.pos[2] = hsh::float4(-size, 0.001f, -size, 1.f);
+      inst.pos[3] = hsh::float4(size, 0.001f, -size, 1.f);
     } else {
       float ang = zeus::degToRad(decal.x8_rotation);
       float sinSize = std::sin(ang) * size;
       float cosSize = std::cos(ang) * size;
-      inst.pos[0] = zeus::CVector3f(sinSize - cosSize, 0.001f, cosSize + sinSize);
-      inst.pos[1] = zeus::CVector3f(cosSize + sinSize, 0.001f, cosSize - sinSize);
-      inst.pos[2] = zeus::CVector3f(-(cosSize + sinSize), 0.001f, -(cosSize - sinSize));
-      inst.pos[3] = zeus::CVector3f(-sinSize + cosSize, 0.001f, -cosSize - sinSize);
+      inst.pos[0] = hsh::float4(sinSize - cosSize, 0.001f, cosSize + sinSize, 1.f);
+      inst.pos[1] = hsh::float4(cosSize + sinSize, 0.001f, cosSize - sinSize, 1.f);
+      inst.pos[2] = hsh::float4(-(cosSize + sinSize), 0.001f, -(cosSize - sinSize), 1.f);
+      inst.pos[3] = hsh::float4(-sinSize + cosSize, 0.001f, -cosSize - sinSize, 1.f);
     }
     inst.color = color;
 
-    decal.m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-    CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+    decal.m_instBuf.load(hsh::detail::ArrayProxy{g_instNoTexData.data(), g_instNoTexData.size()});
+    m_shaderBuilder.BuildShaderDataBinding(decal, hsh::texture2d{}).draw_instanced(0, 4, g_instNoTexData.size());
   }
 }
 

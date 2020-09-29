@@ -4,9 +4,10 @@
 
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/Shaders/CDecalShaders.hpp"
 #include "Runtime/Particle/CDecalDescription.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
@@ -23,7 +24,6 @@ struct CQuadDecal {
 
   hsh::dynamic_owner<hsh::vertex_buffer_typeless> m_instBuf;
   hsh::dynamic_owner<hsh::uniform_buffer<SParticleUniforms>> m_uniformBuf;
-  hsh::binding m_dataBind;
 };
 
 class CDecal {
@@ -40,16 +40,20 @@ class CDecal {
   bool x5c_30_quad2Invalid : 1 = false;
   bool x5c_29_modelInvalid : 1 = false;
   zeus::CVector3f x60_rotation;
+
+  CDecalShaders m_shaderBuilder{};
+
   bool InitQuad(CQuadDecal& quad, const SQuadDescr& desc);
 
 public:
   CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf);
-  void RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const;
+  void RenderQuad(CQuadDecal& decal, const SQuadDescr& desc);
   void RenderMdl();
   void Render();
   void Update(float dt);
 
   static void SetGlobalSeed(u16);
+  static bool GetMoveRedToAlphaBuffer() { return sMoveRedToAlphaBuffer; };
   static void SetMoveRedToAlphaBuffer(bool);
 };
 } // namespace urde
