@@ -132,7 +132,7 @@ CPlayerGun::CPlayerGun(TUniqueId playerId)
 , x6c8_hologramClipCube(zeus::CVector3f(-0.29329199f, 0.f, -0.2481945f),
                         zeus::CVector3f(0.29329199f, 1.292392f, 0.2481945f))
 , x6e0_rightHandModel(CAnimRes(g_tweakGunRes->xc_rightHand, 0, zeus::CVector3f(3.f), 0, true))
-, m_aaboxShader(x6c8_hologramClipCube, true) {
+, m_aaboxShader(x6c8_hologramClipCube) {
   x354_bombFuseTime = g_tweakPlayerGun->GetBombFuseTime();
   x358_bombDropDelayTime = g_tweakPlayerGun->GetBombDropDelayTime();
   x668_aimVerticalSpeed = g_tweakPlayerGun->GetAimVerticalSpeed();
@@ -2134,7 +2134,10 @@ void CPlayerGun::DrawScreenTex(float z) {
 void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) {
   // Render AABB as completely transparent object, only modifying Z-buffer
   // AABB has already been set in constructor (since it's constant)
-  m_aaboxShader.draw(zeus::skClear);
+  g_Renderer->SetBlendMode_AlphaBlended();
+  CGraphics::SetCullMode(ERglCullMode::None);
+  m_aaboxShader.draw(zeus::CColor{1.f, 1.f, 1.f, 0.f});
+  CGraphics::SetCullMode(ERglCullMode::Front);
 }
 
 void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) {

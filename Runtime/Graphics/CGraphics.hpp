@@ -112,6 +112,19 @@ struct SViewport {
   float aspect;
 };
 
+/// GX global state
+extern ERglEnum gx_DepthTest;
+extern bool gx_DepthWrite;
+extern ERglBlendMode gx_BlendMode;
+extern ERglBlendFactor gx_BlendSrcFac;
+extern ERglBlendFactor gx_BlendDstFac;
+extern ERglLogicOp gx_BlendOp;
+extern bool gx_AlphaWrite;
+extern ERglCullMode gx_CullMode;
+// GX_COLOR0A0 & GX_COLOR1A1
+extern std::array<zeus::CColor, 2> gx_AmbientColors;
+/// End GX state
+
 extern SViewport g_Viewport;
 
 struct SClipScreenRect {
@@ -283,8 +296,9 @@ public:
   static void SetAmbientColor(const zeus::CColor& col);
   static void SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color);
   static void SetDepthWriteMode(bool test, ERglEnum comp, bool write);
-  static void SetBlendMode(ERglBlendMode, ERglBlendFactor, ERglBlendFactor, ERglLogicOp);
-  static void SetCullMode(ERglCullMode);
+  static void SetBlendMode(ERglBlendMode type, ERglBlendFactor srcFac, ERglBlendFactor dstFac, ERglLogicOp op);
+  static void SetCullMode(ERglCullMode mode);
+  static void SetAlphaUpdate(bool value);
   static void BeginScene();
   static void EndScene();
   static void SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1);
@@ -466,11 +480,11 @@ using SubtractAttachmentExt = hsh::pipeline::color_attachment<
 
 template <AlphaMode Alpha = AlphaMode::NoAlpha>
 using InvDstMultiplyAttachmentExt =
-hsh::pipeline::color_attachment<hsh::Zero, hsh::InvDstColor, hsh::Add, AlphaSrc<Alpha, hsh::Zero>::Factor,
-    AlphaDst<Alpha, hsh::InvDstAlpha>::Factor, hsh::Add,
-    hsh::ColorComponentFlags(
-        hsh::CC_Red | hsh::CC_Green | hsh::CC_Blue |
-        (Alpha != AlphaMode::NoAlpha ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
+    hsh::pipeline::color_attachment<hsh::Zero, hsh::InvDstColor, hsh::Add, AlphaSrc<Alpha, hsh::Zero>::Factor,
+                                    AlphaDst<Alpha, hsh::InvDstAlpha>::Factor, hsh::Add,
+                                    hsh::ColorComponentFlags(
+                                        hsh::CC_Red | hsh::CC_Green | hsh::CC_Blue |
+                                        (Alpha != AlphaMode::NoAlpha ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
 
 template <AlphaMode Alpha = AlphaMode::NoAlpha>
 using NoColorAttachmentExt =
@@ -519,6 +533,90 @@ using NoColorAttachment = NoColorAttachmentExt<AlphaWrite ? AlphaMode::AlphaWrit
 
 #define FOG_OUT(out, fog, colorIn)                                                                                     \
   out = hsh::float4(hsh::lerp((colorIn), (fog).m_color, hsh::saturate(fogZ)).xyz(), (colorIn).w);
+
+template <ERglCullMode CullMode>
+struct ERglCullModeAttachmentExt {
+  using type = hsh::pipeline::cull_mode<>;
+};
+template <>
+struct ERglCullModeAttachmentExt<ERglCullMode::None> {
+  using type = hsh::pipeline::cull_mode<hsh::CullNone>;
+};
+template <>
+struct ERglCullModeAttachmentExt<ERglCullMode::All> {
+  using type = hsh::pipeline::cull_mode<hsh::CullFrontAndBack>;
+};
+template <>
+struct ERglCullModeAttachmentExt<ERglCullMode::Front> {
+  using type = hsh::pipeline::cull_mode<hsh::CullFront>;
+};
+template <>
+struct ERglCullModeAttachmentExt<ERglCullMode::Back> {
+  using type = hsh::pipeline::cull_mode<hsh::CullBack>;
+};
+template <ERglCullMode CullMode>
+using ERglCullModeAttachment = typename ERglCullModeAttachmentExt<CullMode>::type;
+
+template <ERglEnum Compare>
+struct ERglDepthCompareAttachmentExt {
+  using type = hsh::pipeline::depth_compare<>;
+};
+template <>
+struct ERglDepthCompareAttachmentExt<ERglEnum::Never> {
+  using type = hsh::pipeline::depth_compare<hsh::Never>;
+};
+template <>
+struct ERglDepthCompareAttachmentExt<ERglEnum::Less> {
+  using type = hsh::pipeline::depth_compare<hsh::Less>;
+};
+template <>
+struct ERglDepthCompareAttachmentExt<ERglEnum::Equal> {
+  using type = hsh::pipeline::depth_compare<hsh::Equal>;
+};
+template <>
+struct ERglDepthCompareAttachmentExt<ERglEnum::LEqual> {
+  using type = hsh::pipeline::depth_compare<hsh::LEqual>;
+};
+template <>
+struct ERglDepthCompareAttachmentExt<ERglEnum::Greater> {
+  using type = hsh::pipeline::depth_compare<hsh::Greater>;
+};
+template <>
+struct ERglDepthCompareAttachmentExt<ERglEnum::NEqual> {
+  using type = hsh::pipeline::depth_compare<hsh::NEqual>;
+};
+template <>
+struct ERglDepthCompareAttachmentExt<ERglEnum::GEqual> {
+  using type = hsh::pipeline::depth_compare<hsh::GEqual>;
+};
+template <>
+struct ERglDepthCompareAttachmentExt<ERglEnum::Always> {
+  using type = hsh::pipeline::depth_compare<hsh::Always>;
+};
+template <ERglEnum Compare>
+using ERglDepthCompareAttachment = typename ERglDepthCompareAttachmentExt<Compare>::type;
+
+template <ERglBlendMode Mode, ERglBlendFactor SrcFac, ERglBlendFactor DstFac, ERglLogicOp Op, bool AlphaWrite>
+struct ERglBlendModeAttachmentExt {
+  using type = hsh::pipeline::color_attachment<>;
+};
+template <ERglLogicOp Op, bool AlphaWrite>
+struct ERglBlendModeAttachmentExt<ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha, Op,
+                                  AlphaWrite> {
+  using type = hsh::pipeline::color_attachment<
+      hsh::SrcAlpha, hsh::InvSrcAlpha, hsh::Add, hsh::SrcAlpha, hsh::InvSrcAlpha, hsh::Add,
+      hsh::ColorComponentFlags(hsh::CC_Red | hsh::CC_Green | hsh::CC_Blue |
+                               (AlphaWrite ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
+};
+template <ERglBlendFactor SrcFac, ERglBlendFactor DstFac, ERglLogicOp Op, bool AlphaWrite>
+struct ERglBlendModeAttachmentExt<ERglBlendMode::None, SrcFac, DstFac, Op, AlphaWrite> {
+  using type = hsh::pipeline::color_attachment<hsh::One, hsh::Zero, hsh::Add, hsh::One, hsh::Zero, hsh::Add,
+                                               hsh::ColorComponentFlags(
+                                                   hsh::CC_Red | hsh::CC_Green | hsh::CC_Blue |
+                                                   (AlphaWrite ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
+};
+template <ERglBlendMode Mode, ERglBlendFactor SrcFac, ERglBlendFactor DstFac, ERglLogicOp Op, bool AlphaWrite>
+using ERglBlendModeAttachment = typename ERglBlendModeAttachmentExt<Mode, SrcFac, DstFac, Op, AlphaWrite>::type;
 
 #ifdef BOO_GRAPHICS_DEBUG_GROUPS
 class GraphicsDebugGroup {

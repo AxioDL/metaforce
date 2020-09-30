@@ -1051,6 +1051,10 @@ void CBooRenderer::SetDebugOption(EDebugOption, int) {}
 
 void CBooRenderer::BeginScene() {
   CGraphics::SetViewport(0, 0, g_Viewport.x8_width, g_Viewport.xc_height);
+  CGraphics::SetCullMode(ERglCullMode::Front);
+  CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
+  CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
+                          ERglLogicOp::Clear);
   CGraphics::SetPerspective(75.f, CGraphics::g_ProjAspect, 1.f, 4096.f);
   CGraphics::SetModelMatrix(zeus::CTransform());
 #if 0
@@ -1065,6 +1069,8 @@ void CBooRenderer::BeginScene() {
   if (!x318_31_persistRGBA6)
     x318_26_requestRGBA6 = false;
   // GXSetPixelFmt(x318_27_currentRGBA6);
+  CGraphics::SetAlphaUpdate(true);
+  // GXSetDstAlpha(true, 0);
   CGraphics::BeginScene();
   m_nextFogVolumePlaneShader = m_fogVolumePlaneShaders.begin();
   m_nextFogVolumeFilter = m_fogVolumeFilters.begin();

@@ -18,8 +18,8 @@ CPhazonBeam::CPhazonBeam(CAssetId characterId, EWeaponType type, TUniqueId playe
                   zeus::CVector3f(0.14664599f, 0.64619601f, 0.14909725f) * scale.y())
 , x250_aaBoxTranslate(zeus::CVector3f(-0.0625f, 0.f, -0.09375f) * scale.y(),
                       zeus::CVector3f(0.0625f, -0.25f, 0.09375f) * scale.y())
-, m_aaboxShaderScale(x238_aaBoxScale, true)
-, m_aaboxShaderTranslate(x250_aaBoxTranslate, true) {
+, m_aaboxShaderScale(x238_aaBoxScale)
+, m_aaboxShaderTranslate(x250_aaBoxTranslate) {
   x21c_phazonVeins = g_SimplePool->GetObj("PhazonVeins");
   x228_phazon2nd1 = g_SimplePool->GetObj("Phazon2nd_1");
 }
@@ -166,12 +166,18 @@ bool CPhazonBeam::IsLoaded() const { return CGunWeapon::IsLoaded() && x274_24_lo
 
 void CPhazonBeam::DrawClipScaleCube() {
   // Render AABB as completely transparent object, only modifying Z-buffer
-  m_aaboxShaderScale.draw(zeus::skClear);
+  g_Renderer->SetBlendMode_AlphaBlended();
+  CGraphics::SetCullMode(ERglCullMode::None);
+  m_aaboxShaderScale.draw(zeus::CColor{1.f, 1.f, 1.f, 0.f});
+  CGraphics::SetCullMode(ERglCullMode::Front);
 }
 
 void CPhazonBeam::DrawClipTranslateCube() {
   // Render AABB as completely transparent object, only modifying Z-buffer
-  m_aaboxShaderTranslate.draw(zeus::skClear);
+  g_Renderer->SetBlendMode_AlphaBlended();
+  CGraphics::SetCullMode(ERglCullMode::None);
+  m_aaboxShaderTranslate.draw(zeus::CColor{1.f, 1.f, 1.f, 0.f});
+  CGraphics::SetCullMode(ERglCullMode::Front);
 }
 
 void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,

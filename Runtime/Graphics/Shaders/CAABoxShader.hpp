@@ -25,7 +25,7 @@ private:
   Uniform m_uniform{};
 
 public:
-  CAABoxShader(const zeus::CAABox& aabb, bool zOnly = false);
+  CAABoxShader(const zeus::CAABox& aabb);
   void draw(const zeus::CColor& color);
 };
 

@@ -10,6 +10,18 @@
 
 namespace urde {
 
+/// GX global state
+ERglEnum gx_DepthTest;
+bool gx_DepthWrite;
+ERglBlendMode gx_BlendMode;
+ERglBlendFactor gx_BlendSrcFac;
+ERglBlendFactor gx_BlendDstFac;
+ERglLogicOp gx_BlendOp;
+bool gx_AlphaWrite;
+ERglCullMode gx_CullMode;
+std::array<zeus::CColor, 2> gx_AmbientColors;
+/// End GX state
+
 CGraphics::CProjectionState CGraphics::g_Proj;
 CGraphics::CFogState CGraphics::g_Fog;
 std::array<zeus::CColor, 3> CGraphics::g_ColorRegs{};
@@ -77,7 +89,8 @@ void CGraphics::SetLightState(ERglLightBits lightState) {
 }
 
 void CGraphics::SetAmbientColor(const zeus::CColor& col) {
-  // TODO: set for real
+  gx_AmbientColors[0] = col;
+  gx_AmbientColors[1] = col;
 }
 
 void CGraphics::SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) {
@@ -96,11 +109,22 @@ void CGraphics::SetFog(ERglFogMode mode, float startz, float endz, const zeus::C
   }
 }
 
-void CGraphics::SetDepthWriteMode(bool test, ERglEnum comp, bool write) {}
+void CGraphics::SetDepthWriteMode(bool test, ERglEnum comp, bool write) {
+  gx_DepthTest = test ? ERglEnum::Always : comp;
+  gx_DepthWrite = write;
+}
 
-void CGraphics::SetBlendMode(ERglBlendMode, ERglBlendFactor, ERglBlendFactor, ERglLogicOp) {}
+void CGraphics::SetBlendMode(ERglBlendMode type, ERglBlendFactor srcFac, ERglBlendFactor dstFac, ERglLogicOp op) {
+  gx_BlendMode = type;
+  gx_BlendSrcFac = srcFac;
+  gx_BlendDstFac = dstFac;
+  gx_BlendOp = op;
+}
 
-void CGraphics::SetCullMode(ERglCullMode) {}
+void CGraphics::SetCullMode(ERglCullMode mode) { gx_CullMode = mode; }
+
+// URDE addition (GXSetAlphaUpdate)
+void CGraphics::SetAlphaUpdate(bool value) { gx_AlphaWrite = value; }
 
 void CGraphics::BeginScene() {}
 
@@ -441,4 +465,3 @@ const CTevCombiners::CTevPass CGraphics::sTevPass805a6084(
     {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_CPREV, GX::TevColorArg::CC_APREV, GX::TevColorArg::CC_ZERO},
     {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_APREV});
 } // namespace urde
-

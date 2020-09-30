@@ -40,13 +40,10 @@ class IObjectStore;
 
 class Buckets;
 
-enum class EWorldShadowMode {
-  None,
-  WorldOnActorShadow,
-  BallOnWorldShadow,
-  BallOnWorldIds,
-  MAX
-};
+enum class EWorldShadowMode { None, WorldOnActorShadow, BallOnWorldShadow, BallOnWorldIds, MAX };
+
+constexpr u32 skBallShadowIdSize = 64;
+constexpr u32 skReflectionDrawTargetSize = 256;
 
 class CBooRenderer final : public IRenderer {
   friend class CBooModel;
@@ -128,9 +125,6 @@ class CBooRenderer final : public IRenderer {
   hsh::owner<hsh::vertex_buffer<ScanlinesVert>> m_scanLinesEvenVBO;
   hsh::owner<hsh::vertex_buffer<ScanlinesVert>> m_scanLinesOddVBO;
 
-  uint32_t m_ballShadowIdW = 64;
-  uint32_t m_ballShadowIdH = 64;
-
   CRandom16 x2a8_thermalRand;
   std::list<CFogVolumeListItem> x2ac_fogVolumes;
   std::list<CFogVolumePlaneShader> m_fogVolumePlaneShaders;
@@ -202,8 +196,8 @@ public:
                          int areaIdx, const SShader* shaderSet) override;
   void EnablePVS(const CPVSVisSet& set, u32 areaIdx) override;
   void DisablePVS() override;
-  void UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode = EWorldShadowMode::None,
-                          bool activateLights = true, int cubeFace = -1, const CModelFlags* ballShadowFlags = nullptr);
+  void UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode = EWorldShadowMode::None, bool activateLights = true,
+                          int cubeFace = -1, const CModelFlags* ballShadowFlags = nullptr);
   void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*) override;
   void DrawAreaGeometry(int areaIdx, int mask, int targetMask) override;
   void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender = false) override;
@@ -224,15 +218,35 @@ public:
   std::pair<zeus::CVector2f, zeus::CVector2f> SetViewportOrtho(bool centered, float znear, float zfar) override;
   void SetClippingPlanes(const zeus::CFrustum& frustum) override;
   void SetViewport(int left, int bottom, int width, int height) override;
-  // void SetDepthReadWrite(bool, bool);
-  // void SetBlendMode_AdditiveAlpha();
-  // void SetBlendMode_AlphaBlended();
-  // void SetBlendMode_NoColorWrite();
-  // void SetBlendMode_ColorMultiply();
-  // void SetBlendMode_InvertDst();
-  // void SetBlendMode_InvertSrc();
-  // void SetBlendMode_Replace();
-  // void SetBlendMode_AdditiveDestColor();
+  void SetDepthReadWrite(bool test, bool write) override {
+    CGraphics::SetDepthWriteMode(test, ERglEnum::LEqual, write);
+  }
+  void SetBlendMode_AdditiveAlpha() override {
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
+  }
+  void SetBlendMode_AlphaBlended() override {
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
+                            ERglLogicOp::Clear);
+  }
+  void SetBlendMode_NoColorWrite() override {
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::Zero, ERglBlendFactor::One, ERglLogicOp::Clear);
+  }
+  void SetBlendMode_ColorMultiply() override {
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::Zero, ERglBlendFactor::SrcColor, ERglLogicOp::Clear);
+  }
+  void SetBlendMode_InvertDst() override {
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::InvSrcColor, ERglBlendFactor::Zero,
+                            ERglLogicOp::Clear);
+  }
+  void SetBlendMode_InvertSrc() override {
+    CGraphics::SetBlendMode(ERglBlendMode::Logic, ERglBlendFactor::One, ERglBlendFactor::Zero, ERglLogicOp::InvCopy);
+  }
+  void SetBlendMode_Replace() override {
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::Zero, ERglLogicOp::Clear);
+  }
+  void SetBlendMode_AdditiveDestColor() override {
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcColor, ERglBlendFactor::One, ERglLogicOp::Clear);
+  }
   void SetDebugOption(EDebugOption, int) override;
   void BeginScene() override;
   void EndScene() override;
