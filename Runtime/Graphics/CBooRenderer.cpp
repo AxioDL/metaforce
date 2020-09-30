@@ -576,92 +576,81 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
   // CGraphics::SetScissor(g_Viewport.x0_left, g_Viewport.x4_top, g_Viewport.x8_width, g_Viewport.xc_height);
 }
 
-void CBooRenderer::GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx) {
-  std::array<std::array<u16, FOGVOL_RAMP_RES>, FOGVOL_RAMP_RES> data{};
-  for (size_t y = 0; y < data.size(); ++y) {
-    for (size_t x = 0; x < data[y].size(); ++x) {
-      const int tmp = int(y << 16 | x << 8 | 0x7f);
-      const double a =
-          zeus::clamp(0.0,
-                      (-150.0 / (tmp / double(0xffffff) * (FOGVOL_FAR - FOGVOL_NEAR) - FOGVOL_FAR) - FOGVOL_NEAR) *
-                          3.0 / (FOGVOL_FAR - FOGVOL_NEAR),
-                      1.0);
-      data[y][x] = u16((a * a + a) / 2.0 * 65535);
+void CBooRenderer::GenerateFogVolumeRampTex() {
+  x1b8_fogVolumeRamp = hsh::create_texture2d({FOGVOL_RAMP_RES, FOGVOL_RAMP_RES}, hsh::R16_UNORM, 1, [&](u16* data, std::size_t size) {
+    for (size_t y = 0; y < FOGVOL_RAMP_RES; ++y) {
+      for (size_t x = 0; x < FOGVOL_RAMP_RES; ++x) {
+        const int tmp = int(y << 16 | x << 8 | 0x7f);
+        const double a =
+            zeus::clamp(0.0,
+                        (-150.0 / (tmp / double(0xffffff) * (FOGVOL_FAR - FOGVOL_NEAR) - FOGVOL_FAR) - FOGVOL_NEAR) *
+                        3.0 / (FOGVOL_FAR - FOGVOL_NEAR),
+                        1.0);
+        data[x + y * FOGVOL_RAMP_RES] = u16((a * a + a) / 2.0 * 65535);
+      }
     }
-  }
-  x1b8_fogVolumeRamp =
-      ctx.newStaticTexture(FOGVOL_RAMP_RES, FOGVOL_RAMP_RES, 1, boo::TextureFormat::I16, boo::TextureClampMode::Repeat,
-                           data[0].data(), FOGVOL_RAMP_RES * FOGVOL_RAMP_RES * 2);
+  });
 }
 
-void CBooRenderer::GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx) {
-  std::array<std::array<u8, SPHERE_RAMP_RES>, SPHERE_RAMP_RES> data{};
-  constexpr float halfRes = SPHERE_RAMP_RES / 2.f;
-  for (size_t y = 0; y < data.size(); ++y) {
-    for (size_t x = 0; x < data[y].size(); ++x) {
-      const zeus::CVector2f vec((float(x) - halfRes) / halfRes, (float(y) - halfRes) / halfRes);
-      data[y][x] = 255 - zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
+void CBooRenderer::GenerateSphereRampTex() {
+  x220_sphereRamp = hsh::create_texture2d({SPHERE_RAMP_RES, SPHERE_RAMP_RES}, hsh::R8_UNORM, 1, [&](u8* data, std::size_t size) {
+    constexpr float halfRes = SPHERE_RAMP_RES / 2.f;
+    for (size_t y = 0; y < SPHERE_RAMP_RES; ++y) {
+      for (size_t x = 0; x < SPHERE_RAMP_RES; ++x) {
+        const zeus::CVector2f vec((float(x) - halfRes) / halfRes, (float(y) - halfRes) / halfRes);
+        data[x + y * SPHERE_RAMP_RES] = 255 - zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
+      }
     }
-  }
-  x220_sphereRamp =
-      ctx.newStaticTexture(SPHERE_RAMP_RES, SPHERE_RAMP_RES, 1, boo::TextureFormat::I8,
-                           boo::TextureClampMode::ClampToEdge, data[0].data(), SPHERE_RAMP_RES * SPHERE_RAMP_RES);
+  });
 }
 
-void CBooRenderer::GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx) {
-  std::vector<zeus::CVector3f> verts;
+void CBooRenderer::GenerateScanLinesVBO() {
+  std::vector<ScanlinesVert> verts;
   verts.reserve(670);
 
   for (int i = 0; i < 112; ++i) {
-    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
+    verts.emplace_back(ScanlinesVert{{-1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f}});
     if (i != 0) {
       verts.emplace_back(verts.back());
     }
-    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f);
-    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
-    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f);
+    verts.emplace_back(ScanlinesVert{{-1.f, (float(i) * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f}});
+    verts.emplace_back(ScanlinesVert{{1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f}});
+    verts.emplace_back(ScanlinesVert{{1.f, (float(i) * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f}});
     if (i != 111) {
       verts.emplace_back(verts.back());
     }
   }
 
-  m_scanLinesEvenVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(zeus::CVector3f), verts.size());
+  m_scanLinesEvenVBO = hsh::create_vertex_buffer(hsh::detail::ArrayProxy{verts.data(), verts.size()});
 
   verts.clear();
 
   for (int i = 0; i < 112; ++i) {
-    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f);
+    verts.emplace_back(ScanlinesVert{{-1.f, (float(i) * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f}});
     if (i != 0) {
       verts.emplace_back(verts.back());
     }
-    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
-    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f);
-    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
+    verts.emplace_back(ScanlinesVert{{-1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f}});
+    verts.emplace_back(ScanlinesVert{{1.f, (float(i) * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f}});
+    verts.emplace_back(ScanlinesVert{{1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f}});
     if (i != 111) {
       verts.emplace_back(verts.back());
     }
   }
 
-  m_scanLinesOddVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(zeus::CVector3f), verts.size());
+  m_scanLinesOddVBO = hsh::create_vertex_buffer(hsh::detail::ArrayProxy{verts.data(), verts.size()});
 }
 
-boo::ObjToken<boo::ITexture> CBooRenderer::GetColorTexture(const zeus::CColor& color) {
+hsh::texture2d CBooRenderer::GetColorTexture(const zeus::CColor& color) {
   const auto search = m_colorTextures.find(color);
   if (search != m_colorTextures.end()) {
     return search->second;
   }
 
-  std::array<u8, 4> pixel;
-  color.toRGBA8(pixel[0], pixel[1], pixel[2], pixel[3]);
-  boo::ObjToken<boo::ITexture> tex;
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    tex = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, pixel.data(),
-                               pixel.size())
-              .get();
-    return true;
-  } BooTrace);
-  m_colorTextures.emplace(color, tex);
-  return tex;
+  m_colorTextures.emplace(color, hsh::create_texture2d({1, 1}, hsh::RGBA8_UNORM, 1, [&](zeus::Comp8* data, std::size_t size) {
+    color.toRGBA8(data[0], data[1], data[2], data[3]);
+  }));
+  return m_colorTextures[color].get();
 }
 
 void CBooRenderer::LoadThermoPalette() {
@@ -676,7 +665,7 @@ void CBooRenderer::LoadBallFade() {
   CTexture* ballFadeTexObj = m_ballFadeTex.GetObj();
   if (ballFadeTexObj) {
     m_ballFade = ballFadeTexObj->GetBooTexture();
-    m_ballFade->setClampMode(boo::TextureClampMode::ClampToEdge);
+    //m_ballFade->setClampMode(boo::TextureClampMode::ClampToEdge);
   }
 }
 
@@ -686,27 +675,25 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
 
   m_staticEntropy = store.GetObj("RandomStaticEntropy");
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    constexpr std::array<u8, 4> clearPixel{0, 0, 0, 0};
-    m_clearTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                          clearPixel.data(), clearPixel.size())
-                         .get();
-    constexpr std::array<u8, 4> blackPixel{0, 0, 0, 255};
-    m_blackTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                          blackPixel.data(), blackPixel.size())
-                         .get();
-    constexpr std::array<u8, 4> whitePixel{255, 255, 255, 255};
-    m_whiteTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                          whitePixel.data(), whitePixel.size())
-                         .get();
+  constexpr std::array<u8, 4> clearPixel{0, 0, 0, 0};
+  m_clearTexture = hsh::create_texture2d({1, 1}, hsh::RGBA8_UNORM, 1, [&](void* data, std::size_t size) {
+    std::memcpy(data, clearPixel.data(), clearPixel.size());
+  });
+  constexpr std::array<u8, 4> blackPixel{0, 0, 0, 255};
+  m_blackTexture = hsh::create_texture2d({1, 1}, hsh::RGBA8_UNORM, 1, [&](void* data, std::size_t size) {
+    std::memcpy(data, blackPixel.data(), blackPixel.size());
+  });
+  constexpr std::array<u8, 4> whitePixel{255, 255, 255, 255};
+  m_whiteTexture = hsh::create_texture2d({1, 1}, hsh::RGBA8_UNORM, 1, [&](void* data, std::size_t size) {
+    std::memcpy(data, whitePixel.data(), whitePixel.size());
+  });
 
-    GenerateFogVolumeRampTex(ctx);
-    GenerateSphereRampTex(ctx);
-    m_ballShadowId = ctx.newRenderTexture(m_ballShadowIdW, m_ballShadowIdH, boo::TextureClampMode::Repeat, 1, 0);
-    x14c_reflectionTex = ctx.newRenderTexture(256, 256, boo::TextureClampMode::ClampToBlack, 1, 0);
-    GenerateScanLinesVBO(ctx);
-    return true;
-  } BooTrace);
+  GenerateFogVolumeRampTex();
+  GenerateSphereRampTex();
+  m_ballShadowId = hsh::create_render_texture2d({m_ballShadowIdW, m_ballShadowIdH}, hsh::RGBA8_UNORM, 1, 0);
+  x14c_reflectionTex = hsh::create_render_texture2d({256, 256}, hsh::RGBA8_UNORM, 1, 0);
+  GenerateScanLinesVBO();
+
   LoadThermoPalette();
   LoadBallFade();
   m_thermColdFilter.emplace();
@@ -1108,10 +1095,9 @@ void CBooRenderer::CacheReflection(TReflectionCallback cb, void* ctx, bool clear
   BindReflectionDrawTarget();
   SViewport backupVp = g_Viewport;
   SetViewport(0, 0, 256, 256);
-  CGraphics::g_BooMainCommandQueue->clearTarget();
+  hsh::clear_attachments(true, false);
   cb(ctx, CBooModel::g_ReflectViewPos);
-  boo::SWindowRect rect(0, 0, 256, 256);
-  CGraphics::g_BooMainCommandQueue->resolveBindTexture(x14c_reflectionTex, rect, false, 0, true, false);
+  x14c_reflectionTex.resolve_color_binding(0, hsh::rect2d{{}, {256, 256}});
   BindMainDrawTarget();
   SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
 }

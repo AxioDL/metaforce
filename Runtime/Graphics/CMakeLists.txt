@@ -58,4 +58,5 @@ runtime_add_hsh(Graphics
         Shaders/CAABoxShader.cpp
         Shaders/CColoredStripShader.cpp
         Shaders/CDecalShaders.cpp
+        Shaders/CEnergyBarShader.cpp
         )

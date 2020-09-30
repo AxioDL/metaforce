@@ -98,7 +98,7 @@ struct GeometryUniformLayout {
 
   hsh::dynamic_owner<hsh::uniform_buffer_typeless> AllocateVertUniformBuffer() const;
   void ReserveSharedBuffers(size_t size);
-  hsh::uniform_buffer_typeless GetSharedBuffer(size_t idx) const;
+  hsh::dynamic_owner<hsh::uniform_buffer_typeless>& GetSharedBuffer(size_t idx) const;
 };
 
 struct SShader {

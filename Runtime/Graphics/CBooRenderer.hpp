@@ -117,9 +117,9 @@ class CBooRenderer final : public IRenderer {
   hsh::owner<hsh::texture2d> x1b8_fogVolumeRamp;
   hsh::owner<hsh::texture2d> x220_sphereRamp;
   TLockedToken<CTexture> m_thermoPaletteTex;
-  hsh::owner<hsh::texture2d> x288_thermoPalette;
+  hsh::texture2d x288_thermoPalette;
   TLockedToken<CTexture> m_ballFadeTex;
-  hsh::owner<hsh::texture2d> m_ballFade;
+  hsh::texture2d m_ballFade;
   hsh::owner<hsh::render_texture2d> m_ballShadowId;
 
   struct ScanlinesVert {

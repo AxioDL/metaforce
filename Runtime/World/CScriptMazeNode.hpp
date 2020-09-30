@@ -56,7 +56,8 @@ class CMazeState {
 
 #ifndef NDEBUG
   std::vector<s32> m_path;
-  CLineRenderer m_renderer = {CLineRenderer::EPrimitiveMode::LineStrip, skMazeRows* skMazeCols, hsh::texture2d{}, true};
+  CLineRenderer m_renderer = {CLineRenderer::EPrimitiveMode::LineStrip, skMazeRows* skMazeCols, hsh::texture2d{}, true,
+                              hsh::Compare::LEqual};
 #endif
 
 public:

@@ -889,9 +889,9 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
 }
 
 void GeometryUniformLayout::Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
-                                   const MaterialSet* matSet, const boo::ObjToken<boo::IGraphicsBufferD>& buf,
+                                   const MaterialSet* matSet, hsh::dynamic_owner<hsh::uniform_buffer_typeless>& buf,
                                    const CBooModel* parent) const {
-  u8* dataOut = reinterpret_cast<u8*>(buf->map(m_geomBufferSize));
+  u8* dataOut = reinterpret_cast<u8*>(buf.map()); // m_geomBufferSize
   u8* dataCur = dataOut;
 
   if (m_skinBankCount) {
@@ -965,7 +965,7 @@ void GeometryUniformLayout::Update(const CModelFlags& flags, const CSkinRules* c
   }
 
   CBooModel::UVAnimationBuffer::Update(dataCur, matSet, flags, parent);
-  buf->unmap();
+  buf.unmap();
 }
 
 hsh::dynamic_owner<hsh::uniform_buffer_typeless> GeometryUniformLayout::AllocateVertUniformBuffer() const {
@@ -998,7 +998,7 @@ void GeometryUniformLayout::ReserveSharedBuffers(size_t size) {
   }
 }
 
-hsh::uniform_buffer_typeless GeometryUniformLayout::GetSharedBuffer(size_t idx) const {
+hsh::dynamic_owner<hsh::uniform_buffer_typeless>& GeometryUniformLayout::GetSharedBuffer(size_t idx) const {
   if (idx >= m_sharedBuffer.size()) {
     m_sharedBuffer.resize(idx + 1);
   }
