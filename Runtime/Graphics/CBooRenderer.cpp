@@ -1097,7 +1097,7 @@ void CBooRenderer::CacheReflection(TReflectionCallback cb, void* ctx, bool clear
   SetViewport(0, 0, 256, 256);
   hsh::clear_attachments(true, false);
   cb(ctx, CBooModel::g_ReflectViewPos);
-  x14c_reflectionTex.resolve_color_binding(0, hsh::rect2d{{}, {256, 256}});
+  x14c_reflectionTex.resolve_color_binding(0, {{}, {256, 256}}, false);
   BindMainDrawTarget();
   SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
 }
