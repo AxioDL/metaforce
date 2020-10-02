@@ -2,22 +2,26 @@
 
 #include <array>
 
+#include "hsh/hsh.h"
 #include "zeus/CColor.hpp"
 
 namespace urde {
 
 class CThermalHotFilter {
+public:
   struct Uniform {
-    std::array<zeus::CColor, 3> m_colorRegs;
+    std::array<hsh::float4, 3> m_colorRegs;
   };
   struct Vert {
-    zeus::CVector2f m_pos;
-    zeus::CVector2f m_uv;
+    hsh::float2 m_pos;
+    hsh::float2 m_uv;
   };
+
+private:
   hsh::owner<hsh::vertex_buffer<Vert>> m_vbo;
   hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
   hsh::binding m_dataBind;
-  Uniform m_uniform;
+  Uniform m_uniform{};
 
 public:
   CThermalHotFilter();

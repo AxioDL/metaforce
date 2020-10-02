@@ -31,7 +31,7 @@ template struct CDecalShaderTexPipeline<false, false>;
 template <bool Additive>
 struct CDecalShaderNoTexPipeline : pipeline<std::conditional_t<Additive, AdditiveAttachment<>, BlendAttachment<>>,
                                             depth_compare<hsh::LEqual>, depth_write<!Additive>> {
-  CDecalShaderNoTexPipeline(hsh::vertex_buffer<SParticleInstanceTex> vbo,
+  CDecalShaderNoTexPipeline(hsh::vertex_buffer<SParticleInstanceNoTex> vbo,
                             hsh::uniform_buffer<SParticleUniforms> uniBuf) {
     this->position = uniBuf->mvp * vbo->pos[this->vertex_id];
     this->color_out[0] = vbo->color * uniBuf->moduColor;

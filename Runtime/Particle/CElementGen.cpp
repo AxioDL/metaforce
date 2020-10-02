@@ -213,22 +213,28 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
   if (!x26c_31_LINE) {
     switch (m_shaderClass) {
     case CElementGenShaders::EShaderClass::Tex:
-      m_instBuf = hsh::create_dynamic_vertex_buffer<SParticleInstanceTex>(maxInsts); break;
+      m_instBuf = hsh::create_dynamic_vertex_buffer<SParticleInstanceTex>(maxInsts);
+      break;
     case CElementGenShaders::EShaderClass::IndTex:
-      m_instBuf = hsh::create_dynamic_vertex_buffer<SParticleInstanceIndTex>(maxInsts); break;
+      m_instBuf = hsh::create_dynamic_vertex_buffer<SParticleInstanceIndTex>(maxInsts);
+      break;
     case CElementGenShaders::EShaderClass::NoTex:
-      m_instBuf = hsh::create_dynamic_vertex_buffer<SParticleInstanceNoTex>(maxInsts); break;
+      m_instBuf = hsh::create_dynamic_vertex_buffer<SParticleInstanceNoTex>(maxInsts);
+      break;
     }
     m_uniformBuf = hsh::create_dynamic_uniform_buffer<SParticleUniforms>();
   }
   if (desc->x45_24_x31_26_PMUS) {
     switch (m_shaderClass) {
     case CElementGenShaders::EShaderClass::Tex:
-      m_instBufPmus = hsh::create_dynamic_vertex_buffer<SParticleInstanceTex>(maxInsts); break;
+      m_instBufPmus = hsh::create_dynamic_vertex_buffer<SParticleInstanceTex>(maxInsts);
+      break;
     case CElementGenShaders::EShaderClass::IndTex:
-      m_instBufPmus = hsh::create_dynamic_vertex_buffer<SParticleInstanceIndTex>(maxInsts); break;
+      m_instBufPmus = hsh::create_dynamic_vertex_buffer<SParticleInstanceIndTex>(maxInsts);
+      break;
     case CElementGenShaders::EShaderClass::NoTex:
-      m_instBufPmus = hsh::create_dynamic_vertex_buffer<SParticleInstanceNoTex>(maxInsts); break;
+      m_instBufPmus = hsh::create_dynamic_vertex_buffer<SParticleInstanceNoTex>(maxInsts);
+      break;
     }
     m_uniformBufPmus = hsh::create_dynamic_uniform_buffer<SParticleUniforms>();
   }
@@ -907,14 +913,6 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
     }
 
     m_uniformBufPmus.load({CGraphics::GetPerspectiveProjectionMatrix(true), {1.f, 1.f, 1.f, 1.f}});
-
-    // TODO: Implement in builder
-#if 0
-    if (moveRedToAlphaBuffer)
-      CGraphics::SetShaderDataBinding(m_redToAlphaDataBindPmus[g_Renderer->IsThermalVisorHotPass()]);
-    else
-      CGraphics::SetShaderDataBinding(m_normalDataBindPmus[g_Renderer->IsThermalVisorHotPass()]);
-#endif
   }
 
   zeus::CTransform orient = zeus::CTransform();
@@ -1064,11 +1062,11 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
     switch (m_shaderClass) {
     case CElementGenShaders::EShaderClass::Tex:
       m_instBufPmus.load<SParticleInstanceTex>(g_instTexData);
-      m_shaderBuilder.BuildShaderDataBinding(*this).draw_instanced(0, 4, g_instTexData.size());
+      m_shaderBuilder.BuildShaderDataBinding(*this, true).draw_instanced(0, 4, g_instTexData.size());
       break;
     case CElementGenShaders::EShaderClass::NoTex:
       m_instBufPmus.load<SParticleInstanceNoTex>(g_instNoTexData);
-      m_shaderBuilder.BuildShaderDataBinding(*this).draw_instanced(0, 4, g_instNoTexData.size());
+      m_shaderBuilder.BuildShaderDataBinding(*this, true).draw_instanced(0, 4, g_instNoTexData.size());
       break;
     default:
       break;
@@ -1194,12 +1192,12 @@ void CElementGen::RenderParticles() {
     return;
   }
 
-  CRealElement* size = desc->x4c_x38_SIZE.get();
-  if (size && size->IsConstant()) {
+  CRealElement* sizeElem = desc->x4c_x38_SIZE.get();
+  if (sizeElem && sizeElem->IsConstant()) {
     float sizeVal;
-    size->GetValue(0, sizeVal);
+    sizeElem->GetValue(0, sizeVal);
     if (sizeVal == 0.f) {
-      size->GetValue(1, sizeVal);
+      sizeElem->GetValue(1, sizeVal);
       if (sizeVal == 0.f)
         return;
     }
@@ -1262,22 +1260,6 @@ void CElementGen::RenderParticles() {
   bool moveRedToAlphaBuffer = false;
   if (sMoveRedToAlphaBuffer && x26c_26_AAPH)
     moveRedToAlphaBuffer = true;
-
-  // TODO: Implement in builder
-#if 0
-  if (g_subtractBlend) {
-    // FIXME should there be NoTex specializations for RedToAlpha?
-    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
-      CGraphics::SetShaderDataBinding(m_redToAlphaSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
-    else
-      CGraphics::SetShaderDataBinding(m_normalSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
-  } else {
-    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
-      CGraphics::SetShaderDataBinding(m_redToAlphaDataBind[g_Renderer->IsThermalVisorHotPass()]);
-    else
-      CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
-  }
-#endif
 
   int mbspVal = std::max(1, x270_MBSP);
 
@@ -1490,11 +1472,11 @@ void CElementGen::RenderParticles() {
     switch (m_shaderClass) {
     case CElementGenShaders::EShaderClass::Tex:
       m_instBuf.load<SParticleInstanceTex>(g_instTexData);
-      m_shaderBuilder.BuildShaderDataBinding(*this).draw_instanced(0, 4, g_instTexData.size());
+      m_shaderBuilder.BuildShaderDataBinding(*this, false).draw_instanced(0, 4, g_instTexData.size());
       break;
     case CElementGenShaders::EShaderClass::NoTex:
       m_instBuf.load<SParticleInstanceNoTex>(g_instNoTexData);
-      m_shaderBuilder.BuildShaderDataBinding(*this).draw_instanced(0, 4, g_instNoTexData.size());
+      m_shaderBuilder.BuildShaderDataBinding(*this, false).draw_instanced(0, 4, g_instNoTexData.size());
       break;
     default:
       break;
@@ -1604,11 +1586,11 @@ void CElementGen::RenderParticles() {
     switch (m_shaderClass) {
     case CElementGenShaders::EShaderClass::Tex:
       m_instBuf.load<SParticleInstanceTex>(g_instTexData);
-      m_shaderBuilder.BuildShaderDataBinding(*this).draw_instanced(0, 4, g_instTexData.size());
+      m_shaderBuilder.BuildShaderDataBinding(*this, false).draw_instanced(0, 4, g_instTexData.size());
       break;
     case CElementGenShaders::EShaderClass::NoTex:
       m_instBuf.load<SParticleInstanceNoTex>(g_instNoTexData);
-      m_shaderBuilder.BuildShaderDataBinding(*this).draw_instanced(0, 4, g_instNoTexData.size());
+      m_shaderBuilder.BuildShaderDataBinding(*this, false).draw_instanced(0, 4, g_instNoTexData.size());
       break;
     default:
       break;
@@ -1681,12 +1663,6 @@ void CElementGen::RenderParticlesIndirectTexture() {
   g_instIndTexData.clear();
   g_instIndTexData.reserve(x30_particles.size());
 
-  // TODO: move to builder
-#if 0
-  if (!x30_particles.empty())
-    CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
-#endif
-
   for (size_t i = 0; i < x30_particles.size(); ++i) {
     const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
     CParticle& particle = x30_particles[partIdx];
@@ -1743,9 +1719,9 @@ void CElementGen::RenderParticlesIndirectTexture() {
     inst.texrTindUVs[1] = zeus::CVector4f{uvs.xMin, uvs.yMax, uvsInd.xMin, uvsInd.yMax};
     inst.texrTindUVs[2] = zeus::CVector4f{uvs.xMax, uvs.yMin, uvsInd.xMax, uvsInd.yMin};
     inst.texrTindUVs[3] = zeus::CVector4f{uvs.xMin, uvs.yMin, uvsInd.xMin, uvsInd.yMin};
-    inst.sceneUVs = zeus::CVector4f{clipRect.x18_uvXMin, 1.f - clipRect.x24_uvYMax, clipRect.x1c_uvXMax,
-                                    1.f - clipRect.x20_uvYMin};
-    m_shaderBuilder.BuildShaderDataBinding(*this).draw_instanced(0, 4, g_instIndTexData.size() - 1);
+    inst.sceneUVs =
+        zeus::CVector4f{clipRect.x18_uvXMin, 1.f - clipRect.x24_uvYMax, clipRect.x1c_uvXMax, 1.f - clipRect.x20_uvYMin};
+    m_shaderBuilder.BuildShaderDataBinding(*this, false).draw_instanced(0, 4, g_instIndTexData.size() - 1);
   }
 
   if (!g_instIndTexData.empty()) {

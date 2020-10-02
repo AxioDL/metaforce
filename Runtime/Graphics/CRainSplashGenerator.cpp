@@ -12,12 +12,7 @@ CRainSplashGenerator::CRainSplashGenerator(const zeus::CVector3f& scale, u32 max
 : x14_scale(scale), x2c_minZ(minZ) {
   x30_alpha = std::min(1.f, alpha);
   x44_genRate = std::min(maxSplashes, genRate);
-  x0_rainSplashes.reserve(maxSplashes);
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    for (u32 i = 0; i < maxSplashes; ++i)
-      x0_rainSplashes.emplace_back(ctx);
-    return true;
-  } BooTrace);
+  x0_rainSplashes.resize(maxSplashes);
 }
 
 void CRainSplashGenerator::SSplashLine::Draw(float alpha, float dt, const zeus::CVector3f& pos) {
@@ -73,13 +68,11 @@ void CRainSplashGenerator::Draw(const zeus::CTransform& xf) {
   DoDraw(xf);
 }
 
-CRainSplashGenerator::SSplashLine::SSplashLine(boo::IGraphicsDataFactory::Context& ctx)
-: m_renderer(ctx, CLineRenderer::EPrimitiveMode::LineStrip, 3, nullptr, false) {}
+CRainSplashGenerator::SSplashLine::SSplashLine()
+: m_renderer(CLineRenderer::EPrimitiveMode::LineStrip, 3, hsh::texture2d{}, false, hsh::LEqual) {}
 
-CRainSplashGenerator::SRainSplash::SRainSplash(boo::IGraphicsDataFactory::Context& ctx) {
-  for (size_t i = 0; i < x0_lines.capacity(); ++i) {
-    x0_lines.emplace_back(ctx);
-  }
+CRainSplashGenerator::SRainSplash::SRainSplash() {
+  x0_lines.resize(x0_lines.capacity());
 }
 
 void CRainSplashGenerator::SSplashLine::Update(float dt, CStateManager& mgr) {
@@ -158,8 +151,7 @@ u32 CRainSplashGenerator::GetNextBestPt(u32 pt, const std::vector<std::pair<zeus
     const auto idx = u32(rand.Range(0, int(vn.size() - 1)));
     const auto& vert = vn[idx];
     const float distSq = (refVert.first - vert.first).magSquared();
-    if (distSq > maxDist && vert.second.dot(zeus::skUp) >= 0.f &&
-        (vert.first.z() <= 0.f || vert.first.z() > minZ)) {
+    if (distSq > maxDist && vert.second.dot(zeus::skUp) >= 0.f && (vert.first.z() <= 0.f || vert.first.z() > minZ)) {
       nextPt = idx;
       maxDist = distSq;
     }

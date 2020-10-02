@@ -8,11 +8,12 @@ class CElementGen;
 
 class CElementGenShaders {
   hsh::binding m_shaderBind;
+
 public:
   enum class EShaderClass { Tex, IndTex, NoTex };
 
   static EShaderClass GetShaderClass(CElementGen& gen);
-  hsh::binding& BuildShaderDataBinding(CElementGen& gen);
+  hsh::binding& BuildShaderDataBinding(CElementGen& gen, bool pmus);
 };
 
 } // namespace urde

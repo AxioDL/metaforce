@@ -577,7 +577,8 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
 }
 
 void CBooRenderer::GenerateFogVolumeRampTex() {
-  x1b8_fogVolumeRamp = hsh::create_texture2d({FOGVOL_RAMP_RES, FOGVOL_RAMP_RES}, hsh::R16_UNORM, 1, [&](u16* data, std::size_t size) {
+  x1b8_fogVolumeRamp = hsh::create_texture2d({FOGVOL_RAMP_RES, FOGVOL_RAMP_RES}, hsh::R16_UNORM, 1, [&](void* data, std::size_t size) {
+    auto* out = static_cast<u16*>(data);
     for (size_t y = 0; y < FOGVOL_RAMP_RES; ++y) {
       for (size_t x = 0; x < FOGVOL_RAMP_RES; ++x) {
         const int tmp = int(y << 16 | x << 8 | 0x7f);
@@ -586,19 +587,20 @@ void CBooRenderer::GenerateFogVolumeRampTex() {
                         (-150.0 / (tmp / double(0xffffff) * (FOGVOL_FAR - FOGVOL_NEAR) - FOGVOL_FAR) - FOGVOL_NEAR) *
                         3.0 / (FOGVOL_FAR - FOGVOL_NEAR),
                         1.0);
-        data[x + y * FOGVOL_RAMP_RES] = u16((a * a + a) / 2.0 * 65535);
+        out[x + y * FOGVOL_RAMP_RES] = u16((a * a + a) / 2.0 * 65535);
       }
     }
   });
 }
 
 void CBooRenderer::GenerateSphereRampTex() {
-  x220_sphereRamp = hsh::create_texture2d({SPHERE_RAMP_RES, SPHERE_RAMP_RES}, hsh::R8_UNORM, 1, [&](u8* data, std::size_t size) {
+  x220_sphereRamp = hsh::create_texture2d({SPHERE_RAMP_RES, SPHERE_RAMP_RES}, hsh::R8_UNORM, 1, [&](void* data, std::size_t size) {
+    auto* out = static_cast<u8*>(data);
     constexpr float halfRes = SPHERE_RAMP_RES / 2.f;
     for (size_t y = 0; y < SPHERE_RAMP_RES; ++y) {
       for (size_t x = 0; x < SPHERE_RAMP_RES; ++x) {
         const zeus::CVector2f vec((float(x) - halfRes) / halfRes, (float(y) - halfRes) / halfRes);
-        data[x + y * SPHERE_RAMP_RES] = 255 - zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
+        out[x + y * SPHERE_RAMP_RES] = 255 - zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
       }
     }
   });
@@ -647,8 +649,9 @@ hsh::texture2d CBooRenderer::GetColorTexture(const zeus::CColor& color) {
     return search->second;
   }
 
-  m_colorTextures.emplace(color, hsh::create_texture2d({1, 1}, hsh::RGBA8_UNORM, 1, [&](zeus::Comp8* data, std::size_t size) {
-    color.toRGBA8(data[0], data[1], data[2], data[3]);
+  m_colorTextures.emplace(color, hsh::create_texture2d({1, 1}, hsh::RGBA8_UNORM, 1, [&](void* data, std::size_t size) {
+    auto* out = static_cast<zeus::Comp8*>(data);
+    color.toRGBA8(out[0], out[1], out[2], out[3]);
   }));
   return m_colorTextures[color].get();
 }
@@ -690,7 +693,7 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
 
   GenerateFogVolumeRampTex();
   GenerateSphereRampTex();
-  m_ballShadowId = hsh::create_render_texture2d({m_ballShadowIdW, m_ballShadowIdH}, hsh::RGBA8_UNORM, 1, 0);
+  m_ballShadowId = hsh::create_render_texture2d({skBallShadowIdSize, skBallShadowIdSize}, hsh::RGBA8_UNORM, 1, 0);
   x14c_reflectionTex = hsh::create_render_texture2d({256, 256}, hsh::RGBA8_UNORM, 1, 0);
   GenerateScanLinesVBO();
 

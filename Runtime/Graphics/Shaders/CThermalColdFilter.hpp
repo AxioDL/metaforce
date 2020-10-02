@@ -8,20 +8,23 @@
 namespace urde {
 
 class CThermalColdFilter {
+public:
   struct Uniform {
-    zeus::CMatrix4f m_indMtx;
-    std::array<zeus::CColor, 3> m_colorRegs;
+    hsh::float4x4 m_indMtx;
+    std::array<hsh::float4, 3> m_colorRegs;
     float m_randOff = 0.f;
   };
   struct Vert {
-    zeus::CVector2f m_pos;
-    zeus::CVector2f m_uv;
-    zeus::CVector2f m_uvNoise;
+    hsh::float2 m_pos;
+    hsh::float2 m_uv;
+    hsh::float2 m_uvNoise;
   };
+
+private:
   hsh::owner<hsh::vertex_buffer<Vert>> m_vbo;
   hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
   hsh::binding m_dataBind;
-  Uniform m_uniform;
+  Uniform m_uniform{};
 
 public:
   CThermalColdFilter();

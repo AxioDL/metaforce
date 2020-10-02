@@ -32,20 +32,20 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, const CModelFlags& 
                               const std::optional<CVertexMorphEffect>& morphEffect,
                               const float* morphMagnitudes) {
   if (morphEffect || g_PointGenFunc) {
-    if (auto vertBuf = m_modelInst->UpdateUniformData(drawFlags, nullptr, nullptr)) {
+    if (auto* vertBuf = m_modelInst->UpdateUniformData(drawFlags, nullptr, nullptr)) {
       x10_skinRules->TransformVerticesCPU(m_vertWorkspace, pose, *x4_model);
       if (morphEffect)
         morphEffect->MorphVertices(m_vertWorkspace, morphMagnitudes, x10_skinRules, pose);
       if (g_PointGenFunc)
         g_PointGenFunc(g_PointGenCtx, m_vertWorkspace);
-      x4_model->ApplyVerticesCPU(vertBuf, m_vertWorkspace);
+      x4_model->ApplyVerticesCPU(*vertBuf, m_vertWorkspace);
       m_modifiedVBO = true;
     }
   } else {
-    if (auto vertBuf =
+    if (auto* vertBuf =
             m_modelInst->UpdateUniformData(drawFlags, x10_skinRules.GetObj(), &pose)) {
       if (m_modifiedVBO) {
-        x4_model->RestoreVerticesCPU(vertBuf);
+        x4_model->RestoreVerticesCPU(*vertBuf);
         m_modifiedVBO = false;
       }
     }

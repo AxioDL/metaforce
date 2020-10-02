@@ -19,11 +19,13 @@ struct CAABoxShaderPipeline
     this->color_out[0] = uniBuf->m_color;
   }
 };
-template struct CAABoxShaderPipeline<ERglCullMode::None, ERglEnum::Always, true, ERglBlendMode::Blend,
+template struct CAABoxShaderPipeline<ERglCullMode::None, ERglEnum::LEqual, true, ERglBlendMode::Blend,
                                      ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear, true>;
 
+constexpr size_t VertexCount = 34;
+
 CAABoxShader::CAABoxShader(const zeus::CAABox& aabb) {
-  const std::array<Vert, 34> verts{{
+  const std::array<Vert, VertexCount> verts{{
       {{aabb.max.x(), aabb.max.y(), aabb.min.z()}}, {{aabb.max.x(), aabb.min.y(), aabb.min.z()}},
       {{aabb.max.x(), aabb.max.y(), aabb.max.z()}}, {{aabb.max.x(), aabb.min.y(), aabb.max.z()}},
       {{aabb.max.x(), aabb.min.y(), aabb.max.z()}},
@@ -62,7 +64,7 @@ void CAABoxShader::draw(const zeus::CColor& color) {
   m_uniform.m_color = color;
   m_uniBuf.load(m_uniform);
 
-  m_dataBind.draw(0, 34);
+  m_dataBind.draw(0, VertexCount);
 }
 
 } // namespace urde

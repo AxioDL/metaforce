@@ -59,4 +59,7 @@ runtime_add_hsh(Graphics
         Shaders/CColoredStripShader.cpp
         Shaders/CDecalShaders.cpp
         Shaders/CEnergyBarShader.cpp
+        Shaders/CThermalColdFilter.cpp
+        Shaders/CThermalHotFilter.cpp
+        Shaders/CElementGenShaders.cpp
         )

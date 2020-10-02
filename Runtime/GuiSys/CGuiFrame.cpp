@@ -200,8 +200,8 @@ void CGuiFrame::ProcessUserInput(const CFinalInput& input) const {
 
 bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDrawParms& parms) {
   if (const auto& kbm = input.GetKBM()) {
-    zeus::CVector2f point(kbm->m_mouseCoord.norm[0] * 2.f - 1.f,
-                          kbm->m_mouseCoord.norm[1] * 2.f - 1.f);
+    zeus::CVector2f point(kbm->m_mouseCoord.x * 2.f - 1.f,
+                          kbm->m_mouseCoord.y * 2.f - 1.f);
     CGuiWidget* hit = BestCursorHit(point, parms);
     if (hit != m_lastMouseOverWidget) {
       if (m_inMouseDown && m_mouseDownWidget != hit) {
@@ -220,14 +220,14 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
       m_lastMouseOverWidget = hit;
     }
     if (hit && hit->m_lastScroll) {
-      boo::SScrollDelta delta = kbm->m_accumScroll - *hit->m_lastScroll;
+      auto delta = kbm->m_accumScroll - *hit->m_lastScroll;
       hit->m_lastScroll.emplace(kbm->m_accumScroll);
-      if (!delta.isZero()) {
+      if (delta.x != 0.0 || delta.y != 0.0) {
         hit->m_integerScroll += delta;
         if (m_mouseScrollCb)
-          m_mouseScrollCb(hit, delta, int(hit->m_integerScroll.delta[0]), int(hit->m_integerScroll.delta[1]));
-        hit->m_integerScroll.delta[0] -= std::trunc(hit->m_integerScroll.delta[0]);
-        hit->m_integerScroll.delta[1] -= std::trunc(hit->m_integerScroll.delta[1]);
+          m_mouseScrollCb(hit, delta, int(hit->m_integerScroll.x), int(hit->m_integerScroll.y));
+        hit->m_integerScroll.x -= std::trunc(hit->m_integerScroll.x);
+        hit->m_integerScroll.y -= std::trunc(hit->m_integerScroll.y);
       }
     }
     if (!m_inMouseDown && kbm->m_mouseButtons[size_t(boo2::MouseButton::Primary)]) {

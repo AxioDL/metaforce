@@ -7,6 +7,8 @@ namespace urde {
 
 class CCameraBlurFilter {
   friend struct CCameraBlurFilterPipeline;
+
+public:
   struct Vert {
     hsh::float2 m_pos;
     hsh::float2 m_uv;
@@ -16,6 +18,7 @@ class CCameraBlurFilter {
     float m_opacity = 1.f;
   };
 
+private:
   hsh::dynamic_owner<hsh::vertex_buffer<Vert>> m_vbo;
   hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
   hsh::binding m_dataBind;

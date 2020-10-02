@@ -289,15 +289,15 @@ public:
   void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const CModel* model,
                              const CSkinnedModel* sModel);
 
-  auto GetThermoPalette() const { return x288_thermoPalette.get(); }
-  auto GetFogRampTex() const { return x1b8_fogVolumeRamp.get(); }
-  auto GetRandomStaticEntropyTex() const { return m_staticEntropy->GetBooTexture(); }
+  hsh::texture2d GetThermoPalette() const { return x288_thermoPalette; }
+  hsh::texture2d GetFogRampTex() const { return x1b8_fogVolumeRamp.get(); }
+  hsh::texture2d GetRandomStaticEntropyTex() const { return m_staticEntropy->GetBooTexture(); }
   auto GetScanLinesEvenVBO() const { return m_scanLinesEvenVBO.get(); }
   auto GetScanLinesOddVBO() const { return m_scanLinesOddVBO.get(); }
 
-  auto GetClearTexture() const { return m_clearTexture.get(); }
-  auto GetBlackTexture() const { return m_blackTexture.get(); }
-  auto GetWhiteTexture() const { return m_whiteTexture.get(); }
+  hsh::texture2d GetClearTexture() const { return m_clearTexture.get(); }
+  hsh::texture2d GetBlackTexture() const { return m_blackTexture.get(); }
+  hsh::texture2d GetWhiteTexture() const { return m_whiteTexture.get(); }
 
   hsh::texture2d GetColorTexture(const zeus::CColor& color);
 
