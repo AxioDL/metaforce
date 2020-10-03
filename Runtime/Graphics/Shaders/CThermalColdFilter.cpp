@@ -16,7 +16,8 @@ struct CThermalColdFilterPipeline : pipeline<topology<hsh::TriangleStrip>,
   CThermalColdFilterPipeline(hsh::vertex_buffer<CThermalColdFilter::Vert> vbo,
                              hsh::uniform_buffer<CThermalColdFilter::Uniform> ubo, hsh::render_texture2d sceneTex,
                              hsh::texture2d noiseTex) {
-    static hsh::float4 kRGBToYPrime = {0.257f, 0.504f, 0.098f, 0.f};
+    // FIXME hsh bug: cannot be const or static
+    hsh::float4 kRGBToYPrime{0.257f, 0.504f, 0.098f, 0.f};
 
     this->position = hsh::float4(vbo->m_pos, 0.f, 1.f);
     hsh::float4 noiseTexel = noiseTex.read<float>(Lookup8BPP(vbo->m_uvNoise, ubo->m_randOff));

@@ -17,40 +17,34 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-
 namespace urde {
 
 static rstl::reserved_vector<zeus::CVector2f, 256> g_SnowForces;
 
 CEnvFxManagerGrid::CEnvFxManagerGrid(const zeus::CVector2i& position, const zeus::CVector2i& extent,
-                                     std::vector<CVectorFixed8_8> initialParticles, int reserve, CEnvFxManager& parent,
-                                     boo::IGraphicsDataFactory::Context& ctx)
+                                     std::vector<CVectorFixed8_8> initialParticles, int reserve, CEnvFxManager& parent)
 : x4_position(position)
 , xc_extent(extent)
 , x1c_particles(std::move(initialParticles))
-, m_instBuf(parent.m_instPool.allocateBlock(CGraphics::g_BooFactory, reserve))
-, m_uniformBuf(parent.m_uniformPool.allocateBlock(CGraphics::g_BooFactory))
-, m_lineRenderer(ctx, CLineRenderer::EPrimitiveMode::Lines, reserve * 2, parent.x40_txtrEnvGradient->GetBooTexture(),
-                 true, true) {
+, m_instBuf(hsh::create_dynamic_vertex_buffer<CEnvFxShaders::Instance>(reserve))
+, m_uniformBuf(hsh::create_dynamic_uniform_buffer<CEnvFxShaders::Uniform>())
+, m_lineRenderer(CLineRenderer::EPrimitiveMode::Lines, reserve * 2, parent.x40_txtrEnvGradient->GetBooTexture(), true,
+                 hsh::LEqual) {
   x1c_particles.reserve(reserve);
-  CEnvFxShaders::BuildShaderDataBinding(ctx, parent, *this);
+  CEnvFxShaders::BuildShaderDataBinding(parent, *this);
 }
 
 CEnvFxManager::CEnvFxManager() {
   x40_txtrEnvGradient = g_SimplePool->GetObj("TXTR_EnvGradient");
-  x40_txtrEnvGradient->GetBooTexture()->setClampMode(boo::TextureClampMode::ClampToEdge);
   xb58_envRainSplash = g_SimplePool->GetObj("PART_EnvRainSplash");
   xb74_txtrSnowFlake = g_SimplePool->GetObj("TXTR_SnowFlake");
   xc48_underwaterFlake = g_SimplePool->GetObj("TXTR_UnderwaterFlake");
   CRandom16 random(0);
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    m_fogUniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(CGraphics::g_Fog), 1);
-    for (int i = 0; i < 8; ++i)
-      for (int j = 0; j < 8; ++j)
-        x50_grids.emplace_back(zeus::CVector2i{j * 2048, i * 2048}, zeus::CVector2i{2048, 2048},
-                               std::vector<CVectorFixed8_8>{}, 171, *this, ctx);
-    return true;
-  } BooTrace);
+  m_fogUniformBuf = hsh::create_dynamic_uniform_buffer<CGraphics::CFogState>();
+  for (int i = 0; i < 8; ++i)
+    for (int j = 0; j < 8; ++j)
+      x50_grids.emplace_back(zeus::CVector2i{j * 2048, i * 2048}, zeus::CVector2i{2048, 2048},
+                             std::vector<CVectorFixed8_8>{}, 171, *this);
   for (int i = 0; i < 16; ++i)
     xb84_snowZDeltas.emplace_back(0.f, 0.f, random.Range(-2.f, -4.f));
 }
@@ -77,10 +71,10 @@ void CEnvFxManager::UpdateRainSounds(const CStateManager& mgr) {
     zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     float rainVol = CalcRainVolume(x30_fxDensity);
     if (!xb6a_rainSoundActive) {
-      xb6c_leftRainSound = CSfxManager::AddEmitter(SFXsfx09F0, zeus::skZero3f, zeus::skZero3f, false,
-                                                   true, 0xff, kInvalidAreaId);
-      xb70_rightRainSound = CSfxManager::AddEmitter(SFXsfx09F1, zeus::skZero3f, zeus::skZero3f, false,
-                                                    true, 0xff, kInvalidAreaId);
+      xb6c_leftRainSound =
+          CSfxManager::AddEmitter(SFXsfx09F0, zeus::skZero3f, zeus::skZero3f, false, true, 0xff, kInvalidAreaId);
+      xb70_rightRainSound =
+          CSfxManager::AddEmitter(SFXsfx09F1, zeus::skZero3f, zeus::skZero3f, false, true, 0xff, kInvalidAreaId);
       xb6a_rainSoundActive = true;
     }
     CSfxManager::UpdateEmitter(xb6c_leftRainSound, camXf.origin - camXf.basis[0], camXf.basis[0], rainVol);
@@ -209,10 +203,9 @@ void CEnvFxManager::UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, cons
         constexpr auto filter =
             CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid, EMaterialTypes::Trigger},
                                                 {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::SeeThrough});
-        zeus::CVector3f pos = xf * zeus::CVector3f((grid.x4_position + grid.xc_extent * 0).toVec2f() / 256.f) +
-                              zeus::skUp * 500.f;
-        CRayCastResult result =
-            CGameCollision::RayStaticIntersection(mgr, pos, zeus::skDown, 1000.f, filter);
+        zeus::CVector3f pos =
+            xf * zeus::CVector3f((grid.x4_position + grid.xc_extent * 0).toVec2f() / 256.f) + zeus::skUp * 500.f;
+        CRayCastResult result = CGameCollision::RayStaticIntersection(mgr, pos, zeus::skDown, 1000.f, filter);
         if (result.IsValid()) {
           if (!blockListBuilt) {
             BuildBlockObjectList(blockList, mgr);
@@ -379,7 +372,7 @@ void CEnvFxManagerGrid::RenderSnowParticles(const zeus::CTransform& camXf) {
   const zeus::CVector3f xVec = 0.2f * camXf.basis[0];
   const zeus::CVector3f zVec = 0.2f * camXf.basis[2];
   const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(false) * CGraphics::g_GXModelView.toMatrix4f();
-  auto* bufOut = m_instBuf.access();
+  auto* bufOut = m_instBuf.map();
   for (const auto& particle : x1c_particles) {
     bufOut->positions[0] = particle.toVec3f();
     bufOut->uvs[0] = zeus::CVector2f(0.f, 0.f);
@@ -392,8 +385,8 @@ void CEnvFxManagerGrid::RenderSnowParticles(const zeus::CTransform& camXf) {
     bufOut->color = GetFlakeColor(mvp, *bufOut);
     ++bufOut;
   }
-  CGraphics::SetShaderDataBinding(m_snowBinding);
-  CGraphics::DrawInstances(0, 4, x1c_particles.size());
+  m_instBuf.unmap();
+  m_snowBinding.draw_instanced(0, 4, x1c_particles.size());
 }
 
 void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) {
@@ -416,7 +409,7 @@ void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform& camXf)
   const zeus::CVector3f xVec = 0.5f * camXf.basis[0];
   const zeus::CVector3f zVec = 0.5f * camXf.basis[2];
   const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(false) * CGraphics::g_GXModelView.toMatrix4f();
-  auto* bufOut = m_instBuf.access();
+  auto* bufOut = m_instBuf.map();
   for (const auto& particle : x1c_particles) {
     bufOut->positions[0] = particle.toVec3f();
     bufOut->uvs[0] = zeus::CVector2f(0.f, 0.f);
@@ -429,8 +422,8 @@ void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform& camXf)
     bufOut->color = GetFlakeColor(mvp, *bufOut);
     ++bufOut;
   }
-  CGraphics::SetShaderDataBinding(m_underwaterBinding);
-  CGraphics::DrawInstances(0, 4, x1c_particles.size());
+  m_instBuf.unmap();
+  m_underwaterBinding.draw_instanced(0, 4, x1c_particles.size());
 }
 
 void CEnvFxManagerGrid::Render(const zeus::CTransform& xf, const zeus::CTransform& invXf, const zeus::CTransform& camXf,
@@ -452,7 +445,7 @@ void CEnvFxManagerGrid::Render(const zeus::CTransform& xf, const zeus::CTransfor
     default:
       break;
     }
-    m_uniformBuf.access() = parent.m_uniformData;
+    m_uniformBuf.load(parent.m_uniformData);
     switch (fxType) {
     case EEnvFxType::Snow:
       RenderSnowParticles(camXf);
@@ -561,20 +554,17 @@ void CEnvFxManager::Render(const CStateManager& mgr) {
       default:
         break;
       }
-      m_fogUniformBuf->load(&CGraphics::g_Fog, sizeof(CGraphics::g_Fog));
+      m_fogUniformBuf.load(CGraphics::g_Fog);
       for (auto& grid : x50_grids)
         grid.Render(xf, invXf, camXf, x30_fxDensity, fxType, *this);
       // Backface cull
-
-      m_uniformPool.updateBuffers();
-      m_instPool.updateBuffers();
     }
   }
 }
 
 void CEnvFxManager::AsyncLoadResources(CStateManager& mgr) {
   xb68_envRainSplashId = mgr.AllocateUniqueId();
-  CHUDBillboardEffect* effect =
+  auto* effect =
       new CHUDBillboardEffect(xb58_envRainSplash, {}, xb68_envRainSplashId, true, "VisorRainSplashes",
                               CHUDBillboardEffect::GetNearClipDistance(mgr), CHUDBillboardEffect::GetScaleForPOV(mgr),
                               zeus::skWhite, zeus::skOne3f, zeus::skZero3f);

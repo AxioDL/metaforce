@@ -2,6 +2,8 @@
 
 #include <array>
 
+#include "hsh/hsh.h"
+
 namespace urde {
 class CEnvFxManager;
 class CEnvFxManagerGrid;
@@ -20,8 +22,7 @@ public:
     hsh::float4 moduColor;
   };
 
-  static void BuildShaderDataBinding(CEnvFxManager& fxMgr,
-                                     CEnvFxManagerGrid& grid);
+  static void BuildShaderDataBinding(CEnvFxManager& fxMgr, CEnvFxManagerGrid& grid);
 };
 
 } // namespace urde

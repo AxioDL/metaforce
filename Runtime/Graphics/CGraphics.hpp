@@ -531,8 +531,36 @@ using NoColorAttachment = NoColorAttachmentExt<AlphaWrite ? AlphaMode::AlphaWrit
     break;                                                                                                             \
   }
 
+#define FOG_SHADER_UNIFORM(fogUniBuf)                                                                                  \
+  float fogZ;                                                                                                          \
+  float fogF = hsh::saturate(((fogUniBuf)->m_A / ((fogUniBuf)->m_B - this->position.z)) - (fogUniBuf)->m_C);           \
+  switch ((fogUniBuf)->m_mode) {                                                                                       \
+  case ERglFogMode::PerspLin:                                                                                          \
+    fogZ = fogF;                                                                                                       \
+    break;                                                                                                             \
+  case ERglFogMode::PerspExp:                                                                                          \
+    fogZ = 1.0 - hsh::exp2(-8.0 * fogF);                                                                               \
+    break;                                                                                                             \
+  case ERglFogMode::PerspExp2:                                                                                         \
+    fogZ = 1.0 - hsh::exp2(-8.0 * fogF * fogF);                                                                        \
+    break;                                                                                                             \
+  case ERglFogMode::PerspRevExp:                                                                                       \
+    fogZ = hsh::exp2(-8.0 * (1.0 - fogF));                                                                             \
+    break;                                                                                                             \
+  case ERglFogMode::PerspRevExp2:                                                                                      \
+    fogF = 1.0 - fogF;                                                                                                 \
+    fogZ = hsh::exp2(-8.0 * fogF * fogF);                                                                              \
+    break;                                                                                                             \
+  default:                                                                                                             \
+    fogZ = 0.0;                                                                                                        \
+    break;                                                                                                             \
+  }
+
 #define FOG_OUT(out, fog, colorIn)                                                                                     \
   out = hsh::float4(hsh::lerp((colorIn), (fog).m_color, hsh::saturate(fogZ)).xyz(), (colorIn).w);
+
+#define FOG_OUT_UNIFORM(out, fogUniBuf, colorIn)                                                                       \
+  out = hsh::float4(hsh::lerp((colorIn), (fogUniBuf)->m_color, hsh::saturate(fogZ)).xyz(), (colorIn).w);
 
 template <ERglCullMode CullMode>
 struct ERglCullModeAttachmentExt {
