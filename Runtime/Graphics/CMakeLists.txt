@@ -65,4 +65,5 @@ runtime_add_hsh(Graphics
         Shaders/CEnvFxShaders.cpp
         Shaders/CFogVolumeFilter.cpp
         Shaders/CMapSurfaceShader.cpp
+        Shaders/CParticleSwooshShaders.cpp
         )
