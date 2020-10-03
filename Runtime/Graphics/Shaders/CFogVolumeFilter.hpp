@@ -4,11 +4,12 @@
 
 namespace zeus {
 class CColor;
-}
+} // namespace zeus
 
 namespace urde {
 
 class CFogVolumeFilter {
+public:
   struct Vert {
     hsh::float2 m_pos;
     hsh::float2 m_uv;
@@ -17,6 +18,7 @@ class CFogVolumeFilter {
     hsh::float4 m_color;
   };
 
+private:
   hsh::owner<hsh::vertex_buffer<Vert>> m_vbo;
   hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
   hsh::binding m_dataBind1Way;
