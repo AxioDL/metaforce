@@ -31,13 +31,13 @@ void CHudRadarInterface::DoDrawRadarPaint(const zeus::CVector3f& translate, floa
 
   CRadarPaintShader::Instance& inst = m_paintInsts.emplace_back();
   inst.pos[0] = translate + zeus::CVector3f(-radius, 0.f, radius);
-  inst.uv[0].assign(0.f, 1.f);
+  inst.uv[0] = {0.f, 1.f};
   inst.pos[1] = translate + zeus::CVector3f(-radius, 0.f, -radius);
-  inst.uv[1].assign(0.f, 0.f);
+  inst.uv[1] = {0.f, 0.f};
   inst.pos[2] = translate + zeus::CVector3f(radius, 0.f, radius);
-  inst.uv[2].assign(1.f, 1.f);
+  inst.uv[2] = {1.f, 1.f};
   inst.pos[3] = translate + zeus::CVector3f(radius, 0.f, -radius);
-  inst.uv[3].assign(1.f, 0.f);
+  inst.uv[3] = {1.f, 0.f};
   inst.color = color;
 }
 
