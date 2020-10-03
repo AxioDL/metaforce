@@ -11,7 +11,7 @@ namespace urde {
 using namespace hsh::pipeline;
 
 template <bool NoIndTex>
-struct CPhazonSuitFilterPipeline : pipeline<topology<hsh::TriangleStrip>, SubtractAttachment<>, depth_write<false>> {
+struct CPhazonSuitFilterPipeline : pipeline<topology<hsh::TriangleStrip>, AdditiveAttachment<>, depth_write<false>> {
   CPhazonSuitFilterPipeline(hsh::vertex_buffer<CPhazonSuitFilter::Vert> vbo,
                             hsh::uniform_buffer<CPhazonSuitFilter::Uniform> ubo, hsh::render_texture2d screenTex,
                             hsh::texture2d indTex, hsh::render_texture2d maskTex, hsh::render_texture2d maskTexBlur) {
