@@ -64,4 +64,5 @@ runtime_add_hsh(Graphics
         Shaders/CElementGenShaders.cpp
         Shaders/CEnvFxShaders.cpp
         Shaders/CFogVolumeFilter.cpp
+        Shaders/CMapSurfaceShader.cpp
         )
