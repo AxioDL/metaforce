@@ -107,6 +107,7 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
     m_dataBindBlurY.hsh_blury_bind(
         CPhazonSuitFilterBlurPipeline(m_blurVbo.get(), m_uniBufBlurY.get(), CGraphics::g_SpareTexture.get_color(2)));
 
+    // FIXME hsh bug: can't bind all constant values
     bool hasIndTex = m_indTex != nullptr;
     if (hasIndTex) {
       hsh::texture2d tex = m_indTex->GetBooTexture();

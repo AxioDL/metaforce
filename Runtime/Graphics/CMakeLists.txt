@@ -67,4 +67,5 @@ runtime_add_hsh(Graphics
         Shaders/CMapSurfaceShader.cpp
         Shaders/CParticleSwooshShaders.cpp
         Shaders/CPhazonSuitFilter.cpp
+        Shaders/CRadarPaintShader.cpp
         )

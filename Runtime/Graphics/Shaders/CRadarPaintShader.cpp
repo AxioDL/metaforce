@@ -1,45 +1,38 @@
 #include "Runtime/Graphics/Shaders/CRadarPaintShader.hpp"
 
-#include <cstring>
-
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
+#include "CRadarPaintShader.cpp.hshhead"
+
 namespace urde {
+using namespace hsh::pipeline;
+
+struct CRadarPaintShaderPipeline : pipeline<topology<hsh::TriangleStrip>, AdditiveAttachment<>, depth_write<false>> {
+  CRadarPaintShaderPipeline(hsh::vertex_buffer<CRadarPaintShader::Instance> vbo,
+                            hsh::uniform_buffer<CRadarPaintShader::Uniform> ubo, hsh::texture2d tex) {
+    this->position = ubo->xf * hsh::float4(vbo->pos[this->vertex_id], 1.f);
+    this->color_out[0] = vbo->color * tex.sample<float>(vbo->uv[this->vertex_id]);
+  }
+};
 
 void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CTexture* tex) {
-  if (!instances.size())
+  if (instances.empty()) {
     return;
+  }
+
   SCOPED_GRAPHICS_DEBUG_GROUP("CRadarPaintShader::draw", zeus::skMagenta);
 
   if (instances.size() > m_maxInsts) {
     m_maxInsts = instances.size();
     m_tex = tex;
-    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-      m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Instance), m_maxInsts);
-      m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CMatrix4f), 1);
-
-      const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
-      constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
-      const std::array<boo::ObjToken<boo::ITexture>, 1> texs{m_tex->GetBooTexture()};
-
-      m_dataBind =
-          ctx.newShaderDataBinding(s_Pipeline, nullptr, m_vbo.get(), nullptr, bufs.size(), bufs.data(), stages.data(),
-                                   nullptr, nullptr, texs.size(), texs.data(), nullptr, nullptr);
-      return true;
-    } BooTrace);
+    hsh::texture2d tex2d = m_tex->GetBooTexture();
+    m_dataBind.hsh_bind(CRadarPaintShaderPipeline(m_vbo.get(), m_uniBuf.get(), tex2d));
   }
 
-  zeus::CMatrix4f uniMtx = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
-  m_uniBuf->load(&uniMtx, sizeof(zeus::CMatrix4f));
-
-  size_t mapSz = sizeof(Instance) * instances.size();
-  Instance* insts = reinterpret_cast<Instance*>(m_vbo->map(mapSz));
-  memmove(insts, instances.data(), mapSz);
-  m_vbo->unmap();
-
-  CGraphics::SetShaderDataBinding(m_dataBind);
-  CGraphics::DrawInstances(0, 4, instances.size());
+  m_uniBuf.load({CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f()});
+  m_vbo.load(instances);
+  m_dataBind.draw_instanced(0, 4, instances.size());
 }
 
 } // namespace urde

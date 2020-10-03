@@ -3,9 +3,7 @@
 #include <array>
 #include <vector>
 
-#include "zeus/CColor.hpp"
-#include "zeus/CVector2f.hpp"
-#include "zeus/CVector3f.hpp"
+#include "hsh/hsh.h"
 
 namespace urde {
 class CTexture;
@@ -13,9 +11,9 @@ class CTexture;
 class CRadarPaintShader {
 public:
   struct Instance {
-    std::array<zeus::CVector3f, 4> pos;
-    std::array<zeus::CVector2f, 4> uv;
-    zeus::CColor color;
+    std::array<hsh::float3, 4> pos;
+    std::array<hsh::float2, 4> uv;
+    hsh::float4 color;
   };
   struct Uniform {
     hsh::float4x4 xf;
