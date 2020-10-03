@@ -59,6 +59,7 @@
 #include "Runtime/Particle/CParticleSwooshDataFactory.hpp"
 #include "Runtime/Particle/CProjectileWeaponDataFactory.hpp"
 #include "Runtime/Particle/CWeaponDescription.hpp"
+#include "Runtime/World/CPatterned.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CStateMachine.hpp"
 #include "Runtime/World/CScriptMazeNode.hpp"
@@ -412,6 +413,7 @@ void CMain::InitializeSubsystems() {
   CAnimData::InitializeCache();
   CDecalManager::Initialize();
   CGBASupport::Initialize();
+  CPatterned::Initialize();
   CGraphics::g_BooFactory->waitUntilShadersReady();
 }
 

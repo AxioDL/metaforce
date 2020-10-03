@@ -416,6 +416,7 @@ public:
     return nullptr;
   }
 
+  static void Initialize();
   // endregion
 };
 } // namespace urde

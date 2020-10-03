@@ -21,9 +21,14 @@
 #include "Runtime/World/CScriptWaypoint.hpp"
 #include "Runtime/World/CStateMachine.hpp"
 
+#include <hecl/CVarManager.hpp>
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
+namespace {
+hecl::CVar* cv_disableAi = nullptr;
+}
 
 constexpr CMaterialList skPatternedGroundMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
                                                       EMaterialTypes::Orbit, EMaterialTypes::GroundCollider,
@@ -195,8 +200,11 @@ void CPatterned::UpdateThermalFrozenState(bool thawed) {
 }
 
 void CPatterned::Think(float dt, CStateManager& mgr) {
-  if (!GetActive())
+  if (!GetActive() || (cv_disableAi && cv_disableAi->toBoolean())) {
+    Stop();
+    ClearForcesAndTorques();
     return;
+  }
 
   if (x402_30_updateThermalFrozenState)
     UpdateThermalFrozenState(x450_bodyController->GetPercentageFrozen() == 0.f);
@@ -1729,6 +1737,13 @@ bool CPatterned::ApplyBoneTracking() const {
     return x460_knockBackController.GetFlinchRemTime() <= 0.f;
 
   return false;
+}
+
+void CPatterned::Initialize() {
+  if (cv_disableAi == nullptr) {
+    cv_disableAi = hecl::CVarManager::instance()->findOrMakeCVar("disableAi"sv, "Disables AI state machines", false,
+                                                                 hecl::CVar::EFlags::Cheat | hecl::CVar::EFlags::Game);
+  }
 }
 
 } // namespace urde

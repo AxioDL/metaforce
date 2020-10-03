@@ -3,8 +3,12 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CAi.hpp"
 
+#include <hecl/CVarManager.hpp>
+
 namespace urde {
-static logvisor::Module Log("urde::CStateMachine");
+namespace {
+logvisor::Module Log("urde::CStateMachine");
+}
 
 CStateMachine::CStateMachine(CInputStream& in) {
   CAiTrigger* lastTrig = nullptr;
