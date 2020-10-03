@@ -26,6 +26,8 @@ void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CText
   if (instances.size() > m_maxInsts) {
     m_maxInsts = instances.size();
     m_tex = tex;
+    m_vbo = hsh::create_dynamic_vertex_buffer<Instance>(m_maxInsts);
+    m_uniBuf = hsh::create_dynamic_uniform_buffer<Uniform>();
     hsh::texture2d tex2d = m_tex->GetBooTexture();
     m_dataBind.hsh_bind(CRadarPaintShaderPipeline(m_vbo.get(), m_uniBuf.get(), tex2d));
   }
