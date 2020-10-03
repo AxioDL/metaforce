@@ -4,12 +4,13 @@
 
 namespace zeus {
 class CColor;
-}
+} // namespace zeus
 
 namespace urde {
 class CTexture;
 
 class CPhazonSuitFilter {
+public:
   struct BlurUniform {
     hsh::float4 blur;
   };
@@ -28,6 +29,7 @@ class CPhazonSuitFilter {
     hsh::float2 maskUv;
   };
 
+private:
   hsh::dynamic_owner<hsh::uniform_buffer<BlurUniform>> m_uniBufBlurX, m_uniBufBlurY;
   hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
   hsh::owner<hsh::vertex_buffer<BlurVert>> m_blurVbo;
