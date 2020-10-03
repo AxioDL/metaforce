@@ -81,9 +81,11 @@ std::vector<CVar*> CVarManager::cvars(CVar::EFlags filter) const {
 }
 
 void CVarManager::deserialize(CVar* cvar) {
-  /* Make sure we're not trying to deserialize a CVar that is invalid or not exposed */
-  if (!cvar || (!cvar->isArchive() && !cvar->isInternalArchivable()))
+  /* Make sure we're not trying to deserialize a CVar that is invalid or not exposed, unless it's been specified on the
+   * command line (i.e deferred) */
+  if (!cvar) {
     return;
+  }
 
   /* First let's check for a deferred value */
   std::string lowName = cvar->name().data();
@@ -93,6 +95,11 @@ void CVarManager::deserialize(CVar* cvar) {
     m_deferedCVars.erase(lowName);
     if (cvar->fromLiteralToType(val))
       return;
+  }
+
+  /* Enforce isArchive and isInternalArchivable now that we've checked if it's been deferred */
+  if (!cvar->isArchive() && !cvar->isInternalArchivable()) {
+    return;
   }
 
   /* We were either unable to find a deferred value or got an invalid value */
