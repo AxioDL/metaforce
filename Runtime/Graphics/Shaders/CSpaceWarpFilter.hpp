@@ -9,6 +9,7 @@
 namespace urde {
 
 class CSpaceWarpFilter {
+public:
   struct Uniform {
     hsh::float4x4 m_matrix;
     hsh::float4x4 m_indXf;
@@ -18,6 +19,8 @@ class CSpaceWarpFilter {
     hsh::float2 m_pos;
     hsh::float2 m_uv;
   };
+
+private:
   std::array<std::array<std::array<u8, 4>, 8>, 4> m_shiftTexture{};
   hsh::owner<hsh::texture2d> m_warpTex;
   hsh::owner<hsh::vertex_buffer<Vert>> m_vbo;

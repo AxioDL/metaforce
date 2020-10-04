@@ -70,4 +70,6 @@ runtime_add_hsh(Graphics
         Shaders/CRadarPaintShader.cpp
         Shaders/CRandomStaticFilter.cpp
         Shaders/CScanLinesFilter.cpp
+        Shaders/CSpaceWarpFilter.cpp
+        Shaders/CXRayBlurFilter.cpp
         )

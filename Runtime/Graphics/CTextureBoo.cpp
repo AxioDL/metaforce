@@ -12,13 +12,6 @@ namespace urde {
 namespace {
 logvisor::Module Log("urde::CTextureBoo");
 
-struct RGBA8 {
-  u8 r;
-  u8 g;
-  u8 b;
-  u8 a;
-};
-
 /* GX uses this upsampling technique to extract full 8-bit range */
 constexpr u8 Convert3To8(u8 v) {
   /* Swizzle bits: 00000123 -> 12312312 */

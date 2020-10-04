@@ -25,6 +25,13 @@ public:
     TwoLayersOutlines2 = 8 /* Fill bit2/3, Outline bit0/1 */
   };
 
+  struct RGBA8 {
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+  };
+
 private:
   ETexelFormat x0_fmt;
   u16 x4_w;
