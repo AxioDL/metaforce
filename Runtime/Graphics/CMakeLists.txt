@@ -69,4 +69,5 @@ runtime_add_hsh(Graphics
         Shaders/CPhazonSuitFilter.cpp
         Shaders/CRadarPaintShader.cpp
         Shaders/CRandomStaticFilter.cpp
+        Shaders/CScanLinesFilter.cpp
         )

@@ -11,9 +11,12 @@ enum class EFilterShape;
 enum class EFilterType;
 
 class CScanLinesFilter {
+public:
   struct Uniform {
-    zeus::CColor color;
+    hsh::float4 color;
   };
+
+private:
   hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
   hsh::binding m_dataBind;
   Uniform m_uniform;

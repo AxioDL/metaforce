@@ -52,6 +52,11 @@ class CBooRenderer final : public IRenderer {
   friend class CMorphBallShadow;
   friend class CWorldTransManager;
 
+public:
+  struct ScanlinesVert {
+    hsh::float3 pos;
+  };
+
   struct CAreaListItem {
     const std::vector<CMetroidModelInstance>* x0_geometry;
     const CAreaRenderOctTree* x4_octTree;
@@ -84,6 +89,7 @@ class CBooRenderer final : public IRenderer {
     }
   };
 
+private:
   IFactory& x8_factory;
   IObjectStore& xc_store;
   TLockedToken<CTexture> m_staticEntropy;
@@ -119,9 +125,6 @@ class CBooRenderer final : public IRenderer {
   hsh::texture2d m_ballFade;
   hsh::owner<hsh::render_texture2d> m_ballShadowId;
 
-  struct ScanlinesVert {
-    hsh::float3 pos;
-  };
   hsh::owner<hsh::vertex_buffer<ScanlinesVert>> m_scanLinesEvenVBO;
   hsh::owner<hsh::vertex_buffer<ScanlinesVert>> m_scanLinesOddVBO;
 
