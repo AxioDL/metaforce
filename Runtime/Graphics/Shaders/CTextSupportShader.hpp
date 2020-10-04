@@ -14,10 +14,13 @@ namespace urde {
 class CGlyph;
 class CFontImageDef;
 class CTextRenderBuffer;
+struct BooFontCharacters;
+struct BooImage;
 
 class CTextSupportShader {
   friend class CTextRenderBuffer;
 
+public:
   struct Uniform {
     hsh::float4x4 m_mvp;
     hsh::float4 m_uniformColor;
@@ -25,7 +28,7 @@ class CTextSupportShader {
 
   struct CharacterInstance {
     std::array<hsh::float3, 4> m_pos;
-    std::array<hsh::float2, 4> m_uv;
+    std::array<hsh::float3, 4> m_uv;
     hsh::float4 m_fontColor;
     hsh::float4 m_outlineColor;
     hsh::float4 m_mulColor;
@@ -38,6 +41,10 @@ class CTextSupportShader {
     hsh::float4 m_color;
     void SetMetrics(const CFontImageDef& imgDef, const zeus::CVector2i& offset);
   };
+
+  static void BuildCharacterShaderBinding(CTextRenderBuffer& buf, BooFontCharacters& chs,
+                                          CGuiWidget::EGuiModelDrawFlags flags);
+  static void BuildImageShaderBinding(CTextRenderBuffer& buf, BooImage& img, CGuiWidget::EGuiModelDrawFlags flags);
 };
 
 } // namespace urde

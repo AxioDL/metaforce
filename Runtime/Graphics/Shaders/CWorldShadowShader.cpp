@@ -31,7 +31,7 @@ CWorldShadowShader::CWorldShadowShader(u32 w, u32 h) : m_w(w), m_h(h) {
   bool depth = false;
   m_dataBind.hsh_bind(CWorldShadowShaderPipeline<depth>(m_vbo.get(), m_uniBuf.get()));
   depth = true;
-  m_dataBind.hsh_z_bind(CWorldShadowShaderPipeline<depth>(m_vbo.get(), m_uniBuf.get()));
+  m_zDataBind.hsh_z_bind(CWorldShadowShaderPipeline<depth>(m_vbo.get(), m_uniBuf.get()));
 }
 
 void CWorldShadowShader::bindRenderTarget() { m_tex.attach(); }

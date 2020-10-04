@@ -50,20 +50,17 @@ runtime_add_list(Graphics GRAPHICS_SOURCES)
 
 runtime_add_hsh(Graphics
         CMoviePlayer.cpp
-        Shaders/CLineRendererShaders.cpp
-        Shaders/CColoredQuadFilter.cpp
-        Shaders/CTexturedQuadFilter.cpp
-        Shaders/CCameraBlurFilter.cpp
-        Shaders/CFogVolumePlaneShader.cpp
         Shaders/CAABoxShader.cpp
+        Shaders/CCameraBlurFilter.cpp
+        Shaders/CColoredQuadFilter.cpp
         Shaders/CColoredStripShader.cpp
         Shaders/CDecalShaders.cpp
-        Shaders/CEnergyBarShader.cpp
-        Shaders/CThermalColdFilter.cpp
-        Shaders/CThermalHotFilter.cpp
         Shaders/CElementGenShaders.cpp
+        Shaders/CEnergyBarShader.cpp
         Shaders/CEnvFxShaders.cpp
         Shaders/CFogVolumeFilter.cpp
+        Shaders/CFogVolumePlaneShader.cpp
+        Shaders/CLineRendererShaders.cpp
         Shaders/CMapSurfaceShader.cpp
         Shaders/CParticleSwooshShaders.cpp
         Shaders/CPhazonSuitFilter.cpp
@@ -71,6 +68,10 @@ runtime_add_hsh(Graphics
         Shaders/CRandomStaticFilter.cpp
         Shaders/CScanLinesFilter.cpp
         Shaders/CSpaceWarpFilter.cpp
-        Shaders/CXRayBlurFilter.cpp
+        Shaders/CTextSupportShader.cpp
+        Shaders/CTexturedQuadFilter.cpp
+        Shaders/CThermalColdFilter.cpp
+        Shaders/CThermalHotFilter.cpp
         Shaders/CWorldShadowShader.cpp
+        Shaders/CXRayBlurFilter.cpp
         )

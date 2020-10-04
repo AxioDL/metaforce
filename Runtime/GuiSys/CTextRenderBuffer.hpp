@@ -22,6 +22,31 @@ class CTextExecuteBuffer;
 
 using CTextColor = zeus::CColor;
 
+struct BooFontCharacters {
+  TLockedToken<CRasterFont> m_font;
+  hsh::dynamic_owner<hsh::vertex_buffer<CTextSupportShader::CharacterInstance>> m_instBuf;
+  hsh::binding m_dataBinding;
+  hsh::binding m_dataBindingOverdraw;
+  std::vector<CTextSupportShader::CharacterInstance> m_charData;
+  u32 m_charCount = 0;
+  bool m_dirty = true;
+
+  BooFontCharacters(const CToken& token) : m_font(token) {}
+};
+
+struct BooImage {
+  CFontImageDef m_imageDef;
+  hsh::dynamic_owner<hsh::vertex_buffer<CTextSupportShader::ImageInstance>> m_instBuf;
+  std::vector<hsh::binding> m_dataBinding;
+  std::vector<hsh::binding> m_dataBindingOverdraw;
+  CTextSupportShader::ImageInstance m_imageData;
+  bool m_dirty = true;
+
+  BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset) : m_imageDef(imgDef) {
+    m_imageData.SetMetrics(imgDef, offset);
+  }
+};
+
 class CTextRenderBuffer {
   friend class CGuiTextSupport;
   friend class CTextSupportShader;
@@ -42,7 +67,7 @@ public:
   enum class EMode { AllocTally, BufferFill };
 
 private:
-  EMode x0_mode;
+  EMode x0_mode{};
 #if 0
     std::vector<TToken<CRasterFont>> x4_fonts;
     std::vector<CFontImageDef> x14_images;
@@ -58,11 +83,7 @@ private:
 #else
   /* Boo-specific text-rendering functionality */
   hsh::dynamic_owner<hsh::uniform_buffer<CTextSupportShader::Uniform>> m_uniBuf, m_uniBuf2;
-
-  struct BooFontCharacters;
   std::vector<BooFontCharacters> m_fontCharacters;
-
-  struct BooImage;
   std::vector<BooImage> m_images;
 
   struct BooPrimitiveMark;
@@ -73,7 +94,7 @@ private:
   zeus::CColor m_main;
   zeus::CColor m_outline = zeus::skBlack;
 
-  CGuiWidget::EGuiModelDrawFlags m_drawFlags;
+  CGuiWidget::EGuiModelDrawFlags m_drawFlags{};
 
   bool m_committed = false;
   void CommitResources();
