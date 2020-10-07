@@ -439,10 +439,8 @@ void CMetroidPrimeExo::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& 
     return;
   }
   if (type == EUserEventType::Projectile) {
-
   }
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
-
 }
 
 void CMetroidPrimeExo::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) {
@@ -543,7 +541,25 @@ void CMetroidPrimeExo::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
 void CMetroidPrimeExo::Suck(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Suck(mgr, msg, arg); }
 
 void CMetroidPrimeExo::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
-  CAi::ProjectileAttack(mgr, msg, arg);
+  if (msg == EStateMsg::Activate) {
+    x32c_animState = EAnimState::Ready;
+    x92c_ = 7;
+    x1088_ = 1.0999999f;
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::ProjectileAttack, &CPatterned::TryProjectileAttack, sub80275e34(x1254_));
+    if (x32c_animState == EAnimState::Repeat) {
+      x1078_ = 1;
+      GetBodyController()->SetLocomotionType(skLocomotions[x1078_]);
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+    x92c_ = 0;
+    sub802738d4(mgr);
+    x1088_ = 1.2166667;
+    xc50_->SetParticleEmission(false);
+    sub80277380(mgr, false);
+    x1254_ = 2;
+  }
 }
 
 void CMetroidPrimeExo::Flinch(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Flinch(mgr, msg, arg); }
@@ -573,7 +589,30 @@ void CMetroidPrimeExo::Approach(CStateManager& mgr, EStateMsg msg, float arg) {
 void CMetroidPrimeExo::Enraged(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Enraged(mgr, msg, arg); }
 
 void CMetroidPrimeExo::SpecialAttack(CStateManager& mgr, EStateMsg msg, float arg) {
-  CAi::SpecialAttack(mgr, msg, arg);
+  if (msg == EStateMsg::Activate) {
+    x32c_animState = EAnimState::Ready;
+    if (x1254_ == 2) {
+      x92c_ = 2;
+    } else if (x1254_ == 3) {
+      x92c_ = 3;
+    } else if (x1254_ == 4) {
+      x92c_ = 4;
+    } else if (x1254_ == 5) {
+      x92c_ = 5;
+    }
+    x1084_ = 1.2666667f;
+    sub80274054(mgr);
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::ProjectileAttack, &CPatterned::TryProjectileAttack, sub80275e34(x1254_));
+    if (x32c_animState == EAnimState::Repeat) {
+      x1078_ = 1;
+      GetBodyController()->SetLocomotionType(skLocomotions[x1078_]);
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+    x92c_ = 0;
+    sub802738d4(mgr);
+  }
 }
 
 void CMetroidPrimeExo::Growth(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Growth(mgr, msg, arg); }
@@ -619,7 +658,9 @@ bool CMetroidPrimeExo::AggressionCheck(CStateManager& mgr, float arg) {
 
 bool CMetroidPrimeExo::AttackOver(CStateManager& mgr, float arg) { return !x8f4_28_ && x8f4_27_ && !x8f4_25_; }
 
-bool CMetroidPrimeExo::ShouldFire(CStateManager& mgr, float arg) { return x1254_ == 6 || x1254_ == 7 || x1254_ == 8; }
+bool CMetroidPrimeExo::ShouldFire(CStateManager& mgr, float arg) {
+  return !(x1254_ != 6 && x1254_ != 7 && x1254_ != 8);
+}
 
 bool CMetroidPrimeExo::ShouldFlinch(CStateManager& mgr, float arg) { return x8f4_24_; }
 
@@ -641,7 +682,16 @@ bool CMetroidPrimeExo::ShouldSpecialAttack(CStateManager& mgr, float arg) {
 
 bool CMetroidPrimeExo::CodeTrigger(CStateManager& mgr, float arg) { return x1444_24_; }
 
-CProjectileInfo* CMetroidPrimeExo::GetProjectileInfo() { return CPatterned::GetProjectileInfo(); }
+CProjectileInfo* CMetroidPrimeExo::GetProjectileInfo() {
+  if (x92c_ == 5) {
+    return &xd74_;
+  }
+  if (x92c_ < 5 && x92c_ > 1) {
+    return &xc78_;
+  }
+
+  return nullptr;
+}
 
 void CMetroidPrimeExo::sub802738d4(CStateManager& mgr) { x920_ = mgr.GetActiveRandom()->Range(x924_, x928_); }
 
@@ -682,7 +732,11 @@ void CMetroidPrimeExo::UpdatePhysicsDummy(CStateManager& mgr) {
   }
 }
 
-void CMetroidPrimeExo::sub80274054(CStateManager& mgr) {}
+void CMetroidPrimeExo::sub80274054(CStateManager& mgr) {
+  if (TCastToPtr<CActor> act = mgr.ObjectById(xeac_)) {
+    act->SetTranslation(mgr.GetPlayer().GetTranslation());
+  }
+}
 
 void CMetroidPrimeExo::sub802740cc(CStateManager& mgr) {}
 
@@ -813,6 +867,7 @@ void CMetroidPrimeExo::sub802759a8(CStateManager& mgr, u32 w1) {
       if ((dVar5 < dVar7) && (dVar7 < (dVar5 + dVar6))) {
         x1254_ = i;
         x1258_[i] += 3.f;
+        break;
       }
 
       dVar5 += dVar6;
@@ -822,7 +877,7 @@ void CMetroidPrimeExo::sub802759a8(CStateManager& mgr, u32 w1) {
 
 float CMetroidPrimeExo::sub80275b04(const SPrimeExoRoomParameters& roomParms, int w2) {
   float dVar1 = 0.f;
-  if (zeus::close_enough(0.f, x1258_[w2])) {
+  if (!zeus::close_enough(0.f, x1258_[w2])) {
     const float tmpFloat = roomParms.GetFloatValue(w2);
     dVar1 = (tmpFloat * tmpFloat) / x1258_[w2];
   }
