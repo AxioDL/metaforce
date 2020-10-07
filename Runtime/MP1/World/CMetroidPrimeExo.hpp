@@ -142,8 +142,8 @@ class CMetroidPrimeExo : public CPatterned {
   rstl::reserved_vector<CPlasmaProjectile::PlayerEffectResources, 4> xb30_;
   rstl::reserved_vector<CDamageInfo, 4> xbc4_;
   TLockedToken<CGenDescription> xc48_;
-  std::unique_ptr<CElementGen> xc54_;
-  s32 xc58_ = -1;
+  std::unique_ptr<CElementGen> xc50_;
+  s32 xc58_curPlasmaProjectile = -1;
   float xc5c_ = 0.f;
   zeus::CVector3f xc60_;
   zeus::CVector3f xc6c_;
@@ -157,7 +157,7 @@ class CMetroidPrimeExo : public CPatterned {
   CDamageInfo xeb4_;
   CCameraShakeData xed0_;
   TLockedToken<CElectricDescription> xfa4_;
-  std::unique_ptr<CParticleElectric> xfb0_;
+  std::unique_ptr<CParticleElectric> xfac_;
   float xfb4_ = 0.f;
   float xfb8_ = 0.f;
   CSfxHandle xfbc_;
@@ -207,14 +207,14 @@ class CMetroidPrimeExo : public CPatterned {
   void sub80274054(CStateManager& mgr);
   void sub802740cc(CStateManager& mgr);
   void CreatePhysicsDummy(CStateManager& mgr);
-  void sub802743e0(CStateManager& mgr, u32);
+  void SetBillboardEmission(CStateManager& mgr, bool emission);
   void sub8027444c(CStateManager& mgr);
   void CreateHUDBillBoard(CStateManager& mgr);
   void sub802747b8(float f1, CStateManager& mgr, const zeus::CVector3f& vec);
   void sub80274e6c(float f1, CStateManager& mgr);
   void sub802755ac(CStateManager& mgr, bool b1);
-  void sub802756b8(CStateManager& mgr);
-  void sub8027571c(CStateManager& mgr);
+  void EnableHeadOrbitAndTarget(CStateManager& mgr);
+  void DisableHeadOrbitAndTarget(CStateManager& mgr);
   void UpdateTimers(float mgr);
   void sub80275800(CStateManager& mgr);
   void sub802759a8(CStateManager& mgr, u32 w1);
@@ -222,7 +222,7 @@ class CMetroidPrimeExo : public CPatterned {
   void sub80275b68();
   void sub80275c60(CStateManager& mgr, int w1);
   bool sub80275d68(int w1);
-  void sub80275e14(int w1);
+  s32 sub80275e14(int w1);
   u32 sub80275e34(int w1) const;
   void sub80275e54(float f1, CStateManager& mgr);
   void UpdateSfxEmitter(float f1, CStateManager& mgr);
@@ -238,8 +238,8 @@ class CMetroidPrimeExo : public CPatterned {
   bool IsRelayValid(CStateManager& mgr, TAreaId w2);
   bool sub80277224(float f1, CStateManager& mgr);
   void sub80277380(CStateManager& mgr, bool b1);
-  void sub80277570(float f1, CStateManager& mgr);
-  zeus::CVector3f sub80778c4(CStateManager& mgr);
+  void UpdatePlasmaProjectile(float dt, CStateManager& mgr);
+  zeus::CVector3f sub802778c4(CStateManager& mgr);
   void sub80277b74(CStateManager& mgr);
   void sub80277c04(CStateManager& mgr);
   void UpdateContactDamage(CStateManager& mgr);
@@ -255,10 +255,9 @@ class CMetroidPrimeExo : public CPatterned {
   void UpdateHealthInfo(CStateManager& mgr);
   void SetBoneTrackingTarget(CStateManager& mgr, bool active);
   void UpdateBoneTracking(float f1, CStateManager& mgr);
-  void sub80278cc8(TUniqueId uid, CStateManager& mgr);
+  void DoContactDamage(TUniqueId uid, CStateManager& mgr);
   void UpdateCollision(float dt, CStateManager& mgr);
   void SetupBoneTracking();
-  void sub8027c22c(int w1, int w2);
   void SetupCollisionActorManager(CStateManager& mgr);
 
 public:

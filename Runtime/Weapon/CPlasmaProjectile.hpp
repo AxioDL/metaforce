@@ -130,5 +130,7 @@ public:
   bool CanRenderUnsorted(const CStateManager& mgr) const override;
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   void Render(CStateManager& mgr) override;
+  zeus::CColor GetInnerColor() const { return x490_innerColor; }
+  zeus::CColor GetOuterColor() const { return x494_outerColor; }
 };
 } // namespace urde

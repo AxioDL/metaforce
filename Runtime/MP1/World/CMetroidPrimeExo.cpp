@@ -73,6 +73,12 @@ std::array<std::string_view, 4> skEffectNames{{
     "Flame_Rshoulder"sv,
 }};
 
+std::array<const char*, 20> skLegLocators{{
+    "R_front_2",  "L_front_2",  "R_front_1",   "L_front_1",   nullptr,        nullptr,        "R_elbow",
+    "L_elbow",    nullptr,      nullptr,       "Head",        "Head_LCTR",    nullptr,        nullptr,
+    "R_shoulder", "L_shoulder", "R_stinger_2", "L_stinger_2", "R_spike_LCTR", "L_spike_LCTR",
+}};
+
 std::array<std::string_view, 6> skBoneTrackingNames{{
     "L_eye_1"sv,
     "L_eye_2"sv,
@@ -97,6 +103,43 @@ std::array<std::array<s32, 3>, 14> skSomeMeleeValues{{
     {{-1, 2, -1}},
     {{-1, -1, -1}},
     {{0, 0, 0}},
+}};
+
+std::array<s32, 17> skSomeValues1{{
+    7,
+    5,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    7,
+    5,
+    7,
+    17,
+    18,
+    9,
+    2,
+    11,
+}};
+
+std::array<std::array<s32, 3>, 14> skSomeValues2{{
+    {{-1, -1, -1}},
+    {{10, 11, 12}},
+    {{-1, -1, -1}},
+    {{-1, -1, -1}},
+    {{-1, -1, -1}},
+    {{-1, -1, -1}},
+    {{-1, -1, -1}},
+    {{-1, -1, -1}},
+    {{-1, -1, -1}},
+    {{-1, -1, -1}},
+    {{8, 8, 8}},
+    {{-1, -1, -1}},
+    {{-1, -1, -1}},
+    {{-1, -1, -1}},
 }};
 } // namespace
 SPrimeStruct2B::SPrimeStruct2B(CInputStream& in)
@@ -214,7 +257,7 @@ CMetroidPrimeExo::CMetroidPrimeExo(
 , x918_(pw1)
 , x930_(struct2b)
 , xc48_(g_SimplePool->GetObj({FOURCC('PART'), particle1}))
-, xc54_(std::make_unique<CElementGen>(xc48_, CElementGen::EModelOrientationType::Normal,
+, xc50_(std::make_unique<CElementGen>(xc48_, CElementGen::EModelOrientationType::Normal,
                                       CElementGen::EOptionalSystemFlags::One))
 , xc78_(wpsc1, dInfo1)
 , xca0_(shakeData4)
@@ -224,7 +267,7 @@ CMetroidPrimeExo::CMetroidPrimeExo(
 , xeb4_(dInfo3)
 , xed0_(shakeData6)
 , xfa4_(g_SimplePool->GetObj("Effect_Electric"sv))
-, xfb0_(std::make_unique<CParticleElectric>(xfa4_))
+, xfac_(std::make_unique<CParticleElectric>(xfa4_))
 , x1014_(g_SimplePool->GetObj({FOURCC('PART'), particle3}))
 , x101c_(g_SimplePool->GetObj({FOURCC('PART'), particle4}))
 , x1024_(std::make_unique<CElementGen>(x1014_, CElementGen::EModelOrientationType::Normal,
@@ -281,7 +324,7 @@ void CMetroidPrimeExo::Think(float dt, CStateManager& mgr) {
   UpdateHealthInfo(mgr);
   UpdateColorChange(dt, mgr);
   UpdateHeadAnimation(dt);
-  sub80277570(dt, mgr);
+  UpdatePlasmaProjectile(dt, mgr);
   sub80274e6c(dt, mgr);
   UpdateEnergyBalls(dt, mgr);
   UpdatePhysicsDummy(mgr);
@@ -303,7 +346,7 @@ void CMetroidPrimeExo::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other
     x1444_24_ = true;
     break;
   case EScriptObjectMessage::Touched:
-    sub80278cc8(other, mgr);
+    DoContactDamage(other, mgr);
     break;
   case EScriptObjectMessage::Registered:
     CreateShadow(false);
@@ -334,8 +377,8 @@ void CMetroidPrimeExo::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other
       SendStateToRelay(EScriptObjectState::MaxReached, mgr);
     }
 
-    if (xfb0_) {
-      xfb0_->SetParticleEmission(false);
+    if (xfac_) {
+      xfac_->SetParticleEmission(false);
     }
     break;
   case EScriptObjectMessage::Damage:
@@ -364,7 +407,42 @@ bool CMetroidPrimeExo::CanRenderUnsorted(const CStateManager& mgr) const { retur
 void CMetroidPrimeExo::Touch(CActor& act, CStateManager& mgr) { CPatterned::Touch(act, mgr); }
 
 void CMetroidPrimeExo::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
+  if (type == EUserEventType::ScreenShake) {
+    return;
+  }
+  if (type == EUserEventType::EffectOff) {
+    xc50_->SetParticleEmission(false);
+    return;
+  }
+  if (type == EUserEventType::EffectOn && x92c_ == 7) {
+    xc50_->SetParticleEmission(true);
+    if (auto* ent = static_cast<CPlasmaProjectile*>(mgr.ObjectById(xb24_plasmaProjectileIds[x570_]))) {
+      zeus::CColor col = ent->GetInnerColor();
+      col.a() = 1.f;
+      xc50_->SetModulationColor(col);
+    }
+    return;
+  }
+  if (type == EUserEventType::DamageOn) {
+    if (x92c_ == 11) {
+      sub802755ac(mgr, true);
+      x1054_26_ = true;
+    } else if (x92c_ == 7) {
+      sub80277380(mgr, true);
+    }
+  } else if (type == EUserEventType::DamageOff) {
+    if (x92c_ == 1) {
+      sub802755ac(mgr, false);
+    } else if (x92c_ == 7) {
+      sub80277380(mgr, false);
+    }
+    return;
+  }
+  if (type == EUserEventType::Projectile) {
+
+  }
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
+
 }
 
 void CMetroidPrimeExo::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) {
@@ -613,7 +691,11 @@ void CMetroidPrimeExo::CreatePhysicsDummy(CStateManager& mgr) {
   mgr.AddObject(new CPhysicsDummy(xeac_, true, ""sv, CEntityInfo(GetAreaIdAlways(), NullConnectionList)));
 }
 
-void CMetroidPrimeExo::sub802743e0(CStateManager& mgr, u32) {}
+void CMetroidPrimeExo::SetBillboardEmission(CStateManager& mgr, bool emission) {
+  if (TCastToPtr<CHUDBillboardEffect> billboard = mgr.ObjectById(x1044_billboardId)) {
+    billboard->GetParticleGen()->SetParticleEmission(emission);
+  }
+}
 
 void CMetroidPrimeExo::sub8027444c(CStateManager& mgr) {}
 
@@ -641,11 +723,33 @@ void CMetroidPrimeExo::sub802747b8(float f1, CStateManager& mgr, const zeus::CVe
 
 void CMetroidPrimeExo::sub80274e6c(float f1, CStateManager& mgr) {}
 
-void CMetroidPrimeExo::sub802755ac(CStateManager& mgr, bool b1) {}
+void CMetroidPrimeExo::sub802755ac(CStateManager& mgr, bool b1) {
+  for (size_t i = 0; i < 2; ++i) {
+    x1000_[i]->SetParticleEmission(b1);
+    if (!b1) {
+      x1024_->SetParticleEmission(false);
+      SetBillboardEmission(mgr, false);
+    } else if (x1054_24_ != b1) {
+      x102c_[i] = 0.3f;
+      for (size_t j = 0; j < x1000_[i]->GetSwooshes().size(); ++j) {
+        x1000_[i]->ForceOneUpdate(0.f);
+      }
+    }
+  }
+  x1054_24_ = b1;
+}
 
-void CMetroidPrimeExo::sub802756b8(CStateManager& mgr) {}
+void CMetroidPrimeExo::EnableHeadOrbitAndTarget(CStateManager& mgr) {
+  if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x8cc_headColActor)) {
+    colAct->AddMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
+  }
+}
 
-void CMetroidPrimeExo::sub8027571c(CStateManager& mgr) {}
+void CMetroidPrimeExo::DisableHeadOrbitAndTarget(CStateManager& mgr) {
+  if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x8cc_headColActor)) {
+    colAct->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
+  }
+}
 
 void CMetroidPrimeExo::UpdateTimers(float dt) {
   if (GetBodyController()->GetPercentageFrozen() != 0.f) {
@@ -748,13 +852,57 @@ void CMetroidPrimeExo::sub80275c60(CStateManager& mgr, int w1) {
   }
 }
 
-bool CMetroidPrimeExo::sub80275d68(int w1) { return false; }
+bool CMetroidPrimeExo::sub80275d68(int w1) {
+  // TODO(antidote): Simplify expressions and rename globals
+  const s32 iVar1 = skSomeValues1[w1];
+  if (iVar1 == 7 || iVar1 == 18) {
+    return (-1 - ((skSomeMeleeValues[w1][x1078_] >> 24) | (((skSomeMeleeValues[w1][x1078_] + 1) >> 24) >> 7))) != 0;
+  }
+  if (iVar1 == 5) {
+    return (-1 - ((skSomeValues2[w1][x1078_] >> 24) | (((skSomeValues2[w1][x1078_] + 1) >> 24) >> 7))) != 0;
+  }
 
-void CMetroidPrimeExo::sub80275e14(int w1) {}
+  return iVar1 == 17;
+}
+
+s32 CMetroidPrimeExo::sub80275e14(int w1) { return skSomeValues2[w1][x1078_]; }
 
 u32 CMetroidPrimeExo::sub80275e34(int w1) const { return skSomeMeleeValues[w1][x1078_]; }
 
-void CMetroidPrimeExo::sub80275e54(float f1, CStateManager& mgr) {}
+void CMetroidPrimeExo::sub80275e54(float dt, CStateManager& mgr) {
+  if (!xfac_) {
+    return;
+  }
+
+  xfac_->SetGlobalOrientation(GetTransform().getRotation());
+  xfac_->SetGlobalTranslation(GetTranslation());
+  xfac_->SetGlobalScale(GetModelData()->GetScale());
+  if (xfc0_) {
+    CSfxManager::UpdateEmitter(xfbc_, GetTranslation(), zeus::skZero3f, 1.f);
+    xfac_->SetParticleEmission(true);
+    const auto* animData = GetModelData()->GetAnimationData();
+    for (size_t i = 0; i < 4; ++i) {
+      xfac_->SetOverrideIPos(
+          animData
+              ->GetLocatorTransform(animData->GetLocatorSegId(skLegLocators[mgr.GetActiveRandom()->Range(0, 19)]),
+                                    nullptr)
+              .origin);
+      xfac_->SetOverrideFPos(
+          animData
+              ->GetLocatorTransform(animData->GetLocatorSegId(skLegLocators[mgr.GetActiveRandom()->Range(0, 19)]),
+                                    nullptr)
+              .origin);
+      xfac_->ForceParticleCreation(1);
+    }
+
+    xfac_->SetParticleEmission(false);
+    xfb4_ -= dt;
+    if (xfb4_ <= 0.f) {
+      sub80276204(mgr, false);
+    }
+  }
+  xfac_->Update(dt);
+}
 
 void CMetroidPrimeExo::UpdateSfxEmitter(float f1, CStateManager& mgr) {
   if (!xfc1_) {
@@ -964,7 +1112,7 @@ bool CMetroidPrimeExo::sub80277224(float f1, CStateManager& mgr) {
 
   if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(uid)) {
     const float dist = (wp->GetTranslation() - GetTranslation()).magSquared();
-    const float scaleMag = f1 * (0.57735026f * GetModelData()->GetScale().magnitude());
+    const float scaleMag = f1 * (0.57735026f * GetModelData()->GetScale().magSquared());
     if (f1 < 0.f) {
       return dist < scaleMag;
     }
@@ -975,30 +1123,48 @@ bool CMetroidPrimeExo::sub80277224(float f1, CStateManager& mgr) {
 
 void CMetroidPrimeExo::sub80277380(CStateManager& mgr, bool b1) {}
 
-void CMetroidPrimeExo::sub80277570(float f1, CStateManager& mgr) {
+void CMetroidPrimeExo::UpdatePlasmaProjectile(float dt, CStateManager& mgr) {
   zeus::CTransform jawXf = GetLctrTransform("Jaw_1"sv);
-  xc54_->SetTranslation(jawXf.origin);
-  xc54_->SetOrientation(jawXf.getRotation());
-  xc54_->Update(f1);
-  if (xc58_ >= 0 && xc58_ < 4) {
-    if (auto* ent = mgr.ObjectById(xb24_plasmaProjectileIds[xc58_])) {
-      if (ent->GetActive()) {
-        if (GetBodyController()->GetPercentageFrozen() > 0.f) {
-          sub80277380(mgr, false);
-        }
-        // TODO: Finish
+  xc50_->SetTranslation(jawXf.origin);
+  xc50_->SetOrientation(jawXf.getRotation());
+  xc50_->Update(dt);
+  if (xc58_curPlasmaProjectile >= 0 && xc58_curPlasmaProjectile < 4) {
+    if (auto* ent =
+            static_cast<CPlasmaProjectile*>(mgr.ObjectById(xb24_plasmaProjectileIds[xc58_curPlasmaProjectile]))) {
+      if (!ent->GetActive()) {
+        return;
       }
+
+      if (GetBodyController()->GetPercentageFrozen() > 0.f) {
+        sub80277380(mgr, false);
+      }
+
+      zeus::CTransform xf;
+      xc5c_ = zeus::clamp(0.f, xc5c_ + dt, 1.4f);
+      const float fVar1 = xc5c_ / 1.f;
+      const float fVar2 = 1.f - fVar1;
+      zeus::CVector3f vec1 = xc60_ * fVar2 + xc6c_ * fVar1;
+      zeus::CVector3f vec2 = vec1 - jawXf.origin;
+      if (vec2.normalized().dot(GetTransform().frontVector()) <= zeus::degToRad(40.f)) {
+        xf = (zeus::CQuaternion::lookAt(GetTransform().frontVector(), vec2.normalized(), zeus::degToRad(45.f)) *
+              zeus::CQuaternion(GetTransform().buildMatrix3f()))
+                 .toTransform();
+      } else {
+        xf = zeus::lookAt(jawXf.origin, vec1);
+      }
+
+      ent->UpdateFx(xf, dt, mgr);
     }
   }
 }
 
-zeus::CVector3f CMetroidPrimeExo::sub80778c4(CStateManager& mgr) { return zeus::CVector3f(); }
+zeus::CVector3f CMetroidPrimeExo::sub802778c4(CStateManager& mgr) { return zeus::CVector3f(); }
 
 void CMetroidPrimeExo::sub80277b74(CStateManager& mgr) {}
 
 void CMetroidPrimeExo::sub80277c04(CStateManager& mgr) {
-  xc54_->SetParticleEmission(false);
-  xc54_->SetGlobalScale(GetModelData()->GetScale());
+  xc50_->SetParticleEmission(false);
+  xc50_->SetGlobalScale(GetModelData()->GetScale());
 
   for (size_t i = 0; i < x96c_.size(); ++i) {
     xb24_plasmaProjectileIds[i] = mgr.AllocateUniqueId();
@@ -1081,7 +1247,44 @@ void CMetroidPrimeExo::UpdateHeadAnimation(float f1) {
   }
 }
 
-void CMetroidPrimeExo::sub8027827c(TUniqueId uid, CStateManager& mgr) {}
+void CMetroidPrimeExo::sub8027827c(TUniqueId uid, CStateManager& mgr) {
+  if (uid == x8cc_headColActor) {
+    if (TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(uid)) {
+      if (!IsAlive()) {
+        return;
+      }
+
+      if (TCastToConstPtr<CWeapon> wp = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
+        if (colAct->GetDamageVulnerability()->WeaponHurts(wp->GetDamageInfo().GetWeaponMode(), false)) {
+          x428_damageCooldownTimer = 0.33f;
+          if (wp->GetDamageInfo().GetWeaponMode().GetType() == EWeaponType::Ice) {
+            if (TCastToPtr<CCollisionActor> wat = mgr.ObjectById(uid)) {
+              wat->HealthInfo(mgr)->SetHP(wat->HealthInfo(mgr)->GetHP() -
+                                          (0.5f * (x8c8_ - wat->GetHealthInfo(mgr)->GetHP())));
+            }
+          }
+          if (wp->GetDamageInfo().GetWeaponMode().GetType() == EWeaponType::Wave &&
+              (wp->GetDamageInfo().GetWeaponMode().IsCharged() || wp->GetDamageInfo().GetWeaponMode().IsComboed())) {
+            xfb4_ = 1.5f;
+            sub80276204(mgr, true);
+          }
+
+          if (wp->GetDamageInfo().GetWeaponMode().GetType() == EWeaponType::Plasma &&
+              (wp->GetDamageInfo().GetWeaponMode().IsCharged() || wp->GetDamageInfo().GetWeaponMode().IsComboed())) {
+            xfb8_ = 1.5f;
+            sub8027639c(mgr, true);
+            xfc1_ = true;
+          }
+
+          if (wp->GetDamageInfo().GetWeaponMode().GetType() == EWeaponType::Ice &&
+              wp->GetDamageInfo().GetWeaponMode().IsComboed()) {
+            Freeze(mgr, zeus::skZero3f, colAct->GetTranslation() - wp->GetTranslation(), 2.f);
+          }
+        }
+      }
+    }
+  }
+}
 
 void CMetroidPrimeExo::sub80278508(CStateManager& mgr, int w1, bool b1) {}
 
@@ -1172,7 +1375,32 @@ void CMetroidPrimeExo::UpdateBoneTracking(float dt, CStateManager& mgr) {
   }
 }
 
-void CMetroidPrimeExo::sub80278cc8(TUniqueId uid, CStateManager& mgr) {}
+void CMetroidPrimeExo::DoContactDamage(TUniqueId uid, CStateManager& mgr) {
+  if (TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(uid)) {
+    if (!IsAlive()) {
+      return;
+    }
+
+    if (colAct->GetLastTouchedObject() == mgr.GetPlayer().GetUniqueId()) {
+      if (mgr.GetPlayer().GetFrozenState()) {
+        mgr.GetPlayer().UnFreeze(mgr);
+      }
+
+      if (x420_curDamageRemTime <= 0.f) {
+        mgr.ApplyDamage(GetUniqueId(), colAct->GetLastTouchedObject(), GetUniqueId(), GetContactDamage(),
+                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
+        x420_curDamageRemTime = x424_damageWaitTime;
+      }
+    } else if (TCastToConstPtr<CActor> act = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
+      if (!act->GetMaterialList().HasMaterial(EMaterialTypes::Platform)) {
+        return;
+      }
+
+      mgr.ApplyDamage(GetUniqueId(), colAct->GetLastTouchedObject(), GetUniqueId(), GetContactDamage(),
+                      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
+    }
+  }
+}
 
 void CMetroidPrimeExo::UpdateCollision(float dt, CStateManager& mgr) {
   x56c_collisionManager->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
