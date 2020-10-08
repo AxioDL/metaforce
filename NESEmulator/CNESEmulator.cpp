@@ -589,7 +589,7 @@ void CNESEmulator::ProcessUserInput(const CFinalInput& input, int) {
 
   if (GetPasswordEntryState() != EPasswordEntryState::NotPasswordScreen) {
     // Don't swap A/B
-    inValReads[BUTTON_A] = input.DA() || input.DSpecialKey(boo::ESpecialKey::Enter) ||
+    inValReads[BUTTON_A] = input.DA() || input.DSpecialKey(boo2::Keycode::ENTER) ||
                            input.DMouseButton(boo2::MouseButton::Primary);
     inValReads[BUTTON_B] = input.DB() || input.DSpecialKey(boo2::Keycode::ESC);
   } else {
