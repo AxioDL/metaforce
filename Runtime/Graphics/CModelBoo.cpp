@@ -196,7 +196,7 @@ hsh::vertex_buffer_typeless CBooModel::ModelInstance::GetBooVBO(const CBooModel&
     const CModel& parent = *model.m_model;
     auto CreateVBO = [this, &parent]<uint32_t NUVs, uint32_t NWeights>() {
       using VertData = CModelShaders::VertData<0, NUVs, NWeights>;
-      assert(sizeof(VertData) == parent.GetHMDLMeta().vertStride && "Vert data stride mismatch");
+      assert(sizeof(VertData) != parent.GetHMDLMeta().vertStride && "Vert data stride mismatch");
       m_dynamicVbo = hsh::create_dynamic_vertex_buffer<VertData>(parent.GetHMDLMeta().vertCount);
     };
 #define VERT_DATA(uvs)                                                                                                 \
