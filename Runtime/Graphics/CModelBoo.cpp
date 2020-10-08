@@ -11,7 +11,6 @@
 
 #include <array>
 
-#include <boo/graphicsdev/Metal.hpp>
 #include <hecl/CVarManager.hpp>
 #include <hecl/HMDLMeta.hpp>
 #include <hecl/Runtime.hpp>
@@ -124,26 +123,19 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
     mtxsOut[1][3][0] = -surfPos.dot(v2) * f1 + 0.5f;
     mtxsOut[1][2][1] = f2;
     mtxsOut[1][3][1] = -modelToPlayerLocal.z() * f2;
-    switch (CGraphics::g_BooPlatform) {
-    case boo::IGraphicsDataFactory::Platform::OpenGL:
-      mtxsOut[1] = ReflectPostGL * mtxsOut[1];
-      break;
-    default:
-      break;
-    }
   }
 }
 
-boo::ObjToken<boo::ITexture> CBooModel::g_shadowMap;
+hsh::texture2d CBooModel::g_shadowMap;
 zeus::CTransform CBooModel::g_shadowTexXf;
-boo::ObjToken<boo::ITexture> CBooModel::g_disintegrateTexture;
-boo::ObjToken<boo::ITextureCubeR> CBooModel::g_reflectionCube;
+hsh::texture2d CBooModel::g_disintegrateTexture;
+hsh::texturecube CBooModel::g_reflectionCube;
 
 void CBooModel::EnableShadowMaps(hsh::texture2d map, const zeus::CTransform& texXf) {
   g_shadowMap = map;
   g_shadowTexXf = texXf;
 }
-void CBooModel::DisableShadowMaps() { g_shadowMap = nullptr; }
+void CBooModel::DisableShadowMaps() { g_shadowMap.reset(); }
 
 CBooModel::~CBooModel() {
   if (m_prev)
@@ -155,13 +147,14 @@ CBooModel::~CBooModel() {
 }
 
 CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
-                     hsh::vertex_buffer_typeless vbo, hsh::index_buffer<u32> ibo, const zeus::CAABox& aabb,
+                     hsh::vertex_buffer_typeless vbo, hsh::index_buffer_typeless ibo, const zeus::CAABox& aabb,
                      u8 renderMask, int numInsts)
 : m_modelTok(token)
 , m_model(parent)
 , x0_surfaces(surfaces)
 , x4_matSet(&shader.m_matSet)
 , m_geomLayout(&*shader.m_geomLayout)
+, m_vtxFmt(m_model->GetHMDLMeta())
 , m_matSetIdx(shader.m_matSetIdx)
 , x1c_textures(shader.x0_textures)
 , x20_aabb(aabb)
@@ -302,11 +295,11 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
   /* Build geometry uniform buffer if shared not available */
   hsh::uniform_buffer_typeless geomUniformBuf;
   if (sharedLayoutBuf >= 0) {
-    geomUniformBuf = m_geomLayout->GetSharedBuffer(sharedLayoutBuf);
+    geomUniformBuf = m_geomLayout->GetSharedBuffer(sharedLayoutBuf).get();
   } else {
     auto CreateUBO = [&]<uint32_t NSkinSlots>() {
       newInst.m_geomUniformBuffer = hsh::create_dynamic_uniform_buffer<CModelShaders::VertUniform<NSkinSlots>>();
-      geomUniformBuf = newInst.m_geomUniformBuffer;
+      geomUniformBuf = newInst.m_geomUniformBuffer.get();
     };
     switch (m_vtxFmt.NSkinSlots) {
 #define VERT_UNIFORM(nskins)                                                                                           \
@@ -376,7 +369,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
   for (const CBooSurface& surf : *x0_surfaces) {
     const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
 
-    std::array<boo::ObjToken<boo::ITexture>, 12> texs{
+    std::array<hsh::texture_typeless, 12> texs{
         g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
         g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
         g_Renderer->m_whiteTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->x220_sphereRamp.get(),
@@ -386,12 +379,13 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
       for (const auto& ch : mat.chunks) {
         if (const auto* const pass = ch.get_if<MaterialSet::Material::PASS>()) {
           auto search = x1c_textures.find(pass->texId.toUint32());
-          boo::ObjToken<boo::ITexture> btex;
-          if (search != x1c_textures.cend() && (btex = search->second.GetObj()->GetBooTexture())){
-            texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;}
-        } else if (const auto* const pass = ch.get_if<MaterialSet::Material::CLR>()) {
-          boo::ObjToken<boo::ITexture> btex = g_Renderer->GetColorTexture(zeus::CColor(pass->color));
-          texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;
+          hsh::texture2d tex;
+          if (search != x1c_textures.cend() && (tex = search->second.GetObj()->GetBooTexture())) {
+            texs[MaterialSet::Material::TexMapIdx(pass->type)] = tex;
+          }
+        } else if (const auto* const clr = ch.get_if<MaterialSet::Material::CLR>()) {
+          hsh::texture2d tex = g_Renderer->GetColorTexture(clr->color);
+          texs[MaterialSet::Material::TexMapIdx(clr->type)] = tex;
         }
       }
     }
@@ -412,8 +406,9 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
 
     bool useReflection = mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye();
     if (useReflection) {
-      if (g_Renderer->x14c_reflectionTex)
-        texs[11] = g_Renderer->x14c_reflectionTex.get();
+      if (g_Renderer->x14c_reflectionTex.Owner.IsValid()) {
+         // texs[11] = g_Renderer->x14c_reflectionTex.get_color(0);
+      }
       thisOffs[3] = curReflect;
       curReflect += 256;
     } else {
@@ -1181,8 +1176,8 @@ static const u8* MemoryFromPartData(const u8*& dataCur, const u32*& secSizeCur) 
 std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts, bool lockParent) {
   if (shaderIdx >= x18_matSets.size())
     shaderIdx = 0;
-  auto ret = std::make_unique<CBooModel>(m_selfToken, this, &x8_surfaces, x18_matSets[shaderIdx], m_staticVbo, m_ibo,
-                                         m_aabb, (m_flags & 0x2) != 0, subInsts);
+  auto ret = std::make_unique<CBooModel>(m_selfToken, this, &x8_surfaces, x18_matSets[shaderIdx], m_staticVbo.get(),
+                                         m_ibo.get(), m_aabb, (m_flags & 0x2) != 0, subInsts);
   if (lockParent)
     ret->LockParent();
   return ret;
@@ -1228,26 +1223,67 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
     matSet.BuildShaders(m_hmdlMeta);
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    /* Index buffer is always static */
-    if (m_hmdlMeta.indexCount)
-      m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, m_hmdlMeta.indexCount);
+  /* Index buffer is always static */
+  if (m_hmdlMeta.indexCount)
+    m_ibo =
+        hsh::create_index_buffer(hsh::detail::ArrayProxy{reinterpret_cast<const u32*>(iboData), m_hmdlMeta.indexCount});
 
-    if (!m_hmdlMeta.bankCount) {
-      /* Non-skinned models use static vertex buffers shared with CBooModel instances */
-      if (m_hmdlMeta.vertCount)
-        m_staticVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData, m_hmdlMeta.vertStride, m_hmdlMeta.vertCount);
-    } else {
-      /* Skinned models use per-instance dynamic buffers for vertex manipulation effects */
-      size_t vboSz = m_hmdlMeta.vertStride * m_hmdlMeta.vertCount;
-      if (vboSz) {
-        m_dynamicVertexData.reset(new uint8_t[vboSz]);
-        memmove(m_dynamicVertexData.get(), vboData, vboSz);
+  if (!m_hmdlMeta.bankCount) {
+    /* Non-skinned models use static vertex buffers shared with CBooModel instances */
+    if (m_hmdlMeta.vertCount) {
+      auto CreateVBO = [this, vboData]<uint32_t NUVs, uint32_t NWeights>() {
+        using VertData = CModelShaders::VertData<0, NUVs, NWeights>;
+        assert(sizeof(VertData) != m_hmdlMeta.vertStride && "Vert data stride mismatch");
+        m_staticVbo = hsh::create_vertex_buffer(
+            hsh::detail::ArrayProxy{reinterpret_cast<const VertData*>(vboData), m_hmdlMeta.vertCount});
+      };
+#define VERT_DATA(uvs)                                                                                                 \
+  switch (m_hmdlMeta.weightCount) {                                                                          \
+  case 0:                                                                                                              \
+    CreateVBO.operator()<uvs, 0>();                                                                                    \
+    break;                                                                                                             \
+  case 1:                                                                                                              \
+    CreateVBO.operator()<uvs, 1>();                                                                                    \
+    break;                                                                                                             \
+  case 2:                                                                                                              \
+    CreateVBO.operator()<uvs, 2>();                                                                                    \
+    break;                                                                                                             \
+  case 3:                                                                                                              \
+    CreateVBO.operator()<uvs, 3>();                                                                                    \
+    break;                                                                                                             \
+  case 4:                                                                                                              \
+    CreateVBO.operator()<uvs, 4>();                                                                                    \
+    break;                                                                                                             \
+  default:                                                                                                             \
+    assert(false && "Unhandled weight count");                                                                         \
+    break;                                                                                                             \
+  }                                                                                                                    \
+  break;
+      switch (m_hmdlMeta.uvCount) {
+      case 0:
+        VERT_DATA(0)
+      case 1:
+        VERT_DATA(1)
+      case 2:
+        VERT_DATA(2)
+      case 3:
+        VERT_DATA(3)
+      case 4:
+        VERT_DATA(4)
+#undef VERT_DATA
+      default:
+        assert(false && "Unhandled UV count");
+        break;
       }
     }
-
-    return true;
-  } BooTrace);
+  } else {
+    /* Skinned models use per-instance dynamic buffers for vertex manipulation effects */
+    size_t vboSz = m_hmdlMeta.vertStride * m_hmdlMeta.vertCount;
+    if (vboSz) {
+      m_dynamicVertexData.reset(new uint8_t[vboSz]);
+      memmove(m_dynamicVertexData.get(), vboData, vboSz);
+    }
+  }
 
   const u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(surfInfo));
   x8_surfaces.reserve(surfCount);
@@ -1315,9 +1351,9 @@ zeus::CVector3f CModel::GetPoolNormal(size_t idx) const {
   return {floats};
 }
 
-void CModel::ApplyVerticesCPU(hsh::owner<hsh::vertex_buffer_typeless>& vertBuf,
+void CModel::ApplyVerticesCPU(hsh::dynamic_owner<hsh::vertex_buffer_typeless>& vertBuf,
                               const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const {
-  u8* data = reinterpret_cast<u8*>(vertBuf->map(m_hmdlMeta.vertStride * m_hmdlMeta.vertCount));
+  u8* data = reinterpret_cast<u8*>(vertBuf.map()); // m_hmdlMeta.vertStride * m_hmdlMeta.vertCount
   for (u32 i = 0; i < std::min(u32(vn.size()), m_hmdlMeta.vertCount); ++i) {
     const std::pair<zeus::CVector3f, zeus::CVector3f>& avn = vn[i];
     float* floats = reinterpret_cast<float*>(data + GetPoolVertexOffset(i));
@@ -1328,14 +1364,14 @@ void CModel::ApplyVerticesCPU(hsh::owner<hsh::vertex_buffer_typeless>& vertBuf,
     floats[4] = avn.second.y();
     floats[5] = avn.second.z();
   }
-  vertBuf->unmap();
+  vertBuf.unmap();
 }
 
-void CModel::RestoreVerticesCPU(hsh::owner<hsh::vertex_buffer_typeless>& vertBuf) const {
+void CModel::RestoreVerticesCPU(hsh::dynamic_owner<hsh::vertex_buffer_typeless>& vertBuf) const {
   size_t size = m_hmdlMeta.vertStride * m_hmdlMeta.vertCount;
-  u8* data = reinterpret_cast<u8*>(vertBuf->map(size));
+  u8* data = reinterpret_cast<u8*>(vertBuf.map()); // size
   memcpy(data, m_dynamicVertexData.get(), size);
-  vertBuf->unmap();
+  vertBuf.unmap();
 }
 
 void CModel::_WarmupShaders() {

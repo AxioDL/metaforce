@@ -9,7 +9,7 @@ namespace urde {
 using namespace hsh::pipeline;
 
 struct CRadarPaintShaderPipeline : pipeline<topology<hsh::TriangleStrip>, AdditiveAttachment<>, depth_write<false>> {
-  CRadarPaintShaderPipeline(hsh::vertex_buffer<CRadarPaintShader::Instance> vbo,
+  CRadarPaintShaderPipeline(hsh::vertex_buffer<CRadarPaintShader::Instance> vbo HSH_VAR_INSTANCE,
                             hsh::uniform_buffer<CRadarPaintShader::Uniform> ubo, hsh::texture2d tex) {
     this->position = ubo->xf * hsh::float4(vbo->pos[this->vertex_id], 1.f);
     this->color_out[0] = vbo->color * tex.sample<float>(vbo->uv[this->vertex_id]);

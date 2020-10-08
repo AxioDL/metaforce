@@ -668,7 +668,7 @@ void CStateManager::ResetViewAfterDraw(const SViewport& backupViewport,
                              cam->GetFarClipDistance());
 }
 
-void CStateManager::'DrawWorld() {
+void CStateManager::DrawWorld() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CStateManager::DrawWorld", zeus::skBlue);
   const CTimeProvider timeProvider(xf14_curTimeMod900);
   const SViewport backupViewport = g_Viewport;

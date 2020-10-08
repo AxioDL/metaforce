@@ -4,6 +4,8 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/World/CRippleManager.hpp"
 
+#include "hsh/hsh.h"
+
 namespace urde {
 
 class CStateManager;

@@ -308,7 +308,7 @@ public:
   void BindReflectionDrawTarget() { x14c_reflectionTex.attach(); }
   void BindBallShadowIdTarget() { m_ballShadowId.attach(); }
   void ResolveBallShadowIdTarget() {
-    m_ballShadowId.resolve_color_binding(0, hsh::rect2d({0, 0}, {m_ballShadowIdW, m_ballShadowIdH}), false);
+    m_ballShadowId.resolve_color_binding(0, hsh::rect2d({0, 0}, {skBallShadowIdSize, skBallShadowIdSize}), false);
   }
 
   void FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;

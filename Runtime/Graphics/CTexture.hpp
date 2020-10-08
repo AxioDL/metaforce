@@ -76,7 +76,7 @@ public:
   hsh::texture_typeless GetBooTexture() const { return m_booTex.get(); }
   hsh::texture_typeless GetPaletteTexture() const { return m_paletteTex.get(); }
   std::unique_ptr<u8[]> BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut, std::unique_ptr<u8[]>& paletteOut) const;
-  hsh::texture_typeless GetFontTexture(EFontType tp);
+  hsh::texture2d_array GetFontTexture(EFontType tp);
 
   const CTextureInfo* GetTextureInfo() const { return m_textureInfo; }
 };

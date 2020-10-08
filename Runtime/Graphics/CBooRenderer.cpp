@@ -693,8 +693,8 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
 
   GenerateFogVolumeRampTex();
   GenerateSphereRampTex();
-  m_ballShadowId = hsh::create_render_texture2d({skBallShadowIdSize, skBallShadowIdSize}, hsh::RGBA8_UNORM, 1, 0);
-  x14c_reflectionTex = hsh::create_render_texture2d({256, 256}, hsh::RGBA8_UNORM, 1, 0);
+  m_ballShadowId = hsh::create_render_texture2d({skBallShadowIdSize, skBallShadowIdSize}, 1, 0);
+  x14c_reflectionTex = hsh::create_render_texture2d({256, 256}, 1, 0);
   GenerateScanLinesVBO();
 
   LoadThermoPalette();

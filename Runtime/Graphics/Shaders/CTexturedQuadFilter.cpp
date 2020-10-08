@@ -12,23 +12,49 @@ namespace urde {
 template <EFilterType Type, bool TexAlpha>
 struct CTexturedQuadFilterPipeline : FilterPipeline<Type> {
   CTexturedQuadFilterPipeline(hsh::vertex_buffer<CTexturedQuadFilter::Vert> vbo,
-                              hsh::uniform_buffer<CTexturedQuadFilter::Uniform> uniBuf, hsh::texture2d tex) {
-    this->position = hsh::float4(vbo->m_pos, 1.f);
+                              hsh::uniform_buffer<CTexturedQuadFilter::Uniform> uniBuf,
+                              hsh::texture2d tex) {
+    this->position = uniBuf->m_matrix * hsh::float4(vbo->m_pos, 1.f);
     if constexpr (TexAlpha) {
-      this->color_out[0] = uniBuf->m_color * tex.sample_bias<float>(vbo->m_uv, uniBuf->m_lod, {});
+      this->color_out[0] = uniBuf->m_color * tex.sample_bias<float>(vbo->m_uv, uniBuf->m_lod);
     } else {
       this->color_out[0] =
-          uniBuf->m_color * hsh::float4(tex.sample_bias<float>(vbo->m_uv, uniBuf->m_lod, {}).xyz(), 1.f);
+          uniBuf->m_color * hsh::float4(tex.sample_bias<float>(vbo->m_uv, uniBuf->m_lod).xyz(), 1.f);
     }
   }
 };
+template struct CTexturedQuadFilterPipeline<EFilterType::Blend, false>;
+template struct CTexturedQuadFilterPipeline<EFilterType::Add, true>;
+template struct CTexturedQuadFilterPipeline<EFilterType::Multiply, false>;
 
-template <typename Tex>
-CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, Tex tex, ZTest ztest)
+template <EFilterType Type, bool TexAlpha>
+struct CTexturedQuadFilterRenderTexPipeline : FilterPipeline<Type> {
+  CTexturedQuadFilterRenderTexPipeline(hsh::vertex_buffer<CTexturedQuadFilter::Vert> vbo,
+                              hsh::uniform_buffer<CTexturedQuadFilter::Uniform> uniBuf,
+                              hsh::render_texture2d tex) {
+    this->position = uniBuf->m_matrix * hsh::float4(vbo->m_pos, 1.f);
+    if constexpr (TexAlpha) {
+      this->color_out[0] = uniBuf->m_color * tex.sample_bias<float>(vbo->m_uv, uniBuf->m_lod);
+    } else {
+      this->color_out[0] =
+          uniBuf->m_color * hsh::float4(tex.sample_bias<float>(vbo->m_uv, uniBuf->m_lod).xyz(), 1.f);
+    }
+  }
+};
+template struct CTexturedQuadFilterRenderTexPipeline<EFilterType::Blend, false>;
+
+CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, hsh::texture2d tex, ZTest ztest)
 : m_zTest(ztest) {
   m_vbo = hsh::create_dynamic_vertex_buffer<Vert>(16);
   m_uniBuf = hsh::create_dynamic_uniform_buffer<Uniform>();
   m_dataBind.hsh_bind(CTexturedQuadFilterPipeline<type, false>(m_vbo.get(), m_uniBuf.get(), tex));
+}
+
+CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, hsh::render_texture2d tex, ZTest ztest)
+: m_zTest(ztest) {
+  m_vbo = hsh::create_dynamic_vertex_buffer<Vert>(16);
+  m_uniBuf = hsh::create_dynamic_uniform_buffer<Uniform>();
+  m_dataBind.hsh_rend_bind(CTexturedQuadFilterRenderTexPipeline<type, false>(m_vbo.get(), m_uniBuf.get(), tex));
 }
 
 CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ZTest ztest)
@@ -49,8 +75,10 @@ void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale, const z
 
   m_uniform.m_matrix[0][0] = rect.size.x() * 2.f;
   m_uniform.m_matrix[1][1] = rect.size.y() * 2.f;
+  m_uniform.m_matrix[2][2] = 1.f;
   m_uniform.m_matrix[3][0] = rect.position.x() * 2.f - 1.f;
   m_uniform.m_matrix[3][1] = rect.position.y() * 2.f - 1.f;
+  m_uniform.m_matrix[3][3] = 1.f;
   m_uniform.m_color = color;
   m_uniBuf.load(m_uniform);
 
@@ -140,11 +168,16 @@ void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& col
   }
 }
 
-template <typename Tex>
-CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, Tex tex) {
+CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, hsh::texture2d tex) {
   m_vbo = hsh::create_dynamic_vertex_buffer<Vert>(16);
   m_uniBuf = hsh::create_dynamic_uniform_buffer<Uniform>();
   m_dataBind.hsh_bind_alpha(CTexturedQuadFilterPipeline<type, true>(m_vbo.get(), m_uniBuf.get(), tex));
+}
+
+CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, hsh::render_texture2d tex) {
+  m_vbo = hsh::create_dynamic_vertex_buffer<Vert>(16);
+  m_uniBuf = hsh::create_dynamic_uniform_buffer<Uniform>();
+  m_dataBind.hsh_render_bind_alpha(CTexturedQuadFilterRenderTexPipeline<type, true>(m_vbo.get(), m_uniBuf.get(), tex));
 }
 
 CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, TLockedToken<CTexture> tex)

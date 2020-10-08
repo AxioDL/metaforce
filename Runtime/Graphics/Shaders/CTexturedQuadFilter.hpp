@@ -2,6 +2,8 @@
 
 #include "Runtime/CToken.hpp"
 
+#include "hsh/hsh.h"
+
 #include "zeus/CColor.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CRectangle.hpp"
@@ -32,7 +34,7 @@ protected:
   hsh::dynamic_owner<hsh::vertex_buffer<Vert>> m_vbo;
   hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
   hsh::binding m_dataBind;
-  Uniform m_uniform;
+  Uniform m_uniform{};
   ZTest m_zTest;
 
   CTexturedQuadFilter() = default;
@@ -40,8 +42,8 @@ protected:
 public:
   static constexpr zeus::CRectangle DefaultRect{0.f, 0.f, 1.f, 1.f};
   explicit CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ZTest zTest = ZTest::None);
-  template <typename Tex>
-  explicit CTexturedQuadFilter(EFilterType type, Tex tex, ZTest zTest = ZTest::None);
+  explicit CTexturedQuadFilter(EFilterType type, hsh::texture2d tex, ZTest zTest = ZTest::None);
+  explicit CTexturedQuadFilter(EFilterType type, hsh::render_texture2d tex, ZTest zTest = ZTest::None);
   CTexturedQuadFilter(const CTexturedQuadFilter&) = delete;
   CTexturedQuadFilter& operator=(const CTexturedQuadFilter&) = delete;
   CTexturedQuadFilter(CTexturedQuadFilter&&) = default;
@@ -56,8 +58,8 @@ public:
 class CTexturedQuadFilterAlpha : public CTexturedQuadFilter {
 public:
   explicit CTexturedQuadFilterAlpha(EFilterType type, TLockedToken<CTexture> tex);
-  template <typename Tex>
-  explicit CTexturedQuadFilterAlpha(EFilterType type, Tex tex);
+  explicit CTexturedQuadFilterAlpha(EFilterType type, hsh::texture2d tex);
+  explicit CTexturedQuadFilterAlpha(EFilterType type, hsh::render_texture2d tex);
 };
 
 } // namespace urde

@@ -57,7 +57,9 @@ void CTextRenderBuffer::CommitResources() {
     m_uniBuf2 = hsh::create_dynamic_uniform_buffer<CTextSupportShader::Uniform>();
   }
   for (BooFontCharacters& chs : m_fontCharacters) {
-    CTextSupportShader::BuildCharacterShaderBinding(*this, chs, m_drawFlags);
+    if (!chs.m_charData.empty()) {
+      CTextSupportShader::BuildCharacterShaderBinding(*this, chs, m_drawFlags);
+    }
   }
   for (BooImage& img : m_images) {
     CTextSupportShader::BuildImageShaderBinding(*this, img, m_drawFlags);

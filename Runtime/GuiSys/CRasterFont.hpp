@@ -148,7 +148,7 @@ public:
                   const char16_t* str, int len) const;
   const CGlyph* GetGlyph(char16_t chr) const { return InternalGetGlyph(chr); }
   void GetSize(const CDrawStringOptions& opts, int& width, int& height, const char16_t* str, int len) const;
-  hsh::texture2d GetTexture() {
+  hsh::texture2d_array GetTexture() {
     return x80_texture->GetFontTexture(x2c_mode);
   }
 

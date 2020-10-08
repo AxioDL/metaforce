@@ -33,7 +33,7 @@ using DrawFlagsAttachment = typename DrawFlagsAttachmentExt<Flags>::type;
 template <CGuiWidget::EGuiModelDrawFlags Flags>
 struct CTextSupportShaderCharacterPipeline
 : pipeline<topology<hsh::TriangleStrip>, DrawFlagsAttachment<Flags>, depth_write<false>, depth_compare<hsh::LEqual>> {
-  CTextSupportShaderCharacterPipeline(hsh::vertex_buffer<CTextSupportShader::CharacterInstance> vbo,
+  CTextSupportShaderCharacterPipeline(hsh::vertex_buffer<CTextSupportShader::CharacterInstance> vbo HSH_VAR_INSTANCE,
                                       hsh::uniform_buffer<CTextSupportShader::Uniform> ubo, hsh::texture2d_array tex) {
     this->position = ubo->m_mvp * hsh::float4(vbo->m_pos[this->vertex_id], 1.f);
     hsh::float4 fontColor = ubo->m_uniformColor * vbo->m_fontColor;
@@ -49,7 +49,7 @@ template struct CTextSupportShaderCharacterPipeline<CGuiWidget::EGuiModelDrawFla
 template <CGuiWidget::EGuiModelDrawFlags Flags>
 struct CTextSupportShaderImagePipeline
 : pipeline<topology<hsh::TriangleStrip>, DrawFlagsAttachment<Flags>, depth_write<false>, depth_compare<hsh::LEqual>> {
-  CTextSupportShaderImagePipeline(hsh::vertex_buffer<CTextSupportShader::ImageInstance> vbo,
+  CTextSupportShaderImagePipeline(hsh::vertex_buffer<CTextSupportShader::ImageInstance> vbo HSH_VAR_INSTANCE,
                                   hsh::uniform_buffer<CTextSupportShader::Uniform> ubo, hsh::texture2d tex) {
     this->position = ubo->m_mvp * hsh::float4(vbo->m_pos[this->vertex_id], 1.f);
     // FIXME hsh bug: sampler appears to be completely ignored

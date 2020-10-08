@@ -9,18 +9,16 @@
 namespace urde {
 using namespace hsh::pipeline;
 
-template <ERglCullMode CullMode, ERglEnum Compare, bool DepthWrite, ERglBlendMode Mode, ERglBlendFactor SrcFac,
-          ERglBlendFactor DstFac, ERglLogicOp Op, bool AlphaWrite>
-struct CAABoxShaderPipeline
-: pipeline<topology<hsh::TriangleStrip>, ERglBlendModeAttachment<Mode, SrcFac, DstFac, Op, AlphaWrite>,
-           ERglCullModeAttachment<CullMode>, ERglDepthCompareAttachment<Compare>, depth_write<DepthWrite>> {
+struct CAABoxShaderPipeline : pipeline<topology<hsh::TriangleStrip>,
+                                       ERglBlendModeAttachment<ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
+                                                               ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear, false>,
+                                       ERglCullModeAttachment<ERglCullMode::None>,
+                                       ERglDepthCompareAttachment<ERglEnum::LEqual>, depth_write<true>> {
   CAABoxShaderPipeline(hsh::vertex_buffer<CAABoxShader::Vert> vbo, hsh::uniform_buffer<CAABoxShader::Uniform> uniBuf) {
     this->position = uniBuf->m_xf * hsh::float4(vbo->m_pos, 1.f);
     this->color_out[0] = uniBuf->m_color;
   }
 };
-template struct CAABoxShaderPipeline<ERglCullMode::None, ERglEnum::LEqual, true, ERglBlendMode::Blend,
-                                     ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear, true>;
 
 constexpr size_t VertexCount = 34;
 
@@ -53,8 +51,7 @@ CAABoxShader::CAABoxShader(const zeus::CAABox& aabb) {
 
   m_vbo = hsh::create_vertex_buffer(verts);
   m_uniBuf = hsh::create_dynamic_uniform_buffer<Uniform>();
-  m_dataBind.hsh_bind(CAABoxShaderPipeline<gx_CullMode, gx_DepthTest, gx_DepthWrite, gx_BlendMode, gx_BlendSrcFac,
-                                           gx_BlendDstFac, gx_BlendOp, gx_AlphaWrite>(m_vbo.get(), m_uniBuf.get()));
+  m_dataBind.hsh_bind(CAABoxShaderPipeline(m_vbo.get(), m_uniBuf.get()));
 }
 
 void CAABoxShader::draw(const zeus::CColor& color) {

@@ -23,8 +23,7 @@ CMapSurfaceShader::CMapSurfaceShader(hsh::vertex_buffer<Vert> vbo, hsh::index_bu
 
 void CMapSurfaceShader::draw(const zeus::CColor& color, u32 start, u32 count) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CMapSurfaceShader::draw", zeus::skMagenta);
-  Uniform uniform = {CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), color};
-  m_uniBuf.load(uniform);
+  m_uniBuf.load({CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), color});
   m_dataBind.draw_indexed(start, count);
 }
 

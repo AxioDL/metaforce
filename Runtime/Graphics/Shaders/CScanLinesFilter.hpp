@@ -2,6 +2,8 @@
 
 #include "Runtime/CToken.hpp"
 
+#include "hsh/hsh.h"
+
 #include "zeus/CColor.hpp"
 
 namespace urde {

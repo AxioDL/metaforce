@@ -4,6 +4,8 @@
 
 #include "Runtime/GCNTypes.hpp"
 
+#include "hsh/hsh.h"
+
 #include "zeus/CVector3f.hpp"
 
 namespace urde {

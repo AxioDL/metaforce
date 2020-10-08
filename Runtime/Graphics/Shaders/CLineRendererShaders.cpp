@@ -35,7 +35,7 @@ template <bool Additive, bool AlphaWrite, hsh::Compare ZComp>
 struct CLineRendererNoTexPipeline
 : pipeline<std::conditional_t<Additive, AdditiveAttachment<AlphaWrite>, BlendAttachment<AlphaWrite>>,
            depth_compare<ZComp>> {
-  CLineRendererNoTexPipeline(hsh::vertex_buffer<CLineRenderer::SDrawVertTex> vbo,
+  CLineRendererNoTexPipeline(hsh::vertex_buffer<CLineRenderer::SDrawVertNoTex> vbo,
                              hsh::uniform_buffer<CLineRenderer::SDrawUniform> uniBuf HSH_VAR_STAGE(fragment)) {
     this->position = vbo->pos;
     hsh::float4 colorIn = vbo->color * uniBuf->moduColor;
@@ -46,6 +46,7 @@ struct CLineRendererNoTexPipeline
 template struct CLineRendererNoTexPipeline<false, false, hsh::Always>;
 template struct CLineRendererNoTexPipeline<false, false, hsh::LEqual>;
 template struct CLineRendererNoTexPipeline<false, false, hsh::Greater>;
+template struct CLineRendererNoTexPipeline<false, false, hsh::GEqual>;
 template struct CLineRendererNoTexPipeline<false, true, hsh::Always>;
 template struct CLineRendererNoTexPipeline<false, true, hsh::LEqual>;
 template struct CLineRendererNoTexPipeline<false, true, hsh::Greater>;

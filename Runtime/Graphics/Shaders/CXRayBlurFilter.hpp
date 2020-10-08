@@ -5,11 +5,13 @@
 #include "Runtime/CToken.hpp"
 #include "zeus/CMatrix4f.hpp"
 
+#include "hsh/hsh.h"
+
 namespace urde {
 class CTexture;
 
 class CXRayBlurFilter {
-  friend struct CXRayBlurFilterPipeline;
+public:
   struct Vert {
     hsh::float2 m_pos;
     hsh::float2 m_uv;
@@ -17,6 +19,8 @@ class CXRayBlurFilter {
   struct Uniform {
     std::array<hsh::float4x4, 8> m_uv;
   };
+
+private:
   TLockedToken<CTexture> m_paletteTex;
   hsh::owner<hsh::vertex_buffer<Vert>> m_vbo;
   hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;

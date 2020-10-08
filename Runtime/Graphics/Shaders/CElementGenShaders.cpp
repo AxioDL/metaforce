@@ -33,7 +33,7 @@ using BlendModeAttachment = typename BlendModeAttachmentExt<Mode, AlphaWrite>::t
 template <BlendMode Mode, bool AlphaWrite, bool ZTest, bool ZWrite, bool RedToAlpha>
 struct CElementGenShadersTexPipeline : pipeline<topology<hsh::TriangleStrip>, BlendModeAttachment<Mode, AlphaWrite>,
                                                 depth_compare<ZTest ? hsh::LEqual : hsh::Always>, depth_write<ZWrite>> {
-  CElementGenShadersTexPipeline(hsh::vertex_buffer<SParticleInstanceTex> vbo,
+  CElementGenShadersTexPipeline(hsh::vertex_buffer<SParticleInstanceTex> vbo HSH_VAR_INSTANCE,
                                 hsh::uniform_buffer<SParticleUniforms> uniBuf, hsh::texture2d tex) {
     this->position = uniBuf->mvp * vbo->pos[this->vertex_id];
     this->color_out[0] = vbo->color * uniBuf->moduColor * tex.sample<float>(vbo->uvs[this->vertex_id]);
@@ -42,15 +42,14 @@ struct CElementGenShadersTexPipeline : pipeline<topology<hsh::TriangleStrip>, Bl
     }
   }
 };
-template struct CElementGenShadersTexPipeline<BlendMode::Regular, true, true, true, false>;
-template struct CElementGenShadersTexPipeline<BlendMode::Additive, true, true, true, true>;
-template struct CElementGenShadersTexPipeline<BlendMode::Subtract, true, true, true, true>;
+template struct CElementGenShadersTexPipeline<BlendMode::Additive, false, true, false, false>;
+template struct CElementGenShadersTexPipeline<BlendMode::Regular, false, true, false, false>;
 
 template <BlendMode Mode, bool AlphaWrite, bool ZTest, bool ZWrite, bool ColoredIndirect>
 struct CElementGenShadersIndTexPipeline
 : pipeline<topology<hsh::TriangleStrip>, BlendModeAttachment<Mode, AlphaWrite>,
            depth_compare<ZTest ? hsh::LEqual : hsh::Always>, depth_write<ZWrite>> {
-  CElementGenShadersIndTexPipeline(hsh::vertex_buffer<SParticleInstanceIndTex> vbo,
+  CElementGenShadersIndTexPipeline(hsh::vertex_buffer<SParticleInstanceIndTex> vbo HSH_VAR_INSTANCE,
                                    hsh::uniform_buffer<SParticleUniforms> uniBuf, hsh::texture2d texrTex,
                                    hsh::texture2d tindTex, hsh::render_texture2d sceneTex) {
     this->position = uniBuf->mvp * vbo->pos[this->vertex_id];
@@ -65,22 +64,19 @@ struct CElementGenShadersIndTexPipeline
     }
   }
 };
-template struct CElementGenShadersIndTexPipeline<BlendMode::Regular, true, true, true, true>;
-template struct CElementGenShadersIndTexPipeline<BlendMode::Additive, true, true, true, false>;
+template struct CElementGenShadersIndTexPipeline<BlendMode::Regular, false, true, false, false>;
 
 template <BlendMode Mode, bool AlphaWrite, bool ZTest, bool ZWrite>
 struct CElementGenShadersNoTexPipeline
 : pipeline<topology<hsh::TriangleStrip>, BlendModeAttachment<Mode, AlphaWrite>,
            depth_compare<ZTest ? hsh::LEqual : hsh::Always>, depth_write<ZWrite>> {
-  CElementGenShadersNoTexPipeline(hsh::vertex_buffer<SParticleInstanceNoTex> vbo,
+  CElementGenShadersNoTexPipeline(hsh::vertex_buffer<SParticleInstanceNoTex> vbo HSH_VAR_INSTANCE,
                                   hsh::uniform_buffer<SParticleUniforms> uniBuf) {
     this->position = uniBuf->mvp * vbo->pos[this->vertex_id];
     this->color_out[0] = vbo->color * uniBuf->moduColor;
   }
 };
-template struct CElementGenShadersNoTexPipeline<BlendMode::Regular, true, true, true>;
-template struct CElementGenShadersNoTexPipeline<BlendMode::Additive, true, true, true>;
-template struct CElementGenShadersNoTexPipeline<BlendMode::Subtract, true, true, true>;
+template struct CElementGenShadersNoTexPipeline<BlendMode::Regular, false, true, false>;
 
 CElementGenShaders::EShaderClass CElementGenShaders::GetShaderClass(CElementGen& gen) {
   const auto* desc = gen.x1c_genDesc.GetObj();

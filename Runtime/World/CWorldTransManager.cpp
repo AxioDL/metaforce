@@ -290,7 +290,7 @@ void CWorldTransManager::DrawEnabled() {
     DrawFirstPass(&lights);
     SClipScreenRect rect(g_Viewport);
     CGraphics::ResolveSpareTexture(rect);
-    CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
+    hsh::clear_attachments();
     DrawSecondPass(&lights);
     m_dissolve.drawCropped(zeus::CColor{1.f, 1.f, 1.f, 1.f - t}, 1.f);
   }

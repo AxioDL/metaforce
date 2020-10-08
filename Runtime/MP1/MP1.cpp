@@ -209,7 +209,6 @@ void CGameArchitectureSupport::specialKeyUp(boo2::Keycode key, boo2::KeyModifier
 
 CMain::CMain(IFactory* resFactory, CSimplePool* resStore, hsh::surface surface)
 : x128_globalObjects(std::make_unique<CGameGlobalObjects>(resFactory, resStore)) {
-  CGraphics::InitializeBoo(surface);
   xe4_gameplayResult = EGameplayResult::Playing;
   g_Main = this;
 }

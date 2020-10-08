@@ -8,7 +8,7 @@
 #include "Runtime/Graphics/CTexture.hpp"
 
 namespace urde {
-std::array<CMappableObject::Vert, 8> CMappableObject::skDoorVerts{};
+std::array<CMapSurfaceShader::Vert, 8> CMappableObject::skDoorVerts{};
 
 constexpr std::array<u32, 24> DoorIndices{
     6, 4, 2, 0, 3, 1, 7, 5, 1, 0, 5, 4, 7, 6, 3, 2, 3, 2, 1, 0, 5, 4, 7, 6,
@@ -118,10 +118,10 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
       CLineRenderer& line = ds.m_outline;
       const u32* baseIdx = &DoorIndices[s * 4];
       line.Reset();
-      line.AddVertex(skDoorVerts[baseIdx[0]].m_pos, colors.second, 1.f);
-      line.AddVertex(skDoorVerts[baseIdx[1]].m_pos, colors.second, 1.f);
-      line.AddVertex(skDoorVerts[baseIdx[3]].m_pos, colors.second, 1.f);
-      line.AddVertex(skDoorVerts[baseIdx[2]].m_pos, colors.second, 1.f);
+      line.AddVertex(skDoorVerts[baseIdx[0]].pos, colors.second, 1.f);
+      line.AddVertex(skDoorVerts[baseIdx[1]].pos, colors.second, 1.f);
+      line.AddVertex(skDoorVerts[baseIdx[3]].pos, colors.second, 1.f);
+      line.AddVertex(skDoorVerts[baseIdx[2]].pos, colors.second, 1.f);
       line.Render();
     }
   } else {
@@ -188,10 +188,10 @@ void CMappableObject::DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, 
   CLineRenderer& line = ds.m_outline;
   const u32* baseIdx = &DoorIndices[surfIdx * 4];
   line.Reset();
-  line.AddVertex(skDoorVerts[baseIdx[0]].m_pos, colors.second, 1.f);
-  line.AddVertex(skDoorVerts[baseIdx[1]].m_pos, colors.second, 1.f);
-  line.AddVertex(skDoorVerts[baseIdx[3]].m_pos, colors.second, 1.f);
-  line.AddVertex(skDoorVerts[baseIdx[2]].m_pos, colors.second, 1.f);
+  line.AddVertex(skDoorVerts[baseIdx[0]].pos, colors.second, 1.f);
+  line.AddVertex(skDoorVerts[baseIdx[1]].pos, colors.second, 1.f);
+  line.AddVertex(skDoorVerts[baseIdx[3]].pos, colors.second, 1.f);
+  line.AddVertex(skDoorVerts[baseIdx[2]].pos, colors.second, 1.f);
   line.Render();
 }
 
@@ -236,7 +236,7 @@ bool CMappableObject::IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& 
   }
 }
 
-hsh::owner<hsh::vertex_buffer<CMappableObject::Vert>> CMappableObject::g_doorVbo;
+hsh::owner<hsh::vertex_buffer<CMapSurfaceShader::Vert>> CMappableObject::g_doorVbo;
 hsh::owner<hsh::index_buffer<u32>> CMappableObject::g_doorIbo;
 
 void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks) {
@@ -245,14 +245,14 @@ void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks) {
 
   // Wrap door verts around -Z to build surface
   auto& doorVerts = skDoorVerts;
-  doorVerts[0].assign(-centerF[2], -centerF[1], 0.f);
-  doorVerts[1].assign(-centerF[2], -centerF[1], 2.f * centerF[0]);
-  doorVerts[2].assign(-centerF[2], centerF[1], 0.f);
-  doorVerts[3].assign(-centerF[2], centerF[1], 2.f * centerF[0]);
-  doorVerts[4].assign(.2f * -centerF[2], -centerF[1], 0.f);
-  doorVerts[5].assign(.2f * -centerF[2], -centerF[1], 2.f * centerF[0]);
-  doorVerts[6].assign(.2f * -centerF[2], centerF[1], 0.f);
-  doorVerts[7].assign(.2f * -centerF[2], centerF[1], 2.f * centerF[0]);
+  doorVerts[0] = {-centerF[2], -centerF[1], 0.f};
+  doorVerts[1] = {-centerF[2], -centerF[1], 2.f * centerF[0]};
+  doorVerts[2] = {-centerF[2], centerF[1], 0.f};
+  doorVerts[3] = {-centerF[2], centerF[1], 2.f * centerF[0]};
+  doorVerts[4] = {.2f * -centerF[2], -centerF[1], 0.f};
+  doorVerts[5] = {.2f * -centerF[2], -centerF[1], 2.f * centerF[0]};
+  doorVerts[6] = {.2f * -centerF[2], centerF[1], 0.f};
+  doorVerts[7] = {.2f * -centerF[2], centerF[1], 2.f * centerF[0]};
 
   g_doorVbo = hsh::create_vertex_buffer(skDoorVerts);
   g_doorIbo = hsh::create_index_buffer(DoorIndices);

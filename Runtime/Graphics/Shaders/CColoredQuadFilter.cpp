@@ -14,10 +14,13 @@ template <EFilterType Type>
 struct CColoredQuadFilterPipeline : FilterPipeline<Type> {
   CColoredQuadFilterPipeline(hsh::vertex_buffer<CColoredQuadFilter::Vert> vbo,
                              hsh::uniform_buffer<CColoredQuadFilter::Uniform> uniBuf) {
-    this->position = hsh::float4(vbo->m_pos, 1.f);
+    this->position = uniBuf->m_matrix * hsh::float4(vbo->m_pos, 1.f);
     this->color_out[0] = uniBuf->m_color;
   }
 };
+template struct CColoredQuadFilterPipeline<EFilterType::Add>;
+template struct CColoredQuadFilterPipeline<EFilterType::Blend>;
+template struct CColoredQuadFilterPipeline<EFilterType::Multiply>;
 
 CColoredQuadFilter::CColoredQuadFilter(EFilterType type) {
   constexpr std::array<Vert, 4> verts{{
@@ -36,6 +39,7 @@ CColoredQuadFilter::CColoredQuadFilter(EFilterType type) {
 void CColoredQuadFilter::draw(const zeus::CColor& color, const zeus::CRectangle& rect) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CColoredQuadFilter::draw", zeus::skMagenta);
 
+  m_uniform.m_matrix = zeus::CMatrix4f{};
   m_uniform.m_matrix[0][0] = rect.size.x() * 2.f;
   m_uniform.m_matrix[1][1] = rect.size.y() * 2.f;
   m_uniform.m_matrix[3][0] = rect.position.x() * 2.f - 1.f;

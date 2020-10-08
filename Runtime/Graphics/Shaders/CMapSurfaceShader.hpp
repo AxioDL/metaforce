@@ -5,6 +5,8 @@
 #include "zeus/CColor.hpp"
 #include "zeus/CMatrix4f.hpp"
 
+#include "hsh/hsh.h"
+
 namespace urde {
 
 class CMapSurfaceShader {

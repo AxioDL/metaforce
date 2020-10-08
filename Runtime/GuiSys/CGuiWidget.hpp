@@ -8,6 +8,9 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/GuiSys/CGuiObject.hpp"
 
+// FIXME move extent/rect/etc to builtin_types
+#include "hsh/hsh.h"
+
 #include "zeus/CColor.hpp"
 #include "zeus/CTransform.hpp"
 #include "zeus/CVector3f.hpp"

@@ -176,7 +176,7 @@ private:
   ModelInstance m_ballShadowInstance;
 
   hsh::vertex_buffer_typeless m_staticVbo;
-  hsh::index_buffer<u32> m_staticIbo;
+  hsh::index_buffer_typeless m_staticIbo;
 
   hsh::texture2d m_lastDrawnShadowMap;
   hsh::texture2d m_lastDrawnOneTexture;
@@ -203,7 +203,7 @@ public:
   ~CBooModel();
   CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
             hsh::vertex_buffer_typeless vbo,
-            hsh::index_buffer<u32> ibo,
+            hsh::index_buffer_typeless ibo,
             const zeus::CAABox& aabb, u8 renderMask, int numInsts);
 
   static void MakeTexturesFromMats(const MaterialSet& matSet,
@@ -307,9 +307,9 @@ public:
   zeus::CVector3f GetPoolVertex(size_t idx) const;
   size_t GetPoolNormalOffset(size_t idx) const;
   zeus::CVector3f GetPoolNormal(size_t idx) const;
-  void ApplyVerticesCPU(hsh::owner<hsh::vertex_buffer_typeless>& vertBuf,
+  void ApplyVerticesCPU(hsh::dynamic_owner<hsh::vertex_buffer_typeless>& vertBuf,
                         const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const;
-  void RestoreVerticesCPU(hsh::owner<hsh::vertex_buffer_typeless>& vertBuf) const;
+  void RestoreVerticesCPU(hsh::dynamic_owner<hsh::vertex_buffer_typeless>& vertBuf) const;
 
   void _WarmupShaders();
   static void WarmupShaders(const SObjectTag& cmdlTag);

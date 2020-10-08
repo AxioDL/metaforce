@@ -457,6 +457,7 @@ using BlendAttachmentExt =
                                     hsh::ColorComponentFlags(
                                         hsh::CC_Red | hsh::CC_Green | hsh::CC_Blue |
                                         (Alpha != AlphaMode::NoAlpha ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
+
 template <AlphaMode Alpha = AlphaMode::NoAlpha>
 using AdditiveAttachmentExt =
     hsh::pipeline::color_attachment<hsh::SrcAlpha, hsh::One, hsh::Add, AlphaSrc<Alpha, hsh::SrcAlpha>::Factor,
@@ -464,6 +465,7 @@ using AdditiveAttachmentExt =
                                     hsh::ColorComponentFlags(
                                         hsh::CC_Red | hsh::CC_Green | hsh::CC_Blue |
                                         (Alpha != AlphaMode::NoAlpha ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
+
 template <AlphaMode Alpha = AlphaMode::NoAlpha>
 using MultiplyAttachmentExt =
     hsh::pipeline::color_attachment<hsh::Zero, hsh::SrcColor, hsh::Add, AlphaSrc<Alpha, hsh::Zero>::Factor,
@@ -471,6 +473,7 @@ using MultiplyAttachmentExt =
                                     hsh::ColorComponentFlags(
                                         hsh::CC_Red | hsh::CC_Green | hsh::CC_Blue |
                                         (Alpha != AlphaMode::NoAlpha ? hsh::CC_Alpha : hsh::ColorComponentFlags()))>;
+
 template <AlphaMode Alpha = AlphaMode::NoAlpha>
 using SubtractAttachmentExt = hsh::pipeline::color_attachment<
     hsh::SrcAlpha, hsh::One, hsh::ReverseSubtract, AlphaSrc<Alpha, hsh::SrcAlpha>::Factor,

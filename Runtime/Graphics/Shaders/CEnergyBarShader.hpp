@@ -8,6 +8,8 @@
 #include "zeus/CVector2f.hpp"
 #include "zeus/CVector3f.hpp"
 
+#include "hsh/hsh.h"
+
 namespace urde {
 class CTexture;
 

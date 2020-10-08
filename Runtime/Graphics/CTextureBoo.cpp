@@ -204,8 +204,8 @@ void CTexture::BuildIA8FromGCN(CInputStream& in) {
   });
 }
 
-static std::vector<RGBA8> DecodePalette(int numEntries, CInputStream& in) {
-  std::vector<RGBA8> ret;
+static std::vector<CTexture::RGBA8> DecodePalette(int numEntries, CInputStream& in) {
+  std::vector<CTexture::RGBA8> ret;
   ret.reserve(numEntries);
 
   enum class EPaletteType { IA8, RGB565, RGB5A3 };
@@ -544,8 +544,8 @@ void CTexture::BuildC8Font(const void* data, EFontType ftype) {
       h /= 2;
   }
 
-  m_booTex = hsh::create_texture2d_array({x4_w, x6_h}, layerCount, hsh::R8_UNORM, x8_mips, [&](void* data, std::size_t size) {
-    std::memcpy(data, texels, size);
+  m_booTex = hsh::create_texture2d_array({x4_w, x6_h}, layerCount, hsh::RGBA8_UNORM, x8_mips, [&](void* data, std::size_t size) {
+    std::memcpy(data, buf.get(), size);
   });
 }
 
@@ -609,9 +609,9 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTex
   case ETexelFormat::RGBA8:
     BuildRGBA8FromGCN(r);
     break;
-  case ETexelFormat::CMPR:
-    BuildDXT1FromGCN(r);
-    break;
+//  case ETexelFormat::CMPR:
+//    BuildDXT1FromGCN(r);
+//    break;
   case ETexelFormat::RGBA8PC:
     BuildRGBA8(owned.get() + 12, length - 12);
     break;
@@ -719,7 +719,7 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
   return ret;
 }
 
-hsh::texture_typeless CTexture::GetFontTexture(EFontType tp) {
+hsh::texture2d_array CTexture::GetFontTexture(EFontType tp) {
   if (m_ftype != tp && x0_fmt == ETexelFormat::C8PC) {
     m_ftype = tp;
     BuildC8Font(m_otex.get() + 12, m_ftype);

@@ -74,6 +74,7 @@ CParticleSwoosh::CParticleSwoosh(const TToken<CSwooshDescription>& desc, int len
       m_cachedVerts.reserve(maxVerts);
       m_vertBuf = hsh::create_dynamic_vertex_buffer<CParticleSwooshShaders::Vert>(maxVerts);
       m_uniformBuf = hsh::create_dynamic_uniform_buffer<CParticleSwooshShaders::Uniform>();
+      CParticleSwooshShaders::BuildShaderDataBinding(*this);
     }
   }
 }

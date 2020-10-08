@@ -19,13 +19,7 @@ class CStateManager;
 
 class CMappableObject {
 public:
-  struct Vert {
-    hsh::float3 m_pos;
-    void assign(float x, float y, float z) {
-      m_pos = hsh::float3(x, y, z);
-    }
-  };
-  static hsh::owner<hsh::vertex_buffer<Vert>> g_doorVbo;
+  static hsh::owner<hsh::vertex_buffer<CMapSurfaceShader::Vert>> g_doorVbo;
   static hsh::owner<hsh::index_buffer<u32>> g_doorIbo;
 
   enum class EMappableObjectType {
@@ -59,7 +53,7 @@ public:
   enum class EVisMode { Always, MapStationOrVisit, Visit, Never, MapStationOrVisit2 };
 
 private:
-  static std::array<CMappableObject::Vert, 8> skDoorVerts;
+  static std::array<CMapSurfaceShader::Vert, 8> skDoorVerts;
 
   EMappableObjectType x0_type;
   EVisMode x4_visibilityMode;

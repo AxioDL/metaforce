@@ -12,7 +12,7 @@ struct CEnvFxShadersPipeline
 // FIXME replace MultiplyAttachment with ERglBlendFactor One:One equivalent
 : pipeline<topology<hsh::TriangleStrip>, std::conditional_t<Blend, BlendAttachment<false>, MultiplyAttachment<false>>,
            depth_compare<hsh::LEqual>, depth_write<false>> {
-  CEnvFxShadersPipeline(hsh::vertex_buffer<CEnvFxShaders::Instance> vbo,
+  CEnvFxShadersPipeline(hsh::vertex_buffer<CEnvFxShaders::Instance> vbo HSH_VAR_INSTANCE,
                         hsh::uniform_buffer<CEnvFxShaders::Uniform> envFxUniBuf,
                         hsh::uniform_buffer<CGraphics::CFogState> fogUniBuf, hsh::texture2d texFlake,
                         hsh::texture2d texEnv) {

@@ -9,6 +9,8 @@
 #include "Runtime/GuiSys/CFontImageDef.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
+#include "hsh/hsh.h"
+
 #include "zeus/CColor.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CVector2f.hpp"

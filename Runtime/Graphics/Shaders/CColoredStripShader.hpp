@@ -1,5 +1,7 @@
 #pragma once
 
+#include "hsh/hsh.h"
+
 #include "zeus/CColor.hpp"
 #include "zeus/CMatrix4f.hpp"
 

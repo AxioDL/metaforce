@@ -61,19 +61,19 @@ void CEnergyBarShader::draw(const zeus::CColor& color0, const std::vector<Vertex
   if (!verts0.empty()) {
     m_uniform.m_color = color0;
     m_uniBuf[0].load(m_uniform);
-    m_dataBind[0].draw_indexed(0, verts0.size());
+    m_dataBind[0].draw(0, verts0.size());
     vertIter += verts0.size();
   }
   if (!verts1.empty()) {
     m_uniform.m_color = color1;
     m_uniBuf[1].load(m_uniform);
-    m_dataBind[1].draw_indexed(vertIter, verts1.size());
+    m_dataBind[1].draw(vertIter, verts1.size());
     vertIter += verts1.size();
   }
   if (!verts2.empty()) {
     m_uniform.m_color = color2;
     m_uniBuf[2].load(m_uniform);
-    m_dataBind[2].draw_indexed(vertIter, verts2.size());
+    m_dataBind[2].draw(vertIter, verts2.size());
   }
 }
 

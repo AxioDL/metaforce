@@ -269,7 +269,7 @@ void CNESEmulator::InitializeEmulator() {
   };
   m_vbo = hsh::create_vertex_buffer<TexUVVert>(verts);
   m_uniBuf = hsh::create_dynamic_uniform_buffer<ViewBlock>();
-  m_shadBind = CNESShader::BuildShaderDataBinding(m_vbo.get(), m_uniBuf.get(), m_texture.get());
+  CNESShader::BuildShaderDataBinding(m_shadBind, m_vbo.get(), m_uniBuf.get(), m_texture.get());
 
   // double useFreq = 223740;
   double useFreq = apuGetFrequency();
@@ -753,12 +753,11 @@ void CNESEmulator::Draw(const zeus::CColor& mulColor, bool filtering) {
 
   float widthFac = NESAspect / g_Viewport.aspect;
 
-  Uniform uniform = {zeus::CMatrix4f{}, mulColor};
-  uniform.m_matrix[0][0] = widthFac;
-  m_uniBuf->load(&uniform, sizeof(Uniform));
+  ViewBlock uniform = {zeus::CMatrix4f{}, mulColor};
+  uniform.m_mv[0][0] = widthFac;
+  m_uniBuf.load(uniform);
 
-  CGraphics::SetShaderDataBinding(m_shadBind);
-  CGraphics::DrawArray(0, 4);
+  m_shadBind.draw(0, 4);
 }
 
 void CNESEmulator::LoadPassword(const u8* state) {
