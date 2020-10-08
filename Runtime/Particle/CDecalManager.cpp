@@ -30,9 +30,6 @@ void CDecalManager::Initialize() {
   m_DeltaTimeSinceLastDecalCreation = 0.f;
   m_LastDecalCreatedIndex = -1;
   m_LastDecalCreatedAssetId = -1;
-
-  /* Compile shaders */
-  CDecalShaders::Initialize();
 }
 
 void CDecalManager::Reinitialize() {
@@ -52,7 +49,6 @@ void CDecalManager::Reinitialize() {
 void CDecalManager::Shutdown() {
   m_ActiveIndexList.clear();
   m_DecalPool.clear();
-  CDecalShaders::Shutdown();
 }
 
 void CDecalManager::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) {

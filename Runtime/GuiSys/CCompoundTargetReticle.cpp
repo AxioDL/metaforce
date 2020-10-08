@@ -70,15 +70,12 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 }
 
 CCompoundTargetReticle::SScanReticuleRenderer::SScanReticuleRenderer() {
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    for (size_t i = 0; i < m_lineRenderers.size(); ++i) {
-      m_lineRenderers[i].emplace(ctx, CLineRenderer::EPrimitiveMode::Lines, 8, nullptr, true, true);
-      for (auto& stripRenderer : m_stripRenderers[i]) {
-        stripRenderer.emplace(ctx, CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true, true);
-      }
+  for (size_t i = 0; i < m_lineRenderers.size(); ++i) {
+    m_lineRenderers[i].emplace(CLineRenderer::EPrimitiveMode::Lines, 8, hsh::texture2d{}, true, hsh::LEqual);
+    for (auto& stripRenderer : m_stripRenderers[i]) {
+      stripRenderer.emplace(CLineRenderer::EPrimitiveMode::LineStrip, 4, hsh::texture2d{}, true, hsh::LEqual);
     }
-    return true;
-  } BooTrace);
+  }
 }
 
 CCompoundTargetReticle::EReticleState CCompoundTargetReticle::GetDesiredReticleState(const CStateManager& mgr) const {

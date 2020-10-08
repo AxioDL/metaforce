@@ -36,7 +36,7 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
 
   SViewport backupVp = g_Viewport;
   g_Renderer->BindBallShadowIdTarget();
-  CGraphics::g_BooMainCommandQueue->clearTarget();
+  hsh::clear_attachments();
 
   zeus::CTransform backupViewMtx = CGraphics::g_ViewMatrix;
   CGraphics::CProjectionState backupProjection = CGraphics::g_Proj;

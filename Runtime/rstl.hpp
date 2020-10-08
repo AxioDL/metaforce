@@ -11,7 +11,7 @@
 #include <logvisor/logvisor.hpp>
 #endif
 
-#include "hsh/hsh.h"
+#include "hsh/bits/builtin_types.h"
 
 namespace rstl {
 

@@ -6,6 +6,8 @@
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CRectangle.hpp"
 
+#include "hsh/hsh.h"
+
 namespace urde {
 class CTexture;
 
@@ -13,8 +15,7 @@ enum class EFilterShape;
 enum class EFilterType;
 
 class CColoredQuadFilter {
-  template <EFilterType Type>
-  friend struct CColoredQuadFilterPipeline;
+public:
   struct Uniform {
     hsh::float4x4 m_matrix;
     hsh::float4 m_color;
@@ -22,6 +23,8 @@ class CColoredQuadFilter {
   struct Vert {
     hsh::float3 m_pos;
   };
+
+private:
   hsh::owner<hsh::vertex_buffer<Vert>> m_vbo;
   hsh::dynamic_owner<hsh::uniform_buffer<Uniform>> m_uniBuf;
   hsh::binding m_dataBind;

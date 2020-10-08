@@ -12,7 +12,7 @@
 namespace urde {
 using namespace hsh::pipeline;
 
-struct CMoviePlayerPipeline : pipeline<color_attachment<>> {
+struct CMoviePlayerPipeline : pipeline<topology<hsh::TriangleStrip>, BlendAttachment<true>, depth_write<false>> {
   CMoviePlayerPipeline(hsh::vertex_buffer<TexUVVert> vbo, hsh::uniform_buffer<ViewBlock> uniBuf, hsh::texture2d Y,
                        hsh::texture2d U, hsh::texture2d V) {
     position = uniBuf->m_mv * hsh::float4(vbo->m_pos, 1.0);
@@ -219,7 +219,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     if (deinterlace) {
       /* urde addition: this way interlaced THPs don't look horrible */
       set.Y[0] = hsh::create_dynamic_texture2d({x6c_videoInfo.width, x6c_videoInfo.height / 2}, hsh::R8_UNORM, 1);
-      set.Y[0] = hsh::create_dynamic_texture2d({x6c_videoInfo.width, x6c_videoInfo.height / 2}, hsh::R8_UNORM, 1);
+      set.Y[1] = hsh::create_dynamic_texture2d({x6c_videoInfo.width, x6c_videoInfo.height / 2}, hsh::R8_UNORM, 1);
       set.U = hsh::create_dynamic_texture2d({x6c_videoInfo.width / 2, x6c_videoInfo.height / 2}, hsh::R8_UNORM, 1);
       set.V = hsh::create_dynamic_texture2d({x6c_videoInfo.width / 2, x6c_videoInfo.height / 2}, hsh::R8_UNORM, 1);
 
@@ -252,7 +252,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
   m_frame[3].m_uv = {1.f, 1.f};
   SetFrame({-0.5f, 0.5f, 0.f}, {-0.5f, -0.5f, 0.f}, {0.5f, -0.5f, 0.f}, {0.5f, 0.5f, 0.f});
 
-  m_viewVertBlock.finalAssign(m_viewVertBlock);
+  m_viewVertBlock.m_mv = zeus::CMatrix4f{};
   m_blockBuf.load(m_viewVertBlock);
 }
 

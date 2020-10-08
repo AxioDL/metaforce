@@ -25,7 +25,7 @@ template struct CWorldShadowShaderPipeline<false>;
 CWorldShadowShader::CWorldShadowShader(u32 w, u32 h) : m_w(w), m_h(h) {
   m_vbo = hsh::create_dynamic_vertex_buffer<Vert>(4);
   m_uniBuf = hsh::create_dynamic_uniform_buffer<Uniform>();
-  m_tex = hsh::create_render_texture2d({m_w, m_h}, hsh::RGBA8_UNORM, 1, 0);
+  m_tex = hsh::create_render_texture2d({m_w, m_h}, 1, 0);
 
   // FIXME hsh bug: can't bind all constant values
   bool depth = false;

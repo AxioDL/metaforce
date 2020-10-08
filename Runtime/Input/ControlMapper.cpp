@@ -159,7 +159,7 @@ constexpr std::array<ControlMapper::EKBMFunctionList, 70> skKBMMapping{
     ControlMapper::EKBMFunctionList::KeyPress + 'w',                            // LookDown,
     ControlMapper::EKBMFunctionList::KeyPress + ' ',                            // JumpOrBoost = 10,
     ControlMapper::EKBMFunctionList::MousePress + boo2::MouseButton::Primary,   // FireOrBomb = 11,
-    ControlMapper::EKBMFunctionList::MousePress + boo::EMouseButton::Secondary, // MissileOrPowerBomb = 12,
+    ControlMapper::EKBMFunctionList::MousePress + boo2::MouseButton::Secondary, // MissileOrPowerBomb = 12,
     ControlMapper::EKBMFunctionList::KeyPress + 'c',                            // Morph,
     ControlMapper::EKBMFunctionList::None,                                      // AimUp,
     ControlMapper::EKBMFunctionList::None,                                      // AimDown,
@@ -189,18 +189,18 @@ constexpr std::array<ControlMapper::EKBMFunctionList, 70> skKBMMapping{
     ControlMapper::EKBMFunctionList::KeyPress + 'w',                            // MapCircleDown,
     ControlMapper::EKBMFunctionList::KeyPress + 'a',                            // MapCircleLeft,
     ControlMapper::EKBMFunctionList::KeyPress + 'd',                            // MapCircleRight,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo::ESpecialKey::Up,    // MapMoveForward,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo::ESpecialKey::Down,  // MapMoveBack,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo::ESpecialKey::Left,  // MapMoveLeft,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo::ESpecialKey::Right, // MapMoveRight,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo2::Keycode::UP,       // MapMoveForward,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo2::Keycode::DOWN,     // MapMoveBack,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo2::Keycode::LEFT,     // MapMoveLeft,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo2::Keycode::RIGHT,    // MapMoveRight,
     ControlMapper::EKBMFunctionList::KeyPress + 'e',                            // MapZoomIn,
     ControlMapper::EKBMFunctionList::KeyPress + 'q',                            // MapZoomOut,
     ControlMapper::EKBMFunctionList::KeyPress + 'e',                            // SpiderBall,
     ControlMapper::EKBMFunctionList::KeyPress + 'q',                            // ChaseCamera,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo::ESpecialKey::Right, // XrayVisor = 50,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo::ESpecialKey::Down,  // ThermoVisor = 51,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo::ESpecialKey::Left,  // InviroVisor = 52,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo::ESpecialKey::Up,    // NoVisor = 53,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo2::Keycode::RIGHT,    // XrayVisor = 50,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo2::Keycode::DOWN,     // ThermoVisor = 51,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo2::Keycode::LEFT,     // InviroVisor = 52,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + boo2::Keycode::UP,       // NoVisor = 53,
     ControlMapper::EKBMFunctionList::None,                                      // VisorMenu,
     ControlMapper::EKBMFunctionList::None,                                      // VisorUp,
     ControlMapper::EKBMFunctionList::None,                                      // VisorDown,
@@ -311,10 +311,10 @@ static float KBToWASDY(const CKeyboardMouseControllerData& data) {
 
 static float KBToArrowsX(const CKeyboardMouseControllerData& data) {
   float retval = 0.0;
-  if (data.m_specialKeys[size_t(boo::ESpecialKey::Left)]) {
+  if (data.m_specialKeys[size_t(boo2::Keycode::LEFT)]) {
     retval -= 1.0;
   }
-  if (data.m_specialKeys[size_t(boo::ESpecialKey::Right)]) {
+  if (data.m_specialKeys[size_t(boo2::Keycode::RIGHT)]) {
     retval += 1.0;
   }
   return retval;
@@ -322,10 +322,10 @@ static float KBToArrowsX(const CKeyboardMouseControllerData& data) {
 
 static float KBToArrowsY(const CKeyboardMouseControllerData& data) {
   float retval = 0.0;
-  if (data.m_specialKeys[size_t(boo::ESpecialKey::Down)]) {
+  if (data.m_specialKeys[size_t(boo2::Keycode::DOWN)]) {
     retval -= 1.0;
   }
-  if (data.m_specialKeys[size_t(boo::ESpecialKey::Up)]) {
+  if (data.m_specialKeys[size_t(boo2::Keycode::UP)]) {
     retval += 1.0;
   }
   return retval;

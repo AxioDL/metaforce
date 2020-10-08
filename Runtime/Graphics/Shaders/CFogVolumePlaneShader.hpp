@@ -7,16 +7,18 @@
 #include "zeus/CRectangle.hpp"
 #include "zeus/CVector4f.hpp"
 
+#include "hsh/hsh.h"
+
 namespace urde {
 
 class CFogVolumePlaneShader {
-  template <size_t I>
-  friend struct CFogVolumePlanePipeline;
+public:
   struct Vert {
     hsh::float4 pos;
     Vert(hsh::float4 pos) : pos(pos) {}
   };
 
+private:
   hsh::dynamic_owner<hsh::vertex_buffer<Vert>> m_vbo;
   std::array<hsh::binding, 4> m_dataBinds;
   std::vector<Vert> m_verts;
