@@ -51,10 +51,10 @@ void CCameraBlurFilter::draw(float amount, bool clearDepth) {
   const float yBias = float(CGraphics::g_CroppedViewport.x8_top) / float(g_Viewport.xc_height);
 
   const std::array<Vert, 4> verts{{
-      {{-1.0, -1.0}, {xBias, yBias}},
-      {{-1.0, 1.0}, {xBias, yBias + yFac}},
-      {{1.0, -1.0}, {xBias + xFac, yBias}},
-      {{1.0, 1.0}, {xBias + xFac, yBias + yFac}},
+      {hsh::float2{-1.0, -1.0}, {xBias, yBias + yFac}},
+      {hsh::float2{-1.0, 1.0}, {xBias, yBias}},
+      {hsh::float2{1.0, -1.0}, {xBias + xFac, yBias + yFac}},
+      {hsh::float2{1.0, 1.0}, {xBias + xFac, yBias}},
   }};
   m_vbo.load(verts);
 
