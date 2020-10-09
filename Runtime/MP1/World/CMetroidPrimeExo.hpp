@@ -246,7 +246,6 @@ class CMetroidPrimeExo : public CPatterned {
   void UpdateContactDamage(CStateManager& mgr);
   void UpdateColorChange(float f1, CStateManager& mgr);
   void sub80278130(const zeus::CColor& col);
-  void sub802781e0(const zeus::CColor& col);
   void UpdateHeadAnimation(float f1);
   void sub8027827c(TUniqueId uid, CStateManager& mgr);
   void sub80278508(CStateManager& mgr, int w1, bool b1);

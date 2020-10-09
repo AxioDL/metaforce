@@ -1014,6 +1014,10 @@ void CPatterned::TryStep(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection(arg), pas::EStepType::Normal));
 }
 
+void CPatterned::TryScripted(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCScriptedCmd(arg, false, false, 0.f));
+}
+
 void CPatterned::BuildBodyController(EBodyType bodyType) {
   if (x450_bodyController) {
     return;
