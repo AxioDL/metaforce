@@ -185,11 +185,19 @@ void CMetroidPrimeEssence::DoUserAnimEvent(CStateManager& mgr, const CInt32POINo
           x668_ * zeus::CVector3f{2.f * -std::sin(ang1), (2.f * (2.f * std::cos(ang1)) * std::sin(ang2)),
                                   2.f * ((2.f * std::cos(ang1)) * std::cos(ang2))};
       if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x704_bossUtilityWaypointId)) {
-        wp->SetTransform(zeus::lookAt(pos, mgr.GetPlayer().GetTranslation()));
+        wp->SetTransform(zeus::lookAt(pos, mgr.GetPlayer().GetAimPosition(mgr, 0.f)));
         if (sub8027e870(wp->GetTransform(), mgr)) {
           SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+          x6b4_ = wp->GetTranslation();
         }
       }
+    }
+    return;
+  }
+  case EUserEventType::EventStart: {
+    if (!x70e_30_) {
+      SendScriptMsgs(EScriptObjectState::CameraTarget, mgr, EScriptObjectMessage::None);
+      x70e_30_ = true;
     }
     return;
   }

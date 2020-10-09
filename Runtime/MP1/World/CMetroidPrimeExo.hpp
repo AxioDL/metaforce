@@ -223,7 +223,7 @@ class CMetroidPrimeExo : public CPatterned {
   void sub80275b68();
   void sub80275c60(CStateManager& mgr, int w1);
   bool sub80275d68(int w1);
-  s32 sub80275e14(int w1);
+  pas::ELocomotionType sub80275e14(int w1);
   u32 sub80275e34(int w1) const;
   void sub80275e54(float f1, CStateManager& mgr);
   void UpdateSfxEmitter(float f1, CStateManager& mgr);

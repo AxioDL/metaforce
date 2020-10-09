@@ -74,10 +74,10 @@ std::array<std::string_view, 4> skEffectNames{{
     "Flame_Rshoulder"sv,
 }};
 
-std::array<const char*, 20> skLegLocators{{
-    "R_front_2",  "L_front_2",  "R_front_1",   "L_front_1",   nullptr,        nullptr,        "R_elbow",
-    "L_elbow",    nullptr,      nullptr,       "Head",        "Head_LCTR",    nullptr,        nullptr,
-    "R_shoulder", "L_shoulder", "R_stinger_2", "L_stinger_2", "R_spike_LCTR", "L_spike_LCTR",
+std::array<std::string_view, 20> skLegLocators{{
+    "R_front_2"sv,  "L_front_2"sv,  "R_front_1"sv,   "L_front_1"sv,   ""sv,        ""sv,        "R_elbow"sv,
+    "L_elbow"sv,    ""sv,      ""sv,       "Head"sv,        "Head_LCTR"sv,    ""sv,        ""sv,
+    "R_shoulder"sv, "L_shoulder"sv, "R_stinger_2"sv, "L_stinger_2"sv, "R_spike_LCTR"sv, "L_spike_LCTR"sv,
 }};
 
 std::array<std::string_view, 6> skBoneTrackingNames{{
@@ -126,21 +126,21 @@ std::array<s32, 17> skSomeValues1{{
     11,
 }};
 
-std::array<std::array<s32, 3>, 14> skSomeValues2{{
-    {{-1, -1, -1}},
-    {{10, 11, 12}},
-    {{-1, -1, -1}},
-    {{-1, -1, -1}},
-    {{-1, -1, -1}},
-    {{-1, -1, -1}},
-    {{-1, -1, -1}},
-    {{-1, -1, -1}},
-    {{-1, -1, -1}},
-    {{-1, -1, -1}},
-    {{8, 8, 8}},
-    {{-1, -1, -1}},
-    {{-1, -1, -1}},
-    {{-1, -1, -1}},
+std::array<std::array<pas::ELocomotionType, 3>, 14> skSomeValues2{{
+    {{pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid}},
+    {{pas::ELocomotionType::Internal10, pas::ELocomotionType::Internal11, pas::ELocomotionType::Internal12}},
+    {{pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid}},
+    {{pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid}},
+    {{pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid}},
+    {{pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid}},
+    {{pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid}},
+    {{pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid}},
+    {{pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid}},
+    {{pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid}},
+    {{pas::ELocomotionType::Internal8, pas::ELocomotionType::Internal8, pas::ELocomotionType::Internal8}},
+    {{pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid}},
+    {{pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid}},
+    {{pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid, pas::ELocomotionType::Invalid}},
 }};
 } // namespace
 SPrimeStruct2B::SPrimeStruct2B(CInputStream& in)
@@ -425,7 +425,10 @@ void CMetroidPrimeExo::AddToRenderer(const zeus::CFrustum& frustum, CStateManage
   }
 }
 
-void CMetroidPrimeExo::Render(CStateManager& mgr) { CPatterned::Render(mgr); }
+void CMetroidPrimeExo::Render(CStateManager& mgr) {
+  g_Renderer->SetGXRegister1Color(x8d8_);
+  CPatterned::Render(mgr);
+}
 
 bool CMetroidPrimeExo::CanRenderUnsorted(const CStateManager& mgr) const {
   return mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay;
@@ -480,11 +483,44 @@ void CMetroidPrimeExo::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg
   }
 }
 
-void CMetroidPrimeExo::Run(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Run(mgr, msg, arg); }
+void CMetroidPrimeExo::Run(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x92c_ = 10;
+    x1084_ = 1.9666666f;
+    TUniqueId wpId = sub802769e0(mgr, true);
+    if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(wpId)) {
+      GetBodyController()->SetLocomotionType(sub80275e14(1));
+      SetDestPos(wp->GetTranslation());
+      x2dc_destObj = wpId;
+      x2ec_reflectedDestPos = GetTranslation();
+      x328_24_inPosition = false;
+    }
+    SetEyesParticleEffectState(mgr, false);
+  } else if (msg == EStateMsg::Update) {
+    ApproachDest(mgr);
+  } else if (msg == EStateMsg::Deactivate) {
+    x92c_ = 0;
+    x1078_ = 1;
+    GetBodyController()->SetLocomotionType(skLocomotions[x1078_]);
+    SetEyesParticleEffectState(mgr, true);
+    sub802738d4(mgr);
+  }
+}
 
 void CMetroidPrimeExo::Attack(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Attack(mgr, msg, arg); }
 
-void CMetroidPrimeExo::TurnAround(CStateManager& mgr, EStateMsg msg, float arg) { CAi::TurnAround(mgr, msg, arg); }
+void CMetroidPrimeExo::TurnAround(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x92c_ = 9;
+    x32c_animState = EAnimState::Ready;
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryStep, 3);
+    //zeus::CVector3f vec = sub8027464c(mgr);
+  } else if (msg == EStateMsg::Deactivate) {
+    x92c_ = 0;
+    x32c_animState = EAnimState::NotReady;
+  }
+}
 
 void CMetroidPrimeExo::Active(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
@@ -615,6 +651,7 @@ void CMetroidPrimeExo::Dodge(CStateManager& mgr, EStateMsg msg, float arg) { CAi
 void CMetroidPrimeExo::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
+    SendStateToRelay(EScriptObjectState::Zero, mgr);
     if (TCastToConstPtr<CScriptWaypoint> wp =
             mgr.GetObjectById(sub80276b3c(mgr, EScriptObjectState::CloseIn, EScriptObjectMessage::Follow))) {
       SetTransform(wp->GetTransform());
@@ -626,7 +663,7 @@ void CMetroidPrimeExo::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
     if (TCastToConstPtr<CScriptWaypoint> wp =
-        mgr.GetObjectById(sub80276b3c(mgr, EScriptObjectState::Retreat, EScriptObjectMessage::Follow))) {
+            mgr.GetObjectById(sub80276b3c(mgr, EScriptObjectState::Retreat, EScriptObjectMessage::Follow))) {
       SetTransform(wp->GetTransform());
     }
     ++x91c_;
@@ -651,7 +688,12 @@ void CMetroidPrimeExo::Approach(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CMetroidPrimeExo::Enraged(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Enraged(mgr, msg, arg); }
+void CMetroidPrimeExo::Enraged(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg != EStateMsg::Activate) {
+    return;
+  }
+  sub802786fc(mgr);
+}
 
 void CMetroidPrimeExo::SpecialAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
@@ -1061,13 +1103,13 @@ bool CMetroidPrimeExo::sub80275d68(int w1) {
     return (-1 - ((skSomeMeleeValues[w1][x1078_] >> 24) | (((skSomeMeleeValues[w1][x1078_] + 1) >> 24) >> 7))) != 0;
   }
   if (iVar1 == 5) {
-    return (-1 - ((skSomeValues2[w1][x1078_] >> 24) | (((skSomeValues2[w1][x1078_] + 1) >> 24) >> 7))) != 0;
+    return (-1 - ((int(skSomeValues2[w1][x1078_]) >> 24) | (((int(skSomeValues2[w1][x1078_]) + 1) >> 24) >> 7))) != 0;
   }
 
   return iVar1 == 17;
 }
 
-s32 CMetroidPrimeExo::sub80275e14(int w1) { return skSomeValues2[w1][x1078_]; }
+pas::ELocomotionType CMetroidPrimeExo::sub80275e14(int w1) { return skSomeValues2[w1][x1078_]; }
 
 u32 CMetroidPrimeExo::sub80275e34(int w1) const { return skSomeMeleeValues[w1][x1078_]; }
 
@@ -1261,7 +1303,9 @@ TUniqueId CMetroidPrimeExo::sub80276b3c(CStateManager& mgr, EScriptObjectState s
       }
     }
 
-    return uids[mgr.GetActiveRandom()->Next() % uids.size()];
+    if (!uids.empty()) {
+      return uids[mgr.GetActiveRandom()->Next() % uids.size()];
+    }
   }
   return kInvalidUniqueId;
 }
