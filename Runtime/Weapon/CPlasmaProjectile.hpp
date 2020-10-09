@@ -132,5 +132,6 @@ public:
   void Render(CStateManager& mgr) override;
   zeus::CColor GetInnerColor() const { return x490_innerColor; }
   zeus::CColor GetOuterColor() const { return x494_outerColor; }
+  bool IsFiring() const { return x548_26_firing; }
 };
 } // namespace urde

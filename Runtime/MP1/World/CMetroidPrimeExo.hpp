@@ -211,6 +211,7 @@ class CMetroidPrimeExo : public CPatterned {
   void sub8027444c(CStateManager& mgr);
   void CreateHUDBillBoard(CStateManager& mgr);
   void sub802747b8(float f1, CStateManager& mgr, const zeus::CVector3f& vec);
+  void sub802749e8(float f1, float f2, float f3, const zeus::CVector3f& vec1, const zeus::CVector3f& vec2);
   void sub80274e6c(float f1, CStateManager& mgr);
   void sub802755ac(CStateManager& mgr, bool b1);
   void EnableHeadOrbitAndTarget(CStateManager& mgr);
@@ -237,11 +238,11 @@ class CMetroidPrimeExo : public CPatterned {
   void UpdateRelay(CStateManager& mgr, TAreaId areaId);
   bool IsRelayValid(CStateManager& mgr, TAreaId w2);
   bool sub80277224(float f1, CStateManager& mgr);
-  void sub80277380(CStateManager& mgr, bool b1);
+  void FirePlasmaProjectile(CStateManager& mgr, bool b1);
   void UpdatePlasmaProjectile(float dt, CStateManager& mgr);
-  zeus::CVector3f sub802778c4(CStateManager& mgr);
-  void sub80277b74(CStateManager& mgr);
-  void sub80277c04(CStateManager& mgr);
+  zeus::CVector3f GetTargetVector(CStateManager& mgr);
+  void FreePlasmaProjectiles(CStateManager& mgr);
+  void CreatePlasmaProjectiles(CStateManager& mgr);
   void UpdateContactDamage(CStateManager& mgr);
   void UpdateColorChange(float f1, CStateManager& mgr);
   void sub80278130(const zeus::CColor& col);
