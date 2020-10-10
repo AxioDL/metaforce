@@ -195,9 +195,9 @@ void CMetroidPrimeEssence::DoUserAnimEvent(CStateManager& mgr, const CInt32POINo
     return;
   }
   case EUserEventType::EventStart: {
-    if (!x70e_30_) {
+    if (!x70e_31_) {
       SendScriptMsgs(EScriptObjectState::CameraTarget, mgr, EScriptObjectMessage::None);
-      x70e_30_ = true;
+      x70e_31_ = true;
     }
     return;
   }
@@ -327,7 +327,7 @@ void CMetroidPrimeEssence::TelegraphAttack(CStateManager& mgr, EStateMsg msg, fl
     x32c_animState = EAnimState::Ready;
     x70e_30_ = true;
   } else if (msg == EStateMsg::Update) {
-    if (!x70e_30_) {
+    if (!x70e_31_) {
       TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, 2);
     } else {
       TryCommand(mgr, pas::EAnimationState::ProjectileAttack, &CPatterned::TryProjectileAttack, 5);
@@ -362,10 +362,10 @@ void CMetroidPrimeEssence::PathFindEx(CStateManager& mgr, EStateMsg msg, float d
 }
 
 bool CMetroidPrimeEssence::HasPatrolPath(CStateManager& mgr, float dt) {
-  return !x70e_30_ && CPatterned::HasPatrolPath(mgr, dt);
+  return !x70e_31_ && CPatterned::HasPatrolPath(mgr, dt);
 }
 
-bool CMetroidPrimeEssence::ShouldAttack(CStateManager& mgr, float dt) { return x70e_30_ && x70e_25_; }
+bool CMetroidPrimeEssence::ShouldAttack(CStateManager& mgr, float dt) { return x70e_31_ && x70e_25_; }
 
 bool CMetroidPrimeEssence::InPosition(CStateManager& mgr, float dt) {
   return (GetTranslation().z() - mgr.GetPlayer().GetTranslation().z()) > 0.25f;
@@ -395,14 +395,15 @@ bool CMetroidPrimeEssence::ShouldCrouch(CStateManager& mgr, float dt) {
   return true;
 }
 
-bool CMetroidPrimeEssence::ShouldMove(CStateManager& mgr, float dt) { return x70e_30_; }
+bool CMetroidPrimeEssence::ShouldMove(CStateManager& mgr, float dt) { return x70e_31_; }
 
 CPathFindSearch* CMetroidPrimeEssence::GetSearchPath() { return &x574_searchPath; }
 
 void CMetroidPrimeEssence::sub8027cb40(const zeus::CVector3f& vec) {
   pas::EStepDirection stepDir = GetStepDirection(GetBodyController()->GetCommandMgr().GetMoveVector());
+  GetBodyController()->GetCommandMgr().ClearLocomotionCmds();
   if (stepDir == pas::EStepDirection::Forward &&
-      (x2e0_destPos - GetTranslation()).normalized().dot(GetTransform().frontVector().normalized()) <
+      GetTransform().frontVector().normalized().dot((x2e0_destPos - GetTranslation()).normalized()) <
           zeus::degToRad(-15.f)) {
     stepDir = pas::EStepDirection::Backward;
   }
@@ -439,7 +440,7 @@ void CMetroidPrimeEssence::sub8027ce5c(float dt) {
 
 void CMetroidPrimeEssence::sub8027cee0(CStateManager& mgr) {
   const float hp = x6c4_ * GetHealthInfo(mgr)->GetHP();
-  if (hp < 0.f) {
+  if (hp <= 0.f) {
     return;
   }
 
@@ -460,14 +461,14 @@ void CMetroidPrimeEssence::sub8027cee0(CStateManager& mgr) {
 }
 
 u32 CMetroidPrimeEssence::sub8027cfd4(CStateManager& mgr, bool w1) {
-  size_t startIndex = static_cast<size_t>(!w1);
+  auto startIndex = static_cast<size_t>(!w1);
   zeus::CTransform xf = GetTargetTransform(mgr);
   std::array<zeus::CVector3f, 3> directions;
   directions[0] = -xf.frontVector();
   directions[2] = xf.rightVector();
   directions[1] = -directions[2];
   u32 uVar5 = 1 << size_t(startIndex);
-  for (size_t i = size_t(startIndex); i < 3; ++i) {
+  for (auto i = size_t(startIndex); i < 3; ++i) {
     CRayCastResult res = mgr.RayStaticIntersection(xf.origin, directions[i], 20.f, CMaterialFilter::skPassEverything);
     if (res.IsInvalid()) {
       uVar5 |= 1 << i;
