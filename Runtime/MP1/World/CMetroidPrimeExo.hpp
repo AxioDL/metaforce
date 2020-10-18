@@ -208,7 +208,8 @@ class CMetroidPrimeExo : public CPatterned {
   void sub802740cc(CStateManager& mgr);
   void CreatePhysicsDummy(CStateManager& mgr);
   void SetBillboardEmission(CStateManager& mgr, bool emission);
-  void sub8027444c(CStateManager& mgr);
+  void FreeBillboard(CStateManager& mgr);
+  zeus::CVector3f sub8027464c(CStateManager& mgr);
   void CreateHUDBillBoard(CStateManager& mgr);
   void sub802747b8(float f1, CStateManager& mgr, const zeus::CVector3f& vec);
   void sub802749e8(float f1, float f2, float f3, const zeus::CVector3f& vec1, const zeus::CVector3f& vec2);

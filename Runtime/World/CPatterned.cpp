@@ -1163,7 +1163,7 @@ CGameProjectile* CPatterned::LaunchProjectile(const zeus::CTransform& gunXf, CSt
                                               const std::optional<TLockedToken<CGenDescription>>& visorParticle,
                                               u16 visorSfx, bool sendCollideMsg, const zeus::CVector3f& scale) {
   CProjectileInfo* pInfo = GetProjectileInfo();
-  if (pInfo->Token().IsLoaded()) {
+  if (pInfo && pInfo->Token().IsLoaded()) {
     if (mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, maxAllowed)) {
       TUniqueId homingId = playerHoming ? mgr.GetPlayer().GetUniqueId() : kInvalidUniqueId;
       auto* newProjectile =

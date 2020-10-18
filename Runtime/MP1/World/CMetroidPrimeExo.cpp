@@ -75,9 +75,26 @@ std::array<std::string_view, 4> skEffectNames{{
 }};
 
 std::array<std::string_view, 20> skLegLocators{{
-    "R_front_2"sv,  "L_front_2"sv,  "R_front_1"sv,   "L_front_1"sv,   ""sv,        ""sv,        "R_elbow"sv,
-    "L_elbow"sv,    ""sv,      ""sv,       "Head"sv,        "Head_LCTR"sv,    ""sv,        ""sv,
-    "R_shoulder"sv, "L_shoulder"sv, "R_stinger_2"sv, "L_stinger_2"sv, "R_spike_LCTR"sv, "L_spike_LCTR"sv,
+    "R_front_2"sv,
+    "L_front_2"sv,
+    "R_front_1"sv,
+    "L_front_1"sv,
+    ""sv,
+    ""sv,
+    "R_elbow"sv,
+    "L_elbow"sv,
+    ""sv,
+    ""sv,
+    "Head"sv,
+    "Head_LCTR"sv,
+    ""sv,
+    ""sv,
+    "R_shoulder"sv,
+    "L_shoulder"sv,
+    "R_stinger_2"sv,
+    "L_stinger_2"sv,
+    "R_spike_LCTR"sv,
+    "L_spike_LCTR"sv,
 }};
 
 std::array<std::string_view, 6> skBoneTrackingNames{{
@@ -367,7 +384,7 @@ void CMetroidPrimeExo::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other
     x56c_collisionManager->Destroy(mgr);
     FreePlasmaProjectiles(mgr);
     sub802740cc(mgr);
-    sub8027444c(mgr);
+    FreeBillboard(mgr);
     mgr.GetPlayer().SetFrozenTimeoutBias(0.f);
     break;
   }
@@ -507,7 +524,20 @@ void CMetroidPrimeExo::Run(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CMetroidPrimeExo::Attack(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Attack(mgr, msg, arg); }
+void CMetroidPrimeExo::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x32c_animState = EAnimState::Ready;
+    x92c_ = 6;
+    x1084_ = 0.2f;
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, sub80275e34(9));
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+    x92c_ = 0;
+    sub802738d4(mgr);
+    x1254_ = 2;
+  }
+}
 
 void CMetroidPrimeExo::TurnAround(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
@@ -515,7 +545,10 @@ void CMetroidPrimeExo::TurnAround(CStateManager& mgr, EStateMsg msg, float arg) 
     x32c_animState = EAnimState::Ready;
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryStep, 3);
-    //zeus::CVector3f vec = sub8027464c(mgr);
+    zeus::CVector3f vec = sub8027464c(mgr);
+    if ((vec - GetTranslation()).normalized().dot(mgr.GetPlayer().GetTranslation() - GetTranslation()) < 15.f) {
+      sub802747b8(arg, mgr, vec);
+    }
   } else if (msg == EStateMsg::Deactivate) {
     x92c_ = 0;
     x32c_animState = EAnimState::NotReady;
@@ -589,7 +622,16 @@ void CMetroidPrimeExo::CoverAttack(CStateManager& mgr, EStateMsg msg, float arg)
   }
 }
 
-void CMetroidPrimeExo::Crouch(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Crouch(mgr, msg, arg); }
+void CMetroidPrimeExo::Crouch(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x32c_animState = EAnimState::Ready;
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, 5);
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+    sub802738d4(mgr);
+  }
+}
 
 void CMetroidPrimeExo::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
@@ -601,7 +643,32 @@ void CMetroidPrimeExo::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CMetroidPrimeExo::Suck(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Suck(mgr, msg, arg); }
+void CMetroidPrimeExo::Suck(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    GetBodyController()->SetLocomotionType(sub80275e14(10));
+    x92c_ = 11;
+    x1054_25_ = false;
+    x1084_ = 0.8f;
+    mgr.GetPlayer().AttachActorToPlayer(GetUniqueId(), false);
+  } else if (msg == EStateMsg::Deactivate) {
+    mgr.GetPlayer().DetachActorFromPlayer();
+    x1078_ = 1;
+    GetBodyController()->SetLocomotionType(skLocomotions[x1078_]);
+    x92c_ = 0;
+    sub802755ac(mgr, false);
+    sub802738d4(mgr);
+    x1088_ = 0.6f;
+    if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
+      mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+      x402_28_isMakingBigStrike = true;
+      x504_damageDur = 0.35f;
+      mgr.SendScriptMsgAlways(mgr.GetPlayer().GetUniqueId(), GetUniqueId(), EScriptObjectMessage::Damage);
+      mgr.GetPlayer().ApplyImpulseWR(
+          60.f * (mgr.GetPlayer().GetMass() * (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized()), {});
+    }
+    x1054_27_ = true;
+  }
+}
 
 void CMetroidPrimeExo::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
@@ -646,7 +713,17 @@ void CMetroidPrimeExo::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CMetroidPrimeExo::Dodge(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Dodge(mgr, msg, arg); }
+void CMetroidPrimeExo::Dodge(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x32c_animState = EAnimState::Ready;
+    x1078_ = 1;
+    GetBodyController()->SetLocomotionType(skLocomotions[x1078_]);
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryStep, 0);
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+  }
+}
 
 void CMetroidPrimeExo::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
@@ -670,7 +747,24 @@ void CMetroidPrimeExo::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CMetroidPrimeExo::Cover(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Cover(mgr, msg, arg); }
+void CMetroidPrimeExo::Cover(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x32c_animState = EAnimState::Ready;
+    x92c_ = 12;
+    x1084_ = 1.2666667f;
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::ProjectileAttack, &CPatterned::TryProjectileAttack, sub80275e34(13));
+    if (x32c_animState == EAnimState::Repeat) {
+      x1078_ = 1;
+      GetBodyController()->SetLocomotionType(skLocomotions[x1078_]);
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+    x92c_ = 0;
+    sub802738d4(mgr);
+    x1254_ = 2;
+  }
+}
 
 void CMetroidPrimeExo::Approach(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
@@ -722,7 +816,12 @@ void CMetroidPrimeExo::SpecialAttack(CStateManager& mgr, EStateMsg msg, float ar
   }
 }
 
-void CMetroidPrimeExo::Growth(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Growth(mgr, msg, arg); }
+void CMetroidPrimeExo::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg != EStateMsg::Activate) {
+    return;
+  }
+  x3b4_speed = 1.4f;
+}
 
 void CMetroidPrimeExo::Land(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg != EStateMsg::Activate) {
@@ -855,7 +954,28 @@ void CMetroidPrimeExo::SetBillboardEmission(CStateManager& mgr, bool emission) {
   }
 }
 
-void CMetroidPrimeExo::sub8027444c(CStateManager& mgr) {}
+void CMetroidPrimeExo::FreeBillboard(CStateManager& mgr) { mgr.FreeScriptObject(x1044_billboardId); }
+
+zeus::CVector3f CMetroidPrimeExo::sub8027464c(CStateManager& mgr) {
+  TUniqueId uid = sub80276b3c(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow);
+
+  float dVar4 = 0.f;
+  zeus::CVector3f tmpVec;
+  for (; uid != kInvalidUniqueId;) {
+    auto wp = TCastToConstPtr<CScriptWaypoint>(mgr.GetObjectById(uid));
+    if (wp) {
+      tmpVec += wp->GetTranslation();
+      dVar4 += 1.f;
+    }
+    uid = wp->NextWaypoint(mgr);
+  }
+
+  if (dVar4 <= 0.f) {
+    return zeus::skZero3f;
+  }
+
+  return (1.f / dVar4) * tmpVec;
+}
 
 void CMetroidPrimeExo::CreateHUDBillBoard(CStateManager& mgr) {
   x1044_billboardId = mgr.AllocateUniqueId();
@@ -1074,7 +1194,20 @@ float CMetroidPrimeExo::sub80275b04(const SPrimeExoRoomParameters& roomParms, in
   return dVar1;
 }
 
-void CMetroidPrimeExo::sub80275b68() {}
+void CMetroidPrimeExo::sub80275b68() {
+  float fVar9 = 0.f;
+  for (float f : x1258_) {
+    fVar9 += f;
+  }
+
+  if (zeus::close_enough(fVar9, 0.f)) {
+    return;
+  }
+
+  for (float& f : x1258_) {
+    f /= fVar9;
+  }
+}
 
 void CMetroidPrimeExo::sub80275c60(CStateManager& mgr, int w1) {
   if (x570_ == -1) {

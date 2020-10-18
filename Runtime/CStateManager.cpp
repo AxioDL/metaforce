@@ -537,8 +537,8 @@ void CStateManager::BuildDynamicLightListForWorld() {
 }
 
 void CStateManager::DrawDebugStuff() const {
-#ifndef NDEBUG
   CGraphics::SetModelMatrix(zeus::CTransform());
+#ifndef NDEBUG
   for (CEntity* ent : GetActorObjectList()) {
     if (const TCastToPtr<CPatterned> ai = ent) {
       if (CPathFindSearch* path = ai->GetSearchPath()) {
@@ -562,6 +562,15 @@ void CStateManager::DrawDebugStuff() const {
     xf70_currentMaze->DebugRender();
   }
 #endif
+
+  for (CEntity* ent : GetActorObjectList()) {
+    if (const TCastToPtr<CCollisionActor> colAct = ent) {
+      if (colAct->GetUniqueId() == x870_cameraManager->GetBallCamera()->GetCollisionActorId()) {
+        continue;
+      }
+      colAct->DebugDraw();
+    }
+  }
 }
 
 void CStateManager::RenderCamerasAndAreaLights() {
@@ -1989,8 +1998,9 @@ bool CStateManager::ApplyDamage(TUniqueId damagerId, TUniqueId damageeId, TUniqu
       }
 
       if (alive && damager && info.GetKnockBackPower() > 0.f) {
-        const zeus::CVector3f delta =
+        zeus::CVector3f delta =
             knockbackVec.isZero() ? (damagee->GetTranslation() - damager->GetTranslation()) : knockbackVec;
+        delta.z() = FLT_EPSILON;
         ApplyKnockBack(*damagee, info, *dVuln, delta.normalized(), 0.f);
       }
     }
