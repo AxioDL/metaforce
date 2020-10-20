@@ -278,7 +278,7 @@ public:
   void SetLoadPauseState(bool paused);
 
   std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const override;
-  CAssetId GetAreaIndex() const { return x4_selfIdx; }
+  TAreaId GetAreaIndex() const { return x4_selfIdx; }
   CAssetId IGetAreaId() const override { return x88_areaId; }
   CAssetId IGetAreaAssetId() const override { return x84_mrea; }
   bool IIsActive() const override;
