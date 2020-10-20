@@ -148,7 +148,17 @@ bool CMemoryCardSys::InitializePump() {
   return false;
 }
 
-std::pair<TAreaId, s32> CMemoryCardSys::GetAreaAndWorldIdForSaveId(s32 saveId) const { return {kInvalidAreaId, -1}; }
+std::pair<CAssetId, TAreaId> CMemoryCardSys::GetAreaAndWorldIdForSaveId(s32 saveId) const {
+    for (const auto& [mlvl, saveWorld] : xc_memoryWorlds) {
+        for (TAreaId areaId = 0; areaId < saveWorld.xc_areaIds.size(); ++areaId) {
+            if (saveWorld.xc_areaIds[areaId] == saveId) {
+                return {mlvl, areaId};
+            }
+        }
+    }
+
+    return {{}, kInvalidAreaId};
+}
 
 void CMemoryCardSys::CCardFileInfo::LockBannerToken(CAssetId bannerTxtr, CSimplePool& sp) {
   x3c_bannerTex = bannerTxtr;
