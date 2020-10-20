@@ -104,7 +104,7 @@ class CGameArea final : public IGameArea {
   zeus::CTransform x3c_invTransform;
   zeus::CAABox x6c_aabb;
   CAssetId x84_mrea;
-  s32 x88_areaId;
+  CAssetId x88_areaId;
   std::vector<u16> x8c_attachedAreaIndices;
   std::vector<SObjectTag> x9c_deps1;
   std::vector<SObjectTag> xac_deps2;
@@ -362,8 +362,6 @@ public:
   CGameArea* GetNext() const { return x130_next; }
 
   static void WarmupShaders(const SObjectTag& mreaTag);
-
-  s32 GetAreaSaveId() const { return x88_areaId; }
 };
 
 } // namespace urde
