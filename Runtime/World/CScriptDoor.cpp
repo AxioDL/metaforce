@@ -364,7 +364,7 @@ CScriptDoor::EDoorOpenCondition CScriptDoor::GetDoorOpenCondition(CStateManager&
   }
 
   for (const CGameArea& aliveArea : *world) {
-    if (aliveArea.GetAreaId() == area->GetAreaId()) {
+    if (aliveArea.GetAreaIndex() == area->GetAreaIndex()) {
       continue;
     }
 

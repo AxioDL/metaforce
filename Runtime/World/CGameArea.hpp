@@ -47,7 +47,7 @@ class CDummyGameArea final : public IGameArea {
   int x4_mlvlVersion;
   CAssetId x8_nameSTRG;
   CAssetId xc_mrea;
-  TAreaId x10_areaId;
+  CAssetId x10_areaId;
   zeus::CTransform x14_transform;
   std::vector<u16> x44_attachedAreaIndices;
   std::vector<Dock> x54_docks;
@@ -56,7 +56,7 @@ public:
   CDummyGameArea(CInputStream& in, int idx, int mlvlVersion);
 
   std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const override;
-  TAreaId IGetAreaId() const override;
+  CAssetId IGetAreaId() const override;
   CAssetId IGetAreaAssetId() const override;
   bool IIsActive() const override;
   TAreaId IGetAttachedAreaId(int) const override;
@@ -278,8 +278,8 @@ public:
   void SetLoadPauseState(bool paused);
 
   std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const override;
-  TAreaId GetAreaId() const { return x4_selfIdx; }
-  TAreaId IGetAreaId() const override { return x4_selfIdx; }
+  CAssetId GetAreaIndex() const { return x4_selfIdx; }
+  CAssetId IGetAreaId() const override { return x88_areaId; }
   CAssetId IGetAreaAssetId() const override { return x84_mrea; }
   bool IIsActive() const override;
   TAreaId IGetAttachedAreaId(int) const override;
