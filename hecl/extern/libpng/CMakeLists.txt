@@ -1,8 +1,19 @@
-if(NOT WIN32 AND NOT APPLE) # remove WIN32 when specter/freetype is gone
+if(NOT WIN32 AND NOT APPLE AND NOT NX) # remove WIN32 when specter/freetype is gone
 find_library(PNG_LIB NAMES png libpng)
 endif()
 if(NOT PNG_LIB)
 message(STATUS "Using HECL's built-in libpng")
+if(NX)
+set(INTRINSICS
+        arm/arm_init.c
+        arm/filter_neon.S
+        arm/filter_neon_intrinsics.c
+        arm/palette_neon_intrinsics.c)
+else()
+set(INTRINSICS
+        intel/filter_sse2_intrinsics.c
+        intel/intel_init.c)
+endif()
 add_library(png
     png.h
     pngconf.h
@@ -11,7 +22,7 @@ add_library(png
     pngpriv.h
     pngstruct.h
     pnglibconf.h
-    
+
     png.c
     pngerror.c
     pngget.c
@@ -26,7 +37,8 @@ add_library(png
     pngwio.c
     pngwrite.c
     pngwtran.c
-    pngwutil.c)
+    pngwutil.c
+    ${INTRINSICS})
 target_link_libraries(png PUBLIC ${ZLIB_LIBRARIES})
 target_include_directories(png PUBLIC ${ZLIB_INCLUDE_DIR})
 set(PNG_LIBRARIES png CACHE PATH "PNG libraries" FORCE)
