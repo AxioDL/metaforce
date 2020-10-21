@@ -17,9 +17,15 @@ ERglBlendMode gx_BlendMode;
 ERglBlendFactor gx_BlendSrcFac;
 ERglBlendFactor gx_BlendDstFac;
 ERglLogicOp gx_BlendOp;
-bool gx_AlphaWrite;
+bool gx_AlphaUpdate = true;
+bool gx_ColorUpdate = true;
+bool gx_DstAlpha = false;
+float gx_DstAlphaValue = 0.f;
 ERglCullMode gx_CullMode;
-std::array<zeus::CColor, 2> gx_AmbientColors;
+std::array<zeus::CColor, 2> gx_AmbientColors = {{
+   zeus::CColor{0.2f, 0.2f, 0.2f, 1.f},
+   zeus::CColor{0.2f, 0.2f, 0.2f, 1.f},
+}};
 /// End GX state
 
 hsh::owner<hsh::render_texture2d> CGraphics::g_SpareTexture;
@@ -124,8 +130,16 @@ void CGraphics::SetBlendMode(ERglBlendMode type, ERglBlendFactor srcFac, ERglBle
 
 void CGraphics::SetCullMode(ERglCullMode mode) { gx_CullMode = mode; }
 
-// URDE addition (GXSetAlphaUpdate)
-void CGraphics::SetAlphaUpdate(bool value) { gx_AlphaWrite = value; }
+// URDE additions (GXSetAlphaUpdate, GXSetColorUpdate, GXSetDstAlpha)
+void CGraphics::SetAlphaUpdate(bool value) { gx_AlphaUpdate = value; }
+void CGraphics::SetColorUpdate(bool value) { gx_ColorUpdate = value; }
+void CGraphics::SetDstAlpha(bool enabled, float alpha) {
+  gx_DstAlpha = enabled;
+  gx_DstAlphaValue = alpha;
+  if (enabled) {
+    hsh::set_blend_constants(0.f, 0.f, 0.f, alpha);
+  }
+}
 
 void CGraphics::BeginScene() {}
 

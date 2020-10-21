@@ -2137,7 +2137,7 @@ void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) {
   g_Renderer->SetBlendMode_AlphaBlended();
   CGraphics::SetCullMode(ERglCullMode::None);
   m_aaboxShader.draw(zeus::CColor{1.f, 1.f, 1.f, 0.f});
-  CGraphics::SetCullMode(ERglCullMode::Front);
+  CGraphics::SetCullMode(ERglCullMode::Back);
 }
 
 void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) {

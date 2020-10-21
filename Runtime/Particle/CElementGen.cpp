@@ -855,8 +855,11 @@ void CElementGen::Render(const CActorLights* actorLights) {
 void CElementGen::RenderModels(const CActorLights* actorLights) {
   CGenDescription* desc = x1c_genDesc.GetObj();
 
-  if (x26d_26_modelsUseLights)
+  if (x26d_26_modelsUseLights) {
     CGraphics::SetLightState(x274_backupLightActive);
+  } else {
+    CGraphics::SetAmbientColor(zeus::skWhite);
+  }
   CGlobalRandom gr(x27c_randState);
 
   SUVElementSet uvs = {0.f, 0.f, 1.f, 1.f};
@@ -882,9 +885,8 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                               ERglLogicOp::Clear);
     }
-
-    CGraphics::SetCullMode(ERglCullMode::None);
 #endif
+    CGraphics::SetCullMode(ERglCullMode::None);
 
     if (texr) {
       CParticle& target = x30_particles[0];

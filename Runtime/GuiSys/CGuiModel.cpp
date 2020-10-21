@@ -55,8 +55,8 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) {
     zeus::CColor moduCol = xa8_color2;
     moduCol.a() *= parms.x0_alphaMod;
     xb0_frame->EnableLights(xcc_lightMask, model->GetInstance());
-    // if (xb6_29_cullFaces)
-    //    CGraphics::SetCullMode(ERglCullMode::Front);
+    if (xb6_29_cullFaces)
+      CGraphics::SetCullMode(ERglCullMode::Back);
 
     switch (xac_drawFlags) {
     case EGuiModelDrawFlags::Shadeless: {
@@ -92,8 +92,8 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) {
       break;
     }
 
-    // if (xb6_29_cullFaces)
-    //    CGraphics::SetCullMode(ERglCullMode::None);
+    if (xb6_29_cullFaces)
+      CGraphics::SetCullMode(ERglCullMode::None);
     xb0_frame->DisableLights();
   }
 

@@ -555,12 +555,16 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
     fvs = nullptr;
   }
 
+  CGraphics::SetCullMode(ERglCullMode::Front);
+  CGraphics::SetDstAlpha(true, 1.f);
   RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 0, fvs);
   if (camInModel)
     RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 1, fvs);
+  CGraphics::SetDstAlpha(true, 0.f);
 
   CGraphics::ResolveSpareDepth(rect, 0);
 
+  CGraphics::SetCullMode(ERglCullMode::Back);
   RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 2, fvs);
   if (camInModel)
     RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 3, fvs);
@@ -1055,7 +1059,7 @@ void CBooRenderer::SetDebugOption(EDebugOption, int) {}
 
 void CBooRenderer::BeginScene() {
   CGraphics::SetViewport(0, 0, g_Viewport.x8_width, g_Viewport.xc_height);
-  CGraphics::SetCullMode(ERglCullMode::Front);
+  CGraphics::SetCullMode(ERglCullMode::Back);
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                           ERglLogicOp::Clear);
@@ -1074,7 +1078,7 @@ void CBooRenderer::BeginScene() {
     x318_26_requestRGBA6 = false;
   // GXSetPixelFmt(x318_27_currentRGBA6);
   CGraphics::SetAlphaUpdate(true);
-  // GXSetDstAlpha(true, 0);
+  CGraphics::SetDstAlpha(true, 0.f);
   CGraphics::BeginScene();
   m_nextFogVolumePlaneShader = m_fogVolumePlaneShaders.begin();
   m_nextFogVolumeFilter = m_fogVolumeFilters.begin();
@@ -1278,6 +1282,8 @@ void CBooRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectM
     ReallyDrawPhazonSuitIndirectEffect(zeus::skWhite, *indTex, indirectMod, scale, offX, offY);
   else
     ReallyDrawPhazonSuitEffect(nonIndirectMod);
+
+  CGraphics::SetDstAlpha(false);
 }
 
 void CBooRenderer::AllocatePhazonSuitMaskTexture() {
@@ -1351,7 +1357,7 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
             return alphaVal;
           }
 
-          flags.x4_color.a() = static_cast<float>(alphaVal) / 255.f;
+          CGraphics::SetDstAlpha(true, alphaVal);
           CBooModel& model = *item.x10_models[wordModel + j];
           model.UpdateUniformData(flags, nullptr, nullptr, 3);
           model.VerifyCurrentShader(0);

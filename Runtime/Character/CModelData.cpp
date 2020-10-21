@@ -386,7 +386,6 @@ void CModelData::InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, cons
   if (x10_animData) {
     CSkinnedModel& model = PickAnimatedModel(which);
     model.GetModelInst()->DisableAllLights();
-    CModelFlags flags = {};
 
     /* Z-prime */
     x10_animData->Render(model, zPrimeFlags, std::nullopt, nullptr);

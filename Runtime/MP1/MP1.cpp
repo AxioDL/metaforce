@@ -800,6 +800,8 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   x164_archSupport->PreloadAudio();
   std::srand(static_cast<u32>(std::time(nullptr)));
   // g_TweakManager->ReadFromMemoryCard("AudioTweaks");
+
+  m_alphaPass.SetFilter(EFilterType::NoColor, EFilterShape::Fullscreen, 0.f, zeus::skBlack, {});
 }
 
 static logvisor::Module WarmupLog("ShaderWarmup");
@@ -911,8 +913,11 @@ void CMain::Draw() {
     return;
   }
 
+#if !HSH_PROFILE_MODE
   hsh::clear_attachments();
   x164_archSupport->Draw();
+  m_alphaPass.Draw();
+#endif
 }
 
 void CMain::ShutdownSubsystems() {

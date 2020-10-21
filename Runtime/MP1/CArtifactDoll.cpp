@@ -101,6 +101,7 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
   CGraphics::SetModelMatrix(zeus::CTransform::RotateX(zeus::degToRad(std::sin(angle) * 8.f)) *
                             zeus::CTransform::RotateZ(zeus::degToRad(std::cos(angle) * 8.f)) *
                             zeus::CTransform::RotateX(M_PIF / 2.f) * zeus::CTransform::Scale(0.2f));
+  CGraphics::SetCullMode(ERglCullMode::None);
 
   CPlayerState& playerState = *mgr.GetPlayerState();
   for (size_t i = 0; i < x0_models.size(); ++i) {
@@ -134,6 +135,8 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
     flags.x4_color.a() *= alpha;
     model->Draw({8, 0, 1, flags.x4_color});
   }
+  CGraphics::SetCullMode(ERglCullMode::Back);
+  // CGraphics::DisableAllLights();
 }
 
 void CArtifactDoll::UpdateActorLights() {

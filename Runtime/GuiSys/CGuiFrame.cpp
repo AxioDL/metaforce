@@ -73,10 +73,10 @@ void CGuiFrame::EnableLights(u32 lights, CBooModel& model) const {
     ++idx;
   }
   if (lightsOut.empty()) {
-    // CGraphics::SetAmbientColor(zeus::skWhite);
+    CGraphics::SetAmbientColor(zeus::skWhite);
     lightsOut.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, zeus::skWhite));
   } else {
-    // CGraphics::SetAmbientColor(ambColor);
+    CGraphics::SetAmbientColor(ambColor);
     lightsOut.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, ambColor));
   }
 
@@ -126,9 +126,7 @@ void CGuiFrame::SetMaxAspect(float c) {
   CGuiSys::ViewportResizeFrame(this);
 }
 
-void CGuiFrame::Reset() {
-  x10_rootWidget->Reset(ETraversalMode::Children);
-}
+void CGuiFrame::Reset() { x10_rootWidget->Reset(ETraversalMode::Children); }
 
 void CGuiFrame::Update(float dt) { xc_headWidget->Update(dt); }
 
@@ -200,8 +198,7 @@ void CGuiFrame::ProcessUserInput(const CFinalInput& input) const {
 
 bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDrawParms& parms) {
   if (const auto& kbm = input.GetKBM()) {
-    zeus::CVector2f point(kbm->m_mouseCoord.x * 2.f - 1.f,
-                          kbm->m_mouseCoord.y * 2.f - 1.f);
+    zeus::CVector2f point(kbm->m_mouseCoord.x * 2.f - 1.f, kbm->m_mouseCoord.y * 2.f - 1.f);
     CGuiWidget* hit = BestCursorHit(point, parms);
     if (hit != m_lastMouseOverWidget) {
       if (m_inMouseDown && m_mouseDownWidget != hit) {

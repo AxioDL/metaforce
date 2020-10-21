@@ -71,7 +71,7 @@ enum class ERglLogicOp {
   Set = 15
 };
 
-enum class ERglCullMode { None = 0, Front = 1, Back = 2, All = 3 };
+enum class ERglCullMode { None = 0, Back = 1, Front = 2, All = 3 };
 
 enum class ERglAlphaFunc {
   Never = 0,
@@ -119,7 +119,10 @@ extern ERglBlendMode gx_BlendMode;
 extern ERglBlendFactor gx_BlendSrcFac;
 extern ERglBlendFactor gx_BlendDstFac;
 extern ERglLogicOp gx_BlendOp;
-extern bool gx_AlphaWrite;
+extern bool gx_ColorUpdate;
+extern bool gx_AlphaUpdate;
+extern bool gx_DstAlpha;
+extern float gx_DstAlphaValue;
 extern ERglCullMode gx_CullMode;
 // GX_COLOR0A0 & GX_COLOR1A1
 extern std::array<zeus::CColor, 2> gx_AmbientColors;
@@ -299,6 +302,8 @@ public:
   static void SetBlendMode(ERglBlendMode type, ERglBlendFactor srcFac, ERglBlendFactor dstFac, ERglLogicOp op);
   static void SetCullMode(ERglCullMode mode);
   static void SetAlphaUpdate(bool value);
+  static void SetColorUpdate(bool value);
+  static void SetDstAlpha(bool enabled, float alpha = 0.f);
   static void BeginScene();
   static void EndScene();
   static void SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1);
@@ -337,7 +342,7 @@ public:
 
   static const std::array<zeus::CMatrix3f, 6> skCubeBasisMats;
 
-  static void InitializeBoo(hsh::surface surface) { g_SpareTexture = hsh::create_render_texture2d(surface, 4, 1); }
+  static void InitializeBoo(hsh::surface surface) { g_SpareTexture = hsh::create_render_texture2d(surface, 3, 3); }
 
   static void ShutdownBoo() { g_SpareTexture.reset(); }
 
@@ -346,10 +351,12 @@ public:
     g_SpareTexture.resolve_color_binding(bindIdx, wrect);
     if (clearDepth)
       hsh::clear_attachments(false, true);
+    hsh::set_blend_constants(0.f, 0.f, 0.f, gx_DstAlphaValue);
   }
   static void ResolveSpareDepth(const SClipScreenRect& rect, int bindIdx = 0) {
     hsh::rect2d wrect = {{rect.x4_left, rect.x8_top}, {rect.xc_width, rect.x10_height}};
     g_SpareTexture.resolve_depth_binding(bindIdx, wrect);
+    hsh::set_blend_constants(0.f, 0.f, 0.f, gx_DstAlphaValue);
   }
 
   static const CTevCombiners::CTevPass sTevPass805a564c;

@@ -485,12 +485,14 @@ void CCompoundTargetReticle::Draw(const CStateManager& mgr, bool hideLockon) {
     SCOPED_GRAPHICS_DEBUG_GROUP("CCompoundTargetReticle::Draw", zeus::skCyan);
     const zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     CGraphics::SetViewPointMatrix(camXf);
+    CGraphics::SetCullMode(ERglCullMode::None);
     if (!hideLockon) {
       DrawCurrLockOnGroup(camXf.basis, mgr);
       DrawNextLockOnGroup(camXf.basis, mgr);
       DrawOrbitZoneGroup(camXf.basis, mgr);
     }
     DrawGrappleGroup(camXf.basis, mgr, hideLockon);
+    CGraphics::SetCullMode(ERglCullMode::Back);
   }
 
   if (x28_noDrawTicks > 0) {

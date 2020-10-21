@@ -509,13 +509,13 @@ void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform& 
     x60_holoModelData->Render(CModelData::EWhichModel::Normal, xf, nullptr, flags);
   } else {
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x10_solidModelData->GetScale()));
-    // CGraphics::DisableAllLights();
-    // g_Renderer->SetAmbientColor(zeus::skWhite);
+    CGraphics::DisableAllLights();
+    CGraphics::SetAmbientColor(zeus::skWhite);
     CSkinnedModel& model = *x60_holoModelData->GetAnimationData()->GetModelData();
     model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
     x10_solidModelData->GetAnimationData()->Render(model, flags, std::nullopt, nullptr);
-    // g_Renderer->SetAmbientColor(zeus::skWhite);
-    // CGraphics::DisableAllLights();
+    CGraphics::SetAmbientColor(zeus::skWhite);
+    CGraphics::DisableAllLights();
   }
 }
 

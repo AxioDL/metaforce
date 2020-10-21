@@ -254,6 +254,7 @@ private:
   using delta_clock = std::chrono::high_resolution_clock;
   std::chrono::time_point<delta_clock> m_prevFrameTime;
   DataSpec::URDEVersionInfo m_version;
+  CCameraFilterPass<CColoredQuadFilter> m_alphaPass;
 
   void InitializeSubsystems();
   static void InitializeDiscord();

@@ -468,18 +468,23 @@ void CActorLights::ActivateLights(CBooModel& model) const {
 
   if (x298_28_inArea) {
     if (!x298_26_hasAreaLights || x299_26_ambientOnly) {
-      // g_Renderer->SetAmbientColor(zeus::skWhite);
+      g_Renderer->SetAmbientColor(zeus::skWhite);
       lights.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, zeus::skWhite));
       model.ActivateLights(lights);
       return;
     }
   }
 
+  zeus::CColor amb = x288_ambientColor;
+  amb.a() = 1.f;
+  g_Renderer->SetAmbientColor(amb);
+
   lights = BuildLightVector();
   model.ActivateLights(lights);
 
   if (x298_31_disableWorldLights) {
     zeus::CColor color(x2d4_worldLightingLevel);
+    g_Renderer->SetAmbientColor(zeus::skBlack);
     g_Renderer->SetGXRegister1Color(color);
   }
 }

@@ -1388,7 +1388,7 @@ void CModel::_WarmupShaders() {
   for (SShader& shader : x18_matSets) {
     GetInstance().RemapMaterialData(shader);
     GetInstance().UpdateUniformData(defaultFlags, nullptr, nullptr);
-    GetInstance().WarmupDrawSurfaces();
+    GetInstance().WarmupDrawSurfaces(defaultFlags, defaultFlags);
   }
   CGraphics::SetProjectionState(backupProj);
   CGraphics::SetViewPointMatrix(backupViewPoint);

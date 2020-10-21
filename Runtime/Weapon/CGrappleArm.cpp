@@ -491,13 +491,13 @@ void CGrappleArm::PreRender(const CStateManager& mgr, const zeus::CFrustum& frus
 
 void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf, const CModelFlags& flags) {
   CGraphics::SetModelMatrix(modelXf * zeus::CTransform::Scale(x0_grappleArmModel->GetScale()));
-  // CGraphics::DisableAllLights();
-  // g_Renderer->SetAmbientColor(zeus::skWhite);
+  CGraphics::DisableAllLights();
+  CGraphics::SetAmbientColor(zeus::skWhite);
   CSkinnedModel& model = *x50_grappleArmSkeletonModel->GetAnimationData()->GetModelData();
   model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
   x0_grappleArmModel->GetAnimationData()->Render(model, flags, std::nullopt, nullptr);
-  // g_Renderer->SetAmbientColor(zeus::skWhite);
-  // CGraphics::DisableAllLights();
+  CGraphics::SetAmbientColor(zeus::skWhite);
+  CGraphics::DisableAllLights();
 }
 
 void CGrappleArm::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {

@@ -379,7 +379,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   }};
   x108_newScanPane.drawVerts(zeus::CColor(1.f, transFactor), rttVerts);
 
-  // No cull faces
+  CGraphics::SetCullMode(ERglCullMode::None);
 
   zeus::CColor frameColor = zeus::CColor::lerp(g_tweakGuiColors->GetScanFrameInactiveColor(),
                                                g_tweakGuiColors->GetScanFrameActiveColor(), x54c_scanFrameColorInterp);
@@ -451,7 +451,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
     xf0_scanFrameStretchSide->Draw(flags);
   }
 
-  // cull faces
+  CGraphics::SetCullMode(ERglCullMode::Back);
 }
 
 void CPlayerVisor::DrawXRayEffect(const CStateManager&) {

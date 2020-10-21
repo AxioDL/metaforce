@@ -54,7 +54,17 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
   rstl::reserved_vector<TUniqueId, 1024> nearItems;
   mgr.BuildNearList(nearItems, aabb, CMaterialFilter::skPassEverything, &player);
 
+  CGraphics::SetAlphaUpdate(true);
+  CGraphics::SetDstAlpha(true, 0.f);
+  CGraphics::SetColorUpdate(false);
+  // CGX::SetZMode(true,GX_ALWAYS,true)
+  //CGraphics::SetCullMode(ERglCullMode::None);
   CGraphics::SetViewPointMatrix(viewMtx);
+  // CGraphics::SetAlphaCompare(Always,0,And,Always,0);
+  // CGraphics::SetBlendMode(Blend,One,Zero,Clear);
+
+  CBooModel::SetRenderModelBlack(true);
+  // TODO
 
   int alphaVal = 4;
   for (TUniqueId id : nearItems) {
@@ -83,6 +93,10 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
 
   g_Renderer->FindOverlappingWorldModels(x30_worldModelBits, aabb);
   alphaVal = g_Renderer->DrawOverlappingWorldModelIDs(alphaVal, x30_worldModelBits, aabb);
+
+  CBooModel::SetRenderModelBlack(false);
+  CGraphics::SetColorUpdate(true);
+  CGraphics::SetDstAlpha(false, 0.f);
 
   g_Renderer->ResolveBallShadowIdTarget();
 

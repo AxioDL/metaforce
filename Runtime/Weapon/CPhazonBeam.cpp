@@ -169,7 +169,7 @@ void CPhazonBeam::DrawClipScaleCube() {
   g_Renderer->SetBlendMode_AlphaBlended();
   CGraphics::SetCullMode(ERglCullMode::None);
   m_aaboxShaderScale.draw(zeus::CColor{1.f, 1.f, 1.f, 0.f});
-  CGraphics::SetCullMode(ERglCullMode::Front);
+  CGraphics::SetCullMode(ERglCullMode::Back);
 }
 
 void CPhazonBeam::DrawClipTranslateCube() {
@@ -177,7 +177,7 @@ void CPhazonBeam::DrawClipTranslateCube() {
   g_Renderer->SetBlendMode_AlphaBlended();
   CGraphics::SetCullMode(ERglCullMode::None);
   m_aaboxShaderTranslate.draw(zeus::CColor{1.f, 1.f, 1.f, 0.f});
-  CGraphics::SetCullMode(ERglCullMode::Front);
+  CGraphics::SetCullMode(ERglCullMode::Back);
 }
 
 void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
@@ -187,9 +187,7 @@ void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::C
 
   if (drawIndirect) {
     CGraphics::ResolveSpareTexture(g_Viewport);
-    CModelFlags tmpFlags = flags;
-    tmpFlags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-    CGunWeapon::Draw(drawSuitArm, mgr, xf, tmpFlags, lights);
+    CGraphics::SetDstAlpha(true, 1.f);
   }
 
   CGunWeapon::Draw(drawSuitArm, mgr, xf, flags, lights);

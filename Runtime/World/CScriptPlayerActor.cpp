@@ -402,11 +402,7 @@ void CScriptPlayerActor::Render(CStateManager& mgr) {
   const bool phazonSuit = x2e8_suitRes.GetCharacterNodeId() == 3;
   if (phazonSuit) {
     // Draw into alpha buffer
-    CModelFlags flags = xb4_drawFlags;
-    flags.x4_color = zeus::skWhite;
-    flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-    CModelData::EWhichModel which = CModelData::GetRenderingModel(mgr);
-    x64_modelData->Render(which, x34_transform, x90_actorLights.get(), flags);
+    CGraphics::SetDstAlpha(true, 1.f);
   }
 
   CPhysicsActor::Render(mgr);

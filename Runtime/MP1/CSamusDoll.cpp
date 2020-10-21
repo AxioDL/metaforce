@@ -332,7 +332,9 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
     float bootsPulse = std::max(suitPulse, itemPulse * x64_bootsPulseFactor);
 
     bool phazonSuit = x44_suit == CPlayerState::EPlayerSuit::Phazon;
-    // Enable dst alpha 1.0
+    if (phazonSuit) {
+      CGraphics::SetDstAlpha(true, 1.f);
+    }
 
     for (size_t i = 0; i <= x118_suitModel1and2.size(); ++i) {
       TCachedToken<CSkinnedModel> backupModelData = xc8_suitModel0->GetAnimationData()->GetModelData();
