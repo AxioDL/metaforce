@@ -18,6 +18,10 @@ void CGBASupport::Initialize() {
   g_JbusListener.start();
 }
 
+void CGBASupport::Shutdown() {
+  g_JbusListener.stop();
+}
+
 void CGBASupport::GlobalPoll() {
   if (g_JbusEndpoint && !g_JbusEndpoint->connected())
     g_JbusEndpoint.reset();

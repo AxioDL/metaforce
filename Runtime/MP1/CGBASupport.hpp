@@ -36,6 +36,7 @@ private:
 
 public:
   static void Initialize();
+  static void Shutdown();
   static void GlobalPoll();
 
   CGBASupport();

@@ -926,6 +926,7 @@ void CMain::ShutdownSubsystems() {
   CAnimData::FreeCache();
   CMemoryCardSys::Shutdown();
   CMappableObject::Shutdown();
+  CGBASupport::Shutdown();
 }
 
 void CMain::Shutdown() {
