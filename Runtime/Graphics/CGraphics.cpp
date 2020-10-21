@@ -215,8 +215,9 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect, 
   float fpn = st.x18_far + st.x14_near;
   float fmn = st.x18_far - st.x14_near;
 
-  return zeus::CMatrix4f{2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
-                         0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn, 0.f, 0.f, -1.f, 0.f};
+  zeus::CMatrix4f mat2{2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
+                       0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn, 0.f, 0.f, -1.f, 0.f};
+  return forRenderer ? DepthCorrect * mat2 : mat2;
 }
 
 zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer) {
