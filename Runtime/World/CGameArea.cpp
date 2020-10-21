@@ -305,8 +305,11 @@ CDummyGameArea::CDummyGameArea(CInputStream& in, int idx, int mlvlVersion) {
   zeus::CAABox aabb;
   aabb.readBoundingBoxBig(in);
   xc_mrea = in.readUint32Big();
-  if (mlvlVersion > 15)
-    x10_areaId = CAssetId(in);
+  if (mlvlVersion > 15) {
+      x10_areaId = in.readUint32Big();
+  } else {
+      x10_areaId = -1;
+  }
 
   u32 attachAreaCount = in.readUint32Big();
   x44_attachedAreaIndices.reserve(attachAreaCount);
@@ -332,7 +335,7 @@ std::pair<std::unique_ptr<u8[]>, s32> CDummyGameArea::IGetScriptingMemoryAlways(
   return GetScriptingMemoryAlways(*this);
 }
 
-CAssetId CDummyGameArea::IGetAreaId() const { return x10_areaId; }
+s32 CDummyGameArea::IGetAreaSaveId() const { return x10_areaId; }
 
 CAssetId CDummyGameArea::IGetAreaAssetId() const { return xc_mrea; }
 
@@ -354,9 +357,9 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(id
 
   x84_mrea = in.readUint32Big();
   if (mlvlVersion > 15)
-    x88_areaId = CAssetId(in);
+    x88_areaId = in.readUint32Big();
   else
-    x88_areaId = CAssetId();
+    x88_areaId = INT_MAX;
 
   const u32 attachedCount = in.readUint32Big();
   x8c_attachedAreaIndices.reserve(attachedCount);
@@ -782,7 +785,7 @@ bool CGameArea::Invalidate(CStateManager* mgr) {
   }
 
   if (mgr)
-    mgr->PrepareAreaUnload(GetAreaIndex());
+    mgr->PrepareAreaUnload(GetAreaId());
 
 #if 0
     dword_805a8eb0 -= GetPostConstructedSize();
@@ -797,7 +800,7 @@ bool CGameArea::Invalidate(CStateManager* mgr) {
   KillmAreaData();
   ClearTokenList();
   if (mgr)
-    mgr->AreaUnloaded(GetAreaIndex());
+    mgr->AreaUnloaded(GetAreaId());
 
   return true;
 }

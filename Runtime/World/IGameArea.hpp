@@ -49,7 +49,7 @@ public:
   };
 
   virtual std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const = 0;
-  virtual CAssetId IGetAreaId() const = 0;
+  virtual s32 IGetAreaSaveId() const = 0;
   virtual CAssetId IGetAreaAssetId() const = 0;
   virtual bool IIsActive() const = 0;
   virtual TAreaId IGetAttachedAreaId(int) const = 0;

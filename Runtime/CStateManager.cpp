@@ -2004,7 +2004,7 @@ void CStateManager::UpdateAreaSounds() {
       occState = area.GetOcclusionState();
     }
     if (occState == CGameArea::EOcclusionState::Visible) {
-      areas.push_back(area.GetAreaIndex());
+      areas.push_back(area.GetAreaId());
     }
   }
   CSfxManager::SetActiveAreas(areas);

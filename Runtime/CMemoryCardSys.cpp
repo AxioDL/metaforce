@@ -35,7 +35,7 @@ bool CSaveWorldIntermediate::InitializePump() {
     xc_areaIds.reserve(areaCount);
     for (u32 i = 0; i < areaCount; ++i) {
       const IGameArea* area = wld.IGetAreaAlways(i);
-      xc_areaIds.emplace_back(area->IGetAreaId());
+      xc_areaIds.emplace_back(area->IGetAreaSaveId());
     }
 
     CAssetId mlvlId = wld.IGetWorldAssetId();

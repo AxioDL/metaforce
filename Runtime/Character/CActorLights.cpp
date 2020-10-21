@@ -183,7 +183,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
   }
 
   zeus::CVector3f vec;
-  if (!x298_24_dirty && x294_aid == area.GetAreaIndex()) {
+  if (!x298_24_dirty && x294_aid == area.GetAreaId()) {
     /* Early return if not ready for update */
     if (mgr.GetInputFrameIdx() - x2a4_lastUpdateFrame < x2a8_areaUpdateFramePeriod)
       return false;
@@ -193,7 +193,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
         return false;
     x2c0_lastActorPos = vec;
   } else {
-    if (x294_aid != area.GetAreaIndex())
+    if (x294_aid != area.GetAreaId())
       x2d8_brightLightIdx = -1;
     x2a4_lastUpdateFrame = sFrameSchedulerCount + mgr.GetInputFrameIdx();
     vec = aabb.center() + x2ac_actorPosBias;
@@ -203,7 +203,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
   /* Reset lighting state */
   x2d4_worldLightingLevel = worldLightingLevel;
   x298_24_dirty = false;
-  x294_aid = area.GetAreaIndex();
+  x294_aid = area.GetAreaId();
   x29c_shadowLightArrIdx = -1;
   x288_ambientColor = zeus::skClear;
 

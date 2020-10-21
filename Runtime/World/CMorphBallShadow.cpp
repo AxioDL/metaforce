@@ -16,7 +16,7 @@ void CMorphBallShadow::GatherAreas(const CStateManager& mgr) {
     if (area.IsPostConstructed())
       occState = area.GetPostConstructed()->x10dc_occlusionState;
     if (occState == CGameArea::EOcclusionState::Visible)
-      x18_areas.push_back(area.GetAreaIndex());
+      x18_areas.push_back(area.GetAreaId());
   }
 }
 
@@ -105,7 +105,7 @@ bool CMorphBallShadow::AreasValid(const CStateManager& mgr) const {
       continue;
     if (it == x18_areas.end())
       return false;
-    if (*it != area.GetAreaIndex())
+    if (*it != area.GetAreaId())
       return false;
     ++it;
   }

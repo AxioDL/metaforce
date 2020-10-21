@@ -24,7 +24,7 @@ class CSaveWorldMemory {
   CAssetId x0_strgId;
   CAssetId x4_savwId;
   u32 x8_areaCount;
-  std::vector<CAssetId> xc_areaIds;
+  std::vector<s32> xc_areaIds;
   std::vector<CWorldLayers::Area> x1c_defaultLayerStates;
   TLockedToken<CStringTable> x2c_worldName; /* used to be optional */
   TLockedToken<CSaveWorld> x3c_saveWorld;   /* used to be optional */
@@ -48,7 +48,7 @@ class CSaveWorldIntermediate {
   CAssetId x0_mlvlId;
   CAssetId x4_strgId;
   CAssetId x8_savwId;
-  std::vector<CAssetId> xc_areaIds;
+  std::vector<s32> xc_areaIds;
   std::vector<CWorldLayers::Area> x1c_defaultLayerStates;
   std::unique_ptr<CDummyWorld> x2c_dummyWorld;
   TLockedToken<CSaveWorld> x34_saveWorld; /* Used to be auto_ptr */
