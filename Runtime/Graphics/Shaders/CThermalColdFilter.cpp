@@ -20,7 +20,8 @@ struct CThermalColdFilterPipeline : pipeline<topology<hsh::TriangleStrip>,
     hsh::float4 kRGBToYPrime{0.257f, 0.504f, 0.098f, 0.f};
 
     this->position = hsh::float4(vbo->m_pos, 0.f, 1.f);
-    hsh::float4 noiseTexel = noiseTex.read<float>(Lookup8BPP(vbo->m_uvNoise, ubo->m_randOff));
+    hsh::float2 uvNoise HSH_VAR_STAGE(fragment) = vbo->m_uvNoise;
+    hsh::float4 noiseTexel = noiseTex.read<float>(Lookup8BPP(uvNoise, ubo->m_randOff));
     hsh::float2 indCoord = (hsh::float3x3(ubo->m_indMtx[0].xyz(), ubo->m_indMtx[1].xyz(), ubo->m_indMtx[2].xyz()) *
                             hsh::float3(noiseTexel.x - 0.5f, noiseTexel.w - 0.5f, 1.f))
                                .xy();
