@@ -11,6 +11,69 @@
 #include "zeus/CAABox.hpp"
 
 namespace urde {
+using BlendMaterial = hecl::blender::Material;
+using MaterialBlendMode = BlendMaterial::BlendMode;
+
+enum class MaterialTexCoordSource : uint32_t {
+  Invalid = 0xff,
+  Position = 0,
+  Normal = 1,
+  Tex0 = 2,
+  Tex1 = 3,
+  Tex2 = 4,
+  Tex3 = 5,
+  Tex4 = 6,
+  Tex5 = 7,
+  Tex6 = 8,
+  Tex7 = 9,
+};
+
+// FIXME hsh bug: u8 generates '\xCC', '\xCC', '\xCC', '\xFF' which cause issues
+template <bool HasValue, int R = 0, int G = 0, int B = 0, int A = 0>
+struct ColorValue {
+  static constexpr bool Constant = HasValue;
+  static constexpr float R_ = u8(R) / 255.f;
+  static constexpr float G_ = u8(G) / 255.f;
+  static constexpr float B_ = u8(B) / 255.f;
+  static constexpr float A_ = u8(A) / 255.f;
+};
+
+template <MaterialTexCoordSource Source, bool Normalize, int MtxIdx, bool SampleAlpha,
+          class ConstantColor = ColorValue<false>>
+struct PassTraits {
+  static constexpr MaterialTexCoordSource Source_ = Source;
+  static constexpr bool Normalize_ = Normalize;
+  static constexpr int MtxIdx_ = MtxIdx;
+  static constexpr bool SampleAlpha_ = SampleAlpha;
+  using ConstantColor_ = ConstantColor;
+};
+
+template <int R, int G, int B, int A = 255>
+using PassConstantColor = PassTraits<MaterialTexCoordSource::Invalid, false, -1, false, ColorValue<true, R, G, B, A>>;
+
+template <MaterialTexCoordSource Source, int MtxIdx = -1>
+using PassTex = PassTraits<Source, false, MtxIdx, false>;
+
+template <bool Normalize = true, int MtxIdx = -1>
+using PassNormal = PassTraits<MaterialTexCoordSource::Normal, Normalize, MtxIdx, false>;
+
+using PassNone = PassTraits<MaterialTexCoordSource::Invalid, false, -1, false>;
+
+template <bool CubeReflection>
+struct DynReflectionTex {
+  using type = hsh::texture2d;
+};
+template <>
+struct DynReflectionTex<true> {
+  using type = hsh::texturecube;
+};
+template <bool CubeReflection>
+using DynReflectionTexType = typename DynReflectionTex<CubeReflection>::type;
+} // namespace urde
+
+#include "CModelShaders.cpp.hshhead"
+
+namespace urde {
 
 void CModelShaders::FragmentUniform::ActivateLights(const std::vector<CLight>& lts) {
   ambient = zeus::skClear;
@@ -60,109 +123,24 @@ void CModelShaders::FragmentUniform::ActivateLights(const std::vector<CLight>& l
   }
 }
 
-using TexCoordSource = hecl::Backend::TexCoordSource;
-
-constexpr std::array<hecl::Backend::TextureInfo, 1> ThermalTextures{{
-    {TexCoordSource::Normal, 7, true},
-}};
-
-constexpr std::array<hecl::Backend::TextureInfo, 3> BallFadeTextures{{
-    {TexCoordSource::Position, 0, false}, // ID tex
-    {TexCoordSource::Position, 0, false}, // Sphere ramp
-    {TexCoordSource::Position, 1, false}, // TXTR_BallFade
-}};
-
-constexpr std::array<hecl::Backend::TextureInfo, 1> WorldShadowTextures{{
-    {TexCoordSource::Position, 7, false}, // Shadow tex
-}};
-
-constexpr std::array<hecl::Backend::TextureInfo, 2> DisintegrateTextures{{
-    {TexCoordSource::Position, 0, false}, // Ashy tex
-    {TexCoordSource::Position, 1, false}, // Ashy tex
-}};
-
-static std::array<hecl::Backend::ExtensionSlot, size_t(EExtendedShader::MAX)> g_ExtensionSlots{{
-    /* Default solid shading */
-    {},
-    /* Normal lit shading */
-    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
-    /* Thermal Visor shading */
-    {1, ThermalTextures.data(), hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::One,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, false, true},
-    /* Forced alpha shading */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
-    /* Forced additive shading */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-     hecl::Backend::CullMode::Backface, false, false, true},
-    /* Solid color */
-    {0, nullptr, hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::Zero, hecl::Backend::ZTest::LEqual,
-     hecl::Backend::CullMode::Backface, false, false, false},
-    /* Solid color additive */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual,
-     hecl::Backend::CullMode::Backface, true, false, true},
-    /* Alpha-only Solid color frontface cull, LEqual */
-    {0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual,
-     hecl::Backend::CullMode::Frontface, false, true, false},
-    /* Alpha-only Solid color frontface cull, Always, No Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::None,
-     hecl::Backend::CullMode::Frontface, true, true, false},
-    /* Alpha-only Solid color backface cull, LEqual */
-    {0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual,
-     hecl::Backend::CullMode::Backface, false, true, false},
-    /* Alpha-only Solid color backface cull, Greater, No Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Greater,
-     hecl::Backend::CullMode::Backface, true, true, false},
-    /* MorphBall shadow shading */
-    {3, BallFadeTextures.data(), hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
-     hecl::Backend::ZTest::Equal, hecl::Backend::CullMode::Backface, false, false, true, false, true},
-    /* World shadow shading (modified lighting) */
-    {1, WorldShadowTextures.data(), hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
-    /* Forced alpha shading without culling */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::None, false, false, true},
-    /* Forced additive shading without culling */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-     hecl::Backend::CullMode::None, false, false, true},
-    /* Forced alpha shading without Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Original, true, false, true},
-    /* Forced additive shading without Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-     hecl::Backend::CullMode::Original, true, false, true},
-    /* Forced alpha shading without culling or Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::None, true, false, true},
-    /* Forced additive shading without culling or Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-     hecl::Backend::CullMode::None, true, false, true},
-    /* Depth GEqual no Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
-     hecl::Backend::ZTest::GEqual, hecl::Backend::CullMode::Backface, true, false, true},
-    /* Disintegration */
-    {2, DisintegrateTextures.data(), hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
-     hecl::Backend::ZTest::LEqual, hecl::Backend::CullMode::Original, false, false, true, false, false, true},
-    /* Forced additive shading without culling or Z-write and greater depth test */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Greater,
-     hecl::Backend::CullMode::None, true, false, true},
-    /* Thermal cold shading */
-    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Original, false, false, true, false, false, false, true},
-    /* Normal lit shading with alpha */
-    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface},
-    /* Normal lit shading with alpha without Z-write or depth test */
-    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
-     hecl::Backend::ZTest::None, hecl::Backend::CullMode::Backface, true},
-    /* Normal lit shading with cube reflection */
-    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
-    /* Normal lit shading with cube reflection and world shadow */
-    {1, WorldShadowTextures.data(), hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
-}};
+//constexpr std::array<hecl::Backend::TextureInfo, 1> ThermalTextures{{
+//    {TexCoordSource::Normal, 7, true},
+//}};
+//
+//constexpr std::array<hecl::Backend::TextureInfo, 3> BallFadeTextures{{
+//    {TexCoordSource::Position, 0, false}, // ID tex
+//    {TexCoordSource::Position, 0, false}, // Sphere ramp
+//    {TexCoordSource::Position, 1, false}, // TXTR_BallFade
+//}};
+//
+//constexpr std::array<hecl::Backend::TextureInfo, 1> WorldShadowTextures{{
+//    {TexCoordSource::Position, 7, false}, // Shadow tex
+//}};
+//
+//constexpr std::array<hecl::Backend::TextureInfo, 2> DisintegrateTextures{{
+//    {TexCoordSource::Position, 0, false}, // Ashy tex
+//    {TexCoordSource::Position, 1, false}, // Ashy tex
+//}};
 
 // TODO: put somewhere common
 template <typename BitType>
@@ -180,7 +158,7 @@ public:
   constexpr explicit Flags(MaskType flags) noexcept : m_mask(flags) {}
 
   // relational operators
-  auto operator<=>(Flags<BitType> const&) const = default;
+  //  auto operator<=>(Flags<BitType> const&) const = default;
 
   // logical operator
   constexpr bool operator!() const noexcept { return !m_mask; }
@@ -282,7 +260,7 @@ struct CCubeSurface {
   float x20_normal[3];
 };
 
-struct CMetroidModelInstance {
+struct CMetroidModelInstance_ {
   u32 x0_visorFlags;
   zeus::CTransform x4_worldXf;
   zeus::CAABox x34_worldAABB;
@@ -352,41 +330,6 @@ constexpr hsh::sampler ClampEdgeSamp(hsh::Linear, hsh::Linear, hsh::Linear, hsh:
 constexpr hsh::sampler ReflectSamp(hsh::Linear, hsh::Linear, hsh::Linear, hsh::ClampToBorder, hsh::ClampToBorder,
                                    hsh::ClampToBorder);
 
-template <bool CubeReflection>
-struct DynReflectionTex {
-  using type = hsh::texture2d;
-};
-template <>
-struct DynReflectionTex<true> {
-  using type = hsh::texturecube;
-};
-template <bool CubeReflection>
-using DynReflectionTexType = typename DynReflectionTex<CubeReflection>::type;
-
-using BlendMaterial = hecl::blender::Material;
-using MaterialBlendMode = BlendMaterial::BlendMode;
-using MaterialTexCoordSource = BlendMaterial::TexCoordSource;
-
-struct NoColorValue {
-  static constexpr bool Constant = false;
-};
-
-template <float R, float G, float B, float A>
-struct ColorValue {
-  static constexpr bool Constant = true;
-  static constexpr hsh::float3 RGB{R, G, B};
-  static constexpr float A_ = A;
-};
-
-template <MaterialTexCoordSource Source, bool Normalize, int MtxIdx, bool SampleAlpha, class ConstantColor = NoColorValue>
-struct PassTraits {
-  static constexpr MaterialTexCoordSource Source_ = Source;
-  static constexpr bool Normalize_ = Normalize;
-  static constexpr int MtxIdx_ = MtxIdx;
-  static constexpr bool SampleAlpha_ = SampleAlpha;
-  using ConstantColor_ = ConstantColor;
-};
-
 template <MaterialBlendMode Mode>
 constexpr hsh::BlendFactor MaterialBlendModeSrcFactor = hsh::One;
 template <>
@@ -407,15 +350,18 @@ constexpr hsh::ColorComponentFlags
                                                 (AlphaUpdate ? hsh::CC_Alpha : 0));
 
 template <MaterialBlendMode MaterialBlendMode, bool ColorUpdate, bool AlphaUpdate, bool DstAlpha>
-struct CModelShadersColorAttachmentBase
-: color_attachment<MaterialBlendModeSrcFactor<MaterialBlendMode>, MaterialBlendModeDstFactor<MaterialBlendMode>,
-                   hsh::Add, DstAlpha ? hsh::ConstAlpha : hsh::Zero, hsh::Zero, hsh::Add,
-                   ColorUpdateFlags<ColorUpdate, AlphaUpdate>> {};
+struct CModelShadersColorAttachmentBase {
+  using type =
+      color_attachment<MaterialBlendModeSrcFactor<MaterialBlendMode>, MaterialBlendModeDstFactor<MaterialBlendMode>,
+                       hsh::Add, DstAlpha ? hsh::ConstAlpha : hsh::Zero, hsh::Zero, hsh::Add,
+                       ColorUpdateFlags<ColorUpdate, AlphaUpdate>>;
+};
 
 template <hsh::BlendFactor Src, hsh::BlendFactor Dst, bool ColorUpdate, bool AlphaUpdate, bool DstAlpha>
-struct CModelShadersColorAttachmentOverride
-: color_attachment<Src, Dst, hsh::Add, DstAlpha ? hsh::ConstAlpha : hsh::Zero, hsh::Zero, hsh::Add,
-                   ColorUpdateFlags<ColorUpdate, AlphaUpdate>> {};
+struct CModelShadersColorAttachmentOverride {
+  using type = color_attachment<Src, Dst, hsh::Add, DstAlpha ? hsh::ConstAlpha : hsh::Zero, hsh::Zero, hsh::Add,
+                                ColorUpdateFlags<ColorUpdate, AlphaUpdate>>;
+};
 
 template <MaterialBlendMode MaterialBlendMode, bool AlphaTest, bool ColorUpdate, bool AlphaUpdate, bool DstAlpha>
 struct CModelShadersColorAttachment0To4
@@ -451,7 +397,9 @@ struct CModelShadersColorAttachment7To8<MaterialBlendMode, true, ColorUpdate, Al
 
 template <MaterialBlendMode MaterialBlendMode, u8 GameBlendMode, bool AlphaTest, bool ColorUpdate, bool AlphaUpdate,
           bool DstAlpha>
-struct CModelShadersColorAttachment : color_attachment<> {};
+struct CModelShadersColorAttachment {
+  using type = color_attachment<>;
+};
 
 template <MaterialBlendMode MaterialBlendMode, bool AlphaTest, bool ColorUpdate, bool AlphaUpdate, bool DstAlpha>
 struct CModelShadersColorAttachment<MaterialBlendMode, 0, AlphaTest, ColorUpdate, AlphaUpdate, DstAlpha>
@@ -489,46 +437,55 @@ template <MaterialBlendMode MaterialBlendMode, bool AlphaTest, bool ColorUpdate,
 struct CModelShadersColorAttachment<MaterialBlendMode, 8, AlphaTest, ColorUpdate, AlphaUpdate, DstAlpha>
 : CModelShadersColorAttachment7To8<MaterialBlendMode, AlphaTest, ColorUpdate, AlphaUpdate, DstAlpha> {};
 
-template <MaterialBlendMode MaterialBlendMode, u32 MaterialFlags, u8 GameBlendMode, u16 ModelFlags, bool ColorUpdate,
-          bool AlphaUpdate, bool DstAlpha>
+template <MaterialBlendMode MaterialBlendMode, u16 MaterialFlags, u8 GameBlendMode, u16 ModelFlags, bool ColorUpdate,
+          bool AlphaUpdate, bool DstAlpha, ERglCullMode CullMode>
 struct CModelShadersPipelineConfig
-: pipeline<
-      CModelShadersColorAttachment<MaterialBlendMode, GameBlendMode,
-                                   MaterialFlags & u16(CCubeMaterialFlagBits::fAlphaTest), ColorUpdate, AlphaUpdate,
-                                   DstAlpha>,
+: public pipeline<
+      topology<hsh::TriangleStrip>,
+      typename CModelShadersColorAttachment<MaterialBlendMode, GameBlendMode,
+                                            (MaterialFlags & u16(CCubeMaterialFlagBits::fAlphaTest)) != 0, ColorUpdate,
+                                            AlphaUpdate, DstAlpha>::type,
       depth_compare<ModelFlags & u16(CModelFlagsFlagBits::fDepthTest)
                         ? (ModelFlags& u16(CModelFlagsFlagBits::kDepthGreater)
                                ? (ModelFlags& u16(CModelFlagsFlagBits::fDepthNonInclusive) ? hsh::Greater : hsh::GEqual)
                                : (ModelFlags& u16(CModelFlagsFlagBits::fDepthNonInclusive) ? hsh::Less : hsh::LEqual))
                         : hsh::Always>,
       depth_write<ModelFlags & u16(CModelFlagsFlagBits::fDepthWrite) &&
-                  MaterialFlags & u32(CCubeMaterialFlagBits::fDepthWrite)>,
-      early_depth_stencil<(MaterialFlags & u16(CCubeMaterialFlagBits::fAlphaTest)) == 0>> {
+                  MaterialFlags & u16(CCubeMaterialFlagBits::fDepthWrite)>,
+      early_depth_stencil<(MaterialFlags & u16(CCubeMaterialFlagBits::fAlphaTest)) == 0>,
+      ERglCullModeAttachment<CullMode>> {
   static constexpr bool AlphaTest = MaterialFlags & u16(CCubeMaterialFlagBits::fAlphaTest);
 };
 
-template <uint32_t NSkinSlots, uint32_t NCol, uint32_t NUv, uint32_t NWeight, BlendMaterial::ShaderType Type, EPostType Post,
-          bool WorldShadow, class LightmapTraits, class DiffuseTraits,
-          class EmissiveTraits, class SpecularTraits, class ExtendedSpecularTraits, class ReflectionTraits,
-          class AlphaTraits, bool CubeReflection, MaterialBlendMode MaterialBlendMode, u32 MaterialFlags,
-          u8 GameBlendMode, u16 ModelFlags, bool ColorUpdate, bool AlphaUpdate, bool DstAlpha>
+template <uint32_t NSkinSlots, uint32_t NCol, uint32_t NUv, uint32_t NWeight, BlendMaterial::ShaderType Type,
+          EPostType Post, bool WorldShadow, class LightmapTraits, class DiffuseTraits, class EmissiveTraits,
+          class SpecularTraits, class ExtendedSpecularTraits, class ReflectionTraits, class AlphaTraits,
+          bool CubeReflection, MaterialBlendMode MaterialBlendMode, u16 MaterialFlags,
+          // FIXME hsh bug: u8 generates broken characters for profiling
+          u16 GameBlendMode,
+          u16 ModelFlags, bool ColorUpdate = true, bool AlphaUpdate = false, bool DstAlpha = false,
+          ERglCullMode CullMode = ERglCullMode::Back>
 struct CModelShadersPipeline : CModelShadersPipelineConfig<MaterialBlendMode, MaterialFlags, GameBlendMode, ModelFlags,
-                                                           ColorUpdate, AlphaUpdate, DstAlpha> {
+                                                           ColorUpdate, AlphaUpdate, DstAlpha, CullMode> {
+  using PipelineConfig = CModelShadersPipelineConfig<MaterialBlendMode, MaterialFlags, GameBlendMode, ModelFlags,
+                                                     ColorUpdate, AlphaUpdate, DstAlpha, CullMode>;
+
   CModelShadersPipeline(hsh::uniform_buffer<CModelShaders::VertUniform<NSkinSlots>> vu,
                         hsh::uniform_buffer<CModelShaders::FragmentUniform> fragu HSH_VAR_STAGE(fragment),
-                        hsh::uniform_buffer<std::array<CModelShaders::TCGMatrix, 8>> tcgu,
+                        hsh::uniform_buffer<CModelShaders::TCGMatrixUniform> tcgu,
                         hsh::uniform_buffer<CModelShaders::ReflectMtx> refu, hsh::texture2d Lightmap,
                         hsh::texture2d Diffuse, hsh::texture2d Emissive, hsh::texture2d Specular,
                         hsh::texture2d ExtendedSpecular, hsh::texture2d Reflection, hsh::texture2d Alpha,
                         hsh::texture2d ReflectionIndTex, hsh::texture2d ExtTex0, hsh::texture2d ExtTex1,
                         hsh::texture2d ExtTex2, DynReflectionTexType<CubeReflection> dynReflection,
-                        hsh::vertex_buffer<CModelShaders::VertData<NCol, NUv, NWeight>> vd) {
+                        hsh::vertex_buffer<CModelShaders::VertData<NCol, NUv, NWeight>> vd,
+                        hsh::index_buffer<u32> ibo) {
     hsh::float4 mvPos;
     hsh::float4 mvNorm;
 
     hsh::float4 objPos;
     hsh::float4 objNorm;
-    if constexpr (NSkinSlots != 0) {
+    if constexpr (NSkinSlots > 0) {
       objPos = hsh::float4(0.f);
       objNorm = hsh::float4(0.f);
       for (uint32_t i = 0; i < NSkinSlots; ++i) {
@@ -566,39 +523,26 @@ struct CModelShadersPipeline : CModelShadersPipelineConfig<MaterialBlendMode, Ma
   if constexpr (Pass##Traits::Source_ != MaterialTexCoordSource::Invalid) {                                            \
     if constexpr (Pass##Traits::MtxIdx_ >= 0) {                                                                        \
       hsh::float4 src;                                                                                                 \
-      switch (Pass##Traits::Source_) {                                                                                 \
-      case MaterialTexCoordSource::Position:                                                                           \
+      if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Position) {                                       \
         src = hsh::float4(objPos.xyz(), 1.f);                                                                          \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Normal:                                                                             \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Normal) {                                  \
         src = hsh::float4(objNorm.xyz(), 1.f);                                                                         \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex0:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex0) {                                    \
         src = hsh::float4(vd->uvIn[0], 0.f, 1.f);                                                                      \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex1:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex1) {                                    \
         src = hsh::float4(vd->uvIn[1], 0.f, 1.f);                                                                      \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex2:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex2) {                                    \
         src = hsh::float4(vd->uvIn[2], 0.f, 1.f);                                                                      \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex3:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex3) {                                    \
         src = hsh::float4(vd->uvIn[3], 0.f, 1.f);                                                                      \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex4:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex4) {                                    \
         src = hsh::float4(vd->uvIn[4], 0.f, 1.f);                                                                      \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex5:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex5) {                                    \
         src = hsh::float4(vd->uvIn[5], 0.f, 1.f);                                                                      \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex6:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex6) {                                    \
         src = hsh::float4(vd->uvIn[6], 0.f, 1.f);                                                                      \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex7:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex7) {                                    \
         src = hsh::float4(vd->uvIn[7], 0.f, 1.f);                                                                      \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Invalid:                                                                            \
-        break;                                                                                                         \
       }                                                                                                                \
       hsh::float3 tmp = ((*tcgu)[Pass##Traits::MtxIdx_].mtx * src).xyz();                                              \
       if constexpr (Pass##Traits::Normalize_)                                                                          \
@@ -606,39 +550,26 @@ struct CModelShadersPipeline : CModelShadersPipelineConfig<MaterialBlendMode, Ma
       hsh::float4 tmpProj = (*tcgu)[Pass##Traits::MtxIdx_].postMtx * hsh::float4(tmp, 1.f);                            \
       Pass##Uv = (tmpProj / tmpProj.w).xy();                                                                           \
     } else {                                                                                                           \
-      switch (Pass##Traits::Source_) {                                                                                 \
-      case MaterialTexCoordSource::Position:                                                                           \
+      if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Position) {                                       \
         Pass##Uv = objPos.xy();                                                                                        \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Normal:                                                                             \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Normal) {                                  \
         Pass##Uv = objNorm.xy();                                                                                       \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex0:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex0) {                                    \
         Pass##Uv = vd->uvIn[0];                                                                                        \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex1:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex1) {                                    \
         Pass##Uv = vd->uvIn[1];                                                                                        \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex2:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex2) {                                    \
         Pass##Uv = vd->uvIn[2];                                                                                        \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex3:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex3) {                                    \
         Pass##Uv = vd->uvIn[3];                                                                                        \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex4:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex4) {                                    \
         Pass##Uv = vd->uvIn[4];                                                                                        \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex5:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex5) {                                    \
         Pass##Uv = vd->uvIn[5];                                                                                        \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex6:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex6) {                                    \
         Pass##Uv = vd->uvIn[6];                                                                                        \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Tex7:                                                                               \
+      } else if constexpr (Pass##Traits::Source_ == MaterialTexCoordSource::Tex7) {                                    \
         Pass##Uv = vd->uvIn[7];                                                                                        \
-        break;                                                                                                         \
-      case MaterialTexCoordSource::Invalid:                                                                            \
-        break;                                                                                                         \
       }                                                                                                                \
     }                                                                                                                  \
   }
@@ -658,14 +589,10 @@ struct CModelShadersPipeline : CModelShadersPipelineConfig<MaterialBlendMode, Ma
     }
 
     hsh::float3 lighting;
-    switch (Post) {
-    case EPostType::ThermalHot:
-    case EPostType::ThermalCold:
-    case EPostType::Solid:
-    case EPostType::MBShadow:
+    if constexpr (Post == EPostType::ThermalHot || Post == EPostType::ThermalCold || Post == EPostType::Solid ||
+                  Post == EPostType::MBShadow) {
       lighting = hsh::float3(1.f);
-      break;
-    default:
+    } else {
       lighting = fragu->ambient.xyz();
 
       for (int i = 0; i < URDE_MAX_LIGHTS; ++i) {
@@ -685,19 +612,14 @@ struct CModelShadersPipeline : CModelShadersPipelineConfig<MaterialBlendMode, Ma
       }
 
       lighting = hsh::saturate(lighting);
-      break;
     }
 
     hsh::float3 DynReflectionSample HSH_VAR_STAGE(fragment);
     if constexpr ((MaterialFlags & u32(CCubeMaterialFlagBits::fSamusReflectionIndirectTexture)) != 0) {
-      DynReflectionSample = dynReflection
-                                .template sample<float>((ReflectionIndTex.sample<float>(DynReflectionIndUv, Samp).xw() -
-                                                         hsh::float2(0.5f)) *
-                                                        hsh::float2(0.5f) +
-                                                        DynReflectionUv,
-                                                        ReflectSamp)
-                                .xyz() *
-                            refu->reflectAlpha;
+      DynReflectionUv +=
+          (ReflectionIndTex.sample<float>(DynReflectionIndUv, Samp).xw() - hsh::float2(0.5f)) * hsh::float2(0.5f);
+      DynReflectionSample =
+          dynReflection.template sample<float>(DynReflectionUv, ReflectSamp).xyz() * refu->reflectAlpha;
     } else if constexpr ((MaterialFlags & u32(CCubeMaterialFlagBits::fSamusReflection)) != 0) {
       DynReflectionSample =
           dynReflection.template sample<float>(DynReflectionUv, ReflectSamp).xyz() * refu->reflectAlpha;
@@ -705,70 +627,82 @@ struct CModelShadersPipeline : CModelShadersPipelineConfig<MaterialBlendMode, Ma
       DynReflectionSample = hsh::float3(0.f);
     }
 
-    const hsh::float3 kRGBToYPrime = hsh::float3(0.257f, 0.504f, 0.098f);
+    const hsh::float3 kRGBToYPrime = hsh::float3(0.299f, 0.587f, 0.114f);
 
 #define Sample(Pass)                                                                                                   \
   (Pass##Traits::SampleAlpha_                                                                                          \
        ? (Pass##Traits::ConstantColor_::Constant ? hsh::float3(Pass##Traits::ConstantColor_::A_)                       \
                                                  : hsh::float3(Pass.sample<float>(Pass##Uv, Samp).w))                  \
-       : (Pass##Traits::ConstantColor_::Constant ? Pass##Traits::ConstantColor_::RGB                                   \
-                                                 : Pass.sample<float>(Pass##Uv, Samp).xyz()))
+       : (Pass##Traits::ConstantColor_::Constant                                                                       \
+              ? hsh::float3(Pass##Traits::ConstantColor_::R_, Pass##Traits::ConstantColor_::G_,                        \
+                            Pass##Traits::ConstantColor_::B_)                                                          \
+              : Pass.sample<float>(Pass##Uv, Samp).xyz()))
 #define SampleAlpha(Pass)                                                                                              \
   (Pass##Traits::SampleAlpha_                                                                                          \
        ? (Pass##Traits::ConstantColor_::Constant ? Pass##Traits::ConstantColor_::A_                                    \
                                                  : Pass.sample<float>(Pass##Uv, Samp).w)                               \
-       : (Pass##Traits::ConstantColor_::Constant ? hsh::dot(Pass##Traits::ConstantColor_::RGB, kRGBToYPrime)           \
-                                                 : hsh::dot(Pass.sample<float>(Pass##Uv, Samp).xyz(), kRGBToYPrime)))
+       : (Pass##Traits::ConstantColor_::Constant                                                                       \
+              ? hsh::dot(hsh::float3(Pass##Traits::ConstantColor_::R_, Pass##Traits::ConstantColor_::G_,               \
+                                     Pass##Traits::ConstantColor_::B_),                                                \
+                         kRGBToYPrime)                                                                                 \
+              : hsh::dot(Pass.sample<float>(Pass##Uv, Samp).xyz(), kRGBToYPrime)))
 
-    switch (Type) {
-    case BlendMaterial::ShaderType::Invalid:
+    if constexpr (Type == BlendMaterial::ShaderType::Invalid) {
       this->color_out[0] = hsh::float4(Sample(Diffuse), SampleAlpha(Alpha));
-      break;
-    case BlendMaterial::ShaderType::RetroShader:
-      this->color_out[0] = hsh::float4(
-          (Sample(Lightmap) * fragu->lightmapMul.xyz() + lighting) * Sample(Diffuse) + Sample(Emissive) +
-              (Sample(Specular) + Sample(ExtendedSpecular) * lighting) * Sample(Reflection) + DynReflectionSample,
-          SampleAlpha(Alpha));
-      break;
-    case BlendMaterial::ShaderType::RetroDynamicShader:
-      this->color_out[0] = hsh::float4(
-          (Sample(Lightmap) * fragu->lightmapMul.xyz() + lighting) * (Sample(Diffuse) + Sample(Emissive)) *
-                  fragu->lightmapMul.xyz() +
-              (Sample(Specular) + Sample(ExtendedSpecular) * lighting) * Sample(Reflection) + DynReflectionSample,
-          SampleAlpha(Alpha));
-      break;
-    case BlendMaterial::ShaderType::RetroDynamicAlphaShader:
-      this->color_out[0] = hsh::float4(
-          (Sample(Lightmap) * fragu->lightmapMul.xyz() + lighting) * (Sample(Diffuse) + Sample(Emissive)) *
-                  fragu->lightmapMul.xyz() +
-              (Sample(Specular) + Sample(ExtendedSpecular) * lighting) * Sample(Reflection) + DynReflectionSample,
-          SampleAlpha(Alpha) * fragu->lightmapMul.w);
-      break;
-    case BlendMaterial::ShaderType::RetroDynamicCharacterShader:
-      this->color_out[0] = hsh::float4(
-          (Sample(Lightmap) + lighting) * Sample(Diffuse) + Sample(Emissive) * fragu->lightmapMul.xyz() +
-              (Sample(Specular) + Sample(ExtendedSpecular) * lighting) * Sample(Reflection) + DynReflectionSample,
-          SampleAlpha(Alpha));
-      break;
+    } else if constexpr (Type == BlendMaterial::ShaderType::RetroShader) {
+      hsh::float3 rgb = Sample(Lightmap) * fragu->lightmapMul.xyz() + lighting;
+      rgb *= Sample(Diffuse);
+      rgb += Sample(Emissive);
+      hsh::float3 specular = Sample(Specular) + Sample(ExtendedSpecular) * lighting;
+      rgb += specular * Sample(Reflection);
+      rgb += DynReflectionSample;
+      this->color_out[0] = hsh::float4(rgb, SampleAlpha(Alpha));
+    } else if constexpr (Type == BlendMaterial::ShaderType::RetroDynamicShader) {
+      hsh::float3 rgb = Sample(Lightmap) * fragu->lightmapMul.xyz() + lighting;
+      rgb *= Sample(Diffuse) * Sample(Emissive);
+      rgb *= fragu->lightmapMul.xyz();
+      hsh::float3 specular = Sample(Specular) + Sample(ExtendedSpecular) * lighting;
+      rgb += specular * Sample(Reflection);
+      rgb += DynReflectionSample;
+      this->color_out[0] = hsh::float4(rgb, SampleAlpha(Alpha));
+    } else if constexpr (Type == BlendMaterial::ShaderType::RetroDynamicAlphaShader) {
+      hsh::float3 rgb = Sample(Lightmap) * fragu->lightmapMul.xyz() + lighting;
+      rgb *= Sample(Diffuse) * Sample(Emissive);
+      rgb *= fragu->lightmapMul.xyz();
+      hsh::float3 specular = Sample(Specular) + Sample(ExtendedSpecular) * lighting;
+      rgb += specular * Sample(Reflection);
+      rgb += DynReflectionSample;
+      this->color_out[0] = hsh::float4(rgb, SampleAlpha(Alpha) * fragu->lightmapMul.w);
+    } else if constexpr (Type == BlendMaterial::ShaderType::RetroDynamicCharacterShader) {
+      hsh::float3 rgb = Sample(Lightmap) + lighting;
+      rgb *= Sample(Diffuse);
+      rgb += Sample(Emissive) * fragu->lightmapMul.xyz();
+      hsh::float3 specular = Sample(Specular) + Sample(ExtendedSpecular) * lighting;
+      rgb += specular * Sample(Reflection);
+      rgb += DynReflectionSample;
+      this->color_out[0] = hsh::float4(rgb, SampleAlpha(Alpha));
     }
 
     FOG_SHADER(fragu->fog)
 
     if constexpr (Post == EPostType::Normal) {
-      if constexpr (this->DstColorBlendFactor<0> == hsh::One)
+      if constexpr (PipelineConfig::template DstColorBlendFactor<0> == hsh::One) {
         this->color_out[0] =
             hsh::float4(hsh::lerp(this->color_out[0], hsh::float4(0.f), fogZ).xyz(), this->color_out[0].w);
-      else
+      } else {
         this->color_out[0] =
             hsh::float4(hsh::lerp(this->color_out[0], fragu->fog.m_color, fogZ).xyz(), this->color_out[0].w);
+      }
       if constexpr (GameBlendMode == 2) {
-        if (this->DstColorBlendFactor<0> != hsh::One)
+        if constexpr (PipelineConfig::template DstColorBlendFactor<0> != hsh::One) {
           this->color_out[0] += fragu->flagsColor;
+        }
       } else if constexpr (GameBlendMode != 0) {
         this->color_out[0] *= fragu->flagsColor;
       }
     } else if constexpr (Post == EPostType::ThermalHot) {
-      this->color_out[0] = hsh::float4(ExtTex0.sample<float>(ExtUv0, Samp).x) * fragu->flagsColor + fragu->ambient;
+      this->color_out[0] = hsh::float4(ExtTex0.sample<float>(ExtUv0, Samp).x) * fragu->flagsColor;
+      this->color_out[0] += fragu->ambient;
     } else if constexpr (Post == EPostType::ThermalCold) {
       this->color_out[0] *= hsh::float4(0.75f);
     } else if constexpr (Post == EPostType::Solid) {
@@ -787,36 +721,113 @@ struct CModelShadersPipeline : CModelShadersPipelineConfig<MaterialBlendMode, Ma
       hsh::float4 texel1 = ExtTex0.sample<float>(ExtUv1, Samp);
       this->color_out[0] = hsh::lerp(hsh::float4(0.f), texel1, texel0);
       this->color_out[0] = hsh::float4(fragu->flagsColor.xyz() + this->color_out[0].xyz(), this->color_out[0].w);
-      if constexpr (this->DstColorBlendFactor<0> == hsh::One)
+      if constexpr (PipelineConfig::template DstColorBlendFactor<0> == hsh::One) {
         this->color_out[0] =
             hsh::float4(hsh::lerp(this->color_out[0], hsh::float4(0.f), fogZ).xyz(), this->color_out[0].w);
-      else
+      } else {
         this->color_out[0] =
             hsh::float4(hsh::lerp(this->color_out[0], fragu->fog.m_color, fogZ).xyz(), this->color_out[0].w);
+      }
     }
 
-    if (this->AlphaTest && this->color_out[0].w < 0.25f)
+    if (PipelineConfig::AlphaTest && this->color_out[0].w < 0.25f) {
       hsh::discard();
+    }
   }
 };
 
-#if 0
-template <uint32_t NSkinSlots, uint32_t NCol, uint32_t NUv, uint32_t NWeight, EShaderType Type, EPostType Post,
-          bool WorldShadow, class LightmapTraits, class DiffuseTraits,
-          class EmissiveTraits, class SpecularTraits, class ExtendedSpecularTraits, class ReflectionTraits,
-          class AlphaTraits, bool CubeReflection, MaterialBlendMode MaterialBlendMode, u32 MaterialFlags,
-          u8 GameBlendMode, u16 ModelFlags, bool ColorUpdate, bool AlphaUpdate, bool DstAlpha>
-#endif
-
-hsh::binding& CModelShaders::SetCurrent(const CModelFlags& modelFlags, const CBooSurface& surface, const CBooModel& model) {
+void CModelShaders::SetCurrent(hsh::binding& binding, const CModelFlags& modelFlags, const CBooModel& model,
+                               const ModelInstance& inst, const CBooSurface& surface) {
   const auto& material = model.x4_matSet->materials[surface.m_data.matIdx];
   const auto& vtxFmt = model.m_vtxFmt;
-  material.chunks
-  m_dataBind.hsh_bind(CModelShadersPipeline<vtxFmt.NSkinSlots, vtxFmt.NCol, vtxFmt.NUv, vtxFmt.NWeight, material.shaderType,
-      modelFlags.m_postType, CBooModel::g_shadowMap, >());
-  return m_dataBind;
+
+  std::array<MaterialTexCoordSource, 7> texSources{};
+  texSources.fill(MaterialTexCoordSource::Invalid);
+  std::array<bool, 7> normalize{};
+  std::array<bool, 7> alpha{};
+  std::array<hsh::texture2d, 12> texs{
+      g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
+      g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
+      g_Renderer->m_whiteTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->x220_sphereRamp.get(),
+      g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(),
+  };
+  std::array<bool, 7> hasPassColor{};
+  std::array<std::array<u8, 4>, 7> passColors{};
+  std::array<uint32_t, 7> tcgMtxIdxs{};
+  tcgMtxIdxs.fill(-1);
+  uint32_t tcgMtxIdx = 0;
+  for (const auto& chunk : material.chunks) {
+    if (const auto& pass = chunk.get_if<Material::PASS>()) {
+      unsigned idx = Material::TexMapIdx(pass->type);
+      auto search = model.x1c_textures.find(pass->texId.toUint32());
+      if (search != model.x1c_textures.cend()) {
+        if (hsh::texture2d tex = search->second->GetBooTexture())
+          texs[idx] = tex;
+      }
+      texSources[idx] = MaterialTexCoordSource(pass->source);
+      normalize[idx] = pass->shouldNormalizeUv();
+      if (pass->uvAnimType != BlendMaterial::UVAnimType::Invalid)
+        tcgMtxIdxs[idx] = tcgMtxIdx;
+      tcgMtxIdx++;
+      alpha[idx] = pass->alpha;
+    } else if (const auto& clr = chunk.get_if<Material::CLR>()) {
+      passColors[Material::TexMapIdx(clr->type)] = {
+          static_cast<u8>(clr->color.simd[0] * 255.f),
+          static_cast<u8>(clr->color.simd[1] * 255.f),
+          static_cast<u8>(clr->color.simd[2] * 255.f),
+          static_cast<u8>(clr->color.simd[3] * 255.f),
+      };
+      hasPassColor[Material::TexMapIdx(clr->type)] = true;
+    }
+  }
+  hsh::uniform_buffer_typeless vu = inst.m_geometryUniforms[surface.m_data.skinMtxBankIdx].get();
+  auto refu = inst.m_reflectUniforms[surface.selfIdx].get();
+  auto tcgu = inst.m_tcgUniforms[surface.m_data.matIdx].get();
+  auto fragu = inst.m_fragmentUniform.get();
+  auto vd = inst.GetBooVBO(model);
+  if (modelFlags.m_postType == EPostType::ThermalHot) {
+    texs[8] = g_Renderer->x220_sphereRamp.get();
+  } else if (modelFlags.m_postType == EPostType::MBShadow) {
+    //    texs[8] = g_Renderer->m_ballShadowId.get_color(0);
+    texs[9] = g_Renderer->x220_sphereRamp.get();
+    texs[10] = g_Renderer->m_ballFade;
+  } else if (modelFlags.m_postType == EPostType::Disintegrate && CBooModel::g_disintegrateTexture) {
+    texs[8] = CBooModel::g_disintegrateTexture;
+  } else if (CBooModel::g_shadowMap) {
+    texs[8] = CBooModel::g_shadowMap;
+  }
+  binding.hsh_bind(
+      CModelShadersPipeline<vtxFmt.NSkinSlots, vtxFmt.NCol, vtxFmt.NUv, vtxFmt.NWeight, material.shaderType,
+                            modelFlags.m_postType, CBooModel::g_shadowMap,
+                            PassTraits<texSources[0], normalize[0], tcgMtxIdxs[0], alpha[0],
+                                       ColorValue<hasPassColor[0], passColors[0][0], passColors[0][1], passColors[0][2],
+                                                  passColors[0][3]>>, // lightmap
+                            PassTraits<texSources[1], normalize[1], tcgMtxIdxs[1], alpha[1],
+                                       ColorValue<hasPassColor[1], passColors[1][0], passColors[1][1], passColors[1][2],
+                                                  passColors[1][3]>>, // diffuse
+                            PassTraits<texSources[2], normalize[2], tcgMtxIdxs[2], alpha[2],
+                                       ColorValue<hasPassColor[2], passColors[2][0], passColors[2][1], passColors[2][2],
+                                                  passColors[2][3]>>, // emissive
+                            PassTraits<texSources[3], normalize[3], tcgMtxIdxs[3], alpha[3],
+                                       ColorValue<hasPassColor[3], passColors[3][0], passColors[3][1], passColors[3][2],
+                                                  passColors[3][3]>>, // specular
+                            PassTraits<texSources[4], normalize[4], tcgMtxIdxs[4], alpha[4],
+                                       ColorValue<hasPassColor[4], passColors[4][0], passColors[4][1], passColors[4][2],
+                                                  passColors[4][3]>>, // extended specular
+                            PassTraits<texSources[5], normalize[5], tcgMtxIdxs[5], alpha[5],
+                                       ColorValue<hasPassColor[5], passColors[5][0], passColors[5][1], passColors[5][2],
+                                                  passColors[5][3]>>, // reflection
+                            PassTraits<texSources[6], normalize[6], tcgMtxIdxs[6], alpha[6],
+                                       ColorValue<hasPassColor[6], passColors[6][0], passColors[6][1], passColors[6][2],
+                                                  passColors[6][3]>>, // alpha
+                            false,                                    // cube reflection
+                            material.blendMode, material.flags.flags, modelFlags.x0_blendMode, modelFlags.x2_flags,
+                            gx_ColorUpdate, gx_AlphaUpdate, gx_DstAlpha, gx_CullMode>(
+          vu, fragu, tcgu, refu, texs[0], texs[1], texs[2], texs[3], texs[4], texs[5], texs[6], texs[7], texs[8],
+          texs[9], texs[10], texs[11], vd, model.m_staticIbo));
 }
 
+#if 0
 struct CCubeMaterial {
   const u8* x0_data;
   static u32 sReflectionType;
@@ -1170,5 +1181,6 @@ struct CCubeMaterial {
     // SetNumColorChans(finalNumColorChans);
   }
 };
+#endif
 
 } // namespace urde

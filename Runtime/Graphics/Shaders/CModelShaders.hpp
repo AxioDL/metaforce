@@ -55,50 +55,46 @@ enum class EExtendedShader : uint8_t {
   MAX
 };
 
-enum class EShaderType : uint8_t {
-  DiffuseOnly,
-  Normal,
-  Dynamic,
-  DynamicAlpha,
-  DynamicCharacter
-};
+enum class EShaderType : uint8_t { DiffuseOnly, Normal, Dynamic, DynamicAlpha, DynamicCharacter };
 
-enum class EPostType : uint8_t {
-  Normal,
-  ThermalHot,
-  ThermalCold,
-  Solid,
-  MBShadow,
-  Disintegrate
-};
+enum class EPostType : uint8_t { Normal, ThermalHot, ThermalCold, Solid, MBShadow, Disintegrate };
+
+struct ModelInstance;
 
 class CModelShaders {
   friend class CModel;
-  hsh::binding m_dataBind;
 
 public:
   template <uint32_t NCol, uint32_t NUv, uint32_t NWeight>
   struct VertData {
     hsh::float3 posIn;
     hsh::float3 normIn;
-    std::array<hsh::float4, NCol> colIn;
-    std::array<hsh::float2, NUv> uvIn;
-    std::array<hsh::float4, NWeight> weightIn;
+    // FIXME: compiler bug?
+//  [[no_unique_address]] hsh::array<hsh::float4, NCol> colIn;
+    [[no_unique_address]] hsh::array<hsh::float2, NUv> uvIn;
+    [[no_unique_address]] hsh::array<hsh::float4, NWeight> weightIn;
   };
+  static_assert(sizeof(VertData<0, 0, 0>) == 24, "VertData size incorrect");
+  static_assert(sizeof(VertData<0, 1, 0>) == 32, "VertData size incorrect");
+  static_assert(sizeof(VertData<0, 2, 0>) == 40, "VertData size incorrect");
+  static_assert(sizeof(VertData<0, 1, 1>) == 48, "VertData size incorrect");
 
   template <uint32_t NSkinSlots>
   struct VertUniform {
-    std::array<hsh::float4x4, NSkinSlots> objs;
-    std::array<hsh::float4x4, NSkinSlots> objsInv;
+    hsh::array<hsh::float4x4, NSkinSlots> objs [[no_unique_address]];
+    hsh::array<hsh::float4x4, NSkinSlots> objsInv [[no_unique_address]];
     hsh::float4x4 mv;
     hsh::float4x4 mvInv;
     hsh::float4x4 proj;
   };
+  static_assert(sizeof(VertUniform<0>) == 192, "VertUniform size incorrect");
+  static_assert(sizeof(VertUniform<1>) == 320, "VertUniform size incorrect");
 
   struct TCGMatrix {
     hsh::float4x4 mtx;
     hsh::float4x4 postMtx;
   };
+  using TCGMatrixUniform = std::array<CModelShaders::TCGMatrix, 8>;
 
   struct ReflectMtx {
     hsh::float4x4 indMtx;
@@ -110,8 +106,8 @@ public:
     alignas(16) hsh::float3 pos;
     alignas(16) hsh::float3 dir;
     alignas(16) hsh::float4 color;
-    alignas(16) hsh::float3 linAtt;
-    alignas(16) hsh::float3 angAtt;
+    alignas(16) hsh::float3 linAtt{1.f, 0.f, 0.f};
+    alignas(16) hsh::float3 angAtt{1.f, 0.f, 0.f};
   };
 
   struct FragmentUniform {
@@ -124,9 +120,22 @@ public:
     void ActivateLights(const std::vector<CLight>& lts);
   };
 
-  hsh::binding& SetCurrent(const CModelFlags& modelFlags, const CBooSurface& surface, const CBooModel& model);
+  static void SetCurrent(hsh::binding& binding, const CModelFlags& modelFlags, const CBooModel& model,
+                         const ModelInstance& inst, const CBooSurface& surface);
 
   using Material = DataSpec::DNAMP1::HMDLMaterialSet::Material;
 };
+
+struct ModelInstance {
+  hsh::dynamic_owner<hsh::uniform_buffer<CModelShaders::FragmentUniform>> m_fragmentUniform;
+  std::vector<hsh::dynamic_owner<hsh::uniform_buffer<CModelShaders::TCGMatrixUniform>>> m_tcgUniforms;
+  std::vector<hsh::dynamic_owner<hsh::uniform_buffer<CModelShaders::ReflectMtx>>> m_reflectUniforms;
+  std::vector<hsh::dynamic_owner<hsh::uniform_buffer_typeless>> m_geometryUniforms;
+  std::vector<hsh::binding> m_shaderDataBindings;
+  mutable hsh::dynamic_owner<hsh::vertex_buffer_typeless> m_dynamicVbo;
+
+  hsh::vertex_buffer_typeless GetBooVBO(const CBooModel& model) const;
+};
+
 
 } // namespace urde
