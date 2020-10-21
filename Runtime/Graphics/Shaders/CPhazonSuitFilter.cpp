@@ -10,33 +10,43 @@
 namespace urde {
 using namespace hsh::pipeline;
 
-template <bool NoIndTex>
 struct CPhazonSuitFilterPipeline : pipeline<topology<hsh::TriangleStrip>, AdditiveAttachment<>, depth_write<false>> {
   CPhazonSuitFilterPipeline(hsh::vertex_buffer<CPhazonSuitFilter::Vert> vbo,
                             hsh::uniform_buffer<CPhazonSuitFilter::Uniform> ubo, hsh::render_texture2d screenTex,
-                            hsh::texture2d indTex, hsh::render_texture2d maskTex, hsh::render_texture2d maskTexBlur) {
+                            hsh::render_texture2d maskTex, hsh::render_texture2d maskTexBlur) {
     this->position = hsh::float4(vbo->pos, 1.f);
     hsh::float2 maskUv = vbo->maskUv;
     maskUv.y = 1.f - maskUv.y;
     hsh::float2 screenUv = vbo->screenUv;
     screenUv.y = 1.f - screenUv.y;
     float maskBlurAlpha = hsh::saturate((maskTexBlur.sample<float>(maskUv).w - maskTex.sample<float>(maskUv).w) * 2.f);
-    if constexpr (NoIndTex) {
-      this->color_out[0] =
-          hsh::float4((ubo->color * screenTex.sample<float>(screenUv) * maskBlurAlpha).xyz(), ubo->color.w);
-    } else {
-      hsh::float2 indUv =
-          (indTex.sample<float>(vbo->indUv).xy() - hsh::float2(0.5f)) * ubo->indScaleOff.xy() + ubo->indScaleOff.zw();
-      this->color_out[0] =
-          hsh::float4((ubo->color * screenTex.sample<float>(indUv + screenUv) * maskBlurAlpha).xyz(), ubo->color.w);
-    }
+    this->color_out[0] =
+        hsh::float4((ubo->color * screenTex.sample<float>(screenUv) * maskBlurAlpha).xyz(), ubo->color.w);
   }
 };
-template struct CPhazonSuitFilterPipeline<true>;
-template struct CPhazonSuitFilterPipeline<false>;
+
+struct CPhazonSuitFilterIndTexPipeline
+: pipeline<topology<hsh::TriangleStrip>, AdditiveAttachment<>, depth_write<false>> {
+  CPhazonSuitFilterIndTexPipeline(hsh::vertex_buffer<CPhazonSuitFilter::Vert> vbo,
+                                  hsh::uniform_buffer<CPhazonSuitFilter::Uniform> ubo, hsh::render_texture2d screenTex,
+                                  hsh::texture2d indTex, hsh::render_texture2d maskTex,
+                                  hsh::render_texture2d maskTexBlur) {
+    this->position = hsh::float4(vbo->pos, 1.f);
+    hsh::float2 maskUv = vbo->maskUv;
+    maskUv.y = 1.f - maskUv.y;
+    hsh::float2 screenUv = vbo->screenUv;
+    screenUv.y = 1.f - screenUv.y;
+    float maskBlurAlpha = hsh::saturate((maskTexBlur.sample<float>(maskUv).w - maskTex.sample<float>(maskUv).w) * 2.f);
+    hsh::float2 indUv =
+        (indTex.sample<float>(vbo->indUv).xy() - hsh::float2(0.5f)) * ubo->indScaleOff.xy() + ubo->indScaleOff.zw();
+    this->color_out[0] =
+        hsh::float4((ubo->color * screenTex.sample<float>(indUv + screenUv) * maskBlurAlpha).xyz(), ubo->color.w);
+  }
+};
 
 struct CPhazonSuitFilterBlurPipeline
-: pipeline<color_attachment<hsh::One, hsh::Zero, hsh::Add, hsh::One, hsh::Zero, hsh::Add, hsh::CC_Alpha>,
+: pipeline<topology<hsh::TriangleStrip>,
+           color_attachment<hsh::One, hsh::Zero, hsh::Add, hsh::One, hsh::Zero, hsh::Add, hsh::CC_Alpha>,
            depth_write<false>> {
   CPhazonSuitFilterBlurPipeline(hsh::vertex_buffer<CPhazonSuitFilter::BlurVert> vbo,
                                 hsh::uniform_buffer<CPhazonSuitFilter::BlurUniform> ubo,
@@ -111,13 +121,13 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
     bool hasIndTex = m_indTex != nullptr;
     if (hasIndTex) {
       hsh::texture2d tex = m_indTex->GetBooTexture();
-      m_dataBind.hsh_ind_bind(CPhazonSuitFilterPipeline<hasIndTex>(
+      m_dataBind.hsh_ind_bind(CPhazonSuitFilterIndTexPipeline(
           m_vbo.get(), m_uniBuf.get(), CGraphics::g_SpareTexture.get_color(0), tex,
           CGraphics::g_SpareTexture.get_color(1), CGraphics::g_SpareTexture.get_color(2)));
     } else {
-      m_dataBind.hsh_noind_bind(CPhazonSuitFilterPipeline<hasIndTex>(
-          m_vbo.get(), m_uniBuf.get(), CGraphics::g_SpareTexture.get_color(0), hsh::texture2d{},
-          CGraphics::g_SpareTexture.get_color(1), CGraphics::g_SpareTexture.get_color(2)));
+      m_dataBind.hsh_noind_bind(
+          CPhazonSuitFilterPipeline(m_vbo.get(), m_uniBuf.get(), CGraphics::g_SpareTexture.get_color(0),
+                                    CGraphics::g_SpareTexture.get_color(1), CGraphics::g_SpareTexture.get_color(2)));
     }
   }
 
