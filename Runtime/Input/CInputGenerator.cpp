@@ -11,6 +11,18 @@ void CInputGenerator::Update(float dt, CArchitectureQueue& queue) {
     return;
   }
 
+#ifdef __SWITCH__
+  {
+    CLibnxControllerData data;
+    data.keysDown = hidKeysDown(CONTROLLER_P1_AUTO) | hidKeysHeld(CONTROLLER_P1_AUTO);
+    hidJoystickRead(&data.lStick, CONTROLLER_P1_AUTO, JOYSTICK_LEFT);
+    hidJoystickRead(&data.rStick, CONTROLLER_P1_AUTO, JOYSTICK_RIGHT);
+    CFinalInput input(0, dt, data, m_lastUpdate);
+    queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, input));
+    return;
+  }
+#endif
+
   /* Keyboard/Mouse first */
   CFinalInput kbInput = getFinalInput(0, dt);
   bool kbUsed = false;

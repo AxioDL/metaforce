@@ -325,7 +325,6 @@ add_subdirectory(assetnameparser)
 add_compile_definitions(URDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
 add_subdirectory(DataSpec)
 add_subdirectory(kabufuda)
-add_subdirectory(Editor)
 
 add_subdirectory(jbus)
 set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/jbus/include)

@@ -4,6 +4,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Input/CKeyboardMouseController.hpp"
+#include "Runtime/Input/CLibnxController.hpp"
 
 #include "boo2/inputdev/DolphinSmashAdapter.hpp"
 
@@ -75,6 +76,9 @@ struct CFinalInput {
   CFinalInput(int cIdx, float dt, const boo2::DolphinControllerState& data, const CFinalInput& prevInput, float leftDiv,
               float rightDiv);
   CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData& data, const CFinalInput& prevInput);
+#ifdef __SWITCH__
+  CFinalInput(int cIdx, float dt, const CLibnxControllerData& data, const CFinalInput& prevInput);
+#endif
 
   CFinalInput& operator|=(const CFinalInput& other);
 

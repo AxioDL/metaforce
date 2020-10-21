@@ -137,7 +137,10 @@ endfunction()
 
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 set(RUNTIME_LIBRARIES RetroDataSpec AssetNameMapNull NESEmulator
-        libjpeg-turbo jbus kabufuda discord-rpc logvisor)
+        libjpeg-turbo jbus kabufuda logvisor)
+if(NOT GEKKO AND NOT NX)
+  list(APPEND RUNTIME_LIBRARIES discord-rpc)
+endif()
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
 add_runtime_common_library(RuntimeCommonB ${RUNTIME_SOURCES_B})
@@ -149,3 +152,8 @@ target_hsh(RuntimeCommonB)
 
 add_executable(urde CMain.hpp CMain.cpp)
 target_link_libraries(urde PUBLIC RuntimeCommon)
+
+if(NX)
+  add_nro_target(urde)
+  add_nso_target(urde)
+endif()

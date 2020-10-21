@@ -257,11 +257,13 @@ private:
   CCameraFilterPass<CColoredQuadFilter> m_alphaPass;
 
   void InitializeSubsystems();
+#ifndef __SWITCH__
   static void InitializeDiscord();
   static void ShutdownDiscord();
   static void HandleDiscordReady(const DiscordUser* request);
   static void HandleDiscordDisconnected(int errorCode, const char* message);
   static void HandleDiscordErrored(int errorCode, const char* message);
+#endif
 
 public:
   CMain(IFactory* resFactory, CSimplePool* resStore, hsh::surface surface);

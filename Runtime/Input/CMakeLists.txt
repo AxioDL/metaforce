@@ -1,6 +1,7 @@
 set(INPUT_SOURCES
     IController.hpp
     CKeyboardMouseController.hpp
+    CLibnxController.hpp
     ControlMapper.hpp ControlMapper.cpp
     CInputGenerator.hpp CInputGenerator.cpp
     CFinalInput.hpp CFinalInput.cpp

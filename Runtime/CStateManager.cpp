@@ -2073,7 +2073,9 @@ void CStateManager::UpdateGraphicsTiming(float dt) {
 }
 
 void CStateManager::Update(float dt) {
+#ifndef __SWITCH__
   MP1::CMain::UpdateDiscordPresence(GetWorld()->IGetStringTableAssetId());
+#endif
 
   CElementGen::SetGlobalSeed(x8d8_updateFrameIdx);
   CParticleElectric::SetGlobalSeed(x8d8_updateFrameIdx);

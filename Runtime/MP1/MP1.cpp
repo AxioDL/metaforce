@@ -45,7 +45,9 @@
 #include <DataSpec/DNAMP1/SFX/Weapons.h>
 #include <DataSpec/DNAMP1/SFX/ZZZ.h>
 
+#ifndef __SWITCH__
 #include <discord_rpc.h>
+#endif
 
 namespace urde::MP1 {
 namespace {
@@ -614,6 +616,7 @@ static std::string DiscordWorldName;
 static u32 DiscordItemPercent = 0xffffffff;
 static std::string DiscordState;
 
+#ifndef __SWITCH__
 void CMain::InitializeDiscord() {
   DiscordStartTime = std::time(nullptr);
   DiscordEventHandlers handlers = {};
@@ -673,10 +676,13 @@ void CMain::HandleDiscordDisconnected(int errorCode, const char* message) {
 void CMain::HandleDiscordErrored(int errorCode, const char* message) {
   DiscordLog.report(logvisor::Error, FMT_STRING("Discord Error: {}"), message);
 }
+#endif
 
 void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarMgr,
                  boo2::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) {
+#ifndef __SWITCH__
   InitializeDiscord();
+#endif
   m_cvarMgr = cvarMgr;
   m_cvarCommons = std::make_unique<hecl::CVarCommons>(*m_cvarMgr);
 #if 0
@@ -878,7 +884,9 @@ bool CMain::Proc() {
     x160_24_finished = true;
   }
 
+#ifndef __SWITCH__
   Discord_RunCallbacks();
+#endif
 
   return x160_24_finished;
 }
@@ -936,7 +944,9 @@ void CMain::Shutdown() {
   CFluidPlaneManager::RippleMapTex.reset();
   CBooModel::Shutdown();
   CGraphics::ShutdownBoo();
+#ifndef __SWITCH__
   ShutdownDiscord();
+#endif
 }
 
 #if 0

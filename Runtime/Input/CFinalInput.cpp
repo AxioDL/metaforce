@@ -96,6 +96,52 @@ CFinalInput::CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData&
   }
 }
 
+#ifdef __SWITCH__
+CFinalInput::CFinalInput(int cIdx, float dt, const CLibnxControllerData& data, const CFinalInput& prevInput)
+: x0_dt(dt)
+, x4_controllerIdx(cIdx)
+, x8_anaLeftX(zeus::clamp(-1.0f, float(data.lStick.dx) / JOYSTICK_MAX, 1.0f))
+, xc_anaLeftY(zeus::clamp(-1.0f, float(data.lStick.dy) / JOYSTICK_MAX, 1.0f))
+, x10_anaRightX(zeus::clamp(-1.0f, float(data.rStick.dx) / JOYSTICK_MAX, 1.0f))
+, x14_anaRightY(zeus::clamp(-1.0f, float(data.rStick.dy) / JOYSTICK_MAX, 1.0f))
+, x18_anaLeftTrigger((data.keysDown & KEY_ZL) ? 1.f : 0.f)
+, x1c_anaRightTrigger((data.keysDown & KEY_ZR) ? 1.f : 0.f)
+, x20_enableAnaLeftXP(DLARight() && !prevInput.DLARight())
+, x20_enableAnaLeftNegXP(DLALeft() && !prevInput.DLALeft())
+, x21_enableAnaLeftYP(DLAUp() && !prevInput.DLAUp())
+, x21_enableAnaLeftNegYP(DLADown() && !prevInput.DLADown())
+, x22_enableAnaRightXP(DRARight() && !prevInput.DRARight())
+, x22_enableAnaRightNegXP(DRALeft() && !prevInput.DRALeft())
+, x23_enableAnaRightYP(DRAUp() && !prevInput.DRAUp())
+, x23_enableAnaRightNegYP(DRADown() && !prevInput.DRADown())
+, x24_anaLeftTriggerP(DLTrigger() && !prevInput.DLTrigger())
+, x28_anaRightTriggerP(DRTrigger() && !prevInput.DRTrigger())
+, x2c_b24_A(data.keysDown & KEY_A)
+, x2c_b25_B(data.keysDown & KEY_B)
+, x2c_b26_X(data.keysDown & KEY_Y)
+, x2c_b27_Y(data.keysDown & KEY_X)
+, x2c_b28_Z(data.keysDown & KEY_R)
+, x2c_b29_L(data.keysDown & KEY_ZL)
+, x2c_b30_R(data.keysDown & KEY_ZR)
+, x2c_b31_DPUp(data.keysDown & KEY_DUP)
+, x2d_b24_DPRight(data.keysDown & KEY_DRIGHT)
+, x2d_b25_DPDown(data.keysDown & KEY_DDOWN)
+, x2d_b26_DPLeft(data.keysDown & KEY_DLEFT)
+, x2d_b27_Start(data.keysDown & KEY_PLUS)
+, x2d_b28_PA(DA() && !prevInput.DA())
+, x2d_b29_PB(DB() && !prevInput.DB())
+, x2d_b30_PX(DX() && !prevInput.DX())
+, x2d_b31_PY(DY() && !prevInput.DY())
+, x2e_b24_PZ(DZ() && !prevInput.DZ())
+, x2e_b25_PL(DL() && !prevInput.DL())
+, x2e_b26_PR(DR() && !prevInput.DR())
+, x2e_b27_PDPUp(DDPUp() && !prevInput.DDPUp())
+, x2e_b28_PDPRight(DDPRight() && !prevInput.DDPRight())
+, x2e_b29_PDPDown(DDPDown() && !prevInput.DDPDown())
+, x2e_b30_PDPLeft(DDPLeft() && !prevInput.DDPLeft())
+, x2e_b31_PStart(DStart() && !prevInput.DStart()) {}
+#endif
+
 CFinalInput& CFinalInput::operator|=(const CFinalInput& other) {
   if (std::fabs(other.x8_anaLeftX) > std::fabs(x8_anaLeftX))
     x8_anaLeftX = other.x8_anaLeftX;

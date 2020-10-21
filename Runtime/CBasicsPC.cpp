@@ -64,7 +64,11 @@ static struct tm* localtime_r(const time_t& time, struct tm& timeSt, long& gmtOf
   auto ret = ::localtime_r(&time, &timeSt);
   if (!ret)
     return nullptr;
+#ifdef __SWITCH__
+  gmtOff = 0;
+#else
   gmtOff = ret->tm_gmtoff;
+#endif
   return ret;
 #else
   struct tm _gmSt;
