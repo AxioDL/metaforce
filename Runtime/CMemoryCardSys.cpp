@@ -198,6 +198,9 @@ void CMemoryCardSys::CCardFileInfo::BuildCardBuffer() {
 
   CMemoryOutStream w(x104_cardBuffer.data(), x104_cardBuffer.size());
   w.writeUint32Big(0);
+#if __GNUC__ && !__clang__
+  __attribute__((nonstring))
+#endif
   char comment[64];
   strncpy(comment, x28_comment.data(), 64);
   w.writeBytes(comment, 64);
