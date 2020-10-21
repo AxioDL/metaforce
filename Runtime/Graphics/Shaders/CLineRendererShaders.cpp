@@ -7,7 +7,8 @@ using namespace hsh::pipeline;
 
 template <bool Additive, bool AlphaWrite, hsh::Compare ZComp>
 struct CLineRendererTexPipeline
-: pipeline<std::conditional_t<Additive, AdditiveAttachment<AlphaWrite>, BlendAttachment<AlphaWrite>>,
+: pipeline<topology<hsh::TriangleStrip>,
+           std::conditional_t<Additive, AdditiveAttachment<AlphaWrite>, BlendAttachment<AlphaWrite>>,
            depth_compare<ZComp>> {
   CLineRendererTexPipeline(hsh::vertex_buffer<CLineRenderer::SDrawVertTex> vbo,
                            hsh::uniform_buffer<CLineRenderer::SDrawUniform> uniBuf HSH_VAR_STAGE(fragment),
@@ -33,7 +34,8 @@ template struct CLineRendererTexPipeline<true, true, hsh::Greater>;
 
 template <bool Additive, bool AlphaWrite, hsh::Compare ZComp>
 struct CLineRendererNoTexPipeline
-: pipeline<std::conditional_t<Additive, AdditiveAttachment<AlphaWrite>, BlendAttachment<AlphaWrite>>,
+: pipeline<topology<hsh::TriangleStrip>,
+           std::conditional_t<Additive, AdditiveAttachment<AlphaWrite>, BlendAttachment<AlphaWrite>>,
            depth_compare<ZComp>> {
   CLineRendererNoTexPipeline(hsh::vertex_buffer<CLineRenderer::SDrawVertNoTex> vbo,
                              hsh::uniform_buffer<CLineRenderer::SDrawUniform> uniBuf HSH_VAR_STAGE(fragment)) {
