@@ -220,9 +220,10 @@ struct SpecMP1 : SpecBase {
                                const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps) override {
     nod::IPartition* partition = disc.getDataPartition();
     m_dolBuf = partition->getDOLBuf();
+    const char* start = reinterpret_cast<const char*>(m_dolBuf.get());
+    constexpr const char* match = "MetroidBuildInfo";
     const char* buildInfo =
-        static_cast<char*>(memmem(m_dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16)) + 19;
-
+        std::search(start, start + partition->getDOLSize(), match, match + strlen(match)) + 19;
     if (buildInfo == nullptr)
       return false;
 
@@ -278,7 +279,10 @@ struct SpecMP1 : SpecBase {
     }
 
     m_dolBuf = dolIt->getBuf();
-    const char* buildInfo = static_cast<char*>(memmem(m_dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16)) + 19;
+    const char* start = reinterpret_cast<const char*>(m_dolBuf.get());
+    constexpr const char* match = "MetroidBuildInfo";
+    const char* buildInfo =
+        std::search(start, start + dolIt->size(), match, match + strlen(match)) + 19;
 
     /* Root Report */
     ExtractReport& rep = reps.emplace_back();

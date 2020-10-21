@@ -223,7 +223,10 @@ struct SpecMP3 : SpecBase {
     doMP3 = true;
     nod::IPartition* partition = disc.getDataPartition();
     std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
-    const char* buildInfo = static_cast<char*>(memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16)) + 19;
+    const char* start = reinterpret_cast<const char*>(dolBuf.get());
+    constexpr const char* match = "MetroidBuildInfo";
+    const char* buildInfo =
+        std::search(start, start + partition->getDOLSize(), match, match + strlen(match)) + 19;
     if (buildInfo == nullptr) {
       return false;
     }
@@ -301,8 +304,10 @@ struct SpecMP3 : SpecBase {
       }
 
       std::unique_ptr<uint8_t[]> dolBuf = dolIt->getBuf();
-      const char* buildInfo = (char*)memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
-
+      const char* start = reinterpret_cast<const char*>(dolBuf.get());
+      constexpr const char* match = "MetroidBuildInfo";
+      const char* buildInfo =
+          std::search(start, start + dolIt->size(), match, match + strlen(match)) + 19;
       if (!buildInfo) {
         doMP3 = false;
         break;
@@ -342,7 +347,10 @@ struct SpecMP3 : SpecBase {
       }
 
       std::unique_ptr<uint8_t[]> dolBuf = dolIt->getBuf();
-      const char* buildInfo = (char*)memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
+      const char* start = reinterpret_cast<const char*>(dolBuf.get());
+      constexpr const char* match = "MetroidBuildInfo";
+      const char* buildInfo =
+          std::search(start, start + dolIt->size(), match, match + strlen(match)) + 19;
 
       /* Root Report */
       ExtractReport& rep = reps.emplace_back();
