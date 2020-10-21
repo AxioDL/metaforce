@@ -56,7 +56,9 @@ void CColoredStripShader::draw(const zeus::CColor& color, size_t numVerts, const
 
   m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
   m_uniform.m_color = color;
+#if !HSH_PROFILE_MODE
   m_uniBuf.load(m_uniform);
+#endif
 
   m_dataBind.draw(0, numVerts);
 }

@@ -1002,11 +1002,13 @@ void CParticleSwoosh::Render(const CActorLights*) {
     }
   }
 
+#if !HSH_PROFILE_MODE
   zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
   m_uniformBuf.load({mvp});
   if (!m_cachedVerts.empty()) {
     m_vertBuf.load(m_cachedVerts);
   }
+#endif
 }
 
 void CParticleSwoosh::SetOrientation(const zeus::CTransform& xf) {

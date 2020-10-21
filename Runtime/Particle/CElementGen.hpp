@@ -134,6 +134,8 @@ private:
 
   std::unique_ptr<CLineRenderer> m_lineRenderer;
   CElementGenShaders::EShaderClass m_shaderClass;
+  hsh::binding m_binding;
+  hsh::binding m_bindingPmus;
 
   void AccumulateBounds(const zeus::CVector3f& pos, float size);
 

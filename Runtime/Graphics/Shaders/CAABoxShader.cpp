@@ -59,7 +59,9 @@ void CAABoxShader::draw(const zeus::CColor& color) {
 
   m_uniform.m_xf = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
   m_uniform.m_color = color;
+#if !HSH_PROFILE_MODE
   m_uniBuf.load(m_uniform);
+#endif
 
   m_dataBind.draw(0, VertexCount);
 }

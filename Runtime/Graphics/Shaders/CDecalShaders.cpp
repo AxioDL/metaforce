@@ -40,16 +40,15 @@ struct CDecalShaderNoTexPipeline : pipeline<std::conditional_t<Additive, Additiv
 template struct CDecalShaderNoTexPipeline<true>;
 template struct CDecalShaderNoTexPipeline<false>;
 
-hsh::binding& CDecalShaders::BuildShaderDataBinding(CQuadDecal& decal, hsh::texture2d tex) {
+void CDecalShaders::BuildShaderDataBinding(hsh::binding& binding, CQuadDecal& decal, hsh::texture2d tex) {
   bool additive = decal.m_desc->x18_ADD;
   if (decal.m_desc->x14_TEX) {
     bool redToAlpha = additive && CDecal::GetMoveRedToAlphaBuffer();
-    m_dataBind.hsh_tex_bind(
+    binding.hsh_tex_bind(
         CDecalShaderTexPipeline<additive, redToAlpha>(decal.m_instBuf.get(), decal.m_uniformBuf.get(), tex));
   } else {
-    m_dataBind.hsh_notex_bind(CDecalShaderNoTexPipeline<additive>(decal.m_instBuf.get(), decal.m_uniformBuf.get()));
+    binding.hsh_notex_bind(CDecalShaderNoTexPipeline<additive>(decal.m_instBuf.get(), decal.m_uniformBuf.get()));
   }
-  return m_dataBind;
 }
 
 } // namespace urde

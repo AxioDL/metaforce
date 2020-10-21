@@ -42,6 +42,7 @@ void CEnergyBarShader::draw(const zeus::CColor& color0, const std::vector<Vertex
     }
   }
 
+#if !HSH_PROFILE_MODE
   size_t vertIter = 0;
   Vertex* verts = m_vbo.map();
   if (!verts0.empty()) {
@@ -75,6 +76,7 @@ void CEnergyBarShader::draw(const zeus::CColor& color0, const std::vector<Vertex
     m_uniBuf[2].load(m_uniform);
     m_dataBind[2].draw(vertIter, verts2.size());
   }
+#endif
 }
 
 } // namespace urde

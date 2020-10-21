@@ -56,7 +56,9 @@ void CCameraBlurFilter::draw(float amount, bool clearDepth) {
       {hsh::float2{1.0, -1.0}, {xBias + xFac, yBias + yFac}},
       {hsh::float2{1.0, 1.0}, {xBias + xFac, yBias}},
   }};
+#if !HSH_PROFILE_MODE
   m_vbo.load(verts);
+#endif
 
   // m_uniform.m_uv.size()
   for (size_t i = 0; i < 6; ++i) {
@@ -74,7 +76,9 @@ void CCameraBlurFilter::draw(float amount, bool clearDepth) {
     m_uniform.m_uv[i].y = amtY * yFac;
   }
   m_uniform.m_opacity = std::min(amount / 2.f, 1.f);
+#if !HSH_PROFILE_MODE
   m_uniBuf.load(m_uniform);
+#endif
   m_dataBind.draw(0, 4);
 }
 

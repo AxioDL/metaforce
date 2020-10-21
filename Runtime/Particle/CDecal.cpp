@@ -29,6 +29,14 @@ CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf
   } else {
     x5c_29_modelInvalid = true;
   }
+
+  for (auto& decal : x3c_decalQuads) {
+    hsh::texture2d tex{};
+    if (CUVElement* texDesc = decal.m_desc->x14_TEX.get()) {
+      tex = texDesc->GetValueTexture(x58_frameIdx)->GetBooTexture();
+    }
+    CDecalShaders::BuildShaderDataBinding(decal.m_binding, decal, tex);
+  }
 }
 
 bool CDecal::InitQuad(CQuadDecal& quad, const SQuadDescr& desc) {
@@ -97,18 +105,16 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) {
   modXf.origin += offset;
   CGraphics::SetModelMatrix(modXf);
 
+#if !HSH_PROFILE_MODE
   SParticleUniforms uniformData = {
       CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(),
       {1.f, 1.f, 1.f, 1.f},
   };
   decal.m_uniformBuf.load(uniformData);
+#endif
 
   SUVElementSet uvSet = {0.f, 1.f, 0.f, 1.f};
   if (CUVElement* tex = desc.x14_TEX.get()) {
-    TLockedToken<CTexture> texObj = tex->GetValueTexture(x58_frameIdx);
-    if (!texObj.IsLoaded()) {
-      return;
-    }
     tex->GetValueUV(x58_frameIdx, uvSet);
 
     g_instTexData.clear();
@@ -135,9 +141,10 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) {
     inst.uvs[2] = hsh::float2(uvSet.xMin, uvSet.yMax);
     inst.uvs[3] = hsh::float2(uvSet.xMax, uvSet.yMax);
 
+#if !HSH_PROFILE_MODE
     decal.m_instBuf.load(hsh::detail::ArrayProxy{g_instTexData.data(), g_instTexData.size()});
-    m_shaderBuilder.BuildShaderDataBinding(decal, texObj->GetBooTexture())
-        .draw_instanced(0, 4, g_instIndTexData.size());
+#endif
+    decal.m_binding.draw_instanced(0, 4, g_instTexData.size());
   } else {
     g_instNoTexData.clear();
     g_instNoTexData.reserve(1);
@@ -159,8 +166,10 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) {
     }
     inst.color = color;
 
+#if !HSH_PROFILE_MODE
     decal.m_instBuf.load(hsh::detail::ArrayProxy{g_instNoTexData.data(), g_instNoTexData.size()});
-    m_shaderBuilder.BuildShaderDataBinding(decal, hsh::texture2d{}).draw_instanced(0, 4, g_instNoTexData.size());
+#endif
+    decal.m_binding.draw_instanced(0, 4, g_instNoTexData.size());
   }
 }
 

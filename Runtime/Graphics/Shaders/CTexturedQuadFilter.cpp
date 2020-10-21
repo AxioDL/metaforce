@@ -65,6 +65,7 @@ CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture
 void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale, const zeus::CRectangle& rect, float z) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CTexturedQuadFilter::draw", zeus::skMagenta);
 
+#if !HSH_PROFILE_MODE
   const std::array<Vert, 4> verts{{
       {{0.f, 0.f, z}, {0.f, 0.f}},
       {{0.f, 1.f, z}, {0.f, uvScale}},
@@ -81,6 +82,7 @@ void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale, const z
   m_uniform.m_matrix[3][3] = 1.f;
   m_uniform.m_color = color;
   m_uniBuf.load(m_uniform);
+#endif
 
   m_dataBind.draw(0, 4);
 }
@@ -99,10 +101,12 @@ void CTexturedQuadFilter::drawCropped(const zeus::CColor& color, float uvScale) 
       {{1.f, -1.f, 0.f}, {(xBias + xFac) * uvScale, yBias * uvScale}},
       {{1.f, 1.f, 0.f}, {(xBias + xFac) * uvScale, (yBias + yFac) * uvScale}},
   }};
+#if !HSH_PROFILE_MODE
   m_vbo.load(verts);
 
   m_uniform.m_color = color;
   m_uniBuf.load(m_uniform);
+#endif
 
   m_dataBind.draw(0, 4);
 }
@@ -110,12 +114,14 @@ void CTexturedQuadFilter::drawCropped(const zeus::CColor& color, float uvScale) 
 void CTexturedQuadFilter::drawVerts(const zeus::CColor& color, const std::array<Vert, 4>& verts, float lod) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CTexturedQuadFilter::drawVerts", zeus::skMagenta);
 
+#if !HSH_PROFILE_MODE
   m_vbo.load(verts);
 
   m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
   m_uniform.m_color = color;
   m_uniform.m_lod = lod;
   m_uniBuf.load(m_uniform);
+#endif
 
   m_dataBind.draw(0, 4);
 }
@@ -123,6 +129,7 @@ void CTexturedQuadFilter::drawVerts(const zeus::CColor& color, const std::array<
 void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& color, float t) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CTexturedQuadFilter::DrawFilter", zeus::skMagenta);
 
+#if !HSH_PROFILE_MODE
   m_uniform.m_matrix = zeus::CMatrix4f();
   m_uniform.m_lod = 0.f;
   m_uniform.m_color = color;
@@ -166,6 +173,7 @@ void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& col
     m_vbo.load(FullscreenVerts);
     m_dataBind.draw(0, FullscreenVerts.size());
   }
+#endif
 }
 
 CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, hsh::texture2d tex) {

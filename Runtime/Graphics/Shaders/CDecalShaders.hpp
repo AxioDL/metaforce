@@ -6,10 +6,8 @@ namespace urde {
 struct CQuadDecal;
 
 class CDecalShaders {
-  hsh::binding m_dataBind;
-
 public:
-  hsh::binding& BuildShaderDataBinding(CQuadDecal& decal, hsh::texture2d tex);
+  static void BuildShaderDataBinding(hsh::binding& binding, CQuadDecal& decal, hsh::texture2d tex);
 };
 
 } // namespace urde

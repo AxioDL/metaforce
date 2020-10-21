@@ -22,6 +22,7 @@ struct CQuadDecal {
   CQuadDecal() = default;
   CQuadDecal(s32 i, float f) : x4_lifetime(i), x8_rotation(f) {}
 
+  hsh::binding m_binding;
   hsh::dynamic_owner<hsh::vertex_buffer_typeless> m_instBuf;
   hsh::dynamic_owner<hsh::uniform_buffer<SParticleUniforms>> m_uniformBuf;
 };
@@ -40,8 +41,6 @@ class CDecal {
   bool x5c_30_quad2Invalid : 1 = false;
   bool x5c_29_modelInvalid : 1 = false;
   zeus::CVector3f x60_rotation;
-
-  CDecalShaders m_shaderBuilder{};
 
   bool InitQuad(CQuadDecal& quad, const SQuadDescr& desc);
 

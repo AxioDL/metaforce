@@ -65,6 +65,7 @@ CXRayBlurFilter::CXRayBlurFilter(TLockedToken<CTexture>& tex) : m_paletteTex(tex
 void CXRayBlurFilter::draw(float amount) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CXRayBlurFilter::draw", zeus::skMagenta);
 
+#if !HSH_PROFILE_MODE
   CGraphics::ResolveSpareTexture(CGraphics::g_CroppedViewport);
 
   const float blurL = amount * g_tweakGui->GetXrayBlurScaleLinear() * 0.25f;
@@ -81,6 +82,7 @@ void CXRayBlurFilter::draw(float amount) {
   }
 
   m_uniBuf.load(m_uniform);
+#endif
   m_dataBind.draw(0, 4);
 }
 

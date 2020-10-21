@@ -61,8 +61,10 @@ CThermalColdFilter::CThermalColdFilter() {
 void CThermalColdFilter::draw() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CThermalColdFilter::draw", zeus::skMagenta);
 
+#if !HSH_PROFILE_MODE
   CGraphics::ResolveSpareTexture(CGraphics::g_CroppedViewport);
   m_uniBuf.load(m_uniform);
+#endif
   m_dataBind.draw(0, 4);
 }
 

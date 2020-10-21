@@ -130,6 +130,9 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
     }
 
     GetMirrorWaypoints(mgr);
+#if HSH_PROFILE_MODE
+    GatherAssets(mgr);
+#endif
     break;
   }
   case EScriptObjectMessage::Activate: {

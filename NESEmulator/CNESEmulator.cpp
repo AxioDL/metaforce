@@ -755,9 +755,10 @@ void CNESEmulator::Draw(const zeus::CColor& mulColor, bool filtering) {
 
   ViewBlock uniform = {zeus::CMatrix4f{}, mulColor};
   uniform.m_mv[0][0] = widthFac;
+#if !HSH_PROFILE_MODE
   m_uniBuf.load(uniform);
-
   m_shadBind.draw(0, 4);
+#endif
 }
 
 void CNESEmulator::LoadPassword(const u8* state) {

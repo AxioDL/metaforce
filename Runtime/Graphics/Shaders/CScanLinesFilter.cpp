@@ -34,7 +34,9 @@ void CScanLinesFilter::draw(const zeus::CColor& color) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CScanLinesFilter::draw", zeus::skMagenta);
 
   m_uniform.color = color;
+#if !HSH_PROFILE_MODE
   m_uniBuf.load(m_uniform);
+#endif
 
   m_dataBind.draw(0, 670);
 }

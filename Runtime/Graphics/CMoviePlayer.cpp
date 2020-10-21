@@ -253,7 +253,9 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
   SetFrame({-0.5f, 0.5f, 0.f}, {-0.5f, -0.5f, 0.f}, {0.5f, -0.5f, 0.f}, {0.5f, 0.5f, 0.f});
 
   m_viewVertBlock.m_mv = zeus::CMatrix4f{};
+#if !HSH_PROFILE_MODE
   m_blockBuf.load(m_viewVertBlock);
+#endif
 }
 
 void CMoviePlayer::SetStaticAudioVolume(int vol) {
@@ -398,7 +400,9 @@ void CMoviePlayer::SetFrame(const zeus::CVector3f& a, const zeus::CVector3f& b, 
   m_frame[1].m_pos = b;
   m_frame[2].m_pos = d;
   m_frame[3].m_pos = c;
+#if !HSH_PROFILE_MODE
   m_vertBuf.load(m_frame);
+#endif
 }
 
 void CMoviePlayer::DrawFrame() {
@@ -522,6 +526,7 @@ void CMoviePlayer::DecodeFromRead(const void* data) {
       uintptr_t planeSizeHalf = planeSize / 2;
       uintptr_t planeSizeQuarter = planeSizeHalf / 2;
 
+#if !HSH_PROFILE_MODE
       if (m_deinterlace) {
         /* Deinterlace into 2 discrete 60-fps half-res textures */
         u8* mappedData = (u8*)tex.Y[0].map();
@@ -546,6 +551,7 @@ void CMoviePlayer::DecodeFromRead(const void* data) {
         tex.U.load(m_yuvBuf.get() + planeSize, planeSizeQuarter);
         tex.V.load(m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter);
       }
+#endif
 
       break;
     }

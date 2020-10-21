@@ -86,7 +86,9 @@ void CRandomStaticFilter::draw(const zeus::CColor& color, float t) {
   m_uniform.color = color;
   m_uniform.randOff = ROUND_UP_32(int64_t(rand()) * 32767 / RAND_MAX);
   m_uniform.discardThres = 1.f - t;
+#if !HSH_PROFILE_MODE
   m_uniBuf.load(m_uniform);
+#endif
 
   m_dataBind.draw(0, 4);
 }

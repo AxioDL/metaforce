@@ -326,6 +326,7 @@ void CLineRenderer::Render(bool alphaWrite, const zeus::CColor& moduColor) {
     m_final = true;
   }
 
+#if !HSH_PROFILE_MODE
   m_uniformBuf.load(SDrawUniform{moduColor, CGraphics::g_Fog});
   if (m_textured) {
     if (!g_StaticLineVertsTex.empty()) {
@@ -338,6 +339,7 @@ void CLineRenderer::Render(bool alphaWrite, const zeus::CColor& moduColor) {
       m_shaderBind[alphaWrite].draw(0, g_StaticLineVertsNoTex.size());
     }
   }
+#endif
 }
 
 } // namespace urde

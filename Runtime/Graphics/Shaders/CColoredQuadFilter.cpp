@@ -39,6 +39,7 @@ CColoredQuadFilter::CColoredQuadFilter(EFilterType type) {
 void CColoredQuadFilter::draw(const zeus::CColor& color, const zeus::CRectangle& rect) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CColoredQuadFilter::draw", zeus::skMagenta);
 
+#if !HSH_PROFILE_MODE
   m_uniform.m_matrix = zeus::CMatrix4f{};
   m_uniform.m_matrix[0][0] = rect.size.x() * 2.f;
   m_uniform.m_matrix[1][1] = rect.size.y() * 2.f;
@@ -46,6 +47,7 @@ void CColoredQuadFilter::draw(const zeus::CColor& color, const zeus::CRectangle&
   m_uniform.m_matrix[3][1] = rect.position.y() * 2.f - 1.f;
   m_uniform.m_color = color;
   m_uniBuf.load(m_uniform);
+#endif
 
   m_dataBind.draw(0, 4);
 }

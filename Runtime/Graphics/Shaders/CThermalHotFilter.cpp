@@ -44,8 +44,10 @@ CThermalHotFilter::CThermalHotFilter() {
 void CThermalHotFilter::draw() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CThermalHotFilter::draw", zeus::skMagenta);
 
+#if !HSH_PROFILE_MODE
   CGraphics::ResolveSpareTexture(CGraphics::g_CroppedViewport);
   m_uniBuf.load(m_uniform);
+#endif
   m_dataBind.draw(0, 4);
 }
 

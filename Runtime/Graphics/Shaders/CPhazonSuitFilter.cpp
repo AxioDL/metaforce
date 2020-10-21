@@ -129,6 +129,7 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
 
   constexpr float blurScale = 1.0f / 128.0f;
 
+#if !HSH_PROFILE_MODE
   /* X Pass */
   m_uniBufBlurX.load(
       {zeus::CVector4f{g_Viewport.xc_height / float(g_Viewport.x8_width) * radius * blurScale, 0.f, 0.f, 0.f}});
@@ -139,11 +140,14 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
   m_uniBufBlurY.load({zeus::CVector4f{0.f, radius * blurScale, 0.f, 0.f}});
   m_dataBindBlurY.draw(0, 4);
   CGraphics::ResolveSpareTexture(rect, 2);
+#endif
 }
 
 void CPhazonSuitFilter::draw(const zeus::CColor& color, float indScale, float indOffX, float indOffY) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPhazonSuitFilter::draw", zeus::skMagenta);
+#if !HSH_PROFILE_MODE
   m_uniBuf.load({color, zeus::CVector4f(indScale, indScale, indOffX, indOffY)});
+#endif
   m_dataBind.draw(0, 4);
 }
 

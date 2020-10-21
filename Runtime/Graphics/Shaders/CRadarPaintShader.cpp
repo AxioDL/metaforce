@@ -32,8 +32,10 @@ void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CText
     m_dataBind.hsh_bind(CRadarPaintShaderPipeline(m_vbo.get(), m_uniBuf.get(), tex2d));
   }
 
+#if !HSH_PROFILE_MODE
   m_uniBuf.load({CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f()});
   m_vbo.load(instances);
+#endif
   m_dataBind.draw_instanced(0, 4, instances.size());
 }
 

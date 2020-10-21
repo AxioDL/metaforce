@@ -39,6 +39,7 @@ void CWorldShadowShader::bindRenderTarget() { m_tex.attach(); }
 void CWorldShadowShader::drawBase(float extent) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CWorldShadowShader::drawBase", zeus::skMagenta);
 
+#if !HSH_PROFILE_MODE
   const std::array<Vert, 4> verts{{
       {{-extent, 0.f, extent}},
       {{extent, 0.f, extent}},
@@ -50,6 +51,7 @@ void CWorldShadowShader::drawBase(float extent) {
   m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
   m_uniform.m_color = zeus::skWhite;
   m_uniBuf.load(m_uniform);
+#endif
 
   m_zDataBind.draw(0, 4);
 }
@@ -57,8 +59,10 @@ void CWorldShadowShader::drawBase(float extent) {
 void CWorldShadowShader::lightenShadow() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CWorldShadowShader::lightenShadow", zeus::skMagenta);
 
+#if !HSH_PROFILE_MODE
   m_uniform.m_color = zeus::CColor(1.f, 0.25f);
   m_uniBuf.load(m_uniform);
+#endif
 
   m_dataBind.draw(0, 4);
 }

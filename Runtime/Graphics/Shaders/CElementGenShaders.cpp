@@ -77,6 +77,7 @@ struct CElementGenShadersNoTexPipeline
   }
 };
 template struct CElementGenShadersNoTexPipeline<BlendMode::Regular, false, true, false>;
+template struct CElementGenShadersNoTexPipeline<BlendMode::Additive, false, true, false>;
 
 CElementGenShaders::EShaderClass CElementGenShaders::GetShaderClass(CElementGen& gen) {
   const auto* desc = gen.x1c_genDesc.GetObj();
@@ -89,41 +90,61 @@ CElementGenShaders::EShaderClass CElementGenShaders::GetShaderClass(CElementGen&
   return EShaderClass::NoTex;
 }
 
-hsh::binding& CElementGenShaders::BuildShaderDataBinding(CElementGen& gen, bool pmus) {
+void CElementGenShaders::BuildShaderDataBinding(CElementGen& gen) {
   const auto& desc = gen.x1c_genDesc;
   BlendMode mode = BlendMode::Regular;
+  BlendMode pmusMode = BlendMode::Regular;
   if (CElementGen::g_subtractBlend) {
     mode = BlendMode::Subtract;
-  } else if (gen.x26c_26_AAPH) {
-    mode = BlendMode::Additive;
+    pmusMode = BlendMode::Subtract;
+  } else {
+    if (gen.x26c_26_AAPH) {
+      mode = BlendMode::Additive;
+    }
+    if (desc->x44_31_x31_25_PMAB) {
+      pmusMode = BlendMode::Additive;
+    }
   }
-  hsh::vertex_buffer_typeless instBuf = pmus ? gen.m_instBufPmus.get() : gen.m_instBuf.get();
-  hsh::uniform_buffer_typeless uniBuf = pmus ? gen.m_uniformBufPmus.get() : gen.m_uniformBuf.get();
   switch (GetShaderClass(gen)) {
   case EShaderClass::Tex: {
     hsh::texture2d tex = desc->x54_x40_TEXR->GetValueTexture(0)->GetBooTexture();
-    m_shaderBind.hsh_tex_bind(
+    gen.m_binding.hsh_tex_bind(
         CElementGenShadersTexPipeline<mode, g_Renderer->IsThermalVisorHotPass(), gen.x26c_28_zTest, gen.x26c_27_ZBUF,
-                                      CElementGen::sMoveRedToAlphaBuffer>(instBuf, uniBuf, tex));
+                                      CElementGen::sMoveRedToAlphaBuffer>(gen.m_instBuf.get(), gen.m_uniformBuf.get(),
+                                                                          tex));
+    if (gen.x1c_genDesc->x45_24_x31_26_PMUS)
+      gen.m_bindingPmus.hsh_tex_pmus_bind(
+          CElementGenShadersTexPipeline<pmusMode, g_Renderer->IsThermalVisorHotPass(), gen.x26c_28_zTest, gen.x26c_27_ZBUF,
+                                        CElementGen::sMoveRedToAlphaBuffer>(gen.m_instBufPmus.get(),
+                                                                            gen.m_uniformBufPmus.get(), tex));
     break;
   }
   case EShaderClass::IndTex: {
     hsh::texture2d texrTex = desc->x54_x40_TEXR->GetValueTexture(0)->GetBooTexture();
     hsh::texture2d tindTex = desc->x58_x44_TIND->GetValueTexture(0)->GetBooTexture();
     hsh::render_texture2d sceneTex = CGraphics::g_SpareTexture.get_color(0);
-    m_shaderBind.hsh_indtex_bind(
+    gen.m_binding.hsh_indtex_bind(
         CElementGenShadersIndTexPipeline<mode, g_Renderer->IsThermalVisorHotPass(), gen.x26c_28_zTest, gen.x26c_27_ZBUF,
-                                         desc->x45_30_x32_24_CIND>(instBuf, uniBuf, texrTex, tindTex, sceneTex));
+                                         desc->x45_30_x32_24_CIND>(gen.m_instBuf.get(), gen.m_uniformBuf.get(), texrTex,
+                                                                   tindTex, sceneTex));
+    if (gen.x1c_genDesc->x45_24_x31_26_PMUS)
+      gen.m_bindingPmus.hsh_indtex_pmus_bind(
+          CElementGenShadersIndTexPipeline<pmusMode, g_Renderer->IsThermalVisorHotPass(), gen.x26c_28_zTest,
+                                           gen.x26c_27_ZBUF, desc->x45_30_x32_24_CIND>(
+              gen.m_instBufPmus.get(), gen.m_uniformBufPmus.get(), texrTex, tindTex, sceneTex));
     break;
   }
   case EShaderClass::NoTex: {
-    m_shaderBind.hsh_notex_bind(
+    gen.m_binding.hsh_notex_bind(
         CElementGenShadersNoTexPipeline<mode, g_Renderer->IsThermalVisorHotPass(), gen.x26c_28_zTest, gen.x26c_27_ZBUF>(
-            instBuf, uniBuf));
+            gen.m_instBuf.get(), gen.m_uniformBuf.get()));
+    if (gen.x1c_genDesc->x45_24_x31_26_PMUS)
+      gen.m_bindingPmus.hsh_notex_pmus_bind(
+          CElementGenShadersNoTexPipeline<pmusMode, g_Renderer->IsThermalVisorHotPass(), gen.x26c_28_zTest,
+                                          gen.x26c_27_ZBUF>(gen.m_instBufPmus.get(), gen.m_uniformBufPmus.get()));
     break;
   }
   }
-  return m_shaderBind;
 }
 
 } // namespace urde

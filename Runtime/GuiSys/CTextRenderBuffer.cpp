@@ -90,6 +90,7 @@ void CTextRenderBuffer::Render(const zeus::CColor& col, float time) {
   const zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
   const zeus::CMatrix4f mat = proj * mv;
 
+#if !HSH_PROFILE_MODE
   m_uniBuf.load({mat, col});
   if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
     zeus::CColor colPremul = col * col.a();
@@ -121,6 +122,7 @@ void CTextRenderBuffer::Render(const zeus::CColor& col, float time) {
       img.m_dataBindingOverdraw[idx].draw_instanced(0, 4, 1);
     }
   }
+#endif
 }
 
 void CTextRenderBuffer::AddImage(const zeus::CVector2i& offset, const CFontImageDef& image) {
