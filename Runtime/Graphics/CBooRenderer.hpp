@@ -51,6 +51,7 @@ class CBooRenderer final : public IRenderer {
   friend class CModel;
   friend class CMorphBallShadow;
   friend class CWorldTransManager;
+  friend class CModelShaders;
 
 public:
   struct ScanlinesVert {

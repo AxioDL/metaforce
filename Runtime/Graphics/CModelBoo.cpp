@@ -25,10 +25,6 @@ constexpr zeus::CMatrix4f ReflectBaseMtx{
     0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f,
 };
 
-constexpr zeus::CMatrix4f ReflectPostGL{
-    1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f,
-};
-
 constexpr zeus::CMatrix4f MBShadowPost0{
     1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f,
 };
@@ -68,8 +64,12 @@ void CBooModel::SetNewPlayerPositionAndTime(const zeus::CVector3f& pos) {
 
 void CBooModel::KillCachedViewDepState() { g_LastModelCached = nullptr; }
 
-void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf, zeus::CMatrix4f* mtxsOut,
-                                         float& alphaOut) {
+void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf,
+                                         hsh::dynamic_owner<hsh::uniform_buffer<CModelShaders::ReflectMtx>>& buf) {
+#if HSH_PROFILE_MODE
+  return;
+#endif
+
   zeus::CVector3f modelToPlayer = g_PlayerPosition - CGraphics::g_GXModelMatrix.origin;
   zeus::CVector3f modelToPlayerLocal = CGraphics::g_GXModelMatrix.transposeRotate(modelToPlayer);
 
@@ -98,13 +98,15 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
 
   zeus::CVector3f playerToSurf = surfPos - modelToPlayerLocal;
   float distance = std::max(-(0.5f * surfSize - playerToSurf.magnitude()), FLT_EPSILON);
+
+  auto* out = buf.map();
   if (distance >= 5.f) {
-    alphaOut = 0.f;
+    out->reflectAlpha = 0.f;
   } else {
-    alphaOut = (5.f - distance) / 5.f;
+    out->reflectAlpha = (5.f - distance) / 5.f;
 
     /* Indirect map matrix */
-    mtxsOut[0] = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
+    out->indMtx = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
 
     /* Reflection map matrix */
     zeus::CVector3f v1 = playerToSurf * (1.f / surfSize);
@@ -117,13 +119,14 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
     float timeScale = 0.32258067f * (0.02f * distance + 1.f);
     float f1 = timeScale * g_TransformedTime;
     float f2 = timeScale * g_TransformedTime2;
-    mtxsOut[1] = ReflectBaseMtx;
-    mtxsOut[1][0][0] = f1 * v2.x();
-    mtxsOut[1][1][0] = f1 * v2.y();
-    mtxsOut[1][3][0] = -surfPos.dot(v2) * f1 + 0.5f;
-    mtxsOut[1][2][1] = f2;
-    mtxsOut[1][3][1] = -modelToPlayerLocal.z() * f2;
+    out->reflectMtx = ReflectBaseMtx;
+    out->reflectMtx[0][0] = f1 * v2.x();
+    out->reflectMtx[1][0] = f1 * v2.y();
+    out->reflectMtx[3][0] = -surfPos.dot(v2) * f1 + 0.5f;
+    out->reflectMtx[2][1] = f2;
+    out->reflectMtx[3][1] = -modelToPlayerLocal.z() * f2;
   }
+  buf.unmap();
 }
 
 hsh::texture2d CBooModel::g_shadowMap;
@@ -147,14 +150,14 @@ CBooModel::~CBooModel() {
 }
 
 CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
-                     hsh::vertex_buffer_typeless vbo, hsh::index_buffer_typeless ibo, const zeus::CAABox& aabb,
-                     u8 renderMask, int numInsts)
+                     hsh::vertex_buffer_typeless vbo, hsh::index_buffer<u32> ibo, const zeus::CAABox& aabb,
+                     u8 renderMask, int numInsts, VertexFormat vtxFmt)
 : m_modelTok(token)
 , m_model(parent)
 , x0_surfaces(surfaces)
 , x4_matSet(&shader.m_matSet)
 , m_geomLayout(&*shader.m_geomLayout)
-, m_vtxFmt(m_model->GetHMDLMeta())
+, m_vtxFmt(vtxFmt)
 , m_matSetIdx(shader.m_matSetIdx)
 , x1c_textures(shader.x0_textures)
 , x20_aabb(aabb)
@@ -189,56 +192,18 @@ CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurf
     PushNewModelInstance();
 }
 
-hsh::vertex_buffer_typeless CBooModel::ModelInstance::GetBooVBO(const CBooModel& model) {
+hsh::vertex_buffer_typeless ModelInstance::GetBooVBO(const CBooModel& model) const {
   if (model.m_staticVbo)
     return model.m_staticVbo;
   if (!m_dynamicVbo && model.m_model) {
     const CModel& parent = *model.m_model;
-    auto CreateVBO = [this, &parent]<uint32_t NUVs, uint32_t NWeights>() {
-      using VertData = CModelShaders::VertData<0, NUVs, NWeights>;
-      assert(sizeof(VertData) != parent.GetHMDLMeta().vertStride && "Vert data stride mismatch");
-      m_dynamicVbo = hsh::create_dynamic_vertex_buffer<VertData>(parent.GetHMDLMeta().vertCount);
-    };
-#define VERT_DATA(uvs)                                                                                                 \
-  switch (parent.GetHMDLMeta().weightCount) {                                                                          \
-  case 0:                                                                                                              \
-    CreateVBO.operator()<uvs, 0>();                                                                                    \
-    break;                                                                                                             \
-  case 1:                                                                                                              \
-    CreateVBO.operator()<uvs, 1>();                                                                                    \
-    break;                                                                                                             \
-  case 2:                                                                                                              \
-    CreateVBO.operator()<uvs, 2>();                                                                                    \
-    break;                                                                                                             \
-  case 3:                                                                                                              \
-    CreateVBO.operator()<uvs, 3>();                                                                                    \
-    break;                                                                                                             \
-  case 4:                                                                                                              \
-    CreateVBO.operator()<uvs, 4>();                                                                                    \
-    break;                                                                                                             \
-  default:                                                                                                             \
-    assert(false && "Unhandled weight count");                                                                         \
-    break;                                                                                                             \
-  }                                                                                                                    \
-  break;
-    switch (parent.GetHMDLMeta().uvCount) {
-    case 0:
-      VERT_DATA(0)
-    case 1:
-      VERT_DATA(1)
-    case 2:
-      VERT_DATA(2)
-    case 3:
-      VERT_DATA(3)
-    case 4:
-      VERT_DATA(4)
-#undef VERT_DATA
-    default:
-      assert(false && "Unhandled UV count");
-      break;
-    }
-    m_dynamicVbo.load<uint8_t>(
-        {parent.GetDynamicVertexData(), parent.GetHMDLMeta().vertStride * parent.GetHMDLMeta().vertCount});
+    const hecl::HMDLMeta& meta = parent.GetHMDLMeta();
+    MapVertData(meta, [this, meta]<typename VertData>() {
+      m_dynamicVbo = hsh::create_dynamic_vertex_buffer<VertData>(meta.vertCount);
+    });
+#if !HSH_PROFILE_MODE
+    m_dynamicVbo.load<uint8_t>({parent.GetDynamicVertexData(), meta.vertStride * meta.vertCount});
+#endif
   }
   return m_dynamicVbo.get();
 }
@@ -248,40 +213,9 @@ GeometryUniformLayout::GeometryUniformLayout(const CModel* model, const Material
     m_skinBankCount = model->m_hmdlMeta.bankCount;
     m_weightVecCount = model->m_hmdlMeta.weightCount;
   }
-
-  m_skinOffs.reserve(std::max(size_t(1), m_skinBankCount));
-  m_skinSizes.reserve(std::max(size_t(1), m_skinBankCount));
-
-  m_uvOffs.reserve(matSet->materials.size());
-  m_uvSizes.reserve(matSet->materials.size());
-
-  if (m_skinBankCount) {
-    /* Skinned */
-    for (size_t i = 0; i < m_skinBankCount; ++i) {
-      size_t thisSz = ROUND_UP_256(sizeof(zeus::CMatrix4f) * (2 * m_weightVecCount * 4 + 3));
-      m_skinOffs.push_back(m_geomBufferSize);
-      m_skinSizes.push_back(thisSz);
-      m_geomBufferSize += thisSz;
-    }
-  } else {
-    /* Non-Skinned */
-    size_t thisSz = ROUND_UP_256(sizeof(zeus::CMatrix4f) * 3);
-    m_skinOffs.push_back(m_geomBufferSize);
-    m_skinSizes.push_back(thisSz);
-    m_geomBufferSize += thisSz;
-  }
-
-  /* Animated UV transform matrices */
-  for (const MaterialSet::Material& mat : matSet->materials) {
-    (void)mat;
-    size_t thisSz = ROUND_UP_256(/*mat.uvAnims.size()*/ 8 * (sizeof(zeus::CMatrix4f) * 2));
-    m_uvOffs.push_back(m_geomBufferSize);
-    m_uvSizes.push_back(thisSz);
-    m_geomBufferSize += thisSz;
-  }
 }
 
-CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
+ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
   if (!x40_24_texturesLoaded && !g_DummyTextures) {
     return nullptr;
   }
@@ -292,166 +226,37 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
 
   ModelInstance& newInst = m_instances.emplace_back();
 
-  /* Build geometry uniform buffer if shared not available */
-  hsh::uniform_buffer_typeless geomUniformBuf;
-  if (sharedLayoutBuf >= 0) {
-    geomUniformBuf = m_geomLayout->GetSharedBuffer(sharedLayoutBuf).get();
-  } else {
-    auto CreateUBO = [&]<uint32_t NSkinSlots>() {
-      newInst.m_geomUniformBuffer = hsh::create_dynamic_uniform_buffer<CModelShaders::VertUniform<NSkinSlots>>();
-      geomUniformBuf = newInst.m_geomUniformBuffer.get();
-    };
-    switch (m_vtxFmt.NSkinSlots) {
-#define VERT_UNIFORM(nskins)                                                                                           \
-  case nskins:                                                                                                         \
-    CreateUBO.operator()<nskins>();                                                                                    \
-    break;
-      VERT_UNIFORM(0)
-      VERT_UNIFORM(4)
-      VERT_UNIFORM(8)
-      VERT_UNIFORM(12)
-      VERT_UNIFORM(16)
-#undef VERT_UNIFORM
-    default:
-      assert(false && "Unhandled skin slot count");
-      break;
-    }
-  }
+  newInst.m_geometryUniforms.resize(std::max(m_geomLayout->m_skinBankCount, size_t(1)));
+#if !HSH_PROFILE_MODE
+  for (auto& uniform : newInst.m_geometryUniforms)
+    uniform = m_geomLayout->AllocateVertUniformBuffer();
+#endif
 
-  /* Lighting and reflection uniforms */
-  size_t uniBufSize = 0;
-
-  /* Lighting uniform */
-  size_t lightOff = 0;
-  size_t lightSz = 0;
-  {
-    size_t thisSz = ROUND_UP_256(sizeof(CModelShaders::LightingUniform));
-    lightOff = uniBufSize;
-    lightSz = thisSz;
-    uniBufSize += thisSz;
+  newInst.m_tcgUniforms.resize(x4_matSet->materialCount);
+#if !HSH_PROFILE_MODE
+  for (auto& uniform : newInst.m_tcgUniforms) {
+    uniform = hsh::create_dynamic_uniform_buffer<CModelShaders::TCGMatrixUniform>();
+    uniform.map()->fill({zeus::CMatrix4f{}, zeus::CMatrix4f{}});
+    uniform.unmap();
   }
+#endif
 
-  /* Surface reflection texmatrix uniform with first identity slot */
-  size_t reflectOff = uniBufSize;
-  uniBufSize += 256;
-  for (const CBooSurface& surf : *x0_surfaces) {
-    const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
-    if (mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye())
-      uniBufSize += 256;
+  newInst.m_reflectUniforms.resize(x0_surfaces->size());
+#if !HSH_PROFILE_MODE
+  for (auto& uniform : newInst.m_reflectUniforms) {
+    uniform = hsh::create_dynamic_uniform_buffer<CModelShaders::ReflectMtx>();
+    uniform.load({zeus::CMatrix4f{}, zeus::CMatrix4f{}, 0.f});
   }
+#endif
 
   /* Allocate resident buffer */
-  m_uniformDataSize = uniBufSize;
-  newInst.m_uniformBuffer = ctx.newDynamicBuffer(boo::BufferUse::Uniform, uniBufSize, 1);
-
-  const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 4> bufs {
-      geomUniformBuf.get(),
-      geomUniformBuf.get(),
-      newInst.m_uniformBuffer.get(),
-      newInst.m_uniformBuffer.get(),
-    };
+#if !HSH_PROFILE_MODE
+  newInst.m_fragmentUniform = hsh::create_dynamic_uniform_buffer<CModelShaders::FragmentUniform>();
+  newInst.m_fragmentUniform.load({});
+#endif
 
   /* Binding for each surface */
-  newInst.m_shaderDataBindings.reserve(x0_surfaces->size());
-
-  std::array<size_t, 4> thisOffs;
-  std::array<size_t, 4> thisSizes;
-
-  static constexpr std::array stages{
-      boo::PipelineStage::Vertex,
-      boo::PipelineStage::Vertex,
-      boo::PipelineStage::Fragment,
-      boo::PipelineStage::Vertex,
-    };
-
-  /* Enumerate surfaces and build data bindings */
-  size_t curReflect = reflectOff + 256;
-  for (const CBooSurface& surf : *x0_surfaces) {
-    const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
-
-    std::array<hsh::texture_typeless, 12> texs{
-        g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
-        g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
-        g_Renderer->m_whiteTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->x220_sphereRamp.get(),
-        g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(),
-    };
-    if (!g_DummyTextures) {
-      for (const auto& ch : mat.chunks) {
-        if (const auto* const pass = ch.get_if<MaterialSet::Material::PASS>()) {
-          auto search = x1c_textures.find(pass->texId.toUint32());
-          hsh::texture2d tex;
-          if (search != x1c_textures.cend() && (tex = search->second.GetObj()->GetBooTexture())) {
-            texs[MaterialSet::Material::TexMapIdx(pass->type)] = tex;
-          }
-        } else if (const auto* const clr = ch.get_if<MaterialSet::Material::CLR>()) {
-          hsh::texture2d tex = g_Renderer->GetColorTexture(clr->color);
-          texs[MaterialSet::Material::TexMapIdx(clr->type)] = tex;
-        }
-      }
-    }
-
-    if (m_geomLayout->m_skinBankCount) {
-      thisOffs[0] = m_geomLayout->m_skinOffs[surf.m_data.skinMtxBankIdx];
-      thisSizes[0] = m_geomLayout->m_skinSizes[surf.m_data.skinMtxBankIdx];
-    } else {
-      thisOffs[0] = 0;
-      thisSizes[0] = 256;
-    }
-
-    thisOffs[1] = m_geomLayout->m_uvOffs[surf.m_data.matIdx];
-    thisSizes[1] = m_geomLayout->m_uvSizes[surf.m_data.matIdx];
-
-    thisOffs[2] = lightOff;
-    thisSizes[2] = lightSz;
-
-    bool useReflection = mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye();
-    if (useReflection) {
-      if (g_Renderer->x14c_reflectionTex.Owner.IsValid()) {
-         // texs[11] = g_Renderer->x14c_reflectionTex.get_color(0);
-      }
-      thisOffs[3] = curReflect;
-      curReflect += 256;
-    } else {
-      thisOffs[3] = reflectOff;
-    }
-    thisSizes[3] = 256;
-
-    const CModelShaders::ShaderPipelines& pipelines = m_pipelines->at(surf.m_data.matIdx);
-
-    std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = newInst.m_shaderDataBindings.emplace_back();
-    extendeds.reserve(pipelines->size());
-
-    EExtendedShader idx{};
-    for (const auto& pipeline : *pipelines) {
-      if (idx == EExtendedShader::Thermal) {
-        texs[8] = g_Renderer->x220_sphereRamp.get();
-      } else if (idx == EExtendedShader::MorphBallShadow) {
-        texs[8] = g_Renderer->m_ballShadowId.get();
-        texs[9] = g_Renderer->x220_sphereRamp.get();
-        texs[10] = g_Renderer->m_ballFade.get();
-      } else if (idx == EExtendedShader::WorldShadow || idx == EExtendedShader::LightingCubeReflectionWorldShadow) {
-        if (g_shadowMap)
-          texs[8] = g_shadowMap;
-        else
-          texs[8] = g_Renderer->x220_sphereRamp.get();
-      } else if (idx == EExtendedShader::Disintegrate) {
-        if (g_disintegrateTexture)
-          texs[8] = g_disintegrateTexture;
-        else
-          texs[8] = g_Renderer->x220_sphereRamp.get();
-      } else if (hecl::com_cubemaps->toBoolean() && (idx == EExtendedShader::LightingCubeReflection ||
-                                                     idx == EExtendedShader::LightingCubeReflectionWorldShadow)) {
-        if (m_lastDrawnReflectionCube)
-          texs[11] = m_lastDrawnReflectionCube.get();
-        else
-          texs[11] = g_Renderer->x220_sphereRamp.get();
-      }
-      extendeds.push_back(ctx.newShaderDataBinding(pipeline, newInst.GetBooVBO(*this, ctx), nullptr, m_staticIbo.get(),
-                                                   bufs.size(), bufs.data(),
-            stages.data(), thisOffs.data(), thisSizes.data(), texs.size(), texs.data(), nullptr, nullptr));
-      idx = EExtendedShader(size_t(idx) + 1);
-    }
-  }
+  newInst.m_shaderDataBindings.resize(x0_surfaces->size());
 
   return &newInst;
 }
@@ -473,10 +278,14 @@ void CBooModel::MakeTexturesFromMats(std::unordered_map<CAssetId, TCachedToken<C
   MakeTexturesFromMats(*x4_matSet, toksOut, store);
 }
 
-void CBooModel::ActivateLights(const std::vector<CLight>& lights) { m_lightingData.ActivateLights(lights); }
+void CBooModel::ActivateLights(const std::vector<CLight>& lights) {
+  m_lightingData.ActivateLights(lights);
+  m_lightsActive = true;
+}
 
 void CBooModel::DisableAllLights() {
   m_lightingData.ambient = zeus::skBlack;
+  m_lightsActive = false;
 
   for (size_t curLight = 0; curLight < m_lightingData.lights.size(); ++curLight) {
     CModelShaders::Light& lightOut = m_lightingData.lights[curLight];
@@ -588,89 +397,24 @@ void CBooModel::DrawSurfaces(const CModelFlags& flags) const {
   }
 }
 
-static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, const CModelFlags& flags) {
-  bool noZWrite = flags.m_noZWrite || !data.flags.depthWrite();
-
-  /* Ensure cubemap extension shaders fall back to non-cubemap equivalents if necessary */
-  EExtendedShader intermediateExtended = flags.m_extendedShader;
-  if (!hecl::com_cubemaps->toBoolean() || g_Renderer->IsThermalVisorHotPass() || g_Renderer->IsThermalVisorActive()) {
-    if (intermediateExtended == EExtendedShader::LightingCubeReflection)
-      intermediateExtended = EExtendedShader::Lighting;
-    else if (intermediateExtended == EExtendedShader::LightingCubeReflectionWorldShadow)
-      intermediateExtended = EExtendedShader::WorldShadow;
-  }
-
-  EExtendedShader extended = EExtendedShader::Flat;
-  if (intermediateExtended == EExtendedShader::Lighting) {
-    /* Transform lighting into thermal cold if the thermal visor is active */
-    if (g_Renderer->IsThermalVisorHotPass())
-      return noZWrite ? EExtendedShader::LightingAlphaWriteNoZTestNoZWrite : EExtendedShader::LightingAlphaWrite;
-    else if (g_Renderer->IsThermalVisorActive())
-      return EExtendedShader::ThermalCold;
-    if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Opaque) {
-      /* Override shader if originally opaque (typical for FRME models) */
-      if (flags.x0_blendMode > 6) {
-        if (flags.m_depthGreater)
-          extended = EExtendedShader::ForcedAdditiveNoZWriteDepthGreater;
-        else
-          extended =
-              flags.m_noCull
-                  ? (noZWrite ? EExtendedShader::ForcedAdditiveNoCullNoZWrite : EExtendedShader::ForcedAdditiveNoCull)
-                  : (noZWrite ? EExtendedShader::ForcedAdditiveNoZWrite : EExtendedShader::ForcedAdditive);
-      } else if (flags.x0_blendMode > 4) {
-        extended = flags.m_noCull
-                       ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
-                       : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::ForcedAlpha);
-      } else {
-        extended = flags.m_noCull
-                       ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
-                       : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::Lighting);
-      }
-    } else if (flags.m_noCull && noZWrite) {
-      /* Substitute no-cull,no-zwrite pipeline if available */
-      if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Additive)
-        extended = EExtendedShader::ForcedAdditiveNoCullNoZWrite;
-      else
-        extended = EExtendedShader::ForcedAlphaNoCullNoZWrite;
-    } else if (flags.m_noCull) {
-      /* Substitute no-cull pipeline if available */
-      if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Additive)
-        extended = EExtendedShader::ForcedAdditiveNoCull;
-      else
-        extended = EExtendedShader::ForcedAlphaNoCull;
-    } else if (noZWrite) {
-      /* Substitute no-zwrite pipeline if available */
-      if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Additive)
-        extended = EExtendedShader::ForcedAdditiveNoZWrite;
-      else
-        extended = EExtendedShader::ForcedAlphaNoZWrite;
-    } else {
-      extended = EExtendedShader::Lighting;
-    }
-  } else if (intermediateExtended < EExtendedShader::MAX) {
-    extended = intermediateExtended;
-  }
-
-  return extended;
-}
-
 void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const {
   // if (m_uniUpdateCount == 0)
   //    Log.report(logvisor::Fatal, FMT_STRING("UpdateUniformData() not called"));
   if (m_uniUpdateCount == 0 || m_uniUpdateCount > m_instances.size())
     return;
-  const ModelInstance& inst = m_instances[m_uniUpdateCount - 1];
+  ModelInstance& inst = const_cast<ModelInstance&>(m_instances[m_uniUpdateCount - 1]);
 
   const MaterialSet::Material& data = GetMaterialByIndex(surf.m_data.matIdx);
   if (data.flags.shadowOccluderMesh() && !g_DrawingOccluders)
     return;
 
-  const std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = inst.m_shaderDataBindings[surf.selfIdx];
-  EExtendedShader extended = ResolveExtendedShader(data, flags);
-
-  boo::ObjToken<boo::IShaderDataBinding> binding = extendeds[size_t(extended)];
-  CGraphics::SetShaderDataBinding(binding);
-  CGraphics::DrawArrayIndexed(surf.m_data.idxStart, surf.m_data.idxCount);
+  auto& binding = const_cast<hsh::binding&>(inst.m_shaderDataBindings[surf.selfIdx]);
+  CModelShaders::SetCurrent(binding, flags, *this, inst, surf);
+  if (binding) {
+    binding.draw_indexed(surf.m_data.idxStart, surf.m_data.idxCount);
+  } else {
+    hsh::profile_context::instance.write_headers();
+  }
 }
 
 void CBooModel::WarmupDrawSurfaces(const CModelFlags& unsortedFlags, const CModelFlags& sortedFlags) const {
@@ -692,79 +436,77 @@ void CBooModel::WarmupDrawSurface(const CBooSurface& surf, const CModelFlags& fl
     return;
   const ModelInstance& inst = m_instances[m_uniUpdateCount - 1];
 
-  for (const auto& binding : inst.m_shaderDataBindings[surf.selfIdx]) {
-    CGraphics::SetShaderDataBinding(binding);
-    CGraphics::DrawArrayIndexed(surf.m_data.idxStart, std::min(u32(3), surf.m_data.idxCount));
-  }
+  auto& binding = const_cast<hsh::binding&>(inst.m_shaderDataBindings[surf.selfIdx]);
+  CModelShaders::SetCurrent(binding, flags, *this, inst, surf);
+  if (binding)
+    binding.draw_indexed(surf.m_data.idxStart, surf.m_data.idxCount);
 }
 
-void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const MaterialSet::Material::PASS& anim) {
+void CBooModel::UVAnimationBuffer::ProcessAnimation(CModelShaders::TCGMatrix& tcg,
+                                                    const MaterialSet::Material::PASS& anim) {
   using UVAnimType = MaterialSet::Material::BlendMaterial::UVAnimType;
   if (anim.uvAnimType == UVAnimType::Invalid)
     return;
-  zeus::CMatrix4f& texMtxOut = reinterpret_cast<zeus::CMatrix4f&>(*bufOut);
-  zeus::CMatrix4f& postMtxOut = reinterpret_cast<zeus::CMatrix4f&>(*(bufOut + sizeof(zeus::CMatrix4f)));
-  texMtxOut = zeus::CMatrix4f();
-  postMtxOut = zeus::CMatrix4f();
+  tcg.mtx = zeus::CMatrix4f();
+  tcg.postMtx = zeus::CMatrix4f();
   switch (anim.uvAnimType) {
   case UVAnimType::MvInvNoTranslation: {
-    texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-    texMtxOut[3].w() = 1.f;
-    postMtxOut[0].x() = 0.5f;
-    postMtxOut[1].y() = 0.5f;
-    postMtxOut[3].x() = 0.5f;
-    postMtxOut[3].y() = 0.5f;
+    tcg.mtx = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+    tcg.mtx[3].w = 1.f;
+    tcg.postMtx[0].x = 0.5f;
+    tcg.postMtx[1].y = 0.5f;
+    tcg.postMtx[3].x = 0.5f;
+    tcg.postMtx[3].y = 0.5f;
     break;
   }
   case UVAnimType::MvInv: {
-    texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-    texMtxOut[3] = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin;
-    texMtxOut[3].w() = 1.f;
-    postMtxOut[0].x() = 0.5f;
-    postMtxOut[1].y() = 0.5f;
-    postMtxOut[3].x() = 0.5f;
-    postMtxOut[3].y() = 0.5f;
+    tcg.mtx = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+    tcg.mtx[3] = hsh::float4{CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin, 1.f};
+    tcg.postMtx[0].x = 0.5f;
+    tcg.postMtx[1].y = 0.5f;
+    tcg.postMtx[3].x = 0.5f;
+    tcg.postMtx[3].y = 0.5f;
     break;
   }
   case UVAnimType::Scroll: {
-    texMtxOut[3].x() = CGraphics::GetSecondsMod900() * anim.uvAnimParms[2] + anim.uvAnimParms[0];
-    texMtxOut[3].y() = CGraphics::GetSecondsMod900() * anim.uvAnimParms[3] + anim.uvAnimParms[1];
+    tcg.mtx[3].x = CGraphics::GetSecondsMod900() * anim.uvAnimParms[2] + anim.uvAnimParms[0];
+    tcg.mtx[3].y = CGraphics::GetSecondsMod900() * anim.uvAnimParms[3] + anim.uvAnimParms[1];
     break;
   }
   case UVAnimType::Rotation: {
     float angle = CGraphics::GetSecondsMod900() * anim.uvAnimParms[1] + anim.uvAnimParms[0];
     float acos = std::cos(angle);
     float asin = std::sin(angle);
-    texMtxOut[0].x() = acos;
-    texMtxOut[0].y() = asin;
-    texMtxOut[1].x() = -asin;
-    texMtxOut[1].y() = acos;
-    texMtxOut[3].x() = (1.0f - (acos - asin)) * 0.5f;
-    texMtxOut[3].y() = (1.0f - (asin + acos)) * 0.5f;
+    tcg.mtx[0].x = acos;
+    tcg.mtx[0].y = asin;
+    tcg.mtx[1].x = -asin;
+    tcg.mtx[1].y = acos;
+    tcg.mtx[3].x = (1.0f - (acos - asin)) * 0.5f;
+    tcg.mtx[3].y = (1.0f - (asin + acos)) * 0.5f;
     break;
   }
   case UVAnimType::HStrip: {
     float value = anim.uvAnimParms[0] * anim.uvAnimParms[2] * (anim.uvAnimParms[3] + CGraphics::GetSecondsMod900());
-    texMtxOut[3].x() = std::trunc(anim.uvAnimParms[1] * fmod(value, 1.0f)) * anim.uvAnimParms[2];
+    tcg.mtx[3].x = std::trunc(anim.uvAnimParms[1] * fmod(value, 1.0f)) * anim.uvAnimParms[2];
     break;
   }
   case UVAnimType::VStrip: {
     float value = anim.uvAnimParms[0] * anim.uvAnimParms[2] * (anim.uvAnimParms[3] + CGraphics::GetSecondsMod900());
-    texMtxOut[3].y() = std::trunc(anim.uvAnimParms[1] * fmod(value, 1.0f)) * anim.uvAnimParms[2];
+    tcg.mtx[3].y = std::trunc(anim.uvAnimParms[1] * fmod(value, 1.0f)) * anim.uvAnimParms[2];
     break;
   }
   case UVAnimType::Model: {
-    texMtxOut = CGraphics::g_GXModelMatrix.toMatrix4f();
-    texMtxOut[3] = zeus::CVector4f(0.f, 0.f, 0.f, 1.f);
-    postMtxOut[0].x() = 0.5f;
-    postMtxOut[1].y() = 0.f;
-    postMtxOut[2].y() = 0.5f;
-    postMtxOut[3].x() = CGraphics::g_GXModelMatrix.origin.x() * 0.05f;
-    postMtxOut[3].y() = CGraphics::g_GXModelMatrix.origin.y() * 0.05f;
+    tcg.mtx = CGraphics::g_GXModelMatrix.toMatrix4f();
+    tcg.mtx[3] = hsh::float4{0.f, 0.f, 0.f, 1.f};
+    tcg.postMtx[0].x = 0.5f;
+    tcg.postMtx[1].y = 0.f;
+    tcg.postMtx[2].y = 0.5f;
+    tcg.postMtx[3].x = CGraphics::g_GXModelMatrix.origin.x() * 0.05f;
+    tcg.postMtx[3].y = CGraphics::g_GXModelMatrix.origin.y() * 0.05f;
     break;
   }
   case UVAnimType::CylinderEnvironment: {
-    texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+    tcg.mtx = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
 
     const zeus::CVector3f& viewOrigin = CGraphics::g_ViewMatrix.origin;
     float xy = (viewOrigin.x() + viewOrigin.y()) * 0.025f * anim.uvAnimParms[1];
@@ -774,7 +516,7 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const MaterialS
 
     float halfA = anim.uvAnimParms[0] * 0.5f;
 
-    postMtxOut =
+    tcg.postMtx =
         zeus::CTransform(zeus::CMatrix3f(halfA, 0.0, 0.0, 0.0, 0.0, halfA, 0.0, 0.0, 0.0), zeus::CVector3f(xy, z, 1.0))
             .toMatrix4f();
     break;
@@ -782,186 +524,183 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const MaterialS
   default:
     break;
   }
-  bufOut += sizeof(zeus::CMatrix4f) * 2;
 }
 
-void CBooModel::UVAnimationBuffer::PadOutBuffer(u8*& bufStart, u8*& bufOut) {
-  bufOut = bufStart + ROUND_UP_256(bufOut - bufStart);
-}
+void CBooModel::UVAnimationBuffer::Update(
+    std::vector<hsh::dynamic_owner<hsh::uniform_buffer<CModelShaders::TCGMatrixUniform>>>& uniforms,
+    const MaterialSet* matSet, const CModelFlags& flags, const CBooModel* parent) {
+#if HSH_PROFILE_MODE
+  return;
+#endif
 
-void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags,
-                                          const CBooModel* parent) {
-  u8* start = bufOut;
-
-  if (flags.m_extendedShader == EExtendedShader::MorphBallShadow) {
+  if (flags.m_postType == EPostType::MBShadow) {
     /* Special matrices for MorphBall shadow rendering */
-    zeus::CMatrix4f texMtx = (zeus::CTransform::Scale(1.f / (flags.mbShadowBox.max - flags.mbShadowBox.min)) *
-                              zeus::CTransform::Translate(-flags.mbShadowBox.min) * CGraphics::g_GXModelMatrix)
+    zeus::CMatrix4f texMtx = (zeus::CTransform::Scale(1.f / (flags.m_mbShadowBox.max - flags.m_mbShadowBox.min)) *
+                              zeus::CTransform::Translate(-flags.m_mbShadowBox.min) * CGraphics::g_GXModelMatrix)
                                  .toMatrix4f();
-    for (const MaterialSet::Material& mat : matSet->materials) {
-      (void)mat;
-      std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
-      mtxs[0][0] = texMtx;
-      mtxs[0][1] = MBShadowPost0;
-      mtxs[1][0] = texMtx;
-      mtxs[1][1] = MBShadowPost1;
-      bufOut += sizeof(zeus::CMatrix4f) * 2 * 8;
-      PadOutBuffer(start, bufOut);
+    for (size_t i = 0; i < matSet->materialCount; ++i) {
+      auto& buf = uniforms[i];
+      auto* out = buf.map();
+      out->at(0) = {texMtx, MBShadowPost0};
+      out->at(1) = {texMtx, MBShadowPost1};
+      buf.unmap();
     }
     return;
-  } else if (flags.m_extendedShader == EExtendedShader::Disintegrate) {
+  } else if (flags.m_postType == EPostType::Disintegrate) {
     assert(parent != nullptr && "Parent CBooModel not set");
     zeus::CTransform xf = zeus::CTransform::RotateX(-zeus::degToRad(45.f));
     zeus::CAABox aabb = parent->GetAABB().getTransformedAABox(xf);
     xf = zeus::CTransform::Scale(5.f / (aabb.max - aabb.min)) * zeus::CTransform::Translate(-aabb.min) * xf;
     zeus::CMatrix4f texMtx = xf.toMatrix4f();
     zeus::CMatrix4f post0 = DisintegratePost;
-    post0[3].x() = flags.addColor.a();
-    post0[3].y() = 6.f * -(1.f - flags.addColor.a()) + 1.f;
+    post0[3].x() = flags.m_addColor.a();
+    post0[3].y() = 6.f * -(1.f - flags.m_addColor.a()) + 1.f;
     zeus::CMatrix4f post1 = DisintegratePost;
-    post1[3].x() = -0.85f * flags.addColor.a() - 0.15f;
+    post1[3].x() = -0.85f * flags.m_addColor.a() - 0.15f;
     post1[3].y() = float(post0[3].y());
     /* Special matrices for disintegration rendering */
-    for (const MaterialSet::Material& mat : matSet->materials) {
-      (void)mat;
-      std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
-      mtxs[0][0] = texMtx;
-      mtxs[0][1] = post0;
-      mtxs[1][0] = texMtx;
-      mtxs[1][1] = post1;
-      bufOut += sizeof(zeus::CMatrix4f) * 2 * 8;
-      PadOutBuffer(start, bufOut);
+    for (size_t i = 0; i < matSet->materialCount; ++i) {
+      auto& buf = uniforms[i];
+      auto* out = buf.map();
+      out->at(0) = {texMtx, post0};
+      out->at(1) = {texMtx, post1};
+      buf.unmap();
     }
     return;
   }
 
-  std::optional<std::array<zeus::CMatrix4f, 2>> specialMtxOut;
-  if (flags.m_extendedShader == EExtendedShader::Thermal) {
+  std::optional<CModelShaders::TCGMatrix> specialMtxOut;
+  if (flags.m_postType == EPostType::ThermalHot) {
     /* Special Mode0 matrix for exclusive Thermal Visor use */
     specialMtxOut.emplace();
 
-    zeus::CMatrix4f& texMtxOut = (*specialMtxOut)[0];
+    auto& texMtxOut = specialMtxOut->mtx;
     texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-    texMtxOut[3].zeroOut();
-    texMtxOut[3].w() = 1.f;
+    texMtxOut[3] = {0.f, 0.f, 0.f, 1.f};
 
-    zeus::CMatrix4f& postMtxOut = (*specialMtxOut)[1];
-    postMtxOut[0].x() = 0.5f;
-    postMtxOut[1].y() = 0.5f;
-    postMtxOut[3].x() = 0.5f;
-    postMtxOut[3].y() = 0.5f;
-  } else if (flags.m_extendedShader == EExtendedShader::WorldShadow ||
-             flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) {
-    /* Special matrix for mapping world shadow */
-    specialMtxOut.emplace();
-
-    zeus::CMatrix4f mat = g_shadowTexXf.toMatrix4f();
-    zeus::CMatrix4f& texMtxOut = (*specialMtxOut)[0];
-    texMtxOut[0][0] = float(mat[0][0]);
-    texMtxOut[1][0] = float(mat[1][0]);
-    texMtxOut[2][0] = float(mat[2][0]);
-    texMtxOut[3][0] = float(mat[3][0]);
-    texMtxOut[0][1] = float(mat[0][2]);
-    texMtxOut[1][1] = float(mat[1][2]);
-    texMtxOut[2][1] = float(mat[2][2]);
-    texMtxOut[3][1] = float(mat[3][2]);
+    auto& postMtxOut = specialMtxOut->postMtx;
+    postMtxOut[0].x = 0.5f;
+    postMtxOut[1].y = 0.5f;
+    postMtxOut[3].x = 0.5f;
+    postMtxOut[3].y = 0.5f;
   }
+  // TODO
+  // else if (flags.m_extendedShader == EExtendedShader::WorldShadow ||
+  //             flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) {
+  //    /* Special matrix for mapping world shadow */
+  //    specialMtxOut.emplace();
+  //
+  //    zeus::CMatrix4f mat = g_shadowTexXf.toMatrix4f();
+  //    zeus::CMatrix4f& texMtxOut = (*specialMtxOut)[0];
+  //    texMtxOut[0][0] = float(mat[0][0]);
+  //    texMtxOut[1][0] = float(mat[1][0]);
+  //    texMtxOut[2][0] = float(mat[2][0]);
+  //    texMtxOut[3][0] = float(mat[3][0]);
+  //    texMtxOut[0][1] = float(mat[0][2]);
+  //    texMtxOut[1][1] = float(mat[1][2]);
+  //    texMtxOut[2][1] = float(mat[2][2]);
+  //    texMtxOut[3][1] = float(mat[3][2]);
+  //  }
 
-  for (const MaterialSet::Material& mat : matSet->materials) {
-    if (specialMtxOut) {
-      std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
-      mtxs[7][0] = (*specialMtxOut)[0];
-      mtxs[7][1] = (*specialMtxOut)[1];
+  for (size_t i = 0; i < matSet->materialCount; ++i) {
+    const MaterialSet::Material& mat = matSet->materials[i];
+    if (!specialMtxOut && !std::any_of(mat.chunks.begin(), mat.chunks.end(), [](auto& chunk) {
+          if (const auto* const pass = chunk.template get_if<MaterialSet::Material::PASS>()) {
+            return pass->uvAnimType != MaterialSet::Material::BlendMaterial::UVAnimType::Invalid;
+          }
+          return false;
+        })) {
+      continue;
     }
-    u8* bufOrig = bufOut;
+    auto& buf = uniforms[i];
+    auto* out = buf.map();
+    if (specialMtxOut) {
+      out->at(7) = *specialMtxOut;
+    }
+    size_t passIdx = 0;
     for (const auto& chunk : mat.chunks) {
       if (const auto* const pass = chunk.get_if<MaterialSet::Material::PASS>()) {
-        ProcessAnimation(bufOut, *pass);
+        ProcessAnimation(out->at(passIdx++), *pass);
       }
     }
-    bufOut = bufOrig + sizeof(zeus::CMatrix4f) * 2 * 8;
-    PadOutBuffer(start, bufOut);
+    buf.unmap();
   }
 }
 
 void GeometryUniformLayout::Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
-                                   const MaterialSet* matSet, hsh::dynamic_owner<hsh::uniform_buffer_typeless>& buf,
+                                   const MaterialSet* matSet,
+                                   std::vector<hsh::dynamic_owner<hsh::uniform_buffer_typeless>>& skinBankUniforms,
                                    const CBooModel* parent) const {
-  u8* dataOut = reinterpret_cast<u8*>(buf.map()); // m_geomBufferSize
-  u8* dataCur = dataOut;
+#if HSH_PROFILE_MODE
+  return;
+#endif
 
   if (m_skinBankCount) {
     /* Skinned */
     std::vector<const zeus::CTransform*> bankTransforms;
     size_t weightCount = m_weightVecCount * 4;
     bankTransforms.reserve(weightCount);
-    for (size_t i = 0; i < m_skinBankCount; ++i) {
+    auto WriteUniform = [&]<uint32_t NSkinSlots>(int skinBankIdx) constexpr {
+      auto& buf = skinBankUniforms[skinBankIdx];
+      buf.GetTypeInfo().Assert<hsh::uniform_buffer<CModelShaders::VertUniform<NSkinSlots>>>();
+      auto* out = reinterpret_cast<CModelShaders::VertUniform<NSkinSlots>*>(buf.map());
       if (cskr && pose) {
-        cskr->GetBankTransforms(bankTransforms, *pose, i);
-
-        for (size_t w = 0; w < weightCount; ++w) {
-          zeus::CMatrix4f& obj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-          if (w >= bankTransforms.size())
-            obj = zeus::CMatrix4f();
-          else
-            obj = bankTransforms[w]->toMatrix4f();
-          dataCur += sizeof(zeus::CMatrix4f);
+        cskr->GetBankTransforms(bankTransforms, *pose, skinBankIdx);
+        for (size_t slot = 0; slot < NSkinSlots; ++slot) {
+          if (slot >= bankTransforms.size()) {
+            out->objs[slot] = zeus::CMatrix4f();
+            out->objsInv[slot] = zeus::CMatrix4f();
+          } else {
+            out->objs[slot] = bankTransforms[slot]->toMatrix4f();
+            out->objsInv[slot] = bankTransforms[slot]->toMatrix4f();
+          }
         }
-        for (size_t w = 0; w < weightCount; ++w) {
-          zeus::CMatrix4f& objInv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-          if (w >= bankTransforms.size())
-            objInv = zeus::CMatrix4f();
-          else
-            objInv = bankTransforms[w]->basis;
-          dataCur += sizeof(zeus::CMatrix4f);
-        }
-
         bankTransforms.clear();
       } else {
-        for (size_t w = 0; w < weightCount; ++w) {
-          zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-          mv = zeus::CMatrix4f();
-          dataCur += sizeof(zeus::CMatrix4f);
-        }
-        for (size_t w = 0; w < weightCount; ++w) {
-          zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-          mvinv = zeus::CMatrix4f();
-          dataCur += sizeof(zeus::CMatrix4f);
+        for (size_t slot = 0; slot < NSkinSlots; ++slot) {
+          out->objs[slot] = zeus::CMatrix4f();
+          out->objsInv[slot] = zeus::CMatrix4f();
         }
       }
-      zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-      mv = CGraphics::g_GXModelView.toMatrix4f();
-      dataCur += sizeof(zeus::CMatrix4f);
-
-      zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-      mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-      dataCur += sizeof(zeus::CMatrix4f);
-
-      zeus::CMatrix4f& proj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-      proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-      dataCur += sizeof(zeus::CMatrix4f);
-
-      dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
+      out->mv = CGraphics::g_GXModelView.toMatrix4f();
+      out->mvInv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+      out->proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+      buf.unmap();
+    };
+    for (size_t i = 0; i < m_skinBankCount; ++i) {
+      switch (weightCount) {
+      case 1:
+        WriteUniform.operator()<1>(i);
+        break;
+      case 4:
+        WriteUniform.operator()<4>(i);
+        break;
+      case 8:
+        WriteUniform.operator()<8>(i);
+        break;
+      case 12:
+        WriteUniform.operator()<12>(i);
+        break;
+      case 16:
+        WriteUniform.operator()<16>(i);
+        break;
+      case 20:
+        WriteUniform.operator()<20>(i);
+        break;
+      default:
+        assert(false && "Unhandled weightCount");
+      }
     }
   } else {
     /* Non-Skinned */
-    zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-    mv = CGraphics::g_GXModelView.toMatrix4f();
-    dataCur += sizeof(zeus::CMatrix4f);
-
-    zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-    mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-    dataCur += sizeof(zeus::CMatrix4f);
-
-    zeus::CMatrix4f& proj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-    proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-    dataCur += sizeof(zeus::CMatrix4f);
-
-    dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
+    auto& buf = skinBankUniforms[0];
+    buf.GetTypeInfo().Assert<hsh::uniform_buffer<CModelShaders::VertUniform<0>>>();
+    auto* out = reinterpret_cast<CModelShaders::VertUniform<0>*>(buf.map());
+    out->mv = CGraphics::g_GXModelView.toMatrix4f();
+    out->mvInv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+    out->proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+    buf.unmap();
   }
-
-  CBooModel::UVAnimationBuffer::Update(dataCur, matSet, flags, parent);
-  buf.unmap();
 }
 
 hsh::dynamic_owner<hsh::uniform_buffer_typeless> GeometryUniformLayout::AllocateVertUniformBuffer() const {
@@ -974,37 +713,12 @@ hsh::dynamic_owner<hsh::uniform_buffer_typeless> GeometryUniformLayout::Allocate
     VERT_UNIFORM(8)
     VERT_UNIFORM(12)
     VERT_UNIFORM(16)
+    VERT_UNIFORM(20)
 #undef VERT_UNIFORM
   default:
     assert(false && "Unhandled vertex uniform size");
     return {};
   }
-}
-
-void GeometryUniformLayout::ReserveSharedBuffers(size_t size) {
-  if (m_sharedBuffer.size() < size) {
-    m_sharedBuffer.resize(size);
-  }
-
-  for (int i = 0; i < size; ++i) {
-    auto& buf = m_sharedBuffer[i];
-    if (!buf) {
-      buf = AllocateVertUniformBuffer();
-    }
-  }
-}
-
-hsh::dynamic_owner<hsh::uniform_buffer_typeless>& GeometryUniformLayout::GetSharedBuffer(size_t idx) const {
-  if (idx >= m_sharedBuffer.size()) {
-    m_sharedBuffer.resize(idx + 1);
-  }
-
-  auto& buf = m_sharedBuffer[idx];
-  if (!buf) {
-    buf = AllocateVertUniformBuffer();
-  }
-
-  return buf;
 }
 
 hsh::dynamic_owner<hsh::vertex_buffer_typeless>* CBooModel::UpdateUniformData(const CModelFlags& flags,
@@ -1015,35 +729,12 @@ hsh::dynamic_owner<hsh::vertex_buffer_typeless>* CBooModel::UpdateUniformData(co
     return nullptr;
   }
 
-  /* Invalidate instances if new shadow being drawn */
-  if ((flags.m_extendedShader == EExtendedShader::WorldShadow ||
-       flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
-      m_lastDrawnShadowMap != g_shadowMap) {
-    m_lastDrawnShadowMap = g_shadowMap;
-    m_instances.clear();
-  }
-
-  /* Invalidate instances if new one-texture being drawn */
-  if (flags.m_extendedShader == EExtendedShader::Disintegrate && m_lastDrawnOneTexture != g_disintegrateTexture) {
-    m_lastDrawnOneTexture = g_disintegrateTexture;
-    m_instances.clear();
-  }
-
-  /* Invalidate instances if new reflection cube being drawn */
-  if (hecl::com_cubemaps->toBoolean() &&
-      (flags.m_extendedShader == EExtendedShader::LightingCubeReflection ||
-       flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
-      m_lastDrawnReflectionCube != g_reflectionCube) {
-    m_lastDrawnReflectionCube = g_reflectionCube;
-    m_instances.clear();
-  }
-
   ModelInstance* inst = nullptr;
   if (sharedLayoutBuf >= 0) {
     if (m_instances.size() <= sharedLayoutBuf) {
       do {
         inst = PushNewModelInstance(m_instances.size());
-        if (!inst) {
+        if (inst == nullptr) {
           return nullptr;
         }
       } while (m_instances.size() <= sharedLayoutBuf);
@@ -1054,7 +745,7 @@ hsh::dynamic_owner<hsh::vertex_buffer_typeless>* CBooModel::UpdateUniformData(co
   } else {
     if (m_instances.size() <= m_uniUpdateCount) {
       inst = PushNewModelInstance(sharedLayoutBuf);
-      if (!inst) {
+      if (inst == nullptr) {
         return nullptr;
       }
     } else {
@@ -1063,61 +754,70 @@ hsh::dynamic_owner<hsh::vertex_buffer_typeless>* CBooModel::UpdateUniformData(co
     ++m_uniUpdateCount;
   }
 
-  if (inst->m_geomUniformBuffer) {
-    m_geomLayout->Update(flags, cskr, pose, x4_matSet, inst->m_geomUniformBuffer, this);
+#if !HSH_PROFILE_MODE
+  m_geomLayout->Update(flags, cskr, pose, x4_matSet, inst->m_geometryUniforms, this);
+  CBooModel::UVAnimationBuffer::Update(inst->m_tcgUniforms, x4_matSet, flags, this);
+
+  CModelShaders::FragmentUniform lightingOut;
+  lightingOut = m_lightingData;
+  if (flags.m_postType == EPostType::ThermalHot) {
+    lightingOut.ambient = flags.m_addColor;
+  } else if (!m_lightsActive) {
+    lightingOut.ambient = gx_AmbientColors[0];
   }
+  lightingOut.lightmapMul = CGraphics::g_ColorRegs[1];
+  lightingOut.flagsColor = flags.x4_color;
+  lightingOut.fog = CGraphics::g_Fog;
+  inst->m_fragmentUniform.load(lightingOut);
+#endif
 
-  u8* dataOut = reinterpret_cast<u8*>(inst->m_uniformBuffer.map());
-  u8* dataCur = dataOut;
-
-  if (flags.m_extendedShader == EExtendedShader::Thermal) /* Thermal Model (same as UV Mode 0) */
-  {
-    CModelShaders::ThermalUniform& thermalOut = *reinterpret_cast<CModelShaders::ThermalUniform*>(dataCur);
-    thermalOut.mulColor = flags.x4_color;
-    thermalOut.addColor = flags.addColor;
-  } else if (flags.m_extendedShader >= EExtendedShader::SolidColor &&
-             flags.m_extendedShader <= EExtendedShader::SolidColorBackfaceCullGreaterAlphaOnly) /* Solid color render */
-  {
-    CModelShaders::SolidUniform& solidOut = *reinterpret_cast<CModelShaders::SolidUniform*>(dataCur);
-    solidOut.solidColor = flags.x4_color;
-  } else if (flags.m_extendedShader == EExtendedShader::MorphBallShadow) /* MorphBall shadow render */
-  {
-    CModelShaders::MBShadowUniform& shadowOut = *reinterpret_cast<CModelShaders::MBShadowUniform*>(dataCur);
-    shadowOut.shadowUp = CGraphics::g_GXModelView.rotate(zeus::skUp);
-    shadowOut.shadowUp.w() = flags.x4_color.a();
-    shadowOut.shadowId = flags.x4_color.r();
-  } else if (flags.m_extendedShader == EExtendedShader::Disintegrate) {
-    CModelShaders::OneTextureUniform& oneTexOut = *reinterpret_cast<CModelShaders::OneTextureUniform*>(dataCur);
-    oneTexOut.addColor = flags.addColor;
-    oneTexOut.fog = CGraphics::g_Fog;
-  } else {
-    CModelShaders::LightingUniform& lightingOut = *reinterpret_cast<CModelShaders::LightingUniform*>(dataCur);
-    lightingOut = m_lightingData;
-    lightingOut.colorRegs = CGraphics::g_ColorRegs;
-    lightingOut.mulColor = flags.x4_color;
-    lightingOut.addColor = flags.addColor;
-    lightingOut.fog = CGraphics::g_Fog;
-  }
-
-  dataCur += sizeof(CModelShaders::LightingUniform);
-  dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
+  //  u8* dataOut = reinterpret_cast<u8*>(inst->m_uniformBuffer.map());
+  //  u8* dataCur = dataOut;
+  //
+  //  if (flags.m_extendedShader == EExtendedShader::Thermal) /* Thermal Model (same as UV Mode 0) */
+  //  {
+  //    CModelShaders::ThermalUniform& thermalOut = *reinterpret_cast<CModelShaders::ThermalUniform*>(dataCur);
+  //    thermalOut.mulColor = flags.x4_color;
+  //    thermalOut.addColor = flags.addColor;
+  //  } else if (flags.m_extendedShader >= EExtendedShader::SolidColor &&
+  //             flags.m_extendedShader <= EExtendedShader::SolidColorBackfaceCullGreaterAlphaOnly) /* Solid color
+  //             render */
+  //  {
+  //    CModelShaders::SolidUniform& solidOut = *reinterpret_cast<CModelShaders::SolidUniform*>(dataCur);
+  //    solidOut.solidColor = flags.x4_color;
+  //  } else if (flags.m_extendedShader == EExtendedShader::MorphBallShadow) /* MorphBall shadow render */
+  //  {
+  //    CModelShaders::MBShadowUniform& shadowOut = *reinterpret_cast<CModelShaders::MBShadowUniform*>(dataCur);
+  //    shadowOut.shadowUp = CGraphics::g_GXModelView.rotate(zeus::skUp);
+  //    shadowOut.shadowUp.w() = flags.x4_color.a();
+  //    shadowOut.shadowId = flags.x4_color.r();
+  //  } else if (flags.m_extendedShader == EExtendedShader::Disintegrate) {
+  //    CModelShaders::OneTextureUniform& oneTexOut = *reinterpret_cast<CModelShaders::OneTextureUniform*>(dataCur);
+  //    oneTexOut.addColor = flags.addColor;
+  //    oneTexOut.fog = CGraphics::g_Fog;
+  //  } else {
+  //    CModelShaders::LightingUniform& lightingOut = *reinterpret_cast<CModelShaders::LightingUniform*>(dataCur);
+  //    lightingOut = m_lightingData;
+  //    lightingOut.colorRegs = CGraphics::g_ColorRegs;
+  //    lightingOut.mulColor = flags.x4_color;
+  //    lightingOut.addColor = flags.addColor;
+  //    lightingOut.fog = CGraphics::g_Fog;
+  //  }
+  //
+  //  dataCur += sizeof(CModelShaders::LightingUniform);
+  //  dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
 
   /* Reflection texmtx uniform */
-  zeus::CMatrix4f* identMtxs = reinterpret_cast<zeus::CMatrix4f*>(dataCur);
-  identMtxs[0] = zeus::CMatrix4f();
-  identMtxs[1] = zeus::CMatrix4f();
-  u8* curReflect = dataCur + 256;
-  for (const CBooSurface& surf : *x0_surfaces) {
+  for (size_t i = 0; i < x0_surfaces->size(); ++i) {
+    const auto& surf = x0_surfaces->at(i);
     const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
     if (mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye()) {
-      zeus::CMatrix4f* mtxs = reinterpret_cast<zeus::CMatrix4f*>(curReflect);
-      float& alpha = reinterpret_cast<float&>(mtxs[2]);
-      curReflect += 256;
-      EnsureViewDepStateCached(*this, mat.flags.samusReflectionSurfaceEye() ? &surf : nullptr, mtxs, alpha);
+      EnsureViewDepStateCached(*this, mat.flags.samusReflectionSurfaceEye() ? &surf : nullptr,
+                               inst->m_reflectUniforms[i]);
     }
   }
 
-  inst->m_uniformBuffer.unmap();
+  inst->GetBooVBO(*this);
   return &inst->m_dynamicVbo;
 }
 
@@ -1178,7 +878,7 @@ std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts, 
   if (shaderIdx >= x18_matSets.size())
     shaderIdx = 0;
   auto ret = std::make_unique<CBooModel>(m_selfToken, this, &x8_surfaces, x18_matSets[shaderIdx], m_staticVbo.get(),
-                                         m_ibo.get(), m_aabb, (m_flags & 0x2) != 0, subInsts);
+                                         m_ibo.get(), m_aabb, (m_flags & 0x2) != 0, subInsts, VertexFormat{m_hmdlMeta});
   if (lockParent)
     ret->LockParent();
   return ret;
@@ -1221,7 +921,6 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
 
   for (SShader& matSet : x18_matSets) {
     matSet.InitializeLayout(this);
-    matSet.BuildShaders(m_hmdlMeta);
   }
 
   /* Index buffer is always static */
@@ -1231,52 +930,10 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
 
   if (!m_hmdlMeta.bankCount) {
     /* Non-skinned models use static vertex buffers shared with CBooModel instances */
-    if (m_hmdlMeta.vertCount) {
-      auto CreateVBO = [this, vboData]<uint32_t NUVs, uint32_t NWeights>() {
-        using VertData = CModelShaders::VertData<0, NUVs, NWeights>;
-        assert(sizeof(VertData) != m_hmdlMeta.vertStride && "Vert data stride mismatch");
-        m_staticVbo = hsh::create_vertex_buffer(
-            hsh::detail::ArrayProxy{reinterpret_cast<const VertData*>(vboData), m_hmdlMeta.vertCount});
-      };
-#define VERT_DATA(uvs)                                                                                                 \
-  switch (m_hmdlMeta.weightCount) {                                                                          \
-  case 0:                                                                                                              \
-    CreateVBO.operator()<uvs, 0>();                                                                                    \
-    break;                                                                                                             \
-  case 1:                                                                                                              \
-    CreateVBO.operator()<uvs, 1>();                                                                                    \
-    break;                                                                                                             \
-  case 2:                                                                                                              \
-    CreateVBO.operator()<uvs, 2>();                                                                                    \
-    break;                                                                                                             \
-  case 3:                                                                                                              \
-    CreateVBO.operator()<uvs, 3>();                                                                                    \
-    break;                                                                                                             \
-  case 4:                                                                                                              \
-    CreateVBO.operator()<uvs, 4>();                                                                                    \
-    break;                                                                                                             \
-  default:                                                                                                             \
-    assert(false && "Unhandled weight count");                                                                         \
-    break;                                                                                                             \
-  }                                                                                                                    \
-  break;
-      switch (m_hmdlMeta.uvCount) {
-      case 0:
-        VERT_DATA(0)
-      case 1:
-        VERT_DATA(1)
-      case 2:
-        VERT_DATA(2)
-      case 3:
-        VERT_DATA(3)
-      case 4:
-        VERT_DATA(4)
-#undef VERT_DATA
-      default:
-        assert(false && "Unhandled UV count");
-        break;
-      }
-    }
+    MapVertData(m_hmdlMeta, [this, vboData]<typename VertData>() {
+      const auto* data = reinterpret_cast<const VertData*>(vboData);
+      m_staticVbo = hsh::create_vertex_buffer(hsh::detail::ArrayProxy{data, m_hmdlMeta.vertCount});
+    });
   } else {
     /* Skinned models use per-instance dynamic buffers for vertex manipulation effects */
     size_t vboSz = m_hmdlMeta.vertStride * m_hmdlMeta.vertCount;
@@ -1338,40 +995,37 @@ bool CModel::IsLoaded(int shaderIdx) const {
   return x28_modelInst->TryLockTextures();
 }
 
-size_t CModel::GetPoolVertexOffset(size_t idx) const { return m_hmdlMeta.vertStride * idx; }
-
 zeus::CVector3f CModel::GetPoolVertex(size_t idx) const {
-  const auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolVertexOffset(idx));
-  return {floats};
+  const auto* const offset = m_dynamicVertexData.get() + idx * m_hmdlMeta.vertStride;
+  return reinterpret_cast<const CModelShaders::VertData<0, 0, 0>*>(offset)->posIn;
 }
 
-size_t CModel::GetPoolNormalOffset(size_t idx) const { return m_hmdlMeta.vertStride * idx + 12; }
-
 zeus::CVector3f CModel::GetPoolNormal(size_t idx) const {
-  const auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolNormalOffset(idx));
-  return {floats};
+  const auto* const offset = m_dynamicVertexData.get() + idx * m_hmdlMeta.vertStride;
+  return reinterpret_cast<const CModelShaders::VertData<0, 0, 0>*>(offset)->normIn;
 }
 
 void CModel::ApplyVerticesCPU(hsh::dynamic_owner<hsh::vertex_buffer_typeless>& vertBuf,
                               const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const {
-  u8* data = reinterpret_cast<u8*>(vertBuf.map()); // m_hmdlMeta.vertStride * m_hmdlMeta.vertCount
+#if HSH_PROFILE_MODE
+  return;
+#endif
+  u8* data = reinterpret_cast<u8*>(vertBuf.map());
   for (u32 i = 0; i < std::min(u32(vn.size()), m_hmdlMeta.vertCount); ++i) {
-    const std::pair<zeus::CVector3f, zeus::CVector3f>& avn = vn[i];
-    float* floats = reinterpret_cast<float*>(data + GetPoolVertexOffset(i));
-    floats[0] = avn.first.x();
-    floats[1] = avn.first.y();
-    floats[2] = avn.first.z();
-    floats[3] = avn.second.x();
-    floats[4] = avn.second.y();
-    floats[5] = avn.second.z();
+    auto* const offset = data + i * m_hmdlMeta.vertStride;
+    auto* const vert = reinterpret_cast<CModelShaders::VertData<0, 0, 0>*>(offset);
+    vert->posIn = vn[i].first;
+    vert->normIn = vn[i].second;
   }
   vertBuf.unmap();
 }
 
 void CModel::RestoreVerticesCPU(hsh::dynamic_owner<hsh::vertex_buffer_typeless>& vertBuf) const {
+#if HSH_PROFILE_MODE
+  return;
+#endif
   size_t size = m_hmdlMeta.vertStride * m_hmdlMeta.vertCount;
-  u8* data = reinterpret_cast<u8*>(vertBuf.map()); // size
-  memcpy(data, m_dynamicVertexData.get(), size);
+  memcpy(vertBuf.map(), m_dynamicVertexData.get(), size);
   vertBuf.unmap();
 }
 

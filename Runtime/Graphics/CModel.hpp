@@ -74,25 +74,15 @@ struct CBooSurface {
 using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
 
 struct GeometryUniformLayout {
-  mutable std::vector<hsh::dynamic_owner<hsh::uniform_buffer_typeless>> m_sharedBuffer;
-  size_t m_geomBufferSize = 0;
   size_t m_skinBankCount = 0;
   size_t m_weightVecCount = 0;
 
-  std::vector<size_t> m_skinOffs;
-  std::vector<size_t> m_skinSizes;
-
-  std::vector<size_t> m_uvOffs;
-  std::vector<size_t> m_uvSizes;
-
   GeometryUniformLayout(const CModel* model, const MaterialSet* matSet);
   void Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
-              const MaterialSet* matSet, hsh::dynamic_owner<hsh::uniform_buffer_typeless>& buf,
+              const MaterialSet* matSet, std::vector<hsh::dynamic_owner<hsh::uniform_buffer_typeless>>& buf,
               const CBooModel* parent) const;
 
   hsh::dynamic_owner<hsh::uniform_buffer_typeless> AllocateVertUniformBuffer() const;
-  void ReserveSharedBuffers(size_t size);
-  hsh::dynamic_owner<hsh::uniform_buffer_typeless>& GetSharedBuffer(size_t idx) const;
 };
 
 struct SShader {
@@ -100,9 +90,7 @@ struct SShader {
   MaterialSet m_matSet;
   std::optional<GeometryUniformLayout> m_geomLayout;
   int m_matSetIdx;
-  explicit SShader(int idx) : m_matSetIdx(idx) {
-    x0_textures.clear();
-  }
+  explicit SShader(int idx) : m_matSetIdx(idx) { x0_textures.clear(); }
   void InitializeLayout(const CModel* model) { m_geomLayout.emplace(model, &m_matSet); }
   void UnlockTextures();
 };
@@ -124,6 +112,7 @@ class CBooModel {
   friend class CSkinnedModel;
   friend struct GeometryUniformLayout;
   friend class CModelShaders;
+  friend struct ModelInstance;
 
 public:
   enum class ESurfaceSelection { UnsortedOnly, SortedOnly, All };
@@ -149,23 +138,16 @@ private:
   u32 x44_areaInstanceIdx = UINT32_MAX;
 
   struct UVAnimationBuffer {
-    static void ProcessAnimation(u8*& bufOut, const MaterialSet::Material::PASS& anim);
-    static void PadOutBuffer(u8*& bufStart, u8*& bufOut);
-    static void Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags, const CBooModel* parent);
+    static void ProcessAnimation(CModelShaders::TCGMatrix& tcg, const MaterialSet::Material::PASS& anim);
+    static void Update(std::vector<hsh::dynamic_owner<hsh::uniform_buffer<CModelShaders::TCGMatrixUniform>>>& uniforms,
+                       const MaterialSet* matSet, const CModelFlags& flags, const CBooModel* parent);
   };
 
-  CModelShaders::LightingUniform m_lightingData;
+  CModelShaders::FragmentUniform m_lightingData{};
+  bool m_lightsActive = false;
 
   /* urde addition: boo! */
   size_t m_uniformDataSize = 0;
-  struct ModelInstance {
-    hsh::dynamic_owner<hsh::uniform_buffer_typeless> m_geomUniformBuffer;
-    hsh::dynamic_owner<hsh::uniform_buffer_typeless> m_uniformBuffer;
-    std::vector<std::vector<hsh::binding>> m_shaderDataBindings;
-    hsh::dynamic_owner<hsh::vertex_buffer_typeless> m_dynamicVbo;
-
-    hsh::vertex_buffer_typeless GetBooVBO(const CBooModel& model);
-  };
   std::vector<ModelInstance> m_instances;
   ModelInstance m_ballShadowInstance;
 
@@ -181,8 +163,7 @@ private:
   void DrawNormalSurfaces(const CModelFlags& flags) const;
   void DrawSurfaces(const CModelFlags& flags) const;
   void DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const;
-  void WarmupDrawSurfaces() const;
-  void WarmupDrawSurface(const CBooSurface& surf) const;
+  void WarmupDrawSurface(const CBooSurface& surf, const CModelFlags& flags) const;
 
   static inline zeus::CVector3f g_PlayerPosition;
   static inline float g_ModSeconds = 0.0f;
@@ -196,13 +177,11 @@ private:
 public:
   ~CBooModel();
   CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
-            hsh::vertex_buffer_typeless vbo,
-            hsh::index_buffer_typeless ibo,
-            const zeus::CAABox& aabb, u8 renderMask, int numInsts);
+            hsh::vertex_buffer_typeless vbo, hsh::index_buffer<u32> ibo, const zeus::CAABox& aabb, u8 renderMask,
+            int numInsts, VertexFormat vtxFmt);
 
   static void MakeTexturesFromMats(const MaterialSet& matSet,
-                                   std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut,
-                                   IObjectStore& store);
+                                   std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut, IObjectStore& store);
   void MakeTexturesFromMats(std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut, IObjectStore& store);
 
   bool IsOpaque() const { return x3c_firstSortedSurface == nullptr; }
@@ -216,7 +195,8 @@ public:
   void Touch(int shaderIdx);
   void VerifyCurrentShader(int shaderIdx);
   hsh::dynamic_owner<hsh::vertex_buffer_typeless>* UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
-                                                        const CPoseAsTransforms* pose, int sharedLayoutBuf = -1);
+                                                                     const CPoseAsTransforms* pose,
+                                                                     int sharedLayoutBuf = -1);
   void DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
   void DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
   void Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
@@ -237,8 +217,8 @@ public:
 
   static inline zeus::CVector3f g_ReflectViewPos;
   static void KillCachedViewDepState();
-  static void EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf, zeus::CMatrix4f* mtxsOut,
-                                       float& alphaOut);
+  static void EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf,
+                                       hsh::dynamic_owner<hsh::uniform_buffer<CModelShaders::ReflectMtx>>& buf);
 
   static hsh::texture2d g_shadowMap;
   static zeus::CTransform g_shadowTexXf;
@@ -257,6 +237,7 @@ public:
   static void Shutdown();
 
   const zeus::CAABox& GetAABB() const { return x20_aabb; }
+  void WarmupDrawSurfaces(const CModelFlags& unsortedFlags, const CModelFlags& sortedFlags) const;
 };
 
 class CModel {
@@ -297,9 +278,7 @@ public:
   void UpdateLastFrame() const { const_cast<CModel&>(*this).x38_lastFrame = CGraphics::GetFrameCounter(); }
   u32 GetNumMaterialSets() const { return x18_matSets.size(); }
 
-  size_t GetPoolVertexOffset(size_t idx) const;
   zeus::CVector3f GetPoolVertex(size_t idx) const;
-  size_t GetPoolNormalOffset(size_t idx) const;
   zeus::CVector3f GetPoolNormal(size_t idx) const;
   void ApplyVerticesCPU(hsh::dynamic_owner<hsh::vertex_buffer_typeless>& vertBuf,
                         const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const;
@@ -315,4 +294,42 @@ public:
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
                                const urde::CVParamTransfer& vparms, CObjectReference* selfRef);
 
+template <typename F>
+constexpr auto MapVertData(const hecl::HMDLMeta& meta, F&& Func) {
+#define WEIGHT_COUNT(uvs, weights)                                                                                     \
+  case weights: {                                                                                                      \
+    using VertData = CModelShaders::VertData<0, uvs, weights>;                                                         \
+    assert(sizeof(VertData) == meta.vertStride && "Vert data stride mismatch");                                        \
+    return Func.template operator()<VertData>();                                                                         \
+    break;                                                                                                             \
+  }
+#define UV_COUNT(uvs)                                                                                                  \
+  case uvs:                                                                                                            \
+    switch (meta.weightCount) {                                                                                        \
+      WEIGHT_COUNT(uvs, 0);                                                                                            \
+      WEIGHT_COUNT(uvs, 1);                                                                                            \
+      WEIGHT_COUNT(uvs, 2);                                                                                            \
+      WEIGHT_COUNT(uvs, 3);                                                                                            \
+      WEIGHT_COUNT(uvs, 4);                                                                                            \
+      WEIGHT_COUNT(uvs, 5);                                                                                            \
+    default:                                                                                                           \
+      assert(false && "Unhandled weight count");                                                                       \
+      break;                                                                                                           \
+    }                                                                                                                  \
+    break;
+  switch (meta.uvCount) {
+    UV_COUNT(0)
+    UV_COUNT(1)
+    UV_COUNT(2)
+    UV_COUNT(3)
+    UV_COUNT(4)
+    UV_COUNT(5)
+#undef UV_COUNT
+#undef WEIGHT_COUNT
+  default:
+    assert(false && "Unhandled UV count");
+  }
+  // fallback
+  return Func.template operator()<CModelShaders::VertData<0, 0, 0>>();
+}
 } // namespace urde

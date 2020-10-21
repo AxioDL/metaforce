@@ -21,12 +21,15 @@ class CMetroidModelInstance {
   friend class CBooRenderer;
   friend class CGameArea;
 
+public:
   int x0_visorFlags;
   zeus::CTransform x4_xf;
   zeus::CAABox x34_aabb;
   std::vector<CBooSurface> m_surfaces;
   std::unique_ptr<CBooModel> m_instance;
   hecl::HMDLMeta m_hmdlMeta;
+  hsh::owner<hsh::vertex_buffer_typeless> m_staticVbo;
+  hsh::owner<hsh::index_buffer<u32>> m_staticIbo;
 
 public:
   CMetroidModelInstance() = default;

@@ -739,8 +739,8 @@ void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* g
   if (search == x1c_areaListItems.end()) {
     std::unordered_map<CAssetId, TCachedToken<CTexture>> textures;
     std::vector<CBooModel*> models;
-    if (geometry->size()) {
-      (*geometry)[0].m_instance->MakeTexturesFromMats(textures, xc_store);
+    if (!geometry->empty()) {
+      geometry->at(0).m_instance->MakeTexturesFromMats(textures, xc_store);
       models.reserve(geometry->size());
       int instIdx = 0;
       for (const CMetroidModelInstance& inst : *geometry) {
@@ -764,28 +764,10 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode, 
   SetupRendererStates();
 
   CModelFlags flags;
-  int bufIdx;
-  if (shadowMode == EWorldShadowMode::WorldOnActorShadow) {
-    flags.m_extendedShader = EExtendedShader::SolidColor;
-    flags.x4_color = zeus::skBlack;
-    bufIdx = 1;
-  } else if (shadowMode == EWorldShadowMode::BallOnWorldShadow) {
-    flags = *ballShadowFlags;
-    bufIdx = 2;
-  } else if (shadowMode == EWorldShadowMode::BallOnWorldIds) {
-    flags.m_extendedShader = EExtendedShader::SolidColor;
-    bufIdx = 3;
-  } else {
-    flags.m_extendedShader = EExtendedShader::Lighting;
-    bufIdx = cubeFace == -1 ? 0 : 4 + cubeFace;
-  }
-
+  int bufIdx = 0;
   for (CAreaListItem& item : x1c_areaListItems) {
     if (areaIdx != -1 && item.x18_areaIdx != areaIdx)
       continue;
-
-    item.m_shaderSet->m_geomLayout->Update(flags, nullptr, nullptr, &item.m_shaderSet->m_matSet,
-                                           item.m_shaderSet->m_geomLayout->GetSharedBuffer(bufIdx), nullptr);
 
     if (shadowMode == EWorldShadowMode::BallOnWorldShadow || shadowMode == EWorldShadowMode::BallOnWorldIds)
       continue;
@@ -1107,13 +1089,10 @@ void CBooRenderer::CacheReflection(TReflectionCallback cb, void* ctx, bool clear
   x2dc_reflectionAge = 0;
 
   BindReflectionDrawTarget();
-  SViewport backupVp = g_Viewport;
-  SetViewport(0, 0, 256, 256);
   hsh::clear_attachments(true, false);
   cb(ctx, CBooModel::g_ReflectViewPos);
-  x14c_reflectionTex.resolve_color_binding(0, {{}, {256, 256}}, false);
+  ResolveReflectionDrawTarget();
   BindMainDrawTarget();
-  SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
 }
 
 void CBooRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength) {
@@ -1419,6 +1398,24 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
 
     curWord += item.x4_octTree->x14_bitmapWordCount;
   }
+}
+
+void CBooRenderer::BindMainDrawTarget() {
+  CGraphics::g_SpareTexture.attach();
+  hsh::set_blend_constants(0.f, 0.f, 0.f, gx_DstAlphaValue);
+  CachedVP.x0_left = 0;
+  CachedVP.x4_top = 0;
+#ifdef __SWITCH__
+  hsh::extent2d extent{1280, 720};
+#else
+  hsh::extent2d extent = CGraphics::g_SpareTexture.Owner._VULKAN_SPIRV.Allocation->GetExtent();
+#endif
+  CachedVP.x8_width = extent.w;
+  CachedVP.xc_height = extent.h;
+  CachedVP.x10_halfWidth = extent.w / 2.f;
+  CachedVP.x14_halfHeight = extent.h / 2.f;
+  CachedVP.aspect = extent.w / float(extent.h);
+  g_Viewport = CachedVP;
 }
 
 } // namespace urde
