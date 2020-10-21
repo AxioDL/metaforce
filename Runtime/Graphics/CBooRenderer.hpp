@@ -172,7 +172,7 @@ private:
 
   void ActivateLightsForModel(CAreaListItem* item, CBooModel& model);
   void RenderBucketItems(CAreaListItem* item);
-  void HandleUnsortedModel(CAreaListItem* item, CBooModel& model, const CModelFlags& flags);
+  void HandleUnsortedModel(CAreaListItem* item, CBooModel& model, EPostType postType);
   static void CalcDrawFogFan(const zeus::CPlane* planes, size_t numPlanes, const zeus::CVector3f* verts,
                              size_t numVerts, size_t iteration, size_t level, CFogVolumePlaneShader& fogVol);
   static void DrawFogSlices(const zeus::CPlane* planes, size_t numPlanes, size_t iteration,

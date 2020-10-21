@@ -27,23 +27,17 @@ class IObjectStore;
 struct CModelFlags {
   u8 x0_blendMode = 0; /* 2: add color, >6: additive, >4: blend, else opaque */
   u8 x1_matSetIdx = 0;
-  EPostType m_postType = EPostType::Normal;
-  EExtendedShader m_extendedShader = EExtendedShader::Lighting;
-  bool m_noCull = false;
-  bool m_noZWrite = false;
-  bool m_depthGreater = false;
   u16 x2_flags = 0;      /* Flags */
   zeus::CColor x4_color; /* Set into kcolor slot specified by material */
-  zeus::CColor addColor = zeus::skClear;
-  zeus::CAABox mbShadowBox;
+  EPostType m_postType = EPostType::Normal;
+  // For PostType::ThermalHot and Disintegrate
+  zeus::CColor m_addColor = zeus::skClear;
+  // For PostType::MBShadow
+  zeus::CAABox m_mbShadowBox;
 
   constexpr CModelFlags() = default;
   constexpr CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
-  : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col) {
-    /* Blend mode will override this if the surface's original material is opaque */
-    m_noZWrite = (x2_flags & 0x2) == 0;
-    m_depthGreater = (x2_flags & 0x8) != 0;
-  }
+  : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col) {}
 
   /* Flags
       0x1: depth equal

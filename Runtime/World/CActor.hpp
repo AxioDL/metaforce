@@ -38,7 +38,7 @@ protected:
   std::unique_ptr<CSimpleShadow> x94_simpleShadow;
   TLockedToken<CScannableObjectInfo> x98_scanObjectInfo;
   zeus::CAABox x9c_renderBounds;
-  CModelFlags xb4_drawFlags;
+  CModelFlags xb4_drawFlags{0, 0, 3, zeus::skWhite};
   float xbc_time = 0.f;
   float xc0_pitchBend = 0.f;
   TUniqueId xc4_fluidId = kInvalidUniqueId;

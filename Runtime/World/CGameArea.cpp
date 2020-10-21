@@ -409,11 +409,12 @@ CGameArea::CGameArea(CAssetId mreaId) : x84_mrea(mreaId), xf0_25_active{false} {
   zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
   CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -2048.f, 0.f));
   CGraphics::SetOrtho(-2048.f, 2048.f, 2048.f, -2048.f, 0.f, 4096.f);
-  CModelFlags defaultFlags;
+  CModelFlags unsortedFlags{0, 0, 1, zeus::skWhite};
+  CModelFlags sortedFlags{0, 0, 3, zeus::skWhite};
   for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts) {
     CGraphics::SetModelMatrix(zeus::CTransform::Translate(-inst.x34_aabb.center()));
-    inst.m_instance->UpdateUniformData(defaultFlags, nullptr, nullptr);
-    inst.m_instance->WarmupDrawSurfaces();
+    inst.m_instance->UpdateUniformData(unsortedFlags, nullptr, nullptr);
+    inst.m_instance->WarmupDrawSurfaces(unsortedFlags, sortedFlags);
   }
   CGraphics::SetProjectionState(backupProj);
   CGraphics::SetViewPointMatrix(backupViewPoint);

@@ -282,9 +282,7 @@ void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
 }
 
 void CBooRenderer::RenderBucketItems(CAreaListItem* item) {
-  CModelFlags flags;
-  flags.m_noZWrite = true;
-  flags.m_extendedShader = EExtendedShader::Lighting;
+  CModelFlags flags{0, 0, 1, zeus::skWhite};
 
   for (u16 idx : Buckets::sBucketIndex) {
     rstl::reserved_vector<CDrawable*, 128>& bucket = (*Buckets::sBuckets)[idx];
@@ -315,9 +313,11 @@ void CBooRenderer::RenderBucketItems(CAreaListItem* item) {
   }
 }
 
-void CBooRenderer::HandleUnsortedModel(CAreaListItem* item, CBooModel& model, const CModelFlags& flags) {
+void CBooRenderer::HandleUnsortedModel(CAreaListItem* item, CBooModel& model, EPostType postType) {
   // ActivateLightsForModel(item, model);
   CBooSurface* surf = model.x38_firstUnsortedSurface;
+  CModelFlags flags{0, 0, 3, zeus::skWhite};
+  flags.m_postType = postType;
   while (surf) {
     model.DrawSurface(*surf, flags);
     surf = surf->m_next;
@@ -443,23 +443,24 @@ void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* 
     switch (pass) {
     case 0:
     default:
-      flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullLEqualAlphaOnly;
+      //flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullLEqualAlphaOnly;
       flags.x4_color = zeus::CColor(1.f, 1.f, 1.f, 1.f);
       break;
     case 1:
-      flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullAlwaysAlphaOnly;
+      //flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullAlwaysAlphaOnly;
       flags.x4_color = zeus::CColor(1.f, 1.f, 1.f, 1.f);
       break;
     case 2:
-      flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
+      //flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
       flags.x4_color = zeus::CColor(1.f, 1.f, 1.f, 0.f);
       break;
     case 3:
-      flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullGreaterAlphaOnly;
+      //flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullGreaterAlphaOnly;
       flags.x4_color = zeus::CColor(1.f, 1.f, 1.f, 0.f);
       break;
     }
 
+    // TODO: game uses DrawFlat
     if (sModel) {
       sModel->Draw(flags);
     } else {
@@ -806,7 +807,7 @@ void CBooRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawAreaGeometry", zeus::skPurple);
   x318_30_inAreaDraw = true;
   // SetupRendererStates();
-  CModelFlags flags;
+  CModelFlags flags{0, 0, 3, zeus::skWhite};
 
   for (CAreaListItem& item : x1c_areaListItems) {
     if (areaIdx != -1 || item.x18_areaIdx == areaIdx) {
@@ -840,8 +841,7 @@ void CBooRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask) {
 void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawUnsortedGeometry", zeus::skPurple);
   // SetupRendererStates();
-  CModelFlags flags;
-  flags.m_extendedShader = shadowRender ? EExtendedShader::SolidColor : EExtendedShader::Lighting;
+  EPostType postType = shadowRender ? EPostType::Solid : EPostType::Normal;
 
   CAreaListItem* lastOctreeItem = nullptr;
 
@@ -900,7 +900,7 @@ void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, b
       }
 
       model->x40_25_modelVisible = true;
-      HandleUnsortedModel(lastOctreeItem, *model, flags);
+      HandleUnsortedModel(lastOctreeItem, *model, postType);
     }
   }
 
@@ -941,9 +941,10 @@ void CBooRenderer::DrawStaticGeometry(int modelCount, int mask, int targetMask) 
 }
 
 void CBooRenderer::DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) {
+  // TODO
   model.GetInstance().DrawFlat(unsortedOnly ? CBooModel::ESurfaceSelection::UnsortedOnly
                                             : CBooModel::ESurfaceSelection::All,
-                               flags.m_extendedShader);
+                               EExtendedShader::Flat);
 }
 
 void CBooRenderer::PostRenderFogs() {
@@ -1120,9 +1121,10 @@ void CBooRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength) {
 void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mulCol, const zeus::CColor& addCol) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawThermalModel", zeus::skPurple);
   CModelFlags flags;
-  flags.m_extendedShader = EExtendedShader::Thermal;
+  // TODO determine flags
   flags.x4_color = mulCol;
-  flags.addColor = addCol;
+  flags.m_postType = EPostType::ThermalHot;
+  flags.m_addColor = addCol;
   model.UpdateLastFrame();
   model.Draw(flags);
 }
@@ -1130,7 +1132,8 @@ void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mul
 void CBooRenderer::DrawXRayOutline(const zeus::CAABox& aabb) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawXRayOutline", zeus::skPurple);
   CModelFlags flags;
-  flags.m_extendedShader = EExtendedShader::ForcedAlpha;
+  // TODO determine flags
+//  flags.m_extendedShader = EExtendedShader::ForcedAlpha;
 
   for (CAreaListItem& item : x1c_areaListItems) {
     if (item.x4_octTree) {
@@ -1328,8 +1331,8 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
   SetupRendererStates();
   UpdateAreaUniforms(-1, EWorldShadowMode::BallOnWorldIds, false);
 
-  CModelFlags flags;
-  flags.m_extendedShader = EExtendedShader::SolidColor; // Do solid color draw
+  CModelFlags flags{0, 0, 3, zeus::skWhite};
+  flags.m_postType = EPostType::Solid;
 
   u32 curWord = 0;
   for (const CAreaListItem& item : x1c_areaListItems) {
@@ -1372,9 +1375,10 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
                                                     const zeus::CAABox& aabb, float alpha) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawOverlappingWorldModelShadows", zeus::skGrey);
   CModelFlags flags;
+  // TODO determine flags
   flags.x4_color.a() = alpha;
-  flags.m_extendedShader = EExtendedShader::MorphBallShadow; // Do shadow draw
-  flags.mbShadowBox = aabb;
+  flags.m_postType = EPostType::MBShadow;
+  flags.m_mbShadowBox = aabb;
 
   UpdateAreaUniforms(-1, EWorldShadowMode::BallOnWorldShadow, false, -1, &flags);
 

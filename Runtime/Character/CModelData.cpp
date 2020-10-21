@@ -291,8 +291,8 @@ void CModelData::RenderThermal(const zeus::CColor& mulColor, const zeus::CColor&
                                const CModelFlags& flags) const {
   CModelFlags drawFlags = flags;
   drawFlags.x4_color *= mulColor;
-  drawFlags.addColor = addColor;
-  drawFlags.m_extendedShader = EExtendedShader::Thermal;
+  drawFlags.m_addColor = addColor;
+  drawFlags.m_postType = EPostType::ThermalHot;
 
   if (x10_animData) {
     CSkinnedModel& model = PickAnimatedModel(EWhichModel::ThermalHot);
@@ -380,46 +380,36 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CAc
 void CModelData::InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
                              const zeus::CColor& alphaColor, const zeus::CColor& additiveColor) {
   CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
+  constexpr CModelFlags zPrimeFlags{5, 0, 3, zeus::CColor{1.f, 0.f}};
+  const CModelFlags normalFlags{5, 0, 1, alphaColor};
+  const CModelFlags additiveFlags{7, 0, 1, additiveColor};
   if (x10_animData) {
     CSkinnedModel& model = PickAnimatedModel(which);
     model.GetModelInst()->DisableAllLights();
     CModelFlags flags = {};
 
     /* Z-prime */
-    flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-    flags.x4_color = zeus::skWhite;
-    x10_animData->Render(model, flags, std::nullopt, nullptr);
+    x10_animData->Render(model, zPrimeFlags, std::nullopt, nullptr);
 
     /* Normal Blended */
     lights->ActivateLights(*model.GetModelInst());
-    flags.m_extendedShader = EExtendedShader::ForcedAlpha;
-    flags.x4_color = alphaColor;
-    x10_animData->Render(model, flags, std::nullopt, nullptr);
+    x10_animData->Render(model, normalFlags, std::nullopt, nullptr);
 
     /* Selection Additive */
-    flags.m_extendedShader = EExtendedShader::ForcedAdditive;
-    flags.x4_color = additiveColor;
-    x10_animData->Render(model, flags, std::nullopt, nullptr);
+    x10_animData->Render(model, additiveFlags, std::nullopt, nullptr);
   } else {
     CBooModel& model = *PickStaticModel(which);
     model.DisableAllLights();
-    CModelFlags flags = {};
 
     /* Z-prime */
-    flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-    flags.x4_color = zeus::skWhite;
-    model.Draw(flags, nullptr, nullptr);
+    model.Draw(zPrimeFlags, nullptr, nullptr);
 
     /* Normal Blended */
     lights->ActivateLights(model);
-    flags.m_extendedShader = EExtendedShader::ForcedAlpha;
-    flags.x4_color = alphaColor;
-    model.Draw(flags, nullptr, nullptr);
+    model.Draw(normalFlags, nullptr, nullptr);
 
     /* Selection Additive */
-    flags.m_extendedShader = EExtendedShader::ForcedAdditive;
-    flags.x4_color = additiveColor;
-    model.Draw(flags, nullptr, nullptr);
+    model.Draw(additiveFlags, nullptr, nullptr);
   }
 }
 
@@ -435,9 +425,9 @@ void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
 
   CBooModel::SetDisintegrateTexture(tex.GetBooTexture());
   CModelFlags flags(5, 0, 3, zeus::skWhite);
-  flags.m_extendedShader = EExtendedShader::Disintegrate;
-  flags.addColor = addColor;
-  flags.addColor.a() = t; // Stash T value in here (shader does not care)
+  flags.m_postType = EPostType::Disintegrate;
+  flags.m_addColor = addColor;
+  flags.m_addColor.a() = t; // Stash T value in here (shader does not care)
 
   if (x10_animData) {
     CSkinnedModel& sModel = PickAnimatedModel(which);

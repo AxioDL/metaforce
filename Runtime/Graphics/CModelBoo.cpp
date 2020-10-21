@@ -538,7 +538,8 @@ void CBooModel::SyncLoadTextures() {
 void CBooModel::DrawFlat(ESurfaceSelection sel, EExtendedShader extendedIdx) const {
   const CBooSurface* surf;
   CModelFlags flags = {};
-  flags.m_extendedShader = extendedIdx;
+  // TODO
+  // flags.m_extendedShader = extendedIdx;
 
   if (sel != ESurfaceSelection::SortedOnly) {
     surf = x38_firstUnsortedSurface;
@@ -672,21 +673,21 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
   CGraphics::DrawArrayIndexed(surf.m_data.idxStart, surf.m_data.idxCount);
 }
 
-void CBooModel::WarmupDrawSurfaces() const {
+void CBooModel::WarmupDrawSurfaces(const CModelFlags& unsortedFlags, const CModelFlags& sortedFlags) const {
   const CBooSurface* surf = x38_firstUnsortedSurface;
   while (surf) {
-    WarmupDrawSurface(*surf);
+    WarmupDrawSurface(*surf, unsortedFlags);
     surf = surf->m_next;
   }
 
   surf = x3c_firstSortedSurface;
   while (surf) {
-    WarmupDrawSurface(*surf);
+    WarmupDrawSurface(*surf, sortedFlags);
     surf = surf->m_next;
   }
 }
 
-void CBooModel::WarmupDrawSurface(const CBooSurface& surf) const {
+void CBooModel::WarmupDrawSurface(const CBooSurface& surf, const CModelFlags& flags) const {
   if (m_uniUpdateCount > m_instances.size())
     return;
   const ModelInstance& inst = m_instances[m_uniUpdateCount - 1];
@@ -1124,7 +1125,7 @@ void CBooModel::DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, cons
   CModelFlags rFlags = flags;
   /* Check if we're overriding with RenderModelBlack */
   if (g_RenderModelBlack) {
-    rFlags.m_extendedShader = EExtendedShader::SolidColor;
+    rFlags.m_postType = EPostType::Solid;
     rFlags.x4_color = zeus::skBlack;
   }
 
@@ -1138,7 +1139,7 @@ void CBooModel::DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, con
   CModelFlags rFlags = flags;
   /* Check if we're overriding with RenderModelBlack */
   if (g_RenderModelBlack) {
-    rFlags.m_extendedShader = EExtendedShader::SolidColor;
+    rFlags.m_postType = EPostType::Solid;
     rFlags.x4_color = zeus::skBlack;
   }
   if (TryLockTextures()) {
@@ -1151,7 +1152,7 @@ void CBooModel::Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPo
   CModelFlags rFlags = flags;
   /* Check if we're overriding with RenderModelBlack */
   if (g_RenderModelBlack) {
-    rFlags.m_extendedShader = EExtendedShader::SolidColor;
+    rFlags.m_postType = EPostType::Solid;
     rFlags.x4_color = zeus::skBlack;
   }
 

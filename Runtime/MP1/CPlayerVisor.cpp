@@ -388,7 +388,6 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   CModelFlags flags(5, 0, 0,
                     frameColor + g_tweakGuiColors->GetScanFrameImpulseColor() *
                                      zeus::CColor(x550_scanFrameColorImpulseInterp, x550_scanFrameColorImpulseInterp));
-  flags.m_noCull = true;
 
   const zeus::CTransform verticalFlip = zeus::CTransform::Scale(1.f, 1.f, -1.f);
   const zeus::CTransform horizontalFlip = zeus::CTransform::Scale(-1.f, 1.f, 1.f);

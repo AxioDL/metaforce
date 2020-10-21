@@ -669,8 +669,7 @@ void CWorld::DrawSky(const zeus::CTransform& xf) const {
   g_Renderer->SetAmbientColor(zeus::skWhite);
   CGraphics::SetDepthRange(DEPTH_SKY, DEPTH_FAR);
 
-  CModelFlags flags(0, 0, 1, zeus::skWhite);
-  flags.m_noZWrite = true;
+  constexpr CModelFlags flags(0, 0, 1, zeus::skWhite);
   model->Draw(flags);
 
   CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);

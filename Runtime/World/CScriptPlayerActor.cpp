@@ -386,7 +386,6 @@ void CScriptPlayerActor::PreRender(CStateManager& mgr, const zeus::CFrustum& fru
   if (x2e8_suitRes.GetCharacterNodeId() == 3) {
     g_Renderer->AllocatePhazonSuitMaskTexture();
   }
-  xb4_drawFlags.m_extendedShader = EExtendedShader::LightingCubeReflection;
   CScriptActor::PreRender(mgr, frustum);
 }
 
@@ -414,11 +413,7 @@ void CScriptPlayerActor::Render(CStateManager& mgr) {
 
   if (x314_beamModelData && !x314_beamModelData->IsNull() && x64_modelData && !x64_modelData->IsNull()) {
     zeus::CTransform modelXf = GetTransform() * x64_modelData->GetScaledLocatorTransform("GUN_LCTR");
-    CModelFlags flags(5, 0, 3, zeus::skWhite);
-    flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-    x314_beamModelData->Render(mgr, modelXf, x90_actorLights.get(), flags);
-    flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
-    flags.x4_color = zeus::CColor{1.f, xb4_drawFlags.x4_color.a()};
+    CModelFlags flags(5, 0, 3, zeus::CColor{1.f, xb4_drawFlags.x4_color.a()});
     x314_beamModelData->Render(mgr, modelXf, x90_actorLights.get(), flags);
   }
 

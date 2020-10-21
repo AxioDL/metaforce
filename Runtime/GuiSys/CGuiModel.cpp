@@ -60,44 +60,32 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) {
 
     switch (xac_drawFlags) {
     case EGuiModelDrawFlags::Shadeless: {
-      CModelFlags flags(0, 0, 3, zeus::skWhite);
-      flags.m_extendedShader = EExtendedShader::Flat;
+      constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
       model->Draw(flags);
       break;
     }
     case EGuiModelDrawFlags::Opaque: {
       CModelFlags flags(1, 0, 3, moduCol);
-      flags.m_extendedShader = EExtendedShader::Lighting;
       model->Draw(flags);
       break;
     }
     case EGuiModelDrawFlags::Alpha: {
       CModelFlags flags(5, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
-      flags.m_noCull = !xb6_29_cullFaces;
-      flags.m_noZWrite = !xb7_24_depthWrite;
       model->Draw(flags);
       break;
     }
     case EGuiModelDrawFlags::Additive: {
       CModelFlags flags(7, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
-      flags.m_noCull = !xb6_29_cullFaces;
-      flags.m_noZWrite = !xb7_24_depthWrite;
-      flags.m_depthGreater = xb6_30_depthGreater;
       model->Draw(flags);
       break;
     }
     case EGuiModelDrawFlags::AlphaAdditiveOverdraw: {
-      CModelFlags flags(5, 0, xb6_31_depthTest, moduCol);
-      flags.m_noCull = !xb6_29_cullFaces;
-      flags.m_noZWrite = !xb7_24_depthWrite;
+      const CModelFlags flags(5, 0, (u32(xb6_30_depthGreater) << 4) | u32(xb6_31_depthTest), moduCol);
       model->Draw(flags);
 
-      flags.x0_blendMode = 7;
-      flags.x1_matSetIdx = 0;
-      flags.x2_flags = (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest);
-      flags.x4_color = moduCol;
-      flags.m_noCull = !xb6_29_cullFaces;
-      model->Draw(flags);
+      const CModelFlags overdrawFlags(
+          8, 0, (u32(xb6_30_depthGreater) << 4) | (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
+      model->Draw(overdrawFlags);
       break;
     }
     default:

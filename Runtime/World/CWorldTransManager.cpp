@@ -172,8 +172,7 @@ void CWorldTransManager::Update(float dt) {
 }
 
 void CWorldTransManager::DrawPlatformModels(CActorLights* lights) {
-  CModelFlags flags = {};
-  flags.m_extendedShader = EExtendedShader::Lighting;
+  CModelFlags flags{0, 0, 3, zeus::skWhite};
 
   if (!x4_modelData->x100_bgModelData[0].IsNull()) {
     zeus::CTransform xf0 = zeus::CTransform::Translate(0.f, 0.f, -(2.f * x1c_bgHeight - x18_bgOffset));
@@ -198,8 +197,7 @@ void CWorldTransManager::DrawAllModels(CActorLights* lights) {
   DrawPlatformModels(lights);
 
   if (!x4_modelData->x1c_samusModelData.IsNull()) {
-    CModelFlags flags = {};
-    flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+    CModelFlags flags{0, 0, 3, zeus::skWhite};
 
     x4_modelData->x1c_samusModelData.GetAnimationData()->PreRender();
     x4_modelData->x1c_samusModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform(), lights,

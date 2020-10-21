@@ -503,9 +503,10 @@ void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform& 
     return;
 
   if (x218_29_drawHologram) {
-    CModelFlags useFlags = flags;
-    useFlags.m_extendedShader = EExtendedShader::Flat;
-    x60_holoModelData->Render(CModelData::EWhichModel::Normal, xf, nullptr, useFlags);
+    // TODO
+    //    CModelFlags useFlags = flags;
+    //    useFlags.m_extendedShader = EExtendedShader::Flat;
+    x60_holoModelData->Render(CModelData::EWhichModel::Normal, xf, nullptr, flags);
   } else {
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x10_solidModelData->GetScale()));
     // CGraphics::DisableAllLights();
