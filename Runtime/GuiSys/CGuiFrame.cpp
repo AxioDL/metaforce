@@ -144,7 +144,7 @@ void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const {
     if (widget->GetIsVisible())
       widget->Draw(parms);
 
-  CGraphics::SetCullMode(ERglCullMode::Front);
+  CGraphics::SetCullMode(ERglCullMode::Back);
 }
 
 CGuiWidget* CGuiFrame::BestCursorHit(const zeus::CVector2f& point, const CGuiWidgetDrawParms& parms) const {
