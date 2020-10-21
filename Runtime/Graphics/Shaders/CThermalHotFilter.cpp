@@ -10,13 +10,15 @@ namespace urde {
 using namespace hsh::pipeline;
 
 struct CThermalHotFilterPipeline
-: pipeline<ERglBlendModeAttachment<ERglBlendMode::Blend, ERglBlendFactor::DstAlpha, ERglBlendFactor::InvDstAlpha,
-                                   ERglLogicOp::Clear, true>,
+: pipeline<topology<hsh::TriangleStrip>,
+           ERglBlendModeAttachment<ERglBlendMode::Blend, ERglBlendFactor::DstAlpha, ERglBlendFactor::InvDstAlpha,
+                                   ERglLogicOp::Clear, false>,
            depth_write<false>> {
   CThermalHotFilterPipeline(hsh::vertex_buffer<CThermalHotFilter::Vert> vbo,
                             hsh::uniform_buffer<CThermalHotFilter::Uniform> ubo, hsh::render_texture2d sceneTex,
                             hsh::texture2d paletteTex) {
-    static hsh::float4 kRGBToYPrime = {0.257f, 0.504f, 0.098f, 0.f};
+    // FIXME hsh bug: cannot be const or static
+    hsh::float4 kRGBToYPrime = {0.257f, 0.504f, 0.098f, 0.f};
 
     this->position = hsh::float4(vbo->m_pos, 0.f, 1.f);
 
