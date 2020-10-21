@@ -41,7 +41,8 @@ struct CRandomStaticFilterPipeline
   CRandomStaticFilterPipeline(hsh::vertex_buffer<CRandomStaticFilter::Vert> vbo,
                               hsh::uniform_buffer<CRandomStaticFilter::Uniform> ubo, hsh::texture2d tex) {
     this->position = hsh::float4(vbo->m_pos, 0.f, 1.f);
-    hsh::float4 color = tex.read<float>(Lookup8BPP(vbo->m_uv, ubo->randOff)) * ubo->color;
+    hsh::float2 uv HSH_VAR_STAGE(fragment) = vbo->m_uv;
+    hsh::float4 color = tex.read<float>(Lookup8BPP(uv, ubo->randOff)) * ubo->color;
     if constexpr (CookieCutter) {
       if (color.w < ubo->discardThres) {
         hsh::discard();
