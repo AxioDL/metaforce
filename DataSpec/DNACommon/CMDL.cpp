@@ -1009,6 +1009,36 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
   return lastDlSec;
 }
 
+template atUint32
+ReadGeomSectionsToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MaterialSet,
+                          std::pair<std::pair<UniqueID32, DNAMP1::CSKR*>, std::pair<UniqueID32, DNAMP1::CINF*>>,
+                          DNACMDL::SurfaceHeader_1>(
+    hecl::blender::PyOutStream& os, athena::io::IStreamReader& reader, PAKRouter<DNAMP1::PAKBridge>& pakRouter,
+    const typename PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
+    const std::pair<std::pair<UniqueID32, DNAMP1::CSKR*>, std::pair<UniqueID32, DNAMP1::CINF*>>& rp, bool shortNormals,
+    bool shortUVs, std::vector<VertexAttributes>& vertAttribs, int meshIdx, atUint32 secCount, atUint32 matSetCount,
+    const atUint32* secSizes, atUint32 surfaceCount);
+
+template atUint32
+ReadGeomSectionsToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MaterialSet,
+                          std::pair<std::pair<UniqueID32, DNAMP2::CSKR*>, std::pair<UniqueID32, DNAMP2::CINF*>>,
+                          DNACMDL::SurfaceHeader_2>(
+    hecl::blender::PyOutStream& os, athena::io::IStreamReader& reader, PAKRouter<DNAMP2::PAKBridge>& pakRouter,
+    const typename PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
+    const std::pair<std::pair<UniqueID32, DNAMP2::CSKR*>, std::pair<UniqueID32, DNAMP2::CINF*>>& rp, bool shortNormals,
+    bool shortUVs, std::vector<VertexAttributes>& vertAttribs, int meshIdx, atUint32 secCount, atUint32 matSetCount,
+    const atUint32* secSizes, atUint32 surfaceCount);
+
+template atUint32
+ReadGeomSectionsToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet,
+                          std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>,
+                          DNACMDL::SurfaceHeader_3>(
+    hecl::blender::PyOutStream& os, athena::io::IStreamReader& reader, PAKRouter<DNAMP3::PAKBridge>& pakRouter,
+    const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
+    const std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>& rp, bool shortNormals,
+    bool shortUVs, std::vector<VertexAttributes>& vertAttribs, int meshIdx, atUint32 secCount, atUint32 matSetCount,
+    const atUint32* secSizes, atUint32 surfaceCount);
+
 template <class PAKRouter, class MaterialSet, class RigPair, class SurfaceHeader, atUint32 Version>
 bool ReadCMDLToBlender(hecl::blender::Connection& conn, athena::io::IStreamReader& reader, PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry, const SpecBase& dataspec, const RigPair& rp) {
