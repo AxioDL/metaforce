@@ -39,7 +39,8 @@ struct CTextSupportShaderCharacterPipeline
     hsh::float4 fontColor = ubo->m_uniformColor * vbo->m_fontColor;
     hsh::float4 outlineColor = ubo->m_uniformColor * vbo->m_outlineColor;
     hsh::float4 texel = tex.sample<float>(vbo->m_uv[this->vertex_id]);
-    this->color_out[0] = (fontColor * texel.x + outlineColor * texel.y) * vbo->m_mulColor;
+    hsh::float4 color = fontColor * texel.x + outlineColor * texel.y;
+    this->color_out[0] = color * vbo->m_mulColor;
   }
 };
 template struct CTextSupportShaderCharacterPipeline<CGuiWidget::EGuiModelDrawFlags::Alpha>;
