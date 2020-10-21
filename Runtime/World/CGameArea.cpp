@@ -1049,63 +1049,57 @@ void CGameArea::FillInStaticGeometry(bool textures) {
     ++secIt;
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    /* Reserve extra buffers for 16 cubemaps and shadow rendering */
-    matSet.m_geomLayout->ReserveSharedBuffers(ctx, 96 + int(EWorldShadowMode::MAX));
+  /* Reserve extra buffers for 16 cubemaps and shadow rendering */
+  // matSet.m_geomLayout->ReserveSharedBuffers(96 + int(EWorldShadowMode::MAX));
 
-    /* Models */
-    for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts) {
-      {
-        DataSpec::DNAMP1::MREA::MeshHeader header;
-        athena::io::MemoryReader r(secIt->first, secIt->second);
-        header.read(r);
-        inst.x0_visorFlags = header.visorFlags.flags;
-        inst.x4_xf = header.xfMtx;
-        inst.x34_aabb = zeus::CAABox(header.aabb[0], header.aabb[1]);
-        ++secIt;
-      }
-
-      {
-        athena::io::MemoryReader r(secIt->first, secIt->second);
-        inst.m_hmdlMeta.read(r);
-      }
+  /* Models */
+  for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts) {
+    {
+      DataSpec::DNAMP1::MREA::MeshHeader header;
+      athena::io::MemoryReader r(secIt->first, secIt->second);
+      header.read(r);
+      inst.x0_visorFlags = header.visorFlags.flags;
+      inst.x4_xf = header.xfMtx;
+      inst.x34_aabb = zeus::CAABox(header.aabb[0], header.aabb[1]);
       ++secIt;
-
-      boo::ObjToken<boo::IGraphicsBufferS> vbo;
-      boo::ObjToken<boo::IGraphicsBufferS> ibo;
-      vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, secIt->first, inst.m_hmdlMeta.vertStride,
-                                inst.m_hmdlMeta.vertCount);
-      ++secIt;
-      ibo = ctx.newStaticBuffer(boo::BufferUse::Index, secIt->first, 4, inst.m_hmdlMeta.indexCount);
-      ++secIt;
-
-      const u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(secIt->first));
-      inst.m_surfaces.reserve(surfCount);
-      inst.m_shaders.reserve(surfCount);
-      ++secIt;
-      for (u32 j = 0; j < surfCount; ++j) {
-        CBooSurface& surf = inst.m_surfaces.emplace_back();
-        surf.selfIdx = j;
-        athena::io::MemoryReader r(secIt->first, secIt->second);
-        surf.m_data.read(r);
-        ++secIt;
-      }
-
-      TToken<CModel> nullModel;
-      inst.m_instance = std::make_unique<CBooModel>(nullModel, nullptr, &inst.m_surfaces, matSet, vbo, ibo,
-                                                    inst.x34_aabb, static_cast<u8>(inst.x0_visorFlags), 0);
     }
 
-    return true;
-  } BooTrace);
+    {
+      athena::io::MemoryReader r(secIt->first, secIt->second);
+      inst.m_hmdlMeta.read(r);
+    }
+    ++secIt;
+
+    MapVertData(
+        inst.m_hmdlMeta, [&]<typename VertData>() constexpr {
+          inst.m_staticVbo = hsh::create_vertex_buffer<VertData>(
+              hsh::detail::ArrayProxy{reinterpret_cast<const VertData*>(secIt->first), inst.m_hmdlMeta.vertCount});
+        });
+    ++secIt;
+
+    inst.m_staticIbo = hsh::create_index_buffer(
+        hsh::detail::ArrayProxy{reinterpret_cast<const u32*>(secIt->first), inst.m_hmdlMeta.indexCount});
+    ++secIt;
+
+    const u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(secIt->first));
+    inst.m_surfaces.reserve(surfCount);
+    ++secIt;
+    for (u32 j = 0; j < surfCount; ++j) {
+      CBooSurface& surf = inst.m_surfaces.emplace_back();
+      surf.selfIdx = j;
+      athena::io::MemoryReader r(secIt->first, secIt->second);
+      surf.m_data.read(r);
+      ++secIt;
+    }
+
+    TToken<CModel> nullModel;
+    inst.m_instance = std::make_unique<CBooModel>(
+        nullModel, nullptr, &inst.m_surfaces, matSet, inst.m_staticVbo.get(), inst.m_staticIbo.get(), inst.x34_aabb,
+        static_cast<u8>(inst.x0_visorFlags), 0, VertexFormat{inst.m_hmdlMeta});
+  }
 
   for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts) {
-    for (CBooSurface& surf : inst.m_surfaces) {
-      auto& shad = inst.m_shaders[surf.m_data.matIdx];
-      if (!shad)
-        shad = matSet.BuildShader(inst.m_hmdlMeta, matSet.m_matSet.materials[surf.m_data.matIdx]);
-    }
-    inst.m_instance->RemapMaterialData(matSet, inst.m_shaders);
+    inst.m_instance->RemapMaterialData(matSet);
   }
 
   x12c_postConstructed->x1108_25_modelsConstructed = true;
