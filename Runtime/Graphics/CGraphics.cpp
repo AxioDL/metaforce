@@ -191,6 +191,12 @@ void CGraphics::SetModelMatrix(const zeus::CTransform& xf) {
   SetViewMatrix();
 }
 
+constexpr zeus::CMatrix4f DepthCorrect(
+    1.f, 0.f, 0.f, 0.f,
+    0.f, 1.f, 0.f, 0.f,
+    0.f, 0.f, 0.5f, 0.5f,
+    0.f, 0.f, 0.f, 1.f);
+
 zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect, float znear, float zfar,
                                                       bool forRenderer) {
   CProjectionState st;
@@ -222,9 +228,10 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer) {
     float fpn = g_Proj.x18_far + g_Proj.x14_near;
     float fmn = g_Proj.x18_far - g_Proj.x14_near;
 
-    return zeus::CMatrix4f{2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * g_Proj.x14_near / tmb,
-                           tpb / tmb, 0.f, 0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn, 0.f,
-                           0.f, -1.f, 0.f};
+    zeus::CMatrix4f mat2{2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * g_Proj.x14_near / tmb,
+                         tpb / tmb, 0.f, 0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn, 0.f,
+                         0.f, -1.f, 0.f};
+    return forRenderer ? DepthCorrect * mat2 : mat2;
   } else {
     float rml = g_Proj.x8_right - g_Proj.x4_left;
     float rpl = g_Proj.x8_right + g_Proj.x4_left;
@@ -233,8 +240,9 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer) {
     float fpn = g_Proj.x18_far + g_Proj.x14_near;
     float fmn = g_Proj.x18_far - g_Proj.x14_near;
 
-    return zeus::CMatrix4f{2.f / rml, 0.f, 0.f, -rpl / rml, 0.f, 2.f / tmb, 0.f, -tpb / tmb, 0.f, 0.f, -2.f / fmn,
-                           -fpn / fmn, 0.f, 0.f, 0.f, 1.f};
+    zeus::CMatrix4f mat2{2.f / rml, 0.f, 0.f, -rpl / rml, 0.f, 2.f / tmb, 0.f, -tpb / tmb, 0.f, 0.f, -2.f / fmn,
+                         -fpn / fmn, 0.f, 0.f, 0.f, 1.f};
+    return forRenderer ? DepthCorrect * mat2 : mat2;
   }
 }
 
