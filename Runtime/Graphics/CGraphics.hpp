@@ -518,52 +518,57 @@ using NoColorAttachment = NoColorAttachmentExt<AlphaWrite ? AlphaMode::AlphaWrit
 
 #define FOG_SHADER(fog)                                                                                                \
   float fogZ;                                                                                                          \
-  float fogF = hsh::saturate(((fog).m_A / ((fog).m_B - this->position.z)) - (fog).m_C);                                \
-  switch ((fog).m_mode) {                                                                                              \
-  case ERglFogMode::PerspLin:                                                                                          \
-    fogZ = fogF;                                                                                                       \
-    break;                                                                                                             \
-  case ERglFogMode::PerspExp:                                                                                          \
-    fogZ = 1.0 - hsh::exp2(-8.0 * fogF);                                                                               \
-    break;                                                                                                             \
-  case ERglFogMode::PerspExp2:                                                                                         \
-    fogZ = 1.0 - hsh::exp2(-8.0 * fogF * fogF);                                                                        \
-    break;                                                                                                             \
-  case ERglFogMode::PerspRevExp:                                                                                       \
-    fogZ = hsh::exp2(-8.0 * (1.0 - fogF));                                                                             \
-    break;                                                                                                             \
-  case ERglFogMode::PerspRevExp2:                                                                                      \
-    fogF = 1.0 - fogF;                                                                                                 \
-    fogZ = hsh::exp2(-8.0 * fogF * fogF);                                                                              \
-    break;                                                                                                             \
-  default:                                                                                                             \
-    fogZ = 0.0;                                                                                                        \
-    break;                                                                                                             \
+  {                                                                                                                    \
+    float fogF = hsh::saturate(((fog).m_A / ((fog).m_B - this->frag_position.z)) - (fog).m_C);                 \
+    switch ((fog).m_mode) {                                                                                            \
+    case ERglFogMode::PerspLin:                                                                                        \
+      fogZ = fogF;                                                                                                     \
+      break;                                                                                                           \
+    case ERglFogMode::PerspExp:                                                                                        \
+      fogZ = 1.0 - hsh::exp2(-8.0 * fogF);                                                                             \
+      break;                                                                                                           \
+    case ERglFogMode::PerspExp2:                                                                                       \
+      fogZ = 1.0 - hsh::exp2(-8.0 * fogF * fogF);                                                                      \
+      break;                                                                                                           \
+    case ERglFogMode::PerspRevExp:                                                                                     \
+      fogZ = hsh::exp2(-8.0 * (1.0 - fogF));                                                                           \
+      break;                                                                                                           \
+    case ERglFogMode::PerspRevExp2:                                                                                    \
+      fogF = 1.0 - fogF;                                                                                               \
+      fogZ = hsh::exp2(-8.0 * fogF * fogF);                                                                            \
+      break;                                                                                                           \
+    default:                                                                                                           \
+      fogZ = 0.0;                                                                                                      \
+      break;                                                                                                           \
+    }                                                                                                                  \
   }
 
 #define FOG_SHADER_UNIFORM(fogUniBuf)                                                                                  \
   float fogZ;                                                                                                          \
-  float fogF = hsh::saturate(((fogUniBuf)->m_A / ((fogUniBuf)->m_B - this->position.z)) - (fogUniBuf)->m_C);           \
-  switch ((fogUniBuf)->m_mode) {                                                                                       \
-  case ERglFogMode::PerspLin:                                                                                          \
-    fogZ = fogF;                                                                                                       \
-    break;                                                                                                             \
-  case ERglFogMode::PerspExp:                                                                                          \
-    fogZ = 1.0 - hsh::exp2(-8.0 * fogF);                                                                               \
-    break;                                                                                                             \
-  case ERglFogMode::PerspExp2:                                                                                         \
-    fogZ = 1.0 - hsh::exp2(-8.0 * fogF * fogF);                                                                        \
-    break;                                                                                                             \
-  case ERglFogMode::PerspRevExp:                                                                                       \
-    fogZ = hsh::exp2(-8.0 * (1.0 - fogF));                                                                             \
-    break;                                                                                                             \
-  case ERglFogMode::PerspRevExp2:                                                                                      \
-    fogF = 1.0 - fogF;                                                                                                 \
-    fogZ = hsh::exp2(-8.0 * fogF * fogF);                                                                              \
-    break;                                                                                                             \
-  default:                                                                                                             \
-    fogZ = 0.0;                                                                                                        \
-    break;                                                                                                             \
+  {                                                                                                                    \
+    float fogF =                                                                                                       \
+        hsh::saturate(((fogUniBuf)->m_A / ((fogUniBuf)->m_B - this->frag_position.z)) - (fogUniBuf)->m_C);     \
+    switch ((fogUniBuf)->m_mode) {                                                                                     \
+    case ERglFogMode::PerspLin:                                                                                        \
+      fogZ = fogF;                                                                                                     \
+      break;                                                                                                           \
+    case ERglFogMode::PerspExp:                                                                                        \
+      fogZ = 1.0 - hsh::exp2(-8.0 * fogF);                                                                             \
+      break;                                                                                                           \
+    case ERglFogMode::PerspExp2:                                                                                       \
+      fogZ = 1.0 - hsh::exp2(-8.0 * fogF * fogF);                                                                      \
+      break;                                                                                                           \
+    case ERglFogMode::PerspRevExp:                                                                                     \
+      fogZ = hsh::exp2(-8.0 * (1.0 - fogF));                                                                           \
+      break;                                                                                                           \
+    case ERglFogMode::PerspRevExp2:                                                                                    \
+      fogF = 1.0 - fogF;                                                                                               \
+      fogZ = hsh::exp2(-8.0 * fogF * fogF);                                                                            \
+      break;                                                                                                           \
+    default:                                                                                                           \
+      fogZ = 0.0;                                                                                                      \
+      break;                                                                                                           \
+    }                                                                                                                  \
   }
 
 #define FOG_OUT(out, fog, colorIn)                                                                                     \

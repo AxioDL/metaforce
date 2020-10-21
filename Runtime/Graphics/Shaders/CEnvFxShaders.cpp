@@ -25,8 +25,6 @@ struct CEnvFxShadersPipeline
     hsh::float4 color = vbo->color * envFxUniBuf->moduColor * flakeTexel * envTexel;
     this->position = envFxUniBuf->proj * (envFxUniBuf->mv * posIn);
     FOG_SHADER_UNIFORM(fogUniBuf)
-    // FIXME: hsh binds fog uniform to fragment stage
-    // only because of m_color reference in here. can/should we avoid that?
     FOG_OUT_UNIFORM(this->color_out[0], fogUniBuf, color)
   }
 };
