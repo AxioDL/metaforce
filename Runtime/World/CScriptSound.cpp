@@ -25,7 +25,7 @@ CScriptSound::CScriptSound(TUniqueId uid, std::string_view name, const CEntityIn
 , x10e_vol(vol / 127.f)
 , x110_(w3)
 , x112_prio(s16(prio))
-, x114_pan(pan / 64.f - 1.f)
+, x114_pan(amuse::convertMusyXPanToAmusePan(pan))
 , x116_(w6)
 , x118_pitch(pitch / 8192.f)
 , x11c_25_looped(looped)

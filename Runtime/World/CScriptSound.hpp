@@ -26,7 +26,7 @@ class CScriptSound : public CActor {
   s16 x110_;
   s16 x112_prio;
   float x114_pan;
-  bool x116_;
+  short x116_;
   float x118_pitch;
   bool x11c_24_playRequested : 1 = false;
   bool x11c_25_looped : 1;
