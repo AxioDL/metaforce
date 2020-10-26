@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../DNACommon/Tweaks/ITweakPlayer.hpp"
+#include "DataSpec/DNACommon/Tweaks/ITweakPlayer.hpp"
 
 namespace hecl {
 class CVar;

@@ -15,10 +15,23 @@
   }                                                                                                                    \
   tw_##name->addListener([this](hecl::CVar* cv) { _tweakListener(cv); });
 
+#define CREATE_CVAR_BITFIELD(name, help, value, flags)                                                                 \
+  {                                                                                                                    \
+    bool tmp = value;                                                                                                  \
+    CREATE_CVAR(name, help, tmp, flags)                                                                                \
+  }
+
 #define UPDATE_CVAR(name, cv, value)                                                                                   \
   if ((cv) == tw_##name) {                                                                                             \
     (cv)->toValue(value);                                                                                              \
     return;                                                                                                            \
+  }
+
+#define UPDATE_CVAR_BITFIELD(name, cv, value)                                                                          \
+  {                                                                                                                    \
+    bool tmp = value;                                                                                                  \
+    UPDATE_CVAR(name, cv, tmp)                                                                                         \
+    (value) = tmp;                                                                                                     \
   }
 
 namespace DataSpec::DNAMP1 {
@@ -77,6 +90,8 @@ DEFINE_CVAR_GLOBAL(NormalGravityAcceleration);
 DEFINE_CVAR_GLOBAL(FluidGravityAcceleration);
 DEFINE_CVAR_GLOBAL(VerticalJumpAcceleration);
 DEFINE_CVAR_GLOBAL(HorizontalJumpAcceleration);
+DEFINE_CVAR_GLOBAL(VerticalDoubleJumpAcceleration);
+DEFINE_CVAR_GLOBAL(HorizontalDoubleJumpAcceleration);
 DEFINE_CVAR_GLOBAL(WaterJumpFactor);
 DEFINE_CVAR_GLOBAL(WaterBallJumpFactor);
 DEFINE_CVAR_GLOBAL(LavaJumpFactor);
@@ -85,8 +100,161 @@ DEFINE_CVAR_GLOBAL(PhazonJumpFactor);
 DEFINE_CVAR_GLOBAL(PhazonBallJumpFactor);
 DEFINE_CVAR_GLOBAL(AllowedJumpTime);
 DEFINE_CVAR_GLOBAL(AllowedDoubleJumpTime);
-DEFINE_CVAR_GLOBAL(MinimumJumpTime);
-DEFINE_CVAR_GLOBAL(MinimumDoubleJumpTime);
+DEFINE_CVAR_GLOBAL(MinDoubleJumpWindow);
+DEFINE_CVAR_GLOBAL(MaxDoubleJumpWindow)
+// DEFINE_CVAR_GLOBAL(); // x104_
+DEFINE_CVAR_GLOBAL(MinJumpTime);
+DEFINE_CVAR_GLOBAL(MinDoubleJumpTime);
+DEFINE_CVAR_GLOBAL(AllowedLedgeTime);
+DEFINE_CVAR_GLOBAL(DoubleJumpImpulse);
+DEFINE_CVAR_GLOBAL(BackwardsForceMultiplier);
+DEFINE_CVAR_GLOBAL(BombJumpRadius);
+DEFINE_CVAR_GLOBAL(BombJumpHeight);
+DEFINE_CVAR_GLOBAL(EyeOffset);
+DEFINE_CVAR_GLOBAL(TurnSpeedMultiplier);
+DEFINE_CVAR_GLOBAL(FreeLookTurnSpeedMultiplier);
+DEFINE_CVAR_GLOBAL(HorizontalFreeLookAngleVelocity);
+DEFINE_CVAR_GLOBAL(VerticalFreeLookAngleVelocity);
+DEFINE_CVAR_GLOBAL(FreeLookSpeed);
+DEFINE_CVAR_GLOBAL(FreeLookSnapSpeed);
+// DEFINE_CVAR_GLOBAL(); // x140_
+DEFINE_CVAR_GLOBAL(FreeLookCenteredThresholdAngle);
+DEFINE_CVAR_GLOBAL(FreeLookCenteredTime);
+DEFINE_CVAR_GLOBAL(FreeLookDampenFactor);
+DEFINE_CVAR_GLOBAL(LeftDivisor);
+DEFINE_CVAR_GLOBAL(RightDivisor);
+DEFINE_CVAR_GLOBAL(OrbitMinDistanceClose);
+DEFINE_CVAR_GLOBAL(OrbitMinDistanceFar);
+DEFINE_CVAR_GLOBAL(OrbitMinDistanceDefault);
+DEFINE_CVAR_GLOBAL(OrbitNormalDistanceClose);
+DEFINE_CVAR_GLOBAL(OrbitNormalDistanceFar);
+DEFINE_CVAR_GLOBAL(OrbitNormalDistanceDefault);
+DEFINE_CVAR_GLOBAL(OrbitMaxDistanceClose);
+DEFINE_CVAR_GLOBAL(OrbitMaxDistanceFar);
+DEFINE_CVAR_GLOBAL(OrbitMaxDistanceDefault);
+// DEFINE_CVAR_GLOBAL(); // x17c_
+DEFINE_CVAR_GLOBAL(OrbitmodeTimer);
+DEFINE_CVAR_GLOBAL(OrbitCameraSpeed);
+DEFINE_CVAR_GLOBAL(OrbitUpperAngle);
+DEFINE_CVAR_GLOBAL(OrbitLowerAngle);
+DEFINE_CVAR_GLOBAL(OrbitHorizontalAngle);
+// DEFINE_CVAR_GLOBAL(); // x194_
+// DEFINE_CVAR_GLOBAL(); // x198_
+DEFINE_CVAR_GLOBAL(OrbitMaxTargetDistance);
+DEFINE_CVAR_GLOBAL(OrbitMaxLockDistance);
+DEFINE_CVAR_GLOBAL(OrbitDistanceThreshold);
+DEFINE_CVAR_GLOBAL(OrbitScreenTargetingBoxHalfExtentX);
+DEFINE_CVAR_GLOBAL(OrbitScreenScanBoxHalfExtentX);
+DEFINE_CVAR_GLOBAL(OrbitScreenTargetingBoxHalfExtentY);
+DEFINE_CVAR_GLOBAL(OrbitScreenScanBoxHalfExtentY);
+DEFINE_CVAR_GLOBAL(OrbitScreenTargetingBoxCenterX);
+DEFINE_CVAR_GLOBAL(OrbitScreenScanBoxCenterX);
+DEFINE_CVAR_GLOBAL(OrbitScreenTargetingBoxCenterY);
+DEFINE_CVAR_GLOBAL(OrbitScreenScanBoxCenterY);
+DEFINE_CVAR_GLOBAL(OrbitZoneTargetingIdealX);
+DEFINE_CVAR_GLOBAL(OrbitZoneScanIdealX);
+DEFINE_CVAR_GLOBAL(OrbitZoneTargetingIdealY);
+DEFINE_CVAR_GLOBAL(OrbitZoneScanIdealY);
+DEFINE_CVAR_GLOBAL(OrbitNearX);
+DEFINE_CVAR_GLOBAL(OrbitNearZ);
+// DEFINE_CVAR_GLOBAL(); // x1e0_
+// DEFINE_CVAR_GLOBAL(); // x1e4_
+DEFINE_CVAR_GLOBAL(OrbitFixedOffsetZDiff);
+DEFINE_CVAR_GLOBAL(OrbitZRange);
+// DEFINE_CVAR_GLOBAL(); // x1f0_
+// DEFINE_CVAR_GLOBAL(); // x1f4_
+// DEFINE_CVAR_GLOBAL(); // x1f8_
+DEFINE_CVAR_GLOBAL(OrbitPreventionTime);
+DEFINE_CVAR_GLOBAL(DashEnabled);
+DEFINE_CVAR_GLOBAL(DashOnButtonRelease);
+DEFINE_CVAR_GLOBAL(DashButtonHoldCancelTime);
+DEFINE_CVAR_GLOBAL(DashStrafeInputThreshold);
+DEFINE_CVAR_GLOBAL(SidewaysDoubleJumpImpulse);
+DEFINE_CVAR_GLOBAL(SidewaysVerticalDoubleJumpAccel);
+DEFINE_CVAR_GLOBAL(SidewaysHorizontalDoubleJumpAccel);
+DEFINE_CVAR_GLOBAL(ScanningRange);
+DEFINE_CVAR_GLOBAL(ScanRetention);
+DEFINE_CVAR_GLOBAL(ScanFreezesGame);
+DEFINE_CVAR_GLOBAL(OrbitWhileScanning);
+DEFINE_CVAR_GLOBAL(ScanMaxTargetDistance);
+DEFINE_CVAR_GLOBAL(ScanMaxLockDistance)
+DEFINE_CVAR_GLOBAL(FreeLookTurnsPlayer);
+// DEFINE_CVAR_GLOBAL(); // x228_25_
+// DEFINE_CVAR_GLOBAL(); // x228_26_
+DEFINE_CVAR_GLOBAL(MoveDuringFreelook);
+DEFINE_CVAR_GLOBAL(HoldButtonsForFreeLook);
+// DEFINE_CVAR_GLOBAL(); // x228_30_
+// DEFINE_CVAR_GLOBAL(); // x228_31_
+// DEFINE_CVAR_GLOBAL(); // x229_24_
+DEFINE_CVAR_GLOBAL(AimWhenOrbitingPoint);
+DEFINE_CVAR_GLOBAL(StayInFreeLookWhileFiring);
+// DEFINE_CVAR_GLOBAL(); // x229_27_
+// DEFINE_CVAR_GLOBAL(); // x229_28_
+DEFINE_CVAR_GLOBAL(OrbitFixedOffset);
+DEFINE_CVAR_GLOBAL(GunButtonTogglesHolster);
+DEFINE_CVAR_GLOBAL(GunNotFiringHolstersGun);
+DEFINE_CVAR_GLOBAL(FallingDoubleJump);
+DEFINE_CVAR_GLOBAL(ImpulseDoubleJump);
+DEFINE_CVAR_GLOBAL(FiringCancelsCameraPitch);
+DEFINE_CVAR_GLOBAL(AssistedAimingIgnoreHorizontal);
+DEFINE_CVAR_GLOBAL(AssistedAimingIgnoreVertical);
+// DEFINE_CVAR_GLOBAL(); // x22c
+// DEFINE_CVAR_GLOBAL(); // x230_
+DEFINE_CVAR_GLOBAL(AimMaxDistance);
+// DEFINE_CVAR_GLOBAL(); // x238_
+// DEFINE_CVAR_GLOBAL(); // x23c_
+// DEFINE_CVAR_GLOBAL(); // x240_
+// DEFINE_CVAR_GLOBAL(); // x244_
+// DEFINE_CVAR_GLOBAL(); // x248_
+DEFINE_CVAR_GLOBAL(AimThresholdDistance);
+// DEFINE_CVAR_GLOBAL(); // x250_
+// DEFINE_CVAR_GLOBAL(); // x254_
+DEFINE_CVAR_GLOBAL(AimBoxWidth);
+DEFINE_CVAR_GLOBAL(AimBoxHeight);
+DEFINE_CVAR_GLOBAL(AimTargetTimer);
+DEFINE_CVAR_GLOBAL(AimAssistHorizontalAngle);
+DEFINE_CVAR_GLOBAL(AimAssistVerticalAngle);
+DEFINE_CVAR_GLOBAL(PlayerHeight);
+DEFINE_CVAR_GLOBAL(PlayerXYHalfExtent);
+DEFINE_CVAR_GLOBAL(StepUpHeight);
+DEFINE_CVAR_GLOBAL(StepDownHeight);
+DEFINE_CVAR_GLOBAL(PlayerBallHalfExtent);
+DEFINE_CVAR_GLOBAL(FirstPersonCameraSpeed);
+// DEFINE_CVAR_GLOBAL(); // x284_
+DEFINE_CVAR_GLOBAL(JumpCameraPitchDownStart);
+DEFINE_CVAR_GLOBAL(JumpCameraPitchDownFull);
+DEFINE_CVAR_GLOBAL(JumpCameraPitchDownAngle);
+DEFINE_CVAR_GLOBAL(FallCameraPitchDownStart);
+DEFINE_CVAR_GLOBAL(FallCameraPitchDownFull);
+DEFINE_CVAR_GLOBAL(FallCameraPitchDownAngle);
+DEFINE_CVAR_GLOBAL(OrbitDistanceMax);
+DEFINE_CVAR_GLOBAL(GrappleSwingLength);
+DEFINE_CVAR_GLOBAL(GrappleSwingPeriod);
+DEFINE_CVAR_GLOBAL(GrapplePullSpeedMin);
+DEFINE_CVAR_GLOBAL(GrappleCameraSpeed);
+DEFINE_CVAR_GLOBAL(MaxGrappleLockedTurnAlignDistance);
+DEFINE_CVAR_GLOBAL(GrapplePullSpeedProportion);
+DEFINE_CVAR_GLOBAL(GrapplePullSpeedMax);
+DEFINE_CVAR_GLOBAL(GrappleLookCenterSpeed);
+DEFINE_CVAR_GLOBAL(MaxGrappleTurnSpeed);
+DEFINE_CVAR_GLOBAL(GrappleJumpForce);
+DEFINE_CVAR_GLOBAL(GrappleReleaseTime);
+DEFINE_CVAR_GLOBAL(GrappleJumpMode);
+DEFINE_CVAR_GLOBAL(OrbitReleaseBreaksGrapple);
+DEFINE_CVAR_GLOBAL(InvertGrappleTurn);
+DEFINE_CVAR_GLOBAL(GrappleBeamSpeed);
+DEFINE_CVAR_GLOBAL(GrappleBeamXWaveAmplitude);
+DEFINE_CVAR_GLOBAL(GrappleBeamZWaveAmplitude);
+DEFINE_CVAR_GLOBAL(GrappleBeamAnglePhaseDelta);
+// DEFINE_CVAR_GLOBAL(); // x2e8_
+// DEFINE_CVAR_GLOBAL(); // x2ec_
+// DEFINE_CVAR_GLOBAL(); // x2f0_
+// DEFINE_CVAR_GLOBAL(); // x2f4_
+DEFINE_CVAR_GLOBAL(FrozenTimeout);
+DEFINE_CVAR_GLOBAL(IceBreakJumpCount);
+DEFINE_CVAR_GLOBAL(VariaDamageReduction);
+DEFINE_CVAR_GLOBAL(GravityDamageReduction);
+DEFINE_CVAR_GLOBAL(PhazonDamageReduction);
 } // namespace
 template <>
 void CTweakPlayer::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_reader) {
@@ -2036,6 +2204,175 @@ void CTweakPlayer::_tweakListener(hecl::CVar* cv) {
   UPDATE_CVAR(TranslationMaxSpeedLava, cv, xa4_translationMaxSpeed[5]);
   UPDATE_CVAR(TranslationMaxSpeedPhazon, cv, xa4_translationMaxSpeed[6]);
   UPDATE_CVAR(TranslationMaxSpeedShrubbery, cv, xa4_translationMaxSpeed[7]);
+  UPDATE_CVAR(NormalGravityAcceleration, cv, xc4_normalGravAccel);
+  UPDATE_CVAR(FluidGravityAcceleration, cv, xc8_fluidGravAccel);
+  UPDATE_CVAR(VerticalJumpAcceleration, cv, xcc_verticalJumpAccel);
+  UPDATE_CVAR(HorizontalJumpAcceleration, cv, xd0_horizontalJumpAccel);
+  UPDATE_CVAR(VerticalDoubleJumpAcceleration, cv, xd4_verticalDoubleJumpAccel);
+  UPDATE_CVAR(HorizontalDoubleJumpAcceleration, cv, xd8_horizontalDoubleJumpAccel);
+  UPDATE_CVAR(WaterJumpFactor, cv, xdc_waterJumpFactor);
+  UPDATE_CVAR(WaterBallJumpFactor, cv, xe0_waterBallJumpFactor);
+  UPDATE_CVAR(LavaJumpFactor, cv, xe4_lavaJumpFactor);
+  UPDATE_CVAR(LavaBallJumpFactor, cv, xe8_lavaBallJumpFactor);
+  UPDATE_CVAR(PhazonJumpFactor, cv, xec_phazonJumpFactor);
+  UPDATE_CVAR(PhazonBallJumpFactor, cv, xf0_phazonBallJumpFactor);
+  UPDATE_CVAR(AllowedJumpTime, cv, xf4_allowedJumpTime);
+  UPDATE_CVAR(AllowedDoubleJumpTime, cv, xf8_allowedDoubleJumpTime);
+  UPDATE_CVAR(MinDoubleJumpWindow, cv, xfc_minDoubleJumpWindow);
+  UPDATE_CVAR(MaxDoubleJumpWindow, cv, x100_maxDoubleJumpWindow);
+  // UPDATE_CVAR(); // x104_
+  UPDATE_CVAR(MinJumpTime, cv, x108_minJumpTime);
+  UPDATE_CVAR(MinDoubleJumpTime, cv, x10c_minDoubleJumpTime);
+  UPDATE_CVAR(AllowedLedgeTime, cv, x110_allowedLedgeTime);
+  UPDATE_CVAR(DoubleJumpImpulse, cv, x114_doubleJumpImpulse);
+  UPDATE_CVAR(BackwardsForceMultiplier, cv, x118_backwardsForceMultiplier);
+  UPDATE_CVAR(BombJumpRadius, cv, x11c_bombJumpRadius);
+  UPDATE_CVAR(BombJumpHeight, cv, x120_bombJumpHeight);
+  UPDATE_CVAR(EyeOffset, cv, x124_eyeOffset);
+  UPDATE_CVAR(TurnSpeedMultiplier, cv, x128_turnSpeedMultiplier);
+  UPDATE_CVAR(FreeLookTurnSpeedMultiplier, cv, x12c_freeLookTurnSpeedMultiplier);
+  UPDATE_CVAR(HorizontalFreeLookAngleVelocity, cv, x130_horizontalFreeLookAngleVel);
+  UPDATE_CVAR(VerticalFreeLookAngleVelocity, cv, x134_verticalFreeLookAngleVel);
+  UPDATE_CVAR(FreeLookSpeed, cv, x138_freeLookSpeed);
+  UPDATE_CVAR(FreeLookSnapSpeed, cv, x13c_freeLookSnapSpeed);
+  // UPDATE_CVAR(); // x140_
+  UPDATE_CVAR(FreeLookCenteredThresholdAngle, cv, x144_freeLookCenteredThresholdAngle);
+  UPDATE_CVAR(FreeLookCenteredTime, cv, x148_freeLookCenteredTime);
+  UPDATE_CVAR(FreeLookDampenFactor, cv, x14c_freeLookDampenFactor);
+  UPDATE_CVAR(LeftDivisor, cv, x150_leftDiv);
+  UPDATE_CVAR(RightDivisor, cv, x154_rightDiv);
+  UPDATE_CVAR(OrbitMinDistanceClose, cv, x158_orbitMinDistance[0]);
+  UPDATE_CVAR(OrbitMinDistanceFar, cv, x158_orbitMinDistance[1]);
+  UPDATE_CVAR(OrbitMinDistanceDefault, cv, x158_orbitMinDistance[2]);
+  UPDATE_CVAR(OrbitNormalDistanceClose, cv, x164_orbitNormalDistance[0]);
+  UPDATE_CVAR(OrbitNormalDistanceFar, cv, x164_orbitNormalDistance[1]);
+  UPDATE_CVAR(OrbitNormalDistanceDefault, cv, x164_orbitNormalDistance[2]);
+  UPDATE_CVAR(OrbitMaxDistanceClose, cv, x170_orbitMaxDistance[0]);
+  UPDATE_CVAR(OrbitMaxDistanceFar, cv, x170_orbitMaxDistance[1]);
+  UPDATE_CVAR(OrbitMaxDistanceDefault, cv, x170_orbitMaxDistance[2]);
+  // UPDATE_CVAR(); // x17c_
+  UPDATE_CVAR(OrbitmodeTimer, cv, x180_orbitModeTimer);
+  UPDATE_CVAR(OrbitCameraSpeed, cv, x184_orbitCameraSpeed);
+  UPDATE_CVAR(OrbitUpperAngle, cv, x188_orbitUpperAngle);
+  UPDATE_CVAR(OrbitLowerAngle, cv, x18c_orbitLowerAngle);
+  UPDATE_CVAR(OrbitHorizontalAngle, cv, x190_orbitHorizAngle);
+  // UPDATE_CVAR(); // x194_
+  // UPDATE_CVAR(); // x198_
+  UPDATE_CVAR(OrbitMaxTargetDistance, cv, x19c_orbitMaxTargetDistance);
+  UPDATE_CVAR(OrbitMaxLockDistance, cv, x1a0_orbitMaxLockDistance);
+  UPDATE_CVAR(OrbitDistanceThreshold, cv, x1a4_orbitDistanceThreshold);
+  UPDATE_CVAR(OrbitScreenTargetingBoxHalfExtentX, cv, x1a8_orbitScreenBoxHalfExtentX[0]);
+  UPDATE_CVAR(OrbitScreenScanBoxHalfExtentX, cv, x1a8_orbitScreenBoxHalfExtentX[1]);
+  UPDATE_CVAR(OrbitScreenTargetingBoxHalfExtentY, cv, x1b0_orbitScreenBoxHalfExtentY[0]);
+  UPDATE_CVAR(OrbitScreenScanBoxHalfExtentY, cv, x1b0_orbitScreenBoxHalfExtentY[1]);
+  UPDATE_CVAR(OrbitScreenTargetingBoxCenterX, cv, x1b8_orbitScreenBoxCenterX[0]);
+  UPDATE_CVAR(OrbitScreenScanBoxCenterX, cv, x1b8_orbitScreenBoxCenterX[1]);
+  UPDATE_CVAR(OrbitScreenTargetingBoxCenterY, cv, x1c0_orbitScreenBoxCenterY[0]);
+  UPDATE_CVAR(OrbitScreenScanBoxCenterY, cv, x1c0_orbitScreenBoxCenterY[1]);
+  UPDATE_CVAR(OrbitZoneTargetingIdealX, cv, x1c8_orbitZoneIdealX[0]);
+  UPDATE_CVAR(OrbitZoneScanIdealX, cv, x1c8_orbitZoneIdealX[1]);
+  UPDATE_CVAR(OrbitZoneTargetingIdealY, cv, x1d0_orbitZoneIdealY[0]);
+  UPDATE_CVAR(OrbitZoneScanIdealY, cv, x1d0_orbitZoneIdealY[1]);
+  UPDATE_CVAR(OrbitNearX, cv, x1d8_orbitNearX);
+  UPDATE_CVAR(OrbitNearZ, cv, x1dc_orbitNearZ);
+  // UPDATE_CVAR(); // x1e0_
+  // UPDATE_CVAR(); // x1e4_
+  UPDATE_CVAR(OrbitFixedOffsetZDiff, cv, x1e8_orbitFixedOffsetZDiff);
+  UPDATE_CVAR(OrbitZRange, cv, x1ec_orbitZRange);
+  // UPDATE_CVAR(); // x1f0_
+  // UPDATE_CVAR(); // x1f4_
+  // UPDATE_CVAR(); // x1f8_
+  UPDATE_CVAR(OrbitPreventionTime, cv, x1fc_orbitPreventionTime);
+  UPDATE_CVAR_BITFIELD(DashEnabled, cv, x200_24_dashEnabled);
+  UPDATE_CVAR_BITFIELD(DashOnButtonRelease, cv, x200_25_dashOnButtonRelease);
+  UPDATE_CVAR(DashButtonHoldCancelTime, cv, x204_dashButtonHoldCancelTime);
+  UPDATE_CVAR(DashStrafeInputThreshold, cv, x208_dashStrafeInputThreshold);
+  UPDATE_CVAR(SidewaysDoubleJumpImpulse, cv, x20c_sidewaysDoubleJumpImpulse);
+  UPDATE_CVAR(SidewaysVerticalDoubleJumpAccel, cv, x210_sidewaysVerticalDoubleJumpAccel);
+  UPDATE_CVAR(SidewaysHorizontalDoubleJumpAccel, cv, x214_sidewaysHorizontalDoubleJumpAccel);
+  UPDATE_CVAR(ScanningRange, cv, x218_scanningRange);
+  UPDATE_CVAR_BITFIELD(ScanRetention, cv, x21c_24_scanRetention);
+  UPDATE_CVAR_BITFIELD(ScanFreezesGame, cv, x21c_25_scanFreezesGame);
+  UPDATE_CVAR_BITFIELD(OrbitWhileScanning, cv, x21c_26_orbitWhileScanning);
+  UPDATE_CVAR(ScanMaxTargetDistance, cv, x220_scanMaxTargetDistance);
+  UPDATE_CVAR(ScanMaxLockDistance, cv, x224_scanMaxLockDistance);
+  UPDATE_CVAR_BITFIELD(FreeLookTurnsPlayer, cv, x228_24_freelookTurnsPlayer);
+  // UPDATE_CVAR_BITFIELD(); // x228_25_
+  // UPDATE_CVAR_BITFIELD(); // x228_26_
+  UPDATE_CVAR_BITFIELD(MoveDuringFreelook, cv, x228_27_moveDuringFreeLook);
+  UPDATE_CVAR_BITFIELD(HoldButtonsForFreeLook, cv, x228_28_holdButtonsForFreeLook);
+  // UPDATE_CVAR_BITFIELD(); // x228_30_
+  // UPDATE_CVAR_BITFIELD(); // x228_31_
+  // UPDATE_CVAR_BITFIELD(); // x229_24_
+  UPDATE_CVAR_BITFIELD(AimWhenOrbitingPoint, cv, x229_25_aimWhenOrbitingPoint);
+  UPDATE_CVAR_BITFIELD(StayInFreeLookWhileFiring, cv, x229_26_stayInFreeLookWhileFiring);
+  // UPDATE_CVAR_BITFIELD(); // x229_27_
+  // UPDATE_CVAR_BITFIELD(); // x229_28_
+  UPDATE_CVAR_BITFIELD(OrbitFixedOffset, cv, x229_29_orbitFixedOffset);
+  UPDATE_CVAR_BITFIELD(GunButtonTogglesHolster, cv, x229_30_gunButtonTogglesHolster);
+  UPDATE_CVAR_BITFIELD(GunNotFiringHolstersGun, cv, x229_31_gunNotFiringHolstersGun);
+  UPDATE_CVAR_BITFIELD(FallingDoubleJump, cv, x22a_24_fallingDoubleJump);
+  UPDATE_CVAR_BITFIELD(ImpulseDoubleJump, cv, x22a_25_impulseDoubleJump);
+  UPDATE_CVAR_BITFIELD(FiringCancelsCameraPitch, cv, x22a_26_firingCancelsCameraPitch);
+  UPDATE_CVAR_BITFIELD(AssistedAimingIgnoreHorizontal, cv, x22a_27_assistedAimingIgnoreHorizontal);
+  UPDATE_CVAR_BITFIELD(AssistedAimingIgnoreVertical, cv, x22a_28_assistedAimingIgnoreVertical);
+  // UPDATE_CVAR(); // x22c
+  // UPDATE_CVAR(); // x230_
+  UPDATE_CVAR(AimMaxDistance, cv, x234_aimMaxDistance);
+  // UPDATE_CVAR(); // x238_
+  // UPDATE_CVAR(); // x23c_
+  // UPDATE_CVAR(); // x240_
+  // UPDATE_CVAR(); // x244_
+  // UPDATE_CVAR(); // x248_
+  UPDATE_CVAR(AimThresholdDistance, cv, x24c_aimThresholdDistance);
+  // UPDATE_CVAR(); // x250_
+  // UPDATE_CVAR(); // x254_
+  UPDATE_CVAR(AimBoxWidth, cv, x258_aimBoxWidth);
+  UPDATE_CVAR(AimBoxHeight, cv, x25c_aimBoxHeight);
+  UPDATE_CVAR(AimTargetTimer, cv, x260_aimTargetTimer);
+  UPDATE_CVAR(AimAssistHorizontalAngle, cv, x264_aimAssistHorizontalAngle);
+  UPDATE_CVAR(AimAssistVerticalAngle, cv, x268_aimAssistVerticalAngle);
+  UPDATE_CVAR(PlayerHeight, cv, x26c_playerHeight);
+  UPDATE_CVAR(PlayerXYHalfExtent, cv, x270_playerXYHalfExtent);
+  UPDATE_CVAR(StepUpHeight, cv, x274_stepUpHeight);
+  UPDATE_CVAR(StepDownHeight, cv, x278_stepDownHeight);
+  UPDATE_CVAR(PlayerBallHalfExtent, cv, x27c_playerBallHalfExtent);
+  UPDATE_CVAR(FirstPersonCameraSpeed, cv, x280_firstPersonCameraSpeed);
+  // UPDATE_CVAR(); // x284_
+  UPDATE_CVAR(JumpCameraPitchDownStart, cv, x288_jumpCameraPitchDownStart);
+  UPDATE_CVAR(JumpCameraPitchDownFull, cv, x28c_jumpCameraPitchDownFull);
+  UPDATE_CVAR(JumpCameraPitchDownAngle, cv, x290_jumpCameraPitchDownAngle);
+  UPDATE_CVAR(FallCameraPitchDownStart, cv, x294_fallCameraPitchDownStart);
+  UPDATE_CVAR(FallCameraPitchDownFull, cv, x298_fallCameraPitchDownFull);
+  UPDATE_CVAR(FallCameraPitchDownAngle, cv, x29c_fallCameraPitchDownAngle);
+  UPDATE_CVAR(OrbitDistanceMax, cv, x2a0_orbitDistanceMax);
+  UPDATE_CVAR(GrappleSwingLength, cv, x2a4_grappleSwingLength);
+  UPDATE_CVAR(GrappleSwingPeriod, cv, x2a8_grappleSwingPeriod);
+  UPDATE_CVAR(GrapplePullSpeedMin, cv, x2ac_grapplePullSpeedMin);
+  UPDATE_CVAR(GrappleCameraSpeed, cv, x2b0_grappleCameraSpeed);
+  UPDATE_CVAR(MaxGrappleLockedTurnAlignDistance, cv, x2b4_maxGrappleLockedTurnAlignDistance);
+  UPDATE_CVAR(GrapplePullSpeedProportion, cv, x2b8_grapplePullSpeedProportion);
+  UPDATE_CVAR(GrapplePullSpeedMax, cv, x2bc_grapplePullSpeedMax);
+  UPDATE_CVAR(GrappleLookCenterSpeed, cv, x2c0_grappleLookCenterSpeed);
+  UPDATE_CVAR(MaxGrappleTurnSpeed, cv, x2c4_maxGrappleTurnSpeed);
+  UPDATE_CVAR(GrappleJumpForce, cv, x2c8_grappleJumpForce);
+  UPDATE_CVAR(GrappleReleaseTime, cv, x2cc_grappleReleaseTime);
+  UPDATE_CVAR(GrappleJumpMode, cv, x2d0_grappleJumpMode);
+  UPDATE_CVAR(OrbitReleaseBreaksGrapple, cv, x2d4_orbitReleaseBreaksGrapple);
+  UPDATE_CVAR(InvertGrappleTurn, cv, x2d5_invertGrappleTurn);
+  UPDATE_CVAR(GrappleBeamSpeed, cv, x2d8_grappleBeamSpeed);
+  UPDATE_CVAR(GrappleBeamXWaveAmplitude, cv, x2dc_grappleBeamXWaveAmplitude);
+  UPDATE_CVAR(GrappleBeamZWaveAmplitude, cv, x2e0_grappleBeamZWaveAmplitude);
+  UPDATE_CVAR(GrappleBeamAnglePhaseDelta, cv, x2e4_grappleBeamAnglePhaseDelta);
+  // UPDATE_CVAR(); // x2e8_
+  // UPDATE_CVAR(); // x2ec_
+  // UPDATE_CVAR(); // x2f0_
+  // UPDATE_CVAR(); // x2f4_
+  UPDATE_CVAR(FrozenTimeout, cv, x2f8_frozenTimeout);
+  UPDATE_CVAR(IceBreakJumpCount, cv, x2fc_iceBreakJumpCount);
+  UPDATE_CVAR(VariaDamageReduction, cv, x300_variaDamageReduction);
+  UPDATE_CVAR(GravityDamageReduction, cv, x304_gravityDamageReduction);
+  UPDATE_CVAR(PhazonDamageReduction, cv, x308_phazonDamageReduction);
 }
 
 void CTweakPlayer::initCVars(hecl::CVarManager* mgr) {
@@ -2146,7 +2483,174 @@ void CTweakPlayer::initCVars(hecl::CVarManager* mgr) {
               skDefaultFlags);
   CREATE_CVAR(VerticalJumpAcceleration, "Vertical acceleration applied while jumping", xcc_verticalJumpAccel,
               skDefaultFlags);
-  CREATE_CVAR(HorizontalJumpAcceleration, "Horizontal acceleration while jump (e.g, while scan dashing)",
-              xd0_horizontalJumpAccel, skDefaultFlags);
+  CREATE_CVAR(HorizontalJumpAcceleration, "Horizontal acceleration while jumping", xd0_horizontalJumpAccel,
+              skDefaultFlags);
+  CREATE_CVAR(VerticalDoubleJumpAcceleration, "Vertical acceleration while double jumping", xd4_verticalDoubleJumpAccel,
+              skDefaultFlags);
+  CREATE_CVAR(HorizontalDoubleJumpAcceleration, "Horizontal acceleration while double jumping",
+              xd8_horizontalDoubleJumpAccel, skDefaultFlags);
+  CREATE_CVAR(WaterJumpFactor, "Jump Factor while in water", xdc_waterJumpFactor, skDefaultFlags);
+  CREATE_CVAR(WaterBallJumpFactor, "Jump Factor while morphed in water", xe0_waterBallJumpFactor, skDefaultFlags);
+  CREATE_CVAR(LavaJumpFactor, "Jump Factor while in lava", xe4_lavaJumpFactor, skDefaultFlags);
+  CREATE_CVAR(LavaBallJumpFactor, "Jump Factor while morphed in lava", xe8_lavaBallJumpFactor, skDefaultFlags);
+  CREATE_CVAR(PhazonJumpFactor, "Jump Factor while in phazon", xec_phazonJumpFactor, skDefaultFlags);
+  CREATE_CVAR(PhazonBallJumpFactor, "Jump Factor while morphed in phazon", xf0_phazonBallJumpFactor, skDefaultFlags);
+  CREATE_CVAR(AllowedJumpTime, "", xf4_allowedJumpTime, skDefaultFlags);
+  CREATE_CVAR(AllowedDoubleJumpTime, "", xf8_allowedDoubleJumpTime, skDefaultFlags);
+  CREATE_CVAR(MinDoubleJumpWindow, "", xfc_minDoubleJumpWindow, skDefaultFlags);
+  CREATE_CVAR(MaxDoubleJumpWindow, "", x100_maxDoubleJumpWindow, skDefaultFlags);
+  // CREATE_CVAR(); // x104_
+  CREATE_CVAR(MinJumpTime, "", x108_minJumpTime, skDefaultFlags);
+  CREATE_CVAR(MinDoubleJumpTime, "", x10c_minDoubleJumpTime, skDefaultFlags);
+  CREATE_CVAR(AllowedLedgeTime, "", x110_allowedLedgeTime, skDefaultFlags);
+  CREATE_CVAR(DoubleJumpImpulse, "", x114_doubleJumpImpulse, skDefaultFlags);
+  CREATE_CVAR(BackwardsForceMultiplier, "", x118_backwardsForceMultiplier, skDefaultFlags);
+  CREATE_CVAR(BombJumpRadius, "", x11c_bombJumpRadius, skDefaultFlags);
+  CREATE_CVAR(BombJumpHeight, "", x120_bombJumpHeight, skDefaultFlags);
+  CREATE_CVAR(EyeOffset, "", x124_eyeOffset, skDefaultFlags);
+  CREATE_CVAR(TurnSpeedMultiplier, "", x128_turnSpeedMultiplier, skDefaultFlags);
+  CREATE_CVAR(FreeLookTurnSpeedMultiplier, "", x12c_freeLookTurnSpeedMultiplier, skDefaultFlags);
+  CREATE_CVAR(HorizontalFreeLookAngleVelocity, "", x130_horizontalFreeLookAngleVel, skDefaultFlags);
+  CREATE_CVAR(VerticalFreeLookAngleVelocity, "", x134_verticalFreeLookAngleVel, skDefaultFlags);
+  CREATE_CVAR(FreeLookSpeed, "", x138_freeLookSpeed, skDefaultFlags);
+  CREATE_CVAR(FreeLookSnapSpeed, "", x13c_freeLookSnapSpeed, skDefaultFlags);
+  // CREATE_CVAR(); // x140_
+  CREATE_CVAR(FreeLookCenteredThresholdAngle, "", x144_freeLookCenteredThresholdAngle, skDefaultFlags);
+  CREATE_CVAR(FreeLookCenteredTime, "", x148_freeLookCenteredTime, skDefaultFlags);
+  CREATE_CVAR(FreeLookDampenFactor, "", x14c_freeLookDampenFactor, skDefaultFlags);
+  CREATE_CVAR(LeftDivisor, "", x150_leftDiv, skDefaultFlags);
+  CREATE_CVAR(RightDivisor, "", x154_rightDiv, skDefaultFlags);
+  CREATE_CVAR(OrbitMinDistanceClose, "", x158_orbitMinDistance[0], skDefaultFlags);
+  CREATE_CVAR(OrbitMinDistanceFar, "", x158_orbitMinDistance[1], skDefaultFlags);
+  CREATE_CVAR(OrbitMinDistanceDefault, "", x158_orbitMinDistance[2], skDefaultFlags);
+  CREATE_CVAR(OrbitNormalDistanceClose, "", x164_orbitNormalDistance[0], skDefaultFlags);
+  CREATE_CVAR(OrbitNormalDistanceFar, "", x164_orbitNormalDistance[1], skDefaultFlags);
+  CREATE_CVAR(OrbitNormalDistanceDefault, "", x164_orbitNormalDistance[2], skDefaultFlags);
+  CREATE_CVAR(OrbitMaxDistanceClose, "", x170_orbitMaxDistance[0], skDefaultFlags);
+  CREATE_CVAR(OrbitMaxDistanceFar, "", x170_orbitMaxDistance[1], skDefaultFlags);
+  CREATE_CVAR(OrbitMaxDistanceDefault, "", x170_orbitMaxDistance[2], skDefaultFlags);
+  // CREATE_CVAR(); // x17c_
+  CREATE_CVAR(OrbitmodeTimer, "", x180_orbitModeTimer, skDefaultFlags);
+  CREATE_CVAR(OrbitCameraSpeed, "", x184_orbitCameraSpeed, skDefaultFlags);
+  CREATE_CVAR(OrbitUpperAngle, "", x184_orbitCameraSpeed, skDefaultFlags);
+  CREATE_CVAR(OrbitLowerAngle, "", x184_orbitCameraSpeed, skDefaultFlags);
+  CREATE_CVAR(OrbitHorizontalAngle, "", x184_orbitCameraSpeed, skDefaultFlags);
+  // CREATE_CVAR(); // x194_
+  // CREATE_CVAR(); // x198_
+  CREATE_CVAR(OrbitMaxTargetDistance, "", x19c_orbitMaxTargetDistance, skDefaultFlags);
+  CREATE_CVAR(OrbitMaxLockDistance, "", x1a0_orbitMaxLockDistance, skDefaultFlags);
+  CREATE_CVAR(OrbitDistanceThreshold, "", x1a4_orbitDistanceThreshold, skDefaultFlags);
+  CREATE_CVAR(OrbitScreenTargetingBoxHalfExtentX, "", x1a8_orbitScreenBoxHalfExtentX[0], skDefaultFlags);
+  CREATE_CVAR(OrbitScreenScanBoxHalfExtentX, "", x1a8_orbitScreenBoxHalfExtentX[1], skDefaultFlags);
+  CREATE_CVAR(OrbitScreenTargetingBoxHalfExtentY, "", x1b0_orbitScreenBoxHalfExtentY[0], skDefaultFlags);
+  CREATE_CVAR(OrbitScreenScanBoxHalfExtentY, "", x1b0_orbitScreenBoxHalfExtentY[1], skDefaultFlags);
+  CREATE_CVAR(OrbitScreenTargetingBoxCenterX, "", x1b8_orbitScreenBoxCenterX[0], skDefaultFlags);
+  CREATE_CVAR(OrbitScreenScanBoxCenterX, "", x1b8_orbitScreenBoxCenterX[1], skDefaultFlags);
+  CREATE_CVAR(OrbitScreenTargetingBoxCenterY, "", x1c0_orbitScreenBoxCenterY[0], skDefaultFlags);
+  CREATE_CVAR(OrbitScreenScanBoxCenterY, "", x1c0_orbitScreenBoxCenterY[1], skDefaultFlags);
+  CREATE_CVAR(OrbitZoneTargetingIdealX, "", x1c8_orbitZoneIdealX[0], skDefaultFlags);
+  CREATE_CVAR(OrbitZoneScanIdealX, "", x1c8_orbitZoneIdealX[1], skDefaultFlags);
+  CREATE_CVAR(OrbitZoneTargetingIdealY, "", x1d0_orbitZoneIdealY[0], skDefaultFlags);
+  CREATE_CVAR(OrbitZoneScanIdealY, "", x1d0_orbitZoneIdealY[1], skDefaultFlags);
+  CREATE_CVAR(OrbitNearX, "", x1d8_orbitNearX, skDefaultFlags);
+  CREATE_CVAR(OrbitNearZ, "", x1dc_orbitNearZ, skDefaultFlags);
+  // CREATE_CVAR(); // x1e0_
+  // CREATE_CVAR(); // x1e4_
+  CREATE_CVAR(OrbitFixedOffsetZDiff, "", x1e8_orbitFixedOffsetZDiff, skDefaultFlags);
+  CREATE_CVAR(OrbitZRange, "", x1ec_orbitZRange, skDefaultFlags);
+  // CREATE_CVAR(); // x1f0_
+  // CREATE_CVAR(); // x1f4_
+  // CREATE_CVAR(); // x1f8_
+  CREATE_CVAR(OrbitPreventionTime, "", x1fc_orbitPreventionTime, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(DashEnabled, "", x200_24_dashEnabled, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(DashOnButtonRelease, "", x200_25_dashOnButtonRelease, skDefaultFlags);
+  CREATE_CVAR(DashButtonHoldCancelTime, "", x204_dashButtonHoldCancelTime, skDefaultFlags);
+  CREATE_CVAR(DashStrafeInputThreshold, "", x208_dashStrafeInputThreshold, skDefaultFlags);
+  CREATE_CVAR(SidewaysDoubleJumpImpulse, "", x20c_sidewaysDoubleJumpImpulse, skDefaultFlags);
+  CREATE_CVAR(SidewaysVerticalDoubleJumpAccel, "", x210_sidewaysVerticalDoubleJumpAccel, skDefaultFlags);
+  CREATE_CVAR(SidewaysHorizontalDoubleJumpAccel, "", x214_sidewaysHorizontalDoubleJumpAccel, skDefaultFlags);
+  CREATE_CVAR(ScanningRange, "", x218_scanningRange, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(ScanRetention, "", x21c_24_scanRetention, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(ScanFreezesGame, "", x21c_25_scanFreezesGame, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(OrbitWhileScanning, "", x21c_26_orbitWhileScanning, skDefaultFlags);
+  CREATE_CVAR(ScanMaxTargetDistance, "", x220_scanMaxTargetDistance, skDefaultFlags);
+  CREATE_CVAR(ScanMaxLockDistance, "", x224_scanMaxLockDistance, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(FreeLookTurnsPlayer, "", x228_24_freelookTurnsPlayer, skDefaultFlags);
+  // CREATE_CVAR_BITFIELD(); // x228_25_
+  // CREATE_CVAR_BITFIELD(); // x228_26_
+  CREATE_CVAR_BITFIELD(MoveDuringFreelook, "", x228_27_moveDuringFreeLook, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(HoldButtonsForFreeLook, "", x228_28_holdButtonsForFreeLook, skDefaultFlags);
+  // CREATE_CVAR_BITFIELD(); // x228_30_
+  // CREATE_CVAR_BITFIELD(); // x228_31_
+  // CREATE_CVAR(); // x229_24_
+  CREATE_CVAR_BITFIELD(AimWhenOrbitingPoint, "", x229_25_aimWhenOrbitingPoint, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(StayInFreeLookWhileFiring, "", x229_26_stayInFreeLookWhileFiring, skDefaultFlags);
+  // CREATE_CVAR_BITFIELD(); // x229_27_
+  // CREATE_CVAR_BITFIELD(); // x229_28_
+  CREATE_CVAR_BITFIELD(OrbitFixedOffset, "", x229_29_orbitFixedOffset, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(GunButtonTogglesHolster, "", x229_30_gunButtonTogglesHolster, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(GunNotFiringHolstersGun, "", x229_31_gunNotFiringHolstersGun, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(FallingDoubleJump, "", x22a_24_fallingDoubleJump, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(ImpulseDoubleJump, "", x22a_25_impulseDoubleJump, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(FiringCancelsCameraPitch, "", x22a_26_firingCancelsCameraPitch, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(AssistedAimingIgnoreHorizontal, "", x22a_27_assistedAimingIgnoreHorizontal, skDefaultFlags);
+  CREATE_CVAR_BITFIELD(AssistedAimingIgnoreVertical, "", x22a_28_assistedAimingIgnoreVertical, skDefaultFlags);
+  // CREATE_CVAR(); // x22c
+  // CREATE_CVAR(); // x230_
+  CREATE_CVAR(AimMaxDistance, "", x234_aimMaxDistance, skDefaultFlags);
+  // CREATE_CVAR(); // x238_
+  // CREATE_CVAR(); // x23c_
+  // CREATE_CVAR(); // x240_
+  // CREATE_CVAR(); // x244_
+  // CREATE_CVAR(); // x248_
+  CREATE_CVAR(AimThresholdDistance, "", x24c_aimThresholdDistance, skDefaultFlags);
+  // CREATE_CVAR(); // x250_
+  // CREATE_CVAR(); // x254_
+  CREATE_CVAR(AimBoxWidth, "", x258_aimBoxWidth, skDefaultFlags);
+  CREATE_CVAR(AimBoxHeight, "", x25c_aimBoxHeight, skDefaultFlags);
+  CREATE_CVAR(AimTargetTimer, "", x260_aimTargetTimer, skDefaultFlags);
+  CREATE_CVAR(AimAssistHorizontalAngle, "", x264_aimAssistHorizontalAngle, skDefaultFlags);
+  CREATE_CVAR(AimAssistVerticalAngle, "", x268_aimAssistVerticalAngle, skDefaultFlags);
+  CREATE_CVAR(PlayerHeight, "", x26c_playerHeight, skDefaultFlags);
+  CREATE_CVAR(PlayerXYHalfExtent, "", x270_playerXYHalfExtent, skDefaultFlags);
+  CREATE_CVAR(StepUpHeight, "", x274_stepUpHeight, skDefaultFlags);
+  CREATE_CVAR(StepDownHeight, "", x278_stepDownHeight, skDefaultFlags);
+  CREATE_CVAR(PlayerBallHalfExtent, "", x27c_playerBallHalfExtent, skDefaultFlags);
+  CREATE_CVAR(FirstPersonCameraSpeed, "", x280_firstPersonCameraSpeed, skDefaultFlags);
+  // CREATE_CVAR(); // x284_
+  CREATE_CVAR(JumpCameraPitchDownStart, "", x288_jumpCameraPitchDownStart, skDefaultFlags);
+  CREATE_CVAR(JumpCameraPitchDownFull, "", x28c_jumpCameraPitchDownFull, skDefaultFlags);
+  CREATE_CVAR(JumpCameraPitchDownAngle, "", x290_jumpCameraPitchDownAngle, skDefaultFlags);
+  CREATE_CVAR(FallCameraPitchDownStart, "", x294_fallCameraPitchDownStart, skDefaultFlags);
+  CREATE_CVAR(FallCameraPitchDownFull, "", x298_fallCameraPitchDownFull, skDefaultFlags);
+  CREATE_CVAR(FallCameraPitchDownAngle, "", x29c_fallCameraPitchDownAngle, skDefaultFlags);
+  CREATE_CVAR(OrbitDistanceMax, "", x2a0_orbitDistanceMax, skDefaultFlags);
+  CREATE_CVAR(GrappleSwingLength, "", x2a4_grappleSwingLength, skDefaultFlags);
+  CREATE_CVAR(GrappleSwingPeriod, "", x2a8_grappleSwingPeriod, skDefaultFlags);
+  CREATE_CVAR(GrapplePullSpeedMin, "", x2ac_grapplePullSpeedMin, skDefaultFlags);
+  CREATE_CVAR(GrappleCameraSpeed, "", x2b0_grappleCameraSpeed, skDefaultFlags);
+  CREATE_CVAR(MaxGrappleLockedTurnAlignDistance, "", x2b4_maxGrappleLockedTurnAlignDistance, skDefaultFlags);
+  CREATE_CVAR(GrapplePullSpeedProportion, "", x2b8_grapplePullSpeedProportion, skDefaultFlags);
+  CREATE_CVAR(GrapplePullSpeedMax, "", x2bc_grapplePullSpeedMax, skDefaultFlags);
+  CREATE_CVAR(GrappleLookCenterSpeed, "", x2c0_grappleLookCenterSpeed, skDefaultFlags);
+  CREATE_CVAR(MaxGrappleTurnSpeed, "", x2c4_maxGrappleTurnSpeed, skDefaultFlags);
+  CREATE_CVAR(GrappleJumpForce, "", x2c8_grappleJumpForce, skDefaultFlags);
+  CREATE_CVAR(GrappleReleaseTime, "", x2cc_grappleReleaseTime, skDefaultFlags);
+  CREATE_CVAR(GrappleJumpMode, "", x2d0_grappleJumpMode, skDefaultFlags);
+  CREATE_CVAR(OrbitReleaseBreaksGrapple, "", x2d4_orbitReleaseBreaksGrapple, skDefaultFlags);
+  CREATE_CVAR(InvertGrappleTurn, "", x2d5_invertGrappleTurn, skDefaultFlags);
+  CREATE_CVAR(GrappleBeamSpeed, "", x2d8_grappleBeamSpeed, skDefaultFlags);
+  CREATE_CVAR(GrappleBeamXWaveAmplitude, "", x2dc_grappleBeamXWaveAmplitude, skDefaultFlags);
+  CREATE_CVAR(GrappleBeamZWaveAmplitude, "", x2e0_grappleBeamZWaveAmplitude, skDefaultFlags);
+  CREATE_CVAR(GrappleBeamAnglePhaseDelta, "", x2e4_grappleBeamAnglePhaseDelta, skDefaultFlags);
+  // CREATE_CVAR(); // x2e8_
+  // CREATE_CVAR(); // x2ec_
+  // CREATE_CVAR(); // x2f0_
+  // CREATE_CVAR(); // x2f4_
+  CREATE_CVAR(FrozenTimeout, "", x2f8_frozenTimeout, skDefaultFlags);
+  CREATE_CVAR(IceBreakJumpCount, "", x2fc_iceBreakJumpCount, skDefaultFlags);
+  CREATE_CVAR(VariaDamageReduction, "", x300_variaDamageReduction, skDefaultFlags);
+  CREATE_CVAR(GravityDamageReduction, "", x304_gravityDamageReduction, skDefaultFlags);
+  CREATE_CVAR(PhazonDamageReduction, "", x308_phazonDamageReduction, skDefaultFlags);
 }
 } // namespace DataSpec::DNAMP1
