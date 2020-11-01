@@ -76,52 +76,38 @@ bool CCharAnimTime::operator>(const CCharAnimTime& other) const { return (!(*thi
 
 bool CCharAnimTime::operator<(const CCharAnimTime& other) const {
   if (x4_type == EType::NonZero) {
-    if (other.x4_type == EType::NonZero)
+    if (other.x4_type == EType::NonZero) {
       return x0_time < other.x0_time;
-    if (other.EqualsZero())
-      return x0_time < 0.f;
-    else
-      return other.x0_time > 0.f;
-  }
-
-  if (EqualsZero()) {
-    if (other.EqualsZero()) {
-      int type = -1;
-      if (x4_type != EType::ZeroDecreasing) {
-        if (x4_type != EType::ZeroSteady)
-          type = 1;
-        else
-          type = 0;
-      }
-
-      int otherType = -1;
-      if (other.x4_type != EType::ZeroDecreasing) {
-        if (other.x4_type != EType::ZeroSteady)
-          otherType = 1;
-        else
-          otherType = 0;
-      }
-
-      return type < otherType;
     }
 
-    if (other.x4_type == EType::NonZero)
-      return other.x0_time > 0.f;
-    return other.x0_time > 0.f; // ?
+    return other.EqualsZero() ? x0_time < 0.f : other.x0_time > 0;
   }
 
-  if (other.x4_type == EType::Infinity)
-    return x0_time < 0.f && other.x0_time > 0.f;
-  return x0_time < 0.f;
+  if (!EqualsZero()) {
+    if (other.x4_type == EType::Infinity) {
+      return x0_time >= 0 || other.x0_time <= 0.f;
+    }
+
+    return x0_time < 0.f;
+  }
+
+  if (!other.EqualsZero()) {
+    if (other.x4_type == EType::NonZero) {
+      return other.x0_time > 0.f;
+    }
+
+    return other.x0_time > 0.f;
+  }
+
+  int type = x4_type == EType::ZeroDecreasing ? -1 : x4_type == EType::ZeroSteady ? 0 : 1;
+  int otherType = other.x4_type == EType::ZeroDecreasing ? -1 : other.x4_type == EType::ZeroSteady ? 0 : 1;
+
+  return type < otherType;
 }
 
-CCharAnimTime& CCharAnimTime::operator*=(const CCharAnimTime& other) {
-  return *this = *this * other;
-}
+CCharAnimTime& CCharAnimTime::operator*=(const CCharAnimTime& other) { return *this = *this * other; }
 
-CCharAnimTime& CCharAnimTime::operator+=(const CCharAnimTime& other) {
-  return *this = *this + other;
-}
+CCharAnimTime& CCharAnimTime::operator+=(const CCharAnimTime& other) { return *this = *this + other; }
 
 CCharAnimTime CCharAnimTime::operator+(const CCharAnimTime& other) const {
   if (x4_type == EType::Infinity && other.x4_type == EType::Infinity) {
@@ -157,9 +143,7 @@ CCharAnimTime CCharAnimTime::operator+(const CCharAnimTime& other) const {
     return {EType::ZeroIncreasing, 0.f};
 }
 
-CCharAnimTime& CCharAnimTime::operator-=(const CCharAnimTime& other) {
-  return *this = *this - other;
-}
+CCharAnimTime& CCharAnimTime::operator-=(const CCharAnimTime& other) { return *this = *this - other; }
 
 CCharAnimTime CCharAnimTime::operator-(const CCharAnimTime& other) const {
   if (x4_type == EType::Infinity && other.x4_type == EType::Infinity) {

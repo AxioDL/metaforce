@@ -23,7 +23,7 @@ struct CTweakGame final : ITweakGame {
   Value<float> x38_wavecapIntensityPoison;
   Value<float> x3c_wavecapIntensityLava;
   Value<float> x40_rippleIntensityNormal;
-  Value<float> x44_rippleIntentityPoison;
+  Value<float> x44_rippleIntensityPoison;
   Value<float> x48_rippleIntensityLava;
   Value<float> x4c_fluidEnvBumpScale;
   Value<float> x50_waterFogDistanceBase;
@@ -42,7 +42,7 @@ struct CTweakGame final : ITweakGame {
   float GetWavecapIntensityPoison() const override { return x38_wavecapIntensityPoison; }
   float GetWavecapIntensityLava() const override { return x3c_wavecapIntensityLava; }
   float GetRippleIntensityNormal() const override { return x40_rippleIntensityNormal; }
-  float GetRippleIntensityPoison() const override { return x44_rippleIntentityPoison; }
+  float GetRippleIntensityPoison() const override { return x44_rippleIntensityPoison; }
   float GetRippleIntensityLava() const override { return x48_rippleIntensityLava; }
   float GetFluidEnvBumpScale() const override { return x4c_fluidEnvBumpScale; }
   float GetWaterFogDistanceBase() const override { return x50_waterFogDistanceBase; }
@@ -61,6 +61,6 @@ struct CTweakGame final : ITweakGame {
 
   void initCVars(hecl::CVarManager* mgr) override;
 private:
-  void _tweakGameListener(hecl::CVar* cv);
+  void _tweakListener(hecl::CVar* cv);
 };
 } // namespace DataSpec::DNAMP1
