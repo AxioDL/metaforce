@@ -1,11 +1,9 @@
 #include "Runtime/World/CPatterned.hpp"
 
-#include "Runtime/CStateManager.hpp"
-#include "Runtime/CSimplePool.hpp"
-#include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CFirstPersonCamera.hpp"
 #include "Runtime/Character/CAnimData.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 #include "Runtime/MP1/World/CMetroid.hpp"
 #include "Runtime/MP1/World/CSpacePirate.hpp"
@@ -24,11 +22,12 @@
 #include <hecl/CVarManager.hpp>
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
+#include <cmath>
 
 namespace urde {
 namespace {
 hecl::CVar* cv_disableAi = nullptr;
-}
+} // namespace
 
 constexpr CMaterialList skPatternedGroundMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
                                                       EMaterialTypes::Orbit, EMaterialTypes::GroundCollider,
@@ -83,17 +82,21 @@ CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view nam
   x514_deathExplosionOffset = pInfo.x110_particle1Scale;
   x540_iceDeathExplosionOffset = pInfo.x124_particle2Scale;
 
-  if (pInfo.x11c_particle1.IsValid())
+  if (pInfo.x11c_particle1.IsValid()) {
     x520_deathExplosionParticle = {g_SimplePool->GetObj({FOURCC('PART'), pInfo.x11c_particle1})};
+  }
 
-  if (pInfo.x120_electric.IsValid())
+  if (pInfo.x120_electric.IsValid()) {
     x530_deathExplosionElectric = {g_SimplePool->GetObj({FOURCC('ELSC'), pInfo.x120_electric})};
+  }
 
-  if (pInfo.x130_particle2.IsValid())
+  if (pInfo.x130_particle2.IsValid()) {
     x54c_iceDeathExplosionParticle = {g_SimplePool->GetObj({FOURCC('PART'), pInfo.x130_particle2})};
+  }
 
-  if (x404_contactDamage.GetRadius() > 0.f)
+  if (x404_contactDamage.GetRadius() > 0.f) {
     x404_contactDamage.SetRadius(0.f);
+  }
 
   xe6_29_renderParticleDBInside = false;
   if (x64_modelData) {
@@ -120,8 +123,8 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     if (HasModelData() && GetModelData()->HasAnimData() && GetModelData()->GetAnimationData()->GetIceModel()) {
       const auto& baseAABB = GetBaseBoundingBox();
       float diagExtent = (baseAABB.max - baseAABB.min).magnitude() * 0.5f;
-      x510_vertexMorph = std::make_shared<CVertexMorphEffect>(zeus::skRight, zeus::CVector3f{}, diagExtent,
-                                                              0.f, *mgr.GetActiveRandom());
+      x510_vertexMorph = std::make_shared<CVertexMorphEffect>(zeus::skRight, zeus::CVector3f{}, diagExtent, 0.f,
+                                                              *mgr.GetActiveRandom());
     }
 
     xf8_25_angularEnabled = true;
@@ -149,8 +152,9 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     x3a0_latestLeashPosition = GetTranslation();
     break;
   case EScriptObjectMessage::Deleted:
-    if (x330_stateMachineState.GetActorState() != nullptr)
+    if (x330_stateMachineState.GetActorState() != nullptr) {
       x330_stateMachineState.GetActorState()->CallFunc(mgr, *this, EStateMsg::Deactivate, 0.f);
+    }
     break;
   case EScriptObjectMessage::Damage: {
     if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(uid)) {
@@ -177,8 +181,9 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
   }
   case EScriptObjectMessage::InvulnDamage: {
     if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(uid)) {
-      if (proj->GetOwnerId() == mgr.GetPlayer().GetUniqueId())
+      if (proj->GetOwnerId() == mgr.GetPlayer().GetUniqueId()) {
         x400_24_hitByPlayerProjectile = true;
+      }
     }
     break;
   }
@@ -194,28 +199,32 @@ void CPatterned::MakeThermalColdAndHot() {
 
 void CPatterned::UpdateThermalFrozenState(bool thawed) {
   x402_31_thawed = thawed;
-  if (x403_24_keepThermalVisorState)
+  if (x403_24_keepThermalVisorState) {
     return;
+  }
   xe6_27_thermalVisorFlags = u8(thawed ? 2 : 1);
 }
 
 void CPatterned::Think(float dt, CStateManager& mgr) {
-  if (!GetActive() || (cv_disableAi && cv_disableAi->toBoolean())) {
+  if (!GetActive() || (cv_disableAi != nullptr && cv_disableAi->toBoolean())) {
     Stop();
     ClearForcesAndTorques();
     return;
   }
 
-  if (x402_30_updateThermalFrozenState)
+  if (x402_30_updateThermalFrozenState) {
     UpdateThermalFrozenState(x450_bodyController->GetPercentageFrozen() == 0.f);
+  }
 
-  if (x64_modelData->GetAnimationData()->GetIceModel())
+  if (x64_modelData->GetAnimationData()->GetIceModel()) {
     x510_vertexMorph->Update(dt);
+  }
 
   if (x402_26_dieIf80PercFrozen) {
     float froz = x450_bodyController->GetPercentageFrozen();
-    if (froz > 0.8f)
+    if (froz > 0.8f) {
       x400_29_pendingMassiveFrozenDeath = true;
+    }
   }
 
   if (!x400_25_alive) {
@@ -229,10 +238,11 @@ void CPatterned::Think(float dt, CStateManager& mgr) {
       }
     } else {
       x3e0_xDamageDelay -= dt;
-      if (x403_26_stateControlledMassiveDeath && x330_stateMachineState.GetName()) {
+      if (x403_26_stateControlledMassiveDeath && x330_stateMachineState.GetName() != nullptr) {
         bool isDead = x330_stateMachineState.GetName() == "Dead"sv;
-        if (isDead && x330_stateMachineState.x8_time > 15.f)
+        if (isDead && x330_stateMachineState.x8_time > 15.f) {
           MassiveDeath(mgr);
+        }
       }
     }
   }
@@ -240,22 +250,26 @@ void CPatterned::Think(float dt, CStateManager& mgr) {
   UpdateAlphaDelta(dt, mgr);
 
   x3e4_lastHP = HealthInfo(mgr)->GetHP();
-  if (!x330_stateMachineState.x4_state)
+  if (x330_stateMachineState.x4_state == nullptr) {
     x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Start"sv);
+  }
 
   zeus::CVector3f diffVec = x4e4_latestPredictedTranslation - GetTranslation();
-  if (!x328_25_verticalMovement)
+  if (!x328_25_verticalMovement) {
     diffVec.z() = 0.f;
+  }
 
-  if (diffVec.magSquared() > (0.1f * dt))
+  if (diffVec.magSquared() > (0.1f * dt)) {
     x4f0_predictedLeashTime += dt;
-  else
+  } else {
     x4f0_predictedLeashTime = 0.f;
+  }
 
   if (x460_knockBackController.x81_26_enableShock) {
     /* Shock on logical falling edge */
-    if (!x401_31_nextPendingShock && x402_24_pendingShock)
+    if (!x401_31_nextPendingShock && x402_24_pendingShock) {
       Shock(mgr, 0.5f + mgr.GetActiveRandom()->Range(0.f, 0.5f), 0.2f);
+    }
     x402_24_pendingShock = x401_31_nextPendingShock;
     x401_31_nextPendingShock = false;
 
@@ -282,14 +296,17 @@ void CPatterned::Think(float dt, CStateManager& mgr) {
                       CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
     }
   } else {
-    if (x3ec_pendingFireDamage > 0.f)
+    if (x3ec_pendingFireDamage > 0.f) {
       x3ec_pendingFireDamage = 0.f;
-    if (x450_bodyController->IsFrozen())
+    }
+    if (x450_bodyController->IsFrozen()) {
       mgr.GetActorModelParticles()->StopThermalHotParticles(*this);
+    }
   }
 
-  if (x401_27_phazingOut || x401_28_burning)
+  if (x401_27_phazingOut || x401_28_burning) {
     x3e8_alphaDelta = -0.33333334f;
+  }
 
   if (x401_30_pendingDeath) {
     x401_30_pendingDeath = false;
@@ -304,51 +321,58 @@ void CPatterned::Think(float dt, CStateManager& mgr) {
   x434_posDelta = deltas.x0_posDelta;
   x440_rotDelta = deltas.xc_rotDelta;
 
-  if (x403_25_enableStateMachine && x450_bodyController->GetPercentageFrozen() < 1.f)
+  if (x403_25_enableStateMachine && x450_bodyController->GetPercentageFrozen() < 1.f) {
     x330_stateMachineState.Update(mgr, *this, thinkDt);
+  }
 
   ThinkAboutMove(thinkDt);
 
   x460_knockBackController.Update(thinkDt, mgr, *this);
   x4e4_latestPredictedTranslation = GetTranslation() + PredictMotion(thinkDt).x0_translation;
   x328_26_solidCollision = false;
-  if (x420_curDamageRemTime > 0.f)
+  if (x420_curDamageRemTime > 0.f) {
     x420_curDamageRemTime -= dt;
+  }
 
-  if (x401_28_burning && x3f4_burnThinkRateTimer > dt)
+  if (x401_28_burning && x3f4_burnThinkRateTimer > dt) {
     x3f4_burnThinkRateTimer -= dt;
+  }
 
   xd0_damageMag = x50c_baseDamageMag;
   UpdateDamageColor(dt);
 
   if (!x450_bodyController->IsFrozen()) {
-    if (x3a0_latestLeashPosition == zeus::CVector3f())
+    if (x3a0_latestLeashPosition == zeus::CVector3f()) {
       x3a0_latestLeashPosition = GetTranslation();
+    }
 
     if (x3cc_playerLeashRadius != 0.f) {
-      zeus::CVector3f diffVec = (GetTranslation() - mgr.GetPlayer().GetTranslation());
-      if (diffVec.magSquared() > x3cc_playerLeashRadius * x3cc_playerLeashRadius)
+      if ((GetTranslation() - mgr.GetPlayer().GetTranslation()).magSquared() >
+          x3cc_playerLeashRadius * x3cc_playerLeashRadius) {
         x3d4_curPlayerLeashTime += dt;
-      else
+      } else {
         x3d4_curPlayerLeashTime = 0.f;
+      }
     }
   } else {
     RemoveEmitter();
   }
 
-  if (x2f8_waypointPauseRemTime > 0.f)
+  if (x2f8_waypointPauseRemTime > 0.f) {
     x2f8_waypointPauseRemTime -= dt;
+  }
 }
 
 void CPatterned::CollidedWith(TUniqueId other, const CCollisionInfoList& list, CStateManager& mgr) {
   if (x420_curDamageRemTime <= 0.f) {
     if (TCastToPtr<CPlayer> player = mgr.ObjectById(other)) {
-      bool jumpOnHead = player->GetTimeSinceJump() < 5.f && list.GetCount() != 0 &&
-                        list.Front().GetNormalLeft().z() > 0.707f;
+      bool jumpOnHead =
+          player->GetTimeSinceJump() < 5.f && list.GetCount() != 0 && list.Front().GetNormalLeft().z() > 0.707f;
       if (x400_25_alive || jumpOnHead) {
         CDamageInfo cDamage = GetContactDamage();
-        if (!x400_25_alive || x450_bodyController->IsFrozen())
+        if (!x400_25_alive || x450_bodyController->IsFrozen()) {
           cDamage.SetDamage(0.f);
+        }
         if (jumpOnHead) {
           mgr.ApplyDamage(GetUniqueId(), player->GetUniqueId(), GetUniqueId(), cDamage,
                           CMaterialFilter::skPassEverything, -player->GetVelocity());
@@ -364,10 +388,11 @@ void CPatterned::CollidedWith(TUniqueId other, const CCollisionInfoList& list, C
   static constexpr CMaterialList testList(EMaterialTypes::Solid, EMaterialTypes::Ceiling, EMaterialTypes::Wall,
                                           EMaterialTypes::Floor, EMaterialTypes::Character);
   for (const CCollisionInfo& info : list) {
-    if (info.GetMaterialLeft().Intersection(testList)) {
+    if (info.GetMaterialLeft().Intersection(testList) != 0u) {
       if (!info.GetMaterialLeft().HasMaterial(EMaterialTypes::Floor)) {
-        if (!x310_moveVec.isZero() && info.GetNormalLeft().dot(x310_moveVec) >= 0.f)
+        if (!x310_moveVec.isZero() && info.GetNormalLeft().dot(x310_moveVec) >= 0.f) {
           continue;
+        }
       } else if (!x400_31_isFlyer) {
         continue;
       }
@@ -379,12 +404,14 @@ void CPatterned::CollidedWith(TUniqueId other, const CCollisionInfoList& list, C
 }
 
 void CPatterned::Touch(CActor& act, CStateManager& mgr) {
-  if (!x400_25_alive)
+  if (!x400_25_alive) {
     return;
+  }
 
   if (TCastToPtr<CGameProjectile> proj = act) {
-    if (mgr.GetPlayer().GetUniqueId() == proj->GetOwnerId())
+    if (mgr.GetPlayer().GetUniqueId() == proj->GetOwnerId()) {
       x400_24_hitByPlayerProjectile = true;
+    }
   }
 }
 
@@ -518,10 +545,11 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
       break;
     case EKnockBackAnimationFollowUp::ExplodeDeath:
       Death(mgr, zeus::skZero3f, EScriptObjectState::DeathRattle);
-      if (GetDeathExplosionParticle() || x530_deathExplosionElectric)
+      if (GetDeathExplosionParticle() || x530_deathExplosionElectric) {
         MassiveDeath(mgr);
-      else if (x450_bodyController->IsFrozen())
+      } else if (x450_bodyController->IsFrozen()) {
         x450_bodyController->FrozenBreakout();
+      }
       break;
     case EKnockBackAnimationFollowUp::IceDeath:
       Death(mgr, zeus::skZero3f, EScriptObjectState::DeathRattle);
@@ -584,8 +612,9 @@ bool CPatterned::HasAttackPattern(CStateManager& mgr, float arg) {
 }
 
 bool CPatterned::NoPathNodes(CStateManager&, float arg) {
-  if (CPathFindSearch* search = GetSearchPath())
+  if (CPathFindSearch* search = GetSearchPath()) {
     return search->OnPath(GetTranslation()) != CPathFindSearch::EResult::Success;
+  }
   return true;
 }
 
@@ -593,8 +622,9 @@ constexpr float skActorApproachDistance = 3.f;
 
 bool CPatterned::PathShagged(CStateManager&, float arg) {
   if (CPathFindSearch* search = GetSearchPath()) {
-    if (search->IsShagged())
+    if (search->IsShagged()) {
       return true;
+    }
     if (search->GetCurrentWaypoint() > 0 && x401_24_pathOverCount == 0) {
       zeus::CVector3f origPoint = GetTranslation() + 0.3f * zeus::skUp;
       zeus::CVector3f point = origPoint;
@@ -606,17 +636,22 @@ bool CPatterned::PathShagged(CStateManager&, float arg) {
 }
 
 bool CPatterned::PathFound(CStateManager&, float arg) {
-  if (CPathFindSearch* search = GetSearchPath())
-    if (!search->IsShagged())
+  if (CPathFindSearch* search = GetSearchPath()) {
+    if (!search->IsShagged()) {
       return true;
+    }
+  }
   return false;
 }
 
 bool CPatterned::PathOver(CStateManager&, float arg) {
-  if (CPathFindSearch* search = GetSearchPath())
-    if (x328_25_verticalMovement || x328_27_onGround)
-      if (!search->IsShagged() && search->IsOver())
+  if (CPathFindSearch* search = GetSearchPath()) {
+    if (x328_25_verticalMovement || x328_27_onGround) {
+      if (!search->IsShagged() && search->IsOver()) {
         return true;
+      }
+    }
+  }
   return false;
 }
 
@@ -646,8 +681,9 @@ bool CPatterned::PlayerSpot(CStateManager& mgr, float arg) {
 bool CPatterned::SpotPlayer(CStateManager& mgr, float arg) {
   zeus::CVector3f gunToPlayer = mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetGunEyePos();
   float lookDot = gunToPlayer.dot(x34_transform.basis[1]);
-  if (lookDot > 0.f)
+  if (lookDot > 0.f) {
     return lookDot * lookDot > gunToPlayer.magSquared() * x3c4_detectionAngle;
+  }
   return false;
 }
 
@@ -665,8 +701,9 @@ bool CPatterned::InDetectionRange(CStateManager& mgr, float arg) {
   const float maxRange = x3bc_detectionRange * x3bc_detectionRange;
   const float dist = delta.magSquared();
   if (dist < maxRange) {
-    if (x3c0_detectionHeightRange > 0.f)
+    if (x3c0_detectionHeightRange > 0.f) {
       return delta.z() * delta.z() < x3c0_detectionHeightRange * x3c0_detectionHeightRange;
+    }
     return true;
   }
   return false;
@@ -688,15 +725,16 @@ bool CPatterned::InRange(CStateManager& mgr, float arg) {
 bool CPatterned::OffLine(CStateManager&, float arg) {
   zeus::CVector3f curLine = GetTranslation() - x2ec_reflectedDestPos;
   zeus::CVector3f pathLine = x2e0_destPos - x2ec_reflectedDestPos;
-  float distSq;
+  float distSq = 0.f;
   if (curLine.dot(pathLine) <= 0.f) {
     distSq = curLine.magSquared();
   } else {
     pathLine.normalize();
     distSq = (curLine - pathLine.dot(curLine) * pathLine).magSquared();
     zeus::CVector3f delta = GetTranslation() - x2e0_destPos;
-    if (pathLine.dot(delta) > 0.f)
+    if (pathLine.dot(delta) > 0.f) {
       distSq = delta.magSquared();
+    }
   }
   return distSq > arg * arg;
 }
@@ -708,10 +746,11 @@ void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
       if (search->Search(GetTranslation(), x2e0_destPos) == CPathFindSearch::EResult::Success) {
         x2ec_reflectedDestPos = GetTranslation();
         zeus::CVector3f destPos;
-        if (search->GetCurrentWaypoint() + 1 < search->GetWaypoints().size())
+        if (search->GetCurrentWaypoint() + 1 < search->GetWaypoints().size()) {
           destPos = search->GetWaypoints()[search->GetCurrentWaypoint() + 1];
-        else
+        } else {
           destPos = search->GetWaypoints()[search->GetCurrentWaypoint()];
+        }
         SetDestPos(destPos);
         x328_24_inPosition = false;
         ApproachDest(mgr);
@@ -720,16 +759,18 @@ void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     case EStateMsg::Update: {
       if (search->GetCurrentWaypoint() < search->GetWaypoints().size() - 1) {
-        if (x328_25_verticalMovement || x328_27_onGround)
+        if (x328_25_verticalMovement || x328_27_onGround) {
           x401_24_pathOverCount += 1;
+        }
         zeus::CVector3f biasedPos = GetTranslation() + 0.3f * zeus::skUp;
         x2ec_reflectedDestPos = biasedPos - (x2e0_destPos - biasedPos);
         ApproachDest(mgr);
         zeus::CVector3f biasedForward = x34_transform.basis[1] * x64_modelData->GetScale().y() + biasedPos;
         search->GetSplinePointWithLookahead(biasedForward, biasedPos, 3.f * x64_modelData->GetScale().y());
         SetDestPos(biasedForward);
-        if (search->SegmentOver(biasedPos))
+        if (search->SegmentOver(biasedPos)) {
           search->SetCurrentWaypoint(search->GetCurrentWaypoint() + 1);
+        }
       }
       break;
     }
@@ -773,8 +814,9 @@ void CPatterned::TargetPlayer(CStateManager& mgr, EStateMsg msg, float dt) {
 void CPatterned::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     x2dc_destObj = GetWaypointForState(mgr, EScriptObjectState::Patrol, EScriptObjectMessage::Follow);
-    if (TCastToConstPtr<CActor> act = mgr.GetObjectById(x2dc_destObj))
+    if (TCastToConstPtr<CActor> act = mgr.GetObjectById(x2dc_destObj)) {
       SetDestPos(act->GetTranslation());
+    }
     x2ec_reflectedDestPos = GetTranslation();
     x328_24_inPosition = false;
   }
@@ -849,18 +891,21 @@ void CPatterned::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
           }
         }
       }
-      if (x2dc_destObj == kInvalidUniqueId)
+      if (x2dc_destObj == kInvalidUniqueId) {
         x2d8_patrolState = EPatrolState::Done;
+      }
       UpdateDest(mgr);
       ApproachDest(mgr);
       break;
     case EPatrolState::Pause:
-      if (x2f8_waypointPauseRemTime <= 0.f)
+      if (x2f8_waypointPauseRemTime <= 0.f) {
         x2d8_patrolState = EPatrolState::Patrol;
+      }
       break;
     case EPatrolState::Done:
-      if (x2dc_destObj != kInvalidUniqueId)
+      if (x2dc_destObj != kInvalidUniqueId) {
         x2d8_patrolState = EPatrolState::Patrol;
+      }
       break;
     default:
       break;
@@ -876,12 +921,13 @@ void CPatterned::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
 }
 
 void CPatterned::TryCommand(CStateManager& mgr, pas::EAnimationState state, CPatternedTryFunc func, int arg) {
-  if (state == x450_bodyController->GetCurrentStateId())
+  if (state == x450_bodyController->GetCurrentStateId()) {
     x32c_animState = EAnimState::Repeat;
-  else if (x32c_animState == EAnimState::Ready)
+  } else if (x32c_animState == EAnimState::Ready) {
     (this->*func)(mgr, arg);
-  else
+  } else {
     x32c_animState = EAnimState::Over;
+  }
 }
 
 void CPatterned::TryLoopReaction(CStateManager& mgr, int arg) {
@@ -914,7 +960,7 @@ void CPatterned::TryJump(CStateManager& mgr, int arg) {
 
 void CPatterned::TryTurn(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(
-    CBCLocomotionCmd(zeus::skZero3f, (x2e0_destPos - GetTranslation()).normalized(), 1.f));
+      CBCLocomotionCmd(zeus::skZero3f, (x2e0_destPos - GetTranslation()).normalized(), 1.f));
 }
 
 void CPatterned::TryGetUp(CStateManager& mgr, int arg) {
@@ -943,8 +989,8 @@ void CPatterned::TryBreakDodge(CStateManager& mgr, int arg) {
 
 void CPatterned::TryCover(CStateManager& mgr, int arg) {
   if (CScriptCoverPoint* cp = GetCoverPoint(mgr, x2dc_destObj)) {
-    x450_bodyController->GetCommandMgr().DeliverCmd(CBCCoverCmd(pas::ECoverDirection(arg), cp->GetTranslation(),
-                                                                -cp->GetTransform().basis[1]));
+    x450_bodyController->GetCommandMgr().DeliverCmd(
+        CBCCoverCmd(pas::ECoverDirection(arg), cp->GetTranslation(), -cp->GetTransform().basis[1]));
   }
 }
 
@@ -969,8 +1015,9 @@ void CPatterned::TryStep(CStateManager& mgr, int arg) {
 }
 
 void CPatterned::BuildBodyController(EBodyType bodyType) {
-  if (x450_bodyController)
+  if (x450_bodyController) {
     return;
+  }
 
   x450_bodyController = std::make_unique<CBodyController>(*this, x3b8_turnSpeed, bodyType);
   auto anim =
@@ -982,17 +1029,17 @@ void CPatterned::GenerateDeathExplosion(CStateManager& mgr) {
   if (auto particle = GetDeathExplosionParticle()) {
     zeus::CTransform xf(GetTransform());
     xf.origin = GetTransform() * (x64_modelData->GetScale() * x514_deathExplosionOffset);
-    CExplosion* explo = new CExplosion(*particle, mgr.AllocateUniqueId(), true,
-                                       CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1,
-                                       zeus::skOne3f, zeus::skWhite);
+    auto* explo = new CExplosion(*particle, mgr.AllocateUniqueId(), true,
+                                 CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1, zeus::skOne3f,
+                                 zeus::skWhite);
     mgr.AddObject(explo);
   }
   if (x530_deathExplosionElectric) {
     zeus::CTransform xf(GetTransform());
     xf.origin = GetTransform() * (x64_modelData->GetScale() * x514_deathExplosionOffset);
-    CExplosion* explo = new CExplosion(*x530_deathExplosionElectric, mgr.AllocateUniqueId(), true,
-                                       CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1,
-                                       zeus::skOne3f, zeus::skWhite);
+    auto* explo = new CExplosion(*x530_deathExplosionElectric, mgr.AllocateUniqueId(), true,
+                                 CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1, zeus::skOne3f,
+                                 zeus::skWhite);
     mgr.AddObject(explo);
   }
 }
@@ -1011,24 +1058,25 @@ void CPatterned::GenerateIceDeathExplosion(CStateManager& mgr) {
   if (x54c_iceDeathExplosionParticle) {
     zeus::CTransform xf(GetTransform());
     xf.origin = GetTransform() * (x64_modelData->GetScale() * x540_iceDeathExplosionOffset);
-    CExplosion* explo = new CExplosion(*x54c_iceDeathExplosionParticle, mgr.AllocateUniqueId(), true,
-                                       CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1,
-                                       zeus::skOne3f, zeus::skWhite);
+    auto* explo = new CExplosion(*x54c_iceDeathExplosionParticle, mgr.AllocateUniqueId(), true,
+                                 CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1, zeus::skOne3f,
+                                 zeus::skWhite);
     mgr.AddObject(explo);
   }
 }
 
 void CPatterned::MassiveFrozenDeath(CStateManager& mgr) {
-  if (x458_iceShatterSfx == 0xffff)
+  if (x458_iceShatterSfx == 0xffff) {
     x458_iceShatterSfx = x454_deathSfx;
-  CSfxManager::AddEmitter(x458_iceShatterSfx, GetTranslation(), zeus::skZero3f, true, false, 0x7f,
-                          kInvalidAreaId);
+  }
+  CSfxManager::AddEmitter(x458_iceShatterSfx, GetTranslation(), zeus::skZero3f, true, false, 0x7f, kInvalidAreaId);
   SendScriptMsgs(EScriptObjectState::MassiveFrozenDeath, mgr, EScriptObjectMessage::None);
   GenerateIceDeathExplosion(mgr);
   float toPlayerDist = (mgr.GetPlayer().GetTranslation() - GetTranslation()).magnitude();
-  if (toPlayerDist < 40.f)
+  if (toPlayerDist < 40.f) {
     mgr.GetCameraManager()->AddCameraShaker(
         CCameraShakeData::BuildPatternedExplodeShakeData(GetTranslation(), 0.25f, 0.3f, 40.f), true);
+  }
   DeathDelete(mgr);
   x400_28_pendingMassiveDeath = x400_29_pendingMassiveFrozenDeath = false;
 }
@@ -1065,8 +1113,9 @@ void CPatterned::Shock(CStateManager& mgr, float duration, float damage) {
 
 void CPatterned::Freeze(CStateManager& mgr, const zeus::CVector3f& pos, const zeus::CUnitVector3f& dir,
                         float frozenDur) {
-  if (x402_25_lostMassiveFrozenHP)
+  if (x402_25_lostMassiveFrozenHP) {
     x402_26_dieIf80PercFrozen = true;
+  }
   bool playSfx = false;
   if (x450_bodyController->IsFrozen()) {
     x450_bodyController->Freeze(x460_knockBackController.GetActiveParms().xc_intoFreezeDur, frozenDur,
@@ -1075,18 +1124,17 @@ void CPatterned::Freeze(CStateManager& mgr, const zeus::CVector3f& pos, const ze
     playSfx = true;
   } else if (!x450_bodyController->IsElectrocuting() && !x450_bodyController->IsOnFire()) {
     x450_bodyController->Freeze(x4f4_intoFreezeDur, frozenDur, x4f8_outofFreezeDur);
-    if (x510_vertexMorph)
+    if (x510_vertexMorph) {
       x510_vertexMorph->Reset(dir, pos, x4f4_intoFreezeDur);
+    }
     playSfx = true;
   }
 
   if (playSfx) {
-    u16 sfx;
-    if (x460_knockBackController.GetVariant() != EKnockBackVariant::Small &&
-        CPatterned::CastTo<MP1::CMetroid>(mgr.GetObjectById(GetUniqueId())))
-      sfx = SFXsfx0701;
-    else
-      sfx = SFXsfx0708;
+    u16 sfx = (x460_knockBackController.GetVariant() != EKnockBackVariant::Small &&
+               CPatterned::CastTo<MP1::CMetroid>(mgr.GetObjectById(GetUniqueId())) != nullptr)
+                  ? SFXsfx0701
+                  : SFXsfx0708;
     CSfxManager::AddEmitter(sfx, GetTranslation(), zeus::skZero3f, true, false, 0x7f, kInvalidAreaId);
   }
 }
@@ -1107,14 +1155,14 @@ void CPatterned::SetupPlayerCollision(bool v) {
 }
 
 CGameProjectile* CPatterned::LaunchProjectile(const zeus::CTransform& gunXf, CStateManager& mgr, int maxAllowed,
-                                  EProjectileAttrib attrib, bool playerHoming,
-                                  const std::optional<TLockedToken<CGenDescription>>& visorParticle,
-                                  u16 visorSfx, bool sendCollideMsg, const zeus::CVector3f& scale) {
+                                              EProjectileAttrib attrib, bool playerHoming,
+                                              const std::optional<TLockedToken<CGenDescription>>& visorParticle,
+                                              u16 visorSfx, bool sendCollideMsg, const zeus::CVector3f& scale) {
   CProjectileInfo* pInfo = GetProjectileInfo();
   if (pInfo->Token().IsLoaded()) {
     if (mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, maxAllowed)) {
       TUniqueId homingId = playerHoming ? mgr.GetPlayer().GetUniqueId() : kInvalidUniqueId;
-      CEnergyProjectile* newProjectile =
+      auto* newProjectile =
           new CEnergyProjectile(true, pInfo->Token(), EWeaponType::AI, gunXf, EMaterialTypes::Character,
                                 pInfo->GetDamage(), mgr.AllocateUniqueId(), GetAreaIdAlways(), GetUniqueId(), homingId,
                                 attrib, false, scale, visorParticle, visorSfx, sendCollideMsg);
@@ -1181,8 +1229,9 @@ void CPatterned::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, 
 }
 
 void CPatterned::UpdateAlphaDelta(float dt, CStateManager& mgr) {
-  if (x3e8_alphaDelta == 0.f)
+  if (x3e8_alphaDelta == 0.f) {
     return;
+  }
 
   float alpha = dt * x3e8_alphaDelta + x42c_color.a();
   if (alpha > 1.f) {
@@ -1191,8 +1240,9 @@ void CPatterned::UpdateAlphaDelta(float dt, CStateManager& mgr) {
   } else if (alpha < 0.f) {
     alpha = 0.f;
     x3e8_alphaDelta = 0.f;
-    if (x400_27_fadeToDeath)
+    if (x400_27_fadeToDeath) {
       DeathDelete(mgr);
+    }
   }
   x94_simpleShadow->SetUserAlpha(alpha);
   SetModelAlpha(alpha);
@@ -1208,18 +1258,19 @@ void CPatterned::UpdateDamageColor(float dt) {
   if (x428_damageCooldownTimer > 0.f) {
     x428_damageCooldownTimer = std::max(0.f, x428_damageCooldownTimer - dt);
     float alpha = x42c_color.a();
-    x42c_color =
-        zeus::CColor::lerp(zeus::skBlack, x430_damageColor, std::min(x428_damageCooldownTimer / 0.33f, 1.f));
+    x42c_color = zeus::CColor::lerp(zeus::skBlack, x430_damageColor, std::min(x428_damageCooldownTimer / 0.33f, 1.f));
     x42c_color.a() = alpha;
-    if (!x450_bodyController->IsFrozen())
+    if (!x450_bodyController->IsFrozen()) {
       xd0_damageMag = x50c_baseDamageMag + x428_damageCooldownTimer;
+    }
   }
 }
 
 CScriptCoverPoint* CPatterned::GetCoverPoint(CStateManager& mgr, TUniqueId id) const {
   if (id != kInvalidUniqueId) {
-    if (TCastToPtr<CScriptCoverPoint> cp = mgr.ObjectById(id))
+    if (TCastToPtr<CScriptCoverPoint> cp = mgr.ObjectById(id)) {
       return cp.GetPtr();
+    }
   }
   return nullptr;
 }
@@ -1229,7 +1280,7 @@ void CPatterned::SetCoverPoint(CScriptCoverPoint* cp, TUniqueId& id) {
   id = cp->GetUniqueId();
 }
 
-void CPatterned::ReleaseCoverPoint(CStateManager& mgr, TUniqueId& id) {
+void CPatterned::ReleaseCoverPoint(CStateManager& mgr, TUniqueId& id) const {
   if (CScriptCoverPoint* cp = GetCoverPoint(mgr, id)) {
     cp->SetInUse(false);
     id = kInvalidUniqueId;
@@ -1242,38 +1293,48 @@ TUniqueId CPatterned::GetWaypointForState(CStateManager& mgr, EScriptObjectState
   for (const auto& conn : GetConnectionList()) {
     if (conn.x0_state == state && conn.x4_msg == msg) {
       TUniqueId id = mgr.GetIdForScript(conn.x8_objId);
-      if (const CEntity* ent = mgr.GetObjectById(id))
-        if (ent->GetActive())
+      if (const CEntity* ent = mgr.GetObjectById(id)) {
+        if (ent->GetActive()) {
           ids.push_back(id);
+        }
+      }
     }
   }
 
-  if (!ids.empty())
+  if (!ids.empty()) {
     return ids[mgr.GetActiveRandom()->Next() % ids.size()];
+  }
 
   return kInvalidUniqueId;
 }
 
 void CPatterned::UpdateActorKeyframe(CStateManager& mgr) const {
-  if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(x2dc_destObj))
-    for (const auto& conn : wp->GetConnectionList())
-      if (conn.x0_state == EScriptObjectState::Arrived && conn.x4_msg == EScriptObjectMessage::Action)
-        if (TCastToPtr<CScriptActorKeyframe> kf = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId)))
-          if (kf->GetActive() && kf->IsPassive())
+  if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(x2dc_destObj)) {
+    for (const auto& conn : wp->GetConnectionList()) {
+      if (conn.x0_state == EScriptObjectState::Arrived && conn.x4_msg == EScriptObjectMessage::Action) {
+        if (TCastToPtr<CScriptActorKeyframe> kf = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId))) {
+          if (kf->GetActive() && kf->IsPassive()) {
             kf->UpdateEntity(GetUniqueId(), mgr);
+          }
+        }
+      }
+    }
+  }
 }
 
 pas::EStepDirection CPatterned::GetStepDirection(const zeus::CVector3f& moveVec) const {
   zeus::CVector3f localMove = x34_transform.transposeRotate(moveVec);
   float angle = zeus::CVector3f::getAngleDiff(localMove, zeus::skForward);
-  if (angle < zeus::degToRad(45.f))
+  if (angle < zeus::degToRad(45.f)) {
     return pas::EStepDirection::Forward;
-  else if (angle > zeus::degToRad(135.f))
+  }
+  if (angle > zeus::degToRad(135.f)) {
     return pas::EStepDirection::Backward;
-  else if (localMove.dot(zeus::skRight) > 0.f)
+  }
+  if (localMove.dot(zeus::skRight) > 0.f) {
     return pas::EStepDirection::Right;
-  else
-    return pas::EStepDirection::Left;
+  }
+  return pas::EStepDirection::Left;
 }
 
 bool CPatterned::IsPatternObstructed(CStateManager& mgr, const zeus::CVector3f& p0, const zeus::CVector3f& p1) const {
@@ -1304,9 +1365,9 @@ void CPatterned::UpdateDest(CStateManager& mgr) {
         if (TCastToConstPtr<CScriptWaypoint> wp2 = mgr.GetObjectById(x2dc_destObj)) {
           x3b0_moveSpeed = wp->GetSpeed();
           x30c_behaviourOrient = EBehaviourOrient(wp->GetBehaviourOrient());
-          if (wp->GetBehaviourModifiers() & 0x2) {
+          if ((wp->GetBehaviourModifiers() & 0x2) != 0) {
             x450_bodyController->GetCommandMgr().DeliverCmd(CBCJumpCmd(wp2->GetTranslation(), pas::EJumpType::Normal));
-          } else if (wp->GetBehaviourModifiers() & 0x4) {
+          } else if ((wp->GetBehaviourModifiers() & 0x4) != 0) {
             TUniqueId wp3Id = wp2->NextWaypoint(mgr);
             if (wp3Id != kInvalidUniqueId) {
               if (TCastToConstPtr<CScriptWaypoint> wp3 = mgr.GetObjectById(wp3Id)) {
@@ -1321,9 +1382,11 @@ void CPatterned::UpdateDest(CStateManager& mgr) {
     }
   }
 
-  if (x2dc_destObj != kInvalidUniqueId)
-    if (TCastToConstPtr<CActor> act = mgr.GetObjectById(x2dc_destObj))
+  if (x2dc_destObj != kInvalidUniqueId) {
+    if (TCastToConstPtr<CActor> act = mgr.GetObjectById(x2dc_destObj)) {
       SetDestPos(act->GetTranslation());
+    }
+  }
 }
 
 void CPatterned::ApproachDest(CStateManager& mgr) {
@@ -1334,23 +1397,26 @@ void CPatterned::ApproachDest(CStateManager& mgr) {
     faceVec.z() = 0.f;
   }
   zeus::CVector3f pathLine = x2e0_destPos - x2ec_reflectedDestPos;
-  if (pathLine.dot(moveVec) <= 0.f)
+  if (pathLine.dot(moveVec) <= 0.f) {
     x328_24_inPosition = true;
-  else if (moveVec.magSquared() < 3.f * 3.f)
+  } else if (moveVec.magSquared() < 3.f * 3.f) {
     moveVec = pathLine;
+  }
   if (!x328_24_inPosition) {
-    if (moveVec.canBeNormalized())
+    if (moveVec.canBeNormalized()) {
       moveVec.normalize();
+    }
     switch (x30c_behaviourOrient) {
     case EBehaviourOrient::MoveDir:
       faceVec = moveVec;
       break;
     case EBehaviourOrient::Destination:
-      if (x39c_curPattern && x39c_curPattern < x38c_patterns.size()) {
+      if (x39c_curPattern != 0u && x39c_curPattern < x38c_patterns.size()) {
         faceVec = x38c_patterns[x39c_curPattern].GetForward();
       } else if (x2dc_destObj != kInvalidUniqueId) {
-        if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(x2dc_destObj))
+        if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(x2dc_destObj)) {
           faceVec = wp->GetTransform().basis[1];
+        }
       }
       break;
     default:
@@ -1397,10 +1463,11 @@ zeus::CQuaternion CPatterned::FindPatternRotation(const zeus::CVector3f& dir) co
   dirFlat.normalize();
 
   zeus::CQuaternion q;
-  if ((wpDeltaFlat - dirFlat).magSquared() > 3.99f)
+  if ((wpDeltaFlat - dirFlat).magSquared() > 3.99f) {
     q.rotateZ(zeus::degToRad(180.f));
-  else
+  } else {
     q = zeus::CQuaternion::shortestRotationArc(wpDeltaFlat, dirFlat);
+  }
 
   if (x328_25_verticalMovement) {
     q = zeus::CQuaternion::shortestRotationArc(
@@ -1439,11 +1506,9 @@ void CPatterned::UpdatePatternDestPos(CStateManager& mgr) {
       zeus::CVector3f patternDir = FindPatternDir(mgr);
       SetDestPos(FindPatternRotation(patternDir).transform(x38c_patterns[x39c_curPattern].GetPos()));
       if (x37c_patternFit == EPatternFit::Zero) {
-        float magSq;
-        if (x328_25_verticalMovement)
-          magSq = patternDir.magSquared() / x368_destWPDelta.magSquared();
-        else
-          magSq = patternDir.toVec2f().magSquared() / x368_destWPDelta.toVec2f().magSquared();
+        float magSq = x328_25_verticalMovement
+                          ? patternDir.magSquared() / x368_destWPDelta.magSquared()
+                          : patternDir.toVec2f().magSquared() / x368_destWPDelta.toVec2f().magSquared();
         SetDestPos(std::sqrt(magSq) * x2e0_destPos);
       }
     } else {
@@ -1469,37 +1534,41 @@ void CPatterned::UpdatePatternDestPos(CStateManager& mgr) {
 void CPatterned::SetupPattern(CStateManager& mgr) {
   EScriptObjectState state = GetDesiredAttackState(mgr);
   x2dc_destObj = GetWaypointForState(mgr, state, EScriptObjectMessage::Follow);
-  if (x2dc_destObj == kInvalidUniqueId && state != EScriptObjectState::Attack)
+  if (x2dc_destObj == kInvalidUniqueId && state != EScriptObjectState::Attack) {
     x2dc_destObj = GetWaypointForState(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow);
+  }
   x38c_patterns.clear();
   if (x2dc_destObj != kInvalidUniqueId) {
     x350_patternStartPos = GetTranslation();
     x35c_patternStartPlayerPos = mgr.GetPlayer().GetTranslation();
     auto destWPs = GetDestWaypoints(mgr);
-    if (destWPs.first) {
+    if (destWPs.first != nullptr) {
       x374_patternTranslate = EPatternTranslate(destWPs.first->GetPatternTranslate());
       x378_patternOrient = EPatternOrient(destWPs.first->GetPatternOrient());
       x37c_patternFit = EPatternFit(destWPs.first->GetPatternFit());
-      if (destWPs.second)
+      if (destWPs.second != nullptr) {
         x368_destWPDelta = destWPs.second->GetTranslation() - destWPs.first->GetTranslation();
-      else
+      } else {
         x368_destWPDelta = zeus::skZero3f;
+      }
 
       int numPatterns = 0;
       CScriptWaypoint* curWp = destWPs.first;
       do {
         ++numPatterns;
         curWp = TCastToPtr<CScriptWaypoint>(mgr.ObjectById(curWp->NextWaypoint(mgr))).GetPtr();
-        if (!curWp)
+        if (curWp == nullptr) {
           break;
+        }
       } while (curWp->GetUniqueId() != destWPs.first->GetUniqueId());
       x38c_patterns.reserve(numPatterns);
 
       zeus::CVector3f basePos;
       switch (x374_patternTranslate) {
       case EPatternTranslate::RelativePlayerStart:
-        if (destWPs.second)
+        if (destWPs.second != nullptr) {
           basePos = destWPs.second->GetTranslation();
+        }
         break;
       case EPatternTranslate::Absolute:
         break;
@@ -1511,14 +1580,16 @@ void CPatterned::SetupPattern(CStateManager& mgr) {
       curWp = destWPs.first;
       do {
         zeus::CVector3f wpForward = curWp->GetTransform().basis[1];
-        if (x368_destWPDelta != zeus::skZero3f)
+        if (x368_destWPDelta != zeus::skZero3f) {
           wpForward = FindPatternRotation(FindPatternDir(mgr)).transform(wpForward);
+        }
         x38c_patterns.emplace_back(curWp->GetTranslation() - basePos, wpForward, curWp->GetSpeed(),
                                    curWp->GetBehaviour(), curWp->GetBehaviourOrient(), curWp->GetBehaviourModifiers(),
                                    curWp->GetAnimation());
         curWp = TCastToPtr<CScriptWaypoint>(mgr.ObjectById(curWp->NextWaypoint(mgr))).GetPtr();
-        if (!curWp)
+        if (curWp == nullptr) {
           break;
+        }
       } while (curWp->GetUniqueId() != destWPs.first->GetUniqueId());
     }
   }
@@ -1537,12 +1608,13 @@ void CPatterned::SetupPattern(CStateManager& mgr) {
 
 EScriptObjectState CPatterned::GetDesiredAttackState(CStateManager& mgr) const {
   float deltaMagSq = (GetTranslation() - mgr.GetPlayer().GetTranslation()).magSquared();
-  if (deltaMagSq < x2fc_minAttackRange * x2fc_minAttackRange)
+  if (deltaMagSq < x2fc_minAttackRange * x2fc_minAttackRange) {
     return EScriptObjectState::Retreat;
-  else if (deltaMagSq > x300_maxAttackRange * x300_maxAttackRange)
+  }
+  if (deltaMagSq > x300_maxAttackRange * x300_maxAttackRange) {
     return EScriptObjectState::CloseIn;
-  else
-    return EScriptObjectState::Attack;
+  }
+  return EScriptObjectState::Attack;
 }
 
 float CPatterned::GetAnimationDistance(const CPASAnimParmData& data) const {
@@ -1559,35 +1631,39 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
     SetCalculateLighting(false);
     x90_actorLights->BuildConstantAmbientLighting(zeus::skWhite);
-  } else
+  } else {
     SetCalculateLighting(true);
+  }
 
   zeus::CColor col = x42c_color;
   u8 alpha = GetModelAlphau8(mgr);
-  if (x402_27_noXrayModel && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)
+  if (x402_27_noXrayModel && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
     alpha = 76;
+  }
 
   if (alpha < 255) {
-    if (col.r() == 0.f && col.g() == 0.f && col.b() == 0.f)
+    if (col.r() == 0.f && col.g() == 0.f && col.b() == 0.f) {
       col = zeus::skWhite; /* Not being damaged */
+    }
 
     if (x401_29_laggedBurnDeath) {
       int stripedAlpha = 255;
-      if (alpha > 127)
+      if (alpha > 127) {
         stripedAlpha = (alpha - 128) * 2;
-      xb4_drawFlags = CModelFlags(3, 0, 3, zeus::CColor(0.f, (stripedAlpha * stripedAlpha) / 65025.f));
+      }
+      xb4_drawFlags = CModelFlags(3, 0, 3, zeus::CColor(0.f, float(stripedAlpha * stripedAlpha) / 65025.f));
     } else if (x401_28_burning) {
       xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor(0.f, 1.f));
     } else {
       zeus::CColor col2 = col;
-      col2.a() = alpha / 255.f;
+      col2.a() = float(alpha) / 255.f;
       xb4_drawFlags = CModelFlags(5, 0, 3, col2);
     }
   } else {
     if (col.r() != 0.f || col.g() != 0.f || col.b() != 0.f) {
       /* Being damaged */
       zeus::CColor col2 = col;
-      col2.a() = alpha / 255.f;
+      col2.a() = float(alpha) / 255.f;
       xb4_drawFlags = CModelFlags(2, 0, 3, zeus::skWhite);
       /* Make color additive */
       xb4_drawFlags.addColor = col2;
@@ -1602,7 +1678,8 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
 void CPatterned::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   if (x402_29_drawParticles) {
     if (x64_modelData && !x64_modelData->IsNull()) {
-      int mask, target;
+      int mask = 0;
+      int target = 0;
       mgr.GetCharacterRenderMaskAndTarget(x402_31_thawed, mask, target);
       if (CAnimData* aData = x64_modelData->GetAnimationData()) {
         aData->GetParticleDB().AddToRendererClippedMasked(frustum, mask, target);
@@ -1616,8 +1693,9 @@ void CPatterned::RenderIceModelWithFlags(const CModelFlags& flags) const {
   CModelFlags useFlags = flags;
   useFlags.x1_matSetIdx = 0;
   CAnimData* animData = x64_modelData->GetAnimationData();
-  if (CMorphableSkinnedModel* iceModel = animData->GetIceModel().GetObj())
+  if (CMorphableSkinnedModel* iceModel = animData->GetIceModel().GetObj()) {
     animData->Render(*iceModel, useFlags, {*x510_vertexMorph}, iceModel->GetMorphMagnitudes());
+  }
 }
 
 void CPatterned::Render(CStateManager& mgr) {
@@ -1633,9 +1711,10 @@ void CPatterned::Render(CStateManager& mgr) {
     if (x401_28_burning) {
       const CTexture* ashy = mgr.GetActorModelParticles()->GetAshyTexture(*this);
       u8 alpha = GetModelAlphau8(mgr);
-      if (ashy && ((!x401_29_laggedBurnDeath && alpha <= 255) || alpha <= 127)) {
-        if (xe5_31_pointGeneratorParticles)
+      if (ashy != nullptr && ((!x401_29_laggedBurnDeath && alpha <= 255) || alpha <= 127)) {
+        if (xe5_31_pointGeneratorParticles) {
           mgr.SetupParticleHook(*this);
+        }
         zeus::CColor addColor;
         if (x401_29_laggedBurnDeath) {
           addColor = zeus::skClear;
@@ -1643,7 +1722,7 @@ void CPatterned::Render(CStateManager& mgr) {
           addColor = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot ? zeus::skWhite : zeus::skBlack;
         }
         x64_modelData->DisintegrateDraw(mgr, GetTransform(), *ashy, addColor,
-                                        alpha * (x401_29_laggedBurnDeath ? 0.00787402f : 0.00392157f));
+                                        float(alpha) * (x401_29_laggedBurnDeath ? 0.00787402f : 0.00392157f));
         if (xe5_31_pointGeneratorParticles) {
           CSkinnedModel::ClearPointGeneratorFunc();
           mgr.GetActorModelParticles()->Render(mgr, *this);
@@ -1675,14 +1754,16 @@ void CPatterned::ThinkAboutMove(float dt) {
   if (doMove && x39c_curPattern < x38c_patterns.size()) {
     zeus::CVector3f frontVec = GetTransform().frontVector();
     zeus::CVector3f x31cCpy = x31c_faceVec;
-    if (x31c_faceVec.magSquared() > 0.1f)
+    if (x31c_faceVec.magSquared() > 0.1f) {
       x31cCpy.normalize();
+    }
     float mag = frontVec.dot(x31cCpy);
 
     switch (x3f8_moveState) {
     case EMoveState::Zero:
-      if (!x328_26_solidCollision)
+      if (!x328_26_solidCollision) {
         break;
+      }
       [[fallthrough]];
     case EMoveState::One:
       doMove = false;
@@ -1702,8 +1783,9 @@ void CPatterned::ThinkAboutMove(float dt) {
         x3f8_moveState = EMoveState::Zero;
         break;
       }
-      if (mag > 0.9f)
+      if (mag > 0.9f) {
         x3f8_moveState = EMoveState::Four;
+      }
       break;
     case EMoveState::Four:
       x328_24_inPosition = true;
@@ -1717,24 +1799,27 @@ void CPatterned::ThinkAboutMove(float dt) {
 
   if (!x401_26_disableMove && doMove) {
     const CBodyState* state = x450_bodyController->GetBodyStateInfo().GetCurrentState();
-    if (state->ApplyAnimationDeltas() && !zeus::close_enough(x2e0_destPos - GetTranslation(), {}))
+    if (state->ApplyAnimationDeltas() && !zeus::close_enough(x2e0_destPos - GetTranslation(), {})) {
       MoveToOR((x64_modelData->GetScale() * x434_posDelta) * x55c_moveScale, dt);
+    }
   }
 
   RotateToOR(x440_rotDelta, dt);
 }
 
 void CPatterned::PhazeOut(CStateManager& mgr) {
-  if (!x400_27_fadeToDeath)
+  if (!x400_27_fadeToDeath) {
     SendScriptMsgs(EScriptObjectState::DeathRattle, mgr, EScriptObjectMessage::None);
+  }
   x401_27_phazingOut = true;
   x450_bodyController->SetPlaybackRate(0.f);
   x64_modelData->GetAnimationData()->GetParticleDB().SetUpdatesEnabled(false);
 }
 
 bool CPatterned::ApplyBoneTracking() const {
-  if (x400_25_alive)
+  if (x400_25_alive) {
     return x460_knockBackController.GetFlinchRemTime() <= 0.f;
+  }
 
   return false;
 }

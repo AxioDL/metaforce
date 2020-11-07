@@ -381,7 +381,7 @@ public:
   void UpdateDamageColor(float dt);
   CScriptCoverPoint* GetCoverPoint(CStateManager& mgr, TUniqueId id) const;
   void SetCoverPoint(CScriptCoverPoint* cp, TUniqueId& id);
-  void ReleaseCoverPoint(CStateManager& mgr, TUniqueId& id);
+  void ReleaseCoverPoint(CStateManager& mgr, TUniqueId& id) const;
 
   bool MadeSolidCollision() const { return x328_26_solidCollision; }
   bool IsMakingBigStrike() const { return x402_28_isMakingBigStrike; }
