@@ -14,6 +14,9 @@ class CGameLight : public CActor {
   u32 x140_priority;
   float x144_lifeTime;
 
+
+  std::optional<CStaticRes> m_debugRes;
+  std::unique_ptr<CModelData> m_debugModel;
 public:
   CGameLight(TUniqueId uid, TAreaId aid, bool active, std::string_view name, const zeus::CTransform& xf,
              TUniqueId parentId, const CLight& light, u32 sourceId, u32 priority, float lifeTime);
@@ -24,5 +27,7 @@ public:
   void SetLight(const CLight& light);
   CLight GetLight() const;
   TUniqueId GetParentId() const { return xe8_parentId; }
+
+  void DebugDraw();
 };
 } // namespace urde

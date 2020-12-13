@@ -2,6 +2,9 @@
 
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Graphics/CBooRenderer.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -52,5 +55,31 @@ CLight CGameLight::GetLight() const {
     ret.SetDirection(x34_transform.rotate(xec_light.GetDirection()).normalized());
 
   return ret;
+}
+
+void CGameLight::DebugDraw() {
+  if (!m_debugRes) {
+    const auto* tok = (xec_light.GetType() == ELightType::Spot || xec_light.GetType() == ELightType::Directional)
+                          ? g_ResFactory->GetResourceIdByName("CMDL_DebugLightCone")
+                          : g_ResFactory->GetResourceIdByName("CMDL_DebugSphere");
+    if (tok != nullptr && tok->type == FOURCC('CMDL')) {
+      m_debugRes = CStaticRes(tok->id, zeus::skOne3f);
+    }
+  }
+
+  if (m_debugRes && !m_debugModel) {
+    m_debugModel = std::make_unique<CModelData>(*m_debugRes);
+  }
+
+  if (m_debugModel) {
+    g_Renderer->SetGXRegister1Color(xec_light.GetColor());
+    CModelFlags modelFlags;
+    modelFlags.x0_blendMode = 5;
+    modelFlags.x4_color = zeus::skWhite;
+    modelFlags.x4_color.a() = 0.5f;
+    m_debugModel->Render(CModelData::EWhichModel::Normal, zeus::CTransform::Translate(xec_light.GetPosition()), nullptr,
+                         modelFlags);
+    m_debugModel->Render(CModelData::EWhichModel::Normal, x34_transform, nullptr, modelFlags);
+  }
 }
 } // namespace urde

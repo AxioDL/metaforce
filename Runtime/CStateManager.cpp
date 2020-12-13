@@ -543,7 +543,14 @@ void CStateManager::DrawDebugStuff() const {
       if (CPathFindSearch* path = ai->GetSearchPath()) {
         path->DebugDraw();
       }
+    } else if (const TCastToPtr<CGameLight> light = ent) {
+      light->DebugDraw();
     }
+  }
+
+  auto* gameArea = x850_world->GetArea(x850_world->GetCurrentAreaId());
+  if (gameArea != nullptr) {
+    gameArea->DebugDraw();
   }
   if (xf70_currentMaze) {
     xf70_currentMaze->DebugRender();

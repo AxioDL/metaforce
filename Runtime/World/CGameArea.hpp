@@ -15,7 +15,7 @@
 #include "Runtime/World/CPathFindArea.hpp"
 #include "Runtime/World/CWorldLight.hpp"
 #include "Runtime/World/IGameArea.hpp"
-
+#include "Runtime/Character/CModelData.hpp"
 #include <hecl/ClientProcess.hpp>
 
 #include <zeus/CAABox.hpp>
@@ -268,6 +268,10 @@ private:
   void UpdateThermalVisor(float dt);
   void UpdateWeaponWorldLighting(float dt);
 
+  std::optional<CStaticRes> m_debugSphereRes;
+  std::unique_ptr<CModelData> m_debugSphereModel;
+  std::optional<CStaticRes> m_debugConeRes;
+  std::unique_ptr<CModelData> m_debugConeModel;
 public:
   explicit CGameArea(CInputStream& in, int idx, int mlvlVersion);
   explicit CGameArea(CAssetId mreaId); // Warmup constructor
@@ -362,6 +366,8 @@ public:
   CGameArea* GetNext() const { return x130_next; }
 
   static void WarmupShaders(const SObjectTag& mreaTag);
+  void DebugDraw();
+  void DebugDrawLight(const CLight& light);
 };
 
 } // namespace urde
