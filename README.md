@@ -121,3 +121,13 @@ cmake -G Xcode ../urde
 ```
 
 Then open `urde.xcodeproj`
+
+#### Optional Debug Models
+We provide custom debug models for use to visualize certain aspects of the game such as lighting, in order to use 
+these models you may download them from https://axiodl.com/files/debug_models.zip and extract to `MP1/URDE` in an 
+existing HECL project (assuming paths are relative), then run the the following command:
+
+```sh
+hecl package MP1/URDE
+```
+This will cook and package the debug models and will automatically enable rendering of lights in a debug build of URDE.
