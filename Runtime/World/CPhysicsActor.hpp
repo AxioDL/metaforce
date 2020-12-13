@@ -81,15 +81,10 @@ class CPhysicsActor : public CActor {
 protected:
   float xe8_mass;
   float xec_massRecip;
-  float xf0_inertiaTensor;
-  float xf4_inertiaTensorRecip;
-  union {
-    struct {
-      bool xf8_24_movable : 1;
-      bool xf8_25_angularEnabled : 1;
-    };
-    u8 _dummy = 0;
-  };
+  float xf0_inertiaTensor = 0.f;
+  float xf4_inertiaTensorRecip = 0.f;
+  bool xf8_24_movable : 1 = true;
+  bool xf8_25_angularEnabled : 1 = false;
   bool xf9_standardCollider = false;
   zeus::CVector3f xfc_constantForce;
   zeus::CAxisAngle x108_angularMomentum;
