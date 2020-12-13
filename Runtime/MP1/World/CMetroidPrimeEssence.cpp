@@ -365,7 +365,12 @@ bool CMetroidPrimeEssence::HasPatrolPath(CStateManager& mgr, float dt) {
   return !x70e_31_ && CPatterned::HasPatrolPath(mgr, dt);
 }
 
-bool CMetroidPrimeEssence::ShouldAttack(CStateManager& mgr, float dt) { return x70e_31_ && x70e_25_; }
+bool CMetroidPrimeEssence::ShouldAttack(CStateManager& mgr, float dt) {
+  if (x70e_31_) {
+    return x70e_25_;
+  }
+  return true;
+}
 
 bool CMetroidPrimeEssence::InPosition(CStateManager& mgr, float dt) {
   return (GetTranslation().z() - mgr.GetPlayer().GetTranslation().z()) > 0.25f;
