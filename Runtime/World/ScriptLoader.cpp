@@ -31,6 +31,7 @@
 #include "Runtime/MP1/World/CDrone.hpp"
 #include "Runtime/MP1/World/CMetroid.hpp"
 #include "Runtime/MP1/World/CMetroidBeta.hpp"
+#include "Runtime/MP1/World/CMetroidPrimeEssence.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"
 #include "Runtime/MP1/World/CNewIntroBoss.hpp"
 #include "Runtime/MP1/World/COmegaPirate.hpp"
@@ -3693,10 +3694,32 @@ CEntity* ScriptLoader::LoadWorldLightFader(CStateManager& mgr, CInputStream& in,
                                 0.f, zeus::skZero2f, false, active, 0.f, 0.f, f1, f2);
 }
 
-CEntity* ScriptLoader::LoadMetroidPrimeStage2(CStateManager& mgr, CInputStream& in, int propCount,
-                                              const CEntityInfo& info) {
-  return nullptr;
-}
+CEntity* ScriptLoader::LoadMetroidPrimeEssence(CStateManager& mgr, CInputStream& in, int propCount,
+                                               const CEntityInfo& info) {
+  if (!EnsurePropertyCount(propCount, 11, "MetroidPrimeEssence")) {
+    return nullptr;
+  }
+
+  SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+  auto [valid, pInfoPropCount] = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!valid) {
+    return nullptr;
+  }
+  CPatternedInfo pInfo{in, pInfoPropCount};
+  CActorParameters actParms = LoadActorParameters(in);
+  CAssetId particle1{in};
+  CDamageInfo dInfo{in};
+  CAssetId electric{in};
+  u32 w3 = in.readUint32Big();
+  CAssetId particle2{in};
+
+  const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+  CModelData mData{CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
+                            animParms.GetInitialAnimation(), true)};
+  return new MP1::CMetroidPrimeEssence(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform,
+                                       std::move(mData), pInfo, actParms, particle1, dInfo, aHead.x40_scale.y(),
+                                       electric, w3, particle2);
+};
 
 CEntity* ScriptLoader::LoadMetroidPrimeStage1(CStateManager& mgr, CInputStream& in, int propCount,
                                               const CEntityInfo& info) {

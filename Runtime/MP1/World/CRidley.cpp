@@ -869,7 +869,7 @@ void CRidley::FirePlasma(urde::CStateManager& mgr) {
     xb64_plasmaProjectile = mgr.AllocateUniqueId();
     mgr.AddObject(new CPlasmaProjectile(xb68_.Token(), ""sv, EWeaponType::AI, x568_data.x64_, {},
                                         EMaterialTypes::Character, xb68_.GetDamage(), xb64_plasmaProjectile,
-                                        GetAreaIdAlways(), GetUniqueId(), CPlasmaProjectile::PlayerEffectResoures(),
+                                        GetAreaIdAlways(), GetUniqueId(), CPlasmaProjectile::PlayerEffectResources(),
                                         false, EProjectileAttrib::KeepInCinematic));
   }
 

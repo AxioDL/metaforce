@@ -8,6 +8,7 @@
 #include "Runtime/Camera/CGameCamera.hpp"
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollidableSphere.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Collision/CMaterialFilter.hpp"
@@ -192,7 +193,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
   x90c_loaderFuncs[size_t(EScriptObjectType::Burrower)] = ScriptLoader::LoadBurrower;
   x90c_loaderFuncs[size_t(EScriptObjectType::ScriptBeam)] = ScriptLoader::LoadBeam;
   x90c_loaderFuncs[size_t(EScriptObjectType::WorldLightFader)] = ScriptLoader::LoadWorldLightFader;
-  x90c_loaderFuncs[size_t(EScriptObjectType::MetroidPrimeStage2)] = ScriptLoader::LoadMetroidPrimeStage2;
+  x90c_loaderFuncs[size_t(EScriptObjectType::MetroidPrimeStage2)] = ScriptLoader::LoadMetroidPrimeEssence;
   x90c_loaderFuncs[size_t(EScriptObjectType::MetroidPrimeStage1)] = ScriptLoader::LoadMetroidPrimeStage1;
   x90c_loaderFuncs[size_t(EScriptObjectType::MazeNode)] = ScriptLoader::LoadMazeNode;
   x90c_loaderFuncs[size_t(EScriptObjectType::OmegaPirate)] = ScriptLoader::LoadOmegaPirate;
@@ -536,8 +537,8 @@ void CStateManager::BuildDynamicLightListForWorld() {
 }
 
 void CStateManager::DrawDebugStuff() const {
-#ifndef NDEBUG
   CGraphics::SetModelMatrix(zeus::CTransform());
+#ifndef NDEBUG
   for (CEntity* ent : GetActorObjectList()) {
     if (const TCastToPtr<CPatterned> ai = ent) {
       if (CPathFindSearch* path = ai->GetSearchPath()) {
@@ -545,6 +546,11 @@ void CStateManager::DrawDebugStuff() const {
       }
     } else if (const TCastToPtr<CGameLight> light = ent) {
       light->DebugDraw();
+    } else if (const TCastToPtr<CCollisionActor> colAct = ent) {
+      if (colAct->GetUniqueId() == x870_cameraManager->GetBallCamera()->GetCollisionActorId()) {
+        continue;
+      }
+      colAct->DebugDraw();
     }
   }
 
@@ -556,6 +562,15 @@ void CStateManager::DrawDebugStuff() const {
     xf70_currentMaze->DebugRender();
   }
 #endif
+
+  for (CEntity* ent : GetActorObjectList()) {
+    if (const TCastToPtr<CCollisionActor> colAct = ent) {
+      if (colAct->GetUniqueId() == x870_cameraManager->GetBallCamera()->GetCollisionActorId()) {
+        continue;
+      }
+      colAct->DebugDraw();
+    }
+  }
 }
 
 void CStateManager::RenderCamerasAndAreaLights() {
@@ -1983,8 +1998,9 @@ bool CStateManager::ApplyDamage(TUniqueId damagerId, TUniqueId damageeId, TUniqu
       }
 
       if (alive && damager && info.GetKnockBackPower() > 0.f) {
-        const zeus::CVector3f delta =
+        zeus::CVector3f delta =
             knockbackVec.isZero() ? (damagee->GetTranslation() - damager->GetTranslation()) : knockbackVec;
+        delta.z() = FLT_EPSILON;
         ApplyKnockBack(*damagee, info, *dVuln, delta.normalized(), 0.f);
       }
     }

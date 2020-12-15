@@ -180,7 +180,7 @@ public:
   void GetBallContactMaterials() const {}
   void GetWallBumpCounter() const {}
   void GetBoostChargeTimer() const {}
-  bool IsBoosting() const { return false; }
+  bool IsBoosting() const { return x1de4_24_inBoost; }
   float GetBallRadius() const;
   float GetBallTouchRadius() const;
   float ForwardInput(const CFinalInput& input) const;

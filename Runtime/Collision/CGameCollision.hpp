@@ -105,6 +105,9 @@ public:
                                            const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                            const zeus::CVector3f& vec, TUniqueId& idOut, CCollisionInfo& infoOut,
                                            double& d, const CStateManager& mgr);
+  static bool DetectCollision(const CStateManager& mgr, const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                              const CMaterialFilter& filter, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                              TUniqueId& idOut, CCollisionInfoList& infoOut);
   static void MakeCollisionCallbacks(CStateManager& mgr, CPhysicsActor& actor, TUniqueId id,
                                      const CCollisionInfoList& list);
   static void SendScriptMessages(CStateManager& mgr, CActor& a0, CActor* a1, const CCollisionInfoList& list);

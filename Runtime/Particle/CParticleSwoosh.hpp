@@ -215,9 +215,14 @@ public:
     }
   }
 
+  void ForceOneUpdate(float dt) {
+    x1d0_26_forceOneUpdate = true;
+    Update(dt);
+  }
   std::vector<SSwooshData> const& GetSwooshes() const { return x15c_swooshes; }
   std::vector<SSwooshData>& GetSwooshes() { return x15c_swooshes; }
   u32 GetCurParticle() const { return x158_curParticle; }
+  static u32 GetAliveParticleSystemCount() { return g_ParticleSystemAliveCount; }
 };
 
 } // namespace urde

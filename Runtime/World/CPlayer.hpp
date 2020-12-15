@@ -605,6 +605,7 @@ public:
   bool AttachActorToPlayer(TUniqueId id, bool disableGun);
   TUniqueId GetAttachedActor() const { return x26c_attachedActor; }
   float GetAttachedActorStruggle() const { return xa28_attachedActorStruggle; }
+  void SetFrozenTimeoutBias(float bias) { x758_frozenTimeoutBias = bias; }
   float GetDistanceUnderWater() const { return x828_distanceUnderWater; }
   TUniqueId GetRidingPlatformId() const { return x82e_ridingPlatform; }
   const zeus::CVector3f& GetLastVelocity() const { return x794_lastVelocity; }
@@ -620,5 +621,6 @@ public:
   float GetAverageSpeed() const;
   bool IsInWaterMovement() const { return x9c4_31_inWaterMovement; }
   void SetNoDamageLoopSfx(bool val) { x9c7_24_noDamageLoopSfx = val; }
+  void SetAccelerationChangeTimer(float time) { x2d4_accelerationChangeTimer = time; }
 };
 } // namespace urde

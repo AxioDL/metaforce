@@ -3,6 +3,7 @@
 #include <memory>
 #include <string_view>
 
+#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
 #include "Runtime/World/CDamageVulnerability.hpp"
 #include "Runtime/World/CHealthInfo.hpp"
 #include "Runtime/World/CPhysicsActor.hpp"
@@ -32,6 +33,7 @@ class CCollisionActor : public CPhysicsActor {
   EWeaponCollisionResponseTypes x300_responseType = EWeaponCollisionResponseTypes::EnemyNormal;
   zeus::CVector3f x304_extendedTouchBounds = zeus::skZero3f;
 
+  CAABoxShader m_aabox;
 public:
   CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, const zeus::CVector3f& extent,
                   const zeus::CVector3f& center, bool active, float mass, std::string_view name);
@@ -42,6 +44,7 @@ public:
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  void DebugDraw();
   CHealthInfo* HealthInfo(CStateManager& mgr) override;
   const CDamageVulnerability* GetDamageVulnerability() const override;
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2,

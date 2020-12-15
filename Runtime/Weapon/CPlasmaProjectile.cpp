@@ -28,7 +28,7 @@ CPlasmaProjectile::RenderObjects::RenderObjects(boo::IGraphicsDataFactory::Conte
 CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                                      const CBeamInfo& bInfo, const zeus::CTransform& xf, EMaterialTypes matType,
                                      const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
-                                     const PlayerEffectResoures& res, bool growingBeam, EProjectileAttrib attribs)
+                                     const PlayerEffectResources& res, bool growingBeam, EProjectileAttrib attribs)
 : CBeamProjectile(wDesc, name, wType, xf, bInfo.GetLength(), bInfo.GetRadius(), bInfo.GetTravelSpeed(), matType, dInfo,
                   uid, aid, owner, attribs, growingBeam)
 , x478_beamAttributes(bInfo.GetBeamAttributes())

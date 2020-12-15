@@ -270,6 +270,7 @@ public:
   void DoorClosing(TUniqueId doorId);
   [[nodiscard]] const zeus::CVector3f& GetLookPosAhead() const { return x1c0_lookPosAhead; }
   [[nodiscard]] const zeus::CVector3f& GetFixedLookPos() const { return x1cc_fixedLookPos; }
+  const TUniqueId GetCollisionActorId() const { return x46c_collisionActorId; }
 
   static bool IsBallNearDoor(const zeus::CVector3f& pos, CStateManager& mgr);
 };

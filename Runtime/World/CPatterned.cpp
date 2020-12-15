@@ -1014,6 +1014,10 @@ void CPatterned::TryStep(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection(arg), pas::EStepType::Normal));
 }
 
+void CPatterned::TryScripted(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCScriptedCmd(arg, false, false, 0.f));
+}
+
 void CPatterned::BuildBodyController(EBodyType bodyType) {
   if (x450_bodyController) {
     return;
@@ -1159,7 +1163,7 @@ CGameProjectile* CPatterned::LaunchProjectile(const zeus::CTransform& gunXf, CSt
                                               const std::optional<TLockedToken<CGenDescription>>& visorParticle,
                                               u16 visorSfx, bool sendCollideMsg, const zeus::CVector3f& scale) {
   CProjectileInfo* pInfo = GetProjectileInfo();
-  if (pInfo->Token().IsLoaded()) {
+  if (pInfo && pInfo->Token().IsLoaded()) {
     if (mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, maxAllowed)) {
       TUniqueId homingId = playerHoming ? mgr.GetPlayer().GetUniqueId() : kInvalidUniqueId;
       auto* newProjectile =

@@ -338,6 +338,7 @@ public:
   void TryKnockBack_Front(CStateManager& mgr, int arg);
   void TryGenerateDeactivate(CStateManager& mgr, int arg);
   void TryStep(CStateManager& mgr, int arg);
+  void TryScripted(CStateManager& mgr, int arg);
 
   virtual bool KnockbackWhenFrozen() const { return true; }
   virtual void MassiveDeath(CStateManager& mgr);
