@@ -30,6 +30,7 @@ struct CModelFlags {
   u8 x1_matSetIdx = 0;
   EExtendedShader m_extendedShader = EExtendedShader::Lighting;
   bool m_noCull = false;
+  bool m_noZTest = false;
   bool m_noZWrite = false;
   bool m_depthGreater = false;
   u16 x2_flags = 0;      /* Flags */
@@ -46,7 +47,7 @@ struct CModelFlags {
   }
 
   /* Flags
-      0x1: depth equal
+      0x1: depth lequal
       0x2: depth update
       0x4: render without texture lock
       0x8: depth greater

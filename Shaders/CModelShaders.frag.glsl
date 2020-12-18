@@ -146,7 +146,7 @@ vec3 LightingFunc() {
 }
 #endif
 
-#if defined(URDE_THERMAL_HOT)
+#if defined(URDE_THERMAL_MODEL)
 vec3 LightingFunc() {
   return vec3(1.0);
 }
@@ -156,7 +156,7 @@ UBINDING2 uniform ThermalUniform {
 };
 #endif
 
-#if defined(URDE_THERMAL_COLD)
+#if defined(URDE_THERMAL_COLD) || defined(URDE_THERMAL_STATIC)
 vec3 LightingFunc() {
   return vec3(1.0);
 }
@@ -268,7 +268,7 @@ vec4 PostFunc(vec4 colorIn) {
 }
 #endif
 
-#if defined(URDE_THERMAL_HOT)
+#if defined(URDE_THERMAL_MODEL)
 vec4 PostFunc(vec4 colorIn) {
   return texture(extTex0, vtf.extUvs[0]).rrrr * tmulColor + taddColor;
 }
@@ -277,6 +277,12 @@ vec4 PostFunc(vec4 colorIn) {
 #if defined(URDE_THERMAL_COLD)
 vec4 PostFunc(vec4 colorIn) {
   return colorIn * vec4(0.75);
+}
+#endif
+
+#if defined(URDE_THERMAL_STATIC)
+vec4 PostFunc(vec4 colorIn) {
+  return colorIn;
 }
 #endif
 

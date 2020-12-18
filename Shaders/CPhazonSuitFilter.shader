@@ -265,7 +265,12 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #srcfac one
 #dstfac zero
 #colorwrite false
-#depthtest gequal
+#alphawrite true
+#depthwrite false
+#culling none
+#depthtest none
+#primitive tristrips
+#overwritealpha true
 
 #vertex glsl
 layout(location=0) in vec4 posIn;

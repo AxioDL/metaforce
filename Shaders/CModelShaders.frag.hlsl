@@ -145,7 +145,7 @@ float3 LightingFunc(in VertToFrag vtf) {
 }
 #endif
 
-#if defined(URDE_THERMAL_HOT)
+#if defined(URDE_THERMAL_MODEL)
 float3 LightingFunc(in VertToFrag vtf) {
   return float3(1.0, 1.0, 1.0);
 }
@@ -267,7 +267,7 @@ float4 PostFunc(in VertToFrag vtf, float4 colorIn) {
 }
 #endif
 
-#if defined(URDE_THERMAL_HOT)
+#if defined(URDE_THERMAL_MODEL)
 float4 PostFunc(in VertToFrag vtf, float4 colorIn) {
   return extTex0.Sample(samp, vtf.extUvs[0]).rrrr * tmulColor + taddColor;
 }

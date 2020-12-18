@@ -1126,7 +1126,7 @@ void CBooRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength) {
 void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mulCol, const zeus::CColor& addCol) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawThermalModel", zeus::skPurple);
   CModelFlags flags;
-  flags.m_extendedShader = EExtendedShader::Thermal;
+  flags.m_extendedShader = EExtendedShader::ThermalModel;
   flags.x4_color = mulCol;
   flags.addColor = addCol;
   model.UpdateLastFrame();
@@ -1181,6 +1181,7 @@ void CBooRenderer::SetThermal(bool thermal, float level, const zeus::CColor& col
   x2f4_thermColor = color;
   CDecal::SetMoveRedToAlphaBuffer(false);
   CElementGen::SetMoveRedToAlphaBuffer(false);
+  m_thermalHotPass = false;
 }
 
 void CBooRenderer::SetThermalColdScale(float scale) { x2f8_thermColdScale = zeus::clamp(0.f, scale, 1.f); }

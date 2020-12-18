@@ -24,7 +24,10 @@ class CLight;
 enum class EExtendedShader : uint8_t {
   Flat,
   Lighting,
-  Thermal,
+  ThermalModel,
+  ThermalModelNoZTestNoZWrite,
+  ThermalStatic,
+  ThermalStaticNoZWrite,
   ForcedAlpha,
   ForcedAdditive,
   SolidColor,

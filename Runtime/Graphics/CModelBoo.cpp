@@ -368,7 +368,10 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
 
       EExtendedShader idx{};
       for (const auto& pipeline : *pipelines) {
-        if (idx == EExtendedShader::Thermal) {
+        if (idx == EExtendedShader::ThermalModel ||
+            idx == EExtendedShader::ThermalModelNoZTestNoZWrite ||
+            idx == EExtendedShader::ThermalStatic ||
+            idx == EExtendedShader::ThermalStaticNoZWrite) {
           texs[8] = g_Renderer->x220_sphereRamp.get();
         } else if (idx == EExtendedShader::MorphBallShadow) {
           texs[8] = g_Renderer->m_ballShadowId.get();
@@ -576,9 +579,11 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
 
   EExtendedShader extended = EExtendedShader::Flat;
   if (intermediateExtended == EExtendedShader::Lighting) {
-    /* Transform lighting into thermal cold if the thermal visor is active */
+    /* Transform lighting into thermal if the thermal visor is active */
     if (g_Renderer->IsThermalVisorHotPass())
-      return noZWrite ? EExtendedShader::LightingAlphaWriteNoZTestNoZWrite : EExtendedShader::LightingAlphaWrite;
+      return flags.m_noZTest
+                 ? EExtendedShader::LightingAlphaWriteNoZTestNoZWrite
+                 : (noZWrite ? EExtendedShader::ThermalStaticNoZWrite : EExtendedShader::ThermalStatic);
     else if (g_Renderer->IsThermalVisorActive())
       return EExtendedShader::ThermalCold;
     if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Opaque) {
@@ -621,6 +626,8 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
     } else {
       extended = EExtendedShader::Lighting;
     }
+  } else if (intermediateExtended == EExtendedShader::ThermalModel) {
+    extended = flags.m_noZTest ? EExtendedShader::ThermalModelNoZTestNoZWrite : EExtendedShader::ThermalModel;
   } else if (intermediateExtended < EExtendedShader::MAX) {
     extended = intermediateExtended;
   }
@@ -810,7 +817,10 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
   }
 
   std::optional<std::array<zeus::CMatrix4f, 2>> specialMtxOut;
-  if (flags.m_extendedShader == EExtendedShader::Thermal) {
+  if (flags.m_extendedShader == EExtendedShader::ThermalModel ||
+      flags.m_extendedShader == EExtendedShader::ThermalModelNoZTestNoZWrite ||
+      flags.m_extendedShader == EExtendedShader::ThermalStatic ||
+      flags.m_extendedShader == EExtendedShader::ThermalStaticNoZWrite) {
     /* Special Mode0 matrix for exclusive Thermal Visor use */
     specialMtxOut.emplace();
 
@@ -1022,7 +1032,8 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
   u8* dataOut = reinterpret_cast<u8*>(inst->m_uniformBuffer->map(m_uniformDataSize));
   u8* dataCur = dataOut;
 
-  if (flags.m_extendedShader == EExtendedShader::Thermal) /* Thermal Model (same as UV Mode 0) */
+  if (flags.m_extendedShader == EExtendedShader::ThermalModel ||
+      flags.m_extendedShader == EExtendedShader::ThermalModelNoZTestNoZWrite) /* Thermal Model (same as UV Mode 0) */
   {
     CModelShaders::ThermalUniform& thermalOut = *reinterpret_cast<CModelShaders::ThermalUniform*>(dataCur);
     thermalOut.mulColor = flags.x4_color;

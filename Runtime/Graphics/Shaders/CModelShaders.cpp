@@ -86,9 +86,18 @@ static std::array<hecl::Backend::ExtensionSlot, size_t(EExtendedShader::MAX)> g_
     /* Normal lit shading */
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
-    /* Thermal Visor shading */
+    /* Thermal model shading */
     {1, ThermalTextures.data(), hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, false, true},
+    /* Thermal model shading without Z-test or Z-write */
+    {1, ThermalTextures.data(), hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::One,
+     hecl::Backend::ZTest::None, hecl::Backend::CullMode::Backface, true, false, false, true},
+    /* Thermal static shading */
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
+     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, false, true, false, false, true},
+    /* Thermal static shading without Z-write */
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
+       hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, true, false, false, true, false, false, false},
     /* Forced alpha shading */
     {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
@@ -166,7 +175,10 @@ static std::array<hecl::Backend::ExtensionSlot, size_t(EExtendedShader::MAX)> g_
 constexpr std::array<const char*, size_t(EExtendedShader::MAX)> ShaderMacros{
     "URDE_LIGHTING",
     "URDE_LIGHTING",
-    "URDE_THERMAL_HOT",
+    "URDE_THERMAL_MODEL",
+    "URDE_THERMAL_MODEL",
+    "URDE_THERMAL_STATIC",
+    "URDE_THERMAL_STATIC",
     "URDE_LIGHTING",
     "URDE_LIGHTING",
     "URDE_SOLID",

@@ -292,7 +292,7 @@ void CModelData::RenderThermal(const zeus::CColor& mulColor, const zeus::CColor&
   CModelFlags drawFlags = flags;
   drawFlags.x4_color *= mulColor;
   drawFlags.addColor = addColor;
-  drawFlags.m_extendedShader = EExtendedShader::Thermal;
+  drawFlags.m_extendedShader = EExtendedShader::ThermalModel;
 
   if (x10_animData) {
     CSkinnedModel& model = PickAnimatedModel(EWhichModel::ThermalHot);

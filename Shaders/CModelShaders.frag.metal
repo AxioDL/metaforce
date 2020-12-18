@@ -126,7 +126,7 @@ float3 LightingFunc(thread VertToFrag& vtf, constant LightingUniform& lu, textur
 }
 #endif
 
-#if defined(URDE_THERMAL_HOT)
+#if defined(URDE_THERMAL_MODEL)
 struct LightingUniform {
   float4 tmulColor;
   float4 taddColor;
@@ -251,7 +251,7 @@ float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
 }
 #endif
 
-#if defined(URDE_THERMAL_HOT)
+#if defined(URDE_THERMAL_MODEL)
 float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
                 texture2d<float> extTex0, texture2d<float> extTex1, texture2d<float> extTex2,
                 sampler samp, sampler clampSamp, sampler clampEdgeSamp, float4 colorIn) {
