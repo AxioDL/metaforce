@@ -561,7 +561,6 @@ void CStateManager::DrawDebugStuff() const {
   if (xf70_currentMaze) {
     xf70_currentMaze->DebugRender();
   }
-#endif
 
   for (CEntity* ent : GetActorObjectList()) {
     if (const TCastToPtr<CCollisionActor> colAct = ent) {
@@ -571,6 +570,7 @@ void CStateManager::DrawDebugStuff() const {
       colAct->DebugDraw();
     }
   }
+#endif
 }
 
 void CStateManager::RenderCamerasAndAreaLights() {
