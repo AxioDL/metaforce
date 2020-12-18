@@ -279,7 +279,7 @@ void CScriptGunTurret::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
     break;
   }
   case EScriptObjectMessage::Damage: {
-    if (x258_type == ETurretComponent::Gun && GetHealthInfo(mgr)->GetHP() > 0.f) {
+    if (x258_type == ETurretComponent::Gun && GetHealthInfo(mgr)->GetHP() <= 0.f) {
       if (const TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(uid)) {
         if ((proj->GetAttribField() & EProjectileAttrib::Wave) == EProjectileAttrib::Wave) {
           x520_state = ETurretState::Frenzy;
