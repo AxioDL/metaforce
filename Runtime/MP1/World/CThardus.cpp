@@ -1445,7 +1445,7 @@ zeus::CVector3f CThardus::sub801de550(CStateManager& mgr) {
 
       unkVec.push_back(lastIdx);
     }
-    zeus::CVector2f plVec = mgr.GetPlayer().GetTranslation().toVec2f();
+    //zeus::CVector2f plVec = mgr.GetPlayer().GetTranslation().toVec2f();
 
     float maxDist = 0.f;
     float curDist = 0.f;
