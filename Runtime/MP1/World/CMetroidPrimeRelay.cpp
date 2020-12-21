@@ -49,7 +49,7 @@ void CMetroidPrimeRelay::GetOrBuildMetroidPrimeExo(CStateManager& mgr) {
     return;
   }
 
-  for (const auto& act : mgr.GetPhysicsActorObjectList()) {
+  for (const auto act : mgr.GetPhysicsActorObjectList()) {
     if (CPatterned::CastTo<CMetroidPrimeExo>(act) != nullptr) {
       return;
     }

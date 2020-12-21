@@ -116,7 +116,7 @@ void CScriptMazeNode::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
             }
           }
         }
-        for (const auto& ent : mgr.GetAllObjectList()) {
+        for (const auto ent : mgr.GetAllObjectList()) {
           if (TCastToPtr<CScriptMazeNode> node = ent) {
             if (node->xe8_col == xe8_col - 1 && node->xec_row == xec_row && node->xf0_side == ESide::Right) {
               auto& cell = maze->GetCell(xe8_col - 1, xec_row);
