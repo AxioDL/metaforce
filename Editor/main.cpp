@@ -170,12 +170,12 @@ int main(int argc, const boo::SystemChar** argv)
     args.push_back(argv[i]);
   cvarMgr.parseCommandLine(args);
 
-  hecl::SystemStringView logFile = hecl::SystemStringConv(cvarCmns.getLogFile()).sys_str();
+  hecl::SystemString logFile{hecl::SystemStringConv(cvarCmns.getLogFile()).c_str()};
   hecl::SystemString logFilePath;
   if (!logFile.empty()) {
     std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     char buf[100];
-    std::strftime(buf, 100, "%Y-%m-%d_%H-%M-%S", std::localtime(&time));
+    std::strftime(buf, 100, "%Y-%m-%d_%H-%M-%S\0", std::localtime(&time));
     hecl::SystemString timeStr = hecl::SystemStringConv(buf).c_str();
     logFilePath = fmt::format(FMT_STRING(_SYS_STR("{}/{}-{}")), fileMgr.getStoreRoot(), timeStr, logFile);
     logvisor::RegisterFileLogger(logFilePath.c_str());
