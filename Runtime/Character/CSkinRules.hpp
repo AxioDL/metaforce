@@ -45,6 +45,10 @@ public:
 
   void GetBankTransforms(std::vector<const zeus::CTransform*>& out, const CPoseAsTransforms& pose,
                          int skinBankIdx) const {
+    // FIXME: This is definitely not proper behavior, this is here to fix the phazon suit crashing
+    if (x0_skinBanks.size() <= skinBankIdx) {
+      return;
+    }
     x0_skinBanks[skinBankIdx].GetBankTransforms(out, pose);
   }
 
