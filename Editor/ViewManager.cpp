@@ -72,6 +72,19 @@ void ViewManager::TestGameView::think() {
         auto pt = std::div(igt, 3600);
         overlayText +=
             fmt::format(FMT_STRING("PlayTime: {:02d}:{:02d}:{:02d}.{:03d}\n"), pt.quot, pt.rem / 60, pt.rem % 60, ms);
+        if (g_StateManager->GetCurrentArea() != nullptr) {
+          if (m_currentRoom != g_StateManager->GetCurrentArea()) {
+            m_currentRoom = static_cast<const void*>(g_StateManager->GetCurrentArea());
+            m_lastRoomTime = igt - m_currentRoomStart;
+            m_currentRoomStart = igt;
+          }
+          double currentRoomTime = igt - m_currentRoomStart;
+          u32 curFrames = std::round(u32(currentRoomTime * 60));
+          u32 lastFrames = std::round(u32(m_lastRoomTime * 60));
+          overlayText += fmt::format(FMT_STRING("Room Time:{:8.3f}/{:6d}| Last Room:{:8.3f}/{:6d}\n"),
+                                     currentRoomTime, curFrames,
+                                     m_lastRoomTime, lastFrames);
+        }
       }
 
       if (g_StateManager->Player() && m_cvarCommons.m_debugOverlayPlayerInfo->toBoolean()) {

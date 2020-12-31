@@ -2845,4 +2845,11 @@ void CStateManager::sub_80044098(const CCollisionResponseData& colRespData, cons
                                  TUniqueId uid, const CWeaponMode& weaponMode, u32 w1, u8 thermalFlags) {
   // TODO implement
 }
+
+const CGameArea* CStateManager::GetCurrentArea() const {
+  if (x850_world == nullptr || x850_world->GetCurrentAreaId() == kInvalidAreaId) {
+    return nullptr;
+  }
+  return x850_world->GetAreaAlways(x850_world->GetCurrentAreaId());
+};
 } // namespace urde

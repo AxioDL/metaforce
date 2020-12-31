@@ -59,6 +59,9 @@ class ViewManager final : public specter::IViewManager {
     ViewManager& m_vm;
     std::unique_ptr<specter::MultiLineTextView> m_debugText;
     hecl::CVarCommons m_cvarCommons;
+    const void* m_currentRoom = nullptr;
+    double m_lastRoomTime = 0.f;
+    double m_currentRoomStart = 0.f;
 
   public:
     TestGameView(ViewManager& vm, specter::ViewResources& res, specter::View& parent, hecl::CVarManager& cvarMgr)
