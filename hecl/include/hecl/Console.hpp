@@ -34,7 +34,7 @@ class Console {
   friend class LogVisorAdapter;
   struct LogVisorAdapter : logvisor::ILogger {
     Console* m_con;
-    LogVisorAdapter(Console* con) : m_con(con) {}
+    LogVisorAdapter(Console* con) : logvisor::ILogger(log_typeid(LogVisorAdapter)), m_con(con) {}
 
     ~LogVisorAdapter() override = default;
     void report(const char* modName, logvisor::Level severity, fmt::string_view format, fmt::format_args args) override;
