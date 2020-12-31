@@ -102,7 +102,7 @@ void CBallCamera::SetupColliders(std::vector<CCameraCollider>& out, float xMag, 
     if (theta > M_PIF / 2.f) {
       z *= 0.25f;
     }
-    out.emplace_back(radius, zeus::CVector3f{std::sin(theta) * xMag, 0.f, z}, CCameraSpring{k, max, 1.f}, 1.f);
+    out.emplace_back(radius, zeus::CVector3f{xMag * std::sin(theta), 0.f, z}, CCameraSpring{k, max, 1.f}, 1.f);
     theta += 2.f * M_PIF / float(count);
   }
 }
