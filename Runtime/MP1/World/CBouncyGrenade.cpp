@@ -115,7 +115,7 @@ void CBouncyGrenade::Think(float dt, CStateManager& mgr) {
     const zeus::CTransform& orientation = GetTransform().getRotation();
     const zeus::CVector3f& translation = GetTranslation();
     const zeus::CVector3f& scale = GetModelData()->GetScale();
-    auto UpdateElementGen = [ orientation, translation, scale, dt ](CElementGen & gen) constexpr {
+    auto UpdateElementGen = [ orientation, translation, scale, dt ](CElementGen & gen) {
       gen.SetOrientation(orientation);
       gen.SetGlobalTranslation(translation);
       gen.SetGlobalScale(scale);
