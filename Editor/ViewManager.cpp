@@ -66,6 +66,9 @@ void ViewManager::TestGameView::think() {
       if (m_cvarCommons.m_debugOverlayShowFrameCounter->toBoolean())
         overlayText += fmt::format(FMT_STRING("Frame: {}\n"), g_StateManager->GetUpdateFrameIndex());
 
+      if (m_cvarCommons.m_debugOverlayShowFramerate->toBoolean())
+          overlayText += fmt::format(FMT_STRING("FPS: {}\n"), urde::CGraphics::GetFPS());
+
       if (m_cvarCommons.m_debugOverlayShowInGameTime->toBoolean()) {
         double igt = g_GameState->GetTotalPlayTime();
         u32 ms = u64(igt * 1000) % 1000;

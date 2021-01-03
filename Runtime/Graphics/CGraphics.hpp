@@ -2,6 +2,7 @@
 
 #include <array>
 #include <vector>
+#include <chrono>
 
 #include "Runtime/RetroTypes.hpp"
 
@@ -17,6 +18,8 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector2i.hpp>
 #include <zeus/CVector2f.hpp>
+
+using frame_clock = std::chrono::high_resolution_clock;
 
 namespace urde {
 extern hecl::CVar* g_disableLighting;
@@ -309,7 +312,12 @@ public:
   static float GetSecondsMod900();
   static void TickRenderTimings();
   static u32 g_FrameCounter;
+  static u32 g_Framerate;
+  static u32 g_FramesPast;
+  static frame_clock::time_point g_FrameStartTime;
   static u32 GetFrameCounter() { return g_FrameCounter; }
+  static u32 GetFPS() { return g_Framerate; }
+  static void UpdateFPSCounter();
 
   static boo::IGraphicsDataFactory::Platform g_BooPlatform;
   static const boo::SystemChar* g_BooPlatformName;
