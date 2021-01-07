@@ -3,13 +3,13 @@ find_library(PNG_LIB NAMES png libpng)
 endif()
 if(NOT PNG_LIB)
 message(STATUS "Using HECL's built-in libpng")
-if(NX)
+if("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "arm(64)?")
 set(INTRINSICS
         arm/arm_init.c
         arm/filter_neon.S
         arm/filter_neon_intrinsics.c
         arm/palette_neon_intrinsics.c)
-else()
+elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL x86_64)
 set(INTRINSICS
         intel/filter_sse2_intrinsics.c
         intel/intel_init.c)
@@ -39,6 +39,9 @@ add_library(png
     pngwtran.c
     pngwutil.c
     ${INTRINSICS})
+if(APPLE)
+    target_compile_options(png PRIVATE -Wno-implicit-fallthrough)
+endif()
 target_link_libraries(png PUBLIC ${ZLIB_LIBRARIES})
 target_include_directories(png PUBLIC ${ZLIB_INCLUDE_DIR})
 set(PNG_LIBRARIES png CACHE PATH "PNG libraries" FORCE)

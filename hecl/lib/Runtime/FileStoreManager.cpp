@@ -49,12 +49,9 @@ FileStoreManager::FileStoreManager(SystemStringView domain) : m_domain(domain) {
     path = home;
     path += "/.local/share";
   }
-  path += "/hecl";
-  if (mkdir(path.c_str(), 0755) && errno != EEXIST)
-    Log.report(logvisor::Fatal, FMT_STRING("unable to mkdir at {}"), path);
-  path += '/';
+  path += "/hecl/";
   path += domain.data();
-  if (mkdir(path.c_str(), 0755) && errno != EEXIST)
+  if (RecursiveMakeDir(path.c_str()) != 0)
     Log.report(logvisor::Fatal, FMT_STRING("unable to mkdir at {}"), path);
   m_storeRoot = path;
 #endif
