@@ -85,6 +85,24 @@ add_executable(urde WIN32 MACOSX_BUNDLE
                Resource.hpp Resource.cpp
                Camera.hpp Camera.cpp
                GameMode.hpp GameMode.cpp)
+
+target_compile_definitions(urde PUBLIC URDE_DLPACKAGE="${URDE_DLPACKAGE}")
+
+target_include_directories(urde PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/Runtime # FIXME atdna cmake issue
+        ${CMAKE_BINARY_DIR})
+
+target_link_libraries(urde
+                      UrdeIcons
+                      UrdeBadging
+                      RuntimeCommon
+                      amuse
+                      RetroDataSpec
+                      kabufuda
+                      ${URDE_PLAT_LIBS})
+
 target_atdna(urde atdna_Space.cpp Space.hpp)
 target_atdna(urde atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
 target_atdna(urde atdna_ModelViewer.cpp ModelViewer.hpp)
@@ -92,15 +110,6 @@ target_atdna(urde atdna_ParticleEditor.cpp ParticleEditor.hpp)
 target_atdna(urde atdna_InformationCenter.cpp InformationCenter.hpp)
 target_atdna(urde atdna_GameMode.cpp GameMode.hpp)
 
-target_compile_definitions(urde PUBLIC URDE_DLPACKAGE="${URDE_DLPACKAGE}")
-
-target_include_directories(urde PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR})
-
-target_link_libraries(urde
-                      UrdeIcons
-                      UrdeBadging
-                      RuntimeCommon
-                      ${URDE_PLAT_LIBS})
 if(COMMAND add_sanitizers)
   add_sanitizers(urde)
 endif()
