@@ -33,6 +33,7 @@ struct CVarCommons {
   CVar* m_debugOverlayWorldInfo = nullptr;
   CVar* m_debugOverlayAreaInfo = nullptr;
   CVar* m_debugOverlayShowFrameCounter = nullptr;
+  CVar* m_debugOverlayShowFramerate = nullptr;
   CVar* m_debugOverlayShowInGameTime = nullptr;
   CVar* m_debugOverlayShowResourceStats = nullptr;
   CVar* m_debugOverlayShowRandomStats = nullptr;
@@ -69,6 +70,9 @@ struct CVarCommons {
     m_debugOverlayShowFrameCounter =
         m_mgr.findOrMakeCVar("debugOverlay.showFrameCounter"sv, "Displays the current frame index"sv, false,
                              hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_debugOverlayShowFramerate = 
+        m_mgr.findOrMakeCVar("debugOverlay.showFramerate"sv, "Displays the current framerate"sv, false,
+            hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
     m_debugOverlayShowInGameTime =
         m_mgr.findOrMakeCVar("debugOverlay.showInGameTime"sv, "Displays the current in game time"sv, false,
                              hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
