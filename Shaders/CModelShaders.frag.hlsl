@@ -155,7 +155,7 @@ cbuffer ThermalUniform : register(b2) {
 };
 #endif
 
-#if defined(URDE_THERMAL_COLD)
+#if defined(URDE_THERMAL_COLD) || defined(URDE_THERMAL_STATIC)
 float3 LightingFunc(in VertToFrag vtf) {
   return float3(1.0, 1.0, 1.0);
 }
@@ -276,6 +276,12 @@ float4 PostFunc(in VertToFrag vtf, float4 colorIn) {
 #if defined(URDE_THERMAL_COLD)
 float4 PostFunc(in VertToFrag vtf, float4 colorIn) {
   return colorIn * float4(0.75, 0.75, 0.75, 0.75);
+}
+#endif
+
+#if defined(URDE_THERMAL_STATIC)
+float4 PostFunc(in VertToFrag vtf, float4 colorIn) {
+  return colorIn;
 }
 #endif
 

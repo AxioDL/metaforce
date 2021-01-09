@@ -25,6 +25,7 @@ static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf) {
       features += _SYS_STR(", ");
     features += str;
   };
+#if __x86_64__
   if (cpuInf.AESNI)
     AddFeature(_SYS_STR("AES-NI"));
   if (cpuInf.SSE1)
@@ -45,6 +46,7 @@ static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf) {
     AddFeature(_SYS_STR("AVX"));
   if (cpuInf.AVX2)
     AddFeature(_SYS_STR("AVX2"));
+#endif
   return features;
 }
 
