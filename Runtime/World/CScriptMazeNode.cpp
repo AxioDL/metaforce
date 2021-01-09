@@ -371,7 +371,7 @@ void CMazeState::GenerateObstacles() {
     Initialize();
   }
 
-  auto GetRandom = [this](s32 offset) constexpr {
+  auto GetRandom = [this](s32 offset) {
     s32 tmp = x0_rand.Next();
     return tmp + ((tmp / 5) * -5) + offset;
   };
