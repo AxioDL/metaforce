@@ -11,9 +11,7 @@ namespace urde {
 
 std::array<s32, 300> sMazeSeeds;
 
-#ifndef NDEBUG
 std::array<zeus::CVector3f, skMazeRows * skMazeCols> sDebugCellPos;
-#endif
 
 CScriptMazeNode::CScriptMazeNode(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                  const zeus::CTransform& xf, bool active, s32 col, s32 row, s32 side,
@@ -163,14 +161,12 @@ void CScriptMazeNode::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
         maze->GenerateObstacles();
         mgr.SetCurrentMaze(std::move(maze));
       }
-#ifndef NDEBUG
       if (xf0_side == ESide::Right) {
         sDebugCellPos[xe8_col + xec_row * skMazeCols] = GetTranslation();
       } else if (xe8_col == skMazeCols - 1) {
         // Last column does not have right nodes, but we can infer the position
         sDebugCellPos[xe8_col + xec_row * skMazeCols] = GetTranslation() - zeus::CVector3f{1.1875f, -0.1215f, 1.2187f};
       }
-#endif
     }
   }
   // URDE change: used to be in the above if branch
@@ -356,11 +352,9 @@ void CMazeState::Initialize() {
     auto& cell = GetCell(*idx);
     if (cell.x1_26_checked) {
       cell.x1_25_onPath = true;
-#ifndef NDEBUG
       if (pathLength > 0) {
         m_path.push_back(*idx);
       }
-#endif
     }
   }
   x94_24_initialized = true;
@@ -467,7 +461,6 @@ void CMazeState::GenerateObstacles() {
   };
 }
 
-#ifndef NDEBUG
 void CMazeState::DebugRender() {
   m_renderer.Reset();
   m_renderer.AddVertex(sDebugCellPos[skEnterCol + skEnterRow * skMazeCols], zeus::skBlue, 2.f);
@@ -484,5 +477,4 @@ void CMazeState::DebugRender() {
   }
   m_renderer.Render();
 }
-#endif
 } // namespace urde

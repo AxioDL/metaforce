@@ -54,7 +54,7 @@ void CScriptTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
     }
   }
 
-  CEntity::AcceptScriptMsg(msg, uid, mgr);
+  CActor::AcceptScriptMsg(msg, uid, mgr);
 }
 
 CScriptTrigger::CObjectTracker* CScriptTrigger::FindObject(TUniqueId id) {

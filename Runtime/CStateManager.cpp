@@ -53,7 +53,13 @@
 #include <zeus/CMRay.hpp>
 
 namespace urde {
+namespace {
+hecl::CVar* debugToolDrawAiPath = nullptr;
+hecl::CVar* debugToolDrawLighting = nullptr;
+hecl::CVar* debugToolDrawCollisionActors = nullptr;
+hecl::CVar* debugToolDrawMazePath = nullptr;
 hecl::CVar* sm_logScripting = nullptr;
+} // namespace
 logvisor::Module LogModule("urde::CStateManager");
 CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
                              const std::weak_ptr<CMapWorldInfo>& mwInfo, const std::weak_ptr<CPlayerState>& playerState,
@@ -118,7 +124,8 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
   x90c_loaderFuncs[size_t(EScriptObjectType::GrapplePoint)] = ScriptLoader::LoadGrapplePoint;
   x90c_loaderFuncs[size_t(EScriptObjectType::PuddleSpore)] = ScriptLoader::LoadPuddleSpore;
   x90c_loaderFuncs[size_t(EScriptObjectType::DebugCameraWaypoint)] = ScriptLoader::LoadDebugCameraWaypoint;
-  x90c_loaderFuncs[size_t(EScriptObjectType::SpiderBallAttractionSurface)] = ScriptLoader::LoadSpiderBallAttractionSurface;
+  x90c_loaderFuncs[size_t(EScriptObjectType::SpiderBallAttractionSurface)] =
+      ScriptLoader::LoadSpiderBallAttractionSurface;
   x90c_loaderFuncs[size_t(EScriptObjectType::PuddleToadGamma)] = ScriptLoader::LoadPuddleToadGamma;
   x90c_loaderFuncs[size_t(EScriptObjectType::DistanceFog)] = ScriptLoader::LoadDistanceFog;
   x90c_loaderFuncs[size_t(EScriptObjectType::FireFlea)] = ScriptLoader::LoadFireFlea;
@@ -428,9 +435,7 @@ void CStateManager::SetupParticleHook(const CActor& actor) const {
 
 void CStateManager::MurderScriptInstanceNames() { xb40_uniqueInstanceNames.clear(); }
 
-std::string CStateManager::HashInstanceName(CInputStream& in) {
-  return in.readString();
-}
+std::string CStateManager::HashInstanceName(CInputStream& in) { return in.readString(); }
 
 void CStateManager::SetActorAreaId(CActor& actor, TAreaId aid) {
   const TAreaId actorAid = actor.GetAreaIdAlways();
@@ -535,42 +540,51 @@ void CStateManager::BuildDynamicLightListForWorld() {
     }
   }
 }
-
 void CStateManager::DrawDebugStuff() const {
+  if (hecl::com_developer != nullptr && !hecl::com_developer->toBoolean()) {
+    return;
+  }
+
+  // FIXME: Add proper globals for CVars
+  if (debugToolDrawAiPath == nullptr || debugToolDrawCollisionActors == nullptr || debugToolDrawLighting == nullptr ||
+      debugToolDrawMazePath == nullptr) {
+    debugToolDrawAiPath = hecl::CVarManager::instance()->findCVar("debugTool.drawAiPath");
+    debugToolDrawMazePath = hecl::CVarManager::instance()->findCVar("debugTool.drawMazePath");
+    debugToolDrawCollisionActors = hecl::CVarManager::instance()->findCVar("debugTool.drawCollisionActors");
+    debugToolDrawLighting = hecl::CVarManager::instance()->findCVar("debugTool.drawLighting");
+    return;
+  }
+
   CGraphics::SetModelMatrix(zeus::CTransform());
-#ifndef NDEBUG
   for (CEntity* ent : GetActorObjectList()) {
     if (const TCastToPtr<CPatterned> ai = ent) {
       if (CPathFindSearch* path = ai->GetSearchPath()) {
-        path->DebugDraw();
+        if (debugToolDrawAiPath->toBoolean()) {
+          path->DebugDraw();
+        }
       }
     } else if (const TCastToPtr<CGameLight> light = ent) {
-      light->DebugDraw();
+      if (debugToolDrawLighting->toBoolean()) {
+        light->DebugDraw();
+      }
     } else if (const TCastToPtr<CCollisionActor> colAct = ent) {
       if (colAct->GetUniqueId() == x870_cameraManager->GetBallCamera()->GetCollisionActorId()) {
         continue;
       }
-      colAct->DebugDraw();
+      if (debugToolDrawCollisionActors->toBoolean()) {
+        colAct->DebugDraw();
+      }
     }
   }
 
   auto* gameArea = x850_world->GetArea(x850_world->GetCurrentAreaId());
-  if (gameArea != nullptr) {
+  if (gameArea != nullptr && debugToolDrawLighting->toBoolean()) {
     gameArea->DebugDraw();
   }
-  if (xf70_currentMaze) {
+
+  if (xf70_currentMaze && debugToolDrawMazePath->toBoolean()) {
     xf70_currentMaze->DebugRender();
   }
-
-  for (CEntity* ent : GetActorObjectList()) {
-    if (const TCastToPtr<CCollisionActor> colAct = ent) {
-      if (colAct->GetUniqueId() == x870_cameraManager->GetBallCamera()->GetCollisionActorId()) {
-        continue;
-      }
-      colAct->DebugDraw();
-    }
-  }
-#endif
 }
 
 void CStateManager::RenderCamerasAndAreaLights() {
@@ -1507,7 +1521,9 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
                      ScriptObjectTypeToStr(type), name);
     return {kInvalidEditorId, kInvalidUniqueId};
   } else {
+#ifndef NDEBUG
     LogModule.report(logvisor::Info, FMT_STRING("Loaded {} in area {}"), ent->GetName(), ent->GetAreaIdAlways());
+#endif
     return {id, ent->GetUniqueId()};
   }
 }
@@ -1610,7 +1626,8 @@ void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos,
     usePower = power * 1000.f;
     const auto surface =
         player.x2b0_outOfWaterTicks == 2 ? player.x2ac_surfaceRestraint : CPlayer::ESurfaceRestraints::Water;
-    if (surface != CPlayer::ESurfaceRestraints::Normal && player.GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit) {
+    if (surface != CPlayer::ESurfaceRestraints::Normal &&
+        player.GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit) {
       usePower /= 7.f;
     }
   } else {
@@ -1722,7 +1739,8 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
       }
     }
 
-    const CDamageVulnerability* vuln = rad > 0.f ? a2.GetDamageVulnerability(pos, delta, info) :  a2.GetDamageVulnerability();
+    const CDamageVulnerability* vuln =
+        rad > 0.f ? a2.GetDamageVulnerability(pos, delta, info) : a2.GetDamageVulnerability();
 
     if (vuln->WeaponHurts(info.GetWeaponMode(), true)) {
       const float dam = info.GetRadiusDamage(*vuln);

@@ -54,10 +54,8 @@ class CMazeState {
   s32 x90_targetRow;
   bool x94_24_initialized : 1 = false;
 
-#ifndef NDEBUG
   std::vector<s32> m_path;
   CLineRenderer m_renderer = {CLineRenderer::EPrimitiveMode::LineStrip, skMazeRows * skMazeCols, {}, true};
-#endif
 
 public:
   CMazeState(s32 enterCol, s32 enterRow, s32 targetCol, s32 targetRow)
@@ -66,9 +64,7 @@ public:
   void Initialize();
   void GenerateObstacles();
 
-#ifndef NDEBUG
   void DebugRender();
-#endif
 
   [[nodiscard]] SMazeCell& GetCell(u32 col, u32 row) {
 #ifndef NDEBUG
