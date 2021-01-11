@@ -37,6 +37,10 @@ struct CVarCommons {
   CVar* m_debugOverlayShowInGameTime = nullptr;
   CVar* m_debugOverlayShowResourceStats = nullptr;
   CVar* m_debugOverlayShowRandomStats = nullptr;
+  CVar* m_debugToolDrawAiPath = nullptr;
+  CVar* m_debugToolDrawLighting = nullptr;
+  CVar* m_debugToolDrawCollisionActors = nullptr;
+  CVar* m_debugToolDrawMazePath = nullptr;
   CVar* m_logFile = nullptr;
 
   CVarCommons(CVarManager& manager) : m_mgr(manager) {
@@ -82,6 +86,17 @@ struct CVarCommons {
     m_debugOverlayShowRandomStats = m_mgr.findOrMakeCVar(
         "debugOverlay.showRandomStats", "Displays the current number of random calls per frame"sv, false,
         hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_debugToolDrawAiPath =
+        m_mgr.findOrMakeCVar("debugTool.drawAiPath", "Draws the selected paths of any AI in the room"sv, false,
+                             hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_debugToolDrawLighting = m_mgr.findOrMakeCVar("debugTool.drawLighting", "Draws the lighting setup in a room"sv,
+                                                   false, hecl::CVar::EFlags::Game | hecl::CVar::EFlags::ReadOnly);
+    m_debugToolDrawCollisionActors =
+        m_mgr.findOrMakeCVar("debugTool.drawCollisionActors", "Draws the collision actors for enemies and objects"sv,
+                             false, hecl::CVar::EFlags::Game | hecl::CVar::EFlags::ReadOnly);
+    m_debugToolDrawMazePath =
+        m_mgr.findOrMakeCVar("debugTool.drawMazePath", "Draws the maze path in Dynamo"sv, false,
+                             hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
     m_logFile = m_mgr.findOrMakeCVar("logFile"sv, "Any log prints will be stored to this file upon exit"sv, "app.log"sv,
                                      hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive |
                                          hecl::CVar::EFlags::ModifyRestart);
