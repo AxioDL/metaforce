@@ -339,7 +339,6 @@ void CElementGen::AccumulateBounds(const zeus::CVector3f& pos, float size) {
 }
 
 void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, s32 particleFrame) {
-  printf("Calling UpdateAdvanceAccessParameters\n");
   CGenDescription* desc = x28_loadedGenDesc;
 
   std::array<float, 8>& arr = x60_advValues[activeParticleCount];
