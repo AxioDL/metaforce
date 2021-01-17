@@ -58,6 +58,7 @@ hecl::CVar* debugToolDrawAiPath = nullptr;
 hecl::CVar* debugToolDrawLighting = nullptr;
 hecl::CVar* debugToolDrawCollisionActors = nullptr;
 hecl::CVar* debugToolDrawMazePath = nullptr;
+hecl::CVar* debugToolDrawPlatformCollision = nullptr;
 hecl::CVar* sm_logScripting = nullptr;
 } // namespace
 logvisor::Module LogModule("urde::CStateManager");
@@ -547,11 +548,12 @@ void CStateManager::DrawDebugStuff() const {
 
   // FIXME: Add proper globals for CVars
   if (debugToolDrawAiPath == nullptr || debugToolDrawCollisionActors == nullptr || debugToolDrawLighting == nullptr ||
-      debugToolDrawMazePath == nullptr) {
+      debugToolDrawMazePath == nullptr || debugToolDrawPlatformCollision == nullptr) {
     debugToolDrawAiPath = hecl::CVarManager::instance()->findCVar("debugTool.drawAiPath");
     debugToolDrawMazePath = hecl::CVarManager::instance()->findCVar("debugTool.drawMazePath");
     debugToolDrawCollisionActors = hecl::CVarManager::instance()->findCVar("debugTool.drawCollisionActors");
     debugToolDrawLighting = hecl::CVarManager::instance()->findCVar("debugTool.drawLighting");
+    debugToolDrawPlatformCollision = hecl::CVarManager::instance()->findCVar("debugTool.drawPlatformCollision");
     return;
   }
 
@@ -573,6 +575,10 @@ void CStateManager::DrawDebugStuff() const {
       }
       if (debugToolDrawCollisionActors->toBoolean()) {
         colAct->DebugDraw();
+      }
+    } else if (const TCastToPtr<CScriptPlatform> plat = ent) {
+      if (debugToolDrawPlatformCollision->toBoolean() && plat->GetActive()) {
+        plat->DebugDraw();
       }
     }
   }
