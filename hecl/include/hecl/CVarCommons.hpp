@@ -37,10 +37,12 @@ struct CVarCommons {
   CVar* m_debugOverlayShowInGameTime = nullptr;
   CVar* m_debugOverlayShowResourceStats = nullptr;
   CVar* m_debugOverlayShowRandomStats = nullptr;
+  CVar* m_debugOverlayShowRoomTimer = nullptr;
   CVar* m_debugToolDrawAiPath = nullptr;
   CVar* m_debugToolDrawLighting = nullptr;
   CVar* m_debugToolDrawCollisionActors = nullptr;
   CVar* m_debugToolDrawMazePath = nullptr;
+  CVar* m_debugToolDrawPlatformCollision = nullptr;
   CVar* m_logFile = nullptr;
 
   CVarCommons(CVarManager& manager) : m_mgr(manager) {
@@ -80,6 +82,9 @@ struct CVarCommons {
     m_debugOverlayShowInGameTime =
         m_mgr.findOrMakeCVar("debugOverlay.showInGameTime"sv, "Displays the current in game time"sv, false,
                              hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_debugOverlayShowRoomTimer = m_mgr.findOrMakeCVar(
+        "debugOverlay.showRoomTimer", "Displays the current/last room timers in seconds and frames"sv, false,
+        hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
     m_debugOverlayShowResourceStats = m_mgr.findOrMakeCVar(
         "debugOverlay.showResourceStats"sv, "Displays the current live resource object and token counts"sv, false,
         hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
@@ -97,6 +102,8 @@ struct CVarCommons {
     m_debugToolDrawMazePath =
         m_mgr.findOrMakeCVar("debugTool.drawMazePath", "Draws the maze path in Dynamo"sv, false,
                              hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_debugToolDrawPlatformCollision = m_mgr.findOrMakeCVar("debugTool.drawPlatformCollision", "Draws the bounding boxes of platforms"sv, false,
+                                                            hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
     m_logFile = m_mgr.findOrMakeCVar("logFile"sv, "Any log prints will be stored to this file upon exit"sv, "app.log"sv,
                                      hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive |
                                          hecl::CVar::EFlags::ModifyRestart);
