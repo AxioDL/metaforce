@@ -67,7 +67,7 @@ void ViewManager::TestGameView::think() {
         overlayText += fmt::format(FMT_STRING("Frame: {}\n"), g_StateManager->GetUpdateFrameIndex());
 
       if (m_cvarCommons.m_debugOverlayShowFramerate->toBoolean())
-          overlayText += fmt::format(FMT_STRING("FPS: {}\n"), urde::CGraphics::GetFPS());
+        overlayText += fmt::format(FMT_STRING("FPS: {}\n"), urde::CGraphics::GetFPS());
 
       if (m_cvarCommons.m_debugOverlayShowInGameTime->toBoolean()) {
         double igt = g_GameState->GetTotalPlayTime();
@@ -87,9 +87,8 @@ void ViewManager::TestGameView::think() {
         double currentRoomTime = igt - m_currentRoomStart;
         u32 curFrames = std::round(u32(currentRoomTime * 60));
         u32 lastFrames = std::round(u32(m_lastRoomTime * 60));
-        overlayText += fmt::format(FMT_STRING("Room Time:{:8.3f}/{:6d}| Last Room:{:8.3f}/{:6d}\n"),
-                                   currentRoomTime, curFrames,
-                                   m_lastRoomTime, lastFrames);
+        overlayText += fmt::format(FMT_STRING("Room Time:{:8.3f}/{:6d}| Last Room:{:8.3f}/{:6d}\n"), currentRoomTime,
+                                   curFrames, m_lastRoomTime, lastFrames);
       }
 
       if (g_StateManager->Player() && m_cvarCommons.m_debugOverlayPlayerInfo->toBoolean()) {
@@ -98,11 +97,11 @@ void ViewManager::TestGameView::think() {
         const zeus::CTransform camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
         const zeus::CQuaternion camQ = zeus::CQuaternion(camXf.getRotation().buildMatrix3f());
         overlayText += fmt::format(FMT_STRING("Player Position: x {}, y {}, z {}\n"
-                                       "       Roll: {}, Pitch: {}, Yaw: {}\n"
-                                       "       Momentum: x {}, y: {}, z: {}\n"
-                                       "       Velocity: x {}, y: {}, z: {}\n"
-                                       "Camera Position: x {}, y {}, z {}\n"
-                                       "       Roll: {}, Pitch: {}, Yaw: {}\n"),
+                                              "       Roll: {}, Pitch: {}, Yaw: {}\n"
+                                              "       Momentum: x {}, y: {}, z: {}\n"
+                                              "       Velocity: x {}, y: {}, z: {}\n"
+                                              "Camera Position: x {}, y {}, z {}\n"
+                                              "       Roll: {}, Pitch: {}, Yaw: {}\n"),
                                    pl.GetTranslation().x(), pl.GetTranslation().y(), pl.GetTranslation().z(),
                                    zeus::radToDeg(plQ.roll()), zeus::radToDeg(plQ.pitch()), zeus::radToDeg(plQ.yaw()),
                                    pl.GetMomentum().x(), pl.GetMomentum().y(), pl.GetMomentum().z(),
@@ -132,7 +131,7 @@ void ViewManager::TestGameView::think() {
             layerBits += "0";
         }
         overlayText += fmt::format(FMT_STRING("Area AssetId: 0x{}, Total Objects: {}\n"
-                                       "Active Layer bits: {}\n"),
+                                              "Active Layer bits: {}\n"),
                                    g_StateManager->GetWorld()->GetArea(aId)->GetAreaAssetId(),
                                    g_StateManager->GetAllObjectList().size(), layerBits);
       }
@@ -316,8 +315,13 @@ void ViewManager::init(boo::IApplication* app) {
   m_amuseAllocWrapper.emplace(*m_voiceEngine);
 
   for (const auto& arg : app->getArgs()) {
+    hecl::Sstat theStat;
+    if (!hecl::Stat((arg + _SYS_STR("/out")).c_str(), &theStat) && S_ISDIR(theStat.st_mode)) {
+      hecl::ProjectRootPath rootPath(arg);
+      hecl::Database::Project tmp(rootPath); // Force project creation
+    }
     if (m_deferedProject.empty() && hecl::SearchForProject(arg))
-      m_deferedProject = arg;
+      m_deferedProject = arg + _SYS_STR("/out");
     if (arg == _SYS_STR("--no-shader-warmup"))
       m_noShaderWarmup = true;
     else if (arg == _SYS_STR("--no-sound"))
