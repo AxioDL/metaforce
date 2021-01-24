@@ -13,9 +13,7 @@ namespace hecl {
 
 using namespace std::literals;
 
-#ifdef _WIN32
-#define DEFAULT_GRAPHICS_API "D3D11"sv
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
 #define DEFAULT_GRAPHICS_API "Metal"sv
 #else
 #define DEFAULT_GRAPHICS_API "Vulkan"sv
