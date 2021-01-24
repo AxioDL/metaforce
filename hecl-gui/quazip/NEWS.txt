@@ -1,4 +1,19 @@
-QuaZIP changes
+QuaZip changes
+
+* 2020-10-11 1.1
+        * Fixed Unix symlink handling in JlCompress compression
+        * Implemented Unix symlink handling in JlCompress extraction
+        * Added 1.x migration guide
+
+* 2020-10-05 1.0
+        * Preliminary Qt 6 support
+        * Consistent naming of binaries (libquazip1-qt5 style)
+        * Modern CMake support
+        * Ditched qmake support
+
+* 2020-04-29 0.9
+        * Support for extended timestamps
+        * Various contributed CMake fixes
 
 * 2019-05-27 0.8.1
         * CMake regression fix

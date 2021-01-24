@@ -5,20 +5,20 @@
 Copyright (C) 2010 Roberto Pompermaier
 Copyright (C) 2005-2016 Sergey A. Tachenov
 
-This file is part of QuaZIP.
+This file is part of QuaZip.
 
-QuaZIP is free software: you can redistribute it and/or modify
+QuaZip is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
-QuaZIP is distributed in the hope that it will be useful,
+QuaZip is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with QuaZIP.  If not, see <http://www.gnu.org/licenses/>.
+along with QuaZip.  If not, see <http://www.gnu.org/licenses/>.
 
 See COPYING file for the full LGPL text.
 
@@ -29,10 +29,11 @@ see quazip/(un)zip.h files for details. Basically it's the zlib license.
 #include "quazip.h"
 #include "quazipfile.h"
 #include "quazipfileinfo.h"
-#include <QString>
-#include <QDir>
-#include <QFileInfo>
-#include <QFile>
+#include "quazip_qt_compat.h"
+#include <QtCore/QString>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QFile>
 
 /// Utility class for typical operations.
 /**
@@ -152,6 +153,15 @@ public:
       \return The list of the full paths of the files extracted, empty on failure.
       */
     static QStringList extractDir(QString fileCompressed, QString dir = QString());
+    /// Extract a whole archive.
+    /**
+      \param fileCompressed The name of the archive.
+      \param fileNameCodec The codec to use for file names.
+      \param dir The directory to extract to, the current directory if
+      left empty.
+      \return The list of the full paths of the files extracted, empty on failure.
+      */
+    static QStringList extractDir(QString fileCompressed, QTextCodec* fileNameCodec, QString dir = QString());
     /// Get the file list.
     /**
       \return The list of the files in the archive, or, more precisely, the
@@ -185,6 +195,15 @@ public:
       \return The list of the full paths of the files extracted, empty on failure.
       */
     static QStringList extractDir(QIODevice *ioDevice, QString dir = QString());
+    /// Extract a whole archive.
+    /**
+      \param ioDevice pointer to device with compressed data.
+      \param fileNameCodec The codec to use for file names.
+      \param dir The directory to extract to, the current directory if
+      left empty.
+      \return The list of the full paths of the files extracted, empty on failure.
+      */
+    static QStringList extractDir(QIODevice* ioDevice, QTextCodec* fileNameCodec, QString dir = QString());
     /// Get the file list.
     /**
       \return The list of the files in the archive, or, more precisely, the

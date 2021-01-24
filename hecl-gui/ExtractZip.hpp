@@ -1,6 +1,6 @@
 #pragma once
 
-class QStringList;
+#include <QStringList>
 class QuaZip;
 class QString;
 

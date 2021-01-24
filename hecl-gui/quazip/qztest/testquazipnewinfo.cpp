@@ -2,14 +2,15 @@
 
 #include "qztest.h"
 
-#include <QDir>
-#include <QFileInfo>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtTest/QtTest>
 
-#include <quazip/quazip.h>
-#include <quazip/quazipfile.h>
-#include <quazip/quazipnewinfo.h>
-#include <quazip/quazipfileinfo.h>
+#include <quazip.h>
+#include <quazipfile.h>
+#include <quazipnewinfo.h>
+#include <quazipfileinfo.h>
+#include <quazip_qt_compat.h>
 
 TestQuaZipNewInfo::TestQuaZipNewInfo(QObject *parent) :
     QObject(parent)
@@ -39,11 +40,7 @@ void TestQuaZipNewInfo::setFileNTFSTimes()
         QFileInfo fileInfo("tmp/test.txt");
         QDateTime lm = fileInfo.lastModified().toUTC();
         QDateTime lr = fileInfo.lastRead().toUTC();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-        QDateTime cr = fileInfo.birthTime();
-#else
-        QDateTime cr = fileInfo.created();
-#endif
+        QDateTime cr = quazip_ctime(fileInfo).toUTC();
         mTicks = (static_cast<qint64>(base.date().daysTo(lm.date()))
                 * Q_UINT64_C(86400000)
                 + static_cast<qint64>(base.time().msecsTo(lm.time())))

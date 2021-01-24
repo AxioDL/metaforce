@@ -129,7 +129,7 @@ extern zipFile ZEXPORT zipOpen OF((voidpf file, int append));
 extern zipFile ZEXPORT zipOpen64 OF((voidpf file, int append));
 /*
   Create a zipfile.
-     the file argument depends on the API used, for QuaZIP it's a QIODevice
+     the file argument depends on the API used, for QuaZip it's a QIODevice
        pointer.
      if the file pathname exist and append==APPEND_STATUS_CREATEAFTER, the zip
        will be created at the end of the file.
@@ -157,9 +157,9 @@ extern zipFile ZEXPORT zipOpen2_64 OF((voidpf file,
                                    zlib_filefunc64_def* pzlib_filefunc_def));
 
 /*
- * Exported by Sergey A. Tachenov to suit the needs of QuaZIP.
+ * Exported by Sergey A. Tachenov to suit the needs of QuaZip.
  * Note that this function MAY change signature in order to
- * provide new QuaZIP features. You have been warned!
+ * provide new QuaZip features. You have been warned!
  * */
 extern zipFile ZEXPORT zipOpen3 (voidpf file,
                                  int append,

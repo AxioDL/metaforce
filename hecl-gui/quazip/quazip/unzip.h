@@ -206,7 +206,7 @@ extern unzFile ZEXPORT unzOpen2_64 OF((voidpf file,
 
 
 /*
- * Exported by Sergey A. Tachenov to implement some QuaZIP features. This
+ * Exported by Sergey A. Tachenov to implement some QuaZip features. This
  * function MAY change signature in order to implement even more features.
  * You have been warned!
  * */

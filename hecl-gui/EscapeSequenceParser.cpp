@@ -64,13 +64,12 @@ void ParseEscapeSequence(int attribute, QListIterator<QString>& i, QTextCharForm
   case 17:
   case 18:
   case 19: {
-    QFontDatabase fontDatabase;
     QString fontFamily = textCharFormat.fontFamily();
-    QStringList fontStyles = fontDatabase.styles(fontFamily);
+    QStringList fontStyles = QFontDatabase::styles(fontFamily);
     int fontStyleIndex = attribute - 11;
     if (fontStyleIndex < fontStyles.length()) {
       textCharFormat.setFont(
-          fontDatabase.font(fontFamily, fontStyles.at(fontStyleIndex), textCharFormat.font().pointSize()));
+          QFontDatabase::font(fontFamily, fontStyles.at(fontStyleIndex), textCharFormat.font().pointSize()));
     }
     break;
   }

@@ -1,20 +1,20 @@
 /*
 Copyright (C) 2005-2014 Sergey A. Tachenov
 
-This file is part of QuaZIP test suite.
+This file is part of QuaZip test suite.
 
-QuaZIP is free software: you can redistribute it and/or modify
+QuaZip is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
-QuaZIP is distributed in the hope that it will be useful,
+QuaZip is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with QuaZIP.  If not, see <http://www.gnu.org/licenses/>.
+along with QuaZip.  If not, see <http://www.gnu.org/licenses/>.
 
 See COPYING file for the full LGPL text.
 
@@ -26,13 +26,14 @@ see quazip/(un)zip.h files for details. Basically it's the zlib license.
 
 #include "qztest.h"
 
-#include <quazip/JlCompress.h>
-#include <quazip/quazipfile.h>
-#include <quazip/quazip.h>
+#include <JlCompress.h>
+#include <quazipfile.h>
+#include <quazip.h>
+#include <quazip_qt_compat.h>
 
-#include <QFile>
-#include <QString>
-#include <QStringList>
+#include <QtCore/QFile>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 
 #include <QtTest/QtTest>
 
@@ -307,11 +308,11 @@ void TestQuaZipFile::posWrite()
         QCOMPARE(zipFile.pos(), (qint64) 1);
         QByteArray buffer(size / 2 - 1, '\0');
         for (int i = 0; i < buffer.size(); ++i)
-            buffer[i] = static_cast<char>(qrand());
+            buffer[i] = static_cast<char>(i);
         zipFile.write(buffer);
         QCOMPARE(zipFile.pos(), qint64(size / 2));
         for (int i = 0; i < size - size / 2; ++i) {
-            zipFile.putChar(static_cast<char>(qrand()));
+            zipFile.putChar(static_cast<char>(i));
         }
         QCOMPARE(zipFile.pos(), qint64(size));
     }
@@ -466,9 +467,8 @@ void TestQuaZipFile::setFileAttrs()
                 QFile::WriteOther | QFile::ReadOther | QFile::ExeOther;
         QCOMPARE(info.getPermissions() & usedPermissions,
                  srcInfo.permissions() & usedPermissions);
-        // I really hope Qt 6 will use quint64 for time_t!
-        quint64 newTime = info.dateTime.toTime_t();
-        quint64 oldTime = srcInfo.lastModified().toTime_t();
+        qint64 newTime = quazip_to_time64_t(info.dateTime);
+        qint64 oldTime = quazip_to_time64_t(srcInfo.lastModified());
         // ZIP uses weird format with 2 second precision
         QCOMPARE(newTime / 2, oldTime / 2);
         readFileAttrs.close();

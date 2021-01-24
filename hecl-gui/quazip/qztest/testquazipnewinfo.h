@@ -1,7 +1,7 @@
 #ifndef TESTQUAZIPNEWINFO_H
 #define TESTQUAZIPNEWINFO_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 class TestQuaZipNewInfo : public QObject
 {

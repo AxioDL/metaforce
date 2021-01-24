@@ -4,20 +4,20 @@
 /*
 Copyright (C) 2005-2014 Sergey A. Tachenov
 
-This file is part of QuaZIP.
+This file is part of QuaZip.
 
-QuaZIP is free software: you can redistribute it and/or modify
+QuaZip is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
-QuaZIP is distributed in the hope that it will be useful,
+QuaZip is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with QuaZIP.  If not, see <http://www.gnu.org/licenses/>.
+along with QuaZip.  If not, see <http://www.gnu.org/licenses/>.
 
 See COPYING file for the full LGPL text.
 
@@ -25,7 +25,7 @@ Original ZIP package is copyrighted by Gilles Vollant and contributors,
 see quazip/(un)zip.h files for details. Basically it's the zlib license.
 */
 
-#include <QIODevice>
+#include <QtCore/QIODevice>
 #include "quazip_global.h"
 
 #include <zlib.h>
@@ -47,7 +47,7 @@ public:
     \param io The QIODevice to read/write.
     \param parent The parent object, as per QObject logic.
     */
-  QuaZIODevice(QIODevice *io, QObject *parent = NULL);
+  QuaZIODevice(QIODevice *io, QObject *parent = nullptr);
   /// Destructor.
   ~QuaZIODevice();
   /// Flushes data waiting to be written.
@@ -66,7 +66,7 @@ public:
     sock->flush(); // this actually sends data to network
     \endcode
 
-    This may change in the future versions of QuaZIP by implementing an
+    This may change in the future versions of %QuaZip by implementing an
     ugly hack: trying to cast the QIODevice using qobject_cast to known
     flush()-supporting subclasses, and calling flush if the resulting
     pointer is not zero.

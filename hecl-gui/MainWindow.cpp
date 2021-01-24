@@ -4,6 +4,9 @@
 #include <QMessageBox>
 #include <QComboBox>
 #include <QLabel>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QtCore5Compat>
+#endif
 #include "EscapeSequenceParser.hpp"
 #include "FileDirDialog.hpp"
 #include "ExtractZip.hpp"
@@ -537,6 +540,7 @@ void MainWindow::setTextTermFormatting(const QString& text) {
   m_inContinueNote = false;
 
   m_cursor.beginEditBlock();
+  // TODO: Migrate QRegExp to QRegularExpression
   QRegExp const escapeSequenceExpression(QStringLiteral(R"(\x1B\[([\d;\?FA]+)([mlh]?))"));
   QTextCharFormat defaultTextCharFormat = m_cursor.charFormat();
   int offset = escapeSequenceExpression.indexIn(text);

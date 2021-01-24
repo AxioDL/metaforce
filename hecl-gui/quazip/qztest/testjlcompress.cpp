@@ -1,20 +1,20 @@
 /*
 Copyright (C) 2005-2014 Sergey A. Tachenov
 
-This file is part of QuaZIP test suite.
+This file is part of QuaZip test suite.
 
-QuaZIP is free software: you can redistribute it and/or modify
+QuaZip is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
-QuaZIP is distributed in the hope that it will be useful,
+QuaZip is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with QuaZIP.  If not, see <http://www.gnu.org/licenses/>.
+along with QuaZip.  If not, see <http://www.gnu.org/licenses/>.
 
 See COPYING file for the full LGPL text.
 
@@ -26,12 +26,14 @@ see quazip/(un)zip.h files for details. Basically it's the zlib license.
 
 #include "qztest.h"
 
-#include <QDir>
-#include <QFileInfo>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <quazip_qt_compat.h>
 
 #include <QtTest/QtTest>
 
-#include <quazip/JlCompress.h>
+#include <JlCompress.h>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -303,17 +305,29 @@ void TestJlCompress::extractDir_data()
     QTest::addColumn<QString>("zipName");
     QTest::addColumn<QStringList>("fileNames");
     QTest::addColumn<QStringList>("expectedExtracted");
+    QTest::addColumn<QByteArray>("fileNameCodecName");
     QTest::newRow("simple") << "jlextdir.zip"
         << (QStringList() << "test0.txt" << "testdir1/test1.txt"
             << "testdir2/test2.txt" << "testdir2/subdir/test2sub.txt")
         << (QStringList() << "test0.txt" << "testdir1/test1.txt"
-            << "testdir2/test2.txt" << "testdir2/subdir/test2sub.txt");
+            << "testdir2/test2.txt" << "testdir2/subdir/test2sub.txt")
+        << QByteArray();
     QTest::newRow("separate dir") << "sepdir.zip"
         << (QStringList() << "laj/" << "laj/lajfile.txt")
-        << (QStringList() << "laj/" << "laj/lajfile.txt");
+        << (QStringList() << "laj/" << "laj/lajfile.txt")
+        << QByteArray();
     QTest::newRow("Zip Slip") << "zipslip.zip"
         << (QStringList() << "test0.txt" << "../zipslip.txt")
-        << (QStringList() << "test0.txt");
+        << (QStringList() << "test0.txt")
+        << QByteArray();
+    QTest::newRow("Cyrillic") << "cyrillic.zip"
+        << (QStringList() << QString::fromUtf8("Ще не вмерла Україна"))
+        << (QStringList() << QString::fromUtf8("Ще не вмерла Україна"))
+        << QByteArray("KOI8-U");
+    QTest::newRow("Japaneses") << "japanese.zip"
+        << (QStringList() << QString::fromUtf8("日本"))
+        << (QStringList() << QString::fromUtf8("日本"))
+        << QByteArray("UTF-8");
 }
 
 void TestJlCompress::extractDir()
@@ -321,6 +335,10 @@ void TestJlCompress::extractDir()
     QFETCH(QString, zipName);
     QFETCH(QStringList, fileNames);
     QFETCH(QStringList, expectedExtracted);
+    QFETCH(QByteArray, fileNameCodecName);
+    QTextCodec *fileNameCodec = NULL;
+    if (!fileNameCodecName.isEmpty())
+        fileNameCodec = QTextCodec::codecForName(fileNameCodecName);
     QDir curDir;
     if (!curDir.mkpath("jlext/jldir")) {
         QFAIL("Couldn't mkpath jlext/jldir");
@@ -328,12 +346,15 @@ void TestJlCompress::extractDir()
     if (!createTestFiles(fileNames)) {
         QFAIL("Couldn't create test files");
     }
-    if (!createTestArchive(zipName, fileNames)) {
+    if (!createTestArchive(zipName, fileNames, fileNameCodec)) {
         QFAIL("Couldn't create test archive");
     }
     QStringList extracted;
-    QCOMPARE((extracted = JlCompress::extractDir(zipName, "jlext/jldir"))
-        .count(), expectedExtracted.count());
+    if (fileNameCodec == NULL)
+        extracted = JlCompress::extractDir(zipName, "jlext/jldir");
+    else // test both overloads here
+        extracted = JlCompress::extractDir(zipName, fileNameCodec, "jlext/jldir");
+    QCOMPARE(extracted.count(), expectedExtracted.count());
     const QString dir = "jlext/jldir/";
     foreach (QString fileName, expectedExtracted) {
         QString fullName = dir + fileName;
@@ -352,8 +373,11 @@ void TestJlCompress::extractDir()
     // now test the QIODevice* overload
     QFile zipFile(zipName);
     QVERIFY(zipFile.open(QIODevice::ReadOnly));
-    QCOMPARE((extracted = JlCompress::extractDir(&zipFile, "jlext/jldir"))
-        .count(), expectedExtracted.count());
+    if (fileNameCodec == NULL)
+        extracted = JlCompress::extractDir(&zipFile, "jlext/jldir");
+    else // test both overloads here
+        extracted = JlCompress::extractDir(&zipFile, fileNameCodec, "jlext/jldir");
+    QCOMPARE(extracted.count(), expectedExtracted.count());
     foreach (QString fileName, expectedExtracted) {
         QString fullName = dir + fileName;
         QFileInfo fileInfo(fullName);
@@ -390,3 +414,55 @@ void TestJlCompress::zeroPermissions()
     curDir.remove("zero.zip");
     curDir.remove("zero.txt");
 }
+
+#ifdef QUAZIP_SYMLINK_TEST
+
+void TestJlCompress::symlinkHandling()
+{
+    QStringList fileNames { "file.txt" };
+    if (!createTestFiles(fileNames)) {
+        QFAIL("Couldn't create test files");
+    }
+    QVERIFY(QFile::link("file.txt", "tmp/link.txt"));
+    fileNames << "link.txt";
+    QVERIFY(JlCompress::compressDir("symlink.zip", "tmp"));
+    QDir curDir;
+    QVERIFY(curDir.mkpath("extsymlink"));
+    QVERIFY(!JlCompress::extractDir("symlink.zip", "extsymlink").isEmpty());
+    QFileInfo linkInfo("extsymlink/link.txt");
+    QVERIFY(quazip_is_symlink(linkInfo));
+    removeTestFiles(fileNames, "extsymlink");
+    removeTestFiles(fileNames, "tmp");
+    curDir.remove("symlink.zip");
+}
+
+#endif
+
+#ifdef QUAZIP_SYMLINK_EXTRACTION_ON_WINDOWS_TEST
+
+void TestJlCompress::symlinkExtractionOnWindows()
+{
+    QuaZip zipWithSymlinks("withSymlinks.zip");
+    QVERIFY(zipWithSymlinks.open(QuaZip::mdCreate));
+    QuaZipFile file(&zipWithSymlinks);
+    QVERIFY(file.open(QIODevice::WriteOnly, QuaZipNewInfo("file.txt")));
+    file.write("contents");
+    file.close();
+    QuaZipNewInfo symlinkInfo("symlink.txt");
+    symlinkInfo.externalAttr |= 0120000 << 16; // symlink attr
+    QuaZipFile symlink(&zipWithSymlinks);
+    QVERIFY(symlink.open(QIODevice::WriteOnly, symlinkInfo));
+    symlink.write("file.txt"); // link target goes into contents
+    symlink.close();
+    zipWithSymlinks.close();
+    QCOMPARE(zipWithSymlinks.getZipError(), ZIP_OK);
+    // The best we can do here is to test that extraction works at all,
+    // because it's hard to say what should be the “correct” result when
+    // trying to extract symbolic links on Windows.
+    QVERIFY(!JlCompress::extractDir("withSymlinks.zip", "symlinksOnWindows").isEmpty());
+    QDir curDir;
+    curDir.remove("withSymlinks.zip");
+    removeTestFiles(QStringList() << "file.txt" << "symlink.txt", "symlinksOnWindows");
+}
+
+#endif

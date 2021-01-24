@@ -4,7 +4,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Network Widgets Xml Gui REQUIRED PATHS /usr/local/opt/qt)
+find_package(Qt6 COMPONENTS Core5Compat Network Widgets Xml Gui REQUIRED PATHS /usr/local/opt/qt)
 
 file(GLOB QUAZIP_SRCS quazip/quazip/*.c quazip/quazip/*.cpp quazip/quazip/*.h)
 list(REMOVE_ITEM QUAZIP_SRCS
@@ -74,11 +74,12 @@ target_compile_definitions(hecl-gui PRIVATE
 )
 
 target_link_libraries(hecl-gui PRIVATE
-  Qt5::Core
-  Qt5::Gui
-  Qt5::Network
-  Qt5::Widgets
-  Qt5::Xml
+  Qt6::Core
+  Qt6::Core5Compat
+  Qt6::Gui
+  Qt6::Network
+  Qt6::Widgets
+  Qt6::Xml
 
   hecl-light
   zeus

@@ -1,20 +1,20 @@
 /*
 Copyright (C) 2005-2014 Sergey A. Tachenov
 
-This file is part of QuaZIP.
+This file is part of QuaZip.
 
-QuaZIP is free software: you can redistribute it and/or modify
+QuaZip is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
-QuaZIP is distributed in the hope that it will be useful,
+QuaZip is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with QuaZIP.  If not, see <http://www.gnu.org/licenses/>.
+along with QuaZip.  If not, see <http://www.gnu.org/licenses/>.
 
 See COPYING file for the full LGPL text.
 
@@ -51,21 +51,21 @@ class QuaZIODevicePrivate {
 QuaZIODevicePrivate::QuaZIODevicePrivate(QIODevice *io, QuaZIODevice *q):
   io(io),
   q(q),
-  inBuf(NULL),
+  inBuf(nullptr),
   inBufPos(0),
   inBufSize(0),
-  outBuf(NULL),
+  outBuf(nullptr),
   outBufPos(0),
   outBufSize(0),
   zBufError(false),
   atEnd(false)
 {
-  zins.zalloc = (alloc_func) NULL;
-  zins.zfree = (free_func) NULL;
-  zins.opaque = NULL;
-  zouts.zalloc = (alloc_func) NULL;
-  zouts.zfree = (free_func) NULL;
-  zouts.opaque = NULL;
+  zins.zalloc = (alloc_func) nullptr;
+  zins.zfree = (free_func) nullptr;
+  zins.opaque = nullptr;
+  zouts.zalloc = (alloc_func) nullptr;
+  zouts.zfree = (free_func) nullptr;
+  zouts.opaque = nullptr;
   inBuf = new char[QUAZIO_INBUFSIZE];
   outBuf = new char[QUAZIO_OUTBUFSIZE];
 #ifdef QUAZIP_ZIODEVICE_DEBUG_OUTPUT
@@ -86,9 +86,9 @@ QuaZIODevicePrivate::~QuaZIODevicePrivate()
 #ifdef QUAZIP_ZIODEVICE_DEBUG_INPUT
   indebug.close();
 #endif
-  if (inBuf != NULL)
+  if (inBuf != nullptr)
     delete[] inBuf;
-  if (outBuf != NULL)
+  if (outBuf != nullptr)
       delete[] outBuf;
 }
 
@@ -155,11 +155,11 @@ int QuaZIODevicePrivate::doFlush(QString &error)
 // #define QUAZIP_ZIODEVICE_DEBUG_OUTPUT
 // #define QUAZIP_ZIODEVICE_DEBUG_INPUT
 #ifdef QUAZIP_ZIODEVICE_DEBUG_OUTPUT
-#include <QFile>
+#include <QtCore/QFile>
 static QFile debug;
 #endif
 #ifdef QUAZIP_ZIODEVICE_DEBUG_INPUT
-#include <QFile>
+#include <QtCore/QFile>
 static QFile indebug;
 #endif
 

@@ -1,20 +1,20 @@
 /*
 Copyright (C) 2005-2014 Sergey A. Tachenov
 
-This file is part of QuaZIP.
+This file is part of QuaZip.
 
-QuaZIP is free software: you can redistribute it and/or modify
+QuaZip is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
-QuaZIP is distributed in the hope that it will be useful,
+QuaZip is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with QuaZIP.  If not, see <http://www.gnu.org/licenses/>.
+along with QuaZip.  If not, see <http://www.gnu.org/licenses/>.
 
 See COPYING file for the full LGPL text.
 
@@ -23,9 +23,10 @@ see quazip/(un)zip.h files for details. Basically it's the zlib license.
 */
 
 #include "quazipdir.h"
+#include "quazip_qt_compat.h"
 
-#include <QSet>
-#include <QSharedData>
+#include <QtCore/QSet>
+#include <QtCore/QSharedData>
 
 /// \cond internal
 class QuaZipDirPrivate: public QSharedData {
@@ -103,9 +104,9 @@ bool QuaZipDir::cd(const QString &directoryName)
             if (!dir.cd(QLatin1String("/")))
                 return false;
         }
-        QStringList path = dirName.split(QLatin1String("/"), QString::SkipEmptyParts);
+        QStringList path = dirName.split(QLatin1String("/"), SkipEmptyParts);
         for (QStringList::const_iterator i = path.constBegin();
-                i != path.end();
+                i != path.constEnd();
                 ++i) {
             const QString &step = *i;
 #ifdef QUAZIP_QUAZIPDIR_DEBUG
@@ -390,11 +391,7 @@ bool QuaZipDirPrivate::entryInfoList(QStringList nameFilters,
                 == Qt::CaseInsensitive)
             srt |= QDir::IgnoreCase;
         QuaZipDirComparator lessThan(srt);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
-        std::sort(list.begin(), list.end(), lessThan);
-#else
-        qSort(list.begin(), list.end(), lessThan);
-#endif
+        quazip_sort(list.begin(), list.end(), lessThan);
     }
     QuaZipDir_convertInfoList(list, result);
     return true;

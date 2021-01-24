@@ -1,36 +1,97 @@
-file(GLOB SRCS "*.c" "*.cpp")
-file(GLOB PUBLIC_HEADERS "*.h")
+project(QuaZip_Library VERSION ${QUAZIP_LIB_VERSION})
 
-set(QUAZIP_LIB_VERSION 1.0.0)
-set(QUAZIP_LIB_SOVERSION 1)
+include(GNUInstallDirs) # configurable CMAKE_INSTALL_*DIR
 
-# Must be added to enable export macro
-ADD_DEFINITIONS(-DQUAZIP_BUILD)
+set(QUAZIP_HEADERS
+        JlCompress.h
+        ioapi.h
+        minizip_crypt.h
+        quaadler32.h
+        quachecksum32.h
+        quacrc32.h
+        quagzipfile.h
+        quaziodevice.h
+        quazip.h
+        quazip_global.h
+        quazip_qt_compat.h
+        quazipdir.h
+        quazipfile.h
+        quazipfileinfo.h
+        quazipnewinfo.h
+        unzip.h
+        zip.h
+   )
 
-qt_wrap_cpp(MOC_SRCS ${PUBLIC_HEADERS})
-set(SRCS ${SRCS} ${MOC_SRCS})
+set(QUAZIP_SOURCES
+        ${QUAZIP_HEADERS}
+        unzip.c
+        zip.c
+        JlCompress.cpp
+        qioapi.cpp
+        quaadler32.cpp
+        quachecksum32.cpp
+        quacrc32.cpp
+        quagzipfile.cpp
+        quaziodevice.cpp
+        quazip.cpp
+        quazipdir.cpp
+        quazipfile.cpp
+        quazipfileinfo.cpp
+        quazipnewinfo.cpp
+   )
 
-add_library(${QUAZIP_LIB_TARGET_NAME} SHARED ${SRCS})
-add_library(quazip_static STATIC ${SRCS})
- 
-# Windows uses .lib extension for both static and shared library
-# *nix systems use different extensions for SHARED and STATIC library and by convention both libraries have the same name
-if (NOT WIN32)
-	set_target_properties(quazip_static PROPERTIES OUTPUT_NAME quazip${QUAZIP_LIB_VERSION_SUFFIX})
-endif ()
+set(QUAZIP_INCLUDE_PATH ${QUAZIP_DIR_NAME}/quazip)
+set(QUAZIP_INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake)
+set(QUAZIP_PKGCONFIG_NAME quazip${QuaZip_VERSION_MAJOR}-qt${QUAZIP_QT_MAJOR_VERSION})
 
-target_include_directories(${QUAZIP_LIB_TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${ZLIB_INCLUDE_DIRS})
-target_include_directories(quazip_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${ZLIB_INCLUDE_DIRS})
-set_target_properties(${QUAZIP_LIB_TARGET_NAME} quazip_static PROPERTIES VERSION ${QUAZIP_LIB_VERSION} SOVERSION ${QUAZIP_LIB_SOVERSION} DEBUG_POSTFIX d)
+add_library(${QUAZIP_LIB_TARGET_NAME} ${QUAZIP_SOURCES})
+add_library(QuaZip::QuaZip ALIAS ${QUAZIP_LIB_TARGET_NAME})
 
-# Link against ZLIB_LIBRARIES if needed (on Windows this variable is empty)
-target_link_libraries(${QUAZIP_LIB_TARGET_NAME} ${QT_QTMAIN_LIBRARY} ${QTCORE_LIBRARIES} ${ZLIB_LIBRARIES})
-target_link_libraries(quazip_static ${QT_QTMAIN_LIBRARY} ${QTCORE_LIBRARIES} ${ZLIB_LIBRARIES})
-
-if(UNIX AND NOT APPLE)
-	configure_file( ${CMAKE_SOURCE_DIR}/quazip.pc.cmakein
-			${CMAKE_BINARY_DIR}/quazip.pc @ONLY)
-	install(FILES ${CMAKE_BINARY_DIR}/quazip.pc DESTINATION "${INSTALL_PKGCONFIG_DIR}")
+set_target_properties(${QUAZIP_LIB_TARGET_NAME} PROPERTIES
+	VERSION ${QUAZIP_LIB_VERSION}
+	SOVERSION ${QUAZIP_LIB_SOVERSION}
+	OUTPUT_NAME ${QUAZIP_LIB_FILE_NAME}
+	PUBLIC_HEADER "${QUAZIP_HEADERS}"
+)
+target_include_directories(${QUAZIP_LIB_TARGET_NAME} PUBLIC 
+	$<BUILD_INTERFACE:${QUAZIP_SOURCE_DIR}>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_DIR_NAME}>
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_INCLUDE_PATH}>
+)
+target_link_libraries(${QUAZIP_LIB_TARGET_NAME} ${QUAZIP_LIB_QT_LIBRARIES} ZLIB::ZLIB)
+if(BUILD_SHARED_LIBS)
+	target_compile_definitions(${QUAZIP_LIB_TARGET_NAME} PRIVATE QUAZIP_BUILD) # dllexport
+else()
+	target_compile_definitions(${QUAZIP_LIB_TARGET_NAME} PUBLIC QUAZIP_STATIC) # suppress dllimport
 endif()
-install(FILES ${PUBLIC_HEADERS} DESTINATION include/quazip${QUAZIP_LIB_VERSION_SUFFIX})
-install(TARGETS ${QUAZIP_LIB_TARGET_NAME} quazip_static LIBRARY DESTINATION ${LIB_DESTINATION} ARCHIVE DESTINATION ${LIB_DESTINATION} RUNTIME DESTINATION ${LIB_DESTINATION})
+
+include(CMakePackageConfigHelpers)
+
+if(BUILD_SHARED_LIBS)
+    set(Flavor Shared)
+else()
+    set(Flavor Static)
+endif()
+set(QUAZIP_EXPORT_SET ${QUAZIP_PACKAGE_NAME}_${Flavor}Targets)
+write_basic_package_version_file(${PROJECT_BINARY_DIR}/${QUAZIP_PACKAGE_NAME}ConfigVersion.cmake
+    COMPATIBILITY SameMajorVersion
+)
+configure_package_config_file(QuaZipConfig.cmake.in ${QUAZIP_PACKAGE_NAME}Config.cmake
+    INSTALL_DESTINATION ${QUAZIP_INSTALL_CONFIGDIR}/${QUAZIP_DIR_NAME}
+)
+install(TARGETS ${QUAZIP_LIB_TARGET_NAME}
+    EXPORT ${QUAZIP_EXPORT_SET}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_INCLUDE_PATH}
+)
+install(EXPORT ${QUAZIP_EXPORT_SET}
+    NAMESPACE QuaZip::
+    DESTINATION ${QUAZIP_INSTALL_CONFIGDIR}/${QUAZIP_DIR_NAME}
+)
+install(FILES ${PROJECT_BINARY_DIR}/${QUAZIP_PACKAGE_NAME}Config.cmake
+              ${PROJECT_BINARY_DIR}/${QUAZIP_PACKAGE_NAME}ConfigVersion.cmake
+    DESTINATION ${QUAZIP_INSTALL_CONFIGDIR}/${QUAZIP_DIR_NAME}
+)
+
+configure_file(quazip.pc.cmakein ${QUAZIP_PKGCONFIG_NAME}.pc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${QUAZIP_PKGCONFIG_NAME}.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
