@@ -20,12 +20,12 @@ static logvisor::Module Log{"URDE"};
 
 static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf) {
   hecl::SystemString features;
+#if __x86_64__
   auto AddFeature = [&features](const hecl::SystemChar* str) {
     if (!features.empty())
       features += _SYS_STR(", ");
     features += str;
   };
-#if __x86_64__
   if (cpuInf.AESNI)
     AddFeature(_SYS_STR("AES-NI"));
   if (cpuInf.SSE1)
@@ -177,7 +177,7 @@ int main(int argc, const boo::SystemChar** argv)
   if (!logFile.empty()) {
     std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     char buf[100];
-    std::strftime(buf, 100, "%Y-%m-%d_%H-%M-%S\0", std::localtime(&time));
+    std::strftime(buf, 100, "%Y-%m-%d_%H-%M-%S", std::localtime(&time));
     hecl::SystemString timeStr = hecl::SystemStringConv(buf).c_str();
     logFilePath = fmt::format(FMT_STRING(_SYS_STR("{}/{}-{}")), fileMgr.getStoreRoot(), timeStr, logFile);
     logvisor::RegisterFileLogger(logFilePath.c_str());
