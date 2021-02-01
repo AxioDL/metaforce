@@ -75,125 +75,37 @@ public:
   std::string help() const;
   std::string value() const { return m_value; }
 
-  template <class T>
-  bool toValue(T& value) const;
+  template <typename T>
+  inline bool toValue(T& value) const;
   atVec2f toVec2f(bool* isValid = nullptr) const;
-  template<>
-  bool toValue(atVec2f& value) const {
-    bool isValid = false;
-    value = toVec2f(&isValid);
-    return isValid;
-  }
   atVec2d toVec2d(bool* isValid = nullptr) const;
-  template<>
-  bool toValue(atVec2d& value) const {
-    bool isValid = false;
-    value = toVec2d(&isValid);
-    return isValid;
-  }
   atVec3f toVec3f(bool* isValid = nullptr) const;
-  template<>
-  bool toValue(atVec3f& value) const {
-    bool isValid = false;
-    value = toVec3f(&isValid);
-    return isValid;
-  }
   atVec3d toVec3d(bool* isValid = nullptr) const;
-  template<>
-  bool toValue(atVec3d& value) const {
-    bool isValid = false;
-    value = toVec3d(&isValid);
-    return isValid;
-  }
   atVec4f toVec4f(bool* isValid = nullptr) const;
-  template<>
-  bool toValue(atVec4f& value) const {
-    bool isValid = false;
-    value = toVec4f(&isValid);
-    return isValid;
-  }
   atVec4d toVec4d(bool* isValid = nullptr) const;
-  template<>
-  bool toValue(atVec4d& value) const {
-    bool isValid = false;
-    value = toVec4d(&isValid);
-    return isValid;
-  }
   double toReal(bool* isValid = nullptr) const;
-  template<>
-  bool toValue(float& value) const {
-    bool isValid = false;
-    value = static_cast<float>(toReal(&isValid));
-    return isValid;
-  }
-  bool toValue(double& value) const {
-    bool isValid = false;
-    value = toReal(&isValid);
-    return isValid;
-  }
   bool toBoolean(bool* isValid = nullptr) const;
-  template<>
-  bool toValue(bool& value) const {
-    bool isValid = false;
-    value = toBoolean(&isValid);
-    return isValid;
-  }
   int32_t toSigned(bool* isValid = nullptr) const;
-  template<>
-  bool toValue(int32_t& value) const {
-    bool isValid = false;
-    value = toSigned(&isValid);
-    return isValid;
-  }
   uint32_t toUnsigned(bool* isValid = nullptr) const;
-  template<>
-  bool toValue(uint32_t& value) const {
-    bool isValid = false;
-    value = toUnsigned(&isValid);
-    return isValid;
-  }
   std::wstring toWideLiteral(bool* isValid = nullptr) const;
-  template<>
-  bool toValue(std::wstring& value) const {
-    bool isValid = false;
-    value = toWideLiteral(&isValid);
-    return isValid;
-  }
   std::string toLiteral(bool* isValid = nullptr) const;
-  template<>
-  bool toValue(std::string& value) const {
-    bool isValid = false;
-    value = toLiteral(&isValid);
-    return isValid;
-  }
 
   template <typename T>
-  bool fromValue(T value) {}
+  inline bool fromValue(T value) {
+    return false;
+  }
   bool fromVec2f(const atVec2f& val);
-  template<> bool fromValue(const atVec2f& val) { return fromVec2f(val); }
   bool fromVec2d(const atVec2d& val);
-  template<> bool fromValue(const atVec2d& val) { return fromVec2d(val); }
   bool fromVec3f(const atVec3f& val);
-  template<> bool fromValue(const atVec3f& val) { return fromVec3f(val); }
   bool fromVec3d(const atVec3d& val);
-  template<> bool fromValue(const atVec3d& val) { return fromVec3d(val); }
   bool fromVec4f(const atVec4f& val);
-  template<> bool fromValue(const atVec4f& val) { return fromVec4f(val); }
   bool fromVec4d(const atVec4d& val);
-  template<> bool fromValue(const atVec4d& val) { return fromVec4d(val); }
   bool fromReal(double val);
-  template<> bool fromValue(float val) { return fromReal(val); }
-  template<> bool fromValue(double val) { return fromReal(val); }
   bool fromBoolean(bool val);
-  template<> bool fromValue(bool val) { return fromBoolean(val); }
   bool fromInteger(int32_t val);
-  template<> bool fromValue(int32_t val) { return fromInteger(val); }
   bool fromInteger(uint32_t val);
-  template<> bool fromValue(uint32_t val) { return fromInteger(val); }
   bool fromLiteral(std::string_view val);
-  template<> bool fromValue(std::string_view val) { return fromLiteral(val); }
   bool fromLiteral(std::wstring_view val);
-  template<> bool fromValue(std::wstring_view val) { return fromLiteral(val); }
   bool fromLiteralToType(std::string_view val);
   bool fromLiteralToType(std::wstring_view val);
 
@@ -256,8 +168,140 @@ private:
   bool m_wasDeserialized = false;
   std::vector<ListenerFunc> m_listeners;
   bool safeToModify(EType type) const;
-  void init(EFlags flags, bool removeColor=true);
+  void init(EFlags flags, bool removeColor = true);
 };
+
+template <>
+inline bool CVar::toValue(atVec2f& value) const {
+  bool isValid = false;
+  value = toVec2f(&isValid);
+  return isValid;
+}
+template <>
+inline bool CVar::toValue(atVec2d& value) const {
+  bool isValid = false;
+  value = toVec2d(&isValid);
+  return isValid;
+}
+template <>
+inline bool CVar::toValue(atVec3f& value) const {
+  bool isValid = false;
+  value = toVec3f(&isValid);
+  return isValid;
+}
+template <>
+inline bool CVar::toValue(atVec3d& value) const {
+  bool isValid = false;
+  value = toVec3d(&isValid);
+  return isValid;
+}
+template <>
+inline bool CVar::toValue(atVec4f& value) const {
+  bool isValid = false;
+  value = toVec4f(&isValid);
+  return isValid;
+}
+template <>
+inline bool CVar::toValue(atVec4d& value) const {
+  bool isValid = false;
+  value = toVec4d(&isValid);
+  return isValid;
+}
+template <>
+inline bool CVar::toValue(double& value) const {
+  bool isValid = false;
+  value = toReal(&isValid);
+  return isValid;
+}
+template <>
+inline bool CVar::toValue(float& value) const {
+    bool isValid = false;
+    value = static_cast<float>(toReal(&isValid));
+    return isValid;
+}
+template <>
+inline bool CVar::toValue(bool& value) const {
+  bool isValid = false;
+  value = toBoolean(&isValid);
+  return isValid;
+}
+template <>
+inline bool CVar::toValue(int32_t& value) const {
+  bool isValid = false;
+  value = toSigned(&isValid);
+  return isValid;
+}
+template <>
+inline bool CVar::toValue(uint32_t& value) const {
+  bool isValid = false;
+  value = toUnsigned(&isValid);
+  return isValid;
+}
+template <>
+inline bool CVar::toValue(std::wstring& value) const {
+  bool isValid = false;
+  value = toWideLiteral(&isValid);
+  return isValid;
+}
+template <>
+inline bool CVar::toValue(std::string& value) const {
+  bool isValid = false;
+  value = toLiteral(&isValid);
+  return isValid;
+}
+
+template <>
+inline bool CVar::fromValue(const atVec2f& val) {
+  return fromVec2f(val);
+}
+template <>
+inline bool CVar::fromValue(const atVec2d& val) {
+  return fromVec2d(val);
+}
+template <>
+inline bool CVar::fromValue(const atVec3f& val) {
+  return fromVec3f(val);
+}
+template <>
+inline bool CVar::fromValue(const atVec3d& val) {
+  return fromVec3d(val);
+}
+template <>
+inline bool CVar::fromValue(const atVec4f& val) {
+  return fromVec4f(val);
+}
+template <>
+inline bool CVar::fromValue(const atVec4d& val) {
+  return fromVec4d(val);
+}
+template <>
+inline bool CVar::fromValue(float val) {
+  return fromReal(val);
+}
+template <>
+inline bool CVar::fromValue(double val) {
+  return fromReal(val);
+}
+template <>
+inline bool CVar::fromValue(bool val) {
+  return fromBoolean(val);
+}
+template <>
+inline bool CVar::fromValue(int32_t val) {
+  return fromInteger(val);
+}
+template <>
+inline bool CVar::fromValue(uint32_t val) {
+  return fromInteger(val);
+}
+template <>
+inline bool CVar::fromValue(std::string_view val) {
+  return fromLiteral(val);
+}
+template <>
+inline bool CVar::fromValue(std::wstring_view val) {
+  return fromLiteral(val);
+}
 
 class CVarUnlocker {
   CVar* m_cvar;
