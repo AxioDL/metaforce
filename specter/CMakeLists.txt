@@ -94,6 +94,7 @@ target_link_libraries(specter PUBLIC
   hecl-full
   specter-fonts
   zeus
+  UrdeLocales
 )
 
 target_include_directories(specter PUBLIC include freetype2/include)
