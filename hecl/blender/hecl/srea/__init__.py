@@ -357,7 +357,7 @@ def render_lightmaps(context):
                 obj.data.uv_layers.active_index = 0
 
         # Make lightmaps
-        bpy.ops.object.bake('INVOKE_DEFAULT', type='DIFFUSE', pass_filter={'DIRECT', 'INDIRECT'})
+        bpy.ops.object.bake('INVOKE_DEFAULT', type='DIFFUSE', pass_filter={'AO', 'DIRECT', 'INDIRECT'})
 
 # Lightmap render operator
 class SREARenderLightmaps(bpy.types.Operator):
