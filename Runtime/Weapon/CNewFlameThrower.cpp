@@ -368,6 +368,15 @@ void CNewFlameThrower::UpdateFx(const zeus::CTransform& xf, float dt, CStateMana
         float tmp = std::clamp(unk.magnitude() * 30.f, 1.f, x37c_26_runningSlowish ? 2.f : 4.f);
 
         x3b4_numSmokeParticlesSpawned = std::max(static_cast<int>(round(tmp)), x3b4_numSmokeParticlesSpawned - 1);
+        // INSERT
+        if ((x35c_mainSmokeGen->GetParticles().size() + x3b4_numSmokeParticlesSpawned) >
+            x35c_mainSmokeGen->GetMaxMaxParticles()) {
+          x3b4_numSmokeParticlesSpawned = x3b4_numSmokeParticlesSpawned -
+                                          ((x35c_mainSmokeGen->GetParticles().size() + x3b4_numSmokeParticlesSpawned) -
+                                           x35c_mainSmokeGen->GetMaxMaxParticles());
+        }
+        // END INSERT
+        // This limit shouldn't be needed, m_maxMAXP should be removed?
 
         x35c_mainSmokeGen->SetTranslation(swoosh_1.xc_translation);
         x35c_mainSmokeGen->SetOrientation(swoosh_1.x38_orientation);

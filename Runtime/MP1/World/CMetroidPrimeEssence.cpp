@@ -203,7 +203,8 @@ void CMetroidPrimeEssence::DoUserAnimEvent(CStateManager& mgr, const CInt32POINo
   }
   case EUserEventType::BeginAction: {
     SShockWaveData data(x660_, x698_, 2.f, x664_, x70c_);
-    data.SetSpeedIncrease(180.f);
+    // TODO: Need to fix CElementGen accessing null ParticleAccessParameters
+    // data.SetSpeedIncrease(180.f);
     DropShockwave(mgr, data);
     ShakeCamera(mgr, 1.f);
     return;
