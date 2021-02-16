@@ -78,7 +78,7 @@ void CResFactory::AsyncIdle() {
     return;
   auto startTime = std::chrono::steady_clock::now();
   while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count() <
-         2) {
+         5) {
     auto& task = m_loadList.front();
     if (PumpResource(task)) {
       m_loadMap.erase(task.x0_tag);
