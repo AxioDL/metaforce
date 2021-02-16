@@ -20,7 +20,7 @@ static logvisor::Module Log{"URDE"};
 
 static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf) {
   hecl::SystemString features;
-#if __x86_64__
+#if defined(__x86_64__) || defined(_M_X64)
   auto AddFeature = [&features](const hecl::SystemChar* str) {
     if (!features.empty())
       features += _SYS_STR(", ");
