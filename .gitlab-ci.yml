@@ -2,60 +2,60 @@
   variables: &build_variables
     GIT_SUBMODULE_STRATEGY: recursive
 
-.build:macos: &macos_definition
-  stage: build
-  tags:
-    - macos
-  script:
-    - mkdir build
-    - cd build
-    - >
-      cmake
-      -GNinja
-      -DCMAKE_BUILD_TYPE=RelWithDebInfo
-      -DURDE_DLPACKAGE=urde-$CI_PIPELINE_ID-macos-x86_64-$URDE_VECTOR_ISA
-      -DURDE_VECTOR_ISA=$URDE_VECTOR_ISA
-      ..
-    - ninja urde hecl visigen
-    - cd Binaries
-    - cp -R urde.app $CI_PROJECT_DIR/URDE.app
-    - cd $CI_PROJECT_DIR
-    - strip -S -o URDE.app/Contents/MacOS/urde URDE.app/Contents/MacOS/urde
-    - strip -S -o URDE.app/Contents/MacOS/hecl URDE.app/Contents/MacOS/hecl
-    - strip -S -o URDE.app/Contents/MacOS/visigen URDE.app/Contents/MacOS/visigen
-    - (if [ "${URDE_MACOS_CODESIGN_UID}" != "" ]; then codesign -s $URDE_MACOS_CODESIGN_UID --deep URDE.app; else echo "Unable to sign app bundle :("; fi);
-  only:
-    - release
-    - dev
-  artifacts:
-    name: "urde-$CI_PIPELINE_ID-macos-x86_64-$URDE_VECTOR_ISA"
-    paths:
-      - URDE.app/
-    expire_in: 1 week
+#.build:macos: &macos_definition
+#  stage: build
+#  tags:
+#    - macos
+#  script:
+#    - mkdir build
+#    - cd build
+#    - >
+#      cmake
+#      -GNinja
+#      -DCMAKE_BUILD_TYPE=RelWithDebInfo
+#      -DURDE_DLPACKAGE=urde-$CI_PIPELINE_ID-macos-x86_64-$URDE_VECTOR_ISA
+#      -DURDE_VECTOR_ISA=$URDE_VECTOR_ISA
+#      ..
+#    - ninja urde hecl visigen
+#    - cd Binaries
+#    - cp -R urde.app $CI_PROJECT_DIR/URDE.app
+#    - cd $CI_PROJECT_DIR
+#    - strip -S -o URDE.app/Contents/MacOS/urde URDE.app/Contents/MacOS/urde
+#    - strip -S -o URDE.app/Contents/MacOS/hecl URDE.app/Contents/MacOS/hecl
+#    - strip -S -o URDE.app/Contents/MacOS/visigen URDE.app/Contents/MacOS/visigen
+#    - (if [ "${URDE_MACOS_CODESIGN_UID}" != "" ]; then codesign -s $URDE_MACOS_CODESIGN_UID --deep URDE.app; else echo "Unable to sign app bundle :("; fi);
+#  only:
+#   - release
+#    - dev
+#  artifacts:
+#    name: "urde-$CI_PIPELINE_ID-macos-x86_64-$URDE_VECTOR_ISA"
+#    paths:
+#      - URDE.app/
+#    expire_in: 1 week
 
-build:macos:sse3:
-  <<: *macos_definition
-  variables:
-    <<: *build_variables
-    URDE_VECTOR_ISA: sse3
+#build:macos:sse3:
+#  <<: *macos_definition
+#  variables:
+#    <<: *build_variables
+#    URDE_VECTOR_ISA: sse3
 
-build:macos:sse41:
-  <<: *macos_definition
-  variables:
-    <<: *build_variables
-    URDE_VECTOR_ISA: sse41
+#build:macos:sse41:
+#  <<: *macos_definition
+#  variables:
+#    <<: *build_variables
+#    URDE_VECTOR_ISA: sse41
 
-build:macos:avx:
-  <<: *macos_definition
-  variables:
-    <<: *build_variables
-    URDE_VECTOR_ISA: avx
+#build:macos:avx:
+#  <<: *macos_definition
+#  variables:
+#    <<: *build_variables
+#    URDE_VECTOR_ISA: avx
 
-build:macos:avx2:
-  <<: *macos_definition
-  variables:
-    <<: *build_variables
-    URDE_VECTOR_ISA: avx2
+#build:macos:avx2:
+#  <<: *macos_definition
+#  variables:
+#    <<: *build_variables
+#    URDE_VECTOR_ISA: avx2
 
 .build:linux: &linux_definition
   stage: build
