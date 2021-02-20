@@ -10,13 +10,16 @@ file(GLOB QUAZIP_SRCS quazip/quazip/*.c quazip/quazip/*.cpp quazip/quazip/*.h)
 list(REMOVE_ITEM QUAZIP_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quaadler32.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quaadler32.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quacrc32.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quacrc32.h
 )
 if (NOT MSVC)
   set_source_files_properties(${QUAZIP_SRCS} PROPERTIES COMPILE_OPTIONS -Wno-deprecated-declarations)
-  set(QUAZIP_LIBS ${ZLIB_LIBRARIES})
-else()
-  set(QUAZIP_LIBS "")
 endif()
+
+set(QUAZIP_LIBS ${ZLIB_LIBRARIES})
 
 add_executable(hecl-gui WIN32 MACOSX_BUNDLE
   ArgumentEditor.cpp
@@ -111,10 +114,8 @@ if(WIN32)
     platforms/win/hecl-gui.manifest
     platforms/win/hecl-gui.rc
   )
-  # Check for static linking
-  if(NOT "$<TARGET_PROPERTY:hecl-gui,MSVC_RUNTIME_LIBRARY>" MATCHES "DLL$")
-    target_link_libraries(hecl-gui PRIVATE Qt5::QWindowsIntegrationPlugin)
-  endif()
+  target_link_libraries(hecl-gui PRIVATE
+          Version)
 elseif(APPLE)
   target_sources(hecl-gui PRIVATE platforms/mac/mainicon.icns)
   set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES

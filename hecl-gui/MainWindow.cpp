@@ -17,6 +17,7 @@
 #include <TlHelp32.h>
 
 static void KillProcessTree(QProcess& proc) {
+#if 0
   Q_PID pid = proc.pid();
   if (!pid)
     return;
@@ -45,7 +46,7 @@ static void KillProcessTree(QProcess& proc) {
       bContinue = ::Process32Next(hSnap, &pe);
     }
   }
-
+#endif
   proc.close();
   proc.terminate();
 }
