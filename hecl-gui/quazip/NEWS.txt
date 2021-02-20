@@ -1,5 +1,9 @@
 QuaZip changes
 
+* Current
+        * Add CMake option to disable installation (Sebastian Rettenberger)
+        * Use Qt's internal zlib instead of an external one if available
+
 * 2020-10-11 1.1
         * Fixed Unix symlink handling in JlCompress compression
         * Implemented Unix symlink handling in JlCompress extraction
