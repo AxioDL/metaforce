@@ -64,7 +64,7 @@ QuaZip changes
 
 * 2014-02-09 0.6.2
         * QuaZipNewInfo / QuaZipFileInfo64 now provide API to access/set
-          NTFS time stamps - useful even on non-NTFS systems if you 
+          NTFS time stamps - useful even on non-NTFS systems if you
           need more precise dates and times than default ones.
         * QuaZipNewInfo may now be initialized from QuaZipFileInfo64.
         * No more crashes when using QSaveFile as QIODevice for ZIP.

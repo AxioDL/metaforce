@@ -64,6 +64,7 @@ void ParseEscapeSequence(int attribute, QListIterator<QString>& i, QTextCharForm
   case 17:
   case 18:
   case 19: {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QString fontFamily = textCharFormat.fontFamily();
     QStringList fontStyles = QFontDatabase::styles(fontFamily);
     int fontStyleIndex = attribute - 11;
@@ -71,6 +72,16 @@ void ParseEscapeSequence(int attribute, QListIterator<QString>& i, QTextCharForm
       textCharFormat.setFont(
           QFontDatabase::font(fontFamily, fontStyles.at(fontStyleIndex), textCharFormat.font().pointSize()));
     }
+#else
+    QFontDatabase fontDatabase;
+    QString fontFamily = textCharFormat.fontFamily();
+    QStringList fontStyles = fontDatabase.styles(fontFamily);
+    int fontStyleIndex = attribute - 11;
+    if (fontStyleIndex < fontStyles.length()) {
+      textCharFormat.setFont(
+          fontDatabase.font(fontFamily, fontStyles.at(fontStyleIndex), textCharFormat.font().pointSize()));
+    }
+#endif
     break;
   }
   case 20: { // Fraktur (unsupported)

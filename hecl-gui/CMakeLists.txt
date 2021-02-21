@@ -4,22 +4,25 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 COMPONENTS Core5Compat Network Widgets Xml Gui REQUIRED PATHS /usr/local/opt/qt)
-
-file(GLOB QUAZIP_SRCS quazip/quazip/*.c quazip/quazip/*.cpp quazip/quazip/*.h)
-list(REMOVE_ITEM QUAZIP_SRCS
-  ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quaadler32.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quaadler32.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quacrc32.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quacrc32.h
-)
-if (NOT MSVC)
-  set_source_files_properties(${QUAZIP_SRCS} PROPERTIES COMPILE_OPTIONS -Wno-deprecated-declarations)
+if(APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
+  set(QT_HOMEBREW_PATH /usr/local/opt/qt)
+elseif(APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL arm64)
+  set(QT_HOMEBREW_PATH /opt/homebrew/opt/qt)
+else()
+  set(QT_HOMEBREW_PATH "")
 endif()
 
-set(QUAZIP_LIBS ${ZLIB_LIBRARIES})
+find_package(Qt6Widgets QUIET PATHS ${QT_HOMEBREW_PATH})
+if(Qt6Widgets_FOUND)
+  find_package(Qt6 COMPONENTS Core5Compat Network Widgets Xml Gui REQUIRED PATHS ${QT_HOMEBREW_PATH})
+else()
+  find_package(Qt5Widgets REQUIRED PATHS ${QT_HOMEBREW_PATH})
+  find_package(Qt5 COMPONENTS Network Widgets Xml Gui REQUIRED PATHS ${QT_HOMEBREW_PATH})
+endif()
+
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
+set(QUAZIP_INSTALL OFF CACHE BOOL "")
+add_subdirectory(quazip)
 
 add_executable(hecl-gui WIN32 MACOSX_BUNDLE
   ArgumentEditor.cpp
@@ -76,17 +79,27 @@ target_compile_definitions(hecl-gui PRIVATE
   -DQT_USE_QSTRINGBUILDER
 )
 
-target_link_libraries(hecl-gui PRIVATE
+if(Qt6Widgets_FOUND)
+  set(Qt_LIBS
   Qt6::Core
   Qt6::Core5Compat
   Qt6::Gui
   Qt6::Network
   Qt6::Widgets
-  Qt6::Xml
-
+          Qt6::Xml)
+else()
+  set(Qt_LIBS
+          Qt5::Core
+          Qt5::Gui
+          Qt5::Network
+          Qt5::Widgets
+          Qt5::Xml)
+endif()
+target_link_libraries(hecl-gui PRIVATE
+  ${Qt_LIBS}
   hecl-light
   zeus
-  ${QUAZIP_LIBS}
+  QuaZip::QuaZip
 )
 
 target_include_directories(hecl-gui PRIVATE quazip/quazip)
