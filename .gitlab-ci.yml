@@ -10,6 +10,7 @@ build:macos:universal:
   variables:
     <<: *build_variables
   script:
+    - export PATH="/opt/homebrew/bin:$PATH"
     - mkdir build-{arm64,x86_64}
     - cd build-arm64
     - >
