@@ -200,7 +200,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const {
         return {};
 #endif
       case 5:
-        return tr("Blender 2.90");
+        return tr("Blender 2.90+");
       }
     } else if (index.column() == 1) {
       /* Your System */
