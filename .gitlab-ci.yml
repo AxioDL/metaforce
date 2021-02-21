@@ -27,7 +27,7 @@ build:macos:universal:
       -DCMAKE_BUILD_TYPE=RelWithDebInfo
       -DCMAKE_APPLE_SILICON_PROCESSOR=x86_64
       -DURDE_DLPACKAGE=urde-$CI_PIPELINE_ID-macos-universal
-      -DURDE_VECTOR_ISA=avx2
+      -DURDE_VECTOR_ISA=sse41
       ..
     - ninja urde hecl visigen
     - cd Binaries
