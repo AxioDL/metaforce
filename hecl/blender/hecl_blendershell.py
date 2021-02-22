@@ -57,7 +57,7 @@ class PathHasher:
         read_str = readpipestr()
         return int(read_str[0:8], 16)
 
-# Ensure Blender 2.90 is being used
+# Ensure Blender 2.90+ is being used
 if bpy.app.version < (2, 90, 0):
     writepipestr(b'NOT290')
     _quitblender()

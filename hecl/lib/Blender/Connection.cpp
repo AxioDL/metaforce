@@ -48,6 +48,11 @@ using namespace std::literals;
 
 namespace hecl::blender {
 
+static const uint32_t MinBlenderMajorSearch = 2;
+static const uint32_t MaxBlenderMajorSearch = 2;
+static const uint32_t MinBlenderMinorSearch = 90;
+static const uint32_t MaxBlenderMinorSearch = 91;
+
 logvisor::Module BlenderLog("hecl::blender::Connection");
 Token SharedBlenderToken;
 
@@ -342,6 +347,7 @@ Connection::Connection(int verbosityLevel) {
 
       /* User-specified blender path */
 #if _WIN32
+    wchar_t BLENDER_BIN_BUF[2048];
     std::wstring blenderBinBuf;
     const wchar_t* blenderBin = _wgetenv(L"BLENDER_BIN");
 #else
@@ -364,12 +370,24 @@ Connection::Connection(int verbosityLevel) {
       if (!RegFileExists(blenderBin)) {
         /* No steam; try default */
         wchar_t progFiles[256];
-        if (!GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256))
-          BlenderLog.report(logvisor::Fatal, FMT_STRING(L"unable to determine 'Program Files' path"));
-        blenderBinBuf = fmt::format(FMT_STRING(L"{}\\Blender Foundation\\Blender 2.90\\blender.exe"), progFiles);
-        blenderBin = blenderBinBuf.c_str();
-        if (!RegFileExists(blenderBin))
-          BlenderLog.report(logvisor::Fatal, FMT_STRING(L"unable to find {}"), blenderBin);
+        if (GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256)) {
+          for (size_t major = MinBlenderMajorSearch; major <= MaxBlenderMajorSearch; ++major) {
+            bool found = false;
+            for (size_t minor = MinBlenderMinorSearch; minor <= MaxBlenderMinorSearch; ++minor) {
+              _snwprintf(BLENDER_BIN_BUF, 2048, L"%s\\Blender Foundation\\Blender %i.%i\\blender.exe", progFiles, major,
+                         minor);
+              if (RegFileExists(BLENDER_BIN_BUF)) {
+                blenderBin = BLENDER_BIN_BUF;
+                found = true;
+                break;
+              }
+            }
+
+            if (found) {
+              break;
+            }
+          }
+        }
       }
     }
 
@@ -395,7 +413,8 @@ Connection::Connection(int verbosityLevel) {
       FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                      nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0,
                      nullptr);
-      BlenderLog.report(logvisor::Fatal, FMT_STRING(L"unable to launch blender from {}: {}"), blenderBin, messageBuffer);
+      BlenderLog.report(logvisor::Fatal, FMT_STRING(L"unable to launch blender from {}: {}"), blenderBin,
+                        messageBuffer);
     }
 
     close(m_writepipe[0]);
@@ -417,7 +436,8 @@ Connection::Connection(int verbosityLevel) {
           if (err == ERROR_BROKEN_PIPE)
             break; // pipe done - normal exit path.
           else
-            BlenderLog.report(logvisor::Error, FMT_STRING("Error with ReadFile: {:08X}"), err); // Something bad happened.
+            BlenderLog.report(logvisor::Error, FMT_STRING("Error with ReadFile: {:08X}"),
+                              err); // Something bad happened.
         }
 
         // Display the character read on the screen.
@@ -623,14 +643,14 @@ std::streamsize PyOutStream::StreamBuf::xsputn(const char_type* __first, std::st
   return __n;
 }
 
-constexpr std::array<std::string_view, 12> BlendTypeStrs{
-    "NONE"sv, "MESH"sv, "CMESH"sv, "ARMATURE"sv, "ACTOR"sv, "AREA"sv,
-    "WORLD"sv, "MAPAREA"sv, "MAPUNIVERSE"sv, "FRAME"sv, "PATH"sv
-};
+constexpr std::array<std::string_view, 12> BlendTypeStrs{"NONE"sv,        "MESH"sv,  "CMESH"sv, "ARMATURE"sv,
+                                                         "ACTOR"sv,       "AREA"sv,  "WORLD"sv, "MAPAREA"sv,
+                                                         "MAPUNIVERSE"sv, "FRAME"sv, "PATH"sv};
 
 bool Connection::createBlend(const ProjectPath& path, BlendType type) {
   if (m_lock) {
-    BlenderLog.report(logvisor::Fatal, FMT_STRING("BlenderConnection::createBlend() musn't be called with stream active"));
+    BlenderLog.report(logvisor::Fatal,
+                      FMT_STRING("BlenderConnection::createBlend() musn't be called with stream active"));
     return false;
   }
   _writeStr(fmt::format(FMT_STRING("CREATE \"{}\" {}"), path.getAbsolutePathUTF8(), BlendTypeStrs[int(type)]));
@@ -646,7 +666,8 @@ bool Connection::createBlend(const ProjectPath& path, BlendType type) {
 
 bool Connection::openBlend(const ProjectPath& path, bool force) {
   if (m_lock) {
-    BlenderLog.report(logvisor::Fatal, FMT_STRING("BlenderConnection::openBlend() musn't be called with stream active"));
+    BlenderLog.report(logvisor::Fatal,
+                      FMT_STRING("BlenderConnection::openBlend() musn't be called with stream active"));
     return false;
   }
   if (!force && path == m_loadedBlend)
@@ -678,7 +699,8 @@ bool Connection::openBlend(const ProjectPath& path, bool force) {
 
 bool Connection::saveBlend() {
   if (m_lock) {
-    BlenderLog.report(logvisor::Fatal, FMT_STRING("BlenderConnection::saveBlend() musn't be called with stream active"));
+    BlenderLog.report(logvisor::Fatal,
+                      FMT_STRING("BlenderConnection::saveBlend() musn't be called with stream active"));
     return false;
   }
   _writeStr("SAVE");
@@ -710,28 +732,30 @@ void PyOutStream::close() {
 }
 
 void PyOutStream::linkBlend(std::string_view target, std::string_view objName, bool link) {
-  format(FMT_STRING("if '{}' not in bpy.data.scenes:\n"
-             "    with bpy.data.libraries.load('''{}''', link={}, relative=True) as (data_from, data_to):\n"
-             "        data_to.scenes = data_from.scenes\n"
-             "    obj_scene = None\n"
-             "    for scene in data_to.scenes:\n"
-             "        if scene.name == '{}':\n"
-             "            obj_scene = scene\n"
-             "            break\n"
-             "    if not obj_scene:\n"
-             "        raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
-             "    obj = None\n"
-             "    for object in obj_scene.objects:\n"
-             "        if object.name == obj_scene.name:\n"
-             "            obj = object\n"
-             "else:\n"
-             "    obj = bpy.data.objects['{}']\n"
-             "\n"),
-         objName, target, link ? "True" : "False", objName, objName, target, objName);
+  format(
+      FMT_STRING("if '{}' not in bpy.data.scenes:\n"
+                 "    with bpy.data.libraries.load('''{}''', link={}, relative=True) as (data_from, data_to):\n"
+                 "        data_to.scenes = data_from.scenes\n"
+                 "    obj_scene = None\n"
+                 "    for scene in data_to.scenes:\n"
+                 "        if scene.name == '{}':\n"
+                 "            obj_scene = scene\n"
+                 "            break\n"
+                 "    if not obj_scene:\n"
+                 "        raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
+                 "    obj = None\n"
+                 "    for object in obj_scene.objects:\n"
+                 "        if object.name == obj_scene.name:\n"
+                 "            obj = object\n"
+                 "else:\n"
+                 "    obj = bpy.data.objects['{}']\n"
+                 "\n"),
+      objName, target, link ? "True" : "False", objName, objName, target, objName);
 }
 
 void PyOutStream::linkArmature(std::string_view target, std::string_view armName) {
-  format(FMT_STRING("target_arm_name = '{}'\n"
+  format(FMT_STRING(
+             "target_arm_name = '{}'\n"
              "if target_arm_name not in bpy.data.armatures:\n"
              "    with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
              "        if target_arm_name not in data_from.armatures:\n"
@@ -745,7 +769,8 @@ void PyOutStream::linkArmature(std::string_view target, std::string_view armName
 }
 
 void PyOutStream::linkMesh(std::string_view target, std::string_view meshName) {
-  format(FMT_STRING("target_mesh_name = '{}'\n"
+  format(FMT_STRING(
+             "target_mesh_name = '{}'\n"
              "if target_mesh_name not in bpy.data.objects:\n"
              "    with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
              "        if target_mesh_name not in data_from.objects:\n"
@@ -759,18 +784,19 @@ void PyOutStream::linkMesh(std::string_view target, std::string_view meshName) {
 void PyOutStream::linkBackground(std::string_view target, std::string_view sceneName) {
   if (sceneName.empty()) {
     format(FMT_STRING("with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
-               "    data_to.scenes = data_from.scenes\n"
-               "obj_scene = None\n"
-               "for scene in data_to.scenes:\n"
-               "    obj_scene = scene\n"
-               "    break\n"
-               "if not obj_scene:\n"
-               "    raise RuntimeError('''unable to find {}. try deleting it and restart the extract.''')\n"
-               "\n"
-               "bpy.context.scene.background_set = obj_scene\n"),
+                      "    data_to.scenes = data_from.scenes\n"
+                      "obj_scene = None\n"
+                      "for scene in data_to.scenes:\n"
+                      "    obj_scene = scene\n"
+                      "    break\n"
+                      "if not obj_scene:\n"
+                      "    raise RuntimeError('''unable to find {}. try deleting it and restart the extract.''')\n"
+                      "\n"
+                      "bpy.context.scene.background_set = obj_scene\n"),
            target, target);
   } else {
-    format(FMT_STRING("if '{}' not in bpy.data.scenes:\n"
+    format(FMT_STRING(
+               "if '{}' not in bpy.data.scenes:\n"
                "    with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
                "        data_to.scenes = data_from.scenes\n"
                "    obj_scene = None\n"
@@ -790,27 +816,27 @@ void PyOutStream::AABBToBMesh(const atVec3f& min, const atVec3f& max) {
   athena::simd_floats minf(min.simd);
   athena::simd_floats maxf(max.simd);
   format(FMT_STRING("bm = bmesh.new()\n"
-             "bm.verts.new(({},{},{}))\n"
-             "bm.verts.new(({},{},{}))\n"
-             "bm.verts.new(({},{},{}))\n"
-             "bm.verts.new(({},{},{}))\n"
-             "bm.verts.new(({},{},{}))\n"
-             "bm.verts.new(({},{},{}))\n"
-             "bm.verts.new(({},{},{}))\n"
-             "bm.verts.new(({},{},{}))\n"
-             "bm.verts.ensure_lookup_table()\n"
-             "bm.edges.new((bm.verts[0], bm.verts[1]))\n"
-             "bm.edges.new((bm.verts[0], bm.verts[2]))\n"
-             "bm.edges.new((bm.verts[0], bm.verts[4]))\n"
-             "bm.edges.new((bm.verts[3], bm.verts[1]))\n"
-             "bm.edges.new((bm.verts[3], bm.verts[2]))\n"
-             "bm.edges.new((bm.verts[3], bm.verts[7]))\n"
-             "bm.edges.new((bm.verts[5], bm.verts[1]))\n"
-             "bm.edges.new((bm.verts[5], bm.verts[4]))\n"
-             "bm.edges.new((bm.verts[5], bm.verts[7]))\n"
-             "bm.edges.new((bm.verts[6], bm.verts[2]))\n"
-             "bm.edges.new((bm.verts[6], bm.verts[4]))\n"
-             "bm.edges.new((bm.verts[6], bm.verts[7]))\n"),
+                    "bm.verts.new(({},{},{}))\n"
+                    "bm.verts.new(({},{},{}))\n"
+                    "bm.verts.new(({},{},{}))\n"
+                    "bm.verts.new(({},{},{}))\n"
+                    "bm.verts.new(({},{},{}))\n"
+                    "bm.verts.new(({},{},{}))\n"
+                    "bm.verts.new(({},{},{}))\n"
+                    "bm.verts.new(({},{},{}))\n"
+                    "bm.verts.ensure_lookup_table()\n"
+                    "bm.edges.new((bm.verts[0], bm.verts[1]))\n"
+                    "bm.edges.new((bm.verts[0], bm.verts[2]))\n"
+                    "bm.edges.new((bm.verts[0], bm.verts[4]))\n"
+                    "bm.edges.new((bm.verts[3], bm.verts[1]))\n"
+                    "bm.edges.new((bm.verts[3], bm.verts[2]))\n"
+                    "bm.edges.new((bm.verts[3], bm.verts[7]))\n"
+                    "bm.edges.new((bm.verts[5], bm.verts[1]))\n"
+                    "bm.edges.new((bm.verts[5], bm.verts[4]))\n"
+                    "bm.edges.new((bm.verts[5], bm.verts[7]))\n"
+                    "bm.edges.new((bm.verts[6], bm.verts[2]))\n"
+                    "bm.edges.new((bm.verts[6], bm.verts[4]))\n"
+                    "bm.edges.new((bm.verts[6], bm.verts[7]))\n"),
          minf[0], minf[1], minf[2], maxf[0], minf[1], minf[2], minf[0], maxf[1], minf[2], maxf[0], maxf[1], minf[2],
          minf[0], minf[1], maxf[2], maxf[0], minf[1], maxf[2], minf[0], maxf[1], maxf[2], maxf[0], maxf[1], maxf[2]);
 }
@@ -900,9 +926,7 @@ void Mesh::normalizeSkinBinds() {
 
 Mesh::Mesh(Connection& conn, HMDLTopology topologyIn, int skinSlotCount, bool useLuvs)
 : topology(topologyIn), sceneXf(conn), aabbMin(conn), aabbMax(conn) {
-  conn._readVectorFunc(materialSets, [&]() {
-    conn._readVector(materialSets.emplace_back());
-  });
+  conn._readVectorFunc(materialSets, [&]() { conn._readVector(materialSets.emplace_back()); });
 
   MeshOptimizer opt(conn, materialSets[0], useLuvs);
   opt.optimize(*this, skinSlotCount);
@@ -1137,9 +1161,7 @@ World::Area::Area(Connection& conn) {
   conn._readVector(docks);
 }
 
-World::World(Connection& conn) {
-  conn._readVector(areas);
-}
+World::World(Connection& conn) { conn._readVector(areas); }
 
 Light::Light(Connection& conn) : sceneXf(conn), color(conn) {
   conn._readBuf(&layer, 29);
@@ -1197,9 +1219,7 @@ Actor::Actor(Connection& conn) {
   conn._readVector(actions);
 }
 
-PathMesh::PathMesh(Connection& conn) {
-  conn._readVector(data);
-}
+PathMesh::PathMesh(Connection& conn) { conn._readVector(data); }
 
 const Bone* Armature::lookupBone(const char* name) const {
   for (const Bone& b : bones)
@@ -1230,9 +1250,7 @@ const Bone* Armature::getRoot() const {
   return nullptr;
 }
 
-Armature::Armature(Connection& conn) {
-  conn._readVector(bones);
-}
+Armature::Armature(Connection& conn) { conn._readVector(bones); }
 
 Bone::Bone(Connection& conn) {
   name = conn._readStdString();
@@ -1452,9 +1470,7 @@ std::vector<ProjectPath> DataStream::getTextures() {
   m_parent->_checkOk("unable to get textures"sv);
 
   std::vector<ProjectPath> texs;
-  m_parent->_readVectorFunc(texs, [&]() {
-    texs.push_back(m_parent->_readPath());
-  });
+  m_parent->_readVectorFunc(texs, [&]() { texs.push_back(m_parent->_readPath()); });
 
   return texs;
 }
