@@ -26,7 +26,7 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
 set(QUAZIP_INSTALL OFF CACHE BOOL "")
 add_subdirectory(quazip)
 
-add_executable(hecl-gui MACOSX_BUNDLE
+add_executable(hecl-gui WIN32 MACOSX_BUNDLE
   ArgumentEditor.cpp
   ArgumentEditor.hpp
   ArgumentEditor.ui
