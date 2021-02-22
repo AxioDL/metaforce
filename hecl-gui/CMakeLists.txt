@@ -15,9 +15,11 @@ endif()
 find_package(Qt6Widgets QUIET PATHS ${QT_HOMEBREW_PATH})
 if(Qt6Widgets_FOUND)
   find_package(Qt6 COMPONENTS Core5Compat Network Widgets Xml Gui REQUIRED PATHS ${QT_HOMEBREW_PATH})
+  set(QUAZIP_QT_MAJOR_VERSION 6 CACHE STRING "")
 else()
   find_package(Qt5Widgets REQUIRED PATHS ${QT_HOMEBREW_PATH})
   find_package(Qt5 COMPONENTS Network Widgets Xml Gui REQUIRED PATHS ${QT_HOMEBREW_PATH})
+  set(QUAZIP_QT_MAJOR_VERSION 5 CACHE STRING "")
 endif()
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
@@ -81,11 +83,11 @@ target_compile_definitions(hecl-gui PRIVATE
 
 if(Qt6Widgets_FOUND)
   set(Qt_LIBS
-  Qt6::Core
-  Qt6::Core5Compat
-  Qt6::Gui
-  Qt6::Network
-  Qt6::Widgets
+          Qt6::Core
+          Qt6::Core5Compat
+          Qt6::Gui
+          Qt6::Network
+          Qt6::Widgets
           Qt6::Xml)
 else()
   set(Qt_LIBS
@@ -93,7 +95,8 @@ else()
           Qt5::Gui
           Qt5::Network
           Qt5::Widgets
-          Qt5::Xml)
+          Qt5::Xml
+          Qt5::WindowsIntegrationPlugin)
 endif()
 target_link_libraries(hecl-gui PRIVATE
   ${Qt_LIBS}

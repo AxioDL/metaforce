@@ -1,7 +1,10 @@
+#include <QtGlobal>
 #if defined(_WIN32) && !defined(_DLL)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 // Static linking on Windows
 #include <QtPlugin>
 Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
+#endif
 #endif
 
 #include <QApplication>
