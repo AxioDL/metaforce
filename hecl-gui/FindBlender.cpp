@@ -12,6 +12,10 @@ namespace hecl::blender {
 #define DEFAULT_BLENDER_BIN "blender"
 #endif
 
+static const uint32_t MinBlenderMajorSearch = 2;
+static const uint32_t MaxBlenderMajorSearch = 2;
+static const uint32_t MinBlenderMinorSearch = 90;
+static const uint32_t MaxBlenderMinorSearch = 91;
 static const std::regex regBlenderVersion(R"(Blender (\d+)\.(\d+)(?:\.(\d+))?)",
                                           std::regex::ECMAScript | std::regex::optimize);
 
@@ -51,14 +55,25 @@ hecl::SystemString FindBlender(int& major, int& minor) {
       /* No steam; try default */
       wchar_t progFiles[256];
       if (GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256)) {
-        _snwprintf(BLENDER_BIN_BUF, 2048, L"%s\\Blender Foundation\\Blender 2.90\\blender.exe", progFiles);
-        blenderBin = BLENDER_BIN_BUF;
-        if (!RegFileExists(blenderBin))
-          blenderBin = nullptr;
-      } else
-        blenderBin = nullptr;
+        for (size_t major = MinBlenderMajorSearch; major <= MaxBlenderMajorSearch; ++major) {
+          bool found = false;
+          for (size_t minor = MinBlenderMinorSearch; minor <= MaxBlenderMinorSearch; ++minor) {
+            _snwprintf(BLENDER_BIN_BUF, 2048, L"%s\\Blender Foundation\\Blender %i.%i\\blender.exe", progFiles, major,
+                       minor);
+            if (RegFileExists(BLENDER_BIN_BUF)) {
+              blenderBin = BLENDER_BIN_BUF;
+              found = true;
+              break;
+            }
+          }
+          if (found) {
+            break;
+          }
+        }
+      }
     }
   }
+
 #else
   if (!RegFileExists(blenderBin)) {
     /* Try steam */

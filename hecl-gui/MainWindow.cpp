@@ -306,7 +306,7 @@ void MainWindow::onBinaryDownloaded(QuaZip& file) {
     m_ui->downloadErrorLabel->setText(tr("Download successful - Press 'Extract' to continue."), true);
   }
   if (!err && !m_ui->sysReqTable->isBlenderVersionOk()) {
-    m_ui->downloadErrorLabel->setText(tr("Blender 2.83 must be installed. Please download via Steam or blender.org."));
+    m_ui->downloadErrorLabel->setText(tr("Blender 2.90 or greater must be installed. Please download via Steam or blender.org."));
   }
 }
 
