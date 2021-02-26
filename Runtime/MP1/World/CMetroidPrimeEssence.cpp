@@ -395,7 +395,7 @@ bool CMetroidPrimeEssence::ShouldCrouch(CStateManager& mgr, float dt) {
     return false;
   }
 
-  x6f4_ = std::min(static_cast<u32>(3.f * (1.f - x6c4_ * GetHealthInfo(mgr)->GetHP())), x6ec_);
+  x6f4_ = std::min(x6e8_ + static_cast<u32>(3.f * (1.f - x6c4_ * GetHealthInfo(mgr)->GetHP())), x6ec_);
   x6f0_ = 0;
   return true;
 }

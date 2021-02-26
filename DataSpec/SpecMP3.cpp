@@ -388,7 +388,7 @@ struct SpecMP3 : SpecBase {
       hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _SYS_STR("out"));
       outPath.makeDir();
       disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
-      m_outPath = {outPath, m_standalone ? _SYS_STR("files") : _SYS_STR("files/MP3")};
+      m_outPath = {outPath, _SYS_STR("files/MP3")};
       m_outPath.makeDirChain(true);
 
       currentTarget = _SYS_STR("MP3 Root");

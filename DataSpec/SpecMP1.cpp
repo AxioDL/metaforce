@@ -318,7 +318,7 @@ struct SpecMP1 : SpecBase {
     hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _SYS_STR("out"));
     outPath.makeDir();
     disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
-    hecl::ProjectPath mp1OutPath(outPath, m_standalone ? _SYS_STR("files") : _SYS_STR("files/MP1"));
+    hecl::ProjectPath mp1OutPath(outPath, _SYS_STR("files/MP1"));
     mp1OutPath.makeDirChain(true);
 
     /* Extract non-pak files */
@@ -382,12 +382,7 @@ struct SpecMP1 : SpecBase {
     TextureCache::Generate(m_pakRouter, m_project, noAramPath);
 
     /* Write version data */
-    hecl::ProjectPath versionPath;
-    if (m_standalone) {
-      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files"));
-    } else {
-      versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files/MP1"));
-    }
+    hecl::ProjectPath versionPath = hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files/MP1"));
     WriteVersionInfo(m_project, versionPath);
     return true;
   }
