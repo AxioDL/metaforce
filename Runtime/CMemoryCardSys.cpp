@@ -6,15 +6,19 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
+#include <hecl/CVar.hpp>
+#include <hecl/CVarManager.hpp>
 
 namespace urde {
-
+namespace {
 using ECardResult = kabufuda::ECardResult;
 
 static kabufuda::SystemString g_CardImagePaths[2] = {};
 static kabufuda::Card g_CardStates[2] = {kabufuda::Card{"GM8E", "01"}, kabufuda::Card{"GM8E", "01"}};
 // static kabufuda::ECardResult g_OpResults[2] = {};
-
+hecl::CVar* mc_dolphinAPath = nullptr;
+hecl::CVar* mc_dolphinBPath = nullptr;
+} // namespace
 CSaveWorldIntermediate::CSaveWorldIntermediate(CAssetId mlvl, CAssetId savw) : x0_mlvlId(mlvl), x8_savwId(savw) {
   if (!savw.IsValid())
     x2c_dummyWorld = std::make_unique<CDummyWorld>(mlvl, false);
@@ -67,6 +71,12 @@ const CSaveWorldMemory& CMemoryCardSys::GetSaveWorldMemory(CAssetId wldId) const
 }
 
 CMemoryCardSys::CMemoryCardSys() {
+  mc_dolphinAPath = hecl::CVarManager::instance()->findOrMakeCVar(
+      "memcard.PathA"sv, "Path to the memory card image for SlotA"sv, ""sv,
+      (hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::System | hecl::CVar::EFlags::ModifyRestart));
+  mc_dolphinBPath = hecl::CVarManager::instance()->findOrMakeCVar(
+      "memcard.PathB"sv, "Path to the memory card image for SlotB"sv, ""sv,
+      (hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::System | hecl::CVar::EFlags::ModifyRestart));
   x0_hints = g_SimplePool->GetObj("HINT_Hints");
   xc_memoryWorlds.reserve(16);
   x1c_worldInter.emplace();
@@ -139,9 +149,8 @@ bool CMemoryCardSys::InitializePump() {
   }
 
   if (done) {
-    std::sort(x20_scanStates.begin(), x20_scanStates.end(), [&](const auto& a, const auto& b) {
-      return a.first < b.first;
-    });
+    std::sort(x20_scanStates.begin(), x20_scanStates.end(),
+              [&](const auto& a, const auto& b) { return a.first < b.first; });
     x1c_worldInter = std::nullopt;
   }
 
@@ -149,15 +158,15 @@ bool CMemoryCardSys::InitializePump() {
 }
 
 std::pair<CAssetId, TAreaId> CMemoryCardSys::GetAreaAndWorldIdForSaveId(s32 saveId) const {
-    for (const auto& [mlvl, saveWorld] : xc_memoryWorlds) {
-        for (TAreaId areaId = 0; areaId < saveWorld.xc_areaIds.size(); ++areaId) {
-            if (saveWorld.xc_areaIds[areaId] == saveId) {
-                return {mlvl, areaId};
-            }
-        }
+  for (const auto& [mlvl, saveWorld] : xc_memoryWorlds) {
+    for (TAreaId areaId = 0; areaId < saveWorld.xc_areaIds.size(); ++areaId) {
+      if (saveWorld.xc_areaIds[areaId] == saveId) {
+        return {mlvl, areaId};
+      }
     }
+  }
 
-    return {{}, kInvalidAreaId};
+  return {{}, kInvalidAreaId};
 }
 
 void CMemoryCardSys::CCardFileInfo::LockBannerToken(CAssetId bannerTxtr, CSimplePool& sp) {
@@ -327,9 +336,25 @@ ECardResult CMemoryCardSys::CCardFileInfo::WriteFile() {
 
 ECardResult CMemoryCardSys::CCardFileInfo::CloseFile() { return CMemoryCardSys::CloseFile(m_handle); }
 
+void CMemoryCardSys::_ResolveDolphinCardPath(const hecl::CVar* cv, kabufuda::ECardSlot slot) {
+#if CARD_UCS2
+  if (cv != nullptr && cv->toWideLiteral().empty()) {
+    g_CardImagePaths[int(slot)] = ResolveDolphinCardPath(slot);
+  } else if (cv != nullptr) {
+    g_CardImagePaths[int(slot)] = cv->toWideLiteral();
+  }
+#else
+  if (cv != nullptr && cv->toLiteral().empty()) {
+    g_CardImagePaths[int(slot)] = ResolveDolphinCardPath(slot);
+  } else if (cv != nullptr) {
+    g_CardImagePaths[int(slot)] = cv->toLiteral();
+  }
+#endif
+}
+
 kabufuda::ProbeResults CMemoryCardSys::CardProbe(kabufuda::ECardSlot port) {
-  g_CardImagePaths[0] = ResolveDolphinCardPath(kabufuda::ECardSlot::SlotA);
-  g_CardImagePaths[1] = ResolveDolphinCardPath(kabufuda::ECardSlot::SlotB);
+  _ResolveDolphinCardPath(mc_dolphinAPath, kabufuda::ECardSlot::SlotA);
+  _ResolveDolphinCardPath(mc_dolphinBPath, kabufuda::ECardSlot::SlotB);
 
   kabufuda::ProbeResults res = kabufuda::Card::probeCardFile(g_CardImagePaths[int(port)]);
   // g_OpResults[int(port)] = res.x0_error;
