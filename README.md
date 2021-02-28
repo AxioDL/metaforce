@@ -14,7 +14,7 @@ Everything else is much too experimental to make portable/stable release builds 
 * Windows 10 (64-bit, D3D11 / Vulkan)
 * macOS 10.15+ (Metal)
 * Linux (Vulkan)
-    * Arch is known to function with [`glx` vendor setup instructions](https://wiki.archlinux.org/index.php/Category:Graphics) *(main development/testing OS)*
+    * Follow [this guide](https://github.com/lutris/docs/blob/master/InstallingDrivers.md) to set up Vulkan & appropriate drivers for your distro.
     
 ### Usage (GC versions)
 
