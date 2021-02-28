@@ -1,7 +1,7 @@
 #include "CVarDialog.hpp"
 #include "ui_CVarDialog.h"
+#include <memory>
 #include <utility>
-#include <array>
 
 enum class CVarType {
   String,
