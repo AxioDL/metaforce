@@ -1,10 +1,10 @@
-#ifndef CVARDIALOG_H
-#define CVARDIALOG_H
+#pragma once
 
-#include <QDialog>
-#include <QStringListModel>
 #include <QAbstractButton>
+#include <QDialog>
 #include <QItemSelection>
+#include <QStringListModel>
+#include <memory>
 
 namespace Ui {
 class CVarDialog;
@@ -28,5 +28,3 @@ private slots:
   void on_buttonBox_rejected();
   void handleSelectionChanged(const QItemSelection& selection);
 };
-
-#endif // CVARDIALOG_H
