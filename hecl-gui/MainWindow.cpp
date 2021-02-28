@@ -1,9 +1,12 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
+#include "LayerDialog.hpp"
+
 #include <QFontDatabase>
 #include <QMessageBox>
 #include <QComboBox>
 #include <QLabel>
+#include <QTreeView>
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QtCore5Compat>
 #endif
@@ -232,6 +235,7 @@ void MainWindow::onLaunch() {
   connect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &MainWindow::onLaunchFinished);
 
   const auto heclProcArguments = QStringList{m_path + QStringLiteral("/out")}
+                                 << m_warpSettings
                                  << QStringLiteral("-l")
                                  << m_settings.value(QStringLiteral("urde_arguments"))
                                         .toStringList()
@@ -306,7 +310,8 @@ void MainWindow::onBinaryDownloaded(QuaZip& file) {
     m_ui->downloadErrorLabel->setText(tr("Download successful - Press 'Extract' to continue."), true);
   }
   if (!err && !m_ui->sysReqTable->isBlenderVersionOk()) {
-    m_ui->downloadErrorLabel->setText(tr("Blender 2.90 or greater must be installed. Please download via Steam or blender.org."));
+    m_ui->downloadErrorLabel->setText(
+        tr("Blender 2.90 or greater must be installed. Please download via Steam or blender.org."));
   }
 }
 
@@ -349,7 +354,7 @@ void MainWindow::enableOperations() {
   m_ui->launchBtn->setText(tr("&Launch"));
 
   m_ui->extractBtn->setEnabled(true);
-  if (QFile::exists(m_path + QStringLiteral("/out/files/version.yaml"))) {
+  if (QFile::exists(m_path + QStringLiteral("/out/files/MP1/version.yaml"))) {
     m_ui->packageBtn->setEnabled(true);
     if (isPackageComplete()) {
       m_ui->launchBtn->setEnabled(true);
@@ -371,25 +376,25 @@ void MainWindow::enableOperations() {
 }
 
 bool MainWindow::isPackageComplete() const {
-  return QFile::exists(m_path + QStringLiteral("/out/files/AudioGrp.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/GGuiSys.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/Metroid1.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/Metroid2.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/Metroid3.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/Metroid4.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/metroid5.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/Metroid6.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/Metroid7.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/Metroid8.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/MidiData.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/MiscData.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/NoARAM.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/SamGunFx.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/SamusGun.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/SlideShow.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/TestAnim.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/Tweaks.upak")) &&
-         QFile::exists(m_path + QStringLiteral("/out/files/URDE.upak"));
+  return QFile::exists(m_path + QStringLiteral("/out/files/MP1/AudioGrp.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/GGuiSys.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/Metroid1.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/Metroid2.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/Metroid3.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/Metroid4.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/metroid5.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/Metroid6.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/Metroid7.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/Metroid8.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/MidiData.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/MiscData.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/NoARAM.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/SamGunFx.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/SamusGun.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/SlideShow.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/TestAnim.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/Tweaks.upak")) &&
+         QFile::exists(m_path + QStringLiteral("/out/files/MP1/URDE.upak"));
 }
 
 static bool GetDLPackage(const QString& path, QString& dlPackage) {
@@ -530,9 +535,7 @@ void MainWindow::initSlots() {
 
     setPath(dialog.selectedFiles().at(0));
   });
-  connect(m_ui->pathEdit, &QLineEdit::editingFinished, [this]() {
-    setPath(m_ui->pathEdit->text());
-  });
+  connect(m_ui->pathEdit, &QLineEdit::editingFinished, [this]() { setPath(m_ui->pathEdit->text()); });
 
   connect(m_ui->downloadButton, &QPushButton::clicked, this, &MainWindow::onDownloadPressed);
 }
@@ -652,6 +655,11 @@ void MainWindow::initOptions() {
   initCheckboxOption(m_ui->frameCounterBox, m_cvarCommons.m_debugOverlayShowFrameCounter);
   initCheckboxOption(m_ui->inGameTimeBox, m_cvarCommons.m_debugOverlayShowInGameTime);
   initCheckboxOption(m_ui->resourceStatsOverlayBox, m_cvarCommons.m_debugOverlayShowResourceStats);
+  initCheckboxOption(m_ui->drawLighting, m_cvarCommons.m_debugToolDrawLighting);
+  initCheckboxOption(m_ui->drawAiPaths, m_cvarCommons.m_debugToolDrawAiPath);
+  initCheckboxOption(m_ui->drawCollisionActors, m_cvarCommons.m_debugToolDrawCollisionActors);
+  initCheckboxOption(m_ui->drawMazePath, m_cvarCommons.m_debugToolDrawMazePath);
+  initCheckboxOption(m_ui->drawPlatformCollision, m_cvarCommons.m_debugToolDrawPlatformCollision);
   initCheckboxOption(m_ui->logScriptingBox,
                      // TODO centralize
                      hecl::CVarManager::instance()->findOrMakeCVar(
@@ -688,6 +696,63 @@ void MainWindow::initOptions() {
           [this]() { QSettings().setValue(QStringLiteral("urde_arguments"), m_launchOptionsModel.stringList()); });
   connect(&m_launchOptionsModel, &QStringListModel::rowsRemoved, this,
           [this]() { QSettings().setValue(QStringLiteral("urde_arguments"), m_launchOptionsModel.stringList()); });
+  connect(m_ui->warpBtn, &QPushButton::clicked, this, [this] {
+    QFileInfo areaPath(
+        QFileDialog::getOpenFileName(this, tr("Select area to warp to..."), m_path, QStringLiteral("*.blend")));
+    if (!areaPath.exists() || areaPath.suffix() != QStringLiteral("blend") ||
+        !areaPath.fileName().contains(QStringLiteral("!area_"))) {
+      m_warpSettings.clear();
+      return;
+    }
+
+    auto ret =
+        QMessageBox::question(this, tr("Select enabled layers?"), tr("Do you want to only enable certain layers?"));
+
+    QString layerBits;
+    if (ret == QMessageBox::StandardButton::Yes) {
+      QList<Layer> layers;
+      QDirIterator iter(areaPath.absolutePath(), QDir::Filter::Dirs);
+      while (iter.hasNext()) {
+        QFileInfo f(iter.next());
+        if (f.isDir()) {
+          QDir dir(f.absoluteFilePath());
+          if (dir.exists(QStringLiteral("!objects.yaml"))) {
+            bool active = dir.exists(QStringLiteral("!defaultactive"));
+            layers.push_back({f.baseName(), active});
+          }
+        }
+      }
+      std::sort(layers.begin(), layers.end(), [&](const auto& a, const auto& b) {
+        return a.name < b.name;
+      });
+
+      LayerDialog layer(this);
+      layer.createLayerCheckboxes(layers);
+      auto code = layer.exec();
+      if (code == QDialog::DialogCode::Accepted) {
+        layerBits = layer.getLayerBits();
+      }
+    }
+    QString directoryPath = areaPath.path();
+    auto list = directoryPath.split(QDir::separator());
+    std::string areaDirectory = list.last().toLower().toStdString();
+    list.pop_back();
+    list.pop_back();
+    std::string worldDir = list.last().toLower().toStdString();
+    quint32 worldIndex;
+    std::sscanf(worldDir.c_str(), "metroid%i", &worldIndex);
+    quint32 areaIndex;
+    char areaName[2048];
+    std::sscanf(areaDirectory.c_str(), "%2i%[^\n]", &areaIndex, areaName);
+    if (layerBits.isEmpty()) {
+      m_warpSettings = QStringLiteral("--warp %1 %2").arg(worldIndex).arg(areaIndex).split(QLatin1Char(' '));
+    } else {
+      m_warpSettings =
+          QStringLiteral("--warp %1 %2 %3").arg(worldIndex).arg(areaIndex).arg(layerBits).split(QLatin1Char(' '));
+    }
+    onLaunch();
+    m_warpSettings.clear();
+  });
 }
 
 void MainWindow::initNumberComboOption(QComboBox* action, hecl::CVar* cvar) {

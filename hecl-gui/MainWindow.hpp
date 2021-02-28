@@ -37,6 +37,7 @@ class MainWindow : public QMainWindow {
   QString m_heclPath;
   QProcess m_heclProc;
   DownloadManager m_dlManager;
+  QStringList m_warpSettings;
   QSettings m_settings;
   URDEVersion m_recommendedVersion;
   QPushButton* m_updateURDEButton;

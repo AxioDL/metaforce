@@ -48,6 +48,9 @@ add_executable(hecl-gui WIN32 MACOSX_BUNDLE
         MainWindow.cpp
         MainWindow.hpp
         MainWindow.ui
+        LayerDialog.cpp
+        LayerDialog.hpp
+        LayerDialog.ui
         SysReqTableView.cpp
         SysReqTableView.hpp
         VectorISATableModel.hpp
