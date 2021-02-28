@@ -12,10 +12,6 @@ namespace hecl::blender {
 #define DEFAULT_BLENDER_BIN "blender"
 #endif
 
-static const uint32_t MinBlenderMajorSearch = 2;
-static const uint32_t MaxBlenderMajorSearch = 2;
-static const uint32_t MinBlenderMinorSearch = 90;
-static const uint32_t MaxBlenderMinorSearch = 91;
 static const std::regex regBlenderVersion(R"(Blender (\d+)\.(\d+)(?:\.(\d+))?)",
                                           std::regex::ECMAScript | std::regex::optimize);
 

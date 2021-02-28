@@ -200,7 +200,9 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const {
         return {};
 #endif
       case 5:
-        return tr("Blender 2.90+");
+        return QStringLiteral("Blender %1.%2+")
+            .arg(hecl::blender::MinBlenderMajorSearch)
+            .arg(hecl::blender::MinBlenderMinorSearch);
       }
     } else if (index.column() == 1) {
       /* Your System */
@@ -259,6 +261,11 @@ QVariant SysReqTableModel::headerData(int section, Qt::Orientation orientation, 
       return tr("Vector ISA");
     }
   }
+}
+bool SysReqTableModel::isBlenderVersionOk() const {
+  return (m_blendMajor >= hecl::blender::MinBlenderMajorSearch &&
+          m_blendMajor <= hecl::blender::MaxBlenderMajorSearch) &&
+         (m_blendMinor >= hecl::blender::MinBlenderMinorSearch && m_blendMinor <= hecl::blender::MaxBlenderMinorSearch);
 }
 
 void SysReqTableView::paintEvent(QPaintEvent* e) {
