@@ -92,7 +92,6 @@ if (Qt6Widgets_FOUND)
             Qt6::Network
             Qt6::Widgets
             Qt6::Xml)
-    set(QT5_WINDOWS_INTEGRATION_PLUGIN "")
 else ()
     set(Qt_LIBS
             Qt5::Core
@@ -100,20 +99,15 @@ else ()
             Qt5::Network
             Qt5::Widgets
             Qt5::Xml)
-
     if (WIN32)
-        set(QT5_WINDOWS_INTEGRATION_PLUGIN
-                Qt5::WindowsIntegrationPlugin)
-    else ()
-        set(QT5_WINDOWS_INTEGRATION_PLUGIN "")
+        list(APPEND Qt_LIBS Qt5::WindowsIntegrationPlugin)
     endif ()
 endif ()
 target_link_libraries(hecl-gui PRIVATE
         ${Qt_LIBS}
         hecl-light
         zeus
-        QuaZip::QuaZip
-        ${QT5_WINDOWS_INTEGRATION_PLUGIN})
+        QuaZip::QuaZip)
 
 target_include_directories(hecl-gui PRIVATE quazip/quazip)
 target_compile_definitions(hecl-gui PRIVATE QUAZIP_STATIC=1)
