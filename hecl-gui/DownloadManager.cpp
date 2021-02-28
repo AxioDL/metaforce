@@ -61,7 +61,8 @@ void DownloadManager::fetchIndex() {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   connect(m_indexInProgress, &QNetworkReply::errorOccurred, this, &DownloadManager::indexError);
 #else
-  connect(m_indexInProgress, &QNetworkReply::error, this, &DownloadManager::indexError);
+  connect(m_indexInProgress, qOverload<QNetworkReply::NetworkError>(&QNetworkReply::error), this,
+          &DownloadManager::indexError);
 #endif
   connect(m_indexInProgress, &QNetworkReply::encrypted, this, &DownloadManager::indexValidateCert);
 }
@@ -81,7 +82,8 @@ void DownloadManager::fetchBinary(const QString& str, const QString& outPath) {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   connect(m_binaryInProgress, &QNetworkReply::errorOccurred, this, &DownloadManager::binaryError);
 #else
-  connect(m_binaryInProgress, &QNetworkReply::error, this, &DownloadManager::binaryError);
+  connect(m_binaryInProgress, qOverload<QNetworkReply::NetworkError>(&QNetworkReply::error), this,
+          &DownloadManager::binaryError);
 #endif
   connect(m_binaryInProgress, &QNetworkReply::encrypted, this, &DownloadManager::binaryValidateCert);
   connect(m_binaryInProgress, &QNetworkReply::downloadProgress, this, &DownloadManager::binaryDownloadProgress);
