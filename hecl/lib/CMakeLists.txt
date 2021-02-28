@@ -50,6 +50,7 @@ set(COMMON_SOURCES
     ProjectPath.cpp
     HumanizeNumber.cpp
     CVar.cpp
+    CVarCommons.cpp
     CVarManager.cpp
     Console.cpp
     ClientProcess.cpp
