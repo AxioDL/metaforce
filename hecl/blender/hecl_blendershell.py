@@ -7,6 +7,8 @@ def _quitblender():
     bpy.ops.wm.quit_blender()
     quit()
 
+MIN_BLENDER_MAJOR = 2
+MIN_BLENDER_MINOR = 83
 # Extract pipe file descriptors from arguments
 print('HECL Blender Launch', sys.argv)
 if '--' not in sys.argv:
@@ -57,9 +59,9 @@ class PathHasher:
         read_str = readpipestr()
         return int(read_str[0:8], 16)
 
-# Ensure Blender 2.90+ is being used
-if bpy.app.version < (2, 90, 0):
-    writepipestr(b'NOT290')
+# Ensure Blender 2.83+ is being used
+if bpy.app.version < (MIN_BLENDER_MAJOR, MIN_BLENDER_MINOR, 0):
+    writepipestr(b'INVALIDBLENDERVER')
     _quitblender()
 
 # If there's a third argument, use it as the .zip path containing the addon

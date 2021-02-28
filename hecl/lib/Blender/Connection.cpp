@@ -50,7 +50,7 @@ namespace hecl::blender {
 
 static const uint32_t MinBlenderMajorSearch = 2;
 static const uint32_t MaxBlenderMajorSearch = 2;
-static const uint32_t MinBlenderMinorSearch = 90;
+static const uint32_t MinBlenderMinorSearch = 83;
 static const uint32_t MaxBlenderMinorSearch = 91;
 
 logvisor::Module BlenderLog("hecl::blender::Connection");
@@ -547,9 +547,10 @@ Connection::Connection(int verbosityLevel) {
       else
         BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to find blender at '{}'")), DEFAULT_BLENDER_BIN);
 #endif
-    } else if (lineStr == "NOT290") {
+    } else if (lineStr == "INVALIDBLENDERVER") {
       _closePipe();
-      BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Installed blender version must be >= 2.90")));
+      BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Installed blender version must be >= {}.{}")),
+                        MinBlenderMajorSearch, MinBlenderMinorSearch);
     } else if (lineStr == "NOADDON") {
       _closePipe();
       if (blenderAddonPath != _SYS_STR("SKIPINSTALL"))
