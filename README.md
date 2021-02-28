@@ -15,7 +15,6 @@ Everything else is much too experimental to make portable/stable release builds 
 * macOS 10.15+ (Metal)
 * Linux (Vulkan)
     * Arch is known to function with [`glx` vendor setup instructions](https://wiki.archlinux.org/index.php/Category:Graphics) *(main development/testing OS)*
-    * Other distros with reasonably up-to-date packages will work (specific packages TBD)
     
 ### Usage (GC versions)
 
@@ -57,8 +56,14 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
         * `CMake Tools`
         * `C++ Clang Compiler`
         * `C++ Clang-cl`
-* **[macOS]** [Xcode 1.15+](https://developer.apple.com/xcode/download/)
+* **[macOS]** [Xcode 11.5+](https://developer.apple.com/xcode/download/)
 * **[Linux]** recent development packages of `udev`, `x11`, `xcb`, `xinput`, `glx`, `asound`
+    * Ubuntu 20.04+ packages
+      ```
+      build-essential curl git ninja-build llvm-dev libclang-dev clang lld zlib1g-dev
+      libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev libpulse-dev
+      libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 qt5-default
+      ```
 
 ### Prep Directions
 
