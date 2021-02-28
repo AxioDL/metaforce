@@ -621,7 +621,7 @@ std::streamsize PyOutStream::StreamBuf::xsputn(const char_type* __first, std::st
   const char_type* __last = __first + __n;
   const char_type* __s = __first;
   for (const char_type* __e = __first; __e != __last; ++__e) {
-    if (*__e == '\n' || *__e == traits_type::eof()) {
+    if (*__e == '\n' || traits_type::to_int_type(*__e) == traits_type::eof()) {
       std::string_view line(__s, __e - __s);
       bool result;
       if (!m_lineBuf.empty()) {
@@ -633,7 +633,7 @@ std::streamsize PyOutStream::StreamBuf::xsputn(const char_type* __first, std::st
         /* Complete line (optimal case) */
         result = sendLine(line);
       }
-      if (!result || *__e == traits_type::eof())
+      if (!result || traits_type::to_int_type(*__e) == traits_type::eof())
         return __e - __first; /* Error or eof, end now */
       __s += line.size() + 1;
     }
