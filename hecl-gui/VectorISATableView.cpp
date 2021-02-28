@@ -16,8 +16,10 @@ void VectorISATableView::paintEvent(QPaintEvent* e) {
         width += columnWidth(j);
     } else {
       tableX = p->verticalHeader()->width() + columnViewportPosition(m_maxISA + 1);
+#if ZEUS_ARCH_X86_64 || ZEUS_ARCH_X86
       for (int j = m_maxISA + 1; j < m_model.columnCount({}); ++j)
         width += columnWidth(j);
+#endif
     }
 
     QWidget* w = std::get<0>(m_backgroundWidgets[i]);
@@ -40,6 +42,7 @@ void VectorISATableView::paintEvent(QPaintEvent* e) {
 }
 
 VectorISATableView::VectorISATableView(QWidget* parent) : QTableView(parent) {
+#if ZEUS_ARCH_X86_64 || ZEUS_ARCH_X86
   setModel(&m_model);
 
   for (int i = 0; i < m_model.columnCount({}); ++i) {
@@ -48,6 +51,7 @@ VectorISATableView::VectorISATableView(QWidget* parent) : QTableView(parent) {
     else
       break;
   }
+#endif
 
   horizontalHeader()->hide();
   horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);

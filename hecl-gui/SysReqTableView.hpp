@@ -55,8 +55,11 @@ public:
   const SysReqTableModel& getModel() const { return m_model; }
   const VectorISATableView& getVectorISATable() const { return m_vectorISATable; }
   bool willRun(const URDEVersion& v) const {
-    return v.getArchitecture() == CurArchitecture && v.getPlatform() == CurPlatform &&
-           m_vectorISATable.willRun(v.getVectorISA());
+    return v.getArchitecture() == CurArchitecture && v.getPlatform() == CurPlatform
+#if ZEUS_ARCH_X86_64 || ZEUS_ARCH_X86
+           && m_vectorISATable.willRun(v.getVectorISA())
+#endif
+        ;
   }
   bool isBlenderVersionOk() const { return m_model.isBlenderVersionOk(); }
   void updateFreeDiskSpace(const QString& path) { m_model.updateFreeDiskSpace(path); }

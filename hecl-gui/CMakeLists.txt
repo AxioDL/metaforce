@@ -26,6 +26,12 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
 set(QUAZIP_INSTALL OFF CACHE BOOL "")
 add_subdirectory(quazip)
 
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
+    set(VectorISATableModel_HEADER VectorISATableModelIntel.hpp)
+else ()
+    set(VectorISATableModel_HEADER "")
+endif ()
+
 add_executable(hecl-gui WIN32 MACOSX_BUNDLE
         ArgumentEditor.cpp
         ArgumentEditor.hpp
@@ -54,7 +60,7 @@ add_executable(hecl-gui WIN32 MACOSX_BUNDLE
         SysReqTableView.cpp
         SysReqTableView.hpp
         VectorISATableModel.hpp
-        VectorISATableModelIntel.hpp
+        ${VectorISATableModel_HEADER}
         VectorISATableView.cpp
         VectorISATableView.hpp
 

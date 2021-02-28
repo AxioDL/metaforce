@@ -20,6 +20,8 @@ class VectorISATableView : public QTableView {
 public:
   VectorISATableView(QWidget* parent = Q_NULLPTR);
   void paintEvent(QPaintEvent* e) override;
+#if ZEUS_ARCH_X86_64 || ZEUS_ARCH_X86
   VectorISA getISA() const { return m_model.getISA(m_maxISA); }
   bool willRun(VectorISA visa) const { return m_model.willRun(visa); }
+#endif
 };
