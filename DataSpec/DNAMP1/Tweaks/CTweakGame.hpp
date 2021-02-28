@@ -4,9 +4,32 @@
 
 namespace hecl {
 class CVar;
-}
+} // namespace hecl
 
 namespace DataSpec::DNAMP1 {
+
+#define DEFINE_CVAR_GLOBAL(name)                                                                                       \
+  extern hecl::CVar* tw_##name;
+
+DEFINE_CVAR_GLOBAL(WorldPrefix);
+DEFINE_CVAR_GLOBAL(FieldOfView);
+DEFINE_CVAR_GLOBAL(SplashScreensDisabled);
+DEFINE_CVAR_GLOBAL(PressStartDelay);
+DEFINE_CVAR_GLOBAL(WavecapIntensityNormal);
+DEFINE_CVAR_GLOBAL(WavecapIntensityPoison);
+DEFINE_CVAR_GLOBAL(WavecapIntensityLava);
+DEFINE_CVAR_GLOBAL(RippleIntensityNormal);
+DEFINE_CVAR_GLOBAL(RippleIntensityPoison);
+DEFINE_CVAR_GLOBAL(RippleIntensityLava);
+DEFINE_CVAR_GLOBAL(FluidEnvBumpScale);
+DEFINE_CVAR_GLOBAL(WaterFogDistanceBase);
+DEFINE_CVAR_GLOBAL(WaterFogDistanceRange);
+DEFINE_CVAR_GLOBAL(GravityWaterFogDistanceBase);
+DEFINE_CVAR_GLOBAL(GravityWaterFogDistanceRange);
+DEFINE_CVAR_GLOBAL(HardModeDamageMult);
+DEFINE_CVAR_GLOBAL(HardModeWeaponMult);
+
+#undef DEFINE_CVAR_GLOBAL
 
 struct CTweakGame final : ITweakGame {
   AT_DECL_DNA_YAML
@@ -60,6 +83,7 @@ struct CTweakGame final : ITweakGame {
   }
 
   void initCVars(hecl::CVarManager* mgr) override;
+
 private:
   void _tweakListener(hecl::CVar* cv);
 };

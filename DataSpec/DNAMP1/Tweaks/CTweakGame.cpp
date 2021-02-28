@@ -35,8 +35,7 @@
   }
 
 namespace DataSpec::DNAMP1 {
-namespace {
-constexpr hecl::CVar::EFlags skDefaultFlags = hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive;
+
 DEFINE_CVAR_GLOBAL(WorldPrefix);
 DEFINE_CVAR_GLOBAL(FieldOfView);
 DEFINE_CVAR_GLOBAL(SplashScreensDisabled);
@@ -54,7 +53,6 @@ DEFINE_CVAR_GLOBAL(GravityWaterFogDistanceBase);
 DEFINE_CVAR_GLOBAL(GravityWaterFogDistanceRange);
 DEFINE_CVAR_GLOBAL(HardModeDamageMult);
 DEFINE_CVAR_GLOBAL(HardModeWeaponMult);
-} // anonymous namespace
 
 void CTweakGame::_tweakListener(hecl::CVar* cv) {
   UPDATE_CVAR(WorldPrefix, cv, x4_worldPrefix);
@@ -77,6 +75,7 @@ void CTweakGame::_tweakListener(hecl::CVar* cv) {
 }
 
 void CTweakGame::initCVars(hecl::CVarManager* mgr) {
+  constexpr hecl::CVar::EFlags skDefaultFlags = hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive;
   CREATE_CVAR(WorldPrefix, "", x4_worldPrefix, skDefaultFlags);
   CREATE_CVAR(FieldOfView, "", x24_fov, skDefaultFlags);
   CREATE_CVAR(SplashScreensDisabled, "", x2b_splashScreensDisabled,
