@@ -48,8 +48,9 @@ void CGunController::EnterStruck(CStateManager& mgr, float angle, bool bigStrike
   }
 
   const CPASDatabase& pasDatabase = x0_modelData.GetAnimationData()->GetCharacterInfo().GetPASDatabase();
-  CPASAnimParmData parms(2, CPASAnimParm::FromInt32(x4_freeLook.GetGunId()), CPASAnimParm::FromReal32(angle),
-                         CPASAnimParm::FromBool(bigStrike), CPASAnimParm::FromBool(b2));
+  CPASAnimParmData parms(pas::EAnimationState::LieOnGround, CPASAnimParm::FromInt32(x4_freeLook.GetGunId()),
+                         CPASAnimParm::FromReal32(angle), CPASAnimParm::FromBool(bigStrike),
+                         CPASAnimParm::FromBool(b2));
   std::pair<float, s32> anim = pasDatabase.FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   x0_modelData.GetAnimationData()->EnableLooping(false);
   CAnimPlaybackParms aparms(anim.second, -1, 1.f, true);
@@ -75,7 +76,7 @@ void CGunController::EnterIdle(CStateManager& mgr) {
   }
 
   const CPASDatabase& pasDatabase = x0_modelData.GetAnimationData()->GetCharacterInfo().GetPASDatabase();
-  CPASAnimParmData parms(5, parm);
+  CPASAnimParmData parms(pas::EAnimationState::Locomotion, parm);
   std::pair<float, s32> anim = pasDatabase.FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   x0_modelData.GetAnimationData()->EnableLooping(false);
   CAnimPlaybackParms aparms(anim.second, -1, 1.f, true);
@@ -161,7 +162,8 @@ void CGunController::ReturnToDefault(CStateManager& mgr, float dt, bool setState
 
 void CGunController::ReturnToBasePosition(CStateManager& mgr, float) {
   const CPASDatabase& pasDatabase = x0_modelData.GetAnimationData()->GetCharacterInfo().GetPASDatabase();
-  std::pair<float, s32> anim = pasDatabase.FindBestAnimation(CPASAnimParmData(6), *mgr.GetActiveRandom(), -1);
+  std::pair<float, s32> anim =
+      pasDatabase.FindBestAnimation(CPASAnimParmData(pas::EAnimationState::KnockBack), *mgr.GetActiveRandom(), -1);
   x0_modelData.GetAnimationData()->EnableLooping(false);
   CAnimPlaybackParms parms(anim.second, -1, 1.f, true);
   x0_modelData.GetAnimationData()->SetAnimation(parms, false);

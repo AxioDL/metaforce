@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Runtime/IOStreams.hpp"
+#include "Runtime/Character/CharacterCommon.hpp"
 #include "Runtime/Character/CPASAnimInfo.hpp"
 #include "Runtime/Character/CPASParmInfo.hpp"
 
@@ -11,7 +12,7 @@ namespace urde {
 class CRandom16;
 class CPASAnimParmData;
 class CPASAnimState {
-  s32 x0_id;
+  pas::EAnimationState x0_id;
   std::vector<CPASParmInfo> x4_parms;
   std::vector<CPASAnimInfo> x14_anims;
   mutable std::vector<s32> x24_selectionCache;
@@ -24,8 +25,8 @@ class CPASAnimState {
 
 public:
   explicit CPASAnimState(CInputStream& in);
-  explicit CPASAnimState(int stateId);
-  s32 GetStateId() const { return x0_id; }
+  explicit CPASAnimState(pas::EAnimationState stateId);
+  pas::EAnimationState GetStateId() const { return x0_id; }
   size_t GetNumAnims() const { return x14_anims.size(); }
   bool HasAnims() const { return !x14_anims.empty(); }
   CPASAnimParm GetAnimParmData(s32 animId, size_t parmIdx) const;

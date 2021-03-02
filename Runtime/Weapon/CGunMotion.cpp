@@ -22,19 +22,19 @@ bool CGunMotion::PlayPasAnim(SamusGun::EAnimationState state, CStateManager& mgr
   bool loop = true;
   switch (state) {
   case SamusGun::EAnimationState::Wander: {
-    CPASAnimParmData parms((s32(state)));
+    CPASAnimParmData parms((pas::EAnimationState(state)));
     auto anim = pas.FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
     animId = anim.second;
     break;
   }
   case SamusGun::EAnimationState::Idle: {
-    CPASAnimParmData parms(s32(state), CPASAnimParm::FromEnum(0));
+    CPASAnimParmData parms(pas::EAnimationState(state), CPASAnimParm::FromEnum(0));
     auto anim = pas.FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
     animId = anim.second;
     break;
   }
   case SamusGun::EAnimationState::Struck: {
-    CPASAnimParmData parms(s32(state), CPASAnimParm::FromInt32(0), CPASAnimParm::FromReal32(angle),
+    CPASAnimParmData parms(pas::EAnimationState(state), CPASAnimParm::FromInt32(0), CPASAnimParm::FromReal32(angle),
                            CPASAnimParm::FromBool(bigStrike), CPASAnimParm::FromBool(false));
     auto anim = pas.FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
     animId = anim.second;

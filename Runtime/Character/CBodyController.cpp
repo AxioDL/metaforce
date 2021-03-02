@@ -80,7 +80,7 @@ void CBodyController::Update(float dt, CStateManager& mgr) {
   }
 }
 
-bool CBodyController::HasBodyState(pas::EAnimationState state) const { return GetPASDatabase().HasState(s32(state)); }
+bool CBodyController::HasBodyState(pas::EAnimationState state) const { return GetPASDatabase().HasState(state); }
 
 void CBodyController::SetCurrentAnimation(const CAnimPlaybackParms& parms, bool loop, bool noTrans) {
   x0_actor.GetModelData()->GetAnimationData()->SetAnimation(parms, noTrans);
@@ -269,7 +269,8 @@ void CBodyController::UpdateFrozenInfo(float dt, CStateManager& mgr) {
 }
 
 bool CBodyController::HasIceBreakoutState() const {
-  CPASAnimParmData parms(24, CPASAnimParm::FromEnum(3));
+  CPASAnimParmData parms(pas::EAnimationState::AdditiveReaction,
+                         CPASAnimParm::FromEnum(static_cast<s32>(pas::EAdditiveReactionType::IceBreakout)));
   std::pair<float, s32> best = GetPASDatabase().FindBestAnimation(parms, -1);
   return best.first > 0.f;
 }

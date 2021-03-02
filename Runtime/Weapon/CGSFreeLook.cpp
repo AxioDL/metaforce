@@ -36,11 +36,11 @@ s32 CGSFreeLook::SetAnim(CAnimData& data, s32 gunId, s32 setId, s32 loopState, C
     useLoopState = loopState;
   x14_idle = false;
   const CPASDatabase& pas = data.GetCharacterInfo().GetPASDatabase();
-  CPASAnimParmData parms(3, CPASAnimParm::FromInt32(gunId), CPASAnimParm::FromInt32(setId),
+  CPASAnimParmData parms(pas::EAnimationState::Step, CPASAnimParm::FromInt32(gunId), CPASAnimParm::FromInt32(setId),
                          CPASAnimParm::FromEnum(useLoopState));
   auto anim = pas.FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   xc_gunId = gunId;
-  x10_setId = pas.GetAnimState(3)->GetAnimParmData(anim.second, 1).GetInt32Value();
+  x10_setId = pas.GetAnimState(pas::EAnimationState::Step)->GetAnimParmData(anim.second, 1).GetInt32Value();
   x8_loopState = useLoopState;
   if (delay != 0.f) {
     x0_delay = delay;
