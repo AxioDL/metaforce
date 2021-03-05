@@ -1,6 +1,10 @@
 name: Build
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
   build-linux-gcc:
@@ -14,9 +18,9 @@ jobs:
         shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get -y install build-essential curl git ninja-build llvm-dev libclang-dev clang lld zlib1g-dev \
-            libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev libpulse-dev \
-            libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 qt5-default
+          sudo apt-get -y install build-essential curl git cmake ninja-build llvm-dev libclang-dev clang lld \
+            zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default
       - name: Create build directory
         shell: bash
         run: cmake -E make_directory ${{github.workspace}}/build
@@ -40,9 +44,9 @@ jobs:
         shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get -y install build-essential curl git ninja-build llvm-dev libclang-dev clang lld zlib1g-dev \
-            libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev libpulse-dev \
-            libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 qt5-default
+          sudo apt-get -y install build-essential curl git cmake ninja-build llvm-dev libclang-dev clang lld \
+            zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default
       - name: Create build directory
         shell: bash
         run: cmake -E make_directory ${{github.workspace}}/build
@@ -79,26 +83,25 @@ jobs:
 
   build-windows-msvc:
     name: Build Windows (MSVC x86_64)
-    runs-on: windows-2019
-    if: 'false' # disabled for now
+    runs-on: [self-hosted, windows, x64]
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - uses: suisei-cn/actions-download-file@v1
-        name: Download LLVM
-        id: download-llvm
-        with:
-          url: https://axiodl.com/files/LLVM-10.0.1-win64.exe
-          target: ${{github.workspace}}/temp
-      - name: Install LLVM
-        shell: cmd
-        working-directory: ${{github.workspace}}/temp
-        run: ${{steps.download-llvm.outputs.filename}} /S
-      - uses: ilammy/msvc-dev-cmd@v1
-        name: Enable Visual Studio environment
-      - name: Install ninja
-        run: choco install ninja
+#      - name: Download LLVM
+#        uses: suisei-cn/actions-download-file@v1
+#        id: download-llvm
+#        with:
+#          url: https://axiodl.com/files/LLVM-10.0.1-win64.exe
+#          target: ${{github.workspace}}/temp
+#      - name: Install LLVM
+#        shell: cmd
+#        working-directory: ${{github.workspace}}/temp
+#        run: ${{steps.download-llvm.outputs.filename}} /S
+#      - name: Install ninja
+#        run: choco install ninja
+      - name: Enable Visual Studio environment
+        uses: ilammy/msvc-dev-cmd@v1
       - name: Create build directory
         run: cmake -E make_directory ${{github.workspace}}/build
       - name: Configure CMake
@@ -115,8 +118,8 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - uses: suisei-cn/actions-download-file@v1
-        name: Download LLVM
+      - name: Download LLVM
+        uses: suisei-cn/actions-download-file@v1
         id: download-llvm
         with:
           url: https://axiodl.com/files/LLVM-10.0.1-win64.exe
@@ -125,10 +128,10 @@ jobs:
         shell: cmd
         working-directory: ${{github.workspace}}/temp
         run: ${{steps.download-llvm.outputs.filename}} /S
-      - uses: ilammy/msvc-dev-cmd@v1
-        name: Enable Visual Studio environment
       - name: Install ninja
         run: choco install ninja
+      - name: Enable Visual Studio environment
+        uses: ilammy/msvc-dev-cmd@v1
       - name: Create build directory
         run: cmake -E make_directory ${{github.workspace}}/build
       - name: Configure CMake
