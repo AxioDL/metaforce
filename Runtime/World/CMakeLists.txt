@@ -130,6 +130,7 @@ set(WORLD_SOURCES
         CHUDBillboardEffect.hpp CHUDBillboardEffect.cpp
         CExplosion.hpp CExplosion.cpp
         CIceImpact.hpp CIceImpact.cpp
+        CMarkerGrid.hpp CMarkerGrid.cpp
         CFire.hpp CFire.cpp
         CEntityInfo.hpp)
 
