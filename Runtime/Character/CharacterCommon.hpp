@@ -25,31 +25,31 @@ enum class ELocomotionAnim { Invalid = -1, Idle, Walk, Run, BackUp, StrafeLeft, 
 
 enum class EAnimationState {
   Invalid = -1,
-  Fall,
-  Getup,
-  LieOnGround,
-  Step,
-  Death,
-  Locomotion,
-  KnockBack,
-  MeleeAttack,
-  Turn,
-  LoopAttack,
-  LoopReaction,
-  GroundHit,
-  Generate,
-  Jump,
-  Hurled,
-  Slide,
-  Taunt,
-  Scripted,
-  ProjectileAttack,
-  Cover,
-  WallHang,
-  AdditiveIdle,
-  AdditiveAim,
-  AdditiveFlinch,
-  AdditiveReaction
+  Fall = 0,
+  Getup = 1,
+  LieOnGround = 2,
+  Step = 3,
+  Death = 4,
+  Locomotion = 5,
+  KnockBack = 6,
+  MeleeAttack = 7,
+  Turn = 8,
+  LoopAttack = 9,
+  LoopReaction = 10,
+  GroundHit = 11,
+  Generate = 12,
+  Jump = 13,
+  Hurled = 14,
+  Slide = 15,
+  Taunt = 16,
+  Scripted = 17,
+  ProjectileAttack = 18,
+  Cover = 19,
+  WallHang = 20,
+  AdditiveIdle = 21,
+  AdditiveAim = 22,
+  AdditiveFlinch = 23,
+  AdditiveReaction = 24
 };
 
 enum class EHurledState {
@@ -64,7 +64,7 @@ enum class EHurledState {
   Seven
 };
 
-enum class EFallState { Invalid = -1, Zero, One , Two};
+enum class EFallState { Invalid = -1, Zero, One, Two };
 
 enum class EReactionType { Invalid = -1, Zero, One, Two, Three };
 

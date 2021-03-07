@@ -416,10 +416,10 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
 
   if (!x634_29_onlyAttackInRange) {
     x7a4_intoJumpDist =
-        GetAnimationDistance(CPASAnimParmData(13, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(0)));
-    x848_dodgeDist = GetAnimationDistance(CPASAnimParmData(3, CPASAnimParm::FromEnum(3), CPASAnimParm::FromEnum(1)));
+        GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::Jump, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(0)));
+    x848_dodgeDist = GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::Step, CPASAnimParm::FromEnum(3), CPASAnimParm::FromEnum(1)));
     x84c_breakDodgeDist =
-        GetAnimationDistance(CPASAnimParmData(3, CPASAnimParm::FromEnum(3), CPASAnimParm::FromEnum(2)));
+        GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::Step, CPASAnimParm::FromEnum(3), CPASAnimParm::FromEnum(2)));
   } else {
     x450_bodyController->BodyStateInfo().SetLocoAnimChangeAtEndOfAnimOnly(true);
   }
@@ -588,7 +588,7 @@ bool CSpacePirate::FireProjectile(float dt, CStateManager& mgr) {
   }
   if (ret) {
     const auto bestAnim = x450_bodyController->GetPASDatabase().FindBestAnimation(
-        CPASAnimParmData{24, CPASAnimParm::FromEnum(2)}, *mgr.GetActiveRandom(), -1);
+        CPASAnimParmData{pas::EAnimationState::AdditiveReaction, CPASAnimParm::FromEnum(2)}, *mgr.GetActiveRandom(), -1);
     if (bestAnim.first > 0.f) {
       x64_modelData->GetAnimationData()->AddAdditiveAnimation(bestAnim.second, 1.f, false, true);
     }
@@ -1847,7 +1847,7 @@ void CSpacePirate::Taunt(CStateManager& mgr, EStateMsg msg, float dt) {
         bool withOtherPirate = true;
         if (x634_27_melee) {
           const auto bestAnim = x450_bodyController->GetPASDatabase().FindBestAnimation(
-              CPASAnimParmData{16, CPASAnimParm::FromEnum(2)}, *mgr.GetActiveRandom(), -1);
+              CPASAnimParmData{pas::EAnimationState::Taunt, CPASAnimParm::FromEnum(2)}, *mgr.GetActiveRandom(), -1);
           if (bestAnim.first > 0.f) {
             withOtherPirate = false;
             x760_taunt = pas::ETauntType::Two;

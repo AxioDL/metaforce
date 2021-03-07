@@ -1,0 +1,142 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build-linux-gcc:
+    name: Build Linux (GCC x86_64)
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install build-essential curl git cmake ninja-build llvm-dev libclang-dev clang lld \
+            zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default
+      - name: Create build directory
+        shell: bash
+        run: cmake -E make_directory ${{github.workspace}}/build
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel -DURDE_VECTOR_ISA=sse41
+      - name: Build
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build . --config $BUILD_TYPE
+
+  build-linux-clang:
+    name: Build Linux (Clang x86_64)
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install build-essential curl git cmake ninja-build llvm-dev libclang-dev clang lld \
+            zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default
+      - name: Create build directory
+        shell: bash
+        run: cmake -E make_directory ${{github.workspace}}/build
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel -DURDE_VECTOR_ISA=sse41 -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+      - name: Build
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build . --config $BUILD_TYPE
+
+  build-macos:
+    name: Build macOS (Clang x86_64)
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        shell: bash
+        run: brew install ninja qt
+      - name: Create build directory
+        shell: bash
+        run: cmake -E make_directory ${{github.workspace}}/build
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel -DURDE_VECTOR_ISA=sse41
+      - name: Build
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build . --config $BUILD_TYPE
+
+  build-windows-msvc:
+    name: Build Windows (MSVC x86_64)
+    runs-on: [self-hosted, windows, x64]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+#      - name: Download LLVM
+#        uses: suisei-cn/actions-download-file@v1
+#        id: download-llvm
+#        with:
+#          url: https://axiodl.com/files/LLVM-10.0.1-win64.exe
+#          target: ${{github.workspace}}/temp
+#      - name: Install LLVM
+#        shell: cmd
+#        working-directory: ${{github.workspace}}/temp
+#        run: ${{steps.download-llvm.outputs.filename}} /S
+#      - name: Install ninja
+#        run: choco install ninja
+      - name: Enable Visual Studio environment
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Create build directory
+        run: cmake -E make_directory ${{github.workspace}}/build
+      - name: Configure CMake
+        working-directory: ${{github.workspace}}/build
+        run: cmake .. -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel -DURDE_VECTOR_ISA=sse41 -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS=
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build . --config $BUILD_TYPE
+
+  build-windows-clang:
+    name: Build Windows (Clang x86_64)
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Download LLVM
+        uses: suisei-cn/actions-download-file@v1
+        id: download-llvm
+        with:
+          url: https://axiodl.com/files/LLVM-10.0.1-win64.exe
+          target: ${{github.workspace}}/temp
+      - name: Install LLVM
+        shell: cmd
+        working-directory: ${{github.workspace}}/temp
+        run: ${{steps.download-llvm.outputs.filename}} /S
+      - name: Install ninja
+        run: choco install ninja
+      - name: Enable Visual Studio environment
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Create build directory
+        run: cmake -E make_directory ${{github.workspace}}/build
+      - name: Configure CMake
+        working-directory: ${{github.workspace}}/build
+        run: cmake .. -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel -DURDE_VECTOR_ISA=sse41 -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang-cl.exe" -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang-cl.exe" -DCMAKE_LINKER="C:/Program Files/LLVM/bin/lld-link.exe"
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build . --config $BUILD_TYPE

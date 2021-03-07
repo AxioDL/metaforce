@@ -11,11 +11,11 @@ namespace urde {
 void CABSAim::Start(CBodyController& bc, CStateManager& mgr) {
   // const CBCAdditiveAimCmd* cmd =
   //    static_cast<const CBCAdditiveAimCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::AdditiveAim));
-  const CPASAnimState* aimState = bc.GetPASDatabase().GetAnimState(22);
+  const CPASAnimState* aimState = bc.GetPASDatabase().GetAnimState(pas::EAnimationState::AdditiveAim);
 
   // Left, Right, Up, Down
   for (size_t i = 0; i < x8_anims.size(); ++i) {
-    const CPASAnimParmData parms(22, CPASAnimParm::FromEnum(s32(i)));
+    const CPASAnimParmData parms(pas::EAnimationState::AdditiveAim, CPASAnimParm::FromEnum(s32(i)));
     const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
     x8_anims[i] = best.second;
     x18_angles[i] = zeus::degToRad(aimState->GetAnimParmData(x8_anims[i], 1).GetReal32Value());
@@ -99,7 +99,7 @@ void CABSFlinch::Start(CBodyController& bc, CStateManager& mgr) {
       static_cast<const CBCAdditiveFlinchCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::AdditiveFlinch));
   x4_weight = cmd->GetWeight();
 
-  CPASAnimParmData parms(23);
+  CPASAnimParmData parms(pas::EAnimationState::AdditiveFlinch);
   std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   x8_anim = best.second;
 
@@ -145,7 +145,7 @@ void CABSReaction::Start(CBodyController& bc, CStateManager& mgr) {
   xc_type = cmd->GetType();
   x10_active = cmd->GetIsActive();
 
-  CPASAnimParmData parms(24, CPASAnimParm::FromEnum(s32(xc_type)));
+  CPASAnimParmData parms(pas::EAnimationState::AdditiveReaction, CPASAnimParm::FromEnum(s32(xc_type)));
   std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   x8_anim = best.second;
 
