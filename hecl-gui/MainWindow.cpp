@@ -134,6 +134,7 @@ MainWindow::MainWindow(QWidget* parent)
   m_dlManager.fetchIndex();
 
   setPath(m_settings.value(QStringLiteral("working_dir")).toString());
+  resize(1024, 768);
 }
 
 MainWindow::~MainWindow() { KillProcessTree(m_heclProc); }
