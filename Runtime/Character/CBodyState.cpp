@@ -1935,7 +1935,7 @@ CBSBiPedLocomotion::CBSBiPedLocomotion(CActor& actor) {
   for (int i = 0; i < 14; ++i) {
     rstl::reserved_vector<std::pair<s32, float>, 8>& innerVec = x8_anims.emplace_back();
     for (int j = 0; j < 8; ++j) {
-      const CPASAnimParmData parms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(j),
+      const CPASAnimParmData parms(pas::EAnimationState::Locomotion, CPASAnimParm::FromEnum(j),
                                    CPASAnimParm::FromEnum(i));
       const std::pair<float, s32> best = pasDatabase.FindBestAnimation(parms, -1);
       float avgVel = 0.f;
