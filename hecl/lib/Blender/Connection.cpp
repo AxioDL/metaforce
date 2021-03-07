@@ -51,7 +51,7 @@ namespace hecl::blender {
 static const uint32_t MinBlenderMajorSearch = 2;
 static const uint32_t MaxBlenderMajorSearch = 2;
 static const uint32_t MinBlenderMinorSearch = 83;
-static const uint32_t MaxBlenderMinorSearch = 91;
+static const uint32_t MaxBlenderMinorSearch = 92;
 
 logvisor::Module BlenderLog("hecl::blender::Connection");
 Token SharedBlenderToken;

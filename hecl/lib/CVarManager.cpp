@@ -19,6 +19,7 @@ CVar* com_enableCheats = nullptr;
 CVar* com_cubemaps = nullptr;
 
 static const std::regex cmdLineRegex("\\+([\\w\\.]+)=([\\w\\.\\-]+)");
+static const std::regex cmdLineRegexNoValue("\\+([\\w\\.]+)");
 CVarManager* CVarManager::m_instance = nullptr;
 
 static logvisor::Module CVarLog("CVarManager");
@@ -93,8 +94,12 @@ void CVarManager::deserialize(CVar* cvar) {
   if (const auto iter = m_deferedCVars.find(lowName); iter != m_deferedCVars.end()) {
     std::string val = std::move(iter->second);
     m_deferedCVars.erase(lowName);
-    if (cvar->fromLiteralToType(val))
+    if (cvar->isBoolean() && val.empty()) {
+      // We were deferred without a value, assume true
+      cvar->fromBoolean(true);
+    } else if (!val.empty() && cvar->fromLiteralToType(val)) {
       return;
+    }
   }
 
   /* Enforce isArchive and isInternalArchivable now that we've checked if it's been deferred */
@@ -300,14 +305,28 @@ void CVarManager::parseCommandLine(const std::vector<SystemString>& args) {
 
     const std::string tmp(SystemUTF8Conv(arg).str());
     std::smatch matches;
+    std::string cvarName;
+    std::string cvarValue;
+
     if (!std::regex_match(tmp, matches, cmdLineRegex)) {
-      continue;
+      if (std::regex_match(tmp, matches, cmdLineRegexNoValue)) {
+        // No Value was supplied, assume the player wanted to set value to 1
+        cvarName = matches[1].str();
+      } else {
+        continue;
+      }
+    } else {
+      cvarName = matches[1].str();
+      cvarValue = matches[2].str();
     }
 
-    std::string cvarName = matches[1].str();
-    std::string cvarValue = matches[2].str();
     if (CVar* cv = findCVar(cvarName)) {
-      cv->fromLiteralToType(cvarValue);
+      if (cvarValue.empty() && cv->isBoolean()) {
+        // We were set from the command line with an empty value, assume true
+        cv->fromBoolean(true);
+      } else if (!cvarValue.empty()) {
+        cv->fromLiteralToType(cvarValue);
+      }
       athena::utility::tolower(cvarName);
       if (developerName == cvarName)
         /* Make sure we're not overriding developer mode when we restore */
