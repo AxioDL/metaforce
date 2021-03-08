@@ -105,9 +105,9 @@ else ()
             Qt5::Network
             Qt5::Widgets
             Qt5::Xml)
-    if (WIN32)
-        list(APPEND Qt_LIBS Qt5::WindowsIntegrationPlugin)
-    endif ()
+#    if (WIN32)
+#        list(APPEND Qt_LIBS Qt5::WindowsIntegrationPlugin)
+#    endif ()
 endif ()
 target_link_libraries(hecl-gui PRIVATE
         ${Qt_LIBS}
