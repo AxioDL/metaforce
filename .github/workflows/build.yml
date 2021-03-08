@@ -119,25 +119,47 @@ jobs:
   build-windows-msvc:
     name: Build Windows (MSVC x86_64)
     runs-on: [ self-hosted, windows, x64 ]
+    env:
+      LLVM_VERSION: 10.0.1
+      Qt_VERSION: 6.0.2
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
 
-#      - name: Download LLVM
-#        uses: suisei-cn/actions-download-file@v1
-#        id: download-llvm
-#        with:
-#          url: https://axiodl.com/files/LLVM-10.0.1-win64.exe
-#          target: ${{github.workspace}}/temp
+      - name: Cache LLVM
+        id: cache-llvm
+        uses: actions/cache@v1
+        with:
+          path: ../LLVM
+          key: ${{runner.os}}-LLVMCache-${{env.LLVM_VERSION}}
 
-#      - name: Install LLVM
-#        shell: cmd
-#        working-directory: ${{github.workspace}}/temp
-#        run: ${{steps.download-llvm.outputs.filename}} /S
+      - name: Download LLVM
+        if: steps.cache-llvm.outputs.cache-hit != 'true'
+        uses: suisei-cn/actions-download-file@v1
+        id: download-llvm
+        with:
+          url: https://axiodl.com/files/LLVM-${{env.LLVM_VERSION}}-win64.exe
+          target: ../temp
+
+      - name: Install LLVM
+        if: steps.cache-llvm.outputs.cache-hit != 'true'
+        shell: cmd
+        working-directory: ../temp
+        run: ${{steps.download-llvm.outputs.filename}} /S /D=%RUNNER_WORKSPACE%\LLVM
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{runner.os}}-QtCache-${{env.Qt_VERSION}}
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{env.Qt_VERSION}}
+          cached: ${{steps.cache-qt.outputs.cache-hit}}
 
 #      - name: Install dependencies
 #        run: choco install ninja vulkan-sdk
@@ -153,6 +175,7 @@ jobs:
         run: |
           cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= `
+            -DLLVM_ROOT_DIR="$env:RUNNER_WORKSPACE/LLVM" `
             -DURDE_DLPACKAGE=urde-$env:GITHUB_RUN_NUMBER-win32-msvc-x86_64
 
       - name: Build
@@ -172,25 +195,47 @@ jobs:
   build-windows-clang:
     name: Build Windows (Clang x86_64)
     runs-on: windows-2019
+    env:
+      LLVM_VERSION: 10.0.1
+      Qt_VERSION: 6.0.2
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
 
+      - name: Cache LLVM
+        id: cache-llvm
+        uses: actions/cache@v1
+        with:
+          path: ../LLVM
+          key: ${{runner.os}}-LLVMCache-${{env.LLVM_VERSION}}
+
       - name: Download LLVM
+        if: steps.cache-llvm.outputs.cache-hit != 'true'
         uses: suisei-cn/actions-download-file@v1
         id: download-llvm
         with:
-          url: https://axiodl.com/files/LLVM-10.0.1-win64.exe
-          target: ${{github.workspace}}/temp
+          url: https://axiodl.com/files/LLVM-${{env.LLVM_VERSION}}-win64.exe
+          target: ../temp
 
       - name: Install LLVM
+        if: steps.cache-llvm.outputs.cache-hit != 'true'
         shell: cmd
-        working-directory: ${{github.workspace}}/temp
-        run: ${{steps.download-llvm.outputs.filename}} /S
+        working-directory: ../temp
+        run: ${{steps.download-llvm.outputs.filename}} /S /D=%RUNNER_WORKSPACE%\LLVM
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{runner.os}}-QtCache-${{env.Qt_VERSION}}
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{env.Qt_VERSION}}
+          cached: ${{steps.cache-qt.outputs.cache-hit}}
 
       - name: Install dependencies
         run: choco install ninja vulkan-sdk
@@ -209,6 +254,7 @@ jobs:
             -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang-cl.exe" `
             -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang-cl.exe" `
             -DCMAKE_LINKER="C:/Program Files/LLVM/bin/lld-link.exe" `
+            -DLLVM_ROOT_DIR="$env:RUNNER_WORKSPACE/LLVM" `
             -DURDE_DLPACKAGE=urde-$env:GITHUB_RUN_NUMBER-win32-clang-x86_64
 
       - name: Build
