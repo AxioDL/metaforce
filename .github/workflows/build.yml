@@ -41,7 +41,8 @@ jobs:
           VERSION: ${{github.run_number}}
         run: ci/build-appimage.sh
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
         with:
           name: urde-linux-gcc-x86_64
           path: URDE-*.AppImage
@@ -81,7 +82,8 @@ jobs:
           VERSION: ${{github.run_number}}
         run: ci/build-appimage.sh
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
         with:
           name: urde-linux-clang-x86_64
           path: URDE-*.AppImage
@@ -108,7 +110,8 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: cmake --build . --config $BUILD_TYPE
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
         with:
           name: urde-macos-x86_64
           path: build/Binaries/urde.app
@@ -133,8 +136,11 @@ jobs:
 #        working-directory: ${{github.workspace}}/temp
 #        run: ${{steps.download-llvm.outputs.filename}} /S
 
-#      - name: Install ninja
-#        run: choco install ninja
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+
+#      - name: Install dependencies
+#        run: choco install ninja vulkan-sdk
 
       - name: Enable Visual Studio environment
         uses: ilammy/msvc-dev-cmd@v1
@@ -153,7 +159,8 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: cmake --build . --config $BUILD_TYPE
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
         with:
           name: urde-windows-msvc-x86_64
           path: |
@@ -182,8 +189,11 @@ jobs:
         working-directory: ${{github.workspace}}/temp
         run: ${{steps.download-llvm.outputs.filename}} /S
 
-      - name: Install ninja
-        run: choco install ninja
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+
+      - name: Install dependencies
+        run: choco install ninja vulkan-sdk
 
       - name: Enable Visual Studio environment
         uses: ilammy/msvc-dev-cmd@v1
@@ -205,7 +215,8 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: cmake --build . --config $BUILD_TYPE
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
         with:
           name: urde-windows-clang-x86_64
           path: |
