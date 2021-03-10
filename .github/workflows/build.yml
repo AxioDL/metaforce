@@ -121,7 +121,7 @@ jobs:
     runs-on: [ self-hosted, windows, x64 ]
     env:
       LLVM_VERSION: 10.0.1
-      Qt_VERSION: 5.15.2
+      Qt_VERSION: 6.0.2
     steps:
       - uses: actions/checkout@v2
         with:
@@ -197,7 +197,7 @@ jobs:
     runs-on: windows-2019
     env:
       LLVM_VERSION: 10.0.1
-      Qt_VERSION: 5.15.2
+      Qt_VERSION: 6.0.2
     steps:
       - uses: actions/checkout@v2
         with:
