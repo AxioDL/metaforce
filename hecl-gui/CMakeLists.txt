@@ -33,14 +33,14 @@ else ()
 endif ()
 
 add_executable(hecl-gui WIN32 MACOSX_BUNDLE
-        ArgumentEditor.cpp
-        ArgumentEditor.hpp
-        ArgumentEditor.ui
+        #ArgumentEditor.cpp
+        #ArgumentEditor.hpp
+        #ArgumentEditor.ui
         Common.cpp
         Common.hpp
-        CVarDialog.cpp
-        CVarDialog.hpp
-        CVarDialog.ui
+        #CVarDialog.cpp
+        #CVarDialog.hpp
+        #CVarDialog.ui
         DownloadManager.cpp
         DownloadManager.hpp
         ErrorLabel.hpp

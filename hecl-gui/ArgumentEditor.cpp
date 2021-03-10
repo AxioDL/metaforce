@@ -1,6 +1,6 @@
 #include "ArgumentEditor.hpp"
 #include "ui_ArgumentEditor.h"
-#include "CVarDialog.hpp"
+//#include "CVarDialog.hpp"
 #include <QSettings>
 #include <QInputDialog>
 #include <QDebug>
