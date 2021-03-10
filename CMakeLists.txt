@@ -54,7 +54,7 @@ set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/sanitizers-cmake/cmake")
 find_package(Sanitizers)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64)
   set(URDE_VECTOR_ISA "sse41" CACHE STRING "Vector ISA to build for (sse2, sse3, sse41, avx, avx2)")
 endif ()
 
