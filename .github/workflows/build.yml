@@ -34,7 +34,7 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: cmake --build . --config $BUILD_TYPE
+        run: cmake --build . --config $BUILD_TYPE -- -j
 
       - name: Generate AppImage
         env:
@@ -75,7 +75,7 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: cmake --build . --config $BUILD_TYPE
+        run: cmake --build . --config $BUILD_TYPE -- -j
 
       - name: Generate AppImage
         env:
@@ -108,7 +108,7 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: cmake --build . --config $BUILD_TYPE
+        run: cmake --build . --config $BUILD_TYPE -- -j
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
@@ -259,7 +259,7 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: cmake --build . --config $BUILD_TYPE
+        run: cmake --build . --config $BUILD_TYPE -- -j
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
