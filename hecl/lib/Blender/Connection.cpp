@@ -371,9 +371,9 @@ Connection::Connection(int verbosityLevel) {
         /* No steam; try default */
         wchar_t progFiles[256];
         if (GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256)) {
-          for (size_t major = MinBlenderMajorSearch; major <= MaxBlenderMajorSearch; ++major) {
+          for (size_t major = MaxBlenderMajorSearch; major >= MinBlenderMajorSearch; --major) {
             bool found = false;
-            for (size_t minor = MinBlenderMinorSearch; minor <= MaxBlenderMinorSearch; ++minor) {
+            for (size_t minor = MaxBlenderMinorSearch; minor >= MinBlenderMinorSearch; --minor) {
               _snwprintf(BLENDER_BIN_BUF, 2048, L"%s\\Blender Foundation\\Blender %i.%i\\blender.exe", progFiles, major,
                          minor);
               if (RegFileExists(BLENDER_BIN_BUF)) {
