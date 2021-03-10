@@ -148,18 +148,18 @@ jobs:
         working-directory: ../temp
         run: ${{steps.download-llvm.outputs.filename}} /S /D=%RUNNER_WORKSPACE%\LLVM
 
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v1
-        with:
-          path: ../Qt
-          key: ${{runner.os}}-QtCache-${{env.Qt_VERSION}}
+      #- name: Cache Qt
+      #  id: cache-qt
+      #  uses: actions/cache@v1
+      #  with:
+      #    path: ../Qt
+      #    key: ${{runner.os}}-QtCache-${{env.Qt_VERSION}}
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: ${{env.Qt_VERSION}}
-          cached: ${{steps.cache-qt.outputs.cache-hit}}
+      #- name: Install Qt
+      #  uses: jurplel/install-qt-action@v2
+      #  with:
+      #    version: ${{env.Qt_VERSION}}
+      #    cached: ${{steps.cache-qt.outputs.cache-hit}}
 
 #      - name: Install dependencies
 #        run: choco install ninja vulkan-sdk
@@ -224,18 +224,18 @@ jobs:
         working-directory: ../temp
         run: ${{steps.download-llvm.outputs.filename}} /S /D=%RUNNER_WORKSPACE%\LLVM
 
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v1
-        with:
-          path: ../Qt
-          key: ${{runner.os}}-QtCache-${{env.Qt_VERSION}}
+      #- name: Cache Qt
+      #  id: cache-qt
+      #  uses: actions/cache@v1
+      #  with:
+      #    path: ../Qt
+      #    key: ${{runner.os}}-QtCache-${{env.Qt_VERSION}}
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: ${{env.Qt_VERSION}}
-          cached: ${{steps.cache-qt.outputs.cache-hit}}
+      #- name: Install Qt
+      #  uses: jurplel/install-qt-action@v2
+      #  with:
+      #    version: ${{env.Qt_VERSION}}
+      #    cached: ${{steps.cache-qt.outputs.cache-hit}}
 
       - name: Install dependencies
         run: choco install ninja vulkan-sdk
