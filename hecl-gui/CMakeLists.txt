@@ -105,8 +105,9 @@ else ()
             Qt5::Network
             Qt5::Widgets
             Qt5::Xml)
-    if (WIN32)
-        list(APPEND Qt_LIBS Qt5::WindowsIntegrationPlugin)
+    # Check for static linking
+    if (WIN32 AND NOT "$<TARGET_PROPERTY:hecl-gui,MSVC_RUNTIME_LIBRARY>" MATCHES "DLL$")
+        list(APPEND Qt_LIBS Qt5::QWindowsIntegrationPlugin)
     endif ()
 endif ()
 target_link_libraries(hecl-gui PRIVATE
