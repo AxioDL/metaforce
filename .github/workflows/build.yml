@@ -121,7 +121,7 @@ jobs:
     runs-on: [ self-hosted, windows, x64 ]
     env:
       LLVM_VERSION: 10.0.1
-      Qt_VERSION: 6.0.2
+      Qt_VERSION: 5.15.2
     steps:
       - uses: actions/checkout@v2
         with:
@@ -197,7 +197,7 @@ jobs:
     runs-on: windows-2019
     env:
       LLVM_VERSION: 10.0.1
-      Qt_VERSION: 6.0.2
+      Qt_VERSION: 5.15.2
     steps:
       - uses: actions/checkout@v2
         with:
@@ -224,18 +224,18 @@ jobs:
         working-directory: ../temp
         run: ${{steps.download-llvm.outputs.filename}} /S /D=%RUNNER_WORKSPACE%\LLVM
 
-      #- name: Cache Qt
-      #  id: cache-qt
-      #  uses: actions/cache@v1
-      #  with:
-      #    path: ../Qt
-      #    key: ${{runner.os}}-QtCache-${{env.Qt_VERSION}}
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{runner.os}}-QtCache-${{env.Qt_VERSION}}
 
-      #- name: Install Qt
-      #  uses: jurplel/install-qt-action@v2
-      #  with:
-      #    version: ${{env.Qt_VERSION}}
-      #    cached: ${{steps.cache-qt.outputs.cache-hit}}
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{env.Qt_VERSION}}
+          cached: ${{steps.cache-qt.outputs.cache-hit}}
 
       - name: Install dependencies
         run: choco install ninja vulkan-sdk
@@ -251,9 +251,9 @@ jobs:
         run: |
           cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
-            -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang-cl.exe" `
-            -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang-cl.exe" `
-            -DCMAKE_LINKER="C:/Program Files/LLVM/bin/lld-link.exe" `
+            -DCMAKE_C_COMPILER="$env:RUNNER_WORKSPACE/LLVM/bin/clang-cl.exe" `
+            -DCMAKE_CXX_COMPILER="$env:RUNNER_WORKSPACE/LLVM/bin/clang-cl.exe" `
+            -DCMAKE_LINKER="$env:RUNNER_WORKSPACE/LLVM/bin/lld-link.exe" `
             -DLLVM_ROOT_DIR="$env:RUNNER_WORKSPACE/LLVM" `
             -DURDE_DLPACKAGE=urde-$env:GITHUB_RUN_NUMBER-win32-clang-x86_64
 
