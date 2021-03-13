@@ -158,6 +158,7 @@ jobs:
           $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
           cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 `
             -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= `
             -DLLVM_ROOT_DIR="$workspace/LLVM" `
             -DURDE_DLPACKAGE=urde-$env:GITHUB_RUN_NUMBER-win32-msvc-x86_64
@@ -218,6 +219,7 @@ jobs:
           $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
           cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 `
             -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
             -DCMAKE_C_COMPILER="$workspace/LLVM/bin/clang-cl.exe" `
             -DCMAKE_CXX_COMPILER="$workspace/LLVM/bin/clang-cl.exe" `
