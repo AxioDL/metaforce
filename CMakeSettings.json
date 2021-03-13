@@ -13,7 +13,7 @@
       "variables": [
         {
           "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
-          "value": "MultiThreadedDebug",
+          "value": "MultiThreadedDebugDLL",
           "type": "STRING"
         },
         {
@@ -46,7 +46,7 @@
       "variables": [
         {
           "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
-          "value": "MultiThreaded",
+          "value": "MultiThreadedDLL",
           "type": "STRING"
         },
         {
@@ -122,7 +122,7 @@
       "variables": [
         {
           "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
-          "value": "MultiThreadedDebug",
+          "value": "MultiThreadedDebugDLL",
           "type": "STRING"
         },
         {
@@ -150,7 +150,7 @@
       "variables": [
         {
           "name": "CMAKE_MSVC_RUNTIME_LIBRARY",
-          "value": "MultiThreaded",
+          "value": "MultiThreadedDLL",
           "type": "STRING"
         },
         {

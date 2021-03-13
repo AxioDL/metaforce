@@ -127,39 +127,21 @@ jobs:
         with:
           submodules: recursive
 
-#      - name: Cache LLVM
-#        id: cache-llvm
-#        uses: actions/cache@v1
-#        with:
-#          path: ../LLVM
-#          key: ${{runner.os}}-LLVMCache-${{env.LLVM_VERSION}}
-
-      - name: Download LLVM
-#        if: steps.cache-llvm.outputs.cache-hit != 'true'
-        uses: suisei-cn/actions-download-file@v1
-        id: download-llvm
-        with:
-          url: https://axiodl.com/files/LLVM-${{env.LLVM_VERSION}}-win64.exe
-          target: ../temp
-
       - name: Install LLVM
-#        if: steps.cache-llvm.outputs.cache-hit != 'true'
-        shell: cmd
-        working-directory: ../temp
-        run: ${{steps.download-llvm.outputs.filename}} /S /D=%RUNNER_WORKSPACE%\LLVM
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "LLVM-$env:LLVM_VERSION-win64.exe"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
+          Start-Process "$TempDir\$Filename" -ArgumentList "/S /D=$env:RUNNER_WORKSPACE\LLVM" -Wait
 
-      #- name: Cache Qt
-      #  id: cache-qt
-      #  uses: actions/cache@v1
-      #  with:
-      #    path: ../Qt
-      #    key: ${{runner.os}}-QtCache-${{env.Qt_VERSION}}
-
-      #- name: Install Qt
-      #  uses: jurplel/install-qt-action@v2
-      #  with:
-      #    version: ${{env.Qt_VERSION}}
-      #    cached: ${{steps.cache-qt.outputs.cache-hit}}
+      - name: Install vcpkg Qt
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "vcpkg-qt-$env:Qt_VERSION.7z"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
+          7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
 
 #      - name: Install dependencies
 #        run: choco install ninja vulkan-sdk
@@ -175,6 +157,7 @@ jobs:
         run: |
           $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
           cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 `
+            -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= `
             -DLLVM_ROOT_DIR="$workspace/LLVM" `
             -DURDE_DLPACKAGE=urde-$env:GITHUB_RUN_NUMBER-win32-msvc-x86_64
@@ -204,39 +187,21 @@ jobs:
         with:
           submodules: recursive
 
-#      - name: Cache LLVM
-#        id: cache-llvm
-#        uses: actions/cache@v1
-#        with:
-#          path: ../LLVM
-#          key: ${{runner.os}}-LLVMCache-${{env.LLVM_VERSION}}
-
-      - name: Download LLVM
-#        if: steps.cache-llvm.outputs.cache-hit != 'true'
-        uses: suisei-cn/actions-download-file@v1
-        id: download-llvm
-        with:
-          url: https://axiodl.com/files/LLVM-${{env.LLVM_VERSION}}-win64.exe
-          target: ../temp
-
       - name: Install LLVM
-#        if: steps.cache-llvm.outputs.cache-hit != 'true'
-        shell: cmd
-        working-directory: ../temp
-        run: ${{steps.download-llvm.outputs.filename}} /S /D=%RUNNER_WORKSPACE%\LLVM
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "LLVM-$env:LLVM_VERSION-win64.exe"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
+          Start-Process "$TempDir\$Filename" -ArgumentList "/S /D=$env:RUNNER_WORKSPACE\LLVM" -Wait
 
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v1
-        with:
-          path: ../Qt
-          key: ${{runner.os}}-QtCache-${{env.Qt_VERSION}}
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: ${{env.Qt_VERSION}}
-          cached: ${{steps.cache-qt.outputs.cache-hit}}
+      - name: Install vcpkg Qt
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "vcpkg-qt-$env:Qt_VERSION.7z"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
+          7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
 
       - name: Install dependencies
         run: choco install ninja vulkan-sdk
@@ -252,6 +217,7 @@ jobs:
         run: |
           $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
           cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 `
+            -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
             -DCMAKE_C_COMPILER="$workspace/LLVM/bin/clang-cl.exe" `
             -DCMAKE_CXX_COMPILER="$workspace/LLVM/bin/clang-cl.exe" `
