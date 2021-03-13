@@ -127,15 +127,15 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Cache LLVM
-        id: cache-llvm
-        uses: actions/cache@v1
-        with:
-          path: ../LLVM
-          key: ${{runner.os}}-LLVMCache-${{env.LLVM_VERSION}}
+#      - name: Cache LLVM
+#        id: cache-llvm
+#        uses: actions/cache@v1
+#        with:
+#          path: ../LLVM
+#          key: ${{runner.os}}-LLVMCache-${{env.LLVM_VERSION}}
 
       - name: Download LLVM
-        if: steps.cache-llvm.outputs.cache-hit != 'true'
+#        if: steps.cache-llvm.outputs.cache-hit != 'true'
         uses: suisei-cn/actions-download-file@v1
         id: download-llvm
         with:
@@ -143,7 +143,7 @@ jobs:
           target: ../temp
 
       - name: Install LLVM
-        if: steps.cache-llvm.outputs.cache-hit != 'true'
+#        if: steps.cache-llvm.outputs.cache-hit != 'true'
         shell: cmd
         working-directory: ../temp
         run: ${{steps.download-llvm.outputs.filename}} /S /D=%RUNNER_WORKSPACE%\LLVM
@@ -204,15 +204,15 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Cache LLVM
-        id: cache-llvm
-        uses: actions/cache@v1
-        with:
-          path: ../LLVM
-          key: ${{runner.os}}-LLVMCache-${{env.LLVM_VERSION}}
+#      - name: Cache LLVM
+#        id: cache-llvm
+#        uses: actions/cache@v1
+#        with:
+#          path: ../LLVM
+#          key: ${{runner.os}}-LLVMCache-${{env.LLVM_VERSION}}
 
       - name: Download LLVM
-        if: steps.cache-llvm.outputs.cache-hit != 'true'
+#        if: steps.cache-llvm.outputs.cache-hit != 'true'
         uses: suisei-cn/actions-download-file@v1
         id: download-llvm
         with:
@@ -220,7 +220,7 @@ jobs:
           target: ../temp
 
       - name: Install LLVM
-        if: steps.cache-llvm.outputs.cache-hit != 'true'
+#        if: steps.cache-llvm.outputs.cache-hit != 'true'
         shell: cmd
         working-directory: ../temp
         run: ${{steps.download-llvm.outputs.filename}} /S /D=%RUNNER_WORKSPACE%\LLVM
