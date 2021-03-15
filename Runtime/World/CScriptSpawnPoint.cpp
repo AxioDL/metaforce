@@ -42,7 +42,7 @@ void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
       using EPlayerItemType = CPlayerState::EItemType;
       const std::shared_ptr<CPlayerState>& plState = stateMgr.GetPlayerState();
       for (u32 i = 0; i < u32(EPlayerItemType::Max); ++i) {
-        plState->ReInitalizePowerUp(EPlayerItemType(i), GetPowerup(EPlayerItemType(i)));
+        plState->ReInitializePowerUp(EPlayerItemType(i), GetPowerup(EPlayerItemType(i)));
         plState->ResetAndIncrPickUp(EPlayerItemType(i), GetPowerup(EPlayerItemType(i)));
       }
     }
