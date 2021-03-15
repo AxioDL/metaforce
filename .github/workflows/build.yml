@@ -30,7 +30,7 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 \
-            -DURDE_DLPACKAGE=urde-$GITHUB_RUN_NUMBER-linux-gcc-x86_64
+            -DURDE_DLPACKAGE=urde-$GITHUB_RUN_NUMBER-linux-x86_64-sse41
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -44,7 +44,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-linux-gcc-x86_64
+          name: urde-${{github.run_number}}-linux-gcc-x86_64
           path: URDE-*.AppImage
 
   build-linux-clang:
@@ -71,7 +71,7 @@ jobs:
         run: |
           cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 \
             -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
-            -DURDE_DLPACKAGE=urde-$GITHUB_RUN_NUMBER-linux-clang-x86_64
+            -DURDE_DLPACKAGE=urde-$GITHUB_RUN_NUMBER-linux-x86_64-sse41
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -85,11 +85,11 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-linux-clang-x86_64
+          name: urde-${{github.run_number}}-linux-clang-x86_64
           path: URDE-*.AppImage
 
   build-macos:
-    name: Build macOS (Clang x86_64)
+    name: Build macOS (AppleClang x86_64)
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
@@ -104,7 +104,8 @@ jobs:
 
       - name: Configure CMake
         working-directory: ${{github.workspace}}/build
-        run: cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41
+        run: cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 \
+          -DURDE_DLPACKAGE=urde-$GITHUB_RUN_NUMBER-macos-x86_64-sse41
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -113,7 +114,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-macos-x86_64
+          name: urde-${{github.run_number}}-macos-appleclang-x86_64
           path: build/Binaries/urde.app
 
   build-windows-msvc:
@@ -161,7 +162,7 @@ jobs:
             -DVCPKG_TARGET_TRIPLET=x64-windows-static `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= `
             -DLLVM_ROOT_DIR="$workspace/LLVM" `
-            -DURDE_DLPACKAGE=urde-$env:GITHUB_RUN_NUMBER-win32-msvc-x86_64
+            -DURDE_DLPACKAGE="urde-$env:GITHUB_RUN_NUMBER-win32-x86_64-sse41"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -170,7 +171,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-windows-msvc-x86_64
+          name: urde-${{github.run_number}}-win32-msvc-x86_64
           path: |
             build/Binaries/urde.exe
             build/Binaries/hecl.exe
@@ -225,7 +226,7 @@ jobs:
             -DCMAKE_CXX_COMPILER="$workspace/LLVM/bin/clang-cl.exe" `
             -DCMAKE_LINKER="$workspace/LLVM/bin/lld-link.exe" `
             -DLLVM_ROOT_DIR="$workspace/LLVM" `
-            -DURDE_DLPACKAGE=urde-$env:GITHUB_RUN_NUMBER-win32-clang-x86_64
+            -DURDE_DLPACKAGE="urde-$env:GITHUB_RUN_NUMBER-win32-x86_64-sse41"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -234,7 +235,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-windows-clang-x86_64
+          name: urde-${{github.run_number}}-win32-clang-x86_64
           path: |
             build/Binaries/urde.exe
             build/Binaries/hecl.exe
