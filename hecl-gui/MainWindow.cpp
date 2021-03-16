@@ -20,24 +20,23 @@
 #include <TlHelp32.h>
 
 static void KillProcessTree(QProcess& proc) {
-#if 0
-  Q_PID pid = proc.pid();
-  if (!pid)
+  quint64 pid = proc.processId();
+  if (pid == 0) {
     return;
+  }
 
-  DWORD myprocID = pid->dwProcessId;
   PROCESSENTRY32 pe = {};
   pe.dwSize = sizeof(PROCESSENTRY32);
 
   HANDLE hSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 
-  if (::Process32First(hSnap, &pe)) {
+  if (::Process32First(hSnap, &pe) == TRUE) {
     BOOL bContinue = TRUE;
 
     // kill child processes
-    while (bContinue) {
+    while (bContinue != FALSE) {
       // only kill child processes
-      if (pe.th32ParentProcessID == myprocID) {
+      if (pe.th32ParentProcessID == pid) {
         HANDLE hChildProc = ::OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe.th32ProcessID);
 
         if (hChildProc) {
@@ -49,7 +48,7 @@ static void KillProcessTree(QProcess& proc) {
       bContinue = ::Process32Next(hSnap, &pe);
     }
   }
-#endif
+
   proc.close();
   proc.terminate();
 }
@@ -196,7 +195,8 @@ void MainWindow::onPackage() {
   disconnect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), nullptr, nullptr);
   connect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &MainWindow::onPackageFinished);
 
-  const QStringList heclProcArguments{QStringLiteral("package"), QStringLiteral("-y"), QStringLiteral("-g")};
+  const QStringList heclProcArguments{QStringLiteral("package"), QStringLiteral("MP1"), QStringLiteral("-y"),
+                                      QStringLiteral("-g")};
   m_heclProc.start(m_heclPath, heclProcArguments, QIODevice::ReadOnly | QIODevice::Unbuffered);
 
   m_ui->heclTabs->setCurrentIndex(0);
@@ -235,9 +235,8 @@ void MainWindow::onLaunch() {
   disconnect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), nullptr, nullptr);
   connect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &MainWindow::onLaunchFinished);
 
-  const auto heclProcArguments = QStringList{m_path + QStringLiteral("/out")}
-                                 << m_warpSettings
-                                 << QStringLiteral("-l")
+  const auto heclProcArguments = QStringList{m_path + QStringLiteral("/out/MP1")}
+                                 << m_warpSettings << QStringLiteral("-l")
                                  << m_settings.value(QStringLiteral("urde_arguments"))
                                         .toStringList()
                                         .join(QLatin1Char{' '})
@@ -723,9 +722,7 @@ void MainWindow::initOptions() {
           }
         }
       }
-      std::sort(layers.begin(), layers.end(), [&](const auto& a, const auto& b) {
-        return a.name < b.name;
-      });
+      std::sort(layers.begin(), layers.end(), [&](const auto& a, const auto& b) { return a.name < b.name; });
 
       LayerDialog layer(this);
       layer.createLayerCheckboxes(layers);
@@ -735,6 +732,11 @@ void MainWindow::initOptions() {
       }
     }
     QString directoryPath = areaPath.path();
+#if _WIN32
+    directoryPath.replace(QLatin1Char('/'), QDir::separator());
+#else
+    directoryPath.replace(QLatin1Char('\\'), QDir::separator());
+#endif
     auto list = directoryPath.split(QDir::separator());
     std::string areaDirectory = list.last().toLower().toStdString();
     list.pop_back();
