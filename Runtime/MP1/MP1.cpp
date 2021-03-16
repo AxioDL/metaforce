@@ -460,7 +460,7 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
   std::shared_ptr<CPlayerState> pState = g_GameState->GetPlayerState();
   if (type == "all") {
     for (u32 item = 0; item < u32(CPlayerState::EItemType::Max); ++item) {
-      pState->ReInitalizePowerUp(CPlayerState::EItemType(item),
+      pState->ReInitializePowerUp(CPlayerState::EItemType(item),
                                  CPlayerState::GetPowerUpMaxValue(CPlayerState::EItemType(item)));
       pState->IncrPickup(CPlayerState::EItemType(item),
                          CPlayerState::GetPowerUpMaxValue(CPlayerState::EItemType(item)));
@@ -496,9 +496,9 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
       /* Handle special case with Missiles */
       if (eType == CPlayerState::EItemType::Missiles) {
         u32 tmp = ((u32(itemAmt) / 5) + (itemAmt % 5)) * 5;
-        pState->ReInitalizePowerUp(eType, tmp);
+        pState->ReInitializePowerUp(eType, tmp);
       } else {
-        pState->ReInitalizePowerUp(eType, itemAmt);
+        pState->ReInitializePowerUp(eType, itemAmt);
       }
     }
 
@@ -530,7 +530,7 @@ void CMain::Remove(hecl::Console*, const std::vector<std::string>& args) {
   } else {
     CPlayerState::EItemType eType = CPlayerState::ItemNameToType(type);
     if (eType != CPlayerState::EItemType::Invalid) {
-      pState->ReInitalizePowerUp(eType, 0);
+      pState->ReInitializePowerUp(eType, 0);
       if (g_StateManager != nullptr) {
         g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
       }

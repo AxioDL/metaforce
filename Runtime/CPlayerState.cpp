@@ -371,7 +371,7 @@ void CPlayerState::AddPowerUp(CPlayerState::EItemType type, u32 capacity) {
   }
 }
 
-void CPlayerState::ReInitalizePowerUp(CPlayerState::EItemType type, u32 capacity) {
+void CPlayerState::ReInitializePowerUp(CPlayerState::EItemType type, u32 capacity) {
   x24_powerups[u32(type)].x4_capacity = 0;
   AddPowerUp(type, capacity);
 }
