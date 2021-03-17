@@ -128,7 +128,7 @@ private:
   ELoadPhase x4_loadPhase = ELoadPhase::LoadResources;
   TLockedToken<CMapUniverse> x8_mapu;
   std::vector<std::unique_ptr<IWorld>> x14_dummyWorlds;
-  CWorld* x24_world;
+  IWorld* x24_world;
   TLockedToken<CGuiFrame> x28_frmeMapScreen; // Used to be ptr
   bool m_frmeInitialized = false;
   TLockedToken<CModel> x30_miniMapSamus;

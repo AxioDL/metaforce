@@ -217,6 +217,7 @@ bool CAutoMapper::CheckDummyWorldLoad(CStateManager& mgr) {
   xa0_curAreaId = aid;
 
   dummyWorld->IGetMapWorld()->RecalculateWorldSphere(mwInfo, *dummyWorld);
+  x24_world = dummyWorld.get();
   BeginMapperStateTransition(EAutoMapperState::MapScreen, mgr);
   x32c_loadingDummyWorld = false;
   return true;
