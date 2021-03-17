@@ -153,7 +153,11 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
     maxpElem->GetValue(x74_curFrame, x90_MAXP);
   }
 
-  x30_particles.reserve(x90_MAXP);
+  s32 count = std::min(256, x90_MAXP);
+  x30_particles.reserve(count);
+  if (x26d_28_enableADV) {
+    x60_advValues.resize(count);
+  }
   if (x2c_orientType == EModelOrientationType::One)
     x50_parentMatrices.resize(x90_MAXP);
 
@@ -472,21 +476,27 @@ void CElementGen::UpdateExistingParticles() {
 void CElementGen::CreateNewParticles(int count) {
   CGenDescription* desc = x1c_genDesc.GetObj();
 
-  if (!g_ParticleSystemInitialized)
+  if (!g_ParticleSystemInitialized) {
     Initialize();
-  if (!count || x30_particles.size() >= x90_MAXP)
-    return;
+  }
 
-  if (count + x30_particles.size() > x90_MAXP)
+  if (x30_particles.size() >= x90_MAXP) {
+    return;
+  }
+
+  if (count + x30_particles.size() > x90_MAXP) {
     count = x90_MAXP - x30_particles.size();
-  int newTotalCount = g_ParticleAliveCount + count;
-  if (newTotalCount > 2560)
+  }
+
+  if (g_ParticleAliveCount + count > 2560) {
     count = 2560 - g_ParticleAliveCount;
+  }
 
   CGlobalRandom gr(x27c_randState);
-  x30_particles.reserve(x90_MAXP);
-  if (x26d_28_enableADV && x60_advValues.empty())
-    x60_advValues.resize(x90_MAXP);
+  x30_particles.reserve(count + x90_MAXP);
+  if (x26d_28_enableADV && x60_advValues.capacity() < count + x30_particles.size()) {
+    x60_advValues.resize(std::min(int(x60_advValues.capacity() * 2), x90_MAXP));
+  }
 
   CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
 
