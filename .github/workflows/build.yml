@@ -92,6 +92,7 @@ jobs:
       - name: Configure CMake
         working-directory: ${{github.workspace}}/build
         run: |
+          export PATH="/usr/local/opt/qt@5/bin:$PATH" # FIXME remove
           cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 \
             -DURDE_DLPACKAGE=urde-$GITHUB_RUN_NUMBER-macos-x86_64-sse41
 
