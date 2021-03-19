@@ -4,12 +4,26 @@ on:
   push:
     branches:
       - master
-  pull_request:
+    paths-ignore:
+      - '*.json'
+      - '*.md'
+      - '*LICENSE'
+#  pull_request:
 
 jobs:
-  build-linux-gcc:
-    name: Build Linux (GCC x86_64)
+  build-linux:
+    name: Build Linux (${{matrix.name}} x86_64)
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        include:
+          - name: GCC
+            cc: gcc
+            cxx: g++
+          - name: Clang
+            cc: clang
+            cxx: clang++
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -20,15 +34,26 @@ jobs:
           sudo apt-get -y install build-essential curl git cmake ninja-build llvm-dev libclang-dev clang lld \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
             libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default
+          # free up disk space
+          # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
+          echo Before
+          df -h .
+          sudo apt-get clean
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          echo After
+          df -h .
 
       - name: Create build directory
-        shell: bash
         run: cmake -E make_directory ${{github.workspace}}/build
 
       - name: Configure CMake
         working-directory: ${{github.workspace}}/build
         run: |
           cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 \
+            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}} \
             -DURDE_DLPACKAGE=urde-$GITHUB_RUN_NUMBER-linux-x86_64-sse41
 
       - name: Build
@@ -43,47 +68,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-${{github.run_number}}-linux-gcc-x86_64
-          path: URDE-*.AppImage
-
-  build-linux-clang:
-    name: Build Linux (Clang x86_64)
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get -y install build-essential curl git cmake ninja-build llvm-dev libclang-dev clang lld \
-            zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
-            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default
-
-      - name: Create build directory
-        run: cmake -E make_directory ${{github.workspace}}/build
-
-      - name: Configure CMake
-        working-directory: ${{github.workspace}}/build
-
-        run: |
-          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 \
-            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
-            -DURDE_DLPACKAGE=urde-$GITHUB_RUN_NUMBER-linux-x86_64-sse41
-
-      - name: Build
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build . --config $BUILD_TYPE
-
-      - name: Generate AppImage
-        env:
-          VERSION: ${{github.run_number}}
-        run: ci/build-appimage.sh
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: urde-${{github.run_number}}-linux-clang-x86_64
+          name: urde-${{github.run_number}}-linux-${{matrix.cc}}-x86_64
           path: URDE-*.AppImage
 
   build-macos:
