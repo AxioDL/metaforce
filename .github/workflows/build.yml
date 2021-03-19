@@ -80,7 +80,10 @@ jobs:
           submodules: recursive
 
       - name: Install dependencies
-        run: brew install ninja qt
+        run: |
+          brew install ninja qt@5 graphicsmagick imagemagick
+          brew link qt@5
+          yarn global add create-dmg
 
       - name: Create build directory
         run: cmake -E make_directory ${{github.workspace}}/build
@@ -95,11 +98,31 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: cmake --build . --config $BUILD_TYPE
 
+      - name: Import signing certificate
+        uses: devbotsxyz/xcode-import-certificate@master
+        with:
+          certificate-data: ${{ secrets.MACOS_CERTIFICATE_DATA }}
+          certificate-passphrase: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          keychain-password: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+
+      - name: Deploy & codesign application
+        working-directory: build/Binaries
+        run: |
+          mv hecl-gui.app URDE.app
+          for i in visigen hecl urde; do
+            codesign --timestamp --options runtime -s "${{secrets.MACOS_CODESIGN_IDENT}}" URDE.app/Contents/MacOS/$i
+          done
+          macdeployqt URDE.app -sign-for-notarization="${{secrets.MACOS_CODESIGN_IDENT}}" -no-strip
+          create-dmg URDE.app --identity="${{secrets.MACOS_CODESIGN_IDENT}}"
+          xcrun altool -t osx -f *.dmg --primary-bundle-id com.axiodl.URDE --notarize-app \
+            -u "${{secrets.MACOS_ASC_USERNAME}}" -p "${{secrets.MACOS_ASC_PASSWORD}}" \
+            --team-id "${{secrets.MACOS_ASC_TEAM_ID}}"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: urde-${{github.run_number}}-macos-appleclang-x86_64
-          path: build/Binaries/urde.app
+          path: build/Binaries/*.dmg
 
   build-windows-msvc:
     name: Build Windows (MSVC x86_64)
