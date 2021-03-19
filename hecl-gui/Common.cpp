@@ -128,21 +128,21 @@ URDEVersion::URDEVersion(const QString& filename) {
       }
     }
     if (state == architecture) {
-      state = vectorISA;
+      state = extra;
       Architecture archValue = StringToArchitecture(list[i]);
       if (archValue != Architecture::Invalid) {
         m_architecture = archValue;
         continue;
       }
     }
-    if (state == vectorISA) {
-      state = extra;
-      VectorISA isa = StringToVectorISA(list[i]);
-      if (isa != VectorISA::Invalid) {
-        m_vectorISA = isa;
-        continue;
-      }
-    }
+//    if (state == vectorISA) {
+//      state = extra;
+//      VectorISA isa = StringToVectorISA(list[i]);
+//      if (isa != VectorISA::Invalid) {
+//        m_vectorISA = isa;
+//        continue;
+//      }
+//    }
     m_extra += QLatin1Char('-') + list[i];
   }
 }
@@ -153,13 +153,11 @@ QString URDEVersion::fileString(bool withExtension) const {
   }
 
   if (withExtension && !m_extension.isEmpty()) {
-    return QStringLiteral("urde-%1-%2-%3-%4%5%6")
-        .arg(m_version, PlatformToString(m_platform), ArchitectureToString(m_architecture),
-             VectorISAToString(m_vectorISA), m_extra, m_extension);
+    return QStringLiteral("urde-%1-%2-%3%4%5")
+        .arg(m_version, PlatformToString(m_platform), ArchitectureToString(m_architecture), m_extra, m_extension);
   } else {
-    return QStringLiteral("urde-%1-%2-%3-%4%5")
-        .arg(m_version, PlatformToString(m_platform), ArchitectureToString(m_architecture),
-             VectorISAToString(m_vectorISA), m_extra);
+    return QStringLiteral("urde-%1-%2-%3%4")
+        .arg(m_version, PlatformToString(m_platform), ArchitectureToString(m_architecture), m_extra);
   }
 }
 

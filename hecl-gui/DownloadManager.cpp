@@ -2,6 +2,8 @@
 #include "Common.hpp"
 #include <quazip.h>
 
+#include <QDesktopServices>
+
 #define KEY_PINNING 0
 
 #if KEY_PINNING
@@ -77,6 +79,7 @@ void DownloadManager::fetchBinary(const QString& str, const QString& outPath) {
 
   const QString track = QSettings().value(QStringLiteral("update_track")).toString();
   const auto url = QUrl(QStringLiteral("%1%2/%3/%4").arg(Domain, track, CurPlatformString, str));
+#if PLATFORM_ZIP_DOWNLOAD
   m_binaryInProgress = m_netManager.get(QNetworkRequest(url));
   connect(m_binaryInProgress, &QNetworkReply::finished, this, &DownloadManager::binaryFinished);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
@@ -92,6 +95,9 @@ void DownloadManager::fetchBinary(const QString& str, const QString& outPath) {
     m_progBar->setEnabled(true);
     m_progBar->setValue(0);
   }
+#else
+  QDesktopServices::openUrl(url);
+#endif
 }
 
 void DownloadManager::indexFinished() {

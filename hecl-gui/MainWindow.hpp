@@ -40,7 +40,7 @@ class MainWindow : public QMainWindow {
   QStringList m_warpSettings;
   QSettings m_settings;
   URDEVersion m_recommendedVersion;
-  QPushButton* m_updateURDEButton;
+//  QPushButton* m_updateURDEButton;
   bool m_inContinueNote = false;
   QStringListModel m_launchOptionsModel;
 
@@ -61,7 +61,7 @@ private slots:
   void doHECLTerminate();
   void onReturnPressed();
   void onDownloadPressed();
-  void onUpdateURDEPressed();
+//  void onUpdateURDEPressed();
   void onUpdateTrackChanged(int index);
 
 private:

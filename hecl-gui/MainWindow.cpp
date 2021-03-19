@@ -59,7 +59,7 @@ static void KillProcessTree(QProcess& proc) {
 }
 #endif
 
-const QStringList MainWindow::skUpdateTracks = {QStringLiteral("stable"), QStringLiteral("dev")};
+const QStringList MainWindow::skUpdateTracks = {QStringLiteral("stable"), QStringLiteral("dev"), QStringLiteral("continuous")};
 
 MainWindow::MainWindow(QWidget* parent)
 : QMainWindow(parent)
@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget* parent)
     m_settings.setValue(QStringLiteral("urde_arguments"), QStringList{QStringLiteral("--no-shader-warmup")});
   }
   if (m_settings.value(QStringLiteral("update_track")).isNull()) {
-    m_settings.setValue(QStringLiteral("update_track"), QStringLiteral("stable"));
+    m_settings.setValue(QStringLiteral("update_track"), QStringLiteral("dev"));
   }
 
   m_ui->setupUi(this);
@@ -108,16 +108,17 @@ MainWindow::MainWindow(QWidget* parent)
     }
   });
 
-  m_updateURDEButton = new QPushButton(tr("Update URDE"), m_ui->centralwidget);
-  m_ui->gridLayout->addWidget(m_updateURDEButton, 2, 3, 1, 1);
-  m_updateURDEButton->hide();
-  QPalette pal = m_updateURDEButton->palette();
-  pal.setColor(QPalette::Button, QColor(53, 53, 72));
-  m_updateURDEButton->setPalette(pal);
-  connect(m_updateURDEButton, &QPushButton::clicked, this, &MainWindow::onUpdateURDEPressed);
+//  m_updateURDEButton = new QPushButton(tr("Update URDE"), m_ui->centralwidget);
+//  m_ui->gridLayout->addWidget(m_updateURDEButton, 2, 3, 1, 1);
+//  m_updateURDEButton->hide();
+//  QPalette pal = m_updateURDEButton->palette();
+//  pal.setColor(QPalette::Button, QColor(53, 53, 72));
+//  m_updateURDEButton->setPalette(pal);
+//  connect(m_updateURDEButton, &QPushButton::clicked, this, &MainWindow::onUpdateURDEPressed);
   qDebug() << "Stored track " << m_settings.value(QStringLiteral("update_track"));
   const int index = skUpdateTracks.indexOf(m_settings.value(QStringLiteral("update_track")).toString());
   m_ui->devTrackWarning->setVisible(index == 1);
+  m_ui->continuousTrackWarning->setVisible(index == 2);
   m_ui->updateTrackComboBox->setCurrentIndex(index);
   connect(m_ui->updateTrackComboBox, qOverload<int>(&QComboBox::currentIndexChanged), this,
           &MainWindow::onUpdateTrackChanged);
@@ -126,6 +127,9 @@ MainWindow::MainWindow(QWidget* parent)
                              std::bind(&MainWindow::onIndexDownloaded, this, std::placeholders::_1),
                              std::bind(&MainWindow::onBinaryDownloaded, this, std::placeholders::_1),
                              std::bind(&MainWindow::onBinaryFailed, this));
+#if !PLATFORM_ZIP_DOWNLOAD
+  m_ui->downloadProgressBar->hide();
+#endif
 
   initOptions();
   initSlots();
@@ -282,17 +286,19 @@ void MainWindow::onIndexDownloaded(const QStringList& index) {
 }
 
 void MainWindow::onDownloadPressed() {
-  m_updateURDEButton->hide();
+//  m_updateURDEButton->hide();
   QString filename = m_ui->binaryComboBox->currentData().value<URDEVersion>().fileString(true);
+#if PLATFORM_ZIP_DOWNLOAD
   disableOperations();
   m_ui->downloadButton->setEnabled(false);
+#endif
   m_dlManager.fetchBinary(filename, m_path + QLatin1Char{'/'} + filename);
 }
 
-void MainWindow::onUpdateURDEPressed() {
-  m_ui->heclTabs->setCurrentIndex(2);
-  onDownloadPressed();
-}
+//void MainWindow::onUpdateURDEPressed() {
+//  m_ui->heclTabs->setCurrentIndex(2);
+//  onDownloadPressed();
+//}
 
 void MainWindow::onBinaryDownloaded(QuaZip& file) {
   const bool err = !ExtractZip::extractDir(file, m_path);
@@ -410,7 +416,7 @@ static bool GetDLPackage(const QString& path, QString& dlPackage) {
 }
 
 bool MainWindow::checkDownloadedBinary() {
-  m_updateURDEButton->hide();
+//  m_updateURDEButton->hide();
 
   m_urdePath = QString();
   m_heclPath = QString();
@@ -422,24 +428,20 @@ bool MainWindow::checkDownloadedBinary() {
     return false;
   }
 
-#if __APPLE__
-  QString urdePath = m_path + QStringLiteral("/URDE.app/Contents/MacOS/urde");
-  QString heclPath = m_path + QStringLiteral("/URDE.app/Contents/MacOS/hecl");
-  QString visigenPath = m_path + QStringLiteral("/URDE.app/Contents/MacOS/visigen");
-#elif _WIN32
-  QString urdePath = m_path + QStringLiteral("/urde.exe");
-  QString heclPath = m_path + QStringLiteral("/hecl.exe");
-  QString visigenPath = m_path + QStringLiteral("/visigen.exe");
-#else
-  QString urdePath = m_path + QStringLiteral("/urde");
-  QString heclPath = m_path + QStringLiteral("/hecl");
-  QString visigenPath = m_path + QStringLiteral("/visigen");
+  const QString dir = QApplication::instance()->applicationDirPath();
+#if _WIN32
+  QString urdePath = dir + QStringLiteral("/urde.exe");
+  QString heclPath = dir + QStringLiteral("/hecl.exe");
+  QString visigenPath = dir + QStringLiteral("/visigen.exe");
   if (!QFileInfo::exists(urdePath) || !QFileInfo::exists(heclPath) || !QFileInfo::exists(visigenPath)) {
-    const QString dir = QApplication::instance()->applicationDirPath();
-    urdePath = dir + QStringLiteral("/urde");
-    heclPath = dir + QStringLiteral("/hecl");
-    visigenPath = dir + QStringLiteral("/visigen");
+    urdePath = m_path + QStringLiteral("/urde.exe");
+    heclPath = m_path + QStringLiteral("/hecl.exe");
+    visigenPath = m_path + QStringLiteral("/visigen.exe");
   }
+#else
+  QString urdePath = dir + QStringLiteral("/urde");
+  QString heclPath = dir + QStringLiteral("/hecl");
+  QString visigenPath = dir + QStringLiteral("/visigen");
 #endif
   urdePath = QFileInfo(urdePath).absoluteFilePath();
   heclPath = QFileInfo(heclPath).absoluteFilePath();
@@ -451,9 +453,9 @@ bool MainWindow::checkDownloadedBinary() {
     if (!urdeDlPackage.isEmpty() && urdeDlPackage == heclDlPackage && urdeDlPackage == visigenDlPackage) {
       URDEVersion v(urdeDlPackage);
       m_ui->currentBinaryLabel->setText(v.fileString(false));
-      if (m_recommendedVersion.isValid() && v.isValid() && m_recommendedVersion.getVersion() > v.getVersion()) {
-        m_updateURDEButton->show();
-      }
+//      if (m_recommendedVersion.isValid() && v.isValid() && m_recommendedVersion.getVersion() > v.getVersion()) {
+//        m_updateURDEButton->show();
+//      }
     } else {
       m_ui->currentBinaryLabel->setText(tr("unknown -- re-download recommended"));
     }
@@ -605,6 +607,7 @@ void MainWindow::onUpdateTrackChanged(int index) {
   m_settings.setValue(QStringLiteral("update_track"), skUpdateTracks[index]);
   m_dlManager.fetchIndex();
   m_ui->devTrackWarning->setVisible(index == 1);
+  m_ui->continuousTrackWarning->setVisible(index == 2);
 }
 
 void MainWindow::initOptions() {

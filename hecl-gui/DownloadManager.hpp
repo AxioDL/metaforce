@@ -6,6 +6,12 @@
 #include <QProgressBar>
 #include <QLabel>
 
+//#if _WIN32
+//#define PLATFORM_ZIP_DOWNLOAD 1
+//#else
+#define PLATFORM_ZIP_DOWNLOAD 0
+//#endif
+
 class QuaZip;
 
 class DownloadManager : public QObject {
