@@ -24,7 +24,7 @@
     <item row="2" column="0">
      <widget class="QTabWidget" name="heclTabs">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="dataTab">
        <attribute name="title">
@@ -244,15 +244,15 @@
         <item row="0" column="0" rowspan="4">
          <widget class="QToolBox" name="toolBox">
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="graphicsGroup">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>236</width>
-             <height>198</height>
+             <width>450</width>
+             <height>633</height>
             </rect>
            </property>
            <attribute name="label">
@@ -479,8 +479,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>450</width>
-             <height>633</height>
+             <width>226</width>
+             <height>482</height>
             </rect>
            </property>
            <attribute name="label">
@@ -711,12 +711,6 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>500</width>
-            <height>300</height>
-           </size>
           </property>
           <property name="palette">
            <palette>

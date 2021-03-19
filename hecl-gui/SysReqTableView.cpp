@@ -42,66 +42,6 @@ static QString GetWindowsVersionString() {
 #endif
 
 SysReqTableModel::SysReqTableModel(QObject* parent) : QAbstractTableModel(parent) {
-#ifdef __linux__
-  QFile file(QStringLiteral("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"));
-  if (file.open(QFile::ReadOnly)) {
-    const QString str(QString::fromUtf8(file.readAll()));
-    m_cpuSpeed = str.toInt() / 1000;
-    m_cpuSpeedStr = tr("%1 GHz").arg(m_cpuSpeed / 1000.0);
-  }
-#elif defined(__APPLE__)
-  QProcess spProc;
-  spProc.start(QStringLiteral("system_profiler"), {QStringLiteral("-xml"), QStringLiteral("SPHardwareDataType")},
-               QProcess::ReadOnly);
-  spProc.waitForFinished();
-  QDomDocument spDoc;
-  spDoc.setContent(spProc.readAll());
-  QDomElement spDocElem = spDoc.documentElement();
-  QDomElement n = spDocElem.firstChildElement(QStringLiteral("array"))
-                      .firstChildElement(QStringLiteral("dict"))
-                      .firstChildElement(QStringLiteral("key"));
-  while (!n.isNull() && n.text() != QStringLiteral("_items")) {
-    n = n.nextSiblingElement(QStringLiteral("key"));
-  }
-
-  if (!n.isNull()) {
-    n = n.nextSiblingElement(QStringLiteral("array"))
-            .firstChildElement(QStringLiteral("dict"))
-            .firstChildElement(QStringLiteral("key"));
-
-    while (!n.isNull() && n.text() != QStringLiteral("current_processor_speed")) {
-      n = n.nextSiblingElement(QStringLiteral("key"));
-    }
-
-    if (!n.isNull()) {
-      n = n.nextSiblingElement(QStringLiteral("string"));
-      const double speed = n.text().split(QLatin1Char{' '}).front().toDouble();
-      m_cpuSpeed = uint64_t(speed * 1000.0);
-      m_cpuSpeedStr = tr("%1 GHz").arg(speed);
-    }
-  }
-#elif _WIN32
-  HKEY hkey;
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _SYS_STR("HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0"), 0,
-                   KEY_QUERY_VALUE, &hkey) == ERROR_SUCCESS) {
-    DWORD MHz;
-    DWORD size = sizeof(MHz);
-    if (RegQueryValueEx(hkey, _SYS_STR("~MHz"), nullptr, nullptr, (LPBYTE)&MHz, &size) == ERROR_SUCCESS) {
-      m_cpuSpeed = uint64_t(MHz);
-      m_cpuSpeedStr = tr("%1 GHz").arg(MHz / 1000.f, 1, 'f', 1);
-    }
-  }
-  RegCloseKey(hkey);
-#else
-  /* This only works for Skylake+ */
-  int regs[4] = {};
-  zeus::getCpuInfo(0, regs);
-  if (regs[0] >= 0x16) {
-    zeus::getCpuInfo(0x16, regs);
-    m_cpuSpeed = uint64_t(regs[0]);
-  }
-  m_cpuSpeedStr = tr("%1 GHz").arg(m_cpuSpeed / 1000.f);
-#endif
 #if _WIN32
   ULONGLONG memSize;
   GetPhysicallyInstalledSystemMemory(&memSize);
@@ -140,10 +80,10 @@ void SysReqTableModel::updateFreeDiskSpace(const QString& path) {
     m_freeDiskSpace = QStorageInfo(path).bytesFree();
     m_freeDiskSpaceStr = tr("%1 GB").arg(m_freeDiskSpace / 1000.f / 1000.f / 1000.f, 1, 'f', 1);
   }
-  emit dataChanged(index(3, 0), index(3, 0));
+  emit dataChanged(index(1, 0), index(1, 0));
 }
 
-int SysReqTableModel::rowCount(const QModelIndex& parent) const { return 7; }
+int SysReqTableModel::rowCount(const QModelIndex& parent) const { return 4; }
 
 int SysReqTableModel::columnCount(const QModelIndex& parent) const { return 2; }
 
@@ -155,14 +95,10 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const {
   if (role == Qt::UserRole) {
     switch (index.row()) {
     case 0:
-      return true;
-    case 1:
-      return m_cpuSpeed >= 1500;
-    case 2:
       return m_memorySize >= 0xC0000000;
-    case 3:
+    case 1:
       return m_freeDiskSpace >= qint64(5) * 1000 * 1000 * 1000;
-    case 4:
+    case 2:
 #ifdef __APPLE__
       return m_macosMajor > 10 || m_macosMinor >= 11;
 #elif defined(_WIN32)
@@ -170,7 +106,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const {
 #else
       return true;
 #endif
-    case 5:
+    case 3:
       return isBlenderVersionOk();
     }
   } else {
@@ -178,18 +114,10 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const {
       /* Recommended */
       switch (index.row()) {
       case 0:
-#if ZEUS_ARCH_X86 || ZEUS_ARCH_X86_64
-        return tr("x86_64");
-#else
-        return {};
-#endif
-      case 1:
-        return tr("1.5 GHz");
-      case 2:
         return tr("3 GiB");
-      case 3:
+      case 1:
         return tr("5 GB (MP1)");
-      case 4:
+      case 2:
 #ifdef __APPLE__
         return tr("macOS 10.11");
 #elif defined(_WIN32)
@@ -199,7 +127,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const {
 #else
         return {};
 #endif
-      case 5:
+      case 3:
         return QStringLiteral("Blender %1.%2+")
             .arg(hecl::blender::MinBlenderMajorSearch)
             .arg(hecl::blender::MinBlenderMinorSearch);
@@ -208,20 +136,12 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const {
       /* Your System */
       switch (index.row()) {
       case 0:
-#if ZEUS_ARCH_X86 || ZEUS_ARCH_X86_64
-        return CurArchitectureString;
-#else
-        return {};
-#endif
-      case 1:
-        return m_cpuSpeedStr;
-      case 2:
         return m_memorySizeStr;
-      case 3:
+      case 1:
         return m_freeDiskSpaceStr;
-      case 4:
+      case 2:
         return m_osVersion;
-      case 5:
+      case 3:
         return m_blendVersionStr;
       }
     }
@@ -244,24 +164,19 @@ QVariant SysReqTableModel::headerData(int section, Qt::Orientation orientation, 
     }
   } else {
     switch (section) {
-    case 0:
     default:
-      return tr("Architecture");
-    case 1:
-      return tr("CPU Speed");
-    case 2:
+    case 0:
       return tr("Memory");
-    case 3:
+    case 1:
       return tr("Disk Space");
-    case 4:
+    case 2:
       return tr("OS");
-    case 5:
+    case 3:
       return tr("Blender");
-    case 6:
-      return tr("Vector ISA");
     }
   }
 }
+
 bool SysReqTableModel::isBlenderVersionOk() const {
   return (m_blendMajor >= hecl::blender::MinBlenderMajorSearch &&
           m_blendMajor <= hecl::blender::MaxBlenderMajorSearch) &&
@@ -300,10 +215,8 @@ void SysReqTableView::paintEvent(QPaintEvent* e) {
   QTableView::paintEvent(e);
 }
 
-SysReqTableView::SysReqTableView(QWidget* parent) : QTableView(parent), m_vectorISATable(this) {
+SysReqTableView::SysReqTableView(QWidget* parent) : QTableView(parent) {
   setModel(&m_model);
-  setIndexWidget(m_model.index(6, 0), &m_vectorISATable);
-  setSpan(6, 0, 1, 2);
 
   horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
   verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);

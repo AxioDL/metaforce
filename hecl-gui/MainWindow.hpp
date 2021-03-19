@@ -40,7 +40,6 @@ class MainWindow : public QMainWindow {
   QStringList m_warpSettings;
   QSettings m_settings;
   URDEVersion m_recommendedVersion;
-//  QPushButton* m_updateURDEButton;
   bool m_inContinueNote = false;
   QStringListModel m_launchOptionsModel;
 

@@ -108,13 +108,6 @@ MainWindow::MainWindow(QWidget* parent)
     }
   });
 
-//  m_updateURDEButton = new QPushButton(tr("Update URDE"), m_ui->centralwidget);
-//  m_ui->gridLayout->addWidget(m_updateURDEButton, 2, 3, 1, 1);
-//  m_updateURDEButton->hide();
-//  QPalette pal = m_updateURDEButton->palette();
-//  pal.setColor(QPalette::Button, QColor(53, 53, 72));
-//  m_updateURDEButton->setPalette(pal);
-//  connect(m_updateURDEButton, &QPushButton::clicked, this, &MainWindow::onUpdateURDEPressed);
   qDebug() << "Stored track " << m_settings.value(QStringLiteral("update_track"));
   const int index = skUpdateTracks.indexOf(m_settings.value(QStringLiteral("update_track")).toString());
   m_ui->devTrackWarning->setVisible(index == 1);
@@ -270,8 +263,6 @@ void MainWindow::onIndexDownloaded(const QStringList& index) {
   m_ui->binaryComboBox->clear();
   for (const QString& str : index) {
     URDEVersion version(str);
-    if (m_ui->sysReqTable->willRun(version))
-      bestVersion = m_ui->binaryComboBox->count();
     m_ui->binaryComboBox->addItem(version.fileString(false), QVariant::fromValue(version));
   }
   m_ui->binaryComboBox->setCurrentIndex(bestVersion);
@@ -286,7 +277,6 @@ void MainWindow::onIndexDownloaded(const QStringList& index) {
 }
 
 void MainWindow::onDownloadPressed() {
-//  m_updateURDEButton->hide();
   QString filename = m_ui->binaryComboBox->currentData().value<URDEVersion>().fileString(true);
 #if PLATFORM_ZIP_DOWNLOAD
   disableOperations();
@@ -294,11 +284,6 @@ void MainWindow::onDownloadPressed() {
 #endif
   m_dlManager.fetchBinary(filename, m_path + QLatin1Char{'/'} + filename);
 }
-
-//void MainWindow::onUpdateURDEPressed() {
-//  m_ui->heclTabs->setCurrentIndex(2);
-//  onDownloadPressed();
-//}
 
 void MainWindow::onBinaryDownloaded(QuaZip& file) {
   const bool err = !ExtractZip::extractDir(file, m_path);
@@ -416,8 +401,6 @@ static bool GetDLPackage(const QString& path, QString& dlPackage) {
 }
 
 bool MainWindow::checkDownloadedBinary() {
-//  m_updateURDEButton->hide();
-
   m_urdePath = QString();
   m_heclPath = QString();
 
@@ -453,9 +436,6 @@ bool MainWindow::checkDownloadedBinary() {
     if (!urdeDlPackage.isEmpty() && urdeDlPackage == heclDlPackage && urdeDlPackage == visigenDlPackage) {
       URDEVersion v(urdeDlPackage);
       m_ui->currentBinaryLabel->setText(v.fileString(false));
-//      if (m_recommendedVersion.isValid() && v.isValid() && m_recommendedVersion.getVersion() > v.getVersion()) {
-//        m_updateURDEButton->show();
-//      }
     } else {
       m_ui->currentBinaryLabel->setText(tr("unknown -- re-download recommended"));
     }

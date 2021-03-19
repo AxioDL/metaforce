@@ -1,14 +1,11 @@
 #pragma once
 
 #include <QTableView>
-#include "VectorISATableView.hpp"
 
 class QSequentialAnimationGroup;
 
 class SysReqTableModel : public QAbstractTableModel {
   Q_OBJECT
-  uint64_t m_cpuSpeed = 0;
-  QString m_cpuSpeedStr;
   uint64_t m_memorySize = 0;
   QString m_memorySizeStr;
   qint64 m_freeDiskSpace = 0;
@@ -38,21 +35,12 @@ public:
 class SysReqTableView : public QTableView {
   Q_OBJECT
   SysReqTableModel m_model;
-  VectorISATableView m_vectorISATable;
   std::tuple<QWidget*, QSequentialAnimationGroup*, bool> m_backgroundWidgets[6] = {};
 
 public:
   SysReqTableView(QWidget* parent = Q_NULLPTR);
   void paintEvent(QPaintEvent* e) override;
   const SysReqTableModel& getModel() const { return m_model; }
-  const VectorISATableView& getVectorISATable() const { return m_vectorISATable; }
-  bool willRun(const URDEVersion& v) const {
-    return v.getArchitecture() == CurArchitecture && v.getPlatform() == CurPlatform
-#if ZEUS_ARCH_X86_64 || ZEUS_ARCH_X86
-           && m_vectorISATable.willRun(v.getVectorISA())
-#endif
-        ;
-  }
   bool isBlenderVersionOk() const { return m_model.isBlenderVersionOk(); }
   void updateFreeDiskSpace(const QString& path) { m_model.updateFreeDiskSpace(path); }
 };
