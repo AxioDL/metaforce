@@ -5,21 +5,21 @@
     <key>CFBundleExecutable</key>
     <string>hecl-gui</string>
     <key>CFBundleGetInfoString</key>
-    <string>Version BETA</string>
+    <string>Version ALPHA</string>
     <key>CFBundleShortVersionString</key>
-    <string>BETA</string>
+    <string>ALPHA</string>
     <key>NSHumanReadableCopyright</key>
-    <string>2015-2018 Antidote / Jackoalan</string>
+    <string>2015-2021 AxioDL Team</string>
     <key>CFBundleIconFile</key>
     <string>mainicon.icns</string>
     <key>CFBundleIdentifier</key>
-    <string>com.axiodl.HECL</string>
+    <string>com.axiodl.URDE</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>HECL</string>
+    <string>URDE</string>
     <key>CFBundleVersion</key>
-    <string>BETA</string>
+    <string>ALPHA</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>

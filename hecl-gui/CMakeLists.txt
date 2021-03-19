@@ -144,10 +144,20 @@ if (WIN32)
     target_link_libraries(hecl-gui PRIVATE
             Version)
 elseif (APPLE)
+    set_target_properties(hecl-gui PROPERTIES
+            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist"
+            )
     target_sources(hecl-gui PRIVATE platforms/mac/mainicon.icns)
     set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
             MACOSX_PACKAGE_LOCATION Resources
             )
+    add_custom_command(
+            TARGET hecl-gui POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:urde> $<TARGET_FILE_DIR:hecl-gui>
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:hecl-gui>
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:hecl-gui>
+            DEPENDS urde hecl visigen
+    )
 endif ()
 
 add_subdirectory(platforms/freedesktop)
@@ -161,7 +171,3 @@ endif ()
 if (NOT MSVC)
     target_compile_options(hecl-gui PRIVATE -Wno-misleading-indentation)
 endif ()
-
-set_target_properties(hecl-gui PROPERTIES
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist"
-        )

@@ -164,7 +164,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const {
       return m_freeDiskSpace >= qint64(5) * 1000 * 1000 * 1000;
     case 4:
 #ifdef __APPLE__
-      return m_macosMajor > 10 || m_macosMinor >= 9;
+      return m_macosMajor > 10 || m_macosMinor >= 11;
 #elif defined(_WIN32)
       return m_win7SP1OrGreater;
 #else
@@ -191,7 +191,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const {
         return tr("5 GB (MP1)");
       case 4:
 #ifdef __APPLE__
-        return tr("macOS 10.9");
+        return tr("macOS 10.11");
 #elif defined(_WIN32)
         return tr("Windows 7 SP1");
 #elif defined(__linux__)
