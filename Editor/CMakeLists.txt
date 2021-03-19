@@ -61,10 +61,7 @@ if(WIN32)
     list(APPEND PLAT_SRCS ${UWP_ASSETS} platforms/win/Package.appxmanifest)
   endif()
 elseif(APPLE)
-  set(PLAT_SRCS platforms/mac/mainicon.icns)
-  set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
-                              MACOSX_PACKAGE_LOCATION Resources)
-  configure_file(platforms/mac/Info.plist.in "${CMAKE_CURRENT_BINARY_DIR}/Info.plist" @ONLY)
+  # nothing
 elseif(UNIX)
   add_subdirectory(platforms/freedesktop)
   declare_wmicon_target()
@@ -72,7 +69,7 @@ elseif(UNIX)
   set(URDE_PLAT_LIBS rt)
 endif()
 
-add_executable(urde WIN32 MACOSX_BUNDLE
+add_executable(urde WIN32
                main.cpp ${PLAT_SRCS}
                Space.hpp Space.cpp
                SplashScreen.hpp SplashScreen.cpp
@@ -114,17 +111,7 @@ if(COMMAND add_sanitizers)
   add_sanitizers(urde)
 endif()
 
-set_target_properties(urde PROPERTIES
-                      MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_BINARY_DIR}/Info.plist"
-                      MACOSX_BUNDLE_BUNDLE_NAME "urde")
-
 if (NOT WINDOWS_STORE)
-  if(APPLE)
-    add_custom_command(TARGET urde POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:urde>)
-    add_custom_command(TARGET urde POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:urde>)
-  endif()
   add_dependencies(urde visigen hecl)
 else()
   set_property(TARGET urde PROPERTY VS_WINRT_COMPONENT TRUE)
