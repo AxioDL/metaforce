@@ -202,9 +202,9 @@ void CFBStreamedPairOfTotals::SetTime(CBitLevelLoader& loader, const CCharAnimTi
           prior = cur;
           priorTime = curTime;
           x78_t = 0.f;
-        } else
+        } else {
           x78_t = (time - priorTime) / (curTime - priorTime);
-
+        }
         break;
       }
       ++cur;
@@ -218,14 +218,21 @@ void CFBStreamedPairOfTotals::SetTime(CBitLevelLoader& loader, const CCharAnimTi
     loader.Reset();
   }
 
-  if (next != -1)
-    while (u32(next) > Next().x1c_curKey)
+  if (prior != -1 && next == -1) {
+    next = cur;
+  }
+  if (next != -1) {
+    while (u32(next) > Next().x1c_curKey) {
       DoIncrement(loader);
+    }
+  }
 
-  if (!Prior().IsCalculated())
+  if (!Prior().IsCalculated()) {
     Prior().CalculateDown();
-  if (!Next().IsCalculated())
+  }
+  if (!Next().IsCalculated()) {
     Next().CalculateDown();
+  }
 }
 
 void CFBStreamedPairOfTotals::DoIncrement(CBitLevelLoader& loader) {
