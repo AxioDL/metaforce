@@ -53,23 +53,20 @@ jobs:
       - name: Configure CMake
         working-directory: ${{github.workspace}}/build
         run: |
-          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 \
-            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}} \
-            -DURDE_DLPACKAGE=urde-$GITHUB_RUN_NUMBER-linux-x86_64-sse41
+          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}}
 
       - name: Build
         working-directory: ${{github.workspace}}/build
         run: cmake --build . --config $BUILD_TYPE
 
       - name: Generate AppImage
-        env:
-          VERSION: ${{github.run_number}}
         run: ci/build-appimage.sh
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-${{github.run_number}}-linux-${{matrix.cc}}-x86_64
+          name: urde-${{env.URDE_VERSION}}-linux-${{matrix.cc}}-x86_64
           path: URDE-*.AppImage
 
   build-macos:
@@ -93,8 +90,7 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           export PATH="/usr/local/opt/qt@5/bin:$PATH" # FIXME remove
-          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 \
-            -DURDE_DLPACKAGE=urde-$GITHUB_RUN_NUMBER-macos-x86_64-sse41
+          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -123,7 +119,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-${{github.run_number}}-macos-appleclang-x86_64
+          name: urde-${{env.URDE_VERSION}}-macos-appleclang-x86_64
           path: build/Binaries/*.dmg
 
   build-windows-msvc:
@@ -166,12 +162,11 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
-          cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 `
+          cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
             -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
             -DVCPKG_TARGET_TRIPLET=x64-windows-static `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= `
-            -DLLVM_ROOT_DIR="$workspace/LLVM" `
-            -DURDE_DLPACKAGE="urde-$env:GITHUB_RUN_NUMBER-win32-x86_64-sse41"
+            -DLLVM_ROOT_DIR="$workspace/LLVM"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -180,7 +175,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-${{github.run_number}}-win32-msvc-x86_64
+          name: ${{env.URDE_VERSION}}-msvc
           path: |
             build/Binaries/urde.exe
             build/Binaries/hecl.exe
@@ -227,15 +222,14 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
-          cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DURDE_VECTOR_ISA=sse41 `
+          cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
             -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
             -DVCPKG_TARGET_TRIPLET=x64-windows-static `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
             -DCMAKE_C_COMPILER="$workspace/LLVM/bin/clang-cl.exe" `
             -DCMAKE_CXX_COMPILER="$workspace/LLVM/bin/clang-cl.exe" `
             -DCMAKE_LINKER="$workspace/LLVM/bin/lld-link.exe" `
-            -DLLVM_ROOT_DIR="$workspace/LLVM" `
-            -DURDE_DLPACKAGE="urde-$env:GITHUB_RUN_NUMBER-win32-x86_64-sse41"
+            -DLLVM_ROOT_DIR="$workspace/LLVM"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -244,7 +238,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-${{github.run_number}}-win32-clang-x86_64
+          name: urde-${{env.URDE_VERSION}}-win32-clang-x86_64
           path: |
             build/Binaries/urde.exe
             build/Binaries/hecl.exe

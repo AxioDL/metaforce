@@ -16,14 +16,14 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "CompanyName", "Antidote / Jackoalan"
+            VALUE "CompanyName", "AxioDL"
             VALUE "FileDescription", "URDE"
-            VALUE "FileVersion", "@METADATA_VERSION_STRING@"
-            VALUE "LegalCopyright", "Copyright (C) 2015-2018 Antidote / Jackoalan"
+            VALUE "FileVersion", "@URDE_WC_DESCRIBE@"
+            VALUE "LegalCopyright", "Copyright (C) 2015-@CURRENT_YEAR@ AxioDL Team"
             VALUE "InternalName", "urde"
             VALUE "OriginalFilename", "urde.exe"
             VALUE "ProductName", "URDE"
-            VALUE "ProductVersion", "@METADATA_VERSION_STRING@"
+            VALUE "ProductVersion", "@URDE_WC_DESCRIBE@"
         END
     END
     BLOCK "VarFileInfo"

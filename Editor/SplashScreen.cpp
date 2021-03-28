@@ -33,19 +33,13 @@ SplashScreen::SplashScreen(ViewManager& vm, specter::ViewResources& res)
 , m_newProjBind(*this)
 , m_openProjBind(*this)
 , m_extractProjBind(*this) {
-  if (GIT_COMMIT_DATE[0] != '\0' && GIT_COMMIT_HASH[0] != '\0' && GIT_BRANCH[0] != '\0') {
-#ifdef URDE_DLPACKAGE
-    if ((URDE_DLPACKAGE)[0])
-      m_buildInfoStr = fmt::format(FMT_STRING("{}: {}\n{}: {}\n{}: {}"), vm.translate<locale::release>(),
-                                   URDE_DLPACKAGE, vm.translate<locale::commit>(), GIT_COMMIT_HASH,
-                                   vm.translate<locale::date>(), GIT_COMMIT_DATE);
-    else
-#endif
-      m_buildInfoStr = fmt::format(FMT_STRING("{}: {}\n{}: {}\n{}: {}"), vm.translate<locale::branch>(), GIT_BRANCH,
-                                   vm.translate<locale::commit>(), GIT_COMMIT_HASH,
-                                   vm.translate<locale::date>(), GIT_COMMIT_DATE);
+  if (URDE_WC_DATE[0] != '\0' && URDE_WC_REVISION[0] != '\0' && URDE_WC_BRANCH[0] != '\0') {
+      m_buildInfoStr = fmt::format(FMT_STRING("{}: {}\n{}: {}\n{}: {}"),
+                                 vm.translate<locale::version>(), URDE_WC_DESCRIBE,
+                                 vm.translate<locale::branch>(), URDE_WC_BRANCH,
+                                 vm.translate<locale::commit>(), URDE_WC_REVISION/*,
+                                 vm.translate<locale::date>(), URDE_WC_DATE*/);
   }
-
   m_openProjBind.m_openRecentMenuRoot.m_text = vm.translate<locale::recent_projects>();
   m_textColorClear[3] = 0.0;
 }

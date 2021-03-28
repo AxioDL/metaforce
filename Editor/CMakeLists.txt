@@ -2,12 +2,6 @@ add_subdirectory(locale)
 add_subdirectory(icons)
 add_subdirectory(badging)
 
-if(URDE_DLPACKAGE)
-  set(METADATA_VERSION_STRING ${URDE_DLPACKAGE})
-else()
-  set(METADATA_VERSION_STRING "BETA")
-endif()
-
 unset(URDE_PLAT_LIBS)
 
 if(WIN32)
@@ -82,8 +76,6 @@ add_executable(urde WIN32
                Resource.hpp Resource.cpp
                Camera.hpp Camera.cpp
                GameMode.hpp GameMode.cpp)
-
-target_compile_definitions(urde PUBLIC URDE_DLPACKAGE="${URDE_DLPACKAGE}")
 
 target_include_directories(urde PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}

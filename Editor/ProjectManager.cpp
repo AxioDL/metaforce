@@ -2,6 +2,7 @@
 #include "ViewManager.hpp"
 #include "DataSpecRegistry.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "version.h"
 
 namespace urde {
 static logvisor::Module Log("URDE::ProjectManager");
@@ -63,8 +64,8 @@ bool ProjectManager::newProject(hecl::SystemStringView path) {
   m_vm.SetupEditorView();
   saveProject();
 
-  m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - URDE [{}]")),
-    m_proj->getProjectRootPath().getLastComponent(), m_vm.platformName()));
+  m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - URDE {} [{}]")),
+    m_proj->getProjectRootPath().getLastComponent(), URDE_WC_DESCRIBE, m_vm.platformName()));
   m_vm.DismissSplash();
   m_vm.FadeInEditors();
 
@@ -103,8 +104,8 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
     if (needsSave)
       saveProject();
 
-    m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - URDE [{}]")),
-                                            m_proj->getProjectRootPath().getLastComponent(), m_vm.platformName()));
+    m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - URDE {} [{}]")),
+                                            m_proj->getProjectRootPath().getLastComponent(), URDE_WC_DESCRIBE, m_vm.platformName()));
     m_vm.DismissSplash();
     m_vm.FadeInEditors();
     m_vm.pushRecentProject(m_proj->getProjectRootPath().getAbsolutePath());

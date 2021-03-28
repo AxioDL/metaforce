@@ -12,4 +12,4 @@ strip -s appdir/usr/bin/{hecl,hecl-gui,urde,visigen}
 cp -r Editor/platforms/freedesktop/{16x16,32x32,48x48,64x64,128x128,256x256,512x512,1024x1024} appdir/usr/share/icons/hicolor
 cp Editor/platforms/freedesktop/urde.desktop appdir/usr/share/applications
 sed -i 's/Exec=.*/Exec=hecl-gui/' appdir/usr/share/applications/urde.desktop
-./linuxdeploy-$(uname -m).AppImage --appdir appdir --plugin qt --output appimage
+VERSION="$URDE_VERSION" ./linuxdeploy-$(uname -m).AppImage --appdir appdir --plugin qt --output appimage

@@ -8,6 +8,7 @@
 #include "hecl/CVarCommons.hpp"
 #include "hecl/Console.hpp"
 #include "fmt/chrono.h"
+#include "version.h"
 
 static logvisor::Module AthenaLog("Athena");
 static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, fmt::string_view fmt,

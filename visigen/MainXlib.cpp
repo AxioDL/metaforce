@@ -4,6 +4,7 @@
 #include <GL/glx.h>
 #include "athena/Global.hpp"
 #include "logvisor/logvisor.hpp"
+#include "../version.h"
 #include <thread>
 #include <condition_variable>
 #include <cstdint>

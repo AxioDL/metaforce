@@ -4,6 +4,71 @@ cmake_policy(SET CMP0079 NEW)
 # Set MSVC runtime library flags from CMAKE_MSVC_RUNTIME_LIBRARY
 cmake_policy(SET CMP0091 NEW)
 
+# obtain revision info from git
+find_package(Git)
+if (GIT_FOUND)
+  # make sure version information gets re-run when the current Git HEAD changes
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse --git-path HEAD
+          OUTPUT_VARIABLE urde_git_head_filename
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${urde_git_head_filename}")
+
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse --symbolic-full-name HEAD
+          OUTPUT_VARIABLE urde_git_head_symbolic
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+          COMMAND ${GIT_EXECUTABLE} rev-parse --git-path ${urde_git_head_symbolic}
+          OUTPUT_VARIABLE urde_git_head_symbolic_filename
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${urde_git_head_symbolic_filename}")
+
+  # defines URDE_WC_REVISION
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+          OUTPUT_VARIABLE URDE_WC_REVISION
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+  # defines URDE_WC_DESCRIBE
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} describe --tag --long --dirty
+          OUTPUT_VARIABLE URDE_WC_DESCRIBE
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  # remove hash (and trailing "-0" if needed) from description
+  string(REGEX REPLACE "(-0)?-[^-]+((-dirty)?)$" "\\2" URDE_WC_DESCRIBE "${URDE_WC_DESCRIBE}")
+
+  # defines URDE_WC_BRANCH
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+          OUTPUT_VARIABLE URDE_WC_BRANCH
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+  # defines URDE_WC_DATE
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} log -1 --format=%ad
+          OUTPUT_VARIABLE URDE_WC_DATE
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+else ()
+  message(STATUS "Unable to find git, commit information will not be available")
+endif ()
+
+if (URDE_WC_DESCRIBE)
+  string(REGEX REPLACE "v([0-9]+)\.([0-9]+)\.([0-9]+)\-([0-9]+).*" "\\1.\\2.\\3.\\4" URDE_VERSION_STRING "${URDE_WC_DESCRIBE}")
+  string(REGEX REPLACE "v([0-9]+)\.([0-9]+)\.([0-9]+).*" "\\1.\\2.\\3" URDE_VERSION_STRING "${URDE_VERSION_STRING}")
+else ()
+  set(URDE_WC_DESCRIBE "UNKNOWN-VERSION")
+  set(URDE_VERSION_STRING "0.0.0")
+endif ()
+
+string(TIMESTAMP CURRENT_YEAR "%Y")
+
+# Add version information to CI environment variables
+if(DEFINED ENV{GITHUB_ENV})
+  file(APPEND "$ENV{GITHUB_ENV}" "URDE_VERSION=${URDE_WC_DESCRIBE}")
+endif()
+
+if (APPLE)
+  set(PLATFORM_NAME macos)
+elseif (WIN32)
+  set(PLATFORM_NAME win32)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(PLATFORM_NAME linux)
+endif ()
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
 
 if(APPLE)
@@ -37,7 +102,7 @@ if(CMAKE_CROSSCOMPILING)
   set(HAVE_WORDS_BIGENDIAN_EXITCODE 0 CACHE INTEGER "Makes soxr happy" FORCE)
 endif()
 
-project(urde VERSION 0.1.0)
+project(urde VERSION ${URDE_VERSION_STRING})
 
 # MSVC has a "latest" flag, which always uses the newest standard
 # when available. GCC and Clang posess no such flag, and must be
@@ -269,8 +334,6 @@ endif()
 
 add_subdirectory(nod)
 
-set(HECL_DLPACKAGE ${URDE_DLPACKAGE})
-
 set(DATA_SPEC_LIBS RetroDataSpec AssetNameMap)
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */
@@ -383,28 +446,6 @@ if (NOT WINDOWS_STORE AND NOT NX)
   else()
     message(STATUS "Qt5-6 not found, hecl-gui will not be built")
   endif()
-endif()
-
-unset(GIT_EXECUTABLE CACHE)
-find_package(Git)
-if(GIT_FOUND)
-    # Get the current working branch
-    execute_process(COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-        OUTPUT_VARIABLE GIT_BRANCH OUTPUT_STRIP_TRAILING_WHITESPACE )
-
-    # Get the latest abbreviated commit hash of the working branch
-    execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE
-        GIT_COMMIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE
-        GIT_COMMIT_HASH_FULL OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%ad WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE
-        GIT_COMMIT_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
-else()
-    message(STATUS "Unable to find GIT, commit information will not be available")
-    set(GIT_BRANCH "")
-    set(GIT_COMMIT_HASH "")
-    set(GIT_COMMIT_HASH_FULL "")
-    set(GIT_COMMIT_DATE "")
 endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_BINARY_DIR}/version.h)

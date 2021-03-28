@@ -5,6 +5,7 @@
 #include <strsafe.h>
 #include "athena/Global.hpp"
 #include "logvisor/logvisor.hpp"
+#include "../version.h"
 #include <thread>
 
 static logvisor::Module AthenaLog("Athena");

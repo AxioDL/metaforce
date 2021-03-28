@@ -2,6 +2,7 @@
 #include <AppKit/AppKit.h>
 #include "athena/Global.hpp"
 #include "logvisor/logvisor.hpp"
+#include "../version.h"
 #include <thread>
 
 #if !__has_feature(objc_arc)
