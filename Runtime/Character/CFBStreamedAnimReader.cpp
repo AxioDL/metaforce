@@ -220,6 +220,7 @@ void CFBStreamedPairOfTotals::SetTime(CBitLevelLoader& loader, const CCharAnimTi
 
   if (prior != -1 && next == -1) {
     next = cur;
+    x78_t = (time - priorTime) / (curTime - priorTime);
   }
   if (next != -1) {
     while (u32(next) > Next().x1c_curKey) {
