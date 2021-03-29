@@ -213,7 +213,8 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
     m_shaderClass = CElementGenShaders::GetShaderClass(*this);
   }
 
-  size_t maxInsts = x26c_30_MBLR ? (x270_MBSP * x90_MAXP) : x90_MAXP;
+  // HACK: For now force maxInsts to be a multiple of 2560
+  size_t maxInsts = x26c_30_MBLR ? (2560 * 2560) : 2560; // (x270_MBSP * x90_MAXP) : x90_MAXP;
   maxInsts = (maxInsts == 0 ? 256 : maxInsts);
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
