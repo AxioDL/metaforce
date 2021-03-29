@@ -18,14 +18,14 @@ constexpr Platform CurPlatform = Platform::Linux;
 
 extern const QString CurPlatformString;
 
-enum class Architecture { Invalid, X86, X86_64, ARM, AARCH64, MAXArchitecture };
+enum class Architecture { Invalid, X86, X86_64, ARM, ARM64, MAXArchitecture };
 QString ArchitectureToString(Architecture arch);
 Architecture StringToArchitecture(const QString& str);
 
 extern Architecture CurArchitecture;
 extern QString CurArchitectureString;
 
-enum class VectorISA { Invalid, X87, SSE, SSE2, SSE3, SSE41, AVX, AVX2, MAXVectorISA };
+enum class VectorISA { Invalid, X87, SSE, SSE2, SSE3, SSE41, AVX, AVX2, AVX512, MAXVectorISA };
 QString VectorISAToString(VectorISA visa);
 VectorISA StringToVectorISA(const QString& str);
 

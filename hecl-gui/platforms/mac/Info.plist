@@ -5,11 +5,11 @@
     <key>CFBundleExecutable</key>
     <string>hecl-gui</string>
     <key>CFBundleGetInfoString</key>
-    <string>Version ALPHA</string>
+    <string>@URDE_WC_DESCRIBE@</string>
     <key>CFBundleShortVersionString</key>
-    <string>ALPHA</string>
+    <string>@URDE_WC_DESCRIBE@</string>
     <key>NSHumanReadableCopyright</key>
-    <string>2015-2021 AxioDL Team</string>
+    <string>2015-@CURRENT_YEAR@ AxioDL Team</string>
     <key>CFBundleIconFile</key>
     <string>mainicon.icns</string>
     <key>CFBundleIdentifier</key>
@@ -19,7 +19,7 @@
     <key>CFBundleName</key>
     <string>URDE</string>
     <key>CFBundleVersion</key>
-    <string>ALPHA</string>
+    <string>@URDE_WC_DESCRIBE@</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>

@@ -47,8 +47,8 @@ QString ArchitectureToString(Architecture arch) {
     return QStringLiteral("x86_64");
   case Architecture::ARM:
     return QStringLiteral("arm");
-  case Architecture::AARCH64:
-    return QStringLiteral("aarch64");
+  case Architecture::ARM64:
+    return QStringLiteral("arm64");
   default:
     return QString();
   }
@@ -77,6 +77,8 @@ QString VectorISAToString(VectorISA visa) {
     return QStringLiteral("avx");
   case VectorISA::AVX2:
     return QStringLiteral("avx2");
+  case VectorISA::AVX512:
+    return QStringLiteral("avx512");
   default:
     return QString();
   }
@@ -92,7 +94,7 @@ VectorISA StringToVectorISA(const QString& str) {
 URDEVersion::URDEVersion(const QString& filename) {
   int idx;
   QString useFilename = filename;
-  if ((idx = filename.lastIndexOf(QLatin1Char{'.'})) >= 0) {
+  if ((idx = filename.lastIndexOf(QLatin1Char{'.'})) > filename.lastIndexOf(QLatin1Char{'-'})) {
     m_extension = QString(filename).remove(0, idx);
     useFilename.truncate(idx);
   }
@@ -120,6 +122,10 @@ URDEVersion::URDEVersion(const QString& filename) {
       state = platform;
     }
     if (state == platform) {
+      if (list[i] == QStringLiteral("dirty")) {
+        m_version += QLatin1Char{'-'} + list[i];
+        continue;
+      }
       state = architecture;
       Platform platValue = StringToPlatform(list[i]);
       if (platValue != Platform::Invalid) {
