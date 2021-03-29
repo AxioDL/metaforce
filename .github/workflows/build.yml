@@ -27,6 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
+          fetch-depth: 0
           submodules: recursive
 
       - name: Install dependencies
@@ -75,6 +76,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
+          fetch-depth: 0
           submodules: recursive
 
       - name: Install dependencies
@@ -131,6 +133,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
+          fetch-depth: 0
           submodules: recursive
 
       - name: Install LLVM
@@ -191,6 +194,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
+          fetch-depth: 0
           submodules: recursive
 
       - name: Install LLVM

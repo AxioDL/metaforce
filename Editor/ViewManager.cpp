@@ -299,7 +299,7 @@ void ViewManager::init(boo::IApplication* app) {
   m_pipelineConv = hecl::NewPipelineConverter(m_mainBooFactory);
   hecl::conv = m_pipelineConv.get();
   m_mainPlatformName = m_mainBooFactory->platformName();
-  m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("URDE {} [{}]")), URDE_WC_DESCRIBE, m_mainPlatformName));
+  m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("URDE {} [{}]")), URDE_WC_DESCRIBE_SYS, m_mainPlatformName));
   m_mainCommandQueue = m_mainWindow->getCommandQueue();
   m_viewResources.init(m_mainBooFactory, &m_fontCache, &m_themeData, pixelFactor);
   InitializeIcons(m_viewResources);

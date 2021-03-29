@@ -65,7 +65,7 @@ bool ProjectManager::newProject(hecl::SystemStringView path) {
   saveProject();
 
   m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - URDE {} [{}]")),
-    m_proj->getProjectRootPath().getLastComponent(), URDE_WC_DESCRIBE, m_vm.platformName()));
+    m_proj->getProjectRootPath().getLastComponent(), URDE_WC_DESCRIBE_SYS, m_vm.platformName()));
   m_vm.DismissSplash();
   m_vm.FadeInEditors();
 
@@ -105,7 +105,8 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
       saveProject();
 
     m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - URDE {} [{}]")),
-                                            m_proj->getProjectRootPath().getLastComponent(), URDE_WC_DESCRIBE, m_vm.platformName()));
+                                            m_proj->getProjectRootPath().getLastComponent(), URDE_WC_DESCRIBE_SYS,
+                                            m_vm.platformName()));
     m_vm.DismissSplash();
     m_vm.FadeInEditors();
     m_vm.pushRecentProject(m_proj->getProjectRootPath().getAbsolutePath());
