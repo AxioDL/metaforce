@@ -17,6 +17,7 @@
 #include "hecl/Database.hpp"
 #include "hecl/Blender/Connection.hpp"
 #include "logvisor/logvisor.hpp"
+#include "../version.h"
 
 logvisor::Module LogModule("hecl::Driver");
 
@@ -281,7 +282,7 @@ int main(int argc, const char** argv)
 #endif
 {
   if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage"))) {
-    fmt::print(FMT_STRING("{}\n"), HECL_DLPACKAGE);
+    fmt::print(FMT_STRING("{}\n"), URDE_DLPACKAGE);
     return 100;
   }
 

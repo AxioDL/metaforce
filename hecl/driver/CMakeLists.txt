@@ -30,6 +30,4 @@ if(TARGET nod)
   target_compile_definitions(hecl PUBLIC HECL_HAS_NOD=1)
 endif()
 
-target_compile_definitions(hecl PRIVATE HECL_DLPACKAGE="${HECL_DLPACKAGE}")
-
 endif()
