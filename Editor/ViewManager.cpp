@@ -64,13 +64,13 @@ void ViewManager::TestGameView::think() {
   if (m_debugText) {
     std::string overlayText;
     if (g_StateManager) {
-      if (m_cvarCommons.m_debugOverlayShowFrameCounter->toBoolean())
+      if (m_vm.m_cvarCommons.m_debugOverlayShowFrameCounter->toBoolean())
         overlayText += fmt::format(FMT_STRING("Frame: {}\n"), g_StateManager->GetUpdateFrameIndex());
 
-      if (m_cvarCommons.m_debugOverlayShowFramerate->toBoolean())
+      if (m_vm.m_cvarCommons.m_debugOverlayShowFramerate->toBoolean())
         overlayText += fmt::format(FMT_STRING("FPS: {}\n"), urde::CGraphics::GetFPS());
 
-      if (m_cvarCommons.m_debugOverlayShowInGameTime->toBoolean()) {
+      if (m_vm.m_cvarCommons.m_debugOverlayShowInGameTime->toBoolean()) {
         double igt = g_GameState->GetTotalPlayTime();
         u32 ms = u64(igt * 1000) % 1000;
         auto pt = std::div(igt, 3600);
@@ -78,7 +78,7 @@ void ViewManager::TestGameView::think() {
             fmt::format(FMT_STRING("PlayTime: {:02d}:{:02d}:{:02d}.{:03d}\n"), pt.quot, pt.rem / 60, pt.rem % 60, ms);
       }
 
-      if (g_StateManager->GetCurrentArea() != nullptr && m_cvarCommons.m_debugOverlayShowRoomTimer->toBoolean()) {
+      if (g_StateManager->GetCurrentArea() != nullptr && m_vm.m_cvarCommons.m_debugOverlayShowRoomTimer->toBoolean()) {
         double igt = g_GameState->GetTotalPlayTime();
         if (m_currentRoom != g_StateManager->GetCurrentArea()) {
           m_currentRoom = static_cast<const void*>(g_StateManager->GetCurrentArea());
@@ -92,7 +92,7 @@ void ViewManager::TestGameView::think() {
                                    curFrames, m_lastRoomTime, lastFrames);
       }
 
-      if (g_StateManager->Player() && m_cvarCommons.m_debugOverlayPlayerInfo->toBoolean()) {
+      if (g_StateManager->Player() && m_vm.m_cvarCommons.m_debugOverlayPlayerInfo->toBoolean()) {
         const CPlayer& pl = g_StateManager->GetPlayer();
         const zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
         const zeus::CTransform camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
@@ -110,7 +110,7 @@ void ViewManager::TestGameView::think() {
                                    camXf.origin.y(), camXf.origin.z(), zeus::radToDeg(camQ.roll()),
                                    zeus::radToDeg(camQ.pitch()), zeus::radToDeg(camQ.yaw()));
       }
-      if (m_cvarCommons.m_debugOverlayWorldInfo->toBoolean()) {
+      if (m_vm.m_cvarCommons.m_debugOverlayWorldInfo->toBoolean()) {
         TLockedToken<CStringTable> tbl =
             g_SimplePool->GetObj({FOURCC('STRG'), g_StateManager->GetWorld()->IGetStringTableAssetId()});
         const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
@@ -119,7 +119,7 @@ void ViewManager::TestGameView::think() {
       }
 
       const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
-      if (m_cvarCommons.m_debugOverlayAreaInfo->toBoolean() && g_StateManager->GetWorld() &&
+      if (m_vm.m_cvarCommons.m_debugOverlayAreaInfo->toBoolean() && g_StateManager->GetWorld() &&
           g_StateManager->GetWorld()->DoesAreaExist(aId)) {
         const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
         std::string layerBits;
@@ -138,11 +138,11 @@ void ViewManager::TestGameView::think() {
       }
     }
 
-    if (m_cvarCommons.m_debugOverlayShowRandomStats->toBoolean()) {
+    if (m_vm.m_cvarCommons.m_debugOverlayShowRandomStats->toBoolean()) {
       overlayText += fmt::format(FMT_STRING("CRandom16::Next calls: {}\n"), urde::CRandom16::GetNumNextCalls());
     }
 
-    if (m_cvarCommons.m_debugOverlayShowResourceStats->toBoolean())
+    if (m_vm.m_cvarCommons.m_debugOverlayShowResourceStats->toBoolean())
       overlayText += fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects());
 
     if (!overlayText.empty())
@@ -218,6 +218,7 @@ void ViewManager::DismissSplash() {
 ViewManager::ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr)
 : m_fileStoreManager(fileMgr)
 , m_cvarManager(cvarMgr)
+, m_cvarCommons(cvarMgr)
 , m_projManager(*this)
 , m_fontCache(fileMgr)
 , m_locale(locale::SystemLocaleOrEnglish())
@@ -292,6 +293,9 @@ void ViewManager::init(boo::IApplication* app) {
   m_mainWindow = app->newWindow(_SYS_STR("URDE"));
   m_mainWindow->showWindow();
   m_mainWindow->setWaitCursor(true);
+  if (m_cvarCommons.getFullscreen()) {
+    m_mainWindow->setFullscreen(true);
+  }
 
   float pixelFactor = m_mainWindow->getVirtualPixelFactor();
 

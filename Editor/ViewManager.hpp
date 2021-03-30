@@ -38,6 +38,7 @@ class ViewManager final : public specter::IViewManager {
   std::shared_ptr<boo::IWindow> m_mainWindow;
   hecl::Runtime::FileStoreManager& m_fileStoreManager;
   hecl::CVarManager& m_cvarManager;
+  hecl::CVarCommons m_cvarCommons;
   ProjectManager m_projManager;
   specter::FontCache m_fontCache;
   specter::DefaultThemeData m_themeData;
@@ -58,14 +59,13 @@ class ViewManager final : public specter::IViewManager {
   class TestGameView : public specter::View {
     ViewManager& m_vm;
     std::unique_ptr<specter::MultiLineTextView> m_debugText;
-    hecl::CVarCommons m_cvarCommons;
     const void* m_currentRoom = nullptr;
     double m_lastRoomTime = 0.f;
     double m_currentRoomStart = 0.f;
 
   public:
     TestGameView(ViewManager& vm, specter::ViewResources& res, specter::View& parent, hecl::CVarManager& cvarMgr)
-    : View(res, parent), m_vm(vm), m_cvarCommons(cvarMgr) {}
+    : View(res, parent), m_vm(vm) {}
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
     void draw(boo::IGraphicsCommandQueue* gfxQ) override;
     void think() override;
