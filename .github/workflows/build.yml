@@ -178,7 +178,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ${{env.URDE_VERSION}}-msvc
+          name: urde-${{env.URDE_VERSION}}-win32-msvc-x86_64
           path: |
             build/Binaries/urde.exe
             build/Binaries/hecl.exe
