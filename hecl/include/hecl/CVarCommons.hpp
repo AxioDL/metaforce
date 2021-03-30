@@ -21,6 +21,7 @@ using namespace std::literals;
 
 struct CVarCommons {
   CVarManager& m_mgr;
+  CVar* m_fullscreen = nullptr;
   CVar* m_graphicsApi = nullptr;
   CVar* m_drawSamples = nullptr;
   CVar* m_texAnisotropy = nullptr;
@@ -44,6 +45,10 @@ struct CVarCommons {
   CVar* m_logFile = nullptr;
 
   CVarCommons(CVarManager& manager);
+
+  bool getFullscreen() const { return m_fullscreen->toBoolean(); }
+
+  void setFullscreen(bool b) { m_fullscreen->fromBoolean(b); }
 
   std::string getGraphicsApi() const { return m_graphicsApi->toLiteral(); }
 

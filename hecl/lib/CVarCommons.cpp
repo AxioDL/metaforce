@@ -7,6 +7,8 @@ CVarCommons* m_instance = nullptr;
 }
 
 CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
+  m_fullscreen = m_mgr.findOrMakeCVar("fullscreen"sv, "Start in fullscreen"sv, false,
+                                      hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
   m_graphicsApi = m_mgr.findOrMakeCVar("graphicsApi"sv, "API to use for rendering graphics"sv, DEFAULT_GRAPHICS_API,
                                        hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive |
                                            hecl::CVar::EFlags::ModifyRestart);
