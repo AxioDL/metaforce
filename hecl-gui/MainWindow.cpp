@@ -596,6 +596,7 @@ void MainWindow::initOptions() {
   initGraphicsApiOption(m_ui->d3d11Option, CurPlatform != Platform::Win32, DEFAULT_GRAPHICS_API == "D3D11"sv);
   initNumberComboOption(m_ui->anistropicFilteringBox, m_cvarCommons.m_texAnisotropy);
   initNumberComboOption(m_ui->antialiasingBox, m_cvarCommons.m_drawSamples);
+  initCheckboxOption(m_ui->fullscreen, m_cvarCommons.m_fullscreen);
   initCheckboxOption(m_ui->deepColor, m_cvarCommons.m_deepColor);
 
   m_ui->developerModeBox->setToolTip(QString::fromUtf8(hecl::com_developer->rawHelp().data()));

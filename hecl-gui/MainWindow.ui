@@ -369,6 +369,13 @@
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="fullscreen">
+              <property name="text">
+               <string>Start in fullscreen</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QCheckBox" name="deepColor">
               <property name="text">
                <string>Deep Color</string>
