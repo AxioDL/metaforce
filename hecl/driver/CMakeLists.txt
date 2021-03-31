@@ -9,7 +9,7 @@ add_executable(hecl main.cpp
     ToolCook.hpp
     ToolImage.hpp
     ToolSpec.hpp
-    ../DataSpecRegistry.hpp)
+    ../DataSpecRegistry.hpp.in)
 if(COMMAND add_sanitizers)
   add_sanitizers(hecl)
 endif()
