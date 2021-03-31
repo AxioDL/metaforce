@@ -599,7 +599,6 @@ void COmegaPirate::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
 }
 
 bool COmegaPirate::Landed(CStateManager& mgr, float arg) {
-  fmt::print(FMT_STRING("OMEGA: {} pieces healed\n"), xb4c_armorPiecesHealed);
   return xb4c_armorPiecesHealed == 4;
 }
 
@@ -1161,10 +1160,7 @@ void COmegaPirate::TeleportToFurthestPlatform(CStateManager& mgr) {
 
 zeus::CVector3f COmegaPirate::FindGround(const zeus::CVector3f& pos, CStateManager& mgr) const {
   auto result = mgr.RayStaticIntersection(pos, zeus::skDown, 30.f, CMaterialFilter::MakeInclude(EMaterialTypes::Solid));
-  if (result.IsValid()) {
-    return result.GetPoint();
-  }
-  return pos;
+  return result.IsValid() ? result.GetPoint() : pos;
 }
 
 void COmegaPirate::UpdateNormalAlpha(CStateManager& mgr, float dt) {
