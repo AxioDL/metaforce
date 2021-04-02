@@ -66,7 +66,7 @@ void CScriptBallTrigger::Think(float dt, CStateManager& mgr) {
     } else {
       const zeus::CVector3f offset = radiusPosDif.normalized();
       if (std::cos(zeus::degToRad(x154_minAngle)) < (-offset).dot(x15c_forceAngle) && distance < x158_maxDistance) {
-        const float force = zeus::min((1.f / dt * distance), x150_force * (distance * distance));
+        const float force = zeus::min((1.f / dt * distance), x150_force * (x158_maxDistance / (distance * distance)));
         player.ApplyForceWR(force * (player.GetMass() * offset), zeus::CAxisAngle());
       }
     }
