@@ -1560,8 +1560,8 @@ void CAutoMapper::SetupHintNavigation() {
     for (const CGameHintInfo::SHintLocation& loc : nextHint.GetLocations()) {
       if (loc.x0_mlvlId != curMlvl) {
         x1e0_hintSteps.emplace_back(SAutoMapperHintStep::SwitchToUniverse{});
-        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::PanToWorld{}, curMlvl);
-        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::SwitchToWorld{}, curMlvl);
+        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::PanToWorld{}, loc.x0_mlvlId);
+        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::SwitchToWorld{}, loc.x0_mlvlId);
       } else {
         x1e0_hintSteps.emplace_back(SAutoMapperHintStep::ZoomOut{});
       }
