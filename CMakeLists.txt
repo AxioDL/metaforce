@@ -57,6 +57,7 @@ string(TIMESTAMP CURRENT_YEAR "%Y")
 if(DEFINED ENV{GITHUB_ENV})
   file(APPEND "$ENV{GITHUB_ENV}" "URDE_VERSION=${URDE_WC_DESCRIBE}")
 endif()
+message(STATUS "URDE version set to ${URDE_WC_DESCRIBE}")
 
 if (APPLE)
   set(PLATFORM_NAME macos)
@@ -250,6 +251,10 @@ else()
   if(APPLE)
     add_compile_options(-Wno-error=deprecated-declarations
                         $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-flto=thin>)
+    if (URDE_ASAN)
+      add_compile_options(-fsanitize=address -fsanitize-address-use-after-scope)
+      add_link_options(-fsanitize=address -fsanitize-address-use-after-scope)
+    endif ()
   endif()
 
 endif()
