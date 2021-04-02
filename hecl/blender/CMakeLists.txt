@@ -18,14 +18,10 @@ list(APPEND PY_SOURCES
 
 bintoc(hecl_blendershell.cpp hecl_blendershell.py HECL_BLENDERSHELL)
 
-if (WIN32)
-    set(PYTHON_EXECUTABLE python)
-else ()
-    set(PYTHON_EXECUTABLE python3)
-endif ()
+find_package(Python COMPONENTS Interpreter REQUIRED)
 
 add_custom_command(OUTPUT hecl.zip DEPENDS ${PY_SOURCES}
-        COMMAND ${PYTHON_EXECUTABLE} ARGS zip_package.py ${CMAKE_CURRENT_BINARY_DIR}/hecl.zip
+        COMMAND ${Python_EXECUTABLE} ARGS zip_package.py ${CMAKE_CURRENT_BINARY_DIR}/hecl.zip
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Generating addon package")
 bintoc(hecl_addon.cpp "${CMAKE_CURRENT_BINARY_DIR}/hecl.zip" HECL_ADDON)
