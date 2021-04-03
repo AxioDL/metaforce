@@ -28,6 +28,9 @@ public:
   }
   bool IsComplete() override { return m_complete.load(); }
   void PostCancelRequest() override {
+    if (m_complete.load() || m_cancel.load()) {
+      return;
+    }
     std::unique_lock waitlk{CDvdFile::m_WaitMutex};
     m_cancel.store(true);
   }
