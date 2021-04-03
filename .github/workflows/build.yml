@@ -181,9 +181,13 @@ jobs:
           name: urde-${{env.URDE_VERSION}}-win32-msvc-x86_64
           path: |
             build/Binaries/urde.exe
+            build/Binaries/urde.pdb
             build/Binaries/hecl.exe
+            build/Binaries/hecl.pdb
             build/Binaries/hecl-gui.exe
+            build/Binaries/hecl-gui.pdb
             build/Binaries/visigen.exe
+            build/Binaries/visigen.pdb
 
   build-windows-clang:
     name: Build Windows (Clang x86_64)
@@ -245,6 +249,10 @@ jobs:
           name: urde-${{env.URDE_VERSION}}-win32-clang-x86_64
           path: |
             build/Binaries/urde.exe
+            build/Binaries/urde.pdb
             build/Binaries/hecl.exe
+            build/Binaries/hecl.pdb
             build/Binaries/hecl-gui.exe
+            build/Binaries/hecl-gui.pdb
             build/Binaries/visigen.exe
+            build/Binaries/visigen.pdb
