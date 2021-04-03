@@ -51,6 +51,7 @@ void CBooModel::Shutdown() {
 }
 
 void CBooModel::ClearModelUniformCounters() {
+  OPTICK_EVENT();
   for (CBooModel* model = g_FirstModel; model; model = model->m_next)
     model->ClearUniformCounter();
 }
@@ -244,6 +245,7 @@ GeometryUniformLayout::GeometryUniformLayout(const CModel* model, const Material
 }
 
 CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf, boo::IGraphicsDataFactory::Context* ctx) {
+  OPTICK_EVENT();
   if (!x40_24_texturesLoaded && !g_DummyTextures) {
     return nullptr;
   }
@@ -981,6 +983,7 @@ boo::ObjToken<boo::IGraphicsBufferD> GeometryUniformLayout::GetSharedBuffer(int 
 boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
                                                                   const CPoseAsTransforms* pose, int sharedLayoutBuf,
                                                                   boo::IGraphicsDataFactory::Context* ctx) {
+  OPTICK_EVENT();
   if (!g_DummyTextures && !TryLockTextures())
     return {};
 
@@ -1154,6 +1157,7 @@ std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts, 
 }
 
 CModelShaders::ShaderPipelines SShader::BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat) {
+  OPTICK_EVENT();
   hecl::Backend::ReflectionType reflectionType;
   if (mat.flags.samusReflectionIndirectTexture())
     reflectionType = hecl::Backend::ReflectionType::Indirect;

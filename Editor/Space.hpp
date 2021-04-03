@@ -172,6 +172,7 @@ public:
   }
 
   void think() override {
+    OPTICK_EVENT();
     if (m_spaceTree)
       m_spaceTree->think();
   }

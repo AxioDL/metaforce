@@ -223,6 +223,7 @@ CBooRenderer::CAreaListItem::CAreaListItem(const std::vector<CMetroidModelInstan
 CBooRenderer::CAreaListItem::~CAreaListItem() = default;
 
 void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model) {
+  OPTICK_EVENT();
   constexpr size_t lightCount = 4;
   std::vector<CLight> thisLights;
   thisLights.reserve(lightCount);
@@ -767,6 +768,7 @@ void CBooRenderer::DisablePVS() { xc8_pvs = std::nullopt; }
 
 void CBooRenderer::UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode, bool activateLights, int cubeFace,
                                       const CModelFlags* ballShadowFlags) {
+  OPTICK_EVENT();
   SetupRendererStates();
 
   CModelFlags flags;
@@ -1067,6 +1069,7 @@ void CBooRenderer::SetViewport(int left, int bottom, int width, int height) {
 void CBooRenderer::SetDebugOption(EDebugOption, int) {}
 
 void CBooRenderer::BeginScene() {
+  OPTICK_EVENT();
   CGraphics::SetViewport(0, 0, g_Viewport.x8_width, g_Viewport.xc_height);
   CGraphics::SetPerspective(75.f, CGraphics::g_ProjAspect, 1.f, 4096.f);
   CGraphics::SetModelMatrix(zeus::CTransform());
@@ -1088,6 +1091,7 @@ void CBooRenderer::BeginScene() {
 }
 
 void CBooRenderer::EndScene() {
+  OPTICK_EVENT();
   CGraphics::EndScene();
   if (x2dc_reflectionAge >= 2) {
     // Delete reflection tex x14c_

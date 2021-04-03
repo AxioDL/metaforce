@@ -73,6 +73,7 @@ bool ProjectManager::newProject(hecl::SystemStringView path) {
 }
 
 bool ProjectManager::openProject(hecl::SystemStringView path) {
+  OPTICK_EVENT();
   hecl::SystemString subPath;
   hecl::ProjectRootPath projPath = hecl::SearchForProject(path, subPath);
   if (!projPath) {
@@ -166,6 +167,7 @@ bool ProjectManager::saveProject() {
 }
 
 void ProjectManager::mainUpdate() {
+  OPTICK_EVENT();
   if (m_precooking) {
     if (!m_factoryMP1.IsBusy())
       m_precooking = false;

@@ -2,6 +2,7 @@
 
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStopwatch.hpp"
+#include "optick.h"
 
 namespace urde {
 static logvisor::Module Log("CResFactory");
@@ -33,6 +34,7 @@ CFactoryFnReturn CResFactory::BuildSync(const SObjectTag& tag, const CVParamTran
 }
 
 bool CResFactory::PumpResource(SLoadingData& data) {
+  OPTICK_EVENT();
   if (data.x8_dvdReq && data.x8_dvdReq->IsComplete()) {
     data.x8_dvdReq.reset();
     *data.xc_targetPtr =
@@ -74,6 +76,7 @@ void CResFactory::BuildAsync(const SObjectTag& tag, const CVParamTransfer& xfer,
 }
 
 void CResFactory::AsyncIdle() {
+  OPTICK_EVENT();
   if (m_loadList.empty())
     return;
   auto startTime = std::chrono::steady_clock::now();

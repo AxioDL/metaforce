@@ -18,6 +18,7 @@
 #include "hecl/Pipeline.hpp"
 #include "version.h"
 #include <cstdio>
+#include "optick.h"
 
 using YAMLNode = athena::io::YAMLNode;
 
@@ -54,6 +55,7 @@ void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue* gfxQ) {
 }
 
 void ViewManager::TestGameView::think() {
+  OPTICK_EVENT();
   if (!m_debugText) {
     m_debugText.reset(new specter::MultiLineTextView(m_vm.m_viewResources, *this, m_vm.m_viewResources.m_monoFont18));
     boo::SWindowRect sub = subRect();
@@ -356,6 +358,7 @@ bool ViewManager::proc() {
     return false;
 
   if (m_updatePf) {
+    OPTICK_EVENT("m_updatePf");
     m_viewResources.resetPixelFactor(m_reqPf);
     specter::RootView* root = SetupRootView();
     if (m_rootSpace)
@@ -368,8 +371,14 @@ bool ViewManager::proc() {
     m_updatePf = false;
   }
 
-  m_rootView->dispatchEvents();
-  m_rootView->internalThink();
+  {
+    OPTICK_EVENT("m_rootView->DispatchEvents");
+    m_rootView->dispatchEvents();
+  }
+  {
+    OPTICK_EVENT("m_rootView->internalThink");
+    m_rootView->internalThink();
+  }
   if (m_rootSpace)
     m_rootSpace->think();
   if (m_splash)
@@ -391,19 +400,24 @@ bool ViewManager::proc() {
   if (m_testGameView)
     m_testGameView->think();
 
-  if (g_Renderer)
-    g_Renderer->BeginScene();
-  m_rootView->draw(gfxQ);
-  if (g_Renderer)
-    g_Renderer->EndScene();
-  gfxQ->execute();
+  {
+    OPTICK_EVENT("Draw");
+    if (g_Renderer)
+      g_Renderer->BeginScene();
+    m_rootView->draw(gfxQ);
+    if (g_Renderer)
+      g_Renderer->EndScene();
+    gfxQ->execute();
+  }
   if (g_ResFactory)
     g_ResFactory->AsyncIdle();
 #ifndef URDE_MSAN
   m_voiceEngine->pumpAndMixVoices();
 #endif
-  if (!m_skipWait || !hecl::com_developer->toBoolean())
+  if (!m_skipWait || !hecl::com_developer->toBoolean()) {
+    OPTICK_EVENT("waitForRetrace");
     m_mainWindow->waitForRetrace();
+  }
   CBooModel::ClearModelUniformCounters();
   CGraphics::TickRenderTimings();
   ++logvisor::FrameIndex;

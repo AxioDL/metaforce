@@ -312,6 +312,7 @@ void CFluidPlane::RenderStripWithRipples(float curY, const Heights& heights, con
 void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const Heights& heights, const Flags& flags,
                               bool noRipples, bool flagIs1, std::vector<CFluidPlaneShader::Vertex>& vOut,
                               std::vector<CFluidPlaneShader::PatchVertex>& pvOut) {
+  OPTICK_EVENT();
   if (noRipples) {
     m_shader->bindRegular();
 

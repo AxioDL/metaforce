@@ -23,6 +23,7 @@ hecl::UniformBufferPool<CLineRenderer::SDrawUniform> CLineRenderer::s_uniformPoo
 CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx, EPrimitiveMode mode, u32 maxVerts,
                              const boo::ObjToken<boo::ITexture>& texture, bool additive, bool zTest, bool zGEqual)
 : m_mode(mode), m_maxVerts(maxVerts) {
+  OPTICK_EVENT();
   if (maxVerts < 2) {
     LineRendererLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("maxVerts < 2, maxVerts = {}")), maxVerts);
     return;
@@ -54,6 +55,7 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx, EPrimitive
 CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const boo::ObjToken<boo::ITexture>& texture,
                              bool additive, bool zTest, bool zGEqual)
 : m_mode(mode), m_maxVerts(maxVerts) {
+  OPTICK_EVENT();
   if (maxVerts < 2) {
     LineRendererLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("maxVerts < 2, maxVerts = {}")), maxVerts);
     return;

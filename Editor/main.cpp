@@ -9,6 +9,7 @@
 #include "hecl/Console.hpp"
 #include "fmt/chrono.h"
 #include "version.h"
+#include "optick.h"
 
 static logvisor::Module AthenaLog("Athena");
 static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, fmt::string_view fmt,
@@ -71,6 +72,7 @@ struct Application : boo::IApplicationCallback {
     initialize(app);
     m_viewManager->init(app);
     while (m_running.load()) {
+      OPTICK_FRAME("MainThread");
       if (!m_viewManager->proc())
         break;
     }

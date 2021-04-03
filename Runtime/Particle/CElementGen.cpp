@@ -586,6 +586,7 @@ void CElementGen::UpdatePSTranslationAndOrientation() {
 }
 
 std::unique_ptr<CParticleGen> CElementGen::ConstructChildParticleSystem(const TToken<CGenDescription>& desc) const {
+  OPTICK_EVENT();
   auto ret = std::make_unique<CElementGen>(desc, EModelOrientationType::Normal,
                                            x26d_27_enableOPTS ? EOptionalSystemFlags::Two : EOptionalSystemFlags::One);
   ret->x26d_26_modelsUseLights = x26d_26_modelsUseLights;

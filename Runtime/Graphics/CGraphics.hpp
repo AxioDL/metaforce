@@ -3,6 +3,7 @@
 #include <array>
 #include <vector>
 #include <chrono>
+#include "optick.h"
 
 #include "Runtime/RetroTypes.hpp"
 
@@ -438,7 +439,7 @@ public:
 };
 #define SCOPED_GRAPHICS_DEBUG_GROUP(...) GraphicsDebugGroup _GfxDbg_(__VA_ARGS__);
 #else
-#define SCOPED_GRAPHICS_DEBUG_GROUP(...)
+#define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...) OPTICK_EVENT_DYNAMIC(name)
 #endif
 
 } // namespace urde

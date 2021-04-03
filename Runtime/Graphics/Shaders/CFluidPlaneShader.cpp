@@ -90,6 +90,7 @@ u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneDoorShaderInfo& info
 template <>
 CFluidPlaneShader::ShaderPair
 CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneShaderInfo>(const SFluidPlaneShaderInfo& info) {
+  OPTICK_EVENT();
   u16 key = MakeCacheKey(info);
   auto& slot = CacheSlot(info, key);
   if (slot.m_regular)
@@ -104,6 +105,7 @@ CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneShaderInfo>(const SFluidPl
 template <>
 CFluidPlaneShader::ShaderPair
 CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneDoorShaderInfo>(const SFluidPlaneDoorShaderInfo& info) {
+  OPTICK_EVENT();
   u16 key = MakeCacheKey(info);
   auto& slot = CacheSlot(info, key);
   if (slot.m_regular)
