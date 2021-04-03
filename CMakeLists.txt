@@ -58,6 +58,7 @@ if(DEFINED ENV{GITHUB_ENV})
   file(APPEND "$ENV{GITHUB_ENV}" "URDE_VERSION=${URDE_WC_DESCRIBE}")
 endif()
 message(STATUS "URDE version set to ${URDE_WC_DESCRIBE}")
+project(urde VERSION ${URDE_VERSION_STRING})
 
 if (APPLE)
   set(PLATFORM_NAME macos)
@@ -99,8 +100,6 @@ endif()
 if(CMAKE_CROSSCOMPILING)
   set(HAVE_WORDS_BIGENDIAN_EXITCODE 0 CACHE INTEGER "Makes soxr happy" FORCE)
 endif()
-
-project(urde VERSION ${URDE_VERSION_STRING})
 
 # MSVC has a "latest" flag, which always uses the newest standard
 # when available. GCC and Clang posess no such flag, and must be
