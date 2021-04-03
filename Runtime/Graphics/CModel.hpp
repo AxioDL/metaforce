@@ -177,7 +177,7 @@ private:
   boo::ObjToken<boo::ITexture> m_lastDrawnOneTexture;
   boo::ObjToken<boo::ITextureCubeR> m_lastDrawnReflectionCube;
 
-  ModelInstance* PushNewModelInstance(int sharedLayoutBuf = -1);
+  ModelInstance* PushNewModelInstance(int sharedLayoutBuf = -1, boo::IGraphicsDataFactory::Context* ctx = nullptr);
   void DrawAlphaSurfaces(const CModelFlags& flags) const;
   void DrawNormalSurfaces(const CModelFlags& flags) const;
   void DrawSurfaces(const CModelFlags& flags) const;
@@ -217,7 +217,8 @@ public:
   void Touch(int shaderIdx);
   void VerifyCurrentShader(int shaderIdx);
   boo::ObjToken<boo::IGraphicsBufferD> UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
-                                                         const CPoseAsTransforms* pose, int sharedLayoutBuf = -1);
+                                                         const CPoseAsTransforms* pose, int sharedLayoutBuf = -1,
+                                                         boo::IGraphicsDataFactory::Context* ctx = nullptr);
   void DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
   void DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
   void Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);

@@ -796,14 +796,17 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode, 
     if (shadowMode == EWorldShadowMode::BallOnWorldShadow || shadowMode == EWorldShadowMode::BallOnWorldIds)
       continue;
 
-    for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it) {
-      CBooModel* model = *it;
-      if (model->TryLockTextures()) {
-        if (activateLights)
-          ActivateLightsForModel(&item, *model);
-        model->UpdateUniformData(flags, nullptr, nullptr, bufIdx);
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+      for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it) {
+        CBooModel* model = *it;
+        if (model->TryLockTextures()) {
+          if (activateLights)
+            ActivateLightsForModel(&item, *model);
+          model->UpdateUniformData(flags, nullptr, nullptr, bufIdx, &ctx);
+        }
       }
-    }
+      return true;
+    } BooTrace);
   }
 }
 
