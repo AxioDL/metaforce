@@ -2344,6 +2344,7 @@ void CStateManager::MoveActors(float dt) {
 
 void CStateManager::CrossTouchActors() {
   std::array<bool, 1024> visits{};
+  rstl::reserved_vector<TUniqueId, 1024> nearList;
 
   for (CEntity* ent : GetActorObjectList()) {
     if (ent == nullptr) {
@@ -2365,7 +2366,7 @@ void CStateManager::CrossTouchActors() {
       filter = CMaterialFilter::MakeExclude(EMaterialTypes::Trigger);
     }
 
-    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    nearList.clear();
     BuildNearList(nearList, *touchAABB, filter, &actor);
 
     for (const auto& id : nearList) {
