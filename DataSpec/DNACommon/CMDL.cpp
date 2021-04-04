@@ -1002,7 +1002,10 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
   FinishBlenderMesh(os, matSetCount, meshIdx);
 
   if (rp.first.second) {
-    os.format(FMT_STRING("mesh.cskr_id = '{}'\n"), rp.first.first);
+    if (entry.id != 0xB333E1D7) {
+      // This is the beta phazon suit, we want the (incorrect) weight information, but we don't want to keep the CSKR id
+      os.format(FMT_STRING("mesh.cskr_id = '{}'\n"), rp.first.first);
+    }
     rp.second.second->sendVertexGroupsToBlender(os);
   }
 
