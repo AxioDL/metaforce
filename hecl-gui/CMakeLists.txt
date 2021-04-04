@@ -151,6 +151,13 @@ elseif (APPLE)
             COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:hecl-gui>
             DEPENDS urde hecl visigen
     )
+    if (NOT "${SENTRY_DSN}" STREQUAL "")
+        add_custom_command(
+                TARGET hecl-gui POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:crashpad_handler> $<TARGET_FILE_DIR:hecl-gui>
+                DEPENDS crashpad_handler
+        )
+    endif()
 endif ()
 
 add_subdirectory(platforms/freedesktop)
