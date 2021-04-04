@@ -16,6 +16,7 @@
 #include <list>
 #include "hecl/Database.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "hecl/Runtime.hpp"
 #include "logvisor/logvisor.hpp"
 #include "../version.h"
 
@@ -308,6 +309,12 @@ int main(int argc, const char** argv)
   logvisor::RegisterStandardExceptions();
   logvisor::RegisterConsoleLogger();
   atSetExceptionHandler(AthenaExc);
+
+#if SENTRY_ENABLED
+  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("sentry-native-hecl")};
+  hecl::SystemUTF8Conv cacheDir{fileMgr.getStoreRoot()};
+  logvisor::RegisterSentry("hecl", URDE_WC_DESCRIBE, cacheDir.c_str());
+#endif
 
   /* Basic usage check */
   if (argc == 1) {
