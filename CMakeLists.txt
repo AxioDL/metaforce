@@ -58,7 +58,7 @@ if(DEFINED ENV{GITHUB_ENV})
   file(APPEND "$ENV{GITHUB_ENV}" "URDE_VERSION=${URDE_WC_DESCRIBE}")
 endif()
 message(STATUS "URDE version set to ${URDE_WC_DESCRIBE}")
-project(urde VERSION ${URDE_VERSION_STRING})
+project(urde LANGUAGES C CXX ASM VERSION ${URDE_VERSION_STRING})
 
 if (APPLE)
   set(PLATFORM_NAME macos)
@@ -69,21 +69,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif ()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
-
-if(APPLE)
-  # Shaddup Xcode
-  function(add_executable TARGET)
-    _add_executable(${TARGET} ${ARGN})
-    set_target_properties(${TARGET} PROPERTIES XCODE_ATTRIBUTE_WARNING_CFLAGS "")
-  endfunction()
-  function(add_library TARGET)
-    _add_library(${TARGET} ${ARGN})
-    list(GET ARGV 1 ARG1)
-    if(NOT ${ARG1} STREQUAL INTERFACE AND NOT ${ARG1} STREQUAL ALIAS)
-      set_target_properties(${TARGET} PROPERTIES XCODE_ATTRIBUTE_WARNING_CFLAGS "")
-    endif()
-  endfunction()
-endif()
 
 if(APPLE AND NOT CMAKE_OSX_SYSROOT)
   # If the Xcode SDK is lagging behind system version, CMake needs this done first

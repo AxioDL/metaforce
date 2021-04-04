@@ -142,6 +142,12 @@ static void SetupBasics(bool logging) {
   if (logging)
     logvisor::RegisterConsoleLogger();
   atSetExceptionHandler(AthenaExc);
+
+#if SENTRY_ENABLED
+  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("sentry-native-urde")};
+  hecl::SystemUTF8Conv cacheDir{fileMgr.getStoreRoot()};
+  logvisor::RegisterSentry("urde", URDE_WC_DESCRIBE, cacheDir.c_str());
+#endif
 }
 
 static bool IsClientLoggingEnabled(int argc, const boo::SystemChar** argv) {

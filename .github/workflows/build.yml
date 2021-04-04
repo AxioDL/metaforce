@@ -55,7 +55,8 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}}
+            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}} \
+            -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -92,7 +93,8 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           export PATH="/usr/local/opt/qt@5/bin:$PATH" # FIXME remove
-          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -109,7 +111,7 @@ jobs:
         working-directory: build/Binaries
         run: |
           mv hecl-gui.app URDE.app
-          for i in visigen hecl urde; do
+          for i in visigen hecl urde crashpad_handler; do
             codesign --timestamp --options runtime -s "${{secrets.MACOS_CODESIGN_IDENT}}" URDE.app/Contents/MacOS/$i
           done
           macdeployqt URDE.app -sign-for-notarization="${{secrets.MACOS_CODESIGN_IDENT}}" -no-strip
@@ -169,11 +171,16 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
             -DVCPKG_TARGET_TRIPLET=x64-windows-static `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= `
-            -DLLVM_ROOT_DIR="$workspace/LLVM"
+            -DLLVM_ROOT_DIR="$workspace/LLVM" `
+            -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
         run: cmake --build . --config $BUILD_TYPE
+
+      - name: Compress PDBs
+        working-directory: ${{github.workspace}}/build/Binaries
+        run: 7z a -t7z debug.7z urde.pdb hecl.pdb hecl-gui.pdb visigen.pdb
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
@@ -181,13 +188,11 @@ jobs:
           name: urde-${{env.URDE_VERSION}}-win32-msvc-x86_64
           path: |
             build/Binaries/urde.exe
-            build/Binaries/urde.pdb
             build/Binaries/hecl.exe
-            build/Binaries/hecl.pdb
             build/Binaries/hecl-gui.exe
-            build/Binaries/hecl-gui.pdb
             build/Binaries/visigen.exe
-            build/Binaries/visigen.pdb
+            build/Binaries/crashpad_handler.exe
+            build/Binaries/debug.7z
 
   build-windows-clang:
     name: Build Windows (Clang x86_64)
@@ -237,11 +242,16 @@ jobs:
             -DCMAKE_C_COMPILER="$workspace/LLVM/bin/clang-cl.exe" `
             -DCMAKE_CXX_COMPILER="$workspace/LLVM/bin/clang-cl.exe" `
             -DCMAKE_LINKER="$workspace/LLVM/bin/lld-link.exe" `
-            -DLLVM_ROOT_DIR="$workspace/LLVM"
+            -DLLVM_ROOT_DIR="$workspace/LLVM" `
+            -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
         run: cmake --build . --config $BUILD_TYPE
+
+      - name: Compress PDBs
+        working-directory: ${{github.workspace}}/build/Binaries
+        run: 7z a -t7z debug.7z urde.pdb hecl.pdb hecl-gui.pdb visigen.pdb
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
@@ -249,10 +259,8 @@ jobs:
           name: urde-${{env.URDE_VERSION}}-win32-clang-x86_64
           path: |
             build/Binaries/urde.exe
-            build/Binaries/urde.pdb
             build/Binaries/hecl.exe
-            build/Binaries/hecl.pdb
             build/Binaries/hecl-gui.exe
-            build/Binaries/hecl-gui.pdb
             build/Binaries/visigen.exe
-            build/Binaries/visigen.pdb
+            build/Binaries/crashpad_handler.exe
+            build/Binaries/debug.7z
