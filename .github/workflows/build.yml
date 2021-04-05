@@ -292,7 +292,7 @@ jobs:
             -DVCPKG_TARGET_TRIPLET=x64-windows-static `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
             -DCMAKE_C_COMPILER=clang-cl `
-            -DCMAKE_CXX_COMPILER=clang-cl
+            -DCMAKE_CXX_COMPILER=clang-cl `
             -DCMAKE_LINKER=lld-link `
             -DLLVM_ROOT_DIR="$workspace/LLVM" `
             -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
