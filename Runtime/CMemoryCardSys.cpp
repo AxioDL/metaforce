@@ -218,7 +218,8 @@ void CMemoryCardSys::CCardFileInfo::BuildCardBuffer() {
   CMemoryOutStream w(x104_cardBuffer.data(), x104_cardBuffer.size());
   w.writeUint32Big(0);
   char comment[64];
-  strncpy(comment, x28_comment.data(), 64);
+  std::memset(comment, 0, std::size(comment));
+  std::strncpy(comment, x28_comment.data(), std::size(comment) - 1);
   w.writeBytes(comment, 64);
   WriteBannerData(w);
   WriteIconData(w);
