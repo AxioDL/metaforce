@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 cmake_policy(VERSION 3.15...3.20)
 
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
+      "Build type options: Debug Release RelWithDebInfo MinSizeRel" FORCE)
+endif ()
+
 # obtain revision info from git
 find_package(Git)
 if (GIT_FOUND)
@@ -170,14 +175,13 @@ if(MSVC)
       $<$<COMPILE_LANGUAGE:CXX>:/Zc:throwingNew>
 
       # Link-time Code Generation for Release builds
-      $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:/GL>
+      $<$<CONFIG:Release>:/GL>
     )
 
     # Link-time Code Generation for Release builds
     set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "/LTCG")
-    set(CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO "/LTCG")
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/RELEASE /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO")
-    set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG /RELEASE /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO /DEBUGTYPE:cv,fixup")
+    set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG /RELEASE /OPT:REF /OPT:ICF /INCREMENTAL:NO /DEBUGTYPE:cv,fixup")
   endif()
 
 else()
@@ -235,7 +239,7 @@ else()
 
   if(APPLE)
     add_compile_options(-Wno-error=deprecated-declarations
-                        $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-flto=thin>)
+                        $<$<CONFIG:Release>:-flto=thin>)
     if (URDE_ASAN)
       add_compile_options(-fsanitize=address -fsanitize-address-use-after-scope)
       add_link_options(-fsanitize=address -fsanitize-address-use-after-scope)
