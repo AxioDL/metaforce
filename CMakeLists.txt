@@ -118,7 +118,7 @@ if(MSVC)
     add_compile_definitions(__SSE4_1__=1)
     # clang-cl 10 requires -msse4.1, may be fixed in newer versions?
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL Clang)
-      add_compile_options(-msse4.1)
+      add_compile_options($<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:-msse4.1>)
     endif()
     message(STATUS "Building with SSE4.1 Vector ISA")
   else()
@@ -135,8 +135,9 @@ if(MSVC)
       _CRT_SECURE_NO_WARNINGS=1 D_SCL_SECURE_NO_WARNINGS=1
       _SCL_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
       _ENABLE_EXTENDED_ALIGNED_STORAGE=1 NOMINMAX=1)
-  add_compile_options(/IGNORE:4221 /wd4018 /wd4800 /wd4005 /wd4311 /wd4068
-      /wd4267 /wd4244 /wd4200 /wd4305 /wd4067 /wd4146 /wd4309 /wd4805 ${VS_OPTIONS})
+  add_compile_options(/IGNORE:4221
+          "$<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4018 /wd4800 /wd4005 /wd4311 /wd4068 /wd4267 /wd4244 /wd4200 /wd4305 /wd4067 /wd4146 /wd4309 /wd4805>"
+          ${VS_OPTIONS})
 
   add_compile_options(
     # Disable exceptions
