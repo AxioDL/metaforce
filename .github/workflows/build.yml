@@ -37,6 +37,7 @@ jobs:
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
             libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default \
             libcurl4-openssl-dev
+          yarn global add @sentry/cli
           # free up disk space
           # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
           echo Before
@@ -63,6 +64,13 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: cmake --build . --config $BUILD_TYPE
 
+      - name: Upload debug information
+        if: matrix.name == "Clang"
+        env:
+          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+          SENTRY_URL: ${{secrets.SENTRY_URL}}
+        run: ci/upload-debug-linux.sh
+
       - name: Generate AppImage
         run: ci/build-appimage.sh
 
@@ -70,7 +78,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: urde-${{env.URDE_VERSION}}-linux-${{matrix.cc}}-x86_64
-          path: URDE-*.AppImage
+          path: |
+            URDE-*.AppImage
+            build/Binaries/*.dbg
 
   build-macos:
     name: Build macOS (AppleClang x86_64)
@@ -83,7 +93,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install ninja qt@5 graphicsmagick imagemagick
+          brew install ninja qt@5 graphicsmagick imagemagick getsentry/tools/sentry-cli
           brew link qt@5
           yarn global add create-dmg
 
@@ -100,6 +110,12 @@ jobs:
       - name: Build
         working-directory: ${{github.workspace}}/build
         run: cmake --build . --config $BUILD_TYPE
+
+      - name: Upload debug information
+        env:
+          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+          SENTRY_URL: ${{secrets.SENTRY_URL}}
+        run: ci/upload-debug-macos.sh
 
       - name: Import signing certificate
         uses: devbotsxyz/xcode-import-certificate@master
@@ -134,6 +150,7 @@ jobs:
       LLVM_VERSION: 10.0.1
       Qt_VERSION: 5.15.2
 #      IPP_VERSION: 2021.2.0.210
+      SENTRY_CLI_VERSION: 1.63.2
     steps:
       - uses: actions/checkout@v2
         with:
@@ -155,6 +172,12 @@ jobs:
           New-Item -Path "$TempDir" -ItemType Directory -ea 0
           (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
           7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
+
+      - name: Download sentry-cli
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://github.com/getsentry/sentry-cli/releases/download/$env:SENTRY_CLI_VERSION/sentry-cli-Windows-x86_64.exe", "$TempDir\sentry-cli.exe")
 
 #      - name: Install Intel IPP
 #        run: |
@@ -188,6 +211,9 @@ jobs:
       - name: Build
         working-directory: ${{github.workspace}}/build
         run: cmake --build . --config $BUILD_TYPE
+
+      - name: Upload debug information
+        run:
 
       - name: Compress PDBs
         working-directory: ${{github.workspace}}/build/Binaries
