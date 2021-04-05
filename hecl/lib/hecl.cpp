@@ -645,7 +645,8 @@ int RecursiveMakeDir(const SystemChar* dir) {
   SystemChar tmp[1024];
 
   /* copy path */
-  std::strncpy(tmp, dir, std::size(tmp));
+  std::memset(tmp, 0, std::size(tmp));
+  std::strncpy(tmp, dir, std::size(tmp) - 1);
   const size_t len = std::strlen(tmp);
   if (len >= std::size(tmp)) {
     return -1;
