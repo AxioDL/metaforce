@@ -65,7 +65,7 @@ jobs:
         run: cmake --build . --config $BUILD_TYPE
 
       - name: Upload debug information
-        if: ${{matrix.name == "Clang"}}
+        if: ${{matrix.name == 'Clang'}}
         env:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
           SENTRY_URL: ${{secrets.SENTRY_URL}}
