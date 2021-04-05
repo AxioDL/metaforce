@@ -291,9 +291,9 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
             -DVCPKG_TARGET_TRIPLET=x64-windows-static `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
-            -DCMAKE_C_COMPILER="$workspace/LLVM/bin/clang-cl.exe" `
-            -DCMAKE_CXX_COMPILER="$workspace/LLVM/bin/clang-cl.exe" `
-            -DCMAKE_LINKER="$workspace/LLVM/bin/lld-link.exe" `
+            -DCMAKE_C_COMPILER=clang-cl `
+            -DCMAKE_CXX_COMPILER=clang-cl
+            -DCMAKE_LINKER=lld-link `
             -DLLVM_ROOT_DIR="$workspace/LLVM" `
             -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
 
