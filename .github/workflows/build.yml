@@ -213,7 +213,12 @@ jobs:
         run: cmake --build . --config $BUILD_TYPE
 
       - name: Upload debug information
-        run:
+        env:
+          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+          SENTRY_URL: ${{secrets.SENTRY_URL}}
+        run: |
+          & "$env:RUNNER_WORKSPACE\temp\sentry-cli.exe" upload-dif --org axiodl --project urde --include-sources `
+            urde.exe urde.pdb hecl.exe hecl.pdb hecl-gui.exe hecl-gui.pdb visigen.exe visigen.pdb
 
       - name: Compress PDBs
         working-directory: ${{github.workspace}}/build/Binaries
@@ -260,14 +265,14 @@ jobs:
           (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
           7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
 
-      - name: Install Intel IPP
-        run: |
-          $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
-          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/$Filename", "$TempDir\$Filename")
-          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
-          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
+#      - name: Install Intel IPP
+#        run: |
+#          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+#          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
+#          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+#          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/$Filename", "$TempDir\$Filename")
+#          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
+#          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
 
       - name: Install dependencies
         run: choco install ninja vulkan-sdk
