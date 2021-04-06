@@ -1,14 +1,13 @@
-name: Build
+name: Release
 
 on:
   push:
-    branches-ignore:
+    branches:
       - master
     paths-ignore:
       - '*.json'
       - '*.md'
       - '*LICENSE'
-  pull_request:
 
 jobs:
   build-linux:
@@ -38,6 +37,8 @@ jobs:
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
             libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default \
             libcurl4-openssl-dev
+          yarn global add @sentry/cli
+          echo "$(yarn global bin)" >> $GITHUB_PATH
           # free up disk space
           # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
           echo Before
@@ -57,11 +58,30 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}}
+            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}} \
+            -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
         run: cmake --build .
+
+      - name: Upload debug information
+        if: ${{matrix.name == 'Clang'}}
+        env:
+          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+          SENTRY_URL: ${{secrets.SENTRY_URL}}
+        run: ci/upload-debug-linux.sh
+
+      - name: Generate AppImage
+        run: ci/build-appimage.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: urde-${{env.URDE_VERSION}}-linux-${{matrix.cc}}-x86_64
+          path: |
+            URDE-*.AppImage
+            build/Binaries/*.dbg
 
   build-macos:
     name: Build macOS (AppleClang x86_64)
@@ -74,7 +94,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install ninja qt@5 graphicsmagick imagemagick
+          brew install ninja qt@5 graphicsmagick imagemagick getsentry/tools/sentry-cli
           brew link qt@5
           yarn global add create-dmg
 
@@ -85,19 +105,53 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           export PATH="/usr/local/opt/qt@5/bin:$PATH" # FIXME remove
-          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
         run: cmake --build .
 
+      - name: Upload debug information
+        env:
+          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+          SENTRY_URL: ${{secrets.SENTRY_URL}}
+        run: ci/upload-debug-macos.sh
+
+      - name: Import signing certificate
+        uses: devbotsxyz/xcode-import-certificate@master
+        with:
+          certificate-data: ${{ secrets.MACOS_CERTIFICATE_DATA }}
+          certificate-passphrase: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          keychain-password: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+
+      - name: Deploy & codesign application
+        working-directory: build/Binaries
+        run: |
+          mv hecl-gui.app URDE.app
+          for i in visigen hecl urde crashpad_handler; do
+            codesign --timestamp --options runtime -s "${{secrets.MACOS_CODESIGN_IDENT}}" URDE.app/Contents/MacOS/$i
+          done
+          macdeployqt URDE.app -sign-for-notarization="${{secrets.MACOS_CODESIGN_IDENT}}" -no-strip
+          create-dmg URDE.app --identity="${{secrets.MACOS_CODESIGN_IDENT}}"
+          xcrun altool -t osx -f *.dmg --primary-bundle-id com.axiodl.URDE --notarize-app \
+            -u "${{secrets.MACOS_ASC_USERNAME}}" -p "${{secrets.MACOS_ASC_PASSWORD}}" \
+            --team-id "${{secrets.MACOS_ASC_TEAM_ID}}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: urde-${{env.URDE_VERSION}}-macos-appleclang-x86_64
+          path: build/Binaries/*.dmg
+
   build-windows-msvc:
     name: Build Windows (MSVC x86_64)
-    runs-on: windows-2019
+    runs-on: [ self-hosted, windows, x64 ]
     env:
       LLVM_VERSION: 10.0.1
       Qt_VERSION: 5.15.2
-      IPP_VERSION: 2021.2.0.210
+#      IPP_VERSION: 2021.2.0.210
+      SENTRY_CLI_VERSION: 1.63.2
     steps:
       - uses: actions/checkout@v2
         with:
@@ -120,17 +174,23 @@ jobs:
           (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
           7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
 
-      - name: Install Intel IPP
+      - name: Download sentry-cli
         run: |
           $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
           New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/$Filename", "$TempDir\$Filename")
-          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
-          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
+          (New-Object Net.WebClient).DownloadFile("https://github.com/getsentry/sentry-cli/releases/download/$env:SENTRY_CLI_VERSION/sentry-cli-Windows-x86_64.exe", "$TempDir\sentry-cli.exe")
 
-      - name: Install dependencies
-        run: choco install ninja vulkan-sdk
+#      - name: Install Intel IPP
+#        run: |
+#          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+#          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
+#          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+#          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/$Filename", "$TempDir\$Filename")
+#          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
+#          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
+
+#      - name: Install dependencies
+#        run: choco install ninja vulkan-sdk
 
       - name: Enable Visual Studio environment
         uses: ilammy/msvc-dev-cmd@v1
@@ -146,11 +206,36 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
             -DVCPKG_TARGET_TRIPLET=x64-windows-static `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= `
-            -DLLVM_ROOT_DIR="$workspace/LLVM"
+            -DLLVM_ROOT_DIR="$workspace/LLVM" `
+            -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
         run: cmake --build .
+
+      - name: Upload debug information
+        env:
+          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+          SENTRY_URL: ${{secrets.SENTRY_URL}}
+        run: |
+          & "$env:RUNNER_WORKSPACE\temp\sentry-cli.exe" upload-dif --org axiodl --project urde --include-sources `
+            urde.exe urde.pdb hecl.exe hecl.pdb hecl-gui.exe hecl-gui.pdb visigen.exe visigen.pdb
+
+      - name: Compress PDBs
+        working-directory: ${{github.workspace}}/build/Binaries
+        run: 7z a -t7z debug.7z urde.pdb hecl.pdb hecl-gui.pdb visigen.pdb
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: urde-${{env.URDE_VERSION}}-win32-msvc-x86_64
+          path: |
+            build/Binaries/urde.exe
+            build/Binaries/hecl.exe
+            build/Binaries/hecl-gui.exe
+            build/Binaries/visigen.exe
+            build/Binaries/crashpad_handler.exe
+            build/Binaries/debug.7z
 
   build-windows-clang:
     name: Build Windows (Clang x86_64)
@@ -181,14 +266,14 @@ jobs:
           (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
           7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
 
-      - name: Install Intel IPP
-        run: |
-          $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
-          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/$Filename", "$TempDir\$Filename")
-          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
-          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
+#      - name: Install Intel IPP
+#        run: |
+#          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+#          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
+#          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+#          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/$Filename", "$TempDir\$Filename")
+#          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
+#          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
 
       - name: Install dependencies
         run: choco install ninja vulkan-sdk
@@ -210,4 +295,25 @@ jobs:
             -DCMAKE_C_COMPILER=clang-cl `
             -DCMAKE_CXX_COMPILER=clang-cl `
             -DCMAKE_LINKER=lld-link `
-            -DLLVM_ROOT_DIR="$workspace/LLVM"
+            -DLLVM_ROOT_DIR="$workspace/LLVM" `
+            -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build .
+
+      - name: Compress PDBs
+        working-directory: ${{github.workspace}}/build/Binaries
+        run: 7z a -t7z debug.7z urde.pdb hecl.pdb hecl-gui.pdb visigen.pdb
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: urde-${{env.URDE_VERSION}}-win32-clang-x86_64
+          path: |
+            build/Binaries/urde.exe
+            build/Binaries/hecl.exe
+            build/Binaries/hecl-gui.exe
+            build/Binaries/visigen.exe
+            build/Binaries/crashpad_handler.exe
+            build/Binaries/debug.7z
