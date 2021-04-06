@@ -1,7 +1,3 @@
-[submodule "specter"]
-	path = specter
-	url = ../specter.git
-	branch = master
 [submodule "nod"]
 	path = nod
 	url = ../nod.git
