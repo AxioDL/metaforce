@@ -120,10 +120,6 @@ jobs:
           (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
           7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
 
-      - name: Install Intel IPP
-        run: |
-          Install-Package intelipp.devel.win-x64 -Version $env:IPP_VERSION
-
       - name: Install dependencies
         run: choco install ninja vulkan-sdk
 
@@ -175,10 +171,6 @@ jobs:
           New-Item -Path "$TempDir" -ItemType Directory -ea 0
           (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
           7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
-
-      - name: Install Intel IPP
-        run: |
-          Install-Package intelipp.devel.win-x64 -Version $env:IPP_VERSION
 
       - name: Install dependencies
         run: choco install ninja vulkan-sdk
