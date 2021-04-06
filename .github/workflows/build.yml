@@ -39,6 +39,7 @@ jobs:
             libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default \
             libcurl4-openssl-dev
           yarn global add @sentry/cli
+          echo "$(yarn global bin)" >> $GITHUB_PATH
           # free up disk space
           # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
           echo Before
