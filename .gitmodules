@@ -18,10 +18,6 @@
 	path = extern/tinyxml2
 	url = ../tinyxml2.git
 	branch = master
-[submodule "hecl-gui"]	
-	path = hecl-gui
-	url = ../hecl-gui.git
-	branch = master
 [submodule "sanitizers-cmake"]
 	path = extern/sanitizers-cmake
 	url = https://github.com/arsenm/sanitizers-cmake.git
