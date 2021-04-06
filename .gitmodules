@@ -1,39 +1,52 @@
 [submodule "hecl"]
 	path = hecl
 	url = ../hecl.git
+	branch = master
 [submodule "specter"]
 	path = specter
 	url = ../specter.git
+	branch = master
 [submodule "nod"]
 	path = nod
 	url = ../nod.git
+	branch = master
 [submodule "amuse"]
 	path = amuse
 	url = ../amuse.git
+	branch = master
 [submodule "kabufuda"]
 	path = kabufuda
 	url = ../kabufuda.git
+	branch = master
 [submodule "jbus"]
 	path = jbus
 	url = ../jbus.git
+	branch = master
 [submodule "assetnameparser/tinyxml2"]
 	path = assetnameparser/tinyxml2
 	url = ../tinyxml2.git
+	branch = master
 [submodule "hecl-gui"]	
 	path = hecl-gui
 	url = ../hecl-gui.git
+	branch = master
 [submodule "sanitizers-cmake"]
 	path = sanitizers-cmake
 	url = https://github.com/arsenm/sanitizers-cmake.git
+	branch = master
 [submodule "discord-rpc"]
 	path = discord-rpc
 	url = https://github.com/discordapp/discord-rpc.git
+	branch = master
 [submodule "rapidjson"]
 	path = rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+	branch = master
 [submodule "NESEmulator/fixNES"]
 	path = NESEmulator/fixNES
 	url = https://github.com/FIX94/fixNES.git
+	branch = master
 [submodule "Editor/locale"]
 	path = Editor/locale
 	url = ../urde-translations.git
+	branch = master
