@@ -3,9 +3,6 @@ if (NOT MSVC)
   target_compile_options(freetype PRIVATE -Wno-implicit-fallthrough)
 endif()
 
-add_subdirectory(zeus)
-set(ZEUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zeus/include)
-
 add_subdirectory(resources/fonts)
 
 add_library(specter

@@ -374,6 +374,7 @@ include(hecl/ApplicationTools.cmake)
 add_subdirectory(specter/shaders)
 add_subdirectory(Shaders)
 add_subdirectory(hecl)
+add_subdirectory(zeus)
 target_include_directories(hecl-full PRIVATE ${CMAKE_SOURCE_DIR})
 target_include_directories(hecl-light PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(hecl-full PRIVATE zeus nod)
@@ -397,6 +398,7 @@ add_library(CModelShaders
     CModelShaders.common.glsl.cpp CModelShaders.vert.glsl.cpp CModelShaders.frag.glsl.cpp
     CModelShaders.common.hlsl.cpp CModelShaders.vert.hlsl.cpp CModelShaders.frag.hlsl.cpp
     CModelShaders.common.metal.cpp CModelShaders.vert.metal.cpp CModelShaders.frag.metal.cpp)
+target_link_libraries(CModelShaders PUBLIC zeus)
 target_link_libraries(shader_CModelShaders PUBLIC CModelShaders)
 
 if(NOT TARGET atdna)
