@@ -58,3 +58,11 @@
 	path = hecl/extern/libjpeg-turbo
 	url = ../libjpeg-turbo.git
 	branch = thp
+[submodule "freetype2"]
+	path = specter/freetype2
+	url = ../freetype2
+	branch = master
+[submodule "zeus"]
+	path = specter/zeus
+	url = ../zeus.git
+	branch = master
