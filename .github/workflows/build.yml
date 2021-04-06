@@ -122,12 +122,7 @@ jobs:
 
       - name: Install Intel IPP
         run: |
-          $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
-          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/$Filename", "$TempDir\$Filename")
-          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
-          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
+          Install-Package intelipp.devel.win-x64 -Version $env:IPP_VERSION
 
       - name: Install dependencies
         run: choco install ninja vulkan-sdk
@@ -183,12 +178,7 @@ jobs:
 
       - name: Install Intel IPP
         run: |
-          $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
-          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/$Filename", "$TempDir\$Filename")
-          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
-          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
+          Install-Package intelipp.devel.win-x64 -Version $env:IPP_VERSION
 
       - name: Install dependencies
         run: choco install ninja vulkan-sdk
