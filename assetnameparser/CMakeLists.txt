@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR) # because of c++17
 
 set(TINYXML_LIB_VERSION "5.0.1")
 set(TINYXML_LIB_SOVERSION "5")
-add_library(tinyxml2_static STATIC tinyxml2/tinyxml2.cpp tinyxml2/tinyxml2.h)
+add_library(tinyxml2_static STATIC ../extern/tinyxml2/tinyxml2.cpp ../extern/tinyxml2/tinyxml2.h)
 set_target_properties(tinyxml2_static PROPERTIES
         COMPILE_DEFINITONS "TINYXML2_EXPORT"
         VERSION "${TINYXML_LIB_VERSION}"

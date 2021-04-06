@@ -9,7 +9,7 @@
 #include "hecl/Compilers.hpp"
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-#include "../extern/boo/xxhash/xxhash.h"
+#include <xxhash/xxhash.h>
 
 #define HECL_RUNTIME 1
 

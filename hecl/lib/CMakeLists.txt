@@ -56,8 +56,7 @@ set(COMMON_SOURCES
     ClientProcess.cpp
     SteamFinder.cpp
     WideStringConvert.cpp
-    Compilers.cpp
-    Pipeline.cpp)
+    Compilers.cpp)
 
 if(UNIX)
   list(APPEND PLAT_SRCS closefrom.c)
@@ -69,7 +68,8 @@ add_library(hecl-full
             ${BLENDER_SOURCES}
             ${COMMON_SOURCES}
             ${HECL_HEADERS}
-            ${PLAT_SRCS})
+            ${PLAT_SRCS}
+            Pipeline.cpp)
 target_include_directories(hecl-full PUBLIC ../include)
 target_link_libraries(hecl-full PUBLIC ${HECL_APPLICATION_REPS_TARGETS_LIST}
                       hecl-blender-addon boo athena-core logvisor)

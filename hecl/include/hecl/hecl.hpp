@@ -40,7 +40,7 @@ extern "C" int rep_closefrom(int lower);
 
 #include "logvisor/logvisor.hpp"
 #include "athena/Global.hpp"
-#include "../extern/boo/xxhash/xxhash.h"
+#include "xxhash/xxhash.h"
 #include "SystemChar.hpp"
 #include "FourCC.hpp"
 

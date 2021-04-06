@@ -6,9 +6,9 @@
 #include <vector>
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include <xxhash/xxhash.h>
 
 #include "hecl.hpp"
-#include "../extern/boo/xxhash/xxhash.h"
 
 namespace hecl::Backend {
 struct ExtensionSlot;

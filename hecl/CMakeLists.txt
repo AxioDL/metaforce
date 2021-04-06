@@ -52,7 +52,6 @@ endforeach()
 
 configure_file(include/hecl/ApplicationReps.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/ApplicationReps.hpp @ONLY)
 
-add_subdirectory(extern)
 add_subdirectory(bintoc)
 
 if(NOT TARGET bintoc)

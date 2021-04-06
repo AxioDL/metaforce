@@ -103,7 +103,7 @@ endif()
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force shared libs off" FORCE)
 set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/sanitizers-cmake/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/extern/sanitizers-cmake/cmake")
 find_package(Sanitizers)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64)
@@ -331,15 +331,15 @@ endif()
 
 # Add discord-rpc here
 if(NOT GEKKO AND NOT NX)
-  set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc)
+  set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/discord-rpc)
   if (NOT CMAKE_INSTALL_LIBDIR)
     set(CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/fake-prefix)
   endif()
-  add_subdirectory(discord-rpc/src)
-  target_include_directories(discord-rpc PRIVATE rapidjson/include PUBLIC discord-rpc/include)
+  add_subdirectory(extern/discord-rpc/src)
+  target_include_directories(discord-rpc PRIVATE extern/rapidjson/include PUBLIC extern/discord-rpc/include)
 endif()
 
-add_subdirectory(nod)
+add_subdirectory(extern/nod)
 
 set(DATA_SPEC_LIBS RetroDataSpec AssetNameMap)
 set(HECL_DATASPEC_DECLS
@@ -369,12 +369,17 @@ set(HECL_DATASPEC_PUSHES
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3ORIG);")
 
+add_subdirectory(extern/athena)
+add_subdirectory(extern/boo)
 add_subdirectory(hecl/shaderc)
 include(hecl/ApplicationTools.cmake)
 add_subdirectory(specter/shaders)
 add_subdirectory(Shaders)
+add_subdirectory(extern/libSquish)
+add_subdirectory(extern/libpng)
+add_subdirectory(extern/libjpeg-turbo)
 add_subdirectory(hecl)
-add_subdirectory(zeus)
+add_subdirectory(extern/zeus)
 target_include_directories(hecl-full PRIVATE ${CMAKE_SOURCE_DIR})
 target_include_directories(hecl-light PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(hecl-full PRIVATE zeus nod)
@@ -409,18 +414,22 @@ if(NOT TARGET atdna)
   endif()
 endif()
 
-add_subdirectory(amuse)
+add_subdirectory(extern/amuse)
+add_subdirectory(extern/freetype2)
+if (NOT MSVC)
+  target_compile_options(freetype PRIVATE -Wno-implicit-fallthrough)
+endif()
 add_subdirectory(specter)
 target_include_directories(specter PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(specter PRIVATE nod)
 add_subdirectory(assetnameparser)
 add_compile_definitions(URDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
 add_subdirectory(DataSpec)
-add_subdirectory(kabufuda)
+add_subdirectory(extern/kabufuda)
 add_subdirectory(Editor)
 
-add_subdirectory(jbus)
-set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/jbus/include)
+add_subdirectory(extern/jbus)
+set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/jbus/include)
 
 set(CLIENT_SOURCES
     ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryBase.hpp

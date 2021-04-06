@@ -1,6 +1,4 @@
-include_directories(../../hecl/include
-                    ../../hecl/extern/boo/include
-                    ../../hecl/extern/boo/logvisor/include
-                    ../../nod/logvisor/fmt/include)
 add_shader(SpecterViewShaders)
+target_link_libraries(shader_SpecterViewShaders PRIVATE hecl-light)
 add_shader(SpecterTextViewShaders)
+target_link_libraries(shader_SpecterTextViewShaders PRIVATE hecl-light)

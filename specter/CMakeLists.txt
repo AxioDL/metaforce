@@ -1,8 +1,3 @@
-add_subdirectory(freetype2)
-if (NOT MSVC)
-  target_compile_options(freetype PRIVATE -Wno-implicit-fallthrough)
-endif()
-
 add_subdirectory(resources/fonts)
 
 add_library(specter
@@ -94,5 +89,5 @@ target_link_libraries(specter PUBLIC
   UrdeLocales
 )
 
-target_include_directories(specter PUBLIC include freetype2/include)
+target_include_directories(specter PUBLIC include "${CMAKE_SOURCE_DIR}/extern/freetype2/include")
 target_atdna(specter atdna_FontCache.cpp include/specter/FontCache.hpp)
