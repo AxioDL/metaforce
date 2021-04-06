@@ -1,7 +1,3 @@
-[submodule "hecl"]
-	path = hecl
-	url = ../hecl.git
-	branch = master
 [submodule "specter"]
 	path = specter
 	url = ../specter.git
