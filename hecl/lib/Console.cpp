@@ -385,7 +385,7 @@ void Console::handleSpecialKeyUp(boo::ESpecialKey /*sp*/, boo::EModifierKey /*mo
 
 void Console::LogVisorAdapter::report(const char* modName, logvisor::Level severity,
                                       fmt::string_view format, fmt::format_args args) {
-  auto tmp = fmt::internal::vformat(format, args);
+  auto tmp = fmt::vformat(format, args);
   std::vector<std::string> lines = athena::utility::split(tmp, '\n');
   for (const std::string& line : lines) {
     auto v = fmt::format(FMT_STRING("[{}] {}"), modName, line);
@@ -395,7 +395,7 @@ void Console::LogVisorAdapter::report(const char* modName, logvisor::Level sever
 
 void Console::LogVisorAdapter::report(const char* modName, logvisor::Level severity,
                                       fmt::wstring_view format, fmt::wformat_args args) {
-  auto tmp = fmt::internal::vformat(format, args);
+  auto tmp = fmt::vformat(format, args);
   std::vector<std::string> lines = athena::utility::split(athena::utility::wideToUtf8(tmp), '\n');
   for (const std::string& line : lines) {
     auto v = fmt::format(FMT_STRING("[{}] {}"), modName, line);
@@ -405,14 +405,14 @@ void Console::LogVisorAdapter::report(const char* modName, logvisor::Level sever
 
 void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level severity, const char* file,
                                             unsigned linenum, fmt::string_view format, fmt::format_args args) {
-  auto tmp = fmt::internal::vformat(format, args);
+  auto tmp = fmt::vformat(format, args);
   auto v = fmt::format(FMT_STRING("[{}] {} {}:{}"), modName, tmp, file, linenum);
   m_con->m_log.emplace_back(std::move(v), Console::Level(severity));
 }
 
 void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level severity, const char* file,
                                             unsigned linenum, fmt::wstring_view format, fmt::wformat_args args) {
-  auto tmp = fmt::internal::vformat(format, args);
+  auto tmp = fmt::vformat(format, args);
   std::vector<std::string> lines = athena::utility::split(athena::utility::wideToUtf8(tmp), '\n');
   for (const std::string& line : lines) {
     auto v = fmt::format(FMT_STRING("[{}] {} {}:{}"), modName, line, file, linenum);
