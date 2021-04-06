@@ -46,3 +46,19 @@
 	path = Editor/locale
 	url = ../urde-translations.git
 	branch = master
+[submodule "extern/libSquish"]
+	path = hecl/extern/libSquish
+	url = ../libSquish.git
+	branch = master
+[submodule "extern/athena"]
+	path = hecl/extern/athena
+	url = ../../libAthena/athena.git
+	branch = master
+[submodule "extern/boo"]
+	path = hecl/extern/boo
+	url = ../boo.git
+	branch = master
+[submodule "extern/libjpeg-turbo"]
+	path = hecl/extern/libjpeg-turbo
+	url = ../libjpeg-turbo.git
+	branch = thp

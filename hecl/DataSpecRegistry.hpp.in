@@ -1,0 +1,21 @@
+/* Include this file once in the main translation unit of any executable file
+ * using HECL's database functionality (see driver/main.cpp)
+ */
+#ifdef DATA_SPEC_REGISTRY_HPP
+#error DataSpecRegistry.hpp may only be included once
+#endif
+#define DATA_SPEC_REGISTRY_HPP
+
+#include "hecl/Database.hpp"
+
+namespace hecl::Database {
+/* Centralized registry for DataSpec lookup */
+std::vector<const struct DataSpecEntry*> DATA_SPEC_REGISTRY;
+}
+
+@HECL_DATASPEC_DECLS@
+
+/* Please Call Me! */
+void HECLRegisterDataSpecs() {
+@HECL_DATASPEC_PUSHES@
+}
