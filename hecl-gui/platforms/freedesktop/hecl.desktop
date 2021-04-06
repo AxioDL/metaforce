@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=HECL
+GenericName=Game Data Prep Tool
+Comment=Prepare Game Data for URDE
+Exec=hecl-gui
+Icon=hecl
+Terminal=false
+Type=Application
+Categories=Graphics;3DGraphics;
