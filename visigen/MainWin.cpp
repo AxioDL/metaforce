@@ -42,7 +42,7 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 int wmain(int argc, const hecl::SystemChar** argv) {
   if (argc > 1 && !wcscmp(argv[1], L"--dlpackage")) {
-    fmt::print(FMT_STRING("{}\n"), URDE_DLPACKAGE);
+    fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;
   }
 

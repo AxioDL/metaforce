@@ -1,8 +1,8 @@
 #!/bin/bash -ex
-cd build/Binaries/hecl-gui.app/Contents/MacOS
-for f in hecl hecl-gui urde visigen; do
+cd build/Binaries/metaforce-gui.app/Contents/MacOS
+for f in hecl metaforce-gui metaforce visigen; do
   dsymutil $f
 done
-strip -S hecl hecl-gui urde visigen crashpad_handler
-sentry-cli upload-dif --org axiodl --project urde {hecl,hecl-gui,urde,visigen}{,.dSYM} --include-sources
+strip -S hecl metaforce-gui metaforce visigen crashpad_handler
+sentry-cli upload-dif --org axiodl --project metaforce {hecl,metaforce-gui,metaforce,visigen}{,.dSYM} --include-sources
 rm -r -- *.dSYM

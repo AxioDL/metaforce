@@ -26,7 +26,7 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
 set(QUAZIP_INSTALL OFF CACHE BOOL "")
 add_subdirectory(quazip)
 
-add_executable(hecl-gui WIN32 MACOSX_BUNDLE
+add_executable(metaforce-gui WIN32 MACOSX_BUNDLE
         #ArgumentEditor.cpp
         #ArgumentEditor.hpp
         #ArgumentEditor.ui
@@ -59,7 +59,7 @@ add_executable(hecl-gui WIN32 MACOSX_BUNDLE
         ${QUAZIP_SRCS}
         )
 
-target_compile_definitions(hecl-gui PRIVATE
+target_compile_definitions(metaforce-gui PRIVATE
         # Disable implicit conversions from ASCII to QString.
         -DQT_NO_CAST_FROM_ASCII
         -DQT_NO_CAST_TO_ASCII
@@ -97,23 +97,23 @@ else ()
             Qt5::Xml)
     # Check for static linking
     if (WIN32)
-        get_target_property(HECL_RUNTIME_LIBRARY hecl-gui MSVC_RUNTIME_LIBRARY)
-        if (NOT "${HECL_RUNTIME_LIBRARY}" MATCHES "DLL$")
+        get_target_property(_MSVC_RUNTIME_LIBRARY metaforce-gui MSVC_RUNTIME_LIBRARY)
+        if (NOT "${_MSVC_RUNTIME_LIBRARY}" MATCHES "DLL$")
             list(APPEND Qt_LIBS Qt5::QWindowsIntegrationPlugin)
         endif ()
     endif ()
 endif ()
-target_link_libraries(hecl-gui PRIVATE
+target_link_libraries(metaforce-gui PRIVATE
         ${Qt_LIBS}
         hecl-light
         zeus
         QuaZip::QuaZip)
 
-target_include_directories(hecl-gui PRIVATE quazip/quazip)
-target_compile_definitions(hecl-gui PRIVATE QUAZIP_STATIC=1)
+target_include_directories(metaforce-gui PRIVATE quazip/quazip)
+target_compile_definitions(metaforce-gui PRIVATE QUAZIP_STATIC=1)
 
 if (APPLE)
-    target_sources(hecl-gui PRIVATE
+    target_sources(metaforce-gui PRIVATE
             MacOSSystemVersion.hpp
             MacOSSystemVersion.mm
             )
@@ -121,40 +121,40 @@ if (APPLE)
             PROPERTIES COMPILE_FLAGS -fobjc-arc
             )
     find_library(FOUNDATION_LIBRARY Foundation)
-    target_link_libraries(hecl-gui PRIVATE ${FOUNDATION_LIBRARY})
+    target_link_libraries(metaforce-gui PRIVATE ${FOUNDATION_LIBRARY})
 elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-    target_link_libraries(hecl-gui PRIVATE
+    target_link_libraries(metaforce-gui PRIVATE
             dl
             pthread
             )
 endif ()
 
 if (WIN32)
-    target_sources(hecl-gui PRIVATE
-            platforms/win/hecl-gui.manifest
-            platforms/win/hecl-gui.rc
+    target_sources(metaforce-gui PRIVATE
+            platforms/win/metaforce-gui.manifest
+            platforms/win/metaforce-gui.rc
             )
-    target_link_libraries(hecl-gui PRIVATE
+    target_link_libraries(metaforce-gui PRIVATE
             Version)
 elseif (APPLE)
-    set_target_properties(hecl-gui PROPERTIES
+    set_target_properties(metaforce-gui PROPERTIES
             MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist"
             )
-    target_sources(hecl-gui PRIVATE platforms/mac/mainicon.icns)
+    target_sources(metaforce-gui PRIVATE platforms/mac/mainicon.icns)
     set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
             MACOSX_PACKAGE_LOCATION Resources
             )
     add_custom_command(
-            TARGET hecl-gui POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:urde> $<TARGET_FILE_DIR:hecl-gui>
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:hecl-gui>
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:hecl-gui>
+            TARGET metaforce-gui POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:urde> $<TARGET_FILE_DIR:metaforce-gui>
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:metaforce-gui>
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:metaforce-gui>
             DEPENDS urde hecl visigen
     )
     if (NOT "${SENTRY_DSN}" STREQUAL "")
         add_custom_command(
-                TARGET hecl-gui POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:crashpad_handler> $<TARGET_FILE_DIR:hecl-gui>
+                TARGET metaforce-gui POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:crashpad_handler> $<TARGET_FILE_DIR:metaforce-gui>
                 DEPENDS crashpad_handler
         )
     endif()
@@ -162,12 +162,12 @@ endif ()
 
 add_subdirectory(platforms/freedesktop)
 declare_qticon_target()
-target_sources(hecl-gui PRIVATE mainicon_qt.cpp)
+target_sources(metaforce-gui PRIVATE mainicon_qt.cpp)
 
 if (COMMAND add_sanitizers)
-    add_sanitizers(hecl-gui)
+    add_sanitizers(metaforce-gui)
 endif ()
 
 if (NOT MSVC)
-    target_compile_options(hecl-gui PRIVATE -Wno-misleading-indentation)
+    target_compile_options(metaforce-gui PRIVATE -Wno-misleading-indentation)
 endif ()

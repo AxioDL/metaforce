@@ -11,59 +11,59 @@ find_package(Git)
 if (GIT_FOUND)
   # make sure version information gets re-run when the current Git HEAD changes
   execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse --git-path HEAD
-          OUTPUT_VARIABLE urde_git_head_filename
+          OUTPUT_VARIABLE metaforce_git_head_filename
           OUTPUT_STRIP_TRAILING_WHITESPACE)
-  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${urde_git_head_filename}")
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${metaforce_git_head_filename}")
 
   execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse --symbolic-full-name HEAD
-          OUTPUT_VARIABLE urde_git_head_symbolic
+          OUTPUT_VARIABLE metaforce_git_head_symbolic
           OUTPUT_STRIP_TRAILING_WHITESPACE)
   execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-          COMMAND ${GIT_EXECUTABLE} rev-parse --git-path ${urde_git_head_symbolic}
-          OUTPUT_VARIABLE urde_git_head_symbolic_filename
+          COMMAND ${GIT_EXECUTABLE} rev-parse --git-path ${metaforce_git_head_symbolic}
+          OUTPUT_VARIABLE metaforce_git_head_symbolic_filename
           OUTPUT_STRIP_TRAILING_WHITESPACE)
-  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${urde_git_head_symbolic_filename}")
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${metaforce_git_head_symbolic_filename}")
 
-  # defines URDE_WC_REVISION
+  # defines METAFORCE_WC_REVISION
   execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
-          OUTPUT_VARIABLE URDE_WC_REVISION
+          OUTPUT_VARIABLE METAFORCE_WC_REVISION
           OUTPUT_STRIP_TRAILING_WHITESPACE)
-  # defines URDE_WC_DESCRIBE
+  # defines METAFORCE_WC_DESCRIBE
   execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} describe --tag --long --dirty
-          OUTPUT_VARIABLE URDE_WC_DESCRIBE
+          OUTPUT_VARIABLE METAFORCE_WC_DESCRIBE
           OUTPUT_STRIP_TRAILING_WHITESPACE)
 
   # remove hash (and trailing "-0" if needed) from description
-  string(REGEX REPLACE "(-0)?-[^-]+((-dirty)?)$" "\\2" URDE_WC_DESCRIBE "${URDE_WC_DESCRIBE}")
+  string(REGEX REPLACE "(-0)?-[^-]+((-dirty)?)$" "\\2" METAFORCE_WC_DESCRIBE "${METAFORCE_WC_DESCRIBE}")
 
-  # defines URDE_WC_BRANCH
+  # defines METAFORCE_WC_BRANCH
   execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
-          OUTPUT_VARIABLE URDE_WC_BRANCH
+          OUTPUT_VARIABLE METAFORCE_WC_BRANCH
           OUTPUT_STRIP_TRAILING_WHITESPACE)
-  # defines URDE_WC_DATE
+  # defines METAFORCE_WC_DATE
   execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} log -1 --format=%ad
-          OUTPUT_VARIABLE URDE_WC_DATE
+          OUTPUT_VARIABLE METAFORCE_WC_DATE
           OUTPUT_STRIP_TRAILING_WHITESPACE)
 else ()
   message(STATUS "Unable to find git, commit information will not be available")
 endif ()
 
-if (URDE_WC_DESCRIBE)
-  string(REGEX REPLACE "v([0-9]+)\.([0-9]+)\.([0-9]+)\-([0-9]+).*" "\\1.\\2.\\3.\\4" URDE_VERSION_STRING "${URDE_WC_DESCRIBE}")
-  string(REGEX REPLACE "v([0-9]+)\.([0-9]+)\.([0-9]+).*" "\\1.\\2.\\3" URDE_VERSION_STRING "${URDE_VERSION_STRING}")
+if (METAFORCE_WC_DESCRIBE)
+  string(REGEX REPLACE "v([0-9]+)\.([0-9]+)\.([0-9]+)\-([0-9]+).*" "\\1.\\2.\\3.\\4" METAFORCE_VERSION_STRING "${METAFORCE_WC_DESCRIBE}")
+  string(REGEX REPLACE "v([0-9]+)\.([0-9]+)\.([0-9]+).*" "\\1.\\2.\\3" METAFORCE_VERSION_STRING "${METAFORCE_VERSION_STRING}")
 else ()
-  set(URDE_WC_DESCRIBE "UNKNOWN-VERSION")
-  set(URDE_VERSION_STRING "0.0.0")
+  set(METAFORCE_WC_DESCRIBE "UNKNOWN-VERSION")
+  set(METAFORCE_VERSION_STRING "0.0.0")
 endif ()
 
 string(TIMESTAMP CURRENT_YEAR "%Y")
 
 # Add version information to CI environment variables
 if(DEFINED ENV{GITHUB_ENV})
-  file(APPEND "$ENV{GITHUB_ENV}" "URDE_VERSION=${URDE_WC_DESCRIBE}")
+  file(APPEND "$ENV{GITHUB_ENV}" "METAFORCE_VERSION=${METAFORCE_WC_DESCRIBE}")
 endif()
-message(STATUS "URDE version set to ${URDE_WC_DESCRIBE}")
-project(urde LANGUAGES C CXX ASM VERSION ${URDE_VERSION_STRING})
+message(STATUS "Metaforce version set to ${METAFORCE_WC_DESCRIBE}")
+project(metaforce LANGUAGES C CXX ASM VERSION ${METAFORCE_VERSION_STRING})
 
 if (APPLE)
   set(PLATFORM_NAME macos)
@@ -82,8 +82,8 @@ if(APPLE AND NOT CMAKE_OSX_SYSROOT)
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
-option(URDE_CROSSCOMPILING "Don't build tools; attempt package import" OFF)
-if (URDE_CROSSCOMPILING)
+option(METAFORCE_CROSSCOMPILING "Don't build tools; attempt package import" OFF)
+if (METAFORCE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING On)
 endif()
 
@@ -107,19 +107,19 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/extern/sanitizers-cmake/cmake
 find_package(Sanitizers)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64)
-  set(URDE_VECTOR_ISA "sse41" CACHE STRING "Vector ISA to build for (sse2, sse3, sse41, avx, avx2)")
+  set(METAFORCE_VECTOR_ISA "sse41" CACHE STRING "Vector ISA to build for (sse2, sse3, sse41, avx, avx2)")
 endif ()
 
 if(MSVC)
-  if(${URDE_VECTOR_ISA} STREQUAL "avx2")
+  if(${METAFORCE_VECTOR_ISA} STREQUAL "avx2")
     add_compile_options(/arch:AVX2)
     add_compile_definitions(__SSE4_1__=1)
     message(STATUS "Building with AVX2 Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "avx")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "avx")
     add_compile_options(/arch:AVX)
     add_compile_definitions(__SSE4_1__=1)
     message(STATUS "Building with AVX Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "sse41")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "sse41")
     add_compile_definitions(__SSE4_1__=1)
     # clang-cl 10 requires -msse4.1, may be fixed in newer versions?
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL Clang)
@@ -132,7 +132,7 @@ if(MSVC)
 
   if(${CMAKE_GENERATOR} MATCHES "Visual Studio*")
     set(VS_OPTIONS "/MP")
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT urde)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT metaforce)
   endif()
 
   # Shaddup MSVC
@@ -199,22 +199,22 @@ if(MSVC)
 
 else()
   if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL x86_64)
-  if(${URDE_VECTOR_ISA} STREQUAL "native")
+  if(${METAFORCE_VECTOR_ISA} STREQUAL "native")
     add_compile_options(-march=native)
     message(STATUS "Building with native ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "avx2")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "avx2")
     add_compile_options(-mavx2)
     message(STATUS "Building with AVX2 Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "avx")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "avx")
     add_compile_options(-mavx)
     message(STATUS "Building with AVX Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "sse41")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "sse41")
     add_compile_options(-msse4.1)
     message(STATUS "Building with SSE4.1 Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "sse3")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "sse3")
     add_compile_options(-msse3)
     message(STATUS "Building with SSE3 Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "sse2")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "sse2")
     add_compile_options(-msse2)
     message(STATUS "Building with SSE2 Vector ISA")
   else()
@@ -233,7 +233,7 @@ else()
     add_compile_options(-fno-asynchronous-unwind-tables)
   endif()
 
-  if(URDE_MSAN)
+  if(METAFORCE_MSAN)
     add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++> -fsanitize=memory
                         -fsanitize-memory-track-origins -fsanitize-recover=all)
   endif()
@@ -252,7 +252,7 @@ else()
   if(APPLE)
     add_compile_options(-Wno-error=deprecated-declarations
                         $<$<CONFIG:Release>:-flto=thin>)
-    if (URDE_ASAN)
+    if (METAFORCE_ASAN)
       add_compile_options(-fsanitize=address -fsanitize-address-use-after-scope)
       add_link_options(-fsanitize=address -fsanitize-address-use-after-scope)
     endif ()
@@ -456,13 +456,13 @@ if (NOT WINDOWS_STORE AND NOT NX)
   find_package(Qt6Widgets QUIET PATHS ${QT_HOMEBREW_PATH})
   find_package(Qt5Widgets QUIET PATHS ${QT_HOMEBREW_PATH})
   if (Qt6Widgets_FOUND)
-    message(STATUS "Qt6 found, hecl-gui will be built")
-    add_subdirectory(hecl-gui)
+    message(STATUS "Qt6 found, metaforce-gui will be built")
+    add_subdirectory(metaforce-gui)
   elseif(Qt5Widgets_FOUND)
-    message(STATUS "Qt5 found, hecl-gui will be built")
-    add_subdirectory(hecl-gui)
+    message(STATUS "Qt5 found, metaforce-gui will be built")
+    add_subdirectory(metaforce-gui)
   else()
-    message(STATUS "Qt5-6 not found, hecl-gui will not be built")
+    message(STATUS "Qt5-6 not found, metaforce-gui will not be built")
   endif()
 endif()
 

@@ -17,7 +17,7 @@ static void AthenaExc(athena::error::Level level, const char* file, const char*,
 }
 
 namespace urde {
-static logvisor::Module Log{"URDE"};
+static logvisor::Module Log{"Metaforce"};
 
 static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf) {
   hecl::SystemString features;
@@ -128,11 +128,11 @@ static void SetupBasics(bool logging) {
   auto result = zeus::validateCPU();
   if (!result.first) {
 #if _WIN32 && !WINDOWS_STORE
-    std::wstring msg = fmt::format(FMT_STRING(L"ERROR: This build of URDE requires the following CPU features:\n{}\n"),
+    std::wstring msg = fmt::format(FMT_STRING(L"ERROR: This build of Metaforce requires the following CPU features:\n{}\n"),
                                    urde::CPUFeatureString(result.second));
     MessageBoxW(nullptr, msg.c_str(), L"CPU error", MB_OK | MB_ICONERROR);
 #else
-    fmt::print(stderr, FMT_STRING("ERROR: This build of URDE requires the following CPU features:\n{}\n"),
+    fmt::print(stderr, FMT_STRING("ERROR: This build of Metaforce requires the following CPU features:\n{}\n"),
                urde::CPUFeatureString(result.second));
 #endif
     exit(1);
@@ -144,9 +144,9 @@ static void SetupBasics(bool logging) {
   atSetExceptionHandler(AthenaExc);
 
 #if SENTRY_ENABLED
-  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("sentry-native-urde")};
+  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("sentry-native-metaforce")};
   hecl::SystemUTF8Conv cacheDir{fileMgr.getStoreRoot()};
-  logvisor::RegisterSentry("urde", URDE_WC_DESCRIBE, cacheDir.c_str());
+  logvisor::RegisterSentry("metaforce", METAFORCE_WC_DESCRIBE, cacheDir.c_str());
 #endif
 }
 
@@ -165,12 +165,12 @@ int main(int argc, const boo::SystemChar** argv)
 #endif
 {
   if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage"))) {
-    fmt::print(FMT_STRING("{}\n"), URDE_DLPACKAGE);
+    fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;
   }
 
   SetupBasics(IsClientLoggingEnabled(argc, argv));
-  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("urde")};
+  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("metaforce")};
   hecl::CVarManager cvarMgr{fileMgr};
   hecl::CVarCommons cvarCmns{cvarMgr};
 
@@ -203,9 +203,9 @@ int main(int argc, const boo::SystemChar** argv)
   hecl::SetCpuCountOverride(argc, argv);
 
   urde::Application appCb(fileMgr, cvarMgr, cvarCmns);
-  int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, appCb, _SYS_STR("urde"), _SYS_STR("URDE"), argc,
-                                argv, appCb.getGraphicsApi(), appCb.getSamples(), appCb.getAnisotropy(),
-                                appCb.getDeepColor(), appCb.getTargetFrameTime(), false);
+  int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, appCb, _SYS_STR("metaforce"),
+                                _SYS_STR("Metaforce"), argc, argv, appCb.getGraphicsApi(), appCb.getSamples(),
+                                appCb.getAnisotropy(), appCb.getDeepColor(), appCb.getTargetFrameTime(), false);
   // printf("IM DYING!!\n");
   return ret;
 }

@@ -283,7 +283,7 @@ int main(int argc, const char** argv)
 #endif
 {
   if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage"))) {
-    fmt::print(FMT_STRING("{}\n"), URDE_DLPACKAGE);
+    fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;
   }
 
@@ -313,7 +313,7 @@ int main(int argc, const char** argv)
 #if SENTRY_ENABLED
   hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("sentry-native-hecl")};
   hecl::SystemUTF8Conv cacheDir{fileMgr.getStoreRoot()};
-  logvisor::RegisterSentry("hecl", URDE_WC_DESCRIBE, cacheDir.c_str());
+  logvisor::RegisterSentry("hecl", METAFORCE_WC_DESCRIBE, cacheDir.c_str());
 #endif
 
   /* Basic usage check */

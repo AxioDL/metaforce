@@ -1,9 +1,11 @@
-## URDE
+## Metaforce
+#### Formerly known as URDE
+
 **Status:** Metroid Prime 1 In-Game (all retail GC & Wii versions)
 
 **Official Discord Channel:** https://discord.gg/AMBVFuf
 
-![URDE screenshot](assets/urde-screen1.png)
+![Metaforce screenshot](assets/urde-screen1.png)
 
 ### Download
 Precompiled builds of the command-line extraction utility (`hecl`) with embedded dataspec libraries are available at https://releases.axiodl.com. This will give you intermediate dumps of original formats as *blender* and *yaml* representations.
@@ -20,8 +22,8 @@ Everything else is much too experimental to make portable/stable release builds 
 
 * Extract ISO: `hecl extract [path].iso -o mp1`
   * `mp1` can be substituted with the directory name of your choice
-* Repackage game for URDE: `cd mp1; hecl package`
-* Run URDE: `urde mp1/out`
+* Repackage game for Metaforce: `cd mp1; hecl package`
+* Run Metaforce: `urde mp1/out`
 
 ### Usage (Wii versions)
 
@@ -29,11 +31,11 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
 
 * Extract ISO or NFS: `hecl extract [path].[iso/nfs] -o mpt`
   * `mpt` can be substituted with the directory name of your choice
-* Repackage game for URDE: `cd mpt; hecl package MP1`
+* Repackage game for Metaforce: `cd mpt; hecl package MP1`
   * The `MP1` parameter is important here.
-* Run URDE: `urde mpt/out`
+* Run Metaforce: `urde mpt/out`
 
-#### URDE options (non-exhaustive)
+#### Metaforce options (non-exhaustive)
 
 * `-l`: Enable console logging
 * `--warp [worldid] [areaid]`: Warp to a specific world/area. Example: `--warp 2 2`
@@ -68,15 +70,15 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
 ### Prep Directions
 
 ```sh
-git clone --recursive https://github.com/AxioDL/urde.git
-mkdir urde-build
-cd urde-build
+git clone --recursive https://github.com/AxioDL/metaforce.git
+mkdir metaforce-build
+cd metaforce-build
 ```
 
 ### Update Directions
 
 ```sh
-cd urde
+cd metaforce
 git pull
 git submodule update --recursive
 ```
@@ -88,15 +90,15 @@ For Windows, it's recommended to use Visual Studio. See below.
 #### ninja (Windows/macOS/Linux)
 
 ```sh
-cd urde-build
-cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja ../urde
+cd metaforce-build
+cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja ../metaforce
 ninja
 ```
 
 #### CMake options
 - Build release optimized (better runtime performance): `-DCMAKE_BUILD_TYPE=Release`
 - Use clang+lld (faster linking): `-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++`
-- Optimize for current CPU (resulting binaries are not portable): `-DURDE_VECTOR_ISA=native`
+- Optimize for current CPU (resulting binaries are not portable): `-DMetaforce_VECTOR_ISA=native`
 
 #### CLion (Windows/macOS/Linux)
 *(main development / debugging IDE)*
@@ -115,17 +117,17 @@ Configure the desired CMake targets to build in the *Projects* area of the IDE.
 
 Verify all required VS packages are installed from the above **Build Prerequisites** section.
 
-Open the `urde` directory in Visual Studio (imports CMake configuration).
+Open the `metaforce` directory in Visual Studio (imports CMake configuration).
 
 MSVC and clang-cl configurations should import automatically.
 
 #### Xcode (macOS)
 
 ```sh
-cmake -G Xcode ../urde
+cmake -G Xcode ../metaforce
 ```
 
-Then open `urde.xcodeproj`
+Then open `metaforce.xcodeproj`
 
 #### Optional Debug Models
 We provide custom debug models for use to visualize certain aspects of the game such as lighting, in order to use 
@@ -135,4 +137,4 @@ existing HECL project (assuming paths are relative), then run the the following 
 ```sh
 hecl package MP1/URDE
 ```
-This will cook and package the debug models and will automatically enable rendering of lights in a debug build of URDE.
+This will cook and package the debug models and will automatically enable rendering of lights in a debug build of Metaforce.

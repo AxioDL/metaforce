@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name=HECL
+Name=Metaforce
 GenericName=Game Data Prep Tool
-Comment=Prepare Game Data for URDE
-Exec=hecl-gui
-Icon=hecl
+Comment=Prepare Game Data for Metaforce
+Exec=metaforce-gui
+Icon=metaforce-gui
 Terminal=false
 Type=Application
 Categories=Graphics;3DGraphics;

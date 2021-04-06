@@ -63,7 +63,7 @@ elseif(UNIX)
   set(URDE_PLAT_LIBS rt)
 endif()
 
-add_executable(urde WIN32
+add_executable(metaforce WIN32
                main.cpp ${PLAT_SRCS}
                Space.hpp Space.cpp
                SplashScreen.hpp SplashScreen.cpp
@@ -77,13 +77,13 @@ add_executable(urde WIN32
                Camera.hpp Camera.cpp
                GameMode.hpp GameMode.cpp)
 
-target_include_directories(urde PUBLIC
+target_include_directories(metaforce PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/Runtime # FIXME atdna cmake issue
         ${CMAKE_BINARY_DIR})
 
-target_link_libraries(urde
+target_link_libraries(metaforce
                       UrdeIcons
                       UrdeBadging
                       RuntimeCommon
@@ -92,21 +92,21 @@ target_link_libraries(urde
                       kabufuda
                       ${URDE_PLAT_LIBS})
 
-target_atdna(urde atdna_Space.cpp Space.hpp)
-target_atdna(urde atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
-target_atdna(urde atdna_ModelViewer.cpp ModelViewer.hpp)
-target_atdna(urde atdna_ParticleEditor.cpp ParticleEditor.hpp)
-target_atdna(urde atdna_InformationCenter.cpp InformationCenter.hpp)
-target_atdna(urde atdna_GameMode.cpp GameMode.hpp)
+target_atdna(metaforce atdna_Space.cpp Space.hpp)
+target_atdna(metaforce atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
+target_atdna(metaforce atdna_ModelViewer.cpp ModelViewer.hpp)
+target_atdna(metaforce atdna_ParticleEditor.cpp ParticleEditor.hpp)
+target_atdna(metaforce atdna_InformationCenter.cpp InformationCenter.hpp)
+target_atdna(metaforce atdna_GameMode.cpp GameMode.hpp)
 
 if(COMMAND add_sanitizers)
-  add_sanitizers(urde)
+  add_sanitizers(metaforce)
 endif()
 
 if (NOT WINDOWS_STORE)
-  add_dependencies(urde visigen hecl)
+  add_dependencies(metaforce visigen hecl)
 else()
-  set_property(TARGET urde PROPERTY VS_WINRT_COMPONENT TRUE)
+  set_property(TARGET metaforce PROPERTY VS_WINRT_COMPONENT TRUE)
   # This should match the Package.appxmanifest
-  set_property(TARGET urde PROPERTY VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION "10.0.14393.0")
+  set_property(TARGET metaforce PROPERTY VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION "10.0.14393.0")
 endif()

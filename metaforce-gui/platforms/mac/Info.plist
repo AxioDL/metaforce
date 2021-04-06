@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleExecutable</key>
-    <string>hecl-gui</string>
+    <string>metaforce-gui</string>
     <key>CFBundleGetInfoString</key>
-    <string>@URDE_WC_DESCRIBE@</string>
+    <string>@METAFORCE_WC_DESCRIBE@</string>
     <key>CFBundleShortVersionString</key>
-    <string>@URDE_WC_DESCRIBE@</string>
+    <string>@METAFORCE_WC_DESCRIBE@</string>
     <key>NSHumanReadableCopyright</key>
     <string>2015-@CURRENT_YEAR@ AxioDL Team</string>
     <key>CFBundleIconFile</key>
@@ -17,9 +17,9 @@
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>URDE</string>
+    <string>Metaforce</string>
     <key>CFBundleVersion</key>
-    <string>@URDE_WC_DESCRIBE@</string>
+    <string>@METAFORCE_WC_DESCRIBE@</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>

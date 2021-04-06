@@ -78,9 +78,9 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-${{env.URDE_VERSION}}-linux-${{matrix.cc}}-x86_64
+          name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.cc}}-x86_64
           path: |
-            URDE-*.AppImage
+            Metaforce-*.AppImage
             build/Binaries/*.dbg
 
   build-macos:
@@ -128,12 +128,12 @@ jobs:
       - name: Deploy & codesign application
         working-directory: build/Binaries
         run: |
-          mv hecl-gui.app URDE.app
-          for i in visigen hecl urde crashpad_handler; do
-            codesign --timestamp --options runtime -s "${{secrets.MACOS_CODESIGN_IDENT}}" URDE.app/Contents/MacOS/$i
+          mv metaforce-gui.app Metaforce.app
+          for i in visigen hecl metaforce crashpad_handler; do
+            codesign --timestamp --options runtime -s "${{secrets.MACOS_CODESIGN_IDENT}}" Metaforce.app/Contents/MacOS/$i
           done
-          macdeployqt URDE.app -sign-for-notarization="${{secrets.MACOS_CODESIGN_IDENT}}" -no-strip
-          create-dmg URDE.app --identity="${{secrets.MACOS_CODESIGN_IDENT}}"
+          macdeployqt Metaforce.app -sign-for-notarization="${{secrets.MACOS_CODESIGN_IDENT}}" -no-strip
+          create-dmg Metaforce.app --identity="${{secrets.MACOS_CODESIGN_IDENT}}"
           xcrun altool -t osx -f *.dmg --primary-bundle-id com.axiodl.URDE --notarize-app \
             -u "${{secrets.MACOS_ASC_USERNAME}}" -p "${{secrets.MACOS_ASC_PASSWORD}}" \
             --team-id "${{secrets.MACOS_ASC_TEAM_ID}}"
@@ -141,7 +141,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-${{env.URDE_VERSION}}-macos-appleclang-x86_64
+          name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-x86_64
           path: build/Binaries/*.dmg
 
   build-windows-msvc:
@@ -218,21 +218,21 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
           SENTRY_URL: ${{secrets.SENTRY_URL}}
         run: |
-          & "$env:RUNNER_WORKSPACE\temp\sentry-cli.exe" upload-dif --org axiodl --project urde --include-sources `
-            urde.exe urde.pdb hecl.exe hecl.pdb hecl-gui.exe hecl-gui.pdb visigen.exe visigen.pdb
+          & "$env:RUNNER_WORKSPACE\temp\sentry-cli.exe" upload-dif --org axiodl --project metaforce --include-sources `
+            metaforce.exe metaforce.pdb hecl.exe hecl.pdb metaforce-gui.exe metaforce-gui.pdb visigen.exe visigen.pdb
 
       - name: Compress PDBs
         working-directory: ${{github.workspace}}/build/Binaries
-        run: 7z a -t7z debug.7z urde.pdb hecl.pdb hecl-gui.pdb visigen.pdb
+        run: 7z a -t7z debug.7z metaforce.pdb hecl.pdb metaforce-gui.pdb visigen.pdb
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-${{env.URDE_VERSION}}-win32-msvc-x86_64
+          name: metaforce-${{env.METAFORCE_VERSION}}-win32-msvc-x86_64
           path: |
-            build/Binaries/urde.exe
+            build/Binaries/metaforce.exe
+            build/Binaries/metaforce-gui.exe
             build/Binaries/hecl.exe
-            build/Binaries/hecl-gui.exe
             build/Binaries/visigen.exe
             build/Binaries/crashpad_handler.exe
             build/Binaries/debug.7z
@@ -304,16 +304,16 @@ jobs:
 
       - name: Compress PDBs
         working-directory: ${{github.workspace}}/build/Binaries
-        run: 7z a -t7z debug.7z urde.pdb hecl.pdb hecl-gui.pdb visigen.pdb
+        run: 7z a -t7z debug.7z metaforce.pdb hecl.pdb metaforce-gui.pdb visigen.pdb
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: urde-${{env.URDE_VERSION}}-win32-clang-x86_64
+          name: metaforce-${{env.METAFORCE_VERSION}}-win32-clang-x86_64
           path: |
-            build/Binaries/urde.exe
+            build/Binaries/metaforce.exe
+            build/Binaries/metaforce-gui.exe
             build/Binaries/hecl.exe
-            build/Binaries/hecl-gui.exe
             build/Binaries/visigen.exe
             build/Binaries/crashpad_handler.exe
             build/Binaries/debug.7z

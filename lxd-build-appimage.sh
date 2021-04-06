@@ -2,11 +2,11 @@
 
 ###############################################################
 # Uses LXD to create an Ubuntu focal container and produce   #
-# a reasonably portable AppImage of URDE.                    #
+# a reasonably portable AppImage of Metaforce.               #
 ###############################################################
 
 VERSION=${VERSION:-local}
-CONTAINER_NAME=urde-ci
+CONTAINER_NAME=metaforce-ci
 
 # Set up container, deleting existing if necessary
 if lxc info $CONTAINER_NAME >& /dev/null
@@ -19,7 +19,7 @@ lxc init ubuntu:20.04 $CONTAINER_NAME
 lxc file push - $CONTAINER_NAME/root/dobuild.sh <<END
 set -e
 
-# URDE build script for Ubuntu 20.04 LTS (Focal)
+# Metaforce build script for Ubuntu 20.04 LTS (Focal)
 
 # Install build dependencies
 apt update
@@ -36,27 +36,26 @@ curl -OL https://github.com/encounter/linuxdeploy-plugin-qt/releases/download/co
 chmod +x linuxdeploy-$(uname -m).AppImage linuxdeploy-plugin-qt-$(uname -m).AppImage
 
 # Cleanup
-rm -rf urde{-build,-appdir,}
+rm -rf metaforce{-build,-appdir,}
 
 # Clone repository
-git clone https://github.com/AxioDL/urde.git --recursive
+git clone https://github.com/AxioDL/metaforce.git --recursive
 
 # Build
-mkdir -p urde{-build,-appdir}
-pushd urde-build
+mkdir -p metaforce{-build,-appdir}
+pushd metaforce-build
 cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
-	            -DURDE_DLPACKAGE=urde-$VERSION-linux-$(uname -m) -DURDE_VECTOR_ISA=sse41 \
-              /urde
-ninja hecl hecl-gui urde visigen
+              /metaforce
+ninja hecl metaforce-gui metaforce visigen
 popd
 
-mkdir -p /urde-appdir/usr/{bin,share/{applications,icons/hicolor}}
-cp /urde-build/Binaries/{hecl,hecl-gui,urde,visigen} /urde-appdir/usr/bin
-strip -s /urde-appdir/usr/bin/{hecl,hecl-gui,urde,visigen}
-cp -r /urde/Editor/platforms/freedesktop/{16x16,32x32,48x48,64x64,128x128,256x256,512x512,1024x1024} /urde-appdir/usr/share/icons/hicolor
-cp /urde/Editor/platforms/freedesktop/urde.desktop /urde-appdir/usr/share/applications
-sed -i 's/Exec=.*/Exec=hecl-gui/' /urde-appdir/usr/share/applications/urde.desktop
-VERSION=$VERSION /linuxdeploy-$(uname -m).AppImage --appdir /urde-appdir --plugin qt --output appimage
+mkdir -p /metaforce-appdir/usr/{bin,share/{applications,icons/hicolor}}
+cp /metaforce-build/Binaries/{hecl,metaforce-gui,metaforce,visigen} /metaforce-appdir/usr/bin
+strip -s /metaforce-appdir/usr/bin/{hecl,metaforce-gui,metaforce,visigen}
+cp -r /metaforce/Editor/platforms/freedesktop/{16x16,32x32,48x48,64x64,128x128,256x256,512x512,1024x1024} /metaforce-appdir/usr/share/icons/hicolor
+cp /metaforce/Editor/platforms/freedesktop/metaforce.desktop /metaforce-appdir/usr/share/applications
+sed -i 's/Exec=.*/Exec=metaforce-gui/' /metaforce-appdir/usr/share/applications/metaforce.desktop
+VERSION=$VERSION /linuxdeploy-$(uname -m).AppImage --appdir /metaforce-appdir --plugin qt --output appimage
 END
 
 # Start container
