@@ -1,6 +1,8 @@
 [submodule "freetype2"]
 	path = freetype2
 	url = ../freetype2
+	branch = master
 [submodule "zeus"]
 	path = zeus
 	url = ../zeus.git
+	branch = master
