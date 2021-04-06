@@ -193,3 +193,7 @@ jobs:
             -DCMAKE_CXX_COMPILER=clang-cl `
             -DCMAKE_LINKER=lld-link `
             -DLLVM_ROOT_DIR="$workspace/LLVM"
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build .
