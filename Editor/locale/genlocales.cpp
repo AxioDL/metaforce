@@ -5,8 +5,6 @@
 #include "athena/FileReader.hpp"
 #include "athena/YAMLDocReader.hpp"
 
-#define FMT_STRING_ALIAS 1
-#define FMT_ENFORCE_COMPILE_STRING 1
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 

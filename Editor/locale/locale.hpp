@@ -3,8 +3,6 @@
 #include <string_view>
 #include <vector>
 
-#define FMT_STRING_ALIAS 1
-#define FMT_ENFORCE_COMPILE_STRING 1
 #include <fmt/format.h>
 
 namespace locale {

@@ -156,6 +156,8 @@ if(MSVC)
           $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4805>
           ${VS_OPTIONS})
 
+  string(REPLACE "/GR " "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  string(REPLACE " /EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   add_compile_options(
     # Disable exceptions
     $<$<COMPILE_LANGUAGE:CXX>:/EHsc->
@@ -175,7 +177,6 @@ if(MSVC)
     # Use latest C++ standard.
     $<$<COMPILE_LANGUAGE:CXX>:/std:c++latest>
   )
-  add_compile_definitions(FMT_EXCEPTIONS=0 _HAS_EXCEPTIONS=0)
 
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # Flags for MSVC (not clang-cl)
@@ -247,7 +248,6 @@ else()
   elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_compile_options(-Wno-lto-type-mismatch -Wno-maybe-uninitialized)
   endif()
-  add_compile_definitions(FMT_EXCEPTIONS=0)
 
   if(APPLE)
     add_compile_options(-Wno-error=deprecated-declarations
