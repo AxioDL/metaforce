@@ -38,10 +38,6 @@
 	path = NESEmulator/fixNES
 	url = https://github.com/FIX94/fixNES.git
 	branch = master
-[submodule "Editor/locale"]
-	path = Editor/locale
-	url = ../urde-translations.git
-	branch = master
 [submodule "extern/libSquish"]
 	path = hecl/extern/libSquish
 	url = ../libSquish.git
