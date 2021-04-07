@@ -159,10 +159,10 @@ QString URDEVersion::fileString(bool withExtension) const {
   }
 
   if (withExtension && !m_extension.isEmpty()) {
-    return QStringLiteral("urde-%1-%2-%3%4%5")
+    return QStringLiteral("metaforce-%1-%2-%3%4%5")
         .arg(m_version, PlatformToString(m_platform), ArchitectureToString(m_architecture), m_extra, m_extension);
   } else {
-    return QStringLiteral("urde-%1-%2-%3%4")
+    return QStringLiteral("metaforce-%1-%2-%3%4")
         .arg(m_version, PlatformToString(m_platform), ArchitectureToString(m_architecture), m_extra);
   }
 }

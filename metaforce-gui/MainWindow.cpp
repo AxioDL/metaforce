@@ -89,7 +89,7 @@ MainWindow::MainWindow(QWidget* parent)
   m_ui->processOutput->setFont(mFont);
   m_cursor = QTextCursor(m_ui->processOutput->document());
   connect(m_ui->saveLogButton, &QPushButton::pressed, this, [this] {
-    QString defaultFileName = QStringLiteral("urde-") + QDateTime::currentDateTime().toString(Qt::DateFormat::ISODate) +
+    QString defaultFileName = QStringLiteral("metaforce-") + QDateTime::currentDateTime().toString(Qt::DateFormat::ISODate) +
                               QStringLiteral(".log");
     defaultFileName.replace(QLatin1Char(':'), QLatin1Char('-'));
     const QString fileName =
@@ -141,7 +141,7 @@ void MainWindow::onExtract() {
   }
 
   const QString imgPath =
-      QFileDialog::getOpenFileName(this, tr("Extract Image"), m_path, tr("Images (*.iso *.wbfs *.gcm)"));
+      QFileDialog::getOpenFileName(this, tr("Extract Game"), m_path, tr("Images (*.iso *.wbfs *.gcm)"));
   if (imgPath.isEmpty()) {
     return;
   }
@@ -358,7 +358,7 @@ void MainWindow::enableOperations() {
   if (!m_ui->sysReqTable->isBlenderVersionOk()) {
     insertContinueNote(tr("Blender 2.90 or greater must be installed. Please download via Steam or blender.org."));
   } else if (m_ui->launchBtn->isEnabled()) {
-    insertContinueNote(tr("Package complete - Press 'Launch' to start URDE."));
+    insertContinueNote(tr("Package complete - Press 'Launch' to start Metaforce."));
   } else if (m_ui->packageBtn->isEnabled()) {
     insertContinueNote(tr("Extract complete - Press 'Package' to continue."));
   } else if (m_ui->extractBtn->isEnabled()) {
@@ -413,16 +413,16 @@ bool MainWindow::checkDownloadedBinary() {
 
   const QString dir = QApplication::instance()->applicationDirPath();
 #if _WIN32
-  QString urdePath = dir + QStringLiteral("/urde.exe");
+  QString urdePath = dir + QStringLiteral("/metaforce.exe");
   QString heclPath = dir + QStringLiteral("/hecl.exe");
   QString visigenPath = dir + QStringLiteral("/visigen.exe");
   if (!QFileInfo::exists(urdePath) || !QFileInfo::exists(heclPath) || !QFileInfo::exists(visigenPath)) {
-    urdePath = m_path + QStringLiteral("/urde.exe");
+    urdePath = m_path + QStringLiteral("/metaforce.exe");
     heclPath = m_path + QStringLiteral("/hecl.exe");
     visigenPath = m_path + QStringLiteral("/visigen.exe");
   }
 #else
-  QString urdePath = dir + QStringLiteral("/urde");
+  QString urdePath = dir + QStringLiteral("/metaforce");
   QString heclPath = dir + QStringLiteral("/hecl");
   QString visigenPath = dir + QStringLiteral("/visigen");
 #endif
@@ -449,7 +449,7 @@ bool MainWindow::checkDownloadedBinary() {
 
   m_ui->currentBinaryLabel->setText(tr("none"));
   m_ui->heclTabs->setCurrentIndex(2);
-  m_ui->downloadErrorLabel->setText(tr("Press 'Download' to fetch latest URDE binary."), true);
+  m_ui->downloadErrorLabel->setText(tr("Press 'Download' to fetch latest Metaforce binary."), true);
   enableOperations();
   return false;
 }

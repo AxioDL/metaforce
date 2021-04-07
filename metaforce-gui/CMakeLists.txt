@@ -146,10 +146,10 @@ elseif (APPLE)
             )
     add_custom_command(
             TARGET metaforce-gui POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:urde> $<TARGET_FILE_DIR:metaforce-gui>
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:metaforce> $<TARGET_FILE_DIR:metaforce-gui>
             COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:metaforce-gui>
             COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:metaforce-gui>
-            DEPENDS urde hecl visigen
+            DEPENDS metaforce hecl visigen
     )
     if (NOT "${SENTRY_DSN}" STREQUAL "")
         add_custom_command(

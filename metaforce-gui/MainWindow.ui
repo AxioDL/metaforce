@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>HECL</string>
+   <string>Metaforce</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -251,8 +251,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>450</width>
-             <height>633</height>
+             <width>428</width>
+             <height>592</height>
             </rect>
            </property>
            <attribute name="label">
@@ -402,8 +402,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>174</width>
-             <height>111</height>
+             <width>161</width>
+             <height>89</height>
             </rect>
            </property>
            <attribute name="label">
@@ -451,8 +451,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>450</width>
-             <height>633</height>
+             <width>212</width>
+             <height>47</height>
             </rect>
            </property>
            <attribute name="label">
@@ -486,8 +486,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>226</width>
-             <height>482</height>
+             <width>210</width>
+             <height>366</height>
             </rect>
            </property>
            <attribute name="label">
@@ -785,7 +785,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>Downloaded URDE version:</string>
+             <string>Downloaded Metaforce version:</string>
             </property>
            </widget>
           </item>
@@ -799,7 +799,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>Recommended URDE version:</string>
+             <string>Recommended Metaforce version:</string>
             </property>
            </widget>
           </item>
@@ -1205,12 +1205,12 @@
            <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Cantarell'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:600;&quot;&gt;About HECL Frontend&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:10pt;&quot;&gt;&lt;br /&gt;The HECL frontend UI is designed and built by &lt;/span&gt;&lt;a href=&quot;https://axiodl.com&quot;&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:10pt; text-decoration: underline; color:#007af4;&quot;&gt;Axiomatic Data Laboratories&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:10pt;&quot;&gt; Copyright 2020&lt;br /&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:600;&quot;&gt;Authors:&lt;/span&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:10pt;&quot;&gt;&lt;br /&gt;Phillip &amp;quot;Antidote&amp;quot; Stephens&lt;br /&gt;Jack &amp;quot;jackoalan&amp;quot; Andersen&lt;br /&gt;Luke &amp;quot;encounter&amp;quot; Street&lt;/span&gt;&lt;/p&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:600;&quot;&gt;About Metaforce&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:10pt;&quot;&gt;&lt;br /&gt;The Metaforce frontend UI is designed and built by &lt;/span&gt;&lt;a href=&quot;https://axiodl.com&quot;&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:10pt; text-decoration: underline; color:#007af4;&quot;&gt;Axiomatic Data Laboratories&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:10pt;&quot;&gt; Copyright 2020&lt;br /&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:600;&quot;&gt;Authors:&lt;/span&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:10pt;&quot;&gt;&lt;br /&gt;Phillip &amp;quot;Antidote&amp;quot; Stephens&lt;br /&gt;Jack &amp;quot;jackoalan&amp;quot; Andersen&lt;br /&gt;Luke &amp;quot;encounter&amp;quot; Street&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New'; font-size:10pt;&quot;&gt;The MIT License&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Courier New'; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New'; font-size:10pt;&quot;&gt;Copyright (c) 2015-2018 URDE Contributors&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New'; font-size:10pt;&quot;&gt;Copyright (c) 2015-2021 Metaforce Contributors&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New'; font-size:10pt;&quot;&gt;Original Authors: Jack Andersen and Phillip &amp;quot;Antidote&amp;quot; Stephens&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Courier New'; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New'; font-size:10pt;&quot;&gt;Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &amp;quot;Software&amp;quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:&lt;/span&gt;&lt;/p&gt;

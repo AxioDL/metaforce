@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
         printf("Rendering main icon @%dx%d\n", *d, *d);
         fflush(stdout);
 
-        snprintf(command, 2048, "%dx%d/apps/hecl.png", *d, *d);
+        snprintf(command, 2048, "%dx%d/apps/metaforce-gui.png", *d, *d);
         FILE* fp = fopen(command, "rb");
         if (!fp)
         {
