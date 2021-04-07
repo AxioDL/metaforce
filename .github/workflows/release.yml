@@ -32,13 +32,18 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
           sudo apt-get -y install build-essential curl git cmake ninja-build llvm-dev libclang-dev clang lld \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
             libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default \
-            libcurl4-openssl-dev
+            libcurl4-openssl-dev intel-oneapi-ipp-devel
+
           yarn global add @sentry/cli
           echo "$(yarn global bin)" >> $GITHUB_PATH
+
           # free up disk space
           # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
           echo Before
@@ -84,7 +89,7 @@ jobs:
           name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.cc}}-x86_64
           path: |
             Metaforce-*.AppImage
-            build/Binaries/*.dbg
+            debug.tar.*
 
   build-macos:
     name: Build macOS (AppleClang x86_64)
@@ -100,6 +105,17 @@ jobs:
           brew install ninja qt@5 graphicsmagick imagemagick getsentry/tools/sentry-cli
           brew link qt@5
           yarn global add create-dmg
+
+      - name: Install Intel IPP
+        env:
+          IPP_VERSION: 2021.2.0.192
+        run: |
+          NAME="m_ipp_oneapi_p_${IPP_VERSION}_offline"
+          curl -LSfs https://registrationcenter-download.intel.com/akdlm/irc_nas/17606/$NAME.dmg -o /tmp/$NAME.dmg
+          sudo hdiutil attach /tmp/$NAME.dmg -quiet
+          sudo /Volumes/$NAME/bootstrapper.app/Contents/MacOS/install.sh -c --action install --eula accept
+          sudo hdiutil detach /Volumes/$NAME -quiet
+          rm /tmp/$NAME.dmg
 
       - name: Create build directory
         run: cmake -E make_directory ${{github.workspace}}/build
@@ -129,23 +145,20 @@ jobs:
           keychain-password: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
 
       - name: Deploy & codesign application
-        working-directory: build/Binaries
-        run: |
-          mv metaforce-gui.app Metaforce.app
-          for i in visigen hecl metaforce crashpad_handler; do
-            codesign --timestamp --options runtime -s "${{secrets.MACOS_CODESIGN_IDENT}}" Metaforce.app/Contents/MacOS/$i
-          done
-          macdeployqt Metaforce.app -sign-for-notarization="${{secrets.MACOS_CODESIGN_IDENT}}" -no-strip
-          create-dmg Metaforce.app --identity="${{secrets.MACOS_CODESIGN_IDENT}}"
-          xcrun altool -t osx -f *.dmg --primary-bundle-id com.axiodl.URDE --notarize-app \
-            -u "${{secrets.MACOS_ASC_USERNAME}}" -p "${{secrets.MACOS_ASC_PASSWORD}}" \
-            --team-id "${{secrets.MACOS_ASC_TEAM_ID}}"
+        env:
+          ASC_USERNAME: ${{secrets.MACOS_ASC_USERNAME}}
+          ASC_PASSWORD: ${{secrets.MACOS_ASC_PASSWORD}}
+          ASC_TEAM_ID: ${{secrets.MACOS_ASC_TEAM_ID}}
+          CODESIGN_IDENT: ${{secrets.MACOS_CODESIGN_IDENT}}
+        run: ci/build-dmg.sh
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-x86_64
-          path: build/Binaries/*.dmg
+          path: |
+            Metaforce *.dmg
+            debug.tar.*
 
   build-windows-msvc:
     name: Build Windows (MSVC x86_64)
@@ -275,7 +288,7 @@ jobs:
 #          $TempDir = "$env:RUNNER_WORKSPACE\temp"
 #          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
 #          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-#          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/$Filename", "$TempDir\$Filename")
+#          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/17739/$Filename", "$TempDir\$Filename")
 #          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
 #          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
 
