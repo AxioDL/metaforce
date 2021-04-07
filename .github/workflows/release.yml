@@ -65,6 +65,9 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: cmake --build .
 
+      - name: Split debug information
+        run: ci/split-debug-linux.sh
+
       - name: Upload debug information
         if: ${{matrix.name == 'Clang'}}
         env:
@@ -214,6 +217,7 @@ jobs:
         run: cmake --build .
 
       - name: Upload debug information
+        working-directory: ${{github.workspace}}/build/Binaries
         env:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
           SENTRY_URL: ${{secrets.SENTRY_URL}}
