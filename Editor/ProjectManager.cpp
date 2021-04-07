@@ -64,7 +64,7 @@ bool ProjectManager::newProject(hecl::SystemStringView path) {
   m_vm.SetupEditorView();
   saveProject();
 
-  m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - URDE {} [{}]")),
+  m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - Metaforce {} [{}]")),
     m_proj->getProjectRootPath().getLastComponent(), METAFORCE_WC_DESCRIBE_SYS, m_vm.platformName()));
   m_vm.DismissSplash();
   m_vm.FadeInEditors();
@@ -104,7 +104,7 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
     if (needsSave)
       saveProject();
 
-    m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - URDE {} [{}]")),
+    m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - Metaforce {} [{}]")),
                                             m_proj->getProjectRootPath().getLastComponent(), METAFORCE_WC_DESCRIBE_SYS,
                                             m_vm.platformName()));
     m_vm.DismissSplash();

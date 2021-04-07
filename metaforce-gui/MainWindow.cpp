@@ -64,7 +64,7 @@ const QStringList MainWindow::skUpdateTracks = {QStringLiteral("stable"), QStrin
 MainWindow::MainWindow(QWidget* parent)
 : QMainWindow(parent)
 , m_ui(std::make_unique<Ui::MainWindow>())
-, m_fileMgr(_SYS_STR("urde"))
+, m_fileMgr(_SYS_STR("metaforce"))
 , m_cvarManager(m_fileMgr)
 , m_cvarCommons(m_cvarManager)
 , m_heclProc(this)
