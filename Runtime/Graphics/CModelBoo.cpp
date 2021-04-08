@@ -243,7 +243,7 @@ GeometryUniformLayout::GeometryUniformLayout(const CModel* model, const Material
   }
 }
 
-CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
+CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf, boo::IGraphicsDataFactory::Context* ctx) {
   if (!x40_24_texturesLoaded && !g_DummyTextures) {
     return nullptr;
   }
@@ -254,7 +254,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
 
   ModelInstance& newInst = m_instances.emplace_back();
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+  auto withContext = [&](boo::IGraphicsDataFactory::Context& ctx) {
     /* Build geometry uniform buffer if shared not available */
     boo::ObjToken<boo::IGraphicsBufferD> geomUniformBuf;
     if (sharedLayoutBuf >= 0) {
@@ -401,8 +401,13 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
       }
     }
     return true;
-  } BooTrace);
-
+  };
+  
+  if (ctx) {
+    withContext(*ctx);
+  } else {
+    CGraphics::CommitResources(withContext BooTrace);
+  }
   return &newInst;
 }
 
@@ -974,7 +979,8 @@ boo::ObjToken<boo::IGraphicsBufferD> GeometryUniformLayout::GetSharedBuffer(int 
 }
 
 boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
-                                                                  const CPoseAsTransforms* pose, int sharedLayoutBuf) {
+                                                                  const CPoseAsTransforms* pose, int sharedLayoutBuf,
+                                                                  boo::IGraphicsDataFactory::Context* ctx) {
   if (!g_DummyTextures && !TryLockTextures())
     return {};
 
@@ -1004,7 +1010,7 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
   if (sharedLayoutBuf >= 0) {
     if (m_instances.size() <= sharedLayoutBuf) {
       do {
-        inst = PushNewModelInstance(m_instances.size());
+        inst = PushNewModelInstance(m_instances.size(), ctx);
         if (!inst) {
           return {};
         }
@@ -1015,7 +1021,7 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
     m_uniUpdateCount = sharedLayoutBuf + 1;
   } else {
     if (m_instances.size() <= m_uniUpdateCount) {
-      inst = PushNewModelInstance(sharedLayoutBuf);
+      inst = PushNewModelInstance(sharedLayoutBuf, ctx);
       if (!inst) {
         return {};
       }
