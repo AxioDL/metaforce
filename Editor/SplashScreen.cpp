@@ -2,7 +2,7 @@
 #include "version.h"
 #include "badging/Badging.hpp"
 
-namespace urde {
+namespace metaforce {
 
 #define SPLASH_WIDTH 555
 #define SPLASH_HEIGHT 300
@@ -268,4 +268,4 @@ void SplashScreen::draw(boo::IGraphicsCommandQueue* gfxQ) {
     m_fileBrowser.m_view->draw(gfxQ);
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -4,7 +4,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Emitter_Elements */
 
-namespace urde {
+namespace metaforce {
 
 bool CEESimpleEmitter::GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const {
   x4_loc->GetValue(frame, pPos);
@@ -71,4 +71,4 @@ bool CVEAngleSphere::GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f&
   return false;
 }
 
-} // namespace urde
+} // namespace metaforce

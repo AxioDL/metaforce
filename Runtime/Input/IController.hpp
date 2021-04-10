@@ -1,6 +1,6 @@
 #pragma once
 
-namespace urde {
+namespace metaforce {
 
 class IController {
 public:
@@ -9,4 +9,4 @@ public:
   virtual void SetMotorState(EMotorState state) = 0;
 };
 
-} // namespace urde
+} // namespace metaforce

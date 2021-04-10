@@ -7,8 +7,8 @@
 #undef min
 #undef max
 
-namespace urde {
-static logvisor::Module Log("urde::ProjectResourceFactoryBase");
+namespace metaforce {
+static logvisor::Module Log("metaforce::ProjectResourceFactoryBase");
 
 void ProjectResourceFactoryBase::BeginBackgroundIndex(hecl::Database::Project& proj,
                                                       const hecl::Database::DataSpecEntry& origSpec,
@@ -47,7 +47,7 @@ CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag, co
   return ret;
 }
 
-void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& tag, const hecl::ProjectPath& path) {
+void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const metaforce::SObjectTag& tag, const hecl::ProjectPath& path) {
   if (!m_workingPath) {
     m_workingPath = path;
 
@@ -64,7 +64,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
       m_cookedPath = path.getCookedPath(*m_parent.m_origSpec);
     if (!m_cookedPath.isFile() || m_cookedPath.getModtime() < path.getModtime()) {
       /* Last chance type validation */
-      urde::SObjectTag verifyTag = m_parent.TagFromPath(path);
+      metaforce::SObjectTag verifyTag = m_parent.TagFromPath(path);
       if (verifyTag.type != tag.type) {
         Log.report(logvisor::Error, FMT_STRING(_SYS_STR("{}: expected type '{}', found '{}'")), path.getRelativePath(),
                    tag.type, verifyTag.type);
@@ -181,7 +181,7 @@ bool ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag, const he
     cooked = path.getCookedPath(*m_origSpec);
   if (!cooked.isFile() || cooked.getModtime() < path.getModtime()) {
     /* Last chance type validation */
-    urde::SObjectTag verifyTag = TagFromPath(path);
+    metaforce::SObjectTag verifyTag = TagFromPath(path);
     if (verifyTag.type != tag.type) {
       Log.report(logvisor::Error, FMT_STRING(_SYS_STR("{}: expected type '{}', found '{}'")), path.getRelativePath(),
                  tag.type, verifyTag.type);
@@ -211,8 +211,8 @@ bool ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag, const he
   return true;
 }
 
-std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjectTag& tag,
-                                                              const urde::CVParamTransfer& paramXfer,
+std::unique_ptr<metaforce::IObj> ProjectResourceFactoryBase::Build(const metaforce::SObjectTag& tag,
+                                                              const metaforce::CVParamTransfer& paramXfer,
                                                               CObjectReference* selfRef) {
   if (!tag.id.IsValid())
     Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id on type '{}'"), tag.type);
@@ -261,17 +261,17 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
   return BuildSync(tag, *resPath, paramXfer, selfRef);
 }
 
-std::shared_ptr<AsyncTask> ProjectResourceFactoryBase::BuildAsyncInternal(const urde::SObjectTag& tag,
-                                                                          const urde::CVParamTransfer& paramXfer,
-                                                                          std::unique_ptr<urde::IObj>* objOut,
+std::shared_ptr<AsyncTask> ProjectResourceFactoryBase::BuildAsyncInternal(const metaforce::SObjectTag& tag,
+                                                                          const metaforce::CVParamTransfer& paramXfer,
+                                                                          std::unique_ptr<metaforce::IObj>* objOut,
                                                                           CObjectReference* selfRef) {
   if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
     return {};
   return _AddTask(std::make_unique<AsyncTask>(*this, tag, objOut, paramXfer, selfRef));
 }
 
-void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag, const urde::CVParamTransfer& paramXfer,
-                                            std::unique_ptr<urde::IObj>* objOut, CObjectReference* selfRef) {
+void ProjectResourceFactoryBase::BuildAsync(const metaforce::SObjectTag& tag, const metaforce::CVParamTransfer& paramXfer,
+                                            std::unique_ptr<metaforce::IObj>* objOut, CObjectReference* selfRef) {
   if (!tag.id.IsValid())
     Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id on type '{}'"), tag.type);
 
@@ -295,27 +295,27 @@ u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag) {
   return fr->length();
 }
 
-std::shared_ptr<urde::IDvdRequest> ProjectResourceFactoryBase::LoadResourceAsync(const urde::SObjectTag& tag,
+std::shared_ptr<metaforce::IDvdRequest> ProjectResourceFactoryBase::LoadResourceAsync(const metaforce::SObjectTag& tag,
                                                                                  void* target) {
   if (!tag.id.IsValid())
     Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id"));
   if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
     return {};
-  return std::static_pointer_cast<urde::IDvdRequest>(
+  return std::static_pointer_cast<metaforce::IDvdRequest>(
       _AddTask(std::make_shared<AsyncTask>(*this, tag, reinterpret_cast<u8*>(target))));
 }
 
-std::shared_ptr<urde::IDvdRequest> ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
+std::shared_ptr<metaforce::IDvdRequest> ProjectResourceFactoryBase::LoadResourcePartAsync(const metaforce::SObjectTag& tag,
                                                                                      u32 off, u32 size, void* target) {
   if (!tag.id.IsValid())
     Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id"));
   if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
     return {};
-  return std::static_pointer_cast<urde::IDvdRequest>(
+  return std::static_pointer_cast<metaforce::IDvdRequest>(
       _AddTask(std::make_shared<AsyncTask>(*this, tag, reinterpret_cast<u8*>(target), size, off)));
 }
 
-std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::SObjectTag& tag) {
+std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const metaforce::SObjectTag& tag) {
   if (!tag.id.IsValid())
     Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id"));
 
@@ -332,7 +332,7 @@ std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::S
   return fr->readUBytes(fr->length());
 }
 
-std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off,
+std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadNewResourcePartSync(const metaforce::SObjectTag& tag, u32 off,
                                                                           u32 size) {
   if (!tag.id.IsValid())
     Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id"));
@@ -352,7 +352,7 @@ std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadNewResourcePartSync(const 
   return fr->readUBytes(sz);
 }
 
-std::shared_ptr<AsyncTask> ProjectResourceFactoryBase::CookResourceAsync(const urde::SObjectTag& tag) {
+std::shared_ptr<AsyncTask> ProjectResourceFactoryBase::CookResourceAsync(const metaforce::SObjectTag& tag) {
   if (!tag.id.IsValid())
     Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id"));
   if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
@@ -360,9 +360,9 @@ std::shared_ptr<AsyncTask> ProjectResourceFactoryBase::CookResourceAsync(const u
   return _AddTask(std::make_shared<AsyncTask>(*this, tag));
 }
 
-void ProjectResourceFactoryBase::CancelBuild(const urde::SObjectTag& tag) { _RemoveTask(tag); }
+void ProjectResourceFactoryBase::CancelBuild(const metaforce::SObjectTag& tag) { _RemoveTask(tag); }
 
-bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag) {
+bool ProjectResourceFactoryBase::CanBuild(const metaforce::SObjectTag& tag) {
   if (!tag.id.IsValid())
     Log.report(logvisor::Fatal, FMT_STRING("attempted to access null id"));
 
@@ -376,7 +376,7 @@ bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag) {
   return false;
 }
 
-const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(std::string_view name) const {
+const metaforce::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(std::string_view name) const {
   return static_cast<DataSpec::SpecBase&>(*m_cookSpec).getResourceIdByName(name);
 }
 
@@ -464,4 +464,4 @@ void ProjectResourceFactoryBase::AsyncIdle() {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

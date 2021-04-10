@@ -16,7 +16,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CEulerAngles.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::array<std::pair<const char*, u32>, 8> SpiderBallGlassModels{{
     {"SamusSpiderBallGlassCMDL", 0},
@@ -734,4 +734,4 @@ void CSamusDoll::BeginViewInterpolate(bool zoomIn) {
   x80_fixedZoom = zoomIn ? -2.2f : -3.6f;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

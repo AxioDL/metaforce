@@ -10,7 +10,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 constexpr u32 kTableSize = 2048;
 
 CFluidPlaneCPU::CTurbulence::CTurbulence(float speed, float distance, float freqMax, float freqMin, float phaseMax,
@@ -872,4 +872,4 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
   m_shader->doneDrawing();
 }
 
-} // namespace urde
+} // namespace metaforce

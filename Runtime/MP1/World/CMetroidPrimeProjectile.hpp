@@ -3,7 +3,7 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 struct SPrimeProjectileInfo {
   u32 x0_propertyCount;
@@ -32,4 +32,4 @@ public:
                           bool sendCollideMsg);
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

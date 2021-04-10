@@ -14,7 +14,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr std::array<u32, 41> PowerUpMaxValues{
     1, 1, 1, 1,  250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -450,4 +450,4 @@ CPlayerState::EItemType CPlayerState::ItemNameToType(std::string_view name) {
   return iter->second;
 }
 
-} // namespace urde
+} // namespace metaforce

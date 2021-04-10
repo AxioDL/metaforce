@@ -24,7 +24,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 #include <cmath>
 
-namespace urde {
+namespace metaforce {
 namespace {
 hecl::CVar* cv_disableAi = nullptr;
 } // namespace
@@ -105,7 +105,7 @@ CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view nam
   }
 }
 
-void CPatterned::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
+void CPatterned::Accept(metaforce::IVisitor& visitor) { visitor.Visit(this); }
 
 void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CAi::AcceptScriptMsg(msg, uid, mgr);
@@ -417,13 +417,13 @@ void CPatterned::Touch(CActor& act, CStateManager& mgr) {
 
 std::optional<zeus::CAABox> CPatterned::GetTouchBounds() const { return GetBoundingBox(); }
 
-bool CPatterned::CanRenderUnsorted(const urde::CStateManager& mgr) const {
+bool CPatterned::CanRenderUnsorted(const metaforce::CStateManager& mgr) const {
   return x64_modelData->GetAnimationData()->GetParticleDB().AreAnySystemsDrawnWithModel()
              ? false
              : CActor::CanRenderUnsorted(mgr);
 }
 
-zeus::CVector3f CPatterned::GetAimPosition(const urde::CStateManager& mgr, float dt) const {
+zeus::CVector3f CPatterned::GetAimPosition(const metaforce::CStateManager& mgr, float dt) const {
   zeus::CVector3f offset;
   if (dt > 0.f) {
     offset = PredictMotion(dt).x0_translation;
@@ -1006,7 +1006,7 @@ void CPatterned::TryKnockBack_Front(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTransform().frontVector(), pas::ESeverity(arg)));
 }
 
-void CPatterned::TryGenerateDeactivate(urde::CStateManager& mgr, int arg) {
+void CPatterned::TryGenerateDeactivate(metaforce::CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType(arg), zeus::skZero3f));
 }
 
@@ -1835,4 +1835,4 @@ void CPatterned::Initialize() {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

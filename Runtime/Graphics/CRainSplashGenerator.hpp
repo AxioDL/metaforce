@@ -10,7 +10,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 
 class CRainSplashGenerator {
@@ -73,4 +73,4 @@ public:
   bool IsRaining() const { return x48_25_raining; }
 };
 
-} // namespace urde
+} // namespace metaforce

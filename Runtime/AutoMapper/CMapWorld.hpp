@@ -11,7 +11,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CMapWorldInfo;
 class CStateManager;
 class IWorld;
@@ -167,4 +167,4 @@ public:
 CFactoryFnReturn FMapWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
                                   CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce

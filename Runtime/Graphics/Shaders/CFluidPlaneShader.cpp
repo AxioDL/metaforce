@@ -5,7 +5,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CFluidPlaneShader::Cache CFluidPlaneShader::_cache = {};
 
@@ -284,4 +284,4 @@ void CFluidPlaneShader::loadVerts(const std::vector<Vertex>& verts, const std::v
     m_pvbo->load(pVerts.data(), pVerts.size() * sizeof(PatchVertex));
 }
 
-} // namespace urde
+} // namespace metaforce

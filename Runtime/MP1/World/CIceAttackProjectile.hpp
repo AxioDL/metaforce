@@ -3,7 +3,7 @@
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 class CElementGen;
 namespace MP1 {
 class CIceAttackProjectile : public CActor {
@@ -52,4 +52,4 @@ public:
   void Touch(CActor& act, CStateManager& mgr) override;
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

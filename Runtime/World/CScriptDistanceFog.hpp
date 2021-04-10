@@ -8,7 +8,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CVector2f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScriptDistanceFog : public CEntity {
   ERglFogMode x34_mode;
   zeus::CColor x38_color;
@@ -29,4 +29,4 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 };
-} // namespace urde
+} // namespace metaforce

@@ -7,7 +7,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CParticleSwooshShaders::m_texZWrite;
 std::array<boo::ObjToken<boo::IShaderPipeline>, 2> CParticleSwooshShaders::m_texNoZWrite;
@@ -101,4 +101,4 @@ void CParticleSwooshShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::C
   }
 }
 
-} // namespace urde
+} // namespace metaforce

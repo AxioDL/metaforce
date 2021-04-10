@@ -8,7 +8,7 @@
 #include "Runtime/World/CEntity.hpp"
 #include "Runtime/World/CHUDMemoParms.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptHUDMemo : public CEntity {
 public:
@@ -29,4 +29,4 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 };
-} // namespace urde
+} // namespace metaforce

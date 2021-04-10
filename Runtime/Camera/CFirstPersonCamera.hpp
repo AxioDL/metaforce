@@ -6,7 +6,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CFirstPersonCamera : public CGameCamera {
   float x188_orbitCameraSpeed;
@@ -37,4 +37,4 @@ public:
   void SetLockCamera(bool v) { x18c_lockCamera = v; }
   void DeferBallTransitionProcessing() { x1c6_24_deferBallTransitionProcessing = true; }
 };
-} // namespace urde
+} // namespace metaforce

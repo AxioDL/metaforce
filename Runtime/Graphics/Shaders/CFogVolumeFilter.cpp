@@ -10,7 +10,7 @@
 #include <hecl/Pipeline.hpp>
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_1WayPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_2WayPipeline;
@@ -74,4 +74,4 @@ void CFogVolumeFilter::draw1WayPass(const zeus::CColor& color) {
   CGraphics::DrawArray(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

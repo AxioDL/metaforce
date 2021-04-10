@@ -21,7 +21,7 @@
 
 using frame_clock = std::chrono::high_resolution_clock;
 
-namespace urde {
+namespace metaforce {
 extern hecl::CVar* g_disableLighting;
 class CLight;
 class CTimeProvider;
@@ -441,4 +441,4 @@ public:
 #define SCOPED_GRAPHICS_DEBUG_GROUP(...)
 #endif
 
-} // namespace urde
+} // namespace metaforce

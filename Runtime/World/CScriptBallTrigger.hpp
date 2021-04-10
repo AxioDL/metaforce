@@ -6,7 +6,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScriptBallTrigger : public CScriptTrigger {
   float x150_force;
   float x154_minAngle;
@@ -25,4 +25,4 @@ public:
   void InhabitantAdded(CActor&, CStateManager&) override;
   void InhabitantExited(CActor&, CStateManager&) override;
 };
-} // namespace urde
+} // namespace metaforce

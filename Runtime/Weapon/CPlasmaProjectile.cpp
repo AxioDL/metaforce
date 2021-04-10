@@ -10,7 +10,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CPlasmaProjectile::RenderObjects::RenderObjects(boo::IGraphicsDataFactory::Context& ctx,
                                                 boo::ObjToken<boo::ITexture> tex,
@@ -444,4 +444,4 @@ void CPlasmaProjectile::Render(CStateManager& mgr) {
              (flags & 0x10) ? m_renderObjs->m_beamStrip4Sub : m_renderObjs->m_beamStrip4);
 }
 
-} // namespace urde
+} // namespace metaforce

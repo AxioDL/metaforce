@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CPhazonPool::CPhazonPool(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                          const zeus::CVector3f& scale, bool active, CAssetId w1, CAssetId w2, CAssetId w3, CAssetId w4,
                          u32 p11, const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce,
@@ -268,4 +268,4 @@ void CPhazonPool::SetEmitParticles(bool val) {
     x170_elementGen1->SetParticleEmission(val);
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

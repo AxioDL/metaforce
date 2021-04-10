@@ -3,7 +3,7 @@
 #include "Runtime/World/CPatterned.hpp"
 #include "Runtime/Particle/CParticleElectric.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CPhazonHealingNodule : public CPatterned {
 private:
   int x568_active = 0;
@@ -47,4 +47,4 @@ public:
 private:
   void UpdateParticleElectric(CStateManager& mgr);
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

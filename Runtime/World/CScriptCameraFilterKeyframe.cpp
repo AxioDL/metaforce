@@ -4,7 +4,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptCameraFilterKeyframe::CScriptCameraFilterKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                          EFilterType type, EFilterShape shape, u32 filterIdx, u32 unk,
                                                          const zeus::CColor& color, float timeIn, float timeOut,
@@ -45,4 +45,4 @@ void CScriptCameraFilterKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUni
 
 void CScriptCameraFilterKeyframe::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-} // namespace urde
+} // namespace metaforce

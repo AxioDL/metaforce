@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 static zeus::CAABox calculate_ball_aabox() {
   const float extent = 0.33f * g_tweakPlayer->GetPlayerBallHalfExtent();
@@ -94,4 +94,4 @@ void CScriptBallTrigger::InhabitantExited(CActor& act, CStateManager&) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

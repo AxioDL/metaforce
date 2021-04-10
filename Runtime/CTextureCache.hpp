@@ -1,7 +1,7 @@
 #pragma once
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-namespace urde {
+namespace metaforce {
 class CPaletteInfo {
   u32 m_format;
   u32 m_elementCount;
@@ -42,6 +42,6 @@ public:
   const CTextureInfo* GetTextureInfo(CAssetId id) const;
 };
 
-CFactoryFnReturn FTextureCacheFactory(const urde::SObjectTag& tag, CInputStream& in,
-                                      const urde::CVParamTransfer& vparms, CObjectReference* selfRef);
+CFactoryFnReturn FTextureCacheFactory(const metaforce::SObjectTag& tag, CInputStream& in,
+                                      const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef);
 }

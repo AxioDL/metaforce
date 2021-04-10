@@ -7,8 +7,8 @@
 #include "Runtime/GuiSys/CDrawStringOptions.hpp"
 #include "Runtime/GuiSys/CTextRenderBuffer.hpp"
 
-namespace urde {
-CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store) {
+namespace metaforce {
+CRasterFont::CRasterFont(metaforce::CInputStream& in, metaforce::IObjectStore& store) {
   u32 magic = 0;
   in.readBytesToBuf(&magic, 4);
   if (magic != SBIG('FONT'))
@@ -216,4 +216,4 @@ std::unique_ptr<IObj> FRasterFontFactory([[maybe_unused]] const SObjectTag& tag,
   return TToken<CRasterFont>::GetIObjObjectFor(std::make_unique<CRasterFont>(in, *sp));
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -6,7 +6,7 @@
 #include "Runtime/World/CPathFindSearch.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde {
+namespace metaforce {
 class CCollisionActorManager;
 class CElementGen;
 class CParticleElectric;
@@ -252,4 +252,4 @@ public:
   CProjectileInfo* GetProjectileInfo() override { return &xa58_; }
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

@@ -13,7 +13,7 @@ enum class EGame {
   MetroidPrime3,
 };
 
-struct URDEVersionInfo : BigDNA {
+struct MetaforceVersionInfo : BigDNA {
   AT_DECL_DNA_YAML
 
   String<-1> version;

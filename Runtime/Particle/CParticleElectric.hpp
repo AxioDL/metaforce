@@ -19,7 +19,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CElectricDescription;
 
 class CParticleElectric : public CParticleGen {
@@ -146,4 +146,4 @@ public:
   FourCC Get4CharId() const override { return FOURCC('ELSC'); }
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -4,7 +4,7 @@
 
 #include "Runtime/Graphics/CTexture.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CFontImageDef::CFontImageDef(const std::vector<TToken<CTexture>>& texs, float interval,
                              const zeus::CVector2f& cropFactor)
@@ -35,4 +35,4 @@ s32 CFontImageDef::CalculateHeight() const {
   return scaledH - (scaledH - CalculateBaseline());
 }
 
-} // namespace urde
+} // namespace metaforce

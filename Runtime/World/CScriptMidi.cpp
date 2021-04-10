@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptMidi::CScriptMidi(TUniqueId id, const CEntityInfo& info, std::string_view name, bool active, CAssetId csng,
                          float fadeIn, float fadeOut, s32 volume)
@@ -77,4 +77,4 @@ void CScriptMidi::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CSt
   }
 }
 
-} // namespace urde
+} // namespace metaforce

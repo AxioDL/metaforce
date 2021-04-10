@@ -6,7 +6,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 void CElementGenShaders::Initialize() {
   m_texZTestZWrite = {hecl::conv->convert(Shader_CElementGenShaderTexZTestZWrite{}),
@@ -271,4 +271,4 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
   }
 }
 
-} // namespace urde
+} // namespace metaforce

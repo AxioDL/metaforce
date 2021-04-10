@@ -1,7 +1,7 @@
 #include "Runtime/GuiSys/CGuiTableGroup.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
 
-namespace urde {
+namespace metaforce {
 
 bool CGuiTableGroup::CRepeatState::Update(float dt, bool state) {
   if (x0_timer == 0.f) {
@@ -228,4 +228,4 @@ std::shared_ptr<CGuiWidget> CGuiTableGroup::Create(CGuiFrame* frame, CInputStrea
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

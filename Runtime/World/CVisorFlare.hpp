@@ -8,7 +8,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActor;
 class CStateManager;
 class CTexture;
@@ -57,4 +57,4 @@ public:
   static std::optional<CFlareDef> LoadFlareDef(CInputStream& in);
 };
 
-} // namespace urde
+} // namespace metaforce

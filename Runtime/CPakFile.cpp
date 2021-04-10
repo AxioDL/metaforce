@@ -1,13 +1,13 @@
 #include "Runtime/CPakFile.hpp"
 
-namespace urde {
-static logvisor::Module Log("urde::CPakFile");
+namespace metaforce {
+static logvisor::Module Log("metaforce::CPakFile");
 
 CPakFile::CPakFile(std::string_view filename, bool buildDepList, bool worldPak, bool override) : CDvdFile(filename) {
   if (!CDvdFile::operator bool())
     Log.report(logvisor::Fatal, FMT_STRING("{}: Unable to open"), GetPath());
   x28_24_buildDepList = buildDepList;
-  //x28_24_buildDepList = true; // Always do this so URDE can rapidly pre-warm shaders
+  //x28_24_buildDepList = true; // Always do this so metaforce can rapidly pre-warm shaders
   x28_26_worldPak = worldPak;
   m_override = override;
 }
@@ -180,4 +180,4 @@ void CPakFile::AsyncIdle() {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

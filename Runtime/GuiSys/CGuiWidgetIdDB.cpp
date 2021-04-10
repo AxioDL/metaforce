@@ -1,6 +1,6 @@
 #include "Runtime/GuiSys/CGuiWidgetIdDB.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGuiWidgetIdDB::CGuiWidgetIdDB() {
   AddWidget("kGSYS_DummyWidgetID", 0);
@@ -38,4 +38,4 @@ s16 CGuiWidgetIdDB::AddWidget(std::string_view name) {
   return findId;
 }
 
-} // namespace urde
+} // namespace metaforce

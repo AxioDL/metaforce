@@ -7,7 +7,7 @@
 #include <hecl/Pipeline.hpp>
 #include <zeus/CAABox.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_zOnlyPipeline;
@@ -76,4 +76,4 @@ void CAABoxShader::draw(const zeus::CColor& color) {
   CGraphics::DrawArray(0, 34);
 }
 
-} // namespace urde
+} // namespace metaforce

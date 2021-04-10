@@ -17,7 +17,7 @@
 #include <zeus/CFrustum.hpp>
 #include <zeus/CVector2f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CFluidUVMotion;
 class CRipple;
 class CRippleManager;
@@ -179,4 +179,4 @@ public:
   const CTexture& GetTexturePattern2() const { return *x20_texPattern2; }
   bool HasTexturePattern2() const { return x20_texPattern2.HasReference(); }
 };
-} // namespace urde
+} // namespace metaforce

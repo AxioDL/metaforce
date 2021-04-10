@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 constexpr std::array GasLocators{
     "Gas_01_LCTR"sv, "Gas_02_LCTR"sv, "Gas_03_LCTR"sv, "Gas_04_LCTR"sv, "Gas_05_LCTR"sv,
@@ -143,4 +143,4 @@ void CPuffer::sub8025bfa4(CStateManager& mgr) {
     x5d0_enabledParticles = 0;
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

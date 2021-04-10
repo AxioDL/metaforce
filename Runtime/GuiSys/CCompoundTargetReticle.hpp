@@ -11,7 +11,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActor;
 class CModel;
 class CScriptGrapplePoint;
@@ -158,4 +158,4 @@ public:
   static float CalculateClampedScale(const zeus::CVector3f&, float, float, float, const CStateManager&);
   void Touch();
 };
-} // namespace urde
+} // namespace metaforce

@@ -18,7 +18,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CDecalDescription;
 class CGenDescription;
 class CModel;
@@ -101,4 +101,4 @@ public:
   double GameTime() const { return xd0_curTime; }
   static constexpr float GetTickPeriod() { return 0.0166667f; }
 };
-} // namespace urde
+} // namespace metaforce

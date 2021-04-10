@@ -4,7 +4,7 @@
 #include "Runtime/World/CPatterned.hpp"
 #include "Runtime/World/CScriptPlatform.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CRipper : public CPatterned {
   CGrappleParameters x568_grappleParams;
@@ -49,4 +49,4 @@ public:
 
   zeus::CQuaternion Move(float, CStateManager &) override;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

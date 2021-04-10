@@ -1,6 +1,6 @@
 #include "Runtime/MP1/CSaveGameScreenTouchBar.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 int CSaveGameScreenTouchBar::PopOption() { return -1; }
 void CSaveGameScreenTouchBar::SetUIOpts(std::u16string_view opt0, std::u16string_view opt1, std::u16string_view opt2) {}
@@ -9,4 +9,4 @@ void CSaveGameScreenTouchBar::SetUIOpts(std::u16string_view opt0, std::u16string
 std::unique_ptr<CSaveGameScreenTouchBar> NewSaveUITouchBar() { return std::make_unique<CSaveGameScreenTouchBar>(); }
 #endif
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

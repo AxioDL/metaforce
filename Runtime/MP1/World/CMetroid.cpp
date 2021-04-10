@@ -12,7 +12,7 @@
 #include "Runtime/World/ScriptLoader.hpp"
 #include "Runtime/MP1/World/CMetroidBeta.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr CDamageVulnerability skGammaRedDamageVulnerability{
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Immune,
@@ -1451,4 +1451,4 @@ void CMetroid::WallHang(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

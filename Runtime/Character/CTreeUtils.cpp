@@ -5,7 +5,7 @@
 #include "Runtime/Character/CTransitionDatabaseGame.hpp"
 #include "Runtime/Character/IMetaTrans.hpp"
 
-namespace urde {
+namespace metaforce {
 
 std::shared_ptr<CAnimTreeNode> CTreeUtils::GetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,
                                                              const std::weak_ptr<CAnimTreeNode>& b,
@@ -16,4 +16,4 @@ std::shared_ptr<CAnimTreeNode> CTreeUtils::GetTransitionTree(const std::weak_ptr
       ->GetTransitionTree(a, b, animCtx);
 }
 
-} // namespace urde
+} // namespace metaforce

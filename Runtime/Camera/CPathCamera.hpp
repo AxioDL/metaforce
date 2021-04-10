@@ -3,7 +3,7 @@
 #include "Runtime/Camera/CCameraSpline.hpp"
 #include "Runtime/Camera/CGameCamera.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPathCamera : public CGameCamera {
 public:
@@ -36,4 +36,4 @@ public:
   void ClampToClosedDoor(CStateManager&);
 };
 
-} // namespace urde
+} // namespace metaforce

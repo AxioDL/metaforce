@@ -11,7 +11,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCharLayoutInfo;
 class CModel;
 class CPoseAsTransforms;
@@ -66,4 +66,4 @@ public:
   const float* GetMorphMagnitudes() const { return x40_morphMagnitudes.get(); }
 };
 
-} // namespace urde
+} // namespace metaforce

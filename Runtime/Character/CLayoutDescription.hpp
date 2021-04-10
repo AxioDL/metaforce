@@ -6,7 +6,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCharLayoutInfo;
 
 class CLayoutDescription {
@@ -40,4 +40,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

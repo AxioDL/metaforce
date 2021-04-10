@@ -14,7 +14,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CWarWasp::CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                    CModelData&& mData, const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor,
                    CPatterned::EColliderType collider, const CDamageInfo& dInfo1, const CActorParameters& actorParms,
@@ -1222,4 +1222,4 @@ bool CWarWasp::ShouldSpecialAttack(CStateManager& mgr, float arg) {
 CPathFindSearch* CWarWasp::GetSearchPath() { return &x590_pfSearch; }
 
 CProjectileInfo* CWarWasp::GetProjectileInfo() { return &x6d4_projectileInfo; }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

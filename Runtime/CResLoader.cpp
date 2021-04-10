@@ -2,7 +2,7 @@
 
 #include "Runtime/CPakFile.hpp"
 
-namespace urde {
+namespace metaforce {
 static logvisor::Module Log("CResLoader");
 
 CResLoader::CResLoader() { x48_curPak = x18_pakLoadedList.end(); }
@@ -100,7 +100,7 @@ std::shared_ptr<IDvdRequest> CResLoader::LoadResourceAsync(const SObjectTag& tag
                              x50_cachedResInfo->GetOffset());
 }
 
-std::unique_ptr<u8[]> CResLoader::LoadResourceSync(const urde::SObjectTag& tag) {
+std::unique_ptr<u8[]> CResLoader::LoadResourceSync(const metaforce::SObjectTag& tag) {
   CPakFile* file = FindResourceForLoad(tag.id);
   u32 size = ROUND_UP_32(x50_cachedResInfo->GetSize());
   std::unique_ptr<u8[]> ret(new u8[size]);
@@ -108,7 +108,7 @@ std::unique_ptr<u8[]> CResLoader::LoadResourceSync(const urde::SObjectTag& tag) 
   return ret;
 }
 
-std::unique_ptr<u8[]> CResLoader::LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size) {
+std::unique_ptr<u8[]> CResLoader::LoadNewResourcePartSync(const metaforce::SObjectTag& tag, u32 off, u32 size) {
   CPakFile* file = FindResourceForLoad(tag.id);
   std::unique_ptr<u8[]> ret(new u8[size]);
   file->SyncSeekRead(ret.get(), size, ESeekOrigin::Begin, x50_cachedResInfo->GetOffset() + off);
@@ -305,4 +305,4 @@ void CResLoader::EnumerateNamedResources(const std::function<bool(std::string_vi
         return;
 }
 
-} // namespace urde
+} // namespace metaforce

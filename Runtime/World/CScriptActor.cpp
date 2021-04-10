@@ -14,7 +14,7 @@
 
 #include <zeus/CEulerAngles.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const zeus::CAABox& aabb, float mass, float zMomentum,
@@ -202,4 +202,4 @@ std::optional<zeus::CAABox> CScriptActor::GetTouchBounds() const {
 void CScriptActor::Touch(CActor&, CStateManager&) {
   // Empty
 }
-} // namespace urde
+} // namespace metaforce

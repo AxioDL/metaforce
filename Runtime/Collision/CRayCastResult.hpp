@@ -7,7 +7,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CRayCastResult {
 public:
   enum class EInvalid : u8 { Invalid, Valid };
@@ -42,4 +42,4 @@ public:
 
   void Transform(const zeus::CTransform&);
 };
-} // namespace urde
+} // namespace metaforce

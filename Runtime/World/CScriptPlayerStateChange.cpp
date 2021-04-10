@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptPlayerStateChange::CScriptPlayerStateChange(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                    bool active, u32 itemType, u32 itemCount, u32 itemCapacity,
                                                    EControl control, EControlCommandOption controlCmdOpt)
@@ -40,4 +40,4 @@ void CScriptPlayerStateChange::AcceptScriptMsg(EScriptObjectMessage msg, TUnique
 
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 }
-} // namespace urde
+} // namespace metaforce

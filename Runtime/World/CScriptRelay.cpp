@@ -4,7 +4,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptRelay::CScriptRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active)
 : CEntity(uid, info, active, name) {}
@@ -66,4 +66,4 @@ void CScriptRelay::UpdateObjectRef(CStateManager& stateMgr) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -12,7 +12,7 @@
 #include "DNACommon/MAPU.hpp"
 #include "DNACommon/PATH.hpp"
 #include "DNACommon/TXTR.hpp"
-#include "DNACommon/URDEVersionInfo.hpp"
+#include "DNACommon/MetaforceVersionInfo.hpp"
 
 #include "hecl/ClientProcess.hpp"
 #include "hecl/Blender/Connection.hpp"
@@ -25,7 +25,7 @@ namespace DataSpec {
 
 using namespace std::literals;
 
-static logvisor::Module Log("urde::SpecMP2");
+static logvisor::Module Log("DataSpec::SpecMP2");
 extern hecl::Database::DataSpecEntry SpecEntMP2;
 extern hecl::Database::DataSpecEntry SpecEntMP2ORIG;
 
@@ -350,7 +350,7 @@ struct SpecMP2 : SpecBase {
     });
   }
 
-  urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const override { return {}; }
+  metaforce::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const override { return {}; }
 
   void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                 hecl::blender::Token& btok, FCookProgress progress) override {}

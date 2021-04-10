@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform xf,
                                      bool active, u32 flags, bool crouch, float horizontalAngle, float verticalAngle,
                                      float coverTime)
@@ -84,4 +84,4 @@ void CScriptCoverPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
   }
 }
 
-} // namespace urde
+} // namespace metaforce

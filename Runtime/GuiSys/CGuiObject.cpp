@@ -2,7 +2,7 @@
 
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CGuiObject::Update(float dt) {
   if (x68_child)
@@ -117,4 +117,4 @@ void CGuiObject::SetLocalTransform(const zeus::CTransform& xf) {
   RecalculateTransforms();
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -9,7 +9,7 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CEnvFxManager;
 class CEnvFxManagerGrid;
 
@@ -38,4 +38,4 @@ public:
                                      CEnvFxManagerGrid& grid);
 };
 
-} // namespace urde
+} // namespace metaforce

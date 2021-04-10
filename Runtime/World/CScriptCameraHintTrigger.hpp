@@ -8,7 +8,7 @@
 #include <zeus/COBBox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScriptCameraHintTrigger : public CActor {
   zeus::COBBox xe8_obb;
   zeus::CVector3f x124_scale;
@@ -28,4 +28,4 @@ public:
   void Touch(CActor& other, CStateManager& mgr) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
 };
-} // namespace urde
+} // namespace metaforce

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace urde {
+namespace metaforce {
 
 class CGrappleParameters {
   float x0_a;
@@ -35,4 +35,4 @@ public:
   bool GetLockSwingTurn() const { return x2c_lockSwingTurn; }
 };
 
-} // namespace urde
+} // namespace metaforce

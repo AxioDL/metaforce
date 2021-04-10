@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptShadowProjector::CScriptShadowProjector(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                const zeus::CTransform& xf, bool active, const zeus::CVector3f& offset,
@@ -89,4 +89,4 @@ void CScriptShadowProjector::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
 }
 
 void CScriptShadowProjector::PreRender(CStateManager&, const zeus::CFrustum&) {}
-} // namespace urde
+} // namespace metaforce

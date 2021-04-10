@@ -23,7 +23,7 @@ Everything else is much too experimental to make portable/stable release builds 
 * Extract ISO: `hecl extract [path].iso -o mp1`
   * `mp1` can be substituted with the directory name of your choice
 * Repackage game for Metaforce: `cd mp1; hecl package`
-* Run Metaforce: `urde mp1/out`
+* Run Metaforce: `metaforce mp1/out`
 
 ### Usage (Wii versions)
 
@@ -33,7 +33,7 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
   * `mpt` can be substituted with the directory name of your choice
 * Repackage game for Metaforce: `cd mpt; hecl package MP1`
   * The `MP1` parameter is important here.
-* Run Metaforce: `urde mpt/out`
+* Run Metaforce: `metaforce mpt/out`
 
 #### Metaforce options (non-exhaustive)
 

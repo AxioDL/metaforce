@@ -19,7 +19,7 @@
 #include "Runtime/GCNTypes.hpp"
 
 namespace DataSpec::DNAMP3 {
-logvisor::Module Log("urde::DNAMP3");
+logvisor::Module Log("DataSpec::DNAMP3");
 
 static bool GetNoShare(std::string_view name) {
   std::string lowerName(name);

@@ -3,7 +3,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
 
-namespace urde {
+namespace metaforce {
 
 bool CGSFreeLook::Update(CAnimData& data, float dt, CStateManager& mgr) {
   if (x4_cueAnimId != -1) {
@@ -53,4 +53,4 @@ s32 CGSFreeLook::SetAnim(CAnimData& data, s32 gunId, s32 setId, s32 loopState, C
   return anim.second;
 }
 
-} // namespace urde
+} // namespace metaforce

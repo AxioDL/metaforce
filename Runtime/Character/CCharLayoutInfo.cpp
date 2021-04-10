@@ -2,7 +2,7 @@
 
 #include "Runtime/CToken.hpp"
 
-namespace urde {
+namespace metaforce {
 
 zeus::CVector3f CCharLayoutInfo::GetFromParentUnrotated(const CSegId& id) const {
   const CCharLayoutNode::Bone& bone = x0_node->GetBoneMap()[id];
@@ -65,4 +65,4 @@ CFactoryFnReturn FCharLayoutInfo(const SObjectTag&, CInputStream& in, const CVPa
   return TToken<CCharLayoutInfo>::GetIObjObjectFor(std::make_unique<CCharLayoutInfo>(in));
 }
 
-} // namespace urde
+} // namespace metaforce

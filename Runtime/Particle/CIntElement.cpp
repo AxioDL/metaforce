@@ -9,7 +9,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Int_Elements */
 
-namespace urde {
+namespace metaforce {
 
 CIEKeyframeEmitter::CIEKeyframeEmitter(CInputStream& in) {
   x4_percent = in.readUint32Big();
@@ -299,4 +299,4 @@ int CIERealToInt::GetMaxValue() const {
   return 1;
 }
 
-} // namespace urde
+} // namespace metaforce

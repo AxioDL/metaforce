@@ -11,7 +11,7 @@
 
 #include <amuse/AudioGroupData.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CAudioGroupSet {
   std::unique_ptr<u8[]> m_buffer;
@@ -26,7 +26,7 @@ public:
   std::string_view GetName() const { return x20_name; }
 };
 
-CFactoryFnReturn FAudioGroupSetDataFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                                           const urde::CVParamTransfer& vparms, CObjectReference* selfRef);
+CFactoryFnReturn FAudioGroupSetDataFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                                           const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce

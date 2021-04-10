@@ -1,7 +1,7 @@
 #include "Runtime/GuiSys/CConsoleOutputWindow.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CConsoleOutputWindow::CConsoleOutputWindow(int, float, float) : CIOWin("Console Output Window") {}
 
@@ -13,4 +13,4 @@ void CConsoleOutputWindow::Draw() {
   //SCOPED_GRAPHICS_DEBUG_GROUP("CConsoleOutputWindow::Draw", zeus::skGreen);
 }
 
-} // namespace urde
+} // namespace metaforce

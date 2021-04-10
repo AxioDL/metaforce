@@ -60,7 +60,7 @@ enum class EUserEventType {
   EffectOff = 34
 };
 
-namespace urde {
+namespace metaforce {
 class CAnimTreeNode;
 class CAnimationManager;
 class CBoolPOINode;
@@ -252,4 +252,4 @@ public:
   void MarkPoseDirty() { x220_30_poseBuilt = false; }
 };
 
-} // namespace urde
+} // namespace metaforce

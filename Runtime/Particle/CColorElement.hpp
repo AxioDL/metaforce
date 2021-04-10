@@ -8,7 +8,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Color_Elements */
 
-namespace urde {
+namespace metaforce {
 
 class CCEKeyframeEmitter : public CColorElement {
   u32 x4_percent;
@@ -97,4 +97,4 @@ class CCEParticleColor : public CColorElement {
 public:
   bool GetValue(int frame, zeus::CColor& colorOut) const override;
 };
-} // namespace urde
+} // namespace metaforce

@@ -8,7 +8,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CDamageInfo;
 namespace MP1 {
 class CWarWasp : public CPatterned {
@@ -119,4 +119,4 @@ public:
   CProjectileInfo* GetProjectileInfo() override;
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

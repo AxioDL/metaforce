@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 
 template <class S>
 void CCameraFilterPass<S>::Update(float dt) {
@@ -224,4 +224,4 @@ void CCameraBlurPass::SetBlur(EBlurType type, float amount, float duration) {
 
 void CCameraBlurPass::DisableBlur(float duration) { SetBlur(EBlurType::NoBlur, 0.f, duration); }
 
-} // namespace urde
+} // namespace metaforce

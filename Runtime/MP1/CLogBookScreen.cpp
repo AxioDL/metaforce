@@ -11,7 +11,7 @@
 #include "Runtime/MP1/CArtifactDoll.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CLogBookScreen::CLogBookScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg)
 : CPauseScreenBase(mgr, frame, pauseStrg, true) {
@@ -440,4 +440,4 @@ bool CLogBookScreen::ShouldRightTableAdvance() const {
 
 u32 CLogBookScreen::GetRightTableCount() const { return x1f0_curViewScans.size(); }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

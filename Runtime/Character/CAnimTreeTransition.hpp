@@ -6,7 +6,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Character/CAnimTreeTweenBase.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimTreeTransition : public CAnimTreeTweenBase {
 protected:
@@ -36,4 +36,4 @@ public:
   void SetBlendingWeight(float w) override;
   float VGetBlendingWeight() const override;
 };
-} // namespace urde
+} // namespace metaforce

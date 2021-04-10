@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptCameraShaker::CScriptCameraShaker(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                                          const CCameraShakeData& shakeData)
@@ -38,4 +38,4 @@ void CScriptCameraShaker::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId ob
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 }
 
-} // namespace urde
+} // namespace metaforce

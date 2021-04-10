@@ -7,7 +7,7 @@
 #include "Runtime/CIOWin.hpp"
 #include "Runtime/rstl.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CIOWinManager {
   struct IOWinPQNode {
@@ -37,4 +37,4 @@ public:
   bool IsEmpty() const { return x0_drawRoot == nullptr && x4_pumpRoot == nullptr; }
 };
 
-} // namespace urde
+} // namespace metaforce

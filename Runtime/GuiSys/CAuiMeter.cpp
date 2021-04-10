@@ -5,7 +5,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CAuiMeter::CAuiMeter(const CGuiWidgetParms& parms, bool noRoundUp, u32 maxCapacity, u32 workerCount)
 : CGuiGroup(parms, 0, false), xc4_noRoundUp(noRoundUp), xc8_maxCapacity(maxCapacity), xcc_capacity(maxCapacity) {
@@ -98,4 +98,4 @@ std::shared_ptr<CGuiWidget> CAuiMeter::Create(CGuiFrame* frame, CInputStream& in
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

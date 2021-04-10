@@ -19,7 +19,7 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector2i.hpp>
 
-namespace urde {
+namespace metaforce {
 class CGlyph;
 class CGraphicsPalette;
 class CRasterFont;
@@ -115,4 +115,4 @@ public:
   std::pair<zeus::CVector2i, zeus::CVector2i> AccumulateTextBounds() const;
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -3,7 +3,7 @@
 #include <string_view>
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 class CScannableParameters;
 
 class CScriptPointOfInterest : public CActor {
@@ -22,4 +22,4 @@ public:
   void CalculateRenderBounds() override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
 };
-} // namespace urde
+} // namespace metaforce

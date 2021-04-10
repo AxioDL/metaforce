@@ -7,7 +7,7 @@
 
 #include <chrono>
 
-namespace urde {
+namespace metaforce {
 
 int CParticleSwoosh::g_ParticleSystemAliveCount = 0;
 
@@ -1084,4 +1084,4 @@ void CParticleSwoosh::DestroyParticles() {
   // Empty
 }
 
-} // namespace urde
+} // namespace metaforce

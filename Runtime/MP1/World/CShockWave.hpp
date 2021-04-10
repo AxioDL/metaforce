@@ -4,7 +4,7 @@
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 struct SShockWaveData {
 private:
   u32 x0_ = 8;
@@ -71,4 +71,4 @@ public:
 private:
   [[nodiscard]] bool IsHit(TUniqueId id) const;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -10,7 +10,7 @@
 #include "Runtime/MP1/CSaveGameScreenTouchBar.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CGuiTableGroup;
 class CGuiTextPane;
 class CSaveWorld;
@@ -112,4 +112,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

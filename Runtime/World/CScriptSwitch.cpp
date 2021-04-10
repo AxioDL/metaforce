@@ -4,7 +4,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptSwitch::CScriptSwitch(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active, bool opened,
                              bool closeOnOpened)
 : CEntity(uid, info, active, name), x34_opened(opened), x35_closeOnOpened(closeOnOpened) {}
@@ -30,4 +30,4 @@ void CScriptSwitch::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, C
 
   CEntity::AcceptScriptMsg(msg, objId, mgr);
 }
-} // namespace urde
+} // namespace metaforce

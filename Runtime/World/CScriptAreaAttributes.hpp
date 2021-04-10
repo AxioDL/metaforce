@@ -3,7 +3,7 @@
 #include "Runtime/World/CEntity.hpp"
 #include "Runtime/World/CEnvFxManager.hpp"
 
-namespace urde {
+namespace metaforce {
 class CScriptAreaAttributes : public CEntity {
   bool x34_24_showSkybox : 1;
   EEnvFxType x38_envFx;
@@ -32,4 +32,4 @@ public:
   float GetWorldLightingLevel() const { return x48_worldLightingLevel; }
   EPhazonType GetPhazonType() const { return x50_phazon; }
 };
-} // namespace urde
+} // namespace metaforce

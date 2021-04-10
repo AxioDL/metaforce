@@ -18,7 +18,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector2i.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActor;
 class CStateManager;
 class CTexture;
@@ -150,4 +150,4 @@ public:
   static void Initialize();
 };
 
-} // namespace urde
+} // namespace metaforce

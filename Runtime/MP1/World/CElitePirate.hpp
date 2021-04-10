@@ -10,7 +10,7 @@
 #include "Runtime/World/CPathFindSearch.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CElitePirateData {
 private:
   float x0_tauntInterval;
@@ -243,4 +243,4 @@ private:
                                 const zeus::CVector3f& projectilePos) const;
   void ShakeCamera(CStateManager& mgr);
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

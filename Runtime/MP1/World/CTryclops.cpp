@@ -12,7 +12,7 @@
 
 #include <cmath>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 const CDamageVulnerability CTryclops::skVulnerabilities = CDamageVulnerability(
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Normal, EVulnerability::Deflect, EVulnerability::Deflect,
@@ -661,4 +661,4 @@ bool CTryclops::sub8025dbd0(CStateManager& mgr) {
   return false;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

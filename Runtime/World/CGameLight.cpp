@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CGameLight::CGameLight(TUniqueId uid, TAreaId aid, bool active, std::string_view name, const zeus::CTransform& xf,
                        TUniqueId parentId, const CLight& light, u32 sourceId, u32 priority, float lifeTime)
@@ -82,4 +82,4 @@ void CGameLight::DebugDraw() {
     m_debugModel->Render(CModelData::EWhichModel::Normal, x34_transform, nullptr, modelFlags);
   }
 }
-} // namespace urde
+} // namespace metaforce

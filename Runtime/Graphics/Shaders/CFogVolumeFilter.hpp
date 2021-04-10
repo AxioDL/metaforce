@@ -12,7 +12,7 @@ namespace zeus {
 class CColor;
 }
 
-namespace urde {
+namespace metaforce {
 
 class CFogVolumeFilter {
   boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
@@ -28,4 +28,4 @@ public:
   void draw1WayPass(const zeus::CColor& color);
 };
 
-} // namespace urde
+} // namespace metaforce

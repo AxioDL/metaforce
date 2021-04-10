@@ -10,7 +10,7 @@
 #include "Runtime/World/CGameArea.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-namespace urde {
+namespace metaforce {
 constexpr std::array<zeus::CVector3f, 3> MinesPostTransforms{{
     {0.f, 0.f, 200.f},
     {0.f, 0.f, 0.f},
@@ -304,4 +304,4 @@ CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, con
   return TToken<CMapArea>::GetIObjObjectFor(std::make_unique<CMapArea>(in, size));
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -27,7 +27,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActorLights;
 class CArchitectureQueue;
 class CAutoMapper;
@@ -138,4 +138,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

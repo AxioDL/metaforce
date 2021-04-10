@@ -3,7 +3,7 @@
 #include "Runtime/Character/CAnimationDatabaseGame.hpp"
 #include "Runtime/Character/IMetaAnim.hpp"
 
-namespace urde {
+namespace metaforce {
 
 const CAnimationDatabaseGame* CAnimationManager::GetAnimationDatabase() const { return x0_animDB.GetObj(); }
 
@@ -17,4 +17,4 @@ const std::shared_ptr<IMetaAnim>& CAnimationManager::GetMetaAnimation(s32 idx) c
   return x0_animDB->GetMetaAnim(idx);
 }
 
-} // namespace urde
+} // namespace metaforce

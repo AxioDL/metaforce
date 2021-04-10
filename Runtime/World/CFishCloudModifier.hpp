@@ -2,7 +2,7 @@
 
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 class CFishCloudModifier : public CActor {
   float xe8_radius;
   float xec_priority;
@@ -19,4 +19,4 @@ public:
   void AddSelf(CStateManager&);
   void RemoveSelf(CStateManager&);
 };
-} // namespace urde
+} // namespace metaforce

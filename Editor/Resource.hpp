@@ -3,7 +3,7 @@
 #include "hecl/Database.hpp"
 #include "Space.hpp"
 
-namespace urde {
+namespace metaforce {
 
 /** Combines a ProjectPath with actively used Space references
  *
@@ -43,4 +43,4 @@ private:
   std::unique_ptr<Node> m_rootNode;
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -10,7 +10,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class IAnimReader;
 class IObjectStore;
 
@@ -48,4 +48,4 @@ public:
 CFactoryFnReturn AnimSourceFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params,
                                    CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce

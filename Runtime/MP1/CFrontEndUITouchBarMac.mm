@@ -25,15 +25,15 @@ static NSColor* HardModeColor()
     return [NSColor redColor];
 }
 
-static NSColor* FileColor(const urde::CFrontEndUITouchBar::SFileSelectDetail& detail)
+static NSColor* FileColor(const metaforce::CFrontEndUITouchBar::SFileSelectDetail& detail)
 {
     switch (detail.state)
     {
-    case urde::CFrontEndUITouchBar::EFileState::New:
+    case metaforce::CFrontEndUITouchBar::EFileState::New:
         return [NSColor darkGrayColor];
-    case urde::CFrontEndUITouchBar::EFileState::Normal:
+    case metaforce::CFrontEndUITouchBar::EFileState::Normal:
         return NormalModeColor();
-    case urde::CFrontEndUITouchBar::EFileState::Hard:
+    case metaforce::CFrontEndUITouchBar::EFileState::Hard:
         return HardModeColor();
     }
 }
@@ -92,7 +92,7 @@ static NSColor* FileColor(const urde::CFrontEndUITouchBar::SFileSelectDetail& de
 @interface FrontEndUITouchBarProceedBack : NSObject <NSTouchBarDelegate>
 {
 @public
-    urde::CFrontEndUITouchBar::EAction _action;
+    metaforce::CFrontEndUITouchBar::EAction _action;
 }
 -(IBAction)onBack:(id)sender;
 -(IBAction)onProceed:(id)sender;
@@ -143,18 +143,18 @@ static NSColor* FileColor(const urde::CFrontEndUITouchBar::SFileSelectDetail& de
 }
 -(IBAction)onBack:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::Back;
+    _action = metaforce::CFrontEndUITouchBar::EAction::Back;
 }
 -(IBAction)onProceed:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::Confirm;
+    _action = metaforce::CFrontEndUITouchBar::EAction::Confirm;
 }
 @end
 
 @interface FrontEndUITouchBarStartOptions : NSObject <NSTouchBarDelegate>
 {
 @public
-    urde::CFrontEndUITouchBar::EAction _action;
+    metaforce::CFrontEndUITouchBar::EAction _action;
     BOOL _normalBeat;
 }
 -(IBAction)onStart:(id)sender;
@@ -233,30 +233,30 @@ static NSColor* FileColor(const urde::CFrontEndUITouchBar::SFileSelectDetail& de
 }
 -(IBAction)onStart:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::Start;
+    _action = metaforce::CFrontEndUITouchBar::EAction::Start;
 }
 -(IBAction)onNormal:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::Normal;
+    _action = metaforce::CFrontEndUITouchBar::EAction::Normal;
 }
 -(IBAction)onHard:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::Hard;
+    _action = metaforce::CFrontEndUITouchBar::EAction::Hard;
 }
 -(IBAction)onOptions:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::Options;
+    _action = metaforce::CFrontEndUITouchBar::EAction::Options;
 }
 -(IBAction)onCancel:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::Back;
+    _action = metaforce::CFrontEndUITouchBar::EAction::Back;
 }
 @end
 
 @interface FrontEndUITouchBarEraseBack : NSObject <NSTouchBarDelegate>
 {
 @public
-    urde::CFrontEndUITouchBar::EAction _action;
+    metaforce::CFrontEndUITouchBar::EAction _action;
 }
 -(IBAction)onCancel:(id)sender;
 -(IBAction)onErase:(id)sender;
@@ -306,23 +306,23 @@ static NSColor* FileColor(const urde::CFrontEndUITouchBar::SFileSelectDetail& de
 }
 -(IBAction)onCancel:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::Back;
+    _action = metaforce::CFrontEndUITouchBar::EAction::Back;
 }
 -(IBAction)onErase:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::Confirm;
+    _action = metaforce::CFrontEndUITouchBar::EAction::Confirm;
 }
 @end
 
-static NSString* GetFileSelectTitle(const urde::CFrontEndUITouchBar::SFileSelectDetail& detail, char letter)
+static NSString* GetFileSelectTitle(const metaforce::CFrontEndUITouchBar::SFileSelectDetail& detail, char letter)
 {
     switch (detail.state)
     {
-    case urde::CFrontEndUITouchBar::EFileState::New:
+    case metaforce::CFrontEndUITouchBar::EFileState::New:
         return [NSString stringWithFormat:@"[New Game %c]", letter];
-    case urde::CFrontEndUITouchBar::EFileState::Normal:
+    case metaforce::CFrontEndUITouchBar::EFileState::Normal:
         return [NSString stringWithFormat:@"[Samus %c] %d%%", letter, detail.percent];
-    case urde::CFrontEndUITouchBar::EFileState::Hard:
+    case metaforce::CFrontEndUITouchBar::EFileState::Hard:
         return [NSString stringWithFormat:@"[Hard %c] %d%%", letter, detail.percent];
     }
     return @"";
@@ -331,8 +331,8 @@ static NSString* GetFileSelectTitle(const urde::CFrontEndUITouchBar::SFileSelect
 @interface FrontEndUITouchBarFileSelect : NSObject <NSTouchBarDelegate>
 {
 @public
-    urde::CFrontEndUITouchBar::SFileSelectDetail _details[3];
-    urde::CFrontEndUITouchBar::EAction _action;
+    metaforce::CFrontEndUITouchBar::SFileSelectDetail _details[3];
+    metaforce::CFrontEndUITouchBar::EAction _action;
     BOOL _eraseGame;
     BOOL _galleryActive;
 }
@@ -374,7 +374,7 @@ static NSString* GetFileSelectTitle(const urde::CFrontEndUITouchBar::SFileSelect
         NSCustomTouchBarItem* item = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
         NSButton* button = [NSButton buttonWithTitle:GetFileSelectTitle(_details[0], 'A') target:self action:@selector(onFileA:)];
         button.bezelColor = FileColor(_details[0]);
-        button.enabled = !_eraseGame || _details[0].state != urde::CFrontEndUITouchBar::EFileState::New;
+        button.enabled = !_eraseGame || _details[0].state != metaforce::CFrontEndUITouchBar::EFileState::New;
         item.view = button;
         return item;
     }
@@ -383,7 +383,7 @@ static NSString* GetFileSelectTitle(const urde::CFrontEndUITouchBar::SFileSelect
         NSCustomTouchBarItem* item = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
         NSButton* button = [NSButton buttonWithTitle:GetFileSelectTitle(_details[1], 'B') target:self action:@selector(onFileB:)];
         button.bezelColor = FileColor(_details[1]);
-        button.enabled = !_eraseGame || _details[1].state != urde::CFrontEndUITouchBar::EFileState::New;
+        button.enabled = !_eraseGame || _details[1].state != metaforce::CFrontEndUITouchBar::EFileState::New;
         item.view = button;
         return item;
     }
@@ -392,7 +392,7 @@ static NSString* GetFileSelectTitle(const urde::CFrontEndUITouchBar::SFileSelect
         NSCustomTouchBarItem* item = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
         NSButton* button = [NSButton buttonWithTitle:GetFileSelectTitle(_details[2], 'C') target:self action:@selector(onFileC:)];
         button.bezelColor = FileColor(_details[2]);
-        button.enabled = !_eraseGame || _details[2].state != urde::CFrontEndUITouchBar::EFileState::New;
+        button.enabled = !_eraseGame || _details[2].state != metaforce::CFrontEndUITouchBar::EFileState::New;
         item.view = button;
         return item;
     }
@@ -405,7 +405,7 @@ static NSString* GetFileSelectTitle(const urde::CFrontEndUITouchBar::SFileSelect
                                                   target:self action:@selector(onErase:)];
             bool hasSave = false;
             for (int i=0 ; i<3 ; ++i)
-                if (_details[i].state != urde::CFrontEndUITouchBar::EFileState::New)
+                if (_details[i].state != metaforce::CFrontEndUITouchBar::EFileState::New)
                 {
                     hasSave = true;
                     break;
@@ -441,37 +441,37 @@ static NSString* GetFileSelectTitle(const urde::CFrontEndUITouchBar::SFileSelect
 }
 -(IBAction)onFileA:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::FileA;
+    _action = metaforce::CFrontEndUITouchBar::EAction::FileA;
 }
 -(IBAction)onFileB:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::FileB;
+    _action = metaforce::CFrontEndUITouchBar::EAction::FileB;
 }
 -(IBAction)onFileC:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::FileC;
+    _action = metaforce::CFrontEndUITouchBar::EAction::FileC;
 }
 -(IBAction)onErase:(id)sender
 {
     if (!_eraseGame)
-        _action = urde::CFrontEndUITouchBar::EAction::Erase;
+        _action = metaforce::CFrontEndUITouchBar::EAction::Erase;
     else
-        _action = urde::CFrontEndUITouchBar::EAction::Back;
+        _action = metaforce::CFrontEndUITouchBar::EAction::Back;
 }
 -(IBAction)onFusionBonus:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::FusionBonus;
+    _action = metaforce::CFrontEndUITouchBar::EAction::FusionBonus;
 }
 -(IBAction)onImageGallery:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::ImageGallery;
+    _action = metaforce::CFrontEndUITouchBar::EAction::ImageGallery;
 }
 @end
 
 @interface FrontEndUITouchBarNoCardSelect : NSObject <NSTouchBarDelegate>
 {
 @public
-    urde::CFrontEndUITouchBar::EAction _action;
+    metaforce::CFrontEndUITouchBar::EAction _action;
     BOOL _galleryActive;
 }
 -(IBAction)onStart:(id)sender;
@@ -539,26 +539,26 @@ static NSString* GetFileSelectTitle(const urde::CFrontEndUITouchBar::SFileSelect
 }
 -(IBAction)onStart:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::Start;
+    _action = metaforce::CFrontEndUITouchBar::EAction::Start;
 }
 -(IBAction)onOptions:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::Options;
+    _action = metaforce::CFrontEndUITouchBar::EAction::Options;
 }
 -(IBAction)onFusionBonus:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::FusionBonus;
+    _action = metaforce::CFrontEndUITouchBar::EAction::FusionBonus;
 }
 -(IBAction)onImageGallery:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::ImageGallery;
+    _action = metaforce::CFrontEndUITouchBar::EAction::ImageGallery;
 }
 @end
 
 @interface FrontEndUITouchBarFusionBonus : NSObject <NSTouchBarDelegate>
 {
 @public
-    urde::CFrontEndUITouchBar::EAction _action;
+    metaforce::CFrontEndUITouchBar::EAction _action;
     BOOL _fusionSuitActive;
 }
 -(IBAction)onNESMetroid:(id)sender;
@@ -619,19 +619,19 @@ static NSString* GetFileSelectTitle(const urde::CFrontEndUITouchBar::SFileSelect
 }
 -(IBAction)onNESMetroid:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::NESMetroid;
+    _action = metaforce::CFrontEndUITouchBar::EAction::NESMetroid;
 }
 -(IBAction)onFusionSuit:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::FusionSuit;
+    _action = metaforce::CFrontEndUITouchBar::EAction::FusionSuit;
 }
 -(IBAction)onBack:(id)sender
 {
-    _action = urde::CFrontEndUITouchBar::EAction::Back;
+    _action = metaforce::CFrontEndUITouchBar::EAction::Back;
 }
 @end
 
-namespace urde
+namespace metaforce
 {
 
 class CFrontEndUITouchBarMac : public CFrontEndUITouchBar

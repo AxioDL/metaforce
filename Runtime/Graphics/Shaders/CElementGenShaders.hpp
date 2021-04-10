@@ -4,7 +4,7 @@
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
-namespace urde {
+namespace metaforce {
 class CElementGen;
 
 class CElementGenShaders {
@@ -47,4 +47,4 @@ public:
   static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CElementGen& gen);
 };
 
-} // namespace urde
+} // namespace metaforce

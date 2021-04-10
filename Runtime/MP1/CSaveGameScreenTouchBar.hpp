@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CSaveGameScreenTouchBar {
 public:
@@ -15,4 +15,4 @@ public:
 
 std::unique_ptr<CSaveGameScreenTouchBar> NewSaveUITouchBar();
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

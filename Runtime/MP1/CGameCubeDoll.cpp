@@ -4,7 +4,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CBooRenderer.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CGameCubeDoll::CGameCubeDoll() {
   x0_model = g_SimplePool->GetObj("CMDL_GameCube");
@@ -56,4 +56,4 @@ bool CGameCubeDoll::CheckLoadComplete() {
   return false;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

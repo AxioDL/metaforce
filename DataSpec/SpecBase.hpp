@@ -57,7 +57,7 @@ struct SpecBase : hecl::Database::IDataSpec {
   virtual bool extractFromDisc(nod::DiscBase& disc, bool force, const hecl::MultiProgressPrinter& progress) = 0;
 
   /* Convert path to object tag */
-  virtual urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const = 0;
+  virtual metaforce::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const = 0;
 
   /* Even if PC spec is being cooked, this will return the vanilla GCN spec */
   virtual const hecl::Database::DataSpecEntry& getOriginalSpec() const = 0;
@@ -121,15 +121,15 @@ struct SpecBase : hecl::Database::IDataSpec {
 
   virtual void buildWorldPakList(const hecl::ProjectPath& worldPath, const hecl::ProjectPath& worldPathCooked,
                                  hecl::blender::Token& btok, athena::io::FileWriter& w,
-                                 std::vector<urde::SObjectTag>& listOut, atUint64& resTableOffset,
-                                 std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData) {}
+                                 std::vector<metaforce::SObjectTag>& listOut, atUint64& resTableOffset,
+                                 std::unordered_map<metaforce::CAssetId, std::vector<uint8_t>>& mlvlData) {}
   virtual void buildPakList(hecl::blender::Token& btok, athena::io::FileWriter& w,
-                            const std::vector<urde::SObjectTag>& list,
-                            const std::vector<std::pair<urde::SObjectTag, std::string>>& nameList,
+                            const std::vector<metaforce::SObjectTag>& list,
+                            const std::vector<std::pair<metaforce::SObjectTag, std::string>>& nameList,
                             atUint64& resTableOffset) {}
-  virtual void writePakFileIndex(athena::io::FileWriter& w, const std::vector<urde::SObjectTag>& tags,
+  virtual void writePakFileIndex(athena::io::FileWriter& w, const std::vector<metaforce::SObjectTag>& tags,
                                  const std::vector<std::tuple<size_t, size_t, bool>>& index, atUint64 resTableOffset) {}
-  virtual std::pair<std::unique_ptr<uint8_t[]>, size_t> compressPakData(const urde::SObjectTag& tag,
+  virtual std::pair<std::unique_ptr<uint8_t[]>, size_t> compressPakData(const metaforce::SObjectTag& tag,
                                                                         const uint8_t* data, size_t len) {
     return {};
   }
@@ -149,19 +149,19 @@ struct SpecBase : hecl::Database::IDataSpec {
   void extractRandomStaticEntropy(const uint8_t* buf, const hecl::ProjectPath& pakPath);
 
   /* Tag cache functions */
-  urde::SObjectTag tagFromPath(const hecl::ProjectPath& path) const;
-  hecl::ProjectPath pathFromTag(const urde::SObjectTag& tag) const;
-  bool waitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut);
-  const urde::SObjectTag* getResourceIdByName(std::string_view name) const;
-  hecl::FourCC getResourceTypeById(urde::CAssetId id) const;
-  void enumerateResources(const std::function<bool(const urde::SObjectTag&)>& lambda) const;
-  void enumerateNamedResources(const std::function<bool(std::string_view, const urde::SObjectTag&)>& lambda) const;
+  metaforce::SObjectTag tagFromPath(const hecl::ProjectPath& path) const;
+  hecl::ProjectPath pathFromTag(const metaforce::SObjectTag& tag) const;
+  bool waitForTagReady(const metaforce::SObjectTag& tag, const hecl::ProjectPath*& pathOut);
+  const metaforce::SObjectTag* getResourceIdByName(std::string_view name) const;
+  hecl::FourCC getResourceTypeById(metaforce::CAssetId id) const;
+  void enumerateResources(const std::function<bool(const metaforce::SObjectTag&)>& lambda) const;
+  void enumerateNamedResources(const std::function<bool(std::string_view, const metaforce::SObjectTag&)>& lambda) const;
   void cancelBackgroundIndex();
   void beginBackgroundIndex();
   bool backgroundIndexRunning() const { return m_backgroundRunning; }
   void waitForIndexComplete() const;
 
-  virtual void getTagListForFile(const char* pakName, std::vector<urde::SObjectTag>& out) const {}
+  virtual void getTagListForFile(const char* pakName, std::vector<metaforce::SObjectTag>& out) const {}
 
   SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc);
   ~SpecBase();
@@ -171,10 +171,10 @@ protected:
   bool m_pc;
   hecl::ProjectPath m_masterShader;
 
-  std::unordered_multimap<urde::SObjectTag, hecl::ProjectPath> m_tagToPath;
-  std::unordered_map<hecl::Hash, urde::SObjectTag> m_pathToTag;
-  std::unordered_map<std::string, urde::SObjectTag> m_catalogNameToTag;
-  std::unordered_map<urde::SObjectTag, std::unordered_set<std::string>> m_catalogTagToNames;
+  std::unordered_multimap<metaforce::SObjectTag, hecl::ProjectPath> m_tagToPath;
+  std::unordered_map<hecl::Hash, metaforce::SObjectTag> m_pathToTag;
+  std::unordered_map<std::string, metaforce::SObjectTag> m_catalogNameToTag;
+  std::unordered_map<metaforce::SObjectTag, std::unordered_set<std::string>> m_catalogTagToNames;
   void clearTagCache();
 
   hecl::blender::Token m_backgroundBlender;
@@ -183,7 +183,7 @@ protected:
   bool m_backgroundRunning = false;
 
   void readCatalog(const hecl::ProjectPath& catalogPath, athena::io::YAMLDocWriter& nameWriter);
-  void insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const urde::SObjectTag& tag, const hecl::ProjectPath& path,
+  void insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const metaforce::SObjectTag& tag, const hecl::ProjectPath& path,
                      bool dump = true);
   bool addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDocWriter& cacheWriter);
   void backgroundIndexRecursiveProc(const hecl::ProjectPath& path, athena::io::YAMLDocWriter& cacheWriter,
@@ -192,13 +192,13 @@ protected:
                                         int level);
   void backgroundIndexProc();
 
-  void recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut,
-                                  std::unordered_set<urde::SObjectTag>& addedTags, const hecl::ProjectPath& path,
+  void recursiveBuildResourceList(std::vector<metaforce::SObjectTag>& listOut,
+                                  std::unordered_set<metaforce::SObjectTag>& addedTags, const hecl::ProjectPath& path,
                                   hecl::blender::Token& btok);
   void copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& fileIndex,
-                         const std::vector<urde::SObjectTag>& buildList, const hecl::Database::DataSpecEntry* entry,
+                         const std::vector<metaforce::SObjectTag>& buildList, const hecl::Database::DataSpecEntry* entry,
                          bool fast, const hecl::MultiProgressPrinter& progress, athena::io::FileWriter& pakOut,
-                         const std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData);
+                         const std::unordered_map<metaforce::CAssetId, std::vector<uint8_t>>& mlvlData);
 
   std::unique_ptr<nod::DiscBase> m_disc;
   bool m_isWii{};

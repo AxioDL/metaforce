@@ -9,7 +9,7 @@
 #include <zeus/CUnitVector.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CRandom16;
 class CSkinRules;
 
@@ -34,4 +34,4 @@ public:
   void Update(float) {}
 };
 
-} // namespace urde
+} // namespace metaforce

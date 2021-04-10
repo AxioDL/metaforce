@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CBodyController::CBodyController(CActor& actor, float turnSpeed, EBodyType bodyType)
 : x0_actor(actor)
@@ -289,4 +289,4 @@ void CBodyController::FrozenBreakout() {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

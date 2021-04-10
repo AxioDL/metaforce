@@ -18,7 +18,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 
-namespace urde {
+namespace metaforce {
 
 static rstl::reserved_vector<zeus::CVector2f, 256> g_SnowForces;
 
@@ -607,4 +607,4 @@ void CEnvFxManager::Initialize() {
     g_SnowForces.push_back(r.readVec2fBig());
 }
 
-} // namespace urde
+} // namespace metaforce

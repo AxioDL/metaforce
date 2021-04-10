@@ -2,7 +2,7 @@
 
 #include "Runtime/GuiSys/CRasterFont.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CFontRenderState::CFontRenderState() {
   x54_colors[0] = zeus::skWhite;
@@ -81,4 +81,4 @@ void CFontRenderState::RefreshColor(EColorType tp) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

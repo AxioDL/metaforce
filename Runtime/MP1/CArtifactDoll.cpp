@@ -13,7 +13,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CTransform.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::array ArtifactPieceModels{
     "CMDL_Piece1",  // Truth
@@ -177,4 +177,4 @@ bool CArtifactDoll::CheckLoadComplete() {
   return true;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

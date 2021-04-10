@@ -2,7 +2,7 @@
 
 #include "Runtime/CIOWin.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CMFGameBase : public CIOWin {
 public:
@@ -14,4 +14,4 @@ public:
   explicit CMFGameLoaderBase(const char* name) : CIOWin(name) {}
 };
 
-} // namespace urde
+} // namespace metaforce

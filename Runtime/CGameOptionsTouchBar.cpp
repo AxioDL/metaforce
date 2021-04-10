@@ -1,6 +1,6 @@
 #include "Runtime/CGameOptionsTouchBar.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGameOptionsTouchBar::EAction CGameOptionsTouchBar::PopAction() { return EAction::None; }
 
@@ -17,4 +17,4 @@ void CGameOptionsTouchBar::SetSelection([[maybe_unused]] int left, [[maybe_unuse
 std::unique_ptr<CGameOptionsTouchBar> NewGameOptionsTouchBar() { return std::make_unique<CGameOptionsTouchBar>(); }
 #endif
 
-} // namespace urde
+} // namespace metaforce

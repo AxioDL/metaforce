@@ -18,7 +18,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CFluidPlane;
 
 struct SRiders {
@@ -119,4 +119,4 @@ public:
 
   void DebugDraw();
 };
-} // namespace urde
+} // namespace metaforce

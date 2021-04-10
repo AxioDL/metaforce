@@ -5,7 +5,7 @@
 #include "CArchitectureMessage.hpp"
 
 #include "zeus/CColor.hpp"
-namespace urde {
+namespace metaforce {
 extern CSimplePool* g_simplePool;
 namespace MP1 {
 static const char* SplashTextures[] = {"TXTR_NintendLogo", "TXTR_RetroLogo", "TXTR_DolbyLogo"};
@@ -64,4 +64,4 @@ void CSplashScreen::Draw() const {
 }
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

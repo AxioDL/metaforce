@@ -26,7 +26,7 @@
 
 #include <DataSpec/DNAMP1/SFX/IceWorld.h>
 #include <DataSpec/DNAMP1/SFX/Thardus.h>
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::array<SSphereJointInfo, 7> skDamageableSphereJointInfoList1{{
     {"R_knee", 1.f},
@@ -1181,7 +1181,7 @@ bool CThardus::ShouldTurn(CStateManager& mgr, float arg) {
 }
 bool CThardus::HitSomething(CStateManager& mgr, float arg) { return mgr.GetPlayer().GetFrozenState(); }
 
-void CThardus::GatherWaypoints(urde::CScriptWaypoint* wp, urde::CStateManager& mgr,
+void CThardus::GatherWaypoints(metaforce::CScriptWaypoint* wp, metaforce::CStateManager& mgr,
                                rstl::reserved_vector<TUniqueId, 16>& uids) {
   if (uids.size() < uids.capacity() && wp->GetActive()) {
     uids.push_back(wp->GetUniqueId());
@@ -1349,7 +1349,7 @@ void CThardus::sub801dbbdc(CStateManager& mgr, CDestroyableRock* rock) {
 }
 
 void CThardus::UpdateNonDestroyableCollisionActorMaterials(EUpdateMaterialMode mode, EMaterialTypes mat,
-                                                           urde::CStateManager& mgr) {
+                                                           metaforce::CStateManager& mgr) {
   for (const auto& uid : x634_nonDestroyableActors) {
     if (TCastToPtr<CCollisionActor> col = mgr.ObjectById(uid)) {
       if (mode == EUpdateMaterialMode::Remove) {
@@ -1594,4 +1594,4 @@ zeus::CVector2f CThardus::sub801dc60c(float arg, CStateManager& mgr) {
 
   return ret;
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -6,7 +6,7 @@
 #include "Runtime/Input/ControlMapper.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptControllerAction : public CEntity {
   ControlMapper::ECommands x34_command;
@@ -22,4 +22,4 @@ public:
   void Think(float, CStateManager&) override;
 };
 
-} // namespace urde
+} // namespace metaforce

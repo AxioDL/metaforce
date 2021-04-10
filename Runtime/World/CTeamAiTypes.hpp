@@ -1,7 +1,7 @@
 #pragma once
 
-namespace urde {
+namespace metaforce {
 
 class CTeamAiTypes {};
 
-} // namespace urde
+} // namespace metaforce

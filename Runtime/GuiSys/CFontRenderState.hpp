@@ -7,7 +7,7 @@
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 #include "Runtime/GuiSys/CSaveableState.hpp"
 
-namespace urde {
+namespace metaforce {
 class CBlockInstruction;
 class CLineInstruction;
 
@@ -38,4 +38,4 @@ public:
   void RefreshColor(EColorType tp);
 };
 
-} // namespace urde
+} // namespace metaforce

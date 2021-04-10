@@ -3,7 +3,7 @@
 #include "specter/Icon.hpp"
 #include "specter/ViewResources.hpp"
 
-namespace urde {
+namespace metaforce {
 void InitializeIcons(specter::ViewResources& viewRes);
 void DestroyIcons();
 
@@ -30,4 +30,4 @@ enum class MonoIcon {
 };
 specter::Icon& GetIcon(MonoIcon icon);
 
-} // namespace urde
+} // namespace metaforce

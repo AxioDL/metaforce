@@ -1,6 +1,6 @@
 #include "Runtime/Character/CAnimTreeDoubleChild.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAnimTreeDoubleChild::CAnimTreeDoubleChild(const std::weak_ptr<CAnimTreeNode>& a, const std::weak_ptr<CAnimTreeNode>& b,
                                            std::string_view name)
@@ -157,4 +157,4 @@ void CAnimTreeDoubleChild::VGetWeightedReaders(
   x18_b->VGetWeightedReaders(out, w);
 }
 
-} // namespace urde
+} // namespace metaforce

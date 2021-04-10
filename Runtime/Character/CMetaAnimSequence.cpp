@@ -3,7 +3,7 @@
 #include "Runtime/Character/CAnimTreeSequence.hpp"
 #include "Runtime/Character/CMetaAnimFactory.hpp"
 
-namespace urde {
+namespace metaforce {
 
 std::vector<std::shared_ptr<IMetaAnim>> CMetaAnimSequence::CreateSequence(CInputStream& in) {
   std::vector<std::shared_ptr<IMetaAnim>> ret;
@@ -41,4 +41,4 @@ std::shared_ptr<CAnimTreeNode> CMetaAnimSequence::VGetAnimationTree(const CAnimS
   return std::make_shared<CAnimTreeSequence>(x4_sequence, animSys, "");
 }
 
-} // namespace urde
+} // namespace metaforce

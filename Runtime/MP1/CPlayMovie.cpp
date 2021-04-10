@@ -1,6 +1,6 @@
 #include "Runtime/MP1/CPlayMovie.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 const char* kMovies[] = {"Video/wingame.thp",       "Video/wingame_best.thp",  "Video/wingame_best.thp",
                          "Video/losegame.thp",      "Video/05_tallonText.thp", "Video/AfterCredits.thp",
@@ -12,4 +12,4 @@ CPlayMovie::CPlayMovie(EWhichMovie which) : CPlayMovieBase("CPlayMovie", kMovies
   (void)x18_which;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

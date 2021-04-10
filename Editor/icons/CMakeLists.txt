@@ -12,22 +12,22 @@ target_include_directories(packicons PRIVATE ${PNG_INCLUDE_DIR} ${ZLIB_INCLUDE_D
 ##################
 
 # Add all targets to the build-tree export set
-export(TARGETS packicons FILE "${CMAKE_CURRENT_BINARY_DIR}/urde-packiconsTargets.cmake")
+export(TARGETS packicons FILE "${CMAKE_CURRENT_BINARY_DIR}/metaforce-packiconsTargets.cmake")
 
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
-export(PACKAGE urde-packicons)
+export(PACKAGE metaforce-packicons)
 
 # Create the atdnaConfig.cmake
 # ... for the build tree
-configure_file(urde-packiconsConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/urde-packiconsConfig.cmake" @ONLY)
+configure_file(metaforce-packiconsConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/metaforce-packiconsConfig.cmake" @ONLY)
 # ... for the install tree
-configure_file(urde-packiconsConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/urde-packiconsConfig.cmake" @ONLY)
+configure_file(metaforce-packiconsConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/metaforce-packiconsConfig.cmake" @ONLY)
 # ... for both
-configure_file(urde-packiconsConfigVersion.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/urde-packiconsConfigVersion.cmake" @ONLY)
+configure_file(metaforce-packiconsConfigVersion.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/metaforce-packiconsConfigVersion.cmake" @ONLY)
 
 else()
-find_package(urde-packicons REQUIRED)
+find_package(metaforce-packicons REQUIRED)
 endif()
 
 unset(INKSCAPE_BIN CACHE)
@@ -59,5 +59,5 @@ else()
 endif()
 
 bintoc(icons_dat.cpp ${CMAKE_CURRENT_BINARY_DIR}/icons.bin URDE_ICONS)
-add_library(UrdeIcons icons.cpp icons.hpp icons.bin icons_dat.cpp)
-target_link_libraries(UrdeIcons PUBLIC specter)
+add_library(MetaforceIcons icons.cpp icons.hpp icons.bin icons_dat.cpp)
+target_link_libraries(MetaforceIcons PUBLIC specter)

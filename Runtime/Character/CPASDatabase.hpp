@@ -7,7 +7,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Character/CPASAnimState.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CRandom16;
 class CPASAnimParmData;
@@ -46,4 +46,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

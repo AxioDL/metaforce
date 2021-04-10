@@ -6,7 +6,7 @@ namespace zeus {
 class CColor;
 }
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 class CPhazonSuitFilter {
@@ -27,4 +27,4 @@ public:
   void draw(const zeus::CColor& color, float indScale, float indOffX, float indOffY);
 };
 
-} // namespace urde
+} // namespace metaforce

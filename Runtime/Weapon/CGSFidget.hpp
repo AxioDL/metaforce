@@ -5,7 +5,7 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CAnimData;
 class CStateManager;
 class CGSFidget {
@@ -22,4 +22,4 @@ public:
   bool IsAnimLoaded() const;
 };
 
-} // namespace urde
+} // namespace metaforce

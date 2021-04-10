@@ -8,7 +8,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CFluidUVMotion;
 
 class CFluidPlaneCPU : public CFluidPlane {
@@ -121,4 +121,4 @@ public:
   bool HasTurbulence() const { return x120_turbulence.HasTurbulence(); }
 };
 
-} // namespace urde
+} // namespace metaforce

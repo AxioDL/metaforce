@@ -5,7 +5,7 @@
 #include "Runtime/Character/CMetaTransSnap.hpp"
 #include "Runtime/Character/CMetaTransTrans.hpp"
 
-namespace urde {
+namespace metaforce {
 
 std::shared_ptr<IMetaTrans> CMetaTransFactory::CreateMetaTrans(CInputStream& in) {
   EMetaTransType type = EMetaTransType(in.readUint32Big());
@@ -25,4 +25,4 @@ std::shared_ptr<IMetaTrans> CMetaTransFactory::CreateMetaTrans(CInputStream& in)
 
   return {};
 }
-} // namespace urde
+} // namespace metaforce

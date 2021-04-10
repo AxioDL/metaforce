@@ -14,7 +14,7 @@
 
 #include <kabufuda/Card.hpp>
 
-namespace urde {
+namespace metaforce {
 class CDummyWorld;
 class CSimplePool;
 class CStringTable;
@@ -177,4 +177,4 @@ public:
   static void Shutdown();
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -6,8 +6,8 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
 
-namespace urde {
-static logvisor::Module Log("urde::CParticleElectricDataFactory");
+namespace metaforce {
+static logvisor::Module Log("metaforce::CParticleElectricDataFactory");
 
 using CPF = CParticleDataFactory;
 
@@ -128,4 +128,4 @@ CFactoryFnReturn FParticleElectricDataFactory(const SObjectTag& tag, CInputStrea
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
   return TToken<CElectricDescription>::GetIObjObjectFor(CParticleElectricDataFactory::GetGeneratorDesc(in, sp));
 }
-} // namespace urde
+} // namespace metaforce

@@ -3,7 +3,7 @@
 #include "Runtime/CMemoryCardSys.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& savw, CAssetId mlvlId) {
   const CSaveWorldMemory& worldMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);
@@ -117,4 +117,4 @@ bool CMapWorldInfo::IsAnythingSet() const {
   return x38_mapStationUsed;
 }
 
-} // namespace urde
+} // namespace metaforce

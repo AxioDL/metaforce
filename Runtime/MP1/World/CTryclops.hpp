@@ -5,7 +5,7 @@
 
 #include <zeus/CTransform.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CTryclops : public CPatterned {
 
   static const CDamageVulnerability skVulnerabilities;
@@ -91,4 +91,4 @@ public:
   bool IsDizzy(CStateManager&, float) override;
   CPathFindSearch* GetSearchPath() override { return &x568_pathFindSearch; }
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

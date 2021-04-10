@@ -7,7 +7,7 @@
 
 #include <boo/inputdev/DolphinSmashAdapter.hpp>
 
-namespace urde {
+namespace metaforce {
 
 struct CFinalInput {
   float x0_dt = 0.0f;
@@ -173,4 +173,4 @@ struct CFinalInput {
   const std::optional<CKeyboardMouseControllerData>& GetKBM() const { return m_kbm; }
 };
 
-} // namespace urde
+} // namespace metaforce

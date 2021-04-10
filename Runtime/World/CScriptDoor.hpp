@@ -7,7 +7,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CScriptDoor : public CPhysicsActor {
 public:
@@ -63,4 +63,4 @@ public:
   bool IsOpen() const { return x2a8_26_isOpen; }
 };
 
-} // namespace urde
+} // namespace metaforce

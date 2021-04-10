@@ -4,7 +4,7 @@
 #include "hecl/Blender/Connection.hpp"
 #include "version.h"
 
-namespace urde {
+namespace metaforce {
 static logvisor::Module Log("URDE::ProjectManager");
 ProjectManager* ProjectManager::g_SharedManager = nullptr;
 
@@ -113,8 +113,8 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
     return true;
   };
 
-  const hecl::ProjectPath urdeSpacesPath(*m_proj, _SYS_STR(".hecl/urde_spaces.yaml"));
-  athena::io::FileReader reader(urdeSpacesPath.getAbsolutePath());
+  const hecl::ProjectPath metaforceSpacesPath(*m_proj, _SYS_STR(".hecl/metaforce_spaces.yaml"));
+  athena::io::FileReader reader(metaforceSpacesPath.getAbsolutePath());
 
   if (!reader.isOpen()) {
     return makeProj(true);
@@ -126,7 +126,7 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
   };
 
   yaml_parser_set_input(r.getParser(), readHandler, &reader);
-  if (!r.ValidateClassType("UrdeSpacesState")) {
+  if (!r.ValidateClassType("MetaforceSpacesState")) {
     return makeProj(true);
   }
 
@@ -145,7 +145,7 @@ bool ProjectManager::saveProject() {
   if (!m_proj)
     return false;
 
-  hecl::ProjectPath oldSpacesPath(*m_proj, _SYS_STR(".hecl/~urde_spaces.yaml"));
+  hecl::ProjectPath oldSpacesPath(*m_proj, _SYS_STR(".hecl/~metaforce_spaces.yaml"));
   athena::io::FileWriter writer(oldSpacesPath.getAbsolutePath());
   if (!writer.isOpen())
     return false;
@@ -155,7 +155,7 @@ bool ProjectManager::saveProject() {
   if (!w.finish(&writer))
     return false;
 
-  hecl::ProjectPath newSpacesPath(*m_proj, _SYS_STR(".hecl/urde_spaces.yaml"));
+  hecl::ProjectPath newSpacesPath(*m_proj, _SYS_STR(".hecl/metaforce_spaces.yaml"));
 
   hecl::Unlink(newSpacesPath.getAbsolutePath().data());
   hecl::Rename(oldSpacesPath.getAbsolutePath().data(), newSpacesPath.getAbsolutePath().data());
@@ -197,4 +197,4 @@ void ProjectManager::shutdown() {
   hecl::blender::Connection::Shutdown();
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -59,7 +59,8 @@ static void KillProcessTree(QProcess& proc) {
 }
 #endif
 
-const QStringList MainWindow::skUpdateTracks = {QStringLiteral("stable"), QStringLiteral("dev"), QStringLiteral("continuous")};
+const QStringList MainWindow::skUpdateTracks = {QStringLiteral("stable"), QStringLiteral("dev"),
+                                                QStringLiteral("continuous")};
 
 MainWindow::MainWindow(QWidget* parent)
 : QMainWindow(parent)
@@ -69,8 +70,8 @@ MainWindow::MainWindow(QWidget* parent)
 , m_cvarCommons(m_cvarManager)
 , m_heclProc(this)
 , m_dlManager(this) {
-  if (m_settings.value(QStringLiteral("urde_arguments")).isNull()) {
-    m_settings.setValue(QStringLiteral("urde_arguments"), QStringList{QStringLiteral("--no-shader-warmup")});
+  if (m_settings.value(QStringLiteral("metaforce_arguments")).isNull()) {
+    m_settings.setValue(QStringLiteral("metaforce_arguments"), QStringList{QStringLiteral("--no-shader-warmup")});
   }
   if (m_settings.value(QStringLiteral("update_track")).isNull()) {
     m_settings.setValue(QStringLiteral("update_track"), QStringLiteral("dev"));
@@ -89,8 +90,8 @@ MainWindow::MainWindow(QWidget* parent)
   m_ui->processOutput->setFont(mFont);
   m_cursor = QTextCursor(m_ui->processOutput->document());
   connect(m_ui->saveLogButton, &QPushButton::pressed, this, [this] {
-    QString defaultFileName = QStringLiteral("metaforce-") + QDateTime::currentDateTime().toString(Qt::DateFormat::ISODate) +
-                              QStringLiteral(".log");
+    QString defaultFileName = QStringLiteral("metaforce-") +
+                              QDateTime::currentDateTime().toString(Qt::DateFormat::ISODate) + QStringLiteral(".log");
     defaultFileName.replace(QLatin1Char(':'), QLatin1Char('-'));
     const QString fileName =
         QFileDialog::getSaveFileName(this, tr("Save Log"), defaultFileName, QStringLiteral("*.log"));
@@ -234,11 +235,11 @@ void MainWindow::onLaunch() {
 
   const auto heclProcArguments = QStringList{m_path + QStringLiteral("/out/MP1")}
                                  << m_warpSettings << QStringLiteral("-l")
-                                 << m_settings.value(QStringLiteral("urde_arguments"))
+                                 << m_settings.value(QStringLiteral("metaforce_arguments"))
                                         .toStringList()
                                         .join(QLatin1Char{' '})
                                         .split(QLatin1Char{' '});
-  m_heclProc.start(m_urdePath, heclProcArguments, QIODevice::ReadOnly | QIODevice::Unbuffered);
+  m_heclProc.start(m_metaforcePath, heclProcArguments, QIODevice::ReadOnly | QIODevice::Unbuffered);
 
   m_ui->heclTabs->setCurrentIndex(0);
 
@@ -262,11 +263,11 @@ void MainWindow::onIndexDownloaded(const QStringList& index) {
   int bestVersion = 0;
   m_ui->binaryComboBox->clear();
   for (const QString& str : index) {
-    URDEVersion version(str);
+    MetaforceVersion version(str);
     m_ui->binaryComboBox->addItem(version.fileString(false), QVariant::fromValue(version));
   }
   m_ui->binaryComboBox->setCurrentIndex(bestVersion);
-  m_recommendedVersion = m_ui->binaryComboBox->itemData(bestVersion).value<URDEVersion>();
+  m_recommendedVersion = m_ui->binaryComboBox->itemData(bestVersion).value<MetaforceVersion>();
   m_ui->recommendedBinaryLabel->setText(m_recommendedVersion.fileString(false));
   m_ui->binaryComboBox->setEnabled(true);
 
@@ -277,7 +278,7 @@ void MainWindow::onIndexDownloaded(const QStringList& index) {
 }
 
 void MainWindow::onDownloadPressed() {
-  QString filename = m_ui->binaryComboBox->currentData().value<URDEVersion>().fileString(true);
+  QString filename = m_ui->binaryComboBox->currentData().value<MetaforceVersion>().fileString(true);
 #if PLATFORM_ZIP_DOWNLOAD
   disableOperations();
   m_ui->downloadButton->setEnabled(false);
@@ -401,7 +402,7 @@ static bool GetDLPackage(const QString& path, QString& dlPackage) {
 }
 
 bool MainWindow::checkDownloadedBinary() {
-  m_urdePath = QString();
+  m_metaforcePath = QString();
   m_heclPath = QString();
 
   if (m_path.isEmpty()) {
@@ -413,34 +414,35 @@ bool MainWindow::checkDownloadedBinary() {
 
   const QString dir = QApplication::instance()->applicationDirPath();
 #if _WIN32
-  QString urdePath = dir + QStringLiteral("/metaforce.exe");
+  QString metaforcePath = dir + QStringLiteral("/metaforce.exe");
   QString heclPath = dir + QStringLiteral("/hecl.exe");
   QString visigenPath = dir + QStringLiteral("/visigen.exe");
-  if (!QFileInfo::exists(urdePath) || !QFileInfo::exists(heclPath) || !QFileInfo::exists(visigenPath)) {
-    urdePath = m_path + QStringLiteral("/metaforce.exe");
+  if (!QFileInfo::exists(metaforcePath) || !QFileInfo::exists(heclPath) || !QFileInfo::exists(visigenPath)) {
+    metaforcePath = m_path + QStringLiteral("/metaforce.exe");
     heclPath = m_path + QStringLiteral("/hecl.exe");
     visigenPath = m_path + QStringLiteral("/visigen.exe");
   }
 #else
-  QString urdePath = dir + QStringLiteral("/metaforce");
+  QString metaforcePath = dir + QStringLiteral("/metaforce");
   QString heclPath = dir + QStringLiteral("/hecl");
   QString visigenPath = dir + QStringLiteral("/visigen");
 #endif
-  urdePath = QFileInfo(urdePath).absoluteFilePath();
+  metaforcePath = QFileInfo(metaforcePath).absoluteFilePath();
   heclPath = QFileInfo(heclPath).absoluteFilePath();
   visigenPath = QFileInfo(visigenPath).absoluteFilePath();
 
-  QString urdeDlPackage, heclDlPackage, visigenDlPackage;
-  if (GetDLPackage(urdePath, urdeDlPackage) && GetDLPackage(heclPath, heclDlPackage) &&
+  QString metaforceDlPackage, heclDlPackage, visigenDlPackage;
+  if (GetDLPackage(metaforcePath, metaforceDlPackage) && GetDLPackage(heclPath, heclDlPackage) &&
       GetDLPackage(visigenPath, visigenDlPackage)) {
-    if (!urdeDlPackage.isEmpty() && urdeDlPackage == heclDlPackage && urdeDlPackage == visigenDlPackage) {
-      URDEVersion v(urdeDlPackage);
+    if (!metaforceDlPackage.isEmpty() && metaforceDlPackage == heclDlPackage &&
+        metaforceDlPackage == visigenDlPackage) {
+      MetaforceVersion v(metaforceDlPackage);
       m_ui->currentBinaryLabel->setText(v.fileString(false));
     } else {
       m_ui->currentBinaryLabel->setText(tr("unknown -- re-download recommended"));
     }
 
-    m_urdePath = urdePath;
+    m_metaforcePath = metaforcePath;
     m_heclPath = heclPath;
     m_ui->downloadErrorLabel->setText({}, true);
     enableOperations();
@@ -655,7 +657,7 @@ void MainWindow::initOptions() {
                          "tweak.game.SplashScreensDisabled"sv, "Skip splash screens on game startup", false,
                          hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game));
 
-  m_launchOptionsModel.setStringList(QSettings().value(QStringLiteral("urde_arguments")).toStringList());
+  m_launchOptionsModel.setStringList(QSettings().value(QStringLiteral("metaforce_arguments")).toStringList());
   m_ui->launchOptionsList->setModel(&m_launchOptionsModel);
 
   connect(m_ui->launchOptionAddButton, &QPushButton::clicked, this, [this] {
@@ -677,9 +679,9 @@ void MainWindow::initOptions() {
     }
   });
   connect(&m_launchOptionsModel, &QStringListModel::dataChanged, this,
-          [this]() { QSettings().setValue(QStringLiteral("urde_arguments"), m_launchOptionsModel.stringList()); });
+          [this]() { QSettings().setValue(QStringLiteral("metaforce_arguments"), m_launchOptionsModel.stringList()); });
   connect(&m_launchOptionsModel, &QStringListModel::rowsRemoved, this,
-          [this]() { QSettings().setValue(QStringLiteral("urde_arguments"), m_launchOptionsModel.stringList()); });
+          [this]() { QSettings().setValue(QStringLiteral("metaforce_arguments"), m_launchOptionsModel.stringList()); });
   connect(m_ui->warpBtn, &QPushButton::clicked, this, [this] {
     QFileInfo areaPath(
         QFileDialog::getOpenFileName(this, tr("Select area to warp to..."), m_path, QStringLiteral("*.blend")));

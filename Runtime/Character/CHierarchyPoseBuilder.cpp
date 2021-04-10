@@ -5,7 +5,7 @@
 
 #include <zeus/CEulerAngles.hpp>
 
-namespace urde {
+namespace metaforce {
 
 void CHierarchyPoseBuilder::BuildIntoHierarchy(const CCharLayoutInfo& layout, const CSegId& boneId,
                                                const CSegId& nullId) {
@@ -160,4 +160,4 @@ CHierarchyPoseBuilder::CHierarchyPoseBuilder(const CLayoutDescription& layout)
     BuildIntoHierarchy(layoutInfo, id, 2);
 }
 
-} // namespace urde
+} // namespace metaforce

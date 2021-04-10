@@ -3,7 +3,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Character/IMetaTrans.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CMetaTransSnap : public IMetaTrans {
 public:
@@ -14,4 +14,4 @@ public:
                                                     const CAnimSysContext& animSys) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

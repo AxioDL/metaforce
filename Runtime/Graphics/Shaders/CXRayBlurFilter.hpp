@@ -7,7 +7,7 @@
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <zeus/CMatrix4f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 class CXRayBlurFilter {
@@ -28,4 +28,4 @@ public:
   void draw(float amount);
 };
 
-} // namespace urde
+} // namespace metaforce

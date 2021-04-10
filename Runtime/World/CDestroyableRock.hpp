@@ -4,7 +4,7 @@
 
 #include "Runtime/World/CAi.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CDestroyableRock : public CAi {
 
@@ -66,4 +66,4 @@ public:
   void Set_x340(bool v) { x340_ = v; }
 };
 
-} // namespace urde
+} // namespace metaforce

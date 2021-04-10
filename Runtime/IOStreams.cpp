@@ -1,7 +1,7 @@
 #include "Runtime/IOStreams.hpp"
 #include <hecl/hecl.hpp>
 
-namespace urde {
+namespace metaforce {
 
 #define DUMP_BITS 0
 
@@ -137,4 +137,4 @@ atUint64 CZipInputStream::readUBytesToBuf(void* buf, atUint64 len) {
   return x30_zstrm.total_out;
 }
 
-} // namespace urde
+} // namespace metaforce

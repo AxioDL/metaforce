@@ -3,7 +3,7 @@
 #include <string_view>
 #include "Runtime/World/CEntity.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptTimer : public CEntity {
   float x34_time;
@@ -25,4 +25,4 @@ public:
   void ApplyTime(float, CStateManager&);
 };
 
-} // namespace urde
+} // namespace metaforce

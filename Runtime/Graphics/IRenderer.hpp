@@ -13,7 +13,7 @@
 #include <zeus/CPlane.hpp>
 #include <zeus/CRectangle.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAreaOctTree;
 class CLight;
 class CMetroidModelInstance;
@@ -104,4 +104,4 @@ public:
   virtual void PrepareDynamicLights(const std::vector<CLight>& lights) = 0;
 };
 
-} // namespace urde
+} // namespace metaforce

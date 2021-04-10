@@ -9,7 +9,7 @@
 #include "Runtime/Weapon/CGunWeapon.hpp"
 #include "Runtime/Weapon/CWeapon.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAuxWeapon {
   TCachedToken<CWeaponDescription> x0_missile;
@@ -52,4 +52,4 @@ public:
   void SetNewTarget(TUniqueId targetId, CStateManager& mgr);
 };
 
-} // namespace urde
+} // namespace metaforce

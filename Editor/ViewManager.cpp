@@ -23,7 +23,7 @@ using YAMLNode = athena::io::YAMLNode;
 
 extern hecl::SystemString ExeDir;
 
-namespace urde {
+namespace metaforce {
 
 void ViewManager::InitMP1(MP1::CMain& main) {
   main.Init(m_fileStoreManager, &m_cvarManager, m_mainWindow.get(), m_voiceEngine.get(), *m_amuseAllocWrapper);
@@ -39,7 +39,7 @@ void ViewManager::InitMP1(MP1::CMain& main) {
 
 void ViewManager::TestGameView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) {
   specter::View::resized(root, sub);
-  urde::CGraphics::SetViewportResolution({sub.size[0], sub.size[1]});
+  metaforce::CGraphics::SetViewportResolution({sub.size[0], sub.size[1]});
   if (m_debugText) {
     boo::SWindowRect newSub = sub;
     newSub.location[1] = 5 * m_vm.m_viewResources.pixelFactor();
@@ -68,7 +68,7 @@ void ViewManager::TestGameView::think() {
         overlayText += fmt::format(FMT_STRING("Frame: {}\n"), g_StateManager->GetUpdateFrameIndex());
 
       if (m_vm.m_cvarCommons.m_debugOverlayShowFramerate->toBoolean())
-        overlayText += fmt::format(FMT_STRING("FPS: {}\n"), urde::CGraphics::GetFPS());
+        overlayText += fmt::format(FMT_STRING("FPS: {}\n"), metaforce::CGraphics::GetFPS());
 
       if (m_vm.m_cvarCommons.m_debugOverlayShowInGameTime->toBoolean()) {
         double igt = g_GameState->GetTotalPlayTime();
@@ -113,12 +113,12 @@ void ViewManager::TestGameView::think() {
       if (m_vm.m_cvarCommons.m_debugOverlayWorldInfo->toBoolean()) {
         TLockedToken<CStringTable> tbl =
             g_SimplePool->GetObj({FOURCC('STRG'), g_StateManager->GetWorld()->IGetStringTableAssetId()});
-        const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
+        const metaforce::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
         overlayText += fmt::format(FMT_STRING("World: 0x{}{}, Area: {}\n"), g_GameState->CurrentWorldAssetId(),
                                    (tbl.IsLoaded() ? (" " + hecl::Char16ToUTF8(tbl->GetString(0))).c_str() : ""), aId);
       }
 
-      const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
+      const metaforce::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
       if (m_vm.m_cvarCommons.m_debugOverlayAreaInfo->toBoolean() && g_StateManager->GetWorld() &&
           g_StateManager->GetWorld()->DoesAreaExist(aId)) {
         const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
@@ -139,7 +139,7 @@ void ViewManager::TestGameView::think() {
     }
 
     if (m_vm.m_cvarCommons.m_debugOverlayShowRandomStats->toBoolean()) {
-      overlayText += fmt::format(FMT_STRING("CRandom16::Next calls: {}\n"), urde::CRandom16::GetNumNextCalls());
+      overlayText += fmt::format(FMT_STRING("CRandom16::Next calls: {}\n"), metaforce::CRandom16::GetNumNextCalls());
     }
 
     if (m_vm.m_cvarCommons.m_debugOverlayShowResourceStats->toBoolean())
@@ -420,4 +420,4 @@ void ViewManager::stop() {
   m_fontCache.destroyAtlases();
 }
 
-} // namespace urde
+} // namespace metaforce

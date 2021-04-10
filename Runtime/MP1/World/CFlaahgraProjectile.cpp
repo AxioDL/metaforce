@@ -3,7 +3,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CFlaahgraProjectile::CFlaahgraProjectile(bool bigStrike, const TToken<CWeaponDescription>& desc,
                                          const zeus::CTransform& xf, const CDamageInfo& damage, TUniqueId uid,
@@ -26,4 +26,4 @@ void CFlaahgraProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId se
   }
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

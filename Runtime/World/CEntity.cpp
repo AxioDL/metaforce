@@ -2,7 +2,7 @@
 
 #include "Runtime/CStateManager.hpp"
 
-namespace urde {
+namespace metaforce {
 const std::vector<SConnection> CEntity::NullConnectionList;
 
 CEntity::CEntity(TUniqueId uniqueId, const CEntityInfo& info, bool active, std::string_view name)
@@ -49,4 +49,4 @@ void CEntity::SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, 
     }
   }
 }
-} // namespace urde
+} // namespace metaforce

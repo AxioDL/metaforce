@@ -2,7 +2,7 @@
 
 #include "Runtime/Collision/ICollisionFilter.hpp"
 
-namespace urde {
+namespace metaforce {
 class CCollisionInfoList;
 class CPhysicsActor;
 
@@ -12,4 +12,4 @@ public:
   void Filter(const CCollisionInfoList& in, CCollisionInfoList& out) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

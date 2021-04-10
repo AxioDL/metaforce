@@ -19,7 +19,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CQuaternion.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 struct SGrenadeTrajectoryInfo {
 private:
   float x0_velocityMin;
@@ -125,4 +125,4 @@ private:
   void UpdateStartAnimation();
   void LaunchGrenade(CStateManager& mgr);
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

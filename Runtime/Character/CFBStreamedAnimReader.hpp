@@ -6,7 +6,7 @@
 #include "Runtime/Character/CAnimSourceReader.hpp"
 #include "Runtime/Character/CFBStreamedCompression.hpp"
 
-namespace urde {
+namespace metaforce {
 class CBitLevelLoader;
 
 template <class T>
@@ -122,4 +122,4 @@ public:
   zeus::CQuaternion VGetRotation(const CSegId& seg) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

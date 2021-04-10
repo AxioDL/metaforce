@@ -3,7 +3,7 @@
 #include "Runtime/Character/CCharLayoutInfo.hpp"
 #include "Runtime/Character/CSegIdList.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CSegStatementSet::Add(const CSegIdList& list, const CCharLayoutInfo& layout, const CSegStatementSet& other,
                            float weight) {
@@ -17,4 +17,4 @@ void CSegStatementSet::Add(const CSegIdList& list, const CCharLayoutInfo& layout
   }
 }
 
-} // namespace urde
+} // namespace metaforce

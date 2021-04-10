@@ -10,7 +10,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CEyeball : public CPatterned {
   float x568_attackDelay;
   float x56c_attackStartTime;
@@ -64,4 +64,4 @@ public:
   bool ShouldAttack(CStateManager&, float) override { return x60c_26_alert; }
   bool ShouldFire(CStateManager&, float) override { return !x60c_27_attackDisabled; }
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -29,7 +29,7 @@ enum class VectorISA { Invalid, X87, SSE, SSE2, SSE3, SSE41, AVX, AVX2, AVX512, 
 QString VectorISAToString(VectorISA visa);
 VectorISA StringToVectorISA(const QString& str);
 
-class URDEVersion {
+class MetaforceVersion {
   QString m_version{};
   Platform m_platform = CurPlatform;
   Architecture m_architecture = CurArchitecture;
@@ -38,8 +38,8 @@ class URDEVersion {
   QString m_extra{};
 
 public:
-  URDEVersion() = default;
-  explicit URDEVersion(const QString& filename);
+  MetaforceVersion() = default;
+  explicit MetaforceVersion(const QString& filename);
   bool isValid() const { return !m_version.isEmpty(); }
   QString fileString(bool withExtension) const;
   QString getVersion() const { return m_version; }
@@ -48,6 +48,6 @@ public:
   VectorISA getVectorISA() const { return m_vectorISA; }
   QString getExtra() const { return m_extra; }
 };
-Q_DECLARE_METATYPE(URDEVersion);
+Q_DECLARE_METATYPE(MetaforceVersion);
 
 void InitializePlatform();

@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CSkinRules.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CVertexMorphEffect::CVertexMorphEffect(const zeus::CUnitVector3f& v1, const zeus::CVector3f& v2, float diagExtent,
                                        float f2, CRandom16& random)
@@ -12,4 +12,4 @@ void CVertexMorphEffect::MorphVertices(std::vector<std::pair<zeus::CVector3f, ze
                                        const float* magnitudes, const TLockedToken<CSkinRules>& skinRules,
                                        const CPoseAsTransforms& pose) const {}
 
-} // namespace urde
+} // namespace metaforce

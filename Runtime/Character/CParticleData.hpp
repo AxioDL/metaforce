@@ -7,7 +7,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CParticleData {
 public:
@@ -47,4 +47,4 @@ public:
   float GetScale() const { return x18_scale; }
 };
 
-} // namespace urde
+} // namespace metaforce

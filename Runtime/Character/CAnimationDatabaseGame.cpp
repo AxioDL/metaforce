@@ -4,7 +4,7 @@
 #include "Runtime/Character/CPrimitive.hpp"
 #include "Runtime/Character/IMetaAnim.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAnimationDatabaseGame::CAnimationDatabaseGame(const std::vector<CAnimation>& anims) {
   x10_anims.reserve(anims.size());
@@ -34,4 +34,4 @@ void CAnimationDatabaseGame::GetUniquePrimitivesFromMetaAnim(std::set<CPrimitive
   // Empty
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -2,7 +2,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CCollisionEdge {
   u16 x0_index1 = -1;
   u16 x2_index2 = -1;
@@ -20,4 +20,4 @@ public:
     x2_index2 = hecl::SBig(x2_index2);
   }
 };
-} // namespace urde
+} // namespace metaforce

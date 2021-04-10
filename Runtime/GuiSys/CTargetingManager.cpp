@@ -5,7 +5,7 @@
 #include "Runtime/Camera/CGameCamera.hpp"
 #include "Runtime/Graphics/CBooRenderer.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CTargetingManager::CTargetingManager(const CStateManager& mgr) : x0_targetReticule(mgr) {}
 
@@ -36,4 +36,4 @@ void CTargetingManager::Draw(const CStateManager& mgr, bool hideLockon) {
 
 void CTargetingManager::Touch() { x0_targetReticule.Touch(); }
 
-} // namespace urde
+} // namespace metaforce

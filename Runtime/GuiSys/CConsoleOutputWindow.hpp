@@ -2,7 +2,7 @@
 
 #include "Runtime/CIOWin.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CConsoleOutputWindow : public CIOWin {
 public:
@@ -11,4 +11,4 @@ public:
   void Draw() override;
 };
 
-} // namespace urde
+} // namespace metaforce

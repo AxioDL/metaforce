@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CMetaTransFactory.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAnimationSet::CAnimationSet(CInputStream& in) : x0_tableCount(in.readUint16Big()) {
   u32 animationCount = in.readUint32Big();
@@ -45,4 +45,4 @@ CAnimationSet::CAnimationSet(CInputStream& in) : x0_tableCount(in.readUint16Big(
   }
 }
 
-} // namespace urde
+} // namespace metaforce

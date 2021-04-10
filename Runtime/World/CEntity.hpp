@@ -7,7 +7,7 @@
 #include "Runtime/World/CEntityInfo.hpp"
 #include "Runtime/World/ScriptObjectSupport.hpp"
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class IVisitor;
 
@@ -61,4 +61,4 @@ public:
   std::string_view GetName() const { return x10_name; }
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -10,7 +10,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CWorldShadowShader {
   boo::ObjToken<boo::ITextureR> m_tex;
@@ -43,4 +43,4 @@ public:
   const boo::ObjToken<boo::ITextureR>& GetTexture() const { return m_tex; }
 };
 
-} // namespace urde
+} // namespace metaforce

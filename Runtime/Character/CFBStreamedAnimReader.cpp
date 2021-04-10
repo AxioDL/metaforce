@@ -8,7 +8,7 @@
 #include "Runtime/Character/CSegIdList.hpp"
 #include "Runtime/Character/CSegStatementSet.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CFBStreamedAnimReaderTotals::Allocate(u32 chanCount) {
   const u32 chan2 = chanCount * 2;
@@ -508,4 +508,4 @@ zeus::CQuaternion CFBStreamedAnimReader::VGetRotation(const CSegId& seg) const {
 
 template class TAnimSourceInfo<CFBStreamedCompression>;
 
-} // namespace urde
+} // namespace metaforce

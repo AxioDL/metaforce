@@ -4,7 +4,7 @@
 #include "Runtime/Character/CPoseAsTransforms.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CSkinRules::CSkinRules(CInputStream& in) {
   u32 bankCount = in.readUint32Big();
@@ -46,4 +46,4 @@ CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, cons
   return TToken<CSkinRules>::GetIObjObjectFor(std::make_unique<CSkinRules>(in));
 }
 
-} // namespace urde
+} // namespace metaforce

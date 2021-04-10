@@ -3,7 +3,7 @@
 #include "Runtime/rstl.hpp"
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CGuiCamera;
 class CGuiFrame;
 class CGuiModel;
@@ -31,4 +31,4 @@ public:
   void SetBallModeFactor(float t);
 };
 
-} // namespace urde
+} // namespace metaforce

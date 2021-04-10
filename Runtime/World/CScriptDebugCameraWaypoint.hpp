@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptDebugCameraWaypoint : public CActor {
   u32 xe8_w1;
@@ -17,4 +17,4 @@ public:
   void Accept(IVisitor&) override;
 };
 
-} // namespace urde
+} // namespace metaforce

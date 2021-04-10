@@ -2,7 +2,7 @@
 
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CGuiHeadWidget : public CGuiWidget {
 public:
@@ -15,4 +15,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

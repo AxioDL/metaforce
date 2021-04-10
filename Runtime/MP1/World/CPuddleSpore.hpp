@@ -9,7 +9,7 @@
 #include "Runtime/Weapon/CProjectileInfo.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CPuddleSpore : public CPatterned {
   float x568_ = 0.f;
   float x56c_ = 0.f;
@@ -81,4 +81,4 @@ public:
   void GetUp(CStateManager&, EStateMsg, float) override;
   void Attack(CStateManager&, EStateMsg, float) override;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -4,7 +4,7 @@
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
-namespace urde {
+namespace metaforce {
 class CLineRenderer;
 
 class CLineRendererShaders {
@@ -30,4 +30,4 @@ public:
                                      bool zGEqual);
 };
 
-} // namespace urde
+} // namespace metaforce

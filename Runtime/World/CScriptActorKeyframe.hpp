@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-namespace urde {
+namespace metaforce {
 class CScriptActorKeyframe : public CEntity {
 private:
   s32 x34_animationId;
@@ -30,4 +30,4 @@ public:
   bool IsPassive() const { return x44_25_isPassive; }
   void SetIsPassive(bool b) { x44_25_isPassive = b; }
 };
-} // namespace urde
+} // namespace metaforce

@@ -10,7 +10,7 @@
 #include "Runtime/Weapon/CPlayerGun.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 constexpr std::array skBombLocators{
     "bomb2_LCTR"sv,
     "bomb3_LCTR"sv,
@@ -172,4 +172,4 @@ bool CAtomicBeta::IsPlayerBeamChargedEnough(const CStateManager& mgr) {
   const CPlayerGun* gun = mgr.GetPlayer().GetPlayerGun();
   return (gun->IsCharging() ? gun->GetChargeBeamFactor() : 0.f) > 0.1f;
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

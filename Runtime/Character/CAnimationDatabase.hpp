@@ -6,7 +6,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CPrimitive;
 class IMetaAnim;
 
@@ -20,4 +20,4 @@ public:
   virtual void GetUniquePrimitivesFromMetaAnim(std::set<CPrimitive>&, std::string_view) const = 0;
 };
 
-} // namespace urde
+} // namespace metaforce

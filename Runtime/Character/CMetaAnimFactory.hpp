@@ -5,11 +5,11 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Character/IMetaAnim.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CMetaAnimFactory {
 public:
   static std::shared_ptr<IMetaAnim> CreateMetaAnim(CInputStream& in);
 };
 
-} // namespace urde
+} // namespace metaforce

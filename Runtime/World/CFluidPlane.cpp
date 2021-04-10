@@ -6,7 +6,7 @@
 #include "Runtime/World/CRipple.hpp"
 #include "Runtime/World/CScriptWater.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CFluidPlane::CFluidPlane(CAssetId texPattern1, CAssetId texPattern2, CAssetId texColor, float alpha,
                          EFluidType fluidType, float rippleIntensity, const CFluidUVMotion& motion)
@@ -483,4 +483,4 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
   }
 }
 
-} // namespace urde
+} // namespace metaforce

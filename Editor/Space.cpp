@@ -8,7 +8,7 @@
 #include "icons/icons.hpp"
 #include "specter/Menu.hpp"
 
-namespace urde {
+namespace metaforce {
 static logvisor::Module Log("URDE::Space");
 
 Space::Space(ViewManager& vm, Class cls, Space* parent)
@@ -259,4 +259,4 @@ void Space::SpaceMenuNode::SubNode::activated(const boo::SWindowCoord& coord) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

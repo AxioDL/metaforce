@@ -7,7 +7,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CMapSurfaceShader {
   struct Uniform {
@@ -28,4 +28,4 @@ public:
   void draw(const zeus::CColor& color, u32 start, u32 count);
 };
 
-} // namespace urde
+} // namespace metaforce

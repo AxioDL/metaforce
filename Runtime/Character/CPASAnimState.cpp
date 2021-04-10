@@ -11,7 +11,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CPASAnimState::CPASAnimState(CInputStream& in) {
   x0_id = static_cast<pas::EAnimationState>(in.readUint32Big());
@@ -253,4 +253,4 @@ float CPASAnimState::ComputeAngularPercentErrorWeight(size_t idx, const CPASAnim
 
   return (val >= FLT_EPSILON ? 0.f : 1.f);
 }
-} // namespace urde
+} // namespace metaforce

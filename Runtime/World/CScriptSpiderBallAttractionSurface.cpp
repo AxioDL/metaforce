@@ -4,7 +4,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptSpiderBallAttractionSurface::CScriptSpiderBallAttractionSurface(TUniqueId uid, std::string_view name,
                                                                        const CEntityInfo& info,
@@ -37,4 +37,4 @@ void CScriptSpiderBallAttractionSurface::Touch(CActor& actor, CStateManager& mgr
   // Empty
 }
 
-} // namespace urde
+} // namespace metaforce

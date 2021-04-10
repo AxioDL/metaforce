@@ -12,7 +12,7 @@
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
 #include "Runtime/Weapon/CWeapon.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr std::array skBeamXferNames{
     "PowerXfer", "IceXfer", "WaveXfer", "PlasmaXfer", "PhazonXfer",
@@ -591,4 +591,4 @@ bool CGunWeapon::IsChargeAnimOver() const {
   return !(x218_25_enableCharge && x10_solidModelData->GetAnimationData()->IsAnimTimeRemaining(0.001f, "Whole Body"));
 }
 
-} // namespace urde
+} // namespace metaforce

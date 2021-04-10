@@ -7,7 +7,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CSpankWeed : public CPatterned {
   float x568_maxDetectionRange;
   float x56c_detectionHeightRange;
@@ -53,4 +53,4 @@ public:
   void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType type, bool inDeferred,
                  float magnitude) override;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

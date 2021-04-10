@@ -11,7 +11,7 @@
 #include "Runtime/Particle/CParticleDataFactory.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr std::array skWorldMaterialTable{
     EWeaponCollisionResponseTypes::Default, EWeaponCollisionResponseTypes::Unknown2,
@@ -253,4 +253,4 @@ CFactoryFnReturn FCollisionResponseDataFactory(const SObjectTag& tag, CInputStre
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
   return TToken<CCollisionResponseData>::GetIObjObjectFor(std::make_unique<CCollisionResponseData>(in, sp));
 }
-} // namespace urde
+} // namespace metaforce

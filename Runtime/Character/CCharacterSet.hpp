@@ -6,7 +6,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/Character/CCharacterInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CCharacterSet {
   u16 x0_version;
@@ -17,4 +17,4 @@ public:
   const std::map<u32, CCharacterInfo>& GetCharacterInfoMap() const { return x4_characters; }
 };
 
-} // namespace urde
+} // namespace metaforce

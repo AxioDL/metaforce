@@ -3,7 +3,7 @@
 #include <vector>
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 
 struct CStaticInterferenceSource {
@@ -23,4 +23,4 @@ public:
   void AddSource(TUniqueId id, float magnitude, float duration);
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -11,7 +11,7 @@
 
 #include <zeus/CVector2f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class CTargetingManager;
 
@@ -92,4 +92,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

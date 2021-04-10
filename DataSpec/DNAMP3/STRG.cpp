@@ -220,6 +220,6 @@ void STRG::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& writer) {
   }
 }
 
-std::string_view STRG::DNAType() { return "urde::DNAMP3::STRG"sv; }
+std::string_view STRG::DNAType() { return "DNAMP3::STRG"sv; }
 
 } // namespace DataSpec::DNAMP3

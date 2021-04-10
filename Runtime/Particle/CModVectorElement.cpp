@@ -7,7 +7,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Mod_Vector_Elements */
 
-namespace urde {
+namespace metaforce {
 
 bool CMVEImplosion::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const {
   zeus::CVector3f av;
@@ -237,4 +237,4 @@ bool CMVESwirl::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos
   return false;
 }
 
-} // namespace urde
+} // namespace metaforce

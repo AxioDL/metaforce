@@ -8,7 +8,7 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CParticleSwoosh;
 
 class CParticleSwooshShaders {
@@ -39,4 +39,4 @@ public:
   static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CParticleSwoosh& gen);
 };
 
-} // namespace urde
+} // namespace metaforce

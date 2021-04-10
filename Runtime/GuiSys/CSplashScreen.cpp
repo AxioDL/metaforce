@@ -8,7 +8,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
 
-namespace urde {
+namespace metaforce {
 
 constexpr std::array SplashTextures{"TXTR_NintendoLogo"sv, "TXTR_RetroLogo"sv, "TXTR_DolbyLogo"sv};
 
@@ -76,4 +76,4 @@ void CSplashScreen::Draw() {
   m_quad.draw(color, 1.f, rect);
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -13,7 +13,7 @@
 
 #include <zeus/zeus.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CActorParameters;
 class CWeaponMode;
@@ -195,4 +195,4 @@ public:
   void MoveScannableObjectInfoToActor(CActor*, CStateManager&);
   const zeus::CAABox& GetRenderBounds() const { return x9c_renderBounds; }
 };
-} // namespace urde
+} // namespace metaforce

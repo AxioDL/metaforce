@@ -5,7 +5,7 @@ version.h
 *.autosave
 docs/*
 .idea/
-Editor/platforms/win/urde.rc
+Editor/platforms/win/metaforce.rc
 .vs/
 out/
 cmake-build-*/

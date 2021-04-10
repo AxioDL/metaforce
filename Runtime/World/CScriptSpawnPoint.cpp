@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                      const zeus::CTransform& xf,
@@ -69,4 +69,4 @@ u32 CScriptSpawnPoint::GetPowerup(CPlayerState::EItemType item) const {
   }
   return x64_itemCounts[idx];
 }
-} // namespace urde
+} // namespace metaforce

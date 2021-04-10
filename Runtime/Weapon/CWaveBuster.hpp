@@ -9,7 +9,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CWaveBuster : public CGameProjectile {
   zeus::CTransform x2e8_originalXf;
@@ -61,4 +61,4 @@ public:
   std::optional<zeus::CAABox> GetTouchBounds() const override;
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -14,7 +14,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CSpacePirate;
 
 class CPirateRagDoll : public CRagDoll {
@@ -333,4 +333,4 @@ public:
   TUniqueId GetAttachedActor() const { return x7b4_attachedActor; }
   bool IsTrooper() const { return x636_24_trooper; }
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

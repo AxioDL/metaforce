@@ -11,7 +11,7 @@
 #include <zeus/CPlane.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CActor;
 class CCollisionInfo;
@@ -125,4 +125,4 @@ public:
   static void AvoidStaticCollisionWithinRadius(const CStateManager& mgr, CPhysicsActor& actor, u32 iterations, float dt,
                                                float height, float size, float mass, float radius);
 };
-} // namespace urde
+} // namespace metaforce

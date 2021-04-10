@@ -9,7 +9,7 @@
 #include "Runtime/GuiSys/CTextRenderBuffer.hpp"
 #include "Runtime/GuiSys/CWordBreakTables.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CTextRenderBuffer CTextExecuteBuffer::BuildRenderBuffer(CGuiWidget::EGuiModelDrawFlags df) const {
   CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally, df);
@@ -404,4 +404,4 @@ void CTextExecuteBuffer::Clear() {
   xbc_spaceDistance = 0;
 }
 
-} // namespace urde
+} // namespace metaforce

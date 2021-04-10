@@ -5,7 +5,7 @@
 
 #include <cassert>
 
-namespace urde {
+namespace metaforce {
 
 CSimplePool::CSimplePool(IFactory& factory)
 : x18_factory(factory), x1c_paramXfer(new TObjOwnerParam<IObjectStore*>(this)) {}
@@ -68,4 +68,4 @@ std::vector<SObjectTag> CSimplePool::GetReferencedTags() const {
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

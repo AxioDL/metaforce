@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-namespace urde {
+namespace metaforce {
 class CScriptRandomRelay : public CEntity {
   s32 x34_sendSetSize;
   s32 x38_sendSetVariance;
@@ -19,4 +19,4 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   void SendLocalScriptMsgs(EScriptObjectState state, CStateManager& stateMgr);
 };
-} // namespace urde
+} // namespace metaforce

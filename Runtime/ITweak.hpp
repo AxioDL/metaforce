@@ -1,8 +1,8 @@
 #pragma once
 
-namespace urde {
+namespace metaforce {
 class ITweak {
 public:
   virtual ~ITweak() = default;
 };
-} // namespace urde
+} // namespace metaforce

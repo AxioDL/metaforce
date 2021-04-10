@@ -7,7 +7,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 class CStateManager;
 
@@ -36,4 +36,4 @@ public:
   void Render(const TLockedToken<CTexture>& tex);
   void Calculate(const zeus::CAABox& aabb, const zeus::CTransform& xf, const CStateManager& mgr);
 };
-} // namespace urde
+} // namespace metaforce

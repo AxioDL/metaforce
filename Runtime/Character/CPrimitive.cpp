@@ -1,6 +1,6 @@
 #include "Runtime/Character/CPrimitive.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CPrimitive::CPrimitive(CInputStream& in) {
   x0_animId = in.readUint32Big();
@@ -8,4 +8,4 @@ CPrimitive::CPrimitive(CInputStream& in) {
   x8_animName = in.readString();
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -6,7 +6,7 @@
 
 #include "Runtime/Character/CSegId.hpp"
 
-namespace urde {
+namespace metaforce {
 
 template <class T>
 class TSegIdMap {
@@ -72,4 +72,4 @@ public:
   u32 GetCapacity() const { return x1_capacity; }
 };
 
-} // namespace urde
+} // namespace metaforce

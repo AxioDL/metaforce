@@ -6,7 +6,7 @@
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 class CWeaponDescription;
 class CScriptBeam : public CActor {
   TCachedToken<CWeaponDescription> xe8_weaponDescription;
@@ -22,4 +22,4 @@ public:
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 };
-} // namespace urde
+} // namespace metaforce

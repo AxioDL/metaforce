@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CInterpolationCamera::CInterpolationCamera(TUniqueId uid, const zeus::CTransform& xf)
 : CGameCamera(uid, false, "Interpolation Camera",
@@ -205,4 +205,4 @@ bool CInterpolationCamera::InterpolateWithDistance(zeus::CTransform& xf, const z
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

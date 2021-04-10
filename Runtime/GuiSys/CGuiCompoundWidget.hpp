@@ -2,7 +2,7 @@
 
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CGuiCompoundWidget : public CGuiWidget {
 public:
@@ -14,4 +14,4 @@ public:
   virtual CGuiWidget* GetWorkerWidget(int id) const;
 };
 
-} // namespace urde
+} // namespace metaforce

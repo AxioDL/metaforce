@@ -9,7 +9,7 @@
 #include <zeus/CRelAngle.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScriptCameraPitchVolume : public CActor {
   static const zeus::CVector3f skScaleFactor;
   zeus::COBBox xe8_obbox;
@@ -35,4 +35,4 @@ public:
   void Entered(CStateManager&);
   void Exited(CStateManager&);
 };
-} // namespace urde
+} // namespace metaforce

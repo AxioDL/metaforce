@@ -9,7 +9,7 @@
 #include "Runtime/GuiSys/CGuiSys.hpp"
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr std::array<zeus::CVector3f, 4> NormalPoints{{
     {0.f, 0.f, -1.f},
@@ -154,4 +154,4 @@ std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream&
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

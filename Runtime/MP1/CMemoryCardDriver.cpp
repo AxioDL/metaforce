@@ -5,7 +5,7 @@
 #include "Runtime/CCRC32.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 constexpr std::array SaveFileNames{"MetroidPrime A", "MetroidPrime B"};
 
@@ -796,4 +796,4 @@ void CMemoryCardDriver::Update() {
   static_cast<CMain*>(g_Main)->SetCardBusy(cardBusy);
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

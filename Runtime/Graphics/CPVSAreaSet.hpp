@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CPVSVisOctree.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPVSAreaSet {
   u32 x0_numFeatures;
@@ -37,4 +37,4 @@ public:
   CPVSVisSet Get2ndLightSet(size_t lightIdx) const { return _GetLightSet(lightIdx); }
 };
 
-} // namespace urde
+} // namespace metaforce

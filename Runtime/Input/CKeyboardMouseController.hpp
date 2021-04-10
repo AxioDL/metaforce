@@ -3,7 +3,7 @@
 #include <array>
 #include <boo/IWindow.hpp>
 
-namespace urde {
+namespace metaforce {
 
 struct CKeyboardMouseControllerData {
   std::array<bool, 256> m_charKeys{};
@@ -14,4 +14,4 @@ struct CKeyboardMouseControllerData {
   boo::SScrollDelta m_accumScroll;
 };
 
-} // namespace urde
+} // namespace metaforce

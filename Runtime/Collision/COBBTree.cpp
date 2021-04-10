@@ -4,7 +4,7 @@
 
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr std::array<u8, 18> DefaultEdgeMaterials{
     2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 2, 2,
@@ -244,4 +244,4 @@ COBBTree::CLeafData::CLeafData(CInputStream& in) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -5,8 +5,8 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CParticleDataFactory.hpp"
 
-namespace urde {
-static logvisor::Module Log("urde::CDecalDataFactory");
+namespace metaforce {
+static logvisor::Module Log("metaforce::CDecalDataFactory");
 
 using CPF = CParticleDataFactory;
 std::unique_ptr<CDecalDescription> CDecalDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
@@ -130,4 +130,4 @@ CFactoryFnReturn FDecalDataFactory(const SObjectTag& tag, CInputStream& in, cons
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
   return TToken<CDecalDescription>::GetIObjObjectFor(CDecalDataFactory::GetGeneratorDesc(in, sp));
 }
-} // namespace urde
+} // namespace metaforce

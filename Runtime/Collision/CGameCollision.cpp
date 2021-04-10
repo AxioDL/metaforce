@@ -17,7 +17,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 static float CollisionImpulseFiniteVsInfinite(float mass, float velNormDot, float restitution) {
   return mass * -(1.f + restitution) * velNormDot;
@@ -1034,4 +1034,4 @@ void CGameCollision::AvoidStaticCollisionWithinRadius(const CStateManager& mgr, 
     actor.SetVelocityWR(actor.GetVelocity() + (dt * (mass * velocity)));
   }
 }
-} // namespace urde
+} // namespace metaforce

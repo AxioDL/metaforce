@@ -9,7 +9,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
@@ -64,4 +64,4 @@ void CScanLinesFilter::draw(const zeus::CColor& color) {
   CGraphics::DrawArray(0, 670);
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -2,7 +2,7 @@
 
 #include "Runtime/Collision/CMaterialList.hpp"
 
-namespace urde {
+namespace metaforce {
 class CMaterialFilter {
 public:
   enum class EFilterType { Always, Include, Exclude, IncludeExclude };
@@ -56,4 +56,4 @@ public:
     }
   }
 };
-} // namespace urde
+} // namespace metaforce

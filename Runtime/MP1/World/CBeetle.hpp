@@ -9,7 +9,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 namespace MP1 {
 class CBeetle : public CPatterned {
@@ -117,4 +117,4 @@ public:
   float GetGravityConstant() const override;
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

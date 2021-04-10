@@ -7,7 +7,7 @@
 #include "Runtime/Audio/CMidiManager.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptMidi : public CEntity {
   TToken<CMidiManager::CMidiData> x34_song;
@@ -28,4 +28,4 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 };
 
-} // namespace urde
+} // namespace metaforce

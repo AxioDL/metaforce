@@ -6,7 +6,7 @@
 #include "Runtime/Input/CInputGenerator.hpp"
 #include "Runtime/Input/CRumbleVoice.hpp"
 
-namespace urde {
+namespace metaforce {
 class CRumbleGenerator {
   std::array<CRumbleVoice, 4> x0_voices;
   std::array<float, 4> xc0_periodTime;
@@ -24,4 +24,4 @@ public:
   bool IsDisabled() const { return xf0_24_disabled; }
   void SetDisabled(bool disabled) { xf0_24_disabled = disabled; }
 };
-} // namespace urde
+} // namespace metaforce

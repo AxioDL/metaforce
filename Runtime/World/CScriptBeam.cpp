@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptBeam::CScriptBeam(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                          bool active, const TToken<CWeaponDescription>& weaponDesc, const CBeamInfo& bInfo,
@@ -54,4 +54,4 @@ void CScriptBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CSt
 
   CActor::AcceptScriptMsg(msg, objId, mgr);
 }
-} // namespace urde
+} // namespace metaforce

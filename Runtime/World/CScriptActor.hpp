@@ -5,7 +5,7 @@
 #include "Runtime/World/CHealthInfo.hpp"
 #include "Runtime/World/CPhysicsActor.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptActor : public CPhysicsActor {
 protected:
@@ -46,4 +46,4 @@ public:
   CHealthInfo* HealthInfo(CStateManager&) override { return &x260_currentHealth; }
   bool IsPlayerActor() const { return x2e3_24_isPlayerActor; }
 };
-}; // namespace urde
+}; // namespace metaforce

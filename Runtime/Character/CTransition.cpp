@@ -1,6 +1,6 @@
 #include "Runtime/Character/CTransition.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CTransition::CTransition(CInputStream& in)
 : x0_id(in.readUint32Big())
@@ -8,4 +8,4 @@ CTransition::CTransition(CInputStream& in)
 , x8_animB(in.readUint32Big())
 , xc_trans(CMetaTransFactory::CreateMetaTrans(in)) {}
 
-} // namespace urde
+} // namespace metaforce

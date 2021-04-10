@@ -13,7 +13,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CCharLayoutNode {
 public:
@@ -48,4 +48,4 @@ public:
 
 CFactoryFnReturn FCharLayoutInfo(const SObjectTag&, CInputStream&, const CVParamTransfer&, CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce

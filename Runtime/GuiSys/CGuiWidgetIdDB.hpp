@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include "Runtime/GCNTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CGuiWidgetIdDB {
   std::unordered_map<std::string, s16> x0_dbMap;
@@ -18,4 +18,4 @@ public:
   s16 AddWidget(std::string_view name);
 };
 
-} // namespace urde
+} // namespace metaforce

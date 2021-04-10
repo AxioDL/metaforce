@@ -9,7 +9,7 @@
 
 #include <zeus/CAABox.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScriptCoverPoint : public CActor {
   bool xe8_26_landHere : 1;
   bool xe8_27_wallHang : 1;
@@ -50,4 +50,4 @@ public:
   }
   void Reserve(TUniqueId id) { xfa_occupant = id; }
 };
-} // namespace urde
+} // namespace metaforce

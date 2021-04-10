@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CScriptTrigger.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptSteam : public CScriptTrigger {
   bool x150_;
@@ -26,4 +26,4 @@ public:
   void Think(float, CStateManager&) override;
 };
 
-} // namespace urde
+} // namespace metaforce

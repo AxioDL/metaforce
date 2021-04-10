@@ -6,14 +6,14 @@
 #include "Runtime/Weapon/CProjectileInfo.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde {
+namespace metaforce {
 class CGenDescription;
 class CElementGen;
 class CWeaponDescription;
 class CTargetableProjectile;
-} // namespace urde
+} // namespace metaforce
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CBloodFlower : public CPatterned {
   TLockedToken<CGenDescription> x568_podEffectDesc;
   std::unique_ptr<CElementGen> x574_podEffect;
@@ -69,4 +69,4 @@ public:
   void BulbAttack(CStateManager&, EStateMsg, float) override;
   void PodAttack(CStateManager&, EStateMsg, float) override;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

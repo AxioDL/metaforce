@@ -3,7 +3,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CAi.hpp"
 
-namespace urde {
+namespace metaforce {
 CAiFuncMap::CAiFuncMap() {
   /* Ai States */
   x0_stateFuncs.reserve(55);
@@ -156,4 +156,4 @@ CAiTriggerFunc CAiFuncMap::GetTriggerFunc(std::string_view func) const {
 
   return iter->second;
 }
-} // namespace urde
+} // namespace metaforce

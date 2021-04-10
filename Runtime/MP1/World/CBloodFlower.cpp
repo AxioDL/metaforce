@@ -12,7 +12,7 @@
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CScriptTrigger.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CBloodFlower::CBloodFlower(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const CPatternedInfo& pInfo, CAssetId partId1, CAssetId wpscId1,
                            const CActorParameters& actParms, CAssetId wpscId2, const CDamageInfo& dInfo1,
@@ -268,4 +268,4 @@ CTargetableProjectile* CBloodFlower::CreateArcProjectile(CStateManager& mgr, con
   return targProj;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -7,7 +7,7 @@
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CMorphBallShadow::GatherAreas(const CStateManager& mgr) {
   x18_areas.clear();
@@ -138,4 +138,4 @@ void CMorphBallShadow::Render(const CStateManager& mgr, float alpha) {
   g_Renderer->DrawOverlappingWorldModelShadows(alphaVal, x30_worldModelBits, xb8_shadowVolume, alpha);
 }
 
-} // namespace urde
+} // namespace metaforce

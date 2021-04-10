@@ -9,7 +9,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Color_Elements */
 
-namespace urde {
+namespace metaforce {
 
 CCEKeyframeEmitter::CCEKeyframeEmitter(CInputStream& in) {
   x4_percent = in.readUint32Big();
@@ -141,4 +141,4 @@ bool CCEParticleColor::GetValue(int /*frame*/, zeus::CColor& colorOut) const {
   return false;
 }
 
-} // namespace urde
+} // namespace metaforce

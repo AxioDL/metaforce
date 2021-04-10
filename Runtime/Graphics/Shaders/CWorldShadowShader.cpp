@@ -8,7 +8,7 @@
 #include <hecl/Pipeline.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_ZPipeline;
@@ -85,4 +85,4 @@ void CWorldShadowShader::resolveTexture() {
   CGraphics::g_BooMainCommandQueue->resolveBindTexture(m_tex, rect, false, 0, true, false, true);
 }
 
-} // namespace urde
+} // namespace metaforce

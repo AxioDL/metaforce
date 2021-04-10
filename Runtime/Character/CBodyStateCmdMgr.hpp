@@ -6,7 +6,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CBodyStateCmd {
   EBodyStateCmd x4_cmd;
@@ -452,4 +452,4 @@ public:
   const zeus::CVector3f& GetAdditiveTargetVector() const { return x24_additiveTarget; }
 };
 
-} // namespace urde
+} // namespace metaforce

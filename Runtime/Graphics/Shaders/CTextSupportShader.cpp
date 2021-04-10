@@ -5,7 +5,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_TextAlphaPipeline;
 boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_TextAddPipeline;
@@ -78,4 +78,4 @@ void CTextSupportShader::ImageInstance::SetMetrics(const CFontImageDef& imgDef, 
   m_uv[3].assign(0.5f + cropPad.x(), 0.5f - cropPad.y());
 }
 
-} // namespace urde
+} // namespace metaforce

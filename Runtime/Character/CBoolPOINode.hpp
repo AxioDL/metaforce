@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CPOINode.hpp"
 
-namespace urde {
+namespace metaforce {
 class IAnimSourceInfo;
 
 class CBoolPOINode : public CPOINode {
@@ -15,4 +15,4 @@ public:
   static CBoolPOINode CopyNodeMinusStartTime(const CBoolPOINode& node, const CCharAnimTime& startTime);
 };
 
-} // namespace urde
+} // namespace metaforce

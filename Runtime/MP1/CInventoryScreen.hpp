@@ -8,7 +8,7 @@
 
 #include <zeus/CVector2f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CDependencyGroup;
 
 namespace MP1 {
@@ -60,4 +60,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

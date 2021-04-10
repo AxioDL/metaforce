@@ -4,7 +4,7 @@
 #include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde {
+namespace metaforce {
 
 constexpr std::array<std::array<std::array<CKnockBackController::KnockBackParms, 4>, 19>, 3> KnockBackParmsTable{{
     {{
@@ -633,4 +633,4 @@ void CKnockBackController::KnockBack(const zeus::CVector3f& backVec, CStateManag
   ResetKnockBackImpulse(parent, vec, 2.f);
 }
 
-} // namespace urde
+} // namespace metaforce

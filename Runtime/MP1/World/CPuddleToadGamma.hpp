@@ -8,7 +8,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CPuddleToadGamma final : public CPatterned {
   u32 x568_stateProg = 0;
@@ -75,4 +75,4 @@ public:
   bool Inside(CStateManager&, float) override;
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

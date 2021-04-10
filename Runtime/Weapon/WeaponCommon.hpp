@@ -10,7 +10,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 
-namespace urde {
+namespace metaforce {
 class CAnimData;
 class CPrimitive;
 class CStateManager;
@@ -90,4 +90,4 @@ CSfxHandle play_sfx(u16 sfx, bool underwater, bool looped, float pan);
 
 } // namespace NWeaponTypes
 
-} // namespace urde
+} // namespace metaforce

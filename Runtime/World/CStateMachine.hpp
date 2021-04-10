@@ -9,7 +9,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/World/CAiFuncMap.hpp"
 
-namespace urde {
+namespace metaforce {
 class CAiState;
 class CStateManager;
 
@@ -117,4 +117,4 @@ public:
 CFactoryFnReturn FAiFiniteStateMachineFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                               CObjectReference*);
 
-} // namespace urde
+} // namespace metaforce

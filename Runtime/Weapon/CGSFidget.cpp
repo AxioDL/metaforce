@@ -5,7 +5,7 @@
 #include "Runtime/Character/CAnimData.hpp"
 #include "Runtime/Weapon/WeaponCommon.hpp"
 
-namespace urde {
+namespace metaforce {
 bool CGSFidget::Update(CAnimData& data, float dt, CStateManager& mgr) {
   return !data.IsAnimTimeRemaining(0.001f, "Whole Body");
 }
@@ -38,4 +38,4 @@ void CGSFidget::LoadAnimAsync(CAnimData& data, s32 type, s32 gunId, s32 animSet,
 void CGSFidget::UnLoadAnim() { x0_anims.clear(); }
 
 bool CGSFidget::IsAnimLoaded() const { return NWeaponTypes::are_tokens_ready(x0_anims); }
-} // namespace urde
+} // namespace metaforce

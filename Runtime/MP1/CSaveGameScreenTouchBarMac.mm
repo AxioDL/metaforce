@@ -84,7 +84,7 @@
 }
 @end
 
-namespace urde::MP1
+namespace metaforce::MP1
 {
 
 class CSaveGameScreenTouchBarMac : public CSaveGameScreenTouchBar

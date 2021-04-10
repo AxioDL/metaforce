@@ -4,7 +4,7 @@
 
 #include "Runtime/Weapon/CBeamProjectile.hpp"
 
-namespace urde {
+namespace metaforce {
 struct SElectricBeamInfo {
   TToken<CElectricDescription> x0_electricDescription;
   float x8_maxLength;
@@ -38,4 +38,4 @@ public:
   void ResetBeam(CStateManager&, bool) override;
   void Fire(const zeus::CTransform&, CStateManager&, bool) override;
 };
-} // namespace urde
+} // namespace metaforce

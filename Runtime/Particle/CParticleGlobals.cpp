@@ -1,5 +1,5 @@
 #include "Runtime/Particle/CParticleGlobals.hpp"
 
-namespace urde {
+namespace metaforce {
 std::unique_ptr<CParticleGlobals> CParticleGlobals::g_ParticleGlobals;
-} // namespace urde
+} // namespace metaforce

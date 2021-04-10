@@ -7,9 +7,9 @@
 #include "Runtime/World/CDamageInfo.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-namespace urde {
+namespace metaforce {
 
-CProjectileInfo::CProjectileInfo(urde::CInputStream& in)
+CProjectileInfo::CProjectileInfo(metaforce::CInputStream& in)
 : x0_weaponDescription(g_SimplePool->GetObj({SBIG('WPSC'), CAssetId(in)})), xc_damageInfo(in) {}
 
 CProjectileInfo::CProjectileInfo(CAssetId proj, const CDamageInfo& dInfo)
@@ -74,4 +74,4 @@ zeus::CVector3f CProjectileInfo::PredictInterceptPos(const zeus::CVector3f& gunP
   return PredictInterceptPos(gunPos, aimPos, player, gravity, GetProjectileSpeed(), dt);
 }
 
-} // namespace urde
+} // namespace metaforce

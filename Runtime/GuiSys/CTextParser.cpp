@@ -3,7 +3,7 @@
 #include "Runtime/GuiSys/CFontImageDef.hpp"
 #include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
 
-namespace urde {
+namespace metaforce {
 
 static float u16stof(const char16_t* str) {
   char cstr[16];
@@ -298,4 +298,4 @@ void CTextParser::ParseText(CTextExecuteBuffer& out, const char16_t* str, int le
     out.AddString(str + b, e - b);
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -2,7 +2,7 @@
 
 #include "Runtime/Audio/CSfxManager.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CPatternedInfo::CPatternedInfo(CInputStream& in, u32 pcount)
 : x0_mass(in.readFloatBig())
@@ -52,4 +52,4 @@ std::pair<bool, u32> CPatternedInfo::HasCorrectParameterCount(CInputStream& in) 
   u32 pcount = in.readUint32Big();
   return {(pcount >= 35 && pcount <= 38), pcount};
 }
-} // namespace urde
+} // namespace metaforce

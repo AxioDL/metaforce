@@ -2,7 +2,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimationParameters {
   CAssetId x0_ancs;
@@ -22,4 +22,4 @@ public:
   void SetCharacter(u32 charIdx) { x4_charIdx = charIdx; }
 };
 
-} // namespace urde
+} // namespace metaforce

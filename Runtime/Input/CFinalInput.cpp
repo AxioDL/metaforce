@@ -2,7 +2,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CFinalInput::CFinalInput() = default;
 
@@ -162,4 +162,4 @@ CFinalInput CFinalInput::ScaleAnalogueSticks(float leftDiv, float rightDiv) cons
   ret.m_rightMul = 1.f / rightDiv;
   return ret;
 }
-} // namespace urde
+} // namespace metaforce

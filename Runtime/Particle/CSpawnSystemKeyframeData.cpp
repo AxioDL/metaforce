@@ -4,7 +4,7 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CSpawnSystemKeyframeData::CSpawnSystemKeyframeData(CInputStream& in) {
   x0 = in.readUint32Big();
@@ -54,4 +54,4 @@ CSpawnSystemKeyframeData::GetSpawnedSystemsAtFrame(u32 frame) {
   return emptyReturn;
 }
 
-} // namespace urde
+} // namespace metaforce

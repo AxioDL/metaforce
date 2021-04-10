@@ -1,6 +1,6 @@
 #include "Runtime/World/CHealthInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CHealthInfo::CHealthInfo(CInputStream& in) {
   in.readUint32Big();
@@ -8,4 +8,4 @@ CHealthInfo::CHealthInfo(CInputStream& in) {
   x4_knockbackResistance = in.readFloatBig();
 }
 
-} // namespace urde
+} // namespace metaforce

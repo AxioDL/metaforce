@@ -11,12 +11,12 @@ AT_SUBSPECIALIZE_DNA_YAML(PPImpl<_CRSM<UniqueID64>>)
 
 template <>
 std::string_view PPImpl<_CRSM<UniqueID32>>::DNAType() {
-  return "urde::CRSM<UniqueID32>"sv;
+  return "CRSM<UniqueID32>"sv;
 }
 
 template <>
 std::string_view PPImpl<_CRSM<UniqueID64>>::DNAType() {
-  return "urde::CRSM<UniqueID64>"sv;
+  return "CRSM<UniqueID64>"sv;
 }
 
 template <class IDType>

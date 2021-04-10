@@ -12,7 +12,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScriptSpecialFunction : public CActor {
 public:
   enum class ESpecialFunction {
@@ -144,4 +144,4 @@ public:
   u32 GetSpecialEnding(const CStateManager&) const;
   void AddOrUpdateEmitter(float pitch, CSfxHandle& handle, u16 id, const zeus::CVector3f& pos, float vol);
 };
-} // namespace urde
+} // namespace metaforce

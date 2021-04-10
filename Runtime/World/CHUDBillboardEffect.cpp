@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 u32 CHUDBillboardEffect::g_IndirectTexturedBillboardCount = 0;
 u32 CHUDBillboardEffect::g_BillboardCount = 0;
@@ -105,4 +105,4 @@ float CHUDBillboardEffect::GetNearClipDistance(CStateManager& mgr) {
 
 zeus::CVector3f CHUDBillboardEffect::GetScaleForPOV(CStateManager& mgr) { return {0.155f, 1.f, 0.155f}; }
 
-} // namespace urde
+} // namespace metaforce

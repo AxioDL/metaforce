@@ -1,7 +1,7 @@
 #include "ParticleCommon.hpp"
 
 namespace DataSpec::DNAParticle {
-logvisor::Module LogModule("urde::DNAParticle");
+logvisor::Module LogModule("DataSpec::DNAParticle");
 
 template struct PEImpl<_RealElementFactory>;
 template struct PEImpl<_IntElementFactory>;

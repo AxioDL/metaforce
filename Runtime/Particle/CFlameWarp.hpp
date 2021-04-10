@@ -6,7 +6,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 
 class CFlameWarp : public CWarp {
@@ -48,4 +48,4 @@ public:
   void ResetPosition(const zeus::CVector3f& pos);
   zeus::CAABox CalculateBounds() const;
 };
-} // namespace urde
+} // namespace metaforce

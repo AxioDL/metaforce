@@ -10,7 +10,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 struct SRiders;
 class CScriptPlatform;
 class CScriptActorRotate : public CEntity {
@@ -36,4 +36,4 @@ public:
   void Think(float, CStateManager&) override;
 };
 
-} // namespace urde
+} // namespace metaforce

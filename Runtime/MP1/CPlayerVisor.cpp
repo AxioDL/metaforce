@@ -12,7 +12,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CPlayerVisor::CPlayerVisor(CStateManager&) : x108_newScanPane(EFilterType::Blend, CGraphics::g_SpareTexture.get()) {
   xcc_scanFrameCorner = g_SimplePool->GetObj("CMDL_ScanFrameCorner");
@@ -676,4 +676,4 @@ float CPlayerVisor::GetDesiredViewportScaleY(const CStateManager& mgr) const {
   return mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Combat ? 1.f : xc8_vpScaleY;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

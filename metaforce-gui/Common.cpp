@@ -91,7 +91,7 @@ VectorISA StringToVectorISA(const QString& str) {
   return VectorISA::Invalid;
 }
 
-URDEVersion::URDEVersion(const QString& filename) {
+MetaforceVersion::MetaforceVersion(const QString& filename) {
   int idx;
   QString useFilename = filename;
   if ((idx = filename.lastIndexOf(QLatin1Char{'.'})) > filename.lastIndexOf(QLatin1Char{'-'})) {
@@ -153,7 +153,7 @@ URDEVersion::URDEVersion(const QString& filename) {
   }
 }
 
-QString URDEVersion::fileString(bool withExtension) const {
+QString MetaforceVersion::fileString(bool withExtension) const {
   if (m_version.isEmpty()) {
     return {};
   }

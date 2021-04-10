@@ -9,7 +9,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 union BitsToDouble {
   struct {
 #if BYTE_ORDER == __LITTLE_ENDIAN
@@ -284,4 +284,4 @@ void CGameState::InitializeMemoryStates() {
   WriteBackupBuf();
 }
 
-} // namespace urde
+} // namespace metaforce

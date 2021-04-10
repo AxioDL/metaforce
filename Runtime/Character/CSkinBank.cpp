@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CPoseAsTransforms.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CSkinBank::CSkinBank(CInputStream& in) {
   u32 boneCount = in.readUint32Big();
@@ -18,4 +18,4 @@ void CSkinBank::GetBankTransforms(std::vector<const zeus::CTransform*>& out, con
   }
 }
 
-} // namespace urde
+} // namespace metaforce

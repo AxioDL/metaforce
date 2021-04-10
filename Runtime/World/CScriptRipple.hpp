@@ -6,7 +6,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScriptRipple : public CEntity {
   float x34_magnitude;
   zeus::CVector3f x38_center;
@@ -18,4 +18,4 @@ public:
   void Think(float, CStateManager&) override {}
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 };
-} // namespace urde
+} // namespace metaforce

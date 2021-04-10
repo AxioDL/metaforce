@@ -8,7 +8,7 @@
 #include "Runtime/Character/CPASAnimInfo.hpp"
 #include "Runtime/Character/CPASParmInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 class CRandom16;
 class CPASAnimParmData;
 class CPASAnimState {
@@ -34,4 +34,4 @@ public:
                                           s32 ignoreAnim) const;
 };
 
-} // namespace urde
+} // namespace metaforce

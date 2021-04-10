@@ -4,7 +4,7 @@
 #include <type_traits>
 #include "Runtime/Character/CFBStreamedAnimReader.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 template <typename T>
 T ReadValue(const u8* data) {
@@ -271,4 +271,4 @@ float CFBStreamedCompression::CalculateAverageVelocity(const u8* chans) const {
   return accumMag / GetAnimationDuration().GetSeconds();
 }
 
-} // namespace urde
+} // namespace metaforce

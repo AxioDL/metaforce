@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 void CBSAttack::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCMeleeAttackCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::MeleeAttack));
@@ -2203,4 +2203,4 @@ float CBSRestrictedFlyerLocomotion::ApplyLocomotionPhysics(float dt, CBodyContro
   return 0.f;
 }
 
-} // namespace urde
+} // namespace metaforce

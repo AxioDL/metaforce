@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 static CActorParameters MakeDamageableTriggerActorParms(const CActorParameters& aParams, const CVisorParameters& vParams) {
   CActorParameters ret = aParams;
   ret.SetVisorParameters(vParams);
@@ -215,4 +215,4 @@ std::optional<zeus::CAABox> CScriptDamageableTrigger::GetTouchBounds() const {
   return std::nullopt;
 }
 
-} // namespace urde
+} // namespace metaforce

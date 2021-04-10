@@ -6,7 +6,7 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
 
-namespace urde {
+namespace metaforce {
 class CIOWin;
 
 enum class EArchMsgTarget {
@@ -142,4 +142,4 @@ public:
     return CArchitectureMessage(target, EArchMsgType::RemoveAllIOWins, std::make_shared<CArchMsgParmNull>());
   }
 };
-} // namespace urde
+} // namespace metaforce

@@ -17,7 +17,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAreaCollisionCache;
 class CWallCrawlerSwarm : public CActor {
 public:
@@ -202,4 +202,4 @@ public:
   bool GetLockOnLocationValid(int id) const { return id >= 0 && id < x108_boids.size() && x108_boids[id].GetActive(); }
   const zeus::CVector3f& GetLockOnLocation(int id) const { return x108_boids[id].GetTranslation(); }
 };
-} // namespace urde
+} // namespace metaforce

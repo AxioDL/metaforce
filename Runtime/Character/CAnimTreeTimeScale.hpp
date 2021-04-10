@@ -8,7 +8,7 @@
 #include "Runtime/Character/CAnimTreeSingleChild.hpp"
 #include "Runtime/Character/CTimeScaleFunctions.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimTreeTimeScale : public CAnimTreeSingleChild {
   std::unique_ptr<IVaryingAnimationTimeScale> x18_timeScale;
@@ -46,4 +46,4 @@ public:
   SAdvancementResults VAdvanceView(const CCharAnimTime& dt) override;
 };
 
-} // namespace urde
+} // namespace metaforce

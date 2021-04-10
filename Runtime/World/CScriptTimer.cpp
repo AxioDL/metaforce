@@ -4,7 +4,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptTimer::CScriptTimer(TUniqueId uid, std::string_view name, const CEntityInfo& info, float startTime,
                            float maxRandDelay, bool loop, bool autoStart, bool active)
@@ -76,4 +76,4 @@ void CScriptTimer::ApplyTime(float dt, CStateManager& mgr) {
 
   x42_isTiming = true;
 }
-} // namespace urde
+} // namespace metaforce

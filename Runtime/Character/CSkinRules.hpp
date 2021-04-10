@@ -9,7 +9,7 @@
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CPoseAsTransforms;
 class CModel;
 
@@ -59,4 +59,4 @@ public:
 CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params,
                                    CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce

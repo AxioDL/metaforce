@@ -6,7 +6,7 @@
 
 #include "Runtime/GCNTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 using OSTime = s64;
 
@@ -41,4 +41,4 @@ public:
   static OSCalendarTime ToCalendarTime(std::chrono::system_clock::time_point time);
 };
 
-} // namespace urde
+} // namespace metaforce

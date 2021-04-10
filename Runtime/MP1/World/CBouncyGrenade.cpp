@@ -8,7 +8,7 @@
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CBouncyGrenade::CBouncyGrenade(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParams,
                                TUniqueId parentId, const SBouncyGrenadeData& data, float velocity,
@@ -207,4 +207,4 @@ void CBouncyGrenade::Explode(CStateManager& mgr, TUniqueId uid) {
     }
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

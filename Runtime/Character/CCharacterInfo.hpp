@@ -11,7 +11,7 @@
 
 #include <zeus/CAABox.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CCharacterInfo {
   friend class CAnimData;
@@ -68,4 +68,4 @@ public:
 
   s32 GetAnimationIndex(std::string_view) const;
 };
-} // namespace urde
+} // namespace metaforce

@@ -8,7 +8,7 @@
 #include "Runtime/Character/CAnimTreeSingleChild.hpp"
 #include "Runtime/Character/CSequenceHelper.hpp"
 
-namespace urde {
+namespace metaforce {
 class IMetaAnim;
 class CTransitionDatabaseGame;
 
@@ -42,4 +42,4 @@ public:
   std::unique_ptr<IAnimReader> VClone() const override;
 };
 
-} // namespace urde
+} // namespace metaforce

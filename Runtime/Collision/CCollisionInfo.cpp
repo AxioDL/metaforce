@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace urde {
+namespace metaforce {
 
 CCollisionInfo CCollisionInfo::GetSwapped() const {
   CCollisionInfo ret;
@@ -25,4 +25,4 @@ void CCollisionInfo::Swap() {
 
 zeus::CVector3f CCollisionInfo::GetExtreme() const { return x0_point + xc_extentX + x18_extentY + x24_extentZ; }
 
-} // namespace urde
+} // namespace metaforce

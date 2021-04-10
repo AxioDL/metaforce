@@ -22,7 +22,7 @@
 
 #include <hecl/CVarManager.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                const zeus::CTransform& xf, ESpecialFunction func,
@@ -1005,4 +1005,4 @@ void CScriptSpecialFunction::AddOrUpdateEmitter(float pitch, CSfxHandle& handle,
 CScriptSpecialFunction::SRingController::SRingController(TUniqueId uid, float rotateSpeed, bool reachedTarget)
 : x0_id(uid), x4_rotateSpeed(rotateSpeed), x8_reachedTarget(reachedTarget) {}
 
-} // namespace urde
+} // namespace metaforce

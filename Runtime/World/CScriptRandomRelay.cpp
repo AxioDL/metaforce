@@ -4,7 +4,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptRandomRelay::CScriptRandomRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 sendSetSize,
                                        s32 sendSetVariance, bool percentSize, bool active)
 : CEntity(uid, info, active, name)
@@ -67,4 +67,4 @@ void CScriptRandomRelay::SendLocalScriptMsgs(EScriptObjectState state, CStateMan
     stateMgr.SendScriptMsg(o.first, GetUniqueId(), o.second);
   }
 }
-} // namespace urde
+} // namespace metaforce

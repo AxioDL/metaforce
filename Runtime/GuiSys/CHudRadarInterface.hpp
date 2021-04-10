@@ -9,7 +9,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CGuiCamera;
 class CGuiFrame;
 class CGuiWidget;
@@ -45,4 +45,4 @@ public:
   void Draw(const CStateManager& mgr, float alpha);
 };
 
-} // namespace urde
+} // namespace metaforce

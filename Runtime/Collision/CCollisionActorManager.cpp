@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId owner, TAreaId area,
                                                const std::vector<CJointCollisionDescription>& descs, bool active)
@@ -246,4 +246,4 @@ std::optional<zeus::CVector3f> CCollisionActorManager::GetDeviation(const CState
   return std::nullopt;
 }
 
-} // namespace urde
+} // namespace metaforce

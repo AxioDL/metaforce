@@ -3,7 +3,7 @@
 #include <memory>
 #include "Runtime/Weapon/CGunWeapon.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPowerBeam final : public CGunWeapon {
   enum class ESmokeState { Inactive, Active, Done };
@@ -33,4 +33,4 @@ public:
   bool IsLoaded() const override;
 };
 
-} // namespace urde
+} // namespace metaforce

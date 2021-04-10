@@ -2,7 +2,7 @@
 
 #include "Runtime/Graphics/CPVSVisOctree.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CPVSVisSet::Reset(EPVSVisSetState state) {
   x0_state = state;
@@ -88,4 +88,4 @@ void CPVSVisSet::SetTestPoint(const CPVSVisOctree& octree, const zeus::CVector3f
   }
 }
 
-} // namespace urde
+} // namespace metaforce

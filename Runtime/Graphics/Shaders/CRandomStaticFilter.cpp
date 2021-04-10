@@ -8,7 +8,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
@@ -80,4 +80,4 @@ void CRandomStaticFilter::draw(const zeus::CColor& color, float t) {
   CGraphics::DrawArray(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -15,7 +15,7 @@
 #include "Runtime/Character/CTransitionManager.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CFactoryFnReturn CCharacterFactory::CDummyFactory::Build(const SObjectTag& tag, const CVParamTransfer& params,
                                                          CObjectReference* selfRef) {
@@ -55,21 +55,21 @@ void CCharacterFactory::CDummyFactory::EnumerateResources(const std::function<bo
 void CCharacterFactory::CDummyFactory::EnumerateNamedResources(
     const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const {}
 
-u32 CCharacterFactory::CDummyFactory::ResourceSize(const urde::SObjectTag& tag) { return 0; }
+u32 CCharacterFactory::CDummyFactory::ResourceSize(const metaforce::SObjectTag& tag) { return 0; }
 
-std::shared_ptr<IDvdRequest> CCharacterFactory::CDummyFactory::LoadResourceAsync(const urde::SObjectTag& tag,
+std::shared_ptr<IDvdRequest> CCharacterFactory::CDummyFactory::LoadResourceAsync(const metaforce::SObjectTag& tag,
                                                                                  void* target) {
   return {};
 }
 
-std::shared_ptr<IDvdRequest> CCharacterFactory::CDummyFactory::LoadResourcePartAsync(const urde::SObjectTag& tag,
+std::shared_ptr<IDvdRequest> CCharacterFactory::CDummyFactory::LoadResourcePartAsync(const metaforce::SObjectTag& tag,
                                                                                      u32 off, u32 size, void* target) {
   return {};
 }
 
-std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadResourceSync(const urde::SObjectTag& tag) { return {}; }
+std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadResourceSync(const metaforce::SObjectTag& tag) { return {}; }
 
-std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off,
+std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadNewResourcePartSync(const metaforce::SObjectTag& tag, u32 off,
                                                                                 u32 size) {
   return {};
 }
@@ -158,4 +158,4 @@ CCharacterFactory::CCharacterFactory(CSimplePool& store, const CAnimCharacterSet
     x30_animSourceDB.push_back(store.GetObj({SBIG('ANIM'), prim.GetAnimResId()}));
 }
 
-} // namespace urde
+} // namespace metaforce

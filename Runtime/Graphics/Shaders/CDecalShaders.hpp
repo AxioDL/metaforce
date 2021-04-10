@@ -2,7 +2,7 @@
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
-namespace urde {
+namespace metaforce {
 struct CQuadDecal;
 
 class CDecalShaders {
@@ -20,4 +20,4 @@ public:
   static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CQuadDecal& decal);
 };
 
-} // namespace urde
+} // namespace metaforce

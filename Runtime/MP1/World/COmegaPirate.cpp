@@ -17,7 +17,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::array<SSphereJointInfo, 1> skSphereJoints{{
     {"lockon_target_LCTR", 1.f},
@@ -1413,4 +1413,4 @@ void COmegaPirate::DeathDestroy(CStateManager& mgr) {
   xa38_collisionActorMgr1->SetActive(mgr, false);
   xa9c_collisionActorMgr2->SetActive(mgr, false);
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

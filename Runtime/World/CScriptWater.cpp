@@ -12,14 +12,14 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 constexpr std::array kSplashScales{
     1.0f, 3.0f, 0.709f, 1.19f, 0.709f, 1.f,
 };
 
 CScriptWater::CScriptWater(
     CStateManager& mgr, TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& pos,
-    const zeus::CAABox& box, const urde::CDamageInfo& dInfo, zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags,
+    const zeus::CAABox& box, const metaforce::CDamageInfo& dInfo, zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags,
     bool thermalCold, bool allowRender, CAssetId patternMap1, CAssetId patternMap2, CAssetId colorMap, CAssetId bumpMap,
     CAssetId envMap, CAssetId envBumpMap, CAssetId unusedMap, const zeus::CVector3f& bumpLightDir, float bumpScale,
     float morphInTime, float morphOutTime, bool active, EFluidType fluidType, bool b4, float alpha,
@@ -601,4 +601,4 @@ bool CScriptWater::CanRippleAtPoint(const zeus::CVector3f& point) const {
 
   return x2d8_tileIntersects[yTile * x2c4_gridDimX + xTile];
 }
-} // namespace urde
+} // namespace metaforce

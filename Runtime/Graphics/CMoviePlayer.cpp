@@ -10,7 +10,7 @@
 #include <specter/View.hpp>
 #include <turbojpeg.h>
 
-namespace urde {
+namespace metaforce {
 
 /* used in the original to look up fixed-point dividends on a
  * MIDI-style volume scale (0-127) -> (n/0x8000) */
@@ -207,7 +207,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     for (int i = 0; i < 3; ++i) {
       CTHPTextureSet& set = x80_textures.emplace_back();
       if (deinterlace) {
-        /* urde addition: this way interlaced THPs don't look horrible */
+        /* metaforce addition: this way interlaced THPs don't look horrible */
         set.Y[0] = ctx.newDynamicTexture(x6c_videoInfo.width, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
                                          boo::TextureClampMode::Repeat);
         set.Y[1] = ctx.newDynamicTexture(x6c_videoInfo.width, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
@@ -315,7 +315,7 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples) {
       tex->playedSamples += thisSamples;
       samples -= thisSamples;
     } else {
-      /* urde addition: failsafe for buffer overrun */
+      /* metaforce addition: failsafe for buffer overrun */
       if (in)
         memmove(out, in, samples * 4);
       else
@@ -334,7 +334,7 @@ void CMoviePlayer::MixStaticAudio(s16* out, const s16* in, u32 samples) {
     const u8* thisOffsetLeft = &StaticAudio[StaticAudioOffset / 2];
     const u8* thisOffsetRight = &StaticAudio[StaticAudioSize / 2 + StaticAudioOffset / 2];
 
-    /* urde addition: mix samples with `in` or no mix */
+    /* metaforce addition: mix samples with `in` or no mix */
     if (in) {
       for (u32 i = 0; i < thisSamples; i += 2) {
         out[0] = DSPSampClamp(
@@ -415,7 +415,7 @@ void CMoviePlayer::DrawFrame() {
   CGraphics::DrawArray(0, 4);
 
   /* ensure second field is being displayed by VI to signal advance
-   * (faked in urde with continuous xor) */
+   * (faked in metaforce with continuous xor) */
   if (!xfc_fieldIndex && CGraphics::g_LastFrameUsedAbove)
     xf4_26_fieldFlip = true;
 
@@ -609,4 +609,4 @@ void CMoviePlayer::PostDVDReadRequestIfNeeded() {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

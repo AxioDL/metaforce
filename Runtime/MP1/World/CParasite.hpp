@@ -7,11 +7,11 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CModelData;
 }
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CParasite : public CWallWalker {
   class CRepulsor {
     zeus::CVector3f x0_v;
@@ -147,4 +147,4 @@ public:
   bool IsOnGround() const override;
   virtual void UpdateWalkerAnimation(CStateManager&, float);
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -10,7 +10,7 @@
 #include <hecl/hecl.hpp>
 #include <zeus/CVector2i.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static bool _close_enough(float f1, float f2, float epsilon) { return std::fabs(f1 - f2) <= epsilon; }
 
@@ -620,4 +620,4 @@ void CAreaOctTree::GetTriangleVertexIndices(u16 idx, u16 indicesOut[3]) const {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

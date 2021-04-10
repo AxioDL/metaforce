@@ -6,7 +6,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CInternalRayCastStructure {
   zeus::CMRay x0_ray;
   float x38_maxTime;
@@ -25,4 +25,4 @@ public:
   const zeus::CTransform& GetTransform() const { return x3c_xf; }
   const CMaterialFilter& GetFilter() const { return x6c_filter; }
 };
-} // namespace urde
+} // namespace metaforce

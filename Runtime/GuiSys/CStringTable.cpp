@@ -4,7 +4,7 @@
 
 #include "Runtime/CToken.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr std::array languages{
     FOURCC('ENGL'), FOURCC('FREN'), FOURCC('GERM'), FOURCC('SPAN'), FOURCC('ITAL'), FOURCC('DUTC'), FOURCC('JAPN'),
@@ -77,4 +77,4 @@ CFactoryFnReturn FStringTableFactory(const SObjectTag&, CInputStream& in, const 
   return TToken<CStringTable>::GetIObjObjectFor(std::make_unique<CStringTable>(in));
 }
 
-} // namespace urde
+} // namespace metaforce

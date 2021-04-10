@@ -26,7 +26,7 @@
 
 #include <logvisor/logvisor.hpp>
 
-namespace urde {
+namespace metaforce {
 static logvisor::Module Log("CAnimData");
 
 rstl::reserved_vector<CBoolPOINode, 8> CAnimData::g_BoolPOINodes;
@@ -894,4 +894,4 @@ void CAnimData::SetParticleCEXTValue(std::string_view name, int idx, float value
     x120_particleDB.SetCEXTValue(search->second.front().GetComponentName(), idx, value);
 }
 
-} // namespace urde
+} // namespace metaforce

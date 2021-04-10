@@ -12,7 +12,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CBeetle::CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                  CModelData&& mData, const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor,
@@ -984,4 +984,4 @@ CPathFindSearch* CBeetle::GetSearchPath() { return &x5fc_pathFindSearch; }
 
 float CBeetle::GetGravityConstant() const { return 4.f * CPhysicsActor::GravityConstant(); }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

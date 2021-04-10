@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-namespace urde {
+namespace metaforce {
 class CScriptMemoryRelay : public CEntity {
   bool x34_24_defaultActive;
   bool x34_25_skipSendActive;
@@ -16,4 +16,4 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 };
-} // namespace urde
+} // namespace metaforce

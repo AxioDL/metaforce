@@ -6,7 +6,7 @@
 #include "Runtime/Character/CBodyStateCmdMgr.hpp"
 #include "Runtime/Character/CharacterCommon.hpp"
 
-namespace urde {
+namespace metaforce {
 class CActor;
 class CBodyController;
 class CStateManager;
@@ -71,4 +71,4 @@ public:
   void Shutdown(CBodyController& bc) override { StopAnimation(bc); }
 };
 
-} // namespace urde
+} // namespace metaforce

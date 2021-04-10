@@ -5,7 +5,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSaveWorld;
 
 class CMapWorldInfo {
@@ -31,4 +31,4 @@ public:
   bool IsAnythingSet() const;
   void SetMapStationUsed(bool isUsed) { x38_mapStationUsed = isUsed; }
 };
-} // namespace urde
+} // namespace metaforce

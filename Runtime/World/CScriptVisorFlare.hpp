@@ -5,7 +5,7 @@
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CVisorFlare.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptVisorFlare : public CActor {
   CVisorFlare xe8_flare;
@@ -24,4 +24,4 @@ public:
   void Render(CStateManager&) override;
 };
 
-} // namespace urde
+} // namespace metaforce

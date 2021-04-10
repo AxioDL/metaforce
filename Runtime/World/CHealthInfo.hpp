@@ -2,7 +2,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CHealthInfo {
   float x0_health;
@@ -20,4 +20,4 @@ public:
   void SetKnockbackResistance(float r) { x4_knockbackResistance = r; }
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -5,7 +5,7 @@
 #include "Runtime/Character/CharacterCommon.hpp"
 #include "Runtime/Character/CPASAnimParm.hpp"
 
-namespace urde {
+namespace metaforce {
 class CPASAnimParmData {
   pas::EAnimationState x0_stateId;
   rstl::reserved_vector<CPASAnimParm, 8> x4_parms;
@@ -27,4 +27,4 @@ public:
 
   static auto NoParameters(pas::EAnimationState stateId) { return CPASAnimParmData(stateId); }
 };
-} // namespace urde
+} // namespace metaforce

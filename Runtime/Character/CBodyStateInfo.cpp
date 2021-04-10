@@ -3,7 +3,7 @@
 #include "Runtime/Character/CBodyController.hpp"
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CBodyStateInfo::CBodyStateInfo(CActor& actor, EBodyType type) {
   x34_24_changeLocoAtEndOfAnimOnly = false;
@@ -434,4 +434,4 @@ bool CBodyStateInfo::ApplyHeadTracking() const {
   return GetCurrentState()->ApplyHeadTracking();
 }
 
-} // namespace urde
+} // namespace metaforce

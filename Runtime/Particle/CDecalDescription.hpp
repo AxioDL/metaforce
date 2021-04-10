@@ -9,7 +9,7 @@
 #include "Runtime/Particle/CUVElement.hpp"
 #include "Runtime/Particle/CVectorElement.hpp"
 
-namespace urde {
+namespace metaforce {
 
 struct SQuadDescr {
   std::unique_ptr<CIntElement> x0_LFT;
@@ -36,4 +36,4 @@ public:
   bool x5c_25_DMOO : 1 = false;
 };
 
-} // namespace urde
+} // namespace metaforce

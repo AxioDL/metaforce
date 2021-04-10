@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/World/CFluidPlaneCPU.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CFluidPlaneGPU final : public CFluidPlaneCPU {
 public:
@@ -22,4 +22,4 @@ public:
                               std::vector<CFluidPlaneShader::PatchVertex>& pvOut) override;
 };
 
-} // namespace urde
+} // namespace metaforce

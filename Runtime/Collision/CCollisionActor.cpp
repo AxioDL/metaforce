@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 constexpr CMaterialList skDefaultCollisionActorMaterials =
     CMaterialList(EMaterialTypes::Solid, EMaterialTypes::CollisionActor, EMaterialTypes::ScanPassthrough,
                   EMaterialTypes::CameraPassthrough);
@@ -192,4 +192,4 @@ void CCollisionActor::DebugDraw() {
   col.a() = 0.5f;
   m_aabox.draw(col);
 }
-} // namespace urde
+} // namespace metaforce

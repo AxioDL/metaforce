@@ -5,7 +5,7 @@
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CHudBossEnergyInterface::CHudBossEnergyInterface(CGuiFrame& selHud) {
   x14_basewidget_bossenergystuff = selHud.FindWidget("basewidget_bossenergystuff");
@@ -54,4 +54,4 @@ std::pair<zeus::CVector3f, zeus::CVector3f> CHudBossEnergyInterface::BossEnergyC
   return {zeus::CVector3f(x, 0.f, 0.f), zeus::CVector3f(x, 0.f, 0.4f)};
 }
 
-} // namespace urde
+} // namespace metaforce

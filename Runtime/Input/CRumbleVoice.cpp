@@ -1,6 +1,6 @@
 #include "Runtime/Input/CRumbleVoice.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CRumbleVoice::CRumbleVoice() : x0_datas(4), x10_deltas(4, SAdsrDelta::Stopped()) {
   x20_handleIds.resize(4);
@@ -156,4 +156,4 @@ void CRumbleVoice::Deactivate(s16 id, bool b1) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

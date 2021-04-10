@@ -1,5 +1,5 @@
 #pragma once
-namespace urde {
+namespace metaforce {
 class CTimeProvider {
 public:
   const float& x0_currentTime; // in seconds
@@ -9,4 +9,4 @@ public:
   CTimeProvider(const float& time);
   ~CTimeProvider();
 };
-} // namespace urde
+} // namespace metaforce

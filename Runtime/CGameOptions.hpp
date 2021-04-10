@@ -8,7 +8,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Audio/CAudioSys.hpp"
 
-namespace urde {
+namespace metaforce {
 struct CFinalInput;
 class CStateManager;
 
@@ -203,4 +203,4 @@ public:
   void Update(float dt, const CStateManager& stateMgr);
 };
 
-} // namespace urde
+} // namespace metaforce

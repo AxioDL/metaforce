@@ -8,7 +8,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CPatternedInfo {
   friend class CPatterned;
@@ -71,4 +71,4 @@ public:
   bool GetActive() const { return xf8_active; }
   void SetActive(bool active) { xf8_active = active; }
 };
-} // namespace urde
+} // namespace metaforce

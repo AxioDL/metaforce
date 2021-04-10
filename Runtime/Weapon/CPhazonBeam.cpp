@@ -9,7 +9,7 @@
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CPhazonBeam::CPhazonBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId, EMaterialTypes playerMaterial,
                          const zeus::CVector3f& scale)
@@ -216,4 +216,4 @@ void CPhazonBeam::DrawMuzzleFx(const CStateManager& mgr) const {
     CGunWeapon::DrawMuzzleFx(mgr);
 }
 
-} // namespace urde
+} // namespace metaforce

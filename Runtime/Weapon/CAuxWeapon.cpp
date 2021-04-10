@@ -8,7 +8,7 @@
 #include "Runtime/Weapon/CNewFlameThrower.hpp"
 #include "Runtime/Weapon/CWaveBuster.hpp"
 
-namespace urde {
+namespace metaforce {
 constexpr CCameraShakeData skHardShake{
     0.3f,
     100.f,
@@ -342,4 +342,4 @@ void CAuxWeapon::SetNewTarget(TUniqueId targetId, CStateManager& mgr) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

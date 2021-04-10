@@ -1,7 +1,7 @@
 #pragma once
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 class CElementGen;
 namespace MP1 {
 class CDroneLaser : public CActor {
@@ -25,4 +25,4 @@ public:
   void sub_80167754(CStateManager& mgr, const zeus::CVector3f& pos, const zeus::CVector3f& look);
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

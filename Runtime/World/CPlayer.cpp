@@ -34,9 +34,9 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 namespace {
-logvisor::Module Log("urde::CPlayer");
+logvisor::Module Log("metaforce::CPlayer");
 
 constexpr CMaterialFilter SolidMaterialFilter = CMaterialFilter::MakeInclude(CMaterialList(EMaterialTypes::Solid));
 
@@ -6272,4 +6272,4 @@ float CPlayer::GetAverageSpeed() const {
   return x4f8_moveSpeed;
 }
 
-} // namespace urde
+} // namespace metaforce

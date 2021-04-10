@@ -4,7 +4,7 @@
 #include "Runtime/Character/CCharLayoutInfo.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CGunController::LoadFidgetAnimAsync(CStateManager& mgr, s32 type, s32 gunId, s32 animSet) {
   x30_fidget.LoadAnimAsync(*x0_modelData.GetAnimationData(), type, gunId, animSet, mgr);
@@ -176,4 +176,4 @@ void CGunController::Reset() {
   x58_25_enteredComboFire = false;
   x50_gunState = EGunState::Inactive;
 }
-} // namespace urde
+} // namespace metaforce

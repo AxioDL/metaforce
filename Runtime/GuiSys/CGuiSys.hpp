@@ -10,7 +10,7 @@
 
 #include <hecl/hecl.hpp>
 
-namespace urde {
+namespace metaforce {
 class CGuiFrame;
 class CGuiObject;
 class CGuiWidget;
@@ -58,4 +58,4 @@ extern CTextExecuteBuffer* g_TextExecuteBuf;
 /** Global CTextParser instance */
 extern CTextParser* g_TextParser;
 
-} // namespace urde
+} // namespace metaforce

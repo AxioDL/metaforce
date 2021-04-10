@@ -5,7 +5,7 @@
 #include <logvisor/logvisor.hpp>
 
 namespace DataSpec::DNAFont {
-logvisor::Module LogModule("urde::DNAFont");
+logvisor::Module LogModule("DataSpec::DNAFont");
 
 template <class IDType>
 void FONT<IDType>::_read(athena::io::IStreamReader& __dna_reader) {

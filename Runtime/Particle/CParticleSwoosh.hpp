@@ -18,7 +18,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CSwooshDescription;
 
 class CParticleSwoosh : public CParticleGen {
@@ -225,4 +225,4 @@ public:
   static u32 GetAliveParticleSystemCount() { return g_ParticleSystemAliveCount; }
 };
 
-} // namespace urde
+} // namespace metaforce

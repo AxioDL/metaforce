@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CAnimSourceReader.hpp"
 
-namespace urde {
+namespace metaforce {
 CInt32POINode::CInt32POINode()
 : CInt32POINode(""sv, EPOIType::EmptyInt32, CCharAnimTime(), -1, false, 1.f, -1, 0, 0, "root"sv) {}
 
@@ -19,4 +19,4 @@ CInt32POINode CInt32POINode::CopyNodeMinusStartTime(const CInt32POINode& node, c
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

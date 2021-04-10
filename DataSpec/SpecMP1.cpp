@@ -29,7 +29,7 @@
 #include "DNACommon/DPSC.hpp"
 #include "DNACommon/DGRP.hpp"
 #include "DNACommon/MAPU.hpp"
-#include "DNACommon/URDEVersionInfo.hpp"
+#include "DNACommon/MetaforceVersionInfo.hpp"
 #include "DNACommon/Tweaks/TweakWriter.hpp"
 #include "DNAMP1/Tweaks/CTweakPlayerRes.hpp"
 #include "DNAMP1/Tweaks/CTweakGunRes.hpp"
@@ -57,7 +57,7 @@ namespace DataSpec {
 
 using namespace std::literals;
 
-static logvisor::Module Log("urde::SpecMP1");
+static logvisor::Module Log("DataSpec::SpecMP1");
 extern hecl::Database::DataSpecEntry SpecEntMP1;
 extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
@@ -473,7 +473,7 @@ struct SpecMP1 : SpecBase {
     });
   }
 
-  urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const override {
+  metaforce::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const override {
     if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".CSKR")))
       return {SBIG('CSKR'), path.parsedHash32()};
     else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".ANIM")))
@@ -542,7 +542,7 @@ struct SpecMP1 : SpecBase {
       athena::io::YAMLDocReader reader;
       yaml_parser_set_input_file(reader.getParser(), fp.get());
 
-      urde::SObjectTag resTag;
+      metaforce::SObjectTag resTag;
       if (reader.ClassTypeOperation([&](std::string_view className) {
             if (className == DNAParticle::GPSM<UniqueID32>::DNAType()) {
               resTag.type = SBIG('PART');
@@ -634,7 +634,7 @@ struct SpecMP1 : SpecBase {
     return {};
   }
 
-  void getTagListForFile(const char* pakName, std::vector<urde::SObjectTag>& out) const override {
+  void getTagListForFile(const char* pakName, std::vector<metaforce::SObjectTag>& out) const override {
     std::string pathPrefix("MP1/");
     pathPrefix += pakName;
     pathPrefix += '/';
@@ -992,9 +992,9 @@ struct SpecMP1 : SpecBase {
   }
 
   void buildWorldPakList(const hecl::ProjectPath& worldPath, const hecl::ProjectPath& worldPathCooked,
-                         hecl::blender::Token& btok, athena::io::FileWriter& w, std::vector<urde::SObjectTag>& listOut,
+                         hecl::blender::Token& btok, athena::io::FileWriter& w, std::vector<metaforce::SObjectTag>& listOut,
                          atUint64& resTableOffset,
-                         std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData) override {
+                         std::unordered_map<metaforce::CAssetId, std::vector<uint8_t>>& mlvlData) override {
     DNAMP1::MLVL mlvl;
     {
       athena::io::FileReader r(worldPathCooked.getAbsolutePath());
@@ -1016,7 +1016,7 @@ struct SpecMP1 : SpecBase {
     }
     listOut.reserve(count);
 
-    urde::SObjectTag worldTag = tagFromPath(worldPath.getWithExtension(_SYS_STR(".*"), true));
+    metaforce::SObjectTag worldTag = tagFromPath(worldPath.getWithExtension(_SYS_STR(".*"), true));
 
     w.writeUint32Big(m_pc ? 0x80030005 : 0x00030005);
     w.writeUint32Big(0);
@@ -1030,19 +1030,19 @@ struct SpecMP1 : SpecBase {
     nameEnt.name = parentDir.getLastComponentUTF8();
     nameEnt.write(w);
 
-    std::unordered_set<urde::CAssetId> addedTags;
+    std::unordered_set<metaforce::CAssetId> addedTags;
     for (auto& area : mlvl.areas) {
-      urde::SObjectTag areaTag(FOURCC('MREA'), area.areaMREAId.toUint64());
+      metaforce::SObjectTag areaTag(FOURCC('MREA'), area.areaMREAId.toUint64());
 
       bool dupeRes = false;
       if (hecl::ProjectPath areaDir = pathFromTag(areaTag).getParentPath())
         dupeRes = hecl::ProjectPath(areaDir, _SYS_STR("!duperes")).isFile();
 
-      urde::SObjectTag nameTag(FOURCC('STRG'), area.areaNameId.toUint64());
+      metaforce::SObjectTag nameTag(FOURCC('STRG'), area.areaNameId.toUint64());
       if (nameTag)
         listOut.push_back(nameTag);
       for (const auto& dep : area.deps) {
-        urde::CAssetId newId = dep.id.toUint64();
+        metaforce::CAssetId newId = dep.id.toUint64();
         if (dupeRes || addedTags.find(newId) == addedTags.end()) {
           listOut.emplace_back(dep.type, newId);
           addedTags.insert(newId);
@@ -1077,18 +1077,18 @@ struct SpecMP1 : SpecBase {
       area.depLayers = std::move(strippedDepLayers);
     }
 
-    urde::SObjectTag nameTag(FOURCC('STRG'), mlvl.worldNameId.toUint64());
+    metaforce::SObjectTag nameTag(FOURCC('STRG'), mlvl.worldNameId.toUint64());
     if (nameTag)
       listOut.push_back(nameTag);
 
-    urde::SObjectTag savwTag(FOURCC('SAVW'), mlvl.saveWorldId.toUint64());
+    metaforce::SObjectTag savwTag(FOURCC('SAVW'), mlvl.saveWorldId.toUint64());
     if (savwTag) {
       if (hecl::ProjectPath savwPath = pathFromTag(savwTag))
         m_project.cookPath(savwPath, {}, false, true);
       listOut.push_back(savwTag);
     }
 
-    urde::SObjectTag mapTag(FOURCC('MAPW'), mlvl.worldMap.toUint64());
+    metaforce::SObjectTag mapTag(FOURCC('MAPW'), mlvl.worldMap.toUint64());
     if (mapTag) {
       if (hecl::ProjectPath mapPath = pathFromTag(mapTag)) {
         m_project.cookPath(mapPath, {}, false, true);
@@ -1111,7 +1111,7 @@ struct SpecMP1 : SpecBase {
       listOut.push_back(mapTag);
     }
 
-    urde::SObjectTag skyboxTag(FOURCC('CMDL'), mlvl.worldSkyboxId.toUint64());
+    metaforce::SObjectTag skyboxTag(FOURCC('CMDL'), mlvl.worldSkyboxId.toUint64());
     if (skyboxTag) {
       listOut.push_back(skyboxTag);
       hecl::ProjectPath skyboxPath = pathFromTag(skyboxTag);
@@ -1119,7 +1119,7 @@ struct SpecMP1 : SpecBase {
         auto data = btok.getBlenderConnection().beginData();
         std::vector<hecl::ProjectPath> textures = data.getTextures();
         for (const auto& tex : textures) {
-          urde::SObjectTag texTag = tagFromPath(tex);
+          metaforce::SObjectTag texTag = tagFromPath(tex);
           if (!texTag)
             Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to resolve {}")), tex.getRelativePath());
           listOut.push_back(texTag);
@@ -1151,8 +1151,8 @@ struct SpecMP1 : SpecBase {
     }
   }
 
-  void buildPakList(hecl::blender::Token& btok, athena::io::FileWriter& w, const std::vector<urde::SObjectTag>& list,
-                    const std::vector<std::pair<urde::SObjectTag, std::string>>& nameList,
+  void buildPakList(hecl::blender::Token& btok, athena::io::FileWriter& w, const std::vector<metaforce::SObjectTag>& list,
+                    const std::vector<std::pair<metaforce::SObjectTag, std::string>>& nameList,
                     atUint64& resTableOffset) override {
     w.writeUint32Big(m_pc ? 0x80030005 : 0x00030005);
     w.writeUint32Big(0);
@@ -1180,13 +1180,13 @@ struct SpecMP1 : SpecBase {
     }
   }
 
-  void writePakFileIndex(athena::io::FileWriter& w, const std::vector<urde::SObjectTag>& tags,
+  void writePakFileIndex(athena::io::FileWriter& w, const std::vector<metaforce::SObjectTag>& tags,
                          const std::vector<std::tuple<size_t, size_t, bool>>& index, atUint64 resTableOffset) override {
     w.seek(resTableOffset, athena::SeekOrigin::Begin);
 
     auto it = tags.begin();
     for (const auto& item : index) {
-      const urde::SObjectTag& tag = *it++;
+      const metaforce::SObjectTag& tag = *it++;
       DNAMP1::PAK::Entry ent;
       ent.compressed = atUint32(std::get<2>(item));
       ent.type = tag.type;
@@ -1197,7 +1197,7 @@ struct SpecMP1 : SpecBase {
     }
   }
 
-  std::pair<std::unique_ptr<uint8_t[]>, size_t> compressPakData(const urde::SObjectTag& tag, const uint8_t* data,
+  std::pair<std::unique_ptr<uint8_t[]>, size_t> compressPakData(const metaforce::SObjectTag& tag, const uint8_t* data,
                                                                 size_t len) override {
     bool doCompress = false;
     switch (tag.type.toUint32()) {

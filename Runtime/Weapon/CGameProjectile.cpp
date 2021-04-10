@@ -15,7 +15,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& wDesc, std::string_view name,
                                  EWeaponType wType, const zeus::CTransform& xf, EMaterialTypes excludeMat,
                                  const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
@@ -43,7 +43,7 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
 , x2e4_27_inWater(underwater)
 , x2e4_28_sendProjectileCollideMsg(sendCollideMsg) {}
 
-void CGameProjectile::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
+void CGameProjectile::Accept(metaforce::IVisitor& visitor) { visitor.Visit(this); }
 
 void CGameProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr) {
   const zeus::CVector3f revDir = -x34_transform.basis[1].normalized();
@@ -459,4 +459,4 @@ std::optional<zeus::CAABox> CGameProjectile::GetTouchBounds() const {
   return std::nullopt;
 }
 
-} // namespace urde
+} // namespace metaforce

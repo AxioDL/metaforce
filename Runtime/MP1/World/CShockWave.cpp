@@ -12,7 +12,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CShockWave::CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                        TUniqueId parent, const SShockWaveData& data, float minActiveTime, float knockback)
 : CActor(uid, true, name, info, xf, CModelData::CModelDataNull(), {EMaterialTypes::Projectile},
@@ -175,4 +175,4 @@ void CShockWave::Touch(CActor& actor, CStateManager& mgr) {
 bool CShockWave::IsHit(TUniqueId id) const {
   return std::find(x170_hitIds.begin(), x170_hitIds.end(), id) != x170_hitIds.end();
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

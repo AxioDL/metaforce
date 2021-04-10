@@ -10,7 +10,7 @@
 #include "Runtime/IFactory.hpp"
 #include "Runtime/IVParamObj.hpp"
 
-namespace urde {
+namespace metaforce {
 class IDvdRequest;
 class CSimplePool;
 
@@ -53,13 +53,13 @@ public:
 
   bool CanBuild(const SObjectTag& tag) override { return x4_loader.ResourceExists(tag); }
 
-  u32 ResourceSize(const urde::SObjectTag& tag) override { return x4_loader.ResourceSize(tag); }
+  u32 ResourceSize(const metaforce::SObjectTag& tag) override { return x4_loader.ResourceSize(tag); }
 
-  std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag) override {
+  std::unique_ptr<u8[]> LoadResourceSync(const metaforce::SObjectTag& tag) override {
     return x4_loader.LoadResourceSync(tag);
   }
 
-  std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size) override {
+  std::unique_ptr<u8[]> LoadNewResourcePartSync(const metaforce::SObjectTag& tag, u32 off, u32 size) override {
     return x4_loader.LoadNewResourcePartSync(tag, off, size);
   }
 
@@ -67,11 +67,11 @@ public:
     return x4_loader.GetTagListForFile(pakName, out);
   }
 
-  std::shared_ptr<IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target) override {
+  std::shared_ptr<IDvdRequest> LoadResourceAsync(const metaforce::SObjectTag& tag, void* target) override {
     return x4_loader.LoadResourceAsync(tag, target);
   }
 
-  std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 off, u32 size,
+  std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const metaforce::SObjectTag& tag, u32 off, u32 size,
                                                      void* target) override {
     return x4_loader.LoadResourcePartAsync(tag, off, size, target);
   }
@@ -101,4 +101,4 @@ public:
   CFactoryMgr* GetFactoryMgr() override { return &x5c_factoryMgr; }
 };
 
-} // namespace urde
+} // namespace metaforce

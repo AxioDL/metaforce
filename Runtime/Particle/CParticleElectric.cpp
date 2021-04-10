@@ -16,7 +16,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CRelAngle.hpp>
 
-namespace urde {
+namespace metaforce {
 
 u16 CParticleElectric::g_GlobalSeed = 99;
 
@@ -830,4 +830,4 @@ void CParticleElectric::DestroyParticles() {
   // Empty
 }
 
-} // namespace urde
+} // namespace metaforce

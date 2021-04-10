@@ -1,6 +1,6 @@
 #pragma once
 
-namespace urde {
+namespace metaforce {
 class CActor;
 class CCollisionInfoList;
 
@@ -15,4 +15,4 @@ public:
   virtual void Filter(const CCollisionInfoList& in, CCollisionInfoList& out) const = 0;
 };
 
-} // namespace urde
+} // namespace metaforce

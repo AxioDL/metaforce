@@ -7,7 +7,7 @@
 #include "Runtime/Character/CAnimData.hpp"
 #include "Runtime/Character/CPrimitive.hpp"
 
-namespace urde::NWeaponTypes {
+namespace metaforce::NWeaponTypes {
 
 void primitive_set_to_token_vector(const CAnimData& animData, const std::set<CPrimitive>& primSet,
                                    std::vector<CToken>& tokensOut, bool preLock) {
@@ -159,4 +159,4 @@ CSfxHandle play_sfx(u16 sfx, bool underwater, bool looped, float pan) {
   return hnd;
 }
 
-} // namespace urde::NWeaponTypes
+} // namespace metaforce::NWeaponTypes

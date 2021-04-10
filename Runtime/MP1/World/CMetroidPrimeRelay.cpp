@@ -4,7 +4,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CMetroidPrimeRelay::CMetroidPrimeRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                                        const zeus::CTransform& xf, const zeus::CVector3f& scale,
@@ -69,4 +69,4 @@ void CMetroidPrimeRelay::GetOrBuildMetroidPrimeExo(CStateManager& mgr) {
   mgr.SendScriptMsg(exo, kInvalidUniqueId, EScriptObjectMessage::InitializedInArea);
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -5,7 +5,7 @@
 #include "Editor/ProjectManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 bool AreAllDepsLoaded(const std::vector<TLockedToken<CDependencyGroup>>& deps) {
   return std::all_of(deps.cbegin(), deps.cend(), [](const auto& dep) { return dep.IsLoaded(); });
@@ -152,4 +152,4 @@ u32 CSlideShow::SlideShowGalleryFlags() {
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

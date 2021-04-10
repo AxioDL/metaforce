@@ -7,7 +7,7 @@
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CSaveWorld {
 public:
@@ -48,4 +48,4 @@ public:
 CFactoryFnReturn FSaveWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
                                    CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce

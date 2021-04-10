@@ -34,7 +34,7 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector2i.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActor;
 class CActorModelParticles;
 class CDamageInfo;
@@ -467,4 +467,4 @@ public:
   const CGameArea* GetCurrentArea() const;
   void SetWarping(bool warp) { m_warping = warp; }
 };
-} // namespace urde
+} // namespace metaforce

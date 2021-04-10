@@ -30,7 +30,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CBooModel;
 class CMemorySys;
 class CParticleGen;
@@ -302,4 +302,4 @@ public:
   bool IsThermalVisorHotPass() const { return m_thermalHotPass; }
 };
 
-} // namespace urde
+} // namespace metaforce

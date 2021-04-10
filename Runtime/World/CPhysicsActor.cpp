@@ -2,7 +2,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CPhysicsActor::CPhysicsActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
                              const zeus::CTransform& xf, CModelData&& mData, const CMaterialList& matList,
@@ -310,4 +310,4 @@ void CPhysicsActor::UseCollisionImpulses() {
   ComputeDerivedQuantities();
 }
 
-} // namespace urde
+} // namespace metaforce

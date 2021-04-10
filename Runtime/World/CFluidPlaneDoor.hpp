@@ -5,7 +5,7 @@
 #include "Runtime/Graphics/Shaders/CFluidPlaneShader.hpp"
 #include "Runtime/World/CFluidPlane.hpp"
 
-namespace urde {
+namespace metaforce {
 class CFluidPlaneDoor final : public CFluidPlane {
   float xa0_tileSize;
   int xa4_tileSubdivisions;
@@ -29,4 +29,4 @@ public:
               u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) override;
 };
 
-} // namespace urde
+} // namespace metaforce

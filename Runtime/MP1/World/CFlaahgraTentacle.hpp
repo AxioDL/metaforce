@@ -9,7 +9,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CFlaahgraTentacle : public CPatterned {
   s32 x568_ = -1;
   std::unique_ptr<CCollisionActorManager> x56c_collisionManager;
@@ -53,4 +53,4 @@ public:
   void InActive(CStateManager&, EStateMsg, float) override;
   void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

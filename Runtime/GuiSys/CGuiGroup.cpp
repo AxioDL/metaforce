@@ -1,6 +1,6 @@
 #include "Runtime/GuiSys/CGuiGroup.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CGuiGroup::LoadWidgetFnMap() {}
 
@@ -50,4 +50,4 @@ std::shared_ptr<CGuiWidget> CGuiGroup::Create(CGuiFrame* frame, CInputStream& in
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

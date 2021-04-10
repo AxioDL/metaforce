@@ -5,7 +5,7 @@
 
 #include <zeus/CAABox.hpp>
 
-namespace urde {
+namespace metaforce {
 namespace Collide {
 bool AABox_AABox(const CInternalCollisionStructure&, CCollisionInfoList&);
 bool AABox_AABox_Bool(const CInternalCollisionStructure&);
@@ -35,4 +35,4 @@ public:
   static bool CollideMovingAABox(const CInternalCollisionStructure&, const zeus::CVector3f&, double&, CCollisionInfo&);
   static bool CollideMovingSphere(const CInternalCollisionStructure&, const zeus::CVector3f&, double&, CCollisionInfo&);
 };
-} // namespace urde
+} // namespace metaforce

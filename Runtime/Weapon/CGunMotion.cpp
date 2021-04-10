@@ -4,7 +4,7 @@
 #include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/Weapon/WeaponCommon.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGunMotion::CGunMotion(CAssetId ancsId, const zeus::CVector3f& scale)
 : x0_modelData(CAnimRes(ancsId, 0, scale, 0, false), 1), x4c_gunController(x0_modelData) {
@@ -86,4 +86,4 @@ void CGunMotion::Draw(const CStateManager& mgr, const zeus::CTransform& xf) {
   x0_modelData.Render(mgr, xf, nullptr, flags);
 }
 
-} // namespace urde
+} // namespace metaforce

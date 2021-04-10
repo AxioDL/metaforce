@@ -458,5 +458,5 @@ void STRG::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer) {
   }
 }
 
-std::string_view STRG::DNAType() { return "urde::DNAMP1::STRG"sv; }
+std::string_view STRG::DNAType() { return "DNAMP1::STRG"sv; }
 } // namespace DataSpec::DNAMP1

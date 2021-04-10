@@ -13,7 +13,7 @@
 
 #include <amuse/DSPCodec.hpp>
 
-namespace urde {
+namespace metaforce {
 class CDSPStreamManager;
 
 static u32 s_HandleCounter = 0;
@@ -1042,4 +1042,4 @@ u8 CStreamAudioManager::g_SfxVolume = 0x7f;
 bool CStreamAudioManager::g_MusicUnmute = true;
 bool CStreamAudioManager::g_SfxUnmute = true;
 
-} // namespace urde
+} // namespace metaforce

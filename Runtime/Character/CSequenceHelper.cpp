@@ -10,7 +10,7 @@
 #include "Runtime/Character/CTreeUtils.hpp"
 #include "Runtime/Character/IMetaAnim.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CSequenceFundamentals::CSequenceFundamentals(const CSteadyStateAnimInfo& ssInfo, std::vector<CBoolPOINode> boolNodes,
                                              std::vector<CInt32POINode> int32Nodes,
@@ -110,4 +110,4 @@ CSequenceFundamentals CSequenceHelper::ComputeSequenceFundamentals() {
   return {{false, duration, offset}, boolNodes, int32Nodes, particleNodes, soundNodes};
 }
 
-} // namespace urde
+} // namespace metaforce

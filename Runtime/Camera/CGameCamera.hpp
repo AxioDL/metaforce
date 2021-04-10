@@ -6,7 +6,7 @@
 #include <zeus/CMatrix4f.hpp>
 #include <zeus/CTransform.hpp>
 
-namespace urde {
+namespace metaforce {
 struct CFinalInput;
 
 class CGameCamera : public CActor {
@@ -54,4 +54,4 @@ public:
   void SetFovInterpolation(float start, float end, float time, float delayTime);
   void SkipFovInterpolation();
 };
-} // namespace urde
+} // namespace metaforce

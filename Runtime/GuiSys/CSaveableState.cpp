@@ -2,7 +2,7 @@
 
 #include "Runtime/GuiSys/CRasterFont.hpp"
 
-namespace urde {
+namespace metaforce {
 
 bool CSaveableState::IsFinishedLoading() const {
   if (!x48_font || !x48_font.IsLoaded())
@@ -10,4 +10,4 @@ bool CSaveableState::IsFinishedLoading() const {
   return x48_font->IsFinishedLoading();
 }
 
-} // namespace urde
+} // namespace metaforce

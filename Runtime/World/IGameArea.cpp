@@ -1,7 +1,7 @@
 #include "Runtime/World/IGameArea.hpp"
 
-namespace urde {
-IGameArea::Dock::Dock(urde::CInputStream& in, const zeus::CTransform& xf) {
+namespace metaforce {
+IGameArea::Dock::Dock(metaforce::CInputStream& in, const zeus::CTransform& xf) {
   u32 refCount = in.readUint32Big();
   x4_dockReferences.reserve(refCount);
   for (u32 i = 0; i < refCount; i++) {
@@ -61,4 +61,4 @@ zeus::CVector3f IGameArea::Dock::GetPoint(s32 idx) const {
 
   return x14_planeVertices[idx];
 }
-} // namespace urde
+} // namespace metaforce

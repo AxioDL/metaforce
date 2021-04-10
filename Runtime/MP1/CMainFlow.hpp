@@ -2,7 +2,7 @@
 
 #include "Runtime/CMainFlowBase.hpp"
 
-namespace urde {
+namespace metaforce {
 class CArchitectureMessage;
 class CArchitectureQueue;
 
@@ -19,4 +19,4 @@ public:
 
 } // namespace MP1
 
-} // namespace urde
+} // namespace metaforce

@@ -41,7 +41,7 @@ void WorldTeleporter::Enumerate(typename Op::StreamT& s) {
   }
 }
 
-std::string_view WorldTeleporter::DNAType() { return "urde::DNAMP1::WorldTeleporter"sv; }
+std::string_view WorldTeleporter::DNAType() { return "DNAMP1::WorldTeleporter"sv; }
 
 AT_SPECIALIZE_DNA_YAML(WorldTeleporter)
 

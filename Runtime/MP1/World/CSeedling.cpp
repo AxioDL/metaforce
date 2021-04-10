@@ -10,7 +10,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::array<std::array<std::string_view, 6>, 2> skNeedleLocators{{
     {
@@ -226,4 +226,4 @@ void CSeedling::MassiveDeath(CStateManager& mgr) {
   CPatterned::MassiveDeath(mgr);
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

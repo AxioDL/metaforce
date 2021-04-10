@@ -4,7 +4,7 @@
 #include "Runtime/GuiSys/CHudInterface.hpp"
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAuiEnergyBarT01;
 class CAuiMeter;
 class CGuiFrame;
@@ -43,4 +43,4 @@ public:
   static std::pair<zeus::CVector3f, zeus::CVector3f> BallEnergyCoordFunc(float t);
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 const zeus::CVector3f CScriptCameraPitchVolume::skScaleFactor = zeus::CVector3f(0.5f);
 
 CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, bool active, std::string_view name,
@@ -58,7 +58,7 @@ void CScriptCameraPitchVolume::Touch(CActor& act, CStateManager& mgr) {
   x13c_24_entered = xe8_obbox.AABoxIntersectsBox(plBox.value());
 }
 
-void CScriptCameraPitchVolume::Entered(urde::CStateManager& mgr) {
+void CScriptCameraPitchVolume::Entered(metaforce::CStateManager& mgr) {
   x13c_25_occupied = true;
   mgr.GetCameraManager()->GetFirstPersonCamera()->SetScriptPitchId(GetUniqueId());
 }
@@ -67,4 +67,4 @@ void CScriptCameraPitchVolume::Exited(CStateManager& mgr) {
   x13c_25_occupied = false;
   mgr.GetCameraManager()->GetFirstPersonCamera()->SetScriptPitchId(kInvalidUniqueId);
 }
-} // namespace urde
+} // namespace metaforce

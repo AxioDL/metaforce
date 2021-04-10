@@ -17,7 +17,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class CEntity;
 class CElementGen;
@@ -172,4 +172,4 @@ public:
   void LightDudeOnFire(CActor& act);
   const CTexture* GetAshyTexture(const CActor& act);
 };
-} // namespace urde
+} // namespace metaforce

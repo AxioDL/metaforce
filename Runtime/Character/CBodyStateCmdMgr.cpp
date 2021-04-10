@@ -2,7 +2,7 @@
 
 #include <cfloat>
 
-namespace urde {
+namespace metaforce {
 
 CBodyStateCmdMgr::CBodyStateCmdMgr() {
   x40_commandTable.push_back(&xb8_getup);
@@ -87,4 +87,4 @@ void CBodyStateCmdMgr::ClearLocomotionCmds() {
   x3c_steeringSpeed = 0.f;
 }
 
-} // namespace urde
+} // namespace metaforce

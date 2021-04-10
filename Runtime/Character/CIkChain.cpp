@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CAnimData.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CIkChain::Update(float dt) {
   if (x44_24_activated)
@@ -83,4 +83,4 @@ void CIkChain::Solve(zeus::CQuaternion& q1, zeus::CQuaternion& q2, const zeus::C
 
   q1 = zeus::CQuaternion::fromAxisAngle(crossVecB * (1.f / crossVecB.magnitude()), angle) * q1;
 }
-} // namespace urde
+} // namespace metaforce

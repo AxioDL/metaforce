@@ -5,8 +5,8 @@ add_subdirectory(badging)
 unset(URDE_PLAT_LIBS)
 
 if(WIN32)
-  configure_file(platforms/win/urde.rc.in "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/urde.rc" @ONLY)
-  set(PLAT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/urde.rc" platforms/win/urde.manifest)
+  configure_file(platforms/win/metaforce.rc.in "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/metaforce.rc" @ONLY)
+  set(PLAT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/metaforce.rc" platforms/win/metaforce.manifest)
   if(WINDOWS_STORE)
     set(UWP_ASSETS
         platforms/win/Assets/LargeTile.scale-100.png
@@ -39,11 +39,11 @@ if(WIN32)
         platforms/win/Assets/Square150x150Logo.scale-150.png
         platforms/win/Assets/Square150x150Logo.scale-200.png
         platforms/win/Assets/Square150x150Logo.scale-400.png
-        platforms/win/Assets/urde.scale-100.png
-        platforms/win/Assets/urde.scale-125.png
-        platforms/win/Assets/urde.scale-150.png
-        platforms/win/Assets/urde.scale-200.png
-        platforms/win/Assets/urde.scale-400.png
+        platforms/win/Assets/metaforce.scale-100.png
+        platforms/win/Assets/metaforce.scale-125.png
+        platforms/win/Assets/metaforce.scale-150.png
+        platforms/win/Assets/metaforce.scale-200.png
+        platforms/win/Assets/metaforce.scale-400.png
         platforms/win/Assets/WideTile.scale-100.png
         platforms/win/Assets/WideTile.scale-125.png
         platforms/win/Assets/WideTile.scale-150.png
@@ -84,8 +84,8 @@ target_include_directories(metaforce PUBLIC
         ${CMAKE_BINARY_DIR})
 
 target_link_libraries(metaforce
-                      UrdeIcons
-                      UrdeBadging
+                      MetaforceIcons
+                      MetaforceBadging
                       RuntimeCommon
                       amuse
                       RetroDataSpec

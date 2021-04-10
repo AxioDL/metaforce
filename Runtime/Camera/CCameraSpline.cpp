@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CCameraSpline::CCameraSpline(bool closedLoop) : x48_closedLoop(closedLoop) {}
 
 void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnection>& connections,
@@ -395,4 +395,4 @@ float CCameraSpline::ClampLength(const zeus::CVector3f& pos, bool collide, const
     return x44_length;
 }
 
-} // namespace urde
+} // namespace metaforce

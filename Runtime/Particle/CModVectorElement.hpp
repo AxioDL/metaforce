@@ -5,7 +5,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Mod_Vector_Elements */
 
-namespace urde {
+namespace metaforce {
 
 class CMVEImplosion : public CModVectorElement {
   std::unique_ptr<CVectorElement> x4_implPoint;
@@ -173,4 +173,4 @@ public:
   bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

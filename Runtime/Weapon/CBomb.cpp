@@ -11,7 +11,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CBomb::CBomb(const TCachedToken<CGenDescription>& particle1, const TCachedToken<CGenDescription>& particle2,
              TUniqueId uid, TAreaId aid, TUniqueId playerId, float f1, const zeus::CTransform& xf,
@@ -33,7 +33,7 @@ CBomb::CBomb(const TCachedToken<CGenDescription>& particle1, const TCachedToken<
   x184_particle2->SetGlobalTranslation(xf.origin);
 }
 
-void CBomb::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
+void CBomb::Accept(metaforce::IVisitor& visitor) { visitor.Visit(this); }
 
 void CBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   if (msg == EScriptObjectMessage::Registered) {
@@ -63,7 +63,7 @@ void CBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManag
 constexpr CMaterialFilter kSolidFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Character, EMaterialTypes::Player,
                                                                   EMaterialTypes::ProjectilePassthrough});
-void CBomb::Think(float dt, urde::CStateManager& mgr) {
+void CBomb::Think(float dt, metaforce::CStateManager& mgr) {
   CWeapon::Think(dt, mgr);
 
   if (x190_24_isNotDetonated) {
@@ -125,7 +125,7 @@ void CBomb::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
     g_Renderer->AddParticleGen(*x184_particle2, closestPoint, aabox);
 }
 
-void CBomb::Touch(CActor&, urde::CStateManager&) {
+void CBomb::Touch(CActor&, metaforce::CStateManager&) {
 #if 0
     x190_24_isNotDetonated; /* wat? */
 #endif
@@ -160,4 +160,4 @@ void CBomb::UpdateLight(float dt, CStateManager& mgr) {
       light->SetLight(x184_particle2->GetLight());
 }
 
-} // namespace urde
+} // namespace metaforce

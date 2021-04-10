@@ -10,7 +10,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CElementGen;
 class CScriptDebris : public CPhysicsActor {
 public:
@@ -84,4 +84,4 @@ public:
 
   void CollidedWith(TUniqueId uid, const CCollisionInfoList&, CStateManager&) override;
 };
-} // namespace urde
+} // namespace metaforce

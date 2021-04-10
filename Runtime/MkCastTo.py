@@ -90,7 +90,7 @@ sourcef = open('TCastTo.cpp', 'w')
 
 headerf.write('''#pragma once
 
-namespace urde {
+namespace metaforce {
 class CEntity;
 ''')
 
@@ -164,7 +164,7 @@ for tp in CENTITY_TYPES:
         sourcef.write('#include "%s"\n' % tp[1])
 
 sourcef.write('''
-namespace urde {
+namespace metaforce {
 
 template <class T>
 TCastToPtr<T>::TCastToPtr(CEntity* p) { if (p) p->Accept(*this); else ptr = nullptr; }

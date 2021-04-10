@@ -13,22 +13,22 @@ target_include_directories(packbadge PRIVATE ${PNG_INCLUDE_DIR} ${ZLIB_INCLUDE_D
 ##################
 
 # Add all targets to the build-tree export set
-export(TARGETS packbadge FILE "${CMAKE_CURRENT_BINARY_DIR}/urde-packbadgeTargets.cmake")
+export(TARGETS packbadge FILE "${CMAKE_CURRENT_BINARY_DIR}/metaforce-packbadgeTargets.cmake")
 
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
-export(PACKAGE urde-packbadge)
+export(PACKAGE metaforce-packbadge)
 
 # Create the atdnaConfig.cmake
 # ... for the build tree
-configure_file(urde-packbadgeConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/urde-packbadgeConfig.cmake" @ONLY)
+configure_file(metaforce-packbadgeConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/metaforce-packbadgeConfig.cmake" @ONLY)
 # ... for the install tree
-configure_file(urde-packbadgeConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/urde-packbadgeConfig.cmake" @ONLY)
+configure_file(metaforce-packbadgeConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/metaforce-packbadgeConfig.cmake" @ONLY)
 # ... for both
-configure_file(urde-packbadgeConfigVersion.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/urde-packbadgeConfigVersion.cmake" @ONLY)
+configure_file(metaforce-packbadgeConfigVersion.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/metaforce-packbadgeConfigVersion.cmake" @ONLY)
 
 else()
-find_package(urde-packbadge REQUIRED)
+find_package(metaforce-packbadge REQUIRED)
 endif()
 
 add_custom_command(OUTPUT badge.bin COMMAND $<TARGET_FILE:packbadge>
@@ -37,7 +37,7 @@ add_custom_command(OUTPUT badge.bin COMMAND $<TARGET_FILE:packbadge>
                    MAIN_DEPENDENCY badge.png COMMENT "Generating badge.bin")
 
 bintoc(badge.cpp ${CMAKE_CURRENT_BINARY_DIR}/badge.bin URDE_BADGE)
-add_library(UrdeBadging
+add_library(MetaforceBadging
     badge.cpp badge.bin
     Badging.hpp Badging.cpp)
-target_link_libraries(UrdeBadging PUBLIC specter)
+target_link_libraries(MetaforceBadging PUBLIC specter)

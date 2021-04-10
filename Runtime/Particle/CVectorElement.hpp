@@ -10,7 +10,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Vector_Elements */
 
-namespace urde {
+namespace metaforce {
 
 class CVEKeyframeEmitter : public CVectorElement {
   u32 x4_percent;
@@ -209,4 +209,4 @@ public:
   bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

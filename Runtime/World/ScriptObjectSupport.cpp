@@ -2,7 +2,7 @@
 
 using namespace std::literals;
 
-namespace urde {
+namespace metaforce {
 
 std::string_view ScriptObjectTypeToStr(EScriptObjectType type) {
   switch (type) {
@@ -443,4 +443,4 @@ std::string_view ScriptObjectMessageToStr(EScriptObjectMessage message) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

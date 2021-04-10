@@ -5,7 +5,7 @@
 #undef min
 #undef max
 
-namespace urde {
+namespace metaforce {
 
 class CCharAnimTime {
 public:
@@ -42,4 +42,4 @@ public:
   CCharAnimTime operator*(const float& other) const;
   float operator/(const CCharAnimTime& other) const;
 };
-} // namespace urde
+} // namespace metaforce

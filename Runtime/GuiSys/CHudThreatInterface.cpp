@@ -10,7 +10,7 @@
 #include "Runtime/GuiSys/CStringTable.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 
-namespace urde {
+namespace metaforce {
 
 constexpr std::array<CAuiEnergyBarT01::FCoordFunc, 5> CoordFuncs{
     CHudThreatInterface::CombatThreatBarCoordFunc,  nullptr, CHudThreatInterface::XRayThreatBarCoordFunc,
@@ -234,4 +234,4 @@ std::pair<zeus::CVector3f, zeus::CVector3f> CHudThreatInterface::ThermalThreatBa
   return {zeus::CVector3f(0.1f, 0.f, b), zeus::CVector3f(0.5f * c + 0.1f, 0.f, b)};
 }
 
-} // namespace urde
+} // namespace metaforce

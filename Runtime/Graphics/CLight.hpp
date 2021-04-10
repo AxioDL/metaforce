@@ -5,7 +5,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 enum class ELightType {
   Spot = 0,
@@ -103,4 +103,4 @@ public:
   static CLight BuildLocalAmbient(const zeus::CVector3f& pos, const zeus::CColor& color);
 };
 
-} // namespace urde
+} // namespace metaforce

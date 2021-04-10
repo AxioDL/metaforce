@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CAmbientAI::CAmbientAI(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                        CModelData&& mData, const zeus::CAABox& aabox, const CMaterialList& matList, float mass,
@@ -135,4 +135,4 @@ void CAmbientAI::RandomizePlaybackRate(CStateManager& mgr) {
   GetModelData()->GetAnimationData()->MultiplyPlaybackRate(0.4f * mgr.GetActiveRandom()->Float() + 0.8f);
 }
 
-} // namespace urde
+} // namespace metaforce

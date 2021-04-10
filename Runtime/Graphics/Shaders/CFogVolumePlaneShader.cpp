@@ -4,7 +4,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static std::array<boo::ObjToken<boo::IShaderPipeline>, 4> s_Pipelines;
 
@@ -62,4 +62,4 @@ void CFogVolumePlaneShader::draw(int pass) {
   CGraphics::DrawArray(0, m_verts.size());
 }
 
-} // namespace urde
+} // namespace metaforce

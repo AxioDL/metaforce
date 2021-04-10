@@ -11,7 +11,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 constexpr auto skDockMaterialList =
     CMaterialList{EMaterialTypes::Trigger, EMaterialTypes::Immovable, EMaterialTypes::AIBlock};
@@ -236,4 +236,4 @@ void CScriptDock::SetLoadConnected(CStateManager& mgr, bool loadOther) {
 
   dock->SetShouldLoadOther(dock->GetReferenceCount(), loadOther);
 }
-} // namespace urde
+} // namespace metaforce

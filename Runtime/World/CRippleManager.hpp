@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CRipple.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CRippleManager {
   float x0_maxTimeFalloff = 0.f;
@@ -26,4 +26,4 @@ public:
   float GetAlpha() const { return x14_alpha; }
 };
 
-}; // namespace urde
+}; // namespace metaforce

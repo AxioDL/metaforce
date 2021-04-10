@@ -7,7 +7,7 @@
 
 #define WARP_RAMP_RES 32
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
@@ -166,4 +166,4 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt) {
   CGraphics::DrawArray(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

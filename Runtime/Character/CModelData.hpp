@@ -11,7 +11,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActorLights;
 class CAnimData;
 class CCharAnimTime;
@@ -172,4 +172,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

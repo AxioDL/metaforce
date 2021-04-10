@@ -4,7 +4,7 @@
 
 #include "Runtime/CStateManager.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CPlayerEnergyDrain::CPlayerEnergyDrain(u32 numSources) { x0_sources.reserve(numSources); }
 
@@ -35,4 +35,4 @@ void CPlayerEnergyDrain::ProcessEnergyDrain(const CStateManager& mgr, float dt) 
   else
     x10_energyDrainTime += dt;
 }
-} // namespace urde
+} // namespace metaforce

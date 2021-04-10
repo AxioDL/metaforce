@@ -5,7 +5,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class CRumbleManager {
   CRumbleGenerator x0_rumbleGenerator;
@@ -23,4 +23,4 @@ public:
   s16 Rumble(CStateManager& mgr, const zeus::CVector3f& pos, ERumbleFxId fx, float dist, ERumblePriority priority);
   s16 Rumble(CStateManager& mgr, ERumbleFxId fx, float gain, ERumblePriority priority);
 };
-} // namespace urde
+} // namespace metaforce

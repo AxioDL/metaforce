@@ -1,6 +1,6 @@
 #include "Runtime/Character/CCharacterInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CCharacterInfo::CParticleResData::CParticleResData(CInputStream& in, u16 tableCount) {
   const u32 partCount = in.readUint32Big();
@@ -101,4 +101,4 @@ s32 CCharacterInfo::GetAnimationIndex(std::string_view name) const {
   return -1;
 }
 
-} // namespace urde
+} // namespace metaforce

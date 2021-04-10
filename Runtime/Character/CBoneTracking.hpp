@@ -10,7 +10,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAnimData;
 class CStateManager;
 class CBodyController;
@@ -55,4 +55,4 @@ public:
   void SetNoHorizontalAim(bool b);
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -6,7 +6,7 @@
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/Graphics/CLight.hpp"
 
-namespace urde {
+namespace metaforce {
 class CGameLight : public CActor {
   TUniqueId xe8_parentId;
   CLight xec_light;
@@ -30,4 +30,4 @@ public:
 
   void DebugDraw();
 };
-} // namespace urde
+} // namespace metaforce

@@ -17,8 +17,8 @@ static NSColor* BlueConfirm()
 @interface GameOptionsTouchBar : NSObject <NSTouchBarDelegate>
 {
 @public
-    urde::CStringTable* _pauseScreenStrg;
-    urde::CGameOptionsTouchBar::EAction _action;
+    metaforce::CStringTable* _pauseScreenStrg;
+    metaforce::CGameOptionsTouchBar::EAction _action;
     std::pair<int, int> _selection;
     int _value, _pendingValue;
 }
@@ -60,7 +60,7 @@ static NSColor* BlueConfirm()
         }
         else if (_selection.second == -1)
         {
-            const std::pair<int, const urde::SGameOption*>& opt = urde::GameOptionsRegistry[_selection.first];
+            const std::pair<int, const metaforce::SGameOption*>& opt = metaforce::GameOptionsRegistry[_selection.first];
             items = [NSMutableArray arrayWithCapacity:opt.first+1];
             [items addObject:@"back"];
             for (int i=0 ; i<opt.first ; ++i)
@@ -68,13 +68,13 @@ static NSColor* BlueConfirm()
         }
         else
         {
-            const std::pair<int, const urde::SGameOption*>& opt = urde::GameOptionsRegistry[_selection.first];
-            const urde::SGameOption& subopt = opt.second[_selection.second];
-            if (subopt.type == urde::EOptionType::Float)
+            const std::pair<int, const metaforce::SGameOption*>& opt = metaforce::GameOptionsRegistry[_selection.first];
+            const metaforce::SGameOption& subopt = opt.second[_selection.second];
+            if (subopt.type == metaforce::EOptionType::Float)
                 items = @[@"back", @"value"];
-            else if (subopt.type == urde::EOptionType::DoubleEnum)
+            else if (subopt.type == metaforce::EOptionType::DoubleEnum)
                 items = @[@"back", @"label", @"double0", @"double1"];
-            else if (subopt.type == urde::EOptionType::TripleEnum)
+            else if (subopt.type == metaforce::EOptionType::TripleEnum)
                 items = @[@"back", @"label", @"triple0", @"triple1", @"triple2"];
         }
         touchBar.customizationRequiredItemIdentifiers = items;
@@ -92,8 +92,8 @@ static NSColor* BlueConfirm()
     }
     else if ([identifier isEqualToString:@"label"])
     {
-        const std::pair<int, const urde::SGameOption*>& opt = urde::GameOptionsRegistry[_selection.first];
-        const urde::SGameOption& subopt = opt.second[_selection.second];
+        const std::pair<int, const metaforce::SGameOption*>& opt = metaforce::GameOptionsRegistry[_selection.first];
+        const metaforce::SGameOption& subopt = opt.second[_selection.second];
 
         const char16_t* cStr = _pauseScreenStrg->GetString(subopt.stringId);
         NSString* str = [NSString stringWithUTF8String:hecl::Char16ToUTF8(cStr).c_str()];
@@ -105,8 +105,8 @@ static NSColor* BlueConfirm()
     }
     else if ([identifier isEqualToString:@"value"])
     {
-        const std::pair<int, const urde::SGameOption*>& opt = urde::GameOptionsRegistry[_selection.first];
-        const urde::SGameOption& subopt = opt.second[_selection.second];
+        const std::pair<int, const metaforce::SGameOption*>& opt = metaforce::GameOptionsRegistry[_selection.first];
+        const metaforce::SGameOption& subopt = opt.second[_selection.second];
 
         const char16_t* cStr = _pauseScreenStrg->GetString(subopt.stringId);
         NSString* str = [NSString stringWithUTF8String:hecl::Char16ToUTF8(cStr).c_str()];
@@ -200,9 +200,9 @@ static NSColor* BlueConfirm()
             }
             else if ([first isEqualToString:@"right"])
             {
-                const std::pair<int, const urde::SGameOption*>& opt = urde::GameOptionsRegistry[_selection.first];
+                const std::pair<int, const metaforce::SGameOption*>& opt = metaforce::GameOptionsRegistry[_selection.first];
                 auto idx = strtoul([[pc objectAtIndex:1] UTF8String], nullptr, 10);
-                const urde::SGameOption& subopt = opt.second[idx];
+                const metaforce::SGameOption& subopt = opt.second[idx];
                 const char16_t* cStr = _pauseScreenStrg->GetString(subopt.stringId);
                 NSString* str = [NSString stringWithUTF8String:hecl::Char16ToUTF8(cStr).c_str()];
 
@@ -218,41 +218,41 @@ static NSColor* BlueConfirm()
 }
 -(IBAction)onBack:(id)sender
 {
-    _action = urde::CGameOptionsTouchBar::EAction::Back;
+    _action = metaforce::CGameOptionsTouchBar::EAction::Back;
 }
 -(IBAction)onSlide:(id)sender
 {
     _pendingValue = [((NSSliderTouchBarItem*)sender).slider intValue];
-    _action = urde::CGameOptionsTouchBar::EAction::ValueChange;
+    _action = metaforce::CGameOptionsTouchBar::EAction::ValueChange;
 }
 -(IBAction)onSet0:(id)sender
 {
     _pendingValue = 0;
-    _action = urde::CGameOptionsTouchBar::EAction::ValueChange;
+    _action = metaforce::CGameOptionsTouchBar::EAction::ValueChange;
 }
 -(IBAction)onSet1:(id)sender
 {
     _pendingValue = 1;
-    _action = urde::CGameOptionsTouchBar::EAction::ValueChange;
+    _action = metaforce::CGameOptionsTouchBar::EAction::ValueChange;
 }
 -(IBAction)onSet2:(id)sender
 {
     _pendingValue = 2;
-    _action = urde::CGameOptionsTouchBar::EAction::ValueChange;
+    _action = metaforce::CGameOptionsTouchBar::EAction::ValueChange;
 }
 -(IBAction)onLeft:(id)sender
 {
     _selection.first = ((NSButton*)sender).tag;
-    _action = urde::CGameOptionsTouchBar::EAction::Advance;
+    _action = metaforce::CGameOptionsTouchBar::EAction::Advance;
 }
 -(IBAction)onRight:(id)sender
 {
     _selection.second = ((NSButton*)sender).tag;
-    _action = urde::CGameOptionsTouchBar::EAction::Advance;
+    _action = metaforce::CGameOptionsTouchBar::EAction::Advance;
 }
 @end
 
-namespace urde
+namespace metaforce
 {
 
 class CGameOptionsTouchBarMac : public CGameOptionsTouchBar

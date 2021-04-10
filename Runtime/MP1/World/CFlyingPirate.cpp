@@ -19,7 +19,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::array<SBurst, 6> skBurstsFlying{{
     {4, {3, 4, 11, 12, -1, 0, 0, 0}, 0.1f, 0.05f},
@@ -1705,4 +1705,4 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
   }
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

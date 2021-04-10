@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CMetaree::CMetaree(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                    const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                    const CDamageInfo& dInfo, float f1, const zeus::CVector3f& v1, float f2, EBodyType bodyType,
@@ -177,4 +177,4 @@ bool CMetaree::InRange(CStateManager& mgr, float arg) {
 }
 
 bool CMetaree::ShouldAttack(CStateManager&, float) { return GetTranslation().z() < x584_lookPos.z(); }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

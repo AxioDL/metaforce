@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 animId,
                                            bool looping, float lifetime, bool isPassive, u32 fadeOut, bool active,
                                            float totalPlayback)
@@ -128,4 +128,4 @@ void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr) {
     }
   }
 }
-} // namespace urde
+} // namespace metaforce

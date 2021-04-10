@@ -3,7 +3,7 @@
 #include <memory>
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSimplePool;
 
 class CGuiCamera : public CGuiWidget {
@@ -53,4 +53,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

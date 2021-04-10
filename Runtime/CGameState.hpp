@@ -14,7 +14,7 @@
 #include "Runtime/World/CWorld.hpp"
 #include "Runtime/World/CWorldTransManager.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSaveWorldMemory;
 
 class CWorldLayerState {
@@ -129,4 +129,4 @@ public:
   };
   static GameFileStateInfo LoadGameFileState(const u8* data);
 };
-} // namespace urde
+} // namespace metaforce

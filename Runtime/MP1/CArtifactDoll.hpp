@@ -8,7 +8,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Character/CActorLights.hpp"
 
-namespace urde {
+namespace metaforce {
 class CModel;
 namespace MP1 {
 
@@ -34,4 +34,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

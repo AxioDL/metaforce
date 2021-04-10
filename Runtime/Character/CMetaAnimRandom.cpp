@@ -3,7 +3,7 @@
 #include "Runtime/Character/CAnimSysContext.hpp"
 #include "Runtime/Character/CMetaAnimFactory.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CMetaAnimRandom::RandomData CMetaAnimRandom::CreateRandomData(CInputStream& in) {
   CMetaAnimRandom::RandomData ret;
@@ -39,4 +39,4 @@ std::shared_ptr<CAnimTreeNode> CMetaAnimRandom::VGetAnimationTree(const CAnimSys
   return useRd->first->GetAnimationTree(animSys, orders);
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -5,7 +5,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CInterpolationCamera : public CGameCamera {
   TUniqueId x188_targetId = kInvalidUniqueId;
@@ -38,4 +38,4 @@ public:
   void DeactivateInterpCamera(CStateManager&);
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf, TUniqueId watchedObj,
                                        float orbitCameraSpeed, float fov, float nearz, float farz, float aspect)
@@ -333,4 +333,4 @@ void CFirstPersonCamera::_fovListener(hecl::CVar* cv) {
   x170_24_perspDirty = true;
 }
 
-} // namespace urde
+} // namespace metaforce

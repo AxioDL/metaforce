@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptVisorFlare::CScriptVisorFlare(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                                      const zeus::CVector3f& pos, CVisorFlare::EBlendMode blendMode, bool b1, float f1,
@@ -42,4 +42,4 @@ void CScriptVisorFlare::AddToRenderer(const zeus::CFrustum&, CStateManager& stat
 
 void CScriptVisorFlare::Render(CStateManager& stateMgr) { xe8_flare.Render(GetTranslation(), stateMgr); }
 
-} // namespace urde
+} // namespace metaforce

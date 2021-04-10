@@ -1,6 +1,6 @@
 #include "Runtime/Character/CMetaTransSnap.hpp"
 
-namespace urde {
+namespace metaforce {
 
 std::shared_ptr<CAnimTreeNode> CMetaTransSnap::VGetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,
                                                                   const std::weak_ptr<CAnimTreeNode>& b,
@@ -8,4 +8,4 @@ std::shared_ptr<CAnimTreeNode> CMetaTransSnap::VGetTransitionTree(const std::wea
   return b.lock();
 }
 
-} // namespace urde
+} // namespace metaforce

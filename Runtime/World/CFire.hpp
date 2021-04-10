@@ -6,7 +6,7 @@
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 class CElementGen;
 class CFire : public CActor {
   std::unique_ptr<CElementGen> xe8_;
@@ -45,4 +45,4 @@ public:
   void Touch(CActor&, CStateManager&) override;
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
 };
-} // namespace urde
+} // namespace metaforce

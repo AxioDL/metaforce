@@ -8,7 +8,7 @@
 #include "Runtime/IObj.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSimplePool;
 class CWeaponDescription;
 
@@ -22,4 +22,4 @@ public:
 
 CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                               CObjectReference*);
-} // namespace urde
+} // namespace metaforce

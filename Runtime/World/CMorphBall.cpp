@@ -20,7 +20,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 namespace {
 float kSpiderBallCollisionRadius;
 
@@ -2409,4 +2409,4 @@ void CMorphBall::StopEffects() {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -3,7 +3,7 @@
 #include "Runtime/CIOWin.hpp"
 #include "Runtime/Graphics/CMoviePlayer.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPlayMovieBase : public CIOWin {
   CMoviePlayer x18_moviePlayer;
@@ -14,4 +14,4 @@ public:
   void Draw() override {}
 };
 
-} // namespace urde
+} // namespace metaforce

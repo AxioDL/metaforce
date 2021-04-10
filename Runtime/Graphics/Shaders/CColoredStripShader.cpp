@@ -8,7 +8,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_AdditivePipeline;

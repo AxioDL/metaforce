@@ -8,7 +8,7 @@
 #include "Runtime/IObj.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSwooshDescription;
 class CSimplePool;
 class CParticleSwooshDataFactory {
@@ -21,4 +21,4 @@ public:
 
 CFactoryFnReturn FParticleSwooshDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                             CObjectReference*);
-} // namespace urde
+} // namespace metaforce

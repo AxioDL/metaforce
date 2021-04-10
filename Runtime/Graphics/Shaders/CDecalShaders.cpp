@@ -6,7 +6,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 void CDecalShaders::Initialize() {
   m_texZTestNoZWrite = hecl::conv->convert(Shader_CDecalShaderTexZTest{});
@@ -69,4 +69,4 @@ void CDecalShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& c
   }
 }
 
-} // namespace urde
+} // namespace metaforce

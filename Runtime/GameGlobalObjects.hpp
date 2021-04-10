@@ -36,7 +36,7 @@
 
 #include "Runtime/CTextureCache.hpp"
 
-namespace urde {
+namespace metaforce {
 extern class IMain* g_Main;
 namespace MP1 {
 extern class CGameArchitectureSupport* g_archSupport;
@@ -98,4 +98,4 @@ extern ITweakParticle* g_tweakParticle;
 extern ITweakBall* g_tweakBall;
 extern ITweakGuiColors* g_tweakGuiColors;
 
-} // namespace urde
+} // namespace metaforce

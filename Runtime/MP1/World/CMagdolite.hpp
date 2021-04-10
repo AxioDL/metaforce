@@ -4,7 +4,7 @@
 #include "Runtime/Weapon/CFlameInfo.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde {
+namespace metaforce {
 class CCollisionActorManager;
 class CSkinnedModel;
 class CWeaponDescription;
@@ -100,4 +100,4 @@ public:
   bool ShouldRetreat(CStateManager& mgr, float arg) override;
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

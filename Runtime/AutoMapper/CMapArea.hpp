@@ -14,7 +14,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class IWorld;
 class CMapArea {
 public:
@@ -86,4 +86,4 @@ public:
 };
 
 CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&, CObjectReference*);
-} // namespace urde
+} // namespace metaforce

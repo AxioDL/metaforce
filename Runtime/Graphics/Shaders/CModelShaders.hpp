@@ -18,7 +18,7 @@ namespace hecl::Backend {
 class ShaderTag;
 }
 
-namespace urde {
+namespace metaforce {
 class CLight;
 
 enum class EExtendedShader : uint8_t {
@@ -110,4 +110,4 @@ private:
   static std::unordered_map<uint64_t, ShaderPipelines> g_ShaderPipelines;
 };
 
-} // namespace urde
+} // namespace metaforce

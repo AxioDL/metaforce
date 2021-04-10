@@ -3,7 +3,7 @@
 #include "Runtime/CIOWin.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CErrorOutputWindow : public CIOWin {
 public:
@@ -25,4 +25,4 @@ public:
   void Draw() override;
 };
 
-} // namespace urde
+} // namespace metaforce
