@@ -410,7 +410,7 @@ if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
   find_package(atdna REQUIRED)
   if(NOT TARGET atdna)
-    message(FATAL_ERROR "atdna required for building URDE; please verify LLVM installation")
+    message(FATAL_ERROR "atdna required for building Metaforce; please verify LLVM installation")
   endif()
 endif()
 

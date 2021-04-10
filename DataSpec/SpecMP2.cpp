@@ -25,7 +25,7 @@ namespace DataSpec {
 
 using namespace std::literals;
 
-static logvisor::Module Log("metaforce::SpecMP2");
+static logvisor::Module Log("DataSpec::SpecMP2");
 extern hecl::Database::DataSpecEntry SpecEntMP2;
 extern hecl::Database::DataSpecEntry SpecEntMP2ORIG;
 

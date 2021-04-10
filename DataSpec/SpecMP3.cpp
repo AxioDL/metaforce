@@ -22,7 +22,7 @@ namespace DataSpec {
 
 using namespace std::literals;
 
-static logvisor::Module Log("metaforce::SpecMP3");
+static logvisor::Module Log("DataSpec::SpecMP3");
 extern hecl::Database::DataSpecEntry SpecEntMP3;
 extern hecl::Database::DataSpecEntry SpecEntMP3ORIG;
 

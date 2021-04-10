@@ -57,7 +57,7 @@ namespace DataSpec {
 
 using namespace std::literals;
 
-static logvisor::Module Log("metaforce::SpecMP1");
+static logvisor::Module Log("DataSpec::SpecMP1");
 extern hecl::Database::DataSpecEntry SpecEntMP1;
 extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
