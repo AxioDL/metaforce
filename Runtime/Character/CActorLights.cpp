@@ -12,7 +12,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 s32 CActorLights::sFrameSchedulerCount = 0;
 CActorLights::CActorLights(u32 areaUpdateFramePeriod, const zeus::CVector3f& actorPosBias, int maxDynamicLights,
@@ -505,4 +505,4 @@ u32 CActorLights::GetActiveLightCount() const {
   return x144_dynamicLights.size();
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -16,7 +16,7 @@
 #include <zeus/CVector3f.hpp>
 #include <zeus/CVector4f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CLineRenderer {
 public:
@@ -93,4 +93,4 @@ public:
   static void Shutdown();
 };
 
-} // namespace urde
+} // namespace metaforce

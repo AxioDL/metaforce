@@ -3,7 +3,7 @@
 #include <chrono>
 #include <fmt/format.h>
 
-namespace urde {
+namespace metaforce {
 class CStopwatch {
   std::chrono::steady_clock::time_point m_start;
 
@@ -27,4 +27,4 @@ public:
     return t;
   }
 };
-} // namespace urde
+} // namespace metaforce

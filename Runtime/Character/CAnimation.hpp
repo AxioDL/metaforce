@@ -6,7 +6,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Character/CMetaAnimFactory.hpp"
 
-namespace urde {
+namespace metaforce {
 class IMetaAnim;
 
 class CAnimation {
@@ -19,4 +19,4 @@ public:
   std::string_view GetMetaAnimName() const { return x0_name; }
 };
 
-} // namespace urde
+} // namespace metaforce

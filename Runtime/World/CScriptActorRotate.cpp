@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptActorRotate::CScriptActorRotate(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                        const zeus::CVector3f& rotation, float maxTime, bool updateActors,
                                        bool updateOnCreation, bool active)
@@ -146,4 +146,4 @@ void CScriptActorRotate::UpdateSpiderBallWaypoints(CStateManager& mgr) {
 
   x58_25_skipSpiderBallWaypoints = false;
 }
-} // namespace urde
+} // namespace metaforce

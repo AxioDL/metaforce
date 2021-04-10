@@ -7,7 +7,7 @@
 
 ArgumentEditor::ArgumentEditor(QWidget* parent) : QDialog(parent), m_ui(std::make_unique<Ui::ArgumentEditor>()) {
   m_ui->setupUi(this);
-  m_model.setStringList(QSettings().value(QStringLiteral("urde_arguments")).toStringList());
+  m_model.setStringList(QSettings().value(QStringLiteral("metaforce_arguments")).toStringList());
   m_ui->argumentEditor->setModel(&m_model);
 }
 
@@ -59,7 +59,7 @@ void ArgumentEditor::on_deleteButton_clicked() {
 void ArgumentEditor::on_buttonBox_clicked(QAbstractButton* button) {
   auto* buttonBox = qobject_cast<QDialogButtonBox*>(sender());
   if (button == buttonBox->button(QDialogButtonBox::Ok)) {
-    QSettings().setValue(QStringLiteral("urde_arguments"), m_model.stringList());
+    QSettings().setValue(QStringLiteral("metaforce_arguments"), m_model.stringList());
     accept();
   } else {
     reject();

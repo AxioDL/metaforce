@@ -9,7 +9,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAnimData;
 class CCollisionActor;
 class CMaterialList;
@@ -43,4 +43,4 @@ public:
   static zeus::CTransform GetWRLocatorTransform(const CAnimData& animData, CSegId id, const zeus::CTransform& worldXf,
                                                 const zeus::CTransform& localXf);
 };
-} // namespace urde
+} // namespace metaforce

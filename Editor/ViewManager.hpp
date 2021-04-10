@@ -26,7 +26,7 @@ namespace hecl {
 class PipelineConverterBase;
 }
 
-namespace urde {
+namespace metaforce {
 class SplashScreen;
 
 class ViewManager final : public specter::IViewManager {
@@ -196,4 +196,4 @@ public:
   void deferOpenProject(const hecl::SystemString& path) { m_deferedProject = path; }
 };
 
-} // namespace urde
+} // namespace metaforce

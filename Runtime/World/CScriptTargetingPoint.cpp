@@ -4,7 +4,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptTargetingPoint::CScriptTargetingPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                              const zeus::CTransform& xf, bool active)
@@ -30,4 +30,4 @@ void CScriptTargetingPoint::Think(float dt, CStateManager&) {
 }
 
 bool CScriptTargetingPoint::GetLocked() const { return !x20_conns.empty(); }
-} // namespace urde
+} // namespace metaforce

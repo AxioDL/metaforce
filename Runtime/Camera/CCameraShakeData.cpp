@@ -9,7 +9,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 
 SCameraShakePoint SCameraShakePoint::LoadCameraShakePoint(CInputStream& in) {
   u32 useEnvelope = ScriptLoader::LoadParameterFlags(in);
@@ -136,4 +136,4 @@ const CCameraShakeData CCameraShakeData::skChargedShotCameraShakeData{
     CCameraShakerComponent{},
 };
 
-} // namespace urde
+} // namespace metaforce

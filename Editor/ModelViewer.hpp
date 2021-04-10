@@ -4,7 +4,7 @@
 #include "ViewManager.hpp"
 #include "Camera.hpp"
 
-namespace urde {
+namespace metaforce {
 class ModelViewer : public ViewerSpace {
   struct State : Space::State {
     AT_DECL_DNA_YAMLV
@@ -17,7 +17,7 @@ class ModelViewer : public ViewerSpace {
   } m_state;
 
   const Space::State& spaceState() const override { return m_state; }
-  std::unique_ptr<urde::CLineRenderer> m_lineRenderer;
+  std::unique_ptr<metaforce::CLineRenderer> m_lineRenderer;
   struct View : specter::View {
     ModelViewer& m_mv;
     boo::SWindowRect m_scissorRect;
@@ -33,7 +33,7 @@ class ModelViewer : public ViewerSpace {
 public:
   ModelViewer(ViewManager& vm, Space* parent) : ViewerSpace(vm, Class::ModelViewer, parent) {
     reloadState();
-    m_lineRenderer.reset(new urde::CLineRenderer(urde::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
+    m_lineRenderer.reset(new metaforce::CLineRenderer(metaforce::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
   }
 
   ModelViewer(ViewManager& vm, Space* parent, const ModelViewer& other) : ModelViewer(vm, parent) {
@@ -61,4 +61,4 @@ public:
   bool usesToolbar() const override { return true; }
 };
 
-} // namespace urde
+} // namespace metaforce

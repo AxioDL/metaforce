@@ -3,7 +3,7 @@
 #include "Runtime/Character/CSegIdList.hpp"
 #include "Runtime/Character/CSegStatementSet.hpp"
 
-namespace urde {
+namespace metaforce {
 
 s32 CAnimTreeTweenBase::sAdvancementDepth = 0;
 
@@ -124,4 +124,4 @@ std::optional<std::unique_ptr<IAnimReader>> CAnimTreeTweenBase::VSimplified() {
       return {tmpUnblended->Clone()};
   }
 }
-} // namespace urde
+} // namespace metaforce

@@ -3,7 +3,7 @@
 #include "Runtime/GuiSys/CGuiModel.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGuiSliderGroup::CGuiSliderGroup(const CGuiWidgetParms& parms, float min, float max, float def, float inc)
 : CGuiCompoundWidget(parms)
@@ -168,4 +168,4 @@ std::shared_ptr<CGuiWidget> CGuiSliderGroup::Create(CGuiFrame* frame, CInputStre
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

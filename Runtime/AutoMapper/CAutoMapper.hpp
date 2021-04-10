@@ -17,7 +17,7 @@
 #include <zeus/CVector2i.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CMapWorldInfo;
 class CStateManager;
 class IWorld;
@@ -275,4 +275,4 @@ public:
     return 0.f;
   }
 };
-} // namespace urde
+} // namespace metaforce

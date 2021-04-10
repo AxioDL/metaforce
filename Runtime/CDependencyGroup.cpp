@@ -1,7 +1,7 @@
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CToken.hpp"
 
-namespace urde {
+namespace metaforce {
 CDependencyGroup::CDependencyGroup(CInputStream& in) { ReadFromStream(in); }
 
 void CDependencyGroup::ReadFromStream(CInputStream& in) {
@@ -17,4 +17,4 @@ CFactoryFnReturn FDependencyGroupFactory([[maybe_unused]] const SObjectTag& tag,
   return TToken<CDependencyGroup>::GetIObjObjectFor(std::make_unique<CDependencyGroup>(in));
 }
 
-} // namespace urde
+} // namespace metaforce

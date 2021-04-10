@@ -3,7 +3,7 @@
 #include "Runtime/GuiSys/CCompoundTargetReticle.hpp"
 #include "Runtime/GuiSys/COrbitPointMarker.hpp"
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class CTargetingManager {
   CCompoundTargetReticle x0_targetReticule;
@@ -17,4 +17,4 @@ public:
   void Touch();
   CCompoundTargetReticle& CompoundTargetReticle() { return x0_targetReticule; }
 };
-} // namespace urde
+} // namespace metaforce

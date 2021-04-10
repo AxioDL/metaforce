@@ -3,7 +3,7 @@
 #include <memory>
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 enum class EPaletteFormat {
   IA8 = 0x0,
@@ -32,4 +32,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

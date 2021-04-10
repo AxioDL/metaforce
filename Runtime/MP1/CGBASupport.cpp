@@ -8,7 +8,7 @@
 #include <jbus/Endpoint.hpp>
 #include <jbus/Listener.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 static jbus::Listener g_JbusListener;
 static std::unique_ptr<jbus::Endpoint> g_JbusEndpoint;
@@ -218,4 +218,4 @@ void CGBASupport::StartLink() {
   x40_siChan = -1;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

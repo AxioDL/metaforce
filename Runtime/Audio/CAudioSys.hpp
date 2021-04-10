@@ -8,7 +8,7 @@
 #include <boo/audiodev/IAudioVoiceEngine.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAudioGroupSet;
 class CSimplePool;
 
@@ -65,4 +65,4 @@ public:
   static void SetVolumeScale(s16 scale);
 };
 
-} // namespace urde
+} // namespace metaforce

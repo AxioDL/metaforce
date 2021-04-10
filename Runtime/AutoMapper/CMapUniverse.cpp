@@ -4,7 +4,7 @@
 #include "Runtime/CGameState.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CMapUniverse::CMapUniverse(CInputStream& in, u32 version) : x0_hexagonId(in.readUint32Big()) {
   x4_hexagonToken = g_SimplePool->GetObj({FOURCC('MAPA'), x0_hexagonId});
@@ -121,4 +121,4 @@ CFactoryFnReturn FMapUniverseFactory(const SObjectTag&, CInputStream& in, const 
   return TToken<CMapUniverse>::GetIObjObjectFor(std::make_unique<CMapUniverse>(in, version));
 }
 
-} // namespace urde
+} // namespace metaforce

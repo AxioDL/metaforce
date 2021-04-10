@@ -3,7 +3,7 @@
 #include <memory>
 #include "Runtime/GuiSys/CGuiCompoundWidget.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CGuiGroup : public CGuiCompoundWidget {
   u32 xb8_workerCount = 0;
@@ -24,4 +24,4 @@ public:
   static void LoadWidgetFnMap();
 };
 
-} // namespace urde
+} // namespace metaforce

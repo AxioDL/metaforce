@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                const zeus::CVector3f& pos, const zeus::CAABox& bounds, const CDamageInfo& dInfo,
@@ -298,4 +298,4 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
 zeus::CAABox CScriptTrigger::GetTriggerBoundsWR() const {
   return {x130_bounds.min + x34_transform.origin, x130_bounds.max + x34_transform.origin};
 }
-} // namespace urde
+} // namespace metaforce

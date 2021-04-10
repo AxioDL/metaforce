@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/World/CPhysicsActor.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptDock : public CPhysicsActor {
   enum class EDockState { Idle, PlayerTouched, EnterNextArea, Three };
@@ -42,4 +42,4 @@ public:
   void AreaUnloaded(CStateManager&);
   void SetLoadConnected(CStateManager&, bool);
 };
-} // namespace urde
+} // namespace metaforce

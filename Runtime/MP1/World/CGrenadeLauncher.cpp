@@ -10,7 +10,7 @@
 #include "Runtime/World/CPatterned.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                    const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& bounds,
                                    const CHealthInfo& healthInfo, const CDamageVulnerability& vulnerability,
@@ -337,4 +337,4 @@ void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
                                      x3f8_explodePlayerDistance));
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

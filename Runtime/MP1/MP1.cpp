@@ -72,7 +72,7 @@
 
 #include <discord_rpc.h>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 struct AudioGroupInfo {
   const char* name;
@@ -1103,4 +1103,4 @@ int CMain::appMain(boo::IApplication* app) {
 
 #endif
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

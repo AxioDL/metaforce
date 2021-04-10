@@ -8,7 +8,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CLightParameters {
   friend class CActor;
@@ -95,4 +95,4 @@ public:
   const zeus::CColor& GetNoLightsAmbient() const { return x18_noLightsAmbient; }
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -10,7 +10,7 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 class CEnergyBarShader {
@@ -41,4 +41,4 @@ public:
             const CTexture* tex);
 };
 
-} // namespace urde
+} // namespace metaforce

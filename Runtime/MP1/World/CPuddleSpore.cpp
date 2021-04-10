@@ -12,7 +12,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 constexpr u32 kEyeCount = 16;
 
 constexpr std::array kEyeLocators{
@@ -315,4 +315,4 @@ void CPuddleSpore::Attack(CStateManager& mgr, EStateMsg msg, float) {
     x32c_animState = EAnimState::NotReady;
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -6,7 +6,7 @@
 
 #include <zeus/CVector2f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 class CFontImageDef {
@@ -22,4 +22,4 @@ public:
   s32 CalculateHeight() const;
 };
 
-} // namespace urde
+} // namespace metaforce

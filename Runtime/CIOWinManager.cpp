@@ -3,7 +3,7 @@
 #include "Runtime/CArchitectureMessage.hpp"
 #include "Runtime/CIOWin.hpp"
 
-namespace urde {
+namespace metaforce {
 
 bool CIOWinManager::OnIOWinMessage(const CArchitectureMessage& msg) {
   switch (msg.GetType()) {
@@ -251,4 +251,4 @@ void CIOWinManager::AddIOWin(std::weak_ptr<CIOWin> chIow, int pumpPrio, int draw
     x0_drawRoot = newNode;
 }
 
-} // namespace urde
+} // namespace metaforce

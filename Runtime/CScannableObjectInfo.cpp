@@ -2,7 +2,7 @@
 
 #include "Runtime/GameGlobalObjects.hpp"
 
-namespace urde {
+namespace metaforce {
 CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, CAssetId resId) : x0_scannableObjectId(resId) {
   const u32 version = in.readUint32Big();
   Load(in, version);
@@ -69,4 +69,4 @@ CFactoryFnReturn FScannableObjectInfoFactory(const SObjectTag& tag, CInputStream
                                              CObjectReference*) {
   return TToken<CScannableObjectInfo>::GetIObjObjectFor(std::make_unique<CScannableObjectInfo>(in, tag.id));
 }
-} // namespace urde
+} // namespace metaforce

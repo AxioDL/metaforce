@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                bool active, CAssetId worldId, CAssetId areaId)
 : CEntity(uid, info, active, name)
@@ -123,4 +123,4 @@ void CScriptWorldTeleporter::StartTransition(CStateManager& mgr) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

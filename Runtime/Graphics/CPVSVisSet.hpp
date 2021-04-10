@@ -3,7 +3,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CPVSVisOctree;
 
 enum class EPVSVisSetState { EndOfTree, NodeFound, OutOfBounds };
@@ -23,4 +23,4 @@ public:
   void SetTestPoint(const CPVSVisOctree& octree, const zeus::CVector3f&);
 };
 
-} // namespace urde
+} // namespace metaforce

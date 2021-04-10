@@ -4,7 +4,7 @@
 
 #include "Runtime/GCNTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CStreamAudioManager {
   static u8 g_MusicVolume;
@@ -34,4 +34,4 @@ public:
   static void Shutdown();
 };
 
-} // namespace urde
+} // namespace metaforce

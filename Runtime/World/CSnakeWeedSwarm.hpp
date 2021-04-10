@@ -5,7 +5,7 @@
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 class CAnimationParameters;
 
 class CSnakeWeedSwarm : public CActor {
@@ -126,4 +126,4 @@ private:
   void EmitParticles2(const zeus::CVector3f& pos);
   void RenderBoid(u32 idx, const CBoid& boid, u32& posesToBuild) const;
 };
-} // namespace urde
+} // namespace metaforce

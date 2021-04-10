@@ -13,7 +13,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CVParamTransfer;
 class CObjectReference;
 
@@ -112,6 +112,6 @@ public:
   bool PathExists(const CPFRegion* r1, const CPFRegion* r2, u32 flags) const;
 };
 
-CFactoryFnReturn FPathFindAreaFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                                      const urde::CVParamTransfer& vparms, CObjectReference* selfRef);
-} // namespace urde
+CFactoryFnReturn FPathFindAreaFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                                      const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef);
+} // namespace metaforce

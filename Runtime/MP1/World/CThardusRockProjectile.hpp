@@ -2,7 +2,7 @@
 
 #include "Runtime/World/CPatterned.hpp"
 #include "Runtime/Collision/CJointCollisionDescription.hpp"
-namespace urde {
+namespace metaforce {
 class CCollisionActorManager;
 struct SSphereJointInfo;
 namespace MP1 {
@@ -69,4 +69,4 @@ public:
   bool ShouldMove(CStateManager& mgr, float arg) override;
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

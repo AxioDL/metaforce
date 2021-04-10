@@ -8,7 +8,7 @@
 #include <zeus/CVector3f.hpp>
 #include <zeus/CTransform.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CStateManager;
 class CPlayerCameraBob {
@@ -103,4 +103,4 @@ public:
   zeus::CTransform CalculateCameraBobTransformation() const;
   static void ReadTweaks(CInputStream& in);
 };
-} // namespace urde
+} // namespace metaforce

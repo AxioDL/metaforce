@@ -22,7 +22,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 constexpr std::string_view skpMouthDamageJoint = "LCTR_SHEMOUTH"sv;
 
 constexpr std::array<SSphereJointInfo, 5> skSphereJointList{{
@@ -1238,4 +1238,4 @@ bool CBabygoth::Listen(const zeus::CVector3f& origin, EListenNoiseType noiseType
   xa48_30_heardPlayerFire = true;
   return true;
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -22,7 +22,7 @@
 
 using namespace std::literals;
 
-namespace urde {
+namespace metaforce {
 
 using FourCC = hecl::FourCC;
 
@@ -151,7 +151,7 @@ public:
       return std::nullopt;
     }
 
-    return {urde::GetAverage<T>(this->data(), this->size())};
+    return {metaforce::GetAverage<T>(this->data(), this->size())};
   }
 
   [[nodiscard]] std::optional<T> GetEntry(int i) const {
@@ -166,24 +166,24 @@ public:
   [[nodiscard]] size_t Size() const { return this->size(); }
 };
 
-} // namespace urde
+} // namespace metaforce
 
 namespace std {
 template <>
-struct hash<urde::SObjectTag> {
-  size_t operator()(const urde::SObjectTag& tag) const noexcept { return tag.id.Value(); }
+struct hash<metaforce::SObjectTag> {
+  size_t operator()(const metaforce::SObjectTag& tag) const noexcept { return tag.id.Value(); }
 };
 
 template <>
-struct hash<urde::CAssetId> {
-  size_t operator()(const urde::CAssetId& id) const noexcept { return id.Value(); }
+struct hash<metaforce::CAssetId> {
+  size_t operator()(const metaforce::CAssetId& id) const noexcept { return id.Value(); }
 };
 } // namespace std
 
-FMT_CUSTOM_FORMATTER(urde::CAssetId, "{:08X}", obj.Value())
-FMT_CUSTOM_FORMATTER(urde::TEditorId, "{:08X}", obj.id)
-FMT_CUSTOM_FORMATTER(urde::TUniqueId, "{:04X}", obj.id)
-FMT_CUSTOM_FORMATTER(urde::SObjectTag, "{} {}", obj.type, obj.id)
+FMT_CUSTOM_FORMATTER(metaforce::CAssetId, "{:08X}", obj.Value())
+FMT_CUSTOM_FORMATTER(metaforce::TEditorId, "{:08X}", obj.id)
+FMT_CUSTOM_FORMATTER(metaforce::TUniqueId, "{:04X}", obj.id)
+FMT_CUSTOM_FORMATTER(metaforce::SObjectTag, "{} {}", obj.type, obj.id)
 
 FMT_CUSTOM_FORMATTER(zeus::CVector3f, "({} {} {})", float(obj.x()), float(obj.y()), float(obj.z()))
 FMT_CUSTOM_FORMATTER(zeus::CVector2f, "({} {})", float(obj.x()), float(obj.y()))

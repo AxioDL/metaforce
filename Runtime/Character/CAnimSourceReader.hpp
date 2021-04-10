@@ -11,7 +11,7 @@
 #include "Runtime/Character/CParticleData.hpp"
 #include "Runtime/Character/IAnimReader.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class IAnimSourceInfo {
 public:
@@ -104,4 +104,4 @@ public:
   zeus::CQuaternion VGetRotation(const CSegId& seg) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

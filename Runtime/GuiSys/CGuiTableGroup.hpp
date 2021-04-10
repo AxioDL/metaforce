@@ -5,7 +5,7 @@
 
 #include "Runtime/GuiSys/CGuiCompoundWidget.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CGuiTableGroup : public CGuiCompoundWidget {
 public:
@@ -94,4 +94,4 @@ public:
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 
-} // namespace urde
+} // namespace metaforce

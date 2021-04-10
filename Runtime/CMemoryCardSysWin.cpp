@@ -5,7 +5,7 @@
 
 #include <shlobj.h>
 
-namespace urde {
+namespace metaforce {
 
 #if WINDOWS_STORE
 using namespace Windows::Storage;
@@ -120,4 +120,4 @@ kabufuda::SystemString CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot sl
   return {};
 }
 
-} // namespace urde
+} // namespace metaforce

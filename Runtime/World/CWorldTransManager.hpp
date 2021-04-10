@@ -20,7 +20,7 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CSimplePool;
 
 class CWorldTransManager {
@@ -127,4 +127,4 @@ public:
   static bool WaitForModelsAndTextures();
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -10,7 +10,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollidableSphere;
 class CCollidableOBBTreeGroup;
 class CCollidableOBBTreeGroupContainer;
@@ -69,4 +69,4 @@ public:
   void SetSphereRadius(float radius);
   float GetSphereRadius() const { return x288_sphereRadius; }
 };
-} // namespace urde
+} // namespace metaforce

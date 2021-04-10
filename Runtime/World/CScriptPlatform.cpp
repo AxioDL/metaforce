@@ -16,7 +16,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 constexpr auto skPlatformMaterialList =
     CMaterialList{EMaterialTypes::Solid, EMaterialTypes::Immovable, EMaterialTypes::Platform, EMaterialTypes::Occluder};
@@ -568,4 +568,4 @@ void CScriptPlatform::DebugDraw() {
   m_boxFilter->setAABB(*GetTouchBounds());
   m_boxFilter->draw({1.f, 0.f, 1.f, .5f});
 }
-} // namespace urde
+} // namespace metaforce

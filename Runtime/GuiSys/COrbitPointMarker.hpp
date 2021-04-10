@@ -6,7 +6,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class COrbitPointMarker {
   float x0_zOffset;
@@ -26,4 +26,4 @@ public:
   void Update(float dt, const CStateManager& mgr);
   void Draw(const CStateManager& mgr) const;
 };
-} // namespace urde
+} // namespace metaforce

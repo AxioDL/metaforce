@@ -4,7 +4,7 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/Collision/CCollisionInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 class CCollisionInfoList {
   rstl::reserved_vector<CCollisionInfo, 32> x0_list;
 
@@ -89,4 +89,4 @@ public:
     }
   }
 };
-} // namespace urde
+} // namespace metaforce

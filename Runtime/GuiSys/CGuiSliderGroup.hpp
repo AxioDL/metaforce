@@ -6,7 +6,7 @@
 
 #include "Runtime/GuiSys/CGuiCompoundWidget.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSimplePool;
 
 class CGuiSliderGroup : public CGuiCompoundWidget {
@@ -60,4 +60,4 @@ public:
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 
-} // namespace urde
+} // namespace metaforce

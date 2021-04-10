@@ -2,7 +2,7 @@
 
 #include "Runtime/MP1/World/CElitePirate.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class COmegaPirate : public CElitePirate {
 private:
   class CFlash : public CActor {
@@ -189,4 +189,4 @@ private:
   void sub_8028c840(u32 arg, CStateManager& mgr);
   zeus::CVector3f FindGround(const zeus::CVector3f& pos, CStateManager& mgr) const;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

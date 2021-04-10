@@ -14,7 +14,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollidableSphere;
 class CDamageInfo;
 class CFirstPersonCamera;
@@ -623,4 +623,4 @@ public:
   void SetNoDamageLoopSfx(bool val) { x9c7_24_noDamageLoopSfx = val; }
   void SetAccelerationChangeTimer(float time) { x2d4_accelerationChangeTimer = time; }
 };
-} // namespace urde
+} // namespace metaforce

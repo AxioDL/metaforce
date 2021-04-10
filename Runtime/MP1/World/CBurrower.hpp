@@ -4,7 +4,7 @@
 #include "Runtime/World/CPatterned.hpp"
 #include "Runtime/World/CPathFindSearch.hpp"
 
-namespace urde {
+namespace metaforce {
 class CElementGen;
 namespace MP1 {
 
@@ -51,4 +51,4 @@ public:
   const std::optional<TLockedToken<CGenDescription>>& GetDeathExplosionParticle() const override;
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

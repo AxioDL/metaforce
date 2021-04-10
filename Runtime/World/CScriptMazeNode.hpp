@@ -11,7 +11,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 constexpr s32 skMazeCols = 9;
 constexpr s32 skMazeRows = 7;
 constexpr s32 skEnterCol = 4;
@@ -114,4 +114,4 @@ private:
   void Reset(CStateManager& mgr);
   void SendScriptMsgs(CStateManager& mgr, EScriptObjectMessage msg);
 };
-} // namespace urde
+} // namespace metaforce

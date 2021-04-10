@@ -3,7 +3,7 @@
 #include "Runtime/Character/CCharAnimTime.hpp"
 #include "Runtime/Character/CPOINode.hpp"
 
-namespace urde {
+namespace metaforce {
 class IAnimSourceInfo;
 
 class CSoundPOINode : public CPOINode {
@@ -23,4 +23,4 @@ public:
   float GetMaxDist() const { return x40_maxDist; }
 };
 
-} // namespace urde
+} // namespace metaforce

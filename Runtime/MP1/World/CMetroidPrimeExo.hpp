@@ -13,7 +13,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCameraShakeData;
 class CCollisionActorManager;
 class CGenDescription;
@@ -328,4 +328,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

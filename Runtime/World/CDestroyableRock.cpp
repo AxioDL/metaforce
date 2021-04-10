@@ -3,7 +3,7 @@
 #include "Runtime/CPlayerState.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
-namespace urde {
+namespace metaforce {
 
 CDestroyableRock::CDestroyableRock(TUniqueId id, bool active, std::string_view name, const CEntityInfo& info,
                                    const zeus::CTransform& xf, CModelData&& modelData, float mass,
@@ -22,7 +22,7 @@ CDestroyableRock::CDestroyableRock(TUniqueId id, bool active, std::string_view n
   CreateShadow(false);
 }
 
-void CDestroyableRock::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
+void CDestroyableRock::Accept(metaforce::IVisitor& visitor) { visitor.Visit(this); }
 void CDestroyableRock::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   if (GetActive()) {
     if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
@@ -60,4 +60,4 @@ void CDestroyableRock::Think(float dt, CStateManager& mgr) {
   xd0_damageMag = damageMag;
   CEntity::Think(dt, mgr);
 }
-} // namespace urde
+} // namespace metaforce

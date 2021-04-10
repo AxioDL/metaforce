@@ -128,8 +128,8 @@
 #include "Runtime/World/CWallCrawlerSwarm.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-namespace urde {
-static logvisor::Module Log("urde::ScriptLoader");
+namespace metaforce {
+static logvisor::Module Log("metaforce::ScriptLoader");
 
 constexpr SObjectTag MorphballDoorANCS = {FOURCC('ANCS'), 0x1F9DA858};
 
@@ -3930,4 +3930,4 @@ CEntity* ScriptLoader::LoadEnergyBall(CStateManager& mgr, CInputStream& in, int 
                               std::move(mData), actParms, pInfo, w1, f1, dInfo1, f2, a1, sfxId1, a2, a3, sfxId2, f3, f4,
                               a4, dInfo2, f5);
 }
-} // namespace urde
+} // namespace metaforce

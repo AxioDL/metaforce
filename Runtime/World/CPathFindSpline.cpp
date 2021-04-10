@@ -1,6 +1,6 @@
 #include "Runtime/World/CPathFindSearch.hpp"
 
-namespace urde {
+namespace metaforce {
 
 bool CPathFindSearch::SegmentOver(const zeus::CVector3f& p1) const {
   if (x4_waypoints.size() > 1 && xc8_curWaypoint < x4_waypoints.size() - 1) {
@@ -70,4 +70,4 @@ float CPathFindSearch::RemainingPathDistance(const zeus::CVector3f& pos) const {
   return f31;
 }
 
-} // namespace urde
+} // namespace metaforce

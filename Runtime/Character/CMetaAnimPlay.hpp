@@ -4,7 +4,7 @@
 #include "Runtime/Character/CPrimitive.hpp"
 #include "Runtime/Character/IMetaAnim.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CMetaAnimPlay : public IMetaAnim {
   CPrimitive x4_primitive;
@@ -19,4 +19,4 @@ public:
                                                    const CMetaAnimTreeBuildOrders& orders) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

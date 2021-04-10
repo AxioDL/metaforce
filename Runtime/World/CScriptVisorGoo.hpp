@@ -7,7 +7,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CScriptVisorGoo : public CActor {
   TToken<CGenDescription> xe8_particleDesc;
@@ -36,4 +36,4 @@ public:
   void Touch(CActor&, CStateManager&) override;
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
 
-namespace urde {
+namespace metaforce {
 enum class ERumbleFxId {
   Zero = 0,
   One = 1,
@@ -91,4 +91,4 @@ public:
   void Deactivate(s16 id, bool b1);
   ERumblePriority GetPriority(s16 idx) const { return x10_deltas[idx].x1c_priority; }
 };
-} // namespace urde
+} // namespace metaforce

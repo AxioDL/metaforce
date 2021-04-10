@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-namespace urde {
+namespace metaforce {
 
 void CPASDatabase::AddAnimState(CPASAnimState&& state) {
   auto it = std::lower_bound(x0_states.begin(), x0_states.end(), state,
@@ -47,4 +47,4 @@ std::pair<float, s32> CPASDatabase::FindBestAnimation(const CPASAnimParmData& da
   return (*it).FindBestAnimation(data.GetAnimParmData(), rand, ignoreAnim);
 }
 
-} // namespace urde
+} // namespace metaforce

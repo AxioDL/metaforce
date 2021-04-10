@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-namespace urde {
+namespace metaforce {
 
 enum class EGameObjectList {
   Invalid = -1,
@@ -91,4 +91,4 @@ public:
   u16 size() const { return x200a_count; }
 };
 
-} // namespace urde
+} // namespace metaforce

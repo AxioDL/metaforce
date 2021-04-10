@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CFire::CFire(TToken<CGenDescription> effect, TUniqueId uid, TAreaId aId, bool active, TUniqueId owner,
              const zeus::CTransform& xf, const CDamageInfo& dInfo, const zeus::CAABox& aabox,
              const zeus::CVector3f& vec, bool b1, CAssetId visorEffect, bool b2, bool b3, bool b4, float f1, float f2,
@@ -101,4 +101,4 @@ void CFire::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
 }
 
-} // namespace urde
+} // namespace metaforce

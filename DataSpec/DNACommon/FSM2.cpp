@@ -9,7 +9,7 @@
 #include <logvisor/logvisor.hpp>
 
 namespace DataSpec::DNAFSM2 {
-logvisor::Module LogDNAFSM2("urde::DNAFSM2");
+logvisor::Module LogDNAFSM2("DataSpec::DNAFSM2");
 
 template <class IDType>
 template <class Op>
@@ -39,12 +39,12 @@ AT_SPECIALIZE_DNA(FSM2<UniqueID64>)
 
 template <>
 std::string_view FSM2<UniqueID32>::DNAType() {
-  return "urde::FSM2<UniqueID32>"sv;
+  return "FSM2<UniqueID32>"sv;
 }
 
 template <>
 std::string_view FSM2<UniqueID64>::DNAType() {
-  return "urde::FSM2<UniqueID64>"sv;
+  return "FSM2<UniqueID64>"sv;
 }
 
 template struct FSM2<UniqueID32>;

@@ -22,7 +22,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CActorLights;
 struct CModelFlags;
@@ -160,4 +160,4 @@ public:
 
   static CDamageInfo GetShotDamageInfo(const SShotParam& shotParam, CStateManager& mgr);
 };
-} // namespace urde
+} // namespace metaforce

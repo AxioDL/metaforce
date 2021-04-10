@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace urde {
+namespace metaforce {
 namespace {
 template <typename T, typename S>
 auto AccessElement(T& arr, S idx) -> typename T::reference {
@@ -328,4 +328,4 @@ bool CSortedListManager::ActorInLists(const CActor* actor) const {
   return node.x2a_populated;
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -11,7 +11,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 enum class EFilterType {
   Passthru,
   Multiply,
@@ -117,4 +117,4 @@ public:
   EBlurType GetCurrType() const { return x10_curType; }
 };
 
-} // namespace urde
+} // namespace metaforce

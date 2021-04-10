@@ -1,6 +1,6 @@
 #include "Resource.hpp"
 
-namespace urde {
+namespace metaforce {
 
 Space::Class Resource::DeduceDefaultSpaceClass(const hecl::ProjectPath& path) {
   athena::io::FileReader r(path.getAbsolutePath(), 32 * 1024, false);
@@ -9,4 +9,4 @@ Space::Class Resource::DeduceDefaultSpaceClass(const hecl::ProjectPath& path) {
   return Space::Class::None;
 }
 
-} // namespace urde
+} // namespace metaforce

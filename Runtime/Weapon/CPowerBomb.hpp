@@ -8,7 +8,7 @@
 
 #include <zeus/CAABox.hpp>
 
-namespace urde {
+namespace metaforce {
 class CElementGen;
 
 class CPowerBomb : public CWeapon {
@@ -36,4 +36,4 @@ public:
   void ApplyDynamicDamage(const zeus::CVector3f&, CStateManager&);
 };
 
-} // namespace urde
+} // namespace metaforce

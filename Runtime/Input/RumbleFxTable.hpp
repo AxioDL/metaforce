@@ -3,7 +3,7 @@
 #include <array>
 #include "Runtime/Input/CRumbleVoice.hpp"
 
-namespace urde {
+namespace metaforce {
 
 using RumbleFXTable = std::array<SAdsrData, 24>;
 

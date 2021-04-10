@@ -5,7 +5,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CIceBeam::CIceBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId, EMaterialTypes playerMaterial,
                    const zeus::CVector3f& scale)
@@ -141,4 +141,4 @@ void CIceBeam::Unload(CStateManager& mgr) {
 
 bool CIceBeam::IsLoaded() const { return CGunWeapon::IsLoaded() && x248_24_loaded; }
 
-} // namespace urde
+} // namespace metaforce

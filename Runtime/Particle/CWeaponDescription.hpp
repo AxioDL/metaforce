@@ -10,7 +10,7 @@
 #include "Runtime/Particle/CRealElement.hpp"
 #include "Runtime/Particle/CVectorElement.hpp"
 
-namespace urde {
+namespace metaforce {
 class CCollisionResponseData;
 
 struct SCollisionResponseData {
@@ -59,4 +59,4 @@ public:
   bool x29_SPS2 = false;
   bool x29_FC60 = false;
 };
-} // namespace urde
+} // namespace metaforce

@@ -6,7 +6,7 @@
 #include "Runtime/Character/CParticlePOINode.hpp"
 #include "Runtime/Character/CSoundPOINode.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CPOINode::CPOINode(std::string_view name, EPOIType type, const CCharAnimTime& time, s32 index, bool unique,
                    float weight, s32 e, s32 f)
@@ -120,4 +120,4 @@ template size_t _getPOIList<CSoundPOINode>(const CCharAnimTime& time, CSoundPOIN
                                            size_t iterator, u32 unk1, const std::vector<CSoundPOINode>& stream,
                                            const CCharAnimTime& curTime);
 
-} // namespace urde
+} // namespace metaforce

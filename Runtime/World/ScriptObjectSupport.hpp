@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-namespace urde {
+namespace metaforce {
 
 enum class EScriptObjectType {
   Actor = 0x00,
@@ -229,4 +229,4 @@ std::string_view ScriptObjectTypeToStr(EScriptObjectType type);
 std::string_view ScriptObjectStateToStr(EScriptObjectState state);
 std::string_view ScriptObjectMessageToStr(EScriptObjectMessage message);
 
-} // namespace urde
+} // namespace metaforce

@@ -16,7 +16,7 @@ class ViewResources;
 class Toolbar;
 struct Icon;
 } // namespace specter
-namespace urde {
+namespace metaforce {
 class ViewManager;
 class RootSpace;
 class SplitSpace;
@@ -374,4 +374,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

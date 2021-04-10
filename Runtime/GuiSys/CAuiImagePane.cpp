@@ -5,7 +5,7 @@
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAuiImagePane::CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId tex0, CAssetId tex1,
                              rstl::reserved_vector<zeus::CVector3f, 4>&& coords,
@@ -195,4 +195,4 @@ void CAuiImagePane::SetAnimationParms(const zeus::CVector2f& tileSize, float int
   x148_fadeDuration = fadeDuration;
 }
 
-} // namespace urde
+} // namespace metaforce

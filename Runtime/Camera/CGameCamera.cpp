@@ -4,7 +4,7 @@
 #include "Runtime/Camera/CCameraManager.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGameCamera::CGameCamera(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
                          const zeus::CTransform& xf, float fovy, float znear, float zfar, float aspect,
@@ -134,4 +134,4 @@ void CGameCamera::SkipFovInterpolation() {
 
   x178_perspInterpRemTime = x174_delayTime = 0.f;
 }
-} // namespace urde
+} // namespace metaforce

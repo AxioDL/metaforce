@@ -2,7 +2,7 @@
 
 #include "Space.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class EffectEditor : public EditorSpace {
   struct State : Space::State {
@@ -29,4 +29,4 @@ public:
   bool usesToolbar() const override { return true; }
 };
 
-} // namespace urde
+} // namespace metaforce

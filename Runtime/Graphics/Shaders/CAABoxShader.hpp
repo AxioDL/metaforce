@@ -9,7 +9,7 @@ namespace zeus {
 class CAABox;
 }
 
-namespace urde {
+namespace metaforce {
 
 class CAABoxShader {
   struct Uniform {
@@ -29,4 +29,4 @@ public:
   void draw(const zeus::CColor& color);
 };
 
-} // namespace urde
+} // namespace metaforce

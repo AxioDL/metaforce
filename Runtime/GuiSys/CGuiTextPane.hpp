@@ -6,7 +6,7 @@
 #include "Runtime/GuiSys/CGuiPane.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CGuiTextPane : public CGuiPane {
   CGuiTextSupport xd4_textSupport;
@@ -30,4 +30,4 @@ public:
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 
-} // namespace urde
+} // namespace metaforce

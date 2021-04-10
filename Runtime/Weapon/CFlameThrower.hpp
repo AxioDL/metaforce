@@ -5,7 +5,7 @@
 #include "Runtime/Particle/CFlameWarp.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
 
-namespace urde {
+namespace metaforce {
 class CFlameInfo;
 class CElementGen;
 class CFlameThrower : public CGameProjectile {
@@ -59,4 +59,4 @@ public:
   void Fire(const zeus::CTransform&, CStateManager&, bool);
   bool GetParticlesActive() const { return x400_25_particlesActive; }
 };
-} // namespace urde
+} // namespace metaforce

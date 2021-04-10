@@ -27,7 +27,7 @@
 #define FOGVOL_NEAR 0.2
 #define SPHERE_RAMP_RES 32
 
-namespace urde {
+namespace metaforce {
 namespace {
 struct FogVolumeControl {
   std::array<std::array<u32, 2>, 12> xfc_{
@@ -1418,4 +1418,4 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
   }
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -7,7 +7,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CScriptGenerator : public CEntity {
   u32 x34_spawnCount;
@@ -24,4 +24,4 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 };
-} // namespace urde
+} // namespace metaforce

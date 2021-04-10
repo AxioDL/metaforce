@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace urde {
+namespace metaforce {
 
 class CFrontEndUITouchBar {
 public:
@@ -46,4 +46,4 @@ public:
 
 std::unique_ptr<CFrontEndUITouchBar> NewFrontEndUITouchBar();
 
-} // namespace urde
+} // namespace metaforce

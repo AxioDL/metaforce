@@ -23,7 +23,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 namespace {
 std::array<pas::ELocomotionType, 3> skLocomotions{{
@@ -1895,4 +1895,4 @@ void CMetroidPrimeExo::SetupCollisionActorManager(CStateManager& mgr) {
 }
 
 void CMetroidPrimeExo::CPhysicsDummy::Accept(IVisitor& visitor) { visitor.Visit(this); }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

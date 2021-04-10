@@ -6,7 +6,7 @@
 #include "Runtime/Input/RumbleFxTable.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-namespace urde {
+namespace metaforce {
 
 s16 CRumbleManager::Rumble(CStateManager& mgr, const zeus::CVector3f& pos, ERumbleFxId fx, float dist,
                            ERumblePriority priority) {
@@ -24,4 +24,4 @@ s16 CRumbleManager::Rumble(CStateManager& mgr, ERumbleFxId fx, float gain, ERumb
   return -1;
 }
 
-} // namespace urde
+} // namespace metaforce

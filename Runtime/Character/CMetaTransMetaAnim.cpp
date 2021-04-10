@@ -3,7 +3,7 @@
 #include "Runtime/Character/CAnimTreeLoopIn.hpp"
 #include "Runtime/Character/CMetaAnimFactory.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CMetaTransMetaAnim::CMetaTransMetaAnim(CInputStream& in) : x4_metaAnim(CMetaAnimFactory::CreateMetaAnim(in)) {}
 
@@ -16,4 +16,4 @@ std::shared_ptr<CAnimTreeNode> CMetaTransMetaAnim::VGetTransitionTree(const std:
                                            CAnimTreeLoopIn::CreatePrimitiveName(a, b, animNode));
 }
 
-} // namespace urde
+} // namespace metaforce

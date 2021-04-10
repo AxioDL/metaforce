@@ -7,7 +7,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
@@ -50,4 +50,4 @@ void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CText
   CGraphics::DrawInstances(0, 4, instances.size());
 }
 
-} // namespace urde
+} // namespace metaforce

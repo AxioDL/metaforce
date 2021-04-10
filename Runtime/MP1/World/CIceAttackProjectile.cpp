@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CIceAttackProjectile::CIceAttackProjectile(const TToken<CGenDescription>& gen1, const TToken<CGenDescription>& gen2,
                                            const TToken<CGenDescription>& gen3, TUniqueId uid, TAreaId areaId,
@@ -61,4 +61,4 @@ void CIceAttackProjectile::AddToRenderer(const zeus::CFrustum& frustum, CStateMa
 void CIceAttackProjectile::Render(CStateManager& mgr) {}
 
 void CIceAttackProjectile::Touch(CActor& act, CStateManager& mgr) {}
-} // namespace urde::MP1
+} // namespace metaforce::MP1

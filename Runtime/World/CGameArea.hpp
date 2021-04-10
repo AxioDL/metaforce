@@ -23,7 +23,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector2f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class CScriptAreaAttributes;
 struct SMREAHeader {
@@ -370,4 +370,4 @@ public:
   void DebugDrawLight(const CLight& light);
 };
 
-} // namespace urde
+} // namespace metaforce

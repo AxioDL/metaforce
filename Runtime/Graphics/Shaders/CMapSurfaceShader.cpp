@@ -6,7 +6,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
@@ -33,4 +33,4 @@ void CMapSurfaceShader::draw(const zeus::CColor& color, u32 start, u32 count) {
   CGraphics::DrawArrayIndexed(start, count);
 }
 
-} // namespace urde
+} // namespace metaforce

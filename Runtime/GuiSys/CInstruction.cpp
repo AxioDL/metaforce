@@ -5,7 +5,7 @@
 #include "Runtime/GuiSys/CRasterFont.hpp"
 #include "Runtime/GuiSys/CTextRenderBuffer.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const {}
 
@@ -307,4 +307,4 @@ void CWordInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* bu
   state.x108_lineInitialized = false;
 }
 
-} // namespace urde
+} // namespace metaforce

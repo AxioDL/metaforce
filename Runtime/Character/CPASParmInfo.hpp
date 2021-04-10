@@ -3,7 +3,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Character/CPASAnimParm.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPASParmInfo {
 public:
@@ -25,4 +25,4 @@ public:
   CPASAnimParm::UParmValue GetWeightMaxValue() const { return x10_max; }
 };
 
-} // namespace urde
+} // namespace metaforce

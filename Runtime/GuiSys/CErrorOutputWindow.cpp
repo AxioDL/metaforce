@@ -2,7 +2,7 @@
 
 #include "Runtime/Graphics/CGraphics.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CErrorOutputWindow::CErrorOutputWindow(bool flag) : CIOWin("Error Output Window") {
   x18_24_ = false;
@@ -20,4 +20,4 @@ void CErrorOutputWindow::Draw() {
   //SCOPED_GRAPHICS_DEBUG_GROUP("CErrorOutputWindow::Draw", zeus::skGreen);
 }
 
-} // namespace urde
+} // namespace metaforce

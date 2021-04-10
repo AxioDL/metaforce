@@ -15,7 +15,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CGenDescription;
 class CWeaponDescription;
 
@@ -90,4 +90,4 @@ public:
   void SetMinHomingDistance(float dist) { x2e0_minHomingDist = dist; }
   void SetHitProjectileOwner(TUniqueId id) { x2c4_hitProjectileOwner = id; }
 };
-} // namespace urde
+} // namespace metaforce

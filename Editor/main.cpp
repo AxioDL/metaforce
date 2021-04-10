@@ -16,7 +16,7 @@ static void AthenaExc(athena::error::Level level, const char* file, const char*,
   AthenaLog.vreport(logvisor::Level(level), fmt, args);
 }
 
-namespace urde {
+namespace metaforce {
 static logvisor::Module Log{"Metaforce"};
 
 static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf) {
@@ -119,7 +119,7 @@ struct Application : boo::IApplicationCallback {
   int64_t getTargetFrameTime() { return m_cvarCommons.getVariableFrameTime() ? 0 : 1000000000L / 60; }
 };
 
-} // namespace urde
+} // namespace metaforce
 
 static hecl::SystemChar CwdBuf[1024];
 hecl::SystemString ExeDir;
@@ -129,11 +129,11 @@ static void SetupBasics(bool logging) {
   if (!result.first) {
 #if _WIN32 && !WINDOWS_STORE
     std::wstring msg = fmt::format(FMT_STRING(L"ERROR: This build of Metaforce requires the following CPU features:\n{}\n"),
-                                   urde::CPUFeatureString(result.second));
+                                   metaforce::CPUFeatureString(result.second));
     MessageBoxW(nullptr, msg.c_str(), L"CPU error", MB_OK | MB_ICONERROR);
 #else
     fmt::print(stderr, FMT_STRING("ERROR: This build of Metaforce requires the following CPU features:\n{}\n"),
-               urde::CPUFeatureString(result.second));
+               metaforce::CPUFeatureString(result.second));
 #endif
     exit(1);
   }
@@ -202,7 +202,7 @@ int main(int argc, const boo::SystemChar** argv)
   /* Handle -j argument */
   hecl::SetCpuCountOverride(argc, argv);
 
-  urde::Application appCb(fileMgr, cvarMgr, cvarCmns);
+  metaforce::Application appCb(fileMgr, cvarMgr, cvarCmns);
   int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, appCb, _SYS_STR("metaforce"),
                                 _SYS_STR("Metaforce"), argc, argv, appCb.getGraphicsApi(), appCb.getSamples(),
                                 appCb.getAnisotropy(), appCb.getDeepColor(), appCb.getTargetFrameTime(), false);
@@ -217,9 +217,9 @@ using namespace Windows::ApplicationModel::Core;
 
 [Platform::MTAThread] int WINAPIV main(Platform::Array<Platform::String ^> ^ params) {
   SetupBasics(false);
-  urde::Application appCb;
+  metaforce::Application appCb;
   auto viewProvider =
-      ref new boo::ViewProvider(appCb, _SYS_STR("urde"), _SYS_STR("URDE"), _SYS_STR("urde"), params, false);
+      ref new boo::ViewProvider(appCb, _SYS_STR("metaforce"), _SYS_STR("Metaforce"), _SYS_STR("metaforce"), params, false);
   CoreApplication::Run(viewProvider);
   return 0;
 }

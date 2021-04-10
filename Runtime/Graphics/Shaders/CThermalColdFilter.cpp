@@ -7,7 +7,7 @@
 #include <hecl/Pipeline.hpp>
 #include <zeus/CVector2f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
@@ -55,4 +55,4 @@ void CThermalColdFilter::draw() {
   CGraphics::DrawArray(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

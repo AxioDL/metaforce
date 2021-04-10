@@ -7,7 +7,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 struct SJointInfo {
   const char* from;
   const char* to;
@@ -89,4 +89,4 @@ public:
   CSegId GetPivotId() const { return x8_pivotId; }
   void ScaleAllBounds(const zeus::CVector3f& scale);
 };
-} // namespace urde
+} // namespace metaforce

@@ -14,7 +14,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 static logvisor::Module Log("CGameArea");
 
@@ -316,8 +316,8 @@ CDummyGameArea::CDummyGameArea(CInputStream& in, int idx, int mlvlVersion) {
   for (u32 i = 0; i < attachAreaCount; ++i)
     x44_attachedAreaIndices.push_back(in.readUint16Big());
 
-  ::urde::ReadDependencyList(in);
-  ::urde::ReadDependencyList(in);
+  ::metaforce::ReadDependencyList(in);
+  ::metaforce::ReadDependencyList(in);
 
   if (mlvlVersion > 13) {
     u32 depCount = in.readUint32Big();
@@ -367,8 +367,8 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(id
     x8c_attachedAreaIndices.emplace_back(in.readUint16Big());
   }
 
-  x9c_deps1 = ::urde::ReadDependencyList(in);
-  xac_deps2 = ::urde::ReadDependencyList(in);
+  x9c_deps1 = ::metaforce::ReadDependencyList(in);
+  xac_deps2 = ::metaforce::ReadDependencyList(in);
 
   const zeus::CAABox aabb = x6c_aabb.getTransformedAABox(xc_transform);
   x6c_aabb = aabb;
@@ -1264,4 +1264,4 @@ void CGameArea::DebugDrawLight(const CLight& light) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

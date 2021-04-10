@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CFBStreamedAnimReader.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAnimTreeAnimReaderContainer::CAnimTreeAnimReaderContainer(std::string_view name, std::shared_ptr<IAnimReader> reader,
                                                            u32 dbIdx)
@@ -97,4 +97,4 @@ void CAnimTreeAnimReaderContainer::VGetWeightedReaders(
   out.emplace_back(std::make_pair(w, x14_reader));
 }
 
-} // namespace urde
+} // namespace metaforce

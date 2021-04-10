@@ -6,7 +6,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 void CLineRendererShaders::Initialize() {
   CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx) {
@@ -104,4 +104,4 @@ void CLineRendererShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Con
   }
 }
 
-} // namespace urde
+} // namespace metaforce

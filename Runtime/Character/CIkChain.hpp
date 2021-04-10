@@ -7,7 +7,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAnimData;
 class CSegId;
 class CIkChain {
@@ -33,4 +33,4 @@ public:
   void PreRender(CAnimData&, const zeus::CTransform&, const zeus::CVector3f&);
   void Solve(zeus::CQuaternion&, zeus::CQuaternion&, const zeus::CVector3f&);
 };
-} // namespace urde
+} // namespace metaforce

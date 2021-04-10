@@ -11,7 +11,7 @@
 #include "Runtime/Collision/CMaterialList.hpp"
 #include "Runtime/Particle/CDecalDescription.hpp"
 
-namespace urde {
+namespace metaforce {
 class CGenDescription;
 class CSimplePool;
 
@@ -141,4 +141,4 @@ public:
 
 CFactoryFnReturn FCollisionResponseDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                                CObjectReference* selfRef);
-} // namespace urde
+} // namespace metaforce

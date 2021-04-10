@@ -13,7 +13,7 @@ namespace zeus {
 class CTransform;
 }
 
-namespace urde {
+namespace metaforce {
 class CAmbientAI : public CPhysicsActor {
   enum class EAnimationState { Ready, Alert, Impact };
 
@@ -44,4 +44,4 @@ public:
   void RandomizePlaybackRate(CStateManager&);
 };
 
-} // namespace urde
+} // namespace metaforce

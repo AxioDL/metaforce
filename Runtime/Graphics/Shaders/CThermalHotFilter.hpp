@@ -6,7 +6,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CThermalHotFilter {
   struct Uniform {
@@ -27,4 +27,4 @@ public:
   void draw();
 };
 
-} // namespace urde
+} // namespace metaforce

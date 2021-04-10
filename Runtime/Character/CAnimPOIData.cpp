@@ -2,7 +2,7 @@
 
 #include "Runtime/CToken.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAnimPOIData::CAnimPOIData(CInputStream& in) : x0_version(in.readUint32Big()) {
   u32 boolCount = in.readUint32Big();
@@ -33,4 +33,4 @@ CFactoryFnReturn AnimPOIDataFactory(const SObjectTag& tag, CInputStream& in, con
   return TToken<CAnimPOIData>::GetIObjObjectFor(std::make_unique<CAnimPOIData>(in));
 }
 
-} // namespace urde
+} // namespace metaforce

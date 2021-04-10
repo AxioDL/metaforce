@@ -14,7 +14,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                        const zeus::CTransform& xf, const CAnimRes& animRes, CModelData&& mData,
                                        const zeus::CAABox& aabox, bool setBoundingBox, const CMaterialList& list,
@@ -463,4 +463,4 @@ void CScriptPlayerActor::TouchModels(const CStateManager& mgr) const {
     }
   }
 }
-} // namespace urde
+} // namespace metaforce

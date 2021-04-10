@@ -5,7 +5,7 @@
 #include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CRainSplashGenerator::CRainSplashGenerator(const zeus::CVector3f& scale, u32 maxSplashes, u32 genRate, float minZ,
                                            float alpha)
@@ -196,4 +196,4 @@ void CRainSplashGenerator::GeneratePoints(const std::vector<std::pair<zeus::CVec
   }
 }
 
-} // namespace urde
+} // namespace metaforce

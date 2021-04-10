@@ -2,7 +2,7 @@
 
 #include <cfloat>
 
-namespace urde {
+namespace metaforce {
 CWorldLight::CWorldLight(CInputStream& in)
 : x0_type(EWorldLightType(in.readUint32Big()))
 , x4_color(zeus::CVector3f::ReadBig(in))
@@ -67,4 +67,4 @@ CLight CWorldLight::GetAsCGraphicsLight() const {
                              zeus::CColor{x4_color.x(), x4_color.y(), x4_color.z(), 1.f}, distC, distL, distQ, 1.f, 0.f,
                              0.f);
 }
-} // namespace urde
+} // namespace metaforce

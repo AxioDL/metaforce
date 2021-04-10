@@ -2,7 +2,7 @@
 
 #include <cfloat>
 
-namespace urde {
+namespace metaforce {
 
 constexpr zeus::CVector3f kDefaultPosition(0.f, 0.f, 0.f);
 constexpr zeus::CVector3f kDefaultDirection(0.f, -1.f, 0.f);
@@ -113,4 +113,4 @@ CLight CLight::BuildLocalAmbient(const zeus::CVector3f& pos, const zeus::CColor&
   return CLight(ELightType::LocalAmbient, pos, kDefaultDirection, color, 180.f);
 }
 
-} // namespace urde
+} // namespace metaforce

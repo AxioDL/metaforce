@@ -2,7 +2,7 @@
 
 #include "Runtime/Graphics/CGraphics.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CPathFindSearch::CPathFindSearch(CPFArea* area, u32 flags, u32 index, float chRadius, float chHeight)
 : x0_area(area), xd0_chHeight(chHeight), xd4_chRadius(chRadius), xdc_flags(flags), xe0_indexMask(1u << index) {}
@@ -364,4 +364,4 @@ void CPathFindSearch::DebugDraw() {
   m_viz->Draw(*this);
 }
 
-} // namespace urde
+} // namespace metaforce

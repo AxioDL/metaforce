@@ -3,7 +3,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CFluidPlaneCPU.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CFluidPlaneDoor::CFluidPlaneDoor(CAssetId patternTex1, CAssetId patternTex2, CAssetId colorTex, float tileSize,
                                  u32 tileSubdivisions, EFluidType fluidType, float alpha,
@@ -102,4 +102,4 @@ void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::
   m_shader->doneDrawing();
 }
 
-} // namespace urde
+} // namespace metaforce

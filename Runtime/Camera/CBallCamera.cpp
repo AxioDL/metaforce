@@ -20,7 +20,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 void CCameraSpring::Reset() {
   x4_k2Sqrt = 2.f * std::sqrt(x0_k);
@@ -2320,4 +2320,4 @@ void CBallCamera::DoorClosing(TUniqueId doorId) {
   x18e_28_nearbyDoorClosing = true;
 }
 
-} // namespace urde
+} // namespace metaforce

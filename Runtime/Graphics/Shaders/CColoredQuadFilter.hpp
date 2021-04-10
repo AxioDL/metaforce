@@ -8,7 +8,7 @@
 #include <zeus/CMatrix4f.hpp>
 #include <zeus/CRectangle.hpp>
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 enum class EFilterShape;
@@ -49,4 +49,4 @@ public:
   static void SetViewportToFull();
 };
 
-} // namespace urde
+} // namespace metaforce

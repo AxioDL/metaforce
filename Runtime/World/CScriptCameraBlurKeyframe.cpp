@@ -4,7 +4,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptCameraBlurKeyframe::CScriptCameraBlurKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                      EBlurType type, float amount, u32 unk, float timeIn, float timeOut,
                                                      bool active)
@@ -36,4 +36,4 @@ void CScriptCameraBlurKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqu
 
 void CScriptCameraBlurKeyframe::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-} // namespace urde
+} // namespace metaforce

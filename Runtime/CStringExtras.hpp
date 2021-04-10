@@ -4,7 +4,7 @@
 #include <cctype>
 #include <string>
 
-namespace urde {
+namespace metaforce {
 
 class CStringExtras {
 public:
@@ -38,4 +38,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

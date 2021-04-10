@@ -4,7 +4,7 @@
 #include "Runtime/Character/CAnimData.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
 
-namespace urde {
+namespace metaforce {
 
 bool CGSComboFire::Update(CAnimData& data, float dt, CStateManager& mgr) {
   if (x8_cueAnimId != -1) {
@@ -63,4 +63,4 @@ s32 CGSComboFire::SetAnim(CAnimData& data, s32 gunId, s32 loopState, CStateManag
   return anim.second;
 }
 
-} // namespace urde
+} // namespace metaforce

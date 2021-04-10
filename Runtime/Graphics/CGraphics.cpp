@@ -8,7 +8,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CGraphics::CProjectionState CGraphics::g_Proj;
 CGraphics::CFogState CGraphics::g_Fog;
@@ -510,5 +510,5 @@ const CTevCombiners::CTevPass CGraphics::sTevPass805a6038(
 const CTevCombiners::CTevPass CGraphics::sTevPass805a6084(
     {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_CPREV, GX::TevColorArg::CC_APREV, GX::TevColorArg::CC_ZERO},
     {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_APREV});
-} // namespace urde
+} // namespace metaforce
 

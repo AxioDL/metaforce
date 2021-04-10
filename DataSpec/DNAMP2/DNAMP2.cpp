@@ -22,7 +22,7 @@
 #include "Runtime/GCNTypes.hpp"
 
 namespace DataSpec::DNAMP2 {
-logvisor::Module Log("urde::DNAMP2");
+logvisor::Module Log("DataSpec::DNAMP2");
 
 static bool GetNoShare(std::string_view name) {
   std::string lowerName(name);

@@ -5,7 +5,7 @@
 #include "Runtime/World/CPathFindSearch.hpp"
 #include "Runtime/World/CVisorFlare.hpp"
 
-namespace urde {
+namespace metaforce {
 class CWeaponDescription;
 namespace MP1 {
 class CDrone : public CPatterned {
@@ -176,4 +176,4 @@ public:
   virtual int sub_8015f150() { return 3; }
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

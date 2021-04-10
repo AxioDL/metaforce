@@ -6,8 +6,8 @@
 
 #include <logvisor/logvisor.hpp>
 
-namespace urde {
-static logvisor::Module Log("urde::CAllFormatsAnimSource");
+namespace metaforce {
+static logvisor::Module Log("metaforce::CAllFormatsAnimSource");
 
 void CAnimFormatUnion::SubConstruct(u8* storage, EAnimFormat fmt, CInputStream& in, IObjectStore& store) {
   switch (fmt) {
@@ -67,4 +67,4 @@ CFactoryFnReturn AnimSourceFactory(const SObjectTag& tag, CInputStream& in, cons
   return TToken<CAllFormatsAnimSource>::GetIObjObjectFor(std::make_unique<CAllFormatsAnimSource>(in, *sp, tag));
 }
 
-} // namespace urde
+} // namespace metaforce

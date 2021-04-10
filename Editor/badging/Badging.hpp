@@ -2,12 +2,12 @@
 
 #include "specter/ViewResources.hpp"
 
-namespace urde {
+namespace metaforce {
 void InitializeBadging(specter::ViewResources& viewRes);
 void DestroyBadging();
 
 specter::Icon& GetBadge();
-} // namespace urde
+} // namespace metaforce
 
 #ifndef BADGE_PHRASE
 #define BADGE_PHRASE "Prototype"

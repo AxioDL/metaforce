@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CWeapon::CWeapon(TUniqueId uid, TAreaId aid, bool active, TUniqueId owner, EWeaponType type, std::string_view name,
                  const zeus::CTransform& xf, const CMaterialFilter& filter, const CMaterialList& mList,
@@ -20,7 +20,7 @@ CWeapon::CWeapon(TUniqueId uid, TAreaId aid, bool active, TUniqueId owner, EWeap
 , x110_origDamageInfo(dInfo)
 , x12c_curDamageInfo(dInfo) {}
 
-void CWeapon::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
+void CWeapon::Accept(metaforce::IVisitor& visitor) { visitor.Visit(this); }
 
 void CWeapon::Think(float dt, CStateManager& mgr) {
   x148_curTime += dt;
@@ -98,4 +98,4 @@ void CWeapon::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
   }
 }
 
-} // namespace urde
+} // namespace metaforce

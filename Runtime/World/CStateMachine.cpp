@@ -5,9 +5,9 @@
 
 #include <hecl/CVarManager.hpp>
 
-namespace urde {
+namespace metaforce {
 namespace {
-logvisor::Module Log("urde::CStateMachine");
+logvisor::Module Log("metaforce::CStateMachine");
 }
 
 CStateMachine::CStateMachine(CInputStream& in) {
@@ -140,4 +140,4 @@ CFactoryFnReturn FAiFiniteStateMachineFactory(const SObjectTag& tag, CInputStrea
   return TToken<CStateMachine>::GetIObjObjectFor(std::make_unique<CStateMachine>(in));
 }
 
-} // namespace urde
+} // namespace metaforce

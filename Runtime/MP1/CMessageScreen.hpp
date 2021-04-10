@@ -7,7 +7,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 struct CFinalInput;
 class CGuiModel;
 class CGuiTextPane;
@@ -46,4 +46,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

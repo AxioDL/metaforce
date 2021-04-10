@@ -4,7 +4,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CAnimTreeNode;
 struct CAnimSysContext;
 
@@ -15,4 +15,4 @@ public:
                                                           const CAnimSysContext& animCtx);
 };
 
-} // namespace urde
+} // namespace metaforce

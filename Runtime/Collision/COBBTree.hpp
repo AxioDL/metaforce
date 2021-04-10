@@ -11,7 +11,7 @@
 #include <zeus/COBBox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollidableOBBTreeGroupContainer;
 
 class COBBTree {
@@ -93,4 +93,4 @@ public:
   zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
   const CNode& GetRoot() const { return *x88_root; }
 };
-} // namespace urde
+} // namespace metaforce

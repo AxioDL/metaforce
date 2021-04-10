@@ -9,7 +9,7 @@
 #include <amuse/EffectDelay.hpp>
 #include <amuse/EffectReverb.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CScriptRoomAcoustics : public CEntity {
   u32 x34_volumeScale;
@@ -42,4 +42,4 @@ public:
   static void DisableAuxCallbacks();
 };
 
-} // namespace urde
+} // namespace metaforce

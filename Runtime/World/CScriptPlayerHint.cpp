@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptPlayerHint::CScriptPlayerHint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                      const zeus::CTransform& xf, bool active, u32 priority, u32 overrideFlags)
@@ -91,4 +91,4 @@ void CScriptPlayerHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
   CActor::AcceptScriptMsg(msg, sender, mgr);
 }
 
-} // namespace urde
+} // namespace metaforce

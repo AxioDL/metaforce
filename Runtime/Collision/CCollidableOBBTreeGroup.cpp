@@ -7,7 +7,7 @@
 #include "Runtime/Collision/CInternalRayCastStructure.hpp"
 #include "Runtime/Collision/CollisionUtil.hpp"
 
-namespace urde {
+namespace metaforce {
 constexpr CCollisionPrimitive::Type sType(CCollidableOBBTreeGroup::SetStaticTableIndex, "CCollidableOBBTreeGroup");
 
 CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(CInputStream& in) {
@@ -229,4 +229,4 @@ CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag& tag, CInputStr
       std::make_unique<CCollidableOBBTreeGroupContainer>(in));
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -9,7 +9,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CBooModel;
 class CGameArea;
 class CStateManager;
@@ -91,4 +91,4 @@ public:
   void SetActorPositionBias(const zeus::CVector3f& bias) { x2ac_actorPosBias = bias; }
 };
 
-} // namespace urde
+} // namespace metaforce

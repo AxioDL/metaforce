@@ -18,7 +18,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActorLights;
 class CGenDescription;
 class CLight;
@@ -229,4 +229,4 @@ public:
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 
-} // namespace urde
+} // namespace metaforce

@@ -2,7 +2,7 @@
 
 #include "Runtime/CIOWin.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CCredits : public CIOWin {
 public:
@@ -12,4 +12,4 @@ public:
   void Draw() override;
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -8,7 +8,7 @@
 
 #include <zeus/CAABox.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActor;
 class CGameArea;
 class CPlayer;
@@ -32,4 +32,4 @@ public:
   void Render(const CStateManager& mgr, float alpha);
 };
 
-} // namespace urde
+} // namespace metaforce

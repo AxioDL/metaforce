@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 struct TeamAiRoleSorter {
   enum class Type {
@@ -394,4 +394,4 @@ TUniqueId CTeamAiMgr::GetTeamAiMgr(const CAi& ai, const CStateManager& mgr) {
   return kInvalidUniqueId;
 }
 
-} // namespace urde
+} // namespace metaforce

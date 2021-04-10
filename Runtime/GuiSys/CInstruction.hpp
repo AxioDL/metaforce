@@ -6,7 +6,7 @@
 #include "Runtime/GuiSys/CFontImageDef.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 
-namespace urde {
+namespace metaforce {
 class CFontImageDef;
 class CFontRenderState;
 class CTextRenderBuffer;
@@ -194,4 +194,4 @@ public:
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

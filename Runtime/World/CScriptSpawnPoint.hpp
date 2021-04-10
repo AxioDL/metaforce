@@ -9,7 +9,7 @@
 
 #include <zeus/CTransform.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CScriptSpawnPoint : public CEntity {
   zeus::CTransform x34_xf;
@@ -28,4 +28,4 @@ public:
   u32 GetPowerup(CPlayerState::EItemType item) const;
 };
 
-} // namespace urde
+} // namespace metaforce

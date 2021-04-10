@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptSpiderBallWaypoint::CScriptSpiderBallWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                      const zeus::CTransform& xf, bool active, u32 w1)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
@@ -204,4 +204,4 @@ void CScriptSpiderBallWaypoint::GetClosestPointAlongWaypoints(CStateManager& mgr
   }
   closestWaypoint = wp;
 }
-} // namespace urde
+} // namespace metaforce

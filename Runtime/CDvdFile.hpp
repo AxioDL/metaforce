@@ -13,7 +13,7 @@
 
 #include <athena/FileReader.hpp>
 
-namespace urde {
+namespace metaforce {
 
 enum class ESeekOrigin { Begin = 0, Cur = 1, End = 2 };
 
@@ -63,4 +63,4 @@ public:
   u64 Length() const { return m_reader->length(); }
   std::string_view GetPath() const { return x18_path; }
 };
-} // namespace urde
+} // namespace metaforce

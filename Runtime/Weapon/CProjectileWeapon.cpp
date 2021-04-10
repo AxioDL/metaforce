@@ -5,7 +5,7 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
 
-namespace urde {
+namespace metaforce {
 
 u16 CProjectileWeapon::g_GlobalSeed = 99;
 
@@ -438,4 +438,4 @@ void CProjectileWeapon::Update(float dt) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

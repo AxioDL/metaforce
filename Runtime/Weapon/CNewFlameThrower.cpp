@@ -20,7 +20,7 @@
 #include "Runtime/World/CScriptTrigger.hpp"
 #include "Runtime/Graphics/CBooRenderer.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr CMaterialFilter skExcludeProjectilePassthrough =
     CMaterialFilter::MakeExclude(EMaterialTypes::ProjectilePassthrough);
@@ -790,4 +790,4 @@ void CNewFlameThrower::SetWorldLighting(CStateManager& mgr, TAreaId area, float 
   }
 }
 
-} // namespace urde
+} // namespace metaforce

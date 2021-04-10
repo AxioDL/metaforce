@@ -52,7 +52,7 @@
 #include <hecl/CVarManager.hpp>
 #include <zeus/CMRay.hpp>
 
-namespace urde {
+namespace metaforce {
 namespace {
 hecl::CVar* debugToolDrawAiPath = nullptr;
 hecl::CVar* debugToolDrawLighting = nullptr;
@@ -61,7 +61,7 @@ hecl::CVar* debugToolDrawMazePath = nullptr;
 hecl::CVar* debugToolDrawPlatformCollision = nullptr;
 hecl::CVar* sm_logScripting = nullptr;
 } // namespace
-logvisor::Module LogModule("urde::CStateManager");
+logvisor::Module LogModule("metaforce::CStateManager");
 CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
                              const std::weak_ptr<CMapWorldInfo>& mwInfo, const std::weak_ptr<CPlayerState>& playerState,
                              const std::weak_ptr<CWorldTransManager>& wtMgr,
@@ -2877,4 +2877,4 @@ const CGameArea* CStateManager::GetCurrentArea() const {
   }
   return x850_world->GetAreaAlways(x850_world->GetCurrentAreaId());
 };
-} // namespace urde
+} // namespace metaforce

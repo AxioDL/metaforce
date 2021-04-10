@@ -9,7 +9,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CCinematicCamera : public CGameCamera {
   std::vector<zeus::CVector3f> x188_viewPoints;
@@ -56,4 +56,4 @@ public:
   float GetDuration() const { return x1e8_duration; }
 };
 
-} // namespace urde
+} // namespace metaforce

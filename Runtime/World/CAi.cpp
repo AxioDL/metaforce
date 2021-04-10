@@ -7,7 +7,7 @@
 #include "Runtime/World/CScriptWater.hpp"
 #include "Runtime/World/CStateMachine.hpp"
 
-namespace urde {
+namespace metaforce {
 
 static CMaterialList MakeAiMaterialList(const CMaterialList& in) {
   CMaterialList ret = in;
@@ -48,11 +48,12 @@ void CAi::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager
 }
 
 EWeaponCollisionResponseTypes CAi::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                            const urde::CWeaponMode&, urde::EProjectileAttrib) const {
+                                                            const metaforce::CWeaponMode&,
+                                                            metaforce::EProjectileAttrib) const {
   return EWeaponCollisionResponseTypes::EnemyNormal;
 }
 
-void CAi::FluidFXThink(EFluidState state, CScriptWater& water, urde::CStateManager& mgr) {
+void CAi::FluidFXThink(EFluidState state, CScriptWater& water, metaforce::CStateManager& mgr) {
   if (state == EFluidState::EnteredFluid || state == EFluidState::LeftFluid) {
     float dt = mgr.GetFluidPlaneManager()->GetLastSplashDeltaTime(GetUniqueId());
     if (dt >= 0.02f) {
@@ -85,4 +86,4 @@ CAiTriggerFunc CAi::GetTriggerFunc(std::string_view func) { return m_FuncMap->Ge
 const CStateMachine* CAi::GetStateMachine() const { return x2c8_stateMachine.GetObj(); }
 void CAi::CreateFuncLookup(CAiFuncMap* funcMap) { m_FuncMap = funcMap; }
 CAiFuncMap* CAi::m_FuncMap = nullptr;
-} // namespace urde
+} // namespace metaforce

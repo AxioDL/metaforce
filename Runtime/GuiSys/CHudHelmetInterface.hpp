@@ -3,7 +3,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include <zeus/CMatrix3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CGuiCamera;
 class CGuiFrame;
 class CGuiWidget;
@@ -35,4 +35,4 @@ public:
   void SetIsVisibleDebug(bool helmet, bool glow);
 };
 
-} // namespace urde
+} // namespace metaforce

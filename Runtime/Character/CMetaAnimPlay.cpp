@@ -5,7 +5,7 @@
 #include "Runtime/Character/CAnimSysContext.hpp"
 #include "Runtime/Character/CAnimTreeAnimReaderContainer.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CMetaAnimPlay::CMetaAnimPlay(CInputStream& in) : x4_primitive(in), x1c_startTime(in) {}
 
@@ -22,4 +22,4 @@ std::shared_ptr<CAnimTreeNode> CMetaAnimPlay::VGetAnimationTree(const CAnimSysCo
       x4_primitive.GetName(), CAllFormatsAnimSource::GetNewReader(prim, x1c_startTime), x4_primitive.GetAnimDbIdx());
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -10,7 +10,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CDroneLaser::CDroneLaser(TUniqueId uid, TAreaId aId, const zeus::CTransform& xf, CAssetId particle)
 : CActor(uid, true, "DroneLaser"sv, CEntityInfo(aId, CEntity::NullConnectionList), xf, CModelData::CModelDataNull(),
          CMaterialList(EMaterialTypes::NoStepLogic), CActorParameters::None().HotInThermal(true), kInvalidUniqueId)
@@ -86,4 +86,4 @@ void CDroneLaser::sub_80167754(CStateManager& mgr, const zeus::CVector3f& pos, c
   x104_beamParticle->SetTranslation(pos);
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

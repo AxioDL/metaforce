@@ -17,7 +17,7 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActorLights;
 class CDamageInfo;
 class CPlayer;
@@ -291,4 +291,4 @@ public:
   static const std::array<ColorArray, 9> BallAuxGlowColors;
 };
 
-} // namespace urde
+} // namespace metaforce

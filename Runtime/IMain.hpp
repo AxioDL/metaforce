@@ -6,14 +6,14 @@
 #include <boo/boo.hpp>
 #include <boo/audiodev/IAudioVoiceEngine.hpp>
 #include <hecl/Runtime.hpp>
-#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
+#include "DataSpec/DNACommon/MetaforceVersionInfo.hpp"
 
 namespace hecl {
 class Console;
 class CVarManager;
 } // namespace hecl
 
-namespace urde {
+namespace metaforce {
 using ERegion = DataSpec::ERegion;
 using EGame = DataSpec::EGame;
 
@@ -52,4 +52,4 @@ public:
   virtual bool IsTrilogy() const = 0;
   virtual std::string_view GetVersionString() const=0;
 };
-} // namespace urde
+} // namespace metaforce

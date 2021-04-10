@@ -9,7 +9,7 @@
 #include <zeus/CMatrix4f.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CSpaceWarpFilter {
   struct Uniform {
@@ -35,4 +35,4 @@ public:
   void draw(const zeus::CVector3f& pt);
 };
 
-} // namespace urde
+} // namespace metaforce

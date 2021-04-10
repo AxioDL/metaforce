@@ -11,7 +11,7 @@
 #include "Runtime/Particle/CUVElement.hpp"
 #include "Runtime/Particle/CVectorElement.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSwooshDescription {
 public:
   std::unique_ptr<CIntElement> x0_PSLT;
@@ -45,4 +45,4 @@ public:
 
   CSwooshDescription() = default;
 };
-} // namespace urde
+} // namespace metaforce

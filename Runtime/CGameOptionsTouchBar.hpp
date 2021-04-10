@@ -3,7 +3,7 @@
 #include <memory>
 #include <utility>
 
-namespace urde {
+namespace metaforce {
 
 class CGameOptionsTouchBar {
 public:
@@ -17,4 +17,4 @@ public:
 
 std::unique_ptr<CGameOptionsTouchBar> NewGameOptionsTouchBar();
 
-} // namespace urde
+} // namespace metaforce

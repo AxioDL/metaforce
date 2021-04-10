@@ -6,7 +6,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CFactoryMgr;
 class CObjectReference;
 class CResLoader;
@@ -16,10 +16,10 @@ class IDvdRequest;
 class IObj;
 
 using CFactoryFnReturn = std::unique_ptr<IObj>;
-using FFactoryFunc = std::function<CFactoryFnReturn(const urde::SObjectTag& tag, urde::CInputStream& in,
-                                                    const urde::CVParamTransfer& vparms, CObjectReference* selfRef)>;
-using FMemFactoryFunc = std::function<CFactoryFnReturn(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                                                       const urde::CVParamTransfer& vparms, CObjectReference* selfRef)>;
+using FFactoryFunc = std::function<CFactoryFnReturn(const metaforce::SObjectTag& tag, metaforce::CInputStream& in,
+                                                    const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef)>;
+using FMemFactoryFunc = std::function<CFactoryFnReturn(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                                                       const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef)>;
 
 class IFactory {
 public:
@@ -38,13 +38,13 @@ public:
   virtual void AsyncIdle() {}
 
   /* Non-factory versions, replaces CResLoader */
-  virtual u32 ResourceSize(const urde::SObjectTag& tag) = 0;
-  virtual std::shared_ptr<IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target) = 0;
-  virtual std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 off, u32 size,
+  virtual u32 ResourceSize(const metaforce::SObjectTag& tag) = 0;
+  virtual std::shared_ptr<IDvdRequest> LoadResourceAsync(const metaforce::SObjectTag& tag, void* target) = 0;
+  virtual std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const metaforce::SObjectTag& tag, u32 off, u32 size,
                                                              void* target) = 0;
-  virtual std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag) = 0;
-  virtual std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size) = 0;
+  virtual std::unique_ptr<u8[]> LoadResourceSync(const metaforce::SObjectTag& tag) = 0;
+  virtual std::unique_ptr<u8[]> LoadNewResourcePartSync(const metaforce::SObjectTag& tag, u32 off, u32 size) = 0;
   virtual void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const {}
 };
 
-} // namespace urde
+} // namespace metaforce

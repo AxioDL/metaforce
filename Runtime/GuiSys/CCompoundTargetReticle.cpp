@@ -12,7 +12,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr char skCrosshairsReticleAssetName[] = "CMDL_Crosshairs";
 [[maybe_unused]] constexpr char skOrbitZoneReticleAssetName[] = "CMDL_OrbitZone";
@@ -1070,4 +1070,4 @@ void CCompoundTargetReticle::Touch() {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

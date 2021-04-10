@@ -2,7 +2,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CStaticInterference::CStaticInterference(size_t sourceCount) { x0_sources.reserve(sourceCount); }
 
@@ -61,4 +61,4 @@ void CStaticInterference::AddSource(TUniqueId id, float magnitude, float duratio
   }
 }
 
-} // namespace urde
+} // namespace metaforce

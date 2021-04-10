@@ -10,7 +10,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 class CSaveableState {
   friend class CColorOverrideInstruction;
   friend class CFontInstruction;
@@ -39,4 +39,4 @@ public:
   bool IsFinishedLoading() const;
 };
 
-} // namespace urde
+} // namespace metaforce

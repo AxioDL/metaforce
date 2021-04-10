@@ -3,7 +3,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Weapon/CGunMotion.hpp"
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 
 class CFidget {
@@ -46,4 +46,4 @@ public:
   void DoneLoading() { x34_24_loading = false; }
 };
 
-} // namespace urde
+} // namespace metaforce

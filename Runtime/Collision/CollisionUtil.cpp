@@ -9,7 +9,7 @@
 
 #include <zeus/CVector3d.hpp>
 
-namespace urde::CollisionUtil {
+namespace metaforce::CollisionUtil {
 bool LineIntersectsOBBox(const zeus::COBBox& obb, const zeus::CMRay& ray, float& d) {
   zeus::CVector3f norm;
   return RayAABoxIntersection(ray.getInvUnscaledTransformRay(obb.transform), {-obb.extents, obb.extents}, norm, d);
@@ -1185,4 +1185,4 @@ void AddAverageToFront(const CCollisionInfoList& in, CCollisionInfoList& out) {
     out.Add(info, false);
   }
 }
-} // namespace urde::CollisionUtil
+} // namespace metaforce::CollisionUtil

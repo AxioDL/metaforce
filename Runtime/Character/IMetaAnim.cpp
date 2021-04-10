@@ -7,7 +7,7 @@
 #include "Runtime/Character/CCharAnimTime.hpp"
 #include "Runtime/Character/IAnimReader.hpp"
 
-namespace urde {
+namespace metaforce {
 
 std::shared_ptr<CAnimTreeNode> IMetaAnim::GetAnimationTree(const CAnimSysContext& animSys,
                                                            const CMetaAnimTreeBuildOrders& orders) const {
@@ -50,4 +50,4 @@ CCharAnimTime IMetaAnim::GetTime(const CPreAdvanceIndicator& ind, const IAnimRea
   return {};
 }
 
-} // namespace urde
+} // namespace metaforce

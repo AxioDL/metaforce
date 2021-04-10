@@ -7,7 +7,7 @@
 #include "Runtime/MP1/CPauseScreenBase.hpp"
 #include "Runtime/MP1/CQuitGameScreen.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class COptionsScreen : public CPauseScreenBase {
   std::unique_ptr<CQuitGameScreen> x19c_quitGame;
@@ -41,4 +41,4 @@ public:
   u32 GetRightTableCount() const override;
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

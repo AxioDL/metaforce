@@ -4,7 +4,7 @@
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGuiCamera::CGuiCamera(const CGuiWidgetParms& parms, float left, float right, float top, float bottom, float znear,
                        float zfar)
@@ -65,4 +65,4 @@ std::shared_ptr<CGuiWidget> CGuiCamera::Create(CGuiFrame* frame, CInputStream& i
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

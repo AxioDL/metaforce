@@ -7,7 +7,7 @@
 #include "Runtime/Collision/CMaterialFilter.hpp"
 #include "Runtime/Collision/CMetroidAreaCollider.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CRagDoll::CRagDollLengthConstraint::Update() {
   zeus::CVector3f delta = x4_p2->x4_curPos - x0_p1->x4_curPos;
@@ -321,4 +321,4 @@ void CRagDoll::Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData&
   x68_26_primed = true;
 }
 
-} // namespace urde
+} // namespace metaforce

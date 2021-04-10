@@ -6,7 +6,7 @@
 #include "Runtime/Character/CAnimSysContext.hpp"
 #include "Runtime/Character/CTransitionDatabaseGame.hpp"
 
-namespace urde {
+namespace metaforce {
 class CAnimTreeNode;
 class CRandom16;
 class CSimplePool;
@@ -20,4 +20,4 @@ public:
                                                    const std::shared_ptr<CAnimTreeNode>& b) const;
 };
 
-} // namespace urde
+} // namespace metaforce

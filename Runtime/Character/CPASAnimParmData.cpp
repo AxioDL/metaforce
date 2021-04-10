@@ -1,6 +1,6 @@
 #include "Runtime/Character/CPASAnimParmData.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CPASAnimParmData::CPASAnimParmData(pas::EAnimationState stateId, const CPASAnimParm& parm1, const CPASAnimParm& parm2,
                                    const CPASAnimParm& parm3, const CPASAnimParm& parm4, const CPASAnimParm& parm5,
@@ -16,4 +16,4 @@ CPASAnimParmData::CPASAnimParmData(pas::EAnimationState stateId, const CPASAnimP
   x4_parms.push_back(parm8);
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -5,7 +5,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPrimitive {
   CAssetId x0_animId;
@@ -20,4 +20,4 @@ public:
   bool operator<(const CPrimitive& other) const { return x8_animName < other.x8_animName; }
 };
 
-} // namespace urde
+} // namespace metaforce

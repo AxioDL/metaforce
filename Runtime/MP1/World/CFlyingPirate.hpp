@@ -9,7 +9,7 @@
 #include "Runtime/World/CPathFindSearch.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 enum class EFlyingPirateType : u32 {
   FlyingPirate = 1,
   AquaPirate = 2,
@@ -215,4 +215,4 @@ private:
   void AddToTeam(CStateManager& mgr);
   void RemoveFromTeam(CStateManager& mgr);
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

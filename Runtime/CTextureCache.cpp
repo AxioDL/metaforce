@@ -1,7 +1,7 @@
 #include "Runtime/CTextureCache.hpp"
 #include "Runtime/CToken.hpp"
 
-namespace urde {
+namespace metaforce {
 CTextureCache::CTextureCache(CInputStream& in) {
   u32 textureCount = in.readUint32Big();
   for (u32 i = 0; i < textureCount; ++i) {

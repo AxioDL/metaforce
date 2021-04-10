@@ -3,7 +3,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CRipple {
 private:
   TUniqueId x0_id;
@@ -38,4 +38,4 @@ public:
   float GetPhase() const { return x34_phase; }
   float GetLookupPhase() const { return x38_lookupPhase; }
 };
-} // namespace urde
+} // namespace metaforce

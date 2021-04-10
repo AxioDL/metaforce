@@ -2,8 +2,8 @@
 
 #include "Runtime/Particle/CParticleGen.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CDefaultWeaponRenderer::AddParticleGen(CParticleGen& gen) { gen.Render(); }
 
-} // namespace urde
+} // namespace metaforce

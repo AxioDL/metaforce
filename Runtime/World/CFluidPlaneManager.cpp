@@ -4,7 +4,7 @@
 #include "Runtime/World/CExplosion.hpp"
 #include "Runtime/World/CScriptWater.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CFluidPlaneManager::CFluidProfile CFluidPlaneManager::sProfile = {};
 
@@ -143,4 +143,4 @@ void CFluidPlaneManager::SetupRippleMap() {
   } BooTrace);
 }
 
-} // namespace urde
+} // namespace metaforce

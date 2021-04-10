@@ -12,7 +12,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 void IHudDecoInterface::SetReticuleTransform(const zeus::CMatrix3f& xf) {}
 void IHudDecoInterface::SetDecoRotation(float angle) {}
@@ -536,4 +536,4 @@ void CHudDecoInterfaceThermal::UpdateHudAlpha() {
   x78_basewidget_pivot->SetColor(color);
 }
 
-} // namespace urde
+} // namespace metaforce

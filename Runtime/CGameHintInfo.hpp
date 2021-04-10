@@ -6,7 +6,7 @@
 #include "Runtime/IFactory.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CGameHintInfo {
 public:
   struct SHintLocation {
@@ -46,4 +46,4 @@ public:
 };
 
 CFactoryFnReturn FHintFactory(const SObjectTag&, CInputStream&, const CVParamTransfer&, CObjectReference*);
-} // namespace urde
+} // namespace metaforce

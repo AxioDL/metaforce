@@ -7,7 +7,7 @@
 #include "Runtime/GuiSys/CGuiModel.hpp"
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, int pbAmount, int pbCapacity, int availableBombs, bool hasBombs,
                                      bool hasPb)
@@ -97,4 +97,4 @@ void CHudBallInterface::SetBallModeFactor(float t) {
       zeus::CTransform::Translate(x34_camPos + zeus::CVector3f(0.f, 0.f, (t * tmp - tmp) * 0.01f)));
 }
 
-} // namespace urde
+} // namespace metaforce

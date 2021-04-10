@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-namespace urde {
+namespace metaforce {
 class CScriptPlayerStateChange : public CEntity {
 public:
   enum class EControl { Unfiltered, Filtered };
@@ -24,4 +24,4 @@ public:
   void Accept(IVisitor& visit) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 };
-} // namespace urde
+} // namespace metaforce

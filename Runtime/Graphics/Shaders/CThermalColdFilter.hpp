@@ -7,7 +7,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CThermalColdFilter {
   struct Uniform {
@@ -36,4 +36,4 @@ public:
   void draw();
 };
 
-} // namespace urde
+} // namespace metaforce

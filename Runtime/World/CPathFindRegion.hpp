@@ -7,7 +7,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CPFArea;
 class CPFLink;
 class CPFRegionData;
@@ -132,4 +132,4 @@ public:
     x14_cost = x18_g + x1c_h;
   }
 };
-} // namespace urde
+} // namespace metaforce

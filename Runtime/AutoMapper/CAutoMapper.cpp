@@ -16,7 +16,7 @@
 
 #include <zeus/CEulerAngles.hpp>
 
-namespace urde {
+namespace metaforce {
 
 void CAutoMapper::SAutoMapperRenderState::InterpolateWithClamp(const SAutoMapperRenderState& a,
                                                                SAutoMapperRenderState& out,
@@ -1628,4 +1628,4 @@ void CAutoMapper::OnNewInGameGuiState(EInGameGuiState state, CStateManager& mgr)
   }
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -8,7 +8,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CGuiFrame;
 struct CFinalInput;
 class CStateManager;
@@ -187,4 +187,4 @@ public:
   void UpdateHudAlpha() override;
 };
 
-} // namespace urde
+} // namespace metaforce

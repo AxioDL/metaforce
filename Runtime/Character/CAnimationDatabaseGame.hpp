@@ -5,7 +5,7 @@
 
 #include "Runtime/Character/CAnimationDatabase.hpp"
 
-namespace urde {
+namespace metaforce {
 class CAnimation;
 
 class CAnimationDatabaseGame final : public CAnimationDatabase {
@@ -20,4 +20,4 @@ public:
   void GetUniquePrimitivesFromMetaAnim(std::set<CPrimitive>& primsOut, std::string_view name) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

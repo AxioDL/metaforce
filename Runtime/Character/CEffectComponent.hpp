@@ -6,7 +6,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Character/CParticleData.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CEffectComponent {
   std::string x0_name;
@@ -28,4 +28,4 @@ public:
   u32 GetFlags() const { return x30_flags; }
 };
 
-} // namespace urde
+} // namespace metaforce

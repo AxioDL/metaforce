@@ -4,7 +4,7 @@
 
 #include "DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CDamageInfo::CDamageInfo(const DataSpec::SShotParam& other)
 : x0_weaponMode(CWeaponMode(EWeaponType(other.weaponType), other.charged, other.combo, other.instaKill))
@@ -54,4 +54,4 @@ CDamageInfo::CDamageInfo(const CDamageInfo& other, float dt) {
   x14_knockback = other.x14_knockback;
   x18_24_noImmunity = true;
 }
-} // namespace urde
+} // namespace metaforce

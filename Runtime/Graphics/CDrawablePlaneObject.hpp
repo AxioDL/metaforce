@@ -3,7 +3,7 @@
 #include "Runtime/Graphics/CDrawable.hpp"
 #include <zeus/CPlane.hpp>
 
-namespace urde {
+namespace metaforce {
 class CDrawablePlaneObject : public CDrawable {
   friend class Buckets;
   u16 x24_targetBucket = 0;
@@ -22,4 +22,4 @@ public:
   , x3c_25_zOnly{zOnly} {}
   const zeus::CPlane& GetPlane() const { return x2c_plane; }
 };
-} // namespace urde
+} // namespace metaforce

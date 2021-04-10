@@ -15,7 +15,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 class CPlasmaProjectile : public CBeamProjectile {
 public:
   struct PlayerEffectResources : rstl::reserved_vector<CAssetId, 8> {
@@ -134,4 +134,4 @@ public:
   zeus::CColor GetOuterColor() const { return x494_outerColor; }
   bool IsFiring() const { return x548_26_firing; }
 };
-} // namespace urde
+} // namespace metaforce

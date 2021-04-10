@@ -6,7 +6,7 @@
 #include "Runtime/Character/CPASDatabase.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CABSAim::Start(CBodyController& bc, CStateManager& mgr) {
   // const CBCAdditiveAimCmd* cmd =
@@ -197,4 +197,4 @@ void CABSReaction::StopAnimation(CBodyController& bc) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

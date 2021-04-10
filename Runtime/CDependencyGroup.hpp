@@ -3,7 +3,7 @@
 #include <vector>
 #include "Runtime/CFactoryMgr.hpp"
 
-namespace urde {
+namespace metaforce {
 class CDependencyGroup {
   std::vector<SObjectTag> x0_objectTags;
 
@@ -15,4 +15,4 @@ public:
 
 CFactoryFnReturn FDependencyGroupFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
                                          CObjectReference* selfRef);
-} // namespace urde
+} // namespace metaforce

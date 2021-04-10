@@ -22,7 +22,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::array<SSphereJointInfo, 7> skSphereJointList = {{
     {"Jaw_end_LCTR", 0.55f},
@@ -1510,4 +1510,4 @@ bool CIceSheegoth::IsClosestSheegoth(CStateManager& mgr, const rstl::reserved_ve
   }
   return true;
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

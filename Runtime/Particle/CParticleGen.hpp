@@ -11,7 +11,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CWarp;
 class CActorLights;
 
@@ -64,4 +64,4 @@ public:
   virtual void AddModifier(CWarp* mod);
 };
 
-} // namespace urde
+} // namespace metaforce

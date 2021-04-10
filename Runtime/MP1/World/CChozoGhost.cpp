@@ -13,7 +13,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CChozoGhost::CBehaveChance::CBehaveChance(CInputStream& in)
 : x0_propertyCount(in.readUint32Big())
 , x4_lurk(in.readFloatBig())
@@ -759,4 +759,4 @@ void CChozoGhost::FindBestAnchor(CStateManager& mgr) {
     x2e0_destPos = GetTranslation();
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

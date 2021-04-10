@@ -7,7 +7,7 @@
 #include "Runtime/Particle/CDecal.hpp"
 #include "Runtime/Particle/CDecalDescription.hpp"
 
-namespace urde {
+namespace metaforce {
 bool CDecalManager::m_PoolInitialized = false;
 s32 CDecalManager::m_FreeIndex = 63;
 float CDecalManager::m_DeltaTimeSinceLastDecalCreation = 0.f;
@@ -116,4 +116,4 @@ void CDecalManager::AddDecal(const TToken<CDecalDescription>& decal, const zeus:
   m_ActiveIndexList.push_back(thisIndex);
 }
 
-} // namespace urde
+} // namespace metaforce

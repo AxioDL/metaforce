@@ -7,7 +7,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
@@ -88,4 +88,4 @@ void CEnergyBarShader::draw(const zeus::CColor& color0, const std::vector<Vertex
   }
 }
 
-} // namespace urde
+} // namespace metaforce

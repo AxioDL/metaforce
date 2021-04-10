@@ -3,7 +3,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStopwatch.hpp"
 
-namespace urde {
+namespace metaforce {
 static logvisor::Module Log("CResFactory");
 
 void CResFactory::AddToLoadList(SLoadingData&& data) {
@@ -112,4 +112,4 @@ void CResFactory::LoadPersistentResources(CSimplePool& sp) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

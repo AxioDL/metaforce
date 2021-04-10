@@ -7,7 +7,7 @@
 #include "Runtime/IVParamObj.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CObjectReference;
 class IFactory;
 
@@ -35,4 +35,4 @@ public:
   size_t GetLiveObjects() const { return x8_resources.size(); }
 };
 
-} // namespace urde
+} // namespace metaforce

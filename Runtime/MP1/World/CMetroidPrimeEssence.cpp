@@ -18,7 +18,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 std::array<SSphereJointInfo, 1> skJointInfo{{
     {"lockon_target_LCTR", 1.5f},
@@ -28,11 +28,10 @@ std::array<u32, 4> skUnkInts1{{0, 1, 0, 2}};
 std::array<u32, 3> skUnkInts2{{1, 2, 3}};
 
 } // namespace
-CMetroidPrimeEssence::CMetroidPrimeEssence(urde::TUniqueId uid, std::string_view name, const urde::CEntityInfo& info,
-                                           const zeus::CTransform& xf, urde::CModelData&& mData,
-                                           const urde::CPatternedInfo& pInfo, const urde::CActorParameters& actParms,
-                                           urde::CAssetId particle1, const urde::CDamageInfo& dInfo, float f1,
-                                           urde::CAssetId electric, u32 w1, urde::CAssetId particle2)
+CMetroidPrimeEssence::CMetroidPrimeEssence(metaforce::TUniqueId uid, std::string_view name, const metaforce::CEntityInfo& info,
+                                           const zeus::CTransform& xf,
+                                           metaforce::CModelData&& mData,
+                                           const metaforce::CPatternedInfo& pInfo, const metaforce::CActorParameters& actParms, metaforce::CAssetId particle1, const metaforce::CDamageInfo& dInfo, float f1, metaforce::CAssetId electric, u32 w1, metaforce::CAssetId particle2)
 : CPatterned(ECharacter::MetroidPrimeEssence, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::Medium)
 , x568_(g_SimplePool->GetObj({FOURCC('PART'), particle2}))
@@ -720,4 +719,4 @@ void CMetroidPrimeEssence::SetupCollisionActorManager(CStateManager& mgr) {
   AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -6,7 +6,7 @@
 #include "zeus/CVector3f.hpp"
 #include "zeus/Math.hpp"
 
-namespace urde {
+namespace metaforce {
 class Camera {
   zeus::CFrustum m_frustum;
   zeus::CProjection m_projection;
@@ -22,4 +22,4 @@ public:
 
   virtual void think() {}
 };
-} // namespace urde
+} // namespace metaforce

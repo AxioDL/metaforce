@@ -8,7 +8,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CScriptWorldTeleporter : public CEntity {
   enum class ETeleporterType { NoTransition, Elevator, Text };
@@ -46,4 +46,4 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void StartTransition(CStateManager&);
 };
-} // namespace urde
+} // namespace metaforce

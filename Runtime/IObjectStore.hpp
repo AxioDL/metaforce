@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-namespace urde {
+namespace metaforce {
 class CToken;
 class CVParamTransfer;
 class IFactory;
@@ -22,4 +22,4 @@ public:
   virtual void ObjectUnreferenced(const SObjectTag&) = 0;
 };
 
-} // namespace urde
+} // namespace metaforce

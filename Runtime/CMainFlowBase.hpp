@@ -2,7 +2,7 @@
 
 #include "Runtime/CIOWin.hpp"
 
-namespace urde {
+namespace metaforce {
 
 enum class EClientFlowStates { Unspecified = -1, PreFrontEnd = 7, FrontEnd = 8, Game = 14, GameExit = 15 };
 
@@ -17,4 +17,4 @@ public:
   virtual void SetGameState(EClientFlowStates state, CArchitectureQueue& queue) = 0;
 };
 
-} // namespace urde
+} // namespace metaforce

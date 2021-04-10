@@ -12,7 +12,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class CMapUniverse {
 public:
@@ -124,4 +124,4 @@ public:
 CFactoryFnReturn FMapUniverseFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                      CObjectReference*);
 
-} // namespace urde
+} // namespace metaforce

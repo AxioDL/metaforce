@@ -3,7 +3,7 @@
 #include "Runtime/Character/CAnimTreeBlend.hpp"
 #include "Runtime/Character/CMetaAnimFactory.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CMetaAnimBlend::CMetaAnimBlend(CInputStream& in) {
   x4_animA = CMetaAnimFactory::CreateMetaAnim(in);
@@ -29,4 +29,4 @@ std::shared_ptr<CAnimTreeNode> CMetaAnimBlend::VGetAnimationTree(const CAnimSysC
          CAnimTreeBlend::CreatePrimitiveName(a, b, xc_blend));
 }
 
-} // namespace urde
+} // namespace metaforce

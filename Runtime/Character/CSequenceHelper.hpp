@@ -11,7 +11,7 @@
 #include "Runtime/Character/CSoundPOINode.hpp"
 #include "Runtime/Character/CTransitionDatabaseGame.hpp"
 
-namespace urde {
+namespace metaforce {
 class IMetaAnim;
 
 class CSequenceFundamentals {
@@ -45,4 +45,4 @@ public:
   CSequenceFundamentals ComputeSequenceFundamentals();
 };
 
-} // namespace urde
+} // namespace metaforce

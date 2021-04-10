@@ -16,14 +16,14 @@
 #include <hecl/ClientProcess.hpp>
 #include <hecl/Database.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class ProjectResourceFactoryBase : public IFactory {
   friend class ProjectResourcePool;
   hecl::ClientProcess& m_clientProc;
 
 public:
-  struct AsyncTask : urde::IDvdRequest {
+  struct AsyncTask : metaforce::IDvdRequest {
     ProjectResourceFactoryBase& m_parent;
 
     SObjectTag x0_tag;
@@ -63,7 +63,7 @@ public:
     /* Cook only */
     AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag) : m_parent(parent), x0_tag(tag) {}
 
-    void EnsurePath(const urde::SObjectTag& tag, const hecl::ProjectPath& path);
+    void EnsurePath(const metaforce::SObjectTag& tag, const hecl::ProjectPath& path);
     void CookComplete();
     bool AsyncPump();
     void WaitUntilComplete() override;
@@ -78,7 +78,7 @@ protected:
   const hecl::Database::DataSpecEntry* m_pcSpec = nullptr;
   /* Used to resolve cooked paths */
   std::unique_ptr<hecl::Database::IDataSpec> m_cookSpec;
-  urde::CFactoryMgr m_factoryMgr;
+  metaforce::CFactoryMgr m_factoryMgr;
 
   std::list<std::shared_ptr<AsyncTask>> m_asyncLoadList;
   std::unordered_map<SObjectTag, std::list<std::shared_ptr<AsyncTask>>::iterator> m_asyncLoadMap;
@@ -98,7 +98,7 @@ protected:
   bool PrepForReadSync(const SObjectTag& tag, const hecl::ProjectPath& path,
                        std::optional<athena::io::FileReader>& fr);
 
-  bool WaitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut) {
+  bool WaitForTagReady(const metaforce::SObjectTag& tag, const hecl::ProjectPath*& pathOut) {
     return static_cast<DataSpec::SpecBase&>(*m_cookSpec).waitForTagReady(tag, pathOut);
   }
   SObjectTag TagFromPath(const hecl::ProjectPath& path) const {
@@ -120,18 +120,18 @@ protected:
   bool SyncCook(const hecl::ProjectPath& working);
   CFactoryFnReturn BuildSync(const SObjectTag& tag, const hecl::ProjectPath& path, const CVParamTransfer& paramXfer,
                              CObjectReference* selfRef);
-  std::shared_ptr<AsyncTask> BuildAsyncInternal(const urde::SObjectTag&, const urde::CVParamTransfer&,
-                                                std::unique_ptr<urde::IObj>*, CObjectReference* selfRef);
+  std::shared_ptr<AsyncTask> BuildAsyncInternal(const metaforce::SObjectTag&, const metaforce::CVParamTransfer&,
+                                                std::unique_ptr<metaforce::IObj>*, CObjectReference* selfRef);
 
 public:
   ProjectResourceFactoryBase(hecl::ClientProcess& clientProc) : m_clientProc(clientProc) {}
-  std::unique_ptr<urde::IObj> Build(const urde::SObjectTag&, const urde::CVParamTransfer&,
+  std::unique_ptr<metaforce::IObj> Build(const metaforce::SObjectTag&, const metaforce::CVParamTransfer&,
                                     CObjectReference* selfRef) override;
-  void BuildAsync(const urde::SObjectTag&, const urde::CVParamTransfer&, std::unique_ptr<urde::IObj>*,
+  void BuildAsync(const metaforce::SObjectTag&, const metaforce::CVParamTransfer&, std::unique_ptr<metaforce::IObj>*,
                   CObjectReference* selfRef) override;
-  void CancelBuild(const urde::SObjectTag&) override;
-  bool CanBuild(const urde::SObjectTag&) override;
-  const urde::SObjectTag* GetResourceIdByName(std::string_view) const override;
+  void CancelBuild(const metaforce::SObjectTag&) override;
+  bool CanBuild(const metaforce::SObjectTag&) override;
+  const metaforce::SObjectTag* GetResourceIdByName(std::string_view) const override;
   FourCC GetResourceTypeById(CAssetId id) const override;
   hecl::ProjectPath GetCookedPath(const hecl::ProjectPath& working, bool pcTarget) const {
     return static_cast<DataSpec::SpecBase&>(*m_cookSpec).getCookedPath(working, pcTarget);
@@ -141,13 +141,13 @@ public:
   void EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const override;
 
   u32 ResourceSize(const SObjectTag& tag) override;
-  std::shared_ptr<urde::IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target) override;
-  std::shared_ptr<urde::IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 off, u32 size,
+  std::shared_ptr<metaforce::IDvdRequest> LoadResourceAsync(const metaforce::SObjectTag& tag, void* target) override;
+  std::shared_ptr<metaforce::IDvdRequest> LoadResourcePartAsync(const metaforce::SObjectTag& tag, u32 off, u32 size,
                                                            void* target) override;
-  std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag) override;
-  std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size) override;
+  std::unique_ptr<u8[]> LoadResourceSync(const metaforce::SObjectTag& tag) override;
+  std::unique_ptr<u8[]> LoadNewResourcePartSync(const metaforce::SObjectTag& tag, u32 off, u32 size) override;
 
-  std::shared_ptr<AsyncTask> CookResourceAsync(const urde::SObjectTag& tag);
+  std::shared_ptr<AsyncTask> CookResourceAsync(const metaforce::SObjectTag& tag);
 
   template <typename ItType>
   bool AsyncPumpTask(ItType& it);
@@ -160,4 +160,4 @@ public:
   ~ProjectResourceFactoryBase() override { Shutdown(); }
 };
 
-} // namespace urde
+} // namespace metaforce

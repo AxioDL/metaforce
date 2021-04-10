@@ -6,7 +6,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScriptPickupGenerator : public CEntity {
   zeus::CVector3f x34_position;
   float x40_frequency;
@@ -22,4 +22,4 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& stateMgr) override;
 };
-} // namespace urde
+} // namespace metaforce

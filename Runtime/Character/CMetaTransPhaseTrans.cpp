@@ -5,7 +5,7 @@
 #include "Runtime/Character/CAnimTreeTransition.hpp"
 #include "Runtime/Character/CTimeScaleFunctions.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CMetaTransPhaseTrans::CMetaTransPhaseTrans(CInputStream& in) {
   x4_transDur = CCharAnimTime(in);
@@ -37,4 +37,4 @@ std::shared_ptr<CAnimTreeNode> CMetaTransPhaseTrans::VGetTransitionTree(const st
       CAnimTreeTransition::CreatePrimitiveName(tsA, tsB, x4_transDur.GetSeconds()));
 }
 
-} // namespace urde
+} // namespace metaforce

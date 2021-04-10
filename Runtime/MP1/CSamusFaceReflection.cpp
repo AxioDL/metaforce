@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 static const zeus::CTransform PreXf = zeus::CTransform::Scale(0.3f) * zeus::CTransform::Translate(0.f, 0.5f, 0.f);
 
@@ -102,4 +102,4 @@ void CSamusFaceReflection::Update(float dt, const CStateManager& mgr, CRandom16&
   }
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

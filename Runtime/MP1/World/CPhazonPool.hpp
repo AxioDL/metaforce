@@ -4,7 +4,7 @@
 
 #include "Runtime/Particle/CElementGen.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CPhazonPool : public CScriptTrigger {
 private:
   std::list<std::pair<TUniqueId, bool>> x150_inhabitants;
@@ -54,4 +54,4 @@ private:
   void RemoveInhabitants(CStateManager& mgr);
   void SetEmitParticles(bool val);
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

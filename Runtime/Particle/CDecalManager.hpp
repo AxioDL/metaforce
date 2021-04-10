@@ -8,7 +8,7 @@
 #include "Runtime/Particle/CDecal.hpp"
 #include <zeus/CFrustum.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 
 class CDecalManager {
@@ -41,4 +41,4 @@ public:
                        CStateManager& mgr);
 };
 
-} // namespace urde
+} // namespace metaforce

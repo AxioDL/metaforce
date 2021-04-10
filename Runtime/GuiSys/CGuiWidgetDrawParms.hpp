@@ -2,7 +2,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 struct CGuiWidgetDrawParms {
   float x0_alphaMod = 1.f;
@@ -15,4 +15,4 @@ struct CGuiWidgetDrawParms {
   static constexpr CGuiWidgetDrawParms Default() { return {}; }
 };
 
-} // namespace urde
+} // namespace metaforce

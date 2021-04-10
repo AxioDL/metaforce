@@ -10,7 +10,7 @@
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
 
-namespace urde {
+namespace metaforce {
 
 constexpr std::array<CAuiEnergyBarT01::FCoordFunc, 5> CoordFuncs{
     CHudEnergyInterface::CombatEnergyCoordFunc, CHudEnergyInterface::CombatEnergyCoordFunc,
@@ -171,4 +171,4 @@ std::pair<zeus::CVector3f, zeus::CVector3f> CHudEnergyInterface::BallEnergyCoord
   return {zeus::CVector3f(x, 0.f, 0.f), zeus::CVector3f(x, 0.f, 0.088887997f)};
 }
 
-} // namespace urde
+} // namespace metaforce

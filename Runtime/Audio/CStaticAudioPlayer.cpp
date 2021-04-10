@@ -3,7 +3,7 @@
 #include "Runtime/CDvdFile.hpp"
 #include "Runtime/CDvdRequest.hpp"
 
-namespace urde {
+namespace metaforce {
 
 #define RSF_BUFFER_SIZE 0x20000
 
@@ -99,4 +99,4 @@ void CStaticAudioPlayer::Decode(s16* bufOut, u32 numSamples) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

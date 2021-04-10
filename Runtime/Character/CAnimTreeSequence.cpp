@@ -4,7 +4,7 @@
 #include "Runtime/Character/CTreeUtils.hpp"
 #include "Runtime/Character/IMetaAnim.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAnimTreeSequence::CAnimTreeSequence(std::vector<std::shared_ptr<IMetaAnim>> seq, CAnimSysContext animSys,
                                      std::string_view name)
@@ -121,4 +121,4 @@ std::unique_ptr<IAnimReader> CAnimTreeSequence::VClone() const {
       x18_animCtx, x4_name, x3c_fundamentals, x94_curTime);
 }
 
-} // namespace urde
+} // namespace metaforce

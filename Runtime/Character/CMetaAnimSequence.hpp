@@ -6,7 +6,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Character/IMetaAnim.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CMetaAnimSequence : public IMetaAnim {
   std::vector<std::shared_ptr<IMetaAnim>> x4_sequence;
@@ -21,4 +21,4 @@ public:
                                                    const CMetaAnimTreeBuildOrders& orders) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

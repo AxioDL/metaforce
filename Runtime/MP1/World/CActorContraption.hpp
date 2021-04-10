@@ -7,7 +7,7 @@
 #include "Runtime/World/CDamageInfo.hpp"
 #include "Runtime/World/CScriptActor.hpp"
 
-namespace urde {
+namespace metaforce {
 class CFlameThrower;
 namespace MP1 {
 class CActorContraption : public CScriptActor {
@@ -31,4 +31,4 @@ public:
   void ResetFlameThrowers(CStateManager& mgr);
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

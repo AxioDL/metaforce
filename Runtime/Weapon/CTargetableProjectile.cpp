@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CTargetableProjectile::CTargetableProjectile(
     const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf, EMaterialTypes materials,
@@ -61,4 +61,4 @@ void CTargetableProjectile::ResolveCollisionWithActor(const CRayCastResult& res,
   CEnergyProjectile::ResolveCollisionWithActor(res, act, mgr);
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -8,7 +8,7 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/Character/CAnimTreeNode.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimTreeAnimReaderContainer : public CAnimTreeNode {
   std::shared_ptr<IAnimReader> x14_reader;
@@ -48,4 +48,4 @@ public:
   SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

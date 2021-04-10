@@ -9,7 +9,7 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 class CRadarPaintShader {
@@ -33,4 +33,4 @@ public:
   void draw(const std::vector<Instance>& instances, const CTexture* tex);
 };
 
-} // namespace urde
+} // namespace metaforce

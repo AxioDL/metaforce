@@ -2,7 +2,7 @@
 
 #include <array>
 
-namespace urde {
+namespace metaforce {
 
 CPVSVisOctree CPVSVisOctree::MakePVSVisOctree(const u8* data) {
   CMemoryInStream r(data, 68);
@@ -90,4 +90,4 @@ s32 CPVSVisOctree::IterateSearch(u8 nodeData, const zeus::CVector3f& tp) const {
          highFlags[2] * axisCounts[0] * axisCounts[1] * bool(nodeData & 0x4);
 }
 
-} // namespace urde
+} // namespace metaforce

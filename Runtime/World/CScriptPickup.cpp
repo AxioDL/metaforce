@@ -15,7 +15,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptPickup::CScriptPickup(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                              CModelData&& mData, const CActorParameters& aParams, const zeus::CAABox& aabb,
                              CPlayerState::EItemType itemType, s32 amount, s32 capacity, CAssetId pickupEffect,
@@ -172,4 +172,4 @@ void CScriptPickup::Touch(CActor& act, CStateManager& mgr) {
     }
   }
 }
-} // namespace urde
+} // namespace metaforce

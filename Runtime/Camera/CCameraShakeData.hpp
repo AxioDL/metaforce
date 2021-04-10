@@ -4,7 +4,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CRandom16;
 class CStateManager;
 
@@ -179,4 +179,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

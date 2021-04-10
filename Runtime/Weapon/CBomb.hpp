@@ -9,7 +9,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CElementGen;
 class CBomb : public CWeapon {
@@ -46,4 +46,4 @@ public:
   bool IsBeingDragged() const { return x190_25_beingDragged; }
 };
 
-} // namespace urde
+} // namespace metaforce

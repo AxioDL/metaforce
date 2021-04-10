@@ -846,7 +846,7 @@ bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
   png_infop info = png_create_info_struct(png);
 
   png_text textStruct = {};
-  textStruct.key = png_charp("urde_nomip");
+  textStruct.key = png_charp("metaforce_nomip");
   if (numMips == 1)
     png_set_text(png, info, &textStruct, 1);
 
@@ -1088,13 +1088,13 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     return false;
   }
 
-  /* Disable mipmapping if urde_nomip embedded */
+  /* Disable mipmapping if metaforce_nomip embedded */
   bool mipmap = true;
   png_text* textStruct;
   int numText;
   png_get_text(pngRead, info, &textStruct, &numText);
   for (int i = 0; i < numText; ++i) {
-    if (std::strcmp(textStruct[i].key, "urde_nomip") == 0) {
+    if (std::strcmp(textStruct[i].key, "metaforce_nomip") == 0) {
       mipmap = false;
     }
   }
@@ -1401,13 +1401,13 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   const png_byte colorType = png_get_color_type(pngRead, info);
   const png_byte bitDepth = png_get_bit_depth(pngRead, info);
 
-  /* Disable mipmapping if urde_nomip embedded */
+  /* Disable mipmapping if metaforce_nomip embedded */
   bool mipmap = true;
   png_text* textStruct;
   int numText;
   png_get_text(pngRead, info, &textStruct, &numText);
   for (int i = 0; i < numText; ++i) {
-    if (std::strcmp(textStruct[i].key, "urde_nomip") == 0) {
+    if (std::strcmp(textStruct[i].key, "metaforce_nomip") == 0) {
       mipmap = false;
     }
   }

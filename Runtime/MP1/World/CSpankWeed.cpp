@@ -9,8 +9,8 @@
 
 #include <logvisor/logvisor.hpp>
 
-namespace urde::MP1 {
-logvisor::Module SpankLog("urde::MP1::SpankWeed");
+namespace metaforce::MP1 {
+logvisor::Module SpankLog("metaforce::MP1::SpankWeed");
 
 constexpr std::array<SSphereJointInfo, 7> kArmCollision{{
     {"Arm_4", 1.5f},
@@ -334,4 +334,4 @@ void CSpankWeed::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
 float CSpankWeed::GetPlayerDistance(CStateManager& mgr) const {
   return (mgr.GetPlayer().GetTranslation() - x5a8_lockonTarget).magSquared();
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

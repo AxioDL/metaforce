@@ -14,7 +14,7 @@
 #include <ctime>
 #include <cmath>
 
-static urde::MP1::CNESEmulator* EmulatorInst = nullptr;
+static metaforce::MP1::CNESEmulator* EmulatorInst = nullptr;
 
 extern "C" {
 
@@ -166,7 +166,7 @@ int audioUpdate() {
 }
 }
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 bool CNESEmulator::EmulatorConstructed = false;
 static logvisor::Module Log("CNESEmulator");
@@ -781,4 +781,4 @@ void CNESEmulator::LoadPassword(const u8* state) {
   x38_passwordPending = true;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -3,7 +3,7 @@
 #include "World/CEntityInfo.hpp"
 #include "zeus/CVector3f.hpp"
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class CMaterialFilter;
 
@@ -40,4 +40,4 @@ public:
   bool IsClosedLoop() const { return x48_closedLoop; }
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -10,7 +10,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 struct SQuadDescr;
 struct CQuadDecal {
   bool x0_24_invalid : 1 = true;
@@ -52,4 +52,4 @@ public:
   static void SetGlobalSeed(u16);
   static void SetMoveRedToAlphaBuffer(bool);
 };
-} // namespace urde
+} // namespace metaforce

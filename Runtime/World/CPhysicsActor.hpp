@@ -10,7 +10,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollisionInfoList;
 struct SMoverData;
 
@@ -209,4 +209,4 @@ public:
   void UseCollisionImpulses();
   static constexpr float GravityConstant() { return 9.81f * 2.5f; } /* 9.81 m/s ^ 2 is normal acceleration under earth gravity, Tallon 4 is 2.5 times that */
 };
-} // namespace urde
+} // namespace metaforce

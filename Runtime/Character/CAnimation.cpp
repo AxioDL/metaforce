@@ -2,11 +2,11 @@
 
 #include "Runtime/Character/CMetaAnimFactory.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAnimation::CAnimation(CInputStream& in) {
   x0_name = in.readString();
   x10_anim = CMetaAnimFactory::CreateMetaAnim(in);
 }
 
-} // namespace urde
+} // namespace metaforce

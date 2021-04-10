@@ -2,7 +2,7 @@
 #include "Graphics/CGraphics.hpp"
 #include "hecl/Pipeline.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 boo::ObjToken<boo::IShaderPipeline> CNESShader::g_Pipeline;
 
@@ -21,4 +21,4 @@ boo::ObjToken<boo::IShaderDataBinding> CNESShader::BuildShaderDataBinding(boo::I
 
 void CNESShader::Shutdown() { g_Pipeline.reset(); }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

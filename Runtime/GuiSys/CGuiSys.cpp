@@ -18,7 +18,7 @@
 #include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
 #include "Runtime/GuiSys/CTextParser.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGuiSys* g_GuiSys = nullptr;
 CTextExecuteBuffer* g_TextExecuteBuf = nullptr;
@@ -92,4 +92,4 @@ void CGuiSys::ViewportResizeFrame(CGuiFrame* frame) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

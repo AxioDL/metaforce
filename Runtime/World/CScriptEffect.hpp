@@ -6,7 +6,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 class CElementGen;
 class CParticleElectric;
 
@@ -72,4 +72,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -8,7 +8,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CSamusFaceReflection {
   CModelData x0_modelData;
@@ -25,4 +25,4 @@ public:
   void Update(float dt, const CStateManager& stateMgr, CRandom16& rand);
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

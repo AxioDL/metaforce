@@ -7,7 +7,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 
 struct SBurst {
@@ -47,4 +47,4 @@ public:
   bool ShouldFire() const { return x14_24_shouldFire; }
   bool IsBurstSet() const { return x18_curBursts != nullptr; }
 };
-} // namespace urde
+} // namespace metaforce

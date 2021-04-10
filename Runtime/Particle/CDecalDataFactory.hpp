@@ -9,7 +9,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Particle/CDecalDescription.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSimplePool;
 
 class CDecalDataFactory {
@@ -23,4 +23,4 @@ public:
 
 CFactoryFnReturn FDecalDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                    CObjectReference*);
-} // namespace urde
+} // namespace metaforce

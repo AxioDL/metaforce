@@ -8,7 +8,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CMetroidPrimeRelay : public CEntity {
   TUniqueId x34_mpUid = kInvalidUniqueId;
@@ -54,4 +54,4 @@ public:
 
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

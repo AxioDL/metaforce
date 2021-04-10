@@ -4,7 +4,7 @@
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/GuiSys/CGuiModel.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CHudFreeLookInterface::CHudFreeLookInterface(CGuiFrame& selHud, EHudType hudType, bool inFreeLook, bool lookControlHeld,
                                              bool lockedOnObj)
@@ -145,4 +145,4 @@ void CHudFreeLookInterfaceXRay::SetFreeLookState(bool inFreeLook, bool lookContr
   x24_basewidget_freelook->SetVisibility(visible, ETraversalMode::Children);
 }
 
-} // namespace urde
+} // namespace metaforce

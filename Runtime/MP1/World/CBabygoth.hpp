@@ -9,12 +9,12 @@
 #include "Runtime/World/CPathFindSearch.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde {
+namespace metaforce {
 class CCollisionActorManager;
 class CWeaponDescription;
-} // namespace urde
+} // namespace metaforce
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 struct CBabygothData {
   float x0_fireballAttackTime;
   float x4_fireballAttackTimeVariance;
@@ -315,4 +315,4 @@ public:
   CProjectileInfo* GetProjectileInfo() override { return &x958_iceProjectile; }
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

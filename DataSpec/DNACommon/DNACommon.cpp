@@ -4,7 +4,7 @@
 
 namespace DataSpec {
 
-logvisor::Module LogDNACommon("urde::DNACommon");
+logvisor::Module LogDNACommon("DataSpec::DNACommon");
 ThreadLocalPtr<SpecBase> g_curSpec;
 ThreadLocalPtr<PAKRouterBase> g_PakRouter;
 ThreadLocalPtr<hecl::blender::Token> g_ThreadBlenderToken;

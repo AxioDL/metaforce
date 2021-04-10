@@ -2,7 +2,7 @@
 
 #include "Runtime/Weapon/WeaponCommon.hpp"
 
-namespace urde {
+namespace metaforce {
 class CWeaponMode {
   EWeaponType x0_weaponType = EWeaponType::None;
   bool x4_24_charged : 1 = false;
@@ -29,4 +29,4 @@ public:
   static constexpr CWeaponMode Bomb() { return CWeaponMode(EWeaponType::Bomb); }
   static constexpr CWeaponMode PowerBomb() { return CWeaponMode(EWeaponType::PowerBomb); }
 };
-} // namespace urde
+} // namespace metaforce

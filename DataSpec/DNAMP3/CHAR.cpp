@@ -69,7 +69,7 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::Enumerate<BigDNA::WriteYaml>(athena::i
 }
 
 std::string_view CHAR::AnimationInfo::EVNT::SFXEvent::DNAType() {
-  return "urde::DNAMP3::CHAR::AnimationInfo::EVNT::SFXEvent"sv;
+  return "DNAMP3::CHAR::AnimationInfo::EVNT::SFXEvent"sv;
 }
 
 template <>
@@ -151,7 +151,7 @@ void CHAR::AnimationInfo::MetaAnimFactory::Enumerate<BigDNA::WriteYaml>(athena::
 }
 
 std::string_view CHAR::AnimationInfo::MetaAnimFactory::DNAType() {
-  return "urde::DNAMP3::CHAR::AnimationInfo::MetaAnimFactory"sv;
+  return "DNAMP3::CHAR::AnimationInfo::MetaAnimFactory"sv;
 }
 
 } // namespace DataSpec::DNAMP3

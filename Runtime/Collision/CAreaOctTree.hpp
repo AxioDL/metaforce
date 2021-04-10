@@ -11,7 +11,7 @@
 #include <zeus/CPlane.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CMaterialFilter;
 class CAreaOctTree {
   friend class CBooRenderer;
@@ -116,4 +116,4 @@ public:
   static std::unique_ptr<CAreaOctTree> MakeFromMemory(const u8* buf, unsigned int size);
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -3,7 +3,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CBeamProjectile::CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                                  const zeus::CTransform& xf, s32 maxLength, float beamRadius, float travelSpeed,
@@ -90,6 +90,6 @@ void CBeamProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CStateManag
   x324_xf = xf;
 }
 
-void CBeamProjectile::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
+void CBeamProjectile::Accept(metaforce::IVisitor& visitor) { visitor.Visit(this); }
 
-} // namespace urde
+} // namespace metaforce

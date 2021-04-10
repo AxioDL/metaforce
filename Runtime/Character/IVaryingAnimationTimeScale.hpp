@@ -4,7 +4,7 @@
 
 #include "Runtime/Character/CCharAnimTime.hpp"
 
-namespace urde {
+namespace metaforce {
 class IVaryingAnimationTimeScale {
 public:
   virtual ~IVaryingAnimationTimeScale() = default;
@@ -21,4 +21,4 @@ public:
 
   std::unique_ptr<IVaryingAnimationTimeScale> Clone() const { return VClone(); }
 };
-} // namespace urde
+} // namespace metaforce

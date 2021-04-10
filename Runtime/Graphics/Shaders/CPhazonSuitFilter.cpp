@@ -13,7 +13,7 @@
 #include <zeus/CVector3f.hpp>
 #include <zeus/CVector4f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_IndPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
@@ -150,4 +150,4 @@ void CPhazonSuitFilter::draw(const zeus::CColor& color, float indScale, float in
   CGraphics::DrawArray(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

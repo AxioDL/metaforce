@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/ScriptObjectSupport.hpp"
 
-namespace urde {
+namespace metaforce {
 struct SConnection {
   EScriptObjectState x0_state;
   EScriptObjectMessage x4_msg;
@@ -24,4 +24,4 @@ public:
   std::vector<SConnection> GetConnectionList() const { return x4_conns; }
   TEditorId GetEditorId() const { return x14_editorId; }
 };
-} // namespace urde
+} // namespace metaforce

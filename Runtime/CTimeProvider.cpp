@@ -2,7 +2,7 @@
 
 #include "Runtime/Graphics/CGraphics.hpp"
 
-namespace urde {
+namespace metaforce {
 static CTimeProvider* s_currentTimeProvider = nullptr;
 
 CTimeProvider::CTimeProvider(const float& time) : x0_currentTime(time), x8_lastProvider(s_currentTimeProvider) {
@@ -23,4 +23,4 @@ CTimeProvider::~CTimeProvider() {
   CGraphics::SetExternalTimeProvider(s_currentTimeProvider);
 }
 
-} // namespace urde
+} // namespace metaforce

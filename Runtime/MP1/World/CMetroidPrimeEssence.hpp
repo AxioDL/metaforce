@@ -5,7 +5,7 @@
 #include "Runtime/World/CPathFindSearch.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde {
+namespace metaforce {
 class CCollisionActorManager;
 namespace MP1 {
 class CMetroidPrimeEssence : public CPatterned {
@@ -108,4 +108,4 @@ public:
   CPathFindSearch* GetSearchPath() override;
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

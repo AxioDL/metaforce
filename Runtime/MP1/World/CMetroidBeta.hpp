@@ -9,13 +9,13 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollisionActorManager;
 class CElementGen;
 class CParticleSwoosh;
-} // namespace urde
+} // namespace metaforce
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CMetroidBetaData {
   friend class CMetroidBeta;
@@ -143,4 +143,4 @@ public:
   void RenderHitBallEffect() const;
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

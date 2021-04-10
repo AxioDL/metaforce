@@ -3,7 +3,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CPhysicsActor.hpp"
 
-namespace urde {
+namespace metaforce {
 
 zeus::CVector3f CSteeringBehaviors::Flee(const CPhysicsActor& actor, const zeus::CVector3f& v0) const {
   zeus::CVector3f actVec = actor.GetTranslation() - v0;
@@ -363,4 +363,4 @@ zeus::CVector3f CSteeringBehaviors::ProjectOrbitalPosition(const zeus::CVector3f
   return usePos;
 }
 
-} // namespace urde
+} // namespace metaforce

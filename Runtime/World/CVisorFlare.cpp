@@ -7,7 +7,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/CSimplePool.hpp"
 
-namespace urde {
+namespace metaforce {
 
 std::optional<CVisorFlare::CFlareDef> CVisorFlare::LoadFlareDef(CInputStream& in) {
   u32 propCount = in.readUint32Big();
@@ -96,4 +96,4 @@ void CVisorFlare::Render(const zeus::CVector3f& pos, const CStateManager& mgr) c
   }
 }
 
-} // namespace urde
+} // namespace metaforce

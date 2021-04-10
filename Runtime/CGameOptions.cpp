@@ -16,7 +16,7 @@
 
 #include <hecl/CVarManager.hpp>
 
-namespace urde {
+namespace metaforce {
 
 constexpr std::array<SGameOption, 5> VisorOpts{{
     {EGameOption::VisorOpacity, 21, 0.f, 255.f, 1.f, EOptionType::Float},
@@ -752,4 +752,4 @@ void CHintOptions::Update(float dt, const CStateManager& stateMgr) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

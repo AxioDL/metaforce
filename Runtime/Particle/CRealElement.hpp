@@ -8,7 +8,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Real_Elements */
 
-namespace urde {
+namespace metaforce {
 
 class CREKeyframeEmitter : public CRealElement {
   u32 x4_percent;
@@ -357,4 +357,4 @@ public:
 
   bool GetValue(int frame, float& valOut) const override;
 };
-} // namespace urde
+} // namespace metaforce

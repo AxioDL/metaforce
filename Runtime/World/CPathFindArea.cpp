@@ -3,7 +3,7 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/IVParamObj.hpp"
 
-namespace urde {
+namespace metaforce {
 
 static logvisor::Module Log("CPathFindArea");
 
@@ -265,8 +265,8 @@ bool CPFArea::PathExists(const CPFRegion* r1, const CPFRegion* r2, u32 flags) co
     return ((x168_connectionsGround[d.quot] >> u32(d.rem)) & 0x1u) != 0;
 }
 
-CFactoryFnReturn FPathFindAreaFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                                      const urde::CVParamTransfer& vparms, CObjectReference*) {
+CFactoryFnReturn FPathFindAreaFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                                      const metaforce::CVParamTransfer& vparms, CObjectReference*) {
   return TToken<CPFArea>::GetIObjObjectFor(std::make_unique<CPFArea>(std::move(in), len));
 }
-} // namespace urde
+} // namespace metaforce

@@ -91,7 +91,7 @@ void SCLY::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& docout) {
   docout.enumerate("layers", layers);
 }
 
-std::string_view SCLY::DNAType() { return "urde::DNAMP1::SCLY"sv; }
+std::string_view SCLY::DNAType() { return "DNAMP1::SCLY"sv; }
 
 template <>
 void SCLY::ScriptLayer::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs) {
@@ -191,6 +191,6 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& 
   }
 }
 
-std::string_view SCLY::ScriptLayer::DNAType() { return "urde::DNAMP1::SCLY::ScriptLayer"sv; }
+std::string_view SCLY::ScriptLayer::DNAType() { return "DNAMP1::SCLY::ScriptLayer"sv; }
 
 } // namespace DataSpec::DNAMP1

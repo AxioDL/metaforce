@@ -6,7 +6,7 @@
 #include <hecl/Backend.hpp>
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 std::unordered_map<uint64_t, CModelShaders::ShaderPipelines> CModelShaders::g_ShaderPipelines;
 
@@ -230,4 +230,4 @@ CModelShaders::ShaderPipelines CModelShaders::BuildExtendedShader(const hecl::Ba
   return newPipelines;
 }
 
-} // namespace urde
+} // namespace metaforce

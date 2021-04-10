@@ -2,7 +2,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 enum class EMaterialTypes {
   NoStepLogic = 0,
   Stone = 1,
@@ -137,4 +137,4 @@ public:
   void Union(const CMaterialList& other) noexcept { x0_list |= other.x0_list; }
 };
 
-} // namespace urde
+} // namespace metaforce

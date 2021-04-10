@@ -1,6 +1,6 @@
 #include "Runtime/Character/CAnimTreeTransition.hpp"
 
-namespace urde {
+namespace metaforce {
 
 std::string CAnimTreeTransition::CreatePrimitiveName(const std::weak_ptr<CAnimTreeNode>&,
                                                      const std::weak_ptr<CAnimTreeNode>&, float) {
@@ -140,4 +140,4 @@ float CAnimTreeTransition::VGetBlendingWeight() const {
     return x2c_timeInTrans.GetSeconds() / x24_transDur.GetSeconds();
   return 0.f;
 }
-} // namespace urde
+} // namespace metaforce

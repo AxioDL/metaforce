@@ -4,7 +4,7 @@
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <zeus/CVector4f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CCameraBlurFilter {
   struct Uniform {
@@ -24,4 +24,4 @@ public:
   void draw(float amount, bool clearDepth = false);
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -1,7 +1,7 @@
 #include "CMemoryCardSys.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/IMain.hpp"
-namespace urde {
+namespace metaforce {
 
 kabufuda::SystemString CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlot slot) {
   if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
@@ -44,4 +44,4 @@ kabufuda::SystemString CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot sl
   return {};
 }
 
-} // namespace urde
+} // namespace metaforce

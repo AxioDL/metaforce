@@ -6,7 +6,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 struct SObjectTag;
 class CVParamTransfer;
 class IObj;
@@ -16,9 +16,9 @@ class CFactoryMgr {
   std::unordered_map<FourCC, FMemFactoryFunc> m_memFactories;
 
 public:
-  CFactoryFnReturn MakeObject(const SObjectTag& tag, urde::CInputStream& in, const CVParamTransfer& paramXfer,
+  CFactoryFnReturn MakeObject(const SObjectTag& tag, metaforce::CInputStream& in, const CVParamTransfer& paramXfer,
                               CObjectReference* selfRef);
-  bool CanMakeMemory(const urde::SObjectTag& tag) const;
+  bool CanMakeMemory(const metaforce::SObjectTag& tag) const;
   CFactoryFnReturn MakeObjectFromMemory(const SObjectTag& tag, std::unique_ptr<u8[]>&& buf, int size, bool compressed,
                                         const CVParamTransfer& paramXfer, CObjectReference* selfRef);
   void AddFactory(FourCC key, FFactoryFunc func) { m_factories.insert_or_assign(key, std::move(func)); }
@@ -71,4 +71,4 @@ public:
   static FourCC TypeIdxToFourCC(ETypeTable fcc);
 };
 
-} // namespace urde
+} // namespace metaforce

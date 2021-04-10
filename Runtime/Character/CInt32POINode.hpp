@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/Character/CPOINode.hpp"
 
-namespace urde {
+namespace metaforce {
 class IAnimSourceInfo;
 
 class CInt32POINode : public CPOINode {
@@ -22,4 +22,4 @@ public:
   static CInt32POINode CopyNodeMinusStartTime(const CInt32POINode& node, const CCharAnimTime& startTime);
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -13,7 +13,7 @@ namespace zeus {
 class CVector3f;
 }
 
-namespace urde {
+namespace metaforce {
 
 class CFogVolumePlaneShader {
   boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
@@ -35,4 +35,4 @@ public:
   void draw(int pass);
 };
 
-} // namespace urde
+} // namespace metaforce

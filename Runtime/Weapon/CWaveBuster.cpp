@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CWaveBuster::CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf,
                          EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
@@ -69,4 +69,4 @@ std::optional<zeus::CAABox> CWaveBuster::GetTouchBounds() const {
   return GetProjectileBounds();
 }
 
-} // namespace urde
+} // namespace metaforce

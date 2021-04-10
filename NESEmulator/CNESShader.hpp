@@ -2,7 +2,7 @@
 
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CNESShader {
 public:
@@ -17,4 +17,4 @@ public:
   static boo::ObjToken<boo::IShaderPipeline> g_Pipeline;
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

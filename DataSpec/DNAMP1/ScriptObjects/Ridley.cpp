@@ -61,7 +61,7 @@ void Ridley::Enumerate(typename Op::StreamT& s) {
     Do<Op>(athena::io::PropId{"damageInfo9"}, damageInfo9, s);
 }
 
-std::string_view Ridley::DNAType() { return "urde::DNAMP1::Ridley"sv; }
+std::string_view Ridley::DNAType() { return "DNAMP1::Ridley"sv; }
 
 AT_SPECIALIZE_DNA_YAML(Ridley)
 

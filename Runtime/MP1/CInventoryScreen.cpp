@@ -9,7 +9,7 @@
 #include "Runtime/Input/ControlMapper.hpp"
 #include "Runtime/IMain.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 struct SInventoryItem {
   u32 idx;
@@ -566,4 +566,4 @@ void CInventoryScreen::UpdateSamusDollPulses() {
   x19c_samusDoll->SetPulseVisor(pulseVisor);
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

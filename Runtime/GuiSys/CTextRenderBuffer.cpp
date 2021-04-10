@@ -10,7 +10,7 @@
 #include "Runtime/GuiSys/CRasterFont.hpp"
 #include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
 
-namespace urde {
+namespace metaforce {
 
 struct CTextRenderBuffer::BooFontCharacters {
   TLockedToken<CRasterFont> m_font;
@@ -282,4 +282,4 @@ std::pair<zeus::CVector2i, zeus::CVector2i> CTextRenderBuffer::AccumulateTextBou
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

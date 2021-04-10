@@ -1,6 +1,6 @@
 #include "Runtime/Character/CPASAnimInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CPASAnimInfo::CPASAnimInfo(u32 id, rstl::reserved_vector<CPASAnimParm::UParmValue, 8>&& parms)
 : x0_id(id), x4_parms(std::move(parms)) {}
@@ -35,4 +35,4 @@ CPASAnimParm CPASAnimInfo::GetAnimParmData(size_t idx, CPASAnimParm::EParmType t
   }
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -30,7 +30,7 @@
 #include "PATH.hpp"
 
 #include "DataSpec/DNACommon/Tweaks/TweakWriter.hpp"
-#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
+#include "DataSpec/DNACommon/MetaforceVersionInfo.hpp"
 #include "Tweaks/CTweakPlayerRes.hpp"
 #include "Tweaks/CTweakGunRes.hpp"
 #include "Tweaks/CTweakPlayer.hpp"
@@ -49,7 +49,7 @@
 #include "SnowForces.hpp"
 
 namespace DataSpec::DNAMP1 {
-logvisor::Module Log("urde::DNAMP1");
+logvisor::Module Log("DataSpec::DNAMP1");
 
 static bool GetNoShare(std::string_view name) {
   std::string lowerName(name);

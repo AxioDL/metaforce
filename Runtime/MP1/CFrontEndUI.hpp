@@ -21,7 +21,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAudioGroupSet;
 class CDependencyGroup;
 class CGuiFrame;
@@ -390,4 +390,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

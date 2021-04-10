@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CCharLayoutInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CPoseAsTransforms::CPoseAsTransforms(u8 boneCount) : x1_count(boneCount), xd0_transformArr(new Transform[boneCount]) {}
 
@@ -58,4 +58,4 @@ void CPoseAsTransforms::Insert(const CSegId& id, const zeus::CMatrix3f& rotation
   ++x0_nextId;
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptCameraWaypoint : public CActor {
   float xe8_hfov;
@@ -23,4 +23,4 @@ public:
   float GetHFov() const { return xe8_hfov; }
 };
 
-} // namespace urde
+} // namespace metaforce

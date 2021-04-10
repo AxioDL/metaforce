@@ -10,7 +10,7 @@
 #include "Runtime/Collision/CMaterialFilter.hpp"
 #include "Runtime/Collision/InternalColliders.hpp"
 
-namespace urde {
+namespace metaforce {
 s32 CCollisionPrimitive::sNumTypes = 0;
 bool CCollisionPrimitive::sInitComplete = false;
 bool CCollisionPrimitive::sTypesAdded = false;
@@ -265,4 +265,4 @@ void CCollisionPrimitive::Uninitialize() {
   sTableOfBooleanCollidables.reset();
 }
 
-} // namespace urde
+} // namespace metaforce

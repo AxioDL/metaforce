@@ -10,7 +10,7 @@
 #include <specter/View.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CMoviePlayer : public CDvdFile {
 public:
@@ -149,4 +149,4 @@ public:
   static void Shutdown();
 };
 
-} // namespace urde
+} // namespace metaforce

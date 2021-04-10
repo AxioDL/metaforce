@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr zeus::CColor skEndFadeColor{1.f, 1.f, 0.5f, 1.f};
 constexpr zeus::CColor skStartFadeColor{1.f, 0.f, 0.f, 0.f};
@@ -97,7 +97,7 @@ bool CFireFlea::InPosition(CStateManager& mgr, float dt) {
   return (xd80_targetPos - GetTranslation()).magnitude() < 25.f;
 }
 
-bool CFireFlea::HearShot(urde::CStateManager& mgr, float arg) {
+bool CFireFlea::HearShot(metaforce::CStateManager& mgr, float arg) {
   x570_nearList.clear();
   mgr.BuildNearList(x570_nearList, zeus::CAABox(GetTranslation() - 10.f, GetTranslation() + 10.f),
                     CMaterialFilter::MakeInclude({EMaterialTypes::Projectile}), nullptr);
@@ -211,4 +211,4 @@ void CFireFlea::Flee(CStateManager& mgr, EStateMsg msg, float) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

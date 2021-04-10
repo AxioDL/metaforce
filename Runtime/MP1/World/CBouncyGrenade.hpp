@@ -8,7 +8,7 @@
 
 #include <zeus/CTransform.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 struct SGrenadeVelocityInfo {
 private:
   float x0_mass;
@@ -88,4 +88,4 @@ public:
 private:
   void Explode(CStateManager& mgr, TUniqueId uid);
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

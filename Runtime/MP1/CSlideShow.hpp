@@ -16,7 +16,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CVector2f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 class CSlideShow : public CIOWin {
@@ -108,4 +108,4 @@ public:
   static u32 SlideShowGalleryFlags();
 };
 
-} // namespace urde
+} // namespace metaforce

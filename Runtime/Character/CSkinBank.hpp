@@ -5,7 +5,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Character/CSegId.hpp"
 
-namespace urde {
+namespace metaforce {
 class CPoseAsTransforms;
 
 class CSkinBank {
@@ -16,4 +16,4 @@ public:
   void GetBankTransforms(std::vector<const zeus::CTransform*>& out, const CPoseAsTransforms& pose) const;
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -12,7 +12,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 void CGroundMovement::CheckFalling(CPhysicsActor& actor, CStateManager& mgr, float) {
   bool oob = true;
@@ -742,4 +742,4 @@ CMaterialList CGroundMovement::MoveObjectAnalytical(CStateManager& mgr, CPhysics
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

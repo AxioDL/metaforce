@@ -9,7 +9,7 @@
 
 #include "ViewManager.hpp"
 
-namespace urde {
+namespace metaforce {
 static logvisor::Module Log("specter::SplashScreen");
 
 class SplashScreen : public specter::ModalWindow {
@@ -161,4 +161,4 @@ public:
   void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 };
 
-} // namespace urde
+} // namespace metaforce

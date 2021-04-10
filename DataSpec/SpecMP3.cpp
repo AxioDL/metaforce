@@ -9,7 +9,7 @@
 #include "DataSpec/DNAMP3/MAPA.hpp"
 #include "DataSpec/DNAMP2/STRG.hpp"
 #include "DataSpec/DNACommon/TXTR.hpp"
-#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
+#include "DataSpec/DNACommon/MetaforceVersionInfo.hpp"
 
 #include "hecl/ClientProcess.hpp"
 #include "hecl/Blender/Connection.hpp"
@@ -22,7 +22,7 @@ namespace DataSpec {
 
 using namespace std::literals;
 
-static logvisor::Module Log("urde::SpecMP3");
+static logvisor::Module Log("metaforce::SpecMP3");
 extern hecl::Database::DataSpecEntry SpecEntMP3;
 extern hecl::Database::DataSpecEntry SpecEntMP3ORIG;
 
@@ -516,7 +516,7 @@ struct SpecMP3 : SpecBase {
     return false;
   }
 
-  urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const override { return {}; }
+  metaforce::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const override { return {}; }
 
   void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                 hecl::blender::Token& btok, FCookProgress progress) override {}

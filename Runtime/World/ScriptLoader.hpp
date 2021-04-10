@@ -5,7 +5,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActorParameters;
 class CAnimationParameters;
 class CCameraShakeData;
@@ -165,4 +165,4 @@ public:
   static CEntity* LoadEnergyBall(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
 };
 
-} // namespace urde
+} // namespace metaforce

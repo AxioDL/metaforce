@@ -4,7 +4,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptCounter::CScriptCounter(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 initial, s32 max,
                                bool autoReset, bool active)
@@ -67,4 +67,4 @@ void CScriptCounter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, 
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 }
 
-} // namespace urde
+} // namespace metaforce

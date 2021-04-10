@@ -5,7 +5,7 @@
 extern "C" uint8_t URDE_ICONS[];
 extern "C" size_t URDE_ICONS_SZ;
 
-namespace urde {
+namespace metaforce {
 static logvisor::Module Log("URDE::icons");
 
 specter::IconAtlas<8, 8> g_IconAtlas;
@@ -91,4 +91,4 @@ specter::Icon& GetIcon(MonoIcon icon) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

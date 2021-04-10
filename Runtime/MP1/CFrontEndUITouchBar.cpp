@@ -1,6 +1,6 @@
 #include "Runtime/MP1/CFrontEndUITouchBar.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CFrontEndUITouchBar::~CFrontEndUITouchBar() = default;
 void CFrontEndUITouchBar::SetPhase(EPhase ph) { m_phase = ph; }
@@ -17,4 +17,4 @@ CFrontEndUITouchBar::EAction CFrontEndUITouchBar::PopAction() { return EAction::
 std::unique_ptr<CFrontEndUITouchBar> NewFrontEndUITouchBar() { return std::make_unique<CFrontEndUITouchBar>(); }
 #endif
 
-} // namespace urde
+} // namespace metaforce

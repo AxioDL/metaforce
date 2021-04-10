@@ -7,7 +7,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
@@ -113,4 +113,4 @@ void CWideScreenFilter::SetViewportToFull() {
   CGraphics::g_BooMainCommandQueue->setViewport(rect);
 }
 
-} // namespace urde
+} // namespace metaforce

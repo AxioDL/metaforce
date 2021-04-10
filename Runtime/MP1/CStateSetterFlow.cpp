@@ -4,7 +4,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CStateSetterFlow::CStateSetterFlow() : CIOWin("") {}
 
@@ -50,4 +50,4 @@ CIOWin::EMessageReturn CStateSetterFlow::OnMessage(const CArchitectureMessage& m
   return EMessageReturn::Exit;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

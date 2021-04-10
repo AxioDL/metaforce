@@ -11,7 +11,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CPlayer;
 
 class CCameraSpring {
@@ -275,4 +275,4 @@ public:
   static bool IsBallNearDoor(const zeus::CVector3f& pos, CStateManager& mgr);
 };
 
-} // namespace urde
+} // namespace metaforce

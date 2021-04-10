@@ -17,9 +17,9 @@
 #include <hecl/Runtime.hpp>
 #include <logvisor/logvisor.hpp>
 
-namespace urde {
+namespace metaforce {
 namespace {
-logvisor::Module Log("urde::CBooModel");
+logvisor::Module Log("metaforce::CBooModel");
 CBooModel* g_FirstModel = nullptr;
 
 constexpr zeus::CMatrix4f ReflectBaseMtx{
@@ -1346,11 +1346,11 @@ void CModel::WarmupShaders(const SObjectTag& cmdlTag) {
   modelObj->_WarmupShaders();
 }
 
-CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                               const urde::CVParamTransfer& vparms, CObjectReference* selfRef) {
+CFactoryFnReturn FModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                               const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef) {
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
   CFactoryFnReturn ret = TToken<CModel>::GetIObjObjectFor(std::make_unique<CModel>(std::move(in), len, sp, selfRef));
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

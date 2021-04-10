@@ -2,7 +2,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScannableParameters {
   CAssetId x0_scanId;
@@ -12,4 +12,4 @@ public:
   constexpr explicit CScannableParameters(CAssetId id) : x0_scanId(id) {}
   [[nodiscard]] constexpr CAssetId GetScanId() const { return x0_scanId; }
 };
-} // namespace urde
+} // namespace metaforce

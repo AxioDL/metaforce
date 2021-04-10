@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace urde {
+namespace metaforce {
 
 bool CCharAnimTime::EqualsZero() const {
   if (x4_type == EType::ZeroIncreasing || x4_type == EType::ZeroSteady || x4_type == EType::ZeroDecreasing)
@@ -250,4 +250,4 @@ float CCharAnimTime::operator/(const CCharAnimTime& other) const {
   return x0_time / other.x0_time;
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -18,7 +18,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 class CLight;
 class CModel;
 class CPoseAsTransforms;
@@ -62,7 +62,7 @@ struct CModelFlags {
   bool operator!=(const CModelFlags& other) const { return !operator==(other); }
 };
 
-/* urde addition: doesn't require hacky stashing of
+/* metaforce addition: doesn't require hacky stashing of
  * pointers within loaded CMDL buffer */
 struct CBooSurface {
   DataSpec::DNACMDL::SurfaceHeader_2 m_data;
@@ -157,7 +157,7 @@ private:
 
   CModelShaders::LightingUniform m_lightingData;
 
-  /* urde addition: boo! */
+  /* metaforce addition: boo! */
   size_t m_uniformDataSize = 0;
   struct ModelInstance {
     boo::ObjToken<boo::IGraphicsBufferD> m_geomUniformBuffer;
@@ -275,7 +275,7 @@ class CModel {
   // CModel* x34_prev = nullptr;
   int x38_lastFrame;
 
-  /* urde addition: boo! */
+  /* metaforce addition: boo! */
   boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
   hecl::HMDLMeta m_hmdlMeta;
   std::unique_ptr<uint8_t[]> m_dynamicVertexData;
@@ -310,7 +310,7 @@ public:
   static void WarmupShaders(const SObjectTag& cmdlTag);
 };
 
-CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                               const urde::CVParamTransfer& vparms, CObjectReference* selfRef);
+CFactoryFnReturn FModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                               const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce

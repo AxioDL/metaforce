@@ -3,7 +3,7 @@
 #include <string_view>
 #include <unordered_map>
 
-namespace urde {
+namespace metaforce {
 class CAi;
 class CStateManager;
 
@@ -21,4 +21,4 @@ public:
   CAiStateFunc GetStateFunc(std::string_view func) const;
   CAiTriggerFunc GetTriggerFunc(std::string_view func) const;
 };
-} // namespace urde
+} // namespace metaforce

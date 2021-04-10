@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 SSpindleProperty::SSpindleProperty(CInputStream& in) {
   x4_input = ESpindleInput(in.readUint32Big());
@@ -369,4 +369,4 @@ void CScriptSpindleCamera::Render(CStateManager&) {
   // Empty
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -7,7 +7,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 class CSimplePool;
 
 class CGuiLight : public CGuiWidget {
@@ -48,4 +48,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

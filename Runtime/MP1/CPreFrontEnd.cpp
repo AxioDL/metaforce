@@ -4,7 +4,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CPreFrontEnd::CPreFrontEnd() : CIOWin("Pre front-end window") {}
 
@@ -28,4 +28,4 @@ CIOWin::EMessageReturn CPreFrontEnd::OnMessage(const CArchitectureMessage& msg, 
   return EMessageReturn::RemoveIOWinAndExit;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

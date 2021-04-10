@@ -13,7 +13,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 const zeus::CVector3f CFlameThrower::kLightOffset(0, 3.f, 2.f);
 
 CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
@@ -249,4 +249,4 @@ void CFlameThrower::Think(float dt, CStateManager& mgr) {
     }
   }
 }
-} // namespace urde
+} // namespace metaforce

@@ -10,7 +10,7 @@
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 using EState = CMemoryCardDriver::EState;
 using EError = CMemoryCardDriver::EError;
@@ -643,4 +643,4 @@ std::unique_ptr<CMemoryCardDriver> CSaveGameScreen::ConstructCardDriver(bool imp
                                              g_ResFactory->GetResourceIdByName("TXTR_SaveIcon1")->id, importPersistent);
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

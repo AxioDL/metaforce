@@ -15,7 +15,7 @@
 #include "Runtime/World/CWorld.hpp"
 #include "Runtime/World/ScriptLoader.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CMetroidBetaData::CMetroidBetaData(CInputStream& in)
 : x0_(in)
@@ -338,4 +338,4 @@ void CMetroidBeta::AddToTeam(CStateManager& mgr) {
                                 CTeamAiRole::ETeamAiRole::Invalid);
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -10,7 +10,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CEntity;
 
 class IGameArea {
@@ -67,4 +67,4 @@ enum class EChain {
   AliveJudgement,
 };
 
-} // namespace urde
+} // namespace metaforce

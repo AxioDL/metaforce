@@ -24,7 +24,7 @@ static u64 MachToDolphinDenom;
 static LARGE_INTEGER PerfFrequency;
 #endif
 
-namespace urde {
+namespace metaforce {
 
 void CBasics::Initialize() {
 #if __APPLE__
@@ -136,4 +136,4 @@ OSCalendarTime CBasics::ToCalendarTime(std::chrono::system_clock::time_point tim
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

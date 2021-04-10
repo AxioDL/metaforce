@@ -6,7 +6,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/GuiSys/CGuiGroup.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSimplePool;
 
 class CAuiMeter : public CGuiGroup {
@@ -31,4 +31,4 @@ public:
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 
-} // namespace urde
+} // namespace metaforce

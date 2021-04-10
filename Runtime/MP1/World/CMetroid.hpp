@@ -11,7 +11,7 @@
 #include "Runtime/World/CPatternedInfo.hpp"
 #include "Runtime/MP1/World/CSpacePirate.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CMetroidData {
 private:
@@ -207,4 +207,4 @@ private:
   void UpdateTouchBounds();
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

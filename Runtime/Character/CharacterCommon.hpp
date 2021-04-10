@@ -1,6 +1,6 @@
 #pragma once
 
-namespace urde {
+namespace metaforce {
 namespace pas {
 enum class ELocomotionType {
   Invalid = -1,
@@ -156,4 +156,4 @@ enum class EBodyStateCmd {
   StopReaction
 };
 
-} // namespace urde
+} // namespace metaforce

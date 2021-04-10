@@ -7,7 +7,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CScriptActor.hpp"
 
-namespace urde {
+namespace metaforce {
 class CScriptPlayerActor : public CScriptActor {
   CAnimRes x2e8_suitRes;
   CPlayerState::EBeamId x304_beam;
@@ -66,4 +66,4 @@ public:
   void Render(CStateManager& mgr) override;
   void TouchModels(const CStateManager& mgr) const;
 };
-} // namespace urde
+} // namespace metaforce

@@ -1,6 +1,6 @@
 #include "Runtime/GameGlobalObjects.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace MP1 {
 class CGameArchitectureSupport* g_archSupport = nullptr;
 }
@@ -35,4 +35,4 @@ ITweakParticle* g_tweakParticle = nullptr;
 ITweakBall* g_tweakBall = nullptr;
 ITweakGuiColors* g_tweakGuiColors = nullptr;
 
-} // namespace urde
+} // namespace metaforce

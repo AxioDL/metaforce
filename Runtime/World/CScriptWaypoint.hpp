@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptWaypoint : public CActor {
   float xe8_speed;
@@ -38,4 +38,4 @@ public:
   u8 GetBehaviourOrient() const { return xf8_behaviourOrient; }
   u16 GetBehaviourModifiers() const { return xfa_behaviourModifiers; }
 };
-} // namespace urde
+} // namespace metaforce

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace urde::InternalColliders {
+namespace metaforce::InternalColliders {
 void AddTypes();
 void AddColliders();
-} // namespace urde::InternalColliders
+} // namespace metaforce::InternalColliders

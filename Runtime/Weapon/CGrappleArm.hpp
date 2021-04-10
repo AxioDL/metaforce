@@ -14,7 +14,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActorLights;
 class CStateManager;
 struct CModelFlags;
@@ -137,4 +137,4 @@ public:
   const CGunController* GunController() const { return x328_gunController.get(); }
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -1,6 +1,6 @@
 #include "Runtime/GuiSys/CGuiCompoundWidget.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGuiCompoundWidget::CGuiCompoundWidget(const CGuiWidgetParms& parms) : CGuiWidget(parms) {}
 
@@ -32,4 +32,4 @@ CGuiWidget* CGuiCompoundWidget::GetWorkerWidget(int id) const {
   return nullptr;
 }
 
-} // namespace urde
+} // namespace metaforce

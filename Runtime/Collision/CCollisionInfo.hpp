@@ -7,7 +7,7 @@
 #include <zeus/CMatrix3f.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollisionInfo {
   friend class CCollisionInfoList;
 
@@ -66,4 +66,4 @@ public:
   const zeus::CVector3f& GetPoint() const { return x0_point; }
 };
 
-} // namespace urde
+} // namespace metaforce

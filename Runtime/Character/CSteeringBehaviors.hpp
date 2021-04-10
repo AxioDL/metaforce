@@ -6,7 +6,7 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CPhysicsActor;
 class CStateManager;
 
@@ -41,4 +41,4 @@ public:
                                                 const zeus::CVector3f& orbitPoint, float dt, float preThinkDt);
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -7,7 +7,7 @@
 #include "Runtime/MP1/CInGameGuiManager.hpp"
 #include "Runtime/MP1/CPauseScreenBase.hpp"
 
-namespace urde {
+namespace metaforce {
 class CDependencyGroup;
 
 namespace MP1 {
@@ -83,4 +83,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

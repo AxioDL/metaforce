@@ -4,7 +4,7 @@
 #include "Runtime/Character/CCharAnimTime.hpp"
 #include "Runtime/Character/IMetaTrans.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CMetaTransTrans : public IMetaTrans {
   CCharAnimTime x4_transDur;
@@ -21,4 +21,4 @@ public:
                                                     const CAnimSysContext& animSys) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

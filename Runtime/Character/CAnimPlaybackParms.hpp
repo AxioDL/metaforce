@@ -6,7 +6,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAnimPlaybackParms {
   s32 x0_animA = -1;
   s32 x4_animB = -1;
@@ -45,4 +45,4 @@ public:
   constexpr void SetBlendFactor(float f) { x8_blendWeight = f; }
   constexpr bool GetIsPlayAnimation() const { return xc_animating; }
 };
-} // namespace urde
+} // namespace metaforce

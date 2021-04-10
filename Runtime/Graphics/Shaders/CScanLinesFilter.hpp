@@ -5,7 +5,7 @@
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 enum class EFilterShape;
@@ -40,4 +40,4 @@ public:
   explicit CScanLinesFilterOdd(EFilterType type, const TLockedToken<CTexture>&) : CScanLinesFilterOdd(type) {}
 };
 
-} // namespace urde
+} // namespace metaforce

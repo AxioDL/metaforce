@@ -9,7 +9,7 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/World/CHealthInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPlayerState {
   friend class CWorldTransManager;
@@ -171,4 +171,4 @@ public:
   bool CanTakeDamage() const { return m_canTakeDamage; }
   void SetCanTakeDamage(bool c) { m_canTakeDamage = c; }
 };
-} // namespace urde
+} // namespace metaforce

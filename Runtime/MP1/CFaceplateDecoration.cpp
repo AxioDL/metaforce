@@ -6,7 +6,7 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CFaceplateDecoration::CFaceplateDecoration(CStateManager& stateMgr) {}
 
@@ -43,4 +43,4 @@ void CFaceplateDecoration::Draw(CStateManager& stateMgr) {
   }
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

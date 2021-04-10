@@ -6,7 +6,7 @@ namespace hecl {
 class CVarManager;
 }
 
-namespace urde {
+namespace metaforce {
 
 namespace MP1 {
 
@@ -17,4 +17,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

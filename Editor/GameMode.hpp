@@ -4,7 +4,7 @@
 #include "ViewManager.hpp"
 #include "Runtime/IMain.hpp"
 
-namespace urde {
+namespace metaforce {
 class GameMode : public ViewerSpace {
   std::shared_ptr<IMain> m_main;
 
@@ -51,4 +51,4 @@ public:
 
   bool usesToolbar() const override { return m_state.showToolbar; }
 };
-} // namespace urde
+} // namespace metaforce

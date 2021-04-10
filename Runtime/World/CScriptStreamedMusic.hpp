@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 
 class CScriptStreamedMusic : public CEntity {
@@ -33,4 +33,4 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -6,7 +6,7 @@
 #include "Runtime/Character/CCharLayoutInfo.hpp"
 #include "Runtime/Character/CModelData.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CFactoryFnReturn CCharacterFactoryBuilder::CDummyFactory::Build(const SObjectTag& tag, const CVParamTransfer&,
                                                                 CObjectReference* selfRef) {
@@ -36,24 +36,24 @@ void CCharacterFactoryBuilder::CDummyFactory::EnumerateResources(
 void CCharacterFactoryBuilder::CDummyFactory::EnumerateNamedResources(
     const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const {}
 
-u32 CCharacterFactoryBuilder::CDummyFactory::ResourceSize(const urde::SObjectTag& tag) { return 0; }
+u32 CCharacterFactoryBuilder::CDummyFactory::ResourceSize(const metaforce::SObjectTag& tag) { return 0; }
 
-std::shared_ptr<IDvdRequest> CCharacterFactoryBuilder::CDummyFactory::LoadResourceAsync(const urde::SObjectTag& tag,
+std::shared_ptr<IDvdRequest> CCharacterFactoryBuilder::CDummyFactory::LoadResourceAsync(const metaforce::SObjectTag& tag,
                                                                                         void* target) {
   return {};
 }
 
-std::shared_ptr<IDvdRequest> CCharacterFactoryBuilder::CDummyFactory::LoadResourcePartAsync(const urde::SObjectTag& tag,
+std::shared_ptr<IDvdRequest> CCharacterFactoryBuilder::CDummyFactory::LoadResourcePartAsync(const metaforce::SObjectTag& tag,
                                                                                             u32 off, u32 size,
                                                                                             void* target) {
   return {};
 }
 
-std::unique_ptr<u8[]> CCharacterFactoryBuilder::CDummyFactory::LoadResourceSync(const urde::SObjectTag& tag) {
+std::unique_ptr<u8[]> CCharacterFactoryBuilder::CDummyFactory::LoadResourceSync(const metaforce::SObjectTag& tag) {
   return {};
 }
 
-std::unique_ptr<u8[]> CCharacterFactoryBuilder::CDummyFactory::LoadNewResourcePartSync(const urde::SObjectTag& tag,
+std::unique_ptr<u8[]> CCharacterFactoryBuilder::CDummyFactory::LoadNewResourcePartSync(const metaforce::SObjectTag& tag,
                                                                                        u32 off, u32 size) {
   return {};
 }
@@ -64,4 +64,4 @@ TToken<CCharacterFactory> CCharacterFactoryBuilder::GetFactory(const CAnimRes& r
   return x4_dummyStore.GetObj({SBIG('ANCS'), res.GetId()});
 }
 
-} // namespace urde
+} // namespace metaforce

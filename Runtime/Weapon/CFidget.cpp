@@ -3,7 +3,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-namespace urde {
+namespace metaforce {
 
 static float kMinorFidgetDelay = 20.f;
 static float kMajorFidgetDelay = 20.f;
@@ -136,4 +136,4 @@ void CFidget::ResetAll() {
   x34_24_loading = false;
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -6,7 +6,7 @@
 #include "Runtime/Character/CMetaAnimRandom.hpp"
 #include "Runtime/Character/CMetaAnimSequence.hpp"
 
-namespace urde {
+namespace metaforce {
 
 std::shared_ptr<IMetaAnim> CMetaAnimFactory::CreateMetaAnim(CInputStream& in) {
   EMetaAnimType type = EMetaAnimType(in.readUint32Big());
@@ -29,4 +29,4 @@ std::shared_ptr<IMetaAnim> CMetaAnimFactory::CreateMetaAnim(CInputStream& in) {
   return {};
 }
 
-} // namespace urde
+} // namespace metaforce

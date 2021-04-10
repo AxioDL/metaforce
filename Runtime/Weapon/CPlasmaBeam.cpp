@@ -7,7 +7,7 @@
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr CCameraShakeData CameraShaker{0.125f, 0.25f};
 constexpr std::array<u16, 2> kSoundId{SFXwpn_fire_plasma_normal, SFXwpn_fire_plasma_charged};
@@ -146,4 +146,4 @@ void CPlasmaBeam::Unload(CStateManager& mgr) {
 
 bool CPlasmaBeam::IsLoaded() const { return CGunWeapon::IsLoaded() && x22c_24_loaded; }
 
-} // namespace urde
+} // namespace metaforce

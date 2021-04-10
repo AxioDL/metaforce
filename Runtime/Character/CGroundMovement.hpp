@@ -8,7 +8,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAreaCollisionCache;
 class CCollisionInfoList;
 class CMaterialFilter;
@@ -69,4 +69,4 @@ public:
                                             SMoveObjectResult& result);
 };
 
-} // namespace urde
+} // namespace metaforce

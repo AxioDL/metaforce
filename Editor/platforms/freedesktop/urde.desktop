@@ -2,8 +2,8 @@
 Name=URDE
 GenericName=Game Data Editor
 Comment=Edit 3D assets from games by Retro Studios
-Exec=urde
-Icon=urde
+Exec=metaforce
+Icon=metaforce
 Terminal=false
 Type=Application
 Categories=Graphics;3DGraphics;

@@ -18,7 +18,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 float CCameraManager::sFirstPersonFOV = 55.f;
 
 CCameraManager::CCameraManager(TUniqueId curCameraId) : x0_curCameraId(curCameraId) {
@@ -732,4 +732,4 @@ void CCameraManager::SetFogDensity(float fogDensityTarget, float fogDensitySpeed
   x9c_fogDensityFactorTarget = fogDensityTarget;
   x98_fogDensitySpeed = (x9c_fogDensityFactorTarget >= x94_fogDensityFactor ? fogDensitySpeed : -fogDensitySpeed);
 }
-} // namespace urde
+} // namespace metaforce

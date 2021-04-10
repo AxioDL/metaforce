@@ -8,7 +8,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 enum class ESpindleInput {
   Constant,
@@ -110,4 +110,4 @@ public:
   void ProcessInput(const CFinalInput& input, CStateManager& mgr) override;
 };
 
-} // namespace urde
+} // namespace metaforce

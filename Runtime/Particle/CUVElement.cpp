@@ -2,7 +2,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#UV_Elements */
 
-namespace urde {
+namespace metaforce {
 
 CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, std::unique_ptr<CIntElement>&& tileW,
                                  std::unique_ptr<CIntElement>&& tileH, std::unique_ptr<CIntElement>&& strideW,
@@ -64,4 +64,4 @@ void CUVEAnimTexture::GetValueUV(int frame, SUVElementSet& valOut) const {
   valOut = x2c_uvElems[tile];
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -7,7 +7,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 
 static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_AlphaGEqualPipeline;
@@ -343,4 +343,4 @@ CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, TLockedToke
   m_tex = tex;
 }
 
-} // namespace urde
+} // namespace metaforce

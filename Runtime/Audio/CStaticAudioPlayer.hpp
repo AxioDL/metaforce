@@ -13,7 +13,7 @@
 #include <boo/audiodev/IAudioVoice.hpp>
 #include <boo/audiodev/IAudioVoiceEngine.hpp>
 
-namespace urde {
+namespace metaforce {
 class IDvdRequest;
 
 class CStaticAudioPlayer {
@@ -72,4 +72,4 @@ public:
   void StopMixing() { m_voice->stop(); }
 };
 
-} // namespace urde
+} // namespace metaforce

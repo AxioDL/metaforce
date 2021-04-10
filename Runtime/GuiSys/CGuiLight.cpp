@@ -1,7 +1,7 @@
 #include "Runtime/GuiSys/CGuiLight.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGuiLight::CGuiLight(const CGuiWidgetParms& parms, const CLight& light)
 : CGuiWidget(parms)
@@ -93,4 +93,4 @@ std::shared_ptr<CGuiWidget> CGuiLight::Create(CGuiFrame* frame, CInputStream& in
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

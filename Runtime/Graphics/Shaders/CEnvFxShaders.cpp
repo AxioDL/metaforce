@@ -4,7 +4,7 @@
 
 #include <hecl/Pipeline.hpp>
 
-namespace urde {
+namespace metaforce {
 boo::ObjToken<boo::IShaderPipeline> CEnvFxShaders::m_snowPipeline;
 boo::ObjToken<boo::IShaderPipeline> CEnvFxShaders::m_underwaterPipeline;
 
@@ -54,4 +54,4 @@ void CEnvFxShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& c
                                textures.size(), textures.data(), nullptr, nullptr, 0, iBufInfo.second);
 }
 
-} // namespace urde
+} // namespace metaforce

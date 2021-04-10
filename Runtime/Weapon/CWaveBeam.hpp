@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Weapon/CGunWeapon.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CWaveBeam final : public CGunWeapon {
   TCachedToken<CWeaponDescription> x21c_waveBeam;
@@ -34,4 +34,4 @@ public:
   bool IsLoaded() const override;
 };
 
-} // namespace urde
+} // namespace metaforce

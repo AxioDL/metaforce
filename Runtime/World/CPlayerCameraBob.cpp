@@ -7,7 +7,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 float CPlayerCameraBob::kCameraBobExtentX = 0.071f;
 float CPlayerCameraBob::kCameraBobExtentY = 0.142f;
 float CPlayerCameraBob::kCameraBobPeriod = 0.47f;
@@ -226,4 +226,4 @@ void CPlayerCameraBob::ReadTweaks(CInputStream& in) {
   kGunBobMagnitude = in.readFloatBig();
   kHelmetBobMagnitude = in.readFloatBig();
 }
-} // namespace urde
+} // namespace metaforce

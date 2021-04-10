@@ -6,7 +6,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/ScriptObjectSupport.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSaveWorld;
 class CStateManager;
 
@@ -38,4 +38,4 @@ public:
   void PutTo(CBitStreamWriter& out, const CSaveWorld& saveWorld);
 };
 
-} // namespace urde
+} // namespace metaforce

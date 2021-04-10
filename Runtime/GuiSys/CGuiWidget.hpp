@@ -14,7 +14,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CGuiFrame;
 class CGuiTextSupport;
 struct CFinalInput;
@@ -144,4 +144,4 @@ public:
   CGuiFrame* GetGuiFrame() const { return xb0_frame; }
 };
 
-} // namespace urde
+} // namespace metaforce

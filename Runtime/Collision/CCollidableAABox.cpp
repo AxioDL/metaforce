@@ -5,7 +5,7 @@
 #include "Runtime/Collision/CInternalRayCastStructure.hpp"
 #include "Runtime/Collision/CollisionUtil.hpp"
 
-namespace urde {
+namespace metaforce {
 constexpr CCollisionPrimitive::Type sType(CCollidableAABox::SetStaticTableIndex, "CCollidableAABox");
 
 CCollidableAABox::CCollidableAABox() = default;
@@ -112,4 +112,4 @@ bool AABox_AABox_Bool(const CInternalCollisionStructure& collision) {
 }
 
 } // namespace Collide
-} // namespace urde
+} // namespace metaforce

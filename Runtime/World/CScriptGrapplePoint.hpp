@@ -7,7 +7,7 @@
 
 #include <zeus/CAABox.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScriptGrapplePoint : public CActor {
   zeus::CAABox xe8_touchBounds;
   CGrappleParameters x100_parameters;
@@ -24,4 +24,4 @@ public:
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
   const CGrappleParameters& GetGrappleParameters() const { return x100_parameters; }
 };
-} // namespace urde
+} // namespace metaforce

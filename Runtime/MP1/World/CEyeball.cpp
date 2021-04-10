@@ -10,7 +10,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 constexpr std::string_view skEyeLocator = "Laser_LCTR"sv;
 
 CEyeball::CEyeball(TUniqueId uid, std::string_view name, CPatterned::EFlavorType flavor, const CEntityInfo& info,
@@ -247,4 +247,4 @@ void CEyeball::Death(CStateManager& mgr, const zeus::CVector3f& pos, EScriptObje
   CPatterned::Death(mgr, pos, state);
   SetTransform(oldXf);
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

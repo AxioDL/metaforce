@@ -14,7 +14,7 @@
 
 #include <zeus/zeus.hpp>
 
-namespace urde {
+namespace metaforce {
 
 enum class EListenNoiseType { PlayerFire, BombExplode, ProjectileExplode };
 
@@ -187,4 +187,4 @@ public:
   virtual bool ShouldCallForBackup(CStateManager&, float) { return false; }
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -6,7 +6,7 @@
 
 #include "Runtime/Character/CTransitionDatabase.hpp"
 
-namespace urde {
+namespace metaforce {
 class CTransition;
 class CHalfTransition;
 
@@ -22,4 +22,4 @@ public:
   const std::shared_ptr<IMetaTrans>& GetMetaTrans(u32, u32) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

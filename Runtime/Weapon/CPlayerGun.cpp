@@ -15,7 +15,7 @@
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
 #include "Runtime/Weapon/CPowerBomb.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 std::array kVerticalAngleTable{-30.f, 0.f, 30.f};
 std::array kHorizontalAngleTable{30.f, 30.f, 30.f};
@@ -2294,4 +2294,4 @@ TUniqueId CPlayerGun::DropPowerBomb(CStateManager& mgr) {
   mgr.AddObject(*pBomb);
   return uid;
 }
-} // namespace urde
+} // namespace metaforce

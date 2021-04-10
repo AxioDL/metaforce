@@ -2,7 +2,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CEnergyDrainSource {
   TUniqueId x0_source;
   float x4_intensity;
@@ -13,4 +13,4 @@ public:
   void SetEnergyDrainIntensity(float in) { x4_intensity = in; }
   float GetEnergyDrainIntensity() const { return x4_intensity; }
 };
-} // namespace urde
+} // namespace metaforce

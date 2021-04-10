@@ -4,7 +4,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 static TAreaId s_ActiveAcousticsAreaId = kInvalidAreaId;
 
@@ -82,4 +82,4 @@ void CScriptRoomAcoustics::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId o
 
 void CScriptRoomAcoustics::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-} // namespace urde
+} // namespace metaforce

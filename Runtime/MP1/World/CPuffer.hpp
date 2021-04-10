@@ -7,7 +7,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CPuffer : public CPatterned {
   zeus::CVector3f x568_face;
   TToken<CGenDescription> x574_cloudEffect;
@@ -40,4 +40,4 @@ public:
   void Touch(CActor&, CStateManager&) override;
   void Death(CStateManager&, const zeus::CVector3f&, EScriptObjectState) override;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

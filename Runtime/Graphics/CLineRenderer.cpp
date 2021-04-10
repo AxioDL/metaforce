@@ -4,8 +4,8 @@
 
 #include <logvisor/logvisor.hpp>
 
-namespace urde {
-logvisor::Module LineRendererLog("urde::CLineRenderer");
+namespace metaforce {
+logvisor::Module LineRendererLog("metaforce::CLineRenderer");
 
 void CLineRenderer::Initialize() { CLineRendererShaders::Initialize(); }
 
@@ -390,4 +390,4 @@ void CLineRenderer::Render(bool alphaWrite, const zeus::CColor& moduColor) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

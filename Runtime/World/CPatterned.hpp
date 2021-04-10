@@ -22,7 +22,7 @@
 #define DEFINE_PATTERNED(type) static constexpr ECharacter CharacterType = ECharacter::type
 #endif
 
-namespace urde {
+namespace metaforce {
 class CPatternedInfo;
 class CProjectileInfo;
 class CPathFindSearch;
@@ -420,4 +420,4 @@ public:
   static void Initialize();
   // endregion
 };
-} // namespace urde
+} // namespace metaforce

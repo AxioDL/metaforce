@@ -10,7 +10,7 @@
 #include <zeus/CVector3f.hpp>
 #include <zeus/CVector4f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CElementGen;
 class CParticleGlobals {
   CParticleGlobals() = default;
@@ -85,4 +85,4 @@ struct SParticleUniforms {
   zeus::CColor moduColor;
 };
 
-} // namespace urde
+} // namespace metaforce

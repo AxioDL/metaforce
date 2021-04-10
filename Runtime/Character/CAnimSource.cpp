@@ -7,7 +7,7 @@
 #include "Runtime/Character/CSegIdList.hpp"
 #include "Runtime/Character/CSegStatementSet.hpp"
 
-namespace urde {
+namespace metaforce {
 
 static constexpr float ClampZeroToOne(float in) { return std::clamp(in, 0.0f, 1.0f); }
 
@@ -215,4 +215,4 @@ bool CAnimSource::HasOffset(const CSegId& seg) const {
   return transIdx != 0xff;
 }
 
-} // namespace urde
+} // namespace metaforce

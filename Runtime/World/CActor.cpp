@@ -18,7 +18,7 @@
 
 #include <hecl/CVarManager.hpp>
 
-namespace urde {
+namespace metaforce {
 static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, const CActorParameters& params) {
   CMaterialList ret = materialList;
   if (params.GetVisorParameters().x0_4_b1)
@@ -695,4 +695,4 @@ void CActor::MoveScannableObjectInfoToActor(CActor* act, CStateManager& mgr) {
   act->AddMaterial(EMaterialTypes::Scannable, mgr);
   RemoveMaterial(EMaterialTypes::Scannable, mgr);
 }
-} // namespace urde
+} // namespace metaforce

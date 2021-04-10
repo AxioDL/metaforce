@@ -3,7 +3,7 @@
 #include "Runtime/Character/CParticleData.hpp"
 #include "Runtime/Character/CPOINode.hpp"
 
-namespace urde {
+namespace metaforce {
 class IAnimSourceInfo;
 
 class CParticlePOINode : public CPOINode {
@@ -17,4 +17,4 @@ public:
   static CParticlePOINode CopyNodeMinusStartTime(const CParticlePOINode& node, const CCharAnimTime& startTime);
 };
 
-} // namespace urde
+} // namespace metaforce

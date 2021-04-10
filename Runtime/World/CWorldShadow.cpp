@@ -4,7 +4,7 @@
 #include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CWorldShadow::CWorldShadow(u32 w, u32 h, bool rgba8) : m_shader(w, h) {}
 
@@ -112,4 +112,4 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
 
 void CWorldShadow::ResetBlur() { x88_blurReset = true; }
 
-} // namespace urde
+} // namespace metaforce

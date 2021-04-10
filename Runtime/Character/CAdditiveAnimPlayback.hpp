@@ -3,7 +3,7 @@
 #include <memory>
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CAdditiveAnimationInfo;
 class CAnimTreeNode;
 class CCharLayoutInfo;
@@ -55,4 +55,4 @@ public:
   bool NeedsFadeOut() const { return x20_needsFadeOut; }
 };
 
-} // namespace urde
+} // namespace metaforce

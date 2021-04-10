@@ -9,7 +9,7 @@
 #include <hecl/CVar.hpp>
 #include <hecl/CVarManager.hpp>
 
-namespace urde {
+namespace metaforce {
 namespace {
 using ECardResult = kabufuda::ECardResult;
 
@@ -577,4 +577,4 @@ void CMemoryCardSys::Shutdown() {
   UnmountCard(kabufuda::ECardSlot::SlotB);
 }
 
-} // namespace urde
+} // namespace metaforce

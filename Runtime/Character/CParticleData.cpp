@@ -1,6 +1,6 @@
 #include "Runtime/Character/CParticleData.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CParticleData::CParticleData(CInputStream& in)
 : x0_duration(in.readUint32Big())
@@ -9,4 +9,4 @@ CParticleData::CParticleData(CInputStream& in)
 , x1c_scale(in.readFloatBig())
 , x20_parentMode(EParentedMode(in.readUint32Big())) {}
 
-} // namespace urde
+} // namespace metaforce

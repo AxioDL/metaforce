@@ -7,8 +7,8 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
 
-namespace urde {
-static logvisor::Module Log("urde::CParticleSwooshDataFactory");
+namespace metaforce {
+static logvisor::Module Log("metaforce::CParticleSwooshDataFactory");
 
 using CPF = CParticleDataFactory;
 
@@ -137,4 +137,4 @@ CFactoryFnReturn FParticleSwooshDataFactory(const SObjectTag& tag, CInputStream&
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
   return TToken<CSwooshDescription>::GetIObjObjectFor(CParticleSwooshDataFactory::GetGeneratorDesc(in, sp));
 }
-} // namespace urde
+} // namespace metaforce

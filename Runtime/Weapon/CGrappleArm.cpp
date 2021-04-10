@@ -13,7 +13,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 float CGrappleArm::g_GrappleBeamAnglePhaseDelta = 0.875f;
 float CGrappleArm::g_GrappleBeamXWaveAmplitude = 0.25f;
@@ -614,4 +614,4 @@ void CGrappleArm::ReturnToDefault(CStateManager& mgr, float dt, bool setState) {
   x328_gunController->ReturnToDefault(mgr, dt, setState);
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -9,7 +9,7 @@
 #include <hecl/Pipeline.hpp>
 #include <zeus/CVector2f.hpp>
 
-namespace urde {
+namespace metaforce {
 namespace {
 struct Vert {
   zeus::CVector2f m_pos;
@@ -81,4 +81,4 @@ void CCameraBlurFilter::draw(float amount, bool clearDepth) {
   CGraphics::DrawArray(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

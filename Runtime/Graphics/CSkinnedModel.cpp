@@ -5,8 +5,8 @@
 
 #include <logvisor/logvisor.hpp>
 
-namespace urde {
-static logvisor::Module Log("urde::CSkinnedModel");
+namespace metaforce {
+static logvisor::Module Log("metaforce::CSkinnedModel");
 
 CSkinnedModel::CSkinnedModel(TLockedToken<CModel> model, TLockedToken<CSkinRules> skinRules,
                              TLockedToken<CCharLayoutInfo> layoutInfo, int shaderIdx, int drawInsts)
@@ -64,4 +64,4 @@ CMorphableSkinnedModel::CMorphableSkinnedModel(IObjectStore& store, CAssetId mod
 CSkinnedModel::FPointGenerator CSkinnedModel::g_PointGenFunc = nullptr;
 void* CSkinnedModel::g_PointGenCtx = nullptr;
 
-} // namespace urde
+} // namespace metaforce

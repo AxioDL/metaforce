@@ -13,7 +13,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CVisorParameters;
 
 class CScriptDamageableTrigger : public CActor {
@@ -62,4 +62,4 @@ public:
   void Think(float, CStateManager&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
 };
-} // namespace urde
+} // namespace metaforce

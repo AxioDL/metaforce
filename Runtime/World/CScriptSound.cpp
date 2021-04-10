@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 bool CScriptSound::sFirstInFrame = false;
 
 CScriptSound::CScriptSound(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -225,4 +225,4 @@ void CScriptSound::StopSound(CStateManager& mgr) {
     xec_sfxHandle.reset();
   }
 }
-} // namespace urde
+} // namespace metaforce

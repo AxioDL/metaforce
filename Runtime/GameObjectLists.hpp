@@ -2,7 +2,7 @@
 
 #include "Runtime/CObjectList.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CActorList : public CObjectList {
 public:
@@ -51,4 +51,4 @@ public:
   bool IsQualified(const CEntity&) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

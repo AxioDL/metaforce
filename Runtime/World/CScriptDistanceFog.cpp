@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptDistanceFog::CScriptDistanceFog(TUniqueId uid, std::string_view name, const CEntityInfo& info, ERglFogMode mode,
                                        const zeus::CColor& color, const zeus::CVector2f& range, float colorDelta,
                                        const zeus::CVector2f& rangeDelta, bool expl, bool active, float thermalTarget,
@@ -71,4 +71,4 @@ void CScriptDistanceFog::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
     }
   }
 }
-} // namespace urde
+} // namespace metaforce

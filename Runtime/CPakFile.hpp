@@ -10,7 +10,7 @@
 #include "Runtime/CStringExtras.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPakFile : public CDvdFile {
   friend class CResLoader;
@@ -78,4 +78,4 @@ public:
   CAssetId GetMLVLId() const { return m_mlvlId; }
 };
 
-} // namespace urde
+} // namespace metaforce

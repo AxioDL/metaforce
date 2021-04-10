@@ -7,9 +7,9 @@
 #include "Runtime/Collision/CMaterialFilter.hpp"
 #include "Runtime/Collision/CollisionUtil.hpp"
 
-namespace urde {
+namespace metaforce {
 
-CCollidableOBBTree::CCollidableOBBTree(const COBBTree* tree, const urde::CMaterialList& material)
+CCollidableOBBTree::CCollidableOBBTree(const COBBTree* tree, const metaforce::CMaterialList& material)
 : CCollisionPrimitive(material), x10_tree(tree) {}
 
 bool CCollidableOBBTree::LineIntersectsLeaf(const COBBTree::CLeafData& leaf, CRayCastInfo& info) const {
@@ -570,4 +570,4 @@ zeus::CAABox CCollidableOBBTree::CalculateAABox(const zeus::CTransform& xf) cons
 
 zeus::CAABox CCollidableOBBTree::CalculateLocalAABox() const { return x10_tree->CalculateLocalAABox(); }
 
-} // namespace urde
+} // namespace metaforce

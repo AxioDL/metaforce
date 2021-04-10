@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 std::array<s32, 300> sMazeSeeds;
 
@@ -477,4 +477,4 @@ void CMazeState::DebugRender() {
   }
   m_renderer.Render();
 }
-} // namespace urde
+} // namespace metaforce

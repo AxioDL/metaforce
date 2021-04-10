@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <utility>
 
-namespace urde {
+namespace metaforce {
 
 CTransitionDatabaseGame::CTransitionDatabaseGame(const std::vector<CTransition>& transitions,
                                                  const std::vector<CHalfTransition>& halfTransitions,
@@ -42,4 +42,4 @@ const std::shared_ptr<IMetaTrans>& CTransitionDatabaseGame::GetMetaTrans(u32 a, 
   return x10_defaultTrans;
 }
 
-} // namespace urde
+} // namespace metaforce

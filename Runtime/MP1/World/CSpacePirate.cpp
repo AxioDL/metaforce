@@ -21,7 +21,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::array skParts{
     "Collar"sv,  "Neck_1"sv, "R_shoulder"sv, "R_elbow"sv, "R_wrist"sv, "L_shoulder"sv, "L_elbow"sv,
@@ -149,7 +149,7 @@ constexpr std::array<const SBurst*, 13> skBursts{
 };
 } // Anonymous namespace
 
-CSpacePirate::CSpacePirateData::CSpacePirateData(urde::CInputStream& in, u32 propCount)
+CSpacePirate::CSpacePirateData::CSpacePirateData(metaforce::CInputStream& in, u32 propCount)
 : x0_AggressionCheck(in.readFloatBig())
 , x4_CoverCheck(in.readFloatBig())
 , x8_SearchRadius(in.readFloatBig())
@@ -2550,4 +2550,4 @@ float CSpacePirate::GetGravityConstant() const { return 50.f; }
 
 CProjectileInfo* CSpacePirate::GetProjectileInfo() { return &x568_pirateData.x20_Projectile; }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

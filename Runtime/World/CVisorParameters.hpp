@@ -2,7 +2,7 @@
 
 #include "Runtime/GCNTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CVisorParameters {
 public:
@@ -15,4 +15,4 @@ public:
   u8 GetMask() const { return x0_mask; }
 };
 
-} // namespace urde
+} // namespace metaforce

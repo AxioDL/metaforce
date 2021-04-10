@@ -21,7 +21,7 @@
 
 #include <logvisor/logvisor.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 static logvisor::Module Log("MP1::CTweaks");
 
@@ -134,4 +134,4 @@ void CTweaks::RegisterResourceTweaks(hecl::CVarManager* cvarMgr) {
   g_tweakPlayerRes->initCVars(cvarMgr);
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

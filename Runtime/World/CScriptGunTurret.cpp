@@ -18,7 +18,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr CMaterialList skGunMaterialList = {EMaterialTypes::Solid, EMaterialTypes::Character, EMaterialTypes::Orbit,
                                              EMaterialTypes::Target};
@@ -1306,4 +1306,4 @@ bool CScriptGunTurret::IsInsignificantRotation(float dt) const {
          zeus::degToRad(2.f) * dt;
 }
 
-} // namespace urde
+} // namespace metaforce

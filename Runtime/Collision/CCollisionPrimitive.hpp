@@ -11,7 +11,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollisionPrimitive;
 class CMaterialFilter;
 
@@ -169,4 +169,4 @@ public:
 
   static void Uninitialize();
 };
-} // namespace urde
+} // namespace metaforce

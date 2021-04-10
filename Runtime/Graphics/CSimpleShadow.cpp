@@ -3,7 +3,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CSimpleShadow::CSimpleShadow(float scale, float userAlpha, float maxObjHeight, float displacement)
 : x30_scale(scale), x38_userAlpha(userAlpha), x40_maxObjHeight(maxObjHeight), x44_displacement(displacement) {}
@@ -81,4 +81,4 @@ void CSimpleShadow::Calculate(const zeus::CAABox& aabb, const zeus::CTransform& 
   }
 }
 
-} // namespace urde
+} // namespace metaforce

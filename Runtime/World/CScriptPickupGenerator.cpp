@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptPickupGenerator::CScriptPickupGenerator(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                const zeus::CVector3f& pos, float frequency, bool active)
@@ -176,4 +176,4 @@ void CScriptPickupGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
   CEntity::AcceptScriptMsg(msg, sender, stateMgr);
 }
 
-} // namespace urde
+} // namespace metaforce

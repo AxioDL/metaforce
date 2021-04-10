@@ -8,7 +8,7 @@
 
 #include <zeus/CAABox.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScriptSpiderBallWaypoint : public CActor {
   enum class ECheckActiveWaypoint { Check, SkipCheck };
   u32 xe8_;
@@ -32,4 +32,4 @@ public:
                                      zeus::CVector3f& deltaBetweenPoints, float deltaBetweenInterpDist,
                                      zeus::CVector3f& interpDeltaBetweenPoints) const;
 };
-} // namespace urde
+} // namespace metaforce

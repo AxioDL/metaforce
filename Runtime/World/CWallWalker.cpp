@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CWallWalker::CWallWalker(ECharacter chr, TUniqueId uid, std::string_view name, EFlavorType flavType,
                          const CEntityInfo& eInfo, const zeus::CTransform& xf, CModelData&& mData,
                          const CPatternedInfo& pInfo, EMovementType mType, EColliderType colType, EBodyType bType,
@@ -180,4 +180,4 @@ void CWallWalker::UpdateWPDestination(CStateManager& mgr) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

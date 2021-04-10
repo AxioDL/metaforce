@@ -3,7 +3,7 @@
 #include "Space.hpp"
 #include "ViewManager.hpp"
 
-namespace urde {
+namespace metaforce {
 class InformationCenter : public ViewerSpace {
   struct State : Space::State {
     AT_DECL_DNA_YAMLV
@@ -47,4 +47,4 @@ public:
 
   bool usesToolbar() const override { return true; }
 };
-} // namespace urde
+} // namespace metaforce

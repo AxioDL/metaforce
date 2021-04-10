@@ -10,7 +10,7 @@
 #include "Runtime/Character/CBodyState.hpp"
 #include "Runtime/Character/CharacterCommon.hpp"
 
-namespace urde {
+namespace metaforce {
 class CActor;
 
 class CBodyStateInfo {
@@ -48,4 +48,4 @@ public:
   bool ApplyHeadTracking() const;
 };
 
-} // namespace urde
+} // namespace metaforce

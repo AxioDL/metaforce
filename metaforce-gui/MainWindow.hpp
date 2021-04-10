@@ -33,13 +33,13 @@ class MainWindow : public QMainWindow {
   hecl::CVarCommons m_cvarCommons;
   QTextCursor m_cursor;
   QString m_path;
-  QString m_urdePath;
+  QString m_metaforcePath;
   QString m_heclPath;
   QProcess m_heclProc;
   DownloadManager m_dlManager;
   QStringList m_warpSettings;
   QSettings m_settings;
-  URDEVersion m_recommendedVersion;
+  MetaforceVersion m_recommendedVersion;
   bool m_inContinueNote = false;
   QStringListModel m_launchOptionsModel;
 

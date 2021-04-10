@@ -3,7 +3,7 @@
 #include "Runtime/Collision/CCollisionInfoList.hpp"
 #include "Runtime/Collision/CollisionUtil.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CAABoxFilter::Filter(const CCollisionInfoList& in, CCollisionInfoList& out) const {
   FilterBoxFloorCollisions(in, out);
@@ -27,4 +27,4 @@ void CAABoxFilter::FilterBoxFloorCollisions(const CCollisionInfoList& in, CColli
   CollisionUtil::AddAverageToFront(temp, out);
 }
 
-} // namespace urde
+} // namespace metaforce

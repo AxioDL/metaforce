@@ -1,6 +1,6 @@
 #include "Runtime/Graphics/CPVSAreaSet.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CPVSAreaSet::CPVSAreaSet(const u8* data, u32 len) {
   CMemoryInStream r(data, len);
@@ -18,4 +18,4 @@ CPVSAreaSet::CPVSAreaSet(const u8* data, u32 len) {
   x20_octree = CPVSVisOctree::MakePVSVisOctree(octreeData);
 }
 
-} // namespace urde
+} // namespace metaforce

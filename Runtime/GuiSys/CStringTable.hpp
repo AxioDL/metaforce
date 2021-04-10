@@ -5,7 +5,7 @@
 #include "Runtime/IFactory.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CStringTable {
   static FourCC mCurrentLanguage;
   u32 x0_stringCount = 0;
@@ -23,4 +23,4 @@ public:
 
 CFactoryFnReturn FStringTableFactory(const SObjectTag&, CInputStream&, const CVParamTransfer&,
                                      CObjectReference* selfRef);
-} // namespace urde
+} // namespace metaforce

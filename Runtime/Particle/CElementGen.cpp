@@ -15,9 +15,9 @@
 
 #define MAX_GLOBAL_PARTICLES 2560
 
-namespace urde {
+namespace metaforce {
 namespace {
-logvisor::Module Log("urde::CElementGen");
+logvisor::Module Log("metaforce::CElementGen");
 
 constexpr std::array ShadClsSizes{
     sizeof(SParticleInstanceTex),
@@ -1913,4 +1913,4 @@ void CElementGen::Reset() {
 
 void CElementGen::SetMoveRedToAlphaBuffer(bool move) { sMoveRedToAlphaBuffer = move; }
 
-} // namespace urde
+} // namespace metaforce

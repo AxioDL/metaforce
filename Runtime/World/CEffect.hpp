@@ -2,7 +2,7 @@
 
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CEffect : public CActor {
 public:
@@ -12,4 +12,4 @@ public:
   void Render(CStateManager&) override {}
 };
 
-} // namespace urde
+} // namespace metaforce

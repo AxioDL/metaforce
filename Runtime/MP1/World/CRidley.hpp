@@ -11,7 +11,7 @@
 #include "Runtime/World/CPatterned.hpp"
 #include "Runtime/World/CProjectedShadow.hpp"
 
-namespace urde {
+namespace metaforce {
 class CParticleElectric;
 namespace MP1 {
 class CRidleyData {
@@ -271,4 +271,4 @@ public:
   bool IsDizzy(CStateManager& mgr, float arg) override;
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce
