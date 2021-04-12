@@ -102,6 +102,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          brew update
           brew install ninja qt@5 graphicsmagick imagemagick getsentry/tools/sentry-cli
           brew link qt@5
           yarn global add create-dmg

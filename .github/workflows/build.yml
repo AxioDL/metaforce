@@ -74,6 +74,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          brew update
           brew install ninja qt@5 graphicsmagick imagemagick
           brew link qt@5
           yarn global add create-dmg
@@ -93,6 +94,7 @@ jobs:
 
   build-windows-msvc:
     name: Build Windows (MSVC x86_64)
+    if: 'false' # disabled due to memory constraints
     runs-on: windows-2019
     env:
       LLVM_VERSION: 10.0.1
