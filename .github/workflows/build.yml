@@ -34,10 +34,9 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get -y install build-essential curl git cmake ninja-build llvm-dev libclang-dev clang lld \
+          sudo apt-get -y install curl git cmake ninja-build clang lld qt5-default libcurl4-openssl-dev \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
-            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default \
-            libcurl4-openssl-dev
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3
           # free up disk space
           # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
           echo Before
@@ -50,21 +49,23 @@ jobs:
           echo After
           df -h .
 
-      - name: Create build directory
-        run: cmake -E make_directory ${{github.workspace}}/build
-
       - name: Configure CMake
-        working-directory: ${{github.workspace}}/build
         run: |
-          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+          cmake -B build . -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/install" \
             -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}}
 
       - name: Build
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build .
+        run: cmake --build build --config RelWithDebInfo --target install
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.cc}}-x86_64
+          path: install
 
   build-macos:
-    name: Build macOS (AppleClang x86_64)
+    name: Build macOS (AppleClang universal)
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
@@ -75,29 +76,34 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install ninja qt@5 graphicsmagick imagemagick
-          brew link qt@5
+          brew install ninja graphicsmagick imagemagick
           yarn global add create-dmg
-
-      - name: Create build directory
-        run: cmake -E make_directory ${{github.workspace}}/build
+          # universal qt5 from macports
+          curl -LSfs https://axiodl.com/files/qt5-5.15.2.mkpkg -o /tmp/qt5-5.15.2.mkpkg
+          sudo installer -pkg /tmp/qt5-5.15.2.mkpkg -target /
 
       - name: Configure CMake
-        working-directory: ${{github.workspace}}/build
         run: |
-          export PATH="/usr/local/opt/qt@5/bin:$PATH" # FIXME remove
-          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake -B build . -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/install" \
+            -DQt5Widgets_DIR=/opt/local/libexec/qt5/lib/cmake/Qt5Widgets \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
+            -DPNG_DIR=/opt/local/lib
 
       - name: Build
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build .
+        run: cmake --build build --config RelWithDebInfo --target install
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-x86_64
+          path: install
 
   build-windows-msvc:
     name: Build Windows (MSVC x86_64)
     if: 'false' # disabled due to memory constraints
     runs-on: windows-2019
     env:
-      LLVM_VERSION: 10.0.1
       Qt_VERSION: 5.15.2
       IPP_VERSION: 2021.2.0.210
     steps:
@@ -105,14 +111,6 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-
-      - name: Install LLVM
-        run: |
-          $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "LLVM-$env:LLVM_VERSION-win64.exe"
-          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
-          Start-Process "$TempDir\$Filename" -ArgumentList "/S /D=$env:RUNNER_WORKSPACE\LLVM" -Wait
 
       - name: Install vcpkg Qt
         run: |
@@ -132,24 +130,27 @@ jobs:
         run: cmake -E make_directory ${{github.workspace}}/build
 
       - name: Configure CMake
-        working-directory: ${{github.workspace}}/build
         run: |
           $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
-          cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+          cmake -B build . -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+            -DCMAKE_INSTALL_PREFIX:PATH="$env:GITHUB_WORKSPACE\install" `
             -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
             -DVCPKG_TARGET_TRIPLET=x64-windows-static `
-            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= `
-            -DLLVM_ROOT_DIR="$workspace/LLVM"
+            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
 
       - name: Build
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build .
+        run: cmake --build build --config RelWithDebInfo --target install
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-win32-msvc-x86_64
+          path: install
 
   build-windows-clang:
     name: Build Windows (Clang x86_64)
     runs-on: windows-2019
     env:
-      LLVM_VERSION: 10.0.1
       Qt_VERSION: 5.15.2
       IPP_VERSION: 2021.2.0.210
     steps:
@@ -157,14 +158,6 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-
-      - name: Install LLVM
-        run: |
-          $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "LLVM-$env:LLVM_VERSION-win64.exe"
-          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
-          Start-Process "$TempDir\$Filename" -ArgumentList "/S /D=$env:RUNNER_WORKSPACE\LLVM" -Wait
 
       - name: Install vcpkg Qt
         run: |
@@ -180,22 +173,24 @@ jobs:
       - name: Enable Visual Studio environment
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Create build directory
-        run: cmake -E make_directory ${{github.workspace}}/build
-
       - name: Configure CMake
         working-directory: ${{github.workspace}}/build
         run: |
           $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
-          cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+          cmake -B build . -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+            -DCMAKE_INSTALL_PREFIX:PATH="$env:GITHUB_WORKSPACE/install" `
             -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
             -DVCPKG_TARGET_TRIPLET=x64-windows-static `
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
             -DCMAKE_C_COMPILER=clang-cl `
             -DCMAKE_CXX_COMPILER=clang-cl `
-            -DCMAKE_LINKER=lld-link `
-            -DLLVM_ROOT_DIR="$workspace/LLVM"
+            -DCMAKE_LINKER=lld-link
 
       - name: Build
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build .
+        run: cmake --build build --config RelWithDebInfo --target install
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-win32-clang-x86_64
+          path: install

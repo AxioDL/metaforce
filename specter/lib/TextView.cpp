@@ -1,7 +1,7 @@
 #include "specter/RootView.hpp"
 #include "specter/TextView.hpp"
 #include "specter/ViewResources.hpp"
-#include "utf8proc.h"
+#include "athena/utf8proc.h"
 #include "hecl/Pipeline.hpp"
 
 #include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
