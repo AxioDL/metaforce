@@ -153,25 +153,25 @@ void CPhazonPool::Think(float dt, CStateManager& mgr) {
         x1c4_ = 0.f;
         dVar5 = dt;
       }
-      x1a0_ -= x1bc_ * (dt * x1cc_) + dVar5;
-      x1a4_ = x1a0_ / x19c_;
-      if (x1a4_ < 0.001f) {
-        if (x1e0_24_) {
-          shouldFree = true;
-        } else {
-          SetCallTouch(false);
-          if (x1e0_25_) {
-            x1dc_ = 0;
-            SetActive(false);
-          } else {
-            x1dc_ = 3;
-            x1d0_ = x1c8_;
-          }
-        }
-        SetEmitParticles(false);
-      }
-      x1cc_ = 0.f;
     }
+    x1a0_ -= x1bc_ * (dt * x1cc_) + dVar5;
+    x1a4_ = x1a0_ / x19c_;
+    if (x1a4_ < 0.001f) {
+      if (x1e0_24_) {
+        shouldFree = true;
+      } else {
+        SetCallTouch(false);
+        if (x1e0_25_) {
+          x1dc_ = 0;
+          SetActive(false);
+        } else {
+          x1dc_ = 3;
+          x1d0_ = x1c8_;
+        }
+      }
+      SetEmitParticles(false);
+    }
+    x1cc_ = 0.f;
   } else if (x1dc_ == 3) {
     x1d0_ -= dt;
     if (x1d0_ <= 0.f) {
@@ -180,6 +180,7 @@ void CPhazonPool::Think(float dt, CStateManager& mgr) {
     }
   }
   if (shouldFree) {
+    fmt::print(FMT_STRING("Freeing myself! ({})"), GetUniqueId());
     mgr.FreeScriptObject(GetUniqueId());
   }
 }

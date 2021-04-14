@@ -26,8 +26,9 @@ CPhazonBeam::CPhazonBeam(CAssetId characterId, EWeaponType type, TUniqueId playe
 
 void CPhazonBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   TAreaId aid = mgr.GetPlayer().GetAreaIdAlways();
-  if (msg == EScriptObjectMessage::Deleted && aid != kInvalidAreaId)
+  if (msg == EScriptObjectMessage::Deleted && aid != kInvalidAreaId) {
     mgr.GetWorld()->GetArea(aid)->SetWeaponWorldLighting(4.f, 1.f);
+  }
 }
 
 void CPhazonBeam::StopBeam(CStateManager& mgr, bool b1) {
@@ -37,8 +38,9 @@ void CPhazonBeam::StopBeam(CStateManager& mgr, bool b1) {
 
 void CPhazonBeam::UpdateBeam(float dt, const zeus::CTransform& targetXf, const zeus::CVector3f& localBeamPos,
                              CStateManager& mgr) {
-  if (x234_chargeFxGen)
+  if (x234_chargeFxGen) {
     x234_chargeFxGen->SetParticleEmission(IsFiring());
+  }
   CGunWeapon::UpdateMuzzleFx(dt, x4_scale, localBeamPos, IsFiring());
 }
 
@@ -61,8 +63,9 @@ void CPhazonBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransfor
 }
 
 void CPhazonBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
-  if (x234_chargeFxGen)
+  if (x234_chargeFxGen) {
     x234_chargeFxGen->Render();
+  }
   CGunWeapon::PostRenderGunFx(mgr, xf);
 }
 
@@ -101,10 +104,11 @@ void CPhazonBeam::Update(float dt, CStateManager& mgr) {
   TAreaId aid = mgr.GetPlayer().GetAreaIdAlways();
   if (aid != kInvalidAreaId) {
     CGameArea* area = mgr.GetWorld()->GetArea(aid);
-    if (x278_fireTime > 1.f / 6.f)
+    if (x278_fireTime > 1.f / 6.f) {
       area->SetWeaponWorldLighting(4.f, 1.f);
-    else
+    } else {
       area->SetWeaponWorldLighting(4.f, 0.9f);
+    }
   }
 
   if (!IsLoaded()) {
@@ -118,17 +122,17 @@ void CPhazonBeam::Update(float dt, CStateManager& mgr) {
         x274_25_clipWipeActive = true;
       }
     }
-  }
-
-  if (x274_25_clipWipeActive) {
+  } else if (x274_25_clipWipeActive) {
     x268_clipWipeScale += 0.75f * dt;
-    if (x268_clipWipeScale > 1.f)
+    if (x268_clipWipeScale > 1.f) {
       x268_clipWipeScale = 1.f;
+    }
     if (x268_clipWipeScale > 0.4f) {
-      if (x26c_clipWipeTranslate < 0.5f)
+      if (x26c_clipWipeTranslate < 0.5f) {
         x26c_clipWipeTranslate += 0.75f * dt;
-      else
+      } else {
         x274_25_clipWipeActive = false;
+      }
     }
   } else if (x274_26_veinsAlphaActive) {
     x270_indirectAlpha = x10_solidModelData->GetLocatorTransform("phazonScale_LCTR_SDK").origin.y();
@@ -212,8 +216,10 @@ void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::C
 }
 
 void CPhazonBeam::DrawMuzzleFx(const CStateManager& mgr) const {
-  if (IsFiring())
-    CGunWeapon::DrawMuzzleFx(mgr);
+  if (!IsFiring()) {
+    return;
+  }
+  CGunWeapon::DrawMuzzleFx(mgr);
 }
 
 } // namespace metaforce
