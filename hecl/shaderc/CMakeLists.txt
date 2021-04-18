@@ -72,6 +72,7 @@ endif ()
 # two step: --target shaderc, --target install
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 
+add_custom_target(atdna) # avoid building
 add_subdirectory(../../extern/athena athena)
 add_subdirectory(../../extern/boo boo)
 

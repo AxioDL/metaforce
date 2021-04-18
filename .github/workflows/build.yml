@@ -100,8 +100,8 @@ jobs:
           brew install ninja graphicsmagick imagemagick ccache
           yarn global add create-dmg
           # universal qt5 from macports
-          curl -LSfs https://axiodl.com/files/qt5-$Qt_VERSION.mkpkg -o /tmp/qt5-$Qt_VERSION.mkpkg
-          sudo installer -pkg /tmp/qt5-$Qt_VERSION.mkpkg -target /
+          curl -LSfs https://axiodl.com/files/qt-$Qt_VERSION.mpkg -o /tmp/qt-$Qt_VERSION.mpkg
+          sudo installer -pkg /tmp/qt-$Qt_VERSION.mpkg -target /
 
       - name: Install Intel IPP
         run: |
