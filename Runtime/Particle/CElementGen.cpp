@@ -213,22 +213,7 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
     m_shaderClass = CElementGenShaders::GetShaderClass(*this);
   }
 
-  // HACK: For now force maxInsts to be 2560
-  size_t maxInsts = 2560; // (x270_MBSP * x90_MAXP) : x90_MAXP;
-  maxInsts = (maxInsts == 0 ? 256 : maxInsts);
-
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    if (!x26c_31_LINE) {
-      m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
-      m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-    }
-    if (desc->x45_24_x31_26_PMUS) {
-      m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
-      m_uniformBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-    }
-    CElementGenShaders::BuildShaderDataBinding(ctx, *this);
-    return true;
-  } BooTrace);
+  _RecreatePipelines();
 }
 
 CElementGen::~CElementGen() {
@@ -237,6 +222,7 @@ CElementGen::~CElementGen() {
 }
 
 bool CElementGen::Update(double t) {
+  s32 oldMax = x90_MAXP;
   CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::instance()->m_currentParticleSystem;
   CParticleGlobals::SParticleSystem thisSystem{FOURCC('PART'), this};
   CParticleGlobals::instance()->m_currentParticleSystem = &thisSystem;
@@ -251,7 +237,28 @@ bool CElementGen::Update(double t) {
   }
   bool ret = InternalUpdate(t);
   CParticleGlobals::instance()->m_currentParticleSystem = prevSystem;
+
+  if (oldMax != x90_MAXP) {
+    _RecreatePipelines();
+  }
   return ret;
+}
+void CElementGen::_RecreatePipelines() {
+  size_t maxInsts = x26c_30_MBLR ? (x270_MBSP * x90_MAXP) : x90_MAXP;
+  maxInsts = (maxInsts == 0 ? 256 : maxInsts);
+
+  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+    if (!x26c_31_LINE) {
+      m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
+      m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
+    }
+    if (x28_loadedGenDesc->x45_24_x31_26_PMUS) {
+      m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
+      m_uniformBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
+    }
+    CElementGenShaders::BuildShaderDataBinding(ctx, *this);
+    return true;
+  } BooTrace);
 }
 
 bool CElementGen::InternalUpdate(double dt) {
@@ -812,6 +819,14 @@ u32 CElementGen::GetSystemCount() const {
 }
 
 void CElementGen::Render(const CActorLights* actorLights) {
+  // Check to make sure our buffers are ready to render
+  if (!x26c_31_LINE && (!m_instBuf || !m_uniformBuf)) {
+    return;
+  }
+  if (x28_loadedGenDesc->x45_24_x31_26_PMUS && (!m_instBufPmus || !m_uniformBufPmus)) {
+    return;
+  }
+
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::Render {}"),
     *x1c_genDesc.GetObjectTag()).c_str(), zeus::skYellow);
 
@@ -842,6 +857,14 @@ void CElementGen::Render(const CActorLights* actorLights) {
 }
 
 void CElementGen::RenderModels(const CActorLights* actorLights) {
+  // Check to make sure our buffers are ready to render
+  if (!x26c_31_LINE && (!m_instBuf || !m_uniformBuf)) {
+    return;
+  }
+  if (x28_loadedGenDesc->x45_24_x31_26_PMUS && (!m_instBufPmus || !m_uniformBufPmus)) {
+    return;
+  }
+
   CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
   if (x26d_26_modelsUseLights)
     CGraphics::SetLightState(x274_backupLightActive);

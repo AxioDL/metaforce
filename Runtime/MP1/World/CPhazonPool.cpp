@@ -180,7 +180,6 @@ void CPhazonPool::Think(float dt, CStateManager& mgr) {
     }
   }
   if (shouldFree) {
-    fmt::print(FMT_STRING("Freeing myself! ({})"), GetUniqueId());
     mgr.FreeScriptObject(GetUniqueId());
   }
 }

@@ -134,6 +134,7 @@ private:
 
   void AccumulateBounds(const zeus::CVector3f& pos, float size);
 
+  void _RecreatePipelines();
 public:
   explicit CElementGen(TToken<CGenDescription> gen, EModelOrientationType orientType = EModelOrientationType::Normal,
                        EOptionalSystemFlags flags = EOptionalSystemFlags::One);
