@@ -9,6 +9,7 @@ if (APPLE)
   endif()
 elseif (NOT WIN32 AND NOT NX) # remove WIN32 when specter/freetype is gone
   find_package(PNG REQUIRED)
+  set(PNG_LIBRARIES PNG::PNG)
 endif ()
 if (NOT PNG_LIBRARIES)
   message(STATUS "Using HECL's built-in libpng")
