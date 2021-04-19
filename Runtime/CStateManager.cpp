@@ -780,6 +780,7 @@ void CStateManager::DrawWorld() {
   g_Renderer->SetThermalColdScale(xf28_thermColdScale2 + xf24_thermColdScale1);
 
   for (int i = areaCount - 1; i >= 0; --i) {
+    OPTICK_EVENT("CStateManager::DrawWorld DrawArea");
     const CGameArea& area = *areaArr[i];
     SetupFogForArea(area);
     g_Renderer->EnablePVS(pvsArr[i], area.x4_selfIdx);
@@ -1472,6 +1473,7 @@ void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector
 
 std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, EScriptObjectType type, u32 length,
                                                                 CInputStream& in) {
+  OPTICK_EVENT();
   const TEditorId id = in.readUint32Big();
   const u32 connCount = in.readUint32Big();
   length -= 8;

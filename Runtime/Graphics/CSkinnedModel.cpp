@@ -53,6 +53,7 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, const CModelFlags& 
 }
 
 void CSkinnedModel::Draw(const CModelFlags& drawFlags) const {
+  OPTICK_EVENT();
   if (m_modelInst->TryLockTextures())
     m_modelInst->DrawSurfaces(drawFlags);
 }

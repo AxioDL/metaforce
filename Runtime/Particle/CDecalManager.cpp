@@ -93,6 +93,7 @@ void CDecalManager::Update(float dt, CStateManager& mgr) {
 
 void CDecalManager::AddDecal(const TToken<CDecalDescription>& decal, const zeus::CTransform& xf, bool notIce,
                              CStateManager& mgr) {
+  OPTICK_EVENT();
   if (m_LastDecalCreatedIndex != -1 && m_DeltaTimeSinceLastDecalCreation < 0.75f &&
       m_LastDecalCreatedAssetId == decal.GetObjectTag()->id) {
     SDecal& existingDecal = m_DecalPool[m_LastDecalCreatedIndex];

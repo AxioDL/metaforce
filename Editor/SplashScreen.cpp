@@ -50,6 +50,7 @@ void SplashScreen::think() {
       m_fileBrowser.m_view.reset();
     return;
   }
+  OPTICK_EVENT();
 
   ModalWindow::think();
   if (m_fileBrowser.m_view)

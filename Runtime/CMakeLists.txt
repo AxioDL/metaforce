@@ -133,7 +133,7 @@ endfunction()
 
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 set(RUNTIME_LIBRARIES ${HECL_APPLICATION_REPS_TARGETS_LIST} RetroDataSpec AssetNameMapNull NESEmulator
-        libjpeg-turbo jbus kabufuda discord-rpc logvisor)
+        libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore)
 
 if(MSVC)
   # WTF MS???? LINK.EXE is unable to address static libraries larger than 4GB.

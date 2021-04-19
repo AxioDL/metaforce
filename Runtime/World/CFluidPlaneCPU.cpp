@@ -129,6 +129,7 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManag
                                                                const zeus::CTransform& xf,
                                                                const zeus::CTransform& areaXf, const zeus::CAABox& aabb,
                                                                const CScriptWater* water) {
+  OPTICK_EVENT();
   CFluidPlaneShader::RenderSetupInfo out;
 
   const float uvT = mgr.GetFluidPlaneManager()->GetUVT();

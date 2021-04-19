@@ -25,6 +25,7 @@ CSkinRules::CSkinRules(CInputStream& in) {
 
 void CSkinRules::TransformVerticesCPU(std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vnOut,
                                       const CPoseAsTransforms& pose, const CModel& model) const {
+  OPTICK_EVENT();
   vnOut.resize(m_poolToSkinIdx.size());
   for (size_t i = 0; i < m_poolToSkinIdx.size(); ++i) {
     const CVirtualBone& vb = m_virtualBones[m_poolToSkinIdx[i]];
