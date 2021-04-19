@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CCinematicCamera::CCinematicCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                    const zeus::CTransform& xf, bool active, float shotDuration, float fovy, float znear,
@@ -454,4 +454,4 @@ void CCinematicCamera::CalculateWaypoints(CStateManager& mgr) {
 void CCinematicCamera::SendArrivedMsg(TUniqueId reciever, CStateManager& mgr) {
   mgr.SendScriptMsgAlways(reciever, GetUniqueId(), EScriptObjectMessage::Arrived);
 }
-} // namespace urde
+} // namespace metaforce

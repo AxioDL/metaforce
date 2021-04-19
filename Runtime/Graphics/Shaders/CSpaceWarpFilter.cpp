@@ -6,7 +6,7 @@
 
 #include "CSpaceWarpFilter.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 struct CSpaceWarpFilterPipeline
@@ -168,4 +168,4 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt) {
   m_dataBind.draw(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

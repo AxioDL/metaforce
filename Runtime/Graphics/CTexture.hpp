@@ -9,7 +9,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
-namespace urde {
+namespace metaforce {
 class CVParamTransfer;
 class CTextureInfo;
 
@@ -81,7 +81,7 @@ public:
   const CTextureInfo* GetTextureInfo() const { return m_textureInfo; }
 };
 
-CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                                 const urde::CVParamTransfer& vparms, CObjectReference* selfRef);
+CFactoryFnReturn FTextureFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                                 const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce

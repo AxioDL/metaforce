@@ -2,8 +2,9 @@
 
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStopwatch.hpp"
+#include "optick.h"
 
-namespace urde {
+namespace metaforce {
 static logvisor::Module Log("CResFactory");
 
 void CResFactory::AddToLoadList(SLoadingData&& data) {
@@ -33,6 +34,7 @@ CFactoryFnReturn CResFactory::BuildSync(const SObjectTag& tag, const CVParamTran
 }
 
 bool CResFactory::PumpResource(SLoadingData& data) {
+  OPTICK_EVENT();
   if (data.x8_dvdReq && data.x8_dvdReq->IsComplete()) {
     data.x8_dvdReq.reset();
     *data.xc_targetPtr =
@@ -74,11 +76,12 @@ void CResFactory::BuildAsync(const SObjectTag& tag, const CVParamTransfer& xfer,
 }
 
 void CResFactory::AsyncIdle() {
+  OPTICK_EVENT();
   if (m_loadList.empty())
     return;
   auto startTime = std::chrono::steady_clock::now();
   while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count() <
-         2) {
+         5) {
     auto& task = m_loadList.front();
     if (PumpResource(task)) {
       m_loadMap.erase(task.x0_tag);
@@ -112,4 +115,4 @@ void CResFactory::LoadPersistentResources(CSimplePool& sp) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

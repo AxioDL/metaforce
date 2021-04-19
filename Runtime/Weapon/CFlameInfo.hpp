@@ -3,7 +3,7 @@
 #include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/IOStreams.hpp"
 
-namespace urde {
+namespace metaforce {
 class CFlameInfo {
   friend class CFlameThrower;
   s32 x0_propertyCount;
@@ -23,4 +23,4 @@ public:
   [[nodiscard]] s32 GetLength() const { return xc_length; }
   [[nodiscard]] CAssetId GetFlameFxId() const { return x8_flameFxId; }
 };
-} // namespace urde
+} // namespace metaforce

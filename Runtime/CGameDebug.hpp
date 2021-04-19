@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace urde {
+namespace metaforce {
 struct CFinalInput;
 
 const char* StringForControlOption(int);
@@ -39,4 +39,4 @@ public:
   void AddDebugOption(const CDebugOption&);
 };
 
-} // namespace urde
+} // namespace metaforce

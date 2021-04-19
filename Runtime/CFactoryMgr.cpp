@@ -4,11 +4,12 @@
 #include <array>
 #include <cctype>
 #include <iterator>
+#include "optick.h"
 
 #include "Runtime/CStopwatch.hpp"
 #include "Runtime/IObj.hpp"
 
-namespace urde {
+namespace metaforce {
 constexpr std::array TypeTable{
     FOURCC('CLSN'), FOURCC('CMDL'), FOURCC('CSKR'), FOURCC('ANIM'), FOURCC('CINF'), FOURCC('TXTR'), FOURCC('PLTT'),
     FOURCC('FONT'), FOURCC('ANCS'), FOURCC('EVNT'), FOURCC('MADF'), FOURCC('MLVL'), FOURCC('MREA'), FOURCC('MAPW'),
@@ -18,7 +19,7 @@ constexpr std::array TypeTable{
     FOURCC('HINT'), FOURCC('MAPU'), FOURCC('DUMB'), FOURCC('OIDS'),
 };
 
-CFactoryFnReturn CFactoryMgr::MakeObject(const SObjectTag& tag, urde::CInputStream& in,
+CFactoryFnReturn CFactoryMgr::MakeObject(const SObjectTag& tag, metaforce::CInputStream& in,
                                          const CVParamTransfer& paramXfer, CObjectReference* selfRef) {
   auto search = m_factories.find(tag.type);
   if (search == m_factories.end())
@@ -27,7 +28,7 @@ CFactoryFnReturn CFactoryMgr::MakeObject(const SObjectTag& tag, urde::CInputStre
   return search->second(tag, in, paramXfer, selfRef);
 }
 
-bool CFactoryMgr::CanMakeMemory(const urde::SObjectTag& tag) const {
+bool CFactoryMgr::CanMakeMemory(const metaforce::SObjectTag& tag) const {
   auto search = m_memFactories.find(tag.type);
   return search != m_memFactories.cend();
 }
@@ -35,6 +36,7 @@ bool CFactoryMgr::CanMakeMemory(const urde::SObjectTag& tag) const {
 CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::unique_ptr<u8[]>&& buf, int size,
                                                    bool compressed, const CVParamTransfer& paramXfer,
                                                    CObjectReference* selfRef) {
+  OPTICK_EVENT();
   std::unique_ptr<u8[]> localBuf = std::move(buf);
 
   const auto memFactoryIter = m_memFactories.find(tag.type);
@@ -81,4 +83,4 @@ CFactoryMgr::ETypeTable CFactoryMgr::FourCCToTypeIdx(FourCC fcc) {
 
 FourCC CFactoryMgr::TypeIdxToFourCC(ETypeTable fcc) { return TypeTable[size_t(fcc)]; }
 
-} // namespace urde
+} // namespace metaforce

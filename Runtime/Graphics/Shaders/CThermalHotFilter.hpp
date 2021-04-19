@@ -5,7 +5,7 @@
 #include "hsh/hsh.h"
 #include "zeus/CColor.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CThermalHotFilter {
 public:
@@ -31,4 +31,4 @@ public:
   void draw();
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -16,7 +16,7 @@
 #include "Runtime/World/CScriptPlayerActor.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-namespace urde {
+namespace metaforce {
 
 static bool IsMediumOrLarge(const CActor& act) {
   if (const TCastToConstPtr<CPatterned> pat = act) {
@@ -686,4 +686,4 @@ void CActorModelParticles::Render(const CStateManager& mgr, const CActor& actor)
   CGraphics::SetModelMatrix(backupModel);
 }
 
-} // namespace urde
+} // namespace metaforce

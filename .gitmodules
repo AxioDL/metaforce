@@ -1,42 +1,56 @@
-[submodule "hecl"]
-	path = hecl
-	url = ../hecl.git
 [submodule "nod"]
-	path = nod
+	path = extern/nod
 	url = ../nod.git
+	branch = master
 [submodule "amuse"]
-	path = amuse
+	path = extern/amuse
 	url = ../amuse.git
+	branch = master
 [submodule "kabufuda"]
-	path = kabufuda
+	path = extern/kabufuda
 	url = ../kabufuda.git
+	branch = master
 [submodule "jbus"]
-	path = jbus
+	path = extern/jbus
 	url = ../jbus.git
+	branch = master
 [submodule "assetnameparser/tinyxml2"]
-	path = assetnameparser/tinyxml2
+	path = extern/tinyxml2
 	url = ../tinyxml2.git
-[submodule "hecl-gui"]	
-	path = hecl-gui
-	url = ../hecl-gui.git
+	branch = master
 [submodule "sanitizers-cmake"]
-	path = sanitizers-cmake
+	path = extern/sanitizers-cmake
 	url = https://github.com/arsenm/sanitizers-cmake.git
+	branch = master
 [submodule "discord-rpc"]
-	path = discord-rpc
+	path = extern/discord-rpc
 	url = https://github.com/discordapp/discord-rpc.git
+	branch = master
 [submodule "rapidjson"]
-	path = rapidjson
+	path = extern/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+	branch = master
 [submodule "NESEmulator/fixNES"]
-	path = NESEmulator/fixNES
+	path = extern/fixNES
 	url = https://github.com/FIX94/fixNES.git
-[submodule "Editor/locale"]
-	path = Editor/locale
-	url = ../urde-translations.git
-[submodule "boo2"]
-	path = boo2
+	branch = master
+[submodule "extern/libSquish"]
+	path = extern/libSquish
+	url = ../libSquish.git
+	branch = master
+[submodule "extern/athena"]
+	path = extern/athena
+	url = ../../libAthena/athena.git
+	branch = master
+[submodule "extern/boo2"]
+	path = extern/boo2
 	url = ../boo2.git
+	branch = master
+[submodule "extern/libjpeg-turbo"]
+	path = extern/libjpeg-turbo
+	url = ../libjpeg-turbo.git
+	branch = thp
 [submodule "zeus"]
-	path = zeus
+	path = extern/zeus
 	url = ../zeus.git
+	branch = master

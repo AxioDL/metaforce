@@ -29,7 +29,7 @@
 #include "Runtime/MP1/CSlideShow.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 #define FE_USE_SECONDS_IN_ELAPSED 1
 
@@ -2320,4 +2320,4 @@ CIOWin::EMessageReturn CFrontEndUI::OnMessage(const CArchitectureMessage& msg, C
   return EMessageReturn::Normal;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -2,7 +2,7 @@
 
 #include "Runtime/CRandom16.hpp"
 
-namespace urde {
+namespace metaforce {
 static CRandom16 sRippleRandom(0xABBA);
 
 CRipple::CRipple(TUniqueId id, const zeus::CVector3f& center, float intensity) : x0_id(id), x8_center(center) {
@@ -21,4 +21,4 @@ CRipple::CRipple(TUniqueId id, const zeus::CVector3f& center, float intensity) :
   x34_phase = 1.f / x30_ooPhase;
   x38_lookupPhase = 256.f * x34_phase;
 }
-} // namespace urde
+} // namespace metaforce

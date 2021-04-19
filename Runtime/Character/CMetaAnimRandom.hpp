@@ -7,7 +7,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Character/IMetaAnim.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CMetaAnimRandom : public IMetaAnim {
   using RandomData = std::vector<std::pair<std::shared_ptr<IMetaAnim>, u32>>;
@@ -23,4 +23,4 @@ public:
                                                    const CMetaAnimTreeBuildOrders& orders) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

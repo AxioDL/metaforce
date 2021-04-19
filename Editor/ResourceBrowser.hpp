@@ -5,7 +5,7 @@
 #include "specter/PathButtons.hpp"
 #include "specter/Table.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class ResourceBrowser : public Space, public specter::IPathButtonsBinding {
   struct State : Space::State {
@@ -202,4 +202,4 @@ public:
   unsigned toolbarUnits() const override { return 2; }
 };
 
-} // namespace urde
+} // namespace metaforce

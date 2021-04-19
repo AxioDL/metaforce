@@ -4,7 +4,7 @@
 
 #include "hsh/hsh.h"
 
-namespace urde {
+namespace metaforce {
 class CParticleSwoosh;
 
 class CParticleSwooshShaders {
@@ -25,4 +25,4 @@ public:
   static void BuildShaderDataBinding(CParticleSwoosh& gen);
 };
 
-} // namespace urde
+} // namespace metaforce

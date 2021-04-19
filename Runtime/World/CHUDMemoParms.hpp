@@ -2,7 +2,7 @@
 
 #include "Runtime/IOStreams.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CHUDMemoParms {
   float x0_dispTime = 0.f;
@@ -25,4 +25,4 @@ public:
   bool IsHintMemo() const { return x6_hintMemo; }
 };
 
-} // namespace urde
+} // namespace metaforce

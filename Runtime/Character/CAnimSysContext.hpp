@@ -7,7 +7,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/Character/CTransitionDatabaseGame.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSimplePool;
 
 struct CAnimSysContext {
@@ -19,4 +19,4 @@ struct CAnimSysContext {
   : x0_transDB(std::move(transDB)), x8_random(std::make_shared<CRandom16>(randomSeed)), xc_store(store) {}
 };
 
-} // namespace urde
+} // namespace metaforce

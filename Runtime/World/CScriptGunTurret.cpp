@@ -18,7 +18,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr CMaterialList skGunMaterialList = {EMaterialTypes::Solid, EMaterialTypes::Character, EMaterialTypes::Orbit,
                                              EMaterialTypes::Target};
@@ -279,7 +279,7 @@ void CScriptGunTurret::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
     break;
   }
   case EScriptObjectMessage::Damage: {
-    if (x258_type == ETurretComponent::Gun && GetHealthInfo(mgr)->GetHP() > 0.f) {
+    if (x258_type == ETurretComponent::Gun && GetHealthInfo(mgr)->GetHP() <= 0.f) {
       if (const TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(uid)) {
         if ((proj->GetAttribField() & EProjectileAttrib::Wave) == EProjectileAttrib::Wave) {
           x520_state = ETurretState::Frenzy;
@@ -439,10 +439,11 @@ void CScriptGunTurret::LaunchProjectile(CStateManager& mgr) {
                                      GetAreaIdAlways(), GetUniqueId(), kInvalidUniqueId, EProjectileAttrib::None, false,
                                      zeus::skOne3f, x458_visorEffectDesc, x2d4_data.GetVisorSoundId(), false);
   mgr.AddObject(proj);
-  const auto pair =
-      x64_modelData->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
-          CPASAnimParmData(18, CPASAnimParm::FromEnum(1), CPASAnimParm::FromReal32(90.f),
-                           CPASAnimParm::FromEnum(skStateToLocoTypeLookup[size_t(x520_state)])), -1);
+  const auto pair = x64_modelData->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
+      CPASAnimParmData(pas::EAnimationState::ProjectileAttack, CPASAnimParm::FromEnum(1),
+                       CPASAnimParm::FromReal32(90.f),
+                       CPASAnimParm::FromEnum(skStateToLocoTypeLookup[size_t(x520_state)])),
+      -1);
   if (pair.first > 0.f) {
     x64_modelData->EnableLooping(false);
     x64_modelData->GetAnimationData()->SetAnimation(CAnimPlaybackParms(pair.second, -1, 1.f, true), false);
@@ -451,7 +452,7 @@ void CScriptGunTurret::LaunchProjectile(CStateManager& mgr) {
 
 void CScriptGunTurret::PlayAdditiveFlinchAnimation(CStateManager& mgr) {
   const auto pair = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
-      CPASAnimParmData(23), *mgr.GetActiveRandom(), -1);
+      CPASAnimParmData(pas::EAnimationState::AdditiveFlinch), *mgr.GetActiveRandom(), -1);
   if (pair.first > 0.f) {
     GetModelData()->GetAnimationData()->AddAdditiveAnimation(pair.second, 1.f, false, true);
   }
@@ -727,7 +728,7 @@ void CScriptGunTurret::UpdateTurretAnimation() {
     return;
   }
 
-  const auto parmData = CPASAnimParmData(5, CPASAnimParm::FromEnum(0),
+  const auto parmData = CPASAnimParmData(pas::EAnimationState::Locomotion, CPASAnimParm::FromEnum(0),
                                          CPASAnimParm::FromEnum(skStateToLocoTypeLookup[size_t(x520_state)]));
   const auto pair =
       GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(parmData, -1);
@@ -1214,7 +1215,8 @@ void CScriptGunTurret::PlayAdditiveChargingAnimation(CStateManager& mgr) {
     }
 
     const auto pair = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
-        CPASAnimParmData(24, CPASAnimParm::FromEnum(2)), *mgr.GetActiveRandom(), -1);
+        CPASAnimParmData(pas::EAnimationState::AdditiveReaction, CPASAnimParm::FromEnum(2)), *mgr.GetActiveRandom(),
+        -1);
     if (pair.first > 0.f) {
       x55c_additiveChargeAnim = pair.second;
       GetModelData()->GetAnimationData()->AddAdditiveAnimation(pair.second, 1.f, true, false);
@@ -1304,4 +1306,4 @@ bool CScriptGunTurret::IsInsignificantRotation(float dt) const {
          zeus::degToRad(2.f) * dt;
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -2,7 +2,7 @@
 
 #include "Runtime/Collision/ICollisionFilter.hpp"
 
-namespace urde {
+namespace metaforce {
 class CCollisionInfoList;
 
 class CAABoxFilter : public ICollisionFilter {
@@ -12,4 +12,4 @@ public:
   static void FilterBoxFloorCollisions(const CCollisionInfoList& in, CCollisionInfoList& out);
 };
 
-} // namespace urde
+} // namespace metaforce

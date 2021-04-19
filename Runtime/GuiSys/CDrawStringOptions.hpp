@@ -4,7 +4,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CDrawStringOptions {
   friend class CColorOverrideInstruction;
@@ -21,4 +21,4 @@ public:
   CDrawStringOptions() : x4_colors(16) {}
 };
 
-} // namespace urde
+} // namespace metaforce

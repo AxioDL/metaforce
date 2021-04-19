@@ -8,7 +8,7 @@
 
 #include "Graphics/CGraphics.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CMoviePlayer : public CDvdFile {
 public:
@@ -147,4 +147,4 @@ public:
   static void Shutdown();
 };
 
-} // namespace urde
+} // namespace metaforce

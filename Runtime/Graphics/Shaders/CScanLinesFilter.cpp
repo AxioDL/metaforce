@@ -7,7 +7,7 @@
 
 #include "CScanLinesFilter.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 template <EFilterType Type>
@@ -41,4 +41,4 @@ void CScanLinesFilter::draw(const zeus::CColor& color) {
   m_dataBind.draw(0, 670);
 }
 
-} // namespace urde
+} // namespace metaforce

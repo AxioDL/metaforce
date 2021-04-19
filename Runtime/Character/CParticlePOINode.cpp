@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CAnimSourceReader.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CParticlePOINode::CParticlePOINode() : CPOINode("root", EPOIType::Particle, CCharAnimTime(), -1, false, 1.f, -1, 0) {}
 
@@ -15,4 +15,4 @@ CParticlePOINode CParticlePOINode::CopyNodeMinusStartTime(const CParticlePOINode
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

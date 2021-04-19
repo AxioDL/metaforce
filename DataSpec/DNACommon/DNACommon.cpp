@@ -3,7 +3,7 @@
 
 namespace DataSpec {
 
-logvisor::Module LogDNACommon("urde::DNACommon");
+logvisor::Module LogDNACommon("DataSpec::DNACommon");
 thread_local SpecBase* g_curSpec;
 thread_local PAKRouterBase* g_PakRouter;
 thread_local hecl::blender::Token* g_ThreadBlenderToken;

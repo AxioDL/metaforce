@@ -6,7 +6,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 
-namespace urde {
+namespace metaforce {
 class CFontImageDef;
 class CTextExecuteBuffer;
 
@@ -32,4 +32,4 @@ public:
                  const std::vector<std::pair<CAssetId, CAssetId>>* txtrMap);
 };
 
-} // namespace urde
+} // namespace metaforce

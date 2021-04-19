@@ -7,7 +7,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CBeamProjectile : public CGameProjectile {
 public:
   enum class EDamageType {
@@ -66,4 +66,4 @@ public:
   virtual void UpdateFx(const zeus::CTransform&, float, CStateManager&);
   virtual void Fire(const zeus::CTransform&, CStateManager&, bool) = 0;
 };
-} // namespace urde
+} // namespace metaforce

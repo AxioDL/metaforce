@@ -4,7 +4,7 @@
 #include "Runtime/Collision/CCollidableCollisionSurface.hpp"
 #include "Runtime/Collision/CCollidableSphere.hpp"
 
-namespace urde::InternalColliders {
+namespace metaforce::InternalColliders {
 void AddTypes() {
   CCollisionPrimitive::InitAddType(CCollidableAABox::GetType());
   CCollisionPrimitive::InitAddType(CCollidableCollisionSurface::GetType());
@@ -27,4 +27,4 @@ void AddColliders() {
   CCollisionPrimitive::InitAddMovingCollider(CCollidableSphere::CollideMovingSphere, "CCollidableSphere",
                                              "CCollidableSphere");
 }
-} // namespace urde::InternalColliders
+} // namespace metaforce::InternalColliders

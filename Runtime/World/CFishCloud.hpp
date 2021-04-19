@@ -9,7 +9,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CFishCloud : public CActor {
   class CBoid {
@@ -150,4 +150,4 @@ public:
   bool AddAttractor(TUniqueId source, bool swirl, float radius, float priority);
 };
 
-} // namespace urde
+} // namespace metaforce

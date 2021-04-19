@@ -7,7 +7,7 @@
 
 #include "hsh/hsh.h"
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 class CXRayBlurFilter {
@@ -32,4 +32,4 @@ public:
   void draw(float amount);
 };
 
-} // namespace urde
+} // namespace metaforce

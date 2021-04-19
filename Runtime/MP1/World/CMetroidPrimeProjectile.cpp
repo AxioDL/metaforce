@@ -3,7 +3,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 SPrimeProjectileInfo::SPrimeProjectileInfo(CInputStream& in)
 : x0_propertyCount(in.readUint32Big())
@@ -29,4 +29,4 @@ CMetroidPrimeProjectile::CMetroidPrimeProjectile(
                     visorParticle, visorSfx, sendCollideMsg)
 , x3d8_auxData(auxData) {}
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

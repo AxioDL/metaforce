@@ -3,7 +3,7 @@
 #include <string_view>
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 class CRepulsor : public CActor {
   float xe8_affectRadius;
 
@@ -15,4 +15,4 @@ public:
 
   float GetAffectRadius() const { return xe8_affectRadius; }
 };
-} // namespace urde
+} // namespace metaforce

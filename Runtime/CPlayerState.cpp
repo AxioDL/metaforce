@@ -14,7 +14,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr std::array<u32, 41> PowerUpMaxValues{
     1, 1, 1, 1,  250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -371,7 +371,7 @@ void CPlayerState::AddPowerUp(CPlayerState::EItemType type, u32 capacity) {
   }
 }
 
-void CPlayerState::ReInitalizePowerUp(CPlayerState::EItemType type, u32 capacity) {
+void CPlayerState::ReInitializePowerUp(CPlayerState::EItemType type, u32 capacity) {
   x24_powerups[u32(type)].x4_capacity = 0;
   AddPowerUp(type, capacity);
 }
@@ -450,4 +450,4 @@ CPlayerState::EItemType CPlayerState::ItemNameToType(std::string_view name) {
   return iter->second;
 }
 
-} // namespace urde
+} // namespace metaforce

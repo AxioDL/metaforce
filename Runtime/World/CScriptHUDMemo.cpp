@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptHUDMemo::CScriptHUDMemo(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                const CHUDMemoParms& parms, EDisplayType disp, CAssetId msg, bool active)
@@ -39,4 +39,4 @@ void CScriptHUDMemo::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
   CEntity::AcceptScriptMsg(msg, uid, mgr);
 }
 
-} // namespace urde
+} // namespace metaforce

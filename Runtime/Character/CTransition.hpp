@@ -6,7 +6,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Character/CMetaTransFactory.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CTransition {
   u32 x0_id;
@@ -22,4 +22,4 @@ public:
   const std::shared_ptr<IMetaTrans>& GetMetaTrans() const { return xc_trans; }
 };
 
-} // namespace urde
+} // namespace metaforce

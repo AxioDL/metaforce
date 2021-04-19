@@ -8,7 +8,7 @@
 
 #include "zeus/CVector3f.hpp"
 
-namespace urde {
+namespace metaforce {
 class CPoseAsTransforms;
 class CModel;
 
@@ -44,6 +44,10 @@ public:
 
   void GetBankTransforms(std::vector<const zeus::CTransform*>& out, const CPoseAsTransforms& pose,
                          int skinBankIdx) const {
+    // FIXME: This is definitely not proper behavior, this is here to fix the phazon suit crashing
+    if (x0_skinBanks.size() <= skinBankIdx) {
+      return;
+    }
     x0_skinBanks[skinBankIdx].GetBankTransforms(out, pose);
   }
 
@@ -54,4 +58,4 @@ public:
 CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params,
                                    CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce

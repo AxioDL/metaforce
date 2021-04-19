@@ -8,7 +8,7 @@
 
 #include "hsh/hsh.h"
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 enum class EFilterShape;
@@ -52,4 +52,4 @@ public:
   static void SetViewportToFull();
 };
 
-} // namespace urde
+} // namespace metaforce

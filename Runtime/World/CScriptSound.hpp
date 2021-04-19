@@ -6,7 +6,7 @@
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptSound : public CActor {
   static bool sFirstInFrame;
@@ -26,7 +26,7 @@ class CScriptSound : public CActor {
   s16 x110_;
   s16 x112_prio;
   float x114_pan;
-  bool x116_;
+  short x116_;
   float x118_pitch;
   bool x11c_24_playRequested : 1 = false;
   bool x11c_25_looped : 1;
@@ -55,4 +55,4 @@ public:
   void PlaySound(CStateManager&);
   void StopSound(CStateManager&);
 };
-} // namespace urde
+} // namespace metaforce

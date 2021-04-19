@@ -7,7 +7,7 @@
 
 #include <zeus/CAABox.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScriptAiJumpPoint : public CActor {
 private:
   float xe8_apex;
@@ -32,4 +32,4 @@ public:
   TUniqueId GetJumpTarget() const { return x10e_nextWaypoint; }
   float GetJumpApex() const { return xe8_apex; }
 };
-} // namespace urde
+} // namespace metaforce

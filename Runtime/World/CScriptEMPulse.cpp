@@ -11,7 +11,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptEMPulse::CScriptEMPulse(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                const zeus::CTransform& xf, bool active, float initialRadius, float finalRadius,
@@ -97,4 +97,4 @@ zeus::CAABox CScriptEMPulse::CalculateBoundingBox() const {
   return zeus::CAABox(GetTranslation() - xf0_currentRadius, GetTranslation() + xf0_currentRadius);
 }
 
-} // namespace urde
+} // namespace metaforce

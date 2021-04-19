@@ -1,3 +1,3 @@
 #include "InformationCenter.hpp"
 
-namespace urde {}
+namespace metaforce {}

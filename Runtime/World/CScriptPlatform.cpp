@@ -16,7 +16,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 constexpr auto skPlatformMaterialList =
     CMaterialList{EMaterialTypes::Solid, EMaterialTypes::Immovable, EMaterialTypes::Platform, EMaterialTypes::Occluder};
@@ -560,4 +560,12 @@ zeus::CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
   return zeus::CQuaternion();
 }
 
-} // namespace urde
+void CScriptPlatform::DebugDraw() {
+  if (!m_boxFilter) {
+    m_boxFilter = {CAABoxShader()};
+  }
+
+  m_boxFilter->setAABB(*GetTouchBounds());
+  m_boxFilter->draw({1.f, 0.f, 1.f, .5f});
+}
+} // namespace metaforce

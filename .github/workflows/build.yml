@@ -1,0 +1,201 @@
+name: Build
+
+on:
+  push:
+    branches-ignore:
+      - master
+    paths-ignore:
+      - '*.json'
+      - '*.md'
+      - '*LICENSE'
+  pull_request:
+
+jobs:
+  build-linux:
+    name: Build Linux (${{matrix.name}} x86_64)
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC
+            cc: gcc
+            cxx: g++
+          - name: Clang
+            cc: clang
+            cxx: clang++
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install build-essential curl git cmake ninja-build llvm-dev libclang-dev clang lld \
+            zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default \
+            libcurl4-openssl-dev
+          # free up disk space
+          # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
+          echo Before
+          df -h .
+          sudo apt-get clean
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          echo After
+          df -h .
+
+      - name: Create build directory
+        run: cmake -E make_directory ${{github.workspace}}/build
+
+      - name: Configure CMake
+        working-directory: ${{github.workspace}}/build
+        run: |
+          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}}
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build .
+
+  build-macos:
+    name: Build macOS (AppleClang x86_64)
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install ninja qt@5 graphicsmagick imagemagick
+          brew link qt@5
+          yarn global add create-dmg
+
+      - name: Create build directory
+        run: cmake -E make_directory ${{github.workspace}}/build
+
+      - name: Configure CMake
+        working-directory: ${{github.workspace}}/build
+        run: |
+          export PATH="/usr/local/opt/qt@5/bin:$PATH" # FIXME remove
+          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build .
+
+  build-windows-msvc:
+    name: Build Windows (MSVC x86_64)
+    if: 'false' # disabled due to memory constraints
+    runs-on: windows-2019
+    env:
+      LLVM_VERSION: 10.0.1
+      Qt_VERSION: 5.15.2
+      IPP_VERSION: 2021.2.0.210
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install LLVM
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "LLVM-$env:LLVM_VERSION-win64.exe"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
+          Start-Process "$TempDir\$Filename" -ArgumentList "/S /D=$env:RUNNER_WORKSPACE\LLVM" -Wait
+
+      - name: Install vcpkg Qt
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "vcpkg-qt-$env:Qt_VERSION.7z"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
+          7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
+
+      - name: Install dependencies
+        run: choco install ninja vulkan-sdk
+
+      - name: Enable Visual Studio environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Create build directory
+        run: cmake -E make_directory ${{github.workspace}}/build
+
+      - name: Configure CMake
+        working-directory: ${{github.workspace}}/build
+        run: |
+          $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
+          cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+            -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= `
+            -DLLVM_ROOT_DIR="$workspace/LLVM"
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build .
+
+  build-windows-clang:
+    name: Build Windows (Clang x86_64)
+    runs-on: windows-2019
+    env:
+      LLVM_VERSION: 10.0.1
+      Qt_VERSION: 5.15.2
+      IPP_VERSION: 2021.2.0.210
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install LLVM
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "LLVM-$env:LLVM_VERSION-win64.exe"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
+          Start-Process "$TempDir\$Filename" -ArgumentList "/S /D=$env:RUNNER_WORKSPACE\LLVM" -Wait
+
+      - name: Install vcpkg Qt
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "vcpkg-qt-$env:Qt_VERSION.7z"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
+          7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
+
+      - name: Install dependencies
+        run: choco install ninja vulkan-sdk
+
+      - name: Enable Visual Studio environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Create build directory
+        run: cmake -E make_directory ${{github.workspace}}/build
+
+      - name: Configure CMake
+        working-directory: ${{github.workspace}}/build
+        run: |
+          $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
+          cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+            -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
+            -DCMAKE_C_COMPILER=clang-cl `
+            -DCMAKE_CXX_COMPILER=clang-cl `
+            -DCMAKE_LINKER=lld-link `
+            -DLLVM_ROOT_DIR="$workspace/LLVM"
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build .

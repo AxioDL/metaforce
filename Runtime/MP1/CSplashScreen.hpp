@@ -3,7 +3,7 @@
 #include "CIOWin.hpp"
 #include "CToken.hpp"
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 namespace MP1 {
 class CSplashScreen : public CIOWin {

@@ -20,7 +20,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 namespace {
 float kSpiderBallCollisionRadius;
 
@@ -1951,7 +1951,7 @@ void CMorphBall::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CSta
 
       if (wakeMaterial == EMaterialTypes::NoStepLogic) {
         if (info.GetMaterialLeft().HasMaterial(EMaterialTypes::Floor)) {
-          EMaterialTypes tmpMaterial;
+          EMaterialTypes tmpMaterial = EMaterialTypes::NoStepLogic;
           if (info.GetMaterialLeft().HasMaterial(EMaterialTypes::Dirt)) {
             tmpMaterial = EMaterialTypes::Dirt;
           } else {
@@ -2164,12 +2164,11 @@ float CMorphBall::CalculateSurfaceFriction() const {
 }
 
 void CMorphBall::ApplyGravity(const CStateManager& mgr) {
-  const float mass = x0_player.GetMass();
-  const bool hasGravitySuit = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit);
-  const bool useWaterGravity = x0_player.CheckSubmerged() && !hasGravitySuit;
-  const float gravity = useWaterGravity ? g_tweakBall->GetBallWaterGravity() : g_tweakBall->GetBallGravity();
-
-  x0_player.SetMomentumWR(zeus::CVector3f(0.f, 0.f, gravity * mass));
+  if (!x0_player.CheckSubmerged() || mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit)) {
+    x0_player.SetMomentumWR({0.f, 0.f, x0_player.GetMass() * g_tweakBall->GetBallGravity()});
+  } else {
+    x0_player.SetMomentumWR({0.f, 0.f, x0_player.GetMass() * g_tweakBall->GetBallWaterGravity()});
+  }
 }
 
 void CMorphBall::SpinToSpeed(float holdMag, const zeus::CVector3f& torque, float mag) {
@@ -2405,4 +2404,4 @@ void CMorphBall::StopEffects() {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -5,7 +5,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CPhazonHealingNodule::CPhazonHealingNodule(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                            const zeus::CTransform& xf, CModelData&& mData,
                                            const CActorParameters& actParams, const CPatternedInfo& pInfo,
@@ -183,4 +183,4 @@ void CPhazonHealingNodule::MassiveFrozenDeath(CStateManager& mgr) {
 }
 
 void CPhazonHealingNodule::PhazeOut(CStateManager& mgr) { Death(mgr, zeus::skZero3f, EScriptObjectState::Dead); }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

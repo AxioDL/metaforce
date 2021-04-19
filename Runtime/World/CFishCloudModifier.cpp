@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CFishCloudModifier::CFishCloudModifier(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& eInfo,
                                        const zeus::CVector3f& pos, bool isRepulsor, bool swirl, float radius,
                                        float priority)
@@ -55,4 +55,4 @@ void CFishCloudModifier::RemoveSelf(CStateManager& mgr) {
     }
   }
 }
-} // namespace urde
+} // namespace metaforce

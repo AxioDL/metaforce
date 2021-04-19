@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool defaultActive,
                                        bool skipSendActive, bool ignoreMessages)
@@ -36,4 +36,4 @@ void CScriptMemoryRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -3,7 +3,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include <zeus/CAABox.hpp>
 
-namespace urde {
+namespace metaforce {
 enum class EDrawableType : u16 { WorldSurface, Particle, Actor, SimpleShadow, Decal };
 
 class CDrawable {
@@ -24,4 +24,4 @@ public:
   const void* GetData() const { return x4_data; }
   u16 GetExtraSort() const { return x2_extraSort; }
 };
-} // namespace urde
+} // namespace metaforce

@@ -4,7 +4,7 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGameHintInfo::CGameHintInfo(CInputStream& in, s32 version) {
   u32 hintCount = in.readUint32Big();
@@ -45,4 +45,4 @@ CFactoryFnReturn FHintFactory(const SObjectTag&, CInputStream& in, const CVParam
 
   return TToken<CGameHintInfo>::GetIObjObjectFor(std::make_unique<CGameHintInfo>(in, version));
 }
-} // namespace urde
+} // namespace metaforce

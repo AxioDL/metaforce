@@ -6,7 +6,7 @@
 #include "Runtime/World/CPatternedInfo.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CEnergyBall::CEnergyBall(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                          CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo, s32 w1,
                          float f1, const CDamageInfo& dInfo1, float f2, const CAssetId& a1, s16 sfxId1,

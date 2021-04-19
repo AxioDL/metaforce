@@ -2,7 +2,7 @@
 #include "Runtime/Graphics/CLineRenderer.hpp"
 #include "CLineRendererShaders.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 template <bool Additive, bool AlphaWrite, hsh::Compare ZComp>
@@ -74,4 +74,4 @@ void CLineRendererShaders::BindShader(CLineRenderer& renderer, hsh::texture2d te
   }
 }
 
-} // namespace urde
+} // namespace metaforce

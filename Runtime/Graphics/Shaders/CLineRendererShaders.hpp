@@ -4,7 +4,7 @@
 
 #include "hsh/hsh.h"
 
-namespace urde {
+namespace metaforce {
 class CLineRenderer;
 
 class CLineRendererShaders {
@@ -13,4 +13,4 @@ public:
                          hsh::Compare zcomp);
 };
 
-} // namespace urde
+} // namespace metaforce

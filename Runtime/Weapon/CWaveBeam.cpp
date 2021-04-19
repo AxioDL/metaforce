@@ -6,7 +6,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr float skShotAnglePitch = 120.f;
 
@@ -165,4 +165,4 @@ void CWaveBeam::Unload(CStateManager& mgr) {
 
 bool CWaveBeam::IsLoaded() const { return CGunWeapon::IsLoaded() && x258_24_loaded; }
 
-} // namespace urde
+} // namespace metaforce

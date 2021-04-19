@@ -4,7 +4,7 @@
 #include "Runtime/GuiSys/CHudInterface.hpp"
 #include <zeus/CTransform.hpp>
 
-namespace urde {
+namespace metaforce {
 class CGuiFrame;
 class CGuiModel;
 class CGuiWidget;
@@ -68,4 +68,4 @@ public:
   void SetFreeLookState(bool inFreeLook, bool lookControlHeld, bool lockedOnObj, float vertLookAngle) override;
 };
 
-} // namespace urde
+} // namespace metaforce

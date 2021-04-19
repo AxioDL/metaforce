@@ -2,7 +2,7 @@
 
 #include "Runtime/GameGlobalObjects.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CRumbleGenerator::CRumbleGenerator() {
   HardStopAll();
@@ -109,4 +109,4 @@ void CRumbleGenerator::Stop(s16 id, EIOPort port) {
   vox.Deactivate(id, false);
 }
 
-} // namespace urde
+} // namespace metaforce

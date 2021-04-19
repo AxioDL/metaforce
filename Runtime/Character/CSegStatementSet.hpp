@@ -5,7 +5,7 @@
 #include "Runtime/Character/CAnimPerSegmentData.hpp"
 #include "Runtime/Character/CSegId.hpp"
 
-namespace urde {
+namespace metaforce {
 class CCharLayoutInfo;
 class CSegIdList;
 
@@ -22,4 +22,4 @@ public:
   const CAnimPerSegmentData& operator[](const CSegId& idx) const { return x4_segData[idx]; }
 };
 
-} // namespace urde
+} // namespace metaforce

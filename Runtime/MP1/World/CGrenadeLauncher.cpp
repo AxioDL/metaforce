@@ -10,7 +10,7 @@
 #include "Runtime/World/CPatterned.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                    const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& bounds,
                                    const CHealthInfo& healthInfo, const CDamageVulnerability& vulnerability,
@@ -32,7 +32,8 @@ CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const C
   GetModelData()->EnableLooping(true);
   const CPASDatabase& pasDatabase = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();
   for (size_t i = 0; i < x3c8_animIds.size(); ++i) {
-    const auto result = pasDatabase.FindBestAnimation(CPASAnimParmData{22, CPASAnimParm::FromEnum(int(i))}, -1);
+    const auto result = pasDatabase.FindBestAnimation(
+        CPASAnimParmData{pas::EAnimationState::AdditiveAim, CPASAnimParm::FromEnum(int(i))}, -1);
     x3c8_animIds[i] = result.second;
   }
 }
@@ -285,7 +286,9 @@ void CGrenadeLauncher::UpdateStartAnimation() {
 
   constexpr std::array arr{0, 3};
   const auto anim = animData->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
-      CPASAnimParmData{5, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(arr[x258_started])}, -1);
+      CPASAnimParmData{pas::EAnimationState::Locomotion, CPASAnimParm::FromEnum(0),
+                       CPASAnimParm::FromEnum(arr[x258_started])},
+      -1);
   if (anim.first > 0.f) {
     animData->SetAnimation({anim.second, -1, 1.f, true}, false);
     modelData->EnableLooping(true);
@@ -299,7 +302,8 @@ void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
     return;
   }
 
-  const auto& anim = animData->GetCharacterInfo().GetPASDatabase().FindBestAnimation(CPASAnimParmData{23}, -1);
+  const auto& anim = animData->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
+      CPASAnimParmData{pas::EAnimationState::AdditiveFlinch}, -1);
   if (anim.first > 0.f) {
     animData->AddAdditiveAnimation(anim.second, 1.f, false, true);
     const zeus::CVector3f origin =
@@ -332,4 +336,4 @@ void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
                                      x3f8_explodePlayerDistance));
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -1,10 +1,10 @@
 #pragma once
 
-namespace urde {
+namespace metaforce {
 
 class IObjFactory {
 public:
   virtual ~IObjFactory() = default;
 };
 
-} // namespace urde
+} // namespace metaforce

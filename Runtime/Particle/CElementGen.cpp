@@ -15,9 +15,9 @@
 
 #define MAX_GLOBAL_PARTICLES 2560
 
-namespace urde {
+namespace metaforce {
 namespace {
-logvisor::Module Log("urde::CElementGen");
+logvisor::Module Log("metaforce::CElementGen");
 
 constexpr std::array ShadClsSizes{
     sizeof(SParticleInstanceTex),
@@ -78,7 +78,6 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
 
   if (CIntElement* mbspElem = desc->x48_x34_MBSP.get())
     mbspElem->GetValue(x74_curFrame, x270_MBSP);
-  m_maxMBSP = x270_MBSP;
 
   if (CModVectorElement* elem = desc->x7c_x68_VEL1.get()) {
     x280_VELSources[0] = elem;
@@ -147,13 +146,15 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
 
   if (CIntElement* maxpElem = desc->x28_x1c_MAXP.get()) {
     maxpElem->GetValue(x74_curFrame, x90_MAXP);
-    m_maxMAXP = maxpElem->GetMaxValue();
   }
 
-  m_maxMAXP = std::min(m_maxMAXP, 256);
-  x30_particles.reserve(m_maxMAXP);
+  s32 count = std::min(256, x90_MAXP);
+  x30_particles.reserve(count);
+  if (x26d_28_enableADV) {
+    x60_advValues.resize(count);
+  }
   if (x2c_orientType == EModelOrientationType::One)
-    x50_parentMatrices.resize(m_maxMAXP);
+    x50_parentMatrices.resize(x90_MAXP);
 
   x26c_31_LINE = desc->x44_24_x30_24_LINE;
   x26d_24_FXLL = desc->x44_25_x30_25_FXLL;
@@ -200,13 +201,45 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
     hsh::texture2d tex{};
     if (texr)
       tex = texr->GetValueTexture(0).GetObj()->GetBooTexture();
-    int maxVerts = (m_maxMAXP == 0 ? 256 : m_maxMAXP);
+    int maxVerts = x90_MAXP;
     m_lineRenderer = std::make_unique<CLineRenderer>(CLineRenderer::EPrimitiveMode::Lines, maxVerts * 2, tex,
                                                      bool(x26c_26_AAPH), x26c_28_zTest ? hsh::LEqual : hsh::Always);
   } else {
     m_shaderClass = CElementGenShaders::GetShaderClass(*this);
   }
 
+  _RecreatePipelines();
+}
+
+CElementGen::~CElementGen() {
+  --g_ParticleSystemAliveCount;
+  g_ParticleAliveCount -= x30_particles.size();
+}
+
+bool CElementGen::Update(double t) {
+  s32 oldMax = x90_MAXP;
+  CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::instance()->m_currentParticleSystem;
+  CParticleGlobals::SParticleSystem thisSystem{FOURCC('PART'), this};
+  CParticleGlobals::instance()->m_currentParticleSystem = &thisSystem;
+  CGenDescription* desc = x1c_genDesc.GetObj();
+  CIntElement* pswtElem = desc->x10_x4_PSWT.get();
+  if (pswtElem && !x26d_25_warmedUp) {
+    int pswt = 0;
+    pswtElem->GetValue(x74_curFrame, pswt);
+    //Log.report(logvisor::Info, FMT_STRING("Running warmup on particle system 0x%08x for %d ticks."), desc, pswt);
+    InternalUpdate((1.f / 60.f) * pswt);
+    x26d_25_warmedUp = true;
+  }
+  bool ret = InternalUpdate(t);
+  CParticleGlobals::instance()->m_currentParticleSystem = prevSystem;
+
+  if (oldMax != x90_MAXP) {
+    _RecreatePipelines();
+  }
+  return ret;
+}
+
+void CElementGen::_RecreatePipelines() {
   size_t maxInsts = x26c_30_MBLR ? (m_maxMBSP * m_maxMAXP) : m_maxMAXP;
   maxInsts = (maxInsts == 0 ? 256 : maxInsts);
 
@@ -242,29 +275,6 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
     CElementGenShaders::BuildShaderDataBinding(*this);
 }
 
-CElementGen::~CElementGen() {
-  --g_ParticleSystemAliveCount;
-  g_ParticleAliveCount -= x30_particles.size();
-}
-
-bool CElementGen::Update(double t) {
-  CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::instance()->m_currentParticleSystem;
-  CParticleGlobals::SParticleSystem thisSystem{FOURCC('PART'), this};
-  CParticleGlobals::instance()->m_currentParticleSystem = &thisSystem;
-  CGenDescription* desc = x1c_genDesc.GetObj();
-  CIntElement* pswtElem = desc->x10_x4_PSWT.get();
-  if (pswtElem && !x26d_25_warmedUp) {
-    int pswt = 0;
-    pswtElem->GetValue(x74_curFrame, pswt);
-    //Log.report(logvisor::Info, FMT_STRING("Running warmup on particle system 0x%08x for %d ticks."), desc, pswt);
-    InternalUpdate((1.f / 60.f) * pswt);
-    x26d_25_warmedUp = true;
-  }
-  bool ret = InternalUpdate(t);
-  CParticleGlobals::instance()->m_currentParticleSystem = prevSystem;
-  return ret;
-}
-
 bool CElementGen::InternalUpdate(double dt) {
   CGlobalRandom gr(x27c_randState);
   CGenDescription* desc = x1c_genDesc.GetObj();
@@ -287,7 +297,6 @@ bool CElementGen::InternalUpdate(double dt) {
   if (x26c_30_MBLR && dt > 0.0) {
     if (CIntElement* mbspElem = desc->x48_x34_MBSP.get())
       mbspElem->GetValue(x74_curFrame, x270_MBSP);
-    x270_MBSP = std::min(x270_MBSP, m_maxMBSP);
   }
 
   int frameUpdateCount = 0;
@@ -356,12 +365,7 @@ void CElementGen::AccumulateBounds(const zeus::CVector3f& pos, float size) {
 }
 
 void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, s32 particleFrame) {
-  if (activeParticleCount >= x60_advValues.size()) {
-    CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
-    return;
-  }
-
-  CGenDescription* desc = x1c_genDesc.GetObj();
+  CGenDescription* desc = x28_loadedGenDesc;
 
   std::array<float, 8>& arr = x60_advValues[activeParticleCount];
   CParticleGlobals::instance()->m_particleAccessParameters = &arr;
@@ -417,10 +421,7 @@ void CElementGen::UpdateExistingParticles() {
 
   x25c_activeParticleCount = 0;
   CParticleGlobals::instance()->SetEmitterTime(x74_curFrame);
-  if (x25c_activeParticleCount < x60_advValues.size())
-    CParticleGlobals::instance()->m_particleAccessParameters = &x60_advValues[x25c_activeParticleCount];
-  else
-    CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
+  CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
 
   for (auto it = x30_particles.begin(); it != x30_particles.end();) {
     CParticle& particle = *it;
@@ -497,27 +498,34 @@ void CElementGen::UpdateExistingParticles() {
 void CElementGen::CreateNewParticles(int count) {
   CGenDescription* desc = x1c_genDesc.GetObj();
 
-  if (!g_ParticleSystemInitialized)
+  if (!g_ParticleSystemInitialized) {
     Initialize();
-  if (!count || x30_particles.size() >= x90_MAXP)
-    return;
+  }
 
-  if (count + x30_particles.size() > x90_MAXP)
+  if (x30_particles.size() >= x90_MAXP) {
+    return;
+  }
+
+  if (count + x30_particles.size() > x90_MAXP) {
     count = x90_MAXP - x30_particles.size();
-  int newTotalCount = g_ParticleAliveCount + count;
-  if (newTotalCount > 2560)
+  }
+
+  if (g_ParticleAliveCount + count > 2560) {
     count = 2560 - g_ParticleAliveCount;
+  }
 
   CGlobalRandom gr(x27c_randState);
-  x30_particles.reserve(x90_MAXP);
-  if (x26d_28_enableADV && x60_advValues.empty())
-    x60_advValues.resize(m_maxMAXP);
+  x30_particles.reserve(count + x90_MAXP);
+  if (x26d_28_enableADV && x60_advValues.capacity() < count + x30_particles.size()) {
+    x60_advValues.resize(std::min(int(x60_advValues.capacity() * 2), x90_MAXP));
+  }
 
   CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
 
   for (int i = 0; i < count; ++i) {
     CParticle& particle = x30_particles.emplace_back();
     ++g_ParticleAliveCount;
+    u32 particleCount = x30_particles.size() - 1;
     ++x25c_activeParticleCount;
     ++x260_cumulativeParticles;
     if (x2c_orientType == EModelOrientationType::One) {
@@ -531,14 +539,16 @@ void CElementGen::CreateNewParticles(int count) {
     CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame);
     CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(0);
     g_currentParticle = &particle;
-    if (x26d_28_enableADV)
-      UpdateAdvanceAccessParameters(x30_particles.size() - 1, 0);
+    if (x26d_28_enableADV) {
+      UpdateAdvanceAccessParameters(particleCount, 0);
+    }
     particle.x0_endFrame += x74_curFrame;
 
-    if (CColorElement* colr = desc->x30_x24_COLR.get())
+    if (CColorElement* colr = desc->x30_x24_COLR.get()) {
       colr->GetValue(0, particle.x34_color);
-    else
+    } else {
       particle.x34_color = zeus::skWhite;
+    }
 
     if (CEmitterElement* emtr = desc->x40_x2c_EMTR.get()) {
       emtr->GetValue(x74_curFrame, particle.x4_pos, particle.x1c_vel);
@@ -597,6 +607,7 @@ void CElementGen::UpdatePSTranslationAndOrientation() {
 }
 
 std::unique_ptr<CParticleGen> CElementGen::ConstructChildParticleSystem(const TToken<CGenDescription>& desc) const {
+  OPTICK_EVENT();
   auto ret = std::make_unique<CElementGen>(desc, EModelOrientationType::Normal,
                                            x26d_27_enableOPTS ? EOptionalSystemFlags::Two : EOptionalSystemFlags::One);
   ret->x26d_26_modelsUseLights = x26d_26_modelsUseLights;
@@ -823,6 +834,14 @@ u32 CElementGen::GetSystemCount() const {
 }
 
 void CElementGen::Render(const CActorLights* actorLights) {
+  // Check to make sure our buffers are ready to render
+  if (!x26c_31_LINE && (!m_instBuf || !m_uniformBuf)) {
+    return;
+  }
+  if (x28_loadedGenDesc->x45_24_x31_26_PMUS && (!m_instBufPmus || !m_uniformBufPmus)) {
+    return;
+  }
+
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::Render {}"),
     *x1c_genDesc.GetObjectTag()).c_str(), zeus::skYellow);
 
@@ -853,14 +872,23 @@ void CElementGen::Render(const CActorLights* actorLights) {
 }
 
 void CElementGen::RenderModels(const CActorLights* actorLights) {
-  CGenDescription* desc = x1c_genDesc.GetObj();
+  // Check to make sure our buffers are ready to render
+  if (!x26c_31_LINE && (!m_instBuf || !m_uniformBuf)) {
+    return;
+  }
+  if (x28_loadedGenDesc->x45_24_x31_26_PMUS && (!m_instBufPmus || !m_uniformBufPmus)) {
+    return;
+  }
 
+  CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
   if (x26d_26_modelsUseLights) {
     CGraphics::SetLightState(x274_backupLightActive);
   } else {
     CGraphics::SetAmbientColor(zeus::skWhite);
   }
   CGlobalRandom gr(x27c_randState);
+
+  CGenDescription* desc = x1c_genDesc.GetObj();
 
   SUVElementSet uvs = {0.f, 0.f, 1.f, 1.f};
   CUVElement* texr = desc->x54_x40_TEXR.get();
@@ -960,10 +988,10 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
     CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
     int partFrame = x74_curFrame - particle.x28_startFrame - 1;
     CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(partFrame);
-    if (i < x60_advValues.size())
+    if (x26d_28_enableADV) {
       CParticleGlobals::instance()->m_particleAccessParameters = &x60_advValues[i];
-    else
-      CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
+    }
+
     CVectorElement* pmop = desc->x6c_x58_PMOP.get();
     if (pmop)
       pmop->GetValue(partFrame, pmopVec);
@@ -1912,4 +1940,4 @@ void CElementGen::Reset() {
 
 void CElementGen::SetMoveRedToAlphaBuffer(bool move) { sMoveRedToAlphaBuffer = move; }
 
-} // namespace urde
+} // namespace metaforce

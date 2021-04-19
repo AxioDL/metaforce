@@ -15,14 +15,26 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 class CPlasmaProjectile : public CBeamProjectile {
 public:
-  struct PlayerEffectResoures : rstl::reserved_vector<CAssetId, 8> {
-    PlayerEffectResoures(CAssetId a = {}, CAssetId b = {}, CAssetId c = {}, CAssetId d = {},
+  struct PlayerEffectResources : rstl::reserved_vector<CAssetId, 8> {
+    PlayerEffectResources(CAssetId a = {}, CAssetId b = {}, CAssetId c = {}, CAssetId d = {},
                          CAssetId e = {}, CAssetId f = {}, CAssetId g = {}, CAssetId h = {})
     : rstl::reserved_vector<CAssetId, 8>({a, b, c, d, e, f, g, h}) {}
   };
+  static PlayerEffectResources LoadPlayerEffectResources(CInputStream& in) {
+    u32 propCount = in.readUint32();
+    CAssetId a{in};
+    CAssetId b{in};
+    CAssetId c{in};
+    CAssetId d{in};
+    CAssetId e{in};
+    CAssetId f{in};
+    CAssetId g{in};
+    CAssetId h{in};
+    return {a, b, c, d, e, f, g, h};
+  }
 private:
   std::vector<TUniqueId> x468_lights;
   s32 x478_beamAttributes;
@@ -106,7 +118,7 @@ public:
   CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                     const CBeamInfo& bInfo, const zeus::CTransform& xf, EMaterialTypes matType,
                     const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
-                    const PlayerEffectResoures& res, bool growingBeam, EProjectileAttrib attribs);
+                    const PlayerEffectResources& res, bool growingBeam, EProjectileAttrib attribs);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
@@ -117,5 +129,8 @@ public:
   bool CanRenderUnsorted(const CStateManager& mgr) const override;
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   void Render(CStateManager& mgr) override;
+  zeus::CColor GetInnerColor() const { return x490_innerColor; }
+  zeus::CColor GetOuterColor() const { return x494_outerColor; }
+  bool IsFiring() const { return x548_26_firing; }
 };
-} // namespace urde
+} // namespace metaforce

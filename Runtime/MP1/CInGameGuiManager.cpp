@@ -21,7 +21,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 constexpr std::array InGameGuiDGRPs{
     "InGameGui_DGRP"sv, "Ice_DGRP"sv,         "Phazon_DGRP"sv,         "Plasma_DGRP"sv,
@@ -641,4 +641,4 @@ bool CInGameGuiManager::GetIsGameDraw() const {
   // return x3c_pauseScreenBlur->IsGameDraw();
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

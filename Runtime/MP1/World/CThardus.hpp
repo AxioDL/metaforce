@@ -4,7 +4,7 @@
 #include "Runtime/World/CPatterned.hpp"
 #include "Runtime/World/CPathFindSearch.hpp"
 
-namespace urde {
+namespace metaforce {
 class CCollisionActorManager;
 namespace MP1 {
 class CThardus : public CPatterned {
@@ -257,4 +257,4 @@ public:
                         const zeus::CVector3f& v1);
 };
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

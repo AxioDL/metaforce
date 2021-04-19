@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr zeus::CVector3f skBellyOffset(0.f, 0.1f, -.3f);
 
@@ -336,4 +336,4 @@ void CPuddleToadGamma::Crouch(CStateManager& mgr, EStateMsg msg, float) {
   }
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

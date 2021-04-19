@@ -14,7 +14,7 @@ namespace zeus {
 class CColor;
 }
 
-namespace urde {
+namespace metaforce {
 class CSimplePool;
 class CTexture;
 
@@ -60,4 +60,4 @@ public:
   void SetDeResFactor(float d) { x14c_deResFactor = d; }
   void SetFlashFactor(float t) { x150_flashFactor = t; }
 };
-} // namespace urde
+} // namespace metaforce

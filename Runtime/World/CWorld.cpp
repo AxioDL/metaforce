@@ -14,7 +14,7 @@
 #include "Runtime/World/CScriptAreaAttributes.hpp"
 #include "Runtime/World/CScriptRoomAcoustics.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CWorld::CSoundGroupData::CSoundGroupData(int grpId, CAssetId agsc) : x0_groupId(grpId), x4_agscId(agsc) {
   x1c_groupData = g_SimplePool->GetObj(SObjectTag{FOURCC('AGSC'), agsc});
@@ -723,4 +723,4 @@ TAreaId CWorld::GetAreaIdForSaveId(s32 saveId) const {
 
   return TAreaId(std::distance(x18_areas.cbegin(), iter));
 }
-} // namespace urde
+} // namespace metaforce

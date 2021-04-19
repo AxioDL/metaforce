@@ -6,7 +6,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 struct CGuiWidgetDrawParms;
 
 class CGuiObject : public std::enable_shared_from_this<CGuiObject> {
@@ -48,4 +48,4 @@ public:
   void SetLocalTransform(const zeus::CTransform& xf);
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -7,7 +7,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSimplePool;
 class CGenDescription;
 
@@ -41,4 +41,4 @@ public:
   std::vector<CSpawnSystemKeyframeInfo>& GetSpawnedSystemsAtFrame(u32 frame);
 };
 
-} // namespace urde
+} // namespace metaforce

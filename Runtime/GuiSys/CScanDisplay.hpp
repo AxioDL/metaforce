@@ -14,7 +14,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector2f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAuiImagePane;
 class CGuiFrame;
 class CGuiModel;
@@ -95,4 +95,4 @@ public:
   TUniqueId ScanTarget() const { return x10_objId; }
 };
 
-} // namespace urde
+} // namespace metaforce

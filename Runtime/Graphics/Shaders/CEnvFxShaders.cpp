@@ -4,7 +4,7 @@
 
 #include "CEnvFxShaders.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 template <bool Blend>
@@ -46,4 +46,4 @@ void CEnvFxShaders::BuildShaderDataBinding(CEnvFxManager& fxMgr, CEnvFxManagerGr
       CEnvFxShadersPipeline<isUnderwater>(vboBuf, envFxUniBuf, fogUniBuf, texFlake, texEnv));
 }
 
-} // namespace urde
+} // namespace metaforce

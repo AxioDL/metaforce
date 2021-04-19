@@ -15,7 +15,7 @@
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
 #include "Runtime/Weapon/CPowerBomb.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 std::array kVerticalAngleTable{-30.f, 0.f, 30.f};
 std::array kHorizontalAngleTable{30.f, 30.f, 30.f};
@@ -345,9 +345,11 @@ void CPlayerGun::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
     if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::PhazonSuit) && isUnmorphed) {
       x835_24_canFirePhazon = true;
       x835_25_inPhazonBeam = true;
-      if (x833_28_phazonBeamActive && static_cast<CPhazonBeam*>(x72c_currentBeam)->IsFiring())
-        if (TCastToPtr<CEntity> ent = mgr.ObjectById(sender))
+      if (x833_28_phazonBeamActive && static_cast<CPhazonBeam*>(x72c_currentBeam)->IsFiring()) {
+        if (TCastToPtr<CEntity> ent = mgr.ObjectById(sender)) {
           mgr.SendScriptMsg(ent.GetPtr(), x538_playerId, EScriptObjectMessage::Decrement);
+        }
+      }
     }
     break;
   case EScriptObjectMessage::RemovePhazonPoolInhabitant:
@@ -366,8 +368,9 @@ void CPlayerGun::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
       if (ai->IsMakingBigStrike()) {
         x394_damageTimer = ai->GetDamageDuration();
         bigStrike = true;
-        if (player.GetAttachedActor() != kInvalidUniqueId)
+        if (player.GetAttachedActor() != kInvalidUniqueId) {
           metroidAttached = CPatterned::CastTo<MP1::CMetroid>(mgr.GetObjectById(player.GetAttachedActor())) != nullptr;
+        }
       }
     }
     if (!x834_30_inBigStrike) {
@@ -656,13 +659,15 @@ void CPlayerGun::HandlePhazonBeamChange(CStateManager& mgr) {
 
 void CPlayerGun::HandleWeaponChange(const CFinalInput& input, CStateManager& mgr) {
   x833_25_ = false;
-  if (ControlMapper::GetPressInput(ControlMapper::ECommands::Morph, input))
+  if (ControlMapper::GetPressInput(ControlMapper::ECommands::Morph, input)) {
     StopContinuousBeam(mgr, true);
+  }
   if ((x2f8_stateFlags & 0x8) != 0x8) {
-    if (!x835_25_inPhazonBeam)
+    if (!x835_25_inPhazonBeam) {
       HandleBeamChange(input, mgr);
-    else
+    } else {
       HandlePhazonBeamChange(mgr);
+    }
   }
 }
 
@@ -670,8 +675,9 @@ void CPlayerGun::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
   CPlayerState& state = *mgr.GetPlayerState();
   bool damageNotMorphed =
       (x834_30_inBigStrike && mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed);
-  if (x832_24_coolingCharge || damageNotMorphed || (x2f8_stateFlags & 0x8) == 0x8)
+  if (x832_24_coolingCharge || damageNotMorphed || (x2f8_stateFlags & 0x8) == 0x8) {
     return;
+  }
   if (state.HasPowerUp(CPlayerState::EItemType::ChargeBeam)) {
     if (!state.ItemEnabled(CPlayerState::EItemType::ChargeBeam))
       state.EnableItem(CPlayerState::EItemType::ChargeBeam);
@@ -1323,8 +1329,9 @@ void CPlayerGun::CancelLockOn() {
 }
 
 void CPlayerGun::FireSecondary(float dt, CStateManager& mgr) {
-  if (mgr.GetCameraManager()->IsInCinematicCamera())
+  if (mgr.GetCameraManager()->IsInCinematicCamera()) {
     return;
+  }
 
   if (x835_25_inPhazonBeam || x318_comboAmmoIdx == 0 ||
       !mgr.GetPlayerState()->HasPowerUp(skItemArr[x318_comboAmmoIdx]) || (x2f8_stateFlags & 0x4) != 0x4) {
@@ -1340,16 +1347,18 @@ void CPlayerGun::FireSecondary(float dt, CStateManager& mgr) {
                                        x832_26_comboFiring ? mgr.GetPlayerState()->GetMissileCostForAltAttack() : 1);
       comboFired = true;
     }
-    if (x300_remainingMissiles > 5)
+    if (x300_remainingMissiles > 5) {
       x300_remainingMissiles = 5;
-    else
+    } else {
       x300_remainingMissiles -= 1;
+    }
   }
 
   if (comboFired) {
     TUniqueId targetId = GetTargetId(mgr);
-    if (x832_26_comboFiring && targetId == kInvalidUniqueId && x310_currentBeam == CPlayerState::EBeamId::Wave)
+    if (x832_26_comboFiring && targetId == kInvalidUniqueId && x310_currentBeam == CPlayerState::EBeamId::Wave) {
       targetId = mgr.GetPlayer().GetAimTarget();
+    }
     zeus::CTransform fireXf = x833_29_pointBlankWorldSurface ? x448_elbowWorldXf : x4a8_gunWorldXf * x418_beamLocalXf;
     if (!x833_29_pointBlankWorldSurface && x364_gunStrikeCoolTimer <= 0.f) {
       zeus::CVector3f backupOrigin = fireXf.origin;
@@ -1909,8 +1918,9 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
     x350_shakeZ = chargeShakeTbl[mgr.GetActiveRandom()->Next() % 3] * x340_chargeBeamFactor;
   }
 
-  if (!x72c_currentBeam->IsLoaded())
+  if (!x72c_currentBeam->IsLoaded()) {
     return;
+  }
 
   GetLctrWithShake(x4d8_gunLocalXf, x73c_gunMotion->GetModelData(), "GBSE_SDK", true, true);
   GetLctrWithShake(x418_beamLocalXf, x72c_currentBeam->GetSolidModelData(), "LBEAM", false, true);
@@ -2297,4 +2307,4 @@ TUniqueId CPlayerGun::DropPowerBomb(CStateManager& mgr) {
   mgr.AddObject(*pBomb);
   return uid;
 }
-} // namespace urde
+} // namespace metaforce

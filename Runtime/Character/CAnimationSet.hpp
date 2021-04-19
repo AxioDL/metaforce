@@ -11,7 +11,7 @@
 #include "Runtime/Character/CHalfTransition.hpp"
 #include "Runtime/Character/CTransition.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimationSet {
   u16 x0_tableCount;
@@ -34,4 +34,4 @@ public:
   const CAdditiveAnimationInfo& GetDefaultAdditiveInfo() const { return x38_defaultAdditiveInfo; }
   const std::vector<std::pair<CAssetId, CAssetId>>& GetAnimResIds() const { return x50_animRes; }
 };
-} // namespace urde
+} // namespace metaforce

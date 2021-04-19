@@ -10,7 +10,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CCameraHint {
   u32 x4_overrideFlags;
@@ -110,4 +110,4 @@ public:
   TUniqueId GetDelegatedCamera() const { return x164_delegatedCamera; }
   const zeus::CTransform& GetOriginalTransform() const { return x168_origXf; }
 };
-} // namespace urde
+} // namespace metaforce

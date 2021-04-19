@@ -3,7 +3,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CSegId {
   u8 x0_segId = 0xFF;
@@ -26,4 +26,4 @@ public:
   constexpr bool IsInvalid() const noexcept { return x0_segId == 0xFF; }
 };
 
-} // namespace urde
+} // namespace metaforce

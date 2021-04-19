@@ -28,7 +28,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CGuiFrame;
 class CGuiLight;
 class CStateManager;
@@ -237,4 +237,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

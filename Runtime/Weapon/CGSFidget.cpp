@@ -5,17 +5,17 @@
 #include "Runtime/Character/CAnimData.hpp"
 #include "Runtime/Weapon/WeaponCommon.hpp"
 
-namespace urde {
+namespace metaforce {
 bool CGSFidget::Update(CAnimData& data, float dt, CStateManager& mgr) {
   return !data.IsAnimTimeRemaining(0.001f, "Whole Body");
 }
 
 s32 CGSFidget::SetAnim(CAnimData& data, s32 type, s32 gunId, s32 animSet, CStateManager& mgr) {
   const CPASDatabase& pas = data.GetCharacterInfo().GetPASDatabase();
-  CPASAnimParmData parms(1, CPASAnimParm::FromEnum(type), CPASAnimParm::FromInt32(gunId),
+  CPASAnimParmData parms(pas::EAnimationState::Getup, CPASAnimParm::FromEnum(type), CPASAnimParm::FromInt32(gunId),
                          CPASAnimParm::FromInt32(animSet));
   auto anim = pas.FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
-  bool loop = pas.GetAnimState(1)->GetAnimParmData(anim.second, 3).GetBoolValue();
+  bool loop = pas.GetAnimState(pas::EAnimationState::Getup)->GetAnimParmData(anim.second, 3).GetBoolValue();
   x14_gunId = gunId;
   x18_animSet = animSet;
   if (anim.second != -1) {
@@ -28,7 +28,7 @@ s32 CGSFidget::SetAnim(CAnimData& data, s32 type, s32 gunId, s32 animSet, CState
 }
 
 void CGSFidget::LoadAnimAsync(CAnimData& data, s32 type, s32 gunId, s32 animSet, CStateManager& mgr) {
-  CPASAnimParmData parms(1, CPASAnimParm::FromEnum(type), CPASAnimParm::FromInt32(gunId),
+  CPASAnimParmData parms(pas::EAnimationState::Getup, CPASAnimParm::FromEnum(type), CPASAnimParm::FromInt32(gunId),
                          CPASAnimParm::FromInt32(animSet));
   auto anim = data.GetCharacterInfo().GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   if (anim.second != -1)
@@ -38,4 +38,4 @@ void CGSFidget::LoadAnimAsync(CAnimData& data, s32 type, s32 gunId, s32 animSet,
 void CGSFidget::UnLoadAnim() { x0_anims.clear(); }
 
 bool CGSFidget::IsAnimLoaded() const { return NWeaponTypes::are_tokens_ready(x0_anims); }
-} // namespace urde
+} // namespace metaforce

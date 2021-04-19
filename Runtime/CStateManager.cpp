@@ -8,6 +8,7 @@
 #include "Runtime/Camera/CGameCamera.hpp"
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollidableSphere.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Collision/CMaterialFilter.hpp"
@@ -51,9 +52,16 @@
 #include <hecl/CVarManager.hpp>
 #include <zeus/CMRay.hpp>
 
-namespace urde {
+namespace metaforce {
+namespace {
+hecl::CVar* debugToolDrawAiPath = nullptr;
+hecl::CVar* debugToolDrawLighting = nullptr;
+hecl::CVar* debugToolDrawCollisionActors = nullptr;
+hecl::CVar* debugToolDrawMazePath = nullptr;
+hecl::CVar* debugToolDrawPlatformCollision = nullptr;
 hecl::CVar* sm_logScripting = nullptr;
-logvisor::Module LogModule("urde::CStateManager");
+} // namespace
+logvisor::Module LogModule("metaforce::CStateManager");
 CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
                              const std::weak_ptr<CMapWorldInfo>& mwInfo, const std::weak_ptr<CPlayerState>& playerState,
                              const std::weak_ptr<CWorldTransManager>& wtMgr,
@@ -117,7 +125,8 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
   x90c_loaderFuncs[size_t(EScriptObjectType::GrapplePoint)] = ScriptLoader::LoadGrapplePoint;
   x90c_loaderFuncs[size_t(EScriptObjectType::PuddleSpore)] = ScriptLoader::LoadPuddleSpore;
   x90c_loaderFuncs[size_t(EScriptObjectType::DebugCameraWaypoint)] = ScriptLoader::LoadDebugCameraWaypoint;
-  x90c_loaderFuncs[size_t(EScriptObjectType::SpiderBallAttractionSurface)] = ScriptLoader::LoadSpiderBallAttractionSurface;
+  x90c_loaderFuncs[size_t(EScriptObjectType::SpiderBallAttractionSurface)] =
+      ScriptLoader::LoadSpiderBallAttractionSurface;
   x90c_loaderFuncs[size_t(EScriptObjectType::PuddleToadGamma)] = ScriptLoader::LoadPuddleToadGamma;
   x90c_loaderFuncs[size_t(EScriptObjectType::DistanceFog)] = ScriptLoader::LoadDistanceFog;
   x90c_loaderFuncs[size_t(EScriptObjectType::FireFlea)] = ScriptLoader::LoadFireFlea;
@@ -192,7 +201,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
   x90c_loaderFuncs[size_t(EScriptObjectType::Burrower)] = ScriptLoader::LoadBurrower;
   x90c_loaderFuncs[size_t(EScriptObjectType::ScriptBeam)] = ScriptLoader::LoadBeam;
   x90c_loaderFuncs[size_t(EScriptObjectType::WorldLightFader)] = ScriptLoader::LoadWorldLightFader;
-  x90c_loaderFuncs[size_t(EScriptObjectType::MetroidPrimeStage2)] = ScriptLoader::LoadMetroidPrimeStage2;
+  x90c_loaderFuncs[size_t(EScriptObjectType::MetroidPrimeStage2)] = ScriptLoader::LoadMetroidPrimeEssence;
   x90c_loaderFuncs[size_t(EScriptObjectType::MetroidPrimeStage1)] = ScriptLoader::LoadMetroidPrimeStage1;
   x90c_loaderFuncs[size_t(EScriptObjectType::MazeNode)] = ScriptLoader::LoadMazeNode;
   x90c_loaderFuncs[size_t(EScriptObjectType::OmegaPirate)] = ScriptLoader::LoadOmegaPirate;
@@ -427,9 +436,7 @@ void CStateManager::SetupParticleHook(const CActor& actor) const {
 
 void CStateManager::MurderScriptInstanceNames() { xb40_uniqueInstanceNames.clear(); }
 
-std::string CStateManager::HashInstanceName(CInputStream& in) {
-  return in.readString();
-}
+std::string CStateManager::HashInstanceName(CInputStream& in) { return in.readString(); }
 
 void CStateManager::SetActorAreaId(CActor& actor, TAreaId aid) {
   const TAreaId actorAid = actor.GetAreaIdAlways();
@@ -534,21 +541,56 @@ void CStateManager::BuildDynamicLightListForWorld() {
     }
   }
 }
-
 void CStateManager::DrawDebugStuff() const {
-#ifndef NDEBUG
+  if (hecl::com_developer != nullptr && !hecl::com_developer->toBoolean()) {
+    return;
+  }
+
+  // FIXME: Add proper globals for CVars
+  if (debugToolDrawAiPath == nullptr || debugToolDrawCollisionActors == nullptr || debugToolDrawLighting == nullptr ||
+      debugToolDrawMazePath == nullptr || debugToolDrawPlatformCollision == nullptr) {
+    debugToolDrawAiPath = hecl::CVarManager::instance()->findCVar("debugTool.drawAiPath");
+    debugToolDrawMazePath = hecl::CVarManager::instance()->findCVar("debugTool.drawMazePath");
+    debugToolDrawCollisionActors = hecl::CVarManager::instance()->findCVar("debugTool.drawCollisionActors");
+    debugToolDrawLighting = hecl::CVarManager::instance()->findCVar("debugTool.drawLighting");
+    debugToolDrawPlatformCollision = hecl::CVarManager::instance()->findCVar("debugTool.drawPlatformCollision");
+    return;
+  }
+
   CGraphics::SetModelMatrix(zeus::CTransform());
   for (CEntity* ent : GetActorObjectList()) {
     if (const TCastToPtr<CPatterned> ai = ent) {
       if (CPathFindSearch* path = ai->GetSearchPath()) {
-        path->DebugDraw();
+        if (debugToolDrawAiPath->toBoolean()) {
+          path->DebugDraw();
+        }
+      }
+    } else if (const TCastToPtr<CGameLight> light = ent) {
+      if (debugToolDrawLighting->toBoolean()) {
+        light->DebugDraw();
+      }
+    } else if (const TCastToPtr<CCollisionActor> colAct = ent) {
+      if (colAct->GetUniqueId() == x870_cameraManager->GetBallCamera()->GetCollisionActorId()) {
+        continue;
+      }
+      if (debugToolDrawCollisionActors->toBoolean()) {
+        colAct->DebugDraw();
+      }
+    } else if (const TCastToPtr<CScriptPlatform> plat = ent) {
+      if (debugToolDrawPlatformCollision->toBoolean() && plat->GetActive()) {
+        plat->DebugDraw();
       }
     }
   }
-  if (xf70_currentMaze) {
+
+  auto* gameArea = x850_world->GetArea(x850_world->GetCurrentAreaId());
+  if (gameArea != nullptr && debugToolDrawLighting->toBoolean()) {
+    gameArea->DebugDraw();
+  }
+
+  if (xf70_currentMaze && debugToolDrawMazePath->toBoolean()) {
     xf70_currentMaze->DebugRender();
   }
-#endif
 }
 
 void CStateManager::RenderCamerasAndAreaLights() {
@@ -738,6 +780,7 @@ void CStateManager::DrawWorld() {
   g_Renderer->SetThermalColdScale(xf28_thermColdScale2 + xf24_thermColdScale1);
 
   for (int i = areaCount - 1; i >= 0; --i) {
+    OPTICK_EVENT("CStateManager::DrawWorld DrawArea");
     const CGameArea& area = *areaArr[i];
     SetupFogForArea(area);
     g_Renderer->EnablePVS(pvsArr[i], area.x4_selfIdx);
@@ -1430,6 +1473,7 @@ void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector
 
 std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, EScriptObjectType type, u32 length,
                                                                 CInputStream& in) {
+  OPTICK_EVENT();
   const TEditorId id = in.readUint32Big();
   const u32 connCount = in.readUint32Big();
   length -= 8;
@@ -1485,7 +1529,9 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
                      ScriptObjectTypeToStr(type), name);
     return {kInvalidEditorId, kInvalidUniqueId};
   } else {
+#ifndef NDEBUG
     LogModule.report(logvisor::Info, FMT_STRING("Loaded {} in area {}"), ent->GetName(), ent->GetAreaIdAlways());
+#endif
     return {id, ent->GetUniqueId()};
   }
 }
@@ -1588,7 +1634,8 @@ void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos,
     usePower = power * 1000.f;
     const auto surface =
         player.x2b0_outOfWaterTicks == 2 ? player.x2ac_surfaceRestraint : CPlayer::ESurfaceRestraints::Water;
-    if (surface != CPlayer::ESurfaceRestraints::Normal && player.GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit) {
+    if (surface != CPlayer::ESurfaceRestraints::Normal &&
+        player.GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit) {
       usePower /= 7.f;
     }
   } else {
@@ -1700,7 +1747,8 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
       }
     }
 
-    const CDamageVulnerability* vuln = rad > 0.f ? a2.GetDamageVulnerability(pos, delta, info) :  a2.GetDamageVulnerability();
+    const CDamageVulnerability* vuln =
+        rad > 0.f ? a2.GetDamageVulnerability(pos, delta, info) : a2.GetDamageVulnerability();
 
     if (vuln->WeaponHurts(info.GetWeaponMode(), true)) {
       const float dam = info.GetRadiusDamage(*vuln);
@@ -1976,8 +2024,9 @@ bool CStateManager::ApplyDamage(TUniqueId damagerId, TUniqueId damageeId, TUniqu
       }
 
       if (alive && damager && info.GetKnockBackPower() > 0.f) {
-        const zeus::CVector3f delta =
+        zeus::CVector3f delta =
             knockbackVec.isZero() ? (damagee->GetTranslation() - damager->GetTranslation()) : knockbackVec;
+        delta.z() = FLT_EPSILON;
         ApplyKnockBack(*damagee, info, *dVuln, delta.normalized(), 0.f);
       }
     }
@@ -2299,6 +2348,7 @@ void CStateManager::MoveActors(float dt) {
 
 void CStateManager::CrossTouchActors() {
   std::array<bool, 1024> visits{};
+  rstl::reserved_vector<TUniqueId, 1024> nearList;
 
   for (CEntity* ent : GetActorObjectList()) {
     if (ent == nullptr) {
@@ -2320,7 +2370,7 @@ void CStateManager::CrossTouchActors() {
       filter = CMaterialFilter::MakeExclude(EMaterialTypes::Trigger);
     }
 
-    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    nearList.clear();
     BuildNearList(nearList, *touchAABB, filter, &actor);
 
     for (const auto& id : nearList) {
@@ -2824,4 +2874,11 @@ void CStateManager::sub_80044098(const CCollisionResponseData& colRespData, cons
                                  TUniqueId uid, const CWeaponMode& weaponMode, u32 w1, u8 thermalFlags) {
   // TODO implement
 }
-} // namespace urde
+
+const CGameArea* CStateManager::GetCurrentArea() const {
+  if (x850_world == nullptr || x850_world->GetCurrentAreaId() == kInvalidAreaId) {
+    return nullptr;
+  }
+  return x850_world->GetAreaAlways(x850_world->GetCurrentAreaId());
+};
+} // namespace metaforce

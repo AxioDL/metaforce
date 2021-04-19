@@ -6,7 +6,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CPVSVisOctree {
   zeus::CAABox x0_aabb;
@@ -31,4 +31,4 @@ public:
   s32 IterateSearch(u8 nodeData, const zeus::CVector3f& tp) const;
 };
 
-} // namespace urde
+} // namespace metaforce

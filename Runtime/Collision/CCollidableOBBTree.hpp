@@ -8,7 +8,7 @@
 #include <zeus/COBBox.hpp>
 #include <zeus/CPlane.hpp>
 
-namespace urde {
+namespace metaforce {
 class CRayCastInfo {
   const zeus::CMRay& x0_ray;
   const CMaterialFilter& x4_filter;
@@ -86,4 +86,4 @@ public:
   CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

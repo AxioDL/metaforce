@@ -3,8 +3,12 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CAi.hpp"
 
-namespace urde {
-static logvisor::Module Log("urde::CStateMachine");
+#include <hecl/CVarManager.hpp>
+
+namespace metaforce {
+namespace {
+logvisor::Module Log("metaforce::CStateMachine");
+}
 
 CStateMachine::CStateMachine(CInputStream& in) {
   CAiTrigger* lastTrig = nullptr;
@@ -136,4 +140,4 @@ CFactoryFnReturn FAiFiniteStateMachineFactory(const SObjectTag& tag, CInputStrea
   return TToken<CStateMachine>::GetIObjObjectFor(std::make_unique<CStateMachine>(in));
 }
 
-} // namespace urde
+} // namespace metaforce

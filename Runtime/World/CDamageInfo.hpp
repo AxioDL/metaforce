@@ -8,7 +8,7 @@ namespace DataSpec {
 struct SShotParam;
 }
 
-namespace urde {
+namespace metaforce {
 class CDamageVulnerability;
 class CDamageInfo {
   CWeaponMode x0_weaponMode;
@@ -67,4 +67,4 @@ public:
     x14_knockback *= m;
   }
 };
-} // namespace urde
+} // namespace metaforce

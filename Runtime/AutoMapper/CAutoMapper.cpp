@@ -16,7 +16,7 @@
 
 #include <zeus/CEulerAngles.hpp>
 
-namespace urde {
+namespace metaforce {
 
 void CAutoMapper::SAutoMapperRenderState::InterpolateWithClamp(const SAutoMapperRenderState& a,
                                                                SAutoMapperRenderState& out,
@@ -217,6 +217,7 @@ bool CAutoMapper::CheckDummyWorldLoad(CStateManager& mgr) {
   xa0_curAreaId = aid;
 
   dummyWorld->IGetMapWorld()->RecalculateWorldSphere(mwInfo, *dummyWorld);
+  x24_world = dummyWorld.get();
   BeginMapperStateTransition(EAutoMapperState::MapScreen, mgr);
   x32c_loadingDummyWorld = false;
   return true;
@@ -1558,8 +1559,8 @@ void CAutoMapper::SetupHintNavigation() {
     for (const CGameHintInfo::SHintLocation& loc : nextHint.GetLocations()) {
       if (loc.x0_mlvlId != curMlvl) {
         x1e0_hintSteps.emplace_back(SAutoMapperHintStep::SwitchToUniverse{});
-        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::PanToWorld{}, curMlvl);
-        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::SwitchToWorld{}, curMlvl);
+        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::PanToWorld{}, loc.x0_mlvlId);
+        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::SwitchToWorld{}, loc.x0_mlvlId);
       } else {
         x1e0_hintSteps.emplace_back(SAutoMapperHintStep::ZoomOut{});
       }
@@ -1626,4 +1627,4 @@ void CAutoMapper::OnNewInGameGuiState(EInGameGuiState state, CStateManager& mgr)
   }
 }
 
-} // namespace urde
+} // namespace metaforce

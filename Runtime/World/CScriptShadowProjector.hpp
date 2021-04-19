@@ -8,7 +8,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CProjectedShadow;
 
 class CScriptShadowProjector : public CActor {
@@ -34,4 +34,4 @@ public:
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) override {}
   void CreateProjectedShadow();
 };
-} // namespace urde
+} // namespace metaforce

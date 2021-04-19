@@ -7,7 +7,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Character/CCharAnimTime.hpp"
 
-namespace urde {
+namespace metaforce {
 class CAnimTreeNode;
 class CPrimitive;
 class IAnimReader;
@@ -68,4 +68,4 @@ public:
   static CCharAnimTime GetTime(const CPreAdvanceIndicator& ind, const IAnimReader& anim);
 };
 
-} // namespace urde
+} // namespace metaforce

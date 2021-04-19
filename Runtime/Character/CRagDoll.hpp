@@ -9,7 +9,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCharLayoutInfo;
 class CHierarchyPoseBuilder;
 class CModelData;
@@ -132,4 +132,4 @@ public:
   u32 GetImpactCount() const { return x4c_impactCount; }
 };
 
-} // namespace urde
+} // namespace metaforce

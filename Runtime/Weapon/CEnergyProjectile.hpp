@@ -3,7 +3,7 @@
 #include "CGameProjectile.hpp"
 #include "Camera/CCameraShakeData.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CEnergyProjectile : public CGameProjectile {
   CSfxHandle x2e8_sfx;
@@ -42,4 +42,4 @@ public:
   void Set3d0_26(bool v) { x3d0_26_ = v; }
 };
 
-} // namespace urde
+} // namespace metaforce

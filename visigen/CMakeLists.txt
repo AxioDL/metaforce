@@ -37,8 +37,6 @@ else()
   target_sources(visigen PRIVATE MainXlib.cpp)
 endif()
 
-set_target_properties(visigen PROPERTIES COMPILE_DEFINITIONS URDE_DLPACKAGE="${URDE_DLPACKAGE}")
-
 if(APPLE)
   find_library(OPENGL_LIBRARY OpenGL)
   target_link_libraries(visigen PRIVATE ${OPENGL_LIBRARY})

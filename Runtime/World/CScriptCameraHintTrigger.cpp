@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptCameraHintTrigger::CScriptCameraHintTrigger(TUniqueId uid, bool active, std::string_view name,
                                                    const CEntityInfo& info, const zeus::CVector3f& scale,
@@ -60,4 +60,4 @@ std::optional<zeus::CAABox> CScriptCameraHintTrigger::GetTouchBounds() const {
   return {xe8_obb.calculateAABox()};
 }
 
-} // namespace urde
+} // namespace metaforce

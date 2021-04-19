@@ -3,7 +3,7 @@
 #include <memory>
 #include "Runtime/IObj.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class IVParamObj : public IObj {
 public:
@@ -44,4 +44,4 @@ public:
   static CVParamTransfer Null() noexcept { return CVParamTransfer(); }
 };
 
-} // namespace urde
+} // namespace metaforce

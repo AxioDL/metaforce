@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Particle/CParticleGen.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CWarp {
 public:
@@ -17,4 +17,4 @@ public:
   virtual FourCC Get4CharID() = 0;
 };
 
-} // namespace urde
+} // namespace metaforce

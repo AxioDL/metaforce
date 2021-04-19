@@ -7,7 +7,7 @@
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 #include "Runtime/Input/RumbleFxTable.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 COptionsScreen::COptionsScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg)
 : CPauseScreenBase(mgr, frame, pauseStrg), x1a0_gameCube{std::make_unique<CGameCubeDoll>()} {}
@@ -254,4 +254,4 @@ u32 COptionsScreen::GetRightTableCount() const {
   return GameOptionsRegistry[x70_tablegroup_leftlog->GetUserSelection()].first;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

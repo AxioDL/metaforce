@@ -7,7 +7,7 @@
 #include "hecl/Runtime.hpp"
 #include "MP1/MP1.hpp"
 
-namespace urde {
+namespace metaforce {
 class ViewManager;
 
 using ConfigReader = athena::io::YAMLDocReader;
@@ -55,4 +55,4 @@ public:
   void shutdown();
 };
 
-} // namespace urde
+} // namespace metaforce

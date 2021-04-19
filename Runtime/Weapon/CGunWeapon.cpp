@@ -12,7 +12,7 @@
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
 #include "Runtime/Weapon/CWeapon.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr std::array skBeamXferNames{
     "PowerXfer", "IceXfer", "WaveXfer", "PlasmaXfer", "PhazonXfer",
@@ -176,6 +176,7 @@ constexpr std::array<s32, 2> CGunWeapon::skShootAnim{4, 3};
 
 void CGunWeapon::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                       CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
+  OPTICK_EVENT();
   CDamageInfo dInfo = GetDamageInfo(mgr, chargeState, chargeFactor1);
   zeus::CVector3f scale(chargeState == EChargeState::Normal ? 1.f : chargeFactor2);
   bool partialCharge = chargeState == EChargeState::Normal ? false : !zeus::close_enough(chargeFactor1, 1.f);
@@ -592,4 +593,4 @@ bool CGunWeapon::IsChargeAnimOver() const {
   return !(x218_25_enableCharge && x10_solidModelData->GetAnimationData()->IsAnimTimeRemaining(0.001f, "Whole Body"));
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -2,6 +2,7 @@
 
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/rstl.hpp"
+#include "Runtime/Character/CharacterCommon.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
 
 #include <algorithm>
@@ -10,10 +11,10 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CPASAnimState::CPASAnimState(CInputStream& in) {
-  x0_id = in.readUint32Big();
+  x0_id = static_cast<pas::EAnimationState>(in.readUint32Big());
   u32 parmCount = in.readUint32Big();
   u32 animCount = in.readUint32Big();
 
@@ -58,7 +59,7 @@ CPASAnimState::CPASAnimState(CInputStream& in) {
   }
 }
 
-CPASAnimState::CPASAnimState(int stateId) : x0_id(stateId) {}
+CPASAnimState::CPASAnimState(pas::EAnimationState stateId) : x0_id(stateId) {}
 
 CPASAnimParm CPASAnimState::GetAnimParmData(s32 animId, size_t parmIdx) const {
   const auto search = rstl::binary_find(x14_anims.cbegin(), x14_anims.cend(), animId,
@@ -252,4 +253,4 @@ float CPASAnimState::ComputeAngularPercentErrorWeight(size_t idx, const CPASAnim
 
   return (val >= FLT_EPSILON ? 0.f : 1.f);
 }
-} // namespace urde
+} // namespace metaforce

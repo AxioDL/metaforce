@@ -3,7 +3,7 @@
 #include "Runtime/World/CRipple.hpp"
 #include "Runtime/World/CRippleManager.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CFluidPlaneShader::PrepareBinding(u32 maxVertCount) {
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -166,4 +166,4 @@ void CFluidPlaneShader::loadVerts(const std::vector<Vertex>& verts, const std::v
     m_pvbo->load(pVerts.data(), pVerts.size() * sizeof(PatchVertex));
 }
 
-} // namespace urde
+} // namespace metaforce

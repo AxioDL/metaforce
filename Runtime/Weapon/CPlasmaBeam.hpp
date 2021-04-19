@@ -3,7 +3,7 @@
 #include <memory>
 #include "Runtime/Weapon/CGunWeapon.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPlasmaBeam final : public CGunWeapon {
   TCachedToken<CGenDescription> x21c_plasma2nd1;
@@ -42,4 +42,4 @@ public:
   bool IsLoaded() const override;
 };
 
-} // namespace urde
+} // namespace metaforce

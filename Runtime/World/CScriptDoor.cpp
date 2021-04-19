@@ -12,7 +12,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 static CMaterialList MakeDoorMaterialList(bool open) {
   CMaterialList ret;
@@ -410,4 +410,4 @@ std::optional<zeus::CAABox> CScriptDoor::GetProjectileBounds() const {
   return std::nullopt;
 }
 
-} // namespace urde
+} // namespace metaforce

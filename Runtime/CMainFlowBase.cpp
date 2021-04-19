@@ -2,7 +2,7 @@
 
 #include "Runtime/CArchitectureMessage.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CIOWin::EMessageReturn CMainFlowBase::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) {
   switch (msg.GetType()) {
@@ -21,4 +21,4 @@ CIOWin::EMessageReturn CMainFlowBase::OnMessage(const CArchitectureMessage& msg,
   return EMessageReturn::Normal;
 }
 
-} // namespace urde
+} // namespace metaforce

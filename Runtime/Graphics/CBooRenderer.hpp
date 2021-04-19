@@ -30,7 +30,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CBooModel;
 class CMemorySys;
 class CParticleGen;
@@ -323,4 +323,4 @@ public:
   bool IsInAreaDraw() const { return x318_30_inAreaDraw; }
 };
 
-} // namespace urde
+} // namespace metaforce

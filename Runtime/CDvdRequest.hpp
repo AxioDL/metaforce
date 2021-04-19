@@ -1,6 +1,6 @@
 #pragma once
 
-namespace urde {
+namespace metaforce {
 
 class IDvdRequest {
 public:
@@ -14,4 +14,4 @@ public:
   virtual EMediaType GetMediaType() const = 0;
 };
 
-} // namespace urde
+} // namespace metaforce

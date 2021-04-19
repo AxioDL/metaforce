@@ -139,7 +139,7 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::Enumer
 }
 
 std::string_view ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::DNAType() {
-  return "urde::DNAMP1::ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo"sv;
+  return "DNAMP1::ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo"sv;
 }
 
 template <>
@@ -315,7 +315,7 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::Enumerate<BigDNA
 }
 
 std::string_view ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::DNAType() {
-  return "urde::DNAMP1::ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState"sv;
+  return "DNAMP1::ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState"sv;
 }
 
 template <>
@@ -606,7 +606,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(athena::io:
 }
 
 std::string_view ANCS::CharacterSet::CharacterInfo::DNAType() {
-  return "urde::DNAMP1::ANCS::CharacterSet::CharacterInfo"sv;
+  return "DNAMP1::ANCS::CharacterSet::CharacterInfo"sv;
 }
 
 template <>
@@ -688,7 +688,7 @@ void ANCS::AnimationSet::MetaAnimFactory::Enumerate<BigDNA::WriteYaml>(athena::i
 }
 
 std::string_view ANCS::AnimationSet::MetaAnimFactory::DNAType() {
-  return "urde::DNAMP1::ANCS::AnimationSet::MetaAnimFactory"sv;
+  return "DNAMP1::ANCS::AnimationSet::MetaAnimFactory"sv;
 }
 
 template <>
@@ -761,7 +761,7 @@ void ANCS::AnimationSet::MetaTransFactory::Enumerate<BigDNA::WriteYaml>(athena::
 }
 
 std::string_view ANCS::AnimationSet::MetaTransFactory::DNAType() {
-  return "urde::DNAMP1::ANCS::AnimationSet::MetaTransFactory"sv;
+  return "DNAMP1::ANCS::AnimationSet::MetaTransFactory"sv;
 }
 
 template <>
@@ -955,7 +955,7 @@ void ANCS::AnimationSet::MetaAnimPrimitive::gatherPrimitives(
   out[animIdx] = {animName, animId, ANIM::GetEVNTId(rs), false};
 }
 
-std::string_view ANCS::AnimationSet::DNAType() { return "urde::DNAMP1::ANCS::AnimationSet"sv; }
+std::string_view ANCS::AnimationSet::DNAType() { return "DNAMP1::ANCS::AnimationSet"sv; }
 
 bool ANCS::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
@@ -994,7 +994,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("can't open '{}' for reading")), yamlPath.getRelativePath());
 
   if (!athena::io::ValidateFromYAMLStream<ANCS>(reader)) {
-    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("'{}' is not urde::DNAMP1::ANCS type")), yamlPath.getRelativePath());
+    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("'{}' is not DNAMP1::ANCS type")), yamlPath.getRelativePath());
   }
 
   athena::io::YAMLDocReader yamlReader;

@@ -1,6 +1,6 @@
 #include "Runtime/Character/CEffectComponent.hpp"
 
-namespace urde {
+namespace metaforce {
 
 SObjectTag CEffectComponent::GetSObjectTagFromStream(CInputStream& in) { return SObjectTag(in); }
 
@@ -13,4 +13,4 @@ CEffectComponent::CEffectComponent(CInputStream& in) {
   x30_flags = in.readUint32Big();
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -10,7 +10,7 @@
 #include "zeus/CVector2i.hpp"
 #include "zeus/CVector3f.hpp"
 
-namespace urde {
+namespace metaforce {
 class CGlyph;
 class CFontImageDef;
 class CTextRenderBuffer;
@@ -47,4 +47,4 @@ public:
   static void BuildImageShaderBinding(CTextRenderBuffer& buf, BooImage& img, CGuiWidget::EGuiModelDrawFlags flags);
 };
 
-} // namespace urde
+} // namespace metaforce

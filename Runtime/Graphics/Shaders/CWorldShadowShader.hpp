@@ -8,7 +8,7 @@
 #include "zeus/CColor.hpp"
 #include "zeus/CMatrix4f.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CWorldShadowShader {
 public:
@@ -45,4 +45,4 @@ public:
   hsh::render_texture2d GetTexture() const { return m_tex.get_color(0); }
 };
 
-} // namespace urde
+} // namespace metaforce

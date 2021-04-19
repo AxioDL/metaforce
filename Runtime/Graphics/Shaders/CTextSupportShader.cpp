@@ -8,7 +8,7 @@
 
 #include "CTextSupportShader.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 constexpr hsh::sampler ClampEdgeSamp(hsh::Linear, hsh::Linear, hsh::Linear, hsh::ClampToEdge, hsh::ClampToEdge,
@@ -140,4 +140,4 @@ void CTextSupportShader::BuildImageShaderBinding(CTextRenderBuffer& buf, BooImag
   }
 }
 
-} // namespace urde
+} // namespace metaforce

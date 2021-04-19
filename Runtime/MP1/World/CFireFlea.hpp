@@ -8,7 +8,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CFireFlea : public CPatterned {
   class CDeathCameraEffect : public CEntity {
     u32 x34_ = 13;
@@ -53,4 +53,4 @@ public:
   void Flee(CStateManager&, EStateMsg, float) override;
   CPathFindSearch* GetSearchPath() override { return &xd8c_pathFind; }
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

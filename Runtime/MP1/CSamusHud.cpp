@@ -15,7 +15,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CSamusHud* CSamusHud::g_SamusHud = nullptr;
 
@@ -1653,4 +1653,4 @@ void CSamusHud::InternalDeferHintMemo(CAssetId strg, u32 strgIdx, const CHUDMemo
   x554_hudMemoIdx = strgIdx;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

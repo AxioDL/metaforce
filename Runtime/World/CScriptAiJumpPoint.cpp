@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptAiJumpPoint::CScriptAiJumpPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                        zeus::CTransform& xf, bool active, float apex)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
@@ -50,4 +50,4 @@ bool CScriptAiJumpPoint::GetInUse(TUniqueId uid) const {
   return x108_24_inUse || x110_timeRemaining > 0.f ||
          (x10a_occupant != kInvalidUniqueId && uid != kInvalidUniqueId && x10a_occupant != uid);
 }
-} // namespace urde
+} // namespace metaforce

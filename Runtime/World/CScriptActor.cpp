@@ -14,7 +14,7 @@
 
 #include <zeus/CEulerAngles.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const zeus::CAABox& aabb, float mass, float zMomentum,
@@ -150,8 +150,10 @@ void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
     if (x2e2_24_noThermalHotZ && xe6_27_thermalVisorFlags == 2) {
       if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
         xb4_drawFlags.x2_flags &= ~3; // Disable Z test/update
+        xb4_drawFlags.m_noZTest = true;
       } else {
         xb4_drawFlags.x2_flags |= 3; // Enable Z test/update
+        xb4_drawFlags.m_noZTest = false;
       }
     }
 
@@ -200,4 +202,4 @@ std::optional<zeus::CAABox> CScriptActor::GetTouchBounds() const {
 void CScriptActor::Touch(CActor&, CStateManager&) {
   // Empty
 }
-} // namespace urde
+} // namespace metaforce

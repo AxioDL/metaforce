@@ -14,7 +14,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/PART_(File_Format) */
 
-namespace urde {
+namespace metaforce {
 
 class CGenDescription {
 public:
@@ -110,4 +110,4 @@ public:
   CGenDescription() = default;
 };
 
-} // namespace urde
+} // namespace metaforce

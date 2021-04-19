@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptCameraWaypoint::CScriptCameraWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                              const zeus::CTransform& xf, bool active, float hfov, u32 w1)
@@ -39,4 +39,4 @@ TUniqueId CScriptCameraWaypoint::GetRandomNextWaypointId(CStateManager& mgr) con
   return candidateIds[mgr.GetActiveRandom()->Range(0, s32(candidateIds.size() - 1))];
 }
 
-} // namespace urde
+} // namespace metaforce

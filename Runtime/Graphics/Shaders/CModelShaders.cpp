@@ -10,7 +10,7 @@
 
 #include "zeus/CAABox.hpp"
 
-namespace urde {
+namespace metaforce {
 using BlendMaterial = hecl::blender::Material;
 using MaterialBlendMode = BlendMaterial::BlendMode;
 
@@ -73,7 +73,7 @@ using DynReflectionTexType = typename DynReflectionTex<CubeReflection>::type;
 
 #include "CModelShaders.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 
 void CModelShaders::FragmentUniform::ActivateLights(const std::vector<CLight>& lts) {
   ambient = zeus::skClear;
@@ -1183,4 +1183,4 @@ struct CCubeMaterial {
 };
 #endif
 
-} // namespace urde
+} // namespace metaforce

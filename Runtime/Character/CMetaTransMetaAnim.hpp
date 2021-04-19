@@ -6,7 +6,7 @@
 #include "Runtime/Character/IMetaAnim.hpp"
 #include "Runtime/Character/IMetaTrans.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CMetaTransMetaAnim : public IMetaTrans {
   std::shared_ptr<IMetaAnim> x4_metaAnim;
@@ -20,4 +20,4 @@ public:
                                                     const CAnimSysContext& animSys) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

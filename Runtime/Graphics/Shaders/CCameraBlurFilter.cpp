@@ -8,7 +8,7 @@
 
 #include "CCameraBlurFilter.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 struct CCameraBlurFilterPipeline : FilterPipeline<EFilterType::Blend> {
@@ -82,4 +82,4 @@ void CCameraBlurFilter::draw(float amount, bool clearDepth) {
   m_dataBind.draw(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

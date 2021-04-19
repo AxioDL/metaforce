@@ -11,7 +11,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 constexpr s32 skMazeCols = 9;
 constexpr s32 skMazeRows = 7;
 constexpr s32 skEnterCol = 4;
@@ -54,11 +54,9 @@ class CMazeState {
   s32 x90_targetRow;
   bool x94_24_initialized : 1 = false;
 
-#ifndef NDEBUG
   std::vector<s32> m_path;
   CLineRenderer m_renderer = {CLineRenderer::EPrimitiveMode::LineStrip, skMazeRows* skMazeCols, hsh::texture2d{}, true,
                               hsh::Compare::LEqual};
-#endif
 
 public:
   CMazeState(s32 enterCol, s32 enterRow, s32 targetCol, s32 targetRow)
@@ -67,9 +65,7 @@ public:
   void Initialize();
   void GenerateObstacles();
 
-#ifndef NDEBUG
   void DebugRender();
-#endif
 
   [[nodiscard]] SMazeCell& GetCell(u32 col, u32 row) {
 #ifndef NDEBUG
@@ -119,4 +115,4 @@ private:
   void Reset(CStateManager& mgr);
   void SendScriptMsgs(CStateManager& mgr, EScriptObjectMessage msg);
 };
-} // namespace urde
+} // namespace metaforce

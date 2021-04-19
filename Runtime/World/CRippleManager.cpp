@@ -1,6 +1,6 @@
 #include "Runtime/World/CRippleManager.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CRippleManager::CRippleManager(int maxRipples, float alpha) : x14_alpha(alpha) { Init(maxRipples); }
 
@@ -42,4 +42,4 @@ void CRippleManager::AddRipple(const CRipple& ripple) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

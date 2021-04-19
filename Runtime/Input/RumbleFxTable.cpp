@@ -1,6 +1,6 @@
 #include "Runtime/Input/RumbleFxTable.hpp"
 
-namespace urde {
+namespace metaforce {
 
 constexpr RumbleFXTable RumbleFxTable{{
     /* attackGain, autoReleaseDur, attackDur, decayDur, sustainGain, releaseDur, hasSustain, autoRelease */

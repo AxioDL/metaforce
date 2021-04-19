@@ -3,7 +3,7 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
 
-namespace urde {
+namespace metaforce {
 CRandom16 CDecal::sDecalRandom;
 bool CDecal::sMoveRedToAlphaBuffer = false;
 
@@ -278,4 +278,4 @@ void CDecal::Update(float dt) {
   ++x58_frameIdx;
 }
 
-} // namespace urde
+} // namespace metaforce

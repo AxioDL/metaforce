@@ -10,7 +10,7 @@
 #include "Runtime/MP1/CLogBookScreen.hpp"
 #include "Runtime/MP1/COptionsScreen.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CPauseScreen::CPauseScreen(ESubScreen subscreen, const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp)
 : x0_initialSubScreen(subscreen)
@@ -354,4 +354,4 @@ float CPauseScreen::GetHelmetCamYOff() const {
   return 0.f;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -8,16 +8,16 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 constexpr CMaterialList skDefaultCollisionActorMaterials =
     CMaterialList(EMaterialTypes::Solid, EMaterialTypes::CollisionActor, EMaterialTypes::ScanPassthrough,
                   EMaterialTypes::CameraPassthrough);
 
 CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, const zeus::CVector3f& extent,
                                  const zeus::CVector3f& center, bool active, float mass, std::string_view name)
-: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList),
-                zeus::CTransform(), CModelData::CModelDataNull(), skDefaultCollisionActorMaterials,
-                zeus::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
+: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList), zeus::CTransform(),
+                CModelData::CModelDataNull(), skDefaultCollisionActorMaterials, zeus::skNullBox, SMoverData(mass),
+                CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::OBBTreeGroup)
 , x25c_owner(owner)
 , x260_boxSize(extent)
@@ -34,9 +34,9 @@ CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner,
 
 CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, const zeus::CVector3f& boxSize,
                                  bool active, float mass, std::string_view name)
-: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList),
-                zeus::CTransform(), CModelData::CModelDataNull(), skDefaultCollisionActorMaterials,
-                zeus::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
+: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList), zeus::CTransform(),
+                CModelData::CModelDataNull(), skDefaultCollisionActorMaterials, zeus::skNullBox, SMoverData(mass),
+                CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::AABox)
 , x25c_owner(owner)
 , x260_boxSize(boxSize)
@@ -53,9 +53,9 @@ CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner,
 
 CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, bool active, float radius, float mass,
                                  std::string_view name)
-: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList),
-                zeus::CTransform(), CModelData::CModelDataNull(), skDefaultCollisionActorMaterials,
-                zeus::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
+: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList), zeus::CTransform(),
+                CModelData::CModelDataNull(), skDefaultCollisionActorMaterials, zeus::skNullBox, SMoverData(mass),
+                CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::Sphere)
 , x25c_owner(owner)
 , x284_spherePrimitive(std::make_unique<CCollidableSphere>(
@@ -179,4 +179,17 @@ void CCollisionActor::SetSphereRadius(float radius) {
   x288_sphereRadius = radius;
   x284_spherePrimitive->SetSphereRadius(radius);
 }
-} // namespace urde
+void CCollisionActor::DebugDraw() {
+  zeus::CAABox aabox;
+  if (x258_primitiveType == EPrimitiveType::OBBTreeGroup)
+    aabox = x27c_obbTreeGroupPrimitive->CalculateAABox(x34_transform);
+  else if (x258_primitiveType == EPrimitiveType::AABox)
+    aabox = x280_aaboxPrimitive->CalculateAABox(x34_transform);
+  else if (x258_primitiveType == EPrimitiveType::Sphere)
+    aabox = x284_spherePrimitive->CalculateAABox(x34_transform);
+  m_aabox.setAABB(aabox);
+  zeus::CColor col = !GetActive() ? zeus::skRed : zeus::skGreen;
+  col.a() = 0.5f;
+  m_aabox.draw(col);
+}
+} // namespace metaforce

@@ -12,7 +12,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CGenDescription;
 class CElectricDescription;
 
@@ -48,4 +48,4 @@ public:
   static zeus::CVector3f GetScaleForPOV(CStateManager& mgr);
 };
 
-} // namespace urde
+} // namespace metaforce

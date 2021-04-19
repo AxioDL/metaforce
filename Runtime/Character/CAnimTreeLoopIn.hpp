@@ -8,7 +8,7 @@
 #include "Runtime/Character/CAnimTreeSingleChild.hpp"
 #include "Runtime/Character/CSequenceHelper.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimTreeLoopIn : public CAnimTreeSingleChild {
   std::shared_ptr<CAnimTreeNode> x18_nextAnim;
@@ -42,4 +42,4 @@ public:
   SAdvancementResults VAdvanceView(const CCharAnimTime& dt) override;
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -13,7 +13,7 @@
 #include "Runtime/World/CWorld.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 static constexpr CMaterialFilter skMaterialFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
 
@@ -77,7 +77,7 @@ CSnakeWeedSwarm::CSnakeWeedSwarm(TUniqueId uid, bool active, std::string_view na
   }
 }
 
-void CSnakeWeedSwarm::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
+void CSnakeWeedSwarm::Accept(metaforce::IVisitor& visitor) { visitor.Visit(this); }
 
 void CSnakeWeedSwarm::AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which) {
   for (int i = 0; i < x1b0_modelData.size(); ++i) {
@@ -437,4 +437,4 @@ std::optional<zeus::CAABox> CSnakeWeedSwarm::GetTouchBounds() const {
   return std::nullopt;
 }
 
-} // namespace urde
+} // namespace metaforce

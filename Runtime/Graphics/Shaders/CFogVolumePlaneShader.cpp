@@ -4,7 +4,7 @@
 
 #include "CFogVolumePlaneShader.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 template <size_t I>
@@ -81,4 +81,4 @@ void CFogVolumePlaneShader::draw(size_t pass) {
   m_dataBinds[pass].draw(0, m_verts.size());
 }
 
-} // namespace urde
+} // namespace metaforce

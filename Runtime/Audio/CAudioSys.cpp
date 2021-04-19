@@ -6,7 +6,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/Audio/CAudioGroupSet.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 std::unordered_map<std::string, TLockedToken<CAudioGroupSet>> mpGroupSetDB;
 std::unordered_map<CAssetId, std::string> mpGroupSetResNameDB;
@@ -96,4 +96,4 @@ void CAudioSys::SetDefaultVolumeScale(s16 scale) { s_DefaultVolumeScale = scale;
 
 void CAudioSys::SetVolumeScale(s16 scale) { s_VolumeScale = scale; }
 
-} // namespace urde
+} // namespace metaforce

@@ -10,7 +10,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Real_Elements */
 
-namespace urde {
+namespace metaforce {
 
 CREKeyframeEmitter::CREKeyframeEmitter(CInputStream& in) {
   x4_percent = in.readUint32Big();
@@ -351,4 +351,4 @@ bool CREGetComponentAlpha::GetValue(int frame, float& valOut) const {
   return false;
 }
 
-} // namespace urde
+} // namespace metaforce

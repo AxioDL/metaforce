@@ -10,7 +10,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CElectricBeamProjectile::CElectricBeamProjectile(const TToken<CWeaponDescription>& wDesc, EWeaponType wType,
                                                  const SElectricBeamInfo& elec, const zeus::CTransform& xf,
                                                  EMaterialTypes matTypes, const CDamageInfo& dInfo, TUniqueId uid,
@@ -109,4 +109,4 @@ void CElectricBeamProjectile::Fire(const zeus::CTransform&, CStateManager&, bool
   SetActive(true);
   x480_ = 0.f;
 }
-} // namespace urde
+} // namespace metaforce

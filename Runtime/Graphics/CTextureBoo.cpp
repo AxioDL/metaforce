@@ -8,9 +8,9 @@
 #include "Runtime/CTextureCache.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
-logvisor::Module Log("urde::CTextureBoo");
+logvisor::Module Log("metaforce::CTextureBoo");
 
 /* GX uses this upsampling technique to extract full 8-bit range */
 constexpr u8 Convert3To8(u8 v) {
@@ -727,8 +727,8 @@ hsh::texture2d_array CTexture::GetFontTexture(EFontType tp) {
   return m_booTex.get();
 }
 
-CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                                 const urde::CVParamTransfer& vparms, CObjectReference* selfRef) {
+CFactoryFnReturn FTextureFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                                 const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef) {
   u32 u32Owned = vparms.GetOwnedObj<u32>();
   const CTextureInfo* inf = nullptr;
   if (g_TextureCache)
@@ -737,4 +737,4 @@ CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag, std::unique_ptr<u8
       std::make_unique<CTexture>(std::move(in), len, u32Owned == SBIG('OTEX'), inf));
 }
 
-} // namespace urde
+} // namespace metaforce

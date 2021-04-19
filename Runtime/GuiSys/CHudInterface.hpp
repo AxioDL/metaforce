@@ -1,6 +1,6 @@
 #pragma once
 
-namespace urde {
+namespace metaforce {
 
 enum class EHudType { Combat, Scan, XRay, Thermal, Ball };
 

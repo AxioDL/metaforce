@@ -12,7 +12,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CPoseAsTransforms {
   friend class CAnimData;
 public:
@@ -42,4 +42,4 @@ public:
               const zeus::CVector3f& restOffset);
 };
 
-} // namespace urde
+} // namespace metaforce

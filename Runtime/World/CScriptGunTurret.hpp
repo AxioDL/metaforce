@@ -13,7 +13,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollisionActorManager;
 class CElementGen;
 
@@ -231,4 +231,4 @@ public:
   CHealthInfo* HealthInfo(CStateManager&) override { return &x264_healthInfo; }
   const CDamageVulnerability* GetDamageVulnerability() const override { return &x26c_damageVuln; }
 };
-} // namespace urde
+} // namespace metaforce

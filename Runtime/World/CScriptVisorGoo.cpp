@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptVisorGoo::CScriptVisorGoo(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                  const zeus::CTransform& xf, CAssetId particle, CAssetId electric, float minDist,
@@ -121,4 +121,4 @@ void CScriptVisorGoo::Touch(CActor& other, CStateManager& mgr) {
   // Empty
 }
 
-} // namespace urde
+} // namespace metaforce

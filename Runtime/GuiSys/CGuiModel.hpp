@@ -6,7 +6,7 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
-namespace urde {
+namespace metaforce {
 class CSimplePool;
 
 class CGuiModel : public CGuiWidget {
@@ -28,4 +28,4 @@ public:
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 
-} // namespace urde
+} // namespace metaforce

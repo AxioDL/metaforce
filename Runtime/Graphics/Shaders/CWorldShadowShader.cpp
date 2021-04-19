@@ -7,7 +7,7 @@
 
 #include "CWorldShadowShader.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 template <bool Depth>
@@ -79,4 +79,4 @@ void CWorldShadowShader::blendPreviousShadow() {
 
 void CWorldShadowShader::resolveTexture() { m_tex.resolve_color_binding(0, hsh::rect2d{{}, {m_w, m_h}}, false); }
 
-} // namespace urde
+} // namespace metaforce

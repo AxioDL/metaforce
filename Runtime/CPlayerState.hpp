@@ -9,7 +9,7 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/World/CHealthInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPlayerState {
   friend class CWorldTransManager;
@@ -151,7 +151,7 @@ public:
   static float GetEnergyTankCapacity() { return 100.f; }
   static float GetBaseHealthCapacity() { return 99.f; }
   float CalculateHealth();
-  void ReInitalizePowerUp(EItemType type, u32 capacity);
+  void ReInitializePowerUp(EItemType type, u32 capacity);
   void AddPowerUp(EItemType type, u32 capacity);
   u32 GetLogScans() const { return x180_scanCompletionRate.first; }
   u32 GetTotalLogScans() const { return x180_scanCompletionRate.second; }
@@ -171,4 +171,4 @@ public:
   bool CanTakeDamage() const { return m_canTakeDamage; }
   void SetCanTakeDamage(bool c) { m_canTakeDamage = c; }
 };
-} // namespace urde
+} // namespace metaforce

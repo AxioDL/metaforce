@@ -10,7 +10,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CPlasmaProjectile::RenderObjects::RenderObjects(hsh::texture2d tex,
                                                 hsh::texture2d glowTex)
@@ -27,7 +27,7 @@ CPlasmaProjectile::RenderObjects::RenderObjects(hsh::texture2d tex,
 CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                                      const CBeamInfo& bInfo, const zeus::CTransform& xf, EMaterialTypes matType,
                                      const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
-                                     const PlayerEffectResoures& res, bool growingBeam, EProjectileAttrib attribs)
+                                     const PlayerEffectResources& res, bool growingBeam, EProjectileAttrib attribs)
 : CBeamProjectile(wDesc, name, wType, xf, bInfo.GetLength(), bInfo.GetRadius(), bInfo.GetTravelSpeed(), matType, dInfo,
                   uid, aid, owner, attribs, growingBeam)
 , x478_beamAttributes(bInfo.GetBeamAttributes())
@@ -440,4 +440,4 @@ void CPlasmaProjectile::Render(CStateManager& mgr) {
              (flags & 0x10) ? m_renderObjs->m_beamStrip4Sub : m_renderObjs->m_beamStrip4);
 }
 
-} // namespace urde
+} // namespace metaforce

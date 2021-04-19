@@ -7,7 +7,7 @@
 #include "Runtime/World/CPatterned.hpp"
 #include "Runtime/World/CPathFindSearch.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CAtomicAlpha : public CPatterned {
   static constexpr u32 skBombCount = 4;
   struct SBomb {
@@ -60,4 +60,4 @@ public:
 
   CProjectileInfo* GetProjectileInfo() override { return &x668_bombProjectile; }
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

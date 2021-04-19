@@ -4,7 +4,7 @@
 
 #include "hsh/hsh.h"
 
-namespace urde {
+namespace metaforce {
 class CEnvFxManager;
 class CEnvFxManagerGrid;
 
@@ -25,4 +25,4 @@ public:
   static void BuildShaderDataBinding(CEnvFxManager& fxMgr, CEnvFxManagerGrid& grid);
 };
 
-} // namespace urde
+} // namespace metaforce

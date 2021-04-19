@@ -6,7 +6,7 @@
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-namespace urde {
+namespace metaforce {
 class CScriptCameraBlurKeyframe : public CEntity {
   EBlurType x34_type;
   float x38_amount;
@@ -21,4 +21,4 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   void Accept(IVisitor& visitor) override;
 };
-} // namespace urde
+} // namespace metaforce

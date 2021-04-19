@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptSteam::CScriptSteam(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& pos,
                            const zeus::CAABox& aabb, const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce,
@@ -59,4 +59,4 @@ void CScriptSteam::Think(float dt, CStateManager& mgr) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

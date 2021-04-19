@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 class CScriptTargetingPoint : public CActor {
 private:
   bool xe8_e4_ : 1 = false;
@@ -22,4 +22,4 @@ public:
 
   bool GetLocked() const;
 };
-} // namespace urde
+} // namespace metaforce

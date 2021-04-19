@@ -6,7 +6,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CGameAllocator {
   struct SAllocationDescription {
     std::unique_ptr<u8[]> memptr;
@@ -27,4 +27,4 @@ public:
   static u8* Alloc(size_t len);
   static void Free(u8* ptr);
 };
-} // namespace urde
+} // namespace metaforce

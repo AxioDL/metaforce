@@ -1,36 +1,22 @@
 #include "Runtime/World/CScriptSpawnPoint.hpp"
 
 #include "Runtime/CStateManager.hpp"
-#include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CWorld.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                      const zeus::CTransform& xf,
                                      const rstl::reserved_vector<u32, int(CPlayerState::EItemType::Max)>& itemCounts,
                                      bool defaultSpawn, bool active, bool morphed)
-: CEntity(uid, info, active, name), x34_xf(xf), x64_itemCounts(itemCounts) {
-#ifndef NDEBUG
-  x64_itemCounts[size_t(CPlayerState::EItemType::MorphBall)] = 1;
-  x64_itemCounts[size_t(CPlayerState::EItemType::MorphBallBombs)] = 1;
-  x64_itemCounts[size_t(CPlayerState::EItemType::PhazonSuit)] = 1;
-  x64_itemCounts[size_t(CPlayerState::EItemType::ThermalVisor)] = 1;
-  x64_itemCounts[size_t(CPlayerState::EItemType::XRayVisor)] = 1;
-  x64_itemCounts[size_t(CPlayerState::EItemType::GrappleBeam)] = 1;
-  x64_itemCounts[size_t(CPlayerState::EItemType::BoostBall)] = 1;
-  x64_itemCounts[size_t(CPlayerState::EItemType::ChargeBeam)] = 1;
-  x64_itemCounts[size_t(CPlayerState::EItemType::PowerBombs)] = 8;
-  x64_itemCounts[size_t(CPlayerState::EItemType::SpaceJumpBoots)] = 1;
-  x64_itemCounts[size_t(CPlayerState::EItemType::Missiles)] =
-    std::max(x64_itemCounts[size_t(CPlayerState::EItemType::Missiles)], u32(5));
-#endif
-  x10c_24_firstSpawn = defaultSpawn;
-  x10c_25_morphed = morphed;
-}
+: CEntity(uid, info, active, name)
+, x34_xf(xf)
+, x64_itemCounts(itemCounts)
+, x10c_24_firstSpawn(defaultSpawn)
+, x10c_25_morphed(morphed) { }
 
 void CScriptSpawnPoint::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
@@ -42,7 +28,7 @@ void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
       using EPlayerItemType = CPlayerState::EItemType;
       const std::shared_ptr<CPlayerState>& plState = stateMgr.GetPlayerState();
       for (u32 i = 0; i < u32(EPlayerItemType::Max); ++i) {
-        plState->ReInitalizePowerUp(EPlayerItemType(i), GetPowerup(EPlayerItemType(i)));
+        plState->ReInitializePowerUp(EPlayerItemType(i), GetPowerup(EPlayerItemType(i)));
         plState->ResetAndIncrPickUp(EPlayerItemType(i), GetPowerup(EPlayerItemType(i)));
       }
     }
@@ -83,4 +69,4 @@ u32 CScriptSpawnPoint::GetPowerup(CPlayerState::EItemType item) const {
   }
   return x64_itemCounts[idx];
 }
-} // namespace urde
+} // namespace metaforce

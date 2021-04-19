@@ -18,7 +18,7 @@
 
 #include <hecl/CVarManager.hpp>
 
-namespace urde {
+namespace metaforce {
 
 int CWorldTransManager::GetSuitCharIdx() {
   CPlayerState& state = *g_GameState->GetPlayerState();
@@ -491,4 +491,4 @@ void CWorldTransManager::SfxStart() {
     x28_sfxHandle = CSfxManager::SfxStart(x24_sfx, x2c_volume, x2d_panning, false, 127, true, -1);
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -269,7 +269,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         std::vector<hecl::ProjectPath> depPaths;
         std::vector<hecl::ProjectPath> lazyPaths;
         for (std::unique_ptr<IScriptObject>& obj : layer.objects) {
-          if (obj->type == int(urde::EScriptObjectType::MemoryRelay)) {
+          if (obj->type == int(metaforce::EScriptObjectType::MemoryRelay)) {
             MemoryRelay& memRelay = static_cast<MemoryRelay&>(*obj);
             for (IScriptObject::Connection& conn : memRelay.connections) {
               MemRelayLink linkOut;
@@ -319,7 +319,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
       areaOut.depLayers.push_back(areaOut.deps.size());
       for (const std::pair<hecl::ProjectPath, bool>& path : layer) {
         if (path.first) {
-          urde::SObjectTag tag = g_curSpec->buildTagFromPath(path.first);
+          metaforce::SObjectTag tag = g_curSpec->buildTagFromPath(path.first);
           if (tag.id.IsValid()) {
             if (path.second)
               areaOut.lazyDeps.emplace_back(tag.id.Value(), tag.type);
@@ -348,7 +348,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         layerResources.addSharedPath(path, false);
 
       for (const std::pair<hecl::ProjectPath, bool>& path : layerResources.sharedPaths) {
-        urde::SObjectTag tag = g_curSpec->buildTagFromPath(path.first);
+        metaforce::SObjectTag tag = g_curSpec->buildTagFromPath(path.first);
         if (tag.id.IsValid()) {
           if (path.second)
             areaOut.lazyDeps.emplace_back(tag.id.Value(), tag.type);
@@ -359,7 +359,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
       }
 
       hecl::ProjectPath pathPath = GetPathBeginsWith(areaDEnum, area.path, _SYS_STR("!path_"));
-      urde::SObjectTag pathTag = g_curSpec->buildTagFromPath(pathPath);
+      metaforce::SObjectTag pathTag = g_curSpec->buildTagFromPath(pathPath);
       if (pathTag.id.IsValid()) {
         areaOut.deps.emplace_back(pathTag.id.Value(), pathTag.type);
         areaOut.lazyDeps.emplace_back(0, FOURCC('NONE'));
@@ -392,7 +392,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 }
 
 bool MLVL::CookMAPW(const hecl::ProjectPath& outPath, const World& wld) {
-  std::vector<urde::SObjectTag> mapaTags;
+  std::vector<metaforce::SObjectTag> mapaTags;
   mapaTags.reserve(wld.areas.size());
 
   for (const World::Area& area : wld.areas) {
@@ -411,7 +411,7 @@ bool MLVL::CookMAPW(const hecl::ProjectPath& outPath, const World& wld) {
     fo.writeUint32Big(0xDEADF00D);
     fo.writeUint32Big(1);
     fo.writeUint32Big(mapaTags.size());
-    for (const urde::SObjectTag& mapa : mapaTags)
+    for (const metaforce::SObjectTag& mapa : mapaTags)
       fo.writeUint32Big(u32(mapa.id.Value()));
     int64_t rem = fo.position() % 32;
     if (rem)
@@ -479,7 +479,7 @@ bool MLVL::CookSAVW(const hecl::ProjectPath& outPath, const World& wld) {
       {
         std::vector<Scan> scans;
         for (std::unique_ptr<IScriptObject>& obj : layer.objects) {
-          if (obj->type == int(urde::EScriptObjectType::MemoryRelay)) {
+          if (obj->type == int(metaforce::EScriptObjectType::MemoryRelay)) {
             MemoryRelay& memRelay = static_cast<MemoryRelay&>(*obj);
             auto iter = std::find(memRelays.begin(), memRelays.end(), memRelay.id);
             if (iter == memRelays.end()) {
@@ -487,7 +487,7 @@ bool MLVL::CookSAVW(const hecl::ProjectPath& outPath, const World& wld) {
               savw.relays.push_back(memRelay.id);
               memRelays.push_back(memRelay.id);
             }
-          } else if (obj->type == int(urde::EScriptObjectType::SpecialFunction)) {
+          } else if (obj->type == int(metaforce::EScriptObjectType::SpecialFunction)) {
             SpecialFunction& specialFunc = static_cast<SpecialFunction&>(*obj);
             if (specialFunc.function == ESpecialFunctionType::CinematicSkip)
               savw.skippableCutscenes.push_back(specialFunc.id);
@@ -497,7 +497,7 @@ bool MLVL::CookSAVW(const hecl::ProjectPath& outPath, const World& wld) {
               layer.areaId = specialFunc.layerSwitch.area;
               layer.layer = specialFunc.layerSwitch.layerIdx;
             }
-          } else if (obj->type == int(urde::EScriptObjectType::Door)) {
+          } else if (obj->type == int(metaforce::EScriptObjectType::Door)) {
             DoorArea& doorArea = static_cast<DoorArea&>(*obj);
             savw.doors.push_back(doorArea.id);
           }

@@ -4,7 +4,7 @@
 #include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde {
+namespace metaforce {
 
 constexpr std::array<std::array<std::array<CKnockBackController::KnockBackParms, 4>, 19>, 3> KnockBackParmsTable{{
     {{
@@ -494,8 +494,8 @@ void CKnockBackController::DoKnockBackAnimation(const zeus::CVector3f& backVec, 
     break;
   }
   case EKnockBackAnimationState::Flinch: {
-    const std::pair<float, s32> bestAnim =
-        parent.GetBodyController()->GetPASDatabase().FindBestAnimation(CPASAnimParmData(23), *mgr.GetActiveRandom(), -1);
+    const std::pair<float, s32> bestAnim = parent.GetBodyController()->GetPASDatabase().FindBestAnimation(
+        CPASAnimParmData(pas::EAnimationState::AdditiveFlinch), *mgr.GetActiveRandom(), -1);
     if (bestAnim.first > 0.f) {
       parent.GetModelData()->GetAnimationData()->AddAdditiveAnimation(bestAnim.second, 1.f, false, true);
       x64_flinchRemTime =
@@ -633,4 +633,4 @@ void CKnockBackController::KnockBack(const zeus::CVector3f& backVec, CStateManag
   ResetKnockBackImpulse(parent, vec, 2.f);
 }
 
-} // namespace urde
+} // namespace metaforce

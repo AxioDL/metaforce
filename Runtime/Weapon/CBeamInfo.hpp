@@ -4,7 +4,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 class CBeamInfo {
   u32 x0_;
   /*
@@ -89,4 +89,4 @@ public:
   const zeus::CColor& GetOuterColor() const { return x40_outerColor; }
 };
 
-} // namespace urde
+} // namespace metaforce

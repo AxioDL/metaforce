@@ -22,7 +22,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::array<SSphereJointInfo, 7> skSphereJointList = {{
     {"Jaw_end_LCTR", 0.55f},
@@ -112,7 +112,8 @@ CIceSheegoth::CIceSheegoth(TUniqueId uid, std::string_view name, const CEntityIn
   x460_knockBackController.SetX82_24(false);
   x460_knockBackController.SetEnableLaggedBurnDeath(false);
   x460_knockBackController.SetEnableExplodeDeath(false);
-  x950_ = GetAnimationDistance(CPASAnimParmData(3, CPASAnimParm::FromEnum(1), CPASAnimParm::FromEnum(0))) *
+  x950_ = GetAnimationDistance(
+              CPASAnimParmData(pas::EAnimationState::Step, CPASAnimParm::FromEnum(1), CPASAnimParm::FromEnum(0))) *
           GetModelData()->GetScale().y();
   xa9c_->SetGlobalScale(GetModelData()->GetScale());
   xab0_->SetGlobalScale(GetModelData()->GetScale());
@@ -1509,4 +1510,4 @@ bool CIceSheegoth::IsClosestSheegoth(CStateManager& mgr, const rstl::reserved_ve
   }
   return true;
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

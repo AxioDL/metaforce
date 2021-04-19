@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptCameraHint::CScriptCameraHint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                      const zeus::CTransform& xf, bool active, s32 priority,
@@ -130,4 +130,4 @@ void CScriptCameraHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
   CActor::AcceptScriptMsg(msg, sender, mgr);
 }
 
-} // namespace urde
+} // namespace metaforce

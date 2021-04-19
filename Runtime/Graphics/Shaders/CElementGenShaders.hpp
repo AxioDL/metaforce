@@ -3,7 +3,7 @@
 #include <array>
 #include "hsh/hsh.h"
 
-namespace urde {
+namespace metaforce {
 class CElementGen;
 
 class CElementGenShaders {
@@ -13,4 +13,4 @@ public:
   static void BuildShaderDataBinding(CElementGen& gen);
 };
 
-} // namespace urde
+} // namespace metaforce

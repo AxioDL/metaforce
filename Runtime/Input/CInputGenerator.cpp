@@ -3,7 +3,7 @@
 #include "Runtime/CArchitectureMessage.hpp"
 #include "Runtime/CArchitectureQueue.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CInputGenerator::Update(float dt, CArchitectureQueue& queue) {
   if (m_firstFrame) {
@@ -49,4 +49,4 @@ void CInputGenerator::Update(float dt, CArchitectureQueue& queue) {
     queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, kbInput));
 }
 
-} // namespace urde
+} // namespace metaforce

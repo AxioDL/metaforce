@@ -11,7 +11,7 @@
 #include <zeus/CVector3d.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollisionInfo;
 class CCollisionInfoList;
 class CMaterialList;
@@ -191,4 +191,4 @@ public:
   { return x18_leafCaches.end(); }
 };
 
-} // namespace urde
+} // namespace metaforce

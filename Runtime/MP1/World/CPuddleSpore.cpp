@@ -12,7 +12,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 constexpr u32 kEyeCount = 16;
 
 constexpr std::array kEyeLocators{
@@ -46,10 +46,14 @@ CPuddleSpore::CPuddleSpore(TUniqueId uid, std::string_view name, EFlavorType fla
 }
 
 zeus::CAABox CPuddleSpore::CalculateBoundingBox() const {
-  return {(zeus::CVector3f(-x590_halfExtent, -x590_halfExtent, x598_) + x584_bodyOrigin) * 0.05f +
-              GetBaseBoundingBox().min * 0.95f,
-          (zeus::CVector3f(x590_halfExtent, x590_halfExtent, x594_height * x59c_ + x598_) + x584_bodyOrigin) * 0.05f +
-              GetBaseBoundingBox().max * 0.95f};
+  auto aaBox = GetBaseBoundingBox();
+
+  return {{(-x590_halfExtent + x584_bodyOrigin.x()) * 0.05f + (aaBox.min.x() * 0.95f),
+           (-x590_halfExtent + x584_bodyOrigin.y()) * 0.05f + (aaBox.min.y() * 0.95f),
+           (x598_ + x584_bodyOrigin.z()) * 0.05f + (aaBox.min.z() * 0.95f)},
+          {(x590_halfExtent + x584_bodyOrigin.x()) * 0.05f + (aaBox.max.x() * 0.95f),
+           (x590_halfExtent + x584_bodyOrigin.y()) * 0.05f + (aaBox.max.y() * 0.95f),
+           (x594_height * x59c_ + x598_ + x584_bodyOrigin.z()) * 0.05f + (aaBox.max.z() * 0.95f)}};
 }
 
 void CPuddleSpore::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
@@ -69,7 +73,17 @@ bool CPuddleSpore::HitShell(const zeus::CVector3f& point) const {
 }
 
 void CPuddleSpore::KnockPlayer(CStateManager& mgr, float arg) {
-  // TODO implement
+  auto selfBox = GetBoundingBox();
+  auto playerBox = mgr.GetPlayer().GetBoundingBox();
+  if (selfBox.max.z() < ((playerBox.min.z() + playerBox.max.z()) * .5f) && playerBox.min.x() <= selfBox.max.x() &&
+      playerBox.min.y() <= selfBox.max.y() && selfBox.min.x() <= playerBox.max.x() &&
+      selfBox.min.y() <= playerBox.max.y() && playerBox.min.z() - selfBox.max.z() < 0.2f) {
+    const float scale =
+        mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ? 1.5f : 1.f;
+    mgr.GetPlayer().ApplyImpulseWR(scale * (arg * mgr.GetPlayer().GetMass()) * x34_transform.rotate({1.f, 0.f, 0.3f}),
+                                   {});
+    mgr.GetPlayer().SetMoveState(CPlayer::EPlayerMovementState::ApplyJump, mgr);
+  }
 }
 
 void CPuddleSpore::UpdateBoundingState(const zeus::CAABox& box, CStateManager& mgr, float dt) {
@@ -87,19 +101,22 @@ void CPuddleSpore::UpdateBoundingState(const zeus::CAABox& box, CStateManager& m
   }
 
   if (selfBox.intersects(plBox)) {
-    float bias = (x5c8_ == 2 ? 0.001f : -0.0001f) + (selfBox.max.z() - plBox.min.z());
+    float bias = (x5c8_ == 2 ? FLT_EPSILON : -FLT_EPSILON) + (selfBox.max.z() - plBox.min.z());
     if (bias > 0.f && selfBox.max.z() < plBox.max.z()) {
-      bool hadPlayerMat = player.GetMaterialList().HasMaterial(EMaterialTypes::Player);
-      if (hadPlayerMat)
+      bool hadGroundColliderMat = player.GetMaterialList().HasMaterial(EMaterialTypes::GroundCollider);
+      if (hadGroundColliderMat) {
         player.RemoveMaterial(EMaterialTypes::GroundCollider, mgr);
+      }
+
       player.RemoveMaterial(EMaterialTypes::Player, mgr);
       CPhysicsState state = player.GetPhysicsState();
       player.MoveToOR(bias * zeus::CVector3f{0.f, 0.f, 1.f}, dt);
       CGameCollision::Move(mgr, player, dt, nullptr);
       state.SetTranslation(player.GetTranslation());
       player.SetPhysicsState(state);
-      if (hadPlayerMat)
+      if (hadGroundColliderMat) {
         player.AddMaterial(EMaterialTypes::GroundCollider, mgr);
+      }
       player.AddMaterial(EMaterialTypes::Player, mgr);
     }
   }
@@ -147,7 +164,7 @@ void CPuddleSpore::Touch(CActor& act, CStateManager& mgr) {
 
   if (TCastToPtr<CGameProjectile> proj = act) {
     if (proj->GetOwnerId() == mgr.GetPlayer().GetUniqueId())
-      x400_24_hitByPlayerProjectile = HitShell(proj->GetTranslation());
+      x400_24_hitByPlayerProjectile = !HitShell(proj->GetTranslation());
   }
 }
 
@@ -173,18 +190,19 @@ void CPuddleSpore::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
           projInfo->GetDamage(), mgr.AllocateUniqueId(), GetAreaIdAlways(), GetUniqueId(), kInvalidUniqueId,
           EProjectileAttrib::None, false, zeus::skOne3f, {}, 0xFFFF, false));
     }
-  } else
+  } else {
     CPatterned::DoUserAnimEvent(mgr, node, type, dt);
+  }
 }
 
 bool CPuddleSpore::ShouldTurn(CStateManager& mgr, float) {
-  zeus::CAABox plBox = mgr.GetPlayer().GetBoundingBox();
-  zeus::CAABox selfBox = GetBoundingBox();
-
-  if (plBox.max.z() >= selfBox.min.z() + selfBox.max.z() * 0.5f || plBox.max.x() < selfBox.min.x() ||
-      plBox.max.y() < selfBox.min.y() || selfBox.max.x() < plBox.min.y() || selfBox.max.y() < plBox.min.y() ||
-      x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Getup)
-    return x568_ >= x578_;
+  auto selfBox = GetBoundingBox();
+  auto plBox = mgr.GetPlayer().GetBoundingBox();
+  if (((plBox.min.z() + plBox.max.z()) * 0.5f) <= selfBox.max.z() || selfBox.max.x() < plBox.min.x() ||
+      selfBox.max.y() < plBox.min.y() || plBox.max.x() < selfBox.min.x() || plBox.max.y() < selfBox.min.y() ||
+      mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
+    return x578_ <= x568_;
+  }
 
   return true;
 }
@@ -257,7 +275,7 @@ void CPuddleSpore::TurnAround(CStateManager& mgr, EStateMsg msg, float) {
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockDownCmd({1.f, 0.f, 0.f}, pas::ESeverity::One));
       }
     } else if (x5cc_ == 1 &&
-               x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::LieOnGround) {
+               x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::LieOnGround) {
       x5cc_ = 2;
     }
   } else if (msg == EStateMsg::Deactivate) {
@@ -297,4 +315,4 @@ void CPuddleSpore::Attack(CStateManager& mgr, EStateMsg msg, float) {
     x32c_animState = EAnimState::NotReady;
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

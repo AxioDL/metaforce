@@ -3,8 +3,8 @@
 
 #include <logvisor/logvisor.hpp>
 
-namespace urde {
-static logvisor::Module Log("urde::CGuiWidget");
+namespace metaforce {
+static logvisor::Module Log("metaforce::CGuiWidget");
 
 CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
 : x70_selfId(parms.x6_selfId)
@@ -257,4 +257,4 @@ void CGuiWidget::SetIsActive(bool active) {
   OnActiveChange();
 }
 
-} // namespace urde
+} // namespace metaforce

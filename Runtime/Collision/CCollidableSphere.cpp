@@ -5,7 +5,7 @@
 #include "Runtime/Collision/CInternalRayCastStructure.hpp"
 #include "Runtime/Collision/CollisionUtil.hpp"
 
-namespace urde {
+namespace metaforce {
 constexpr CCollisionPrimitive::Type sType(CCollidableSphere::SetStaticTableIndex, "CCollidableSphere");
 
 namespace Collide {
@@ -281,4 +281,4 @@ bool CCollidableSphere::Sphere_AABox_Bool(const zeus::CSphere& sphere, const zeu
 
   return mag <= sphere.radius * sphere.radius;
 }
-} // namespace urde
+} // namespace metaforce

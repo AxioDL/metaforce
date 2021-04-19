@@ -14,7 +14,7 @@
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 constexpr std::array Titles{24, 25, 26, 27, 28};
 
@@ -117,4 +117,4 @@ CQuitGameScreen::CQuitGameScreen(EQuitType tp) : x0_type(tp) {
     m_blackScreen.emplace(EFilterType::Blend);
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

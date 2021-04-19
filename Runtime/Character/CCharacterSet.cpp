@@ -1,6 +1,6 @@
 #include "Runtime/Character/CCharacterSet.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CCharacterSet::CCharacterSet(CInputStream& in) : x0_version(in.readUint16Big()) {
   u32 charCount = in.readUint32Big();
@@ -10,4 +10,4 @@ CCharacterSet::CCharacterSet(CInputStream& in) : x0_version(in.readUint16Big()) 
   }
 }
 
-} // namespace urde
+} // namespace metaforce

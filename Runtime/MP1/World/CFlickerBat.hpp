@@ -2,7 +2,7 @@
 
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CFlickerBat final : public CPatterned {
 public:
   enum class EFlickerBatState { Visible, Hidden, FadeIn, FadeOut };
@@ -48,4 +48,4 @@ public:
   void FlickerBatStateChanged(EFlickerBatState, CStateManager&);
   void CheckStaticIntersection(CStateManager&);
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

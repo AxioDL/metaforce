@@ -7,7 +7,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/Character/IAnimReader.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimTreeNode : public IAnimReader {
 protected:
@@ -39,4 +39,4 @@ public:
   std::string_view GetName() const { return x4_name; }
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -14,7 +14,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CFrustum.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCharLayoutInfo;
 class CPoseAsTransforms;
 
@@ -71,4 +71,4 @@ public:
   bool AreAnySystemsDrawnWithModel() const { return xb4_25_anySystemsDrawnWithModel; }
   void SetUpdatesEnabled(bool active) { xb4_24_updatesEnabled = active; }
 };
-} // namespace urde
+} // namespace metaforce

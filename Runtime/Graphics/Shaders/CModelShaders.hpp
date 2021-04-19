@@ -18,7 +18,7 @@ namespace hecl::Backend {
 class ShaderTag;
 } // namespace hecl::Backend
 
-namespace urde {
+namespace metaforce {
 class CLight;
 struct CModelFlags;
 struct CBooSurface;
@@ -27,7 +27,10 @@ class CBooModel;
 enum class EExtendedShader : uint8_t {
   Flat,
   Lighting,
-  Thermal,
+  ThermalModel,
+  ThermalModelNoZTestNoZWrite,
+  ThermalStatic,
+  ThermalStaticNoZWrite,
   ForcedAlpha,
   ForcedAdditive,
   SolidColor,
@@ -138,4 +141,4 @@ struct ModelInstance {
 };
 
 
-} // namespace urde
+} // namespace metaforce

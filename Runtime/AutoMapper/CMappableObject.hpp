@@ -13,7 +13,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>
 
-namespace urde {
+namespace metaforce {
 class CMapWorldInfo;
 class CStateManager;
 
@@ -96,4 +96,4 @@ public:
   }
   static void Shutdown();
 };
-} // namespace urde
+} // namespace metaforce

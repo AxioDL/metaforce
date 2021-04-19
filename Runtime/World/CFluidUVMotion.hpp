@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
 
-namespace urde {
+namespace metaforce {
 class CFluidUVMotion {
 public:
   enum class EFluidUVMotion {
@@ -53,4 +53,4 @@ public:
   // In game binaries this uses an out pointer instead of return by value.
   FluidOffsets CalculateFluidTextureOffset(float t) const;
 };
-} // namespace urde
+} // namespace metaforce

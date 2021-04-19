@@ -7,7 +7,7 @@
 
 #include "hsh/hsh.h"
 
-namespace urde {
+namespace metaforce {
 
 class CMapSurfaceShader {
 public:
@@ -31,4 +31,4 @@ public:
   void draw(const zeus::CColor& color, u32 start, u32 count);
 };
 
-} // namespace urde
+} // namespace metaforce

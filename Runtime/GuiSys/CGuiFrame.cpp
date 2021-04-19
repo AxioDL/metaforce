@@ -14,7 +14,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CGuiFrame::CGuiFrame(CAssetId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp)
 : x0_id(id), x8_guiSys(sys), x4c_a(a), x50_b(b), x54_c(c) {
@@ -281,4 +281,4 @@ std::unique_ptr<IObj> RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStream
   return TToken<CGuiFrame>::GetIObjObjectFor(std::move(frame));
 }
 
-} // namespace urde
+} // namespace metaforce

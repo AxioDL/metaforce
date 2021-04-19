@@ -10,7 +10,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CPathCamera::CPathCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                          bool active, float lengthExtent, float filterMag, float filterProportion, float minEaseDist,
@@ -211,4 +211,4 @@ void CPathCamera::ClampToClosedDoor(CStateManager& mgr) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

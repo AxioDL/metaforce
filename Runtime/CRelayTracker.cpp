@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-namespace urde {
+namespace metaforce {
 
 CRelayTracker::CRelayTracker(CBitStreamReader& in, const CSaveWorld& saveWorld) {
   const u32 relayCount = saveWorld.GetRelayCount();
@@ -95,4 +95,4 @@ void CRelayTracker::PutTo(CBitStreamWriter& out, const CSaveWorld& saveWorld) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

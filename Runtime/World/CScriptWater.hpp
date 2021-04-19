@@ -14,7 +14,7 @@
 #include <zeus/CFrustum.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CDamageInfo;
 class CFluidUVMotion;
@@ -80,7 +80,7 @@ class CScriptWater : public CScriptTrigger {
 
 public:
   CScriptWater(CStateManager& mgr, TUniqueId uid, std::string_view name, const CEntityInfo& info,
-               const zeus::CVector3f& pos, const zeus::CAABox& box, const urde::CDamageInfo& dInfo,
+               const zeus::CVector3f& pos, const zeus::CAABox& box, const metaforce::CDamageInfo& dInfo,
                zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool thermalCold, bool allowRender,
                CAssetId patternMap1, CAssetId patternMap2, CAssetId colorMap, CAssetId bumpMap, CAssetId envMap,
                CAssetId envBumpMap, CAssetId unusedMap, const zeus::CVector3f& bumpLightDir, float bumpScale,
@@ -137,4 +137,4 @@ public:
   bool CanRippleAtPoint(const zeus::CVector3f& point) const;
   const zeus::CColor& GetInsideFogColor() const { return x2a8_insideFogColor; }
 };
-} // namespace urde
+} // namespace metaforce

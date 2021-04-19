@@ -1,6 +1,6 @@
 #include "Runtime/Character/CAnimTreeBlend.hpp"
 
-namespace urde {
+namespace metaforce {
 
 std::string CAnimTreeBlend::CreatePrimitiveName(const std::shared_ptr<CAnimTreeNode>& a,
                                                 const std::shared_ptr<CAnimTreeNode>& b, float scale) {
@@ -63,4 +63,4 @@ void CAnimTreeBlend::SetBlendingWeight(float w) { x24_blendWeight = w; }
 
 float CAnimTreeBlend::VGetBlendingWeight() const { return x24_blendWeight; }
 
-} // namespace urde
+} // namespace metaforce

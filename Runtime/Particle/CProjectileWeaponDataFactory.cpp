@@ -9,8 +9,8 @@
 #include "Runtime/Particle/CSwooshDescription.hpp"
 #include "Runtime/Particle/CWeaponDescription.hpp"
 
-namespace urde {
-static logvisor::Module Log("urde::CProjectileWeaponDataFactory");
+namespace metaforce {
+static logvisor::Module Log("metaforce::CProjectileWeaponDataFactory");
 
 using CPF = CParticleDataFactory;
 
@@ -173,4 +173,4 @@ CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStrea
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
   return TToken<CWeaponDescription>::GetIObjObjectFor(CProjectileWeaponDataFactory::GetGeneratorDesc(in, sp));
 }
-} // namespace urde
+} // namespace metaforce

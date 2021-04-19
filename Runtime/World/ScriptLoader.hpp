@@ -5,7 +5,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActorParameters;
 class CAnimationParameters;
 class CCameraShakeData;
@@ -154,7 +154,7 @@ public:
   static CEntity* LoadBurrower(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
   static CEntity* LoadBeam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
   static CEntity* LoadWorldLightFader(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
-  static CEntity* LoadMetroidPrimeStage2(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
+  static CEntity* LoadMetroidPrimeEssence(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
   static CEntity* LoadMetroidPrimeStage1(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
   static CEntity* LoadMazeNode(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
   static CEntity* LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
@@ -165,4 +165,4 @@ public:
   static CEntity* LoadEnergyBall(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
 };
 
-} // namespace urde
+} // namespace metaforce

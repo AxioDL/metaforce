@@ -4,7 +4,7 @@
 
 #include "Runtime/Audio/CSfxManager.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CMidiManager {
 public:
@@ -55,4 +55,4 @@ CFactoryFnReturn FMidiDataFactory(const SObjectTag& tag, CInputStream& in, const
 
 using CMidiHandle = CMidiManager::CMidiHandle;
 
-} // namespace urde
+} // namespace metaforce

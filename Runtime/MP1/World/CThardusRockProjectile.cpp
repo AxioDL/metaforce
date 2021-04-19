@@ -18,7 +18,7 @@
 #include "Runtime/MP1/World/CThardus.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::array<SSphereJointInfo, 1> skRockCollisions{{
     {"Rock_01_Collision_LCTR", 1.5f},
@@ -413,4 +413,4 @@ void CThardusRockProjectile::UpdateDestroyableRockCollisionActors(CStateManager&
     }
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

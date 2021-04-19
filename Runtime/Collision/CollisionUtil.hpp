@@ -9,7 +9,7 @@
 #include <zeus/CSphere.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollisionInfoList;
 namespace CollisionUtil {
 bool LineIntersectsOBBox(const zeus::COBBox&, const zeus::CMRay&, float&);
@@ -47,4 +47,4 @@ bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, co
                         zeus::CVector3f& point, zeus::CVector3f& normal);
 void AddAverageToFront(const CCollisionInfoList& in, CCollisionInfoList& out);
 } // namespace CollisionUtil
-} // namespace urde
+} // namespace metaforce

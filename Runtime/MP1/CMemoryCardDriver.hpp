@@ -8,7 +8,7 @@
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CMemoryCardDriver {
   friend class CSaveGameScreen;
@@ -195,4 +195,4 @@ public:
   }
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -1,6 +1,6 @@
 #include "Runtime/Character/CAnimTreeSingleChild.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAnimTreeSingleChild::CAnimTreeSingleChild(const std::weak_ptr<CAnimTreeNode>& node, std::string_view name)
 : CAnimTreeNode(name), x14_child(node.lock()) {}
@@ -62,4 +62,4 @@ u32 CAnimTreeSingleChild::Depth() const { return x14_child->Depth() + 1; }
 
 u32 CAnimTreeSingleChild::VGetNumChildren() const { return x14_child->VGetNumChildren() + 1; }
 
-} // namespace urde
+} // namespace metaforce

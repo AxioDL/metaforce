@@ -14,7 +14,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 constexpr zeus::CColor kFadeColor(COLOR(0xffffff7));
 
 CPowerBomb::CPowerBomb(const TToken<CGenDescription>& particle, TUniqueId uid, TAreaId aid, TUniqueId playerId,
@@ -93,8 +93,8 @@ void CPowerBomb::AddToRenderer(const zeus::CFrustum&, CStateManager&) {
   g_Renderer->AddParticleGen(*x168_particle);
 }
 
-void CPowerBomb::ApplyDynamicDamage(const zeus::CVector3f& pos, urde::CStateManager& mgr) {
+void CPowerBomb::ApplyDynamicDamage(const zeus::CVector3f& pos, metaforce::CStateManager& mgr) {
   mgr.ApplyDamageToWorld(xec_ownerId, *this, pos, x12c_curDamageInfo, xf8_filter);
 }
 
-} // namespace urde
+} // namespace metaforce

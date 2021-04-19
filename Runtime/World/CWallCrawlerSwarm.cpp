@@ -23,7 +23,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 static CMaterialList MakeMaterialList() {
   return CMaterialList(EMaterialTypes::Scannable, EMaterialTypes::Trigger, EMaterialTypes::NonSolidDamageable,
@@ -1243,4 +1243,4 @@ void CWallCrawlerSwarm::ApplyRadiusDamage(const zeus::CVector3f& pos, const CDam
   }
 }
 
-} // namespace urde
+} // namespace metaforce

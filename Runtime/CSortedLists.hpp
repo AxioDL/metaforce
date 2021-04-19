@@ -7,7 +7,7 @@
 
 #include <zeus/CAABox.hpp>
 
-namespace urde {
+namespace metaforce {
 enum class ESortedList { MinX, MinY, MinZ, MaxX, MaxY, MaxZ };
 
 struct SSortedList {
@@ -54,4 +54,4 @@ public:
   bool ActorInLists(const CActor* actor) const;
 };
 
-} // namespace urde
+} // namespace metaforce

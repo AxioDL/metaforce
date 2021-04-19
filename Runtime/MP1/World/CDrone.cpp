@@ -23,7 +23,7 @@
 
 #include <algorithm>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                const zeus::CTransform& xf, float f1, CModelData&& mData, const CPatternedInfo& pInfo,
                const CActorParameters& actParms, EMovementType movement, EColliderType colliderType, EBodyType bodyType,
@@ -1184,4 +1184,4 @@ void CDrone::Dead(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

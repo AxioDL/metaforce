@@ -6,7 +6,7 @@
 
 #include "CXRayBlurFilter.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 struct CXRayBlurFilterPipeline
@@ -86,4 +86,4 @@ void CXRayBlurFilter::draw(float amount) {
   m_dataBind.draw(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

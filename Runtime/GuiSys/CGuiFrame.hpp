@@ -10,7 +10,7 @@
 #include "Runtime/GuiSys/CGuiWidgetIdDB.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
-namespace urde {
+namespace metaforce {
 class CBooModel;
 class CGuiCamera;
 class CGuiLight;
@@ -112,4 +112,4 @@ public:
 std::unique_ptr<IObj> RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                              CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce

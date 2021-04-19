@@ -1,25 +1,79 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
-# Allow target_link_libraries with targets in other directories
-cmake_policy(SET CMP0079 NEW)
-# Set MSVC runtime library flags from CMAKE_MSVC_RUNTIME_LIBRARY
-cmake_policy(SET CMP0091 NEW)
+cmake_policy(VERSION 3.15...3.20)
+
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
+      "Build type options: Debug Release RelWithDebInfo MinSizeRel" FORCE)
+endif ()
+
+# obtain revision info from git
+find_package(Git)
+if (GIT_FOUND)
+  # make sure version information gets re-run when the current Git HEAD changes
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse --git-path HEAD
+          OUTPUT_VARIABLE metaforce_git_head_filename
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${metaforce_git_head_filename}")
+
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse --symbolic-full-name HEAD
+          OUTPUT_VARIABLE metaforce_git_head_symbolic
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+          COMMAND ${GIT_EXECUTABLE} rev-parse --git-path ${metaforce_git_head_symbolic}
+          OUTPUT_VARIABLE metaforce_git_head_symbolic_filename
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${metaforce_git_head_symbolic_filename}")
+
+  # defines METAFORCE_WC_REVISION
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+          OUTPUT_VARIABLE METAFORCE_WC_REVISION
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+  # defines METAFORCE_WC_DESCRIBE
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} describe --tag --long --dirty
+          OUTPUT_VARIABLE METAFORCE_WC_DESCRIBE
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  # remove hash (and trailing "-0" if needed) from description
+  string(REGEX REPLACE "(-0)?-[^-]+((-dirty)?)$" "\\2" METAFORCE_WC_DESCRIBE "${METAFORCE_WC_DESCRIBE}")
+
+  # defines METAFORCE_WC_BRANCH
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+          OUTPUT_VARIABLE METAFORCE_WC_BRANCH
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+  # defines METAFORCE_WC_DATE
+  execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} log -1 --format=%ad
+          OUTPUT_VARIABLE METAFORCE_WC_DATE
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+else ()
+  message(STATUS "Unable to find git, commit information will not be available")
+endif ()
+
+if (METAFORCE_WC_DESCRIBE)
+  string(REGEX REPLACE "v([0-9]+)\.([0-9]+)\.([0-9]+)\-([0-9]+).*" "\\1.\\2.\\3.\\4" METAFORCE_VERSION_STRING "${METAFORCE_WC_DESCRIBE}")
+  string(REGEX REPLACE "v([0-9]+)\.([0-9]+)\.([0-9]+).*" "\\1.\\2.\\3" METAFORCE_VERSION_STRING "${METAFORCE_VERSION_STRING}")
+else ()
+  set(METAFORCE_WC_DESCRIBE "UNKNOWN-VERSION")
+  set(METAFORCE_VERSION_STRING "0.0.0")
+endif ()
+
+string(TIMESTAMP CURRENT_YEAR "%Y")
+
+# Add version information to CI environment variables
+if(DEFINED ENV{GITHUB_ENV})
+  file(APPEND "$ENV{GITHUB_ENV}" "METAFORCE_VERSION=${METAFORCE_WC_DESCRIBE}")
+endif()
+message(STATUS "Metaforce version set to ${METAFORCE_WC_DESCRIBE}")
+project(metaforce LANGUAGES C CXX ASM VERSION ${METAFORCE_VERSION_STRING})
+
+if (APPLE)
+  set(PLATFORM_NAME macos)
+elseif (WIN32)
+  set(PLATFORM_NAME win32)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(PLATFORM_NAME linux)
+endif ()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
-
-if(APPLE)
-  # Shaddup Xcode
-  function(add_executable TARGET)
-    _add_executable(${TARGET} ${ARGN})
-    set_target_properties(${TARGET} PROPERTIES XCODE_ATTRIBUTE_WARNING_CFLAGS "")
-  endfunction()
-  function(add_library TARGET)
-    _add_library(${TARGET} ${ARGN})
-    list(GET ARGV 1 ARG1)
-    if(NOT ${ARG1} STREQUAL INTERFACE AND NOT ${ARG1} STREQUAL ALIAS)
-      set_target_properties(${TARGET} PROPERTIES XCODE_ATTRIBUTE_WARNING_CFLAGS "")
-    endif()
-  endfunction()
-endif()
 
 if(APPLE AND NOT CMAKE_OSX_SYSROOT)
   # If the Xcode SDK is lagging behind system version, CMake needs this done first
@@ -28,16 +82,14 @@ if(APPLE AND NOT CMAKE_OSX_SYSROOT)
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
-option(URDE_CROSSCOMPILING "Don't build tools; attempt package import" OFF)
-if (URDE_CROSSCOMPILING)
+option(METAFORCE_CROSSCOMPILING "Don't build tools; attempt package import" OFF)
+if (METAFORCE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING On)
 endif()
 
 if(CMAKE_CROSSCOMPILING)
   set(HAVE_WORDS_BIGENDIAN_EXITCODE 0 CACHE INTEGER "Makes soxr happy" FORCE)
 endif()
-
-project(urde VERSION 0.1.0)
 
 # MSVC has a "latest" flag, which always uses the newest standard
 # when available. GCC and Clang posess no such flag, and must be
@@ -51,26 +103,28 @@ endif()
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force shared libs off" FORCE)
 set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/sanitizers-cmake/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/extern/sanitizers-cmake/cmake")
 find_package(Sanitizers)
 
-if (NX)
-  set(URDE_VECTOR_ISA "neon")
-else()
-  set(URDE_VECTOR_ISA "sse2" CACHE STRING "Vector ISA to build for (sse2, sse3, sse41, avx, avx2)")
-endif()
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64)
+  set(METAFORCE_VECTOR_ISA "sse41" CACHE STRING "Vector ISA to build for (sse2, sse3, sse41, avx, avx2)")
+endif ()
 
 if(MSVC)
-  if(${URDE_VECTOR_ISA} STREQUAL "avx2")
+  if(${METAFORCE_VECTOR_ISA} STREQUAL "avx2")
     add_compile_options(/arch:AVX2)
     add_compile_definitions(__SSE4_1__=1)
     message(STATUS "Building with AVX2 Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "avx")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "avx")
     add_compile_options(/arch:AVX)
     add_compile_definitions(__SSE4_1__=1)
     message(STATUS "Building with AVX Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "sse41")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "sse41")
     add_compile_definitions(__SSE4_1__=1)
+    # clang-cl 10 requires -msse4.1, may be fixed in newer versions?
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL Clang)
+      add_compile_options($<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:-msse4.1>)
+    endif()
     message(STATUS "Building with SSE4.1 Vector ISA")
   else()
     message(STATUS "Building with SSE2 Vector ISA")
@@ -78,7 +132,7 @@ if(MSVC)
 
   if(${CMAKE_GENERATOR} MATCHES "Visual Studio*")
     set(VS_OPTIONS "/MP")
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT urde)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT metaforce)
   endif()
 
   # Shaddup MSVC
@@ -86,9 +140,24 @@ if(MSVC)
       _CRT_SECURE_NO_WARNINGS=1 D_SCL_SECURE_NO_WARNINGS=1
       _SCL_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
       _ENABLE_EXTENDED_ALIGNED_STORAGE=1 NOMINMAX=1)
-  add_compile_options(/IGNORE:4221 /wd4018 /wd4800 /wd4005 /wd4311 /wd4068
-      /wd4267 /wd4244 /wd4200 /wd4305 /wd4067 /wd4146 /wd4309 /wd4805 ${VS_OPTIONS})
+  add_compile_options(/IGNORE:4221
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4018>
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4800>
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4005>
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4311>
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4068>
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4267>
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4244>
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4200>
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4305>
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4067>
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4146>
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4309>
+          $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4805>
+          ${VS_OPTIONS})
 
+  string(REPLACE "/GR " "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  string(REPLACE " /EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   add_compile_options(
     # Disable exceptions
     $<$<COMPILE_LANGUAGE:CXX>:/EHsc->
@@ -108,7 +177,6 @@ if(MSVC)
     # Use latest C++ standard.
     $<$<COMPILE_LANGUAGE:CXX>:/std:c++latest>
   )
-  add_compile_definitions(FMT_EXCEPTIONS=0 _HAS_EXCEPTIONS=0)
 
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # Flags for MSVC (not clang-cl)
@@ -120,39 +188,38 @@ if(MSVC)
       $<$<COMPILE_LANGUAGE:CXX>:/Zc:throwingNew>
 
       # Link-time Code Generation for Release builds
-      $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:/GL>
+      $<$<CONFIG:Release>:/GL>
     )
 
     # Link-time Code Generation for Release builds
     set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "/LTCG")
-    set(CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO "/LTCG")
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/RELEASE /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO")
-    set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG /RELEASE /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO /DEBUGTYPE:cv,fixup")
+    set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG /RELEASE /OPT:REF /OPT:ICF /INCREMENTAL:NO /DEBUGTYPE:cv,fixup")
   endif()
 
 else()
-  if(${URDE_VECTOR_ISA} STREQUAL "native")
+  if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL x86_64)
+  if(${METAFORCE_VECTOR_ISA} STREQUAL "native")
     add_compile_options(-march=native)
     message(STATUS "Building with native ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "avx2")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "avx2")
     add_compile_options(-mavx2)
     message(STATUS "Building with AVX2 Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "avx")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "avx")
     add_compile_options(-mavx)
     message(STATUS "Building with AVX Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "sse41")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "sse41")
     add_compile_options(-msse4.1)
     message(STATUS "Building with SSE4.1 Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "sse3")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "sse3")
     add_compile_options(-msse3)
     message(STATUS "Building with SSE3 Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "sse2")
+  elseif(${METAFORCE_VECTOR_ISA} STREQUAL "sse2")
     add_compile_options(-msse2)
     message(STATUS "Building with SSE2 Vector ISA")
-  elseif(${URDE_VECTOR_ISA} STREQUAL "neon")
-    message(STATUS "Building with NEON Vector ISA")
   else()
     message(STATUS "Building with x87 Vector ISA")
+  endif()
   endif()
 
   include(CheckCXXCompilerFlag)
@@ -161,12 +228,12 @@ else()
     add_compile_options(-fno-plt)
   endif()
   check_cxx_compiler_flag(-fno-asynchronous-unwind-tables HAS_NO_ASYNC_UNWIND_TABLES)
-  if (HAS_NO_ASYNC_UNWIND_TABLES)
+  if (HAS_NO_ASYNC_UNWIND_TABLES AND ${CMAKE_BUILD_TYPE} STREQUAL Release)
     # Binary size reduction
     add_compile_options(-fno-asynchronous-unwind-tables)
   endif()
 
-  if(URDE_MSAN)
+  if(METAFORCE_MSAN)
     add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++> -fsanitize=memory
                         -fsanitize-memory-track-origins -fsanitize-recover=all)
   endif()
@@ -179,13 +246,16 @@ else()
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     add_compile_options(-Wno-unknown-warning-option -Wno-unused-private-field)
   elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    add_compile_options(-Wno-lto-type-mismatch)
+    add_compile_options(-Wno-lto-type-mismatch -Wno-maybe-uninitialized)
   endif()
-  add_compile_definitions(FMT_EXCEPTIONS=0)
 
   if(APPLE)
     add_compile_options(-Wno-error=deprecated-declarations
-                        $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-flto=thin>)
+                        $<$<CONFIG:Release>:-flto=thin>)
+    if (METAFORCE_ASAN)
+      add_compile_options(-fsanitize=address -fsanitize-address-use-after-scope)
+      add_link_options(-fsanitize=address -fsanitize-address-use-after-scope)
+    endif ()
   endif()
 
 endif()
@@ -197,9 +267,9 @@ endif()
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    if(${CMAKE_BUILD_TYPE} STREQUAL Debug OR ${CMAKE_BUILD_TYPE} STREQUAL RelWithDebInfo)
       # This is required to summarize std::string
-      add_compile_options(-fno-limit-debug-info)
+      add_compile_options(-fno-limit-debug-info -fno-omit-frame-pointer)
     endif()
     option(USE_LD_LLD "Link with LLD" ON)
   elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -241,7 +311,11 @@ if(USE_LD_GOLD)
   if("${LD_VERSION}" MATCHES "GNU gold")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
-    if(USE_LTO)
+    if (USE_SPLIT_DWARF)
+      add_compile_options(-gsplit-dwarf -Wl,--gdb-index)
+      add_link_options(-gsplit-dwarf -Wl,--gdb-index)
+      message(STATUS "GNU gold linker enabled with split DWARF.")
+    elseif (USE_LTO)
       add_compile_options(-flto)
       add_link_options(-flto)
       message(STATUS "GNU gold linker enabled with LTO.")
@@ -257,17 +331,15 @@ endif()
 
 # Add discord-rpc here
 if(NOT GEKKO AND NOT NX)
-  set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc)
+  set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/discord-rpc)
   if (NOT CMAKE_INSTALL_LIBDIR)
     set(CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/fake-prefix)
   endif()
-  add_subdirectory(discord-rpc/src)
-  target_include_directories(discord-rpc PRIVATE rapidjson/include PUBLIC discord-rpc/include)
+  add_subdirectory(extern/discord-rpc/src)
+  target_include_directories(discord-rpc PRIVATE extern/rapidjson/include PUBLIC extern/discord-rpc/include)
 endif()
 
-add_subdirectory(nod)
-
-set(HECL_DLPACKAGE ${URDE_DLPACKAGE})
+add_subdirectory(extern/nod)
 
 set(DATA_SPEC_LIBS RetroDataSpec AssetNameMap)
 set(HECL_DATASPEC_DECLS
@@ -300,7 +372,9 @@ set(HECL_DATASPEC_PUSHES
 # TODO: Fix weirdness
 find_package(hsh REQUIRED)
 add_subdirectory(boo2)
+add_subdirectory(extern/xxhash)
 add_subdirectory(hecl)
+add_subdirectory(extern/zeus)
 target_include_directories(hecl-full PRIVATE ${CMAKE_SOURCE_DIR})
 target_include_directories(hecl-light PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(hecl-full PRIVATE zeus nod)
@@ -315,19 +389,18 @@ if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
   find_package(atdna REQUIRED)
   if(NOT TARGET atdna)
-    message(FATAL_ERROR "atdna required for building URDE; please verify LLVM installation")
+    message(FATAL_ERROR "atdna required for building Metaforce; please verify LLVM installation")
   endif()
 endif()
 
-add_subdirectory(amuse)
-add_subdirectory(zeus)
+add_subdirectory(extern/amuse)
 add_subdirectory(assetnameparser)
 add_compile_definitions(URDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
 add_subdirectory(DataSpec)
-add_subdirectory(kabufuda)
+add_subdirectory(extern/kabufuda)
 
-add_subdirectory(jbus)
-set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/jbus/include)
+add_subdirectory(extern/jbus)
+set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/jbus/include)
 
 set(CLIENT_SOURCES
     ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryBase.hpp
@@ -343,35 +416,25 @@ add_subdirectory(visigen)
 add_dependencies(hecl visigen)
 
 if (NOT WINDOWS_STORE AND NOT NX)
-  find_package(Qt5Widgets PATHS /usr/local/opt/qt)
-  if (Qt5Widgets_FOUND)
-    message(STATUS "Qt5 found, hecl-gui will be built")
-    add_subdirectory(hecl-gui)
+  if(APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
+    set(QT_HOMEBREW_PATH /usr/local/opt/qt)
+  elseif(APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL arm64)
+    set(QT_HOMEBREW_PATH /opt/homebrew/opt/qt)
   else()
-    message(STATUS "Qt5 not found, hecl-gui will not be built")
+    set(QT_HOMEBREW_PATH "")
   endif()
-endif()
 
-unset(GIT_EXECUTABLE CACHE)
-find_package(Git)
-if(GIT_FOUND)
-    # Get the current working branch
-    execute_process(COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-        OUTPUT_VARIABLE GIT_BRANCH OUTPUT_STRIP_TRAILING_WHITESPACE )
-
-    # Get the latest abbreviated commit hash of the working branch
-    execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE
-        GIT_COMMIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE
-        GIT_COMMIT_HASH_FULL OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%ad WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE
-        GIT_COMMIT_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
-else()
-    message(STATUS "Unable to find GIT, commit information will not be available")
-    set(GIT_BRANCH "")
-    set(GIT_COMMIT_HASH "")
-    set(GIT_COMMIT_HASH_FULL "")
-    set(GIT_COMMIT_DATE "")
+  find_package(Qt6Widgets QUIET PATHS ${QT_HOMEBREW_PATH})
+  find_package(Qt5Widgets QUIET PATHS ${QT_HOMEBREW_PATH})
+  if (Qt6Widgets_FOUND)
+    message(STATUS "Qt6 found, metaforce-gui will be built")
+    add_subdirectory(metaforce-gui)
+  elseif(Qt5Widgets_FOUND)
+    message(STATUS "Qt5 found, metaforce-gui will be built")
+    add_subdirectory(metaforce-gui)
+  else()
+    message(STATUS "Qt5-6 not found, metaforce-gui will not be built")
+  endif()
 endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_BINARY_DIR}/version.h)

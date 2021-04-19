@@ -1,6 +1,6 @@
 #include "Runtime/Collision/CJointCollisionDescription.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CJointCollisionDescription::CJointCollisionDescription(ECollisionType colType, CSegId pivotId, CSegId nextId,
                                                        const zeus::CVector3f& bounds, const zeus::CVector3f& pivotPoint,
@@ -58,4 +58,4 @@ void CJointCollisionDescription::ScaleAllBounds(const zeus::CVector3f& scale) {
   x28_maxSeparation *= scale.x();
   x18_pivotPoint *= scale;
 }
-} // namespace urde
+} // namespace metaforce

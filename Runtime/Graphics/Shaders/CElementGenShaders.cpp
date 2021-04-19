@@ -12,7 +12,7 @@ enum class BlendMode {
 
 #include "CElementGenShaders.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 template <BlendMode Mode, bool AlphaWrite>
@@ -147,4 +147,4 @@ void CElementGenShaders::BuildShaderDataBinding(CElementGen& gen) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

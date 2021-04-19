@@ -9,7 +9,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 enum class EBehaveType { Lurk, Taunt, Attack, Move, None };
 
 class CChozoGhost : public CPatterned {
@@ -149,4 +149,4 @@ public:
   float GetGravityConstant() const override { return 60.f; }
   CProjectileInfo* GetProjectileInfo() override;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace urde {
+namespace metaforce {
 class CParticleGen;
 
 class IWeaponRenderer {
@@ -14,4 +14,4 @@ public:
   void AddParticleGen(CParticleGen&) override;
 };
 
-} // namespace urde
+} // namespace metaforce

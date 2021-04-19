@@ -13,7 +13,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CBoolPOINode;
 class CInt32POINode;
 class CParticlePOINode;
@@ -146,4 +146,4 @@ public:
   std::unique_ptr<IAnimReader> Clone() const { return VClone(); }
 };
 
-} // namespace urde
+} // namespace metaforce

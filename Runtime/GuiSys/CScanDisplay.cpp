@@ -16,7 +16,7 @@
 
 #include <zeus/CTransform.hpp>
 
-namespace urde {
+namespace metaforce {
 void CScanDisplay::CDataDot::Update(float dt) {
   if (x20_remTime > 0.f) {
     x20_remTime = std::max(0.f, x20_remTime - dt);
@@ -454,4 +454,4 @@ void CScanDisplay::Draw() {
     dot.Draw(g_tweakGuiColors->GetScanDataDotColor(), g_tweakGui->GetScanDataDotRadius() * vpRatio);
   }
 }
-} // namespace urde
+} // namespace metaforce

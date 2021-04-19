@@ -9,7 +9,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CBallCamera;
 class CCameraShakeData;
 class CCinematicCamera;
@@ -146,4 +146,4 @@ public:
   bool ShouldBypassInterpolation() { return false; }
 };
 
-} // namespace urde
+} // namespace metaforce

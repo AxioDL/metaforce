@@ -6,7 +6,7 @@
 
 #include "hsh/hsh.h"
 
-namespace urde {
+namespace metaforce {
 
 class CStateManager;
 class CScriptWater;
@@ -63,4 +63,4 @@ public:
   CRippleManager& RippleManager() { return x0_rippleManager; }
 };
 
-} // namespace urde
+} // namespace metaforce

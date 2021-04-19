@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CBoneTracking::CBoneTracking(const CAnimData& animData, std::string_view bone,
                              float maxTrackingAngle, float angSpeed, EBoneTrackingFlags flags)
@@ -107,4 +107,4 @@ void CBoneTracking::UnsetTarget() { x34_target = kInvalidUniqueId; }
 void CBoneTracking::SetTargetPosition(const zeus::CVector3f& targetPos) { x24_targetPosition = targetPos; }
 
 void CBoneTracking::SetNoHorizontalAim(bool b) { x36_28_noHorizontalAim = b; }
-} // namespace urde
+} // namespace metaforce

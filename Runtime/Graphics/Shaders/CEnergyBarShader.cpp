@@ -4,7 +4,7 @@
 
 #include "CEnergyBarShader.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 struct CEnergyBarShaderPipeline
@@ -79,4 +79,4 @@ void CEnergyBarShader::draw(const zeus::CColor& color0, const std::vector<Vertex
 #endif
 }
 
-} // namespace urde
+} // namespace metaforce

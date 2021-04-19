@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/CDvdFile.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CGBASupport : public CDvdFile {
 public:
@@ -51,4 +51,4 @@ public:
   bool IsFusionBeat() const { return x45_fusionBeat; }
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

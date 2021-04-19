@@ -2,7 +2,7 @@
 
 #include <array>
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr std::array<uint32_t, 256> crc32Table{
     0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3, 0x0EDB8832,
@@ -62,4 +62,4 @@ uint32_t CCRC32::Calculate(const void* data, uint32_t length) {
   return checksum;
 }
 
-} // namespace urde
+} // namespace metaforce

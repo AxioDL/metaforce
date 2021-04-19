@@ -9,7 +9,7 @@
 #include "DataSpec/DNAMP3/MAPA.hpp"
 #include "DataSpec/DNAMP2/STRG.hpp"
 #include "DataSpec/DNACommon/TXTR.hpp"
-#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
+#include "DataSpec/DNACommon/MetaforceVersionInfo.hpp"
 
 #include "hecl/ClientProcess.hpp"
 #include "hecl/Blender/Connection.hpp"
@@ -22,7 +22,7 @@ namespace DataSpec {
 
 using namespace std::literals;
 
-static logvisor::Module Log("urde::SpecMP3");
+static logvisor::Module Log("DataSpec::SpecMP3");
 extern hecl::Database::DataSpecEntry SpecEntMP3;
 extern hecl::Database::DataSpecEntry SpecEntMP3ORIG;
 
@@ -396,7 +396,7 @@ struct SpecMP3 : SpecBase {
       hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _SYS_STR("out"));
       outPath.makeDir();
       disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
-      m_outPath = {outPath, m_standalone ? _SYS_STR("files") : _SYS_STR("files/MP3")};
+      m_outPath = {outPath, _SYS_STR("files/MP3")};
       m_outPath.makeDirChain(true);
 
       currentTarget = _SYS_STR("MP3 Root");
@@ -524,7 +524,7 @@ struct SpecMP3 : SpecBase {
     return false;
   }
 
-  urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const override { return {}; }
+  metaforce::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const override { return {}; }
 
   void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                 hecl::blender::Token& btok, FCookProgress progress) override {}

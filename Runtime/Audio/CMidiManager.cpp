@@ -1,6 +1,6 @@
 #include "Runtime/Audio/CMidiManager.hpp"
 
-namespace urde {
+namespace metaforce {
 
 std::unordered_set<CMidiHandle> CMidiManager::m_MidiWrappers = {};
 
@@ -49,4 +49,4 @@ CFactoryFnReturn FMidiDataFactory(const SObjectTag& tag, CInputStream& in, const
   return TToken<CMidiManager::CMidiData>::GetIObjObjectFor(std::make_unique<CMidiManager::CMidiData>(in));
 }
 
-} // namespace urde
+} // namespace metaforce

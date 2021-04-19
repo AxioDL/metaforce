@@ -6,7 +6,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class CModelData;
 class CProjectedShadow {
@@ -28,5 +28,6 @@ public:
                           float, float);
 
   void Unset_X80() { x80_ = false; }
+  void Set_x98(float f) { x98_ = f; }
 };
-} // namespace urde
+} // namespace metaforce

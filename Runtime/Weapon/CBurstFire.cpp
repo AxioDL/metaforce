@@ -8,7 +8,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 CBurstFire::CBurstFire(const SBurst* const* burstDefs, s32 firstBurstCount) : x10_firstBurstCounter(firstBurstCount) {
   while (*burstDefs) {
     x1c_burstDefs.push_back(*burstDefs);
@@ -96,4 +96,4 @@ float CBurstFire::GetMaxXError() const { return g_tweakPlayer->GetPlayerXYHalfEx
 
 float CBurstFire::GetMaxZError() const { return g_tweakPlayer->GetEyeOffset(); }
 
-} // namespace urde
+} // namespace metaforce

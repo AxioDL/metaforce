@@ -34,7 +34,7 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector2i.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActor;
 class CActorModelParticles;
 class CDamageInfo;
@@ -464,6 +464,7 @@ public:
   void sub_80044098(const CCollisionResponseData& colRespData, const CRayCastResult& rayCast, TUniqueId uid,
                     const CWeaponMode& weaponMode, u32 w1, u8 thermalFlags);
 
+  const CGameArea* GetCurrentArea() const;
   void SetWarping(bool warp) { m_warping = warp; }
 };
-} // namespace urde
+} // namespace metaforce

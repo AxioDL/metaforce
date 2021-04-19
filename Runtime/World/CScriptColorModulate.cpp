@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptColorModulate::CScriptColorModulate(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                            const zeus::CColor& colorA, const zeus::CColor& colorB, EBlendMode blendMode,
                                            float timeA2B, float timeB2A, bool doReverse, bool resetTargetWhenDone,
@@ -272,4 +272,4 @@ void CScriptColorModulate::End(CStateManager& stateMgr) {
     stateMgr.FreeScriptObject(GetUniqueId());
   }
 }
-} // namespace urde
+} // namespace metaforce

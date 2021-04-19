@@ -6,7 +6,7 @@
 #include "zeus/CMatrix4f.hpp"
 #include "Graphics/CGraphics.hpp"
 
-namespace urde {
+namespace metaforce {
 struct CFinalInput;
 class IDvdRequest;
 
@@ -76,4 +76,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

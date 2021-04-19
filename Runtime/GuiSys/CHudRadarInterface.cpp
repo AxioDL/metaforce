@@ -16,7 +16,7 @@
 
 #include <zeus/CEulerAngles.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CHudRadarInterface::CHudRadarInterface(CGuiFrame& baseHud, CStateManager& stateMgr) {
   x0_txtrRadarPaint = g_SimplePool->GetObj("TXTR_RadarPaint");
@@ -159,4 +159,4 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) {
   m_paintShader.draw(m_paintInsts, x0_txtrRadarPaint.GetObj());
 }
 
-} // namespace urde
+} // namespace metaforce

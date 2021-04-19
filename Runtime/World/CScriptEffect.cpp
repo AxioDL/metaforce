@@ -16,7 +16,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 u32 CScriptEffect::g_NumParticlesUpdating = 0;
 u32 CScriptEffect::g_NumParticlesRendered = 0;
@@ -384,4 +384,4 @@ bool CScriptEffect::AreBothSystemsDeleteable() const {
 
   return true;
 }
-} // namespace urde
+} // namespace metaforce

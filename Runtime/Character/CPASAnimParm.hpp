@@ -2,7 +2,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPASAnimParm {
 public:
@@ -65,4 +65,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

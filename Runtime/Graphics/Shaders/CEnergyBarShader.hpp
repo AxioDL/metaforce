@@ -10,7 +10,7 @@
 
 #include "hsh/hsh.h"
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 class CEnergyBarShader {
@@ -38,4 +38,4 @@ public:
             hsh::texture2d tex);
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -9,7 +9,7 @@
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 constexpr std::array skBombLocators{
     "bomb1_LCTR"sv,
     "bomb2_LCTR"sv,
@@ -163,4 +163,4 @@ void CAtomicAlpha::Attack(CStateManager& mgr, EStateMsg msg, float) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

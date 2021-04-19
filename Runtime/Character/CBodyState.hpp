@@ -6,7 +6,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CBodyController;
 class CStateManager;
 class CActor;
@@ -404,4 +404,4 @@ public:
   explicit CBSRestrictedFlyerLocomotion(CActor& actor);
   float ApplyLocomotionPhysics(float dt, CBodyController& bc) override;
 };
-} // namespace urde
+} // namespace metaforce

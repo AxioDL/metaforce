@@ -3,7 +3,7 @@
 #include "hsh/hsh.h"
 #include "Graphics/CGraphics.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CNESShader {
 public:
@@ -11,4 +11,4 @@ public:
                                      hsh::uniform_buffer<ViewBlock> uniBuf, hsh::texture2d tex);
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

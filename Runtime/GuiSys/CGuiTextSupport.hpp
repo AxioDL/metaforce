@@ -14,7 +14,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 class CSimplePool;
 class CTextExecuteBuffer;
 class CTextRenderBuffer;
@@ -138,4 +138,4 @@ public:
   void SetPage(int page);
 };
 
-} // namespace urde
+} // namespace metaforce

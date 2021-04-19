@@ -6,7 +6,7 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/Character/CAnimTreeNode.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimTreeSingleChild : public CAnimTreeNode {
 protected:
@@ -42,4 +42,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

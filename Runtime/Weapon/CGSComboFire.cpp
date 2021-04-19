@@ -4,7 +4,7 @@
 #include "Runtime/Character/CAnimData.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
 
-namespace urde {
+namespace metaforce {
 
 bool CGSComboFire::Update(CAnimData& data, float dt, CStateManager& mgr) {
   if (x8_cueAnimId != -1) {
@@ -46,7 +46,8 @@ s32 CGSComboFire::SetAnim(CAnimData& data, s32 gunId, s32 loopState, CStateManag
     useLoopState = loopState;
   x10_25_idle = false;
   const CPASDatabase& pas = data.GetCharacterInfo().GetPASDatabase();
-  CPASAnimParmData parms(4, CPASAnimParm::FromInt32(gunId), CPASAnimParm::FromEnum(useLoopState));
+  CPASAnimParmData parms(pas::EAnimationState::Death, CPASAnimParm::FromInt32(gunId),
+                         CPASAnimParm::FromEnum(useLoopState));
   auto anim = pas.FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   x10_24_over = false;
   xc_gunId = gunId;
@@ -62,4 +63,4 @@ s32 CGSComboFire::SetAnim(CAnimData& data, s32 gunId, s32 loopState, CStateManag
   return anim.second;
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CExplosion::CExplosion(const TLockedToken<CGenDescription>& particle, TUniqueId uid, bool active,
                        const CEntityInfo& info, std::string_view name, const zeus::CTransform& xf, u32 flags,
@@ -119,4 +119,4 @@ void CExplosion::Render(CStateManager& mgr) {
 }
 
 bool CExplosion::CanRenderUnsorted(const CStateManager&) const { return false; }
-} // namespace urde
+} // namespace metaforce

@@ -9,7 +9,7 @@
 
 #include "boo2/inputdev/DeviceFinder.hpp"
 
-namespace urde {
+namespace metaforce {
 class CArchitectureQueue;
 
 enum class EIOPort { Zero, One, Two, Three };
@@ -186,4 +186,4 @@ public:
   void Update(float dt, CArchitectureQueue& queue);
 };
 
-} // namespace urde
+} // namespace metaforce

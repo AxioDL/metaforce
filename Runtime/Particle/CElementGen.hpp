@@ -19,7 +19,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActorLights;
 class CGenDescription;
 class CLight;
@@ -66,7 +66,6 @@ private:
   bool x88_particleEmission = true;
   float x8c_generatorRemainder = 0.f;
   int x90_MAXP = 0;
-  int m_maxMAXP = 256;
   u16 x94_randomSeed = g_GlobalSeed;
   float x98_generatorRate = 1.f;
   std::array<float, 16> x9c_externalVars{};
@@ -102,7 +101,6 @@ private:
   bool x26d_27_enableOPTS : 1;
   bool x26d_28_enableADV : 1 = false;
   int x270_MBSP = 0;
-  int m_maxMBSP = 0;
   ERglLightBits x274_backupLightActive = ERglLightBits::None;
   std::array<bool, 4> x278_hasVMD{};
   CRandom16 x27c_randState;
@@ -139,6 +137,7 @@ private:
 
   void AccumulateBounds(const zeus::CVector3f& pos, float size);
 
+  void _RecreatePipelines();
 public:
   explicit CElementGen(TToken<CGenDescription> gen, EModelOrientationType orientType = EModelOrientationType::Normal,
                        EOptionalSystemFlags flags = EOptionalSystemFlags::One);
@@ -223,11 +222,10 @@ public:
   static void SetMoveRedToAlphaBuffer(bool move);
 
   s32 GetMaxParticles() const { return x90_MAXP; }
-  s32 GetMaxMaxParticles() const { return m_maxMAXP; }
 
   std::vector<CParticle> const& GetParticles() const { return x30_particles; }
   std::vector<CParticle> &GetParticles() { return x30_particles; }
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 
-} // namespace urde
+} // namespace metaforce

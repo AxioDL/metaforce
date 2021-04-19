@@ -1,6 +1,6 @@
 #include "Runtime/GuiSys/CGuiPane.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGuiPane::CGuiPane(const CGuiWidgetParms& parms, const zeus::CVector2f& dim, const zeus::CVector3f& scaleCenter)
 : CGuiWidget(parms), xb8_dim(dim), xc8_scaleCenter(scaleCenter) {
@@ -46,4 +46,4 @@ std::shared_ptr<CGuiWidget> CGuiPane::Create(CGuiFrame* frame, CInputStream& in,
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

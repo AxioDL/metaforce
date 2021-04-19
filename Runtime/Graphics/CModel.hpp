@@ -17,7 +17,7 @@
 #include "zeus/CAABox.hpp"
 #include "zeus/CColor.hpp"
 
-namespace urde {
+namespace metaforce {
 class CLight;
 class CModel;
 class CPoseAsTransforms;
@@ -40,7 +40,7 @@ struct CModelFlags {
   : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col) {}
 
   /* Flags
-      0x1: depth equal
+      0x1: depth lequal
       0x2: depth update
       0x4: render without texture lock
       0x8: depth greater
@@ -55,7 +55,7 @@ struct CModelFlags {
   bool operator!=(const CModelFlags& other) const { return !operator==(other); }
 };
 
-/* urde addition: doesn't require hacky stashing of
+/* metaforce addition: doesn't require hacky stashing of
  * pointers within loaded CMDL buffer */
 struct CBooSurface {
   DataSpec::DNACMDL::SurfaceHeader_2 m_data;
@@ -146,7 +146,7 @@ private:
   CModelShaders::FragmentUniform m_lightingData{};
   bool m_lightsActive = false;
 
-  /* urde addition: boo! */
+  /* metaforce addition: boo! */
   size_t m_uniformDataSize = 0;
   std::vector<ModelInstance> m_instances;
   ModelInstance m_ballShadowInstance;
@@ -158,7 +158,7 @@ private:
   hsh::texture2d m_lastDrawnOneTexture;
   hsh::texturecube m_lastDrawnReflectionCube;
 
-  ModelInstance* PushNewModelInstance(int sharedLayoutBuf = -1);
+  ModelInstance* PushNewModelInstance(int sharedLayoutBuf = -1, boo::IGraphicsDataFactory::Context* ctx = nullptr);
   void DrawAlphaSurfaces(const CModelFlags& flags) const;
   void DrawNormalSurfaces(const CModelFlags& flags) const;
   void DrawSurfaces(const CModelFlags& flags) const;
@@ -196,7 +196,8 @@ public:
   void VerifyCurrentShader(int shaderIdx);
   hsh::dynamic_owner<hsh::vertex_buffer_typeless>* UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
                                                                      const CPoseAsTransforms* pose,
-                                                                     int sharedLayoutBuf = -1);
+                                                                     int sharedLayoutBuf = -1,
+                                                         boo::IGraphicsDataFactory::Context* ctx = nullptr);
   void DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
   void DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
   void Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
@@ -255,7 +256,7 @@ class CModel {
   // CModel* x34_prev = nullptr;
   int x38_lastFrame;
 
-  /* urde addition: boo2! */
+  /* metaforce addition: boo2! */
   hsh::owner<hsh::vertex_buffer_typeless> m_staticVbo;
   hecl::HMDLMeta m_hmdlMeta;
   std::unique_ptr<uint8_t[]> m_dynamicVertexData;
@@ -291,8 +292,8 @@ public:
   const hecl::HMDLMeta& GetHMDLMeta() const { return m_hmdlMeta; }
 };
 
-CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                               const urde::CVParamTransfer& vparms, CObjectReference* selfRef);
+CFactoryFnReturn FModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                               const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef);
 
 template <typename F>
 constexpr auto MapVertData(const hecl::HMDLMeta& meta, F&& Func) {
@@ -332,4 +333,4 @@ constexpr auto MapVertData(const hecl::HMDLMeta& meta, F&& Func) {
   // fallback
   return Func.template operator()<CModelShaders::VertData<0, 0, 0>>();
 }
-} // namespace urde
+} // namespace metaforce

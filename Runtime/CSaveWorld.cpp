@@ -2,7 +2,7 @@
 
 #include "Runtime/CToken.hpp"
 
-namespace urde {
+namespace metaforce {
 CSaveWorld::CSaveWorld(CInputStream& in) {
   in.readUint32Big();
   const u32 version = in.readUint32Big();
@@ -88,4 +88,4 @@ CFactoryFnReturn FSaveWorldFactory([[maybe_unused]] const SObjectTag& tag, CInpu
   return TToken<CSaveWorld>::GetIObjObjectFor(std::make_unique<CSaveWorld>(in));
 }
 
-} // namespace urde
+} // namespace metaforce

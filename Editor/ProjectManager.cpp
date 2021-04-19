@@ -2,8 +2,9 @@
 #include "ViewManager.hpp"
 #include "DataSpecRegistry.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "version.h"
 
-namespace urde {
+namespace metaforce {
 static logvisor::Module Log("URDE::ProjectManager");
 ProjectManager* ProjectManager::g_SharedManager = nullptr;
 
@@ -63,8 +64,8 @@ bool ProjectManager::newProject(hecl::SystemStringView path) {
   m_vm.SetupEditorView();
   saveProject();
 
-  m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - URDE [{}]")),
-    m_proj->getProjectRootPath().getLastComponent(), m_vm.platformName()));
+  m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - Metaforce {} [{}]")),
+    m_proj->getProjectRootPath().getLastComponent(), METAFORCE_WC_DESCRIBE_SYS, m_vm.platformName()));
   m_vm.DismissSplash();
   m_vm.FadeInEditors();
 
@@ -72,6 +73,7 @@ bool ProjectManager::newProject(hecl::SystemStringView path) {
 }
 
 bool ProjectManager::openProject(hecl::SystemStringView path) {
+  OPTICK_EVENT();
   hecl::SystemString subPath;
   hecl::ProjectRootPath projPath = hecl::SearchForProject(path, subPath);
   if (!projPath) {
@@ -103,16 +105,17 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
     if (needsSave)
       saveProject();
 
-    m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - URDE [{}]")),
-                                            m_proj->getProjectRootPath().getLastComponent(), m_vm.platformName()));
+    m_vm.m_mainWindow->setTitle(fmt::format(FMT_STRING(_SYS_STR("{} - Metaforce {} [{}]")),
+                                            m_proj->getProjectRootPath().getLastComponent(), METAFORCE_WC_DESCRIBE_SYS,
+                                            m_vm.platformName()));
     m_vm.DismissSplash();
     m_vm.FadeInEditors();
     m_vm.pushRecentProject(m_proj->getProjectRootPath().getAbsolutePath());
     return true;
   };
 
-  const hecl::ProjectPath urdeSpacesPath(*m_proj, _SYS_STR(".hecl/urde_spaces.yaml"));
-  athena::io::FileReader reader(urdeSpacesPath.getAbsolutePath());
+  const hecl::ProjectPath metaforceSpacesPath(*m_proj, _SYS_STR(".hecl/metaforce_spaces.yaml"));
+  athena::io::FileReader reader(metaforceSpacesPath.getAbsolutePath());
 
   if (!reader.isOpen()) {
     return makeProj(true);
@@ -124,7 +127,7 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
   };
 
   yaml_parser_set_input(r.getParser(), readHandler, &reader);
-  if (!r.ValidateClassType("UrdeSpacesState")) {
+  if (!r.ValidateClassType("MetaforceSpacesState")) {
     return makeProj(true);
   }
 
@@ -143,7 +146,7 @@ bool ProjectManager::saveProject() {
   if (!m_proj)
     return false;
 
-  hecl::ProjectPath oldSpacesPath(*m_proj, _SYS_STR(".hecl/~urde_spaces.yaml"));
+  hecl::ProjectPath oldSpacesPath(*m_proj, _SYS_STR(".hecl/~metaforce_spaces.yaml"));
   athena::io::FileWriter writer(oldSpacesPath.getAbsolutePath());
   if (!writer.isOpen())
     return false;
@@ -153,7 +156,7 @@ bool ProjectManager::saveProject() {
   if (!w.finish(&writer))
     return false;
 
-  hecl::ProjectPath newSpacesPath(*m_proj, _SYS_STR(".hecl/urde_spaces.yaml"));
+  hecl::ProjectPath newSpacesPath(*m_proj, _SYS_STR(".hecl/metaforce_spaces.yaml"));
 
   hecl::Unlink(newSpacesPath.getAbsolutePath().data());
   hecl::Rename(oldSpacesPath.getAbsolutePath().data(), newSpacesPath.getAbsolutePath().data());
@@ -164,6 +167,7 @@ bool ProjectManager::saveProject() {
 }
 
 void ProjectManager::mainUpdate() {
+  OPTICK_EVENT();
   if (m_precooking) {
     if (!m_factoryMP1.IsBusy())
       m_precooking = false;
@@ -195,4 +199,4 @@ void ProjectManager::shutdown() {
   hecl::blender::Connection::Shutdown();
 }
 
-} // namespace urde
+} // namespace metaforce

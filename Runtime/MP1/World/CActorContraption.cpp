@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 MP1::CActorContraption::CActorContraption(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                           const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabox,
@@ -101,4 +101,4 @@ CFlameThrower* MP1::CActorContraption::CreateFlameThrower(std::string_view name,
   mgr.AddObject(ret);
   return ret;
 }
-} // namespace urde
+} // namespace metaforce

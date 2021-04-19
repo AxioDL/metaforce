@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptActorRotate::CScriptActorRotate(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                        const zeus::CVector3f& rotation, float maxTime, bool updateActors,
                                        bool updateOnCreation, bool active)
@@ -44,11 +44,11 @@ void CScriptActorRotate::Think(float dt, CStateManager& mgr) {
 
     for (const auto& actorPair : x48_actors) {
       if (const TCastToPtr<CActor> act = mgr.ObjectById(actorPair.first)) {
-        const zeus::CTransform xf = zeus::CTransform::RotateZ(zeus::degToRad(timeOffset * x34_rotation.z())) *
+        const zeus::CTransform xf = zeus::CTransform::RotateX(zeus::degToRad(timeOffset * x34_rotation.x())) *
                                     zeus::CTransform::RotateY(zeus::degToRad(timeOffset * x34_rotation.y())) *
-                                    zeus::CTransform::RotateX(zeus::degToRad(timeOffset * x34_rotation.x()));
+                                    zeus::CTransform::RotateZ(zeus::degToRad(timeOffset * x34_rotation.z()));
         zeus::CTransform localRot = actorPair.second * xf;
-        localRot.origin = act->GetTranslation();
+        localRot.origin += act->GetTranslation();
         act->SetTransform(localRot);
 
         if (const TCastToPtr<CScriptPlatform> plat = mgr.ObjectById(actorPair.first)) {
@@ -57,8 +57,8 @@ void CScriptActorRotate::Think(float dt, CStateManager& mgr) {
       }
     }
 
-    if (x58_24_updateRotation) {
-      if (!x58_25_skipSpiderBallWaypoints) {
+    if (!x58_24_updateRotation) {
+      if (x58_25_updateSpiderBallWaypoints) {
         UpdateSpiderBallWaypoints(mgr);
       }
 
@@ -82,11 +82,11 @@ void CScriptActorRotate::UpdatePlatformRiders(std::vector<SRiders>& riders, CScr
       act->SetTransform(rider.x8_transform);
       act->SetTranslation(act->GetTranslation() + plat.GetTranslation());
 
-      if (x58_24_updateRotation) {
+      if (!x58_24_updateRotation) {
         riderXf = {act->GetTransform().basis, act->GetTranslation() - plat.GetTranslation()};
 
         if (TCastToConstPtr<CScriptSpiderBallWaypoint>(act.GetPtr())) {
-          x58_25_skipSpiderBallWaypoints = true;
+          x58_25_updateSpiderBallWaypoints = true;
         }
       }
 
@@ -128,22 +128,21 @@ void CScriptActorRotate::UpdateActors(bool next, CStateManager& mgr) {
 void CScriptActorRotate::UpdateSpiderBallWaypoints(CStateManager& mgr) {
   rstl::reserved_vector<TUniqueId, 1024> waypointIds;
   CObjectList& objectList = mgr.GetAllObjectList();
-  for (const CEntity* ent : objectList) {
-    if (const TCastToConstPtr<CScriptSpiderBallWaypoint> wp = ent) {
+  for (CEntity* ent : objectList) {
+    if (const TCastToPtr<CScriptSpiderBallWaypoint> wp = ent) {
       waypointIds.push_back(wp->GetUniqueId());
+      wp->ClearWaypoints();
     }
   }
 
   for (const TUniqueId& uid : waypointIds) {
     auto* wp = static_cast<CScriptSpiderBallWaypoint*>(mgr.ObjectById(uid));
     if (wp) {
-#if 0
-      wp->sub_801187B4(mgr);
-      wp->xe4_27_ = true;
-#endif
+      wp->BuildWaypointListAndBounds(mgr);
+      wp->SetNotInSortedLists(false);
     }
   }
 
-  x58_25_skipSpiderBallWaypoints = false;
+  x58_25_updateSpiderBallWaypoints = false;
 }
-} // namespace urde
+} // namespace metaforce

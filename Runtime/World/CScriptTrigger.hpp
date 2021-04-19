@@ -9,7 +9,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 // TODO - Phil: Figure out what each of the DetectProjectiles actually mean
 enum class ETriggerFlags : u32 {
@@ -90,4 +90,4 @@ public:
   }
   bool IsPlayerTriggerProc() const { return x148_28_playerTriggerProc; }
 };
-} // namespace urde
+} // namespace metaforce

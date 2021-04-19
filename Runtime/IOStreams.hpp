@@ -12,7 +12,7 @@
 #include <zlib.h>
 #endif
 
-namespace urde {
+namespace metaforce {
 using CInputStream = athena::io::IStreamReader;
 using COutputStream = athena::io::IStreamWriter;
 
@@ -71,4 +71,4 @@ public:
 };
 #endif
 
-} // namespace urde
+} // namespace metaforce

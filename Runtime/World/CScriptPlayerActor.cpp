@@ -14,7 +14,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                        const zeus::CTransform& xf, const CAnimRes& animRes, CModelData&& mData,
                                        const zeus::CAABox& aabox, bool setBoundingBox, const CMaterialList& list,
@@ -419,8 +419,8 @@ void CScriptPlayerActor::Render(CStateManager& mgr) {
     const float radius = zeus::clamp(0.25f, (6.f - vecFromCam.magnitude()) / 6.f, 2.f);
     const float offsetX = std::sin(x34c_phazonOffsetAngle);
     const float offsetY = std::sin(x34c_phazonOffsetAngle) * 0.5f;
-    g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, 1.f), x338_phazonIndirectTexture, zeus::skWhite,
-                                             radius, 0.05f, offsetX, offsetY);
+    //g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, 1.f), x338_phazonIndirectTexture, zeus::skWhite,
+    //                                         radius, 0.05f, offsetX, offsetY);
   }
 }
 
@@ -454,4 +454,4 @@ void CScriptPlayerActor::TouchModels(const CStateManager& mgr) const {
     }
   }
 }
-} // namespace urde
+} // namespace metaforce

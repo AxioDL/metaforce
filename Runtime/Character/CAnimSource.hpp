@@ -11,7 +11,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAnimPOIData;
 class CBoolPOINode;
 class CInt32POINode;
@@ -78,4 +78,4 @@ public:
   const CSegId& GetRootBoneId() const { return x1c_rootBone; }
 };
 
-} // namespace urde
+} // namespace metaforce

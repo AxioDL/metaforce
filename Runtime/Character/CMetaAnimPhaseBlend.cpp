@@ -4,7 +4,7 @@
 #include "Runtime/Character/CAnimTreeTimeScale.hpp"
 #include "Runtime/Character/CMetaAnimFactory.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CMetaAnimPhaseBlend::CMetaAnimPhaseBlend(CInputStream& in) {
   x4_animA = CMetaAnimFactory::CreateMetaAnim(in);
@@ -40,4 +40,4 @@ std::shared_ptr<CAnimTreeNode> CMetaAnimPhaseBlend::VGetAnimationTree(const CAni
                                           CAnimTreeBlend::CreatePrimitiveName(tsa, tsb, xc_blend));
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -1,6 +1,6 @@
 #include "Runtime/CToken.hpp"
 
-namespace urde {
+namespace metaforce {
 u16 CObjectReference::RemoveReference() {
   --x0_refCount;
   if (x0_refCount == 0) {
@@ -155,4 +155,4 @@ CToken::~CToken() {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

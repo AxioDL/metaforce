@@ -2,7 +2,7 @@
 
 #include <zeus/CUnitVector.hpp>
 
-namespace urde {
+namespace metaforce {
 CCollisionSurface::CCollisionSurface(const zeus::CVector3f& a, const zeus::CVector3f& b, const zeus::CVector3f& c,
                                      u32 flags)
 : x0_data{a, b, c}, x24_flags(flags) {}
@@ -17,4 +17,4 @@ zeus::CPlane CCollisionSurface::GetPlane() const {
   return {norm, norm.dot(x0_data[0])};
 }
 
-} // namespace urde
+} // namespace metaforce

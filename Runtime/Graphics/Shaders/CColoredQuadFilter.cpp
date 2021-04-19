@@ -7,7 +7,7 @@
 
 #include "CColoredQuadFilter.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 template <EFilterType Type>
@@ -89,4 +89,4 @@ void CWideScreenFilter::SetViewportToFull() {
   CGraphics::g_SpareTexture.attach(rect);
 }
 
-} // namespace urde
+} // namespace metaforce

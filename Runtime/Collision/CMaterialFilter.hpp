@@ -2,7 +2,7 @@
 
 #include "Runtime/Collision/CMaterialList.hpp"
 
-namespace urde {
+namespace metaforce {
 class CMaterialFilter {
 public:
   enum class EFilterType { Always, Include, Exclude, IncludeExclude };
@@ -35,6 +35,9 @@ public:
   constexpr const CMaterialList& GetExcludeList() const noexcept { return x8_exclude; }
   constexpr CMaterialList& IncludeList() noexcept { return x0_include; }
   constexpr CMaterialList& ExcludeList() noexcept { return x8_exclude; }
+  const CMaterialList& IncludeList() const noexcept { return x0_include; }
+  const CMaterialList& ExcludeList() const noexcept { return x8_exclude; }
+
 
   constexpr bool Passes(const CMaterialList& list) const noexcept {
     switch (x10_type) {
@@ -53,4 +56,4 @@ public:
     }
   }
 };
-} // namespace urde
+} // namespace metaforce

@@ -10,7 +10,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 struct SRiders;
 class CScriptPlatform;
 class CScriptActorRotate : public CEntity {
@@ -19,7 +19,7 @@ class CScriptActorRotate : public CEntity {
   float x44_currentTime = 0.f;
   std::map<TUniqueId, zeus::CTransform> x48_actors;
   bool x58_24_updateRotation : 1 = false;
-  bool x58_25_skipSpiderBallWaypoints : 1 = false;
+  bool x58_25_updateSpiderBallWaypoints : 1 = false;
   bool x58_26_updateActors : 1;
   bool x58_27_updateOnCreation : 1;
 
@@ -36,4 +36,4 @@ public:
   void Think(float, CStateManager&) override;
 };
 
-} // namespace urde
+} // namespace metaforce

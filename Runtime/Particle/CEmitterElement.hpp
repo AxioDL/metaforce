@@ -5,7 +5,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Emitter_Elements */
 
-namespace urde {
+namespace metaforce {
 
 class CEESimpleEmitter : public CEmitterElement {
   std::unique_ptr<CVectorElement> x4_loc;
@@ -52,4 +52,4 @@ public:
   bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

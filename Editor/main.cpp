@@ -8,6 +8,8 @@
 #include "hecl/CVarCommons.hpp"
 #include "hecl/Console.hpp"
 #include "fmt/chrono.h"
+#include "version.h"
+#include "optick.h"
 
 static logvisor::Module AthenaLog("Athena");
 static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, fmt::string_view fmt,
@@ -15,11 +17,12 @@ static void AthenaExc(athena::error::Level level, const char* file, const char*,
   AthenaLog.vreport(logvisor::Level(level), fmt, args);
 }
 
-namespace urde {
-static logvisor::Module Log{"URDE"};
+namespace metaforce {
+static logvisor::Module Log{"Metaforce"};
 
 static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf) {
   hecl::SystemString features;
+#if defined(__x86_64__) || defined(_M_X64)
   auto AddFeature = [&features](const hecl::SystemChar* str) {
     if (!features.empty())
       features += _SYS_STR(", ");
@@ -45,6 +48,7 @@ static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf) {
     AddFeature(_SYS_STR("AVX"));
   if (cpuInf.AVX2)
     AddFeature(_SYS_STR("AVX2"));
+#endif
   return features;
 }
 
@@ -68,6 +72,7 @@ struct Application : boo::IApplicationCallback {
     initialize(app);
     m_viewManager->init(app);
     while (m_running.load()) {
+      OPTICK_FRAME("MainThread");
       if (!m_viewManager->proc())
         break;
     }
@@ -116,7 +121,7 @@ struct Application : boo::IApplicationCallback {
   int64_t getTargetFrameTime() { return m_cvarCommons.getVariableFrameTime() ? 0 : 1000000000L / 60; }
 };
 
-} // namespace urde
+} // namespace metaforce
 
 static hecl::SystemChar CwdBuf[1024];
 hecl::SystemString ExeDir;
@@ -125,12 +130,12 @@ static void SetupBasics(bool logging) {
   auto result = zeus::validateCPU();
   if (!result.first) {
 #if _WIN32 && !WINDOWS_STORE
-    std::wstring msg = fmt::format(FMT_STRING(L"ERROR: This build of URDE requires the following CPU features:\n{}\n"),
-                                   urde::CPUFeatureString(result.second));
+    std::wstring msg = fmt::format(FMT_STRING(L"ERROR: This build of Metaforce requires the following CPU features:\n{}\n"),
+                                   metaforce::CPUFeatureString(result.second));
     MessageBoxW(nullptr, msg.c_str(), L"CPU error", MB_OK | MB_ICONERROR);
 #else
-    fmt::print(stderr, FMT_STRING("ERROR: This build of URDE requires the following CPU features:\n{}\n"),
-               urde::CPUFeatureString(result.second));
+    fmt::print(stderr, FMT_STRING("ERROR: This build of Metaforce requires the following CPU features:\n{}\n"),
+               metaforce::CPUFeatureString(result.second));
 #endif
     exit(1);
   }
@@ -139,6 +144,12 @@ static void SetupBasics(bool logging) {
   if (logging)
     logvisor::RegisterConsoleLogger();
   atSetExceptionHandler(AthenaExc);
+
+#if SENTRY_ENABLED
+  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("sentry-native-metaforce")};
+  hecl::SystemUTF8Conv cacheDir{fileMgr.getStoreRoot()};
+  logvisor::RegisterSentry("metaforce", METAFORCE_WC_DESCRIBE, cacheDir.c_str());
+#endif
 }
 
 static bool IsClientLoggingEnabled(int argc, const boo::SystemChar** argv) {
@@ -156,12 +167,12 @@ int main(int argc, const boo::SystemChar** argv)
 #endif
 {
   if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage"))) {
-    fmt::print(FMT_STRING("{}\n"), URDE_DLPACKAGE);
+    fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;
   }
 
   SetupBasics(IsClientLoggingEnabled(argc, argv));
-  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("urde")};
+  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("metaforce")};
   hecl::CVarManager cvarMgr{fileMgr};
   hecl::CVarCommons cvarCmns{cvarMgr};
 
@@ -170,7 +181,7 @@ int main(int argc, const boo::SystemChar** argv)
     args.push_back(argv[i]);
   cvarMgr.parseCommandLine(args);
 
-  hecl::SystemStringView logFile = hecl::SystemStringConv(cvarCmns.getLogFile()).sys_str();
+  hecl::SystemString logFile{hecl::SystemStringConv(cvarCmns.getLogFile()).c_str()};
   hecl::SystemString logFilePath;
   if (!logFile.empty()) {
     std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -193,10 +204,10 @@ int main(int argc, const boo::SystemChar** argv)
   /* Handle -j argument */
   hecl::SetCpuCountOverride(argc, argv);
 
-  urde::Application appCb(fileMgr, cvarMgr, cvarCmns);
-  int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, appCb, _SYS_STR("urde"), _SYS_STR("URDE"), argc,
-                                argv, appCb.getGraphicsApi(), appCb.getSamples(), appCb.getAnisotropy(),
-                                appCb.getDeepColor(), appCb.getTargetFrameTime(), false);
+  metaforce::Application appCb(fileMgr, cvarMgr, cvarCmns);
+  int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, appCb, _SYS_STR("metaforce"),
+                                _SYS_STR("Metaforce"), argc, argv, appCb.getGraphicsApi(), appCb.getSamples(),
+                                appCb.getAnisotropy(), appCb.getDeepColor(), appCb.getTargetFrameTime(), false);
   // printf("IM DYING!!\n");
   return ret;
 }
@@ -208,9 +219,9 @@ using namespace Windows::ApplicationModel::Core;
 
 [Platform::MTAThread] int WINAPIV main(Platform::Array<Platform::String ^> ^ params) {
   SetupBasics(false);
-  urde::Application appCb;
+  metaforce::Application appCb;
   auto viewProvider =
-      ref new boo::ViewProvider(appCb, _SYS_STR("urde"), _SYS_STR("URDE"), _SYS_STR("urde"), params, false);
+      ref new boo::ViewProvider(appCb, _SYS_STR("metaforce"), _SYS_STR("Metaforce"), _SYS_STR("metaforce"), params, false);
   CoreApplication::Run(viewProvider);
   return 0;
 }

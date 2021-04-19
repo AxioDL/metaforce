@@ -4,7 +4,7 @@
 #include "Runtime/GuiSys/CHudInterface.hpp"
 #include <zeus/CTransform.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAuiEnergyBarT01;
 class CGuiFrame;
 class CGuiModel;
@@ -47,4 +47,4 @@ public:
   static std::pair<zeus::CVector3f, zeus::CVector3f> ThermalThreatBarCoordFunc(float t);
 };
 
-} // namespace urde
+} // namespace metaforce

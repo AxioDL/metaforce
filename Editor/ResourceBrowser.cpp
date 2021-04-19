@@ -1,6 +1,6 @@
 #include "ResourceBrowser.hpp"
 
-namespace urde {
+namespace metaforce {
 #define BROWSER_MARGIN 8
 
 bool ResourceBrowser::navigateToPath(const hecl::ProjectPath& pathIn) {
@@ -67,4 +67,4 @@ void ResourceBrowser::View::resized(const boo::SWindowRect& root, const boo::SWi
 }
 void ResourceBrowser::View::draw(boo::IGraphicsCommandQueue* gfxQ) { m_resListing.m_view->draw(gfxQ); }
 
-} // namespace urde
+} // namespace metaforce

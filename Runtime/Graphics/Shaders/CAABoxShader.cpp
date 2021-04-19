@@ -6,7 +6,7 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "CAABoxShader.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 struct CAABoxShaderPipeline : pipeline<topology<hsh::TriangleStrip>,
@@ -66,4 +66,4 @@ void CAABoxShader::draw(const zeus::CColor& color) {
   m_dataBind.draw(0, VertexCount);
 }
 
-} // namespace urde
+} // namespace metaforce

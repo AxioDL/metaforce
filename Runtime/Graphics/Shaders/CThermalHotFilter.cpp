@@ -6,7 +6,7 @@
 
 #include "CThermalHotFilter.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 struct CThermalHotFilterPipeline
@@ -53,4 +53,4 @@ void CThermalHotFilter::draw() {
   m_dataBind.draw(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

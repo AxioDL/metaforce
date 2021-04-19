@@ -2,7 +2,7 @@
 
 #include "Runtime/World/CPathFindArea.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CPFNode::CPFNode(CMemoryInStream& in) {
   x0_position.readBig(in);
@@ -267,4 +267,4 @@ bool CPFRegion::IsPointInsidePaddedAABox(const zeus::CVector3f& point, float pad
          point.z() >= x34_aabb.min.z() - padding && point.z() <= x34_aabb.max.z() + padding;
 }
 
-} // namespace urde
+} // namespace metaforce

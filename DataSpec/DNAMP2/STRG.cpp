@@ -213,6 +213,6 @@ void STRG::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& writer) {
   }
 }
 
-std::string_view STRG::DNAType() { return "urde::DNAMP2::STRG"sv; }
+std::string_view STRG::DNAType() { return "DNAMP2::STRG"sv; }
 
 } // namespace DataSpec::DNAMP2

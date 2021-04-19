@@ -7,7 +7,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Character/CPASAnimState.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CRandom16;
 class CPASAnimParmData;
@@ -24,7 +24,7 @@ public:
   std::pair<float, s32> FindBestAnimation(const CPASAnimParmData& data, CRandom16& rand, s32 ignoreAnim) const;
   s32 GetDefaultState() const { return x10_defaultState; }
   size_t GetNumAnimStates() const { return x0_states.size(); }
-  const CPASAnimState* GetAnimState(s32 id) const {
+  const CPASAnimState* GetAnimState(pas::EAnimationState id) const {
     for (const CPASAnimState& state : x0_states)
       if (id == state.GetStateId())
         return &state;
@@ -39,11 +39,11 @@ public:
     return &x0_states[index];
   }
 
-  bool HasState(s32 id) const {
+  bool HasState(pas::EAnimationState id) const {
     const auto& st = std::find_if(x0_states.begin(), x0_states.end(),
                                   [&id](const CPASAnimState& other) -> bool { return other.GetStateId() == id; });
     return st != x0_states.end();
   }
 };
 
-} // namespace urde
+} // namespace metaforce

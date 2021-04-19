@@ -8,7 +8,7 @@
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CBouncyGrenade::CBouncyGrenade(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParams,
                                TUniqueId parentId, const SBouncyGrenadeData& data, float velocity,
@@ -18,16 +18,16 @@ CBouncyGrenade::CBouncyGrenade(TUniqueId uid, std::string_view name, const CEnti
 , x258_data(data)
 , x294_numBounces(data.GetNumBounces())
 , x298_parentId(parentId)
-, x2a0_elementGen1(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId1()})))
-, x2a4_elementGen2(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId2()})))
-, x2a8_elementGen3(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId3()})))
+, x2a0_elementGenCombat(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId1()})))
+, x2a4_elementGenXRay(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId2()})))
+, x2a8_elementGenThermal(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId3()})))
 , x2ac_elementGen4(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId4()})))
 , x2b0_explodePlayerDistance(explodePlayerDistance) {
   SetMomentumWR({0.f, 0.f, -GravityConstant() * GetMass()});
   SetVelocityWR(velocity * xf.frontVector());
-  x2a0_elementGen1->SetParticleEmission(false);
-  x2a4_elementGen2->SetParticleEmission(false);
-  x2a8_elementGen3->SetParticleEmission(false);
+  x2a0_elementGenCombat->SetParticleEmission(false);
+  x2a4_elementGenXRay->SetParticleEmission(false);
+  x2a8_elementGenThermal->SetParticleEmission(false);
   x2ac_elementGen4->SetParticleEmission(true);
   CMaterialFilter filter = GetMaterialFilter();
   filter.ExcludeList().Add(EMaterialTypes::Character);
@@ -42,9 +42,9 @@ void CBouncyGrenade::AddToRenderer(const zeus::CFrustum& frustum, CStateManager&
   }
   const auto visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
   if (visor == CPlayerState::EPlayerVisor::Combat || visor == CPlayerState::EPlayerVisor::Scan) {
-    g_Renderer->AddParticleGen(*x2a0_elementGen1);
+    g_Renderer->AddParticleGen(*x2a0_elementGenCombat);
   } else if (visor == CPlayerState::EPlayerVisor::XRay || visor == CPlayerState::EPlayerVisor::Thermal) {
-    g_Renderer->AddParticleGen(*x2a8_elementGen3);
+    g_Renderer->AddParticleGen(*x2a8_elementGenThermal);
   }
 }
 
@@ -103,7 +103,7 @@ void CBouncyGrenade::Render(CStateManager& mgr) {
     CElementGen::SetSubtractBlend(true);
     CElementGen::SetMoveRedToAlphaBuffer(true);
     CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
-    x2a4_elementGen2->Render();
+    x2a4_elementGenXRay->Render();
     mgr.SetupFogForArea(GetAreaIdAlways());
     CElementGen::SetSubtractBlend(false);
     CElementGen::SetMoveRedToAlphaBuffer(false);
@@ -115,7 +115,7 @@ void CBouncyGrenade::Think(float dt, CStateManager& mgr) {
     const zeus::CTransform& orientation = GetTransform().getRotation();
     const zeus::CVector3f& translation = GetTranslation();
     const zeus::CVector3f& scale = GetModelData()->GetScale();
-    auto UpdateElementGen = [ orientation, translation, scale, dt ](CElementGen & gen) constexpr {
+    auto UpdateElementGen = [ orientation, translation, scale, dt ](CElementGen & gen) {
       gen.SetOrientation(orientation);
       gen.SetGlobalTranslation(translation);
       gen.SetGlobalScale(scale);
@@ -123,9 +123,9 @@ void CBouncyGrenade::Think(float dt, CStateManager& mgr) {
     };
     if (x2b4_24_exploded) {
       Stop();
-      UpdateElementGen(*x2a0_elementGen1);
-      UpdateElementGen(*x2a4_elementGen2);
-      UpdateElementGen(*x2a8_elementGen3);
+      UpdateElementGen(*x2a0_elementGenCombat);
+      UpdateElementGen(*x2a4_elementGenXRay);
+      UpdateElementGen(*x2a8_elementGenThermal);
     } else {
       UpdateElementGen(*x2ac_elementGen4);
     }
@@ -140,8 +140,8 @@ void CBouncyGrenade::Think(float dt, CStateManager& mgr) {
       Explode(mgr, kInvalidUniqueId);
     }
   }
-  if (x2a0_elementGen1->IsSystemDeletable() && x2a4_elementGen2->IsSystemDeletable() &&
-      x2a8_elementGen3->IsSystemDeletable()) {
+  if (x2a0_elementGenCombat->IsSystemDeletable() && x2a4_elementGenXRay->IsSystemDeletable() &&
+      x2a8_elementGenThermal->IsSystemDeletable()) {
     mgr.FreeScriptObject(GetUniqueId());
   }
 }
@@ -156,9 +156,9 @@ void CBouncyGrenade::Explode(CStateManager& mgr, TUniqueId uid) {
   x2b4_24_exploded = true;
   CSfxManager::AddEmitter(x258_data.GetExplodeSfx(), GetTranslation(), zeus::skUp, false, false, 0x7f,
                           GetAreaIdAlways());
-  x2a0_elementGen1->SetParticleEmission(true);
-  x2a4_elementGen2->SetParticleEmission(true);
-  x2a8_elementGen3->SetParticleEmission(true);
+  x2a0_elementGenCombat->SetParticleEmission(true);
+  x2a4_elementGenXRay->SetParticleEmission(true);
+  x2a8_elementGenThermal->SetParticleEmission(true);
   x2ac_elementGen4->SetParticleEmission(false);
 
   const CDamageInfo& dInfo = x258_data.GetDamageInfo();
@@ -207,4 +207,4 @@ void CBouncyGrenade::Explode(CStateManager& mgr, TUniqueId uid) {
     }
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

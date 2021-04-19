@@ -10,7 +10,7 @@
 #include "Runtime/Particle/CUVElement.hpp"
 #include "Runtime/Particle/CVectorElement.hpp"
 
-namespace urde {
+namespace metaforce {
 class CElectricDescription {
 public:
   std::unique_ptr<CIntElement> x0_LIFE;
@@ -34,4 +34,4 @@ public:
   SChildGeneratorDesc x60_EPSM;
   bool x70_ZERY = false;
 };
-} // namespace urde
+} // namespace metaforce

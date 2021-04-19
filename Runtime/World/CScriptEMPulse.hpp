@@ -3,7 +3,7 @@
 #include <memory>
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 class CElementGen;
 class CGenDescription;
 
@@ -32,4 +32,4 @@ public:
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Touch(CActor&, CStateManager&) override;
 };
-} // namespace urde
+} // namespace metaforce

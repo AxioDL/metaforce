@@ -7,7 +7,7 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/World/CEffect.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CExplosion : public CEffect {
   std::unique_ptr<CParticleGen> xe8_particleGen;
@@ -38,4 +38,4 @@ public:
   bool CanRenderUnsorted(const CStateManager&) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

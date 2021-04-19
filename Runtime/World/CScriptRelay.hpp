@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-namespace urde {
+namespace metaforce {
 class CScriptRelay : public CEntity {
   TUniqueId x34_nextRelay = kInvalidUniqueId;
   u32 x38_sendCount = 0;
@@ -18,4 +18,4 @@ public:
   void Think(float, CStateManager& stateMgr) override;
   void UpdateObjectRef(CStateManager& stateMgr);
 };
-} // namespace urde
+} // namespace metaforce

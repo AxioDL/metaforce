@@ -8,7 +8,7 @@
 #include "Runtime/Character/CParticlePOINode.hpp"
 #include "Runtime/Character/CSoundPOINode.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAnimSourceInfo::CAnimSourceInfo(TSubAnimTypeToken<CAnimSource> token) : x4_token(std::move(token)) {}
 
@@ -381,4 +381,4 @@ CAnimSourceReader::CAnimSourceReader(const CAnimSourceReader& other)
 , x54_source(other.x54_source)
 , x64_steadyStateInfo(other.x64_steadyStateInfo) {}
 
-} // namespace urde
+} // namespace metaforce

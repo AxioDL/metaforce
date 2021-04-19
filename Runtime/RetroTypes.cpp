@@ -5,8 +5,8 @@
 
 #include <logvisor/logvisor.hpp>
 
-namespace urde {
-logvisor::Module Log("urde::RetroTypes::CAssetId");
+namespace metaforce {
+logvisor::Module Log("metaforce::RetroTypes::CAssetId");
 
 CAssetId::CAssetId(CInputStream& in) {
   if (g_Main) {
@@ -32,4 +32,4 @@ void CAssetId::PutTo(COutputStream& out) {
     Log.report(logvisor::Fatal, FMT_STRING("PutTo called before runtime Main entered!"));
 }
 
-} // namespace urde
+} // namespace metaforce

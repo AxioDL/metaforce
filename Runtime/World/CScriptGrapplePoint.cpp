@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptGrapplePoint::CScriptGrapplePoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                          const zeus::CTransform& transform, bool active,
                                          const CGrappleParameters& params)
@@ -50,4 +50,4 @@ void CScriptGrapplePoint::AddToRenderer(const zeus::CFrustum&, CStateManager& mg
   CActor::EnsureRendered(mgr);
 }
 
-} // namespace urde
+} // namespace metaforce

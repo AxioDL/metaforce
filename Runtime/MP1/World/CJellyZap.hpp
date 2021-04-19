@@ -2,7 +2,7 @@
 
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CJellyZap : public CPatterned {
   u32 x568_ = 0;
   CDamageInfo x56c_attackDamage;
@@ -59,4 +59,4 @@ public:
   bool InAttackPosition(CStateManager&, float) override;
   bool InDetectionRange(CStateManager&, float) override;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

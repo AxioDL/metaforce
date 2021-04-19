@@ -1,6 +1,6 @@
 #include "Runtime/Collision/CRayCastResult.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CRayCastResult::MakeInvalid() {
   /* NOTE: CRayCastResult: Enable this if it's required, this is a total guess - Phil */
@@ -19,4 +19,4 @@ void CRayCastResult::Transform(const zeus::CTransform& xf) {
   x10_plane = zeus::CPlane(xf.rotate(x10_plane.normal()), x10_plane.normal().dot(x4_point));
 }
 
-} // namespace urde
+} // namespace metaforce

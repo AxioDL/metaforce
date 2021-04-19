@@ -7,7 +7,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CPhazonPool::CPhazonPool(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                          const zeus::CVector3f& scale, bool active, CAssetId w1, CAssetId w2, CAssetId w3, CAssetId w4,
                          u32 p11, const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce,
@@ -153,25 +153,25 @@ void CPhazonPool::Think(float dt, CStateManager& mgr) {
         x1c4_ = 0.f;
         dVar5 = dt;
       }
-      x1a0_ -= x1bc_ * (dt * x1cc_) + dVar5;
-      x1a4_ = x1a0_ / x19c_;
-      if (x1a4_ < 0.001f) {
-        if (x1e0_24_) {
-          shouldFree = true;
-        } else {
-          SetCallTouch(false);
-          if (x1e0_25_) {
-            x1dc_ = 0;
-            SetActive(false);
-          } else {
-            x1dc_ = 3;
-            x1d0_ = x1c8_;
-          }
-        }
-        SetEmitParticles(false);
-      }
-      x1cc_ = 0.f;
     }
+    x1a0_ -= x1bc_ * (dt * x1cc_) + dVar5;
+    x1a4_ = x1a0_ / x19c_;
+    if (x1a4_ < 0.001f) {
+      if (x1e0_24_) {
+        shouldFree = true;
+      } else {
+        SetCallTouch(false);
+        if (x1e0_25_) {
+          x1dc_ = 0;
+          SetActive(false);
+        } else {
+          x1dc_ = 3;
+          x1d0_ = x1c8_;
+        }
+      }
+      SetEmitParticles(false);
+    }
+    x1cc_ = 0.f;
   } else if (x1dc_ == 3) {
     x1d0_ -= dt;
     if (x1d0_ <= 0.f) {
@@ -268,4 +268,4 @@ void CPhazonPool::SetEmitParticles(bool val) {
     x170_elementGen1->SetParticleEmission(val);
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

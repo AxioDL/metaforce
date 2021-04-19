@@ -14,7 +14,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CEnergyProjectile::CEnergyProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type,
                                      const zeus::CTransform& xf, EMaterialTypes excludeMat, const CDamageInfo& damage,
@@ -406,4 +406,4 @@ void CEnergyProjectile::StopProjectile(CStateManager& mgr) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

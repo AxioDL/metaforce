@@ -12,12 +12,13 @@
 #include "Runtime/World/CDamageVulnerability.hpp"
 #include "Runtime/World/CHealthInfo.hpp"
 #include "Runtime/World/CPhysicsActor.hpp"
+#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
 
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CFluidPlane;
 
 struct SRiders {
@@ -72,6 +73,7 @@ class CScriptPlatform : public CPhysicsActor {
   static rstl::reserved_vector<TUniqueId, 1024> BuildNearListFromRiders(CStateManager& mgr,
                                                                         const std::vector<SRiders>& movedRiders);
 
+  std::optional<CAABoxShader> m_boxFilter;
 public:
   CScriptPlatform(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                   CModelData&& mData, const CActorParameters& actParms, const zeus::CAABox& aabb, float speed,
@@ -114,5 +116,7 @@ public:
 
   virtual void SplashThink(const zeus::CAABox&, const CFluidPlane&, float, CStateManager&) const;
   virtual zeus::CQuaternion Move(float, CStateManager&);
+
+  void DebugDraw();
 };
-} // namespace urde
+} // namespace metaforce

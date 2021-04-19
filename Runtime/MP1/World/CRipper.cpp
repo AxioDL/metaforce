@@ -10,7 +10,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CRipper::CRipper(TUniqueId uid, std::string_view name, EFlavorType type, const CEntityInfo& info,
                  const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                  const CActorParameters& actParms, const CGrappleParameters& grappleParms)
@@ -184,4 +184,4 @@ zeus::CQuaternion CRipperControlledPlatform::Move(float arg, CStateManager& mgr)
   }
   return {};
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

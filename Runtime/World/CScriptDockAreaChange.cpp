@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CScriptDockAreaChange::CScriptDockAreaChange(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 w1,
                                              bool active)
 : CEntity(uid, info, active, name), x34_dockReference(w1) {}
@@ -34,4 +34,4 @@ void CScriptDockAreaChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
 
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 }
-} // namespace urde
+} // namespace metaforce

@@ -3,7 +3,7 @@
 #include <memory>
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class IObj {
 public:
@@ -30,4 +30,4 @@ public:
   T* GetObj() { return static_cast<T*>(m_objPtr); }
 };
 
-} // namespace urde
+} // namespace metaforce

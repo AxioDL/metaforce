@@ -8,7 +8,7 @@
 
 #include <zeus/CTransform.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 struct SGrenadeVelocityInfo {
 private:
   float x0_mass;
@@ -64,9 +64,9 @@ private:
   u32 x294_numBounces;
   TUniqueId x298_parentId;
   float x29c_ = 0.f;
-  std::unique_ptr<CElementGen> x2a0_elementGen1;
-  std::unique_ptr<CElementGen> x2a4_elementGen2;
-  std::unique_ptr<CElementGen> x2a8_elementGen3;
+  std::unique_ptr<CElementGen> x2a0_elementGenCombat;
+  std::unique_ptr<CElementGen> x2a4_elementGenXRay;
+  std::unique_ptr<CElementGen> x2a8_elementGenThermal;
   std::unique_ptr<CElementGen> x2ac_elementGen4;
   float x2b0_explodePlayerDistance;
   bool x2b4_24_exploded : 1 = false;
@@ -88,4 +88,4 @@ public:
 private:
   void Explode(CStateManager& mgr, TUniqueId uid);
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -2,6 +2,8 @@
 
 #include <array>
 #include <vector>
+#include <chrono>
+#include "optick.h"
 
 #include "Runtime/RetroTypes.hpp"
 
@@ -17,7 +19,9 @@
 #include <zeus/CVector2i.hpp>
 #include <zeus/CVector2f.hpp>
 
-namespace urde {
+using frame_clock = std::chrono::high_resolution_clock;
+
+namespace metaforce {
 extern hecl::CVar* g_disableLighting;
 class CLight;
 class CTimeProvider;
@@ -336,7 +340,12 @@ public:
   static float GetSecondsMod900();
   static void TickRenderTimings();
   static u32 g_FrameCounter;
+  static u32 g_Framerate;
+  static u32 g_FramesPast;
+  static frame_clock::time_point g_FrameStartTime;
   static u32 GetFrameCounter() { return g_FrameCounter; }
+  static u32 GetFPS() { return g_Framerate; }
+  static void UpdateFPSCounter();
 
   static hsh::owner<hsh::render_texture2d> g_SpareTexture;
 
@@ -678,7 +687,7 @@ public:
 };
 #define SCOPED_GRAPHICS_DEBUG_GROUP(...) GraphicsDebugGroup _GfxDbg_(__VA_ARGS__);
 #else
-#define SCOPED_GRAPHICS_DEBUG_GROUP(...)
+#define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...) OPTICK_EVENT_DYNAMIC(name)
 #endif
 
-} // namespace urde
+} // namespace metaforce

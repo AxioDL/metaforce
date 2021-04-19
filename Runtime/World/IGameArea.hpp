@@ -10,7 +10,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CEntity;
 
 class IGameArea {
@@ -49,7 +49,7 @@ public:
   };
 
   virtual std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const = 0;
-  virtual TAreaId IGetAreaId() const = 0;
+  virtual s32 IGetAreaSaveId() const = 0;
   virtual CAssetId IGetAreaAssetId() const = 0;
   virtual bool IIsActive() const = 0;
   virtual TAreaId IGetAttachedAreaId(int) const = 0;
@@ -67,4 +67,4 @@ enum class EChain {
   AliveJudgement,
 };
 
-} // namespace urde
+} // namespace metaforce

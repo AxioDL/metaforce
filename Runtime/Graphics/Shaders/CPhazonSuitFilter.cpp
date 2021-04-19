@@ -2,12 +2,13 @@
 
 #include <array>
 
+#include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
 #include "CPhazonSuitFilter.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 struct CPhazonSuitFilterPipeline : pipeline<topology<hsh::TriangleStrip>, AdditiveAttachment<>, depth_write<false>> {
@@ -161,4 +162,4 @@ void CPhazonSuitFilter::draw(const zeus::CColor& color, float indScale, float in
   m_dataBind.draw(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

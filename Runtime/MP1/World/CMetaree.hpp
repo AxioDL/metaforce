@@ -7,7 +7,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CMetaree : public CPatterned {
   float x568_delay;
   float x56c_haltDelay;
@@ -49,4 +49,4 @@ public:
   bool InRange(CStateManager&, float) override;
   bool ShouldAttack(CStateManager&, float) override;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

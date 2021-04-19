@@ -8,12 +8,12 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 void CBSAttack::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCMeleeAttackCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::MeleeAttack));
   const CPASDatabase& pasDatabase = bc.GetPASDatabase();
-  const CPASAnimParmData parms(7, CPASAnimParm::FromEnum(s32(cmd->GetAttackSeverity())),
+  const CPASAnimParmData parms(pas::EAnimationState::MeleeAttack, CPASAnimParm::FromEnum(s32(cmd->GetAttackSeverity())),
                                CPASAnimParm::FromEnum(s32(bc.GetLocomotionType())));
   const std::pair<float, s32> best = pasDatabase.FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
@@ -121,13 +121,14 @@ void CBSProjectileAttack::Start(CBodyController& bc, CStateManager& mgr) {
   zeus::CRelAngle angle = std::atan2(localDelta.y(), localDelta.x());
   angle.makeRel();
   const float attackAngle = angle.asDegrees();
-  const CPASAnimParmData parms(18, CPASAnimParm::FromEnum(s32(cmd->GetAttackSeverity())),
-                               CPASAnimParm::FromReal32(angle.asDegrees()),
-                               CPASAnimParm::FromEnum(s32(bc.GetLocomotionType())));
+  const CPASAnimParmData parms(
+      pas::EAnimationState::ProjectileAttack, CPASAnimParm::FromEnum(s32(cmd->GetAttackSeverity())),
+      CPASAnimParm::FromReal32(angle.asDegrees()), CPASAnimParm::FromEnum(s32(bc.GetLocomotionType())));
   const std::pair<float, s32> best1 = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   if (cmd->BlendTwoClosest()) {
-    const std::pair<float, s32> best2 = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), best1.second);
-    const CPASAnimState* projAttackState = bc.GetPASDatabase().GetAnimState(18);
+    const std::pair<float, s32> best2 =
+        bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), best1.second);
+    const CPASAnimState* projAttackState = bc.GetPASDatabase().GetAnimState(pas::EAnimationState::ProjectileAttack);
     float angle1 = projAttackState->GetAnimParmData(best1.second, 1).GetReal32Value();
     float angle2 = projAttackState->GetAnimParmData(best2.second, 1).GetReal32Value();
     if (angle1 - angle2 > 180.f) {
@@ -178,7 +179,7 @@ pas::EAnimationState CBSProjectileAttack::UpdateBody(float dt, CBodyController& 
 void CBSDie::Start(CBodyController& bc, CStateManager& mgr) {
   bool shouldReset = true;
   if (bc.ShouldPlayDeathAnims()) {
-    const CPASAnimParmData parms(4, CPASAnimParm::FromEnum(s32(bc.GetFallState())));
+    const CPASAnimParmData parms(pas::EAnimationState::Death, CPASAnimParm::FromEnum(s32(bc.GetFallState())));
     const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
     if (best.first > 0.f) {
       const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
@@ -210,12 +211,12 @@ void CBSFall::Start(CBodyController& bc, CStateManager& mgr) {
   zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
   zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.z());
   angle.makeRel();
-  const CPASAnimParmData parms(0, CPASAnimParm::FromReal32(angle.asDegrees()),
+  const CPASAnimParmData parms(pas::EAnimationState::Fall, CPASAnimParm::FromReal32(angle.asDegrees()),
                                CPASAnimParm::FromEnum(s32(cmd->GetHitSeverity())));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
   bc.SetCurrentAnimation(playParms, false, false);
-  const CPASAnimState* knockdownState = bc.GetPASDatabase().GetAnimState(0);
+  const CPASAnimState* knockdownState = bc.GetPASDatabase().GetAnimState(pas::EAnimationState::Fall);
   if (!knockdownState->GetAnimParmData(best.second, 2).GetBoolValue()) {
     const float animAngle = zeus::degToRad(knockdownState->GetAnimParmData(best.second, 0).GetReal32Value());
     zeus::CRelAngle delta1 = angle - animAngle;
@@ -255,7 +256,7 @@ void CBSFall::Shutdown(CBodyController& bc) { bc.SetFallState(xc_fallState); }
 
 void CBSGetup::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCGetupCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::Getup));
-  const CPASAnimParmData parms(1, CPASAnimParm::FromEnum(s32(bc.GetFallState())),
+  const CPASAnimParmData parms(pas::EAnimationState::Getup, CPASAnimParm::FromEnum(s32(bc.GetFallState())),
                                CPASAnimParm::FromEnum(s32(cmd->GetGetupType())));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   if (best.first > FLT_EPSILON) {
@@ -263,7 +264,8 @@ void CBSGetup::Start(CBodyController& bc, CStateManager& mgr) {
       const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
       bc.SetCurrentAnimation(playParms, false, false);
     }
-    x4_fallState = pas::EFallState(bc.GetPASDatabase().GetAnimState(1)->GetAnimParmData(best.second, 2).GetEnumValue());
+    x4_fallState = pas::EFallState(
+        bc.GetPASDatabase().GetAnimState(pas::EAnimationState::Getup)->GetAnimParmData(best.second, 2).GetEnumValue());
   } else {
     x4_fallState = pas::EFallState::Zero;
   }
@@ -296,12 +298,12 @@ void CBSKnockBack::Start(CBodyController& bc, CStateManager& mgr) {
   const zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
   zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.x());
   angle.makeRel();
-  const CPASAnimParmData parms(6, CPASAnimParm::FromReal32(angle.asDegrees()),
+  const CPASAnimParmData parms(pas::EAnimationState::KnockBack, CPASAnimParm::FromReal32(angle.asDegrees()),
                                CPASAnimParm::FromEnum(s32(cmd->GetHitSeverity())));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
   bc.SetCurrentAnimation(playParms, false, false);
-  const CPASAnimState* knockbackState = bc.GetPASDatabase().GetAnimState(6);
+  const CPASAnimState* knockbackState = bc.GetPASDatabase().GetAnimState(pas::EAnimationState::KnockBack);
   if (!knockbackState->GetAnimParmData(best.second, 2).GetBoolValue()) {
     const float animAngle = zeus::degToRad(knockbackState->GetAnimParmData(best.second, 0).GetReal32Value());
     zeus::CRelAngle delta1 = angle - animAngle;
@@ -353,11 +355,12 @@ pas::EAnimationState CBSKnockBack::UpdateBody(float dt, CBodyController& bc, CSt
 }
 
 CBSLieOnGround::CBSLieOnGround(CActor& actor) {
-  x4_24_hasGroundHit = actor.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().HasState(11);
+  x4_24_hasGroundHit = actor.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().HasState(
+      pas::EAnimationState::GroundHit);
 }
 
 void CBSLieOnGround::Start(CBodyController& bc, CStateManager& mgr) {
-  const CPASAnimParmData parms(2, CPASAnimParm::FromEnum(s32(bc.GetFallState())));
+  const CPASAnimParmData parms(pas::EAnimationState::LieOnGround, CPASAnimParm::FromEnum(s32(bc.GetFallState())));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   if (best.first > 0.f) {
     const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
@@ -388,7 +391,7 @@ void CBSLieOnGround::Shutdown(CBodyController& bc) { bc.EnableAnimation(true); }
 
 void CBSStep::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCStepCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::Step));
-  const CPASAnimParmData parms(3, CPASAnimParm::FromEnum(s32(cmd->GetStepDirection())),
+  const CPASAnimParmData parms(pas::EAnimationState::Step, CPASAnimParm::FromEnum(s32(cmd->GetStepDirection())),
                                CPASAnimParm::FromEnum(s32(cmd->GetStepType())));
   bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
 }
@@ -450,12 +453,14 @@ void CBSTurn::Start(CBodyController& bc, CStateManager& mgr) {
   x8_dest = zeus::CVector2f(bc.GetCommandMgr().GetFaceVector().toVec2f());
   const float deltaAngle = zeus::radToDeg(zeus::CVector2f::getAngleDiff(lookDir2d, x8_dest));
   x10_turnDir = pas::ETurnDirection(zeus::CVector2f(lookDir2d.y(), -lookDir2d.x()).dot(x8_dest) > 0.f);
-  const CPASAnimParmData parms(8, CPASAnimParm::FromEnum(s32(x10_turnDir)), CPASAnimParm::FromReal32(deltaAngle),
+  const CPASAnimParmData parms(pas::EAnimationState::Turn, CPASAnimParm::FromEnum(s32(x10_turnDir)),
+                               CPASAnimParm::FromReal32(deltaAngle),
                                CPASAnimParm::FromEnum(s32(bc.GetLocomotionType())));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
   bc.SetCurrentAnimation(playParms, false, false);
-  const float animAngle = bc.GetPASDatabase().GetAnimState(8)->GetAnimParmData(best.second, 1).GetReal32Value();
+  const float animAngle =
+      bc.GetPASDatabase().GetAnimState(pas::EAnimationState::Turn)->GetAnimParmData(best.second, 1).GetReal32Value();
   x4_rotateSpeed =
       zeus::degToRad((x10_turnDir == pas::ETurnDirection::Left) ? animAngle - deltaAngle : deltaAngle - animAngle);
   const float timeRem = bc.GetAnimTimeRemaining();
@@ -539,14 +544,15 @@ pas::EAnimationState CBSTurn::UpdateBody(float dt, CBodyController& bc, CStateMa
 }
 
 void CBSFlyerTurn::Start(CBodyController& bc, CStateManager& mgr) {
-  if (bc.GetPASDatabase().GetAnimState(8)->HasAnims()) {
+  if (bc.GetPASDatabase().GetAnimState(pas::EAnimationState::Turn)->HasAnims()) {
     CBSTurn::Start(bc, mgr);
   } else {
     x8_dest = zeus::CVector2f(bc.GetCommandMgr().GetFaceVector().toVec2f());
     const zeus::CVector3f& lookDir = bc.GetOwner().GetTransform().basis[1];
     const zeus::CVector2f lookDir2d(lookDir.toVec2f());
     x10_turnDir = pas::ETurnDirection(zeus::CVector2f(lookDir2d.y(), -lookDir2d.x()).dot(x8_dest) > 0.f);
-    const CPASAnimParmData parms(5, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(s32(bc.GetLocomotionType())));
+    const CPASAnimParmData parms(pas::EAnimationState::Locomotion, CPASAnimParm::FromEnum(0),
+                                 CPASAnimParm::FromEnum(s32(bc.GetLocomotionType())));
     const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
     if (best.second != bc.GetCurrentAnimId()) {
       const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
@@ -556,7 +562,7 @@ void CBSFlyerTurn::Start(CBodyController& bc, CStateManager& mgr) {
 }
 
 pas::EAnimationState CBSFlyerTurn::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
-  if (bc.GetPASDatabase().GetAnimState(8)->HasAnims()) {
+  if (bc.GetPASDatabase().GetAnimState(pas::EAnimationState::Turn)->HasAnims()) {
     return CBSTurn::UpdateBody(dt, bc, mgr);
   }
 
@@ -580,12 +586,12 @@ void CBSLoopAttack::Start(CBodyController& bc, CStateManager& mgr) {
   xc_25_advance = false;
 
   if (bc.GetLocomotionType() == pas::ELocomotionType::Crouch) {
-    const CPASAnimParmData parms(9, CPASAnimParm::FromEnum(s32(x4_state)),
+    const CPASAnimParmData parms(pas::EAnimationState::LoopAttack, CPASAnimParm::FromEnum(s32(x4_state)),
                                  CPASAnimParm::FromEnum(s32(x8_loopAttackType)));
     bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
   } else {
     x4_state = pas::ELoopState::Begin;
-    const CPASAnimParmData parms(9, CPASAnimParm::FromEnum(s32(x4_state)),
+    const CPASAnimParmData parms(pas::EAnimationState::LoopAttack, CPASAnimParm::FromEnum(s32(x4_state)),
                                  CPASAnimParm::FromEnum(s32(x8_loopAttackType)));
     const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
     if (best.first > FLT_EPSILON) {
@@ -593,7 +599,7 @@ void CBSLoopAttack::Start(CBodyController& bc, CStateManager& mgr) {
       bc.SetCurrentAnimation(playParms, false, false);
     } else {
       x4_state = pas::ELoopState::Loop;
-      const CPASAnimParmData loopParms(9, CPASAnimParm::FromEnum(s32(x4_state)),
+      const CPASAnimParmData loopParms(pas::EAnimationState::LoopAttack, CPASAnimParm::FromEnum(s32(x4_state)),
                                        CPASAnimParm::FromEnum(s32(x8_loopAttackType)));
       bc.LoopBestAnimation(loopParms, *mgr.GetActiveRandom());
     }
@@ -652,7 +658,8 @@ pas::EAnimationState CBSLoopAttack::UpdateBody(float dt, CBodyController& bc, CS
         return pas::EAnimationState::Locomotion;
       }
       if (bc.IsAnimationOver()) {
-        const CPASAnimParmData parms(9, CPASAnimParm::FromEnum(1), CPASAnimParm::FromEnum(s32(x8_loopAttackType)));
+        const CPASAnimParmData parms(pas::EAnimationState::LoopAttack, CPASAnimParm::FromEnum(1),
+                                     CPASAnimParm::FromEnum(s32(x8_loopAttackType)));
         bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
         x4_state = pas::ELoopState::Loop;
       } else if (!bc.GetCommandMgr().GetTargetVector().isZero()) {
@@ -662,7 +669,8 @@ pas::EAnimationState CBSLoopAttack::UpdateBody(float dt, CBodyController& bc, CS
     case pas::ELoopState::Loop:
       if (xc_25_advance && (!xc_24_waitForAnimOver || bc.IsAnimationOver())) {
         if (bc.GetLocomotionType() != pas::ELocomotionType::Crouch) {
-          const CPASAnimParmData parms(9, CPASAnimParm::FromEnum(2), CPASAnimParm::FromEnum(s32(x8_loopAttackType)));
+          const CPASAnimParmData parms(pas::EAnimationState::LoopAttack, CPASAnimParm::FromEnum(2),
+                                       CPASAnimParm::FromEnum(s32(x8_loopAttackType)));
           bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
           x4_state = pas::ELoopState::End;
         } else {
@@ -697,14 +705,15 @@ void CBSLoopReaction::Start(CBodyController& bc, CStateManager& mgr) {
   }
 
   x4_state = pas::ELoopState::Begin;
-  const CPASAnimParmData parms(10, CPASAnimParm::FromEnum(s32(x8_reactionType)), CPASAnimParm::FromEnum(s32(x4_state)));
+  const CPASAnimParmData parms(pas::EAnimationState::LoopReaction, CPASAnimParm::FromEnum(s32(x8_reactionType)),
+                               CPASAnimParm::FromEnum(s32(x4_state)));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   if (best.first > FLT_EPSILON) {
     const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
     bc.SetCurrentAnimation(playParms, false, false);
   } else {
     x4_state = pas::ELoopState::Loop;
-    const CPASAnimParmData loopParms(10, CPASAnimParm::FromEnum(s32(x8_reactionType)),
+    const CPASAnimParmData loopParms(pas::EAnimationState::LoopReaction, CPASAnimParm::FromEnum(s32(x8_reactionType)),
                                      CPASAnimParm::FromEnum(s32(x4_state)));
     bc.LoopBestAnimation(loopParms, *mgr.GetActiveRandom());
   }
@@ -748,7 +757,8 @@ pas::EAnimationState CBSLoopReaction::GetBodyStateTransition(float dt, const CBo
 }
 
 bool CBSLoopReaction::PlayExitAnimation(CBodyController& bc, CStateManager& mgr) const {
-  const CPASAnimParmData parms(10, CPASAnimParm::FromEnum(int(x8_reactionType)), CPASAnimParm::FromEnum(2));
+  const CPASAnimParmData parms(pas::EAnimationState::LoopReaction, CPASAnimParm::FromEnum(int(x8_reactionType)),
+                               CPASAnimParm::FromEnum(2));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   if (best.first > 0.f) {
     const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
@@ -772,7 +782,8 @@ pas::EAnimationState CBSLoopReaction::UpdateBody(float dt, CBodyController& bc, 
         }
       } else {
         if (bc.IsAnimationOver()) {
-          const CPASAnimParmData parms(10, CPASAnimParm::FromEnum(s32(x8_reactionType)), CPASAnimParm::FromEnum(1));
+          const CPASAnimParmData parms(pas::EAnimationState::LoopReaction, CPASAnimParm::FromEnum(s32(x8_reactionType)),
+                                       CPASAnimParm::FromEnum(1));
           bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
           x4_state = pas::ELoopState::Loop;
         } else if (!bc.GetCommandMgr().GetTargetVector().isZero()) {
@@ -810,12 +821,12 @@ void CBSGroundHit::Start(CBodyController& bc, CStateManager& mgr) {
   const zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
   zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.x());
   angle.makeRel();
-  const CPASAnimParmData parms(11, CPASAnimParm::FromEnum(s32(bc.GetFallState())),
+  const CPASAnimParmData parms(pas::EAnimationState::GroundHit, CPASAnimParm::FromEnum(s32(bc.GetFallState())),
                                CPASAnimParm::FromReal32(angle.asDegrees()));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
   bc.SetCurrentAnimation(playParms, false, false);
-  const CPASAnimState* groundHitState = bc.GetPASDatabase().GetAnimState(11);
+  const CPASAnimState* groundHitState = bc.GetPASDatabase().GetAnimState(pas::EAnimationState::GroundHit);
   if (!groundHitState->GetAnimParmData(best.second, 2).GetBoolValue()) {
     const float animAngle = zeus::degToRad(groundHitState->GetAnimParmData(best.second, 1).GetReal32Value());
     zeus::CRelAngle delta1 = angle - animAngle;
@@ -860,7 +871,7 @@ void CBSGenerate::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCGenerateCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::Generate));
   s32 anim;
   if (!cmd->UseSpecialAnimId()) {
-    const CPASAnimParmData parms(12, CPASAnimParm::FromEnum(s32(cmd->GetGenerateType())));
+    const CPASAnimParmData parms(pas::EAnimationState::Generate, CPASAnimParm::FromEnum(s32(cmd->GetGenerateType())));
     const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
     anim = best.second;
   } else {
@@ -918,7 +929,8 @@ void CBSJump::Start(CBodyController& bc, CStateManager& mgr) {
   }
   if (!cmd->StartInJumpLoop()) {
     x4_state = pas::EJumpState::IntoJump;
-    const CPASAnimParmData parms(13, CPASAnimParm::FromEnum(s32(x4_state)), CPASAnimParm::FromEnum(s32(x8_jumpType)));
+    const CPASAnimParmData parms(pas::EAnimationState::Jump, CPASAnimParm::FromEnum(s32(x4_state)),
+                                 CPASAnimParm::FromEnum(s32(x8_jumpType)));
     bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
   } else {
     PlayJumpLoop(mgr, bc);
@@ -949,7 +961,8 @@ bool CBSJump::CheckForWallJump(CBodyController& bc, CStateManager& mgr) {
     const float xExtent = (aabb.max.x() - aabb.min.x()) * 0.5f;
     if (distToWall < 1.414f * xExtent || (act->MadeSolidCollision() && distToWall < 3.f * xExtent)) {
       x4_state = x30_26_wallBounceRight ? pas::EJumpState::WallBounceRight : pas::EJumpState::WallBounceLeft;
-      const CPASAnimParmData parms(13, CPASAnimParm::FromEnum(s32(x4_state)), CPASAnimParm::FromEnum(s32(x8_jumpType)));
+      const CPASAnimParmData parms(pas::EAnimationState::Jump, CPASAnimParm::FromEnum(s32(x4_state)),
+                                   CPASAnimParm::FromEnum(s32(x8_jumpType)));
       bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
       mgr.SendScriptMsg(act.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::OnFloor);
       return true;
@@ -963,7 +976,8 @@ void CBSJump::CheckForLand(CBodyController& bc, CStateManager& mgr) {
   if (const TCastToPtr<CPatterned> act = bc.GetOwner()) {
     if (act->MadeSolidCollision() || act->IsOnGround()) {
       x4_state = pas::EJumpState::OutOfJump;
-      const CPASAnimParmData parms(13, CPASAnimParm::FromEnum(s32(x4_state)), CPASAnimParm::FromEnum(s32(x8_jumpType)));
+      const CPASAnimParmData parms(pas::EAnimationState::Jump, CPASAnimParm::FromEnum(s32(x4_state)),
+                                   CPASAnimParm::FromEnum(s32(x8_jumpType)));
       bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
       mgr.SendScriptMsg(act.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::OnFloor);
     }
@@ -971,7 +985,8 @@ void CBSJump::CheckForLand(CBodyController& bc, CStateManager& mgr) {
 }
 
 void CBSJump::PlayJumpLoop(CStateManager& mgr, CBodyController& bc) {
-  const CPASAnimParmData parms(13, CPASAnimParm::FromEnum(1), CPASAnimParm::FromEnum(s32(x8_jumpType)));
+  const CPASAnimParmData parms(pas::EAnimationState::Jump, CPASAnimParm::FromEnum(1),
+                               CPASAnimParm::FromEnum(s32(x8_jumpType)));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   if (best.first > 99.f) {
     x4_state = pas::EJumpState::AmbushJump;
@@ -979,7 +994,7 @@ void CBSJump::PlayJumpLoop(CStateManager& mgr, CBodyController& bc) {
     bc.SetCurrentAnimation(playParms, false, false);
   } else {
     x4_state = pas::EJumpState::Loop;
-    const CPASAnimParmData loopParms(13, CPASAnimParm::FromEnum(s32(x4_state)),
+    const CPASAnimParmData loopParms(pas::EAnimationState::Jump, CPASAnimParm::FromEnum(s32(x4_state)),
                                      CPASAnimParm::FromEnum(s32(x8_jumpType)));
     bc.LoopBestAnimation(loopParms, *mgr.GetActiveRandom());
   }
@@ -1013,7 +1028,7 @@ pas::EAnimationState CBSJump::UpdateBody(float dt, CBodyController& bc, CStateMa
       }
       if (bc.IsAnimationOver()) {
         x4_state = pas::EJumpState::Loop;
-        const CPASAnimParmData parms(13, CPASAnimParm::FromEnum(s32(x4_state)),
+        const CPASAnimParmData parms(pas::EAnimationState::Jump, CPASAnimParm::FromEnum(s32(x4_state)),
                                      CPASAnimParm::FromEnum(s32(x8_jumpType)));
         bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
       } else {
@@ -1045,7 +1060,7 @@ pas::EAnimationState CBSJump::UpdateBody(float dt, CBodyController& bc, CStateMa
       if (bc.IsAnimationOver()) {
         mgr.SendScriptMsg(&bc.GetOwner(), kInvalidUniqueId, EScriptObjectMessage::Falling);
         x4_state = pas::EJumpState::Loop;
-        const CPASAnimParmData parms(13, CPASAnimParm::FromEnum(s32(x4_state)),
+        const CPASAnimParmData parms(pas::EAnimationState::Jump, CPASAnimParm::FromEnum(s32(x4_state)),
                                      CPASAnimParm::FromEnum(s32(x8_jumpType)));
         bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
         x30_27_wallBounceComplete = true;
@@ -1070,10 +1085,7 @@ pas::EAnimationState CBSJump::UpdateBody(float dt, CBodyController& bc, CStateMa
 }
 
 bool CBSJump::ApplyAnimationDeltas() const {
-  if (x4_state == pas::EJumpState::AmbushJump || x4_state == pas::EJumpState::Loop) {
-    return false;
-  }
-  return true;
+  return !(x4_state == pas::EJumpState::AmbushJump || x4_state == pas::EJumpState::Loop);
 }
 
 bool CBSJump::IsInAir(const CBodyController& bc) const {
@@ -1089,12 +1101,12 @@ void CBSHurled::Start(CBodyController& bc, CStateManager& mgr) {
   zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.x());
   angle.makeRel();
   x8_knockAngle = angle.asDegrees();
-  const CPASAnimParmData parms(14, CPASAnimParm::FromInt32(-1), CPASAnimParm::FromReal32(x8_knockAngle),
-                               CPASAnimParm::FromEnum(s32(x4_state)));
+  const CPASAnimParmData parms(pas::EAnimationState::Hurled, CPASAnimParm::FromInt32(-1),
+                               CPASAnimParm::FromReal32(x8_knockAngle), CPASAnimParm::FromEnum(s32(x4_state)));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
   bc.SetCurrentAnimation(playParms, false, false);
-  const CPASAnimState* hurledState = bc.GetPASDatabase().GetAnimState(14);
+  const CPASAnimState* hurledState = bc.GetPASDatabase().GetAnimState(pas::EAnimationState::Hurled);
   xc_animSeries = hurledState->GetAnimParmData(best.second, 0).GetInt32Value();
   mgr.SendScriptMsg(&bc.GetOwner(), kInvalidUniqueId, EScriptObjectMessage::Falling);
   mgr.SendScriptMsg(&bc.GetOwner(), kInvalidUniqueId, EScriptObjectMessage::Jumped);
@@ -1132,8 +1144,8 @@ pas::EAnimationState CBSHurled::GetBodyStateTransition(float dt, CBodyController
 }
 
 void CBSHurled::Recover(CStateManager& mgr, CBodyController& bc, pas::EHurledState state) {
-  const CPASAnimParmData parms(14, CPASAnimParm::FromInt32(xc_animSeries), CPASAnimParm::FromReal32(x8_knockAngle),
-                               CPASAnimParm::FromEnum(s32(state)));
+  const CPASAnimParmData parms(pas::EAnimationState::Hurled, CPASAnimParm::FromInt32(xc_animSeries),
+                               CPASAnimParm::FromReal32(x8_knockAngle), CPASAnimParm::FromEnum(s32(state)));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   if (best.first > FLT_EPSILON) {
     const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
@@ -1147,8 +1159,8 @@ void CBSHurled::Recover(CStateManager& mgr, CBodyController& bc, pas::EHurledSta
 }
 
 void CBSHurled::PlayStrikeWallAnimation(CBodyController& bc, CStateManager& mgr) {
-  const CPASAnimParmData parms(14, CPASAnimParm::FromInt32(xc_animSeries), CPASAnimParm::FromReal32(x8_knockAngle),
-                               CPASAnimParm::FromEnum(3));
+  const CPASAnimParmData parms(pas::EAnimationState::Hurled, CPASAnimParm::FromInt32(xc_animSeries),
+                               CPASAnimParm::FromReal32(x8_knockAngle), CPASAnimParm::FromEnum(3));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
 
   if (best.first <= FLT_EPSILON) {
@@ -1161,12 +1173,12 @@ void CBSHurled::PlayStrikeWallAnimation(CBodyController& bc, CStateManager& mgr)
 }
 
 void CBSHurled::PlayLandAnimation(CBodyController& bc, CStateManager& mgr) {
-  const CPASAnimParmData parms(14, CPASAnimParm::FromInt32(xc_animSeries), CPASAnimParm::FromReal32(x8_knockAngle),
-                               CPASAnimParm::FromEnum(s32(x4_state)));
+  const CPASAnimParmData parms(pas::EAnimationState::Hurled, CPASAnimParm::FromInt32(xc_animSeries),
+                               CPASAnimParm::FromReal32(x8_knockAngle), CPASAnimParm::FromEnum(s32(x4_state)));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
   bc.SetCurrentAnimation(playParms, false, false);
-  const CPASAnimState* hurledState = bc.GetPASDatabase().GetAnimState(14);
+  const CPASAnimState* hurledState = bc.GetPASDatabase().GetAnimState(pas::EAnimationState::Hurled);
   bc.SetFallState(pas::EFallState(hurledState->GetAnimParmData(best.second, 3).GetEnumValue()));
   if (const TCastToPtr<CPhysicsActor> act = bc.GetOwner()) {
     mgr.SendScriptMsg(act.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::OnFloor);
@@ -1220,7 +1232,7 @@ pas::EAnimationState CBSHurled::UpdateBody(float dt, CBodyController& bc, CState
     switch (x4_state) {
     case pas::EHurledState::KnockIntoAir: {
       if (bc.IsAnimationOver()) {
-        const CPASAnimParmData parms(14, CPASAnimParm::FromInt32(xc_animSeries),
+        const CPASAnimParmData parms(pas::EAnimationState::Hurled, CPASAnimParm::FromInt32(xc_animSeries),
                                      CPASAnimParm::FromReal32(x8_knockAngle), CPASAnimParm::FromEnum(1));
         bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
         x4_state = pas::EHurledState::KnockLoop;
@@ -1244,7 +1256,7 @@ pas::EAnimationState CBSHurled::UpdateBody(float dt, CBodyController& bc, CState
     case pas::EHurledState::StrikeWall:
       if (bc.IsAnimationOver()) {
         x4_state = pas::EHurledState::StrikeWallFallLoop;
-        const CPASAnimParmData parms(14, CPASAnimParm::FromInt32(xc_animSeries),
+        const CPASAnimParmData parms(pas::EAnimationState::Hurled, CPASAnimParm::FromInt32(xc_animSeries),
                                      CPASAnimParm::FromReal32(x8_knockAngle), CPASAnimParm::FromEnum(s32(x4_state)));
         bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
         x28_landedDur = 0.f;
@@ -1289,14 +1301,14 @@ void CBSSlide::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCSlideCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::Slide));
   const zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetSlideDirection());
   const float angle = std::atan2(localDir.y(), localDir.x());
-  const CPASAnimParmData parms(15, CPASAnimParm::FromEnum(s32(cmd->GetSlideType())),
+  const CPASAnimParmData parms(pas::EAnimationState::Slide, CPASAnimParm::FromEnum(s32(cmd->GetSlideType())),
                                CPASAnimParm::FromReal32(zeus::radToDeg(angle)));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
   bc.SetCurrentAnimation(playParms, false, false);
   const float timeRem = bc.GetAnimTimeRemaining();
   if (timeRem > FLT_EPSILON) {
-    const CPASAnimState* slideState = bc.GetPASDatabase().GetAnimState(15);
+    const CPASAnimState* slideState = bc.GetPASDatabase().GetAnimState(pas::EAnimationState::Slide);
     const float animAngle = zeus::degToRad(slideState->GetAnimParmData(best.second, 1).GetReal32Value());
     const float delta1 = zeus::CRelAngle(angle - animAngle).asRel();
     const float flippedAngle = (delta1 > M_PIF) ? delta1 - 2.f * M_PIF : delta1;
@@ -1337,7 +1349,7 @@ pas::EAnimationState CBSSlide::UpdateBody(float dt, CBodyController& bc, CStateM
 
 void CBSTaunt::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCTauntCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::Taunt));
-  const CPASAnimParmData parms(16, CPASAnimParm::FromEnum(s32(cmd->GetTauntType())));
+  const CPASAnimParmData parms(pas::EAnimationState::Taunt, CPASAnimParm::FromEnum(s32(cmd->GetTauntType())));
   bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
 }
 
@@ -1425,7 +1437,7 @@ void CBSCover::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCCoverCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::Cover));
   x8_coverDirection = cmd->GetDirection();
   x4_state = pas::ECoverState::IntoCover;
-  const CPASAnimParmData parms(19, CPASAnimParm::FromEnum(s32(x4_state)),
+  const CPASAnimParmData parms(pas::EAnimationState::Cover, CPASAnimParm::FromEnum(s32(x4_state)),
                                CPASAnimParm::FromEnum(s32(x8_coverDirection)));
   const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   const zeus::CQuaternion orientDelta =
@@ -1466,7 +1478,7 @@ pas::EAnimationState CBSCover::UpdateBody(float dt, CBodyController& bc, CStateM
     case pas::ECoverState::IntoCover:
       if (bc.IsAnimationOver()) {
         x4_state = pas::ECoverState::Cover;
-        const CPASAnimParmData parms(19, CPASAnimParm::FromEnum(s32(x4_state)),
+        const CPASAnimParmData parms(pas::EAnimationState::Cover, CPASAnimParm::FromEnum(s32(x4_state)),
                                      CPASAnimParm::FromEnum(s32(x8_coverDirection)));
         bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
       }
@@ -1481,12 +1493,12 @@ pas::EAnimationState CBSCover::UpdateBody(float dt, CBodyController& bc, CStateM
       if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::ExitState) || xc_needsExit) {
         xc_needsExit = false;
         x4_state = pas::ECoverState::OutOfCover;
-        const CPASAnimParmData parms(19, CPASAnimParm::FromEnum(s32(x4_state)),
+        const CPASAnimParmData parms(pas::EAnimationState::Cover, CPASAnimParm::FromEnum(s32(x4_state)),
                                      CPASAnimParm::FromEnum(s32(x8_coverDirection)));
         bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
       } else if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::LeanFromCover)) {
         x4_state = pas::ECoverState::Lean;
-        const CPASAnimParmData parms(19, CPASAnimParm::FromEnum(s32(x4_state)),
+        const CPASAnimParmData parms(pas::EAnimationState::Cover, CPASAnimParm::FromEnum(s32(x4_state)),
                                      CPASAnimParm::FromEnum(s32(x8_coverDirection)));
         bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
       }
@@ -1509,7 +1521,7 @@ void CBSWallHang::Start(CBodyController& bc, CStateManager& mgr) {
   x4_state = pas::EWallHangState::IntoJump;
   x8_wpId = cmd->GetTarget();
   x18_25_needsExit = false;
-  const CPASAnimParmData parms(20, CPASAnimParm::FromEnum(s32(x4_state)));
+  const CPASAnimParmData parms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(s32(x4_state)));
   bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
 }
 
@@ -1534,7 +1546,7 @@ bool CBSWallHang::CheckForLand(CBodyController& bc, CStateManager& mgr) {
   if (const TCastToPtr<CPatterned> ai = bc.GetOwner()) {
     if (ai->MadeSolidCollision() || ai->IsOnGround()) {
       x4_state = pas::EWallHangState::DetachOutOfJump;
-      const CPASAnimParmData parms(20, CPASAnimParm::FromEnum(s32(x4_state)));
+      const CPASAnimParmData parms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(s32(x4_state)));
       bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
       mgr.SendScriptMsg(ai.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::OnFloor);
       return true;
@@ -1553,7 +1565,7 @@ bool CBSWallHang::CheckForWall(CBodyController& bc, CStateManager& mgr) {
 
     if (magSq < 1.f || ai->MadeSolidCollision()) {
       x4_state = pas::EWallHangState::IntoWallHang;
-      const CPASAnimParmData parms(20, CPASAnimParm::FromEnum(s32(x4_state)));
+      const CPASAnimParmData parms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(s32(x4_state)));
       const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
       const zeus::CVector3f& target = wp ? wp->GetTranslation() : ai->GetTranslation();
       const CAnimPlaybackParms playParms(best.second, nullptr, &target, &bc.GetOwner().GetTransform(),
@@ -1586,7 +1598,7 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
   if (st == pas::EAnimationState::Invalid) {
     switch (x4_state) {
     case pas::EWallHangState::IntoJump: {
-      const CPASAnimParmData parms(20, CPASAnimParm::FromEnum(1));
+      const CPASAnimParmData parms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(1));
       const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
       if (best.first > 0.f) {
         x4_state = pas::EWallHangState::JumpArc;
@@ -1594,7 +1606,7 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
         bc.SetCurrentAnimation(playParms, false, false);
       } else {
         x4_state = pas::EWallHangState::JumpAirLoop;
-        const CPASAnimParmData loopParms(20, CPASAnimParm::FromEnum(s32(x4_state)));
+        const CPASAnimParmData loopParms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(s32(x4_state)));
         bc.LoopBestAnimation(loopParms, *mgr.GetActiveRandom());
       }
       if (const TCastToPtr<CPhysicsActor> act = bc.GetOwner()) {
@@ -1616,7 +1628,7 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
       SetLaunchVelocity(bc);
       if (bc.IsAnimationOver()) {
         x4_state = pas::EWallHangState::JumpAirLoop;
-        const CPASAnimParmData parms(20, CPASAnimParm::FromEnum(s32(x4_state)));
+        const CPASAnimParmData parms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(s32(x4_state)));
         bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
       } else {
         CheckForWall(bc, mgr);
@@ -1633,7 +1645,7 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
     case pas::EWallHangState::IntoWallHang: {
       if (bc.IsAnimationOver()) {
         x4_state = pas::EWallHangState::WallHang;
-        const CPASAnimParmData parms(20, CPASAnimParm::FromEnum(s32(x4_state)));
+        const CPASAnimParmData parms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(s32(x4_state)));
         bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
       } else if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::ExitState)) {
         x18_25_needsExit = true;
@@ -1655,7 +1667,7 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
       }
       if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::ExitState) || x18_25_needsExit) {
         x4_state = pas::EWallHangState::OutOfWallHang;
-        const CPASAnimParmData parms(20, CPASAnimParm::FromEnum(s32(x4_state)));
+        const CPASAnimParmData parms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(s32(x4_state)));
         bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
       }
       FixInPlace(bc);
@@ -1664,7 +1676,7 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
     case pas::EWallHangState::Five: {
       if (bc.IsAnimationOver()) {
         x4_state = pas::EWallHangState::WallHang;
-        const CPASAnimParmData parms(20, CPASAnimParm::FromEnum(s32(x4_state)));
+        const CPASAnimParmData parms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(s32(x4_state)));
         bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
       }
       FixInPlace(bc);
@@ -1672,7 +1684,7 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
     }
     case pas::EWallHangState::OutOfWallHang: {
       if (bc.IsAnimationOver()) {
-        const CPASAnimParmData parms(20, CPASAnimParm::FromEnum(7));
+        const CPASAnimParmData parms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(7));
         const std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
         if (best.first > 0.f) {
           x4_state = pas::EWallHangState::OutOfWallHangTurn;
@@ -1680,7 +1692,7 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
           bc.SetCurrentAnimation(playParms, false, false);
         } else {
           x4_state = pas::EWallHangState::DetachJumpLoop;
-          const CPASAnimParmData loopParms(20, CPASAnimParm::FromEnum(s32(x4_state)));
+          const CPASAnimParmData loopParms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(s32(x4_state)));
           bc.LoopBestAnimation(loopParms, *mgr.GetActiveRandom());
         }
         if (const TCastToPtr<CPhysicsActor> act = bc.GetOwner()) {
@@ -1701,7 +1713,7 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
       SetLaunchVelocity(bc);
       if (bc.IsAnimationOver()) {
         x4_state = pas::EWallHangState::DetachJumpLoop;
-        const CPASAnimParmData parms(20, CPASAnimParm::FromEnum(s32(x4_state)));
+        const CPASAnimParmData parms(pas::EAnimationState::WallHang, CPASAnimParm::FromEnum(s32(x4_state)));
         bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
       } else {
         CheckForLand(bc, mgr);
@@ -1923,7 +1935,8 @@ CBSBiPedLocomotion::CBSBiPedLocomotion(CActor& actor) {
   for (int i = 0; i < 14; ++i) {
     rstl::reserved_vector<std::pair<s32, float>, 8>& innerVec = x8_anims.emplace_back();
     for (int j = 0; j < 8; ++j) {
-      const CPASAnimParmData parms(5, CPASAnimParm::FromEnum(j), CPASAnimParm::FromEnum(i));
+      const CPASAnimParmData parms(pas::EAnimationState::Locomotion, CPASAnimParm::FromEnum(j),
+                                   CPASAnimParm::FromEnum(i));
       const std::pair<float, s32> best = pasDatabase.FindBestAnimation(parms, -1);
       float avgVel = 0.f;
       if (best.second != -1) {
@@ -2159,7 +2172,8 @@ float CBSNewFlyerLocomotion::UpdateLocomotionAnimation(float dt, float velMag, C
 CBSRestrictedLocomotion::CBSRestrictedLocomotion(CActor& actor) {
   const CPASDatabase& pasDatabase = actor.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();
   for (int i = 0; i < 14; ++i) {
-    const CPASAnimParmData parms(5, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(i));
+    const CPASAnimParmData parms(pas::EAnimationState::Locomotion, CPASAnimParm::FromEnum(0),
+                                 CPASAnimParm::FromEnum(i));
     const std::pair<float, s32> best = pasDatabase.FindBestAnimation(parms, -1);
     x8_anims.push_back(best.second);
   }
@@ -2189,4 +2203,4 @@ float CBSRestrictedFlyerLocomotion::ApplyLocomotionPhysics(float dt, CBodyContro
   return 0.f;
 }
 
-} // namespace urde
+} // namespace metaforce

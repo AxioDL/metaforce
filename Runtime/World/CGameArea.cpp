@@ -14,7 +14,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 static logvisor::Module Log("CGameArea");
 
@@ -305,16 +305,19 @@ CDummyGameArea::CDummyGameArea(CInputStream& in, int idx, int mlvlVersion) {
   zeus::CAABox aabb;
   aabb.readBoundingBoxBig(in);
   xc_mrea = in.readUint32Big();
-  if (mlvlVersion > 15)
+  if (mlvlVersion > 15) {
     x10_areaId = in.readUint32Big();
+  } else {
+    x10_areaId = -1;
+  }
 
   u32 attachAreaCount = in.readUint32Big();
   x44_attachedAreaIndices.reserve(attachAreaCount);
   for (u32 i = 0; i < attachAreaCount; ++i)
     x44_attachedAreaIndices.push_back(in.readUint16Big());
 
-  ::urde::ReadDependencyList(in);
-  ::urde::ReadDependencyList(in);
+  ::metaforce::ReadDependencyList(in);
+  ::metaforce::ReadDependencyList(in);
 
   if (mlvlVersion > 13) {
     u32 depCount = in.readUint32Big();
@@ -332,7 +335,7 @@ std::pair<std::unique_ptr<u8[]>, s32> CDummyGameArea::IGetScriptingMemoryAlways(
   return GetScriptingMemoryAlways(*this);
 }
 
-TAreaId CDummyGameArea::IGetAreaId() const { return x10_areaId; }
+s32 CDummyGameArea::IGetAreaSaveId() const { return x10_areaId; }
 
 CAssetId CDummyGameArea::IGetAreaAssetId() const { return xc_mrea; }
 
@@ -354,9 +357,9 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(id
 
   x84_mrea = in.readUint32Big();
   if (mlvlVersion > 15)
-    x88_areaId = in.readInt32Big();
+    x88_areaId = in.readUint32Big();
   else
-    x88_areaId = -1;
+    x88_areaId = INT_MAX;
 
   const u32 attachedCount = in.readUint32Big();
   x8c_attachedAreaIndices.reserve(attachedCount);
@@ -364,8 +367,8 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(id
     x8c_attachedAreaIndices.emplace_back(in.readUint16Big());
   }
 
-  x9c_deps1 = ::urde::ReadDependencyList(in);
-  xac_deps2 = ::urde::ReadDependencyList(in);
+  x9c_deps1 = ::metaforce::ReadDependencyList(in);
+  xac_deps2 = ::metaforce::ReadDependencyList(in);
 
   const zeus::CAABox aabb = x6c_aabb.getTransformedAABox(xc_transform);
   x6c_aabb = aabb;
@@ -1191,10 +1194,69 @@ void CGameArea::SetAreaAttributes(const CScriptAreaAttributes* areaAttributes) {
   x12c_postConstructed->x1128_worldLightingLevel = areaAttributes->GetWorldLightingLevel();
 }
 
-bool CGameArea::CAreaObjectList::IsQualified(const CEntity& ent) const { return (ent.GetAreaIdAlways() == x200c_areaIdx); }
+bool CGameArea::CAreaObjectList::IsQualified(const CEntity& ent) const {
+  return (ent.GetAreaIdAlways() == x200c_areaIdx);
+}
 void CGameArea::WarmupShaders(const SObjectTag& mreaTag) {
   // Calling this version of the constructor performs warmup implicitly
   [[maybe_unused]] CGameArea area(mreaTag.id);
 }
 
-} // namespace urde
+void CGameArea::DebugDraw() {
+  if (!m_debugSphereRes) {
+    const auto* tok = g_ResFactory->GetResourceIdByName("CMDL_DebugSphere");
+    if (tok != nullptr && tok->type == FOURCC('CMDL')) {
+      m_debugSphereRes = CStaticRes(tok->id, zeus::skOne3f);
+    }
+  }
+
+  if (m_debugSphereRes && !m_debugSphereModel) {
+    m_debugSphereModel = std::make_unique<CModelData>(*m_debugSphereRes);
+  }
+
+  if (!m_debugConeRes) {
+    const auto* tok = g_ResFactory->GetResourceIdByName("CMDL_DebugLightCone");
+    if (tok != nullptr && tok->type == FOURCC('CMDL')) {
+      m_debugConeRes = CStaticRes(tok->id, zeus::skOne3f);
+    }
+  }
+
+  if (m_debugConeRes && !m_debugConeModel) {
+    m_debugConeModel = std::make_unique<CModelData>(*m_debugConeRes);
+  }
+
+  if (IsPostConstructed()) {
+    for (const auto& light : x12c_postConstructed->x70_gfxLightsA) {
+      DebugDrawLight(light);
+    }
+    for (const auto& light : x12c_postConstructed->x90_gfxLightsB) {
+      DebugDrawLight(light);
+    }
+  }
+}
+
+void CGameArea::DebugDrawLight(const CLight& light) {
+  if (light.GetType() == ELightType::LocalAmbient) {
+    return;
+  }
+  g_Renderer->SetGXRegister1Color(light.GetColor());
+  CModelFlags modelFlags;
+  modelFlags.x0_blendMode = 5;
+  modelFlags.x4_color = zeus::skWhite;
+  modelFlags.x4_color.a() = 0.5f;
+  if ((light.GetType() == ELightType::Spot || light.GetType() == ELightType::Directional) && m_debugConeModel) {
+    m_debugConeModel->Render(CModelData::EWhichModel::Normal,
+                             zeus::lookAt(light.GetPosition(), light.GetPosition() + light.GetDirection()) *
+                                 zeus::CTransform::Scale(zeus::clamp(-90.f, light.GetRadius(), 90.f)),
+                             nullptr, modelFlags);
+  } else if (m_debugSphereModel) {
+    m_debugSphereModel->Render(CModelData::EWhichModel::Normal, zeus::CTransform::Translate(light.GetPosition()),
+                               nullptr, modelFlags);
+    m_debugSphereModel->Render(CModelData::EWhichModel::Normal,
+                               zeus::CTransform::Translate(light.GetPosition()) *
+                                   zeus::CTransform::Scale(light.GetRadius()),
+                               nullptr, modelFlags);
+  }
+}
+
+} // namespace metaforce

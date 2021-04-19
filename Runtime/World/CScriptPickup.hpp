@@ -6,7 +6,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CPhysicsActor.hpp"
 
-namespace urde {
+namespace metaforce {
 class CScriptPickup : public CPhysicsActor {
   CPlayerState::EItemType x258_itemType;
   s32 x25c_amount;
@@ -37,4 +37,4 @@ public:
   CPlayerState::EItemType GetItem() const { return x258_itemType; }
   void SetGenerated() { x28c_24_generated = true; }
 };
-} // namespace urde
+} // namespace metaforce

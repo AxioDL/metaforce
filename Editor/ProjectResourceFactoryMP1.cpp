@@ -43,7 +43,7 @@ extern hecl::Database::DataSpecEntry SpecEntMP1;
 extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 } // namespace DataSpec
 
-namespace urde {
+namespace metaforce {
 
 ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& clientProc)
 : ProjectResourceFactoryBase(clientProc) {
@@ -81,4 +81,4 @@ void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj,
   BeginBackgroundIndex(proj, DataSpec::SpecEntMP1, DataSpec::SpecEntMP1PC);
 }
 
-} // namespace urde
+} // namespace metaforce

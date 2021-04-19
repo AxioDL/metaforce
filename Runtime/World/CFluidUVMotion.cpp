@@ -4,7 +4,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 
 CFluidUVMotion::CFluidUVMotion(float timeToWrap, float orientation, const SFluidLayerMotion& colorLayer,
                                const SFluidLayerMotion& pattern1Layer, const SFluidLayerMotion& pattern2Layer)
@@ -61,4 +61,4 @@ CFluidUVMotion::FluidOffsets CFluidUVMotion::CalculateFluidTextureOffset(float t
 
   return offsets;
 }
-} // namespace urde
+} // namespace metaforce

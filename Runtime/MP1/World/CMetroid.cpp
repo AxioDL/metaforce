@@ -12,7 +12,7 @@
 #include "Runtime/World/ScriptLoader.hpp"
 #include "Runtime/MP1/World/CMetroidBeta.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr CDamageVulnerability skGammaRedDamageVulnerability{
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Immune,
@@ -89,8 +89,8 @@ CMetroid::CMetroid(TUniqueId uid, std::string_view name, EFlavorType flavor, con
 , x81c_patternedInfo(pInfo)
 , x954_actParams(aParms)
 , x9bc_parent(other) {
-  x808_loopAttackDistance =
-      GetAnimationDistance(CPASAnimParmData{9, CPASAnimParm::FromEnum(2), CPASAnimParm::FromEnum(3)});
+  x808_loopAttackDistance = GetAnimationDistance(
+      CPASAnimParmData{pas::EAnimationState::LoopAttack, CPASAnimParm::FromEnum(2), CPASAnimParm::FromEnum(3)});
   UpdateTouchBounds();
   SetCoefficientOfRestitutionModifier(0.9f);
   x460_knockBackController.SetX82_24(false);
@@ -1451,4 +1451,4 @@ void CMetroid::WallHang(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

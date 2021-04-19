@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                              CModelData&& mData, const CActorParameters& aParams, CAssetId particleId,
@@ -414,4 +414,4 @@ void CScriptDebris::CollidedWith(TUniqueId, const CCollisionInfoList& colList, C
   }
 }
 
-} // namespace urde
+} // namespace metaforce

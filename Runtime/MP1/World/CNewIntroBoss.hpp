@@ -10,7 +10,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollisionActorManager;
 class CDamageInfo;
 
@@ -82,4 +82,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

@@ -4,7 +4,7 @@
 #include "Runtime/Character/CAnimationSet.hpp"
 #include "Runtime/Character/CCharacterSet.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimCharacterSet {
   u16 x0_version;
@@ -19,4 +19,4 @@ public:
 
 CFactoryFnReturn FAnimCharacterSet(const SObjectTag&, CInputStream&, const CVParamTransfer&, CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce

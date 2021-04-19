@@ -1,0 +1,337 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '*.json'
+      - '*.md'
+      - '*LICENSE'
+
+jobs:
+  build-linux:
+    name: Build Linux (${{matrix.name}} x86_64)
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC
+            cc: gcc
+            cxx: g++
+          - name: Clang
+            cc: clang
+            cxx: clang++
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
+          sudo apt-get -y install build-essential curl git cmake ninja-build llvm-dev libclang-dev clang lld \
+            zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default \
+            libcurl4-openssl-dev intel-oneapi-ipp-devel
+
+          yarn global add @sentry/cli
+          echo "$(yarn global bin)" >> $GITHUB_PATH
+
+          # free up disk space
+          # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
+          echo Before
+          df -h .
+          sudo apt-get clean
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          echo After
+          df -h .
+
+      - name: Create build directory
+        run: cmake -E make_directory ${{github.workspace}}/build
+
+      - name: Configure CMake
+        working-directory: ${{github.workspace}}/build
+        run: |
+          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}} \
+            -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build .
+
+      - name: Split debug information
+        run: ci/split-debug-linux.sh
+
+      - name: Upload debug information
+        if: ${{matrix.name == 'Clang'}}
+        env:
+          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+          SENTRY_URL: ${{secrets.SENTRY_URL}}
+        run: ci/upload-debug-linux.sh
+
+      - name: Generate AppImage
+        run: ci/build-appimage.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.cc}}-x86_64
+          path: |
+            Metaforce-*.AppImage
+            debug.tar.*
+
+  build-macos:
+    name: Build macOS (AppleClang x86_64)
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install ninja qt@5 graphicsmagick imagemagick getsentry/tools/sentry-cli
+          brew link qt@5
+          yarn global add create-dmg
+
+      - name: Install Intel IPP
+        env:
+          IPP_VERSION: 2021.2.0.192
+        run: |
+          NAME="m_ipp_oneapi_p_${IPP_VERSION}_offline"
+          curl -LSfs https://registrationcenter-download.intel.com/akdlm/irc_nas/17606/$NAME.dmg -o /tmp/$NAME.dmg
+          sudo hdiutil attach /tmp/$NAME.dmg -quiet
+          sudo /Volumes/$NAME/bootstrapper.app/Contents/MacOS/install.sh -c --action install --eula accept
+          sudo hdiutil detach /Volumes/$NAME -quiet
+          rm /tmp/$NAME.dmg
+
+      - name: Create build directory
+        run: cmake -E make_directory ${{github.workspace}}/build
+
+      - name: Configure CMake
+        working-directory: ${{github.workspace}}/build
+        run: |
+          export PATH="/usr/local/opt/qt@5/bin:$PATH" # FIXME remove
+          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build .
+
+      - name: Upload debug information
+        env:
+          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+          SENTRY_URL: ${{secrets.SENTRY_URL}}
+        run: ci/upload-debug-macos.sh
+
+      - name: Import signing certificate
+        uses: devbotsxyz/xcode-import-certificate@master
+        with:
+          certificate-data: ${{ secrets.MACOS_CERTIFICATE_DATA }}
+          certificate-passphrase: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          keychain-password: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+
+      - name: Deploy & codesign application
+        env:
+          ASC_USERNAME: ${{secrets.MACOS_ASC_USERNAME}}
+          ASC_PASSWORD: ${{secrets.MACOS_ASC_PASSWORD}}
+          ASC_TEAM_ID: ${{secrets.MACOS_ASC_TEAM_ID}}
+          CODESIGN_IDENT: ${{secrets.MACOS_CODESIGN_IDENT}}
+        run: ci/build-dmg.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-x86_64
+          path: |
+            Metaforce *.dmg
+            debug.tar.*
+
+  build-windows-msvc:
+    name: Build Windows (MSVC x86_64)
+    runs-on: [ self-hosted, windows, x64 ]
+    env:
+      LLVM_VERSION: 10.0.1
+      Qt_VERSION: 5.15.2
+#      IPP_VERSION: 2021.2.0.210
+      SENTRY_CLI_VERSION: 1.63.2
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install LLVM
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "LLVM-$env:LLVM_VERSION-win64.exe"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
+          Start-Process "$TempDir\$Filename" -ArgumentList "/S /D=$env:RUNNER_WORKSPACE\LLVM" -Wait
+
+      - name: Install vcpkg Qt
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "vcpkg-qt-$env:Qt_VERSION.7z"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
+          7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
+
+      - name: Download sentry-cli
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://github.com/getsentry/sentry-cli/releases/download/$env:SENTRY_CLI_VERSION/sentry-cli-Windows-x86_64.exe", "$TempDir\sentry-cli.exe")
+
+#      - name: Install Intel IPP
+#        run: |
+#          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+#          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
+#          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+#          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/$Filename", "$TempDir\$Filename")
+#          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
+#          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
+
+#      - name: Install dependencies
+#        run: choco install ninja vulkan-sdk
+
+      - name: Enable Visual Studio environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Create build directory
+        run: cmake -E make_directory ${{github.workspace}}/build
+
+      - name: Configure CMake
+        working-directory: ${{github.workspace}}/build
+        run: |
+          $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
+          cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+            -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= `
+            -DLLVM_ROOT_DIR="$workspace/LLVM" `
+            -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build .
+
+      - name: Upload debug information
+        working-directory: ${{github.workspace}}/build/Binaries
+        env:
+          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+          SENTRY_URL: ${{secrets.SENTRY_URL}}
+        run: |
+          & "$env:RUNNER_WORKSPACE\temp\sentry-cli.exe" upload-dif --org axiodl --project metaforce --include-sources `
+            metaforce.exe metaforce.pdb hecl.exe hecl.pdb metaforce-gui.exe metaforce-gui.pdb visigen.exe visigen.pdb
+
+      - name: Compress PDBs
+        working-directory: ${{github.workspace}}/build/Binaries
+        run: 7z a -t7z debug.7z metaforce.pdb hecl.pdb metaforce-gui.pdb visigen.pdb
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-win32-msvc-x86_64
+          path: |
+            build/Binaries/metaforce.exe
+            build/Binaries/metaforce-gui.exe
+            build/Binaries/hecl.exe
+            build/Binaries/visigen.exe
+            build/Binaries/crashpad_handler.exe
+            build/Binaries/debug.7z
+
+  build-windows-clang:
+    name: Build Windows (Clang x86_64)
+    runs-on: windows-2019
+    env:
+      LLVM_VERSION: 10.0.1
+      Qt_VERSION: 5.15.2
+      IPP_VERSION: 2021.2.0.210
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install LLVM
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "LLVM-$env:LLVM_VERSION-win64.exe"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
+          Start-Process "$TempDir\$Filename" -ArgumentList "/S /D=$env:RUNNER_WORKSPACE\LLVM" -Wait
+
+      - name: Install vcpkg Qt
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "vcpkg-qt-$env:Qt_VERSION.7z"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
+          7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
+
+#      - name: Install Intel IPP
+#        run: |
+#          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+#          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
+#          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+#          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/17739/$Filename", "$TempDir\$Filename")
+#          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
+#          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
+
+      - name: Install dependencies
+        run: choco install ninja vulkan-sdk
+
+      - name: Enable Visual Studio environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Create build directory
+        run: cmake -E make_directory ${{github.workspace}}/build
+
+      - name: Configure CMake
+        working-directory: ${{github.workspace}}/build
+        run: |
+          $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
+          cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+            -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
+            -DCMAKE_C_COMPILER=clang-cl `
+            -DCMAKE_CXX_COMPILER=clang-cl `
+            -DCMAKE_LINKER=lld-link `
+            -DLLVM_ROOT_DIR="$workspace/LLVM" `
+            -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build .
+
+      - name: Compress PDBs
+        working-directory: ${{github.workspace}}/build/Binaries
+        run: 7z a -t7z debug.7z metaforce.pdb hecl.pdb metaforce-gui.pdb visigen.pdb
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-win32-clang-x86_64
+          path: |
+            build/Binaries/metaforce.exe
+            build/Binaries/metaforce-gui.exe
+            build/Binaries/hecl.exe
+            build/Binaries/visigen.exe
+            build/Binaries/crashpad_handler.exe
+            build/Binaries/debug.7z

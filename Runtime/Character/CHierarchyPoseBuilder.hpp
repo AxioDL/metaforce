@@ -7,7 +7,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCharLayoutInfo;
 class CLayoutDescription;
 class CPoseAsTransforms;
@@ -47,4 +47,4 @@ public:
   TSegIdMap<CTreeNode>& GetTreeMap() { return x38_treeMap; }
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -6,7 +6,7 @@
 #include "Runtime/Character/CAnimationDatabaseGame.hpp"
 #include "Runtime/Character/CAnimSysContext.hpp"
 
-namespace urde {
+namespace metaforce {
 class CAnimTreeNode;
 class CSimplePool;
 class IMetaAnim;
@@ -26,4 +26,4 @@ public:
   const std::shared_ptr<IMetaAnim>& GetMetaAnimation(s32) const;
 };
 
-} // namespace urde
+} // namespace metaforce

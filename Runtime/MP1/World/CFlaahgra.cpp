@@ -21,7 +21,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 constexpr zeus::CColor skFlaahgraDamageColor{0.5f, 0.5f, 0.f, 1.f};
 constexpr zeus::CColor skUnkColor{0.5f, 0.f, 0.f, 1.f};
 constexpr zeus::CVector3f skUnkVec1{0.5f, 7.f, 0.f};
@@ -1433,4 +1433,4 @@ std::optional<zeus::CAABox> CFlaahgraPlants::GetTouchBounds() const {
   }
   return x110_aabox;
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

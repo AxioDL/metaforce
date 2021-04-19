@@ -11,12 +11,12 @@ AT_SUBSPECIALIZE_DNA_YAML(PPImpl<_ELSM<UniqueID64>>)
 
 template <>
 std::string_view ELSM<UniqueID32>::DNAType() {
-  return "urde::ELSM<UniqueID32>"sv;
+  return "ELSM<UniqueID32>"sv;
 }
 
 template <>
 std::string_view ELSM<UniqueID64>::DNAType() {
-  return "urde::ELSM<UniqueID64>"sv;
+  return "ELSM<UniqueID64>"sv;
 }
 
 template <class IDType>

@@ -9,8 +9,8 @@
 namespace DataSpec {
 
 struct ITweakPlayerRes : ITweak {
-  using ResId = urde::CAssetId;
-  using EBeamId = urde::CPlayerState::EBeamId;
+  using ResId = metaforce::CAssetId;
+  using EBeamId = metaforce::CPlayerState::EBeamId;
 
   ResId x4_saveStationIcon;
   ResId x8_missileStationIcon;
@@ -85,7 +85,7 @@ struct ITweakPlayerRes : ITweak {
     }
   }
 
-  void ResolveResources(const urde::IFactory& factory) {
+  void ResolveResources(const metaforce::IFactory& factory) {
     x4_saveStationIcon = factory.GetResourceIdByName(_GetSaveStationIcon())->id;
     x8_missileStationIcon = factory.GetResourceIdByName(_GetMissileStationIcon())->id;
     xc_elevatorIcon = factory.GetResourceIdByName(_GetElevatorIcon())->id;

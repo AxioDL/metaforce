@@ -6,7 +6,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CPlayer;
 class CProjectileInfo {
   TCachedToken<CWeaponDescription> x0_weaponDescription;
@@ -26,4 +26,4 @@ public:
   void SetDamage(const CDamageInfo& damageInfo) { xc_damageInfo = damageInfo; }
   TCachedToken<CWeaponDescription>& Token() { return x0_weaponDescription; }
 };
-} // namespace urde
+} // namespace metaforce

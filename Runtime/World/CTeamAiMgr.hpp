@@ -5,7 +5,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class CAi;
 
@@ -119,4 +119,4 @@ public:
 
   static TUniqueId GetTeamAiMgr(const CAi& ai, const CStateManager& mgr);
 };
-} // namespace urde
+} // namespace metaforce

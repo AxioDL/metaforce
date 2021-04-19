@@ -3,7 +3,7 @@
 #include <list>
 #include "Runtime/CArchitectureMessage.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CArchitectureQueue {
   std::list<CArchitectureMessage> m_list;
@@ -19,4 +19,4 @@ public:
   explicit operator bool() const { return !m_list.empty(); }
 };
 
-} // namespace urde
+} // namespace metaforce

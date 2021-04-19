@@ -7,7 +7,7 @@
 extern "C" uint8_t URDE_BADGE[];
 extern "C" size_t URDE_BADGE_SZ;
 
-namespace urde {
+namespace metaforce {
 static logvisor::Module Log("URDE::badging");
 static specter::Icon g_BadgeIcon;
 
@@ -42,4 +42,4 @@ void DestroyBadging() { g_BadgeIcon.m_tex.reset(); }
 
 specter::Icon& GetBadge() { return g_BadgeIcon; }
 
-} // namespace urde
+} // namespace metaforce

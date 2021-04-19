@@ -7,11 +7,11 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/Editor/platforms/freedesktop/maini
                    COMMAND $<TARGET_FILE:mkwmicon>
                    ARGS ${CMAKE_BINARY_DIR}/Editor/platforms/freedesktop/mainicon_netwm.bin
                    DEPENDS
-                   ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop/128x128/apps/urde.png
-                   ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop/64x64/apps/urde.png
-                   ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop/48x48/apps/urde.png
-                   ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop/32x32/apps/urde.png
-                   ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop/16x16/apps/urde.png
+                   ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop/128x128/apps/metaforce.png
+                   ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop/64x64/apps/metaforce.png
+                   ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop/48x48/apps/metaforce.png
+                   ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop/32x32/apps/metaforce.png
+                   ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop/16x16/apps/metaforce.png
                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop
                    COMMENT "Generating mainicon_netwm.bin")
 bintoc(mainicon_netwm.cpp ${CMAKE_BINARY_DIR}/Editor/platforms/freedesktop/mainicon_netwm.bin MAINICON_NETWM)

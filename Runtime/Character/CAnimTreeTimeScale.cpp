@@ -1,6 +1,6 @@
 #include "Runtime/Character/CAnimTreeTimeScale.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAnimTreeTimeScale::CAnimTreeTimeScale(const std::weak_ptr<CAnimTreeNode>& node, float scale, std::string_view name)
 : CAnimTreeSingleChild(node, name)
@@ -197,4 +197,4 @@ SAdvancementResults CAnimTreeTimeScale::VAdvanceView(const CCharAnimTime& dt) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

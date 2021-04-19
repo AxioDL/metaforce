@@ -7,7 +7,7 @@
 
 #include <zeus/CVector2i.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScannableObjectInfo {
 public:
   enum class EPanelType {};
@@ -45,4 +45,4 @@ public:
 
 CFactoryFnReturn FScannableObjectInfoFactory(const SObjectTag&, CInputStream&, const CVParamTransfer&,
                                              CObjectReference* selfRef);
-} // namespace urde
+} // namespace metaforce

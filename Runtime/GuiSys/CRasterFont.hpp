@@ -11,7 +11,7 @@
 
 #include <zeus/CVector2i.hpp>
 
-namespace urde {
+namespace metaforce {
 class CDrawStringOptions;
 class CTextRenderBuffer;
 class IObjectStore;
@@ -157,4 +157,4 @@ public:
 
 std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                          CObjectReference* selfRef);
-} // namespace urde
+} // namespace metaforce

@@ -5,7 +5,7 @@
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CSplashScreen : public CIOWin {
 public:
@@ -27,4 +27,4 @@ public:
   void Draw() override;
 };
 
-} // namespace urde
+} // namespace metaforce

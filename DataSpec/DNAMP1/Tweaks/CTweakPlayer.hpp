@@ -1,6 +1,10 @@
 #pragma once
 
-#include "../../DNACommon/Tweaks/ITweakPlayer.hpp"
+#include "DataSpec/DNACommon/Tweaks/ITweakPlayer.hpp"
+
+namespace hecl {
+class CVar;
+}
 
 namespace DataSpec::DNAMP1 {
 
@@ -310,6 +314,8 @@ struct CTweakPlayer final : ITweakPlayer {
   }
 
   void FixupValues();
+  void initCVars(hecl::CVarManager* mgr) override;
+  void _tweakListener(hecl::CVar* cv);
 };
 
 } // namespace DataSpec::DNAMP1

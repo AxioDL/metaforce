@@ -2,7 +2,7 @@
 
 #include "Runtime/CSimplePool.hpp"
 
-namespace urde {
+namespace metaforce {
 static TLockedToken<std::vector<u16>> mpSfxTranslationTableTok;
 std::vector<u16>* CSfxManager::mpSfxTranslationTable = nullptr;
 
@@ -659,4 +659,4 @@ void CSfxManager::Shutdown() {
   DisableAuxCallback();
 }
 
-} // namespace urde
+} // namespace metaforce

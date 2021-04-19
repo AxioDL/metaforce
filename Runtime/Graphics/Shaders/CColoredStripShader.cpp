@@ -8,7 +8,7 @@
 
 #include "CColoredStripShader.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 template <CColoredStripShader::Mode Mode>

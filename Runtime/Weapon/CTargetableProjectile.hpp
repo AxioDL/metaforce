@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CTargetableProjectile : public CEnergyProjectile {
   TLockedToken<CWeaponDescription> x3d8_weaponDesc;
@@ -26,4 +26,4 @@ public:
   void ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr) override;
 };
 
-} // namespace urde
+} // namespace metaforce

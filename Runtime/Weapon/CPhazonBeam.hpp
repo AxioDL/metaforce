@@ -5,7 +5,7 @@
 #include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
 #include "Runtime/Weapon/CGunWeapon.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPhazonBeam final : public CGunWeapon {
   TCachedToken<CModel> x21c_phazonVeins;
@@ -53,4 +53,4 @@ public:
   void DrawMuzzleFx(const CStateManager& mgr) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

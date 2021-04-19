@@ -4,6 +4,7 @@
 #include <GL/glx.h>
 #include "athena/Global.hpp"
 #include "logvisor/logvisor.hpp"
+#include "../version.h"
 #include <thread>
 #include <condition_variable>
 #include <cstdint>
@@ -75,7 +76,7 @@ static void _sigint(int) {}
 
 int main(int argc, const char** argv) {
   if (argc > 1 && !strcmp(argv[1], "--dlpackage")) {
-    fmt::print(FMT_STRING("{}\n"), URDE_DLPACKAGE);
+    fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;
   }
 

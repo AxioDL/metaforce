@@ -4,7 +4,7 @@
 #include "Runtime/Character/CCharLayoutInfo.hpp"
 #include "Runtime/Character/CSegStatementSet.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAdditiveAnimPlayback::CAdditiveAnimPlayback(const std::weak_ptr<CAnimTreeNode>& anim, float weight, bool active,
                                              const CAdditiveAnimationInfo& info, bool fadeOut)
@@ -101,4 +101,4 @@ void CAdditiveAnimPlayback::SetWeight(float w) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

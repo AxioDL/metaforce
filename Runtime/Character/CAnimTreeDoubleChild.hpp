@@ -6,7 +6,7 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/Character/CAnimTreeNode.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimTreeDoubleChild : public CAnimTreeNode {
 public:
@@ -59,4 +59,4 @@ public:
   const std::shared_ptr<CAnimTreeNode>& GetLeftChild() const { return x14_a; }
   const std::shared_ptr<CAnimTreeNode>& GetRightChild() const { return x18_b; }
 };
-} // namespace urde
+} // namespace metaforce

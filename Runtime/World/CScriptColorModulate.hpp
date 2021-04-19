@@ -7,7 +7,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 struct CModelFlags;
 
 class CScriptColorModulate : public CEntity {
@@ -54,4 +54,4 @@ public:
   static TUniqueId FadeInHelper(CStateManager& mgr, TUniqueId obj, float fadetime);
   void End(CStateManager&);
 };
-} // namespace urde
+} // namespace metaforce

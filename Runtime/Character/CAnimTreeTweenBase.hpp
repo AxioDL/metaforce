@@ -6,7 +6,7 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/Character/CAnimTreeDoubleChild.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimTreeTweenBase : public CAnimTreeDoubleChild {
   static s32 sAdvancementDepth;
@@ -45,4 +45,4 @@ public:
   static void DecAdvancementDepth() { sAdvancementDepth--; }
 };
 
-} // namespace urde
+} // namespace metaforce

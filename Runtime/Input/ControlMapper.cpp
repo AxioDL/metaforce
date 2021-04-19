@@ -8,7 +8,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 constexpr std::array skCommandDescs{
     "Forward",           "Backward",        "Turn Left",
@@ -416,4 +416,4 @@ const char* ControlMapper::GetDescriptionForFunction(EFunctionList func) {
   return skFunctionDescs[size_t(func)];
 }
 
-} // namespace urde
+} // namespace metaforce

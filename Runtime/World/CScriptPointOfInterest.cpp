@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptPointOfInterest::CScriptPointOfInterest(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                const zeus::CTransform& xf, bool active,
@@ -41,4 +41,4 @@ void CScriptPointOfInterest::CalculateRenderBounds() {
 std::optional<zeus::CAABox> CScriptPointOfInterest::GetTouchBounds() const {
   return {zeus::CAABox{x34_transform.origin, x34_transform.origin}};
 }
-} // namespace urde
+} // namespace metaforce

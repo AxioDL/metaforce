@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-namespace urde {
+namespace metaforce {
 
 amuse::AudioGroupData CAudioGroupSet::LoadData() {
   const auto readU32 = [](const u8* ptr) {
@@ -33,9 +33,9 @@ amuse::AudioGroupData CAudioGroupSet::LoadData() {
 
 CAudioGroupSet::CAudioGroupSet(std::unique_ptr<u8[]>&& in) : m_buffer(std::move(in)), m_data(LoadData()) {}
 
-CFactoryFnReturn FAudioGroupSetDataFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                                           const urde::CVParamTransfer& vparms, CObjectReference* selfRef) {
+CFactoryFnReturn FAudioGroupSetDataFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                                           const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef) {
   return TToken<CAudioGroupSet>::GetIObjObjectFor(std::make_unique<CAudioGroupSet>(std::move(in)));
 }
 
-} // namespace urde
+} // namespace metaforce

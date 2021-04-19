@@ -10,7 +10,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#UV_Elements */
 
-namespace urde {
+namespace metaforce {
 class CToken;
 
 struct SUVElementSet {
@@ -58,4 +58,4 @@ public:
   bool HasConstantUV() const override { return false; }
 };
 
-} // namespace urde
+} // namespace metaforce

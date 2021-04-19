@@ -6,7 +6,7 @@
 #include "Runtime/GuiSys/CGuiSys.hpp"
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGuiModel::CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId modelId, u32 lightMask, bool flag)
 : CGuiWidget(parms), xc8_modelId(modelId), xcc_lightMask(lightMask) {
@@ -118,4 +118,4 @@ std::shared_ptr<CGuiWidget> CGuiModel::Create(CGuiFrame* frame, CInputStream& in
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

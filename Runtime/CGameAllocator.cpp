@@ -1,7 +1,7 @@
 #include "Runtime/CGameAllocator.hpp"
 
-namespace urde {
-logvisor::Module AllocLog("urde::CGameAllocator");
+namespace metaforce {
+logvisor::Module AllocLog("metaforce::CGameAllocator");
 
 #pragma GCC diagnostic ignored "-Wclass-memaccess"
 
@@ -54,4 +54,4 @@ void CGameAllocator::Free(u8* ptr) {
   /* Invalidate chunk allocation descriptor */
   memset(info, 0, ROUND_UP_64(info->len + sizeof(SChunkDescription)));
 }
-} // namespace urde
+} // namespace metaforce

@@ -139,7 +139,7 @@ set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 set(RUNTIME_LIBRARIES RetroDataSpec AssetNameMapNull NESEmulator
         libjpeg-turbo jbus kabufuda logvisor)
 if(NOT GEKKO AND NOT NX)
-  list(APPEND RUNTIME_LIBRARIES discord-rpc)
+  list(APPEND RUNTIME_LIBRARIES discord-rpc OptickCore)
 endif()
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})

@@ -11,7 +11,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollidableOBBTreeGroupContainer {
   friend class CCollidableOBBTreeGroup;
   std::vector<std::unique_ptr<COBBTree>> x0_trees;
@@ -52,4 +52,4 @@ public:
 
 CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                                 CObjectReference* selfRef);
-} // namespace urde
+} // namespace metaforce

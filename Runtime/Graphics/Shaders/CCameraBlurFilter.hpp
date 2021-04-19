@@ -3,7 +3,7 @@
 #include "hsh/hsh.h"
 #include "zeus/CVector4f.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CCameraBlurFilter {
   friend struct CCameraBlurFilterPipeline;
@@ -29,4 +29,4 @@ public:
   void draw(float amount, bool clearDepth = false);
 };
 
-} // namespace urde
+} // namespace metaforce

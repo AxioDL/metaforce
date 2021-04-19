@@ -7,7 +7,7 @@
 
 #include "CParticleSwooshShaders.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 template <bool Additive, bool AlphaWrite, bool ZWrite>
@@ -67,4 +67,4 @@ void CParticleSwooshShaders::BuildShaderDataBinding(CParticleSwoosh& gen) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

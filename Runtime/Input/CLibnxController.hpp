@@ -5,7 +5,7 @@
 #include <array>
 #include "boo2/boo2.hpp"
 
-namespace urde {
+namespace metaforce {
 
 struct CLibnxControllerData {
   u64 keysDown;

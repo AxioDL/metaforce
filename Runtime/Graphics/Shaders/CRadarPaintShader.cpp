@@ -5,7 +5,7 @@
 
 #include "CRadarPaintShader.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 struct CRadarPaintShaderPipeline : pipeline<topology<hsh::TriangleStrip>, AdditiveAttachment<>, depth_write<false>> {
@@ -39,4 +39,4 @@ void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CText
   m_dataBind.draw_instanced(0, 4, instances.size());
 }
 
-} // namespace urde
+} // namespace metaforce

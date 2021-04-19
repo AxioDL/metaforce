@@ -4,12 +4,13 @@
 
 #include <logvisor/logvisor.hpp>
 
-namespace urde {
-logvisor::Module LineRendererLog("urde::CLineRenderer");
+namespace metaforce {
+logvisor::Module LineRendererLog("metaforce::CLineRenderer");
 
 CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, hsh::texture2d texture,
                              bool additive, hsh::Compare zComp)
 : m_mode(mode), m_maxVerts(maxVerts) {
+  OPTICK_EVENT();
   if (maxVerts < 2) {
     LineRendererLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("maxVerts < 2, maxVerts = {}")), maxVerts);
     return;
@@ -342,4 +343,4 @@ void CLineRenderer::Render(bool alphaWrite, const zeus::CColor& moduColor) {
 #endif
 }
 
-} // namespace urde
+} // namespace metaforce

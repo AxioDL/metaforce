@@ -364,7 +364,10 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
   int nextTex = 0;
   int nextTCG = 3;
   int nextMtx = 4;
-  int bumpMapUv, envBumpMapUv, envMapUv, lightmapUv;
+  int bumpMapUv = -1;
+  int envBumpMapUv = -1;
+  int envMapUv = -1;
+  int lightmapUv = -1;
 
   out << "#define TEXTURE_DECLS ";
   if (info.m_hasPatternTex1)

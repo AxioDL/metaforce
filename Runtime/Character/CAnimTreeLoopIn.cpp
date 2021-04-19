@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CTreeUtils.hpp"
 
-namespace urde {
+namespace metaforce {
 
 std::string CAnimTreeLoopIn::CreatePrimitiveName(const std::weak_ptr<CAnimTreeNode>& a,
                                                  const std::weak_ptr<CAnimTreeNode>& b,
@@ -101,4 +101,4 @@ SAdvancementResults CAnimTreeLoopIn::VAdvanceView(const CCharAnimTime& dt) {
   return res;
 }
 
-} // namespace urde
+} // namespace metaforce

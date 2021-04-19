@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 CCameraSpline::CCameraSpline(bool closedLoop) : x48_closedLoop(closedLoop) {}
 
 void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnection>& connections,
@@ -13,11 +13,12 @@ void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnec
   const SConnection* lastConn = nullptr;
 
   for (const SConnection& conn : connections) {
-    if (conn.x0_state == EScriptObjectState::CameraPath && conn.x4_msg == EScriptObjectMessage::Follow)
+    if (conn.x0_state == EScriptObjectState::CameraPath && conn.x4_msg == EScriptObjectMessage::Follow) {
       lastConn = &conn;
+    }
   }
 
-  if (lastConn) {
+  if (lastConn != nullptr) {
     TCastToConstPtr<CScriptCameraWaypoint> waypoint = mgr.ObjectById(mgr.GetIdForScript(lastConn->x8_objId));
     x14_wpTracker.clear();
     x14_wpTracker.reserve(4);
@@ -93,7 +94,7 @@ float CCameraSpline::GetKnotT(size_t idx) const {
 float CCameraSpline::CalculateSplineLength() {
   float ret = 0.f;
   x24_t.clear();
-  if (x4_positions.size() > 0) {
+  if (!x4_positions.empty()) {
     zeus::CVector3f prevPoint = x4_positions[0];
     float tDiv = 1.f / float(x4_positions.size() - 1);
     for (size_t i = 0; i < x4_positions.size(); ++i) {
@@ -394,4 +395,4 @@ float CCameraSpline::ClampLength(const zeus::CVector3f& pos, bool collide, const
     return x44_length;
 }
 
-} // namespace urde
+} // namespace metaforce

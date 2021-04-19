@@ -13,7 +13,7 @@
 
 #include <zeus/zeus.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CActorParameters;
 class CWeaponMode;
@@ -194,5 +194,6 @@ public:
   CSimpleShadow* Shadow() { return x94_simpleShadow.get(); }
   void MoveScannableObjectInfoToActor(CActor*, CStateManager&);
   const zeus::CAABox& GetRenderBounds() const { return x9c_renderBounds; }
+  void SetNotInSortedLists(bool notIn) { xe4_27_notInSortedLists = notIn; }
 };
-} // namespace urde
+} // namespace metaforce

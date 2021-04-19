@@ -9,13 +9,13 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/MP1/CPauseScreenBase.hpp"
 
-namespace urde {
+namespace metaforce {
 class CPlayerState;
 class CScannableObjectInfo;
 class CStringTable;
-} // namespace urde
+} // namespace metaforce
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CArtifactDoll;
 
 class CLogBookScreen : public CPauseScreenBase {
@@ -65,4 +65,4 @@ public:
   u32 GetRightTableCount() const override;
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

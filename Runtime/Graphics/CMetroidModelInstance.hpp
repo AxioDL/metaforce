@@ -13,7 +13,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>
 
-namespace urde {
+namespace metaforce {
 class CBooModel;
 struct CBooSurface;
 
@@ -44,4 +44,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

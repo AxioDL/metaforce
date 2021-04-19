@@ -8,7 +8,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde {
+namespace metaforce {
 class CScriptCameraFilterKeyframe : public CEntity {
   EFilterType x34_type;
   EFilterShape x38_shape;
@@ -27,4 +27,4 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   void Accept(IVisitor& visitor) override;
 };
-} // namespace urde
+} // namespace metaforce

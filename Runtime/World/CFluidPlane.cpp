@@ -6,7 +6,7 @@
 #include "Runtime/World/CRipple.hpp"
 #include "Runtime/World/CScriptWater.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CFluidPlane::CFluidPlane(CAssetId texPattern1, CAssetId texPattern2, CAssetId texColor, float alpha,
                          EFluidType fluidType, float rippleIntensity, const CFluidUVMotion& motion)
@@ -312,6 +312,7 @@ void CFluidPlane::RenderStripWithRipples(float curY, const Heights& heights, con
 void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const Heights& heights, const Flags& flags,
                               bool noRipples, bool flagIs1, std::vector<CFluidPlaneShader::Vertex>& vOut,
                               std::vector<CFluidPlaneShader::PatchVertex>& pvOut) {
+  OPTICK_EVENT();
   if (noRipples) {
     m_shader->bindRegular();
 
@@ -483,4 +484,4 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
   }
 }
 
-} // namespace urde
+} // namespace metaforce

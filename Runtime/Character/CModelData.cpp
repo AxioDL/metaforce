@@ -17,8 +17,8 @@
 
 #include <logvisor/logvisor.hpp>
 
-namespace urde {
-static logvisor::Module Log("urde::CModelData");
+namespace metaforce {
+static logvisor::Module Log("metaforce::CModelData");
 
 CModelData::~CModelData() = default;
 
@@ -437,4 +437,4 @@ void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
   }
 }
 
-} // namespace urde
+} // namespace metaforce

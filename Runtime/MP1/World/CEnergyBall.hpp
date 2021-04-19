@@ -7,7 +7,7 @@
 #include "Runtime/World/CDamageInfo.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CEnergyBall : public CPatterned {
   CSteeringBehaviors x568_steeringBehaviors;
   float x56c_ = 0.f;

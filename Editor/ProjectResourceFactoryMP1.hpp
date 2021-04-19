@@ -3,7 +3,7 @@
 #include "Editor/ProjectResourceFactoryBase.hpp"
 #include "Runtime/CToken.hpp"
 
-namespace urde {
+namespace metaforce {
 class MP1OriginalIDs;
 class CSimplePool;
 
@@ -13,4 +13,4 @@ public:
   void IndexMP1Resources(hecl::Database::Project& proj, CSimplePool& sp);
 };
 
-} // namespace urde
+} // namespace metaforce

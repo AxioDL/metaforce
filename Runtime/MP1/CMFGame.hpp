@@ -8,7 +8,7 @@
 #include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Runtime/MP1/CInGameGuiManager.hpp"
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class CToken;
 
@@ -65,4 +65,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

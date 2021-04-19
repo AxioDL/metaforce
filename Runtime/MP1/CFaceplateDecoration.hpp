@@ -6,7 +6,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 
 namespace MP1 {
@@ -24,4 +24,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

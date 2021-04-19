@@ -5,7 +5,7 @@
 #include "Runtime/Camera/CCameraShakeData.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptCameraShaker : public CEntity {
   CCameraShakeData x34_shakeData;
@@ -17,4 +17,4 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 };
 
-} // namespace urde
+} // namespace metaforce

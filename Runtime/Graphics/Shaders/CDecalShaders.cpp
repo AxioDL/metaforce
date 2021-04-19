@@ -6,7 +6,7 @@
 
 #include "CDecalShaders.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 template <bool Additive, bool RedToAlpha>
@@ -51,4 +51,4 @@ void CDecalShaders::BuildShaderDataBinding(hsh::binding& binding, CQuadDecal& de
   }
 }
 
-} // namespace urde
+} // namespace metaforce

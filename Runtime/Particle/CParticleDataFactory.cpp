@@ -8,8 +8,8 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
 
-namespace urde {
-static logvisor::Module Log("urde::CParticleDataFactory");
+namespace metaforce {
+static logvisor::Module Log("metaforce::CParticleDataFactory");
 
 float CParticleDataFactory::GetReal(CInputStream& in) { return in.readFloatBig(); }
 
@@ -1036,4 +1036,4 @@ CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in, const
   return TToken<CGenDescription>::GetIObjObjectFor(CParticleDataFactory::GetGeneratorDesc(in, sp));
 }
 
-} // namespace urde
+} // namespace metaforce

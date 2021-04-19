@@ -11,7 +11,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr CDamageVulnerability skVulnerability{
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
@@ -295,4 +295,4 @@ const std::optional<TLockedToken<CGenDescription>>& CBurrower::GetDeathExplosion
   return x520_deathExplosionParticle;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

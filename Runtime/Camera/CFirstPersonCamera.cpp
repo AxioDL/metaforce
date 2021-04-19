@@ -8,11 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace DataSpec::DNAMP1 {
-extern hecl::CVar* tw_fov;
-}
-
-namespace urde {
+namespace metaforce {
 
 CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf, TUniqueId watchedObj,
                                        float orbitCameraSpeed, float fov, float nearz, float farz, float aspect)
@@ -20,7 +16,7 @@ CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf
               nearz, farz, aspect, watchedObj, false, 0)
 , x188_orbitCameraSpeed(orbitCameraSpeed)
 , x190_gunFollowXf(xf) {
-  DataSpec::DNAMP1::tw_fov->addListener([this](hecl::CVar* cv) { _fovListener(cv); });
+  DataSpec::DNAMP1::tw_FieldOfView->addListener([this](hecl::CVar* cv) { _fovListener(cv); });
 }
 
 void CFirstPersonCamera::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -337,4 +333,4 @@ void CFirstPersonCamera::_fovListener(hecl::CVar* cv) {
   x170_24_perspDirty = true;
 }
 
-} // namespace urde
+} // namespace metaforce

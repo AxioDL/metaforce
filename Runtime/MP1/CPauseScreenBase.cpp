@@ -15,7 +15,7 @@
 #include "Runtime/GuiSys/CStringTable.hpp"
 #include "Runtime/IMain.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CPauseScreenBase::CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg,
                                    bool isLogBook)
@@ -531,4 +531,4 @@ std::string CPauseScreenBase::GetImagePaneName(size_t i) {
   return fmt::format(FMT_STRING("imagepane_pane{}"), PaneSuffixes[i]);
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

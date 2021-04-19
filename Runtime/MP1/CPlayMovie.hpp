@@ -3,7 +3,7 @@
 #include "Runtime/CPlayMovieBase.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 class CPlayMovie : public CPlayMovieBase {
 public:
@@ -31,4 +31,4 @@ public:
   explicit CPlayMovie(EWhichMovie which);
 };
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

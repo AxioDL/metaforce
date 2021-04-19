@@ -5,7 +5,7 @@
 #include <zeus/CSphere.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 namespace Collide {
 bool Sphere_AABox(const CInternalCollisionStructure&, CCollisionInfoList&);
 bool Sphere_AABox_Bool(const CInternalCollisionStructure&);
@@ -38,4 +38,4 @@ public:
   static bool CollideMovingSphere(const CInternalCollisionStructure&, const zeus::CVector3f&, double&, CCollisionInfo&);
   static bool Sphere_AABox_Bool(const zeus::CSphere& sphere, const zeus::CAABox& aabb);
 };
-} // namespace urde
+} // namespace metaforce

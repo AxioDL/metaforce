@@ -7,11 +7,11 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CWeaponDescription;
 }
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CAtomicBeta final : public CPatterned {
   static constexpr u32 kBombCount = 3;
   rstl::reserved_vector<TUniqueId, kBombCount> x568_projectileIds;
@@ -63,4 +63,4 @@ public:
   void Death(CStateManager&, const zeus::CVector3f&, EScriptObjectState) override;
   static bool IsPlayerBeamChargedEnough(const CStateManager& mgr);
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

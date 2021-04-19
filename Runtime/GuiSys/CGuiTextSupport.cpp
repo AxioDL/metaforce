@@ -9,7 +9,7 @@
 #include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
 #include "Runtime/GuiSys/CTextParser.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGuiTextSupport::CGuiTextSupport(CAssetId fontId, const CGuiTextProperties& props, const zeus::CColor& fontCol,
                                  const zeus::CColor& outlineCol, const zeus::CColor& geomCol, s32 padX, s32 padY,
@@ -344,4 +344,4 @@ void CGuiTextSupport::SetPage(int page) {
   x3c_curTime = 0.f;
 }
 
-} // namespace urde
+} // namespace metaforce

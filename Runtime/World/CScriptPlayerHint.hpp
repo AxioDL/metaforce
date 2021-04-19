@@ -6,7 +6,7 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CScriptPlayerHint : public CActor {
   rstl::reserved_vector<TUniqueId, 8> xe8_objectList;
@@ -29,4 +29,4 @@ public:
   void SetDeactivated() { xfc_deactivated = true; }
 };
 
-} // namespace urde
+} // namespace metaforce

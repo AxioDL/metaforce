@@ -1,7 +1,7 @@
 #include "Runtime/GuiSys/CGuiHeadWidget.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CGuiHeadWidget::CGuiHeadWidget(const CGuiWidgetParms& parms) : CGuiWidget(parms) {}
 
@@ -13,4 +13,4 @@ std::shared_ptr<CGuiWidget> CGuiHeadWidget::Create(CGuiFrame* frame, CInputStrea
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

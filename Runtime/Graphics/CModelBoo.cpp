@@ -16,9 +16,9 @@
 #include <hecl/Runtime.hpp>
 #include <logvisor/logvisor.hpp>
 
-namespace urde {
+namespace metaforce {
 namespace {
-logvisor::Module Log("urde::CBooModel");
+logvisor::Module Log("metaforce::CBooModel");
 CBooModel* g_FirstModel = nullptr;
 
 constexpr zeus::CMatrix4f ReflectBaseMtx{
@@ -46,6 +46,7 @@ void CBooModel::Shutdown() {
 }
 
 void CBooModel::ClearModelUniformCounters() {
+  OPTICK_EVENT();
   for (CBooModel* model = g_FirstModel; model; model = model->m_next)
     model->ClearUniformCounter();
 }
@@ -215,7 +216,8 @@ GeometryUniformLayout::GeometryUniformLayout(const CModel* model, const Material
   }
 }
 
-ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
+ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf, boo::IGraphicsDataFactory::Context* ctx) {
+  OPTICK_EVENT();
   if (!x40_24_texturesLoaded && !g_DummyTextures) {
     return nullptr;
   }
@@ -733,7 +735,7 @@ hsh::dynamic_owner<hsh::vertex_buffer_typeless>* CBooModel::UpdateUniformData(co
   if (sharedLayoutBuf >= 0) {
     if (m_instances.size() <= sharedLayoutBuf) {
       do {
-        inst = PushNewModelInstance(m_instances.size());
+        inst = PushNewModelInstance(m_instances.size(), ctx);
         if (inst == nullptr) {
           return nullptr;
         }
@@ -744,7 +746,7 @@ hsh::dynamic_owner<hsh::vertex_buffer_typeless>* CBooModel::UpdateUniformData(co
     m_uniUpdateCount = sharedLayoutBuf + 1;
   } else {
     if (m_instances.size() <= m_uniUpdateCount) {
-      inst = PushNewModelInstance(sharedLayoutBuf);
+      inst = PushNewModelInstance(sharedLayoutBuf, ctx);
       if (inst == nullptr) {
         return nullptr;
       }
@@ -1057,11 +1059,11 @@ void CModel::WarmupShaders(const SObjectTag& cmdlTag) {
   modelObj->_WarmupShaders();
 }
 
-CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                               const urde::CVParamTransfer& vparms, CObjectReference* selfRef) {
+CFactoryFnReturn FModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                               const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef) {
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
   CFactoryFnReturn ret = TToken<CModel>::GetIObjObjectFor(std::make_unique<CModel>(std::move(in), len, sp, selfRef));
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

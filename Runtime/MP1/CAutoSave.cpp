@@ -2,7 +2,7 @@
 #include "CSaveGameScreen.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 CAutoSave::CAutoSave()
 : CIOWin("AutoSave"sv), x14_savegameScreen(new CSaveGameScreen(ESaveContext::InGame, g_GameState->GetCardSerial())) {
   static_cast<MP1::CMain*>(g_Main)->RefreshGameState();
@@ -26,4 +26,4 @@ CIOWin::EMessageReturn CAutoSave::OnMessage(const CArchitectureMessage& msg, CAr
 
   return EMessageReturn::Exit;
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

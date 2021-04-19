@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::string_view skpTentacleTip = "Arm_12"sv;
 constexpr std::array<SSphereJointInfo, 3> skJointList{{
@@ -272,4 +272,4 @@ void CFlaahgraTentacle::Death(CStateManager& mgr, const zeus::CVector3f& directi
   x400_25_alive = false;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

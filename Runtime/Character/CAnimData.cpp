@@ -26,7 +26,7 @@
 
 #include <logvisor/logvisor.hpp>
 
-namespace urde {
+namespace metaforce {
 static logvisor::Module Log("CAnimData");
 
 rstl::reserved_vector<CBoolPOINode, 8> CAnimData::g_BoolPOINodes;
@@ -553,6 +553,7 @@ void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
 
 void CAnimData::SetupRender(CSkinnedModel& model, const CModelFlags& drawFlags,
                             const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
+  OPTICK_EVENT();
   if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildNoScale(x224_pose);
     x220_30_poseBuilt = true;
@@ -560,7 +561,9 @@ void CAnimData::SetupRender(CSkinnedModel& model, const CModelFlags& drawFlags,
   PoseSkinnedModel(model, x224_pose, drawFlags, morphEffect, morphMagnitudes);
 }
 
-void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) { model.Draw(flags); }
+void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) {
+  model.Draw(flags);
+}
 
 void CAnimData::PreRender() {
   if (!x220_31_poseCached) {
@@ -894,4 +897,4 @@ void CAnimData::SetParticleCEXTValue(std::string_view name, int idx, float value
     x120_particleDB.SetCEXTValue(search->second.front().GetComponentName(), idx, value);
 }
 
-} // namespace urde
+} // namespace metaforce

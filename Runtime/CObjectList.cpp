@@ -1,9 +1,9 @@
 #include "Runtime/CObjectList.hpp"
 
 #include <logvisor/logvisor.hpp>
-namespace urde {
+namespace metaforce {
 namespace {
-logvisor::Module Log("urde::CObjectList");
+logvisor::Module Log("metaforce::CObjectList");
 }
 
 CObjectList::CObjectList(EGameObjectList listEnum) : x2004_listEnum(listEnum) {}
@@ -105,4 +105,4 @@ CEntity* CObjectList::GetValidObjectById(TUniqueId uid) {
 
 bool CObjectList::IsQualified(const CEntity&) const { return true; }
 
-} // namespace urde
+} // namespace metaforce

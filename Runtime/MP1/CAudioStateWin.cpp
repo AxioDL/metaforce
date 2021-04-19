@@ -7,7 +7,7 @@
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) {
   CMain* m = static_cast<CMain*>(g_Main);
@@ -26,4 +26,4 @@ CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg
   return EMessageReturn::Normal;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

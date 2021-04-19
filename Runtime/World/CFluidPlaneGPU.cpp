@@ -1,6 +1,6 @@
 #include "Runtime/World/CFluidPlaneGPU.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CFluidPlaneGPU::CFluidPlaneGPU(CAssetId texPattern1, CAssetId texPattern2, CAssetId texColor, CAssetId bumpMap,
                                CAssetId envMap, CAssetId envBumpMap, CAssetId lightMap, float unitsPerLightmapTexel,
@@ -78,4 +78,4 @@ void CFluidPlaneGPU::RenderStripWithRipples(float curY, const Heights& heights, 
   }
 }
 
-} // namespace urde
+} // namespace metaforce

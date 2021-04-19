@@ -8,7 +8,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 namespace SamusGun {
 enum class EAnimationState { Wander, Fidget, Struck, FreeLook, ComboFire, Idle, BasePosition };
@@ -37,4 +37,4 @@ public:
   bool IsAnimPlaying() const { return xb8_24_animPlaying; }
 };
 
-} // namespace urde
+} // namespace metaforce

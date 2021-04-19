@@ -5,7 +5,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Character/CSegId.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CSegIdList {
   std::vector<CSegId> x0_list;
@@ -15,4 +15,4 @@ public:
   const std::vector<CSegId>& GetList() const { return x0_list; }
 };
 
-} // namespace urde
+} // namespace metaforce

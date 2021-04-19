@@ -9,7 +9,7 @@
 
 #include "hsh/hsh.h"
 
-namespace urde {
+namespace metaforce {
 
 class CFogVolumePlaneShader {
 public:
@@ -36,4 +36,4 @@ public:
   void draw(size_t pass);
 };
 
-} // namespace urde
+} // namespace metaforce

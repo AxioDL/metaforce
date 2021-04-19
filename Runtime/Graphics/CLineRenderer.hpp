@@ -11,7 +11,7 @@
 #include "zeus/CVector3f.hpp"
 #include "zeus/CVector4f.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CLineRenderer {
 public:
@@ -74,4 +74,4 @@ public:
   void Render(bool alphaWrite = false, const zeus::CColor& moduColor = zeus::skWhite);
 };
 
-} // namespace urde
+} // namespace metaforce

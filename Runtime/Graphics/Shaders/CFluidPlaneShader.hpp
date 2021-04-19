@@ -13,7 +13,7 @@
 #include "zeus/CVector3f.hpp"
 #include "zeus/CVector4f.hpp"
 
-namespace urde {
+namespace metaforce {
 
 enum class EFluidType { NormalWater, PoisonWater, Lava, PhazonFluid, Four, ThickLava };
 
@@ -108,4 +108,4 @@ public:
   void loadVerts(const std::vector<Vertex>& verts, const std::vector<PatchVertex>& pVerts);
 };
 
-} // namespace urde
+} // namespace metaforce

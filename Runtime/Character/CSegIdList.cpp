@@ -1,6 +1,6 @@
 #include "Runtime/Character/CSegIdList.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CSegIdList::CSegIdList(CInputStream& in) {
   u32 count = in.readUint32Big();
@@ -9,4 +9,4 @@ CSegIdList::CSegIdList(CInputStream& in) {
     x0_list.emplace_back(in);
 }
 
-} // namespace urde
+} // namespace metaforce

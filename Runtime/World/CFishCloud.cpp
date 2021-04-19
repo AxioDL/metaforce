@@ -13,7 +13,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CFishCloud::CFishCloud(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
                        const zeus::CVector3f& scale, const zeus::CTransform& xf, CModelData&& mData,
@@ -782,4 +782,4 @@ bool CFishCloud::AddAttractor(TUniqueId sourceId, bool swirl, float radius, floa
   return false;
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CAnimSourceReader.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CSoundPOINode::CSoundPOINode()
 : CPOINode("root", EPOIType::Sound, CCharAnimTime(), -1, false, 1.f, -1, 0)
@@ -23,4 +23,4 @@ CSoundPOINode CSoundPOINode::CopyNodeMinusStartTime(const CSoundPOINode& node, c
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

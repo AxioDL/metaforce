@@ -2,7 +2,7 @@
 
 #include "Runtime/Graphics/CGraphics.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CCredits::CCredits() : CIOWin("Credits") {}
 
@@ -14,4 +14,4 @@ void CCredits::Draw() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CCredits::Draw", zeus::skGreen);
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

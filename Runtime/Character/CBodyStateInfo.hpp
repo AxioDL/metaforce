@@ -10,7 +10,7 @@
 #include "Runtime/Character/CBodyState.hpp"
 #include "Runtime/Character/CharacterCommon.hpp"
 
-namespace urde {
+namespace metaforce {
 class CActor;
 
 class CBodyStateInfo {
@@ -22,13 +22,13 @@ class CBodyStateInfo {
   pas::EAnimationState x2c_additiveState = pas::EAnimationState::AdditiveIdle;
   float x30_maxPitch = 0.f;
   bool x34_24_changeLocoAtEndOfAnimOnly;
-  std::unique_ptr<CBodyState> SetupRestrictedFlyerBodyStates(int stateId, CActor& actor) const;
-  std::unique_ptr<CBodyState> SetupNewFlyerBodyStates(int stateId, CActor& actor) const;
-  std::unique_ptr<CBodyState> SetupWallWalkerBodyStates(int stateId, CActor& actor) const;
-  std::unique_ptr<CBodyState> SetupPitchableBodyStates(int stateId, CActor& actor) const;
-  std::unique_ptr<CBodyState> SetupFlyerBodyStates(int stateId, CActor& actor) const;
-  std::unique_ptr<CBodyState> SetupRestrictedBodyStates(int stateId, CActor& actor) const;
-  std::unique_ptr<CBodyState> SetupBiPedalBodyStates(int stateId, CActor& actor) const;
+  std::unique_ptr<CBodyState> SetupRestrictedFlyerBodyStates(pas::EAnimationState stateId, CActor& actor) const;
+  std::unique_ptr<CBodyState> SetupNewFlyerBodyStates(pas::EAnimationState stateId, CActor& actor) const;
+  std::unique_ptr<CBodyState> SetupWallWalkerBodyStates(pas::EAnimationState stateId, CActor& actor) const;
+  std::unique_ptr<CBodyState> SetupPitchableBodyStates(pas::EAnimationState stateId, CActor& actor) const;
+  std::unique_ptr<CBodyState> SetupFlyerBodyStates(pas::EAnimationState stateId, CActor& actor) const;
+  std::unique_ptr<CBodyState> SetupRestrictedBodyStates(pas::EAnimationState stateId, CActor& actor) const;
+  std::unique_ptr<CBodyState> SetupBiPedalBodyStates(pas::EAnimationState stateId, CActor& actor) const;
 
 public:
   CBodyStateInfo(CActor& actor, EBodyType type);
@@ -48,4 +48,4 @@ public:
   bool ApplyHeadTracking() const;
 };
 
-} // namespace urde
+} // namespace metaforce

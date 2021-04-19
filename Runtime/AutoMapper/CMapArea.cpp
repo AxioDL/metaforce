@@ -10,7 +10,7 @@
 #include "Runtime/World/CGameArea.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-namespace urde {
+namespace metaforce {
 constexpr std::array<zeus::CVector3f, 3> MinesPostTransforms{{
     {0.f, 0.f, 200.f},
     {0.f, 0.f, 0.f},
@@ -78,6 +78,7 @@ CMapArea::CMapArea(CInputStream& in, u32 size)
 }
 
 void CMapArea::PostConstruct() {
+  OPTICK_EVENT();
   x38_moStart = x44_buf.get();
   x3c_vertexStart = x38_moStart + (x28_mappableObjCount * 0x50);
   x40_surfaceStart = x3c_vertexStart + (x2c_vertexCount * 12);
@@ -302,4 +303,4 @@ CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, con
   return TToken<CMapArea>::GetIObjObjectFor(std::make_unique<CMapArea>(in, size));
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -10,7 +10,7 @@
 #include "zeus/CVector2f.hpp"
 #include "zeus/CVector3f.hpp"
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 enum class EFilterShape;
@@ -62,4 +62,4 @@ public:
   explicit CTexturedQuadFilterAlpha(EFilterType type, hsh::render_texture2d tex);
 };
 
-} // namespace urde
+} // namespace metaforce

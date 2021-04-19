@@ -7,7 +7,7 @@
 
 #include "CTexturedQuadFilter.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 
 template <EFilterType Type, bool TexAlpha>
 struct CTexturedQuadFilterPipeline : FilterPipeline<Type> {
@@ -193,4 +193,4 @@ CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, TLockedToke
   m_tex = tex;
 }
 
-} // namespace urde
+} // namespace metaforce

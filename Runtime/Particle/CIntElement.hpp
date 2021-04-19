@@ -7,7 +7,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Int_Elements */
 
-namespace urde {
+namespace metaforce {
 
 class CIEKeyframeEmitter : public CIntElement {
   u32 x4_percent;
@@ -218,4 +218,4 @@ public:
   int GetMaxValue() const override;
 };
 
-} // namespace urde
+} // namespace metaforce

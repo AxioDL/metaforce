@@ -2,7 +2,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 
 std::unique_ptr<IVaryingAnimationTimeScale> IVaryingAnimationTimeScale::Clone() const { return VClone(); }
 
@@ -87,4 +87,4 @@ std::unique_ptr<IVaryingAnimationTimeScale> CLinearAnimationTimeScale::VGetFunct
   return x4_desc.FunctionMirroredAround(value);
 }
 
-} // namespace urde
+} // namespace metaforce

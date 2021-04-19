@@ -3,7 +3,7 @@
 #include <array>
 #include "boo2/boo2.hpp"
 
-namespace urde {
+namespace metaforce {
 
 struct CKeyboardMouseControllerData {
   std::array<bool, 256> m_charKeys{};
@@ -15,4 +15,4 @@ struct CKeyboardMouseControllerData {
   hsh::offset2dF m_accumScroll;
 };
 
-} // namespace urde
+} // namespace metaforce

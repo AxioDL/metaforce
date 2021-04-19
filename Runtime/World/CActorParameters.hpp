@@ -7,7 +7,7 @@
 #include "Runtime/World/CScannableParameters.hpp"
 #include "Runtime/World/CVisorParameters.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CActorParameters {
   friend class ScriptLoader;
@@ -66,4 +66,4 @@ public:
   float GetFadeInTime() const { return x5c_fadeInTime; }
   float GetFadeOutTime() const { return x60_fadeOutTime; }
 };
-} // namespace urde
+} // namespace metaforce

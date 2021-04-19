@@ -13,7 +13,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 constexpr std::array<SSphereJointInfo, 2> skSphereJoints{{
     {"Head_1", 1.5f},
@@ -354,7 +354,7 @@ bool CNewIntroBoss::ShouldAttack(CStateManager& mgr, float dt) {
 
 bool CNewIntroBoss::AIStage(CStateManager& mgr, float) { return x568_locomotion != GetLocoForHealth(mgr); }
 
-bool CNewIntroBoss::AnimOver(urde::CStateManager&, float) { return x56c_stateProg == 3; }
+bool CNewIntroBoss::AnimOver(metaforce::CStateManager&, float) { return x56c_stateProg == 3; }
 
 void CNewIntroBoss::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
@@ -434,4 +434,4 @@ void CNewIntroBoss::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

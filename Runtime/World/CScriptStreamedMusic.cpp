@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 bool CScriptStreamedMusic::IsDSPFile(std::string_view fileName) {
   if (CStringExtras::CompareCaseInsensitive(fileName, "sw")) {
@@ -96,4 +96,4 @@ void CScriptStreamedMusic::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId o
   }
 }
 
-} // namespace urde
+} // namespace metaforce

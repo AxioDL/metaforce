@@ -2,7 +2,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CPhysicsActor::CPhysicsActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
                              const zeus::CTransform& xf, CModelData&& mData, const CMaterialList& matList,
@@ -10,14 +10,13 @@ CPhysicsActor::CPhysicsActor(TUniqueId uid, bool active, std::string_view name, 
                              float stepUp, float stepDown)
 : CActor(uid, active, name, info, xf, std::move(mData), matList, actorParms, kInvalidUniqueId)
 , xe8_mass(moverData.x30_mass)
-, xec_massRecip(moverData.x30_mass <= 0.f ? 1.f : 1.f / moverData.x30_mass)
+, xec_massRecip(moverData.x30_mass > 0.f ? 1.f / moverData.x30_mass : 1.f)
 , x150_momentum(moverData.x18_momentum)
 , x1a4_baseBoundingBox(box)
 , x1c0_collisionPrimitive(box, matList)
 , x1f4_lastNonCollidingState(xf.origin, xf.buildMatrix3f())
 , x23c_stepUpHeight(stepUp)
 , x240_stepDownHeight(stepDown) {
-  xf8_24_movable = true;
   SetMass(moverData.x30_mass);
   MoveCollisionPrimitive(zeus::skZero3f);
   SetVelocityOR(moverData.x0_velocity);
@@ -78,7 +77,7 @@ zeus::CAABox CPhysicsActor::GetMotionVolume(float dt) const {
 }
 
 zeus::CVector3f CPhysicsActor::CalculateNewVelocityWR_UsingImpulses() const {
-  return x138_velocity + (xec_massRecip * (x168_impulse + x18c_moveImpulse));
+  return x138_velocity + xec_massRecip * (x168_impulse + x18c_moveImpulse);
 }
 
 zeus::CAABox CPhysicsActor::GetBoundingBox() const {
@@ -92,8 +91,9 @@ void CPhysicsActor::AddMotionState(const CMotionState& mst) {
   zeus::CNUQuaternion q{x34_transform.buildMatrix3f()};
   q += mst.xc_orientation;
   zeus::CQuaternion quat = zeus::CQuaternion::fromNUQuaternion(q);
-  //if (TCastToPtr<CPlayer>(this)) {
-  //  printf("ADD %f %f %f\n", float(mst.x0_translation.x()), float(mst.x0_translation.y()), float(mst.x0_translation.z()));
+  // if (TCastToPtr<CPlayer>(this)) {
+  //  printf("ADD %f %f %f\n", float(mst.x0_translation.x()), float(mst.x0_translation.y()),
+  //  float(mst.x0_translation.z()));
   //}
   SetTransform(zeus::CTransform(quat, x34_transform.origin));
 
@@ -132,7 +132,7 @@ void CPhysicsActor::SetMass(float mass) {
     tensor = 1.0f / mass;
 
   xec_massRecip = tensor;
-  SetInertiaTensorScalar(mass / 6.f);
+  SetInertiaTensorScalar(0.16666667f * mass);
 }
 
 void CPhysicsActor::SetAngularVelocityOR(const zeus::CAxisAngle& angVel) {
@@ -177,11 +177,11 @@ void CPhysicsActor::MoveToOR(const zeus::CVector3f& trans, float d) {
 }
 
 void CPhysicsActor::MoveToInOneFrameWR(const zeus::CVector3f& trans, float d) {
-  x18c_moveImpulse += xe8_mass * (trans - x34_transform.origin) * (1.f / d);
+  x18c_moveImpulse += (1.f / d) * xe8_mass * (trans - x34_transform.origin);
 }
 
 void CPhysicsActor::MoveToWR(const zeus::CVector3f& trans, float d) {
-  xfc_constantForce = xe8_mass * (trans - x34_transform.origin) * (1.f / d);
+  xfc_constantForce = (1.f / d) * xe8_mass * (trans - x34_transform.origin);
   ComputeDerivedQuantities();
 }
 
@@ -193,7 +193,7 @@ zeus::CAxisAngle CPhysicsActor::GetRotateToORAngularMomentumWR(const zeus::CQuat
 }
 
 zeus::CVector3f CPhysicsActor::GetMoveToORImpulseWR(const zeus::CVector3f& trans, float d) const {
-  return (xe8_mass * x34_transform.rotate(trans)) * (1.f / d);
+  return (1.f / d) * xe8_mass * x34_transform.rotate(trans);
 }
 
 void CPhysicsActor::ClearImpulses() {
@@ -220,10 +220,8 @@ void CPhysicsActor::ComputeDerivedQuantities() {
 }
 
 bool CPhysicsActor::WillMove(const CStateManager&) const {
-  return !zeus::close_enough(zeus::skZero3f, x138_velocity) ||
-         !zeus::close_enough(zeus::skZero3f, x168_impulse) ||
-         !zeus::close_enough(zeus::skZero3f, x174_torque) ||
-         !zeus::close_enough(zeus::skZero3f, x18c_moveImpulse) ||
+  return !zeus::close_enough(zeus::skZero3f, x138_velocity) || !zeus::close_enough(zeus::skZero3f, x168_impulse) ||
+         !zeus::close_enough(zeus::skZero3f, x174_torque) || !zeus::close_enough(zeus::skZero3f, x18c_moveImpulse) ||
          !zeus::close_enough(zeus::skZero3f, x144_angularVelocity) ||
          !zeus::close_enough(zeus::skZero3f, x180_angularImpulse) ||
          !zeus::close_enough(zeus::skZero3f, x198_moveAngularImpulse) ||
@@ -269,17 +267,15 @@ CMotionState CPhysicsActor::PredictMotion(float dt) const {
 
 CMotionState CPhysicsActor::PredictLinearMotion(float dt) const {
   zeus::CVector3f velocity = CalculateNewVelocityWR_UsingImpulses();
-  return {velocity * dt,
-          {0.f, zeus::skZero3f},
-          ((x15c_force + x150_momentum) * dt) + x168_impulse,
+  return {dt * velocity, zeus::CNUQuaternion(0.f, zeus::skZero3f), (dt * (x15c_force + x150_momentum)) + x168_impulse,
           zeus::CAxisAngle()};
 }
 
 CMotionState CPhysicsActor::PredictAngularMotion(float dt) const {
   const zeus::CVector3f v1 = xf4_inertiaTensorRecip * (x180_angularImpulse + x198_moveAngularImpulse);
   zeus::CNUQuaternion q = 0.5f * zeus::CNUQuaternion(0.f, x144_angularVelocity.getVector() + v1);
-  CMotionState ret = {zeus::skZero3f, (q * zeus::CNUQuaternion(x34_transform.buildMatrix3f())) * dt,
-                      zeus::skZero3f, (x174_torque * dt) + x180_angularImpulse};
+  CMotionState ret = {zeus::skZero3f, (q * zeus::CNUQuaternion(x34_transform.buildMatrix3f())) * dt, zeus::skZero3f,
+                      (x174_torque * dt) + x180_angularImpulse};
   return ret;
 }
 
@@ -314,4 +310,4 @@ void CPhysicsActor::UseCollisionImpulses() {
   ComputeDerivedQuantities();
 }
 
-} // namespace urde
+} // namespace metaforce

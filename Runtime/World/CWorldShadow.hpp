@@ -9,7 +9,7 @@
 
 #define CWORLDSHADOW_FEEDBACK 0
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 
 class CWorldShadow {
@@ -34,4 +34,4 @@ public:
   void ResetBlur();
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -4,7 +4,7 @@
 #include "Runtime/Character/CPoseAsTransforms.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CSkinRules::CSkinRules(CInputStream& in) {
   u32 bankCount = in.readUint32Big();
@@ -25,6 +25,7 @@ CSkinRules::CSkinRules(CInputStream& in) {
 
 void CSkinRules::TransformVerticesCPU(std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vnOut,
                                       const CPoseAsTransforms& pose, const CModel& model) const {
+  OPTICK_EVENT();
   vnOut.resize(m_poolToSkinIdx.size());
   for (size_t i = 0; i < m_poolToSkinIdx.size(); ++i) {
     const CVirtualBone& vb = m_virtualBones[m_poolToSkinIdx[i]];
@@ -46,4 +47,4 @@ CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, cons
   return TToken<CSkinRules>::GetIObjObjectFor(std::make_unique<CSkinRules>(in));
 }
 
-} // namespace urde
+} // namespace metaforce

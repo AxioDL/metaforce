@@ -9,7 +9,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CDamageInfo;
 class CPatterned;
 
@@ -142,4 +142,4 @@ public:
   bool TestAvailableState(EKnockBackAnimationState s) const { return x80_availableStates.test(size_t(s)); }
 };
 
-} // namespace urde
+} // namespace metaforce

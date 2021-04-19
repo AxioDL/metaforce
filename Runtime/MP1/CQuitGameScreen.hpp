@@ -6,7 +6,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
 
-namespace urde {
+namespace metaforce {
 struct CFinalInput;
 class CGuiFrame;
 class CGuiTableGroup;
@@ -40,4 +40,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

@@ -347,7 +347,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(typename Wr
 }
 
 std::string_view ANCS::CharacterSet::CharacterInfo::DNAType() {
-  return "urde::DNAMP2::ANCS::CharacterSet::CharacterInfo"sv;
+  return "DNAMP2::ANCS::CharacterSet::CharacterInfo"sv;
 }
 
 template <>
@@ -523,7 +523,7 @@ void ANCS::AnimationSet::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::Stream
   }
 }
 
-std::string_view ANCS::AnimationSet::DNAType() { return "urde::DNAMP2::ANCS::AnimationSet"sv; }
+std::string_view ANCS::AnimationSet::DNAType() { return "DNAMP2::ANCS::AnimationSet"sv; }
 
 template <class Op>
 void ANCS::AnimationSet::EVNT::Enumerate(typename Op::StreamT& s) {
@@ -542,6 +542,6 @@ void ANCS::AnimationSet::EVNT::Enumerate(typename Op::StreamT& s) {
 
 AT_SPECIALIZE_DNA(ANCS::AnimationSet::EVNT)
 
-std::string_view ANCS::AnimationSet::EVNT::DNAType() { return "urde::DNAMP2::ANCS::AnimationSet::EVNT"sv; }
+std::string_view ANCS::AnimationSet::EVNT::DNAType() { return "DNAMP2::ANCS::AnimationSet::EVNT"sv; }
 
 } // namespace DataSpec::DNAMP2

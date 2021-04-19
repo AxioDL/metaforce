@@ -4,7 +4,7 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/Character/CPASAnimParm.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CPASAnimInfo {
   u32 x0_id;
@@ -18,4 +18,4 @@ public:
   CPASAnimParm GetAnimParmData(size_t idx, CPASAnimParm::EParmType type) const;
 };
 
-} // namespace urde
+} // namespace metaforce

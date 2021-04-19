@@ -1,6 +1,6 @@
 #include "Runtime/Weapon/CWeaponMgr.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CWeaponMgr::Add(TUniqueId uid, EWeaponType type) {
   auto iter = x0_weapons.emplace(uid, rstl::reserved_vector<s32, 15>()).first;
@@ -63,4 +63,4 @@ s32 CWeaponMgr::GetIndex(TUniqueId uid) const {
   return s32(std::distance(x0_weapons.cbegin(), iter));
 }
 
-} // namespace urde
+} // namespace metaforce

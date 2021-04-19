@@ -3,7 +3,7 @@
 #include "Runtime/Character/CBodyController.hpp"
 #include "Runtime/World/CActor.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CBodyStateInfo::CBodyStateInfo(CActor& actor, EBodyType type) {
   x34_24_changeLocoAtEndOfAnimOnly = false;
@@ -48,321 +48,321 @@ CBodyStateInfo::CBodyStateInfo(CActor& actor, EBodyType type) {
   x1c_additiveStates.emplace_back(pas::EAnimationState::AdditiveReaction, std::make_unique<CABSReaction>());
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedFlyerBodyStates(int stateId, CActor& actor) const {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedFlyerBodyStates(pas::EAnimationState stateId, CActor& actor) const {
   switch (stateId) {
-  case 0:
+  case pas::EAnimationState::Fall:
     return std::make_unique<CBSFall>();
-  case 1:
+  case pas::EAnimationState::Getup:
     return std::make_unique<CBSGetup>();
-  case 2:
+  case pas::EAnimationState::LieOnGround:
     return std::make_unique<CBSLieOnGround>(actor);
-  case 3:
+  case pas::EAnimationState::Step:
     return std::make_unique<CBSStep>();
-  case 4:
+  case pas::EAnimationState::Death:
     return std::make_unique<CBSDie>();
-  case 5:
+  case pas::EAnimationState::Locomotion:
     return std::make_unique<CBSRestrictedFlyerLocomotion>(actor);
-  case 6:
+  case pas::EAnimationState::KnockBack:
     return std::make_unique<CBSKnockBack>();
-  case 7:
+  case pas::EAnimationState::MeleeAttack:
     return std::make_unique<CBSAttack>();
-  case 18:
+  case pas::EAnimationState::ProjectileAttack:
     return std::make_unique<CBSProjectileAttack>();
-  case 9:
+  case pas::EAnimationState::LoopAttack:
     return std::make_unique<CBSLoopAttack>();
-  case 8:
+  case pas::EAnimationState::Turn:
     return std::make_unique<CBSTurn>();
-  case 10:
+  case pas::EAnimationState::LoopReaction:
     return std::make_unique<CBSLoopReaction>();
-  case 11:
+  case pas::EAnimationState::GroundHit:
     return std::make_unique<CBSGroundHit>();
-  case 12:
+  case pas::EAnimationState::Generate:
     return std::make_unique<CBSGenerate>();
-  case 13:
+  case pas::EAnimationState::Jump:
     return std::make_unique<CBSJump>();
-  case 14:
+  case pas::EAnimationState::Hurled:
     return std::make_unique<CBSHurled>();
-  case 15:
+  case pas::EAnimationState::Slide:
     return std::make_unique<CBSSlide>();
-  case 16:
+  case pas::EAnimationState::Taunt:
     return std::make_unique<CBSTaunt>();
-  case 17:
+  case pas::EAnimationState::Scripted:
     return std::make_unique<CBSScripted>();
   default:
     return {};
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupNewFlyerBodyStates(int stateId, CActor& actor) const {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupNewFlyerBodyStates(pas::EAnimationState stateId, CActor& actor) const {
   switch (stateId) {
-  case 0:
+  case pas::EAnimationState::Fall:
     return std::make_unique<CBSFall>();
-  case 1:
+  case pas::EAnimationState::Getup:
     return std::make_unique<CBSGetup>();
-  case 2:
+  case pas::EAnimationState::LieOnGround:
     return std::make_unique<CBSLieOnGround>(actor);
-  case 3:
+  case pas::EAnimationState::Step:
     return std::make_unique<CBSStep>();
-  case 4:
+  case pas::EAnimationState::Death:
     return std::make_unique<CBSDie>();
-  case 5:
+  case pas::EAnimationState::Locomotion:
     return std::make_unique<CBSNewFlyerLocomotion>(actor);
-  case 6:
+  case pas::EAnimationState::KnockBack:
     return std::make_unique<CBSKnockBack>();
-  case 7:
+  case pas::EAnimationState::MeleeAttack:
     return std::make_unique<CBSAttack>();
-  case 18:
+  case pas::EAnimationState::ProjectileAttack:
     return std::make_unique<CBSProjectileAttack>();
-  case 9:
+  case pas::EAnimationState::LoopAttack:
     return std::make_unique<CBSLoopAttack>();
-  case 8:
+  case pas::EAnimationState::Turn:
     return std::make_unique<CBSTurn>();
-  case 10:
+  case pas::EAnimationState::LoopReaction:
     return std::make_unique<CBSLoopReaction>();
-  case 11:
+  case pas::EAnimationState::GroundHit:
     return std::make_unique<CBSGroundHit>();
-  case 12:
+  case pas::EAnimationState::Generate:
     return std::make_unique<CBSGenerate>();
-  case 13:
+  case pas::EAnimationState::Jump:
     return std::make_unique<CBSJump>();
-  case 14:
+  case pas::EAnimationState::Hurled:
     return std::make_unique<CBSHurled>();
-  case 15:
+  case pas::EAnimationState::Slide:
     return std::make_unique<CBSSlide>();
-  case 16:
+  case pas::EAnimationState::Taunt:
     return std::make_unique<CBSTaunt>();
-  case 17:
+  case pas::EAnimationState::Scripted:
     return std::make_unique<CBSScripted>();
   default:
     return {};
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupWallWalkerBodyStates(int stateId, CActor& actor) const {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupWallWalkerBodyStates(pas::EAnimationState stateId, CActor& actor) const {
   switch (stateId) {
-  case 0:
+  case pas::EAnimationState::Fall:
     return std::make_unique<CBSFall>();
-  case 1:
+  case pas::EAnimationState::Getup:
     return std::make_unique<CBSGetup>();
-  case 2:
+  case pas::EAnimationState::LieOnGround:
     return std::make_unique<CBSLieOnGround>(actor);
-  case 3:
+  case pas::EAnimationState::Step:
     return std::make_unique<CBSStep>();
-  case 4:
+  case pas::EAnimationState::Death:
     return std::make_unique<CBSDie>();
-  case 5:
+  case pas::EAnimationState::Locomotion:
     return std::make_unique<CBSWallWalkerLocomotion>(actor);
-  case 6:
+  case pas::EAnimationState::KnockBack:
     return std::make_unique<CBSKnockBack>();
-  case 7:
+  case pas::EAnimationState::MeleeAttack:
     return std::make_unique<CBSAttack>();
-  case 18:
+  case pas::EAnimationState::ProjectileAttack:
     return std::make_unique<CBSProjectileAttack>();
-  case 9:
+  case pas::EAnimationState::LoopAttack:
     return std::make_unique<CBSLoopAttack>();
-  case 8:
+  case pas::EAnimationState::Turn:
     return std::make_unique<CBSFlyerTurn>();
-  case 10:
+  case pas::EAnimationState::LoopReaction:
     return std::make_unique<CBSLoopReaction>();
-  case 11:
+  case pas::EAnimationState::GroundHit:
     return std::make_unique<CBSGroundHit>();
-  case 12:
+  case pas::EAnimationState::Generate:
     return std::make_unique<CBSGenerate>();
-  case 13:
+  case pas::EAnimationState::Jump:
     return std::make_unique<CBSJump>();
-  case 14:
+  case pas::EAnimationState::Hurled:
     return std::make_unique<CBSHurled>();
-  case 15:
+  case pas::EAnimationState::Slide:
     return std::make_unique<CBSSlide>();
-  case 16:
+  case pas::EAnimationState::Taunt:
     return std::make_unique<CBSTaunt>();
-  case 17:
+  case pas::EAnimationState::Scripted:
     return std::make_unique<CBSScripted>();
   default:
     return {};
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupPitchableBodyStates(int stateId, CActor& actor) const {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupPitchableBodyStates(pas::EAnimationState stateId, CActor& actor) const {
   switch (stateId) {
-  case 0:
+  case pas::EAnimationState::Fall:
     return std::make_unique<CBSFall>();
-  case 1:
+  case pas::EAnimationState::Getup:
     return std::make_unique<CBSGetup>();
-  case 2:
+  case pas::EAnimationState::LieOnGround:
     return std::make_unique<CBSLieOnGround>(actor);
-  case 3:
+  case pas::EAnimationState::Step:
     return std::make_unique<CBSStep>();
-  case 4:
+  case pas::EAnimationState::Death:
     return std::make_unique<CBSDie>();
-  case 5:
+  case pas::EAnimationState::Locomotion:
     return std::make_unique<CBSFlyerLocomotion>(actor, true);
-  case 6:
+  case pas::EAnimationState::KnockBack:
     return std::make_unique<CBSKnockBack>();
-  case 7:
+  case pas::EAnimationState::MeleeAttack:
     return std::make_unique<CBSAttack>();
-  case 18:
+  case pas::EAnimationState::ProjectileAttack:
     return std::make_unique<CBSProjectileAttack>();
-  case 9:
+  case pas::EAnimationState::LoopAttack:
     return std::make_unique<CBSLoopAttack>();
-  case 8:
+  case pas::EAnimationState::Turn:
     return std::make_unique<CBSFlyerTurn>();
-  case 10:
+  case pas::EAnimationState::LoopReaction:
     return std::make_unique<CBSLoopReaction>();
-  case 11:
+  case pas::EAnimationState::GroundHit:
     return std::make_unique<CBSGroundHit>();
-  case 12:
+  case pas::EAnimationState::Generate:
     return std::make_unique<CBSGenerate>();
-  case 13:
+  case pas::EAnimationState::Jump:
     return std::make_unique<CBSJump>();
-  case 14:
+  case pas::EAnimationState::Hurled:
     return std::make_unique<CBSHurled>();
-  case 15:
+  case pas::EAnimationState::Slide:
     return std::make_unique<CBSSlide>();
-  case 16:
+  case pas::EAnimationState::Taunt:
     return std::make_unique<CBSTaunt>();
-  case 17:
+  case pas::EAnimationState::Scripted:
     return std::make_unique<CBSScripted>();
   default:
     return {};
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupFlyerBodyStates(int stateId, CActor& actor) const {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupFlyerBodyStates(pas::EAnimationState stateId, CActor& actor) const {
   switch (stateId) {
-  case 0:
+  case pas::EAnimationState::Fall:
     return std::make_unique<CBSFall>();
-  case 1:
+  case pas::EAnimationState::Getup:
     return std::make_unique<CBSGetup>();
-  case 2:
+  case pas::EAnimationState::LieOnGround:
     return std::make_unique<CBSLieOnGround>(actor);
-  case 3:
+  case pas::EAnimationState::Step:
     return std::make_unique<CBSStep>();
-  case 4:
+  case pas::EAnimationState::Death:
     return std::make_unique<CBSDie>();
-  case 5:
+  case pas::EAnimationState::Locomotion:
     return std::make_unique<CBSFlyerLocomotion>(actor, false);
-  case 6:
+  case pas::EAnimationState::KnockBack:
     return std::make_unique<CBSKnockBack>();
-  case 7:
+  case pas::EAnimationState::MeleeAttack:
     return std::make_unique<CBSAttack>();
-  case 18:
+  case pas::EAnimationState::ProjectileAttack:
     return std::make_unique<CBSProjectileAttack>();
-  case 9:
+  case pas::EAnimationState::LoopAttack:
     return std::make_unique<CBSLoopAttack>();
-  case 8:
+  case pas::EAnimationState::Turn:
     return std::make_unique<CBSFlyerTurn>();
-  case 10:
+  case pas::EAnimationState::LoopReaction:
     return std::make_unique<CBSLoopReaction>();
-  case 11:
+  case pas::EAnimationState::GroundHit:
     return std::make_unique<CBSGroundHit>();
-  case 12:
+  case pas::EAnimationState::Generate:
     return std::make_unique<CBSGenerate>();
-  case 13:
+  case pas::EAnimationState::Jump:
     return std::make_unique<CBSJump>();
-  case 14:
+  case pas::EAnimationState::Hurled:
     return std::make_unique<CBSHurled>();
-  case 15:
+  case pas::EAnimationState::Slide:
     return std::make_unique<CBSSlide>();
-  case 16:
+  case pas::EAnimationState::Taunt:
     return std::make_unique<CBSTaunt>();
-  case 17:
+  case pas::EAnimationState::Scripted:
     return std::make_unique<CBSScripted>();
   default:
     return {};
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedBodyStates(int stateId, CActor& actor) const {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedBodyStates(pas::EAnimationState stateId, CActor& actor) const {
   switch (stateId) {
-  case 0:
+  case pas::EAnimationState::Fall:
     return std::make_unique<CBSFall>();
-  case 1:
+  case pas::EAnimationState::Getup:
     return std::make_unique<CBSGetup>();
-  case 2:
+  case pas::EAnimationState::LieOnGround:
     return std::make_unique<CBSLieOnGround>(actor);
-  case 3:
+  case pas::EAnimationState::Step:
     return std::make_unique<CBSStep>();
-  case 4:
+  case pas::EAnimationState::Death:
     return std::make_unique<CBSDie>();
-  case 5:
+  case pas::EAnimationState::Locomotion:
     return std::make_unique<CBSRestrictedLocomotion>(actor);
-  case 6:
+  case pas::EAnimationState::KnockBack:
     return std::make_unique<CBSKnockBack>();
-  case 7:
+  case pas::EAnimationState::MeleeAttack:
     return std::make_unique<CBSAttack>();
-  case 18:
+  case pas::EAnimationState::ProjectileAttack:
     return std::make_unique<CBSProjectileAttack>();
-  case 9:
+  case pas::EAnimationState::LoopAttack:
     return std::make_unique<CBSLoopAttack>();
-  case 8:
+  case pas::EAnimationState::Turn:
     return std::make_unique<CBSTurn>();
-  case 10:
+  case pas::EAnimationState::LoopReaction:
     return std::make_unique<CBSLoopReaction>();
-  case 11:
+  case pas::EAnimationState::GroundHit:
     return std::make_unique<CBSGroundHit>();
-  case 12:
+  case pas::EAnimationState::Generate:
     return std::make_unique<CBSGenerate>();
-  case 13:
+  case pas::EAnimationState::Jump:
     return std::make_unique<CBSJump>();
-  case 14:
+  case pas::EAnimationState::Hurled:
     return std::make_unique<CBSHurled>();
-  case 15:
+  case pas::EAnimationState::Slide:
     return std::make_unique<CBSSlide>();
-  case 16:
+  case pas::EAnimationState::Taunt:
     return std::make_unique<CBSTaunt>();
-  case 17:
+  case pas::EAnimationState::Scripted:
     return std::make_unique<CBSScripted>();
-  case 19:
+  case pas::EAnimationState::Cover:
     return std::make_unique<CBSCover>();
   default:
     return {};
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupBiPedalBodyStates(int stateId, CActor& actor) const {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupBiPedalBodyStates(pas::EAnimationState stateId, CActor& actor) const {
   switch (stateId) {
-  case 0:
+  case pas::EAnimationState::Fall:
     return std::make_unique<CBSFall>();
-  case 1:
+  case pas::EAnimationState::Getup:
     return std::make_unique<CBSGetup>();
-  case 2:
+  case pas::EAnimationState::LieOnGround:
     return std::make_unique<CBSLieOnGround>(actor);
-  case 3:
+  case pas::EAnimationState::Step:
     return std::make_unique<CBSStep>();
-  case 4:
+  case pas::EAnimationState::Death:
     return std::make_unique<CBSDie>();
-  case 5:
+  case pas::EAnimationState::Locomotion:
     return std::make_unique<CBSBiPedLocomotion>(actor);
-  case 6:
+  case pas::EAnimationState::KnockBack:
     return std::make_unique<CBSKnockBack>();
-  case 7:
+  case pas::EAnimationState::MeleeAttack:
     return std::make_unique<CBSAttack>();
-  case 18:
+  case pas::EAnimationState::ProjectileAttack:
     return std::make_unique<CBSProjectileAttack>();
-  case 9:
+  case pas::EAnimationState::LoopAttack:
     return std::make_unique<CBSLoopAttack>();
-  case 8:
+  case pas::EAnimationState::Turn:
     return std::make_unique<CBSTurn>();
-  case 10:
+  case pas::EAnimationState::LoopReaction:
     return std::make_unique<CBSLoopReaction>();
-  case 11:
+  case pas::EAnimationState::GroundHit:
     return std::make_unique<CBSGroundHit>();
-  case 12:
+  case pas::EAnimationState::Generate:
     return std::make_unique<CBSGenerate>();
-  case 13:
+  case pas::EAnimationState::Jump:
     return std::make_unique<CBSJump>();
-  case 14:
+  case pas::EAnimationState::Hurled:
     return std::make_unique<CBSHurled>();
-  case 15:
+  case pas::EAnimationState::Slide:
     return std::make_unique<CBSSlide>();
-  case 16:
+  case pas::EAnimationState::Taunt:
     return std::make_unique<CBSTaunt>();
-  case 17:
+  case pas::EAnimationState::Scripted:
     return std::make_unique<CBSScripted>();
-  case 19:
+  case pas::EAnimationState::Cover:
     return std::make_unique<CBSCover>();
-  case 20:
+  case pas::EAnimationState::WallHang:
     return std::make_unique<CBSWallHang>();
   default:
     return {};
@@ -434,4 +434,4 @@ bool CBodyStateInfo::ApplyHeadTracking() const {
   return GetCurrentState()->ApplyHeadTracking();
 }
 
-} // namespace urde
+} // namespace metaforce

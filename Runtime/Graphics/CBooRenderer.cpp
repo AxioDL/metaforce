@@ -26,7 +26,7 @@
 #define FOGVOL_NEAR 0.2
 #define SPHERE_RAMP_RES 32
 
-namespace urde {
+namespace metaforce {
 namespace {
 struct FogVolumeControl {
   std::array<std::array<u32, 2>, 12> xfc_{
@@ -222,6 +222,7 @@ CBooRenderer::CAreaListItem::CAreaListItem(const std::vector<CMetroidModelInstan
 CBooRenderer::CAreaListItem::~CAreaListItem() = default;
 
 void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model) {
+  OPTICK_EVENT();
   constexpr size_t lightCount = 4;
   std::vector<CLight> thisLights;
   thisLights.reserve(lightCount);
@@ -761,6 +762,7 @@ void CBooRenderer::DisablePVS() { xc8_pvs = std::nullopt; }
 
 void CBooRenderer::UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode, bool activateLights, int cubeFace,
                                       const CModelFlags* ballShadowFlags) {
+  OPTICK_EVENT();
   SetupRendererStates();
 
   CModelFlags flags;
@@ -772,14 +774,17 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode, 
     if (shadowMode == EWorldShadowMode::BallOnWorldShadow || shadowMode == EWorldShadowMode::BallOnWorldIds)
       continue;
 
-    for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it) {
-      CBooModel* model = *it;
-      if (model->TryLockTextures()) {
-        if (activateLights)
-          ActivateLightsForModel(&item, *model);
-        model->UpdateUniformData(flags, nullptr, nullptr, bufIdx);
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+      for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it) {
+        CBooModel* model = *it;
+        if (model->TryLockTextures()) {
+          if (activateLights)
+            ActivateLightsForModel(&item, *model);
+          model->UpdateUniformData(flags, nullptr, nullptr, bufIdx, &ctx);
+        }
       }
-    }
+      return true;
+    } BooTrace);
   }
 }
 
@@ -1040,6 +1045,7 @@ void CBooRenderer::SetViewport(int left, int bottom, int width, int height) {
 void CBooRenderer::SetDebugOption(EDebugOption, int) {}
 
 void CBooRenderer::BeginScene() {
+  OPTICK_EVENT();
   CGraphics::SetViewport(0, 0, g_Viewport.x8_width, g_Viewport.xc_height);
   CGraphics::SetCullMode(ERglCullMode::Back);
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
@@ -1067,6 +1073,7 @@ void CBooRenderer::BeginScene() {
 }
 
 void CBooRenderer::EndScene() {
+  OPTICK_EVENT();
   CGraphics::EndScene();
   if (x2dc_reflectionAge >= 2) {
     // Delete reflection tex x14c_
@@ -1161,6 +1168,7 @@ void CBooRenderer::SetThermal(bool thermal, float level, const zeus::CColor& col
   x2f4_thermColor = color;
   CDecal::SetMoveRedToAlphaBuffer(false);
   CElementGen::SetMoveRedToAlphaBuffer(false);
+  m_thermalHotPass = false;
 }
 
 void CBooRenderer::SetThermalColdScale(float scale) { x2f8_thermColdScale = zeus::clamp(0.f, scale, 1.f); }
@@ -1418,4 +1426,4 @@ void CBooRenderer::BindMainDrawTarget() {
   g_Viewport = CachedVP;
 }
 
-} // namespace urde
+} // namespace metaforce

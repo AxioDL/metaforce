@@ -11,7 +11,7 @@
 #include "Runtime/IObjFactory.hpp"
 #include "Runtime/Character/CAnimationSet.hpp"
 
-namespace urde {
+namespace metaforce {
 class CAdditiveAnimationInfo;
 class CAllFormatsAnimSource;
 class CAnimCharacterSet;
@@ -38,12 +38,12 @@ public:
     void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const override;
     void EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const override;
 
-    u32 ResourceSize(const urde::SObjectTag& tag) override;
-    std::shared_ptr<IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target) override;
-    std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 off, u32 size,
+    u32 ResourceSize(const metaforce::SObjectTag& tag) override;
+    std::shared_ptr<IDvdRequest> LoadResourceAsync(const metaforce::SObjectTag& tag, void* target) override;
+    std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const metaforce::SObjectTag& tag, u32 off, u32 size,
                                                        void* target) override;
-    std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag) override;
-    std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size) override;
+    std::unique_ptr<u8[]> LoadResourceSync(const metaforce::SObjectTag& tag) override;
+    std::unique_ptr<u8[]> LoadNewResourcePartSync(const metaforce::SObjectTag& tag, u32 off, u32 size) override;
   };
 
 private:
@@ -76,4 +76,4 @@ public:
   bool HasAdditiveInfo(s32 idx) const;
 };
 
-} // namespace urde
+} // namespace metaforce

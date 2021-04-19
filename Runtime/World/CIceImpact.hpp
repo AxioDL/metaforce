@@ -2,7 +2,7 @@
 
 #include "Runtime/World/CEffect.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CIceImpact : public CEffect {
 public:
@@ -12,4 +12,4 @@ public:
   void Accept(IVisitor& visitor) override;
 };
 
-} // namespace urde
+} // namespace metaforce

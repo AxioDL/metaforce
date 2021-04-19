@@ -22,7 +22,7 @@
 #define DEFINE_PATTERNED(type) static constexpr ECharacter CharacterType = ECharacter::type
 #endif
 
-namespace urde {
+namespace metaforce {
 class CPatternedInfo;
 class CProjectileInfo;
 class CPathFindSearch;
@@ -338,6 +338,7 @@ public:
   void TryKnockBack_Front(CStateManager& mgr, int arg);
   void TryGenerateDeactivate(CStateManager& mgr, int arg);
   void TryStep(CStateManager& mgr, int arg);
+  void TryScripted(CStateManager& mgr, int arg);
 
   virtual bool KnockbackWhenFrozen() const { return true; }
   virtual void MassiveDeath(CStateManager& mgr);
@@ -381,7 +382,7 @@ public:
   void UpdateDamageColor(float dt);
   CScriptCoverPoint* GetCoverPoint(CStateManager& mgr, TUniqueId id) const;
   void SetCoverPoint(CScriptCoverPoint* cp, TUniqueId& id);
-  void ReleaseCoverPoint(CStateManager& mgr, TUniqueId& id);
+  void ReleaseCoverPoint(CStateManager& mgr, TUniqueId& id) const;
 
   bool MadeSolidCollision() const { return x328_26_solidCollision; }
   bool IsMakingBigStrike() const { return x402_28_isMakingBigStrike; }
@@ -416,6 +417,7 @@ public:
     return nullptr;
   }
 
+  static void Initialize();
   // endregion
 };
-} // namespace urde
+} // namespace metaforce

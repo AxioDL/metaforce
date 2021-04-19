@@ -8,7 +8,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CActor;
 class CAnimPlaybackParms;
 class CPASAnimParmData;
@@ -103,4 +103,4 @@ public:
   void SetRestrictedFlyerMoveSpeed(float speed) { x330_restrictedFlyerMoveSpeed = speed; }
   bool GetActive() const { return x300_25_active; }
 };
-} // namespace urde
+} // namespace metaforce

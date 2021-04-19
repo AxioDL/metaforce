@@ -9,7 +9,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class IObjectStore;
 
 class CFBStreamedCompression {
@@ -82,4 +82,4 @@ public:
   const std::vector<CSoundPOINode>& GetSoundPOIStream() const { return x8_evntToken->GetSoundPOIStream(); }
 };
 
-} // namespace urde
+} // namespace metaforce

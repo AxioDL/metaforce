@@ -8,7 +8,7 @@
 #include "Runtime/World/CDamageInfo.hpp"
 #include "Runtime/Weapon/WeaponCommon.hpp"
 
-namespace urde {
+namespace metaforce {
 class CWeapon : public CActor {
 protected:
   EProjectileAttrib xe8_projectileAttribs;
@@ -50,4 +50,4 @@ public:
                                                          const CWeaponMode&, EProjectileAttrib) const override;
   void FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr) override;
 };
-} // namespace urde
+} // namespace metaforce

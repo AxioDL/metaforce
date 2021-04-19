@@ -5,7 +5,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/rstl.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 struct CCharacterIdentifier {
   wchar_t chr;
@@ -54,4 +54,4 @@ int CWordBreakTables::GetEndRank(wchar_t ch) {
   return search->rank;
 }
 
-} // namespace urde
+} // namespace metaforce

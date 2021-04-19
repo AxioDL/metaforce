@@ -5,7 +5,7 @@
 
 #include "hsh/hsh.h"
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 class CRadarPaintShader {
@@ -30,4 +30,4 @@ public:
   void draw(const std::vector<Instance>& instances, const CTexture* tex);
 };
 
-} // namespace urde
+} // namespace metaforce

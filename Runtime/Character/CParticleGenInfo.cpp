@@ -9,7 +9,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CParticleGenInfo::CParticleGenInfo(const SObjectTag& part, int frameCount, std::string_view boneName,
                                    const zeus::CVector3f& scale, CParticleData::EParentedMode parentMode, int flags,
@@ -146,4 +146,4 @@ void CParticleGenInfoGeneric::DeleteLight(CStateManager& mgr) {
 }
 
 void CParticleGenInfoGeneric::SetModulationColor(const zeus::CColor& color) { x84_system->SetModulationColor(color); }
-} // namespace urde
+} // namespace metaforce

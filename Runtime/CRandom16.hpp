@@ -2,7 +2,7 @@
 
 #include "Runtime/GCNTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CRandom16 {
   s32 m_seed;
@@ -53,4 +53,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

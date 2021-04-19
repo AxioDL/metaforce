@@ -1002,7 +1002,10 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
   FinishBlenderMesh(os, matSetCount, meshIdx);
 
   if (rp.first.second) {
-    os.format(FMT_STRING("mesh.cskr_id = '{}'\n"), rp.first.first);
+    if (entry.id != 0xB333E1D7) {
+      // This is the beta phazon suit, we want the (incorrect) weight information, but we don't want to keep the CSKR id
+      os.format(FMT_STRING("mesh.cskr_id = '{}'\n"), rp.first.first);
+    }
     rp.second.second->sendVertexGroupsToBlender(os);
   }
 
@@ -1014,7 +1017,7 @@ ReadGeomSectionsToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MaterialSet,
                           std::pair<std::pair<UniqueID32, DNAMP1::CSKR*>, std::pair<UniqueID32, DNAMP1::CINF*>>,
                           DNACMDL::SurfaceHeader_1>(
     hecl::blender::PyOutStream& os, athena::io::IStreamReader& reader, PAKRouter<DNAMP1::PAKBridge>& pakRouter,
-    const typename PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
+    const PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
     const std::pair<std::pair<UniqueID32, DNAMP1::CSKR*>, std::pair<UniqueID32, DNAMP1::CINF*>>& rp, bool shortNormals,
     bool shortUVs, std::vector<VertexAttributes>& vertAttribs, int meshIdx, atUint32 secCount, atUint32 matSetCount,
     const atUint32* secSizes, atUint32 surfaceCount);
@@ -1024,7 +1027,7 @@ ReadGeomSectionsToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MaterialSet,
                           std::pair<std::pair<UniqueID32, DNAMP2::CSKR*>, std::pair<UniqueID32, DNAMP2::CINF*>>,
                           DNACMDL::SurfaceHeader_2>(
     hecl::blender::PyOutStream& os, athena::io::IStreamReader& reader, PAKRouter<DNAMP2::PAKBridge>& pakRouter,
-    const typename PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
+    const PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
     const std::pair<std::pair<UniqueID32, DNAMP2::CSKR*>, std::pair<UniqueID32, DNAMP2::CINF*>>& rp, bool shortNormals,
     bool shortUVs, std::vector<VertexAttributes>& vertAttribs, int meshIdx, atUint32 secCount, atUint32 matSetCount,
     const atUint32* secSizes, atUint32 surfaceCount);
@@ -1034,7 +1037,7 @@ ReadGeomSectionsToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet,
                           std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>,
                           DNACMDL::SurfaceHeader_3>(
     hecl::blender::PyOutStream& os, athena::io::IStreamReader& reader, PAKRouter<DNAMP3::PAKBridge>& pakRouter,
-    const typename PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
+    const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
     const std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>& rp, bool shortNormals,
     bool shortUVs, std::vector<VertexAttributes>& vertAttribs, int meshIdx, atUint32 secCount, atUint32 matSetCount,
     const atUint32* secSizes, atUint32 surfaceCount);

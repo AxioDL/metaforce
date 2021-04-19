@@ -4,7 +4,7 @@
 
 #include "Runtime/Weapon/CGunWeapon.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CIceBeam final : public CGunWeapon {
   TCachedToken<CGenDescription> x21c_iceSmoke;
@@ -33,4 +33,4 @@ public:
   bool IsLoaded() const override;
 };
 
-} // namespace urde
+} // namespace metaforce

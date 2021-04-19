@@ -1,5 +1,5 @@
 #include "Runtime/Collision/CMaterialFilter.hpp"
 
-namespace urde {
+namespace metaforce {
 const CMaterialFilter CMaterialFilter::skPassEverything({0x00000000FFFFFFFF}, {0}, EFilterType::Always);
-} // namespace urde
+} // namespace metaforce

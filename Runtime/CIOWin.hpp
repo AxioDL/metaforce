@@ -6,7 +6,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class CArchitectureMessage;
 class CArchitectureQueue;
 
@@ -28,4 +28,4 @@ public:
   size_t GetNameHash() const { return m_nameHash; }
 };
 
-} // namespace urde
+} // namespace metaforce

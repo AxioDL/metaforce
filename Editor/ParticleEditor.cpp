@@ -1,3 +1,3 @@
 #include "ParticleEditor.hpp"
 
-namespace urde {}
+namespace metaforce {}

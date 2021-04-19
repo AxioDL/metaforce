@@ -10,7 +10,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CActorList::CActorList() : CObjectList(EGameObjectList::Actor) {}
 
@@ -51,4 +51,4 @@ CGameLightList::CGameLightList() : CObjectList(EGameObjectList::GameLight) {}
 
 bool CGameLightList::IsQualified(const CEntity& lt) const { return TCastToConstPtr<CGameLight>(lt).IsValid(); }
 
-} // namespace urde
+} // namespace metaforce

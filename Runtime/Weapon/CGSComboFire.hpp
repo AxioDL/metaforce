@@ -2,7 +2,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimData;
 class CStateManager;
@@ -26,4 +26,4 @@ public:
   s32 SetAnim(CAnimData& data, s32 gunId, s32 loopState, CStateManager& mgr, float delay);
 };
 
-} // namespace urde
+} // namespace metaforce

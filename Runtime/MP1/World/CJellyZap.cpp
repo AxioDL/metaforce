@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 constexpr CMaterialFilter kPlayerFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Player});
 
 CJellyZap::CJellyZap(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -231,4 +231,4 @@ const CDamageVulnerability* CJellyZap::GetDamageVulnerability(const zeus::CVecto
                                                               const CDamageInfo& info) const {
   return CActor::GetDamageVulnerability(pos, dir, info);
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -8,7 +8,7 @@
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class IElement {
 public:
@@ -48,4 +48,4 @@ public:
   virtual bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const = 0;
 };
 
-} // namespace urde
+} // namespace metaforce

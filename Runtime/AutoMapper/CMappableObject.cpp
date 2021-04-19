@@ -7,7 +7,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
-namespace urde {
+namespace metaforce {
 std::array<CMapSurfaceShader::Vert, 8> CMappableObject::skDoorVerts{};
 
 constexpr std::array<u32, 24> DoorIndices{
@@ -262,4 +262,4 @@ void CMappableObject::Shutdown() {
   g_doorVbo.reset();
   g_doorIbo.reset();
 }
-} // namespace urde
+} // namespace metaforce

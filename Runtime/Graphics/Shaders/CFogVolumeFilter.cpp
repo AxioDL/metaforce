@@ -9,7 +9,7 @@
 
 #include "CFogVolumeFilter.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 template <bool TwoWay>
@@ -82,4 +82,4 @@ void CFogVolumeFilter::draw1WayPass(const zeus::CColor& color) {
   m_dataBind1Way.draw(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

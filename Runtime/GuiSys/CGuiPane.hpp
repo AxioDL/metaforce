@@ -9,7 +9,7 @@
 #include "zeus/CVector2f.hpp"
 #include "zeus/CVector3f.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CGuiPane : public CGuiWidget {
 protected:
@@ -34,4 +34,4 @@ public:
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 
-} // namespace urde
+} // namespace metaforce

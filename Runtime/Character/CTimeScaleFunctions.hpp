@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Character/CCharAnimTime.hpp"
 
-namespace urde {
+namespace metaforce {
 
 enum class EVaryingAnimationTimeScaleType { Constant, Linear };
 
@@ -55,4 +55,4 @@ public:
   std::unique_ptr<IVaryingAnimationTimeScale> VGetFunctionMirrored(float value) const override;
 };
 
-} // namespace urde
+} // namespace metaforce

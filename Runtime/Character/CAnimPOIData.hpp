@@ -9,7 +9,7 @@
 #include "Runtime/Character/CParticlePOINode.hpp"
 #include "Runtime/Character/CSoundPOINode.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimPOIData {
   u32 x0_version;
@@ -30,4 +30,4 @@ public:
 CFactoryFnReturn AnimPOIDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& parms,
                                     CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce

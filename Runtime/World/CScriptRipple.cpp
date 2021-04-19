@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptRipple::CScriptRipple(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& vec,
                              bool active, float f1)
@@ -37,4 +37,4 @@ void CScriptRipple::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
   }
 
 }
-} // namespace urde
+} // namespace metaforce

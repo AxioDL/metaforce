@@ -29,7 +29,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>
 
-namespace urde {
+namespace metaforce {
 struct CFinalInput;
 
 class CPlayerGun {
@@ -357,4 +357,4 @@ public:
   CAuxWeapon& GetAuxWeapon() const { return *x744_auxWeapon; }
 };
 
-} // namespace urde
+} // namespace metaforce

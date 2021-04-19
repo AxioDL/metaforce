@@ -10,7 +10,7 @@
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
 
-namespace urde {
+namespace metaforce {
 
 constexpr std::array BaseMenuNames{
     "BaseWidget_VisorMenu"sv,
@@ -317,4 +317,4 @@ void CHudVisorBeamMenu::SetSelection(int selection, int pending, float interp) {
   x10_interp = interp;
 }
 
-} // namespace urde
+} // namespace metaforce

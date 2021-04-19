@@ -1,10 +1,10 @@
 #pragma once
 
+#include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
-#include "Runtime/Particle/CElementGen.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 struct SShockWaveData {
 private:
   u32 x0_ = 8;
@@ -31,6 +31,7 @@ public:
   [[nodiscard]] float GetWidthPercent() const { return x28_widthPercent; }
   [[nodiscard]] float GetInitialExpansionSpeed() const { return x2c_initialExpansionSpeed; }
   [[nodiscard]] float GetSpeedIncrease() const { return x30_speedIncrease; }
+  void SetSpeedIncrease(float speed) { x30_speedIncrease = speed; }
   [[nodiscard]] CAssetId GetWeaponDescId() const { return x34_weaponDesc; }
   [[nodiscard]] u16 GetElectrocuteSfx() const { return x38_electrocuteSfx; }
 };
@@ -70,4 +71,4 @@ public:
 private:
   [[nodiscard]] bool IsHit(TUniqueId id) const;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

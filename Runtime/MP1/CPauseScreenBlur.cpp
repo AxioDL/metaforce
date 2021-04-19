@@ -4,7 +4,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CPauseScreenBlur::CPauseScreenBlur() : x4_mapLightQuarter(g_SimplePool->GetObj("TXTR_MapLightQuarter")) {}
 
@@ -99,4 +99,4 @@ void CPauseScreenBlur::Draw(const CStateManager&) {
   }
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

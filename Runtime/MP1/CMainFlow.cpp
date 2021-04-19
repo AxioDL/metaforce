@@ -16,7 +16,7 @@
 #include "Runtime/MP1/CStateSetterFlow.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 void CMainFlow::AdvanceGameState(CArchitectureQueue& queue) {
   switch (x14_gameState) {
@@ -100,4 +100,4 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
   }
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

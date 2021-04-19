@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
 
-namespace urde {
+namespace metaforce {
 class CGuiFrame;
 class CGuiModel;
 class CGuiTextPane;
@@ -56,4 +56,4 @@ public:
   void SetSelection(int selection, int pending, float interp);
 };
 
-} // namespace urde
+} // namespace metaforce

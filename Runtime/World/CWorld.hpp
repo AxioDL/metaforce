@@ -15,7 +15,7 @@
 #include "Runtime/World/CGameArea.hpp"
 #include "Runtime/World/ScriptObjectSupport.hpp"
 
-namespace urde {
+namespace metaforce {
 class CGameArea;
 class CResFactory;
 class IGameArea;
@@ -225,4 +225,4 @@ struct CWorldLayers {
   static void ReadWorldLayers(athena::io::MemoryReader& r, int version, CAssetId mlvlId);
 };
 
-} // namespace urde
+} // namespace metaforce

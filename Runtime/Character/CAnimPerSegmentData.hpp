@@ -3,7 +3,7 @@
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 struct CAnimPerSegmentData {
   zeus::CQuaternion x0_rotation;
@@ -11,4 +11,4 @@ struct CAnimPerSegmentData {
   bool x1c_hasOffset = false;
 };
 
-} // namespace urde
+} // namespace metaforce

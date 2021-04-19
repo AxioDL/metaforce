@@ -7,7 +7,7 @@
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CScriptSpiderBallAttractionSurface : public CActor {
   zeus::CVector3f xe8_scale;
@@ -24,4 +24,4 @@ public:
   const zeus::CVector3f& GetScale() const { return xe8_scale; }
 };
 
-} // namespace urde
+} // namespace metaforce

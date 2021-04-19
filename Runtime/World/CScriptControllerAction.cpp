@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptControllerAction::CScriptControllerAction(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                  bool active, ControlMapper::ECommands command, bool mapScreenResponse,
@@ -40,4 +40,4 @@ void CScriptControllerAction::Think(float, CStateManager& stateMgr) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

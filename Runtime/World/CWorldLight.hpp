@@ -3,7 +3,7 @@
 #include "Runtime/Graphics/CLight.hpp"
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CWorldLight {
 public:
   enum class EWorldLightType {
@@ -45,4 +45,4 @@ public:
   CLight GetAsCGraphicsLight() const;
 };
 
-} // namespace urde
+} // namespace metaforce

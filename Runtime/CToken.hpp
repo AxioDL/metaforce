@@ -8,7 +8,7 @@
 #include "Runtime/IVParamObj.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class IObjectStore;
 
 /** Shared data-structure for CToken references, analogous to std::shared_ptr */
@@ -185,4 +185,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

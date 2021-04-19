@@ -19,7 +19,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::array<SJointInfo, 3> skLeftArmJointList{{
     {"L_shoulder", "L_elbow", 1.f, 1.5f},
@@ -1213,4 +1213,4 @@ void CElitePirate::SPositionHistory::AddValue(const zeus::CVector3f& pos) {
     x4_values.emplace_back(pos);
   }
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

@@ -15,7 +15,7 @@
 
 #include <array>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 namespace {
 constexpr std::array<SSphereJointInfo, 5> skSpineJoints{{
@@ -676,4 +676,4 @@ TUniqueId CMagdolite::FindSuitableTarget(CStateManager& mgr, EScriptObjectState 
   return tmpId;
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

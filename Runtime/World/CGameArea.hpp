@@ -15,7 +15,7 @@
 #include "Runtime/World/CPathFindArea.hpp"
 #include "Runtime/World/CWorldLight.hpp"
 #include "Runtime/World/IGameArea.hpp"
-
+#include "Runtime/Character/CModelData.hpp"
 #include <hecl/ClientProcess.hpp>
 
 #include <zeus/CAABox.hpp>
@@ -23,7 +23,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector2f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class CScriptAreaAttributes;
 struct SMREAHeader {
@@ -47,7 +47,7 @@ class CDummyGameArea final : public IGameArea {
   int x4_mlvlVersion;
   CAssetId x8_nameSTRG;
   CAssetId xc_mrea;
-  TAreaId x10_areaId;
+  s32 x10_areaId;
   zeus::CTransform x14_transform;
   std::vector<u16> x44_attachedAreaIndices;
   std::vector<Dock> x54_docks;
@@ -56,7 +56,7 @@ public:
   CDummyGameArea(CInputStream& in, int idx, int mlvlVersion);
 
   std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const override;
-  TAreaId IGetAreaId() const override;
+  s32 IGetAreaSaveId() const override;
   CAssetId IGetAreaAssetId() const override;
   bool IIsActive() const override;
   TAreaId IGetAttachedAreaId(int) const override;
@@ -268,6 +268,10 @@ private:
   void UpdateThermalVisor(float dt);
   void UpdateWeaponWorldLighting(float dt);
 
+  std::optional<CStaticRes> m_debugSphereRes;
+  std::unique_ptr<CModelData> m_debugSphereModel;
+  std::optional<CStaticRes> m_debugConeRes;
+  std::unique_ptr<CModelData> m_debugConeModel;
 public:
   explicit CGameArea(CInputStream& in, int idx, int mlvlVersion);
   explicit CGameArea(CAssetId mreaId); // Warmup constructor
@@ -279,7 +283,7 @@ public:
 
   std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const override;
   TAreaId GetAreaId() const { return x4_selfIdx; }
-  TAreaId IGetAreaId() const override { return x4_selfIdx; }
+  s32 IGetAreaSaveId() const override { return x88_areaId; }
   CAssetId IGetAreaAssetId() const override { return x84_mrea; }
   bool IIsActive() const override;
   TAreaId IGetAttachedAreaId(int) const override;
@@ -362,8 +366,8 @@ public:
   CGameArea* GetNext() const { return x130_next; }
 
   static void WarmupShaders(const SObjectTag& mreaTag);
-
-  s32 GetAreaSaveId() const { return x88_areaId; }
+  void DebugDraw();
+  void DebugDrawLight(const CLight& light);
 };
 
-} // namespace urde
+} // namespace metaforce

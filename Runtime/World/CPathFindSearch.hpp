@@ -9,7 +9,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CPathFindSearch;
 
 class CPathFindVisualizer {
@@ -64,4 +64,4 @@ public:
   void DebugDraw();
 };
 
-} // namespace urde
+} // namespace metaforce

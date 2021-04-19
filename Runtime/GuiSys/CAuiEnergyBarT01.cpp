@@ -4,7 +4,7 @@
 #include "Runtime/GuiSys/CGuiSys.hpp"
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CAuiEnergyBarT01::CAuiEnergyBarT01(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId txtrId)
 : CGuiWidget(parms), xb8_txtrId(txtrId) {
@@ -149,4 +149,4 @@ std::shared_ptr<CGuiWidget> CAuiEnergyBarT01::Create(CGuiFrame* frame, CInputStr
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

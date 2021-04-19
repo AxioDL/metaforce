@@ -8,7 +8,7 @@
 
 #include <zeus/Math.hpp>
 
-namespace urde {
+namespace metaforce {
 
 /// GX global state
 ERglEnum gx_DepthTest;
@@ -53,6 +53,9 @@ SViewport g_Viewport = {
     0, 0, 640, 480, 640 / 2.f, 480 / 2.f, 0.0f,
 };
 u32 CGraphics::g_FrameCounter = 0;
+u32 CGraphics::g_Framerate = 0;
+u32 CGraphics::g_FramesPast = 0;
+frame_clock::time_point CGraphics::g_FrameStartTime = frame_clock::now();
 
 const std::array<zeus::CMatrix3f, 6> CGraphics::skCubeBasisMats{{
     /* Right */
@@ -159,6 +162,8 @@ void CGraphics::EndScene() {
   g_LastFrameUsedAbove = g_InterruptLastFrameUsedAbove;
 
   ++g_FrameCounter;
+
+  UpdateFPSCounter();
 }
 
 void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1) {}
@@ -411,8 +416,21 @@ float CGraphics::GetSecondsMod900() {
 }
 
 void CGraphics::TickRenderTimings() {
+  OPTICK_EVENT();
   g_RenderTimings = (g_RenderTimings + 1) % u32(900 * 60);
   g_DefaultSeconds = g_RenderTimings / 60.f;
+}
+
+static constexpr u64 FPS_REFRESH_RATE = 1000;
+void CGraphics::UpdateFPSCounter() {
+  ++g_FramesPast;
+
+  std::chrono::duration<double, std::milli> timeElapsed = frame_clock::now() - g_FrameStartTime;
+  if (timeElapsed.count() > FPS_REFRESH_RATE) {
+      g_Framerate = g_FramesPast;
+      g_FrameStartTime = frame_clock::now();
+      g_FramesPast = 0;
+  }
 }
 
 boo::IGraphicsDataFactory::Platform CGraphics::g_BooPlatform = boo::IGraphicsDataFactory::Platform::Null;
@@ -464,4 +482,4 @@ const CTevCombiners::CTevPass CGraphics::sTevPass805a6038(
 const CTevCombiners::CTevPass CGraphics::sTevPass805a6084(
     {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_CPREV, GX::TevColorArg::CC_APREV, GX::TevColorArg::CC_ZERO},
     {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_APREV});
-} // namespace urde
+} // namespace metaforce

@@ -19,7 +19,7 @@
 
 #include <zeus/CColor.hpp>
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::array<SBurst, 6> skBurstsFlying{{
     {4, {3, 4, 11, 12, -1, 0, 0, 0}, 0.1f, 0.05f},
@@ -322,7 +322,7 @@ CFlyingPirate::CFlyingPirate(TUniqueId uid, std::string_view name, const CEntity
   x864_missileSegments.push_back(animData->GetLocatorSegId("L_Missile_LCTR"sv));
   x864_missileSegments.push_back(animData->GetLocatorSegId("R_Missile_LCTR"sv));
   x850_height = modelData->GetScale().x() *
-                GetAnimationDistance(CPASAnimParmData{3, CPASAnimParm::FromEnum(3), CPASAnimParm::FromEnum(1)});
+                GetAnimationDistance(CPASAnimParmData{pas::EAnimationState::Step, CPASAnimParm::FromEnum(3), CPASAnimParm::FromEnum(1)});
   if (x568_data.xd8_particleGen1.IsValid() && x568_data.xdc_particleGen2.IsValid() &&
       x568_data.xe0_particleGen3.IsValid()) {
     x65c_particleGenDescs.push_back(g_SimplePool->GetObj({SBIG('PART'), x568_data.xd8_particleGen1}));
@@ -747,7 +747,7 @@ void CFlyingPirate::FireProjectile(CStateManager& mgr, float dt) {
   }
   if (projectileFired) {
     const std::pair<float, s32> anim = x450_bodyController->GetPASDatabase().FindBestAnimation(
-        CPASAnimParmData{24, CPASAnimParm::FromEnum(2)}, *mgr.GetActiveRandom(), -1);
+        CPASAnimParmData{pas::EAnimationState::AdditiveReaction, CPASAnimParm::FromEnum(2)}, *mgr.GetActiveRandom(), -1);
     if (anim.first > 0.f) {
       GetModelData()->GetAnimationData()->AddAdditiveAnimation(anim.second, 1.f, false, true);
     }
@@ -1705,4 +1705,4 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
   }
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

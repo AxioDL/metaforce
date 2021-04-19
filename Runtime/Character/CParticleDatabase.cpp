@@ -8,7 +8,7 @@
 #include "Runtime/Particle/CParticleElectric.hpp"
 #include "Runtime/Particle/CParticleSwoosh.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CParticleDatabase::CParticleDatabase() = default;
 
@@ -448,4 +448,4 @@ void CParticleDatabase::InsertParticleGen(bool oneShot, int flags, std::string_v
   }
 }
 
-} // namespace urde
+} // namespace metaforce

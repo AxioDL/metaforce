@@ -9,7 +9,7 @@
 
 #include <zeus/CEulerAngles.hpp>
 
-namespace urde {
+namespace metaforce {
 
 COrbitPointMarker::COrbitPointMarker() {
   x0_zOffset = g_tweakTargeting->GetOrbitPointZOffset();
@@ -95,4 +95,4 @@ void COrbitPointMarker::Draw(const CStateManager& mgr) const {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

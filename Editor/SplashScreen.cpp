@@ -2,7 +2,7 @@
 #include "version.h"
 #include "badging/Badging.hpp"
 
-namespace urde {
+namespace metaforce {
 
 #define SPLASH_WIDTH 555
 #define SPLASH_HEIGHT 300
@@ -33,19 +33,13 @@ SplashScreen::SplashScreen(ViewManager& vm, specter::ViewResources& res)
 , m_newProjBind(*this)
 , m_openProjBind(*this)
 , m_extractProjBind(*this) {
-  if (GIT_COMMIT_DATE[0] != '\0' && GIT_COMMIT_HASH[0] != '\0' && GIT_BRANCH[0] != '\0') {
-#ifdef URDE_DLPACKAGE
-    if ((URDE_DLPACKAGE)[0])
-      m_buildInfoStr = fmt::format(FMT_STRING("{}: {}\n{}: {}\n{}: {}"), vm.translate<locale::release>(),
-                                   URDE_DLPACKAGE, vm.translate<locale::commit>(), GIT_COMMIT_HASH,
-                                   vm.translate<locale::date>(), GIT_COMMIT_DATE);
-    else
-#endif
-      m_buildInfoStr = fmt::format(FMT_STRING("{}: {}\n{}: {}\n{}: {}"), vm.translate<locale::branch>(), GIT_BRANCH,
-                                   vm.translate<locale::commit>(), GIT_COMMIT_HASH,
-                                   vm.translate<locale::date>(), GIT_COMMIT_DATE);
+  if (METAFORCE_WC_DATE[0] != '\0' && METAFORCE_WC_REVISION[0] != '\0' && METAFORCE_WC_BRANCH[0] != '\0') {
+    m_buildInfoStr = fmt::format(FMT_STRING("{}: {}\n{}: {}\n{}: {}"),
+                                 vm.translate<locale::version>(), METAFORCE_WC_DESCRIBE,
+                                 vm.translate<locale::branch>(), METAFORCE_WC_BRANCH,
+                                 vm.translate<locale::commit>(), METAFORCE_WC_REVISION/*,
+                                 vm.translate<locale::date>(), METAFORCE_WC_DATE*/);
   }
-
   m_openProjBind.m_openRecentMenuRoot.m_text = vm.translate<locale::recent_projects>();
   m_textColorClear[3] = 0.0;
 }
@@ -56,6 +50,7 @@ void SplashScreen::think() {
       m_fileBrowser.m_view.reset();
     return;
   }
+  OPTICK_EVENT();
 
   ModalWindow::think();
   if (m_fileBrowser.m_view)
@@ -274,4 +269,4 @@ void SplashScreen::draw(boo::IGraphicsCommandQueue* gfxQ) {
     m_fileBrowser.m_view->draw(gfxQ);
 }
 
-} // namespace urde
+} // namespace metaforce

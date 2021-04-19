@@ -3,7 +3,7 @@
 
 #include "CNESShader.cpp.hshhead"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 using namespace hsh::pipeline;
 
@@ -19,4 +19,4 @@ void CNESShader::BuildShaderDataBinding(hsh::binding& binding, hsh::vertex_buffe
   binding.hsh_bind(NESPipeline(vbo, uniBuf, tex));
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

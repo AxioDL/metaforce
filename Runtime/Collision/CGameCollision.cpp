@@ -17,7 +17,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 static float CollisionImpulseFiniteVsInfinite(float mass, float velNormDot, float restitution) {
   return mass * -(1.f + restitution) * velNormDot;
@@ -682,6 +682,23 @@ bool CGameCollision::DetectDynamicCollisionMoving(const CCollisionPrimitive& pri
   return ret;
 }
 
+bool CGameCollision::DetectCollision(const CStateManager& mgr, const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                     const CMaterialFilter& filter, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                     TUniqueId& idOut, CCollisionInfoList& infoOut) {
+  bool ret = false;
+  CMaterialList exclude = filter.ExcludeList();
+  if (!exclude.HasMaterial(EMaterialTypes::Occluder) && DetectStaticCollision(mgr, prim, xf, filter, infoOut)) {
+      ret = true;
+  }
+
+  TUniqueId tmpId = kInvalidUniqueId;
+  if (DetectDynamicCollision(prim, xf, nearList, tmpId, infoOut, mgr)) {
+    ret = true;
+    idOut = tmpId;
+  }
+  return ret;
+}
+
 void CGameCollision::MakeCollisionCallbacks(CStateManager& mgr, CPhysicsActor& actor, TUniqueId id,
                                             const CCollisionInfoList& list) {
   actor.CollidedWith(id, list, mgr);
@@ -1017,4 +1034,4 @@ void CGameCollision::AvoidStaticCollisionWithinRadius(const CStateManager& mgr, 
     actor.SetVelocityWR(actor.GetVelocity() + (dt * (mass * velocity)));
   }
 }
-} // namespace urde
+} // namespace metaforce

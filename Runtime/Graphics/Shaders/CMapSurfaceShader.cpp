@@ -4,7 +4,7 @@
 
 #include "CMapSurfaceShader.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 struct CMapSurfaceShaderPipeline : pipeline<topology<hsh::TriangleStrip>, BlendAttachment<>, depth_compare<hsh::GEqual>,
@@ -29,4 +29,4 @@ void CMapSurfaceShader::draw(const zeus::CColor& color, u32 start, u32 count) {
   m_dataBind.draw_indexed(start, count);
 }
 
-} // namespace urde
+} // namespace metaforce

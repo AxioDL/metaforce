@@ -8,7 +8,7 @@
 
 #include "CRandomStaticFilter.cpp.hshhead"
 
-namespace urde {
+namespace metaforce {
 using namespace hsh::pipeline;
 
 template <EFilterType Type, bool CookieCutter>
@@ -94,4 +94,4 @@ void CRandomStaticFilter::draw(const zeus::CColor& color, float t) {
   m_dataBind.draw(0, 4);
 }
 
-} // namespace urde
+} // namespace metaforce

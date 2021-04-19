@@ -4,7 +4,7 @@
 
 #include "boo2/boo2.hpp"
 
-namespace urde {
+namespace metaforce {
 struct CFinalInput;
 
 class ControlMapper {
@@ -136,4 +136,4 @@ constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionL
   return ControlMapper::EKBMFunctionList(static_cast<T>(a) + static_cast<T>(b));
 }
 
-} // namespace urde
+} // namespace metaforce

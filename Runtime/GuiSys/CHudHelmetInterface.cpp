@@ -5,7 +5,7 @@
 #include "Runtime/GuiSys/CGuiCamera.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CHudHelmetInterface::CHudHelmetInterface(CGuiFrame& helmetFrame) {
   x40_camera = helmetFrame.GetFrameCamera();
@@ -60,4 +60,4 @@ void CHudHelmetInterface::SetIsVisibleDebug(bool helmet, bool glow) {
   UpdateVisibility();
 }
 
-} // namespace urde
+} // namespace metaforce

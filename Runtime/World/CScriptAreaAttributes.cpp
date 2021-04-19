@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptAreaAttributes::CScriptAreaAttributes(TUniqueId uid, const CEntityInfo& info, bool showSkybox, EEnvFxType fxType,
                                              float envFxDensity, float thermalHeat, float xrayFogDistance,
@@ -44,4 +44,4 @@ void CScriptAreaAttributes::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
   }
 }
 
-} // namespace urde
+} // namespace metaforce

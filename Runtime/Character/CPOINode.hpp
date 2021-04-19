@@ -6,7 +6,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/Character/CCharAnimTime.hpp"
 
-namespace urde {
+namespace metaforce {
 class IAnimSourceInfo;
 
 enum class EPOIType : u16 {
@@ -61,4 +61,4 @@ template <class T>
 size_t _getPOIList(const CCharAnimTime& time, T* listOut, size_t capacity, size_t iterator, u32 unk1,
                    const std::vector<T>& stream, const CCharAnimTime& curTime);
 
-} // namespace urde
+} // namespace metaforce

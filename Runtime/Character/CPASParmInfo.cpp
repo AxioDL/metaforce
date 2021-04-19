@@ -1,6 +1,6 @@
 #include "Runtime/Character/CPASParmInfo.hpp"
 
-namespace urde {
+namespace metaforce {
 
 CPASParmInfo::CPASParmInfo(CInputStream& in) {
   xc_min.m_int = 0;
@@ -35,4 +35,4 @@ CPASParmInfo::CPASParmInfo(CInputStream& in) {
   }
 }
 
-} // namespace urde
+} // namespace metaforce

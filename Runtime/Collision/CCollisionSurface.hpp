@@ -7,7 +7,7 @@
 #include <zeus/CPlane.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CCollisionSurface {
 public:
   using Vertices = std::array<zeus::CVector3f, 3>;
@@ -25,4 +25,4 @@ public:
   zeus::CPlane GetPlane() const;
   u32 GetSurfaceFlags() const { return x24_flags; }
 };
-} // namespace urde
+} // namespace metaforce

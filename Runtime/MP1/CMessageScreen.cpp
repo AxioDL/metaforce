@@ -9,7 +9,7 @@
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CMessageScreen::CMessageScreen(CAssetId msg, float delayTime) : x74_delayTime(delayTime) {
   x0_msg = g_SimplePool->GetObj({FOURCC('STRG'), msg});
@@ -132,4 +132,4 @@ void CMessageScreen::Draw() const {
   x18_loadedMsgScreen->Draw(CGuiWidgetDrawParms(x70_blurAmt, zeus::skZero3f));
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

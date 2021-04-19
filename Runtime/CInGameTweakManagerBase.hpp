@@ -6,7 +6,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CTweakValue {
 public:
@@ -73,4 +73,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce

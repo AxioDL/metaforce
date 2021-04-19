@@ -9,7 +9,7 @@
 #include "Runtime/AutoMapper/CMapWorldInfo.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-namespace urde {
+namespace metaforce {
 namespace {
 struct Support {
   int x0_;
@@ -698,4 +698,4 @@ CFactoryFnReturn FMapWorldFactory(const SObjectTag& tag, CInputStream& in, const
   return TToken<CMapWorld>::GetIObjObjectFor(std::make_unique<CMapWorld>(in));
 }
 
-} // namespace urde
+} // namespace metaforce

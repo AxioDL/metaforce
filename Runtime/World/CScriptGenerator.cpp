@@ -5,7 +5,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde {
+namespace metaforce {
 
 CScriptGenerator::CScriptGenerator(TUniqueId uid, std::string_view name, const CEntityInfo& info, u32 spawnCount,
                                    bool noReuseFollowers, const zeus::CVector3f& vec1, bool noInheritXf, bool active,
@@ -139,4 +139,4 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sende
 
   CEntity::AcceptScriptMsg(msg, sender, stateMgr);
 }
-} // namespace urde
+} // namespace metaforce

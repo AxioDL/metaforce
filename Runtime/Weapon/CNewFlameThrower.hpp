@@ -11,7 +11,7 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
 
-namespace urde {
+namespace metaforce {
 class CCollisionPrimitive;
 class CCollisionInfoList;
 class CCollisionInfo;
@@ -116,4 +116,4 @@ public:
   void AddToRenderer(zeus::CFrustum const& planes, CStateManager& mgr) override;
 };
 
-} // namespace urde
+} // namespace metaforce

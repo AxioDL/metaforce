@@ -4,7 +4,7 @@
 
 #include "Runtime/CToken.hpp"
 
-namespace urde {
+namespace metaforce {
 class CTexture;
 
 enum class EFilterShape;
@@ -43,4 +43,4 @@ public:
   : CCookieCutterDepthRandomStaticFilter(type) {}
 };
 
-} // namespace urde
+} // namespace metaforce

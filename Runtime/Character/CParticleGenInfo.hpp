@@ -9,7 +9,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CParticleGen;
 class CStateManager;
 struct SObjectTag;
@@ -108,4 +108,4 @@ public:
   void SetModulationColor(const zeus::CColor& color) override;
   const std::shared_ptr<CParticleGen>& GetParticleSystem() const { return x84_system; }
 };
-} // namespace urde
+} // namespace metaforce

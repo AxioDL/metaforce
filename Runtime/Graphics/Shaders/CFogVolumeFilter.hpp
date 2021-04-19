@@ -6,7 +6,7 @@ namespace zeus {
 class CColor;
 } // namespace zeus
 
-namespace urde {
+namespace metaforce {
 
 class CFogVolumeFilter {
 public:
@@ -30,4 +30,4 @@ public:
   void draw1WayPass(const zeus::CColor& color);
 };
 
-} // namespace urde
+} // namespace metaforce

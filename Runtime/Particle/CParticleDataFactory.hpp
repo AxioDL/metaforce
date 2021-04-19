@@ -10,7 +10,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 
-namespace urde {
+namespace metaforce {
 class CColorElement;
 class CElectricDescription;
 class CEmitterElement;
@@ -99,7 +99,7 @@ public:
 CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                   CObjectReference* selfRef);
 
-} // namespace urde
+} // namespace metaforce
 
 // FIXME hacky workaround for MSVC; these need to be complete types
 // but introduce circular dependencies if included at the start

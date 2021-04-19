@@ -5,7 +5,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CEnergyDrainSource.hpp"
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 class CPlayerEnergyDrain {
   std::vector<CEnergyDrainSource> x0_sources;
@@ -20,4 +20,4 @@ public:
   float GetEnergyDrainTime() const { return x10_energyDrainTime; }
   void ProcessEnergyDrain(const CStateManager&, float);
 };
-} // namespace urde
+} // namespace metaforce

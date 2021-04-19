@@ -18,15 +18,15 @@
 #include <zeus/COBBox.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CBoneTracking;
 class CCollisionActorManager;
 class CDependencyGroup;
 class CElementGen;
 class CGenDescription;
-} // namespace urde
+} // namespace metaforce
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 class CFlaahgraData {
   friend class CFlaahgra;
   float x0_;
@@ -242,4 +242,4 @@ public:
   void SpecialAttack(CStateManager&, EStateMsg, float) override;
   void Enraged(CStateManager&, EStateMsg, float) override;
 };
-} // namespace urde::MP1
+} // namespace metaforce::MP1

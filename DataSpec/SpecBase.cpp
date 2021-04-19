@@ -8,7 +8,7 @@
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DataSpec/DNACommon/TXTR.hpp"
 #include "DataSpec/AssetNameMap.hpp"
-#include "DataSpec/DNACommon/URDEVersionInfo.hpp"
+#include "DataSpec/DNACommon/MetaforceVersionInfo.hpp"
 #include "hecl/ClientProcess.hpp"
 #include "nod/DiscBase.hpp"
 #include "nod/nod.hpp"
@@ -22,7 +22,7 @@
 
 namespace DataSpec {
 
-static logvisor::Module Log("urde::SpecBase");
+static logvisor::Module Log("DataSpec::SpecBase");
 
 static const hecl::SystemChar* MomErr[] = {_SYS_STR("Your metroid is in another castle"),
                                            _SYS_STR("HECL is experiencing a PTSD attack"),
@@ -441,8 +441,8 @@ bool SpecBase::canPackage(const hecl::ProjectPath& path) {
   return path.isFile() || path.isDirectory();
 }
 
-void SpecBase::recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut,
-                                          std::unordered_set<urde::SObjectTag>& addedTags,
+void SpecBase::recursiveBuildResourceList(std::vector<metaforce::SObjectTag>& listOut,
+                                          std::unordered_set<metaforce::SObjectTag>& addedTags,
                                           const hecl::ProjectPath& path, hecl::blender::Token& btok) {
   hecl::DirectoryEnumerator dEnum(path.getAbsolutePath(), hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted, false,
                                   false, true);
@@ -452,7 +452,7 @@ void SpecBase::recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut
       if (hecl::ProjectPath(childPath, _SYS_STR("!project.yaml")).isFile() &&
           hecl::ProjectPath(childPath, _SYS_STR("!pool.yaml")).isFile()) {
         /* Handle AudioGroup case */
-        if (urde::SObjectTag tag = tagFromPath(childPath)) {
+        if (metaforce::SObjectTag tag = tagFromPath(childPath)) {
           if (addedTags.find(tag) != addedTags.end())
             continue;
           addedTags.insert(tag);
@@ -466,7 +466,7 @@ void SpecBase::recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut
       std::vector<hecl::ProjectPath> subPaths;
       flattenDependencies(childPath, subPaths, btok);
       for (const auto& subPath : subPaths) {
-        if (urde::SObjectTag tag = tagFromPath(subPath)) {
+        if (metaforce::SObjectTag tag = tagFromPath(subPath)) {
           if (addedTags.find(tag) != addedTags.end())
             continue;
           addedTags.insert(tag);
@@ -478,10 +478,10 @@ void SpecBase::recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut
 }
 
 void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& fileIndex,
-                                 const std::vector<urde::SObjectTag>& buildList,
+                                 const std::vector<metaforce::SObjectTag>& buildList,
                                  const hecl::Database::DataSpecEntry* entry, bool fast,
                                  const hecl::MultiProgressPrinter& progress, athena::io::FileWriter& pakOut,
-                                 const std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData) {
+                                 const std::unordered_map<metaforce::CAssetId, std::vector<uint8_t>>& mlvlData) {
   fileIndex.reserve(buildList.size());
   int loadIdx = 0;
   for (const auto& tag : buildList) {
@@ -564,9 +564,9 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
 
   /* Output file */
   athena::io::FileWriter pakOut(outPath.getAbsolutePath());
-  std::vector<urde::SObjectTag> buildList;
+  std::vector<metaforce::SObjectTag> buildList;
   atUint64 resTableOffset = 0;
-  std::unordered_map<urde::CAssetId, std::vector<uint8_t>> mlvlData;
+  std::unordered_map<metaforce::CAssetId, std::vector<uint8_t>> mlvlData;
 
   if (IsWorldBlend(path)) /* World PAK */
   {
@@ -583,9 +583,9 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
   } else if (path.getPathType() == hecl::ProjectPath::Type::Directory) /* General PAK */
   {
     /* Build resource list */
-    std::unordered_set<urde::SObjectTag> addedTags;
+    std::unordered_set<metaforce::SObjectTag> addedTags;
     recursiveBuildResourceList(buildList, addedTags, path, btok);
-    std::vector<std::pair<urde::SObjectTag, std::string>> nameList;
+    std::vector<std::pair<metaforce::SObjectTag, std::string>> nameList;
 
     /* Build name list */
     for (const auto& item : buildList) {
@@ -605,10 +605,10 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     /* Build resource list */
     std::vector<hecl::ProjectPath> subPaths;
     flattenDependencies(path, subPaths, btok);
-    std::unordered_set<urde::SObjectTag> addedTags;
-    std::vector<std::pair<urde::SObjectTag, std::string>> nameList;
+    std::unordered_set<metaforce::SObjectTag> addedTags;
+    std::vector<std::pair<metaforce::SObjectTag, std::string>> nameList;
     for (const auto& subPath : subPaths) {
-      if (urde::SObjectTag tag = tagFromPath(subPath)) {
+      if (metaforce::SObjectTag tag = tagFromPath(subPath)) {
         if (addedTags.find(tag) != addedTags.end())
           continue;
         addedTags.insert(tag);
@@ -635,12 +635,12 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
   if (cp) {
     Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Validating resources")));
     progress.setMainIndeterminate(true);
-    std::vector<urde::SObjectTag> cookTags;
+    std::vector<metaforce::SObjectTag> cookTags;
     cookTags.reserve(buildList.size());
 
     /* Ensure CMDLs are enqueued first to minimize synchronous dependency cooking */
     for (int i = 0; i < 2; ++i) {
-      std::unordered_set<urde::SObjectTag> addedTags;
+      std::unordered_set<metaforce::SObjectTag> addedTags;
       addedTags.reserve(buildList.size());
       for (auto& tag : buildList) {
         if ((i == 0 && tag.type == FOURCC('CMDL')) || (i == 1 && tag.type != FOURCC('CMDL'))) {
@@ -732,7 +732,7 @@ void SpecBase::extractRandomStaticEntropy(const uint8_t* buf, const hecl::Projec
   png_infop info = png_create_info_struct(png);
 
   png_text textStruct = {};
-  textStruct.key = png_charp("urde_nomip");
+  textStruct.key = png_charp("meta_nomip");
   png_set_text(png, info, &textStruct, 1);
 
   png_set_IHDR(png, info, 1024, 512, 8, PNG_COLOR_TYPE_GRAY_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
@@ -761,7 +761,7 @@ void SpecBase::clearTagCache() {
   m_catalogTagToNames.clear();
 }
 
-hecl::ProjectPath SpecBase::pathFromTag(const urde::SObjectTag& tag) const {
+hecl::ProjectPath SpecBase::pathFromTag(const metaforce::SObjectTag& tag) const {
   std::unique_lock lk(m_backgroundIndexMutex);
   auto search = m_tagToPath.find(tag);
   if (search != m_tagToPath.cend())
@@ -769,14 +769,14 @@ hecl::ProjectPath SpecBase::pathFromTag(const urde::SObjectTag& tag) const {
   return {};
 }
 
-urde::SObjectTag SpecBase::tagFromPath(const hecl::ProjectPath& path) const {
+metaforce::SObjectTag SpecBase::tagFromPath(const hecl::ProjectPath& path) const {
   auto search = m_pathToTag.find(path.hash());
   if (search != m_pathToTag.cend())
     return search->second;
   return buildTagFromPath(path);
 }
 
-bool SpecBase::waitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut) {
+bool SpecBase::waitForTagReady(const metaforce::SObjectTag& tag, const hecl::ProjectPath*& pathOut) {
   std::unique_lock lk(m_backgroundIndexMutex);
   auto search = m_tagToPath.find(tag);
   if (search == m_tagToPath.end()) {
@@ -799,7 +799,7 @@ bool SpecBase::waitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectP
   return true;
 }
 
-const urde::SObjectTag* SpecBase::getResourceIdByName(std::string_view name) const {
+const metaforce::SObjectTag* SpecBase::getResourceIdByName(std::string_view name) const {
   std::string lower(name);
   std::transform(lower.cbegin(), lower.cend(), lower.begin(), tolower);
 
@@ -823,12 +823,12 @@ const urde::SObjectTag* SpecBase::getResourceIdByName(std::string_view name) con
   return &search->second;
 }
 
-FourCC SpecBase::getResourceTypeById(urde::CAssetId id) const {
+FourCC SpecBase::getResourceTypeById(metaforce::CAssetId id) const {
   if (!id.IsValid())
     return {};
 
   std::unique_lock lk(m_backgroundIndexMutex);
-  urde::SObjectTag searchTag = {FourCC(), id};
+  metaforce::SObjectTag searchTag = {FourCC(), id};
   auto search = m_tagToPath.find(searchTag);
   if (search == m_tagToPath.end()) {
     if (m_backgroundRunning) {
@@ -849,7 +849,7 @@ FourCC SpecBase::getResourceTypeById(urde::CAssetId id) const {
   return search->first.type;
 }
 
-void SpecBase::enumerateResources(const std::function<bool(const urde::SObjectTag&)>& lambda) const {
+void SpecBase::enumerateResources(const std::function<bool(const metaforce::SObjectTag&)>& lambda) const {
   waitForIndexComplete();
   for (const auto& pair : m_tagToPath) {
     if (!lambda(pair.first))
@@ -858,7 +858,7 @@ void SpecBase::enumerateResources(const std::function<bool(const urde::SObjectTa
 }
 
 void SpecBase::enumerateNamedResources(
-    const std::function<bool(std::string_view, const urde::SObjectTag&)>& lambda) const {
+    const std::function<bool(std::string_view, const metaforce::SObjectTag&)>& lambda) const {
   waitForIndexComplete();
   for (const auto& pair : m_catalogNameToTag) {
     if (!lambda(pair.first, pair.second))
@@ -866,7 +866,7 @@ void SpecBase::enumerateNamedResources(
   }
 }
 
-static void WriteTag(athena::io::YAMLDocWriter& cacheWriter, const urde::SObjectTag& pathTag,
+static void WriteTag(athena::io::YAMLDocWriter& cacheWriter, const metaforce::SObjectTag& pathTag,
                      const hecl::ProjectPath& path) {
   auto key = fmt::format(FMT_STRING("{}"), pathTag.id);
   if (auto* existing = cacheWriter.getCurNode()->findMapChild(key)) {
@@ -877,7 +877,7 @@ static void WriteTag(athena::io::YAMLDocWriter& cacheWriter, const urde::SObject
   }
 }
 
-static void WriteNameTag(athena::io::YAMLDocWriter& nameWriter, const urde::SObjectTag& pathTag,
+static void WriteNameTag(athena::io::YAMLDocWriter& nameWriter, const metaforce::SObjectTag& pathTag,
                          std::string_view name) {
   nameWriter.writeString(name.data(), fmt::format(FMT_STRING("{}"), pathTag.id));
 }
@@ -915,7 +915,7 @@ void SpecBase::readCatalog(const hecl::ProjectPath& catalogPath, athena::io::YAM
     }
     if (path.isNone())
       continue;
-    urde::SObjectTag pathTag = tagFromPath(path);
+    metaforce::SObjectTag pathTag = tagFromPath(path);
     if (pathTag) {
       std::unique_lock lk(m_backgroundIndexMutex);
       m_catalogNameToTag[pLower] = pathTag;
@@ -956,7 +956,7 @@ void SpecBase::backgroundIndexRecursiveCatalogs(const hecl::ProjectPath& dir, at
   }
 }
 
-void SpecBase::insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const urde::SObjectTag& tag,
+void SpecBase::insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const metaforce::SObjectTag& tag,
                              const hecl::ProjectPath& path, bool dump) {
 #if 0
   auto search = m_tagToPath.find(tag);
@@ -989,7 +989,7 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
     return true;
 
   /* Classify intermediate into tag */
-  urde::SObjectTag pathTag = buildTagFromPath(path);
+  metaforce::SObjectTag pathTag = buildTagFromPath(path);
   if (pathTag) {
     std::unique_lock lk{m_backgroundIndexMutex};
     bool useGlob = false;
@@ -1085,7 +1085,7 @@ void SpecBase::backgroundIndexRecursiveProc(const hecl::ProjectPath& dir, athena
       if (hecl::ProjectPath(path, "!project.yaml").isFile() && hecl::ProjectPath(path, "!pool.yaml").isFile()) {
         /* Avoid redundant filesystem access for re-caches */
         if (m_pathToTag.find(path.hash()) == m_pathToTag.cend()) {
-          urde::SObjectTag pathTag(SBIG('AGSC'), path.parsedHash32());
+          metaforce::SObjectTag pathTag(SBIG('AGSC'), path.parsedHash32());
           insertPathTag(cacheWriter, pathTag, path);
         }
       } else {
@@ -1138,7 +1138,7 @@ void SpecBase::backgroundIndexProc() {
           if (node.m_seqChildren.size() >= 2) {
             unsigned long id = strtoul(child.first.c_str(), nullptr, 16);
             hecl::FourCC type(node.m_seqChildren[0]->m_scalarString.c_str());
-            urde::SObjectTag pathTag(type, id);
+            metaforce::SObjectTag pathTag(type, id);
             for (auto I = node.m_seqChildren.begin() + 1, E = node.m_seqChildren.end(); I != E; ++I) {
               hecl::ProjectPath path(m_project.getProjectWorkingPath(), (*I)->m_scalarString);
               if (!path.isNone())
@@ -1166,7 +1166,7 @@ void SpecBase::backgroundIndexProc() {
           m_catalogTagToNames.reserve(nameReader.getRootNode()->m_mapChildren.size());
           for (const auto& child : nameReader.getRootNode()->m_mapChildren) {
             unsigned long id = strtoul(child.second->m_scalarString.c_str(), nullptr, 16);
-            auto search = m_tagToPath.find(urde::SObjectTag(FourCC(), uint32_t(id)));
+            auto search = m_tagToPath.find(metaforce::SObjectTag(FourCC(), uint32_t(id)));
             if (search != m_tagToPath.cend()) {
               std::string chLower = child.first;
               std::transform(chLower.cbegin(), chLower.cend(), chLower.begin(), tolower);
@@ -1224,7 +1224,7 @@ void SpecBase::WriteVersionInfo(hecl::Database::Project& project, const hecl::Pr
   hecl::ProjectPath versionPath(pakPath, _SYS_STR("version.yaml"));
   versionPath.makeDirChain(false);
 
-  URDEVersionInfo info;
+  MetaforceVersionInfo info;
   info.version = m_version;
   info.region = m_region;
   info.game = m_game;

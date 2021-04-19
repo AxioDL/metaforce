@@ -3,7 +3,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CAuiEnergyBarT01;
 class CGuiFrame;
 class CGuiTextPane;
@@ -27,4 +27,4 @@ public:
   static std::pair<zeus::CVector3f, zeus::CVector3f> BossEnergyCoordFunc(float t);
 };
 
-} // namespace urde
+} // namespace metaforce

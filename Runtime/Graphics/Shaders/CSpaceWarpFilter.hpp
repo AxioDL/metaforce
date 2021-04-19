@@ -8,7 +8,7 @@
 
 #include "zeus/CVector3f.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CSpaceWarpFilter {
 public:
@@ -39,4 +39,4 @@ public:
   void draw(const zeus::CVector3f& pt);
 };
 
-} // namespace urde
+} // namespace metaforce

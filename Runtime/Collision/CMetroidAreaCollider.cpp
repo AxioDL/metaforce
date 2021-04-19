@@ -4,7 +4,7 @@
 #include "Runtime/Collision/CMaterialFilter.hpp"
 #include "Runtime/Collision/CollisionUtil.hpp"
 
-namespace urde {
+namespace metaforce {
 
 u32 CMetroidAreaCollider::g_CalledClip = 0;
 u32 CMetroidAreaCollider::g_RejectedByClip = 0;
@@ -951,4 +951,4 @@ void CAreaCollisionCache::AddOctreeLeafCache(const CMetroidAreaCollider::COctree
   }
 }
 
-} // namespace urde
+} // namespace metaforce

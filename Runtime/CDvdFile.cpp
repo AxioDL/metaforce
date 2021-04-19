@@ -3,7 +3,7 @@
 #include "Runtime/CDvdRequest.hpp"
 #include "Runtime/CStopwatch.hpp"
 
-namespace urde {
+namespace metaforce {
 
 hecl::ProjectPath CDvdFile::m_DvdRoot;
 std::unordered_map<std::string, std::string> CDvdFile::m_caseInsensitiveMap;
@@ -28,6 +28,9 @@ public:
   }
   bool IsComplete() override { return m_complete.load(); }
   void PostCancelRequest() override {
+    if (m_complete.load() || m_cancel.load()) {
+      return;
+    }
     std::unique_lock waitlk{CDvdFile::m_WaitMutex};
     m_cancel.store(true);
   }
@@ -146,4 +149,4 @@ void CDvdFile::Shutdown() {
   m_RequestQueue.clear();
 }
 
-} // namespace urde
+} // namespace metaforce

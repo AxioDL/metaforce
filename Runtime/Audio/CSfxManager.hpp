@@ -11,7 +11,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 
 class CSfxManager {
   static std::vector<u16>* mpSfxTranslationTable;
@@ -239,4 +239,4 @@ public:
 
 using CSfxHandle = CSfxManager::CSfxHandle;
 
-} // namespace urde
+} // namespace metaforce

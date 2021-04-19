@@ -18,7 +18,7 @@
 #include "Runtime/World/CScriptWaypoint.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 namespace {
 struct SSomeRidleyStruct {
   u32 x0_;
@@ -283,7 +283,8 @@ CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
   }
 
   xae4_ = GetModelData()->GetScale().x() *
-          GetAnimationDistance(CPASAnimParmData(7, CPASAnimParm::FromEnum(4), CPASAnimParm::FromEnum(3)));
+          GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::MeleeAttack, CPASAnimParm::FromEnum(4),
+                                                CPASAnimParm::FromEnum(3)));
   x460_knockBackController.SetAnimationStateRange(EKnockBackAnimationState::Flinch, EKnockBackAnimationState::Flinch);
   x460_knockBackController.SetEnableBurn(false);
   x460_knockBackController.SetEnableFreeze(false);
@@ -292,7 +293,7 @@ CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
   CreateShadow(false);
 }
 
-void CRidley::SetupCollisionActorManager(urde::CStateManager& mgr) {
+void CRidley::SetupCollisionActorManager(metaforce::CStateManager& mgr) {
   const auto& animData = GetModelData()->GetAnimationData();
   std::vector<CJointCollisionDescription> joints;
   joints.reserve(skTail.size());
@@ -835,7 +836,7 @@ void CRidley::sub8025784c(CStateManager& mgr) {
   xa31_27_ = false;
 }
 
-void CRidley::sub80255d58(urde::CStateManager& mgr) {
+void CRidley::sub80255d58(metaforce::CStateManager& mgr) {
   xb04_ = skSomeRidleyStruct[xcb0_][xcb4_].x4_ < mgr.GetActiveRandom()->Range(0.f, 100.f)
               ? skSomeRidleyStruct[xcb0_][xcb4_].x8_
               : skSomeRidleyStruct[xcb0_][xcb4_].x0_;
@@ -850,7 +851,7 @@ void CRidley::sub80255d58(urde::CStateManager& mgr) {
   xcc4_ = 1;
 }
 
-void CRidley::sub80257744(urde::CStateManager& mgr) {
+void CRidley::sub80257744(metaforce::CStateManager& mgr) {
   for (size_t i = 0; i < x984_bodyCollision->GetNumCollisionActors(); ++i) {
     const auto& colDesc = x984_bodyCollision->GetCollisionDescFromIndex(i);
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(colDesc.GetCollisionActorId())) {
@@ -864,12 +865,12 @@ void CRidley::sub80257744(urde::CStateManager& mgr) {
   xa31_27_ = true;
 }
 
-void CRidley::FirePlasma(urde::CStateManager& mgr) {
+void CRidley::FirePlasma(metaforce::CStateManager& mgr) {
   if (xb64_plasmaProjectile == kInvalidUniqueId) {
     xb64_plasmaProjectile = mgr.AllocateUniqueId();
     mgr.AddObject(new CPlasmaProjectile(xb68_.Token(), ""sv, EWeaponType::AI, x568_data.x64_, {},
                                         EMaterialTypes::Character, xb68_.GetDamage(), xb64_plasmaProjectile,
-                                        GetAreaIdAlways(), GetUniqueId(), CPlasmaProjectile::PlayerEffectResoures(),
+                                        GetAreaIdAlways(), GetUniqueId(), CPlasmaProjectile::PlayerEffectResources(),
                                         false, EProjectileAttrib::KeepInCinematic));
   }
 
@@ -1270,7 +1271,7 @@ void CRidley::CoverAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CRidley::Crouch(urde::CStateManager& mgr, urde::EStateMsg msg, float arg) {
+void CRidley::Crouch(metaforce::CStateManager& mgr, metaforce::EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     SetMomentumWR(GetGravityConstant() * zeus::skDown);
     if (xc64_aiStage == 3) {
@@ -1327,7 +1328,7 @@ void CRidley::Flee(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CRidley::Lurk(urde::CStateManager& mgr, urde::EStateMsg msg, float arg) {
+void CRidley::Lurk(metaforce::CStateManager& mgr, metaforce::EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     if (!xa33_25_) {
       zeus::CVector3f vec = GetTranslation() - xa84_.origin;
@@ -1613,7 +1614,7 @@ bool CRidley::ShouldRetreat(CStateManager& mgr, float arg) { return xa34_26_; }
 
 bool CRidley::ShouldCrouch(CStateManager& mgr, float arg) { return xb04_ == 1; }
 
-bool CRidley::ShouldMove(urde::CStateManager& mgr, float arg) {
+bool CRidley::ShouldMove(metaforce::CStateManager& mgr, float arg) {
   if (xb0c_ == 5) {
     xa34_25_ = true;
     return true;
@@ -1676,7 +1677,7 @@ void CRidley::FacePlayer(float arg, CStateManager& mgr) {
   x450_bodyController->FaceDirection((mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized(), arg);
 }
 
-void CRidley::sub80253710(urde::CStateManager& mgr) {
+void CRidley::sub80253710(metaforce::CStateManager& mgr) {
   xb08_ = xb0c_;
   float fVar1 = 100.f * mgr.GetActiveRandom()->Float();
   float fVar6 = 0.f + skFloats[xb08_].x0_;
@@ -1723,4 +1724,4 @@ void CRidley::sub80253710(urde::CStateManager& mgr) {
   if (frontMag > 0.f && diffMag < x2fc_minAttackRange && xb08_ != 4)
     xb0c_ = 4;
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

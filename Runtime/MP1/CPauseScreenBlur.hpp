@@ -7,7 +7,7 @@
 #include "Runtime/Graphics/Shaders/CScanLinesFilter.hpp"
 #include "Runtime/MP1/CInGameGuiManagerCommon.hpp"
 
-namespace urde {
+namespace metaforce {
 class CStateManager;
 
 namespace MP1 {
@@ -40,4 +40,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

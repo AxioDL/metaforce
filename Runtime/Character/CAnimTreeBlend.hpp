@@ -5,7 +5,7 @@
 
 #include "Runtime/Character/CAnimTreeTweenBase.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CAnimTreeBlend : public CAnimTreeTweenBase {
   float x24_blendWeight;
@@ -25,4 +25,4 @@ public:
   float VGetBlendingWeight() const override;
 };
 
-} // namespace urde
+} // namespace metaforce

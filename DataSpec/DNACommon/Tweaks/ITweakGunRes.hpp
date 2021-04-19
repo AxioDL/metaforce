@@ -9,8 +9,8 @@
 namespace DataSpec {
 
 struct ITweakGunRes : ITweak {
-  using ResId = urde::CAssetId;
-  using EBeamId = urde::CPlayerState::EBeamId;
+  using ResId = metaforce::CAssetId;
+  using EBeamId = metaforce::CPlayerState::EBeamId;
 
   ResId x4_gunMotion;
   ResId x8_grappleArm;
@@ -68,7 +68,7 @@ struct ITweakGunRes : ITweak {
     return x34_weapons[b];
   }
 
-  void ResolveResources(const urde::IFactory& factory) {
+  void ResolveResources(const metaforce::IFactory& factory) {
     x4_gunMotion = factory.GetResourceIdByName(GetGunMotion())->id;
     x8_grappleArm = factory.GetResourceIdByName(GetGrappleArm())->id;
     xc_rightHand = factory.GetResourceIdByName(GetRightHand())->id;

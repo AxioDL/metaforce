@@ -11,7 +11,7 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CPlayer;
 
 class CCameraSpring {
@@ -150,12 +150,12 @@ private:
   zeus::CVector3f x35c_splineIntermediatePos;
   TUniqueId x368_obscuringObjectId = kInvalidUniqueId;
   ESplineState x36c_splineState = ESplineState::Invalid;
-  bool x370_24_reevalSplineEnd : 1;
+  bool x370_24_reevalSplineEnd : 1 = false;
   float x374_splineCtrl = 0.f;
   float x378_splineCtrlRange;
   CCameraSpline x37c_camSpline{false};
   CMaterialList x3c8_collisionExcludeList = {EMaterialTypes::NoStepLogic};
-  bool x3d0_24_camBehindFloorOrWall : 1;
+  bool x3d0_24_camBehindFloorOrWall : 1 = false;
   float x3d4_elevInterpTimer = 0.f;
   float x3d8_elevInterpStart = 0.f;
   TUniqueId x3dc_tooCloseActorId = kInvalidUniqueId;
@@ -202,12 +202,13 @@ private:
   void UpdateUsingPathCameras(float dt, CStateManager& mgr);
   zeus::CVector3f GetFixedLookTarget(const zeus::CVector3f& hintToLookDir, CStateManager& mgr) const;
   void UpdateUsingFixedCameras(float dt, CStateManager& mgr);
-  zeus::CVector3f ComputeVelocity(const zeus::CVector3f& curVel, const zeus::CVector3f& posDelta) const;
+  [[nodiscard]] zeus::CVector3f ComputeVelocity(const zeus::CVector3f& curVel, const zeus::CVector3f& posDelta) const;
   zeus::CVector3f TweenVelocity(const zeus::CVector3f& curVel, const zeus::CVector3f& newVel, float rate, float dt);
   zeus::CVector3f MoveCollisionActor(const zeus::CVector3f& pos, float dt, CStateManager& mgr);
   void UpdateUsingFreeLook(float dt, CStateManager& mgr);
   zeus::CVector3f InterpolateCameraElevation(const zeus::CVector3f& camPos, float dt);
-  zeus::CVector3f CalculateCollidersCentroid(const std::vector<CCameraCollider>& colliderList, int numObscured) const;
+  [[nodiscard]] zeus::CVector3f CalculateCollidersCentroid(const std::vector<CCameraCollider>& colliderList,
+                                                           int numObscured) const;
   zeus::CVector3f ApplyColliders();
   void UpdateColliders(const zeus::CTransform& xf, std::vector<CCameraCollider>& colliderList, int& it, int count,
                        float tolerance, const rstl::reserved_vector<TUniqueId, 1024>& nearList, float dt,
@@ -218,7 +219,7 @@ private:
                                     float dt, CStateManager& mgr);
   zeus::CAABox CalculateCollidersBoundingBox(const std::vector<CCameraCollider>& colliderList,
                                              CStateManager& mgr) const;
-  int CountObscuredColliders(const std::vector<CCameraCollider>& colliderList) const;
+  [[nodiscard]] int CountObscuredColliders(const std::vector<CCameraCollider>& colliderList) const;
   void UpdateCollidersDistances(std::vector<CCameraCollider>& colliderList, float xMag, float zMag, float angOffset);
   void UpdateUsingColliders(float dt, CStateManager& mgr);
   void UpdateUsingSpindleCameras(float dt, CStateManager& mgr);
@@ -248,16 +249,16 @@ public:
   void ProcessInput(const CFinalInput& input, CStateManager& mgr) override;
   void Reset(const zeus::CTransform&, CStateManager& mgr) override;
   void Render(CStateManager& mgr) override;
-  EBallCameraBehaviour GetBehaviour() const { return x188_behaviour; }
-  EBallCameraState GetState() const { return x400_state; }
+  [[nodiscard]] EBallCameraBehaviour GetBehaviour() const { return x188_behaviour; }
+  [[nodiscard]] EBallCameraState GetState() const { return x400_state; }
   void SetState(EBallCameraState state, CStateManager& mgr);
   void Think(float dt, CStateManager& mgr) override;
   bool TransitionFromMorphBallState(CStateManager& mgr);
-  TUniqueId GetTooCloseActorId() const { return x3dc_tooCloseActorId; }
-  float GetTooCloseActorDistance() const { return x3e0_tooCloseActorDist; }
+  [[nodiscard]] TUniqueId GetTooCloseActorId() const { return x3dc_tooCloseActorId; }
+  [[nodiscard]] float GetTooCloseActorDistance() const { return x3e0_tooCloseActorDist; }
   void TeleportCamera(const zeus::CVector3f& pos, CStateManager& mgr);
   void TeleportCamera(const zeus::CTransform& xf, CStateManager& mgr);
-  const zeus::CVector3f& GetLookPos() const { return x1d8_lookPos; }
+  [[nodiscard]] const zeus::CVector3f& GetLookPos() const { return x1d8_lookPos; }
   void ResetToTweaks(CStateManager& mgr);
   void UpdateLookAtPosition(float dt, CStateManager& mgr);
   zeus::CTransform UpdateLookDirection(const zeus::CVector3f& dir, CStateManager& mgr);
@@ -267,10 +268,11 @@ public:
   void ResetPosition(CStateManager& mgr);
   void DoorClosed(TUniqueId doorId);
   void DoorClosing(TUniqueId doorId);
-  const zeus::CVector3f& GetLookPosAhead() const { return x1c0_lookPosAhead; }
-  const zeus::CVector3f& GetFixedLookPos() const { return x1cc_fixedLookPos; }
+  [[nodiscard]] const zeus::CVector3f& GetLookPosAhead() const { return x1c0_lookPosAhead; }
+  [[nodiscard]] const zeus::CVector3f& GetFixedLookPos() const { return x1cc_fixedLookPos; }
+  const TUniqueId GetCollisionActorId() const { return x46c_collisionActorId; }
 
   static bool IsBallNearDoor(const zeus::CVector3f& pos, CStateManager& mgr);
 };
 
-} // namespace urde
+} // namespace metaforce

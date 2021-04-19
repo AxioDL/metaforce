@@ -1,6 +1,6 @@
 #pragma once
 
-namespace urde {
+namespace metaforce {
 
 class CWordBreakTables {
 public:
@@ -8,4 +8,4 @@ public:
   static int GetEndRank(wchar_t ch);
 };
 
-} // namespace urde
+} // namespace metaforce

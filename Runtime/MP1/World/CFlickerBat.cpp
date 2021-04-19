@@ -8,7 +8,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CFlickerBat::CFlickerBat(TUniqueId uid, std::string_view name, CPatterned::EFlavorType flavor, const CEntityInfo& info,
                          const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
@@ -250,4 +250,4 @@ void CFlickerBat::ToggleVisible(CStateManager& mgr) {
   x578_fadeRemTime = 1.f;
   x57c_ooFadeDur = 1.f / x578_fadeRemTime;
 }
-} // namespace urde::MP1
+} // namespace metaforce::MP1

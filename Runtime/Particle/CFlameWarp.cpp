@@ -4,7 +4,7 @@
 
 #include "Runtime/CStateManager.hpp"
 
-namespace urde {
+namespace metaforce {
 
 void CFlameWarp::ModifyParticles(std::vector<CParticle>& particles) {
   if (x9c_stateMgr == nullptr || particles.size() < 9) {
@@ -99,4 +99,4 @@ zeus::CAABox CFlameWarp::CalculateBounds() const {
   return ret;
 }
 
-} // namespace urde
+} // namespace metaforce

@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CCharAnimTime.hpp"
 
-namespace urde {
+namespace metaforce {
 
 SAdvancementDeltas SAdvancementDeltas::Interpolate(const SAdvancementDeltas& a, const SAdvancementDeltas& b,
                                                    float oldWeight, float newWeight) {
@@ -54,4 +54,4 @@ size_t IAnimReader::GetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* li
   return 0;
 }
 
-} // namespace urde
+} // namespace metaforce

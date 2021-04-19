@@ -17,7 +17,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 const float CParasite::flt_805A8FB0 = 2.f * std::sqrt(2.5f / CPhysicsActor::GravityConstant());
 const float CParasite::skAttackVelocity = 15.f / 2.f * (std::sqrt(2.5f / CPhysicsActor::GravityConstant()));
@@ -867,4 +867,4 @@ void CParasite::UpdateJumpVelocity() {
   SetVelocityWR(vec);
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

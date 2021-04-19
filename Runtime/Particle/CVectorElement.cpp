@@ -9,7 +9,7 @@
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Vector_Elements */
 
-namespace urde {
+namespace metaforce {
 
 CVEKeyframeEmitter::CVEKeyframeEmitter(CInputStream& in) {
   x4_percent = in.readUint32Big();
@@ -296,4 +296,4 @@ bool CVEColorToVector::GetValue(int frame, zeus::CVector3f& valOut) const {
   return false;
 }
 
-} // namespace urde
+} // namespace metaforce

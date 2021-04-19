@@ -6,7 +6,7 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/Weapon/WeaponCommon.hpp"
 
-namespace urde {
+namespace metaforce {
 
 class CWeaponMgr {
   std::map<TUniqueId, rstl::reserved_vector<s32, 15>> x0_weapons;
@@ -20,4 +20,4 @@ public:
   s32 GetIndex(TUniqueId) const;
 };
 
-} // namespace urde
+} // namespace metaforce

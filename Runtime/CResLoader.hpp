@@ -10,7 +10,7 @@
 #include "Runtime/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace urde {
+namespace metaforce {
 class IDvdRequest;
 struct SObjectTag;
 
@@ -40,8 +40,8 @@ public:
   std::unique_ptr<CInputStream> LoadNewResourceSync(const SObjectTag& tag, void* extBuf = nullptr);
   std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const SObjectTag& tag, u32 off, u32 size, void* buf);
   std::shared_ptr<IDvdRequest> LoadResourceAsync(const SObjectTag& tag, void* buf);
-  std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
-  std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size);
+  std::unique_ptr<u8[]> LoadResourceSync(const metaforce::SObjectTag& tag);
+  std::unique_ptr<u8[]> LoadNewResourcePartSync(const metaforce::SObjectTag& tag, u32 off, u32 size);
   void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const;
   bool GetResourceCompression(const SObjectTag& tag) const;
   u32 ResourceSize(const SObjectTag& tag) const;
@@ -62,4 +62,4 @@ public:
   const std::list<std::unique_ptr<CPakFile>>& GetPaks() const { return x18_pakLoadedList; }
 };
 
-} // namespace urde
+} // namespace metaforce

@@ -12,7 +12,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-namespace urde::MP1 {
+namespace metaforce::MP1 {
 
 CMFGame::CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_ptr<CInGameGuiManager>& guiMgr,
                  const CArchitectureQueue&)
@@ -372,4 +372,4 @@ void CMFGameLoader::Draw() {
   g_GameState->GetWorldTransitionManager()->Draw();
 }
 
-} // namespace urde::MP1
+} // namespace metaforce::MP1

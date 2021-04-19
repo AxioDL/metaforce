@@ -9,7 +9,7 @@
 
 #include <zeus/CVector2i.hpp>
 
-namespace urde {
+namespace metaforce {
 class CBlockInstruction;
 class CFontImageDef;
 class CInstruction;
@@ -70,4 +70,4 @@ public:
   void Clear();
 };
 
-} // namespace urde
+} // namespace metaforce

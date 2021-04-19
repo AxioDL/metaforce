@@ -5,7 +5,7 @@
 #include "Runtime/Weapon/CGSFidget.hpp"
 #include "Runtime/Weapon/CGSFreeLook.hpp"
 
-namespace urde {
+namespace metaforce {
 enum class EGunState { Inactive, Default, FreeLook, ComboFire, Idle, Fidget, Strike, BigStrike };
 
 class CGunController {
@@ -37,4 +37,4 @@ public:
   void Reset();
   s32 GetCurAnimId() const { return x54_curAnimId; }
 };
-} // namespace urde
+} // namespace metaforce

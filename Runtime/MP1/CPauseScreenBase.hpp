@@ -8,7 +8,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-namespace urde {
+namespace metaforce {
 class CArchitectureQueue;
 class CAuiImagePane;
 class CGuiModel;
@@ -137,4 +137,4 @@ public:
 };
 
 } // namespace MP1
-} // namespace urde
+} // namespace metaforce

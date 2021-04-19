@@ -16,7 +16,7 @@ class ViewResources;
 class Toolbar;
 struct Icon;
 } // namespace specter
-namespace urde {
+namespace metaforce {
 class ViewManager;
 class RootSpace;
 class SplitSpace;
@@ -172,6 +172,7 @@ public:
   }
 
   void think() override {
+    OPTICK_EVENT();
     if (m_spaceTree)
       m_spaceTree->think();
   }
@@ -374,4 +375,4 @@ public:
   }
 };
 
-} // namespace urde
+} // namespace metaforce
