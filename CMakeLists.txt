@@ -356,6 +356,9 @@ if (NOT WIN32)
   set(ZLIB_LIBRARIES ZLIB::ZLIB CACHE STRING "zlib libraries" FORCE)
 endif()
 
+option(BUILD_ATHENA "Build Athena libraries from source" ON)
+option(BUILD_ATDNA "Build atdna utility from source (requires LLVM)" OFF)
+
 if (NOT BUILD_ATDNA)
   set(ATHENA_BASE_URL "https://github.com/libAthena/athena/releases/download/latest")
   if (WIN32)
