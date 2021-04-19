@@ -31,5 +31,9 @@ public:
                                      const CScriptSpiderBallWaypoint*& closestWaypoint, zeus::CVector3f& closestPoint,
                                      zeus::CVector3f& deltaBetweenPoints, float deltaBetweenInterpDist,
                                      zeus::CVector3f& interpDeltaBetweenPoints) const;
+  void ClearWaypoints() {
+    xfc_aabox.reset();
+    xec_waypoints.clear();
+  }
 };
 } // namespace metaforce
