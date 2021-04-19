@@ -351,10 +351,9 @@ if(NOT GEKKO AND NOT NX)
   endif ()
 endif()
 
-if (APPLE)
-  # use toolchain zlib
+if (NOT WIN32)
   find_package(ZLIB REQUIRED)
-  set(ZLIB_LIBRARIES ZLIB::ZLIB)
+  set(ZLIB_LIBRARIES ZLIB::ZLIB CACHE STRING "zlib libraries" FORCE)
 endif()
 
 if (NOT BUILD_ATDNA)
