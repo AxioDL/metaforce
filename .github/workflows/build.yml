@@ -104,6 +104,7 @@ jobs:
           sudo installer -pkg /tmp/qt-$Qt_VERSION.mpkg -target /
 
       - name: Install Intel IPP
+        if: 'false' # not supported for universal build
         run: |
           NAME="m_ipp_oneapi_p_${IPP_VERSION}_offline"
           curl -LSfs https://registrationcenter-download.intel.com/akdlm/irc_nas/17606/$NAME.dmg -o /tmp/$NAME.dmg
