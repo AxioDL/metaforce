@@ -99,6 +99,7 @@ ninja
 - Build release optimized (better runtime performance): `-DCMAKE_BUILD_TYPE=Release`
 - Use clang+lld (faster linking): `-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++`
 - Optimize for current CPU (resulting binaries are not portable): `-DMETAFORCE_VECTOR_ISA=native`
+- Enable [profiling](Profiling.md): `-DOPTICK_ENABLED=ON`
 
 #### CLion (Windows/macOS/Linux)
 *(main development / debugging IDE)*
