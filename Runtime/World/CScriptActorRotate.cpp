@@ -79,9 +79,8 @@ void CScriptActorRotate::UpdatePlatformRiders(std::vector<SRiders>& riders, CScr
   for (SRiders& rider : riders) {
     if (const TCastToPtr<CActor> act = mgr.ObjectById(rider.x0_uid)) {
       zeus::CTransform& riderXf = rider.x8_transform;
-      act->SetTransform(rider.x8_transform);
+      act->SetTransform(xf * rider.x8_transform);
       act->SetTranslation(act->GetTranslation() + plat.GetTranslation());
-
       if (!x58_24_updateRotation) {
         riderXf = {act->GetTransform().basis, act->GetTranslation() - plat.GetTranslation()};
 
