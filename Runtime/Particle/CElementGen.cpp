@@ -214,6 +214,10 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
   }
 
   _RecreatePipelines();
+  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+    CElementGenShaders::BuildShaderDataBinding(ctx, *this);
+    return true;
+  } BooTrace);
 }
 
 CElementGen::~CElementGen() {
@@ -231,14 +235,14 @@ bool CElementGen::Update(double t) {
   if (pswtElem && !x26d_25_warmedUp) {
     int pswt = 0;
     pswtElem->GetValue(x74_curFrame, pswt);
-    //Log.report(logvisor::Info, FMT_STRING("Running warmup on particle system 0x%08x for %d ticks."), desc, pswt);
+    // Log.report(logvisor::Info, FMT_STRING("Running warmup on particle system 0x%08x for %d ticks."), desc, pswt);
     InternalUpdate((1.f / 60.f) * pswt);
     x26d_25_warmedUp = true;
   }
   bool ret = InternalUpdate(t);
   CParticleGlobals::instance()->m_currentParticleSystem = prevSystem;
 
-  if (oldMax != x90_MAXP) {
+  if (oldMax < x90_MAXP) {
     _RecreatePipelines();
   }
   return ret;
@@ -256,7 +260,6 @@ void CElementGen::_RecreatePipelines() {
       m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
       m_uniformBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
     }
-    CElementGenShaders::BuildShaderDataBinding(ctx, *this);
     return true;
   } BooTrace);
 }
@@ -828,8 +831,8 @@ void CElementGen::Render(const CActorLights* actorLights) {
     return;
   }
 
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::Render {}"),
-    *x1c_genDesc.GetObjectTag()).c_str(), zeus::skYellow);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::Render {}"), *x1c_genDesc.GetObjectTag()).c_str(),
+                              zeus::skYellow);
 
   CGenDescription* desc = x1c_genDesc.GetObj();
 
