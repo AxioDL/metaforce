@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     branches-ignore:
-      - master
+      - main
     paths-ignore:
       - '*.json'
       - '*.md'
