@@ -33,15 +33,17 @@ class CJellyZap : public CPatterned {
 public:
   DEFINE_PATTERNED(JellyZap);
 
-  CJellyZap(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&, const CDamageInfo&,
-            bool, float, float, float, float, float, float, float, float, float, float, float, float,
-            const CPatternedInfo&, const CActorParameters&);
+  CJellyZap(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+            CModelData&& mData, const CDamageInfo& attackDamage, bool b1, float attackRadius, float f2, float f3, float f4, float attackDelay,
+            float f6, float f7, float f8, float priority, float repulseRadius, float attractRadius, float f12,
+            const CPatternedInfo& pInfo, const CActorParameters& actParms);
 
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
   void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt) override;
-  void KnockBack(const zeus::CVector3f &, CStateManager &, const CDamageInfo &info, EKnockBackType type, bool inDeferred, float magnitude) override;
+  void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType type, bool inDeferred,
+                 float magnitude) override;
   const CDamageVulnerability* GetDamageVulnerability() const override { return CAi::GetDamageVulnerability(); }
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                                                      const CDamageInfo& info) const override;

@@ -2560,18 +2560,20 @@ CEntity* ScriptLoader::LoadVisorGoo(CStateManager& mgr, CInputStream& in, int pr
 }
 
 CEntity* ScriptLoader::LoadJellyZap(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  if (!EnsurePropertyCount(propCount, 20, "JellyZap"))
+  if (!EnsurePropertyCount(propCount, 20, "JellyZap")) {
     return nullptr;
+  }
 
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
-  if (!pair.first)
+  if (!pair.first) {
     return nullptr;
+  }
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
   CDamageInfo dInfo(in);
-  float f1 = in.readFloatBig();
+  float attackRadius = in.readFloatBig();
   float f2 = in.readFloatBig();
   float f3 = in.readFloatBig();
   float f4 = in.readFloatBig();
@@ -2579,20 +2581,22 @@ CEntity* ScriptLoader::LoadJellyZap(CStateManager& mgr, CInputStream& in, int pr
   float f6 = in.readFloatBig();
   float f7 = in.readFloatBig();
   float f8 = in.readFloatBig();
-  float f9 = in.readFloatBig();
-  float f10 = in.readFloatBig();
-  float f11 = in.readFloatBig();
+  float priority = in.readFloatBig();
+  float repulseRadius = in.readFloatBig();
+  float attractRadius = in.readFloatBig();
   float f12 = in.readFloatBig();
   bool b1 = in.readBool();
 
   const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
-  if (g_ResFactory->GetResourceTypeById(animParms.GetACSFile()) != SBIG('ANCS'))
+  if (g_ResFactory->GetResourceTypeById(animParms.GetACSFile()) != SBIG('ANCS')) {
     return nullptr;
+  }
 
   CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
                             animParms.GetInitialAnimation(), true));
   return new MP1::CJellyZap(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, std::move(mData), dInfo,
-                            b1, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, pInfo, actParms);
+                            b1, attackRadius, f2, f3, f4, f5, f6, f7, f8, priority, repulseRadius, attractRadius, f12,
+                            pInfo, actParms);
 }
 
 CEntity* ScriptLoader::LoadControllerAction(CStateManager& mgr, CInputStream& in, int propCount,
