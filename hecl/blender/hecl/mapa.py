@@ -249,10 +249,16 @@ def cook(writebuf, mesh_obj):
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
 
-    obj_vismodes = dict((i[0], i[3]) for i in bpy.types.Object.retro_mapobj_vis_mode[1]['items'])
+    if bpy.app.version >= (2, 93, 0):
+        obj_vismodes = dict((i[0], i[3]) for i in bpy.types.Object.retro_mapobj_vis_mode.keywords['items'])
+    else:
+        obj_vismodes = dict((i[0], i[3]) for i in bpy.types.Object.retro_mapobj_vis_mode[1]['items'])
 
     # Write out visibility type
-    vis_types = dict((i[0], i[3]) for i in bpy.types.Scene.retro_map_vis_mode[1]['items'])
+    if hasattr(bpy.types.Scene.retro_map_vis_mode, '__getitem__'):
+        vis_types = dict((i[0], i[3]) for i in bpy.types.Scene.retro_map_vis_mode[1]['items'])
+    else:
+        vis_types = dict((i[0], i[3]) for i in bpy.types.Scene.retro_map_vis_mode.keywords['items'])
     writebuf(struct.pack('I', vis_types[bpy.context.scene.retro_map_vis_mode]))
 
     # Copy mesh (and apply mesh modifiers with triangulation)
