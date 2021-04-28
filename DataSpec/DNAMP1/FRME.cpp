@@ -481,7 +481,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         "frme_obj.retro_widget_default_active = {}\n"
         "frme_obj.retro_widget_cull_faces = {}\n"
         "frme_obj.retro_widget_color = ({},{},{},{})\n"
-        "frme_obj.retro_widget_model_draw_flags = bpy.types.Object.retro_widget_model_draw_flags[1]['items'][{}][0]\n"
+        "frme_obj.retro_widget_model_draw_flags = bpy.types.Object.retro_widget_model_draw_flags.keywords['items'][{}][0]\n"
         "frme_obj.retro_widget_is_worker = {}\n"
         "frme_obj.retro_widget_worker_id = {}\n"
         "if parentName not in bpy.data.objects:\n"
@@ -545,9 +545,9 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
             "frme_obj.retro_textpane_jp_font_path = '{}'\n"
             "frme_obj.retro_textpane_jp_font_scale = ({},{})\n"
             "frme_obj.retro_textpane_hjustification = "
-            "bpy.types.Object.retro_textpane_hjustification[1]['items'][{}][0]\n"
+            "bpy.types.Object.retro_textpane_hjustification.keywords['items'][{}][0]\n"
             "frme_obj.retro_textpane_vjustification = "
-            "bpy.types.Object.retro_textpane_vjustification[1]['items'][{}][0]\n"),
+            "bpy.types.Object.retro_textpane_vjustification.keywords['items'][{}][0]\n"),
             info->xDim, info->zDim, scaleF[0], scaleF[1], scaleF[2], fontPath.getRelativePathUTF8(),
             info->wordWrap ? "True" : "False", info->horizontal ? "True" : "False", fillF[0], fillF[1], fillF[2],
             fillF[3], outlineF[0], outlineF[1], outlineF[2], outlineF[3], extentF[0], extentF[1],
