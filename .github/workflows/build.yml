@@ -57,7 +57,8 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}}
+            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}} \
+            -DLLVM_ROOT_DIR=/usr/lib/llvm-10
 
       - name: Build
         working-directory: ${{github.workspace}}/build
