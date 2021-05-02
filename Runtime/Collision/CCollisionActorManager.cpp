@@ -24,11 +24,73 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
       modDesc.ScaleAllBounds(scale);
       const zeus::CTransform locXf = GetWRLocatorTransform(*animData, modDesc.GetPivotId(), xf, scaleXf);
 
-      if (modDesc.GetNextId().IsValid()) {
+      if (modDesc.GetNextId().IsInvalid()) {
+        // We only have the pivot id
+        const TUniqueId newId = mgr.AllocateUniqueId();
+        CCollisionActor* newAct;
+
+        if (modDesc.GetType() == CJointCollisionDescription::ECollisionType::Sphere) {
+          newAct = new CCollisionActor(newId, area, x10_ownerId, active, modDesc.GetRadius(), modDesc.GetMass(),
+                                       desc.GetName());
+        } else if (modDesc.GetType() == CJointCollisionDescription::ECollisionType::OBB) {
+          newAct = new CCollisionActor(newId, area, x10_ownerId, modDesc.GetBounds(), modDesc.GetPivotPoint(), active,
+                                       modDesc.GetMass(), desc.GetName());
+        } else {
+          newAct = new CCollisionActor(newId, area, x10_ownerId, modDesc.GetBounds(), active, modDesc.GetMass(),
+                                       desc.GetName());
+        }
+
+        newAct->SetTransform(locXf);
+        mgr.AddObject(newAct);
+        x0_jointDescriptions.push_back(desc);
+        x0_jointDescriptions.back().SetCollisionActorId(newId);
+      } else { // We have another bone in to connect to!
         const zeus::CTransform locXf2 = GetWRLocatorTransform(*animData, modDesc.GetNextId(), xf, scaleXf);
         const float dist = (locXf2.origin - locXf.origin).magnitude();
 
-        if (modDesc.GetType() == CJointCollisionDescription::ECollisionType::OBBAutoSize) {
+        if (modDesc.GetType() != CJointCollisionDescription::ECollisionType::OBBAutoSize) {
+          const TUniqueId newId = mgr.AllocateUniqueId();
+          auto* newAct = new CCollisionActor(newId, area, x10_ownerId, active, modDesc.GetRadius(), modDesc.GetMass(),
+                                             desc.GetName());
+
+          newAct->SetTransform(locXf);
+          mgr.AddObject(newAct);
+          x0_jointDescriptions.push_back(CJointCollisionDescription::SphereCollision(
+              modDesc.GetPivotId(), modDesc.GetRadius(), modDesc.GetName(), 0.001f));
+          x0_jointDescriptions.back().SetCollisionActorId(newId);
+
+          const u32 numSeps = u32(dist / modDesc.GetMaxSeparation());
+          if (numSeps != 0) {
+            x0_jointDescriptions.reserve(x0_jointDescriptions.capacity() + numSeps);
+            const float pitch = dist / float(numSeps + 1);
+            for (u32 i = 0; i < numSeps; ++i) {
+              const float separation = pitch * float(i + 1);
+              x0_jointDescriptions.push_back(CJointCollisionDescription::SphereSubdivideCollision(
+                  modDesc.GetPivotId(), modDesc.GetNextId(), modDesc.GetRadius(), separation,
+                  CJointCollisionDescription::EOrientationType::One, modDesc.GetName(), 0.001f));
+
+              const TUniqueId newId2 = mgr.AllocateUniqueId();
+              auto* newAct2 = new CCollisionActor(newId2, area, x10_ownerId, active, modDesc.GetRadius(),
+                                                  modDesc.GetMass(), desc.GetName());
+              if (modDesc.GetOrientationType() == CJointCollisionDescription::EOrientationType::Zero) {
+                newAct2->SetTransform(zeus::CTransform::Translate(locXf.origin + (separation * locXf.basis[1])));
+              } else {
+                const zeus::CVector3f delta = (locXf2.origin - locXf.origin).normalized();
+                zeus::CVector3f upVector = locXf.basis[2];
+
+                if (zeus::close_enough(std::fabs(delta.dot(upVector)), 1.f)) {
+                  upVector = locXf.basis[1];
+                }
+
+                const zeus::CTransform lookAt = zeus::lookAt(zeus::skZero3f, delta, upVector);
+                newAct2->SetTransform(zeus::CTransform::Translate(locXf.origin + (separation * lookAt.basis[1])));
+              }
+
+              mgr.AddObject(newAct2);
+              x0_jointDescriptions.back().SetCollisionActorId(newId2);
+            }
+          }
+        } else {
           if (dist <= FLT_EPSILON) {
             continue;
           }
@@ -55,68 +117,7 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
           mgr.AddObject(newAct);
           x0_jointDescriptions.push_back(desc);
           x0_jointDescriptions.back().SetCollisionActorId(newAct->GetUniqueId());
-        } else {
-          const TUniqueId newId = mgr.AllocateUniqueId();
-          auto* newAct = new CCollisionActor(newId, area, x10_ownerId, active, modDesc.GetRadius(), modDesc.GetMass(),
-                                             desc.GetName());
-
-          newAct->SetTransform(locXf);
-          mgr.AddObject(newAct);
-          x0_jointDescriptions.push_back(CJointCollisionDescription::SphereCollision(
-              modDesc.GetPivotId(), modDesc.GetRadius(), modDesc.GetName(), 0.001f));
-          x0_jointDescriptions.back().SetCollisionActorId(newId);
-
-          const u32 numSeps = u32(dist / modDesc.GetMaxSeparation());
-          if (numSeps != 0) {
-            x0_jointDescriptions.reserve(x0_jointDescriptions.capacity() + numSeps);
-            const float pitch = dist / float(numSeps + 1);
-            for (u32 i = 0; i < numSeps; ++i) {
-              const float separation = pitch * float(i + 1);
-              x0_jointDescriptions.push_back(CJointCollisionDescription::SphereSubdivideCollision(
-                  modDesc.GetPivotId(), modDesc.GetNextId(), modDesc.GetRadius(), separation,
-                  CJointCollisionDescription::EOrientationType::One, modDesc.GetName(), 0.001f));
-
-              const TUniqueId newId2 = mgr.AllocateUniqueId();
-              auto* newAct2 = new CCollisionActor(newId2, area, x10_ownerId, active, modDesc.GetRadius(),
-                                                  modDesc.GetMass(), desc.GetName());
-              if (modDesc.GetOrientationType() == CJointCollisionDescription::EOrientationType::Zero) {
-                newAct2->SetTransform(zeus::CTransform::Translate(locXf.origin + separation * locXf.basis[1]));
-              } else {
-                const zeus::CVector3f delta = (locXf2.origin - locXf.origin).normalized();
-                zeus::CVector3f upVector = locXf.basis[2];
-
-                if (zeus::close_enough(std::fabs(delta.dot(upVector)), 1.f)) {
-                  upVector = locXf.basis[1];
-                }
-
-                const zeus::CTransform lookAt = zeus::lookAt(zeus::skZero3f, delta, upVector);
-                newAct2->SetTransform(zeus::CTransform::Translate(lookAt.basis[1] * separation + locXf.origin));
-              }
-
-              mgr.AddObject(newAct2);
-              x0_jointDescriptions.back().SetCollisionActorId(newId2);
-            }
-          }
         }
-      } else {
-        const TUniqueId newId = mgr.AllocateUniqueId();
-        CCollisionActor* newAct;
-
-        if (modDesc.GetType() == CJointCollisionDescription::ECollisionType::Sphere) {
-          newAct = new CCollisionActor(newId, area, x10_ownerId, active, modDesc.GetRadius(), modDesc.GetMass(),
-                                       desc.GetName());
-        } else if (modDesc.GetType() == CJointCollisionDescription::ECollisionType::OBB) {
-          newAct = new CCollisionActor(newId, area, x10_ownerId, modDesc.GetBounds(), modDesc.GetPivotPoint(), active,
-                                       modDesc.GetMass(), desc.GetName());
-        } else {
-          newAct = new CCollisionActor(newId, area, x10_ownerId, modDesc.GetBounds(), active, modDesc.GetMass(),
-                                       desc.GetName());
-        }
-
-        newAct->SetTransform(locXf);
-        mgr.AddObject(newAct);
-        x0_jointDescriptions.push_back(desc);
-        x0_jointDescriptions.back().SetCollisionActorId(newId);
       }
     }
   }
@@ -137,10 +138,9 @@ void CCollisionActorManager::SetActive(CStateManager& mgr, bool active) {
       const bool curActive = act->GetActive();
       if (curActive != active) {
         act->SetActive(active);
-      }
-
-      if (active) {
-        Update(0.f, mgr, EUpdateOptions::WorldSpace);
+        if (!active) {
+          Update(0.f, mgr, EUpdateOptions::WorldSpace);
+        }
       }
     }
   }

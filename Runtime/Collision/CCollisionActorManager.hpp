@@ -33,13 +33,13 @@ public:
   void Update(float dt, CStateManager& mgr, EUpdateOptions opts);
   void Destroy(CStateManager& mgr);
   void SetActive(CStateManager& mgr, bool active);
-  bool GetActive() const { return x12_active; }
+  [[nodiscard]] bool GetActive() const { return x12_active; }
   void AddMaterial(CStateManager& mgr, const CMaterialList& list);
   void SetMovable(CStateManager& mgr, bool movable);
 
-  u32 GetNumCollisionActors() const { return x0_jointDescriptions.size(); }
+  [[nodiscard]] u32 GetNumCollisionActors() const { return x0_jointDescriptions.size(); }
   std::optional<zeus::CVector3f> GetDeviation(const CStateManager&, CSegId);
-  const CJointCollisionDescription& GetCollisionDescFromIndex(u32 i) const { return x0_jointDescriptions[i]; }
+  [[nodiscard]] const CJointCollisionDescription& GetCollisionDescFromIndex(u32 i) const { return x0_jointDescriptions[i]; }
   static zeus::CTransform GetWRLocatorTransform(const CAnimData& animData, CSegId id, const zeus::CTransform& worldXf,
                                                 const zeus::CTransform& localXf);
 };

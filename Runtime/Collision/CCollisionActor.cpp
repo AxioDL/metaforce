@@ -106,12 +106,12 @@ const CDamageVulnerability* CCollisionActor::GetDamageVulnerability(const zeus::
 void CCollisionActor::SetDamageVulnerability(const CDamageVulnerability& vuln) { x294_damageVuln = vuln; }
 
 zeus::CVector3f CCollisionActor::GetScanObjectIndicatorPosition(const CStateManager& mgr) const {
-  const CGameCamera* gameCamera = static_cast<const CGameCamera*>(mgr.GetCameraManager()->GetCurrentCamera(mgr));
+  const auto* gameCamera = static_cast<const CGameCamera*>(mgr.GetCameraManager()->GetCurrentCamera(mgr));
 
   float scanScale;
-  if (x258_primitiveType == EPrimitiveType::Sphere)
+  if (x258_primitiveType == EPrimitiveType::Sphere) {
     scanScale = GetSphereRadius();
-  else {
+  } else {
     const zeus::CVector3f v = GetBoxSize();
     float comp = (v.x() < v.y() ? v.y() : v.z());
     comp = (comp < v.z() ? v.x() : comp);
@@ -124,10 +124,12 @@ zeus::CVector3f CCollisionActor::GetScanObjectIndicatorPosition(const CStateMana
 }
 
 const CCollisionPrimitive* CCollisionActor::GetCollisionPrimitive() const {
-  if (x258_primitiveType == EPrimitiveType::OBBTreeGroup)
+  if (x258_primitiveType == EPrimitiveType::OBBTreeGroup) {
     return x27c_obbTreeGroupPrimitive.get();
-  if (x258_primitiveType == EPrimitiveType::AABox)
+  }
+  if (x258_primitiveType == EPrimitiveType::AABox) {
     return x280_aaboxPrimitive.get();
+  }
   return x284_spherePrimitive.get();
 }
 
@@ -158,9 +160,9 @@ std::optional<zeus::CAABox> CCollisionActor::GetTouchBounds() const {
 }
 
 void CCollisionActor::OnScanStateChanged(EScanState state, CStateManager& mgr) {
-  TCastToPtr<CActor> actor = mgr.ObjectById(x25c_owner);
-  if (actor)
+  if (const TCastToPtr<CActor> actor = mgr.ObjectById(x25c_owner)) {
     actor->OnScanStateChanged(state, mgr);
+  }
 
   CActor::OnScanStateChanged(state, mgr);
 }
@@ -173,8 +175,9 @@ void CCollisionActor::Touch(CActor& actor, CStateManager& mgr) {
 zeus::CVector3f CCollisionActor::GetOrbitPosition(const CStateManager&) const { return GetTouchBounds()->center(); }
 
 void CCollisionActor::SetSphereRadius(float radius) {
-  if (x258_primitiveType != EPrimitiveType::Sphere)
+  if (x258_primitiveType != EPrimitiveType::Sphere) {
     return;
+  }
 
   x288_sphereRadius = radius;
   x284_spherePrimitive->SetSphereRadius(radius);
