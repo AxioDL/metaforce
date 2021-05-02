@@ -817,22 +817,25 @@ void CGameCollision::CollideWithDynamicBodyNoRot(CPhysicsActor& a0, CPhysicsActo
     }
   }
 
-  if (a0.GetVelocity().magnitude() > a0MaxCollisionVel)
+  if (a0.GetVelocity().magnitude() > a0MaxCollisionVel) {
     a0.SetVelocityWR(a0.GetVelocity().normalized() * a0MaxCollisionVel);
-  if (a1.GetVelocity().magnitude() > a1MaxCollisionVel)
+  }
+  if (a1.GetVelocity().magnitude() > a1MaxCollisionVel) {
     a1.SetVelocityWR(a1.GetVelocity().normalized() * a1MaxCollisionVel);
+  }
 }
 
 void CGameCollision::CollideWithStaticBodyNoRot(CPhysicsActor& a0, const CMaterialList& m0, const CMaterialList& m1,
                                                 const zeus::CUnitVector3f& normal, float restitution, bool zeroZ) {
   zeus::CUnitVector3f useNorm = normal;
-  if (zeroZ && m0.HasMaterial(EMaterialTypes::Player) && !m1.HasMaterial(EMaterialTypes::Floor))
+  if (zeroZ && m0.HasMaterial(EMaterialTypes::Player) && !m1.HasMaterial(EMaterialTypes::Floor)) {
     useNorm.z() = 0.f;
+  }
 
   if (useNorm.canBeNormalized()) {
     useNorm.normalize();
     float velNormDot = a0.GetVelocity().dot(useNorm);
-    if (velNormDot < 0.0001f) {
+    if (velNormDot < -0.0001f) {
       a0.ApplyImpulseWR(useNorm * CollisionImpulseFiniteVsInfinite(a0.GetMass(), velNormDot, restitution),
                         zeus::CAxisAngle());
       a0.UseCollisionImpulses();
