@@ -18,7 +18,9 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
-
+namespace {
+static constexpr bool skPlayerUsesNewColliderLogic = true;
+}
 static float CollisionImpulseFiniteVsInfinite(float mass, float velNormDot, float restitution) {
   return mass * -(1.f + restitution) * velNormDot;
 }
@@ -60,13 +62,16 @@ void CGameCollision::MovePlayer(CStateManager& mgr, CPhysicsActor& actor, float 
                                 const rstl::reserved_vector<TUniqueId, 1024>* colliderList) {
   actor.SetAngularEnabled(true);
   actor.AddMotionState(actor.PredictAngularMotion(dt));
-  if (actor.IsUseStandardCollider()) {
-    MoveAndCollide(mgr, actor, dt, CBallFilter(actor), colliderList);
-  } else {
-    if (actor.GetMaterialList().HasMaterial(EMaterialTypes::GroundCollider))
-      CGroundMovement::MoveGroundCollider_New(mgr, actor, dt, colliderList);
-    else
+  if (!actor.IsUseStandardCollider()) {
+    if (!actor.GetMaterialList().HasMaterial(EMaterialTypes::GroundCollider)) {
       MoveAndCollide(mgr, actor, dt, CBallFilter(actor), colliderList);
+    } else if (skPlayerUsesNewColliderLogic) {
+      CGroundMovement::MoveGroundCollider_New(mgr, actor, dt, colliderList);
+    } else {
+      CGroundMovement::MoveGroundCollider(mgr, actor, dt, colliderList);
+    }
+  } else {
+    MoveAndCollide(mgr, actor, dt, CBallFilter(actor), colliderList);
   }
   actor.SetAngularEnabled(false);
 }
@@ -722,13 +727,14 @@ bool CGameCollision::DetectDynamicCollisionMoving(const CCollisionPrimitive& pri
   return ret;
 }
 
-bool CGameCollision::DetectCollision(const CStateManager& mgr, const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                     const CMaterialFilter& filter, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                                     TUniqueId& idOut, CCollisionInfoList& infoOut) {
+bool CGameCollision::DetectCollision(const CStateManager& mgr, const CCollisionPrimitive& prim,
+                                     const zeus::CTransform& xf, const CMaterialFilter& filter,
+                                     const rstl::reserved_vector<TUniqueId, 1024>& nearList, TUniqueId& idOut,
+                                     CCollisionInfoList& infoOut) {
   bool ret = false;
   CMaterialList exclude = filter.ExcludeList();
   if (!exclude.HasMaterial(EMaterialTypes::Occluder) && DetectStaticCollision(mgr, prim, xf, filter, infoOut)) {
-      ret = true;
+    ret = true;
   }
 
   TUniqueId tmpId = kInvalidUniqueId;

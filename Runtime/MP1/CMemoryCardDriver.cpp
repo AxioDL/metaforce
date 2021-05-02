@@ -32,8 +32,9 @@ ECardResult CMemoryCardDriver::SFileInfo::StartRead() {
 
 ECardResult CMemoryCardDriver::SFileInfo::TryFileRead() {
   ECardResult res = CMemoryCardSys::GetResultCode(GetFileCardPort());
-  if (res == ECardResult::READY)
+  if (res == ECardResult::READY) {
     res = FileRead();
+  }
   return res;
 }
 
