@@ -60,7 +60,7 @@ string(TIMESTAMP CURRENT_YEAR "%Y")
 
 # Add version information to CI environment variables
 if(DEFINED ENV{GITHUB_ENV})
-  file(APPEND "$ENV{GITHUB_ENV}" "METAFORCE_VERSION=${METAFORCE_WC_DESCRIBE}")
+  file(APPEND "$ENV{GITHUB_ENV}" "METAFORCE_VERSION=${METAFORCE_WC_DESCRIBE}\n")
 endif()
 message(STATUS "Metaforce version set to ${METAFORCE_WC_DESCRIBE}")
 project(metaforce LANGUAGES C CXX ASM VERSION ${METAFORCE_VERSION_STRING})
