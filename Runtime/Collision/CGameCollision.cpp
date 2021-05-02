@@ -215,11 +215,13 @@ void CGameCollision::Move(CStateManager& mgr, CPhysicsActor& actor, float dt,
 
 bool CGameCollision::CanBlock(const CMaterialList& mat, const zeus::CVector3f& v) {
   if ((mat.HasMaterial(EMaterialTypes::Character) && !mat.HasMaterial(EMaterialTypes::SolidCharacter)) ||
-      mat.HasMaterial(EMaterialTypes::NoPlayerCollision))
+      mat.HasMaterial(EMaterialTypes::NoPlayerCollision)) {
     return false;
+  }
 
-  if (mat.HasMaterial(EMaterialTypes::Floor))
+  if (mat.HasMaterial(EMaterialTypes::Floor)) {
     return true;
+  }
 
   return (v.z() > 0.85f);
 }
@@ -230,12 +232,13 @@ bool CGameCollision::IsFloor(const CMaterialList& mat, const zeus::CVector3f& v)
 
 void CGameCollision::SendMaterialMessage(CStateManager& mgr, const CMaterialList& mat, CActor& act) {
   EScriptObjectMessage msg;
-  if (mat.HasMaterial(EMaterialTypes::Ice))
+  if (mat.HasMaterial(EMaterialTypes::Ice)) {
     msg = EScriptObjectMessage::OnIceSurface;
-  else if (mat.HasMaterial(EMaterialTypes::MudSlow))
+  } else if (mat.HasMaterial(EMaterialTypes::MudSlow)) {
     msg = EScriptObjectMessage::OnMudSlowSurface;
-  else
+  } else {
     msg = EScriptObjectMessage::OnNormalSurface;
+  }
 
   mgr.SendScriptMsg(&act, kInvalidUniqueId, msg);
 }
@@ -245,16 +248,18 @@ CRayCastResult CGameCollision::RayStaticIntersection(const CStateManager& mgr, c
                                                      const CMaterialFilter& filter) {
   CRayCastResult ret;
   float bestT = length;
-  if (bestT <= 0.f)
+  if (bestT <= 0.f) {
     bestT = 100000.f;
+  }
 
   zeus::CLine line(pos, dir);
   for (const CGameArea& area : *mgr.GetWorld()) {
     CAreaOctTree::SRayResult rayRes;
     CAreaOctTree& collision = *area.GetPostConstructed()->x0_collision;
     collision.GetRootNode().LineTestEx(line, filter, rayRes, length);
-    if (!rayRes.x10_surface || (length != 0.f && length < rayRes.x3c_t))
+    if (!rayRes.x10_surface || (length != 0.f && length < rayRes.x3c_t)) {
       continue;
+    }
 
     if (rayRes.x3c_t < bestT) {
       ret = CRayCastResult(rayRes.x3c_t, dir * rayRes.x3c_t + pos, rayRes.x0_plane,
@@ -269,14 +274,16 @@ CRayCastResult CGameCollision::RayStaticIntersection(const CStateManager& mgr, c
 bool CGameCollision::RayStaticIntersectionBool(const CStateManager& mgr, const zeus::CVector3f& start,
                                                const zeus::CVector3f& dir, float length,
                                                const CMaterialFilter& filter) {
-  if (length <= 0.f)
+  if (length <= 0.f) {
     length = 100000.f;
+  }
   zeus::CLine line(start, dir);
   for (const CGameArea& area : *mgr.GetWorld()) {
     const CAreaOctTree& collision = *area.GetPostConstructed()->x0_collision;
     CAreaOctTree::Node root = collision.GetRootNode();
-    if (!root.LineTest(line, filter, length))
+    if (!root.LineTest(line, filter, length)) {
       return false;
+    }
   }
 
   return true;
@@ -320,7 +327,7 @@ bool CGameCollision::RayDynamicIntersectionBool(const CStateManager& mgr, const 
   for (TUniqueId id : nearList) {
     const CEntity* ent = mgr.GetObjectById(id);
     if (const TCastToConstPtr<CPhysicsActor> physActor = ent) {
-      if (damagee && physActor->GetUniqueId() == damagee->GetUniqueId()) {
+      if (damagee != nullptr && physActor->GetUniqueId() == damagee->GetUniqueId()) {
         continue;
       }
       const zeus::CTransform xf = physActor->GetPrimitiveTransform();
@@ -343,18 +350,21 @@ CRayCastResult CGameCollision::RayWorldIntersection(const CStateManager& mgr, TU
   CRayCastResult dynamicRes = RayDynamicIntersection(mgr, idOut, pos, dir, mag, filter, nearList);
 
   if (dynamicRes.IsValid()) {
-    if (staticRes.IsInvalid())
+    if (staticRes.IsInvalid()) {
       return dynamicRes;
-    else if (staticRes.GetT() >= dynamicRes.GetT())
+    }
+    if (staticRes.GetT() >= dynamicRes.GetT()) {
       return dynamicRes;
+    }
   }
   return staticRes;
 }
 
 bool CGameCollision::RayStaticIntersectionArea(const CGameArea& area, const zeus::CVector3f& pos,
                                                const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter) {
-  if (mag <= 0.f)
+  if (mag <= 0.f) {
     mag = 100000.f;
+  }
   CAreaOctTree::Node node = area.GetPostConstructed()->x0_collision->GetRootNode();
   zeus::CLine line(pos, dir);
   return node.LineTest(line, filter, mag);
@@ -372,15 +382,17 @@ void CGameCollision::BuildAreaCollisionCache(const CStateManager& mgr, CAreaColl
 
 float CGameCollision::GetMinExtentForCollisionPrimitive(const CCollisionPrimitive& prim) {
   if (prim.GetPrimType() == FOURCC('SPHR')) {
-    const CCollidableSphere& sphere = static_cast<const CCollidableSphere&>(prim);
+    const auto& sphere = static_cast<const CCollidableSphere&>(prim);
     return 2.f * sphere.GetSphere().radius;
-  } else if (prim.GetPrimType() == FOURCC('AABX')) {
-    const CCollidableAABox& aabx = static_cast<const CCollidableAABox&>(prim);
+  }
+  if (prim.GetPrimType() == FOURCC('AABX')) {
+    const auto& aabx = static_cast<const CCollidableAABox&>(prim);
     const zeus::CVector3f extent = aabx.GetBox().max - aabx.GetBox().min;
     float minExtent = std::min(extent.x(), extent.y());
     minExtent = std::min(minExtent, extent.z());
     return minExtent;
-  } else if (prim.GetPrimType() == FOURCC('ABSH')) {
+  }
+  if (prim.GetPrimType() == FOURCC('ABSH')) {
     // Combination AABB / Sphere cut from game
   }
   return 1.f;
@@ -390,10 +402,12 @@ bool CGameCollision::DetectCollisionBoolean(const CStateManager& mgr, const CCol
                                             const zeus::CTransform& xf, const CMaterialFilter& filter,
                                             const rstl::reserved_vector<TUniqueId, 1024>& nearList) {
   if (!filter.GetExcludeList().HasMaterial(EMaterialTypes::NoStaticCollision) &&
-      DetectStaticCollisionBoolean(mgr, prim, xf, filter))
+      DetectStaticCollisionBoolean(mgr, prim, xf, filter)) {
     return true;
-  if (DetectDynamicCollisionBoolean(prim, xf, nearList, mgr))
+  }
+  if (DetectDynamicCollisionBoolean(prim, xf, nearList, mgr)) {
     return true;
+  }
   return false;
 }
 
@@ -402,32 +416,37 @@ bool CGameCollision::DetectCollisionBoolean_Cached(const CStateManager& mgr, CAr
                                                    const CMaterialFilter& filter,
                                                    const rstl::reserved_vector<TUniqueId, 1024>& nearList) {
   if (!filter.GetExcludeList().HasMaterial(EMaterialTypes::NoStaticCollision) &&
-      DetectStaticCollisionBoolean_Cached(mgr, cache, prim, xf, filter))
+      DetectStaticCollisionBoolean_Cached(mgr, cache, prim, xf, filter)) {
     return true;
-  if (DetectDynamicCollisionBoolean(prim, xf, nearList, mgr))
+  }
+  if (DetectDynamicCollisionBoolean(prim, xf, nearList, mgr)) {
     return true;
+  }
   return false;
 }
 
 bool CGameCollision::DetectStaticCollisionBoolean(const CStateManager& mgr, const CCollisionPrimitive& prim,
                                                   const zeus::CTransform& xf, const CMaterialFilter& filter) {
-  if (prim.GetPrimType() == FOURCC('OBTG'))
+  if (prim.GetPrimType() == FOURCC('OBTG')) {
     return false;
+  }
 
   if (prim.GetPrimType() == FOURCC('AABX')) {
     zeus::CAABox aabb = prim.CalculateAABox(xf);
     for (const CGameArea& area : *mgr.GetWorld()) {
-      if (CMetroidAreaCollider::AABoxCollisionCheckBoolean(*area.GetPostConstructed()->x0_collision, aabb, filter))
+      if (CMetroidAreaCollider::AABoxCollisionCheckBoolean(*area.GetPostConstructed()->x0_collision, aabb, filter)) {
         return true;
+      }
     }
   } else if (prim.GetPrimType() == FOURCC('SPHR')) {
-    const CCollidableSphere& sphere = static_cast<const CCollidableSphere&>(prim);
+    const auto& sphere = static_cast<const CCollidableSphere&>(prim);
     zeus::CAABox aabb = prim.CalculateAABox(xf);
     zeus::CSphere xfSphere = sphere.Transform(xf);
     for (const CGameArea& area : *mgr.GetWorld()) {
       if (CMetroidAreaCollider::SphereCollisionCheckBoolean(*area.GetPostConstructed()->x0_collision, aabb, xfSphere,
-                                                            filter))
+                                                            filter)) {
         return true;
+      }
     }
   } else if (prim.GetPrimType() == FOURCC('ABSH')) {
     // Combination AABB / Sphere cut from game
@@ -439,8 +458,9 @@ bool CGameCollision::DetectStaticCollisionBoolean(const CStateManager& mgr, cons
 bool CGameCollision::DetectStaticCollisionBoolean_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
                                                          const CCollisionPrimitive& prim, const zeus::CTransform& xf,
                                                          const CMaterialFilter& filter) {
-  if (prim.GetPrimType() == FOURCC('OBTG'))
+  if (prim.GetPrimType() == FOURCC('OBTG')) {
     return false;
+  }
 
   zeus::CAABox aabb = prim.CalculateAABox(xf);
   if (!aabb.inside(cache.GetCacheBounds())) {
@@ -450,19 +470,24 @@ bool CGameCollision::DetectStaticCollisionBoolean_Cached(const CStateManager& mg
     BuildAreaCollisionCache(mgr, cache);
   }
 
-  if (cache.HasCacheOverflowed())
+  if (cache.HasCacheOverflowed()) {
     return DetectStaticCollisionBoolean(mgr, prim, xf, filter);
+  }
 
   if (prim.GetPrimType() == FOURCC('AABX')) {
-    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
-      if (CMetroidAreaCollider::AABoxCollisionCheckBoolean_Cached(leafCache, aabb, filter))
+    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache) {
+      if (CMetroidAreaCollider::AABoxCollisionCheckBoolean_Cached(leafCache, aabb, filter)) {
         return true;
+      }
+    }
   } else if (prim.GetPrimType() == FOURCC('SPHR')) {
-    const CCollidableSphere& sphere = static_cast<const CCollidableSphere&>(prim);
+    const auto& sphere = static_cast<const CCollidableSphere&>(prim);
     zeus::CSphere xfSphere = sphere.Transform(xf);
-    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
-      if (CMetroidAreaCollider::SphereCollisionCheckBoolean_Cached(leafCache, aabb, xfSphere, filter))
+    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache) {
+      if (CMetroidAreaCollider::SphereCollisionCheckBoolean_Cached(leafCache, aabb, xfSphere, filter)) {
         return true;
+      }
+    }
   } else if (prim.GetPrimType() == FOURCC('ABSH')) {
     // Combination AABB / Sphere cut from game
   }
@@ -494,9 +519,11 @@ bool CGameCollision::DetectCollision_Cached(const CStateManager& mgr, CAreaColli
                                             CCollisionInfoList& infoList) {
   idOut = kInvalidUniqueId;
   bool ret = false;
-  if (!filter.GetExcludeList().HasMaterial(EMaterialTypes::NoStaticCollision))
-    if (DetectStaticCollision_Cached(mgr, cache, prim, xf, filter, infoList))
+  if (!filter.GetExcludeList().HasMaterial(EMaterialTypes::NoStaticCollision)) {
+    if (DetectStaticCollision_Cached(mgr, cache, prim, xf, filter, infoList)) {
       ret = true;
+    }
+  }
 
   TUniqueId id = kInvalidUniqueId;
   if (DetectDynamicCollision(prim, xf, nearList, id, infoList, mgr)) {
@@ -515,12 +542,15 @@ bool CGameCollision::DetectCollision_Cached_Moving(const CStateManager& mgr, CAr
                                                    CCollisionInfo& infoOut, double& d) {
   bool ret = false;
   idOut = kInvalidUniqueId;
-  if (!filter.GetExcludeList().HasMaterial(EMaterialTypes::NoStaticCollision))
-    if (CGameCollision::DetectStaticCollision_Cached_Moving(mgr, cache, prim, xf, filter, dir, infoOut, d))
+  if (!filter.GetExcludeList().HasMaterial(EMaterialTypes::NoStaticCollision)) {
+    if (CGameCollision::DetectStaticCollision_Cached_Moving(mgr, cache, prim, xf, filter, dir, infoOut, d)) {
       ret = true;
+    }
+  }
 
-  if (CGameCollision::DetectDynamicCollisionMoving(prim, xf, nearList, dir, idOut, infoOut, d, mgr))
+  if (CGameCollision::DetectDynamicCollisionMoving(prim, xf, nearList, dir, idOut, infoOut, d, mgr)) {
     ret = true;
+  }
 
   return ret;
 }
@@ -528,25 +558,28 @@ bool CGameCollision::DetectCollision_Cached_Moving(const CStateManager& mgr, CAr
 bool CGameCollision::DetectStaticCollision(const CStateManager& mgr, const CCollisionPrimitive& prim,
                                            const zeus::CTransform& xf, const CMaterialFilter& filter,
                                            CCollisionInfoList& list) {
-  if (prim.GetPrimType() == FOURCC('OBTG'))
+  if (prim.GetPrimType() == FOURCC('OBTG')) {
     return false;
+  }
 
   bool ret = false;
   if (prim.GetPrimType() == FOURCC('AABX')) {
     zeus::CAABox aabb = prim.CalculateAABox(xf);
     for (const CGameArea& area : *mgr.GetWorld()) {
       if (CMetroidAreaCollider::AABoxCollisionCheck(*area.GetPostConstructed()->x0_collision, aabb, filter,
-                                                    prim.GetMaterial(), list))
+                                                    prim.GetMaterial(), list)) {
         ret = true;
+      }
     }
   } else if (prim.GetPrimType() == FOURCC('SPHR')) {
-    const CCollidableSphere& sphere = static_cast<const CCollidableSphere&>(prim);
+    const auto& sphere = static_cast<const CCollidableSphere&>(prim);
     zeus::CAABox aabb = prim.CalculateAABox(xf);
     zeus::CSphere xfSphere = sphere.Transform(xf);
     for (const CGameArea& area : *mgr.GetWorld()) {
       if (CMetroidAreaCollider::SphereCollisionCheck(*area.GetPostConstructed()->x0_collision, aabb, xfSphere,
-                                                     prim.GetMaterial(), filter, list))
+                                                     prim.GetMaterial(), filter, list)) {
         ret = true;
+      }
     }
   } else if (prim.GetPrimType() == FOURCC('ABSH')) {
     // Combination AABB / Sphere cut from game
@@ -558,8 +591,9 @@ bool CGameCollision::DetectStaticCollision(const CStateManager& mgr, const CColl
 bool CGameCollision::DetectStaticCollision_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
                                                   const CCollisionPrimitive& prim, const zeus::CTransform& xf,
                                                   const CMaterialFilter& filter, CCollisionInfoList& list) {
-  if (prim.GetPrimType() == FOURCC('OBTG'))
+  if (prim.GetPrimType() == FOURCC('OBTG')) {
     return false;
+  }
 
   bool ret = false;
   zeus::CAABox calcAABB = prim.CalculateAABox(xf);
@@ -570,20 +604,25 @@ bool CGameCollision::DetectStaticCollision_Cached(const CStateManager& mgr, CAre
     BuildAreaCollisionCache(mgr, cache);
   }
 
-  if (cache.HasCacheOverflowed())
+  if (cache.HasCacheOverflowed()) {
     return DetectStaticCollision(mgr, prim, xf, filter, list);
+  }
 
   if (prim.GetPrimType() == FOURCC('AABX')) {
-    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
-      if (CMetroidAreaCollider::AABoxCollisionCheck_Cached(leafCache, calcAABB, filter, prim.GetMaterial(), list))
+    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache) {
+      if (CMetroidAreaCollider::AABoxCollisionCheck_Cached(leafCache, calcAABB, filter, prim.GetMaterial(), list)) {
         ret = true;
+      }
+    }
   } else if (prim.GetPrimType() == FOURCC('SPHR')) {
-    const CCollidableSphere& sphere = static_cast<const CCollidableSphere&>(prim);
+    const auto& sphere = static_cast<const CCollidableSphere&>(prim);
     zeus::CSphere xfSphere = sphere.Transform(xf);
-    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
+    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache) {
       if (CMetroidAreaCollider::SphereCollisionCheck_Cached(leafCache, calcAABB, xfSphere, prim.GetMaterial(), filter,
-                                                            list))
+                                                            list)) {
         ret = true;
+      }
+    }
   } else if (prim.GetPrimType() == FOURCC('ABSH')) {
     // Combination AABB / Sphere cut from game
   }
@@ -595,8 +634,9 @@ bool CGameCollision::DetectStaticCollision_Cached_Moving(const CStateManager& mg
                                                          const CCollisionPrimitive& prim, const zeus::CTransform& xf,
                                                          const CMaterialFilter& filter, const zeus::CVector3f& dir,
                                                          CCollisionInfo& infoOut, double& dOut) {
-  if (prim.GetPrimType() == FOURCC('OBTG'))
+  if (prim.GetPrimType() == FOURCC('OBTG')) {
     return false;
+  }
 
   zeus::CVector3f offset = float(dOut) * dir;
   zeus::CAABox aabb = prim.CalculateAABox(xf);
@@ -623,7 +663,7 @@ bool CGameCollision::DetectStaticCollision_Cached_Moving(const CStateManager& mg
       }
     }
   } else if (prim.GetPrimType() == FOURCC('SPHR')) {
-    const CCollidableSphere& sphere = static_cast<const CCollidableSphere&>(prim);
+    const auto& sphere = static_cast<const CCollidableSphere&>(prim);
     zeus::CSphere xfSphere = sphere.Transform(xf);
     for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache) {
       CCollisionInfo info;
@@ -719,7 +759,6 @@ void CGameCollision::MakeCollisionCallbacks(CStateManager& mgr, CPhysicsActor& a
 void CGameCollision::SendScriptMessages(CStateManager& mgr, CActor& a0, CActor* a1, const CCollisionInfoList& list) {
   bool onFloor = false;
   bool platform = false;
-  bool platform2 = false;
 
   for (const CCollisionInfo& info : list) {
     if (IsFloor(info.GetMaterialLeft(), info.GetNormalLeft())) {
@@ -737,17 +776,17 @@ void CGameCollision::SendScriptMessages(CStateManager& mgr, CActor& a0, CActor* 
       if (const TCastToPtr<CScriptPlatform> plat = a1) {
         mgr.SendScriptMsg(plat.GetPtr(), a0.GetUniqueId(), EScriptObjectMessage::AddPlatformRider);
       }
-    } else if (a1) {
+    } else if (a1 != nullptr) {
       if (const TCastToPtr<CScriptPlatform> plat = a0) {
         for (const CCollisionInfo& info : list) {
           if (IsFloor(info.GetMaterialRight(), info.GetNormalRight())) {
             if (info.GetMaterialRight().HasMaterial(EMaterialTypes::Platform)) {
-              platform2 = true;
+              platform = true;
             }
             SendMaterialMessage(mgr, info.GetMaterialLeft(), a0);
           }
         }
-        if (platform2) {
+        if (platform) {
           mgr.SendScriptMsg(plat.GetPtr(), a1->GetUniqueId(), EScriptObjectMessage::AddPlatformRider);
         }
       }
@@ -758,8 +797,8 @@ void CGameCollision::SendScriptMessages(CStateManager& mgr, CActor& a0, CActor* 
 void CGameCollision::ResolveCollisions(CPhysicsActor& a0, CPhysicsActor* a1, const CCollisionInfoList& list) {
   for (const CCollisionInfo& info : list) {
     CCollisionInfo infoCopy = info;
-    float restitution = GetCoefficientOfRestitution(infoCopy) + a0.GetCoefficientOfRestitutionModifier();
-    if (a1) {
+    const float restitution = GetCoefficientOfRestitution(infoCopy) + a0.GetCoefficientOfRestitutionModifier();
+    if (a1 != nullptr) {
       CollideWithDynamicBodyNoRot(a0, *a1, infoCopy, restitution, false);
     } else {
       CollideWithStaticBodyNoRot(a0, infoCopy.GetMaterialLeft(), infoCopy.GetMaterialRight(), infoCopy.GetNormalLeft(),
@@ -771,8 +810,9 @@ void CGameCollision::ResolveCollisions(CPhysicsActor& a0, CPhysicsActor* a1, con
 void CGameCollision::CollideWithDynamicBodyNoRot(CPhysicsActor& a0, CPhysicsActor& a1, const CCollisionInfo& info,
                                                  float restitution, bool zeroZ) {
   zeus::CVector3f normal = info.GetNormalLeft();
-  if (zeroZ)
+  if (zeroZ) {
     normal.z() = 0.f;
+  }
 
   zeus::CVector3f relVel = GetActorRelativeVelocities(a0, &a1);
   float velNormDot = relVel.dot(normal);
@@ -851,16 +891,18 @@ void CGameCollision::CollisionFailsafe(const CStateManager& mgr, CAreaCollisionC
                                        const rstl::reserved_vector<TUniqueId, 1024>& nearList, float f1,
                                        u32 failsafeTicks) {
   actor.MoveCollisionPrimitive(zeus::skZero3f);
-  if (f1 > 0.5f)
+  if (f1 > 0.5f) {
     actor.SetNumTicksPartialUpdate(actor.GetNumTicksPartialUpdate() + 1);
+  }
 
   if (actor.GetNumTicksPartialUpdate() > 1 ||
       DetectCollisionBoolean_Cached(mgr, cache, prim, actor.GetPrimitiveTransform(), actor.GetMaterialFilter(),
                                     nearList)) {
     actor.SetNumTicksPartialUpdate(0);
     actor.SetNumTicksStuck(actor.GetNumTicksStuck() + 1);
-    if (actor.GetNumTicksStuck() < failsafeTicks)
+    if (actor.GetNumTicksStuck() < failsafeTicks) {
       return;
+    }
 
     CMotionState oldMState = actor.GetMotionState();
     CMotionState lastNonCollide = actor.GetLastNonCollidingState();
@@ -900,8 +942,8 @@ CGameCollision::FindNonIntersectingVector(const CStateManager& mgr, CAreaCollisi
   zeus::CVector3f origOrigin = xf.origin;
   zeus::CVector3f center = prim.CalculateAABox(xf).center();
   for (int i = 2; i < 1000; i += (i / 2)) {
-    float pos = i * 0.005f;
-    float neg = -pos;
+    const float pos = static_cast<float>(i) * 0.005f;
+    const float neg = -pos;
     for (int j = 0; j < 26; ++j) {
       zeus::CVector3f vec;
       switch (j) {
@@ -991,8 +1033,9 @@ CGameCollision::FindNonIntersectingVector(const CStateManager& mgr, CAreaCollisi
       if (mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId())->GetAABB().pointInside(worldPoint)) {
         if (mgr.RayCollideWorld(center, center + vec, nearList, CMaterialFilter::skPassEverything, &actor)) {
           xf.origin = worldPoint;
-          if (!DetectCollisionBoolean_Cached(mgr, cache, prim, xf, actor.GetMaterialFilter(), nearList))
+          if (!DetectCollisionBoolean_Cached(mgr, cache, prim, xf, actor.GetMaterialFilter(), nearList)) {
             return {vec};
+          }
         }
       }
     }
