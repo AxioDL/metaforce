@@ -9,3 +9,4 @@ Editor/platforms/win/metaforce.rc
 .vs/
 out/
 cmake-build-*/
+build/

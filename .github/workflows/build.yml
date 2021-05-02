@@ -61,7 +61,7 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: cmake --build .
+        run: cmake --build . --target metaforce metaforce-gui hecl visigen
 
   build-macos:
     name: Build macOS (AppleClang x86_64)
@@ -75,6 +75,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
+          brew upgrade
           brew install ninja qt@5 graphicsmagick imagemagick
           brew link qt@5
           yarn global add create-dmg
@@ -90,7 +91,7 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: cmake --build .
+        run: cmake --build . --target metaforce-gui
 
   build-windows-msvc:
     name: Build Windows (MSVC x86_64)
@@ -143,7 +144,7 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: cmake --build .
+        run: cmake --build . --target metaforce metaforce-gui hecl visigen
 
   build-windows-clang:
     name: Build Windows (Clang x86_64)
@@ -198,4 +199,4 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: cmake --build .
+        run: cmake --build . --target metaforce metaforce-gui hecl visigen

@@ -68,7 +68,7 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: cmake --build .
+        run: cmake --build . --target metaforce metaforce-gui hecl visigen
 
       - name: Split debug information
         run: ci/split-debug-linux.sh
@@ -130,7 +130,7 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: cmake --build .
+        run: cmake --build . --target metaforce-gui
 
       - name: Upload debug information
         env:
@@ -228,7 +228,7 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: cmake --build .
+        run: cmake --build . --target metaforce metaforce-gui hecl visigen crashpad_handler
 
       - name: Upload debug information
         working-directory: ${{github.workspace}}/build/Binaries
@@ -318,7 +318,7 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
-        run: cmake --build .
+        run: cmake --build . --target metaforce metaforce-gui hecl visigen crashpad_handler
 
       - name: Compress PDBs
         working-directory: ${{github.workspace}}/build/Binaries
