@@ -34,13 +34,10 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get -y install build-essential curl git cmake ninja-build llvm-11-dev libclang-11-dev clang lld \
+          sudo apt-get -y install build-essential curl git cmake ninja-build clang lld python3 python-is-python3 \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
-            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default \
-            libcurl4-openssl-dev
-          # remove clang-9, some related packages were already removed, causing issues
-          (dpkg -l clang-9 &>/dev/null && sudo apt-get remove --autoremove \
-            clang-9 clang-format-9 libclang-common-9-dev libllvm9 llvm-9{,-dev}) || true
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev libcurl4-openssl-dev qt5-default \
+            llvm-11-dev libclang-11-dev clang-11
 
           # free up disk space
           # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
@@ -61,7 +58,8 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}}
+            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}} \
+            -DClang_DIR=/usr/lib/cmake/clang-11
 
       - name: Build
         working-directory: ${{github.workspace}}/build
