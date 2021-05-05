@@ -7,7 +7,6 @@ if (NOT MSVC)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
-
 add_executable(visigen
   VISIBuilder.cpp
   VISIBuilder.hpp
@@ -29,17 +28,21 @@ else()
 endif()
 
 if(APPLE)
-  target_sources(visigen PRIVATE MainMac.mm)
+  target_sources(visigen PRIVATE MainMac.mm VISIRendererMetal.mm VISIRendererMetal.hh)
   set_source_files_properties(MainMac.mm PROPERTIES COMPILE_FLAGS -fobjc-arc)
+  set_source_files_properties(VISIRendererMetal.mm PROPERTIES COMPILE_FLAGS -fobjc-arc)
+  find_library(METAL_LIBRARY Metal REQUIRED)
+  target_link_libraries(visigen PRIVATE ${METAL_LIBRARY})
 elseif(WIN32)
-  target_sources(visigen PRIVATE MainWin.cpp)
+  target_sources(visigen PRIVATE
+      MainWin.cpp
+      VISIRendererOpenGL.cpp
+      VISIRendererOpenGL.hpp)
 else()
-  target_sources(visigen PRIVATE MainXlib.cpp)
-endif()
-
-if(APPLE)
-  find_library(OPENGL_LIBRARY OpenGL)
-  target_link_libraries(visigen PRIVATE ${OPENGL_LIBRARY})
+  target_sources(visigen PRIVATE
+      MainXlib.cpp
+      VISIRendererOpenGL.cpp
+      VISIRendererOpenGL.hpp)
 endif()
 
 target_link_libraries(visigen PRIVATE
@@ -50,6 +53,8 @@ target_link_libraries(visigen PRIVATE
   lzokay
   xxhash
   zeus
+  png
   ${ZLIB_LIBRARIES}
 )
+target_include_directories(visigen PRIVATE ${PNG_INCLUDE_DIR})
 endif()

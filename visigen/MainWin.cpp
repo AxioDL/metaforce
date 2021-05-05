@@ -1,4 +1,4 @@
-#include "VISIRenderer.hpp"
+#include "VISIRendererOpenGL.hpp"
 #include <Windows.h>
 #include <WinUser.h>
 #include <Shlwapi.h>
@@ -49,7 +49,7 @@ int wmain(int argc, const hecl::SystemChar** argv) {
   logvisor::RegisterStandardExceptions();
   logvisor::RegisterConsoleLogger();
   atSetExceptionHandler(AthenaExc);
-  VISIRenderer renderer(argc, argv);
+  VISIRendererOpenGL renderer(argc, argv);
   s_Renderer = &renderer;
 
   int instIdx = -1;

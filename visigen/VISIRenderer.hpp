@@ -1,7 +1,7 @@
 #pragma once
 
-#include "boo/graphicsdev/glew.h"
 #include "hecl/SystemChar.hpp"
+#include "hecl/HMDLMeta.hpp"
 #include "zeus/CColor.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CAABox.hpp"
@@ -13,18 +13,9 @@ enum class EPVSVisSetState { EndOfTree, NodeFound, OutOfBounds };
 class VISIRenderer {
   friend struct VISIBuilder;
 
-  int m_argc;
-  const hecl::SystemChar** m_argv;
-  int m_return = 0;
-
-  zeus::CAABox m_totalAABB;
-
-  struct UniformBuffer {
-    zeus::CMatrix4f m_xf;
-  } m_uniformBuffer;
-
+public:
   struct Model {
-    GLenum topology;
+    hecl::HMDLTopology topology;
     zeus::CAABox aabb;
 
     struct Vert {
@@ -34,7 +25,6 @@ class VISIRenderer {
     std::vector<Vert> verts;
 
     std::vector<uint32_t> idxs;
-    GLuint vbo, ibo, vao;
 
     struct Surface {
       uint32_t first;
@@ -47,31 +37,28 @@ class VISIRenderer {
   struct Entity {
     uint32_t entityId;
     zeus::CAABox aabb;
-    GLuint vbo, vao;
   };
 
   struct Light {
     zeus::CVector3f point;
-    GLuint vbo, vao;
   };
 
-  GLuint m_vtxShader, m_fragShader, m_program, m_uniLoc;
-  GLuint m_uniformBufferGL;
-  GLuint m_aabbIBO;
-  bool SetupShaders();
+protected:
+  int m_argc;
+  const hecl::SystemChar** m_argv;
+  int m_return = 0;
+
+  zeus::CAABox m_totalAABB;
+
+  virtual bool SetupShaders() = 0;
 
   std::vector<Model> m_models;
   std::vector<Entity> m_entities;
   std::vector<Light> m_lights;
-  bool SetupVertexBuffersAndFormats();
-
-  size_t m_queryCount;
-  std::unique_ptr<GLuint[]> m_queries;
-  std::unique_ptr<bool[]> m_queryBools;
+  virtual bool SetupVertexBuffersAndFormats() = 0;
+  virtual void SetupRenderPass(const zeus::CVector3f& pos) = 0;
 
   FPercent m_updatePercent;
-
-  static std::vector<Model::Vert> AABBToVerts(const zeus::CAABox& aabb, const zeus::CColor& color);
 
 public:
   bool m_terminate = false;
@@ -85,10 +72,13 @@ public:
   VISIRenderer(int argc, const hecl::SystemChar** argv) : m_argc(argc), m_argv(argv) {}
   void Run(FPercent updatePercent);
   void Terminate();
-  void RenderPVSOpaque(RGBA8* bufOut, const zeus::CVector3f& pos, bool& needTransparent);
-  void RenderPVSTransparent(const std::function<void(int)>& passFunc, const zeus::CVector3f& pos);
-  void RenderPVSEntitiesAndLights(const std::function<void(int)>& passFunc,
-                                  const std::function<void(int, EPVSVisSetState)>& lightPassFunc,
-                                  const zeus::CVector3f& pos);
+  virtual void RenderPVSOpaque(RGBA8* bufOut, bool& needTransparent) = 0;
+  virtual void RenderPVSTransparent(const std::function<void(int)>& passFunc) = 0;
+  virtual void RenderPVSEntitiesAndLights(const std::function<void(int)>& passFunc,
+                                          const std::function<void(int, EPVSVisSetState)>& lightPassFunc) = 0;
   int ReturnVal() const { return m_return; }
+
+  static std::vector<Model::Vert> AABBToVerts(const zeus::CAABox& aabb, const zeus::CColor& color);
+  static zeus::CColor ColorForIndex(uint32_t i);
+  static void* makePNGBuffer(unsigned char* rgba, int width, int height, size_t* outsize);
 };

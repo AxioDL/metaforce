@@ -1,6 +1,9 @@
 #include "VISIBuilder.hpp"
 #include "logvisor/logvisor.hpp"
 
+#include <fstream>
+#include <iostream>
+
 #ifndef _WIN32
 #include <unistd.h>
 #include <signal.h>
@@ -15,16 +18,29 @@ VISIBuilder::PVSRenderCache::PVSRenderCache(VISIRenderer& renderer) : m_renderer
 
 static std::unique_ptr<VISIRenderer::RGBA8[]> RGBABuf(new VISIRenderer::RGBA8[256 * 256 * 6]);
 
+size_t VISIBuilder::m_frame = 0;
+
 const VISIBuilder::Leaf& VISIBuilder::PVSRenderCache::GetLeaf(const zeus::CVector3f& vec) {
   auto search = m_cache.find(vec);
   if (search != m_cache.cend()) {
-    // Log.report(logvisor::Info, FMT_STRING("Cache hit"));
     return *search->second;
   }
 
-  // Log.report(logvisor::Info, FMT_STRING("Rendering"));
+  m_renderer.SetupRenderPass(vec);
+
   bool needsTransparent = false;
-  m_renderer.RenderPVSOpaque(RGBABuf.get(), vec, needsTransparent);
+  m_renderer.RenderPVSOpaque(RGBABuf.get(), needsTransparent);
+
+//  size_t outsize;
+//  auto* buf = VISIRenderer::makePNGBuffer(reinterpret_cast<unsigned char*>(RGBABuf.get()), 768, 512, &outsize);
+//  auto filename = fmt::format(FMT_STRING("outx{}.png"), m_frame++);
+//  std::cout << "Rendering " << filename << std::endl;
+//  std::ofstream fout;
+//  fout.open(filename, std::ios::binary | std::ios::out);
+//  fout.write(static_cast<const char*>(buf), outsize);
+//  fout.close();
+//  free(buf);
+
   std::unique_ptr<Leaf> leafOut = std::make_unique<Leaf>();
   for (unsigned i = 0; i < 768 * 512; ++i) {
     const VISIRenderer::RGBA8& pixel = RGBABuf[i];
@@ -39,18 +55,20 @@ const VISIBuilder::Leaf& VISIBuilder::PVSRenderCache::GetLeaf(const zeus::CVecto
       leafOut->setLightEnum(m_lightMetaBit + idx * 2, state);
   };
   if (needsTransparent)
-    m_renderer.RenderPVSTransparent(setBitLambda, vec);
-  m_renderer.RenderPVSEntitiesAndLights(setBitLambda, setLightLambda, vec);
+    m_renderer.RenderPVSTransparent(setBitLambda);
+  m_renderer.RenderPVSEntitiesAndLights(setBitLambda, setLightLambda);
 
   return *m_cache.emplace(std::make_pair(vec, std::move(leafOut))).first->second;
 }
 
 void VISIBuilder::Progress::report(int divisions) {
   m_prog += 1.f / divisions;
-  // printf(" %g%%        \r", m_prog * 100.f);
-  // fflush(stdout);
-  if (m_updatePercent)
+  if (m_updatePercent != nullptr) {
     m_updatePercent(m_prog);
+  } else {
+    printf(" %g%%        \r", m_prog * 100.f);
+    fflush(stdout);
+  }
 }
 
 void VISIBuilder::Node::buildChildren(int level, int divisions, const zeus::CAABox& curAabb, PVSRenderCache& rc,

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "VISIRenderer.hpp"
-#include "zeus/CAABox.hpp"
-#include "xxhash/xxhash.h"
 #include "athena/MemoryWriter.hpp"
+#include "xxhash/xxhash.h"
+#include "zeus/CAABox.hpp"
 #include <unordered_map>
 
 #ifdef _WIN32
@@ -23,6 +23,8 @@ struct hash<zeus::CVector3f> {
 } // namespace std
 
 struct VISIBuilder {
+  static size_t m_frame;
+
   struct Leaf {
     std::vector<uint8_t> bits;
     void setBit(size_t bit) {

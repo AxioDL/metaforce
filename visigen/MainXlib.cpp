@@ -1,4 +1,4 @@
-#include "VISIRenderer.hpp"
+#include "VISIRendererOpenGL.hpp"
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <GL/glx.h>
@@ -86,7 +86,7 @@ int main(int argc, const char** argv) {
   logvisor::RegisterStandardExceptions();
   logvisor::RegisterConsoleLogger();
   atSetExceptionHandler(AthenaExc);
-  VISIRenderer renderer(argc, argv);
+  VISIRendererOpenGL renderer(argc, argv);
 
   if (!XInitThreads()) {
     Log.report(logvisor::Error, FMT_STRING("X doesn't support multithreading"));
