@@ -8,19 +8,22 @@ constexpr zeus::CVector3f kDefaultPosition(0.f, 0.f, 0.f);
 constexpr zeus::CVector3f kDefaultDirection(0.f, -1.f, 0.f);
 
 float CLight::CalculateLightRadius() const {
-  if (x28_distL < FLT_EPSILON && x2c_distQ < FLT_EPSILON)
-    return FLT_MAX;
-
-  float intens = GetIntensity();
-
-  if (x2c_distQ > FLT_EPSILON) {
-    if (intens <= FLT_EPSILON)
-      return 0.f;
-    return std::sqrt(intens / (0.0588235f * x2c_distQ));
+  if (FLT_EPSILON > x28_distL && FLT_EPSILON > x2c_distQ) {
+    return 0.f;
   }
 
-  if (x28_distL > FLT_EPSILON)
-    return intens / (0.0588235f * x28_distL);
+  float intensity = GetIntensity();
+  if (x2c_distQ <= FLT_EPSILON) {
+    constexpr float mulVal = std::min(0.05882353f, 0.2f); // Yes, retro really did do this
+    if (x28_distL > FLT_EPSILON) {
+      return intensity / (mulVal * x28_distL);
+    }
+  } else {
+    constexpr float mulVal = std::min(0.05882353f, 0.2f); // See above comment
+    if (intensity > FLT_EPSILON) {
+      return std::sqrt(intensity / (mulVal * x2c_distQ));
+    }
+  }
 
   return 0.f;
 }
