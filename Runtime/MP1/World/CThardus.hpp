@@ -137,7 +137,7 @@ class CThardus : public CPatterned {
   void GatherWaypoints(CScriptWaypoint* wp, CStateManager& mgr, rstl::reserved_vector<TUniqueId, 16>& uids);
   void sub801dec80() { x68c_ = 20000; }
   void FindNonDestroyableActors(const std::unique_ptr<CCollisionActorManager>& colMgr);
-  void sub801dbf34(float dt, CStateManager& mgr);
+  void UpdateRockThermalState(float dt, CStateManager& mgr);
   bool sub801dc2c8() const { return (x610_destroyableRocks.size() - 1) == x648_currentRock; }
   void sub801de9f8(CStateManager& mgr);
   void sub801dd608(CStateManager& mgr);
@@ -152,9 +152,9 @@ class CThardus : public CPatterned {
         x944_ = 0.f;
     }
   }
-  void sub801dae2c(CStateManager& mgr, u32 rockIndex);
+  void BreakRock(CStateManager& mgr, u32 rockIndex);
 
-  void sub801dc444(CStateManager& mgr, const zeus::CVector3f& pos, CAssetId particle);
+  void SetRockParticle(CStateManager& mgr, const zeus::CVector3f& pos, CAssetId particle);
   void sub801dbc5c(CStateManager& mgr, CDestroyableRock* rock);
   void sub801dbbdc(CStateManager& mgr, CDestroyableRock* rock);
   bool sub801dc2c8() { return x648_currentRock == (x610_destroyableRocks.size() - 1); }
@@ -168,7 +168,7 @@ class CThardus : public CPatterned {
   void RenderFlare(const CStateManager& mgr, float t);
   zeus::CVector3f sub801de550(CStateManager& mgr);
   zeus::CVector3f sub801de434(CStateManager& mgr);
-  zeus::CVector2f sub801dc60c(float f1, CStateManager& mgr);
+  zeus::CVector2f GetTargetVector(float arg, CStateManager& mgr);
   void sub801dbc40();
 
   std::optional<CTexturedQuadFilter> m_flareFilter;
@@ -185,7 +185,7 @@ class CThardus : public CPatterned {
   void _DoSuckState(CStateManager& mgr) { x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Suck"sv); }
 
 
-  zeus::CVector2f sub801dac30(CStateManager& mgr) const;
+  zeus::CVector2f GetSteeringVector(CStateManager& mgr) const;
   void UpdateHealthInfo(CStateManager& mgr);
   void BouncePlayer(float f1, CStateManager& mgr);
 
