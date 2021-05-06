@@ -62,29 +62,7 @@ CLight::CLight(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeu
 
 CLight::CLight(ELightType type, const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeus::CColor& color,
                float cutoff)
-: x0_pos(pos)
-, xc_dir(dir)
-, x18_color(color)
-, x1c_type(type)
-, x20_spotCutoff(cutoff) {
-  switch (type) {
-  case ELightType::Spot: {
-    const float cosCutoff = std::cos(zeus::degToRad(cutoff));
-    x30_angleC = 0.f;
-    x34_angleL = -cosCutoff / (1.0f - cosCutoff);
-    x38_angleQ = 1.f / (1.0f - cosCutoff);
-    break;
-  }
-  case ELightType::Directional: {
-    x24_distC = 1.f;
-    x28_distL = 0.f;
-    x2c_distQ = 0.f;
-    break;
-  }
-  default:
-    break;
-  }
-}
+: x0_pos(pos), xc_dir(dir), x18_color(color), x1c_type(type), x20_spotCutoff(cutoff) {}
 
 zeus::CColor CLight::GetNormalIndependentLightingAtPoint(const zeus::CVector3f& point) const {
   if (x1c_type == ELightType::LocalAmbient)
