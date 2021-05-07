@@ -227,6 +227,7 @@ CElementGen::~CElementGen() {
 
 bool CElementGen::Update(double t) {
   s32 oldMax = x90_MAXP;
+  s32 oldMBSP = x270_MBSP;
   CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::instance()->m_currentParticleSystem;
   CParticleGlobals::SParticleSystem thisSystem{FOURCC('PART'), this};
   CParticleGlobals::instance()->m_currentParticleSystem = &thisSystem;
@@ -242,13 +243,14 @@ bool CElementGen::Update(double t) {
   bool ret = InternalUpdate(t);
   CParticleGlobals::instance()->m_currentParticleSystem = prevSystem;
 
-  if (oldMax < x90_MAXP) {
-    _RecreatePipelines();
+  if (oldMax < x90_MAXP || oldMBSP < x270_MBSP) {
+    //_RecreatePipelines();
   }
   return ret;
 }
+
 void CElementGen::_RecreatePipelines() {
-  size_t maxInsts = x26c_30_MBLR ? (x270_MBSP * x90_MAXP) : x90_MAXP;
+  size_t maxInsts = x26c_30_MBLR ? 2560 * 2 : 2560;//x26c_30_MBLR ? (x270_MBSP * x90_MAXP) : x90_MAXP;
   maxInsts = (maxInsts == 0 ? 256 : maxInsts);
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -355,6 +357,11 @@ void CElementGen::AccumulateBounds(const zeus::CVector3f& pos, float size) {
 
 void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, s32 particleFrame) {
   CGenDescription* desc = x28_loadedGenDesc;
+
+  if (activeParticleCount >= x60_advValues.size()) {
+    Log.report(logvisor::Fatal, FMT_STRING("activeParticleCount ({}) >= advValues size ({})"),
+               activeParticleCount, x60_advValues.size());
+  }
 
   std::array<float, 8>& arr = x60_advValues[activeParticleCount];
   CParticleGlobals::instance()->m_particleAccessParameters = &arr;

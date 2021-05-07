@@ -8,19 +8,22 @@ constexpr zeus::CVector3f kDefaultPosition(0.f, 0.f, 0.f);
 constexpr zeus::CVector3f kDefaultDirection(0.f, -1.f, 0.f);
 
 float CLight::CalculateLightRadius() const {
-  if (x28_distL < FLT_EPSILON && x2c_distQ < FLT_EPSILON)
-    return FLT_MAX;
-
-  float intens = GetIntensity();
-
-  if (x2c_distQ > FLT_EPSILON) {
-    if (intens <= FLT_EPSILON)
-      return 0.f;
-    return std::sqrt(intens / (0.0588235f * x2c_distQ));
+  if (FLT_EPSILON > x28_distL && FLT_EPSILON > x2c_distQ) {
+    return 0.f;
   }
 
-  if (x28_distL > FLT_EPSILON)
-    return intens / (0.0588235f * x28_distL);
+  float intensity = GetIntensity();
+  if (x2c_distQ <= FLT_EPSILON) {
+    constexpr float mulVal = std::min(0.05882353f, 0.2f); // Yes, retro really did do this
+    if (x28_distL > FLT_EPSILON) {
+      return intensity / (mulVal * x28_distL);
+    }
+  } else {
+    constexpr float mulVal = std::min(0.05882353f, 0.2f); // See above comment
+    if (intensity > FLT_EPSILON) {
+      return std::sqrt(intensity / (mulVal * x2c_distQ));
+    }
+  }
 
   return 0.f;
 }
@@ -59,29 +62,7 @@ CLight::CLight(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeu
 
 CLight::CLight(ELightType type, const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeus::CColor& color,
                float cutoff)
-: x0_pos(pos)
-, xc_dir(dir)
-, x18_color(color)
-, x1c_type(type)
-, x20_spotCutoff(cutoff) {
-  switch (type) {
-  case ELightType::Spot: {
-    const float cosCutoff = std::cos(zeus::degToRad(cutoff));
-    x30_angleC = 0.f;
-    x34_angleL = -cosCutoff / (1.0f - cosCutoff);
-    x38_angleQ = 1.f / (1.0f - cosCutoff);
-    break;
-  }
-  case ELightType::Directional: {
-    x24_distC = 1.f;
-    x28_distL = 0.f;
-    x2c_distQ = 0.f;
-    break;
-  }
-  default:
-    break;
-  }
-}
+: x0_pos(pos), xc_dir(dir), x18_color(color), x1c_type(type), x20_spotCutoff(cutoff) {}
 
 zeus::CColor CLight::GetNormalIndependentLightingAtPoint(const zeus::CVector3f& point) const {
   if (x1c_type == ELightType::LocalAmbient)
