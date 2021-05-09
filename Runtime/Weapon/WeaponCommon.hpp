@@ -32,7 +32,8 @@ enum class EWeaponType {
   Lava = 11,
   Heat = 12,
   Unused1 = 13,
-  OrangePhazon = 14
+  OrangePhazon = 14,
+  Max = 15
 };
 
 enum class EProjectileAttrib {
