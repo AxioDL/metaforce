@@ -798,13 +798,13 @@ void CFlaahgra::SetMaterialProperties(const std::unique_ptr<CCollisionActorManag
   }
 }
 
-bool CFlaahgra::ShouldTurn(CStateManager& mgr, float /*unused*/) {
+bool CFlaahgra::ShouldTurn(CStateManager& mgr, float /*arg*/) {
   zeus::CVector2f posDiff = mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f();
   zeus::CVector2f frontVec = x34_transform.frontVector().toVec2f();
   return zeus::CVector2f::getAngleDiff(frontVec, posDiff) > zeus::degToRad(15.f);
 }
 
-void CFlaahgra::TurnAround(CStateManager& mgr, EStateMsg msg, float /*unused*/) {
+void CFlaahgra::TurnAround(CStateManager& mgr, EStateMsg msg, float /*arg*/) {
   if (msg == EStateMsg::Activate) {
     x6cc_boneTracking->SetTarget(mgr.GetPlayer().GetUniqueId());
     x6cc_boneTracking->SetActive(true);
@@ -833,7 +833,7 @@ bool CFlaahgra::IsSphereCollider(TUniqueId uid) const {
   return it != x7fc_sphereColliders.end();
 }
 
-void CFlaahgra::GetUp(CStateManager& mgr, EStateMsg msg, float /*unused*/) {
+void CFlaahgra::GetUp(CStateManager& mgr, EStateMsg msg, float /*arg*/) {
   if (msg == EStateMsg::Activate) {
     x568_state = EState::Zero;
     x784_ = x780_;
@@ -923,7 +923,7 @@ float CFlaahgra::GetEndActionTime() const {
   return eventTime.GetSeconds();
 }
 
-void CFlaahgra::Generate(CStateManager& mgr, EStateMsg msg, float /*unused*/) {
+void CFlaahgra::Generate(CStateManager& mgr, EStateMsg msg, float /*arg*/) {
   if (msg == EStateMsg::Activate) {
     x568_state = EState::Zero;
   } else if (msg == EStateMsg::Update) {
@@ -1015,7 +1015,7 @@ void CFlaahgra::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CFlaahgra::Dead(CStateManager& mgr, EStateMsg msg, float /*dt*/) {
+void CFlaahgra::Dead(CStateManager& mgr, EStateMsg msg, float /*arg*/) {
   if (msg == EStateMsg::Activate) {
     x568_state = (x450_bodyController->GetFallState() != pas::EFallState::Zero ||
                   x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Fall)
@@ -1054,6 +1054,9 @@ void CFlaahgra::Dead(CStateManager& mgr, EStateMsg msg, float /*dt*/) {
 }
 
 void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
+  fmt::print(FMT_STRING("CFlaahgra::Attack {}\n"), (msg == EStateMsg::Activate ? "Activate"
+                                                    : msg == EStateMsg::Update ? "Update"
+                                                                               : "Deactivate"));
   static constexpr std::array kStates1{
       -1, -1, -1, 2, -1,
   };
@@ -1076,24 +1079,22 @@ void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
         }
 
         x78c_ = sub801ae754(mgr);
-        x798_meleeInitialAnimState = x450_bodyController->GetBodyStateInfo().GetCurrentStateId();
+        x798_meleeInitialAnimState = x450_bodyController->GetCurrentAnimId();
       } else {
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(kSeverity[x7a8_]));
       }
     } else if (x568_state == EState::One) {
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::MeleeAttack) {
-        x568_state = EState::Four;
-      } else {
-        if (x798_meleeInitialAnimState != x450_bodyController->GetBodyStateInfo().GetCurrentStateId()) {
-          x568_state = EState::Two;
-        } else {
+      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::MeleeAttack) {
+        if (x798_meleeInitialAnimState == x450_bodyController->GetCurrentAnimId()) {
           x450_bodyController->GetCommandMgr().DeliverTargetVector(x78c_);
-          if (!ShouldAttack(mgr, 0.f)) {
-            return;
+          if (ShouldAttack(mgr, 0.f)) {
+            x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(kSeverity[kStates1[x7a8_]]));
           }
-
-          x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(kSeverity[kStates1[x7a8_]]));
+        } else {
+          x568_state = EState::Two;
         }
+      } else {
+        x568_state = EState::Four;
       }
     } else if (x568_state == EState::Two) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::MeleeAttack) {
@@ -1120,10 +1121,9 @@ void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
 
 u32 CFlaahgra::sub801ae828(const CStateManager& mgr) const {
   const CPlayer& player = mgr.GetPlayer();
-  if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
-    if (x7cc_generateEndCooldown > 0.f || player.GetVelocity().magSquared() < 25.f) {
-      return 3;
-    }
+  if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed &&
+      (x7cc_generateEndCooldown > 0.f || player.GetVelocity().magSquared() < 25.f)) {
+    return 3;
   }
 
   if (GetTransform().basis[0].dot(player.GetVelocity()) > 0.f) {
@@ -1161,7 +1161,7 @@ void CFlaahgra::Dizzy(CStateManager& /*unused*/, EStateMsg msg, float arg) {
   }
 }
 
-void CFlaahgra::Suck(CStateManager& mgr, EStateMsg msg, float /*unused*/) {
+void CFlaahgra::Suck(CStateManager& mgr, EStateMsg msg, float /*arg*/) {
   if (msg == EStateMsg::Activate) {
     x568_state = EState::Zero;
     x8e4_26_ = false;
@@ -1190,7 +1190,7 @@ void CFlaahgra::Suck(CStateManager& mgr, EStateMsg msg, float /*unused*/) {
   }
 }
 
-void CFlaahgra::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float /*unused*/) {
+void CFlaahgra::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float /*arg*/) {
   if (msg == EStateMsg::Activate) {
     x568_state = EState::Zero;
     SendScriptMsgs(EScriptObjectState::Attack, mgr, EScriptObjectMessage::None);
@@ -1237,7 +1237,7 @@ void CFlaahgra::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float /*unus
   }
 }
 
-void CFlaahgra::Cover(CStateManager& mgr, EStateMsg msg, float /*unused*/) {
+void CFlaahgra::Cover(CStateManager& mgr, EStateMsg msg, float /*arg*/) {
   static constexpr std::array severities{pas::ESeverity::Eight, pas::ESeverity::Seven};
   if (msg == EStateMsg::Activate) {
     x77c_targetMirrorWaypointId = GetMirrorNearestPlayer(mgr);
@@ -1285,7 +1285,7 @@ void CFlaahgra::Cover(CStateManager& mgr, EStateMsg msg, float /*unused*/) {
   }
 }
 
-void CFlaahgra::SpecialAttack(CStateManager& mgr, EStateMsg msg, float /*unused*/) {
+void CFlaahgra::SpecialAttack(CStateManager& mgr, EStateMsg msg, float /*arg*/) {
   if (msg == EStateMsg::Activate) {
     x568_state = EState::Zero;
     x8e5_24_ = false;
@@ -1317,7 +1317,7 @@ void CFlaahgra::SpecialAttack(CStateManager& mgr, EStateMsg msg, float /*unused*
   }
 }
 
-bool CFlaahgra::CoverCheck(CStateManager& mgr, float /*unused*/) {
+bool CFlaahgra::CoverCheck(CStateManager& mgr, float /*arg*/) {
   if (x7f8_ <= 0 && x7bc_ > 0.f) {
     return false;
   }
@@ -1353,7 +1353,7 @@ TUniqueId CFlaahgra::GetMirrorNearestPlayer(const CStateManager& mgr) const {
   return nearId;
 }
 
-void CFlaahgra::Enraged(CStateManager& /*unused*/, EStateMsg msg, float /*unused*/) {
+void CFlaahgra::Enraged(CStateManager& /*mgr*/, EStateMsg msg, float /*arg*/) {
   if (msg == EStateMsg::Activate) {
     x568_state = EState::Zero;
   } else if (msg == EStateMsg::Update) {
