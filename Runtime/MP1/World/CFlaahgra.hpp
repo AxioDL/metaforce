@@ -92,7 +92,8 @@ class CFlaahgra : public CPatterned {
     Zero,
     One,
     Two,
-    Over,
+    Three,
+    Four
   } x568_state = EState::Invalid;
   CFlaahgraData x56c_data;
   std::unique_ptr<CBoneTracking> x6cc_boneTracking; // Used to be an rstl::optional_object<CBoneTracking*>
@@ -212,7 +213,7 @@ public:
     return x8e4_30_bigStrike ? &x704_bigStrikeProjectileInfo : &x6dc_normalProjectileInfo;
   }
 
-  bool AnimOver(CStateManager&, float) override { return x568_state == EState::Over; }
+  bool AnimOver(CStateManager&, float) override { return x568_state == EState::Four; }
   bool AIStage(CStateManager&, float arg) override { return x780_ == u32(arg); }
   bool HitSomething(CStateManager&, float arg) override { return x7d0_hitSomethingTime > 0.f; }
   bool OffLine(CStateManager&, float) override { return (x8e5_29_ && x8e5_28_); }
