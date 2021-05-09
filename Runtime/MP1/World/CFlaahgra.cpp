@@ -1054,9 +1054,6 @@ void CFlaahgra::Dead(CStateManager& mgr, EStateMsg msg, float /*arg*/) {
 }
 
 void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
-  fmt::print(FMT_STRING("CFlaahgra::Attack {}\n"), (msg == EStateMsg::Activate ? "Activate"
-                                                    : msg == EStateMsg::Update ? "Update"
-                                                                               : "Deactivate"));
   static constexpr std::array kStates1{
       -1, -1, -1, 2, -1,
   };
