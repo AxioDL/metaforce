@@ -1,4 +1,4 @@
-#include "VISIRendererOpenGL.hpp"
+#include "opengl/VISIRendererOpenGL.hpp"
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <GL/glx.h>

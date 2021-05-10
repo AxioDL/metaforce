@@ -5,8 +5,11 @@
 
 static zeus::CMatrix4f g_Proj;
 
-constexpr zeus::CMatrix4f VulkanCorrect(1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, 0.f, 0.f, 0.5f, 0.5f + FLT_EPSILON,
-                                        0.f, 0.f, 0.f, 1.f);
+constexpr zeus::CMatrix4f DepthCorrect(
+    1.f, 0.f, 0.f, 0.f,
+    0.f, 1.f, 0.f, 0.f,
+    0.f, 0.f, 0.5f, 0.5f,
+    0.f, 0.f, 0.f, 1.f);
 
 static void CalculateProjMatrix() {
   float znear = 0.2f;
@@ -25,9 +28,11 @@ static void CalculateProjMatrix() {
   float fmn = zfar - znear;
 
   zeus::CMatrix4f mat2{
-      2.f * znear / rml,         0.f, rpl / rml, 0.f,  0.f, 2.f * znear / tmb, tpb / tmb, 0.f, 0.f, 0.f, -fpn / fmn,
-      -2.f * zfar * znear / fmn, 0.f, 0.f,       -1.f, 0.f};
-  g_Proj = VulkanCorrect * mat2;
+      2.f * znear / rml, 0.f, rpl / rml, 0.f,
+      0.f, 2.f * znear / tmb, tpb / tmb, 0.f,
+      0.f, 0.f, -fpn / fmn, -2.f * zfar * znear / fmn,
+      0.f, 0.f, -1.f, 0.f};
+  g_Proj = DepthCorrect * mat2;
 }
 
 static constexpr std::array<uint16_t, 20> AABBIdxs{0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 1, 7, 3, 5, 5, 0, 0, 2, 6, 4};
@@ -238,8 +243,8 @@ using Vertex = VISIRenderer::Model::Vert;
   [encoder setVertexBuffer:_uniformBuffer offset:0 atIndex:BufferIndexUniforms];
 
   for (int j = 0; j < 6; ++j) {
-    GLint x = (j % 3) * 256;
-    GLint y = (j / 3) * 256;
+    NSUInteger x = (j % 3) * 256;
+    NSUInteger y = (j / 3) * 256;
     [encoder setViewport:{x, y, 256, 256, 0, 1}];
     if (j > 0) {
       [encoder setVertexBufferOffset:j * sizeof(Uniforms) atIndex:BufferIndexUniforms];
@@ -404,7 +409,7 @@ using Vertex = VISIRenderer::Model::Vert;
         [encoder setVisibilityResultMode:MTLVisibilityResultModeBoolean offset:queryCount * sizeof(uint64_t)];
         [encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangleStrip
                             indexCount:20
-                             indexType:MTLIndexTypeUInt32
+                             indexType:MTLIndexTypeUInt16
                            indexBuffer:_aabbIndexBuffer
                      indexBufferOffset:0];
       }
@@ -453,6 +458,12 @@ using Vertex = VISIRenderer::Model::Vert;
   }
 }
 @end
+
+void VISIRendererMetal::Run(FPercent updatePercent) {
+  @autoreleasepool {
+    VISIRenderer::Run(updatePercent);
+  }
+}
 
 bool VISIRendererMetal::SetupShaders() { return [view setup]; }
 

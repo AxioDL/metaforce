@@ -31,15 +31,15 @@ const VISIBuilder::Leaf& VISIBuilder::PVSRenderCache::GetLeaf(const zeus::CVecto
   bool needsTransparent = false;
   m_renderer.RenderPVSOpaque(RGBABuf.get(), needsTransparent);
 
-//  size_t outsize;
-//  auto* buf = VISIRenderer::makePNGBuffer(reinterpret_cast<unsigned char*>(RGBABuf.get()), 768, 512, &outsize);
-//  auto filename = fmt::format(FMT_STRING("outx{}.png"), m_frame++);
-//  std::cout << "Rendering " << filename << std::endl;
-//  std::ofstream fout;
-//  fout.open(filename, std::ios::binary | std::ios::out);
-//  fout.write(static_cast<const char*>(buf), outsize);
-//  fout.close();
-//  free(buf);
+  size_t outsize;
+  auto* buf = VISIRenderer::makePNGBuffer(reinterpret_cast<unsigned char*>(RGBABuf.get()), 768, 512, &outsize);
+  auto filename = fmt::format(FMT_STRING("/tmp/visigen/outx{}.png"), m_frame++);
+  std::cout << "Rendering " << filename << std::endl;
+  std::ofstream fout;
+  fout.open(filename, std::ios::binary | std::ios::out);
+  fout.write(static_cast<const char*>(buf), outsize);
+  fout.close();
+  free(buf);
 
   std::unique_ptr<Leaf> leafOut = std::make_unique<Leaf>();
   for (unsigned i = 0; i < 768 * 512; ++i) {

@@ -70,7 +70,7 @@ public:
   };
 
   VISIRenderer(int argc, const hecl::SystemChar** argv) : m_argc(argc), m_argv(argv) {}
-  void Run(FPercent updatePercent);
+  virtual void Run(FPercent updatePercent);
   void Terminate();
   virtual void RenderPVSOpaque(RGBA8* bufOut, bool& needTransparent) = 0;
   virtual void RenderPVSTransparent(const std::function<void(int)>& passFunc) = 0;

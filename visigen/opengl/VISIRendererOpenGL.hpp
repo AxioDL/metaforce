@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VISIRenderer.hpp"
+#include "../VISIRenderer.hpp"
 #include "boo/graphicsdev/glew.h"
 
 #include <zeus/CFrustum.hpp>

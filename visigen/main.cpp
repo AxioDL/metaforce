@@ -1,13 +1,10 @@
 #include "../version.h"
-#include "VISIRendererMetal.hh"
 #include "athena/Global.hpp"
 #include "logvisor/logvisor.hpp"
-#include <AppKit/AppKit.h>
-#include <MetalKit/MetalKit.h>
-#include <thread>
-
-#if !__has_feature(objc_arc)
-#error ARC Required
+#ifdef __APPLE__
+#include "metal/VISIRendererMetal.hh"
+#else
+#include "vulkan/VISIRendererVulkan.hpp"
 #endif
 
 static logvisor::Module AthenaLog("Athena");
@@ -25,9 +22,11 @@ int main(int argc, const char **argv) {
   logvisor::RegisterStandardExceptions();
   logvisor::RegisterConsoleLogger();
   atSetExceptionHandler(AthenaExc);
+#ifdef __APPLE__
   VISIRendererMetal renderer(argc, argv);
-  @autoreleasepool {
-    renderer.Run(nullptr);
-  }
+#else
+  VISIRendererVulkan renderer(argc, argv);
+#endif
+  renderer.Run(nullptr);
   return renderer.ReturnVal();
 }

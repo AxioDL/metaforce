@@ -1,9 +1,11 @@
 #pragma once
 
-#include "VISIRenderer.hpp"
-#import <AppKit/AppKit.h>
+#include "../VISIRenderer.hpp"
 #import <Metal/Metal.h>
-#import <MetalKit/MetalKit.h>
+
+#if !__has_feature(objc_arc)
+#error ARC Required
+#endif
 
 @interface MetalRenderer : NSObject
 @end
@@ -19,6 +21,7 @@ public:
   VISIRendererMetal(int argc, const hecl::SystemChar** argv) : VISIRenderer(argc, argv) {
     view = [[MetalRenderer alloc] init];
   }
+  void Run(FPercent updatePercent) override;
   void RenderPVSOpaque(RGBA8* out, bool& needTransparent) override;
   void RenderPVSTransparent(const std::function<void(int)>& passFunc) override;
   void RenderPVSEntitiesAndLights(const std::function<void(int)>& passFunc,

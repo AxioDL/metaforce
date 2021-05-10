@@ -1,4 +1,4 @@
-#include "VISIRendererOpenGL.hpp"
+#include "opengl/VISIRendererOpenGL.hpp"
 #include <Windows.h>
 #include <WinUser.h>
 #include <Shlwapi.h>
