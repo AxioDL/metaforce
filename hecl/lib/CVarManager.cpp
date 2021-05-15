@@ -97,7 +97,11 @@ void CVarManager::deserialize(CVar* cvar) {
     if (cvar->isBoolean() && val.empty()) {
       // We were deferred without a value, assume true
       cvar->fromBoolean(true);
-    } else if (!val.empty() && cvar->fromLiteralToType(val)) {
+      cvar->m_wasDeserialized = true;
+      return;
+    }
+    if (!val.empty() && cvar->fromLiteralToType(val)) {
+      cvar->m_wasDeserialized = true;
       return;
     }
   }
@@ -327,6 +331,7 @@ void CVarManager::parseCommandLine(const std::vector<SystemString>& args) {
       } else if (!cvarValue.empty()) {
         cv->fromLiteralToType(cvarValue);
       }
+      cv->m_wasDeserialized = true;
       athena::utility::tolower(cvarName);
       if (developerName == cvarName)
         /* Make sure we're not overriding developer mode when we restore */

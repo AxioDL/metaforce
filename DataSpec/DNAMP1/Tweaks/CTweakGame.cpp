@@ -78,8 +78,7 @@ void CTweakGame::initCVars(hecl::CVarManager* mgr) {
   constexpr hecl::CVar::EFlags skDefaultFlags = hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive;
   CREATE_CVAR(WorldPrefix, "", x4_worldPrefix, skDefaultFlags);
   CREATE_CVAR(FieldOfView, "", x24_fov, skDefaultFlags);
-  CREATE_CVAR(SplashScreensDisabled, "", x2b_splashScreensDisabled,
-              hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive);
+  CREATE_CVAR(SplashScreensDisabled, "", x2b_splashScreensDisabled, skDefaultFlags);
   CREATE_CVAR(PressStartDelay, "", x30_pressStartDelay, skDefaultFlags);
   CREATE_CVAR(WavecapIntensityNormal, "", x34_wavecapIntensityNormal, skDefaultFlags);
   CREATE_CVAR(WavecapIntensityPoison, "", x38_wavecapIntensityPoison, skDefaultFlags);
