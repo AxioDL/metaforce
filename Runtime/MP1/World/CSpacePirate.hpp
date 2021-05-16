@@ -3,7 +3,6 @@
 #include <list>
 #include <memory>
 
-#include "Runtime/rstl.hpp"
 #include "Runtime/Character/CBoneTracking.hpp"
 #include "Runtime/Character/CIkChain.hpp"
 #include "Runtime/Character/CRagDoll.hpp"
@@ -11,6 +10,7 @@
 #include "Runtime/Weapon/CProjectileInfo.hpp"
 #include "Runtime/World/CPathFindSearch.hpp"
 #include "Runtime/World/CPatterned.hpp"
+#include "Runtime/rstl.hpp"
 
 #include <zeus/CVector3f.hpp>
 
@@ -205,14 +205,12 @@ private:
   float x8d8_holdPositionTime = 0.f;
   float x8dc_leashTimer = 0.f;
 
-  static std::list<TUniqueId> mChargePlayerList;
-
   void UpdateCloak(float dt, CStateManager& mgr);
   bool ShouldFrenzy(CStateManager& mgr);
   void SquadReset(CStateManager& mgr);
   void SquadAdd(CStateManager& mgr);
   void SquadRemove(CStateManager& mgr);
-  bool CheckTargetable(const CStateManager& mgr) const;
+  [[nodiscard]] bool CheckTargetable(const CStateManager& mgr) const;
   bool FireProjectile(float dt, CStateManager& mgr);
   void UpdateAttacks(float dt, CStateManager& mgr);
   zeus::CVector3f GetTargetPos(const CStateManager& mgr);
@@ -224,11 +222,11 @@ private:
   void SetVelocityForJump();
   void AvoidActors(CStateManager& mgr);
   void UpdateCantSeePlayer(CStateManager& mgr);
-  bool LineOfSightTest(const CStateManager& mgr, const zeus::CVector3f& eyePos, const zeus::CVector3f& targetPos,
+  [[nodiscard]] bool LineOfSightTest(const CStateManager& mgr, const zeus::CVector3f& eyePos, const zeus::CVector3f& targetPos,
                        const CMaterialList& excludeList) const;
   void UpdateHeldPosition(CStateManager& mgr, float dt);
   void CheckBlade(CStateManager& mgr);
-  bool CantJumpBack(const CStateManager& mgr, const zeus::CVector3f& dir, float dist) const;
+  [[nodiscard]] bool CantJumpBack(const CStateManager& mgr, const zeus::CVector3f& dir, float dist) const;
   void UpdateLeashTimer(float dt);
   pas::EStepDirection GetStrafeDir(CStateManager& mgr, float dist) const;
 
@@ -244,14 +242,14 @@ public:
 
   void CalculateRenderBounds() override;
   void Touch(CActor& other, CStateManager& mgr) override;
-  zeus::CAABox GetSortingBounds(const CStateManager& mgr) const override;
+  [[nodiscard]] zeus::CAABox GetSortingBounds(const CStateManager& mgr) const override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
   void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;
   void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType type, bool inDeferred,
                  float magnitude) override;
-  bool IsListening() const override;
+  [[nodiscard]] bool IsListening() const override;
   bool Listen(const zeus::CVector3f&, EListenNoiseType) override;
-  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
+  [[nodiscard]] zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
                             const zeus::CVector3f& aimPos) const override;
   void DetachActorFromPirate() { x7b4_attachedActor = kInvalidUniqueId; }
   bool AttachActorToPirate(TUniqueId id);
@@ -325,12 +323,12 @@ public:
   bool BounceFind(CStateManager& mgr, float arg) override;
 
   CPathFindSearch* GetSearchPath() override;
-  u8 GetModelAlphau8(const CStateManager& mgr) const override;
-  float GetGravityConstant() const override;
+  [[nodiscard]] u8 GetModelAlphau8(const CStateManager& mgr) const override;
+  [[nodiscard]] float GetGravityConstant() const override;
   CProjectileInfo* GetProjectileInfo() override;
-  bool GetEnableAim() const { return x637_25_enableAim; }
-  bool AllEnergyDrained() const { return x638_30_allEnergyDrained; }
-  TUniqueId GetAttachedActor() const { return x7b4_attachedActor; }
-  bool IsTrooper() const { return x636_24_trooper; }
+  [[nodiscard]] bool GetEnableAim() const { return x637_25_enableAim; }
+  [[nodiscard]] bool AllEnergyDrained() const { return x638_30_allEnergyDrained; }
+  [[nodiscard]] TUniqueId GetAttachedActor() const { return x7b4_attachedActor; }
+  [[nodiscard]] bool IsTrooper() const { return x636_24_trooper; }
 };
 } // namespace metaforce::MP1

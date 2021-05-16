@@ -5,11 +5,13 @@
 #include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CPlayer.hpp"
-
+#include <logvisor/logvisor.hpp>
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
-
+namespace {
+logvisor::Module Log("CScriptTrigger");
+}
 CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                const zeus::CVector3f& pos, const zeus::CAABox& bounds, const CDamageInfo& dInfo,
                                const zeus::CVector3f& forceField, ETriggerFlags triggerFlags, bool active,
@@ -24,6 +26,14 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEnti
 , x148_26_deactivateOnEntered(deactivateOnEntered)
 , x148_27_deactivateOnExited(deactivateOnExited) {
   SetCallTouch(false);
+#ifdef NDEBUG
+  // FIXME: HACK This fixes the HotE softlock, definitely need to look into the morphball's collision codepath and
+  // FIXME: determine the proper fix
+  if (GetEditorId() == 0x0034004B) {
+    Log.report(logvisor::Warning, FMT_STRING("BUG THIS!: Overriding forceField.x() for trigger {} in area {}"), GetEditorId(), GetAreaIdAlways());
+    x11c_forceField.x() = 0.f;
+  }
+#endif
 }
 
 void CScriptTrigger::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -123,6 +133,9 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
             }
 
             const zeus::CVector3f force = forceMult * x11c_forceField;
+            if (TCastToPtr<CPlayer>(pact)) {
+              fmt::print(FMT_STRING("FORCE {}\n"), force);
+            }
             if (True(x12c_flags & ETriggerFlags::UseCollisionImpulses)) {
               pact->ApplyImpulseWR(force, zeus::CAxisAngle());
               pact->UseCollisionImpulses();
@@ -279,8 +292,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
                           EScriptObjectState::Entered);
         if (act.HealthInfo(mgr) && x100_damageInfo.GetDamage() > 0.f) {
           mgr.ApplyDamage(x8_uid, act.GetUniqueId(), x8_uid, x100_damageInfo,
-                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}),
-                          zeus::skZero3f);
+                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}), zeus::skZero3f);
         }
       }
 

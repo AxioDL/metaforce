@@ -289,12 +289,12 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
   }
 
   /* Ambient color for overflow area lights */
-  zeus::CColor overflowAmbColor = zeus::skClear;
+  zeus::CColor overflowAmbColor = zeus::skBlack;
 
   /* Averaged light for overflow area lights */
   CLight overflowLight = CLight::BuildCustom(zeus::skZero3f, zeus::skZero3f, zeus::skBlack,
                                              0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
-  zeus::CColor overflowLightColor = zeus::skClear;
+  zeus::CColor overflowLightColor = zeus::skBlack;
   float overflowMag = 0.f;
 
   /* Max significant lights */
