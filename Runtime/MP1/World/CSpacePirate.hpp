@@ -159,7 +159,7 @@ private:
   float x748_steeringDelayTimer = 0.f;
   u32 x74c_ = 0;
   float x750_initialHP;
-  float x754_fsmRange = 0.f;
+  float x754_coverRange = 0.f;
   CSegId x758_headSeg;
   u32 x75c_ = 0;
   pas::ETauntType x760_taunt = pas::ETauntType::Invalid;
@@ -205,6 +205,7 @@ private:
   float x8d8_holdPositionTime = 0.f;
   float x8dc_leashTimer = 0.f;
 
+  zeus::CTransform m_lastKnownGoodXf;
   void UpdateCloak(float dt, CStateManager& mgr);
   bool ShouldFrenzy(CStateManager& mgr);
   void SquadReset(CStateManager& mgr);

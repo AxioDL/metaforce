@@ -769,6 +769,12 @@ void CSpacePirate::Think(float dt, CStateManager& mgr) {
     return;
   }
 
+  if (!m_lastKnownGoodXf.origin.isZero() && GetTranslation().isNaN()) {
+    fmt::print(
+        FMT_STRING("BUG THIS!: Space Pirate attempted to visit it's people, resetting position to sane value\n"));
+    Stop();
+    SetTransform(m_lastKnownGoodXf);
+  }
   if (!x450_bodyController->GetActive()) {
     x450_bodyController->Activate(mgr);
   }
@@ -881,6 +887,12 @@ void CSpacePirate::Think(float dt, CStateManager& mgr) {
       x858_ragdollDelayTimer = 0.f;
     }
   }
+
+  if (!GetTranslation().isNaN()) {
+    m_lastKnownGoodXf = GetTransform();
+  } else {
+    fmt::print(FMT_STRING("BUG THIS!: Space Pirate being yeeted to the unknown\n"));
+  }
 }
 
 void CSpacePirate::SetEyeParticleActive(CStateManager& mgr, bool active) {
@@ -896,18 +908,20 @@ void CSpacePirate::SetEyeParticleActive(CStateManager& mgr, bool active) {
 }
 
 void CSpacePirate::SetVelocityForJump() {
-  if (!x637_30_jumpVelSet) {
-    zeus::CVector3f delta = x828_patrolDestPos - GetTranslation();
-    float grav = GetGravityConstant();
-    float jumpZ = x824_jumpHeight + std::max(float(x828_patrolDestPos.z()), float(GetTranslation().z()));
-    float zVel = std::sqrt((jumpZ - GetTranslation().z()) * (2.f * grav));
-    float dt = zVel / grav;
-    dt += std::sqrt((jumpZ - x828_patrolDestPos.z()) * 2.f / grav);
-    zeus::CVector3f vel = (1.f / dt) * delta;
-    vel.z() = zVel;
-    CPhysicsActor::SetVelocityWR(vel);
-    x637_30_jumpVelSet = true;
+  if (x637_30_jumpVelSet) {
+    return;
   }
+
+  zeus::CVector3f delta = x828_patrolDestPos - GetTranslation();
+  float grav = GetGravityConstant();
+  float jumpZ = x824_jumpHeight + std::max(float(x828_patrolDestPos.z()), float(GetTranslation().z()));
+  float zVel = std::sqrt((jumpZ - GetTranslation().z()) * (2.f * grav));
+  float dt = zVel / grav;
+  dt += std::sqrt((jumpZ - x828_patrolDestPos.z()) * 2.f / grav);
+  zeus::CVector3f vel = (1.f / dt) * delta;
+  vel.z() = zVel;
+  CPhysicsActor::SetVelocityWR(vel);
+  x637_30_jumpVelSet = true;
 }
 
 void CSpacePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
@@ -1390,9 +1404,12 @@ void CSpacePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     if (GetSearchPath()->Search(GetTranslation(), x2e0_destPos) == CPathFindSearch::EResult::Success) {
       x2ec_reflectedDestPos = GetTranslation();
-      x2e0_destPos = (GetSearchPath()->GetCurrentWaypoint() + 1 < GetSearchPath()->GetWaypoints().size())
-                         ? GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint() + 1]
-                         : GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint()];
+      u32 destWp = GetSearchPath()->GetCurrentWaypoint();
+      if ((destWp + 1) < GetSearchPath()->GetWaypoints().size()) {
+        ++destWp;
+      }
+
+      x2e0_destPos = GetSearchPath()->GetWaypoints()[destWp];
       x328_24_inPosition = false;
       x450_bodyController->GetCommandMgr().DeliverCmd(
           CBCLocomotionCmd(x2e0_destPos - GetTranslation(), zeus::skZero3f, 1.f));
@@ -1416,15 +1433,18 @@ void CSpacePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
                                            CPathFindSearch::EResult::Success) {
                     bool r24 = false;
                     auto res = GetSearchPath()->PathExists(wp->GetTranslation(), x2e0_destPos);
-                    if (res != CPathFindSearch::EResult::Success)
+                    if (res != CPathFindSearch::EResult::Success) {
                       f30 += 1000.f;
-                    if (res == CPathFindSearch::EResult::Success)
+                    }
+                    if (res == CPathFindSearch::EResult::Success) {
                       r24 = true;
+                    }
                     if (f30 < minDist) {
                       minDist = f30;
                       bestJp = jp.GetPtr();
-                      if (r24)
+                      if (r24) {
                         break;
+                      }
                     }
                   }
                 }
@@ -1437,9 +1457,12 @@ void CSpacePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
         x2e0_destPos = bestJp->GetTranslation();
         if (GetSearchPath()->Search(GetTranslation(), x2e0_destPos) == CPathFindSearch::EResult::Success) {
           x2ec_reflectedDestPos = GetTranslation();
-          x2e0_destPos = (GetSearchPath()->GetCurrentWaypoint() + 1 < GetSearchPath()->GetWaypoints().size())
-                             ? GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint() + 1]
-                             : GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint()];
+          u32 destWp = GetSearchPath()->GetCurrentWaypoint();
+          if ((destWp + 1) < GetSearchPath()->GetWaypoints().size()) {
+            ++destWp;
+          }
+
+          x2e0_destPos = GetSearchPath()->GetWaypoints()[destWp];
           x328_24_inPosition = false;
           x840_jumpPoint = bestJp->GetUniqueId();
           x824_jumpHeight = bestJp->GetJumpApex();
@@ -1462,10 +1485,10 @@ void CSpacePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
     CPatterned::PathFind(mgr, msg, dt);
     if (x840_jumpPoint != kInvalidUniqueId) {
       if (TCastToPtr<CScriptAiJumpPoint> jp = mgr.ObjectById(x840_jumpPoint)) {
-        float f0 =
+        float jumpDistance =
             (1.5f * dt + 0.1f) * x64_modelData->GetScale().y() * x450_bodyController->GetBodyStateInfo().GetMaxSpeed() +
             x7a4_intoJumpDist;
-        if ((GetTranslation() - jp->GetTranslation()).magSquared() < f0 * f0) {
+        if ((GetTranslation() - jp->GetTranslation()).magSquared() < jumpDistance * jumpDistance) {
           x32c_animState = EAnimState::Ready;
           TryCommand(mgr, pas::EAnimationState::Jump, &CPatterned::TryJump, 0);
         }
@@ -1474,12 +1497,12 @@ void CSpacePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
     AvoidActors(mgr);
     if (!x639_27_inRange) {
       if (CScriptCoverPoint* cp = GetCoverPoint(mgr, x640_coverPoint)) {
-        x754_fsmRange =
+        x754_coverRange =
             (1.5f * dt + 0.1f) * x64_modelData->GetScale().y() * x450_bodyController->GetBodyStateInfo().GetMaxSpeed();
         if (cp->ShouldWallHang()) {
-          x754_fsmRange += x7a4_intoJumpDist;
+          x754_coverRange += x7a4_intoJumpDist;
         }
-        x639_27_inRange = (GetTranslation() - cp->GetTranslation()).magSquared() < x754_fsmRange * x754_fsmRange;
+        x639_27_inRange = (GetTranslation() - cp->GetTranslation()).magSquared() < x754_coverRange * x754_coverRange;
       }
     }
     UpdateCantSeePlayer(mgr);
@@ -1506,9 +1529,9 @@ void CSpacePirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
   case EStateMsg::Update:
     if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x2dc_destObj)) {
       if ((wp->GetBehaviourModifiers() & 0x2) != 0 || ((wp->GetBehaviourModifiers() & 0x4) != 0)) {
-        float f0 =
-            (1.5f * dt + 0.1f) * x64_modelData->GetScale().y() * x450_bodyController->GetBodyStateInfo().GetMaxSpeed() +
-            x7a4_intoJumpDist;
+        float f0 = x450_bodyController->GetBodyStateInfo().GetMaxSpeed() *
+                       ((1.5f * dt + 0.1f) * x64_modelData->GetScale().y()) +
+                   x7a4_intoJumpDist;
         if ((GetTranslation() - wp->GetTranslation()).magSquared() < f0 * f0) {
           x328_24_inPosition = true;
           x824_jumpHeight = (wp->GetBehaviourModifiers() & 0x2) != 0 ? 3.f : 0.f;
@@ -1516,18 +1539,19 @@ void CSpacePirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
       }
     }
     if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::Jump) {
-      bool r28 = true;
+      bool targetPlayer = true;
       if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x2dc_destObj)) {
         for (const auto& conn : wp->GetConnectionList()) {
           if (conn.x0_state == EScriptObjectState::Arrived && conn.x4_msg == EScriptObjectMessage::Next) {
-            r28 = false;
+            targetPlayer = false;
           }
         }
       }
-      if (r28) {
+      if (targetPlayer) {
         x450_bodyController->GetCommandMgr().DeliverTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
       }
     }
+
     x828_patrolDestPos = x2e0_destPos;
     break;
   case EStateMsg::Deactivate:
@@ -2270,10 +2294,10 @@ void CSpacePirate::PathFindEx(CStateManager& mgr, EStateMsg msg, float dt) {
     AvoidActors(mgr);
     if (!x639_27_inRange) {
       if (TCastToConstPtr<CScriptAiJumpPoint> jp = mgr.GetObjectById(x840_jumpPoint)) {
-        x754_fsmRange =
+        x754_coverRange =
             (1.5f * dt + 0.1f) * x64_modelData->GetScale().y() * x450_bodyController->GetBodyStateInfo().GetMaxSpeed() +
             x7a4_intoJumpDist;
-        x639_27_inRange = (GetTranslation() - jp->GetTranslation()).magSquared() < x754_fsmRange * x754_fsmRange;
+        x639_27_inRange = (GetTranslation() - jp->GetTranslation()).magSquared() < x754_coverRange * x754_coverRange;
       }
     }
     break;
