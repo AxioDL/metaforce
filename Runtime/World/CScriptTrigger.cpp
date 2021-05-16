@@ -133,9 +133,6 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
             }
 
             const zeus::CVector3f force = forceMult * x11c_forceField;
-            if (TCastToPtr<CPlayer>(pact)) {
-              fmt::print(FMT_STRING("FORCE {}\n"), force);
-            }
             if (True(x12c_flags & ETriggerFlags::UseCollisionImpulses)) {
               pact->ApplyImpulseWR(force, zeus::CAxisAngle());
               pact->UseCollisionImpulses();
