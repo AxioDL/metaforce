@@ -218,10 +218,7 @@ bool CVar::toBoolean(bool* isValid) const {
     return false;
   }
 
-  if (isValid != nullptr)
-    *isValid = true;
-
-  return athena::utility::parseBool(m_value);
+  return athena::utility::parseBool(m_value, isValid);
 }
 
 int32_t CVar::toSigned(bool* isValid) const {
