@@ -343,6 +343,12 @@ if(NOT GEKKO AND NOT NX)
     list(REMOVE_ITEM DISCORD_LINK_LIBRARIES "-framework AppKit, -mmacosx-version-min=10.10")
     set_target_properties(discord-rpc PROPERTIES INTERFACE_LINK_LIBRARIES "${DISCORD_LINK_LIBRARIES}")
   endif ()
+  if (UNIX)
+    # remove another nasty hack
+    get_target_property(DISCORD_COMPILE_OPTIONS discord-rpc COMPILE_OPTIONS)
+    list(REMOVE_ITEM DISCORD_COMPILE_OPTIONS "-g")
+    set_target_properties(discord-rpc PROPERTIES COMPILE_OPTIONS "${DISCORD_COMPILE_OPTIONS}")
+  endif ()
 endif()
 
 if (NOT WIN32)
