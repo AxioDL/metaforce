@@ -19,13 +19,13 @@ class CCollisionInfo {
   bool x31_hasExtents = false;
   CMaterialList x38_materialLeft;
   CMaterialList x40_materialRight;
-  zeus::CVector3f x48_normalLeft;
-  zeus::CVector3f x54_normalRight;
+  zeus::CUnitVector3f x48_normalLeft;
+  zeus::CUnitVector3f x54_normalRight;
 
 public:
   CCollisionInfo() = default;
   CCollisionInfo(const zeus::CVector3f& point, const CMaterialList& list1, const CMaterialList& list2,
-                 const zeus::CVector3f& normalLeft, const zeus::CVector3f& normalRight)
+                 const zeus::CUnitVector3f& normalLeft, const zeus::CUnitVector3f& normalRight)
   : x0_point(point)
   , x30_valid(true)
   , x31_hasExtents(false)
@@ -34,7 +34,7 @@ public:
   , x48_normalLeft(normalLeft)
   , x54_normalRight(normalRight) {}
   CCollisionInfo(const zeus::CVector3f& point, const CMaterialList& list1, const CMaterialList& list2,
-                 const zeus::CVector3f& normal)
+                 const zeus::CUnitVector3f& normal)
   : x0_point(point)
   , x30_valid(true)
   , x31_hasExtents(false)
@@ -43,7 +43,7 @@ public:
   , x48_normalLeft(normal)
   , x54_normalRight(-normal) {}
   CCollisionInfo(const zeus::CAABox& aabox, const CMaterialList& list1, const CMaterialList& list2,
-                 const zeus::CVector3f& normalLeft, const zeus::CVector3f& normalRight)
+                 const zeus::CUnitVector3f& normalLeft, const zeus::CUnitVector3f& normalRight)
   : x0_point(aabox.min)
   , xc_extentX(aabox.max.x() - aabox.min.x(), 0.f, 0.f)
   , x18_extentY(0.f, aabox.max.y() - aabox.min.y(), 0.f)
@@ -61,8 +61,8 @@ public:
   const CMaterialList& GetMaterialRight() const { return x40_materialRight; }
   zeus::CVector3f GetExtreme() const;
   void Swap();
-  const zeus::CVector3f& GetNormalLeft() const { return x48_normalLeft; }
-  const zeus::CVector3f& GetNormalRight() const { return x54_normalRight; }
+  const zeus::CUnitVector3f& GetNormalLeft() const { return x48_normalLeft; }
+  const zeus::CUnitVector3f& GetNormalRight() const { return x54_normalRight; }
   const zeus::CVector3f& GetPoint() const { return x0_point; }
 };
 

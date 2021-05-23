@@ -218,7 +218,7 @@ void CGameCollision::Move(CStateManager& mgr, CPhysicsActor& actor, float dt,
   }
 }
 
-bool CGameCollision::CanBlock(const CMaterialList& mat, const zeus::CVector3f& v) {
+bool CGameCollision::CanBlock(const CMaterialList& mat, const zeus::CUnitVector3f& v) {
   if ((mat.HasMaterial(EMaterialTypes::Character) && !mat.HasMaterial(EMaterialTypes::SolidCharacter)) ||
       mat.HasMaterial(EMaterialTypes::NoPlayerCollision)) {
     return false;
@@ -231,7 +231,7 @@ bool CGameCollision::CanBlock(const CMaterialList& mat, const zeus::CVector3f& v
   return (v.z() > 0.85f);
 }
 
-bool CGameCollision::IsFloor(const CMaterialList& mat, const zeus::CVector3f& v) {
+bool CGameCollision::IsFloor(const CMaterialList& mat, const zeus::CUnitVector3f& v) {
   return mat.HasMaterial(EMaterialTypes::Floor) || v.z() > 0.85f;
 }
 

@@ -29,8 +29,9 @@ void CPhysicsActor::Render(CStateManager& mgr) { CActor::Render(mgr); }
 zeus::CVector3f CPhysicsActor::GetOrbitPosition(const CStateManager&) const { return GetBoundingBox().center(); }
 
 zeus::CVector3f CPhysicsActor::GetAimPosition(const CStateManager&, float dt) const {
-  if (dt <= 0.0)
+  if (dt <= 0.0) {
     return GetBoundingBox().center();
+  }
   zeus::CVector3f trans = PredictMotion(dt).x0_translation;
   return GetBoundingBox().center() + trans;
 }
@@ -91,9 +92,9 @@ void CPhysicsActor::AddMotionState(const CMotionState& mst) {
   zeus::CNUQuaternion q{x34_transform.buildMatrix3f()};
   q += mst.xc_orientation;
   zeus::CQuaternion quat = zeus::CQuaternion::fromNUQuaternion(q);
-//   if (TCastToPtr<CPlayer>(this)) {
-//    fmt::print(FMT_STRING("ADD {}\n"), mst.x0_translation);
-//  }
+  //   if (TCastToPtr<CPlayer>(this)) {
+  //    fmt::print(FMT_STRING("ADD {}\n"), mst.x0_translation);
+  //  }
   SetTransform(zeus::CTransform(quat, x34_transform.origin));
 
   SetTranslation(x34_transform.origin + mst.x0_translation);
@@ -118,8 +119,9 @@ void CPhysicsActor::SetMotionState(const CMotionState& mst) {
 }
 
 void CPhysicsActor::SetInertiaTensorScalar(float tensor) {
-  if (tensor <= 0.0f)
+  if (tensor <= 0.0f) {
     tensor = 1.0f;
+  }
   xf0_inertiaTensor = tensor;
   xf4_inertiaTensorRecip = 1.0f / tensor;
 }
@@ -127,8 +129,9 @@ void CPhysicsActor::SetInertiaTensorScalar(float tensor) {
 void CPhysicsActor::SetMass(float mass) {
   xe8_mass = mass;
   float tensor = 1.0f;
-  if (mass > 0.0f)
+  if (mass > 0.0f) {
     tensor = 1.0f / mass;
+  }
 
   xec_massRecip = tensor;
   SetInertiaTensorScalar(0.16666667f * mass);
@@ -185,8 +188,9 @@ void CPhysicsActor::MoveToWR(const zeus::CVector3f& trans, float d) {
 }
 
 zeus::CAxisAngle CPhysicsActor::GetRotateToORAngularMomentumWR(const zeus::CQuaternion& q, float d) const {
-  if (q.w() > 0.99999976)
+  if (q.w() > 0.99999976) {
     return zeus::CAxisAngle();
+  }
   return (xf0_inertiaTensor *
           (((2.f * std::acos(q.w())) * (1.f / d)) * x34_transform.rotate(q.getImaginary()).normalized()));
 }
@@ -250,8 +254,9 @@ CPhysicsState CPhysicsActor::GetPhysicsState() const {
 }
 
 CMotionState CPhysicsActor::PredictMotion_Internal(float dt) const {
-  if (xf8_25_angularEnabled)
+  if (xf8_25_angularEnabled) {
     return PredictLinearMotion(dt);
+  }
 
   CMotionState msl = PredictLinearMotion(dt);
   CMotionState msa = PredictAngularMotion(dt);

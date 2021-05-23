@@ -41,8 +41,8 @@ public:
   static void Move(CStateManager& mgr, CPhysicsActor& actor, float dt,
                    const rstl::reserved_vector<TUniqueId, 1024>* colliderList);
 
-  static bool CanBlock(const CMaterialList&, const zeus::CVector3f&);
-  static bool IsFloor(const CMaterialList&, const zeus::CVector3f&);
+  static bool CanBlock(const CMaterialList&, const zeus::CUnitVector3f&);
+  static bool IsFloor(const CMaterialList&, const zeus::CUnitVector3f&);
   static void SendMaterialMessage(CStateManager&, const CMaterialList&, CActor&);
   static CRayCastResult RayStaticIntersection(const CStateManager& mgr, const zeus::CVector3f& pos,
                                               const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter);
