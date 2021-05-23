@@ -118,6 +118,7 @@ set(RUNTIME_SOURCES_B
     TCastTo.hpp TCastTo.cpp
     GCNTypes.hpp
     CTextureCache.hpp CTextureCache.cpp
+    CMayaSpline.hpp CMayaSpline.cpp
     ${PLAT_SRCS})
 
 function(add_runtime_common_library name)
