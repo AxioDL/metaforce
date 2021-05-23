@@ -65,7 +65,11 @@ void ParseEscapeSequence(int attribute, QListIterator<QString>& i, QTextCharForm
   case 18:
   case 19: {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)
+    QString fontFamily = textCharFormat.fontFamilies().toString();
+#else
     QString fontFamily = textCharFormat.fontFamily();
+#endif
     QStringList fontStyles = QFontDatabase::styles(fontFamily);
     int fontStyleIndex = attribute - 11;
     if (fontStyleIndex < fontStyles.length()) {
