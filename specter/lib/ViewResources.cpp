@@ -51,7 +51,7 @@ void ViewResources::prepFontCacheSync() {
   m_heading18 = m_fcache->prepMainFont(LatinAndJapaneseCharFilter, false, 18.f, dpi);
   if (m_fcacheInterrupt.load())
     return;
-  m_titleFont = m_fcache->prepMainFont(LatinCharFilter, false, 36.f, dpi);
+  m_titleFont = m_fcache->prepMainFont(LatinCharFilter, false, 24.f, dpi);
   if (m_fcacheInterrupt.load())
     return;
   m_fcache->closeBuiltinFonts();

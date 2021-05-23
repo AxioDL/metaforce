@@ -292,7 +292,7 @@ void ViewManager::pushRecentFile(hecl::SystemStringView path) {
 }
 
 void ViewManager::init(boo::IApplication* app) {
-  m_mainWindow = app->newWindow(_SYS_STR("URDE"));
+  m_mainWindow = app->newWindow(_SYS_STR("Metaforce"));
   m_mainWindow->showWindow();
   m_mainWindow->setWaitCursor(true);
   if (m_cvarCommons.getFullscreen()) {

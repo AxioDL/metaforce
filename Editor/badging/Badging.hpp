@@ -10,5 +10,5 @@ specter::Icon& GetBadge();
 } // namespace metaforce
 
 #ifndef BADGE_PHRASE
-#define BADGE_PHRASE "Prototype"
+#define BADGE_PHRASE "Alpha"
 #endif
