@@ -201,7 +201,7 @@ elseif(UNIX)
 endif()
 
 add_executable(metaforce CMain.cpp ${PLAT_SRCS})
-target_link_libraries(metaforce PUBLIC RuntimeCommon ${PLAT_LIBS})
+target_link_libraries(metaforce PUBLIC RuntimeCommon ${PLAT_LIBS} imgui)
 
 if(COMMAND add_sanitizers)
   add_sanitizers(metaforce)

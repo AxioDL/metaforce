@@ -897,7 +897,7 @@ void CMain::WarmupShaders() {
   WarmupLog.report(logvisor::Info, FMT_STRING("Began warmup of {} objects"), m_warmupTags.size());
 }
 
-bool CMain::Proc() {
+bool CMain::Proc(float dt) {
   CRandom16::ResetNumNextCalls();
   // Warmup cycle overrides update
   if (m_warmupTags.size())
@@ -905,18 +905,6 @@ bool CMain::Proc() {
   if (!m_loadedPersistentResources) {
     x128_globalObjects->m_gameResFactory->LoadPersistentResources(*g_SimplePool);
     m_loadedPersistentResources = true;
-  }
-
-  float dt = 1 / 60.f;
-  if (m_cvarCommons->m_variableDt->toBoolean()) {
-    auto now = delta_clock::now();
-    if (m_firstFrame) {
-      m_firstFrame = false;
-    } else {
-      using delta_duration = std::chrono::duration<float, std::ratio<1>>;
-      dt = std::min(std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count(), 1 / 30.f);
-    }
-    m_prevFrameTime = now;
   }
 
   m_console->proc();

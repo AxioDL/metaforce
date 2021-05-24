@@ -537,6 +537,9 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName,
     fmt::print(out.second, FMT_STRING("static const boo::VertexElementDescriptor {}_vtxfmtelems[] = {{\n"), shaderName);
     for (const auto& attr : shaderAttributes) {
       switch (attr.first & boo::VertexSemantic::SemanticMask) {
+      case boo::VertexSemantic::Position2:
+        SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::Position2{}, {}}},\n"));
+        break;
       case boo::VertexSemantic::Position3:
         SemanticOut(out.second, attr, FMT_STRING("{{boo::VertexSemantic::Position3{}, {}}},\n"));
         break;
@@ -611,7 +614,9 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName,
     boo::VertexSemantic orsem = inst ? boo::VertexSemantic::Instanced : boo::VertexSemantic::None;
     int idxNum = int(strtoul(idx.c_str(), nullptr, 10));
     std::transform(semantic.begin(), semantic.end(), semantic.begin(), ::tolower);
-    if (semantic == "position3")
+    if (semantic == "position2")
+      shaderAttributes.push_back(std::make_pair(boo::VertexSemantic::Position2 | orsem, idxNum));
+    else  if (semantic == "position3")
       shaderAttributes.push_back(std::make_pair(boo::VertexSemantic::Position3 | orsem, idxNum));
     else if (semantic == "position4")
       shaderAttributes.push_back(std::make_pair(boo::VertexSemantic::Position4 | orsem, idxNum));
@@ -794,7 +799,7 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName,
     out.first << "<P, S>,";
   }
   out.first << "\n";
-  
+
   return true;
 }
 
