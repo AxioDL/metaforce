@@ -242,6 +242,7 @@ public:
     m_window->showWindow();
 
     boo::SWindowRect rect = m_window->getWindowFrame();
+    m_windowCallback.m_lastRect = rect;
     boo::IGraphicsDataFactory* gfxF = m_window->getMainContextDataFactory();
     gfxF->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
       m_renderTex = ctx.newRenderTexture(rect.size[0], rect.size[1], boo::TextureClampMode::ClampToEdge, 3, 3);
@@ -344,12 +345,14 @@ public:
 
     m_window->waitForRetrace();
 
+    boo::SWindowRect& rect = m_windowCallback.m_lastRect;
     boo::IGraphicsCommandQueue* gfxQ = m_window->getCommandQueue();
     if (m_windowCallback.m_rectDirty) {
-      boo::SWindowRect& rect = m_windowCallback.m_lastRect;
       gfxQ->resizeRenderTexture(m_renderTex, rect.size[0], rect.size[1]);
-      metaforce::CGraphics::SetViewportResolution({rect.size[0], rect.size[1]});
+      CGraphics::SetViewportResolution({rect.size[0], rect.size[1]});
       m_windowCallback.m_rectDirty = false;
+    } else if (m_firstFrame) {
+      CGraphics::SetViewportResolution({rect.size[0], rect.size[1]});
     }
 
     if (m_windowCallback.m_fullscreenToggleRequested) {
@@ -358,13 +361,14 @@ public:
     }
 
     boo::IGraphicsDataFactory* gfxF = m_window->getMainContextDataFactory();
+    float scale = m_window->getVirtualPixelFactor();
     if (!g_mainMP1) {
       g_mainMP1.emplace(nullptr, nullptr, gfxF, gfxQ, m_renderTex.get());
       g_mainMP1->Init(m_fileMgr, &m_cvarManager, m_window.get(), m_voiceEngine.get(), *m_amuseAllocWrapper);
       if (!m_noShaderWarmup) {
         g_mainMP1->WarmupShaders();
       }
-      ImGuiEngine::Initialize(gfxF, m_window->getWindowFrame());
+      ImGuiEngine::Initialize(gfxF, m_window->getWindowFrame(), scale);
     }
 
     float dt = 1 / 60.f;
@@ -381,7 +385,7 @@ public:
     }
     m_prevFrameTime = now;
 
-    ImGuiEngine::Begin(realDt);
+    ImGuiEngine::Begin(realDt, scale);
 
     if (g_mainMP1->Proc(dt)) {
       m_running.store(false);
@@ -391,6 +395,8 @@ public:
     {
       OPTICK_EVENT("Draw");
       gfxQ->setRenderTarget(m_renderTex);
+      gfxQ->setViewport(rect);
+      gfxQ->setScissor(rect);
       if (g_Renderer != nullptr) {
         g_Renderer->BeginScene();
       }

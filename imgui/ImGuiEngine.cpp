@@ -26,7 +26,7 @@ struct Uniform {
 static size_t VertexBufferSize = 5000;
 static size_t IndexBufferSize = 5000;
 
-void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, const boo::SWindowRect& rect) {
+void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, const boo::SWindowRect& rect, float scale) {
   m_factory = factory;
   WindowRect = rect;
 
@@ -60,7 +60,7 @@ void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, const boo::SWin
   unsigned char* pixels = nullptr;
   io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
   factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
-    ShaderPipeline = hecl::conv->convert(Shader_ImguiShader{});
+    ShaderPipeline = hecl::conv->convert(Shader_ImGuiShader{});
     ImGuiAtlas = ctx.newStaticTexture(width, height, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::ClampToEdge,
                                       pixels, width * height * 4);
     VertexBuffer = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(ImDrawVert), VertexBufferSize);
@@ -77,13 +77,13 @@ void ImGuiEngine::Shutdown() {
   ShaderPipeline.reset();
 }
 
-void ImGuiEngine::Begin(float dt) {
+void ImGuiEngine::Begin(float dt, float scale) {
   ImGuiIO& io = ImGui::GetIO();
   io.DeltaTime = dt;
   io.DisplaySize.x = WindowRect.size[0];
   io.DisplaySize.y = WindowRect.size[1];
-  // TODO
-  //  io.DisplayFramebufferScale = ImVec2{1.f, 1.f};
+  io.DisplayFramebufferScale = ImVec2{scale, scale};
+  io.FontGlobalScale = scale;
   if (Input.m_mouseIn) {
     io.MousePos = ImVec2{static_cast<float>(Input.m_mousePos.pixel[0]),
                          static_cast<float>(WindowRect.size[1] - Input.m_mousePos.pixel[1])};
@@ -91,8 +91,14 @@ void ImGuiEngine::Begin(float dt) {
     io.MousePos = ImVec2{-FLT_MAX, -FLT_MAX};
   }
   memcpy(io.MouseDown, Input.m_mouseButtons.data(), sizeof(io.MouseDown));
-  io.MouseWheel = static_cast<float>(Input.m_scrollDelta.delta[1]);
-  io.MouseWheelH = static_cast<float>(Input.m_scrollDelta.delta[0]);
+  float scrollDelta = Input.m_scrollDelta.delta[1] / scale;
+  float scrollDeltaH = Input.m_scrollDelta.delta[0] / scale;
+  if (Input.m_scrollDelta.isAccelerated) {
+    scrollDelta /= 10.f;
+    scrollDeltaH /= 10.f;
+  }
+  io.MouseWheel = static_cast<float>(scrollDelta);
+  io.MouseWheelH = static_cast<float>(scrollDeltaH);
   Input.m_scrollDelta.zeroOut();
   io.KeyCtrl = True(Input.m_modifiers & boo::EModifierKey::Ctrl);
   io.KeyShift = True(Input.m_modifiers & boo::EModifierKey::Shift);
@@ -199,7 +205,8 @@ void ImGuiEngine::Draw(boo::IGraphicsCommandQueue* gfxQ) {
       int clipW = static_cast<int>(drawCmd.ClipRect.z - pos.x) - clipX;
       int clipH = static_cast<int>(drawCmd.ClipRect.w - pos.y) - clipY;
       boo::SWindowRect clipRect{clipX, clipY, clipW, clipH};
-      if (m_factory->platform() == boo::IGraphicsDataFactory::Platform::Vulkan) {
+      if (m_factory->platform() == boo::IGraphicsDataFactory::Platform::Vulkan
+          || m_factory->platform() == boo::IGraphicsDataFactory::Platform::Metal) {
         clipRect.location[1] = viewportHeight - clipRect.location[1] - clipRect.size[1];
       }
       gfxQ->setScissor(clipRect);
