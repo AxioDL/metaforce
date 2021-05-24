@@ -40,7 +40,6 @@ set(HECL_HEADERS
     ../include/hecl/MathExtras.hpp
     ../include/hecl/UniformBufferPool.hpp
     ../include/hecl/VertexBufferPool.hpp
-    ../include/hecl/IndexBufferPool.hpp
     ../include/hecl/PipelineBase.hpp
     ../include/hecl/Pipeline.hpp
     ../include/hecl/Compilers.hpp)
