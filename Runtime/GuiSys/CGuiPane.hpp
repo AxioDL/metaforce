@@ -5,8 +5,6 @@
 
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
-#include <specter/View.hpp>
-
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
 
@@ -16,8 +14,12 @@ class CGuiPane : public CGuiWidget {
 protected:
   zeus::CVector2f xb8_dim;
 
+  struct TexShaderVert {
+    zeus::CVector3f m_pos;
+    zeus::CVector2f m_uv;
+  };
   /* Originally a vert-buffer pointer for GX */
-  std::vector<specter::View::TexShaderVert> xc0_verts;
+  std::vector<TexShaderVert> xc0_verts;
   // u32 x104_ = 4; /* vert count */
 
   zeus::CVector3f xc8_scaleCenter;

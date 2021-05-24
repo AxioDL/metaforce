@@ -3,7 +3,6 @@
 #include "../../DNACommon/DNACommon.hpp"
 #include "../DNAMP1.hpp"
 #include "../SAVW.hpp"
-#include "specter/genie.hpp"
 
 namespace DataSpec::DNAMP1 {
 
@@ -49,7 +48,7 @@ enum class EPickupType : atUint32 {
   World = 38,
   Spirit = 39,
   Newborn = 40
-} SPECTER_ENUM("Pickup Type", "", EPickupType);
+};
 
 enum class ESpecialFunctionType : atUint32 {
   What,
@@ -85,7 +84,7 @@ enum class ESpecialFunctionType : atUint32 {
   Ending,
   FusionRelay,
   WeaponSwitch // PAL Only
-} SPECTER_ENUM("Special Function", "", ESpecialFunctionType);
+};
 
 struct AnimationParameters : BigDNA {
   AT_DECL_DNA_YAML
@@ -211,9 +210,9 @@ struct GrappleParameters : BigDNA {
 struct HealthInfo : BigDNA {
   AT_DECL_DNA_YAML
   Value<atUint32> propertyCount;
-  Value<float> health SPECTER_PROPERTY("Health", "Base health for object");
-  Value<float> knockbackResistance SPECTER_PROPERTY("Knockback Resistance", "");
-} SPECTER_PROPERTY("Health Info", "");
+  Value<float> health;
+  Value<float> knockbackResistance;
+};
 
 struct LightParameters : BigDNA {
   AT_DECL_DNA_YAML

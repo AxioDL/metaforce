@@ -49,8 +49,9 @@ if(APPLE)
 endif()
 
 set(RUNTIME_SOURCES_A
+    MkCastTo.py
+    TCastTo.hpp TCastTo.cpp
     RetroTypes.hpp RetroTypes.cpp
-    ${CLIENT_SOURCES}
     ${MP1_SOURCES}
     ${AUDIO_SOURCES}
     ${AUTOMAPPER_SOURCES}
@@ -114,8 +115,6 @@ set(RUNTIME_SOURCES_B
     CGameHintInfo.hpp CGameHintInfo.cpp
     rstl.hpp
     GameGlobalObjects.hpp GameGlobalObjects.cpp
-    MkCastTo.py
-    TCastTo.hpp TCastTo.cpp
     GCNTypes.hpp
     CTextureCache.hpp CTextureCache.cpp
     CMayaSpline.hpp CMayaSpline.cpp
@@ -136,16 +135,82 @@ set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 set(RUNTIME_LIBRARIES ${HECL_APPLICATION_REPS_TARGETS_LIST} RetroDataSpec AssetNameMapNull NESEmulator
         libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore)
 
-if(MSVC)
-  # WTF MS???? LINK.EXE is unable to address static libraries larger than 4GB.
-  # This is a hack to split this large library in two.
-  add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
-  add_runtime_common_library(RuntimeCommonB ${RUNTIME_SOURCES_B})
-  target_include_directories(RuntimeCommonB PUBLIC ${RUNTIME_INCLUDES})
-  target_link_libraries(RuntimeCommonB PUBLIC ${RUNTIME_LIBRARIES})
-  target_link_libraries(RuntimeCommon PUBLIC RuntimeCommonB)
+add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
+target_include_directories(RuntimeCommon PUBLIC ${RUNTIME_INCLUDES})
+add_runtime_common_library(RuntimeCommonB ${RUNTIME_SOURCES_B})
+target_link_libraries(RuntimeCommonB PUBLIC ${RUNTIME_LIBRARIES})
+target_link_libraries(RuntimeCommon PUBLIC RuntimeCommonB)
+
+if(WIN32)
+  configure_file(platforms/win/metaforce.rc.in "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/metaforce.rc" @ONLY)
+  set(PLAT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/metaforce.rc" platforms/win/metaforce.manifest)
+  if(WINDOWS_STORE)
+    set(UWP_ASSETS
+            platforms/win/Assets/LargeTile.scale-100.png
+            platforms/win/Assets/LargeTile.scale-125.png
+            platforms/win/Assets/LargeTile.scale-150.png
+            platforms/win/Assets/LargeTile.scale-200.png
+            platforms/win/Assets/LargeTile.scale-400.png
+            platforms/win/Assets/SmallTile.scale-100.png
+            platforms/win/Assets/SmallTile.scale-125.png
+            platforms/win/Assets/SmallTile.scale-150.png
+            platforms/win/Assets/SmallTile.scale-200.png
+            platforms/win/Assets/SmallTile.scale-400.png
+            platforms/win/Assets/SplashScreen.scale-100.png
+            platforms/win/Assets/SplashScreen.scale-125.png
+            platforms/win/Assets/SplashScreen.scale-150.png
+            platforms/win/Assets/SplashScreen.scale-200.png
+            platforms/win/Assets/SplashScreen.scale-400.png
+            platforms/win/Assets/Square44x44Logo.scale-100.png
+            platforms/win/Assets/Square44x44Logo.scale-125.png
+            platforms/win/Assets/Square44x44Logo.scale-150.png
+            platforms/win/Assets/Square44x44Logo.scale-200.png
+            platforms/win/Assets/Square44x44Logo.scale-400.png
+            platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-16.png
+            platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-24.png
+            platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-32.png
+            platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-48.png
+            platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-256.png
+            platforms/win/Assets/Square150x150Logo.scale-100.png
+            platforms/win/Assets/Square150x150Logo.scale-125.png
+            platforms/win/Assets/Square150x150Logo.scale-150.png
+            platforms/win/Assets/Square150x150Logo.scale-200.png
+            platforms/win/Assets/Square150x150Logo.scale-400.png
+            platforms/win/Assets/metaforce.scale-100.png
+            platforms/win/Assets/metaforce.scale-125.png
+            platforms/win/Assets/metaforce.scale-150.png
+            platforms/win/Assets/metaforce.scale-200.png
+            platforms/win/Assets/metaforce.scale-400.png
+            platforms/win/Assets/WideTile.scale-100.png
+            platforms/win/Assets/WideTile.scale-125.png
+            platforms/win/Assets/WideTile.scale-150.png
+            platforms/win/Assets/WideTile.scale-200.png
+            platforms/win/Assets/WideTile.scale-400.png)
+    set_property(SOURCE platforms/win/Package.appxmanifest PROPERTY VS_DEPLOYMENT_CONTENT 1)
+    set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+    set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_LOCATION "Assets")
+    list(APPEND PLAT_SRCS ${UWP_ASSETS} platforms/win/Package.appxmanifest)
+  endif()
+elseif(APPLE)
+  # nothing
+elseif(UNIX)
+  add_subdirectory(platforms/freedesktop)
+  declare_wmicon_target()
+  set(PLAT_SRCS mainicon_netwm.cpp)
+  set(PLAT_LIBS rt)
+endif()
+
+add_executable(metaforce CMain.cpp ${PLAT_SRCS})
+target_link_libraries(metaforce PUBLIC RuntimeCommon ${PLAT_LIBS})
+
+if(COMMAND add_sanitizers)
+  add_sanitizers(metaforce)
+endif()
+
+if (NOT WINDOWS_STORE)
+  add_dependencies(metaforce visigen hecl)
 else()
-  add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A} ${RUNTIME_SOURCES_B})
-  target_include_directories(RuntimeCommon PUBLIC ${RUNTIME_INCLUDES})
-  target_link_libraries(RuntimeCommon PUBLIC ${RUNTIME_LIBRARIES})
+  set_property(TARGET metaforce PROPERTY VS_WINRT_COMPONENT TRUE)
+  # This should match the Package.appxmanifest
+  set_property(TARGET metaforce PROPERTY VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION "10.0.14393.0")
 endif()

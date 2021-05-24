@@ -14,9 +14,9 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakGuiColors.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayerGun.hpp"
 
-#include "Editor/ProjectManager.hpp"
-
+#include "Runtime/IMain.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/AutoMapper/CMappableObject.hpp"
 #include "Runtime/World/CPlayerCameraBob.hpp"
 
 #include <logvisor/logvisor.hpp>

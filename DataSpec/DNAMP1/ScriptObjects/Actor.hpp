@@ -6,12 +6,12 @@
 namespace DataSpec::DNAMP1 {
 struct Actor : IScriptObject {
   AT_DECL_DNA_YAMLV
-  String<-1> name SO_NAME_SPECPROP();
-  Value<atVec3f> location SO_LOCATION_SPECPROP();
-  Value<atVec3f> orientation SO_ORIENTATION_SPECPROP();
-  Value<atVec3f> scale SO_SCALE_SPECPROP();
-  Value<atVec3f> collisionExtent SO_COLLISION_EXTENT_SPECPROP();
-  Value<atVec3f> collisionOffset SO_COLLISION_OFFSET_SPECPROP();
+  String<-1> name;
+  Value<atVec3f> location;
+  Value<atVec3f> orientation;
+  Value<atVec3f> scale;
+  Value<atVec3f> collisionExtent;
+  Value<atVec3f> collisionOffset;
   Value<float> mass;
   Value<float> zMomentum;
   HealthInfo healthInfo;
