@@ -269,6 +269,7 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory, boo::IGraphicsCo
   CRandomStaticFilter::Initialize();
   CEnvFxShaders::Initialize();
   CNESShader::Initialize();
+  CMoviePlayer::Initialize(factory);
 }
 
 void CMain::RegisterResourceTweaks() {}
@@ -407,7 +408,6 @@ void CMain::ResetGameState() {
 void CMain::InitializeSubsystems() {
   CBasics::Initialize();
   CModelShaders::Initialize();
-  CMoviePlayer::Initialize();
   CLineRenderer::Initialize();
   CElementGen::Initialize();
   CAnimData::InitializeCache();

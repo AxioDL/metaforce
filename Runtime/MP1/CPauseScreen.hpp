@@ -2,7 +2,6 @@
 
 #include <memory>
 
-#include "Editor/ProjectResourceFactoryBase.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/MP1/CInGameGuiManager.hpp"
 #include "Runtime/MP1/CPauseScreenBase.hpp"

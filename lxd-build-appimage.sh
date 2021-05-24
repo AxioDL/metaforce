@@ -52,8 +52,8 @@ popd
 mkdir -p /metaforce-appdir/usr/{bin,share/{applications,icons/hicolor}}
 cp /metaforce-build/Binaries/{hecl,metaforce-gui,metaforce,visigen} /metaforce-appdir/usr/bin
 strip -s /metaforce-appdir/usr/bin/{hecl,metaforce-gui,metaforce,visigen}
-cp -r /metaforce/Editor/platforms/freedesktop/{16x16,32x32,48x48,64x64,128x128,256x256,512x512,1024x1024} /metaforce-appdir/usr/share/icons/hicolor
-cp /metaforce/Editor/platforms/freedesktop/metaforce.desktop /metaforce-appdir/usr/share/applications
+cp -r /metaforce/Runtime/platforms/freedesktop/{16x16,32x32,48x48,64x64,128x128,256x256,512x512,1024x1024} /metaforce-appdir/usr/share/icons/hicolor
+cp /metaforce/Runtime/platforms/freedesktop/metaforce.desktop /metaforce-appdir/usr/share/applications
 sed -i 's/Exec=.*/Exec=metaforce-gui/' /metaforce-appdir/usr/share/applications/metaforce.desktop
 VERSION=$VERSION /linuxdeploy-$(uname -m).AppImage --appdir /metaforce-appdir --plugin qt --output appimage
 END
@@ -67,7 +67,7 @@ lxc exec $CONTAINER_NAME -- bash -c "while ! systemctl status network.target &>/
 # Run build script
 lxc exec $CONTAINER_NAME -t -- bash /root/dobuild.sh
 
-# Retrieve AppImage 
+# Retrieve AppImage
 lxc file pull $CONTAINER_NAME/URDE-$VERSION-$(uname -m).AppImage .
 
 # Cleanup

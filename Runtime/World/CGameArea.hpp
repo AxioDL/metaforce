@@ -2,7 +2,6 @@
 
 #include <array>
 
-#include "Editor/ProjectResourceFactoryBase.hpp"
 #include "Runtime/CObjectList.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"

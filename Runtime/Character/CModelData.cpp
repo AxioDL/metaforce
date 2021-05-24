@@ -1,7 +1,5 @@
 #include "Runtime/Character/CModelData.hpp"
 
-#include "Editor/ProjectManager.hpp"
-
 #include "Runtime/CPlayerState.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"

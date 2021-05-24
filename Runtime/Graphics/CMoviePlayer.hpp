@@ -6,11 +6,14 @@
 #include "Runtime/CDvdFile.hpp"
 #include "Runtime/RetroTypes.hpp"
 
+#include <boo/IWindow.hpp>
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-#include <specter/View.hpp>
+#include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
+
+extern zeus::CMatrix4f g_PlatformMatrix;
 
 class CMoviePlayer : public CDvdFile {
 public:
@@ -31,26 +34,26 @@ private:
     u32 firstFrameOffset;
     u32 lastFrameOffset;
     void swapBig();
-  } x28_thpHead;
+  } x28_thpHead{};
 
   struct THPComponents {
     u32 numComponents;
     enum class Type : u8 { Video = 0x0, Audio = 0x1, None = 0xff } comps[16];
     void swapBig();
-  } x58_thpComponents;
+  } x58_thpComponents{};
 
   struct THPVideoInfo {
     u32 width;
     u32 height;
     void swapBig();
-  } x6c_videoInfo;
+  } x6c_videoInfo{};
 
   struct THPAudioInfo {
     u32 numChannels;
     u32 sampleRate;
     u32 numSamples;
     void swapBig();
-  } x74_audioInfo;
+  } x74_audioInfo{};
 
   struct THPFrameHeader {
     u32 nextSize;
@@ -108,11 +111,30 @@ private:
 
   std::unique_ptr<uint8_t[]> m_yuvBuf;
 
-  specter::View::ViewBlock m_viewVertBlock;
+  struct TexShaderVert {
+    zeus::CVector3f m_pos;
+    zeus::CVector2f m_uv;
+  };
+  struct ViewBlock {
+    zeus::CMatrix4f m_mv;
+    zeus::CColor m_color = zeus::skWhite;
+    void setViewRect(const boo::SWindowRect& root, const boo::SWindowRect& sub) {
+      m_mv[0][0] = 2.0f / root.size[0];
+      m_mv[1][1] = 2.0f / root.size[1];
+      m_mv[3][0] = sub.location[0] * m_mv[0][0] - 1.0f;
+      m_mv[3][1] = sub.location[1] * m_mv[1][1] - 1.0f;
+    }
+    void finalAssign(const ViewBlock& other) {
+      m_mv = g_PlatformMatrix * other.m_mv;
+      m_color = other.m_color;
+    }
+  };
+
+  ViewBlock m_viewVertBlock;
   boo::ObjToken<boo::IGraphicsBufferD> m_blockBuf;
   boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
 
-  specter::View::TexShaderVert m_frame[4];
+  TexShaderVert m_frame[4];
 
   static u32 THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo);
   void DecodeFromRead(const void* data);
@@ -145,7 +167,7 @@ public:
   void Update(float dt);
   std::pair<u32, u32> GetVideoDimensions() const { return {x6c_videoInfo.width, x6c_videoInfo.height}; }
 
-  static void Initialize();
+  static void Initialize(boo::IGraphicsDataFactory* factory);
   static void Shutdown();
 };
 

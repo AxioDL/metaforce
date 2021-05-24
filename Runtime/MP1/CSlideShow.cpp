@@ -2,7 +2,9 @@
 
 #include <algorithm>
 
-#include "Editor/ProjectManager.hpp"
+#include "Runtime/CArchitectureMessage.hpp"
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
 namespace metaforce {

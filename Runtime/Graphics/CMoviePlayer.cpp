@@ -1,16 +1,16 @@
 #include "Runtime/Graphics/CMoviePlayer.hpp"
 
-#include "Runtime/CDvdRequest.hpp"
 #include "Runtime/Audio/g721.h"
+#include "Runtime/CDvdRequest.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
 #include <amuse/DSPCodec.hpp>
-#include <boo/graphicsdev/GLSLMacros.hpp>
 #include <hecl/Pipeline.hpp>
-#include <specter/View.hpp>
 #include <turbojpeg.h>
 
 namespace metaforce {
+
+zeus::CMatrix4f g_PlatformMatrix;
 
 /* used in the original to look up fixed-point dividends on a
  * MIDI-style volume scale (0-127) -> (n/0x8000) */
@@ -46,7 +46,14 @@ static float SfxVolume = 1.f;
 static const char* BlockNames[] = {"SpecterViewBlock"};
 static const char* TexNames[] = {"texY", "texU", "texV"};
 
-void CMoviePlayer::Initialize() {
+void CMoviePlayer::Initialize(boo::IGraphicsDataFactory* factory) {
+  switch (factory->platform()) {
+  case boo::IGraphicsDataFactory::Platform::Vulkan:
+    g_PlatformMatrix.m[1][1] = -1.f;
+    break;
+  default:
+    break;
+  }
   YUVShaderPipeline = hecl::conv->convert(Shader_CMoviePlayerShader{});
   TjHandle = tjInitDecompress();
 }
@@ -200,7 +207,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
   /* All set for GPU resources */
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     m_blockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(m_viewVertBlock), 1);
-    m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(specter::View::TexShaderVert), 4);
+    m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(TexShaderVert), 4);
 
     /* Allocate textures here (rather than at decode time) */
     x80_textures.reserve(3);

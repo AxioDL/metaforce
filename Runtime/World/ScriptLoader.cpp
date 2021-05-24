@@ -1,7 +1,5 @@
 #include "Runtime/World/ScriptLoader.hpp"
 
-#include "Editor/ProjectResourceFactoryMP1.hpp"
-
 #include "Runtime/Camera/CCinematicCamera.hpp"
 #include "Runtime/Camera/CPathCamera.hpp"
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"

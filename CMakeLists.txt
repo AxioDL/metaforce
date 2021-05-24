@@ -395,7 +395,6 @@ add_subdirectory(extern/athena)
 add_subdirectory(extern/boo)
 add_subdirectory(hecl/shaderc)
 include(hecl/ApplicationTools.cmake)
-add_subdirectory(specter/shaders)
 add_subdirectory(Shaders)
 add_subdirectory(extern/libSquish)
 add_subdirectory(extern/libpng)
@@ -441,23 +440,14 @@ add_subdirectory(extern/freetype2)
 if (NOT MSVC)
   target_compile_options(freetype PRIVATE -Wno-implicit-fallthrough)
 endif()
-add_subdirectory(specter)
-target_include_directories(specter PRIVATE ${CMAKE_SOURCE_DIR})
-target_link_libraries(specter PRIVATE nod)
 add_subdirectory(assetnameparser)
 add_compile_definitions(URDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
 add_subdirectory(DataSpec)
 add_subdirectory(extern/kabufuda)
-add_subdirectory(Editor)
 
 add_subdirectory(extern/jbus)
 set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/jbus/include)
 
-set(CLIENT_SOURCES
-    ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryBase.hpp
-    ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryBase.cpp
-    ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryMP1.hpp
-    ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryMP1.cpp)
 add_subdirectory(NESEmulator)
 add_subdirectory(Runtime)
 add_subdirectory(mpcksum)
