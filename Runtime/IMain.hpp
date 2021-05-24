@@ -36,7 +36,7 @@ public:
   virtual void Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarMgr, boo::IWindow* window,
                     boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) = 0;
   virtual void Draw() = 0;
-  virtual bool Proc() = 0;
+  virtual bool Proc(float dt) = 0;
   virtual void Shutdown() = 0;
   virtual boo::IWindow* GetMainWindow() const = 0;
   virtual EFlowState GetFlowState() const = 0;

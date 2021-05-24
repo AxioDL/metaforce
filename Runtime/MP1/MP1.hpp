@@ -253,10 +253,6 @@ private:
   bool m_needsWarmupClear = false;
   bool m_loadedPersistentResources = false;
   bool m_doQuit = false;
-
-  bool m_firstFrame = true;
-  using delta_clock = std::chrono::high_resolution_clock;
-  std::chrono::time_point<delta_clock> m_prevFrameTime;
   DataSpec::MetaforceVersionInfo m_version;
 
   void InitializeSubsystems();
@@ -286,7 +282,7 @@ public:
   void Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarManager, boo::IWindow* window,
             boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) override;
   void WarmupShaders() override;
-  bool Proc() override;
+  bool Proc(float dt) override;
   void Draw() override;
   void Shutdown() override;
   boo::IWindow* GetMainWindow() const override;
