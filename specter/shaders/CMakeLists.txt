@@ -1,4 +1,0 @@
-add_shader(SpecterViewShaders)
-target_link_libraries(shader_SpecterViewShaders PRIVATE hecl-light)
-add_shader(SpecterTextViewShaders)
-target_link_libraries(shader_SpecterTextViewShaders PRIVATE hecl-light)
