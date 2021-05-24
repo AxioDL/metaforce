@@ -1,4 +1,4 @@
-#shader ImguiShader
+#shader ImGuiShader
 #attribute position2
 #attribute uv2
 #attribute colorunorm
@@ -14,7 +14,7 @@
 layout (location = 0) in vec2 pos;
 layout (location = 1) in vec2 uv;
 layout (location = 2) in vec4 color;
-UBINDING0 uniform ImguiShaderUniform
+UBINDING0 uniform ImGuiShaderUniform
 {
     mat4 xf;
 };
@@ -49,7 +49,7 @@ void main()
 
 
 #vertex hlsl
-cbuffer ImguiShaderUniform : register(b0)
+cbuffer ImGuiShaderUniform : register(b0)
 {
   float4x4 xf;
 };
@@ -94,7 +94,7 @@ float4 main(in VertToFrag vtf) : SV_Target0
 
 
 #vertex metal
-struct ImguiShaderUniform {
+struct ImGuiShaderUniform {
     float4x4 xf;
 };
 
@@ -111,7 +111,7 @@ struct VertToFrag {
 };
 
 vertex VertToFrag vmain(VertexIn v [[stage_in]],
-                        constant ImguiShaderUniform& u [[buffer(2)]]) {
+                        constant ImGuiShaderUniform& u [[buffer(2)]]) {
     VertToFrag vtf;
     vtf.position = u.xf * float4(v.position, 0, 1);
     vtf.texCoords = v.texCoords;

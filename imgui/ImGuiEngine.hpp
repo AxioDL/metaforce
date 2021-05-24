@@ -18,10 +18,10 @@ public:
     bool m_mouseIn = true;
   } Input;
 
-  static void Initialize(boo::IGraphicsDataFactory* factory, const boo::SWindowRect &rect);
+  static void Initialize(boo::IGraphicsDataFactory* factory, const boo::SWindowRect &rect, float scale);
   static void Shutdown();
 
-  static void Begin(float dt);
+  static void Begin(float dt, float scale);
   static void End();
   static void Draw(boo::IGraphicsCommandQueue* gfxQ);
 

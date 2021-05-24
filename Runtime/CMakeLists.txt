@@ -48,10 +48,13 @@ if(APPLE)
   list(APPEND PLAT_SRCS startButton.cpp CGameOptionsTouchBarMac.mm)
 endif()
 
-set(RUNTIME_SOURCES_A
+set(CAST_TO_SOURCES
     MkCastTo.py
-    TCastTo.hpp TCastTo.cpp
+    TCastTo.hpp TCastTo.cpp)
+
+set(RUNTIME_SOURCES_A
     RetroTypes.hpp RetroTypes.cpp
+    ${CAST_TO_SOURCES}
     ${MP1_SOURCES}
     ${AUDIO_SOURCES}
     ${AUTOMAPPER_SOURCES}
@@ -61,6 +64,7 @@ set(RUNTIME_SOURCES_A
     ${GRAPHICS_SOURCES})
 
 set(RUNTIME_SOURCES_B
+    ${CAST_TO_SOURCES}
     ${GUISYS_SOURCES}
     ${INPUT_SOURCES}
     ${PARTICLE_SOURCES}
