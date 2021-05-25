@@ -10,16 +10,9 @@
 
 namespace metaforce {
 
-struct EntityInfo {
-  TUniqueId uid;
-  bool closed = false;
+static std::set<TUniqueId> inspectingEntities;
 
-  explicit EntityInfo(TUniqueId uid) : uid(uid) {}
-};
-
-static std::vector<EntityInfo> inspectingEntities;
-
-static void ShowMenuFile() {
+static void ShowMenuGame() {
   static bool paused;
   paused = g_Main->IsPaused();
   if (ImGui::MenuItem("Paused", nullptr, &paused)) {
@@ -78,53 +71,48 @@ static void ShowInspectWindow(bool* isOpen) {
         }
         if (ImGui::TableNextColumn()) {
           if (ImGui::SmallButton("View")) {
-            if (!std::any_of(inspectingEntities.begin(), inspectingEntities.end(),
-                             [=](EntityInfo& v) { return v.uid == uid; })) {
-              inspectingEntities.emplace_back(uid);
-            }
+            inspectingEntities.insert(uid);
           }
         }
         ImGui::PopID();
       }
       ImGui::EndTable();
     }
-    ImGui::End();
   }
+  ImGui::End();
 }
 
-static bool showEntityInfoWindow(EntityInfo& info) {
-  CEntity* ent = g_StateManager->ObjectById(info.uid);
+static bool showEntityInfoWindow(TUniqueId uid) {
+  bool open = true;
+  CEntity* ent = g_StateManager->ObjectById(uid);
   if (ent == nullptr) {
-    return true;
+    return false;
   }
-  const char* name = "Entity";
-  if (!ent->GetName().empty()) {
-    name = ent->GetName().data();
-  }
-  ImGui::PushID(info.uid.Value());
-  if (ImGui::Begin(name, &info.closed, ImGuiWindowFlags_AlwaysAutoResize)) {
-    ImGui::Text("ID: %x", info.uid.Value());
+  auto name = fmt::format(FMT_STRING("{}##{:x}"), !ent->GetName().empty() ? ent->GetName() : "Entity", uid.Value());
+  if (ImGui::Begin(name.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize)) {
+    ImGui::Text("ID: %x", uid.Value());
     ImGui::Text("Name: %s", ent->GetName().data());
     if (const TCastToPtr<CActor> act = ent) {
       const zeus::CVector3f& pos = act->GetTranslation();
       ImGui::Text("Position: %f, %f, %f", pos.x(), pos.y(), pos.z());
     }
-    ImGui::End();
   }
-  ImGui::PopID();
-  return false;
+  ImGui::End();
+  return open;
 }
 
 static void ShowAppMainMenuBar() {
   static bool showInspectWindow = false;
   static bool showDemoWindow = false;
   if (ImGui::BeginMainMenuBar()) {
-    if (ImGui::BeginMenu("File")) {
-      ShowMenuFile();
+    if (ImGui::BeginMenu("Game")) {
+      ShowMenuGame();
       ImGui::EndMenu();
     }
+    ImGui::Spacing();
     if (ImGui::BeginMenu("Tools")) {
-      ImGui::MenuItem("Inspect", nullptr, &showInspectWindow);
+      ImGui::MenuItem("Inspect", nullptr, &showInspectWindow,
+                      g_StateManager != nullptr && g_StateManager->GetObjectList());
       ImGui::Separator();
       ImGui::MenuItem("Demo", nullptr, &showDemoWindow);
       ImGui::EndMenu();
@@ -137,7 +125,7 @@ static void ShowAppMainMenuBar() {
   {
     auto iter = inspectingEntities.begin();
     while (iter != inspectingEntities.end()) {
-      if (iter->closed || showEntityInfoWindow(*iter)) {
+      if (!showEntityInfoWindow(*iter)) {
         iter = inspectingEntities.erase(iter);
       } else {
         iter++;
