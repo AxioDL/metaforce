@@ -18,7 +18,7 @@ public:
     bool m_mouseIn = true;
   } Input;
 
-  static void Initialize(boo::IGraphicsDataFactory* factory, const boo::SWindowRect &rect, float scale);
+  static void Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* window, float scale);
   static void Shutdown();
 
   static void Begin(float dt, float scale);
