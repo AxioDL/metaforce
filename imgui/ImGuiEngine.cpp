@@ -74,6 +74,7 @@ void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, const boo::SWin
 
 void ImGuiEngine::Shutdown() {
   ImGui::DestroyContext();
+  ShaderDataBinding.reset();
   ShaderPipeline.reset();
 }
 

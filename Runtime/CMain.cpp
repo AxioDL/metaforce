@@ -1,5 +1,6 @@
 #include <string>
 #include <string_view>
+#include <numeric>
 #include <hecl/Pipeline.hpp>
 
 #include "boo/boo.hpp"
@@ -222,6 +223,7 @@ private:
   Limiter m_limiter{};
   std::atomic_bool m_running = {true};
   bool m_noShaderWarmup = false;
+  bool m_imGuiInitialized = false;
 
   bool m_firstFrame = true;
   using delta_clock = std::chrono::high_resolution_clock;
@@ -286,13 +288,16 @@ public:
       onAppIdle();
     }
 
-    ImGuiEngine::Shutdown();
+    if (m_imGuiInitialized) {
+      ImGuiEngine::Shutdown();
+    }
+    if (g_mainMP1) {
+      g_mainMP1->Shutdown();
+    }
+    g_mainMP1.reset();
     if (m_window) {
       m_window->getCommandQueue()->stopRenderer();
     }
-    if (g_mainMP1)
-      g_mainMP1->Shutdown();
-    g_mainMP1.reset();
     m_voiceEngine.reset();
     m_amuseAllocWrapper.reset();
     CDvdFile::Shutdown();
@@ -369,6 +374,7 @@ public:
         g_mainMP1->WarmupShaders();
       }
       ImGuiEngine::Initialize(gfxF, m_window->getWindowFrame(), scale);
+      m_imGuiInitialized = true;
     }
 
     float dt = 1 / 60.f;
@@ -556,6 +562,8 @@ using namespace Windows::ApplicationModel::Core;
 }
 
 #elif _WIN32
+#include <shellapi.h>
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int) {
   int argc = 0;
   const boo::SystemChar** argv;
@@ -568,7 +576,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int) {
   for (int i = 0; i < argc; ++i)
     booArgv[i + 1] = argv[i];
 
-  const DWORD outType = GetFileType(GetStdHandle(STD_OUTPUT_HANDLE));
+  const DWORD outType = GetFileType(GetStdHandle(STD_ERROR_HANDLE));
   if (IsClientLoggingEnabled(argc + 1, booArgv) && outType == FILE_TYPE_UNKNOWN)
     logvisor::CreateWin32Console();
   return wmain(argc + 1, booArgv);
