@@ -68,7 +68,7 @@ struct VertToFrag
   float4 col : COLOR0;
 };
 
-VertToFrag main(in VS_INPUT v)
+VertToFrag main(in VertData v)
 {
     VertToFrag vtf;
     vtf.pos = mul(xf, float4(v.pos.xy, 0.f, 1.f));
