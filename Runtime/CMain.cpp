@@ -351,7 +351,8 @@ public:
 
     m_window->waitForRetrace();
 
-    boo::SWindowRect& rect = m_windowCallback.m_lastRect;
+    boo::SWindowRect rect = m_windowCallback.m_lastRect;
+    rect.location = {0, 0};
     boo::IGraphicsCommandQueue* gfxQ = m_window->getCommandQueue();
     if (m_windowCallback.m_rectDirty) {
       gfxQ->resizeRenderTexture(m_renderTex, rect.size[0], rect.size[1]);
