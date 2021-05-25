@@ -137,7 +137,7 @@ endfunction()
 
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 set(RUNTIME_LIBRARIES ${HECL_APPLICATION_REPS_TARGETS_LIST} RetroDataSpec AssetNameMapNull NESEmulator
-        libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore)
+        libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui)
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
 target_include_directories(RuntimeCommon PUBLIC ${RUNTIME_INCLUDES})
@@ -204,8 +204,8 @@ elseif(UNIX)
   set(PLAT_LIBS rt)
 endif()
 
-add_executable(metaforce CMain.cpp ${PLAT_SRCS})
-target_link_libraries(metaforce PUBLIC RuntimeCommon ${PLAT_LIBS} imgui)
+add_executable(metaforce CMain.cpp ${PLAT_SRCS} ImGuiConsole.hpp ImGuiConsole.cpp)
+target_link_libraries(metaforce PUBLIC RuntimeCommon ${PLAT_LIBS})
 
 if(COMMAND add_sanitizers)
   add_sanitizers(metaforce)

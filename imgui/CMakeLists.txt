@@ -8,7 +8,7 @@ add_library(imgui
         ImGuiEngine.hpp
         NotoMono.cpp
         )
-target_include_directories(imgui PUBLIC ../extern/imgui ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(imgui PUBLIC ${CMAKE_SOURCE_DIR}/extern/imgui ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(imgui PUBLIC IMGUI_USER_CONFIG="imconfig_user.h")
 target_link_libraries(imgui PRIVATE boo hecl-light RetroDataSpec)
 

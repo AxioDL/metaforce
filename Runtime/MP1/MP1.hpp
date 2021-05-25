@@ -15,6 +15,7 @@
 #include "Runtime/Character/CAssetFactory.hpp"
 #include "Runtime/World/CAi.hpp"
 #include "Runtime/CGameState.hpp"
+#include "Runtime/ImGuiConsole.hpp"
 #include "Runtime/MP1/CInGameTweakManager.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Character/CAnimData.hpp"
@@ -247,12 +248,14 @@ private:
   hecl::CVarManager* m_cvarMgr = nullptr;
   std::unique_ptr<hecl::CVarCommons> m_cvarCommons;
   std::unique_ptr<hecl::Console> m_console;
+  std::unique_ptr<ImGuiConsole> m_imGuiConsole;
   // Warmup state
   std::vector<SObjectTag> m_warmupTags;
   std::vector<SObjectTag>::iterator m_warmupIt;
   bool m_needsWarmupClear = false;
   bool m_loadedPersistentResources = false;
   bool m_doQuit = false;
+  bool m_paused = false;
   DataSpec::MetaforceVersionInfo m_version;
 
   void InitializeSubsystems();
@@ -328,6 +331,9 @@ public:
   ERegion GetRegion() const override { return m_version.region; }
   EGame GetGame() const override { return m_version.game; }
   std::string_view GetVersionString() const override { return m_version.version; }
+  void Quit() override { m_doQuit = true; }
+  bool IsPaused() const override { return m_paused; }
+  void SetPaused(bool b) override { m_paused = b; }
 
   int m_warpWorldIdx = -1;
   TAreaId m_warpAreaId = 0;
