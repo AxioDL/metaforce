@@ -769,6 +769,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       "Warp"sv, "Warps to a given area and world"sv, "[worldname] areaId"sv,
       [this](hecl::Console* console, const std::vector<std::string>& args) { Warp(console, args); },
       hecl::SConsoleCommand::ECommandFlags::Normal);
+  m_imGuiConsole = std::make_unique<ImGuiConsole>();
 
   bool loadedVersion = false;
   if (CDvdFile::FileExists("version.yaml")) {
@@ -907,8 +908,9 @@ bool CMain::Proc(float dt) {
     m_loadedPersistentResources = true;
   }
 
-  m_console->proc();
-  if (!m_console->isOpen()) {
+  m_imGuiConsole->proc();
+
+  if (!m_paused) {
     CGBASupport::GlobalPoll();
     x164_archSupport->UpdateTicks(dt);
     x164_archSupport->Update(dt);

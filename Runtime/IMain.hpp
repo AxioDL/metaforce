@@ -44,12 +44,15 @@ public:
   virtual size_t GetExpectedIdSize() const = 0;
   virtual void WarmupShaders() = 0;
   virtual hecl::Console* Console() const = 0;
-  virtual EGame GetGame() const =0;
-  virtual ERegion GetRegion() const =0;
+  virtual EGame GetGame() const = 0;
+  virtual ERegion GetRegion() const = 0;
   virtual bool IsPAL() const = 0;
   virtual bool IsJapanese() const = 0;
   virtual bool IsUSA() const = 0;
   virtual bool IsTrilogy() const = 0;
-  virtual std::string_view GetVersionString() const=0;
+  virtual std::string_view GetVersionString() const = 0;
+  virtual void Quit() = 0;
+  virtual bool IsPaused() const = 0;
+  virtual void SetPaused(bool b) = 0;
 };
 } // namespace metaforce

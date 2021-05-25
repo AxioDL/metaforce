@@ -182,7 +182,6 @@ void ImGuiEngine::Begin(float dt, float scale) {
   }
 
   ImGui::NewFrame();
-  ImGui::ShowDemoWindow();
 }
 
 void ImGuiEngine::End() {
