@@ -391,6 +391,7 @@ set(HECL_DATASPEC_PUSHES
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3ORIG);")
 
+add_subdirectory(hecl/bintoc)
 add_subdirectory(extern/athena)
 add_subdirectory(extern/boo)
 add_subdirectory(hecl/shaderc)
@@ -406,11 +407,6 @@ target_include_directories(hecl-full PRIVATE ${CMAKE_SOURCE_DIR})
 target_include_directories(hecl-light PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(hecl-full PRIVATE zeus nod)
 target_link_libraries(hecl-light PRIVATE zeus nod)
-
-if(NOT TARGET bintoc)
-  # Use native if cross compiling
-  find_package(hecl-bintoc REQUIRED)
-endif()
 
 bintoc(CModelShaders.common.glsl.cpp Shaders/CModelShaders.common.glsl CMODELSHADERS_COMMON_GLSL)
 bintoc(CModelShaders.vert.glsl.cpp Shaders/CModelShaders.vert.glsl CMODELSHADERS_VERT_GLSL)
@@ -437,10 +433,6 @@ if(NOT TARGET atdna)
 endif()
 
 add_subdirectory(extern/amuse)
-add_subdirectory(extern/freetype2)
-if (NOT MSVC)
-  target_compile_options(freetype PRIVATE -Wno-implicit-fallthrough)
-endif()
 add_subdirectory(assetnameparser)
 add_compile_definitions(URDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
 add_subdirectory(DataSpec)

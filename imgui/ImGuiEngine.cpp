@@ -1,9 +1,14 @@
 #include "ImGuiEngine.hpp"
 
+#include "athena/Compression.hpp"
 #include "hecl/Pipeline.hpp"
 #include "hecl/VertexBufferPool.hpp"
 
 #include <zeus/CMatrix4f.hpp>
+
+extern "C" const uint8_t NOTO_MONO_FONT[];
+extern "C" const size_t NOTO_MONO_FONT_SZ;
+extern "C" const size_t NOTO_MONO_FONT_DECOMPRESSED_SZ;
 
 namespace metaforce {
 static logvisor::Module Log{"ImGuiEngine"};
@@ -11,6 +16,7 @@ static logvisor::Module Log{"ImGuiEngine"};
 struct ImGuiEngine::Input ImGuiEngine::Input;
 
 static boo::IGraphicsDataFactory* m_factory;
+static boo::IWindow* m_window;
 static boo::ObjToken<boo::IShaderPipeline> ShaderPipeline;
 static boo::ObjToken<boo::IGraphicsBufferD> VertexBuffer;
 static boo::ObjToken<boo::IGraphicsBufferD> IndexBuffer;
@@ -26,13 +32,33 @@ struct Uniform {
 static size_t VertexBufferSize = 5000;
 static size_t IndexBufferSize = 5000;
 
-void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, const boo::SWindowRect& rect, float scale) {
+const char* getClipboardText(void* userData) {
+  static ImVector<char> ClipboardBuf;
+  size_t sz = 0;
+  const auto data = static_cast<boo::IWindow*>(userData)->clipboardPaste(boo::EClipboardType::String, sz);
+  ClipboardBuf.resize(sz);
+  strncpy(ClipboardBuf.Data, reinterpret_cast<const char*>(data.get()), sz);
+  return ClipboardBuf.Data;
+}
+
+void setClipboardText(void* userData, const char* text) {
+  const auto* data = reinterpret_cast<const uint8_t*>(text);
+  static_cast<boo::IWindow*>(userData)->clipboardCopy(boo::EClipboardType::String, data, strlen(text));
+}
+
+void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* window, float scale) {
   m_factory = factory;
-  WindowRect = rect;
+  m_window = window;
+  WindowRect = window->getWindowFrame();
 
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
   io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
+  io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
+  io.GetClipboardTextFn = getClipboardText;
+  io.SetClipboardTextFn = setClipboardText;
+  io.ClipboardUserData = window;
+
   io.KeyMap[ImGuiKey_Tab] = 256 + static_cast<int>(boo::ESpecialKey::Tab);
   io.KeyMap[ImGuiKey_LeftArrow] = 256 + static_cast<int>(boo::ESpecialKey::Left);
   io.KeyMap[ImGuiKey_RightArrow] = 256 + static_cast<int>(boo::ESpecialKey::Right);
@@ -48,16 +74,28 @@ void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, const boo::SWin
   io.KeyMap[ImGuiKey_Space] = ' ';
   io.KeyMap[ImGuiKey_Enter] = 256 + static_cast<int>(boo::ESpecialKey::Enter);
   io.KeyMap[ImGuiKey_Escape] = 256 + static_cast<int>(boo::ESpecialKey::Esc);
-  io.KeyMap[ImGuiKey_A] = 'A'; // for text edit CTRL+A: select all
-  io.KeyMap[ImGuiKey_C] = 'C'; // for text edit CTRL+C: copy
-  io.KeyMap[ImGuiKey_V] = 'V'; // for text edit CTRL+V: paste
-  io.KeyMap[ImGuiKey_X] = 'X'; // for text edit CTRL+X: cut
-  io.KeyMap[ImGuiKey_Y] = 'Y'; // for text edit CTRL+Y: redo
-  io.KeyMap[ImGuiKey_Z] = 'Z'; // for text edit CTRL+Z: undo
+  io.KeyMap[ImGuiKey_A] = 'a'; // for text edit CTRL+A: select all
+  io.KeyMap[ImGuiKey_C] = 'c'; // for text edit CTRL+C: copy
+  io.KeyMap[ImGuiKey_V] = 'v'; // for text edit CTRL+V: paste
+  io.KeyMap[ImGuiKey_X] = 'x'; // for text edit CTRL+X: cut
+  io.KeyMap[ImGuiKey_Y] = 'y'; // for text edit CTRL+Y: redo
+  io.KeyMap[ImGuiKey_Z] = 'z'; // for text edit CTRL+Z: undo
+
+  auto* fontData = new uint8_t[NOTO_MONO_FONT_DECOMPRESSED_SZ];
+  athena::io::Compression::decompressZlib(NOTO_MONO_FONT, NOTO_MONO_FONT_SZ, fontData,
+                                          NOTO_MONO_FONT_DECOMPRESSED_SZ);
 
   int width = 0;
   int height = 0;
   unsigned char* pixels = nullptr;
+  ImFontConfig fontConfig{};
+  fontConfig.FontData = fontData;
+  fontConfig.FontDataSize = NOTO_MONO_FONT_DECOMPRESSED_SZ;
+  fontConfig.SizePixels = std::floor(14.f * scale);
+  fontConfig.OversampleH = 2;
+  snprintf(fontConfig.Name, sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
+           static_cast<int>(fontConfig.SizePixels));
+  io.Fonts->AddFont(&fontConfig);
   io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
   factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
     ShaderPipeline = hecl::conv->convert(Shader_ImGuiShader{});
@@ -70,6 +108,8 @@ void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, const boo::SWin
     return true;
   } BooTrace);
   io.Fonts->SetTexID(ImGuiAtlas.get());
+
+  ImGui::GetStyle().ScaleAllSizes(scale);
 }
 
 void ImGuiEngine::Shutdown() {
@@ -81,10 +121,9 @@ void ImGuiEngine::Shutdown() {
 void ImGuiEngine::Begin(float dt, float scale) {
   ImGuiIO& io = ImGui::GetIO();
   io.DeltaTime = dt;
-  io.DisplaySize.x = WindowRect.size[0];
-  io.DisplaySize.y = WindowRect.size[1];
+  io.DisplaySize.x = static_cast<float>(WindowRect.size[0]);
+  io.DisplaySize.y = static_cast<float>(WindowRect.size[1]);
   io.DisplayFramebufferScale = ImVec2{scale, scale};
-  io.FontGlobalScale = scale;
   if (Input.m_mouseIn) {
     io.MousePos = ImVec2{static_cast<float>(Input.m_mousePos.pixel[0]),
                          static_cast<float>(WindowRect.size[1] - Input.m_mousePos.pixel[1])};
@@ -114,6 +153,33 @@ void ImGuiEngine::Begin(float dt, float scale) {
 
   ImGuiWindowCallback::m_mouseCaptured = io.WantCaptureMouse;
   ImGuiWindowCallback::m_keyboardCaptured = io.WantCaptureKeyboard;
+
+  switch (ImGui::GetMouseCursor()) {
+  default:
+    m_window->setCursor(boo::EMouseCursor::Pointer);
+    break;
+  case ImGuiMouseCursor_TextInput:
+    m_window->setCursor(boo::EMouseCursor::IBeam);
+    break;
+  case ImGuiMouseCursor_ResizeNS:
+    m_window->setCursor(boo::EMouseCursor::VerticalArrow);
+    break;
+  case ImGuiMouseCursor_ResizeEW:
+    m_window->setCursor(boo::EMouseCursor::HorizontalArrow);
+    break;
+  case ImGuiMouseCursor_ResizeNESW:
+    m_window->setCursor(boo::EMouseCursor::BottomLeftArrow);
+    break;
+  case ImGuiMouseCursor_ResizeNWSE:
+    m_window->setCursor(boo::EMouseCursor::BottomRightArrow);
+    break;
+  case ImGuiMouseCursor_Hand:
+    m_window->setCursor(boo::EMouseCursor::Hand);
+    break;
+  case ImGuiMouseCursor_NotAllowed:
+    m_window->setCursor(boo::EMouseCursor::NotAllowed);
+    break;
+  }
 
   ImGui::NewFrame();
   ImGui::ShowDemoWindow();

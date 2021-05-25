@@ -121,6 +121,7 @@ private:
   void resized(const boo::SWindowRect& rect, bool sync) override {
     m_lastRect = rect;
     m_rectDirty = true;
+    m_imguiCallback.resized(rect, sync);
   }
 
   void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) override {
@@ -366,14 +367,14 @@ public:
     }
 
     boo::IGraphicsDataFactory* gfxF = m_window->getMainContextDataFactory();
-    float scale = m_window->getVirtualPixelFactor();
+    float scale = std::floor(m_window->getVirtualPixelFactor() * 4.f) / 4.f;
     if (!g_mainMP1) {
       g_mainMP1.emplace(nullptr, nullptr, gfxF, gfxQ, m_renderTex.get());
       g_mainMP1->Init(m_fileMgr, &m_cvarManager, m_window.get(), m_voiceEngine.get(), *m_amuseAllocWrapper);
       if (!m_noShaderWarmup) {
         g_mainMP1->WarmupShaders();
       }
-      ImGuiEngine::Initialize(gfxF, m_window->getWindowFrame(), scale);
+      ImGuiEngine::Initialize(gfxF, m_window.get(), scale);
       m_imGuiInitialized = true;
     }
 
