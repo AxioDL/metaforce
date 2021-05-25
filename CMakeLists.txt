@@ -391,12 +391,12 @@ set(HECL_DATASPEC_PUSHES
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3ORIG);")
 
-add_subdirectory(hecl/bintoc)
 add_subdirectory(extern/athena)
 add_subdirectory(extern/boo)
 add_subdirectory(hecl/shaderc)
 include(hecl/ApplicationTools.cmake)
 add_subdirectory(Shaders)
+add_subdirectory(hecl/bintoc)
 add_subdirectory(imgui)
 add_subdirectory(extern/libSquish)
 add_subdirectory(extern/libpng)
