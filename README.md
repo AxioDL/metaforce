@@ -66,7 +66,7 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
       libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev libpulse-dev
       libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 qt5-default
       ```
-     * Arch/Manjaro packages
+     * Arch packages
       ```
       base-devel cmake ninja llvm vulkan-headers python3 qt6 clang lld alsa-lib libpulse libxrandr
       ```
