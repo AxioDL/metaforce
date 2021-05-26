@@ -175,11 +175,20 @@
       (bf) = b;                                                                                                        \
   }
 
+static bool ImGuiVector3fInput(const char* label, zeus::CVector3f& vec) {
+  std::array<float, 3> arr{vec.x(), vec.y(), vec.z()};
+  if (ImGui::InputFloat3(label, arr.data())) {
+    vec.assign(arr[0], arr[1], arr[2]);
+    return true;
+  }
+  return false;
+}
+
 namespace metaforce {
 std::string_view CEntity::ImGuiType() { return "Entity"; }
 
 void CEntity::ImGuiInspect() {
-  if (ImGui::CollapsingHeader("Connections")) {
+  if (!x20_conns.empty() && ImGui::CollapsingHeader("Connections")) {
     if (ImGui::BeginTable("Connections", 6,
                           ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV)) {
       ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 0, 'id');
@@ -238,8 +247,9 @@ void CEntity::ImGuiInspect() {
 
 // <- CEntity
 IMGUI_ENTITY_INSPECT(CActor, CEntity, Actor, {
-  const zeus::CVector3f& pos = GetTranslation();
-  ImGui::Text("Position: %f, %f, %f", pos.x(), pos.y(), pos.z());
+  if (ImGuiVector3fInput("Position", x34_transform.origin)) {
+    SetTranslation(x34_transform.origin);
+  }
   ImGui::Checkbox("Highlight", &m_debugSelected);
 })
 IMGUI_ENTITY_INSPECT(MP1::CFireFlea::CDeathCameraEffect, CEntity, FireFleaDeathCameraEffect, {})
@@ -273,7 +283,33 @@ IMGUI_ENTITY_INSPECT(CScriptWorldTeleporter, CEntity, ScriptWorldTeleporter, {})
 IMGUI_ENTITY_INSPECT(CTeamAiMgr, CEntity, TeamAiMgr, {})
 
 // <- CActor
-IMGUI_ENTITY_INSPECT(CPhysicsActor, CActor, PhysicsActor, {})
+IMGUI_ENTITY_INSPECT(CPhysicsActor, CActor, PhysicsActor, {
+  float mass = xe8_mass;
+  if (ImGui::InputFloat("Mass", &mass)) {
+    SetMass(mass);
+  }
+  float inertiaTensor = xf0_inertiaTensor;
+  if (ImGui::InputFloat("Inertia tensor", &inertiaTensor)) {
+    SetInertiaTensorScalar(inertiaTensor);
+  }
+  if (ImGuiVector3fInput("Velocity", x138_velocity)) {
+    SetVelocityWR(x138_velocity);
+  }
+  if (ImGuiVector3fInput("Momentum", x150_momentum)) {
+    SetMomentumWR(x150_momentum);
+  }
+  zeus::CVector3f force = x15c_force;
+  if (ImGuiVector3fInput("Force", force)) {
+    ApplyForceWR(force - x15c_force, zeus::CAxisAngle());
+  }
+  zeus::CVector3f impulse = x168_impulse;
+  if (ImGuiVector3fInput("Impulse", x168_impulse)) {
+    ApplyImpulseWR(impulse - x168_impulse, zeus::CAxisAngle());
+  }
+  BITFIELD_CHECKBOX("Movable", xf8_24_movable);
+  BITFIELD_CHECKBOX("Angular enabled", xf8_25_angularEnabled);
+  BITFIELD_CHECKBOX("Standard collider", xf9_standardCollider);
+})
 IMGUI_ENTITY_INSPECT(MP1::CDroneLaser, CActor, DroneLaser, {})
 IMGUI_ENTITY_INSPECT(CEffect, CActor, Effect, {})
 IMGUI_ENTITY_INSPECT(CFire, CActor, Fire, {})
