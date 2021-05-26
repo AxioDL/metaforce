@@ -44,6 +44,7 @@ class CRipperControlledPlatform : public CScriptPlatform {
   float x35c_yaw;
 
 public:
+  DEFINE_ENTITY
   CRipperControlledPlatform(TUniqueId, TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&,
                             const zeus::CAABox&, bool, const std::optional<TLockedToken<CCollidableOBBTreeGroup>>&);
 

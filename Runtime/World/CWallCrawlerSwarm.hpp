@@ -168,6 +168,7 @@ private:
   void RenderBoid(const CBoid* boid, u32& drawMask, bool thermalHot, const CModelFlags& flags) const;
 
 public:
+  DEFINE_ENTITY
   CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
                     const zeus::CVector3f& boundingBoxExtent, const zeus::CTransform& xf,
                     EFlavor flavor, const CAnimRes& animRes, s32 launchAnim, s32 attractAnim,

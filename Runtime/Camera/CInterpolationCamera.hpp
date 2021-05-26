@@ -26,6 +26,7 @@ class CInterpolationCamera : public CGameCamera {
                                float maxTime, float curTime);
 
 public:
+  DEFINE_ENTITY
   explicit CInterpolationCamera(TUniqueId uid, const zeus::CTransform& xf);
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;

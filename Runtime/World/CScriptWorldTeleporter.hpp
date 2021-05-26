@@ -35,6 +35,7 @@ class CScriptWorldTeleporter : public CEntity {
   CAssetId x90_stringId;
 
 public:
+  DEFINE_ENTITY
   CScriptWorldTeleporter(TUniqueId, std::string_view, const CEntityInfo&, bool, CAssetId, CAssetId);
   CScriptWorldTeleporter(TUniqueId, std::string_view, const CEntityInfo&, bool, CAssetId, CAssetId, u16, u8, u8,
                          CAssetId, CAssetId, bool, float, float, float);

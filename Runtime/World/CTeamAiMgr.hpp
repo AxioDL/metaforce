@@ -79,6 +79,7 @@ private:
   void PositionTeam(CStateManager& mgr);
 
 public:
+  DEFINE_ENTITY
   CTeamAiMgr(TUniqueId uid, std::string_view name, const CEntityInfo& info, const CTeamAiData& data);
 
   void Accept(IVisitor&) override;

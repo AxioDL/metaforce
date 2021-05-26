@@ -12,6 +12,7 @@
 namespace metaforce {
 class CWallWalker : public CPatterned {
 public:
+  DEFINE_ENTITY
   enum class EWalkerType { Parasite = 0, Oculus = 1, Geemer = 2, IceZoomer = 3, Seedling = 4 };
 
 protected:

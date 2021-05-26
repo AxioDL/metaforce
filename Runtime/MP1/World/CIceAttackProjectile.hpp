@@ -31,6 +31,7 @@ class CIceAttackProjectile : public CActor {
   int x194_ = 0;
 
 public:
+  DEFINE_ENTITY
   CIceAttackProjectile(const TToken<CGenDescription>& gen1, const TToken<CGenDescription>& gen2,
                        const TToken<CGenDescription>& gen3, TUniqueId uid, TAreaId areaId, TUniqueId owner, bool active,
                        const zeus::CTransform& xf, const CDamageInfo& dInfo, const zeus::CAABox& bounds, float f1,

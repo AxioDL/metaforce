@@ -24,6 +24,7 @@ class CScriptPickup : public CPhysicsActor {
   bool x28c_26_enableTractorTest : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CScriptPickup(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                 CModelData&& mData, const CActorParameters& aParams, const zeus::CAABox& aabb,
                 CPlayerState::EItemType itemType, s32 amount, s32 capacity, CAssetId pickupEffect,

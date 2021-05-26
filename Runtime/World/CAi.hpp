@@ -31,6 +31,7 @@ protected:
   TLockedToken<CStateMachine> x2c8_stateMachine;
 
 public:
+  DEFINE_ENTITY
   CAi(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
       CModelData&& mData, const zeus::CAABox& box, float mass, const CHealthInfo& hInfo, const CDamageVulnerability&,
       const CMaterialList& list, CAssetId fsm, const CActorParameters&, float f1, float f2);
@@ -185,8 +186,6 @@ public:
   virtual bool FixedRandom(CStateManager&, float) { return false; }
   virtual bool IsDizzy(CStateManager&, float) { return false; }
   virtual bool ShouldCallForBackup(CStateManager&, float) { return false; }
-
-  IMGUI_ENTITY_PROTOTYPES
 };
 
 } // namespace metaforce

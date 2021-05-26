@@ -21,6 +21,7 @@ class CScriptEMPulse : public CActor {
   zeus::CAABox CalculateBoundingBox() const;
 
 public:
+  DEFINE_ENTITY
   CScriptEMPulse(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool, float, float, float,
                  float, float, float, float, CAssetId);
 

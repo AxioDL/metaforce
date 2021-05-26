@@ -53,6 +53,7 @@ public:
 
 class CBallCamera : public CGameCamera {
 public:
+  DEFINE_ENTITY
   enum class EBallCameraState { Default, One, Chase, Boost, ToBall, FromBall };
   enum class EBallCameraBehaviour {
     Default,

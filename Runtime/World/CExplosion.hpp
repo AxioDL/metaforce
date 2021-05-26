@@ -22,6 +22,7 @@ class CExplosion : public CEffect {
   float xf8_time = 0.f;
 
 public:
+  DEFINE_ENTITY
   CExplosion(const TLockedToken<CGenDescription>& particle, TUniqueId uid, bool active, const CEntityInfo& info,
              std::string_view name, const zeus::CTransform& xf, u32, const zeus::CVector3f& scale,
              const zeus::CColor& color);

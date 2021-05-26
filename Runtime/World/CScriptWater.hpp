@@ -79,6 +79,7 @@ class CScriptWater : public CScriptTrigger {
   void UpdateSplashInhabitants(CStateManager& mgr);
 
 public:
+  DEFINE_ENTITY
   CScriptWater(CStateManager& mgr, TUniqueId uid, std::string_view name, const CEntityInfo& info,
                const zeus::CVector3f& pos, const zeus::CAABox& box, const metaforce::CDamageInfo& dInfo,
                zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool thermalCold, bool allowRender,

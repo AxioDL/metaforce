@@ -73,6 +73,7 @@ private:
   bool x2b4_25_ : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CBouncyGrenade(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                  CModelData&& mData, const CActorParameters& actParams, TUniqueId parentId,
                  const SBouncyGrenadeData& data, float velocity, float explodePlayerDistance);

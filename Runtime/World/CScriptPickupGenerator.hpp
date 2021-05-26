@@ -17,6 +17,7 @@ class CScriptPickupGenerator : public CEntity {
   void GeneratePickup(CStateManager& mgr, TEditorId templateId, TUniqueId generatorId) const;
 
 public:
+  DEFINE_ENTITY
   CScriptPickupGenerator(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CVector3f&, float, bool);
 
   void Accept(IVisitor& visitor) override;

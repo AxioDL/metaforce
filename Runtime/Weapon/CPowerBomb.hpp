@@ -21,6 +21,7 @@ class CPowerBomb : public CWeapon {
   float x16c_radius;
 
 public:
+  DEFINE_ENTITY
   CPowerBomb(const TToken<CGenDescription>& particle, TUniqueId uid, TAreaId aid, TUniqueId playerId,
              const zeus::CTransform& xf, const CDamageInfo& dInfo);
 

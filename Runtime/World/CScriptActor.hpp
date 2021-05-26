@@ -28,6 +28,7 @@ protected:
   bool x2e3_24_isPlayerActor : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                CModelData&& mData, const zeus::CAABox& aabb, float mass, float zMomentum, const CMaterialList& matList,
                const CHealthInfo& hInfo, const CDamageVulnerability& dVuln, const CActorParameters& actParms,

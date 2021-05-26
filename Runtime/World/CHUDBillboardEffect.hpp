@@ -30,6 +30,7 @@ class CHUDBillboardEffect : public CEffect {
   static float CalcGenRate();
 
 public:
+  DEFINE_ENTITY
   CHUDBillboardEffect(const std::optional<TToken<CGenDescription>>& particle,
                       const std::optional<TToken<CElectricDescription>>& electric, TUniqueId uid,
                       bool active, std::string_view name, float dist, const zeus::CVector3f& scale0,

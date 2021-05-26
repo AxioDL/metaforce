@@ -19,6 +19,7 @@ private:
   EControlCommandOption x44_ctrlCmdOpt;
 
 public:
+  DEFINE_ENTITY
   CScriptPlayerStateChange(TUniqueId, std::string_view, const CEntityInfo&, bool, u32, u32, u32, EControl,
                            EControlCommandOption);
   void Accept(IVisitor& visit) override;

@@ -12,6 +12,7 @@ class CScriptMemoryRelay : public CEntity {
   bool x34_26_ignoreMessages;
 
 public:
+  DEFINE_ENTITY
   CScriptMemoryRelay(TUniqueId, std::string_view name, const CEntityInfo&, bool, bool, bool);
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;

@@ -43,6 +43,7 @@ public:
   bool x2a8_30_doClose : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CScriptDoor(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CTransform&, CModelData&&,
               const CActorParameters&, const zeus::CVector3f&, const zeus::CAABox&, bool active, bool open, bool, float,
               bool ballDoor);

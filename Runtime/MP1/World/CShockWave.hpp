@@ -57,6 +57,7 @@ private:
   TUniqueId x980_id2 = kInvalidUniqueId;
 
 public:
+  DEFINE_ENTITY
   CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
              TUniqueId parent, const SShockWaveData& data, float minActiveTime, float knockback);
 

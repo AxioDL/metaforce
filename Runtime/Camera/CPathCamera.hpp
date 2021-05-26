@@ -22,6 +22,7 @@ private:
   float x1f4_maxEaseDist;
 
 public:
+  DEFINE_ENTITY
   CPathCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, bool active,
               float lengthExtent, float filterMag, float filterProportion, float minEaseDist, float maxEaseDist,
               u32 flags, EInitialSplinePosition initPos);

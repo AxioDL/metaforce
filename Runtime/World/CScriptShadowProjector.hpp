@@ -24,6 +24,7 @@ class CScriptShadowProjector : public CActor {
   bool x110_25_shadowInvalidated : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CScriptShadowProjector(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool,
                          const zeus::CVector3f&, bool, float, float, float, float, s32);
 

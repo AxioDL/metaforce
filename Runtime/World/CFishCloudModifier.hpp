@@ -10,6 +10,7 @@ class CFishCloudModifier : public CActor {
   bool xf1_swirl;
 
 public:
+  DEFINE_ENTITY
   CFishCloudModifier(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& eInfo,
                      const zeus::CVector3f& pos, bool isRepulsor, bool swirl, float radius,
                      float priority);

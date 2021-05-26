@@ -55,6 +55,7 @@ private:
   TReservedAverage<float, 8> x2e0_speedAvg;
 
 public:
+  DEFINE_ENTITY
   CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                 CModelData&& mData, const CActorParameters& aParams, CAssetId particleId,
                 const zeus::CVector3f& particleScale, float zImpulse, const zeus::CVector3f& velocity,

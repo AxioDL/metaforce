@@ -12,6 +12,7 @@ class CScriptVisorFlare : public CActor {
   bool x11c_notInRenderLast = true;
 
 public:
+  DEFINE_ENTITY
   CScriptVisorFlare(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                     const zeus::CVector3f& pos, CVisorFlare::EBlendMode blendMode, bool, float, float, float, u32, u32,
                     std::vector<CVisorFlare::CFlareDef> flares);

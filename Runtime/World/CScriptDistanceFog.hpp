@@ -23,6 +23,7 @@ class CScriptDistanceFog : public CEntity {
   bool x61_nonZero;
 
 public:
+  DEFINE_ENTITY
   CScriptDistanceFog(TUniqueId, std::string_view, const CEntityInfo&, ERglFogMode, const zeus::CColor&,
                      const zeus::CVector2f&, float, const zeus::CVector2f&, bool, bool, float, float, float, float);
 

@@ -16,6 +16,7 @@ class CScriptSpiderBallWaypoint : public CActor {
   std::optional<zeus::CAABox> xfc_aabox;
 
 public:
+  DEFINE_ENTITY
   CScriptSpiderBallWaypoint(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool, u32);
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;

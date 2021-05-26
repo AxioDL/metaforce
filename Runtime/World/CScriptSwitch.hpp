@@ -9,6 +9,7 @@ class CScriptSwitch : public CEntity {
   bool x35_closeOnOpened;
 
 public:
+  DEFINE_ENTITY
   CScriptSwitch(TUniqueId, std::string_view, const CEntityInfo&, bool, bool, bool);
 
   void Accept(IVisitor& visitor) override;

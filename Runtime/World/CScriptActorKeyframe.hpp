@@ -20,6 +20,7 @@ private:
   bool x44_29_ : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CScriptActorKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 animId, bool looping,
                        float lifetime, bool isPassive, u32 fadeOut, bool active, float totalPlayback);
 

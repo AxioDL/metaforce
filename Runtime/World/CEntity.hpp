@@ -19,6 +19,8 @@
 #define IMGUI_ENTITY_PROTOTYPES
 #endif
 
+#define DEFINE_ENTITY IMGUI_ENTITY_PROTOTYPES
+
 namespace metaforce {
 class CStateManager;
 class IVisitor;

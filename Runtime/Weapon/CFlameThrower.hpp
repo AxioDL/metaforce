@@ -42,6 +42,7 @@ private:
   CRayCastResult DoCollisionCheck(TUniqueId& idOut, const zeus::CAABox& aabb, CStateManager& mgr);
   void ApplyDamageToActor(CStateManager& mgr, TUniqueId id, float dt);
 public:
+  DEFINE_ENTITY
   CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                 const CFlameInfo& flameInfo, const zeus::CTransform& xf, EMaterialTypes matType,
                 const CDamageInfo& dInfo, TUniqueId uid, TAreaId aId, TUniqueId owner, EProjectileAttrib attribs,

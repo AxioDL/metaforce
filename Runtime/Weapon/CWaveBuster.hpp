@@ -47,6 +47,7 @@ class CWaveBuster : public CGameProjectile {
   bool x3d0_28_ : 1 = true;
 
 public:
+  DEFINE_ENTITY
   CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf,
               EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
               TUniqueId homingTarget, EProjectileAttrib attrib);

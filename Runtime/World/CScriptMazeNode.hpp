@@ -99,6 +99,7 @@ class CScriptMazeNode : public CActor {
   bool x13c_26_gateActive : 1 = true;
 
 public:
+  DEFINE_ENTITY
   CScriptMazeNode(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                   bool active, s32 col, s32 row, s32 side, const zeus::CVector3f& actorPos,
                   const zeus::CVector3f& triggerPos, const zeus::CVector3f& effectPos);

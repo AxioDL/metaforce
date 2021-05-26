@@ -90,6 +90,7 @@ private:
   float x204_particleTimer = 0.f;
 
 public:
+  DEFINE_ENTITY
   CSnakeWeedSwarm(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
                   const zeus::CVector3f& pos, const zeus::CVector3f& scale, const CAnimRes& animRes,
                   const CActorParameters& actParms, float spacing, float height, float f3, float weaponDamageRadius,

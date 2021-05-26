@@ -14,6 +14,7 @@ class CScriptTimer : public CEntity {
   bool x42_isTiming;
 
 public:
+  DEFINE_ENTITY
   CScriptTimer(TUniqueId, std::string_view name, const CEntityInfo& info, float, float, bool, bool, bool);
 
   void Accept(IVisitor& visitor) override;

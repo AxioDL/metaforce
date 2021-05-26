@@ -8,6 +8,7 @@ class CRepulsor : public CActor {
   float xe8_affectRadius;
 
 public:
+  DEFINE_ENTITY
   CRepulsor(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CVector3f&, float);
 
   void Accept(IVisitor& visitor) override;

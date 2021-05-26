@@ -13,6 +13,7 @@ private:
   float xec_time = 0.f;
 
 public:
+  DEFINE_ENTITY
   CScriptTargetingPoint(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool);
 
   void Accept(IVisitor& visitor) override;

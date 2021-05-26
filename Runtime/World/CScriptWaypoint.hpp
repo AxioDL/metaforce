@@ -19,6 +19,7 @@ class CScriptWaypoint : public CActor {
   u16 xfa_behaviourModifiers;
 
 public:
+  DEFINE_ENTITY
   CScriptWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                   bool active, float speed, float pause, u32 patternTranslate, u32 patternOrient, u32 patternFit,
                   u32 behaviour, u32 behaviourOrient, u32 behaviourModifiers, u32 animation);

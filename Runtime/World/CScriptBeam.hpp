@@ -15,6 +15,7 @@ class CScriptBeam : public CActor {
   TUniqueId x154_projectileId;
 
 public:
+  DEFINE_ENTITY
   CScriptBeam(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool,
               const TToken<CWeaponDescription>&, const CBeamInfo&, const CDamageInfo&);
 

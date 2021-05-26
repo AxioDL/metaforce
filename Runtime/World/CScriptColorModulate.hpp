@@ -41,6 +41,7 @@ private:
   bool x55_24_isFadeOutHelper : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CScriptColorModulate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CColor& colorA,
                        const zeus::CColor& colorB, EBlendMode blendMode, float timeA2B, float timeB2A, bool doReverse,
                        bool resetTargetWhenDone, bool depthCompare, bool depthUpdate, bool depthBackwards, bool active);

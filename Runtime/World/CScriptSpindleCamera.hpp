@@ -83,6 +83,7 @@ class CScriptSpindleCamera : public CGameCamera {
   float GetInVar(const SSpindleProperty& seg) const { return x18c_inVars[int(seg.x4_input)]; }
 
 public:
+  DEFINE_ENTITY
   CScriptSpindleCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                        const zeus::CTransform& xf, bool active, u32 flags, float hintToCamDistMin,
                        float hintToCamDistMax, float hintToCamVOffMin, float hintToCamVOffMax,

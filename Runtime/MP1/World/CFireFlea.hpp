@@ -18,6 +18,7 @@ class CFireFlea : public CPatterned {
     u32 x44_ = 0;
 
   public:
+    DEFINE_ENTITY
     static zeus::CColor sCurrentFadeColor;
     CDeathCameraEffect(TUniqueId, TAreaId, std::string_view);
 

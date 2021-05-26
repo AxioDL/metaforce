@@ -12,6 +12,7 @@ class CScriptRandomRelay : public CEntity {
   bool x3c_percentSize;
 
 public:
+  DEFINE_ENTITY
   CScriptRandomRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 sendSetSize,
                      s32 sendSetVariance, bool percentSize, bool active);
 

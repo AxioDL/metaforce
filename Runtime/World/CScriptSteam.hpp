@@ -17,6 +17,7 @@ class CScriptSteam : public CScriptTrigger {
   float x168_ = 0.f;
 
 public:
+  DEFINE_ENTITY
   CScriptSteam(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& pos,
                const zeus::CAABox&, const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce, ETriggerFlags flags,
                bool active, CAssetId, float, float, float, float, bool);

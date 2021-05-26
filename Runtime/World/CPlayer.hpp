@@ -346,6 +346,7 @@ private:
   float CalculateOrbitMinDistance(EPlayerOrbitType type) const;
 
 public:
+  DEFINE_ENTITY
   CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& aabb, CAssetId resId,
           const zeus::CVector3f& playerScale, float mass, float stepUp, float stepDown, float ballRadius,
           const CMaterialList& ml);
@@ -622,7 +623,5 @@ public:
   bool IsInWaterMovement() const { return x9c4_31_inWaterMovement; }
   void SetNoDamageLoopSfx(bool val) { x9c7_24_noDamageLoopSfx = val; }
   void SetAccelerationChangeTimer(float time) { x2d4_accelerationChangeTimer = time; }
-
-  IMGUI_ENTITY_PROTOTYPES
 };
 } // namespace metaforce

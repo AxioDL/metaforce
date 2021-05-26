@@ -35,6 +35,7 @@ private:
   bool x1e0_25_ : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CPhazonPool(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
               const zeus::CVector3f& scale, bool active, CAssetId w1, CAssetId w2, CAssetId w3, CAssetId w4, u32 p11,
               const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool p15,

@@ -45,6 +45,7 @@ public:
     Orbit,
   };
 
+  DEFINE_ENTITY
   CScriptDamageableTrigger(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                            const zeus::CVector3f& position, const zeus::CVector3f& extent, const CHealthInfo& hInfo,
                            const CDamageVulnerability& dVuln, u32 faceFlag, CAssetId patternTex1, CAssetId patternTex2,

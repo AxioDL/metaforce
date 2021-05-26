@@ -91,6 +91,7 @@ public:
     Done,
   };
 
+  DEFINE_ENTITY
   CActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform&,
          CModelData&& mData, const CMaterialList& list, const CActorParameters& params, TUniqueId otherUid);
 
@@ -195,7 +196,5 @@ public:
   void MoveScannableObjectInfoToActor(CActor*, CStateManager&);
   const zeus::CAABox& GetRenderBounds() const { return x9c_renderBounds; }
   void SetNotInSortedLists(bool notIn) { xe4_27_notInSortedLists = notIn; }
-
-  IMGUI_ENTITY_PROTOTYPES
 };
 } // namespace metaforce

@@ -90,11 +90,16 @@ static void Warp(const CAssetId worldId, TAreaId aId) {
   }
 }
 
+static bool stepFrame = false;
+
 static void ShowMenuGame() {
   static bool paused;
   paused = g_Main->IsPaused();
   if (ImGui::MenuItem("Paused", nullptr, &paused)) {
     g_Main->SetPaused(paused);
+  }
+  if (ImGui::MenuItem("Step", nullptr, &stepFrame, paused)) {
+    g_Main->SetPaused(false);
   }
   if (ImGui::BeginMenu("Warp", g_StateManager != nullptr && g_ResFactory != nullptr &&
                                    g_ResFactory->GetResLoader() != nullptr)) {
@@ -235,7 +240,13 @@ static void ShowAppMainMenuBar() {
   }
 }
 
-void ImGuiConsole::proc() { ShowAppMainMenuBar(); }
+void ImGuiConsole::proc() {
+  if (stepFrame) {
+    g_Main->SetPaused(true);
+    stepFrame = false;
+  }
+  ShowAppMainMenuBar();
+}
 
 ImGuiConsole::~ImGuiConsole() {
   dummyWorlds.clear();

@@ -27,6 +27,7 @@ class CBomb : public CWeapon {
   bool x190_26_disableFuse : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CBomb(const TCachedToken<CGenDescription>& particle1, const TCachedToken<CGenDescription>& particle2, TUniqueId uid,
         TAreaId aid, TUniqueId playerId, float f1, const zeus::CTransform& xf, const CDamageInfo& dInfo);
 

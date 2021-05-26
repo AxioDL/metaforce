@@ -18,6 +18,7 @@ class CScriptSpawnPoint : public CEntity {
   bool x10c_25_morphed : 1;
 
 public:
+  DEFINE_ENTITY
   CScriptSpawnPoint(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                     const rstl::reserved_vector<u32, int(CPlayerState::EItemType::Max)>& itemCounts, bool, bool, bool);
 
