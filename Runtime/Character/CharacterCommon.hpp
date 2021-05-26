@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string_view>
+
 namespace metaforce {
 namespace pas {
 enum class ELocomotionType {
@@ -51,6 +53,8 @@ enum class EAnimationState {
   AdditiveFlinch = 23,
   AdditiveReaction = 24
 };
+
+std::string_view AnimationStateToStr(EAnimationState state);
 
 enum class EHurledState {
   Invalid = -1,
