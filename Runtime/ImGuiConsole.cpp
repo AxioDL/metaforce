@@ -120,6 +120,22 @@ static void ShowMenuGame() {
   }
 }
 
+static void ImGuiStringViewText(std::string_view text) {
+  ImGui::TextUnformatted(text.begin(), text.end());
+}
+
+static void LerpActorColor(CActor* act) {
+  act->m_debugAddColorTime += 1.f / 60.f;
+  float lerp = act->m_debugAddColorTime;
+  if (lerp > 2.f) {
+    lerp = 0.f;
+    act->m_debugAddColorTime = 0.f;
+  } else if (lerp > 1.f) {
+    lerp = 2.f - lerp;
+  }
+  act->m_debugAddColor = zeus::CColor::lerp(zeus::skClear, zeus::skBlue, lerp);
+}
+
 static void ShowInspectWindow(bool* isOpen) {
   if (ImGui::Begin("Inspect", isOpen)) {
     if (ImGui::BeginTable("Entities", 4,
@@ -167,13 +183,21 @@ static void ShowInspectWindow(bool* isOpen) {
         ImGui::PushID(uid.Value());
         ImGui::TableNextRow();
         if (ImGui::TableNextColumn()) {
-          ImGui::Text("%x", uid.Value());
+          auto text = fmt::format(FMT_STRING("{:x}"), uid.Value());
+          if (TCastToPtr<CActor> act = item) {
+            ImGui::Selectable(text.c_str(), &act->m_debugSelected, ImGuiSelectableFlags_SpanAllColumns);
+            if (act->m_debugSelected) {
+              LerpActorColor(act);
+            }
+          } else {
+            ImGui::TextUnformatted(text.c_str());
+          }
         }
         if (ImGui::TableNextColumn()) {
-          ImGui::Text("%s", item->ImGuiType().data());
+          ImGuiStringViewText(item->ImGuiType());
         }
         if (ImGui::TableNextColumn()) {
-          ImGui::Text("%s", item->GetName().data());
+          ImGuiStringViewText(item->GetName());
         }
         if (ImGui::TableNextColumn()) {
           if (ImGui::SmallButton("View")) {

@@ -221,6 +221,9 @@ void CActor::RenderInternal(const CStateManager& mgr) const {
 
       zeus::CColor mulColor(mulMag * xb4_drawFlags.x4_color.a(), xb4_drawFlags.x4_color.a());
       zeus::CColor addColor(addMag, xb4_drawFlags.x4_color.a() / 4.f);
+      if (m_debugSelected) {
+        addColor += m_debugAddColor;
+      }
       x64_modelData->RenderThermal(x34_transform, mulColor, addColor, xb4_drawFlags);
       return;
     } else if (mgr.GetThermalColdScale2() > 0.00001f && !xb4_drawFlags.x0_blendMode) {
@@ -231,11 +234,18 @@ void CActor::RenderInternal(const CStateManager& mgr) const {
                       1.f),
           1.f);
       CModelFlags flags(2, xb4_drawFlags.x1_matSetIdx, xb4_drawFlags.x2_flags, color);
+      if (m_debugSelected) {
+        flags.addColor += m_debugAddColor;
+      }
       x64_modelData->Render(mgr, x34_transform, x90_actorLights.get(), flags);
       return;
     }
   }
-  x64_modelData->Render(which, x34_transform, x90_actorLights.get(), xb4_drawFlags);
+  CModelFlags flags = xb4_drawFlags;
+  if (m_debugSelected) {
+    flags.addColor += m_debugAddColor;
+  }
+  x64_modelData->Render(which, x34_transform, x90_actorLights.get(), flags);
 }
 
 bool CActor::IsModelOpaque(const CStateManager& mgr) const {
