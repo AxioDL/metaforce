@@ -145,8 +145,8 @@ static void ShowInspectWindow(bool* isOpen) {
     CObjectList& list = *g_StateManager->GetObjectList();
     ImGui::Text("Objects: %d / 1024", list.size());
     if (ImGui::Button("Deselect all")) {
-      for (const auto& item : list) {
-        if (TCastToPtr<CActor> act = item) {
+      for (const auto ent : list) {
+        if (TCastToPtr<CActor> act = ent) {
           act->m_debugSelected = false;
         }
       }
@@ -199,11 +199,11 @@ static void ShowInspectWindow(bool* isOpen) {
           }
         }
       }
-      for (const auto& item : items) {
-        TUniqueId uid = item->GetUniqueId();
+      for (const auto ent : items) {
+        TUniqueId uid = ent->GetUniqueId();
         ImGui::PushID(uid.Value());
         ImGui::TableNextRow();
-        bool isActive = item->GetActive();
+        bool isActive = ent->GetActive();
         if (!isActive) {
           ImGui::PushStyleColor(ImGuiCol_Text, 0xAAFFFFFF);
         }
@@ -211,7 +211,7 @@ static void ShowInspectWindow(bool* isOpen) {
           auto text = fmt::format(FMT_STRING("{:x}"), uid.Value());
           bool tmp = false;
           bool* selected = &tmp;
-          TCastToPtr<CActor> act = item;
+          TCastToPtr<CActor> act = ent;
           if (act != nullptr) {
             selected = &act->m_debugSelected;
           }
@@ -222,7 +222,7 @@ static void ShowInspectWindow(bool* isOpen) {
               ImGui::PopStyleColor();
             }
             if (ImGui::MenuItem(isActive ? "Deactivate" : "Activate")) {
-              item->SetActive(!isActive);
+              ent->SetActive(!isActive);
             }
             ImGui::EndPopup();
             if (!isActive) {
@@ -231,10 +231,10 @@ static void ShowInspectWindow(bool* isOpen) {
           }
         }
         if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(item->ImGuiType());
+          ImGuiStringViewText(ent->ImGuiType());
         }
         if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(item->GetName());
+          ImGuiStringViewText(ent->GetName());
         }
         if (ImGui::TableNextColumn()) {
           if (ImGui::SmallButton("View")) {
@@ -307,8 +307,8 @@ void ImGuiConsole::proc() {
         iter++;
       }
     }
-    for (const auto& item : *g_StateManager->GetObjectList()) {
-      if (TCastToPtr<CActor> act = item) {
+    for (const auto ent : *g_StateManager->GetObjectList()) {
+      if (TCastToPtr<CActor> act = ent) {
         if (act->m_debugSelected) {
           LerpActorColor(act);
         }
