@@ -195,5 +195,7 @@ public:
   void MoveScannableObjectInfoToActor(CActor*, CStateManager&);
   const zeus::CAABox& GetRenderBounds() const { return x9c_renderBounds; }
   void SetNotInSortedLists(bool notIn) { xe4_27_notInSortedLists = notIn; }
+
+  IMGUI_ENTITY_PROTOTYPES
 };
 } // namespace metaforce

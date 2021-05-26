@@ -204,7 +204,7 @@ elseif(UNIX)
   set(PLAT_LIBS rt)
 endif()
 
-add_executable(metaforce CMain.cpp ${PLAT_SRCS} ImGuiConsole.hpp ImGuiConsole.cpp)
+add_executable(metaforce CMain.cpp ${PLAT_SRCS} ImGuiConsole.hpp ImGuiConsole.cpp ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp)
 target_link_libraries(metaforce PUBLIC RuntimeCommon ${PLAT_LIBS})
 
 if(COMMAND add_sanitizers)

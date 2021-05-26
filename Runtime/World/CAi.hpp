@@ -185,6 +185,8 @@ public:
   virtual bool FixedRandom(CStateManager&, float) { return false; }
   virtual bool IsDizzy(CStateManager&, float) { return false; }
   virtual bool ShouldCallForBackup(CStateManager&, float) { return false; }
+
+  IMGUI_ENTITY_PROTOTYPES
 };
 
 } // namespace metaforce

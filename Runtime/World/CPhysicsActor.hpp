@@ -208,5 +208,7 @@ public:
 
   void UseCollisionImpulses();
   static constexpr float GravityConstant() { return 9.81f * 2.5f; } /* 9.81 m/s ^ 2 is normal acceleration under earth gravity, Tallon 4 is 2.5 times that */
+
+  IMGUI_ENTITY_PROTOTYPES
 };
 } // namespace metaforce

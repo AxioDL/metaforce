@@ -27,7 +27,7 @@ static std::wstring_convert<deletable_facet<std::codecvt<char16_t, char, std::mb
 
 std::string readUtf8String(CStringTable* tbl, int idx) { return conv16.to_bytes(tbl->GetString(idx)); }
 
-static const std::vector<std::pair<std::string, CAssetId>> listWorlds() {
+static const std::vector<std::pair<std::string, CAssetId>> ListWorlds() {
   std::vector<std::pair<std::string, CAssetId>> worlds;
   for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks()) {
     if (!pak->IsWorldPak()) {
@@ -54,7 +54,7 @@ static const std::vector<std::pair<std::string, CAssetId>> listWorlds() {
   return worlds;
 }
 
-static const std::vector<std::pair<std::string, TAreaId>> listAreas(CAssetId worldId) {
+static const std::vector<std::pair<std::string, TAreaId>> ListAreas(CAssetId worldId) {
   std::vector<std::pair<std::string, TAreaId>> areas;
   const auto& world = dummyWorlds[worldId];
   for (int i = 0; i < world->IGetAreaCount(); ++i) {
@@ -74,7 +74,7 @@ static const std::vector<std::pair<std::string, TAreaId>> listAreas(CAssetId wor
   return areas;
 }
 
-static void warp(const CAssetId worldId, TAreaId aId) {
+static void Warp(const CAssetId worldId, TAreaId aId) {
   g_GameState->SetCurrentWorldId(worldId);
   g_GameState->GetWorldTransitionManager()->DisableTransition();
   if (aId >= g_GameState->CurrentWorldState().GetLayerState()->GetAreaCount()) {
@@ -82,8 +82,12 @@ static void warp(const CAssetId worldId, TAreaId aId) {
   }
   g_GameState->CurrentWorldState().SetAreaId(aId);
   g_Main->SetFlowState(EFlowState::None);
-  g_StateManager->SetWarping(true);
-  g_StateManager->SetShouldQuitGame(true);
+  if (g_StateManager != nullptr) {
+    g_StateManager->SetWarping(true);
+    g_StateManager->SetShouldQuitGame(true);
+  } else {
+    // TODO warp from menu?
+  }
 }
 
 static void ShowMenuGame() {
@@ -92,12 +96,13 @@ static void ShowMenuGame() {
   if (ImGui::MenuItem("Paused", nullptr, &paused)) {
     g_Main->SetPaused(paused);
   }
-  if (ImGui::BeginMenu("Warp", g_ResFactory != nullptr && g_ResFactory->GetResLoader() != nullptr)) {
-    for (const auto& world : listWorlds()) {
+  if (ImGui::BeginMenu("Warp", g_StateManager != nullptr && g_ResFactory != nullptr &&
+                                   g_ResFactory->GetResLoader() != nullptr)) {
+    for (const auto& world : ListWorlds()) {
       if (ImGui::BeginMenu(world.first.c_str())) {
-        for (const auto& area : listAreas(world.second)) {
+        for (const auto& area : ListAreas(world.second)) {
           if (ImGui::MenuItem(area.first.c_str())) {
-            warp(world.second, area.second);
+            Warp(world.second, area.second);
           }
         }
         ImGui::EndMenu();
@@ -112,13 +117,14 @@ static void ShowMenuGame() {
 
 static void ShowInspectWindow(bool* isOpen) {
   if (ImGui::Begin("Inspect", isOpen)) {
-    if (ImGui::BeginTable("Entities", 3,
+    if (ImGui::BeginTable("Entities", 4,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg |
                               ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ScrollY)) {
       ImGui::TableSetupColumn("ID",
                               ImGuiTableColumnFlags_PreferSortAscending | ImGuiTableColumnFlags_DefaultSort |
                                   ImGuiTableColumnFlags_WidthFixed,
                               0, 'id');
+      ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 0, 'type');
       ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 0, 'name');
       ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed);
       ImGui::TableSetupScrollFreeze(0, 1);
@@ -143,6 +149,11 @@ static void ShowInspectWindow(bool* isOpen) {
               int compare = a->GetName().compare(b->GetName());
               return specs.SortDirection == ImGuiSortDirection_Ascending ? compare < 0 : compare > 0;
             });
+          } else if (specs.ColumnUserID == 'type') {
+            std::sort(items.begin(), items.end(), [&](CEntity* a, CEntity* b) {
+              int compare = a->ImGuiType().compare(b->ImGuiType());
+              return specs.SortDirection == ImGuiSortDirection_Ascending ? compare < 0 : compare > 0;
+            });
           }
         }
       }
@@ -152,6 +163,9 @@ static void ShowInspectWindow(bool* isOpen) {
         ImGui::TableNextRow();
         if (ImGui::TableNextColumn()) {
           ImGui::Text("%x", uid.Value());
+        }
+        if (ImGui::TableNextColumn()) {
+          ImGui::Text("%s", item->ImGuiType().data());
         }
         if (ImGui::TableNextColumn()) {
           ImGui::Text("%s", item->GetName().data());
@@ -177,12 +191,7 @@ static bool showEntityInfoWindow(TUniqueId uid) {
   }
   auto name = fmt::format(FMT_STRING("{}##{:x}"), !ent->GetName().empty() ? ent->GetName() : "Entity", uid.Value());
   if (ImGui::Begin(name.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize)) {
-    ImGui::Text("ID: %x", uid.Value());
-    ImGui::Text("Name: %s", ent->GetName().data());
-    if (const TCastToPtr<CActor> act = ent) {
-      const zeus::CVector3f& pos = act->GetTranslation();
-      ImGui::Text("Position: %f, %f, %f", pos.x(), pos.y(), pos.z());
-    }
+    ent->ImGuiInspect();
   }
   ImGui::End();
   return open;
@@ -191,6 +200,7 @@ static bool showEntityInfoWindow(TUniqueId uid) {
 static void ShowAppMainMenuBar() {
   static bool showInspectWindow = false;
   static bool showDemoWindow = false;
+  bool canInspect = g_StateManager != nullptr && g_StateManager->GetObjectList();
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("Game")) {
       ShowMenuGame();
@@ -198,18 +208,17 @@ static void ShowAppMainMenuBar() {
     }
     ImGui::Spacing();
     if (ImGui::BeginMenu("Tools")) {
-      ImGui::MenuItem("Inspect", nullptr, &showInspectWindow,
-                      g_StateManager != nullptr && g_StateManager->GetObjectList());
+      ImGui::MenuItem("Inspect", nullptr, &showInspectWindow, canInspect);
       ImGui::Separator();
       ImGui::MenuItem("Demo", nullptr, &showDemoWindow);
       ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
   }
-  if (showInspectWindow) {
-    ShowInspectWindow(&showInspectWindow);
-  }
-  {
+  if (canInspect) {
+    if (showInspectWindow) {
+      ShowInspectWindow(&showInspectWindow);
+    }
     auto iter = inspectingEntities.begin();
     while (iter != inspectingEntities.end()) {
       if (!showEntityInfoWindow(*iter)) {
@@ -218,6 +227,8 @@ static void ShowAppMainMenuBar() {
         iter++;
       }
     }
+  } else {
+    inspectingEntities.clear();
   }
   if (showDemoWindow) {
     ImGui::ShowDemoWindow(&showDemoWindow);
