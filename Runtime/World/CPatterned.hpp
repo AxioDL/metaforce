@@ -419,5 +419,7 @@ public:
 
   static void Initialize();
   // endregion
+
+  IMGUI_ENTITY_PROTOTYPES
 };
 } // namespace metaforce

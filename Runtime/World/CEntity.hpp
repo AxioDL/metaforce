@@ -7,6 +7,18 @@
 #include "Runtime/World/CEntityInfo.hpp"
 #include "Runtime/World/ScriptObjectSupport.hpp"
 
+#ifndef ENABLE_IMGUI
+#define ENABLE_IMGUI 1
+#endif
+
+#if ENABLE_IMGUI
+#define IMGUI_ENTITY_PROTOTYPES                                                                                        \
+  std::string_view ImGuiType() override;                                                                               \
+  void ImGuiInspect() override;
+#else
+#define IMGUI_ENTITY_PROTOTYPES
+#endif
+
 namespace metaforce {
 class CStateManager;
 class IVisitor;
@@ -35,6 +47,10 @@ public:
   virtual void Think(float dt, CStateManager& mgr) {}
   virtual void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
   virtual void SetActive(bool active) { x30_24_active = active; }
+
+  // Debugging utilities
+  virtual std::string_view ImGuiType();
+  virtual void ImGuiInspect();
 
   bool GetActive() const { return x30_24_active; }
   void ToggleActive() { x30_24_active ^= 1; }
