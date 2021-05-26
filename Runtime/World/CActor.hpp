@@ -83,6 +83,10 @@ protected:
   bool IsModelOpaque(const CStateManager& mgr) const;
 
 public:
+  bool m_debugSelected = false;
+  zeus::CColor m_debugAddColor = zeus::skClear;
+  float m_debugAddColorTime = 0.f;
+
   enum class EFluidState { EnteredFluid, InFluid, LeftFluid };
 
   enum class EScanState {
