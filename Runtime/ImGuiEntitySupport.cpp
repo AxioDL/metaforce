@@ -417,8 +417,21 @@ IMGUI_ENTITY_INSPECT(MP1::CRipperControlledPlatform, CScriptPlatform, RipperCont
 
 // <- CAi
 IMGUI_ENTITY_INSPECT(CDestroyableRock, CAi, DestroyableRock, {})
-IMGUI_ENTITY_INSPECT(CPatterned, CAi, Patterned,
-                     { BITFIELD_CHECKBOX("Enable state machine", x403_25_enableStateMachine); })
+IMGUI_ENTITY_INSPECT(CPatterned, CAi, Patterned, {
+  BITFIELD_CHECKBOX("Enable state machine", x403_25_enableStateMachine);
+  ImGui::Text("Body state:");
+  ImGui::SameLine();
+  ImGuiStringViewText(pas::AnimationStateToStr(x450_bodyController->GetCurrentStateId()));
+  if (ImGui::Button("Burn")) {
+    Burn(1.f, 1.f);
+  }
+  if (ImGui::Button("Shock")) {
+    Shock(*g_StateManager, 1.f, 1.f);
+  }
+  if (ImGui::Button("Freeze")) {
+    Freeze(*g_StateManager, GetTranslation(), zeus::skZero3f, 1.f);
+  }
+})
 
 // <- CPatterned
 IMGUI_ENTITY_INSPECT(MP1::CAtomicAlpha, CPatterned, AtomicAlpha, {})

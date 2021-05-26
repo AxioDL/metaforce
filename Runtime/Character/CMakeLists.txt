@@ -1,5 +1,5 @@
 set(CHARACTER_SOURCES
-    CharacterCommon.hpp
+    CharacterCommon.hpp CharacterCommon.cpp
     CAssetFactory.hpp CAssetFactory.cpp
     CCharacterFactory.hpp CCharacterFactory.cpp
     CModelData.hpp CModelData.cpp

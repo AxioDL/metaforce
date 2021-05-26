@@ -90,6 +90,11 @@ static void Warp(const CAssetId worldId, TAreaId aId) {
   }
 }
 
+bool containsCaseInsensitive(std::string_view str, std::string_view val) {
+  return std::search(str.begin(), str.end(), val.begin(), val.end(),
+                     [](char ch1, char ch2) { return std::toupper(ch1) == std::toupper(ch2); }) != str.end();
+}
+
 static bool stepFrame = false;
 
 static void ShowMenuGame() {
@@ -120,9 +125,7 @@ static void ShowMenuGame() {
   }
 }
 
-void ImGuiStringViewText(std::string_view text) {
-  ImGui::TextUnformatted(text.begin(), text.end());
-}
+void ImGuiStringViewText(std::string_view text) { ImGui::TextUnformatted(text.begin(), text.end()); }
 
 static void LerpActorColor(CActor* act) {
   act->m_debugAddColorTime += 1.f / 60.f;
@@ -137,6 +140,7 @@ static void LerpActorColor(CActor* act) {
 }
 
 static void ShowInspectWindow(bool* isOpen) {
+  static std::array<char, 40> filterText{};
   if (ImGui::Begin("Inspect", isOpen)) {
     CObjectList& list = *g_StateManager->GetObjectList();
     ImGui::Text("Objects: %d / 1024", list.size());
@@ -147,6 +151,7 @@ static void ShowInspectWindow(bool* isOpen) {
         }
       }
     }
+    ImGui::InputText("Filter", filterText.data(), filterText.size());
     if (ImGui::BeginTable("Entities", 4,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg |
                               ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ScrollY)) {
@@ -162,6 +167,14 @@ static void ShowInspectWindow(bool* isOpen) {
       std::vector<CEntity*> items;
       items.reserve(list.size());
       for (auto* ent : list) {
+        std::string_view search{filterText.data(), strlen(filterText.data())};
+        if (!search.empty()) {
+          std::string_view type = ent->ImGuiType();
+          std::string_view name = ent->GetName();
+          if (!containsCaseInsensitive(type, search) && !containsCaseInsensitive(name, search)) {
+            continue;
+          }
+        }
         items.push_back(ent);
       }
       if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs()) {
@@ -190,13 +203,31 @@ static void ShowInspectWindow(bool* isOpen) {
         TUniqueId uid = item->GetUniqueId();
         ImGui::PushID(uid.Value());
         ImGui::TableNextRow();
+        bool isActive = item->GetActive();
+        if (!isActive) {
+          ImGui::PushStyleColor(ImGuiCol_Text, 0xAAFFFFFF);
+        }
         if (ImGui::TableNextColumn()) {
           auto text = fmt::format(FMT_STRING("{:x}"), uid.Value());
-          if (TCastToPtr<CActor> act = item) {
-            ImGui::Selectable(text.c_str(), &act->m_debugSelected,
-                              ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
-          } else {
-            ImGui::TextUnformatted(text.c_str());
+          bool tmp = false;
+          bool* selected = &tmp;
+          TCastToPtr<CActor> act = item;
+          if (act != nullptr) {
+            selected = &act->m_debugSelected;
+          }
+          ImGui::Selectable(text.c_str(), selected,
+                            ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
+          if (ImGui::BeginPopupContextItem(text.c_str())) {
+            if (!isActive) {
+              ImGui::PopStyleColor();
+            }
+            if (ImGui::MenuItem(isActive ? "Deactivate" : "Activate")) {
+              item->SetActive(!isActive);
+            }
+            ImGui::EndPopup();
+            if (!isActive) {
+              ImGui::PushStyleColor(ImGuiCol_Text, 0xAAFFFFFF);
+            }
           }
         }
         if (ImGui::TableNextColumn()) {
@@ -209,6 +240,9 @@ static void ShowInspectWindow(bool* isOpen) {
           if (ImGui::SmallButton("View")) {
             ImGuiConsole::inspectingEntities.insert(uid);
           }
+        }
+        if (!isActive) {
+          ImGui::PopStyleColor();
         }
         ImGui::PopID();
       }
