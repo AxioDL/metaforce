@@ -40,6 +40,7 @@ private:
   void SetCollisionResultData(EDamageType dType, CRayCastResult& res, TUniqueId id);
 
 public:
+  DEFINE_ENTITY
   CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                   const zeus::CTransform& xf, s32 maxLength, float beamRadius, float travelSpeed,
                   EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,

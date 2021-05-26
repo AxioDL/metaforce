@@ -13,6 +13,7 @@ class CScriptGrapplePoint : public CActor {
   CGrappleParameters x100_parameters;
 
 public:
+  DEFINE_ENTITY
   CScriptGrapplePoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& transform,
                       bool active, const CGrappleParameters& params);
 

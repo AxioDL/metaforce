@@ -27,6 +27,7 @@ class CScriptCoverPoint : public CActor {
   float x11c_timeLeft = 0.f;
 
 public:
+  DEFINE_ENTITY
   CScriptCoverPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform xf, bool active,
                     u32 flags, bool crouch, float horizontalAngle, float verticalAngle, float coverTime);
 

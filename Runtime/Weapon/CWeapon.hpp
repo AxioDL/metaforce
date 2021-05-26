@@ -23,6 +23,7 @@ protected:
   float x154_interferenceDuration = 0.f;
 
 public:
+  DEFINE_ENTITY
   CWeapon(TUniqueId uid, TAreaId aid, bool active, TUniqueId owner, EWeaponType type, std::string_view name,
           const zeus::CTransform& xf, const CMaterialFilter& filter, const CMaterialList& mList, const CDamageInfo&,
           EProjectileAttrib attribs, CModelData&& mData);

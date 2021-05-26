@@ -21,6 +21,7 @@ class CScriptCameraPitchVolume : public CActor {
   bool x13c_25_occupied : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CScriptCameraPitchVolume(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CVector3f&,
                            const zeus::CTransform&, const zeus::CRelAngle&, const zeus::CRelAngle&, float);
 

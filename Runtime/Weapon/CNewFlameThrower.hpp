@@ -99,6 +99,7 @@ public:
   //  NFTSecondaryFire
   //  NFTSecondarySparks
   //  <invalid>
+  DEFINE_ENTITY
   CNewFlameThrower(const TToken<CWeaponDescription>& desc, std::string_view name, EWeaponType wType,
                    const std::array<CAssetId, 8>& resInfo, const zeus::CTransform& xf, EMaterialTypes matType,
                    const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner, EProjectileAttrib attribs);

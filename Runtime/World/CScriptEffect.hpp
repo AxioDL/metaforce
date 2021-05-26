@@ -44,6 +44,7 @@ class CScriptEffect : public CActor {
   float x140_destroyDelayTimer = 0.f;
 
 public:
+  DEFINE_ENTITY
   CScriptEffect(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                 const zeus::CVector3f& scale, CAssetId partId, CAssetId elscId, bool hotInThermal,
                 bool noTimerUnlessAreaOccluded, bool rebuildSystemsOnActivate, bool active, bool useRateInverseCamDist,

@@ -58,6 +58,7 @@ class CFlaahgraRenderer : public CActor {
   TUniqueId xe8_owner;
 
 public:
+  DEFINE_ENTITY
   CFlaahgraRenderer(TUniqueId, TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&);
 
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
@@ -75,6 +76,7 @@ class CFlaahgraPlants : public CActor {
   TUniqueId x16c_colAct = kInvalidUniqueId;
 
 public:
+  DEFINE_ENTITY
   CFlaahgraPlants(const TToken<CGenDescription>&, const CActorParameters&, TUniqueId, TAreaId, TUniqueId,
                   const zeus::CTransform&, const CDamageInfo&, const zeus::CVector3f&);
 

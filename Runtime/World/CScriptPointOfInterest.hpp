@@ -11,6 +11,7 @@ private:
   float xe8_pointSize;
 
 public:
+  DEFINE_ENTITY
   CScriptPointOfInterest(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool,
                          const CScannableParameters&, float);
 

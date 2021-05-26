@@ -20,6 +20,7 @@ class CScriptCameraFilterKeyframe : public CEntity {
   CAssetId x50_txtr;
 
 public:
+  DEFINE_ENTITY
   CScriptCameraFilterKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info, EFilterType type,
                               EFilterShape shape, u32 filterIdx, u32 unk, const zeus::CColor& color, float timeIn,
                               float timeOut, CAssetId txtr, bool active);

@@ -26,6 +26,7 @@ class CElectricBeamProjectile : public CBeamProjectile {
   bool x48c_ = false;
 
 public:
+  DEFINE_ENTITY
   CElectricBeamProjectile(const TToken<CWeaponDescription>&, EWeaponType, const SElectricBeamInfo&,
                           const zeus::CTransform&, EMaterialTypes, const CDamageInfo&, TUniqueId, TAreaId, TUniqueId,
                           EProjectileAttrib);

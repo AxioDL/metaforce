@@ -28,6 +28,7 @@ class CFire : public CActor {
   float x15c_ = 0.f;
 
 public:
+  DEFINE_ENTITY
   CFire(TToken<CGenDescription>, TUniqueId, TAreaId, bool, TUniqueId, const zeus::CTransform&, const CDamageInfo&,
         const zeus::CAABox&, const zeus::CVector3f&, bool, CAssetId, bool, bool, bool, float, float, float, float);
 

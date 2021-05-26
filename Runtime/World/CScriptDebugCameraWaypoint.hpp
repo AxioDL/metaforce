@@ -11,6 +11,7 @@ class CScriptDebugCameraWaypoint : public CActor {
   u32 xe8_w1;
 
 public:
+  DEFINE_ENTITY
   CScriptDebugCameraWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                              u32 w1);
 

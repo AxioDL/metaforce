@@ -19,7 +19,7 @@
 #include <zeus/CVector3f.hpp>
 
 #ifndef DEFINE_PATTERNED
-#define DEFINE_PATTERNED(type) static constexpr ECharacter CharacterType = ECharacter::type
+#define DEFINE_PATTERNED(type) DEFINE_ENTITY static constexpr ECharacter CharacterType = ECharacter::type
 #endif
 
 namespace metaforce {
@@ -247,6 +247,7 @@ protected:
   float GetAnimationDistance(const CPASAnimParmData& data) const;
 
 public:
+  DEFINE_ENTITY
   CPatterned(ECharacter character, TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
              const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
              CPatterned::EMovementType movement, EColliderType collider, EBodyType body, const CActorParameters& params,
@@ -419,7 +420,5 @@ public:
 
   static void Initialize();
   // endregion
-
-  IMGUI_ENTITY_PROTOTYPES
 };
 } // namespace metaforce

@@ -23,6 +23,7 @@ public:
 
 private:
 public:
+  DEFINE_ENTITY
   CScriptHUDMemo(TUniqueId, std::string_view, const CEntityInfo&, const CHUDMemoParms&, CScriptHUDMemo::EDisplayType,
                  CAssetId, bool);
 

@@ -18,6 +18,7 @@ class CScriptCameraHintTrigger : public CActor {
   bool x130_27_playerWasInside : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CScriptCameraHintTrigger(TUniqueId uid, bool active, std::string_view name,
                            const CEntityInfo& info, const zeus::CVector3f& scale,
                            const zeus::CTransform& xf, bool deactivateOnEnter,

@@ -30,6 +30,7 @@ class CAmbientAI : public CPhysicsActor {
   bool x2e8_25_animating : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CAmbientAI(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
              const zeus::CAABox&, const CMaterialList&, float, const CHealthInfo&, const CDamageVulnerability&,
              const CActorParameters&, float, float, s32, s32, bool);

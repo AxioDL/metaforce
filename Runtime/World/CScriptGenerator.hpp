@@ -18,6 +18,7 @@ class CScriptGenerator : public CEntity {
   float x4c_maxScale;
 
 public:
+  DEFINE_ENTITY
   CScriptGenerator(TUniqueId uid, std::string_view name, const CEntityInfo& info, u32 spawnCount, bool noReuseFollowers,
                    const zeus::CVector3f& vec1, bool noInheritXf, bool active, float minScale, float maxScale);
 

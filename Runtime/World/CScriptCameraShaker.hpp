@@ -11,6 +11,7 @@ class CScriptCameraShaker : public CEntity {
   CCameraShakeData x34_shakeData;
 
 public:
+  DEFINE_ENTITY
   CScriptCameraShaker(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                       const CCameraShakeData& shakeData);
   void Accept(IVisitor& visitor) override;

@@ -15,6 +15,7 @@ class CScriptAreaAttributes : public CEntity {
   EPhazonType x50_phazon;
 
 public:
+  DEFINE_ENTITY
   CScriptAreaAttributes(TUniqueId uid, const CEntityInfo& info, bool showSkybox, EEnvFxType fxType, float envFxDensity,
                         float thermalHeat, float xrayFogDistance, float worldLightingLevel, CAssetId skybox,
                         EPhazonType phazonType);

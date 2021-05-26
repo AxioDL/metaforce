@@ -20,6 +20,7 @@ class CScriptDock : public CPhysicsActor {
   bool x268_26_areaPostConstructed : 1 = false;
 
 public:
+  DEFINE_ENTITY
   CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& position,
               const zeus::CVector3f& extent, s32 dock, TAreaId area, bool active, s32 dockReferenceCount,
               bool loadConnected);

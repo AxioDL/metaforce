@@ -75,6 +75,7 @@ class CScriptPlatform : public CPhysicsActor {
 
   std::optional<CAABoxShader> m_boxFilter;
 public:
+  DEFINE_ENTITY
   CScriptPlatform(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                   CModelData&& mData, const CActorParameters& actParms, const zeus::CAABox& aabb, float speed,
                   bool detectCollision, float xrayAlpha, bool active, const CHealthInfo& hInfo,

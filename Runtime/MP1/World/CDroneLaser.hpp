@@ -14,6 +14,7 @@ class CDroneLaser : public CActor {
   void RenderBeam(u32 w, float f, const zeus::CColor& col, bool) const;
 
 public:
+  DEFINE_ENTITY
   CDroneLaser(TUniqueId uid, TAreaId aId, const zeus::CTransform& xf, CAssetId particle);
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;

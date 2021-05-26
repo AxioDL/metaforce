@@ -18,6 +18,7 @@ class CScriptPlayerHint : public CActor {
   void RemoveFromObjectList(TUniqueId uid);
 
 public:
+  DEFINE_ENTITY
   CScriptPlayerHint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                     bool active, u32 priority, u32 overrideFlags);
   void Accept(IVisitor& visit) override;

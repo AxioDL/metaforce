@@ -12,6 +12,7 @@ class CScriptRipple : public CEntity {
   zeus::CVector3f x38_center;
 
 public:
+  DEFINE_ENTITY
   CScriptRipple(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CVector3f&, bool, float);
 
   void Accept(IVisitor&) override;

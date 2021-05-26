@@ -92,6 +92,7 @@ struct SPrimeExoRoomParameters {
 class CMetroidPrimeExo : public CPatterned {
   class CPhysicsDummy : public CPhysicsActor {
   public:
+    DEFINE_ENTITY
     CPhysicsDummy(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info)
     : CPhysicsActor(uid, active, name, info, {}, CModelData::CModelDataNull(),
                     CMaterialList(EMaterialTypes::Target, EMaterialTypes::ExcludeFromRadar), zeus::CAABox{-1.f, 1.f},

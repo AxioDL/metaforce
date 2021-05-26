@@ -23,6 +23,7 @@ class CScriptStreamedMusic : public CEntity {
   void TweakOverride(CStateManager& mgr);
 
 public:
+  DEFINE_ENTITY
   CScriptStreamedMusic(TUniqueId id, const CEntityInfo& info, std::string_view name, bool active,
                        std::string_view fileName, bool noStopOnDeactivate, float fadeIn, float fadeOut, u32 volume,
                        bool loop, bool music);

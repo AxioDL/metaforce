@@ -17,6 +17,7 @@ private:
     CTexturedQuadFilter m_thermalSpotSubtract;
 
   public:
+    DEFINE_ENTITY
     CFlash(TUniqueId uid, const CEntityInfo& info, const zeus::CVector3f& pos, TLockedToken<CTexture>& thermalSpot,
            float delay);
 
@@ -120,6 +121,7 @@ private:
   float xb8c_avoidStaticCollisionTime = 0.f; // not initialized in ctr
 
 public:
+  DEFINE_ENTITY
   COmegaPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, CElitePirateData data,
                CAssetId skeletonModelId, CAssetId skeletonSkinRulesId, CAssetId skeletonLayoutInfoId);

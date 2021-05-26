@@ -91,6 +91,7 @@ private:
   bool x3fe_followPlayer = true;
 
 public:
+  DEFINE_ENTITY
   CGrenadeLauncher(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                    CModelData&& mData, const zeus::CAABox& bounds, const CHealthInfo& healthInfo,
                    const CDamageVulnerability& vulnerability, const CActorParameters& actParams, TUniqueId parentId,

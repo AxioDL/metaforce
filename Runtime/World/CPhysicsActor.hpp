@@ -112,6 +112,7 @@ protected:
   u32 x250_numTicksPartialUpdate = 0;
 
 public:
+  DEFINE_ENTITY
   CPhysicsActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                 CModelData&& mData, const CMaterialList& matList, const zeus::CAABox& box, const SMoverData& moverData,
                 const CActorParameters& actorParms, float stepUp, float stepDown);
@@ -208,7 +209,5 @@ public:
 
   void UseCollisionImpulses();
   static constexpr float GravityConstant() { return 9.81f * 2.5f; } /* 9.81 m/s ^ 2 is normal acceleration under earth gravity, Tallon 4 is 2.5 times that */
-
-  IMGUI_ENTITY_PROTOTYPES
 };
 } // namespace metaforce

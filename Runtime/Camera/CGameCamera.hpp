@@ -31,6 +31,7 @@ protected:
   float x184_perspInterpEndFov;
 
 public:
+  DEFINE_ENTITY
   CGameCamera(TUniqueId, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
               float fov, float nearz, float farz, float aspect, TUniqueId watchedId, bool disableInput,
               u32 controllerIdx);

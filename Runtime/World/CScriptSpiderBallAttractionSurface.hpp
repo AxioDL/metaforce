@@ -14,6 +14,7 @@ class CScriptSpiderBallAttractionSurface : public CActor {
   zeus::CAABox xf4_aabb;
 
 public:
+  DEFINE_ENTITY
   CScriptSpiderBallAttractionSurface(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                      const zeus::CTransform& xf, const zeus::CVector3f& scale, bool active);
   void Accept(IVisitor& visitor) override;

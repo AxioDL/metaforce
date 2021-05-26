@@ -126,6 +126,7 @@ class CFishCloud : public CActor {
   void RenderBoid(int idx, const CBoid& boid, u32& drawMask, bool thermalHot, const CModelFlags& flags) const;
 
 public:
+  DEFINE_ENTITY
   CFishCloud(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
              const zeus::CVector3f& scale, const zeus::CTransform& xf, CModelData&& mData,
              const CAnimRes& aRes, u32 numBoids, float speed, float separationRadius, float cohesionMagnitude,

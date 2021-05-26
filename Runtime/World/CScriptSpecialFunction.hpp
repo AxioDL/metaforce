@@ -112,6 +112,7 @@ private:
   bool x1e5_26_displayBillboard : 1 = false;
   TLockedToken<CTexture> x1e8_; // Used to be optional
 public:
+  DEFINE_ENTITY
   CScriptSpecialFunction(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, ESpecialFunction,
                          std::string_view, float, float, float, float, const zeus::CVector3f&, const zeus::CColor&,
                          bool, const CDamageInfo&, s32, s32, CPlayerState::EItemType, s16, s16, s16);

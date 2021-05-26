@@ -24,6 +24,7 @@ class CMetroidPrimeProjectile : public CEnergyProjectile {
   SPrimeProjectileInfo x3d8_auxData;
 
 public:
+  DEFINE_ENTITY
   CMetroidPrimeProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type,
                           const zeus::CTransform& xf, EMaterialTypes materials, const CDamageInfo& damage,
                           TUniqueId uid, TAreaId aid, TUniqueId owner, const SPrimeProjectileInfo& auxData,

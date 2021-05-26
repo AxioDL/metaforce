@@ -19,6 +19,7 @@ private:
   float x110_timeRemaining = 0.f;
 
 public:
+  DEFINE_ENTITY
   CScriptAiJumpPoint(TUniqueId, std::string_view, const CEntityInfo&, zeus::CTransform&, bool, float);
 
   void Accept(IVisitor& visitor) override;

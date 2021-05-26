@@ -21,6 +21,7 @@ class CDestroyableRock : public CAi {
   bool x341_;
 
 public:
+  DEFINE_ENTITY
   CDestroyableRock(TUniqueId id, bool active, std::string_view name, const CEntityInfo& info,
                    const zeus::CTransform& xf, CModelData&& modelData, float mass, const CHealthInfo& health,
                    const CDamageVulnerability& vulnerability, const CMaterialList& matList, CAssetId fsm,

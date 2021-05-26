@@ -16,6 +16,7 @@ class CScriptBallTrigger : public CScriptTrigger {
   bool x168_25_stopPlayer : 1;
 
 public:
+  DEFINE_ENTITY
   CScriptBallTrigger(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CVector3f&, const zeus::CVector3f&,
                      bool, float, float, float, const zeus::CVector3f&, bool);
 

@@ -55,6 +55,7 @@ protected:
   bool x2e4_28_sendProjectileCollideMsg : 1;
 
 public:
+  DEFINE_ENTITY
   CGameProjectile(bool active, const TToken<CWeaponDescription>&, std::string_view name, EWeaponType wType,
                   const zeus::CTransform& xf, EMaterialTypes excludeMat, const CDamageInfo& dInfo, TUniqueId uid,
                   TAreaId aid, TUniqueId owner, TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater,

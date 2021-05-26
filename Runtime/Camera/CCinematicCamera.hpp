@@ -42,6 +42,7 @@ class CCinematicCamera : public CGameCamera {
   void CalculateWaypoints(CStateManager& mgr);
 
 public:
+  DEFINE_ENTITY
   CCinematicCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                    bool active, float shotDuration, float fovy, float znear, float zfar, float aspect, u32 flags);
 

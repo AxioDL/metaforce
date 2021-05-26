@@ -8,6 +8,7 @@ class CFlaahgraProjectile : public CEnergyProjectile {
   bool x3d8_bigStrike;
 
 public:
+  DEFINE_ENTITY
   CFlaahgraProjectile(bool bigStrike, const TToken<CWeaponDescription>& desc, const zeus::CTransform& xf,
                       const CDamageInfo& damage, TUniqueId uid, TAreaId aid, TUniqueId owner);
 

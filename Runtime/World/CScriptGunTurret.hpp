@@ -212,6 +212,7 @@ private:
   bool IsInsignificantRotation(float) const;
 
 public:
+  DEFINE_ENTITY
   CScriptGunTurret(TUniqueId uid, std::string_view name, ETurretComponent comp, const CEntityInfo& info,
                    const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabb, const CHealthInfo& hInfo,
                    const CDamageVulnerability& dVuln, const CActorParameters& aParms,

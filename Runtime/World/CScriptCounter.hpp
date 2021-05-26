@@ -14,6 +14,7 @@ class CScriptCounter : public CEntity {
   bool x40_autoReset;
 
 public:
+  DEFINE_ENTITY
   CScriptCounter(TUniqueId, std::string_view name, const CEntityInfo& info, s32, s32, bool, bool);
 
   void Accept(IVisitor& visitor) override;

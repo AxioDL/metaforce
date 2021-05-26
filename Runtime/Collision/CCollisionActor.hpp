@@ -35,6 +35,7 @@ class CCollisionActor : public CPhysicsActor {
 
   CAABoxShader m_aabox;
 public:
+  DEFINE_ENTITY
   CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, const zeus::CVector3f& extent,
                   const zeus::CVector3f& center, bool active, float mass, std::string_view name);
   CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, const zeus::CVector3f& boxSize, bool active,

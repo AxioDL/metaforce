@@ -11,6 +11,7 @@ class CScriptRelay : public CEntity {
   u32 x38_sendCount = 0;
 
 public:
+  DEFINE_ENTITY
   CScriptRelay(TUniqueId, std::string_view, const CEntityInfo&, bool);
 
   void Accept(IVisitor& visitor) override;
