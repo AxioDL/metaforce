@@ -10,7 +10,7 @@
 
 namespace metaforce {
 
-static std::set<TUniqueId> inspectingEntities;
+std::set<TUniqueId> ImGuiConsole::inspectingEntities;
 
 static std::unordered_map<CAssetId, std::unique_ptr<CDummyWorld>> dummyWorlds;
 static std::unordered_map<CAssetId, TCachedToken<CStringTable>> stringTables;
@@ -120,7 +120,7 @@ static void ShowMenuGame() {
   }
 }
 
-static void ImGuiStringViewText(std::string_view text) {
+void ImGuiStringViewText(std::string_view text) {
   ImGui::TextUnformatted(text.begin(), text.end());
 }
 
@@ -138,6 +138,15 @@ static void LerpActorColor(CActor* act) {
 
 static void ShowInspectWindow(bool* isOpen) {
   if (ImGui::Begin("Inspect", isOpen)) {
+    CObjectList& list = *g_StateManager->GetObjectList();
+    ImGui::Text("Objects: %d / 1024", list.size());
+    if (ImGui::Button("Deselect all")) {
+      for (const auto& item : list) {
+        if (TCastToPtr<CActor> act = item) {
+          act->m_debugSelected = false;
+        }
+      }
+    }
     if (ImGui::BeginTable("Entities", 4,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg |
                               ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ScrollY)) {
@@ -150,7 +159,6 @@ static void ShowInspectWindow(bool* isOpen) {
       ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed);
       ImGui::TableSetupScrollFreeze(0, 1);
       ImGui::TableHeadersRow();
-      CObjectList& list = *g_StateManager->GetObjectList();
       std::vector<CEntity*> items;
       items.reserve(list.size());
       for (auto* ent : list) {
@@ -185,10 +193,8 @@ static void ShowInspectWindow(bool* isOpen) {
         if (ImGui::TableNextColumn()) {
           auto text = fmt::format(FMT_STRING("{:x}"), uid.Value());
           if (TCastToPtr<CActor> act = item) {
-            ImGui::Selectable(text.c_str(), &act->m_debugSelected, ImGuiSelectableFlags_SpanAllColumns);
-            if (act->m_debugSelected) {
-              LerpActorColor(act);
-            }
+            ImGui::Selectable(text.c_str(), &act->m_debugSelected,
+                              ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
           } else {
             ImGui::TextUnformatted(text.c_str());
           }
@@ -201,7 +207,7 @@ static void ShowInspectWindow(bool* isOpen) {
         }
         if (ImGui::TableNextColumn()) {
           if (ImGui::SmallButton("View")) {
-            inspectingEntities.insert(uid);
+            ImGuiConsole::inspectingEntities.insert(uid);
           }
         }
         ImGui::PopID();
@@ -220,16 +226,18 @@ static bool showEntityInfoWindow(TUniqueId uid) {
   }
   auto name = fmt::format(FMT_STRING("{}##{:x}"), !ent->GetName().empty() ? ent->GetName() : "Entity", uid.Value());
   if (ImGui::Begin(name.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize)) {
+    ImGui::PushID(ent->GetUniqueId().Value());
     ent->ImGuiInspect();
+    ImGui::PopID();
   }
   ImGui::End();
   return open;
 }
 
-static void ShowAppMainMenuBar() {
-  static bool showInspectWindow = false;
-  static bool showDemoWindow = false;
-  bool canInspect = g_StateManager != nullptr && g_StateManager->GetObjectList();
+static bool showInspectWindow = false;
+static bool showDemoWindow = false;
+
+static void ShowAppMainMenuBar(bool canInspect) {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("Game")) {
       ShowMenuGame();
@@ -244,6 +252,15 @@ static void ShowAppMainMenuBar() {
     }
     ImGui::EndMainMenuBar();
   }
+}
+
+void ImGuiConsole::proc() {
+  if (stepFrame) {
+    g_Main->SetPaused(true);
+    stepFrame = false;
+  }
+  bool canInspect = g_StateManager != nullptr && g_StateManager->GetObjectList();
+  ShowAppMainMenuBar(canInspect);
   if (canInspect) {
     if (showInspectWindow) {
       ShowInspectWindow(&showInspectWindow);
@@ -256,20 +273,19 @@ static void ShowAppMainMenuBar() {
         iter++;
       }
     }
+    for (const auto& item : *g_StateManager->GetObjectList()) {
+      if (TCastToPtr<CActor> act = item) {
+        if (act->m_debugSelected) {
+          LerpActorColor(act);
+        }
+      }
+    }
   } else {
     inspectingEntities.clear();
   }
   if (showDemoWindow) {
     ImGui::ShowDemoWindow(&showDemoWindow);
   }
-}
-
-void ImGuiConsole::proc() {
-  if (stepFrame) {
-    g_Main->SetPaused(true);
-    stepFrame = false;
-  }
-  ShowAppMainMenuBar();
 }
 
 ImGuiConsole::~ImGuiConsole() {
