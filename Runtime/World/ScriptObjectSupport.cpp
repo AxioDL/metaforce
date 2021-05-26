@@ -261,12 +261,14 @@ std::string_view ScriptObjectTypeToStr(EScriptObjectType type) {
   case EScriptObjectType::EnergyBall:
     return "EnergyBall"sv;
   default:
-    return "..."sv;
+    return "[unknown]"sv;
   }
 }
 
 std::string_view ScriptObjectStateToStr(EScriptObjectState state) {
   switch (state) {
+  case EScriptObjectState::Any:
+    return "Any"sv;
   case EScriptObjectState::Active:
     return "Active"sv;
   case EScriptObjectState::Arrived:
@@ -306,17 +308,17 @@ std::string_view ScriptObjectStateToStr(EScriptObjectState state) {
   case EScriptObjectState::Play:
     return "Play"sv;
   case EScriptObjectState::MassiveDeath:
-    return "DeathExplosion"sv;
+    return "MassiveDeath"sv;
   case EScriptObjectState::DeathRattle:
     return "DeathRattle"sv;
   case EScriptObjectState::AboutToMassivelyDie:
-    return "AboutToDie"sv;
+    return "AboutToMassivelyDie"sv;
   case EScriptObjectState::Damage:
     return "Damage"sv;
   case EScriptObjectState::InvulnDamage:
     return "InvulnDamage"sv;
   case EScriptObjectState::MassiveFrozenDeath:
-    return "IceDeathExplosion"sv;
+    return "MassiveFrozenDeath"sv;
   case EScriptObjectState::Modify:
     return "Modify"sv;
   case EScriptObjectState::ScanStart:
@@ -334,12 +336,14 @@ std::string_view ScriptObjectStateToStr(EScriptObjectState state) {
   case EScriptObjectState::InheritBounds:
     return "InheritBounds"sv;
   default:
-    return "..."sv;
+    return "[unknown]"sv;
   }
 }
 
 std::string_view ScriptObjectMessageToStr(EScriptObjectMessage message) {
   switch (message) {
+  case EScriptObjectMessage::None:
+    return "None"sv;
   case EScriptObjectMessage::UNKM0:
     return "UNKM0"sv;
   case EScriptObjectMessage::Activate:
@@ -439,7 +443,7 @@ std::string_view ScriptObjectMessageToStr(EScriptObjectMessage message) {
   case EScriptObjectMessage::SuspendedMove:
     return "SuspendedMove"sv;
   default:
-    return "..."sv;
+    return "[unknown]"sv;
   }
 }
 
