@@ -153,6 +153,10 @@
 #include "Runtime/MP1/World/CTryclops.hpp"
 #include "Runtime/MP1/World/CWarWasp.hpp"
 
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+
+#include "ImGuiConsole.hpp"
 #include "imgui.h"
 
 #define IMGUI_ENTITY_INSPECT(CLS, PARENT, NAME, BLOCK)                                                                 \
@@ -172,9 +176,237 @@
   }
 
 namespace metaforce {
+static std::string_view FromScriptObjectState(EScriptObjectState state) {
+  switch (state) {
+  case EScriptObjectState::Any:
+    return "Any"sv;
+  case EScriptObjectState::Active:
+    return "Active"sv;
+  case EScriptObjectState::Arrived:
+    return "Arrived"sv;
+  case EScriptObjectState::Closed:
+    return "Closed"sv;
+  case EScriptObjectState::Entered:
+    return "Entered"sv;
+  case EScriptObjectState::Exited:
+    return "Exited"sv;
+  case EScriptObjectState::Inactive:
+    return "Inactive"sv;
+  case EScriptObjectState::Inside:
+    return "Inside"sv;
+  case EScriptObjectState::MaxReached:
+    return "MaxReached"sv;
+  case EScriptObjectState::Open:
+    return "Open"sv;
+  case EScriptObjectState::Zero:
+    return "Zero"sv;
+  case EScriptObjectState::Attack:
+    return "Attack"sv;
+  case EScriptObjectState::CloseIn:
+    return "CloseIn"sv;
+  case EScriptObjectState::Retreat:
+    return "Retreat"sv;
+  case EScriptObjectState::Patrol:
+    return "Patrol"sv;
+  case EScriptObjectState::Dead:
+    return "Dead"sv;
+  case EScriptObjectState::CameraPath:
+    return "CameraPath"sv;
+  case EScriptObjectState::CameraTarget:
+    return "CameraTarget"sv;
+  case EScriptObjectState::DeactivateState:
+    return "DeactivateState"sv;
+  case EScriptObjectState::Play:
+    return "Play"sv;
+  case EScriptObjectState::MassiveDeath:
+    return "MassiveDeath"sv;
+  case EScriptObjectState::DeathRattle:
+    return "DeathRattle"sv;
+  case EScriptObjectState::AboutToMassivelyDie:
+    return "AboutToMassivelyDie"sv;
+  case EScriptObjectState::Damage:
+    return "Damage"sv;
+  case EScriptObjectState::InvulnDamage:
+    return "InvulnDamage"sv;
+  case EScriptObjectState::MassiveFrozenDeath:
+    return "MassiveFrozenDeath"sv;
+  case EScriptObjectState::Modify:
+    return "Modify"sv;
+  case EScriptObjectState::ScanStart:
+    return "ScanStart"sv;
+  case EScriptObjectState::ScanProcessing:
+    return "ScanProcessing"sv;
+  case EScriptObjectState::ScanDone:
+    return "ScanDone"sv;
+  case EScriptObjectState::UnFrozen:
+    return "Unfrozen"sv;
+  case EScriptObjectState::Default:
+    return "Default"sv;
+  case EScriptObjectState::ReflectedDamage:
+    return "ReflectedDamage"sv;
+  case EScriptObjectState::InheritBounds:
+    return "InheritBounds"sv;
+  }
+}
+
+static std::string_view FromScriptObjectMessage(EScriptObjectMessage msg) {
+  switch (msg) {
+  case EScriptObjectMessage::None:
+    return "None"sv;
+  case EScriptObjectMessage::UNKM0:
+    return "UNKM0"sv;
+  case EScriptObjectMessage::Activate:
+    return "Activate"sv;
+  case EScriptObjectMessage::Arrived:
+    return "Arrived"sv;
+  case EScriptObjectMessage::Close:
+    return "Close"sv;
+  case EScriptObjectMessage::Deactivate:
+    return "Deactivate"sv;
+  case EScriptObjectMessage::Decrement:
+    return "Decrement"sv;
+  case EScriptObjectMessage::Follow:
+    return "Follow"sv;
+  case EScriptObjectMessage::Increment:
+    return "Increment"sv;
+  case EScriptObjectMessage::Next:
+    return "Next"sv;
+  case EScriptObjectMessage::Open:
+    return "Open"sv;
+  case EScriptObjectMessage::Reset:
+    return "Reset"sv;
+  case EScriptObjectMessage::ResetAndStart:
+    return "ResetAndStart"sv;
+  case EScriptObjectMessage::SetToMax:
+    return "SetToMax"sv;
+  case EScriptObjectMessage::SetToZero:
+    return "SetToZero"sv;
+  case EScriptObjectMessage::Start:
+    return "Start"sv;
+  case EScriptObjectMessage::Stop:
+    return "Stop"sv;
+  case EScriptObjectMessage::StopAndReset:
+    return "StopAndReset"sv;
+  case EScriptObjectMessage::ToggleActive:
+    return "ToggleActive"sv;
+  case EScriptObjectMessage::UNKM18:
+    return "UNKM18"sv;
+  case EScriptObjectMessage::Action:
+    return "Action"sv;
+  case EScriptObjectMessage::Play:
+    return "Play"sv;
+  case EScriptObjectMessage::Alert:
+    return "Alert"sv;
+  case EScriptObjectMessage::InternalMessage00:
+    return "InernalMessage00"sv;
+  case EScriptObjectMessage::OnFloor:
+    return "OnFloor"sv;
+  case EScriptObjectMessage::InternalMessage02:
+    return "InternalMessage02"sv;
+  case EScriptObjectMessage::InternalMessage03:
+    return "InternalMessage03"sv;
+  case EScriptObjectMessage::Falling:
+    return "Falling"sv;
+  case EScriptObjectMessage::OnIceSurface:
+    return "OnIceSurface"sv;
+  case EScriptObjectMessage::OnMudSlowSurface:
+    return "OnMudSlowSurface"sv;
+  case EScriptObjectMessage::OnNormalSurface:
+    return "OnNormalSurface"sv;
+  case EScriptObjectMessage::Touched:
+    return "Touched"sv;
+  case EScriptObjectMessage::AddPlatformRider:
+    return "AddPlatformRider"sv;
+  case EScriptObjectMessage::LandOnNotFloor:
+    return "LandOnNotFloor"sv;
+  case EScriptObjectMessage::Registered:
+    return "Registered"sv;
+  case EScriptObjectMessage::Deleted:
+    return "Deleted"sv;
+  case EScriptObjectMessage::InitializedInArea:
+    return "InitializedInArea"sv;
+  case EScriptObjectMessage::WorldInitialized:
+    return "WorldInitialized"sv;
+  case EScriptObjectMessage::AddSplashInhabitant:
+    return "AddSplashInhabitant"sv;
+  case EScriptObjectMessage::UpdateSplashInhabitant:
+    return "UpdateSplashInhabitant"sv;
+  case EScriptObjectMessage::RemoveSplashInhabitant:
+    return "RemoveSplashInhabitant"sv;
+  case EScriptObjectMessage::Jumped:
+    return "Jumped"sv;
+  case EScriptObjectMessage::Damage:
+    return "Damage"sv;
+  case EScriptObjectMessage::InvulnDamage:
+    return "InvulnDamage"sv;
+  case EScriptObjectMessage::ProjectileCollide:
+    return "ProjectileCollide"sv;
+  case EScriptObjectMessage::InSnakeWeed:
+    return "InSnakeWeed"sv;
+  case EScriptObjectMessage::AddPhazonPoolInhabitant:
+    return "AddPhazonPoolInhabitant"sv;
+  case EScriptObjectMessage::UpdatePhazonPoolInhabitant:
+    return "UpdatePhazonPoolInhabitant"sv;
+  case EScriptObjectMessage::RemovePhazonPoolInhabitant:
+    return "RemovePhazonPoolInhabitant"sv;
+  case EScriptObjectMessage::SuspendedMove:
+    return "SuspendedMove"sv;
+  }
+}
+
 std::string_view CEntity::ImGuiType() { return "Entity"; }
 
 void CEntity::ImGuiInspect() {
+  if (ImGui::CollapsingHeader("Connections")) {
+    if (ImGui::BeginTable("Connections", 6,
+                          ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV)) {
+      ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 0, 'id');
+      ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 0, 'type');
+      ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 0, 'name');
+      ImGui::TableSetupColumn("State", ImGuiTableColumnFlags_WidthFixed, 0, 'stat');
+      ImGui::TableSetupColumn("Message", ImGuiTableColumnFlags_WidthFixed, 0, 'msg');
+      ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed);
+      ImGui::TableSetupScrollFreeze(0, 1);
+      ImGui::TableHeadersRow();
+      for (const auto& item : x20_conns) {
+        const auto uid = g_StateManager->GetIdForScript(item.x8_objId);
+        CEntity* ent = g_StateManager->ObjectById(uid);
+        if (ent == nullptr) {
+          continue;
+        }
+        ImGui::PushID(uid.Value());
+        ImGui::TableNextRow();
+        if (ImGui::TableNextColumn()) {
+          auto text = fmt::format(FMT_STRING("{:x}"), uid.Value());
+          if (TCastToPtr<CActor> act = ent) {
+            ImGui::Selectable(text.c_str(), &act->m_debugSelected,
+                              ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
+          } else {
+            ImGui::TextUnformatted(text.c_str());
+          }
+        }
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(ent->ImGuiType());
+        }
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(ent->GetName());
+        }
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(FromScriptObjectState(item.x0_state));
+        }
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(FromScriptObjectMessage(item.x4_msg));
+        }
+        if (ImGui::TableNextColumn()) {
+          if (ImGui::SmallButton("View")) {
+            ImGuiConsole::inspectingEntities.insert(uid);
+          }
+        }
+        ImGui::PopID();
+      }
+      ImGui::EndTable();
+    }
+  }
   if (ImGui::CollapsingHeader("Entity", ImGuiTreeNodeFlags_DefaultOpen)) {
     ImGui::Text("ID: %x", x8_uid.Value());
     ImGui::Text("Name: %s", x10_name.c_str());
@@ -186,6 +418,7 @@ void CEntity::ImGuiInspect() {
 IMGUI_ENTITY_INSPECT(CActor, CEntity, Actor, {
   const zeus::CVector3f& pos = GetTranslation();
   ImGui::Text("Position: %f, %f, %f", pos.x(), pos.y(), pos.z());
+  ImGui::Checkbox("Highlight", &m_debugSelected);
 })
 IMGUI_ENTITY_INSPECT(MP1::CFireFlea::CDeathCameraEffect, CEntity, FireFleaDeathCameraEffect, {})
 IMGUI_ENTITY_INSPECT(MP1::CMetroidPrimeRelay, CEntity, MetroidPrimeRelay, {})
@@ -326,7 +559,8 @@ IMGUI_ENTITY_INSPECT(MP1::CRipperControlledPlatform, CScriptPlatform, RipperCont
 
 // <- CAi
 IMGUI_ENTITY_INSPECT(CDestroyableRock, CAi, DestroyableRock, {})
-IMGUI_ENTITY_INSPECT(CPatterned, CAi, Patterned, {})
+IMGUI_ENTITY_INSPECT(CPatterned, CAi, Patterned,
+                     { BITFIELD_CHECKBOX("Enable state machine", x403_25_enableStateMachine); })
 
 // <- CPatterned
 IMGUI_ENTITY_INSPECT(MP1::CAtomicAlpha, CPatterned, AtomicAlpha, {})
