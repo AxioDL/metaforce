@@ -479,7 +479,7 @@ std::string_view CPlayerState::ItemTypeToName(CPlayerState::EItemType type) {
   case EItemType::GrappleBeam:
     return "Grapple Beam"sv;
   case EItemType::XRayVisor:
-    return "XRay Visor"sv;
+    return "X-Ray Visor"sv;
   case EItemType::IceSpreader:
     return "Ice Spreader"sv;
   case EItemType::SpaceJumpBoots:
