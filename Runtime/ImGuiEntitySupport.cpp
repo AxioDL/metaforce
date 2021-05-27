@@ -270,6 +270,7 @@ void CEntity::ImGuiInspect() {
     ImGui::Text("ID: %x", x8_uid.Value());
     ImGui::Text("Name: %s", x10_name.c_str());
     BITFIELD_CHECKBOX("Active", x30_24_active);
+    ImGui::Checkbox("Highlight", &m_debugSelected);
   }
 }
 
@@ -278,7 +279,6 @@ IMGUI_ENTITY_INSPECT(CActor, CEntity, Actor, {
   if (ImGuiVector3fInput("Position", x34_transform.origin)) {
     SetTranslation(x34_transform.origin);
   }
-  ImGui::Checkbox("Highlight", &m_debugSelected);
 })
 IMGUI_ENTITY_INSPECT(MP1::CFireFlea::CDeathCameraEffect, CEntity, FireFleaDeathCameraEffect, {})
 IMGUI_ENTITY_INSPECT(MP1::CMetroidPrimeRelay, CEntity, MetroidPrimeRelay, {})
