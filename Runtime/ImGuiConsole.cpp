@@ -330,7 +330,13 @@ void ImGuiConsole::ShowAboutWindow() {
   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
   ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-  if (ImGui::Begin("About", &m_showAboutWindow, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
+  ImVec4& windowBg = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
+  ImGui::PushStyleColor(ImGuiCol_TitleBg, windowBg);
+  ImGui::PushStyleColor(ImGuiCol_TitleBgActive, windowBg);
+
+  if (ImGui::Begin("About", &m_showAboutWindow,
+                   ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoNav |
+                       ImGuiWindowFlags_NoSavedSettings)) {
     float iconSize = 256.f;
     ImGui::SameLine(ImGui::GetWindowSize().x / 2 - iconSize + (iconSize / 2));
     ImGui::Image(ImGuiUserTextureID_MetaforceIcon, ImVec2{iconSize, iconSize});
@@ -350,36 +356,51 @@ void ImGuiConsole::ShowAboutWindow() {
     if (ImGui::BeginTable("Version Info", 2, ImGuiTableFlags_BordersInnerV)) {
       ImGui::TableNextRow();
       if (ImGui::TableNextColumn()) {
-        ImGui::TextUnformatted("Branch");
+        ImGuiStringViewText("Branch");
       }
       if (ImGui::TableNextColumn()) {
-        ImGui::TextUnformatted(METAFORCE_WC_BRANCH);
-      }
-      ImGui::TableNextRow();
-      if (ImGui::TableNextColumn()) {
-        ImGui::TextUnformatted("Revision");
-      }
-      if (ImGui::TableNextColumn()) {
-        ImGui::TextUnformatted(METAFORCE_WC_REVISION);
+        ImGuiStringViewText(METAFORCE_WC_BRANCH);
       }
       ImGui::TableNextRow();
       if (ImGui::TableNextColumn()) {
-        ImGui::TextUnformatted("Date");
+        ImGuiStringViewText("Revision");
       }
       if (ImGui::TableNextColumn()) {
-        ImGui::TextUnformatted(METAFORCE_WC_DATE);
+        ImGuiStringViewText(METAFORCE_WC_REVISION);
       }
       ImGui::TableNextRow();
       if (ImGui::TableNextColumn()) {
-        ImGui::TextUnformatted("Build name");
+        ImGuiStringViewText("Build");
       }
       if (ImGui::TableNextColumn()) {
-        ImGui::TextUnformatted(METAFORCE_DLPACKAGE);
+        ImGuiStringViewText(METAFORCE_DLPACKAGE);
+      }
+      ImGui::TableNextRow();
+      if (ImGui::TableNextColumn()) {
+        ImGuiStringViewText("Date");
+      }
+      if (ImGui::TableNextColumn()) {
+        ImGuiStringViewText(METAFORCE_WC_DATE);
+      }
+      ImGui::TableNextRow();
+      if (ImGui::TableNextColumn()) {
+        ImGuiStringViewText("Type");
+      }
+      if (ImGui::TableNextColumn()) {
+        ImGuiStringViewText(METAFORCE_BUILD_TYPE);
+      }
+      ImGui::TableNextRow();
+      if (ImGui::TableNextColumn()) {
+        ImGuiStringViewText("Game");
+      }
+      if (ImGui::TableNextColumn()) {
+        ImGuiStringViewText(g_Main->GetVersionString());
       }
       ImGui::EndTable();
     }
   }
   ImGui::End();
+  ImGui::PopStyleColor(2);
 }
 
 void ImGuiConsole::ShowDebugOverlay() {
