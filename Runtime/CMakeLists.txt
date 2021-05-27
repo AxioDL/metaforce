@@ -136,14 +136,15 @@ endif()
 endfunction()
 
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-set(RUNTIME_LIBRARIES ${HECL_APPLICATION_REPS_TARGETS_LIST} RetroDataSpec AssetNameMapNull NESEmulator
+set(RUNTIME_LIBRARIES ${HECL_APPLICATION_REPS_TARGETS_LIST} RetroDataSpec NESEmulator
         libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui)
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
 target_include_directories(RuntimeCommon PUBLIC ${RUNTIME_INCLUDES})
+target_link_libraries(RuntimeCommon PUBLIC ${RUNTIME_LIBRARIES})
 add_runtime_common_library(RuntimeCommonB ${RUNTIME_SOURCES_B})
+target_include_directories(RuntimeCommonB PUBLIC ${RUNTIME_INCLUDES})
 target_link_libraries(RuntimeCommonB PUBLIC ${RUNTIME_LIBRARIES})
-target_link_libraries(RuntimeCommon PUBLIC RuntimeCommonB)
 
 if(WIN32)
   configure_file(platforms/win/metaforce.rc.in "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/metaforce.rc" @ONLY)
@@ -205,7 +206,7 @@ elseif(UNIX)
 endif()
 
 add_executable(metaforce CMain.cpp ${PLAT_SRCS} ImGuiConsole.hpp ImGuiConsole.cpp ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp)
-target_link_libraries(metaforce PUBLIC RuntimeCommon ${PLAT_LIBS})
+target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB AssetNameMapNull ${PLAT_LIBS})
 
 if(COMMAND add_sanitizers)
   add_sanitizers(metaforce)
