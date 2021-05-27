@@ -575,6 +575,7 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
     if (ImGui::BeginMenu("Tools")) {
       ImGui::MenuItem("Inspect", nullptr, &m_showInspectWindow, canInspect);
       ImGui::MenuItem("Items", nullptr, &m_showItemsWindow, canInspect);
+      ImGui::MenuItem("Layers", nullptr, &m_showLayersWindow, canInspect);
       ImGui::Separator();
       ImGui::MenuItem("Demo", nullptr, &m_showDemoWindow);
       ImGui::EndMenu();
@@ -641,6 +642,9 @@ void ImGuiConsole::PreUpdate() {
   }
   if (canInspect && m_showItemsWindow) {
     ShowItemsWindow();
+  }
+  if (canInspect && m_showLayersWindow) {
+    ShowLayersWindow();
   }
   if (m_showAboutWindow) {
     ShowAboutWindow();
@@ -778,4 +782,43 @@ void ImGuiConsole::ShowItemsWindow() {
   }
   ImGui::End();
 }
+
+void ImGuiConsole::ShowLayersWindow() {
+  if (ImGui::Begin("Layers", &m_showLayersWindow)) {
+    for (const auto& world : ListWorlds()) {
+      const auto& layers = dummyWorlds[world.second]->GetWorldLayers();
+      if (!layers) {
+        continue;
+      }
+      
+      if (ImGui::TreeNode(world.first.c_str())) {
+        auto worldLayerState = g_GameState->StateForWorld(world.second).GetLayerState();
+        u32 startNameIdx = 0;
+
+        for (const auto& area : ListAreas(world.second)) {
+          u32 layerCount = worldLayerState->GetAreaLayerCount(area.second);
+          if (layerCount == 0) {
+            continue;
+          }
+          if (ImGui::TreeNode(area.first.c_str())) {
+            // TODO: m_startNameIdx have incorrect values in the data due to a Metaforce bug
+            // u32 startNameIdx = layers->m_areas[area.second].m_startNameIdx;
+
+            for (u32 layer = 0; layer < layerCount; ++layer) {
+              bool active = worldLayerState->IsLayerActive(area.second, layer);
+              if (ImGui::Checkbox(layers->m_names[startNameIdx + layer].c_str(), &active)) {
+                worldLayerState->SetLayerActive(area.second, layer, active);
+              }
+            }
+            ImGui::TreePop();
+          }
+          startNameIdx += layerCount;
+        }
+        ImGui::TreePop();
+      }
+    }
+  }
+  ImGui::End();
+}
+
 } // namespace metaforce
