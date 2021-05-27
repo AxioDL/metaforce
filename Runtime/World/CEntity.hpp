@@ -28,6 +28,7 @@ class IVisitor;
 class CEntity {
   friend class CStateManager;
   friend class CObjectList;
+  friend class ImGuiConsole;
 
 protected:
   TAreaId x4_areaId;
@@ -39,6 +40,10 @@ protected:
   bool x30_25_inGraveyard : 1 = false;
   bool x30_26_scriptingBlocked : 1 = false;
   bool x30_27_inUse : 1;
+
+  // Used in ImGuiConsole
+  bool m_debugSelected = false;
+  bool m_debugHovered = false;
 
 public:
   static const std::vector<SConnection> NullConnectionList;

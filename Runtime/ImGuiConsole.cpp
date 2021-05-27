@@ -27,6 +27,13 @@ static std::wstring_convert<deletable_facet<std::codecvt<char16_t, char, std::mb
 
 std::string readUtf8String(CStringTable* tbl, int idx) { return conv16.to_bytes(tbl->GetString(idx)); }
 
+static bool containsCaseInsensitive(std::string_view str, std::string_view val) {
+  return std::search(str.begin(), str.end(), val.begin(), val.end(),
+                     [](char ch1, char ch2) { return std::toupper(ch1) == std::toupper(ch2); }) != str.end();
+}
+
+void ImGuiStringViewText(std::string_view text) { ImGui::TextUnformatted(text.begin(), text.end()); }
+
 static const std::vector<std::pair<std::string, CAssetId>> ListWorlds() {
   std::vector<std::pair<std::string, CAssetId>> worlds;
   for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks()) {
@@ -90,11 +97,6 @@ static void Warp(const CAssetId worldId, TAreaId aId) {
   }
 }
 
-bool containsCaseInsensitive(std::string_view str, std::string_view val) {
-  return std::search(str.begin(), str.end(), val.begin(), val.end(),
-                     [](char ch1, char ch2) { return std::toupper(ch1) == std::toupper(ch2); }) != str.end();
-}
-
 static bool stepFrame = false;
 
 static void ShowMenuGame() {
@@ -125,9 +127,7 @@ static void ShowMenuGame() {
   }
 }
 
-void ImGuiStringViewText(std::string_view text) { ImGui::TextUnformatted(text.begin(), text.end()); }
-
-static void LerpActorColor(CActor* act) {
+void ImGuiConsole::LerpDebugColor(CActor* act) {
   act->m_debugAddColorTime += 1.f / 60.f;
   float lerp = act->m_debugAddColorTime;
   if (lerp > 2.f) {
@@ -139,19 +139,100 @@ static void LerpActorColor(CActor* act) {
   act->m_debugAddColor = zeus::CColor::lerp(zeus::skClear, zeus::skBlue, lerp);
 }
 
-static void ShowInspectWindow(bool* isOpen) {
+void ImGuiConsole::UpdateEntityEntries() {
+  CObjectList& list = g_StateManager->GetAllObjectList();
+  s16 uid = list.GetFirstObjectIndex();
+  while (uid != -1) {
+    ImGuiEntityEntry& entry = ImGuiConsole::entities[uid];
+    if (entry.uid == kInvalidUniqueId || entry.ent == nullptr) {
+      CEntity* ent = list.GetObjectByIndex(uid);
+      entry.uid = ent->GetUniqueId();
+      entry.ent = ent;
+      entry.type = ent->ImGuiType();
+      entry.name = ent->GetName();
+      entry.isActor = TCastToPtr<CActor>(ent).IsValid();
+    } else {
+      entry.active = entry.ent->GetActive();
+    }
+    if (entry.isActor && (entry.ent->m_debugSelected || entry.ent->m_debugHovered)) {
+      LerpDebugColor(entry.AsActor());
+    }
+    uid = list.GetNextObjectIndex(uid);
+  }
+}
+
+void ImGuiConsole::BeginEntityRow(const ImGuiEntityEntry& entry) {
+  ImGui::PushID(entry.uid.Value());
+  ImGui::TableNextRow();
+  bool isActive = entry.active;
+
+  ImVec4 textColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+  if (!isActive) {
+    textColor.w = 0.5f;
+  }
+  ImGui::PushStyleColor(ImGuiCol_Text, textColor);
+
+  if (ImGui::TableNextColumn()) {
+    auto text = fmt::format(FMT_STRING("{:x}"), entry.uid.Value());
+    ImGui::Selectable(text.c_str(), &entry.ent->m_debugSelected,
+                      ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
+    entry.ent->m_debugHovered = ImGui::IsItemHovered();
+
+    if (ImGui::BeginPopupContextItem(text.c_str())) {
+      ImGui::PopStyleColor();
+      if (ImGui::MenuItem(isActive ? "Deactivate" : "Activate")) {
+        entry.ent->SetActive(!isActive);
+      }
+      if (ImGui::MenuItem("Highlight", nullptr, &entry.ent->m_debugSelected)) {
+        entry.ent->SetActive(!isActive);
+      }
+      ImGui::Separator();
+      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{0.77f, 0.12f, 0.23f, 1.f});
+      if (ImGui::MenuItem("Delete")) {
+        g_StateManager->FreeScriptObject(entry.uid);
+      }
+      ImGui::PopStyleColor();
+      ImGui::EndPopup();
+      ImGui::PushStyleColor(ImGuiCol_Text, textColor);
+    }
+  }
+}
+
+void ImGuiConsole::EndEntityRow(const ImGuiEntityEntry& entry) {
+  if (ImGui::TableNextColumn()) {
+    if (ImGui::SmallButton("View")) {
+      ImGuiConsole::inspectingEntities.insert(entry.uid);
+    }
+  }
+  ImGui::PopStyleColor();
+  ImGui::PopID();
+}
+
+static void RenderEntityColumns(const ImGuiEntityEntry& entry) {
+  ImGuiConsole::BeginEntityRow(entry);
+  if (ImGui::TableNextColumn()) {
+    ImGuiStringViewText(entry.type);
+  }
+  if (ImGui::TableNextColumn()) {
+    ImGuiStringViewText(entry.name);
+  }
+  ImGuiConsole::EndEntityRow(entry);
+}
+
+void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
+  static bool activeOnly = false;
   static std::array<char, 40> filterText{};
   if (ImGui::Begin("Inspect", isOpen)) {
-    CObjectList& list = *g_StateManager->GetObjectList();
+    CObjectList& list = g_StateManager->GetAllObjectList();
     ImGui::Text("Objects: %d / 1024", list.size());
     if (ImGui::Button("Deselect all")) {
-      for (const auto ent : list) {
-        if (TCastToPtr<CActor> act = ent) {
-          act->m_debugSelected = false;
-        }
+      for (auto* const ent : list) {
+        ent->m_debugSelected = false;
       }
     }
     ImGui::InputText("Filter", filterText.data(), filterText.size());
+    ImGui::Checkbox("Active", &activeOnly);
+
     if (ImGui::BeginTable("Entities", 4,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg |
                               ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ScrollY)) {
@@ -164,104 +245,78 @@ static void ShowInspectWindow(bool* isOpen) {
       ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed);
       ImGui::TableSetupScrollFreeze(0, 1);
       ImGui::TableHeadersRow();
-      std::vector<CEntity*> items;
-      items.reserve(list.size());
-      for (auto* ent : list) {
-        std::string_view search{filterText.data(), strlen(filterText.data())};
-        if (!search.empty()) {
-          std::string_view type = ent->ImGuiType();
-          std::string_view name = ent->GetName();
-          if (!containsCaseInsensitive(type, search) && !containsCaseInsensitive(name, search)) {
+
+      ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs();
+      bool hasSortSpec = sortSpecs != nullptr &&
+                         sortSpecs->SpecsCount == 1 && // no multi-sort
+                         // We can skip sorting if we just want uid ascending,
+                         // since that's how we iterate over CObjectList
+                         (sortSpecs->Specs[0].ColumnUserID != 'id' ||
+                          sortSpecs->Specs[0].SortDirection != ImGuiSortDirection_Ascending);
+      std::string_view search{filterText.data(), strlen(filterText.data())};
+      if (!search.empty() || activeOnly || hasSortSpec) {
+        std::vector<s16> sortedList;
+        sortedList.reserve(list.size());
+        s16 uid = list.GetFirstObjectIndex();
+        while (uid != -1) {
+          ImGuiEntityEntry& entry = ImGuiConsole::entities[uid];
+          if (activeOnly && !entry.active) {
+            uid = list.GetNextObjectIndex(uid);
             continue;
           }
-        }
-        items.push_back(ent);
-      }
-      if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs()) {
-        for (int i = 0; i < sortSpecs->SpecsCount; ++i) {
-          const auto& specs = sortSpecs->Specs[i];
-          if (specs.ColumnUserID == 'id') {
-            std::sort(items.begin(), items.end(), [&](CEntity* a, CEntity* b) {
-              u16 aId = a->GetUniqueId().Value();
-              u16 bId = b->GetUniqueId().Value();
-              return specs.SortDirection == ImGuiSortDirection_Ascending ? aId < bId : aId > bId;
-            });
-          } else if (specs.ColumnUserID == 'name') {
-            std::sort(items.begin(), items.end(), [&](CEntity* a, CEntity* b) {
-              int compare = a->GetName().compare(b->GetName());
-              return specs.SortDirection == ImGuiSortDirection_Ascending ? compare < 0 : compare > 0;
-            });
-          } else if (specs.ColumnUserID == 'type') {
-            std::sort(items.begin(), items.end(), [&](CEntity* a, CEntity* b) {
-              int compare = a->ImGuiType().compare(b->ImGuiType());
-              return specs.SortDirection == ImGuiSortDirection_Ascending ? compare < 0 : compare > 0;
-            });
+          if (!search.empty() && !containsCaseInsensitive(entry.type, search) &&
+              !containsCaseInsensitive(entry.name, search)) {
+            uid = list.GetNextObjectIndex(uid);
+            continue;
           }
+          sortedList.push_back(uid);
+          uid = list.GetNextObjectIndex(uid);
         }
-      }
-      for (const auto ent : items) {
-        TUniqueId uid = ent->GetUniqueId();
-        ImGui::PushID(uid.Value());
-        ImGui::TableNextRow();
-        bool isActive = ent->GetActive();
-        if (!isActive) {
-          ImGui::PushStyleColor(ImGuiCol_Text, 0xAAFFFFFF);
-        }
-        if (ImGui::TableNextColumn()) {
-          auto text = fmt::format(FMT_STRING("{:x}"), uid.Value());
-          bool tmp = false;
-          bool* selected = &tmp;
-          TCastToPtr<CActor> act = ent;
-          if (act != nullptr) {
-            selected = &act->m_debugSelected;
-          }
-          ImGui::Selectable(text.c_str(), selected,
-                            ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
-          if (ImGui::BeginPopupContextItem(text.c_str())) {
-            if (!isActive) {
-              ImGui::PopStyleColor();
+        if (hasSortSpec) {
+          const auto& spec = sortSpecs->Specs[0];
+          if (spec.ColumnUserID == 'id') {
+            if (spec.SortDirection == ImGuiSortDirection_Ascending) {
+              // no-op
+            } else {
+              std::sort(sortedList.begin(), sortedList.end(), [&](s16 a, s16 b) { return a < b; });
             }
-            if (ImGui::MenuItem(isActive ? "Deactivate" : "Activate")) {
-              ent->SetActive(!isActive);
-            }
-            ImGui::EndPopup();
-            if (!isActive) {
-              ImGui::PushStyleColor(ImGuiCol_Text, 0xAAFFFFFF);
-            }
+          } else if (spec.ColumnUserID == 'name') {
+            std::sort(sortedList.begin(), sortedList.end(), [&](s16 a, s16 b) {
+              int compare = ImGuiConsole::entities[a].name.compare(ImGuiConsole::entities[b].name);
+              return spec.SortDirection == ImGuiSortDirection_Ascending ? compare < 0 : compare > 0;
+            });
+          } else if (spec.ColumnUserID == 'type') {
+            std::sort(sortedList.begin(), sortedList.end(), [&](s16 a, s16 b) {
+              int compare = ImGuiConsole::entities[a].type.compare(ImGuiConsole::entities[b].type);
+              return spec.SortDirection == ImGuiSortDirection_Ascending ? compare < 0 : compare > 0;
+            });
           }
         }
-        if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(ent->ImGuiType());
+        for (const auto& item : sortedList) {
+          RenderEntityColumns(ImGuiConsole::entities[item]);
         }
-        if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(ent->GetName());
+      } else {
+        // Render uid ascending
+        s16 uid = list.GetFirstObjectIndex();
+        while (uid != -1) {
+          RenderEntityColumns(ImGuiConsole::entities[uid]);
+          uid = list.GetNextObjectIndex(uid);
         }
-        if (ImGui::TableNextColumn()) {
-          if (ImGui::SmallButton("View")) {
-            ImGuiConsole::inspectingEntities.insert(uid);
-          }
-        }
-        if (!isActive) {
-          ImGui::PopStyleColor();
-        }
-        ImGui::PopID();
       }
+
       ImGui::EndTable();
     }
   }
   ImGui::End();
 }
 
-static bool showEntityInfoWindow(TUniqueId uid) {
+bool ImGuiConsole::ShowEntityInfoWindow(TUniqueId uid) {
   bool open = true;
-  CEntity* ent = g_StateManager->ObjectById(uid);
-  if (ent == nullptr) {
-    return false;
-  }
-  auto name = fmt::format(FMT_STRING("{}##{:x}"), !ent->GetName().empty() ? ent->GetName() : "Entity", uid.Value());
+  ImGuiEntityEntry& entry = ImGuiConsole::entities[uid.Value()];
+  auto name = fmt::format(FMT_STRING("{}##{:x}"), !entry.name.empty() ? entry.name : "Entity", uid.Value());
   if (ImGui::Begin(name.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize)) {
-    ImGui::PushID(ent->GetUniqueId().Value());
-    ent->ImGuiInspect();
+    ImGui::PushID(uid.Value());
+    entry.ent->ImGuiInspect();
     ImGui::PopID();
   }
   ImGui::End();
@@ -271,7 +326,9 @@ static bool showEntityInfoWindow(TUniqueId uid) {
 static bool showInspectWindow = false;
 static bool showDemoWindow = false;
 
-static void ShowAppMainMenuBar(bool canInspect) {
+std::array<ImGuiEntityEntry, 1024> ImGuiConsole::entities;
+
+void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("Game")) {
       ShowMenuGame();
@@ -288,37 +345,52 @@ static void ShowAppMainMenuBar(bool canInspect) {
   }
 }
 
-void ImGuiConsole::proc() {
+void ImGuiConsole::PreUpdate() {
   if (stepFrame) {
     g_Main->SetPaused(true);
     stepFrame = false;
   }
   bool canInspect = g_StateManager != nullptr && g_StateManager->GetObjectList();
   ShowAppMainMenuBar(canInspect);
-  if (canInspect) {
+  if (canInspect && (showInspectWindow || !inspectingEntities.empty())) {
+    UpdateEntityEntries();
     if (showInspectWindow) {
       ShowInspectWindow(&showInspectWindow);
     }
     auto iter = inspectingEntities.begin();
     while (iter != inspectingEntities.end()) {
-      if (!showEntityInfoWindow(*iter)) {
+      if (!ShowEntityInfoWindow(*iter)) {
         iter = inspectingEntities.erase(iter);
       } else {
         iter++;
       }
     }
-    for (const auto ent : *g_StateManager->GetObjectList()) {
-      if (TCastToPtr<CActor> act = ent) {
-        if (act->m_debugSelected) {
-          LerpActorColor(act);
-        }
-      }
-    }
-  } else {
-    inspectingEntities.clear();
   }
   if (showDemoWindow) {
     ImGui::ShowDemoWindow(&showDemoWindow);
+  }
+}
+
+void ImGuiConsole::PostUpdate() {
+  if (g_StateManager != nullptr && g_StateManager->GetObjectList()) {
+    // Clear deleted objects
+    CObjectList& list = g_StateManager->GetAllObjectList();
+    for (s16 uid = 0; uid < s16(entities.size()); uid++) {
+      ImGuiEntityEntry& item = entities[uid];
+      if (item.uid == kInvalidUniqueId) {
+        continue; // already cleared
+      }
+      CEntity* ent = list.GetObjectByIndex(uid);
+      if (ent == nullptr || ent != item.ent) {
+        // Remove inspect windows for deleted entities
+        inspectingEntities.erase(item.uid);
+        item.uid = kInvalidUniqueId;
+        item.ent = nullptr; // for safety
+      }
+    }
+  } else {
+    entities.fill(ImGuiEntityEntry{});
+    inspectingEntities.clear();
   }
 }
 

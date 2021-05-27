@@ -201,26 +201,19 @@ void CEntity::ImGuiInspect() {
       ImGui::TableHeadersRow();
       for (const auto& item : x20_conns) {
         const auto uid = g_StateManager->GetIdForScript(item.x8_objId);
-        CEntity* ent = g_StateManager->ObjectById(uid);
-        if (ent == nullptr) {
+        if (uid == kInvalidUniqueId) {
           continue;
         }
-        ImGui::PushID(uid.Value());
-        ImGui::TableNextRow();
+        ImGuiEntityEntry& entry = ImGuiConsole::entities[uid.Value()];
+        if (entry.uid == kInvalidUniqueId) {
+          continue;
+        }
+        ImGuiConsole::BeginEntityRow(entry);
         if (ImGui::TableNextColumn()) {
-          auto text = fmt::format(FMT_STRING("{:x}"), uid.Value());
-          if (TCastToPtr<CActor> act = ent) {
-            ImGui::Selectable(text.c_str(), &act->m_debugSelected,
-                              ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
-          } else {
-            ImGui::TextUnformatted(text.c_str());
-          }
+          ImGuiStringViewText(entry.type);
         }
         if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(ent->ImGuiType());
-        }
-        if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(ent->GetName());
+          ImGuiStringViewText(entry.name);
         }
         if (ImGui::TableNextColumn()) {
           ImGuiStringViewText(ScriptObjectStateToStr(item.x0_state));
@@ -228,12 +221,7 @@ void CEntity::ImGuiInspect() {
         if (ImGui::TableNextColumn()) {
           ImGuiStringViewText(ScriptObjectMessageToStr(item.x4_msg));
         }
-        if (ImGui::TableNextColumn()) {
-          if (ImGui::SmallButton("View")) {
-            ImGuiConsole::inspectingEntities.insert(uid);
-          }
-        }
-        ImGui::PopID();
+        ImGuiConsole::EndEntityRow(entry);
       }
       ImGui::EndTable();
     }

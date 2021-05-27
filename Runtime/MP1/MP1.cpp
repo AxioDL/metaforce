@@ -908,7 +908,7 @@ bool CMain::Proc(float dt) {
     m_loadedPersistentResources = true;
   }
 
-  m_imGuiConsole->proc();
+  m_imGuiConsole->PreUpdate();
 
   if (!m_paused) {
     CGBASupport::GlobalPoll();
@@ -917,6 +917,8 @@ bool CMain::Proc(float dt) {
     CSfxManager::Update(dt);
     CStreamAudioManager::Update(dt);
   }
+
+  m_imGuiConsole->PostUpdate();
 
   if (x164_archSupport->GetIOWinManager().IsEmpty() || CheckReset()) {
     CStreamAudioManager::StopAll();
