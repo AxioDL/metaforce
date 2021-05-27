@@ -55,6 +55,7 @@ private:
   bool m_showInspectWindow = false;
   bool m_showDemoWindow = false;
   bool m_showAboutWindow = false;
+  bool m_showItemsWindow = false;
 
   bool m_paused = false;
   bool m_stepFrame = false;
@@ -86,5 +87,6 @@ private:
   void UpdateEntityEntries();
   void ShowAboutWindow();
   void ShowDebugOverlay();
+  void ShowItemsWindow();
 };
 } // namespace metaforce

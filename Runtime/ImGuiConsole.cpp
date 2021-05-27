@@ -570,6 +570,7 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
     }
     if (ImGui::BeginMenu("Tools")) {
       ImGui::MenuItem("Inspect", nullptr, &m_showInspectWindow, canInspect);
+      ImGui::MenuItem("Items", nullptr, &m_showItemsWindow, canInspect);
       ImGui::Separator();
       ImGui::MenuItem("Demo", nullptr, &m_showDemoWindow);
       ImGui::EndMenu();
@@ -634,6 +635,9 @@ void ImGuiConsole::PreUpdate() {
       }
     }
   }
+  if (canInspect && m_showItemsWindow) {
+    ShowItemsWindow();
+  }
   if (m_showAboutWindow) {
     ShowAboutWindow();
   }
@@ -672,5 +676,105 @@ void ImGuiConsole::PostUpdate() {
 ImGuiConsole::~ImGuiConsole() {
   dummyWorlds.clear();
   stringTables.clear();
+}
+
+static constexpr std::array ItemOrder{
+    CPlayerState::EItemType::PowerBeam,
+    CPlayerState::EItemType::ChargeBeam,
+    CPlayerState::EItemType::IceBeam,
+    CPlayerState::EItemType::WaveBeam,
+    CPlayerState::EItemType::PlasmaBeam,
+    CPlayerState::EItemType::EnergyTanks,
+    CPlayerState::EItemType::Missiles,
+    CPlayerState::EItemType::SuperMissile,
+    CPlayerState::EItemType::Flamethrower,
+    CPlayerState::EItemType::IceSpreader,
+    CPlayerState::EItemType::Wavebuster,
+    CPlayerState::EItemType::CombatVisor,
+    CPlayerState::EItemType::ScanVisor,
+    CPlayerState::EItemType::ThermalVisor,
+    CPlayerState::EItemType::XRayVisor,
+    CPlayerState::EItemType::MorphBall,
+    CPlayerState::EItemType::MorphBallBombs,
+    CPlayerState::EItemType::PowerBombs,
+    CPlayerState::EItemType::BoostBall,
+    CPlayerState::EItemType::SpiderBall,
+    CPlayerState::EItemType::GrappleBeam,
+    CPlayerState::EItemType::SpaceJumpBoots,
+    CPlayerState::EItemType::PowerSuit,
+    CPlayerState::EItemType::VariaSuit,
+    CPlayerState::EItemType::GravitySuit,
+    CPlayerState::EItemType::PhazonSuit,
+    CPlayerState::EItemType::Truth,
+    CPlayerState::EItemType::Strength,
+    CPlayerState::EItemType::Elder,
+    CPlayerState::EItemType::Wild,
+    CPlayerState::EItemType::Lifegiver,
+    CPlayerState::EItemType::Warrior,
+    CPlayerState::EItemType::Chozo,
+    CPlayerState::EItemType::Nature,
+    CPlayerState::EItemType::Sun,
+    CPlayerState::EItemType::World,
+    CPlayerState::EItemType::Spirit,
+    CPlayerState::EItemType::Newborn,
+};
+
+void ImGuiConsole::ShowItemsWindow() {
+  CPlayerState& pState = *g_StateManager->GetPlayerState();
+  if (ImGui::Begin("Items", &m_showItemsWindow)) {
+    if (ImGui::Button("Refill")) {
+      for (const auto itemType : ItemOrder) {
+        u32 maxValue = CPlayerState::GetPowerUpMaxValue(itemType);
+        pState.ResetAndIncrPickUp(itemType, maxValue);
+      }
+    }
+    {
+      ImGui::SameLine();
+      auto& mapWorldInfo = *g_GameState->CurrentWorldState().MapWorldInfo();
+      bool mapStationUsed = mapWorldInfo.GetMapStationUsed();
+      if (ImGui::Checkbox("Area map", &mapStationUsed)) {
+        mapWorldInfo.SetMapStationUsed(mapStationUsed);
+      }
+    }
+    if (ImGui::Button("All")) {
+      for (const auto itemType : ItemOrder) {
+        u32 maxValue = CPlayerState::GetPowerUpMaxValue(itemType);
+        pState.ReInitializePowerUp(itemType, maxValue);
+        pState.ResetAndIncrPickUp(itemType, maxValue);
+      }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("None")) {
+      for (const auto itemType : ItemOrder) {
+        pState.ReInitializePowerUp(itemType, 0);
+      }
+    }
+    for (const auto itemType : ItemOrder) {
+      u32 maxValue = CPlayerState::GetPowerUpMaxValue(itemType);
+      std::string name{CPlayerState::ItemTypeToName(itemType)};
+      if (maxValue == 1) {
+        bool enabled = pState.GetItemCapacity(itemType) == 1;
+        if (ImGui::Checkbox(name.c_str(), &enabled)) {
+          if (enabled) {
+            pState.ReInitializePowerUp(itemType, 1);
+            pState.ResetAndIncrPickUp(itemType, 1);
+          } else {
+            pState.ReInitializePowerUp(itemType, 0);
+          }
+          if (itemType == CPlayerState::EItemType::VariaSuit || itemType == CPlayerState::EItemType::PowerSuit ||
+              itemType == CPlayerState::EItemType::GravitySuit || itemType == CPlayerState::EItemType::PhazonSuit) {
+            g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
+          }
+        }
+      } else if (maxValue > 1) {
+        int capacity = int(pState.GetItemCapacity(itemType));
+        if (ImGui::SliderInt(name.c_str(), &capacity, 0, int(maxValue), "%d", ImGuiSliderFlags_AlwaysClamp)) {
+          pState.ReInitializePowerUp(itemType, u32(capacity));
+          pState.ResetAndIncrPickUp(itemType, u32(capacity));
+        }
+      }
+    }
+  }
+  ImGui::End();
 }
 } // namespace metaforce

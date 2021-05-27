@@ -288,6 +288,10 @@ void CHudVisorBeamMenu::SetPlayerHas(const rstl::reserved_vector<bool, 4>& enabl
     if (item.xc_opacity == 0.f && enables[i]) {
       item.xc_opacity = FLT_EPSILON;
     }
+    // Metaforce addition
+    else if (!enables[i]) {
+      item.xc_opacity = 0.f;
+    }
   }
 }
 

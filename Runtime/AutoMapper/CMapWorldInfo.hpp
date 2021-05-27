@@ -29,6 +29,7 @@ public:
   bool IsWorldVisible(TAreaId aid) const;
   bool IsAreaVisible(TAreaId aid) const;
   bool IsAnythingSet() const;
+  bool GetMapStationUsed() const { return x38_mapStationUsed; }
   void SetMapStationUsed(bool isUsed) { x38_mapStationUsed = isUsed; }
 };
 } // namespace metaforce

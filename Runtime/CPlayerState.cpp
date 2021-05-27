@@ -450,4 +450,89 @@ CPlayerState::EItemType CPlayerState::ItemNameToType(std::string_view name) {
   return iter->second;
 }
 
+std::string_view CPlayerState::ItemTypeToName(CPlayerState::EItemType type) {
+  switch (type) {
+  case EItemType::PowerBeam:
+    return "Power Beam"sv;
+  case EItemType::IceBeam:
+    return "Ice Beam"sv;
+  case EItemType::WaveBeam:
+    return "Wave Beam"sv;
+  case EItemType::PlasmaBeam:
+    return "Plasma Beam"sv;
+  case EItemType::Missiles:
+    return "Missiles"sv;
+  case EItemType::ScanVisor:
+    return "Scan Visor"sv;
+  case EItemType::MorphBallBombs:
+    return "Morph Ball Bombs"sv;
+  case EItemType::PowerBombs:
+    return "Power Bombs"sv;
+  case EItemType::Flamethrower:
+    return "Flamethrower"sv;
+  case EItemType::ThermalVisor:
+    return "Thermal Visor"sv;
+  case EItemType::ChargeBeam:
+    return "Charge Beam"sv;
+  case EItemType::SuperMissile:
+    return "Super Missile"sv;
+  case EItemType::GrappleBeam:
+    return "Grapple Beam"sv;
+  case EItemType::XRayVisor:
+    return "XRay Visor"sv;
+  case EItemType::IceSpreader:
+    return "Ice Spreader"sv;
+  case EItemType::SpaceJumpBoots:
+    return "Space Jump Boots"sv;
+  case EItemType::MorphBall:
+    return "Morph Ball"sv;
+  case EItemType::CombatVisor:
+    return "Combat Visor"sv;
+  case EItemType::BoostBall:
+    return "Boost Ball"sv;
+  case EItemType::SpiderBall:
+    return "Spider Ball"sv;
+  case EItemType::PowerSuit:
+    return "Power Suit"sv;
+  case EItemType::GravitySuit:
+    return "Gravity Suit"sv;
+  case EItemType::VariaSuit:
+    return "Varia Suit"sv;
+  case EItemType::PhazonSuit:
+    return "Phazon Suit"sv;
+  case EItemType::EnergyTanks:
+    return "Energy Tanks"sv;
+  case EItemType::HealthRefill:
+    return "Health Refill"sv;
+  case EItemType::Wavebuster:
+    return "Wavebuster"sv;
+  case EItemType::Truth:
+    return "Artifact of Truth"sv;
+  case EItemType::Strength:
+    return "Artifact of Strength"sv;
+  case EItemType::Elder:
+    return "Artifact of Elder"sv;
+  case EItemType::Wild:
+    return "Artifact of Wild"sv;
+  case EItemType::Lifegiver:
+    return "Artifact of Lifegiver"sv;
+  case EItemType::Warrior:
+    return "Artifact of Warrior"sv;
+  case EItemType::Chozo:
+    return "Artifact of Chozo"sv;
+  case EItemType::Nature:
+    return "Artifact of Nature"sv;
+  case EItemType::Sun:
+    return "Artifact of Sun"sv;
+  case EItemType::World:
+    return "Artifact of World"sv;
+  case EItemType::Spirit:
+    return "Artifact of Spirit"sv;
+  case EItemType::Newborn:
+    return "Artifact of Newborn"sv;
+  default:
+    return "[unknown]"sv;
+  }
+}
+
 } // namespace metaforce

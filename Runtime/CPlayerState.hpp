@@ -168,6 +168,7 @@ public:
   void PutTo(CBitStreamWriter& stream);
   static u32 GetPowerUpMaxValue(EItemType type);
   static EItemType ItemNameToType(std::string_view name);
+  static std::string_view ItemTypeToName(EItemType type);
   bool CanTakeDamage() const { return m_canTakeDamage; }
   void SetCanTakeDamage(bool c) { m_canTakeDamage = c; }
 };
