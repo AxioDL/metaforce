@@ -302,6 +302,7 @@ public:
     if (m_window) {
       m_window->getCommandQueue()->stopRenderer();
     }
+    m_cvarManager.serialize();
     m_voiceEngine.reset();
     m_amuseAllocWrapper.reset();
     CDvdFile::Shutdown();
