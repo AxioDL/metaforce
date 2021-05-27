@@ -159,6 +159,7 @@ void ImGuiConsole::UpdateEntityEntries() {
     if (entry.isActor) {
       LerpDebugColor(entry.AsActor());
     }
+    entry.ent->m_debugHovered = false;
     uid = list.GetNextObjectIndex(uid);
   }
 }
@@ -662,9 +663,6 @@ void ImGuiConsole::PostUpdate() {
         inspectingEntities.erase(item.uid);
         item.uid = kInvalidUniqueId;
         item.ent = nullptr; // for safety
-      } else {
-        // Clear debug hovered
-        ent->m_debugHovered = false;
       }
     }
   } else {
