@@ -816,6 +816,10 @@ void ImGuiConsole::ShowItemsWindow() {
 }
 
 void ImGuiConsole::ShowLayersWindow() {
+  // For some reason the window shows up tiny without this
+  float initialWindowSize = 300.f * ImGui::GetIO().DisplayFramebufferScale.x;
+  ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize}, ImGuiCond_FirstUseEver);
+
   if (ImGui::Begin("Layers", &m_showLayersWindow)) {
     for (const auto& world : ListWorlds()) {
       const auto& layers = dummyWorlds[world.second]->GetWorldLayers();
