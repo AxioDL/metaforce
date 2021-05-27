@@ -337,7 +337,7 @@ void ImGuiConsole::ShowAboutWindow() {
   if (ImGui::Begin("About", &m_showAboutWindow,
                    ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoNav |
                        ImGuiWindowFlags_NoSavedSettings)) {
-    float iconSize = 256.f;
+    float iconSize = 128.f * ImGui::GetIO().DisplayFramebufferScale.x;
     ImGui::SameLine(ImGui::GetWindowSize().x / 2 - iconSize + (iconSize / 2));
     ImGui::Image(ImGuiUserTextureID_MetaforceIcon, ImVec2{iconSize, iconSize});
     ImGui::PushFont(ImGuiEngine::fontLarge);
