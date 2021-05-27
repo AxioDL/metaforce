@@ -4,11 +4,19 @@
 #include "hecl/Pipeline.hpp"
 #include "hecl/VertexBufferPool.hpp"
 
+#define STBI_NO_STDIO
+#define STB_IMAGE_STATIC
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_PNG
+#include "stb_image.h"
+
 #include <zeus/CMatrix4f.hpp>
 
 extern "C" const uint8_t NOTO_MONO_FONT[];
 extern "C" const size_t NOTO_MONO_FONT_SZ;
 extern "C" const size_t NOTO_MONO_FONT_DECOMPRESSED_SZ;
+extern "C" const uint8_t METAFORCE_ICON[];
+extern "C" const size_t METAFORCE_ICON_SZ;
 
 namespace metaforce {
 static logvisor::Module Log{"ImGuiEngine"};
@@ -21,8 +29,8 @@ static boo::ObjToken<boo::IShaderPipeline> ShaderPipeline;
 static boo::ObjToken<boo::IGraphicsBufferD> VertexBuffer;
 static boo::ObjToken<boo::IGraphicsBufferD> IndexBuffer;
 static boo::ObjToken<boo::IGraphicsBufferD> UniformBuffer;
-static boo::ObjToken<boo::IShaderDataBinding> ShaderDataBinding;
-static boo::ObjToken<boo::ITextureS> ImGuiAtlas;
+static std::array<boo::ObjToken<boo::IShaderDataBinding>, ImGuiUserTextureID_MAX> ShaderDataBindings;
+static std::array<boo::ObjToken<boo::ITextureS>, ImGuiUserTextureID_MAX> Textures;
 static boo::SWindowRect WindowRect;
 
 struct Uniform {
@@ -45,6 +53,9 @@ void setClipboardText(void* userData, const char* text) {
   const auto* data = reinterpret_cast<const uint8_t*>(text);
   static_cast<boo::IWindow*>(userData)->clipboardCopy(boo::EClipboardType::String, data, strlen(text));
 }
+
+ImFont* ImGuiEngine::fontNormal;
+ImFont* ImGuiEngine::fontLarge;
 
 void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* window, float scale) {
   m_factory = factory;
@@ -82,8 +93,10 @@ void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* w
   io.KeyMap[ImGuiKey_Z] = 'z'; // for text edit CTRL+Z: undo
 
   auto* fontData = new uint8_t[NOTO_MONO_FONT_DECOMPRESSED_SZ];
-  athena::io::Compression::decompressZlib(NOTO_MONO_FONT, NOTO_MONO_FONT_SZ, fontData,
-                                          NOTO_MONO_FONT_DECOMPRESSED_SZ);
+  athena::io::Compression::decompressZlib(NOTO_MONO_FONT, NOTO_MONO_FONT_SZ, fontData, NOTO_MONO_FONT_DECOMPRESSED_SZ);
+
+  int iconWidth = 0, iconHeight = 0;
+  auto* metaforceIcon = stbi_load_from_memory(METAFORCE_ICON, METAFORCE_ICON_SZ, &iconWidth, &iconHeight, nullptr, 4);
 
   int width = 0;
   int height = 0;
@@ -92,29 +105,38 @@ void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* w
   fontConfig.FontData = fontData;
   fontConfig.FontDataSize = NOTO_MONO_FONT_DECOMPRESSED_SZ;
   fontConfig.SizePixels = std::floor(14.f * scale);
-  fontConfig.OversampleH = 2;
   snprintf(fontConfig.Name, sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
            static_cast<int>(fontConfig.SizePixels));
-  io.Fonts->AddFont(&fontConfig);
+  fontNormal = io.Fonts->AddFont(&fontConfig);
+  fontConfig.SizePixels = std::floor(24.f * scale);
+  snprintf(fontConfig.Name, sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
+           static_cast<int>(fontConfig.SizePixels));
+  fontLarge = io.Fonts->AddFont(&fontConfig);
+
   io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
   factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
     ShaderPipeline = hecl::conv->convert(Shader_ImGuiShader{});
-    ImGuiAtlas = ctx.newStaticTexture(width, height, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::ClampToEdge,
-                                      pixels, width * height * 4);
+    Textures[ImGuiUserTextureID_Atlas] = ctx.newStaticTexture(
+        width, height, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::ClampToEdge, pixels, width * height * 4);
+    Textures[ImGuiUserTextureID_MetaforceIcon] =
+        ctx.newStaticTexture(iconWidth, iconHeight, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::ClampToEdge,
+                             metaforceIcon, iconWidth * iconHeight * 4);
     VertexBuffer = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(ImDrawVert), VertexBufferSize);
     IndexBuffer = ctx.newDynamicBuffer(boo::BufferUse::Index, sizeof(ImDrawIdx), IndexBufferSize);
     UniformBuffer = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-    BuildShaderDataBinding(ctx);
+    BuildShaderDataBindings(ctx);
     return true;
   } BooTrace);
-  io.Fonts->SetTexID(ImGuiAtlas.get());
+  io.Fonts->SetTexID(ImGuiUserTextureID_Atlas);
 
   ImGui::GetStyle().ScaleAllSizes(scale);
 }
 
 void ImGuiEngine::Shutdown() {
   ImGui::DestroyContext();
-  ShaderDataBinding.reset();
+  for (auto& item : ShaderDataBindings) {
+    item.reset();
+  }
   ShaderPipeline.reset();
 }
 
@@ -219,7 +241,7 @@ void ImGuiEngine::End() {
       rebind = true;
     }
     if (rebind) {
-      BuildShaderDataBinding(ctx);
+      BuildShaderDataBindings(ctx);
     }
 
     UniformBuffer->load(&projXf, sizeof(Uniform));
@@ -245,8 +267,6 @@ void ImGuiEngine::End() {
 void ImGuiEngine::Draw(boo::IGraphicsCommandQueue* gfxQ) {
   ImDrawData* drawData = ImGui::GetDrawData();
 
-  gfxQ->setShaderDataBinding(ShaderDataBinding);
-
   boo::SWindowRect viewportRect = WindowRect;
   int viewportHeight = viewportRect.size[1];
   viewportRect.location = {0, 0};
@@ -258,9 +278,14 @@ void ImGuiEngine::Draw(boo::IGraphicsCommandQueue* gfxQ) {
 
   size_t idxOffset = 0;
   size_t vtxOffset = 0;
+  size_t currentTextureID = ImGuiUserTextureID_MAX;
   for (int i = 0; i < drawData->CmdListsCount; ++i) {
     const auto* cmdList = drawData->CmdLists[i];
     for (const auto& drawCmd : cmdList->CmdBuffer) {
+      if (currentTextureID != drawCmd.TextureId) {
+        currentTextureID = drawCmd.TextureId;
+        gfxQ->setShaderDataBinding(ShaderDataBindings[currentTextureID]);
+      }
       if (drawCmd.UserCallback != nullptr) {
         drawCmd.UserCallback(cmdList, &drawCmd);
         continue;
@@ -271,8 +296,8 @@ void ImGuiEngine::Draw(boo::IGraphicsCommandQueue* gfxQ) {
       int clipW = static_cast<int>(drawCmd.ClipRect.z - pos.x) - clipX;
       int clipH = static_cast<int>(drawCmd.ClipRect.w - pos.y) - clipY;
       boo::SWindowRect clipRect{clipX, clipY, clipW, clipH};
-      if (m_factory->platform() == boo::IGraphicsDataFactory::Platform::Vulkan
-          || m_factory->platform() == boo::IGraphicsDataFactory::Platform::Metal) {
+      if (m_factory->platform() == boo::IGraphicsDataFactory::Platform::Vulkan ||
+          m_factory->platform() == boo::IGraphicsDataFactory::Platform::Metal) {
         clipRect.location[1] = viewportHeight - clipRect.location[1] - clipRect.size[1];
       }
       gfxQ->setScissor(clipRect);
@@ -283,14 +308,16 @@ void ImGuiEngine::Draw(boo::IGraphicsCommandQueue* gfxQ) {
   }
 }
 
-void ImGuiEngine::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx) {
+void ImGuiEngine::BuildShaderDataBindings(boo::IGraphicsDataFactory::Context& ctx) {
   boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {UniformBuffer.get()};
   boo::PipelineStage unistages[] = {boo::PipelineStage::Vertex};
   size_t unioffs[] = {0};
   size_t unisizes[] = {sizeof(Uniform)};
-  boo::ObjToken<boo::ITexture> texs[] = {ImGuiAtlas.get()};
-  ShaderDataBinding = ctx.newShaderDataBinding(ShaderPipeline, VertexBuffer.get(), nullptr, IndexBuffer.get(), 1,
-                                               uniforms, unistages, unioffs, unisizes, 1, texs, nullptr, nullptr);
+  for (int i = 0; i < ImGuiUserTextureID_MAX; ++i) {
+    boo::ObjToken<boo::ITexture> texs[] = {Textures[i].get()};
+    ShaderDataBindings[i] = ctx.newShaderDataBinding(ShaderPipeline, VertexBuffer.get(), nullptr, IndexBuffer.get(), 1,
+                                                     uniforms, unistages, unioffs, unisizes, 1, texs, nullptr, nullptr);
+  }
 }
 
 bool ImGuiWindowCallback::m_mouseCaptured = false;
