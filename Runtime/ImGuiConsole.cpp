@@ -804,6 +804,8 @@ void ImGuiConsole::ShowItemsWindow() {
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem("Artifacts")) {
+        ImGui::Text("NOTE: This doesn't affect Artifact Temple layers");
+        ImGui::Text("Use the Layers window to set them for progression");
         RenderItemsDualColumn(pState, ArtifactItems, 0);
         ImGui::EndTabItem();
       }
