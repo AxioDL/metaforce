@@ -57,6 +57,8 @@ std::string_view AnimationStateToStr(EAnimationState state) {
     return "AdditiveFlinch"sv;
   case EAnimationState::AdditiveReaction:
     return "AdditiveReaction"sv;
+  default:
+    return "[unknown]";
   }
 }
 } // namespace metaforce::pas
