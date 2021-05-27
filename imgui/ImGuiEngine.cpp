@@ -108,6 +108,7 @@ void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* w
   snprintf(fontConfig.Name, sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
            static_cast<int>(fontConfig.SizePixels));
   fontNormal = io.Fonts->AddFont(&fontConfig);
+  fontConfig.FontDataOwnedByAtlas = false; // first one took ownership
   fontConfig.SizePixels = std::floor(24.f * scale);
   snprintf(fontConfig.Name, sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
            static_cast<int>(fontConfig.SizePixels));

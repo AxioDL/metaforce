@@ -178,7 +178,9 @@ void ImGuiConsole::BeginEntityRow(const ImGuiEntityEntry& entry) {
     auto text = fmt::format(FMT_STRING("{:x}"), entry.uid.Value());
     ImGui::Selectable(text.c_str(), &entry.ent->m_debugSelected,
                       ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
-    entry.ent->m_debugHovered = ImGui::IsItemHovered();
+    if (ImGui::IsItemHovered()) {
+      entry.ent->m_debugHovered = true;
+    }
 
     if (ImGui::BeginPopupContextItem(text.c_str())) {
       ImGui::PopStyleColor();
@@ -313,7 +315,7 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
 bool ImGuiConsole::ShowEntityInfoWindow(TUniqueId uid) {
   bool open = true;
   ImGuiEntityEntry& entry = ImGuiConsole::entities[uid.Value()];
-  auto name = fmt::format(FMT_STRING("{}##{:x}"), !entry.name.empty() ? entry.name : "Entity", uid.Value());
+  auto name = fmt::format(FMT_STRING("{}##{:x}"), !entry.name.empty() ? entry.name : entry.type, uid.Value());
   if (ImGui::Begin(name.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::PushID(uid.Value());
     entry.ent->ImGuiInspect();
@@ -338,6 +340,11 @@ void ImGuiConsole::ShowAboutWindow() {
     ImGuiTextCenter(METAFORCE_WC_DESCRIBE);
     const ImVec2& padding = ImGui::GetStyle().WindowPadding;
     ImGui::Dummy(padding);
+    ImGuiTextCenter("2015-2021");
+    ImGuiTextCenter("Phillip Stephens (Antidote)");
+    ImGuiTextCenter("Jack Andersen (jackoalan)");
+    ImGuiTextCenter("Luke Street (encounter)");
+    ImGuiTextCenter("Metaforce contributors");
     ImGui::Dummy(padding);
     ImGui::Separator();
     if (ImGui::BeginTable("Version Info", 2, ImGuiTableFlags_BordersInnerV)) {
@@ -361,6 +368,13 @@ void ImGuiConsole::ShowAboutWindow() {
       }
       if (ImGui::TableNextColumn()) {
         ImGui::TextUnformatted(METAFORCE_WC_DATE);
+      }
+      ImGui::TableNextRow();
+      if (ImGui::TableNextColumn()) {
+        ImGui::TextUnformatted("Build name");
+      }
+      if (ImGui::TableNextColumn()) {
+        ImGui::TextUnformatted(METAFORCE_DLPACKAGE);
       }
       ImGui::EndTable();
     }
@@ -623,6 +637,9 @@ void ImGuiConsole::PostUpdate() {
         inspectingEntities.erase(item.uid);
         item.uid = kInvalidUniqueId;
         item.ent = nullptr; // for safety
+      } else {
+        // Clear debug hovered
+        ent->m_debugHovered = false;
       }
     }
   } else {

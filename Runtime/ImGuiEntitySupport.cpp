@@ -227,7 +227,7 @@ void CEntity::ImGuiInspect() {
       ImGui::EndTable();
     }
   }
-  if (m_incomingConnections && ImGui::CollapsingHeader("Incoming Connections")) {
+  if (m_incomingConnections != nullptr && ImGui::CollapsingHeader("Incoming Connections")) {
     if (ImGui::BeginTable("Incoming Connections", 6,
                           ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV)) {
       ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 0, 'id');
@@ -235,10 +235,11 @@ void CEntity::ImGuiInspect() {
       ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 0, 'name');
       ImGui::TableSetupColumn("State", ImGuiTableColumnFlags_WidthFixed, 0, 'stat');
       ImGui::TableSetupColumn("Message", ImGuiTableColumnFlags_WidthFixed, 0, 'msg');
-      ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed);
+      ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed |
+                                  ImGuiTableColumnFlags_NoResize);
       ImGui::TableSetupScrollFreeze(0, 1);
       ImGui::TableHeadersRow();
-      for (const auto& item : (*m_incomingConnections)) {
+      for (const auto& item : *m_incomingConnections) {
         const auto uid = g_StateManager->GetIdForScript(item.x8_objId);
         if (uid == kInvalidUniqueId) {
           continue;
