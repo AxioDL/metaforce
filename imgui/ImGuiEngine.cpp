@@ -44,7 +44,7 @@ const char* getClipboardText(void* userData) {
   static ImVector<char> ClipboardBuf;
   size_t sz = 0;
   const auto data = static_cast<boo::IWindow*>(userData)->clipboardPaste(boo::EClipboardType::String, sz);
-  ClipboardBuf.resize(sz);
+  ClipboardBuf.resize(int(sz));
   strncpy(ClipboardBuf.Data, reinterpret_cast<const char*>(data.get()), sz);
   return ClipboardBuf.Data;
 }
@@ -93,24 +93,27 @@ void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* w
   io.KeyMap[ImGuiKey_Z] = 'z'; // for text edit CTRL+Z: undo
 
   auto* fontData = new uint8_t[NOTO_MONO_FONT_DECOMPRESSED_SZ];
-  athena::io::Compression::decompressZlib(NOTO_MONO_FONT, NOTO_MONO_FONT_SZ, fontData, NOTO_MONO_FONT_DECOMPRESSED_SZ);
+  athena::io::Compression::decompressZlib(static_cast<const atUint8*>(NOTO_MONO_FONT), atUint32(NOTO_MONO_FONT_SZ),
+                                          fontData, NOTO_MONO_FONT_DECOMPRESSED_SZ);
 
-  int iconWidth = 0, iconHeight = 0;
-  auto* metaforceIcon = stbi_load_from_memory(METAFORCE_ICON, METAFORCE_ICON_SZ, &iconWidth, &iconHeight, nullptr, 4);
+  int iconWidth = 0;
+  int iconHeight = 0;
+  auto* metaforceIcon = stbi_load_from_memory(static_cast<const stbi_uc*>(METAFORCE_ICON), int(METAFORCE_ICON_SZ),
+                                              &iconWidth, &iconHeight, nullptr, 4);
 
   int width = 0;
   int height = 0;
   unsigned char* pixels = nullptr;
   ImFontConfig fontConfig{};
   fontConfig.FontData = fontData;
-  fontConfig.FontDataSize = NOTO_MONO_FONT_DECOMPRESSED_SZ;
+  fontConfig.FontDataSize = int(NOTO_MONO_FONT_DECOMPRESSED_SZ);
   fontConfig.SizePixels = std::floor(14.f * scale);
-  snprintf(fontConfig.Name, sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
+  snprintf(static_cast<char*>(fontConfig.Name), sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
            static_cast<int>(fontConfig.SizePixels));
   fontNormal = io.Fonts->AddFont(&fontConfig);
   fontConfig.FontDataOwnedByAtlas = false; // first one took ownership
   fontConfig.SizePixels = std::floor(24.f * scale);
-  snprintf(fontConfig.Name, sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
+  snprintf(static_cast<char*>(fontConfig.Name), sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
            static_cast<int>(fontConfig.SizePixels));
   fontLarge = io.Fonts->AddFont(&fontConfig);
 
@@ -144,30 +147,29 @@ void ImGuiEngine::Shutdown() {
 void ImGuiEngine::Begin(float dt, float scale) {
   ImGuiIO& io = ImGui::GetIO();
   io.DeltaTime = dt;
-  io.DisplaySize.x = static_cast<float>(WindowRect.size[0]);
-  io.DisplaySize.y = static_cast<float>(WindowRect.size[1]);
+  io.DisplaySize.x = float(WindowRect.size[0]);
+  io.DisplaySize.y = float(WindowRect.size[1]);
   io.DisplayFramebufferScale = ImVec2{scale, scale};
   if (Input.m_mouseIn) {
-    io.MousePos = ImVec2{static_cast<float>(Input.m_mousePos.pixel[0]),
-                         static_cast<float>(WindowRect.size[1] - Input.m_mousePos.pixel[1])};
+    io.MousePos = ImVec2{float(Input.m_mousePos.pixel[0]), float(WindowRect.size[1] - Input.m_mousePos.pixel[1])};
   } else {
     io.MousePos = ImVec2{-FLT_MAX, -FLT_MAX};
   }
-  memcpy(io.MouseDown, Input.m_mouseButtons.data(), sizeof(io.MouseDown));
-  float scrollDelta = Input.m_scrollDelta.delta[1] / scale;
-  float scrollDeltaH = Input.m_scrollDelta.delta[0] / scale;
+  memcpy(static_cast<bool*>(io.MouseDown), Input.m_mouseButtons.data(), sizeof(io.MouseDown));
+  float scrollDelta = float(Input.m_scrollDelta.delta[1]) / scale;
+  float scrollDeltaH = float(Input.m_scrollDelta.delta[0]) / scale;
   if (Input.m_scrollDelta.isAccelerated) {
     scrollDelta /= 10.f;
     scrollDeltaH /= 10.f;
   }
-  io.MouseWheel = static_cast<float>(scrollDelta);
-  io.MouseWheelH = static_cast<float>(scrollDeltaH);
+  io.MouseWheel = scrollDelta;
+  io.MouseWheelH = scrollDeltaH;
   Input.m_scrollDelta.zeroOut();
   io.KeyCtrl = True(Input.m_modifiers & boo::EModifierKey::Ctrl);
   io.KeyShift = True(Input.m_modifiers & boo::EModifierKey::Shift);
   io.KeyAlt = True(Input.m_modifiers & boo::EModifierKey::Alt);
   io.KeySuper = True(Input.m_modifiers & boo::EModifierKey::Command);
-  memcpy(io.KeysDown, Input.m_keys.data(), sizeof(io.KeysDown));
+  memcpy(static_cast<bool*>(io.KeysDown), Input.m_keys.data(), sizeof(io.KeysDown));
 
   for (const auto c : ImGuiEngine::Input.m_charCodes) {
     io.AddInputCharacter(c);
@@ -310,14 +312,15 @@ void ImGuiEngine::Draw(boo::IGraphicsCommandQueue* gfxQ) {
 }
 
 void ImGuiEngine::BuildShaderDataBindings(boo::IGraphicsDataFactory::Context& ctx) {
-  boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {UniformBuffer.get()};
-  boo::PipelineStage unistages[] = {boo::PipelineStage::Vertex};
-  size_t unioffs[] = {0};
-  size_t unisizes[] = {sizeof(Uniform)};
+  std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> uniforms = {UniformBuffer.get()};
+  std::array<boo::PipelineStage, uniforms.size()> unistages = {boo::PipelineStage::Vertex};
+  std::array<size_t, uniforms.size()> unioffs{0};
+  std::array<size_t, uniforms.size()> unisizes{sizeof(Uniform)};
   for (int i = 0; i < ImGuiUserTextureID_MAX; ++i) {
-    boo::ObjToken<boo::ITexture> texs[] = {Textures[i].get()};
-    ShaderDataBindings[i] = ctx.newShaderDataBinding(ShaderPipeline, VertexBuffer.get(), nullptr, IndexBuffer.get(), 1,
-                                                     uniforms, unistages, unioffs, unisizes, 1, texs, nullptr, nullptr);
+    std::array<boo::ObjToken<boo::ITexture>, 1> texs{Textures[i].get()};
+    ShaderDataBindings[i] = ctx.newShaderDataBinding(ShaderPipeline, VertexBuffer.get(), nullptr, IndexBuffer.get(),
+                                                     uniforms.size(), uniforms.data(), unistages.data(), unioffs.data(),
+                                                     unisizes.data(), texs.size(), texs.data(), nullptr, nullptr);
   }
 }
 

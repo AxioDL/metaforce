@@ -1,1 +1,27 @@
-Checks: '*,-misc-unused-parameters,-modernize-use-trailing-return-type,-readability-named-parameter,-readability-convert-member-functions-to-static,-readability-uppercase-literal-suffix,-readability-magic-numbers,-hicpp-uppercase-literal-suffix,-hicpp-signed-bitwise,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-pro-type-static-cast-downcast,-cppcoreguidelines-pro-bounds-constant-array-index,-cppcoreguidelines-owning-memory,-cppcoreguidelines-pro-type-union-access,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-cppcoreguidelines-non-private-member-variables-in-classes,-fuchsia-*,-google-runtime-references,-llvmlibc-*,-llvm-header-guard'
+Checks: >
+  *,
+  -altera-*,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-avoid-non-const-global-variables,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-pro-type-static-cast-downcast,
+  -cppcoreguidelines-pro-type-union-access,
+  -cppcoreguidelines-pro-type-vararg,
+  -fuchsia-*,
+  -google-runtime-references,
+  -hicpp-*,
+  -llvm-header-guard,
+  -llvmlibc-*,
+  -misc-unused-parameters,
+  -modernize-use-trailing-return-type,
+  -readability-convert-member-functions-to-static,
+  -readability-function-cognitive-complexity,
+  -readability-magic-numbers,
+  -readability-named-parameter,
+  -readability-uppercase-literal-suffix,
+CheckOptions:
+  - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value: '1'
