@@ -388,7 +388,7 @@ void ImGuiConsole::ShowDebugOverlay() {
   ImGui::SetNextWindowBgAlpha(0.65f);
   if (ImGui::Begin("Debug Overlay", nullptr, windowFlags)) {
     bool hasPrevious = false;
-    if (m_frameCounter) {
+    if (m_frameCounter && g_StateManager != nullptr) {
       ImGuiStringViewText(fmt::format(FMT_STRING("Frame: {}\n"), g_StateManager->GetUpdateFrameIndex()));
       hasPrevious = true;
     }
@@ -399,7 +399,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       ImGuiStringViewText(fmt::format(FMT_STRING("FPS: {}\n"), metaforce::CGraphics::GetFPS()));
       hasPrevious = true;
     }
-    if (m_inGameTime) {
+    if (m_inGameTime && g_GameState != nullptr) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -410,7 +410,7 @@ void ImGuiConsole::ShowDebugOverlay() {
           fmt::format(FMT_STRING("Play Time: {:02d}:{:02d}:{:02d}.{:03d}\n"), pt.quot, pt.rem / 60, pt.rem % 60, ms));
       hasPrevious = true;
     }
-    if (m_roomTimer) {
+    if (m_roomTimer && g_StateManager != nullptr) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -427,7 +427,7 @@ void ImGuiConsole::ShowDebugOverlay() {
                                       currentRoomTime, curFrames, m_lastRoomTime, lastFrames));
       hasPrevious = true;
     }
-    if (m_playerInfo && g_StateManager->Player() != nullptr) {
+    if (m_playerInfo && g_StateManager != nullptr && g_StateManager->Player() != nullptr) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -449,7 +449,7 @@ void ImGuiConsole::ShowDebugOverlay() {
                       zeus::radToDeg(camQ.roll()), zeus::radToDeg(camQ.pitch()), zeus::radToDeg(camQ.yaw())));
       hasPrevious = true;
     }
-    if (m_worldInfo) {
+    if (m_worldInfo && g_StateManager != nullptr) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -461,7 +461,7 @@ void ImGuiConsole::ShowDebugOverlay() {
                                       aId));
       hasPrevious = true;
     }
-    if (m_areaInfo) {
+    if (m_areaInfo && g_StateManager != nullptr) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -536,39 +536,30 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
     if (ImGui::BeginMenu("Debug")) {
       if (ImGui::MenuItem("Frame Counter", nullptr, &m_frameCounter)) {
         m_cvarCommons.m_debugOverlayShowFrameCounter->fromBoolean(m_frameCounter);
-        m_cvarMgr.serialize();
       }
       if (ImGui::MenuItem("Frame Rate", nullptr, &m_frameRate)) {
         m_cvarCommons.m_debugOverlayShowFramerate->fromBoolean(m_frameRate);
-        m_cvarMgr.serialize();
       }
       if (ImGui::MenuItem("In-Game Time", nullptr, &m_inGameTime)) {
         m_cvarCommons.m_debugOverlayShowInGameTime->fromBoolean(m_inGameTime);
-        m_cvarMgr.serialize();
       }
       if (ImGui::MenuItem("Room Timer", nullptr, &m_roomTimer)) {
         m_cvarCommons.m_debugOverlayShowRoomTimer->fromBoolean(m_roomTimer);
-        m_cvarMgr.serialize();
       }
       if (ImGui::MenuItem("Player Info", nullptr, &m_playerInfo)) {
         m_cvarCommons.m_debugOverlayPlayerInfo->fromBoolean(m_playerInfo);
-        m_cvarMgr.serialize();
       }
       if (ImGui::MenuItem("World Info", nullptr, &m_worldInfo)) {
         m_cvarCommons.m_debugOverlayWorldInfo->fromBoolean(m_worldInfo);
-        m_cvarMgr.serialize();
       }
       if (ImGui::MenuItem("Area Info", nullptr, &m_areaInfo)) {
         m_cvarCommons.m_debugOverlayAreaInfo->fromBoolean(m_areaInfo);
-        m_cvarMgr.serialize();
       }
       if (ImGui::MenuItem("Random Stats", nullptr, &m_randomStats)) {
         m_cvarCommons.m_debugOverlayShowRandomStats->fromBoolean(m_randomStats);
-        m_cvarMgr.serialize();
       }
       if (ImGui::MenuItem("Resource Stats", nullptr, &m_resourceStats)) {
         m_cvarCommons.m_debugOverlayShowResourceStats->fromBoolean(m_resourceStats);
-        m_cvarMgr.serialize();
       }
       ImGui::EndMenu();
     }
