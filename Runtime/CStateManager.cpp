@@ -1372,8 +1372,10 @@ void CStateManager::FreeScriptObjects(TAreaId aid) {
     }
   }
 
+  std::set<TEditorId> freedObjects;
   for (auto it = x8a4_loadedScriptObjects.begin(); it != x8a4_loadedScriptObjects.end();) {
     if (it->first.AreaNum() == aid) {
+      freedObjects.emplace(it->first);
       it = x8a4_loadedScriptObjects.erase(it);
       continue;
     }
@@ -1388,6 +1390,10 @@ void CStateManager::FreeScriptObjects(TAreaId aid) {
         FreeScriptObject(ent->GetUniqueId());
       }
     }
+  }
+
+  for (const auto& id : freedObjects) {
+    m_incomingConnections.erase(id);
   }
 }
 
@@ -1451,7 +1457,6 @@ void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector
 
   const u32 objCount = in.readUint32Big();
   idsOut.reserve(idsOut.size() + objCount);
-
   for (u32 i = 0; i < objCount; ++i) {
     const auto objType = static_cast<EScriptObjectType>(in.readUByte());
     const u32 objSize = in.readUint32Big();
@@ -1469,6 +1474,12 @@ void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector
     x8a4_loadedScriptObjects[id.first] = SScriptObjectStream{objType, pos, objSize};
     idsOut.push_back(id.first);
   }
+
+  for (const auto& pair : m_incomingConnections) {
+    if (auto* ent = ObjectById(GetIdForScript(pair.first))) {
+      ent->SetIncomingConnectionList(&pair.second);
+    }
+  }
 }
 
 std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, EScriptObjectType type, u32 length,
@@ -1483,6 +1494,13 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
     const auto state = EScriptObjectState(in.readUint32Big());
     const auto msg = EScriptObjectMessage(in.readUint32Big());
     const TEditorId target = in.readUint32Big();
+    // Metaforce Addition
+    if (m_incomingConnections.find(target) == m_incomingConnections.cend()) {
+      m_incomingConnections.emplace(target, std::set<SConnection>());
+    }
+    SConnection inConn{state, msg, id};
+    m_incomingConnections[target].emplace(inConn);
+    // End Metaforce Addition
     length -= 12;
     conns.push_back(SConnection{state, msg, target});
   }
@@ -1544,7 +1562,15 @@ std::pair<TEditorId, TUniqueId> CStateManager::GenerateObject(TEditorId eid) {
     if (area->IsPostConstructed()) {
       const std::pair<const u8*, u32> buf = area->GetLayerScriptBuffer(build.second.LayerNum());
       CMemoryInStream stream(buf.first + build.first->x4_position, build.first->x8_length);
-      return LoadScriptObject(build.second.AreaNum(), build.first->x0_type, build.first->x8_length, stream);
+      auto ret = LoadScriptObject(build.second.AreaNum(), build.first->x0_type, build.first->x8_length, stream);
+      // Metaforce Addition
+      if (m_incomingConnections.find(eid) != m_incomingConnections.end()) {
+        if (auto ent = ObjectById(ret.second)) {
+          ent->SetIncomingConnectionList(&m_incomingConnections[eid]);
+        }
+      }
+      // End Metaforce Addition
+      return ret;
     }
   }
 
@@ -2874,9 +2900,9 @@ void CStateManager::sub_80044098(const CCollisionResponseData& colRespData, cons
 }
 
 const CGameArea* CStateManager::GetCurrentArea() const {
-  if (x850_world == nullptr || x850_world->GetCurrentAreaId() == kInvalidAreaId) {
-    return nullptr;
+  if (x850_world != nullptr && x850_world->GetCurrentAreaId() != kInvalidAreaId) {
+    return x850_world->GetAreaAlways(x850_world->GetCurrentAreaId());
   }
-  return x850_world->GetAreaAlways(x850_world->GetCurrentAreaId());
+  return nullptr;
 };
 } // namespace metaforce

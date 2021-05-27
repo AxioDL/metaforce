@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CEntityInfo.hpp"
@@ -44,7 +45,7 @@ protected:
   // Used in ImGuiConsole
   bool m_debugSelected = false;
   bool m_debugHovered = false;
-
+  const std::set<SConnection>* m_incomingConnections = nullptr;
 public:
   static const std::vector<SConnection> NullConnectionList;
   virtual ~CEntity() = default;
@@ -82,6 +83,9 @@ public:
   const std::vector<SConnection>& GetConnectionList() const { return x20_conns; }
 
   std::string_view GetName() const { return x10_name; }
+  void SetIncomingConnectionList(const std::set<SConnection>* conns) {
+    m_incomingConnections = conns;
+  }
 };
 
 } // namespace metaforce

@@ -188,8 +188,8 @@ namespace metaforce {
 std::string_view CEntity::ImGuiType() { return "Entity"; }
 
 void CEntity::ImGuiInspect() {
-  if (!x20_conns.empty() && ImGui::CollapsingHeader("Connections")) {
-    if (ImGui::BeginTable("Connections", 6,
+  if (!x20_conns.empty() && ImGui::CollapsingHeader("Outgoing Connections")) {
+    if (ImGui::BeginTable("Outgoing Connections", 6,
                           ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV)) {
       ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 0, 'id');
       ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 0, 'type');
@@ -201,6 +201,44 @@ void CEntity::ImGuiInspect() {
       ImGui::TableSetupScrollFreeze(0, 1);
       ImGui::TableHeadersRow();
       for (const auto& item : x20_conns) {
+        const auto uid = g_StateManager->GetIdForScript(item.x8_objId);
+        if (uid == kInvalidUniqueId) {
+          continue;
+        }
+        ImGuiEntityEntry& entry = ImGuiConsole::entities[uid.Value()];
+        if (entry.uid == kInvalidUniqueId) {
+          continue;
+        }
+        ImGuiConsole::BeginEntityRow(entry);
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(entry.type);
+        }
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(entry.name);
+        }
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(ScriptObjectStateToStr(item.x0_state));
+        }
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(ScriptObjectMessageToStr(item.x4_msg));
+        }
+        ImGuiConsole::EndEntityRow(entry);
+      }
+      ImGui::EndTable();
+    }
+  }
+  if (m_incomingConnections && ImGui::CollapsingHeader("Incoming Connections")) {
+    if (ImGui::BeginTable("Incoming Connections", 6,
+                          ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV)) {
+      ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 0, 'id');
+      ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 0, 'type');
+      ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 0, 'name');
+      ImGui::TableSetupColumn("State", ImGuiTableColumnFlags_WidthFixed, 0, 'stat');
+      ImGui::TableSetupColumn("Message", ImGuiTableColumnFlags_WidthFixed, 0, 'msg');
+      ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed);
+      ImGui::TableSetupScrollFreeze(0, 1);
+      ImGui::TableHeadersRow();
+      for (const auto& item : (*m_incomingConnections)) {
         const auto uid = g_StateManager->GetIdForScript(item.x8_objId);
         if (uid == kInvalidUniqueId) {
           continue;
