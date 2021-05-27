@@ -15,7 +15,10 @@ namespace metaforce {
 std::array<ImGuiEntityEntry, 1024> ImGuiConsole::entities;
 std::set<TUniqueId> ImGuiConsole::inspectingEntities;
 
-void ImGuiStringViewText(std::string_view text) { ImGui::TextUnformatted(text.begin(), text.end()); }
+void ImGuiStringViewText(std::string_view text) {
+  // begin()/end() do not work on MSVC
+  ImGui::TextUnformatted(text.data(), text.data() + text.size());
+}
 
 void ImGuiTextCenter(std::string_view text) {
   ImGui::NewLine();
