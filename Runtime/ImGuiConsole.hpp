@@ -51,6 +51,7 @@ private:
   bool m_showDemoWindow = false;
   bool m_showAboutWindow = false;
   bool m_showItemsWindow = false;
+  bool m_showLayersWindow = false;
 
   bool m_paused = false;
   bool m_stepFrame = false;
@@ -83,5 +84,6 @@ private:
   void ShowAboutWindow();
   void ShowDebugOverlay();
   void ShowItemsWindow();
+  void ShowLayersWindow();
 };
 } // namespace metaforce
