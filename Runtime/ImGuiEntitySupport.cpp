@@ -196,7 +196,8 @@ void CEntity::ImGuiInspect() {
       ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 0, 'name');
       ImGui::TableSetupColumn("State", ImGuiTableColumnFlags_WidthFixed, 0, 'stat');
       ImGui::TableSetupColumn("Message", ImGuiTableColumnFlags_WidthFixed, 0, 'msg');
-      ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed);
+      ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed |
+                                      ImGuiTableColumnFlags_NoResize);
       ImGui::TableSetupScrollFreeze(0, 1);
       ImGui::TableHeadersRow();
       for (const auto& item : x20_conns) {
