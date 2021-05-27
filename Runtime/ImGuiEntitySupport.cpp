@@ -283,7 +283,25 @@ IMGUI_ENTITY_INSPECT(MP1::CFireFlea::CDeathCameraEffect, CEntity, FireFleaDeathC
 IMGUI_ENTITY_INSPECT(MP1::CMetroidPrimeRelay, CEntity, MetroidPrimeRelay, {})
 IMGUI_ENTITY_INSPECT(CScriptActorKeyframe, CEntity, ScriptActorKeyframe, {})
 IMGUI_ENTITY_INSPECT(CScriptActorRotate, CEntity, ScriptActorRotate, {})
-IMGUI_ENTITY_INSPECT(CScriptAreaAttributes, CEntity, ScriptAreaAttributes, {})
+
+IMGUI_ENTITY_INSPECT(CScriptAreaAttributes, CEntity, ScriptAreaAttributes, {
+  BITFIELD_CHECKBOX("Show Skybox", x34_24_showSkybox);
+  ImGui::Text("Skybox Asset: 0x%08X", int(x4c_skybox.Value()));
+  ImGui::Text("Environment FX:");
+  int fx = int(x38_envFx);
+  if (ImGui::Combo("Type", &fx, "None\0Snow\0Rain\0UnderwaterFlake\0", 4)) {
+    x38_envFx = EEnvFxType(fx);
+  }
+  ImGui::SameLine();
+  ImGui::SliderFloat("Density", &x3c_envFxDensity, 0.f, 1.f);
+  ImGui::SliderFloat("Thermal Heat", &x40_thermalHeat, 0.f, 1.f);
+  ImGui::SliderFloat("XRay Fog Distance", &x44_xrayFogDistance, 0.f, 1.f);
+  ImGui::SliderFloat("World Lighting Level", &x48_worldLightingLevel, 0.f, 1.f);
+  int ph = int(x50_phazon);
+  if (ImGui::Combo("Phazon Type", &ph, "None\0Blue\0Orange\0", 3)) {
+    x50_phazon = EPhazonType(ph);
+  }
+})
 IMGUI_ENTITY_INSPECT(CScriptCameraBlurKeyframe, CEntity, ScriptCameraBlurKeyframe, {})
 IMGUI_ENTITY_INSPECT(CScriptCameraFilterKeyframe, CEntity, ScriptCameraFilterKeyframe, {})
 IMGUI_ENTITY_INSPECT(CScriptCameraShaker, CEntity, ScriptCameraShaker, {})

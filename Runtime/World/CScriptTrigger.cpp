@@ -30,7 +30,8 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEnti
   // FIXME: HACK This fixes the HotE softlock, definitely need to look into the morphball's collision codepath and
   // FIXME: determine the proper fix
   if (GetEditorId() == 0x0034004B) {
-    Log.report(logvisor::Warning, FMT_STRING("BUG THIS!: Overriding forceField.x() for trigger {} in area {}"), GetEditorId(), GetAreaIdAlways());
+    Log.report(logvisor::Warning, FMT_STRING("BUG THIS!: Overriding forceField.x() for trigger {} in area {}"),
+               GetEditorId(), GetAreaIdAlways());
     x11c_forceField.x() = 0.f;
   }
 #endif
@@ -306,5 +307,12 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
 
 zeus::CAABox CScriptTrigger::GetTriggerBoundsWR() const {
   return {x130_bounds.min + x34_transform.origin, x130_bounds.max + x34_transform.origin};
+}
+
+void CScriptTrigger::DebugDraw() {
+  if (m_debugSelected || m_debugHovered) {
+    m_debugBox.setAABB(GetTriggerBoundsWR());
+    m_debugBox.draw(m_debugAddColor);
+  }
 }
 } // namespace metaforce

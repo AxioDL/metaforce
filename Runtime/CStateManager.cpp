@@ -580,6 +580,8 @@ void CStateManager::DrawDebugStuff() const {
       if (debugToolDrawPlatformCollision->toBoolean() && plat->GetActive()) {
         plat->DebugDraw();
       }
+    } else if (const TCastToPtr<CScriptTrigger> tr = ent) {
+      tr->DebugDraw();
     }
   }
 
