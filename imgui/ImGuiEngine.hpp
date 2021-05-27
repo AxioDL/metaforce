@@ -17,6 +17,8 @@ public:
     std::vector<unsigned long> m_charCodes{};
     bool m_mouseIn = true;
   } Input;
+  static ImFont* fontNormal;
+  static ImFont* fontLarge;
 
   static void Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* window, float scale);
   static void Shutdown();
@@ -26,7 +28,7 @@ public:
   static void Draw(boo::IGraphicsCommandQueue* gfxQ);
 
 private:
-  static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx);
+  static void BuildShaderDataBindings(boo::IGraphicsDataFactory::Context& ctx);
 };
 
 struct ImGuiWindowCallback : boo::IWindowCallback {

@@ -1,38 +1,38 @@
 #include "ImGuiConsole.hpp"
 
-#include "CStateManager.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/World/CPlayer.hpp"
 #include "MP1/MP1.hpp"
+#include "../version.h"
 
-#include "imgui.h"
+#include "ImGuiEngine.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
 
+std::array<ImGuiEntityEntry, 1024> ImGuiConsole::entities;
 std::set<TUniqueId> ImGuiConsole::inspectingEntities;
+
+void ImGuiStringViewText(std::string_view text) { ImGui::TextUnformatted(text.begin(), text.end()); }
+
+void ImGuiTextCenter(std::string_view text) {
+  ImGui::NewLine();
+  float fontSize = ImGui::GetFontSize() * text.size() / 2;
+  ImGui::SameLine(ImGui::GetWindowSize().x / 2 - fontSize + fontSize / 2);
+  ImGuiStringViewText(text);
+}
 
 static std::unordered_map<CAssetId, std::unique_ptr<CDummyWorld>> dummyWorlds;
 static std::unordered_map<CAssetId, TCachedToken<CStringTable>> stringTables;
 
-// utility wrapper to adapt locale-bound facets for wstring/wbuffer convert
-template <class Facet>
-struct deletable_facet : Facet {
-  template <class... Args>
-  deletable_facet(Args&&... args) : Facet(std::forward<Args>(args)...) {}
-  ~deletable_facet() {}
-};
+static std::string ReadUtf8String(CStringTable* tbl, int idx) { return hecl::Char16ToUTF8(tbl->GetString(idx)); }
 
-static std::wstring_convert<deletable_facet<std::codecvt<char16_t, char, std::mbstate_t>>, char16_t> conv16;
-
-std::string readUtf8String(CStringTable* tbl, int idx) { return conv16.to_bytes(tbl->GetString(idx)); }
-
-static bool containsCaseInsensitive(std::string_view str, std::string_view val) {
+static bool ContainsCaseInsensitive(std::string_view str, std::string_view val) {
   return std::search(str.begin(), str.end(), val.begin(), val.end(),
                      [](char ch1, char ch2) { return std::toupper(ch1) == std::toupper(ch2); }) != str.end();
 }
-
-void ImGuiStringViewText(std::string_view text) { ImGui::TextUnformatted(text.begin(), text.end()); }
 
 static const std::vector<std::pair<std::string, CAssetId>> ListWorlds() {
   std::vector<std::pair<std::string, CAssetId>> worlds;
@@ -56,7 +56,7 @@ static const std::vector<std::pair<std::string, CAssetId>> ListWorlds() {
     if (!stringTables.contains(stringId)) {
       stringTables[stringId] = g_SimplePool->GetObj(SObjectTag{SBIG('STRG'), stringId});
     }
-    worlds.emplace_back(readUtf8String(stringTables[stringId].GetObj(), 0), worldId);
+    worlds.emplace_back(ReadUtf8String(stringTables[stringId].GetObj(), 0), worldId);
   }
   return worlds;
 }
@@ -76,7 +76,7 @@ static const std::vector<std::pair<std::string, TAreaId>> ListAreas(CAssetId wor
     if (!stringTables.contains(stringId)) {
       stringTables[stringId] = g_SimplePool->GetObj(SObjectTag{SBIG('STRG'), stringId});
     }
-    areas.emplace_back(readUtf8String(stringTables[stringId].GetObj(), 0), TAreaId{i});
+    areas.emplace_back(ReadUtf8String(stringTables[stringId].GetObj(), 0), TAreaId{i});
   }
   return areas;
 }
@@ -97,15 +97,12 @@ static void Warp(const CAssetId worldId, TAreaId aId) {
   }
 }
 
-static bool stepFrame = false;
-
-static void ShowMenuGame() {
-  static bool paused;
-  paused = g_Main->IsPaused();
-  if (ImGui::MenuItem("Paused", nullptr, &paused)) {
-    g_Main->SetPaused(paused);
+void ImGuiConsole::ShowMenuGame() {
+  m_paused = g_Main->IsPaused();
+  if (ImGui::MenuItem("Paused", nullptr, &m_paused)) {
+    g_Main->SetPaused(m_paused);
   }
-  if (ImGui::MenuItem("Step", nullptr, &stepFrame, paused)) {
+  if (ImGui::MenuItem("Step Frame", nullptr, &m_stepFrame, m_paused)) {
     g_Main->SetPaused(false);
   }
   if (ImGui::BeginMenu("Warp", g_StateManager != nullptr && g_ResFactory != nullptr &&
@@ -220,8 +217,6 @@ static void RenderEntityColumns(const ImGuiEntityEntry& entry) {
 }
 
 void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
-  static bool activeOnly = false;
-  static std::array<char, 40> filterText{};
   if (ImGui::Begin("Inspect", isOpen)) {
     CObjectList& list = g_StateManager->GetAllObjectList();
     ImGui::Text("Objects: %d / 1024", list.size());
@@ -230,8 +225,8 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
         ent->m_debugSelected = false;
       }
     }
-    ImGui::InputText("Filter", filterText.data(), filterText.size());
-    ImGui::Checkbox("Active", &activeOnly);
+    ImGui::InputText("Filter", m_inspectFilterText.data(), m_inspectFilterText.size());
+    ImGui::Checkbox("Active", &m_inspectActiveOnly);
 
     if (ImGui::BeginTable("Entities", 4,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg |
@@ -247,25 +242,24 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
       ImGui::TableHeadersRow();
 
       ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs();
-      bool hasSortSpec = sortSpecs != nullptr &&
-                         sortSpecs->SpecsCount == 1 && // no multi-sort
+      bool hasSortSpec = sortSpecs != nullptr && sortSpecs->SpecsCount == 1 && // no multi-sort
                          // We can skip sorting if we just want uid ascending,
                          // since that's how we iterate over CObjectList
                          (sortSpecs->Specs[0].ColumnUserID != 'id' ||
                           sortSpecs->Specs[0].SortDirection != ImGuiSortDirection_Ascending);
-      std::string_view search{filterText.data(), strlen(filterText.data())};
-      if (!search.empty() || activeOnly || hasSortSpec) {
+      std::string_view search{m_inspectFilterText.data(), strlen(m_inspectFilterText.data())};
+      if (!search.empty() || m_inspectActiveOnly || hasSortSpec) {
         std::vector<s16> sortedList;
         sortedList.reserve(list.size());
         s16 uid = list.GetFirstObjectIndex();
         while (uid != -1) {
           ImGuiEntityEntry& entry = ImGuiConsole::entities[uid];
-          if (activeOnly && !entry.active) {
+          if (m_inspectActiveOnly && !entry.active) {
             uid = list.GetNextObjectIndex(uid);
             continue;
           }
-          if (!search.empty() && !containsCaseInsensitive(entry.type, search) &&
-              !containsCaseInsensitive(entry.name, search)) {
+          if (!search.empty() && !ContainsCaseInsensitive(entry.type, search) &&
+              !ContainsCaseInsensitive(entry.name, search)) {
             uid = list.GetNextObjectIndex(uid);
             continue;
           }
@@ -323,10 +317,209 @@ bool ImGuiConsole::ShowEntityInfoWindow(TUniqueId uid) {
   return open;
 }
 
-static bool showInspectWindow = false;
-static bool showDemoWindow = false;
+void ImGuiConsole::ShowAboutWindow() {
+  // Center window
+  ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+  ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-std::array<ImGuiEntityEntry, 1024> ImGuiConsole::entities;
+  if (ImGui::Begin("About", &m_showAboutWindow, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse)) {
+    float iconSize = 256.f;
+    ImGui::SameLine(ImGui::GetWindowSize().x / 2 - iconSize + (iconSize / 2));
+    ImGui::Image(ImGuiUserTextureID_MetaforceIcon, ImVec2{iconSize, iconSize});
+    ImGui::PushFont(ImGuiEngine::fontLarge);
+    ImGuiTextCenter("Metaforce");
+    ImGui::PopFont();
+    ImGuiTextCenter(METAFORCE_WC_DESCRIBE);
+    const ImVec2& padding = ImGui::GetStyle().WindowPadding;
+    ImGui::Dummy(padding);
+    ImGui::Dummy(padding);
+    ImGui::Separator();
+    if (ImGui::BeginTable("Version Info", 2, ImGuiTableFlags_BordersInnerV)) {
+      ImGui::TableNextRow();
+      if (ImGui::TableNextColumn()) {
+        ImGui::TextUnformatted("Branch");
+      }
+      if (ImGui::TableNextColumn()) {
+        ImGui::TextUnformatted(METAFORCE_WC_BRANCH);
+      }
+      ImGui::TableNextRow();
+      if (ImGui::TableNextColumn()) {
+        ImGui::TextUnformatted("Revision");
+      }
+      if (ImGui::TableNextColumn()) {
+        ImGui::TextUnformatted(METAFORCE_WC_REVISION);
+      }
+      ImGui::TableNextRow();
+      if (ImGui::TableNextColumn()) {
+        ImGui::TextUnformatted("Date");
+      }
+      if (ImGui::TableNextColumn()) {
+        ImGui::TextUnformatted(METAFORCE_WC_DATE);
+      }
+      ImGui::EndTable();
+    }
+  }
+  ImGui::End();
+}
+
+void ImGuiConsole::ShowDebugOverlay() {
+  if (!m_frameCounter && !m_frameRate && !m_inGameTime && !m_roomTimer && !m_playerInfo && !m_areaInfo &&
+      !m_worldInfo && !m_randomStats && !m_resourceStats) {
+    return;
+  }
+  ImGuiIO& io = ImGui::GetIO();
+  ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+                                 ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
+                                 ImGuiWindowFlags_NoNav;
+  if (m_debugOverlayCorner != -1) {
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImVec2 workPos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
+    ImVec2 workSize = viewport->WorkSize;
+    ImVec2 windowPos;
+    ImVec2 windowPosPivot;
+    constexpr float padding = 10.0f;
+    windowPos.x = (m_debugOverlayCorner & 1) ? (workPos.x + workSize.x - padding) : (workPos.x + padding);
+    windowPos.y = (m_debugOverlayCorner & 2) ? (workPos.y + workSize.y - padding) : (workPos.y + padding);
+    windowPosPivot.x = (m_debugOverlayCorner & 1) ? 1.0f : 0.0f;
+    windowPosPivot.y = (m_debugOverlayCorner & 2) ? 1.0f : 0.0f;
+    ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, windowPosPivot);
+    windowFlags |= ImGuiWindowFlags_NoMove;
+  }
+  ImGui::SetNextWindowBgAlpha(0.65f);
+  if (ImGui::Begin("Debug Overlay", nullptr, windowFlags)) {
+    bool hasPrevious = false;
+    if (m_frameCounter) {
+      ImGuiStringViewText(fmt::format(FMT_STRING("Frame: {}\n"), g_StateManager->GetUpdateFrameIndex()));
+      hasPrevious = true;
+    }
+    if (m_frameRate) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      ImGuiStringViewText(fmt::format(FMT_STRING("FPS: {}\n"), metaforce::CGraphics::GetFPS()));
+      hasPrevious = true;
+    }
+    if (m_inGameTime) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      double igt = g_GameState->GetTotalPlayTime();
+      u32 ms = u64(igt * 1000) % 1000;
+      auto pt = std::div(igt, 3600);
+      ImGuiStringViewText(
+          fmt::format(FMT_STRING("Play Time: {:02d}:{:02d}:{:02d}.{:03d}\n"), pt.quot, pt.rem / 60, pt.rem % 60, ms));
+      hasPrevious = true;
+    }
+    if (m_roomTimer) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      double igt = g_GameState->GetTotalPlayTime();
+      if (m_currentRoom != g_StateManager->GetCurrentArea()) {
+        m_currentRoom = static_cast<const void*>(g_StateManager->GetCurrentArea());
+        m_lastRoomTime = igt - m_currentRoomStart;
+        m_currentRoomStart = igt;
+      }
+      double currentRoomTime = igt - m_currentRoomStart;
+      u32 curFrames = u32(std::round(u32(currentRoomTime * 60)));
+      u32 lastFrames = u32(std::round(u32(m_lastRoomTime * 60)));
+      ImGuiStringViewText(fmt::format(FMT_STRING("Room Time: {:7.3f} / {:5d} | Last Room:{:7.3f} / {:5d}\n"),
+                                      currentRoomTime, curFrames, m_lastRoomTime, lastFrames));
+      hasPrevious = true;
+    }
+    if (m_playerInfo && g_StateManager->Player() != nullptr) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      const CPlayer& pl = g_StateManager->GetPlayer();
+      const zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
+      const zeus::CTransform camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
+      const zeus::CQuaternion camQ = zeus::CQuaternion(camXf.getRotation().buildMatrix3f());
+      ImGuiStringViewText(
+          fmt::format(FMT_STRING("Player Position x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
+                                 "       Roll: {: .2f}, Pitch: {: .2f}, Yaw: {: .2f}\n"
+                                 "       Momentum x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
+                                 "       Velocity x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
+                                 "Camera Position x: {: .2f}, y: {: .2f}, z {: .2f}\n"
+                                 "       Roll: {: .2f}, Pitch: {: .2f}, Yaw: {: .2f}\n"),
+                      pl.GetTranslation().x(), pl.GetTranslation().y(), pl.GetTranslation().z(),
+                      zeus::radToDeg(plQ.roll()), zeus::radToDeg(plQ.pitch()), zeus::radToDeg(plQ.yaw()),
+                      pl.GetMomentum().x(), pl.GetMomentum().y(), pl.GetMomentum().z(), pl.GetVelocity().x(),
+                      pl.GetVelocity().y(), pl.GetVelocity().z(), camXf.origin.x(), camXf.origin.y(), camXf.origin.z(),
+                      zeus::radToDeg(camQ.roll()), zeus::radToDeg(camQ.pitch()), zeus::radToDeg(camQ.yaw())));
+      hasPrevious = true;
+    }
+    if (m_worldInfo) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      TLockedToken<CStringTable> tbl =
+          g_SimplePool->GetObj({FOURCC('STRG'), g_StateManager->GetWorld()->IGetStringTableAssetId()});
+      const metaforce::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
+      ImGuiStringViewText(fmt::format(FMT_STRING("World: 0x{}{}, Area: {}\n"), g_GameState->CurrentWorldAssetId(),
+                                      (tbl.IsLoaded() ? (" " + hecl::Char16ToUTF8(tbl->GetString(0))).c_str() : ""),
+                                      aId));
+      hasPrevious = true;
+    }
+    if (m_areaInfo) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      const metaforce::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
+      if (g_StateManager->GetWorld() != nullptr && g_StateManager->GetWorld()->DoesAreaExist(aId)) {
+        const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
+        std::string layerBits;
+        u32 totalActive = 0;
+        for (u32 i = 0; i < layerStates->GetAreaLayerCount(aId); ++i) {
+          if (layerStates->IsLayerActive(aId, i)) {
+            ++totalActive;
+            layerBits += "1";
+          } else {
+            layerBits += "0";
+          }
+        }
+        ImGuiStringViewText(fmt::format(FMT_STRING("Area AssetId: 0x{}, Total Objects: {}\n"
+                                                   "Active Layer bits: {}\n"),
+                                        g_StateManager->GetWorld()->GetArea(aId)->GetAreaAssetId(),
+                                        g_StateManager->GetAllObjectList().size(), layerBits));
+        hasPrevious = true;
+      }
+    }
+    if (m_randomStats) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      ImGuiStringViewText(
+          fmt::format(FMT_STRING("CRandom16::Next calls: {}\n"), metaforce::CRandom16::GetNumNextCalls()));
+      hasPrevious = true;
+    }
+    if (m_resourceStats) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      ImGuiStringViewText(fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects()));
+    }
+    if (ImGui::BeginPopupContextWindow()) {
+      if (ImGui::MenuItem("Custom", nullptr, m_debugOverlayCorner == -1)) {
+        m_debugOverlayCorner = -1;
+      }
+      if (ImGui::MenuItem("Top-left", nullptr, m_debugOverlayCorner == 0)) {
+        m_debugOverlayCorner = 0;
+      }
+      if (ImGui::MenuItem("Top-right", nullptr, m_debugOverlayCorner == 1)) {
+        m_debugOverlayCorner = 1;
+      }
+      if (ImGui::MenuItem("Bottom-left", nullptr, m_debugOverlayCorner == 2)) {
+        m_debugOverlayCorner = 2;
+      }
+      if (ImGui::MenuItem("Bottom-right", nullptr, m_debugOverlayCorner == 3)) {
+        m_debugOverlayCorner = 3;
+      }
+      ImGui::EndPopup();
+    }
+  }
+  ImGui::End();
+}
 
 void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
   if (ImGui::BeginMainMenuBar()) {
@@ -334,11 +527,54 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
       ShowMenuGame();
       ImGui::EndMenu();
     }
-    ImGui::Spacing();
     if (ImGui::BeginMenu("Tools")) {
-      ImGui::MenuItem("Inspect", nullptr, &showInspectWindow, canInspect);
+      ImGui::MenuItem("Inspect", nullptr, &m_showInspectWindow, canInspect);
       ImGui::Separator();
-      ImGui::MenuItem("Demo", nullptr, &showDemoWindow);
+      ImGui::MenuItem("Demo", nullptr, &m_showDemoWindow);
+      ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("Debug")) {
+      if (ImGui::MenuItem("Frame Counter", nullptr, &m_frameCounter)) {
+        m_cvarCommons.m_debugOverlayShowFrameCounter->fromBoolean(m_frameCounter);
+        m_cvarMgr.serialize();
+      }
+      if (ImGui::MenuItem("Frame Rate", nullptr, &m_frameRate)) {
+        m_cvarCommons.m_debugOverlayShowFramerate->fromBoolean(m_frameRate);
+        m_cvarMgr.serialize();
+      }
+      if (ImGui::MenuItem("In-Game Time", nullptr, &m_inGameTime)) {
+        m_cvarCommons.m_debugOverlayShowInGameTime->fromBoolean(m_inGameTime);
+        m_cvarMgr.serialize();
+      }
+      if (ImGui::MenuItem("Room Timer", nullptr, &m_roomTimer)) {
+        m_cvarCommons.m_debugOverlayShowRoomTimer->fromBoolean(m_roomTimer);
+        m_cvarMgr.serialize();
+      }
+      if (ImGui::MenuItem("Player Info", nullptr, &m_playerInfo)) {
+        m_cvarCommons.m_debugOverlayPlayerInfo->fromBoolean(m_playerInfo);
+        m_cvarMgr.serialize();
+      }
+      if (ImGui::MenuItem("World Info", nullptr, &m_worldInfo)) {
+        m_cvarCommons.m_debugOverlayWorldInfo->fromBoolean(m_worldInfo);
+        m_cvarMgr.serialize();
+      }
+      if (ImGui::MenuItem("Area Info", nullptr, &m_areaInfo)) {
+        m_cvarCommons.m_debugOverlayAreaInfo->fromBoolean(m_areaInfo);
+        m_cvarMgr.serialize();
+      }
+      if (ImGui::MenuItem("Random Stats", nullptr, &m_randomStats)) {
+        m_cvarCommons.m_debugOverlayShowRandomStats->fromBoolean(m_randomStats);
+        m_cvarMgr.serialize();
+      }
+      if (ImGui::MenuItem("Resource Stats", nullptr, &m_resourceStats)) {
+        m_cvarCommons.m_debugOverlayShowResourceStats->fromBoolean(m_resourceStats);
+        m_cvarMgr.serialize();
+      }
+      ImGui::EndMenu();
+    }
+    ImGui::Spacing();
+    if (ImGui::BeginMenu("Help")) {
+      ImGui::MenuItem("About", nullptr, &m_showAboutWindow);
       ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
@@ -346,16 +582,16 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
 }
 
 void ImGuiConsole::PreUpdate() {
-  if (stepFrame) {
+  if (m_stepFrame) {
     g_Main->SetPaused(true);
-    stepFrame = false;
+    m_stepFrame = false;
   }
   bool canInspect = g_StateManager != nullptr && g_StateManager->GetObjectList();
   ShowAppMainMenuBar(canInspect);
-  if (canInspect && (showInspectWindow || !inspectingEntities.empty())) {
+  if (canInspect && (m_showInspectWindow || !inspectingEntities.empty())) {
     UpdateEntityEntries();
-    if (showInspectWindow) {
-      ShowInspectWindow(&showInspectWindow);
+    if (m_showInspectWindow) {
+      ShowInspectWindow(&m_showInspectWindow);
     }
     auto iter = inspectingEntities.begin();
     while (iter != inspectingEntities.end()) {
@@ -366,9 +602,13 @@ void ImGuiConsole::PreUpdate() {
       }
     }
   }
-  if (showDemoWindow) {
-    ImGui::ShowDemoWindow(&showDemoWindow);
+  if (m_showAboutWindow) {
+    ShowAboutWindow();
   }
+  if (m_showDemoWindow) {
+    ImGui::ShowDemoWindow(&m_showDemoWindow);
+  }
+  ShowDebugOverlay();
 }
 
 void ImGuiConsole::PostUpdate() {

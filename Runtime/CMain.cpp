@@ -244,9 +244,12 @@ public:
     m_window->setCallback(&m_windowCallback);
     m_window->showWindow();
 
+    boo::IGraphicsDataFactory* gfxF = m_window->getMainContextDataFactory();
+    m_window->setTitle(
+        fmt::format(FMT_STRING(_SYS_STR("Metaforce {} [{}]")), METAFORCE_WC_DESCRIBE_SYS, gfxF->platformName()));
+
     boo::SWindowRect rect = m_window->getWindowFrame();
     m_windowCallback.m_lastRect = rect;
-    boo::IGraphicsDataFactory* gfxF = m_window->getMainContextDataFactory();
     gfxF->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
       m_renderTex = ctx.newRenderTexture(rect.size[0], rect.size[1], boo::TextureClampMode::ClampToEdge, 3, 3);
       return true;
