@@ -26,6 +26,7 @@ class CSimpleShadow;
 
 class CActor : public CEntity {
   friend class CStateManager;
+  friend class ImGuiConsole;
 
 protected:
   zeus::CTransform x34_transform;
@@ -74,6 +75,8 @@ protected:
   bool xe7_31_targetable : 1 = true;
 
   boo::ObjToken<boo::ITextureCubeR> m_reflectionCube;
+  zeus::CColor m_debugAddColor = zeus::skClear;
+  float m_debugAddColorTime = 0.f;
 
   void _CreateShadow();
   void _CreateReflectionCube();
@@ -83,10 +86,6 @@ protected:
   bool IsModelOpaque(const CStateManager& mgr) const;
 
 public:
-  bool m_debugSelected = false;
-  zeus::CColor m_debugAddColor = zeus::skClear;
-  float m_debugAddColorTime = 0.f;
-
   enum class EFluidState { EnteredFluid, InFluid, LeftFluid };
 
   enum class EScanState {
