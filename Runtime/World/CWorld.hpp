@@ -69,7 +69,7 @@ class CDummyWorld : public IWorld {
   u32 x38_bufSz;
   TAreaId x3c_curAreaId = kInvalidAreaId;
 
-  std::optional<CWorldLayers> worldLayers;
+  std::optional<CWorldLayers> m_worldLayers;
 
 public:
   CDummyWorld(CAssetId mlvlId, bool loadMap);
