@@ -1,10 +1,10 @@
 #include "ImGuiConsole.hpp"
 
+#include "../version.h"
+#include "MP1/MP1.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/World/CPlayer.hpp"
-#include "MP1/MP1.hpp"
-#include "../version.h"
 
 #include "ImGuiEngine.hpp"
 
@@ -19,7 +19,7 @@ void ImGuiStringViewText(std::string_view text) { ImGui::TextUnformatted(text.be
 
 void ImGuiTextCenter(std::string_view text) {
   ImGui::NewLine();
-  float fontSize = ImGui::GetFontSize() * text.size() / 2;
+  float fontSize = ImGui::GetFontSize() * float(text.size()) / 2;
   ImGui::SameLine(ImGui::GetWindowSize().x / 2 - fontSize + fontSize / 2);
   ImGuiStringViewText(text);
 }
@@ -34,7 +34,7 @@ static bool ContainsCaseInsensitive(std::string_view str, std::string_view val) 
                      [](char ch1, char ch2) { return std::toupper(ch1) == std::toupper(ch2); }) != str.end();
 }
 
-static const std::vector<std::pair<std::string, CAssetId>> ListWorlds() {
+static std::vector<std::pair<std::string, CAssetId>> ListWorlds() {
   std::vector<std::pair<std::string, CAssetId>> worlds;
   for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks()) {
     if (!pak->IsWorldPak()) {
@@ -61,7 +61,7 @@ static const std::vector<std::pair<std::string, CAssetId>> ListWorlds() {
   return worlds;
 }
 
-static const std::vector<std::pair<std::string, TAreaId>> ListAreas(CAssetId worldId) {
+static std::vector<std::pair<std::string, TAreaId>> ListAreas(CAssetId worldId) {
   std::vector<std::pair<std::string, TAreaId>> areas;
   const auto& world = dummyWorlds[worldId];
   for (int i = 0; i < world->IGetAreaCount(); ++i) {
@@ -93,7 +93,7 @@ static void Warp(const CAssetId worldId, TAreaId aId) {
     g_StateManager->SetWarping(true);
     g_StateManager->SetShouldQuitGame(true);
   } else {
-    // TODO warp from menu?
+    // TODO(encounter): warp from menu?
   }
 }
 
@@ -419,10 +419,10 @@ void ImGuiConsole::ShowDebugOverlay() {
     ImVec2 windowPos;
     ImVec2 windowPosPivot;
     constexpr float padding = 10.0f;
-    windowPos.x = (m_debugOverlayCorner & 1) ? (workPos.x + workSize.x - padding) : (workPos.x + padding);
-    windowPos.y = (m_debugOverlayCorner & 2) ? (workPos.y + workSize.y - padding) : (workPos.y + padding);
-    windowPosPivot.x = (m_debugOverlayCorner & 1) ? 1.0f : 0.0f;
-    windowPosPivot.y = (m_debugOverlayCorner & 2) ? 1.0f : 0.0f;
+    windowPos.x = (m_debugOverlayCorner & 1) != 0 ? (workPos.x + workSize.x - padding) : (workPos.x + padding);
+    windowPos.y = (m_debugOverlayCorner & 2) != 0 ? (workPos.y + workSize.y - padding) : (workPos.y + padding);
+    windowPosPivot.x = (m_debugOverlayCorner & 1) != 0 ? 1.0f : 0.0f;
+    windowPosPivot.y = (m_debugOverlayCorner & 2) != 0 ? 1.0f : 0.0f;
     ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, windowPosPivot);
     windowFlags |= ImGuiWindowFlags_NoMove;
   }
@@ -446,7 +446,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       double igt = g_GameState->GetTotalPlayTime();
       u32 ms = u64(igt * 1000) % 1000;
-      auto pt = std::div(igt, 3600);
+      auto pt = std::div(int(igt), 3600);
       ImGuiStringViewText(
           fmt::format(FMT_STRING("Play Time: {:02d}:{:02d}:{:02d}.{:03d}\n"), pt.quot, pt.rem / 60, pt.rem % 60, ms));
       hasPrevious = true;
@@ -511,7 +511,7 @@ void ImGuiConsole::ShowDebugOverlay() {
         const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
         std::string layerBits;
         u32 totalActive = 0;
-        for (u32 i = 0; i < layerStates->GetAreaLayerCount(aId); ++i) {
+        for (int i = 0; i < layerStates->GetAreaLayerCount(aId); ++i) {
           if (layerStates->IsLayerActive(aId, i)) {
             ++totalActive;
             layerBits += "1";

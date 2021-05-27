@@ -26,12 +26,7 @@ struct ImGuiEntityEntry {
   ImGuiEntityEntry(TUniqueId uid, CEntity* ent, std::string_view type, std::string_view name, bool active)
   : uid(uid), ent(ent), type(type), name(name), active(active) {}
 
-  [[nodiscard]] CActor* AsActor() const {
-    if (isActor) {
-      return static_cast<CActor*>(ent);
-    }
-    return nullptr;
-  }
+  [[nodiscard]] CActor* AsActor() const { return isActor ? static_cast<CActor*>(ent) : nullptr; }
 };
 
 class ImGuiConsole {
