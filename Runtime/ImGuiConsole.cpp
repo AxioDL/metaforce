@@ -728,13 +728,11 @@ void ImGuiConsole::ShowItemsWindow() {
         pState.ResetAndIncrPickUp(itemType, maxValue);
       }
     }
-    {
-      ImGui::SameLine();
-      auto& mapWorldInfo = *g_GameState->CurrentWorldState().MapWorldInfo();
-      bool mapStationUsed = mapWorldInfo.GetMapStationUsed();
-      if (ImGui::Checkbox("Area map", &mapStationUsed)) {
-        mapWorldInfo.SetMapStationUsed(mapStationUsed);
-      }
+    auto& mapWorldInfo = *g_GameState->CurrentWorldState().MapWorldInfo();
+    ImGui::SameLine();
+    bool mapStationUsed = mapWorldInfo.GetMapStationUsed();
+    if (ImGui::Checkbox("Area map", &mapStationUsed)) {
+      mapWorldInfo.SetMapStationUsed(mapStationUsed);
     }
     if (ImGui::Button("All")) {
       for (const auto itemType : ItemOrder) {
@@ -742,12 +740,14 @@ void ImGuiConsole::ShowItemsWindow() {
         pState.ReInitializePowerUp(itemType, maxValue);
         pState.ResetAndIncrPickUp(itemType, maxValue);
       }
+      mapWorldInfo.SetMapStationUsed(true);
     }
     ImGui::SameLine();
     if (ImGui::Button("None")) {
       for (const auto itemType : ItemOrder) {
         pState.ReInitializePowerUp(itemType, 0);
       }
+      mapWorldInfo.SetMapStationUsed(false);
     }
     for (const auto itemType : ItemOrder) {
       u32 maxValue = CPlayerState::GetPowerUpMaxValue(itemType);
