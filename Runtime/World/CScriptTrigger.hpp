@@ -5,12 +5,12 @@
 
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
-
 // TODO - Phil: Figure out what each of the DetectProjectiles actually mean
 enum class ETriggerFlags : u32 {
   None = 0,
@@ -61,6 +61,7 @@ protected:
   bool x148_28_playerTriggerProc : 1 = false;
   bool x148_29_didPhazonDamage : 1 = false;
 
+  CAABoxShader m_debugBox;
 public:
   DEFINE_ENTITY
   CScriptTrigger(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& pos,
@@ -90,5 +91,6 @@ public:
     x128_forceMagnitude = x11c_forceField.magnitude();
   }
   bool IsPlayerTriggerProc() const { return x148_28_playerTriggerProc; }
+  void DebugDraw();
 };
 } // namespace metaforce

@@ -125,6 +125,11 @@ void ImGuiConsole::ShowMenuGame() {
 }
 
 void ImGuiConsole::LerpDebugColor(CActor* act) {
+  if (!act->m_debugSelected && !act->m_debugHovered) {
+    act->m_debugAddColorTime = 0.f;
+    act->m_debugAddColor = zeus::skClear;
+    return;
+  }
   act->m_debugAddColorTime += 1.f / 60.f;
   float lerp = act->m_debugAddColorTime;
   if (lerp > 2.f) {
@@ -151,7 +156,7 @@ void ImGuiConsole::UpdateEntityEntries() {
     } else {
       entry.active = entry.ent->GetActive();
     }
-    if (entry.isActor && (entry.ent->m_debugSelected || entry.ent->m_debugHovered)) {
+    if (entry.isActor) {
       LerpDebugColor(entry.AsActor());
     }
     uid = list.GetNextObjectIndex(uid);
