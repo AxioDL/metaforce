@@ -7,9 +7,15 @@
 
 namespace metaforce {
 struct SConnection {
-  EScriptObjectState x0_state;
-  EScriptObjectMessage x4_msg;
-  TEditorId x8_objId;
+  EScriptObjectState x0_state = EScriptObjectState::Any;
+  EScriptObjectMessage x4_msg = EScriptObjectMessage::None;
+  TEditorId x8_objId = kInvalidEditorId;
+  bool operator==(const SConnection& other) const {
+    return x0_state == other.x0_state && x4_msg == other.x4_msg && x8_objId == other.x8_objId;
+  }
+  bool operator<(const SConnection& other) const {
+    return x8_objId < other.x8_objId;
+  }
 };
 
 class CEntityInfo {

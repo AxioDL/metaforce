@@ -214,6 +214,7 @@ private:
   CColoredQuadFilter m_deathWhiteout{EFilterType::Add};
   CColoredQuadFilter m_escapeWhiteout{EFilterType::Add};
   bool m_warping = false;
+  std::map<TEditorId, std::set<SConnection>> m_incomingConnections;
 
   void UpdateThermalVisor();
   static void RendererDrawCallback(void*, void*, int);
