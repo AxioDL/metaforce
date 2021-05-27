@@ -11,6 +11,10 @@ add_library(imgui
         )
 target_include_directories(imgui PUBLIC ${CMAKE_SOURCE_DIR}/extern/imgui ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(imgui PUBLIC IMGUI_USER_CONFIG="imconfig_user.h")
+if (CMAKE_COMPILER_IS_GNUCXX)
+    # currently explicitly ignored for clang in imgui code, but not gcc (yet)
+    target_compile_options(imgui PRIVATE -Wno-deprecated-enum-enum-conversion)
+endif()
 target_link_libraries(imgui PRIVATE boo hecl-light RetroDataSpec)
 
 bintoc_compress(NotoMono.cpp NotoMono-Regular.ttf NOTO_MONO_FONT)
