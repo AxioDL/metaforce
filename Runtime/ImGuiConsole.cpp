@@ -790,7 +790,7 @@ void ImGuiConsole::ShowLayersWindow() {
       if (!layers) {
         continue;
       }
-      
+
       if (ImGui::TreeNode(world.first.c_str())) {
         auto worldLayerState = g_GameState->StateForWorld(world.second).GetLayerState();
         u32 startNameIdx = 0;

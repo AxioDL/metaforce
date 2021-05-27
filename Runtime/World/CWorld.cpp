@@ -150,7 +150,7 @@ bool CDummyWorld::ICheckWorldComplete() {
     if (version > 12)
       r.readString();
 
-    worldLayers = CWorldLayers::ReadWorldLayers(r, version, xc_mlvlId);
+    m_worldLayers = CWorldLayers::ReadWorldLayers(r, version, xc_mlvlId);
 
     x30_loadToken.reset();
     x34_loadBuf.reset();
@@ -190,7 +190,7 @@ std::string CDummyWorld::IGetDefaultAudioTrack() const { return {}; }
 
 int CDummyWorld::IGetAreaCount() const { return x18_areas.size(); }
 
-const std::optional<CWorldLayers>& CDummyWorld::GetWorldLayers() const { return worldLayers; }
+const std::optional<CWorldLayers>& CDummyWorld::GetWorldLayers() const { return m_worldLayers; }
 
 CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId)
 : x8_mlvlId(mlvlId)
