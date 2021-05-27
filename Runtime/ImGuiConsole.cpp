@@ -683,52 +683,82 @@ ImGuiConsole::~ImGuiConsole() {
   stringTables.clear();
 }
 
-static constexpr std::array ItemOrder{
-    CPlayerState::EItemType::PowerBeam,
-    CPlayerState::EItemType::ChargeBeam,
-    CPlayerState::EItemType::IceBeam,
-    CPlayerState::EItemType::WaveBeam,
-    CPlayerState::EItemType::PlasmaBeam,
-    CPlayerState::EItemType::EnergyTanks,
-    CPlayerState::EItemType::Missiles,
-    CPlayerState::EItemType::SuperMissile,
-    CPlayerState::EItemType::Flamethrower,
-    CPlayerState::EItemType::IceSpreader,
-    CPlayerState::EItemType::Wavebuster,
-    CPlayerState::EItemType::CombatVisor,
-    CPlayerState::EItemType::ScanVisor,
-    CPlayerState::EItemType::ThermalVisor,
-    CPlayerState::EItemType::XRayVisor,
-    CPlayerState::EItemType::MorphBall,
-    CPlayerState::EItemType::MorphBallBombs,
-    CPlayerState::EItemType::PowerBombs,
-    CPlayerState::EItemType::BoostBall,
-    CPlayerState::EItemType::SpiderBall,
-    CPlayerState::EItemType::GrappleBeam,
-    CPlayerState::EItemType::SpaceJumpBoots,
-    CPlayerState::EItemType::PowerSuit,
-    CPlayerState::EItemType::VariaSuit,
-    CPlayerState::EItemType::GravitySuit,
-    CPlayerState::EItemType::PhazonSuit,
-    CPlayerState::EItemType::Truth,
-    CPlayerState::EItemType::Strength,
-    CPlayerState::EItemType::Elder,
-    CPlayerState::EItemType::Wild,
-    CPlayerState::EItemType::Lifegiver,
-    CPlayerState::EItemType::Warrior,
-    CPlayerState::EItemType::Chozo,
-    CPlayerState::EItemType::Nature,
-    CPlayerState::EItemType::Sun,
-    CPlayerState::EItemType::World,
-    CPlayerState::EItemType::Spirit,
-    CPlayerState::EItemType::Newborn,
+static constexpr std::array GeneralItems{
+    CPlayerState::EItemType::EnergyTanks,    CPlayerState::EItemType::CombatVisor, CPlayerState::EItemType::ScanVisor,
+    CPlayerState::EItemType::ThermalVisor,   CPlayerState::EItemType::XRayVisor,   CPlayerState::EItemType::GrappleBeam,
+    CPlayerState::EItemType::SpaceJumpBoots, CPlayerState::EItemType::PowerSuit,   CPlayerState::EItemType::VariaSuit,
+    CPlayerState::EItemType::GravitySuit,    CPlayerState::EItemType::PhazonSuit,
 };
+
+static constexpr std::array WeaponItems{
+    CPlayerState::EItemType::Missiles,     CPlayerState::EItemType::PowerBeam,   CPlayerState::EItemType::IceBeam,
+    CPlayerState::EItemType::WaveBeam,     CPlayerState::EItemType::PlasmaBeam,  CPlayerState::EItemType::SuperMissile,
+    CPlayerState::EItemType::Flamethrower, CPlayerState::EItemType::IceSpreader, CPlayerState::EItemType::Wavebuster,
+    CPlayerState::EItemType::ChargeBeam,
+};
+
+static constexpr std::array MorphBallItems{
+    CPlayerState::EItemType::PowerBombs, CPlayerState::EItemType::MorphBall,  CPlayerState::EItemType::MorphBallBombs,
+    CPlayerState::EItemType::BoostBall,  CPlayerState::EItemType::SpiderBall,
+};
+
+static constexpr std::array ArtifactItems{
+    CPlayerState::EItemType::Truth, CPlayerState::EItemType::Strength,  CPlayerState::EItemType::Elder,
+    CPlayerState::EItemType::Wild,  CPlayerState::EItemType::Lifegiver, CPlayerState::EItemType::Warrior,
+    CPlayerState::EItemType::Chozo, CPlayerState::EItemType::Nature,    CPlayerState::EItemType::Sun,
+    CPlayerState::EItemType::World, CPlayerState::EItemType::Spirit,    CPlayerState::EItemType::Newborn,
+};
+
+static void RenderItemType(CPlayerState& pState, CPlayerState::EItemType itemType) {
+  u32 maxValue = CPlayerState::GetPowerUpMaxValue(itemType);
+  std::string name{CPlayerState::ItemTypeToName(itemType)};
+  if (maxValue == 1) {
+    bool enabled = pState.GetItemCapacity(itemType) == 1;
+    if (ImGui::Checkbox(name.c_str(), &enabled)) {
+      if (enabled) {
+        pState.ReInitializePowerUp(itemType, 1);
+        pState.ResetAndIncrPickUp(itemType, 1);
+      } else {
+        pState.ReInitializePowerUp(itemType, 0);
+      }
+      if (itemType == CPlayerState::EItemType::VariaSuit || itemType == CPlayerState::EItemType::PowerSuit ||
+          itemType == CPlayerState::EItemType::GravitySuit || itemType == CPlayerState::EItemType::PhazonSuit) {
+        g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
+      }
+    }
+  } else if (maxValue > 1) {
+    int capacity = int(pState.GetItemCapacity(itemType));
+    if (ImGui::SliderInt(name.c_str(), &capacity, 0, int(maxValue), "%d", ImGuiSliderFlags_AlwaysClamp)) {
+      pState.ReInitializePowerUp(itemType, u32(capacity));
+      pState.ResetAndIncrPickUp(itemType, u32(capacity));
+    }
+  }
+}
+
+template <size_t N>
+static inline void RenderItemsDualColumn(CPlayerState& pState, const std::array<CPlayerState::EItemType, N>& items,
+                                         int start) {
+  ImGui::BeginGroup();
+  // Render left group
+  for (int i = start; i < items.size(); i += 2) {
+    RenderItemType(pState, items[i]);
+  }
+  ImGui::EndGroup();
+  ImGui::SameLine();
+  ImGui::BeginGroup();
+  // Render right group
+  for (int i = start + 1; i < items.size(); i += 2) {
+    RenderItemType(pState, items[i]);
+  }
+  ImGui::EndGroup();
+}
 
 void ImGuiConsole::ShowItemsWindow() {
   CPlayerState& pState = *g_StateManager->GetPlayerState();
-  if (ImGui::Begin("Items", &m_showItemsWindow)) {
+  if (ImGui::Begin("Items", &m_showItemsWindow, ImGuiWindowFlags_AlwaysAutoResize)) {
     if (ImGui::Button("Refill")) {
-      for (const auto itemType : ItemOrder) {
+      for (int i = 0; i < int(CPlayerState::EItemType::Max); ++i) {
+        auto itemType = static_cast<CPlayerState::EItemType>(i);
         u32 maxValue = CPlayerState::GetPowerUpMaxValue(itemType);
         pState.ResetAndIncrPickUp(itemType, maxValue);
       }
@@ -740,7 +770,8 @@ void ImGuiConsole::ShowItemsWindow() {
       mapWorldInfo.SetMapStationUsed(mapStationUsed);
     }
     if (ImGui::Button("All")) {
-      for (const auto itemType : ItemOrder) {
+      for (int i = 0; i < int(CPlayerState::EItemType::Max); ++i) {
+        auto itemType = static_cast<CPlayerState::EItemType>(i);
         u32 maxValue = CPlayerState::GetPowerUpMaxValue(itemType);
         pState.ReInitializePowerUp(itemType, maxValue);
         pState.ResetAndIncrPickUp(itemType, maxValue);
@@ -749,35 +780,34 @@ void ImGuiConsole::ShowItemsWindow() {
     }
     ImGui::SameLine();
     if (ImGui::Button("None")) {
-      for (const auto itemType : ItemOrder) {
+      for (int i = 0; i < int(CPlayerState::EItemType::Max); ++i) {
+        auto itemType = static_cast<CPlayerState::EItemType>(i);
         pState.ReInitializePowerUp(itemType, 0);
       }
       mapWorldInfo.SetMapStationUsed(false);
     }
-    for (const auto itemType : ItemOrder) {
-      u32 maxValue = CPlayerState::GetPowerUpMaxValue(itemType);
-      std::string name{CPlayerState::ItemTypeToName(itemType)};
-      if (maxValue == 1) {
-        bool enabled = pState.GetItemCapacity(itemType) == 1;
-        if (ImGui::Checkbox(name.c_str(), &enabled)) {
-          if (enabled) {
-            pState.ReInitializePowerUp(itemType, 1);
-            pState.ResetAndIncrPickUp(itemType, 1);
-          } else {
-            pState.ReInitializePowerUp(itemType, 0);
-          }
-          if (itemType == CPlayerState::EItemType::VariaSuit || itemType == CPlayerState::EItemType::PowerSuit ||
-              itemType == CPlayerState::EItemType::GravitySuit || itemType == CPlayerState::EItemType::PhazonSuit) {
-            g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
-          }
-        }
-      } else if (maxValue > 1) {
-        int capacity = int(pState.GetItemCapacity(itemType));
-        if (ImGui::SliderInt(name.c_str(), &capacity, 0, int(maxValue), "%d", ImGuiSliderFlags_AlwaysClamp)) {
-          pState.ReInitializePowerUp(itemType, u32(capacity));
-          pState.ResetAndIncrPickUp(itemType, u32(capacity));
-        }
+
+    if (ImGui::BeginTabBar("Items")) {
+      if (ImGui::BeginTabItem("General")) {
+        RenderItemType(pState, GeneralItems[0]); // full width
+        RenderItemsDualColumn(pState, GeneralItems, 1);
+        ImGui::EndTabItem();
       }
+      if (ImGui::BeginTabItem("Weapons")) {
+        RenderItemType(pState, WeaponItems[0]); // full width
+        RenderItemsDualColumn(pState, WeaponItems, 1);
+        ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("Morph Ball")) {
+        RenderItemType(pState, MorphBallItems[0]); // full width
+        RenderItemsDualColumn(pState, MorphBallItems, 1);
+        ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("Artifacts")) {
+        RenderItemsDualColumn(pState, ArtifactItems, 0);
+        ImGui::EndTabItem();
+      }
+      ImGui::EndTabBar();
     }
   }
   ImGui::End();
