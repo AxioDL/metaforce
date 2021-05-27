@@ -37,6 +37,17 @@ public:
   virtual int IGetAreaCount() const = 0;
 };
 
+struct CWorldLayers {
+  struct Area {
+    u32 m_startNameIdx;
+    u32 m_layerCount;
+    u64 m_layerBits;
+  };
+  std::vector<Area> m_areas;
+  std::vector<std::string> m_names;
+  static std::optional<CWorldLayers> ReadWorldLayers(athena::io::MemoryReader& r, int version, CAssetId mlvlId);
+};
+
 class CDummyWorld : public IWorld {
   enum class Phase {
     Loading,
@@ -58,6 +69,8 @@ class CDummyWorld : public IWorld {
   u32 x38_bufSz;
   TAreaId x3c_curAreaId = kInvalidAreaId;
 
+  std::optional<CWorldLayers> worldLayers;
+
 public:
   CDummyWorld(CAssetId mlvlId, bool loadMap);
   ~CDummyWorld() override;
@@ -72,6 +85,7 @@ public:
   bool ICheckWorldComplete() override;
   std::string IGetDefaultAudioTrack() const override;
   int IGetAreaCount() const override;
+  const std::optional<CWorldLayers>& GetWorldLayers() const;
 };
 
 class CWorld : public IWorld {
@@ -212,17 +226,6 @@ public:
   CAssetId GetWorldAssetId() const { return x8_mlvlId; }
   bool AreSkyNeedsMet() const;
   TAreaId GetAreaIdForSaveId(s32 saveId) const;
-};
-
-struct CWorldLayers {
-  struct Area {
-    u32 m_startNameIdx;
-    u32 m_layerCount;
-    u64 m_layerBits;
-  };
-  std::vector<Area> m_areas;
-  std::vector<std::string> m_names;
-  static void ReadWorldLayers(athena::io::MemoryReader& r, int version, CAssetId mlvlId);
 };
 
 } // namespace metaforce

@@ -76,9 +76,9 @@ std::vector<CWorld::CRelay> CWorld::CRelay::ReadMemoryRelays(athena::io::MemoryR
   return ret;
 }
 
-void CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r, int version, CAssetId mlvlId) {
+std::optional<CWorldLayers> CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r, int version, CAssetId mlvlId) {
   if (version <= 14) {
-    return;
+    return std::nullopt;
   }
 
   CWorldLayers ret;
@@ -104,6 +104,8 @@ void CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r, int version, CAs
 
   CWorldState& wldState = g_GameState->StateForWorld(mlvlId);
   wldState.GetLayerState()->InitializeWorldLayers(ret.m_areas);
+
+  return ret;
 }
 
 bool CDummyWorld::ICheckWorldComplete() {
@@ -148,7 +150,7 @@ bool CDummyWorld::ICheckWorldComplete() {
     if (version > 12)
       r.readString();
 
-    CWorldLayers::ReadWorldLayers(r, version, xc_mlvlId);
+    worldLayers = CWorldLayers::ReadWorldLayers(r, version, xc_mlvlId);
 
     x30_loadToken.reset();
     x34_loadBuf.reset();
@@ -187,6 +189,8 @@ bool CDummyWorld::ICheckWorldComplete() {
 std::string CDummyWorld::IGetDefaultAudioTrack() const { return {}; }
 
 int CDummyWorld::IGetAreaCount() const { return x18_areas.size(); }
+
+const std::optional<CWorldLayers>& CDummyWorld::GetWorldLayers() const { return worldLayers; }
 
 CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId)
 : x8_mlvlId(mlvlId)
