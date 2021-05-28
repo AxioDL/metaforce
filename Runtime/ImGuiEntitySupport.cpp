@@ -201,28 +201,31 @@ void CEntity::ImGuiInspect() {
       ImGui::TableSetupScrollFreeze(0, 1);
       ImGui::TableHeadersRow();
       for (const auto& item : x20_conns) {
-        const auto uid = g_StateManager->GetIdForScript(item.x8_objId);
-        if (uid == kInvalidUniqueId) {
-          continue;
+        const auto search = g_StateManager->GetIdListForScript(item.x8_objId);
+        for (auto it = search.first; it != search.second; ++it) {
+          const auto uid = it->second;
+          if (uid == kInvalidUniqueId) {
+            continue;
+          }
+          ImGuiEntityEntry& entry = ImGuiConsole::entities[uid.Value()];
+          if (entry.uid == kInvalidUniqueId) {
+            continue;
+          }
+          ImGuiConsole::BeginEntityRow(entry);
+          if (ImGui::TableNextColumn()) {
+            ImGuiStringViewText(entry.type);
+          }
+          if (ImGui::TableNextColumn()) {
+            ImGuiStringViewText(entry.name);
+          }
+          if (ImGui::TableNextColumn()) {
+            ImGuiStringViewText(ScriptObjectStateToStr(item.x0_state));
+          }
+          if (ImGui::TableNextColumn()) {
+            ImGuiStringViewText(ScriptObjectMessageToStr(item.x4_msg));
+          }
+          ImGuiConsole::EndEntityRow(entry);
         }
-        ImGuiEntityEntry& entry = ImGuiConsole::entities[uid.Value()];
-        if (entry.uid == kInvalidUniqueId) {
-          continue;
-        }
-        ImGuiConsole::BeginEntityRow(entry);
-        if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(entry.type);
-        }
-        if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(entry.name);
-        }
-        if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(ScriptObjectStateToStr(item.x0_state));
-        }
-        if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(ScriptObjectMessageToStr(item.x4_msg));
-        }
-        ImGuiConsole::EndEntityRow(entry);
       }
       ImGui::EndTable();
     }
@@ -240,28 +243,31 @@ void CEntity::ImGuiInspect() {
       ImGui::TableSetupScrollFreeze(0, 1);
       ImGui::TableHeadersRow();
       for (const auto& item : *m_incomingConnections) {
-        const auto uid = g_StateManager->GetIdForScript(item.x8_objId);
-        if (uid == kInvalidUniqueId) {
-          continue;
+        const auto search = g_StateManager->GetIdListForScript(item.x8_objId);
+        for (auto it = search.first; it != search.second; ++it) {
+          auto uid = it->second;
+          if (uid == kInvalidUniqueId) {
+            continue;
+          }
+          ImGuiEntityEntry& entry = ImGuiConsole::entities[uid.Value()];
+          if (entry.uid == kInvalidUniqueId) {
+            continue;
+          }
+          ImGuiConsole::BeginEntityRow(entry);
+          if (ImGui::TableNextColumn()) {
+            ImGuiStringViewText(entry.type);
+          }
+          if (ImGui::TableNextColumn()) {
+            ImGuiStringViewText(entry.name);
+          }
+          if (ImGui::TableNextColumn()) {
+            ImGuiStringViewText(ScriptObjectStateToStr(item.x0_state));
+          }
+          if (ImGui::TableNextColumn()) {
+            ImGuiStringViewText(ScriptObjectMessageToStr(item.x4_msg));
+          }
+          ImGuiConsole::EndEntityRow(entry);
         }
-        ImGuiEntityEntry& entry = ImGuiConsole::entities[uid.Value()];
-        if (entry.uid == kInvalidUniqueId) {
-          continue;
-        }
-        ImGuiConsole::BeginEntityRow(entry);
-        if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(entry.type);
-        }
-        if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(entry.name);
-        }
-        if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(ScriptObjectStateToStr(item.x0_state));
-        }
-        if (ImGui::TableNextColumn()) {
-          ImGuiStringViewText(ScriptObjectMessageToStr(item.x4_msg));
-        }
-        ImGuiConsole::EndEntityRow(entry);
       }
       ImGui::EndTable();
     }
