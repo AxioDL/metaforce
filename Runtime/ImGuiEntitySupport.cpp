@@ -273,7 +273,9 @@ void CEntity::ImGuiInspect() {
     }
   }
   if (ImGui::CollapsingHeader("Entity", ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::Text("ID: %x", x8_uid.Value());
+    ImGui::Text("ID: 0x%04X", x8_uid.Value());
+    ImGui::Text("Editor ID: 0x%08X", xc_editorId.id);
+    ImGui::Text("Area: %i", x4_areaId);
     ImGui::Text("Name: %s", x10_name.c_str());
     BITFIELD_CHECKBOX("Active", x30_24_active);
     ImGui::Checkbox("Highlight", &m_debugSelected);
