@@ -179,7 +179,7 @@ void ImGuiConsole::BeginEntityRow(const ImGuiEntityEntry& entry) {
   ImGui::PushStyleColor(ImGuiCol_Text, textColor);
 
   if (ImGui::TableNextColumn()) {
-    auto text = fmt::format(FMT_STRING("{:x}"), entry.uid.Value());
+    auto text = fmt::format(FMT_STRING("0x{:04X}"), entry.uid.Value());
     ImGui::Selectable(text.c_str(), &entry.ent->m_debugSelected,
                       ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
     if (ImGui::IsItemHovered()) {
@@ -319,7 +319,7 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
 bool ImGuiConsole::ShowEntityInfoWindow(TUniqueId uid) {
   bool open = true;
   ImGuiEntityEntry& entry = ImGuiConsole::entities[uid.Value()];
-  auto name = fmt::format(FMT_STRING("{}##{:x}"), !entry.name.empty() ? entry.name : entry.type, uid.Value());
+  auto name = fmt::format(FMT_STRING("{}##0x{:04X}"), !entry.name.empty() ? entry.name : entry.type, uid.Value());
   if (ImGui::Begin(name.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::PushID(uid.Value());
     entry.ent->ImGuiInspect();
