@@ -231,13 +231,20 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
   if (ImGui::Begin("Inspect", isOpen)) {
     CObjectList& list = g_StateManager->GetAllObjectList();
     ImGui::Text("Objects: %d / 1024", list.size());
-    if (ImGui::Button("Deselect all")) {
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Deselect all")) {
       for (auto* const ent : list) {
         ent->m_debugSelected = false;
       }
     }
+    if (ImGui::Button("Clear")) {
+      m_inspectFilterText[0] = '\0';
+    }
+    ImGui::SameLine();
     ImGui::InputText("Filter", m_inspectFilterText.data(), m_inspectFilterText.size());
     ImGui::Checkbox("Active", &m_inspectActiveOnly);
+    ImGui::SameLine();
+    ImGui::Checkbox("Current area", &m_inspectCurrentAreaOnly);
 
     if (ImGui::BeginTable("Entities", 4,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg |
@@ -260,22 +267,25 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
                          (sortSpecs->Specs[0].ColumnUserID != 'id' ||
                           sortSpecs->Specs[0].SortDirection != ImGuiSortDirection_Ascending);
       std::string_view search{m_inspectFilterText.data(), strlen(m_inspectFilterText.data())};
-      if (!search.empty() || m_inspectActiveOnly || hasSortSpec) {
+      if (!search.empty() || m_inspectActiveOnly || m_inspectCurrentAreaOnly || hasSortSpec) {
         std::vector<s16> sortedList;
         sortedList.reserve(list.size());
         s16 uid = list.GetFirstObjectIndex();
+
+        auto currAreaId = kInvalidAreaId;
+        CPlayer* player;
+        if (m_inspectCurrentAreaOnly && (player = g_StateManager->Player()) != nullptr) {
+          currAreaId = player->GetAreaIdAlways();
+        }
+
         while (uid != -1) {
           ImGuiEntityEntry& entry = ImGuiConsole::entities[uid];
-          if (m_inspectActiveOnly && !entry.active) {
-            uid = list.GetNextObjectIndex(uid);
-            continue;
+          if ((!m_inspectActiveOnly || entry.active) &&
+              (!m_inspectCurrentAreaOnly || entry.ent->x4_areaId == currAreaId) &&
+              (search.empty() || ContainsCaseInsensitive(entry.type, search) ||
+               ContainsCaseInsensitive(entry.name, search))) {
+            sortedList.push_back(uid);
           }
-          if (!search.empty() && !ContainsCaseInsensitive(entry.type, search) &&
-              !ContainsCaseInsensitive(entry.name, search)) {
-            uid = list.GetNextObjectIndex(uid);
-            continue;
-          }
-          sortedList.push_back(uid);
           uid = list.GetNextObjectIndex(uid);
         }
         if (hasSortSpec) {

@@ -57,6 +57,7 @@ private:
   bool m_stepFrame = false;
 
   bool m_inspectActiveOnly = false;
+  bool m_inspectCurrentAreaOnly = false;
   std::array<char, 40> m_inspectFilterText{};
 
   // Debug overlays
