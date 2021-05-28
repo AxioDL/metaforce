@@ -158,13 +158,14 @@
 
 #include "ImGuiConsole.hpp"
 #include "imgui.h"
+#include "magic_enum.hpp"
 
-#define IMGUI_ENTITY_INSPECT(CLS, PARENT, NAME, BLOCK)                                                                 \
+#define IMGUI_ENTITY_INSPECT(CLS, PARENT, NAME, ...)                                                                   \
   std::string_view CLS::ImGuiType() { return #NAME; }                                                                  \
   void CLS::ImGuiInspect() {                                                                                           \
     PARENT::ImGuiInspect();                                                                                            \
     if (ImGui::CollapsingHeader(#NAME))                                                                                \
-      BLOCK                                                                                                            \
+      __VA_ARGS__                                                                                                      \
   }
 
 #define BITFIELD_CHECKBOX(label, bf)                                                                                   \
@@ -177,11 +178,36 @@
 
 static bool ImGuiVector3fInput(const char* label, zeus::CVector3f& vec) {
   std::array<float, 3> arr{vec.x(), vec.y(), vec.z()};
-  if (ImGui::InputFloat3(label, arr.data())) {
+  if (ImGui::DragFloat3(label, arr.data(), 0.1f)) {
     vec.assign(arr[0], arr[1], arr[2]);
     return true;
   }
   return false;
+}
+
+static bool ImGuiColorInput(const char* label, zeus::CColor& col) {
+  std::array<float, 4> arr{col.r(), col.g(), col.b(), col.a()};
+  if (ImGui::ColorEdit4(label, arr.data())) {
+    col = zeus::CColor{arr[0], arr[1], arr[2], arr[3]};
+    return true;
+  }
+  return false;
+}
+
+template <typename E>
+static constexpr bool ImGuiEnumInput(const char* label, E& val) {
+  constexpr auto& entries = magic_enum::enum_entries<E>();
+  bool changed = false;
+  if (ImGui::BeginCombo(label, magic_enum::enum_name(val).data())) {
+    for (const auto& [item, name] : entries) {
+      if (ImGui::Selectable(name.data(), item == val)) {
+        val = item;
+        changed = true;
+      }
+    }
+    ImGui::EndCombo();
+  }
+  return changed;
 }
 
 namespace metaforce {
@@ -278,6 +304,7 @@ void CEntity::ImGuiInspect() {
     ImGui::Text("Area: %i", x4_areaId);
     ImGui::Text("Name: %s", x10_name.c_str());
     BITFIELD_CHECKBOX("Active", x30_24_active);
+    ImGui::SameLine();
     ImGui::Checkbox("Highlight", &m_debugSelected);
   }
 }
@@ -295,21 +322,14 @@ IMGUI_ENTITY_INSPECT(CScriptActorRotate, CEntity, ScriptActorRotate, {})
 
 IMGUI_ENTITY_INSPECT(CScriptAreaAttributes, CEntity, ScriptAreaAttributes, {
   BITFIELD_CHECKBOX("Show Skybox", x34_24_showSkybox);
-  ImGui::Text("Skybox Asset: 0x%08X", int(x4c_skybox.Value()));
-  ImGui::Text("Environment FX:");
-  int fx = int(x38_envFx);
-  if (ImGui::Combo("Type", &fx, "None\0Snow\0Rain\0UnderwaterFlake\0", 4)) {
-    x38_envFx = EEnvFxType(fx);
-  }
   ImGui::SameLine();
-  ImGui::SliderFloat("Density", &x3c_envFxDensity, 0.f, 1.f);
+  ImGui::Text("(Asset: 0x%08X)", int(x4c_skybox.Value()));
+  ImGuiEnumInput("Env FX Type", x38_envFx);
+  ImGui::SliderFloat("Env FX Density", &x3c_envFxDensity, 0.f, 1.f);
   ImGui::SliderFloat("Thermal Heat", &x40_thermalHeat, 0.f, 1.f);
-  ImGui::SliderFloat("XRay Fog Distance", &x44_xrayFogDistance, 0.f, 1.f);
+  ImGui::SliderFloat("X-Ray Fog Distance", &x44_xrayFogDistance, 0.f, 1.f);
   ImGui::SliderFloat("World Lighting Level", &x48_worldLightingLevel, 0.f, 1.f);
-  int ph = int(x50_phazon);
-  if (ImGui::Combo("Phazon Type", &ph, "None\0Blue\0Orange\0", 3)) {
-    x50_phazon = EPhazonType(ph);
-  }
+  ImGuiEnumInput("Phazon Type", x50_phazon);
 })
 IMGUI_ENTITY_INSPECT(CScriptCameraBlurKeyframe, CEntity, ScriptCameraBlurKeyframe, {})
 IMGUI_ENTITY_INSPECT(CScriptCameraFilterKeyframe, CEntity, ScriptCameraFilterKeyframe, {})
@@ -373,7 +393,39 @@ IMGUI_ENTITY_INSPECT(MP1::CFlaahgraPlants, CActor, FlaahgraPlants, {})
 IMGUI_ENTITY_INSPECT(MP1::CFlaahgraRenderer, CActor, FlaahgraRenderer, {})
 IMGUI_ENTITY_INSPECT(MP1::COmegaPirate::CFlash, CActor, OmegaPirateFlash, {})
 IMGUI_ENTITY_INSPECT(CGameCamera, CActor, GameCamera, {})
-IMGUI_ENTITY_INSPECT(CGameLight, CActor, GameLight, {})
+IMGUI_ENTITY_INSPECT(CGameLight, CActor, GameLight, {
+  ImGuiVector3fInput("Position", xec_light.x0_pos);
+  ImGuiVector3fInput("Direction", xec_light.xc_dir);
+  if (ImGuiColorInput("Color", xec_light.x18_color)) {
+    xec_light.SetColor(xec_light.x18_color); // set dirty flags
+  }
+  ImGuiEnumInput("Type", xec_light.x1c_type);
+  ImGui::DragFloat("Spot cutoff", &xec_light.x20_spotCutoff, 0.1f);
+  {
+    std::array<float, 3> att{xec_light.x24_distC, xec_light.x28_distL, xec_light.x2c_distQ};
+    if (ImGui::DragFloat3("Attenuation", att.data())) {
+      xec_light.SetAttenuation(att[0], att[1], att[2]);
+    }
+    ImGui::SameLine();
+    ImGui::TextUnformatted("(?)");
+    if (ImGui::IsItemHovered()) {
+      ImGui::SetTooltip("Constant | Linear | Quadratic");
+    }
+  }
+  {
+    std::array<float, 3> angleAtt{xec_light.x30_angleC, xec_light.x34_angleL, xec_light.x38_angleQ};
+    if (ImGui::DragFloat3("Angle Atten", angleAtt.data())) {
+      xec_light.SetAngleAttenuation(angleAtt[0], angleAtt[1], angleAtt[2]);
+    }
+    ImGui::SameLine();
+    ImGui::TextUnformatted("(?)");
+    if (ImGui::IsItemHovered()) {
+      ImGui::SetTooltip("Constant | Linear | Quadratic");
+    }
+  }
+  ImGui::Text("Calculated radius: %.3f", xec_light.GetRadius());
+  ImGui::Text("Calculated intensity: %.3f", xec_light.GetIntensity());
+})
 IMGUI_ENTITY_INSPECT(MP1::CIceAttackProjectile, CActor, IceAttackProjectile, {})
 IMGUI_ENTITY_INSPECT(CRepulsor, CActor, Repulsor, {})
 IMGUI_ENTITY_INSPECT(CScriptAiJumpPoint, CActor, ScriptAIJumpPoint, {})
