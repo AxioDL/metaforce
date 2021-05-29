@@ -162,4 +162,51 @@ CFinalInput CFinalInput::ScaleAnalogueSticks(float leftDiv, float rightDiv) cons
   ret.m_rightMul = 1.f / rightDiv;
   return ret;
 }
+
+void CFinalInput::PutTo(COutputStream& out) {
+  out.writeFloatBig(x0_dt);
+  out.writeFloatBig(x4_controllerIdx);
+  out.writeFloatBig(x8_anaLeftX);
+  out.writeFloatBig(xc_anaLeftY);
+  out.writeFloatBig(x10_anaRightX);
+  out.writeFloatBig(x14_anaRightY);
+  out.writeFloatBig(x18_anaLeftTrigger);
+  out.writeFloatBig(x1c_anaRightTrigger);
+  out.writeBool(x20_enableAnaLeftXP);
+  out.writeBool(x20_enableAnaLeftNegXP);
+  out.writeBool(x21_enableAnaLeftYP);
+  out.writeBool(x21_enableAnaLeftNegYP);
+  out.writeBool(x22_enableAnaRightXP);
+  out.writeBool(x22_enableAnaRightNegXP);
+  out.writeBool(x23_enableAnaRightYP);
+  out.writeBool(x23_enableAnaRightNegYP);
+  out.writeBool(x24_anaLeftTriggerP);
+  out.writeBool(x28_anaRightTriggerP);
+  out.writeBool(x2c_b24_A);
+  out.writeBool(x2c_b25_B);
+  out.writeBool(x2c_b26_X);
+  out.writeBool(x2c_b27_Y);
+  out.writeBool(x2c_b28_Z);
+  out.writeBool(x2c_b29_L);
+  out.writeBool(x2c_b30_R);
+  out.writeBool(x2c_b31_DPUp);
+  out.writeBool(x2d_b24_DPRight);
+  out.writeBool(x2d_b25_DPDown);
+  out.writeBool(x2d_b26_DPLeft);
+  out.writeBool(x2d_b27_Start);
+  out.writeBool(x2d_b28_PA);
+  out.writeBool(x2d_b29_PB);
+  out.writeBool(x2d_b30_PX);
+  out.writeBool(x2d_b31_PY);
+  out.writeBool(x2e_b25_PL);
+  out.writeBool(x2e_b26_PR);
+  out.writeBool(x2e_b27_PDPUp);
+  out.writeBool(x2e_b28_PDPRight);
+  out.writeBool(x2e_b29_PDPDown);
+  out.writeBool(x2e_b30_PDPLeft);
+  out.writeBool(x2e_b31_PStart);
+  out.writeBytes(m_PCharKeys.data(), m_PCharKeys.size() - 1);
+  out.writeBytes(m_PSpecialKeys.data(), m_PSpecialKeys.size() - 1);
+  out.writeBytes(m_PMouseButtons.data(), m_PMouseButtons.size() - 1);
+}
 } // namespace metaforce

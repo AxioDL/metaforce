@@ -5,6 +5,8 @@
 #include <mutex>
 
 #include "Runtime/Input/CFinalInput.hpp"
+
+#include "Runtime/Input/CControllerRecorder.hpp"
 #include "Runtime/Input/CKeyboardMouseController.hpp"
 
 #include <boo/boo.hpp>
@@ -33,7 +35,7 @@ class CInputGenerator : public boo::DeviceFinder {
   }
 
   bool m_firstFrame = true;
-
+  CControllerRecorder m_recorder;
 public:
   CInputGenerator(float leftDiv, float rightDiv)
   : boo::DeviceFinder({dev_typeid(DolphinSmashAdapter)}), m_leftDiv(leftDiv), m_rightDiv(rightDiv) {}
@@ -180,6 +182,7 @@ public:
 
   /* This is where the game thread enters */
   void Update(float dt, CArchitectureQueue& queue);
+  void SetRecordMode(CControllerRecorder::EMode mode) { m_recorder.SetMode(mode); };
 };
 
 } // namespace metaforce

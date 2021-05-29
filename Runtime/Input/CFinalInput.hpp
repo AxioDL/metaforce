@@ -171,6 +171,7 @@ struct CFinalInput {
   float AMouseButton(boo::EMouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }
 
   const std::optional<CKeyboardMouseControllerData>& GetKBM() const { return m_kbm; }
+  void PutTo(COutputStream& out);
 };
 
 } // namespace metaforce
