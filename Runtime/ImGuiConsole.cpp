@@ -11,7 +11,7 @@
 namespace ImGui {
 // Internal functions
 void ClearIniSettings();
-}
+} // namespace ImGui
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -266,9 +266,10 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
       ImGui::TableHeadersRow();
 
       ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs();
-      bool hasSortSpec = sortSpecs != nullptr && sortSpecs->SpecsCount == 1 && // no multi-sort
-                         // We can skip sorting if we just want uid ascending,
-                         // since that's how we iterate over CObjectList
+      bool hasSortSpec = sortSpecs != nullptr &&
+                         sortSpecs->SpecsCount == 1 && // no multi-sort
+                                                       // We can skip sorting if we just want uid ascending,
+                                                       // since that's how we iterate over CObjectList
                          (sortSpecs->Specs[0].ColumnUserID != 'id' ||
                           sortSpecs->Specs[0].SortDirection != ImGuiSortDirection_Ascending);
       std::string_view search{m_inspectFilterText.data(), strlen(m_inspectFilterText.data())};
@@ -730,6 +731,14 @@ static constexpr std::array ArtifactItems{
     CPlayerState::EItemType::World, CPlayerState::EItemType::Spirit,    CPlayerState::EItemType::Newborn,
 };
 
+int roundMultiple(int value, int multiple) {
+  if (multiple == 0) {
+    return value;
+  }
+  return static_cast<int>(std::round(static_cast<double>(value) / static_cast<double>(multiple)) *
+                        static_cast<double>(multiple));
+}
+
 static void RenderItemType(CPlayerState& pState, CPlayerState::EItemType itemType) {
   u32 maxValue = CPlayerState::GetPowerUpMaxValue(itemType);
   std::string name{CPlayerState::ItemTypeToName(itemType)};
@@ -748,10 +757,17 @@ static void RenderItemType(CPlayerState& pState, CPlayerState::EItemType itemTyp
       }
     }
   } else if (maxValue > 1) {
-    int capacity = int(pState.GetItemCapacity(itemType));
-    if (ImGui::SliderInt(name.c_str(), &capacity, 0, int(maxValue), "%d", ImGuiSliderFlags_AlwaysClamp)) {
-      pState.ReInitializePowerUp(itemType, u32(capacity));
-      pState.ResetAndIncrPickUp(itemType, u32(capacity));
+    std::array<int, 2> item{};
+    item[0] = int(pState.GetItemAmount(itemType));
+    item[1] = int(pState.GetItemCapacity(itemType));
+    if (ImGui::SliderInt2((name + " (Amount/Capacity)").c_str(), item.data(), 0, int(maxValue), "%d",
+                          ImGuiSliderFlags_AlwaysClamp)) {
+      if (itemType == CPlayerState::EItemType::Missiles) {
+        pState.ReInitializePowerUp(itemType, roundMultiple(item[1], 5));
+      } else {
+        pState.ReInitializePowerUp(itemType, u32(item[1]));
+      }
+      pState.ResetAndIncrPickUp(itemType, u32(item[0]));
     }
   }
 }

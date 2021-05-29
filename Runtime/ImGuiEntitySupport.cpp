@@ -152,8 +152,6 @@
 #include "Runtime/MP1/World/CThardusRockProjectile.hpp"
 #include "Runtime/MP1/World/CTryclops.hpp"
 #include "Runtime/MP1/World/CWarWasp.hpp"
-
-#include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
 #include "ImGuiConsole.hpp"
@@ -265,7 +263,7 @@ void CEntity::ImGuiInspect() {
       ImGui::TableSetupColumn("State", ImGuiTableColumnFlags_WidthFixed, 0, 'stat');
       ImGui::TableSetupColumn("Message", ImGuiTableColumnFlags_WidthFixed, 0, 'msg');
       ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed |
-                                  ImGuiTableColumnFlags_NoResize);
+                                      ImGuiTableColumnFlags_NoResize);
       ImGui::TableSetupScrollFreeze(0, 1);
       ImGui::TableHeadersRow();
       for (const auto& item : *m_incomingConnections) {
