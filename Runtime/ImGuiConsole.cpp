@@ -8,6 +8,11 @@
 
 #include "ImGuiEngine.hpp"
 
+namespace ImGui {
+// Internal functions
+void ClearIniSettings();
+}
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
@@ -586,8 +591,6 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
       ImGui::MenuItem("Inspect", nullptr, &m_showInspectWindow, canInspect);
       ImGui::MenuItem("Items", nullptr, &m_showItemsWindow, canInspect);
       ImGui::MenuItem("Layers", nullptr, &m_showLayersWindow, canInspect);
-      ImGui::Separator();
-      ImGui::MenuItem("Demo", nullptr, &m_showDemoWindow);
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Debug")) {
@@ -623,6 +626,14 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
     ImGui::Spacing();
     if (ImGui::BeginMenu("Help")) {
       ImGui::MenuItem("About", nullptr, &m_showAboutWindow);
+      ImGui::Separator();
+      if (ImGui::BeginMenu("ImGui")) {
+        if (ImGui::MenuItem("Clear Settings")) {
+          ImGui::ClearIniSettings();
+        }
+        ImGui::MenuItem("Show Demo", nullptr, &m_showDemoWindow);
+        ImGui::EndMenu();
+      }
       ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();

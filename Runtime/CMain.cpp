@@ -188,8 +188,12 @@ private:
         as->specialKeyDown(key, mods, isRepeat);
       }
     }
-    if (key == boo::ESpecialKey::Enter && True(mods & boo::EModifierKey::Alt)) {
-      m_fullscreenToggleRequested = true;
+    if (True(mods & boo::EModifierKey::Alt)) {
+      if (key == boo::ESpecialKey::Enter) {
+        m_fullscreenToggleRequested = true;
+      } else if (key == boo::ESpecialKey::F4) {
+        m_windowInvalid = true;
+      }
     }
     m_imguiCallback.specialKeyDown(key, mods, isRepeat);
   }
