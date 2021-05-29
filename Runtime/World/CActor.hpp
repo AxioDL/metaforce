@@ -8,6 +8,7 @@
 #include "Runtime/Character/CModelData.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CSimpleShadow.hpp"
+#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
 #include "Runtime/Weapon/WeaponCommon.hpp"
 #include "Runtime/World/CEntity.hpp"
 
@@ -81,10 +82,11 @@ protected:
   void _CreateShadow();
   void _CreateReflectionCube();
   void UpdateSfxEmitters();
-  void DrawTouchBounds() const;
+  void DrawTouchBounds();
   void RenderInternal(const CStateManager& mgr) const;
   bool IsModelOpaque(const CStateManager& mgr) const;
 
+  CAABoxShader m_actorDebugRender;
 public:
   enum class EFluidState { EnteredFluid, InFluid, LeftFluid };
 

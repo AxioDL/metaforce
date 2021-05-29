@@ -197,8 +197,15 @@ void CActor::AddToRenderer(const zeus::CFrustum& planes, CStateManager& mgr) {
   }
 }
 
-void CActor::DrawTouchBounds() const {
-  // Empty
+void CActor::DrawTouchBounds() {
+  // Empty in retail
+  if (m_debugHovered || m_debugSelected) {
+    auto aabox = GetTouchBounds();
+    if (aabox) {
+      m_actorDebugRender.setAABB(*aabox);
+      m_actorDebugRender.draw(m_debugAddColor);
+    }
+  }
 }
 
 void CActor::RenderInternal(const CStateManager& mgr) const {
