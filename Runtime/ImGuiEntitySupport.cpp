@@ -426,7 +426,22 @@ IMGUI_ENTITY_INSPECT(CScriptRipple, CEntity, ScripleRipple, {})
 IMGUI_ENTITY_INSPECT(CScriptRoomAcoustics, CEntity, ScriptRoomAcoustics, {})
 IMGUI_ENTITY_INSPECT(CScriptSpawnPoint, CEntity, ScriptSpawnPoint, {})
 IMGUI_ENTITY_INSPECT(CScriptStreamedMusic, CEntity, ScriptStreamedMusic, {})
-IMGUI_ENTITY_INSPECT(CScriptSwitch, CEntity, ScriptSwitch, {})
+IMGUI_ENTITY_INSPECT(CScriptSwitch, CEntity, ScriptSwitch, {
+  ImGui::Checkbox("Is Open", &x34_opened);
+  ImGui::Checkbox("Close On Opened", &x35_closeOnOpened);
+  if (ImGui::Button("Open")) {
+    g_StateManager->SendScriptMsg(this, x8_uid, EScriptObjectMessage::Open);
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("Close")) {
+    g_StateManager->SendScriptMsg(this, x8_uid, EScriptObjectMessage::Close);
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("Toggle")) {
+    g_StateManager->SendScriptMsg(this, x8_uid, EScriptObjectMessage::SetToZero);
+  }
+})
+
 IMGUI_ENTITY_INSPECT(CScriptTimer, CEntity, ScriptTimer, {
   ImGui::DragFloat("Time", &x34_time);
   ImGui::DragFloat("Start Time", &x38_startTime);
