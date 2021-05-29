@@ -127,7 +127,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
   }
 
   size_t areaIdx = 0;
-  size_t nameOffset = 0;
+  size_t nameStartIdx = 0;
   for (const World::Area& area : wld.areas) {
     if (area.path.getPathType() != hecl::ProjectPath::Type::Directory)
       continue;
@@ -258,7 +258,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         mlvl.layerFlags.back().flags = ~0;
 
         /* Layer name offset */
-        mlvl.layerNameOffsets.push_back(nameOffset);
+        mlvl.layerNameOffsets.push_back(nameStartIdx);
 
         areaInit = true;
       }
@@ -300,7 +300,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
       hecl::SystemUTF8Conv layerU8(layerName);
       mlvl.layerNames.emplace_back(layerU8.str());
-      nameOffset += layerName.size() + 1;
+      ++nameStartIdx;
 
       MLVL::LayerFlags& thisLayFlags = mlvl.layerFlags.back();
       ++thisLayFlags.layerCount;
