@@ -308,11 +308,47 @@ void CEntity::ImGuiInspect() {
     ImGui::Checkbox("Highlight", &m_debugSelected);
   }
 }
+struct EulerAngles {
+  float roll, pitch, yaw;
+};
+
+EulerAngles ToEulerAngles(const zeus::CQuaternion& q) {
+  EulerAngles angles;
+
+  // roll (x-axis rotation)
+  float sinr_cosp = 2.f * (q.w() * q.x() + q.y() * q.z());
+  float cosr_cosp = 1.f - 2.f * (q.x() * q.x() + q.y() * q.y());
+  angles.roll = atan2f(sinr_cosp, cosr_cosp);
+
+  // pitch (y-axis rotation)
+  float sinp = 2.f * (q.w() * q.y() - q.z() * q.x());
+  if (std::abs(sinp) >= 1.f) {
+    angles.pitch = std::copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+  } else {
+    angles.pitch = std::asin(sinp);
+  }
+
+  // yaw (z-axis rotation)
+  float siny_cosp = 2.f * (q.w() * q.z() + q.x() * q.y());
+  float cosy_cosp = 1.f - 2.f * (q.y() * q.y() + q.z() * q.z());
+  angles.yaw = atan2f(siny_cosp, cosy_cosp);
+
+  return angles;
+}
 
 // <- CEntity
 IMGUI_ENTITY_INSPECT(CActor, CEntity, Actor, {
   if (ImGuiVector3fInput("Position", x34_transform.origin)) {
     SetTranslation(x34_transform.origin);
+  }
+  EulerAngles angles = ToEulerAngles(zeus::CQuaternion(GetTransform().getRotation().buildMatrix3f()));
+  zeus::CVector3f rotation = zeus::CVector3f(angles.roll, angles.pitch, angles.yaw) * zeus::skRadToDegVec;
+  if (ImGuiVector3fInput("Rotation", rotation)) {
+    rotation.x() = zeus::clamp(-179.999f, float(rotation.x()), 179.999f);
+    rotation.y() = zeus::clamp(-89.999f, float(rotation.y()), 89.999f);
+    rotation.z() = zeus::clamp(-179.999f, float(rotation.z()), 179.999f);
+    x34_transform.setRotation(zeus::CQuaternion(rotation * zeus::skDegToRadVec).toTransform().buildMatrix3f());
+    SetTransform(x34_transform);
   }
 })
 IMGUI_ENTITY_INSPECT(MP1::CFireFlea::CDeathCameraEffect, CEntity, FireFleaDeathCameraEffect, {})
@@ -437,7 +473,37 @@ IMGUI_ENTITY_INSPECT(CScriptCameraWaypoint, CActor, ScriptCameraWaypoint, {})
 IMGUI_ENTITY_INSPECT(CScriptCoverPoint, CActor, ScriptCoverPoint, {})
 IMGUI_ENTITY_INSPECT(CScriptDamageableTrigger, CActor, ScriptDamageableTrigger, {})
 IMGUI_ENTITY_INSPECT(CScriptDebugCameraWaypoint, CActor, ScriptDebugCameraWaypoint, {})
-IMGUI_ENTITY_INSPECT(CScriptEffect, CActor, ScriptEffect, {})
+IMGUI_ENTITY_INSPECT(CScriptEffect, CActor, ScriptEffect, {
+  BITFIELD_CHECKBOX("Enabled", x110_24_enable);
+  BITFIELD_CHECKBOX("No Timer Unless Area Occluded", x110_25_noTimerUnlessAreaOccluded);
+  BITFIELD_CHECKBOX("Rebuild Systems On Activate", x110_26_rebuildSystemsOnActivate);
+  BITFIELD_CHECKBOX("Use Rate Inverse Camera Distance", x110_27_useRateInverseCamDist);
+  BITFIELD_CHECKBOX("Combat Visor Visible", x110_28_combatVisorVisible);
+  BITFIELD_CHECKBOX("Thermal Visor Visible", x110_29_thermalVisorVisible);
+  BITFIELD_CHECKBOX("X-Ray Visor Visible", x110_30_xrayVisorVisible);
+  BITFIELD_CHECKBOX("Any Visor Visible", x110_31_anyVisorVisible);
+  BITFIELD_CHECKBOX("Use Rate Camera Distance Range", x111_24_useRateCamDistRange);
+  BITFIELD_CHECKBOX("Die When Systems Done", x111_25_dieWhenSystemsDone);
+  BITFIELD_CHECKBOX("Can Render", x111_26_canRender);
+  if (ImGui::DragFloat("Rate Inverse Camera Distance", &x114_rateInverseCamDist, 0.1f)) {
+    x118_rateInverseCamDistSq = x114_rateInverseCamDist * x114_rateInverseCamDist;
+  }
+  ImGui::DragFloat("Rate Inverse Camera Distance Rate", &x11c_rateInverseCamDistRate, 0.1f);
+  ImGui::DragFloat("Rate Camera Distance Range Min", &x120_rateCamDistRangeMin, 0.1f);
+  ImGui::DragFloat("Rate Camera Distance Range Max", &x124_rateCamDistRangeMax, 0.1f);
+  ImGui::DragFloat("Rate Camera Distance Range Far Rate", &x128_rateCamDistRangeFarRate, 0.1f);
+  ImGui::DragFloat("Remaining Time", &x12c_remTime, 0.1f);
+  ImGui::DragFloat("Duration", &x130_duration, 0.1f);
+  ImGui::DragFloat("Duration Reset While Visible", &x134_durationResetWhileVisible, 0.1f);
+  ImGui::Text("Trigger ID: 0x%04X", x13c_triggerId.Value());
+  if (x13c_triggerId != kInvalidUniqueId) {
+    ImGui::SameLine();
+    if (ImGui::SmallButton("View")) {
+      ImGuiConsole::inspectingEntities.insert(x13c_triggerId);
+    }
+  }
+  ImGui::DragFloat("Destroy Delay Timer", &x140_destroyDelayTimer, 0.1f);
+})
 IMGUI_ENTITY_INSPECT(CScriptEMPulse, CActor, ScriptEMPulse, {})
 IMGUI_ENTITY_INSPECT(CScriptGrapplePoint, CActor, ScriptGrapplePoint, {})
 IMGUI_ENTITY_INSPECT(CScriptMazeNode, CActor, ScriptMazeNode, {})
