@@ -427,7 +427,17 @@ IMGUI_ENTITY_INSPECT(CScriptRoomAcoustics, CEntity, ScriptRoomAcoustics, {})
 IMGUI_ENTITY_INSPECT(CScriptSpawnPoint, CEntity, ScriptSpawnPoint, {})
 IMGUI_ENTITY_INSPECT(CScriptStreamedMusic, CEntity, ScriptStreamedMusic, {})
 IMGUI_ENTITY_INSPECT(CScriptSwitch, CEntity, ScriptSwitch, {})
-IMGUI_ENTITY_INSPECT(CScriptTimer, CEntity, ScriptTimer, {})
+IMGUI_ENTITY_INSPECT(CScriptTimer, CEntity, ScriptTimer, {
+  ImGui::DragFloat("Time", &x34_time);
+  ImGui::DragFloat("Start Time", &x38_startTime);
+  ImGui::DragFloat("Max Random Delay", &x3c_maxRandDelay);
+  ImGui::Checkbox("Loop", &x40_loop);
+  ImGui::Checkbox("Auto Start", &x41_autoStart);
+  ImGui::Checkbox("Is Timing", &x42_isTiming);
+  if (ImGui::Button("Reset")) {
+    g_StateManager->SendScriptMsg(this, x8_uid, EScriptObjectMessage::ResetAndStart);
+  }
+})
 IMGUI_ENTITY_INSPECT(CScriptWorldTeleporter, CEntity, ScriptWorldTeleporter, {})
 IMGUI_ENTITY_INSPECT(CTeamAiMgr, CEntity, TeamAiMgr, {})
 

@@ -643,6 +643,11 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
 }
 
 void ImGuiConsole::PreUpdate() {
+  // We ned to make sure we have a valid CRandom16 at all times, so lets do that here
+  if (g_StateManager && g_StateManager->GetActiveRandom() == nullptr) {
+    g_StateManager->SetActiveRandomToDefault();
+  }
+
   if (m_stepFrame) {
     g_Main->SetPaused(true);
     m_stepFrame = false;
