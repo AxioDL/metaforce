@@ -217,23 +217,25 @@ void CDamageVulnerability::ImGuiEditWindow(const char* title, bool& open) {
   if (ImGui::Begin(title, &open, ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGuiEnumInput("Deflected", x5c_deflected);
     if (ImGui::CollapsingHeader("Normal")) {
-      constexpr std::array<const char*, std::tuple_size_v<typeof x0_normal>> names{
+      constexpr size_t max = std::tuple_size_v<decltype(x0_normal)>;
+      constexpr std::array<const char*, max> names{
           "Power",  "Ice", "Wave",         "Plasma", "Bomb", "Power Bomb", "Missile",      "Boost Ball",
           "Phazon", "AI",  "Poison Water", "Lava",   "Heat", "(Unused)",   "Orange Phazon"};
-      for (int i = 0; i < x0_normal.size(); ++i) {
+      for (int i = 0; i < max; ++i) {
         ImGuiEnumInput(names[i], x0_normal[i]);
       }
     }
     if (ImGui::CollapsingHeader("Charged")) {
-      constexpr std::array<const char*, std::tuple_size_v<typeof x3c_charged>> names{"Power", "Ice", "Wave", "Plasma"};
-      for (int i = 0; i < x3c_charged.size(); ++i) {
+      constexpr size_t max = std::tuple_size_v<decltype(x3c_charged)>;
+      constexpr std::array<const char*, max> names{"Power", "Ice", "Wave", "Plasma"};
+      for (int i = 0; i < max; ++i) {
         ImGuiEnumInput(names[i], x3c_charged[i]);
       }
     }
     if (ImGui::CollapsingHeader("Combo")) {
-      constexpr std::array<const char*, std::tuple_size_v<typeof x4c_combo>> names{"Super Missile", "Ice Spreader",
-                                                                                   "Wavebuster", "Flamethrower"};
-      for (int i = 0; i < x4c_combo.size(); ++i) {
+      constexpr size_t max = std::tuple_size_v<decltype(x4c_combo)>;
+      constexpr std::array<const char*, max> names{"Super Missile", "Ice Spreader", "Wavebuster", "Flamethrower"};
+      for (int i = 0; i < max; ++i) {
         ImGuiEnumInput(names[i], x4c_combo[i]);
       }
     }
