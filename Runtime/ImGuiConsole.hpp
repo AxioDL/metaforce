@@ -59,6 +59,7 @@ private:
   bool m_inspectActiveOnly = false;
   bool m_inspectCurrentAreaOnly = false;
   std::array<char, 40> m_inspectFilterText{};
+  std::array<char, 40> m_layersFilterText{};
 
   // Debug overlays
   bool m_frameCounter = m_cvarCommons.m_debugOverlayShowFrameCounter->toBoolean();

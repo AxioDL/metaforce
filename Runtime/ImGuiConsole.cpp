@@ -827,41 +827,82 @@ void ImGuiConsole::ShowItemsWindow() {
 
 void ImGuiConsole::ShowLayersWindow() {
   // For some reason the window shows up tiny without this
-  float initialWindowSize = 300.f * ImGui::GetIO().DisplayFramebufferScale.x;
+  float initialWindowSize = 350.f * ImGui::GetIO().DisplayFramebufferScale.x;
   ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize}, ImGuiCond_FirstUseEver);
 
   if (ImGui::Begin("Layers", &m_showLayersWindow)) {
+    if (ImGui::Button("Clear")) {
+      m_layersFilterText[0] = '\0';
+    }
+    ImGui::SameLine();
+    ImGui::InputText("Filter", m_layersFilterText.data(), m_layersFilterText.size());
+    std::string_view search{m_layersFilterText.data(), strlen(m_layersFilterText.data())};
+    if (!search.empty()) {
+      // kinda hacky way reset the tree state when search changes
+      ImGui::PushID(m_layersFilterText.data());
+    }
     for (const auto& world : ListWorlds()) {
       const auto& layers = dummyWorlds[world.second]->GetWorldLayers();
       if (!layers) {
         continue;
       }
 
-      if (ImGui::TreeNode(world.first.c_str())) {
-        auto worldLayerState = g_GameState->StateForWorld(world.second).GetLayerState();
-        u32 startNameIdx = 0;
+      auto worldLayerState = g_GameState->StateForWorld(world.second).GetLayerState();
+      auto areas = ListAreas(world.second);
+      // TODO: m_startNameIdx have incorrect values in the data due to a Metaforce bug
+      // so when filtering we need to keep track of these here, this can be simplified when fixed
+      std::vector<u32> layerStartIdx;
+      layerStartIdx.reserve(areas.size());
+      u32 startNameIdx = 0;
+      auto iter = areas.begin();
+      while (iter != areas.end()) {
+        u32 layerCount = worldLayerState->GetAreaLayerCount(iter->second);
+        if (layerCount == 0) {
+          continue;
+        }
+        if (!search.empty() && !ContainsCaseInsensitive(iter->first, search)) {
+          iter = areas.erase(iter);
+        } else {
+          layerStartIdx.push_back(startNameIdx);
+          iter++;
+        }
+        if (iter != areas.end()) {
+          startNameIdx += layerCount;
+        }
+      }
+      if (areas.empty()) {
+        continue;
+      }
 
-        for (const auto& area : ListAreas(world.second)) {
+      if (ImGui::TreeNodeEx(world.first.c_str(), search.empty() ? 0 : ImGuiTreeNodeFlags_DefaultOpen)) {
+        auto startNameIdxIter = layerStartIdx.begin();
+        for (const auto& area : areas) {
           u32 layerCount = worldLayerState->GetAreaLayerCount(area.second);
           if (layerCount == 0) {
             continue;
           }
           if (ImGui::TreeNode(area.first.c_str())) {
-            // TODO: m_startNameIdx have incorrect values in the data due to a Metaforce bug
+            if (ImGui::Button("Warp here")) {
+              Warp(world.second, area.second);
+            }
+            // TODO see above comment
             // u32 startNameIdx = layers->m_areas[area.second].m_startNameIdx;
 
             for (u32 layer = 0; layer < layerCount; ++layer) {
               bool active = worldLayerState->IsLayerActive(area.second, layer);
-              if (ImGui::Checkbox(layers->m_names[startNameIdx + layer].c_str(), &active)) {
+              if (ImGui::Checkbox(layers->m_names[*startNameIdxIter + layer].c_str(), &active)) {
                 worldLayerState->SetLayerActive(area.second, layer, active);
               }
             }
             ImGui::TreePop();
           }
-          startNameIdx += layerCount;
+          startNameIdxIter++;
         }
         ImGui::TreePop();
       }
+    }
+    if (!search.empty()) {
+      ImGui::PopID();
     }
   }
   ImGui::End();
