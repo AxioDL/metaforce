@@ -267,9 +267,10 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
 
       ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs();
       bool hasSortSpec = sortSpecs != nullptr &&
-                         sortSpecs->SpecsCount == 1 && // no multi-sort
-                                                       // We can skip sorting if we just want uid ascending,
-                                                       // since that's how we iterate over CObjectList
+                         // no multi-sort
+                         sortSpecs->SpecsCount == 1 &&
+                         // We can skip sorting if we just want uid ascending,
+                         // since that's how we iterate over CObjectList
                          (sortSpecs->Specs[0].ColumnUserID != 'id' ||
                           sortSpecs->Specs[0].SortDirection != ImGuiSortDirection_Ascending);
       std::string_view search{m_inspectFilterText.data(), strlen(m_inspectFilterText.data())};
@@ -736,7 +737,7 @@ int roundMultiple(int value, int multiple) {
     return value;
   }
   return static_cast<int>(std::round(static_cast<double>(value) / static_cast<double>(multiple)) *
-                        static_cast<double>(multiple));
+                          static_cast<double>(multiple));
 }
 
 static void RenderItemType(CPlayerState& pState, CPlayerState::EItemType itemType) {

@@ -166,12 +166,13 @@
       __VA_ARGS__                                                                                                      \
   }
 
-#define BITFIELD_CHECKBOX(label, bf)                                                                                   \
+#define BITFIELD_CHECKBOX(label, bf, ...)                                                                              \
   {                                                                                                                    \
     bool b = (bf);                                                                                                     \
-    ImGui::Checkbox(label, &b);                                                                                        \
-    if (b != (bf))                                                                                                     \
+    if (ImGui::Checkbox(label, &b)) {                                                                                  \
       (bf) = b;                                                                                                        \
+      __VA_ARGS__                                                                                                      \
+    }                                                                                                                  \
   }
 
 static bool ImGuiVector3fInput(const char* label, zeus::CVector3f& vec) {
@@ -209,6 +210,37 @@ static constexpr bool ImGuiEnumInput(const char* label, E& val) {
 }
 
 namespace metaforce {
+void CDamageVulnerability::ImGuiEditWindow(const char* title, bool& open) {
+  if (!open) {
+    return;
+  }
+  if (ImGui::Begin(title, &open, ImGuiWindowFlags_AlwaysAutoResize)) {
+    ImGuiEnumInput("Deflected", x5c_deflected);
+    if (ImGui::CollapsingHeader("Normal")) {
+      constexpr std::array<const char*, std::tuple_size_v<typeof x0_normal>> names{
+          "Power",  "Ice", "Wave",         "Plasma", "Bomb", "Power Bomb", "Missile",      "Boost Ball",
+          "Phazon", "AI",  "Poison Water", "Lava",   "Heat", "(Unused)",   "Orange Phazon"};
+      for (int i = 0; i < x0_normal.size(); ++i) {
+        ImGuiEnumInput(names[i], x0_normal[i]);
+      }
+    }
+    if (ImGui::CollapsingHeader("Charged")) {
+      constexpr std::array<const char*, std::tuple_size_v<typeof x3c_charged>> names{"Power", "Ice", "Wave", "Plasma"};
+      for (int i = 0; i < x3c_charged.size(); ++i) {
+        ImGuiEnumInput(names[i], x3c_charged[i]);
+      }
+    }
+    if (ImGui::CollapsingHeader("Combo")) {
+      constexpr std::array<const char*, std::tuple_size_v<typeof x4c_combo>> names{"Super Missile", "Ice Spreader",
+                                                                                   "Wavebuster", "Flamethrower"};
+      for (int i = 0; i < x4c_combo.size(); ++i) {
+        ImGuiEnumInput(names[i], x4c_combo[i]);
+      }
+    }
+  }
+  ImGui::End();
+}
+
 std::string_view CEntity::ImGuiType() { return "Entity"; }
 
 void CEntity::ImGuiInspect() {
@@ -306,11 +338,12 @@ void CEntity::ImGuiInspect() {
     ImGui::Checkbox("Highlight", &m_debugSelected);
   }
 }
+
 struct EulerAngles {
   float roll, pitch, yaw;
 };
 
-EulerAngles ToEulerAngles(const zeus::CQuaternion& q) {
+static EulerAngles ToEulerAngles(const zeus::CQuaternion& q) {
   EulerAngles angles;
 
   // roll (x-axis rotation)
@@ -347,6 +380,12 @@ IMGUI_ENTITY_INSPECT(CActor, CEntity, Actor, {
     rotation.z() = zeus::clamp(-179.999f, float(rotation.z()), 179.999f);
     x34_transform.setRotation(zeus::CQuaternion(rotation * zeus::skDegToRadVec).toTransform().buildMatrix3f());
     SetTransform(x34_transform);
+  }
+  {
+    int thermalVisorFlags = xe6_27_thermalVisorFlags;
+    if (ImGui::Combo("Thermal Visor Flags", &thermalVisorFlags, "None\0Cold\0Hot", 3)) {
+      xe6_27_thermalVisorFlags = u8(thermalVisorFlags);
+    }
   }
 })
 IMGUI_ENTITY_INSPECT(MP1::CFireFlea::CDeathCameraEffect, CEntity, FireFleaDeathCameraEffect, {})
@@ -493,12 +532,14 @@ IMGUI_ENTITY_INSPECT(CScriptEffect, CActor, ScriptEffect, {
   ImGui::DragFloat("Remaining Time", &x12c_remTime, 0.1f);
   ImGui::DragFloat("Duration", &x130_duration, 0.1f);
   ImGui::DragFloat("Duration Reset While Visible", &x134_durationResetWhileVisible, 0.1f);
-  ImGui::Text("Trigger ID: 0x%04X", x13c_triggerId.Value());
   if (x13c_triggerId != kInvalidUniqueId) {
+    ImGui::Text("Trigger ID: 0x%04X", x13c_triggerId.Value());
     ImGui::SameLine();
     if (ImGui::SmallButton("View")) {
       ImGuiConsole::inspectingEntities.insert(x13c_triggerId);
     }
+  } else {
+    ImGui::TextUnformatted("Trigger ID: [none]");
   }
   ImGui::DragFloat("Destroy Delay Timer", &x140_destroyDelayTimer, 0.1f);
 })
@@ -570,7 +611,36 @@ IMGUI_ENTITY_INSPECT(CCollisionActor, CPhysicsActor, CollisionActor, {})
 IMGUI_ENTITY_INSPECT(MP1::CGrenadeLauncher, CPhysicsActor, GrenadeLauncher, {})
 IMGUI_ENTITY_INSPECT(MP1::CMetroidPrimeExo::CPhysicsDummy, CPhysicsActor, MetroidPrimeExoPhysicsDummy, {})
 IMGUI_ENTITY_INSPECT(CPlayer, CPhysicsActor, Player, {})
-IMGUI_ENTITY_INSPECT(CScriptActor, CPhysicsActor, ScriptActor, {})
+IMGUI_ENTITY_INSPECT(CScriptActor, CPhysicsActor, ScriptActor, {
+  if (ImGui::Button("Edit Damage Vulnerability")) {
+    m_editingDamageVulnerability = true;
+  }
+  x268_damageVulnerability.ImGuiEditWindow("Damage Vulnerability - Script Actor", m_editingDamageVulnerability);
+
+  bool modelFlagsChanged = false;
+  ImGui::DragFloat("Fade In Time", &x2d0_fadeInTime, 0.1f);
+  ImGui::DragFloat("Fade Out Time", &x2d4_fadeOutTime, 0.1f);
+  ImGui::SliderFloat("X-Ray Alpha", &x2dc_xrayAlpha, 0.0f, 1.f);
+  ImGui::SameLine();
+  BITFIELD_CHECKBOX("Enabled", x2e2_27_xrayAlphaEnabled, { modelFlagsChanged = true; });
+  BITFIELD_CHECKBOX("Disable Thermal Hot Z-test", x2e2_24_noThermalHotZ, { modelFlagsChanged = true; });
+  BITFIELD_CHECKBOX("Dead", x2e2_25_dead); // onclick -> EScriptObjectMessage::Reset?
+  BITFIELD_CHECKBOX("Animating", x2e2_26_animating);
+  BITFIELD_CHECKBOX("Scale Advancement Delta", x2e2_30_scaleAdvancementDelta);
+  BITFIELD_CHECKBOX("Material Flag 54", x2e2_31_materialFlag54);
+  BITFIELD_CHECKBOX("Is Player Actor", x2e3_24_isPlayerActor);
+  if (x2e0_triggerId != kInvalidUniqueId) {
+    ImGui::Text("Trigger ID: 0x%04X", x2e0_triggerId.Value());
+    ImGui::SameLine();
+    if (ImGui::SmallButton("View")) {
+      ImGuiConsole::inspectingEntities.insert(x2e0_triggerId);
+    }
+  } else {
+    ImGui::TextUnformatted("Trigger ID: [none]");
+  }
+  x2e2_29_processModelFlags =
+      modelFlagsChanged || x2e2_27_xrayAlphaEnabled || x2e2_24_noThermalHotZ || x2d8_shaderIdx != 0;
+})
 IMGUI_ENTITY_INSPECT(CScriptDebris, CPhysicsActor, ScriptDebris, {})
 IMGUI_ENTITY_INSPECT(CScriptDock, CPhysicsActor, ScriptDock, {})
 IMGUI_ENTITY_INSPECT(CScriptDoor, CPhysicsActor, ScriptDoor, {})

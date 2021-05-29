@@ -27,6 +27,10 @@ protected:
   bool x2e2_31_materialFlag54 : 1;
   bool x2e3_24_isPlayerActor : 1 = false;
 
+#if ENABLE_IMGUI
+  bool m_editingDamageVulnerability = false;
+#endif
+
 public:
   DEFINE_ENTITY
   CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
