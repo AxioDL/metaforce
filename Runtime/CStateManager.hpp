@@ -473,8 +473,13 @@ public:
     bool FUN_801eaf90(CPlayer* player, CStateManager& mgr) { /* NYI */ return false; }
   };
 
-  // x294c
+  int MaskUIdNumPlayers(TUniqueId uid) const;
+
+  // Echoes: x294c
   bool echoesFlags_31_inDarkWorld;
+
+  // Echoes: x14f8
+  int numPlayers;
 
   astruct_6* field_0x1638;
   #endif
