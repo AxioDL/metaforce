@@ -573,34 +573,37 @@ void ImGuiConsole::ShowDebugOverlay() {
         if (hasPrevious) {
           ImGui::Separator();
         }
+//        ImGui::NewLine();
+
         ImDrawList* dl = ImGui::GetWindowDrawList();
         zeus::CVector2f p = ImGui::GetCursorScreenPos();
 
-        constexpr float leftStickRadius = 30;
-        p = p + zeus::CVector2f{20, 20}; // Pad p so we don't clip outside our rect
-        zeus::CVector2f leftStickCenter = p + zeus::CVector2f(30, 45);
-        constexpr float dpadRadius = 15;
-        constexpr float dpadWidth = 8;
-        zeus::CVector2f dpadCenter = p + zeus::CVector2f(80, 90);
-        constexpr float rightStickRadius = 20;
-        zeus::CVector2f rightStickCenter = p + zeus::CVector2f(160, 90);
-        constexpr float startButtonRadius = 8;
-        zeus::CVector2f startButtonCenter = p + zeus::CVector2f(120, 55);
-        constexpr float aButtonRadius = 16;
-        zeus::CVector2f aButtonCenter = p + zeus::CVector2f(210, 48);
-        constexpr float bButtonRadius = 8;
-        zeus::CVector2f bButtonCenter = aButtonCenter + zeus::CVector2f(-24, 16);
-        constexpr float xButtonRadius = 8;
-        zeus::CVector2f xButtonCenter = aButtonCenter + zeus::CVector2f(24, -16);
-        constexpr float yButtonRadius = 8;
-        zeus::CVector2f yButtonCenter = aButtonCenter + zeus::CVector2f(-12, -24);
-        constexpr float triggerWidth = leftStickRadius * 2;
-        constexpr float triggerHeight = 8;
-        zeus::CVector2f lCenter = leftStickCenter + zeus::CVector2f(0, -60);
+        float scale = ImGui::GetIO().DisplayFramebufferScale.x;
+        float leftStickRadius = 30 * scale;
+        p = p + zeus::CVector2f{20, 20} * scale; // Pad p so we don't clip outside our rect
+        zeus::CVector2f leftStickCenter = p + zeus::CVector2f(30, 45) * scale;
+        float dpadRadius = 15 * scale;
+        float dpadWidth = 8 * scale;
+        zeus::CVector2f dpadCenter = p + zeus::CVector2f(80, 90) * scale;
+        float rightStickRadius = 20 * scale;
+        zeus::CVector2f rightStickCenter = p + zeus::CVector2f(160, 90) * scale;
+        float startButtonRadius = 8 * scale;
+        zeus::CVector2f startButtonCenter = p + zeus::CVector2f(120, 55) * scale;
+        float aButtonRadius = 16 * scale;
+        zeus::CVector2f aButtonCenter = p + zeus::CVector2f(210, 48) * scale;
+        float bButtonRadius = 8 * scale;
+        zeus::CVector2f bButtonCenter = aButtonCenter + zeus::CVector2f(-24, 16) * scale;
+        float xButtonRadius = 8 * scale;
+        zeus::CVector2f xButtonCenter = aButtonCenter + zeus::CVector2f(24, -16) * scale;
+        float yButtonRadius = 8 * scale;
+        zeus::CVector2f yButtonCenter = aButtonCenter + zeus::CVector2f(-12, -24) * scale;
+        float triggerWidth = leftStickRadius * 2;
+        float triggerHeight = 8 * scale;
+        zeus::CVector2f lCenter = leftStickCenter + zeus::CVector2f(0, -60) * scale;
         zeus::CVector2f rCenter = zeus::CVector2f(aButtonCenter.x(), lCenter.y());
-        const auto zButtonCenter = rCenter + zeus::CVector2f{0, 24};
+        const auto zButtonCenter = rCenter + zeus::CVector2f{0, 24 * scale};
         const float zButtonHalfWidth = triggerWidth / 2;
-        const float zButtonHalfHeight = 4;
+        const float zButtonHalfHeight = 4 * scale;
 
         constexpr ImU32 stickGray = IM_COL32(150, 150, 150, 255);
         constexpr ImU32 darkGray = IM_COL32(60, 60, 60, 255);
@@ -629,7 +632,7 @@ void ImGuiConsole::ShowDebugOverlay() {
 
         // dpad
         {
-          constexpr float halfWidth = dpadWidth / 2;
+          float halfWidth = dpadWidth / 2;
           dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, -dpadRadius), dpadCenter + zeus::CVector2f(halfWidth, dpadRadius),
                             stickGray);
 
@@ -698,7 +701,7 @@ void ImGuiConsole::ShowDebugOverlay() {
           dl->AddRectFilled(rStart, rEnd - zeus::CVector2f(rValue, 0), darkGray);
         }
 
-        ImGui::Dummy(ImVec2(270, 130));
+        ImGui::Dummy(zeus::CVector2f(270, 130) * scale);
         hasPrevious = true;
       }
     }
