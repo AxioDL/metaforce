@@ -965,17 +965,23 @@ static void RenderItemType(CPlayerState& pState, CPlayerState::EItemType itemTyp
       }
     }
   } else if (maxValue > 1) {
-    std::array<int, 2> item{};
-    item[0] = int(pState.GetItemAmount(itemType));
-    item[1] = int(pState.GetItemCapacity(itemType));
-    if (ImGui::SliderInt2((name + " (Amount/Capacity)").c_str(), item.data(), 0, int(maxValue), "%d",
-                          ImGuiSliderFlags_AlwaysClamp)) {
+    int capacity = pState.GetItemCapacity(itemType);
+    int amount = pState.GetItemAmount(itemType);
+    if (ImGui::SliderInt((name + " (Capacity)").c_str(), &capacity, 0, int(maxValue), "%d",
+                         ImGuiSliderFlags_AlwaysClamp)) {
       if (itemType == CPlayerState::EItemType::Missiles) {
-        pState.ReInitializePowerUp(itemType, roundMultiple(item[1], 5));
+        pState.ReInitializePowerUp(itemType, roundMultiple(capacity, 5));
       } else {
-        pState.ReInitializePowerUp(itemType, u32(item[1]));
+        pState.ReInitializePowerUp(itemType, u32(capacity));
       }
-      pState.ResetAndIncrPickUp(itemType, u32(item[0]));
+      pState.ResetAndIncrPickUp(itemType, u32(capacity));
+    }
+    if (capacity > 0) {
+      if (ImGui::SliderInt((name + " (Amount)").c_str(), &amount, 0, capacity, "%d", ImGuiSliderFlags_AlwaysClamp)) {
+        pState.ResetAndIncrPickUp(itemType, u32(amount));
+      }
+    } else {
+      ImGui::Dummy(ImGui::GetItemRectSize());
     }
   }
 }
