@@ -90,7 +90,7 @@ bool CResFactory::AsyncIdle(std::chrono::nanoseconds target) {
         return false;
       }
     }
-  } while (std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - startTime) <
+  } while (std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - startTime) <
            target);
   return true;
 }
