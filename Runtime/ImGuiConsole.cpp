@@ -970,14 +970,16 @@ static void RenderItemType(CPlayerState& pState, CPlayerState::EItemType itemTyp
     if (ImGui::SliderInt((name + " (Capacity)").c_str(), &capacity, 0, int(maxValue), "%d",
                          ImGuiSliderFlags_AlwaysClamp)) {
       if (itemType == CPlayerState::EItemType::Missiles) {
-        pState.ReInitializePowerUp(itemType, roundMultiple(capacity, 5));
-      } else {
-        pState.ReInitializePowerUp(itemType, u32(capacity));
+        capacity = roundMultiple(capacity, 5);
       }
+      pState.ReInitializePowerUp(itemType, u32(capacity));
       pState.ResetAndIncrPickUp(itemType, u32(capacity));
     }
     if (capacity > 0) {
       if (ImGui::SliderInt((name + " (Amount)").c_str(), &amount, 0, capacity, "%d", ImGuiSliderFlags_AlwaysClamp)) {
+        if (itemType == CPlayerState::EItemType::Missiles) {
+          amount = roundMultiple(amount, 5);
+        }
         pState.ResetAndIncrPickUp(itemType, u32(amount));
       }
     } else {
