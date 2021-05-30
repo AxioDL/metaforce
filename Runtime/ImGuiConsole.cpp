@@ -613,7 +613,7 @@ void ImGuiConsole::ShowDebugOverlay() {
           float x = input.ALeftX();
           float y = -input.ALeftY();
           dl->AddCircleFilled(leftStickCenter + (zeus::CVector2f{x, y} * leftStickRadius), leftStickRadius / 3, red);
-          dl->AddLine(leftStickCenter, leftStickCenter + ImVec2(x * leftStickRadius, y * leftStickRadius),
+          dl->AddLine(leftStickCenter, leftStickCenter + zeus::CVector2f(x * leftStickRadius, y * leftStickRadius),
                       IM_COL32(255, 244, 0, 255), 1.5f);
         }
 
@@ -623,37 +623,37 @@ void ImGuiConsole::ShowDebugOverlay() {
           float x = input.ARightX();
           float y = -input.ARightY();
           dl->AddCircleFilled(rightStickCenter + (zeus::CVector2f{x, y} * rightStickRadius), rightStickRadius / 3, red);
-          dl->AddLine(rightStickCenter, rightStickCenter + ImVec2(x * rightStickRadius, y * rightStickRadius),
+          dl->AddLine(rightStickCenter, rightStickCenter + zeus::CVector2f(x * rightStickRadius, y * rightStickRadius),
                       IM_COL32(255, 244, 0, 255), 1.5f);
         }
 
         // dpad
         {
           constexpr float halfWidth = dpadWidth / 2;
-          dl->AddRectFilled(dpadCenter + ImVec2(-halfWidth, -dpadRadius), dpadCenter + ImVec2(halfWidth, dpadRadius),
+          dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, -dpadRadius), dpadCenter + zeus::CVector2f(halfWidth, dpadRadius),
                             stickGray);
 
-          dl->AddRectFilled(dpadCenter + ImVec2(-dpadRadius, -halfWidth), dpadCenter + ImVec2(dpadRadius, halfWidth),
+          dl->AddRectFilled(dpadCenter + zeus::CVector2f(-dpadRadius, -halfWidth), dpadCenter + zeus::CVector2f(dpadRadius, halfWidth),
                             stickGray);
 
           if (input.DDPUp()) {
-            dl->AddRectFilled(dpadCenter + ImVec2(-halfWidth, -dpadRadius),
-                              dpadCenter + ImVec2(halfWidth, -dpadRadius / 2), red);
+            dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, -dpadRadius),
+                              dpadCenter + zeus::CVector2f(halfWidth, -dpadRadius / 2), red);
           }
 
           if (input.DDPDown()) {
-            dl->AddRectFilled(dpadCenter + ImVec2(-halfWidth, dpadRadius),
-                              dpadCenter + ImVec2(halfWidth, dpadRadius / 2), red);
+            dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, dpadRadius),
+                              dpadCenter + zeus::CVector2f(halfWidth, dpadRadius / 2), red);
           }
 
           if (input.DDPLeft()) {
-            dl->AddRectFilled(dpadCenter + ImVec2(-dpadRadius, -halfWidth),
-                              dpadCenter + ImVec2(-dpadRadius / 2, halfWidth), red);
+            dl->AddRectFilled(dpadCenter + zeus::CVector2f(-dpadRadius, -halfWidth),
+                              dpadCenter + zeus::CVector2f(-dpadRadius / 2, halfWidth), red);
           }
 
           if (input.DDPRight()) {
-            dl->AddRectFilled(dpadCenter + ImVec2(dpadRadius, -halfWidth),
-                              dpadCenter + ImVec2(dpadRadius / 2, halfWidth), red);
+            dl->AddRectFilled(dpadCenter + zeus::CVector2f(dpadRadius, -halfWidth),
+                              dpadCenter + zeus::CVector2f(dpadRadius / 2, halfWidth), red);
           }
         }
 
@@ -675,23 +675,23 @@ void ImGuiConsole::ShowDebugOverlay() {
           dl->AddCircleFilled(yButtonCenter, yButtonRadius, input.DY() ? red : stickGray);
 
           // z
-          dl->AddRectFilled(zButtonCenter - ImVec2{zButtonHalfWidth, zButtonHalfHeight},
-                            zButtonCenter + ImVec2{zButtonHalfWidth, zButtonHalfHeight},
+          dl->AddRectFilled(zButtonCenter - zeus::CVector2f{zButtonHalfWidth, zButtonHalfHeight},
+                            zButtonCenter + zeus::CVector2f{zButtonHalfWidth, zButtonHalfHeight},
                             input.DZ() ? IM_COL32(128, 0, 128, 255) : stickGray, 16);
         }
 
         // triggers
         {
           float halfTriggerWidth = triggerWidth / 2;
-          zeus::CVector2f lStart = lCenter - ImVec2(halfTriggerWidth, 0);
-          zeus::CVector2f lEnd = lCenter + ImVec2(halfTriggerWidth, triggerHeight);
+          zeus::CVector2f lStart = lCenter - zeus::CVector2f(halfTriggerWidth, 0);
+          zeus::CVector2f lEnd = lCenter + zeus::CVector2f(halfTriggerWidth, triggerHeight);
           float lValue = triggerWidth * input.ALTrigger();
 
           dl->AddRectFilled(lStart, lStart + zeus::CVector2f(lValue, triggerHeight), input.DL() ? red : stickGray);
           dl->AddRectFilled(lStart + zeus::CVector2f(lValue, 0), lEnd, darkGray);
 
-          zeus::CVector2f rStart = rCenter - ImVec2(halfTriggerWidth, 0);
-          zeus::CVector2f rEnd = rCenter + ImVec2(halfTriggerWidth, triggerHeight);
+          zeus::CVector2f rStart = rCenter - zeus::CVector2f(halfTriggerWidth, 0);
+          zeus::CVector2f rEnd = rCenter + zeus::CVector2f(halfTriggerWidth, triggerHeight);
           float rValue = triggerWidth * input.ARTrigger();
 
           dl->AddRectFilled(rEnd - zeus::CVector2f(rValue, triggerHeight), rEnd, input.DR() ? red : stickGray);
