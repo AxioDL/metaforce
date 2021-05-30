@@ -578,10 +578,15 @@ void ImGuiConsole::ShowDebugOverlay() {
             layerBits += "0";
           }
         }
-        ImGuiStringViewText(fmt::format(FMT_STRING("Area AssetId: 0x{}, Total Objects: {}\n"
+        CGameArea* pArea = g_StateManager->GetWorld()->GetArea(aId);
+        CAssetId stringId = pArea->IGetStringTableAssetId();
+        if (!stringTables.contains(stringId)) {
+          stringTables[stringId] = g_SimplePool->GetObj(SObjectTag{SBIG('STRG'), stringId});
+        }
+        ImGuiStringViewText(fmt::format(FMT_STRING("Area ID: {} Name: {}\nArea AssetId: 0x{}, Total Objects: {}\n"
                                                    "Active Layer bits: {}\n"),
-                                        g_StateManager->GetWorld()->GetArea(aId)->GetAreaAssetId(),
-                                        g_StateManager->GetAllObjectList().size(), layerBits));
+                                        pArea->GetAreaId(), ReadUtf8String(stringTables[stringId].GetObj(), 0),
+                                        pArea->GetAreaAssetId(), g_StateManager->GetAllObjectList().size(), layerBits));
         hasPrevious = true;
       }
     }
