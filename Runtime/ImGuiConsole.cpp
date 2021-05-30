@@ -237,6 +237,9 @@ static void RenderEntityColumns(const ImGuiEntityEntry& entry) {
 }
 
 void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
+  float initialWindowSize = 400.f * ImGui::GetIO().DisplayFramebufferScale.x;
+  ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize * 1.5f}, ImGuiCond_FirstUseEver);
+
   if (ImGui::Begin("Inspect", isOpen)) {
     CObjectList& list = g_StateManager->GetAllObjectList();
     ImGui::Text("Objects: %d / 1024", list.size());
@@ -384,10 +387,27 @@ void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) 
       ImGui::Dummy(padding);
     }
     ImGuiTextCenter("2015-2021");
-    ImGuiTextCenter("Phillip Stephens (Antidote)");
-    ImGuiTextCenter("Jack Andersen (jackoalan)");
-    ImGuiTextCenter("Luke Street (encounter)");
-    ImGuiTextCenter("Metaforce contributors");
+    ImGui::BeginGroup();
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 200));
+    ImGuiStringViewText("Development & Research");
+    ImGui::PopStyleColor();
+    ImGuiStringViewText("Phillip Stephens (Antidote)");
+    ImGuiStringViewText("Jack Andersen (jackoalan)");
+    ImGuiStringViewText("Luke Street (encounter)");
+    ImGuiStringViewText("Lioncache");
+    ImGui::EndGroup();
+    ImGui::SameLine();
+    ImGui::BeginGroup();
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 200));
+    ImGuiStringViewText("Testing");
+    ImGui::PopStyleColor();
+    ImGuiStringViewText("Tom Lube");
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 200));
+    ImGuiStringViewText("Contributions");
+    ImGui::PopStyleColor();
+    ImGuiStringViewText("Darkszero (Profiling)");
+    ImGuiStringViewText("shio (Flamethrower)");
+    ImGui::EndGroup();
     ImGui::Dummy(padding);
     ImGui::Separator();
     if (ImGui::BeginTable("Version Info", 2, ImGuiTableFlags_BordersInnerV)) {
