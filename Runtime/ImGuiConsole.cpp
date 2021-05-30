@@ -7,8 +7,6 @@
 #include "Runtime/World/CPlayer.hpp"
 
 #include "ImGuiEngine.hpp"
-#define IMGUI_DEFINE_MATH_OPERATORS 1
-#include <imgui_internal.h>
 
 namespace ImGui {
 // Internal functions
@@ -576,31 +574,31 @@ void ImGuiConsole::ShowDebugOverlay() {
           ImGui::Separator();
         }
         ImDrawList* dl = ImGui::GetWindowDrawList();
-        ImVec2 p = ImGui::GetCursorScreenPos();
+        zeus::CVector2f p = ImGui::GetCursorScreenPos();
 
         constexpr float leftStickRadius = 30;
-        p = p + ImVec2{20, 20}; // Pad p so we don't clip outside our rect
-        ImVec2 leftStickCenter = p + ImVec2(30, 45);
+        p = p + zeus::CVector2f{20, 20}; // Pad p so we don't clip outside our rect
+        zeus::CVector2f leftStickCenter = p + zeus::CVector2f(30, 45);
         constexpr float dpadRadius = 15;
         constexpr float dpadWidth = 8;
-        ImVec2 dpadCenter = p + ImVec2(80, 90);
+        zeus::CVector2f dpadCenter = p + zeus::CVector2f(80, 90);
         constexpr float rightStickRadius = 20;
-        ImVec2 rightStickCenter = p + ImVec2(160, 90);
+        zeus::CVector2f rightStickCenter = p + zeus::CVector2f(160, 90);
         constexpr float startButtonRadius = 8;
-        ImVec2 startButtonCenter = p + ImVec2(120, 55);
+        zeus::CVector2f startButtonCenter = p + zeus::CVector2f(120, 55);
         constexpr float aButtonRadius = 16;
-        ImVec2 aButtonCenter = p + ImVec2(210, 48);
+        zeus::CVector2f aButtonCenter = p + zeus::CVector2f(210, 48);
         constexpr float bButtonRadius = 8;
-        ImVec2 bButtonCenter = aButtonCenter + ImVec2(-24, 16);
+        zeus::CVector2f bButtonCenter = aButtonCenter + zeus::CVector2f(-24, 16);
         constexpr float xButtonRadius = 8;
-        ImVec2 xButtonCenter = aButtonCenter + ImVec2(24, -16);
+        zeus::CVector2f xButtonCenter = aButtonCenter + zeus::CVector2f(24, -16);
         constexpr float yButtonRadius = 8;
-        ImVec2 yButtonCenter = aButtonCenter + ImVec2(-12, -24);
+        zeus::CVector2f yButtonCenter = aButtonCenter + zeus::CVector2f(-12, -24);
         constexpr float triggerWidth = leftStickRadius * 2;
         constexpr float triggerHeight = 8;
-        ImVec2 lCenter = leftStickCenter + ImVec2(0, -60);
-        ImVec2 rCenter = ImVec2(aButtonCenter.x, lCenter.y);
-        const auto zButtonCenter = rCenter + ImVec2{0, 24};
+        zeus::CVector2f lCenter = leftStickCenter + zeus::CVector2f(0, -60);
+        zeus::CVector2f rCenter = zeus::CVector2f(aButtonCenter.x(), lCenter.y());
+        const auto zButtonCenter = rCenter + zeus::CVector2f{0, 24};
         const float zButtonHalfWidth = triggerWidth / 2;
         const float zButtonHalfHeight = 4;
 
@@ -614,7 +612,7 @@ void ImGuiConsole::ShowDebugOverlay() {
           dl->AddCircleFilled(leftStickCenter, leftStickRadius, stickGray, 8);
           float x = input.ALeftX();
           float y = -input.ALeftY();
-          dl->AddCircleFilled(leftStickCenter + (ImVec2{x, y} * leftStickRadius), leftStickRadius / 3, red);
+          dl->AddCircleFilled(leftStickCenter + (zeus::CVector2f{x, y} * leftStickRadius), leftStickRadius / 3, red);
           dl->AddLine(leftStickCenter, leftStickCenter + ImVec2(x * leftStickRadius, y * leftStickRadius),
                       IM_COL32(255, 244, 0, 255), 1.5f);
         }
@@ -624,7 +622,7 @@ void ImGuiConsole::ShowDebugOverlay() {
           dl->AddCircleFilled(rightStickCenter, rightStickRadius, stickGray, 8);
           float x = input.ARightX();
           float y = -input.ARightY();
-          dl->AddCircleFilled(rightStickCenter + (ImVec2{x, y} * rightStickRadius), rightStickRadius / 3, red);
+          dl->AddCircleFilled(rightStickCenter + (zeus::CVector2f{x, y} * rightStickRadius), rightStickRadius / 3, red);
           dl->AddLine(rightStickCenter, rightStickCenter + ImVec2(x * rightStickRadius, y * rightStickRadius),
                       IM_COL32(255, 244, 0, 255), 1.5f);
         }
@@ -685,19 +683,19 @@ void ImGuiConsole::ShowDebugOverlay() {
         // triggers
         {
           float halfTriggerWidth = triggerWidth / 2;
-          ImVec2 lStart = lCenter - ImVec2(halfTriggerWidth, 0);
-          ImVec2 lEnd = lCenter + ImVec2(halfTriggerWidth, triggerHeight);
+          zeus::CVector2f lStart = lCenter - ImVec2(halfTriggerWidth, 0);
+          zeus::CVector2f lEnd = lCenter + ImVec2(halfTriggerWidth, triggerHeight);
           float lValue = triggerWidth * input.ALTrigger();
 
-          dl->AddRectFilled(lStart, lStart + ImVec2(lValue, triggerHeight), input.DL() ? red : stickGray);
-          dl->AddRectFilled(lStart + ImVec2(lValue, 0), lEnd, darkGray);
+          dl->AddRectFilled(lStart, lStart + zeus::CVector2f(lValue, triggerHeight), input.DL() ? red : stickGray);
+          dl->AddRectFilled(lStart + zeus::CVector2f(lValue, 0), lEnd, darkGray);
 
-          ImVec2 rStart = rCenter - ImVec2(halfTriggerWidth, 0);
-          ImVec2 rEnd = rCenter + ImVec2(halfTriggerWidth, triggerHeight);
+          zeus::CVector2f rStart = rCenter - ImVec2(halfTriggerWidth, 0);
+          zeus::CVector2f rEnd = rCenter + ImVec2(halfTriggerWidth, triggerHeight);
           float rValue = triggerWidth * input.ARTrigger();
 
-          dl->AddRectFilled(rEnd - ImVec2(rValue, triggerHeight), rEnd, input.DR() ? red : stickGray);
-          dl->AddRectFilled(rStart, rEnd - ImVec2(rValue, 0), darkGray);
+          dl->AddRectFilled(rEnd - zeus::CVector2f(rValue, triggerHeight), rEnd, input.DR() ? red : stickGray);
+          dl->AddRectFilled(rStart, rEnd - zeus::CVector2f(rValue, 0), darkGray);
         }
 
         ImGui::Dummy(ImVec2(270, 130));
