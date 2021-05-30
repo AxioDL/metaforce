@@ -242,6 +242,17 @@ void CDamageVulnerability::ImGuiEditWindow(const char* title, bool& open) {
   }
   ImGui::End();
 }
+void ImGuiUniqueId(const char* label, TUniqueId uid) {
+  if (uid != kInvalidUniqueId) {
+    ImGui::Text("%s: 0x%04X", label, uid.Value());
+    ImGui::SameLine();
+    if (ImGui::SmallButton("View")) {
+      ImGuiConsole::inspectingEntities.insert(uid);
+    }
+  } else {
+    ImGui::Text("%s: [none]", label);
+  }
+}
 
 std::string_view CEntity::ImGuiType() { return "Entity"; }
 
@@ -414,11 +425,25 @@ IMGUI_ENTITY_INSPECT(CScriptControllerAction, CEntity, ScriptControllerAction, {
 IMGUI_ENTITY_INSPECT(CScriptCounter, CEntity, ScriptCounter, {})
 IMGUI_ENTITY_INSPECT(CScriptDistanceFog, CEntity, ScriptDistanceFog, {})
 IMGUI_ENTITY_INSPECT(CScriptDockAreaChange, CEntity, ScriptDockAreaChange, {})
-IMGUI_ENTITY_INSPECT(CScriptGenerator, CEntity, ScriptGenerator, {})
+IMGUI_ENTITY_INSPECT(CScriptGenerator, CEntity, ScriptGenerator, {
+  int count = x34_spawnCount;
+  if (ImGui::SliderInt("Spawn Count", &count, 0, 1024)) {
+    x34_spawnCount = count;
+  }
+  BITFIELD_CHECKBOX("Don't Reuse Followers", x38_24_noReuseFollowers);
+  BITFIELD_CHECKBOX("Don't Inherit Transform", x38_25_noInheritTransform);
+  ImGuiVector3fInput("Offset", x3c_offset);
+  ImGui::DragFloat("Minimum Scale", &x48_minScale);
+  ImGui::DragFloat("Maximum Scale", &x4c_maxScale);
+})
 IMGUI_ENTITY_INSPECT(CScriptHUDMemo, CEntity, ScriptHUDMemo, {})
 IMGUI_ENTITY_INSPECT(CScriptMemoryRelay, CEntity, ScriptMemoryRelay, {})
 IMGUI_ENTITY_INSPECT(CScriptMidi, CEntity, ScriptMidi, {})
-IMGUI_ENTITY_INSPECT(CScriptPickupGenerator, CEntity, ScriptPickupGenerator, {})
+IMGUI_ENTITY_INSPECT(CScriptPickupGenerator, CEntity, ScriptPickupGenerator, {
+  ImGuiVector3fInput("Position", x34_position);
+  ImGui::DragFloat("Frequency", &x40_frequency);
+  ImGui::DragFloat("Delay Timer", &x44_delayTimer);
+})
 IMGUI_ENTITY_INSPECT(CScriptPlayerStateChange, CEntity, ScriptPlayerStateChange, {})
 IMGUI_ENTITY_INSPECT(CScriptRandomRelay, CEntity, ScriptRandomRelay, {})
 IMGUI_ENTITY_INSPECT(CScriptRelay, CEntity, ScriptRelay, {})
@@ -454,7 +479,74 @@ IMGUI_ENTITY_INSPECT(CScriptTimer, CEntity, ScriptTimer, {
   }
 })
 IMGUI_ENTITY_INSPECT(CScriptWorldTeleporter, CEntity, ScriptWorldTeleporter, {})
-IMGUI_ENTITY_INSPECT(CTeamAiMgr, CEntity, TeamAiMgr, {})
+IMGUI_ENTITY_INSPECT(CTeamAiMgr, CEntity, TeamAiMgr, {
+  // TODO x34_data
+  // TODO x58_roles
+  if (!x68_meleeAttackers.empty() && ImGui::CollapsingHeader("Melee Attackers")) {
+    if (ImGui::BeginTable("Melee Attackers", 4,
+                          ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV)) {
+      ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 0, 'id');
+      ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 0, 'type');
+      ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 0, 'name');
+      ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed |
+                                      ImGuiTableColumnFlags_NoResize);
+      ImGui::TableSetupScrollFreeze(0, 1);
+      ImGui::TableHeadersRow();
+      for (auto uid : x68_meleeAttackers) {
+        if (uid == kInvalidUniqueId) {
+          continue;
+        }
+        ImGuiEntityEntry& entry = ImGuiConsole::entities[uid.Value()];
+        if (entry.uid == kInvalidUniqueId) {
+          continue;
+        }
+        ImGuiConsole::BeginEntityRow(entry);
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(entry.type);
+        }
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(entry.name);
+        }
+        ImGuiConsole::EndEntityRow(entry);
+      }
+    }
+    ImGui::EndTable();
+  }
+  if (!x78_rangedAttackers.empty() && ImGui::CollapsingHeader("Ranged Attackers")) {
+    if (ImGui::BeginTable("Ranged Attackers", 4,
+                          ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV)) {
+      ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 0, 'id');
+      ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 0, 'type');
+      ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 0, 'name');
+      ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed |
+                                      ImGuiTableColumnFlags_NoResize);
+      ImGui::TableSetupScrollFreeze(0, 1);
+      ImGui::TableHeadersRow();
+      for (auto uid : x78_rangedAttackers) {
+        if (uid == kInvalidUniqueId) {
+          continue;
+        }
+        ImGuiEntityEntry& entry = ImGuiConsole::entities[uid.Value()];
+        if (entry.uid == kInvalidUniqueId) {
+          continue;
+        }
+        ImGuiConsole::BeginEntityRow(entry);
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(entry.type);
+        }
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(entry.name);
+        }
+        ImGuiConsole::EndEntityRow(entry);
+      }
+    }
+    ImGui::EndTable();
+  }
+  ImGui::InputFloat("Time Dirty", &x88_timeDirty);
+  ImGuiUniqueId("Team Captain", x8c_teamCaptainId);
+  ImGui::InputFloat("Time Since Melee", &x90_timeSinceMelee);
+  ImGui::InputFloat("Time Since Ranged", &x94_timeSinceRanged);
+})
 
 // <- CActor
 IMGUI_ENTITY_INSPECT(CPhysicsActor, CActor, PhysicsActor, {
@@ -559,15 +651,7 @@ IMGUI_ENTITY_INSPECT(CScriptEffect, CActor, ScriptEffect, {
   ImGui::DragFloat("Remaining Time", &x12c_remTime, 0.1f);
   ImGui::DragFloat("Duration", &x130_duration, 0.1f);
   ImGui::DragFloat("Duration Reset While Visible", &x134_durationResetWhileVisible, 0.1f);
-  if (x13c_triggerId != kInvalidUniqueId) {
-    ImGui::Text("Trigger ID: 0x%04X", x13c_triggerId.Value());
-    ImGui::SameLine();
-    if (ImGui::SmallButton("View")) {
-      ImGuiConsole::inspectingEntities.insert(x13c_triggerId);
-    }
-  } else {
-    ImGui::TextUnformatted("Trigger ID: [none]");
-  }
+  ImGuiUniqueId("Trigger ID", x13c_triggerId);
   ImGui::DragFloat("Destroy Delay Timer", &x140_destroyDelayTimer, 0.1f);
 })
 IMGUI_ENTITY_INSPECT(CScriptEMPulse, CActor, ScriptEMPulse, {})
@@ -656,15 +740,7 @@ IMGUI_ENTITY_INSPECT(CScriptActor, CPhysicsActor, ScriptActor, {
   BITFIELD_CHECKBOX("Scale Advancement Delta", x2e2_30_scaleAdvancementDelta);
   BITFIELD_CHECKBOX("Material Flag 54", x2e2_31_materialFlag54);
   BITFIELD_CHECKBOX("Is Player Actor", x2e3_24_isPlayerActor);
-  if (x2e0_triggerId != kInvalidUniqueId) {
-    ImGui::Text("Trigger ID: 0x%04X", x2e0_triggerId.Value());
-    ImGui::SameLine();
-    if (ImGui::SmallButton("View")) {
-      ImGuiConsole::inspectingEntities.insert(x2e0_triggerId);
-    }
-  } else {
-    ImGui::TextUnformatted("Trigger ID: [none]");
-  }
+  ImGuiUniqueId("Trigger ID", x2e0_triggerId);
   x2e2_29_processModelFlags =
       modelFlagsChanged || x2e2_27_xrayAlphaEnabled || x2e2_24_noThermalHotZ || x2d8_shaderIdx != 0;
 })
@@ -672,8 +748,21 @@ IMGUI_ENTITY_INSPECT(CScriptDebris, CPhysicsActor, ScriptDebris, {})
 IMGUI_ENTITY_INSPECT(CScriptDock, CPhysicsActor, ScriptDock, {})
 IMGUI_ENTITY_INSPECT(CScriptDoor, CPhysicsActor, ScriptDoor, {})
 IMGUI_ENTITY_INSPECT(CScriptGunTurret, CPhysicsActor, ScriptGunTurret, {})
-IMGUI_ENTITY_INSPECT(CScriptPickup, CPhysicsActor, ScriptPickup, {})
-IMGUI_ENTITY_INSPECT(CScriptPlatform, CPhysicsActor, ScriptPlatform, {})
+IMGUI_ENTITY_INSPECT(CScriptPickup, CPhysicsActor, ScriptPickup, {
+  ImGuiEnumInput("Item Type", x258_itemType);
+  ImGui::DragInt("Amount", &x25c_amount);
+  ImGui::DragInt("Capacity", &x260_capacity);
+  ImGui::SliderFloat("Possibility", &x264_possibility, 0.f, 100.f);
+  ImGui::DragFloat("Fade In Time", &x268_fadeInTime);
+  ImGui::DragFloat("Lifetime", &x26c_lifeTime);
+  ImGui::DragFloat("Current Time", &x270_curTime);
+  ImGui::DragFloat("Tractor Time", &x274_tractorTime);
+  ImGui::DragFloat("Delay Timer", &x278_delayTimer);
+})
+IMGUI_ENTITY_INSPECT(CScriptPlatform, CPhysicsActor, ScriptPlatform, {
+  ImGuiUniqueId("Current Waypoint", x258_currentWaypoint);
+  ImGuiUniqueId("Target Waypoint", x25a_targetWaypoint);
+})
 
 // <- CScriptActor
 IMGUI_ENTITY_INSPECT(MP1::CActorContraption, CScriptActor, ActorContraption, {})
