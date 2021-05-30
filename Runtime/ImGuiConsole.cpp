@@ -216,12 +216,12 @@ void ImGuiConsole::BeginEntityRow(const ImGuiEntityEntry& entry) {
 }
 
 void ImGuiConsole::EndEntityRow(const ImGuiEntityEntry& entry) {
+  ImGui::PopStyleColor();
   if (ImGui::TableNextColumn()) {
     if (ImGui::SmallButton("View")) {
       ImGuiConsole::inspectingEntities.insert(entry.uid);
     }
   }
-  ImGui::PopStyleColor();
   ImGui::PopID();
 }
 
