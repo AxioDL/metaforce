@@ -7,6 +7,8 @@
 #include "Runtime/World/CPlayer.hpp"
 
 #include "ImGuiEngine.hpp"
+#define IMGUI_DEFINE_MATH_OPERATORS 1
+#include <imgui_internal.h>
 
 namespace ImGui {
 // Internal functions
@@ -199,12 +201,16 @@ void ImGuiConsole::BeginEntityRow(const ImGuiEntityEntry& entry) {
       if (ImGui::MenuItem("Highlight", nullptr, &entry.ent->m_debugSelected)) {
         entry.ent->SetActive(!isActive);
       }
-      ImGui::Separator();
-      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{0.77f, 0.12f, 0.23f, 1.f});
-      if (ImGui::MenuItem("Delete")) {
-        g_StateManager->FreeScriptObject(entry.uid);
+      // Only allow deletion if none of the objects are player related
+      // The player objects will always be in the first 6 slots
+      if (entry.uid.Value() > 6) {
+        ImGui::Separator();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{0.77f, 0.12f, 0.23f, 1.f});
+        if (ImGui::MenuItem("Delete")) {
+          g_StateManager->FreeScriptObject(entry.uid);
+        }
+        ImGui::PopStyleColor();
       }
-      ImGui::PopStyleColor();
       ImGui::EndPopup();
       ImGui::PushStyleColor(ImGuiCol_Text, textColor);
     }
@@ -426,7 +432,7 @@ void ImGuiConsole::ShowAboutWindow() {
 
 void ImGuiConsole::ShowDebugOverlay() {
   if (!m_frameCounter && !m_frameRate && !m_inGameTime && !m_roomTimer && !m_playerInfo && !m_areaInfo &&
-      !m_worldInfo && !m_randomStats && !m_resourceStats) {
+      !m_worldInfo && !m_randomStats && !m_resourceStats && !m_showInput) {
     return;
   }
   ImGuiIO& io = ImGui::GetIO();
@@ -561,6 +567,139 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       ImGuiStringViewText(fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects()));
     }
+    // Code -stolen- borrowed from Practice Mod
+    if (m_showInput && g_InputGenerator != nullptr) {
+      auto input = g_InputGenerator->GetLastInput();
+      if (input.x4_controllerIdx == 0) {
+        ImGui::Separator();
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        ImVec2 p = ImGui::GetCursorScreenPos();
+
+        constexpr float leftStickRadius = 30;
+        p = p + ImVec2{20, 20}; // Pad p so we don't clip outside our rect
+        ImVec2 leftStickCenter = p + ImVec2(30, 45);
+        constexpr float dpadRadius = 15;
+        constexpr float dpadWidth = 8;
+        ImVec2 dpadCenter = p + ImVec2(80, 90);
+        constexpr float rightStickRadius = 20;
+        ImVec2 rightStickCenter = p + ImVec2(160, 90);
+        constexpr float startButtonRadius = 8;
+        ImVec2 startButtonCenter = p + ImVec2(120, 55);
+        constexpr float aButtonRadius = 16;
+        ImVec2 aButtonCenter = p + ImVec2(210, 48);
+        constexpr float bButtonRadius = 8;
+        ImVec2 bButtonCenter = aButtonCenter + ImVec2(-24, 16);
+        constexpr float xButtonRadius = 8;
+        ImVec2 xButtonCenter = aButtonCenter + ImVec2(24, -16);
+        constexpr float yButtonRadius = 8;
+        ImVec2 yButtonCenter = aButtonCenter + ImVec2(-12, -24);
+        constexpr float triggerWidth = leftStickRadius * 2;
+        constexpr float triggerHeight = 8;
+        ImVec2 lCenter = leftStickCenter + ImVec2(0, -60);
+        ImVec2 rCenter = ImVec2(aButtonCenter.x, lCenter.y);
+        const auto zButtonCenter = rCenter + ImVec2{0, 24};
+        const float zButtonHalfWidth = triggerWidth / 2;
+        const float zButtonHalfHeight = 4;
+
+        constexpr ImU32 stickGray = IM_COL32(150, 150, 150, 255);
+        constexpr ImU32 darkGray = IM_COL32(60, 60, 60, 255);
+        constexpr ImU32 red = IM_COL32(255, 0, 0, 255);
+        constexpr ImU32 green = IM_COL32(0, 255, 0, 255);
+
+        // left stick
+        {
+          dl->AddCircleFilled(leftStickCenter, leftStickRadius, stickGray, 8);
+          float x = input.ALeftX();
+          float y = -input.ALeftY();
+          dl->AddCircleFilled(leftStickCenter + (ImVec2{x, y} * leftStickRadius), leftStickRadius / 3, red);
+          dl->AddLine(leftStickCenter, leftStickCenter + ImVec2(x * leftStickRadius, y * leftStickRadius),
+                      IM_COL32(255, 244, 0, 255), 1.5f);
+        }
+
+        // right stick
+        {
+          dl->AddCircleFilled(rightStickCenter, rightStickRadius, stickGray, 8);
+          float x = input.ARightX();
+          float y = -input.ARightY();
+          dl->AddCircleFilled(rightStickCenter + (ImVec2{x, y} * rightStickRadius), rightStickRadius / 3, red);
+          dl->AddLine(rightStickCenter, rightStickCenter + ImVec2(x * rightStickRadius, y * rightStickRadius),
+                      IM_COL32(255, 244, 0, 255), 1.5f);
+        }
+
+        // dpad
+        {
+          constexpr float halfWidth = dpadWidth / 2;
+          dl->AddRectFilled(dpadCenter + ImVec2(-halfWidth, -dpadRadius), dpadCenter + ImVec2(halfWidth, dpadRadius),
+                            stickGray);
+
+          dl->AddRectFilled(dpadCenter + ImVec2(-dpadRadius, -halfWidth), dpadCenter + ImVec2(dpadRadius, halfWidth),
+                            stickGray);
+
+          if (input.DDPUp()) {
+            dl->AddRectFilled(dpadCenter + ImVec2(-halfWidth, -dpadRadius),
+                              dpadCenter + ImVec2(halfWidth, -dpadRadius / 2), red);
+          }
+
+          if (input.DDPDown()) {
+            dl->AddRectFilled(dpadCenter + ImVec2(-halfWidth, dpadRadius),
+                              dpadCenter + ImVec2(halfWidth, dpadRadius / 2), red);
+          }
+
+          if (input.DDPLeft()) {
+            dl->AddRectFilled(dpadCenter + ImVec2(-dpadRadius, -halfWidth),
+                              dpadCenter + ImVec2(-dpadRadius / 2, halfWidth), red);
+          }
+
+          if (input.DDPRight()) {
+            dl->AddRectFilled(dpadCenter + ImVec2(dpadRadius, -halfWidth),
+                              dpadCenter + ImVec2(dpadRadius / 2, halfWidth), red);
+          }
+        }
+
+        // buttons
+        {
+          // start
+          dl->AddCircleFilled(startButtonCenter, startButtonRadius, input.DStart() ? red : stickGray);
+
+          // a
+          dl->AddCircleFilled(aButtonCenter, aButtonRadius, input.DA() ? green : stickGray);
+
+          // b
+          dl->AddCircleFilled(bButtonCenter, bButtonRadius, input.DB() ? red : stickGray);
+
+          // x
+          dl->AddCircleFilled(xButtonCenter, xButtonRadius, input.DX() ? red : stickGray);
+
+          // y
+          dl->AddCircleFilled(yButtonCenter, yButtonRadius, input.DY() ? red : stickGray);
+
+          // z
+          dl->AddRectFilled(zButtonCenter - ImVec2{zButtonHalfWidth, zButtonHalfHeight},
+                            zButtonCenter + ImVec2{zButtonHalfWidth, zButtonHalfHeight},
+                            input.DZ() ? IM_COL32(128, 0, 128, 255) : stickGray, 16);
+        }
+
+        // triggers
+        {
+          float halfTriggerWidth = triggerWidth / 2;
+          ImVec2 lStart = lCenter - ImVec2(halfTriggerWidth, 0);
+          ImVec2 lEnd = lCenter + ImVec2(halfTriggerWidth, triggerHeight);
+          float lValue = triggerWidth * input.ALTrigger();
+
+          dl->AddRectFilled(lStart, lStart + ImVec2(lValue, triggerHeight), input.DL() ? red : stickGray);
+          dl->AddRectFilled(lStart + ImVec2(lValue, 0), lEnd, darkGray);
+
+          ImVec2 rStart = rCenter - ImVec2(halfTriggerWidth, 0);
+          ImVec2 rEnd = rCenter + ImVec2(halfTriggerWidth, triggerHeight);
+          float rValue = triggerWidth * input.ARTrigger();
+
+          dl->AddRectFilled(rEnd - ImVec2(rValue, triggerHeight), rEnd, input.DR() ? red : stickGray);
+          dl->AddRectFilled(rStart, rEnd - ImVec2(rValue, 0), darkGray);
+        }
+
+        ImGui::Dummy(ImVec2(270, 130));
+      }
+    }
     if (ImGui::BeginPopupContextWindow()) {
       if (ImGui::MenuItem("Custom", nullptr, m_debugOverlayCorner == -1)) {
         m_debugOverlayCorner = -1;
@@ -622,6 +761,9 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
       }
       if (ImGui::MenuItem("Resource Stats", nullptr, &m_resourceStats)) {
         m_cvarCommons.m_debugOverlayShowResourceStats->fromBoolean(m_resourceStats);
+      }
+      if (ImGui::MenuItem("Show Input", nullptr, &m_showInput)) {
+        m_cvarCommons.m_debugOverlayShowInput->fromBoolean(m_showInput);
       }
       ImGui::EndMenu();
     }

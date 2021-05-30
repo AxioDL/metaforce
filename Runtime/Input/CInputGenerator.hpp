@@ -180,6 +180,7 @@ public:
 
   /* This is where the game thread enters */
   void Update(float dt, CArchitectureQueue& queue);
+  CFinalInput GetLastInput() const { return m_lastUpdate; }
 };
 
 } // namespace metaforce

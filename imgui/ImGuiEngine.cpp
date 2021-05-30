@@ -10,6 +10,8 @@
 #define STBI_ONLY_PNG
 #include "stb_image.h"
 
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Input/CInputGenerator.hpp"
 #include <zeus/CMatrix4f.hpp>
 
 extern "C" const uint8_t NOTO_MONO_FONT[];
@@ -170,6 +172,24 @@ void ImGuiEngine::Begin(float dt, float scale) {
   io.KeyAlt = True(Input.m_modifiers & boo::EModifierKey::Alt);
   io.KeySuper = True(Input.m_modifiers & boo::EModifierKey::Command);
   memcpy(static_cast<bool*>(io.KeysDown), Input.m_keys.data(), sizeof(io.KeysDown));
+
+#if 0
+  if (g_InputGenerator != nullptr) {
+    auto input = g_InputGenerator->GetLastInput();
+    if (input.x4_controllerIdx == 0) {
+      io.NavInputs[ImGuiNavInput_Activate] = input.DA();
+      io.NavInputs[ImGuiNavInput_Cancel] = input.DB();
+      io.NavInputs[ImGuiNavInput_DpadLeft] = input.DDPLeft() || input.DLALeft();
+      io.NavInputs[ImGuiNavInput_DpadRight] = input.DDPRight() || input.DLARight();
+      io.NavInputs[ImGuiNavInput_DpadUp] = input.DDPUp() || input.DLAUp();
+      io.NavInputs[ImGuiNavInput_DpadDown] = input.DDPDown() || input.DLADown();
+      io.NavInputs[ImGuiNavInput_LStickLeft] = input.ALALeft();
+      io.NavInputs[ImGuiNavInput_LStickRight] = input.ALARight();
+      io.NavInputs[ImGuiNavInput_LStickUp] = input.ALAUp();
+      io.NavInputs[ImGuiNavInput_LStickDown] = input.ALADown();
+    }
+  }
+#endif
 
   for (const auto c : ImGuiEngine::Input.m_charCodes) {
     io.AddInputCharacter(c);

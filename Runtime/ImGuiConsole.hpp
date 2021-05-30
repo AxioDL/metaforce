@@ -71,6 +71,7 @@ private:
   bool m_areaInfo = m_cvarCommons.m_debugOverlayAreaInfo->toBoolean();
   bool m_randomStats = m_cvarCommons.m_debugOverlayShowRandomStats->toBoolean();
   bool m_resourceStats = m_cvarCommons.m_debugOverlayShowResourceStats->toBoolean();
+  bool m_showInput = m_cvarCommons.m_debugOverlayShowInput->toBoolean();
 
   int m_debugOverlayCorner = 2; // bottom-left
   const void* m_currentRoom = nullptr;

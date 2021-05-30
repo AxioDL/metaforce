@@ -53,6 +53,9 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
   m_debugOverlayShowRandomStats = m_mgr.findOrMakeCVar(
       "debugOverlay.showRandomStats", "Displays the current number of random calls per frame"sv, false,
       hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+  m_debugOverlayShowInput =
+      m_mgr.findOrMakeCVar("debugOverlay.showInput"sv, "Displays user input"sv, false,
+                           hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
   m_debugToolDrawAiPath =
       m_mgr.findOrMakeCVar("debugTool.drawAiPath", "Draws the selected paths of any AI in the room"sv, false,
                            hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);

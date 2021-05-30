@@ -28,13 +28,16 @@ void CInputGenerator::Update(float dt, CArchitectureQueue& queue) {
         input |= kbInput;
         kbUsed = true;
       }
+      m_lastUpdate = input;
       queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, input));
     }
   }
 
   /* Send straight keyboard input if no first controller present */
-  if (!kbUsed)
+  if (!kbUsed) {
+    m_lastUpdate = kbInput;
     queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, kbInput));
+  }
 }
 
 } // namespace metaforce
