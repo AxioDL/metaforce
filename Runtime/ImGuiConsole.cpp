@@ -350,7 +350,7 @@ bool ImGuiConsole::ShowEntityInfoWindow(TUniqueId uid) {
   return open;
 }
 
-void ImGuiConsole::ShowAboutWindow() {
+void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) {
   // Center window
   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
   ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -359,9 +359,15 @@ void ImGuiConsole::ShowAboutWindow() {
   ImGui::PushStyleColor(ImGuiCol_TitleBg, windowBg);
   ImGui::PushStyleColor(ImGuiCol_TitleBgActive, windowBg);
 
-  if (ImGui::Begin("About", &m_showAboutWindow,
-                   ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoNav |
-                       ImGuiWindowFlags_NoSavedSettings)) {
+  bool* open = nullptr;
+  ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoNav |
+                           ImGuiWindowFlags_NoSavedSettings;
+  if (canClose) {
+    open = &m_showAboutWindow;
+  } else {
+    flags |= ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
+  }
+  if (ImGui::Begin("About", open, flags)) {
     float iconSize = 128.f * ImGui::GetIO().DisplayFramebufferScale.x;
     ImGui::SameLine(ImGui::GetWindowSize().x / 2 - iconSize + (iconSize / 2));
     ImGui::Image(ImGuiUserTextureID_MetaforceIcon, ImVec2{iconSize, iconSize});
@@ -371,6 +377,12 @@ void ImGuiConsole::ShowAboutWindow() {
     ImGuiTextCenter(METAFORCE_WC_DESCRIBE);
     const ImVec2& padding = ImGui::GetStyle().WindowPadding;
     ImGui::Dummy(padding);
+    if (!errorString.empty()) {
+      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{0.77f, 0.12f, 0.23f, 1.f});
+      ImGuiTextCenter(errorString);
+      ImGui::PopStyleColor();
+      ImGui::Dummy(padding);
+    }
     ImGuiTextCenter("2015-2021");
     ImGuiTextCenter("Phillip Stephens (Antidote)");
     ImGuiTextCenter("Jack Andersen (jackoalan)");
@@ -414,12 +426,14 @@ void ImGuiConsole::ShowAboutWindow() {
       if (ImGui::TableNextColumn()) {
         ImGuiStringViewText(METAFORCE_BUILD_TYPE);
       }
-      ImGui::TableNextRow();
-      if (ImGui::TableNextColumn()) {
-        ImGuiStringViewText("Game");
-      }
-      if (ImGui::TableNextColumn()) {
-        ImGuiStringViewText(g_Main->GetVersionString());
+      if (g_Main != nullptr) {
+        ImGui::TableNextRow();
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText("Game");
+        }
+        if (ImGui::TableNextColumn()) {
+          ImGuiStringViewText(g_Main->GetVersionString());
+        }
       }
       ImGui::EndTable();
     }
@@ -573,8 +587,6 @@ void ImGuiConsole::ShowDebugOverlay() {
         if (hasPrevious) {
           ImGui::Separator();
         }
-//        ImGui::NewLine();
-
         ImDrawList* dl = ImGui::GetWindowDrawList();
         zeus::CVector2f p = ImGui::GetCursorScreenPos();
 
@@ -633,11 +645,11 @@ void ImGuiConsole::ShowDebugOverlay() {
         // dpad
         {
           float halfWidth = dpadWidth / 2;
-          dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, -dpadRadius), dpadCenter + zeus::CVector2f(halfWidth, dpadRadius),
-                            stickGray);
+          dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, -dpadRadius),
+                            dpadCenter + zeus::CVector2f(halfWidth, dpadRadius), stickGray);
 
-          dl->AddRectFilled(dpadCenter + zeus::CVector2f(-dpadRadius, -halfWidth), dpadCenter + zeus::CVector2f(dpadRadius, halfWidth),
-                            stickGray);
+          dl->AddRectFilled(dpadCenter + zeus::CVector2f(-dpadRadius, -halfWidth),
+                            dpadCenter + zeus::CVector2f(dpadRadius, halfWidth), stickGray);
 
           if (input.DDPUp()) {
             dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, -dpadRadius),
@@ -822,7 +834,7 @@ void ImGuiConsole::PreUpdate() {
     ShowLayersWindow();
   }
   if (m_showAboutWindow) {
-    ShowAboutWindow();
+    ShowAboutWindow(true);
   }
   if (m_showDemoWindow) {
     ImGui::ShowDemoWindow(&m_showDemoWindow);
@@ -853,7 +865,7 @@ void ImGuiConsole::PostUpdate() {
   }
 }
 
-ImGuiConsole::~ImGuiConsole() {
+void ImGuiConsole::Shutdown() {
   dummyWorlds.clear();
   stringTables.clear();
 }
@@ -1029,25 +1041,12 @@ void ImGuiConsole::ShowLayersWindow() {
 
       auto worldLayerState = g_GameState->StateForWorld(world.second).GetLayerState();
       auto areas = ListAreas(world.second);
-      // TODO: m_startNameIdx have incorrect values in the data due to a Metaforce bug
-      // so when filtering we need to keep track of these here, this can be simplified when fixed
-      std::vector<u32> layerStartIdx;
-      layerStartIdx.reserve(areas.size());
-      u32 startNameIdx = 0;
       auto iter = areas.begin();
       while (iter != areas.end()) {
-        u32 layerCount = worldLayerState->GetAreaLayerCount(iter->second);
-        if (layerCount == 0) {
-          continue;
-        }
         if (!search.empty() && !ContainsCaseInsensitive(iter->first, search)) {
           iter = areas.erase(iter);
         } else {
-          layerStartIdx.push_back(startNameIdx);
           iter++;
-        }
-        if (iter != areas.end()) {
-          startNameIdx += layerCount;
         }
       }
       if (areas.empty()) {
@@ -1055,7 +1054,6 @@ void ImGuiConsole::ShowLayersWindow() {
       }
 
       if (ImGui::TreeNodeEx(world.first.c_str(), search.empty() ? 0 : ImGuiTreeNodeFlags_DefaultOpen)) {
-        auto startNameIdxIter = layerStartIdx.begin();
         for (const auto& area : areas) {
           u32 layerCount = worldLayerState->GetAreaLayerCount(area.second);
           if (layerCount == 0) {
@@ -1065,18 +1063,19 @@ void ImGuiConsole::ShowLayersWindow() {
             if (ImGui::Button("Warp here")) {
               Warp(world.second, area.second);
             }
-            // TODO see above comment
-            // u32 startNameIdx = layers->m_areas[area.second].m_startNameIdx;
-
-            for (u32 layer = 0; layer < layerCount; ++layer) {
-              bool active = worldLayerState->IsLayerActive(area.second, layer);
-              if (ImGui::Checkbox(layers->m_names[*startNameIdxIter + layer].c_str(), &active)) {
-                worldLayerState->SetLayerActive(area.second, layer, active);
+            u32 startNameIdx = layers->m_areas[area.second].m_startNameIdx;
+            if (startNameIdx + layerCount > layers->m_names.size()) {
+              ImGui::Text("Broken layer data, please re-package");
+            } else {
+              for (u32 layer = 0; layer < layerCount; ++layer) {
+                bool active = worldLayerState->IsLayerActive(area.second, layer);
+                if (ImGui::Checkbox(layers->m_names[startNameIdx + layer].c_str(), &active)) {
+                  worldLayerState->SetLayerActive(area.second, layer, active);
+                }
               }
             }
             ImGui::TreePop();
           }
-          startNameIdxIter++;
         }
         ImGui::TreePop();
       }

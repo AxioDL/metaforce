@@ -75,21 +75,24 @@ void CResFactory::BuildAsync(const SObjectTag& tag, const CVParamTransfer& xfer,
   }
 }
 
-void CResFactory::AsyncIdle() {
+bool CResFactory::AsyncIdle(std::chrono::nanoseconds target) {
   OPTICK_EVENT();
-  if (m_loadList.empty())
-    return;
-  auto startTime = std::chrono::steady_clock::now();
-  while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count() <
-         5) {
+  if (m_loadList.empty()) {
+    return false;
+  }
+  auto startTime = std::chrono::high_resolution_clock::now();
+  do {
     auto& task = m_loadList.front();
     if (PumpResource(task)) {
       m_loadMap.erase(task.x0_tag);
       m_loadList.pop_front();
-      if (m_loadList.empty())
-        return;
+      if (m_loadList.empty()) {
+        return false;
+      }
     }
-  }
+  } while (std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - startTime) <
+           target);
+  return true;
 }
 
 void CResFactory::CancelBuild(const SObjectTag& tag) {

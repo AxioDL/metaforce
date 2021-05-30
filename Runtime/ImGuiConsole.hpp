@@ -36,9 +36,10 @@ public:
 
   ImGuiConsole(hecl::CVarManager& cvarMgr, hecl::CVarCommons& cvarCommons)
   : m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {}
-  ~ImGuiConsole();
   void PreUpdate();
   void PostUpdate();
+  void Shutdown();
+  void ShowAboutWindow(bool canClose, std::string_view errorString = ""sv);
 
   static void BeginEntityRow(const ImGuiEntityEntry& entry);
   static void EndEntityRow(const ImGuiEntityEntry& entry);
@@ -84,7 +85,6 @@ private:
   void ShowInspectWindow(bool* isOpen);
   void LerpDebugColor(CActor* act);
   void UpdateEntityEntries();
-  void ShowAboutWindow();
   void ShowDebugOverlay();
   void ShowItemsWindow();
   void ShowLayersWindow();

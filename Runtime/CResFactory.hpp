@@ -48,7 +48,7 @@ public:
   std::unique_ptr<IObj> Build(const SObjectTag&, const CVParamTransfer&, CObjectReference* selfRef) override;
   void BuildAsync(const SObjectTag&, const CVParamTransfer&, std::unique_ptr<IObj>*,
                   CObjectReference* selfRef) override;
-  void AsyncIdle() override;
+  bool AsyncIdle(std::chrono::nanoseconds target) override;
   void CancelBuild(const SObjectTag&) override;
 
   bool CanBuild(const SObjectTag& tag) override { return x4_loader.ResourceExists(tag); }

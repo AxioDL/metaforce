@@ -238,8 +238,8 @@ void CGameArchitectureSupport::specialKeyUp(boo::ESpecialKey key, boo::EModifier
 CMain::CMain(IFactory* resFactory, CSimplePool* resStore, boo::IGraphicsDataFactory* gfxFactory,
              boo::IGraphicsCommandQueue* cmdQ, const boo::ObjToken<boo::ITextureR>& spareTex)
 : m_booSetter(gfxFactory, cmdQ, spareTex)
+, xe4_gameplayResult(EGameplayResult::Playing)
 , x128_globalObjects(std::make_unique<CGameGlobalObjects>(resFactory, resStore)) {
-  xe4_gameplayResult = EGameplayResult::Playing;
   g_Main = this;
 }
 
@@ -769,7 +769,6 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       "Warp"sv, "Warps to a given area and world"sv, "[worldname] areaId"sv,
       [this](hecl::Console* console, const std::vector<std::string>& args) { Warp(console, args); },
       hecl::SConsoleCommand::ECommandFlags::Normal);
-  m_imGuiConsole = std::make_unique<ImGuiConsole>(*m_cvarMgr, *m_cvarCommons);
 
   bool loadedVersion = false;
   if (CDvdFile::FileExists("version.yaml")) {
@@ -908,8 +907,6 @@ bool CMain::Proc(float dt) {
     m_loadedPersistentResources = true;
   }
 
-  m_imGuiConsole->PreUpdate();
-
   if (!m_paused) {
     CGBASupport::GlobalPoll();
     x164_archSupport->UpdateTicks(dt);
@@ -917,8 +914,6 @@ bool CMain::Proc(float dt) {
     CSfxManager::Update(dt);
     CStreamAudioManager::Update(dt);
   }
-
-  m_imGuiConsole->PostUpdate();
 
   if (x164_archSupport->GetIOWinManager().IsEmpty() || CheckReset()) {
     CStreamAudioManager::StopAll();
@@ -965,7 +960,6 @@ void CMain::Draw() {
     return;
   }
 
-  CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
   x164_archSupport->Draw();
   m_console->draw(CGraphics::g_BooMainCommandQueue);
 }

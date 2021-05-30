@@ -35,7 +35,7 @@ public:
   EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const = 0;
   virtual CResLoader* GetResLoader() { return nullptr; }
   virtual CFactoryMgr* GetFactoryMgr() { return nullptr; }
-  virtual void AsyncIdle() {}
+  virtual bool AsyncIdle(std::chrono::nanoseconds target) { return false; }
 
   /* Non-factory versions, replaces CResLoader */
   virtual u32 ResourceSize(const metaforce::SObjectTag& tag) = 0;

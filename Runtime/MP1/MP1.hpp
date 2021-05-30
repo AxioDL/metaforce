@@ -248,7 +248,6 @@ private:
   hecl::CVarManager* m_cvarMgr = nullptr;
   std::unique_ptr<hecl::CVarCommons> m_cvarCommons;
   std::unique_ptr<hecl::Console> m_console;
-  std::unique_ptr<ImGuiConsole> m_imGuiConsole;
   // Warmup state
   std::vector<SObjectTag> m_warmupTags;
   std::vector<SObjectTag>::iterator m_warmupIt;

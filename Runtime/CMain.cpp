@@ -26,46 +26,47 @@ static void AthenaExc(athena::error::Level level, const char* file, const char*,
 }
 
 class Limiter {
-  using delta_clock = std::chrono::steady_clock;
-  using nanotime_t = std::chrono::nanoseconds::rep;
+  using delta_clock = std::chrono::high_resolution_clock;
+  using duration_t = std::chrono::nanoseconds;
 
 public:
-  void Sleep(nanotime_t targetFrameTime) {
-    if (targetFrameTime == 0) {
+  void Reset() { m_oldTime = delta_clock::now(); }
+
+  void Sleep(duration_t targetFrameTime) {
+    if (targetFrameTime.count() == 0) {
       return;
     }
 
     auto start = delta_clock::now();
-    nanotime_t adjustedSleepTime = ShouldSleep(targetFrameTime);
-    if (adjustedSleepTime > 0) {
-      std::this_thread::sleep_for(std::chrono::nanoseconds(adjustedSleepTime));
-      nanotime_t overslept = TimeSince(start) - adjustedSleepTime;
-      if (overslept < targetFrameTime) {
+    duration_t adjustedSleepTime = SleepTime(targetFrameTime);
+    if (adjustedSleepTime.count() > 0) {
+      std::this_thread::sleep_for(adjustedSleepTime);
+      duration_t overslept = TimeSince(start) - adjustedSleepTime;
+      if (overslept < duration_t{targetFrameTime}) {
         m_overheadTimes[m_overheadTimeIdx] = overslept;
         m_overheadTimeIdx = (m_overheadTimeIdx + 1) % m_overheadTimes.size();
       }
     }
-    m_oldTime = delta_clock::now();
+    Reset();
   }
 
-  nanotime_t ShouldSleep(nanotime_t targetFrameTime) {
-    nanotime_t sleepTime = targetFrameTime - TimeSince(m_oldTime);
-    m_overhead = std::accumulate(m_overheadTimes.begin(), m_overheadTimes.end(), nanotime_t{}) /
-                 static_cast<nanotime_t>(m_overheadTimes.size());
+  duration_t SleepTime(duration_t targetFrameTime) {
+    const auto sleepTime = duration_t{targetFrameTime} - TimeSince(m_oldTime);
+    m_overhead = std::accumulate(m_overheadTimes.begin(), m_overheadTimes.end(), duration_t{}) / m_overheadTimes.size();
     if (sleepTime > m_overhead) {
       return sleepTime - m_overhead;
     }
-    return 0;
+    return duration_t{0};
   }
 
 private:
   delta_clock::time_point m_oldTime;
-  std::array<nanotime_t, 4> m_overheadTimes{};
+  std::array<duration_t, 4> m_overheadTimes{};
   size_t m_overheadTimeIdx = 0;
-  nanotime_t m_overhead = 0;
+  duration_t m_overhead = duration_t{0};
 
-  nanotime_t TimeSince(delta_clock::time_point start) {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(delta_clock::now() - start).count();
+  duration_t TimeSince(delta_clock::time_point start) {
+    return std::chrono::duration_cast<duration_t>(delta_clock::now() - start);
   }
 };
 
@@ -217,6 +218,8 @@ private:
   hecl::Runtime::FileStoreManager& m_fileMgr;
   hecl::CVarManager& m_cvarManager;
   hecl::CVarCommons& m_cvarCommons;
+  ImGuiConsole m_imGuiConsole;
+  std::string m_errorString;
 
   boo::ObjToken<boo::ITextureR> m_renderTex;
   hecl::SystemString m_deferredProject;
@@ -236,7 +239,7 @@ private:
 
 public:
   Application(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr, hecl::CVarCommons& cvarCmns)
-  : m_fileMgr(fileMgr), m_cvarManager(cvarMgr), m_cvarCommons(cvarCmns) {}
+  : m_fileMgr(fileMgr), m_cvarManager(cvarMgr), m_cvarCommons(cvarCmns), m_imGuiConsole(cvarMgr, cvarCmns) {}
 
   int appMain(boo::IApplication* app) override {
     initialize(app);
@@ -297,6 +300,7 @@ public:
     }
 
     if (m_imGuiInitialized) {
+      m_imGuiConsole.Shutdown();
       ImGuiEngine::Shutdown();
     }
     if (g_mainMP1) {
@@ -334,20 +338,20 @@ public:
     if (!m_deferredProject.empty()) {
       hecl::SystemString subPath;
       hecl::ProjectRootPath projPath = hecl::SearchForProject(m_deferredProject, subPath);
-      if (!projPath) {
-        Log.report(logvisor::Error, FMT_STRING(_SYS_STR("project doesn't exist at '{}'")), m_deferredProject);
-        m_running.store(false);
-        return;
+      if (projPath) {
+        m_proj = std::make_unique<hecl::Database::Project>(projPath);
+        m_deferredProject.clear();
+        hecl::ProjectPath projectPath{m_proj->getProjectWorkingPath(), _SYS_STR("out/files/MP1")};
+        CDvdFile::Initialize(projectPath);
+      } else {
+        Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Project doesn't exist at '{}'")), m_deferredProject);
+        hecl::SystemUTF8Conv conv{m_deferredProject};
+        m_errorString = fmt::format(FMT_STRING("Project not found at '{}'"), conv.str());
+        m_deferredProject.clear();
       }
-      m_proj = std::make_unique<hecl::Database::Project>(projPath);
-      m_deferredProject.clear();
-      hecl::ProjectPath projectPath{m_proj->getProjectWorkingPath(), _SYS_STR("out/files/MP1")};
-      CDvdFile::Initialize(projectPath);
     }
-    if (!m_proj) {
-      Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Project directory not specified")));
-      m_running.store(false);
-      return;
+    if (!m_proj && m_errorString.empty()) {
+      m_errorString = "Project directory not specified"s;
     }
 
     m_cvarManager.proc();
@@ -377,12 +381,14 @@ public:
 
     boo::IGraphicsDataFactory* gfxF = m_window->getMainContextDataFactory();
     float scale = std::floor(m_window->getVirtualPixelFactor() * 4.f) / 4.f;
-    if (!g_mainMP1) {
+    if (!g_mainMP1 && m_proj) {
       g_mainMP1.emplace(nullptr, nullptr, gfxF, gfxQ, m_renderTex.get());
       g_mainMP1->Init(m_fileMgr, &m_cvarManager, m_window.get(), m_voiceEngine.get(), *m_amuseAllocWrapper);
       if (!m_noShaderWarmup) {
         g_mainMP1->WarmupShaders();
       }
+    }
+    if (!m_imGuiInitialized) {
       ImGuiEngine::Initialize(gfxF, m_window.get(), scale);
       m_imGuiInitialized = true;
     }
@@ -403,20 +409,29 @@ public:
 
     ImGuiEngine::Begin(realDt, scale);
 
-    if (g_mainMP1->Proc(dt)) {
-      m_running.store(false);
-      return;
+    if (g_mainMP1) {
+      m_imGuiConsole.PreUpdate();
+      if (g_mainMP1->Proc(dt)) {
+        m_running.store(false);
+        return;
+      }
+      m_imGuiConsole.PostUpdate();
+    } else {
+      m_imGuiConsole.ShowAboutWindow(false, m_errorString);
     }
 
     {
       OPTICK_EVENT("Draw");
       gfxQ->setRenderTarget(m_renderTex);
+      gfxQ->clearTarget();
       gfxQ->setViewport(rect);
       gfxQ->setScissor(rect);
       if (g_Renderer != nullptr) {
         g_Renderer->BeginScene();
       }
-      g_mainMP1->Draw();
+      if (g_mainMP1) {
+        g_mainMP1->Draw();
+      }
       if (g_Renderer != nullptr) {
         g_Renderer->EndScene();
       }
@@ -436,11 +451,14 @@ public:
     gfxQ->resolveDisplay(m_renderTex);
 
     if (g_ResFactory != nullptr) {
-      int64_t targetFrameTime = getTargetFrameTime();
-      do {
-        g_ResFactory->AsyncIdle();
-      } while (m_limiter.ShouldSleep(targetFrameTime) != 0);
-      m_limiter.Sleep(targetFrameTime);
+      const auto targetFrameTime = getTargetFrameTime();
+      const auto idleTime = m_limiter.SleepTime(targetFrameTime);
+      if (g_ResFactory->AsyncIdle(idleTime)) {
+        m_limiter.Reset();
+      } else {
+        // No more to load; sleep
+        m_limiter.Sleep(targetFrameTime);
+      }
     }
 
     if (m_voiceEngine) {
@@ -461,8 +479,11 @@ public:
 
   [[nodiscard]] bool getDeepColor() const { return m_cvarCommons.getDeepColor(); }
 
-  [[nodiscard]] int64_t getTargetFrameTime() const {
-    return m_cvarCommons.getVariableFrameTime() ? 0 : 1000000000L / 60;
+  [[nodiscard]] std::chrono::nanoseconds getTargetFrameTime() const {
+    if (m_cvarCommons.getVariableFrameTime()) {
+      return std::chrono::nanoseconds{0};
+    }
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::seconds{1}) / 60;
   }
 };
 
