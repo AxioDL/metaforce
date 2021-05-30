@@ -143,6 +143,12 @@ void ImGuiEngine::Shutdown() {
   for (auto& item : ShaderDataBindings) {
     item.reset();
   }
+  for (auto& item : Textures) {
+    item.reset();
+  }
+  VertexBuffer.reset();
+  IndexBuffer.reset();
+  UniformBuffer.reset();
   ShaderPipeline.reset();
 }
 

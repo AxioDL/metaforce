@@ -307,6 +307,8 @@ public:
       g_mainMP1->Shutdown();
     }
     g_mainMP1.reset();
+    m_renderTex.reset();
+    m_pipelineConv.reset();
     if (m_window) {
       m_window->getCommandQueue()->stopRenderer();
     }
