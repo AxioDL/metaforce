@@ -916,6 +916,29 @@ static constexpr std::array ArtifactItems{
     CPlayerState::EItemType::World, CPlayerState::EItemType::Spirit,    CPlayerState::EItemType::Newborn,
 };
 
+static constexpr std::array ItemLoadout21Percent{
+    std::make_pair(CPlayerState::EItemType::PowerSuit, 1),      std::make_pair(CPlayerState::EItemType::CombatVisor, 1),
+    std::make_pair(CPlayerState::EItemType::ScanVisor, 1),      std::make_pair(CPlayerState::EItemType::PowerBeam, 1),
+    std::make_pair(CPlayerState::EItemType::WaveBeam, 1),       std::make_pair(CPlayerState::EItemType::IceBeam, 1),
+    std::make_pair(CPlayerState::EItemType::PlasmaBeam, 1),     std::make_pair(CPlayerState::EItemType::XRayVisor, 1),
+    std::make_pair(CPlayerState::EItemType::Missiles, 5),       std::make_pair(CPlayerState::EItemType::VariaSuit, 1),
+    std::make_pair(CPlayerState::EItemType::PhazonSuit, 1),     std::make_pair(CPlayerState::EItemType::MorphBall, 1),
+    std::make_pair(CPlayerState::EItemType::MorphBallBombs, 1), std::make_pair(CPlayerState::EItemType::PowerBombs, 4),
+};
+
+static constexpr std::array ItemLoadoutAnyPercent{
+    std::make_pair(CPlayerState::EItemType::PowerSuit, 1),      std::make_pair(CPlayerState::EItemType::CombatVisor, 1),
+    std::make_pair(CPlayerState::EItemType::ScanVisor, 1),      std::make_pair(CPlayerState::EItemType::EnergyTanks, 3),
+    std::make_pair(CPlayerState::EItemType::PowerBeam, 1),      std::make_pair(CPlayerState::EItemType::WaveBeam, 1),
+    std::make_pair(CPlayerState::EItemType::IceBeam, 1),        std::make_pair(CPlayerState::EItemType::PlasmaBeam, 1),
+    std::make_pair(CPlayerState::EItemType::ChargeBeam, 1),     std::make_pair(CPlayerState::EItemType::XRayVisor, 1),
+    std::make_pair(CPlayerState::EItemType::ThermalVisor, 1),   std::make_pair(CPlayerState::EItemType::Missiles, 25),
+    std::make_pair(CPlayerState::EItemType::VariaSuit, 1),      std::make_pair(CPlayerState::EItemType::PhazonSuit, 1),
+    std::make_pair(CPlayerState::EItemType::MorphBall, 1),      std::make_pair(CPlayerState::EItemType::BoostBall, 1),
+    std::make_pair(CPlayerState::EItemType::MorphBallBombs, 1), std::make_pair(CPlayerState::EItemType::PowerBombs, 4),
+    std::make_pair(CPlayerState::EItemType::SpaceJumpBoots, 1),
+};
+
 int roundMultiple(int value, int multiple) {
   if (multiple == 0) {
     return value;
@@ -1007,6 +1030,36 @@ void ImGuiConsole::ShowItemsWindow() {
         pState.ReInitializePowerUp(itemType, 0);
       }
       mapWorldInfo.SetMapStationUsed(false);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("21%")) {
+      for (int i = 0; i < int(CPlayerState::EItemType::Max); ++i) {
+        auto itemType = static_cast<CPlayerState::EItemType>(i);
+        pState.ReInitializePowerUp(itemType, 0);
+      }
+      mapWorldInfo.SetMapStationUsed(false);
+      for (const auto& [item, count] : ItemLoadout21Percent) {
+        pState.ReInitializePowerUp(item, count);
+        pState.IncrPickup(item, count);
+      }
+      for (const auto& item : ArtifactItems) {
+        pState.ReInitializePowerUp(item, 1);
+      }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Any%")) {
+      for (int i = 0; i < int(CPlayerState::EItemType::Max); ++i) {
+        auto itemType = static_cast<CPlayerState::EItemType>(i);
+        pState.ReInitializePowerUp(itemType, 0);
+      }
+      mapWorldInfo.SetMapStationUsed(false);
+      for (const auto& [item, count] : ItemLoadoutAnyPercent) {
+        pState.ReInitializePowerUp(item, count);
+        pState.IncrPickup(item, count);
+      }
+      for (const auto& item : ArtifactItems) {
+        pState.ReInitializePowerUp(item, 1);
+      }
     }
 
     if (ImGui::BeginTabBar("Items")) {
