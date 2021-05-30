@@ -566,12 +566,15 @@ void ImGuiConsole::ShowDebugOverlay() {
         ImGui::Separator();
       }
       ImGuiStringViewText(fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects()));
+      hasPrevious = true;
     }
     // Code -stolen- borrowed from Practice Mod
     if (m_showInput && g_InputGenerator != nullptr) {
       auto input = g_InputGenerator->GetLastInput();
       if (input.x4_controllerIdx == 0) {
-        ImGui::Separator();
+        if (hasPrevious) {
+          ImGui::Separator();
+        }
         ImDrawList* dl = ImGui::GetWindowDrawList();
         ImVec2 p = ImGui::GetCursorScreenPos();
 
@@ -698,6 +701,7 @@ void ImGuiConsole::ShowDebugOverlay() {
         }
 
         ImGui::Dummy(ImVec2(270, 130));
+        hasPrevious = true;
       }
     }
     if (ImGui::BeginPopupContextWindow()) {
