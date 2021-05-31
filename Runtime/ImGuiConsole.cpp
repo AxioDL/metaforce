@@ -6,8 +6,8 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-#include "magic_enum.hpp"
 #include "ImGuiEngine.hpp"
+#include "magic_enum.hpp"
 
 namespace ImGui {
 // Internal functions
@@ -36,8 +36,6 @@ void ImGuiTextCenter(std::string_view text) {
 static std::unordered_map<CAssetId, std::unique_ptr<CDummyWorld>> dummyWorlds;
 static std::unordered_map<CAssetId, TCachedToken<CStringTable>> stringTables;
 
-static std::string ReadUtf8String(CStringTable* tbl, int idx) { return hecl::Char16ToUTF8(tbl->GetString(idx)); }
-
 static std::string LoadStringTable(CAssetId stringId, int idx) {
   if (!stringId.IsValid()) {
     return ""s;
@@ -45,7 +43,7 @@ static std::string LoadStringTable(CAssetId stringId, int idx) {
   if (!stringTables.contains(stringId)) {
     stringTables[stringId] = g_SimplePool->GetObj(SObjectTag{SBIG('STRG'), stringId});
   }
-  return ReadUtf8String(stringTables[stringId].GetObj(), 0);
+  return hecl::Char16ToUTF8(stringTables[stringId].GetObj()->GetString(idx));
 }
 
 static bool ContainsCaseInsensitive(std::string_view str, std::string_view val) {
@@ -80,7 +78,7 @@ static std::vector<std::pair<std::string, CAssetId>> ListWorlds() {
 static std::vector<std::pair<std::string, TAreaId>> ListAreas(CAssetId worldId) {
   std::vector<std::pair<std::string, TAreaId>> areas;
   const auto& world = dummyWorlds[worldId];
-  for (int i = 0; i < world->IGetAreaCount(); ++i) {
+  for (TAreaId i = 0; i < world->IGetAreaCount(); ++i) {
     const auto* area = world->IGetAreaAlways(i);
     if (area == nullptr) {
       continue;
@@ -89,7 +87,7 @@ static std::vector<std::pair<std::string, TAreaId>> ListAreas(CAssetId worldId) 
     if (!stringId.IsValid()) {
       continue;
     }
-    areas.emplace_back(LoadStringTable(stringId, 0), TAreaId{i});
+    areas.emplace_back(LoadStringTable(stringId, 0), i);
   }
   return areas;
 }
@@ -292,7 +290,7 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
         s16 uid = list.GetFirstObjectIndex();
 
         auto currAreaId = kInvalidAreaId;
-        CPlayer* player;
+        CPlayer* player = nullptr;
         if (m_inspectCurrentAreaOnly && (player = g_StateManager->Player()) != nullptr) {
           currAreaId = player->GetAreaIdAlways();
         }
@@ -835,10 +833,16 @@ void ImGuiConsole::ShowDebugOverlay() {
 
         const CWorldLayers& layers = world->GetWorldLayers().value();
         const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
-        for (int i = 0; i < layerStates->GetAreaLayerCount(aId); ++i) {
-          ImGui::PushStyleColor(ImGuiCol_Text, layerStates->IsLayerActive(aId, i) ? activeColor : inactiveColor);
-          ImGuiStringViewText("  " + layers.m_names[i]);
-          ImGui::PopStyleColor();
+        int layerCount = int(layerStates->GetAreaLayerCount(aId));
+        u32 startNameIdx = layers.m_areas[aId].m_startNameIdx;
+        if (startNameIdx + layerCount > layers.m_names.size()) {
+          ImGui::Text("Broken layer data, please re-package");
+        } else {
+          for (int i = 0; i < layerCount; ++i) {
+            ImGui::PushStyleColor(ImGuiCol_Text, layerStates->IsLayerActive(aId, i) ? activeColor : inactiveColor);
+            ImGuiStringViewText("  " + layers.m_names[startNameIdx + i]);
+            ImGui::PopStyleColor();
+          }
         }
       }
     }
@@ -1232,8 +1236,8 @@ static void RenderItemType(CPlayerState& pState, CPlayerState::EItemType itemTyp
       }
     }
   } else if (maxValue > 1) {
-    int capacity = pState.GetItemCapacity(itemType);
-    int amount = pState.GetItemAmount(itemType);
+    int capacity = int(pState.GetItemCapacity(itemType));
+    int amount = int(pState.GetItemAmount(itemType));
     if (ImGui::SliderInt((name + " (Capacity)").c_str(), &capacity, 0, int(maxValue), "%d",
                          ImGuiSliderFlags_AlwaysClamp)) {
       if (itemType == CPlayerState::EItemType::Missiles) {
@@ -1415,7 +1419,7 @@ void ImGuiConsole::ShowLayersWindow() {
             if (startNameIdx + layerCount > layers->m_names.size()) {
               ImGui::Text("Broken layer data, please re-package");
             } else {
-              for (u32 layer = 0; layer < layerCount; ++layer) {
+              for (int layer = 0; layer < layerCount; ++layer) {
                 bool active = worldLayerState->IsLayerActive(area.second, layer);
                 if (ImGui::Checkbox(layers->m_names[startNameIdx + layer].c_str(), &active)) {
                   worldLayerState->SetLayerActive(area.second, layer, active);
