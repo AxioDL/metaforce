@@ -37,7 +37,7 @@ void ImGuiTextCenter(std::string_view text) {
 static std::unordered_map<CAssetId, std::unique_ptr<CDummyWorld>> dummyWorlds;
 static std::unordered_map<CAssetId, TCachedToken<CStringTable>> stringTables;
 
-static std::string LoadStringTable(CAssetId stringId, int idx) {
+std::string ImGuiLoadStringTable(CAssetId stringId, int idx) {
   if (!stringId.IsValid()) {
     return ""s;
   }
@@ -71,7 +71,7 @@ static std::vector<std::pair<std::string, CAssetId>> ListWorlds() {
     if (!stringId.IsValid()) {
       continue;
     }
-    worlds.emplace_back(LoadStringTable(stringId, 0), worldId);
+    worlds.emplace_back(ImGuiLoadStringTable(stringId, 0), worldId);
   }
   return worlds;
 }
@@ -88,7 +88,7 @@ static std::vector<std::pair<std::string, TAreaId>> ListAreas(CAssetId worldId) 
     if (!stringId.IsValid()) {
       continue;
     }
-    areas.emplace_back(LoadStringTable(stringId, 0), i);
+    areas.emplace_back(ImGuiLoadStringTable(stringId, 0), i);
   }
   return areas;
 }
@@ -782,7 +782,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      const std::string name = LoadStringTable(g_StateManager->GetWorld()->IGetStringTableAssetId(), 0);
+      const std::string name = ImGuiLoadStringTable(g_StateManager->GetWorld()->IGetStringTableAssetId(), 0);
       ImGuiStringViewText(
           fmt::format(FMT_STRING("World Asset ID: 0x{}, Name: {}\n"), g_GameState->CurrentWorldAssetId(), name));
     }
@@ -809,7 +809,7 @@ void ImGuiConsole::ShowDebugOverlay() {
         CAssetId stringId = pArea->IGetStringTableAssetId();
         ImGuiStringViewText(
             fmt::format(FMT_STRING("Area Asset ID: 0x{}, Name: {}\nArea ID: {}, Active Layer bits: {}\n"),
-                        pArea->GetAreaAssetId(), LoadStringTable(stringId, 0), pArea->GetAreaId(), layerBits));
+                        pArea->GetAreaAssetId(), ImGuiLoadStringTable(stringId, 0), pArea->GetAreaId(), layerBits));
       }
     }
     if (m_layerInfo && g_StateManager != nullptr) {

@@ -14,6 +14,7 @@
 namespace metaforce {
 void ImGuiStringViewText(std::string_view text);
 void ImGuiTextCenter(std::string_view text);
+std::string ImGuiLoadStringTable(CAssetId stringId, int idx);
 
 struct ImGuiEntityEntry {
   TUniqueId uid = kInvalidUniqueId;
