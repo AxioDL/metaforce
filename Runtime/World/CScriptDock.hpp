@@ -8,13 +8,13 @@
 namespace metaforce {
 
 class CScriptDock : public CPhysicsActor {
-  enum class EDockState { Idle, PlayerTouched, EnterNextArea, Three };
+  enum class EDockState { InSourceRoom, PlayerTouched, EnterNextArea, InNextRoom };
 
   friend class CScriptDoor;
   s32 x258_dockReferenceCount;
   s32 x25c_dock;
   TAreaId x260_area;
-  EDockState x264_dockState = EDockState::Three;
+  EDockState x264_dockState = EDockState::InNextRoom;
   bool x268_24_dockReferenced : 1 = false;
   bool x268_25_loadConnected : 1;
   bool x268_26_areaPostConstructed : 1 = false;

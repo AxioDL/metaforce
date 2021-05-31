@@ -50,9 +50,9 @@ void CScriptDock::Think(float dt, CStateManager& mgr) {
   }
 
   if (mgr.GetNextAreaId() != x260_area) {
-    x264_dockState = EDockState::Three;
-  } else if (x264_dockState == EDockState::Three) {
-    x264_dockState = EDockState::Idle;
+    x264_dockState = EDockState::InNextRoom;
+  } else if (x264_dockState == EDockState::InNextRoom) {
+    x264_dockState = EDockState::InSourceRoom;
   } else if (x264_dockState == EDockState::PlayerTouched) {
     x264_dockState = EDockState::EnterNextArea;
   } else if (x264_dockState == EDockState::EnterNextArea) {
@@ -75,7 +75,7 @@ void CScriptDock::Think(float dt, CStateManager& mgr) {
       }
     }
 
-    x264_dockState = EDockState::Idle;
+    x264_dockState = EDockState::InSourceRoom;
   }
 }
 
@@ -153,7 +153,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
 }
 
 std::optional<zeus::CAABox> CScriptDock::GetTouchBounds() const {
-  if (x264_dockState == EDockState::Three) {
+  if (x264_dockState == EDockState::InNextRoom) {
     return std::nullopt;
   }
 
@@ -161,7 +161,7 @@ std::optional<zeus::CAABox> CScriptDock::GetTouchBounds() const {
 }
 
 void CScriptDock::Touch(CActor& act, CStateManager&) {
-  if (x264_dockState == EDockState::Three) {
+  if (x264_dockState == EDockState::InNextRoom) {
     return;
   }
 
