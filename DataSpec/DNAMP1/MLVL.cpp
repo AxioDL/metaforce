@@ -358,7 +358,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         }
       }
 
-      hecl::ProjectPath pathPath = GetPathBeginsWith(areaDEnum, area.path, _SYS_STR("!path_"));
+      hecl::ProjectPath pathPath = GetPathBeginsWith(areaDEnum, area.path, _SYS_STR("!path"));
       metaforce::SObjectTag pathTag = g_curSpec->buildTagFromPath(pathPath);
       if (pathTag.id.IsValid()) {
         areaOut.deps.emplace_back(pathTag.id.Value(), pathTag.type);

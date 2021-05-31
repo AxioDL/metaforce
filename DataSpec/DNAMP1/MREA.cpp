@@ -731,7 +731,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
   /* PATH */
   {
-    const hecl::ProjectPath pathPath = GetPathBeginsWith(inPath.getParentPath(), _SYS_STR("!path_"));
+    const hecl::ProjectPath pathPath = GetPathBeginsWith(inPath.getParentPath(), _SYS_STR("!path"));
     UniqueID32 pathId;
     if (pathPath.isFile())
       pathId = pathPath;
