@@ -112,15 +112,15 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
   mlvl.magic = 0xDEAFBABE;
   mlvl.version = 0x11;
-  hecl::ProjectPath namePath = GetPathBeginsWith(dEnum, parentPath, _SYS_STR("!name_"));
+  hecl::ProjectPath namePath = GetPathBeginsWith(dEnum, parentPath, _SYS_STR("!name"));
   if (namePath.isFile())
     mlvl.worldNameId = namePath;
-  hecl::ProjectPath savwPath = GetPathBeginsWith(dEnum, parentPath, _SYS_STR("!savw_"));
+  hecl::ProjectPath savwPath = GetPathBeginsWith(dEnum, parentPath, _SYS_STR("!savw"));
   if (savwPath.isFile()) {
     CookSAVW(savwPath.getCookedPath(SpecEntMP1), wld);
     mlvl.saveWorldId = savwPath;
   }
-  hecl::ProjectPath mapwPath = GetPathBeginsWith(dEnum, parentPath, _SYS_STR("!mapw_"));
+  hecl::ProjectPath mapwPath = GetPathBeginsWith(dEnum, parentPath, _SYS_STR("!mapw"));
   if (mapwPath.isFile()) {
     CookMAPW(mapwPath.getCookedPath(SpecEntMP1), wld);
     mlvl.worldMap = mapwPath;
@@ -133,7 +133,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
       continue;
 
     const hecl::DirectoryEnumerator areaDEnum(area.path.getAbsolutePath());
-    const hecl::ProjectPath areaPath = GetPathBeginsWith(areaDEnum, area.path, _SYS_STR("!area_"));
+    const hecl::ProjectPath areaPath = GetPathBeginsWith(areaDEnum, area.path, _SYS_STR("!area"));
     if (!areaPath.isFile())
       continue;
 
@@ -200,7 +200,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         mlvl.areas.emplace_back();
         MLVL::Area& areaOut = mlvl.areas.back();
 
-        hecl::ProjectPath namePath = GetPathBeginsWith(areaDEnum, area.path, _SYS_STR("!name_"));
+        namePath = GetPathBeginsWith(areaDEnum, area.path, _SYS_STR("!name"));
         if (namePath.isFile())
           areaOut.areaNameId = namePath;
 

@@ -21,7 +21,7 @@ class ToolPackage final : public ToolBase {
 
   void CheckFile(const hecl::ProjectPath& path) {
     auto lastComp = path.getLastComponent();
-    if (hecl::StringUtils::BeginsWith(lastComp, _SYS_STR("!world_")) &&
+    if (hecl::StringUtils::BeginsWith(lastComp, _SYS_STR("!world")) &&
         hecl::StringUtils::EndsWith(lastComp, _SYS_STR(".blend")))
       AddSelectedItem(path);
   }

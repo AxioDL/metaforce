@@ -712,7 +712,7 @@ struct SpecMP1 : SpecBase {
           if (ent2.m_isDir) {
             hecl::ProjectPath wldDir(pakPath, ent2.m_name);
             for (const auto& ent3 : wldDir.enumerateDir()) {
-              if (hecl::StringUtils::BeginsWith(ent3.m_name, _SYS_STR("!world_")) &&
+              if (hecl::StringUtils::BeginsWith(ent3.m_name, _SYS_STR("!world")) &&
                   hecl::StringUtils::EndsWith(ent3.m_name, _SYS_STR(".blend"))) {
                 hecl::ProjectPath wldPath(wldDir, ent3.m_name);
                 if (wldPath.isFile()) {

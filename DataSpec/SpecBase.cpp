@@ -536,7 +536,7 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
 static bool IsWorldBlend(const hecl::ProjectPath& path) {
   if (path.isFile()) {
     auto lastComp = path.getLastComponent();
-    return hecl::StringUtils::BeginsWith(lastComp, _SYS_STR("!world_")) &&
+    return hecl::StringUtils::BeginsWith(lastComp, _SYS_STR("!world")) &&
            hecl::StringUtils::EndsWith(lastComp, _SYS_STR(".blend"));
   }
   return false;
@@ -680,7 +680,7 @@ std::optional<hecl::blender::World> SpecBase::compileWorldFromDir(const hecl::Pr
                                                                   hecl::blender::Token& btok) const {
   hecl::ProjectPath asBlend;
   for (const auto& ent : hecl::DirectoryEnumerator(dir.getAbsolutePath())) {
-    if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!world_"))) {
+    if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!world"))) {
       asBlend = hecl::ProjectPath(dir, ent.m_name).getWithExtension(_SYS_STR(".blend"), true);
       break;
     }

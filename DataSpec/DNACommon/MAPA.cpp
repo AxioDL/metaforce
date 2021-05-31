@@ -291,7 +291,7 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
   /* World background */
   hecl::ProjectPath worldDir = outPath.getParentPath().getParentPath();
   for (const auto& ent : hecl::DirectoryEnumerator(worldDir.getAbsolutePath())) {
-    if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!world_")) &&
+    if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!world")) &&
         hecl::StringUtils::EndsWith(ent.m_name, _SYS_STR(".blend"))) {
       hecl::SystemUTF8Conv conv(ent.m_name);
       os.linkBackground(fmt::format(FMT_STRING("//../{}"), conv), "World"sv);

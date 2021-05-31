@@ -115,7 +115,7 @@ bool MAPU::Cook(const hecl::blender::MapUniverse& mapuIn, const hecl::ProjectPat
     MAPU::World& wldOut = mapu.worlds.back();
     wldOut.name = wld.name;
     for (const auto& ent : wld.worldPath.enumerateDir()) {
-      if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!world_")) &&
+      if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!world")) &&
           hecl::StringUtils::EndsWith(ent.m_name, _SYS_STR(".blend"))) {
         wldOut.mlvl = hecl::ProjectPath(wld.worldPath, ent.m_name);
         break;
