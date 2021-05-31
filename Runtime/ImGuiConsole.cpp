@@ -20,6 +20,7 @@ namespace metaforce {
 
 std::array<ImGuiEntityEntry, 1024> ImGuiConsole::entities;
 std::set<TUniqueId> ImGuiConsole::inspectingEntities;
+ImGuiPlayerLoadouts ImGuiConsole::loadouts;
 
 void ImGuiStringViewText(std::string_view text) {
   // begin()/end() do not work on MSVC

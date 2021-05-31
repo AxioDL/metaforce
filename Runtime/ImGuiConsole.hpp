@@ -6,6 +6,7 @@
 #include "RetroTypes.hpp"
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CEntity.hpp"
+#include "Runtime/ImGuiPlayerLoadouts.hpp"
 
 #include "hecl/CVarCommons.hpp"
 #include "hecl/CVarManager.hpp"
@@ -33,6 +34,7 @@ class ImGuiConsole {
 public:
   static std::set<TUniqueId> inspectingEntities;
   static std::array<ImGuiEntityEntry, 1024> entities;
+  static ImGuiPlayerLoadouts loadouts;
 
   ImGuiConsole(hecl::CVarManager& cvarMgr, hecl::CVarCommons& cvarCommons)
   : m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {}
