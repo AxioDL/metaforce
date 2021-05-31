@@ -347,6 +347,9 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
 bool ImGuiConsole::ShowEntityInfoWindow(TUniqueId uid) {
   bool open = true;
   ImGuiEntityEntry& entry = ImGuiConsole::entities[uid.Value()];
+  if (entry.ent == nullptr) {
+    return false;
+  }
   auto name = fmt::format(FMT_STRING("{}##0x{:04X}"), !entry.name.empty() ? entry.name : entry.type, uid.Value());
   if (ImGui::Begin(name.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::PushID(uid.Value());
