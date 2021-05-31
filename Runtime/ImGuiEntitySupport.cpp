@@ -152,6 +152,9 @@
 #include "Runtime/MP1/World/CThardusRockProjectile.hpp"
 #include "Runtime/MP1/World/CTryclops.hpp"
 #include "Runtime/MP1/World/CWarWasp.hpp"
+
+#include "Runtime/World/CWorld.hpp"
+#include "Runtime/World/CGameArea.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
 #include "ImGuiConsole.hpp"
@@ -209,6 +212,14 @@ static constexpr bool ImGuiEnumInput(const char* label, E& val) {
   return changed;
 }
 
+void ImGuiAnimRes(const char* label, metaforce::CAnimRes& res) {
+  if (res.GetId().IsValid()) {
+    ImGui::Text("Model: 0x%08lX", res.GetId().Value());
+  } else {
+    ImGui::Text("Model: [none]");
+  }
+  // TODO: More
+}
 namespace metaforce {
 void CDamageVulnerability::ImGuiEditWindow(const char* title, bool& open) {
   if (!open) {
@@ -243,7 +254,8 @@ void CDamageVulnerability::ImGuiEditWindow(const char* title, bool& open) {
   ImGui::End();
 }
 void ImGuiUniqueId(const char* label, TUniqueId uid) {
-  if (uid != kInvalidUniqueId) {
+  ImGui::PushID(uid.Value());
+  if (uid != kInvalidUniqueId && ImGuiConsole::entities[uid.Value()].ent != nullptr) {
     ImGui::Text("%s: 0x%04X", label, uid.Value());
     ImGui::SameLine();
     if (ImGui::SmallButton("View")) {
@@ -252,6 +264,7 @@ void ImGuiUniqueId(const char* label, TUniqueId uid) {
   } else {
     ImGui::Text("%s: [none]", label);
   }
+  ImGui::PopID();
 }
 
 std::string_view CEntity::ImGuiType() { return "Entity"; }
@@ -745,8 +758,41 @@ IMGUI_ENTITY_INSPECT(CScriptActor, CPhysicsActor, ScriptActor, {
       modelFlagsChanged || x2e2_27_xrayAlphaEnabled || x2e2_24_noThermalHotZ || x2d8_shaderIdx != 0;
 })
 IMGUI_ENTITY_INSPECT(CScriptDebris, CPhysicsActor, ScriptDebris, {})
-IMGUI_ENTITY_INSPECT(CScriptDock, CPhysicsActor, ScriptDock, {})
-IMGUI_ENTITY_INSPECT(CScriptDoor, CPhysicsActor, ScriptDoor, {})
+IMGUI_ENTITY_INSPECT(CScriptDock, CPhysicsActor, ScriptDock, {
+  if (x260_area != kInvalidAreaId) {
+    const auto* dock = g_StateManager->GetWorld()->GetArea(x260_area)->GetDock(x25c_dock);
+    if (dock != nullptr) {
+      auto areaId = dock->GetConnectedAreaId(dock->GetReferenceCount());
+      if (areaId != kInvalidAreaId) {
+        CAssetId stringId = g_StateManager->GetWorld()->GetArea(areaId)->IGetStringTableAssetId();
+        ImGuiStringViewText(fmt::format(FMT_STRING("Connected Area: {}"), ImGuiLoadStringTable(stringId, 0)));
+      }
+    }
+  }
+  ImGuiEnumInput("Dock State", x264_dockState);
+  BITFIELD_CHECKBOX("Dock Referenced", x268_24_dockReferenced);
+  BITFIELD_CHECKBOX("Load Connected", x268_25_loadConnected);
+  BITFIELD_CHECKBOX("Area Post Constructed", x268_26_areaPostConstructed);
+});
+IMGUI_ENTITY_INSPECT(CScriptDoor, CPhysicsActor, ScriptDoor, {
+  ImGui::DragFloat("Animation Length", &x258_animLen, 0.1f);
+  ImGui::DragFloat("Animation Time", &x25c_animTime, 0.1f);
+  ImGuiEnumInput("Door State", x260_doorAnimState);
+  // TODO: AABox
+  ImGuiUniqueId("Partner1", x27c_partner1);
+  ImGuiUniqueId("Partner2", x27e_partner2);
+  ImGuiUniqueId("Previous Door", x280_prevDoor);
+  ImGuiUniqueId("Dock", x282_dockId);
+  // TODO: model aabox
+  ImGuiVector3fInput("Orbit Position", x29c_orbitPos);
+  BITFIELD_CHECKBOX("Closing", x2a8_24_closing);
+  BITFIELD_CHECKBOX("Was Open", x2a8_25_wasOpen);
+  BITFIELD_CHECKBOX("Is Open", x2a8_26_isOpen);
+  BITFIELD_CHECKBOX("Open Conditions Met", x2a8_27_conditionsMet);
+  BITFIELD_CHECKBOX("Projectiles Can Collide", x2a8_28_projectilesCollide);
+  BITFIELD_CHECKBOX("Is Ball Door", x2a8_29_ballDoor);
+  BITFIELD_CHECKBOX("Will Close", x2a8_30_doClose);
+})
 IMGUI_ENTITY_INSPECT(CScriptGunTurret, CPhysicsActor, ScriptGunTurret, {})
 IMGUI_ENTITY_INSPECT(CScriptPickup, CPhysicsActor, ScriptPickup, {
   ImGuiEnumInput("Item Type", x258_itemType);
@@ -766,7 +812,11 @@ IMGUI_ENTITY_INSPECT(CScriptPlatform, CPhysicsActor, ScriptPlatform, {
 
 // <- CScriptActor
 IMGUI_ENTITY_INSPECT(MP1::CActorContraption, CScriptActor, ActorContraption, {})
-IMGUI_ENTITY_INSPECT(CScriptPlayerActor, CScriptActor, PlayerActor, {})
+IMGUI_ENTITY_INSPECT(CScriptPlayerActor, CScriptActor, PlayerActor, {
+  ImGuiAnimRes("Suit Resource", x2e8_suitRes);
+  ImGuiEnumInput("Beam", x304_beam);
+  ImGuiEnumInput("Suit", x308_suit);
+})
 
 // <- CScriptPlatform
 IMGUI_ENTITY_INSPECT(MP1::CRipperControlledPlatform, CScriptPlatform, RipperControlledPlatform, {})
