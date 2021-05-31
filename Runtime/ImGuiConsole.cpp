@@ -747,11 +747,6 @@ void ImGuiConsole::ShowDebugOverlay() {
       hasPrevious = true;
 
       double igt = g_GameState->GetTotalPlayTime();
-      if (m_currentRoom != g_StateManager->GetCurrentArea()) {
-        m_currentRoom = static_cast<const void*>(g_StateManager->GetCurrentArea());
-        m_lastRoomTime = igt - m_currentRoomStart;
-        m_currentRoomStart = igt;
-      }
       double currentRoomTime = igt - m_currentRoomStart;
       u32 curFrames = u32(std::round(u32(currentRoomTime * 60)));
       u32 lastFrames = u32(std::round(u32(m_lastRoomTime * 60)));
@@ -1179,6 +1174,15 @@ void ImGuiConsole::PostUpdate() {
   } else {
     entities.fill(ImGuiEntityEntry{});
     inspectingEntities.clear();
+  }
+
+  // Always calculate room time regardless of if the overlay is displayed, this allows us have an accurate display if
+  // the user chooses to display it later on during gameplay
+  if (g_StateManager && m_currentRoom != g_StateManager->GetCurrentArea()) {
+    const double igt = g_GameState->GetTotalPlayTime();
+    m_currentRoom = static_cast<const void*>(g_StateManager->GetCurrentArea());
+    m_lastRoomTime = igt - m_currentRoomStart;
+    m_currentRoomStart = igt;
   }
 }
 
