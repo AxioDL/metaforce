@@ -566,7 +566,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
               ImGui::Text("lawl wut? Please contact a developer, your copy of Metaforce is cursed!");
               break;
             }
-            if (ImGui::IsItemHovered() && cv->hasDefaultValue()) {
+            if (ImGui::IsItemHovered()) {
               std::string sv(cv->defaultValue());
               ImGui::SetTooltip("Default: %s", sv.c_str());
             }
