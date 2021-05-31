@@ -1113,12 +1113,17 @@ void ImGuiConsole::PreUpdate() {
     g_StateManager->SetActiveRandomToDefault();
   }
 
+  if (ImGui::IsKeyReleased('`')) {
+    m_isVisible ^= 1;
+  }
   if (m_stepFrame) {
     g_Main->SetPaused(true);
     m_stepFrame = false;
   }
   bool canInspect = g_StateManager != nullptr && g_StateManager->GetObjectList();
-  ShowAppMainMenuBar(canInspect);
+  if (m_isVisible) {
+    ShowAppMainMenuBar(canInspect);
+  }
   if (canInspect && (m_showInspectWindow || !inspectingEntities.empty())) {
     UpdateEntityEntries();
     if (m_showInspectWindow) {

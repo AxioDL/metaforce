@@ -73,8 +73,6 @@ private:
   State m_state = State::Closed;
   CVar* m_conSpeed;
   CVar* m_conHeight;
-  float m_cachedConSpeed;
-  float m_cachedConHeight;
   bool m_showCursor = true;
   float m_cursorTime = 0.f;
 

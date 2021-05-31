@@ -30,13 +30,6 @@ Console::Console(CVarManager* cvarMgr) : m_cvarMgr(cvarMgr), m_overwrite(false),
   registerCommand(
       "getCVar", "Prints the value stored in the specified Console Variable", "<cvar>",
       [this](Console* console, const std::vector<std::string>& args) { m_cvarMgr->getCVar(console, args); });
-  m_conSpeed = cvarMgr->findOrMakeCVar("con_speed",
-                                       "Speed at which the console opens and closes, calculated as pixels per second",
-                                       1.f, hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
-  m_conHeight = cvarMgr->findOrMakeCVar("con_height",
-                                        "Maximum absolute height of the console, height is calculated from the top of "
-                                        "the window, expects values ranged from [0.f,1.f]",
-                                        0.5f, hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
 }
 
 void Console::registerCommand(std::string_view name, std::string_view helpText, std::string_view usage,
@@ -188,14 +181,6 @@ void Console::init(boo::IWindow* window) {
 }
 
 void Console::proc() {
-  if (m_conHeight->isModified()) {
-    m_cachedConHeight = float(m_conHeight->toReal());
-  }
-
-  if (m_conSpeed->isModified()) {
-    m_cachedConSpeed = float(m_conSpeed->toReal());
-  }
-
   if (m_state == State::Opened) {
     fmt::print(FMT_STRING("\r{}                                   "), m_commandString);
     fflush(stdout);

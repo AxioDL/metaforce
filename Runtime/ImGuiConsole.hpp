@@ -57,6 +57,7 @@ private:
 
   bool m_paused = false;
   bool m_stepFrame = false;
+  bool m_isVisible = false;
 
   bool m_inspectActiveOnly = false;
   bool m_inspectCurrentAreaOnly = false;
