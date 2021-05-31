@@ -415,9 +415,7 @@ bool CVar::fromLiteralToType(std::string_view val) {
   return true;
 }
 
-bool CVar::fromLiteralToType(std::wstring_view val) {
-  return fromLiteralToType(hecl::WideToUTF8(val));
-}
+bool CVar::fromLiteralToType(std::wstring_view val) { return fromLiteralToType(hecl::WideToUTF8(val)); }
 
 bool CVar::isModified() const { return True(m_flags & EFlags::Modified); }
 bool CVar::modificationRequiresRestart() const { return True(m_flags & EFlags::ModifyRestart); }
@@ -433,8 +431,8 @@ bool CVar::isArchive() const { return True(m_flags & EFlags::Archive); }
 bool CVar::isInternalArchivable() const { return True(m_flags & EFlags::InternalArchivable); }
 
 bool CVar::isColor() const {
-  return True(m_flags & EFlags::Color) &&
-         (m_type == EType::Vec3f || m_type == EType::Vec3d || m_type == EType::Vec3f || m_type == EType::Vec4d);
+  return True(m_flags & EFlags::Color) && (m_type == EType::Vec3f || m_type == EType::Vec3d || m_type == EType::Vec3f ||
+                                           m_type == EType::Vec4f || m_type == EType::Vec4d);
 }
 
 bool CVar::isNoDeveloper() const { return True(m_flags & EFlags::NoDeveloper); }
@@ -470,7 +468,6 @@ void CVar::dispatch() {
     listen(this);
 }
 
-
 bool isReal(std::string_view v) {
   char* p;
   std::strtod(v.data(), &p);
@@ -487,7 +484,7 @@ bool isReal(const std::vector<std::string>& v) {
 bool CVar::isValidInput(std::string_view input) const {
   std::vector<std::string> parts = athena::utility::split(input, ' ');
   char* p;
-  switch(m_type) {
+  switch (m_type) {
   case EType::Boolean: {
     bool valid = false;
     athena::utility::parseBool(input, &valid);
@@ -520,9 +517,7 @@ bool CVar::isValidInput(std::string_view input) const {
   return false;
 }
 
-bool CVar::isValidInput(std::wstring_view input) const {
-  return isValidInput(hecl::WideToUTF8(input));
-}
+bool CVar::isValidInput(std::wstring_view input) const { return isValidInput(hecl::WideToUTF8(input)); }
 
 bool CVar::safeToModify(EType type) const {
   // Are we NoDevelper?

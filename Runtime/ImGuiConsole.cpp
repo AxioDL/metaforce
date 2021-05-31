@@ -6,6 +6,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
+#include "magic_enum.hpp"
 #include "ImGuiEngine.hpp"
 
 namespace ImGui {
@@ -351,6 +352,229 @@ bool ImGuiConsole::ShowEntityInfoWindow(TUniqueId uid) {
   }
   ImGui::End();
   return open;
+}
+
+void ImGuiConsole::ShowConsoleVariablesWindow() {
+  // For some reason the window shows up tiny without this
+  float initialWindowSize = 350.f * ImGui::GetIO().DisplayFramebufferScale.x;
+  ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize}, ImGuiCond_FirstUseEver);
+  if (ImGui::Begin("Console Variables", &m_showConsoleVariablesWindow)) {
+    if (ImGui::Button("Clear")) {
+      m_cvarFiltersText[0] = '\0';
+    }
+    ImGui::SameLine();
+    ImGui::InputText("Filter", m_cvarFiltersText.data(), m_cvarFiltersText.size());
+    auto cvars = m_cvarMgr.cvars(hecl::CVar::EFlags::Any & ~hecl::CVar::EFlags::Hidden);
+
+    if (ImGui::BeginTable("ConsoleVariables", 2,
+                          ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg |
+                              ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ScrollY)) {
+      ImGui::TableSetupColumn("Name",
+                              ImGuiTableColumnFlags_PreferSortAscending | ImGuiTableColumnFlags_DefaultSort |
+                                  ImGuiTableColumnFlags_WidthFixed,
+                              0, 'name');
+      ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch, 0, 'val');
+      ImGui::TableSetupScrollFreeze(0, 1);
+      ImGui::TableHeadersRow();
+
+      ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs();
+      bool hasSortSpec = sortSpecs != nullptr &&
+                         // no multi-sort
+                         sortSpecs->SpecsCount == 1;
+      std::string_view search{m_cvarFiltersText.data(), strlen(m_cvarFiltersText.data())};
+      std::vector<hecl::CVar*> sortedList;
+      sortedList.reserve(cvars.size());
+
+      for (auto* cvar : cvars) {
+        if (!search.empty()) {
+          if (ContainsCaseInsensitive(magic_enum::enum_name(cvar->type()), search) ||
+              ContainsCaseInsensitive(cvar->name(), search)) {
+            sortedList.push_back(cvar);
+          }
+        } else {
+          sortedList.push_back(cvar);
+        }
+      }
+
+      if (hasSortSpec) {
+        const auto& spec = sortSpecs->Specs[0];
+        if (spec.ColumnUserID == 'name') {
+          std::sort(sortedList.begin(), sortedList.end(), [&](hecl::CVar* a, hecl::CVar* b) {
+            int compare = a->name().compare(b->name());
+            return spec.SortDirection == ImGuiSortDirection_Ascending ? compare < 0 : compare > 0;
+          });
+        } else if (spec.ColumnUserID == 'val') {
+          std::sort(sortedList.begin(), sortedList.end(), [&](hecl::CVar* a, hecl::CVar* b) {
+            int compare = a->value().compare(b->value());
+            return spec.SortDirection == ImGuiSortDirection_Ascending ? compare < 0 : compare > 0;
+          });
+        }
+
+        for (auto* cv : sortedList) {
+          ImGui::PushID(cv);
+          ImGui::TableNextRow();
+          // Name
+          if (ImGui::TableNextColumn()) {
+            ImGuiStringViewText(cv->name());
+            if (ImGui::IsItemHovered() && !cv->rawHelp().empty()) {
+              std::string sv(cv->rawHelp());
+              ImGui::SetTooltip("%s", sv.c_str());
+            }
+          }
+          // Value
+          if (ImGui::TableNextColumn()) {
+            switch (cv->type()) {
+            case hecl::CVar::EType::Boolean: {
+              bool b = cv->toBoolean();
+              if (ImGui::Checkbox("", &b)) {
+                cv->fromBoolean(b);
+              }
+              break;
+            }
+            case hecl::CVar::EType::Real: {
+              float f = cv->toReal();
+              if (ImGui::DragFloat("", &f)) {
+                cv->fromReal(f);
+              }
+              break;
+            }
+            case hecl::CVar::EType::Signed: {
+              std::array<s32, 1> i{cv->toSigned()};
+              if (ImGui::DragScalar("", ImGuiDataType_S32, i.data(), i.size())) {
+                cv->fromInteger(i[0]);
+              }
+              break;
+            }
+            case hecl::CVar::EType::Unsigned: {
+              std::array<u32, 1> i{cv->toUnsigned()};
+              if (ImGui::DragScalar("", ImGuiDataType_U32, i.data(), i.size())) {
+                cv->fromInteger(i[0]);
+              }
+              break;
+            }
+            case hecl::CVar::EType::Literal: {
+              char buf[4096];
+              strcpy(buf, cv->value().c_str());
+              if (ImGui::InputText("", buf, 4096, ImGuiInputTextFlags_EnterReturnsTrue)) {
+                cv->fromLiteral(buf);
+              }
+              break;
+            }
+            case hecl::CVar::EType::Vec2f: {
+              auto vec = cv->toVec2f();
+              std::array<float, 2> scalars = {vec.simd[0], vec.simd[1]};
+              if (ImGui::DragScalarN("", ImGuiDataType_Float, scalars.data(), scalars.size(), 0.1f)) {
+                vec.simd[0] = scalars[0];
+                vec.simd[1] = scalars[1];
+                cv->fromVec2f(vec);
+              }
+              break;
+            }
+            case hecl::CVar::EType::Vec2d: {
+              auto vec = cv->toVec2d();
+              std::array<double, 2> scalars = {vec.simd[0], vec.simd[1]};
+              if (ImGui::DragScalarN("", ImGuiDataType_Double, scalars.data(), scalars.size(), 0.1f)) {
+                vec.simd[0] = scalars[0];
+                vec.simd[1] = scalars[1];
+                cv->fromVec2d(vec);
+              }
+              break;
+            }
+            case hecl::CVar::EType::Vec3f: {
+              auto vec = cv->toVec3f();
+              std::array<float, 3> scalars = {vec.simd[0], vec.simd[1]};
+              if (cv->isColor()) {
+                if (ImGui::ColorEdit3("", scalars.data())) {
+                  vec.simd[0] = scalars[0];
+                  vec.simd[1] = scalars[1];
+                  vec.simd[2] = scalars[2];
+                  cv->fromVec3f(vec);
+                }
+              } else if (ImGui::DragScalarN("", ImGuiDataType_Float, scalars.data(), scalars.size(), 0.1f)) {
+                vec.simd[0] = scalars[0];
+                vec.simd[1] = scalars[1];
+                vec.simd[2] = scalars[2];
+                cv->fromVec3f(vec);
+              }
+              break;
+            }
+            case hecl::CVar::EType::Vec3d: {
+              auto vec = cv->toVec3d();
+              std::array<double, 3> scalars = {vec.simd[0], vec.simd[1], vec.simd[2]};
+              if (cv->isColor()) {
+                std::array<float, 3> color{static_cast<float>(scalars[0]), static_cast<float>(scalars[1]),
+                                           static_cast<float>(scalars[2])};
+                if (ImGui::ColorEdit3("", color.data())) {
+                  vec.simd[0] = color[0];
+                  vec.simd[1] = color[1];
+                  vec.simd[2] = color[2];
+                  cv->fromVec3d(vec);
+                }
+              } else if (ImGui::DragScalarN("", ImGuiDataType_Double, scalars.data(), scalars.size(), 0.1f)) {
+                vec.simd[0] = scalars[0];
+                vec.simd[1] = scalars[1];
+                vec.simd[2] = scalars[2];
+                cv->fromVec3d(vec);
+              }
+              break;
+            }
+            case hecl::CVar::EType::Vec4f: {
+              auto vec = cv->toVec4f();
+              std::array<float, 4> scalars = {vec.simd[0], vec.simd[1], vec.simd[2], vec.simd[3]};
+              if (cv->isColor()) {
+                if (ImGui::ColorEdit4("", scalars.data())) {
+                  vec.simd[0] = scalars[0];
+                  vec.simd[1] = scalars[1];
+                  vec.simd[2] = scalars[2];
+                  cv->fromVec4f(vec);
+                }
+              } else if (ImGui::DragScalarN("", ImGuiDataType_Float, scalars.data(), scalars.size(), 0.1f)) {
+                vec.simd[0] = scalars[0];
+                vec.simd[1] = scalars[1];
+                vec.simd[2] = scalars[2];
+                vec.simd[3] = scalars[3];
+                cv->fromVec4f(vec);
+              }
+              break;
+            }
+            case hecl::CVar::EType::Vec4d: {
+              auto vec = cv->toVec4d();
+              std::array<double, 4> scalars = {vec.simd[0], vec.simd[1], vec.simd[2], vec.simd[3]};
+              if (cv->isColor()) {
+                std::array<float, 4> color{static_cast<float>(scalars[0]), static_cast<float>(scalars[1]),
+                                           static_cast<float>(scalars[2]), static_cast<float>(scalars[3])};
+                if (ImGui::ColorEdit4("", color.data())) {
+                  vec.simd[0] = color[0];
+                  vec.simd[1] = color[1];
+                  vec.simd[2] = color[2];
+                  vec.simd[3] = color[3];
+                  cv->fromVec4d(vec);
+                }
+              } else if (ImGui::DragScalarN("", ImGuiDataType_Double, scalars.data(), scalars.size(), 0.1f)) {
+                vec.simd[0] = scalars[0];
+                vec.simd[1] = scalars[1];
+                vec.simd[2] = scalars[2];
+                vec.simd[3] = scalars[3];
+                cv->fromVec4d(vec);
+              }
+              break;
+            }
+            default:
+              ImGui::Text("lawl wut? Please contact a developer, your copy of Metaforce is cursed!");
+              break;
+            }
+            if (ImGui::IsItemHovered() && cv->hasDefaultValue()) {
+              std::string sv(cv->defaultValue());
+              ImGui::SetTooltip("Default: %s", sv.c_str());
+            }
+          }
+          ImGui::PopID();
+        }
+      }
+      ImGui::EndTable();
+    }
+  }
+  ImGui::End();
 }
 
 void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) {
@@ -771,9 +995,10 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Tools")) {
-      ImGui::MenuItem("Inspect", nullptr, &m_showInspectWindow, canInspect);
-      ImGui::MenuItem("Items", nullptr, &m_showItemsWindow, canInspect);
-      ImGui::MenuItem("Layers", nullptr, &m_showLayersWindow, canInspect);
+      ImGui::MenuItem("Inspect", nullptr, &m_showInspectWindow, canInspect && m_developer);
+      ImGui::MenuItem("Items", nullptr, &m_showItemsWindow, canInspect && m_developer && m_cheats);
+      ImGui::MenuItem("Layers", nullptr, &m_showLayersWindow, canInspect && m_developer);
+      ImGui::MenuItem("Console Variables", nullptr, &m_showConsoleVariablesWindow);
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Debug")) {
@@ -828,7 +1053,7 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
 
 void ImGuiConsole::PreUpdate() {
   // We ned to make sure we have a valid CRandom16 at all times, so lets do that here
-  if (g_StateManager && g_StateManager->GetActiveRandom() == nullptr) {
+  if (g_StateManager != nullptr && g_StateManager->GetActiveRandom() == nullptr) {
     g_StateManager->SetActiveRandomToDefault();
   }
 
@@ -852,7 +1077,7 @@ void ImGuiConsole::PreUpdate() {
       }
     }
   }
-  if (canInspect && m_showItemsWindow) {
+  if (canInspect && m_showItemsWindow && m_cvarMgr.findCVar("cheats")->toBoolean()) {
     ShowItemsWindow();
   }
   if (canInspect && m_showLayersWindow) {
@@ -863,6 +1088,9 @@ void ImGuiConsole::PreUpdate() {
   }
   if (m_showDemoWindow) {
     ImGui::ShowDemoWindow(&m_showDemoWindow);
+  }
+  if (m_showConsoleVariablesWindow) {
+    ShowConsoleVariablesWindow();
   }
   ShowDebugOverlay();
 }

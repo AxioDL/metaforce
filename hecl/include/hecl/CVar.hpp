@@ -72,6 +72,7 @@ public:
 
   std::string_view name() const { return m_name; }
   std::string_view rawHelp() const { return m_help; }
+  std::string_view defaultValue() const { return m_defaultValue; }
   std::string help() const;
   std::string value() const { return m_value; }
 

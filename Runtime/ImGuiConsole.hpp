@@ -53,6 +53,7 @@ private:
   bool m_showAboutWindow = false;
   bool m_showItemsWindow = false;
   bool m_showLayersWindow = false;
+  bool m_showConsoleVariablesWindow = false;
 
   bool m_paused = false;
   bool m_stepFrame = false;
@@ -61,6 +62,7 @@ private:
   bool m_inspectCurrentAreaOnly = false;
   std::array<char, 40> m_inspectFilterText{};
   std::array<char, 40> m_layersFilterText{};
+  std::array<char, 40> m_cvarFiltersText{};
 
   // Debug overlays
   bool m_frameCounter = m_cvarCommons.m_debugOverlayShowFrameCounter->toBoolean();
@@ -73,6 +75,8 @@ private:
   bool m_randomStats = m_cvarCommons.m_debugOverlayShowRandomStats->toBoolean();
   bool m_resourceStats = m_cvarCommons.m_debugOverlayShowResourceStats->toBoolean();
   bool m_showInput = m_cvarCommons.m_debugOverlayShowInput->toBoolean();
+  const bool m_developer = m_cvarMgr.findCVar("developer")->toBoolean();
+  const bool m_cheats = m_cvarMgr.findCVar("cheats")->toBoolean();
 
   int m_debugOverlayCorner = 2; // bottom-left
   const void* m_currentRoom = nullptr;
@@ -88,5 +92,6 @@ private:
   void ShowDebugOverlay();
   void ShowItemsWindow();
   void ShowLayersWindow();
+  void ShowConsoleVariablesWindow();
 };
 } // namespace metaforce

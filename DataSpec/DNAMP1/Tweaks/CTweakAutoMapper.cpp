@@ -149,29 +149,29 @@ void CTweakAutoMapper::initCVars(hecl::CVarManager* mgr) {
                                     hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
   tw_widgetColor = assignColorValue(skWidgetColor, "", x38_automapperWidgetMiniColor,
                                     hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_visitedsurfaceColor =
-      assignColorValue(skVisitedSurfaceColor, "", x3c_surfColorVisited,
-                       hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_visitedOutlineColor =
-      assignColorValue(skVisitedOutlineColor, "", x40_outlineColorVisited,
-                       hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_unvisitedSurfaceColor =
-      assignColorValue(skUnvisitedSurfaceColor, "", x44_surfColorUnvisited,
-                       hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+  tw_visitedsurfaceColor = assignColorValue(skVisitedSurfaceColor, "", x3c_surfColorVisited,
+                                            hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
+                                                hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+  tw_visitedOutlineColor = assignColorValue(skVisitedOutlineColor, "", x40_outlineColorVisited,
+                                            hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
+                                                hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+  tw_unvisitedSurfaceColor = assignColorValue(skUnvisitedSurfaceColor, "", x44_surfColorUnvisited,
+                                              hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
+                                                  hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
   tw_unvisitedOutlineColor =
       assignColorValue(skUnvisitedOutlineColor, "", x48_outlineColorUnvisited,
                        hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_selectedVisitedSurfaceColor =
-      assignColorValue(skSelectedVisitedSurfaceColor, "", x4c_surfaceSelectColorVisited,
-                       hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_selectedVisitedOutlineColor =
-      assignColorValue(skSelectedVisitedOutlineColor, "", x50_outlineSelectColorVisited,
-                       hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_mapSurfaceNormColorLinear =
-      assignRealValue(skMapSurfaceNormalColorLinear, "", x54_mapSurfaceNormColorLinear,
-                      hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_mapSurfaceNormColorConstant =
-      assignRealValue(skMapSurfaceNormalColorConstant, "", x58_mapSurfaceNormColorConstant,
-                      hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+  tw_selectedVisitedSurfaceColor = assignColorValue(skSelectedVisitedSurfaceColor, "", x4c_surfaceSelectColorVisited,
+                                                    hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
+                                                        hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+  tw_selectedVisitedOutlineColor = assignColorValue(skSelectedVisitedOutlineColor, "", x50_outlineSelectColorVisited,
+                                                    hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
+                                                        hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+  tw_mapSurfaceNormColorLinear = assignRealValue(skMapSurfaceNormalColorLinear, "", x54_mapSurfaceNormColorLinear,
+                                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
+                                                     hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+  tw_mapSurfaceNormColorConstant = assignRealValue(skMapSurfaceNormalColorConstant, "", x58_mapSurfaceNormColorConstant,
+                                                   hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
+                                                       hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
 }
-}
+} // namespace DataSpec::DNAMP1
