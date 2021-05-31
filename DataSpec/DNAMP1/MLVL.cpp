@@ -400,7 +400,7 @@ bool MLVL::CookMAPW(const hecl::ProjectPath& outPath, const World& wld) {
       continue;
 
     /* Area map */
-    hecl::ProjectPath mapPath = GetPathBeginsWith(area.path, _SYS_STR("!map_"));
+    hecl::ProjectPath mapPath = GetPathBeginsWith(area.path, _SYS_STR("!map"));
     if (mapPath.isFile())
       mapaTags.push_back(g_curSpec->buildTagFromPath(mapPath));
   }
@@ -432,7 +432,7 @@ bool MLVL::CookSAVW(const hecl::ProjectPath& outPath, const World& wld) {
     if (area.path.getPathType() != hecl::ProjectPath::Type::Directory)
       continue;
 
-    hecl::ProjectPath areaPath = GetPathBeginsWith(area.path, _SYS_STR("!area_"));
+    hecl::ProjectPath areaPath = GetPathBeginsWith(area.path, _SYS_STR("!area"));
     if (!areaPath.isFile())
       continue;
 
