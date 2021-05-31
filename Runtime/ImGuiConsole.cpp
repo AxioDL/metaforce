@@ -1471,18 +1471,14 @@ void ImGuiConsole::ShowMenuHint() {
   }
   m_menuHintTime -= ImGui::GetIO().DeltaTime;
 
-  constexpr auto hintText = "Press ` to toggle menu";
-
   const ImGuiViewport* viewport = ImGui::GetMainViewport();
-  ImVec2 workPos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
-  ImVec2 workSize = viewport->WorkSize;
-  ImVec2 windowPos;
+  const ImVec2 workPos = viewport->WorkPos;
+  const ImVec2 workSize = viewport->WorkSize;
   constexpr float padding = 10.0f;
-  windowPos.x = workPos.x + (workSize.x + ImGui::CalcTextSize(hintText).x) / 2 + ImGui::GetStyle().WindowPadding.x;
-  windowPos.y = workPos.y + workSize.y - padding;
-  ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, ImVec2{1.f, 1.f});
+  const ImVec2 windowPos{workPos.x + workSize.x / 2, workPos.y + workSize.y - padding};
+  ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, ImVec2{0.5f, 1.f});
 
-  float alpha = std::min(m_menuHintTime, 1.f);
+  const float alpha = std::min(m_menuHintTime, 1.f);
   ImGui::SetNextWindowBgAlpha(alpha * 0.65f);
   ImVec4 textColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
   textColor.w *= alpha;
@@ -1494,7 +1490,7 @@ void ImGuiConsole::ShowMenuHint() {
                    ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
                        ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav |
                        ImGuiWindowFlags_NoMove)) {
-    ImGui::TextUnformatted(hintText);
+    ImGuiStringViewText("Press ` to toggle menu"sv);
   }
   ImGui::End();
   ImGui::PopStyleColor(2);
