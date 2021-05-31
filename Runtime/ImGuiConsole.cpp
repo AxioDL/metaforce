@@ -526,6 +526,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
                   vec.simd[0] = scalars[0];
                   vec.simd[1] = scalars[1];
                   vec.simd[2] = scalars[2];
+                  vec.simd[3] = scalars[3];
                   cv->fromVec4f(vec);
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Float, scalars.data(), scalars.size(), 0.1f)) {
