@@ -31,6 +31,7 @@ struct CVarCommons {
   CVar* m_debugOverlayPlayerInfo = nullptr;
   CVar* m_debugOverlayWorldInfo = nullptr;
   CVar* m_debugOverlayAreaInfo = nullptr;
+  CVar* m_debugOverlayLayerInfo = nullptr;
   CVar* m_debugOverlayShowFrameCounter = nullptr;
   CVar* m_debugOverlayShowFramerate = nullptr;
   CVar* m_debugOverlayShowInGameTime = nullptr;

@@ -362,7 +362,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
         x84_defAudioTrack = g_TweakManager->GetTweakValue(trackKey)->GetAudio().GetFileName();
     }
 
-    CWorldLayers::ReadWorldLayers(r, version, x8_mlvlId);
+    m_worldLayers = CWorldLayers::ReadWorldLayers(r, version, x8_mlvlId);
 
     x3c_loadToken.reset();
     x40_loadBuf.reset();
@@ -728,4 +728,6 @@ TAreaId CWorld::GetAreaIdForSaveId(s32 saveId) const {
 
   return TAreaId(std::distance(x18_areas.cbegin(), iter));
 }
+
+const std::optional<CWorldLayers>& CWorld::GetWorldLayers() const { return m_worldLayers; }
 } // namespace metaforce

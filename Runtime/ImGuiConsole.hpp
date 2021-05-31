@@ -72,6 +72,7 @@ private:
   bool m_playerInfo = m_cvarCommons.m_debugOverlayPlayerInfo->toBoolean();
   bool m_worldInfo = m_cvarCommons.m_debugOverlayWorldInfo->toBoolean();
   bool m_areaInfo = m_cvarCommons.m_debugOverlayAreaInfo->toBoolean();
+  bool m_layerInfo = m_cvarCommons.m_debugOverlayLayerInfo->toBoolean();
   bool m_randomStats = m_cvarCommons.m_debugOverlayShowRandomStats->toBoolean();
   bool m_resourceStats = m_cvarCommons.m_debugOverlayShowResourceStats->toBoolean();
   bool m_showInput = m_cvarCommons.m_debugOverlayShowInput->toBoolean();

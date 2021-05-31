@@ -35,6 +35,9 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
       "debugOverlay.areaInfo"sv,
       "Displays information about the current area, such as asset ID, object/layer counts, and active layer bits"sv,
       false, hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+  m_debugOverlayLayerInfo = m_mgr.findOrMakeCVar(
+      "debugOverlay.layerInfo"sv, "Displays information about the currently active area layers"sv, false,
+      hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
   m_debugOverlayShowFrameCounter =
       m_mgr.findOrMakeCVar("debugOverlay.showFrameCounter"sv, "Displays the current frame index"sv, false,
                            hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);

@@ -21,6 +21,8 @@ class CResFactory;
 class IGameArea;
 class IObjectStore;
 
+struct CWorldLayers;
+
 class IWorld {
 public:
   virtual ~IWorld() = default;
@@ -35,6 +37,8 @@ public:
   virtual bool ICheckWorldComplete() = 0;
   virtual std::string IGetDefaultAudioTrack() const = 0;
   virtual int IGetAreaCount() const = 0;
+  // Metaforce addition
+  virtual const std::optional<CWorldLayers>& GetWorldLayers() const = 0;
 };
 
 struct CWorldLayers {
@@ -69,6 +73,7 @@ class CDummyWorld : public IWorld {
   u32 x38_bufSz;
   TAreaId x3c_curAreaId = kInvalidAreaId;
 
+  // Metaforce addition
   std::optional<CWorldLayers> m_worldLayers;
 
 public:
@@ -85,7 +90,7 @@ public:
   bool ICheckWorldComplete() override;
   std::string IGetDefaultAudioTrack() const override;
   int IGetAreaCount() const override;
-  const std::optional<CWorldLayers>& GetWorldLayers() const;
+  const std::optional<CWorldLayers>& GetWorldLayers() const override;
 };
 
 class CWorld : public IWorld {
@@ -160,6 +165,9 @@ private:
   EEnvFxType xc4_neededFx = EEnvFxType::None;
   rstl::reserved_vector<CSfxHandle, 10> xc8_globalSfxHandles;
 
+  // Metaforce addition
+  std::optional<CWorldLayers> m_worldLayers;
+
   void LoadSoundGroup(int groupId, CAssetId agscId, CSoundGroupData& data);
   void LoadSoundGroups();
   void UnloadSoundGroups();
@@ -210,6 +218,7 @@ public:
   bool ICheckWorldComplete() override;
   std::string IGetDefaultAudioTrack() const override;
   int IGetAreaCount() const override;
+  const std::optional<CWorldLayers>& GetWorldLayers() const override;
 
   static void PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGameArea* area, CWorld* world);
   static constexpr CGameArea::CConstChainIterator GetAliveAreasEnd() { return CGameArea::CConstChainIterator{}; }

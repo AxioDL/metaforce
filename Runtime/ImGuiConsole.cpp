@@ -38,6 +38,16 @@ static std::unordered_map<CAssetId, TCachedToken<CStringTable>> stringTables;
 
 static std::string ReadUtf8String(CStringTable* tbl, int idx) { return hecl::Char16ToUTF8(tbl->GetString(idx)); }
 
+static std::string LoadStringTable(CAssetId stringId, int idx) {
+  if (!stringId.IsValid()) {
+    return ""s;
+  }
+  if (!stringTables.contains(stringId)) {
+    stringTables[stringId] = g_SimplePool->GetObj(SObjectTag{SBIG('STRG'), stringId});
+  }
+  return ReadUtf8String(stringTables[stringId].GetObj(), 0);
+}
+
 static bool ContainsCaseInsensitive(std::string_view str, std::string_view val) {
   return std::search(str.begin(), str.end(), val.begin(), val.end(),
                      [](char ch1, char ch2) { return std::toupper(ch1) == std::toupper(ch2); }) != str.end();
@@ -62,10 +72,7 @@ static std::vector<std::pair<std::string, CAssetId>> ListWorlds() {
     if (!stringId.IsValid()) {
       continue;
     }
-    if (!stringTables.contains(stringId)) {
-      stringTables[stringId] = g_SimplePool->GetObj(SObjectTag{SBIG('STRG'), stringId});
-    }
-    worlds.emplace_back(ReadUtf8String(stringTables[stringId].GetObj(), 0), worldId);
+    worlds.emplace_back(LoadStringTable(stringId, 0), worldId);
   }
   return worlds;
 }
@@ -82,10 +89,7 @@ static std::vector<std::pair<std::string, TAreaId>> ListAreas(CAssetId worldId) 
     if (!stringId.IsValid()) {
       continue;
     }
-    if (!stringTables.contains(stringId)) {
-      stringTables[stringId] = g_SimplePool->GetObj(SObjectTag{SBIG('STRG'), stringId});
-    }
-    areas.emplace_back(ReadUtf8String(stringTables[stringId].GetObj(), 0), TAreaId{i});
+    areas.emplace_back(LoadStringTable(stringId, 0), TAreaId{i});
   }
   return areas;
 }
@@ -721,24 +725,28 @@ void ImGuiConsole::ShowDebugOverlay() {
       if (hasPrevious) {
         ImGui::Separator();
       }
-      ImGuiStringViewText(fmt::format(FMT_STRING("FPS: {}\n"), metaforce::CGraphics::GetFPS()));
       hasPrevious = true;
+
+      ImGuiStringViewText(fmt::format(FMT_STRING("FPS: {}\n"), metaforce::CGraphics::GetFPS()));
     }
     if (m_inGameTime && g_GameState != nullptr) {
       if (hasPrevious) {
         ImGui::Separator();
       }
+      hasPrevious = true;
+
       double igt = g_GameState->GetTotalPlayTime();
       u32 ms = u64(igt * 1000) % 1000;
       auto pt = std::div(int(igt), 3600);
       ImGuiStringViewText(
           fmt::format(FMT_STRING("Play Time: {:02d}:{:02d}:{:02d}.{:03d}\n"), pt.quot, pt.rem / 60, pt.rem % 60, ms));
-      hasPrevious = true;
     }
     if (m_roomTimer && g_StateManager != nullptr) {
       if (hasPrevious) {
         ImGui::Separator();
       }
+      hasPrevious = true;
+
       double igt = g_GameState->GetTotalPlayTime();
       if (m_currentRoom != g_StateManager->GetCurrentArea()) {
         m_currentRoom = static_cast<const void*>(g_StateManager->GetCurrentArea());
@@ -750,12 +758,13 @@ void ImGuiConsole::ShowDebugOverlay() {
       u32 lastFrames = u32(std::round(u32(m_lastRoomTime * 60)));
       ImGuiStringViewText(fmt::format(FMT_STRING("Room Time: {:7.3f} / {:5d} | Last Room:{:7.3f} / {:5d}\n"),
                                       currentRoomTime, curFrames, m_lastRoomTime, lastFrames));
-      hasPrevious = true;
     }
     if (m_playerInfo && g_StateManager != nullptr && g_StateManager->Player() != nullptr) {
       if (hasPrevious) {
         ImGui::Separator();
       }
+      hasPrevious = true;
+
       const CPlayer& pl = g_StateManager->GetPlayer();
       const zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
       const zeus::CTransform camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
@@ -772,26 +781,25 @@ void ImGuiConsole::ShowDebugOverlay() {
                       pl.GetMomentum().x(), pl.GetMomentum().y(), pl.GetMomentum().z(), pl.GetVelocity().x(),
                       pl.GetVelocity().y(), pl.GetVelocity().z(), camXf.origin.x(), camXf.origin.y(), camXf.origin.z(),
                       zeus::radToDeg(camQ.roll()), zeus::radToDeg(camQ.pitch()), zeus::radToDeg(camQ.yaw())));
-      hasPrevious = true;
     }
     if (m_worldInfo && g_StateManager != nullptr) {
       if (hasPrevious) {
         ImGui::Separator();
       }
-      TLockedToken<CStringTable> tbl =
-          g_SimplePool->GetObj({FOURCC('STRG'), g_StateManager->GetWorld()->IGetStringTableAssetId()});
-      const metaforce::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
-      ImGuiStringViewText(fmt::format(FMT_STRING("World: 0x{}{}, Area: {}\n"), g_GameState->CurrentWorldAssetId(),
-                                      (tbl.IsLoaded() ? (" " + hecl::Char16ToUTF8(tbl->GetString(0))).c_str() : ""),
-                                      aId));
       hasPrevious = true;
+
+      const std::string name = LoadStringTable(g_StateManager->GetWorld()->IGetStringTableAssetId(), 0);
+      ImGuiStringViewText(
+          fmt::format(FMT_STRING("World Asset ID: 0x{}, Name: {}\n"), g_GameState->CurrentWorldAssetId(), name));
     }
     if (m_areaInfo && g_StateManager != nullptr) {
-      if (hasPrevious) {
-        ImGui::Separator();
-      }
       const metaforce::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
       if (g_StateManager->GetWorld() != nullptr && g_StateManager->GetWorld()->DoesAreaExist(aId)) {
+        if (hasPrevious) {
+          ImGui::Separator();
+        }
+        hasPrevious = true;
+
         const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
         std::string layerBits;
         u32 totalActive = 0;
@@ -805,30 +813,51 @@ void ImGuiConsole::ShowDebugOverlay() {
         }
         CGameArea* pArea = g_StateManager->GetWorld()->GetArea(aId);
         CAssetId stringId = pArea->IGetStringTableAssetId();
-        if (!stringTables.contains(stringId)) {
-          stringTables[stringId] = g_SimplePool->GetObj(SObjectTag{SBIG('STRG'), stringId});
+        ImGuiStringViewText(
+            fmt::format(FMT_STRING("Area Asset ID: 0x{}, Name: {}\nArea ID: {}, Active Layer bits: {}\n"),
+                        pArea->GetAreaAssetId(), LoadStringTable(stringId, 0), pArea->GetAreaId(), layerBits));
+      }
+    }
+    if (m_layerInfo && g_StateManager != nullptr) {
+      const metaforce::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
+      const auto* world = g_StateManager->GetWorld();
+      if (world != nullptr && world->DoesAreaExist(aId) && world->GetWorldLayers()) {
+        if (hasPrevious) {
+          ImGui::Separator();
         }
-        ImGuiStringViewText(fmt::format(FMT_STRING("Area ID: {} Name: {}\nArea AssetId: 0x{}, Total Objects: {}\n"
-                                                   "Active Layer bits: {}\n"),
-                                        pArea->GetAreaId(), ReadUtf8String(stringTables[stringId].GetObj(), 0),
-                                        pArea->GetAreaAssetId(), g_StateManager->GetAllObjectList().size(), layerBits));
         hasPrevious = true;
+
+        ImGuiStringViewText("Area Layers:");
+
+        ImVec4 activeColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+        ImVec4 inactiveColor = activeColor;
+        inactiveColor.w = 0.5f;
+
+        const CWorldLayers& layers = world->GetWorldLayers().value();
+        const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
+        for (int i = 0; i < layerStates->GetAreaLayerCount(aId); ++i) {
+          ImGui::PushStyleColor(ImGuiCol_Text, layerStates->IsLayerActive(aId, i) ? activeColor : inactiveColor);
+          ImGuiStringViewText("  " + layers.m_names[i]);
+          ImGui::PopStyleColor();
+        }
       }
     }
     if (m_randomStats) {
       if (hasPrevious) {
         ImGui::Separator();
       }
+      hasPrevious = true;
+
       ImGuiStringViewText(
           fmt::format(FMT_STRING("CRandom16::Next calls: {}\n"), metaforce::CRandom16::GetNumNextCalls()));
-      hasPrevious = true;
     }
     if (m_resourceStats) {
       if (hasPrevious) {
         ImGui::Separator();
       }
-      ImGuiStringViewText(fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects()));
       hasPrevious = true;
+
+      ImGuiStringViewText(fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects()));
     }
     // Code -stolen- borrowed from Practice Mod
     if (m_showInput && g_InputGenerator != nullptr) {
@@ -837,6 +866,8 @@ void ImGuiConsole::ShowDebugOverlay() {
         if (hasPrevious) {
           ImGui::Separator();
         }
+        hasPrevious = true;
+
         ImDrawList* dl = ImGui::GetWindowDrawList();
         zeus::CVector2f p = ImGui::GetCursorScreenPos();
 
@@ -964,7 +995,6 @@ void ImGuiConsole::ShowDebugOverlay() {
         }
 
         ImGui::Dummy(zeus::CVector2f(270, 130) * scale);
-        hasPrevious = true;
       }
     }
     if (ImGui::BeginPopupContextWindow()) {
@@ -1023,6 +1053,9 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
       }
       if (ImGui::MenuItem("Area Info", nullptr, &m_areaInfo)) {
         m_cvarCommons.m_debugOverlayAreaInfo->fromBoolean(m_areaInfo);
+      }
+      if (ImGui::MenuItem("Layer Info", nullptr, &m_layerInfo)) {
+        m_cvarCommons.m_debugOverlayLayerInfo->fromBoolean(m_layerInfo);
       }
       if (ImGui::MenuItem("Random Stats", nullptr, &m_randomStats)) {
         m_cvarCommons.m_debugOverlayShowRandomStats->fromBoolean(m_randomStats);
