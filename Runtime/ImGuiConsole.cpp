@@ -142,7 +142,7 @@ void ImGuiConsole::LerpDebugColor(CActor* act) {
     act->m_debugAddColor = zeus::skClear;
     return;
   }
-  act->m_debugAddColorTime += 1.f / 60.f;
+  act->m_debugAddColorTime += ImGui::GetIO().DeltaTime;
   float lerp = act->m_debugAddColorTime;
   if (lerp > 2.f) {
     lerp = 0.f;
@@ -1124,6 +1124,8 @@ void ImGuiConsole::PreUpdate() {
   bool canInspect = g_StateManager != nullptr && g_StateManager->GetObjectList();
   if (m_isVisible) {
     ShowAppMainMenuBar(canInspect);
+  } else if (m_developer) {
+    ShowMenuHint();
   }
   if (canInspect && (m_showInspectWindow || !inspectingEntities.empty())) {
     UpdateEntityEntries();
@@ -1461,6 +1463,41 @@ void ImGuiConsole::ShowLayersWindow() {
     }
   }
   ImGui::End();
+}
+
+void ImGuiConsole::ShowMenuHint() {
+  if (m_menuHintTime <= 0.f) {
+    return;
+  }
+  m_menuHintTime -= ImGui::GetIO().DeltaTime;
+
+  constexpr auto hintText = "Press ` to toggle menu";
+
+  const ImGuiViewport* viewport = ImGui::GetMainViewport();
+  ImVec2 workPos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
+  ImVec2 workSize = viewport->WorkSize;
+  ImVec2 windowPos;
+  constexpr float padding = 10.0f;
+  windowPos.x = workPos.x + (workSize.x + ImGui::CalcTextSize(hintText).x) / 2 + ImGui::GetStyle().WindowPadding.x;
+  windowPos.y = workPos.y + workSize.y - padding;
+  ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, ImVec2{1.f, 1.f});
+
+  float alpha = std::min(m_menuHintTime, 1.f);
+  ImGui::SetNextWindowBgAlpha(alpha * 0.65f);
+  ImVec4 textColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+  textColor.w *= alpha;
+  ImVec4 borderColor = ImGui::GetStyleColorVec4(ImGuiCol_Border);
+  borderColor.w *= alpha;
+  ImGui::PushStyleColor(ImGuiCol_Text, textColor);
+  ImGui::PushStyleColor(ImGuiCol_Border, borderColor);
+  if (ImGui::Begin("Menu Hint", nullptr,
+                   ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+                       ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav |
+                       ImGuiWindowFlags_NoMove)) {
+    ImGui::TextUnformatted(hintText);
+  }
+  ImGui::End();
+  ImGui::PopStyleColor(2);
 }
 
 } // namespace metaforce

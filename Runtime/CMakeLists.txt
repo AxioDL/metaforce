@@ -206,8 +206,8 @@ elseif(UNIX)
   set(PLAT_LIBS rt)
 endif()
 
-add_executable(metaforce CMain.cpp ${PLAT_SRCS} ImGuiConsole.hpp ImGuiConsole.cpp ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp ImGuiPlayerLoadouts.hpp)
-target_atdna(metaforce atdna_ImGuiPlayerLoadouts.cpp ImGuiPlayerLoadouts.hpp)
+add_executable(metaforce CMain.cpp ${PLAT_SRCS} ImGuiConsole.hpp ImGuiConsole.cpp ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp) # ImGuiPlayerLoadouts.hpp
+# target_atdna(metaforce atdna_ImGuiPlayerLoadouts.cpp ImGuiPlayerLoadouts.hpp)
 # RUNTIME_LIBRARIES repeated here for link ordering
 target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS})
 

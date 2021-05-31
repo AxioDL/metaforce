@@ -88,6 +88,7 @@ private:
   const void* m_currentRoom = nullptr;
   double m_lastRoomTime = 0.f;
   double m_currentRoomStart = 0.f;
+  float m_menuHintTime = 5.f;
 
   void ShowAppMainMenuBar(bool canInspect);
   void ShowMenuGame();
@@ -99,5 +100,6 @@ private:
   void ShowItemsWindow();
   void ShowLayersWindow();
   void ShowConsoleVariablesWindow();
+  void ShowMenuHint();
 };
 } // namespace metaforce
