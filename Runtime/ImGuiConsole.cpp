@@ -111,10 +111,10 @@ static void Warp(const CAssetId worldId, TAreaId aId) {
 
 void ImGuiConsole::ShowMenuGame() {
   m_paused = g_Main->IsPaused();
-  if (ImGui::MenuItem("Paused", nullptr, &m_paused)) {
+  if (ImGui::MenuItem("Paused", "F5", &m_paused)) {
     g_Main->SetPaused(m_paused);
   }
-  if (ImGui::MenuItem("Step Frame", nullptr, &m_stepFrame, m_paused)) {
+  if (ImGui::MenuItem("Step Frame", "F6", &m_stepFrame, m_paused)) {
     g_Main->SetPaused(false);
   }
   if (ImGui::BeginMenu("Warp", g_StateManager != nullptr && g_ResFactory != nullptr &&
@@ -1085,6 +1085,7 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
   }
 }
 
+s32 TranslateBooSpecialKey(boo::ESpecialKey key) { return 256 + static_cast<int>(key); }
 void ImGuiConsole::PreUpdate() {
   if (!m_isInitialized) {
     m_isInitialized = true;
@@ -1115,6 +1116,15 @@ void ImGuiConsole::PreUpdate() {
   if (m_stepFrame) {
     g_Main->SetPaused(true);
     m_stepFrame = false;
+  }
+  if (m_paused && !m_stepFrame && ImGui::IsKeyPressed(TranslateBooSpecialKey(boo::ESpecialKey::F6))) {
+    g_Main->SetPaused(false);
+    m_stepFrame = true;
+  }
+  if (ImGui::IsKeyReleased(TranslateBooSpecialKey(boo::ESpecialKey::F5))) {
+    m_paused ^= 1;
+    fmt::print(FMT_STRING("PAUSE {}\n"), m_paused);
+    g_Main->SetPaused(m_paused);
   }
   bool canInspect = g_StateManager != nullptr && g_StateManager->GetObjectList();
   if (m_isVisible) {
