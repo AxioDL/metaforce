@@ -1090,6 +1090,24 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
 }
 
 void ImGuiConsole::PreUpdate() {
+  if (!m_isInitialized) {
+    m_isInitialized = true;
+    m_cvarCommons.m_debugOverlayShowFrameCounter->addListener(
+        [this](hecl::CVar* c) { m_frameCounter = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowFramerate->addListener([this](hecl::CVar* c) { m_frameRate = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowInGameTime->addListener([this](hecl::CVar* c) { m_inGameTime = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowRoomTimer->addListener([this](hecl::CVar* c) { m_roomTimer = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayPlayerInfo->addListener([this](hecl::CVar* c) { m_playerInfo = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayWorldInfo->addListener([this](hecl::CVar* c) { m_worldInfo = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayAreaInfo->addListener([this](hecl::CVar* c) { m_areaInfo = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayLayerInfo->addListener([this](hecl::CVar* c) { m_layerInfo = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowRandomStats->addListener([this](hecl::CVar* c) { m_randomStats = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowResourceStats->addListener(
+        [this](hecl::CVar* c) { m_resourceStats = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowInput->addListener([this](hecl::CVar* c) { m_showInput = c->toBoolean(); });
+    m_cvarMgr.findCVar("developer")->addListener([this](hecl::CVar* c) { m_developer = c->toBoolean(); });
+    m_cvarMgr.findCVar("cheats")->addListener([this](hecl::CVar* c) { m_cheats = c->toBoolean(); });
+  }
   // We ned to make sure we have a valid CRandom16 at all times, so lets do that here
   if (g_StateManager != nullptr && g_StateManager->GetActiveRandom() == nullptr) {
     g_StateManager->SetActiveRandomToDefault();

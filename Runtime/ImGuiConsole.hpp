@@ -60,6 +60,7 @@ private:
 
   bool m_inspectActiveOnly = false;
   bool m_inspectCurrentAreaOnly = false;
+
   std::array<char, 40> m_inspectFilterText{};
   std::array<char, 40> m_layersFilterText{};
   std::array<char, 40> m_cvarFiltersText{};
@@ -76,8 +77,9 @@ private:
   bool m_randomStats = m_cvarCommons.m_debugOverlayShowRandomStats->toBoolean();
   bool m_resourceStats = m_cvarCommons.m_debugOverlayShowResourceStats->toBoolean();
   bool m_showInput = m_cvarCommons.m_debugOverlayShowInput->toBoolean();
-  const bool m_developer = m_cvarMgr.findCVar("developer")->toBoolean();
-  const bool m_cheats = m_cvarMgr.findCVar("cheats")->toBoolean();
+  bool m_developer = m_cvarMgr.findCVar("developer")->toBoolean();
+  bool m_cheats = m_cvarMgr.findCVar("cheats")->toBoolean();
+  bool m_isInitialized = false;
 
   int m_debugOverlayCorner = 2; // bottom-left
   const void* m_currentRoom = nullptr;
