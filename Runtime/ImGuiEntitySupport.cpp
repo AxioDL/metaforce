@@ -214,12 +214,13 @@ static constexpr bool ImGuiEnumInput(const char* label, E& val) {
 
 void ImGuiAnimRes(const char* label, metaforce::CAnimRes& res) {
   if (res.GetId().IsValid()) {
-    ImGui::Text("Model: 0x%08lX", res.GetId().Value());
+    ImGui::Text("Model: 0x%08" PRIX64, res.GetId().Value());
   } else {
     ImGui::Text("Model: [none]");
   }
   // TODO: More
 }
+
 namespace metaforce {
 void CDamageVulnerability::ImGuiEditWindow(const char* title, bool& open) {
   if (!open) {
@@ -253,10 +254,11 @@ void CDamageVulnerability::ImGuiEditWindow(const char* title, bool& open) {
   }
   ImGui::End();
 }
+
 void ImGuiUniqueId(const char* label, TUniqueId uid) {
   ImGui::PushID(uid.Value());
   if (uid != kInvalidUniqueId && ImGuiConsole::entities[uid.Value()].ent != nullptr) {
-    ImGui::Text("%s: 0x%04X", label, uid.Value());
+    ImGui::Text("%s: 0x%04" PRIX16, label, uid.Value());
     ImGui::SameLine();
     if (ImGui::SmallButton("View")) {
       ImGuiConsole::inspectingEntities.insert(uid);
@@ -355,8 +357,8 @@ void CEntity::ImGuiInspect() {
     }
   }
   if (ImGui::CollapsingHeader("Entity", ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::Text("ID: 0x%04X", x8_uid.Value());
-    ImGui::Text("Editor ID: 0x%08X", xc_editorId.id);
+    ImGui::Text("ID: 0x%04" PRIX16, x8_uid.Value());
+    ImGui::Text("Editor ID: 0x%08" PRIX32, xc_editorId.id);
     ImGui::Text("Area: %i", x4_areaId);
     ImGui::Text("Name: %s", x10_name.c_str());
     BITFIELD_CHECKBOX("Active", x30_24_active);
