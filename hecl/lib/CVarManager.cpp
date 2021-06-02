@@ -18,8 +18,7 @@ CVar* com_configfile = nullptr;
 CVar* com_enableCheats = nullptr;
 CVar* com_cubemaps = nullptr;
 
-static const std::regex cmdLineRegex("\\+([\\w\\.]+)=([\\w\\.\\-]+)");
-static const std::regex cmdLineRegexNoValue("\\+([\\w\\.]+)");
+static const std::regex cmdLineRegex(R"(\+([\w\.]+)([=])?([\"\/\\\s\w\.\-]+)?)");
 CVarManager* CVarManager::m_instance = nullptr;
 
 static logvisor::Module CVarLog("CVarManager");
@@ -312,16 +311,13 @@ void CVarManager::parseCommandLine(const std::vector<SystemString>& args) {
     std::string cvarName;
     std::string cvarValue;
 
-    if (!std::regex_match(tmp, matches, cmdLineRegex)) {
-      if (std::regex_match(tmp, matches, cmdLineRegexNoValue)) {
-        // No Value was supplied, assume the player wanted to set value to 1
+    if (std::regex_match(tmp, matches, cmdLineRegex)) {
+      if (matches.size() == 3) {
         cvarName = matches[1].str();
-      } else {
-        continue;
+      } else if (matches.size() == 4) {
+        cvarName = matches[1].str();
+        cvarValue = matches[3].str();
       }
-    } else {
-      cvarName = matches[1].str();
-      cvarValue = matches[2].str();
     }
 
     if (CVar* cv = findCVar(cvarName)) {
