@@ -2297,13 +2297,14 @@ void CMorphBall::AddSpiderBallElectricalEffect() {
     gen.second = true;
     x1b6c_activeSpiderElectricList.emplace_back(idx, x1b80_rand.Range(4, 8));
 
-    const float sign = (x1b80_rand.Next() & 0x100) < 0x80 ? -1.f : 1.f;
-    const float randDir = GetBallRadius() * 0.9f * sign;
-    const float ang0 = zeus::degToRad(40.f - x1b80_rand.Float() * 80.f);
-    const float ang1 = zeus::degToRad(40.f - x1b80_rand.Float() * 80.f + 90.f);
-    zeus::CVector3f translation(std::sin(ang1) * std::cos(ang0) * sign * 0.6f + randDir * 1.32f,
-                                0.6f * sign * std::sin(ang0), 0.6f * sign * std::cos(ang1) * std::cos(ang0));
-    const zeus::CVector3f transInc = (zeus::CVector3f(randDir, 0.f, 0.f) - translation) * (1.f / 6.f);
+    const float sign = (x1b80_rand.Next() & 256) < 128 ? -1.f : 1.f;
+    const float randDir = sign * (0.9f * GetBallRadius());
+    const float ang0 = zeus::degToRad(-(80.f * x1b80_rand.Float() - 40.f));
+    const float ang1 = zeus::degToRad(90 + -(80.f * x1b80_rand.Float() - 40.f));
+    zeus::CVector3f translation = zeus::CVector3f(1.32f * randDir, 0, 0) +
+                                  0.6f * zeus::CVector3f(sign * -(std::sin(ang1) * std::cos(ang0)),
+                                                         sign * std::sin(ang0), sign * std::cos(ang0) * std::cos(ang1));
+    zeus::CVector3f transInc = (1 / 6.f) * (zeus::CVector3f(randDir, 0.f, 0.f) - translation);
     gen.first->DoSpiderBallWarmup(translation, transInc);
     break;
   }
