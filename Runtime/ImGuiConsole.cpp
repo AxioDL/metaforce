@@ -254,10 +254,10 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
       }
     }
     if (ImGui::Button("Clear")) {
-      m_inspectFilterText[0] = '\0';
+      m_inspectFilterText.clear();
     }
     ImGui::SameLine();
-    ImGui::InputText("Filter", m_inspectFilterText.data(), m_inspectFilterText.size());
+    ImGui::InputText("Filter", &m_inspectFilterText);
     ImGui::Checkbox("Active", &m_inspectActiveOnly);
     ImGui::SameLine();
     ImGui::Checkbox("Current area", &m_inspectCurrentAreaOnly);
@@ -284,8 +284,7 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
                          // since that's how we iterate over CObjectList
                          (sortSpecs->Specs[0].ColumnUserID != 'id' ||
                           sortSpecs->Specs[0].SortDirection != ImGuiSortDirection_Ascending);
-      std::string_view search{m_inspectFilterText.data(), strlen(m_inspectFilterText.data())};
-      if (!search.empty() || m_inspectActiveOnly || m_inspectCurrentAreaOnly || hasSortSpec) {
+      if (!m_inspectFilterText.empty() || m_inspectActiveOnly || m_inspectCurrentAreaOnly || hasSortSpec) {
         std::vector<s16> sortedList;
         sortedList.reserve(list.size());
         s16 uid = list.GetFirstObjectIndex();
@@ -300,8 +299,8 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
           ImGuiEntityEntry& entry = ImGuiConsole::entities[uid];
           if ((!m_inspectActiveOnly || entry.active) &&
               (!m_inspectCurrentAreaOnly || entry.ent->x4_areaId == currAreaId) &&
-              (search.empty() || ContainsCaseInsensitive(entry.type, search) ||
-               ContainsCaseInsensitive(entry.name, search))) {
+              (m_inspectFilterText.empty() || ContainsCaseInsensitive(entry.type, m_inspectFilterText) ||
+               ContainsCaseInsensitive(entry.name, m_inspectFilterText))) {
             sortedList.push_back(uid);
           }
           uid = list.GetNextObjectIndex(uid);
@@ -366,10 +365,10 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
   ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize}, ImGuiCond_FirstUseEver);
   if (ImGui::Begin("Console Variables", &m_showConsoleVariablesWindow)) {
     if (ImGui::Button("Clear")) {
-      m_cvarFiltersText[0] = '\0';
+      m_cvarFiltersText.clear();
     }
     ImGui::SameLine();
-    ImGui::InputText("Filter", m_cvarFiltersText.data(), m_cvarFiltersText.size());
+    ImGui::InputText("Filter", &m_cvarFiltersText);
     auto cvars = m_cvarMgr.cvars(hecl::CVar::EFlags::Any & ~hecl::CVar::EFlags::Hidden);
 
     if (ImGui::BeginTable("ConsoleVariables", 2,
@@ -387,14 +386,13 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
       bool hasSortSpec = sortSpecs != nullptr &&
                          // no multi-sort
                          sortSpecs->SpecsCount == 1;
-      std::string_view search{m_cvarFiltersText.data(), strlen(m_cvarFiltersText.data())};
       std::vector<hecl::CVar*> sortedList;
       sortedList.reserve(cvars.size());
 
       for (auto* cvar : cvars) {
-        if (!search.empty()) {
-          if (ContainsCaseInsensitive(magic_enum::enum_name(cvar->type()), search) ||
-              ContainsCaseInsensitive(cvar->name(), search)) {
+        if (!m_cvarFiltersText.empty()) {
+          if (ContainsCaseInsensitive(magic_enum::enum_name(cvar->type()), m_cvarFiltersText) ||
+              ContainsCaseInsensitive(cvar->name(), m_cvarFiltersText)) {
             sortedList.push_back(cvar);
           }
         } else {
@@ -1126,7 +1124,6 @@ void ImGuiConsole::PreUpdate() {
   }
   if (ImGui::IsKeyReleased(TranslateBooSpecialKey(boo::ESpecialKey::F5))) {
     m_paused ^= 1;
-    fmt::print(FMT_STRING("PAUSE {}\n"), m_paused);
     g_Main->SetPaused(m_paused);
   }
   bool canInspect = g_StateManager != nullptr && g_StateManager->GetObjectList();
@@ -1419,14 +1416,14 @@ void ImGuiConsole::ShowLayersWindow() {
 
   if (ImGui::Begin("Layers", &m_showLayersWindow)) {
     if (ImGui::Button("Clear")) {
-      m_layersFilterText[0] = '\0';
+      m_layersFilterText.clear();
     }
     ImGui::SameLine();
-    ImGui::InputText("Filter", m_layersFilterText.data(), m_layersFilterText.size());
-    std::string_view search{m_layersFilterText.data(), strlen(m_layersFilterText.data())};
-    if (!search.empty()) {
+    ImGui::InputText("Filter", &m_layersFilterText);
+    bool hasSearch = !m_layersFilterText.empty();
+    if (hasSearch) {
       // kinda hacky way reset the tree state when search changes
-      ImGui::PushID(m_layersFilterText.data());
+      ImGui::PushID(m_layersFilterText.c_str());
     }
     for (const auto& world : ListWorlds()) {
       const auto& layers = dummyWorlds[world.second]->GetWorldLayers();
@@ -1438,7 +1435,7 @@ void ImGuiConsole::ShowLayersWindow() {
       auto areas = ListAreas(world.second);
       auto iter = areas.begin();
       while (iter != areas.end()) {
-        if (!search.empty() && !ContainsCaseInsensitive(iter->first, search)) {
+        if (hasSearch && !ContainsCaseInsensitive(iter->first, m_layersFilterText)) {
           iter = areas.erase(iter);
         } else {
           iter++;
@@ -1448,7 +1445,7 @@ void ImGuiConsole::ShowLayersWindow() {
         continue;
       }
 
-      if (ImGui::TreeNodeEx(world.first.c_str(), search.empty() ? 0 : ImGuiTreeNodeFlags_DefaultOpen)) {
+      if (ImGui::TreeNodeEx(world.first.c_str(), hasSearch ? ImGuiTreeNodeFlags_DefaultOpen : 0)) {
         for (const auto& area : areas) {
           u32 layerCount = worldLayerState->GetAreaLayerCount(area.second);
           if (layerCount == 0) {
@@ -1475,7 +1472,7 @@ void ImGuiConsole::ShowLayersWindow() {
         ImGui::TreePop();
       }
     }
-    if (!search.empty()) {
+    if (hasSearch) {
       ImGui::PopID();
     }
   }

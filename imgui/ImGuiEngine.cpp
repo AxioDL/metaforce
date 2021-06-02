@@ -34,6 +34,8 @@ static boo::ObjToken<boo::IGraphicsBufferD> UniformBuffer;
 static std::array<boo::ObjToken<boo::IShaderDataBinding>, ImGuiUserTextureID_MAX> ShaderDataBindings;
 static std::array<boo::ObjToken<boo::ITextureS>, ImGuiUserTextureID_MAX> Textures;
 static boo::SWindowRect WindowRect;
+static std::string IniFilePath;
+static std::string LogFilePath;
 
 struct Uniform {
   zeus::CMatrix4f xf;
@@ -59,10 +61,15 @@ void setClipboardText(void* userData, const char* text) {
 ImFont* ImGuiEngine::fontNormal;
 ImFont* ImGuiEngine::fontLarge;
 
-void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* window, float scale) {
+void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* window, float scale,
+                             std::string_view configDir) {
   m_factory = factory;
   m_window = window;
   WindowRect = window->getWindowFrame();
+
+  std::string dir{configDir};
+  IniFilePath = dir + "/imgui.ini";
+  LogFilePath = dir + "/imgui.log";
 
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
@@ -71,6 +78,10 @@ void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* w
   io.GetClipboardTextFn = getClipboardText;
   io.SetClipboardTextFn = setClipboardText;
   io.ClipboardUserData = window;
+  io.IniFilename = IniFilePath.c_str();
+  io.LogFilename = LogFilePath.c_str();
+  io.BackendPlatformName = "Boo";
+  io.BackendRendererName = "Boo";
 
   io.KeyMap[ImGuiKey_Tab] = 256 + static_cast<int>(boo::ESpecialKey::Tab);
   io.KeyMap[ImGuiKey_LeftArrow] = 256 + static_cast<int>(boo::ESpecialKey::Left);
@@ -150,6 +161,8 @@ void ImGuiEngine::Shutdown() {
   IndexBuffer.reset();
   UniformBuffer.reset();
   ShaderPipeline.reset();
+  IniFilePath.clear();
+  LogFilePath.clear();
 }
 
 void ImGuiEngine::Begin(float dt, float scale) {
@@ -256,17 +269,21 @@ void ImGuiEngine::End() {
   m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
     bool rebind = false;
     if (drawData->TotalIdxCount > IndexBufferSize) {
-      Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Resizing index buffer from {} to {}")), IndexBufferSize,
+#if 0
+      Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Resizing index buffer ({} < {})")), IndexBufferSize,
                  drawData->TotalIdxCount);
-      IndexBuffer = ctx.newDynamicBuffer(boo::BufferUse::Index, sizeof(ImDrawIdx), drawData->TotalIdxCount);
-      IndexBufferSize = drawData->TotalIdxCount;
+#endif
+      IndexBufferSize = drawData->TotalIdxCount + 1000;
+      IndexBuffer = ctx.newDynamicBuffer(boo::BufferUse::Index, sizeof(ImDrawIdx), IndexBufferSize);
       rebind = true;
     }
     if (drawData->TotalVtxCount > VertexBufferSize) {
-      Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Resizing vertex buffer from {} to {}")), VertexBufferSize,
+#if 0
+      Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Resizing vertex buffer ({} < {})")), VertexBufferSize,
                  drawData->TotalVtxCount);
-      VertexBuffer = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(ImDrawVert), drawData->TotalVtxCount);
-      VertexBufferSize = drawData->TotalVtxCount;
+#endif
+      VertexBufferSize = drawData->TotalVtxCount + 1000;
+      VertexBuffer = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(ImDrawVert), VertexBufferSize);
       rebind = true;
     }
     if (rebind) {

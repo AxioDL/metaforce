@@ -4,6 +4,7 @@ add_library(imgui
         ../extern/imgui/imgui_draw.cpp
         ../extern/imgui/imgui_tables.cpp
         ../extern/imgui/imgui_widgets.cpp
+        ../extern/imgui/misc/cpp/imgui_stdlib.cpp
         ImGuiEngine.cpp
         ImGuiEngine.hpp
         NotoMono.cpp

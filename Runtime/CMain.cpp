@@ -220,7 +220,6 @@ private:
   hecl::CVarCommons& m_cvarCommons;
   ImGuiConsole m_imGuiConsole;
   std::string m_errorString;
-  std::string m_configPath;
 
   boo::ObjToken<boo::ITextureR> m_renderTex;
   hecl::SystemString m_deferredProject;
@@ -392,10 +391,8 @@ public:
       }
     }
     if (!m_imGuiInitialized) {
-      ImGuiEngine::Initialize(gfxF, m_window.get(), scale);
-      m_configPath = hecl::SystemUTF8Conv(m_fileMgr.getStoreRoot()).str();
-      m_configPath += "/imgui.ini";
-      ImGui::GetIO().IniFilename = m_configPath.c_str();
+      hecl::SystemUTF8Conv configDir{m_fileMgr.getStoreRoot()};
+      ImGuiEngine::Initialize(gfxF, m_window.get(), scale, configDir.str());
       m_imGuiInitialized = true;
     }
 

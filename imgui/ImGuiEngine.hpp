@@ -1,6 +1,7 @@
 #pragma once
 
 #include "imgui.h"
+#include "misc/cpp/imgui_stdlib.h"
 
 #include <boo/IWindow.hpp>
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
@@ -20,7 +21,8 @@ public:
   static ImFont* fontNormal;
   static ImFont* fontLarge;
 
-  static void Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* window, float scale);
+  static void Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* window, float scale,
+                         std::string_view configDir);
   static void Shutdown();
 
   static void Begin(float dt, float scale);
@@ -45,6 +47,6 @@ struct ImGuiWindowCallback : boo::IWindowCallback {
   void charKeyUp(unsigned long charCode, boo::EModifierKey mods) override;
   void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat) override;
   void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods) override;
-  void resized(const boo::SWindowRect &rect, bool sync) override;
+  void resized(const boo::SWindowRect& rect, bool sync) override;
 };
 } // namespace metaforce
