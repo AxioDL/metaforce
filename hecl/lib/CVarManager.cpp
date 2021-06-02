@@ -18,7 +18,7 @@ CVar* com_configfile = nullptr;
 CVar* com_enableCheats = nullptr;
 CVar* com_cubemaps = nullptr;
 
-static const std::regex cmdLineRegex(R"(\+([\w\.]+)([=])?([\"\/\\\s\w\.\-]+)?)");
+static const std::regex cmdLineRegex(R"(\+([\w\.]+)([=])?([\/\\\s\w\.\-]+)?)");
 CVarManager* CVarManager::m_instance = nullptr;
 
 static logvisor::Module CVarLog("CVarManager");
@@ -312,9 +312,15 @@ void CVarManager::parseCommandLine(const std::vector<SystemString>& args) {
     std::string cvarValue;
 
     if (std::regex_match(tmp, matches, cmdLineRegex)) {
-      if (matches.size() == 3) {
+      std::vector<std::string> realMatches;
+      for (auto match : matches) {
+        if (match.matched) {
+          realMatches.push_back(match);
+        }
+      }
+      if (realMatches.size() == 2) {
         cvarName = matches[1].str();
-      } else if (matches.size() == 4) {
+      } else if (realMatches.size() == 4) {
         cvarName = matches[1].str();
         cvarValue = matches[3].str();
       }
