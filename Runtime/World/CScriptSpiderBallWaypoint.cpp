@@ -77,17 +77,16 @@ TUniqueId CScriptSpiderBallWaypoint::PreviousWaypoint(const CStateManager& mgr,
 
 TUniqueId CScriptSpiderBallWaypoint::NextWaypoint(const CStateManager& mgr, ECheckActiveWaypoint checkActive) const {
   for (const SConnection& conn : x20_conns) {
-    if (conn.x0_state == EScriptObjectState::Arrived && conn.x4_msg == EScriptObjectMessage::Next) {
-      const TUniqueId uid = mgr.GetIdForScript(conn.x8_objId);
-      if (uid != kInvalidUniqueId) {
-        if (const CEntity* ent = mgr.GetObjectById(uid)) {
-          if (checkActive == ECheckActiveWaypoint::SkipCheck) {
-            return ent->GetUniqueId();
-          }
-          if (ent->GetActive()) {
-            return ent->GetUniqueId();
-          }
-        }
+    if (conn.x0_state != EScriptObjectState::Arrived || conn.x4_msg != EScriptObjectMessage::Next) {
+      continue;
+    }
+    const TUniqueId uid = mgr.GetIdForScript(conn.x8_objId);
+    if (const CEntity* ent = mgr.GetObjectById(uid)) {
+      if (checkActive == ECheckActiveWaypoint::SkipCheck) {
+        return ent->GetUniqueId();
+      }
+      if (ent->GetActive()) {
+        return ent->GetUniqueId();
       }
     }
   }
@@ -198,7 +197,7 @@ void CScriptSpiderBallWaypoint::GetClosestPointAlongWaypoints(CStateManager& mgr
   closestPoint = lastPoint;
   if (wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::Check) != kInvalidUniqueId) {
     wp = static_cast<const CScriptSpiderBallWaypoint*>(
-      mgr.GetObjectById(wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::SkipCheck)));
+        mgr.GetObjectById(wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::SkipCheck)));
     deltaBetweenPoints = lastPoint - wp->GetTranslation();
     interpDeltaBetweenPoints = deltaBetweenPoints;
   }
