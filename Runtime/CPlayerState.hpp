@@ -199,6 +199,14 @@ public:
 
   enum class EBeamId : s32 { Invalid = -1, Power, Ice, Wave, Plasma, Phazon, Phazon2 = 27 };
 
+  #ifdef PRIME2
+  enum class EPowerUpFieldToQuery : u32 {
+    Actual,
+    Minimum,
+    Maximum
+  };
+  #endif
+
 private:
   struct CPowerUp {
     u32 x0_amount = 0;
@@ -256,7 +264,11 @@ public:
   void EnableItem(EItemType type);
   bool HasPowerUp(EItemType type) const;
   u32 GetItemCapacity(EItemType type) const;
+#ifdef PRIME1
   u32 GetItemAmount(EItemType type) const;
+#else
+  u32 GetItemAmount(EItemType type, bool respectFieldToQuery = true) const;
+#endif
   void DecrPickup(EItemType type, u32 amount);
   void IncrPickup(EItemType type, u32 amount);
   void ResetAndIncrPickUp(EItemType type, u32 amount);
@@ -286,6 +298,7 @@ public:
 
   #ifdef PRIME2
   void IncrementHealth(float delta);
+  EPowerUpFieldToQuery GetPowerUpFieldToQuery(EItemType type) const;
   #endif
 };
 } // namespace metaforce
