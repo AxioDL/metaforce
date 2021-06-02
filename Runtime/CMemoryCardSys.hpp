@@ -67,10 +67,12 @@ class CMemoryCardSys {
   rstl::reserved_vector<u32, 6> x30_scanCategoryCounts;
 
 public:
+  static void _ResetCVar(kabufuda::ECardSlot slot);
   static void _ResolveDolphinCardPath(const hecl::CVar* cv, kabufuda::ECardSlot slot);
   static kabufuda::SystemString ResolveDolphinCardPath(kabufuda::ECardSlot slot);
-  static kabufuda::SystemString CreateDolphinCard(kabufuda::ECardSlot slot);
-  static kabufuda::SystemString _CreateDolphinCard(kabufuda::ECardSlot slot);
+  static bool CreateDolphinCard(kabufuda::ECardSlot slot);
+  static kabufuda::SystemString _GetDolphinCardPath(kabufuda::ECardSlot slot);
+  static kabufuda::SystemString _CreateDolphinCard(kabufuda::ECardSlot slot, bool dolphin);
 
   using ECardResult = kabufuda::ECardResult;
   struct CardResult {

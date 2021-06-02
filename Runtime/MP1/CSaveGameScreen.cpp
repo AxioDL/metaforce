@@ -131,6 +131,9 @@ bool CSaveGameScreen::PumpLoad() {
 }
 
 CSaveGameScreen::EUIType CSaveGameScreen::SelectUIType() const {
+  if (x10_uiType == EUIType::CreateDolphinCardFailed) {
+    return x10_uiType;
+  }
   if (x6c_cardDriver->x10_state == EState::NoCard) {
     return EUIType::NoCardFound;
   }
@@ -312,6 +315,12 @@ void CSaveGameScreen::SetUIText() {
       opt1 = 15; // No
     }
     break;
+  case EUIType::CreateDolphinCardFailed:
+    msgAStr = u"Attempt to create Dolphin Card failed!\n";
+    msgBStr = u"CVars have been reset to defaults.\nMetaforce will use Dolphin's memory cards if available\n";
+    opt0 = -2;
+    opt0Str = u"Press &image=SI,1.0,0.68,05AF9CAA; to proceed.\n";
+    break;
   default:
     break;
   }
@@ -392,7 +401,12 @@ void CSaveGameScreen::DoAdvance([[maybe_unused]] CGuiTableGroup* caller) {
       sfx = x84_navConfirmSfx;
     } else if (userSel == 2 && x10_uiType == EUIType::NoCardFound) {
       /* Create Dolphin Card */
-      CMemoryCardSys::CreateDolphinCard(kabufuda::ECardSlot::SlotA);
+      if (!CMemoryCardSys::CreateDolphinCard(kabufuda::ECardSlot::SlotA)) {
+        x10_uiType = EUIType::CreateDolphinCardFailed;
+        sfx = x8c_navBackSfx;
+        x91_uiTextDirty = true;
+        break;
+      }
       ResetCardDriver();
       sfx = x84_navConfirmSfx;
     }
@@ -556,6 +570,15 @@ void CSaveGameScreen::DoAdvance([[maybe_unused]] CGuiTableGroup* caller) {
       }
     }
     break;
+  case EUIType::CreateDolphinCardFailed: {
+    if (userSel == 0) {
+      CMemoryCardSys::_ResetCVar(kabufuda::ECardSlot::SlotA);
+      CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlot::SlotA);
+      ResetCardDriver();
+      x10_uiType = EUIType::Empty;
+      sfx = x84_navConfirmSfx;
+    }
+  } break;
 
   default:
     break;

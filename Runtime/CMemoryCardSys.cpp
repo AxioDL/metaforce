@@ -336,6 +336,9 @@ ECardResult CMemoryCardSys::CCardFileInfo::WriteFile() {
 }
 
 ECardResult CMemoryCardSys::CCardFileInfo::CloseFile() { return CMemoryCardSys::CloseFile(m_handle); }
+kabufuda::SystemString CMemoryCardSys::_GetDolphinCardPath(kabufuda::ECardSlot slot) {
+  return g_CardImagePaths[static_cast<u32>(slot)];
+}
 
 void CMemoryCardSys::_ResolveDolphinCardPath(const hecl::CVar* cv, kabufuda::ECardSlot slot) {
 #if CARD_UCS2
@@ -559,19 +562,31 @@ void CMemoryCardSys::CommitToDisk(kabufuda::ECardSlot port) {
   card.commit();
 }
 
-kabufuda::SystemString CMemoryCardSys::CreateDolphinCard(kabufuda::ECardSlot slot) {
-  kabufuda::SystemString path = _CreateDolphinCard(slot);
+bool CMemoryCardSys::CreateDolphinCard(kabufuda::ECardSlot slot) {
+  kabufuda::SystemString path =
+      _CreateDolphinCard(slot, slot == kabufuda::ECardSlot::SlotA ? mc_dolphinAPath->hasDefaultValue()
+                                                                  : mc_dolphinBPath->hasDefaultValue());
   if (CardProbe(slot).x0_error != ECardResult::READY) {
-    return {};
+    return false;
   }
 
   MountCard(slot);
   FormatCard(slot);
   kabufuda::Card& card = g_CardStates[int(slot)];
   card.waitForCompletion();
-  return path;
+  return true;
 }
 
+void CMemoryCardSys::_ResetCVar(kabufuda::ECardSlot slot) {
+  switch(slot) {
+  case kabufuda::ECardSlot::SlotA:
+    mc_dolphinAPath->fromLiteral("");
+    break;
+  case kabufuda::ECardSlot::SlotB:
+    mc_dolphinBPath->fromLiteral("");
+    break;
+  }
+}
 void CMemoryCardSys::Shutdown() {
   UnmountCard(kabufuda::ECardSlot::SlotA);
   UnmountCard(kabufuda::ECardSlot::SlotB);

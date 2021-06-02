@@ -41,7 +41,9 @@ public:
     ProgressWillBeLost = 13,
     NotOriginalCard = 14,
     AllDataWillBeLost = 15,
-    SaveReady = 16
+    SaveReady = 16,
+    // Metaforce Addition
+    CreateDolphinCardFailed
   };
 
   bool IsHiddenFromFrontEnd() const {
