@@ -125,7 +125,7 @@ kabufuda::SystemString CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot sl
       }
       hecl::SystemString tmpPath = path.substr(0, path.find_last_of(_SYS_STR("/")));
       hecl::RecursiveMakeDir(tmpPath.c_str());
-      const auto fp = hecl::FopenUnique(path.c_str(), "wb");
+      const auto fp = hecl::FopenUnique(path.c_str(), _SYS_STR("wb"));
       if (fp) {
         return path;
       }
