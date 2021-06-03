@@ -558,13 +558,13 @@ void CMorphBall::ApplySpiderBallSwingingForces(const CFinalInput& input, CStateM
 }
 
 zeus::CVector3f CMorphBall::TransformSpiderBallForcesXY(const zeus::CVector2f& forces, CStateManager& mgr) {
-  return mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis *
-         zeus::CVector3f(forces.x(), forces.y(), 0.f);
+  return forces.x() * mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis[0] +
+         forces.y() * mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis[1];
 }
 
 zeus::CVector3f CMorphBall::TransformSpiderBallForcesXZ(const zeus::CVector2f& forces, CStateManager& mgr) {
-  return mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis *
-         zeus::CVector3f(forces.x(), 0.f, forces.y());
+  return forces.x() * mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis[0] +
+         forces.y() * mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis[2];
 }
 
 void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManager& mgr, float dt) {
@@ -584,20 +584,20 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
   float trackForceMag = x18c0_isSpiderSurface ? forceMag : viewSurfaceForces.dot(spiderDirNorm);
   bool forceApplied = true;
   bool continueTrackForce = false;
-  if (std::fabs(forceMag) > 0.05f) {
-    normSurfaceForces = surfaceForces.normalized();
-    if (!x18c0_isSpiderSurface && normSurfaceForces.dot(x190c_normSpiderSurfaceForces) > 0.9f) {
-      trackForceMag = x1914_spiderTrackForceMag >= 0.f ? forceMag : -forceMag;
-      continueTrackForce = true;
-    } else {
-      if (std::fabs(trackForceMag) > 0.05f) {
-        trackForceMag = trackForceMag >= 0.f ? forceMag : -forceMag;
-      } else {
-        forceApplied = false;
-      }
-    }
-  } else {
+  if (std::fabs(forceMag) <= 0.05f) {
     forceApplied = false;
+  } else {
+    normSurfaceForces = surfaceForces.normalized();
+    if (x18c0_isSpiderSurface || normSurfaceForces.dot(x190c_normSpiderSurfaceForces) <= 0.9f) {
+      if (std::fabs(trackForceMag) <= 0.05f) {
+        forceApplied = false;
+      } else {
+        trackForceMag = trackForceMag <= 0.f ? -forceMag : forceMag;
+      }
+    } else {
+      trackForceMag = 1.f <= 0.f ? -forceMag : forceMag;
+      continueTrackForce = true;
+    }
   }
 
   if (!continueTrackForce) {
@@ -607,7 +607,6 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
   }
 
   if (!forceApplied) {
-    trackForceMag = 0.f;
     ResetSpiderBallForces();
   }
 
@@ -618,16 +617,21 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
 
   zeus::CVector3f moveDelta;
   if (x18bd_touchingSpider && forceApplied) {
-    if (x18c0_isSpiderSurface) {
-      moveDelta = viewSurfaceForces * 0.1f;
+    if (!x18c0_isSpiderSurface) {
+      moveDelta = x18a8_spiderBetweenPoints.normalized() * (0.1f * (1.f <= 0.f ? -1.f : 1.f));
     } else {
-      moveDelta = x18a8_spiderBetweenPoints.normalized() * 0.1f * (trackForceMag >= 0.f ? 1.f : -1.f);
+      moveDelta = 0.1f * viewSurfaceForces;
     }
   }
 
   const zeus::CVector3f ballPos = GetBallToWorld().origin + moveDelta;
   float distance = 0.f;
-  if (moving || !x18bd_touchingSpider || x188c_spiderPullMovement != 1.f || x18bf_spiderSwingInAir) {
+  if (!moving && x18bd_touchingSpider && x188c_spiderPullMovement == 1.f && !x18bf_spiderSwingInAir) {
+    x1880_playerToSpiderNormal = x1890_spiderTrackPoint - ballPos;
+    distance = x1880_playerToSpiderNormal.magnitude();
+    x1880_playerToSpiderNormal = x1880_playerToSpiderNormal * (-1.f / distance);
+    x18bc_spiderNearby = true;
+  } else {
     if (!mb_spooderBallCached) {
       x18bc_spiderNearby = false;
     }
@@ -637,11 +641,6 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
       x18bc_spiderNearby = true;
       x18bf_spiderSwingInAir = false;
     }
-  } else {
-    x1880_playerToSpiderNormal = x1890_spiderTrackPoint - ballPos;
-    distance = x1880_playerToSpiderNormal.magnitude();
-    x1880_playerToSpiderNormal = x1880_playerToSpiderNormal * (-1.f / distance);
-    x18bc_spiderNearby = true;
   }
 
   if (x18bc_spiderNearby) {
@@ -660,31 +659,38 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
             x1918_spiderViewControlMag = viewControlMag;
             x1920_spiderForcesReset = false;
           }
-          float finalForceMag;
-          if (std::fabs(viewControlMag) > 0.1f) {
-            finalForceMag = std::copysign(zeus::clamp(-1.f, forceMag, 1.f), viewControlMag);
-          } else {
+          float finalForceMag = 0.f;
+          if (std::fabs(viewControlMag) <= 0.1f) {
             finalForceMag = 0.f;
             ResetSpiderBallForces();
+          } else {
+            finalForceMag = (viewControlMag > 0.f ? 1.f : -1.f) * zeus::clamp(-1.f, forceMag, 1.f);
           }
           if (distance > 1.05f) {
             finalForceMag *= (1.05f - (distance - 1.05f)) / 1.05f;
           }
-          x0_player.ApplyForceWR(x18a8_spiderBetweenPoints.normalized() * 90000.f * finalForceMag, zeus::CAxisAngle());
+          x0_player.ApplyForceWR(finalForceMag * (x18a8_spiderBetweenPoints.normalized() * 90000.f),
+                                 zeus::CAxisAngle());
         } else {
           x18b4_linVelDamp = 0.3f;
           x18b8_angVelDamp = 0.2f;
-          const float f31 = x18c4_spiderSurfaceTransform.basis[0].dot(viewSurfaceForces);
-          const float f30 = x18c4_spiderSurfaceTransform.basis[2].dot(viewSurfaceForces);
-          const zeus::CVector3f forceVec =
-              (f31 * x18c4_spiderSurfaceTransform.basis[0] + f30 * x18c4_spiderSurfaceTransform.basis[2]) * 45000.f;
+
+          const zeus::CVector3f wut1{x18c4_spiderSurfaceTransform.basis[0].x(),
+                                     x18c4_spiderSurfaceTransform.basis[1].x(),
+                                     x18c4_spiderSurfaceTransform.basis[2].x()};
+          const zeus::CVector3f wut2{x18c4_spiderSurfaceTransform.basis[0].z(),
+                                     x18c4_spiderSurfaceTransform.basis[1].z(),
+                                     x18c4_spiderSurfaceTransform.basis[2].z()};
+          const float f30 = wut1.dot(viewSurfaceForces);
+          const float f31 = wut2.dot(viewSurfaceForces);
+          const zeus::CVector3f forceVec = 45000.0f * ((f30 * wut1) + (f31 * wut2));
           x0_player.ApplyForceWR(forceVec, zeus::CAxisAngle());
           if (forceVec.magSquared() > 0.f) {
             float angle = std::atan2(45000.f * f31, 45000.f * f30);
             if (angle - x18f4_spiderSurfacePivotAngle > M_PIF / 2.f) {
-              angle = angle - M_PIF;
+              angle -= M_PIF;
             } else if (x18f4_spiderSurfacePivotAngle - angle > M_PIF / 2.f) {
-              angle = angle + M_PIF;
+              angle += M_PIF;
             }
             x18f8_spiderSurfacePivotTargetAngle = angle;
           }
