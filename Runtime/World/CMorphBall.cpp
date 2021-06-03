@@ -694,21 +694,21 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
             }
             x18f8_spiderSurfacePivotTargetAngle = angle;
           }
-          x18f4_spiderSurfacePivotAngle += std::copysign(
-              std::min(std::fabs(x18f8_spiderSurfacePivotTargetAngle - x18f4_spiderSurfacePivotAngle), 0.2f),
-              x18f8_spiderSurfacePivotTargetAngle - x18f4_spiderSurfacePivotAngle);
+          const float minAngle =
+              std::max(std::fabs(x18f8_spiderSurfacePivotTargetAngle - x18f4_spiderSurfacePivotAngle), 0.2f);
+          x18f4_spiderSurfacePivotAngle = minAngle * 1.f + x18f4_spiderSurfacePivotAngle;
           x189c_spiderInterpBetweenPoints =
               x18c4_spiderSurfaceTransform.rotate(zeus::CTransform::RotateY(x18f4_spiderSurfacePivotAngle).basis[2]);
         }
       }
       x0_player.ApplyForceWR(
-          {0.f, 0.f, g_tweakBall->GetBallGravity() * x0_player.GetMass() * 8.f * (1.f - x188c_spiderPullMovement)},
+          {0.f, 0.f, (1.f - x188c_spiderPullMovement) * 8.f * (x0_player.GetMass() * g_tweakBall->GetBallGravity())},
           zeus::CAxisAngle());
     } else {
       x18b4_linVelDamp = 0.2f;
       x18b8_angVelDamp = 0.2f;
     }
-    x0_player.SetMomentumWR(4.f * x0_player.GetMass() * g_tweakBall->GetBallGravity() * x1880_playerToSpiderNormal);
+    x0_player.SetMomentumWR(4.f * (x0_player.GetMass() * g_tweakBall->GetBallGravity()) * x1880_playerToSpiderNormal);
   }
 }
 
