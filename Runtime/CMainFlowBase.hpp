@@ -4,7 +4,20 @@
 
 namespace metaforce {
 
-enum class EClientFlowStates { Unspecified = -1, PreFrontEnd = 7, FrontEnd = 8, Game = 14, GameExit = 15 };
+enum class EClientFlowStates {
+  Unspecified = -1,
+  None = 0,
+  WinBad = 1,
+  WinGood = 2,
+  WinBest = 3,
+  LoseGame = 4,
+  Default = 5,
+  StateSetter = 6,
+  PreFrontEnd = 7,
+  FrontEnd = 8,
+  Game = 14,
+  GameExit = 15
+};
 
 class CMainFlowBase : public CIOWin {
 protected:

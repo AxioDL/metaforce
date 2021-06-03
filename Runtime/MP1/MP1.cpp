@@ -109,9 +109,6 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
   CStreamAudioManager::SetMusicVolume(0x7f);
   m->ResetGameState();
 
-  std::shared_ptr<CIOWin> credits = std::make_shared<CCredits>();
-  x58_ioWinManager.AddIOWin(credits, 1000, 10000);
-/*
   if (!g_tweakGame->GetSplashScreensDisabled()) {
     std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
     x58_ioWinManager.AddIOWin(splash, 1000, 10000);
@@ -131,7 +128,6 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
 
   g_GuiSys = &x44_guiSys;
   g_GameState->GameOptions().EnsureSettings();
-  */
 }
 
 void CGameArchitectureSupport::UpdateTicks(float dt) {
@@ -643,7 +639,7 @@ void CMain::Warp(hecl::Console* con, const std::vector<std::string>& args) {
   }
 
   g_GameState->CurrentWorldState().SetAreaId(aId);
-  g_Main->SetFlowState(EFlowState::None);
+  g_Main->SetFlowState(EClientFlowStates::None);
   g_StateManager->SetWarping(true);
   g_StateManager->SetShouldQuitGame(true);
 }
@@ -855,7 +851,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
         ++it;
       }
 
-      SetFlowState(EFlowState::StateSetter);
+      SetFlowState(EClientFlowStates::StateSetter);
       break;
     }
   }

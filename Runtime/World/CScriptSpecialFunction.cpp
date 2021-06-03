@@ -317,13 +317,13 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
       if (msg == EScriptObjectMessage::Action) {
         switch (GetSpecialEnding(mgr)) {
         case 0:
-          g_Main->SetFlowState(EFlowState::WinBad);
+          g_Main->SetFlowState(EClientFlowStates::WinBad);
           break;
         case 1:
-          g_Main->SetFlowState(EFlowState::WinGood);
+          g_Main->SetFlowState(EClientFlowStates::WinGood);
           break;
         case 2:
-          g_Main->SetFlowState(EFlowState::WinBest);
+          g_Main->SetFlowState(EClientFlowStates::WinBest);
           break;
         }
         mgr.SetShouldQuitGame(true);

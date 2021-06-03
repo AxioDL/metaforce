@@ -18,7 +18,7 @@ CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg
     CSfxManager::TurnOnChannel(CSfxManager::ESfxChannels::Game);
   } else if (msgType == EArchMsgType::QuitGameplay) {
     if (g_GameState->GetWorldTransitionManager()->GetTransType() == CWorldTransManager::ETransType::Disabled ||
-        m->GetFlowState() != EFlowState::None) {
+        m->GetFlowState() != EClientFlowStates::None) {
       CSfxManager::SetChannel(CSfxManager::ESfxChannels::Default);
       CSfxManager::KillAll(CSfxManager::ESfxChannels::Game);
     }

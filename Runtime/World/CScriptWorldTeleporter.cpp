@@ -80,7 +80,7 @@ void CScriptWorldTeleporter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
         StartTransition(mgr);
         g_GameState->SetCurrentWorldId(x34_worldId);
         g_GameState->CurrentWorldState().SetDesiredAreaAssetId(x38_areaId);
-        g_Main->SetFlowState(EFlowState::None);
+        g_Main->SetFlowState(EClientFlowStates::None);
         mgr.SetShouldQuitGame(true);
       } else {
         x40_25_inTransition = false;

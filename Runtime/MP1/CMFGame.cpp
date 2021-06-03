@@ -100,7 +100,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
     }
     case EGameFlowState::SamusDied: {
       if (x14_stateManager->GetPlayer().IsPlayerDeadEnough()) {
-        static_cast<CMain&>(*g_Main).SetFlowState(EFlowState::LoseGame);
+        static_cast<CMain&>(*g_Main).SetFlowState(EClientFlowStates::LoseGame);
         queue.Push(MakeMsg::CreateQuitGameplay(EArchMsgTarget::Game));
       } else {
         x14_stateManager->SetActiveRandomToDefault();
@@ -259,8 +259,8 @@ void CMFGame::EnterMapScreen() {
 CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
   auto* m = static_cast<CMain*>(g_Main);
   switch (m->GetFlowState()) {
-  case EFlowState::Default:
-  case EFlowState::StateSetter: {
+  case EClientFlowStates::Default:
+  case EClientFlowStates::StateSetter: {
     CAssetId mlvlId = g_GameState->CurrentWorldAssetId();
     if (g_MemoryCardSys->HasSaveWorldMemory(mlvlId)) {
       const CSaveWorldMemory& savwMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);

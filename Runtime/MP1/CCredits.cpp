@@ -148,7 +148,7 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
           x5c_27_ = false;
           x58_ = 0.f;
         } else if (x5c_28_) {
-          x5c_28_ = true;
+          x5c_25_ = true;
         }
       }
 

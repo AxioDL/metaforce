@@ -7,6 +7,7 @@
 #include <boo/audiodev/IAudioVoiceEngine.hpp>
 #include <hecl/Runtime.hpp>
 #include "DataSpec/DNACommon/MetaforceVersionInfo.hpp"
+#include "Runtime/CMainFlowBase.hpp"
 
 namespace hecl {
 class Console;
@@ -20,16 +21,6 @@ using EGame = DataSpec::EGame;
 class CStopwatch;
 enum class EGameplayResult { None, Win, Lose, Playing };
 
-enum class EFlowState {
-  None,
-  WinBad,
-  WinGood,
-  WinBest,
-  LoseGame,
-  Default,
-  StateSetter,
-};
-
 class IMain {
 public:
   virtual ~IMain() = default;
@@ -39,8 +30,8 @@ public:
   virtual bool Proc(float dt) = 0;
   virtual void Shutdown() = 0;
   virtual boo::IWindow* GetMainWindow() const = 0;
-  virtual EFlowState GetFlowState() const = 0;
-  virtual void SetFlowState(EFlowState) = 0;
+  virtual EClientFlowStates GetFlowState() const = 0;
+  virtual void SetFlowState(EClientFlowStates) = 0;
   virtual size_t GetExpectedIdSize() const = 0;
   virtual void WarmupShaders() = 0;
   virtual hecl::Console* Console() const = 0;

@@ -100,7 +100,7 @@ static void Warp(const CAssetId worldId, TAreaId aId) {
     aId = 0;
   }
   g_GameState->CurrentWorldState().SetAreaId(aId);
-  g_Main->SetFlowState(EFlowState::None);
+  g_Main->SetFlowState(EClientFlowStates::None);
   if (g_StateManager != nullptr) {
     g_StateManager->SetWarping(true);
     g_StateManager->SetShouldQuitGame(true);

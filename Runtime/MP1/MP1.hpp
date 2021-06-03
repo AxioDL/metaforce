@@ -219,7 +219,7 @@ private:
   float x120_;
   float x124_;
   std::unique_ptr<CGameGlobalObjects> x128_globalObjects;
-  EFlowState x12c_flowState = EFlowState::Default;
+  EClientFlowStates x12c_flowState = EClientFlowStates::Default;
   rstl::reserved_vector<u32, 10> x130_{{
       1000000,
       1000000,
@@ -307,8 +307,8 @@ public:
   static void EnsureWorldPaksReady();
   static void EnsureWorldPakReady(CAssetId mlvl);
 
-  EFlowState GetFlowState() const override { return x12c_flowState; }
-  void SetFlowState(EFlowState s) override { x12c_flowState = s; }
+  EClientFlowStates GetFlowState() const override { return x12c_flowState; }
+  void SetFlowState(EClientFlowStates s) override { x12c_flowState = s; }
 
   void SetX30(bool v) { x160_30_ = v; }
 

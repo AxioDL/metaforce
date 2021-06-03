@@ -193,9 +193,7 @@ int CDummyWorld::IGetAreaCount() const { return x18_areas.size(); }
 const std::optional<CWorldLayers>& CDummyWorld::GetWorldLayers() const { return m_worldLayers; }
 
 CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId)
-: x8_mlvlId(mlvlId)
-, x60_objectStore(objStore)
-, x64_resFactory(resFactory) {
+: x8_mlvlId(mlvlId), x60_objectStore(objStore), x64_resFactory(resFactory) {
   SObjectTag tag{FOURCC('MLVL'), mlvlId};
   x44_bufSz = resFactory.ResourceSize(tag);
   x40_loadBuf.reset(new u8[x44_bufSz]);
@@ -204,7 +202,8 @@ CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId)
 
 CWorld::~CWorld() {
   StopSounds();
-  if (g_GameState->GetWorldTransitionManager()->IsTransitionEnabled() && g_Main->GetFlowState() == EFlowState::None)
+  if (g_GameState->GetWorldTransitionManager()->IsTransitionEnabled() &&
+      g_Main->GetFlowState() == EClientFlowStates::None)
     CStreamAudioManager::StopOneShot();
   else
     CStreamAudioManager::StopAll();
