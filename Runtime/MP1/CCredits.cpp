@@ -68,23 +68,23 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
         x30_text.back().first->SetOutlineColor(g_tweakGui->GetCreditsTextBorderColor());
       }
 
-      auto tmp = std::make_pair(std::make_unique<CGuiTextSupport>(
-                                    g_ResFactory->GetResourceIdByName(g_tweakGui->GetCreditsFont())->id,
-                                    CGuiTextProperties(true, true, EJustification::Center, EVerticalJustification::Top),
-                                    g_tweakGui->GetCreditsTextFontColor(), g_tweakGui->GetCreditsTextBorderColor(),
-                                    zeus::skWhite, g_Viewport.x8_width - 64, 0, g_SimplePool,
-                                    CGuiWidget::EGuiModelDrawFlags::Alpha),
-                                zeus::CVector2i(0, 0));
-      tmp.first->SetText(
-          "\n&push;&font=C29C51F1;&main-color=#89D6FF;URDE DEVELOPMENT TEAM&pop;\n"
-          "&push;&main-color=#89D6FF;LEAD REVERSE ENGINEERING TEAM&pop\n;"
-          "Jack \"Cirrus\" Andersen\n"
-          "Phillip \"Antidote\" Stephens\n"
-          "Luke \"encounter\" Street\n\n"
-          "&push;&main-color=#89D6FF;C++ COMPLIANCE & CLEANUP&pop;\n"
-          "Lioncache\n");
-      x30_text.insert(x30_text.end() - 1, std::move(tmp));
-      x30_text.back().first->SetOutlineColor(g_tweakGui->GetCreditsTextBorderColor());
+//      auto tmp = std::make_pair(std::make_unique<CGuiTextSupport>(
+//                                    g_ResFactory->GetResourceIdByName(g_tweakGui->GetCreditsFont())->id,
+//                                    CGuiTextProperties(true, true, EJustification::Center, EVerticalJustification::Top),
+//                                    g_tweakGui->GetCreditsTextFontColor(), g_tweakGui->GetCreditsTextBorderColor(),
+//                                    zeus::skWhite, g_Viewport.x8_width - 64, 0, g_SimplePool,
+//                                    CGuiWidget::EGuiModelDrawFlags::Alpha),
+//                                zeus::CVector2i(0, 0));
+//      tmp.first->SetText(
+//          "\n&push;&font=C29C51F1;&main-color=#89D6FF;URDE DEVELOPMENT TEAM&pop;\n"
+//          "&push;&main-color=#89D6FF;LEAD REVERSE ENGINEERING TEAM&pop\n;"
+//          "Jack \"Cirrus\" Andersen\n"
+//          "Phillip \"Antidote\" Stephens\n"
+//          "Luke \"encounter\" Street\n\n"
+//          "&push;&main-color=#89D6FF;C++ COMPLIANCE & CLEANUP&pop;\n"
+//          "Lioncache\n");
+//      x30_text.insert(x30_text.end() - 1, std::move(tmp));
+//      x30_text.back().first->SetOutlineColor(g_tweakGui->GetCreditsTextBorderColor());
     }
 
     for (const auto& [text, offset] : x30_text) {
@@ -98,7 +98,7 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
       auto bounds = text->GetBounds();
       offset.y = (bounds.second.y - bounds.first.y);
       offset.x = scaleY;
-      text->SetExtentX(g_Viewport.x8_width - 64);
+      text->SetExtentX(g_Viewport.x8_width - 1280);
       text->SetExtentY((bounds.second.y - bounds.first.y));
       scaleY += (bounds.second.y - bounds.first.y);
     }
@@ -231,7 +231,12 @@ void CCredits::DrawVideo() {
 }
 
 void CCredits::DrawText() {
-  auto region = g_Renderer->SetViewportOrtho(false, -4096, 4096);
+  float width = 896.f * g_Viewport.aspect;
+  CGraphics::SetOrtho(0.f, width, 896.f, 0.f, -4096.f, 4096.f);
+  auto region =
+      std::make_pair<zeus::CVector2f, zeus::CVector2f>(zeus::CVector2f{0.f, 0.f}, zeus::CVector2f{width, 896.f});
+  CGraphics::SetViewPointMatrix(zeus::CTransform());
+  CGraphics::SetModelMatrix(zeus::CTransform::Translate((width - 1280.f) / 2.f, 0.f, 896.f));
   float dVar5 = (x48_ - (region.second.y() - region.first.y()));
   for (const auto& [text, offset] : x30_text) {
     if (offset.y + offset.x >= dVar5 && offset.x <= x48_) {
@@ -243,7 +248,7 @@ void CCredits::DrawText() {
 }
 
 void CCredits::DrawText(CGuiTextSupport& text, const zeus::CVector3f& translation) {
-  auto region = g_Renderer->SetViewportOrtho(false, -4096, 4096);
+  //auto region = g_Renderer->SetViewportOrtho(false, -4096, 4096);
   zeus::CTransform xf = zeus::CTransform::Translate(translation);
   g_Renderer->SetModelMatrix(xf);
   text.Render();
