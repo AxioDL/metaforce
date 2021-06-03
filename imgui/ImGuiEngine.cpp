@@ -12,6 +12,8 @@
 
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Input/CInputGenerator.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CToken.hpp"
 #include <zeus/CMatrix4f.hpp>
 
 extern "C" const uint8_t NOTO_MONO_FONT[];
@@ -33,6 +35,7 @@ static boo::ObjToken<boo::IGraphicsBufferD> IndexBuffer;
 static boo::ObjToken<boo::IGraphicsBufferD> UniformBuffer;
 static std::array<boo::ObjToken<boo::IShaderDataBinding>, ImGuiUserTextureID_MAX> ShaderDataBindings;
 static std::array<boo::ObjToken<boo::ITextureS>, ImGuiUserTextureID_MAX> Textures;
+static std::unordered_map<CAssetId, boo::ObjToken<boo::IShaderDataBinding>> ResourceBindings;
 static boo::SWindowRect WindowRect;
 static std::string IniFilePath;
 static std::string LogFilePath;
@@ -157,6 +160,7 @@ void ImGuiEngine::Shutdown() {
   for (auto& item : Textures) {
     item.reset();
   }
+  ResourceBindings.clear();
   VertexBuffer.reset();
   IndexBuffer.reset();
   UniformBuffer.reset();
@@ -296,6 +300,22 @@ void ImGuiEngine::End() {
 
     for (int i = 0; i < drawData->CmdListsCount; ++i) {
       const auto* cmdList = drawData->CmdLists[i];
+      for (const auto& drawCmd : cmdList->CmdBuffer) {
+        const auto& textureId = drawCmd.TextureId;
+        if (textureId.textureId == ImGuiUserTextureID_MAX && textureId.objectTag.id.IsValid()) {
+          if (ResourceBindings.contains(textureId.objectTag.id)) {
+            continue;
+          }
+          if (textureId.objectTag.type == SBIG('TXTR')) {
+            TLockedToken<CTexture> tex = g_SimplePool->GetObj(textureId.objectTag);
+            // TODO(encounter): store token until loaded, but right now we force it to load immediately
+            // if (tex.IsLoaded())
+            ResourceBindings[textureId.objectTag.id] = BuildShaderDataBinding(ctx, tex->GetBooTexture());
+          } else {
+            Log.report(logvisor::Fatal, FMT_STRING("Unknown type to render: {}"), textureId.objectTag.type.toString());
+          }
+        }
+      }
       int vtxBufferSz = cmdList->VtxBuffer.size();
       int idxBufferSz = cmdList->IdxBuffer.size();
       memcpy(vtxBuf, cmdList->VtxBuffer.begin(), vtxBufferSz * sizeof(ImDrawVert));
@@ -303,6 +323,8 @@ void ImGuiEngine::End() {
       vtxBuf += vtxBufferSz;
       idxBuf += idxBufferSz;
     }
+
+    // TODO(encounter): clean up unreferenced ResourceBindings
 
     VertexBuffer->unmap();
     IndexBuffer->unmap();
@@ -324,17 +346,31 @@ void ImGuiEngine::Draw(boo::IGraphicsCommandQueue* gfxQ) {
 
   size_t idxOffset = 0;
   size_t vtxOffset = 0;
-  size_t currentTextureID = ImGuiUserTextureID_MAX;
+  ImTextureID currentTextureID = ImGuiUserTextureID_MAX;
   for (int i = 0; i < drawData->CmdListsCount; ++i) {
-    const auto* cmdList = drawData->CmdLists[i];
-    for (const auto& drawCmd : cmdList->CmdBuffer) {
+    auto* cmdList = drawData->CmdLists[i];
+    for (auto& drawCmd : cmdList->CmdBuffer) {
+      if (drawCmd.UserCallback != nullptr) {
+        if (drawCmd.UserCallback == ImDrawCallback_ResetRenderState) {
+          gfxQ->setViewport(viewportRect);
+        } else {
+          if (drawCmd.UserCallbackData == nullptr) {
+            drawCmd.UserCallbackData = gfxQ;
+          }
+          drawCmd.UserCallback(cmdList, &drawCmd);
+        }
+        continue;
+      }
       if (currentTextureID != drawCmd.TextureId) {
         currentTextureID = drawCmd.TextureId;
-        gfxQ->setShaderDataBinding(ShaderDataBindings[currentTextureID]);
-      }
-      if (drawCmd.UserCallback != nullptr) {
-        drawCmd.UserCallback(cmdList, &drawCmd);
-        continue;
+        if (currentTextureID.textureId == ImGuiUserTextureID_MAX) {
+          if (!ResourceBindings.contains(currentTextureID.objectTag.id)) {
+            continue;
+          }
+          gfxQ->setShaderDataBinding(ResourceBindings[currentTextureID.objectTag.id]);
+        } else {
+          gfxQ->setShaderDataBinding(ShaderDataBindings[currentTextureID.textureId]);
+        }
       }
       ImVec2 pos = drawData->DisplayPos;
       int clipX = static_cast<int>(drawCmd.ClipRect.x - pos.x);
@@ -354,17 +390,23 @@ void ImGuiEngine::Draw(boo::IGraphicsCommandQueue* gfxQ) {
   }
 }
 
-void ImGuiEngine::BuildShaderDataBindings(boo::IGraphicsDataFactory::Context& ctx) {
+boo::ObjToken<boo::IShaderDataBinding> ImGuiEngine::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                           boo::ObjToken<boo::ITexture> texture) {
   std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> uniforms = {UniformBuffer.get()};
   std::array<boo::PipelineStage, uniforms.size()> unistages = {boo::PipelineStage::Vertex};
   std::array<size_t, uniforms.size()> unioffs{0};
   std::array<size_t, uniforms.size()> unisizes{sizeof(Uniform)};
+  std::array<boo::ObjToken<boo::ITexture>, 1> texs{texture};
+  return ctx.newShaderDataBinding(ShaderPipeline, VertexBuffer.get(), nullptr, IndexBuffer.get(), uniforms.size(),
+                                  uniforms.data(), unistages.data(), unioffs.data(), unisizes.data(), texs.size(),
+                                  texs.data(), nullptr, nullptr);
+}
+
+void ImGuiEngine::BuildShaderDataBindings(boo::IGraphicsDataFactory::Context& ctx) {
   for (int i = 0; i < ImGuiUserTextureID_MAX; ++i) {
-    std::array<boo::ObjToken<boo::ITexture>, 1> texs{Textures[i].get()};
-    ShaderDataBindings[i] = ctx.newShaderDataBinding(ShaderPipeline, VertexBuffer.get(), nullptr, IndexBuffer.get(),
-                                                     uniforms.size(), uniforms.data(), unistages.data(), unioffs.data(),
-                                                     unisizes.data(), texs.size(), texs.data(), nullptr, nullptr);
+    ShaderDataBindings[i] = BuildShaderDataBinding(ctx, Textures[i].get());
   }
+  ResourceBindings.clear();
 }
 
 bool ImGuiWindowCallback::m_mouseCaptured = false;

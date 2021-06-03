@@ -29,6 +29,9 @@ public:
   static void End();
   static void Draw(boo::IGraphicsCommandQueue* gfxQ);
 
+  static boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                       boo::ObjToken<boo::ITexture> texture);
+
 private:
   static void BuildShaderDataBindings(boo::IGraphicsDataFactory::Context& ctx);
 };

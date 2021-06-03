@@ -767,7 +767,7 @@ IMGUI_ENTITY_INSPECT(CScriptDock, CPhysicsActor, ScriptDock, {
       auto areaId = dock->GetConnectedAreaId(dock->GetReferenceCount());
       if (areaId != kInvalidAreaId) {
         CAssetId stringId = g_StateManager->GetWorld()->GetArea(areaId)->IGetStringTableAssetId();
-        ImGuiStringViewText(fmt::format(FMT_STRING("Connected Area: {}"), ImGuiLoadStringTable(stringId, 0)));
+        ImGuiStringViewText(fmt::format(FMT_STRING("Connected Area: {}"), ImGuiLoadStringTableIndex(stringId, 0)));
       }
     }
   }

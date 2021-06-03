@@ -76,6 +76,7 @@ public:
   u32 GetFakeStaticSize() const { return 0; }
   void AsyncIdle();
   CAssetId GetMLVLId() const { return m_mlvlId; }
+  const std::vector<SResInfo>& GetResList() const { return x74_resList; }
 };
 
 } // namespace metaforce

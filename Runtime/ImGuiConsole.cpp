@@ -37,7 +37,22 @@ void ImGuiTextCenter(std::string_view text) {
 static std::unordered_map<CAssetId, std::unique_ptr<CDummyWorld>> dummyWorlds;
 static std::unordered_map<CAssetId, TCachedToken<CStringTable>> stringTables;
 
-std::string ImGuiLoadStringTable(CAssetId stringId, int idx) {
+std::vector<std::string> ImGuiLoadStringTable(CAssetId stringId) {
+  if (!stringId.IsValid()) {
+    return {};
+  }
+  if (!stringTables.contains(stringId)) {
+    stringTables[stringId] = g_SimplePool->GetObj(SObjectTag{SBIG('STRG'), stringId});
+  }
+  std::vector<std::string> result;
+  CStringTable* pTable = stringTables[stringId].GetObj();
+  for (u32 i = 0; i < pTable->GetStringCount(); ++i) {
+    result.push_back(hecl::Char16ToUTF8(pTable->GetString(s32(i))));
+  }
+  return result;
+}
+
+std::string ImGuiLoadStringTableIndex(CAssetId stringId, int idx) {
   if (!stringId.IsValid()) {
     return ""s;
   }
@@ -71,7 +86,7 @@ static std::vector<std::pair<std::string, CAssetId>> ListWorlds() {
     if (!stringId.IsValid()) {
       continue;
     }
-    worlds.emplace_back(ImGuiLoadStringTable(stringId, 0), worldId);
+    worlds.emplace_back(ImGuiLoadStringTableIndex(stringId, 0), worldId);
   }
   return worlds;
 }
@@ -88,7 +103,7 @@ static std::vector<std::pair<std::string, TAreaId>> ListAreas(CAssetId worldId) 
     if (!stringId.IsValid()) {
       continue;
     }
-    areas.emplace_back(ImGuiLoadStringTable(stringId, 0), i);
+    areas.emplace_back(ImGuiLoadStringTableIndex(stringId, 0), i);
   }
   return areas;
 }
@@ -783,7 +798,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      const std::string name = ImGuiLoadStringTable(g_StateManager->GetWorld()->IGetStringTableAssetId(), 0);
+      const std::string name = ImGuiLoadStringTableIndex(g_StateManager->GetWorld()->IGetStringTableAssetId(), 0);
       ImGuiStringViewText(
           fmt::format(FMT_STRING("World Asset ID: 0x{}, Name: {}\n"), g_GameState->CurrentWorldAssetId(), name));
     }
@@ -810,7 +825,7 @@ void ImGuiConsole::ShowDebugOverlay() {
         CAssetId stringId = pArea->IGetStringTableAssetId();
         ImGuiStringViewText(
             fmt::format(FMT_STRING("Area Asset ID: 0x{}, Name: {}\nArea ID: {}, Active Layer bits: {}\n"),
-                        pArea->GetAreaAssetId(), ImGuiLoadStringTable(stringId, 0), pArea->GetAreaId(), layerBits));
+                        pArea->GetAreaAssetId(), ImGuiLoadStringTableIndex(stringId, 0), pArea->GetAreaId(), layerBits));
       }
     }
     if (m_layerInfo && g_StateManager != nullptr) {
@@ -1031,6 +1046,7 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
       ImGui::MenuItem("Items", nullptr, &m_showItemsWindow, canInspect && m_developer && m_cheats);
       ImGui::MenuItem("Layers", nullptr, &m_showLayersWindow, canInspect && m_developer);
       ImGui::MenuItem("Console Variables", nullptr, &m_showConsoleVariablesWindow);
+      ImGui::MenuItem("Assets", nullptr, &m_showAssetsWindow, canInspect);
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Debug")) {
@@ -1151,6 +1167,9 @@ void ImGuiConsole::PreUpdate() {
   }
   if (canInspect && m_showLayersWindow) {
     ShowLayersWindow();
+  }
+  if (canInspect && m_showAssetsWindow) {
+    ShowAssetsWindow();
   }
   if (m_showAboutWindow) {
     ShowAboutWindow(true);
@@ -1474,6 +1493,52 @@ void ImGuiConsole::ShowLayersWindow() {
     }
     if (hasSearch) {
       ImGui::PopID();
+    }
+  }
+  ImGui::End();
+}
+
+void ImGuiConsole::ShowAssetsWindow() {
+  if (ImGui::Begin("Assets", &m_showAssetsWindow)) {
+    for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks()) {
+      const std::vector<std::pair<std::string, SObjectTag>>& vector = pak->GetNameList();
+      const std::string_view pakName = pak->GetPath();
+      if (ImGui::TreeNode(pakName.data())) {
+        for (const auto& item : pak->GetResList()) {
+          // TODO(encounter): store reverse lookup map
+          const auto found = std::find_if(vector.begin(), vector.end(), [&](const std::pair<std::string, SObjectTag>& v) {
+            return v.second.id == item.GetId();
+          });
+          std::string label;
+          if (found != vector.end()) {
+            label = fmt::format(FMT_STRING("0x{:08X}: {} {}"), item.GetId().Value(), item.GetType().toString().c_str(), found->first.c_str());
+          } else {
+            label = fmt::format(FMT_STRING("0x{:08X}: {}"), item.GetId().Value(), item.GetType().toString().c_str());
+          }
+          ImGui::Selectable(label.c_str()); // TODO(encounter): open separate asset viewer window on click
+          if (ImGui::IsItemHovered()) {
+            if (item.GetType() == SBIG('TXTR')) {
+              ImGui::BeginTooltip();
+              float imgSize = 128.f * ImGui::GetIO().DisplayFramebufferScale.x;
+              // TODO(encounter): size based on CTexture dimensions
+              ImGui::Image(SObjectTag{item.GetType(), item.GetId()}, ImVec2{imgSize, imgSize}, ImVec2{0, 1},
+                           ImVec2{1, 0});
+              // TODO(encounter): show CTexture information
+              ImGui::EndTooltip();
+            } else if (item.GetType() == SBIG('STRG')) {
+              ImGui::BeginTooltip();
+              auto vec = ImGuiLoadStringTable(item.GetId());
+              for (int i = 0; i < vec.size(); ++i) {
+                // TODO(encounter): parse format strings or use CGuiTextSupport
+                ImGuiStringViewText(fmt::format(FMT_STRING("{}: {}"), i, vec[i]));
+              }
+              ImGui::EndTooltip();
+            }
+            // TODO(encounter): preview more types
+          }
+        }
+        ImGui::TreePop();
+      }
     }
   }
   ImGui::End();

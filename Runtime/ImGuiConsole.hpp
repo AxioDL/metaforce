@@ -14,7 +14,8 @@
 namespace metaforce {
 void ImGuiStringViewText(std::string_view text);
 void ImGuiTextCenter(std::string_view text);
-std::string ImGuiLoadStringTable(CAssetId stringId, int idx);
+std::vector<std::string> ImGuiLoadStringTable(CAssetId stringId);
+std::string ImGuiLoadStringTableIndex(CAssetId stringId, int idx);
 
 struct ImGuiEntityEntry {
   TUniqueId uid = kInvalidUniqueId;
@@ -57,6 +58,7 @@ private:
   bool m_showItemsWindow = false;
   bool m_showLayersWindow = false;
   bool m_showConsoleVariablesWindow = false;
+  bool m_showAssetsWindow = false;
 
   bool m_paused = false;
   bool m_stepFrame = false;
@@ -102,5 +104,6 @@ private:
   void ShowLayersWindow();
   void ShowConsoleVariablesWindow();
   void ShowMenuHint();
+  void ShowAssetsWindow();
 };
 } // namespace metaforce
