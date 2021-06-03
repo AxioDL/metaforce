@@ -695,7 +695,7 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
             x18f8_spiderSurfacePivotTargetAngle = angle;
           }
           const float minAngle =
-              std::max(std::fabs(x18f8_spiderSurfacePivotTargetAngle - x18f4_spiderSurfacePivotAngle), 0.2f);
+              std::min(std::fabs(x18f8_spiderSurfacePivotTargetAngle - x18f4_spiderSurfacePivotAngle), 0.2f);
           x18f4_spiderSurfacePivotAngle = minAngle * 1.f + x18f4_spiderSurfacePivotAngle;
           x189c_spiderInterpBetweenPoints =
               x18c4_spiderSurfaceTransform.rotate(zeus::CTransform::RotateY(x18f4_spiderSurfacePivotAngle).basis[2]);
