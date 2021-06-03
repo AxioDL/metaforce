@@ -9,7 +9,7 @@
 #include "Runtime/CBasics.hpp"
 #include "Runtime/CGameOptions.hpp"
 #include "Runtime/CPlayerState.hpp"
-#include "Runtime/CRelayTracker.hpp"
+#include "Runtime/CScriptMailbox.hpp"
 #include "Runtime/AutoMapper/CMapWorldInfo.hpp"
 #include "Runtime/World/CWorld.hpp"
 #include "Runtime/World/CWorldTransManager.hpp"
@@ -46,7 +46,7 @@ public:
 class CWorldState {
   CAssetId x0_mlvlId;
   TAreaId x4_areaId = kInvalidAreaId;
-  std::shared_ptr<CRelayTracker> x8_relayTracker;
+  std::shared_ptr<CScriptMailbox> x8_relayTracker;
   std::shared_ptr<CMapWorldInfo> xc_mapWorldInfo;
   CAssetId x10_desiredAreaAssetId;
   std::shared_ptr<CWorldLayerState> x14_layerState;
@@ -59,7 +59,7 @@ public:
   TAreaId GetCurrentAreaId() const { return x4_areaId; }
   CAssetId GetDesiredAreaAssetId() const { return x10_desiredAreaAssetId; }
   void SetDesiredAreaAssetId(CAssetId id) { x10_desiredAreaAssetId = id; }
-  const std::shared_ptr<CRelayTracker>& RelayTracker() const { return x8_relayTracker; }
+  const std::shared_ptr<CScriptMailbox>& RelayTracker() const { return x8_relayTracker; }
   const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return xc_mapWorldInfo; }
   const std::shared_ptr<CWorldLayerState>& GetLayerState() const { return x14_layerState; }
   void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const;

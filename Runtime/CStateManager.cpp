@@ -62,7 +62,7 @@ hecl::CVar* debugToolDrawPlatformCollision = nullptr;
 hecl::CVar* sm_logScripting = nullptr;
 } // namespace
 logvisor::Module LogModule("metaforce::CStateManager");
-CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
+CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& relayTracker,
                              const std::weak_ptr<CMapWorldInfo>& mwInfo, const std::weak_ptr<CPlayerState>& playerState,
                              const std::weak_ptr<CWorldTransManager>& wtMgr,
                              const std::weak_ptr<CWorldLayerState>& layerState)

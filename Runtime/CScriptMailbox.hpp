@@ -24,16 +24,16 @@ struct CMailMessage
 };
 #endif
 
-class CRelayTracker {
-  std::vector<TEditorId> x0_relayStates;
+class CScriptMailbox {
+  std::vector<TEditorId> x0_relays;
 
 public:
-  CRelayTracker() = default;
-  CRelayTracker(CBitStreamReader& in, const CSaveWorld& saveWorld);
+  CScriptMailbox() = default;
+  CScriptMailbox(CBitStreamReader& in, const CSaveWorld& saveWorld);
 
-  bool HasRelay(TEditorId id) const;
-  void AddRelay(TEditorId id);
-  void RemoveRelay(TEditorId id);
+  bool HasMsg(TEditorId id) const;
+  void AddMsg(TEditorId id);
+  void RemoveMsg(TEditorId id);
   void SendMsgs(TAreaId areaId, CStateManager& stateMgr);
   void PutTo(CBitStreamWriter& out, const CSaveWorld& saveWorld);
 };

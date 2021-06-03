@@ -1,4 +1,4 @@
-#include "Runtime/CRelayTracker.hpp"
+#include "Runtime/CScriptMailbox.hpp"
 
 #include "Runtime/CSaveWorld.hpp"
 #include "Runtime/CStateManager.hpp"
@@ -8,7 +8,7 @@
 
 namespace metaforce {
 
-CRelayTracker::CRelayTracker(CBitStreamReader& in, const CSaveWorld& saveWorld) {
+CScriptMailbox::CScriptMailbox(CBitStreamReader& in, const CSaveWorld& saveWorld) {
   const u32 relayCount = saveWorld.GetRelayCount();
   if (saveWorld.GetRelayCount()) {
     std::vector<bool> relayStates(saveWorld.GetRelayCount());
@@ -20,32 +20,32 @@ CRelayTracker::CRelayTracker(CBitStreamReader& in, const CSaveWorld& saveWorld) 
       if (!relayStates[i]) {
         continue;
         }
-      x0_relayStates.push_back(saveWorld.GetRelayEditorId(i));
+        x0_relays.push_back(saveWorld.GetRelayEditorId(i));
     }
   }
 }
 
-bool CRelayTracker::HasRelay(TEditorId id) const {
-  return std::find(x0_relayStates.cbegin(), x0_relayStates.cend(), id) != x0_relayStates.cend();
+bool CScriptMailbox::HasMsg(TEditorId id) const {
+  return std::find(x0_relays.cbegin(), x0_relays.cend(), id) != x0_relays.cend();
 }
 
-void CRelayTracker::AddRelay(TEditorId id) {
-  if (HasRelay(id)) {
+void CScriptMailbox::AddMsg(TEditorId id) {
+  if (HasMsg(id)) {
     return;
   }
 
-  x0_relayStates.push_back(id);
+  x0_relays.push_back(id);
 }
 
-void CRelayTracker::RemoveRelay(TEditorId id) {
-  if (!HasRelay(id)) {
+void CScriptMailbox::RemoveMsg(TEditorId id) {
+  if (!HasMsg(id)) {
     return;
   }
 
-  std::erase(x0_relayStates, id);
+  std::erase(x0_relays, id);
 }
 
-void CRelayTracker::SendMsgs(TAreaId areaId, CStateManager& stateMgr) {
+void CScriptMailbox::SendMsgs(TAreaId areaId, CStateManager& stateMgr) {
   const CWorld* world = stateMgr.GetWorld();
   u32 relayCount = world->GetRelayCount();
 
@@ -55,7 +55,7 @@ void CRelayTracker::SendMsgs(TAreaId areaId, CStateManager& stateMgr) {
     if (relay.GetTargetId().AreaNum() != areaId)
       continue;
 
-    if (!HasRelay(relay.GetRelayId()))
+    if (!HasMsg(relay.GetRelayId()))
       continue;
 
     stateMgr.SendScriptMsg(kInvalidUniqueId, relay.GetTargetId(), EScriptObjectMessage(relay.GetMessage()),
@@ -72,18 +72,18 @@ void CRelayTracker::SendMsgs(TAreaId areaId, CStateManager& stateMgr) {
     if (relay.GetTargetId().AreaNum() != areaId)
       continue;
 
-    if (!HasRelay(relay.GetRelayId()) || !relay.GetActive())
+    if (!HasMsg(relay.GetRelayId()) || !relay.GetActive())
       continue;
 
-    RemoveRelay(relay.GetRelayId());
+    RemoveMsg(relay.GetRelayId());
   }
 }
 
-void CRelayTracker::PutTo(CBitStreamWriter& out, const CSaveWorld& saveWorld) {
+void CScriptMailbox::PutTo(CBitStreamWriter& out, const CSaveWorld& saveWorld) {
   const u32 relayCount = saveWorld.GetRelayCount();
   std::vector<bool> relays(relayCount);
 
-  for (const TEditorId& id : x0_relayStates) {
+  for (const TEditorId& id : x0_relays) {
     const s32 idx = saveWorld.GetRelayIndex(id);
     if (idx >= 0) {
       relays[idx] = true;

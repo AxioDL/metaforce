@@ -34,9 +34,9 @@ CIOWin::EMessageReturn CStateSetterFlow::OnMessage(const CArchitectureMessage& m
             for (u32 i = 0; i < layers.GetAreaLayerCount(m->m_warpAreaId); ++i)
               layers.SetLayerActive(m->m_warpAreaId, i, ((m->m_warpLayerBits >> i) & 1) != 0);
           }
-          CRelayTracker& relays = *ws.RelayTracker();
+          CScriptMailbox& relays = *ws.RelayTracker();
           for (const auto& r : m->m_warpMemoryRelays)
-            relays.AddRelay(r);
+            relays.AddMsg(r);
         }
         g_GameState->GameOptions().ResetToDefaults();
         g_GameState->WriteBackupBuf();

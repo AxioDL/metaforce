@@ -1,6 +1,6 @@
 #include "Runtime/World/CScriptMemoryRelay.hpp"
 
-#include "Runtime/CRelayTracker.hpp"
+#include "Runtime/CScriptMailbox.hpp"
 #include "Runtime/CStateManager.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
@@ -22,10 +22,10 @@ void CScriptMemoryRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
   }
 
   if (msg == EScriptObjectMessage::Deactivate) {
-    stateMgr.GetRelayTracker()->RemoveRelay(xc_editorId);
+    stateMgr.GetRelayTracker()->RemoveMsg(xc_editorId);
     return;
   } else if (msg == EScriptObjectMessage::Activate) {
-    stateMgr.GetRelayTracker()->AddRelay(xc_editorId);
+    stateMgr.GetRelayTracker()->AddMsg(xc_editorId);
     if (!x34_25_skipSendActive) {
       SendScriptMsgs(EScriptObjectState::Active, stateMgr, EScriptObjectMessage::None);
     }

@@ -75,7 +75,7 @@ void CWorldLayerState::InitializeWorldLayers(const std::vector<CWorldLayers::Are
 }
 
 CWorldState::CWorldState(CAssetId id) : x0_mlvlId(id), x4_areaId(0) {
-  x8_relayTracker = std::make_shared<CRelayTracker>();
+  x8_relayTracker = std::make_shared<CScriptMailbox>();
   xc_mapWorldInfo = std::make_shared<CMapWorldInfo>();
   x10_desiredAreaAssetId = {};
   x14_layerState = std::make_shared<CWorldLayerState>();
@@ -84,7 +84,7 @@ CWorldState::CWorldState(CAssetId id) : x0_mlvlId(id), x4_areaId(0) {
 CWorldState::CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CSaveWorld& saveWorld) : x0_mlvlId(mlvlId) {
   x4_areaId = TAreaId(reader.ReadEncoded(32));
   x10_desiredAreaAssetId = u32(reader.ReadEncoded(32));
-  x8_relayTracker = std::make_shared<CRelayTracker>(reader, saveWorld);
+  x8_relayTracker = std::make_shared<CScriptMailbox>(reader, saveWorld);
   xc_mapWorldInfo = std::make_shared<CMapWorldInfo>(reader, saveWorld, mlvlId);
   x14_layerState = std::make_shared<CWorldLayerState>(reader, saveWorld);
 }

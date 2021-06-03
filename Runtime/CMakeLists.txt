@@ -83,7 +83,7 @@ set(RUNTIME_SOURCES_B
     CIOWinManager.hpp CIOWinManager.cpp
     CStateManager.hpp CStateManager.cpp
     CGameState.hpp CGameState.cpp
-    CRelayTracker.hpp CRelayTracker.cpp
+        CScriptMailbox.hpp CScriptMailbox.cpp
     CPlayerState.hpp CPlayerState.cpp
     CRandom16.hpp CRandom16.cpp
     CResFactory.hpp CResFactory.cpp

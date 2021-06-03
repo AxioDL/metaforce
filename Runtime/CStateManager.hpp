@@ -47,7 +47,7 @@ class CObjectList;
 class CPlayer;
 class CPlayerState;
 class CProjectedShadow;
-class CRelayTracker;
+class CScriptMailbox;
 class CRumbleManager;
 class CSortedListManager;
 class CTexture;
@@ -140,7 +140,7 @@ private:
   std::map<TEditorId, SScriptObjectStream> x8a4_loadedScriptObjects;
 
   std::shared_ptr<CPlayerState> x8b8_playerState;
-  std::shared_ptr<CRelayTracker> x8bc_relayTracker;
+  std::shared_ptr<CScriptMailbox> x8bc_relayTracker;
   std::shared_ptr<CMapWorldInfo> x8c0_mapWorldInfo;
   std::shared_ptr<CWorldTransManager> x8c4_worldTransManager;
   std::shared_ptr<CWorldLayerState> x8c8_worldLayerState;
@@ -220,7 +220,7 @@ private:
   static void RendererDrawCallback(void*, void*, int);
 
 public:
-  CStateManager(const std::weak_ptr<CRelayTracker>&, const std::weak_ptr<CMapWorldInfo>&,
+  CStateManager(const std::weak_ptr<CScriptMailbox>&, const std::weak_ptr<CMapWorldInfo>&,
                 const std::weak_ptr<CPlayerState>&, const std::weak_ptr<CWorldTransManager>&,
                 const std::weak_ptr<CWorldLayerState>&);
   ~CStateManager();
@@ -396,8 +396,8 @@ public:
   const CEnvFxManager* GetEnvFxManager() const { return x880_envFxManager; }
   CWorld* GetWorld() { return x850_world.get(); }
   const CWorld* GetWorld() const { return x850_world.get(); }
-  CRelayTracker* GetRelayTracker() { return x8bc_relayTracker.get(); }
-  const CRelayTracker* GetRelayTracker() const { return x8bc_relayTracker.get(); }
+  CScriptMailbox* GetRelayTracker() { return x8bc_relayTracker.get(); }
+  const CScriptMailbox* GetRelayTracker() const { return x8bc_relayTracker.get(); }
   CCameraManager* GetCameraManager() const { return x870_cameraManager; }
   CFluidPlaneManager* GetFluidPlaneManager() const { return x87c_fluidPlaneManager; }
   CActorModelParticles* GetActorModelParticles() const { return x884_actorModelParticles; }
