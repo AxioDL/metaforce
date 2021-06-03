@@ -5,7 +5,7 @@
 
 **Official Discord Channel:** https://discord.gg/AMBVFuf
 
-![Metaforce screenshot](assets/urde-screen1.png)
+![Metaforce screenshot](assets/metaforce-screen1.png)
 
 ### Download
 Precompiled builds of the command-line extraction utility (`hecl`) with embedded dataspec libraries are available at https://releases.axiodl.com. This will give you intermediate dumps of original formats as *blender* and *yaml* representations.
@@ -27,13 +27,15 @@ Everything else is much too experimental to make portable/stable release builds 
 
 ### Usage (Wii versions)
 
+**IMPORTANT**: Trilogy main menu currently doesn't work, and requires the `--warp 1 0` command line arguments to get in-game.  
+
 NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly without converting to ISO.
 
 * Extract ISO or NFS: `hecl extract [path].[iso/nfs] -o mpt`
   * `mpt` can be substituted with the directory name of your choice
 * Repackage game for Metaforce: `cd mpt; hecl package MP1`
   * The `MP1` parameter is important here.
-* Run Metaforce: `metaforce mpt/out`
+* Run Metaforce: `metaforce mpt/out --warp 1 0`
 
 #### Metaforce options (non-exhaustive)
 
