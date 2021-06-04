@@ -216,6 +216,8 @@ private:
   bool m_warping = false;
   std::map<TEditorId, std::set<SConnection>> m_incomingConnections;
 
+  bool m_logScripting = false;
+  std::optional<hecl::CVarValueReference<bool>> m_logScriptingReference;
   void UpdateThermalVisor();
   static void RendererDrawCallback(void*, void*, int);
 

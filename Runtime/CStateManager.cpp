@@ -216,9 +216,12 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox,
   x8f0_shadowTex = g_SimplePool->GetObj("DefaultShadow");
   g_StateManager = this;
 
-  sm_logScripting = hecl::CVarManager::instance()->findOrMakeCVar(
-      "stateManager.logScripting"sv, "Prints object communication to the console", false,
-      hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game);
+  if (sm_logScripting == nullptr) {
+    sm_logScripting = hecl::CVarManager::instance()->findOrMakeCVar(
+        "stateManager.logScripting"sv, "Prints object communication to the console", false,
+        hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game);
+  }
+  m_logScriptingReference.emplace(&m_logScripting, sm_logScripting);
 }
 
 CStateManager::~CStateManager() {
@@ -1326,7 +1329,7 @@ void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMes
     return;
   }
 
-  if (sm_logScripting != nullptr && sm_logScripting->toBoolean()) {
+  if (m_logScripting) {
     LogModule.report(logvisor::Info, FMT_STRING("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
                      dest->GetName(), dest->GetUniqueId());
   }
@@ -1345,7 +1348,7 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
     return;
   }
 
-  if (sm_logScripting != nullptr && sm_logScripting->toBoolean()) {
+  if (m_logScripting) {
     LogModule.report(logvisor::Info, FMT_STRING("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
                      dst->GetName(), dst->GetUniqueId());
   }
@@ -1415,7 +1418,7 @@ void CStateManager::FreeScriptObject(TUniqueId id) {
     act->SetUseInSortedLists(false);
   }
 
-  if (sm_logScripting && sm_logScripting->toBoolean()) {
+  if (m_logScripting) {
     LogModule.report(logvisor::Info, FMT_STRING("Removed '{}'"), ent->GetName());
   }
 }
@@ -2779,7 +2782,7 @@ void CStateManager::AddObject(CEntity& ent) {
     }
   }
 
-  if (sm_logScripting != nullptr && sm_logScripting->toBoolean()) {
+  if (m_logScripting) {
     LogModule.report(logvisor::Info, FMT_STRING("Added '{}'"), ent.GetName());
   }
 }
