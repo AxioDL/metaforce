@@ -52,7 +52,7 @@ class CRumbleManager;
 class CSortedListManager;
 class CTexture;
 class CWorld;
-class CWorldLayerState;
+class CScriptLayerManager;
 class CWorldTransManager;
 
 struct CFinalInput;
@@ -140,10 +140,10 @@ private:
   std::map<TEditorId, SScriptObjectStream> x8a4_loadedScriptObjects;
 
   std::shared_ptr<CPlayerState> x8b8_playerState;
-  std::shared_ptr<CScriptMailbox> x8bc_relayTracker;
+  std::shared_ptr<CScriptMailbox> x8bc_mailbox;
   std::shared_ptr<CMapWorldInfo> x8c0_mapWorldInfo;
   std::shared_ptr<CWorldTransManager> x8c4_worldTransManager;
-  std::shared_ptr<CWorldLayerState> x8c8_worldLayerState;
+  std::shared_ptr<CScriptLayerManager> x8c8_worldLayerState;
 
   TAreaId x8cc_nextAreaId = 0;
   TAreaId x8d0_prevAreaId = kInvalidAreaId;
@@ -222,7 +222,7 @@ private:
 public:
   CStateManager(const std::weak_ptr<CScriptMailbox>&, const std::weak_ptr<CMapWorldInfo>&,
                 const std::weak_ptr<CPlayerState>&, const std::weak_ptr<CWorldTransManager>&,
-                const std::weak_ptr<CWorldLayerState>&);
+                const std::weak_ptr<CScriptLayerManager>&);
   ~CStateManager();
 
   u32 GetInputFrameIdx() const { return x8d4_inputFrameIdx; }
@@ -396,16 +396,16 @@ public:
   const CEnvFxManager* GetEnvFxManager() const { return x880_envFxManager; }
   CWorld* GetWorld() { return x850_world.get(); }
   const CWorld* GetWorld() const { return x850_world.get(); }
-  CScriptMailbox* GetRelayTracker() { return x8bc_relayTracker.get(); }
-  const CScriptMailbox* GetRelayTracker() const { return x8bc_relayTracker.get(); }
+  CScriptMailbox* GetMailbox() { return x8bc_mailbox.get(); }
+  const CScriptMailbox* GetRelayTracker() const { return x8bc_mailbox.get(); }
   CCameraManager* GetCameraManager() const { return x870_cameraManager; }
   CFluidPlaneManager* GetFluidPlaneManager() const { return x87c_fluidPlaneManager; }
   CActorModelParticles* GetActorModelParticles() const { return x884_actorModelParticles; }
 
   const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return x8c0_mapWorldInfo; }
   const std::shared_ptr<CWorldTransManager>& WorldTransManager() const { return x8c4_worldTransManager; }
-  const std::shared_ptr<CWorldLayerState>& WorldLayerState() const { return x8c8_worldLayerState; }
-  std::shared_ptr<CWorldLayerState>& WorldLayerState() { return x8c8_worldLayerState; }
+  const std::shared_ptr<CScriptLayerManager>& WorldLayerState() const { return x8c8_worldLayerState; }
+  std::shared_ptr<CScriptLayerManager>& WorldLayerState() { return x8c8_worldLayerState; }
 
   CPlayer& GetPlayer() const { return *x84c_player; }
   CPlayer* Player() const { return x84c_player.get(); }

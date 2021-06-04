@@ -17,14 +17,14 @@
 namespace metaforce {
 class CSaveWorldMemory;
 
-class CWorldLayerState {
+class CScriptLayerManager {
   friend class CSaveWorldIntermediate;
   std::vector<CWorldLayers::Area> x0_areaLayers;
   DataSpec::WordBitmap x10_saveLayers;
 
 public:
-  CWorldLayerState() = default;
-  CWorldLayerState(CBitStreamReader& reader, const CSaveWorld& saveWorld);
+  CScriptLayerManager() = default;
+  CScriptLayerManager(CBitStreamReader& reader, const CSaveWorld& saveWorld);
 
   bool IsLayerActive(int areaIdx, int layerIdx) const { return ((x0_areaLayers[areaIdx].m_layerBits >> layerIdx) & 1); }
 
@@ -46,10 +46,10 @@ public:
 class CWorldState {
   CAssetId x0_mlvlId;
   TAreaId x4_areaId = kInvalidAreaId;
-  std::shared_ptr<CScriptMailbox> x8_relayTracker;
+  std::shared_ptr<CScriptMailbox> x8_mailbox;
   std::shared_ptr<CMapWorldInfo> xc_mapWorldInfo;
   CAssetId x10_desiredAreaAssetId;
-  std::shared_ptr<CWorldLayerState> x14_layerState;
+  std::shared_ptr<CScriptLayerManager> x14_layerState;
 
 public:
   explicit CWorldState(CAssetId id);
@@ -59,9 +59,9 @@ public:
   TAreaId GetCurrentAreaId() const { return x4_areaId; }
   CAssetId GetDesiredAreaAssetId() const { return x10_desiredAreaAssetId; }
   void SetDesiredAreaAssetId(CAssetId id) { x10_desiredAreaAssetId = id; }
-  const std::shared_ptr<CScriptMailbox>& RelayTracker() const { return x8_relayTracker; }
+  const std::shared_ptr<CScriptMailbox>& Mailbox() const { return x8_mailbox; }
   const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return xc_mapWorldInfo; }
-  const std::shared_ptr<CWorldLayerState>& GetLayerState() const { return x14_layerState; }
+  const std::shared_ptr<CScriptLayerManager>& GetLayerState() const { return x14_layerState; }
   void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const;
 };
 

@@ -894,7 +894,7 @@ void CGameArea::Validate(CStateManager& mgr) {
 }
 
 void CGameArea::LoadScriptObjects(CStateManager& mgr) {
-  CWorldLayerState& layerState = *mgr.WorldLayerState();
+  CScriptLayerManager& layerState = *mgr.WorldLayerState();
   u32 layerCount = layerState.GetAreaLayerCount(x4_selfIdx);
   std::vector<TEditorId> objIds;
   for (u32 i = 0; i < layerCount; ++i) {

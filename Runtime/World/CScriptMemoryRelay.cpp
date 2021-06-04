@@ -22,10 +22,10 @@ void CScriptMemoryRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
   }
 
   if (msg == EScriptObjectMessage::Deactivate) {
-    stateMgr.GetRelayTracker()->RemoveMsg(xc_editorId);
+    stateMgr.GetMailbox()->RemoveMsg(xc_editorId);
     return;
   } else if (msg == EScriptObjectMessage::Activate) {
-    stateMgr.GetRelayTracker()->AddMsg(xc_editorId);
+    stateMgr.GetMailbox()->AddMsg(xc_editorId);
     if (!x34_25_skipSendActive) {
       SendScriptMsgs(EScriptObjectState::Active, stateMgr, EScriptObjectMessage::None);
     }

@@ -62,12 +62,12 @@ hecl::CVar* debugToolDrawPlatformCollision = nullptr;
 hecl::CVar* sm_logScripting = nullptr;
 } // namespace
 logvisor::Module LogModule("metaforce::CStateManager");
-CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& relayTracker,
+CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox,
                              const std::weak_ptr<CMapWorldInfo>& mwInfo, const std::weak_ptr<CPlayerState>& playerState,
                              const std::weak_ptr<CWorldTransManager>& wtMgr,
-                             const std::weak_ptr<CWorldLayerState>& layerState)
+                             const std::weak_ptr<CScriptLayerManager>& layerState)
 : x8b8_playerState(playerState)
-, x8bc_relayTracker(relayTracker)
+, x8bc_mailbox(mailbox)
 , x8c0_mapWorldInfo(mwInfo)
 , x8c4_worldTransManager(wtMgr)
 , x8c8_worldLayerState(layerState) {
@@ -2677,7 +2677,7 @@ void CStateManager::PrepareAreaUnload(TAreaId aid) {
 }
 
 void CStateManager::AreaLoaded(TAreaId aid) {
-  x8bc_relayTracker->SendMsgs(aid, *this);
+  x8bc_mailbox->SendMsgs(aid, *this);
   x880_envFxManager->AreaLoaded();
 }
 

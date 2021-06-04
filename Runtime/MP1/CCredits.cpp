@@ -65,7 +65,6 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
                                   CGuiWidget::EGuiModelDrawFlags::Alpha),
                               zeus::CVector2i(0, 0));
         x30_text.back().first->SetText(x18_creditsTable->GetString(i));
-        x30_text.back().first->SetOutlineColor(g_tweakGui->GetCreditsTextBorderColor());
       }
 
 //      auto tmp = std::make_pair(std::make_unique<CGuiTextSupport>(
@@ -103,7 +102,7 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
       scaleY += (bounds.second.y - bounds.first.y);
     }
 
-    x4c_ = float(scaleY + g_Viewport.xc_height); // * 0.5f;
+    x4c_ = float(scaleY + g_Viewport.xc_height - 896); // * 0.5f;
     const float divVal = std::max(g_tweakGui->x310_, g_tweakGui->x30c_);
     x50_ = x4c_ / (g_tweakGui->x308_ - divVal);
     x14_ = 1;
@@ -159,13 +158,13 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
     }
     x48_ = std::min(x4c_, (dt * x50_) + x48_);
 
-    if (x48_ >= x4c_ || x5c_24_) {
+    if (x48_ == x4c_ || x5c_24_) {
       x5c_24_ = true;
       x54_ = std::max(0.f, x54_ - dt);
       const float alpha = x54_ / g_tweakGui->x30c_;
       for (const auto& [text, offset] : x30_text) {
         zeus::CColor col = zeus::skWhite;
-        col.a() = alpha;
+        col.a() *= alpha;
         text->SetGeometryColor(col);
       }
       if (x54_ <= 0.f) {

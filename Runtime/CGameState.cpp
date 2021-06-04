@@ -23,7 +23,7 @@ union BitsToDouble {
   double doub;
 };
 
-CWorldLayerState::CWorldLayerState(CBitStreamReader& reader, const CSaveWorld& saveWorld) {
+CScriptLayerManager::CScriptLayerManager(CBitStreamReader& reader, const CSaveWorld& saveWorld) {
   const u32 bitCount = reader.ReadEncoded(10);
   x10_saveLayers.reserve(bitCount);
 
@@ -37,7 +37,7 @@ CWorldLayerState::CWorldLayerState(CBitStreamReader& reader, const CSaveWorld& s
   }
 }
 
-void CWorldLayerState::PutTo(CBitStreamWriter& writer) const {
+void CScriptLayerManager::PutTo(CBitStreamWriter& writer) const {
   u32 totalLayerCount = 0;
   for (size_t i = 0; i < x0_areaLayers.size(); ++i) {
     totalLayerCount += GetAreaLayerCount(s32(i)) - 1;
@@ -53,7 +53,7 @@ void CWorldLayerState::PutTo(CBitStreamWriter& writer) const {
   }
 }
 
-void CWorldLayerState::InitializeWorldLayers(const std::vector<CWorldLayers::Area>& layers) {
+void CScriptLayerManager::InitializeWorldLayers(const std::vector<CWorldLayers::Area>& layers) {
   if (!x0_areaLayers.empty()) {
     return;
   }
@@ -75,24 +75,24 @@ void CWorldLayerState::InitializeWorldLayers(const std::vector<CWorldLayers::Are
 }
 
 CWorldState::CWorldState(CAssetId id) : x0_mlvlId(id), x4_areaId(0) {
-  x8_relayTracker = std::make_shared<CScriptMailbox>();
+  x8_mailbox = std::make_shared<CScriptMailbox>();
   xc_mapWorldInfo = std::make_shared<CMapWorldInfo>();
   x10_desiredAreaAssetId = {};
-  x14_layerState = std::make_shared<CWorldLayerState>();
+  x14_layerState = std::make_shared<CScriptLayerManager>();
 }
 
 CWorldState::CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CSaveWorld& saveWorld) : x0_mlvlId(mlvlId) {
   x4_areaId = TAreaId(reader.ReadEncoded(32));
   x10_desiredAreaAssetId = u32(reader.ReadEncoded(32));
-  x8_relayTracker = std::make_shared<CScriptMailbox>(reader, saveWorld);
+  x8_mailbox = std::make_shared<CScriptMailbox>(reader, saveWorld);
   xc_mapWorldInfo = std::make_shared<CMapWorldInfo>(reader, saveWorld, mlvlId);
-  x14_layerState = std::make_shared<CWorldLayerState>(reader, saveWorld);
+  x14_layerState = std::make_shared<CScriptLayerManager>(reader, saveWorld);
 }
 
 void CWorldState::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const {
   writer.WriteEncoded(x4_areaId, 32);
   writer.WriteEncoded(u32(x10_desiredAreaAssetId.Value()), 32);
-  x8_relayTracker->PutTo(writer, savw);
+  x8_mailbox->PutTo(writer, savw);
   xc_mapWorldInfo->PutTo(writer, savw, x0_mlvlId);
   x14_layerState->PutTo(writer);
 }

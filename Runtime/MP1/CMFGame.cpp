@@ -329,7 +329,7 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
     if (!x14_stateMgr) {
       CWorldTransManager::WaitForModelsAndTextures();
       CWorldState& wldState = g_GameState->CurrentWorldState();
-      x14_stateMgr = std::make_shared<CStateManager>(wldState.RelayTracker(), wldState.MapWorldInfo(),
+      x14_stateMgr = std::make_shared<CStateManager>(wldState.Mailbox(), wldState.MapWorldInfo(),
                                                      g_GameState->GetPlayerState(), wtMgr, wldState.GetLayerState());
     }
 
