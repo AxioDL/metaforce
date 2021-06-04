@@ -114,7 +114,6 @@ set(RUNTIME_SOURCES_B
     CMainFlowBase.hpp CMainFlowBase.cpp
     CMFGameBase.hpp
     CInGameTweakManagerBase.hpp
-    CPlayMovieBase.hpp
     CGameDebug.hpp
     CGameHintInfo.hpp CGameHintInfo.cpp
     rstl.hpp
