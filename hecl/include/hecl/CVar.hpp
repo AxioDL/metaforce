@@ -11,7 +11,6 @@
 namespace hecl {
 namespace DNACVAR {
 enum class EType : atUint8 { Boolean, Signed, Unsigned, Real, Literal, Vec2f, Vec2d, Vec3f, Vec3d, Vec4f, Vec4d };
-
 enum class EFlags {
   None = 0,
   System = (1 << 0),
@@ -48,6 +47,7 @@ struct CVarContainer : public athena::io::DNA<athena::Endian::Big> {
 } // namespace DNACVAR
 
 class CVarManager;
+class ICVarValueReference;
 class CVar : protected DNACVAR::CVar {
   friend class CVarManager;
   Delete _d;
@@ -151,6 +151,13 @@ public:
   void lock();
 
   void addListener(ListenerFunc func) { m_listeners.push_back(std::move(func)); }
+  void addVariableReference(ICVarValueReference* v) { m_valueReferences.push_back(v); }
+  void removeVariableReference(ICVarValueReference* v) {
+    auto it = std::find(m_valueReferences.begin(), m_valueReferences.end(), v);
+    if (it != m_valueReferences.end()) {
+      m_valueReferences.erase(it);
+    }
+  }
 
   bool isValidInput(std::string_view input) const;
   bool isValidInput(std::wstring_view input) const;
@@ -168,6 +175,7 @@ private:
   bool m_unlocked = false;
   bool m_wasDeserialized = false;
   std::vector<ListenerFunc> m_listeners;
+  std::vector<ICVarValueReference*> m_valueReferences;
   bool safeToModify(EType type) const;
   void init(EFlags flags, bool removeColor = true);
 };
@@ -216,9 +224,9 @@ inline bool CVar::toValue(double& value) const {
 }
 template <>
 inline bool CVar::toValue(float& value) const {
-    bool isValid = false;
-    value = static_cast<float>(toReal(&isValid));
-    return isValid;
+  bool isValid = false;
+  value = static_cast<float>(toReal(&isValid));
+  return isValid;
 }
 template <>
 inline bool CVar::toValue(bool& value) const {
@@ -317,5 +325,43 @@ public:
       m_cvar->lock();
   }
 };
+class ICVarValueReference {
+protected:
+  CVar* m_cvar = nullptr;
 
+public:
+  ICVarValueReference() = default;
+  explicit ICVarValueReference(CVar* cv) : m_cvar(cv) {
+    if (m_cvar != nullptr) {
+      m_cvar->addVariableReference(this);
+    }
+  }
+  virtual ~ICVarValueReference() {
+    if (m_cvar != nullptr) {
+      m_cvar->removeVariableReference(this);
+    }
+    m_cvar = nullptr;
+  }
+  virtual void updateValue() = 0;
+};
+
+template <typename T>
+class CVarValueReference : public ICVarValueReference {
+  T* m_valueRef = nullptr;
+
+public:
+  CVarValueReference() = default;
+  explicit CVarValueReference(T* t, CVar* cv) : ICVarValueReference(cv) {
+    m_valueRef = t;
+    if (m_valueRef && m_cvar) {
+      m_cvar->toValue(*m_valueRef);
+    }
+  }
+
+  void updateValue() override {
+    if (m_valueRef != nullptr && m_cvar->isModified()) {
+      m_cvar->toValue(*m_valueRef);
+    }
+  }
+};
 } // namespace hecl

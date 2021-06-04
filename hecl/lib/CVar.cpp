@@ -472,6 +472,9 @@ void CVar::lock() {
 void CVar::dispatch() {
   for (const ListenerFunc& listen : m_listeners)
     listen(this);
+  for (auto* ref : m_valueReferences) {
+    ref->updateValue();
+  }
 }
 
 bool isReal(std::string_view v) {
