@@ -66,12 +66,12 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
   rstl::reserved_vector<zeus::CVector2f, 4> vec;
   const rstl::reserved_vector<zeus::CVector2f, 4>* useUVs;
   if (x138_tileSize != zeus::skZero2f) {
-    const zeus::CVector2f res(xb8_tex0Tok->GetWidth(), xb8_tex0Tok->GetHeight());
-    const zeus::CVector2i tmp = res / x138_tileSize;
+    const zeus::CVector2f res(xb8_tex0Tok->GetWidth(), -xb8_tex0Tok->GetHeight());
+    const zeus::CVector2f tmp = res / x138_tileSize;
     const zeus::CVector2f tmpRecip = x138_tileSize / res;
-    const float x0 = tmpRecip.x() * static_cast<float>(frame % tmp.x);
+    const float x0 = tmpRecip.x() * static_cast<float>(frame % static_cast<int>(tmp.x()));
     const float x1 = x0 + tmpRecip.x();
-    const float y0 = tmpRecip.y() * static_cast<float>(frame % tmp.y);
+    const float y0 = tmpRecip.y() * static_cast<float>(frame % static_cast<int>(tmp.y()));
     const float y1 = y0 + tmpRecip.y();
     vec.push_back(zeus::CVector2f(x0, y0));
     vec.push_back(zeus::CVector2f(x0, y1));
