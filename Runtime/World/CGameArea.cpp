@@ -367,8 +367,8 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(id
     x8c_attachedAreaIndices.emplace_back(in.readUint16Big());
   }
 
-  x9c_deps1 = ::metaforce::ReadDependencyList(in);
-  xac_deps2 = ::metaforce::ReadDependencyList(in);
+  x9c_deps1 = metaforce::ReadDependencyList(in);
+  xac_deps2 = metaforce::ReadDependencyList(in);
 
   const zeus::CAABox aabb = x6c_aabb.getTransformedAABox(xc_transform);
   x6c_aabb = aabb;
