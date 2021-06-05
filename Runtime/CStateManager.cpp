@@ -2837,12 +2837,12 @@ TUniqueId CStateManager::AllocateUniqueId() {
     }
   } while (GetAllObjectList().GetObjectByIndex(ourIndex) != nullptr);
 
-  x8_idArr[ourIndex] = (x8_idArr[ourIndex] + 1) & 0x3f;
-  if (TUniqueId(ourIndex, x8_idArr[ourIndex]) == kInvalidUniqueId) {
-    x8_idArr[ourIndex] = 0;
+  x4_idxArr[ourIndex] = (x4_idxArr[ourIndex] + 1) & 0x3f;
+  if (TUniqueId(ourIndex, x4_idxArr[ourIndex]) == kInvalidUniqueId) {
+    x4_idxArr[ourIndex] = 0;
   }
 
-  return TUniqueId(ourIndex, x8_idArr[ourIndex]);
+  return TUniqueId(ourIndex, x4_idxArr[ourIndex]);
 }
 
 void CStateManager::DeferStateTransition(EStateManagerTransition t) {

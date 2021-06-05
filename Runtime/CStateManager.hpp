@@ -86,7 +86,7 @@ public:
 
 private:
   s16 x0_nextFreeIndex = 0;
-  std::array<u16, 1024> x8_idArr{};
+  std::array<u16, 1024> x4_idxArr{};
 
   /*
   std::unique_ptr<CObjectList> x80c_allObjs;
