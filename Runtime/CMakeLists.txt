@@ -76,7 +76,7 @@ set(RUNTIME_SOURCES_B
     CGameAllocator.hpp CGameAllocator.cpp
     CMemoryCardSys.hpp CMemoryCardSys.cpp
     CScannableObjectInfo.hpp CScannableObjectInfo.cpp
-    CSaveWorld.hpp CSaveWorld.cpp
+        CWorldSaveGameInfo.hpp CWorldSaveGameInfo.cpp
     CDependencyGroup.hpp CDependencyGroup.cpp
     CBasics.hpp CBasicsPC.cpp
     CIOWin.hpp

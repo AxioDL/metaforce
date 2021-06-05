@@ -13,7 +13,7 @@
 namespace metaforce {
 class CGuiTableGroup;
 class CGuiTextPane;
-class CSaveWorld;
+class CWorldSaveGameInfo;
 class CStringTable;
 class CTexture;
 struct CFinalInput;
@@ -75,7 +75,7 @@ private:
   CGuiTextPane* x64_textpane_choice2{};
   CGuiTextPane* x68_textpane_choice3{};
   std::unique_ptr<CMemoryCardDriver> x6c_cardDriver;
-  std::vector<TLockedToken<CSaveWorld>> x70_saveWorlds;
+  std::vector<TLockedToken<CWorldSaveGameInfo>> x70_saveWorlds;
   CIOWin::EMessageReturn x80_iowRet = CIOWin::EMessageReturn::Normal;
   u32 x84_navConfirmSfx = SFXui_frontend_save_confirm;
   u32 x88_navMoveSfx = SFXui_frontend_save_move;

@@ -1,9 +1,9 @@
-#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CWorldSaveGameInfo.hpp"
 
 #include "Runtime/CToken.hpp"
 
 namespace metaforce {
-CSaveWorld::CSaveWorld(CInputStream& in) {
+CWorldSaveGameInfo::CWorldSaveGameInfo(CInputStream& in) {
   in.readUint32Big();
   const u32 version = in.readUint32Big();
   if (version > 1) {
@@ -51,41 +51,41 @@ CSaveWorld::CSaveWorld(CInputStream& in) {
   }
 }
 
-u32 CSaveWorld::GetAreaCount() const { return x0_areaCount; }
+u32 CWorldSaveGameInfo::GetAreaCount() const { return x0_areaCount; }
 
-u32 CSaveWorld::GetCinematicCount() const { return x4_cinematics.size(); }
+u32 CWorldSaveGameInfo::GetCinematicCount() const { return x4_cinematics.size(); }
 
-s32 CSaveWorld::GetCinematicIndex(const TEditorId& id) const {
+s32 CWorldSaveGameInfo::GetCinematicIndex(const TEditorId& id) const {
   auto it = std::find(x4_cinematics.begin(), x4_cinematics.end(), id);
   if (it == x4_cinematics.end())
     return -1;
   return it - x4_cinematics.begin();
 }
 
-u32 CSaveWorld::GetRelayCount() const { return x14_relays.size(); }
+u32 CWorldSaveGameInfo::GetRelayCount() const { return x14_relays.size(); }
 
-s32 CSaveWorld::GetRelayIndex(const TEditorId& id) const {
+s32 CWorldSaveGameInfo::GetRelayIndex(const TEditorId& id) const {
   auto it = std::find(x14_relays.begin(), x14_relays.end(), id);
   if (it == x14_relays.end())
     return -1;
   return it - x14_relays.begin();
 }
 
-TEditorId CSaveWorld::GetRelayEditorId(u32 idx) const { return x14_relays[idx]; }
+TEditorId CWorldSaveGameInfo::GetRelayEditorId(u32 idx) const { return x14_relays[idx]; }
 
-u32 CSaveWorld::GetDoorCount() const { return x34_doors.size(); }
+u32 CWorldSaveGameInfo::GetDoorCount() const { return x34_doors.size(); }
 
-s32 CSaveWorld::GetDoorIndex(const TEditorId& id) const {
+s32 CWorldSaveGameInfo::GetDoorIndex(const TEditorId& id) const {
   auto it = std::find(x34_doors.begin(), x34_doors.end(), id);
   if (it == x34_doors.end())
     return -1;
   return it - x34_doors.begin();
 }
 
-CFactoryFnReturn FSaveWorldFactory([[maybe_unused]] const SObjectTag& tag, CInputStream& in,
+CFactoryFnReturn FWorldSaveGameInfoFactory([[maybe_unused]] const SObjectTag& tag, CInputStream& in,
                                    [[maybe_unused]] const CVParamTransfer& param,
                                    [[maybe_unused]] CObjectReference* selfRef) {
-  return TToken<CSaveWorld>::GetIObjObjectFor(std::make_unique<CSaveWorld>(in));
+  return TToken<CWorldSaveGameInfo>::GetIObjObjectFor(std::make_unique<CWorldSaveGameInfo>(in));
 }
 
 } // namespace metaforce

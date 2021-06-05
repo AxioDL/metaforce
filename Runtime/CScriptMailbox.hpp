@@ -7,7 +7,7 @@
 #include "Runtime/World/ScriptObjectSupport.hpp"
 
 namespace metaforce {
-class CSaveWorld;
+class CWorldSaveGameInfo;
 class CStateManager;
 
 #if 0
@@ -29,13 +29,13 @@ class CScriptMailbox {
 
 public:
   CScriptMailbox() = default;
-  CScriptMailbox(CBitStreamReader& in, const CSaveWorld& saveWorld);
+  CScriptMailbox(CBitStreamReader& in, const CWorldSaveGameInfo& saveWorld);
 
   bool HasMsg(TEditorId id) const;
   void AddMsg(TEditorId id);
   void RemoveMsg(TEditorId id);
   void SendMsgs(TAreaId areaId, CStateManager& stateMgr);
-  void PutTo(CBitStreamWriter& out, const CSaveWorld& saveWorld);
+  void PutTo(CBitStreamWriter& out, const CWorldSaveGameInfo& saveWorld);
 };
 
 } // namespace metaforce

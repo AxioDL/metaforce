@@ -5,7 +5,7 @@
 
 namespace metaforce {
 
-CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& savw, CAssetId mlvlId) {
+CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CWorldSaveGameInfo& savw, CAssetId mlvlId) {
   const CSaveWorldMemory& worldMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);
 
   x4_visitedAreas.reserve((worldMem.GetAreaCount() + 31) / 32);
@@ -27,7 +27,7 @@ CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& savw, C
   x38_mapStationUsed = reader.ReadEncoded(1) != 0;
 }
 
-void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, CAssetId mlvlId) const {
+void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CWorldSaveGameInfo& savw, CAssetId mlvlId) const {
   const CSaveWorldMemory& worldMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);
 
   for (u32 i = 0; i < worldMem.GetAreaCount(); ++i) {

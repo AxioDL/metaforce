@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CWorldSaveGameInfo.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/MP1/CPauseScreenBase.hpp"
@@ -37,13 +37,13 @@ class CLogBookScreen : public CPauseScreenBase {
   void InitializeLogBook();
   void UpdateRightTitles();
   void PumpArticleLoad();
-  bool IsScanCategoryReady(CSaveWorld::EScanCategory category) const;
+  bool IsScanCategoryReady(CWorldSaveGameInfo::EScanCategory category) const;
   void UpdateBodyText();
   void UpdateBodyImagesAndText();
   int NextSurroundingArticleIndex(int cur) const;
   bool IsArtifactCategorySelected() const;
   int GetSelectedArtifactHeadScanIndex() const;
-  static bool IsScanComplete(CSaveWorld::EScanCategory category, CAssetId scan, const CPlayerState& playerState);
+  static bool IsScanComplete(CWorldSaveGameInfo::EScanCategory category, CAssetId scan, const CPlayerState& playerState);
 
 public:
   CLogBookScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg);

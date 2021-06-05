@@ -5,7 +5,7 @@
 #include "Runtime/CGameHintInfo.hpp"
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
-#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CWorldSaveGameInfo.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -120,7 +120,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
   const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
   size_t cinematicCount = 0;
   for (const auto& world : memWorlds) {
-    TLockedToken<CSaveWorld> saveWorld =
+    TLockedToken<CWorldSaveGameInfo> saveWorld =
         g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.second.GetSaveWorldAssetId()});
     cinematicCount += saveWorld->GetCinematicCount();
   }
@@ -132,7 +132,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
   }
 
   for (const auto& world : memWorlds) {
-    TLockedToken<CSaveWorld> saveWorld =
+    TLockedToken<CWorldSaveGameInfo> saveWorld =
         g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.second.GetSaveWorldAssetId()});
 
     auto stateIt = cinematicStates.cbegin();
@@ -164,7 +164,7 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const {
 
   const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
   for (const auto& world : memWorlds) {
-    const TLockedToken<CSaveWorld> saveWorld =
+    const TLockedToken<CWorldSaveGameInfo> saveWorld =
         g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.second.GetSaveWorldAssetId()});
 
     for (const auto& cineId : saveWorld->GetCinematics()) {

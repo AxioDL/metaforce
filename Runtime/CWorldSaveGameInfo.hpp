@@ -9,7 +9,7 @@
 
 namespace metaforce {
 
-class CSaveWorld {
+class CWorldSaveGameInfo {
 public:
   using EScanCategory = DataSpec::SAVWCommon::EScanCategory;
   struct SScanState {
@@ -31,7 +31,7 @@ private:
   std::vector<SScanState> x44_scans;
 
 public:
-  explicit CSaveWorld(CInputStream& in);
+  explicit CWorldSaveGameInfo(CInputStream& in);
   u32 GetAreaCount() const;
   u32 GetCinematicCount() const;
   s32 GetCinematicIndex(const TEditorId& id) const;
@@ -45,7 +45,7 @@ public:
   s32 GetDoorIndex(const TEditorId& id) const;
 };
 
-CFactoryFnReturn FSaveWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
+CFactoryFnReturn FWorldSaveGameInfoFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
                                    CObjectReference* selfRef);
 
 } // namespace metaforce

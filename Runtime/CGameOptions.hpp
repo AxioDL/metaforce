@@ -4,7 +4,7 @@
 #include <string_view>
 #include <vector>
 
-#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CWorldSaveGameInfo.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Audio/CAudioSys.hpp"
 

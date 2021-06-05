@@ -1,6 +1,6 @@
 #include "Runtime/CScriptMailbox.hpp"
 
-#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CWorldSaveGameInfo.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CWorld.hpp"
 
@@ -8,7 +8,7 @@
 
 namespace metaforce {
 
-CScriptMailbox::CScriptMailbox(CBitStreamReader& in, const CSaveWorld& saveWorld) {
+CScriptMailbox::CScriptMailbox(CBitStreamReader& in, const CWorldSaveGameInfo& saveWorld) {
   const u32 relayCount = saveWorld.GetRelayCount();
   if (saveWorld.GetRelayCount()) {
     std::vector<bool> relayStates(saveWorld.GetRelayCount());
@@ -79,7 +79,7 @@ void CScriptMailbox::SendMsgs(TAreaId areaId, CStateManager& stateMgr) {
   }
 }
 
-void CScriptMailbox::PutTo(CBitStreamWriter& out, const CSaveWorld& saveWorld) {
+void CScriptMailbox::PutTo(CBitStreamWriter& out, const CWorldSaveGameInfo& saveWorld) {
   const u32 relayCount = saveWorld.GetRelayCount();
   std::vector<bool> relays(relayCount);
 

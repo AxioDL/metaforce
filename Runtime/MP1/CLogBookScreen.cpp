@@ -29,10 +29,10 @@ CLogBookScreen::~CLogBookScreen() {
   CMain::EnsureWorldPakReady(g_GameState->CurrentWorldAssetId());
 }
 
-bool CLogBookScreen::IsScanComplete(CSaveWorld::EScanCategory category, CAssetId scan,
+bool CLogBookScreen::IsScanComplete(CWorldSaveGameInfo::EScanCategory category, CAssetId scan,
                                     const CPlayerState& playerState) {
   const float time = playerState.GetScanTime(scan);
-  if (category == CSaveWorld::EScanCategory::Artifact) {
+  if (category == CWorldSaveGameInfo::EScanCategory::Artifact) {
     return time >= 0.5f;
   } else {
     return time >= 1.f;
@@ -41,12 +41,12 @@ bool CLogBookScreen::IsScanComplete(CSaveWorld::EScanCategory category, CAssetId
 
 void CLogBookScreen::InitializeLogBook() {
   for (size_t i = 0; i < x19c_scanCompletes.size(); ++i) {
-    x19c_scanCompletes[i].reserve(g_MemoryCardSys->GetScanCategoryCount(CSaveWorld::EScanCategory(i + 1)));
+    x19c_scanCompletes[i].reserve(g_MemoryCardSys->GetScanCategoryCount(CWorldSaveGameInfo::EScanCategory(i + 1)));
   }
 
   CPlayerState& playerState = *x4_mgr.GetPlayerState();
   for (const auto& [scanId, scanCategory] : g_MemoryCardSys->GetScanStates()) {
-    if (scanCategory == CSaveWorld::EScanCategory::None) {
+    if (scanCategory == CWorldSaveGameInfo::EScanCategory::None) {
       continue;
     }
 
@@ -164,7 +164,7 @@ void CLogBookScreen::PumpArticleLoad() {
   }
 }
 
-bool CLogBookScreen::IsScanCategoryReady(CSaveWorld::EScanCategory category) const {
+bool CLogBookScreen::IsScanCategoryReady(CWorldSaveGameInfo::EScanCategory category) const {
   const CPlayerState& playerState = *x4_mgr.GetPlayerState();
   const auto& scanState = g_MemoryCardSys->GetScanStates();
 
@@ -381,7 +381,7 @@ bool CLogBookScreen::VReady() const { return true; }
 
 void CLogBookScreen::VActivate() {
   for (int i = 0; i < int(xa8_textpane_categories.size()); ++i) {
-    if (IsScanCategoryReady(CSaveWorld::EScanCategory(i + 1))) {
+    if (IsScanCategoryReady(CWorldSaveGameInfo::EScanCategory(i + 1))) {
       xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 1));
     } else {
       xa8_textpane_categories[i]->TextSupport().SetText(u"??????");
@@ -430,7 +430,7 @@ void CLogBookScreen::UpdateRightTable() {
 bool CLogBookScreen::ShouldLeftTableAdvance() const {
   if (!x260_24_loaded || x1f0_curViewScans.empty())
     return false;
-  return IsScanCategoryReady(CSaveWorld::EScanCategory(x70_tablegroup_leftlog->GetUserSelection() + 1));
+  return IsScanCategoryReady(CWorldSaveGameInfo::EScanCategory(x70_tablegroup_leftlog->GetUserSelection() + 1));
 }
 
 bool CLogBookScreen::ShouldRightTableAdvance() const {

@@ -1,7 +1,7 @@
 #include "Runtime/CGameState.hpp"
 
 #include "Runtime/CMemoryCardSys.hpp"
-#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CWorldSaveGameInfo.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/IOStreams.hpp"
@@ -23,7 +23,7 @@ union BitsToDouble {
   double doub;
 };
 
-CScriptLayerManager::CScriptLayerManager(CBitStreamReader& reader, const CSaveWorld& saveWorld) {
+CScriptLayerManager::CScriptLayerManager(CBitStreamReader& reader, const CWorldSaveGameInfo& saveWorld) {
   const u32 bitCount = reader.ReadEncoded(10);
   x10_saveLayers.reserve(bitCount);
 
@@ -81,7 +81,7 @@ CWorldState::CWorldState(CAssetId id) : x0_mlvlId(id), x4_areaId(0) {
   x14_layerState = std::make_shared<CScriptLayerManager>();
 }
 
-CWorldState::CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CSaveWorld& saveWorld) : x0_mlvlId(mlvlId) {
+CWorldState::CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CWorldSaveGameInfo& saveWorld) : x0_mlvlId(mlvlId) {
   x4_areaId = TAreaId(reader.ReadEncoded(32));
   x10_desiredAreaAssetId = u32(reader.ReadEncoded(32));
   x8_mailbox = std::make_shared<CScriptMailbox>(reader, saveWorld);
@@ -89,7 +89,7 @@ CWorldState::CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CSaveW
   x14_layerState = std::make_shared<CScriptLayerManager>(reader, saveWorld);
 }
 
-void CWorldState::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const {
+void CWorldState::PutTo(CBitStreamWriter& writer, const CWorldSaveGameInfo& savw) const {
   writer.WriteEncoded(x4_areaId, 32);
   writer.WriteEncoded(u32(x10_desiredAreaAssetId.Value()), 32);
   x8_mailbox->PutTo(writer, savw);
@@ -175,7 +175,7 @@ CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx) : x20c_saveFileIdx
   const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
   x88_worldStates.reserve(memWorlds.size());
   for (const auto& memWorld : memWorlds) {
-    TLockedToken<CSaveWorld> saveWorld =
+    TLockedToken<CWorldSaveGameInfo> saveWorld =
         g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), memWorld.second.GetSaveWorldAssetId()});
     x88_worldStates.emplace_back(stream, memWorld.first, *saveWorld);
   }
@@ -236,7 +236,7 @@ void CGameState::PutTo(CBitStreamWriter& writer) {
 
   const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
   for (const auto& memWorld : memWorlds) {
-    TLockedToken<CSaveWorld> saveWorld =
+    TLockedToken<CWorldSaveGameInfo> saveWorld =
         g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), memWorld.second.GetSaveWorldAssetId()});
     const CWorldState& wld = StateForWorld(memWorld.first);
     wld.PutTo(writer, *saveWorld);

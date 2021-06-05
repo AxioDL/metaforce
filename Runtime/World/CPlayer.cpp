@@ -1245,9 +1245,9 @@ static bool IsDataLoreResearchScan(CAssetId id) {
   }
 
   switch (it->second) {
-  case CSaveWorld::EScanCategory::Data:
-  case CSaveWorld::EScanCategory::Lore:
-  case CSaveWorld::EScanCategory::Research:
+  case CWorldSaveGameInfo::EScanCategory::Data:
+  case CWorldSaveGameInfo::EScanCategory::Lore:
+  case CWorldSaveGameInfo::EScanCategory::Research:
     return true;
   default:
     return false;

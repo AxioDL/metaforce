@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "Runtime/CGameHintInfo.hpp"
-#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CWorldSaveGameInfo.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
@@ -27,7 +27,7 @@ class CSaveWorldMemory {
   std::vector<s32> xc_areaIds;
   std::vector<CWorldLayers::Area> x1c_defaultLayerStates;
   TLockedToken<CStringTable> x2c_worldName; /* used to be optional */
-  TLockedToken<CSaveWorld> x3c_saveWorld;   /* used to be optional */
+  TLockedToken<CWorldSaveGameInfo> x3c_saveWorld;   /* used to be optional */
 
 public:
   CAssetId GetWorldNameId() const { return x0_strgId; }
@@ -35,7 +35,7 @@ public:
   u32 GetAreaCount() const { return x8_areaCount; }
   const std::vector<CWorldLayers::Area>& GetDefaultLayerStates() const { return x1c_defaultLayerStates; }
   const TLockedToken<CStringTable>& GetWorldName() const { return x2c_worldName; }
-  const TLockedToken<CSaveWorld>& GetSaveWorld() const { return x3c_saveWorld; }
+  const TLockedToken<CWorldSaveGameInfo>& GetSaveWorld() const { return x3c_saveWorld; }
   const char16_t* GetFrontEndName() const {
     if (!x2c_worldName)
       return u"";
@@ -51,7 +51,7 @@ class CSaveWorldIntermediate {
   std::vector<s32> xc_areaIds;
   std::vector<CWorldLayers::Area> x1c_defaultLayerStates;
   std::unique_ptr<CDummyWorld> x2c_dummyWorld;
-  TLockedToken<CSaveWorld> x34_saveWorld; /* Used to be auto_ptr */
+  TLockedToken<CWorldSaveGameInfo> x34_saveWorld; /* Used to be auto_ptr */
 
 public:
   CSaveWorldIntermediate(CAssetId mlvl, CAssetId savw);
@@ -63,7 +63,7 @@ class CMemoryCardSys {
   TLockedToken<CGameHintInfo> x0_hints;
   std::vector<std::pair<CAssetId, CSaveWorldMemory>> xc_memoryWorlds;              /* MLVL as key */
   std::optional<std::vector<CSaveWorldIntermediate>> x1c_worldInter; /* used to be auto_ptr of vector */
-  std::vector<std::pair<CAssetId, CSaveWorld::EScanCategory>> x20_scanStates;
+  std::vector<std::pair<CAssetId, CWorldSaveGameInfo::EScanCategory>> x20_scanStates;
   rstl::reserved_vector<u32, 6> x30_scanCategoryCounts;
 
 public:
@@ -92,12 +92,12 @@ public:
   using CardStat = kabufuda::CardStat;
   const std::vector<CGameHintInfo::CGameHint>& GetHints() const { return x0_hints->GetHints(); }
   const std::vector<std::pair<CAssetId, CSaveWorldMemory>>& GetMemoryWorlds() const { return xc_memoryWorlds; }
-  const std::vector<std::pair<CAssetId, CSaveWorld::EScanCategory>>& GetScanStates() const { return x20_scanStates; }
-  u32 GetScanCategoryCount(CSaveWorld::EScanCategory cat) const { return x30_scanCategoryCounts[int(cat)]; }
+  const std::vector<std::pair<CAssetId, CWorldSaveGameInfo::EScanCategory>>& GetScanStates() const { return x20_scanStates; }
+  u32 GetScanCategoryCount(CWorldSaveGameInfo::EScanCategory cat) const { return x30_scanCategoryCounts[int(cat)]; }
 
-  std::vector<std::pair<CAssetId, CSaveWorld::EScanCategory>>::const_iterator LookupScanState(CAssetId id) const {
+  std::vector<std::pair<CAssetId, CWorldSaveGameInfo::EScanCategory>>::const_iterator LookupScanState(CAssetId id) const {
     return rstl::binary_find(x20_scanStates.cbegin(), x20_scanStates.cend(), id,
-                             [](const std::pair<CAssetId, CSaveWorld::EScanCategory>& p) { return p.first; });
+                             [](const std::pair<CAssetId, CWorldSaveGameInfo::EScanCategory>& p) { return p.first; });
   }
 
   bool HasSaveWorldMemory(CAssetId wldId) const;

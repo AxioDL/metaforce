@@ -99,7 +99,7 @@ bool CSaveGameScreen::PumpLoad() {
   if (!x38_strgMemoryCard.IsLoaded()) {
     return false;
   }
-  for (TLockedToken<CSaveWorld>& savw : x70_saveWorlds) {
+  for (TLockedToken<CWorldSaveGameInfo>& savw : x70_saveWorlds) {
     if (!savw.IsLoaded()) {
       return false;
     }

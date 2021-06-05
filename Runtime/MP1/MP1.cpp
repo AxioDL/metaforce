@@ -28,7 +28,7 @@
 
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CGameHintInfo.hpp"
-#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CWorldSaveGameInfo.hpp"
 #include "Runtime/CScannableObjectInfo.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/CStopwatch.hpp"
@@ -311,7 +311,7 @@ void CGameGlobalObjects::AddPaksAndFactories() {
     fmgr->AddFactory(FOURCC('ATBL'), FFactoryFunc(FAudioTranslationTableFactory));
     fmgr->AddFactory(FOURCC('STRG'), FFactoryFunc(FStringTableFactory));
     fmgr->AddFactory(FOURCC('HINT'), FFactoryFunc(FHintFactory));
-    fmgr->AddFactory(FOURCC('SAVW'), FFactoryFunc(FSaveWorldFactory));
+    fmgr->AddFactory(FOURCC('SAVW'), FFactoryFunc(FWorldSaveGameInfoFactory));
     fmgr->AddFactory(FOURCC('MAPW'), FFactoryFunc(FMapWorldFactory));
     fmgr->AddFactory(FOURCC('SCAN'), FFactoryFunc(FScannableObjectInfoFactory));
     fmgr->AddFactory(FOURCC('CRSC'), FFactoryFunc(FCollisionResponseDataFactory));

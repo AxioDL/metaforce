@@ -128,11 +128,11 @@ bool CMemoryCardSys::InitializePump() {
       wldMemOut.xc_areaIds = world.xc_areaIds;
       wldMemOut.x1c_defaultLayerStates = world.x1c_defaultLayerStates;
 
-      CSaveWorld& savw = *world.x34_saveWorld;
+      CWorldSaveGameInfo& savw = *world.x34_saveWorld;
       wldMemOut.x8_areaCount = savw.GetAreaCount();
 
       x20_scanStates.reserve(x20_scanStates.size() + savw.GetScans().size());
-      for (const CSaveWorld::SScanState& scan : savw.GetScans()) {
+      for (const CWorldSaveGameInfo::SScanState& scan : savw.GetScans()) {
         const auto scanStateIter = std::find_if(x20_scanStates.cbegin(), x20_scanStates.cend(), [&](const auto& test) {
           return test.first == scan.x0_id && test.second == scan.x4_category;
         });

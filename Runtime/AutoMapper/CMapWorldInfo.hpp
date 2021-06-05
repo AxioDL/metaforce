@@ -6,7 +6,7 @@
 #include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {
-class CSaveWorld;
+class CWorldSaveGameInfo;
 
 class CMapWorldInfo {
   mutable u32 x0_visitedAreasAllocated = 0;
@@ -18,8 +18,8 @@ class CMapWorldInfo {
 
 public:
   CMapWorldInfo() = default;
-  explicit CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& saveWorld, CAssetId mlvlId);
-  void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, CAssetId mlvlId) const;
+  explicit CMapWorldInfo(CBitStreamReader& reader, const CWorldSaveGameInfo& saveWorld, CAssetId mlvlId);
+  void PutTo(CBitStreamWriter& writer, const CWorldSaveGameInfo& savw, CAssetId mlvlId) const;
   bool IsMapped(TAreaId aid) const;
   void SetIsMapped(TAreaId aid, bool mapped);
   void SetDoorVisited(TEditorId eid, bool val);

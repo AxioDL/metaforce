@@ -24,7 +24,7 @@ class CScriptLayerManager {
 
 public:
   CScriptLayerManager() = default;
-  CScriptLayerManager(CBitStreamReader& reader, const CSaveWorld& saveWorld);
+  CScriptLayerManager(CBitStreamReader& reader, const CWorldSaveGameInfo& saveWorld);
 
   bool IsLayerActive(int areaIdx, int layerIdx) const { return ((x0_areaLayers[areaIdx].m_layerBits >> layerIdx) & 1); }
 
@@ -53,7 +53,7 @@ class CWorldState {
 
 public:
   explicit CWorldState(CAssetId id);
-  CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CSaveWorld& saveWorld);
+  CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CWorldSaveGameInfo& saveWorld);
   CAssetId GetWorldAssetId() const { return x0_mlvlId; }
   void SetAreaId(TAreaId aid) { x4_areaId = aid; }
   TAreaId GetCurrentAreaId() const { return x4_areaId; }
@@ -62,7 +62,7 @@ public:
   const std::shared_ptr<CScriptMailbox>& Mailbox() const { return x8_mailbox; }
   const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return xc_mapWorldInfo; }
   const std::shared_ptr<CScriptLayerManager>& GetLayerState() const { return x14_layerState; }
-  void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const;
+  void PutTo(CBitStreamWriter& writer, const CWorldSaveGameInfo& savw) const;
 };
 
 class CGameState {

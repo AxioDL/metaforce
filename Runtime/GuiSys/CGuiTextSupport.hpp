@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CWorldSaveGameInfo.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"

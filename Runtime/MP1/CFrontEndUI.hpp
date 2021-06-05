@@ -32,7 +32,7 @@ class CGuiTableGroup;
 class CGuiTextPane;
 class CGuiWidget;
 class CMoviePlayer;
-class CSaveWorld;
+class CWorldSaveGameInfo;
 class CStringTable;
 class CTexture;
 struct SObjectTag;

@@ -2870,7 +2870,7 @@ std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const {
   int idx = 0;
   for (const std::pair<CAssetId, float>& scan : x8b8_playerState->GetScanTimes()) {
     const auto category = g_MemoryCardSys->GetScanStates()[idx++].second;
-    if (category != CSaveWorld::EScanCategory::None && category != CSaveWorld::EScanCategory::Research) {
+    if (category != CWorldSaveGameInfo::EScanCategory::None && category != CWorldSaveGameInfo::EScanCategory::Research) {
       ++denom;
       if (scan.second == 1.f) {
         ++num;
