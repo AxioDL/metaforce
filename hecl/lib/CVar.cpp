@@ -458,7 +458,13 @@ void CVar::unlock() {
 
 void CVar::lock() {
   if (!isReadOnly() && m_unlocked) {
+    // We want to keep if we've been modified so we can inform our listeners
+    bool modified = True(m_flags & EFlags::Modified);
     m_flags = m_oldFlags;
+    // If we've been modified insert that back into m_flags
+    if (modified) {
+      m_flags |= EFlags::Modified;
+    }
     m_unlocked = false;
   }
 }
