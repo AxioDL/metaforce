@@ -873,7 +873,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       if (ImGui::MenuItem("Custom", nullptr, m_debugOverlayCorner == -1)) {
         m_debugOverlayCorner = -1;
       }
-      if (ImGui::MenuItem("Top-left", nullptr, m_debugOverlayCorner == 0, m_inputOverlayCorner != 1)) {
+      if (ImGui::MenuItem("Top-left", nullptr, m_debugOverlayCorner == 0, m_inputOverlayCorner != 0)) {
         m_debugOverlayCorner = 0;
       }
       if (ImGui::MenuItem("Top-right", nullptr, m_debugOverlayCorner == 1, m_inputOverlayCorner != 1)) {
