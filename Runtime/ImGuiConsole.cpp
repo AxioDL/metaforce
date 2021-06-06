@@ -370,7 +370,16 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
     ImGui::SameLine();
     ImGui::InputText("Filter", &m_cvarFiltersText);
     auto cvars = m_cvarMgr.cvars(hecl::CVar::EFlags::Any & ~hecl::CVar::EFlags::Hidden);
-
+    if (ImGui::Button("Reset to defaults")) {
+      for (auto* cv : cvars) {
+        if (cv->name() == "developer" || cv->name() == "cheats") {
+          // don't reset developer or cheats to default
+          continue;
+        }
+        hecl::CVarUnlocker l(cv);
+        cv->fromLiteralToType(cv->defaultValue());
+      }
+    }
     if (ImGui::BeginTable("ConsoleVariables", 2,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg |
                               ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ScrollY)) {
