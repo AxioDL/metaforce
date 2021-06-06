@@ -19,9 +19,9 @@ public:
   zeus::CVector3f Arrival(const CPhysicsActor& actor, const zeus::CVector3f& dest, float dampingRadius) const;
   zeus::CVector3f Pursuit(const CPhysicsActor& actor, const zeus::CVector3f& v0, const zeus::CVector3f& v1) const;
   zeus::CVector3f Separation(const CPhysicsActor& actor, const zeus::CVector3f& pos, float separation) const;
-  zeus::CVector3f Alignment(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, 1024>& list,
+  zeus::CVector3f Alignment(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, kMaxEntities>& list,
                             const CStateManager& mgr) const;
-  zeus::CVector3f Cohesion(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, 1024>& list,
+  zeus::CVector3f Cohesion(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, kMaxEntities>& list,
                            float dampingRadius, const CStateManager& mgr) const;
   zeus::CVector2f Flee2D(const CPhysicsActor& actor, const zeus::CVector2f& v0) const;
   zeus::CVector2f Arrival2D(const CPhysicsActor& actor, const zeus::CVector2f& v0) const;

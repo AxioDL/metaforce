@@ -71,7 +71,7 @@ void CBeamProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CStateManag
                        zeus::CVector3f{x2f4_beamRadius, x304_beamLength, x2f4_beamRadius});
   x36c_ = zeus::CAABox(zeus::CVector3f{-x2f4_beamRadius, 0.f, -x2f4_beamRadius},
                        zeus::CVector3f{x2f4_beamRadius, x300_intBeamLength, x2f4_beamRadius}).getTransformedAABox(xf);
-  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
   mgr.BuildNearList(nearList, x36c_, CMaterialFilter::MakeExclude({EMaterialTypes::ProjectilePassthrough}), nullptr);
   TUniqueId collideId = kInvalidUniqueId;
   CRayCastResult res = RayCollisionCheckWithWorld(collideId, x298_previousPos, beamEnd, x300_intBeamLength, nearList, mgr);

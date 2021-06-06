@@ -55,7 +55,7 @@ CScriptPlatform::CScriptPlatform(TUniqueId uid, std::string_view name, const CEn
 
 void CScriptPlatform::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-void CScriptPlatform::DragSlave(CStateManager& mgr, rstl::reserved_vector<u16, 1024>& draggedSet, CActor* actor,
+void CScriptPlatform::DragSlave(CStateManager& mgr, rstl::reserved_vector<u16, kMaxEntities>& draggedSet, CActor* actor,
                                 const zeus::CVector3f& delta) {
   if (std::find(draggedSet.begin(), draggedSet.end(), actor->GetUniqueId().Value()) != draggedSet.end()) {
     return;
@@ -70,7 +70,7 @@ void CScriptPlatform::DragSlave(CStateManager& mgr, rstl::reserved_vector<u16, 1
   }
 }
 
-void CScriptPlatform::DragSlaves(CStateManager& mgr, rstl::reserved_vector<u16, 1024>& draggedSet,
+void CScriptPlatform::DragSlaves(CStateManager& mgr, rstl::reserved_vector<u16, kMaxEntities>& draggedSet,
                                  const zeus::CVector3f& delta) {
   for (SRiders& rider : x328_slavesStatic) {
     if (const TCastToPtr<CActor> act = mgr.ObjectById(rider.x0_uid)) {
@@ -114,7 +114,7 @@ void CScriptPlatform::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
       x25a_targetWaypoint = GetNext(x258_currentWaypoint, mgr);
       mgr.SendScriptMsg(wp, GetUniqueId(), EScriptObjectMessage::Arrived);
       if (!x328_slavesStatic.empty() || !x338_slavesDynamic.empty()) {
-        rstl::reserved_vector<u16, 1024> draggedSet;
+        rstl::reserved_vector<u16, kMaxEntities> draggedSet;
         DragSlaves(mgr, draggedSet, x270_dragDelta);
       }
       x270_dragDelta = zeus::skZero3f;
@@ -204,9 +204,9 @@ void CScriptPlatform::MoveRiders(CStateManager& mgr, float dt, bool active, std:
   }
 }
 
-rstl::reserved_vector<TUniqueId, 1024>
+rstl::reserved_vector<TUniqueId, kMaxEntities>
 CScriptPlatform::BuildNearListFromRiders(CStateManager& mgr, const std::vector<SRiders>& movedRiders) {
-  rstl::reserved_vector<TUniqueId, 1024> ret;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> ret;
   for (const SRiders& rider : movedRiders) {
     if (const TCastToConstPtr<CActor> act = mgr.ObjectById(rider.x0_uid)) {
       ret.push_back(act->GetUniqueId());
@@ -238,7 +238,7 @@ void CScriptPlatform::PreThink(float dt, CStateManager& mgr) {
     MoveRiders(mgr, dt, GetActive(), x318_riders, collidedRiders, oldXf, x34_transform, x270_dragDelta, x27c_rotDelta);
     x356_27_squishedRider = false;
     if (!collidedRiders.empty()) {
-      rstl::reserved_vector<TUniqueId, 1024> nearList = BuildNearListFromRiders(mgr, collidedRiders);
+      rstl::reserved_vector<TUniqueId, kMaxEntities> nearList = BuildNearListFromRiders(mgr, collidedRiders);
       if (CGameCollision::DetectDynamicCollisionBoolean(*GetCollisionPrimitive(), GetPrimitiveTransform(), nearList,
                                                         mgr)) {
         SetMotionState(mState);
@@ -273,7 +273,7 @@ void CScriptPlatform::Think(float dt, CStateManager& mgr) {
   }
 
   if (!x328_slavesStatic.empty() || !x338_slavesDynamic.empty()) {
-    rstl::reserved_vector<u16, 1024> draggedSet;
+    rstl::reserved_vector<u16, kMaxEntities> draggedSet;
     DragSlaves(mgr, draggedSet, x270_dragDelta);
   }
 
@@ -508,9 +508,9 @@ zeus::CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
         MoveToWR(GetTranslation() + x270_dragDelta, dt);
       }
 
-      rstl::reserved_vector<TUniqueId, 1024> nearList;
+      rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
       mgr.BuildColliderList(nearList, *this, GetMotionVolume(dt));
-      rstl::reserved_vector<TUniqueId, 1024> nonRiders;
+      rstl::reserved_vector<TUniqueId, kMaxEntities> nonRiders;
       for (TUniqueId id : nearList) {
         if (!IsRider(id) && !IsSlave(id)) {
           nonRiders.push_back(id);

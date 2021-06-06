@@ -831,7 +831,7 @@ void CScriptSpecialFunction::ThinkObjectFollowObject(float, CStateManager& mgr) 
 
 void CScriptSpecialFunction::ThinkChaffTarget(float dt, CStateManager& mgr) {
   const zeus::CAABox box(5.f - GetTranslation(), 5.f + GetTranslation());
-  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
   mgr.BuildNearList(nearList, box, CMaterialFilter::MakeInclude({EMaterialTypes::Projectile}), nullptr);
   CCameraFilterPassPoly& filter = mgr.GetCameraFilterPass(7);
 

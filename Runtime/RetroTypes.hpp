@@ -21,8 +21,17 @@
 #undef max
 
 using namespace std::literals;
-
 namespace metaforce {
+using kUniqueIdType = u16;
+static constexpr int kMaxEntities = 1024;
+constexpr kUniqueIdType kUniqueIdSize = sizeof(u16);
+constexpr kUniqueIdType kUniqueIdBits = kUniqueIdSize * 8;
+constexpr kUniqueIdType kUniqueIdMax = UINT16_MAX;
+constexpr kUniqueIdType kUniqueIdVersionMax = 64;
+constexpr kUniqueIdType kUniqueIdVersionMask = kUniqueIdVersionMax - 1;
+constexpr kUniqueIdType kUniqueIdValueMask = kMaxEntities - 1;
+constexpr kUniqueIdType kUniqueIdValueBits = 10;
+constexpr kUniqueIdType kUniqueIdVersionBits = 6;
 
 using FourCC = hecl::FourCC;
 
@@ -73,7 +82,9 @@ struct TEditorId {
   [[nodiscard]] constexpr u8 LayerNum() const noexcept { return u8((id >> 26) & 0x3f); }
   [[nodiscard]] constexpr u16 AreaNum() const noexcept { return u16((id >> 16) & 0x3ff); }
   [[nodiscard]] constexpr u16 Id() const noexcept { return u16(id & 0xffff); }
-  [[nodiscard]] constexpr bool operator<(TEditorId other) const noexcept { return (id & 0x3ffffff) < (other.id & 0x3ffffff); }
+  [[nodiscard]] constexpr bool operator<(TEditorId other) const noexcept {
+    return (id & 0x3ffffff) < (other.id & 0x3ffffff);
+  }
   [[nodiscard]] constexpr bool operator==(TEditorId other) const noexcept {
     return (id & 0x3ffffff) == (other.id & 0x3ffffff);
   }
@@ -83,12 +94,15 @@ struct TEditorId {
 #define kInvalidEditorId TEditorId()
 
 struct TUniqueId {
-  u16 id = UINT16_MAX;
+  kUniqueIdType id = kUniqueIdMax;
 
   constexpr TUniqueId() noexcept = default;
-  constexpr TUniqueId(u16 value, u16 version) noexcept : id(value | (version << 10)) {}
-  [[nodiscard]] constexpr u16 Version() const noexcept { return u16((id >> 10) & 0x3f); }
-  [[nodiscard]] constexpr u16 Value() const noexcept { return u16(id & 0x3ff); }
+  constexpr TUniqueId(kUniqueIdType value, kUniqueIdType version) noexcept
+  : id(value | (version << kUniqueIdValueBits)) {}
+  [[nodiscard]] constexpr kUniqueIdType Version() const noexcept {
+    return kUniqueIdType((id >> kUniqueIdValueBits) & kUniqueIdVersionMask);
+  }
+  [[nodiscard]] constexpr kUniqueIdType Value() const noexcept { return kUniqueIdType(id & kUniqueIdValueMask); }
   [[nodiscard]] constexpr bool operator<(TUniqueId other) const noexcept { return id < other.id; }
   [[nodiscard]] constexpr bool operator==(TUniqueId other) const noexcept { return id == other.id; }
   [[nodiscard]] constexpr bool operator!=(TUniqueId other) const noexcept { return !operator==(other); }
@@ -144,7 +158,7 @@ public:
       this->pop_back();
       this->insert(this->begin(), t);
     }
-  } 
+  }
 
   [[nodiscard]] std::optional<T> GetAverage() const {
     if (this->empty()) {
@@ -182,28 +196,32 @@ struct hash<metaforce::CAssetId> {
 
 FMT_CUSTOM_FORMATTER(metaforce::CAssetId, "{:08X}", obj.Value())
 FMT_CUSTOM_FORMATTER(metaforce::TEditorId, "{:08X}", obj.id)
+static_assert(sizeof(metaforce::kUniqueIdType) == sizeof(u16),
+              "TUniqueId size does not match expected size! Update TUniqueId format string!");
 FMT_CUSTOM_FORMATTER(metaforce::TUniqueId, "{:04X}", obj.id)
 FMT_CUSTOM_FORMATTER(metaforce::SObjectTag, "{} {}", obj.type, obj.id)
 
 FMT_CUSTOM_FORMATTER(zeus::CVector3f, "({} {} {})", float(obj.x()), float(obj.y()), float(obj.z()))
 FMT_CUSTOM_FORMATTER(zeus::CVector2f, "({} {})", float(obj.x()), float(obj.y()))
-FMT_CUSTOM_FORMATTER(zeus::CMatrix3f, "\n({} {} {})"
-                                      "\n({} {} {})"
-                                      "\n({} {} {})",
-                     float(obj[0][0]), float(obj[1][0]), float(obj[2][0]),
-                     float(obj[0][1]), float(obj[1][1]), float(obj[2][1]),
-                     float(obj[0][2]), float(obj[1][2]), float(obj[2][2]))
-FMT_CUSTOM_FORMATTER(zeus::CMatrix4f, "\n({} {} {} {})"
-                                      "\n({} {} {} {})"
-                                      "\n({} {} {} {})"
-                                      "\n({} {} {} {})",
-                     float(obj[0][0]), float(obj[1][0]), float(obj[2][0]), float(obj[3][0]),
-                     float(obj[0][1]), float(obj[1][1]), float(obj[2][1]), float(obj[3][1]),
-                     float(obj[0][2]), float(obj[1][2]), float(obj[2][2]), float(obj[3][2]),
-                     float(obj[0][3]), float(obj[1][3]), float(obj[2][3]), float(obj[3][3]))
-FMT_CUSTOM_FORMATTER(zeus::CTransform, "\n({} {} {} {})"
-                                       "\n({} {} {} {})"
-                                       "\n({} {} {} {})",
+FMT_CUSTOM_FORMATTER(zeus::CMatrix3f,
+                     "\n({} {} {})"
+                     "\n({} {} {})"
+                     "\n({} {} {})",
+                     float(obj[0][0]), float(obj[1][0]), float(obj[2][0]), float(obj[0][1]), float(obj[1][1]),
+                     float(obj[2][1]), float(obj[0][2]), float(obj[1][2]), float(obj[2][2]))
+FMT_CUSTOM_FORMATTER(zeus::CMatrix4f,
+                     "\n({} {} {} {})"
+                     "\n({} {} {} {})"
+                     "\n({} {} {} {})"
+                     "\n({} {} {} {})",
+                     float(obj[0][0]), float(obj[1][0]), float(obj[2][0]), float(obj[3][0]), float(obj[0][1]),
+                     float(obj[1][1]), float(obj[2][1]), float(obj[3][1]), float(obj[0][2]), float(obj[1][2]),
+                     float(obj[2][2]), float(obj[3][2]), float(obj[0][3]), float(obj[1][3]), float(obj[2][3]),
+                     float(obj[3][3]))
+FMT_CUSTOM_FORMATTER(zeus::CTransform,
+                     "\n({} {} {} {})"
+                     "\n({} {} {} {})"
+                     "\n({} {} {} {})",
                      float(obj.basis[0][0]), float(obj.basis[1][0]), float(obj.basis[2][0]), float(obj.origin[0]),
                      float(obj.basis[0][1]), float(obj.basis[1][1]), float(obj.basis[2][1]), float(obj.origin[1]),
                      float(obj.basis[0][2]), float(obj.basis[1][2]), float(obj.basis[2][2]), float(obj.origin[2]))

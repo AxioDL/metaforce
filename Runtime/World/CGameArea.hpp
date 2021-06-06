@@ -207,12 +207,12 @@ public:
     std::vector<CWorldLight> x80_lightsB;
     std::vector<CLight> x90_gfxLightsB;
     std::unique_ptr<CPVSAreaSet> xa0_pvs;
-    u32 xa4_elemCount = 1024;
+    u32 xa4_elemCount = kMaxEntities;
     struct MapEntry {
       s16 x0_id = -1;
       TUniqueId x4_uid = kInvalidUniqueId;
     };
-    std::array<MapEntry, 1024> xa8_pvsEntityMap;
+    std::array<MapEntry, kMaxEntities> xa8_pvsEntityMap;
     u32 x10a8_pvsVersion = 0;
     TLockedToken<CPFArea> x10ac_pathToken;
     // bool x10b8_ = 0; optional flag for CToken

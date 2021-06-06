@@ -177,7 +177,7 @@ void CBouncyGrenade::Explode(CStateManager& mgr, TUniqueId uid) {
   if (radius > 1.f) {
     const zeus::CVector3f& pos = GetTranslation();
     const CMaterialFilter filter = CMaterialFilter::MakeInclude({EMaterialTypes::Player, EMaterialTypes::Character});
-    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
     mgr.BuildNearList(nearList, {pos - radius, pos + radius}, filter, nullptr);
 
     for (const auto& id : nearList) {

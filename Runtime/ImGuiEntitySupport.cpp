@@ -442,7 +442,7 @@ IMGUI_ENTITY_INSPECT(CScriptDistanceFog, CEntity, ScriptDistanceFog, {})
 IMGUI_ENTITY_INSPECT(CScriptDockAreaChange, CEntity, ScriptDockAreaChange, {})
 IMGUI_ENTITY_INSPECT(CScriptGenerator, CEntity, ScriptGenerator, {
   int count = x34_spawnCount;
-  if (ImGui::SliderInt("Spawn Count", &count, 0, 1024)) {
+  if (ImGui::SliderInt("Spawn Count", &count, 0, kMaxEntities)) {
     x34_spawnCount = count;
   }
   BITFIELD_CHECKBOX("Don't Reuse Followers", x38_24_noReuseFollowers);

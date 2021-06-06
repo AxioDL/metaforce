@@ -176,7 +176,7 @@ void CEnvFxManager::CalculateSnowForces(const CVectorFixed8_8& zVec,
   }
 }
 
-void CEnvFxManager::BuildBlockObjectList(rstl::reserved_vector<TUniqueId, 1024>& list, CStateManager& mgr) {
+void CEnvFxManager::BuildBlockObjectList(rstl::reserved_vector<TUniqueId, kMaxEntities>& list, CStateManager& mgr) {
   for (CEntity* ent : mgr.GetAllObjectList()) {
     const TCastToConstPtr<CScriptTrigger> trig = ent;
     if (trig && True(trig->GetTriggerFlags() & ETriggerFlags::BlockEnvironmentalEffects)) {
@@ -197,7 +197,7 @@ void CEnvFxManager::UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, cons
   zeus::CVector2i localPlayerPos((invXf * playerPos * 256.f).toVec2f());
   x2c_lastBlockedGridIdx = -1;
   x24_enableSplash = false;
-  rstl::reserved_vector<TUniqueId, 1024> blockList;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> blockList;
   bool blockListBuilt = false;
   int blockedGrids = 0;
   for (int i = 0; i < x50_grids.size(); ++i) {

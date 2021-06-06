@@ -125,7 +125,7 @@ void CScriptActorRotate::UpdateActors(bool next, CStateManager& mgr) {
 }
 
 void CScriptActorRotate::UpdateSpiderBallWaypoints(CStateManager& mgr) {
-  rstl::reserved_vector<TUniqueId, 1024> waypointIds;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> waypointIds;
   CObjectList& objectList = mgr.GetAllObjectList();
   for (CEntity* ent : objectList) {
     if (const TCastToPtr<CScriptSpiderBallWaypoint> wp = ent) {

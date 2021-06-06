@@ -27,7 +27,7 @@ class CObjectList {
     s16 next = -1;
     s16 prev = -1;
   };
-  std::array<SObjectListEntry, 1024> x0_list; // was an rstl::prereserved_vector
+  std::array<SObjectListEntry, kMaxEntities> x0_list; // was an rstl::reserved_vector
   EGameObjectList x2004_listEnum;
   s16 x2008_firstId = -1;
   u16 x200a_count = 0;

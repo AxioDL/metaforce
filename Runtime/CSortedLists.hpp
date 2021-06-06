@@ -11,7 +11,7 @@ namespace metaforce {
 enum class ESortedList { MinX, MinY, MinZ, MaxX, MaxY, MaxZ };
 
 struct SSortedList {
-  std::array<s16, 1024> x0_ids;
+  std::array<s16, kMaxEntities> x0_ids;
   u32 x800_size = 0;
   void Reset() { x0_ids.fill(-1); }
   SSortedList() { Reset(); }
@@ -28,7 +28,7 @@ class CSortedListManager {
     SNode() = default;
     SNode(const CActor* act, const zeus::CAABox& aabb) : x0_actor(act), x4_box(aabb), x2a_populated(true) {}
   };
-  std::array<SNode, 1024> x0_nodes;
+  std::array<SNode, kMaxEntities> x0_nodes;
   std::array<SSortedList, 6> xb000_sortedLists;
   void Reset();
   void AddToLinkedList(s16 nodeId, s16& headId, s16& tailId);
@@ -43,10 +43,10 @@ class CSortedListManager {
 
 public:
   CSortedListManager();
-  void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const zeus::CVector3f& pos,
+  void BuildNearList(rstl::reserved_vector<TUniqueId, kMaxEntities>& out, const zeus::CVector3f& pos,
                      const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter, const CActor* actor);
-  void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const CActor& actor, const zeus::CAABox& aabb);
-  void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const zeus::CAABox& aabb,
+  void BuildNearList(rstl::reserved_vector<TUniqueId, kMaxEntities>& out, const CActor& actor, const zeus::CAABox& aabb);
+  void BuildNearList(rstl::reserved_vector<TUniqueId, kMaxEntities>& out, const zeus::CAABox& aabb,
                      const CMaterialFilter& filter, const CActor* actor);
   void Remove(const CActor* actor);
   void Move(const CActor* actor, const zeus::CAABox& aabb);

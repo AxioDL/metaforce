@@ -23,8 +23,8 @@ class CPreAdvanceIndicator {
   /*
   u32 x10_;
   u32 x14_;
-  u32 x18_;
-  u32 x1c_;
+  u32 x18_fireTime;
+  u32 x1c_damageDelay;
   u32 x20_;
   u32 x24_;
   u32 x28_;

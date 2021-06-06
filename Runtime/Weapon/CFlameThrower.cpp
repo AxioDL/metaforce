@@ -132,7 +132,7 @@ void CFlameThrower::UpdateFlameState(float dt, CStateManager& mgr) {
 
 CRayCastResult CFlameThrower::DoCollisionCheck(TUniqueId& idOut, const zeus::CAABox& aabb, CStateManager& mgr) {
   CRayCastResult ret;
-  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
   mgr.BuildNearList(nearList, aabb, CMaterialFilter::skPassEverything, this);
   const auto& colPoints = x34c_flameWarp.GetCollisionPoints();
 

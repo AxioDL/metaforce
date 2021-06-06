@@ -266,7 +266,7 @@ constexpr CMaterialFilter BallCameraFilter = CMaterialFilter::MakeIncludeExclude
 void CBallCamera::BuildSplineNav(CStateManager& mgr) {
   zeus::CVector3f ballPos = mgr.GetPlayer().GetBallPosition();
   TUniqueId intersectId = kInvalidUniqueId;
-  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
   CRayCastResult result =
       mgr.RayWorldIntersection(intersectId, ballPos, zeus::skDown, 20.f, BallCameraFilter, nearList);
   float downFactor = result.IsValid() ? zeus::clamp(0.f, result.GetT() / 20.f, 1.f) : 1.f;
@@ -325,7 +325,7 @@ void CBallCamera::BuildSplineArc(CStateManager& mgr) {
   delta = rot.transform(delta);
   zeus::CVector3f pt1 = halfwayPoint + delta;
   TUniqueId intersectId = kInvalidUniqueId;
-  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
   CRayCastResult result =
       mgr.RayWorldIntersection(intersectId, pt1, -delta.normalized(), delta.magnitude(), BallCameraFilter, nearList);
   if (result.IsValid()) {
@@ -529,7 +529,7 @@ void CBallCamera::CheckFailsafe(float dt, CStateManager& mgr) {
   zeus::CVector3f camToBall = ballPos - GetTranslation();
   float camToBallMag = camToBall.magnitude();
   camToBall.normalize();
-  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
   mgr.BuildNearList(nearList, GetTranslation(), camToBall, camToBallMag, BallCameraFilter, nullptr);
   CRayCastResult result = mgr.RayWorldIntersection(x368_obscuringObjectId, GetTranslation(), camToBall, camToBallMag,
                                                    BallCameraFilter, nearList);
@@ -984,7 +984,7 @@ zeus::CVector3f CBallCamera::ApplyColliders() {
 }
 
 void CBallCamera::UpdateColliders(const zeus::CTransform& xf, std::vector<CCameraCollider>& colliderList, int& it,
-                                  int count, float tolerance, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                  int count, float tolerance, const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList,
                                   float dt, CStateManager& mgr) {
   if (it < colliderList.size()) {
     x310_idealLookVec = {0.f, g_tweakBall->GetBallCameraOffset().y(), g_tweakPlayer->GetPlayerBallHalfExtent()};
@@ -1033,7 +1033,7 @@ void CBallCamera::UpdateColliders(const zeus::CTransform& xf, std::vector<CCamer
 }
 
 zeus::CVector3f CBallCamera::AvoidGeometry(const zeus::CTransform& xf,
-                                           const rstl::reserved_vector<TUniqueId, 1024>& nearList, float dt,
+                                           const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList, float dt,
                                            CStateManager& mgr) {
   switch (x328_avoidGeomCycle) {
   case 0:
@@ -1059,7 +1059,7 @@ zeus::CVector3f CBallCamera::AvoidGeometry(const zeus::CTransform& xf,
 }
 
 zeus::CVector3f CBallCamera::AvoidGeometryFull(const zeus::CTransform& xf,
-                                               const rstl::reserved_vector<TUniqueId, 1024>& nearList, float dt,
+                                               const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList, float dt,
                                                CStateManager& mgr) {
   UpdateColliders(xf, x264_smallColliders, x2d0_smallColliderIt, x264_smallColliders.size(), 4.f, nearList, dt, mgr);
   UpdateColliders(xf, x274_mediumColliders, x2d4_mediumColliderIt, x274_mediumColliders.size(), 4.f, nearList, dt, mgr);
@@ -1153,7 +1153,7 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr) {
       }
     }
     x334_collidersAABB = CalculateCollidersBoundingBox(x284_largeColliders, mgr);
-    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
     mgr.BuildNearList(nearList, x334_collidersAABB, BallCameraFilter,
                       TCastToConstPtr<CActor>(mgr.GetObjectById(x46c_collisionActorId)).GetPtr());
     if (!x18c_31_clearLOS && x368_obscuringObjectId == kInvalidUniqueId) {
@@ -1549,7 +1549,7 @@ zeus::CVector3f CBallCamera::GetFailsafeSplinePoint(const std::vector<zeus::CVec
 bool CBallCamera::CheckFailsafeFromMorphBallState(CStateManager& mgr) const {
   TUniqueId xbb8 = kInvalidUniqueId;
   float curT = 0.f;
-  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
   rstl::reserved_vector<CRayCastResult, 6> resultsA;
   rstl::reserved_vector<CRayCastResult, 6> resultsB;
   while (curT < 6.f) {
@@ -1584,7 +1584,7 @@ bool CBallCamera::CheckFailsafeFromMorphBallState(CStateManager& mgr) const {
 }
 
 bool CBallCamera::SplineIntersectTest(CMaterialList& intersectMat, CStateManager& mgr) const {
-  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
   TUniqueId xe38 = kInvalidUniqueId;
   rstl::reserved_vector<CRayCastResult, 12> xacc;
   rstl::reserved_vector<CRayCastResult, 12> xd10;
@@ -1731,7 +1731,7 @@ zeus::CVector3f CBallCamera::FindDesiredPosition(float distance, float elevation
     zeus::CAABox x13ac(ballPos - distance, ballPos + distance);
     x13ac.min.z() = float(ballPos.z());
     x13ac.max.z() = elev + ballPos.z();
-    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
     mgr.BuildNearList(nearList, x13ac, BallCameraFilter,
                       TCastToConstPtr<CActor>(mgr.GetObjectById(x46c_collisionActorId)).GetPtr());
     zeus::CQuaternion rotNeg;
@@ -1803,7 +1803,7 @@ zeus::CVector3f CBallCamera::FindDesiredPosition(float distance, float elevation
         zeus::CAABox findBounds(ballPos - distance, ballPos + distance);
         findBounds.min.z() = float(ballPos.z());
         findBounds.max.z() = elev + ballPos.z();
-        rstl::reserved_vector<TUniqueId, 1024> nearList;
+        rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
         mgr.BuildNearList(nearList, findBounds, BallCameraFilter,
                           TCastToConstPtr<CActor>(mgr.GetObjectById(x46c_collisionActorId)).GetPtr());
         zeus::CQuaternion rotNeg2;
@@ -1858,7 +1858,7 @@ bool CBallCamera::DetectCollision(const zeus::CVector3f& from, const zeus::CVect
     aabb.accumulateBounds(from);
     aabb.accumulateBounds(to);
     aabb = zeus::CAABox(aabb.min - margin, aabb.max + margin);
-    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
     mgr.BuildColliderList(nearList, mgr.GetPlayer(), aabb);
     CAreaCollisionCache cache(aabb);
     CGameCollision::BuildAreaCollisionCache(mgr, cache);
@@ -1978,7 +1978,7 @@ bool CBallCamera::CheckTransitionLineOfSight(const zeus::CVector3f& eyePos, cons
     aabb.accumulateBounds(eyePos);
     aabb.accumulateBounds(behindPos);
     aabb = zeus::CAABox(aabb.min - margin, aabb.max + margin);
-    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
     mgr.BuildColliderList(nearList, mgr.GetPlayer(), aabb);
     CAreaCollisionCache cache(aabb);
     CGameCollision::BuildAreaCollisionCache(mgr, cache);

@@ -984,7 +984,7 @@ bool CScriptGunTurret::LineOfSightTest(CStateManager& mgr) const {
     zeus::CVector3f dir = mgr.GetPlayer().GetAimPosition(mgr, 0.f) - muzzlePos;
     const float mag = dir.magnitude();
     dir = dir / mag;
-    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
     constexpr auto filter = CMaterialFilter::MakeIncludeExclude(
         {EMaterialTypes::Solid}, {EMaterialTypes::Player, EMaterialTypes::CollisionActor});
     mgr.BuildNearList(nearList, muzzlePos, dir, mag, filter, gun.GetPtr());

@@ -34,7 +34,7 @@ struct ImGuiEntityEntry {
 class ImGuiConsole {
 public:
   static std::set<TUniqueId> inspectingEntities;
-  static std::array<ImGuiEntityEntry, 1024> entities;
+  static std::array<ImGuiEntityEntry, kMaxEntities> entities;
   static ImGuiPlayerLoadouts loadouts;
 
   ImGuiConsole(hecl::CVarManager& cvarMgr, hecl::CVarCommons& cvarCommons)

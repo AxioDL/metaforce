@@ -18,7 +18,7 @@ void ClearIniSettings();
 
 namespace metaforce {
 
-std::array<ImGuiEntityEntry, 1024> ImGuiConsole::entities;
+std::array<ImGuiEntityEntry, kMaxEntities> ImGuiConsole::entities;
 std::set<TUniqueId> ImGuiConsole::inspectingEntities;
 ImGuiPlayerLoadouts ImGuiConsole::loadouts;
 
@@ -246,7 +246,7 @@ void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
 
   if (ImGui::Begin("Inspect", isOpen)) {
     CObjectList& list = g_StateManager->GetAllObjectList();
-    ImGui::Text("Objects: %d / 1024", list.size());
+    ImGui::Text("Objects: %d / %d", list.size(), kMaxEntities);
     ImGui::SameLine();
     if (ImGui::SmallButton("Deselect all")) {
       for (auto* const ent : list) {
@@ -710,17 +710,7 @@ void ImGuiConsole::ShowDebugOverlay() {
                                  ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
                                  ImGuiWindowFlags_NoNav;
   if (m_debugOverlayCorner != -1) {
-    const ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImVec2 workPos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
-    ImVec2 workSize = viewport->WorkSize;
-    ImVec2 windowPos;
-    ImVec2 windowPosPivot;
-    constexpr float padding = 10.0f;
-    windowPos.x = (m_debugOverlayCorner & 1) != 0 ? (workPos.x + workSize.x - padding) : (workPos.x + padding);
-    windowPos.y = (m_debugOverlayCorner & 2) != 0 ? (workPos.y + workSize.y - padding) : (workPos.y + padding);
-    windowPosPivot.x = (m_debugOverlayCorner & 1) != 0 ? 1.0f : 0.0f;
-    windowPosPivot.y = (m_debugOverlayCorner & 2) != 0 ? 1.0f : 0.0f;
-    ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, windowPosPivot);
+    SetOverlayWindowLocation(m_debugOverlayCorner);
     windowFlags |= ImGuiWindowFlags_NoMove;
   }
   ImGui::SetNextWindowBgAlpha(0.65f);

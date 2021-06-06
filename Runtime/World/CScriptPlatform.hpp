@@ -62,15 +62,15 @@ class CScriptPlatform : public CPhysicsActor {
   bool x356_30_disableXrayAlpha : 1 = false;
   bool x356_31_xrayFog : 1 = true;
 
-  void DragSlave(CStateManager& mgr, rstl::reserved_vector<u16, 1024>& draggedSet, CActor* actor,
+  void DragSlave(CStateManager& mgr, rstl::reserved_vector<u16, kMaxEntities>& draggedSet, CActor* actor,
                  const zeus::CVector3f& delta);
-  void DragSlaves(CStateManager& mgr, rstl::reserved_vector<u16, 1024>& draggedSet, const zeus::CVector3f& delta);
+  void DragSlaves(CStateManager& mgr, rstl::reserved_vector<u16, kMaxEntities>& draggedSet, const zeus::CVector3f& delta);
   static void DecayRiders(std::vector<SRiders>& riders, float dt, CStateManager& mgr);
   static void MoveRiders(CStateManager& mgr, float dt, bool active, std::vector<SRiders>& riders,
                          std::vector<SRiders>& collidedRiders, const zeus::CTransform& oldXf,
                          const zeus::CTransform& newXf, const zeus::CVector3f& dragDelta,
                          const zeus::CQuaternion& rotDelta);
-  static rstl::reserved_vector<TUniqueId, 1024> BuildNearListFromRiders(CStateManager& mgr,
+  static rstl::reserved_vector<TUniqueId, kMaxEntities> BuildNearListFromRiders(CStateManager& mgr,
                                                                         const std::vector<SRiders>& movedRiders);
 
   std::optional<CAABoxShader> m_boxFilter;

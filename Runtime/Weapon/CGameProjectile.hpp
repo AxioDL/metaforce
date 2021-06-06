@@ -76,7 +76,7 @@ public:
   void ApplyDamageToActors(CStateManager& mgr, const CDamageInfo& dInfo);
   void FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr) override;
   CRayCastResult RayCollisionCheckWithWorld(TUniqueId& idOut, const zeus::CVector3f& start, const zeus::CVector3f& end,
-                                            float mag, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                            float mag, const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList,
                                             CStateManager& mgr);
   CProjectileTouchResult CanCollideWith(CActor& act, CStateManager& mgr) const;
   CProjectileTouchResult CanCollideWithComplexCollision(const CActor& act, const CStateManager& mgr) const;

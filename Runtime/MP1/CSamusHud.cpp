@@ -533,7 +533,7 @@ void CSamusHud::UpdateThreatAssessment(float dt, const CStateManager& mgr) {
   zeus::CAABox aabb;
   aabb.accumulateBounds(player.GetTranslation() - g_tweakGui->GetThreatRange());
   aabb.accumulateBounds(player.GetTranslation() + g_tweakGui->GetThreatRange());
-  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
   mgr.BuildNearList(nearList, aabb, filter, nullptr);
 
   float threatDist = 9999.f;

@@ -51,7 +51,7 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
   float vpZ = (aabb.max.z() - aabb.min.z()) + FLT_EPSILON;
   CGraphics::SetOrtho(-vpX, vpX, vpY, -vpY, 0.f, vpZ);
 
-  rstl::reserved_vector<TUniqueId, 1024> nearItems;
+  rstl::reserved_vector<TUniqueId, kMaxEntities> nearItems;
   mgr.BuildNearList(nearItems, aabb, CMaterialFilter::skPassEverything, &player);
 
   CGraphics::SetViewPointMatrix(viewMtx);

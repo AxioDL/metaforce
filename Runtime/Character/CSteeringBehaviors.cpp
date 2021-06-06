@@ -55,7 +55,7 @@ zeus::CVector3f CSteeringBehaviors::Separation(const CPhysicsActor& actor, const
   return (1.f - (posDiff.magSquared() / (separation * separation))) * posDiff.normalized();
 }
 
-zeus::CVector3f CSteeringBehaviors::Alignment(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, 1024>& list,
+zeus::CVector3f CSteeringBehaviors::Alignment(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, kMaxEntities>& list,
                                               const CStateManager& mgr) const {
   zeus::CVector3f align;
 
@@ -71,7 +71,7 @@ zeus::CVector3f CSteeringBehaviors::Alignment(const CPhysicsActor& actor, rstl::
   return align * (diff / M_PIF);
 }
 
-zeus::CVector3f CSteeringBehaviors::Cohesion(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, 1024>& list,
+zeus::CVector3f CSteeringBehaviors::Cohesion(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, kMaxEntities>& list,
                                              float dampingRadius, const CStateManager& mgr) const {
   zeus::CVector3f dest;
   if (!list.empty()) {

@@ -239,7 +239,7 @@ private:
   void UpdateHealthInfo(CStateManager& mgr);
   void ExtendTouchBounds(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 7>& uids,
                          const zeus::CVector3f& vec) const;
-  bool IsClosestEnergyAttractor(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, 1024>& charNearList,
+  bool IsClosestEnergyAttractor(const CStateManager& mgr, const rstl::reserved_vector<TUniqueId, kMaxEntities>& charNearList,
                                 const zeus::CVector3f& projectilePos) const;
   void ShakeCamera(CStateManager& mgr);
 };
