@@ -859,24 +859,7 @@ void ImGuiConsole::ShowDebugOverlay() {
 
       ImGuiStringViewText(fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects()));
     }
-    if (ImGui::BeginPopupContextWindow()) {
-      if (ImGui::MenuItem("Custom", nullptr, m_debugOverlayCorner == -1)) {
-        m_debugOverlayCorner = -1;
-      }
-      if (ImGui::MenuItem("Top-left", nullptr, m_debugOverlayCorner == 0, m_inputOverlayCorner != 0)) {
-        m_debugOverlayCorner = 0;
-      }
-      if (ImGui::MenuItem("Top-right", nullptr, m_debugOverlayCorner == 1, m_inputOverlayCorner != 1)) {
-        m_debugOverlayCorner = 1;
-      }
-      if (ImGui::MenuItem("Bottom-left", nullptr, m_debugOverlayCorner == 2, m_inputOverlayCorner != 2)) {
-        m_debugOverlayCorner = 2;
-      }
-      if (ImGui::MenuItem("Bottom-right", nullptr, m_debugOverlayCorner == 3, m_inputOverlayCorner != 3)) {
-        m_debugOverlayCorner = 3;
-      }
-      ImGui::EndPopup();
-    }
+    ShowCornerContextMenu(m_debugOverlayCorner, m_inputOverlayCorner);
   }
   ImGui::End();
 }
@@ -895,17 +878,7 @@ void ImGuiConsole::ShowInputViewer() {
                                  ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
                                  ImGuiWindowFlags_NoNav;
   if (m_inputOverlayCorner != -1) {
-    const ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImVec2 workPos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
-    ImVec2 workSize = viewport->WorkSize;
-    ImVec2 windowPos;
-    ImVec2 windowPosPivot;
-    constexpr float padding = 10.0f;
-    windowPos.x = (m_inputOverlayCorner & 1) != 0 ? (workPos.x + workSize.x - padding) : (workPos.x + padding);
-    windowPos.y = (m_inputOverlayCorner & 2) != 0 ? (workPos.y + workSize.y - padding) : (workPos.y + padding);
-    windowPosPivot.x = (m_inputOverlayCorner & 1) != 0 ? 1.0f : 0.0f;
-    windowPosPivot.y = (m_inputOverlayCorner & 2) != 0 ? 1.0f : 0.0f;
-    ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, windowPosPivot);
+    SetOverlayWindowLocation(m_inputOverlayCorner);
     windowFlags |= ImGuiWindowFlags_NoMove;
   }
   ImGui::SetNextWindowBgAlpha(0.65f);
@@ -1037,26 +1010,44 @@ void ImGuiConsole::ShowInputViewer() {
     }
 
     ImGui::Dummy(zeus::CVector2f(270, 130) * scale);
-    if (ImGui::BeginPopupContextWindow()) {
-      if (ImGui::MenuItem("Custom", nullptr, m_inputOverlayCorner == -1)) {
-        m_inputOverlayCorner = -1;
-      }
-      if (ImGui::MenuItem("Top-left", nullptr, m_inputOverlayCorner == 0, m_debugOverlayCorner != 0)) {
-        m_inputOverlayCorner = 0;
-      }
-      if (ImGui::MenuItem("Top-right", nullptr, m_inputOverlayCorner == 1, m_debugOverlayCorner != 1)) {
-        m_inputOverlayCorner = 1;
-      }
-      if (ImGui::MenuItem("Bottom-left", nullptr, m_inputOverlayCorner == 2, m_debugOverlayCorner != 2)) {
-        m_inputOverlayCorner = 2;
-      }
-      if (ImGui::MenuItem("Bottom-right", nullptr, m_inputOverlayCorner == 3, m_debugOverlayCorner != 3)) {
-        m_inputOverlayCorner = 3;
-      }
-      ImGui::EndPopup();
-    }
+    ShowCornerContextMenu(m_inputOverlayCorner, m_debugOverlayCorner);
   }
   ImGui::End();
+}
+
+void ImGuiConsole::ShowCornerContextMenu(int& corner, int avoidCorner) const {
+  if (ImGui::BeginPopupContextWindow()) {
+    if (ImGui::MenuItem("Custom", nullptr, corner == -1)) {
+      corner = -1;
+    }
+    if (ImGui::MenuItem("Top-left", nullptr, corner == 0, avoidCorner != 0)) {
+      corner = 0;
+    }
+    if (ImGui::MenuItem("Top-right", nullptr, corner == 1, avoidCorner != 1)) {
+      corner = 1;
+    }
+    if (ImGui::MenuItem("Bottom-left", nullptr, corner == 2, avoidCorner != 2)) {
+      corner = 2;
+    }
+    if (ImGui::MenuItem("Bottom-right", nullptr, corner == 3, avoidCorner != 3)) {
+      corner = 3;
+    }
+    ImGui::EndPopup();
+  }
+}
+
+void ImGuiConsole::SetOverlayWindowLocation(int corner) const {
+  const ImGuiViewport* viewport = ImGui::GetMainViewport();
+  ImVec2 workPos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
+  ImVec2 workSize = viewport->WorkSize;
+  ImVec2 windowPos;
+  ImVec2 windowPosPivot;
+  constexpr float padding = 10.0f;
+  windowPos.x = (corner & 1) != 0 ? (workPos.x + workSize.x - padding) : (workPos.x + padding);
+  windowPos.y = (corner & 2) != 0 ? (workPos.y + workSize.y - padding) : (workPos.y + padding);
+  windowPosPivot.x = (corner & 1) != 0 ? 1.0f : 0.0f;
+  windowPosPivot.y = (corner & 2) != 0 ? 1.0f : 0.0f;
+  ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, windowPosPivot);
 }
 
 void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
@@ -1116,7 +1107,9 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
         if (ImGui::MenuItem("Clear Settings")) {
           ImGui::ClearIniSettings();
         }
+#ifndef NDEBUG
         ImGui::MenuItem("Show Demo", nullptr, &m_showDemoWindow);
+#endif
         ImGui::EndMenu();
       }
       ImGui::EndMenu();

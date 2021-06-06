@@ -104,5 +104,7 @@ private:
   void ShowConsoleVariablesWindow();
   void ShowMenuHint();
   void ShowInputViewer();
+  void SetOverlayWindowLocation(int corner) const;
+  void ShowCornerContextMenu(int& corner, int avoidCorner) const;
 };
 } // namespace metaforce
