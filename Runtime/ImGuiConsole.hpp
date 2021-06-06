@@ -86,6 +86,7 @@ private:
   bool m_isInitialized = false;
 
   int m_debugOverlayCorner = 2; // bottom-left
+  int m_inputOverlayCorner = 3; // bottom-right
   const void* m_currentRoom = nullptr;
   double m_lastRoomTime = 0.f;
   double m_currentRoomStart = 0.f;
@@ -102,5 +103,6 @@ private:
   void ShowLayersWindow();
   void ShowConsoleVariablesWindow();
   void ShowMenuHint();
+  void ShowInputViewer();
 };
 } // namespace metaforce

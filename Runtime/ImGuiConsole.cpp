@@ -702,7 +702,7 @@ void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) 
 
 void ImGuiConsole::ShowDebugOverlay() {
   if (!m_frameCounter && !m_frameRate && !m_inGameTime && !m_roomTimer && !m_playerInfo && !m_areaInfo &&
-      !m_worldInfo && !m_randomStats && !m_resourceStats && !m_showInput) {
+      !m_worldInfo && !m_randomStats && !m_resourceStats) {
     return;
   }
   ImGuiIO& io = ImGui::GetIO();
@@ -869,159 +869,199 @@ void ImGuiConsole::ShowDebugOverlay() {
 
       ImGuiStringViewText(fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects()));
     }
-    // Code -stolen- borrowed from Practice Mod
-    if (m_showInput && g_InputGenerator != nullptr) {
-      auto input = g_InputGenerator->GetLastInput();
-      if (input.x4_controllerIdx == 0) {
-        if (hasPrevious) {
-          ImGui::Separator();
-        }
-        hasPrevious = true;
-
-        ImDrawList* dl = ImGui::GetWindowDrawList();
-        zeus::CVector2f p = ImGui::GetCursorScreenPos();
-
-        float scale = ImGui::GetIO().DisplayFramebufferScale.x;
-        float leftStickRadius = 30 * scale;
-        p = p + zeus::CVector2f{20, 20} * scale; // Pad p so we don't clip outside our rect
-        zeus::CVector2f leftStickCenter = p + zeus::CVector2f(30, 45) * scale;
-        float dpadRadius = 15 * scale;
-        float dpadWidth = 8 * scale;
-        zeus::CVector2f dpadCenter = p + zeus::CVector2f(80, 90) * scale;
-        float rightStickRadius = 20 * scale;
-        zeus::CVector2f rightStickCenter = p + zeus::CVector2f(160, 90) * scale;
-        float startButtonRadius = 8 * scale;
-        zeus::CVector2f startButtonCenter = p + zeus::CVector2f(120, 55) * scale;
-        float aButtonRadius = 16 * scale;
-        zeus::CVector2f aButtonCenter = p + zeus::CVector2f(210, 48) * scale;
-        float bButtonRadius = 8 * scale;
-        zeus::CVector2f bButtonCenter = aButtonCenter + zeus::CVector2f(-24, 16) * scale;
-        float xButtonRadius = 8 * scale;
-        zeus::CVector2f xButtonCenter = aButtonCenter + zeus::CVector2f(24, -16) * scale;
-        float yButtonRadius = 8 * scale;
-        zeus::CVector2f yButtonCenter = aButtonCenter + zeus::CVector2f(-12, -24) * scale;
-        float triggerWidth = leftStickRadius * 2;
-        float triggerHeight = 8 * scale;
-        zeus::CVector2f lCenter = leftStickCenter + zeus::CVector2f(0, -60) * scale;
-        zeus::CVector2f rCenter = zeus::CVector2f(aButtonCenter.x(), lCenter.y());
-        const auto zButtonCenter = rCenter + zeus::CVector2f{0, 24 * scale};
-        const float zButtonHalfWidth = triggerWidth / 2;
-        const float zButtonHalfHeight = 4 * scale;
-
-        constexpr ImU32 stickGray = IM_COL32(150, 150, 150, 255);
-        constexpr ImU32 darkGray = IM_COL32(60, 60, 60, 255);
-        constexpr ImU32 red = IM_COL32(255, 0, 0, 255);
-        constexpr ImU32 green = IM_COL32(0, 255, 0, 255);
-
-        // left stick
-        {
-          dl->AddCircleFilled(leftStickCenter, leftStickRadius, stickGray, 8);
-          float x = input.ALeftX();
-          float y = -input.ALeftY();
-          dl->AddCircleFilled(leftStickCenter + (zeus::CVector2f{x, y} * leftStickRadius), leftStickRadius / 3, red);
-          dl->AddLine(leftStickCenter, leftStickCenter + zeus::CVector2f(x * leftStickRadius, y * leftStickRadius),
-                      IM_COL32(255, 244, 0, 255), 1.5f);
-        }
-
-        // right stick
-        {
-          dl->AddCircleFilled(rightStickCenter, rightStickRadius, stickGray, 8);
-          float x = input.ARightX();
-          float y = -input.ARightY();
-          dl->AddCircleFilled(rightStickCenter + (zeus::CVector2f{x, y} * rightStickRadius), rightStickRadius / 3, red);
-          dl->AddLine(rightStickCenter, rightStickCenter + zeus::CVector2f(x * rightStickRadius, y * rightStickRadius),
-                      IM_COL32(255, 244, 0, 255), 1.5f);
-        }
-
-        // dpad
-        {
-          float halfWidth = dpadWidth / 2;
-          dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, -dpadRadius),
-                            dpadCenter + zeus::CVector2f(halfWidth, dpadRadius), stickGray);
-
-          dl->AddRectFilled(dpadCenter + zeus::CVector2f(-dpadRadius, -halfWidth),
-                            dpadCenter + zeus::CVector2f(dpadRadius, halfWidth), stickGray);
-
-          if (input.DDPUp()) {
-            dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, -dpadRadius),
-                              dpadCenter + zeus::CVector2f(halfWidth, -dpadRadius / 2), red);
-          }
-
-          if (input.DDPDown()) {
-            dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, dpadRadius),
-                              dpadCenter + zeus::CVector2f(halfWidth, dpadRadius / 2), red);
-          }
-
-          if (input.DDPLeft()) {
-            dl->AddRectFilled(dpadCenter + zeus::CVector2f(-dpadRadius, -halfWidth),
-                              dpadCenter + zeus::CVector2f(-dpadRadius / 2, halfWidth), red);
-          }
-
-          if (input.DDPRight()) {
-            dl->AddRectFilled(dpadCenter + zeus::CVector2f(dpadRadius, -halfWidth),
-                              dpadCenter + zeus::CVector2f(dpadRadius / 2, halfWidth), red);
-          }
-        }
-
-        // buttons
-        {
-          // start
-          dl->AddCircleFilled(startButtonCenter, startButtonRadius, input.DStart() ? red : stickGray);
-
-          // a
-          dl->AddCircleFilled(aButtonCenter, aButtonRadius, input.DA() ? green : stickGray);
-
-          // b
-          dl->AddCircleFilled(bButtonCenter, bButtonRadius, input.DB() ? red : stickGray);
-
-          // x
-          dl->AddCircleFilled(xButtonCenter, xButtonRadius, input.DX() ? red : stickGray);
-
-          // y
-          dl->AddCircleFilled(yButtonCenter, yButtonRadius, input.DY() ? red : stickGray);
-
-          // z
-          dl->AddRectFilled(zButtonCenter - zeus::CVector2f{zButtonHalfWidth, zButtonHalfHeight},
-                            zButtonCenter + zeus::CVector2f{zButtonHalfWidth, zButtonHalfHeight},
-                            input.DZ() ? IM_COL32(128, 0, 128, 255) : stickGray, 16);
-        }
-
-        // triggers
-        {
-          float halfTriggerWidth = triggerWidth / 2;
-          zeus::CVector2f lStart = lCenter - zeus::CVector2f(halfTriggerWidth, 0);
-          zeus::CVector2f lEnd = lCenter + zeus::CVector2f(halfTriggerWidth, triggerHeight);
-          float lValue = triggerWidth * input.ALTrigger();
-
-          dl->AddRectFilled(lStart, lStart + zeus::CVector2f(lValue, triggerHeight), input.DL() ? red : stickGray);
-          dl->AddRectFilled(lStart + zeus::CVector2f(lValue, 0), lEnd, darkGray);
-
-          zeus::CVector2f rStart = rCenter - zeus::CVector2f(halfTriggerWidth, 0);
-          zeus::CVector2f rEnd = rCenter + zeus::CVector2f(halfTriggerWidth, triggerHeight);
-          float rValue = triggerWidth * input.ARTrigger();
-
-          dl->AddRectFilled(rEnd - zeus::CVector2f(rValue, triggerHeight), rEnd, input.DR() ? red : stickGray);
-          dl->AddRectFilled(rStart, rEnd - zeus::CVector2f(rValue, 0), darkGray);
-        }
-
-        ImGui::Dummy(zeus::CVector2f(270, 130) * scale);
-      }
-    }
     if (ImGui::BeginPopupContextWindow()) {
       if (ImGui::MenuItem("Custom", nullptr, m_debugOverlayCorner == -1)) {
         m_debugOverlayCorner = -1;
       }
-      if (ImGui::MenuItem("Top-left", nullptr, m_debugOverlayCorner == 0)) {
+      if (ImGui::MenuItem("Top-left", nullptr, m_debugOverlayCorner == 0, m_inputOverlayCorner != 1)) {
         m_debugOverlayCorner = 0;
       }
-      if (ImGui::MenuItem("Top-right", nullptr, m_debugOverlayCorner == 1)) {
+      if (ImGui::MenuItem("Top-right", nullptr, m_debugOverlayCorner == 1, m_inputOverlayCorner != 1)) {
         m_debugOverlayCorner = 1;
       }
-      if (ImGui::MenuItem("Bottom-left", nullptr, m_debugOverlayCorner == 2)) {
+      if (ImGui::MenuItem("Bottom-left", nullptr, m_debugOverlayCorner == 2, m_inputOverlayCorner != 2)) {
         m_debugOverlayCorner = 2;
       }
-      if (ImGui::MenuItem("Bottom-right", nullptr, m_debugOverlayCorner == 3)) {
+      if (ImGui::MenuItem("Bottom-right", nullptr, m_debugOverlayCorner == 3, m_inputOverlayCorner != 3)) {
         m_debugOverlayCorner = 3;
+      }
+      ImGui::EndPopup();
+    }
+  }
+  ImGui::End();
+}
+
+void ImGuiConsole::ShowInputViewer() {
+  if (!m_showInput || g_InputGenerator == nullptr) {
+    return;
+  }
+  auto input = g_InputGenerator->GetLastInput();
+  if (input.x4_controllerIdx != 0) {
+    return;
+  }
+  // Code -stolen- borrowed from Practice Mod
+  ImGuiIO& io = ImGui::GetIO();
+  ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+                                 ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
+                                 ImGuiWindowFlags_NoNav;
+  if (m_inputOverlayCorner != -1) {
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImVec2 workPos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
+    ImVec2 workSize = viewport->WorkSize;
+    ImVec2 windowPos;
+    ImVec2 windowPosPivot;
+    constexpr float padding = 10.0f;
+    windowPos.x = (m_inputOverlayCorner & 1) != 0 ? (workPos.x + workSize.x - padding) : (workPos.x + padding);
+    windowPos.y = (m_inputOverlayCorner & 2) != 0 ? (workPos.y + workSize.y - padding) : (workPos.y + padding);
+    windowPosPivot.x = (m_inputOverlayCorner & 1) != 0 ? 1.0f : 0.0f;
+    windowPosPivot.y = (m_inputOverlayCorner & 2) != 0 ? 1.0f : 0.0f;
+    ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, windowPosPivot);
+    windowFlags |= ImGuiWindowFlags_NoMove;
+  }
+  ImGui::SetNextWindowBgAlpha(0.65f);
+  if (ImGui::Begin("Input Overlay", nullptr, windowFlags)) {
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+    zeus::CVector2f p = ImGui::GetCursorScreenPos();
+
+    float scale = ImGui::GetIO().DisplayFramebufferScale.x;
+    float leftStickRadius = 30 * scale;
+    p = p + zeus::CVector2f{20, 20} * scale; // Pad p so we don't clip outside our rect
+    zeus::CVector2f leftStickCenter = p + zeus::CVector2f(30, 45) * scale;
+    float dpadRadius = 15 * scale;
+    float dpadWidth = 8 * scale;
+    zeus::CVector2f dpadCenter = p + zeus::CVector2f(80, 90) * scale;
+    float rightStickRadius = 20 * scale;
+    zeus::CVector2f rightStickCenter = p + zeus::CVector2f(160, 90) * scale;
+    float startButtonRadius = 8 * scale;
+    zeus::CVector2f startButtonCenter = p + zeus::CVector2f(120, 55) * scale;
+    float aButtonRadius = 16 * scale;
+    zeus::CVector2f aButtonCenter = p + zeus::CVector2f(210, 48) * scale;
+    float bButtonRadius = 8 * scale;
+    zeus::CVector2f bButtonCenter = aButtonCenter + zeus::CVector2f(-24, 16) * scale;
+    float xButtonRadius = 8 * scale;
+    zeus::CVector2f xButtonCenter = aButtonCenter + zeus::CVector2f(24, -16) * scale;
+    float yButtonRadius = 8 * scale;
+    zeus::CVector2f yButtonCenter = aButtonCenter + zeus::CVector2f(-12, -24) * scale;
+    float triggerWidth = leftStickRadius * 2;
+    float triggerHeight = 8 * scale;
+    zeus::CVector2f lCenter = leftStickCenter + zeus::CVector2f(0, -60) * scale;
+    zeus::CVector2f rCenter = zeus::CVector2f(aButtonCenter.x(), lCenter.y());
+    const auto zButtonCenter = rCenter + zeus::CVector2f{0, 24 * scale};
+    const float zButtonHalfWidth = triggerWidth / 2;
+    const float zButtonHalfHeight = 4 * scale;
+
+    constexpr ImU32 stickGray = IM_COL32(150, 150, 150, 255);
+    constexpr ImU32 darkGray = IM_COL32(60, 60, 60, 255);
+    constexpr ImU32 red = IM_COL32(255, 0, 0, 255);
+    constexpr ImU32 green = IM_COL32(0, 255, 0, 255);
+
+    // left stick
+    {
+      dl->AddCircleFilled(leftStickCenter, leftStickRadius, stickGray, 8);
+      float x = input.ALeftX();
+      float y = -input.ALeftY();
+      dl->AddCircleFilled(leftStickCenter + (zeus::CVector2f{x, y} * leftStickRadius), leftStickRadius / 3, red);
+      dl->AddLine(leftStickCenter, leftStickCenter + zeus::CVector2f(x * leftStickRadius, y * leftStickRadius),
+                  IM_COL32(255, 244, 0, 255), 1.5f);
+    }
+
+    // right stick
+    {
+      dl->AddCircleFilled(rightStickCenter, rightStickRadius, stickGray, 8);
+      float x = input.ARightX();
+      float y = -input.ARightY();
+      dl->AddCircleFilled(rightStickCenter + (zeus::CVector2f{x, y} * rightStickRadius), rightStickRadius / 3, red);
+      dl->AddLine(rightStickCenter, rightStickCenter + zeus::CVector2f(x * rightStickRadius, y * rightStickRadius),
+                  IM_COL32(255, 244, 0, 255), 1.5f);
+    }
+
+    // dpad
+    {
+      float halfWidth = dpadWidth / 2;
+      dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, -dpadRadius),
+                        dpadCenter + zeus::CVector2f(halfWidth, dpadRadius), stickGray);
+
+      dl->AddRectFilled(dpadCenter + zeus::CVector2f(-dpadRadius, -halfWidth),
+                        dpadCenter + zeus::CVector2f(dpadRadius, halfWidth), stickGray);
+
+      if (input.DDPUp()) {
+        dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, -dpadRadius),
+                          dpadCenter + zeus::CVector2f(halfWidth, -dpadRadius / 2), red);
+      }
+
+      if (input.DDPDown()) {
+        dl->AddRectFilled(dpadCenter + zeus::CVector2f(-halfWidth, dpadRadius),
+                          dpadCenter + zeus::CVector2f(halfWidth, dpadRadius / 2), red);
+      }
+
+      if (input.DDPLeft()) {
+        dl->AddRectFilled(dpadCenter + zeus::CVector2f(-dpadRadius, -halfWidth),
+                          dpadCenter + zeus::CVector2f(-dpadRadius / 2, halfWidth), red);
+      }
+
+      if (input.DDPRight()) {
+        dl->AddRectFilled(dpadCenter + zeus::CVector2f(dpadRadius, -halfWidth),
+                          dpadCenter + zeus::CVector2f(dpadRadius / 2, halfWidth), red);
+      }
+    }
+
+    // buttons
+    {
+      // start
+      dl->AddCircleFilled(startButtonCenter, startButtonRadius, input.DStart() ? red : stickGray);
+
+      // a
+      dl->AddCircleFilled(aButtonCenter, aButtonRadius, input.DA() ? green : stickGray);
+
+      // b
+      dl->AddCircleFilled(bButtonCenter, bButtonRadius, input.DB() ? red : stickGray);
+
+      // x
+      dl->AddCircleFilled(xButtonCenter, xButtonRadius, input.DX() ? red : stickGray);
+
+      // y
+      dl->AddCircleFilled(yButtonCenter, yButtonRadius, input.DY() ? red : stickGray);
+
+      // z
+      dl->AddRectFilled(zButtonCenter - zeus::CVector2f{zButtonHalfWidth, zButtonHalfHeight},
+                        zButtonCenter + zeus::CVector2f{zButtonHalfWidth, zButtonHalfHeight},
+                        input.DZ() ? IM_COL32(128, 0, 128, 255) : stickGray, 16);
+    }
+
+    // triggers
+    {
+      float halfTriggerWidth = triggerWidth / 2;
+      zeus::CVector2f lStart = lCenter - zeus::CVector2f(halfTriggerWidth, 0);
+      zeus::CVector2f lEnd = lCenter + zeus::CVector2f(halfTriggerWidth, triggerHeight);
+      float lValue = triggerWidth * input.ALTrigger();
+
+      dl->AddRectFilled(lStart, lStart + zeus::CVector2f(lValue, triggerHeight), input.DL() ? red : stickGray);
+      dl->AddRectFilled(lStart + zeus::CVector2f(lValue, 0), lEnd, darkGray);
+
+      zeus::CVector2f rStart = rCenter - zeus::CVector2f(halfTriggerWidth, 0);
+      zeus::CVector2f rEnd = rCenter + zeus::CVector2f(halfTriggerWidth, triggerHeight);
+      float rValue = triggerWidth * input.ARTrigger();
+
+      dl->AddRectFilled(rEnd - zeus::CVector2f(rValue, triggerHeight), rEnd, input.DR() ? red : stickGray);
+      dl->AddRectFilled(rStart, rEnd - zeus::CVector2f(rValue, 0), darkGray);
+    }
+
+    ImGui::Dummy(zeus::CVector2f(270, 130) * scale);
+    if (ImGui::BeginPopupContextWindow()) {
+      if (ImGui::MenuItem("Custom", nullptr, m_inputOverlayCorner == -1)) {
+        m_inputOverlayCorner = -1;
+      }
+      if (ImGui::MenuItem("Top-left", nullptr, m_inputOverlayCorner == 0, m_debugOverlayCorner != 0)) {
+        m_inputOverlayCorner = 0;
+      }
+      if (ImGui::MenuItem("Top-right", nullptr, m_inputOverlayCorner == 1, m_debugOverlayCorner != 1)) {
+        m_inputOverlayCorner = 1;
+      }
+      if (ImGui::MenuItem("Bottom-left", nullptr, m_inputOverlayCorner == 2, m_debugOverlayCorner != 2)) {
+        m_inputOverlayCorner = 2;
+      }
+      if (ImGui::MenuItem("Bottom-right", nullptr, m_inputOverlayCorner == 3, m_debugOverlayCorner != 3)) {
+        m_inputOverlayCorner = 3;
       }
       ImGui::EndPopup();
     }
@@ -1171,6 +1211,7 @@ void ImGuiConsole::PreUpdate() {
     ShowConsoleVariablesWindow();
   }
   ShowDebugOverlay();
+  ShowInputViewer();
 }
 
 void ImGuiConsole::PostUpdate() {
