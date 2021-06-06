@@ -356,8 +356,6 @@ public:
       m_errorString = "Project directory not specified"s;
     }
 
-    m_cvarManager.proc();
-
     if (m_windowCallback.m_windowInvalid) {
       m_running.store(false);
       return;
@@ -376,10 +374,19 @@ public:
       CGraphics::SetViewportResolution({rect.size[0], rect.size[1]});
     }
 
+    // Check if fullscreen has been toggled, if so set the fullscreen cvar accordingly
     if (m_windowCallback.m_fullscreenToggleRequested) {
-      m_window->setFullscreen(!m_window->isFullscreen());
+      m_cvarCommons.m_fullscreen->fromBoolean(!m_cvarCommons.getFullscreen());
       m_windowCallback.m_fullscreenToggleRequested = false;
     }
+
+    // Check if the user has modified the fullscreen CVar, if so set fullscreen state accordingly
+    if (m_cvarCommons.m_fullscreen->isModified()) {
+      m_window->setFullscreen(m_cvarCommons.getFullscreen());
+    }
+
+    // Let CVarManager inform all CVar listeners of the CVar's state and clear all mdoified flags if necessary
+    m_cvarManager.proc();
 
     boo::IGraphicsDataFactory* gfxF = m_window->getMainContextDataFactory();
     float scale = std::floor(m_window->getVirtualPixelFactor() * 4.f) / 4.f;
