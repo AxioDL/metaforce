@@ -7,6 +7,8 @@
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 namespace metaforce {
+constexpr inline int TranslateBooSpecialKey(boo::ESpecialKey key) { return 256 + static_cast<int>(key); }
+
 class ImGuiEngine {
 public:
   static struct Input {

@@ -64,13 +64,14 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
 * **[Linux]** recent development packages of `udev`, `x11`, `xcb`, `xinput`, `glx`, `asound`
     * Ubuntu 20.04+ packages
       ```
-      build-essential curl git ninja-build llvm-dev libclang-dev clang lld zlib1g-dev libcurl4-openssl-dev
-      libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev libpulse-dev
-      libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 qt5-default
+      build-essential curl git ninja-build llvm-dev libclang-dev clang lld zlib1g-dev libcurl4-openssl-dev \
+      libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev libpulse-dev \
+      libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 qt5-default \
+      libfreetype-dev
       ```
-     * Arch packages
+    * Arch packages
       ```
-      base-devel cmake ninja llvm vulkan-headers python3 qt6 clang lld alsa-lib libpulse libxrandr
+      base-devel cmake ninja llvm vulkan-headers python3 qt6 clang lld alsa-lib libpulse libxrandr freetype2
       ```
 
 ### Prep Directions

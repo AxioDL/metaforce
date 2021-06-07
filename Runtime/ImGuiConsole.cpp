@@ -29,7 +29,7 @@ void ImGuiStringViewText(std::string_view text) {
 
 void ImGuiTextCenter(std::string_view text) {
   ImGui::NewLine();
-  float fontSize = ImGui::GetFontSize() * float(text.size()) / 2;
+  float fontSize = ImGui::CalcTextSize(text.data(), text.data() + text.size()).x;
   ImGui::SameLine(ImGui::GetWindowSize().x / 2 - fontSize + fontSize / 2);
   ImGuiStringViewText(text);
 }
@@ -1118,7 +1118,6 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
   }
 }
 
-s32 TranslateBooSpecialKey(boo::ESpecialKey key) { return 256 + static_cast<int>(key); }
 void ImGuiConsole::PreUpdate() {
   if (!m_isInitialized) {
     m_isInitialized = true;

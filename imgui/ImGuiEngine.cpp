@@ -10,6 +10,10 @@
 #define STBI_ONLY_PNG
 #include "stb_image.h"
 
+#ifdef IMGUI_ENABLE_FREETYPE
+#include "misc/freetype/imgui_freetype.h"
+#endif
+
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Input/CInputGenerator.hpp"
 #include <zeus/CMatrix4f.hpp>
@@ -83,21 +87,21 @@ void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* w
   io.BackendPlatformName = "Boo";
   io.BackendRendererName = "Boo";
 
-  io.KeyMap[ImGuiKey_Tab] = 256 + static_cast<int>(boo::ESpecialKey::Tab);
-  io.KeyMap[ImGuiKey_LeftArrow] = 256 + static_cast<int>(boo::ESpecialKey::Left);
-  io.KeyMap[ImGuiKey_RightArrow] = 256 + static_cast<int>(boo::ESpecialKey::Right);
-  io.KeyMap[ImGuiKey_UpArrow] = 256 + static_cast<int>(boo::ESpecialKey::Up);
-  io.KeyMap[ImGuiKey_DownArrow] = 256 + static_cast<int>(boo::ESpecialKey::Down);
-  io.KeyMap[ImGuiKey_PageUp] = 256 + static_cast<int>(boo::ESpecialKey::PgUp);
-  io.KeyMap[ImGuiKey_PageDown] = 256 + static_cast<int>(boo::ESpecialKey::PgDown);
-  io.KeyMap[ImGuiKey_Home] = 256 + static_cast<int>(boo::ESpecialKey::Home);
-  io.KeyMap[ImGuiKey_End] = 256 + static_cast<int>(boo::ESpecialKey::End);
-  io.KeyMap[ImGuiKey_Insert] = 256 + static_cast<int>(boo::ESpecialKey::Insert);
-  io.KeyMap[ImGuiKey_Delete] = 256 + static_cast<int>(boo::ESpecialKey::Delete);
-  io.KeyMap[ImGuiKey_Backspace] = 256 + static_cast<int>(boo::ESpecialKey::Backspace);
+  io.KeyMap[ImGuiKey_Tab] = TranslateBooSpecialKey(boo::ESpecialKey::Tab);
+  io.KeyMap[ImGuiKey_LeftArrow] = TranslateBooSpecialKey(boo::ESpecialKey::Left);
+  io.KeyMap[ImGuiKey_RightArrow] = TranslateBooSpecialKey(boo::ESpecialKey::Right);
+  io.KeyMap[ImGuiKey_UpArrow] = TranslateBooSpecialKey(boo::ESpecialKey::Up);
+  io.KeyMap[ImGuiKey_DownArrow] = TranslateBooSpecialKey(boo::ESpecialKey::Down);
+  io.KeyMap[ImGuiKey_PageUp] = TranslateBooSpecialKey(boo::ESpecialKey::PgUp);
+  io.KeyMap[ImGuiKey_PageDown] = TranslateBooSpecialKey(boo::ESpecialKey::PgDown);
+  io.KeyMap[ImGuiKey_Home] = TranslateBooSpecialKey(boo::ESpecialKey::Home);
+  io.KeyMap[ImGuiKey_End] = TranslateBooSpecialKey(boo::ESpecialKey::End);
+  io.KeyMap[ImGuiKey_Insert] = TranslateBooSpecialKey(boo::ESpecialKey::Insert);
+  io.KeyMap[ImGuiKey_Delete] = TranslateBooSpecialKey(boo::ESpecialKey::Delete);
+  io.KeyMap[ImGuiKey_Backspace] = TranslateBooSpecialKey(boo::ESpecialKey::Backspace);
   io.KeyMap[ImGuiKey_Space] = ' ';
-  io.KeyMap[ImGuiKey_Enter] = 256 + static_cast<int>(boo::ESpecialKey::Enter);
-  io.KeyMap[ImGuiKey_Escape] = 256 + static_cast<int>(boo::ESpecialKey::Esc);
+  io.KeyMap[ImGuiKey_Enter] = TranslateBooSpecialKey(boo::ESpecialKey::Enter);
+  io.KeyMap[ImGuiKey_Escape] = TranslateBooSpecialKey(boo::ESpecialKey::Esc);
   io.KeyMap[ImGuiKey_A] = 'a'; // for text edit CTRL+A: select all
   io.KeyMap[ImGuiKey_C] = 'c'; // for text edit CTRL+C: copy
   io.KeyMap[ImGuiKey_V] = 'v'; // for text edit CTRL+V: paste
@@ -114,22 +118,32 @@ void ImGuiEngine::Initialize(boo::IGraphicsDataFactory* factory, boo::IWindow* w
   auto* metaforceIcon = stbi_load_from_memory(static_cast<const stbi_uc*>(METAFORCE_ICON), int(METAFORCE_ICON_SZ),
                                               &iconWidth, &iconHeight, nullptr, 4);
 
-  int width = 0;
-  int height = 0;
-  unsigned char* pixels = nullptr;
   ImFontConfig fontConfig{};
   fontConfig.FontData = fontData;
   fontConfig.FontDataSize = int(NOTO_MONO_FONT_DECOMPRESSED_SZ);
   fontConfig.SizePixels = std::floor(14.f * scale);
+#ifdef IMGUI_ENABLE_FREETYPE
+  fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_LightHinting;
+#endif
   snprintf(static_cast<char*>(fontConfig.Name), sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
            static_cast<int>(fontConfig.SizePixels));
   fontNormal = io.Fonts->AddFont(&fontConfig);
+
   fontConfig.FontDataOwnedByAtlas = false; // first one took ownership
   fontConfig.SizePixels = std::floor(24.f * scale);
+#ifdef IMGUI_ENABLE_FREETYPE
+  fontConfig.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_Bold;
+  snprintf(static_cast<char*>(fontConfig.Name), sizeof(fontConfig.Name), "Noto Mono Bold, %dpx",
+           static_cast<int>(fontConfig.SizePixels));
+#else
   snprintf(static_cast<char*>(fontConfig.Name), sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
            static_cast<int>(fontConfig.SizePixels));
+#endif
   fontLarge = io.Fonts->AddFont(&fontConfig);
 
+  int width = 0;
+  int height = 0;
+  unsigned char* pixels = nullptr;
   io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
   factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
     ShaderPipeline = hecl::conv->convert(Shader_ImGuiShader{});
@@ -419,12 +433,12 @@ void ImGuiWindowCallback::charKeyUp(unsigned long charCode, boo::EModifierKey mo
 }
 
 void ImGuiWindowCallback::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat) {
-  ImGuiEngine::Input.m_keys[256 + static_cast<int>(key)] = true;
+  ImGuiEngine::Input.m_keys[TranslateBooSpecialKey(key)] = true;
   ImGuiEngine::Input.m_modifiers = mods;
 }
 
 void ImGuiWindowCallback::specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods) {
-  ImGuiEngine::Input.m_keys[256 + static_cast<int>(key)] = false;
+  ImGuiEngine::Input.m_keys[TranslateBooSpecialKey(key)] = false;
   ImGuiEngine::Input.m_modifiers = mods;
 }
 

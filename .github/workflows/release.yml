@@ -39,7 +39,7 @@ jobs:
           sudo apt-get -y install build-essential curl git cmake ninja-build clang lld python3 python-is-python3 \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
             libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev libcurl4-openssl-dev qt5-default \
-            llvm-11-dev libclang-11-dev clang-11 intel-oneapi-ipp-devel
+            llvm-11-dev libclang-11-dev clang-11 intel-oneapi-ipp-devel libfreetype-dev
 
           yarn global add @sentry/cli
           echo "$(yarn global bin)" >> $GITHUB_PATH
@@ -104,7 +104,7 @@ jobs:
         run: |
           brew update
           brew upgrade --formula
-          brew install ninja qt@5 graphicsmagick imagemagick getsentry/tools/sentry-cli
+          brew install ninja qt@5 graphicsmagick imagemagick getsentry/tools/sentry-cli freetype
           brew link qt@5
           yarn global add create-dmg
 
