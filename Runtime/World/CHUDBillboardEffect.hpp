@@ -32,9 +32,9 @@ class CHUDBillboardEffect : public CEffect {
 public:
   DEFINE_ENTITY
   CHUDBillboardEffect(const std::optional<TToken<CGenDescription>>& particle,
-                      const std::optional<TToken<CElectricDescription>>& electric, TUniqueId uid,
-                      bool active, std::string_view name, float dist, const zeus::CVector3f& scale0,
-                      const zeus::CColor& color, const zeus::CVector3f& scale1, const zeus::CVector3f& translation);
+                      const std::optional<TToken<CElectricDescription>>& electric, TUniqueId uid, bool active,
+                      std::string_view name, float dist, const zeus::CVector3f& scale0, const zeus::CColor& color,
+                      const zeus::CVector3f& scale1, const zeus::CVector3f& translation);
   ~CHUDBillboardEffect() override;
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;

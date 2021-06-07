@@ -118,8 +118,7 @@ public:
   void RenderParticles(const zeus::CFrustum& frustum) const;
   void Touch(EWhichModel, int shaderIdx) const;
   void Touch(const CStateManager& stateMgr, int shaderIdx) const;
-  void RenderThermal(const zeus::CColor& mulColor, const zeus::CColor& addColor,
-                     const CModelFlags& flags) const;
+  void RenderThermal(const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags) const;
   void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
                      const CModelFlags& flags) const;
   void RenderUnsortedParts(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights,

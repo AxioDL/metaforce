@@ -23,4 +23,4 @@ CFactoryFnReturn FTextureCacheFactory([[maybe_unused]] const SObjectTag& tag, CI
                                       [[maybe_unused]] CObjectReference* selfRef) {
   return TToken<CTextureCache>::GetIObjObjectFor(std::make_unique<CTextureCache>(in));
 }
-}
+} // namespace metaforce

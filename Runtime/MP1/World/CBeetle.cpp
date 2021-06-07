@@ -32,10 +32,11 @@ CBeetle::CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
 , x7ac_tailVuln(tailVuln)
 , x814_attackDelayTimer(initialAttackDelay)
 , x834_retreatTime(retreatTime) {
-  x5a0_headbuttDist = GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::MeleeAttack, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(1)));
-  x5a4_jumpBackwardDist =
-      x64_modelData->GetScale().y() *
-      GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::Step, CPASAnimParm::FromEnum(1), CPASAnimParm::FromEnum(0)));
+  x5a0_headbuttDist = GetAnimationDistance(
+      CPASAnimParmData(pas::EAnimationState::MeleeAttack, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(1)));
+  x5a4_jumpBackwardDist = x64_modelData->GetScale().y() *
+                          GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::Step, CPASAnimParm::FromEnum(1),
+                                                                CPASAnimParm::FromEnum(0)));
   MakeThermalColdAndHot();
   if (x3fc_flavor == EFlavorType::One)
     x460_knockBackController.SetLocomotionDuringElectrocution(true);
@@ -700,8 +701,8 @@ void CBeetle::TurnAround(CStateManager& mgr, EStateMsg msg, float dt) {
       } else {
         zeus::CVector3f thisToPlayer = mgr.GetPlayer().GetTranslation() - GetTranslation();
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(
-            zeus::skZero3f,
-            (thisToPlayer.magnitude() > FLT_EPSILON) ? thisToPlayer.normalized() : zeus::skZero3f, 1.f));
+            zeus::skZero3f, (thisToPlayer.magnitude() > FLT_EPSILON) ? thisToPlayer.normalized() : zeus::skZero3f,
+            1.f));
       }
       break;
     case 2:

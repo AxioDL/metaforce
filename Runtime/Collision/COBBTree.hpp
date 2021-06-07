@@ -76,8 +76,7 @@ public:
   COBBTree() = default;
   explicit COBBTree(CInputStream&);
 
-  static std::unique_ptr<COBBTree> BuildOrientedBoundingBoxTree(const zeus::CVector3f&,
-                                                                const zeus::CVector3f&);
+  static std::unique_ptr<COBBTree> BuildOrientedBoundingBoxTree(const zeus::CVector3f&, const zeus::CVector3f&);
   CCollisionSurface GetSurface(u16 idx) const;
   const u16* GetTriangleEdgeIndices(u16 idx) const { return &x18_indexData.x50_surfaceIndices[idx * 3]; }
 

@@ -35,6 +35,5 @@ void CScriptRipple::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
       }
     }
   }
-
 }
 } // namespace metaforce

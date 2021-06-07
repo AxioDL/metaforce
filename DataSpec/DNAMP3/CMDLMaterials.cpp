@@ -10,7 +10,9 @@ template <>
 void MaterialSet::Material::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
   header.read(reader);
   chunks.clear();
-  do { chunks.emplace_back().read(reader); } while (!chunks.back().holds_alternative<END>());
+  do {
+    chunks.emplace_back().read(reader);
+  } while (!chunks.back().holds_alternative<END>());
   chunks.pop_back();
 }
 template <>
@@ -31,11 +33,13 @@ void MaterialSet::Material::Enumerate<BigDNA::BinarySize>(typename BinarySize::S
 void MaterialSet::RegisterMaterialProps(Stream& out) {
   out << "bpy.types.Material.retro_enable_bloom = bpy.props.BoolProperty(name='Retro: Enable Bloom')\n"
          "bpy.types.Material.retro_force_lighting_stage = bpy.props.BoolProperty(name='Retro: Force Lighting Stage')\n"
-         "bpy.types.Material.retro_pre_inca_transparency = bpy.props.BoolProperty(name='Retro: Pre-INCA Transparency')\n"
+         "bpy.types.Material.retro_pre_inca_transparency = bpy.props.BoolProperty(name='Retro: Pre-INCA "
+         "Transparency')\n"
          "bpy.types.Material.retro_alpha_test = bpy.props.BoolProperty(name='Retro: Alpha Test')\n"
          "bpy.types.Material.retro_shadow_occluder = bpy.props.BoolProperty(name='Retro: Shadow Occluder')\n"
          "bpy.types.Material.retro_solid_white = bpy.props.BoolProperty(name='Retro: Solid White Only')\n"
-         "bpy.types.Material.retro_reflection_alpha_target = bpy.props.BoolProperty(name='Retro: Reflection Alpha Target')\n"
+         "bpy.types.Material.retro_reflection_alpha_target = bpy.props.BoolProperty(name='Retro: Reflection Alpha "
+         "Target')\n"
          "bpy.types.Material.retro_solid_color = bpy.props.BoolProperty(name='Retro: Solid Color Only')\n"
          "bpy.types.Material.retro_exclude_scan = bpy.props.BoolProperty(name='Retro: Exclude From Scan Visor')\n"
          "bpy.types.Material.retro_xray_opaque = bpy.props.BoolProperty(name='Retro: XRay Opaque')\n"
@@ -44,8 +48,8 @@ void MaterialSet::RegisterMaterialProps(Stream& out) {
          "\n";
 }
 
-static void LoadTexture(Stream& out, const UniqueID64& tex,
-                        const PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry) {
+static void LoadTexture(Stream& out, const UniqueID64& tex, const PAKRouter<PAKBridge>& pakRouter,
+                        const PAK::Entry& entry) {
   if (!tex.isValid()) {
     out << "image = None\n";
     return;
@@ -62,11 +66,12 @@ static void LoadTexture(Stream& out, const UniqueID64& tex,
   hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
   hecl::SystemUTF8Conv resPathView(resPath);
   out.format(FMT_STRING("if '{}' in bpy.data.images:\n"
-                 "    image = bpy.data.images['{}']\n"
-                 "else:\n"
-                 "    image = bpy.data.images.load('''//{}''')\n"
-                 "    image.name = '{}'\n"
-                 "\n"), texName, texName, resPathView, texName);
+                        "    image = bpy.data.images['{}']\n"
+                        "else:\n"
+                        "    image = bpy.data.images.load('''//{}''')\n"
+                        "    image.name = '{}'\n"
+                        "\n"),
+             texName, texName, resPathView, texName);
 }
 
 void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry,
@@ -91,30 +96,29 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
          "\n";
 
   /* Material Flags */
-  out.format(FMT_STRING(
-      "new_material.retro_enable_bloom = {}\n"
-      "new_material.retro_force_lighting_stage = {}\n"
-      "new_material.retro_pre_inca_transparency = {}\n"
-      "new_material.retro_alpha_test = {}\n"
-      "new_material.retro_shadow_occluder = {}\n"
-      "new_material.retro_solid_white = {}\n"
-      "new_material.retro_reflection_alpha_target = {}\n"
-      "new_material.retro_solid_color = {}\n"
-      "new_material.retro_exclude_scan = {}\n"
-      "new_material.retro_xray_opaque = {}\n"
-      "new_material.retro_xray_alpha_target = {}\n"
-      "new_material.retro_inca_color_mod = False\n"),
-      material.header.flags.enableBloom() ? "True" : "False",
-      material.header.flags.forceLightingStage() ? "True" : "False",
-      material.header.flags.preIncaTransparency() ? "True" : "False",
-      material.header.flags.alphaTest() ? "True" : "False",
-      material.header.flags.shadowOccluderMesh() ? "True" : "False",
-      material.header.flags.justWhite() ? "True" : "False",
-      material.header.flags.reflectionAlphaTarget() ? "True" : "False",
-      material.header.flags.justSolidColor() ? "True" : "False",
-      material.header.flags.excludeFromScanVisor() ? "True" : "False",
-      material.header.flags.xrayOpaque() ? "True" : "False",
-      material.header.flags.xrayAlphaTarget() ? "True" : "False");
+  out.format(FMT_STRING("new_material.retro_enable_bloom = {}\n"
+                        "new_material.retro_force_lighting_stage = {}\n"
+                        "new_material.retro_pre_inca_transparency = {}\n"
+                        "new_material.retro_alpha_test = {}\n"
+                        "new_material.retro_shadow_occluder = {}\n"
+                        "new_material.retro_solid_white = {}\n"
+                        "new_material.retro_reflection_alpha_target = {}\n"
+                        "new_material.retro_solid_color = {}\n"
+                        "new_material.retro_exclude_scan = {}\n"
+                        "new_material.retro_xray_opaque = {}\n"
+                        "new_material.retro_xray_alpha_target = {}\n"
+                        "new_material.retro_inca_color_mod = False\n"),
+             material.header.flags.enableBloom() ? "True" : "False",
+             material.header.flags.forceLightingStage() ? "True" : "False",
+             material.header.flags.preIncaTransparency() ? "True" : "False",
+             material.header.flags.alphaTest() ? "True" : "False",
+             material.header.flags.shadowOccluderMesh() ? "True" : "False",
+             material.header.flags.justWhite() ? "True" : "False",
+             material.header.flags.reflectionAlphaTarget() ? "True" : "False",
+             material.header.flags.justSolidColor() ? "True" : "False",
+             material.header.flags.excludeFromScanVisor() ? "True" : "False",
+             material.header.flags.xrayOpaque() ? "True" : "False",
+             material.header.flags.xrayAlphaTarget() ? "True" : "False");
 
   out << "pnode = new_nodetree.nodes.new('ShaderNodeGroup')\n"
          "pnode.name = 'Output'\n"
@@ -146,16 +150,22 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
                  "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['Normal'], tex_node.inputs['Vector']))\n";
           break;
         case Material::UVAnimationUVSource::UV:
-          out.format(FMT_STRING("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
-                         "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
-                         "tex_uv_node.uv_map = 'UV_{}'\n"), pass->uvSrc);
+          out.format(
+              FMT_STRING(
+                  "tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
+                  "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
+                  "tex_uv_node.uv_map = 'UV_{}'\n"),
+              pass->uvSrc);
           break;
         }
         out.format(FMT_STRING("tex_uv_node.label = 'MTX_{}'\n"), texMtxIdx);
       } else {
-        out.format(FMT_STRING("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
-                       "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
-                       "tex_uv_node.uv_map = 'UV_{}'\n"), pass->uvSrc);
+        out.format(
+            FMT_STRING(
+                "tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
+                "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
+                "tex_uv_node.uv_map = 'UV_{}'\n"),
+            pass->uvSrc);
       }
 
       out << "gridder.place_node(tex_uv_node, 0)\n"
@@ -218,7 +228,8 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
           DoSwap();
           out << "new_nodetree.links.new(swap_output, pnode.inputs['INCAA'])\n";
         }
-        out.format(FMT_STRING("new_material.retro_inca_color_mod = {}\n"), pass->flags.INCAColorMod() ? "True" : "False");
+        out.format(FMT_STRING("new_material.retro_inca_color_mod = {}\n"),
+                   pass->flags.INCAColorMod() ? "True" : "False");
         break;
       case Subtype::RFLV:
         out << "new_nodetree.links.new(tex_node.outputs['Color'], pnode.inputs['RFLV'])\n";
@@ -254,12 +265,12 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
       switch (Subtype(clr->subtype.toUint32())) {
       case Subtype::CLR:
         out.format(FMT_STRING("pnode.inputs['CLR'].default_value = ({}, {}, {}, 1.0)\n"
-                       "pnode.inputs['CLRA'].default_value = {}\n"),
+                              "pnode.inputs['CLRA'].default_value = {}\n"),
                    vec4[0], vec4[1], vec4[2], vec4[3]);
         break;
       case Subtype::DIFB:
         out.format(FMT_STRING("pnode.inputs['DIFBC'].default_value = ({}, {}, {}, 1.0)\n"
-                       "pnode.inputs['DIFBA'].default_value = {}\n"),
+                              "pnode.inputs['DIFBA'].default_value = {}\n"),
                    vec4[0], vec4[1], vec4[2], vec4[3]);
         break;
       default:

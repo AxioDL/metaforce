@@ -63,7 +63,7 @@ private:
   void Warmup();
 
 public:
-  CPakFile(std::string_view filename, bool buildDepList, bool worldPak, bool override=false);
+  CPakFile(std::string_view filename, bool buildDepList, bool worldPak, bool override = false);
   ~CPakFile();
   const std::vector<std::pair<std::string, SObjectTag>>& GetNameList() const { return x54_nameList; }
   const std::vector<CAssetId>& GetDepList() const { return x64_depList; }

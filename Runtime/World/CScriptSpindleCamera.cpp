@@ -30,24 +30,17 @@ SSpindleProperty::SSpindleProperty(CInputStream& in) {
   }
 }
 
-CScriptSpindleCamera::CScriptSpindleCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                           const zeus::CTransform& xf, bool active, u32 flags, float hintToCamDistMin,
-                                           float hintToCamDistMax, float hintToCamVOffMin, float hintToCamVOffMax,
-                                           const SSpindleProperty& targetHintToCamDeltaAngleVel,
-                                           const SSpindleProperty& deltaAngleScaleWithCamDist,
-                                           const SSpindleProperty& hintToCamDist,
-                                           const SSpindleProperty& distOffsetFromBallDist,
-                                           const SSpindleProperty& hintBallToCamAzimuth,
-                                           const SSpindleProperty& unused,
-                                           const SSpindleProperty& maxHintBallToCamAzimuth,
-                                           const SSpindleProperty& camLookRelAzimuth,
-                                           const SSpindleProperty& lookPosZOffset,
-                                           const SSpindleProperty& camPosZOffset,
-                                           const SSpindleProperty& clampedAzimuthFromHintDir,
-                                           const SSpindleProperty& dampingAzimuthSpeed,
-                                           const SSpindleProperty& targetHintToCamDeltaAngleVelRange,
-                                           const SSpindleProperty& deleteHintBallDist,
-                                           const SSpindleProperty& recoverClampedAzimuthFromHintDir)
+CScriptSpindleCamera::CScriptSpindleCamera(
+    TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, bool active, u32 flags,
+    float hintToCamDistMin, float hintToCamDistMax, float hintToCamVOffMin, float hintToCamVOffMax,
+    const SSpindleProperty& targetHintToCamDeltaAngleVel, const SSpindleProperty& deltaAngleScaleWithCamDist,
+    const SSpindleProperty& hintToCamDist, const SSpindleProperty& distOffsetFromBallDist,
+    const SSpindleProperty& hintBallToCamAzimuth, const SSpindleProperty& unused,
+    const SSpindleProperty& maxHintBallToCamAzimuth, const SSpindleProperty& camLookRelAzimuth,
+    const SSpindleProperty& lookPosZOffset, const SSpindleProperty& camPosZOffset,
+    const SSpindleProperty& clampedAzimuthFromHintDir, const SSpindleProperty& dampingAzimuthSpeed,
+    const SSpindleProperty& targetHintToCamDeltaAngleVelRange, const SSpindleProperty& deleteHintBallDist,
+    const SSpindleProperty& recoverClampedAzimuthFromHintDir)
 : CGameCamera(uid, active, name, info, xf, CCameraManager::ThirdPersonFOV(), CCameraManager::NearPlane(),
               CCameraManager::FarPlane(), CCameraManager::Aspect(), kInvalidUniqueId, false, 0)
 , x188_flags(flags)
@@ -153,27 +146,26 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
   }
 
   x18c_inVars.clear();
-  x18c_inVars.push_back(0.f); // Zero
-  x18c_inVars.push_back(hintToBallDist); // HintToBallDist
+  x18c_inVars.push_back(0.f);                       // Zero
+  x18c_inVars.push_back(hintToBallDist);            // HintToBallDist
   x18c_inVars.push_back(std::fabs(hintToBallVOff)); // HintToBallVOff
   const float hintBallAngle = std::fabs(std::acos(zeus::clamp(-1.f, hintToBallDir.dot(hintDir), 1.f)));
   x18c_inVars.push_back(hintBallAngle); // HintBallAngle
   const float hintBallCross = hintToBallDir.toVec2f().cross(hintDir.toVec2f());
   if (hintBallCross >= 0.f) {
-    x18c_inVars.push_back(hintBallAngle); // HintBallRightAngle
+    x18c_inVars.push_back(hintBallAngle);               // HintBallRightAngle
     x18c_inVars.push_back(2.f * M_PIF - hintBallAngle); // HintBallLeftAngle
   } else {
     x18c_inVars.push_back(2.f * M_PIF - hintBallAngle); // HintBallRightAngle
-    x18c_inVars.push_back(hintBallAngle); // HintBallLeftAngle
+    x18c_inVars.push_back(hintBallAngle);               // HintBallLeftAngle
   }
   zeus::CVector3f hintDelta = hint->GetTranslation() - hint->GetOriginalTransform().origin;
   const float hintDeltaVOff = std::fabs(hintDelta.z());
   hintDelta.z() = 0.f;
   x18c_inVars.push_back(hintDelta.canBeNormalized() ? hintDelta.magnitude() : 0.f); // HintDeltaDist
-  x18c_inVars.push_back(hintDeltaVOff); // HintDeltaVOff
+  x18c_inVars.push_back(hintDeltaVOff);                                             // HintDeltaVOff
 
-  if ((x188_flags & 0x2000) && hintToBallDist >
-      x2f8_deleteHintBallDist.GetValue(GetInVar(x2f8_deleteHintBallDist))) {
+  if ((x188_flags & 0x2000) && hintToBallDist > x2f8_deleteHintBallDist.GetValue(GetInVar(x2f8_deleteHintBallDist))) {
 
     if (hint->GetDelegatedCamera() == GetUniqueId()) {
       mgr.GetCameraManager()->DeleteCameraHint(hint->GetUniqueId(), mgr);
@@ -190,8 +182,9 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
         }
       } else {
         const float hintCamCross = hintToCamDir.toVec2f().cross(hintDir.toVec2f());
-        if ((hintBallAngle < x310_recoverClampedAzimuthFromHintDir.
-            GetValue(GetInVar(x310_recoverClampedAzimuthFromHintDir)) && hintBallCross * hintCamCross < 0.f) ||
+        if ((hintBallAngle <
+                 x310_recoverClampedAzimuthFromHintDir.GetValue(GetInVar(x310_recoverClampedAzimuthFromHintDir)) &&
+             hintBallCross * hintCamCross < 0.f) ||
             hintBallAngle <= x2b0_clampedAzimuthFromHintDir.GetValue(GetInVar(x2b0_clampedAzimuthFromHintDir))) {
           x32c_outsideClampedAzimuth = false;
         } else {
@@ -224,7 +217,8 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
     hintBallToCamTargetAzimuthQuat.rotateZ(hintBallToCamTargetAzimuth);
     const zeus::CVector3f targetHintToCam = hintBallToCamTargetAzimuthQuat.transform(hintToBallDir);
     zeus::CVector3f newHintToCamDir = hintToCamDir;
-    const float hintToCamDeltaAngleRange = std::fabs(std::acos(zeus::clamp(-1.f, hintToCamDir.dot(targetHintToCam), 1.f)));
+    const float hintToCamDeltaAngleRange =
+        std::fabs(std::acos(zeus::clamp(-1.f, hintToCamDir.dot(targetHintToCam), 1.f)));
     const float hintToCamDeltaAngleSpeedFactor = zeus::clamp(
         -1.f, hintToCamDeltaAngleRange / x2c8_dampingAzimuthSpeed.GetValue(GetInVar(x2c8_dampingAzimuthSpeed)), 1.f);
     float targetHintToCamDeltaAngleVel =
@@ -251,8 +245,8 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
       camToBallDist = camToBall.magnitude();
     }
     targetHintToCamDeltaAngle *= (1.f - zeus::clamp(0.f, (camToBallDist - 2.f) * 0.5f, 1.f)) * 10.f + 1.f;
-    targetHintToCamDeltaAngle = zeus::clamp(-hintToCamDeltaAngleRange,
-      targetHintToCamDeltaAngle, hintToCamDeltaAngleRange);
+    targetHintToCamDeltaAngle =
+        zeus::clamp(-hintToCamDeltaAngleRange, targetHintToCamDeltaAngle, hintToCamDeltaAngleRange);
     if (std::fabs(zeus::clamp(-1.f, hintToCamDir.dot(targetHintToCam), 1.f)) < 0.99999f) {
       newHintToCamDir =
           zeus::CQuaternion::lookAt(hintToCamDir, targetHintToCam, targetHintToCamDeltaAngle).transform(hintToCamDir);
@@ -350,7 +344,7 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
       zeus::CQuaternion azimuthQuat;
       azimuthQuat.rotateZ(camLookRelAzimuth);
       lookAheadPos = azimuthQuat.transform(newLookDirFlat).toVec2f() * std::cos(camLookRelAzimuth) * newLookDistFlat +
-        newCamPos.toVec2f();
+                     newCamPos.toVec2f();
     }
     newLookDelta = zeus::CVector3f(lookAheadPos, lookPosZ) - newCamPos;
     if ((x188_flags & 0x1) != 0) {

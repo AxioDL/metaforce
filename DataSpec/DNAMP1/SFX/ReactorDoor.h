@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0031 49
-
 
 #define SFXdor_x_close_01 2365
 #define SFXdor_x_open_01 2366
@@ -22,5 +20,3 @@
 #define SFXsfx0947 2375
 #define SFXsfx0948 2376
 #define SFXsfx0949 2377
-
-

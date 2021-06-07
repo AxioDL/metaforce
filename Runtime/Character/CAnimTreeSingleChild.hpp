@@ -20,7 +20,8 @@ public:
   bool VHasOffset(const CSegId& seg) const override;
   zeus::CVector3f VGetOffset(const CSegId& seg) const override;
   zeus::CQuaternion VGetRotation(const CSegId& seg) const override;
-  size_t VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, size_t capacity, size_t iterator, u32) const override;
+  size_t VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, size_t capacity, size_t iterator,
+                         u32) const override;
   size_t VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, size_t capacity, size_t iterator,
                           u32) const override;
   size_t VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, size_t capacity, size_t iterator,

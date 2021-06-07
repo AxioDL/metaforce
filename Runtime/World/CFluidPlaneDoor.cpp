@@ -58,15 +58,14 @@ static CFluidPlane::Flags lc_flags{};
 
 void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb,
                              const zeus::CTransform& xf, const zeus::CTransform& areaXf, bool noNormals,
-                             const zeus::CFrustum& frustum,
-                             const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
-                             const bool* gridFlags, u32 gridDimX, u32 gridDimY,
+                             const zeus::CFrustum& frustum, const std::optional<CRippleManager>& rippleManager,
+                             TUniqueId waterId, const bool* gridFlags, u32 gridDimX, u32 gridDimY,
                              const zeus::CVector3f& areaCenter) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CFluidPlaneDoor::Render", zeus::skCyan);
   CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, aabb, noNormals);
 
-  //if (!m_shader->isReady())
-  //  return;
+  // if (!m_shader->isReady())
+  //   return;
 
   CFluidPlaneRender::numSubdivisionsInTile = xa4_tileSubdivisions;
   CFluidPlaneRender::numTilesInHField = 42 / xa4_tileSubdivisions;

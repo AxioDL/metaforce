@@ -140,8 +140,7 @@ zeus::CPlane CFishCloud::FindClosestPlane(const zeus::CAABox& aabb, const zeus::
     }
 
     const auto tri = unAabb.getTri(minFace, 0);
-    return zeus::CPlane(GetTransform() * tri.x10_verts[0],
-                        GetTransform() * tri.x10_verts[2],
+    return zeus::CPlane(GetTransform() * tri.x10_verts[0], GetTransform() * tri.x10_verts[2],
                         GetTransform() * tri.x10_verts[1]);
   }
 }
@@ -275,8 +274,8 @@ void CFishCloud::ApplySeparation(CBoid& boid, const rstl::reserved_vector<CBoid*
   ApplySeparation(boid, pos, x138_separationRadius, x144_separationMagnitude);
 }
 
-void CFishCloud::ApplySeparation(CBoid& boid, const zeus::CVector3f& separateFrom,
-                                 float separationRadius, float separationMagnitude) const {
+void CFishCloud::ApplySeparation(CBoid& boid, const zeus::CVector3f& separateFrom, float separationRadius,
+                                 float separationMagnitude) const {
   const zeus::CVector3f delta = boid.GetTranslation() - separateFrom;
   if (!delta.canBeNormalized()) {
     return;
@@ -305,8 +304,8 @@ void CFishCloud::ApplyCohesion(CBoid& boid, const rstl::reserved_vector<CBoid*, 
   ApplyCohesion(boid, avg, x138_separationRadius, x13c_cohesionMagnitude);
 }
 
-void CFishCloud::ApplyCohesion(CBoid& boid, const zeus::CVector3f& cohesionFrom,
-                               float cohesionRadius, float cohesionMagnitude) const {
+void CFishCloud::ApplyCohesion(CBoid& boid, const zeus::CVector3f& cohesionFrom, float cohesionRadius,
+                               float cohesionMagnitude) const {
   const zeus::CVector3f delta = cohesionFrom - boid.GetTranslation();
   if (!delta.canBeNormalized()) {
     return;
@@ -328,12 +327,11 @@ void CFishCloud::ApplyAlignment(CBoid& boid, const rstl::reserved_vector<CBoid*,
   }
 
   avg = avg / float(nearList.size());
-  boid.xc_vel += zeus::CVector3f::getAngleDiff(boid.xc_vel, avg) / M_PIF *
-    (avg * x140_alignmentWeight);
+  boid.xc_vel += zeus::CVector3f::getAngleDiff(boid.xc_vel, avg) / M_PIF * (avg * x140_alignmentWeight);
 }
 
-void CFishCloud::ApplyAttraction(CBoid& boid, const zeus::CVector3f& attractTo,
-                                 float attractionRadius, float attractionMagnitude) const {
+void CFishCloud::ApplyAttraction(CBoid& boid, const zeus::CVector3f& attractTo, float attractionRadius,
+                                 float attractionMagnitude) const {
   const zeus::CVector3f delta = attractTo - boid.GetTranslation();
   if (!delta.canBeNormalized()) {
     return;
@@ -344,13 +342,13 @@ void CFishCloud::ApplyAttraction(CBoid& boid, const zeus::CVector3f& attractTo,
   boid.xc_vel += ((distSq > capDistSq) ? 0.f : (1.f - distSq / capDistSq)) * delta.normalized() * attractionMagnitude;
 }
 
-void CFishCloud::ApplyRepulsion(CBoid& boid, const zeus::CVector3f& attractTo,
-                                float repulsionRadius, float repulsionMagnitude) const {
+void CFishCloud::ApplyRepulsion(CBoid& boid, const zeus::CVector3f& attractTo, float repulsionRadius,
+                                float repulsionMagnitude) const {
   ApplySeparation(boid, attractTo, repulsionRadius, repulsionMagnitude);
 }
 
-void CFishCloud::ApplySwirl(CBoid& boid, const zeus::CVector3f& swirlPoint, bool clockwise,
-                            float magnitude, float radius) const {
+void CFishCloud::ApplySwirl(CBoid& boid, const zeus::CVector3f& swirlPoint, bool clockwise, float magnitude,
+                            float radius) const {
   const zeus::CVector3f delta = boid.x0_pos - swirlPoint;
   const float deltaMag = delta.magnitude();
 
@@ -362,8 +360,7 @@ void CFishCloud::ApplySwirl(CBoid& boid, const zeus::CVector3f& swirlPoint, bool
   }
 
   const float weight = deltaMag > radius ? 0.f : 1.f - deltaMag / radius;
-  boid.xc_vel += zeus::CVector3f::getAngleDiff(boid.xc_vel, alignVec) / M_PIF *
-    weight * (magnitude * alignVec);
+  boid.xc_vel += zeus::CVector3f::getAngleDiff(boid.xc_vel, alignVec) / M_PIF * weight * (magnitude * alignVec);
 }
 
 void CFishCloud::ApplyContainment(CBoid& boid, const zeus::CAABox& aabb) const {
@@ -509,9 +506,7 @@ void CFishCloud::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CFishCloud::CreatePartitionList() {
-  xf8_boidPartitionLists.reserve(343);
-}
+void CFishCloud::CreatePartitionList() { xf8_boidPartitionLists.reserve(343); }
 
 void CFishCloud::AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which) {
   int idx = 0;
@@ -569,8 +564,8 @@ void CFishCloud::AddParticlesToRenderer() const {
   }
 }
 
-void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask,
-                            bool thermalHot, const CModelFlags& flags) const {
+void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask, bool thermalHot,
+                            const CModelFlags& flags) const {
   const u32 modelIndex = idx & 0x3;
   CModelData& mData = *x1b0_models[modelIndex];
   CSkinnedModel& model = mData.PickAnimatedModel(CModelData::EWhichModel::Normal);
@@ -599,8 +594,8 @@ void CFishCloud::Render(CStateManager& mgr) {
     return;
   }
 
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CFishCloud::Render {} {} {}"),
-                                          x8_uid, xc_editorId, x10_name).c_str(), zeus::skOrange);
+  SCOPED_GRAPHICS_DEBUG_GROUP(
+      fmt::format(FMT_STRING("CFishCloud::Render {} {} {}"), x8_uid, xc_editorId, x10_name).c_str(), zeus::skOrange);
 
   const bool thermalHot = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot;
   CModelFlags flags(0, 0, 3, zeus::skWhite);
@@ -633,13 +628,9 @@ void CFishCloud::Render(CStateManager& mgr) {
   }
 }
 
-void CFishCloud::CalculateRenderBounds() {
-  x9c_renderBounds = GetBoundingBox();
-}
+void CFishCloud::CalculateRenderBounds() { x9c_renderBounds = GetBoundingBox(); }
 
-std::optional<zeus::CAABox> CFishCloud::GetTouchBounds() const {
-  return {GetBoundingBox()};
-}
+std::optional<zeus::CAABox> CFishCloud::GetTouchBounds() const { return {GetBoundingBox()}; }
 
 void CFishCloud::CreateBoidDeathParticle(CBoid& b) const {
   auto it = x21c_deathParticleCounts.begin();

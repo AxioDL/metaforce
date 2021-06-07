@@ -147,9 +147,11 @@ s32 CProjectileWeapon::GetSoundIdForCollision(EWeaponCollisionResponseTypes type
   return x4_weaponDesc->x94_COLR.m_res->GetSoundEffectId(type);
 }
 
-std::optional<TLockedToken<CGenDescription>> CProjectileWeapon::CollisionOccured(
-    EWeaponCollisionResponseTypes type, bool deflected, bool useTarget, const zeus::CVector3f& pos,
-    const zeus::CVector3f& normal, const zeus::CVector3f& target) {
+std::optional<TLockedToken<CGenDescription>> CProjectileWeapon::CollisionOccured(EWeaponCollisionResponseTypes type,
+                                                                                 bool deflected, bool useTarget,
+                                                                                 const zeus::CVector3f& pos,
+                                                                                 const zeus::CVector3f& normal,
+                                                                                 const zeus::CVector3f& target) {
   x80_localOffset = x14_localToWorldXf.transposeRotate(pos - x74_worldOffset) - x8c_projOffset;
   zeus::CVector3f posToTarget = target - GetTranslation();
   if (deflected) {

@@ -85,12 +85,8 @@ public:
   void SetMouseOverChangeCallback(std::function<void(CGuiWidget*, CGuiWidget*)>&& cb) {
     m_mouseOverChangeCb = std::move(cb);
   }
-  void SetMouseDownCallback(std::function<void(CGuiWidget*, bool)>&& cb) {
-    m_mouseDownCb = std::move(cb);
-  }
-  void SetMouseUpCallback(std::function<void(CGuiWidget*, bool)>&& cb) {
-    m_mouseUpCb = std::move(cb);
-  }
+  void SetMouseDownCallback(std::function<void(CGuiWidget*, bool)>&& cb) { m_mouseDownCb = std::move(cb); }
+  void SetMouseUpCallback(std::function<void(CGuiWidget*, bool)>&& cb) { m_mouseUpCb = std::move(cb); }
   void SetMouseScrollCallback(std::function<void(CGuiWidget*, const boo::SScrollDelta&, int, int)>&& cb) {
     m_mouseScrollCb = std::move(cb);
   }

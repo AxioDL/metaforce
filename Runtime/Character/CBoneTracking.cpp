@@ -10,8 +10,8 @@
 
 namespace metaforce {
 
-CBoneTracking::CBoneTracking(const CAnimData& animData, std::string_view bone,
-                             float maxTrackingAngle, float angSpeed, EBoneTrackingFlags flags)
+CBoneTracking::CBoneTracking(const CAnimData& animData, std::string_view bone, float maxTrackingAngle, float angSpeed,
+                             EBoneTrackingFlags flags)
 : x14_segId(animData.GetCharLayoutInfo().GetSegIdFromString(bone))
 , x1c_maxTrackingAngle(maxTrackingAngle)
 , x20_angSpeed(angSpeed)
@@ -54,8 +54,10 @@ void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, con
     }
     parentBoneXf.origin = pos * localOffsetScale;
     zeus::CTransform finalXf = worldXf * parentBoneXf;
-    zeus::CVector3f localDir = finalXf.transposeRotate(
-      (targetAct ? targetAct->GetAimPosition(mgr, 0.f) : *x24_targetPosition) - finalXf.origin).normalized();
+    zeus::CVector3f localDir =
+        finalXf
+            .transposeRotate((targetAct ? targetAct->GetAimPosition(mgr, 0.f) : *x24_targetPosition) - finalXf.origin)
+            .normalized();
     if (x36_28_noHorizontalAim)
       localDir = zeus::CVector3f(0.f, localDir.toVec2f().magnitude(), localDir.z());
     if (x36_29_parentIk) {
@@ -72,16 +74,16 @@ void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, con
     float angle = zeus::CVector3f::getAngleDiff(x0_curRotation.transform(zeus::skForward), localDir);
     float clampedAngle = std::min(angle, x18_time * x20_angSpeed);
     if (clampedAngle > 1.0e-05f) {
-      x0_curRotation = zeus::CQuaternion::slerpShort(x0_curRotation,
-      zeus::CQuaternion::lookAt(zeus::skForward, zeus::CUnitVector3f(localDir), 2.f * M_PIF),
-      clampedAngle / angle);
+      x0_curRotation = zeus::CQuaternion::slerpShort(
+          x0_curRotation, zeus::CQuaternion::lookAt(zeus::skForward, zeus::CUnitVector3f(localDir), 2.f * M_PIF),
+          clampedAngle / angle);
     }
     pb.GetTreeMap()[x14_segId].x4_rotation = x0_curRotation;
     animData.MarkPoseDirty();
   } else if (x36_25_hasTrackedRotation) {
     zeus::CQuaternion qb = pb.GetTreeMap()[x14_segId].x4_rotation;
-    float angle = zeus::CVector3f::getAngleDiff(x0_curRotation.transform(zeus::skForward),
-                                                qb.transform(zeus::skForward));
+    float angle =
+        zeus::CVector3f::getAngleDiff(x0_curRotation.transform(zeus::skForward), qb.transform(zeus::skForward));
     float maxAngDelta = x18_time * x20_angSpeed;
     float clampedAngle = std::min(angle, maxAngDelta);
     if (clampedAngle > 0.5f * maxAngDelta) {

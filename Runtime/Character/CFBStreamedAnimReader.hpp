@@ -85,7 +85,7 @@ public:
 };
 
 class CSegIdToIndexConverter {
-  std::array<s32,100> x0_indices;
+  std::array<s32, 100> x0_indices;
 
 public:
   explicit CSegIdToIndexConverter(const CFBStreamedAnimReaderTotals& totals);

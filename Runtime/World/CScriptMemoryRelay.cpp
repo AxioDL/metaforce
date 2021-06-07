@@ -7,8 +7,8 @@
 
 namespace metaforce {
 
-CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool defaultActive,
-                                       bool skipSendActive, bool ignoreMessages)
+CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info,
+                                       bool defaultActive, bool skipSendActive, bool ignoreMessages)
 : CEntity(uid, info, true, name)
 , x34_24_defaultActive(defaultActive)
 , x34_25_skipSendActive(skipSendActive)

@@ -29,8 +29,7 @@ CSkinnedModel::CSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinR
                 store.GetObj(SObjectTag{FOURCC('CINF'), layoutInfo}), shaderIdx, drawInsts) {}
 
 void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
-                              const std::optional<CVertexMorphEffect>& morphEffect,
-                              const float* morphMagnitudes) {
+                              const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
   if (morphEffect || g_PointGenFunc) {
     if (boo::ObjToken<boo::IGraphicsBufferD> vertBuf = m_modelInst->UpdateUniformData(drawFlags, nullptr, nullptr)) {
       x10_skinRules->TransformVerticesCPU(m_vertWorkspace, pose, *x4_model);

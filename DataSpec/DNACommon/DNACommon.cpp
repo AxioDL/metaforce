@@ -29,9 +29,8 @@ hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const IDType& id, bool si
         LogDNACommon.report(logvisor::Warning, FMT_STRING("unable to translate {} to path"), id);
       return {};
     }
-    LogDNACommon.report(logvisor::Fatal,
-                        FMT_STRING("g_PakRouter or s_Project must be set to non-null before "
-                            "calling UniqueIDBridge::TranslatePakIdToPath"));
+    LogDNACommon.report(logvisor::Fatal, FMT_STRING("g_PakRouter or s_Project must be set to non-null before "
+                                                    "calling UniqueIDBridge::TranslatePakIdToPath"));
     return {};
   }
 
@@ -53,7 +52,8 @@ hecl::ProjectPath UniqueIDBridge::MakePathFromString(std::string_view str) {
     return {};
   hecl::Database::Project* project = s_Project.get();
   if (!project)
-    LogDNACommon.report(logvisor::Fatal, FMT_STRING("UniqueIDBridge::setGlobalProject must be called before MakePathFromString"));
+    LogDNACommon.report(logvisor::Fatal,
+                        FMT_STRING("UniqueIDBridge::setGlobalProject must be called before MakePathFromString"));
   hecl::ProjectPath path = hecl::ProjectPath(*project, str);
   project->addBridgePathToCache(IDType(path).toUint64(), path);
   return path;
@@ -90,9 +90,7 @@ void UniqueID32::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) 
   s += 4;
 }
 
-std::string UniqueID32::toString() const {
-  return fmt::format(FMT_STRING("{}"), *this);
-}
+std::string UniqueID32::toString() const { return fmt::format(FMT_STRING("{}"), *this); }
 
 template <>
 void UniqueID32Zero::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
@@ -142,9 +140,7 @@ void UniqueID64::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) 
   s += 8;
 }
 
-std::string UniqueID64::toString() const {
-  return fmt::format(FMT_STRING("{}"), *this);
-}
+std::string UniqueID64::toString() const { return fmt::format(FMT_STRING("{}"), *this); }
 
 /** PAK 128-bit Unique ID */
 template <>
@@ -175,9 +171,7 @@ void UniqueID128::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
   s += 16;
 }
 
-std::string UniqueID128::toString() const {
-  return fmt::format(FMT_STRING("{}"), *this);
-}
+std::string UniqueID128::toString() const { return fmt::format(FMT_STRING("{}"), *this); }
 
 /** Word Bitmap reader/writer */
 void WordBitmap::read(athena::io::IStreamReader& reader, size_t bitCount) {

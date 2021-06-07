@@ -169,8 +169,8 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssoci
           std::make_pair(entry.second.id, fmt::format(FMT_STRING("{}_{}.CSKR"), ci.name, ci.cskr));
       for (const CHAR::CharacterInfo::Overlay& overlay : ci.overlays) {
         charAssoc.m_cmdlRigs[overlay.cmdl] = {overlay.cskr, ci.cinf};
-        charAssoc.m_cskrToCharacter[overlay.cskr] =
-            std::make_pair(entry.second.id, fmt::format(FMT_STRING("{}.{}_{}.CSKR"), ci.name, overlay.type, overlay.cskr));
+        charAssoc.m_cskrToCharacter[overlay.cskr] = std::make_pair(
+            entry.second.id, fmt::format(FMT_STRING("{}.{}_{}.CSKR"), ci.name, overlay.type, overlay.cskr));
       }
     }
   }
@@ -191,8 +191,8 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
       hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(&entry.second).getParentPath();
 
       if (mlvl.worldNameId.isValid())
-        pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath,
-            fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
+        pathOverrides[mlvl.worldNameId] =
+            hecl::ProjectPath(mlvlDirPath, fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
 
       for (const MLVL::Area& area : mlvl.areas) {
         {
@@ -203,12 +203,12 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
           UniqueID64 pathId = MREA::GetPATHId(rs);
           if (pathId.isValid())
             addTo[pathId] = zeus::CMatrix4f(area.transformMtx[0], area.transformMtx[1], area.transformMtx[2], BottomRow)
-                .transposed();
+                                .transposed();
         }
         hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
         if (area.areaNameId.isValid())
-          pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath,
-              fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), area.areaNameId));
+          pathOverrides[area.areaNameId] =
+              hecl::ProjectPath(areaDirPath, fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), area.areaNameId));
       }
 
       if (mlvl.worldMap.isValid()) {

@@ -201,8 +201,7 @@ public:
             const zeus::CAABox& aabb, u8 renderMask, int numInsts);
 
   static void MakeTexturesFromMats(const MaterialSet& matSet,
-                                   std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut,
-                                   IObjectStore& store);
+                                   std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut, IObjectStore& store);
   void MakeTexturesFromMats(std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut, IObjectStore& store);
 
   bool IsOpaque() const { return x3c_firstSortedSurface == nullptr; }

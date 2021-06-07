@@ -18,6 +18,7 @@ class CFirstPersonCamera : public CGameCamera {
   zeus::CVector3f x1c8_closeInVec;
   float x1d4_closeInTimer = 0.f;
   void _fovListener(hecl::CVar* cv);
+
 public:
   DEFINE_ENTITY
   CFirstPersonCamera(TUniqueId, const zeus::CTransform& xf, TUniqueId, float orbitCameraSpeed, float fov,

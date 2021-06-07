@@ -67,13 +67,12 @@ void CFluidPlaneManager::CreateSplash(TUniqueId splasher, CStateManager& mgr, co
     if (water.GetSplashEffect(factor)) {
       CExplosion* expl = new CExplosion(*water.GetSplashEffect(factor), mgr.AllocateUniqueId(), true,
                                         CEntityInfo(water.GetAreaIdAlways(), CEntity::NullConnectionList), "Splash",
-                                        zeus::CTransform(zeus::CMatrix3f(), pos), 1,
-                                        zeus::CVector3f{splashScale}, water.GetSplashColor());
+                                        zeus::CTransform(zeus::CMatrix3f(), pos), 1, zeus::CVector3f{splashScale},
+                                        water.GetSplashColor());
       mgr.AddObject(expl);
     }
     if (sfx) {
-      CSfxManager::AddEmitter(water.GetSplashSound(factor), pos, zeus::skUp, true, false, 0x7f,
-                              kInvalidAreaId);
+      CSfxManager::AddEmitter(water.GetSplashSound(factor), pos, zeus::skUp, true, false, 0x7f, kInvalidAreaId);
     }
   }
 }

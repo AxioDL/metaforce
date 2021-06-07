@@ -135,6 +135,7 @@ private:
   void AccumulateBounds(const zeus::CVector3f& pos, float size);
 
   void _RecreatePipelines();
+
 public:
   explicit CElementGen(TToken<CGenDescription> gen, EModelOrientationType orientType = EModelOrientationType::Normal,
                        EOptionalSystemFlags flags = EOptionalSystemFlags::One);
@@ -226,7 +227,7 @@ public:
   s32 GetMaxParticles() const { return x90_MAXP; }
 
   std::vector<CParticle> const& GetParticles() const { return x30_particles; }
-  std::vector<CParticle> &GetParticles() { return x30_particles; }
+  std::vector<CParticle>& GetParticles() { return x30_particles; }
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 

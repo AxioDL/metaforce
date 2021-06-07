@@ -19,12 +19,13 @@ SPrimeProjectileInfo::SPrimeProjectileInfo(CInputStream& in)
   x38_27_ = in.readBool();
 }
 
-CMetroidPrimeProjectile::CMetroidPrimeProjectile(
-    bool active, const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf,
-    EMaterialTypes materials, const CDamageInfo& damage, TUniqueId uid, TAreaId aid, TUniqueId owner,
-    const SPrimeProjectileInfo& auxData, TUniqueId homingTarget, EProjectileAttrib attribs,
-    const zeus::CVector3f& scale, const std::optional<TLockedToken<CGenDescription>>& visorParticle,
-    u16 visorSfx, bool sendCollideMsg)
+CMetroidPrimeProjectile::CMetroidPrimeProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type,
+                                                 const zeus::CTransform& xf, EMaterialTypes materials,
+                                                 const CDamageInfo& damage, TUniqueId uid, TAreaId aid, TUniqueId owner,
+                                                 const SPrimeProjectileInfo& auxData, TUniqueId homingTarget,
+                                                 EProjectileAttrib attribs, const zeus::CVector3f& scale,
+                                                 const std::optional<TLockedToken<CGenDescription>>& visorParticle,
+                                                 u16 visorSfx, bool sendCollideMsg)
 : CEnergyProjectile(active, desc, type, xf, materials, damage, uid, aid, owner, homingTarget, attribs, false, scale,
                     visorParticle, visorSfx, sendCollideMsg)
 , x3d8_auxData(auxData) {}

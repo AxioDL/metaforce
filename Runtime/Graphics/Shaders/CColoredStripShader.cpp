@@ -86,4 +86,4 @@ void CColoredStripShader::draw(const zeus::CColor& color, size_t numVerts, const
   CGraphics::DrawArray(0, numVerts);
 }
 
-}
+} // namespace metaforce

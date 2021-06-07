@@ -55,7 +55,7 @@ class CMazeState {
   bool x94_24_initialized : 1 = false;
 
   std::vector<s32> m_path;
-  CLineRenderer m_renderer = {CLineRenderer::EPrimitiveMode::LineStrip, skMazeRows * skMazeCols, {}, true};
+  CLineRenderer m_renderer = {CLineRenderer::EPrimitiveMode::LineStrip, skMazeRows* skMazeCols, {}, true};
 
 public:
   CMazeState(s32 enterCol, s32 enterRow, s32 targetCol, s32 targetRow)

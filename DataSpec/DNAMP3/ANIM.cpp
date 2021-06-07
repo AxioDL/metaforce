@@ -9,11 +9,10 @@ using ANIMOutStream = hecl::blender::ANIMOutStream;
 
 void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig,
                                     bool additive) const {
-  os.format(FMT_STRING(
-      "act.hecl_fps = round({})\n"
-      "act.hecl_additive = {}\n"
-      "act.hecl_looping = {}\n"),
-      1.0f / mainInterval, additive ? "True" : "False", looping ? "True" : "False");
+  os.format(FMT_STRING("act.hecl_fps = round({})\n"
+                       "act.hecl_additive = {}\n"
+                       "act.hecl_looping = {}\n"),
+            1.0f / mainInterval, additive ? "True" : "False", looping ? "True" : "False");
 
   auto kit = chanKeys.begin() + 1;
 

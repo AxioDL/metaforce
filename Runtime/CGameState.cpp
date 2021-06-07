@@ -81,7 +81,8 @@ CWorldState::CWorldState(CAssetId id) : x0_mlvlId(id), x4_areaId(0) {
   x14_layerState = std::make_shared<CScriptLayerManager>();
 }
 
-CWorldState::CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CWorldSaveGameInfo& saveWorld) : x0_mlvlId(mlvlId) {
+CWorldState::CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CWorldSaveGameInfo& saveWorld)
+: x0_mlvlId(mlvlId) {
   x4_areaId = TAreaId(reader.ReadEncoded(32));
   x10_desiredAreaAssetId = u32(reader.ReadEncoded(32));
   x8_mailbox = std::make_shared<CScriptMailbox>(reader, saveWorld);

@@ -93,11 +93,11 @@ static std::array<hecl::Backend::ExtensionSlot, size_t(EExtendedShader::MAX)> g_
     {1, ThermalTextures.data(), hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::None, hecl::Backend::CullMode::Backface, true, false, false, true},
     /* Thermal static shading */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, false, true, false, false, true},
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
+     hecl::Backend::CullMode::Backface, false, false, false, true, false, false, true},
     /* Thermal static shading without Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
-       hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, true, false, false, true, false, false, false},
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
+     hecl::Backend::CullMode::Backface, true, false, false, true, false, false, false},
     /* Forced alpha shading */
     {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
@@ -162,8 +162,8 @@ static std::array<hecl::Backend::ExtensionSlot, size_t(EExtendedShader::MAX)> g_
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface},
     /* Normal lit shading with alpha without Z-write or depth test */
-    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
-     hecl::Backend::ZTest::None, hecl::Backend::CullMode::Backface, true},
+    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original, hecl::Backend::ZTest::None,
+     hecl::Backend::CullMode::Backface, true},
     /* Normal lit shading with cube reflection */
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},

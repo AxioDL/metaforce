@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0046 70
-
 
 #define SFXsfx0C4D 3149
 #define SFXsh2_a_fireball_lp_00 3150
@@ -27,5 +25,3 @@
 #define SFXsfx0C5C 3164
 #define SFXsfx0C5D 3165
 #define SFXsfx0C5E 3166
-
-

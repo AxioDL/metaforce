@@ -433,10 +433,10 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
           xb24_ = 0.33f;
           x430_damageColor = zeus::CColor(0.5f, 0.f, 0.f);
           if (xb10_ > 0.f) {
-            if (xb10_ >= xcbc_&& xa33_26_ && !xa31_31_ && lowHealth > x568_data.x3f4_) {
-                dontKnockback = true;
-                x450_bodyController->GetCommandMgr().DeliverCmd(
-                    CBCKnockBackCmd(GetTransform().basis[1], pas::ESeverity::Zero));
+            if (xb10_ >= xcbc_ && xa33_26_ && !xa31_31_ && lowHealth > x568_data.x3f4_) {
+              dontKnockback = true;
+              x450_bodyController->GetCommandMgr().DeliverCmd(
+                  CBCKnockBackCmd(GetTransform().basis[1], pas::ESeverity::Zero));
             } else {
               xa32_27_ = true;
               dontKnockback = true;

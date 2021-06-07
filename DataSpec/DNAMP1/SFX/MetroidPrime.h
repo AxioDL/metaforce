@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup003A 58
-
 
 #define SFXmtb_b_voxtaunt_00 2891
 #define SFXsfx0B4C 2892
@@ -90,5 +88,3 @@
 #define SFXmtb_a_nrgfire_lp_00 2969
 #define SFXsfx0B9A 2970
 #define SFXsfx0B9B 2971
-
-

@@ -10,11 +10,7 @@
 namespace metaforce {
 class CBeamProjectile : public CGameProjectile {
 public:
-  enum class EDamageType {
-    None,
-    Actor,
-    World
-  };
+  enum class EDamageType { None, Actor, World };
 
 private:
   s32 x2e8_intMaxLength;

@@ -40,7 +40,6 @@ constexpr std::array<u16, 36> DefaultSurfaceIndices{
     13, 8, 14, 13, 1, 15, 16, 14, 7, 16, 11, 2, 17, 15, 4,  17, 12, 9,
 };
 
-
 /* This is exactly what retro did >.< */
 u32 verify_deaf_babe(CInputStream& in) { return in.readUint32Big(); }
 
@@ -194,9 +193,8 @@ COBBTree::SIndexData::SIndexData(CInputStream& in) {
   }
 }
 
-COBBTree::CNode::CNode(const zeus::CTransform& xf, const zeus::CVector3f& point,
-                       std::unique_ptr<CNode>&& left, std::unique_ptr<CNode>&& right,
-                       std::unique_ptr<CLeafData>&& leaf)
+COBBTree::CNode::CNode(const zeus::CTransform& xf, const zeus::CVector3f& point, std::unique_ptr<CNode>&& left,
+                       std::unique_ptr<CNode>&& right, std::unique_ptr<CLeafData>&& leaf)
 : x0_obb(xf, point)
 , x3c_isLeaf(leaf != nullptr)
 , x40_left(std::move(left))

@@ -100,13 +100,12 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-  os.format(FMT_STRING(
-      "import bpy\n"
-      "import bmesh\n"
-      "from mathutils import Vector\n"
-      "\n"
-      "bpy.context.scene.name = '{}'\n"),
-      pakRouter.getBestEntryName(entry, false));
+  os.format(FMT_STRING("import bpy\n"
+                       "import bmesh\n"
+                       "from mathutils import Vector\n"
+                       "\n"
+                       "bpy.context.scene.name = '{}'\n"),
+            pakRouter.getBestEntryName(entry, false));
   DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
   os << "# Clear Scene\n"

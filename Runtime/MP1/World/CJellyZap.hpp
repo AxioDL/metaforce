@@ -34,9 +34,9 @@ public:
   DEFINE_PATTERNED(JellyZap);
 
   CJellyZap(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
-            CModelData&& mData, const CDamageInfo& attackDamage, bool b1, float attackRadius, float f2, float f3, float f4, float attackDelay,
-            float f6, float f7, float f8, float priority, float repulseRadius, float attractRadius, float f12,
-            const CPatternedInfo& pInfo, const CActorParameters& actParms);
+            CModelData&& mData, const CDamageInfo& attackDamage, bool b1, float attackRadius, float f2, float f3,
+            float f4, float attackDelay, float f6, float f7, float f8, float priority, float repulseRadius,
+            float attractRadius, float f12, const CPatternedInfo& pInfo, const CActorParameters& actParms);
 
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;

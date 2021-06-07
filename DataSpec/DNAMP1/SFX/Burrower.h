@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0005 5
-
 
 #define SFXbur_a_attack_00 120
 #define SFXbur_b_burrow_lp_00 121
@@ -29,5 +27,3 @@
 #define SFXsfx0089 137
 #define SFXsfx008A 138
 #define SFXsfx008B 139
-
-

@@ -55,7 +55,7 @@ class CMetroidPrimeEssence : public CPatterned {
   void sub8027cee0(CStateManager& mgr);
   u32 sub8027cfd4(CStateManager& mgr, bool w1);
   void DoPhaseTransition(CStateManager& mgr);
-  u32 sub8027d428() { return 2; /* Decided by fair dice roll, guaranteed to be random */}
+  u32 sub8027d428() { return 2; /* Decided by fair dice roll, guaranteed to be random */ }
   void ShakeCamera(CStateManager& mgr, float f1);
   void DropShockwave(CStateManager& mgr, const SShockWaveData& shockWaveData);
   CRayCastResult RayStaticIntersection(CStateManager& mgr);

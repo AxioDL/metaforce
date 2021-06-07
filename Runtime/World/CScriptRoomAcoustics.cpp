@@ -59,7 +59,8 @@ void CScriptRoomAcoustics::EnableAuxCallbacks() {
   s_ActiveAcousticsAreaId = x4_areaId;
 }
 
-void CScriptRoomAcoustics::Think(float dt, CStateManager& stateMgr) { /* Intentionally empty */ }
+void CScriptRoomAcoustics::Think(float dt, CStateManager& stateMgr) { /* Intentionally empty */
+}
 
 void CScriptRoomAcoustics::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);

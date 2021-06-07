@@ -45,18 +45,22 @@ struct _DPSM {
   bool x5c_24_DMAB = false;
   bool x5c_25_DMOO = false;
 
-  template<typename _Func>
+  template <typename _Func>
   void constexpr Enumerate(_Func f) {
 #define ENTRY(name, identifier) f(FOURCC(name), identifier);
 #include "DPSC.def"
   }
 
-  template<typename _Func>
+  template <typename _Func>
   bool constexpr Lookup(FourCC fcc, _Func f) {
     switch (fcc.toUint32()) {
-#define ENTRY(name, identifier) case SBIG(name): f(identifier); return true;
+#define ENTRY(name, identifier)                                                                                        \
+  case SBIG(name):                                                                                                     \
+    f(identifier);                                                                                                     \
+    return true;
 #include "DPSC.def"
-    default: return false;
+    default:
+      return false;
     }
   }
 };

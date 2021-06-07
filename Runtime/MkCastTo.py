@@ -1,11 +1,14 @@
 "Generates TCastTo source files for constexpr-enabled CEntity casts"
 
+
 class Namespace:
     def __init__(self, name):
         self.name = name
 
+
 class EndNamespace:
     pass
+
 
 CENTITY_TYPES = (
     # Class, Header
@@ -79,11 +82,13 @@ CENTITY_TYPES = (
     ('CScriptDebris', 'World/CScriptDebris.hpp'),
 )
 
+
 def getqualified(tp):
     if len(tp) >= 3:
         return tp[2] + '::' + tp[0]
     else:
         return tp[0]
+
 
 headerf = open('TCastTo.hpp', 'w')
 sourcef = open('TCastTo.cpp', 'w')

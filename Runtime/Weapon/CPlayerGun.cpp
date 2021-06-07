@@ -248,9 +248,9 @@ void CPlayerGun::CreateGunLight(CStateManager& mgr) {
   if (x53c_lightId != kInvalidUniqueId)
     return;
   x53c_lightId = mgr.AllocateUniqueId();
-  CGameLight* light = new CGameLight(x53c_lightId, kInvalidAreaId, false, "GunLite", x3e8_xf, x538_playerId,
-                                     CLight::BuildDirectional(zeus::skForward, zeus::skBlack),
-                                     x53c_lightId.Value(), 0, 0.f);
+  CGameLight* light =
+      new CGameLight(x53c_lightId, kInvalidAreaId, false, "GunLite", x3e8_xf, x538_playerId,
+                     CLight::BuildDirectional(zeus::skForward, zeus::skBlack), x53c_lightId.Value(), 0, 0.f);
   mgr.AddObject(light);
 }
 
@@ -1427,8 +1427,8 @@ void CPlayerGun::ProcessChargeState(u32 releasedStates, u32 pressedStates, CStat
   if ((releasedStates & 0x1) != 0)
     ResetCharged(dt, mgr);
   if ((pressedStates & 0x1) != 0) {
-    if (x32c_chargePhase == EChargePhase::NotCharging && (pressedStates & 0x1) != 0 && x348_chargeCooldownTimer == 0.f &&
-        x832_28_readyForShot) {
+    if (x32c_chargePhase == EChargePhase::NotCharging && (pressedStates & 0x1) != 0 &&
+        x348_chargeCooldownTimer == 0.f && x832_28_readyForShot) {
       UpdateNormalShotCycle(dt, mgr);
       x32c_chargePhase = EChargePhase::ChargeRequested;
     }
@@ -1712,8 +1712,8 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
             (x2f8_stateFlags & 0x8) != 0x8 && x364_gunStrikeCoolTimer <= 0.f &&
             player.GetPlayerMovementState() == CPlayer::EPlayerMovementState::OnGround && !player.IsInFreeLook() &&
             !player.GetFreeLookStickState() && player.GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit &&
-            std::fabs(player.GetAngularVelocityOR().angle()) <= 0.1f &&
-            camBobT <= 0.01f && !mgr.GetCameraManager()->IsInCinematicCamera() &&
+            std::fabs(player.GetAngularVelocityOR().angle()) <= 0.1f && camBobT <= 0.01f &&
+            !mgr.GetCameraManager()->IsInCinematicCamera() &&
             player.GetGunHolsterState() == CPlayer::EGunHolsterState::Drawn &&
             player.GetGrappleState() == CPlayer::EGrappleState::None && !x834_30_inBigStrike && !x835_25_inPhazonBeam);
       if (x833_24_notFidgeting) {
@@ -2101,7 +2101,8 @@ void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustum& frust
 void CPlayerGun::RenderEnergyDrainEffects(const CStateManager& mgr) const {
   if (const TCastToConstPtr<CPlayer> player = mgr.GetObjectById(x538_playerId)) {
     for (const auto& source : player->GetEnergyDrain().GetEnergyDrainSources()) {
-      if (const auto* metroid = CPatterned::CastTo<MP1::CMetroidBeta>(mgr.GetObjectById(source.GetEnergyDrainSourceId()))) {
+      if (const auto* metroid =
+              CPatterned::CastTo<MP1::CMetroidBeta>(mgr.GetObjectById(source.GetEnergyDrainSourceId()))) {
         metroid->RenderHitGunEffect();
         return;
       }

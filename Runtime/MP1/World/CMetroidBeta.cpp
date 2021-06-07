@@ -86,7 +86,7 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
   case EScriptObjectMessage::Registered: {
     x450_bodyController->Activate(mgr);
     CreateCollisionActorManager(mgr);
-    //sub801c13d4();
+    // sub801c13d4();
     x760_ = GetModelData()->GetAnimationData()->GetLocatorSegId("L_Claw_1"sv);
     x761_ = GetModelData()->GetAnimationData()->GetLocatorSegId("R_Claw_1"sv);
     break;
@@ -140,7 +140,7 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
   case EScriptObjectMessage::Touched: {
     if (TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(uid)) {
       if (HealthInfo(mgr)->GetHP() > 0.f && colAct->GetLastTouchedObject() == mgr.GetPlayer().GetUniqueId() &&
-      x420_curDamageRemTime <= 0.f) {
+          x420_curDamageRemTime <= 0.f) {
         CDamageInfo dInfo = GetContactDamage();
         dInfo.SetDamage(0.5f * dInfo.GetDamage());
         if (x840_29_ && x840_30_)
@@ -219,9 +219,7 @@ void CMetroidBeta::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
   CPatterned::TargetPatrol(mgr, msg, arg);
 }
 
-void CMetroidBeta::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
-  CAi::Generate(mgr, msg, arg);
-}
+void CMetroidBeta::Generate(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Generate(mgr, msg, arg); }
 
 void CMetroidBeta::Attack(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Attack(mgr, msg, arg); }
 
@@ -267,7 +265,7 @@ void CMetroidBeta::RenderHitGunEffect() const {}
 
 void CMetroidBeta::RenderHitBallEffect() const {}
 
-static SSphereJointInfo skPelvisInfo[1] {
+static SSphereJointInfo skPelvisInfo[1]{
     {"Pelvis", 1.5f},
 };
 
@@ -296,7 +294,7 @@ void CMetroidBeta::CreateCollisionActorManager(CStateManager& mgr) {
 }
 
 void CMetroidBeta::AddSphereJoints(SSphereJointInfo* sphereJoints, s32 count,
-    std::vector<CJointCollisionDescription>& joints) {
+                                   std::vector<CJointCollisionDescription>& joints) {
 
   for (s32 i = 0; i < count; ++i) {
     const auto& sphereJoint = sphereJoints[i];

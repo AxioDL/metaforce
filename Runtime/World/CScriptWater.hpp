@@ -123,9 +123,7 @@ public:
   void SetFrustumPlanes(const zeus::CFrustum& frustum) { x150_frustum = frustum; }
   const zeus::CFrustum& GetFrustumPlanes() const { return x150_frustum; }
   CFluidPlaneCPU& GetFluidPlane() const { return *x1b4_fluidPlane; }
-  const std::optional<TLockedToken<CGenDescription>>& GetVisorRunoffEffect() const {
-    return x23c_visorRunoffEffect;
-  }
+  const std::optional<TLockedToken<CGenDescription>>& GetVisorRunoffEffect() const { return x23c_visorRunoffEffect; }
   u16 GetVisorRunoffSfx() const { return x260_visorRunoffSfx; }
   const std::optional<TLockedToken<CGenDescription>>& GetUnmorphVisorRunoffEffect() const {
     return x250_unmorphVisorRunoffEffect;

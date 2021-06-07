@@ -138,8 +138,8 @@ class CMetroidPrimeExo : public CPatterned {
   SPrimeStruct2B x930_;
   rstl::reserved_vector<CBeamInfo, 4> x96c_;
   rstl::reserved_vector<CProjectileInfo, 4> xa80_;
-  rstl::reserved_vector<TUniqueId, 4> xb24_plasmaProjectileIds = {{kInvalidUniqueId, kInvalidUniqueId, kInvalidUniqueId,
-                                                                  kInvalidUniqueId}};
+  rstl::reserved_vector<TUniqueId, 4> xb24_plasmaProjectileIds = {
+      {kInvalidUniqueId, kInvalidUniqueId, kInvalidUniqueId, kInvalidUniqueId}};
   rstl::reserved_vector<CPlasmaProjectile::PlayerEffectResources, 4> xb30_;
   rstl::reserved_vector<CDamageInfo, 4> xbc4_;
   TLockedToken<CGenDescription> xc48_;

@@ -144,7 +144,7 @@ public:
     copy[8] = '\0';
     assign(strtoul(copy, nullptr, 16));
   }
-  UniqueID32(const wchar_t* hexStr) noexcept{
+  UniqueID32(const wchar_t* hexStr) noexcept {
     wchar_t copy[9];
     wcsncpy(copy, hexStr, 8);
     copy[8] = L'\0';
@@ -345,8 +345,12 @@ using ResCooker = std::function<bool(const hecl::ProjectPath&, const hecl::Proje
 /** Mappings of resources involved in extracting characters */
 template <class IDType>
 struct CharacterAssociations {
-  struct RigPair { IDType cskr, cinf; };
-  struct ModelRigPair { IDType cinf, cmdl; };
+  struct RigPair {
+    IDType cskr, cinf;
+  };
+  struct ModelRigPair {
+    IDType cinf, cmdl;
+  };
   /* CMDL -> (CSKR, CINF) */
   std::unordered_map<IDType, RigPair> m_cmdlRigs;
   /* CSKR -> ANCS */
@@ -377,17 +381,17 @@ inline hecl::ProjectPath GetPathBeginsWith(const hecl::ProjectPath& parentPath, 
 namespace std {
 template <>
 struct hash<DataSpec::DNAFourCC> {
-  size_t operator()(const DataSpec::DNAFourCC& fcc) const noexcept{ return fcc.toUint32(); }
+  size_t operator()(const DataSpec::DNAFourCC& fcc) const noexcept { return fcc.toUint32(); }
 };
 
 template <>
 struct hash<DataSpec::UniqueID32> {
-  size_t operator()(const DataSpec::UniqueID32& id) const noexcept{ return id.toUint32(); }
+  size_t operator()(const DataSpec::UniqueID32& id) const noexcept { return id.toUint32(); }
 };
 
 template <>
 struct hash<DataSpec::UniqueID64> {
-  size_t operator()(const DataSpec::UniqueID64& id) const noexcept{ return id.toUint64(); }
+  size_t operator()(const DataSpec::UniqueID64& id) const noexcept { return id.toUint64(); }
 };
 
 template <>

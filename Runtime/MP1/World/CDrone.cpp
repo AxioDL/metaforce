@@ -913,8 +913,8 @@ void CDrone::Burn(float duration, float damage) {
 
 CPathFindSearch* CDrone::GetSearchPath() { return &x6b0_pathFind; }
 
-void CDrone::BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat,
-                           EntityList& listOut, float radius, CStateManager& mgr) {
+void CDrone::BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat, EntityList& listOut, float radius,
+                           CStateManager& mgr) {
   const zeus::CVector3f pos = GetTranslation();
   mgr.BuildNearList(listOut, zeus::CAABox(pos - radius, pos + radius),
                     CMaterialFilter::MakeIncludeExclude({includeMat}, {excludeMat}), nullptr);

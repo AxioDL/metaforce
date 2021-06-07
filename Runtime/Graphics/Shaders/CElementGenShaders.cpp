@@ -63,33 +63,57 @@ void CElementGenShaders::Initialize() {
 }
 
 void CElementGenShaders::Shutdown() {
-  for (auto& s : m_texZTestZWrite) s.reset();
-  for (auto& s : m_texNoZTestZWrite) s.reset();
-  for (auto& s : m_texZTestNoZWrite) s.reset();
-  for (auto& s : m_texNoZTestNoZWrite) s.reset();
-  for (auto& s : m_texAdditiveZTest) s.reset();
-  for (auto& s : m_texAdditiveNoZTest) s.reset();
-  for (auto& s : m_texRedToAlphaZTest) s.reset();
-  for (auto& s : m_texRedToAlphaNoZTest) s.reset();
-  for (auto& s : m_texZTestNoZWriteSub) s.reset();
-  for (auto& s : m_texNoZTestNoZWriteSub) s.reset();
-  for (auto& s : m_texRedToAlphaZTestSub) s.reset();
-  for (auto& s : m_texRedToAlphaNoZTestSub) s.reset();
+  for (auto& s : m_texZTestZWrite)
+    s.reset();
+  for (auto& s : m_texNoZTestZWrite)
+    s.reset();
+  for (auto& s : m_texZTestNoZWrite)
+    s.reset();
+  for (auto& s : m_texNoZTestNoZWrite)
+    s.reset();
+  for (auto& s : m_texAdditiveZTest)
+    s.reset();
+  for (auto& s : m_texAdditiveNoZTest)
+    s.reset();
+  for (auto& s : m_texRedToAlphaZTest)
+    s.reset();
+  for (auto& s : m_texRedToAlphaNoZTest)
+    s.reset();
+  for (auto& s : m_texZTestNoZWriteSub)
+    s.reset();
+  for (auto& s : m_texNoZTestNoZWriteSub)
+    s.reset();
+  for (auto& s : m_texRedToAlphaZTestSub)
+    s.reset();
+  for (auto& s : m_texRedToAlphaNoZTestSub)
+    s.reset();
 
-  for (auto& s : m_indTexZWrite) s.reset();
-  for (auto& s : m_indTexNoZWrite) s.reset();
-  for (auto& s : m_indTexAdditive) s.reset();
+  for (auto& s : m_indTexZWrite)
+    s.reset();
+  for (auto& s : m_indTexNoZWrite)
+    s.reset();
+  for (auto& s : m_indTexAdditive)
+    s.reset();
 
-  for (auto& s : m_cindTexZWrite) s.reset();
-  for (auto& s : m_cindTexNoZWrite) s.reset();
-  for (auto& s : m_cindTexAdditive) s.reset();
+  for (auto& s : m_cindTexZWrite)
+    s.reset();
+  for (auto& s : m_cindTexNoZWrite)
+    s.reset();
+  for (auto& s : m_cindTexAdditive)
+    s.reset();
 
-  for (auto& s : m_noTexZTestZWrite) s.reset();
-  for (auto& s : m_noTexNoZTestZWrite) s.reset();
-  for (auto& s : m_noTexZTestNoZWrite) s.reset();
-  for (auto& s : m_noTexNoZTestNoZWrite) s.reset();
-  for (auto& s : m_noTexAdditiveZTest) s.reset();
-  for (auto& s : m_noTexAdditiveNoZTest) s.reset();
+  for (auto& s : m_noTexZTestZWrite)
+    s.reset();
+  for (auto& s : m_noTexNoZTestZWrite)
+    s.reset();
+  for (auto& s : m_noTexZTestNoZWrite)
+    s.reset();
+  for (auto& s : m_noTexNoZTestNoZWrite)
+    s.reset();
+  for (auto& s : m_noTexAdditiveZTest)
+    s.reset();
+  for (auto& s : m_noTexAdditiveNoZTest)
+    s.reset();
 }
 
 CElementGenShaders::EShaderClass CElementGenShaders::GetShaderClass(CElementGen& gen) {

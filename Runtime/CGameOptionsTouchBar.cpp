@@ -10,8 +10,8 @@ void CGameOptionsTouchBar::GetSelection(int& left, int& right, int& value) {
   value = -1;
 }
 
-void CGameOptionsTouchBar::SetSelection([[maybe_unused]] int left, [[maybe_unused]] int right, [[maybe_unused]] int value) {
-}
+void CGameOptionsTouchBar::SetSelection([[maybe_unused]] int left, [[maybe_unused]] int right,
+                                        [[maybe_unused]] int value) {}
 
 #ifndef __APPLE__
 std::unique_ptr<CGameOptionsTouchBar> NewGameOptionsTouchBar() { return std::make_unique<CGameOptionsTouchBar>(); }

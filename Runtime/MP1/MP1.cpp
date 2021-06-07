@@ -70,7 +70,6 @@
 #include <DataSpec/DNAMP1/SFX/Weapons.h>
 #include <DataSpec/DNAMP1/SFX/ZZZ.h>
 
-
 #include "Runtime/MP1/CCredits.hpp"
 
 #include <discord_rpc.h>
@@ -464,7 +463,7 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
   if (type == "all") {
     for (u32 item = 0; item < u32(CPlayerState::EItemType::Max); ++item) {
       pState->ReInitializePowerUp(CPlayerState::EItemType(item),
-                                 CPlayerState::GetPowerUpMaxValue(CPlayerState::EItemType(item)));
+                                  CPlayerState::GetPowerUpMaxValue(CPlayerState::EItemType(item)));
       pState->IncrPickup(CPlayerState::EItemType(item),
                          CPlayerState::GetPowerUpMaxValue(CPlayerState::EItemType(item)));
     }
@@ -893,7 +892,6 @@ void CMain::WarmupShaders() {
     }
     return true;
   });
-
 
   m_warmupIt = m_warmupTags.begin();
 

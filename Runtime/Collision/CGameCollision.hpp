@@ -24,8 +24,7 @@ class CStateManager;
 class ICollisionFilter;
 
 class CGameCollision {
-  static void MovePlayer(CStateManager& mgr, CPhysicsActor& actor, float dt,
-                         const EntityList* colliderList);
+  static void MovePlayer(CStateManager& mgr, CPhysicsActor& actor, float dt, const EntityList* colliderList);
   static void MoveAndCollide(CStateManager& mgr, CPhysicsActor& actor, float dt, const ICollisionFilter& filter,
                              const EntityList* colliderList);
   static zeus::CVector3f GetActorRelativeVelocities(const CPhysicsActor& act0, const CPhysicsActor* act1);
@@ -38,8 +37,7 @@ public:
   static bool NullBooleanCollider(const CInternalCollisionStructure&) { return false; }
   static bool NullCollisionCollider(const CInternalCollisionStructure&, CCollisionInfoList&) { return false; }
   static void InitCollision();
-  static void Move(CStateManager& mgr, CPhysicsActor& actor, float dt,
-                   const EntityList* colliderList);
+  static void Move(CStateManager& mgr, CPhysicsActor& actor, float dt, const EntityList* colliderList);
 
   static bool CanBlock(const CMaterialList&, const zeus::CUnitVector3f&);
   static bool IsFloor(const CMaterialList&, const zeus::CUnitVector3f&);
@@ -53,8 +51,7 @@ public:
                                                const EntityList& nearList);
   static bool RayDynamicIntersectionBool(const CStateManager& mgr, const zeus::CVector3f& pos,
                                          const zeus::CVector3f& dir, const CMaterialFilter& filter,
-                                         const EntityList& nearList, const CActor* damagee,
-                                         float length);
+                                         const EntityList& nearList, const CActor* damagee, float length);
   static CRayCastResult RayWorldIntersection(const CStateManager& mgr, TUniqueId& idOut, const zeus::CVector3f& pos,
                                              const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter,
                                              const EntityList& nearList);
@@ -67,25 +64,21 @@ public:
                                      const EntityList& nearList);
   static bool DetectCollisionBoolean_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
                                             const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                            const CMaterialFilter& filter,
-                                            const EntityList& nearList);
+                                            const CMaterialFilter& filter, const EntityList& nearList);
   static bool DetectStaticCollisionBoolean(const CStateManager& mgr, const CCollisionPrimitive& prim,
                                            const zeus::CTransform& xf, const CMaterialFilter& filter);
   static bool DetectStaticCollisionBoolean_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
                                                   const CCollisionPrimitive& prim, const zeus::CTransform& xf,
                                                   const CMaterialFilter& filter);
   static bool DetectDynamicCollisionBoolean(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                            const EntityList& nearList,
-                                            const CStateManager& mgr);
+                                            const EntityList& nearList, const CStateManager& mgr);
   static bool DetectCollision_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
                                      const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                     const CMaterialFilter& filter,
-                                     const EntityList& nearList, TUniqueId& idOut,
+                                     const CMaterialFilter& filter, const EntityList& nearList, TUniqueId& idOut,
                                      CCollisionInfoList& infoList);
   static bool DetectCollision_Cached_Moving(const CStateManager& mgr, CAreaCollisionCache& cache,
                                             const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                            const CMaterialFilter& filter,
-                                            const EntityList& nearList,
+                                            const CMaterialFilter& filter, const EntityList& nearList,
                                             const zeus::CVector3f& vec, TUniqueId& idOut, CCollisionInfo& infoOut,
                                             double&);
   static bool DetectStaticCollision(const CStateManager& mgr, const CCollisionPrimitive& prim,
@@ -99,15 +92,14 @@ public:
                                                   const CMaterialFilter& filter, const zeus::CVector3f& vec,
                                                   CCollisionInfo& infoOut, double& d);
   static bool DetectDynamicCollision(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                     const EntityList& nearList, TUniqueId& idOut,
-                                     CCollisionInfoList& list, const CStateManager& mgr);
+                                     const EntityList& nearList, TUniqueId& idOut, CCollisionInfoList& list,
+                                     const CStateManager& mgr);
   static bool DetectDynamicCollisionMoving(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                           const EntityList& nearList,
-                                           const zeus::CVector3f& vec, TUniqueId& idOut, CCollisionInfo& infoOut,
-                                           double& d, const CStateManager& mgr);
+                                           const EntityList& nearList, const zeus::CVector3f& vec, TUniqueId& idOut,
+                                           CCollisionInfo& infoOut, double& d, const CStateManager& mgr);
   static bool DetectCollision(const CStateManager& mgr, const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                              const CMaterialFilter& filter, const EntityList& nearList,
-                              TUniqueId& idOut, CCollisionInfoList& infoOut);
+                              const CMaterialFilter& filter, const EntityList& nearList, TUniqueId& idOut,
+                              CCollisionInfoList& infoOut);
   static void MakeCollisionCallbacks(CStateManager& mgr, CPhysicsActor& actor, TUniqueId id,
                                      const CCollisionInfoList& list);
   static void SendScriptMessages(CStateManager& mgr, CActor& a0, CActor* a1, const CCollisionInfoList& list);
@@ -117,11 +109,10 @@ public:
   static void CollideWithStaticBodyNoRot(CPhysicsActor& a0, const CMaterialList& m0, const CMaterialList& m1,
                                          const zeus::CUnitVector3f& normal, float restitution, bool);
   static void CollisionFailsafe(const CStateManager& mgr, CAreaCollisionCache& cache, CPhysicsActor& actor,
-                                const CCollisionPrimitive& prim, const EntityList& nearList,
-                                float, u32 failsafeTicks);
-  static std::optional<zeus::CVector3f>
-  FindNonIntersectingVector(const CStateManager& mgr, CAreaCollisionCache& cache, CPhysicsActor& actor,
-                            const CCollisionPrimitive& prim, const EntityList& nearList);
+                                const CCollisionPrimitive& prim, const EntityList& nearList, float, u32 failsafeTicks);
+  static std::optional<zeus::CVector3f> FindNonIntersectingVector(const CStateManager& mgr, CAreaCollisionCache& cache,
+                                                                  CPhysicsActor& actor, const CCollisionPrimitive& prim,
+                                                                  const EntityList& nearList);
   static void AvoidStaticCollisionWithinRadius(const CStateManager& mgr, CPhysicsActor& actor, u32 iterations, float dt,
                                                float height, float size, float mass, float radius);
 };

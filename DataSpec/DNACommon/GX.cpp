@@ -15,4 +15,4 @@ void Color::Enumerate<athena::io::DNA<athena::Endian::Big>::BinarySize>(BinarySi
   s += 4;
 }
 
-}
+} // namespace GX

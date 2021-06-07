@@ -34,6 +34,7 @@ private:
 
   void DrawVideo();
   void DrawText();
+
 public:
   explicit CPlayMovie(EWhichMovie which);
   EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) override;

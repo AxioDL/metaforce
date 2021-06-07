@@ -67,23 +67,23 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
         x30_text.back().first->SetText(x18_creditsTable->GetString(i));
       }
 
-//      auto tmp = std::make_pair(std::make_unique<CGuiTextSupport>(
-//                                    g_ResFactory->GetResourceIdByName(g_tweakGui->GetCreditsFont())->id,
-//                                    CGuiTextProperties(true, true, EJustification::Center, EVerticalJustification::Top),
-//                                    g_tweakGui->GetCreditsTextFontColor(), g_tweakGui->GetCreditsTextBorderColor(),
-//                                    zeus::skWhite, g_Viewport.x8_width - 64, 0, g_SimplePool,
-//                                    CGuiWidget::EGuiModelDrawFlags::Alpha),
-//                                zeus::CVector2i(0, 0));
-//      tmp.first->SetText(
-//          "\n&push;&font=C29C51F1;&main-color=#89D6FF;URDE DEVELOPMENT TEAM&pop;\n"
-//          "&push;&main-color=#89D6FF;LEAD REVERSE ENGINEERING TEAM&pop\n;"
-//          "Jack \"Cirrus\" Andersen\n"
-//          "Phillip \"Antidote\" Stephens\n"
-//          "Luke \"encounter\" Street\n\n"
-//          "&push;&main-color=#89D6FF;C++ COMPLIANCE & CLEANUP&pop;\n"
-//          "Lioncache\n");
-//      x30_text.insert(x30_text.end() - 1, std::move(tmp));
-//      x30_text.back().first->SetOutlineColor(g_tweakGui->GetCreditsTextBorderColor());
+      //      auto tmp = std::make_pair(std::make_unique<CGuiTextSupport>(
+      //                                    g_ResFactory->GetResourceIdByName(g_tweakGui->GetCreditsFont())->id,
+      //                                    CGuiTextProperties(true, true, EJustification::Center,
+      //                                    EVerticalJustification::Top), g_tweakGui->GetCreditsTextFontColor(),
+      //                                    g_tweakGui->GetCreditsTextBorderColor(), zeus::skWhite, g_Viewport.x8_width
+      //                                    - 64, 0, g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Alpha),
+      //                                zeus::CVector2i(0, 0));
+      //      tmp.first->SetText(
+      //          "\n&push;&font=C29C51F1;&main-color=#89D6FF;URDE DEVELOPMENT TEAM&pop;\n"
+      //          "&push;&main-color=#89D6FF;LEAD REVERSE ENGINEERING TEAM&pop\n;"
+      //          "Jack \"Cirrus\" Andersen\n"
+      //          "Phillip \"Antidote\" Stephens\n"
+      //          "Luke \"encounter\" Street\n\n"
+      //          "&push;&main-color=#89D6FF;C++ COMPLIANCE & CLEANUP&pop;\n"
+      //          "Lioncache\n");
+      //      x30_text.insert(x30_text.end() - 1, std::move(tmp));
+      //      x30_text.back().first->SetOutlineColor(g_tweakGui->GetCreditsTextBorderColor());
     }
 
     for (const auto& [text, offset] : x30_text) {
@@ -247,7 +247,7 @@ void CCredits::DrawText() {
 }
 
 void CCredits::DrawText(CGuiTextSupport& text, const zeus::CVector3f& translation) {
-  //auto region = g_Renderer->SetViewportOrtho(false, -4096, 4096);
+  // auto region = g_Renderer->SetViewportOrtho(false, -4096, 4096);
   zeus::CTransform xf = zeus::CTransform::Translate(translation);
   g_Renderer->SetModelMatrix(xf);
   text.Render();

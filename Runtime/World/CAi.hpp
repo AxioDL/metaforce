@@ -25,6 +25,7 @@ class CTeamAiRole;
 
 class CAi : public CPhysicsActor {
   static CAiFuncMap* m_FuncMap;
+
 protected:
   CHealthInfo x258_healthInfo;
   CDamageVulnerability x260_damageVulnerability;

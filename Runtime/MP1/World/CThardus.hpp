@@ -184,7 +184,6 @@ class CThardus : public CPatterned {
   void DoFlinch(CStateManager& mgr) { x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Flinch"sv); }
   void _DoSuckState(CStateManager& mgr) { x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Suck"sv); }
 
-
   zeus::CVector2f GetSteeringVector(CStateManager& mgr) const;
   void UpdateHealthInfo(CStateManager& mgr);
   void BouncePlayer(float f1, CStateManager& mgr);

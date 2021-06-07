@@ -18,72 +18,67 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os, const BabeDeadLi
   switch (light.lightType) {
   case BabeDeadLight::LightType::LocalAmbient:
   case BabeDeadLight::LightType::LocalAmbient2:
-    os.format(FMT_STRING(
-        "bg_node.inputs[0].default_value = ({},{},{},1.0)\n"
-        "bg_node.inputs[1].default_value = {}\n"),
-        light.color.simd[0], light.color.simd[1], light.color.simd[2], light.q / 8.f);
+    os.format(FMT_STRING("bg_node.inputs[0].default_value = ({},{},{},1.0)\n"
+                         "bg_node.inputs[1].default_value = {}\n"),
+              light.color.simd[0], light.color.simd[1], light.color.simd[2], light.q / 8.f);
     return;
   case BabeDeadLight::LightType::Directional:
-    os.format(FMT_STRING(
-        "lamp = bpy.data.lights.new('LAMP_{:01d}_{:03d}', 'SUN')\n"
-        "lamp.color = ({},{},{})\n"
-        "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
-        "lamp_obj.rotation_mode = 'QUATERNION'\n"
-        "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector(({},{},{})))\n"
-        "lamp.use_shadow = {}\n"
-        "\n"),
-        s, l, light.color.simd[0], light.color.simd[1], light.color.simd[2], light.direction.simd[0],
-        light.direction.simd[1], light.direction.simd[2], light.castShadows ? "True" : "False");
+    os.format(FMT_STRING("lamp = bpy.data.lights.new('LAMP_{:01d}_{:03d}', 'SUN')\n"
+                         "lamp.color = ({},{},{})\n"
+                         "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
+                         "lamp_obj.rotation_mode = 'QUATERNION'\n"
+                         "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector(({},{},{})))\n"
+                         "lamp.use_shadow = {}\n"
+                         "\n"),
+              s, l, light.color.simd[0], light.color.simd[1], light.color.simd[2], light.direction.simd[0],
+              light.direction.simd[1], light.direction.simd[2], light.castShadows ? "True" : "False");
     return;
   case BabeDeadLight::LightType::Custom:
-    os.format(FMT_STRING(
-        "lamp = bpy.data.lights.new('LAMP_{:01d}_{:03d}', 'POINT')\n"
-        "lamp.color = ({},{},{})\n"
-        "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
-        "lamp.shadow_soft_size = 1.0\n"
-        "lamp.use_shadow = {}\n"
-        "\n"),
-        s, l, light.color.simd[0], light.color.simd[1], light.color.simd[2],
-        light.castShadows ? "True" : "False");
+    os.format(FMT_STRING("lamp = bpy.data.lights.new('LAMP_{:01d}_{:03d}', 'POINT')\n"
+                         "lamp.color = ({},{},{})\n"
+                         "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
+                         "lamp.shadow_soft_size = 1.0\n"
+                         "lamp.use_shadow = {}\n"
+                         "\n"),
+              s, l, light.color.simd[0], light.color.simd[1], light.color.simd[2],
+              light.castShadows ? "True" : "False");
     break;
   case BabeDeadLight::LightType::Spot:
   case BabeDeadLight::LightType::Spot2:
-    os.format(FMT_STRING(
-        "lamp = bpy.data.lights.new('LAMP_{:01d}_{:03d}', 'SPOT')\n"
-        "lamp.color = ({},{},{})\n"
-        "lamp.spot_size = {:.6g}\n"
-        "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
-        "lamp_obj.rotation_mode = 'QUATERNION'\n"
-        "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector(({},{},{})))\n"
-        "lamp.shadow_soft_size = 0.5\n"
-        "lamp.use_shadow = {}\n"
-        "\n"),
-        s, l, light.color.simd[0], light.color.simd[1], light.color.simd[2], zeus::degToRad(light.spotCutoff),
-        light.direction.simd[0], light.direction.simd[1], light.direction.simd[2],
-        light.castShadows ? "True" : "False");
+    os.format(FMT_STRING("lamp = bpy.data.lights.new('LAMP_{:01d}_{:03d}', 'SPOT')\n"
+                         "lamp.color = ({},{},{})\n"
+                         "lamp.spot_size = {:.6g}\n"
+                         "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
+                         "lamp_obj.rotation_mode = 'QUATERNION'\n"
+                         "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector(({},{},{})))\n"
+                         "lamp.shadow_soft_size = 0.5\n"
+                         "lamp.use_shadow = {}\n"
+                         "\n"),
+              s, l, light.color.simd[0], light.color.simd[1], light.color.simd[2], zeus::degToRad(light.spotCutoff),
+              light.direction.simd[0], light.direction.simd[1], light.direction.simd[2],
+              light.castShadows ? "True" : "False");
     break;
   default:
     return;
   }
 
-  os.format(FMT_STRING(
-      "lamp.retro_layer = {}\n"
-      "lamp.retro_origtype = {}\n"
-      "lamp.falloff_type = 'INVERSE_COEFFICIENTS'\n"
-      "lamp.constant_coefficient = 0\n"
-      "lamp.use_nodes = True\n"
-      "falloff_node = lamp.node_tree.nodes.new('ShaderNodeLightFalloff')\n"
-      "lamp.energy = 0.0\n"
-      "falloff_node.inputs[0].default_value = {}\n"
-      "hue_sat_node = lamp.node_tree.nodes.new('ShaderNodeHueSaturation')\n"
-      "hue_sat_node.inputs[1].default_value = 1.25\n"
-      "hue_sat_node.inputs[4].default_value = ({},{},{},1.0)\n"
-      "lamp.node_tree.links.new(hue_sat_node.outputs[0], lamp.node_tree.nodes['Emission'].inputs[0])\n"
-      "lamp_obj.location = ({},{},{})\n"
-      "bpy.context.scene.collection.objects.link(lamp_obj)\n"
-      "\n"),
-      s, unsigned(light.lightType), light.q / 8.f, light.color.simd[0], light.color.simd[1], light.color.simd[2],
-      light.position.simd[0], light.position.simd[1], light.position.simd[2]);
+  os.format(FMT_STRING("lamp.retro_layer = {}\n"
+                       "lamp.retro_origtype = {}\n"
+                       "lamp.falloff_type = 'INVERSE_COEFFICIENTS'\n"
+                       "lamp.constant_coefficient = 0\n"
+                       "lamp.use_nodes = True\n"
+                       "falloff_node = lamp.node_tree.nodes.new('ShaderNodeLightFalloff')\n"
+                       "lamp.energy = 0.0\n"
+                       "falloff_node.inputs[0].default_value = {}\n"
+                       "hue_sat_node = lamp.node_tree.nodes.new('ShaderNodeHueSaturation')\n"
+                       "hue_sat_node.inputs[1].default_value = 1.25\n"
+                       "hue_sat_node.inputs[4].default_value = ({},{},{},1.0)\n"
+                       "lamp.node_tree.links.new(hue_sat_node.outputs[0], lamp.node_tree.nodes['Emission'].inputs[0])\n"
+                       "lamp_obj.location = ({},{},{})\n"
+                       "bpy.context.scene.collection.objects.link(lamp_obj)\n"
+                       "\n"),
+            s, unsigned(light.lightType), light.q / 8.f, light.color.simd[0], light.color.simd[1], light.color.simd[2],
+            light.position.simd[0], light.position.simd[1], light.position.simd[2]);
 
   switch (light.falloff) {
   case BabeDeadLight::Falloff::Constant:

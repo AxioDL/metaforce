@@ -110,10 +110,7 @@ public:
     void SetTimeRemaining(float t) { x4_timeRemaining = t; }
 
     CBaseSfxWrapper(bool looped, s16 prio, /*const CSfxHandle& handle,*/ bool useAcoustics, TAreaId area)
-    : xa_prio(prio)
-    , /*xc_handle(handle),*/ x10_area(area)
-    , x14_26_looped(looped)
-    , x14_29_useAcoustics(useAcoustics) {}
+    : xa_prio(prio), /*xc_handle(handle),*/ x10_area(area), x14_26_looped(looped), x14_29_useAcoustics(useAcoustics) {}
   };
 
   class CSfxEmitterWrapper : public CBaseSfxWrapper {

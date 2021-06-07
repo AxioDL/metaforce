@@ -8,7 +8,6 @@
 #include <cmath>
 #include <cfloat>
 
-
 namespace metaforce {
 class CMayaSplineKnot {
   float x0_time;

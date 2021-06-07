@@ -2,9 +2,7 @@
 
 namespace metaforce {
 
-CRumbleVoice::CRumbleVoice() : x0_datas(4), x10_deltas(4, SAdsrDelta::Stopped()) {
-  x20_handleIds.resize(4);
-}
+CRumbleVoice::CRumbleVoice() : x0_datas(4), x10_deltas(4, SAdsrDelta::Stopped()) { x20_handleIds.resize(4); }
 
 s16 CRumbleVoice::CreateRumbleHandle(s16 idx) {
   ++x2e_lastId;

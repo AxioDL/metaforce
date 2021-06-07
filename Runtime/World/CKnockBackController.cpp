@@ -410,17 +410,17 @@ void CKnockBackController::ValidateState(const CPatterned& parent) {
     if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::Hurled) && x80_availableStates.test(3) &&
         x4_activeParms.x0_animState >= EKnockBackAnimationState::Hurled) {
       useState = EKnockBackAnimationState::Hurled;
-    } else if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::KnockBack) && x80_availableStates.test(2) &&
-               x4_activeParms.x0_animState >= EKnockBackAnimationState::KnockBack) {
+    } else if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::KnockBack) &&
+               x80_availableStates.test(2) && x4_activeParms.x0_animState >= EKnockBackAnimationState::KnockBack) {
       useState = EKnockBackAnimationState::KnockBack;
     } else if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::AdditiveFlinch) &&
                x80_availableStates.test(1) && x4_activeParms.x0_animState >= EKnockBackAnimationState::Flinch) {
       useState = EKnockBackAnimationState::Flinch;
     }
   } else if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::Fall) && x80_availableStates.test(4) &&
-      (x4_activeParms.x0_animState >= EKnockBackAnimationState::Fall ||
-       (!parent.GetBodyController()->HasBodyState(pas::EAnimationState::Hurled) &&
-        x4_activeParms.x0_animState >= EKnockBackAnimationState::Hurled))) {
+             (x4_activeParms.x0_animState >= EKnockBackAnimationState::Fall ||
+              (!parent.GetBodyController()->HasBodyState(pas::EAnimationState::Hurled) &&
+               x4_activeParms.x0_animState >= EKnockBackAnimationState::Hurled))) {
     useState = EKnockBackAnimationState::Fall;
   } else if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::Hurled) && x80_availableStates.test(3) &&
              x4_activeParms.x0_animState >= EKnockBackAnimationState::Hurled) {

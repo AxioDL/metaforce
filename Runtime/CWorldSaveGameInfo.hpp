@@ -46,6 +46,6 @@ public:
 };
 
 CFactoryFnReturn FWorldSaveGameInfoFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
-                                   CObjectReference* selfRef);
+                                           CObjectReference* selfRef);
 
 } // namespace metaforce

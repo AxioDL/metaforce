@@ -26,10 +26,7 @@ static bool IsMediumOrLarge(const CActor& act) {
 }
 
 CActorModelParticles::CItem::CItem(const CEntity& ent, CActorModelParticles& parent)
-: x0_id(ent.GetUniqueId())
-, x4_areaId(ent.GetAreaIdAlways())
-, xdc_ashy(parent.x48_ashy)
-, x128_parent(parent) {
+: x0_id(ent.GetUniqueId()), x4_areaId(ent.GetAreaIdAlways()), xdc_ashy(parent.x48_ashy), x128_parent(parent) {
   x8_onFireGens.resize(8);
 }
 
@@ -68,8 +65,7 @@ void CActorModelParticles::CItem::GeneratePoints(const std::vector<std::pair<zeu
       zeus::CVector3f v = vn[idx].second;
       if (v.canBeNormalized()) {
         v.normalize();
-        x78_ashGen->SetOrientation(
-            zeus::CTransform{v.cross(zeus::skUp), v, zeus::skUp, zeus::skZero3f});
+        x78_ashGen->SetOrientation(zeus::CTransform{v.cross(zeus::skUp), v, zeus::skUp, zeus::skZero3f});
       }
       x78_ashGen->ForceParticleCreation(1);
     }
@@ -411,9 +407,7 @@ std::unique_ptr<CElementGen> CActorModelParticles::MakeOnFireGen() const {
   return std::make_unique<CElementGen>(x18_onFire);
 }
 
-std::unique_ptr<CElementGen> CActorModelParticles::MakeAshGen() const {
-  return std::make_unique<CElementGen>(x20_ash);
-}
+std::unique_ptr<CElementGen> CActorModelParticles::MakeAshGen() const { return std::make_unique<CElementGen>(x20_ash); }
 
 std::unique_ptr<CElementGen> CActorModelParticles::MakeIceGen() const {
   return std::make_unique<CElementGen>(x28_iceBreak);

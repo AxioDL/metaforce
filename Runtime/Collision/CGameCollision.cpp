@@ -58,8 +58,7 @@ void CGameCollision::InitCollision() {
   CCollisionPrimitive::InitEndColliders();
 }
 
-void CGameCollision::MovePlayer(CStateManager& mgr, CPhysicsActor& actor, float dt,
-                                const EntityList* colliderList) {
+void CGameCollision::MovePlayer(CStateManager& mgr, CPhysicsActor& actor, float dt, const EntityList* colliderList) {
   actor.SetAngularEnabled(true);
   actor.AddMotionState(actor.PredictAngularMotion(dt));
   if (!actor.IsUseStandardCollider()) {
@@ -195,8 +194,7 @@ zeus::CVector3f CGameCollision::GetActorRelativeVelocities(const CPhysicsActor& 
   return ret;
 }
 
-void CGameCollision::Move(CStateManager& mgr, CPhysicsActor& actor, float dt,
-                          const EntityList* colliderList) {
+void CGameCollision::Move(CStateManager& mgr, CPhysicsActor& actor, float dt, const EntityList* colliderList) {
   if (!actor.IsMovable())
     return;
   if (actor.GetMaterialList().HasMaterial(EMaterialTypes::GroundCollider) || actor.WillMove(mgr)) {
@@ -323,8 +321,7 @@ CRayCastResult CGameCollision::RayDynamicIntersection(const CStateManager& mgr, 
 
 bool CGameCollision::RayDynamicIntersectionBool(const CStateManager& mgr, const zeus::CVector3f& pos,
                                                 const zeus::CVector3f& dir, const CMaterialFilter& filter,
-                                                const EntityList& nearList,
-                                                const CActor* damagee, float length) {
+                                                const EntityList& nearList, const CActor* damagee, float length) {
   if (length <= 0.f) {
     length = 100000.f;
   }
@@ -349,8 +346,7 @@ bool CGameCollision::RayDynamicIntersectionBool(const CStateManager& mgr, const 
 
 CRayCastResult CGameCollision::RayWorldIntersection(const CStateManager& mgr, TUniqueId& idOut,
                                                     const zeus::CVector3f& pos, const zeus::CVector3f& dir, float mag,
-                                                    const CMaterialFilter& filter,
-                                                    const EntityList& nearList) {
+                                                    const CMaterialFilter& filter, const EntityList& nearList) {
   CRayCastResult staticRes = RayStaticIntersection(mgr, pos, dir, mag, filter);
   CRayCastResult dynamicRes = RayDynamicIntersection(mgr, idOut, pos, dir, mag, filter, nearList);
 
@@ -418,8 +414,7 @@ bool CGameCollision::DetectCollisionBoolean(const CStateManager& mgr, const CCol
 
 bool CGameCollision::DetectCollisionBoolean_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
                                                    const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                                   const CMaterialFilter& filter,
-                                                   const EntityList& nearList) {
+                                                   const CMaterialFilter& filter, const EntityList& nearList) {
   if (!filter.GetExcludeList().HasMaterial(EMaterialTypes::NoStaticCollision) &&
       DetectStaticCollisionBoolean_Cached(mgr, cache, prim, xf, filter)) {
     return true;
@@ -501,8 +496,7 @@ bool CGameCollision::DetectStaticCollisionBoolean_Cached(const CStateManager& mg
 }
 
 bool CGameCollision::DetectDynamicCollisionBoolean(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                                   const EntityList& nearList,
-                                                   const CStateManager& mgr) {
+                                                   const EntityList& nearList, const CStateManager& mgr) {
   for (const auto& id : nearList) {
     if (const TCastToConstPtr<CPhysicsActor> actor = mgr.GetObjectById(id)) {
       const CInternalCollisionStructure::CPrimDesc p0(prim, CMaterialFilter::skPassEverything, xf);
@@ -519,8 +513,7 @@ bool CGameCollision::DetectDynamicCollisionBoolean(const CCollisionPrimitive& pr
 
 bool CGameCollision::DetectCollision_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
                                             const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                            const CMaterialFilter& filter,
-                                            const EntityList& nearList, TUniqueId& idOut,
+                                            const CMaterialFilter& filter, const EntityList& nearList, TUniqueId& idOut,
                                             CCollisionInfoList& infoList) {
   idOut = kInvalidUniqueId;
   bool ret = false;
@@ -541,8 +534,7 @@ bool CGameCollision::DetectCollision_Cached(const CStateManager& mgr, CAreaColli
 
 bool CGameCollision::DetectCollision_Cached_Moving(const CStateManager& mgr, CAreaCollisionCache& cache,
                                                    const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                                   const CMaterialFilter& filter,
-                                                   const EntityList& nearList,
+                                                   const CMaterialFilter& filter, const EntityList& nearList,
                                                    const zeus::CVector3f& dir, TUniqueId& idOut,
                                                    CCollisionInfo& infoOut, double& d) {
   bool ret = false;
@@ -686,8 +678,8 @@ bool CGameCollision::DetectStaticCollision_Cached_Moving(const CStateManager& mg
 }
 
 bool CGameCollision::DetectDynamicCollision(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                            const EntityList& nearList, TUniqueId& idOut,
-                                            CCollisionInfoList& list, const CStateManager& mgr) {
+                                            const EntityList& nearList, TUniqueId& idOut, CCollisionInfoList& list,
+                                            const CStateManager& mgr) {
   for (const auto& id : nearList) {
     if (const TCastToConstPtr<CPhysicsActor> actor = mgr.GetObjectById(id)) {
       const CInternalCollisionStructure::CPrimDesc p0(prim, CMaterialFilter::skPassEverything, xf);
@@ -704,9 +696,9 @@ bool CGameCollision::DetectDynamicCollision(const CCollisionPrimitive& prim, con
 }
 
 bool CGameCollision::DetectDynamicCollisionMoving(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
-                                                  const EntityList& nearList,
-                                                  const zeus::CVector3f& dir, TUniqueId& idOut, CCollisionInfo& infoOut,
-                                                  double& dOut, const CStateManager& mgr) {
+                                                  const EntityList& nearList, const zeus::CVector3f& dir,
+                                                  TUniqueId& idOut, CCollisionInfo& infoOut, double& dOut,
+                                                  const CStateManager& mgr) {
   bool ret = false;
   for (const auto& id : nearList) {
     double d = dOut;
@@ -729,8 +721,7 @@ bool CGameCollision::DetectDynamicCollisionMoving(const CCollisionPrimitive& pri
 
 bool CGameCollision::DetectCollision(const CStateManager& mgr, const CCollisionPrimitive& prim,
                                      const zeus::CTransform& xf, const CMaterialFilter& filter,
-                                     const EntityList& nearList, TUniqueId& idOut,
-                                     CCollisionInfoList& infoOut) {
+                                     const EntityList& nearList, TUniqueId& idOut, CCollisionInfoList& infoOut) {
   bool ret = false;
   CMaterialList exclude = filter.ExcludeList();
   if (!exclude.HasMaterial(EMaterialTypes::Occluder) && DetectStaticCollision(mgr, prim, xf, filter, infoOut)) {
@@ -893,8 +884,7 @@ void CGameCollision::CollideWithStaticBodyNoRot(CPhysicsActor& a0, const CMateri
 }
 
 void CGameCollision::CollisionFailsafe(const CStateManager& mgr, CAreaCollisionCache& cache, CPhysicsActor& actor,
-                                       const CCollisionPrimitive& prim,
-                                       const EntityList& nearList, float f1,
+                                       const CCollisionPrimitive& prim, const EntityList& nearList, float f1,
                                        u32 failsafeTicks) {
   actor.MoveCollisionPrimitive(zeus::skZero3f);
   if (f1 > 0.5f) {
@@ -942,8 +932,7 @@ void CGameCollision::CollisionFailsafe(const CStateManager& mgr, CAreaCollisionC
 
 std::optional<zeus::CVector3f>
 CGameCollision::FindNonIntersectingVector(const CStateManager& mgr, CAreaCollisionCache& cache, CPhysicsActor& actor,
-                                          const CCollisionPrimitive& prim,
-                                          const EntityList& nearList) {
+                                          const CCollisionPrimitive& prim, const EntityList& nearList) {
   zeus::CTransform xf = actor.GetPrimitiveTransform();
   zeus::CVector3f origOrigin = xf.origin;
   zeus::CVector3f center = prim.CalculateAABox(xf).center();

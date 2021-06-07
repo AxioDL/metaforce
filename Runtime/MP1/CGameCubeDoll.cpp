@@ -13,9 +13,8 @@ CGameCubeDoll::CGameCubeDoll() {
 }
 
 void CGameCubeDoll::UpdateActorLights() {
-  x8_lights[0] = CLight::BuildDirectional(
-      (zeus::skForward + zeus::skRight * 0.25f + zeus::skDown * 0.1f).normalized(),
-      zeus::skWhite);
+  x8_lights[0] = CLight::BuildDirectional((zeus::skForward + zeus::skRight * 0.25f + zeus::skDown * 0.1f).normalized(),
+                                          zeus::skWhite);
   x18_actorLights->BuildFakeLightList(x8_lights, zeus::CColor(0.25f, 1.f));
 }
 

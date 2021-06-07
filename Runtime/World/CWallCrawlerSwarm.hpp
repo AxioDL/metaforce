@@ -21,11 +21,7 @@ namespace metaforce {
 class CAreaCollisionCache;
 class CWallCrawlerSwarm : public CActor {
 public:
-  enum class EFlavor {
-    Parasite,
-    Scarab,
-    Crab
-  };
+  enum class EFlavor { Parasite, Scarab, Crab };
   class CBoid {
     friend class CWallCrawlerSwarm;
     zeus::CTransform x0_xf;
@@ -35,9 +31,8 @@ public:
     CBoid* x44_next = nullptr;
     float x48_timeToDie = 0.f;
     float x4c_timeToExplode = 0.f;
-    CCollisionSurface x50_surface =
-      CCollisionSurface(zeus::CVector3f(0.f, 0.f, 1.f), zeus::CVector3f(0.f, 1.f, 0.f),
-                        zeus::CVector3f(1.f, 0.f, 0.f), 0xffffffff);
+    CCollisionSurface x50_surface = CCollisionSurface(zeus::CVector3f(0.f, 0.f, 1.f), zeus::CVector3f(0.f, 1.f, 0.f),
+                                                      zeus::CVector3f(1.f, 0.f, 0.f), 0xffffffff);
     float x78_health = 0.f;
     int x7c_framesNotOnSurface : 8 = 0;
     int x7c_idx : 10;
@@ -61,6 +56,7 @@ public:
     friend class CWallCrawlerSwarm;
     zeus::CVector3f x0_center;
     float xc_mag;
+
   public:
     CRepulsor(const zeus::CVector3f& center, float mag) : x0_center(center), xc_mag(mag) {}
   };
@@ -100,8 +96,8 @@ private:
   CDamageVulnerability x3c4_dVuln;
   s32 x42c_lockOnIdx = -1;
   /* Used to be position and normal array pointers */
-  //rstl::reserved_vector<std::unique_ptr<float[]>, 10> x430_;
-  //rstl::reserved_vector<std::unique_ptr<float[]>, 10> x484_;
+  // rstl::reserved_vector<std::unique_ptr<float[]>, 10> x430_;
+  // rstl::reserved_vector<std::unique_ptr<float[]>, 10> x484_;
   rstl::reserved_vector<std::shared_ptr<CModelData>, 10> x4b0_modelDatas;
   CModelData::EWhichModel x4dc_whichModel = CModelData::EWhichModel::Normal;
   std::vector<CRepulsor> x4e0_doorRepulsors;
@@ -142,18 +138,18 @@ private:
   void BuildBoidNearList(const CBoid& boid, float radius, rstl::reserved_vector<CBoid*, 50>& nearList);
   void ApplySeparation(const CBoid& boid, const rstl::reserved_vector<CBoid*, 50>& nearList,
                        zeus::CVector3f& aheadVec) const;
-  void ApplySeparation(const CBoid& boid, const zeus::CVector3f& separateFrom, float separationRadius, float separationMagnitude,
-                       zeus::CVector3f& aheadVec) const;
+  void ApplySeparation(const CBoid& boid, const zeus::CVector3f& separateFrom, float separationRadius,
+                       float separationMagnitude, zeus::CVector3f& aheadVec) const;
   void ScatterScarabBoid(CBoid& boid, CStateManager& mgr) const;
   void MoveToWayPoint(CBoid& boid, CStateManager& mgr, zeus::CVector3f& aheadVec) const;
   void ApplyCohesion(const CBoid& boid, const rstl::reserved_vector<CBoid*, 50>& nearList,
                      zeus::CVector3f& aheadVec) const;
-  void ApplyCohesion(const CBoid& boid, const zeus::CVector3f& cohesionFrom, float cohesionRadius, float cohesionMagnitude,
-                     zeus::CVector3f& aheadVec) const;
+  void ApplyCohesion(const CBoid& boid, const zeus::CVector3f& cohesionFrom, float cohesionRadius,
+                     float cohesionMagnitude, zeus::CVector3f& aheadVec) const;
   void ApplyAlignment(const CBoid& boid, const rstl::reserved_vector<CBoid*, 50>& nearList,
                       zeus::CVector3f& aheadVec) const;
-  void ApplyAttraction(const CBoid& boid, const zeus::CVector3f& attractTo, float attractionRadius, float attractionMagnitude,
-                       zeus::CVector3f& aheadVec) const;
+  void ApplyAttraction(const CBoid& boid, const zeus::CVector3f& attractTo, float attractionRadius,
+                       float attractionMagnitude, zeus::CVector3f& aheadVec) const;
   void UpdateBoid(const CAreaCollisionCache& ccache, CStateManager& mgr, float dt, CBoid& boid);
   void LaunchBoid(CBoid& boid, const zeus::CVector3f& dir);
   void AddParticle(const zeus::CTransform& xf);
@@ -170,19 +166,16 @@ private:
 public:
   DEFINE_ENTITY
   CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
-                    const zeus::CVector3f& boundingBoxExtent, const zeus::CTransform& xf,
-                    EFlavor flavor, const CAnimRes& animRes, s32 launchAnim, s32 attractAnim,
-                    CAssetId part1, CAssetId part2, CAssetId part3, CAssetId part4,
-                    const CDamageInfo& crabDamage, const CDamageInfo& scarabExplodeDamage,
-                    float crabDamageCooldown, float boidRadius, float touchRadius,
-                    float playerTouchRadius, u32 numBoids, u32 maxCreatedBoids,
-                    float animPlaybackSpeed, float separationRadius, float cohesionMagnitude,
-                    float alignmentWeight, float separationMagnitude, float moveToWaypointWeight,
-                    float attractionMagnitude, float attractionRadius, float boidGenRate,
-                    u32 maxLaunches, float scarabBoxMargin, float scarabScatterXYVelocity,
-                    float scarabTimeToExplode, const CHealthInfo& hInfo,
-                    const CDamageVulnerability& dVuln, s32 launchSfx,
-                    s32 scatterSfx, const CActorParameters& aParams);
+                    const zeus::CVector3f& boundingBoxExtent, const zeus::CTransform& xf, EFlavor flavor,
+                    const CAnimRes& animRes, s32 launchAnim, s32 attractAnim, CAssetId part1, CAssetId part2,
+                    CAssetId part3, CAssetId part4, const CDamageInfo& crabDamage,
+                    const CDamageInfo& scarabExplodeDamage, float crabDamageCooldown, float boidRadius,
+                    float touchRadius, float playerTouchRadius, u32 numBoids, u32 maxCreatedBoids,
+                    float animPlaybackSpeed, float separationRadius, float cohesionMagnitude, float alignmentWeight,
+                    float separationMagnitude, float moveToWaypointWeight, float attractionMagnitude,
+                    float attractionRadius, float boidGenRate, u32 maxLaunches, float scarabBoxMargin,
+                    float scarabScatterXYVelocity, float scarabTimeToExplode, const CHealthInfo& hInfo,
+                    const CDamageVulnerability& dVuln, s32 launchSfx, s32 scatterSfx, const CActorParameters& aParams);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;

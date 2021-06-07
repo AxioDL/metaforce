@@ -583,9 +583,9 @@ bool TriBoxOverlap(const zeus::CVector3f& boxcenter, const zeus::CVector3f& boxh
   const zeus::CVector3f v2 = trivert2 - boxcenter;
 
   /* compute triangle edges */
-  const zeus::CVector3f e0 = v1 - v0;  // Tri edge 0
-  const zeus::CVector3f e1 = v2 - v1;  // Tri edge 1
-  const zeus::CVector3f e2 = v0 - v2;  // Tri edge 2
+  const zeus::CVector3f e0 = v1 - v0; // Tri edge 0
+  const zeus::CVector3f e1 = v2 - v1; // Tri edge 1
+  const zeus::CVector3f e2 = v0 - v2; // Tri edge 2
 
   /* Bullet 3:  */
   /*  test the 9 tests first (this was faster) */

@@ -87,8 +87,7 @@ private:
 
   public:
     CGunMorph(float gunTransformTime, float holoHoldTime)
-    : x4_gunTransformTime(gunTransformTime)
-    , x10_holoHoldTime(std::fabs(holoHoldTime)) {}
+    : x4_gunTransformTime(gunTransformTime), x10_holoHoldTime(std::fabs(holoHoldTime)) {}
     float GetYLerp() const { return x0_yLerp; }
     float GetTransitionFactor() const { return x18_transitionFactor; }
     EGunState GetGunState() const { return x20_gunState; }

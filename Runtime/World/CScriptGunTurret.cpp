@@ -341,8 +341,8 @@ void CScriptGunTurret::Touch(CActor& act, CStateManager& mgr) {
           dVuln->WeaponHits(CWeaponMode::Ice(), false)) {
         x560_25_frozen = true;
         SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
-        x53c_freezeRemTime = mgr.GetActiveRandom()->Float() *
-          x2d4_data.GetFreezeVariance() + x2d4_data.GetFreezeDuration();
+        x53c_freezeRemTime =
+            mgr.GetActiveRandom()->Float() * x2d4_data.GetFreezeVariance() + x2d4_data.GetFreezeDuration();
         SetMuted(true);
       }
       SendScriptMsgs(EScriptObjectState::Damage, mgr, EScriptObjectMessage::None);
@@ -377,15 +377,17 @@ void CScriptGunTurret::SetupCollisionManager(CStateManager& mgr) {
       x508_gunSDKSeg, blastLCTR, 0.6f, 1.f, CJointCollisionDescription::EOrientationType::One, "Gun_SDK"sv, 1000.f));
   jointDescs.push_back(CJointCollisionDescription::SphereCollision(blastLCTR, 0.3f, "Blast_LCTR"sv, 1000.f));
 
-  x49c_collisionManager = std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), jointDescs, true);
+  x49c_collisionManager =
+      std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), jointDescs, true);
   x49c_collisionManager->SetActive(mgr, GetActive());
 
   for (int i = 0; i < x49c_collisionManager->GetNumCollisionActors(); ++i) {
     const auto& desc = x49c_collisionManager->GetCollisionDescFromIndex(i);
     if (const TCastToPtr<CCollisionActor> cAct = mgr.ObjectById(desc.GetCollisionActorId())) {
       cAct->AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
-      cAct->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Player},
-        {EMaterialTypes::Character, EMaterialTypes::NoStaticCollision, EMaterialTypes::NoPlatformCollision}));
+      cAct->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
+          {EMaterialTypes::Player},
+          {EMaterialTypes::Character, EMaterialTypes::NoStaticCollision, EMaterialTypes::NoPlatformCollision}));
       if (desc.GetName().find("Blast_LCTR"sv) != std::string_view::npos) {
         x4a0_collisionActor = desc.GetCollisionActorId();
       }
@@ -790,8 +792,8 @@ void CScriptGunTurret::ProcessInactiveState(EStateMsg msg, CStateManager& mgr, f
       if (const TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId)) {
         forceActivate = gun->HealthInfo(mgr)->GetHP() < x260_lastGunHP;
       }
-    if (x2d4_data.GetScriptedStartOnly() ? (forceActivate || x560_29_scriptedStart) :
-        (forceActivate || x560_29_scriptedStart || InDetectionRange(mgr))) {
+    if (x2d4_data.GetScriptedStartOnly() ? (forceActivate || x560_29_scriptedStart)
+                                         : (forceActivate || x560_29_scriptedStart || InDetectionRange(mgr))) {
       x528_curInactiveTime += dt;
       if (forceActivate || x528_curInactiveTime >= x2d4_data.GetIntoActivateDelay())
         SetTurretState(ETurretState::Ready, mgr);
@@ -866,9 +868,8 @@ void CScriptGunTurret::ProcessTargettingState(EStateMsg msg, CStateManager& mgr,
                                                           mgr.GetPlayer(), false, dt);
           }
 
-          zeus::CVector3f compensated =
-              x3a4_burstFire.GetDistanceCompensatedError(
-                (x404_targetPosition - gun->GetTranslation()).magnitude(), 20.f);
+          zeus::CVector3f compensated = x3a4_burstFire.GetDistanceCompensatedError(
+              (x404_targetPosition - gun->GetTranslation()).magnitude(), 20.f);
 
           compensated = gun->GetTransform().rotate(compensated);
 
@@ -910,7 +911,7 @@ void CScriptGunTurret::ProcessExitTargettingState(EStateMsg msg, CStateManager& 
     return;
 
   if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId)) {
-    //zeus::CTransform gunXf = GetTransform() * GetLocatorTransform("Gun_SDK"sv);
+    // zeus::CTransform gunXf = GetTransform() * GetLocatorTransform("Gun_SDK"sv);
 
     if (zeus::CVector3f::getAngleDiff(gun->GetTransform().frontVector(), x544_originalFrontVec) < zeus::degToRad(0.9f))
       SetTurretState(ETurretState::Ready, mgr);
@@ -1073,8 +1074,7 @@ bool CScriptGunTurret::PlayerInsideTurretSphere(CStateManager& mgr) const {
     if (cAct->GetActive()) {
       zeus::CVector3f delta = mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation();
       if (delta.z() < 0.f) {
-        const float rad = cAct->GetSphereRadius() * 2.f +
-        (cAct->GetTranslation() - GetTranslation()).magnitude();
+        const float rad = cAct->GetSphereRadius() * 2.f + (cAct->GetTranslation() - GetTranslation()).magnitude();
         return delta.magSquared() < rad * rad;
       }
     }
@@ -1142,8 +1142,8 @@ void CScriptGunTurret::UpdateGunOrientation(float dt, CStateManager& mgr) {
         useYaw = -std::atan2(xf.frontVector().x(), xf.frontVector().y());
       }
 
-      const float f28 = -0.5f * x2d4_data.GetDownMaxAngle() *
-        (1.f - std::cos(2.f * x524_curStateTime * x2d4_data.GetTurnSpeed()));
+      const float f28 =
+          -0.5f * x2d4_data.GetDownMaxAngle() * (1.f - std::cos(2.f * x524_curStateTime * x2d4_data.GetTurnSpeed()));
       const float pitch = gun->GetPitch();
       const float f2 = f28 - pitch;
       const float f31 = x2d4_data.GetTurnSpeed() * dt;

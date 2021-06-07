@@ -295,5 +295,4 @@ struct Color : athena::io::DNA<athena::Endian::Big> {
   AT_DECL_EXPLICIT_DNA
 };
 
-}
-
+} // namespace GX

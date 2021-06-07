@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPmisc 39
-
 
 #define SFXdor_x_close_00 1128
 #define SFXdor_x_open_00 1129
@@ -256,5 +254,3 @@
 #define SFXsfx055C 1372
 #define SFXsfx055D 1373
 #define SFXsfx055E 1374
-
-

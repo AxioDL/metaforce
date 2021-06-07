@@ -428,8 +428,8 @@ void CScriptPlayerActor::Render(CStateManager& mgr) {
     const float radius = zeus::clamp(0.25f, (6.f - vecFromCam.magnitude()) / 6.f, 2.f);
     const float offsetX = std::sin(x34c_phazonOffsetAngle);
     const float offsetY = std::sin(x34c_phazonOffsetAngle) * 0.5f;
-    //g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, 1.f), x338_phazonIndirectTexture, zeus::skWhite,
-    //                                         radius, 0.05f, offsetX, offsetY);
+    // g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, 1.f), x338_phazonIndirectTexture, zeus::skWhite,
+    //                                          radius, 0.05f, offsetX, offsetY);
   }
 }
 

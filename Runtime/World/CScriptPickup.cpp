@@ -98,8 +98,9 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
     x274_tractorTime += dt;
     posDelta = (20.f * (0.5f * zeus::min(2.f, x274_tractorTime))) * posDelta.normalized();
 
-    if (x28c_26_enableTractorTest && (mgr.GetPlayer().GetPlayerGun()->IsCharging() ?
-        mgr.GetPlayer().GetPlayerGun()->GetChargeBeamFactor() : 0.f) < CPlayerGun::skTractorBeamFactor) {
+    if (x28c_26_enableTractorTest &&
+        (mgr.GetPlayer().GetPlayerGun()->IsCharging() ? mgr.GetPlayer().GetPlayerGun()->GetChargeBeamFactor() : 0.f) <
+            CPlayerGun::skTractorBeamFactor) {
       x28c_26_enableTractorTest = false;
       x28c_25_inTractor = false;
       posDelta.zeroOut();
@@ -113,8 +114,8 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
       const zeus::CVector3f posDelta =
           GetTranslation() - mgr.GetCameraManager()->GetFirstPersonCamera()->GetTranslation();
       const float relFov = zeus::CRelAngle(zeus::degToRad(g_tweakGame->GetFirstPersonFOV())).asRel();
-      if (mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().
-          frontVector().dot(posDelta.normalized()) > std::cos(relFov) &&
+      if (mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().frontVector().dot(posDelta.normalized()) >
+              std::cos(relFov) &&
           posDelta.magSquared() < (30.f * 30.f)) {
         x28c_25_inTractor = true;
         x28c_26_enableTractorTest = true;

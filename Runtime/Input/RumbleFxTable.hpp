@@ -9,4 +9,4 @@ using RumbleFXTable = std::array<SAdsrData, 24>;
 
 extern const RumbleFXTable RumbleFxTable;
 
-}
+} // namespace metaforce

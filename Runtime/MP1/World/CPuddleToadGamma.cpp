@@ -142,7 +142,7 @@ void CPuddleToadGamma::ShootPlayer(CStateManager& mgr, float speed) {
     mgr.GetPlayer().ApplyImpulseWR(mgr.GetPlayer().GetMass() * shootDir * speed, {});
     mgr.GetPlayer().SetMoveState(CPlayer::EPlayerMovementState::ApplyJump, mgr);
     mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), x570_playerShootDamage,
-      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
+                    CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
     mgr.GetPlayer().GetMorphBall()->SetAsProjectile();
     EntityList nearList;
     mgr.BuildNearList(nearList, GetBoundingBox(), CMaterialFilter::MakeInclude({EMaterialTypes::Bomb}), this);
@@ -175,7 +175,7 @@ bool CPuddleToadGamma::PlayerInVortexArea(const CStateManager& mgr) const {
   if (playerDist > 2.f) {
     const CRayCastResult result =
         mgr.RayStaticIntersection(suckPointToPlayer, 1.f / playerDist * suckPointToPlayer,
-            playerDist - player.GetMorphBall()->GetBallRadius(), skSolidFilter);
+                                  playerDist - player.GetMorphBall()->GetBallRadius(), skSolidFilter);
     if (result.IsValid())
       return false;
   }

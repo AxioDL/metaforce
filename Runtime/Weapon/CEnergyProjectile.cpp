@@ -22,8 +22,8 @@ CEnergyProjectile::CEnergyProjectile(bool active, const TToken<CWeaponDescriptio
                                      EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
                                      const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
                                      bool sendCollideMsg)
-: CGameProjectile(active, desc, "GameProjectile"sv, type, xf, excludeMat, damage, uid, aid, owner, homingTarget, attribs,
-                  underwater, scale, visorParticle, visorSfx, sendCollideMsg)
+: CGameProjectile(active, desc, "GameProjectile"sv, type, xf, excludeMat, damage, uid, aid, owner, homingTarget,
+                  attribs, underwater, scale, visorParticle, visorSfx, sendCollideMsg)
 , x2ec_dir(xf.frontVector())
 , x2f8_mag(x2ec_dir.magnitude())
 , x2fc_camShake(CCameraShakeData::BuildProjectileCameraShake(0.5f, 0.75f)) {
@@ -212,7 +212,8 @@ void CEnergyProjectile::Think(float dt, CStateManager& mgr) {
 }
 
 void CEnergyProjectile::Render(CStateManager& mgr) {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CEnergyProjectile::Render WPSC_{}"), x2cc_wpscId).c_str(), zeus::skOrange);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CEnergyProjectile::Render WPSC_{}"), x2cc_wpscId).c_str(),
+                              zeus::skOrange);
 
   const auto visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
   if (visor == CPlayerState::EPlayerVisor::Combat) {

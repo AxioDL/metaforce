@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup002A 42
-
 
 #define SFXsas_x_dooropen_00 1724
 #define SFXsas_x_dooropen_01 1725
@@ -41,5 +39,3 @@
 #define SFXsfx06D9 1753
 #define SFXsfx06DA 1754
 #define SFXsfx06DB 1755
-
-

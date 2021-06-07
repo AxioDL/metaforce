@@ -89,9 +89,7 @@ void CPowerBomb::Think(float dt, CStateManager& mgr) {
   x15c_curTime += dt;
 }
 
-void CPowerBomb::AddToRenderer(const zeus::CFrustum&, CStateManager&) {
-  g_Renderer->AddParticleGen(*x168_particle);
-}
+void CPowerBomb::AddToRenderer(const zeus::CFrustum&, CStateManager&) { g_Renderer->AddParticleGen(*x168_particle); }
 
 void CPowerBomb::ApplyDynamicDamage(const zeus::CVector3f& pos, metaforce::CStateManager& mgr) {
   mgr.ApplyDamageToWorld(xec_ownerId, *this, pos, x12c_curDamageInfo, xf8_filter);

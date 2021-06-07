@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0020 32
-
 
 #define SFXsfx033F 831
 #define SFXepr_b_swordin_00 832
@@ -93,5 +91,3 @@
 #define SFXsfx0390 912
 #define SFXsfx0391 913
 #define SFXsfx0392 914
-
-

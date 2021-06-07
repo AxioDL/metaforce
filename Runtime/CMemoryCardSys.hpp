@@ -26,8 +26,8 @@ class CSaveWorldMemory {
   u32 x8_areaCount;
   std::vector<s32> xc_areaIds;
   std::vector<CWorldLayers::Area> x1c_defaultLayerStates;
-  TLockedToken<CStringTable> x2c_worldName; /* used to be optional */
-  TLockedToken<CWorldSaveGameInfo> x3c_saveWorld;   /* used to be optional */
+  TLockedToken<CStringTable> x2c_worldName;       /* used to be optional */
+  TLockedToken<CWorldSaveGameInfo> x3c_saveWorld; /* used to be optional */
 
 public:
   CAssetId GetWorldNameId() const { return x0_strgId; }
@@ -61,8 +61,8 @@ public:
 
 class CMemoryCardSys {
   TLockedToken<CGameHintInfo> x0_hints;
-  std::vector<std::pair<CAssetId, CSaveWorldMemory>> xc_memoryWorlds;              /* MLVL as key */
-  std::optional<std::vector<CSaveWorldIntermediate>> x1c_worldInter; /* used to be auto_ptr of vector */
+  std::vector<std::pair<CAssetId, CSaveWorldMemory>> xc_memoryWorlds; /* MLVL as key */
+  std::optional<std::vector<CSaveWorldIntermediate>> x1c_worldInter;  /* used to be auto_ptr of vector */
   std::vector<std::pair<CAssetId, CWorldSaveGameInfo::EScanCategory>> x20_scanStates;
   rstl::reserved_vector<u32, 6> x30_scanCategoryCounts;
 
@@ -92,10 +92,13 @@ public:
   using CardStat = kabufuda::CardStat;
   const std::vector<CGameHintInfo::CGameHint>& GetHints() const { return x0_hints->GetHints(); }
   const std::vector<std::pair<CAssetId, CSaveWorldMemory>>& GetMemoryWorlds() const { return xc_memoryWorlds; }
-  const std::vector<std::pair<CAssetId, CWorldSaveGameInfo::EScanCategory>>& GetScanStates() const { return x20_scanStates; }
+  const std::vector<std::pair<CAssetId, CWorldSaveGameInfo::EScanCategory>>& GetScanStates() const {
+    return x20_scanStates;
+  }
   u32 GetScanCategoryCount(CWorldSaveGameInfo::EScanCategory cat) const { return x30_scanCategoryCounts[int(cat)]; }
 
-  std::vector<std::pair<CAssetId, CWorldSaveGameInfo::EScanCategory>>::const_iterator LookupScanState(CAssetId id) const {
+  std::vector<std::pair<CAssetId, CWorldSaveGameInfo::EScanCategory>>::const_iterator
+  LookupScanState(CAssetId id) const {
     return rstl::binary_find(x20_scanStates.cbegin(), x20_scanStates.cend(), id,
                              [](const std::pair<CAssetId, CWorldSaveGameInfo::EScanCategory>& p) { return p.first; });
   }

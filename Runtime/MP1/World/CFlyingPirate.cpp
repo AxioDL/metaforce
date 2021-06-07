@@ -322,7 +322,8 @@ CFlyingPirate::CFlyingPirate(TUniqueId uid, std::string_view name, const CEntity
   x864_missileSegments.push_back(animData->GetLocatorSegId("L_Missile_LCTR"sv));
   x864_missileSegments.push_back(animData->GetLocatorSegId("R_Missile_LCTR"sv));
   x850_height = modelData->GetScale().x() *
-                GetAnimationDistance(CPASAnimParmData{pas::EAnimationState::Step, CPASAnimParm::FromEnum(3), CPASAnimParm::FromEnum(1)});
+                GetAnimationDistance(
+                    CPASAnimParmData{pas::EAnimationState::Step, CPASAnimParm::FromEnum(3), CPASAnimParm::FromEnum(1)});
   if (x568_data.xd8_particleGen1.IsValid() && x568_data.xdc_particleGen2.IsValid() &&
       x568_data.xe0_particleGen3.IsValid()) {
     x65c_particleGenDescs.push_back(g_SimplePool->GetObj({SBIG('PART'), x568_data.xd8_particleGen1}));
@@ -747,7 +748,8 @@ void CFlyingPirate::FireProjectile(CStateManager& mgr, float dt) {
   }
   if (projectileFired) {
     const std::pair<float, s32> anim = x450_bodyController->GetPASDatabase().FindBestAnimation(
-        CPASAnimParmData{pas::EAnimationState::AdditiveReaction, CPASAnimParm::FromEnum(2)}, *mgr.GetActiveRandom(), -1);
+        CPASAnimParmData{pas::EAnimationState::AdditiveReaction, CPASAnimParm::FromEnum(2)}, *mgr.GetActiveRandom(),
+        -1);
     if (anim.first > 0.f) {
       GetModelData()->GetAnimationData()->AddAdditiveAnimation(anim.second, 1.f, false, true);
     }
@@ -1328,7 +1330,7 @@ void CFlyingPirate::UpdateLandingSmoke(CStateManager& mgr, bool active) {
         particleLevel = cover->GetTranslation().z() - 1.f;
       }
       const CRayCastResult result = mgr.RayStaticIntersection(origin, zeus::skDown, origin.z() - particleLevel,
-                                                               CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+                                                              CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
       int idx = 1;
       if (result.IsValid()) {
         const CMaterialList& list = result.GetMaterial();

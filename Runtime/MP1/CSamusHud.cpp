@@ -298,9 +298,9 @@ void CSamusHud::InitializeDamageLight() {
                                     g_tweakGuiColors->GetHudDamageLightColor(), CGuiWidget::EGuiModelDrawFlags::Alpha,
                                     false, false, "DamageSpotLight"s);
 
-  std::shared_ptr<CGuiLight> light = std::make_shared<CGuiLight>(
-      parms, CLight::BuildSpot(zeus::skZero3f, zeus::skForward, zeus::skWhite,
-                               g_tweakGui->GetHudDamageLightSpotAngle()));
+  std::shared_ptr<CGuiLight> light =
+      std::make_shared<CGuiLight>(parms, CLight::BuildSpot(zeus::skZero3f, zeus::skForward, zeus::skWhite,
+                                                           g_tweakGui->GetHudDamageLightSpotAngle()));
   x3d4_damageLight = light.get();
   x3d4_damageLight->SetColor(zeus::skBlack);
 
@@ -366,7 +366,7 @@ void CSamusHud::UpdateEnergy(float dt, const CStateManager& mgr, bool init) {
         while (curLastTankEnergy > CPlayerState::GetBaseHealthCapacity())
           curLastTankEnergy -= CPlayerState::GetEnergyTankCapacity();
         x28c_energyIntf->SetCurrEnergy(lastTankEnergy,
-          (curLastTankEnergy > lastTankEnergy) != (x2d0_playerHealth > energy));
+                                       (curLastTankEnergy > lastTankEnergy) != (x2d0_playerHealth > energy));
       }
       x2d0_playerHealth = energy;
       if (x28c_energyIntf) {
@@ -859,8 +859,7 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr) {
     lightAdd += x33c_lights->GetAmbientColor() * zeus::CColor(0.25f, 1.f);
     zeus::CVector3f revDir = -brightestLight.GetWorldTransform().basis[1];
     float foreDot = revDir.dot(zeus::skForward);
-    x5d8_guiLights[3]->SetO2WTransform(
-        zeus::lookAt(zeus::skZero3f, zeus::skForward * 2.f * foreDot - revDir));
+    x5d8_guiLights[3]->SetO2WTransform(zeus::lookAt(zeus::skZero3f, zeus::skForward * 2.f * foreDot - revDir));
     x5d8_guiLights[3]->SetColor(g_tweakGui->GetHudReflectivityLightColor() * brightestLight.GetIntermediateColor());
     x5d8_guiLights[3]->SetAmbientLightColor(lightAdd);
   }

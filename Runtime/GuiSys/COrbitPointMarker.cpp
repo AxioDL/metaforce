@@ -74,8 +74,7 @@ void COrbitPointMarker::Draw(const CStateManager& mgr) const {
     zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     CGraphics::SetViewPointMatrix(camXf);
     zeus::CFrustum frustum = mgr.SetupDrawFrustum(g_Viewport);
-    frustum.updatePlanes(camXf, zeus::SProjPersp(zeus::degToRad(curCam->GetFov()),
-                                                 g_Viewport.aspect, 1.f, 100.f));
+    frustum.updatePlanes(camXf, zeus::SProjPersp(zeus::degToRad(curCam->GetFov()), g_Viewport.aspect, 1.f, 100.f));
     g_Renderer->SetClippingPlanes(frustum);
     g_Renderer->SetPerspective(curCam->GetFov(), g_Viewport.x8_width, g_Viewport.xc_height,
                                curCam->GetNearClipDistance(), curCam->GetFarClipDistance());

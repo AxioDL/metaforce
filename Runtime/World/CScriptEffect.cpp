@@ -240,8 +240,8 @@ void CScriptEffect::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& 
 
     if (visible && x138_actorLights) {
       const CGameArea* area = mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways());
-      x138_actorLights->BuildAreaLightList(
-          mgr, *area, zeus::CAABox{x9c_renderBounds.center(), x9c_renderBounds.center()});
+      x138_actorLights->BuildAreaLightList(mgr, *area,
+                                           zeus::CAABox{x9c_renderBounds.center(), x9c_renderBounds.center()});
       x138_actorLights->BuildDynamicLightList(mgr, x9c_renderBounds);
     }
     EnsureRendered(mgr);

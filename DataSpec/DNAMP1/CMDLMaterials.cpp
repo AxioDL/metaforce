@@ -35,9 +35,9 @@ void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t 
     texLabel = "Texture";
 
   out.format(FMT_STRING("# Texture\n"
-                 "tex_node = new_nodetree.nodes.new('ShaderNodeTexImage')\n"
-                 "tex_node.label = '{} {}'\n"
-                 "texture_nodes.append(tex_node)\n"),
+                        "tex_node = new_nodetree.nodes.new('ShaderNodeTexImage')\n"
+                        "tex_node.label = '{} {}'\n"
+                        "texture_nodes.append(tex_node)\n"),
              texLabel, texIdx);
 
   if (texIdx != 0xff)
@@ -51,10 +51,11 @@ void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t 
            "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['Normal'], tex_node.inputs['Vector']))\n";
   else if (type >= GX::TG_TEX0 && type <= GX::TG_TEX7) {
     uint8_t texIdx = type - GX::TG_TEX0;
-    out.format(FMT_STRING("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
+    out.format(
+        FMT_STRING("tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
                    "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
                    "tex_uv_node.uv_map = 'UV_{}'\n"),
-               texIdx);
+        texIdx);
   }
 
   out.format(FMT_STRING("tex_uv_node.label = '{}'\n"), mtxLabel);
@@ -71,160 +72,160 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
   switch (type) {
   case UVAnimation::Mode::MvInvNoTranslation:
     out.format(FMT_STRING("for link in list(tex_links):\n"
-                   "    if link.from_node.label == 'MTX_{}':\n"
-                   "        tex_links.remove(link)\n"
-                   "        soc_from = link.from_socket\n"
-                   "        soc_to = link.to_socket\n"
-                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode0NodeN']\n"
-                   "        node.location[0] = link.from_node.location[0] + 50\n"
-                   "        node.location[1] = link.from_node.location[1] - 50\n"
-                   "        new_nodetree.links.remove(link)\n"
-                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+                          "    if link.from_node.label == 'MTX_{}':\n"
+                          "        tex_links.remove(link)\n"
+                          "        soc_from = link.from_socket\n"
+                          "        soc_to = link.to_socket\n"
+                          "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                          "        node.node_tree = bpy.data.node_groups['RetroUVMode0NodeN']\n"
+                          "        node.location[0] = link.from_node.location[0] + 50\n"
+                          "        node.location[1] = link.from_node.location[1] - 50\n"
+                          "        new_nodetree.links.remove(link)\n"
+                          "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                          "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
                idx);
     break;
   case UVAnimation::Mode::MvInv:
     out.format(FMT_STRING("for link in list(tex_links):\n"
-                   "    if link.from_node.label == 'MTX_{}':\n"
-                   "        tex_links.remove(link)\n"
-                   "        soc_from = link.from_socket\n"
-                   "        soc_to = link.to_socket\n"
-                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode1NodeN']\n"
-                   "        node.location[0] = link.from_node.location[0] + 50\n"
-                   "        node.location[1] = link.from_node.location[1] - 50\n"
-                   "        new_nodetree.links.remove(link)\n"
-                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+                          "    if link.from_node.label == 'MTX_{}':\n"
+                          "        tex_links.remove(link)\n"
+                          "        soc_from = link.from_socket\n"
+                          "        soc_to = link.to_socket\n"
+                          "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                          "        node.node_tree = bpy.data.node_groups['RetroUVMode1NodeN']\n"
+                          "        node.location[0] = link.from_node.location[0] + 50\n"
+                          "        node.location[1] = link.from_node.location[1] - 50\n"
+                          "        new_nodetree.links.remove(link)\n"
+                          "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                          "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
                idx);
     break;
   case UVAnimation::Mode::Scroll:
     out.format(FMT_STRING("for link in list(tex_links):\n"
-                   "    if link.from_node.label == 'MTX_{}':\n"
-                   "        tex_links.remove(link)\n"
-                   "        soc_from = link.from_socket\n"
-                   "        soc_to = link.to_socket\n"
-                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode2Node']\n"
-                   "        node.location[0] = link.from_node.location[0] + 50\n"
-                   "        node.location[1] = link.from_node.location[1] - 50\n"
-                   "        node.inputs[1].default_value = ({},{},0)\n"
-                   "        node.inputs[2].default_value = ({},{},0)\n"
-                   "        new_nodetree.links.remove(link)\n"
-                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+                          "    if link.from_node.label == 'MTX_{}':\n"
+                          "        tex_links.remove(link)\n"
+                          "        soc_from = link.from_socket\n"
+                          "        soc_to = link.to_socket\n"
+                          "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                          "        node.node_tree = bpy.data.node_groups['RetroUVMode2Node']\n"
+                          "        node.location[0] = link.from_node.location[0] + 50\n"
+                          "        node.location[1] = link.from_node.location[1] - 50\n"
+                          "        node.inputs[1].default_value = ({},{},0)\n"
+                          "        node.inputs[2].default_value = ({},{},0)\n"
+                          "        new_nodetree.links.remove(link)\n"
+                          "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                          "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
                idx, vals[0], vals[1], vals[2], vals[3]);
     break;
   case UVAnimation::Mode::Rotation:
     out.format(FMT_STRING("for link in list(tex_links):\n"
-                   "    if link.from_node.label == 'MTX_{}':\n"
-                   "        tex_links.remove(link)\n"
-                   "        soc_from = link.from_socket\n"
-                   "        soc_to = link.to_socket\n"
-                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode3Node']\n"
-                   "        node.location[0] = link.from_node.location[0] + 50\n"
-                   "        node.location[1] = link.from_node.location[1] - 50\n"
-                   "        node.inputs[1].default_value = {}\n"
-                   "        node.inputs[2].default_value = {}\n"
-                   "        new_nodetree.links.remove(link)\n"
-                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+                          "    if link.from_node.label == 'MTX_{}':\n"
+                          "        tex_links.remove(link)\n"
+                          "        soc_from = link.from_socket\n"
+                          "        soc_to = link.to_socket\n"
+                          "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                          "        node.node_tree = bpy.data.node_groups['RetroUVMode3Node']\n"
+                          "        node.location[0] = link.from_node.location[0] + 50\n"
+                          "        node.location[1] = link.from_node.location[1] - 50\n"
+                          "        node.inputs[1].default_value = {}\n"
+                          "        node.inputs[2].default_value = {}\n"
+                          "        new_nodetree.links.remove(link)\n"
+                          "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                          "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
                idx, vals[0], vals[1]);
     break;
   case UVAnimation::Mode::HStrip:
     out.format(FMT_STRING("for link in list(tex_links):\n"
-                   "    if link.from_node.label == 'MTX_{}':\n"
-                   "        tex_links.remove(link)\n"
-                   "        soc_from = link.from_socket\n"
-                   "        soc_to = link.to_socket\n"
-                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode4Node']\n"
-                   "        node.location[0] = link.from_node.location[0] + 50\n"
-                   "        node.location[1] = link.from_node.location[1] - 50\n"
-                   "        node.inputs[1].default_value = {}\n"
-                   "        node.inputs[2].default_value = {}\n"
-                   "        node.inputs[3].default_value = {}\n"
-                   "        node.inputs[4].default_value = {}\n"
-                   "        new_nodetree.links.remove(link)\n"
-                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+                          "    if link.from_node.label == 'MTX_{}':\n"
+                          "        tex_links.remove(link)\n"
+                          "        soc_from = link.from_socket\n"
+                          "        soc_to = link.to_socket\n"
+                          "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                          "        node.node_tree = bpy.data.node_groups['RetroUVMode4Node']\n"
+                          "        node.location[0] = link.from_node.location[0] + 50\n"
+                          "        node.location[1] = link.from_node.location[1] - 50\n"
+                          "        node.inputs[1].default_value = {}\n"
+                          "        node.inputs[2].default_value = {}\n"
+                          "        node.inputs[3].default_value = {}\n"
+                          "        node.inputs[4].default_value = {}\n"
+                          "        new_nodetree.links.remove(link)\n"
+                          "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                          "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
                idx, vals[0], vals[1], vals[2], vals[3]);
     break;
   case UVAnimation::Mode::VStrip:
     out.format(FMT_STRING("for link in list(tex_links):\n"
-                   "    if link.from_node.label == 'MTX_{}':\n"
-                   "        tex_links.remove(link)\n"
-                   "        soc_from = link.from_socket\n"
-                   "        soc_to = link.to_socket\n"
-                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode5Node']\n"
-                   "        node.location[0] = link.from_node.location[0] + 50\n"
-                   "        node.location[1] = link.from_node.location[1] - 50\n"
-                   "        node.inputs[1].default_value = {}\n"
-                   "        node.inputs[2].default_value = {}\n"
-                   "        node.inputs[3].default_value = {}\n"
-                   "        node.inputs[4].default_value = {}\n"
-                   "        new_nodetree.links.remove(link)\n"
-                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+                          "    if link.from_node.label == 'MTX_{}':\n"
+                          "        tex_links.remove(link)\n"
+                          "        soc_from = link.from_socket\n"
+                          "        soc_to = link.to_socket\n"
+                          "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                          "        node.node_tree = bpy.data.node_groups['RetroUVMode5Node']\n"
+                          "        node.location[0] = link.from_node.location[0] + 50\n"
+                          "        node.location[1] = link.from_node.location[1] - 50\n"
+                          "        node.inputs[1].default_value = {}\n"
+                          "        node.inputs[2].default_value = {}\n"
+                          "        node.inputs[3].default_value = {}\n"
+                          "        node.inputs[4].default_value = {}\n"
+                          "        new_nodetree.links.remove(link)\n"
+                          "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                          "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
                idx, vals[0], vals[1], vals[2], vals[3]);
     break;
   case UVAnimation::Mode::Model:
     out.format(FMT_STRING("for link in list(tex_links):\n"
-                   "    if link.from_node.label == 'MTX_{}':\n"
-                   "        tex_links.remove(link)\n"
-                   "        soc_from = link.from_socket\n"
-                   "        soc_to = link.to_socket\n"
-                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode6NodeN']\n"
-                   "        node.location[0] = link.from_node.location[0] + 50\n"
-                   "        node.location[1] = link.from_node.location[1] - 50\n"
-                   "        new_nodetree.links.remove(link)\n"
-                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+                          "    if link.from_node.label == 'MTX_{}':\n"
+                          "        tex_links.remove(link)\n"
+                          "        soc_from = link.from_socket\n"
+                          "        soc_to = link.to_socket\n"
+                          "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                          "        node.node_tree = bpy.data.node_groups['RetroUVMode6NodeN']\n"
+                          "        node.location[0] = link.from_node.location[0] + 50\n"
+                          "        node.location[1] = link.from_node.location[1] - 50\n"
+                          "        new_nodetree.links.remove(link)\n"
+                          "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                          "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
                idx);
     break;
   case UVAnimation::Mode::CylinderEnvironment:
     out.format(FMT_STRING("for link in list(tex_links):\n"
-                   "    if link.from_node.label == 'MTX_{}':\n"
-                   "        tex_links.remove(link)\n"
-                   "        soc_from = link.from_socket\n"
-                   "        soc_to = link.to_socket\n"
-                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode7NodeN']\n"
-                   "        node.location[0] = link.from_node.location[0] + 50\n"
-                   "        node.location[1] = link.from_node.location[1] - 50\n"
-                   "        node.inputs[1].default_value = {}\n"
-                   "        node.inputs[2].default_value = {}\n"
-                   "        new_nodetree.links.remove(link)\n"
-                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+                          "    if link.from_node.label == 'MTX_{}':\n"
+                          "        tex_links.remove(link)\n"
+                          "        soc_from = link.from_socket\n"
+                          "        soc_to = link.to_socket\n"
+                          "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                          "        node.node_tree = bpy.data.node_groups['RetroUVMode7NodeN']\n"
+                          "        node.location[0] = link.from_node.location[0] + 50\n"
+                          "        node.location[1] = link.from_node.location[1] - 50\n"
+                          "        node.inputs[1].default_value = {}\n"
+                          "        node.inputs[2].default_value = {}\n"
+                          "        new_nodetree.links.remove(link)\n"
+                          "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                          "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
                idx, vals[0], vals[1]);
     break;
   case UVAnimation::Mode::Eight:
     out.format(FMT_STRING("for link in list(tex_links):\n"
-                   "    if link.from_node.label == 'MTX_{}':\n"
-                   "        tex_links.remove(link)\n"
-                   "        soc_from = link.from_socket\n"
-                   "        soc_to = link.to_socket\n"
-                   "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
-                   "        node.node_tree = bpy.data.node_groups['RetroUVMode8Node']\n"
-                   "        node.location[0] = link.from_node.location[0] + 50\n"
-                   "        node.location[1] = link.from_node.location[1] - 50\n"
-                   "        node.inputs[1].default_value = {}\n"
-                   "        node.inputs[2].default_value = {}\n"
-                   "        node.inputs[3].default_value = {}\n"
-                   "        node.inputs[4].default_value = {}\n"
-                   "        node.inputs[5].default_value = {}\n"
-                   "        node.inputs[6].default_value = {}\n"
-                   "        node.inputs[7].default_value = {}\n"
-                   "        node.inputs[8].default_value = {}\n"
-                   "        node.inputs[9].default_value = {}\n"
-                   "        new_nodetree.links.remove(link)\n"
-                   "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
-                   "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
+                          "    if link.from_node.label == 'MTX_{}':\n"
+                          "        tex_links.remove(link)\n"
+                          "        soc_from = link.from_socket\n"
+                          "        soc_to = link.to_socket\n"
+                          "        node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+                          "        node.node_tree = bpy.data.node_groups['RetroUVMode8Node']\n"
+                          "        node.location[0] = link.from_node.location[0] + 50\n"
+                          "        node.location[1] = link.from_node.location[1] - 50\n"
+                          "        node.inputs[1].default_value = {}\n"
+                          "        node.inputs[2].default_value = {}\n"
+                          "        node.inputs[3].default_value = {}\n"
+                          "        node.inputs[4].default_value = {}\n"
+                          "        node.inputs[5].default_value = {}\n"
+                          "        node.inputs[6].default_value = {}\n"
+                          "        node.inputs[7].default_value = {}\n"
+                          "        node.inputs[8].default_value = {}\n"
+                          "        node.inputs[9].default_value = {}\n"
+                          "        new_nodetree.links.remove(link)\n"
+                          "        new_nodetree.links.new(soc_from, node.inputs[0])\n"
+                          "        new_nodetree.links.new(node.outputs[0], soc_to)\n\n"),
                idx, vals[0], vals[1], vals[2], vals[3], vals[4], vals[5], vals[6], vals[7], vals[8]);
     break;
   default:
@@ -234,8 +235,8 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
 
 void Material::AddKcolor(Stream& out, const GX::Color& col, unsigned idx) {
   out.format(FMT_STRING("kcolors[{}] = ({}, {}, {}, {})\n"
-                 "kalphas[{}] = {}\n"
-                 "\n"),
+                        "kalphas[{}] = {}\n"
+                        "\n"),
              idx, (float)col.color[0] / (float)0xff, (float)col.color[1] / (float)0xff,
              (float)col.color[2] / (float)0xff, (float)col.color[3] / (float)0xff, idx,
              (float)col.color[3] / (float)0xff);
@@ -343,10 +344,11 @@ template <class MAT>
 static void _DescribeTEV(const MAT& mat) {
   for (uint32_t i = 0; i < mat.tevStageCount; ++i) {
     const auto& stage = mat.tevStages[i];
-    fmt::print(stderr, FMT_STRING("A:{} B:{} C:{} D:{} -> {} | A:{} B:{} C:{} D:{} -> {}\n"), ToString(stage.colorInA()),
-               ToString(stage.colorInB()), ToString(stage.colorInC()), ToString(stage.colorInD()),
-               ToString(stage.colorOpOutReg()), ToString(stage.alphaInA()), ToString(stage.alphaInB()),
-               ToString(stage.alphaInC()), ToString(stage.alphaInD()), ToString(stage.alphaOpOutReg()));
+    fmt::print(stderr, FMT_STRING("A:{} B:{} C:{} D:{} -> {} | A:{} B:{} C:{} D:{} -> {}\n"),
+               ToString(stage.colorInA()), ToString(stage.colorInB()), ToString(stage.colorInC()),
+               ToString(stage.colorInD()), ToString(stage.colorOpOutReg()), ToString(stage.alphaInA()),
+               ToString(stage.alphaInB()), ToString(stage.alphaInC()), ToString(stage.alphaInD()),
+               ToString(stage.alphaOpOutReg()));
   }
   bool hasInd = mat.flags.samusReflectionIndirectTexture();
   bool hasLm = mat.flags.lightmap();
@@ -459,14 +461,14 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
 
   /* Material Flags */
   out.format(FMT_STRING("new_material.retro_depth_sort = {}\n"
-                 "new_material.retro_alpha_test = {}\n"
-                 "new_material.retro_samus_reflection = {}\n"
-                 "new_material.retro_depth_write = {}\n"
-                 "new_material.retro_samus_reflection_persp = {}\n"
-                 "new_material.retro_shadow_occluder = {}\n"
-                 "new_material.retro_samus_reflection_indirect = {}\n"
-                 "new_material.retro_lightmapped = {}\n"
-                 "new_material.diffuse_color = (1, 1, 1, {})\n"),
+                        "new_material.retro_alpha_test = {}\n"
+                        "new_material.retro_samus_reflection = {}\n"
+                        "new_material.retro_depth_write = {}\n"
+                        "new_material.retro_samus_reflection_persp = {}\n"
+                        "new_material.retro_shadow_occluder = {}\n"
+                        "new_material.retro_samus_reflection_indirect = {}\n"
+                        "new_material.retro_lightmapped = {}\n"
+                        "new_material.diffuse_color = (1, 1, 1, {})\n"),
              material.flags.depthSorting() ? "True" : "False", material.flags.alphaTest() ? "True" : "False",
              material.flags.samusReflection() ? "True" : "False", material.flags.depthWrite() ? "True" : "False",
              material.flags.samusReflectionSurfaceEye() ? "True" : "False",
@@ -763,7 +765,8 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
     _GenerateRootShader(out, "RetroShader", "Emissive"_tex, "Reflection"_tex);
     break;
   case 0xF4DA0A86: /* RetroShader: KColorDiffuse, Emissive, Alpha=KAlpha */
-    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Emissive"_tex, "Alpha"_kcola); break;
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Emissive"_tex, "Alpha"_kcola);
+    break;
     break;
   case 0xF559DB08: /* RetroShader: Lightmap, Diffuse, Emissive, Specular, Reflection, Alpha=1.0 */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex,

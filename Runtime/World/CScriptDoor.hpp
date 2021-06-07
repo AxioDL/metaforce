@@ -17,11 +17,7 @@ public:
     Ready,
   };
 
-  enum class EDoorOpenCondition {
-    NotReady,
-    Loading,
-    Ready
-  };
+  enum class EDoorOpenCondition { NotReady, Loading, Ready };
 
   float x258_animLen;
   float x25c_animTime = 0.f;

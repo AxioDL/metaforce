@@ -53,20 +53,19 @@ void DeafBabeSendToBlender(hecl::blender::PyOutStream& os, const DEAFBABE& db, b
     os.format(FMT_STRING("tri_verts.append(col_bm.verts[{}])\n"), vindices[1]);
     os.format(FMT_STRING("tri_verts.append(col_bm.verts[{}])\n"), vindices[2]);
 
-    os.format(FMT_STRING(
-        "face = col_bm.faces.get(tri_verts)\n"
-        "if face is None:\n"
-        "    face = col_bm.faces.new(tri_verts)\n"
-        "else:\n"
-        "    face = face.copy()\n"
-        "    for i in range(3):\n"
-        "        face.verts[i].co = tri_verts[i].co\n"
-        "    col_bm.verts.ensure_lookup_table()\n"
-        "face.material_index = select_material(0x{:016X}"
-        ")\n"
-        "face.smooth = False\n"
-        "\n"),
-        atUint64(triMat.material));
+    os.format(FMT_STRING("face = col_bm.faces.get(tri_verts)\n"
+                         "if face is None:\n"
+                         "    face = col_bm.faces.new(tri_verts)\n"
+                         "else:\n"
+                         "    face = face.copy()\n"
+                         "    for i in range(3):\n"
+                         "        face.verts[i].co = tri_verts[i].co\n"
+                         "    col_bm.verts.ensure_lookup_table()\n"
+                         "face.material_index = select_material(0x{:016X}"
+                         ")\n"
+                         "face.smooth = False\n"
+                         "\n"),
+              atUint64(triMat.material));
   }
 
   db.insertNoClimb(os);

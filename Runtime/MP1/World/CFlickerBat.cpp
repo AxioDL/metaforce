@@ -230,7 +230,7 @@ void CFlickerBat::CheckStaticIntersection(CStateManager& mgr) {
   float mag = diff.magnitude();
   diff *= zeus::CVector3f(1.f / mag);
   x580_26_inLOS = CGameCollision::RayStaticIntersectionBool(mgr, camPos, diff, mag,
-                                                       CMaterialFilter::MakeExclude({EMaterialTypes::SeeThrough}));
+                                                            CMaterialFilter::MakeExclude({EMaterialTypes::SeeThrough}));
 }
 
 void CFlickerBat::NotifyNeighbors(CStateManager& mgr) {

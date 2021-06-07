@@ -102,9 +102,7 @@ struct MaterialSet : BigDNA {
     const Header::Flags& getFlags() const { return header.flags; }
     const VAFlags& getVAFlags() const { return header.vaFlags; }
 
-    enum class ChunkType : atUint32 {
-      PASS = 'PASS', CLR = 'CLR ', INT = 'INT ', END = 'END '
-    };
+    enum class ChunkType : atUint32 { PASS = 'PASS', CLR = 'CLR ', INT = 'INT ', END = 'END ' };
 
     struct PASS : hecl::TypedRecordBigDNA<ChunkType::PASS> {
       AT_DECL_DNA

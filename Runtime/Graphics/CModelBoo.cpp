@@ -244,7 +244,8 @@ GeometryUniformLayout::GeometryUniformLayout(const CModel* model, const Material
   }
 }
 
-CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf, boo::IGraphicsDataFactory::Context* ctx) {
+CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf,
+                                                          boo::IGraphicsDataFactory::Context* ctx) {
   OPTICK_EVENT();
   if (!x40_24_texturesLoaded && !g_DummyTextures) {
     return nullptr;
@@ -370,10 +371,8 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf, b
 
       EExtendedShader idx{};
       for (const auto& pipeline : *pipelines) {
-        if (idx == EExtendedShader::ThermalModel ||
-            idx == EExtendedShader::ThermalModelNoZTestNoZWrite ||
-            idx == EExtendedShader::ThermalStatic ||
-            idx == EExtendedShader::ThermalStaticNoZWrite) {
+        if (idx == EExtendedShader::ThermalModel || idx == EExtendedShader::ThermalModelNoZTestNoZWrite ||
+            idx == EExtendedShader::ThermalStatic || idx == EExtendedShader::ThermalStaticNoZWrite) {
           texs[8] = g_Renderer->x220_sphereRamp.get();
         } else if (idx == EExtendedShader::MorphBallShadow) {
           texs[8] = g_Renderer->m_ballShadowId.get();
@@ -390,7 +389,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf, b
           else
             texs[8] = g_Renderer->x220_sphereRamp.get();
         } else if (hecl::com_cubemaps->toBoolean() && (idx == EExtendedShader::LightingCubeReflection ||
-                   idx == EExtendedShader::LightingCubeReflectionWorldShadow)) {
+                                                       idx == EExtendedShader::LightingCubeReflectionWorldShadow)) {
           if (m_lastDrawnReflectionCube)
             texs[11] = m_lastDrawnReflectionCube.get();
           else
@@ -404,7 +403,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf, b
     }
     return true;
   };
-  
+
   if (ctx) {
     withContext(*ctx);
   } else {
@@ -588,9 +587,8 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
   if (intermediateExtended == EExtendedShader::Lighting) {
     /* Transform lighting into thermal if the thermal visor is active */
     if (g_Renderer->IsThermalVisorHotPass())
-      return flags.m_noZTest
-                 ? EExtendedShader::LightingAlphaWriteNoZTestNoZWrite
-                 : (noZWrite ? EExtendedShader::ThermalStaticNoZWrite : EExtendedShader::ThermalStatic);
+      return flags.m_noZTest ? EExtendedShader::LightingAlphaWriteNoZTestNoZWrite
+                             : (noZWrite ? EExtendedShader::ThermalStaticNoZWrite : EExtendedShader::ThermalStatic);
     else if (g_Renderer->IsThermalVisorActive())
       return EExtendedShader::ThermalCold;
     if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Opaque) {
@@ -600,17 +598,17 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
           extended = EExtendedShader::ForcedAdditiveNoZWriteDepthGreater;
         else
           extended =
-            flags.m_noCull
-            ? (noZWrite ? EExtendedShader::ForcedAdditiveNoCullNoZWrite : EExtendedShader::ForcedAdditiveNoCull)
-            : (noZWrite ? EExtendedShader::ForcedAdditiveNoZWrite : EExtendedShader::ForcedAdditive);
+              flags.m_noCull
+                  ? (noZWrite ? EExtendedShader::ForcedAdditiveNoCullNoZWrite : EExtendedShader::ForcedAdditiveNoCull)
+                  : (noZWrite ? EExtendedShader::ForcedAdditiveNoZWrite : EExtendedShader::ForcedAdditive);
       } else if (flags.x0_blendMode > 4) {
         extended = flags.m_noCull
-                   ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
-                   : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::ForcedAlpha);
+                       ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
+                       : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::ForcedAlpha);
       } else {
         extended = flags.m_noCull
-                   ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
-                   : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::Lighting);
+                       ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
+                       : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::Lighting);
       }
     } else if (flags.m_noCull && noZWrite) {
       /* Substitute no-cull,no-zwrite pipeline if available */
@@ -1002,7 +1000,8 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
   }
 
   /* Invalidate instances if new reflection cube being drawn */
-  if (hecl::com_cubemaps->toBoolean() && (flags.m_extendedShader == EExtendedShader::LightingCubeReflection ||
+  if (hecl::com_cubemaps->toBoolean() &&
+      (flags.m_extendedShader == EExtendedShader::LightingCubeReflection ||
        flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
       m_lastDrawnReflectionCube != g_reflectionCube) {
     m_lastDrawnReflectionCube = g_reflectionCube;

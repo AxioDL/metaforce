@@ -39,14 +39,22 @@ void CParticleSwooshShaders::Initialize() {
 }
 
 void CParticleSwooshShaders::Shutdown() {
-  for (auto& s : m_texZWrite) s.reset();
-  for (auto& s : m_texNoZWrite) s.reset();
-  for (auto& s : m_texAdditiveZWrite) s.reset();
-  for (auto& s : m_texAdditiveNoZWrite) s.reset();
-  for (auto& s : m_noTexZWrite) s.reset();
-  for (auto& s : m_noTexNoZWrite) s.reset();
-  for (auto& s : m_noTexAdditiveZWrite) s.reset();
-  for (auto& s : m_noTexAdditiveNoZWrite) s.reset();
+  for (auto& s : m_texZWrite)
+    s.reset();
+  for (auto& s : m_texNoZWrite)
+    s.reset();
+  for (auto& s : m_texAdditiveZWrite)
+    s.reset();
+  for (auto& s : m_texAdditiveNoZWrite)
+    s.reset();
+  for (auto& s : m_noTexZWrite)
+    s.reset();
+  for (auto& s : m_noTexNoZWrite)
+    s.reset();
+  for (auto& s : m_noTexAdditiveZWrite)
+    s.reset();
+  for (auto& s : m_noTexAdditiveNoZWrite)
+    s.reset();
 }
 
 CParticleSwooshShaders::EShaderClass CParticleSwooshShaders::GetShaderClass(CParticleSwoosh& gen) {

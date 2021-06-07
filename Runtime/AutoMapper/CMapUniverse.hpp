@@ -35,8 +35,8 @@ public:
     , xc_closestHex(closestHex)
     , x10_flashPulse(flashPulse)
     ,
-        // x14_mgr(mgr),
-        x18_model(model)
+    // x14_mgr(mgr),
+    x18_model(model)
     , x1c_view(view) {}
     int GetFocusWorldIndex() const { return x4_wldIdx; }
     const zeus::CTransform& GetCameraTransform() const { return x1c_view; }

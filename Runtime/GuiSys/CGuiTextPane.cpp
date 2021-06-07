@@ -35,9 +35,7 @@ void CGuiTextPane::Update(float dt) {
   xd4_textSupport.Update(dt);
 }
 
-bool CGuiTextPane::GetIsFinishedLoadingWidgetSpecific() {
-  return xd4_textSupport.GetIsTextSupportFinishedLoading();
-}
+bool CGuiTextPane::GetIsFinishedLoadingWidgetSpecific() { return xd4_textSupport.GetIsTextSupportFinishedLoading(); }
 
 void CGuiTextPane::SetDimensions(const zeus::CVector2f& dim, bool initVBO) {
   CGuiPane::SetDimensions(dim, initVBO);

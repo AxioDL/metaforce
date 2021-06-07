@@ -74,9 +74,7 @@ constexpr std::array<float, 5> ComboAmmoPeriods{
 };
 } // Anonymous namespace
 
-CPlayerState::CPlayerState() {
-  x24_powerups.resize(41);
-}
+CPlayerState::CPlayerState() { x24_powerups.resize(41); }
 
 CPlayerState::CPlayerState(CBitStreamReader& stream) {
   x4_enabledItems = u32(stream.ReadEncoded(32));

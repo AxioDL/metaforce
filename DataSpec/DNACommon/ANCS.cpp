@@ -118,27 +118,25 @@ bool ReadANCSToBlender(hecl::blender::Token& btok, const ANCSDNA& ancs, const he
   {
     hecl::blender::PyOutStream os = conn.beginPythonOut(true);
 
-    os.format(FMT_STRING(
-        "import bpy\n"
-        "from mathutils import Vector\n"
-        "bpy.context.scene.name = '{}'\n"
-        "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n"
-        "\n"
-        "# Clear Scene\n"
-        "if len(bpy.data.collections):\n"
-        "    bpy.data.collections.remove(bpy.data.collections[0])\n"
-        "\n"
-        "actor_data = bpy.context.scene.hecl_sact_data\n"
-        "arm_obj = None\n"),
-        pakRouter.getBestEntryName(entry));
+    os.format(FMT_STRING("import bpy\n"
+                         "from mathutils import Vector\n"
+                         "bpy.context.scene.name = '{}'\n"
+                         "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n"
+                         "\n"
+                         "# Clear Scene\n"
+                         "if len(bpy.data.collections):\n"
+                         "    bpy.data.collections.remove(bpy.data.collections[0])\n"
+                         "\n"
+                         "actor_data = bpy.context.scene.hecl_sact_data\n"
+                         "arm_obj = None\n"),
+              pakRouter.getBestEntryName(entry));
 
     std::unordered_set<typename PAKRouter::IDType> cinfsDone;
     for (const auto& info : chResInfo) {
       /* Provide data to add-on */
-      os.format(FMT_STRING(
-          "actor_subtype = actor_data.subtypes.add()\n"
-          "actor_subtype.name = '{}'\n\n"),
-          info.name);
+      os.format(FMT_STRING("actor_subtype = actor_data.subtypes.add()\n"
+                           "actor_subtype.name = '{}'\n\n"),
+                info.name);
 
       /* Build CINF if needed */
       if (cinfsDone.find(info.cinf) == cinfsDone.end()) {
@@ -177,7 +175,7 @@ bool ReadANCSToBlender(hecl::blender::Token& btok, const ANCSDNA& ancs, const he
 
         /* Link CMDL */
         if (const typename PAKRouter::EntryType* cmdlE =
-            pakRouter.lookupEntry(overlay.second.first, nullptr, true, false)) {
+                pakRouter.lookupEntry(overlay.second.first, nullptr, true, false)) {
           hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
           os.linkMesh(cmdlPath.getAbsolutePathUTF8(), pakRouter.getBestEntryName(*cmdlE));
 
@@ -249,18 +247,16 @@ bool ReadANCSToBlender(hecl::blender::Token& btok, const ANCSDNA& ancs, const he
     for (const auto& id : animResInfo) {
       typename ANCSDNA::ANIMType anim;
       if (pakRouter.lookupAndReadDNA(id.second.animId, anim, true)) {
-        os.format(FMT_STRING(
-            "act = bpy.data.actions.new('{}')\n"
-            "act.use_fake_user = True\n"
-            "act.anim_id = '{}'\n"),
-            id.second.name, id.second.animId);
+        os.format(FMT_STRING("act = bpy.data.actions.new('{}')\n"
+                             "act.use_fake_user = True\n"
+                             "act.anim_id = '{}'\n"),
+                  id.second.name, id.second.animId);
         anim.sendANIMToBlender(os, inverter, id.second.additive);
       }
 
-      os.format(FMT_STRING(
-          "actor_action = actor_data.actions.add()\n"
-          "actor_action.name = '{}'\n"),
-          id.second.name);
+      os.format(FMT_STRING("actor_action = actor_data.actions.add()\n"
+                           "actor_action.name = '{}'\n"),
+                id.second.name);
 
       /* Extract EVNT if present */
       anim.extractEVNT(id.second, outPath, pakRouter, force);

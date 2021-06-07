@@ -39,8 +39,8 @@ zeus::CVector3f CProjectileInfo::PredictInterceptPos(const zeus::CVector3f& gunP
     } else {
       vel = playerVel;
     }
-    result = CSteeringBehaviors::ProjectOrbitalIntersection(gunPos, speed, dt, aimPos, vel,
-                                                            player.GetOrbitPoint(), ret);
+    result =
+        CSteeringBehaviors::ProjectOrbitalIntersection(gunPos, speed, dt, aimPos, vel, player.GetOrbitPoint(), ret);
     break;
   }
   case CPlayer::EPlayerOrbitState::NoOrbit:

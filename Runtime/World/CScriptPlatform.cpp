@@ -204,8 +204,7 @@ void CScriptPlatform::MoveRiders(CStateManager& mgr, float dt, bool active, std:
   }
 }
 
-EntityList
-CScriptPlatform::BuildNearListFromRiders(CStateManager& mgr, const std::vector<SRiders>& movedRiders) {
+EntityList CScriptPlatform::BuildNearListFromRiders(CStateManager& mgr, const std::vector<SRiders>& movedRiders) {
   EntityList ret;
   for (const SRiders& rider : movedRiders) {
     if (const TCastToConstPtr<CActor> act = mgr.ObjectById(rider.x0_uid)) {

@@ -84,15 +84,14 @@ void ReadMaterialSetToBlender_1_2(hecl::blender::PyOutStream& os, const Material
     }
     hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
     hecl::SystemUTF8Conv resPathView(resPath);
-    os.format(FMT_STRING(
-        "if '{}' in bpy.data.images:\n"
-        "    image = bpy.data.images['{}']\n"
-        "else:\n"
-        "    image = bpy.data.images.load('''//{}''')\n"
-        "    image.name = '{}'\n"
-        "texmap_list.append(image)\n"
-        "\n"),
-        texName, texName, resPathView, texName);
+    os.format(FMT_STRING("if '{}' in bpy.data.images:\n"
+                         "    image = bpy.data.images['{}']\n"
+                         "else:\n"
+                         "    image = bpy.data.images.load('''//{}''')\n"
+                         "    image.name = '{}'\n"
+                         "texmap_list.append(image)\n"
+                         "\n"),
+              texName, texName, resPathView, texName);
   }
 
   unsigned m = 0;
@@ -148,11 +147,10 @@ public:
         for (const auto& [ev, evVec] : m_extraVerts) {
           for (const std::pair<atInt16, atUint16>& se : evVec) {
             if (se.second == nextVert) {
-              os.format(FMT_STRING(
-                  "bm.verts.ensure_lookup_table()\n"
-                  "orig_vert = bm.verts[{}]\n"
-                  "vert = bm.verts.new(orig_vert.co)\n"),
-                  ev + baseVert);
+              os.format(FMT_STRING("bm.verts.ensure_lookup_table()\n"
+                                   "orig_vert = bm.verts[{}]\n"
+                                   "vert = bm.verts.new(orig_vert.co)\n"),
+                        ev + baseVert);
               rp.first.second->weightVertex(os, *rp.second.second, se.first);
               ++nextVert;
               ++addedVerts;
@@ -466,12 +464,11 @@ void InitGeomBlenderContext(hecl::blender::PyOutStream& os, const hecl::ProjectP
         "\n";
 
   /* Link master shader library */
-  os.format(FMT_STRING(
-      "# Master shader library\n"
-      "with bpy.data.libraries.load('{}', link=True, relative=True) as (data_from, data_to):\n"
-      "    data_to.node_groups = data_from.node_groups\n"
-      "\n"),
-      masterShaderPath.getAbsolutePathUTF8());
+  os.format(FMT_STRING("# Master shader library\n"
+                       "with bpy.data.libraries.load('{}', link=True, relative=True) as (data_from, data_to):\n"
+                       "    data_to.node_groups = data_from.node_groups\n"
+                       "\n"),
+            masterShaderPath.getAbsolutePathUTF8());
 }
 
 void FinishBlenderMesh(hecl::blender::PyOutStream& os, unsigned matSetCount, int meshIdx) {
@@ -824,67 +821,73 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
             atUint8 flip = 0;
             for (int v = 0; v < vertCount - 2; ++v) {
               if (flip) {
-                os.format(FMT_STRING(
-                    "last_face, last_mesh = add_triangle(bm, bm.verts, ({},{},{}), norm_list, ({},{},{}), {}, od_list, "
-                    "two_face_vert)\n"),
-                    primVerts[c % 3].pos, primVerts[(c + 2) % 3].pos, primVerts[(c + 1) % 3].pos, primVerts[c % 3].norm,
-                    primVerts[(c + 2) % 3].norm, primVerts[(c + 1) % 3].norm, sHead.matIdx);
+                os.format(FMT_STRING("last_face, last_mesh = add_triangle(bm, bm.verts, ({},{},{}), norm_list, "
+                                     "({},{},{}), {}, od_list, "
+                                     "two_face_vert)\n"),
+                          primVerts[c % 3].pos, primVerts[(c + 2) % 3].pos, primVerts[(c + 1) % 3].pos,
+                          primVerts[c % 3].norm, primVerts[(c + 2) % 3].norm, primVerts[(c + 1) % 3].norm,
+                          sHead.matIdx);
                 if (matUVCount) {
                   os << "if last_face is not None:\n";
                   for (unsigned j = 0; j < matUVCount; ++j) {
                     if (j == 0 && matShortUVs)
-                      os.format(FMT_STRING(
-                          "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[{}], suv_list[{}], "
-                          "suv_list[{}])\n"
-                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                          "uv_tri[0]\n"
-                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                          "uv_tri[1]\n"
-                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                          "uv_tri[2]\n"),
+                      os.format(
+                          FMT_STRING(
+                              "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[{}], suv_list[{}], "
+                              "suv_list[{}])\n"
+                              "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                              "uv_tri[0]\n"
+                              "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                              "uv_tri[1]\n"
+                              "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                              "uv_tri[2]\n"),
                           primVerts[c % 3].uvs[j], primVerts[(c + 2) % 3].uvs[j], primVerts[(c + 1) % 3].uvs[j],
                           primVerts[c % 3].pos, j, primVerts[(c + 2) % 3].pos, j, primVerts[(c + 1) % 3].pos, j);
                     else
-                      os.format(FMT_STRING(
-                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                          "uv_list[{}]\n"
-                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                          "uv_list[{}]\n"
-                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                          "uv_list[{}]\n"),
+                      os.format(
+                          FMT_STRING(
+                              "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                              "uv_list[{}]\n"
+                              "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                              "uv_list[{}]\n"
+                              "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                              "uv_list[{}]\n"),
                           primVerts[c % 3].pos, j, primVerts[c % 3].uvs[j], primVerts[(c + 2) % 3].pos, j,
                           primVerts[(c + 2) % 3].uvs[j], primVerts[(c + 1) % 3].pos, j, primVerts[(c + 1) % 3].uvs[j]);
                   }
                 }
               } else {
-                os.format(FMT_STRING(
-                    "last_face, last_mesh = add_triangle(bm, bm.verts, ({},{},{}), norm_list, ({},{},{}), {}, od_list, "
-                    "two_face_vert)\n"),
-                    primVerts[c % 3].pos, primVerts[(c + 1) % 3].pos, primVerts[(c + 2) % 3].pos, primVerts[c % 3].norm,
-                    primVerts[(c + 1) % 3].norm, primVerts[(c + 2) % 3].norm, sHead.matIdx);
+                os.format(FMT_STRING("last_face, last_mesh = add_triangle(bm, bm.verts, ({},{},{}), norm_list, "
+                                     "({},{},{}), {}, od_list, "
+                                     "two_face_vert)\n"),
+                          primVerts[c % 3].pos, primVerts[(c + 1) % 3].pos, primVerts[(c + 2) % 3].pos,
+                          primVerts[c % 3].norm, primVerts[(c + 1) % 3].norm, primVerts[(c + 2) % 3].norm,
+                          sHead.matIdx);
                 if (matUVCount) {
                   os << "if last_face is not None:\n";
                   for (unsigned j = 0; j < matUVCount; ++j) {
                     if (j == 0 && matShortUVs)
-                      os.format(FMT_STRING(
-                          "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[{}], suv_list[{}], "
-                          "suv_list[{}])\n"
-                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                          "uv_tri[0]\n"
-                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                          "uv_tri[1]\n"
-                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                          "uv_tri[2]\n"),
+                      os.format(
+                          FMT_STRING(
+                              "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[{}], suv_list[{}], "
+                              "suv_list[{}])\n"
+                              "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                              "uv_tri[0]\n"
+                              "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                              "uv_tri[1]\n"
+                              "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                              "uv_tri[2]\n"),
                           primVerts[c % 3].uvs[j], primVerts[(c + 1) % 3].uvs[j], primVerts[(c + 2) % 3].uvs[j],
                           primVerts[c % 3].pos, j, primVerts[(c + 1) % 3].pos, j, primVerts[(c + 2) % 3].pos, j);
                     else
-                      os.format(FMT_STRING(
-                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                          "uv_list[{}]\n"
-                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                          "uv_list[{}]\n"
-                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                          "uv_list[{}]\n"),
+                      os.format(
+                          FMT_STRING(
+                              "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                              "uv_list[{}]\n"
+                              "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                              "uv_list[{}]\n"
+                              "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                              "uv_list[{}]\n"),
                           primVerts[c % 3].pos, j, primVerts[c % 3].uvs[j], primVerts[(c + 1) % 3].pos, j,
                           primVerts[(c + 1) % 3].uvs[j], primVerts[(c + 2) % 3].pos, j, primVerts[(c + 2) % 3].uvs[j]);
                   }
@@ -901,34 +904,36 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
           } else if (ptype == GX::TRIANGLES) {
             for (int v = 0; v < vertCount; v += 3) {
 
-              os.format(FMT_STRING(
-                  "last_face, last_mesh = add_triangle(bm, bm.verts, ({},{},{}), norm_list, ({},{},{}), {}, od_list, "
-                  "two_face_vert)\n"),
-                  primVerts[0].pos, primVerts[1].pos, primVerts[2].pos, primVerts[0].norm, primVerts[1].norm,
-                  primVerts[2].norm, sHead.matIdx);
+              os.format(FMT_STRING("last_face, last_mesh = add_triangle(bm, bm.verts, ({},{},{}), norm_list, "
+                                   "({},{},{}), {}, od_list, "
+                                   "two_face_vert)\n"),
+                        primVerts[0].pos, primVerts[1].pos, primVerts[2].pos, primVerts[0].norm, primVerts[1].norm,
+                        primVerts[2].norm, sHead.matIdx);
               if (matUVCount) {
                 os << "if last_face is not None:\n";
                 for (unsigned j = 0; j < matUVCount; ++j) {
                   if (j == 0 && matShortUVs)
-                    os.format(FMT_STRING(
-                        "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[{}], suv_list[{}], "
-                        "suv_list[{}])\n"
-                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                        "uv_tri[0]\n"
-                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                        "uv_tri[1]\n"
-                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                        "uv_tri[2]\n"),
+                    os.format(
+                        FMT_STRING(
+                            "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[{}], suv_list[{}], "
+                            "suv_list[{}])\n"
+                            "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                            "uv_tri[0]\n"
+                            "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                            "uv_tri[1]\n"
+                            "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                            "uv_tri[2]\n"),
                         primVerts[0].uvs[j], primVerts[1].uvs[j], primVerts[2].uvs[j], primVerts[0].pos, j,
                         primVerts[1].pos, j, primVerts[2].pos, j);
                   else
-                    os.format(FMT_STRING(
-                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                        "uv_list[{}]\n"
-                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                        "uv_list[{}]\n"
-                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                        "uv_list[{}]\n"),
+                    os.format(
+                        FMT_STRING(
+                            "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                            "uv_list[{}]\n"
+                            "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                            "uv_list[{}]\n"
+                            "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                            "uv_list[{}]\n"),
                         primVerts[0].pos, j, primVerts[0].uvs[j], primVerts[1].pos, j, primVerts[1].uvs[j],
                         primVerts[2].pos, j, primVerts[2].uvs[j]);
                 }
@@ -945,34 +950,36 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
           } else if (ptype == GX::TRIANGLEFAN) {
             ++c;
             for (int v = 0; v < vertCount - 2; ++v) {
-              os.format(FMT_STRING(
-                  "last_face, last_mesh = add_triangle(bm, bm.verts, ({},{},{}), norm_list, ({},{},{}), {}, od_list, "
-                  "two_face_vert)\n"),
-                  firstPrimVert.pos, primVerts[c % 3].pos, primVerts[(c + 1) % 3].pos, firstPrimVert.norm,
-                  primVerts[c % 3].norm, primVerts[(c + 1) % 3].norm, sHead.matIdx);
+              os.format(FMT_STRING("last_face, last_mesh = add_triangle(bm, bm.verts, ({},{},{}), norm_list, "
+                                   "({},{},{}), {}, od_list, "
+                                   "two_face_vert)\n"),
+                        firstPrimVert.pos, primVerts[c % 3].pos, primVerts[(c + 1) % 3].pos, firstPrimVert.norm,
+                        primVerts[c % 3].norm, primVerts[(c + 1) % 3].norm, sHead.matIdx);
               if (matUVCount) {
                 os << "if last_face is not None:\n";
                 for (unsigned j = 0; j < matUVCount; ++j) {
                   if (j == 0 && matShortUVs)
-                    os.format(FMT_STRING(
-                        "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[{}], suv_list[{}], "
-                        "suv_list[{}])\n"
-                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                        "uv_tri[0]\n"
-                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                        "uv_tri[1]\n"
-                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                        "uv_tri[2]\n"),
+                    os.format(
+                        FMT_STRING(
+                            "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[{}], suv_list[{}], "
+                            "suv_list[{}])\n"
+                            "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                            "uv_tri[0]\n"
+                            "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                            "uv_tri[1]\n"
+                            "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                            "uv_tri[2]\n"),
                         firstPrimVert.uvs[j], primVerts[c % 3].uvs[j], primVerts[(c + 1) % 3].uvs[j], firstPrimVert.pos,
                         j, primVerts[c % 3].pos, j, primVerts[(c + 1) % 3].pos, j);
                   else
-                    os.format(FMT_STRING(
-                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                        "uv_list[{}]\n"
-                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                        "uv_list[{}]\n"
-                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
-                        "uv_list[{}]\n"),
+                    os.format(
+                        FMT_STRING(
+                            "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                            "uv_list[{}]\n"
+                            "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                            "uv_list[{}]\n"
+                            "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                            "uv_list[{}]\n"),
                         firstPrimVert.pos, j, firstPrimVert.uvs[j], primVerts[c % 3].pos, j, primVerts[c % 3].uvs[j],
                         primVerts[(c + 1) % 3].pos, j, primVerts[(c + 1) % 3].uvs[j]);
                 }
@@ -1060,13 +1067,12 @@ bool ReadCMDLToBlender(hecl::blender::Connection& conn, athena::io::IStreamReade
 
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-  os.format(FMT_STRING(
-      "import bpy\n"
-      "import bmesh\n"
-      "\n"
-      "bpy.context.scene.name = '{}'\n"
-      "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n"),
-      pakRouter.getBestEntryName(entry));
+  os.format(FMT_STRING("import bpy\n"
+                       "import bmesh\n"
+                       "\n"
+                       "bpy.context.scene.name = '{}'\n"
+                       "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n"),
+            pakRouter.getBestEntryName(entry));
   InitGeomBlenderContext(os, dataspec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
 
@@ -1083,25 +1089,29 @@ bool ReadCMDLToBlender(hecl::blender::Connection& conn, athena::io::IStreamReade
 }
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MaterialSet,
-    std::pair<std::pair<UniqueID32, DNAMP1::CSKR*>, std::pair<UniqueID32, DNAMP1::CINF*>>, DNACMDL::SurfaceHeader_1, 2>(
+                                std::pair<std::pair<UniqueID32, DNAMP1::CSKR*>, std::pair<UniqueID32, DNAMP1::CINF*>>,
+                                DNACMDL::SurfaceHeader_1, 2>(
     hecl::blender::Connection& conn, athena::io::IStreamReader& reader, PAKRouter<DNAMP1::PAKBridge>& pakRouter,
     const PAKRouter<DNAMP1::PAKBridge>::EntryType& entry, const SpecBase& dataspec,
     const std::pair<std::pair<UniqueID32, DNAMP1::CSKR*>, std::pair<UniqueID32, DNAMP1::CINF*>>& rp);
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MaterialSet,
-    std::pair<std::pair<UniqueID32, DNAMP2::CSKR*>, std::pair<UniqueID32, DNAMP2::CINF*>>, DNACMDL::SurfaceHeader_2, 4>(
+                                std::pair<std::pair<UniqueID32, DNAMP2::CSKR*>, std::pair<UniqueID32, DNAMP2::CINF*>>,
+                                DNACMDL::SurfaceHeader_2, 4>(
     hecl::blender::Connection& conn, athena::io::IStreamReader& reader, PAKRouter<DNAMP2::PAKBridge>& pakRouter,
     const PAKRouter<DNAMP2::PAKBridge>::EntryType& entry, const SpecBase& dataspec,
     const std::pair<std::pair<UniqueID32, DNAMP2::CSKR*>, std::pair<UniqueID32, DNAMP2::CINF*>>& rp);
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet,
-    std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>, DNACMDL::SurfaceHeader_3, 4>(
+                                std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>,
+                                DNACMDL::SurfaceHeader_3, 4>(
     hecl::blender::Connection& conn, athena::io::IStreamReader& reader, PAKRouter<DNAMP3::PAKBridge>& pakRouter,
     const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry, const SpecBase& dataspec,
     const std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>& rp);
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet,
-    std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>, DNACMDL::SurfaceHeader_3, 5>(
+                                std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>,
+                                DNACMDL::SurfaceHeader_3, 5>(
     hecl::blender::Connection& conn, athena::io::IStreamReader& reader, PAKRouter<DNAMP3::PAKBridge>& pakRouter,
     const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry, const SpecBase& dataspec,
     const std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>& rp);
@@ -1592,9 +1602,10 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
   return true;
 }
 
-template bool WriteHMDLCMDL<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>(
-    const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh,
-    hecl::blender::PoolSkinIndex& poolSkinIndex);
+template bool
+WriteHMDLCMDL<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>(const hecl::ProjectPath& outPath,
+                                                                    const hecl::ProjectPath& inPath, const Mesh& mesh,
+                                                                    hecl::blender::PoolSkinIndex& poolSkinIndex);
 
 struct MaterialPool {
   std::vector<const Material*> materials;

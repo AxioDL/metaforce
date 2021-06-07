@@ -29,7 +29,6 @@ std::unique_ptr<CWeaponDescription> CProjectileWeaponDataFactory::CreateGenerato
   auto desc = std::make_unique<CWeaponDescription>();
   CreateWPSM(desc.get(), in, resPool);
   return desc;
-
 }
 
 bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputStream& in, CSimplePool* resPool) {

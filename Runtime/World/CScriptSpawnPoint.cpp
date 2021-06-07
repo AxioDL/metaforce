@@ -16,7 +16,7 @@ CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const
 , x34_xf(xf)
 , x64_itemCounts(itemCounts)
 , x10c_24_firstSpawn(defaultSpawn)
-, x10c_25_morphed(morphed) { }
+, x10c_25_morphed(morphed) {}
 
 void CScriptSpawnPoint::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

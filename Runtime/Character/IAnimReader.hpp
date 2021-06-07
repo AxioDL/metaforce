@@ -82,9 +82,7 @@ public:
     return &source->GetAsCAnimSource();
   }
 
-  const CAnimSource* GetObj() const override {
-    return const_cast<TSubAnimTypeToken<CAnimSource>*>(this)->GetObj();
-  }
+  const CAnimSource* GetObj() const override { return const_cast<TSubAnimTypeToken<CAnimSource>*>(this)->GetObj(); }
 };
 
 template <>
@@ -118,8 +116,8 @@ public:
                                  u32) const = 0;
   virtual size_t VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, size_t capacity, size_t iterator,
                                   u32) const = 0;
-  virtual size_t VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, size_t capacity, size_t iterator,
-                                     u32) const = 0;
+  virtual size_t VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, size_t capacity,
+                                     size_t iterator, u32) const = 0;
   virtual size_t VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, size_t capacity, size_t iterator,
                                   u32) const = 0;
   virtual bool VGetBoolPOIState(std::string_view name) const = 0;

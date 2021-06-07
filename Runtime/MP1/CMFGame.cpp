@@ -16,9 +16,7 @@ namespace metaforce::MP1 {
 
 CMFGame::CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_ptr<CInGameGuiManager>& guiMgr,
                  const CArchitectureQueue&)
-: CMFGameBase("CMFGame")
-, x14_stateManager(stateMgr.lock())
-, x18_guiManager(guiMgr.lock()) {
+: CMFGameBase("CMFGame"), x14_stateManager(stateMgr.lock()), x18_guiManager(guiMgr.lock()) {
   static_cast<CMain&>(*g_Main).SetMFGameBuilt(true);
 }
 
@@ -275,8 +273,7 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
     break;
   }
 
-  if (g_GameState->CurrentWorldAssetId() == 0x158EFE17 &&
-      g_GameState->CurrentWorldState().GetCurrentAreaId() == 0) {
+  if (g_GameState->CurrentWorldAssetId() == 0x158EFE17 && g_GameState->CurrentWorldState().GetCurrentAreaId() == 0) {
     const SObjectTag* strgTag = g_ResFactory->GetResourceIdByName("STRG_IntroLevelLoad");
     if (strgTag)
       g_GameState->GetWorldTransitionManager()->EnableTransition(-1, strgTag->id, 0, false, 0.1f, 16.f, 1.f);

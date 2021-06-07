@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPmiscSamus 41
-
 
 #define SFXsam_wlkstone_00 1465
 #define SFXsam_wlkstone_01 1466
@@ -268,5 +266,3 @@
 #define SFXsfx06B9 1721
 #define SFXsfx06BA 1722
 #define SFXsfx06BB 1723
-
-

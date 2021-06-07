@@ -27,7 +27,8 @@ extern hecl::Database::DataSpecEntry SpecEntMP3;
 extern hecl::Database::DataSpecEntry SpecEntMP3ORIG;
 
 struct TextureCache {
-  static void Generate(PAKRouter<DNAMP3::PAKBridge>& pakRouter, hecl::Database::Project& project, const hecl::ProjectPath& pakPath) {
+  static void Generate(PAKRouter<DNAMP3::PAKBridge>& pakRouter, hecl::Database::Project& project,
+                       const hecl::ProjectPath& pakPath) {
     hecl::ProjectPath texturePath(pakPath, _SYS_STR("texture_cache.yaml"));
     hecl::ProjectPath catalogPath(pakPath, _SYS_STR("!catalog.yaml"));
     texturePath.makeDirChain(false);
@@ -76,9 +77,8 @@ struct TextureCache {
       metaPairs.emplace_back(projectPath.parsedHash32(), meta);
     }
 
-    std::sort(metaPairs.begin(), metaPairs.end(), [](const auto& a, const auto& b) -> bool {
-      return a.first < b.first;
-    });
+    std::sort(metaPairs.begin(), metaPairs.end(),
+              [](const auto& a, const auto& b) -> bool { return a.first < b.first; });
 
     athena::io::FileWriter w(outPath.getAbsolutePath());
     w.writeUint32Big(metaPairs.size());
@@ -223,7 +223,8 @@ struct SpecMP3 : SpecBase {
     doMP3 = true;
     nod::IPartition* partition = disc.getDataPartition();
     std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
-    const char* buildInfo = static_cast<char*>(memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16)) + 19;
+    const char* buildInfo =
+        static_cast<char*>(memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16)) + 19;
     if (buildInfo == nullptr) {
       return false;
     }

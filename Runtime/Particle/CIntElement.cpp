@@ -53,9 +53,7 @@ bool CIEKeyframeEmitter::GetValue([[maybe_unused]] int frame, int& valOut) const
   return false;
 }
 
-int CIEKeyframeEmitter::GetMaxValue() const {
-  return *std::max_element(x18_keys.cbegin(), x18_keys.cend());
-}
+int CIEKeyframeEmitter::GetMaxValue() const { return *std::max_element(x18_keys.cbegin(), x18_keys.cend()); }
 
 bool CIEDeath::GetValue(int frame, int& valOut) const {
   x4_a->GetValue(frame, valOut);

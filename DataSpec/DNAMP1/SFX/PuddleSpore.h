@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0017 23
-
 
 #define SFXsfx0288 648
 #define SFXpds_a_voxactive_00 649
@@ -36,5 +34,3 @@
 #define SFXsfx02A0 672
 #define SFXsfx02A1 673
 #define SFXsfx02A2 674
-
-

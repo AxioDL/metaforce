@@ -31,10 +31,10 @@ public:
     m_ParticleLifetimeReal = float(frame);
   }
 
-   int m_ParticleLifetimePercentage = 0;
-   float m_ParticleLifetimePercentageReal = 0.f;
-   float m_ParticleLifetimePercentageRemainder = 0.f;
-   void UpdateParticleLifetimeTweenValues(int frame) {
+  int m_ParticleLifetimePercentage = 0;
+  float m_ParticleLifetimePercentageReal = 0.f;
+  float m_ParticleLifetimePercentageRemainder = 0.f;
+  void UpdateParticleLifetimeTweenValues(int frame) {
     const float lt = m_ParticleLifetime != 0 ? float(m_ParticleLifetime) : 1.0f;
     m_ParticleLifetimePercentageReal = 100.0f * float(frame) / lt;
     m_ParticleLifetimePercentage = int(m_ParticleLifetimePercentageReal);

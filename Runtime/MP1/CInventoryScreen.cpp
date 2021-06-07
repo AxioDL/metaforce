@@ -125,8 +125,8 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
     return;
 
   float absViewInterp = std::fabs(viewInterp);
-  if ((input.PY() || ((m_bodyUpClicked || m_bodyClicked) && absViewInterp == 0.f)) &&
-      x19c_samusDoll->IsLoaded() && (absViewInterp > 0.f || x10_mode != EMode::TextScroll)) {
+  if ((input.PY() || ((m_bodyUpClicked || m_bodyClicked) && absViewInterp == 0.f)) && x19c_samusDoll->IsLoaded() &&
+      (absViewInterp > 0.f || x10_mode != EMode::TextScroll)) {
     x19c_samusDoll->BeginViewInterpolate(absViewInterp == 0.f);
     if (absViewInterp == 0.f) {
       if (const auto& kbm = input.GetKBM()) {
@@ -232,8 +232,9 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
         x198_28_pulseTextArrowTop = false;
       }
       if (!x1ac_textLeaveRequested)
-        x1ac_textLeaveRequested = input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
-          ((input.PA() || m_bodyClicked || input.PSpecialKey(boo::ESpecialKey::Enter)) && lastPage);
+        x1ac_textLeaveRequested =
+            input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
+            ((input.PA() || m_bodyClicked || input.PSpecialKey(boo::ESpecialKey::Enter)) && lastPage);
       x1ad_textViewing = !x1ac_textLeaveRequested;
     } else {
       x198_29_pulseTextArrowBottom = false;
@@ -311,7 +312,8 @@ void CInventoryScreen::UpdateTextBody() {
   x1ac_textLeaveRequested = false;
 
   const SInventoryItem& sel = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()].second[x1c_rightSel];
-  std::u16string entryText = xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? sel.entryStrIdx : sel.entryStrIdx + 3);
+  std::u16string entryText =
+      xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? sel.entryStrIdx : sel.entryStrIdx + 3);
 
   if (sel.idx == 23) // Beam combo
   {
@@ -467,7 +469,8 @@ void CInventoryScreen::UpdateRightTable() {
     CGuiTextPane* title = xd8_textpane_titles[i];
     if (i < int(size)) {
       if (HasRightInventoryItem(data[i].idx)) {
-        title->TextSupport().SetText(xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? data[i].nameStrIdx : data[i].nameStrIdx + 3));
+        title->TextSupport().SetText(xc_pauseStrg.GetString(
+            (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? data[i].nameStrIdx : data[i].nameStrIdx + 3));
         x84_tablegroup_rightlog->GetWorkerWidget(i + 1)->SetIsSelectable(true);
         if (i < minSel)
           minSel = i;

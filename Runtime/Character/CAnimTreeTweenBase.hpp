@@ -36,9 +36,7 @@ public:
   zeus::CQuaternion VGetRotation(const CSegId& seg) const override;
 
   std::optional<std::unique_ptr<IAnimReader>> VSimplified() override;
-  virtual std::optional<std::unique_ptr<IAnimReader>> VReverseSimplified() {
-    return CAnimTreeTweenBase::VSimplified();
-  }
+  virtual std::optional<std::unique_ptr<IAnimReader>> VReverseSimplified() { return CAnimTreeTweenBase::VSimplified(); }
 
   static bool ShouldCullTree() { return 3 <= sAdvancementDepth; }
   static void IncAdvancementDepth() { sAdvancementDepth++; }

@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0004 4
-
 
 #define SFXblf_a_btmspit_00 99
 #define SFXblf_a_bulb_00 100
@@ -30,5 +28,3 @@
 #define SFXsfx0075 117
 #define SFXsfx0076 118
 #define SFXsfx0077 119
-
-

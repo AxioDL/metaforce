@@ -127,8 +127,8 @@ CAnimTreeEffectiveContribution CAnimTreeTimeScale::VGetContributionOfHighestInfl
 
 std::shared_ptr<IAnimReader> CAnimTreeTimeScale::VGetBestUnblendedChild() const {
   if (std::shared_ptr<IAnimReader> bestChild = x14_child->VGetBestUnblendedChild()) {
-    auto newNode = std::make_shared<CAnimTreeTimeScale>(CAnimTreeNode::Cast(bestChild->Clone()),
-                                                         x18_timeScale->Clone(), x28_targetAccelTime, x4_name);
+    auto newNode = std::make_shared<CAnimTreeTimeScale>(CAnimTreeNode::Cast(bestChild->Clone()), x18_timeScale->Clone(),
+                                                        x28_targetAccelTime, x4_name);
     newNode->x20_curAccelTime = x20_curAccelTime;
     newNode->x30_initialTime = x30_initialTime;
     return {std::move(newNode)};

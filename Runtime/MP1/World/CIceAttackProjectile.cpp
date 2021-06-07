@@ -36,17 +36,14 @@ CIceAttackProjectile::CIceAttackProjectile(const TToken<CGenDescription>& gen1, 
                                         CElementGen::EOptionalSystemFlags::One);
 }
 
-void CIceAttackProjectile::Accept(IVisitor& visitor) {
-  visitor.Visit(this);
-}
+void CIceAttackProjectile::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CIceAttackProjectile::Think(float dt, CStateManager& mgr) {
   if (!GetActive()) {
     return;
   }
 
-  if (!x190_) {
-  }
+  if (!x190_) {}
   CEntity::Think(dt, mgr);
 }
 

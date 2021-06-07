@@ -46,26 +46,24 @@ template <class PAKBridge>
 void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const typename PAKBridge::PAKType::IDType& cinfId) const {
   DNAANIM::RigInverter<CINF> inverter(*this);
 
-  os.format(FMT_STRING(
-      "arm = bpy.data.armatures.new('CINF_{}')\n"
-      "arm_obj = bpy.data.objects.new(arm.name, arm)\n"
-      "bpy.context.scene.collection.objects.link(arm_obj)\n"
-      "bpy.context.view_layer.objects.active = arm_obj\n"
-      "bpy.ops.object.mode_set(mode='EDIT')\n"
-      "arm_bone_table = {{}}\n"),
-      cinfId);
+  os.format(FMT_STRING("arm = bpy.data.armatures.new('CINF_{}')\n"
+                       "arm_obj = bpy.data.objects.new(arm.name, arm)\n"
+                       "bpy.context.scene.collection.objects.link(arm_obj)\n"
+                       "bpy.context.view_layer.objects.active = arm_obj\n"
+                       "bpy.ops.object.mode_set(mode='EDIT')\n"
+                       "arm_bone_table = {{}}\n"),
+            cinfId);
 
   for (const DNAANIM::RigInverter<CINF>::Bone& bone : inverter.getBones()) {
     zeus::simd_floats originF(bone.m_origBone.origin.simd);
     zeus::simd_floats tailF(bone.m_tail.mSimd);
-    os.format(FMT_STRING(
-        "bone = arm.edit_bones.new('{}')\n"
-        "bone.head = ({},{},{})\n"
-        "bone.tail = ({},{},{})\n"
-        "bone.use_inherit_scale = False\n"
-        "arm_bone_table[{}] = bone\n"),
-        *getBoneNameFromId(bone.m_origBone.id), originF[0], originF[1], originF[2], tailF[0], tailF[1],
-        tailF[2], bone.m_origBone.id);
+    os.format(FMT_STRING("bone = arm.edit_bones.new('{}')\n"
+                         "bone.head = ({},{},{})\n"
+                         "bone.tail = ({},{},{})\n"
+                         "bone.use_inherit_scale = False\n"
+                         "arm_bone_table[{}] = bone\n"),
+              *getBoneNameFromId(bone.m_origBone.id), originF[0], originF[1], originF[2], tailF[0], tailF[1], tailF[2],
+              bone.m_origBone.id);
   }
 
   if constexpr (std::is_same_v<PAKBridge, DNAMP3::PAKBridge>) {
@@ -92,7 +90,9 @@ template void CINF::sendCINFToBlender<DNAMP3::PAKBridge>(hecl::blender::PyOutStr
                                                          const UniqueID64& cinfId) const;
 
 template <class UniqueID>
-std::string CINF::GetCINFArmatureName(const UniqueID& cinfId) { return fmt::format(FMT_STRING("CINF_{}"), cinfId); }
+std::string CINF::GetCINFArmatureName(const UniqueID& cinfId) {
+  return fmt::format(FMT_STRING("CINF_{}"), cinfId);
+}
 template std::string CINF::GetCINFArmatureName(const UniqueID32& cinfId);
 template std::string CINF::GetCINFArmatureName(const UniqueID64& cinfId);
 
@@ -186,14 +186,15 @@ bool CINF::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   auto os = conn.beginPythonOut(true);
 
   os.format(FMT_STRING("import bpy\n"
-                "from mathutils import Vector\n"
-                "bpy.context.scene.name = 'CINF_{}'\n"
-                "bpy.context.scene.hecl_arm_obj = bpy.context.scene.name\n"
-                "\n"
-                "# Clear Scene\n"
-                "if len(bpy.data.collections):\n"
-                "    bpy.data.collections.remove(bpy.data.collections[0])\n"
-                "\n"), entry.id);
+                       "from mathutils import Vector\n"
+                       "bpy.context.scene.name = 'CINF_{}'\n"
+                       "bpy.context.scene.hecl_arm_obj = bpy.context.scene.name\n"
+                       "\n"
+                       "# Clear Scene\n"
+                       "if len(bpy.data.collections):\n"
+                       "    bpy.data.collections.remove(bpy.data.collections[0])\n"
+                       "\n"),
+            entry.id);
 
   CINF cinf;
   cinf.read(rs);

@@ -39,9 +39,9 @@ void CBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManag
   if (msg == EScriptObjectMessage::Registered) {
 
     x188_lightId = mgr.AllocateUniqueId();
-    CGameLight* gameLight = new CGameLight(x188_lightId, GetAreaIdAlways(), false,
-                                           std::string("Bomb_PLight") + GetName().data(), GetTransform(), GetUniqueId(),
-                                           x184_particle2->GetLight(), reinterpret_cast<size_t>(x18c_particle2Obj), 1, 0.f);
+    CGameLight* gameLight = new CGameLight(
+        x188_lightId, GetAreaIdAlways(), false, std::string("Bomb_PLight") + GetName().data(), GetTransform(),
+        GetUniqueId(), x184_particle2->GetLight(), reinterpret_cast<size_t>(x18c_particle2Obj), 1, 0.f);
     mgr.AddObject(gameLight);
     mgr.AddWeaponId(xec_ownerId, xf0_weaponType);
     CSfxManager::AddEmitter(SFXwpn_bomb_drop, GetTranslation(), {}, true, false, 0x7f, -1);

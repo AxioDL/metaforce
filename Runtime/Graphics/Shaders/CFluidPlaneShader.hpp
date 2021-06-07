@@ -168,8 +168,7 @@ public:
   void doneDrawing() { m_lastBind = -1; }
   void loadVerts(const std::vector<Vertex>& verts, const std::vector<PatchVertex>& pVerts);
   bool isReady() const {
-    return m_pipelines.m_regular->isReady() &&
-    (!m_pipelines.m_tessellation || m_pipelines.m_tessellation->isReady());
+    return m_pipelines.m_regular->isReady() && (!m_pipelines.m_tessellation || m_pipelines.m_tessellation->isReady());
   }
 
   static void Shutdown();

@@ -28,6 +28,7 @@ class CEnergyBall : public CPatterned {
   float x5e8_;
 
   void sub8029f4a8(CStateManager& mgr);
+
 public:
   DEFINE_PATTERNED(EnergyBall);
   CEnergyBall(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -36,11 +37,10 @@ public:
               const CAssetId& a3, s16 sfxId2, float f3, float f4, const CAssetId& a4, const CDamageInfo& dInfo2,
               float f5);
 
-
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;
   void Generate(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Attack(CStateManager& mgr, EStateMsg msg, float arg) override;
 };
-}
+} // namespace metaforce::MP1

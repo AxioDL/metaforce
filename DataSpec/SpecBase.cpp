@@ -1232,11 +1232,7 @@ void SpecBase::WriteVersionInfo(hecl::Database::Project& project, const hecl::Pr
   athena::io::FileWriter writer(versionPath.getAbsolutePath());
   athena::io::ToYAMLStream(info, writer);
 }
-void SpecBase::setCurRegion(ERegion region) {
-  g_CurRegion = region;
-}
-void SpecBase::setCurSpecIsWii(bool isWii) {
-  g_CurSpecIsWii = isWii;
-}
+void SpecBase::setCurRegion(ERegion region) { g_CurRegion = region; }
+void SpecBase::setCurSpecIsWii(bool isWii) { g_CurSpecIsWii = isWii; }
 
 } // namespace DataSpec

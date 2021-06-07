@@ -346,9 +346,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(typename Wr
   }
 }
 
-std::string_view ANCS::CharacterSet::CharacterInfo::DNAType() {
-  return "DNAMP2::ANCS::CharacterSet::CharacterInfo"sv;
-}
+std::string_view ANCS::CharacterSet::CharacterInfo::DNAType() { return "DNAMP2::ANCS::CharacterSet::CharacterInfo"sv; }
 
 template <>
 void ANCS::AnimationSet::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {

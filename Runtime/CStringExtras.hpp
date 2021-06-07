@@ -21,9 +21,8 @@ public:
   //       another, this is a safe change to make.
   //
   static bool CompareCaseInsensitive(std::string_view a, std::string_view b) {
-    return std::equal(a.begin(), a.end(), b.begin(), b.end(), [](char lhs, char rhs) {
-      return std::tolower(lhs) == std::tolower(rhs);
-    });
+    return std::equal(a.begin(), a.end(), b.begin(), b.end(),
+                      [](char lhs, char rhs) { return std::tolower(lhs) == std::tolower(rhs); });
   }
 
   static int IndexOfSubstring(std::string_view haystack, std::string_view needle) {

@@ -19,8 +19,8 @@ void CGuiObject::Draw(const CGuiWidgetDrawParms& parms) {
 }
 
 void CGuiObject::MoveInWorld(const zeus::CVector3f& vec) {
-  //if (x64_parent)
-  //  x64_parent->RotateW2O(vec);
+  // if (x64_parent)
+  //   x64_parent->RotateW2O(vec);
   x4_localXF.origin += vec;
   RecalculateTransforms();
 }

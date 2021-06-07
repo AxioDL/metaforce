@@ -349,7 +349,8 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
           if (aId != kInvalidAreaId) {
             worldLayerState = mgr.WorldLayerState();
           } else {
-            const std::pair<CAssetId, TAreaId> worldAreaPair = g_MemoryCardSys->GetAreaAndWorldIdForSaveId(x1bc_areaSaveId);
+            const std::pair<CAssetId, TAreaId> worldAreaPair =
+                g_MemoryCardSys->GetAreaAndWorldIdForSaveId(x1bc_areaSaveId);
             if (worldAreaPair.first.IsValid()) {
               worldLayerState = g_GameState->StateForWorld(worldAreaPair.first).GetLayerState();
               aId = worldAreaPair.second;
@@ -529,7 +530,8 @@ void CScriptSpecialFunction::Render(CStateManager& mgr) {
       zeus::CVector3f max = GetTranslation() + x10c_vector3f;
       max.z() += z;
       const zeus::CAABox box(GetTranslation() - x10c_vector3f, max);
-      const zeus::CTransform modelMtx = zeus::CTransform::Translate(box.center()) * zeus::CTransform::Scale(box.extents());
+      const zeus::CTransform modelMtx =
+          zeus::CTransform::Translate(box.center()) * zeus::CTransform::Scale(box.extents());
       g_Renderer->SetModelMatrix(modelMtx);
       g_Renderer->RenderFogVolume(x118_color, zeus::CAABox(-1.f, 1.f), nullptr, nullptr);
     }

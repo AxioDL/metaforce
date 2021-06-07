@@ -13,9 +13,7 @@ struct SConnection {
   bool operator==(const SConnection& other) const {
     return x0_state == other.x0_state && x4_msg == other.x4_msg && x8_objId == other.x8_objId;
   }
-  bool operator<(const SConnection& other) const {
-    return x8_objId < other.x8_objId;
-  }
+  bool operator<(const SConnection& other) const { return x8_objId < other.x8_objId; }
 };
 
 class CEntityInfo {

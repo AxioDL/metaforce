@@ -309,9 +309,9 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   }
 
   x1f0_xrayRetAngle =
-    zeus::CRelAngle(zeus::degToRad(g_tweakTargeting->GetXRayRetAngleSpeed() * dt) + x1f0_xrayRetAngle).asRel();
-  x1ec_seekerAngle = zeus::CRelAngle(zeus::degToRad(g_tweakTargeting->GetSeekerAngleSpeed() * dt) + x1ec_seekerAngle).
-    asRel();
+      zeus::CRelAngle(zeus::degToRad(g_tweakTargeting->GetXRayRetAngleSpeed() * dt) + x1f0_xrayRetAngle).asRel();
+  x1ec_seekerAngle =
+      zeus::CRelAngle(zeus::degToRad(g_tweakTargeting->GetSeekerAngleSpeed() * dt) + x1ec_seekerAngle).asRel();
 }
 
 void CTargetReticleRenderState::InterpolateWithClamp(const CTargetReticleRenderState& a, CTargetReticleRenderState& out,
@@ -411,8 +411,8 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
         item.x10_rotAng = zeus::CRelAngle(item.x18_offshootAngleDelta * offshoot + item.xc_offshootBaseAngle).asRel();
       }
       xc4_chargeGauge.x10_rotAng =
-        zeus::CRelAngle(xc4_chargeGauge.x18_offshootAngleDelta * offshoot + xc4_chargeGauge.xc_offshootBaseAngle).
-          asRel();
+          zeus::CRelAngle(xc4_chargeGauge.x18_offshootAngleDelta * offshoot + xc4_chargeGauge.xc_offshootBaseAngle)
+              .asRel();
     }
   }
 

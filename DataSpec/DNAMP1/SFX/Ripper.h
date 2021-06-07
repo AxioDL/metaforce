@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup001A 26
-
 
 #define SFXrip_b_float_lp_00 711
 #define SFXrip_b_scream_00 712
@@ -19,5 +17,3 @@
 #define SFXsfx02CE 718
 #define SFXsfx02CF 719
 #define SFXsfx02D0 720
-
-

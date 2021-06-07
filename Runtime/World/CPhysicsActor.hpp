@@ -192,9 +192,7 @@ public:
   void SetNumTicksPartialUpdate(u32 ticks) { x250_numTicksPartialUpdate = ticks; }
   u32 GetNumTicksStuck() const { return x24c_numTicksStuck; }
   void SetNumTicksStuck(u32 ticks) { x24c_numTicksStuck = ticks; }
-  const std::optional<zeus::CVector3f>& GetLastFloorPlaneNormal() const {
-    return x228_lastFloorPlaneNormal;
-  }
+  const std::optional<zeus::CVector3f>& GetLastFloorPlaneNormal() const { return x228_lastFloorPlaneNormal; }
   void SetLastFloorPlaneNormal(const std::optional<zeus::CVector3f>& normal) { x228_lastFloorPlaneNormal = normal; }
 
   CMotionState PredictMotion_Internal(float) const;
@@ -208,6 +206,8 @@ public:
   void ApplyTorqueWR(const zeus::CVector3f& torque);
 
   void UseCollisionImpulses();
-  static constexpr float GravityConstant() { return 9.81f * 2.5f; } /* 9.81 m/s ^ 2 is normal acceleration under earth gravity, Tallon 4 is 2.5 times that */
+  static constexpr float GravityConstant() {
+    return 9.81f * 2.5f;
+  } /* 9.81 m/s ^ 2 is normal acceleration under earth gravity, Tallon 4 is 2.5 times that */
 };
 } // namespace metaforce

@@ -44,8 +44,7 @@ public:
   static void Shutdown();
 
   CDvdFile(std::string_view path)
-  : x18_path(path)
-  , m_reader(std::make_shared<athena::io::FileReader>(ResolvePath(path).getAbsolutePath())) {}
+  : x18_path(path), m_reader(std::make_shared<athena::io::FileReader>(ResolvePath(path).getAbsolutePath())) {}
   operator bool() const { return m_reader->isOpen(); }
   void UpdateFilePos(int pos) { m_reader->seek(pos, athena::SeekOrigin::Begin); }
   static bool FileExists(std::string_view path) { return ResolvePath(path).isFile(); }

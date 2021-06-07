@@ -64,24 +64,24 @@ class CScriptPlatform : public CPhysicsActor {
 
   void DragSlave(CStateManager& mgr, rstl::reserved_vector<u16, kMaxEntities>& draggedSet, CActor* actor,
                  const zeus::CVector3f& delta);
-  void DragSlaves(CStateManager& mgr, rstl::reserved_vector<u16, kMaxEntities>& draggedSet, const zeus::CVector3f& delta);
+  void DragSlaves(CStateManager& mgr, rstl::reserved_vector<u16, kMaxEntities>& draggedSet,
+                  const zeus::CVector3f& delta);
   static void DecayRiders(std::vector<SRiders>& riders, float dt, CStateManager& mgr);
   static void MoveRiders(CStateManager& mgr, float dt, bool active, std::vector<SRiders>& riders,
                          std::vector<SRiders>& collidedRiders, const zeus::CTransform& oldXf,
                          const zeus::CTransform& newXf, const zeus::CVector3f& dragDelta,
                          const zeus::CQuaternion& rotDelta);
-  static EntityList BuildNearListFromRiders(CStateManager& mgr,
-                                                                        const std::vector<SRiders>& movedRiders);
+  static EntityList BuildNearListFromRiders(CStateManager& mgr, const std::vector<SRiders>& movedRiders);
 
   std::optional<CAABoxShader> m_boxFilter;
+
 public:
   DEFINE_ENTITY
   CScriptPlatform(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                   CModelData&& mData, const CActorParameters& actParms, const zeus::CAABox& aabb, float speed,
                   bool detectCollision, float xrayAlpha, bool active, const CHealthInfo& hInfo,
-                  const CDamageVulnerability& dVuln,
-                  std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>  dcln, bool rainSplashes,
-                  u32 maxRainSplashes, u32 rainGenRate);
+                  const CDamageVulnerability& dVuln, std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> dcln,
+                  bool rainSplashes, u32 maxRainSplashes, u32 rainGenRate);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;

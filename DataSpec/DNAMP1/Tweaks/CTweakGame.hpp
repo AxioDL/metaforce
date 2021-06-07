@@ -8,8 +8,7 @@ class CVar;
 
 namespace DataSpec::DNAMP1 {
 
-#define DEFINE_CVAR_GLOBAL(name)                                                                                       \
-  extern hecl::CVar* tw_##name;
+#define DEFINE_CVAR_GLOBAL(name) extern hecl::CVar* tw_##name;
 
 DEFINE_CVAR_GLOBAL(WorldPrefix);
 DEFINE_CVAR_GLOBAL(FieldOfView);

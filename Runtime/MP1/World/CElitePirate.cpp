@@ -211,7 +211,8 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     CreateGrenadeLauncher(mgr, x772_launcherId);
     const auto& bodyStateInfo = x450_bodyController->GetBodyStateInfo();
     if (bodyStateInfo.GetMaxSpeed() > 0.f) {
-      x7a4_steeringSpeed = (0.99f * bodyStateInfo.GetLocomotionSpeed(pas::ELocomotionAnim::Walk)) / bodyStateInfo.GetMaxSpeed();
+      x7a4_steeringSpeed =
+          (0.99f * bodyStateInfo.GetLocomotionSpeed(pas::ELocomotionAnim::Walk)) / bodyStateInfo.GetMaxSpeed();
     }
     x450_bodyController->GetCommandMgr().SetSteeringBlendMode(ESteeringBlendMode::FullSpeed);
     x450_bodyController->GetCommandMgr().SetSteeringSpeedRange(x7a4_steeringSpeed, x7a4_steeringSpeed);
@@ -511,7 +512,8 @@ void CElitePirate::Generate(CStateManager& mgr, EStateMsg msg, float) {
       } else {
         x568_state = EState::Zero;
       }
-    } else if (x568_state == EState::Two && x450_bodyController->GetCurrentStateId() != pas::EAnimationState::Generate) {
+    } else if (x568_state == EState::Two &&
+               x450_bodyController->GetCurrentStateId() != pas::EAnimationState::Generate) {
       x568_state = EState::Over;
     }
   } else if (msg == EStateMsg::Deactivate) {
@@ -1156,8 +1158,7 @@ bool CElitePirate::ShouldCallForBackupFromLauncher(const CStateManager& mgr, TUn
   return x7a8_pathShaggedTime >= 3.f;
 }
 
-bool CElitePirate::IsClosestEnergyAttractor(const CStateManager& mgr,
-                                            const EntityList& charNearList,
+bool CElitePirate::IsClosestEnergyAttractor(const CStateManager& mgr, const EntityList& charNearList,
                                             const zeus::CVector3f& projectilePos) const {
   const float distance = (projectilePos - GetTranslation()).magSquared();
   for (const auto& id : charNearList) {

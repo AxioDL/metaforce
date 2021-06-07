@@ -20,13 +20,12 @@ void CMetaAnimBlend::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const {
 std::shared_ptr<CAnimTreeNode> CMetaAnimBlend::VGetAnimationTree(const CAnimSysContext& animSys,
                                                                  const CMetaAnimTreeBuildOrders& orders) const {
   CMetaAnimTreeBuildOrders oa = CMetaAnimTreeBuildOrders::NoSpecialOrders();
-  CMetaAnimTreeBuildOrders ob = orders.x0_recursiveAdvance ?
-    CMetaAnimTreeBuildOrders::PreAdvanceForAll(*orders.x0_recursiveAdvance) :
-    CMetaAnimTreeBuildOrders::NoSpecialOrders();
+  CMetaAnimTreeBuildOrders ob = orders.x0_recursiveAdvance
+                                    ? CMetaAnimTreeBuildOrders::PreAdvanceForAll(*orders.x0_recursiveAdvance)
+                                    : CMetaAnimTreeBuildOrders::NoSpecialOrders();
   auto a = x4_animA->GetAnimationTree(animSys, oa);
   auto b = x8_animB->GetAnimationTree(animSys, ob);
-  return std::make_shared<CAnimTreeBlend>(x10_, a, b, xc_blend,
-         CAnimTreeBlend::CreatePrimitiveName(a, b, xc_blend));
+  return std::make_shared<CAnimTreeBlend>(x10_, a, b, xc_blend, CAnimTreeBlend::CreatePrimitiveName(a, b, xc_blend));
 }
 
 } // namespace metaforce

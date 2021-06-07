@@ -189,7 +189,8 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
                   zeus::CVector3f vtsRej = vertToSphere - vtsDotEdge * edgeVec;
                   if (edgeRejMagSq > 0.f) {
                     const float tmp = 2.f * vtsRej.dot(edgeRej);
-                    const float tmp2 = 4.f * edgeRejMagSq * (vtsRej.magSquared() - sphere.radius * sphere.radius) - tmp * tmp;
+                    const float tmp2 =
+                        4.f * edgeRejMagSq * (vtsRej.magSquared() - sphere.radius * sphere.radius) - tmp * tmp;
                     if (tmp2 >= 0.f) {
                       const float mag2 = 0.5f / edgeRejMagSq * (-tmp - std::sqrt(tmp2));
                       if (mag2 >= 0.f) {

@@ -561,9 +561,7 @@ void CAnimData::SetupRender(CSkinnedModel& model, const CModelFlags& drawFlags,
   PoseSkinnedModel(model, x224_pose, drawFlags, morphEffect, morphMagnitudes);
 }
 
-void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) {
-  model.Draw(flags);
-}
+void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) { model.Draw(flags); }
 
 void CAnimData::PreRender() {
   if (!x220_31_poseCached) {

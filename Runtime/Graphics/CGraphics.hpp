@@ -221,14 +221,15 @@ class CTevPass {
   CTevOp x38_alphaOp;
 
 public:
-  CTevPass(const ColorPass& colPass, const AlphaPass& alphaPass, const CTevOp& colorOp = CTevOp(), const CTevOp alphaOp = CTevOp())
-      : x0_id(++sNextUniquePass)
-      , x4_colorPass(colPass)
-      , x14_alphaPass(alphaPass)
-      , x24_colorOp(colorOp)
-      , x38_alphaOp(alphaOp) {}
+  CTevPass(const ColorPass& colPass, const AlphaPass& alphaPass, const CTevOp& colorOp = CTevOp(),
+           const CTevOp alphaOp = CTevOp())
+  : x0_id(++sNextUniquePass)
+  , x4_colorPass(colPass)
+  , x14_alphaPass(alphaPass)
+  , x24_colorOp(colorOp)
+  , x38_alphaOp(alphaOp) {}
 };
-};
+}; // namespace CTevCombiners
 
 class CGraphics {
 public:
@@ -364,7 +365,7 @@ public:
     g_BooMainCommandQueue->drawInstances(start, count, instCount, startInst);
   }
   static void DrawArray(size_t start, size_t count) { g_BooMainCommandQueue->draw(start, count); }
-  static void DrawArrayIndexed(size_t start, size_t count) { g_BooMainCommandQueue->drawIndexed(start, count); }\
+  static void DrawArrayIndexed(size_t start, size_t count) { g_BooMainCommandQueue->drawIndexed(start, count); }
 
   static const CTevCombiners::CTevPass sTevPass805a564c;
   static const CTevCombiners::CTevPass sTevPass805a5698;
@@ -428,14 +429,13 @@ class GraphicsDebugGroup {
   void operator delete(void*);
   void* operator new[](size_t);
   void operator delete[](void*);
+
 public:
   explicit GraphicsDebugGroup(const char* name, const zeus::CColor& color = zeus::skWhite) {
     zeus::simd_floats f(color.mSimd);
     CGraphics::g_BooMainCommandQueue->pushDebugGroup(name, f.array());
   }
-  ~GraphicsDebugGroup() {
-    CGraphics::g_BooMainCommandQueue->popDebugGroup();
-  }
+  ~GraphicsDebugGroup() { CGraphics::g_BooMainCommandQueue->popDebugGroup(); }
 };
 #define SCOPED_GRAPHICS_DEBUG_GROUP(...) GraphicsDebugGroup _GfxDbg_(__VA_ARGS__);
 #else

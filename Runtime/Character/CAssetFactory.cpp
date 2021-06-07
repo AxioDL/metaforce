@@ -38,14 +38,14 @@ void CCharacterFactoryBuilder::CDummyFactory::EnumerateNamedResources(
 
 u32 CCharacterFactoryBuilder::CDummyFactory::ResourceSize(const metaforce::SObjectTag& tag) { return 0; }
 
-std::shared_ptr<IDvdRequest> CCharacterFactoryBuilder::CDummyFactory::LoadResourceAsync(const metaforce::SObjectTag& tag,
-                                                                                        void* target) {
+std::shared_ptr<IDvdRequest>
+CCharacterFactoryBuilder::CDummyFactory::LoadResourceAsync(const metaforce::SObjectTag& tag, void* target) {
   return {};
 }
 
-std::shared_ptr<IDvdRequest> CCharacterFactoryBuilder::CDummyFactory::LoadResourcePartAsync(const metaforce::SObjectTag& tag,
-                                                                                            u32 off, u32 size,
-                                                                                            void* target) {
+std::shared_ptr<IDvdRequest>
+CCharacterFactoryBuilder::CDummyFactory::LoadResourcePartAsync(const metaforce::SObjectTag& tag, u32 off, u32 size,
+                                                               void* target) {
   return {};
 }
 

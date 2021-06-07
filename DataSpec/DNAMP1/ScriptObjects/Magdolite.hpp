@@ -47,7 +47,7 @@ struct Magdolite : IScriptObject {
       charAssoc.m_cmdlRigs[cmdlHeadless] = {cskrHeadless, cinf};
       charAssoc.m_cskrToCharacter[cskrHeadless] =
           std::make_pair(patternedInfo.animationParameters.animationCharacterSet,
-              fmt::format(FMT_STRING("ATTACH.HEADLESS_{}.CSKR"), cskrHeadless));
+                         fmt::format(FMT_STRING("ATTACH.HEADLESS_{}.CSKR"), cskrHeadless));
       charAssoc.addAttachmentRig(patternedInfo.animationParameters.animationCharacterSet, {}, cmdlHeadless, "HEADLESS");
     }
   }

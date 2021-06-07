@@ -160,8 +160,8 @@ void CBurrower::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
     const zeus::CVector3f interPos =
         GetProjectileInfo()->PredictInterceptPos(gunPos, aimPos, mgr.GetPlayer(), true, dt);
     const zeus::CTransform gunXf = zeus::lookAt(gunPos, interPos);
-    LaunchProjectile(gunXf, mgr, 1, EProjectileAttrib::None, false, x67c_visorParticle,
-                     x6aa_visorSfx, false, GetModelData()->GetScale());
+    LaunchProjectile(gunXf, mgr, 1, EProjectileAttrib::None, false, x67c_visorParticle, x6aa_visorSfx, false,
+                     GetModelData()->GetScale());
     return;
   }
 

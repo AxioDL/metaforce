@@ -59,12 +59,13 @@ void CMetroidPrimeRelay::GetOrBuildMetroidPrimeExo(CStateManager& mgr) {
   CModelData mData(
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), x68_scale, animParms.GetInitialAnimation(), true));
   auto* exo = new CMetroidPrimeExo(
-      mgr.AllocateUniqueId(), "Metroid Prime! (Stage 1)"sv, CEntityInfo(GetAreaId(), NullConnectionList), x38_xf, std::move(mData),
-      x74_parms.x4_patternedInfo, x74_parms.x13c_actorParms, x74_parms.x1a4_, x74_parms.x1a8_, x74_parms.x27c_,
-      x74_parms.x350_, x74_parms.x424_, x74_parms.x460_particle1, x74_parms.x464_, x74_parms.x708_wpsc1,
-      x74_parms.x70c_dInfo1, x74_parms.x728_shakeData1, x74_parms.x7fc_wpsc2, x74_parms.x800_dInfo2,
-      x74_parms.x81c_shakeData2, x74_parms.x8f0_, x74_parms.x92c_, x74_parms.x948_, x74_parms.xa1c_particle2,
-      x74_parms.xa20_swoosh, x74_parms.xa24_particle3, x74_parms.xa28_particle4, x74_parms.xa2c_);
+      mgr.AllocateUniqueId(), "Metroid Prime! (Stage 1)"sv, CEntityInfo(GetAreaId(), NullConnectionList), x38_xf,
+      std::move(mData), x74_parms.x4_patternedInfo, x74_parms.x13c_actorParms, x74_parms.x1a4_, x74_parms.x1a8_,
+      x74_parms.x27c_, x74_parms.x350_, x74_parms.x424_, x74_parms.x460_particle1, x74_parms.x464_,
+      x74_parms.x708_wpsc1, x74_parms.x70c_dInfo1, x74_parms.x728_shakeData1, x74_parms.x7fc_wpsc2,
+      x74_parms.x800_dInfo2, x74_parms.x81c_shakeData2, x74_parms.x8f0_, x74_parms.x92c_, x74_parms.x948_,
+      x74_parms.xa1c_particle2, x74_parms.xa20_swoosh, x74_parms.xa24_particle3, x74_parms.xa28_particle4,
+      x74_parms.xa2c_);
   mgr.AddObject(exo);
   mgr.SendScriptMsg(exo, kInvalidUniqueId, EScriptObjectMessage::InitializedInArea);
 }

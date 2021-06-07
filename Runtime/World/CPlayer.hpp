@@ -485,13 +485,13 @@ public:
   bool ValidateObjectForMode(TUniqueId uid, CStateManager& mgr) const;
   TUniqueId FindAimTargetId(CStateManager& mgr) const;
   TUniqueId GetAimTarget() const { return x3f4_aimTarget; }
-  TUniqueId CheckEnemiesAgainstOrbitZone(const EntityList& list, EPlayerZoneInfo info,
-                                         EPlayerZoneType zone, CStateManager& mgr) const;
+  TUniqueId CheckEnemiesAgainstOrbitZone(const EntityList& list, EPlayerZoneInfo info, EPlayerZoneType zone,
+                                         CStateManager& mgr) const;
   TUniqueId FindOrbitTargetId(CStateManager& mgr) const;
   void UpdateOrbitableObjects(CStateManager& mgr);
   TUniqueId FindBestOrbitableObject(const std::vector<TUniqueId>& ids, EPlayerZoneInfo info, CStateManager& mgr) const;
-  void FindOrbitableObjects(const EntityList& nearObjects, std::vector<TUniqueId>& listOut,
-                            EPlayerZoneInfo zone, EPlayerZoneType type, CStateManager& mgr, bool onScreenTest) const;
+  void FindOrbitableObjects(const EntityList& nearObjects, std::vector<TUniqueId>& listOut, EPlayerZoneInfo zone,
+                            EPlayerZoneType type, CStateManager& mgr, bool onScreenTest) const;
   bool WithinOrbitScreenBox(const zeus::CVector3f& screenCoords, EPlayerZoneInfo zone, EPlayerZoneType type) const;
   bool WithinOrbitScreenEllipse(const zeus::CVector3f& screenCoords, EPlayerZoneInfo zone) const;
   bool CheckOrbitDisableSourceList(CStateManager& mgr);

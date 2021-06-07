@@ -28,7 +28,7 @@ template <class _Basis>
 struct PPImpl : BigDNA, _Basis {
   AT_DECL_EXPLICIT_DNA_YAML
 
-  template<typename T>
+  template <typename T>
   static constexpr bool _shouldStore(T& p, bool defaultBool) {
     if constexpr (std::is_same_v<T, bool>) {
       return p != defaultBool;
@@ -51,23 +51,23 @@ struct PPImpl : BigDNA, _Basis {
     clsId.read(r);
     while (clsId != SBIG('_END')) {
       if (!_Basis::Lookup(clsId, [&](auto& p) {
-        using Tp = std::decay_t<decltype(p)>;
-        if constexpr (std::is_same_v<Tp, bool>) {
-          DNAFourCC tp(r);
-          if (tp == SBIG('CNST'))
-            p = r.readBool();
-        } else if constexpr (std::is_same_v<Tp, uint32_t>) {
-          DNAFourCC tp(r);
-          if (tp == SBIG('CNST'))
-            p = r.readUint32Big();
-        } else if constexpr (std::is_same_v<Tp, float>) {
-          DNAFourCC tp(r);
-          if (tp == SBIG('CNST'))
-            p = r.readFloatBig();
-        } else {
-          p.read(r);
-        }
-      })) {
+            using Tp = std::decay_t<decltype(p)>;
+            if constexpr (std::is_same_v<Tp, bool>) {
+              DNAFourCC tp(r);
+              if (tp == SBIG('CNST'))
+                p = r.readBool();
+            } else if constexpr (std::is_same_v<Tp, uint32_t>) {
+              DNAFourCC tp(r);
+              if (tp == SBIG('CNST'))
+                p = r.readUint32Big();
+            } else if constexpr (std::is_same_v<Tp, float>) {
+              DNAFourCC tp(r);
+              if (tp == SBIG('CNST'))
+                p = r.readFloatBig();
+            } else {
+              p.read(r);
+            }
+          })) {
         LogModule.report(logvisor::Fatal, FMT_STRING("Unknown {} class {} @{}"), RefType, clsId, r.position());
       }
       clsId.read(r);
@@ -131,17 +131,17 @@ struct PPImpl : BigDNA, _Basis {
       if (auto rec = r.enterSubRecord(key)) {
         const DNAFourCC clsId = key.c_str();
         if (!_Basis::Lookup(clsId, [&](auto& p) {
-          using Tp = std::decay_t<decltype(p)>;
-          if constexpr (std::is_same_v<Tp, bool>) {
-            p = r.readBool();
-          } else if constexpr (std::is_same_v<Tp, uint32_t>) {
-            p = r.readUint32();
-          } else if constexpr (std::is_same_v<Tp, float>) {
-            p = r.readFloat();
-          } else {
-            p.read(r);
-          }
-        })) {
+              using Tp = std::decay_t<decltype(p)>;
+              if constexpr (std::is_same_v<Tp, bool>) {
+                p = r.readBool();
+              } else if constexpr (std::is_same_v<Tp, uint32_t>) {
+                p = r.readUint32();
+              } else if constexpr (std::is_same_v<Tp, float>) {
+                p = r.readFloat();
+              } else {
+                p.read(r);
+              }
+            })) {
           LogModule.report(logvisor::Fatal, FMT_STRING("Unknown {} class {}"), RefType, clsId);
         }
       }
@@ -197,10 +197,10 @@ struct PEImpl : BigDNA {
       return;
     }
     if (!_Basis::Lookup(clsId, [&](auto&& p) {
-      using Tp = std::decay_t<decltype(p)>;
-      m_elem = std::make_unique<typename Tp::Type>();
-      m_elem->read(r);
-    })) {
+          using Tp = std::decay_t<decltype(p)>;
+          m_elem = std::make_unique<typename Tp::Type>();
+          m_elem->read(r);
+        })) {
       LogModule.report(logvisor::Fatal, FMT_STRING("Unknown {} class {} @{}"), _PtrType::TypeName, clsId, r.position());
     }
   }
@@ -234,10 +234,10 @@ struct PEImpl : BigDNA {
     if (auto rec = r.enterSubRecord(key)) {
       const DNAFourCC clsId = key.c_str();
       if (!_Basis::Lookup(clsId, [&](auto&& p) {
-        using Tp = std::decay_t<decltype(p)>;
-        m_elem = std::make_unique<typename Tp::Type>();
-        m_elem->read(r);
-      })) {
+            using Tp = std::decay_t<decltype(p)>;
+            m_elem = std::make_unique<typename Tp::Type>();
+            m_elem->read(r);
+          })) {
         LogModule.report(logvisor::Fatal, FMT_STRING("Unknown {} class {}"), _PtrType::TypeName, clsId);
       }
     }
@@ -249,14 +249,13 @@ struct PEImpl : BigDNA {
         m_elem->write(w);
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& deps) const {
-    _Basis::gatherDependencies(deps, m_elem);
-  }
+  void gatherDependencies(std::vector<hecl::ProjectPath>& deps) const { _Basis::gatherDependencies(deps, m_elem); }
 
   explicit operator bool() const { return m_elem.operator bool(); }
   auto* get() const { return m_elem.get(); }
   auto* operator->() const { return get(); }
   void reset() { m_elem.reset(); }
+
 private:
   std::unique_ptr<_PtrType> m_elem;
 };
@@ -308,44 +307,113 @@ struct RECEXT;
 struct REIntTimesReal;
 struct _RealElementFactory {
   using PtrType = IRealElement;
-  template<typename _Func>
+  template <typename _Func>
   static bool constexpr Lookup(FourCC fcc, _Func f) {
     switch (fcc.toUint32()) {
-    case SBIG('LFTW'): f(PEType<RELifetimeTween>{}); return true;
-    case SBIG('CNST'): f(PEType<REConstant>{}); return true;
-    case SBIG('CHAN'): f(PEType<RETimeChain>{}); return true;
-    case SBIG('ADD_'): f(PEType<REAdd>{}); return true;
-    case SBIG('CLMP'): f(PEType<REClamp>{}); return true;
-    case SBIG('KEYE'): f(PEType<REKeyframeEmitter>{}); return true;
-    case SBIG('KEYP'): f(PEType<REKeyframeEmitter>{}); return true;
-    case SBIG('IRND'): f(PEType<REInitialRandom>{}); return true;
-    case SBIG('RAND'): f(PEType<RERandom>{}); return true;
-    case SBIG('MULT'): f(PEType<REMultiply>{}); return true;
-    case SBIG('PULS'): f(PEType<REPulse>{}); return true;
-    case SBIG('SCAL'): f(PEType<RETimeScale>{}); return true;
-    case SBIG('RLPT'): f(PEType<RELifetimePercent>{}); return true;
-    case SBIG('SINE'): f(PEType<RESineWave>{}); return true;
-    case SBIG('ISWT'): f(PEType<REInitialSwitch>{}); return true;
-    case SBIG('CLTN'): f(PEType<RECompareLessThan>{}); return true;
-    case SBIG('CEQL'): f(PEType<RECompareEquals>{}); return true;
-    case SBIG('PAP1'): f(PEType<REParticleAdvanceParam1>{}); return true;
-    case SBIG('PAP2'): f(PEType<REParticleAdvanceParam2>{}); return true;
-    case SBIG('PAP3'): f(PEType<REParticleAdvanceParam3>{}); return true;
-    case SBIG('PAP4'): f(PEType<REParticleAdvanceParam4>{}); return true;
-    case SBIG('PAP5'): f(PEType<REParticleAdvanceParam5>{}); return true;
-    case SBIG('PAP6'): f(PEType<REParticleAdvanceParam6>{}); return true;
-    case SBIG('PAP7'): f(PEType<REParticleAdvanceParam7>{}); return true;
-    case SBIG('PAP8'): f(PEType<REParticleAdvanceParam8>{}); return true;
-    case SBIG('PSLL'): f(PEType<REParticleSizeOrLineLength>{}); return true;
-    case SBIG('PRLW'): f(PEType<REParticleRotationOrLineWidth>{}); return true;
-    case SBIG('SUB_'): f(PEType<RESubtract>{}); return true;
-    case SBIG('VMAG'): f(PEType<REVectorMagnitude>{}); return true;
-    case SBIG('VXTR'): f(PEType<REVectorXToReal>{}); return true;
-    case SBIG('VYTR'): f(PEType<REVectorYToReal>{}); return true;
-    case SBIG('VZTR'): f(PEType<REVectorZToReal>{}); return true;
-    case SBIG('CEXT'): f(PEType<RECEXT>{}); return true;
-    case SBIG('ITRL'): f(PEType<REIntTimesReal>{}); return true;
-    default: return false;
+    case SBIG('LFTW'):
+      f(PEType<RELifetimeTween>{});
+      return true;
+    case SBIG('CNST'):
+      f(PEType<REConstant>{});
+      return true;
+    case SBIG('CHAN'):
+      f(PEType<RETimeChain>{});
+      return true;
+    case SBIG('ADD_'):
+      f(PEType<REAdd>{});
+      return true;
+    case SBIG('CLMP'):
+      f(PEType<REClamp>{});
+      return true;
+    case SBIG('KEYE'):
+      f(PEType<REKeyframeEmitter>{});
+      return true;
+    case SBIG('KEYP'):
+      f(PEType<REKeyframeEmitter>{});
+      return true;
+    case SBIG('IRND'):
+      f(PEType<REInitialRandom>{});
+      return true;
+    case SBIG('RAND'):
+      f(PEType<RERandom>{});
+      return true;
+    case SBIG('MULT'):
+      f(PEType<REMultiply>{});
+      return true;
+    case SBIG('PULS'):
+      f(PEType<REPulse>{});
+      return true;
+    case SBIG('SCAL'):
+      f(PEType<RETimeScale>{});
+      return true;
+    case SBIG('RLPT'):
+      f(PEType<RELifetimePercent>{});
+      return true;
+    case SBIG('SINE'):
+      f(PEType<RESineWave>{});
+      return true;
+    case SBIG('ISWT'):
+      f(PEType<REInitialSwitch>{});
+      return true;
+    case SBIG('CLTN'):
+      f(PEType<RECompareLessThan>{});
+      return true;
+    case SBIG('CEQL'):
+      f(PEType<RECompareEquals>{});
+      return true;
+    case SBIG('PAP1'):
+      f(PEType<REParticleAdvanceParam1>{});
+      return true;
+    case SBIG('PAP2'):
+      f(PEType<REParticleAdvanceParam2>{});
+      return true;
+    case SBIG('PAP3'):
+      f(PEType<REParticleAdvanceParam3>{});
+      return true;
+    case SBIG('PAP4'):
+      f(PEType<REParticleAdvanceParam4>{});
+      return true;
+    case SBIG('PAP5'):
+      f(PEType<REParticleAdvanceParam5>{});
+      return true;
+    case SBIG('PAP6'):
+      f(PEType<REParticleAdvanceParam6>{});
+      return true;
+    case SBIG('PAP7'):
+      f(PEType<REParticleAdvanceParam7>{});
+      return true;
+    case SBIG('PAP8'):
+      f(PEType<REParticleAdvanceParam8>{});
+      return true;
+    case SBIG('PSLL'):
+      f(PEType<REParticleSizeOrLineLength>{});
+      return true;
+    case SBIG('PRLW'):
+      f(PEType<REParticleRotationOrLineWidth>{});
+      return true;
+    case SBIG('SUB_'):
+      f(PEType<RESubtract>{});
+      return true;
+    case SBIG('VMAG'):
+      f(PEType<REVectorMagnitude>{});
+      return true;
+    case SBIG('VXTR'):
+      f(PEType<REVectorXToReal>{});
+      return true;
+    case SBIG('VYTR'):
+      f(PEType<REVectorYToReal>{});
+      return true;
+    case SBIG('VZTR'):
+      f(PEType<REVectorZToReal>{});
+      return true;
+    case SBIG('CEXT'):
+      f(PEType<RECEXT>{});
+      return true;
+    case SBIG('ITRL'):
+      f(PEType<REIntTimesReal>{});
+      return true;
+    default:
+      return false;
     }
   }
   static constexpr void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
@@ -377,28 +445,65 @@ struct IEModulo;
 struct IESubtract;
 struct _IntElementFactory {
   using PtrType = IIntElement;
-  template<typename _Func>
+  template <typename _Func>
   static bool constexpr Lookup(FourCC fcc, _Func f) {
     switch (fcc.toUint32()) {
-    case SBIG('KEYE'): f(PEType<IEKeyframeEmitter>{}); return true;
-    case SBIG('KEYP'): f(PEType<IEKeyframeEmitter>{}); return true;
-    case SBIG('DETH'): f(PEType<IEDeath>{}); return true;
-    case SBIG('CLMP'): f(PEType<IEClamp>{}); return true;
-    case SBIG('CHAN'): f(PEType<IETimeChain>{}); return true;
-    case SBIG('ADD_'): f(PEType<IEAdd>{}); return true;
-    case SBIG('CNST'): f(PEType<IEConstant>{}); return true;
-    case SBIG('IMPL'): f(PEType<IEImpulse>{}); return true;
-    case SBIG('ILPT'): f(PEType<IELifetimePercent>{}); return true;
-    case SBIG('IRND'): f(PEType<IEInitialRandom>{}); return true;
-    case SBIG('PULS'): f(PEType<IEPulse>{}); return true;
-    case SBIG('MULT'): f(PEType<IEMultiply>{}); return true;
-    case SBIG('SPAH'): f(PEType<IESampleAndHold>{}); return true;
-    case SBIG('RAND'): f(PEType<IERandom>{}); return true;
-    case SBIG('TSCL'): f(PEType<IETimeScale>{}); return true;
-    case SBIG('GTCP'): f(PEType<IEGTCP>{}); return true;
-    case SBIG('MODU'): f(PEType<IEModulo>{}); return true;
-    case SBIG('SUB_'): f(PEType<IESubtract>{}); return true;
-    default: return false;
+    case SBIG('KEYE'):
+      f(PEType<IEKeyframeEmitter>{});
+      return true;
+    case SBIG('KEYP'):
+      f(PEType<IEKeyframeEmitter>{});
+      return true;
+    case SBIG('DETH'):
+      f(PEType<IEDeath>{});
+      return true;
+    case SBIG('CLMP'):
+      f(PEType<IEClamp>{});
+      return true;
+    case SBIG('CHAN'):
+      f(PEType<IETimeChain>{});
+      return true;
+    case SBIG('ADD_'):
+      f(PEType<IEAdd>{});
+      return true;
+    case SBIG('CNST'):
+      f(PEType<IEConstant>{});
+      return true;
+    case SBIG('IMPL'):
+      f(PEType<IEImpulse>{});
+      return true;
+    case SBIG('ILPT'):
+      f(PEType<IELifetimePercent>{});
+      return true;
+    case SBIG('IRND'):
+      f(PEType<IEInitialRandom>{});
+      return true;
+    case SBIG('PULS'):
+      f(PEType<IEPulse>{});
+      return true;
+    case SBIG('MULT'):
+      f(PEType<IEMultiply>{});
+      return true;
+    case SBIG('SPAH'):
+      f(PEType<IESampleAndHold>{});
+      return true;
+    case SBIG('RAND'):
+      f(PEType<IERandom>{});
+      return true;
+    case SBIG('TSCL'):
+      f(PEType<IETimeScale>{});
+      return true;
+    case SBIG('GTCP'):
+      f(PEType<IEGTCP>{});
+      return true;
+    case SBIG('MODU'):
+      f(PEType<IEModulo>{});
+      return true;
+    case SBIG('SUB_'):
+      f(PEType<IESubtract>{});
+      return true;
+    default:
+      return false;
     }
   }
   static constexpr void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
@@ -430,28 +535,65 @@ struct VEPSOR;
 struct VEPSOF;
 struct _VectorElementFactory {
   using PtrType = IVectorElement;
-  template<typename _Func>
+  template <typename _Func>
   static bool constexpr Lookup(FourCC fcc, _Func f) {
     switch (fcc.toUint32()) {
-    case SBIG('CONE'): f(PEType<VECone>{}); return true;
-    case SBIG('CHAN'): f(PEType<VETimeChain>{}); return true;
-    case SBIG('ANGC'): f(PEType<VEAngleCone>{}); return true;
-    case SBIG('ADD_'): f(PEType<VEAdd>{}); return true;
-    case SBIG('CCLU'): f(PEType<VECircleCluster>{}); return true;
-    case SBIG('CNST'): f(PEType<VEConstant>{}); return true;
-    case SBIG('CIRC'): f(PEType<VECircle>{}); return true;
-    case SBIG('KEYE'): f(PEType<VEKeyframeEmitter>{}); return true;
-    case SBIG('KEYP'): f(PEType<VEKeyframeEmitter>{}); return true;
-    case SBIG('MULT'): f(PEType<VEMultiply>{}); return true;
-    case SBIG('RTOV'): f(PEType<VERealToVector>{}); return true;
-    case SBIG('PULS'): f(PEType<VEPulse>{}); return true;
-    case SBIG('PVEL'): f(PEType<VEParticleVelocity>{}); return true;
-    case SBIG('SPOS'): f(PEType<VESPOS>{}); return true;
-    case SBIG('PLCO'): f(PEType<VEPLCO>{}); return true;
-    case SBIG('PLOC'): f(PEType<VEPLOC>{}); return true;
-    case SBIG('PSOR'): f(PEType<VEPSOR>{}); return true;
-    case SBIG('PSOF'): f(PEType<VEPSOF>{}); return true;
-    default: return false;
+    case SBIG('CONE'):
+      f(PEType<VECone>{});
+      return true;
+    case SBIG('CHAN'):
+      f(PEType<VETimeChain>{});
+      return true;
+    case SBIG('ANGC'):
+      f(PEType<VEAngleCone>{});
+      return true;
+    case SBIG('ADD_'):
+      f(PEType<VEAdd>{});
+      return true;
+    case SBIG('CCLU'):
+      f(PEType<VECircleCluster>{});
+      return true;
+    case SBIG('CNST'):
+      f(PEType<VEConstant>{});
+      return true;
+    case SBIG('CIRC'):
+      f(PEType<VECircle>{});
+      return true;
+    case SBIG('KEYE'):
+      f(PEType<VEKeyframeEmitter>{});
+      return true;
+    case SBIG('KEYP'):
+      f(PEType<VEKeyframeEmitter>{});
+      return true;
+    case SBIG('MULT'):
+      f(PEType<VEMultiply>{});
+      return true;
+    case SBIG('RTOV'):
+      f(PEType<VERealToVector>{});
+      return true;
+    case SBIG('PULS'):
+      f(PEType<VEPulse>{});
+      return true;
+    case SBIG('PVEL'):
+      f(PEType<VEParticleVelocity>{});
+      return true;
+    case SBIG('SPOS'):
+      f(PEType<VESPOS>{});
+      return true;
+    case SBIG('PLCO'):
+      f(PEType<VEPLCO>{});
+      return true;
+    case SBIG('PLOC'):
+      f(PEType<VEPLOC>{});
+      return true;
+    case SBIG('PSOR'):
+      f(PEType<VEPSOR>{});
+      return true;
+    case SBIG('PSOF'):
+      f(PEType<VEPSOF>{});
+      return true;
+    default:
+      return false;
     }
   }
   static constexpr void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
@@ -472,17 +614,32 @@ struct CEFade;
 struct CEPulse;
 struct _ColorElementFactory {
   using PtrType = IColorElement;
-  template<typename _Func>
+  template <typename _Func>
   static bool constexpr Lookup(FourCC fcc, _Func f) {
     switch (fcc.toUint32()) {
-    case SBIG('KEYE'): f(PEType<CEKeyframeEmitter>{}); return true;
-    case SBIG('KEYP'): f(PEType<CEKeyframeEmitter>{}); return true;
-    case SBIG('CNST'): f(PEType<CEConstant>{}); return true;
-    case SBIG('CHAN'): f(PEType<CETimeChain>{}); return true;
-    case SBIG('CFDE'): f(PEType<CEFadeEnd>{}); return true;
-    case SBIG('FADE'): f(PEType<CEFade>{}); return true;
-    case SBIG('PULS'): f(PEType<CEPulse>{}); return true;
-    default: return false;
+    case SBIG('KEYE'):
+      f(PEType<CEKeyframeEmitter>{});
+      return true;
+    case SBIG('KEYP'):
+      f(PEType<CEKeyframeEmitter>{});
+      return true;
+    case SBIG('CNST'):
+      f(PEType<CEConstant>{});
+      return true;
+    case SBIG('CHAN'):
+      f(PEType<CETimeChain>{});
+      return true;
+    case SBIG('CFDE'):
+      f(PEType<CEFadeEnd>{});
+      return true;
+    case SBIG('FADE'):
+      f(PEType<CEFade>{});
+      return true;
+    case SBIG('PULS'):
+      f(PEType<CEPulse>{});
+      return true;
+    default:
+      return false;
     }
   }
   static constexpr void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
@@ -508,22 +665,47 @@ struct MVEWind;
 struct MVESwirl;
 struct _ModVectorElementFactory {
   using PtrType = IModVectorElement;
-  template<typename _Func>
+  template <typename _Func>
   static bool constexpr Lookup(FourCC fcc, _Func f) {
     switch (fcc.toUint32()) {
-    case SBIG('IMPL'): f(PEType<MVEImplosion>{}); return true;
-    case SBIG('EMPL'): f(PEType<MVEExponentialImplosion>{}); return true;
-    case SBIG('CHAN'): f(PEType<MVETimeChain>{}); return true;
-    case SBIG('BNCE'): f(PEType<MVEBounce>{}); return true;
-    case SBIG('CNST'): f(PEType<MVEConstant>{}); return true;
-    case SBIG('GRAV'): f(PEType<MVEGravity>{}); return true;
-    case SBIG('EXPL'): f(PEType<MVEExplode>{}); return true;
-    case SBIG('SPOS'): f(PEType<MVESetPosition>{}); return true;
-    case SBIG('LMPL'): f(PEType<MVELinearImplosion>{}); return true;
-    case SBIG('PULS'): f(PEType<MVEPulse>{}); return true;
-    case SBIG('WIND'): f(PEType<MVEWind>{}); return true;
-    case SBIG('SWRL'): f(PEType<MVESwirl>{}); return true;
-    default: return false;
+    case SBIG('IMPL'):
+      f(PEType<MVEImplosion>{});
+      return true;
+    case SBIG('EMPL'):
+      f(PEType<MVEExponentialImplosion>{});
+      return true;
+    case SBIG('CHAN'):
+      f(PEType<MVETimeChain>{});
+      return true;
+    case SBIG('BNCE'):
+      f(PEType<MVEBounce>{});
+      return true;
+    case SBIG('CNST'):
+      f(PEType<MVEConstant>{});
+      return true;
+    case SBIG('GRAV'):
+      f(PEType<MVEGravity>{});
+      return true;
+    case SBIG('EXPL'):
+      f(PEType<MVEExplode>{});
+      return true;
+    case SBIG('SPOS'):
+      f(PEType<MVESetPosition>{});
+      return true;
+    case SBIG('LMPL'):
+      f(PEType<MVELinearImplosion>{});
+      return true;
+    case SBIG('PULS'):
+      f(PEType<MVEPulse>{});
+      return true;
+    case SBIG('WIND'):
+      f(PEType<MVEWind>{});
+      return true;
+    case SBIG('SWRL'):
+      f(PEType<MVESwirl>{});
+      return true;
+    default:
+      return false;
     }
   }
   static constexpr void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
@@ -541,14 +723,23 @@ struct VESphere;
 struct VEAngleSphere;
 struct _EmitterElementFactory {
   using PtrType = IEmitterElement;
-  template<typename _Func>
+  template <typename _Func>
   static bool constexpr Lookup(FourCC fcc, _Func f) {
     switch (fcc.toUint32()) {
-    case SBIG('SETR'): f(PEType<EESimpleEmitterTR>{}); return true;
-    case SBIG('SEMR'): f(PEType<EESimpleEmitter>{}); return true;
-    case SBIG('SPHE'): f(PEType<VESphere>{}); return true;
-    case SBIG('ASPH'): f(PEType<VEAngleSphere>{}); return true;
-    default: return false;
+    case SBIG('SETR'):
+      f(PEType<EESimpleEmitterTR>{});
+      return true;
+    case SBIG('SEMR'):
+      f(PEType<EESimpleEmitter>{});
+      return true;
+    case SBIG('SPHE'):
+      f(PEType<VESphere>{});
+      return true;
+    case SBIG('ASPH'):
+      f(PEType<VEAngleSphere>{});
+      return true;
+    default:
+      return false;
     }
   }
   static constexpr void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
@@ -1296,12 +1487,17 @@ struct UVEAnimTexture : IUVElement {
 template <class IDType>
 struct _UVElementFactory {
   using PtrType = IUVElement;
-  template<typename _Func>
+  template <typename _Func>
   static bool constexpr Lookup(FourCC fcc, _Func f) {
     switch (fcc.toUint32()) {
-    case SBIG('CNST'): f(PEType<UVEConstant<IDType>>{}); return true;
-    case SBIG('ATEX'): f(PEType<UVEAnimTexture<IDType>>{}); return true;
-    default: return false;
+    case SBIG('CNST'):
+      f(PEType<UVEConstant<IDType>>{});
+      return true;
+    case SBIG('ATEX'):
+      f(PEType<UVEAnimTexture<IDType>>{});
+      return true;
+    default:
+      return false;
     }
   }
   static constexpr void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,

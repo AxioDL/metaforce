@@ -10,7 +10,7 @@ CIOWin::EMessageReturn CConsoleOutputWindow::OnMessage(const CArchitectureMessag
 }
 
 void CConsoleOutputWindow::Draw() {
-  //SCOPED_GRAPHICS_DEBUG_GROUP("CConsoleOutputWindow::Draw", zeus::skGreen);
+  // SCOPED_GRAPHICS_DEBUG_GROUP("CConsoleOutputWindow::Draw", zeus::skGreen);
 }
 
 } // namespace metaforce

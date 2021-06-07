@@ -129,15 +129,15 @@ make_dnalist(
         WorldTeleporter)
 
 set(ScriptObjectsMP1_SOURCES
-    ScriptTypes.hpp
-    IScriptObject.cpp
-    Parameters.cpp
-    Actor.cpp
-    Platform.cpp
-    DoorArea.cpp
-    Oculus.cpp
-    Ridley.cpp
-    Water.cpp
-    WorldTeleporter.cpp)
+        ScriptTypes.hpp
+        IScriptObject.cpp
+        Parameters.cpp
+        Actor.cpp
+        Platform.cpp
+        DoorArea.cpp
+        Oculus.cpp
+        Ridley.cpp
+        Water.cpp
+        WorldTeleporter.cpp)
 
 dataspec_add_list(DNAMP1/ScriptObjects ScriptObjectsMP1_SOURCES)

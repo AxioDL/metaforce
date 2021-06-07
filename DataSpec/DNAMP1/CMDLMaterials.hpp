@@ -469,9 +469,8 @@ struct MaterialSet : BigDNA {
     static void AddDynamicAlpha(hecl::blender::PyOutStream& out, unsigned idx);
 
     Material() = default;
-    Material(const hecl::blender::Material& material,
-             std::vector<hecl::ProjectPath>& texPathsOut,
-             int colorCount, bool lightmapUVs, bool matrixSkinning);
+    Material(const hecl::blender::Material& material, std::vector<hecl::ProjectPath>& texPathsOut, int colorCount,
+             bool lightmapUVs, bool matrixSkinning);
   };
   Vector<Material, AT_DNA_COUNT(head.materialCount)> materials;
 
@@ -617,8 +616,7 @@ struct HMDLMaterialSet : BigDNA {
     Vector<Chunk, AT_DNA_COUNT(chunkCount)> chunks;
     Value<BlendMaterial::BlendMode> blendMode = BlendMaterial::BlendMode::Opaque;
 
-    std::pair<hecl::Backend::BlendFactor, hecl::Backend::BlendFactor>
-    blendFactors() const {
+    std::pair<hecl::Backend::BlendFactor, hecl::Backend::BlendFactor> blendFactors() const {
       switch (blendMode) {
       case BlendMaterial::BlendMode::Opaque:
       default:

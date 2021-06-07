@@ -233,9 +233,8 @@ s16 CSortedListManager::CalculateIntersections(ESortedList la, ESortedList lb, s
   return headId;
 }
 
-void CSortedListManager::BuildNearList(EntityList& out, const zeus::CVector3f& pos,
-                                       const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter,
-                                       const CActor* actor) {
+void CSortedListManager::BuildNearList(EntityList& out, const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                                       float mag, const CMaterialFilter& filter, const CActor* actor) {
   if (mag == 0.f) {
     mag = 8000.f;
   }
@@ -246,8 +245,7 @@ void CSortedListManager::BuildNearList(EntityList& out, const zeus::CVector3f& p
   BuildNearList(out, zeus::CAABox(mins, maxs), filter, actor);
 }
 
-void CSortedListManager::BuildNearList(EntityList& out, const CActor& actor,
-                                       const zeus::CAABox& aabb) {
+void CSortedListManager::BuildNearList(EntityList& out, const CActor& actor, const zeus::CAABox& aabb) {
   const CMaterialFilter& filter = actor.GetMaterialFilter();
   s16 id = ConstructIntersectionArray(aabb);
   while (id != -1) {
@@ -262,8 +260,8 @@ void CSortedListManager::BuildNearList(EntityList& out, const CActor& actor,
   }
 }
 
-void CSortedListManager::BuildNearList(EntityList& out, const zeus::CAABox& aabb,
-                                       const CMaterialFilter& filter, const CActor* actor) {
+void CSortedListManager::BuildNearList(EntityList& out, const zeus::CAABox& aabb, const CMaterialFilter& filter,
+                                       const CActor* actor) {
   s16 id = ConstructIntersectionArray(aabb);
   while (id != -1) {
     SNode& node = AccessElement(x0_nodes, id);

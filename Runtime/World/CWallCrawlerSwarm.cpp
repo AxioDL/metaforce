@@ -30,20 +30,16 @@ static CMaterialList MakeMaterialList() {
                        EMaterialTypes::RadarObject);
 }
 
-CWallCrawlerSwarm::CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
-                                     const zeus::CVector3f& boundingBoxExtent, const zeus::CTransform& xf,
-                                     EFlavor flavor, const CAnimRes& animRes, s32 launchAnim, s32 attractAnim,
-                                     CAssetId part1, CAssetId part2, CAssetId part3, CAssetId part4,
-                                     const CDamageInfo& crabDamage, const CDamageInfo& scarabExplodeDamage,
-                                     float crabDamageCooldown, float boidRadius, float touchRadius,
-                                     float playerTouchRadius, u32 numBoids, u32 maxCreatedBoids,
-                                     float animPlaybackSpeed, float separationRadius, float cohesionMagnitude,
-                                     float alignmentWeight, float separationMagnitude, float moveToWaypointWeight,
-                                     float attractionMagnitude, float attractionRadius, float boidGenRate,
-                                     u32 maxLaunches, float scarabBoxMargin, float scarabScatterXYVelocity,
-                                     float scarabTimeToExplode, const CHealthInfo& hInfo,
-                                     const CDamageVulnerability& dVuln, s32 launchSfx,
-                                     s32 scatterSfx, const CActorParameters& aParams)
+CWallCrawlerSwarm::CWallCrawlerSwarm(
+    TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
+    const zeus::CVector3f& boundingBoxExtent, const zeus::CTransform& xf, EFlavor flavor, const CAnimRes& animRes,
+    s32 launchAnim, s32 attractAnim, CAssetId part1, CAssetId part2, CAssetId part3, CAssetId part4,
+    const CDamageInfo& crabDamage, const CDamageInfo& scarabExplodeDamage, float crabDamageCooldown, float boidRadius,
+    float touchRadius, float playerTouchRadius, u32 numBoids, u32 maxCreatedBoids, float animPlaybackSpeed,
+    float separationRadius, float cohesionMagnitude, float alignmentWeight, float separationMagnitude,
+    float moveToWaypointWeight, float attractionMagnitude, float attractionRadius, float boidGenRate, u32 maxLaunches,
+    float scarabBoxMargin, float scarabScatterXYVelocity, float scarabTimeToExplode, const CHealthInfo& hInfo,
+    const CDamageVulnerability& dVuln, s32 launchSfx, s32 scatterSfx, const CActorParameters& aParams)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), MakeMaterialList(), aParams, kInvalidUniqueId)
 , x118_boundingBoxExtent(boundingBoxExtent)
 , x13c_separationRadius(separationRadius)
@@ -122,15 +118,15 @@ CWallCrawlerSwarm::CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_vie
 void CWallCrawlerSwarm::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CWallCrawlerSwarm::AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which) {
-  //x430_.clear();
+  // x430_.clear();
   for (size_t i = 0; i < 9; ++i) {
-    //x430_.push_back(x4b0_[i]->PickAnimatedModel(which).Clone());
+    // x430_.push_back(x4b0_[i]->PickAnimatedModel(which).Clone());
     x4b0_modelDatas[i]->EnableLooping(true);
     x4b0_modelDatas[i]->AdvanceAnimation(x4b0_modelDatas[i]->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv) *
                                              (float(i) * 0.0625f),
                                          mgr, x4_areaId, true);
   }
-  //x430_.push_back(x4b0_.back()->PickAnimatedModel(which).Clone());
+  // x430_.push_back(x4b0_.back()->PickAnimatedModel(which).Clone());
   x4dc_whichModel = which;
 }
 
@@ -306,7 +302,7 @@ static zeus::CTransform LookAt(const zeus::CUnitVector3f& a, const zeus::CUnitVe
 }
 
 void CWallCrawlerSwarm::CreateBoid(CStateManager& mgr, int idx) {
-  //zeus::CAABox aabb = GetBoundingBox();
+  // zeus::CAABox aabb = GetBoundingBox();
   const TUniqueId wpId = GetWaypointForState(EScriptObjectState::Patrol, mgr);
   if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(wpId)) {
     const CCollisionSurface surf = FindBestCollisionInBox(mgr, wp->GetTranslation());
@@ -592,8 +588,8 @@ void CWallCrawlerSwarm::UpdateBoid(const CAreaCollisionCache& ccache, CStateMana
         ApplyAlignment(boid, nearList, aheadVec);
         break;
       case 3:
-        ApplyAttraction(boid, mgr.GetPlayer().GetTranslation(), x154_attractionRadius,
-                        x150_attractionMagnitude, aheadVec);
+        ApplyAttraction(boid, mgr.GetPlayer().GetTranslation(), x154_attractionRadius, x150_attractionMagnitude,
+                        aheadVec);
         break;
       default:
         break;
@@ -775,8 +771,7 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
   x36c_crabDamageCooldownTimer -= dt;
   ++x100_thinkCounter;
   const CGameArea* area = mgr.GetWorld()->GetAreaAlways(x4_areaId);
-  const auto occState =
-    area->IsPostConstructed() ? area->GetOcclusionState() : CGameArea::EOcclusionState::Occluded;
+  const auto occState = area->IsPostConstructed() ? area->GetOcclusionState() : CGameArea::EOcclusionState::Occluded;
   if (occState != CGameArea::EOcclusionState::Visible) {
     if (x104_occludedTimer > 0.f) {
       x104_occludedTimer -= dt;
@@ -801,8 +796,7 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
     AddMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
   }
 
-  while ((x54c_maxCreatedBoids == 0 || x550_createdBoids < x54c_maxCreatedBoids) &&
-         x368_boidGenCooldownTimer <= 0.f) {
+  while ((x54c_maxCreatedBoids == 0 || x550_createdBoids < x54c_maxCreatedBoids) && x368_boidGenCooldownTimer <= 0.f) {
     int idx = 0;
     bool madeBoid = false;
     for (const auto& b : x108_boids) {
@@ -1080,8 +1074,9 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
 }
 
 void CWallCrawlerSwarm::Render(CStateManager& mgr) {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CWallCrawlerSwarm::Render {} {} {}"),
-                                          x8_uid, xc_editorId, x10_name).c_str(), zeus::skOrange);
+  SCOPED_GRAPHICS_DEBUG_GROUP(
+      fmt::format(FMT_STRING("CWallCrawlerSwarm::Render {} {} {}"), x8_uid, xc_editorId, x10_name).c_str(),
+      zeus::skOrange);
   u32 drawMask = 0xffffffff;
   const bool r24 = x560_24_enableLighting;
   const bool r23 = x560_25_useSoftwareLight;
@@ -1147,17 +1142,11 @@ void CWallCrawlerSwarm::Render(CStateManager& mgr) {
   DrawTouchBounds();
 }
 
-bool CWallCrawlerSwarm::CanRenderUnsorted(const CStateManager&) const {
-  return true;
-}
+bool CWallCrawlerSwarm::CanRenderUnsorted(const CStateManager&) const { return true; }
 
-void CWallCrawlerSwarm::CalculateRenderBounds() {
-  x9c_renderBounds = GetBoundingBox();
-}
+void CWallCrawlerSwarm::CalculateRenderBounds() { x9c_renderBounds = GetBoundingBox(); }
 
-std::optional<zeus::CAABox> CWallCrawlerSwarm::GetTouchBounds() const {
-  return {xe8_aabox};
-}
+std::optional<zeus::CAABox> CWallCrawlerSwarm::GetTouchBounds() const { return {xe8_aabox}; }
 
 void CWallCrawlerSwarm::Touch(CActor& other, CStateManager& mgr) {
   CActor::Touch(other, mgr);
@@ -1199,13 +1188,13 @@ void CWallCrawlerSwarm::Touch(CActor& other, CStateManager& mgr) {
             if (b.GetActive() && x558_flavor == EFlavor::Parasite) {
               constexpr CDamageInfo dInfo(CWeaponMode(EWeaponType::AI), 2.0e-05f, 0.f, 0.f);
               mgr.ApplyDamage(GetUniqueId(), player->GetUniqueId(), GetUniqueId(), dInfo,
-                 CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
+                              CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
               KillBoid(b, mgr, 0.f, 1.f);
             } else if (x558_flavor == EFlavor::Scarab) {
               ExplodeBoid(b, mgr);
             } else if (x36c_crabDamageCooldownTimer <= 0.f) {
               mgr.ApplyDamage(GetUniqueId(), player->GetUniqueId(), GetUniqueId(), x384_crabDamage,
-                CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
+                              CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
               x36c_crabDamageCooldownTimer = x370_crabDamageCooldown;
               break;
             }
@@ -1232,7 +1221,8 @@ zeus::CVector3f CWallCrawlerSwarm::GetAimPosition(const CStateManager&, float dt
 
   return x108_boids[x42c_lockOnIdx].x30_velocity * dt + x124_lastOrbitPosition;
 }
-void CWallCrawlerSwarm::ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr) {
+void CWallCrawlerSwarm::ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info,
+                                          CStateManager& stateMgr) {
   for (CBoid& boid : x108_boids) {
     if (boid.GetActive() && (boid.GetTranslation() - pos).magSquared() < info.GetRadius() * info.GetRadius()) {
       boid.x78_health -= info.GetRadiusDamage();

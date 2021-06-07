@@ -31,10 +31,10 @@ std::shared_ptr<CAnimTreeNode> CMetaAnimPhaseBlend::VGetAnimationTree(const CAni
   float fa = da / dblend;
   float fb = db / dblend;
 
-  auto tsa = std::make_shared<CAnimTreeTimeScale>(a, fa,
-    CAnimTreeTimeScale::CreatePrimitiveName(a, fa, CCharAnimTime::Infinity(), -1.f));
-  auto tsb = std::make_shared<CAnimTreeTimeScale>(b, fb,
-    CAnimTreeTimeScale::CreatePrimitiveName(b, fb, CCharAnimTime::Infinity(), -1.f));
+  auto tsa = std::make_shared<CAnimTreeTimeScale>(
+      a, fa, CAnimTreeTimeScale::CreatePrimitiveName(a, fa, CCharAnimTime::Infinity(), -1.f));
+  auto tsb = std::make_shared<CAnimTreeTimeScale>(
+      b, fb, CAnimTreeTimeScale::CreatePrimitiveName(b, fb, CCharAnimTime::Infinity(), -1.f));
 
   return std::make_shared<CAnimTreeBlend>(x10_, tsa, tsb, xc_blend,
                                           CAnimTreeBlend::CreatePrimitiveName(tsa, tsb, xc_blend));

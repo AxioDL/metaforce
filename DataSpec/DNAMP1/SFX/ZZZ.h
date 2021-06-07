@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPzzz 65
-
 
 #define SFXsfx0C16 3094
 #define SFXsfx0C17 3095
@@ -29,5 +27,3 @@
 #define SFXsfx0C27 3111
 #define SFXsfx0C28 3112
 #define SFXsfx0C29 3113
-
-

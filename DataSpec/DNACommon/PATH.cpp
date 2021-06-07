@@ -91,13 +91,13 @@ void PATH<PAKBridge>::sendToBlender(hecl::blender::Connection& conn, std::string
       os.format(FMT_STRING("tri_verts.append(bm.verts[{}])\n"), r.nodeStart + i);
 
     os.format(FMT_STRING("face = bm.faces.get(tri_verts)\n"
-                  "if face is None:\n"
-                  "    face = bm.faces.new(tri_verts)\n"
-                  "    face.normal_flip()\n"
-                  "face.material_index = select_material(0x{:04X}, 0x{:04X})\n"
-                  "face.smooth = False\n"
-                  "face[height_lay] = {}\n"
-                  "\n"),
+                         "if face is None:\n"
+                         "    face = bm.faces.new(tri_verts)\n"
+                         "    face.normal_flip()\n"
+                         "face.material_index = select_material(0x{:04X}, 0x{:04X})\n"
+                         "face.smooth = False\n"
+                         "face[height_lay] = {}\n"
+                         "\n"),
               r.meshIndexMask, r.meshTypeMask, r.height);
 
 #if 0
@@ -151,11 +151,11 @@ void PATH<PAKBridge>::sendToBlender(hecl::blender::Connection& conn, std::string
     for (int i = 0; i < 4; ++i)
       w.m[i].mSimd.copy_to(xfMtxF[i]);
     os.format(FMT_STRING("mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
-                  "mtxd = mtx.decompose()\n"
-                  "path_mesh_obj.rotation_mode = 'QUATERNION'\n"
-                  "path_mesh_obj.location = mtxd[0]\n"
-                  "path_mesh_obj.rotation_quaternion = mtxd[1]\n"
-                  "path_mesh_obj.scale = mtxd[2]\n"),
+                         "mtxd = mtx.decompose()\n"
+                         "path_mesh_obj.rotation_mode = 'QUATERNION'\n"
+                         "path_mesh_obj.location = mtxd[0]\n"
+                         "path_mesh_obj.rotation_quaternion = mtxd[1]\n"
+                         "path_mesh_obj.scale = mtxd[2]\n"),
               xfMtxF[0][0], xfMtxF[1][0], xfMtxF[2][0], xfMtxF[3][0], xfMtxF[0][1], xfMtxF[1][1], xfMtxF[2][1],
               xfMtxF[3][1], xfMtxF[0][2], xfMtxF[1][2], xfMtxF[2][2], xfMtxF[3][2]);
   }

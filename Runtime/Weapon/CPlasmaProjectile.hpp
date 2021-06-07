@@ -19,8 +19,8 @@ namespace metaforce {
 class CPlasmaProjectile : public CBeamProjectile {
 public:
   struct PlayerEffectResources : rstl::reserved_vector<CAssetId, 8> {
-    PlayerEffectResources(CAssetId a = {}, CAssetId b = {}, CAssetId c = {}, CAssetId d = {},
-                         CAssetId e = {}, CAssetId f = {}, CAssetId g = {}, CAssetId h = {})
+    PlayerEffectResources(CAssetId a = {}, CAssetId b = {}, CAssetId c = {}, CAssetId d = {}, CAssetId e = {},
+                          CAssetId f = {}, CAssetId g = {}, CAssetId h = {})
     : rstl::reserved_vector<CAssetId, 8>({a, b, c, d, e, f, g, h}) {}
   };
   static PlayerEffectResources LoadPlayerEffectResources(CInputStream& in) {
@@ -35,6 +35,7 @@ public:
     CAssetId h{in};
     return {a, b, c, d, e, f, g, h};
   }
+
 private:
   std::vector<TUniqueId> x468_lights;
   s32 x478_beamAttributes;
@@ -46,13 +47,7 @@ private:
   zeus::CColor x490_innerColor;
   zeus::CColor x494_outerColor;
   CDamageInfo x498_phazonDamage;
-  enum class EExpansionState {
-    Inactive,
-    Attack,
-    Sustain,
-    Release,
-    Done
-  };
+  enum class EExpansionState { Inactive, Attack, Sustain, Release, Done };
   EExpansionState x4b4_expansionState = EExpansionState::Inactive;
   float x4b8_beamWidth = 0.f;
   float x4bc_lifeTimer = 0.f;
@@ -76,7 +71,7 @@ private:
   CAssetId x524_freezeSteamTxtr;
   CAssetId x528_freezeIceTxtr;
   TToken<CElectricDescription> x52c_visorElectric; // Used to be optional
-  TToken<CGenDescription> x538_visorParticle; // Used to be optional
+  TToken<CGenDescription> x538_visorParticle;      // Used to be optional
   u16 x544_freezeSfx;
   u16 x546_electricSfx;
   bool x548_24_ : 1 = false;
@@ -96,8 +91,7 @@ private:
     CColoredStripShader m_beamStrip3Sub;
     CColoredStripShader m_beamStrip4Sub;
     CColoredStripShader m_motionBlurStrip;
-    RenderObjects(boo::IGraphicsDataFactory::Context& ctx,
-                  boo::ObjToken<boo::ITexture> tex,
+    RenderObjects(boo::IGraphicsDataFactory::Context& ctx, boo::ObjToken<boo::ITexture> tex,
                   boo::ObjToken<boo::ITexture> glowTex);
   };
   std::optional<RenderObjects> m_renderObjs;
@@ -108,13 +102,13 @@ private:
   void UpdateLights(float expansion, float dt, CStateManager& mgr);
   void UpdateEnergyPulse(float dt);
   void RenderMotionBlur();
-  void RenderBeam(s32 subdivs, float width, const zeus::CColor& color, s32 flags,
-                  CColoredStripShader& shader) const;
+  void RenderBeam(s32 subdivs, float width, const zeus::CColor& color, s32 flags, CColoredStripShader& shader) const;
   float UpdateBeamState(float dt, CStateManager& mgr);
   void MakeBillboardEffect(const std::optional<TToken<CGenDescription>>& particle,
-                           const std::optional<TToken<CElectricDescription>>& electric,
-                           std::string_view name, CStateManager& mgr);
+                           const std::optional<TToken<CElectricDescription>>& electric, std::string_view name,
+                           CStateManager& mgr);
   void UpdatePlayerEffects(float dt, CStateManager& mgr);
+
 public:
   DEFINE_ENTITY
   CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,

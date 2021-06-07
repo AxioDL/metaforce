@@ -73,14 +73,12 @@ public:
   float GetMaxTurnRate() const { return xe0_maxTurnRate; }
   float GetAudibleFallOff() const;
   float GetAudibleRange() const;
-  std::optional<TLockedToken<CDecalDescription>>
-  GetDecalForCollision(EWeaponCollisionResponseTypes type) const;
+  std::optional<TLockedToken<CDecalDescription>> GetDecalForCollision(EWeaponCollisionResponseTypes type) const;
   s32 GetSoundIdForCollision(EWeaponCollisionResponseTypes type) const;
-  std::optional<TLockedToken<CGenDescription>> CollisionOccured(EWeaponCollisionResponseTypes type,
-                                                                              bool deflected, bool useTarget,
-                                                                              const zeus::CVector3f& pos,
-                                                                              const zeus::CVector3f& normal,
-                                                                              const zeus::CVector3f& target);
+  std::optional<TLockedToken<CGenDescription>> CollisionOccured(EWeaponCollisionResponseTypes type, bool deflected,
+                                                                bool useTarget, const zeus::CVector3f& pos,
+                                                                const zeus::CVector3f& normal,
+                                                                const zeus::CVector3f& target);
   TLockedToken<CWeaponDescription> GetWeaponDescription() const { return x4_weaponDesc; }
   void RenderParticles() const;
   virtual void AddToRenderer();

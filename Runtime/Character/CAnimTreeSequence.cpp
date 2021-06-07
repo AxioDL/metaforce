@@ -15,9 +15,9 @@ CAnimTreeSequence::CAnimTreeSequence(std::vector<std::shared_ptr<IMetaAnim>> seq
 , x94_curTime(0.f) {}
 
 CAnimTreeSequence::CAnimTreeSequence(const std::shared_ptr<CAnimTreeNode>& curNode,
-                                     std::vector<std::shared_ptr<IMetaAnim>> metaAnims,
-                                     CAnimSysContext animSys, std::string_view name,
-                                     CSequenceFundamentals fundamentals, const CCharAnimTime& time)
+                                     std::vector<std::shared_ptr<IMetaAnim>> metaAnims, CAnimSysContext animSys,
+                                     std::string_view name, CSequenceFundamentals fundamentals,
+                                     const CCharAnimTime& time)
 : CAnimTreeSingleChild(curNode, name)
 , x18_animCtx(std::move(animSys))
 , x28_sequence(std::move(metaAnims))

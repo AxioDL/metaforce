@@ -8,7 +8,8 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
-static CActorParameters MakeDamageableTriggerActorParms(const CActorParameters& aParams, const CVisorParameters& vParams) {
+static CActorParameters MakeDamageableTriggerActorParms(const CActorParameters& aParams,
+                                                        const CVisorParameters& vParams) {
   CActorParameters ret = aParams;
   ret.SetVisorParameters(vParams);
   return ret;
@@ -113,8 +114,8 @@ void CScriptDamageableTrigger::Render(CStateManager& mgr) {
   if (x30_24_active && x1dc_faceFlag != 0 && std::fabs(x1e0_alpha) >= 0.00001f) {
     const zeus::CAABox aabb = x14c_bounds.getTransformedAABox(x214_faceDirInv);
     const zeus::CTransform xf = x34_transform * zeus::CTransform::Translate(x244_faceTranslate) * x1e4_faceDir;
-    x254_fluidPlane.Render(mgr, x1e0_alpha, aabb, xf, zeus::CTransform(), false, xe8_frustum, {},
-                           kInvalidUniqueId, nullptr, 0, 0, zeus::skZero3f);
+    x254_fluidPlane.Render(mgr, x1e0_alpha, aabb, xf, zeus::CTransform(), false, xe8_frustum, {}, kInvalidUniqueId,
+                           nullptr, 0, 0, zeus::skZero3f);
   }
 
   CActor::Render(mgr);

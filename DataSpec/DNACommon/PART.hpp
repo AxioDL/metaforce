@@ -32,19 +32,23 @@ struct _GPSM {
 #define BOOL_ENTRY(name, identifier, def) bool identifier = def;
 #include "PART.def"
 
-  template<typename _Func>
+  template <typename _Func>
   void constexpr Enumerate(_Func f) {
 #define ENTRY(name, identifier) f(FOURCC(name), identifier);
 #define BOOL_ENTRY(name, identifier, def) f(FOURCC(name), identifier, def);
 #include "PART.def"
   }
 
-  template<typename _Func>
+  template <typename _Func>
   bool constexpr Lookup(FourCC fcc, _Func f) {
     switch (fcc.toUint32()) {
-#define ENTRY(name, identifier) case SBIG(name): f(identifier); return true;
+#define ENTRY(name, identifier)                                                                                        \
+  case SBIG(name):                                                                                                     \
+    f(identifier);                                                                                                     \
+    return true;
 #include "PART.def"
-    default: return false;
+    default:
+      return false;
     }
   }
 };

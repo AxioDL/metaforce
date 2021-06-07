@@ -75,9 +75,9 @@ CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& in
                     EBoneTrackingFlags::None)
 , x930_aabox(GetBoundingBox(), GetMaterialList())
 , x958_iceProjectile(babyData.x8_fireballWeapon, babyData.xc_fireballDamage)
-, x984_flameThrowerDesc(babyData.x44_fireBreathWeapon.IsValid() ?
-                        g_SimplePool->GetObj({SBIG('WPSC'), babyData.x44_fireBreathWeapon})
-                        : g_SimplePool->GetObj("FlameThrower"sv))
+, x984_flameThrowerDesc(babyData.x44_fireBreathWeapon.IsValid()
+                            ? g_SimplePool->GetObj({SBIG('WPSC'), babyData.x44_fireBreathWeapon})
+                            : g_SimplePool->GetObj("FlameThrower"sv))
 , x98c_dVuln(pInfo.GetDamageVulnerability())
 , xa00_shellHitPoints(babyData.GetShellHitPoints()) {
   TLockedToken<CModel> model = g_SimplePool->GetObj({SBIG('CMDL'), babyData.x138_noShellModel});
@@ -96,9 +96,9 @@ CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& in
   x460_knockBackController.SetAutoResetImpulse(true);
   x460_knockBackController.SetEnableShock(true);
   x460_knockBackController.SetEnableExplodeDeath(true);
-  x8d4_stepBackwardDist =
-      GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::Step, CPASAnimParm::FromEnum(1), CPASAnimParm::FromEnum(0))) *
-      GetModelData()->GetScale().y(); // B_backward_sheegoth
+  x8d4_stepBackwardDist = GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::Step, CPASAnimParm::FromEnum(1),
+                                                                CPASAnimParm::FromEnum(0))) *
+                          GetModelData()->GetScale().y(); // B_backward_sheegoth
   xa08_noShellModel->SetLayoutInfo(GetModelData()->GetAnimationData()->GetModelData()->GetLayoutInfo());
   MakeThermalColdAndHot();
 }
@@ -156,7 +156,8 @@ void CBabygoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   }
   case EScriptObjectMessage::InitializedInArea: {
     x6ec_pathSearch.SetArea(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed()->x10bc_pathArea);
-    x7d0_approachPathSearch.SetArea(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed()->x10bc_pathArea);
+    x7d0_approachPathSearch.SetArea(
+        mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed()->x10bc_pathArea);
     if (x6e8_teamMgr == kInvalidUniqueId)
       x6e8_teamMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
     break;
@@ -202,7 +203,7 @@ void CBabygoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
     x8e8_interestTimer = 0.f;
     if (!TCastToPtr<CCollisionActor>(mgr.ObjectById(uid)))
       ApplyDamage(mgr, uid);
-   break;
+    break;
   }
   case EScriptObjectMessage::SuspendedMove: {
     if (x928_colActMgr)
@@ -253,13 +254,14 @@ void CBabygoth::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
     if (zeus::CVector3f::getAngleDiff(GetTransform().basis[1], delta) > zeus::degToRad(30.f)) {
       if (delta.canBeNormalized()) {
         pos = zeus::CVector3f::slerp(GetTransform().basis[1], delta.normalized(), zeus::degToRad(30.f)) *
-            delta.magnitude() + xf.origin;
+                  delta.magnitude() +
+              xf.origin;
       } else {
         pos = xf.basis[1] * delta.magnitude() + xf.origin;
       }
     }
-    LaunchProjectile(zeus::lookAt(xf.origin, pos), mgr, 4, EProjectileAttrib::None,
-                     false, {}, 0xffff, false, zeus::skOne3f);
+    LaunchProjectile(zeus::lookAt(xf.origin, pos), mgr, 4, EProjectileAttrib::None, false, {}, 0xffff, false,
+                     zeus::skOne3f);
     return;
   }
   case EUserEventType::DamageOn: {
@@ -325,7 +327,8 @@ void CBabygoth::SetupCollisionManager(CStateManager& mgr) {
 
   SetupHealthInfo(mgr);
 
-  SetMaterialFilter(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid},
+  SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
+      {EMaterialTypes::Solid},
       {EMaterialTypes::CollisionActor, EMaterialTypes::AIPassthrough, EMaterialTypes::Player}));
   AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
   x928_colActMgr->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
@@ -427,7 +430,8 @@ zeus::CVector3f CBabygoth::GetAimPosition(const CStateManager& mgr, float dt) co
     if (TCastToConstPtr<CCollisionActor> cact = mgr.GetObjectById(x9f6_mouthCollisionActor))
       mouthZ = cact->GetTranslation().z();
     float t = zeus::CVector2f::getAngleDiff(GetTransform().basis[1].toVec2f(),
-              (mgr.GetPlayer().GetTranslation() - GetTranslation()).toVec2f()) / M_PIF;
+                                            (mgr.GetPlayer().GetTranslation() - GetTranslation()).toVec2f()) /
+              M_PIF;
     return zeus::CVector3f::lerp(zeus::CVector3f(shellAvgPos.toVec2f(), mouthZ),
                                  zeus::CVector3f(shellAvgPos.toVec2f(), shellAvgPos.z()), t);
   } else {
@@ -892,7 +896,8 @@ void CBabygoth::PathFind(CStateManager& mgr, EStateMsg msg, float arg) {
     CPatterned::PathFind(mgr, msg, arg);
   } else if (msg == EStateMsg::Update) {
     SetPathFindMode(EPathFindMode::Normal);
-    if (GetSearchPath() && !PathShagged(mgr, 0.f) && x6ec_pathSearch.GetCurrentWaypoint() < x6ec_pathSearch.GetWaypoints().size() - 1) {
+    if (GetSearchPath() && !PathShagged(mgr, 0.f) &&
+        x6ec_pathSearch.GetCurrentWaypoint() < x6ec_pathSearch.GetWaypoints().size() - 1) {
       CPatterned::PathFind(mgr, msg, arg);
       x8e8_interestTimer = 0.f;
       zeus::CVector3f move = x450_bodyController->GetCommandMgr().GetMoveVector();
@@ -921,7 +926,8 @@ void CBabygoth::UpdateAttackTimeLeft(CStateManager& mgr) {
   float mult = x56c_shellState == EShellState::Destroyed ? 0.6f : 1.f;
   x8d8_attackTimeLeft = (mgr.GetActiveRandom()->Float() * x308_attackTimeVariation + x304_averageAttackTime) * mult;
   x8e4_fireballAttackTimeLeft = (mgr.GetActiveRandom()->Float() * x570_babyData.GetFireballAttackVariance() +
-                                 x570_babyData.GetFireballAttackTime()) * mult;
+                                 x570_babyData.GetFireballAttackTime()) *
+                                mult;
 }
 
 void CBabygoth::SpecialAttack(CStateManager& mgr, EStateMsg state, float) {
@@ -1031,9 +1037,10 @@ void CBabygoth::Attack(CStateManager& mgr, EStateMsg state, float dt) {
     x8dc_attackTimer = 0.f;
     float maxSpeed = x450_bodyController->GetBodyStateInfo().GetMaxSpeed();
     x450_bodyController->GetCommandMgr().SetSteeringBlendMode(ESteeringBlendMode::Clamped);
-    x450_bodyController->GetCommandMgr().SetSteeringSpeedRange(0.f,
-      (maxSpeed > 0.f) ? x450_bodyController->GetBodyStateInfo().GetLocomotionSpeed(
-          pas::ELocomotionAnim::Walk) / maxSpeed : 1.f);
+    x450_bodyController->GetCommandMgr().SetSteeringSpeedRange(
+        0.f, (maxSpeed > 0.f)
+                 ? x450_bodyController->GetBodyStateInfo().GetLocomotionSpeed(pas::ELocomotionAnim::Walk) / maxSpeed
+                 : 1.f);
     ExtendCollisionActorTouchBounds(mgr, zeus::skZero3f);
     CTeamAiMgr::ResetTeamAiRole(CTeamAiMgr::EAttackType::Melee, mgr, x6e8_teamMgr, GetUniqueId(), true);
   }
@@ -1085,7 +1092,8 @@ void CBabygoth::ProjectileAttack(CStateManager& mgr, EStateMsg state, float) {
 bool CBabygoth::Leash(CStateManager& mgr, float) {
   if ((x3a0_latestLeashPosition - GetTranslation()).magSquared() > x3c8_leashRadius * x3c8_leashRadius)
     return (mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() >
-           x3cc_playerLeashRadius * x3cc_playerLeashRadius && x3d4_curPlayerLeashTime > x3d0_playerLeashTime;
+               x3cc_playerLeashRadius * x3cc_playerLeashRadius &&
+           x3d4_curPlayerLeashTime > x3d0_playerLeashTime;
   return false;
 }
 
@@ -1113,8 +1121,8 @@ void CBabygoth::DestroyShell(CStateManager& mgr) {
   xa04_drawMaterialIdx = 0;
 }
 
-void CBabygoth::CrackShell(CStateManager& mgr, const TLockedToken<CGenDescription>& desc,
-                           const zeus::CTransform& xf, u16 sfx, bool nonEmitterSfx) {
+void CBabygoth::CrackShell(CStateManager& mgr, const TLockedToken<CGenDescription>& desc, const zeus::CTransform& xf,
+                           u16 sfx, bool nonEmitterSfx) {
   mgr.AddObject(new CExplosion(desc, mgr.AllocateUniqueId(), true,
                                CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "Babygoth Shell Crack Fx"sv,
                                xf, 0, GetModelData()->GetScale(), zeus::skWhite));
@@ -1163,7 +1171,8 @@ bool CBabygoth::ShouldAttack(CStateManager& mgr, float arg) {
       x8d8_attackTimeLeft <= 0.f && x8e0_attackCooldownTimeLeft <= 0.f) {
     zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
     if (x450_bodyController->GetBodyStateInfo().GetMaxSpeed() * x570_babyData.x160_timeUntilAttack >
-        (aimPos - GetTranslation()).magnitude() && !ShouldTurn(mgr, zeus::degToRad(25.f)) &&
+            (aimPos - GetTranslation()).magnitude() &&
+        !ShouldTurn(mgr, zeus::degToRad(25.f)) &&
         !IsPatternObstructed(mgr, GetLctrTransform(x9f4_mouthLocator).origin, aimPos)) {
       if (TCastToPtr<CTeamAiMgr> aimgr = mgr.ObjectById(x6e8_teamMgr)) {
         if (aimgr->IsPartOfTeam(GetUniqueId()))
@@ -1180,7 +1189,7 @@ bool CBabygoth::ShouldSpecialAttack(CStateManager& mgr, float arg) {
     zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
     zeus::CVector3f mouthPos = GetLctrTransform(x9f4_mouthLocator).origin;
     return (aimPos - mouthPos).magSquared() >= x300_maxAttackRange * x300_maxAttackRange &&
-            !ShouldTurn(mgr, zeus::degToRad(25.f)) && !IsPatternObstructed(mgr, mouthPos, aimPos);
+           !ShouldTurn(mgr, zeus::degToRad(25.f)) && !IsPatternObstructed(mgr, mouthPos, aimPos);
   }
   return false;
 }

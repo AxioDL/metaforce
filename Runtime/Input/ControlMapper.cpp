@@ -224,9 +224,7 @@ std::array<bool, 67> skCommandFilterFlag{true};
 
 void ControlMapper::SetCommandFiltered(ECommands cmd, bool filtered) { skCommandFilterFlag[size_t(cmd)] = filtered; }
 
-void ControlMapper::ResetCommandFilters() {
-  skCommandFilterFlag.fill(true);
-}
+void ControlMapper::ResetCommandFilters() { skCommandFilterFlag.fill(true); }
 
 bool ControlMapper::GetPressInput(ECommands cmd, const CFinalInput& input) {
   if (!skCommandFilterFlag[size_t(cmd)]) {

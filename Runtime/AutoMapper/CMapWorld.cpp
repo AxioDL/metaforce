@@ -36,8 +36,8 @@ Circle2 ExactCircle1(const zeus::CVector2f* a) {
 
 Circle2 ExactCircle2(const zeus::CVector2f* a, const zeus::CVector2f* b) {
   return {
-    .x0_point = 0.5f * (*a + *b),
-    .x8_radiusSq = (*b - *a).magSquared() * 0.25f,
+      .x0_point = 0.5f * (*a + *b),
+      .x8_radiusSq = (*b - *a).magSquared() * 0.25f,
   };
 }
 
@@ -689,9 +689,7 @@ zeus::CVector3f CMapWorld::ConstrainToWorldVolume(const zeus::CVector3f& point, 
   return ret;
 }
 
-void CMapWorld::ClearTraversedFlags() {
-  std::fill(x20_traversed.begin(), x20_traversed.end(), false);
-}
+void CMapWorld::ClearTraversedFlags() { std::fill(x20_traversed.begin(), x20_traversed.end(), false); }
 
 CFactoryFnReturn FMapWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,
                                   CObjectReference* selfRef) {

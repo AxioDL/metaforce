@@ -38,7 +38,6 @@ public:
   const CMaterialList& IncludeList() const noexcept { return x0_include; }
   const CMaterialList& ExcludeList() const noexcept { return x8_exclude; }
 
-
   constexpr bool Passes(const CMaterialList& list) const noexcept {
     switch (x10_type) {
     case EFilterType::Always:

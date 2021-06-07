@@ -275,8 +275,7 @@ bool CTeamAiMgr::AddRangedAttacker(TUniqueId aiId) {
       x78_rangedAttackers.size() < x34_data.x14_maxRangedAttackerCount && HasTeamAiRole(aiId)) {
     auto search = rstl::binary_find(x78_rangedAttackers.begin(), x78_rangedAttackers.end(), aiId);
     if (search == x78_rangedAttackers.end()) {
-      x78_rangedAttackers.insert(
-          std::lower_bound(x78_rangedAttackers.begin(), x78_rangedAttackers.end(), aiId), aiId);
+      x78_rangedAttackers.insert(std::lower_bound(x78_rangedAttackers.begin(), x78_rangedAttackers.end(), aiId), aiId);
       x94_timeSinceRanged = 0.f;
     }
     return true;

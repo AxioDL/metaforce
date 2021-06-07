@@ -43,7 +43,8 @@ class CLogBookScreen : public CPauseScreenBase {
   int NextSurroundingArticleIndex(int cur) const;
   bool IsArtifactCategorySelected() const;
   int GetSelectedArtifactHeadScanIndex() const;
-  static bool IsScanComplete(CWorldSaveGameInfo::EScanCategory category, CAssetId scan, const CPlayerState& playerState);
+  static bool IsScanComplete(CWorldSaveGameInfo::EScanCategory category, CAssetId scan,
+                             const CPlayerState& playerState);
 
 public:
   CLogBookScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg);

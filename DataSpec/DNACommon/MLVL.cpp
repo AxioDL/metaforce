@@ -41,20 +41,19 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
     zeus::simd_floats xfMtxF[3];
     for (int i = 0; i < 3; ++i)
       area.transformMtx[i].simd.copy_to(xfMtxF[i]);
-    os.format(FMT_STRING(
-        "box_mesh = bpy.data.meshes.new('''{}''')\n"
-        "bm.to_mesh(box_mesh)\n"
-        "bm.free()\n"
-        "box = bpy.data.objects.new(box_mesh.name, box_mesh)\n"
-        "bpy.context.scene.collection.objects.link(box)\n"
-        "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
-        "mtxd = mtx.decompose()\n"
-        "box.rotation_mode = 'QUATERNION'\n"
-        "box.location = mtxd[0]\n"
-        "box.rotation_quaternion = mtxd[1]\n"
-        "box.scale = mtxd[2]\n"),
-        areaDirName, xfMtxF[0][0], xfMtxF[0][1], xfMtxF[0][2], xfMtxF[0][3], xfMtxF[1][0], xfMtxF[1][1],
-        xfMtxF[1][2], xfMtxF[1][3], xfMtxF[2][0], xfMtxF[2][1], xfMtxF[2][2], xfMtxF[2][3]);
+    os.format(FMT_STRING("box_mesh = bpy.data.meshes.new('''{}''')\n"
+                         "bm.to_mesh(box_mesh)\n"
+                         "bm.free()\n"
+                         "box = bpy.data.objects.new(box_mesh.name, box_mesh)\n"
+                         "bpy.context.scene.collection.objects.link(box)\n"
+                         "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
+                         "mtxd = mtx.decompose()\n"
+                         "box.rotation_mode = 'QUATERNION'\n"
+                         "box.location = mtxd[0]\n"
+                         "box.rotation_quaternion = mtxd[1]\n"
+                         "box.scale = mtxd[2]\n"),
+              areaDirName, xfMtxF[0][0], xfMtxF[0][1], xfMtxF[0][2], xfMtxF[0][3], xfMtxF[1][0], xfMtxF[1][1],
+              xfMtxF[1][2], xfMtxF[1][3], xfMtxF[2][0], xfMtxF[2][1], xfMtxF[2][2], xfMtxF[2][3]);
 
     /* Insert dock planes */
     int dockIdx = 0;
@@ -67,10 +66,9 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
       int idx = 0;
       for (const atVec3f& pv : dock.planeVerts) {
         const zeus::CVector3f pvRel = zeus::CVector3f(pv) - pvAvg;
-        os.format(FMT_STRING(
-            "bm.verts.new(({},{},{}))\n"
-            "bm.verts.ensure_lookup_table()\n"),
-            pvRel[0], pvRel[1], pvRel[2]);
+        os.format(FMT_STRING("bm.verts.new(({},{},{}))\n"
+                             "bm.verts.ensure_lookup_table()\n"),
+                  pvRel[0], pvRel[1], pvRel[2]);
         if (idx)
           os << "bm.edges.new((bm.verts[-2], bm.verts[-1]))\n";
         ++idx;

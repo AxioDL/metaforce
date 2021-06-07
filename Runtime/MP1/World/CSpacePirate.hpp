@@ -41,6 +41,7 @@ class CSpacePirate : public CPatterned {
 
 public:
   DEFINE_PATTERNED(SpacePirate);
+
 private:
   class CSpacePirateData {
     friend class CSpacePirate;
@@ -223,8 +224,8 @@ private:
   void SetVelocityForJump();
   void AvoidActors(CStateManager& mgr);
   void UpdateCantSeePlayer(CStateManager& mgr);
-  [[nodiscard]] bool LineOfSightTest(const CStateManager& mgr, const zeus::CVector3f& eyePos, const zeus::CVector3f& targetPos,
-                       const CMaterialList& excludeList) const;
+  [[nodiscard]] bool LineOfSightTest(const CStateManager& mgr, const zeus::CVector3f& eyePos,
+                                     const zeus::CVector3f& targetPos, const CMaterialList& excludeList) const;
   void UpdateHeldPosition(CStateManager& mgr, float dt);
   void CheckBlade(CStateManager& mgr);
   [[nodiscard]] bool CantJumpBack(const CStateManager& mgr, const zeus::CVector3f& dir, float dist) const;
@@ -251,7 +252,7 @@ public:
   [[nodiscard]] bool IsListening() const override;
   bool Listen(const zeus::CVector3f&, EListenNoiseType) override;
   [[nodiscard]] zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
-                            const zeus::CVector3f& aimPos) const override;
+                                          const zeus::CVector3f& aimPos) const override;
   void DetachActorFromPirate() { x7b4_attachedActor = kInvalidUniqueId; }
   bool AttachActorToPirate(TUniqueId id);
   void SetAttackTarget(TUniqueId id);

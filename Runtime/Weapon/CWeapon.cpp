@@ -72,8 +72,7 @@ void CWeapon::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
     break;
   }
 
-  if (True(xe8_projectileAttribs & EProjectileAttrib::ComboShot) &&
-      state != EFluidState::InFluid)
+  if (True(xe8_projectileAttribs & EProjectileAttrib::ComboShot) && state != EFluidState::InFluid)
     mag += 0.5f;
   if (True(xe8_projectileAttribs & EProjectileAttrib::Charged))
     mag += 0.25f;

@@ -137,9 +137,8 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
 }
 
 void CArtifactDoll::UpdateActorLights() {
-  x10_lights[0] = CLight::BuildDirectional(
-      (zeus::skForward + 0.25f * zeus::skRight + 0.1f * zeus::skDown).normalized(),
-      zeus::skWhite);
+  x10_lights[0] = CLight::BuildDirectional((zeus::skForward + 0.25f * zeus::skRight + 0.1f * zeus::skDown).normalized(),
+                                           zeus::skWhite);
   x10_lights[1] = CLight::BuildDirectional(-zeus::skForward, zeus::skBlack);
   x20_actorLights->BuildFakeLightList(x10_lights, zeus::CColor(0.25f, 1.f));
 }

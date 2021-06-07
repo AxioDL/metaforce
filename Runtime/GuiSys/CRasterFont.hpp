@@ -114,7 +114,7 @@ public:
   s32 GetMonoWidth() const { return x4_monoWidth; }
   s32 GetMonoHeight() const { return x8_monoHeight; }
   EColorType GetMode() const {
-    switch(x2c_mode) {
+    switch (x2c_mode) {
     case CTexture::EFontType::OneLayer:
     case CTexture::EFontType::TwoLayers:
     case CTexture::EFontType::FourLayers:
@@ -148,9 +148,7 @@ public:
                   const char16_t* str, int len) const;
   const CGlyph* GetGlyph(char16_t chr) const { return InternalGetGlyph(chr); }
   void GetSize(const CDrawStringOptions& opts, int& width, int& height, const char16_t* str, int len) const;
-  const boo::ObjToken<boo::ITexture>& GetTexture() {
-    return x80_texture->GetFontTexture(x2c_mode);
-  }
+  const boo::ObjToken<boo::ITexture>& GetTexture() { return x80_texture->GetFontTexture(x2c_mode); }
 
   bool IsFinishedLoading() const;
 };

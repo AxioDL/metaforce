@@ -27,8 +27,8 @@ public:
   DEFINE_ENTITY
   CScriptPickup(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                 CModelData&& mData, const CActorParameters& aParams, const zeus::CAABox& aabb,
-                CPlayerState::EItemType itemType, s32 amount, s32 capacity, CAssetId pickupEffect,
-                float possibility, float lifeTime, float fadeInTime, float startDelay, bool active);
+                CPlayerState::EItemType itemType, s32 amount, s32 capacity, CAssetId pickupEffect, float possibility,
+                float lifeTime, float fadeInTime, float startDelay, bool active);
 
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager&) override;

@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0002 2
-
 
 #define SFXsfx003C 60
 #define SFXsfx003D 61
@@ -41,5 +39,3 @@
 #define SFXsfx0059 89
 #define SFXsfx005A 90
 #define SFXsfx005B 91
-
-

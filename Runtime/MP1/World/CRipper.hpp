@@ -48,6 +48,6 @@ public:
   CRipperControlledPlatform(TUniqueId, TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&,
                             const zeus::CAABox&, bool, const std::optional<TLockedToken<CCollidableOBBTreeGroup>>&);
 
-  zeus::CQuaternion Move(float, CStateManager &) override;
+  zeus::CQuaternion Move(float, CStateManager&) override;
 };
 } // namespace metaforce::MP1

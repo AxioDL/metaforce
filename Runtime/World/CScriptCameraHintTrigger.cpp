@@ -56,8 +56,6 @@ void CScriptCameraHintTrigger::Touch(CActor& other, CStateManager& mgr) {
   }
 }
 
-std::optional<zeus::CAABox> CScriptCameraHintTrigger::GetTouchBounds() const {
-  return {xe8_obb.calculateAABox()};
-}
+std::optional<zeus::CAABox> CScriptCameraHintTrigger::GetTouchBounds() const { return {xe8_obb.calculateAABox()}; }
 
 } // namespace metaforce

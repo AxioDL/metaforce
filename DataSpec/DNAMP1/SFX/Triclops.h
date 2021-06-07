@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0022 34
-
 
 #define SFXtri_a_attack_00 960
 #define SFXtri_a_attract_00 961
@@ -30,5 +28,3 @@
 #define SFXsfx03D2 978
 #define SFXsfx03D3 979
 #define SFXsfx03D4 980
-
-

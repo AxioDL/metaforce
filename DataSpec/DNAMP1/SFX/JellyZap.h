@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0012 18
-
 
 #define SFXjzp_a_shock_00 508
 #define SFXjzp_a_suck_lp_00 509
@@ -19,5 +17,3 @@
 #define SFXsfx0203 515
 #define SFXsfx0204 516
 #define SFXsfx0205 517
-
-

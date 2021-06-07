@@ -28,7 +28,6 @@ std::unique_ptr<CElectricDescription> CParticleElectricDataFactory::CreateElectr
   CreateELSM(desc.get(), in, resPool);
   LoadELSMTokens(desc.get());
   return desc;
-
 }
 
 bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInputStream& in, CSimplePool* resPool) {

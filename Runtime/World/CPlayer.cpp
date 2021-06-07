@@ -1307,8 +1307,8 @@ void CPlayer::FinishNewScan(CStateManager& mgr) {
   }
 
   const auto scanCompletion = mgr.CalculateScanCompletionRate();
-  const CAssetId message = UpdatePersistentScanPercent(mgr.GetPlayerState()->GetLogScans(), scanCompletion.first,
-                                                 scanCompletion.second);
+  const CAssetId message =
+      UpdatePersistentScanPercent(mgr.GetPlayerState()->GetLogScans(), scanCompletion.first, scanCompletion.second);
   if (message.IsValid()) {
     mgr.ShowPausedHUDMemo(message, 0.f);
   }
@@ -1472,7 +1472,8 @@ void CPlayer::Render(CStateManager& mgr) {
       const auto mdsp1 = int(x730_transitionModels.size() + 1);
       for (int i = 0; i < x730_transitionModels.size(); ++i) {
         const int ni = i + 1;
-        const float alpha = transitionAlpha * (1.f - (ni + 1) / float(mdsp1)) * *x71c_transitionModelAlphas.GetEntry(ni);
+        const float alpha =
+            transitionAlpha * (1.f - (ni + 1) / float(mdsp1)) * *x71c_transitionModelAlphas.GetEntry(ni);
         if (alpha != 0.f) {
           CModelData& data = *x730_transitionModels[i];
           CModelFlags flags(5, 0, 3, zeus::CColor(1.f, alpha));
@@ -1963,7 +1964,8 @@ void CPlayer::CalculatePlayerControlDirection(CStateManager& mgr) {
       x540_controlDir = x54c_controlDirFlat = zeus::skForward;
     }
   } else {
-    const zeus::CVector3f camToPlayer = GetTranslation() - mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation();
+    const zeus::CVector3f camToPlayer =
+        GetTranslation() - mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation();
     if (!camToPlayer.canBeNormalized()) {
       x540_controlDir = x54c_controlDirFlat = zeus::skForward;
     } else {
@@ -3442,7 +3444,8 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
         if (playerToSwingLow.canBeNormalized()) {
           const float distToSwingLow = playerToSwingLow.magnitude();
           playerToSwingLow.normalize();
-          const float timeToLow = zeus::clamp(-1.f, distToSwingLow / g_tweakPlayer->GetGrapplePullSpeedProportion(), 1.f);
+          const float timeToLow =
+              zeus::clamp(-1.f, distToSwingLow / g_tweakPlayer->GetGrapplePullSpeedProportion(), 1.f);
           const float pullSpeed =
               timeToLow * (g_tweakPlayer->GetGrapplePullSpeedMax() - g_tweakPlayer->GetGrapplePullSpeedMin()) +
               g_tweakPlayer->GetGrapplePullSpeedMin();
@@ -4240,8 +4243,8 @@ const zeus::CTransform& CPlayer::GetFirstPersonCameraTransform(const CStateManag
   return mgr.GetCameraManager()->GetFirstPersonCamera()->GetGunFollowTransform();
 }
 
-TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const EntityList& list,
-                                                EPlayerZoneInfo info, EPlayerZoneType zone, CStateManager& mgr) const {
+TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const EntityList& list, EPlayerZoneInfo info, EPlayerZoneType zone,
+                                                CStateManager& mgr) const {
   const zeus::CVector3f eyePos = GetEyePosition();
   float minEyeToAimMag = 10000.f;
   float minPosInBoxMagSq = 10000.f;
@@ -4257,7 +4260,8 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const EntityList& list,
       if (act->GetUniqueId() != GetUniqueId() && ValidateObjectForMode(act->GetUniqueId(), mgr)) {
         const zeus::CVector3f aimPos = act->GetAimPosition(mgr, 0.f);
         const zeus::CVector3f screenPos = fpCam->ConvertToScreenSpace(aimPos);
-        const zeus::CVector3f posInBox(vpWHalf + screenPos.x() * vpWHalf, vpHHalf + screenPos.y() * vpHHalf, screenPos.z());
+        const zeus::CVector3f posInBox(vpWHalf + screenPos.x() * vpWHalf, vpHHalf + screenPos.y() * vpHHalf,
+                                       screenPos.z());
         if (WithinOrbitScreenBox(posInBox, info, zone)) {
           zeus::CVector3f eyeToAim = aimPos - eyePos;
           const float eyeToAimMag = eyeToAim.magnitude();
@@ -4478,9 +4482,8 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids, EP
   return bestId;
 }
 
-void CPlayer::FindOrbitableObjects(const EntityList& nearObjects,
-                                   std::vector<TUniqueId>& listOut, EPlayerZoneInfo zone, EPlayerZoneType type,
-                                   CStateManager& mgr, bool onScreenTest) const {
+void CPlayer::FindOrbitableObjects(const EntityList& nearObjects, std::vector<TUniqueId>& listOut, EPlayerZoneInfo zone,
+                                   EPlayerZoneType type, CStateManager& mgr, bool onScreenTest) const {
   const CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
   const zeus::CVector3f eyePos = GetEyePosition();
 
@@ -4948,7 +4951,8 @@ CPlayer::EOrbitValidationResult CPlayer::ValidateOrbitTargetId(TUniqueId uid, CS
   eyeToOrbitFlat.z() = 0.f;
 
   if (eyeToOrbitFlat.canBeNormalized() && eyeToOrbitFlat.magnitude() > 1.f) {
-    const float angleFromHorizon = std::asin(zeus::clamp(-1.f, std::fabs(eyeToOrbit.z()) / eyeToOrbit.magnitude(), 1.f));
+    const float angleFromHorizon =
+        std::asin(zeus::clamp(-1.f, std::fabs(eyeToOrbit.z()) / eyeToOrbit.magnitude(), 1.f));
     if ((eyeToOrbit.z() >= 0.f && angleFromHorizon >= g_tweakPlayer->GetOrbitUpperAngle()) ||
         (eyeToOrbit.z() < 0.f && angleFromHorizon >= g_tweakPlayer->GetOrbitLowerAngle())) {
       return EOrbitValidationResult::ExtremeHorizonAngle;

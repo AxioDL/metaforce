@@ -160,8 +160,7 @@ bool Sphere_Sphere(const CInternalCollisionStructure& collision, CCollisionInfoL
   zeus::CVector3f delta = s0.position - s1.position;
   float deltaMagSq = delta.magSquared();
   if (deltaMagSq <= radiusSum * radiusSum) {
-    zeus::CVector3f deltaNorm =
-        delta.canBeNormalized() ? (1.f / std::sqrt(deltaMagSq)) * delta : zeus::skRight;
+    zeus::CVector3f deltaNorm = delta.canBeNormalized() ? (1.f / std::sqrt(deltaMagSq)) * delta : zeus::skRight;
     zeus::CVector3f collisionPoint = deltaNorm * s1.radius + s1.position;
     CCollisionInfo info(collisionPoint, p0.GetMaterial(), p1.GetMaterial(), deltaNorm);
     list.Add(info, false);

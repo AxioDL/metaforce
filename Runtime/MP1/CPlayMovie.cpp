@@ -28,11 +28,7 @@ void CPlayMovie::Draw() {
   }
 }
 
-void CPlayMovie::DrawVideo() {
-
-}
-void CPlayMovie::DrawText() {
-
-}
+void CPlayMovie::DrawVideo() {}
+void CPlayMovie::DrawText() {}
 
 } // namespace metaforce::MP1

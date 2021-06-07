@@ -30,7 +30,8 @@ public:
   std::optional<std::unique_ptr<IAnimReader>> VSimplified() override;
   std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const override;
   std::unique_ptr<IAnimReader> VClone() const override;
-  size_t VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, size_t capacity, size_t iterator, u32) const override;
+  size_t VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, size_t capacity, size_t iterator,
+                         u32) const override;
   size_t VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, size_t capacity, size_t iterator,
                           u32) const override;
   size_t VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, size_t capacity, size_t iterator,

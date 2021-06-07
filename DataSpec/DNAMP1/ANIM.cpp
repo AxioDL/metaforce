@@ -7,10 +7,9 @@ namespace DataSpec::DNAMP1 {
 using ANIMOutStream = hecl::blender::ANIMOutStream;
 
 void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig) const {
-  os.format(FMT_STRING(
-      "act.hecl_fps = round({})\n"
-      "act.hecl_looping = {}\n"),
-      (1.0f / mainInterval), looping ? "True" : "False");
+  os.format(FMT_STRING("act.hecl_fps = round({})\n"
+                       "act.hecl_looping = {}\n"),
+            (1.0f / mainInterval), looping ? "True" : "False");
 
   auto kit = chanKeys.begin();
 

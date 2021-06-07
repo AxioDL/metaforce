@@ -265,7 +265,7 @@ public:
   constexpr explicit CBCLoopAttackCmd(pas::ELoopAttackType type, bool waitForAnimOver = false)
   : CBodyStateCmd(EBodyStateCmd::LoopAttack), x8_type(type), xc_waitForAnimOver(waitForAnimOver) {}
   constexpr pas::ELoopAttackType GetAttackType() const { return x8_type; }
-  constexpr bool WaitForAnimOver() const { return xc_waitForAnimOver ; }
+  constexpr bool WaitForAnimOver() const { return xc_waitForAnimOver; }
 };
 
 class CBCTauntCmd : public CBodyStateCmd {

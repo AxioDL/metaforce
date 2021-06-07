@@ -17,7 +17,6 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-
 namespace metaforce {
 
 static rstl::reserved_vector<zeus::CVector2f, 256> g_SnowForces;
@@ -77,10 +76,10 @@ void CEnvFxManager::UpdateRainSounds(const CStateManager& mgr) {
     zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     float rainVol = CalcRainVolume(x30_fxDensity);
     if (!xb6a_rainSoundActive) {
-      xb6c_leftRainSound = CSfxManager::AddEmitter(SFXsfx09F0, zeus::skZero3f, zeus::skZero3f, false,
-                                                   true, 0xff, kInvalidAreaId);
-      xb70_rightRainSound = CSfxManager::AddEmitter(SFXsfx09F1, zeus::skZero3f, zeus::skZero3f, false,
-                                                    true, 0xff, kInvalidAreaId);
+      xb6c_leftRainSound =
+          CSfxManager::AddEmitter(SFXsfx09F0, zeus::skZero3f, zeus::skZero3f, false, true, 0xff, kInvalidAreaId);
+      xb70_rightRainSound =
+          CSfxManager::AddEmitter(SFXsfx09F1, zeus::skZero3f, zeus::skZero3f, false, true, 0xff, kInvalidAreaId);
       xb6a_rainSoundActive = true;
     }
     CSfxManager::UpdateEmitter(xb6c_leftRainSound, camXf.origin - camXf.basis[0], camXf.basis[0], rainVol);
@@ -209,10 +208,9 @@ void CEnvFxManager::UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, cons
         constexpr auto filter =
             CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid, EMaterialTypes::Trigger},
                                                 {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::SeeThrough});
-        zeus::CVector3f pos = xf * zeus::CVector3f((grid.x4_position + grid.xc_extent * 0).toVec2f() / 256.f) +
-                              zeus::skUp * 500.f;
-        CRayCastResult result =
-            CGameCollision::RayStaticIntersection(mgr, pos, zeus::skDown, 1000.f, filter);
+        zeus::CVector3f pos =
+            xf * zeus::CVector3f((grid.x4_position + grid.xc_extent * 0).toVec2f() / 256.f) + zeus::skUp * 500.f;
+        CRayCastResult result = CGameCollision::RayStaticIntersection(mgr, pos, zeus::skDown, 1000.f, filter);
         if (result.IsValid()) {
           if (!blockListBuilt) {
             BuildBlockObjectList(blockList, mgr);

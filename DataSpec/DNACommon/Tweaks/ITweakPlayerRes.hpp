@@ -21,8 +21,8 @@ struct ITweakPlayerRes : ITweak {
   ResId x18_minesBreakSecondTopIcon;
   ResId x1c_minesBreakSecondBottomIcon;
 
-  ResId  rs5_mapArrowUp;
-  ResId  rs5_mapArrowDown;
+  ResId rs5_mapArrowUp;
+  ResId rs5_mapArrowDown;
 
   /* N, U, UL, L, DL, D, DR, R, UR */
   std::array<ResId, 9> x24_lStick;

@@ -62,6 +62,7 @@ protected:
   bool x148_29_didPhazonDamage : 1 = false;
 
   CAABoxShader m_debugBox;
+
 public:
   DEFINE_ENTITY
   CScriptTrigger(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& pos,

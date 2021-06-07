@@ -23,4 +23,4 @@ struct MayaSpline : public BigDNA {
   Value<float> minAmp;
   Value<float> maxAmp;
 };
-}
+} // namespace DataSpec

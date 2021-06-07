@@ -19,8 +19,8 @@ CScriptMailbox::CScriptMailbox(CBitStreamReader& in, const CWorldSaveGameInfo& s
     for (u32 i = 0; i < relayCount; ++i) {
       if (!relayStates[i]) {
         continue;
-        }
-        x0_relays.push_back(saveWorld.GetRelayEditorId(i));
+      }
+      x0_relays.push_back(saveWorld.GetRelayEditorId(i));
     }
   }
 }

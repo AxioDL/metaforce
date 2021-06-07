@@ -617,21 +617,21 @@ void CAutoMapper::ProcessMapZoomInput(const CFinalInput& input, const CStateMana
   }
 
   const EZoomState nextZoomState = [this, in, out] {
-        switch (x324_zoomState) {
-        case EZoomState::None:
-        case EZoomState::In:
-        case EZoomState::Out:
-          if (in) {
-            return EZoomState::In;
-          }
-          if (out) {
-            return EZoomState::Out;
-          }
-          return EZoomState::None;
+    switch (x324_zoomState) {
+    case EZoomState::None:
+    case EZoomState::In:
+    case EZoomState::Out:
+      if (in) {
+        return EZoomState::In;
+      }
+      if (out) {
+        return EZoomState::Out;
+      }
+      return EZoomState::None;
 
-        default:
-          return EZoomState::None;
-        }
+    default:
+      return EZoomState::None;
+    }
   }();
   x324_zoomState = nextZoomState;
 
@@ -1049,7 +1049,8 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
       x308_textpane_instructions2->TextSupport().SetText(u"");
     } else {
       x2fc_textpane_hint->TextSupport().SetText(u"");
-      std::u16string str = fmt::format(FMT_STRING(u"&image=SI,0.6,1.0,{};"), g_tweakPlayerRes->x24_lStick[x2e4_lStickPos]);
+      std::u16string str =
+          fmt::format(FMT_STRING(u"&image=SI,0.6,1.0,{};"), g_tweakPlayerRes->x24_lStick[x2e4_lStickPos]);
       str += g_MainStringTable->GetString(46 + (!g_Main->IsUSA() || g_Main->IsTrilogy())); // Rotate
       x300_textpane_instructions->TextSupport().SetText(str);
       str = fmt::format(FMT_STRING(u"&image=SI,0.6,1.0,{};"), g_tweakPlayerRes->x4c_cStick[x2e8_rStickPos]);

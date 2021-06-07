@@ -83,8 +83,8 @@ void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, const CInt32POI
 }
 
 CFlameThrower* MP1::CActorContraption::CreateFlameThrower(std::string_view name, CStateManager& mgr) {
-  const auto it = std::find_if(x2e8_children.cbegin(), x2e8_children.cend(),
-                               [&name](const auto& p) { return p.second == name; });
+  const auto it =
+      std::find_if(x2e8_children.cbegin(), x2e8_children.cend(), [&name](const auto& p) { return p.second == name; });
 
   if (it != x2e8_children.cend()) {
     return static_cast<CFlameThrower*>(mgr.ObjectById(it->first));

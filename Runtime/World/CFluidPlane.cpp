@@ -355,20 +355,18 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
               TriFanToStrip<CFluidPlaneShader::Vertex> toStrip(vOut);
 
               toStrip.EmplaceVert(
-                  zeus::CVector3f(xMax + 0.5f * info.x14_tileSize, yMax + 0.5f * info.x14_tileSize, 0.f),
-                  zeus::skUp, zeus::skBlack);
+                  zeus::CVector3f(xMax + 0.5f * info.x14_tileSize, yMax + 0.5f * info.x14_tileSize, 0.f), zeus::skUp,
+                  zeus::skBlack);
 
               float tmp = xMax;
               for (int v = 0; v < ((curYTile == 1) ? CFluidPlaneRender::numSubdivisionsInTile : 1); ++v) {
-                toStrip.EmplaceVert(zeus::CVector3f(tmp, yMax + info.x14_tileSize, 0.f), zeus::skUp,
-                                    zeus::skBlack);
+                toStrip.EmplaceVert(zeus::CVector3f(tmp, yMax + info.x14_tileSize, 0.f), zeus::skUp, zeus::skBlack);
                 tmp += info.x18_rippleResolution;
               }
 
               tmp = yMax + info.x14_tileSize;
               for (int v = 0; v < ((xTiles - 1 == curXTile) ? CFluidPlaneRender::numSubdivisionsInTile : 1); ++v) {
-                toStrip.EmplaceVert(zeus::CVector3f(xMax + info.x14_tileSize, tmp, 0.f), zeus::skUp,
-                                    zeus::skBlack);
+                toStrip.EmplaceVert(zeus::CVector3f(xMax + info.x14_tileSize, tmp, 0.f), zeus::skUp, zeus::skBlack);
                 tmp -= info.x18_rippleResolution;
               }
 
@@ -384,8 +382,7 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
                 tmp += info.x18_rippleResolution;
               }
 
-              toStrip.EmplaceVert(zeus::CVector3f(xMax, yMax + info.x14_tileSize, 0.f), zeus::skUp,
-                                  zeus::skBlack);
+              toStrip.EmplaceVert(zeus::CVector3f(xMax, yMax + info.x14_tileSize, 0.f), zeus::skUp, zeus::skBlack);
 
               toStrip.Draw();
 
@@ -399,8 +396,7 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
               size_t start = vOut.size();
               for (int v = 0; v < nextXTile - curXTile + 1; ++v) {
                 vOut.emplace_back(zeus::CVector3f(xMax, yMax, 0.f), zeus::skUp, zeus::skBlack);
-                vOut.emplace_back(zeus::CVector3f(xMax, yMax + info.x14_tileSize, 0.f), zeus::skUp,
-                                  zeus::skBlack);
+                vOut.emplace_back(zeus::CVector3f(xMax, yMax + info.x14_tileSize, 0.f), zeus::skUp, zeus::skBlack);
                 xMax += info.x14_tileSize;
               }
               CGraphics::DrawArray(start, vOut.size() - start);
@@ -426,14 +422,10 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
     case CFluidPlaneRender::NormalMode::NBT: {
       if (flagIs1 || !info.x30_gridFlags) {
         size_t start = vOut.size();
-        vOut.emplace_back(zeus::CVector3f(xMin, yMin, 0.f), zeus::skUp, zeus::skForward,
-                          zeus::skRight, zeus::skBlack);
-        vOut.emplace_back(zeus::CVector3f(xMin, yMax, 0.f), zeus::skUp, zeus::skForward,
-                          zeus::skRight, zeus::skBlack);
-        vOut.emplace_back(zeus::CVector3f(xMax, yMin, 0.f), zeus::skUp, zeus::skForward,
-                          zeus::skRight, zeus::skBlack);
-        vOut.emplace_back(zeus::CVector3f(xMax, yMax, 0.f), zeus::skUp, zeus::skForward,
-                          zeus::skRight, zeus::skBlack);
+        vOut.emplace_back(zeus::CVector3f(xMin, yMin, 0.f), zeus::skUp, zeus::skForward, zeus::skRight, zeus::skBlack);
+        vOut.emplace_back(zeus::CVector3f(xMin, yMax, 0.f), zeus::skUp, zeus::skForward, zeus::skRight, zeus::skBlack);
+        vOut.emplace_back(zeus::CVector3f(xMax, yMin, 0.f), zeus::skUp, zeus::skForward, zeus::skRight, zeus::skBlack);
+        vOut.emplace_back(zeus::CVector3f(xMax, yMax, 0.f), zeus::skUp, zeus::skForward, zeus::skRight, zeus::skBlack);
         CGraphics::DrawArray(start, 4);
       } else {
         int xTiles = (info.x0_xSubdivs - 3) / CFluidPlaneRender::numSubdivisionsInTile + 1;
@@ -453,10 +445,10 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
 
               size_t start = vOut.size();
               for (int v = 0; v < nextXTile - curXTile + 1; ++v) {
-                vOut.emplace_back(zeus::CVector3f(xMax, yMin, 0.f), zeus::skUp, zeus::skForward,
+                vOut.emplace_back(zeus::CVector3f(xMax, yMin, 0.f), zeus::skUp, zeus::skForward, zeus::skRight,
+                                  zeus::skBlack);
+                vOut.emplace_back(zeus::CVector3f(xMax, yMin + info.x14_tileSize, 0.f), zeus::skUp, zeus::skForward,
                                   zeus::skRight, zeus::skBlack);
-                vOut.emplace_back(zeus::CVector3f(xMax, yMin + info.x14_tileSize, 0.f), zeus::skUp,
-                                  zeus::skForward, zeus::skRight, zeus::skBlack);
                 xMax += info.x14_tileSize;
               }
               CGraphics::DrawArray(start, vOut.size() - start);

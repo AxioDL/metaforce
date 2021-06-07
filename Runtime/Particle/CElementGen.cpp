@@ -250,7 +250,7 @@ bool CElementGen::Update(double t) {
 }
 
 void CElementGen::_RecreatePipelines() {
-  size_t maxInsts = x26c_30_MBLR ? 2560 * 2 : 2560;//x26c_30_MBLR ? (x270_MBSP * x90_MAXP) : x90_MAXP;
+  size_t maxInsts = x26c_30_MBLR ? 2560 * 2 : 2560; // x26c_30_MBLR ? (x270_MBSP * x90_MAXP) : x90_MAXP;
   maxInsts = (maxInsts == 0 ? 256 : maxInsts);
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -359,8 +359,8 @@ void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, s32 par
   CGenDescription* desc = x28_loadedGenDesc;
 
   if (activeParticleCount >= x60_advValues.size()) {
-    Log.report(logvisor::Fatal, FMT_STRING("activeParticleCount ({}) >= advValues size ({})"),
-               activeParticleCount, x60_advValues.size());
+    Log.report(logvisor::Fatal, FMT_STRING("activeParticleCount ({}) >= advValues size ({})"), activeParticleCount,
+               x60_advValues.size());
   }
 
   std::array<float, 8>& arr = x60_advValues[activeParticleCount];

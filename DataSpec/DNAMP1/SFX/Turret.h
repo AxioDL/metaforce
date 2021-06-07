@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0024 36
-
 
 #define SFXsfx03E8 1000
 #define SFXtur_a_laser_00 1001
@@ -36,5 +34,3 @@
 #define SFXsfx0400 1024
 #define SFXsfx0401 1025
 #define SFXsfx0402 1026
-
-

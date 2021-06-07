@@ -28,13 +28,7 @@ class CNewFlameThrower : public CGameProjectile {
     zeus::CVector3f center;
     float bounds;
   };
-  enum class EFlameState {
-    Default,
-    FireStart,
-    FireActive,
-    FireStopTimer,
-    FireWaitForParticlesDone
-  };
+  enum class EFlameState { Default, FireStart, FireActive, FireStopTimer, FireWaitForParticlesDone };
 
   CRandom16 x2e8_rand{99};
   float x2ec_particlesDoneTimer = 0.f;
@@ -72,18 +66,16 @@ class CNewFlameThrower : public CGameProjectile {
   void CreateLightObjects(CStateManager& mgr);
   void EnableFx(CStateManager& mgr);
   void UpdateLights(CStateManager& mgr);
-  bool UpdateParticleCollisions(float dt, CStateManager &mgr,
-		rstl::reserved_vector<Cube, 32> &collisions_out);
-  bool CanDamageActor(CActor &hit_actor, CStateManager &mgr);
+  bool UpdateParticleCollisions(float dt, CStateManager& mgr, rstl::reserved_vector<Cube, 32>& collisions_out);
+  bool CanDamageActor(CActor& hit_actor, CStateManager& mgr);
   void AddContactPoint(CCollisionInfo const& cinfo, u32 time);
   int SortAndFindOverlappingPoints(Cube const& box);
-  bool FindCollisionInNearList(CStateManager &mgr, EntityList const &near_list,
-                               CCollisionPrimitive const& coll, TUniqueId &first_coll_out,
-                               CCollisionInfoList& collisions);
+  bool FindCollisionInNearList(CStateManager& mgr, EntityList const& near_list, CCollisionPrimitive const& coll,
+                               TUniqueId& first_coll_out, CCollisionInfoList& collisions);
   void DecrementContactPointTimers();
-  void SetLightsActive(CStateManager &mgr, bool active);
-  void UpdateFlameState(float dt, CStateManager &mgr);
-  void SetWorldLighting(CStateManager &mgr, TAreaId area, float speed, float target);
+  void SetLightsActive(CStateManager& mgr, bool active);
+  void UpdateFlameState(float dt, CStateManager& mgr);
+  void SetWorldLighting(CStateManager& mgr, TAreaId area, float speed, float target);
   // void RenderParticles(std::array<CElementGen *, 5> const& elem_gens);
 
   // void LoadParticleGenQuads();
@@ -110,10 +102,10 @@ public:
   void UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr);
   void Reset(CStateManager& mgr, bool deactivate);
   void Render(CStateManager& mgr) override;
-  void Think(float dt, CStateManager &mgr) override;
+  void Think(float dt, CStateManager& mgr) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override { return {}; }
   void Accept(IVisitor& visitor) override;
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager &mgr) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void AddToRenderer(zeus::CFrustum const& planes, CStateManager& mgr) override;
 };
 

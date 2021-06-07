@@ -73,7 +73,8 @@ void CLogBookScreen::InitializeLogBook() {
 }
 
 void CLogBookScreen::UpdateRightTitles() {
-  const std::vector<std::pair<CAssetId, bool>>& category = x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
+  const std::vector<std::pair<CAssetId, bool>>& category =
+      x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
   for (size_t i = 0; i < xd8_textpane_titles.size(); ++i) {
     std::u16string string;
     const auto scanIndex = size_t(x18_firstViewRightSel) + i;
@@ -337,7 +338,7 @@ void CLogBookScreen::ProcessControllerInput(const CFinalInput& input) {
       if (input.PLAUp() || m_bodyUpClicked)
         newPage = std::max(oldPage - 1, 0);
       else if (input.PLADown() || m_bodyDownClicked ||
-      ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || m_bodyClicked) && !lastPage))
+               ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || m_bodyClicked) && !lastPage))
         newPage = std::min(oldPage + 1, pageCount - 1);
       x174_textpane_body->TextSupport().SetPage(newPage);
       if (oldPage != newPage)
@@ -350,8 +351,9 @@ void CLogBookScreen::ProcessControllerInput(const CFinalInput& input) {
     }
 
     if (!x260_26_exitTextScroll)
-      x260_26_exitTextScroll = input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
-        ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || m_bodyClicked) && lastPage);
+      x260_26_exitTextScroll =
+          input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
+          ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || m_bodyClicked) && lastPage);
 
     if (g_tweakGui->GetLatchArticleText())
       x260_25_inTextScroll = !x260_26_exitTextScroll;

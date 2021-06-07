@@ -306,14 +306,13 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         "    bpy.context.scene.collection.objects.link(ob_new)\n"
         "    return ob_new\n";
 
-  os.format(FMT_STRING(
-      "bpy.context.scene.name = '{}'\n"
-      "bpy.context.scene.render.resolution_x = 640\n"
-      "bpy.context.scene.render.resolution_y = 480\n"
-      "bpy.context.scene.world.use_nodes = True\n"
-      "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n"
-      "bg_node.inputs[1].default_value = 0.0\n"),
-      pakRouter.getBestEntryName(entry));
+  os.format(FMT_STRING("bpy.context.scene.name = '{}'\n"
+                       "bpy.context.scene.render.resolution_x = 640\n"
+                       "bpy.context.scene.render.resolution_y = 480\n"
+                       "bpy.context.scene.world.use_nodes = True\n"
+                       "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n"
+                       "bg_node.inputs[1].default_value = 0.0\n"),
+            pakRouter.getBestEntryName(entry));
 
   int pIdx = 0;
   for (const FRME::Widget& w : frme.widgets) {
@@ -321,32 +320,29 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
           "angle = Quaternion((1.0, 0.0, 0.0), 0)\n";
     if (w.type == SBIG('CAMR')) {
       using CAMRInfo = Widget::CAMRInfo;
-      os.format(FMT_STRING(
-          "cam = bpy.data.cameras.new(name='{}')\n"
-          "binding = cam\n"),
-          w.header.name);
+      os.format(FMT_STRING("cam = bpy.data.cameras.new(name='{}')\n"
+                           "binding = cam\n"),
+                w.header.name);
       if (CAMRInfo* info = static_cast<CAMRInfo*>(w.widgetInfo.get())) {
         if (info->projectionType == CAMRInfo::ProjectionType::Orthographic) {
           CAMRInfo::OrthographicProjection* proj =
               static_cast<CAMRInfo::OrthographicProjection*>(info->projection.get());
-          os.format(FMT_STRING(
-              "cam.type = 'ORTHO'\n"
-              "cam.ortho_scale = {}\n"
-              "cam.clip_start = {}\n"
-              "cam.clip_end = {}\n"),
-              std::fabs(proj->right - proj->left), proj->znear, proj->zfar);
+          os.format(FMT_STRING("cam.type = 'ORTHO'\n"
+                               "cam.ortho_scale = {}\n"
+                               "cam.clip_start = {}\n"
+                               "cam.clip_end = {}\n"),
+                    std::fabs(proj->right - proj->left), proj->znear, proj->zfar);
         } else if (info->projectionType == CAMRInfo::ProjectionType::Perspective) {
           CAMRInfo::PerspectiveProjection* proj = static_cast<CAMRInfo::PerspectiveProjection*>(info->projection.get());
-          os.format(FMT_STRING(
-              "cam.type = 'PERSP'\n"
-              "cam.lens_unit = 'FOV'\n"
-              "cam.clip_start = {}\n"
-              "cam.clip_end = {}\n"
-              "bpy.context.scene.render.resolution_x = 480 * {}\n"),
-              proj->znear, proj->zfar, proj->aspect);
+          os.format(FMT_STRING("cam.type = 'PERSP'\n"
+                               "cam.lens_unit = 'FOV'\n"
+                               "cam.clip_start = {}\n"
+                               "cam.clip_end = {}\n"
+                               "bpy.context.scene.render.resolution_x = 480 * {}\n"),
+                    proj->znear, proj->zfar, proj->aspect);
           if (proj->aspect > 1.f)
-            os.format(FMT_STRING("cam.angle = math.atan2({}, 1.0 / math.tan(math.radians({} / 2.0))) * 2.0\n"), proj->aspect,
-                      proj->fov);
+            os.format(FMT_STRING("cam.angle = math.atan2({}, 1.0 / math.tan(math.radians({} / 2.0))) * 2.0\n"),
+                      proj->aspect, proj->fov);
           else
             os.format(FMT_STRING("cam.angle = math.radians({})\n"), proj->fov);
         }
@@ -358,10 +354,9 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         switch (info->type) {
         case LITEInfo::ELightType::LocalAmbient: {
           zeus::simd_floats colorF(w.header.color.simd);
-          os.format(FMT_STRING(
-              "bg_node.inputs[0].default_value = ({},{},{},1.0)\n"
-              "bg_node.inputs[1].default_value = {}\n"),
-              colorF[0], colorF[1], colorF[2], info->distQ / 8.0);
+          os.format(FMT_STRING("bg_node.inputs[0].default_value = ({},{},{},1.0)\n"
+                               "bg_node.inputs[1].default_value = {}\n"),
+                    colorF[0], colorF[1], colorF[2], info->distQ / 8.0);
           break;
         }
         case LITEInfo::ELightType::Spot:
@@ -370,24 +365,22 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
           [[fallthrough]];
         default: {
           zeus::simd_floats colorF(w.header.color.simd);
-          os.format(FMT_STRING(
-              "lamp = bpy.data.lights.new(name='{}', type='POINT')\n"
-              "lamp.color = ({}, {}, {})\n"
-              "lamp.hecl_falloff_constant = {}\n"
-              "lamp.hecl_falloff_linear = {}\n"
-              "lamp.hecl_falloff_quadratic = {}\n"
-              "lamp.retro_light_angle_constant = {}\n"
-              "lamp.retro_light_angle_linear = {}\n"
-              "lamp.retro_light_angle_quadratic = {}\n"
-              "lamp.retro_light_index = {}\n"
-              "binding = lamp\n"),
-              w.header.name, colorF[0], colorF[1], colorF[2], info->distC, info->distL, info->distQ, info->angC,
-              info->angL, info->angQ, info->loadedIdx);
+          os.format(FMT_STRING("lamp = bpy.data.lights.new(name='{}', type='POINT')\n"
+                               "lamp.color = ({}, {}, {})\n"
+                               "lamp.hecl_falloff_constant = {}\n"
+                               "lamp.hecl_falloff_linear = {}\n"
+                               "lamp.hecl_falloff_quadratic = {}\n"
+                               "lamp.retro_light_angle_constant = {}\n"
+                               "lamp.retro_light_angle_linear = {}\n"
+                               "lamp.retro_light_angle_quadratic = {}\n"
+                               "lamp.retro_light_index = {}\n"
+                               "binding = lamp\n"),
+                    w.header.name, colorF[0], colorF[1], colorF[2], info->distC, info->distL, info->distQ, info->angC,
+                    info->angL, info->angQ, info->loadedIdx);
           if (info->type == LITEInfo::ELightType::Spot)
-            os.format(FMT_STRING(
-                "lamp.type = 'SPOT'\n"
-                "lamp.spot_size = {}\n"),
-                info->cutoff);
+            os.format(FMT_STRING("lamp.type = 'SPOT'\n"
+                                 "lamp.spot_size = {}\n"),
+                      info->cutoff);
           else if (info->type == LITEInfo::ELightType::Directional)
             os << "lamp.type = 'SUN'\n";
         }
@@ -413,28 +406,26 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
         if (resPath.size()) {
           hecl::SystemUTF8Conv resPathView(resPath);
-          os.format(FMT_STRING(
-              "if '{}' in bpy.data.images:\n"
-              "    image = bpy.data.images['{}']\n"
-              "else:\n"
-              "    image = bpy.data.images.load('''//{}''')\n"
-              "    image.name = '{}'\n"),
-              texName, texName, resPathView, texName);
+          os.format(FMT_STRING("if '{}' in bpy.data.images:\n"
+                               "    image = bpy.data.images['{}']\n"
+                               "else:\n"
+                               "    image = bpy.data.images.load('''//{}''')\n"
+                               "    image.name = '{}'\n"),
+                    texName, texName, resPathView, texName);
         } else {
           os << "image = None\n";
         }
 
-        os.format(FMT_STRING(
-            "material = bpy.data.materials.new('{}')\n"
-            "material.use_nodes = True\n"
-            "new_nodetree = material.node_tree\n"
-            "for n in new_nodetree.nodes:\n"
-            "    new_nodetree.nodes.remove(n)\n"
-            "tex_node = new_nodetree.nodes.new('ShaderNodeTexImage')\n"
-            "tex_node.image = image\n"
-            "bm = bmesh.new()\n"
-            "verts = []\n"),
-            w.header.name);
+        os.format(FMT_STRING("material = bpy.data.materials.new('{}')\n"
+                             "material.use_nodes = True\n"
+                             "new_nodetree = material.node_tree\n"
+                             "for n in new_nodetree.nodes:\n"
+                             "    new_nodetree.nodes.remove(n)\n"
+                             "tex_node = new_nodetree.nodes.new('ShaderNodeTexImage')\n"
+                             "tex_node.image = image\n"
+                             "bm = bmesh.new()\n"
+                             "verts = []\n"),
+                  w.header.name);
 
         for (uint32_t i = 0; i < info->quadCoordCount; ++i) {
           int ti;
@@ -461,37 +452,36 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
           zeus::simd_floats f(info->uvCoords[ti].simd);
           os.format(FMT_STRING("bm.verts[{}].link_loops[0][bm.loops.layers.uv[0]].uv = ({},{})\n"), i, f[0], f[1]);
         }
-        os.format(FMT_STRING(
-            "binding = bpy.data.meshes.new('{}')\n"
-            "bm.to_mesh(binding)\n"
-            "bm.free()\n"
-            "binding.materials.append(material)\n"),
-            w.header.name);
+        os.format(FMT_STRING("binding = bpy.data.meshes.new('{}')\n"
+                             "bm.to_mesh(binding)\n"
+                             "bm.free()\n"
+                             "binding.materials.append(material)\n"),
+                  w.header.name);
       }
     }
 
     zeus::simd_floats colorF(w.header.color.simd);
-    os.format(FMT_STRING(
-        "frme_obj = bpy.data.objects.new(name='{}', object_data=binding)\n"
-        "frme_obj.pass_index = {}\n"
-        "parentName = '{}'\n"
-        "frme_obj.retro_widget_type = 'RETRO_{}'\n"
-        "frme_obj.retro_widget_use_anim_controller = {}\n"
-        "frme_obj.retro_widget_default_visible = {}\n"
-        "frme_obj.retro_widget_default_active = {}\n"
-        "frme_obj.retro_widget_cull_faces = {}\n"
-        "frme_obj.retro_widget_color = ({},{},{},{})\n"
-        "frme_obj.retro_widget_model_draw_flags = bpy.types.Object.retro_widget_model_draw_flags[1]['items'][{}][0]\n"
-        "frme_obj.retro_widget_is_worker = {}\n"
-        "frme_obj.retro_widget_worker_id = {}\n"
-        "if parentName not in bpy.data.objects:\n"
-        "    frme_obj.retro_widget_parent = parentName\n"
-        "else:\n"
-        "    frme_obj.parent = bpy.data.objects[parentName]\n"),
-        w.header.name, pIdx++, w.header.parent, w.type,
-        w.header.useAnimController ? "True" : "False", w.header.defaultVisible ? "True" : "False",
-        w.header.defaultActive ? "True" : "False", w.header.cullFaces ? "True" : "False", colorF[0], colorF[1],
-        colorF[2], colorF[3], w.header.modelDrawFlags, w.isWorker ? "True" : "False", w.workerId);
+    os.format(FMT_STRING("frme_obj = bpy.data.objects.new(name='{}', object_data=binding)\n"
+                         "frme_obj.pass_index = {}\n"
+                         "parentName = '{}'\n"
+                         "frme_obj.retro_widget_type = 'RETRO_{}'\n"
+                         "frme_obj.retro_widget_use_anim_controller = {}\n"
+                         "frme_obj.retro_widget_default_visible = {}\n"
+                         "frme_obj.retro_widget_default_active = {}\n"
+                         "frme_obj.retro_widget_cull_faces = {}\n"
+                         "frme_obj.retro_widget_color = ({},{},{},{})\n"
+                         "frme_obj.retro_widget_model_draw_flags = "
+                         "bpy.types.Object.retro_widget_model_draw_flags[1]['items'][{}][0]\n"
+                         "frme_obj.retro_widget_is_worker = {}\n"
+                         "frme_obj.retro_widget_worker_id = {}\n"
+                         "if parentName not in bpy.data.objects:\n"
+                         "    frme_obj.retro_widget_parent = parentName\n"
+                         "else:\n"
+                         "    frme_obj.parent = bpy.data.objects[parentName]\n"),
+              w.header.name, pIdx++, w.header.parent, w.type, w.header.useAnimController ? "True" : "False",
+              w.header.defaultVisible ? "True" : "False", w.header.defaultActive ? "True" : "False",
+              w.header.cullFaces ? "True" : "False", colorF[0], colorF[1], colorF[2], colorF[3],
+              w.header.modelDrawFlags, w.isWorker ? "True" : "False", w.workerId);
 
     if (w.type == SBIG('MODL')) {
       using MODLInfo = FRME::Widget::MODLInfo;
@@ -516,10 +506,9 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
       using PANEInfo = Widget::PANEInfo;
       if (PANEInfo* info = static_cast<PANEInfo*>(w.widgetInfo.get())) {
         zeus::simd_floats f(info->scaleCenter.simd);
-        os.format(FMT_STRING(
-            "frme_obj.retro_pane_dimensions = ({},{})\n"
-            "frme_obj.retro_pane_scale_center = ({},{},{})\n"),
-            info->xDim, info->zDim, f[0], f[1], f[2]);
+        os.format(FMT_STRING("frme_obj.retro_pane_dimensions = ({},{})\n"
+                             "frme_obj.retro_pane_scale_center = ({},{},{})\n"),
+                  info->xDim, info->zDim, f[0], f[1], f[2]);
       }
     } else if (w.type == SBIG('TXPN')) {
       using TXPNInfo = Widget::TXPNInfo;
@@ -533,35 +522,33 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         zeus::simd_floats fillF(info->fillColor.simd);
         zeus::simd_floats outlineF(info->outlineColor.simd);
         zeus::simd_floats extentF(info->blockExtent.simd);
-        os.format(FMT_STRING(
-            "frme_obj.retro_pane_dimensions = ({},{})\n"
-            "frme_obj.retro_pane_scale_center = ({},{},{})\n"
-            "frme_obj.retro_textpane_font_path = '{}'\n"
-            "frme_obj.retro_textpane_word_wrap = {}\n"
-            "frme_obj.retro_textpane_horizontal = {}\n"
-            "frme_obj.retro_textpane_fill_color = ({},{},{},{})\n"
-            "frme_obj.retro_textpane_outline_color = ({},{},{},{})\n"
-            "frme_obj.retro_textpane_block_extent = ({},{})\n"
-            "frme_obj.retro_textpane_jp_font_path = '{}'\n"
-            "frme_obj.retro_textpane_jp_font_scale = ({},{})\n"
-            "frme_obj.retro_textpane_hjustification = "
-            "bpy.types.Object.retro_textpane_hjustification[1]['items'][{}][0]\n"
-            "frme_obj.retro_textpane_vjustification = "
-            "bpy.types.Object.retro_textpane_vjustification[1]['items'][{}][0]\n"),
-            info->xDim, info->zDim, scaleF[0], scaleF[1], scaleF[2], fontPath.getRelativePathUTF8(),
-            info->wordWrap ? "True" : "False", info->horizontal ? "True" : "False", fillF[0], fillF[1], fillF[2],
-            fillF[3], outlineF[0], outlineF[1], outlineF[2], outlineF[3], extentF[0], extentF[1],
-            jpFontPath.getRelativePathUTF8(), info->jpnPointScale[0], info->jpnPointScale[1],
-            int(info->justification), int(info->verticalJustification));
+        os.format(FMT_STRING("frme_obj.retro_pane_dimensions = ({},{})\n"
+                             "frme_obj.retro_pane_scale_center = ({},{},{})\n"
+                             "frme_obj.retro_textpane_font_path = '{}'\n"
+                             "frme_obj.retro_textpane_word_wrap = {}\n"
+                             "frme_obj.retro_textpane_horizontal = {}\n"
+                             "frme_obj.retro_textpane_fill_color = ({},{},{},{})\n"
+                             "frme_obj.retro_textpane_outline_color = ({},{},{},{})\n"
+                             "frme_obj.retro_textpane_block_extent = ({},{})\n"
+                             "frme_obj.retro_textpane_jp_font_path = '{}'\n"
+                             "frme_obj.retro_textpane_jp_font_scale = ({},{})\n"
+                             "frme_obj.retro_textpane_hjustification = "
+                             "bpy.types.Object.retro_textpane_hjustification[1]['items'][{}][0]\n"
+                             "frme_obj.retro_textpane_vjustification = "
+                             "bpy.types.Object.retro_textpane_vjustification[1]['items'][{}][0]\n"),
+                  info->xDim, info->zDim, scaleF[0], scaleF[1], scaleF[2], fontPath.getRelativePathUTF8(),
+                  info->wordWrap ? "True" : "False", info->horizontal ? "True" : "False", fillF[0], fillF[1], fillF[2],
+                  fillF[3], outlineF[0], outlineF[1], outlineF[2], outlineF[3], extentF[0], extentF[1],
+                  jpFontPath.getRelativePathUTF8(), info->jpnPointScale[0], info->jpnPointScale[1],
+                  int(info->justification), int(info->verticalJustification));
       }
     } else if (w.type == SBIG('TBGP')) {
       using TBGPInfo = Widget::TBGPInfo;
       if (TBGPInfo* info = static_cast<TBGPInfo*>(w.widgetInfo.get())) {
-        os.format(FMT_STRING(
-            "frme_obj.retro_tablegroup_elem_count = {}\n"
-            "frme_obj.retro_tablegroup_elem_default = {}\n"
-            "frme_obj.retro_tablegroup_wraparound = {}\n"),
-            info->elementCount, info->defaultSelection, info->selectWraparound ? "True" : "False");
+        os.format(FMT_STRING("frme_obj.retro_tablegroup_elem_count = {}\n"
+                             "frme_obj.retro_tablegroup_elem_default = {}\n"
+                             "frme_obj.retro_tablegroup_wraparound = {}\n"),
+                  info->elementCount, info->defaultSelection, info->selectWraparound ? "True" : "False");
       }
     } else if (w.type == SBIG('GRUP')) {
       using GRUPInfo = Widget::GRUPInfo;
@@ -571,12 +558,11 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     } else if (w.type == SBIG('SLGP')) {
       using SLGPInfo = Widget::SLGPInfo;
       if (SLGPInfo* info = static_cast<SLGPInfo*>(w.widgetInfo.get())) {
-        os.format(FMT_STRING(
-            "frme_obj.retro_slider_min = {}\n"
-            "frme_obj.retro_slider_max = {}\n"
-            "frme_obj.retro_slider_default = {}\n"
-            "frme_obj.retro_slider_increment = {}\n"),
-            info->min, info->max, info->cur, info->increment);
+        os.format(FMT_STRING("frme_obj.retro_slider_min = {}\n"
+                             "frme_obj.retro_slider_max = {}\n"
+                             "frme_obj.retro_slider_default = {}\n"
+                             "frme_obj.retro_slider_increment = {}\n"),
+                  info->min, info->max, info->cur, info->increment);
       }
     } else if (w.type == SBIG('ENRG')) {
       using ENRGInfo = Widget::ENRGInfo;
@@ -588,11 +574,10 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     } else if (w.type == SBIG('METR')) {
       using METRInfo = Widget::METRInfo;
       if (METRInfo* info = static_cast<METRInfo*>(w.widgetInfo.get())) {
-        os.format(FMT_STRING(
-            "frme_obj.retro_meter_no_round_up = {}\n"
-            "frme_obj.retro_meter_max_capacity = {}\n"
-            "frme_obj.retro_meter_worker_count = {}\n"),
-            info->noRoundUp ? "True" : "False", info->maxCapacity, info->workerCount);
+        os.format(FMT_STRING("frme_obj.retro_meter_no_round_up = {}\n"
+                             "frme_obj.retro_meter_max_capacity = {}\n"
+                             "frme_obj.retro_meter_worker_count = {}\n"),
+                  info->noRoundUp ? "True" : "False", info->maxCapacity, info->workerCount);
       }
     }
 
@@ -600,16 +585,15 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     for (int i = 0; i < 3; ++i)
       w.basis[i].simd.copy_to(xfMtxF[i]);
     zeus::simd_floats originF(w.origin.simd);
-    os.format(FMT_STRING(
-        "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
-        "mtxd = mtx.decompose()\n"
-        "frme_obj.rotation_mode = 'QUATERNION'\n"
-        "frme_obj.location = mtxd[0]\n"
-        "frme_obj.rotation_quaternion = mtxd[1] @ angle\n"
-        "frme_obj.scale = mtxd[2]\n"
-        "bpy.context.scene.collection.objects.link(frme_obj)\n"),
-        xfMtxF[0][0], xfMtxF[0][1], xfMtxF[0][2], originF[0], xfMtxF[1][0], xfMtxF[1][1], xfMtxF[1][2], originF[1],
-        xfMtxF[2][0], xfMtxF[2][1], xfMtxF[2][2], originF[2]);
+    os.format(FMT_STRING("mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
+                         "mtxd = mtx.decompose()\n"
+                         "frme_obj.rotation_mode = 'QUATERNION'\n"
+                         "frme_obj.location = mtxd[0]\n"
+                         "frme_obj.rotation_quaternion = mtxd[1] @ angle\n"
+                         "frme_obj.scale = mtxd[2]\n"
+                         "bpy.context.scene.collection.objects.link(frme_obj)\n"),
+              xfMtxF[0][0], xfMtxF[0][1], xfMtxF[0][2], originF[0], xfMtxF[1][0], xfMtxF[1][1], xfMtxF[1][2],
+              originF[1], xfMtxF[2][0], xfMtxF[2][1], xfMtxF[2][2], originF[2]);
   }
 
   os.centerView();

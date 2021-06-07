@@ -26,7 +26,7 @@ void CPFAreaOctree::Fixup(CPFArea& area) {
     return;
   }
 
-  for (auto & ptr : x28_children) {
+  for (auto& ptr : x28_children) {
     if ((reinterpret_cast<uintptr_t>(ptr) & 0x80000000) == 0)
       ptr = &area.x158_octree[reinterpret_cast<uintptr_t>(ptr)];
     else

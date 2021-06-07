@@ -114,8 +114,8 @@ void CGroundMovement::MoveGroundCollider(CStateManager& mgr, CPhysicsActor& acto
 }
 
 bool CGroundMovement::ResolveUpDown(CAreaCollisionCache& cache, CStateManager& mgr, CPhysicsActor& actor,
-                                    const CMaterialFilter& filter, EntityList& nearList,
-                                    float stepUp, float stepDown, float& fOut, CCollisionInfoList& list) {
+                                    const CMaterialFilter& filter, EntityList& nearList, float stepUp, float stepDown,
+                                    float& fOut, CCollisionInfoList& list) {
   float zextent = stepDown;
   if (list.GetCount() <= 0) {
     return true;
@@ -177,9 +177,8 @@ bool CGroundMovement::ResolveUpDown(CAreaCollisionCache& cache, CStateManager& m
 }
 
 bool CGroundMovement::MoveGroundColliderZ(CAreaCollisionCache& cache, CStateManager& mgr, CPhysicsActor& actor,
-                                          const CMaterialFilter& filter,
-                                          EntityList& nearList, float amt, float& resolved,
-                                          CCollisionInfoList& list, TUniqueId& idOut) {
+                                          const CMaterialFilter& filter, EntityList& nearList, float amt,
+                                          float& resolved, CCollisionInfoList& list, TUniqueId& idOut) {
   actor.MoveCollisionPrimitive({0.f, 0.f, amt});
 
   zeus::CAABox aabb = zeus::CAABox();
@@ -237,8 +236,7 @@ bool CGroundMovement::MoveGroundColliderZ(CAreaCollisionCache& cache, CStateMana
 }
 
 void CGroundMovement::MoveGroundColliderXY(CAreaCollisionCache& cache, CStateManager& mgr, CPhysicsActor& actor,
-                                           const CMaterialFilter& filter,
-                                           EntityList& nearList, float dt) {
+                                           const CMaterialFilter& filter, EntityList& nearList, float dt) {
   bool didCollide = false;
   bool isPlayer = actor.GetMaterialList().HasMaterial(EMaterialTypes::Player);
   float remDt = dt;
@@ -638,9 +636,8 @@ static bool RemovePositiveZComponentFromNormal(zeus::CVector3f& vec) {
 }
 
 CMaterialList CGroundMovement::MoveObjectAnalytical(CStateManager& mgr, CPhysicsActor& actor, float dt,
-                                                    EntityList& nearList,
-                                                    CAreaCollisionCache& cache, const SMovementOptions& opts,
-                                                    SMoveObjectResult& result) {
+                                                    EntityList& nearList, CAreaCollisionCache& cache,
+                                                    const SMovementOptions& opts, SMoveObjectResult& result) {
   result.x6c_processedCollisions = 0;
   CMaterialList ret;
   zeus::CVector3f floorPlaneNormal = opts.x3c_floorPlaneNormal ? *opts.x3c_floorPlaneNormal : zeus::skZero3f;

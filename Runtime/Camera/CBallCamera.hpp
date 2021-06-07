@@ -212,12 +212,10 @@ private:
                                                            int numObscured) const;
   zeus::CVector3f ApplyColliders();
   void UpdateColliders(const zeus::CTransform& xf, std::vector<CCameraCollider>& colliderList, int& it, int count,
-                       float tolerance, const EntityList& nearList, float dt,
-                       CStateManager& mgr);
-  zeus::CVector3f AvoidGeometry(const zeus::CTransform& xf, const EntityList& nearList,
-                                float dt, CStateManager& mgr);
-  zeus::CVector3f AvoidGeometryFull(const zeus::CTransform& xf, const EntityList& nearList,
-                                    float dt, CStateManager& mgr);
+                       float tolerance, const EntityList& nearList, float dt, CStateManager& mgr);
+  zeus::CVector3f AvoidGeometry(const zeus::CTransform& xf, const EntityList& nearList, float dt, CStateManager& mgr);
+  zeus::CVector3f AvoidGeometryFull(const zeus::CTransform& xf, const EntityList& nearList, float dt,
+                                    CStateManager& mgr);
   zeus::CAABox CalculateCollidersBoundingBox(const std::vector<CCameraCollider>& colliderList,
                                              CStateManager& mgr) const;
   [[nodiscard]] int CountObscuredColliders(const std::vector<CCameraCollider>& colliderList) const;

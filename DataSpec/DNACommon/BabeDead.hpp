@@ -3,7 +3,7 @@
 namespace hecl::blender {
 struct Light;
 class PyOutStream;
-}
+} // namespace hecl::blender
 
 namespace DataSpec {
 

@@ -16,10 +16,12 @@ class IDvdRequest;
 class IObj;
 
 using CFactoryFnReturn = std::unique_ptr<IObj>;
-using FFactoryFunc = std::function<CFactoryFnReturn(const metaforce::SObjectTag& tag, metaforce::CInputStream& in,
-                                                    const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef)>;
-using FMemFactoryFunc = std::function<CFactoryFnReturn(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                                                       const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef)>;
+using FFactoryFunc =
+    std::function<CFactoryFnReturn(const metaforce::SObjectTag& tag, metaforce::CInputStream& in,
+                                   const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef)>;
+using FMemFactoryFunc =
+    std::function<CFactoryFnReturn(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                                   const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef)>;
 
 class IFactory {
 public:

@@ -13,8 +13,7 @@
 namespace metaforce {
 
 CPlasmaProjectile::RenderObjects::RenderObjects(boo::IGraphicsDataFactory::Context& ctx,
-                                                boo::ObjToken<boo::ITexture> tex,
-                                                boo::ObjToken<boo::ITexture> glowTex)
+                                                boo::ObjToken<boo::ITexture> tex, boo::ObjToken<boo::ITexture> glowTex)
 : m_beamStrip1(ctx, 8, CColoredStripShader::Mode::Additive, {})
 , m_beamStrip2(ctx, 10, CColoredStripShader::Mode::FullAdditive, tex)
 , m_beamStrip3(ctx, 18, CColoredStripShader::Mode::FullAdditive, tex)
@@ -239,8 +238,7 @@ float CPlasmaProjectile::UpdateBeamState(float dt, CStateManager& mgr) {
     break;
   case EExpansionState::Done:
     x4d0_shutdownTimer += dt;
-    if (x4d0_shutdownTimer > x484_shutdownTime &&
-        (!x518_contactGen || x518_contactGen->GetParticleCountAll() == 0)) {
+    if (x4d0_shutdownTimer > x484_shutdownTime && (!x518_contactGen || x518_contactGen->GetParticleCountAll() == 0)) {
       x4b4_expansionState = EExpansionState::Inactive;
       ResetBeam(mgr, true);
     }
@@ -259,8 +257,8 @@ void CPlasmaProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
     if (apsm)
       x520_weaponGen = std::make_unique<CElementGen>(apsm.m_token);
     if (x520_weaponGen && x520_weaponGen->SystemHasLight())
-      CreatePlasmaLights(x170_projectile.GetWeaponDescription().GetObjectTag()->id.Value(),
-                         x520_weaponGen->GetLight(), mgr);
+      CreatePlasmaLights(x170_projectile.GetWeaponDescription().GetObjectTag()->id.Value(), x520_weaponGen->GetLight(),
+                         mgr);
     else
       x520_weaponGen.reset();
     if (x548_28_drawOwnerFirst)
@@ -285,10 +283,9 @@ void CPlasmaProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
 void CPlasmaProjectile::MakeBillboardEffect(const std::optional<TToken<CGenDescription>>& particle,
                                             const std::optional<TToken<CElectricDescription>>& electric,
                                             std::string_view name, CStateManager& mgr) {
-  auto* effect = new CHUDBillboardEffect(particle, electric, mgr.AllocateUniqueId(), true, name,
-                                         CHUDBillboardEffect::GetNearClipDistance(mgr),
-                                         CHUDBillboardEffect::GetScaleForPOV(mgr),
-                                         zeus::skWhite, zeus::skOne3f, zeus::skZero3f);
+  auto* effect = new CHUDBillboardEffect(
+      particle, electric, mgr.AllocateUniqueId(), true, name, CHUDBillboardEffect::GetNearClipDistance(mgr),
+      CHUDBillboardEffect::GetScaleForPOV(mgr), zeus::skWhite, zeus::skOne3f, zeus::skZero3f);
   mgr.AddObject(effect);
 }
 
@@ -391,9 +388,7 @@ void CPlasmaProjectile::Touch(CActor& other, CStateManager& mgr) {
   // Empty
 }
 
-bool CPlasmaProjectile::CanRenderUnsorted(const CStateManager& mgr) const {
-  return false;
-}
+bool CPlasmaProjectile::CanRenderUnsorted(const CStateManager& mgr) const { return false; }
 
 void CPlasmaProjectile::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   if (GetActive()) {

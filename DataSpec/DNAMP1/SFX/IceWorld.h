@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup002D 45
-
 
 #define SFXice_x_gateopen_lp_00 1922
 #define SFXice_x_gatestop_00 1923
@@ -129,5 +127,3 @@
 #define SFXsfx07F7 2039
 #define SFXsfx07F8 2040
 #define SFXsfx07F9 2041
-
-

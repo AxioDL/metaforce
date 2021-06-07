@@ -30,7 +30,7 @@ void CScriptWaypoint::Accept(IVisitor& visitor) { visitor.Visit(this); }
 void CScriptWaypoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, sender, mgr);
   if (GetActive() && msg == EScriptObjectMessage::Arrived)
-      SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
+    SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
 }
 
 void CScriptWaypoint::AddToRenderer(const zeus::CFrustum&, CStateManager&) {

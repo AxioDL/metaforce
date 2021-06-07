@@ -48,7 +48,8 @@ CBodyStateInfo::CBodyStateInfo(CActor& actor, EBodyType type) {
   x1c_additiveStates.emplace_back(pas::EAnimationState::AdditiveReaction, std::make_unique<CABSReaction>());
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedFlyerBodyStates(pas::EAnimationState stateId, CActor& actor) const {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedFlyerBodyStates(pas::EAnimationState stateId,
+                                                                           CActor& actor) const {
   switch (stateId) {
   case pas::EAnimationState::Fall:
     return std::make_unique<CBSFall>();
@@ -138,7 +139,8 @@ std::unique_ptr<CBodyState> CBodyStateInfo::SetupNewFlyerBodyStates(pas::EAnimat
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupWallWalkerBodyStates(pas::EAnimationState stateId, CActor& actor) const {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupWallWalkerBodyStates(pas::EAnimationState stateId,
+                                                                      CActor& actor) const {
   switch (stateId) {
   case pas::EAnimationState::Fall:
     return std::make_unique<CBSFall>();
@@ -183,7 +185,8 @@ std::unique_ptr<CBodyState> CBodyStateInfo::SetupWallWalkerBodyStates(pas::EAnim
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupPitchableBodyStates(pas::EAnimationState stateId, CActor& actor) const {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupPitchableBodyStates(pas::EAnimationState stateId,
+                                                                     CActor& actor) const {
   switch (stateId) {
   case pas::EAnimationState::Fall:
     return std::make_unique<CBSFall>();
@@ -273,7 +276,8 @@ std::unique_ptr<CBodyState> CBodyStateInfo::SetupFlyerBodyStates(pas::EAnimation
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedBodyStates(pas::EAnimationState stateId, CActor& actor) const {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedBodyStates(pas::EAnimationState stateId,
+                                                                      CActor& actor) const {
   switch (stateId) {
   case pas::EAnimationState::Fall:
     return std::make_unique<CBSFall>();

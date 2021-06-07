@@ -46,8 +46,6 @@ void CScriptGrapplePoint::Render(CStateManager&) {
 
 std::optional<zeus::CAABox> CScriptGrapplePoint::GetTouchBounds() const { return {xe8_touchBounds}; }
 
-void CScriptGrapplePoint::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
-  CActor::EnsureRendered(mgr);
-}
+void CScriptGrapplePoint::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) { CActor::EnsureRendered(mgr); }
 
 } // namespace metaforce

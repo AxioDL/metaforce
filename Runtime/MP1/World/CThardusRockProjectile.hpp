@@ -32,15 +32,18 @@ class CThardusRockProjectile : public CPatterned {
   bool x5dc_ = false;
   bool x5dd_ = false;
   bool x5de_;
-  void DoExplosion(CStateManager& mgr, CAssetId particleId, const zeus::CVector3f& pos, const zeus::CVector3f& scale, u32 w2);
+  void DoExplosion(CStateManager& mgr, CAssetId particleId, const zeus::CVector3f& pos, const zeus::CVector3f& scale,
+                   u32 w2);
   void ExplodeAndShake(CStateManager& mgr, const zeus::CVector3f& pos);
   void ModifyActorMaterial(CStateManager& mgr, bool remove, EMaterialTypes mat);
   void SetChildrenActive(CStateManager& mgr, bool active);
   void InitializeCollisionManager(CStateManager& mgr);
-  void AddSphereCollisionList(const SSphereJointInfo* info, size_t count, std::vector<CJointCollisionDescription>& vecOut);
+  void AddSphereCollisionList(const SSphereJointInfo* info, size_t count,
+                              std::vector<CJointCollisionDescription>& vecOut);
   void SetMaterialProperties(const std::unique_ptr<CCollisionActorManager>& colMgr, CStateManager& mgr);
   void UpdateDestroyableRockPositions(CStateManager& mgr);
   void UpdateDestroyableRockCollisionActors(CStateManager& mgr);
+
 public:
   DEFINE_PATTERNED(ThardusRockProjectile);
   CThardusRockProjectile(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,

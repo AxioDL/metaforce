@@ -297,13 +297,11 @@ public:
                           const CMaterialFilter&);
   void ProcessRadiusDamage(const CActor&, CActor&, TUniqueId senderId, const CDamageInfo& info, const CMaterialFilter&);
   void ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&, const CDamageInfo& info);
-  bool TestRayDamage(const zeus::CVector3f& pos, const CActor& damagee,
-                     const EntityList& nearList) const;
+  bool TestRayDamage(const zeus::CVector3f& pos, const CActor& damagee, const EntityList& nearList) const;
   bool RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end, const CMaterialFilter& filter,
                        const CActor* damagee) const;
-  bool RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
-                       const EntityList& nearList, const CMaterialFilter& filter,
-                       const CActor* damagee) const;
+  bool RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end, const EntityList& nearList,
+                       const CMaterialFilter& filter, const CActor* damagee) const;
   bool RayCollideWorldInternal(const zeus::CVector3f& start, const zeus::CVector3f& end, const CMaterialFilter& filter,
                                const EntityList& nearList, const CActor* damagee) const;
   bool MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterialFilter& filter) const;
@@ -344,11 +342,10 @@ public:
   void AreaUnloaded(TAreaId);
   void PrepareAreaUnload(TAreaId);
   void AreaLoaded(TAreaId);
-  void BuildNearList(EntityList& listOut, const zeus::CVector3f&, const zeus::CVector3f&,
-                     float, const CMaterialFilter&, const CActor*) const;
-  void BuildColliderList(EntityList& listOut, const CActor&, const zeus::CAABox&) const;
-  void BuildNearList(EntityList& listOut, const zeus::CAABox&, const CMaterialFilter&,
+  void BuildNearList(EntityList& listOut, const zeus::CVector3f&, const zeus::CVector3f&, float, const CMaterialFilter&,
                      const CActor*) const;
+  void BuildColliderList(EntityList& listOut, const CActor&, const zeus::CAABox&) const;
+  void BuildNearList(EntityList& listOut, const zeus::CAABox&, const CMaterialFilter&, const CActor*) const;
   void UpdateActorInSortedLists(CActor&);
   void UpdateSortedLists();
   std::optional<zeus::CAABox> CalculateObjectBounds(const CActor&);
@@ -357,8 +354,7 @@ public:
   CRayCastResult RayStaticIntersection(const zeus::CVector3f& pos, const zeus::CVector3f& dir, float length,
                                        const CMaterialFilter& filter) const;
   CRayCastResult RayWorldIntersection(TUniqueId& idOut, const zeus::CVector3f& pos, const zeus::CVector3f& dir,
-                                      float length, const CMaterialFilter& filter,
-                                      const EntityList& list) const;
+                                      float length, const CMaterialFilter& filter, const EntityList& list) const;
   void UpdateObjectInLists(CEntity&);
   TUniqueId AllocateUniqueId();
   void DeferStateTransition(EStateManagerTransition t);

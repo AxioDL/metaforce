@@ -15,13 +15,7 @@ class CAnimData;
 class CStateManager;
 class CBodyController;
 
-enum class EBoneTrackingFlags {
-  None = 0,
-  NoParent = 1,
-  NoParentOrigin = 2,
-  NoHorizontalAim = 4,
-  ParentIk = 8
-};
+enum class EBoneTrackingFlags { None = 0, NoParent = 1, NoParentOrigin = 2, NoHorizontalAim = 4, ParentIk = 8 };
 ENABLE_BITWISE_ENUM(EBoneTrackingFlags)
 
 class CBoneTracking {
@@ -41,11 +35,11 @@ class CBoneTracking {
   bool x36_29_parentIk : 1;
 
 public:
-  CBoneTracking(const CAnimData& animData, std::string_view bone,
-                float maxTrackingAngle, float angSpeed, EBoneTrackingFlags flags);
+  CBoneTracking(const CAnimData& animData, std::string_view bone, float maxTrackingAngle, float angSpeed,
+                EBoneTrackingFlags flags);
   void Update(float dt);
-  void PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform& xf,
-                 const zeus::CVector3f& vec, const CBodyController& bodyController);
+  void PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform& xf, const zeus::CVector3f& vec,
+                 const CBodyController& bodyController);
   void PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform& worldXf,
                  const zeus::CVector3f& localOffsetScale, bool tracking);
   void SetActive(bool active);

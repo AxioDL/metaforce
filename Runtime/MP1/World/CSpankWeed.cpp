@@ -43,7 +43,7 @@ CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& 
     GetModelData()->SetScale(zeus::CVector3f(scale));
     SpankLog.report(logvisor::Level::Warning,
                     FMT_STRING("WARNING: Non-uniform scale {} applied to Spank Weed"
-                        "...changing scale to ({} {} {})\n"),
+                               "...changing scale to ({} {} {})\n"),
                     modelScale, scale, scale, scale);
   }
   CMaterialList list = GetMaterialFilter().GetExcludeList();

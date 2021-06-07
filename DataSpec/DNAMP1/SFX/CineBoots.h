@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup003B 59
-
 
 #define SFXci7_x_jump_00 2972
 #define SFXsja_c_electric_lp_00 2973
@@ -29,5 +27,3 @@
 #define SFXsfx0BAD 2989
 #define SFXsfx0BAE 2990
 #define SFXsfx0BAF 2991
-
-

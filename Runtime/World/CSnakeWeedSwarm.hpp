@@ -96,8 +96,8 @@ public:
                   const CActorParameters& actParms, float spacing, float height, float f3, float weaponDamageRadius,
                   float maxPlayerDistance, float loweredTime, float loweredTimeVariation, float maxZOffset, float speed,
                   float speedVariation, float f11, float scaleMin, float scaleMax, float distanceBelowGround,
-                  const CDamageInfo& dInfo, float /*f15*/, u32 sfxId1, u32 sfxId2, u32 sfxId3, CAssetId particleGenDesc1, u32 w5,
-                  CAssetId particleGenDesc2, float f16);
+                  const CDamageInfo& dInfo, float /*f15*/, u32 sfxId1, u32 sfxId2, u32 sfxId3,
+                  CAssetId particleGenDesc1, u32 w5, CAssetId particleGenDesc2, float f16);
 
   void Accept(IVisitor&) override;
   void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr);

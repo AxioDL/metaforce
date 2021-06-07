@@ -11,9 +11,7 @@
 namespace metaforce {
 CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                bool active, CAssetId worldId, CAssetId areaId)
-: CEntity(uid, info, active, name)
-, x34_worldId(worldId)
-, x38_areaId(areaId) {}
+: CEntity(uid, info, active, name), x34_worldId(worldId), x38_areaId(areaId) {}
 
 CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                bool active, CAssetId worldId, CAssetId areaId, CAssetId playerAncs,

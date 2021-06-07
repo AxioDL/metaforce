@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPweapons 43
-
 
 #define SFXwpn_bomb_drop 1756
 #define SFXsfx06DD 1757
@@ -145,5 +143,3 @@
 #define SFXsfx0761 1889
 #define SFXsfx0762 1890
 #define SFXsfx0763 1891
-
-

@@ -31,7 +31,7 @@ class CPFAreaOctree {
   u32 x0_isLeaf;
   zeus::CAABox x4_aabb;
   zeus::CVector3f x1c_center;
-  std::array<CPFAreaOctree*, 8> x28_children {};
+  std::array<CPFAreaOctree*, 8> x28_children{};
   rstl::prereserved_vector<CPFRegion*> x48_regions;
 
 public:

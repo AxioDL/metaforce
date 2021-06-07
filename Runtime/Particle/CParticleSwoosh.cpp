@@ -933,8 +933,8 @@ void CParticleSwoosh::Render(const CActorLights*) {
     return;
   }
 
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CParticleSwoosh::Render {}"),
-    *x1c_desc.GetObjectTag()).c_str(), zeus::skYellow);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CParticleSwoosh::Render {}"), *x1c_desc.GetObjectTag()).c_str(),
+                              zeus::skYellow);
 
   m_cachedVerts.clear();
   if (m_dataBind[0]) {
@@ -1065,7 +1065,8 @@ std::optional<zeus::CAABox> CParticleSwoosh::GetBounds() const {
     const zeus::CVector3f trans = x38_translation + xa4_globalTranslation;
     return zeus::CAABox(trans, trans);
   } else {
-    const zeus::CTransform xf = zeus::CTransform::Translate(xa4_globalTranslation) * xb0_globalOrientation * xec_scaleXf;
+    const zeus::CTransform xf =
+        zeus::CTransform::Translate(xa4_globalTranslation) * xb0_globalOrientation * xec_scaleXf;
     return zeus::CAABox(x1f0_aabbMin - x208_maxRadius, x1fc_aabbMax + x208_maxRadius).getTransformedAABox(xf);
   }
 }
@@ -1074,9 +1075,7 @@ u32 CParticleSwoosh::GetParticleCount() const { return x1ac_particleCount; }
 
 bool CParticleSwoosh::SystemHasLight() const { return false; }
 
-CLight CParticleSwoosh::GetLight() const {
-  return CLight::BuildLocalAmbient(zeus::skZero3f, zeus::skWhite);
-}
+CLight CParticleSwoosh::GetLight() const { return CLight::BuildLocalAmbient(zeus::skZero3f, zeus::skWhite); }
 
 bool CParticleSwoosh::GetParticleEmission() const { return x1d0_24_emitting; }
 

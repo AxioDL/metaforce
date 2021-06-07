@@ -183,8 +183,8 @@ protected:
   bool m_backgroundRunning = false;
 
   void readCatalog(const hecl::ProjectPath& catalogPath, athena::io::YAMLDocWriter& nameWriter);
-  void insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const metaforce::SObjectTag& tag, const hecl::ProjectPath& path,
-                     bool dump = true);
+  void insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const metaforce::SObjectTag& tag,
+                     const hecl::ProjectPath& path, bool dump = true);
   bool addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDocWriter& cacheWriter);
   void backgroundIndexRecursiveProc(const hecl::ProjectPath& path, athena::io::YAMLDocWriter& cacheWriter,
                                     athena::io::YAMLDocWriter& nameWriter, int level);
@@ -196,8 +196,9 @@ protected:
                                   std::unordered_set<metaforce::SObjectTag>& addedTags, const hecl::ProjectPath& path,
                                   hecl::blender::Token& btok);
   void copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& fileIndex,
-                         const std::vector<metaforce::SObjectTag>& buildList, const hecl::Database::DataSpecEntry* entry,
-                         bool fast, const hecl::MultiProgressPrinter& progress, athena::io::FileWriter& pakOut,
+                         const std::vector<metaforce::SObjectTag>& buildList,
+                         const hecl::Database::DataSpecEntry* entry, bool fast,
+                         const hecl::MultiProgressPrinter& progress, athena::io::FileWriter& pakOut,
                          const std::unordered_map<metaforce::CAssetId, std::vector<uint8_t>>& mlvlData);
 
   std::unique_ptr<nod::DiscBase> m_disc;

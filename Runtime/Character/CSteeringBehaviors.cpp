@@ -71,8 +71,8 @@ zeus::CVector3f CSteeringBehaviors::Alignment(const CPhysicsActor& actor, Entity
   return align * (diff / M_PIF);
 }
 
-zeus::CVector3f CSteeringBehaviors::Cohesion(const CPhysicsActor& actor, EntityList& list,
-                                             float dampingRadius, const CStateManager& mgr) const {
+zeus::CVector3f CSteeringBehaviors::Cohesion(const CPhysicsActor& actor, EntityList& list, float dampingRadius,
+                                             const CStateManager& mgr) const {
   zeus::CVector3f dest;
   if (!list.empty()) {
     for (const TUniqueId& id : list)

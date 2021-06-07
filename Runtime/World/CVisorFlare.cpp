@@ -63,15 +63,16 @@ void CVisorFlare::Update(float dt, const zeus::CVector3f& pos, const CActor* act
     x24_ = 1.f - (x28_ / x18_f1);
 
     const CGameCamera* curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
-    x24_ *= std::max(0.f, 1.f - (4.f * x1c_f2 * (1.f - (pos - curCam->GetTranslation()).dot(curCam->GetTransform().basis[1]))));
+    x24_ *= std::max(
+        0.f, 1.f - (4.f * x1c_f2 * (1.f - (pos - curCam->GetTranslation()).dot(curCam->GetTransform().basis[1]))));
 
     if (x2c_w1 == 2) {
       mgr.SetThermalColdScale2(mgr.GetThermalColdScale2() + x24_);
     }
 
-//#ifndef NDEBUG
-//    printf("%08X %f %f\n", act->GetEditorId().id, x24_, x28_);
-//#endif
+    //#ifndef NDEBUG
+    //    printf("%08X %f %f\n", act->GetEditorId().id, x24_, x28_);
+    //#endif
   }
 }
 
@@ -91,8 +92,8 @@ void CVisorFlare::Render(const zeus::CVector3f& pos, const CStateManager& mgr) c
       return;
     CGraphics::DisableAllLights();
     // g_Renderer->SetDepthReadWrite(false, false);
-    //const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
-    //zeus::CVector3f camPos = cam->GetTranslation();
+    // const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+    // zeus::CVector3f camPos = cam->GetTranslation();
   }
 }
 

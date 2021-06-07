@@ -28,10 +28,12 @@ std::array<u32, 4> skUnkInts1{{0, 1, 0, 2}};
 std::array<u32, 3> skUnkInts2{{1, 2, 3}};
 
 } // namespace
-CMetroidPrimeEssence::CMetroidPrimeEssence(metaforce::TUniqueId uid, std::string_view name, const metaforce::CEntityInfo& info,
-                                           const zeus::CTransform& xf,
-                                           metaforce::CModelData&& mData,
-                                           const metaforce::CPatternedInfo& pInfo, const metaforce::CActorParameters& actParms, metaforce::CAssetId particle1, const metaforce::CDamageInfo& dInfo, float f1, metaforce::CAssetId electric, u32 w1, metaforce::CAssetId particle2)
+CMetroidPrimeEssence::CMetroidPrimeEssence(metaforce::TUniqueId uid, std::string_view name,
+                                           const metaforce::CEntityInfo& info, const zeus::CTransform& xf,
+                                           metaforce::CModelData&& mData, const metaforce::CPatternedInfo& pInfo,
+                                           const metaforce::CActorParameters& actParms, metaforce::CAssetId particle1,
+                                           const metaforce::CDamageInfo& dInfo, float f1, metaforce::CAssetId electric,
+                                           u32 w1, metaforce::CAssetId particle2)
 : CPatterned(ECharacter::MetroidPrimeEssence, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::Medium)
 , x568_(g_SimplePool->GetObj({FOURCC('PART'), particle2}))

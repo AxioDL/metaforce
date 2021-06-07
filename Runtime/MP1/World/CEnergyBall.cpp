@@ -99,4 +99,4 @@ void CEnergyBall::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 void CEnergyBall::sub8029f4a8(CStateManager& mgr) {}
-}
+} // namespace metaforce::MP1

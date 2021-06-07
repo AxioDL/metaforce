@@ -58,8 +58,8 @@ int CCameraManager::AddCameraShaker(const CCameraShakeData& data, bool sfx) {
     float vol = zeus::clamp(100.f, std::max(data.GetMaxAMComponent(), data.GetMaxFMComponent()) * 9.f + 100.f, 127.f);
     CSfxHandle sfxHandle;
     if (data.xc0_flags & 0x1)
-      sfxHandle = CSfxManager::AddEmitter(SFXamb_x_rumble_lp_00, data.xc4_sfxPos, zeus::skZero3f, vol / 127.f,
-                                          false, false, 0x7f, kInvalidAreaId);
+      sfxHandle = CSfxManager::AddEmitter(SFXamb_x_rumble_lp_00, data.xc4_sfxPos, zeus::skZero3f, vol / 127.f, false,
+                                          false, 0x7f, kInvalidAreaId);
     else
       sfxHandle = CSfxManager::SfxStart(SFXamb_x_rumble_lp_00, vol / 127.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     sfxHandle->SetTimeRemaining(data.x0_duration);
@@ -631,11 +631,10 @@ void CCameraManager::SetPlayerCamera(CStateManager& mgr, TUniqueId newCamId) {
 }
 
 float CCameraManager::GetCameraBobMagnitude() const {
-  return 1.f - zeus::clamp(
-                   -1.f,
-                   std::fabs(zeus::clamp(-1.f, x7c_fpCamera->GetTransform().basis[1].dot(zeus::skUp), 1.f)) /
-                       std::cos(2.f * M_PIF / 12.f),
-                   1.f);
+  return 1.f - zeus::clamp(-1.f,
+                           std::fabs(zeus::clamp(-1.f, x7c_fpCamera->GetTransform().basis[1].dot(zeus::skUp), 1.f)) /
+                               std::cos(2.f * M_PIF / 12.f),
+                           1.f);
 }
 
 bool CCameraManager::HasBallCameraInitialPositionHint(CStateManager& mgr) const {
@@ -699,7 +698,8 @@ void CCameraManager::AddActiveCameraHint(TUniqueId id, CStateManager& mgr) {
   if (const TCastToConstPtr<CScriptCameraHint> hint = mgr.ObjectById(id)) {
     const auto search = std::find_if(x334_activeCameraHints.cbegin(), x334_activeCameraHints.cend(),
                                      [id](TUniqueId tid) { return tid == id; });
-    if (search == x334_activeCameraHints.cend() && xac_cameraHints.size() != 64 && x334_activeCameraHints.size() != 64) {
+    if (search == x334_activeCameraHints.cend() && xac_cameraHints.size() != 64 &&
+        x334_activeCameraHints.size() != 64) {
       x334_activeCameraHints.push_back(id);
     }
   }

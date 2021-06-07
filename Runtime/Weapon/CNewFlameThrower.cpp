@@ -664,8 +664,7 @@ int CNewFlameThrower::SortAndFindOverlappingPoints(Cube const& box) {
   return min_overlap;
 }
 
-bool CNewFlameThrower::FindCollisionInNearList(CStateManager& mgr,
-                                               EntityList const& near_list,
+bool CNewFlameThrower::FindCollisionInNearList(CStateManager& mgr, EntityList const& near_list,
                                                CCollisionPrimitive const& coll, TUniqueId& first_coll_out,
                                                CCollisionInfoList& collisions) {
   for (TUniqueId const& cur_uid : near_list) {

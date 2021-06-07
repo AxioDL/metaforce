@@ -343,9 +343,8 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
       xc8_suitModel0->GetAnimationData()->SubstituteModelData(backupModelData);
     }
 
-    x134_suitModelBoots->InvSuitDraw(CModelData::EWhichModel::Normal, zeus::CTransform(),
-                                     x24c_actorLights.get(), zeus::CColor(1.f, alpha),
-                                     zeus::CColor(1.f, alpha * bootsPulse));
+    x134_suitModelBoots->InvSuitDraw(CModelData::EWhichModel::Normal, zeus::CTransform(), x24c_actorLights.get(),
+                                     zeus::CColor(1.f, alpha), zeus::CColor(1.f, alpha * bootsPulse));
 
     {
       CGraphics::SetModelMatrix(gunXf);

@@ -22,6 +22,7 @@ class CBurrower : public CPatterned {
   s16 x6aa_visorSfx;
   bool x6ac_24_doFacePlayer : 1 = false;
   bool x6ac_25_inAir : 1 = false;
+
 public:
   DEFINE_PATTERNED(Burrower);
   CBurrower(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,

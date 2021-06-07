@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0025 37
-
 
 #define SFXwar_b_idle_lp_00 1027
 #define SFXwa2_a_stinger_00 1028
@@ -72,5 +70,3 @@
 #define SFXsfx043F 1087
 #define SFXsfx0440 1088
 #define SFXsfx0441 1089
-
-

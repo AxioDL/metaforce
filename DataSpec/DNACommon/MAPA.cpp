@@ -146,10 +146,9 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
         "    edge.seam = True\n"
         "\n";
 
-  os.format(FMT_STRING(
-      "bpy.context.scene.name = 'MAPA_{}'\n"
-      "bpy.context.scene.retro_map_vis_mode = '{}'\n"),
-      entry.id, RetroMapVisModes[mapa.header->visMode()]);
+  os.format(FMT_STRING("bpy.context.scene.name = 'MAPA_{}'\n"
+                       "bpy.context.scene.retro_map_vis_mode = '{}'\n"),
+            entry.id, RetroMapVisModes[mapa.header->visMode()]);
 
   /* Add empties representing MappableObjects */
   int moIdx = 0;
@@ -159,21 +158,20 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
       zeus::simd_floats mtxF[3];
       for (int i = 0; i < 3; ++i)
         moMP12->transformMtx[i].simd.copy_to(mtxF[i]);
-      os.format(FMT_STRING(
-          "obj = bpy.data.objects.new('MAPOBJ_{:02d}', None)\n"
-          "bpy.context.scene.collection.objects.link(obj)\n"
-          "obj.retro_mappable_type = {}\n"
-          "obj.retro_mapobj_vis_mode = '{}'\n"
-          "obj.retro_mappable_sclyid = '0x{:08X}'\n"
-          "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
-          "mtxd = mtx.decompose()\n"
-          "obj.rotation_mode = 'QUATERNION'\n"
-          "obj.location = mtxd[0]\n"
-          "obj.rotation_quaternion = mtxd[1]\n"
-          "obj.scale = mtxd[2]\n"),
-          moIdx, int(moMP12->type), RetroMapObjVisModes[moMP12->visMode], moMP12->sclyId, mtxF[0][0], mtxF[0][1],
-          mtxF[0][2], mtxF[0][3], mtxF[1][0], mtxF[1][1], mtxF[1][2], mtxF[1][3], mtxF[2][0], mtxF[2][1], mtxF[2][2],
-          mtxF[2][3]);
+      os.format(FMT_STRING("obj = bpy.data.objects.new('MAPOBJ_{:02d}', None)\n"
+                           "bpy.context.scene.collection.objects.link(obj)\n"
+                           "obj.retro_mappable_type = {}\n"
+                           "obj.retro_mapobj_vis_mode = '{}'\n"
+                           "obj.retro_mappable_sclyid = '0x{:08X}'\n"
+                           "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
+                           "mtxd = mtx.decompose()\n"
+                           "obj.rotation_mode = 'QUATERNION'\n"
+                           "obj.location = mtxd[0]\n"
+                           "obj.rotation_quaternion = mtxd[1]\n"
+                           "obj.scale = mtxd[2]\n"),
+                moIdx, int(moMP12->type), RetroMapObjVisModes[moMP12->visMode], moMP12->sclyId, mtxF[0][0], mtxF[0][1],
+                mtxF[0][2], mtxF[0][3], mtxF[1][0], mtxF[1][1], mtxF[1][2], mtxF[1][3], mtxF[2][0], mtxF[2][1],
+                mtxF[2][2], mtxF[2][3]);
       ++moIdx;
       continue;
     } else {
@@ -181,21 +179,20 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
       zeus::simd_floats mtxF[3];
       for (int i = 0; i < 3; ++i)
         moMP3->transformMtx[i].simd.copy_to(mtxF[i]);
-      os.format(FMT_STRING(
-          "obj = bpy.data.objects.new('MAPOBJ_{:02d}', None)\n"
-          "bpy.context.scene.collection.objects.link(obj)\n"
-          "obj.retro_mappable_type = {}\n"
-          "obj.retro_mapobj_vis_mode = '{}'\n"
-          "obj.retro_mappable_sclyid = '0x{:08X}'\n"
-          "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
-          "mtxd = mtx.decompose()\n"
-          "obj.rotation_mode = 'QUATERNION'\n"
-          "obj.location = mtxd[0]\n"
-          "obj.rotation_quaternion = mtxd[1]\n"
-          "obj.scale = mtxd[2]\n"),
-          moIdx, int(moMP3->type), RetroMapObjVisModes[moMP3->visMode], moMP3->sclyId, mtxF[0][0], mtxF[0][1],
-          mtxF[0][2], mtxF[0][3], mtxF[1][0], mtxF[1][1], mtxF[1][2], mtxF[1][3], mtxF[2][0], mtxF[2][1], mtxF[2][2],
-          mtxF[2][3]);
+      os.format(FMT_STRING("obj = bpy.data.objects.new('MAPOBJ_{:02d}', None)\n"
+                           "bpy.context.scene.collection.objects.link(obj)\n"
+                           "obj.retro_mappable_type = {}\n"
+                           "obj.retro_mapobj_vis_mode = '{}'\n"
+                           "obj.retro_mappable_sclyid = '0x{:08X}'\n"
+                           "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
+                           "mtxd = mtx.decompose()\n"
+                           "obj.rotation_mode = 'QUATERNION'\n"
+                           "obj.location = mtxd[0]\n"
+                           "obj.rotation_quaternion = mtxd[1]\n"
+                           "obj.scale = mtxd[2]\n"),
+                moIdx, int(moMP3->type), RetroMapObjVisModes[moMP3->visMode], moMP3->sclyId, mtxF[0][0], mtxF[0][1],
+                mtxF[0][2], mtxF[0][3], mtxF[1][0], mtxF[1][1], mtxF[1][2], mtxF[1][3], mtxF[2][0], mtxF[2][1],
+                mtxF[2][2], mtxF[2][3]);
       ++moIdx;
       continue;
     }
@@ -278,15 +275,14 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
 
   const zeus::CMatrix4f* tmpMtx = pakRouter.lookupMAPATransform(entry.id);
   const zeus::CMatrix4f& mtx = tmpMtx ? *tmpMtx : zeus::skIdentityMatrix4f;
-  os.format(FMT_STRING(
-      "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
-      "mtxd = mtx.decompose()\n"
-      "obj.rotation_mode = 'QUATERNION'\n"
-      "obj.location = mtxd[0]\n"
-      "obj.rotation_quaternion = mtxd[1]\n"
-      "obj.scale = mtxd[2]\n"),
-      mtx[0][0], mtx[1][0], mtx[2][0], mtx[3][0], mtx[0][1], mtx[1][1], mtx[2][1], mtx[3][1], mtx[0][2], mtx[1][2],
-      mtx[2][2], mtx[3][2]);
+  os.format(FMT_STRING("mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
+                       "mtxd = mtx.decompose()\n"
+                       "obj.rotation_mode = 'QUATERNION'\n"
+                       "obj.location = mtxd[0]\n"
+                       "obj.rotation_quaternion = mtxd[1]\n"
+                       "obj.scale = mtxd[2]\n"),
+            mtx[0][0], mtx[1][0], mtx[2][0], mtx[3][0], mtx[0][1], mtx[1][1], mtx[2][1], mtx[3][1], mtx[0][2],
+            mtx[1][2], mtx[2][2], mtx[3][2]);
 
   /* World background */
   hecl::ProjectPath worldDir = outPath.getParentPath().getParentPath();

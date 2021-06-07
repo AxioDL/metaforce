@@ -4,9 +4,7 @@
 
 namespace metaforce {
 
-CRumbleGenerator::CRumbleGenerator() {
-  HardStopAll();
-}
+CRumbleGenerator::CRumbleGenerator() { HardStopAll(); }
 
 CRumbleGenerator::~CRumbleGenerator() { HardStopAll(); }
 

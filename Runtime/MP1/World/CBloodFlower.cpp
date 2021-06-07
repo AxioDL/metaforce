@@ -116,7 +116,8 @@ void CBloodFlower::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
-void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateManager& mgr, float var_f1, s32 maxProjectiles) {
+void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateManager& mgr, float var_f1,
+                                          s32 maxProjectiles) {
   CProjectileInfo* proj = GetProjectileInfo();
   TLockedToken<CWeaponDescription> projToken = proj->Token();
 
@@ -137,8 +138,7 @@ void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateMana
           CreateArcProjectile(mgr, GetProjectileInfo()->Token(), zeus::CTransform::Translate(xf.origin),
                               GetProjectileInfo()->GetDamage(), kInvalidUniqueId)) {
     targProj->ProjectileWeapon().SetVelocity(CProjectileWeapon::GetTickPeriod() * vel);
-    targProj->ProjectileWeapon().SetGravity(CProjectileWeapon::GetTickPeriod() *
-                                            zeus::CVector3f(0.f, 0.f, -4.905f));
+    targProj->ProjectileWeapon().SetGravity(CProjectileWeapon::GetTickPeriod() * zeus::CVector3f(0.f, 0.f, -4.905f));
     mgr.AddObject(targProj);
   }
 }

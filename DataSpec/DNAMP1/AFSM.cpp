@@ -99,8 +99,6 @@ void AFSM::State::Transition::Trigger::Enumerate<BigDNA::BinarySize>(size_t& __i
   __isz += (first ? 8 : 4);
 }
 
-std::string_view AFSM::State::Transition::Trigger::DNAType() {
-  return "DNAMP1::AFSM::State::Transition::Trigger"sv;
-}
+std::string_view AFSM::State::Transition::Trigger::DNAType() { return "DNAMP1::AFSM::State::Transition::Trigger"sv; }
 
 } // namespace DataSpec::DNAMP1

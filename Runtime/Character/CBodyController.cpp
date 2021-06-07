@@ -12,10 +12,7 @@
 namespace metaforce {
 
 CBodyController::CBodyController(CActor& actor, float turnSpeed, EBodyType bodyType)
-: x0_actor(actor)
-, x2a4_bodyStateInfo(actor, bodyType)
-, x2f4_bodyType(bodyType)
-, x2fc_turnSpeed(turnSpeed) {
+: x0_actor(actor), x2a4_bodyStateInfo(actor, bodyType), x2f4_bodyType(bodyType), x2fc_turnSpeed(turnSpeed) {
   x2a4_bodyStateInfo.x18_bodyController = this;
 }
 

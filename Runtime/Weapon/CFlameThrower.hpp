@@ -10,13 +10,8 @@ class CFlameInfo;
 class CElementGen;
 class CFlameThrower : public CGameProjectile {
 public:
-  enum class EFlameState {
-    Default,
-    FireStart,
-    FireActive,
-    FireStopTimer,
-    FireWaitForParticlesDone
-  };
+  enum class EFlameState { Default, FireStart, FireActive, FireStopTimer, FireWaitForParticlesDone };
+
 private:
   static const zeus::CVector3f kLightOffset;
   zeus::CTransform x2e8_flameXf;
@@ -41,6 +36,7 @@ private:
   void UpdateFlameState(float, CStateManager&);
   CRayCastResult DoCollisionCheck(TUniqueId& idOut, const zeus::CAABox& aabb, CStateManager& mgr);
   void ApplyDamageToActor(CStateManager& mgr, TUniqueId id, float dt);
+
 public:
   DEFINE_ENTITY
   CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,

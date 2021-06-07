@@ -2,6 +2,7 @@
 
 import bpy
 
+
 # Root Eevee Nodes
 
 # Additive output node
@@ -32,6 +33,7 @@ def make_additive_output():
     new_grp.links.new(transparent_bdsf.outputs[0], emissive_add_shader.inputs[0])
     new_grp.links.new(emissive_add_shader.outputs[0], mat_out.inputs['Surface'])
 
+
 # Blend output node
 def make_blend_opaque_output():
     for tp in ('HECLBlendOutput', 'HECLOpaqueOutput'):
@@ -50,7 +52,8 @@ def make_blend_opaque_output():
         # Links
         new_grp.links.new(grp_in.outputs['Surface'], mat_out.inputs['Surface'])
 
-#0 - RetroShader
+
+# 0 - RetroShader
 def make_retro_shader():
     new_grp = bpy.data.node_groups.new('RetroShader', 'ShaderNodeTree')
     surface_output = new_grp.outputs.new('NodeSocketShader', 'Surface')
@@ -215,6 +218,7 @@ def make_retro_shader():
     new_grp.links.new(transparent_bdsf.outputs['BSDF'], alpha_mix.inputs[1])
     new_grp.links.new(final_add_shader.outputs['Shader'], alpha_mix.inputs[2])
     new_grp.links.new(alpha_mix.outputs['Shader'], mat_out.inputs['Surface'])
+
 
 def make_retro_dynamic_shader():
     new_grp = bpy.data.node_groups.new('RetroDynamicShader', 'ShaderNodeTree')
@@ -385,6 +389,7 @@ def make_retro_dynamic_shader():
     new_grp.links.new(transparent_bdsf.outputs['BSDF'], alpha_mix.inputs[1])
     new_grp.links.new(final_add_shader.outputs['Shader'], alpha_mix.inputs[2])
     new_grp.links.new(alpha_mix.outputs['Shader'], mat_out.inputs['Surface'])
+
 
 def make_retro_dynamic_alpha_shader():
     new_grp = bpy.data.node_groups.new('RetroDynamicAlphaShader', 'ShaderNodeTree')
@@ -567,6 +572,7 @@ def make_retro_dynamic_alpha_shader():
     new_grp.links.new(final_add_shader.outputs['Shader'], alpha_mix.inputs[2])
     new_grp.links.new(alpha_mix.outputs['Shader'], mat_out.inputs['Surface'])
 
+
 def make_retro_dynamic_character_shader():
     new_grp = bpy.data.node_groups.new('RetroDynamicCharacterShader', 'ShaderNodeTree')
     surface_output = new_grp.outputs.new('NodeSocketShader', 'Surface')
@@ -720,6 +726,7 @@ def make_retro_dynamic_character_shader():
     new_grp.links.new(transparent_bdsf.outputs['BSDF'], alpha_mix.inputs[1])
     new_grp.links.new(final_add_shader.outputs['Shader'], alpha_mix.inputs[2])
     new_grp.links.new(alpha_mix.outputs['Shader'], mat_out.inputs['Surface'])
+
 
 # MP3 / DKCR Material Passes:
 # https://wiki.axiodl.com/w/Materials_(Metroid_Prime_3)
@@ -1000,6 +1007,7 @@ def make_retro_shader_mp3_color():
     new_grp.links.new(nodes["Mix Shader"].outputs[0], nodes["Add Shader.011"].inputs[0])
     new_grp.links.new(nodes["Group Input"].outputs[12], nodes["Transparent BSDF"].inputs[0])
 
+
 def make_retro_shader_mp3_bloom():
     new_grp = bpy.data.node_groups.new("__RetroShaderMP3Bloom", "ShaderNodeTree")
     new_grp.use_fake_user = True
@@ -1191,6 +1199,7 @@ def make_retro_shader_mp3_bloom():
     new_grp.links.new(nodes["Add Shader.001"].outputs[0], nodes["Add Shader"].inputs[1])
     new_grp.links.new(nodes["Group Input"].outputs[11], nodes["Transparent BSDF.001"].inputs[0])
 
+
 def make_retro_shader_mp3():
     new_grp = bpy.data.node_groups.new("RetroShaderMP3", "ShaderNodeTree")
     new_grp.use_fake_user = True
@@ -1368,6 +1377,7 @@ def make_retro_shader_mp3():
     new_grp.links.new(nodes["Group Input"].outputs[18], nodes["Group.001"].inputs[12])
     new_grp.links.new(nodes["Group Input"].outputs[18], nodes["Group"].inputs[11])
 
+
 ROOT_SHADER_GROUPS = (
     make_retro_shader,
     make_retro_dynamic_shader,
@@ -1377,6 +1387,7 @@ ROOT_SHADER_GROUPS = (
     make_retro_shader_mp3_bloom,
     make_retro_shader_mp3
 )
+
 
 # UV animation nodes:
 # https://wiki.axiodl.com/w/Materials_(Metroid_Prime)#UV_Animations
@@ -1415,6 +1426,7 @@ def make_uva0():
     new_grp.links.new(vec_xf.outputs[0], uv_scale.inputs[0])
     new_grp.links.new(uv_scale.outputs[0], grp_out.inputs[0])
 
+
 # 1 - Modelview Inverse
 def make_uva1():
     new_grp = bpy.data.node_groups.new('RetroUVMode1NodeN', 'ShaderNodeTree')
@@ -1432,6 +1444,7 @@ def make_uva1():
 
     # Links
     new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
+
 
 # 2 - UV Scroll
 def make_uva2():
@@ -1474,6 +1487,7 @@ def make_uva2():
     new_grp.links.new(adder1.outputs[0], adder2.inputs[1])
     new_grp.links.new(adder2.outputs[0], grp_out.inputs[0])
 
+
 # 3 - Rotation
 def make_uva3():
     new_grp = bpy.data.node_groups.new('RetroUVMode3Node', 'ShaderNodeTree')
@@ -1508,6 +1522,7 @@ def make_uva3():
     new_grp.links.new(grp_in.outputs[1], add1.inputs[0])
     new_grp.links.new(grp_in.outputs[2], mult.inputs[0])
     new_grp.links.new(mult.outputs[0], add1.inputs[1])
+
 
 # 4 - Horizontal Filmstrip Animation
 def make_uva4():
@@ -1594,6 +1609,7 @@ def make_uva4():
     new_grp.links.new(map1.outputs[0], add1.inputs[0])
     new_grp.links.new(add1.outputs[0], grp_out.inputs[0])
 
+
 # 5 - Vertical Filmstrip Animation
 def make_uva5():
     new_grp = bpy.data.node_groups.new('RetroUVMode5Node', 'ShaderNodeTree')
@@ -1679,6 +1695,7 @@ def make_uva5():
     new_grp.links.new(map1.outputs[0], add1.inputs[0])
     new_grp.links.new(add1.outputs[0], grp_out.inputs[0])
 
+
 # 6 - Model Matrix
 def make_uva6():
     new_grp = bpy.data.node_groups.new('RetroUVMode6NodeN', 'ShaderNodeTree')
@@ -1707,6 +1724,7 @@ def make_uva6():
     new_grp.links.new(grp_in.outputs[0], adder1.inputs[0])
     new_grp.links.new(geom_in.outputs['Object'], adder1.inputs[1])
     new_grp.links.new(adder1.outputs[0], grp_out.inputs[0])
+
 
 # 7 - Mode Who Must Not Be Named
 def make_uva7():
@@ -1807,6 +1825,7 @@ def make_uva7():
     new_grp.links.new(mult5.outputs[0], add2.inputs[1])
     new_grp.links.new(add2.outputs[0], grp_out.inputs[0])
 
+
 # 8 - Mode 8
 def make_uva8():
     new_grp = bpy.data.node_groups.new('RetroUVMode8Node', 'ShaderNodeTree')
@@ -1834,6 +1853,7 @@ def make_uva8():
     # Links
     new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
 
+
 UV_ANIMATION_GROUPS = (
     make_uva0,
     make_uva1,
@@ -1846,6 +1866,7 @@ UV_ANIMATION_GROUPS = (
     make_uva8
 )
 
+
 def make_master_shader_library():
     make_additive_output()
     make_blend_opaque_output()
@@ -1853,4 +1874,3 @@ def make_master_shader_library():
         shad()
     for uva in UV_ANIMATION_GROUPS:
         uva()
-

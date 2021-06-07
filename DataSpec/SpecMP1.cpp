@@ -992,8 +992,8 @@ struct SpecMP1 : SpecBase {
   }
 
   void buildWorldPakList(const hecl::ProjectPath& worldPath, const hecl::ProjectPath& worldPathCooked,
-                         hecl::blender::Token& btok, athena::io::FileWriter& w, std::vector<metaforce::SObjectTag>& listOut,
-                         atUint64& resTableOffset,
+                         hecl::blender::Token& btok, athena::io::FileWriter& w,
+                         std::vector<metaforce::SObjectTag>& listOut, atUint64& resTableOffset,
                          std::unordered_map<metaforce::CAssetId, std::vector<uint8_t>>& mlvlData) override {
     DNAMP1::MLVL mlvl;
     {
@@ -1151,7 +1151,8 @@ struct SpecMP1 : SpecBase {
     }
   }
 
-  void buildPakList(hecl::blender::Token& btok, athena::io::FileWriter& w, const std::vector<metaforce::SObjectTag>& list,
+  void buildPakList(hecl::blender::Token& btok, athena::io::FileWriter& w,
+                    const std::vector<metaforce::SObjectTag>& list,
                     const std::vector<std::pair<metaforce::SObjectTag, std::string>>& nameList,
                     atUint64& resTableOffset) override {
     w.writeUint32Big(m_pc ? 0x80030005 : 0x00030005);

@@ -21,8 +21,7 @@ namespace metaforce {
 u16 CParticleElectric::g_GlobalSeed = 99;
 
 CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
-: x1c_elecDesc(token)
-, x14c_randState(g_GlobalSeed++) {
+: x1c_elecDesc(token), x14c_randState(g_GlobalSeed++) {
   x1bc_allocated.resize(32);
 
   CElectricDescription* desc = x1c_elecDesc.GetObj();
@@ -609,8 +608,8 @@ bool CParticleElectric::Update(double dt) {
 }
 
 void CParticleElectric::Render(const CActorLights* lights) {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CParticleElectric::Render {}"),
-    *x1c_elecDesc.GetObjectTag()).c_str(), zeus::skYellow);
+  SCOPED_GRAPHICS_DEBUG_GROUP(
+      fmt::format(FMT_STRING("CParticleElectric::Render {}"), *x1c_elecDesc.GetObjectTag()).c_str(), zeus::skYellow);
 
   if (!x3e8_electricManagers.empty()) {
     if (x450_29_transformDirty) {

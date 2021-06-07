@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0037 55
-
 
 #define SFXtha_b_voxangry_02 2703
 #define SFXtha_b_move_00 2704
@@ -77,5 +75,3 @@
 #define SFXsfx0AD0 2768
 #define SFXsfx0AD1 2769
 #define SFXsfx0AD2 2770
-
-

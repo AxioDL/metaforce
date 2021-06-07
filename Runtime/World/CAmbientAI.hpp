@@ -38,10 +38,10 @@ public:
   void Accept(IVisitor&) override;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  CHealthInfo* HealthInfo(CStateManager&) override{ return &x260_healthInfo; }
-  const CDamageVulnerability* GetDamageVulnerability() const override{ return &x268_dVuln; }
+  CHealthInfo* HealthInfo(CStateManager&) override { return &x260_healthInfo; }
+  const CDamageVulnerability* GetDamageVulnerability() const override { return &x268_dVuln; }
   std::optional<zeus::CAABox> GetTouchBounds() const override;
-  void Touch(CActor&, CStateManager&) override{}
+  void Touch(CActor&, CStateManager&) override {}
   void RandomizePlaybackRate(CStateManager&);
 };
 

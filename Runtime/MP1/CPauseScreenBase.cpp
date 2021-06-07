@@ -66,7 +66,8 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x184_textpane_yicon = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_yicon"));
   x188_textpane_ytext = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_ytext"));
   x184_textpane_yicon->TextSupport().SetText(fmt::format(FMT_STRING(u"&image={};"), g_tweakPlayerRes->xbc_yButton[0]));
-  x188_textpane_ytext->TextSupport().SetText(xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 99 : 102));
+  x188_textpane_ytext->TextSupport().SetText(
+      xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 99 : 102));
   x188_textpane_ytext->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
   x18c_slidergroup_slider = static_cast<CGuiSliderGroup*>(x8_frame.FindWidget("slidergroup_slider"));
   x18c_slidergroup_slider->SetMouseActive(true);
@@ -93,16 +94,18 @@ void CPauseScreenBase::InitializeFrameGlue() {
     xd8_textpane_titles.push_back(
         static_cast<CGuiTextPane*>(x8_frame.FindWidget(fmt::format(FMT_STRING("textpane_title{}"), i + 1))));
     xd8_textpane_titles.back()->TextSupport().SetText(u"");
-    x144_model_titles.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_title{}"), i + 1))));
+    x144_model_titles.push_back(
+        static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_title{}"), i + 1))));
     m_model_lefttitledecos.push_back(
-      static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_lefttitledeco{}"), i))));
+        static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_lefttitledeco{}"), i))));
     m_model_lefttitledecos.back()->SetMouseActive(true);
     x15c_model_righttitledecos.push_back(
         static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_righttitledeco{}"), i + 1))));
     x15c_model_righttitledecos.back()->SetMouseActive(true);
     xa8_textpane_categories.push_back(
         static_cast<CGuiTextPane*>(x8_frame.FindWidget(fmt::format(FMT_STRING("textpane_category{}"), i))));
-    xc0_model_categories.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_category{}"), i))));
+    xc0_model_categories.push_back(
+        static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_category{}"), i))));
   }
 
   for (int i = 0; i < 20; ++i)
@@ -432,7 +435,8 @@ void CPauseScreenBase::OnWidgetMouseUp(CGuiWidget* widget, bool cancel) {
     if (m_isLogBook && x10_mode == EMode::TextScroll)
       return;
     int idx = int(std::find(x15c_model_righttitledecos.begin(), x15c_model_righttitledecos.end(), widget) -
-                    x15c_model_righttitledecos.begin()) + 1;
+                  x15c_model_righttitledecos.begin()) +
+              1;
     if (x10_mode == EMode::LeftTable) {
       if (ShouldLeftTableAdvance())
         ChangeMode(EMode::RightTable, false);
@@ -498,22 +502,24 @@ void CPauseScreenBase::OnWidgetScroll(CGuiWidget* widget, const boo::SScrollDelt
       else
         return;
     }
-    if (accumY < 0) do {
-      if (x10_mode == EMode::RightTable && x18_firstViewRightSel + 5 < GetRightTableCount()) {
-        /* Simulate selection change */
-        int oldSel = x84_tablegroup_rightlog->GetUserSelection();
-        x84_tablegroup_rightlog->SelectWorker(6);
-        OnTableSelectionChange(x84_tablegroup_rightlog, oldSel);
-      }
-    } while (++accumY < 0);
-    else if (accumY > 0) do {
-      if (x10_mode == EMode::RightTable && x18_firstViewRightSel > 0) {
-        /* Simulate selection change */
-        int oldSel = x84_tablegroup_rightlog->GetUserSelection();
-        x84_tablegroup_rightlog->SelectWorker(0);
-        OnTableSelectionChange(x84_tablegroup_rightlog, oldSel);
-      }
-    } while (--accumY > 0);
+    if (accumY < 0)
+      do {
+        if (x10_mode == EMode::RightTable && x18_firstViewRightSel + 5 < GetRightTableCount()) {
+          /* Simulate selection change */
+          int oldSel = x84_tablegroup_rightlog->GetUserSelection();
+          x84_tablegroup_rightlog->SelectWorker(6);
+          OnTableSelectionChange(x84_tablegroup_rightlog, oldSel);
+        }
+      } while (++accumY < 0);
+    else if (accumY > 0)
+      do {
+        if (x10_mode == EMode::RightTable && x18_firstViewRightSel > 0) {
+          /* Simulate selection change */
+          int oldSel = x84_tablegroup_rightlog->GetUserSelection();
+          x84_tablegroup_rightlog->SelectWorker(0);
+          OnTableSelectionChange(x84_tablegroup_rightlog, oldSel);
+        }
+      } while (--accumY > 0);
   } else if (widget == x174_textpane_body) {
     if (accumY < 0)
       m_bodyDownClicked = true;

@@ -578,7 +578,7 @@ bool CMemoryCardSys::CreateDolphinCard(kabufuda::ECardSlot slot) {
 }
 
 void CMemoryCardSys::_ResetCVar(kabufuda::ECardSlot slot) {
-  switch(slot) {
+  switch (slot) {
   case kabufuda::ECardSlot::SlotA:
     mc_dolphinAPath->fromLiteral("");
     break;

@@ -44,7 +44,7 @@ void CIkChain::PreRender(CAnimData& animData, const zeus::CTransform& xf, const 
     zeus::CQuaternion newP1Rot = p1Rot;
     Solve(newP2Rot, newP1Rot, localDelta);
     zeus::CQuaternion newBoneRot =
-      (zeus::CQuaternion((xf * p2Xf).basis) * p2Rot.inverse() * newP2Rot * newP1Rot).inverse() * x24_holdRot;
+        (zeus::CQuaternion((xf * p2Xf).basis) * p2Rot.inverse() * newP2Rot * newP1Rot).inverse() * x24_holdRot;
     if (x40_time < 1.f) {
       newP2Rot = zeus::CQuaternion::slerpShort(p2Rot, newP2Rot, x40_time);
       newP1Rot = zeus::CQuaternion::slerpShort(p1Rot, newP1Rot, x40_time);
@@ -61,10 +61,15 @@ void CIkChain::Solve(zeus::CQuaternion& q1, zeus::CQuaternion& q2, const zeus::C
   const float mag = vec.magnitude();
   const float magSq = mag * mag;
   const float twoMag = (2.0f * mag);
-  float f29 = std::acos(zeus::clamp(-1.f, (((x20_p1BoneLength * magSq) + x20_p1BoneLength) -
-    (x1c_p2p1Length * x1c_p2p1Length)) / (twoMag * x20_p1BoneLength), 1.f));
-  float f30 = std::acos(zeus::clamp(-1.f, ((x1c_p2p1Length * (magSq - (x20_p1BoneLength * x20_p1BoneLength))) +
-    x1c_p2p1Length) / (twoMag * x1c_p2p1Length), 1.f));
+  float f29 =
+      std::acos(zeus::clamp(-1.f,
+                            (((x20_p1BoneLength * magSq) + x20_p1BoneLength) - (x1c_p2p1Length * x1c_p2p1Length)) /
+                                (twoMag * x20_p1BoneLength),
+                            1.f));
+  float f30 = std::acos(zeus::clamp(
+      -1.f,
+      ((x1c_p2p1Length * (magSq - (x20_p1BoneLength * x20_p1BoneLength))) + x1c_p2p1Length) / (twoMag * x1c_p2p1Length),
+      1.f));
 
   zeus::CVector3f vecA = q2.transform(x10_p1BoneDir);
   zeus::CVector3f crossVecA = x4_p2p1Dir.cross(vecA);

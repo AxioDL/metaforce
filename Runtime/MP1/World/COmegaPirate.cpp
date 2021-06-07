@@ -598,9 +598,7 @@ void COmegaPirate::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-bool COmegaPirate::Landed(CStateManager& mgr, float arg) {
-  return xb4c_armorPiecesHealed == 4;
-}
+bool COmegaPirate::Landed(CStateManager& mgr, float arg) { return xb4c_armorPiecesHealed == 4; }
 
 zeus::CVector3f COmegaPirate::GetOrbitPosition(const CStateManager& mgr) const {
   if (x990_launcherId2 != kInvalidUniqueId &&
@@ -720,7 +718,9 @@ bool COmegaPirate::ShouldFire(CStateManager& mgr, float arg) {
   return false;
 }
 
-bool COmegaPirate::ShouldMove(CStateManager& mgr, float arg) { return xb64_stateTime < x330_stateMachineState.GetTime(); }
+bool COmegaPirate::ShouldMove(CStateManager& mgr, float arg) {
+  return xb64_stateTime < x330_stateMachineState.GetTime();
+}
 
 void COmegaPirate::Shuffle(CStateManager& mgr, EStateMsg msg, float dt) {}
 

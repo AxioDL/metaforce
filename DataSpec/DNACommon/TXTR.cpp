@@ -252,7 +252,7 @@ static void DecodeIA4(png_structp png, png_infop info, const uint8_t* texels, in
   for (int y = height - 1; y >= 0; --y) {
     for (int x = 0; x < width; ++x) {
       const uint8_t texel = Lookup8BPP(texels, width, x, y);
-      buf[x * 2 ] = Convert4To8(texel & 0xf);
+      buf[x * 2] = Convert4To8(texel & 0xf);
       buf[x * 2 + 1] = Convert4To8(texel >> 4 & 0xf);
     }
     png_write_row(png, buf.get());
@@ -1067,7 +1067,8 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   }
 
   if (setjmp(png_jmpbuf(pngRead))) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to initialize libpng I/O for '{}'")), inPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to initialize libpng I/O for '{}'")),
+               inPath.getAbsolutePath());
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1386,7 +1387,8 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   }
 
   if (setjmp(png_jmpbuf(pngRead))) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to initialize libpng I/O for '{}'")), inPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to initialize libpng I/O for '{}'")),
+               inPath.getAbsolutePath());
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1627,9 +1629,7 @@ void DataSpec::TXTR::PaletteMeta::Enumerate(typename Op::StreamT& s) {
 
 AT_SPECIALIZE_DNA_YAML(DataSpec::TXTR::PaletteMeta)
 
-std::string_view DataSpec::TXTR::PaletteMeta::DNAType() {
-  return "DataSpec::TXTR::PaletteMeta"sv;
-}
+std::string_view DataSpec::TXTR::PaletteMeta::DNAType() { return "DataSpec::TXTR::PaletteMeta"sv; }
 
 template <class Op>
 void DataSpec::TXTR::Meta::Enumerate(typename Op::StreamT& s) {
@@ -1645,13 +1645,9 @@ void DataSpec::TXTR::Meta::Enumerate(typename Op::StreamT& s) {
 
 AT_SPECIALIZE_DNA_YAML(DataSpec::TXTR::Meta)
 
-std::string_view DataSpec::TXTR::Meta::DNAType() {
-  return "DataSpec::TXTR::Meta"sv;
-}
+std::string_view DataSpec::TXTR::Meta::DNAType() { return "DataSpec::TXTR::Meta"sv; }
 
-static const atInt32 RetroToDol[11] {
-  0, 1, 2, 3, 8, 9, -1, 4, 5, 6, 14
-};
+static const atInt32 RetroToDol[11]{0, 1, 2, 3, 8, 9, -1, 4, 5, 6, 14};
 
 TXTR::Meta TXTR::GetMetaData(DataSpec::PAKEntryReadStream& rs) {
   const atUint32 retroFormat = rs.readUint32Big();
@@ -1679,8 +1675,8 @@ TXTR::Meta TXTR::GetMetaData(DataSpec::PAKEntryReadStream& rs) {
     rs.readUBytesToBuf(palData.get(), palSize);
     palMeta.dolphinHash = XXH64(palData.get(), palSize, 0);
   } else {
-    switch(format) {
-    case 0: // I4
+    switch (format) {
+    case 0:  // I4
     case 14: // DXT1
       textureSize /= 2;
       break;

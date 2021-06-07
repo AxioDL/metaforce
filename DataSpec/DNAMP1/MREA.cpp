@@ -202,8 +202,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         "from mathutils import Vector\n"
         "bpy.context.scene.render.fps = 60\n"
         "\n";
-  os.format(FMT_STRING("bpy.context.scene.name = '{}'\n"),
-      pakRouter.getBestEntryName(entry, false));
+  os.format(FMT_STRING("bpy.context.scene.name = '{}'\n"), pakRouter.getBestEntryName(entry, false));
   DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
   os << "# Clear Scene\n"
@@ -244,13 +243,13 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     rs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
     curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_1>(
         os, rs, pakRouter, entry, dummy, true, true, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec]);
-    os.format(FMT_STRING(
-        "obj.retro_disable_enviro_visor = {}\n"
-        "obj.retro_disable_thermal_visor = {}\n"
-        "obj.retro_disable_xray_visor = {}\n"
-        "obj.retro_thermal_level = '{}'\n"),
-        mHeader.visorFlags.disableEnviro() ? "True" : "False", mHeader.visorFlags.disableThermal() ? "True" : "False",
-        mHeader.visorFlags.disableXray() ? "True" : "False", mHeader.visorFlags.thermalLevelStr());
+    os.format(FMT_STRING("obj.retro_disable_enviro_visor = {}\n"
+                         "obj.retro_disable_thermal_visor = {}\n"
+                         "obj.retro_disable_xray_visor = {}\n"
+                         "obj.retro_thermal_level = '{}'\n"),
+              mHeader.visorFlags.disableEnviro() ? "True" : "False",
+              mHeader.visorFlags.disableThermal() ? "True" : "False",
+              mHeader.visorFlags.disableXray() ? "True" : "False", mHeader.visorFlags.thermalLevelStr());
   }
 
   /* Skip AROT */
@@ -314,8 +313,8 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         "bpy.context.view_layer.layer_collection.children['Collision'].hide_viewport = True\n";
 
   /* Link MLVL scene as background */
-  os.linkBackground(fmt::format(FMT_STRING("//../!world_{}.blend"),
-      pakRouter.getCurrentBridge().getLevelId()), "World"sv);
+  os.linkBackground(fmt::format(FMT_STRING("//../!world_{}.blend"), pakRouter.getCurrentBridge().getLevelId()),
+                    "World"sv);
 
   os.centerView();
   os.close();

@@ -12,8 +12,7 @@ class CFishCloudModifier : public CActor {
 public:
   DEFINE_ENTITY
   CFishCloudModifier(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& eInfo,
-                     const zeus::CVector3f& pos, bool isRepulsor, bool swirl, float radius,
-                     float priority);
+                     const zeus::CVector3f& pos, bool isRepulsor, bool swirl, float radius, float priority);
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 

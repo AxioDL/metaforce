@@ -27,7 +27,8 @@ CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(CInputStream&
   }
 }
 
-CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(const zeus::CVector3f& extent, const zeus::CVector3f& center) {
+CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(const zeus::CVector3f& extent,
+                                                                   const zeus::CVector3f& center) {
   x0_trees.push_back(COBBTree::BuildOrientedBoundingBoxTree(extent, center));
 
   for (const std::unique_ptr<COBBTree>& tree : x0_trees) {
@@ -40,7 +41,8 @@ CCollidableOBBTreeGroup::CCollidableOBBTreeGroup(const CCollidableOBBTreeGroupCo
                                                  const CMaterialList& matList)
 : CCollisionPrimitive(matList), x10_container(container) {}
 
-void CCollidableOBBTreeGroup::ResetTestStats() const { /* Remove me? */ }
+void CCollidableOBBTreeGroup::ResetTestStats() const { /* Remove me? */
+}
 
 u32 CCollidableOBBTreeGroup::GetTableIndex() const { return sTableIndex; }
 
@@ -63,8 +65,7 @@ CRayCastResult CCollidableOBBTreeGroup::CastRayInternal(const CInternalRayCastSt
     float tMin = 0.f;
     float tMax = 0.f;
     if (CollisionUtil::RayAABoxIntersection(xfRay, *aabbIt++, tMin, tMax)) {
-      CInternalRayCastStructure localCast(xfRay.start, xfRay.dir, mag, zeus::CTransform(),
-                                          rayCast.GetFilter());
+      CInternalRayCastStructure localCast(xfRay.start, xfRay.dir, mag, zeus::CTransform(), rayCast.GetFilter());
       CRayCastResult localResult = obbTree.CastRayInternal(localCast);
       if (localResult.IsValid()) {
         if (ret.IsInvalid() || localResult.GetT() < ret.GetT()) {

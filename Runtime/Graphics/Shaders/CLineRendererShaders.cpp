@@ -33,15 +33,24 @@ void CLineRendererShaders::Initialize() {
 }
 
 void CLineRendererShaders::Shutdown() {
-  for (auto& s : m_texAlpha) s.reset();
-  for (auto& s : m_texAdditive) s.reset();
-  for (auto& s : m_noTexAlpha) s.reset();
-  for (auto& s : m_noTexAdditive) s.reset();
-  for (auto& s : m_texAlphaZ) s.reset();
-  for (auto& s : m_texAdditiveZ) s.reset();
-  for (auto& s : m_noTexAlphaZ) s.reset();
-  for (auto& s : m_noTexAdditiveZ) s.reset();
-  for (auto& s : m_noTexAlphaZGEqual) s.reset();
+  for (auto& s : m_texAlpha)
+    s.reset();
+  for (auto& s : m_texAdditive)
+    s.reset();
+  for (auto& s : m_noTexAlpha)
+    s.reset();
+  for (auto& s : m_noTexAdditive)
+    s.reset();
+  for (auto& s : m_texAlphaZ)
+    s.reset();
+  for (auto& s : m_texAdditiveZ)
+    s.reset();
+  for (auto& s : m_noTexAlphaZ)
+    s.reset();
+  for (auto& s : m_noTexAdditiveZ)
+    s.reset();
+  for (auto& s : m_noTexAlphaZGEqual)
+    s.reset();
 }
 
 void CLineRendererShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,

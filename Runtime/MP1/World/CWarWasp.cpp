@@ -43,8 +43,8 @@ void CWarWasp::Accept(IVisitor& visitor) { visitor.Visit(this); }
 void CWarWasp::SwarmAdd(CStateManager& mgr) {
   if (x674_aiMgr != kInvalidUniqueId) {
     if (TCastToPtr<CTeamAiMgr> aimgr = mgr.ObjectById(x674_aiMgr)) {
-      CTeamAiRole::ETeamAiRole role = x3fc_flavor == EFlavorType::Two ?
-        CTeamAiRole::ETeamAiRole::Ranged : CTeamAiRole::ETeamAiRole::Melee;
+      CTeamAiRole::ETeamAiRole role =
+          x3fc_flavor == EFlavorType::Two ? CTeamAiRole::ETeamAiRole::Ranged : CTeamAiRole::ETeamAiRole::Melee;
       if (!aimgr->IsPartOfTeam(GetUniqueId())) {
         aimgr->AssignTeamAiRole(*this, role, CTeamAiRole::ETeamAiRole::Invalid, CTeamAiRole::ETeamAiRole::Invalid);
       }
@@ -123,9 +123,7 @@ void CWarWasp::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStat
   }
 }
 
-std::optional<zeus::CAABox> CWarWasp::GetTouchBounds() const {
-  return {x570_cSphere.CalculateAABox(GetTransform())};
-}
+std::optional<zeus::CAABox> CWarWasp::GetTouchBounds() const { return {x570_cSphere.CalculateAABox(GetTransform())}; }
 
 zeus::CVector3f CWarWasp::GetProjectileAimPos(const CStateManager& mgr, float zBias) const {
   zeus::CVector3f ret = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
@@ -326,8 +324,7 @@ void CWarWasp::ApplyNormalSteering(CStateManager& mgr) {
       break;
     case 2:
       if (ShouldTurn(mgr, 30.f) && delta.canBeNormalized()) {
-        x450_bodyController->GetCommandMgr().DeliverCmd(
-            CBCLocomotionCmd(zeus::skZero3f, delta.normalized(), 1.f));
+        x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(zeus::skZero3f, delta.normalized(), 1.f));
       }
       break;
     default:
@@ -722,8 +719,7 @@ void CWarWasp::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float dt) {
   case EStateMsg::Activate:
     x72e_28_inProjectileAttack = true;
     if (x674_aiMgr != kInvalidUniqueId) {
-      x568_stateProg = CTeamAiMgr::AddAttacker(CTeamAiMgr::EAttackType::Ranged,
-                                               mgr, x674_aiMgr, GetUniqueId()) ? 0 : 3;
+      x568_stateProg = CTeamAiMgr::AddAttacker(CTeamAiMgr::EAttackType::Ranged, mgr, x674_aiMgr, GetUniqueId()) ? 0 : 3;
     } else {
       x568_stateProg = 0;
     }
@@ -881,7 +877,8 @@ float CWarWasp::GetTeamZStratum(s32 team) const {
 float CWarWasp::CalcSeekMagnitude(const CStateManager& mgr) const {
   static constexpr std::array Table{0.4f, 0.6f, 1.f};
 
-  const float ret = ((x708_circleAttackTeam >= 0 && x708_circleAttackTeam < 3) ? Table[x708_circleAttackTeam] : 1.f) * 0.9f;
+  const float ret =
+      ((x708_circleAttackTeam >= 0 && x708_circleAttackTeam < 3) ? Table[x708_circleAttackTeam] : 1.f) * 0.9f;
   if (TCastToConstPtr<CTeamAiMgr> aimgr = mgr.GetObjectById(x674_aiMgr)) {
     if (aimgr->IsPartOfTeam(GetUniqueId())) {
       if (aimgr->GetMaxMeleeAttackerCount() > 1) {
@@ -994,9 +991,8 @@ void CWarWasp::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Internal5);
     break;
   case EStateMsg::Update:
-    x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCLocomotionCmd(x45c_steeringBehaviors.Flee2D(*this, mgr.GetPlayer().GetTranslation().toVec2f()),
-                         zeus::skZero3f, 1.f));
+    x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(
+        x45c_steeringBehaviors.Flee2D(*this, mgr.GetPlayer().GetTranslation().toVec2f()), zeus::skZero3f, 1.f));
     break;
   case EStateMsg::Deactivate:
     x400_24_hitByPlayerProjectile = false;

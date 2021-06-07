@@ -1187,14 +1187,14 @@ void CFrontEndUI::SFrontEndFrame::FinishedLoading() {
   x14_loadedFrme->SetAspectConstraint(1.78f);
 
   x18_tablegroup_mainmenu = static_cast<CGuiTableGroup*>(x14_loadedFrme->FindWidget("tablegroup_mainmenu"));
-  //TODO: HACK: Implement language menu so this isn't necessary
+  // TODO: HACK: Implement language menu so this isn't necessary
   if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
     x1c_gbaPair = FindTextPanePair(x14_loadedFrme, "textpane_gba");
   } else {
     x1c_gbaPair = FindTextPanePair(x14_loadedFrme, "textpane_lang");
   }
   x1c_gbaPair.SetPairText(g_MainStringTable->GetString(37));
-  //TODO: HACK: Implement language menu so this isn't necessary
+  // TODO: HACK: Implement language menu so this isn't necessary
   if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
     x24_cheatPair = FindTextPanePair(x14_loadedFrme, "textpane_cheats");
   } else {
@@ -1204,7 +1204,7 @@ void CFrontEndUI::SFrontEndFrame::FinishedLoading() {
 
   FindAndSetPairText(x14_loadedFrme, "textpane_start",
                      g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 67 : 61));
-  //TODO: HACK: Implement language menu so this isn't necessary
+  // TODO: HACK: Implement language menu so this isn't necessary
   FindAndSetPairText(x14_loadedFrme, (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? "textpane_options" : "textpane_gba",
                      g_MainStringTable->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 94 : 88));
   FindAndSetPairText(x14_loadedFrme, "textpane_title",

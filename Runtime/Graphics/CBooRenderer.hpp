@@ -40,13 +40,7 @@ class IObjectStore;
 
 class Buckets;
 
-enum class EWorldShadowMode {
-  None,
-  WorldOnActorShadow,
-  BallOnWorldShadow,
-  BallOnWorldIds,
-  MAX
-};
+enum class EWorldShadowMode { None, WorldOnActorShadow, BallOnWorldShadow, BallOnWorldIds, MAX };
 
 class CBooRenderer final : public IRenderer {
   friend class CBooModel;
@@ -197,8 +191,8 @@ public:
                          int areaIdx, const SShader* shaderSet) override;
   void EnablePVS(const CPVSVisSet& set, u32 areaIdx) override;
   void DisablePVS() override;
-  void UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode = EWorldShadowMode::None,
-                          bool activateLights = true, int cubeFace = -1, const CModelFlags* ballShadowFlags = nullptr);
+  void UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode = EWorldShadowMode::None, bool activateLights = true,
+                          int cubeFace = -1, const CModelFlags* ballShadowFlags = nullptr);
   void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*) override;
   void DrawAreaGeometry(int areaIdx, int mask, int targetMask) override;
   void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender = false) override;

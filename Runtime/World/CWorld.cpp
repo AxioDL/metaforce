@@ -94,7 +94,8 @@ std::optional<CWorldLayers> CWorldLayers::ReadWorldLayers(athena::io::MemoryRead
   const u32 nameCount = r.readUint32Big();
   ret.m_names.reserve(nameCount);
   for (u32 i = 0; i < nameCount; ++i) {
-    ret.m_names.push_back(r.readString());
+    auto name = r.readString();
+    ret.m_names.emplace_back(name);
   }
 
   areaCount = r.readUint32Big();

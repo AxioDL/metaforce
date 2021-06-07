@@ -15,10 +15,10 @@ u32 CHUDBillboardEffect::g_IndirectTexturedBillboardCount = 0;
 u32 CHUDBillboardEffect::g_BillboardCount = 0;
 
 CHUDBillboardEffect::CHUDBillboardEffect(const std::optional<TToken<CGenDescription>>& particle,
-                                         const std::optional<TToken<CElectricDescription>>& electric,
-                                         TUniqueId uid, bool active, std::string_view name, float dist,
-                                         const zeus::CVector3f& scale0, const zeus::CColor& color,
-                                         const zeus::CVector3f& scale1, const zeus::CVector3f& translation)
+                                         const std::optional<TToken<CElectricDescription>>& electric, TUniqueId uid,
+                                         bool active, std::string_view name, float dist, const zeus::CVector3f& scale0,
+                                         const zeus::CColor& color, const zeus::CVector3f& scale1,
+                                         const zeus::CVector3f& translation)
 : CEffect(uid, CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), active, name, zeus::CTransform()) {
   xec_translation = translation;
   xec_translation.y() += dist;

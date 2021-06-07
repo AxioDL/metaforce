@@ -12,7 +12,6 @@ template <class PAKBridge>
 struct PATH;
 }
 
-
 struct AROTBuilder {
   using ColMesh = hecl::blender::ColMesh;
 

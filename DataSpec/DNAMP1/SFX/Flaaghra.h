@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup0034 52
-
 
 #define SFXfla_a_hitgrnd_00 2600
 #define SFXfla_a_swoosh_00 2601
@@ -90,5 +88,3 @@
 #define SFXsfx0A76 2678
 #define SFXsfx0A77 2679
 #define SFXsfx0A78 2680
-
-

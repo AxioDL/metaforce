@@ -168,8 +168,8 @@ public:
   void Burn(float duration, float damage) override;
   void Dead(CStateManager& mgr, EStateMsg msg, float arg) override;
   CPathFindSearch* GetSearchPath() override;
-  virtual void BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat,
-                             EntityList& listOut, float radius, CStateManager& mgr);
+  virtual void BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat, EntityList& listOut, float radius,
+                             CStateManager& mgr);
   virtual void SetLightEnabled(CStateManager& mgr, bool activate);
   virtual void SetVisorFlareEnabled(CStateManager& mgr, bool activate);
   virtual void UpdateVisorFlare(CStateManager& mgr);

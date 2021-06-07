@@ -83,8 +83,8 @@ s32 CWorldSaveGameInfo::GetDoorIndex(const TEditorId& id) const {
 }
 
 CFactoryFnReturn FWorldSaveGameInfoFactory([[maybe_unused]] const SObjectTag& tag, CInputStream& in,
-                                   [[maybe_unused]] const CVParamTransfer& param,
-                                   [[maybe_unused]] CObjectReference* selfRef) {
+                                           [[maybe_unused]] const CVParamTransfer& param,
+                                           [[maybe_unused]] CObjectReference* selfRef) {
   return TToken<CWorldSaveGameInfo>::GetIObjObjectFor(std::make_unique<CWorldSaveGameInfo>(in));
 }
 

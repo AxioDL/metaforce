@@ -59,9 +59,6 @@ public:
   auto begin() noexcept { return x0_list.begin(); }
   auto begin() const noexcept { return x0_list.begin(); }
 
-  
-
-  
   void AccumulateNewContactsInto(CCollisionInfoList& other_list) {
     for (CCollisionInfo const& cur_info : x0_list) {
       bool dont_add_new_info = false;

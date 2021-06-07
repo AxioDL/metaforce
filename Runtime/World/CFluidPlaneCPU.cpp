@@ -256,8 +256,8 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManag
     out.kColors[2] = zeus::CColor(lowLightBlend * lightLevel, 1.f);
   }
 
-  float waterPlaneOrthoDot = xf.transposeRotate(zeus::skUp)
-                                 .dot(CGraphics::g_ViewMatrix.inverse().transposeRotate(zeus::skForward));
+  float waterPlaneOrthoDot =
+      xf.transposeRotate(zeus::skUp).dot(CGraphics::g_ViewMatrix.inverse().transposeRotate(zeus::skForward));
   if (waterPlaneOrthoDot < 0.f)
     waterPlaneOrthoDot = -waterPlaneOrthoDot;
 
@@ -740,14 +740,13 @@ static CFluidPlane::Flags lc_flags{};
 void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
                             const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
                             const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
-                            const bool* gridFlags, u32 gridDimX, u32 gridDimY,
-                            const zeus::CVector3f& areaCenter) {
+                            const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CFluidPlaneCPU::Render", zeus::skCyan);
   TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(waterId);
   CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, areaXf, aabb, water.GetPtr());
 
-  //if (!m_shader->isReady())
-  //  return;
+  // if (!m_shader->isReady())
+  //   return;
 
   CFluidPlaneRender::NormalMode normalMode;
   if (xb0_bumpMap && kEnableWaterBumpMaps)
@@ -800,9 +799,8 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
   }
 
   if (water) {
-    float cameraPenetration =
-        mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation().dot(zeus::skUp) -
-        water->GetTriggerBoundsWR().max.z();
+    float cameraPenetration = mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation().dot(zeus::skUp) -
+                              water->GetTriggerBoundsWR().max.z();
     wavecapIntensityScale *= (cameraPenetration >= 0.5f || cameraPenetration < 0.f) ? 1.f : 2.f * cameraPenetration;
   }
 

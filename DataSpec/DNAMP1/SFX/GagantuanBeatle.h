@@ -5,9 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-
 #define GRPgroup000E 14
-
 
 #define SFXgab_r_hitlight_01 407
 #define SFXga2_b_digexplod_00 408
@@ -61,5 +59,3 @@
 #define SFXsfx01C8 456
 #define SFXsfx01C9 457
 #define SFXsfx01CA 458
-
-

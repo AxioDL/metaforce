@@ -225,13 +225,12 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-  os.format(FMT_STRING(
-      "import bpy\n"
-      "import bmesh\n"
-      "from mathutils import Vector\n"
-      "\n"
-      "bpy.context.scene.name = '{}'\n"),
-      pakRouter.getBestEntryName(entry, false));
+  os.format(FMT_STRING("import bpy\n"
+                       "import bmesh\n"
+                       "from mathutils import Vector\n"
+                       "\n"
+                       "bpy.context.scene.name = '{}'\n"),
+            pakRouter.getBestEntryName(entry, false));
   DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
   os << "# Clear Scene\n"
@@ -272,13 +271,13 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     drs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
     curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_2>(
         os, drs, pakRouter, entry, dummy, true, true, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec]);
-    os.format(FMT_STRING(
-        "obj.retro_disable_enviro_visor = {}\n"
-        "obj.retro_disable_thermal_visor = {}\n"
-        "obj.retro_disable_xray_visor = {}\n"
-        "obj.retro_thermal_level = '{}'\n"),
-        mHeader.visorFlags.disableEnviro() ? "True" : "False", mHeader.visorFlags.disableThermal() ? "True" : "False",
-        mHeader.visorFlags.disableXray() ? "True" : "False", mHeader.visorFlags.thermalLevelStr());
+    os.format(FMT_STRING("obj.retro_disable_enviro_visor = {}\n"
+                         "obj.retro_disable_thermal_visor = {}\n"
+                         "obj.retro_disable_xray_visor = {}\n"
+                         "obj.retro_thermal_level = '{}'\n"),
+              mHeader.visorFlags.disableEnviro() ? "True" : "False",
+              mHeader.visorFlags.disableThermal() ? "True" : "False",
+              mHeader.visorFlags.disableXray() ? "True" : "False", mHeader.visorFlags.thermalLevelStr());
 
     /* Seek through AROT-relation sections */
     drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);

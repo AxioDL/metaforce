@@ -105,11 +105,14 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
   x578_.Token().Lock();
   x5a0_.Token().Lock();
   x668_ = GetModelData()->GetScale().z() *
-          GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::Jump, CPASAnimParm::FromEnum(3), CPASAnimParm::FromEnum(0)));
+          GetAnimationDistance(
+              CPASAnimParmData(pas::EAnimationState::Jump, CPASAnimParm::FromEnum(3), CPASAnimParm::FromEnum(0)));
   x66c_ = GetModelData()->GetScale().z() *
-          GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::Slide, CPASAnimParm::FromEnum(1), CPASAnimParm::FromReal32(90.f)));
+          GetAnimationDistance(
+              CPASAnimParmData(pas::EAnimationState::Slide, CPASAnimParm::FromEnum(1), CPASAnimParm::FromReal32(90.f)));
   x670_ = GetModelData()->GetScale().z() *
-          GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::MeleeAttack, CPASAnimParm::FromEnum(2), CPASAnimParm::FromEnum(1)));
+          GetAnimationDistance(CPASAnimParmData(pas::EAnimationState::MeleeAttack, CPASAnimParm::FromEnum(2),
+                                                CPASAnimParm::FromEnum(1)));
 
   if (projectileVisorEffect.IsValid())
     x640_projectileVisor = g_SimplePool->GetObj({SBIG('PART'), projectileVisorEffect});

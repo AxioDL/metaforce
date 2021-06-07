@@ -894,7 +894,7 @@ CFactoryFnReturn FTextureFactory(const metaforce::SObjectTag& tag, std::unique_p
   u32 u32Owned = vparms.GetOwnedObj<u32>();
   const CTextureInfo* inf = nullptr;
   if (g_TextureCache)
-     inf = g_TextureCache->GetTextureInfo(tag.id);
+    inf = g_TextureCache->GetTextureInfo(tag.id);
   return TToken<CTexture>::GetIObjObjectFor(
       std::make_unique<CTexture>(std::move(in), len, u32Owned == SBIG('OTEX'), inf));
 }

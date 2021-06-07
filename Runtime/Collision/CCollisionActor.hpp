@@ -34,6 +34,7 @@ class CCollisionActor : public CPhysicsActor {
   zeus::CVector3f x304_extendedTouchBounds = zeus::skZero3f;
 
   CAABoxShader m_aabox;
+
 public:
   DEFINE_ENTITY
   CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, const zeus::CVector3f& extent,

@@ -62,8 +62,8 @@ hecl::CVar* debugToolDrawPlatformCollision = nullptr;
 hecl::CVar* sm_logScripting = nullptr;
 } // namespace
 logvisor::Module LogModule("metaforce::CStateManager");
-CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox,
-                             const std::weak_ptr<CMapWorldInfo>& mwInfo, const std::weak_ptr<CPlayerState>& playerState,
+CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox, const std::weak_ptr<CMapWorldInfo>& mwInfo,
+                             const std::weak_ptr<CPlayerState>& playerState,
                              const std::weak_ptr<CWorldTransManager>& wtMgr,
                              const std::weak_ptr<CScriptLayerManager>& layerState)
 : x8b8_playerState(playerState)
@@ -1796,8 +1796,7 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
   }
 }
 
-bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& damagee,
-                                  const EntityList& nearList) const {
+bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& damagee, const EntityList& nearList) const {
   const CHealthInfo* hInfo = const_cast<CActor&>(damagee).HealthInfo(const_cast<CStateManager&>(*this));
   if (hInfo == nullptr) {
     return false;
@@ -1852,14 +1851,13 @@ bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CV
 }
 
 bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
-                                    const EntityList& nearList,
-                                    const CMaterialFilter& filter, const CActor* damagee) const {
+                                    const EntityList& nearList, const CMaterialFilter& filter,
+                                    const CActor* damagee) const {
   return RayCollideWorldInternal(start, end, filter, nearList, damagee);
 }
 
 bool CStateManager::RayCollideWorldInternal(const zeus::CVector3f& start, const zeus::CVector3f& end,
-                                            const CMaterialFilter& filter,
-                                            const EntityList& nearList,
+                                            const CMaterialFilter& filter, const EntityList& nearList,
                                             const CActor* damagee) const {
   const zeus::CVector3f delta = end - start;
   if (!delta.canBeNormalized()) {
@@ -2681,19 +2679,17 @@ void CStateManager::AreaLoaded(TAreaId aid) {
   x880_envFxManager->AreaLoaded();
 }
 
-void CStateManager::BuildNearList(EntityList& listOut, const zeus::CVector3f& v1,
-                                  const zeus::CVector3f& v2, float f1, const CMaterialFilter& filter,
-                                  const CActor* actor) const {
+void CStateManager::BuildNearList(EntityList& listOut, const zeus::CVector3f& v1, const zeus::CVector3f& v2, float f1,
+                                  const CMaterialFilter& filter, const CActor* actor) const {
   x874_sortedListManager->BuildNearList(listOut, v1, v2, f1, filter, actor);
 }
 
-void CStateManager::BuildColliderList(EntityList& listOut, const CActor& actor,
-                                      const zeus::CAABox& aabb) const {
+void CStateManager::BuildColliderList(EntityList& listOut, const CActor& actor, const zeus::CAABox& aabb) const {
   x874_sortedListManager->BuildNearList(listOut, actor, aabb);
 }
 
-void CStateManager::BuildNearList(EntityList& listOut, const zeus::CAABox& aabb,
-                                  const CMaterialFilter& filter, const CActor* actor) const {
+void CStateManager::BuildNearList(EntityList& listOut, const zeus::CAABox& aabb, const CMaterialFilter& filter,
+                                  const CActor* actor) const {
   x874_sortedListManager->BuildNearList(listOut, aabb, filter, actor);
 }
 
@@ -2799,8 +2795,7 @@ CRayCastResult CStateManager::RayStaticIntersection(const zeus::CVector3f& pos, 
 
 CRayCastResult CStateManager::RayWorldIntersection(TUniqueId& idOut, const zeus::CVector3f& pos,
                                                    const zeus::CVector3f& dir, float length,
-                                                   const CMaterialFilter& filter,
-                                                   const EntityList& list) const {
+                                                   const CMaterialFilter& filter, const EntityList& list) const {
   return CGameCollision::RayWorldIntersection(*this, idOut, pos, dir, length, filter, list);
 }
 
@@ -2870,7 +2865,8 @@ std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const {
   int idx = 0;
   for (const std::pair<CAssetId, float>& scan : x8b8_playerState->GetScanTimes()) {
     const auto category = g_MemoryCardSys->GetScanStates()[idx++].second;
-    if (category != CWorldSaveGameInfo::EScanCategory::None && category != CWorldSaveGameInfo::EScanCategory::Research) {
+    if (category != CWorldSaveGameInfo::EScanCategory::None &&
+        category != CWorldSaveGameInfo::EScanCategory::Research) {
       ++denom;
       if (scan.second == 1.f) {
         ++num;

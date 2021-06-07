@@ -196,8 +196,8 @@ public:
   std::shared_ptr<CAnimationManager> GetAnimationManager() const;
   void RecalcPoseBuilder(const CCharAnimTime* time);
   void RenderAuxiliary(const zeus::CFrustum& frustum) const;
-  void Render(CSkinnedModel& model, const CModelFlags& drawFlags,
-              const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
+  void Render(CSkinnedModel& model, const CModelFlags& drawFlags, const std::optional<CVertexMorphEffect>& morphEffect,
+              const float* morphMagnitudes);
   void SetupRender(CSkinnedModel& model, const CModelFlags& drawFlags,
                    const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
   static void DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags);
@@ -209,7 +209,8 @@ public:
   void GetAnimationPrimitives(const CAnimPlaybackParms& parms, std::set<CPrimitive>& primsOut) const;
   void SetAnimation(const CAnimPlaybackParms& parms, bool noTrans);
   SAdvancementDeltas DoAdvance(float dt, bool& suspendParticles, CRandom16& random, bool advTree);
-  SAdvancementDeltas Advance(float dt, const zeus::CVector3f& scale, CStateManager& stateMgr, TAreaId aid, bool advTree);
+  SAdvancementDeltas Advance(float dt, const zeus::CVector3f& scale, CStateManager& stateMgr, TAreaId aid,
+                             bool advTree);
   SAdvancementDeltas AdvanceIgnoreParticles(float dt, CRandom16& random, bool advTree);
   void AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::CQuaternion& quat);
   void SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
@@ -220,8 +221,7 @@ public:
   const TLockedToken<CSkinnedModel>& GetModelData() const { return xd8_modelData; }
 
   static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
-                               const std::optional<CVertexMorphEffect>& morphEffect,
-                               const float* morphMagnitudes);
+                               const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
   void AdvanceParticles(const zeus::CTransform& xf, float dt, const zeus::CVector3f&, CStateManager& stateMgr);
   float GetAverageVelocity(int animIn) const;
   void ResetPOILists();

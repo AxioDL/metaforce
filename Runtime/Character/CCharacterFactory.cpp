@@ -67,10 +67,12 @@ std::shared_ptr<IDvdRequest> CCharacterFactory::CDummyFactory::LoadResourcePartA
   return {};
 }
 
-std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadResourceSync(const metaforce::SObjectTag& tag) { return {}; }
+std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadResourceSync(const metaforce::SObjectTag& tag) {
+  return {};
+}
 
-std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadNewResourcePartSync(const metaforce::SObjectTag& tag, u32 off,
-                                                                                u32 size) {
+std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadNewResourcePartSync(const metaforce::SObjectTag& tag,
+                                                                                u32 off, u32 size) {
   return {};
 }
 

@@ -271,6 +271,7 @@ private:
   std::unique_ptr<CModelData> m_debugSphereModel;
   std::optional<CStaticRes> m_debugConeRes;
   std::unique_ptr<CModelData> m_debugConeModel;
+
 public:
   explicit CGameArea(CInputStream& in, int idx, int mlvlVersion);
   explicit CGameArea(CAssetId mreaId); // Warmup constructor

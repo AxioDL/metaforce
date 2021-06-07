@@ -984,8 +984,8 @@ zeus::CVector3f CBallCamera::ApplyColliders() {
 }
 
 void CBallCamera::UpdateColliders(const zeus::CTransform& xf, std::vector<CCameraCollider>& colliderList, int& it,
-                                  int count, float tolerance, const EntityList& nearList,
-                                  float dt, CStateManager& mgr) {
+                                  int count, float tolerance, const EntityList& nearList, float dt,
+                                  CStateManager& mgr) {
   if (it < colliderList.size()) {
     x310_idealLookVec = {0.f, g_tweakBall->GetBallCameraOffset().y(), g_tweakPlayer->GetPlayerBallHalfExtent()};
     x310_idealLookVec.y() *= x308_speedFactor;
@@ -1032,8 +1032,7 @@ void CBallCamera::UpdateColliders(const zeus::CTransform& xf, std::vector<CCamer
   }
 }
 
-zeus::CVector3f CBallCamera::AvoidGeometry(const zeus::CTransform& xf,
-                                           const EntityList& nearList, float dt,
+zeus::CVector3f CBallCamera::AvoidGeometry(const zeus::CTransform& xf, const EntityList& nearList, float dt,
                                            CStateManager& mgr) {
   switch (x328_avoidGeomCycle) {
   case 0:
@@ -1058,8 +1057,7 @@ zeus::CVector3f CBallCamera::AvoidGeometry(const zeus::CTransform& xf,
   return ApplyColliders();
 }
 
-zeus::CVector3f CBallCamera::AvoidGeometryFull(const zeus::CTransform& xf,
-                                               const EntityList& nearList, float dt,
+zeus::CVector3f CBallCamera::AvoidGeometryFull(const zeus::CTransform& xf, const EntityList& nearList, float dt,
                                                CStateManager& mgr) {
   UpdateColliders(xf, x264_smallColliders, x2d0_smallColliderIt, x264_smallColliders.size(), 4.f, nearList, dt, mgr);
   UpdateColliders(xf, x274_mediumColliders, x2d4_mediumColliderIt, x274_mediumColliders.size(), 4.f, nearList, dt, mgr);

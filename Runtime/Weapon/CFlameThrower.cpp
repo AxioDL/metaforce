@@ -106,7 +106,7 @@ void CFlameThrower::SetFlameLightActive(CStateManager& mgr, bool active) {
 }
 
 void CFlameThrower::UpdateFlameState(float dt, CStateManager& mgr) {
-  switch(x3f0_flameState) {
+  switch (x3f0_flameState) {
   case EFlameState::FireStart:
     x3f0_flameState = EFlameState::FireActive;
     break;
@@ -184,7 +184,8 @@ CRayCastResult CFlameThrower::DoCollisionCheck(TUniqueId& idOut, const zeus::CAA
         break;
       }
 
-      const CRayCastResult cres = RayCollisionCheckWithWorld(idOut, colPoints[i], colPoints[i + 1], deltaMag, nearList, mgr);
+      const CRayCastResult cres =
+          RayCollisionCheckWithWorld(idOut, colPoints[i], colPoints[i + 1], deltaMag, nearList, mgr);
       if (cres.IsValid()) {
         return cres;
       }
