@@ -5,10 +5,10 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
 
 namespace metaforce {
 struct CFinalInput;
-class CGuiFrame;
 class CGuiTableGroup;
 class CGuiTextPane;
 class CGuiWidget;

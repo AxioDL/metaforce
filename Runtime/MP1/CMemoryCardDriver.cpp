@@ -4,7 +4,6 @@
 
 #include "Runtime/CCRC32.hpp"
 #include "Runtime/MP1/MP1.hpp"
-#include "Runtime/GuiSys/CGuiFrame.hpp"
 
 namespace metaforce::MP1 {
 
