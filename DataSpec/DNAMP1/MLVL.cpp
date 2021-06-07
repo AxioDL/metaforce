@@ -450,7 +450,7 @@ bool MLVL::CookSAVW(const hecl::ProjectPath& outPath, const World& wld) {
          hecl::DirectoryEnumerator(area.path.getAbsolutePath(), hecl::DirectoryEnumerator::Mode::DirsSorted)) {
       hecl::SystemString layerName;
       hecl::SystemChar* endCh = nullptr;
-      hecl::StrToUl(e.m_name.c_str(), &endCh, 0);
+      hecl::StrToUl(e.m_name.c_str(), &endCh, 10);
       if (!endCh)
         layerName = hecl::StringUtils::TrimWhitespace(e.m_name);
       else
