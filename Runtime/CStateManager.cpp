@@ -374,7 +374,7 @@ TAreaId CStateManager::GetVisAreaId() const {
   const zeus::CVector3f& camTranslation = ballCam->GetTranslation();
   zeus::CAABox camAABB(camTranslation, camTranslation);
   camAABB.accumulateBounds(x84c_player->GetTranslation());
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   BuildNearList(nearList, camAABB,
                 CMaterialFilter(EMaterialTypes::AIBlock, CMaterialList(), CMaterialFilter::EFilterType::Include),
                 nullptr);
@@ -1696,7 +1696,7 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
     bomb = True(weapon->GetAttribField() & (EProjectileAttrib::Bombs | EProjectileAttrib::PowerBombs));
   }
 
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   BuildNearList(nearList, aabb, filter, &actor);
   for (const auto& id : nearList) {
     CEntity* ent = ObjectById(id);
@@ -1735,7 +1735,7 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
 void CStateManager::ProcessRadiusDamage(const CActor& damager, CActor& damagee, TUniqueId senderId,
                                         const CDamageInfo& info, const CMaterialFilter& filter) {
   const zeus::CAABox aabb(damager.GetTranslation() - info.GetRadius(), damager.GetTranslation() + info.GetRadius());
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   BuildNearList(nearList, aabb, filter, nullptr);
   for (const auto& id : nearList) {
     CEntity* ent = ObjectById(id);
@@ -1797,7 +1797,7 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
 }
 
 bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& damagee,
-                                  const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList) const {
+                                  const EntityList& nearList) const {
   const CHealthInfo* hInfo = const_cast<CActor&>(damagee).HealthInfo(const_cast<CStateManager&>(*this));
   if (hInfo == nullptr) {
     return false;
@@ -1846,20 +1846,20 @@ bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CV
   zeus::CVector3f delta = end - start;
   const float mag = delta.magnitude();
   delta = delta / mag;
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   BuildNearList(nearList, start, delta, mag, filter, damagee);
   return RayCollideWorldInternal(start, end, filter, nearList, damagee);
 }
 
 bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
-                                    const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList,
+                                    const EntityList& nearList,
                                     const CMaterialFilter& filter, const CActor* damagee) const {
   return RayCollideWorldInternal(start, end, filter, nearList, damagee);
 }
 
 bool CStateManager::RayCollideWorldInternal(const zeus::CVector3f& start, const zeus::CVector3f& end,
                                             const CMaterialFilter& filter,
-                                            const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList,
+                                            const EntityList& nearList,
                                             const CActor* damagee) const {
   const zeus::CVector3f delta = end - start;
   if (!delta.canBeNormalized()) {
@@ -2374,7 +2374,7 @@ void CStateManager::MoveActors(float dt) {
 
 void CStateManager::CrossTouchActors() {
   std::array<bool, kMaxEntities> visits{};
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
 
   for (CEntity* ent : GetActorObjectList()) {
     if (ent == nullptr) {
@@ -2681,18 +2681,18 @@ void CStateManager::AreaLoaded(TAreaId aid) {
   x880_envFxManager->AreaLoaded();
 }
 
-void CStateManager::BuildNearList(rstl::reserved_vector<TUniqueId, kMaxEntities>& listOut, const zeus::CVector3f& v1,
+void CStateManager::BuildNearList(EntityList& listOut, const zeus::CVector3f& v1,
                                   const zeus::CVector3f& v2, float f1, const CMaterialFilter& filter,
                                   const CActor* actor) const {
   x874_sortedListManager->BuildNearList(listOut, v1, v2, f1, filter, actor);
 }
 
-void CStateManager::BuildColliderList(rstl::reserved_vector<TUniqueId, kMaxEntities>& listOut, const CActor& actor,
+void CStateManager::BuildColliderList(EntityList& listOut, const CActor& actor,
                                       const zeus::CAABox& aabb) const {
   x874_sortedListManager->BuildNearList(listOut, actor, aabb);
 }
 
-void CStateManager::BuildNearList(rstl::reserved_vector<TUniqueId, kMaxEntities>& listOut, const zeus::CAABox& aabb,
+void CStateManager::BuildNearList(EntityList& listOut, const zeus::CAABox& aabb,
                                   const CMaterialFilter& filter, const CActor* actor) const {
   x874_sortedListManager->BuildNearList(listOut, aabb, filter, actor);
 }
@@ -2800,7 +2800,7 @@ CRayCastResult CStateManager::RayStaticIntersection(const zeus::CVector3f& pos, 
 CRayCastResult CStateManager::RayWorldIntersection(TUniqueId& idOut, const zeus::CVector3f& pos,
                                                    const zeus::CVector3f& dir, float length,
                                                    const CMaterialFilter& filter,
-                                                   const rstl::reserved_vector<TUniqueId, kMaxEntities>& list) const {
+                                                   const EntityList& list) const {
   return CGameCollision::RayWorldIntersection(*this, idOut, pos, dir, length, filter, list);
 }
 

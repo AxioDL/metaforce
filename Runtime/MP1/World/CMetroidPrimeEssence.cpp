@@ -569,7 +569,7 @@ void CMetroidPrimeEssence::sub8027d824(CStateManager& mgr) {
 }
 
 bool CMetroidPrimeEssence::sub8027e870(const zeus::CTransform& xf, CStateManager& mgr) {
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, {xf.origin - 2.f, xf.origin + 2.f}, CMaterialFilter::MakeInclude(EMaterialTypes::AIBlock),
                     this);
 

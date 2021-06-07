@@ -430,7 +430,7 @@ bool CNewFlameThrower::UpdateParticleCollisions(float dt, CStateManager& mgr,
                                                 rstl::reserved_vector<Cube, 32>& collisions_out) {
   x300_wasPointAdded = false;
   bool any_particle_collisions = false;
-  rstl::reserved_vector<TUniqueId, kMaxEntities> near_list_cache;
+  EntityList near_list_cache;
   // rstl::reserved_vector<rstl::reserved_vector<, ?>, ?> unk_rstl_vec; // inner vectors of size 0x90c, never used
   // though
   CCollisionInfoList cached_cinfo;
@@ -665,7 +665,7 @@ int CNewFlameThrower::SortAndFindOverlappingPoints(Cube const& box) {
 }
 
 bool CNewFlameThrower::FindCollisionInNearList(CStateManager& mgr,
-                                               rstl::reserved_vector<TUniqueId, kMaxEntities> const& near_list,
+                                               EntityList const& near_list,
                                                CCollisionPrimitive const& coll, TUniqueId& first_coll_out,
                                                CCollisionInfoList& collisions) {
   for (TUniqueId const& cur_uid : near_list) {

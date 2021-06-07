@@ -186,7 +186,7 @@ class CIceSheegoth : public CPatterned {
   void UpdateAttackPosition(CStateManager& mgr, zeus::CVector3f& attackPos);
   zeus::CVector3f GetEnergyAttractionPos(CStateManager& mgr) const;
   bool ShouldAttractProjectile(const CGameProjectile& proj, CStateManager& mgr) const;
-  bool IsClosestSheegoth(CStateManager& mgr, const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList,
+  bool IsClosestSheegoth(CStateManager& mgr, const EntityList& nearList,
                          const zeus::CVector3f& projectileOffset) const;
 
 public:

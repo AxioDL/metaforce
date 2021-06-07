@@ -1344,7 +1344,7 @@ pas::EStepDirection CPatterned::GetStepDirection(const zeus::CVector3f& moveVec)
 bool CPatterned::IsPatternObstructed(CStateManager& mgr, const zeus::CVector3f& p0, const zeus::CVector3f& p1) const {
   CMaterialFilter filter = CMaterialFilter::MakeInclude(EMaterialTypes::Character);
   zeus::CVector3f delta = p1 - p0;
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   bool ret = false;
   if (delta.canBeNormalized()) {
     zeus::CVector3f deltaNorm = delta.normalized();

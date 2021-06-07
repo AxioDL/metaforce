@@ -191,7 +191,7 @@ void CDrone::Think(float dt, CStateManager& mgr) {
   if (IsAlive() && x835_25_) {
     zeus::CAABox box = GetBoundingBox();
     box.accumulateBounds(GetTranslation() + 20.f * zeus::skDown);
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+    EntityList nearList;
     mgr.BuildNearList(nearList, GetBoundingBox(), CMaterialFilter::MakeInclude({EMaterialTypes::Trigger}), this);
     for (TUniqueId id : nearList) {
       if (const TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(id)) {
@@ -468,7 +468,7 @@ void CDrone::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
     SetLightEnabled(mgr, true);
     x834_25_ = true;
   } else if (msg == EStateMsg::Update) {
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+    EntityList nearList;
     BuildNearList(EMaterialTypes::Character, EMaterialTypes::Player, nearList, 5.f, mgr);
     if (!nearList.empty()) {
       zeus::CVector3f sep = x45c_steeringBehaviors.Separation(
@@ -878,7 +878,7 @@ bool CDrone::ShouldFire(CStateManager& mgr, float arg) {
 }
 
 bool CDrone::HearShot(CStateManager& mgr, float arg) {
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   BuildNearList(EMaterialTypes::Projectile, EMaterialTypes::Player, nearList, 10.f, mgr);
   return std::any_of(nearList.begin(), nearList.end(), [&mgr](TUniqueId uid) {
     if (TCastToConstPtr<CWeapon> wp = mgr.GetObjectById(uid))
@@ -914,7 +914,7 @@ void CDrone::Burn(float duration, float damage) {
 CPathFindSearch* CDrone::GetSearchPath() { return &x6b0_pathFind; }
 
 void CDrone::BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat,
-                           rstl::reserved_vector<TUniqueId, kMaxEntities>& listOut, float radius, CStateManager& mgr) {
+                           EntityList& listOut, float radius, CStateManager& mgr) {
   const zeus::CVector3f pos = GetTranslation();
   mgr.BuildNearList(listOut, zeus::CAABox(pos - radius, pos + radius),
                     CMaterialFilter::MakeIncludeExclude({includeMat}, {excludeMat}), nullptr);
@@ -1004,7 +1004,7 @@ void CDrone::FireProjectile(CStateManager& mgr, const zeus::CTransform& xf, cons
 void CDrone::StrafeFromCompanions(CStateManager& mgr) {
   if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Step)
     return;
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   BuildNearList(EMaterialTypes::Character, EMaterialTypes::Player, nearList, x61c_, mgr);
   if (nearList.empty())
     return;
@@ -1054,7 +1054,7 @@ void CDrone::UpdateScanner(CStateManager& mgr, float dt) {
   zeus::CVector3f vec =
       GetTransform().rotate(zeus::CVector3f(0.5f * std::cos(x5d8_), 1.f, 0.5f * std::sin(2.05f * x5d8_)).normalized());
   TUniqueId id;
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   nearList.push_back(mgr.GetPlayer().GetUniqueId());
   auto res = mgr.RayWorldIntersection(
       id, GetLctrTransform("Beacon_LCTR"sv).origin + (0.2f * vec), vec, 10000.f,
@@ -1082,7 +1082,7 @@ void CDrone::UpdateLasers(CStateManager& mgr, float dt) {
     auto box = zeus::skInvertedBox;
     box.accumulateBounds(GetTranslation() + 1000.f * vec);
     box.accumulateBounds(GetTranslation());
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+    EntityList nearList;
     mgr.BuildNearList(nearList, box, matFilter, nullptr);
     TUniqueId id;
     const auto result = mgr.RayWorldIntersection(id, beaconXf.origin + 2.f * vec, vec, 10000.f, matFilter, nearList);
@@ -1144,7 +1144,7 @@ void CDrone::sub_80165984(CStateManager& mgr, const zeus::CTransform& xf) {
 void CDrone::sub_801656d4(const zeus::CTransform& xf, CStateManager& mgr) {
   constexpr auto matFilter =
       CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, xf.origin, xf.frontVector(), 100000.f, matFilter, this);
   TUniqueId id;
   const auto result = mgr.RayWorldIntersection(id, xf.origin, xf.frontVector(), 100000.f, matFilter, nearList);

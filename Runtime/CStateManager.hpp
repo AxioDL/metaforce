@@ -298,14 +298,14 @@ public:
   void ProcessRadiusDamage(const CActor&, CActor&, TUniqueId senderId, const CDamageInfo& info, const CMaterialFilter&);
   void ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&, const CDamageInfo& info);
   bool TestRayDamage(const zeus::CVector3f& pos, const CActor& damagee,
-                     const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList) const;
+                     const EntityList& nearList) const;
   bool RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end, const CMaterialFilter& filter,
                        const CActor* damagee) const;
   bool RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
-                       const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList, const CMaterialFilter& filter,
+                       const EntityList& nearList, const CMaterialFilter& filter,
                        const CActor* damagee) const;
   bool RayCollideWorldInternal(const zeus::CVector3f& start, const zeus::CVector3f& end, const CMaterialFilter& filter,
-                               const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList, const CActor* damagee) const;
+                               const EntityList& nearList, const CActor* damagee) const;
   bool MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterialFilter& filter) const;
   void TestBombHittingWater(const CActor& damager, const zeus::CVector3f& pos, CActor& damagee);
   bool ApplyLocalDamage(const zeus::CVector3f&, const zeus::CVector3f&, CActor&, float, const CWeaponMode&);
@@ -344,10 +344,10 @@ public:
   void AreaUnloaded(TAreaId);
   void PrepareAreaUnload(TAreaId);
   void AreaLoaded(TAreaId);
-  void BuildNearList(rstl::reserved_vector<TUniqueId, kMaxEntities>& listOut, const zeus::CVector3f&, const zeus::CVector3f&,
+  void BuildNearList(EntityList& listOut, const zeus::CVector3f&, const zeus::CVector3f&,
                      float, const CMaterialFilter&, const CActor*) const;
-  void BuildColliderList(rstl::reserved_vector<TUniqueId, kMaxEntities>& listOut, const CActor&, const zeus::CAABox&) const;
-  void BuildNearList(rstl::reserved_vector<TUniqueId, kMaxEntities>& listOut, const zeus::CAABox&, const CMaterialFilter&,
+  void BuildColliderList(EntityList& listOut, const CActor&, const zeus::CAABox&) const;
+  void BuildNearList(EntityList& listOut, const zeus::CAABox&, const CMaterialFilter&,
                      const CActor*) const;
   void UpdateActorInSortedLists(CActor&);
   void UpdateSortedLists();
@@ -358,7 +358,7 @@ public:
                                        const CMaterialFilter& filter) const;
   CRayCastResult RayWorldIntersection(TUniqueId& idOut, const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                                       float length, const CMaterialFilter& filter,
-                                      const rstl::reserved_vector<TUniqueId, kMaxEntities>& list) const;
+                                      const EntityList& list) const;
   void UpdateObjectInLists(CEntity&);
   TUniqueId AllocateUniqueId();
   void DeferStateTransition(EStateManagerTransition t);

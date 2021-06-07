@@ -226,7 +226,7 @@ bool CRagDoll::SatisfyWorldConstraints(CStateManager& mgr, int pass) {
   else
     exclude = CMaterialList(EMaterialTypes::Character, EMaterialTypes::Player);
 
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   CMaterialFilter filter = CMaterialFilter::MakeIncludeExclude(include, exclude);
   mgr.BuildNearList(nearList, aabb, filter, nullptr);
 

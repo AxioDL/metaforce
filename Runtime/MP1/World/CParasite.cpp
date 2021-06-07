@@ -389,10 +389,10 @@ void CParasite::UpdatePFDestination(CStateManager& mgr) {
 
 void CParasite::DoFlockingBehavior(CStateManager& mgr) {
   zeus::CVector3f upVec = x34_transform.basis[2];
-  rstl::reserved_vector<TUniqueId, kMaxEntities> parasiteList;
+  EntityList parasiteList;
   zeus::CAABox aabb(GetTranslation() - x6e4_parasiteSearchRadius, GetTranslation() + x6e4_parasiteSearchRadius);
   if ((x5d4_thinkCounter % 6) == 0) {
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+    EntityList nearList;
     static constexpr CMaterialFilter filter = CMaterialFilter::MakeInclude(EMaterialTypes::Character);
     CParasite* closestParasite = nullptr;
     float minDistSq = 2.f + x6e8_parasiteSeparationDist * x6e8_parasiteSeparationDist;

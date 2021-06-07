@@ -128,7 +128,7 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) {
       player.GetTranslation().z() - drawParms.x7c_zRadius, player.GetTranslation().x() + drawParms.x78_xyRadius,
       player.GetTranslation().y() + drawParms.x78_xyRadius, player.GetTranslation().z() + drawParms.x7c_zRadius);
 
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, radarBounds,
                     CMaterialFilter(CMaterialList(EMaterialTypes::Target, EMaterialTypes::RadarObject),
                                     CMaterialList(EMaterialTypes::ExcludeFromRadar),

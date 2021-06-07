@@ -216,7 +216,7 @@ CRayCastResult CGameProjectile::DoCollisionCheck(TUniqueId& idOut, CStateManager
   CRayCastResult res;
   if (x2e4_24_active) {
     zeus::CVector3f posDelta = x34_transform.origin - x298_previousPos;
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+    EntityList nearList;
     mgr.BuildNearList(nearList, GetProjectileBounds(),
                       CMaterialFilter::MakeExclude(EMaterialTypes::ProjectilePassthrough), this);
 
@@ -257,7 +257,7 @@ void CGameProjectile::FluidFXThink(EFluidState state, CScriptWater& water, CStat
 
 CRayCastResult CGameProjectile::RayCollisionCheckWithWorld(TUniqueId& idOut, const zeus::CVector3f& start,
                                                            const zeus::CVector3f& end, float mag,
-                                                           const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList,
+                                                           const EntityList& nearList,
                                                            CStateManager& mgr) {
   x2d0_touchResults.clear();
   idOut = kInvalidUniqueId;

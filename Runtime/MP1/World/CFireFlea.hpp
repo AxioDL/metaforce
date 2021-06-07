@@ -28,7 +28,7 @@ class CFireFlea : public CPatterned {
   };
   float x568_ = 1.f;
   float x56c_;
-  rstl::reserved_vector<TUniqueId, kMaxEntities> x570_nearList;
+  EntityList x570_nearList;
   zeus::CVector3f xd74_;
   zeus::CVector3f xd80_targetPos;
   CPathFindSearch xd8c_pathFind;

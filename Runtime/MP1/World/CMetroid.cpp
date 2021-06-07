@@ -243,7 +243,7 @@ void CMetroid::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) {
       x7b0_attackTarget = player.GetUniqueId();
       if (!x450_bodyController->HasBeenFrozen()) {
         float range = std::max(x3bc_detectionRange, std::sqrt(playerDistSq));
-        rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+        EntityList nearList;
         mgr.BuildNearList(nearList, zeus::CAABox{pos - range, pos + range},
                           CMaterialFilter::MakeInclude({EMaterialTypes::Character}), nullptr);
         CSpacePirate* closestPirate = nullptr;
@@ -440,7 +440,7 @@ void CMetroid::RestoreSolidCollision(CStateManager& mgr) {
         CMaterialFilter::MakeInclude({EMaterialTypes::Solid, EMaterialTypes::Player, EMaterialTypes::Character});
     float radius = x808_loopAttackDistance * GetModelData()->GetScale().y();
     const zeus::CAABox box{pos - radius, pos + radius};
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+    EntityList nearList;
     mgr.BuildNearList(nearList, box, nearFilter, this);
     if (!CGameCollision::DetectDynamicCollisionBoolean(x6a0_collisionPrimitive, GetTransform(), nearList, mgr)) {
       x9bf_31_restoreCharacterCollision = false;
@@ -1309,7 +1309,7 @@ bool CMetroid::ShouldDodge(CStateManager& mgr, float arg) {
     return false;
   }
   const auto& xf = GetTransform();
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, zeus::CAABox{xf.origin - 9.f, xf.origin + 9.f},
                     CMaterialFilter::MakeInclude({EMaterialTypes::Projectile}), nullptr);
   if (nearList.empty()) {

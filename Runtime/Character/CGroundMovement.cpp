@@ -38,14 +38,14 @@ void CGroundMovement::CheckFalling(CPhysicsActor& actor, CStateManager& mgr, flo
 }
 
 void CGroundMovement::MoveGroundCollider(CStateManager& mgr, CPhysicsActor& actor, float dt,
-                                         const rstl::reserved_vector<TUniqueId, kMaxEntities>* nearList) {
+                                         const EntityList* nearList) {
   CMotionState oldState = actor.GetMotionState();
   CMotionState newState = actor.PredictMotion_Internal(dt);
   float deltaMag = newState.x0_translation.magnitude();
   TUniqueId idDetect = kInvalidUniqueId;
   CCollisionInfoList collisionList;
   zeus::CAABox motionVol = actor.GetMotionVolume(dt);
-  rstl::reserved_vector<TUniqueId, kMaxEntities> useColliderList;
+  EntityList useColliderList;
   if (nearList != nullptr) {
     useColliderList = *nearList;
   }
@@ -114,7 +114,7 @@ void CGroundMovement::MoveGroundCollider(CStateManager& mgr, CPhysicsActor& acto
 }
 
 bool CGroundMovement::ResolveUpDown(CAreaCollisionCache& cache, CStateManager& mgr, CPhysicsActor& actor,
-                                    const CMaterialFilter& filter, rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList,
+                                    const CMaterialFilter& filter, EntityList& nearList,
                                     float stepUp, float stepDown, float& fOut, CCollisionInfoList& list) {
   float zextent = stepDown;
   if (list.GetCount() <= 0) {
@@ -178,7 +178,7 @@ bool CGroundMovement::ResolveUpDown(CAreaCollisionCache& cache, CStateManager& m
 
 bool CGroundMovement::MoveGroundColliderZ(CAreaCollisionCache& cache, CStateManager& mgr, CPhysicsActor& actor,
                                           const CMaterialFilter& filter,
-                                          rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList, float amt, float& resolved,
+                                          EntityList& nearList, float amt, float& resolved,
                                           CCollisionInfoList& list, TUniqueId& idOut) {
   actor.MoveCollisionPrimitive({0.f, 0.f, amt});
 
@@ -238,7 +238,7 @@ bool CGroundMovement::MoveGroundColliderZ(CAreaCollisionCache& cache, CStateMana
 
 void CGroundMovement::MoveGroundColliderXY(CAreaCollisionCache& cache, CStateManager& mgr, CPhysicsActor& actor,
                                            const CMaterialFilter& filter,
-                                           rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList, float dt) {
+                                           EntityList& nearList, float dt) {
   bool didCollide = false;
   bool isPlayer = actor.GetMaterialList().HasMaterial(EMaterialTypes::Player);
   float remDt = dt;
@@ -335,9 +335,9 @@ zeus::CVector3f CGroundMovement::CollisionDamping(const zeus::CVector3f& vel, co
 }
 
 void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& actor, float dt,
-                                             const rstl::reserved_vector<TUniqueId, kMaxEntities>* nearList) {
+                                             const EntityList* nearList) {
   zeus::CAABox motionVol = actor.GetMotionVolume(dt);
-  rstl::reserved_vector<TUniqueId, kMaxEntities> useNearList;
+  EntityList useNearList;
   if (nearList != nullptr) {
     useNearList = *nearList;
   } else {
@@ -638,7 +638,7 @@ static bool RemovePositiveZComponentFromNormal(zeus::CVector3f& vec) {
 }
 
 CMaterialList CGroundMovement::MoveObjectAnalytical(CStateManager& mgr, CPhysicsActor& actor, float dt,
-                                                    rstl::reserved_vector<TUniqueId, kMaxEntities>& nearList,
+                                                    EntityList& nearList,
                                                     CAreaCollisionCache& cache, const SMovementOptions& opts,
                                                     SMoveObjectResult& result) {
   result.x6c_processedCollisions = 0;

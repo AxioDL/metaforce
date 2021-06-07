@@ -496,7 +496,7 @@ bool CFlyingPirate::Attacked(CStateManager& mgr, float arg) { return x854_ < (ar
 zeus::CVector3f CFlyingPirate::AvoidActors(CStateManager& mgr) {
   const zeus::CVector3f& origin = GetTranslation();
   const zeus::CAABox box(origin - 8.f, origin + 8.f);
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, box, CMaterialFilter::MakeInclude(EMaterialTypes::Character), this);
 
   zeus::CVector3f ret;
@@ -561,7 +561,7 @@ void CFlyingPirate::CheckForProjectiles(CStateManager& mgr) {
   const zeus::CAABox box(playerPos - 5.f, playerPos + 5.f);
   x6a0_30_ = false;
 
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, box, CMaterialFilter::MakeInclude(EMaterialTypes::Projectile), this);
   for (const auto& id : nearList) {
     if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(id)) {

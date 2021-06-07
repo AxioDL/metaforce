@@ -989,14 +989,14 @@ void CElitePirate::AttractProjectiles(CStateManager& mgr) {
   float radius = x5d8_data.GetProjectileAttractionRadius();
   const zeus::CVector3f actorPos = actor->GetTranslation();
   const zeus::CVector3f pos = GetTranslation();
-  rstl::reserved_vector<TUniqueId, kMaxEntities> projNearList;
+  EntityList projNearList;
   const zeus::CAABox aabb{pos - radius, pos + radius};
   mgr.BuildNearList(projNearList, aabb, CMaterialFilter::MakeInclude({EMaterialTypes::Projectile}), nullptr);
   if (projNearList.empty()) {
     return;
   }
 
-  rstl::reserved_vector<TUniqueId, kMaxEntities> charNearList;
+  EntityList charNearList;
   mgr.BuildNearList(charNearList, aabb, CMaterialFilter::MakeInclude({EMaterialTypes::Character}), nullptr);
   for (const auto& projId : projNearList) {
     TCastToPtr<CGameProjectile> projectile = mgr.ObjectById(projId);
@@ -1157,7 +1157,7 @@ bool CElitePirate::ShouldCallForBackupFromLauncher(const CStateManager& mgr, TUn
 }
 
 bool CElitePirate::IsClosestEnergyAttractor(const CStateManager& mgr,
-                                            const rstl::reserved_vector<TUniqueId, kMaxEntities>& charNearList,
+                                            const EntityList& charNearList,
                                             const zeus::CVector3f& projectilePos) const {
   const float distance = (projectilePos - GetTranslation()).magSquared();
   for (const auto& id : charNearList) {

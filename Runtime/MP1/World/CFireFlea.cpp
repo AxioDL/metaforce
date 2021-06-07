@@ -172,7 +172,7 @@ zeus::CVector3f CFireFlea::FindSafeRoute(CStateManager& mgr, const zeus::CVector
 }
 
 bool CFireFlea::CheckNearWater(const CStateManager& mgr, const zeus::CVector3f& dir) const {
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, GetTranslation(), dir, 2.f, CMaterialFilter::skPassEverything, nullptr);
 
   for (const auto& id : nearList) {

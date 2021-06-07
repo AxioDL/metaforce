@@ -46,7 +46,7 @@ void CVisorFlare::Update(float dt, const zeus::CVector3f& pos, const CActor* act
     zeus::CVector3f camPos = mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation();
     zeus::CVector3f camDiff = pos - camPos;
     const float mag = (camDiff.magnitude());
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearVec;
+    EntityList nearVec;
     mgr.BuildNearList(nearVec, camPos, camDiff * (1.f / mag), mag,
                       CMaterialFilter::MakeInclude({EMaterialTypes::Occluder}), act);
     TUniqueId id;

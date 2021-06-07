@@ -204,9 +204,9 @@ void CScriptPlatform::MoveRiders(CStateManager& mgr, float dt, bool active, std:
   }
 }
 
-rstl::reserved_vector<TUniqueId, kMaxEntities>
+EntityList
 CScriptPlatform::BuildNearListFromRiders(CStateManager& mgr, const std::vector<SRiders>& movedRiders) {
-  rstl::reserved_vector<TUniqueId, kMaxEntities> ret;
+  EntityList ret;
   for (const SRiders& rider : movedRiders) {
     if (const TCastToConstPtr<CActor> act = mgr.ObjectById(rider.x0_uid)) {
       ret.push_back(act->GetUniqueId());
@@ -238,7 +238,7 @@ void CScriptPlatform::PreThink(float dt, CStateManager& mgr) {
     MoveRiders(mgr, dt, GetActive(), x318_riders, collidedRiders, oldXf, x34_transform, x270_dragDelta, x27c_rotDelta);
     x356_27_squishedRider = false;
     if (!collidedRiders.empty()) {
-      rstl::reserved_vector<TUniqueId, kMaxEntities> nearList = BuildNearListFromRiders(mgr, collidedRiders);
+      EntityList nearList = BuildNearListFromRiders(mgr, collidedRiders);
       if (CGameCollision::DetectDynamicCollisionBoolean(*GetCollisionPrimitive(), GetPrimitiveTransform(), nearList,
                                                         mgr)) {
         SetMotionState(mState);
@@ -508,9 +508,9 @@ zeus::CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
         MoveToWR(GetTranslation() + x270_dragDelta, dt);
       }
 
-      rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+      EntityList nearList;
       mgr.BuildColliderList(nearList, *this, GetMotionVolume(dt));
-      rstl::reserved_vector<TUniqueId, kMaxEntities> nonRiders;
+      EntityList nonRiders;
       for (TUniqueId id : nearList) {
         if (!IsRider(id) && !IsSlave(id)) {
           nonRiders.push_back(id);

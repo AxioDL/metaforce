@@ -70,7 +70,7 @@ class CScriptPlatform : public CPhysicsActor {
                          std::vector<SRiders>& collidedRiders, const zeus::CTransform& oldXf,
                          const zeus::CTransform& newXf, const zeus::CVector3f& dragDelta,
                          const zeus::CQuaternion& rotDelta);
-  static rstl::reserved_vector<TUniqueId, kMaxEntities> BuildNearListFromRiders(CStateManager& mgr,
+  static EntityList BuildNearListFromRiders(CStateManager& mgr,
                                                                         const std::vector<SRiders>& movedRiders);
 
   std::optional<CAABoxShader> m_boxFilter;

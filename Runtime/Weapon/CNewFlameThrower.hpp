@@ -77,7 +77,7 @@ class CNewFlameThrower : public CGameProjectile {
   bool CanDamageActor(CActor &hit_actor, CStateManager &mgr);
   void AddContactPoint(CCollisionInfo const& cinfo, u32 time);
   int SortAndFindOverlappingPoints(Cube const& box);
-  bool FindCollisionInNearList(CStateManager &mgr, rstl::reserved_vector<TUniqueId, kMaxEntities> const &near_list,
+  bool FindCollisionInNearList(CStateManager &mgr, EntityList const &near_list,
                                CCollisionPrimitive const& coll, TUniqueId &first_coll_out,
                                CCollisionInfoList& collisions);
   void DecrementContactPointTimers();

@@ -123,7 +123,7 @@ class CEnvFxManager {
   void MoveWrapCells(s32, s32);
   void CalculateSnowForces(const CVectorFixed8_8& zVec, rstl::reserved_vector<CVectorFixed8_8, 256>& snowForces,
                            EEnvFxType type, const zeus::CVector3f& oopbtws, float dt);
-  static void BuildBlockObjectList(rstl::reserved_vector<TUniqueId, kMaxEntities>& list, CStateManager& mgr);
+  static void BuildBlockObjectList(EntityList& list, CStateManager& mgr);
   void UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, const zeus::CTransform& camXf,
                           const zeus::CTransform& xf, const zeus::CTransform& invXf);
   void CreateNewParticles(EEnvFxType type);

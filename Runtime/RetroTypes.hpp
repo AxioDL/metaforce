@@ -109,6 +109,7 @@ struct TUniqueId {
 };
 
 #define kInvalidUniqueId TUniqueId()
+using EntityList = rstl::reserved_vector<TUniqueId, kMaxEntities>;
 
 using TAreaId = s32;
 

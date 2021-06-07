@@ -143,7 +143,7 @@ void CWarWasp::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
     if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
       zeus::CVector3f delta = aimPos - xf.origin;
       if (delta.canBeNormalized()) {
-        rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+        EntityList nearList;
         TUniqueId bestId = kInvalidUniqueId;
         CRayCastResult res = mgr.RayWorldIntersection(bestId, xf.origin, delta.normalized(), delta.magnitude(),
                                                       CMaterialFilter::MakeInclude({EMaterialTypes::Solid}), nearList);
@@ -360,7 +360,7 @@ bool CWarWasp::PathToHiveIsClear(CStateManager& mgr) const {
   zeus::CVector3f delta = x3a0_latestLeashPosition - GetTranslation();
   if (GetTransform().basis[1].dot(delta) > 0.f) {
     zeus::CAABox aabb(GetTranslation() - 10.f, GetTranslation() + 10.f);
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+    EntityList nearList;
     mgr.BuildNearList(nearList, aabb, CMaterialFilter::MakeInclude({EMaterialTypes::Character}), nullptr);
     float deltaMagSq = delta.magSquared();
     for (TUniqueId id : nearList) {
@@ -1140,7 +1140,7 @@ bool CWarWasp::ShouldFire(CStateManager& mgr, float arg) {
 
 bool CWarWasp::ShouldDodge(CStateManager& mgr, float arg) {
   zeus::CAABox aabb(GetTranslation() - 7.5f, GetTranslation() + 7.5f);
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, aabb, CMaterialFilter::MakeInclude({EMaterialTypes::Projectile}), nullptr);
   for (TUniqueId id : nearList) {
     if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(id)) {

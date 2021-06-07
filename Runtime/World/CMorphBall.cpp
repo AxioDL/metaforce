@@ -759,7 +759,7 @@ bool CMorphBall::FindClosestSpiderBallWaypoint(CStateManager& mgr, const zeus::C
                                                zeus::CTransform& surfaceTransform) const {
   bool ret = false;
   const zeus::CAABox aabb(ballCenter - 2.1f, ballCenter + 2.1f);
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, aabb, CMaterialFilter::skPassEverything, nullptr);
   float minDist = 2.1f;
 
@@ -1926,7 +1926,7 @@ bool CMorphBall::BallCloseToCollision(const CStateManager& mgr, float dist, cons
   const CCollidableSphere sphere(
       zeus::CSphere(x0_player.GetTranslation() + zeus::CVector3f(0.f, 0.f, GetBallRadius()), dist), playerOrSolid);
 
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildColliderList(nearList, x0_player, sphere.CalculateLocalAABox());
 
   if (CGameCollision::DetectStaticCollisionBoolean(mgr, sphere, zeus::CTransform(), filter)) {

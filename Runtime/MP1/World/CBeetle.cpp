@@ -443,7 +443,7 @@ void CBeetle::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
       if (x450_bodyController->GetCurrentStateId() != pas::EAnimationState::Generate) {
         x568_stateProg = 4;
       } else if (x68_material.HasMaterial(EMaterialTypes::Solid) && x5a8_animTimeRem > 0.f) {
-        rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+        EntityList nearList;
         mgr.BuildNearList(nearList, zeus::CAABox(GetTranslation() - 5.f, GetTranslation() + 5.f),
                           CMaterialFilter::MakeInclude({EMaterialTypes::Solid}), this);
         if (!nearList.empty()) {
@@ -889,7 +889,7 @@ bool CBeetle::ShouldDoubleSnap(CStateManager& mgr, float arg) {
       targetPos = role->GetTeamPosition();
     zeus::CVector3f delta = targetPos - GetTranslation();
     if (delta.magSquared() > dist * dist && GetTransform().basis[1].dot(delta.normalized()) > 0.98f) {
-      rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+      EntityList nearList;
       mgr.BuildNearList(nearList, GetTranslation(), GetTransform().basis[1], x5a0_headbuttDist,
                         CMaterialFilter::MakeInclude({EMaterialTypes::Character}), this);
       TUniqueId bestId = kInvalidUniqueId;
@@ -915,7 +915,7 @@ bool CBeetle::ShouldJumpBack(CStateManager& mgr, float arg) {
   zeus::CVector3f backDir = -GetTransform().basis[1];
   const auto& aabb = GetBaseBoundingBox();
   zeus::CVector3f pos = GetTranslation() + zeus::CVector3f(0.f, 0.f, (aabb.max.z() - aabb.min.z()) * 0.5f);
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, pos, backDir, x5a4_jumpBackwardDist,
                     CMaterialFilter::MakeInclude({EMaterialTypes::Character}), this);
   TUniqueId bestId = kInvalidUniqueId;

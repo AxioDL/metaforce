@@ -144,7 +144,7 @@ void CPuddleToadGamma::ShootPlayer(CStateManager& mgr, float speed) {
     mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), x570_playerShootDamage,
       CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
     mgr.GetPlayer().GetMorphBall()->SetAsProjectile();
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+    EntityList nearList;
     mgr.BuildNearList(nearList, GetBoundingBox(), CMaterialFilter::MakeInclude({EMaterialTypes::Bomb}), this);
     for (TUniqueId id : nearList) {
       if (TCastToPtr<CBomb> bomb = mgr.ObjectById(id)) {

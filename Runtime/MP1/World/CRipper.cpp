@@ -167,8 +167,8 @@ zeus::CQuaternion CRipperControlledPlatform::Move(float arg, CStateManager& mgr)
     const auto quat = zeus::CQuaternion::fromAxisAngle({0.0f, 0.0f, 1.0f}, zRot);
     RotateToOR(quat, arg);
 
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
-    rstl::reserved_vector<TUniqueId, kMaxEntities> filteredNearList;
+    EntityList nearList;
+    EntityList filteredNearList;
     mgr.BuildColliderList(nearList, *this, GetMotionVolume(arg));
     for (const auto& id : nearList) {
       if (!IsRider(id) && !IsSlave(id)) {

@@ -52,7 +52,7 @@ private:
   float x168_timeSinceHitPlayer = 0.f;
   bool x16c_hitPlayerInAir = false;
   bool x16d_hitPlayer = false;
-  rstl::reserved_vector<TUniqueId, kMaxEntities> x170_hitIds;
+  EntityList x170_hitIds;
   std::optional<TToken<CElectricDescription>> x974_electricDesc;
   TUniqueId x980_id2 = kInvalidUniqueId;
 

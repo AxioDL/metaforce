@@ -385,7 +385,7 @@ bool CTryclops::InMaxRange(CStateManager& mgr, float) {
     return true;
   }
 
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
 
   float dectRange = x3bc_detectionRange * x3bc_detectionRange;
   float dectRangeHeight = x3c0_detectionHeightRange * x3c0_detectionHeightRange;
@@ -637,7 +637,7 @@ bool CTryclops::sub8025dbd0(CStateManager& mgr) {
   constexpr CMaterialList matList{EMaterialTypes::Player, EMaterialTypes::Solid};
   const CCollidableSphere colSphere{zeus::CSphere{GetTranslation() + zeus::CVector3f{0.f, 0.f, ballRadius}, ballRadius},
                                     matList};
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildColliderList(nearList, player, colSphere.CalculateLocalAABox());
   constexpr auto matFilter = CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Player});
   const zeus::CTransform skIdentity4f{}; // TODO move to zeus & make constexpr

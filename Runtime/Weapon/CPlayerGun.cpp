@@ -1943,7 +1943,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
 
   if (player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
       !mgr.GetCameraManager()->IsInCinematicCamera()) {
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+    EntityList nearList;
     zeus::CAABox aabb = x72c_currentBeam->GetBounds().getTransformedAABox(x4a8_gunWorldXf);
     mgr.BuildNearList(nearList, aabb, sAimFilter, &player);
     TUniqueId bestId = kInvalidUniqueId;

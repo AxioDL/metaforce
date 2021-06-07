@@ -1564,7 +1564,7 @@ void CMetroidPrimeExo::UpdatePlasmaProjectile(float dt, CStateManager& mgr) {
 zeus::CVector3f CMetroidPrimeExo::GetTargetVector(CStateManager& mgr) {
   constexpr auto MatFilter = CMaterialFilter::MakeIncludeExclude(
       {EMaterialTypes::Solid}, {EMaterialTypes::Character, EMaterialTypes::Player, EMaterialTypes::Projectile});
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, GetTranslation(), zeus::skDown, 150.f, MatFilter, this);
 
   TUniqueId uid = kInvalidUniqueId;

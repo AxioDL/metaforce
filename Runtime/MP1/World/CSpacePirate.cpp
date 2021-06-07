@@ -736,7 +736,7 @@ void CSpacePirate::CheckForProjectiles(CStateManager& mgr) {
   if (x637_26_hearPlayerFire) {
     zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
     zeus::CAABox aabb(aimPos - 5.f, aimPos + 5.f);
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+    EntityList nearList;
     mgr.BuildNearList(nearList, aabb, CMaterialFilter::MakeInclude({EMaterialTypes::Projectile}), nullptr);
     for (TUniqueId id : nearList) {
       if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(id)) {
@@ -2545,7 +2545,7 @@ bool CSpacePirate::HasTargetingPoint(CStateManager& mgr, float arg) {
     x7c0_targetId = mgr.GetPlayer().GetUniqueId();
     float margin = x568_pirateData.x8_SearchRadius * 1.f;
     zeus::CAABox nearAABB(GetTranslation() - margin, GetTranslation() + margin);
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+    EntityList nearList;
     mgr.BuildNearList(nearList, nearAABB, CMaterialFilter::MakeExclude({EMaterialTypes::Solid}), nullptr);
     for (TUniqueId id : nearList) {
       if (TCastToConstPtr<CScriptTargetingPoint> tp = mgr.GetObjectById(id)) {

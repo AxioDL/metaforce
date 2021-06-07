@@ -1839,7 +1839,7 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
     const zeus::CAABox expandedBounds(testBounds.min - 3.f, testBounds.max + 3.f);
     CAreaCollisionCache cache(expandedBounds);
     CGameCollision::BuildAreaCollisionCache(mgr, cache);
-    rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+    EntityList nearList;
     mgr.BuildColliderList(nearList, *this, expandedBounds);
     const std::optional<zeus::CVector3f> nonIntVec =
         CGameCollision::FindNonIntersectingVector(mgr, cache, *this, tmpBox, nearList);
@@ -2285,7 +2285,7 @@ void CPlayer::UpdatePhazonDamage(float dt, CStateManager& mgr) {
       constexpr CMaterialList primMaterial(EMaterialTypes::Player, EMaterialTypes::Solid);
       const CCollidableSphere prim(
           zeus::CSphere(GetCollisionPrimitive()->CalculateAABox(x34_transform).center(), 4.25f), primMaterial);
-      rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+      EntityList nearList;
       mgr.BuildColliderList(nearList, *this, prim.CalculateLocalAABox());
       if (CGameCollision::DetectStaticCollisionBoolean(mgr, prim, zeus::CTransform(), filter)) {
         touchingPhazon = true;
@@ -2942,7 +2942,7 @@ u16 CPlayer::GetMaterialSoundUnderPlayer(const CStateManager& mgr, const u16* ta
   u16 ret = defId;
   zeus::CAABox aabb = GetBoundingBox();
   aabb.accumulateBounds(x34_transform.origin + zeus::skDown);
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, aabb, SolidMaterialFilter, nullptr);
   TUniqueId collideId = kInvalidUniqueId;
   const CRayCastResult result =
@@ -3611,7 +3611,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
 bool CPlayer::ValidateFPPosition(const zeus::CVector3f& pos, const CStateManager& mgr) const {
   constexpr CMaterialFilter solidFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
   const zeus::CAABox aabb(x2d8_fpBounds.min - 1.f + pos, x2d8_fpBounds.max + 1.f + pos);
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildColliderList(nearList, *this, aabb);
   const CCollidableAABox colAABB({GetBaseBoundingBox().min + pos, GetBaseBoundingBox().max + pos}, {});
   return !CGameCollision::DetectCollisionBoolean(mgr, colAABB, zeus::CTransform(), solidFilter, nearList);
@@ -4147,7 +4147,7 @@ bool CPlayer::ValidateAimTargetId(TUniqueId uid, CStateManager& mgr) {
          WithinOrbitScreenBox(posInBox, EPlayerZoneInfo::Targeting, x334_orbitType))) {
       const float eyeToAimMag = eyeToAim.magnitude();
       if (eyeToAimMag <= g_tweakPlayer->GetAimMaxDistance()) {
-        rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+        EntityList nearList;
         TUniqueId intersectId = kInvalidUniqueId;
         eyeToAim.normalize();
         mgr.BuildNearList(nearList, eyePos, eyeToAim, eyeToAimMag, OccluderFilter, act);
@@ -4231,7 +4231,7 @@ TUniqueId CPlayer::FindAimTargetId(CStateManager& mgr) const {
   }
   const zeus::CAABox aabb = BuildNearListBox(true, GetFirstPersonCameraTransform(mgr), g_tweakPlayer->GetAimBoxWidth(),
                                              g_tweakPlayer->GetAimBoxHeight(), dist);
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, aabb, CMaterialFilter::MakeInclude({EMaterialTypes::Target}), this);
   return CheckEnemiesAgainstOrbitZone(nearList, EPlayerZoneInfo::Targeting, EPlayerZoneType::Ellipse, mgr);
 }
@@ -4240,7 +4240,7 @@ const zeus::CTransform& CPlayer::GetFirstPersonCameraTransform(const CStateManag
   return mgr.GetCameraManager()->GetFirstPersonCamera()->GetGunFollowTransform();
 }
 
-TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUniqueId, kMaxEntities>& list,
+TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const EntityList& list,
                                                 EPlayerZoneInfo info, EPlayerZoneType zone, CStateManager& mgr) const {
   const zeus::CVector3f eyePos = GetEyePosition();
   float minEyeToAimMag = 10000.f;
@@ -4263,7 +4263,7 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUni
           const float eyeToAimMag = eyeToAim.magnitude();
           if (eyeToAimMag <= g_tweakPlayer->GetAimMaxDistance()) {
             if (minEyeToAimMag - eyeToAimMag > g_tweakPlayer->GetAimThresholdDistance()) {
-              rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+              EntityList nearList;
               TUniqueId intersectId = kInvalidUniqueId;
               eyeToAim.normalize();
               mgr.BuildNearList(nearList, eyePos, eyeToAim, eyeToAimMag, OccluderFilter, act);
@@ -4282,7 +4282,7 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUni
               const float posInBoxTop = posInBox.y() - boxTop;
               const float posInBoxMagSq = posInBoxLeft * posInBoxLeft + posInBoxTop * posInBoxTop;
               if (posInBoxMagSq < minPosInBoxMagSq) {
-                rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+                EntityList nearList;
                 TUniqueId intersectId = kInvalidUniqueId;
                 eyeToAim.normalize();
                 mgr.BuildNearList(nearList, eyePos, eyeToAim, eyeToAimMag, OccluderFilter, act);
@@ -4328,7 +4328,7 @@ void CPlayer::UpdateOrbitableObjects(CStateManager& mgr) {
   const CMaterialFilter filter = mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan
                                      ? CMaterialFilter::MakeInclude({EMaterialTypes::Scannable})
                                      : CMaterialFilter::MakeInclude({EMaterialTypes::Orbit});
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildNearList(nearList, nearAABB, filter, nullptr);
 
   FindOrbitableObjects(nearList, x344_nearbyOrbitObjects, x330_orbitZoneMode, EPlayerZoneType::Always, mgr, true);
@@ -4361,7 +4361,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids, EP
             if (x310_orbitTargetId != point->GetUniqueId()) {
               if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GrappleBeam) &&
                   eyeToOrbitMag < minEyeToOrbitMag && eyeToOrbitMag < g_tweakPlayer->GetOrbitDistanceMax()) {
-                rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+                EntityList nearList;
                 TUniqueId intersectId = kInvalidUniqueId;
                 eyeToOrbit.normalize();
                 mgr.BuildNearList(nearList, eyePos, eyeToOrbit, eyeToOrbitMag, OccluderFilter, act.GetPtr());
@@ -4393,7 +4393,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids, EP
 
           if (minEyeToOrbitMag - eyeToOrbitMag > g_tweakPlayer->GetOrbitDistanceThreshold() &&
               mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Scan) {
-            rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+            EntityList nearList;
             TUniqueId idOut = kInvalidUniqueId;
             eyeToOrbit.normalize();
             mgr.BuildNearList(nearList, eyePos, eyeToOrbit, eyeToOrbitMag, OccluderFilter, act.GetPtr());
@@ -4436,7 +4436,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids, EP
             const float posInBoxTop = orbitPosScreen.y() - boxTop;
             const float posInBoxMagSq = posInBoxLeft * posInBoxLeft + posInBoxTop * posInBoxTop;
             if (posInBoxMagSq < minPosInBoxMagSq) {
-              rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+              EntityList nearList;
               TUniqueId idOut = kInvalidUniqueId;
               eyeToOrbit.normalize();
               mgr.BuildNearList(nearList, eyePos, eyeToOrbit, eyeToOrbitMag, OccluderFilter, act.GetPtr());
@@ -4478,7 +4478,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids, EP
   return bestId;
 }
 
-void CPlayer::FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, kMaxEntities>& nearObjects,
+void CPlayer::FindOrbitableObjects(const EntityList& nearObjects,
                                    std::vector<TUniqueId>& listOut, EPlayerZoneInfo zone, EPlayerZoneType type,
                                    CStateManager& mgr, bool onScreenTest) const {
   const CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
@@ -5012,7 +5012,7 @@ CPlayer::EOrbitValidationResult CPlayer::ValidateCurrentOrbitTargetId(CStateMana
     TUniqueId bestId = kInvalidUniqueId;
     const zeus::CVector3f eyeToOrbit = act->GetOrbitPosition(mgr) - eyePos;
     if (eyeToOrbit.canBeNormalized()) {
-      rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+      EntityList nearList;
       mgr.BuildNearList(nearList, eyePos, eyeToOrbit.normalized(), eyeToOrbit.magnitude(), OccluderFilter,
                         act.GetPtr());
       for (auto it = nearList.begin(); it != nearList.end();) {
@@ -5814,7 +5814,7 @@ bool CPlayer::CanLeaveMorphBallState(CStateManager& mgr, zeus::CVector3f& pos) c
   constexpr CMaterialFilter filter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
   const zeus::CAABox aabb(x2d8_fpBounds.min - zeus::CVector3f(1.f) + GetTranslation(),
                           x2d8_fpBounds.max + zeus::CVector3f(1.f) + GetTranslation());
-  rstl::reserved_vector<TUniqueId, kMaxEntities> nearList;
+  EntityList nearList;
   mgr.BuildColliderList(nearList, *this, aabb);
   const zeus::CAABox& baseAABB = GetBaseBoundingBox();
   pos = zeus::skZero3f;
