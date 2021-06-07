@@ -1,5 +1,7 @@
 #include "Runtime/MP1/CPlayMovie.hpp"
 
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+
 namespace metaforce::MP1 {
 
 const char* kMovies[] = {"Video/wingame.thp",       "Video/wingame_good.thp",  "Video/wingame_best.thp",

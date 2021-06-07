@@ -2,6 +2,8 @@
 
 #include "Runtime/CResLoader.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+
 #include "Runtime/MP1/MP1.hpp"
 
 namespace metaforce::MP1 {

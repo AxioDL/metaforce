@@ -258,6 +258,7 @@ jobs:
 
   build-windows-clang:
     name: Build Windows (Clang x86_64)
+    if: 'false'  # disabled due to header issues
     runs-on: windows-2019
     env:
       LLVM_VERSION: 10.0.1
