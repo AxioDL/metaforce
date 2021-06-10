@@ -19,11 +19,9 @@ jobs:
       matrix:
         include:
           - name: GCC
-            cc: gcc
-            cxx: g++
+            preset: gcc
           - name: Clang
-            cc: clang
-            cxx: clang++
+            preset: clang
 
     steps:
       - uses: actions/checkout@v2
@@ -51,22 +49,15 @@ jobs:
           echo After
           df -h .
 
-      - name: Create build directory
-        run: cmake -E make_directory ${{github.workspace}}/build
-
       - name: Configure CMake
-        working-directory: ${{github.workspace}}/build
-        run: |
-          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}} \
-            -DClang_DIR=/usr/lib/cmake/clang-11
+        run: cmake --preset linux-ci-${{matrix.preset}}
 
       - name: Build
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build . --target metaforce metaforce-gui hecl visigen
+        run: cmake --build --preset linux-ci-${{matrix.preset}}
 
   build-macos:
     name: Build macOS (AppleClang x86_64)
+    if: 'false'
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
@@ -95,10 +86,18 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: cmake --build . --target metaforce-gui
 
-  build-windows-msvc:
-    name: Build Windows (MSVC x86_64)
-    if: 'false' # disabled due to memory constraints
+  build-windows:
+    name: Build Windows (${{matrix.name}} x86_64)
     runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: MSVC
+            preset: msvc
+          - name: Clang
+            preset: clang
+
     env:
       LLVM_VERSION: 10.0.1
       Qt_VERSION: 5.15.2
@@ -131,75 +130,8 @@ jobs:
       - name: Enable Visual Studio environment
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Create build directory
-        run: cmake -E make_directory ${{github.workspace}}/build
-
       - name: Configure CMake
-        working-directory: ${{github.workspace}}/build
-        run: |
-          $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
-          cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
-            -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
-            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= `
-            -DLLVM_ROOT_DIR="$workspace/LLVM"
+        run: cmake --preset windows-ci-${{matrix.preset}}
 
       - name: Build
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build . --target metaforce metaforce-gui hecl visigen
-
-  build-windows-clang:
-    name: Build Windows (Clang x86_64)
-    if: 'false'  # disabled due to header issues
-    runs-on: windows-2019
-    env:
-      LLVM_VERSION: 10.0.1
-      Qt_VERSION: 5.15.2
-      IPP_VERSION: 2021.2.0.210
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          submodules: recursive
-
-      - name: Install LLVM
-        run: |
-          $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "LLVM-$env:LLVM_VERSION-win64.exe"
-          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
-          Start-Process "$TempDir\$Filename" -ArgumentList "/S /D=$env:RUNNER_WORKSPACE\LLVM" -Wait
-
-      - name: Install vcpkg Qt
-        run: |
-          $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "vcpkg-qt-$env:Qt_VERSION.7z"
-          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
-          7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
-
-      - name: Install dependencies
-        run: choco install ninja vulkan-sdk
-
-      - name: Enable Visual Studio environment
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Create build directory
-        run: cmake -E make_directory ${{github.workspace}}/build
-
-      - name: Configure CMake
-        working-directory: ${{github.workspace}}/build
-        run: |
-          $workspace = $env:RUNNER_WORKSPACE -replace '\\', '/'
-          cmake $env:GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
-            -DCMAKE_TOOLCHAIN_FILE="$workspace/vcpkg-qt-$env:Qt_VERSION/scripts/buildsystems/vcpkg.cmake" `
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
-            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
-            -DCMAKE_C_COMPILER=clang-cl `
-            -DCMAKE_CXX_COMPILER=clang-cl `
-            -DCMAKE_LINKER=lld-link `
-            -DLLVM_ROOT_DIR="$workspace/LLVM"
-
-      - name: Build
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build . --target metaforce metaforce-gui hecl visigen
+        run: cmake --build --preset windows-ci-${{matrix.preset}}

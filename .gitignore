@@ -10,3 +10,4 @@ Runtime/platforms/win/metaforce.rc
 out/
 cmake-build-*/
 build/
+CMakeUserPresets.json
