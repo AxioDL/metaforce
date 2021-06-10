@@ -658,6 +658,11 @@ std::unique_ptr<CIntElement> CParticleDataFactory::GetIntElement(CInputStream& i
     auto b = GetIntElement(in);
     return std::make_unique<CIEMultiply>(std::move(a), std::move(b));
   }
+  case SBIG('DIVD'): {
+    auto a = GetIntElement(in);
+    auto b = GetIntElement(in);
+    return std::make_unique<CIEDivide>(std::move(a), std::move(b));
+  }
   case SBIG('SPAH'): {
     auto a = GetIntElement(in);
     auto b = GetIntElement(in);

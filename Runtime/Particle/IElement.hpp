@@ -24,7 +24,7 @@ public:
 class CIntElement : public IElement {
 public:
   virtual bool GetValue(int frame, int& valOut) const = 0;
-  virtual int GetMaxValue() const = 0;
+  // virtual int GetMaxValue() const = 0; Deprecated and unused
 };
 
 class CVectorElement : public IElement {

@@ -21,7 +21,7 @@ class CIEKeyframeEmitter : public CIntElement {
 public:
   explicit CIEKeyframeEmitter(CInputStream& in);
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIEDeath : public CIntElement {
@@ -32,7 +32,7 @@ public:
   CIEDeath(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIEClamp : public CIntElement {
@@ -44,7 +44,7 @@ public:
   CIEClamp(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b, std::unique_ptr<CIntElement>&& c)
   : x4_min(std::move(a)), x8_max(std::move(b)), xc_val(std::move(c)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIETimeChain : public CIntElement {
@@ -56,7 +56,7 @@ public:
   CIETimeChain(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b, std::unique_ptr<CIntElement>&& c)
   : x4_a(std::move(a)), x8_b(std::move(b)), xc_swFrame(std::move(c)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIEAdd : public CIntElement {
@@ -66,7 +66,7 @@ class CIEAdd : public CIntElement {
 public:
   CIEAdd(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b) : x4_a(std::move(a)), x8_b(std::move(b)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIEConstant : public CIntElement {
@@ -75,7 +75,7 @@ class CIEConstant : public CIntElement {
 public:
   explicit CIEConstant(int val) : x4_val(val) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIEImpulse : public CIntElement {
@@ -84,7 +84,7 @@ class CIEImpulse : public CIntElement {
 public:
   explicit CIEImpulse(std::unique_ptr<CIntElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIELifetimePercent : public CIntElement {
@@ -93,7 +93,7 @@ class CIELifetimePercent : public CIntElement {
 public:
   explicit CIELifetimePercent(std::unique_ptr<CIntElement>&& a) : x4_percentVal(std::move(a)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIEInitialRandom : public CIntElement {
@@ -104,7 +104,7 @@ public:
   CIEInitialRandom(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIEPulse : public CIntElement {
@@ -118,7 +118,7 @@ public:
            std::unique_ptr<CIntElement>&& d)
   : x4_aDuration(std::move(a)), x8_bDuration(std::move(b)), xc_aVal(std::move(c)), x10_bVal(std::move(d)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIEMultiply : public CIntElement {
@@ -129,7 +129,19 @@ public:
   CIEMultiply(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
+};
+
+class CIEDivide : public CIntElement {
+  std::unique_ptr<CIntElement> x4_dividend;
+  std::unique_ptr<CIntElement> x8_divisor;
+
+public:
+  CIEDivide(std::unique_ptr<CIntElement>&& dividend, std::unique_ptr<CIntElement>&& divisor)
+  : x4_dividend(std::move(dividend)), x8_divisor(std::move(divisor)) {}
+
+  bool GetValue(int frame, int& valOut) const override;
+  // int GetMaxValue() const override { return 0; }
 };
 
 class CIESampleAndHold : public CIntElement {
@@ -143,7 +155,7 @@ public:
   CIESampleAndHold(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b, std::unique_ptr<CIntElement>&& c)
   : x4_sampleSource(std::move(a)), xc_waitFramesMin(std::move(b)), x10_waitFramesMax(std::move(c)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIERandom : public CIntElement {
@@ -154,7 +166,7 @@ public:
   CIERandom(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
   : x4_min(std::move(a)), x8_max(std::move(b)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIETimeScale : public CIntElement {
@@ -163,25 +175,25 @@ class CIETimeScale : public CIntElement {
 public:
   explicit CIETimeScale(std::unique_ptr<CRealElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIEGetCumulativeParticleCount : public CIntElement {
 public:
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIEGetActiveParticleCount : public CIntElement {
 public:
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIEGetEmitterTime : public CIntElement {
 public:
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIEModulo : public CIntElement {
@@ -192,7 +204,7 @@ public:
   CIEModulo(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIESubtract : public CIntElement {
@@ -203,7 +215,7 @@ public:
   CIESubtract(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 class CIERealToInt final : public CIntElement {
@@ -215,7 +227,7 @@ public:
   : x4_a{std::move(a)}, x8_b{std::move(b)} {}
 
   bool GetValue(int frame, int& valOut) const override;
-  int GetMaxValue() const override;
+  // int GetMaxValue() const override;
 };
 
 } // namespace metaforce
