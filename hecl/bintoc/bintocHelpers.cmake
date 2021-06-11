@@ -1,13 +1,3 @@
-# - Config file for the bintoc package
-
-# Compute paths
-get_filename_component(BINTOC_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-
-# Our library dependencies (contains definitions for IMPORTED targets)
-if(NOT TARGET bintoc AND NOT bintoc_BINARY_DIR)
-  include("${BINTOC_CMAKE_DIR}/hecl-bintocTargets.cmake")
-endif()
-
 function(bintoc out in sym)
   if(IS_ABSOLUTE ${out})
     set(theOut ${out})
@@ -21,9 +11,10 @@ function(bintoc out in sym)
   endif()
   get_filename_component(outDir ${theOut} DIRECTORY)
   file(MAKE_DIRECTORY ${outDir})
+  ExternalProject_Get_Property(bintoc INSTALL_DIR)
   add_custom_command(OUTPUT ${theOut}
-                     COMMAND $<TARGET_FILE:bintoc> ARGS ${theIn} ${theOut} ${sym}
-                     DEPENDS ${theIn})
+                     COMMAND "${INSTALL_DIR}/bin/bintoc" ARGS ${theIn} ${theOut} ${sym}
+                     DEPENDS ${theIn} bintoc)
 endfunction()
 
 function(bintoc_compress out in sym)
@@ -39,7 +30,8 @@ function(bintoc_compress out in sym)
   endif()
   get_filename_component(outDir ${theOut} DIRECTORY)
   file(MAKE_DIRECTORY ${outDir})
+  ExternalProject_Get_Property(bintoc INSTALL_DIR)
   add_custom_command(OUTPUT ${theOut}
-                     COMMAND $<TARGET_FILE:bintoc> ARGS --compress ${theIn} ${theOut} ${sym}
-                     DEPENDS ${theIn})
+                     COMMAND "${INSTALL_DIR}/bin/bintoc" ARGS --compress ${theIn} ${theOut} ${sym}
+                     DEPENDS ${theIn} bintoc)
 endfunction()

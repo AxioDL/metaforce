@@ -51,9 +51,6 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
     * Windows: [Microsoft Store](https://go.microsoft.com/fwlink?linkID=2082640)
         * Verify it's added to `%PATH%` by typing `python` in `cmd`.
     * macOS: `brew install python@3`
-* LLVM development package *(headers and libs)*
-    * [Specialized Windows Package](https://axiodl.com/files/LLVM-10.0.1-win64.exe)
-    * macOS: `brew install --force-bottle llvm`
 * **[Windows]** [Visual Studio 2019 Community](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
     * Select `C++ Development` and verify the following packages are included:
         * `Windows 10 SDK`
@@ -64,8 +61,8 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
 * **[Linux]** recent development packages of `udev`, `x11`, `xcb`, `xinput`, `glx`, `asound`
     * Ubuntu 20.04+ packages
       ```
-      build-essential curl git ninja-build llvm-dev libclang-dev clang lld zlib1g-dev libcurl4-openssl-dev
-      libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev libpulse-dev
+      build-essential curl git ninja-build clang lld zlib1g-dev libcurl4-openssl-dev \
+      libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev libpulse-dev \
       libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 qt5-default
       ```
      * Arch packages

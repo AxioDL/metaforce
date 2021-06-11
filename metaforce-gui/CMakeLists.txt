@@ -144,20 +144,6 @@ elseif (APPLE)
     set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
             MACOSX_PACKAGE_LOCATION Resources
             )
-    add_custom_command(
-            TARGET metaforce-gui POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:metaforce> $<TARGET_FILE_DIR:metaforce-gui>
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:metaforce-gui>
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:metaforce-gui>
-            DEPENDS metaforce hecl visigen
-    )
-    if (NOT "${SENTRY_DSN}" STREQUAL "")
-        add_custom_command(
-                TARGET metaforce-gui POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:crashpad_handler> $<TARGET_FILE_DIR:metaforce-gui>
-                DEPENDS crashpad_handler
-        )
-    endif()
 endif ()
 
 add_subdirectory(platforms/freedesktop)

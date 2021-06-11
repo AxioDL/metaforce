@@ -2,8 +2,6 @@ name: Build
 
 on:
   push:
-    branches-ignore:
-      - main
     paths-ignore:
       - '*.json'
       - '*.md'
@@ -31,11 +29,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get -y install build-essential curl git cmake ninja-build clang lld python3 python-is-python3 \
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
+          sudo apt-get -y install curl git cmake ninja-build llvm-dev libclang-dev clang lld libcurl4-openssl-dev \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
-            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev libcurl4-openssl-dev qt5-default \
-            llvm-11-dev libclang-11-dev clang-11
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default \
+            intel-oneapi-ipp-devel ccache
+
+          yarn global add @sentry/cli
+          echo "$(yarn global bin)" >> $GITHUB_PATH
 
           # free up disk space
           # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
@@ -49,16 +53,39 @@ jobs:
           echo After
           df -h .
 
+      - name: Configure ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ubuntu-20.04-${{matrix.cc}}
+          max-size: 1G
+
+#      - name: Configure CMake
+#        run: |
+#          cmake -B build . -GNinja -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE \
+#            -DCMAKE_INSTALL_PREFIX:PATH="$GITHUB_WORKSPACE/install" \
+#            -DCMAKE_C_COMPILER:STRING=${{matrix.cc}} \
+#            -DCMAKE_CXX_COMPILER:STRING=${{matrix.cxx}} \
+#            -DCMAKE_C_COMPILER_LAUNCHER:STRING=ccache \
+#            -DCMAKE_CXX_COMPILER_LAUNCHER:STRING=ccache
+
       - name: Configure CMake
         run: cmake --preset linux-ci-${{matrix.preset}}
 
       - name: Build
         run: cmake --build --preset linux-ci-${{matrix.preset}}
 
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.cc}}-x86_64
+          path: build/install
+
   build-macos:
-    name: Build macOS (AppleClang x86_64)
-    if: 'false'
+    name: Build macOS (AppleClang universal)
     runs-on: macos-10.15
+    env:
+      Qt_VERSION: 5.15.2
+      IPP_VERSION: 2021.2.0.192
     steps:
       - uses: actions/checkout@v2
         with:
@@ -69,26 +96,60 @@ jobs:
         run: |
           brew update
           brew upgrade --formula
-          brew install ninja qt@5 graphicsmagick imagemagick
-          brew link qt@5
+          brew install ninja graphicsmagick imagemagick ccache
           yarn global add create-dmg
+          # universal qt5 from macports
+          curl -LSfs https://axiodl.com/files/qt-$Qt_VERSION.mpkg -o /tmp/qt-$Qt_VERSION.mpkg
+          sudo installer -pkg /tmp/qt-$Qt_VERSION.mpkg -target /
 
-      - name: Create build directory
-        run: cmake -E make_directory ${{github.workspace}}/build
+      - name: Install Intel IPP
+        if: 'false' # not supported for universal build
+        run: |
+          NAME="m_ipp_oneapi_p_${IPP_VERSION}_offline"
+          curl -LSfs https://registrationcenter-download.intel.com/akdlm/irc_nas/17606/$NAME.dmg -o /tmp/$NAME.dmg
+          sudo hdiutil attach /tmp/$NAME.dmg -quiet
+          sudo /Volumes/$NAME/bootstrapper.app/Contents/MacOS/install.sh -c --action install --eula accept
+          sudo hdiutil detach /Volumes/$NAME -quiet
+          rm /tmp/$NAME.dmg
+
+      - name: Configure ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: macos-10.15-appleclang
+          max-size: 1G
 
       - name: Configure CMake
-        working-directory: ${{github.workspace}}/build
         run: |
-          export PATH="/usr/local/opt/qt@5/bin:$PATH" # FIXME remove
-          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake -B build . -GNinja -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE \
+            -DCMAKE_C_COMPILER_LAUNCHER:STRING=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER:STRING=ccache \
+            -DCMAKE_INSTALL_PREFIX:PATH="$GITHUB_WORKSPACE/install" \
+            -DQt5Widgets_DIR:PATH=/opt/local/libexec/qt5/lib/cmake/Qt5Widgets \
+            -DCMAKE_OSX_ARCHITECTURES:STRING="arm64;x86_64" \
+            -DPNG_DIR:PATH=/opt/local/lib
 
       - name: Build
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build . --target metaforce-gui
+        run: cmake --build build --config $BUILD_TYPE --target install
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-universal
+          path: build/install
 
   build-windows:
     name: Build Windows (${{matrix.name}} x86_64)
     runs-on: windows-2019
+
+    env:
+      Qt_VERSION: 5.15.2
+      IPP_VERSION: 2021.2.0.210
+      BUILDCACHE_VERSION: v0.26.1
+      # C: has ~90GB available space at the moment
+      BUILDCACHE_DIR: C:\buildcache
+      BUILD_DIR: C:\build
+      INSTALL_DIR: C:\install
+
     strategy:
       fail-fast: false
       matrix:
@@ -98,23 +159,11 @@ jobs:
           - name: Clang
             preset: clang
 
-    env:
-      LLVM_VERSION: 10.0.1
-      Qt_VERSION: 5.15.2
-      IPP_VERSION: 2021.2.0.210
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
           submodules: recursive
-
-      - name: Install LLVM
-        run: |
-          $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "LLVM-$env:LLVM_VERSION-win64.exe"
-          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
-          Start-Process "$TempDir\$Filename" -ArgumentList "/S /D=$env:RUNNER_WORKSPACE\LLVM" -Wait
 
       - name: Install vcpkg Qt
         run: |
@@ -124,14 +173,67 @@ jobs:
           (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
           7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
 
+      - name: Install Intel IPP
+        run: |
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/17739/$Filename", "$TempDir\$Filename")
+          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
+          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
+
       - name: Install dependencies
-        run: choco install ninja vulkan-sdk
+        run: |
+          choco install ninja vulkan-sdk
+
+          # set up buildcache
+          $TempDir = "$env:RUNNER_WORKSPACE\temp"
+          New-Item -Path "$TempDir" -ItemType Directory -ea 0
+          (New-Object Net.WebClient).DownloadFile("https://github.com/mbitsnbites/buildcache/releases/download/$env:BUILDCACHE_VERSION/buildcache-windows.zip", "$TempDir\buildcache.zip")
+          Expand-Archive -LiteralPath "$TempDir\buildcache.zip" -DestinationPath "$TempDir"
+          echo "$TempDir\buildcache\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "BUILDCACHE_ACCURACY=STRICT" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "BUILDCACHE_MAX_CACHE_SIZE=1073741824" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+          # check available disk space
+          Get-PSDrive
+
+      - name: Restore buildcache
+        uses: actions/cache@v2
+        with:
+          path: ${{env.BUILDCACHE_DIR}}
+          key: buildcache-windows-2019-${{matrix.oname}}
 
       - name: Enable Visual Studio environment
         uses: ilammy/msvc-dev-cmd@v1
+
+#      - name: Configure CMake
+#        run: |
+#          buildcache -z
+#          cmake -B "$env:BUILD_DIR" . -GNinja -DCMAKE_BUILD_TYPE:STRING=$env:BUILD_TYPE `
+#            -DCMAKE_INSTALL_PREFIX:PATH="$env:INSTALL_DIR" `
+#            -DCMAKE_TOOLCHAIN_FILE:PATH="$env:RUNNER_WORKSPACE\vcpkg-qt-$env:Qt_VERSION\scripts\buildsystems\vcpkg.cmake" `
+#            -DVCPKG_TARGET_TRIPLET:STRING=x64-windows-static `
+#            -DCMAKE_MSVC_RUNTIME_LIBRARY:STRING=MultiThreaded `
+#            -DCMAKE_C_COMPILER:STRING=${{matrix.cc}} `
+#            -DCMAKE_CXX_COMPILER:STRING=${{matrix.cc}} `
+#            -DCMAKE_LINKER:STRING=${{matrix.ld}} `
+#            -DCMAKE_C_COMPILER_LAUNCHER:STRING=buildcache `
+#            -DCMAKE_CXX_COMPILER_LAUNCHER:STRING=buildcache `
+#            -DCMAKE_C_FLAGS_RELWITHDEBINFO:STRING="/MD /Z7 /O2 /Ob1 /DNDEBUG" `
+#            -DCMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING="/MD /Z7 /O2 /Ob1 /DNDEBUG"
 
       - name: Configure CMake
         run: cmake --preset windows-ci-${{matrix.preset}}
 
       - name: Build
         run: cmake --build --preset windows-ci-${{matrix.preset}}
+
+      - name: Print buildcache stats
+        run: buildcache -s
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-win32-${{matrix.oname}}-x86_64
+          path: ${{env.INSTALL_DIR}}
