@@ -61,95 +61,95 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
   CGenDescription* desc = x1c_genDesc.GetObj();
   x28_loadedGenDesc = desc;
 
-  if (desc->x54_x40_TEXR)
-    desc->x54_x40_TEXR->GetValueTexture(0).GetObj();
-  if (desc->x58_x44_TIND)
-    desc->x58_x44_TIND->GetValueTexture(0).GetObj();
+  if (desc->x40_TEXR)
+    desc->x40_TEXR->GetValueTexture(0).GetObj();
+  if (desc->x44_TIND)
+    desc->x44_TIND->GetValueTexture(0).GetObj();
 
   CGlobalRandom globRnd(x27c_randState);
-  if (CIntElement* seedElem = desc->x1c_x10_SEED.get()) {
+  if (CIntElement* seedElem = desc->x10_SEED.get()) {
     int seedVal;
     seedElem->GetValue(x74_curFrame, seedVal);
     x94_randomSeed = seedVal;
   }
   x27c_randState.SetSeed(x94_randomSeed);
   ++g_ParticleSystemAliveCount;
-  x26c_25_LIT_ = desc->x44_29_x30_29_LIT_;
-  x26c_26_AAPH = desc->x44_26_x30_26_AAPH;
-  x26c_27_ZBUF = desc->x44_27_x30_27_ZBUF;
+  x26c_25_LIT_ = desc->x30_29_LIT_;
+  x26c_26_AAPH = desc->x30_26_AAPH;
+  x26c_27_ZBUF = desc->x30_27_ZBUF;
   x26c_28_zTest = true;
   x26c_29_ORNT = desc->x30_30_ORNT;
-  x26c_30_MBLR = x26c_29_ORNT ? false : desc->x44_30_x31_24_MBLR;
+  x26c_30_MBLR = x26c_29_ORNT ? false : desc->x31_24_MBLR;
 
-  if (CIntElement* mbspElem = desc->x48_x34_MBSP.get())
+  if (CIntElement* mbspElem = desc->x34_MBSP.get())
     mbspElem->GetValue(x74_curFrame, x270_MBSP);
 
-  if (CModVectorElement* elem = desc->x7c_x68_VEL1.get()) {
+  if (CModVectorElement* elem = desc->x68_VEL1.get()) {
     x280_VELSources[0] = elem;
-    x278_hasVMD[0] = desc->x45_26_x31_28_VMD1;
+    x278_hasVMD[0] = desc->x31_28_VMD1;
   }
 
-  if (CModVectorElement* elem = desc->x80_x6c_VEL2.get()) {
+  if (CModVectorElement* elem = desc->x6c_VEL2.get()) {
     x280_VELSources[1] = elem;
-    x278_hasVMD[1] = desc->x45_27_x31_29_VMD2;
+    x278_hasVMD[1] = desc->x31_29_VMD2;
   }
 
-  if (CModVectorElement* elem = desc->x84_x70_VEL3.get()) {
+  if (CModVectorElement* elem = desc->x70_VEL3.get()) {
     x280_VELSources[2] = elem;
-    x278_hasVMD[2] = desc->x45_28_x31_30_VMD3;
+    x278_hasVMD[2] = desc->x31_30_VMD3;
   }
 
-  if (CModVectorElement* elem = desc->x88_x74_VEL4.get()) {
+  if (CModVectorElement* elem = desc->x74_VEL4.get()) {
     x280_VELSources[3] = elem;
-    x278_hasVMD[3] = desc->x45_29_x31_31_VMD4;
+    x278_hasVMD[3] = desc->x31_31_VMD4;
   }
 
   if (desc->x10c_ADV1 || desc->x110_ADV2 || desc->x114_ADV3 || desc->x118_ADV4 || desc->x11c_ADV5 || desc->x120_ADV6 ||
       desc->x124_ADV7 || desc->x128_ADV8)
     x26d_28_enableADV = true;
 
-  if (CIntElement* cssdElem = desc->xa0_x8c_CSSD.get())
+  if (CIntElement* cssdElem = desc->x8c_CSSD.get())
     cssdElem->GetValue(0, x2a0_CSSD);
 
-  if (CIntElement* pisyElem = desc->xc8_xb4_PISY.get()) {
+  if (CIntElement* pisyElem = desc->xb4_PISY.get()) {
     pisyElem->GetValue(0, x2a8_PISY);
     if (x2a8_PISY <= 0)
       x2a8_PISY = 1;
   }
 
-  if (CIntElement* sisyElem = desc->xcc_xb8_SISY.get())
+  if (CIntElement* sisyElem = desc->xb8_SISY.get())
     sisyElem->GetValue(0, x2a4_SISY);
 
-  if (CIntElement* sssdElem = desc->xe4_xd0_SSSD.get())
+  if (CIntElement* sssdElem = desc->xd0_SSSD.get())
     sssdElem->GetValue(0, x2ac_SSSD);
 
-  if (CVectorElement* sspoElem = desc->xe8_xd4_SSPO.get()) {
+  if (CVectorElement* sspoElem = desc->xd4_SSPO.get()) {
     sspoElem->GetValue(0, x2b0_SSPO);
     if (!sspoElem->IsFastConstant())
       x26c_24_translationDirty = true;
   }
 
-  if (CIntElement* sesdElem = desc->xf8_xe4_SESD.get())
+  if (CIntElement* sesdElem = desc->xe4_SESD.get())
     sesdElem->GetValue(0, x2bc_SESD);
 
-  if (CVectorElement* sepoElem = desc->xfc_xe8_SEPO.get()) {
+  if (CVectorElement* sepoElem = desc->xe8_SEPO.get()) {
     sepoElem->GetValue(0, x2c0_SEPO);
     if (!sepoElem->IsFastConstant())
       x26c_24_translationDirty = true;
   }
 
-  if (CVectorElement* pofsElem = desc->x18_xc_POFS.get()) {
+  if (CVectorElement* pofsElem = desc->xc_POFS.get()) {
     pofsElem->GetValue(x74_curFrame, xf4_POFS);
     if (!pofsElem->IsFastConstant())
       x26c_24_translationDirty = true;
   }
 
-  if (CIntElement* psltElem = desc->xc_x0_PSLT.get())
+  if (CIntElement* psltElem = desc->x0_PSLT.get())
     psltElem->GetValue(0, x268_PSLT);
   else
     x268_PSLT = INT_MAX;
 
-  if (CIntElement* maxpElem = desc->x28_x1c_MAXP.get()) {
+  if (CIntElement* maxpElem = desc->x1c_MAXP.get()) {
     maxpElem->GetValue(x74_curFrame, x90_MAXP);
   }
 
@@ -161,10 +161,10 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
   if (x2c_orientType == EModelOrientationType::One)
     x50_parentMatrices.resize(x90_MAXP);
 
-  x26c_31_LINE = desc->x44_24_x30_24_LINE;
-  x26d_24_FXLL = desc->x44_25_x30_25_FXLL;
+  x26c_31_LINE = desc->x30_24_LINE;
+  x26d_24_FXLL = desc->x30_25_FXLL;
 
-  if (CIntElement* ltypElem = desc->x100_xec_LTYP.get()) {
+  if (CIntElement* ltypElem = desc->xec_LTYP.get()) {
     int ltyp;
     ltypElem->GetValue(x74_curFrame, ltyp);
     switch (LightType(ltyp)) {
@@ -184,7 +184,7 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
     }
   }
 
-  if (CIntElement* lfotElem = desc->x114_x100_LFOT.get()) {
+  if (CIntElement* lfotElem = desc->x100_LFOT.get()) {
     int lfot;
     lfotElem->GetValue(x74_curFrame, lfot);
     switch (EFalloffType(lfot)) {
@@ -202,7 +202,7 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
   }
 
   if (x26c_31_LINE) {
-    CUVElement* texr = desc->x54_x40_TEXR.get();
+    CUVElement* texr = desc->x40_TEXR.get();
     boo::ObjToken<boo::ITexture> tex;
     if (texr)
       tex = texr->GetValueTexture(0).GetObj()->GetBooTexture();
@@ -232,7 +232,7 @@ bool CElementGen::Update(double t) {
   CParticleGlobals::SParticleSystem thisSystem{FOURCC('PART'), this};
   CParticleGlobals::instance()->m_currentParticleSystem = &thisSystem;
   CGenDescription* desc = x1c_genDesc.GetObj();
-  CIntElement* pswtElem = desc->x10_x4_PSWT.get();
+  CIntElement* pswtElem = desc->x4_PSWT.get();
   if (pswtElem && !x26d_25_warmedUp) {
     int pswt = 0;
     pswtElem->GetValue(x74_curFrame, pswt);
@@ -244,13 +244,13 @@ bool CElementGen::Update(double t) {
   CParticleGlobals::instance()->m_currentParticleSystem = prevSystem;
 
   if (oldMax < x90_MAXP || oldMBSP < x270_MBSP) {
-    //_RecreatePipelines();
+    _RecreatePipelines();
   }
   return ret;
 }
 
 void CElementGen::_RecreatePipelines() {
-  size_t maxInsts = x26c_30_MBLR ? 2560 * 2 : 2560; // x26c_30_MBLR ? (x270_MBSP * x90_MAXP) : x90_MAXP;
+  size_t maxInsts = x26c_30_MBLR ? (x270_MBSP * x90_MAXP) : x90_MAXP;
   maxInsts = (maxInsts == 0 ? 256 : maxInsts);
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
@@ -258,7 +258,7 @@ void CElementGen::_RecreatePipelines() {
       m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
       m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
     }
-    if (x28_loadedGenDesc->x45_24_x31_26_PMUS) {
+    if (x28_loadedGenDesc->x31_26_PMUS) {
       m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
       m_uniformBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
     }
@@ -276,7 +276,7 @@ bool CElementGen::InternalUpdate(double dt) {
   double t = x74_curFrame / 60.0;
   CParticleGlobals::instance()->SetEmitterTime(x74_curFrame);
 
-  if (CRealElement* pstsElem = desc->x14_x8_PSTS.get()) {
+  if (CRealElement* pstsElem = desc->x8_PSTS.get()) {
     float psts;
     pstsElem->GetValue(x74_curFrame, psts);
     double dt1Scaled = psts * dt1;
@@ -286,7 +286,7 @@ bool CElementGen::InternalUpdate(double dt) {
   x78_curSeconds += dt1;
 
   if (x26c_30_MBLR && dt > 0.0) {
-    if (CIntElement* mbspElem = desc->x48_x34_MBSP.get())
+    if (CIntElement* mbspElem = desc->x34_MBSP.get())
       mbspElem->GetValue(x74_curFrame, x270_MBSP);
   }
 
@@ -301,7 +301,7 @@ bool CElementGen::InternalUpdate(double dt) {
 
     if (x74_curFrame < x268_PSLT && x88_particleEmission) {
       float grte = 0.f;
-      if (CRealElement* grteElem = desc->x2c_x20_GRTE.get()) {
+      if (CRealElement* grteElem = desc->x20_GRTE.get()) {
         if (grteElem->GetValue(x74_curFrame, grte)) {
           x30_particles.clear();
           return true;
@@ -313,7 +313,7 @@ bool CElementGen::InternalUpdate(double dt) {
       int genCount = floorf(x8c_generatorRemainder);
       x8c_generatorRemainder = x8c_generatorRemainder - genCount;
 
-      if (CIntElement* maxpElem = desc->x28_x1c_MAXP.get())
+      if (CIntElement* maxpElem = desc->x1c_MAXP.get())
         maxpElem->GetValue(x74_curFrame, x90_MAXP);
 
       CreateNewParticles(genCount);
@@ -465,18 +465,18 @@ void CElementGen::UpdateExistingParticles() {
     }
 
     if (x26c_31_LINE) {
-      if (CRealElement* leng = desc->x20_x14_LENG.get())
+      if (CRealElement* leng = desc->x14_LENG.get())
         leng->GetValue(particleFrame, particle.x2c_lineLengthOrSize);
-      if (CRealElement* widt = desc->x24_x18_WIDT.get())
+      if (CRealElement* widt = desc->x18_WIDT.get())
         widt->GetValue(particleFrame, particle.x30_lineWidthOrRota);
     } else {
-      if (CRealElement* rota = desc->x50_x3c_ROTA.get())
+      if (CRealElement* rota = desc->x3c_ROTA.get())
         rota->GetValue(particleFrame, particle.x30_lineWidthOrRota);
-      if (CRealElement* size = desc->x4c_x38_SIZE.get())
+      if (CRealElement* size = desc->x38_SIZE.get())
         size->GetValue(particleFrame, particle.x2c_lineLengthOrSize);
     }
 
-    if (CColorElement* colr = desc->x30_x24_COLR.get())
+    if (CColorElement* colr = desc->x24_COLR.get())
       colr->GetValue(particleFrame, particle.x34_color);
 
     AccumulateBounds(particle.x4_pos, particle.x2c_lineLengthOrSize);
@@ -529,7 +529,7 @@ void CElementGen::CreateNewParticles(int count) {
     }
 
     particle.x28_startFrame = x74_curFrame;
-    if (CIntElement* ltme = desc->x34_x28_LTME.get()) {
+    if (CIntElement* ltme = desc->x28_LTME.get()) {
       ltme->GetValue(0, particle.x0_endFrame);
     }
     CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame);
@@ -540,13 +540,13 @@ void CElementGen::CreateNewParticles(int count) {
     }
     particle.x0_endFrame += x74_curFrame;
 
-    if (CColorElement* colr = desc->x30_x24_COLR.get()) {
+    if (CColorElement* colr = desc->x24_COLR.get()) {
       colr->GetValue(0, particle.x34_color);
     } else {
       particle.x34_color = zeus::skWhite;
     }
 
-    if (CEmitterElement* emtr = desc->x40_x2c_EMTR.get()) {
+    if (CEmitterElement* emtr = desc->x2c_EMTR.get()) {
       emtr->GetValue(x74_curFrame, particle.x4_pos, particle.x1c_vel);
       zeus::CVector3f compXf1 = (x13c_globalScaleTransformInverse * x1a8_localScaleTransformInverse) * xdc_translation;
       zeus::CVector3f compXf2 = x1d8_orientation.rotate(particle.x4_pos);
@@ -560,22 +560,22 @@ void CElementGen::CreateNewParticles(int count) {
     particle.x10_prevPos = particle.x4_pos;
 
     if (x26c_31_LINE) {
-      if (CRealElement* leng = desc->x20_x14_LENG.get())
+      if (CRealElement* leng = desc->x14_LENG.get())
         leng->GetValue(0, particle.x2c_lineLengthOrSize);
       else
         particle.x2c_lineLengthOrSize = 1.f;
 
-      if (CRealElement* widt = desc->x24_x18_WIDT.get())
+      if (CRealElement* widt = desc->x18_WIDT.get())
         widt->GetValue(0, particle.x30_lineWidthOrRota);
       else
         particle.x30_lineWidthOrRota = 1.f;
     } else {
-      if (CRealElement* rota = desc->x50_x3c_ROTA.get())
+      if (CRealElement* rota = desc->x3c_ROTA.get())
         rota->GetValue(0, particle.x30_lineWidthOrRota);
       else
         particle.x30_lineWidthOrRota = 0.f;
 
-      if (CRealElement* size = desc->x4c_x38_SIZE.get())
+      if (CRealElement* size = desc->x38_SIZE.get())
         size->GetValue(0, particle.x2c_lineLengthOrSize);
       else
         particle.x2c_lineLengthOrSize = 0.1f;
@@ -592,13 +592,13 @@ void CElementGen::UpdatePSTranslationAndOrientation() {
   if (x268_PSLT < x74_curFrame)
     return;
 
-  if (CVectorElement* pofs = desc->x18_xc_POFS.get())
+  if (CVectorElement* pofs = desc->xc_POFS.get())
     pofs->GetValue(x74_curFrame, xf4_POFS);
 
-  if (CVectorElement* sspo = desc->xe8_xd4_SSPO.get())
+  if (CVectorElement* sspo = desc->xd4_SSPO.get())
     sspo->GetValue(x74_curFrame, x2b0_SSPO);
 
-  if (CVectorElement* sepo = desc->xfc_xe8_SEPO.get())
+  if (CVectorElement* sepo = desc->xe8_SEPO.get())
     sepo->GetValue(x74_curFrame, x2c0_SEPO);
 }
 
@@ -623,14 +623,14 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
 
   CGlobalRandom gr(x27c_randState);
 
-  SChildGeneratorDesc& icts = desc->x8c_x78_ICTS;
+  SChildGeneratorDesc& icts = desc->x78_ICTS;
   if (icts.m_found && x84_prevFrame != x74_curFrame && x2a0_CSSD == x74_curFrame) {
     int ncsyVal = 1;
-    if (CIntElement* ncsy = desc->x9c_x88_NCSY.get())
+    if (CIntElement* ncsy = desc->x88_NCSY.get())
       ncsy->GetValue(x74_curFrame, ncsyVal);
 
     CGenDescription* ictsDesc = icts.m_token.GetObj();
-    if (!(x26d_27_enableOPTS && ictsDesc->x45_31_x32_25_OPTS)) {
+    if (!(x26d_27_enableOPTS && ictsDesc->x32_25_OPTS)) {
       x290_activePartChildren.reserve(ncsyVal + x290_activePartChildren.size());
       for (int i = 0; i < ncsyVal; ++i) {
         std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(icts.m_token);
@@ -639,17 +639,17 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
     }
   }
 
-  SChildGeneratorDesc& iits = desc->xb8_xa4_IITS;
+  SChildGeneratorDesc& iits = desc->xa4_IITS;
   if (iits.m_found && x84_prevFrame != x74_curFrame && x74_curFrame < x268_PSLT && x88_particleEmission == 1 &&
       x74_curFrame >= x2a4_SISY && ((x74_curFrame - x2a4_SISY) % x2a8_PISY) == 0) {
     CGenDescription* iitsDesc = iits.m_token.GetObj();
-    if (!(x26d_27_enableOPTS && iitsDesc->x45_31_x32_25_OPTS)) {
+    if (!(x26d_27_enableOPTS && iitsDesc->x32_25_OPTS)) {
       std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(iits.m_token);
       x290_activePartChildren.emplace_back(std::move(chGen));
     }
   }
 
-  CSpawnSystemKeyframeData* kssm = desc->xd0_xbc_KSSM.get();
+  CSpawnSystemKeyframeData* kssm = desc->xbc_KSSM.get();
   if (kssm && x84_prevFrame != x74_curFrame && x74_curFrame < x268_PSLT) {
     u16 backupSeed = g_GlobalSeed;
     u16 incSeed = backupSeed;
@@ -659,7 +659,7 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
     x290_activePartChildren.reserve(x290_activePartChildren.size() + systems.size());
     for (CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo& system : systems) {
       TLockedToken<CGenDescription>& token = system.GetToken();
-      if (!(x26d_27_enableOPTS && token.GetObj()->x45_31_x32_25_OPTS)) {
+      if (!(x26d_27_enableOPTS && token.GetObj()->x32_25_OPTS)) {
         g_GlobalSeed = incSeed;
         std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(token);
         x290_activePartChildren.emplace_back(std::move(chGen));
@@ -670,14 +670,14 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
     g_GlobalSeed = backupSeed;
   }
 
-  SChildGeneratorDesc& idts = desc->xa4_x90_IDTS;
+  SChildGeneratorDesc& idts = desc->x90_IDTS;
   if (idts.m_found && x74_curFrame == x268_PSLT && x84_prevFrame != x74_curFrame) {
     int ndsyVal = 1;
-    if (CIntElement* ndsy = desc->xb4_xa0_NDSY.get())
+    if (CIntElement* ndsy = desc->xa0_NDSY.get())
       ndsy->GetValue(0, ndsyVal);
 
     CGenDescription* idtsDesc = idts.m_token.GetObj();
-    if (!(x26d_27_enableOPTS && idtsDesc->x45_31_x32_25_OPTS)) {
+    if (!(x26d_27_enableOPTS && idtsDesc->x32_25_OPTS)) {
       x290_activePartChildren.reserve(ndsyVal + x290_activePartChildren.size());
       for (int i = 0; i < ndsyVal; ++i) {
         std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(idts.m_token);
@@ -686,7 +686,7 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
     }
   }
 
-  SSwooshGeneratorDesc& sswh = desc->xd4_xc0_SSWH;
+  SSwooshGeneratorDesc& sswh = desc->xc0_SSWH;
   if (sswh.m_found && x84_prevFrame != x74_curFrame && x74_curFrame == x2ac_SSSD) {
     std::unique_ptr<CParticleGen> sswhGen = std::make_unique<CParticleSwoosh>(sswh.m_token, 0);
     sswhGen->SetGlobalTranslation(xe8_globalTranslation);
@@ -698,7 +698,7 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
     x290_activePartChildren.emplace_back(std::move(sswhGen));
   }
 
-  SElectricGeneratorDesc& selc = desc->xec_xd8_SELC;
+  SElectricGeneratorDesc& selc = desc->xd8_SELC;
   if (selc.m_found && x84_prevFrame != x74_curFrame && x74_curFrame == x2bc_SESD) {
     std::unique_ptr<CParticleGen> selcGen = std::make_unique<CParticleElectric>(selc.m_token);
     selcGen->SetGlobalTranslation(xe8_globalTranslation);
@@ -728,10 +728,10 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
 void CElementGen::UpdateLightParameters() {
   CGenDescription* desc = x1c_genDesc.GetObj();
 
-  if (CColorElement* lclr = desc->x104_xf0_LCLR.get())
+  if (CColorElement* lclr = desc->xf0_LCLR.get())
     lclr->GetValue(x74_curFrame, x30c_LCLR);
 
-  if (CRealElement* lint = desc->x108_xf4_LINT.get())
+  if (CRealElement* lint = desc->xf4_LINT.get())
     lint->GetValue(x74_curFrame, x310_LINT);
 
   switch (x308_lightType) {
@@ -739,21 +739,21 @@ void CElementGen::UpdateLightParameters() {
   case LightType::None:
   case LightType::Custom:
   case LightType::Spot: {
-    if (CVectorElement* loff = desc->x10c_xf8_LOFF.get())
+    if (CVectorElement* loff = desc->xf8_LOFF.get())
       loff->GetValue(x74_curFrame, x314_LOFF);
 
-    if (CRealElement* lfor = desc->x118_x104_LFOR.get())
+    if (CRealElement* lfor = desc->x104_LFOR.get())
       lfor->GetValue(x74_curFrame, x330_LFOR);
 
     if (x308_lightType == LightType::Spot) {
-      if (CRealElement* lsla = desc->x11c_x108_LSLA.get())
+      if (CRealElement* lsla = desc->x108_LSLA.get())
         lsla->GetValue(x74_curFrame, x334_LSLA);
     }
     [[fallthrough]];
   }
   case LightType::Directional: {
     if (x308_lightType != LightType::Custom) {
-      if (CVectorElement* ldir = desc->x110_xfc_LDIR.get())
+      if (CVectorElement* ldir = desc->xfc_LDIR.get())
         ldir->GetValue(x74_curFrame, x320_LDIR);
     }
   }
@@ -834,7 +834,7 @@ void CElementGen::Render(const CActorLights* actorLights) {
   if (!x26c_31_LINE && (!m_instBuf || !m_uniformBuf)) {
     return;
   }
-  if (x28_loadedGenDesc->x45_24_x31_26_PMUS && (!m_instBufPmus || !m_uniformBufPmus)) {
+  if (x28_loadedGenDesc->x31_26_PMUS && (!m_instBufPmus || !m_uniformBufPmus)) {
     return;
   }
 
@@ -854,8 +854,8 @@ void CElementGen::Render(const CActorLights* actorLights) {
   CParticleGlobals::instance()->m_currentParticleSystem = &thisSystem;
 
   if (x30_particles.size()) {
-    SParticleModel& pmdl = desc->x5c_x48_PMDL;
-    if (pmdl.m_found || desc->x45_24_x31_26_PMUS)
+    SParticleModel& pmdl = desc->x48_PMDL;
+    if (pmdl.m_found || desc->x31_26_PMUS)
       RenderModels(actorLights);
 
     if (x26c_31_LINE)
@@ -872,7 +872,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
   if (!x26c_31_LINE && (!m_instBuf || !m_uniformBuf)) {
     return;
   }
-  if (x28_loadedGenDesc->x45_24_x31_26_PMUS && (!m_instBufPmus || !m_uniformBufPmus)) {
+  if (x28_loadedGenDesc->x31_26_PMUS && (!m_instBufPmus || !m_uniformBufPmus)) {
     return;
   }
 
@@ -884,16 +884,16 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
   CGenDescription* desc = x1c_genDesc.GetObj();
 
   SUVElementSet uvs = {0.f, 0.f, 1.f, 1.f};
-  CUVElement* texr = desc->x54_x40_TEXR.get();
+  CUVElement* texr = desc->x40_TEXR.get();
   CTexture* cachedTex = nullptr;
   bool texConst = true;
   bool moveRedToAlphaBuffer = false;
 
-  if (desc->x45_24_x31_26_PMUS) {
-    if (sMoveRedToAlphaBuffer && desc->x44_31_x31_25_PMAB && desc->x54_x40_TEXR)
+  if (desc->x31_26_PMUS) {
+    if (sMoveRedToAlphaBuffer && desc->x31_25_PMAB && desc->x40_TEXR)
       moveRedToAlphaBuffer = true;
 
-    if (desc->x44_31_x31_25_PMAB) {
+    if (desc->x31_25_PMAB) {
       CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, false);
       if (moveRedToAlphaBuffer)
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
@@ -947,11 +947,11 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
   }
 
   zeus::CTransform orient = zeus::CTransform();
-  if (!desc->x45_25_x31_27_PMOO)
+  if (!desc->x31_27_PMOO)
     orient = x1d8_orientation;
   orient = orient * x22c_globalOrientation;
 
-  CVectorElement* pmrt = desc->x70_x5c_PMRT.get();
+  CVectorElement* pmrt = desc->x5c_PMRT.get();
   bool pmrtConst = false;
   if (pmrt)
     pmrtConst = pmrt->IsFastConstant();
@@ -989,7 +989,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       CParticleGlobals::instance()->m_particleAccessParameters = &x60_advValues[i];
     }
 
-    CVectorElement* pmop = desc->x6c_x58_PMOP.get();
+    CVectorElement* pmop = desc->x58_PMOP.get();
     if (pmop)
       pmop->GetValue(partFrame, pmopVec);
 
@@ -1018,14 +1018,14 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       }
     }
 
-    CVectorElement* pmsc = desc->x74_x60_PMSC.get();
+    CVectorElement* pmsc = desc->x60_PMSC.get();
     if (pmsc) {
       zeus::CVector3f pmscVal;
       pmsc->GetValue(partFrame, pmscVal);
       partTrans = partTrans * zeus::CTransform::Scale(pmscVal);
     }
 
-    CColorElement* pmcl = desc->x78_x64_PMCL.get();
+    CColorElement* pmcl = desc->x64_PMCL.get();
     if (pmcl) {
       pmcl->GetValue(partFrame, col);
       col *= x338_moduColor;
@@ -1033,7 +1033,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
 
     CGraphics::SetModelMatrix((x10c_globalScaleTransform * partTrans) * x178_localScaleTransform);
 
-    if (desc->x45_24_x31_26_PMUS) {
+    if (desc->x31_26_PMUS) {
       if (!texConst) {
         CTexture* tex = texr->GetValueTexture(x74_curFrame - particle.x28_startFrame).GetObj();
         if (tex != cachedTex) {
@@ -1069,12 +1069,12 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
         break;
       }
     } else {
-      CModel* model = desc->x5c_x48_PMDL.m_token.GetObj();
+      CModel* model = desc->x48_PMDL.m_token.GetObj();
       if (actorLights)
         actorLights->ActivateLights(model->GetInstance());
       if (g_subtractBlend) {
         model->Draw({5, 0, 1, zeus::CColor(1.f, 0.5f)});
-      } else if (desc->x44_31_x31_25_PMAB) {
+      } else if (desc->x31_25_PMAB) {
         CModelFlags flags{7, 0, 1, col};
         flags.m_extendedShader = EExtendedShader::ForcedAdditiveNoZWrite;
         model->Draw(flags);
@@ -1089,7 +1089,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       ++matrixIt;
   }
 
-  if (desc->x45_24_x31_26_PMUS) {
+  if (desc->x31_26_PMUS) {
     switch (m_shaderClass) {
     case CElementGenShaders::EShaderClass::Tex:
       m_instBufPmus->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
@@ -1136,12 +1136,12 @@ void CElementGen::RenderLines() {
                             ERglLogicOp::Clear);
   }
 
-  CRealElement* widt = desc->x24_x18_WIDT.get();
+  CRealElement* widt = desc->x18_WIDT.get();
   bool widtConst = false;
   if (widt)
     widtConst = widt->IsConstant();
 
-  CUVElement* texr = desc->x54_x40_TEXR.get();
+  CUVElement* texr = desc->x40_TEXR.get();
   SUVElementSet uvs = {0.f, 0.f, 1.f, 1.f};
   bool constTexr = true;
   bool constUVs = true;
@@ -1216,14 +1216,14 @@ void CElementGen::RenderParticles() {
   CGenDescription* desc = x1c_genDesc.GetObj();
   CGlobalRandom gr(x27c_randState);
 
-  CUVElement* texr = desc->x54_x40_TEXR.get();
-  CUVElement* tind = desc->x58_x44_TIND.get();
+  CUVElement* texr = desc->x40_TEXR.get();
+  CUVElement* tind = desc->x44_TIND.get();
   if (texr && tind) {
     RenderParticlesIndirectTexture();
     return;
   }
 
-  CRealElement* size = desc->x4c_x38_SIZE.get();
+  CRealElement* size = desc->x38_SIZE.get();
   if (size && size->IsConstant()) {
     float sizeVal;
     size->GetValue(0, sizeVal);
@@ -1272,7 +1272,7 @@ void CElementGen::RenderParticles() {
   m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
 
   std::vector<CParticleListItem> sortItems;
-  if (desc->x44_28_x30_28_SORT) {
+  if (desc->x30_28_SORT) {
     sortItems.reserve(x30_particles.size());
 
     for (size_t i = 0; i < x30_particles.size(); ++i) {
@@ -1294,12 +1294,12 @@ void CElementGen::RenderParticles() {
 
   if (g_subtractBlend) {
     // FIXME should there be NoTex specializations for RedToAlpha?
-    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
+    if (moveRedToAlphaBuffer && desc->x40_TEXR)
       CGraphics::SetShaderDataBinding(m_redToAlphaSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
     else
       CGraphics::SetShaderDataBinding(m_normalSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
   } else {
-    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
+    if (moveRedToAlphaBuffer && desc->x40_TEXR)
       CGraphics::SetShaderDataBinding(m_redToAlphaDataBind[g_Renderer->IsThermalVisorHotPass()]);
     else
       CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
@@ -1353,13 +1353,13 @@ void CElementGen::RenderParticles() {
 
     if (!x26c_29_ORNT) {
       for (size_t i = 0; i < x30_particles.size(); ++i) {
-        const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
+        const int partIdx = desc->x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
         CParticle& particle = x30_particles[partIdx];
         g_currentParticle = &particle;
 
         const int partFrame = x74_curFrame - particle.x28_startFrame - 1;
         zeus::CVector3f viewPoint;
-        if (desc->x44_28_x30_28_SORT) {
+        if (desc->x30_28_SORT) {
           viewPoint = sortItems[i].x4_viewPoint;
         } else {
           viewPoint = systemCameraMatrix *
@@ -1439,14 +1439,14 @@ void CElementGen::RenderParticles() {
       }
     } else {
       for (size_t i = 0; i < x30_particles.size(); ++i) {
-        const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
+        const int partIdx = desc->x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
         CParticle& particle = x30_particles[partIdx];
         g_currentParticle = &particle;
 
         const int partFrame = x74_curFrame - particle.x28_startFrame - 1;
         zeus::CVector3f viewPoint =
             ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
-        const float width = !desc->x50_x3c_ROTA ? 1.f : particle.x30_lineWidthOrRota;
+        const float width = !desc->x3c_ROTA ? 1.f : particle.x30_lineWidthOrRota;
         zeus::CVector3f dir;
         if (particle.x1c_vel.canBeNormalized()) {
           dir = particle.x1c_vel.normalized();
@@ -1541,7 +1541,7 @@ void CElementGen::RenderParticles() {
     }
     const float mbspFac = 1.f / float(mbspVal);
     for (size_t i = 0; i < x30_particles.size(); ++i) {
-      const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
+      const int partIdx = desc->x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
       CParticle& particle = x30_particles[partIdx];
       g_currentParticle = &particle;
 
@@ -1668,7 +1668,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
                             ERglLogicOp::Clear);
   }
 
-  CUVElement* texr = desc->x54_x40_TEXR.get();
+  CUVElement* texr = desc->x40_TEXR.get();
   CParticle& firstParticle = x30_particles[0];
   int partFrame = x74_curFrame - firstParticle.x28_startFrame;
   CTexture* cachedTex = texr->GetValueTexture(partFrame).GetObj();
@@ -1679,7 +1679,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
   texr->GetValueUV(partFrame, uvs);
   bool constUVs = texr->HasConstantUV();
 
-  CUVElement* tind = desc->x58_x44_TIND.get();
+  CUVElement* tind = desc->x44_TIND.get();
   CTexture* cachedIndTex = tind->GetValueTexture(partFrame).GetObj();
   cachedIndTex->Load(2, CTexture::EClampMode::One);
 
@@ -1689,7 +1689,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
   tind->GetValueUV(partFrame, uvsInd);
 
   std::vector<CParticleListItem> sortItems;
-  if (desc->x44_28_x30_28_SORT) {
+  if (desc->x30_28_SORT) {
     sortItems.reserve(x30_particles.size());
 
     for (size_t i = 0; i < x30_particles.size(); ++i) {
@@ -1712,13 +1712,13 @@ void CElementGen::RenderParticlesIndirectTexture() {
     CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
 
   for (size_t i = 0; i < x30_particles.size(); ++i) {
-    const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
+    const int partIdx = desc->x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
     CParticle& particle = x30_particles[partIdx];
     g_currentParticle = &particle;
 
     const int thisPartFrame = x74_curFrame - particle.x28_startFrame;
     zeus::CVector3f viewPoint;
-    if (desc->x44_28_x30_28_SORT) {
+    if (desc->x30_28_SORT) {
       viewPoint = sortItems[i].x4_viewPoint;
     } else {
       viewPoint =

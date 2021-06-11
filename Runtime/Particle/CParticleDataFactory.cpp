@@ -739,223 +739,223 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
   while (clsId != SBIG('_END')) {
     switch (clsId.toUint32()) {
     case SBIG('PMCL'):
-      fillDesc->x78_x64_PMCL = GetColorElement(in);
+      fillDesc->x64_PMCL = GetColorElement(in);
       break;
     case SBIG('LFOR'):
-      fillDesc->x118_x104_LFOR = GetRealElement(in);
+      fillDesc->x104_LFOR = GetRealElement(in);
       break;
     case SBIG('IDTS'):
-      fillDesc->xa4_x90_IDTS = GetChildGeneratorDesc(in, resPool, tracker);
+      fillDesc->x90_IDTS = GetChildGeneratorDesc(in, resPool, tracker);
       break;
     case SBIG('EMTR'):
-      fillDesc->x40_x2c_EMTR = GetEmitterElement(in);
+      fillDesc->x2c_EMTR = GetEmitterElement(in);
       break;
     case SBIG('COLR'):
-      fillDesc->x30_x24_COLR = GetColorElement(in);
+      fillDesc->x24_COLR = GetColorElement(in);
       break;
     case SBIG('CIND'):
-      fillDesc->x45_30_x32_24_CIND = GetBool(in);
+      fillDesc->x32_24_CIND = GetBool(in);
       break;
     case SBIG('AAPH'):
-      fillDesc->x44_26_x30_26_AAPH = GetBool(in);
+      fillDesc->x30_26_AAPH = GetBool(in);
       break;
     case SBIG('CSSD'):
-      fillDesc->xa0_x8c_CSSD = GetIntElement(in);
+      fillDesc->x8c_CSSD = GetIntElement(in);
       break;
     case SBIG('GRTE'):
-      fillDesc->x2c_x20_GRTE = GetRealElement(in);
+      fillDesc->x20_GRTE = GetRealElement(in);
       break;
     case SBIG('FXLL'):
-      fillDesc->x44_25_x30_25_FXLL = GetBool(in);
+      fillDesc->x30_25_FXLL = GetBool(in);
       break;
     case SBIG('ICTS'):
-      fillDesc->x8c_x78_ICTS = GetChildGeneratorDesc(in, resPool, tracker);
+      fillDesc->x78_ICTS = GetChildGeneratorDesc(in, resPool, tracker);
       break;
     case SBIG('KSSM'): {
-      fillDesc->xd0_xbc_KSSM.reset();
+      fillDesc->xbc_KSSM.reset();
       FourCC cid = GetClassID(in);
       if (cid != SBIG('CNST'))
         break;
-      fillDesc->xd0_xbc_KSSM = std::make_unique<CSpawnSystemKeyframeData>(in);
-      fillDesc->xd0_xbc_KSSM->LoadAllSpawnedSystemTokens(resPool);
+      fillDesc->xbc_KSSM = std::make_unique<CSpawnSystemKeyframeData>(in);
+      fillDesc->xbc_KSSM->LoadAllSpawnedSystemTokens(resPool);
       break;
     }
     case SBIG('ILOC'):
       GetVectorElement(in);
       break;
     case SBIG('IITS'):
-      fillDesc->xb8_xa4_IITS = GetChildGeneratorDesc(in, resPool, tracker);
+      fillDesc->xa4_IITS = GetChildGeneratorDesc(in, resPool, tracker);
       break;
     case SBIG('IVEC'):
       GetVectorElement(in);
       break;
     case SBIG('LDIR'):
-      fillDesc->x110_xfc_LDIR = GetVectorElement(in);
+      fillDesc->xfc_LDIR = GetVectorElement(in);
       break;
     case SBIG('LCLR'):
-      fillDesc->x104_xf0_LCLR = GetColorElement(in);
+      fillDesc->xf0_LCLR = GetColorElement(in);
       break;
     case SBIG('LENG'):
-      fillDesc->x20_x14_LENG = GetRealElement(in);
+      fillDesc->x14_LENG = GetRealElement(in);
       break;
     case SBIG('MAXP'):
-      fillDesc->x28_x1c_MAXP = GetIntElement(in);
+      fillDesc->x1c_MAXP = GetIntElement(in);
       break;
     case SBIG('LOFF'):
-      fillDesc->x10c_xf8_LOFF = GetVectorElement(in);
+      fillDesc->xf8_LOFF = GetVectorElement(in);
       break;
     case SBIG('LINT'):
-      fillDesc->x108_xf4_LINT = GetRealElement(in);
+      fillDesc->xf4_LINT = GetRealElement(in);
       break;
     case SBIG('LINE'):
-      fillDesc->x44_24_x30_24_LINE = GetBool(in);
+      fillDesc->x30_24_LINE = GetBool(in);
       break;
     case SBIG('LFOT'):
-      fillDesc->x114_x100_LFOT = GetIntElement(in);
+      fillDesc->x100_LFOT = GetIntElement(in);
       break;
     case SBIG('LIT_'):
-      fillDesc->x44_29_x30_29_LIT_ = GetBool(in);
+      fillDesc->x30_29_LIT_ = GetBool(in);
       break;
     case SBIG('LTME'):
-      fillDesc->x34_x28_LTME = GetIntElement(in);
+      fillDesc->x28_LTME = GetIntElement(in);
       break;
     case SBIG('LSLA'):
-      fillDesc->x11c_x108_LSLA = GetRealElement(in);
+      fillDesc->x108_LSLA = GetRealElement(in);
       break;
     case SBIG('LTYP'):
-      fillDesc->x100_xec_LTYP = GetIntElement(in);
+      fillDesc->xec_LTYP = GetIntElement(in);
       break;
     case SBIG('NDSY'):
-      fillDesc->xb4_xa0_NDSY = GetIntElement(in);
+      fillDesc->xa0_NDSY = GetIntElement(in);
       break;
     case SBIG('MBSP'):
-      fillDesc->x48_x34_MBSP = GetIntElement(in);
+      fillDesc->x34_MBSP = GetIntElement(in);
       break;
     case SBIG('MBLR'):
-      fillDesc->x44_30_x31_24_MBLR = GetBool(in);
+      fillDesc->x31_24_MBLR = GetBool(in);
       break;
     case SBIG('NCSY'):
-      fillDesc->x9c_x88_NCSY = GetIntElement(in);
+      fillDesc->x88_NCSY = GetIntElement(in);
       break;
     case SBIG('PISY'):
-      fillDesc->xc8_xb4_PISY = GetIntElement(in);
+      fillDesc->xb4_PISY = GetIntElement(in);
       break;
     case SBIG('OPTS'):
-      fillDesc->x45_31_x32_25_OPTS = GetBool(in);
+      fillDesc->x32_25_OPTS = GetBool(in);
       break;
     case SBIG('PMAB'):
-      fillDesc->x44_31_x31_25_PMAB = GetBool(in);
+      fillDesc->x31_25_PMAB = GetBool(in);
       break;
     case SBIG('SESD'):
-      fillDesc->xf8_xe4_SESD = GetIntElement(in);
+      fillDesc->xe4_SESD = GetIntElement(in);
       break;
     case SBIG('SEPO'):
-      fillDesc->xfc_xe8_SEPO = GetVectorElement(in);
+      fillDesc->xe8_SEPO = GetVectorElement(in);
       break;
     case SBIG('PSLT'):
-      fillDesc->xc_x0_PSLT = GetIntElement(in);
+      fillDesc->x0_PSLT = GetIntElement(in);
       break;
     case SBIG('PMSC'):
-      fillDesc->x74_x60_PMSC = GetVectorElement(in);
+      fillDesc->x60_PMSC = GetVectorElement(in);
       break;
     case SBIG('PMOP'):
-      fillDesc->x6c_x58_PMOP = GetVectorElement(in);
+      fillDesc->x58_PMOP = GetVectorElement(in);
       break;
     case SBIG('PMDL'):
-      fillDesc->x5c_x48_PMDL = GetModel(in, resPool);
+      fillDesc->x48_PMDL = GetModel(in, resPool);
       break;
     case SBIG('PMRT'):
-      fillDesc->x70_x5c_PMRT = GetVectorElement(in);
+      fillDesc->x5c_PMRT = GetVectorElement(in);
       break;
     case SBIG('POFS'):
-      fillDesc->x18_xc_POFS = GetVectorElement(in);
+      fillDesc->xc_POFS = GetVectorElement(in);
       break;
     case SBIG('PMUS'):
-      fillDesc->x45_24_x31_26_PMUS = GetBool(in);
+      fillDesc->x31_26_PMUS = GetBool(in);
       break;
     case SBIG('PSIV'):
       GetVectorElement(in);
       break;
     case SBIG('ROTA'):
-      fillDesc->x50_x3c_ROTA = GetRealElement(in);
+      fillDesc->x3c_ROTA = GetRealElement(in);
       break;
     case SBIG('PSVM'):
       GetModVectorElement(in);
       break;
     case SBIG('PSTS'):
-      fillDesc->x14_x8_PSTS = GetRealElement(in);
+      fillDesc->x8_PSTS = GetRealElement(in);
       break;
     case SBIG('PSOV'):
       GetVectorElement(in);
       break;
     case SBIG('PSWT'):
-      fillDesc->x10_x4_PSWT = GetIntElement(in);
+      fillDesc->x4_PSWT = GetIntElement(in);
       break;
     case SBIG('SEED'):
-      fillDesc->x1c_x10_SEED = GetIntElement(in);
+      fillDesc->x10_SEED = GetIntElement(in);
       break;
     case SBIG('PMOO'):
-      fillDesc->x45_25_x31_27_PMOO = GetBool(in);
+      fillDesc->x31_27_PMOO = GetBool(in);
       break;
     case SBIG('SSSD'):
-      fillDesc->xe4_xd0_SSSD = GetIntElement(in);
+      fillDesc->xd0_SSSD = GetIntElement(in);
       break;
     case SBIG('SORT'):
-      fillDesc->x44_28_x30_28_SORT = GetBool(in);
+      fillDesc->x30_28_SORT = GetBool(in);
       break;
     case SBIG('SIZE'):
-      fillDesc->x4c_x38_SIZE = GetRealElement(in);
+      fillDesc->x38_SIZE = GetRealElement(in);
       break;
     case SBIG('SISY'):
-      fillDesc->xcc_xb8_SISY = GetIntElement(in);
+      fillDesc->xb8_SISY = GetIntElement(in);
       break;
     case SBIG('SSPO'):
-      fillDesc->xe8_xd4_SSPO = GetVectorElement(in);
+      fillDesc->xd4_SSPO = GetVectorElement(in);
       break;
     case SBIG('TEXR'): {
       std::unique_ptr<CUVElement> tex(GetTextureElement(in, resPool));
       if (tex->GetValueTexture(0))
-        fillDesc->x54_x40_TEXR = std::move(tex);
+        fillDesc->x40_TEXR = std::move(tex);
       break;
     }
     case SBIG('SSWH'):
-      fillDesc->xd4_xc0_SSWH = GetSwooshGeneratorDesc(in, resPool);
+      fillDesc->xc0_SSWH = GetSwooshGeneratorDesc(in, resPool);
       break;
     case SBIG('TIND'): {
       std::unique_ptr<CUVElement> tex(GetTextureElement(in, resPool));
       if (tex->GetValueTexture(0))
-        fillDesc->x58_x44_TIND = std::move(tex);
+        fillDesc->x44_TIND = std::move(tex);
       break;
     }
     case SBIG('VMD4'):
-      fillDesc->x45_29_x31_31_VMD4 = GetBool(in);
+      fillDesc->x31_31_VMD4 = GetBool(in);
       break;
     case SBIG('VMD3'):
-      fillDesc->x45_28_x31_30_VMD3 = GetBool(in);
+      fillDesc->x31_30_VMD3 = GetBool(in);
       break;
     case SBIG('VMD2'):
-      fillDesc->x45_27_x31_29_VMD2 = GetBool(in);
+      fillDesc->x31_29_VMD2 = GetBool(in);
       break;
     case SBIG('VMD1'):
-      fillDesc->x45_26_x31_28_VMD1 = GetBool(in);
+      fillDesc->x31_28_VMD1 = GetBool(in);
       break;
     case SBIG('VEL4'):
-      fillDesc->x88_x74_VEL4 = GetModVectorElement(in);
+      fillDesc->x74_VEL4 = GetModVectorElement(in);
       break;
     case SBIG('VEL3'):
-      fillDesc->x84_x70_VEL3 = GetModVectorElement(in);
+      fillDesc->x70_VEL3 = GetModVectorElement(in);
       break;
     case SBIG('VEL2'):
-      fillDesc->x80_x6c_VEL2 = GetModVectorElement(in);
+      fillDesc->x6c_VEL2 = GetModVectorElement(in);
       break;
     case SBIG('VEL1'):
-      fillDesc->x7c_x68_VEL1 = GetModVectorElement(in);
+      fillDesc->x68_VEL1 = GetModVectorElement(in);
       break;
     case SBIG('ZBUF'):
-      fillDesc->x44_27_x30_27_ZBUF = GetBool(in);
+      fillDesc->x30_27_ZBUF = GetBool(in);
       break;
     case SBIG('WIDT'):
-      fillDesc->x24_x18_WIDT = GetRealElement(in);
+      fillDesc->x18_WIDT = GetRealElement(in);
       break;
     case SBIG('ORNT'):
       fillDesc->x30_30_ORNT = GetBool(in);
@@ -988,7 +988,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
       fillDesc->x128_ADV8 = GetRealElement(in);
       break;
     case SBIG('SELC'):
-      fillDesc->xec_xd8_SELC = GetElectricGeneratorDesc(in, resPool);
+      fillDesc->xd8_SELC = GetElectricGeneratorDesc(in, resPool);
       break;
     default: {
       Log.report(logvisor::Fatal, FMT_STRING("Unknown GPSM class {} @{}"), clsId, in.position());
@@ -1019,20 +1019,20 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
 }
 
 void CParticleDataFactory::LoadGPSMTokens(CGenDescription* desc) {
-  if (desc->x5c_x48_PMDL.m_found)
-    desc->x5c_x48_PMDL.m_model = desc->x5c_x48_PMDL.m_token.GetObj();
+  if (desc->x48_PMDL.m_found)
+    desc->x48_PMDL.m_model = desc->x48_PMDL.m_token.GetObj();
 
-  if (desc->x8c_x78_ICTS.m_found)
-    desc->x8c_x78_ICTS.m_gen = desc->x8c_x78_ICTS.m_token.GetObj();
+  if (desc->x78_ICTS.m_found)
+    desc->x78_ICTS.m_gen = desc->x78_ICTS.m_token.GetObj();
 
-  if (desc->xa4_x90_IDTS.m_found)
-    desc->xa4_x90_IDTS.m_gen = desc->xa4_x90_IDTS.m_token.GetObj();
+  if (desc->x90_IDTS.m_found)
+    desc->x90_IDTS.m_gen = desc->x90_IDTS.m_token.GetObj();
 
-  if (desc->xb8_xa4_IITS.m_found)
-    desc->xb8_xa4_IITS.m_gen = desc->xb8_xa4_IITS.m_token.GetObj();
+  if (desc->xa4_IITS.m_found)
+    desc->xa4_IITS.m_gen = desc->xa4_IITS.m_token.GetObj();
 
-  if (desc->xd4_xc0_SSWH.m_found)
-    desc->xd4_xc0_SSWH.m_swoosh = desc->xd4_xc0_SSWH.m_token.GetObj();
+  if (desc->xc0_SSWH.m_found)
+    desc->xc0_SSWH.m_swoosh = desc->xc0_SSWH.m_token.GetObj();
 }
 
 CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,

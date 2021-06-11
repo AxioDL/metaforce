@@ -119,8 +119,8 @@ void CElementGenShaders::Shutdown() {
 CElementGenShaders::EShaderClass CElementGenShaders::GetShaderClass(CElementGen& gen) {
   CGenDescription* desc = gen.x1c_genDesc.GetObj();
 
-  if (desc->x54_x40_TEXR) {
-    if (desc->x58_x44_TIND)
+  if (desc->x40_TEXR) {
+    if (desc->x44_TIND)
       return EShaderClass::IndTex;
     else
       return EShaderClass::Tex;
@@ -137,9 +137,9 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
   std::array<boo::ObjToken<boo::IShaderPipeline>, 2>* regPipelinePmus = nullptr;
   std::array<boo::ObjToken<boo::IShaderPipeline>, 2>* redToAlphaPipelinePmus = nullptr;
 
-  if (desc->x54_x40_TEXR) {
-    if (desc->x58_x44_TIND) {
-      if (desc->x45_30_x32_24_CIND) {
+  if (desc->x40_TEXR) {
+    if (desc->x44_TIND) {
+      if (desc->x32_24_CIND) {
         if (gen.x26c_26_AAPH)
           regPipeline = &m_cindTexAdditive;
         else {
@@ -209,23 +209,23 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
     }
   }
 
-  if (desc->x45_24_x31_26_PMUS) {
-    if (desc->x54_x40_TEXR) {
+  if (desc->x31_26_PMUS) {
+    if (desc->x40_TEXR) {
       redToAlphaPipelinePmus = &m_texRedToAlphaZTest;
-      if (desc->x44_31_x31_25_PMAB)
+      if (desc->x31_25_PMAB)
         regPipelinePmus = &m_texAdditiveZTest;
       else
         regPipelinePmus = &m_texZTestZWrite;
     } else {
-      if (desc->x44_31_x31_25_PMAB)
+      if (desc->x31_25_PMAB)
         regPipelinePmus = &m_noTexAdditiveZTest;
       else
         regPipelinePmus = &m_noTexZTestZWrite;
     }
   }
 
-  const CUVElement* const texr = desc->x54_x40_TEXR.get();
-  const CUVElement* const tind = desc->x58_x44_TIND.get();
+  const CUVElement* const texr = desc->x40_TEXR.get();
+  const CUVElement* const tind = desc->x44_TIND.get();
   int texCount = 0;
   std::array<boo::ObjToken<boo::ITexture>, 3> textures;
 

@@ -405,18 +405,18 @@ void CNewFlameThrower::UpdateLights(CStateManager& mgr) {
         continue;
       }
       CLight light_data = x358_mainFireGen->GetLight();
-      if (x304_mainFire.GetObj()->x104_xf0_LCLR.get()) {
+      if (x304_mainFire.GetObj()->xf0_LCLR.get()) {
         s32 rand_int = x2e8_rand.Range(0, 16);
         CParticleGlobals::instance()->SetEmitterTime(rand_int);
         zeus::CColor out_color(0xffff00ff);
-        x304_mainFire.GetObj()->x104_xf0_LCLR->GetValue(rand_int, out_color);
+        x304_mainFire.GetObj()->xf0_LCLR->GetValue(rand_int, out_color);
         light_data.SetColor(out_color);
       }
-      if (x304_mainFire.GetObj()->x108_xf4_LINT.get()) {
+      if (x304_mainFire.GetObj()->xf4_LINT.get()) {
         s32 rand_int = x2e8_rand.Range(0, 16);
         CParticleGlobals::instance()->SetEmitterTime(rand_int);
         float out_const_attenuation = 1.f;
-        x304_mainFire.GetObj()->x108_xf4_LINT->GetValue(rand_int, out_const_attenuation);
+        x304_mainFire.GetObj()->xf4_LINT->GetValue(rand_int, out_const_attenuation);
         light_data.SetAngleAttenuation(out_const_attenuation, 0.f, 0.f);
       }
       light->SetLight(light_data);
