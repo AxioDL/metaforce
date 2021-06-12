@@ -15,7 +15,7 @@ class CSpawnSystemKeyframeData {
 public:
   class CSpawnSystemKeyframeInfo {
     friend class CSpawnSystemKeyframeData;
-    u32 x0_id;
+    CAssetId x0_id;
     u32 x4;
     u32 x8;
     u32 xc;

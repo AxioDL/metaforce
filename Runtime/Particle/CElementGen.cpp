@@ -363,7 +363,7 @@ void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, s32 par
                x60_advValues.size());
   }
 
-  std::array<float, 8>& arr = x60_advValues[activeParticleCount];
+  std::array<float, 9>& arr = x60_advValues[activeParticleCount];
   CParticleGlobals::instance()->m_particleAccessParameters = &arr;
 
   if (CRealElement* adv1 = desc->x10c_ADV1.get()) {
@@ -389,6 +389,9 @@ void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, s32 par
   }
   if (CRealElement* adv8 = desc->x128_ADV8.get()) {
     adv8->GetValue(particleFrame, arr[7]);
+  }
+  if (CRealElement* adv9 = desc->x164_ADV9.get()) {
+    adv9->GetValue(particleFrame, arr[8]);
   }
 }
 

@@ -94,6 +94,7 @@ public:
   std::unique_ptr<CRealElement> x120_ADV6;
   std::unique_ptr<CRealElement> x124_ADV7;
   std::unique_ptr<CRealElement> x128_ADV8;
+  std::unique_ptr<CRealElement> x164_ADV9;
   s32 x174_DFLG = 0; // Added in MP2
   s32 x178_ = 0; // In MP3, need to check MP2
   s32 x17c_ = 0; // In MP3, need to check MP2

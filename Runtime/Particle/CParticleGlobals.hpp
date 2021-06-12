@@ -42,7 +42,7 @@ public:
     m_ParticleLifetimePercentage = zeus::clamp(0, m_ParticleLifetimePercentage, 100);
   }
 
-  const std::array<float, 8>* m_particleAccessParameters = nullptr;
+  const std::array<float, 9>* m_particleAccessParameters = nullptr;
 
   struct SParticleSystem {
     FourCC x0_type;

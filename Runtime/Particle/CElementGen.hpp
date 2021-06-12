@@ -55,7 +55,7 @@ private:
   std::vector<CParticle> x30_particles;
   std::vector<u32> x40;
   std::vector<zeus::CMatrix3f> x50_parentMatrices;
-  std::vector<std::array<float, 8>> x60_advValues;
+  std::vector<std::array<float, 9>> x60_advValues;
 
   int x70_internalStartFrame = 0;
   int x74_curFrame = 0;

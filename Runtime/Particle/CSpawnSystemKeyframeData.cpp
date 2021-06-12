@@ -26,7 +26,7 @@ CSpawnSystemKeyframeData::CSpawnSystemKeyframeData(CInputStream& in) {
 }
 
 CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo::CSpawnSystemKeyframeInfo(CInputStream& in) {
-  x0_id = in.readUint32Big();
+  x0_id = CAssetId(in);
   x4 = in.readUint32Big();
   x8 = in.readUint32Big();
   xc = in.readUint32Big();
