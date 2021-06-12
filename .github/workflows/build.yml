@@ -69,7 +69,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{env.BUILDCACHE_DIR}}
-          key: buildcache-ubuntu-20.04-${{matrix.preset}}
+          key: buildcache-${{runner.os}}-${{matrix.preset}}-${{github.sha}}
+          restore-keys: |
+            buildcache-${{runner.os}}-${{matrix.preset}}-
 
       - name: Configure CMake
         run: cmake --preset x-linux-ci-${{matrix.preset}}
@@ -131,7 +133,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{env.BUILDCACHE_DIR}}
-          key: buildcache-macos-10.15-universal
+          key: buildcache-${{runner.os}}-universal-${{github.sha}}
+          restore-keys: |
+            buildcache-${{runner.os}}-universal-
 
       - name: Configure CMake
         run: cmake --preset x-macos-ci
@@ -210,7 +214,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{env.BUILDCACHE_DIR}}
-          key: buildcache-windows-2019-${{matrix.preset}}
+          key: buildcache-${{runner.os}}-${{matrix.preset}}-${{github.sha}}
+          restore-keys: |
+            buildcache-${{runner.os}}-${{matrix.preset}}-
 
       - name: Enable Visual Studio environment
         uses: ilammy/msvc-dev-cmd@v1
