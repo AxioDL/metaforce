@@ -3,7 +3,7 @@ cmake_policy(VERSION 3.15...3.20)
 project(bintoc LANGUAGES C)
 
 add_executable(bintoc bintoc.c)
-find_package(ZLIB REQUIRED)
-target_link_libraries(bintoc PRIVATE ZLIB::ZLIB)
+add_subdirectory(../../extern/athena/extern/zlib zlib)
+target_link_libraries(bintoc PRIVATE ${ZLIB_LIBRARIES})
 
 install(TARGETS bintoc DESTINATION bin)

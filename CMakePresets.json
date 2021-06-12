@@ -201,10 +201,6 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER_LAUNCHER": "buildcache",
         "CMAKE_CXX_COMPILER_LAUNCHER": "buildcache",
-        "Clang_DIR": {
-          "type": "FILEPATH",
-          "value": "/usr/lib/cmake/clang-11"
-        },
         "BUILD_ATDNA": {
           "type": "BOOL",
           "value": false

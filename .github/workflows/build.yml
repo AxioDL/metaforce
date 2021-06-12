@@ -183,6 +183,7 @@ jobs:
           7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
 
       - name: Install Intel IPP
+        if: 'false' # takes >10min, not worth it
         run: |
           $TempDir = "$env:RUNNER_WORKSPACE\temp"
           $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
