@@ -342,7 +342,8 @@
       "displayName": "(Internal) Linux CI GCC",
       "targets": [
         "install"
-      ]
+      ],
+      "verbose": true
     },
     {
       "name": "x-linux-ci-clang",
@@ -351,7 +352,8 @@
       "displayName": "(Internal) Linux CI Clang",
       "targets": [
         "install"
-      ]
+      ],
+      "verbose": true
     },
     {
       "name": "x-macos-ci",
@@ -360,7 +362,8 @@
       "displayName": "(Internal) macOS CI",
       "targets": [
         "install"
-      ]
+      ],
+      "verbose": true
     },
     {
       "name": "x-windows-ci-msvc",
@@ -369,7 +372,8 @@
       "displayName": "(Internal) Windows CI MSVC",
       "targets": [
         "install"
-      ]
+      ],
+      "verbose": true
     },
     {
       "name": "x-windows-ci-clang",
@@ -378,7 +382,8 @@
       "displayName": "(Internal) Windows CI Clang",
       "targets": [
         "install"
-      ]
+      ],
+      "verbose": true
     }
   ]
 }

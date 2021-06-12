@@ -109,6 +109,7 @@ jobs:
           # universal qt5 from macports
           curl -LSfs https://axiodl.com/files/qt-$Qt_VERSION.mpkg -o /tmp/qt-$Qt_VERSION.mpkg
           sudo installer -pkg /tmp/qt-$Qt_VERSION.mpkg -target /
+          echo /opt/local/libexec/qt5/bin >> $GITHUB_PATH
 
           # setup buildcache
           curl -LSfs https://github.com/mbitsnbites/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-macos.zip -o /tmp/buildcache-macos.zip

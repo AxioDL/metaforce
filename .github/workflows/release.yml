@@ -127,6 +127,7 @@ jobs:
           # universal qt5 from macports
           curl -LSfs https://axiodl.com/files/qt-$Qt_VERSION.mpkg -o /tmp/qt-$Qt_VERSION.mpkg
           sudo installer -pkg /tmp/qt-$Qt_VERSION.mpkg -target /
+          echo /opt/local/libexec/qt5/bin >> $GITHUB_PATH
 
           # setup buildcache
           curl -LSfs https://github.com/mbitsnbites/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-macos.zip -o /tmp/buildcache-macos.zip
@@ -242,7 +243,7 @@ jobs:
         run: buildcache -s
 
       - name: Upload debug information
-        working-directory: ${{github.workspace}}/out/install
+        working-directory: ${{env.BUILD_DIR}}/install
         env:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
           SENTRY_URL: ${{secrets.SENTRY_URL}}
@@ -255,8 +256,8 @@ jobs:
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-msvc-x86_64
           path: |
-            out/install/*.exe
-            out/install/debug.7z
+            ${{env.BUILD_DIR}}/install/*.exe
+            ${{env.BUILD_DIR}}/install/debug.7z
 
   build-windows-clang:
     name: Build Windows (Clang x86_64)
@@ -332,5 +333,5 @@ jobs:
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-clang-x86_64
           path: |
-            out/install/*.exe
-            out/install/debug.7z
+            ${{env.BUILD_DIR}}/install/*.exe
+            ${{env.BUILD_DIR}}/install/debug.7z
