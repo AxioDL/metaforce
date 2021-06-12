@@ -73,8 +73,8 @@ endif ()
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 
 add_custom_target(atdna) # avoid building
-add_subdirectory(../../extern/athena athena)
-add_subdirectory(../../extern/boo boo)
+add_subdirectory(../../extern/athena athena EXCLUDE_FROM_ALL)
+add_subdirectory(../../extern/boo boo EXCLUDE_FROM_ALL)
 
 add_library(hecl-compilers ../lib/Compilers.cpp ../lib/WideStringConvert.cpp)
 get_target_property(BOO_INCLUDES boo INTERFACE_INCLUDE_DIRECTORIES)

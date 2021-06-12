@@ -44,9 +44,9 @@ jobs:
           sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
           rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
           sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
-          sudo apt-get -y install curl git cmake ninja-build clang lld libcurl4-openssl-dev intel-oneapi-ipp-devel \
+          sudo apt-get -y install ninja-build clang lld libcurl4-openssl-dev intel-oneapi-ipp-devel \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
-            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev qt5-default
 
           yarn global add @sentry/cli
           echo "$(yarn global bin)" >> $GITHUB_PATH
