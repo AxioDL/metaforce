@@ -249,7 +249,7 @@ jobs:
           SENTRY_URL: ${{secrets.SENTRY_URL}}
         run: |
           & "$env:RUNNER_WORKSPACE\temp\sentry-cli.exe" upload-dif --org axiodl --project metaforce --include-sources `
-            *.exe *.pdb
+            (Get-Item '*.exe', '*.pdb').Name
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
