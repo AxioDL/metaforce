@@ -30,6 +30,7 @@ public:
     const T* m_val;
 
   public:
+    const_iterator() : m_val(nullptr) {}
     explicit const_iterator(const T* val) : m_val(val) {}
     using value_type = T;
     using difference_type = std::ptrdiff_t;
@@ -85,6 +86,7 @@ public:
     friend class _reserved_vector_base;
 
   public:
+    iterator() : const_iterator() {}
     explicit iterator(T* val) : const_iterator(val) {}
     T& operator*() const { return *const_cast<T*>(const_iterator::m_val); }
     T* operator->() const { return const_cast<T*>(const_iterator::m_val); }
@@ -124,8 +126,8 @@ public:
     T& operator[](std::ptrdiff_t i) const { return const_cast<T*>(const_iterator::m_val)[i]; }
   };
 
-  using reverse_iterator = decltype(std::make_reverse_iterator(iterator{nullptr}));
-  using const_reverse_iterator = decltype(std::make_reverse_iterator(const_iterator{nullptr}));
+  using reverse_iterator = decltype(std::make_reverse_iterator(iterator{}));
+  using const_reverse_iterator = decltype(std::make_reverse_iterator(const_iterator{}));
 
 protected:
   static iterator _const_cast_iterator(const const_iterator& it) { return iterator(const_cast<T*>(it.m_val)); }
@@ -511,12 +513,12 @@ public:
   [[nodiscard]] const_iterator cbegin() const noexcept { return begin(); }
   [[nodiscard]] const_iterator cend() const noexcept { return end(); }
 
-  [[nodiscard]] auto rbegin() const noexcept { return std::make_reverse_iterator(end()); }
-  [[nodiscard]] auto rend() const noexcept { return std::make_reverse_iterator(begin()); }
-  [[nodiscard]] auto rbegin() noexcept { return std::make_reverse_iterator(end()); }
-  [[nodiscard]] auto rend() noexcept { return std::make_reverse_iterator(begin()); }
-  [[nodiscard]] auto crbegin() const noexcept { return rbegin(); }
-  [[nodiscard]] auto crend() const noexcept { return rend(); }
+  [[nodiscard]] const_reverse_iterator rbegin() const noexcept { return std::make_reverse_iterator(end()); }
+  [[nodiscard]] const_reverse_iterator rend() const noexcept { return std::make_reverse_iterator(begin()); }
+  [[nodiscard]] reverse_iterator rbegin() noexcept { return std::make_reverse_iterator(end()); }
+  [[nodiscard]] reverse_iterator rend() noexcept { return std::make_reverse_iterator(begin()); }
+  [[nodiscard]] const_reverse_iterator crbegin() const noexcept { return rbegin(); }
+  [[nodiscard]] const_reverse_iterator crend() const noexcept { return rend(); }
 
   [[nodiscard]] T& operator[](size_t idx) { return _value(idx); }
   [[nodiscard]] const T& operator[](size_t idx) const { return _value(idx); }
