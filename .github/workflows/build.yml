@@ -93,7 +93,7 @@ jobs:
     env:
       Qt_VERSION: 5.15.2
       IPP_VERSION: 2021.2.0.192
-      BUILDCACHE_DIR: ${{env.RUNNER_WORKSPACE}}/.buildcache
+      BUILDCACHE_DIR: ${{github.workspace}}/.buildcache
 
     steps:
       - uses: actions/checkout@v2
