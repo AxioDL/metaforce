@@ -92,14 +92,16 @@ For Windows, it's recommended to use Visual Studio. See below.
 
 #### ninja (Windows/macOS/Linux)
 
+Builds using `RelWithDebInfo` by default.
+
 ```sh
 cd metaforce-build
-cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja ../metaforce
+cmake -G Ninja ../metaforce
 ninja
 ```
 
 #### CMake options
-- Build release optimized (better runtime performance): `-DCMAKE_BUILD_TYPE=Release`
+- Build in debug mode (slower runtime speed, better backtraces): `-DCMAKE_BUILD_TYPE=Debug`
 - Use clang+lld (faster linking): `-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++`
 - Optimize for current CPU (resulting binaries are not portable): `-DMETAFORCE_VECTOR_ISA=native`
 

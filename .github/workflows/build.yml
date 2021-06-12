@@ -8,10 +8,19 @@ on:
       - '*LICENSE'
   pull_request:
 
+env:
+  BUILDCACHE_VERSION: v0.27.0
+  BUILDCACHE_ACCURACY: STRICT
+  BUILDCACHE_MAX_CACHE_SIZE: 1073741824 # 1GiB
+
 jobs:
   build-linux:
     name: Build Linux (${{matrix.name}} x86_64)
     runs-on: ubuntu-20.04
+
+    env:
+      BUILDCACHE_DIR: ${{github.workspace}}/.buildcache
+
     strategy:
       fail-fast: false
       matrix:
@@ -33,13 +42,16 @@ jobs:
           sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
           rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
           sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
-          sudo apt-get -y install curl git cmake ninja-build llvm-dev libclang-dev clang lld libcurl4-openssl-dev \
+          sudo apt-get -y install curl git cmake ninja-build clang lld libcurl4-openssl-dev intel-oneapi-ipp-devel \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
-            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default \
-            intel-oneapi-ipp-devel ccache
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default
 
           yarn global add @sentry/cli
           echo "$(yarn global bin)" >> $GITHUB_PATH
+
+          # setup buildcache
+          curl -LSfs https://github.com/mbitsnbites/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-linux.tar.gz | tar xz -C "$RUNNER_WORKSPACE"
+          echo "$RUNNER_WORKSPACE"/buildcache/bin >> $GITHUB_PATH
 
           # free up disk space
           # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
@@ -53,26 +65,20 @@ jobs:
           echo After
           df -h .
 
-      - name: Configure ccache
-        uses: hendrikmuhs/ccache-action@v1
+      - name: Restore buildcache
+        uses: actions/cache@v2
         with:
-          key: ubuntu-20.04-${{matrix.cc}}
-          max-size: 1G
-
-#      - name: Configure CMake
-#        run: |
-#          cmake -B build . -GNinja -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE \
-#            -DCMAKE_INSTALL_PREFIX:PATH="$GITHUB_WORKSPACE/install" \
-#            -DCMAKE_C_COMPILER:STRING=${{matrix.cc}} \
-#            -DCMAKE_CXX_COMPILER:STRING=${{matrix.cxx}} \
-#            -DCMAKE_C_COMPILER_LAUNCHER:STRING=ccache \
-#            -DCMAKE_CXX_COMPILER_LAUNCHER:STRING=ccache
+          path: ${{env.BUILDCACHE_DIR}}
+          key: buildcache-ubuntu-20.04-${{matrix.preset}}
 
       - name: Configure CMake
-        run: cmake --preset linux-ci-${{matrix.preset}}
+        run: cmake --preset x-linux-ci-${{matrix.preset}}
 
       - name: Build
-        run: cmake --build --preset linux-ci-${{matrix.preset}}
+        run: cmake --build --preset x-linux-ci-${{matrix.preset}}
+
+      - name: Print buildcache stats
+        run: buildcache -s
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
@@ -83,9 +89,12 @@ jobs:
   build-macos:
     name: Build macOS (AppleClang universal)
     runs-on: macos-10.15
+
     env:
       Qt_VERSION: 5.15.2
       IPP_VERSION: 2021.2.0.192
+      BUILDCACHE_DIR: ${{env.RUNNER_WORKSPACE}}/.buildcache
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -96,11 +105,17 @@ jobs:
         run: |
           brew update
           brew upgrade --formula
-          brew install ninja graphicsmagick imagemagick ccache
+          brew install ninja graphicsmagick imagemagick
           yarn global add create-dmg
+
           # universal qt5 from macports
           curl -LSfs https://axiodl.com/files/qt-$Qt_VERSION.mpkg -o /tmp/qt-$Qt_VERSION.mpkg
           sudo installer -pkg /tmp/qt-$Qt_VERSION.mpkg -target /
+
+          # setup buildcache
+          curl -LSfs https://github.com/mbitsnbites/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-macos.zip -o /tmp/buildcache-macos.zip
+          unzip /tmp/buildcache-macos.zip -d "$RUNNER_WORKSPACE"
+          echo "$RUNNER_WORKSPACE"/buildcache/bin >> $GITHUB_PATH
 
       - name: Install Intel IPP
         if: 'false' # not supported for universal build
@@ -112,24 +127,20 @@ jobs:
           sudo hdiutil detach /Volumes/$NAME -quiet
           rm /tmp/$NAME.dmg
 
-      - name: Configure ccache
-        uses: hendrikmuhs/ccache-action@v1
+      - name: Restore buildcache
+        uses: actions/cache@v2
         with:
-          key: macos-10.15-appleclang
-          max-size: 1G
+          path: ${{env.BUILDCACHE_DIR}}
+          key: buildcache-macos-10.15-universal
 
       - name: Configure CMake
-        run: |
-          cmake -B build . -GNinja -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE \
-            -DCMAKE_C_COMPILER_LAUNCHER:STRING=ccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER:STRING=ccache \
-            -DCMAKE_INSTALL_PREFIX:PATH="$GITHUB_WORKSPACE/install" \
-            -DQt5Widgets_DIR:PATH=/opt/local/libexec/qt5/lib/cmake/Qt5Widgets \
-            -DCMAKE_OSX_ARCHITECTURES:STRING="arm64;x86_64" \
-            -DPNG_DIR:PATH=/opt/local/lib
+        run: cmake --preset x-macos-ci
 
       - name: Build
-        run: cmake --build build --config $BUILD_TYPE --target install
+        run: cmake --build --preset x-macos-ci
+
+      - name: Print buildcache stats
+        run: buildcache -s
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
@@ -144,11 +155,9 @@ jobs:
     env:
       Qt_VERSION: 5.15.2
       IPP_VERSION: 2021.2.0.210
-      BUILDCACHE_VERSION: v0.26.1
       # C: has ~90GB available space at the moment
       BUILDCACHE_DIR: C:\buildcache
       BUILD_DIR: C:\build
-      INSTALL_DIR: C:\install
 
     strategy:
       fail-fast: false
@@ -168,7 +177,7 @@ jobs:
       - name: Install vcpkg Qt
         run: |
           $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "vcpkg-qt-$env:Qt_VERSION.7z"
+          $Filename = "vcpkg-qt-$env:Qt_VERSION-full.7z"
           New-Item -Path "$TempDir" -ItemType Directory -ea 0
           (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
           7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
@@ -192,8 +201,6 @@ jobs:
           (New-Object Net.WebClient).DownloadFile("https://github.com/mbitsnbites/buildcache/releases/download/$env:BUILDCACHE_VERSION/buildcache-windows.zip", "$TempDir\buildcache.zip")
           Expand-Archive -LiteralPath "$TempDir\buildcache.zip" -DestinationPath "$TempDir"
           echo "$TempDir\buildcache\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "BUILDCACHE_ACCURACY=STRICT" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "BUILDCACHE_MAX_CACHE_SIZE=1073741824" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
           # check available disk space
           Get-PSDrive
@@ -202,32 +209,16 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{env.BUILDCACHE_DIR}}
-          key: buildcache-windows-2019-${{matrix.oname}}
+          key: buildcache-windows-2019-${{matrix.preset}}
 
       - name: Enable Visual Studio environment
         uses: ilammy/msvc-dev-cmd@v1
 
-#      - name: Configure CMake
-#        run: |
-#          buildcache -z
-#          cmake -B "$env:BUILD_DIR" . -GNinja -DCMAKE_BUILD_TYPE:STRING=$env:BUILD_TYPE `
-#            -DCMAKE_INSTALL_PREFIX:PATH="$env:INSTALL_DIR" `
-#            -DCMAKE_TOOLCHAIN_FILE:PATH="$env:RUNNER_WORKSPACE\vcpkg-qt-$env:Qt_VERSION\scripts\buildsystems\vcpkg.cmake" `
-#            -DVCPKG_TARGET_TRIPLET:STRING=x64-windows-static `
-#            -DCMAKE_MSVC_RUNTIME_LIBRARY:STRING=MultiThreaded `
-#            -DCMAKE_C_COMPILER:STRING=${{matrix.cc}} `
-#            -DCMAKE_CXX_COMPILER:STRING=${{matrix.cc}} `
-#            -DCMAKE_LINKER:STRING=${{matrix.ld}} `
-#            -DCMAKE_C_COMPILER_LAUNCHER:STRING=buildcache `
-#            -DCMAKE_CXX_COMPILER_LAUNCHER:STRING=buildcache `
-#            -DCMAKE_C_FLAGS_RELWITHDEBINFO:STRING="/MD /Z7 /O2 /Ob1 /DNDEBUG" `
-#            -DCMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING="/MD /Z7 /O2 /Ob1 /DNDEBUG"
-
       - name: Configure CMake
-        run: cmake --preset windows-ci-${{matrix.preset}}
+        run: cmake --preset x-windows-ci-${{matrix.preset}}
 
       - name: Build
-        run: cmake --build --preset windows-ci-${{matrix.preset}}
+        run: cmake --build --preset x-windows-ci-${{matrix.preset}}
 
       - name: Print buildcache stats
         run: buildcache -s
@@ -236,4 +227,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-${{matrix.oname}}-x86_64
-          path: ${{env.INSTALL_DIR}}
+          path: ${{env.BUILD_DIR}}/install

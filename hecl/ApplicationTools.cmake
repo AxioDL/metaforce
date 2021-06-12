@@ -61,3 +61,10 @@ function(add_special_shader name)
   add_library(${name} ${name}.hpp ${ARGN})
   add_shader_target(${name})
 endfunction()
+
+include(ExternalProject)
+ExternalProject_Add(bintoc
+        SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/bintoc"
+        CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+        INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install)
+include(${CMAKE_CURRENT_LIST_DIR}/bintoc/bintocHelpers.cmake)

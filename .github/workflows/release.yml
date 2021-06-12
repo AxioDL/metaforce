@@ -232,7 +232,7 @@ jobs:
         run: cmake --build . --target metaforce metaforce-gui hecl visigen crashpad_handler
 
       - name: Upload debug information
-        working-directory: ${{github.workspace}}/build/Binaries
+        working-directory: ${{github.workspace}}/build/install
         env:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
           SENTRY_URL: ${{secrets.SENTRY_URL}}
@@ -241,7 +241,7 @@ jobs:
             metaforce.exe metaforce.pdb hecl.exe hecl.pdb metaforce-gui.exe metaforce-gui.pdb visigen.exe visigen.pdb
 
       - name: Compress PDBs
-        working-directory: ${{github.workspace}}/build/Binaries
+        working-directory: ${{github.workspace}}/build/install
         run: 7z a -t7z debug.7z metaforce.pdb hecl.pdb metaforce-gui.pdb visigen.pdb
 
       - name: Upload artifacts
@@ -249,12 +249,12 @@ jobs:
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-msvc-x86_64
           path: |
-            build/Binaries/metaforce.exe
-            build/Binaries/metaforce-gui.exe
-            build/Binaries/hecl.exe
-            build/Binaries/visigen.exe
-            build/Binaries/crashpad_handler.exe
-            build/Binaries/debug.7z
+            build/install/metaforce.exe
+            build/install/metaforce-gui.exe
+            build/install/hecl.exe
+            build/install/visigen.exe
+            build/install/crashpad_handler.exe
+            build/install/debug.7z
 
   build-windows-clang:
     name: Build Windows (Clang x86_64)
@@ -323,7 +323,7 @@ jobs:
         run: cmake --build . --target metaforce metaforce-gui hecl visigen crashpad_handler
 
       - name: Compress PDBs
-        working-directory: ${{github.workspace}}/build/Binaries
+        working-directory: ${{github.workspace}}/build/install
         run: 7z a -t7z debug.7z metaforce.pdb hecl.pdb metaforce-gui.pdb visigen.pdb
 
       - name: Upload artifacts
@@ -331,9 +331,9 @@ jobs:
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-clang-x86_64
           path: |
-            build/Binaries/metaforce.exe
-            build/Binaries/metaforce-gui.exe
-            build/Binaries/hecl.exe
-            build/Binaries/visigen.exe
-            build/Binaries/crashpad_handler.exe
-            build/Binaries/debug.7z
+            build/install/metaforce.exe
+            build/install/metaforce-gui.exe
+            build/install/hecl.exe
+            build/install/visigen.exe
+            build/install/crashpad_handler.exe
+            build/install/debug.7z

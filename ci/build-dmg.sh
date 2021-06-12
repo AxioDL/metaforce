@@ -1,5 +1,5 @@
 #!/bin/bash -ex
-cd build/Binaries
+cd build/install
 mv metaforce-gui.app Metaforce.app
 # order is important
 for i in visigen hecl metaforce crashpad_handler; do

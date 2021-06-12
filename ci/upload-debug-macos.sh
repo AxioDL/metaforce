@@ -1,5 +1,5 @@
 #!/bin/bash -ex
-cd build/Binaries/metaforce-gui.app/Contents/MacOS
+cd build/install/metaforce-gui.app/Contents/MacOS
 for f in hecl metaforce-gui metaforce visigen; do
   dsymutil $f
   strip -S $f

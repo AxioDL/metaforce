@@ -52,13 +52,6 @@ endforeach()
 
 configure_file(include/hecl/ApplicationReps.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/ApplicationReps.hpp @ONLY)
 
-include(ExternalProject)
-ExternalProject_Add(bintoc
-    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bintoc"
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-    INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install)
-include(bintoc/bintocHelpers.cmake)
-
 if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
   find_package(atdna REQUIRED)

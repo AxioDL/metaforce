@@ -10,14 +10,16 @@
       "name": "debug",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDebug"
       }
     },
     {
       "name": "relwithdebinfo",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded"
       }
     },
     {
@@ -25,6 +27,9 @@
       "displayName": "Linux (default)",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install"
+      },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
           "hostOS": [
@@ -40,16 +45,16 @@
       "name": "linux-default-debug",
       "displayName": "Linux (default) Debug",
       "inherits": [
-        "linux-default",
-        "debug"
+        "debug",
+        "linux-default"
       ]
     },
     {
       "name": "linux-default-relwithdebinfo",
       "displayName": "Linux (default) RelWithDebInfo",
       "inherits": [
-        "linux-default",
-        "relwithdebinfo"
+        "relwithdebinfo",
+        "linux-default"
       ]
     },
     {
@@ -67,16 +72,16 @@
       "name": "linux-clang-debug",
       "displayName": "Linux (Clang) Debug",
       "inherits": [
-        "linux-clang",
-        "debug"
+        "debug",
+        "linux-clang"
       ]
     },
     {
       "name": "linux-clang-relwithdebinfo",
       "displayName": "Linux (Clang) RelWithDebInfo",
       "inherits": [
-        "linux-clang",
-        "relwithdebinfo"
+        "relwithdebinfo",
+        "linux-clang"
       ]
     },
     {
@@ -91,12 +96,11 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl",
         "CMAKE_CXX_COMPILER": "cl",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install",
         "CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
           "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
         },
-        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded",
         "VCPKG_TARGET_TRIPLET": "x64-windows-static"
       },
       "vendor": {
@@ -111,16 +115,16 @@
       "name": "windows-msvc-debug",
       "displayName": "Windows (MSVC) Debug",
       "inherits": [
-        "windows-msvc",
-        "debug"
+        "debug",
+        "windows-msvc"
       ]
     },
     {
       "name": "windows-msvc-relwithdebinfo",
       "displayName": "Windows (MSVC) RelWithDebInfo",
       "inherits": [
-        "windows-msvc",
-        "relwithdebinfo"
+        "relwithdebinfo",
+        "windows-msvc"
       ]
     },
     {
@@ -144,70 +148,132 @@
       "name": "windows-clang-debug",
       "displayName": "Windows (Clang) Debug",
       "inherits": [
-        "windows-clang",
-        "debug"
+        "debug",
+        "windows-clang"
       ]
     },
     {
       "name": "windows-clang-relwithdebinfo",
       "displayName": "Windows (Clang) RelWithDebInfo",
       "inherits": [
-        "windows-clang",
-        "relwithdebinfo"
+        "relwithdebinfo",
+        "windows-clang"
       ]
     },
     {
-      "name": "linux-ci",
-      "hidden": true,
-      "inherits": [
-        "relwithdebinfo"
-      ],
+      "name": "macos-default",
+      "displayName": "macOS (default)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
-        "Clang_DIR": {
-          "type": "FILEPATH",
-          "value": "/usr/lib/cmake/clang-11"
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [
+            "macOS"
+          ]
         }
       }
     },
     {
-      "name": "linux-ci-gcc",
+      "name": "macos-default-debug",
+      "displayName": "macOS (default) Debug",
       "inherits": [
-        "linux-default",
-        "linux-ci"
+        "debug",
+        "macos-default"
       ]
     },
     {
-      "name": "linux-ci-clang",
+      "name": "macos-default-relwithdebinfo",
+      "displayName": "macOS (default) RelWithDebInfo",
       "inherits": [
-        "linux-clang",
-        "linux-ci"
+        "relwithdebinfo",
+        "macos-default"
       ]
     },
     {
-      "name": "windows-ci",
+      "name": "x-linux-ci",
       "hidden": true,
       "inherits": [
         "relwithdebinfo"
       ],
       "cacheVariables": {
-        "LLVM_ROOT_DIR": "$env{RUNNER_WORKSPACE}/LLVM"
+        "CMAKE_C_COMPILER_LAUNCHER": "buildcache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "buildcache",
+        "Clang_DIR": {
+          "type": "FILEPATH",
+          "value": "/usr/lib/cmake/clang-11"
+        },
+        "BUILD_ATDNA": {
+          "type": "BOOL",
+          "value": false
+        }
+      }
+    },
+    {
+      "name": "x-linux-ci-gcc",
+      "inherits": [
+        "x-linux-ci",
+        "linux-default"
+      ]
+    },
+    {
+      "name": "x-linux-ci-clang",
+      "inherits": [
+        "x-linux-ci",
+        "linux-clang"
+      ]
+    },
+    {
+      "name": "x-macos-ci",
+      "inherits": [
+        "macos-default-relwithdebinfo"
+      ],
+      "cacheVariables": {
+        "CMAKE_C_COMPILER_LAUNCHER": "buildcache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "buildcache",
+        "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64",
+        "Qt5Widgets_DIR": {
+          "type": "FILEPATH",
+          "value": "/opt/local/libexec/qt5/lib/cmake/Qt5Widgets"
+        },
+        "PNG_DIR": {
+          "type": "FILEPATH",
+          "value": "/opt/local/lib"
+        }
+      }
+    },
+    {
+      "name": "x-windows-ci",
+      "hidden": true,
+      "inherits": [
+        "relwithdebinfo"
+      ],
+      "binaryDir": "$env{BUILD_DIR}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER_LAUNCHER": "buildcache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "buildcache",
+        "CMAKE_C_FLAGS_RELWITHDEBINFO": "/MD /Z7 /O2 /Ob1 /DNDEBUG",
+        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/MD /Z7 /O2 /Ob1 /DNDEBUG",
+        "CMAKE_INSTALL_PREFIX": "$env{BUILD_DIR}/install"
       },
       "environment": {
         "VCPKG_ROOT": "$env{RUNNER_WORKSPACE}/vcpkg-qt-$env{Qt_VERSION}"
       }
     },
     {
-      "name": "windows-ci-msvc",
+      "name": "x-windows-ci-msvc",
       "inherits": [
-        "windows-msvc",
-        "windows-ci"
+        "x-windows-ci",
+        "windows-msvc"
       ]
     },
     {
-      "name": "windows-ci-clang",
+      "name": "x-windows-ci-clang",
       "inherits": [
-        "windows-clang",
-        "windows-ci"
+        "x-windows-ci",
+        "windows-clang"
       ]
     }
   ],
@@ -237,6 +303,18 @@
       "displayName": "Linux (Clang) RelWithDebInfo"
     },
     {
+      "name": "macos-default-debug",
+      "configurePreset": "macos-default-debug",
+      "description": "macOS debug build",
+      "displayName": "macOS Debug"
+    },
+    {
+      "name": "macos-default-relwithdebinfo",
+      "configurePreset": "macos-default-relwithdebinfo",
+      "description": "macOS release build with debug info",
+      "displayName": "macOS RelWithDebInfo"
+    },
+    {
       "name": "windows-msvc-debug",
       "configurePreset": "windows-msvc-debug",
       "description": "Windows (MSVC) debug build",
@@ -261,24 +339,49 @@
       "displayName": "Windows (Clang) RelWithDebInfo"
     },
     {
-      "name": "linux-ci-gcc",
-      "configurePreset": "linux-ci-gcc",
-      "targets": ["metaforce", "metaforce-gui", "hecl", "visigen"]
+      "name": "x-linux-ci-gcc",
+      "configurePreset": "x-linux-ci-gcc",
+      "description": "(Internal) Linux CI GCC",
+      "displayName": "(Internal) Linux CI GCC",
+      "targets": [
+        "install"
+      ]
     },
     {
-      "name": "linux-ci-clang",
-      "configurePreset": "linux-ci-clang",
-      "targets": ["metaforce", "metaforce-gui", "hecl", "visigen"]
+      "name": "x-linux-ci-clang",
+      "configurePreset": "x-linux-ci-clang",
+      "description": "(Internal) Linux CI Clang",
+      "displayName": "(Internal) Linux CI Clang",
+      "targets": [
+        "install"
+      ]
     },
     {
-      "name": "windows-ci-msvc",
-      "configurePreset": "windows-ci-msvc",
-      "targets": ["metaforce", "metaforce-gui", "hecl", "visigen"]
+      "name": "x-macos-ci",
+      "configurePreset": "x-macos-ci",
+      "description": "(Internal) macOS CI",
+      "displayName": "(Internal) macOS CI",
+      "targets": [
+        "install"
+      ]
     },
     {
-      "name": "windows-ci-clang",
-      "configurePreset": "windows-ci-clang",
-      "targets": ["metaforce", "metaforce-gui", "hecl", "visigen"]
+      "name": "x-windows-ci-msvc",
+      "configurePreset": "x-windows-ci-msvc",
+      "description": "(Internal) Windows CI MSVC",
+      "displayName": "(Internal) Windows CI MSVC",
+      "targets": [
+        "install"
+      ]
+    },
+    {
+      "name": "x-windows-ci-clang",
+      "configurePreset": "x-windows-ci-clang",
+      "description": "(Internal) Windows CI Clang",
+      "displayName": "(Internal) Windows CI Clang",
+      "targets": [
+        "install"
+      ]
     }
   ]
 }
