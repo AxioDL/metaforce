@@ -68,7 +68,7 @@ jobs:
           df -h .
 
       - name: Restore buildcache
-        uses: actions/cache@v2
+        uses: pat-s/always-upload-cache@v2
         with:
           path: ${{env.BUILDCACHE_DIR}}
           key: buildcache-${{runner.os}}-${{matrix.preset}}-${{github.sha}}
@@ -127,7 +127,7 @@ jobs:
           rm /tmp/$NAME.dmg
 
       - name: Restore buildcache
-        uses: actions/cache@v2
+        uses: pat-s/always-upload-cache@v2
         with:
           path: ${{env.BUILDCACHE_DIR}}
           key: buildcache-${{runner.os}}-universal-${{github.sha}}
@@ -203,7 +203,7 @@ jobs:
           Get-PSDrive
 
       - name: Restore buildcache
-        uses: actions/cache@v2
+        uses: pat-s/always-upload-cache@v2
         with:
           path: ${{env.BUILDCACHE_DIR}}
           key: buildcache-${{runner.os}}-${{matrix.preset}}-${{github.sha}}
