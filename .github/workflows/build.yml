@@ -196,7 +196,7 @@ jobs:
           $TempDir = "$env:RUNNER_WORKSPACE\temp"
           New-Item -Path "$TempDir" -ItemType Directory -ea 0
           (New-Object Net.WebClient).DownloadFile("https://github.com/mbitsnbites/buildcache/releases/download/$env:BUILDCACHE_VERSION/buildcache-windows.zip", "$TempDir\buildcache.zip")
-          Expand-Archive -LiteralPath "$TempDir\buildcache.zip" -DestinationPath "$TempDir"
+          Expand-Archive -LiteralPath "$TempDir\buildcache.zip" -DestinationPath "$TempDir" -Force
           echo "$TempDir\buildcache\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
           # check available disk space
