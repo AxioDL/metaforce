@@ -12,7 +12,7 @@ elseif (NOT WIN32 AND NOT NX) # remove WIN32 when specter/freetype is gone
   set(PNG_LIBRARIES ${PNG_LIBRARIES} ${ZLIB_LIBRARIES} CACHE STRING "PNG libraries" FORCE)
   set(PNG_INCLUDE_DIR ${PNG_INCLUDE_DIR} CACHE PATH "PNG include path" FORCE)
 endif ()
-if (NOT PNG_LIBRARIES)
+if (WIN32 OR NX OR NOT PNG_LIBRARIES)
   message(STATUS "Using HECL's built-in libpng")
   if ("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "arm(64)?" OR (APPLE AND "arm64" IN_LIST CMAKE_OSX_ARCHITECTURES))
     list(APPEND INTRINSICS

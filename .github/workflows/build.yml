@@ -84,12 +84,6 @@ jobs:
       - name: Print buildcache stats
         run: buildcache -s
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.preset}}-x86_64
-          path: build/install
-
   build-macos:
     name: Build macOS (AppleClang universal)
     runs-on: macos-10.15
@@ -147,12 +141,6 @@ jobs:
 
       - name: Print buildcache stats
         run: buildcache -s
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-universal
-          path: build/install
 
   build-windows:
     name: Build Windows (${{matrix.name}} x86_64)
@@ -232,9 +220,3 @@ jobs:
 
       - name: Print buildcache stats
         run: buildcache -s
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: metaforce-${{env.METAFORCE_VERSION}}-win32-${{matrix.preset}}-x86_64
-          path: ${{env.BUILD_DIR}}/install

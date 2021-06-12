@@ -242,7 +242,7 @@ jobs:
         run: buildcache -s
 
       - name: Upload debug information
-        working-directory: ${{github.workspace}}/build/install
+        working-directory: ${{github.workspace}}/out/install
         env:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
           SENTRY_URL: ${{secrets.SENTRY_URL}}
@@ -255,8 +255,8 @@ jobs:
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-msvc-x86_64
           path: |
-            build/install/*.exe
-            build/install/debug.7z
+            out/install/*.exe
+            out/install/debug.7z
 
   build-windows-clang:
     name: Build Windows (Clang x86_64)
@@ -332,5 +332,5 @@ jobs:
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-clang-x86_64
           path: |
-            build/install/*.exe
-            build/install/debug.7z
+            out/install/*.exe
+            out/install/debug.7z
