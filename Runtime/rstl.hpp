@@ -447,12 +447,12 @@ public:
   [[nodiscard]] const_iterator cbegin() const noexcept { return begin(); }
   [[nodiscard]] const_iterator cend() const noexcept { return end(); }
 
-  [[nodiscard]] auto rbegin() const noexcept { return std::make_reverse_iterator(end()); }
-  [[nodiscard]] auto rend() const noexcept { return std::make_reverse_iterator(begin()); }
-  [[nodiscard]] auto rbegin() noexcept { return std::make_reverse_iterator(end()); }
-  [[nodiscard]] auto rend() noexcept { return std::make_reverse_iterator(begin()); }
-  [[nodiscard]] auto crbegin() const noexcept { return rbegin(); }
-  [[nodiscard]] auto crend() const noexcept { return rend(); }
+  [[nodiscard]] const_reverse_iterator rbegin() const noexcept { return std::make_reverse_iterator(end()); }
+  [[nodiscard]] const_reverse_iterator rend() const noexcept { return std::make_reverse_iterator(begin()); }
+  [[nodiscard]] reverse_iterator rbegin() noexcept { return std::make_reverse_iterator(end()); }
+  [[nodiscard]] reverse_iterator rend() noexcept { return std::make_reverse_iterator(begin()); }
+  [[nodiscard]] const_reverse_iterator crbegin() const noexcept { return rbegin(); }
+  [[nodiscard]] const_reverse_iterator crend() const noexcept { return rend(); }
 
   [[nodiscard]] T& operator[](size_t idx) {
 #ifndef NDEBUG

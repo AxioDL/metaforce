@@ -2,6 +2,8 @@ name: Build
 
 on:
   push:
+    branches-ignore:
+      - main
     paths-ignore:
       - '*.json'
       - '*.md'
@@ -85,7 +87,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.cc}}-x86_64
+          name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.preset}}-x86_64
           path: build/install
 
   build-macos:
@@ -167,8 +169,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: MSVC
-            preset: msvc
+          # Disabled due to memory constraints
+#          - name: MSVC
+#            preset: msvc
           - name: Clang
             preset: clang
 
@@ -233,5 +236,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: metaforce-${{env.METAFORCE_VERSION}}-win32-${{matrix.oname}}-x86_64
+          name: metaforce-${{env.METAFORCE_VERSION}}-win32-${{matrix.preset}}-x86_64
           path: ${{env.BUILD_DIR}}/install

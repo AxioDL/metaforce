@@ -84,9 +84,6 @@ jobs:
       - name: Print buildcache stats
         run: buildcache -s
 
-      - name: Split debug information
-        run: ci/split-debug-linux.sh
-
       - name: Upload debug information
         if: ${{matrix.name == 'Clang'}}
         env:
@@ -100,10 +97,10 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.cc}}-x86_64
+          name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.preset}}-x86_64
           path: |
-            Metaforce-*.AppImage
-            debug.tar.*
+            build/install/Metaforce-*.AppImage
+            build/install/debug.tar.*
 
   build-macos:
     name: Build macOS (AppleClang universal)
@@ -187,10 +184,10 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-x86_64
+          name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-universal
           path: |
-            Metaforce *.dmg
-            debug.tar.*
+            build/install/Metaforce *.dmg
+            build/install/debug.tar.*
 
   build-windows-msvc:
     name: Build Windows (MSVC x86_64)
@@ -251,22 +248,14 @@ jobs:
           SENTRY_URL: ${{secrets.SENTRY_URL}}
         run: |
           & "$env:RUNNER_WORKSPACE\temp\sentry-cli.exe" upload-dif --org axiodl --project metaforce --include-sources `
-            metaforce.exe metaforce.pdb hecl.exe hecl.pdb metaforce-gui.exe metaforce-gui.pdb visigen.exe visigen.pdb
-
-      - name: Compress PDBs
-        working-directory: ${{github.workspace}}/build/install
-        run: 7z a -t7z debug.7z metaforce.pdb hecl.pdb metaforce-gui.pdb visigen.pdb
+            *.exe *.pdb
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-msvc-x86_64
           path: |
-            build/install/metaforce.exe
-            build/install/metaforce-gui.exe
-            build/install/hecl.exe
-            build/install/visigen.exe
-            build/install/crashpad_handler.exe
+            build/install/*.exe
             build/install/debug.7z
 
   build-windows-clang:
@@ -338,18 +327,10 @@ jobs:
       - name: Print buildcache stats
         run: buildcache -s
 
-      - name: Compress PDBs
-        working-directory: ${{github.workspace}}/build/install
-        run: 7z a -t7z debug.7z metaforce.pdb hecl.pdb metaforce-gui.pdb visigen.pdb
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-clang-x86_64
           path: |
-            build/install/metaforce.exe
-            build/install/metaforce-gui.exe
-            build/install/hecl.exe
-            build/install/visigen.exe
-            build/install/crashpad_handler.exe
+            build/install/*.exe
             build/install/debug.7z
