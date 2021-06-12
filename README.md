@@ -8,24 +8,35 @@
 ![Metaforce screenshot](assets/metaforce-screen1.png)
 
 ### Download
-Precompiled builds of the command-line extraction utility (`hecl`) with embedded dataspec libraries are available at https://releases.axiodl.com. This will give you intermediate dumps of original formats as *blender* and *yaml* representations.
-
-Everything else is much too experimental to make portable/stable release builds (for now)
+This project is currently in **Alpha** state, so expect bugs.  
+Builds available at [https://releases.axiodl.com](https://releases.axiodl.com).
 
 ### Platform Support
 * Windows 10 (64-bit, D3D11 / Vulkan)
 * macOS 10.15+ (Metal)
 * Linux (Vulkan)
     * Follow [this guide](https://github.com/lutris/docs/blob/master/InstallingDrivers.md) to set up Vulkan & appropriate drivers for your distro.
-    
-### Usage (GC versions)
+
+### Usage (GUI)
+
+Windows:
+- Open `metaforce-gui.exe`
+
+macOS:
+- Open `Metaforce.app`
+
+Linux: 
+- Ensure AppImage is marked as executable: `chmod +x Metaforce-*.AppImage`
+- Open `Metaforce-*.AppImage`
+
+### CLI usage (GC versions)
 
 * Extract ISO: `hecl extract [path].iso -o mp1`
   * `mp1` can be substituted with the directory name of your choice
 * Repackage game for Metaforce: `cd mp1; hecl package`
 * Run Metaforce: `metaforce mp1/out`
 
-### Usage (Wii versions)
+### CLI usage (Wii versions)
 
 **IMPORTANT**: Trilogy main menu currently doesn't work, and requires the `--warp 1 0` command line arguments to get in-game.  
 
@@ -41,10 +52,10 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
 
 * `-l`: Enable console logging
 * `--warp [worldid] [areaid]`: Warp to a specific world/area. Example: `--warp 2 2`
-* `+developer=1`: Enable developer console
+* `+developer=1`: Enable developer UI
 
 ### Build Prerequisites:
-* [CMake 3.13+](https://cmake.org)
+* [CMake 3.15+](https://cmake.org)
     * Windows: Install `CMake Tools` in Visual Studio
     * macOS: `brew install cmake`
 * [Python 3+](https://python.org)
@@ -58,24 +69,23 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
         * `C++ Clang Compiler`
         * `C++ Clang-cl`
 * **[macOS]** [Xcode 11.5+](https://developer.apple.com/xcode/download/)
-* **[Linux]** recent development packages of `udev`, `x11`, `xcb`, `xinput`, `glx`, `asound`
+* **[Linux]** Actively tested on Ubuntu 20.04, Arch Linux & derivatives.
     * Ubuntu 20.04+ packages
       ```
       build-essential curl git ninja-build clang lld zlib1g-dev libcurl4-openssl-dev \
       libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev libpulse-dev \
       libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 qt5-default
       ```
-     * Arch packages
-      ```
-      base-devel cmake ninja llvm vulkan-headers python3 qt6 clang lld alsa-lib libpulse libxrandr
-      ```
+     * Arch Linux packages
+       ```
+       base-devel cmake ninja llvm vulkan-headers python3 qt6 clang lld alsa-lib libpulse libxrandr
+       ```
 
 ### Prep Directions
 
 ```sh
 git clone --recursive https://github.com/AxioDL/metaforce.git
-mkdir metaforce-build
-cd metaforce-build
+cd metaforce
 ```
 
 ### Update Directions
@@ -95,12 +105,11 @@ For Windows, it's recommended to use Visual Studio. See below.
 Builds using `RelWithDebInfo` by default.
 
 ```sh
-cd metaforce-build
-cmake -G Ninja ../metaforce
-ninja
+cmake -B out -G Ninja # add extra options here
+cmake --build out --target metaforce hecl visigen
 ```
 
-#### CMake options
+#### CMake configure options
 - Build in debug mode (slower runtime speed, better backtraces): `-DCMAKE_BUILD_TYPE=Debug`
 - Use clang+lld (faster linking): `-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++`
 - Optimize for current CPU (resulting binaries are not portable): `-DMETAFORCE_VECTOR_ISA=native`
@@ -137,7 +146,7 @@ Then open `metaforce.xcodeproj`
 #### Optional Debug Models
 We provide custom debug models for use to visualize certain aspects of the game such as lighting, in order to use 
 these models you may download them from https://axiodl.com/files/debug_models.zip and extract to `MP1/URDE` in an 
-existing HECL project (assuming paths are relative), then run the the following command:
+existing HECL project (assuming paths are relative), then run the following command:
 
 ```sh
 hecl package MP1/URDE
