@@ -1613,7 +1613,7 @@ void CMetroidPrimeExo::UpdateContactDamage(CStateManager& mgr) {
                                                            (0.57735026f * mData->GetScale().magnitude()) * 2.f};
   x8f8_ = zeus::CAABox{min, max};
 
-  if (mgr.GetPlayer().GetTouchBounds()->intersects(x8f8_)) {
+  if (mgr.GetPlayer().GetTouchBounds()->intersects(x8f8_) && x420_curDamageRemTime <= 0.f) {
     mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), GetContactDamage(),
                     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
     x420_curDamageRemTime = x424_damageWaitTime;

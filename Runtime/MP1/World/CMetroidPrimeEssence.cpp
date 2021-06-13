@@ -89,7 +89,7 @@ void CMetroidPrimeEssence::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId o
     break;
   case EScriptObjectMessage::Touched: {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(other)) {
-      if (colAct->GetLastTouchedObject() == mgr.GetPlayer().GetUniqueId()) {
+      if (colAct->GetLastTouchedObject() == mgr.GetPlayer().GetUniqueId() && x420_curDamageRemTime <= 0.f) {
         mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), GetContactDamage(),
                         CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
         x420_curDamageRemTime = x424_damageWaitTime;

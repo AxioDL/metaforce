@@ -568,12 +568,12 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
                           CDamageInfo(CWeaponMode(EWeaponType::AI), 1.f + plat->GetHealthInfo(mgr)->GetHP(), 0.f, 1.f),
                           CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
         }
+      }
 
-        if (mgr.GetPlayer().GetUniqueId() == colAct->GetLastTouchedObject()) {
-          mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), xc8c_,
-                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
-          x420_curDamageRemTime = x424_damageWaitTime;
-        }
+      if (mgr.GetPlayer().GetUniqueId() == colAct->GetLastTouchedObject() && x420_curDamageRemTime <= 0.f) {
+        mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), xc8c_,
+                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
+        x420_curDamageRemTime = x424_damageWaitTime;
       }
     }
     break;

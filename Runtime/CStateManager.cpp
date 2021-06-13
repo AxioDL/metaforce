@@ -1660,8 +1660,7 @@ void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos,
   float usePower;
   if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
     usePower = power * 1000.f;
-    const auto surface =
-        player.x2b0_outOfWaterTicks == 2 ? player.x2ac_surfaceRestraint : CPlayer::ESurfaceRestraints::Water;
+    const auto surface = player.GetSurfaceRestraint();
     if (surface != CPlayer::ESurfaceRestraints::Normal &&
         player.GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit) {
       usePower /= 7.f;
@@ -1674,7 +1673,7 @@ void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos,
   const float playerVel = player.x138_velocity.magnitude();
   const float maxVel = std::max(playerVel, minVel);
   const zeus::CVector3f negVel = -player.x138_velocity;
-  usePower *= (1.f - 0.5f * zeus::CVector3f::getAngleDiff(pos, negVel) / M_PIF);
+  usePower *= (1.f - (0.5f * zeus::CVector3f::getAngleDiff(pos, negVel)) / M_PIF);
   player.ApplyImpulseWR(pos * usePower, zeus::CAxisAngle());
   player.UseCollisionImpulses();
   player.x2d4_accelerationChangeTimer = 0.25f;
@@ -2019,9 +2018,9 @@ bool CStateManager::ApplyDamage(TUniqueId damagerId, TUniqueId damageeId, TUniqu
   CEntity* ent1 = ObjectById(damageeId);
   const TCastToPtr<CActor> damager = ent0;
   const TCastToPtr<CActor> damagee = ent1;
-  const bool isPlayer = TCastToPtr<CPlayer>(ent1);
+  const bool isPlayer = TCastToPtr<CPlayer>(ent1) != nullptr;
 
-  if (damagee) {
+  if (damagee != nullptr) {
     if (CHealthInfo* hInfo = damagee->HealthInfo(*this)) {
       zeus::CVector3f position;
       zeus::CVector3f direction = zeus::skRight;
@@ -2031,12 +2030,9 @@ bool CStateManager::ApplyDamage(TUniqueId damagerId, TUniqueId damageeId, TUniqu
         direction = damager->GetTransform().basis[1];
       }
 
-      const CDamageVulnerability* dVuln;
-      if (damager || isPlayer) {
-        dVuln = damagee->GetDamageVulnerability(position, direction, info);
-      } else {
-        dVuln = damagee->GetDamageVulnerability();
-      }
+      const CDamageVulnerability* dVuln = (damager != nullptr || isPlayer)
+                                              ? damagee->GetDamageVulnerability(position, direction, info)
+                                              : damagee->GetDamageVulnerability();
 
       if (info.GetWeaponMode().GetType() == EWeaponType::None || dVuln->WeaponHurts(info.GetWeaponMode(), false)) {
         if (info.GetDamage() > 0.f) {
@@ -2052,7 +2048,7 @@ bool CStateManager::ApplyDamage(TUniqueId damagerId, TUniqueId damageeId, TUniqu
       if (alive && damager && info.GetKnockBackPower() > 0.f) {
         zeus::CVector3f delta =
             knockbackVec.isZero() ? (damagee->GetTranslation() - damager->GetTranslation()) : knockbackVec;
-        delta.z() = FLT_EPSILON;
+        delta.z() = 0.0001f;
         ApplyKnockBack(*damagee, info, *dVuln, delta.normalized(), 0.f);
       }
     }
