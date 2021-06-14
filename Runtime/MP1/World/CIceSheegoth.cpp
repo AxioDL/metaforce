@@ -1009,14 +1009,16 @@ void CIceSheegoth::ApplyContactDamage(TUniqueId sender, CStateManager& mgr) {
     if (colAct->GetHealthInfo(mgr)->GetHP() <= 0.f) {
       return;
     }
-    bool bVar5 = (xb28_29_ && !xb28_25_ && xb28_28_) ? true : IsMouthCollider(sender);
+    bool bite = (xb28_29_ && !xb28_25_ && xb28_28_) ? true : IsMouthCollider(sender);
 
     if (colAct->GetLastTouchedObject() == mgr.GetPlayer().GetUniqueId()) {
-      if (bVar5) {
-        mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), x56c_sheegothData.Get_x1b8(),
-                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
+      if (!bite) {
+        if (x420_curDamageRemTime <= 0.f) {
+          mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), GetContactDamage(),
+                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
+        }
       } else {
-        mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), GetContactDamage(),
+        mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), x56c_sheegothData.Get_x1b8(),
                         CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
       }
     }

@@ -146,7 +146,7 @@ class CThardus : public CPatterned {
     if (x578_waypoints.empty()) {
       sub801de9f8(mgr);
     } else {
-      if (sub801dc2c8() || x5c4_ != 0 || x944_ <= 0.f)
+      if (IsLastRock() || x5c4_ != 0 || x944_ <= 0.f)
         sub801de9f8(mgr);
       else
         x944_ = 0.f;
@@ -157,7 +157,7 @@ class CThardus : public CPatterned {
   void SetRockParticle(CStateManager& mgr, const zeus::CVector3f& pos, CAssetId particle);
   void sub801dbc5c(CStateManager& mgr, CDestroyableRock* rock);
   void sub801dbbdc(CStateManager& mgr, CDestroyableRock* rock);
-  bool sub801dc2c8() { return x648_currentRock == (x610_destroyableRocks.size() - 1); }
+  bool IsLastRock() { return x648_currentRock == (x610_destroyableRocks.size() - 1); }
   void UpdateNonDestroyableCollisionActorMaterials(EUpdateMaterialMode mode, EMaterialTypes mat, CStateManager& mgr);
   void UpdateExcludeList(const std::unique_ptr<CCollisionActorManager>& colMgr, EUpdateMaterialMode mode,
                          EMaterialTypes mat, CStateManager& mgr);

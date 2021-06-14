@@ -539,9 +539,11 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
       TUniqueId tmpId = kInvalidUniqueId;
       bool doDamage = false;
       if (xc64_aiStage == 3) {
-        if (!xa32_29_ && xa31_27_) {
-          tmpId = x98a_breastPlateId;
-          doDamage = true;
+        if (!xa32_29_) {
+          if (xa31_27_) {
+            tmpId = x98a_breastPlateId;
+            doDamage = true;
+          }
         } else {
           tmpId = x988_headId;
           doDamage = true;

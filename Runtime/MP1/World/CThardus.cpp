@@ -209,7 +209,7 @@ void CThardus::UpdateRockThermalState(float dt, CStateManager& mgr) {
 
 void CThardus::sub801de9f8(CStateManager& mgr) {
   float dVar5 = mgr.GetActiveRandom()->Float();
-  if (!sub801dc2c8() || dVar5 >= 0.3f) {
+  if (!IsLastRock() || dVar5 >= 0.3f) {
     const float local_28 = std::max(0.f, dVar5 - 0.19999999f);
     if (local_28 > 0.8f) {
       x5c4_ = 2;
@@ -282,7 +282,7 @@ void CThardus::sub801dcfa4(CStateManager& mgr) {
             ProcessSoundEvent(x758_, 1.f, 0, 0.1f, 1000.f, 0.16f, 1.f, zeus::skZero3f, GetTranslation(),
                               mgr.GetNextAreaId(), mgr, true);
 
-            if (sub801dc2c8() && !x8f0_) {
+            if (IsLastRock() && !x8f0_) {
               DoDoubleSnap(mgr);
             }
             sub801dbc40();
@@ -317,7 +317,7 @@ void CThardus::Think(float dt, CStateManager& mgr) {
 
   UpdateRockThermalState(dt, mgr);
 
-  if (!sub801dc2c8()) {
+  if (!IsLastRock()) {
     // NOTE: (phil), yes this is what's actually happening
 #if 0
     if (x648_currentRock < x610_destroyableRocks.size() - 2) {

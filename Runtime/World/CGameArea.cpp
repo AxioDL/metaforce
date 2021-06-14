@@ -853,8 +853,8 @@ void CGameArea::Validate(CStateManager& mgr) {
 
   while (StartStreamingMainArea()) {}
 
-  for (auto& req : xf8_loadTransactions)
-    req->WaitUntilComplete();
+  //for (auto& req : xf8_loadTransactions)
+  //  req->WaitUntilComplete();
 
   if (xdc_tokens.empty()) {
     VerifyTokenList(mgr);

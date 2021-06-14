@@ -1815,11 +1815,11 @@ void CMetroidPrimeExo::UpdateBoneTracking(float dt, CStateManager& mgr) {
 }
 
 void CMetroidPrimeExo::DoContactDamage(TUniqueId uid, CStateManager& mgr) {
-  if (TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(uid)) {
-    if (!IsAlive()) {
-      return;
-    }
+  if (!IsAlive()) {
+    return;
+  }
 
+  if (TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(uid)) {
     if (colAct->GetLastTouchedObject() == mgr.GetPlayer().GetUniqueId()) {
       if (mgr.GetPlayer().GetFrozenState()) {
         mgr.GetPlayer().UnFreeze(mgr);

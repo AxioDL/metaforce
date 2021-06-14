@@ -224,8 +224,9 @@ void CBloodFlower::PodAttack(CStateManager& mgr, EStateMsg msg, float arg) {
     x574_podEffect->SetParticleEmission(true);
     ActivateTriggers(mgr, true);
   } else if (msg == EStateMsg::Update) {
-    if (TooClose(mgr, 0.f))
+    if (!TooClose(mgr, 0.f)) {
       return;
+    }
 
     mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), x5f8_podDamage,
                     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
