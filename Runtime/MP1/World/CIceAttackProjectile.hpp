@@ -7,6 +7,23 @@ namespace metaforce {
 class CElementGen;
 namespace MP1 {
 class CIceAttackProjectile : public CActor {
+  class CTrailObject {
+    std::unique_ptr<CElementGen> x0_gen1;
+    std::unique_ptr<CElementGen> x8_explosion;
+    TUniqueId x10_collisionObj;
+    float x14_ = 0.f;
+    CActorLights x18_ = CActorLights(1, zeus::CVector3f(0.f, 0.f, 1.f), 4, 4, false, false, false, 0.1f);
+    zeus::CVector3f x2f8_;
+    zeus::CVector3f x304_;
+    zeus::CVector3f x310_;
+    int x31c_ = 0;
+    u8 x320_ = 0;
+
+  public:
+    CTrailObject(CElementGen* gen, TUniqueId uid, const zeus::CVector3f& vec1, const zeus::CVector3f& vec2,
+                 const zeus::CVector3f& vec3)
+    : x0_gen1(gen), x10_collisionObj(uid), x2f8_(vec1), x304_(vec2), x310_(vec3) {}
+  };
   TToken<CGenDescription> xe8_;
   TToken<CGenDescription> xf0_;
   TToken<CGenDescription> xf8_;

@@ -6,9 +6,10 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/MP1/World/CEnergyBall.hpp"
+#include "Runtime/MP1/World/CIceAttackProjectile.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Particle/CParticleElectric.hpp"
@@ -443,7 +444,7 @@ void CMetroidPrimeExo::AddToRenderer(const zeus::CFrustum& frustum, CStateManage
 }
 
 void CMetroidPrimeExo::Render(CStateManager& mgr) {
-  g_Renderer->SetGXRegister1Color(x8d8_);
+  g_Renderer->SetGXRegister1Color(x8d8_beamColor);
   CPatterned::Render(mgr);
 }
 
@@ -485,7 +486,21 @@ void CMetroidPrimeExo::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& 
     }
     return;
   }
-  if (type == EUserEventType::Projectile) {}
+  if (type == EUserEventType::Projectile) {
+    if (x92c_ == 6) {
+      auto xf = zeus::lookAt(GetLctrTransform(node.GetLocatorName()).origin + zeus::CVector3f{0.f, 0.f, 1.5f},
+                             mgr.GetPlayer().GetTranslation());
+      float randAngle = zeus::degToRad(mgr.GetActiveRandom()->Range(-20.f, 20.f));
+      xf.rotateLocalZ(randAngle);
+      TUniqueId uid = mgr.AllocateUniqueId();
+      auto gen1 = g_SimplePool->GetObj(SObjectTag{SBIG('PART'), x930_.x4_particle1});
+      auto gen2 = g_SimplePool->GetObj(SObjectTag{SBIG('PART'), x930_.x8_particle2});
+      auto gen3 = g_SimplePool->GetObj(SObjectTag{SBIG('PART'), x930_.xc_particle3});
+      mgr.AddObject(new CIceAttackProjectile(gen1, gen2, gen3, uid, GetAreaIdAlways(), GetUniqueId(), true, xf,
+                                             x930_.x10_dInfo, {-1.f, 1.f}, x930_.x2c_, zeus::degToRad(x930_.x30_),
+                                             x930_.x34_texture, x930_.x38_, x930_.x3a_, {}));
+    }
+  }
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
@@ -1626,12 +1641,12 @@ void CMetroidPrimeExo::UpdateColorChange(float f1, CStateManager& mgr) {
   }
 
   if (x8e4_ >= 1.f) {
-    x8d8_ = x8e0_;
+    x8d8_beamColor = x8e0_;
     x8f4_24_ = false;
     GetModelData()->GetAnimationData()->SetParticleEffectState("ColorChange"sv, false, mgr);
   } else {
     x8e4_ = std::max(1.f, x8e4_ + f1 / 0.3f);
-    x8d8_ = zeus::CColor::lerp(x8dc_, x8e0_, x8e4_);
+    x8d8_beamColor = zeus::CColor::lerp(x8dc_, x8e0_, x8e4_);
   }
 }
 
@@ -1639,7 +1654,7 @@ void CMetroidPrimeExo::sub80278130(const zeus::CColor& col) {
   x8e4_ = 0.f;
   x8f4_24_ = true;
   x8e0_ = col;
-  x8dc_ = x8d8_;
+  x8dc_ = x8d8_beamColor;
 }
 
 void CMetroidPrimeExo::UpdateHeadAnimation(float f1) {

@@ -114,7 +114,7 @@ class CMetroidPrimeExo : public CPatterned {
   TUniqueId x8cc_headColActor = kInvalidUniqueId;
   u32 x8d0_ = 3;
   u32 x8d4_ = 3;
-  zeus::CColor x8d8_ = zeus::skBlack;
+  zeus::CColor x8d8_beamColor = zeus::skBlack;
   zeus::CColor x8dc_ = zeus::skBlack;
   zeus::CColor x8e0_ = zeus::skBlack;
   float x8e4_ = 0.f;
