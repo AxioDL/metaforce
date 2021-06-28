@@ -337,6 +337,8 @@ public:
   }
 
   void onAppIdle() noexcept {
+    OPTICK_FRAME("MainThread");
+
     if (!m_deferredProject.empty()) {
       hecl::SystemString subPath;
       hecl::ProjectRootPath projPath = hecl::SearchForProject(m_deferredProject, subPath);
