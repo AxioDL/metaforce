@@ -285,9 +285,8 @@ struct SpecMP2 : SpecBase {
     progress.startNewLine();
     progress.print(_SYS_STR("MP2 Root"), _SYS_STR(""), 0.0);
     int prog = 0;
-    ctx.progressCB = [&prog, &progress](std::string_view name, float) {
-      hecl::SystemStringConv nameView(name);
-      progress.print(_SYS_STR("MP2 Root"), nameView.c_str(), prog);
+    ctx.progressCB = [&prog, &progress](nod::SystemStringView name, float) {
+      progress.print(_SYS_STR("MP2 Root"), name, prog);
     };
     for (const nod::Node* node : m_nonPaks) {
       node->extractToDirectory(mp2OutPath.getAbsolutePath(), ctx);
@@ -310,7 +309,7 @@ struct SpecMP2 : SpecBase {
         int threadIdx = hecl::ClientProcess::GetThreadWorkerIdx();
         m_pakRouter.extractResources(pak, force, btok,
                                      [&progress, &pakName, threadIdx](const hecl::SystemChar* substr, float factor) {
-                                       progress.print(pakName.c_str(), substr, factor, threadIdx);
+                                       progress.print(pakName, substr, factor, threadIdx);
                                      });
       });
     }

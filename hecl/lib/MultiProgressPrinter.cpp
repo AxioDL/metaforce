@@ -286,7 +286,9 @@ MultiProgressPrinter::~MultiProgressPrinter() {
     m_logThread.join();
 }
 
-void MultiProgressPrinter::print(const hecl::SystemChar* message, const hecl::SystemChar* submessage, float factor,
+void MultiProgressPrinter::print(std::optional<hecl::SystemStringView> message,
+                                 std::optional<hecl::SystemStringView> submessage,
+                                 float factor,
                                  int threadIdx) const {
   if (!m_running) {
     return;
@@ -302,12 +304,12 @@ void MultiProgressPrinter::print(const hecl::SystemChar* message, const hecl::Sy
 
   ThreadStat& stat = m_threadStats[threadIdx];
   if (message) {
-    stat.m_message = message;
+    stat.m_message = *message;
   } else {
     stat.m_message.clear();
   }
   if (submessage) {
-    stat.m_submessage = submessage;
+    stat.m_submessage = *submessage;
   } else {
     stat.m_submessage.clear();
   }

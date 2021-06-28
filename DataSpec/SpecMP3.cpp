@@ -372,9 +372,8 @@ struct SpecMP3 : SpecBase {
     hecl::SystemString currentTarget;
     size_t nodeCount = 0;
     int prog = 0;
-    nod::ExtractionContext ctx = {force, [&](std::string_view name, float) {
-                                    hecl::SystemStringConv nameView(name);
-                                    progress.print(currentTarget.c_str(), nameView.c_str(), prog / (float)nodeCount);
+    nod::ExtractionContext ctx = {force, [&](nod::SystemStringView name, float) {
+                                    progress.print(currentTarget, name, prog / (float)nodeCount);
                                   }};
     if (doMP3) {
       m_workPath.makeDir();
@@ -420,7 +419,7 @@ struct SpecMP3 : SpecBase {
         process.addLambdaTransaction([this, &progress, &pak, pakName, force](hecl::blender::Token& btok) {
           m_pakRouter.extractResources(pak, force, btok,
                                        [&progress, &pakName](const hecl::SystemChar* substr, float factor) {
-                                         progress.print(pakName.c_str(), substr, factor);
+                                         progress.print(pakName, substr, factor);
                                        });
         });
       }
@@ -470,7 +469,7 @@ struct SpecMP3 : SpecBase {
         process.addLambdaTransaction([this, &progress, &pak, pakName, force](hecl::blender::Token& btok) {
           m_fePakRouter.extractResources(pak, force, btok,
                                          [&progress, &pakName](const hecl::SystemChar* substr, float factor) {
-                                           progress.print(pakName.c_str(), substr, factor);
+                                           progress.print(pakName, substr, factor);
                                          });
         });
       }

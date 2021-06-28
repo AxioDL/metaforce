@@ -486,7 +486,7 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
   int loadIdx = 0;
   for (const auto& tag : buildList) {
     hecl::SystemString str = fmt::format(FMT_STRING(_SYS_STR("Copying {}")), tag);
-    progress.print(str.c_str(), nullptr, ++loadIdx / float(buildList.size()));
+    progress.print(str, std::nullopt, ++loadIdx / float(buildList.size()));
 
     auto& [positionOut, sizeOut, compressedOut] = fileIndex.emplace_back();
 

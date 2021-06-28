@@ -107,7 +107,7 @@ public:
       hecl::SystemString fileOut = hecl::SystemString(outPath.getAbsolutePath()) + _SYS_STR('/') + idView.c_str();
       hecl::MultiProgressPrinter printer(true);
       auto progFunc = [&printer](float totalProg, nod::SystemStringView fileName, size_t fileBytesXfered) {
-        printer.print(fileName.data(), nullptr, totalProg);
+        printer.print(fileName, std::nullopt, totalProg);
       };
       if (id[0] == 'G') {
         fileOut += _SYS_STR(".gcm");

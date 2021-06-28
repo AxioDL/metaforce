@@ -322,7 +322,7 @@ public:
     submsg += _SYS_STR(" (");
     submsg += specEnt->m_name.data();
     submsg += _SYS_STR(')');
-    m_progPrinter.print(m_dir, submsg.c_str(), m_prog);
+    m_progPrinter.print(m_dir, submsg, m_prog);
   }
   void reportFile(const DataSpecEntry* specEnt, const SystemChar* extra) {
     SystemString submsg(m_file);
@@ -331,9 +331,9 @@ public:
     submsg += _SYS_STR(", ");
     submsg += extra;
     submsg += _SYS_STR(')');
-    m_progPrinter.print(m_dir, submsg.c_str(), m_prog);
+    m_progPrinter.print(m_dir, submsg, m_prog);
   }
-  void reportDirComplete() { m_progPrinter.print(m_dir, nullptr, 1.f); }
+  void reportDirComplete() { m_progPrinter.print(m_dir, std::nullopt, 1.f); }
 };
 
 static void VisitFile(const ProjectPath& path, bool force, bool fast,

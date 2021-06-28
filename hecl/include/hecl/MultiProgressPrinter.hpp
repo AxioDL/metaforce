@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <mutex>
+#include <optional>
 #include <thread>
 #include <vector>
 
@@ -55,7 +56,8 @@ class MultiProgressPrinter {
 public:
   MultiProgressPrinter(bool activate = false);
   ~MultiProgressPrinter();
-  void print(const hecl::SystemChar* message, const hecl::SystemChar* submessage, float factor = -1.f,
+  void print(std::optional<hecl::SystemStringView> message, std::optional<hecl::SystemStringView> submessage,
+             float factor = -1.f,
              int threadIdx = 0) const;
   void setMainFactor(float factor) const;
   void setMainIndeterminate(bool indeterminate) const;
