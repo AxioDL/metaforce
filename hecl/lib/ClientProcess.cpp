@@ -184,7 +184,7 @@ bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec*
             str = fmt::format(FMT_STRING(_SYS_STR("Cooking {}")), path.getRelativePath());
           else
             str = fmt::format(FMT_STRING(_SYS_STR("Cooking {}|{}")), path.getRelativePath(), path.getAuxInfo());
-          m_progPrinter->print(str.c_str(), nullptr, -1.f, hecl::ClientProcess::GetThreadWorkerIdx());
+          m_progPrinter->print(str, std::nullopt, -1.f, hecl::ClientProcess::GetThreadWorkerIdx());
           m_progPrinter->flush();
         } else {
           if (path.getAuxInfo().empty())
@@ -199,7 +199,7 @@ bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec*
             str = fmt::format(FMT_STRING(_SYS_STR("Cooked  {}")), path.getRelativePath());
           else
             str = fmt::format(FMT_STRING(_SYS_STR("Cooked  {}|{}")), path.getRelativePath(), path.getAuxInfo());
-          m_progPrinter->print(str.c_str(), nullptr, -1.f, hecl::ClientProcess::GetThreadWorkerIdx());
+          m_progPrinter->print(str, std::nullopt, -1.f, hecl::ClientProcess::GetThreadWorkerIdx());
           m_progPrinter->flush();
         }
       }
