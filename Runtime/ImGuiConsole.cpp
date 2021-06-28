@@ -1120,6 +1120,7 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
 
 s32 TranslateBooSpecialKey(boo::ESpecialKey key) { return 256 + static_cast<int>(key); }
 void ImGuiConsole::PreUpdate() {
+  OPTICK_EVENT();
   if (!m_isInitialized) {
     m_isInitialized = true;
     m_cvarCommons.m_debugOverlayShowFrameCounter->addListener(
@@ -1198,6 +1199,7 @@ void ImGuiConsole::PreUpdate() {
 }
 
 void ImGuiConsole::PostUpdate() {
+  OPTICK_EVENT();
   if (g_StateManager != nullptr && g_StateManager->GetObjectList()) {
     // Clear deleted objects
     CObjectList& list = g_StateManager->GetAllObjectList();

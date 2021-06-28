@@ -337,8 +337,6 @@ public:
   }
 
   void onAppIdle() noexcept {
-    OPTICK_FRAME("MainThread");
-
     if (!m_deferredProject.empty()) {
       hecl::SystemString subPath;
       hecl::ProjectRootPath projPath = hecl::SearchForProject(m_deferredProject, subPath);
@@ -363,7 +361,11 @@ public:
       return;
     }
 
-    m_window->waitForRetrace();
+    {
+      OPTICK_EVENT("Wait for Retrace");
+      m_window->waitForRetrace();
+    }
+    OPTICK_FRAME("MainThread");
 
     boo::SWindowRect rect = m_windowCallback.m_lastRect;
     rect.location = {0, 0};

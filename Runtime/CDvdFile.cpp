@@ -1,5 +1,7 @@
 #include "Runtime/CDvdFile.hpp"
 
+#include <optick.h>
+
 #include "Runtime/CDvdRequest.hpp"
 #include "Runtime/CStopwatch.hpp"
 
@@ -67,6 +69,8 @@ std::vector<std::shared_ptr<IDvdRequest>> CDvdFile::m_RequestQueue;
 
 void CDvdFile::WorkerProc() {
   logvisor::RegisterThreadName("CDvdFile");
+  OPTICK_THREAD("CDvdFile");
+
   while (m_WorkerRun.load()) {
     std::unique_lock lk{m_WorkerMutex};
     while (!m_RequestQueue.empty()) {
