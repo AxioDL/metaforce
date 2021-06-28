@@ -202,8 +202,11 @@ void CActor::DrawTouchBounds() {
   if (m_debugHovered || m_debugSelected) {
     auto aabox = GetTouchBounds();
     if (aabox) {
-      m_actorDebugRender.setAABB(*aabox);
-      m_actorDebugRender.draw(m_debugAddColor);
+      if (!m_actorDebugRender) {
+        m_actorDebugRender = CAABoxShader();
+      }
+      m_actorDebugRender->setAABB(*aabox);
+      m_actorDebugRender->draw(m_debugAddColor);
     }
   }
 }

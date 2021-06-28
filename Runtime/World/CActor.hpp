@@ -86,7 +86,7 @@ protected:
   void RenderInternal(const CStateManager& mgr) const;
   bool IsModelOpaque(const CStateManager& mgr) const;
 
-  CAABoxShader m_actorDebugRender;
+  std::optional<CAABoxShader> m_actorDebugRender;
 
 public:
   enum class EFluidState { EnteredFluid, InFluid, LeftFluid };
