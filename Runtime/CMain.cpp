@@ -40,7 +40,7 @@ public:
     auto start = delta_clock::now();
     duration_t adjustedSleepTime = SleepTime(targetFrameTime);
     if (adjustedSleepTime.count() > 0) {
-      std::this_thread::sleep_for(adjustedSleepTime);
+      NanoSleep(adjustedSleepTime);
       duration_t overslept = TimeSince(start) - adjustedSleepTime;
       if (overslept < duration_t{targetFrameTime}) {
         m_overheadTimes[m_overheadTimeIdx] = overslept;
@@ -68,6 +68,37 @@ private:
   duration_t TimeSince(delta_clock::time_point start) {
     return std::chrono::duration_cast<duration_t>(delta_clock::now() - start);
   }
+
+#if _WIN32
+  bool m_initialized;
+  double m_countPerNs;
+
+  void NanoSleep(const duration_t duration) {
+    if (!m_initialized) {
+      LARGE_INTEGER freq;
+      QueryPerformanceFrequency(&freq);
+      m_countPerNs = static_cast<double>(freq.QuadPart) / 1000000000.0;
+      m_initialized = true;
+    }
+
+    DWORD ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    auto tickCount = static_cast<LONGLONG>(static_cast<double>(duration.count()) * m_countPerNs);
+    LARGE_INTEGER count;
+    QueryPerformanceCounter(&count);
+    if (ms > 10) {
+      // Adjust for Sleep overhead
+      ::Sleep(ms - 10);
+    }
+    auto end = count.QuadPart + tickCount;
+    do {
+      QueryPerformanceCounter(&count);
+    } while (count.QuadPart < end);
+  }
+#else
+  void NanoSleep(const duration_t duration) {
+    std::this_thread::sleep_for(duration);
+  }
+#endif
 };
 
 extern hecl::SystemString ExeDir;
