@@ -74,7 +74,7 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
   }
 
 #else
-  if (!RegFileExists(blenderBin)) {
+  if (!RegFileExists(blenderBin->c_str())) {
     /* Try steam */
     steamBlender = hecl::FindCommonSteamApp("Blender");
     if (steamBlender.size()) {
@@ -84,15 +84,15 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
       steamBlender += "/blender";
 #endif
       blenderBin = steamBlender.c_str();
-      if (!RegFileExists(blenderBin)) {
+      if (!RegFileExists(blenderBin->c_str())) {
         blenderBin = DEFAULT_BLENDER_BIN;
-        if (!RegFileExists(blenderBin)) {
+        if (!RegFileExists(blenderBin->c_str())) {
           blenderBin = nullptr;
         }
       }
     } else {
       blenderBin = DEFAULT_BLENDER_BIN;
-      if (!RegFileExists(blenderBin)) {
+      if (!RegFileExists(blenderBin->c_str())) {
         blenderBin = nullptr;
       }
     }
@@ -124,7 +124,7 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
     delete[] infoData;
   }
 #else
-  std::string command = std::string("\"") + blenderBin + "\" --version";
+  std::string command = std::string("\"") + blenderBin.value() + "\" --version";
   FILE* fp = popen(command.c_str(), "r");
   char versionBuf[256];
   size_t rdSize = fread(versionBuf, 1, 255, fp);

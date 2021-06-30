@@ -340,6 +340,11 @@ static const char* ToString(GX::TevRegID arg) {
   }
 }
 
+// FIXME remove; bug with fmtlib 8.0.0 & AppleClang 12.0.5
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-local-typedef"
+#endif
 template <class MAT>
 static void _DescribeTEV(const MAT& mat) {
   for (uint32_t i = 0; i < mat.tevStageCount; ++i) {
@@ -354,6 +359,9 @@ static void _DescribeTEV(const MAT& mat) {
   bool hasLm = mat.flags.lightmap();
   fmt::print(stderr, FMT_STRING("HasIndirect: {} HasLightmap: {}\n"), hasInd, hasLm);
 }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 struct TexLink {
   const char* shaderInput;

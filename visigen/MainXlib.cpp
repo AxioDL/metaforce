@@ -74,7 +74,7 @@ static void UpdatePercent(float percent) {
 /* Empty handler for SIGINT */
 static void _sigint(int) {}
 
-int main(int argc, const char** argv) {
+int main(int argc, char** argv) {
   if (argc > 1 && !strcmp(argv[1], "--dlpackage")) {
     fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;

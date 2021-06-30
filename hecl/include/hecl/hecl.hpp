@@ -116,7 +116,7 @@ static inline void ToUpper(std::string& str) {
 #if _WIN32
 using Sstat = struct ::_stat64;
 #else
-using SStat = struct stat;
+using Sstat = struct stat;
 #endif
 
 constexpr size_t StrLen(const char* str) { return std::char_traits<char>::length(str); }
@@ -311,28 +311,6 @@ inline int StrCaseCmp(const char* str1, const char* str2) {
 
 inline unsigned long StrToUl(const char* str, char** endPtr, int base) {
   return strtoul(str, endPtr, base);
-}
-
-inline bool CheckFreeSpace(const char* path, size_t reqSz) {
-#if _WIN32
-  ULARGE_INTEGER freeBytes;
-  wchar_t buf[1024];
-  wchar_t* end;
-  const nowide::wstackstring wpath(path);
-  DWORD ret = GetFullPathNameW(wpath.get(), 1024, buf, &end);
-  if (!ret || ret > 1024)
-    LogModule.report(logvisor::Fatal, FMT_STRING("GetFullPathNameW {}"), path);
-  if (end)
-    end[0] = L'\0';
-  if (!GetDiskFreeSpaceExW(buf, &freeBytes, nullptr, nullptr))
-    LogModule.report(logvisor::Fatal, FMT_STRING("GetDiskFreeSpaceExW {}: {}"), path, GetLastError());
-  return reqSz < freeBytes.QuadPart;
-#else
-  struct statvfs svfs;
-  if (statvfs(path, &svfs))
-    LogModule.report(logvisor::Fatal, FMT_STRING("statvfs {}: {}"), path, strerror(errno));
-  return reqSz < svfs.f_frsize * svfs.f_bavail;
-#endif
 }
 
 inline bool PathRelative(const char* path) {

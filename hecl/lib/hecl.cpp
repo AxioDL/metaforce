@@ -28,7 +28,9 @@
 #include <sys/wait.h>
 #endif
 
+#ifdef __cpp_lib_ranges
 #include <ranges>
+#endif
 #include <logvisor/logvisor.hpp>
 
 using namespace std::literals;
@@ -37,7 +39,7 @@ namespace hecl {
 unsigned VerbosityLevel = 0;
 bool GuiMode = false;
 logvisor::Module LogModule("hecl");
-constexpr std::string_view Illegals = "<>?\""sv;
+constexpr std::string_view Illegals = R"(<>?")";
 
 void SanitizePath(std::string& path) {
   if (path.empty())

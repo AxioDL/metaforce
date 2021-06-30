@@ -426,7 +426,6 @@ Connection::Connection(int verbosityLevel) {
       std::string writefds = fmt::format(FMT_STRING("{}"), m_readpipe[1]);
       std::string vLevel = fmt::format(FMT_STRING("{}"), verbosityLevel);
 
-      /* Try user-specified blender first */
       if (blenderBin) {
         execlp(blenderBin->c_str(), blenderBin->c_str(), "--background", "-P", blenderShellPath.c_str(), "--",
                readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
@@ -435,32 +434,6 @@ Connection::Connection(int verbosityLevel) {
           _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
           exit(1);
         }
-      }
-
-      /* Try steam */
-      steamBlender = hecl::FindCommonSteamApp("Blender");
-      if (steamBlender.size()) {
-#ifdef __APPLE__
-        steamBlender += "/blender.app/Contents/MacOS/blender";
-#else
-        steamBlender += "/blender";
-#endif
-        execlp(steamBlender.c_str(), steamBlender.c_str(), "--background", "-P", blenderShellPath.c_str(), "--",
-               readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
-        if (errno != ENOENT) {
-          errbuf = fmt::format(FMT_STRING("NOLAUNCH {}"), strerror(errno));
-          _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
-          exit(1);
-        }
-      }
-
-      /* Otherwise default blender */
-      execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN, "--background", "-P", blenderShellPath.c_str(), "--",
-             readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
-      if (errno != ENOENT) {
-        errbuf = fmt::format(FMT_STRING("NOLAUNCH {}"), strerror(errno));
-        _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
-        exit(1);
       }
 
       /* Unable to find blender */
@@ -490,15 +463,7 @@ Connection::Connection(int verbosityLevel) {
       BlenderLog.report(logvisor::Fatal, FMT_STRING("Unable to launch blender: {}"), lineStr.c_str() + 9);
     } else if (!lineStr.compare(0, 9, "NOBLENDER")) {
       _closePipe();
-#if _WIN32
-      BlenderLog.report(logvisor::Fatal, FMT_STRING("Unable to find blender at '{}'"), blenderBin.value());
-#else
-      if (blenderBin)
-        BlenderLog.report(logvisor::Fatal, FMT_STRING("Unable to find blender at '{}' or '{}'"), blenderBin,
-                          DEFAULT_BLENDER_BIN);
-      else
-        BlenderLog.report(logvisor::Fatal, FMT_STRING("Unable to find blender at '{}'"), DEFAULT_BLENDER_BIN);
-#endif
+      BlenderLog.report(logvisor::Fatal, FMT_STRING("Unable to find blender"));
     } else if (lineStr == "INVALIDBLENDERVER") {
       _closePipe();
       BlenderLog.report(logvisor::Fatal, FMT_STRING("Installed blender version must be >= {}.{}"),

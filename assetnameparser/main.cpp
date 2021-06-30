@@ -182,7 +182,7 @@ enum class FileLockType { None = 0, Read, Write };
 #if _WIN32
 using Sstat = struct ::_stat64;
 #else
-using SStat = struct stat;
+using Sstat = struct stat;
 #endif
 
 struct FILEDeleter {

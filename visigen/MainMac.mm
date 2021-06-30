@@ -110,7 +110,7 @@ static void AthenaExc(athena::error::Level level, const char* /*file*/, const ch
   AthenaLog.vreport(logvisor::Level(level), fmt, args);
 }
 
-int main(int argc, const char** argv)
+int main(int argc, char** argv)
 {
     if (argc > 1 && !strcmp(argv[1], "--dlpackage"))
     {

@@ -230,15 +230,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER_LAUNCHER": "buildcache",
         "CMAKE_CXX_COMPILER_LAUNCHER": "buildcache",
-        "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64",
-        "Qt5Widgets_DIR": {
-          "type": "FILEPATH",
-          "value": "/opt/local/libexec/qt5/lib/cmake/Qt5Widgets"
-        },
-        "PNG_DIR": {
-          "type": "FILEPATH",
-          "value": "/opt/local/lib"
-        }
+        "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64"
       }
     },
     {
