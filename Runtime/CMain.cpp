@@ -397,7 +397,7 @@ public:
       m_window->waitForRetrace();
     }
     OPTICK_FRAME("MainThread");
-    CGraphics::SetCommitResourcesAsLazy(true);
+    CGraphics::SetCommitResourcesAsLazy(m_cvarCommons.m_lazyCommitResources->toBoolean());
 
     boo::SWindowRect rect = m_windowCallback.m_lastRect;
     rect.location = {0, 0};
