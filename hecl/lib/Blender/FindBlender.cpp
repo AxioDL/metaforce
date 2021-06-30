@@ -1,4 +1,4 @@
-#include "FindBlender.hpp"
+#include "hecl/Blender/FindBlender.hpp"
 #include "hecl/SteamFinder.hpp"
 #include "hecl/hecl.hpp"
 
@@ -6,8 +6,6 @@ namespace hecl::blender {
 
 #ifdef __APPLE__
 #define DEFAULT_BLENDER_BIN "/Applications/Blender.app/Contents/MacOS/blender"
-#elif __linux__
-#define DEFAULT_BLENDER_BIN "/usr/bin/blender"
 #else
 #define DEFAULT_BLENDER_BIN "blender"
 #endif
@@ -15,53 +13,58 @@ namespace hecl::blender {
 static const std::regex regBlenderVersion(R"(Blender (\d+)\.(\d+)(?:\.(\d+))?)",
                                           std::regex::ECMAScript | std::regex::optimize);
 
-static bool RegFileExists(const hecl::SystemChar* path) {
+static bool RegFileExists(const char* path) {
   if (!path)
     return false;
   hecl::Sstat theStat;
   return !hecl::Stat(path, &theStat) && S_ISREG(theStat.st_mode);
 }
 
-hecl::SystemString FindBlender(int& major, int& minor) {
+std::optional<std::string> FindBlender(int& major, int& minor) {
   major = 0;
   minor = 0;
 
   /* User-specified blender path */
 #if _WIN32
-  wchar_t BLENDER_BIN_BUF[2048];
-  const wchar_t* blenderBin = _wgetenv(L"BLENDER_BIN");
+  auto blenderBin = GetEnv("BLENDER_BIN");
 #else
-  const char* blenderBin = getenv("BLENDER_BIN");
+  const char* cblenderBin = getenv("BLENDER_BIN");
+  std::optional<std::string> blenderBin{};
+  if (cblenderBin != nullptr) {
+    blenderBin = cblenderBin;
+  }
 #endif
 
   /* Steam blender */
-  hecl::SystemString steamBlender;
+  std::string steamBlender;
 
   /* Child process of blender */
 #if _WIN32
-  if (!blenderBin || !RegFileExists(blenderBin)) {
+  if (!blenderBin || !RegFileExists(blenderBin->c_str())) {
     /* Environment not set; try steam */
-    steamBlender = hecl::FindCommonSteamApp(_SYS_STR("Blender"));
+    steamBlender = hecl::FindCommonSteamApp("Blender");
     if (steamBlender.size()) {
-      steamBlender += _SYS_STR("\\blender.exe");
+      steamBlender += "\\blender.exe";
       blenderBin = steamBlender.c_str();
     }
 
-    if (!RegFileExists(blenderBin)) {
+    if (!RegFileExists(blenderBin->c_str())) {
       /* No steam; try default */
-      wchar_t progFiles[256];
-      if (GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256)) {
+      wchar_t wProgFiles[256];
+      if (GetEnvironmentVariableW(L"ProgramFiles", wProgFiles, 256)) {
+        auto progFiles = nowide::narrow(wProgFiles);
         for (size_t major = MaxBlenderMajorSearch; major >= MinBlenderMajorSearch; --major) {
           bool found = false;
-          for (size_t minor = MaxBlenderMinorSearch; minor > MinBlenderMinorSearch; --minor) {
-            _snwprintf(BLENDER_BIN_BUF, 2048, L"%s\\Blender Foundation\\Blender %i.%i\\blender.exe", progFiles, major,
-                       minor);
-            if (RegFileExists(BLENDER_BIN_BUF)) {
-              blenderBin = BLENDER_BIN_BUF;
+          for (size_t minor = MaxBlenderMinorSearch; minor >= MinBlenderMinorSearch; --minor) {
+            std::string blenderBinBuf = fmt::format(FMT_STRING("{}\\Blender Foundation\\Blender {}.{}\\blender.exe"),
+                                                    progFiles, major, minor);
+            if (RegFileExists(blenderBinBuf.c_str())) {
+              blenderBin = std::move(blenderBinBuf);
               found = true;
               break;
             }
           }
+
           if (found) {
             break;
           }
@@ -73,7 +76,7 @@ hecl::SystemString FindBlender(int& major, int& minor) {
 #else
   if (!RegFileExists(blenderBin)) {
     /* Try steam */
-    steamBlender = hecl::FindCommonSteamApp(_SYS_STR("Blender"));
+    steamBlender = hecl::FindCommonSteamApp("Blender");
     if (steamBlender.size()) {
 #ifdef __APPLE__
       steamBlender += "/blender.app/Contents/MacOS/blender";
@@ -100,12 +103,13 @@ hecl::SystemString FindBlender(int& major, int& minor) {
     return {};
 
 #if _WIN32
+  const nowide::wstackstring wblenderBin(blenderBin.value());
   DWORD handle = 0;
-  DWORD infoSize = GetFileVersionInfoSizeW(blenderBin, &handle);
+  DWORD infoSize = GetFileVersionInfoSizeW(wblenderBin.get(), &handle);
 
   if (infoSize != NULL) {
     auto* infoData = new char[infoSize];
-    if (GetFileVersionInfoW(blenderBin, handle, infoSize, infoData)) {
+    if (GetFileVersionInfoW(wblenderBin.get(), handle, infoSize, infoData)) {
       UINT size = 0;
       LPVOID lpBuffer = nullptr;
       if (VerQueryValueW(infoData, L"\\", &lpBuffer, &size) && size != 0u) {
@@ -120,7 +124,7 @@ hecl::SystemString FindBlender(int& major, int& minor) {
     delete[] infoData;
   }
 #else
-  hecl::SystemString command = hecl::SystemString(_SYS_STR("\"")) + blenderBin + _SYS_STR("\" --version");
+  std::string command = std::string("\"") + blenderBin + "\" --version";
   FILE* fp = popen(command.c_str(), "r");
   char versionBuf[256];
   size_t rdSize = fread(versionBuf, 1, 255, fp);

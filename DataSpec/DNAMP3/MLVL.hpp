@@ -74,10 +74,10 @@ struct MLVL : BigDNA {
 
   static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                       PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
-                      std::function<void(const hecl::SystemChar*)> fileChanged) {
+                      std::function<void(const char*)> fileChanged) {
     MLVL mlvl;
     mlvl.read(rs);
-    athena::io::FileWriter writer(outPath.getWithExtension(_SYS_STR(".yaml"), true).getAbsolutePath());
+    athena::io::FileWriter writer(outPath.getWithExtension(".yaml", true).getAbsolutePath());
     athena::io::ToYAMLStream(mlvl, writer);
     hecl::blender::Connection& conn = btok.getBlenderConnection();
     return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter, entry, force, fileChanged);

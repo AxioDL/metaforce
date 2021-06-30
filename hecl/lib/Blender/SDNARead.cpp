@@ -69,7 +69,7 @@ void SDNARead::enumerate(const std::function<bool(const FileBlock& block, athena
   }
 }
 
-SDNARead::SDNARead(SystemStringView path) {
+SDNARead::SDNARead(std::string_view path) {
   athena::io::FileReader r(path);
   if (r.hasError())
     return;
@@ -134,7 +134,7 @@ SDNARead::SDNARead(SystemStringView path) {
   });
 }
 
-BlendType GetBlendType(SystemStringView path) {
+BlendType GetBlendType(std::string_view path) {
   SDNARead r(path);
   if (!r)
     return BlendType::None;

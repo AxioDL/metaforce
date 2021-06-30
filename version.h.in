@@ -1,16 +1,7 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#ifndef _SYS_STR
-#ifdef _WIN32
-#define _SYS_STR(val) L##val
-#else
-#define _SYS_STR(val) val
-#endif
-#endif
-
 #define METAFORCE_WC_DESCRIBE "@METAFORCE_WC_DESCRIBE@"
-#define METAFORCE_WC_DESCRIBE_SYS _SYS_STR("@METAFORCE_WC_DESCRIBE@")
 #define METAFORCE_VERSION_STRING "@METAFORCE_VERISON_STRING@"
 
 #define METAFORCE_WC_BRANCH "@METAFORCE_WC_BRANCH@"

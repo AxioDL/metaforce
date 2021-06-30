@@ -287,10 +287,9 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
   /* World background */
   hecl::ProjectPath worldDir = outPath.getParentPath().getParentPath();
   for (const auto& ent : hecl::DirectoryEnumerator(worldDir.getAbsolutePath())) {
-    if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!world")) &&
-        hecl::StringUtils::EndsWith(ent.m_name, _SYS_STR(".blend"))) {
-      hecl::SystemUTF8Conv conv(ent.m_name);
-      os.linkBackground(fmt::format(FMT_STRING("//../{}"), conv), "World"sv);
+    if (hecl::StringUtils::BeginsWith(ent.m_name, "!world") &&
+        hecl::StringUtils::EndsWith(ent.m_name, ".blend")) {
+      os.linkBackground(fmt::format(FMT_STRING("//../{}"), ent.m_name), "World"sv);
       break;
     }
   }
@@ -322,7 +321,7 @@ template bool ReadMAPAToBlender<PAKRouter<DNAMP3::PAKBridge>>(hecl::blender::Con
 template <typename MAPAType>
 bool Cook(const hecl::blender::MapArea& mapaIn, const hecl::ProjectPath& out) {
   if (mapaIn.verts.size() >= 256) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("MAPA {} vertex range exceeded [{}/{}]")), out.getRelativePath(),
+    Log.report(logvisor::Error, FMT_STRING("MAPA {} vertex range exceeded [{}/{}]"), out.getRelativePath(),
                mapaIn.verts.size(), 255);
     return false;
   }

@@ -65,7 +65,7 @@ void MREA::ReadBabeDeadToBlender_3(hecl::blender::PyOutStream& os, athena::io::I
 
 bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
-                   std::function<void(const hecl::SystemChar*)>) {
+                   std::function<void(const char*)>) {
   using RigPair = std::pair<std::pair<UniqueID64, CSKR*>, std::pair<UniqueID64, CINF*>>;
   RigPair dummy = {};
 
@@ -79,7 +79,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   /* MREA decompression stream */
   StreamReader drs(rs, head.compressedBlockCount, head.secIndexCount);
-  hecl::ProjectPath decompPath = outPath.getCookedPath(SpecEntMP3ORIG).getWithExtension(_SYS_STR(".decomp"));
+  hecl::ProjectPath decompPath = outPath.getCookedPath(SpecEntMP3ORIG).getWithExtension(".decomp");
   decompPath.makeDirChain(false);
   athena::io::FileWriter mreaDecompOut(decompPath.getAbsolutePath());
   head.write(mreaDecompOut);

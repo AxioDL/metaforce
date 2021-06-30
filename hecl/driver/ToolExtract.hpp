@@ -32,18 +32,18 @@ public:
       LogModule.report(logvisor::Fatal, FMT_STRING("hecl extract needs a source path as its first argument"));
 
     if (!info.project) {
-      hecl::SystemString rootDir;
+      std::string rootDir;
 
       if (info.output.empty()) {
         /* Get name from input file and init project there */
-        hecl::SystemString baseFile = info.args.front();
-        size_t slashPos = baseFile.rfind(_SYS_STR('/'));
-        if (slashPos == hecl::SystemString::npos)
-          slashPos = baseFile.rfind(_SYS_STR('\\'));
-        if (slashPos != hecl::SystemString::npos)
+        std::string baseFile = info.args.front();
+        size_t slashPos = baseFile.rfind('/');
+        if (slashPos == std::string::npos)
+          slashPos = baseFile.rfind('\\');
+        if (slashPos != std::string::npos)
           baseFile.assign(baseFile.begin() + slashPos + 1, baseFile.end());
-        size_t dotPos = baseFile.rfind(_SYS_STR('.'));
-        if (dotPos != hecl::SystemString::npos)
+        size_t dotPos = baseFile.rfind('.');
+        if (dotPos != std::string::npos)
           baseFile.assign(baseFile.begin(), baseFile.begin() + dotPos);
 
         if (baseFile.empty())
@@ -62,8 +62,8 @@ public:
       newProjRoot.makeDir();
       m_fallbackProj.reset(new hecl::Database::Project(newProjRoot));
       if (logvisor::ErrorCount > ErrorRef)
-        LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to init project at '{}'")), rootDir);
-      LogModule.report(logvisor::Info, FMT_STRING(_SYS_STR("initialized project at '{}/.hecl'")), rootDir);
+        LogModule.report(logvisor::Fatal, FMT_STRING("unable to init project at '{}'"), rootDir);
+      LogModule.report(logvisor::Info, FMT_STRING("initialized project at '{}/.hecl'"), rootDir);
       m_useProj = m_fallbackProj.get();
     } else
       m_useProj = info.project;
@@ -87,44 +87,44 @@ public:
   }
 
   static void Help(HelpOutput& help) {
-    help.secHead(_SYS_STR("NAME"));
+    help.secHead("NAME");
     help.beginWrap();
-    help.wrap(_SYS_STR("hecl-extract - Extract objects from supported package/image formats\n"));
+    help.wrap("hecl-extract - Extract objects from supported package/image formats\n");
     help.endWrap();
 
-    help.secHead(_SYS_STR("SYNOPSIS"));
+    help.secHead("SYNOPSIS");
     help.beginWrap();
-    help.wrap(_SYS_STR("hecl extract <packagefile> [<subnode>...]\n"));
+    help.wrap("hecl extract <packagefile> [<subnode>...]\n");
     help.endWrap();
 
-    help.secHead(_SYS_STR("DESCRIPTION"));
+    help.secHead("DESCRIPTION");
     help.beginWrap();
-    help.wrap(_SYS_STR("This command recursively extracts all or part of a dataspec-supported ")
-                  _SYS_STR("package format. Each object is decoded to a working format and added to the project.\n\n"));
+    help.wrap("This command recursively extracts all or part of a dataspec-supported "
+                  "package format. Each object is decoded to a working format and added to the project.\n\n");
     help.endWrap();
 
-    help.secHead(_SYS_STR("OPTIONS"));
-    help.optionHead(_SYS_STR("<packagefile>[/<subnode>...]"), _SYS_STR("input file"));
+    help.secHead("OPTIONS");
+    help.optionHead("<packagefile>[/<subnode>...]", "input file");
     help.beginWrap();
-    help.wrap(_SYS_STR("Specifies the package file or disc image to source data from. ")
-                  _SYS_STR("An optional subnode specifies a named hierarchical-node specific ")
-                      _SYS_STR("to the game architecture (levels/areas)."));
+    help.wrap("Specifies the package file or disc image to source data from. "
+                  "An optional subnode specifies a named hierarchical-node specific "
+                      "to the game architecture (levels/areas).");
     help.endWrap();
   }
 
-  hecl::SystemStringView toolName() const override { return _SYS_STR("extract"sv); }
+  std::string_view toolName() const override { return "extract"sv; }
 
   static void _recursivePrint(int level, hecl::Database::IDataSpec::ExtractReport& rep) {
     for (int l = 0; l < level; ++l)
-      fmt::print(FMT_STRING(_SYS_STR("  ")));
+      fmt::print(FMT_STRING("  "));
     if (XTERM_COLOR)
-      fmt::print(FMT_STRING(_SYS_STR("" BOLD "{}" NORMAL "")), rep.name);
+      fmt::print(FMT_STRING("" BOLD "{}" NORMAL ""), rep.name);
     else
-      fmt::print(FMT_STRING(_SYS_STR("{}")), rep.name);
+      fmt::print(FMT_STRING("{}"), rep.name);
 
     if (rep.desc.size())
-      fmt::print(FMT_STRING(_SYS_STR(" [{}]")), rep.desc);
-    fmt::print(FMT_STRING(_SYS_STR("\n")));
+      fmt::print(FMT_STRING(" [{}]"), rep.desc);
+    fmt::print(FMT_STRING("\n"));
     for (hecl::Database::IDataSpec::ExtractReport& child : rep.childOpts)
       _recursivePrint(level + 1, child);
   }
@@ -132,32 +132,32 @@ public:
   int run() override {
     if (m_specPasses.empty()) {
       if (XTERM_COLOR)
-        fmt::print(FMT_STRING(_SYS_STR("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n")));
+        fmt::print(FMT_STRING("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n"));
       else
-        fmt::print(FMT_STRING(_SYS_STR("NOTHING TO EXTRACT\n")));
+        fmt::print(FMT_STRING("NOTHING TO EXTRACT\n"));
       return 1;
     }
 
     if (XTERM_COLOR)
-      fmt::print(FMT_STRING(_SYS_STR("" GREEN BOLD "ABOUT TO EXTRACT:" NORMAL "\n")));
+      fmt::print(FMT_STRING("" GREEN BOLD "ABOUT TO EXTRACT:" NORMAL "\n"));
     else
-      fmt::print(FMT_STRING(_SYS_STR("ABOUT TO EXTRACT:\n")));
+      fmt::print(FMT_STRING("ABOUT TO EXTRACT:\n"));
 
     for (hecl::Database::IDataSpec::ExtractReport& rep : m_reps) {
       _recursivePrint(0, rep);
-      fmt::print(FMT_STRING(_SYS_STR("\n")));
+      fmt::print(FMT_STRING("\n"));
     }
     fflush(stdout);
 
     if (continuePrompt()) {
       for (SpecExtractPass& ds : m_specPasses) {
         if (XTERM_COLOR)
-          fmt::print(FMT_STRING(_SYS_STR("" MAGENTA BOLD "Using DataSpec {}:" NORMAL "\n")), ds.m_entry->m_name);
+          fmt::print(FMT_STRING("" MAGENTA BOLD "Using DataSpec {}:" NORMAL "\n"), ds.m_entry->m_name);
         else
-          fmt::print(FMT_STRING(_SYS_STR("Using DataSpec {}:\n")), ds.m_entry->m_name);
+          fmt::print(FMT_STRING("Using DataSpec {}:\n"), ds.m_entry->m_name);
 
         ds.m_instance->doExtract(m_einfo, {true});
-        fmt::print(FMT_STRING(_SYS_STR("\n\n")));
+        fmt::print(FMT_STRING("\n\n"));
       }
     }
 

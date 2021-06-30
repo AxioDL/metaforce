@@ -6,8 +6,6 @@
 #include <thread>
 #include <vector>
 
-#include "hecl/SystemChar.hpp"
-
 #if _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -32,7 +30,7 @@ class MultiProgressPrinter {
   } m_termInfo;
 
   struct ThreadStat {
-    hecl::SystemString m_message, m_submessage;
+    std::string m_message, m_submessage;
     float m_factor = 0.f;
     bool m_active = false;
     void print(const TermInfo& tinfo) const;
@@ -56,7 +54,8 @@ class MultiProgressPrinter {
 public:
   MultiProgressPrinter(bool activate = false);
   ~MultiProgressPrinter();
-  void print(std::optional<hecl::SystemStringView> message, std::optional<hecl::SystemStringView> submessage,
+  void print(std::optional<std::string_view> message,
+             std::optional<std::string_view> submessage,
              float factor = -1.f,
              int threadIdx = 0) const;
   void setMainFactor(float factor) const;

@@ -28,6 +28,7 @@
 #include <sys/wait.h>
 #endif
 
+#include <ranges>
 #include <logvisor/logvisor.hpp>
 
 using namespace std::literals;
@@ -66,44 +67,14 @@ void SanitizePath(std::string& path) {
     path.pop_back();
 }
 
-constexpr std::wstring_view WIllegals = L"<>?\""sv;
-
-void SanitizePath(std::wstring& path) {
-  if (path.empty())
-    return;
-  path.erase(std::remove(path.begin(), path.end(), L'\n'), path.end());
-  path.erase(std::remove(path.begin(), path.end(), L'\r'), path.end());
-  std::wstring::iterator p1 = path.begin();
-  bool ic = false;
-  std::transform(path.begin(), path.end(), path.begin(), [&](const wchar_t a) -> wchar_t {
-    ++p1;
-    if (WIllegals.find_first_of(a) != std::wstring::npos) {
-      ic = false;
-      return L'_';
-    }
-
-    if (ic) {
-      ic = false;
-      return a;
-    }
-    if (a == L'\\' && (p1 == path.end() || *p1 != L'\\')) {
-      ic = true;
-      return L'/';
-    }
-    return a;
-  });
-  while (path.back() == L'/')
-    path.pop_back();
-}
-
-SystemString GetcwdStr() {
+std::string GetcwdStr() {
   /* http://stackoverflow.com/a/2869667 */
   // const size_t ChunkSize=255;
   // const int MaxChunks=10240; // 2550 KiBs of current path are more than enough
 
-  SystemChar stackBuffer[255]; // Stack buffer for the "normal" case
+  char stackBuffer[255]; // Stack buffer for the "normal" case
   if (Getcwd(stackBuffer, int(std::size(stackBuffer))) != nullptr) {
-    return SystemString(stackBuffer);
+    return std::string(stackBuffer);
   }
   if (errno != ERANGE) {
     // It's not ERANGE, so we don't know how to handle it
@@ -115,9 +86,9 @@ SystemString GetcwdStr() {
     // With boost use scoped_ptr; in C++0x, use unique_ptr
     // If you want to be less C++ but more efficient you may want to use realloc
     const int bufSize = 255 * chunks;
-    std::unique_ptr<SystemChar[]> cwd(new SystemChar[bufSize]);
+    std::unique_ptr<char[]> cwd(new char[bufSize]);
     if (Getcwd(cwd.get(), bufSize) != nullptr) {
-      return SystemString(cwd.get());
+      return std::string(cwd.get());
     }
     if (errno != ERANGE) {
       // It's not ERANGE, so we don't know how to handle it
@@ -125,8 +96,9 @@ SystemString GetcwdStr() {
       // Of course you may choose a different error reporting method
     }
   }
-  LogModule.report(logvisor::Fatal, FMT_STRING("Cannot determine the current path; the path is apparently unreasonably long"));
-  return SystemString();
+  LogModule.report(logvisor::Fatal,
+                   FMT_STRING("Cannot determine the current path; the path is apparently unreasonably long"));
+  return std::string();
 }
 
 static std::mutex PathsMutex;
@@ -160,7 +132,7 @@ void ResourceLock::ClearThreadRes() {
 }
 
 bool IsPathPNG(const hecl::ProjectPath& path) {
-  const auto fp = hecl::FopenUnique(path.getAbsolutePath().data(), _SYS_STR("rb"));
+  const auto fp = hecl::FopenUnique(path.getAbsolutePath().data(), "rb");
   if (fp == nullptr) {
     return false;
   }
@@ -176,10 +148,10 @@ bool IsPathPNG(const hecl::ProjectPath& path) {
 
 bool IsPathBlend(const hecl::ProjectPath& path) {
   const auto lastCompExt = path.getLastComponentExt();
-  if (lastCompExt.empty() || lastCompExt != _SYS_STR("blend"))
+  if (lastCompExt.empty() || lastCompExt != "blend")
     return false;
 
-  const auto fp = hecl::FopenUnique(path.getAbsolutePath().data(), _SYS_STR("rb"));
+  const auto fp = hecl::FopenUnique(path.getAbsolutePath().data(), "rb");
   if (fp == nullptr) {
     return false;
   }
@@ -195,132 +167,162 @@ bool IsPathBlend(const hecl::ProjectPath& path) {
 
 bool IsPathYAML(const hecl::ProjectPath& path) {
   auto lastComp = path.getLastComponent();
-  if (lastComp == _SYS_STR("!catalog.yaml") ||
-      lastComp == _SYS_STR("!memoryid.yaml") ||
-      lastComp == _SYS_STR("!memoryrelays.yaml"))
+  if (lastComp == "!catalog.yaml" || lastComp == "!memoryid.yaml" || lastComp == "!memoryrelays.yaml")
     return false; /* !catalog.yaml, !memoryid.yaml, !memoryrelays.yaml are exempt from general use */
   auto lastCompExt = path.getLastComponentExt();
   if (lastCompExt.empty())
     return false;
-  return lastCompExt == _SYS_STR("yaml") || lastCompExt == _SYS_STR("yml");
+  return lastCompExt == "yaml" || lastCompExt == "yml";
 }
 
-hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode, bool sizeSort, bool reverse,
+hecl::DirectoryEnumerator::DirectoryEnumerator(std::string_view path, Mode mode, bool sizeSort, bool reverse,
                                                bool noHidden) {
-  hecl::Sstat theStat;
-  if (hecl::Stat(path.data(), &theStat) || !S_ISDIR(theStat.st_mode))
+  Sstat theStat;
+  if (Stat(path.data(), &theStat) || !S_ISDIR(theStat.st_mode)) {
     return;
+  }
 
 #if _WIN32
-  hecl::SystemString wc(path);
-  wc += _SYS_STR("/*");
+  std::wstring wc = nowide::widen(path);
+  wc += L"/*";
   WIN32_FIND_DATAW d;
   HANDLE dir = FindFirstFileW(wc.c_str(), &d);
-  if (dir == INVALID_HANDLE_VALUE)
+  if (dir == INVALID_HANDLE_VALUE) {
     return;
+  }
   switch (mode) {
   case Mode::Native:
     do {
-      if (!wcscmp(d.cFileName, _SYS_STR(".")) || !wcscmp(d.cFileName, _SYS_STR("..")))
+      if (!wcscmp(d.cFileName, L".") || !wcscmp(d.cFileName, L"..")) {
         continue;
-      if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
+      }
+      if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0)) {
         continue;
-      hecl::SystemString fp(path);
-      fp += _SYS_STR('/');
-      fp += d.cFileName;
-      hecl::Sstat st;
-      if (hecl::Stat(fp.c_str(), &st))
+      }
+      std::string fileName = nowide::narrow(d.cFileName);
+      std::string fp(path);
+      fp += '/';
+      fp += fileName;
+      Sstat st;
+      if (Stat(fp.c_str(), &st))
         continue;
 
       size_t sz = 0;
       bool isDir = false;
-      if (S_ISDIR(st.st_mode))
+      if (S_ISDIR(st.st_mode)) {
         isDir = true;
-      else if (S_ISREG(st.st_mode))
+      } else if (S_ISREG(st.st_mode)) {
         sz = st.st_size;
-      else
+      } else {
         continue;
+      }
 
-      m_entries.emplace_back(fp, d.cFileName, sz, isDir);
+      m_entries.emplace_back(fp, fileName, sz, isDir);
     } while (FindNextFileW(dir, &d));
     break;
   case Mode::DirsThenFilesSorted:
   case Mode::DirsSorted: {
-    std::map<hecl::SystemString, Entry, CaseInsensitiveCompare> sort;
+    std::map<std::string, Entry, CaseInsensitiveCompare> sort;
     do {
-      if (!wcscmp(d.cFileName, _SYS_STR(".")) || !wcscmp(d.cFileName, _SYS_STR("..")))
+      if (!wcscmp(d.cFileName, L".") || !wcscmp(d.cFileName, L"..")) {
         continue;
-      if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
+      }
+      if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0)) {
         continue;
-      hecl::SystemString fp(path);
-      fp += _SYS_STR('/');
-      fp += d.cFileName;
-      hecl::Sstat st;
-      if (hecl::Stat(fp.c_str(), &st) || !S_ISDIR(st.st_mode))
+      }
+      std::string fileName = nowide::narrow(d.cFileName);
+      std::string fp(path);
+      fp += '/';
+      fp += fileName;
+      Sstat st;
+      if (Stat(fp.c_str(), &st) || !S_ISDIR(st.st_mode)) {
         continue;
-      sort.emplace(std::make_pair(d.cFileName, Entry(std::move(fp), d.cFileName, 0, true)));
+      }
+      sort.emplace(fileName, Entry{fp, fileName, 0, true});
     } while (FindNextFileW(dir, &d));
 
-    if (reverse)
-      for (auto it = sort.crbegin(); it != sort.crend(); ++it)
-        m_entries.push_back(std::move(it->second));
-    else
-      for (auto& e : sort)
-        m_entries.push_back(std::move(e.second));
+    m_entries.reserve(sort.size());
+    if (reverse) {
+      for (auto& it : std::ranges::reverse_view(sort)) {
+        m_entries.emplace_back(std::move(it.second));
+      }
+    } else {
+      for (auto& e : sort) {
+        m_entries.emplace_back(std::move(e.second));
+      }
+    }
 
-    if (mode == Mode::DirsSorted)
+    if (mode == Mode::DirsSorted) {
       break;
+    }
     FindClose(dir);
     dir = FindFirstFileW(wc.c_str(), &d);
   }
   case Mode::FilesSorted: {
-    if (mode == Mode::FilesSorted)
+    if (mode == Mode::FilesSorted) {
       m_entries.clear();
+    }
 
     if (sizeSort) {
       std::multimap<size_t, Entry> sort;
       do {
-        if (!wcscmp(d.cFileName, _SYS_STR(".")) || !wcscmp(d.cFileName, _SYS_STR("..")))
+        if (!wcscmp(d.cFileName, L".") || !wcscmp(d.cFileName, L"..")) {
           continue;
-        if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
+        }
+        if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0)) {
           continue;
-        hecl::SystemString fp(path);
-        fp += _SYS_STR('/');
-        fp += d.cFileName;
-        hecl::Sstat st;
-        if (hecl::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
+        }
+        std::string fileName = nowide::narrow(d.cFileName);
+        std::string fp(path);
+        fp += '/';
+        fp += fileName;
+        Sstat st;
+        if (Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode)) {
           continue;
-        sort.emplace(std::make_pair(st.st_size, Entry(std::move(fp), d.cFileName, st.st_size, false)));
+        }
+        sort.emplace(st.st_size, Entry{fp, fileName, static_cast<size_t>(st.st_size), false});
       } while (FindNextFileW(dir, &d));
 
-      if (reverse)
-        for (auto it = sort.crbegin(); it != sort.crend(); ++it)
-          m_entries.push_back(std::move(it->second));
-      else
-        for (auto& e : sort)
-          m_entries.push_back(std::move(e.second));
+      m_entries.reserve(m_entries.size() + sort.size());
+      if (reverse) {
+        for (auto& it : std::ranges::reverse_view(sort)) {
+          m_entries.emplace_back(std::move(it.second));
+        }
+      } else {
+        for (auto& e : sort) {
+          m_entries.emplace_back(std::move(e.second));
+        }
+      }
     } else {
-      std::map<hecl::SystemString, Entry, CaseInsensitiveCompare> sort;
+      std::map<std::string, Entry, CaseInsensitiveCompare> sort;
       do {
-        if (!wcscmp(d.cFileName, _SYS_STR(".")) || !wcscmp(d.cFileName, _SYS_STR("..")))
+        if (!wcscmp(d.cFileName, L".") || !wcscmp(d.cFileName, L"..")) {
           continue;
-        if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
+        }
+        if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0)) {
           continue;
-        hecl::SystemString fp(path);
-        fp += _SYS_STR('/');
-        fp += d.cFileName;
-        hecl::Sstat st;
-        if (hecl::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
+        }
+        std::string fileName = nowide::narrow(d.cFileName);
+        std::string fp(path);
+        fp += '/';
+        fp += fileName;
+        Sstat st;
+        if (Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode)) {
           continue;
-        sort.emplace(std::make_pair(d.cFileName, Entry(std::move(fp), d.cFileName, st.st_size, false)));
+        }
+        sort.emplace(fileName, Entry{fp, fileName, static_cast<size_t>(st.st_size), false});
       } while (FindNextFileW(dir, &d));
 
-      if (reverse)
-        for (auto it = sort.crbegin(); it != sort.crend(); ++it)
-          m_entries.push_back(std::move(it->second));
-      else
-        for (auto& e : sort)
-          m_entries.push_back(std::move(e.second));
+      m_entries.reserve(m_entries.size() + sort.size());
+      if (reverse) {
+        for (auto& e : std::ranges::reverse_view(sort)) {
+          m_entries.emplace_back(std::move(e.second));
+        }
+      } else {
+        for (auto& e : sort) {
+          m_entries.emplace_back(std::move(e.second));
+        }
+      }
     }
 
     break;
@@ -341,7 +343,7 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
         continue;
       if (noHidden && d->d_name[0] == '.')
         continue;
-      hecl::SystemString fp(path);
+      std::string fp(path);
       fp += '/';
       fp += d->d_name;
       hecl::Sstat st;
@@ -362,13 +364,13 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
     break;
   case Mode::DirsThenFilesSorted:
   case Mode::DirsSorted: {
-    std::map<hecl::SystemString, Entry, CaseInsensitiveCompare> sort;
+    std::map<std::string, Entry, CaseInsensitiveCompare> sort;
     while ((d = readdir(dir))) {
       if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
         continue;
       if (noHidden && d->d_name[0] == '.')
         continue;
-      hecl::SystemString fp(path);
+      std::string fp(path);
       fp += '/';
       fp += d->d_name;
       hecl::Sstat st;
@@ -400,7 +402,7 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
           continue;
         if (noHidden && d->d_name[0] == '.')
           continue;
-        hecl::SystemString fp(path);
+        std::string fp(path);
         fp += '/';
         fp += d->d_name;
         hecl::Sstat st;
@@ -416,13 +418,13 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
         for (auto& e : sort)
           m_entries.push_back(std::move(e.second));
     } else {
-      std::map<hecl::SystemString, Entry, CaseInsensitiveCompare> sort;
+      std::map<std::string, Entry, CaseInsensitiveCompare> sort;
       while ((d = readdir(dir))) {
         if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
           continue;
         if (noHidden && d->d_name[0] == '.')
           continue;
-        hecl::SystemString fp(path);
+        std::string fp(path);
         fp += '/';
         fp += d->d_name;
         hecl::Sstat st;
@@ -447,159 +449,24 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
 #endif
 }
 
-static std::pair<hecl::SystemString, std::string> NameFromPath(hecl::SystemStringView path) {
-  hecl::SystemUTF8Conv utf8(path);
-  if (utf8.str().size() == 1 && utf8.str()[0] == '/')
-    return {hecl::SystemString(path), "/"};
-  size_t lastSlash = utf8.str().rfind('/');
+static std::pair<std::string, std::string> NameFromPath(std::string_view path) {
+  if (path.size() == 1 && path[0] == '/')
+    return {std::string(path), "/"};
+  size_t lastSlash = path.rfind('/');
   if (lastSlash != std::string::npos)
-    return {hecl::SystemString(path), std::string(utf8.str().cbegin() + lastSlash + 1, utf8.str().cend())};
+    return {std::string(path), std::string(path.cbegin() + lastSlash + 1, path.cend())};
   else
-    return {hecl::SystemString(path), std::string(utf8.str())};
+    return {std::string(path), std::string(path)};
 }
-
-std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations() {
-  std::vector<std::pair<hecl::SystemString, std::string>> ret;
-#ifdef WIN32
-#if !WINDOWS_STORE
-  /* Add the drive names to the listing (as queried by blender) */
-  {
-    constexpr uint32_t FILE_MAXDIR = 768;
-    wchar_t wline[FILE_MAXDIR];
-    const uint32_t tmp = GetLogicalDrives();
-
-    for (uint32_t i = 0; i < 26; i++) {
-      if ((tmp >> i) & 1) {
-        wline[0] = L'A' + i;
-        wline[1] = L':';
-        wline[2] = L'/';
-        wline[3] = L'\0';
-        wchar_t* name = nullptr;
-
-        /* Flee from horrible win querying hover floppy drives! */
-        if (i > 1) {
-          /* Try to get volume label as well... */
-          if (GetVolumeInformationW(wline, wline + 4, FILE_MAXDIR - 4, nullptr, nullptr, nullptr, nullptr, 0)) {
-            const size_t labelLen = std::wcslen(wline + 4);
-            _snwprintf(wline + 4 + labelLen, FILE_MAXDIR - 4 - labelLen, L" (%.2s)", wline);
-            name = wline + 4;
-          }
-        }
-
-        wline[2] = L'\0';
-        if (name == nullptr) {
-          ret.push_back(NameFromPath(wline));
-        } else {
-          ret.emplace_back(wline, hecl::WideToUTF8(name));
-        }
-      }
-    }
-
-    /* Adding Desktop and My Documents */
-    SystemString wpath;
-    SHGetSpecialFolderPathW(nullptr, wline, CSIDL_PERSONAL, 0);
-    wpath.assign(wline);
-    SanitizePath(wpath);
-    ret.push_back(NameFromPath(wpath));
-    SHGetSpecialFolderPathW(nullptr, wline, CSIDL_DESKTOPDIRECTORY, 0);
-    wpath.assign(wline);
-    SanitizePath(wpath);
-    ret.push_back(NameFromPath(wpath));
-  }
-#endif
-#else
-#ifdef __APPLE__
-  {
-    hecl::Sstat theStat;
-    const char* home = getenv("HOME");
-
-    if (home) {
-      ret.push_back(NameFromPath(home));
-      std::string desktop(home);
-      desktop += "/Desktop";
-      if (!hecl::Stat(desktop.c_str(), &theStat))
-        ret.push_back(NameFromPath(desktop));
-    }
-
-    /* Get mounted volumes better method OSX 10.6 and higher, see: */
-    /*https://developer.apple.com/library/mac/#documentation/CoreFOundation/Reference/CFURLRef/Reference/reference.html*/
-    /* we get all volumes sorted including network and do not relay on user-defined finder visibility, less confusing */
-
-    CFURLRef cfURL = nullptr;
-    CFURLEnumeratorResult result = kCFURLEnumeratorSuccess;
-    CFURLEnumeratorRef volEnum =
-        CFURLEnumeratorCreateForMountedVolumes(nullptr, kCFURLEnumeratorSkipInvisibles, nullptr);
-
-    while (result != kCFURLEnumeratorEnd) {
-      char defPath[1024];
-
-      result = CFURLEnumeratorGetNextURL(volEnum, &cfURL, nullptr);
-      if (result != kCFURLEnumeratorSuccess) {
-        continue;
-      }
-
-      CFURLGetFileSystemRepresentation(cfURL, false, reinterpret_cast<UInt8*>(defPath), std::size(defPath));
-      ret.push_back(NameFromPath(defPath));
-    }
-
-    CFRelease(volEnum);
-  }
-#else
-  /* unix */
-  {
-    hecl::Sstat theStat;
-    const char* home = getenv("HOME");
-
-    if (home) {
-      ret.push_back(NameFromPath(home));
-      std::string desktop(home);
-      desktop += "/Desktop";
-      if (!hecl::Stat(desktop.c_str(), &theStat))
-        ret.push_back(NameFromPath(desktop));
-    }
-
-    {
-      bool found = false;
-#ifdef __linux__
-      /* Loop over mount points */
-      struct mntent* mnt;
-
-      FILE* fp = setmntent(MOUNTED, "r");
-      if (fp) {
-        while ((mnt = getmntent(fp))) {
-          if (strlen(mnt->mnt_fsname) < 4 || strncmp(mnt->mnt_fsname, "/dev", 4))
-            continue;
-
-          std::string mntStr(mnt->mnt_dir);
-          if (mntStr.size() > 1 && mntStr.back() == '/')
-            mntStr.pop_back();
-          ret.push_back(NameFromPath(mntStr));
-
-          found = true;
-        }
-        endmntent(fp);
-      }
-#endif
-      /* Fallback */
-      if (!found)
-        ret.push_back(NameFromPath("/"));
-    }
-  }
-#endif
-#endif
-  return ret;
-}
-
-std::wstring Char16ToWide(std::u16string_view src) { return std::wstring(src.begin(), src.end()); }
 
 /* recursive mkdir */
 #if _WIN32
-int RecursiveMakeDir(const SystemChar* dir) {
-  SystemChar tmp[1024];
+int RecursiveMakeDir(const char* dir) {
+  char tmp[1024];
 
   /* copy path */
-  std::wcsncpy(tmp, dir, std::size(tmp));
-  const size_t len = std::wcslen(tmp);
+  std::strncpy(tmp, dir, std::size(tmp));
+  const size_t len = std::strlen(tmp);
   if (len >= std::size(tmp)) {
     return -1;
   }
@@ -610,7 +477,7 @@ int RecursiveMakeDir(const SystemChar* dir) {
   }
 
   /* recursive mkdir */
-  SystemChar* p = nullptr;
+  char* p = nullptr;
   Sstat sb;
   for (p = tmp + 1; *p; p++) {
     if (*p == '/' || *p == '\\') {
@@ -618,7 +485,8 @@ int RecursiveMakeDir(const SystemChar* dir) {
       /* test path */
       if (Stat(tmp, &sb) != 0) {
         /* path does not exist - create directory */
-        if (!CreateDirectoryW(tmp, nullptr)) {
+        const nowide::wstackstring wtmp(tmp);
+        if (!CreateDirectoryW(wtmp.get(), nullptr)) {
           return -1;
         }
       } else if (!S_ISDIR(sb.st_mode)) {
@@ -631,7 +499,8 @@ int RecursiveMakeDir(const SystemChar* dir) {
   /* test path */
   if (Stat(tmp, &sb) != 0) {
     /* path does not exist - create directory */
-    if (!CreateDirectoryW(tmp, nullptr)) {
+    const nowide::wstackstring wtmp(tmp);
+    if (!CreateDirectoryW(wtmp.get(), nullptr)) {
       return -1;
     }
   } else if (!S_ISDIR(sb.st_mode)) {
@@ -641,8 +510,8 @@ int RecursiveMakeDir(const SystemChar* dir) {
   return 0;
 }
 #else
-int RecursiveMakeDir(const SystemChar* dir) {
-  SystemChar tmp[1024];
+int RecursiveMakeDir(const char* dir) {
+  char tmp[1024];
 
   /* copy path */
   std::memset(tmp, 0, std::size(tmp));
@@ -658,7 +527,7 @@ int RecursiveMakeDir(const SystemChar* dir) {
   }
 
   /* recursive mkdir */
-  SystemChar* p = nullptr;
+  char* p = nullptr;
   Sstat sb;
   for (p = tmp + 1; *p; p++) {
     if (*p == '/') {
@@ -690,25 +559,27 @@ int RecursiveMakeDir(const SystemChar* dir) {
 }
 #endif
 
-const SystemChar* GetTmpDir() {
+std::string GetTmpDir() {
 #ifdef _WIN32
 #if WINDOWS_STORE
   const wchar_t* TMPDIR = nullptr;
 #else
-  const wchar_t* TMPDIR = _wgetenv(L"TEMP");
-  if (!TMPDIR)
-    TMPDIR = L"\\Temp";
+  auto TMPDIR = GetEnv("TEMP");
+  if (!TMPDIR) {
+    return "\\Temp";
+  }
+  return std::move(TMPDIR.value());
 #endif
 #else
   const char* TMPDIR = getenv("TMPDIR");
   if (!TMPDIR)
     TMPDIR = "/tmp";
-#endif
   return TMPDIR;
+#endif
 }
 
 #if !WINDOWS_STORE
-int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
+int RunProcess(const char* path, const char* const args[]) {
 #ifdef _WIN32
   SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
   HANDLE consoleOutReadTmp = INVALID_HANDLE_VALUE;
@@ -741,12 +612,12 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
 
   CloseHandle(consoleOutReadTmp);
 
-  hecl::SystemString cmdLine;
-  const SystemChar* const* arg = &args[1];
+  std::wstring cmdLine;
+  const char* const* arg = &args[1];
   while (*arg) {
-    cmdLine += _SYS_STR(" \"");
-    cmdLine += *arg++;
-    cmdLine += _SYS_STR('"');
+    cmdLine += L" \"";
+    cmdLine += nowide::widen(*arg++);
+    cmdLine += L'"';
   }
 
   STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
@@ -758,12 +629,14 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
   sinfo.hStdOutput = consoleOutWrite;
 
   PROCESS_INFORMATION pinfo = {};
-  if (!CreateProcessW(path, cmdLine.data(), nullptr, nullptr, TRUE, NORMAL_PRIORITY_CLASS, nullptr, nullptr, &sinfo,
-                      &pinfo)) {
+  const nowide::wstackstring wpath(path);
+  if (!CreateProcessW(wpath.get(), cmdLine.data(), nullptr, nullptr, TRUE, NORMAL_PRIORITY_CLASS, nullptr, nullptr,
+                      &sinfo, &pinfo)) {
     LPWSTR messageBuffer = nullptr;
     FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
                    GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, nullptr);
-    LogModule.report(logvisor::Error, FMT_STRING(L"unable to launch process from {}: {}"), path, messageBuffer);
+    LogModule.report(logvisor::Error, FMT_STRING("unable to launch process from {}: {}"), path,
+                     nowide::narrow(messageBuffer));
     LocalFree(messageBuffer);
 
     CloseHandle(nulHandle);

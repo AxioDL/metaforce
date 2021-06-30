@@ -97,7 +97,7 @@ struct MREA {
 
   static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                       PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool, hecl::blender::Token& btok,
-                      std::function<void(const hecl::SystemChar*)>);
+                      std::function<void(const char*)>);
 
   static void Name(const SpecBase& dataSpec, PAKEntryReadStream& rs, PAKRouter<PAKBridge>& pakRouter,
                    PAK::Entry& entry);

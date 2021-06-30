@@ -181,7 +181,7 @@ bool AGSC::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& dir) {
   group.getSdir().extractAllCompressed(dir.getAbsolutePath(), data.getSamp());
 
   /* Import C headers */
-  auto lastComp = dir.getLastComponentUTF8();
+  auto lastComp = dir.getLastComponent();
   auto search = std::lower_bound(std::cbegin(Headers), std::cend(Headers), lastComp,
                                  [](const auto& a, const auto& b) { return a.first < b; });
   if (search != std::cend(Headers) && search->first == lastComp)
@@ -190,7 +190,7 @@ bool AGSC::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& dir) {
   /* Write out project/pool */
   {
     auto projd = group.getProj().toYAML();
-    athena::io::FileWriter fo(hecl::ProjectPath(dir, _SYS_STR("!project.yaml")).getAbsolutePath());
+    athena::io::FileWriter fo(hecl::ProjectPath(dir, "!project.yaml").getAbsolutePath());
     if (fo.hasError())
       return false;
     fo.writeUBytes(projd.data(), projd.size());
@@ -198,7 +198,7 @@ bool AGSC::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& dir) {
 
   {
     auto poold = group.getPool().toYAML();
-    athena::io::FileWriter fo(hecl::ProjectPath(dir, _SYS_STR("!pool.yaml")).getAbsolutePath());
+    athena::io::FileWriter fo(hecl::ProjectPath(dir, "!pool.yaml").getAbsolutePath());
     if (fo.hasError())
       return false;
     fo.writeUBytes(poold.data(), poold.size());
@@ -232,7 +232,7 @@ bool AGSC::Cook(const hecl::ProjectPath& dir, const hecl::ProjectPath& refOutPat
 
       Header head;
       head.audioDir = "Audio/"sv;
-      head.groupName = path.getLastComponentUTF8();
+      head.groupName = path.getLastComponent();
       head.write(w);
 
       amuse::AudioGroupDatabase group(path.getAbsolutePath());

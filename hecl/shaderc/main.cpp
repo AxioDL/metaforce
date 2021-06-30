@@ -4,6 +4,7 @@
 #include "glslang/Public/ShaderLang.h"
 #include "hecl/hecl.hpp"
 #include <sstream>
+#include <nowide/args.hpp>
 
 static logvisor::Module Log("shaderc");
 
@@ -32,12 +33,12 @@ static bool FindBestD3DCompile() {
   }
   return false;
 }
-
-int wmain(int argc, const hecl::SystemChar** argv)
-#else
-int main(int argc, const hecl::SystemChar** argv)
 #endif
-{
+
+int main(int argc, char** argv) {
+#if _WIN32
+  nowide::args _(argc, argv);
+#endif
   logvisor::RegisterConsoleLogger();
   logvisor::RegisterStandardExceptions();
 
@@ -53,7 +54,7 @@ int main(int argc, const hecl::SystemChar** argv)
     return 0;
   }
 
-  hecl::SystemString outPath;
+  std::string outPath;
   hecl::shaderc::Compiler c;
   for (int i = 1; i < argc; ++i) {
     if (argv[i][0] == '-') {
@@ -68,7 +69,7 @@ int main(int argc, const hecl::SystemChar** argv)
           return 1;
         }
       } else if (argv[i][1] == 'D') {
-        const hecl::SystemChar* define;
+        const char* define;
         if (argv[i][2]) {
           define = &argv[i][2];
         } else if (i + 1 < argc) {
@@ -78,14 +79,12 @@ int main(int argc, const hecl::SystemChar** argv)
           Log.report(logvisor::Error, FMT_STRING("Invalid -D argument"));
           return 1;
         }
-        hecl::SystemUTF8Conv conv(define);
-        const char* defineU8 = conv.c_str();
-        if (const char* equals = strchr(defineU8, '='))
-          c.addDefine(std::string(defineU8, equals - defineU8), equals + 1);
+        if (const char* equals = strchr(define, '='))
+          c.addDefine(std::string(define, equals - define), equals + 1);
         else
-          c.addDefine(defineU8, "");
+          c.addDefine(define, "");
       } else {
-        Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Unrecognized flag option '{:c}'")), argv[i][1]);
+        Log.report(logvisor::Error, FMT_STRING("Unrecognized flag option '{:c}'"), argv[i][1]);
         return 1;
       }
     } else {
@@ -98,9 +97,9 @@ int main(int argc, const hecl::SystemChar** argv)
     return 1;
   }
 
-  hecl::SystemStringView baseName;
-  auto slashPos = outPath.find_last_of(_SYS_STR("/\\"));
-  if (slashPos != hecl::SystemString::npos)
+  std::string_view baseName;
+  auto slashPos = outPath.find_last_of("/\\");
+  if (slashPos != std::string::npos)
     baseName = outPath.data() + slashPos + 1;
   else
     baseName = outPath;
@@ -110,16 +109,15 @@ int main(int argc, const hecl::SystemChar** argv)
     return 1;
   }
 
-  hecl::SystemUTF8Conv conv(baseName);
   std::pair<std::stringstream, std::stringstream> ret;
-  if (!c.compile(conv.str(), ret))
+  if (!c.compile(baseName, ret))
     return 1;
 
   {
-    hecl::SystemString headerPath = outPath + _SYS_STR(".hpp");
+    std::string headerPath = outPath + ".hpp";
     athena::io::FileWriter w(headerPath);
     if (w.hasError()) {
-      Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Error opening '{}' for writing")), headerPath);
+      Log.report(logvisor::Error, FMT_STRING("Error opening '{}' for writing"), headerPath);
       return 1;
     }
     std::string header = ret.first.str();
@@ -127,10 +125,10 @@ int main(int argc, const hecl::SystemChar** argv)
   }
 
   {
-    hecl::SystemString impPath = outPath + _SYS_STR(".cpp");
+    std::string impPath = outPath + ".cpp";
     athena::io::FileWriter w(impPath);
     if (w.hasError()) {
-      Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Error opening '{}' for writing")), impPath);
+      Log.report(logvisor::Error, FMT_STRING("Error opening '{}' for writing"), impPath);
       return 1;
     }
     std::string source = ret.second.str();

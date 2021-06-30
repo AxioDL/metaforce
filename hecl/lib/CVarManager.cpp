@@ -111,18 +111,13 @@ void CVarManager::deserialize(CVar* cvar) {
   }
 
   /* We were either unable to find a deferred value or got an invalid value */
-#if _WIN32
-  hecl::SystemString filename =
-      hecl::SystemString(m_store.getStoreRoot()) + _SYS_STR('/') + com_configfile->toWideLiteral();
-#else
-  hecl::SystemString filename =
-      hecl::SystemString(m_store.getStoreRoot()) + _SYS_STR('/') + com_configfile->toLiteral();
-#endif
+  std::string filename =
+      std::string(m_store.getStoreRoot()) + '/' + com_configfile->toLiteral();
   hecl::Sstat st;
 
   if (m_useBinary) {
     CVarContainer container;
-    filename += _SYS_STR(".bin");
+    filename += ".bin";
     if (hecl::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
       return;
     athena::io::FileReader reader(filename);
@@ -144,7 +139,7 @@ void CVarManager::deserialize(CVar* cvar) {
       }
     }
   } else {
-    filename += _SYS_STR(".yaml");
+    filename += ".yaml";
     if (hecl::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
       return;
     athena::io::FileReader reader(filename);
@@ -170,13 +165,8 @@ void CVarManager::deserialize(CVar* cvar) {
 }
 
 void CVarManager::serialize() {
-#if _WIN32
-  hecl::SystemString filename =
-      hecl::SystemString(m_store.getStoreRoot()) + _SYS_STR('/') + com_configfile->toWideLiteral();
-#else
-  hecl::SystemString filename =
-      hecl::SystemString(m_store.getStoreRoot()) + _SYS_STR('/') + com_configfile->toLiteral();
-#endif
+  std::string filename =
+      std::string(m_store.getStoreRoot()) + '/' + com_configfile->toLiteral();
 
   if (m_useBinary) {
     CVarContainer container;
@@ -189,12 +179,12 @@ void CVarManager::serialize() {
     }
     container.cvarCount = atUint32(container.cvars.size());
 
-    filename += _SYS_STR(".bin");
+    filename += ".bin";
     athena::io::FileWriter writer(filename);
     if (writer.isOpen())
       container.write(writer);
   } else {
-    filename += _SYS_STR(".yaml");
+    filename += ".yaml";
 
     athena::io::FileReader r(filename);
     athena::io::YAMLDocWriter docWriter(r.isOpen() ? &r : nullptr);
@@ -297,21 +287,20 @@ bool CVarManager::restartRequired() const {
   });
 }
 
-void CVarManager::parseCommandLine(const std::vector<SystemString>& args) {
+void CVarManager::parseCommandLine(const std::vector<std::string>& args) {
   bool oldDeveloper = suppressDeveloper();
   std::string developerName(com_developer->name());
   athena::utility::tolower(developerName);
-  for (const SystemString& arg : args) {
-    if (arg[0] != _SYS_STR('+')) {
+  for (const std::string& arg : args) {
+    if (arg[0] != '+') {
       continue;
     }
 
-    const std::string tmp(SystemUTF8Conv(arg).str());
     std::smatch matches;
     std::string cvarName;
     std::string cvarValue;
 
-    if (std::regex_match(tmp, matches, cmdLineRegex)) {
+    if (std::regex_match(arg, matches, cmdLineRegex)) {
       std::vector<std::string> realMatches;
       for (auto match : matches) {
         if (match.matched) {

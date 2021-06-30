@@ -176,7 +176,7 @@ CINF::CINF(const Armature& armature, std::unordered_map<std::string, atInt32>& i
 template <class PAKBridge>
 bool CINF::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const typename PAKBridge::PAKType::Entry& entry, bool force,
-                   hecl::blender::Token& btok, std::function<void(const hecl::SystemChar*)> fileChanged) {
+                   hecl::blender::Token& btok, std::function<void(const char*)> fileChanged) {
   if (!force && outPath.isFile())
     return true;
 
@@ -207,11 +207,11 @@ bool CINF::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 template bool CINF::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                             PAKRouter<PAKBridge>& pakRouter, const typename PAKBridge::PAKType::Entry& entry,
                             bool force, hecl::blender::Token& btok,
-                            std::function<void(const hecl::SystemChar*)> fileChanged);
+                            std::function<void(const char*)> fileChanged);
 template bool CINF::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                             PAKRouter<DNAMP3::PAKBridge>& pakRouter,
                             const typename DNAMP3::PAKBridge::PAKType::Entry& entry, bool force,
-                            hecl::blender::Token& btok, std::function<void(const hecl::SystemChar*)> fileChanged);
+                            hecl::blender::Token& btok, std::function<void(const char*)> fileChanged);
 
 bool CINF::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath,
                 const hecl::blender::Armature& armature) {

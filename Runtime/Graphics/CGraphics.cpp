@@ -466,7 +466,7 @@ boo::IGraphicsDataFactory::Platform CGraphics::g_BooPlatform = boo::IGraphicsDat
 boo::IGraphicsDataFactory* CGraphics::g_BooFactory = nullptr;
 boo::IGraphicsCommandQueue* CGraphics::g_BooMainCommandQueue = nullptr;
 boo::ObjToken<boo::ITextureR> CGraphics::g_SpareTexture;
-const boo::SystemChar* CGraphics::g_BooPlatformName = nullptr;
+const char* CGraphics::g_BooPlatformName = nullptr;
 
 const CTevCombiners::CTevPass CGraphics::sTevPass805a564c({GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO,
                                                            GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC},

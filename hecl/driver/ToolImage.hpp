@@ -22,11 +22,11 @@ public:
     /* Scan args */
     if (info.args.size()) {
       /* See if project path is supplied via args and use that over the getcwd one */
-      for (const hecl::SystemString& arg : info.args) {
+      for (const std::string& arg : info.args) {
         if (arg.empty())
           continue;
 
-        hecl::SystemString subPath;
+        std::string subPath;
         hecl::ProjectRootPath root = hecl::SearchForProject(MakePathArgAbsolute(arg, info.cwd), subPath);
 
         if (root) {
@@ -47,83 +47,82 @@ public:
   ~ToolImage() override = default;
 
   static void Help(HelpOutput& help) {
-    help.secHead(_SYS_STR("NAME"));
+    help.secHead("NAME");
     help.beginWrap();
-    help.wrap(_SYS_STR("hecl-image - Generate GameCube/Wii disc image from packaged files\n"));
+    help.wrap("hecl-image - Generate GameCube/Wii disc image from packaged files\n");
     help.endWrap();
 
-    help.secHead(_SYS_STR("SYNOPSIS"));
+    help.secHead("SYNOPSIS");
     help.beginWrap();
-    help.wrap(_SYS_STR("hecl image [<input-dir>]\n"));
+    help.wrap("hecl image [<input-dir>]\n");
     help.endWrap();
 
-    help.secHead(_SYS_STR("DESCRIPTION"));
+    help.secHead("DESCRIPTION");
     help.beginWrap();
-    help.wrap(_SYS_STR("This command uses the current contents of `out` to generate a GameCube or ")
-                  _SYS_STR("Wii disc image. `hecl package` must have been run previously to be effective.\n"));
+    help.wrap("This command uses the current contents of `out` to generate a GameCube or "
+                  "Wii disc image. `hecl package` must have been run previously to be effective.\n");
     help.endWrap();
 
-    help.secHead(_SYS_STR("OPTIONS"));
-    help.optionHead(_SYS_STR("<input-dir>"), _SYS_STR("input directory"));
+    help.secHead("OPTIONS");
+    help.optionHead("<input-dir>", "input directory");
     help.beginWrap();
-    help.wrap(_SYS_STR("Specifies a project subdirectory to root the resulting image from. ")
-                  _SYS_STR("Project must contain an out/sys and out/files directory to succeed.\n"));
+    help.wrap("Specifies a project subdirectory to root the resulting image from. "
+                  "Project must contain an out/sys and out/files directory to succeed.\n");
     help.endWrap();
   }
 
-  hecl::SystemStringView toolName() const override { return _SYS_STR("image"sv); }
+  std::string_view toolName() const override { return "image"sv; }
 
   int run() override {
     if (XTERM_COLOR)
-      fmt::print(FMT_STRING(_SYS_STR("" GREEN BOLD "ABOUT TO IMAGE:" NORMAL "\n")));
+      fmt::print(FMT_STRING("" GREEN BOLD "ABOUT TO IMAGE:" NORMAL "\n"));
     else
-      fmt::print(FMT_STRING(_SYS_STR("ABOUT TO IMAGE:\n")));
+      fmt::print(FMT_STRING("ABOUT TO IMAGE:\n"));
 
-    fmt::print(FMT_STRING(_SYS_STR("  {}\n")), m_useProj->getProjectRootPath().getAbsolutePath());
+    fmt::print(FMT_STRING("  {}\n"), m_useProj->getProjectRootPath().getAbsolutePath());
     fflush(stdout);
 
     if (continuePrompt()) {
-      hecl::ProjectPath outPath(m_useProj->getProjectWorkingPath(), _SYS_STR("out"));
+      hecl::ProjectPath outPath(m_useProj->getProjectWorkingPath(), "out");
       if (!outPath.isDirectory()) {
-        LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("{} is not a directory")), outPath.getAbsolutePath());
+        LogModule.report(logvisor::Error, FMT_STRING("{} is not a directory"), outPath.getAbsolutePath());
         return 1;
       }
 
-      hecl::ProjectPath bootBinPath(outPath, _SYS_STR("sys/boot.bin"));
+      hecl::ProjectPath bootBinPath(outPath, "sys/boot.bin");
       if (!bootBinPath.isFile()) {
-        LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("{} is not a file")), bootBinPath.getAbsolutePath());
+        LogModule.report(logvisor::Error, FMT_STRING("{} is not a file"), bootBinPath.getAbsolutePath());
         return 1;
       }
 
       athena::io::FileReader r(bootBinPath.getAbsolutePath());
       if (r.hasError()) {
-        LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to open {}")), bootBinPath.getAbsolutePath());
+        LogModule.report(logvisor::Error, FMT_STRING("unable to open {}"), bootBinPath.getAbsolutePath());
         return 1;
       }
       std::string id = r.readString(6);
       r.close();
 
-      hecl::SystemStringConv idView(id);
-      hecl::SystemString fileOut = hecl::SystemString(outPath.getAbsolutePath()) + _SYS_STR('/') + idView.c_str();
+      std::string fileOut = std::string(outPath.getAbsolutePath()) + '/' + id;
       hecl::MultiProgressPrinter printer(true);
-      auto progFunc = [&printer](float totalProg, nod::SystemStringView fileName, size_t fileBytesXfered) {
+      auto progFunc = [&printer](float totalProg, std::string_view fileName, size_t fileBytesXfered) {
         printer.print(fileName, std::nullopt, totalProg);
       };
       if (id[0] == 'G') {
-        fileOut += _SYS_STR(".gcm");
+        fileOut += ".gcm";
         if (nod::DiscBuilderGCN::CalculateTotalSizeRequired(outPath.getAbsolutePath()) == UINT64_MAX)
           return 1;
-        LogModule.report(logvisor::Info, FMT_STRING(_SYS_STR("Generating {} as GameCube image")), fileOut);
+        LogModule.report(logvisor::Info, FMT_STRING("Generating {} as GameCube image"), fileOut);
         nod::DiscBuilderGCN db(fileOut, progFunc);
         if (db.buildFromDirectory(outPath.getAbsolutePath()) != nod::EBuildResult::Success)
           return 1;
       } else {
-        fileOut += _SYS_STR(".iso");
+        fileOut += ".iso";
         bool dualLayer;
         if (nod::DiscBuilderWii::CalculateTotalSizeRequired(outPath.getAbsolutePath(), dualLayer) == UINT64_MAX)
           return 1;
-        LogModule.report(logvisor::Info, FMT_STRING(_SYS_STR("Generating {} as {}-layer Wii image")), fileOut,
-                         dualLayer ? _SYS_STR("dual") : _SYS_STR("single"));
+        LogModule.report(logvisor::Info, FMT_STRING("Generating {} as {}-layer Wii image"), fileOut,
+                         dualLayer ? "dual" : "single");
         nod::DiscBuilderWii db(fileOut, dualLayer, progFunc);
         if (db.buildFromDirectory(outPath.getAbsolutePath()) != nod::EBuildResult::Success)
           return 1;

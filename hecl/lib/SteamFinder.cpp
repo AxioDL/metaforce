@@ -2,7 +2,7 @@
 #include "hecl/hecl.hpp"
 #ifdef WIN32
 #include <winreg.h>
-#define PATH_SEP L'\\'
+#define PATH_SEP '\\'
 #else
 #define PATH_SEP '/'
 #endif
@@ -12,25 +12,25 @@ namespace hecl {
 /* Used to extract alternate steam install directories from libraryfolders.vdf */
 static const std::regex regSteamPath(R"(^\s+\"[0-9]+\"\s+\"(.*)\")", std::regex::ECMAScript | std::regex::optimize);
 
-hecl::SystemString FindCommonSteamApp(const hecl::SystemChar* name) {
-  hecl::SystemString steamInstallDir;
+std::string FindCommonSteamApp(const char* name) {
+  std::string steamInstallDir;
   hecl::Sstat theStat;
 
 #ifdef WIN32
 #if !WINDOWS_STORE
   HKEY hkey;
-  hecl::SystemChar _steamInstallDir[MAX_PATH] = {0};
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _SYS_STR("Software\\Valve\\Steam"), 0, KEY_QUERY_VALUE, &hkey) !=
+  wchar_t _steamInstallDir[MAX_PATH] = {0};
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Valve\\Steam", 0, KEY_QUERY_VALUE, &hkey) !=
       ERROR_SUCCESS) {
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _SYS_STR("Software\\Valve\\Steam"), 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY,
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Valve\\Steam", 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY,
                      &hkey) != ERROR_SUCCESS)
       return {};
   }
 
   DWORD size = MAX_PATH;
-  if (RegQueryValueEx(hkey, _SYS_STR("InstallPath"), nullptr, nullptr, (LPBYTE)_steamInstallDir, &size) ==
+  if (RegQueryValueEx(hkey, L"InstallPath", nullptr, nullptr, (LPBYTE)_steamInstallDir, &size) ==
       ERROR_SUCCESS)
-    steamInstallDir = _steamInstallDir;
+    steamInstallDir = nowide::narrow(_steamInstallDir);
   RegCloseKey(hkey);
 
   if (steamInstallDir.empty())
@@ -57,18 +57,18 @@ hecl::SystemString FindCommonSteamApp(const hecl::SystemChar* name) {
 
 #endif
 
-  const hecl::SystemString appPath = hecl::SystemString(_SYS_STR("common")) + PATH_SEP + name;
+  const std::string appPath = std::string("common") + PATH_SEP + name;
 
   /* Try main steam install directory first */
-  const hecl::SystemString steamAppsMain = steamInstallDir + PATH_SEP + _SYS_STR("steamapps");
-  const hecl::SystemString mainAppPath = steamAppsMain + PATH_SEP + appPath;
+  const std::string steamAppsMain = steamInstallDir + PATH_SEP + "steamapps";
+  const std::string mainAppPath = steamAppsMain + PATH_SEP + appPath;
   if (!hecl::Stat(mainAppPath.c_str(), &theStat) && S_ISDIR(theStat.st_mode)) {
     return mainAppPath;
   }
 
   /* Iterate alternate steam install dirs */
-  const hecl::SystemString libraryFoldersVdfPath = steamAppsMain + PATH_SEP + _SYS_STR("libraryfolders.vdf");
-  auto fp = hecl::FopenUnique(libraryFoldersVdfPath.c_str(), _SYS_STR("r"));
+  const std::string libraryFoldersVdfPath = steamAppsMain + PATH_SEP + "libraryfolders.vdf";
+  auto fp = hecl::FopenUnique(libraryFoldersVdfPath.c_str(), "r");
   if (fp == nullptr) {
     return {};
   }
@@ -88,9 +88,8 @@ hecl::SystemString FindCommonSteamApp(const hecl::SystemChar* name) {
   const auto end = fileBuf.cend();
   while (std::regex_search(begin, end, dirMatch, regSteamPath)) {
     const std::string match = dirMatch[1].str();
-    const hecl::SystemStringConv otherInstallDir(match);
     const auto otherAppPath =
-        hecl::SystemString(otherInstallDir.sys_str()) + PATH_SEP + _SYS_STR("steamapps") + PATH_SEP + appPath;
+        std::string(match.c_str()) + PATH_SEP + "steamapps" + PATH_SEP + appPath;
 
     if (!hecl::Stat(otherAppPath.c_str(), &theStat) && S_ISDIR(theStat.st_mode)) {
       return otherAppPath;

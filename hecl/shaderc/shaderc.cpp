@@ -28,7 +28,7 @@ static const char* StageNames[] = {
   "hecl::PipelineStage::Evaluation"
 };
 
-const std::string* Compiler::getFileContents(SystemStringView path) {
+const std::string* Compiler::getFileContents(std::string_view path) {
   // TODO: Heterogeneous lookup when C++20 available
   auto search = m_fileContents.find(path.data());
   if (search == m_fileContents.end()) {
@@ -42,7 +42,7 @@ const std::string* Compiler::getFileContents(SystemStringView path) {
   return &search->second;
 }
 
-void Compiler::addInputFile(SystemStringView file) {
+void Compiler::addInputFile(std::string_view file) {
   if (std::find(m_inputFiles.begin(), m_inputFiles.end(), file) == m_inputFiles.end())
     m_inputFiles.emplace_back(file);
 }
@@ -207,25 +207,25 @@ static const std::regex regGeometry(R"(#\s*geometry\s+(.*))", RegexFlags);
 static const std::regex regControl(R"(#\s*control\s+(.*))", RegexFlags);
 static const std::regex regEvaluation(R"(#\s*evaluation\s+(.*))", RegexFlags);
 
-bool Compiler::includeFile(SystemStringView file, std::string& out, int depth) {
+bool Compiler::includeFile(std::string_view file, std::string& out, int depth) {
   if (depth > 32) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Too many levels of includes (>32) at '{}'")), file);
+    Log.report(logvisor::Error, FMT_STRING("Too many levels of includes (>32) at '{}'"), file);
     return false;
   }
 
   const std::string* data = getFileContents(file);
   if (!data) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Unable to access '{}'")), file);
+    Log.report(logvisor::Error, FMT_STRING("Unable to access '{}'"), file);
     return false;
   }
   const std::string& sdata = *data;
 
-  SystemString directory;
-  auto slashPos = file.find_last_of(_SYS_STR("/\\"));
-  if (slashPos != SystemString::npos)
-    directory = SystemString(file.data(), slashPos);
+  std::string directory;
+  auto slashPos = file.find_last_of("/\\");
+  if (slashPos != std::string::npos)
+    directory = std::string(file.data(), slashPos);
   else
-    directory = _SYS_STR(".");
+    directory = ".";
 
   auto begin = sdata.cbegin();
   auto end = sdata.cend();
@@ -241,14 +241,13 @@ bool Compiler::includeFile(SystemStringView file, std::string& out, int depth) {
     if (std::regex_search(begin, nextBegin, subMatch, regInclude)) {
       std::string path = subMatch[1].str();
       if (path.empty()) {
-        Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Empty path provided to include in '{}'")), file);
+        Log.report(logvisor::Error, FMT_STRING("Empty path provided to include in '{}'"), file);
         return false;
       }
 
-      hecl::SystemString pathStr(hecl::SystemStringConv(path).sys_str());
-      if (!hecl::IsAbsolute(pathStr))
-        pathStr = directory + _SYS_STR('/') + pathStr;
-      if (!includeFile(pathStr, out, depth + 1))
+      if (!hecl::IsAbsolute(path))
+        path = directory + '/' + path;
+      if (!includeFile(path, out, depth + 1))
         return false;
     } else {
       out.insert(out.end(), begin, nextBegin);
@@ -442,7 +441,7 @@ constexpr void SemanticOut(std::stringstream& out,
              attr.second);
 }
 
-bool Compiler::compileFile(SystemStringView file, std::string_view baseName,
+bool Compiler::compileFile(std::string_view file, std::string_view baseName,
                            std::pair<std::stringstream, std::stringstream>& out) {
   std::string includesPass;
   if (!includeFile(file, includesPass))

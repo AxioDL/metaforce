@@ -37,7 +37,7 @@ static std::u16string_view::const_iterator UncookTextureList(std::u16string& ret
   while (true) {
     UniqueID32 id = ParseTag(&*it);
     hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
-    ret.append(hecl::UTF8ToChar16(path ? path.getRelativePathUTF8() : id.toString()));
+    ret.append(hecl::UTF8ToChar16(path ? path.getRelativePath() : id.toString()));
     it += 8;
     if (*it == u';') {
       ret.push_back(u';');
@@ -144,7 +144,7 @@ static std::u16string UncookString(std::u16string_view str) {
         it += 5;
         UniqueID32 id = ParseTag(&*it);
         hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id, true);
-        ret.append(hecl::UTF8ToChar16(path ? path.getRelativePathUTF8() : id.toString()));
+        ret.append(hecl::UTF8ToChar16(path ? path.getRelativePath() : id.toString()));
 
         ret.push_back(u';');
         auto scpos = str.find(u';', it - str.begin());

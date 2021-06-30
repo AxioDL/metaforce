@@ -1,6 +1,7 @@
 #include "Runtime/MP1/CPauseScreenBase.hpp"
 
 #include <array>
+#include <fmt/xchar.h>
 
 #include "Runtime/CGameState.hpp"
 #include "Runtime/GameGlobalObjects.hpp"

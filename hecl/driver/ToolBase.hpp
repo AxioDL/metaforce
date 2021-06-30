@@ -19,11 +19,11 @@
 extern logvisor::Module LogModule;
 
 struct ToolPassInfo {
-  hecl::SystemString pname;
-  hecl::SystemString cwd;
-  std::vector<hecl::SystemString> args;
-  std::vector<hecl::SystemChar> flags;
-  hecl::SystemString output;
+  std::string pname;
+  std::string cwd;
+  std::vector<std::string> args;
+  std::vector<char> flags;
+  std::string output;
   hecl::Database::Project* project = nullptr;
   unsigned verbosityLevel = 0;
   bool force = false;
@@ -55,9 +55,9 @@ protected:
   bool continuePrompt() {
     if (!m_info.yes) {
       if (XTERM_COLOR)
-        fmt::print(FMT_STRING(_SYS_STR("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) ")));
+        fmt::print(FMT_STRING("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
       else
-        fmt::print(FMT_STRING(_SYS_STR("\nContinue? (Y/n) ")));
+        fmt::print(FMT_STRING("\nContinue? (Y/n) "));
       fflush(stdout);
 
       int ch;
@@ -73,7 +73,7 @@ protected:
 #endif
       {
         if (ch == 'n' || ch == 'N') {
-          fmt::print(FMT_STRING(_SYS_STR("\n")));
+          fmt::print(FMT_STRING("\n"));
           return false;
         }
         if (ch == 'y' || ch == 'Y' || ch == '\r' || ch == '\n')
@@ -83,7 +83,7 @@ protected:
       tcsetattr(0, TCSANOW, &tioOld);
 #endif
     }
-    fmt::print(FMT_STRING(_SYS_STR("\n")));
+    fmt::print(FMT_STRING("\n"));
     return true;
   }
 
@@ -93,7 +93,7 @@ public:
     hecl::GuiMode = info.gui;
   }
   virtual ~ToolBase() = default;
-  virtual hecl::SystemStringView toolName() const = 0;
+  virtual std::string_view toolName() const = 0;
   virtual int run() = 0;
   virtual void cancel() {}
   explicit operator bool() const { return m_good; }
@@ -107,11 +107,11 @@ private:
   FILE* m_sout = nullptr;
   HelpFunc m_helpFunc;
   int m_lineWidth;
-  hecl::SystemString m_wrapBuffer;
+  std::string m_wrapBuffer;
 
-  void _wrapBuf(hecl::SystemString& string) {
+  void _wrapBuf(std::string& string) {
     int counter;
-    hecl::SystemString::iterator it = string.begin();
+    std::string::iterator it = string.begin();
 
     while (it != string.end()) {
       std::ptrdiff_t v = it - string.begin();
@@ -120,33 +120,33 @@ private:
       for (counter = WRAP_INDENT; counter < m_lineWidth; ++counter) {
         if (it >= string.end())
           return;
-        if (*it == _SYS_STR('\n')) {
+        if (*it == '\n') {
           counter = WRAP_INDENT;
           ++it;
         }
         if (counter == WRAP_INDENT) {
           for (int i = 0; i < WRAP_INDENT; ++i)
-            it = string.insert(it, _SYS_STR(' ')) + 1;
+            it = string.insert(it, ' ') + 1;
         }
         if (it >= string.end())
           return;
-        if (*it != _SYS_STR('\n'))
+        if (*it != '\n')
           ++it;
       }
       /* check for whitespace */
       if (isspace(*it)) {
-        *it = _SYS_STR('\n');
+        *it = '\n';
         counter = WRAP_INDENT;
         ++it;
       } else {
         /* check for nearest whitespace back in string */
-        for (hecl::SystemString::iterator k = it; k != string.begin(); --k) {
+        for (std::string::iterator k = it; k != string.begin(); --k) {
           if (isspace(*k)) {
             counter = WRAP_INDENT;
             if (k - string.begin() < v)
-              k = string.insert(it, _SYS_STR('\n'));
+              k = string.insert(it, '\n');
             else
-              *k = _SYS_STR('\n');
+              *k = '\n';
             it = k + 1;
             break;
           }
@@ -175,61 +175,61 @@ public:
 #endif
   }
 
-  void print(const hecl::SystemChar* str) { fmt::print(m_sout, FMT_STRING(_SYS_STR("{}")), str); }
+  void print(const char* str) { fmt::print(m_sout, FMT_STRING("{}"), str); }
 
-  void printBold(const hecl::SystemChar* str) {
+  void printBold(const char* str) {
     if (XTERM_COLOR)
-      fmt::print(m_sout, FMT_STRING(_SYS_STR("" BOLD "{}" NORMAL "")), str);
+      fmt::print(m_sout, FMT_STRING("" BOLD "{}" NORMAL ""), str);
     else
-      fmt::print(m_sout, FMT_STRING(_SYS_STR("{}")), str);
+      fmt::print(m_sout, FMT_STRING("{}"), str);
   }
 
-  void secHead(const hecl::SystemChar* headName) {
+  void secHead(const char* headName) {
     if (XTERM_COLOR)
-      fmt::print(m_sout, FMT_STRING(_SYS_STR("" BOLD "{}" NORMAL "\n")), headName);
+      fmt::print(m_sout, FMT_STRING("" BOLD "{}" NORMAL "\n"), headName);
     else
-      fmt::print(m_sout, FMT_STRING(_SYS_STR("{}\n")), headName);
+      fmt::print(m_sout, FMT_STRING("{}\n"), headName);
   }
 
-  void optionHead(const hecl::SystemChar* flag, const hecl::SystemChar* synopsis) {
+  void optionHead(const char* flag, const char* synopsis) {
     if (XTERM_COLOR)
-      fmt::print(m_sout, FMT_STRING(_SYS_STR("" BOLD "{}" NORMAL " ({})\n")), flag, synopsis);
+      fmt::print(m_sout, FMT_STRING("" BOLD "{}" NORMAL " ({})\n"), flag, synopsis);
     else
-      fmt::print(m_sout, FMT_STRING(_SYS_STR("{} ({})\n")), flag, synopsis);
+      fmt::print(m_sout, FMT_STRING("{} ({})\n"), flag, synopsis);
   }
 
   void beginWrap() { m_wrapBuffer.clear(); }
 
-  void wrap(const hecl::SystemChar* str) { m_wrapBuffer += str; }
+  void wrap(const char* str) { m_wrapBuffer += str; }
 
-  void wrapBold(const hecl::SystemChar* str) {
+  void wrapBold(const char* str) {
     if (XTERM_COLOR)
-      m_wrapBuffer += _SYS_STR("" BOLD "");
+      m_wrapBuffer += "" BOLD "";
     m_wrapBuffer += str;
     if (XTERM_COLOR)
-      m_wrapBuffer += _SYS_STR("" NORMAL "");
+      m_wrapBuffer += "" NORMAL "";
   }
 
   void endWrap() {
     _wrapBuf(m_wrapBuffer);
-    m_wrapBuffer += _SYS_STR('\n');
-    fmt::print(m_sout, FMT_STRING(_SYS_STR("{}")), m_wrapBuffer);
+    m_wrapBuffer += '\n';
+    fmt::print(m_sout, FMT_STRING("{}"), m_wrapBuffer);
     m_wrapBuffer.clear();
   }
 };
 
-static hecl::SystemString MakePathArgAbsolute(const hecl::SystemString& arg, const hecl::SystemString& cwd) {
+static std::string MakePathArgAbsolute(const std::string& arg, const std::string& cwd) {
 #if _WIN32
-  if (arg.size() >= 2 && iswalpha(arg[0]) && arg[1] == _SYS_STR(':'))
+  if (arg.size() >= 2 && iswalpha(arg[0]) && arg[1] == ':')
     return arg;
-  if (arg[0] == _SYS_STR('\\') || arg[0] == _SYS_STR('/'))
+  if (arg[0] == '\\' || arg[0] == '/')
     return arg;
-  return cwd + _SYS_STR('\\') + arg;
+  return cwd + '\\' + arg;
 #else
-  if (arg[0] == _SYS_STR('/') || arg[0] == _SYS_STR('\\'))
+  if (arg[0] == '/' || arg[0] == '\\')
     return arg;
-  if (cwd.back() == _SYS_STR('/') || cwd.back() == _SYS_STR('\\'))
+  if (cwd.back() == '/' || cwd.back() == '\\')
     return cwd + arg;
-  return cwd + _SYS_STR('/') + arg;
+  return cwd + '/' + arg;
 #endif
 }

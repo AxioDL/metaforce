@@ -49,11 +49,11 @@ struct SpecBase : hecl::Database::IDataSpec {
 
   /* Extract handlers */
   virtual bool checkStandaloneID(const char* id) const = 0;
-  virtual bool checkFromStandaloneDisc(nod::DiscBase& disc, const hecl::SystemString& regstr,
-                                       const std::vector<hecl::SystemString>& args,
+  virtual bool checkFromStandaloneDisc(nod::DiscBase& disc, const std::string& regstr,
+                                       const std::vector<std::string>& args,
                                        std::vector<ExtractReport>& reps) = 0;
-  virtual bool checkFromTrilogyDisc(nod::DiscBase& disc, const hecl::SystemString& regstr,
-                                    const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps) = 0;
+  virtual bool checkFromTrilogyDisc(nod::DiscBase& disc, const std::string& regstr,
+                                    const std::vector<std::string>& args, std::vector<ExtractReport>& reps) = 0;
   virtual bool extractFromDisc(nod::DiscBase& disc, bool force, const hecl::MultiProgressPrinter& progress) = 0;
 
   /* Convert path to object tag */

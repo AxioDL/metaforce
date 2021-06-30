@@ -129,7 +129,7 @@ struct MLVL : BigDNA {
 
   static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                       PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
-                      std::function<void(const hecl::SystemChar*)> fileChanged);
+                      std::function<void(const char*)> fileChanged);
 
   static bool ExtractMAPW(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 

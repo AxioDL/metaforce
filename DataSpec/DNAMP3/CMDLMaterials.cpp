@@ -63,15 +63,14 @@ static void LoadTexture(Stream& out, const UniqueID64& tex, const PAKRouter<PAKB
     PAKEntryReadStream rs = texEntry->beginReadStream(*node);
     TXTR::Extract(rs, txtrPath);
   }
-  hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
-  hecl::SystemUTF8Conv resPathView(resPath);
+  std::string resPath = pakRouter.getResourceRelativePath(entry, tex);
   out.format(FMT_STRING("if '{}' in bpy.data.images:\n"
                         "    image = bpy.data.images['{}']\n"
                         "else:\n"
                         "    image = bpy.data.images.load('''//{}''')\n"
                         "    image.name = '{}'\n"
                         "\n"),
-             texName, texName, resPathView, texName);
+             texName, texName, resPath, texName);
 }
 
 void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry,

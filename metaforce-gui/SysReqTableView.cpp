@@ -8,7 +8,7 @@
 #include <QDomDocument>
 #include <QProcess>
 #include <QStorageInfo>
-#include "FindBlender.hpp"
+#include "hecl/Blender/FindBlender.hpp"
 #include <QDebug>
 
 #if _WIN32

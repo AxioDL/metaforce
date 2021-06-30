@@ -408,7 +408,7 @@ class PipelineConverter : public PipelineConverterBase {
 public:
   PipelineConverter(boo::IGraphicsDataFactory* gfxF) : PipelineConverterBase(gfxF, P::Enum) {}
 #if HECL_RUNTIME
-  bool loadFromFile(FactoryCtx& ctx, const hecl::SystemChar* path);
+  bool loadFromFile(FactoryCtx& ctx, const char* path);
 #endif
 
   template <class FromTp>

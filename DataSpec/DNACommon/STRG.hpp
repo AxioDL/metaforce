@@ -21,7 +21,6 @@ struct ISTRG : BigDNAVYaml {
   virtual size_t count() const = 0;
   virtual std::string getUTF8(const FourCC& lang, size_t idx) const = 0;
   virtual std::u16string getUTF16(const FourCC& lang, size_t idx) const = 0;
-  virtual hecl::SystemString getSystemString(const FourCC& lang, size_t idx) const = 0;
   virtual int32_t lookupIdx(std::string_view name) const = 0;
 
   virtual void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const;

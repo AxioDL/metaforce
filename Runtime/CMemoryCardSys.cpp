@@ -13,7 +13,7 @@ namespace metaforce {
 namespace {
 using ECardResult = kabufuda::ECardResult;
 
-static kabufuda::SystemString g_CardImagePaths[2] = {};
+static std::string g_CardImagePaths[2] = {};
 static kabufuda::Card g_CardStates[2] = {kabufuda::Card{"GM8E", "01"}, kabufuda::Card{"GM8E", "01"}};
 // static kabufuda::ECardResult g_OpResults[2] = {};
 hecl::CVar* mc_dolphinAPath = nullptr;
@@ -336,24 +336,16 @@ ECardResult CMemoryCardSys::CCardFileInfo::WriteFile() {
 }
 
 ECardResult CMemoryCardSys::CCardFileInfo::CloseFile() { return CMemoryCardSys::CloseFile(m_handle); }
-kabufuda::SystemString CMemoryCardSys::_GetDolphinCardPath(kabufuda::ECardSlot slot) {
+std::string CMemoryCardSys::_GetDolphinCardPath(kabufuda::ECardSlot slot) {
   return g_CardImagePaths[static_cast<u32>(slot)];
 }
 
 void CMemoryCardSys::_ResolveDolphinCardPath(const hecl::CVar* cv, kabufuda::ECardSlot slot) {
-#if CARD_UCS2
-  if (cv != nullptr && cv->toWideLiteral().empty()) {
-    g_CardImagePaths[int(slot)] = ResolveDolphinCardPath(slot);
-  } else if (cv != nullptr) {
-    g_CardImagePaths[int(slot)] = cv->toWideLiteral();
-  }
-#else
   if (cv != nullptr && cv->toLiteral().empty()) {
     g_CardImagePaths[int(slot)] = ResolveDolphinCardPath(slot);
   } else if (cv != nullptr) {
     g_CardImagePaths[int(slot)] = cv->toLiteral();
   }
-#endif
 }
 
 kabufuda::ProbeResults CMemoryCardSys::CardProbe(kabufuda::ECardSlot port) {
@@ -563,7 +555,7 @@ void CMemoryCardSys::CommitToDisk(kabufuda::ECardSlot port) {
 }
 
 bool CMemoryCardSys::CreateDolphinCard(kabufuda::ECardSlot slot) {
-  kabufuda::SystemString path =
+  std::string path =
       _CreateDolphinCard(slot, slot == kabufuda::ECardSlot::SlotA ? mc_dolphinAPath->hasDefaultValue()
                                                                   : mc_dolphinBPath->hasDefaultValue());
   if (CardProbe(slot).x0_error != ECardResult::READY) {

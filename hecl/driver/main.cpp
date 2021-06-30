@@ -46,27 +46,27 @@ bool XTERM_COLOR = false;
 */
 
 /* Main usage message */
-static void printHelp(const hecl::SystemChar* pname) {
+static void printHelp(const char* pname) {
   if (XTERM_COLOR)
-    fmt::print(FMT_STRING(_SYS_STR("" BOLD "HECL" NORMAL "")));
+    fmt::print(FMT_STRING("" BOLD "HECL" NORMAL ""));
   else
-    fmt::print(FMT_STRING(_SYS_STR("HECL")));
+    fmt::print(FMT_STRING("HECL"));
 #if HECL_HAS_NOD
 #define TOOL_LIST "extract|init|cook|package|image|installaddon|help"
 #else
 #define TOOL_LIST "extract|init|cook|package|installaddon|help"
 #endif
 #if HECL_GIT
-  fmt::print(FMT_STRING(_SYS_STR(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: {} " TOOL_LIST "\n")), pname);
+  fmt::print(FMT_STRING(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: {} " TOOL_LIST "\n"), pname);
 #elif HECL_VER
-  fmt::print(FMT_STRING(_SYS_STR(" Version " HECL_VER_S "\nUsage: {} " TOOL_LIST "\n")), pname);
+  fmt::print(FMT_STRING(" Version " HECL_VER_S "\nUsage: {} " TOOL_LIST "\n"), pname);
 #else
-  fmt::print(FMT_STRING(_SYS_STR("\nUsage: {} " TOOL_LIST "\n")), pname);
+  fmt::print(FMT_STRING("\nUsage: {} " TOOL_LIST "\n"), pname);
 #endif
 }
 
 /* Regex patterns */
-static const hecl::SystemRegex regOPEN(_SYS_STR("-o([^\"]*|\\S*)"), std::regex::ECMAScript | std::regex::optimize);
+static const std::regex regOPEN("-o([^\"]*|\\S*)", std::regex::ECMAScript | std::regex::optimize);
 
 static ToolBase* ToolPtr = nullptr;
 
@@ -85,40 +85,36 @@ static void AthenaExc(athena::error::Level level, const char* file, const char*,
   AthenaLog.vreport(logvisor::Level(level), fmt, args);
 }
 
-hecl::SystemString ExeDir;
+std::string ExeDir;
 
-#if _WIN32
-static ToolPassInfo CreateInfo(int argc, const wchar_t** argv) {
-#else
-static ToolPassInfo CreateInfo(int argc, const char** argv) {
-#endif
-  hecl::SystemChar cwdbuf[1024];
+static ToolPassInfo CreateInfo(int argc, char** argv) {
+  char cwdbuf[1024];
 
   ToolPassInfo info;
   info.pname = argv[0];
 
   if (hecl::Getcwd(cwdbuf, static_cast<int>(std::size(cwdbuf)))) {
     info.cwd = cwdbuf;
-    if (info.cwd.size() && info.cwd.back() != _SYS_STR('/') && info.cwd.back() != _SYS_STR('\\')) {
+    if (info.cwd.size() && info.cwd.back() != '/' && info.cwd.back() != '\\') {
 #if _WIN32
-      info.cwd += _SYS_STR('\\');
+      info.cwd += '\\';
 #else
-      info.cwd += _SYS_STR('/');
+      info.cwd += '/';
 #endif
     }
 
     if (hecl::PathRelative(argv[0])) {
-      ExeDir = hecl::SystemString(cwdbuf) + _SYS_STR('/');
+      ExeDir = std::string(cwdbuf) + '/';
     }
-    hecl::SystemString Argv0(argv[0]);
-    hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_SYS_STR("/\\"));
-    if (lastIdx != hecl::SystemString::npos) {
+    std::string Argv0(argv[0]);
+    std::string::size_type lastIdx = Argv0.find_last_of("/\\");
+    if (lastIdx != std::string::npos) {
       ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
     }
   }
 
   /* Concatenate args */
-  std::vector<hecl::SystemString> args;
+  std::vector<std::string> args;
   args.reserve(argc - 2);
   for (int i = 2; i < argc; ++i) {
     args.emplace_back(argv[i]);
@@ -127,11 +123,11 @@ static ToolPassInfo CreateInfo(int argc, const char** argv) {
   if (!args.empty()) {
     /* Extract output argument */
     for (auto it = args.cbegin(); it != args.cend();) {
-      const hecl::SystemString& arg = *it;
-      hecl::SystemRegexMatch oMatch;
+      const std::string& arg = *it;
+      std::smatch oMatch;
 
       if (std::regex_search(arg, oMatch, regOPEN)) {
-        const hecl::SystemString& token = oMatch[1].str();
+        const std::string& token = oMatch[1].str();
 
         if (token.size()) {
           if (info.output.empty()) {
@@ -162,28 +158,28 @@ static ToolPassInfo CreateInfo(int argc, const char** argv) {
     /* Iterate flags */
     bool threadArg = false;
     for (auto it = args.cbegin(); it != args.cend();) {
-      const hecl::SystemString& arg = *it;
+      const std::string& arg = *it;
       if (threadArg) {
         threadArg = false;
         hecl::CpuCountOverride = int(hecl::StrToUl(arg.c_str(), nullptr, 0));
         it = args.erase(it);
         continue;
       }
-      if (arg.size() < 2 || arg[0] != _SYS_STR('-') || arg[1] == _SYS_STR('-')) {
+      if (arg.size() < 2 || arg[0] != '-' || arg[1] == '-') {
         ++it;
         continue;
       }
 
       for (auto chit = arg.cbegin() + 1; chit != arg.cend(); ++chit) {
-        if (*chit == _SYS_STR('v'))
+        if (*chit == 'v')
           ++info.verbosityLevel;
-        else if (*chit == _SYS_STR('f'))
+        else if (*chit == 'f')
           info.force = true;
-        else if (*chit == _SYS_STR('y'))
+        else if (*chit == 'y')
           info.yes = true;
-        else if (*chit == _SYS_STR('g'))
+        else if (*chit == 'g')
           info.gui = true;
-        else if (*chit == _SYS_STR('j')) {
+        else if (*chit == 'j') {
           ++chit;
           if (*chit)
             hecl::CpuCountOverride = int(hecl::StrToUl(&*chit, nullptr, 0));
@@ -199,14 +195,14 @@ static ToolPassInfo CreateInfo(int argc, const char** argv) {
 
     /* Gather remaining args */
     info.args.reserve(args.size());
-    for (const hecl::SystemString& arg : args)
+    for (const std::string& arg : args)
       info.args.push_back(arg);
   }
 
   return info;
 }
 
-static std::unique_ptr<hecl::Database::Project> FindProject(hecl::SystemStringView cwd) {
+static std::unique_ptr<hecl::Database::Project> FindProject(std::string_view cwd) {
   const hecl::ProjectRootPath rootPath = hecl::SearchForProject(cwd);
   if (!rootPath) {
     return nullptr;
@@ -224,47 +220,47 @@ static std::unique_ptr<hecl::Database::Project> FindProject(hecl::SystemStringVi
   return newProj;
 }
 
-static std::unique_ptr<ToolBase> MakeSelectedTool(hecl::SystemString toolName, ToolPassInfo& info) {
-  hecl::SystemString toolNameLower = toolName;
+static std::unique_ptr<ToolBase> MakeSelectedTool(std::string toolName, ToolPassInfo& info) {
+  std::string toolNameLower = toolName;
   hecl::ToLower(toolNameLower);
 
-  if (toolNameLower == _SYS_STR("init")) {
+  if (toolNameLower == "init") {
     return std::make_unique<ToolInit>(info);
   }
 
-  if (toolNameLower == _SYS_STR("spec")) {
+  if (toolNameLower == "spec") {
     return std::make_unique<ToolSpec>(info);
   }
 
-  if (toolNameLower == _SYS_STR("extract")) {
+  if (toolNameLower == "extract") {
     return std::make_unique<ToolExtract>(info);
   }
 
-  if (toolNameLower == _SYS_STR("cook")) {
+  if (toolNameLower == "cook") {
     return std::make_unique<ToolCook>(info);
   }
 
-  if (toolNameLower == _SYS_STR("package") || toolNameLower == _SYS_STR("pack")) {
+  if (toolNameLower == "package" || toolNameLower == "pack") {
     return std::make_unique<ToolPackage>(info);
   }
 
 #if HECL_HAS_NOD
-  if (toolNameLower == _SYS_STR("image")) {
+  if (toolNameLower == "image") {
     return std::make_unique<ToolImage>(info);
   }
 #endif
 
-  if (toolNameLower == _SYS_STR("installaddon")) {
+  if (toolNameLower == "installaddon") {
     return std::make_unique<ToolInstallAddon>(info);
   }
 
-  if (toolNameLower == _SYS_STR("help")) {
+  if (toolNameLower == "help") {
     return std::make_unique<ToolHelp>(info);
   }
 
-  auto fp = hecl::FopenUnique(toolName.c_str(), _SYS_STR("rb"));
+  auto fp = hecl::FopenUnique(toolName.c_str(), "rb");
   if (fp == nullptr) {
-    LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("unrecognized tool '{}'")), toolNameLower);
+    LogModule.report(logvisor::Error, FMT_STRING("unrecognized tool '{}'"), toolNameLower);
     return nullptr;
   }
   fp.reset();
@@ -275,14 +271,16 @@ static std::unique_ptr<ToolBase> MakeSelectedTool(hecl::SystemString toolName, T
 }
 
 #if _WIN32
-int wmain(int argc, const wchar_t** argv)
+#include <nowide/args.hpp>
 #else
 /* SIGWINCH should do nothing */
 static void SIGWINCHHandler(int sig) {}
-int main(int argc, const char** argv)
 #endif
-{
-  if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage"))) {
+int main(int argc, char** argv) {
+#if _WIN32
+  nowide::args _(argc, argv);
+#endif
+  if (argc > 1 && !hecl::StrCmp(argv[1], "--dlpackage")) {
     fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;
   }
@@ -295,9 +293,10 @@ int main(int argc, const char** argv)
 
   /* Xterm check */
 #if _WIN32
-  const char* conemuANSI = getenv("ConEmuANSI");
-  if (conemuANSI && !strcmp(conemuANSI, "ON"))
+  const auto conemuANSI = hecl::GetEnv("ConEmuANSI");
+  if (conemuANSI && conemuANSI == "ON") {
     XTERM_COLOR = true;
+  }
 #else
   const char* term = getenv("TERM");
   if (term && !strncmp(term, "xterm", 5))
@@ -311,8 +310,8 @@ int main(int argc, const char** argv)
   atSetExceptionHandler(AthenaExc);
 
 #if SENTRY_ENABLED
-  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("sentry-native-hecl")};
-  hecl::SystemUTF8Conv cacheDir{fileMgr.getStoreRoot()};
+  hecl::Runtime::FileStoreManager fileMgr{"sentry-native-hecl"};
+  std::string cacheDir{fileMgr.getStoreRoot()};
   logvisor::RegisterSentry("hecl", METAFORCE_WC_DESCRIBE, cacheDir.c_str());
 #endif
 
@@ -323,8 +322,9 @@ int main(int argc, const char** argv)
     system("PAUSE");
 #endif
     return 0;
-  } else if (argc == 0) {
-    printHelp(_SYS_STR("hecl"));
+  }
+  if (argc == 0) {
+    printHelp("hecl");
 #if WIN_PAUSE
     system("PAUSE");
 #endif
@@ -353,7 +353,7 @@ int main(int argc, const char** argv)
     return 1;
   }
   if (info.verbosityLevel) {
-    LogModule.report(logvisor::Info, FMT_STRING(_SYS_STR("Constructed tool '{}' {}\n")), tool->toolName(),
+    LogModule.report(logvisor::Info, FMT_STRING("Constructed tool '{}' {}\n"), tool->toolName(),
                      info.verbosityLevel);
   }
 

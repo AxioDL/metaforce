@@ -7,7 +7,6 @@
 
 #include "athena/Types.hpp"
 #include "hecl/Blender/Connection.hpp"
-#include "hecl/SystemChar.hpp"
 
 namespace DataSpec {
 struct SpecBase;
@@ -43,6 +42,6 @@ struct AnimationResInfo {
 template <class PAKRouter, class ANCSDNA, class MaterialSet, class SurfaceHeader, atUint32 CMDLVersion>
 bool ReadANCSToBlender(hecl::blender::Token& btok, const ANCSDNA& ancs, const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter, const typename PAKRouter::EntryType& entry, const SpecBase& dataspec,
-                       std::function<void(const hecl::SystemChar*)> fileChanged, bool force = false);
+                       std::function<void(const char*)> fileChanged, bool force = false);
 
 } // namespace DataSpec::DNAANCS

@@ -78,18 +78,18 @@ PAKBridge::PAKBridge(const nod::Node& node, bool doExtract)
         STRG mlvlName;
         mlvlName.read(rs);
         if (m_levelString.size())
-          m_levelString += _SYS_STR(", ");
-        m_levelString += mlvlName.getSystemString(FOURCC('ENGL'), 0);
+          m_levelString += ", ";
+        m_levelString += mlvlName.getUTF8(FOURCC('ENGL'), 0);
       }
     }
   }
 }
 
-static hecl::SystemString LayerName(std::string_view name) {
-  hecl::SystemString ret(hecl::SystemStringConv(name).sys_str());
+static std::string LayerName(std::string_view name) {
+  std::string ret(name);
   for (auto& ch : ret)
-    if (ch == _SYS_STR('/') || ch == _SYS_STR('\\'))
-      ch = _SYS_STR('-');
+    if (ch == '/' || ch == '\\')
+      ch = '-';
   return ret;
 }
 
@@ -106,7 +106,7 @@ void PAKBridge::build() {
       }
       std::string catalogueName;
       std::string bestName = m_pak.bestEntryName(m_node, entry, catalogueName);
-      level.name = hecl::SystemStringConv(bestName).sys_str();
+      level.name = bestName;
       level.areas.reserve(mlvl.areaCount);
       unsigned layerIdx = 0;
 
@@ -148,17 +148,17 @@ void PAKBridge::build() {
             PAKEntryReadStream rs = areaNameEnt->beginReadStream(m_node);
             areaName.read(rs);
           }
-          areaDeps.name = areaName.getSystemString(FOURCC('ENGL'), 0);
+          areaDeps.name = areaName.getUTF8(FOURCC('ENGL'), 0);
           areaDeps.name = hecl::StringUtils::TrimWhitespace(areaDeps.name);
         }
         if (areaDeps.name.empty()) {
           std::string idStr = area.areaMREAId.toString();
-          areaDeps.name = hecl::SystemString(_SYS_STR("MREA_")) + hecl::SystemStringConv(idStr).c_str();
+          areaDeps.name = std::string("MREA_") + idStr;
         }
-        hecl::SystemString num = fmt::format(FMT_STRING(_SYS_STR("{:02d} ")), ai);
+        std::string num = fmt::format(FMT_STRING("{:02d} "), ai);
         areaDeps.name = num + areaDeps.name;
 
-        std::string lowerName(hecl::SystemUTF8Conv(areaDeps.name).str());
+        std::string lowerName(areaDeps.name);
         for (char& ch : lowerName) {
           ch = tolower(ch);
           if (ch == ' ')
@@ -179,7 +179,7 @@ void PAKBridge::build() {
           layer.active = layerFlags.flags >> (l - 1) & 0x1;
           layer.name = hecl::StringUtils::TrimWhitespace(layer.name);
 
-          num = fmt::format(FMT_STRING(_SYS_STR("{:02d} ")), l - 1);
+          num = fmt::format(FMT_STRING("{:02d} "), l - 1);
           layer.name = num + layer.name;
 
           layer.resources.reserve(area.depLayers[l] - r);
@@ -277,7 +277,7 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
 
       if (mlvl.worldNameId.isValid())
         pathOverrides[mlvl.worldNameId] =
-            hecl::ProjectPath(mlvlDirPath, fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
+            hecl::ProjectPath(mlvlDirPath, fmt::format(FMT_STRING("!name_{}.yaml"), mlvl.worldNameId));
 
       for (const MLVL::Area& area : mlvl.areas) {
         {
@@ -294,7 +294,7 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
         hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
         if (area.areaNameId.isValid())
           pathOverrides[area.areaNameId] =
-              hecl::ProjectPath(areaDirPath, fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), area.areaNameId));
+              hecl::ProjectPath(areaDirPath, fmt::format(FMT_STRING("!name_{}.yaml"), area.areaNameId));
       }
 
       if (mlvl.worldMap.isValid()) {
@@ -324,61 +324,61 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
 ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, const PAK& pak, const PAK::Entry& entry) {
   switch (entry.type.toUint32()) {
   case SBIG('STRG'):
-    return {STRG::Extract, {_SYS_STR(".yaml")}};
+    return {STRG::Extract, {".yaml"}};
   case SBIG('SCAN'):
-    return {SCAN::Extract, {_SYS_STR(".yaml")}, 0, SCAN::Name};
+    return {SCAN::Extract, {".yaml"}, 0, SCAN::Name};
   case SBIG('HINT'):
-    return {HINT::Extract, {_SYS_STR(".yaml")}};
+    return {HINT::Extract, {".yaml"}};
   case SBIG('TXTR'):
-    return {TXTR::Extract, {_SYS_STR(".png")}};
+    return {TXTR::Extract, {".png"}};
   case SBIG('AFSM'):
-    return {AFSM::Extract, {_SYS_STR(".yaml")}};
+    return {AFSM::Extract, {".yaml"}};
   case SBIG('FRME'):
-    return {FRME::Extract, {_SYS_STR(".blend")}, 2};
+    return {FRME::Extract, {".blend"}, 2};
   case SBIG('CINF'):
-    return {CINF::Extract, {_SYS_STR(".blend")}, 1};
+    return {CINF::Extract, {".blend"}, 1};
   case SBIG('CMDL'):
-    return {CMDL::Extract, {_SYS_STR(".blend")}, 1, CMDL::Name};
+    return {CMDL::Extract, {".blend"}, 1, CMDL::Name};
   case SBIG('DCLN'):
-    return {DCLN::Extract, {_SYS_STR(".blend")}};
+    return {DCLN::Extract, {".blend"}};
   case SBIG('ANCS'):
-    return {ANCS::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 2};
+    return {ANCS::Extract, {".yaml", ".blend"}, 2};
   case SBIG('MLVL'):
-    return {MLVL::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 3};
+    return {MLVL::Extract, {".yaml", ".blend"}, 3};
   case SBIG('SAVW'):
-    return {MLVL::ExtractSAVW, {_SYS_STR(".yaml")}, 3};
+    return {MLVL::ExtractSAVW, {".yaml"}, 3};
   case SBIG('MREA'):
-    return {MREA::Extract, {_SYS_STR(".blend")}, 4, MREA::Name};
+    return {MREA::Extract, {".blend"}, 4, MREA::Name};
   case SBIG('MAPA'):
-    return {MAPA::Extract, {_SYS_STR(".blend")}, 4};
+    return {MAPA::Extract, {".blend"}, 4};
   case SBIG('MAPW'):
-    return {MLVL::ExtractMAPW, {_SYS_STR(".yaml")}, 4};
+    return {MLVL::ExtractMAPW, {".yaml"}, 4};
   case SBIG('MAPU'):
-    return {MAPU::Extract, {_SYS_STR(".blend")}, 5};
+    return {MAPU::Extract, {".blend"}, 5};
   case SBIG('PATH'):
-    return {PATH::Extract, {_SYS_STR(".blend")}, 5};
+    return {PATH::Extract, {".blend"}, 5};
   case SBIG('PART'):
-    return {DNAParticle::ExtractGPSM<UniqueID32>, {_SYS_STR(".gpsm.yaml")}};
+    return {DNAParticle::ExtractGPSM<UniqueID32>, {".gpsm.yaml"}};
   case SBIG('ELSC'):
-    return {DNAParticle::ExtractELSM<UniqueID32>, {_SYS_STR(".elsm.yaml")}};
+    return {DNAParticle::ExtractELSM<UniqueID32>, {".elsm.yaml"}};
   case SBIG('SWHC'):
-    return {DNAParticle::ExtractSWSH<UniqueID32>, {_SYS_STR(".swsh.yaml")}};
+    return {DNAParticle::ExtractSWSH<UniqueID32>, {".swsh.yaml"}};
   case SBIG('CRSC'):
-    return {DNAParticle::ExtractCRSM<UniqueID32>, {_SYS_STR(".crsm.yaml")}};
+    return {DNAParticle::ExtractCRSM<UniqueID32>, {".crsm.yaml"}};
   case SBIG('WPSC'):
-    return {DNAParticle::ExtractWPSM<UniqueID32>, {_SYS_STR(".wpsm.yaml")}};
+    return {DNAParticle::ExtractWPSM<UniqueID32>, {".wpsm.yaml"}};
   case SBIG('DPSC'):
-    return {DNAParticle::ExtractDPSM<UniqueID32>, {_SYS_STR(".dpsm.yaml")}};
+    return {DNAParticle::ExtractDPSM<UniqueID32>, {".dpsm.yaml"}};
   case SBIG('FONT'):
-    return {DNAFont::ExtractFONT<UniqueID32>, {_SYS_STR(".yaml")}};
+    return {DNAFont::ExtractFONT<UniqueID32>, {".yaml"}};
   case SBIG('DGRP'):
-    return {DNADGRP::ExtractDGRP<UniqueID32>, {_SYS_STR(".yaml")}};
+    return {DNADGRP::ExtractDGRP<UniqueID32>, {".yaml"}};
   case SBIG('AGSC'):
     return {AGSC::Extract, {}};
   case SBIG('CSNG'):
-    return {CSNG::Extract, {_SYS_STR(".mid"), _SYS_STR(".yaml")}};
+    return {CSNG::Extract, {".mid", ".yaml"}};
   case SBIG('ATBL'):
-    return {DNAAudio::ATBL::Extract, {_SYS_STR(".yaml")}};
+    return {DNAAudio::ATBL::Extract, {".yaml"}};
   case SBIG('CTWK'):
   case SBIG('DUMB'): {
     std::string catalogueName;
@@ -387,47 +387,47 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
       if (catalogueName == "PlayerRes"sv) {
         if (isCurrentSpecWii() || getCurrentRegion() == ERegion::PAL || getCurrentRegion() == ERegion::NTSC_J) {
           /* We need to use the new rep for these tweaks */
-          return {ExtractTweak<CTweakPlayerRes<true>>, {_SYS_STR(".yaml")}};
+          return {ExtractTweak<CTweakPlayerRes<true>>, {".yaml"}};
         }
         /* We need to use the old rep for these tweaks */
-        return {ExtractTweak<CTweakPlayerRes<false>>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakPlayerRes<false>>, {".yaml"}};
       }
       if (catalogueName == "GunRes"sv)
-        return {ExtractTweak<CTweakGunRes>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakGunRes>, {".yaml"}};
       if (catalogueName == "Player"sv)
-        return {ExtractTweak<CTweakPlayer>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakPlayer>, {".yaml"}};
       if (catalogueName == "CameraBob"sv)
-        return {ExtractTweak<CTweakCameraBob>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakCameraBob>, {".yaml"}};
       if (catalogueName == "SlideShow"sv)
-        return {ExtractTweak<CTweakSlideShow>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakSlideShow>, {".yaml"}};
       if (catalogueName == "Game"sv)
-        return {ExtractTweak<CTweakGame>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakGame>, {".yaml"}};
       if (catalogueName == "Targeting"sv) {
         if (isCurrentSpecWii() || getCurrentRegion() == ERegion::PAL || getCurrentRegion() == ERegion::NTSC_J) {
           /* We need to use the new rep for these tweaks */
-          return {ExtractTweak<CTweakTargeting<true>>, {_SYS_STR(".yaml")}};
+          return {ExtractTweak<CTweakTargeting<true>>, {".yaml"}};
         }
         /* We need to use the old rep for these tweaks */
-        return {ExtractTweak<CTweakTargeting<false>>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakTargeting<false>>, {".yaml"}};
       }
       if (catalogueName == "Gui"sv)
-        return {ExtractTweak<CTweakGui>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakGui>, {".yaml"}};
       if (catalogueName == "AutoMapper"sv)
-        return {ExtractTweak<CTweakAutoMapper>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakAutoMapper>, {".yaml"}};
       if (catalogueName == "PlayerControls"sv || catalogueName == "PlayerControls2"sv)
-        return {ExtractTweak<CTweakPlayerControl>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakPlayerControl>, {".yaml"}};
       if (catalogueName == "Ball"sv)
-        return {ExtractTweak<CTweakBall>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakBall>, {".yaml"}};
       if (catalogueName == "Particle"sv)
-        return {ExtractTweak<CTweakParticle>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakParticle>, {".yaml"}};
       if (catalogueName == "GuiColors"sv)
-        return {ExtractTweak<CTweakGuiColors>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakGuiColors>, {".yaml"}};
       if (catalogueName == "PlayerGun"sv)
-        return {ExtractTweak<CTweakPlayerGun>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<CTweakPlayerGun>, {".yaml"}};
       if (catalogueName == "DUMB_MazeSeeds"sv)
-        return {ExtractTweak<MazeSeeds>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<MazeSeeds>, {".yaml"}};
       if (catalogueName == "DUMB_SnowForces"sv)
-        return {ExtractTweak<SnowForces>, {_SYS_STR(".yaml")}};
+        return {ExtractTweak<SnowForces>, {".yaml"}};
     }
     break;
   }

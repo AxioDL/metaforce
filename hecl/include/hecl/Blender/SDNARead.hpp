@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "hecl/FourCC.hpp"
-#include "hecl/SystemChar.hpp"
 
 #include <athena/DNA.hpp>
 
@@ -65,12 +64,12 @@ class SDNARead {
   SDNABlock m_sdnaBlock;
 
 public:
-  explicit SDNARead(SystemStringView path);
+  explicit SDNARead(std::string_view path);
   explicit operator bool() const { return !m_data.empty(); }
   const SDNABlock& sdnaBlock() const { return m_sdnaBlock; }
   void enumerate(const std::function<bool(const FileBlock& block, athena::io::MemoryReader& r)>& func) const;
 };
 
-BlendType GetBlendType(SystemStringView path);
+BlendType GetBlendType(std::string_view path);
 
 } // namespace hecl::blender

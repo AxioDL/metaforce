@@ -180,7 +180,7 @@ template <class PAKBridge>
 bool PATH<PAKBridge>::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                               PAKRouter<PAKBridge>& pakRouter, const typename PAKBridge::PAKType::Entry& entry,
                               bool force, hecl::blender::Token& btok,
-                              std::function<void(const hecl::SystemChar*)> fileChanged) {
+                              std::function<void(const char*)> fileChanged) {
   PATH path;
   path.read(rs);
   hecl::blender::Connection& conn = btok.getBlenderConnection();
@@ -189,8 +189,8 @@ bool PATH<PAKBridge>::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, 
 
   std::string areaPath;
   for (const auto& ent : hecl::DirectoryEnumerator(outPath.getParentPath().getAbsolutePath())) {
-    if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!area_"))) {
-      areaPath = hecl::SystemUTF8Conv(ent.m_name).str();
+    if (hecl::StringUtils::BeginsWith(ent.m_name, "!area_")) {
+      areaPath = ent.m_name;
       break;
     }
   }
@@ -223,7 +223,7 @@ bool PATH<PAKBridge>::Cook(const hecl::ProjectPath& outPath, const hecl::Project
 #if DUMP_OCTREE
   {
     hecl::blender::Connection& conn = btok.getBlenderConnection();
-    if (!conn.createBlend(inPath.getWithExtension(_SYS_STR(".octree.blend"), true), hecl::blender::BlendType::PathMesh))
+    if (!conn.createBlend(inPath.getWithExtension(".octree.blend", true), hecl::blender::BlendType::PathMesh))
       return false;
 
     zeus::CMatrix4f xf;

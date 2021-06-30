@@ -3,8 +3,6 @@
 #include <cstddef>
 #include <memory>
 
-#include "hecl/SystemChar.hpp"
-
 #include <boo/BooObject.hpp>
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
@@ -17,17 +15,17 @@ namespace Runtime {
  * @brief Per-platform file store resolution
  */
 class FileStoreManager {
-  SystemString m_domain;
-  SystemString m_storeRoot;
+  std::string m_domain;
+  std::string m_storeRoot;
 
 public:
-  FileStoreManager(SystemStringView domain);
-  SystemStringView getDomain() const { return m_domain; }
+  FileStoreManager(std::string_view domain);
+  std::string_view getDomain() const { return m_domain; }
   /**
    * @brief Returns the full path to the file store, including domain
    * @return Full path to store e.g /home/foo/.hecl/bar
    */
-  SystemStringView getStoreRoot() const { return m_storeRoot; }
+  std::string_view getStoreRoot() const { return m_storeRoot; }
 };
 
 /**

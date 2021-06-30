@@ -12,8 +12,8 @@ namespace DataSpec::DNAMLVL {
 template <class PAKRouter, typename MLVL>
 bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter, const typename PAKRouter::EntryType& entry, bool force,
-                       std::function<void(const hecl::SystemChar*)> fileChanged) {
-  hecl::ProjectPath blendPath = outPath.getWithExtension(_SYS_STR(".blend"), true);
+                       std::function<void(const char*)> fileChanged) {
+  hecl::ProjectPath blendPath = outPath.getWithExtension(".blend", true);
   if (!force && blendPath.isFile())
     return true;
 
@@ -35,7 +35,6 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
   int areaIdx = 0;
   for (const auto& area : mlvl.areas) {
     const typename PAKRouter::EntryType* mreaEntry = pakRouter.lookupEntry(area.areaMREAId);
-    hecl::SystemUTF8Conv areaDirName(*mreaEntry->unique.m_areaName);
 
     os.AABBToBMesh(area.aabb[0], area.aabb[1]);
     zeus::simd_floats xfMtxF[3];
@@ -52,7 +51,7 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
                          "box.location = mtxd[0]\n"
                          "box.rotation_quaternion = mtxd[1]\n"
                          "box.scale = mtxd[2]\n"),
-              areaDirName, xfMtxF[0][0], xfMtxF[0][1], xfMtxF[0][2], xfMtxF[0][3], xfMtxF[1][0], xfMtxF[1][1],
+              *mreaEntry->unique.m_areaName, xfMtxF[0][0], xfMtxF[0][1], xfMtxF[0][2], xfMtxF[0][3], xfMtxF[1][0], xfMtxF[1][1],
               xfMtxF[1][2], xfMtxF[1][3], xfMtxF[2][0], xfMtxF[2][1], xfMtxF[2][2], xfMtxF[2][3]);
 
     /* Insert dock planes */
@@ -95,16 +94,16 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
 template bool ReadMLVLToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MLVL>(
     hecl::blender::Connection& conn, const DNAMP1::MLVL& mlvl, const hecl::ProjectPath& outPath,
     PAKRouter<DNAMP1::PAKBridge>& pakRouter, const PAKRouter<DNAMP1::PAKBridge>::EntryType& entry, bool force,
-    std::function<void(const hecl::SystemChar*)> fileChanged);
+    std::function<void(const char*)> fileChanged);
 
 template bool ReadMLVLToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MLVL>(
     hecl::blender::Connection& conn, const DNAMP2::MLVL& mlvl, const hecl::ProjectPath& outPath,
     PAKRouter<DNAMP2::PAKBridge>& pakRouter, const PAKRouter<DNAMP2::PAKBridge>::EntryType& entry, bool force,
-    std::function<void(const hecl::SystemChar*)> fileChanged);
+    std::function<void(const char*)> fileChanged);
 
 template bool ReadMLVLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MLVL>(
     hecl::blender::Connection& conn, const DNAMP3::MLVL& mlvl, const hecl::ProjectPath& outPath,
     PAKRouter<DNAMP3::PAKBridge>& pakRouter, const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry, bool force,
-    std::function<void(const hecl::SystemChar*)> fileChanged);
+    std::function<void(const char*)> fileChanged);
 
 } // namespace DataSpec::DNAMLVL

@@ -16,7 +16,7 @@ private:
   bool x18_26_;
   bool x18_27_;
   bool x18_28_;
-  const wchar_t* x1c_msg;
+  const char16_t* x1c_msg;
 
 public:
   explicit CErrorOutputWindow(bool);

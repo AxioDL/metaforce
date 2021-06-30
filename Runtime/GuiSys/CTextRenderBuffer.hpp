@@ -40,7 +40,7 @@ public:
         Command x4_command;
         u16 x8_xPos;
         u16 xa_zPos;
-        wchar_t xc_glyph;
+        char16_t xc_glyph;
         u8 xe_imageIndex;
     };
 #endif

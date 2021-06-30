@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <ctime>
+#include <fmt/xchar.h>
 
 #include "NESEmulator/CNESEmulator.hpp"
 

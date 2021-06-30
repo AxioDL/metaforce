@@ -88,7 +88,6 @@ public:
   bool toBoolean(bool* isValid = nullptr) const;
   int32_t toSigned(bool* isValid = nullptr) const;
   uint32_t toUnsigned(bool* isValid = nullptr) const;
-  std::wstring toWideLiteral(bool* isValid = nullptr) const;
   std::string toLiteral(bool* isValid = nullptr) const;
 
   template <typename T>
@@ -106,9 +105,7 @@ public:
   bool fromInteger(int32_t val);
   bool fromInteger(uint32_t val);
   bool fromLiteral(std::string_view val);
-  bool fromLiteral(std::wstring_view val);
   bool fromLiteralToType(std::string_view val);
-  bool fromLiteralToType(std::wstring_view val);
 
   bool isVec2f() const { return m_type == EType::Vec2f; }
   bool isVec2d() const { return m_type == EType::Vec2d; }
@@ -153,7 +150,6 @@ public:
   void addListener(ListenerFunc func) { m_listeners.push_back(std::move(func)); }
 
   bool isValidInput(std::string_view input) const;
-  bool isValidInput(std::wstring_view input) const;
 
 private:
   CVar(std::string_view name, std::string_view help, EType type) : m_help(help), m_type(type) { m_name = name; }
@@ -239,12 +235,6 @@ inline bool CVar::toValue(uint32_t& value) const {
   return isValid;
 }
 template <>
-inline bool CVar::toValue(std::wstring& value) const {
-  bool isValid = false;
-  value = toWideLiteral(&isValid);
-  return isValid;
-}
-template <>
 inline bool CVar::toValue(std::string& value) const {
   bool isValid = false;
   value = toLiteral(&isValid);
@@ -297,10 +287,6 @@ inline bool CVar::fromValue(uint32_t val) {
 }
 template <>
 inline bool CVar::fromValue(std::string_view val) {
-  return fromLiteral(val);
-}
-template <>
-inline bool CVar::fromValue(std::wstring_view val) {
   return fromLiteral(val);
 }
 

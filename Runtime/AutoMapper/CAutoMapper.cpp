@@ -14,6 +14,7 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
+#include <fmt/xchar.h>
 #include <zeus/CEulerAngles.hpp>
 
 namespace metaforce {

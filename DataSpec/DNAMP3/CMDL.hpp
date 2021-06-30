@@ -12,7 +12,7 @@ namespace DataSpec::DNAMP3 {
 struct CMDL {
   static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                       PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool, hecl::blender::Token& btok,
-                      std::function<void(const hecl::SystemChar*)>);
+                      std::function<void(const char*)>);
 };
 
 } // namespace DataSpec::DNAMP3

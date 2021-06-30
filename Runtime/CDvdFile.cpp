@@ -123,9 +123,9 @@ void CDvdFile::RecursiveBuildCaseInsensitiveMap(const hecl::ProjectPath& path, s
       RecursiveBuildCaseInsensitiveMap(hecl::ProjectPath(path, p.m_name), prefixLen);
     } else {
       hecl::ProjectPath ch(path, p.m_name);
-      std::string chStr(ch.getAbsolutePathUTF8().begin() + prefixLen, ch.getAbsolutePathUTF8().end());
+      std::string chStr(ch.getAbsolutePath().begin() + prefixLen, ch.getAbsolutePath().end());
       std::string lowerChStr(chStr);
-      std::transform(lowerChStr.begin(), lowerChStr.end(), lowerChStr.begin(), ::tolower);
+      hecl::ToLower(lowerChStr);
       m_caseInsensitiveMap[lowerChStr] = chStr;
     }
   }
@@ -133,7 +133,7 @@ void CDvdFile::RecursiveBuildCaseInsensitiveMap(const hecl::ProjectPath& path, s
 
 void CDvdFile::Initialize(const hecl::ProjectPath& path) {
   m_DvdRoot = path;
-  RecursiveBuildCaseInsensitiveMap(path, path.getAbsolutePathUTF8().length() + 1);
+  RecursiveBuildCaseInsensitiveMap(path, path.getAbsolutePath().length() + 1);
   if (m_WorkerRun.load()) {
     return;
   }

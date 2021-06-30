@@ -5,6 +5,8 @@
 #include <strsafe.h>
 #include "athena/Global.hpp"
 #include "logvisor/logvisor.hpp"
+#include <nowide/args.hpp>
+#include <nowide/convert.hpp>
 #include "../version.h"
 #include <thread>
 
@@ -40,8 +42,9 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-int wmain(int argc, const hecl::SystemChar** argv) {
-  if (argc > 1 && !wcscmp(argv[1], L"--dlpackage")) {
+int main(int argc, char** argv) {
+  nowide::args _(argc, argv);
+  if (argc > 1 && !strcmp(argv[1], "--dlpackage")) {
     fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;
   }
@@ -54,7 +57,7 @@ int wmain(int argc, const hecl::SystemChar** argv) {
 
   int instIdx = -1;
   if (argc > 3)
-    instIdx = _wtoi(argv[3]);
+    instIdx = atoi(argv[3]);
 
   WNDCLASS wndClass = {CS_NOCLOSE, WindowProc, 0, 0, GetModuleHandle(nullptr), 0, 0, 0, 0, L"VISIGenWindow"};
   RegisterClassW(&wndClass);
@@ -126,8 +129,8 @@ int wmain(int argc, const hecl::SystemChar** argv) {
         continue;
       case WM_USER + 1: {
         /* Update window title from client thread */
-        std::wstring title = fmt::format(FMT_STRING(L"VISIGen [{:g}%]"), s_Percent * 100.f);
-        SetWindowTextW(window, title.c_str());
+        std::string title = fmt::format(FMT_STRING("VISIGen [{:g}%]"), s_Percent * 100.f);
+        SetWindowTextW(window, nowide::widen(title).c_str());
         continue;
       }
       default:

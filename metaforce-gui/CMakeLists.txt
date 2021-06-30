@@ -43,8 +43,6 @@ add_executable(metaforce-gui WIN32 MACOSX_BUNDLE
         ExtractZip.cpp
         ExtractZip.hpp
         FileDirDialog.hpp
-        FindBlender.cpp
-        FindBlender.hpp
         MainWindow.cpp
         MainWindow.hpp
         MainWindow.ui
@@ -134,8 +132,6 @@ if (WIN32)
             platforms/win/metaforce-gui.manifest
             platforms/win/metaforce-gui.rc
             )
-    target_link_libraries(metaforce-gui PRIVATE
-            Version)
 elseif (APPLE)
     set_target_properties(metaforce-gui PROPERTIES
             MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist"

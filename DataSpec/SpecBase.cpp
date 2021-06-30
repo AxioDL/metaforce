@@ -24,18 +24,18 @@ namespace DataSpec {
 
 static logvisor::Module Log("DataSpec::SpecBase");
 
-static const hecl::SystemChar* MomErr[] = {_SYS_STR("Your metroid is in another castle"),
-                                           _SYS_STR("HECL is experiencing a PTSD attack"),
-                                           _SYS_STR("Unable to freeze metroids"),
-                                           _SYS_STR("Ridley ate your homework"),
-                                           _SYS_STR("Expected 0 maternal symbolisms, found 2147483647"),
-                                           _SYS_STR("Contradictive narratives unsupported"),
-                                           _SYS_STR("Wiimote profile \"NES + Zapper\" not recognized"),
-                                           _SYS_STR("Unable to find Waldo"),
-                                           _SYS_STR("Expected Ridley, found furby"),
-                                           _SYS_STR("Adam has not authorized this, please do not bug the developers"),
-                                           _SYS_STR("Lady returned objection"),
-                                           _SYS_STR("Unterminated plot thread 'Deleter' detected")};
+static const char* MomErr[] = {"Your metroid is in another castle",
+                               "HECL is experiencing a PTSD attack",
+                               "Unable to freeze metroids",
+                               "Ridley ate your homework",
+                               "Expected 0 maternal symbolisms, found 2147483647",
+                               "Contradictive narratives unsupported",
+                               "Wiimote profile \"NES + Zapper\" not recognized",
+                               "Unable to find Waldo",
+                               "Expected Ridley, found furby",
+                               "Adam has not authorized this, please do not bug the developers",
+                               "Lady returned objection",
+                               "Unterminated plot thread 'Deleter' detected"};
 
 constexpr uint32_t MomErrCount = std::extent<decltype(MomErr)>::value;
 
@@ -58,10 +58,10 @@ SpecBase::SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Databas
 
 SpecBase::~SpecBase() { cancelBackgroundIndex(); }
 
-static const hecl::SystemString regNONE = _SYS_STR("");
-static const hecl::SystemString regE = _SYS_STR("NTSC");
-static const hecl::SystemString regJ = _SYS_STR("NTSC-J");
-static const hecl::SystemString regP = _SYS_STR("PAL");
+static const std::string regNONE = "";
+static const std::string regE = "NTSC";
+static const std::string regJ = "NTSC-J";
+static const std::string regP = "PAL";
 
 void SpecBase::setThreadProject() { UniqueIDBridge::SetThreadProject(m_project); }
 
@@ -74,7 +74,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
   if (!memcmp(gameID, "R3O", 3)) {
     std::srand(std::time(0));
     int r = std::rand() % MomErrCount;
-    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{}")), MomErr[r]);
+    Log.report(logvisor::Fatal, FMT_STRING("{}"), MomErr[r]);
   }
 
   m_standalone = true;
@@ -85,7 +85,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
     return false;
 
   m_region = ERegion(m_disc->getHeader().m_gameID[3]);
-  const hecl::SystemString* regstr = &regNONE;
+  const std::string* regstr = &regNONE;
   switch (m_region) {
   case ERegion::NTSC_U:
     regstr = &regE;
@@ -116,18 +116,18 @@ void SpecBase::doExtract(const ExtractPassInfo& info, const hecl::MultiProgressP
     Log.report(logvisor::Fatal, FMT_STRING("Unable to build master shader blend"));
   if (m_isWii) {
     /* Extract root files for repacking later */
-    hecl::ProjectPath outDir(m_project.getProjectWorkingPath(), _SYS_STR("out"));
+    hecl::ProjectPath outDir(m_project.getProjectWorkingPath(), "out");
     outDir.makeDirChain(true);
     nod::ExtractionContext ctx = {info.force, nullptr};
 
     if (!m_standalone) {
-      progress.print(_SYS_STR("Trilogy Files"), _SYS_STR(""), 0.0);
+      progress.print("Trilogy Files", "", 0.0);
       nod::IPartition* data = m_disc->getDataPartition();
       const nod::Node& root = data->getFSTRoot();
       for (const nod::Node& child : root)
         if (child.getKind() == nod::Node::Kind::File)
           child.extractToDirectory(outDir.getAbsolutePath(), ctx);
-      progress.print(_SYS_STR("Trilogy Files"), _SYS_STR(""), 1.0);
+      progress.print("Trilogy Files", "", 1.0);
     }
   }
   extractFromDisc(*m_disc, info.force, progress);
@@ -135,15 +135,15 @@ void SpecBase::doExtract(const ExtractPassInfo& info, const hecl::MultiProgressP
 
 bool IsPathAudioGroup(const hecl::ProjectPath& path) {
   return (path.getPathType() == hecl::ProjectPath::Type::Directory &&
-          hecl::ProjectPath(path, _SYS_STR("!project.yaml")).isFile() &&
-          hecl::ProjectPath(path, _SYS_STR("!pool.yaml")).isFile());
+          hecl::ProjectPath(path, "!project.yaml").isFile() &&
+          hecl::ProjectPath(path, "!pool.yaml").isFile());
 }
 
 static bool IsPathSong(const hecl::ProjectPath& path) {
-  if (path.getPathType() != hecl::ProjectPath::Type::Glob || !path.getWithExtension(_SYS_STR(".mid"), true).isFile() ||
-      !path.getWithExtension(_SYS_STR(".yaml"), true).isFile()) {
-    return path.isFile() && path.getLastComponentExt() == _SYS_STR("mid") &&
-           path.getWithExtension(_SYS_STR(".yaml"), true).isFile();
+  if (path.getPathType() != hecl::ProjectPath::Type::Glob || !path.getWithExtension(".mid", true).isFile() ||
+      !path.getWithExtension(".yaml", true).isFile()) {
+    return path.isFile() && path.getLastComponentExt() == "mid" &&
+           path.getWithExtension(".yaml", true).isFile();
   }
   return true;
 }
@@ -154,7 +154,7 @@ bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok
 
   hecl::ProjectPath asBlend;
   if (path.getPathType() == hecl::ProjectPath::Type::Glob)
-    asBlend = path.getWithExtension(_SYS_STR(".blend"), true);
+    asBlend = path.getWithExtension(".blend", true);
   else
     asBlend = path;
 
@@ -184,18 +184,18 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
 
   hecl::ProjectPath asBlend;
   if (path.getPathType() == hecl::ProjectPath::Type::Glob)
-    asBlend = path.getWithExtension(_SYS_STR(".blend"), true);
+    asBlend = path.getWithExtension(".blend", true);
   else
     asBlend = path;
 
   if (hecl::IsPathBlend(asBlend)) {
-    if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".CSKR")) ||
-        hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".ANIM")))
+    if (hecl::StringUtils::EndsWith(path.getAuxInfo(), ".CSKR") ||
+        hecl::StringUtils::EndsWith(path.getAuxInfo(), ".ANIM"))
       return oldEntry;
 
     hecl::blender::BlendType type = hecl::blender::GetBlendType(asBlend.getAbsolutePath());
     if (type == hecl::blender::BlendType::None) {
-      Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to cook '{}'")), path.getAbsolutePath());
+      Log.report(logvisor::Error, FMT_STRING("unable to cook '{}'"), path.getAbsolutePath());
       return nullptr;
     }
     if (type == hecl::blender::BlendType::Mesh || type == hecl::blender::BlendType::Area)
@@ -213,7 +213,7 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
 
   hecl::ProjectPath asBlend;
   if (path.getPathType() == hecl::ProjectPath::Type::Glob)
-    asBlend = path.getWithExtension(_SYS_STR(".blend"), true);
+    asBlend = path.getWithExtension(".blend", true);
   else
     asBlend = path;
 
@@ -304,7 +304,7 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
     break;
   }
   case hecl::blender::BlendType::Actor: {
-    hecl::ProjectPath asGlob = in.getWithExtension(_SYS_STR(".*"), true);
+    hecl::ProjectPath asGlob = in.getWithExtension(".*", true);
     hecl::ProjectPath parentPath = asGlob.getParentPath();
     hecl::DirectoryEnumerator dEnum(parentPath.getAbsolutePath());
     hecl::blender::DataStream ds = conn.beginData();
@@ -319,13 +319,11 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
           pathsOut.push_back(sub.mesh);
         }
 
-        hecl::SystemStringConv chSysName(sub.name);
         if (!sub.cskrId.empty()) {
-          hecl::SystemStringConv cskrSysName(sub.cskrId);
           pathsOut.push_back(
-              asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}_{}.CSKR")), chSysName, cskrSysName)));
+              asGlob.ensureAuxInfo(fmt::format(FMT_STRING("{}_{}.CSKR"), sub.name, sub.cskrId)));
         } else {
-          pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}.CSKR")), chSysName)));
+          pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(FMT_STRING("{}.CSKR"), sub.name)));
         }
 
         const auto& arm = actor.armatures[sub.armature];
@@ -333,14 +331,12 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
           pathsOut.push_back(arm.path);
 
         for (const auto& overlay : sub.overlayMeshes) {
-          hecl::SystemStringConv overlaySys(overlay.name);
-          hecl::SystemStringConv overlayCskrId(overlay.cskrId);
           if (hecl::IsPathBlend(overlay.mesh)) {
             flattenDependenciesBlend(overlay.mesh, pathsOut, btok);
             pathsOut.push_back(overlay.mesh);
           }
           pathsOut.push_back(asGlob.ensureAuxInfo(
-              fmt::format(FMT_STRING(_SYS_STR("{}.{}_{}.CSKR")), chSysName, overlaySys, overlayCskrId)));
+              fmt::format(FMT_STRING("{}.{}_{}.CSKR"), sub.name, overlay.name, overlay.cskrId)));
         }
       }
     };
@@ -356,10 +352,8 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
         pathsOut.push_back(att.mesh);
       }
 
-      hecl::SystemStringConv chSysName(att.name);
-      hecl::SystemStringConv sysCskrId(att.cskrId);
       pathsOut.push_back(
-          asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("ATTACH.{}_{}.CSKR")), chSysName, sysCskrId)));
+          asGlob.ensureAuxInfo(fmt::format(FMT_STRING("ATTACH.{}_{}.CSKR"), att.name, att.cskrId)));
 
       if (att.armature >= 0) {
         const auto& arm = actor.armatures[att.armature];
@@ -369,16 +363,14 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
     }
 
     for (const auto& act : actNames) {
-      hecl::SystemStringConv actSysName(act.first);
-      hecl::SystemStringConv actAnimId(act.second);
-      pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}_{}.ANIM")), actSysName, actAnimId)));
-      hecl::SystemString searchPrefix(
-          asGlob.getWithExtension(fmt::format(FMT_STRING(_SYS_STR(".{}_")), actSysName).c_str(), true)
+      pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(FMT_STRING("{}_{}.ANIM"), act.first, act.second)));
+      std::string searchPrefix(
+          asGlob.getWithExtension(fmt::format(FMT_STRING(".{}_"), act.first).c_str(), true)
               .getLastComponent());
       hecl::ProjectPath evntPath;
       for (const auto& ent : dEnum) {
         if (hecl::StringUtils::BeginsWith(ent.m_name, searchPrefix.c_str()) &&
-            hecl::StringUtils::EndsWith(ent.m_name, _SYS_STR(".evnt.yaml"))) {
+            hecl::StringUtils::EndsWith(ent.m_name, ".evnt.yaml")) {
           evntPath = hecl::ProjectPath(parentPath, ent.m_name);
           break;
         }
@@ -387,7 +379,7 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
         pathsOut.push_back(evntPath);
     }
 
-    hecl::ProjectPath yamlPath = asGlob.getWithExtension(_SYS_STR(".yaml"), true);
+    hecl::ProjectPath yamlPath = asGlob.getWithExtension(".yaml", true);
     if (yamlPath.isFile()) {
       athena::io::FileReader reader(yamlPath.getAbsolutePath());
       flattenDependenciesANCSYAML(reader, pathsOut, charIdx);
@@ -408,7 +400,7 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path, std::vector<he
 
   hecl::ProjectPath asBlend;
   if (path.getPathType() == hecl::ProjectPath::Type::Glob)
-    asBlend = path.getWithExtension(_SYS_STR(".blend"), true);
+    asBlend = path.getWithExtension(".blend", true);
   else
     asBlend = path;
 
@@ -449,8 +441,8 @@ void SpecBase::recursiveBuildResourceList(std::vector<metaforce::SObjectTag>& li
   for (const auto& ent : dEnum) {
     hecl::ProjectPath childPath(path, ent.m_name);
     if (ent.m_isDir) {
-      if (hecl::ProjectPath(childPath, _SYS_STR("!project.yaml")).isFile() &&
-          hecl::ProjectPath(childPath, _SYS_STR("!pool.yaml")).isFile()) {
+      if (hecl::ProjectPath(childPath, "!project.yaml").isFile() &&
+          hecl::ProjectPath(childPath, "!pool.yaml").isFile()) {
         /* Handle AudioGroup case */
         if (metaforce::SObjectTag tag = tagFromPath(childPath)) {
           if (addedTags.find(tag) != addedTags.end())
@@ -485,7 +477,7 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
   fileIndex.reserve(buildList.size());
   int loadIdx = 0;
   for (const auto& tag : buildList) {
-    hecl::SystemString str = fmt::format(FMT_STRING(_SYS_STR("Copying {}")), tag);
+    std::string str = fmt::format(FMT_STRING("Copying {}"), tag);
     progress.print(str, std::nullopt, ++loadIdx / float(buildList.size()));
 
     auto& [positionOut, sizeOut, compressedOut] = fileIndex.emplace_back();
@@ -493,7 +485,7 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
     if (tag.type == FOURCC('MLVL')) {
       auto search = mlvlData.find(tag.id);
       if (search == mlvlData.end())
-        Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to find MLVL {}")), tag.id);
+        Log.report(logvisor::Fatal, FMT_STRING("Unable to find MLVL {}"), tag.id);
 
       positionOut = pakOut.position();
       sizeOut = ROUND_UP_32(search->second.size());
@@ -509,7 +501,7 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
     hecl::ProjectPath cooked = getCookedPath(path, true);
     athena::io::FileReader r(cooked.getAbsolutePath());
     if (r.hasError())
-      Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to open resource {}")), cooked.getRelativePath());
+      Log.report(logvisor::Fatal, FMT_STRING("Unable to open resource {}"), cooked.getRelativePath());
     atUint64 size = r.length();
     auto data = r.readUBytes(size);
     auto compData = compressPakData(tag, data.get(), size);
@@ -536,8 +528,8 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
 static bool IsWorldBlend(const hecl::ProjectPath& path) {
   if (path.isFile()) {
     auto lastComp = path.getLastComponent();
-    return hecl::StringUtils::BeginsWith(lastComp, _SYS_STR("!world")) &&
-           hecl::StringUtils::EndsWith(lastComp, _SYS_STR(".blend"));
+    return hecl::StringUtils::BeginsWith(lastComp, "!world") &&
+           hecl::StringUtils::EndsWith(lastComp, ".blend");
   }
   return false;
 }
@@ -551,15 +543,15 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
   waitForIndexComplete();
 
   /* Name pak based on root-relative components */
-  auto components = path.getWithExtension(_SYS_STR(""), true).getPathComponents();
+  auto components = path.getWithExtension("", true).getPathComponents();
   if (components.size() <= 1)
     return;
   hecl::ProjectPath outPath;
-  if (hecl::ProjectPath(m_project.getProjectWorkingPath(), _SYS_STR("out/files/") + components[0]).isDirectory())
+  if (hecl::ProjectPath(m_project.getProjectWorkingPath(), "out/files/" + components[0]).isDirectory())
     outPath.assign(m_project.getProjectWorkingPath(),
-                   _SYS_STR("out/files/") + components[0] + _SYS_STR("/") + components[1] + entry->m_pakExt.data());
+                   "out/files/" + components[0] + "/" + components[1] + entry->m_pakExt.data());
   else
-    outPath.assign(m_project.getProjectWorkingPath(), _SYS_STR("out/files/") + components[1] + entry->m_pakExt.data());
+    outPath.assign(m_project.getProjectWorkingPath(), "out/files/" + components[1] + entry->m_pakExt.data());
   outPath.makeDirChain(false);
 
   /* Output file */
@@ -633,7 +625,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
 
   /* Async cook resource list if using ClientProcess */
   if (cp) {
-    Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Validating resources")));
+    Log.report(logvisor::Info, FMT_STRING("Validating resources"));
     progress.setMainIndeterminate(true);
     std::vector<metaforce::SObjectTag> cookTags;
     cookTags.reserve(buildList.size());
@@ -656,7 +648,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     for (auto& tag : cookTags) {
       hecl::ProjectPath depPath = pathFromTag(tag);
       if (!depPath)
-        Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to resolve {}")), tag);
+        Log.report(logvisor::Fatal, FMT_STRING("Unable to resolve {}"), tag);
       m_project.cookPath(depPath, progress, false, false, fast, entry, cp);
     }
     progress.setMainIndeterminate(false);
@@ -666,7 +658,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
 
   /* Write resource data and build file index */
   std::vector<std::tuple<size_t, size_t, bool>> fileIndex;
-  Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Copying data into {}")), outPath.getRelativePath());
+  Log.report(logvisor::Info, FMT_STRING("Copying data into {}"), outPath.getRelativePath());
   copyBuildListData(fileIndex, buildList, entry, fast, progress, pakOut, mlvlData);
 
   /* Write file index */
@@ -680,8 +672,8 @@ std::optional<hecl::blender::World> SpecBase::compileWorldFromDir(const hecl::Pr
                                                                   hecl::blender::Token& btok) const {
   hecl::ProjectPath asBlend;
   for (const auto& ent : hecl::DirectoryEnumerator(dir.getAbsolutePath())) {
-    if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!world"))) {
-      asBlend = hecl::ProjectPath(dir, ent.m_name).getWithExtension(_SYS_STR(".blend"), true);
+    if (hecl::StringUtils::BeginsWith(ent.m_name, "!world")) {
+      asBlend = hecl::ProjectPath(dir, ent.m_name).getWithExtension(".blend", true);
       break;
     }
   }
@@ -714,17 +706,17 @@ constexpr uint8_t Convert4To8(uint8_t v) {
 }
 
 void SpecBase::extractRandomStaticEntropy(const uint8_t* buf, const hecl::ProjectPath& pakPath) {
-  hecl::ProjectPath entropyPath(pakPath, _SYS_STR("RandomStaticEntropy.png"));
-  hecl::ProjectPath catalogPath(pakPath, _SYS_STR("!catalog.yaml"));
+  hecl::ProjectPath entropyPath(pakPath, "RandomStaticEntropy.png");
+  hecl::ProjectPath catalogPath(pakPath, "!catalog.yaml");
   entropyPath.makeDirChain(false);
 
-  if (const auto fp = hecl::FopenUnique(catalogPath.getAbsolutePath().data(), _SYS_STR("a"))) {
-    fmt::print(fp.get(), FMT_STRING("RandomStaticEntropy: {}\n"), entropyPath.getRelativePathUTF8());
+  if (const auto fp = hecl::FopenUnique(catalogPath.getAbsolutePath().data(), "a")) {
+    fmt::print(fp.get(), FMT_STRING("RandomStaticEntropy: {}\n"), entropyPath.getRelativePath());
   }
 
-  auto fp = hecl::FopenUnique(entropyPath.getAbsolutePath().data(), _SYS_STR("wb"));
+  auto fp = hecl::FopenUnique(entropyPath.getAbsolutePath().data(), "wb");
   if (fp == nullptr) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Unable to open '{}' for writing")), entropyPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING("Unable to open '{}' for writing"), entropyPath.getAbsolutePath());
     return;
   }
   png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, PNGErr, PNGWarn);
@@ -870,10 +862,10 @@ static void WriteTag(athena::io::YAMLDocWriter& cacheWriter, const metaforce::SO
                      const hecl::ProjectPath& path) {
   auto key = fmt::format(FMT_STRING("{}"), pathTag.id);
   if (auto* existing = cacheWriter.getCurNode()->findMapChild(key)) {
-    existing->m_seqChildren.emplace_back(athena::io::ValToNode(path.getEncodableStringUTF8()));
+    existing->m_seqChildren.emplace_back(athena::io::ValToNode(path.getEncodableString()));
   } else if (auto v = cacheWriter.enterSubVector(key)) {
     cacheWriter.writeString(pathTag.type.toString());
-    cacheWriter.writeString(path.getEncodableStringUTF8());
+    cacheWriter.writeString(path.getEncodableString());
   }
 }
 
@@ -944,7 +936,7 @@ void SpecBase::backgroundIndexRecursiveCatalogs(const hecl::ProjectPath& dir, at
         continue;
 
       /* Read catalog.yaml for .pak directory if exists */
-      if (level == 1 && ent.m_name == _SYS_STR("!catalog.yaml")) {
+      if (level == 1 && ent.m_name == "!catalog.yaml") {
         readCatalog(path, nameWriter);
         continue;
       }
@@ -964,7 +956,7 @@ void SpecBase::insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const metaf
   if (search != m_tagToPath.end() && search->second != path &&
       tag.type != FOURCC('CINF') && tag.type != FOURCC('CSKR') &&
       tag.type != FOURCC('ANIM') && tag.type != FOURCC('EVNT')) {
-    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("'{}|{}' already exists for tag {} as '{}|{}'")),
+    Log.report(logvisor::Fatal, FMT_STRING("'{}|{}' already exists for tag {} as '{}|{}'"),
                path.getRelativePath(), path.getAuxInfo(), tag,
                search->second.getRelativePath(), search->second.getAuxInfo());
   }
@@ -974,7 +966,7 @@ void SpecBase::insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const metaf
   WriteTag(cacheWriter, tag, path);
 #if DUMP_CACHE_FILL
   if (dump)
-    fmt::print(stderr, FMT_STRING("{} {}\n"), tag, path.getRelativePathUTF8());
+    fmt::print(stderr, FMT_STRING("{} {}\n"), tag, path.getRelativePath());
 #endif
 }
 
@@ -984,7 +976,7 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
     return true;
 
   /* Try as glob */
-  hecl::ProjectPath asGlob = path.getWithExtension(_SYS_STR(".*"), true);
+  hecl::ProjectPath asGlob = path.getWithExtension(".*", true);
   if (m_pathToTag.find(asGlob.hash()) != m_pathToTag.cend())
     return true;
 
@@ -1009,25 +1001,21 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
       std::vector<std::pair<std::string, std::string>> actionNames = ds.getActionNames();
 
       for (const auto& sub : subtypeNames) {
-        hecl::SystemStringConv subName(sub.first);
         hecl::ProjectPath subPath;
         if (!sub.second.empty()) {
-          hecl::SystemStringConv cskrId(sub.second);
-          subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}_{}.CSKR")), subName, cskrId));
+          subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING("{}_{}.CSKR"), sub.first, sub.second));
         } else {
-          subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}.CSKR")), subName));
+          subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING("{}.CSKR"), sub.first));
         }
         insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
 
         std::vector<std::pair<std::string, std::string>> overlayNames = ds.getSubtypeOverlayNames(sub.first);
         for (const auto& overlay : overlayNames) {
-          hecl::SystemStringConv overlaySys(overlay.first);
-          hecl::SystemStringConv overlayCskrId(overlay.second);
           if (!overlay.second.empty()) {
             subPath = asGlob.ensureAuxInfo(
-                fmt::format(FMT_STRING(_SYS_STR("{}.{}_{}.CSKR")), subName, overlaySys, overlayCskrId));
+                fmt::format(FMT_STRING("{}.{}_{}.CSKR"), sub.first, overlay.first, overlay.second));
           } else {
-            subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}.{}.CSKR")), subName, overlaySys));
+            subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING("{}.{}.CSKR"), sub.first, overlay.first));
           }
           insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
         }
@@ -1035,26 +1023,22 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
 
       std::vector<std::pair<std::string, std::string>> attachmentNames = ds.getAttachmentNames();
       for (const auto& attachment : attachmentNames) {
-        hecl::SystemStringConv attachmentSys(attachment.first);
-        hecl::SystemStringConv attachmentCskrId(attachment.second);
         hecl::ProjectPath subPath;
         if (!attachment.second.empty()) {
           subPath = asGlob.ensureAuxInfo(
-              fmt::format(FMT_STRING(_SYS_STR("ATTACH.{}_{}.CSKR")), attachmentSys, attachmentCskrId));
+              fmt::format(FMT_STRING("ATTACH.{}_{}.CSKR"), attachment.first, attachment.second));
         } else {
-          subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("ATTACH.{}.CSKR")), attachmentSys));
+          subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING("ATTACH.{}.CSKR"), attachment.first));
         }
         insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
       }
 
       for (const auto& act : actionNames) {
-        hecl::SystemStringConv sysStr(act.first);
-        hecl::SystemStringConv animId(act.second);
         hecl::ProjectPath subPath;
         if (!act.second.empty()) {
-          subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}_{}.ANIM")), sysStr, animId));
+          subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING("{}_{}.ANIM"), act.first, act.second));
         } else {
-          subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING(_SYS_STR("{}.ANIM")), sysStr));
+          subPath = asGlob.ensureAuxInfo(fmt::format(FMT_STRING("{}.ANIM"), act.first));
         }
         insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
       }
@@ -1096,7 +1080,7 @@ void SpecBase::backgroundIndexRecursiveProc(const hecl::ProjectPath& dir, athena
         continue;
 
       /* Read catalog.yaml for .pak directory if exists */
-      if (level == 1 && ent.m_name == _SYS_STR("!catalog.yaml")) {
+      if (level == 1 && ent.m_name == "!catalog.yaml") {
         readCatalog(path, nameWriter);
         continue;
       }
@@ -1110,8 +1094,8 @@ void SpecBase::backgroundIndexRecursiveProc(const hecl::ProjectPath& dir, athena
 void SpecBase::backgroundIndexProc() {
   logvisor::RegisterThreadName("Resource Index");
 
-  hecl::ProjectPath tagCachePath(m_project.getProjectCookedPath(getOriginalSpec()), _SYS_STR("tag_cache.yaml"));
-  hecl::ProjectPath nameCachePath(m_project.getProjectCookedPath(getOriginalSpec()), _SYS_STR("name_cache.yaml"));
+  hecl::ProjectPath tagCachePath(m_project.getProjectCookedPath(getOriginalSpec()), "tag_cache.yaml");
+  hecl::ProjectPath nameCachePath(m_project.getProjectCookedPath(getOriginalSpec()), "name_cache.yaml");
   hecl::ProjectPath specRoot(m_project.getProjectWorkingPath(), getOriginalSpec().m_name);
 
   /* Cache will be overwritten with validated entries afterwards */
@@ -1122,7 +1106,7 @@ void SpecBase::backgroundIndexProc() {
   if (tagCachePath.isFile()) {
     athena::io::FileReader reader(tagCachePath.getAbsolutePath());
     if (reader.isOpen()) {
-      Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Cache index of '{}' loading")), getOriginalSpec().m_name);
+      Log.report(logvisor::Info, FMT_STRING("Cache index of '{}' loading"), getOriginalSpec().m_name);
       athena::io::YAMLDocReader cacheReader;
       if (cacheReader.parse(&reader)) {
         std::unique_lock lk(m_backgroundIndexMutex);
@@ -1152,12 +1136,12 @@ void SpecBase::backgroundIndexProc() {
         }
         fmt::print(stderr, FMT_STRING("\r {} / {}\n"), loadIdx, tagCount);
       }
-      Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Cache index of '{}' loaded; {} tags")), getOriginalSpec().m_name,
+      Log.report(logvisor::Info, FMT_STRING("Cache index of '{}' loaded; {} tags"), getOriginalSpec().m_name,
                  m_tagToPath.size());
 
       if (nameCachePath.isFile()) {
         /* Read in name cache */
-        Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Name index of '{}' loading")), getOriginalSpec().m_name);
+        Log.report(logvisor::Info, FMT_STRING("Name index of '{}' loading"), getOriginalSpec().m_name);
         athena::io::FileReader nreader(nameCachePath.getAbsolutePath());
         athena::io::YAMLDocReader nameReader;
         if (nameReader.parse(&nreader)) {
@@ -1176,13 +1160,13 @@ void SpecBase::backgroundIndexProc() {
             }
           }
         }
-        Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Name index of '{}' loaded; {} names")),
+        Log.report(logvisor::Info, FMT_STRING("Name index of '{}' loaded; {} names"),
                    getOriginalSpec().m_name, m_catalogNameToTag.size());
       }
     }
   }
 
-  Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Background index of '{}' started")), getOriginalSpec().m_name);
+  Log.report(logvisor::Info, FMT_STRING("Background index of '{}' started"), getOriginalSpec().m_name);
   backgroundIndexRecursiveProc(specRoot, cacheWriter, nameWriter, 0);
 
   tagCachePath.makeDirChain(false);
@@ -1193,7 +1177,7 @@ void SpecBase::backgroundIndexProc() {
   nameWriter.finish(&nwriter);
 
   m_backgroundBlender.shutdown();
-  Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Background index of '{}' complete; {} tags, {} names")),
+  Log.report(logvisor::Info, FMT_STRING("Background index of '{}' complete; {} tags, {} names"),
              getOriginalSpec().m_name, m_tagToPath.size(), m_catalogNameToTag.size());
   m_backgroundRunning = false;
 }
@@ -1221,7 +1205,7 @@ void SpecBase::waitForIndexComplete() const {
 }
 
 void SpecBase::WriteVersionInfo(hecl::Database::Project& project, const hecl::ProjectPath& pakPath) {
-  hecl::ProjectPath versionPath(pakPath, _SYS_STR("version.yaml"));
+  hecl::ProjectPath versionPath(pakPath, "version.yaml");
   versionPath.makeDirChain(false);
 
   MetaforceVersionInfo info;

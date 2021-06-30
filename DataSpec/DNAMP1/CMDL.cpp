@@ -5,7 +5,7 @@ namespace DataSpec::DNAMP1 {
 
 bool CMDL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
-                   std::function<void(const hecl::SystemChar*)> fileChanged) {
+                   std::function<void(const char*)> fileChanged) {
   /* Check for RigPair */
   CINF cinf;
   CSKR cskr;
@@ -28,14 +28,14 @@ bool CMDL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
 #if 0
   /* Cook and re-extract test */
-  hecl::ProjectPath tempOut = outPath.getWithExtension(_SYS_STR(".recook"), true);
+  hecl::ProjectPath tempOut = outPath.getWithExtension(".recook", true);
   hecl::blender::Connection::DataStream ds = conn.beginData();
   DNACMDL::Mesh mesh = ds.compileMesh(hecl::TopologyTriStrips, -1);
   ds.close();
   DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, outPath, mesh);
 
   athena::io::FileReader reader(tempOut.getAbsolutePath());
-  hecl::ProjectPath tempBlend = outPath.getWithExtension(_SYS_STR(".recook.blend"), true);
+  hecl::ProjectPath tempBlend = outPath.getWithExtension(".recook.blend", true);
   if (!conn.createBlend(tempBlend, hecl::blender::Connection::TypeMesh))
       return false;
   DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_1_2, 2>
@@ -43,7 +43,7 @@ bool CMDL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   return conn.saveBlend();
 #elif 0
   /* HMDL cook test */
-  hecl::ProjectPath tempOut = outPath.getWithExtension(_SYS_STR(".recook"), true);
+  hecl::ProjectPath tempOut = outPath.getWithExtension(".recook", true);
   hecl::blender::Connection::DataStream ds = conn.beginData();
   DNACMDL::Mesh mesh = ds.compileMesh(hecl::HMDLTopology::TriStrips, 16);
   ds.close();
@@ -61,7 +61,7 @@ bool CMDL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
     /* Output skinning intermediate */
     auto vertCountIt = skinMesh.contiguousSkinVertCounts.cbegin();
-    athena::io::FileWriter writer(outPath.getWithExtension(_SYS_STR(".skinint")).getAbsolutePath());
+    athena::io::FileWriter writer(outPath.getWithExtension(".skinint").getAbsolutePath());
     writer.writeUint32Big(skinMesh.boneNames.size());
     for (const std::string& boneName : skinMesh.boneNames)
       writer.writeString(boneName);
@@ -90,7 +90,7 @@ bool CMDL::HMDLCook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
       return false;
 
     /* Output skinning intermediate */
-    athena::io::FileWriter writer(outPath.getWithExtension(_SYS_STR(".skinint")).getAbsolutePath());
+    athena::io::FileWriter writer(outPath.getWithExtension(".skinint").getAbsolutePath());
     writer.writeUint32Big(mesh.skinBanks.banks.size());
     for (const DNACMDL::Mesh::SkinBanks::Bank& sb : mesh.skinBanks.banks) {
       writer.writeUint32Big(sb.m_boneIdxs.size());

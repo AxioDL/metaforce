@@ -55,7 +55,7 @@ class IDataSpec {
 public:
   IDataSpec(const DataSpecEntry* specEntry) : m_specEntry(specEntry) {}
   virtual ~IDataSpec() = default;
-  using FCookProgress = std::function<void(const SystemChar*)>;
+  using FCookProgress = std::function<void(const char*)>;
 
   /**
    * @brief Extract Pass Info
@@ -64,8 +64,8 @@ public:
    * reverses the cooking process by emitting editable resources
    */
   struct ExtractPassInfo {
-    SystemString srcpath;
-    std::vector<SystemString> extractArgs;
+    std::string srcpath;
+    std::vector<std::string> extractArgs;
     bool force;
   };
 
@@ -76,8 +76,8 @@ public:
    * to be extracted
    */
   struct ExtractReport {
-    SystemString name;
-    SystemString desc;
+    std::string name;
+    std::string desc;
     std::vector<ExtractReport> childOpts;
   };
 
@@ -129,12 +129,12 @@ extern std::vector<const struct DataSpecEntry*> DATA_SPEC_REGISTRY;
  * Auto-registers with data spec registry
  */
 struct DataSpecEntry {
-  SystemStringView m_name;
-  SystemStringView m_desc;
-  SystemStringView m_pakExt;
+  std::string_view m_name;
+  std::string_view m_desc;
+  std::string_view m_pakExt;
   std::function<std::unique_ptr<IDataSpec>(Project&, DataSpecTool)> m_factory;
 
-  DataSpecEntry(SystemStringView name, SystemStringView desc, SystemStringView pakExt,
+  DataSpecEntry(std::string_view name, std::string_view desc, std::string_view pakExt,
                 std::function<std::unique_ptr<IDataSpec>(Project& project, DataSpecTool)>&& factory)
   : m_name(name), m_desc(desc), m_pakExt(pakExt), m_factory(std::move(factory)) {}
 };
@@ -150,7 +150,7 @@ struct DataSpecEntry {
  */
 class ObjectBase {
   friend class Project;
-  SystemString m_path;
+  std::string m_path;
 
 protected:
   /**
@@ -209,9 +209,9 @@ protected:
   virtual FourCC getType() const { return FourCC("NULL"); }
 
 public:
-  ObjectBase(SystemStringView path) : m_path(path) {}
+  ObjectBase(std::string_view path) : m_path(path) {}
 
-  SystemStringView getPath() const { return m_path; }
+  std::string_view getPath() const { return m_path; }
 };
 
 /**
@@ -251,12 +251,12 @@ public:
    * opening a locked handle for read/write transactions
    */
   class ConfigFile {
-    SystemString m_filepath;
+    std::string m_filepath;
     std::vector<std::string> m_lines;
     UniqueFilePtr m_lockedFile;
 
   public:
-    ConfigFile(const Project& project, SystemStringView name, SystemStringView subdir = _SYS_STR("/.hecl/"));
+    ConfigFile(const Project& project, std::string_view name, std::string_view subdir = "/.hecl/");
     std::vector<std::string>& lockAndRead();
     void addLine(std::string_view line);
     void removeLine(std::string_view refLine);
@@ -360,14 +360,14 @@ public:
    * @param specs String(s) representing unique spec(s) from getDataSpecs
    * @return true on success
    */
-  bool enableDataSpecs(const std::vector<SystemString>& specs);
+  bool enableDataSpecs(const std::vector<std::string>& specs);
 
   /**
    * @brief Disable persistent user preference for particular spec string(s)
    * @param specs String(s) representing unique spec(s) from getDataSpecs
    * @return true on success
    */
-  bool disableDataSpecs(const std::vector<SystemString>& specs);
+  bool disableDataSpecs(const std::vector<std::string>& specs);
 
   /**
    * @brief Begin cook process for specified directory

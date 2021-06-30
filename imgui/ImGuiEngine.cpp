@@ -270,7 +270,7 @@ void ImGuiEngine::End() {
     bool rebind = false;
     if (drawData->TotalIdxCount > IndexBufferSize) {
 #if 0
-      Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Resizing index buffer ({} < {})")), IndexBufferSize,
+      Log.report(logvisor::Info, FMT_STRING("Resizing index buffer ({} < {})"), IndexBufferSize,
                  drawData->TotalIdxCount);
 #endif
       IndexBufferSize = drawData->TotalIdxCount + 1000;
@@ -279,7 +279,7 @@ void ImGuiEngine::End() {
     }
     if (drawData->TotalVtxCount > VertexBufferSize) {
 #if 0
-      Log.report(logvisor::Info, FMT_STRING(_SYS_STR("Resizing vertex buffer ({} < {})")), VertexBufferSize,
+      Log.report(logvisor::Info, FMT_STRING("Resizing vertex buffer ({} < {})"), VertexBufferSize,
                  drawData->TotalVtxCount);
 #endif
       VertexBufferSize = drawData->TotalVtxCount + 1000;

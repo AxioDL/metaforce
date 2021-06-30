@@ -60,9 +60,9 @@ public:
 
 struct UniqueResult {
   enum class Type { NotFound, Pak, Level, Area, Layer } m_type = Type::NotFound;
-  const hecl::SystemString* m_levelName = nullptr;
-  const hecl::SystemString* m_areaName = nullptr;
-  const hecl::SystemString* m_layerName = nullptr;
+  const std::string* m_levelName = nullptr;
+  const std::string* m_areaName = nullptr;
+  const std::string* m_layerName = nullptr;
   UniqueResult() = default;
   UniqueResult(Type tp) : m_type(tp) {}
 
@@ -81,9 +81,9 @@ struct ResExtractor {
   std::function<bool(PAKEntryReadStream&, const hecl::ProjectPath&)> func_a;
   std::function<bool(const SpecBase&, PAKEntryReadStream&, const hecl::ProjectPath&, PAKRouter<PAKBRIDGE>&,
                      const typename PAKBRIDGE::PAKType::Entry&, bool, hecl::blender::Token&,
-                     std::function<void(const hecl::SystemChar*)>)>
+                     std::function<void(const char*)>)>
       func_b;
-  std::array<const hecl::SystemChar*, 6> fileExts = {};
+  std::array<const char*, 6> fileExts = {};
   unsigned weight = 0;
   std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&, typename PAKBRIDGE::PAKType::Entry&)>
       func_name;
@@ -91,7 +91,7 @@ struct ResExtractor {
   ResExtractor() = default;
 
   ResExtractor(std::function<bool(PAKEntryReadStream&, const hecl::ProjectPath&)> func,
-               std::array<const hecl::SystemChar*, 6>&& fileExtsIn, unsigned weightin = 0,
+               std::array<const char*, 6>&& fileExtsIn, unsigned weightin = 0,
                std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&,
                                   typename PAKBRIDGE::PAKType::Entry&)>
                    nfunc = {})
@@ -99,9 +99,9 @@ struct ResExtractor {
 
   ResExtractor(std::function<bool(const SpecBase&, PAKEntryReadStream&, const hecl::ProjectPath&, PAKRouter<PAKBRIDGE>&,
                                   const typename PAKBRIDGE::PAKType::Entry&, bool, hecl::blender::Token&,
-                                  std::function<void(const hecl::SystemChar*)>)>
+                                  std::function<void(const char*)>)>
                    func,
-               std::array<const hecl::SystemChar*, 6>&& fileExtsIn, unsigned weightin = 0,
+               std::array<const char*, 6>&& fileExtsIn, unsigned weightin = 0,
                std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&,
                                   typename PAKBRIDGE::PAKType::Entry&)>
                    nfunc = {})
@@ -127,11 +127,11 @@ struct ResExtractor {
 /** Level hierarchy representation */
 template <class IDType>
 struct Level {
-  hecl::SystemString name;
+  std::string name;
   struct Area {
-    hecl::SystemString name;
+    std::string name;
     struct Layer {
-      hecl::SystemString name;
+      std::string name;
       bool active;
       std::unordered_set<IDType> resources;
     };
@@ -188,13 +188,13 @@ public:
   hecl::ProjectPath getCooked(const EntryType* entry) const;
   hecl::ProjectPath getCooked(const IDType& id, bool silenceWarnings = false) const;
 
-  hecl::SystemString getResourceRelativePath(const EntryType& a, const IDType& b) const;
+  std::string getResourceRelativePath(const EntryType& a, const IDType& b) const;
 
   std::string getBestEntryName(const EntryType& entry, bool stdOverride = true) const;
   std::string getBestEntryName(const IDType& entry, bool stdOverride = true) const;
 
   bool extractResources(const BRIDGETYPE& pakBridge, bool force, hecl::blender::Token& btok,
-                        std::function<void(const hecl::SystemChar*, float)> progress);
+                        std::function<void(const char*, float)> progress);
 
   const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const IDType& entry, const nod::Node** nodeOut = nullptr,
                                                          bool silenceWarnings = false, bool currentPAK = false) const;

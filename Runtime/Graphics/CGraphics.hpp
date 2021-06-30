@@ -322,7 +322,7 @@ public:
   static void UpdateFPSCounter();
 
   static boo::IGraphicsDataFactory::Platform g_BooPlatform;
-  static const boo::SystemChar* g_BooPlatformName;
+  static const char* g_BooPlatformName;
   static boo::IGraphicsDataFactory* g_BooFactory;
   static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
   static boo::ObjToken<boo::ITextureR> g_SpareTexture;
@@ -344,7 +344,7 @@ public:
     g_SpareTexture.reset();
   }
 
-  static const boo::SystemChar* PlatformName() { return g_BooPlatformName; }
+  static const char* PlatformName() { return g_BooPlatformName; }
 
   static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs) {
     g_BooFactory->commitTransaction(commitFunc __BooTraceArgsUse);

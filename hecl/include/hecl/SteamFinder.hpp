@@ -1,9 +1,9 @@
 #pragma once
 
-#include "hecl/SystemChar.hpp"
+#include <string>
 
 namespace hecl {
 
-hecl::SystemString FindCommonSteamApp(const hecl::SystemChar* name);
+std::string FindCommonSteamApp(const char* name);
 
-}
+} // namespace hecl

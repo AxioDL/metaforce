@@ -10,7 +10,7 @@ template <class PAKBRIDGE>
 void UniqueResult::checkEntry(const PAKBRIDGE& pakBridge, const typename PAKBRIDGE::PAKType::Entry& entry) {
   UniqueResult::Type resultType = UniqueResult::Type::NotFound;
   bool foundOneLayer = false;
-  const hecl::SystemString* levelName = nullptr;
+  const std::string* levelName = nullptr;
   typename PAKBRIDGE::PAKType::IDType useLevelId;
   typename PAKBRIDGE::PAKType::IDType useAreaId;
   unsigned layerIdx = 0;
@@ -123,10 +123,9 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
   size_t bridgeIdx = 0;
   for (BRIDGETYPE& bridge : bridges) {
     const auto& name = bridge.getName();
-    hecl::SystemStringConv sysName(name);
 
-    hecl::SystemStringView::const_iterator extit = sysName.sys_str().end() - 4;
-    hecl::SystemString baseName(sysName.sys_str().begin(), extit);
+    std::string_view::const_iterator extit = name.end() - 4;
+    std::string baseName(name.begin(), extit);
 
     m_bridgePaths.emplace_back(
         std::make_pair(hecl::ProjectPath(m_gameWorking, baseName), hecl::ProjectPath(m_gameCooked, baseName)));
@@ -173,13 +172,13 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
         continue; /* Problematic corner case */
       if (auto rec = catalogWriter.enterSubRecord(namedEntry.name)) {
         hecl::ProjectPath working = getWorking(namedEntry.id);
-        if (working.getAuxInfoUTF8().size()) {
+        if (working.getAuxInfo().size()) {
           if (auto v = catalogWriter.enterSubVector()) {
-            catalogWriter.writeString(working.getRelativePathUTF8());
-            catalogWriter.writeString(working.getAuxInfoUTF8());
+            catalogWriter.writeString(working.getRelativePath());
+            catalogWriter.writeString(working.getAuxInfo());
           }
         } else
-          catalogWriter.writeString(working.getRelativePathUTF8());
+          catalogWriter.writeString(working.getRelativePath());
       }
     }
 
@@ -217,8 +216,8 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCharacterWorking(const EntryType* en
   if (characterSearch != m_charAssoc.m_cskrToCharacter.cend()) {
     hecl::ProjectPath characterPath = getWorking(characterSearch->second.first);
     if (entry->type == FOURCC('EVNT')) {
-      hecl::SystemStringConv wideStr(characterSearch->second.second);
-      return characterPath.getWithExtension((hecl::SystemString(_SYS_STR(".")) + wideStr.c_str()).c_str(), true);
+      std::string extension(characterSearch->second.second);
+      return characterPath.getWithExtension((std::string(".") + extension.c_str()).c_str(), true);
     }
     return characterPath.ensureAuxInfo(characterSearch->second.second);
   }
@@ -241,12 +240,12 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
     const EntryType* singleSearch = pak->lookupEntry(entry->id);
     if (singleSearch) {
       const hecl::ProjectPath& pakPath = m_bridgePaths[curBridgeIdx].first;
-      hecl::SystemString entName = hecl::UTF8StringToSysString(getBestEntryName(*entry));
-      hecl::SystemString auxInfo;
+      std::string entName = getBestEntryName(*entry);
+      std::string auxInfo;
       if (extractor.fileExts[0] && !extractor.fileExts[1])
         entName += extractor.fileExts[0];
       else if (extractor.fileExts[0])
-        entName += _SYS_STR(".*");
+        entName += ".*";
       else if (hecl::ProjectPath chWork = getCharacterWorking(entry))
         return chWork;
       return hecl::ProjectPath(pakPath, entName).ensureAuxInfo(auxInfo);
@@ -257,12 +256,12 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
   if (uniqueSearch != m_uniqueEntries.end()) {
     const BRIDGETYPE& bridge = m_bridges->at(uniqueSearch->second.first);
     const hecl::ProjectPath& pakPath = m_bridgePaths[uniqueSearch->second.first].first;
-    hecl::SystemString entName = hecl::UTF8StringToSysString(getBestEntryName(*entry));
-    hecl::SystemString auxInfo;
+    std::string entName = getBestEntryName(*entry);
+    std::string auxInfo;
     if (extractor.fileExts[0] && !extractor.fileExts[1])
       entName += extractor.fileExts[0];
     else if (extractor.fileExts[0])
-      entName += _SYS_STR(".*");
+      entName += ".*";
     else if (hecl::ProjectPath chWork = getCharacterWorking(entry))
       return chWork;
     if (bridge.getPAK().m_noShare) {
@@ -275,13 +274,13 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
 
   auto sharedSearch = m_sharedEntries.find(entry->id);
   if (sharedSearch != m_sharedEntries.end()) {
-    hecl::SystemString entBase = hecl::UTF8StringToSysString(getBestEntryName(*entry));
-    hecl::SystemString auxInfo;
-    hecl::SystemString entName = entBase;
+    std::string entBase = getBestEntryName(*entry);
+    std::string auxInfo;
+    std::string entName = entBase;
     if (extractor.fileExts[0] && !extractor.fileExts[1])
       entName += extractor.fileExts[0];
     else if (extractor.fileExts[0])
-      entName += _SYS_STR(".*");
+      entName += ".*";
     else if (hecl::ProjectPath chWork = getCharacterWorking(entry))
       return chWork;
     hecl::ProjectPath sharedPath(m_sharedWorking, entName);
@@ -349,7 +348,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const IDType& id, bool silenc
 }
 
 template <class BRIDGETYPE>
-hecl::SystemString PAKRouter<BRIDGETYPE>::getResourceRelativePath(const EntryType& a, const IDType& b) const {
+std::string PAKRouter<BRIDGETYPE>::getResourceRelativePath(const EntryType& a, const IDType& b) const {
   const nod::Node* node = m_node.get();
   const PAKType* pak = m_pak.get();
   if (!pak)
@@ -358,11 +357,11 @@ hecl::SystemString PAKRouter<BRIDGETYPE>::getResourceRelativePath(const EntryTyp
         FMT_STRING("PAKRouter::enterPAKBridge() must be called before PAKRouter::getResourceRelativePath()"));
   const typename BRIDGETYPE::PAKType::Entry* be = lookupEntry(b);
   if (!be)
-    return hecl::SystemString();
+    return std::string();
   hecl::ProjectPath aPath = getWorking(&a, BRIDGETYPE::LookupExtractor(*node, *pak, a));
-  hecl::SystemString ret;
+  std::string ret;
   for (size_t i = 0; i < aPath.levelCount(); ++i)
-    ret += _SYS_STR("../");
+    ret += "../";
   hecl::ProjectPath bPath = getWorking(be, BRIDGETYPE::LookupExtractor(*node, *pak, *be));
   ret += bPath.getRelativePath();
   return ret;
@@ -434,7 +433,7 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const IDType& entry, bool st
 
 template <class BRIDGETYPE>
 bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool force, hecl::blender::Token& btok,
-                                             std::function<void(const hecl::SystemChar*, float)> progress) {
+                                             std::function<void(const char*, float)> progress) {
   enterPAKBridge(pakBridge);
   size_t count = 0;
   size_t sz = m_pak->m_entries.size();
@@ -447,9 +446,8 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
         continue;
 
       std::string bestName = getBestEntryName(*entryPtr, false);
-      hecl::SystemStringConv bestNameView(bestName);
       float thisFac = ++count / fsz;
-      progress(bestNameView.c_str(), thisFac);
+      progress(bestName.c_str(), thisFac);
 
       const nod::Node* node = m_node.get();
 
@@ -464,7 +462,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
       if (force || cooked.isNone()) {
         cooked.makeDirChain(false);
         PAKEntryReadStream s = entryPtr->beginReadStream(*node);
-        const auto fout = hecl::FopenUnique(cooked.getAbsolutePath().data(), _SYS_STR("wb"));
+        const auto fout = hecl::FopenUnique(cooked.getAbsolutePath().data(), "wb");
         std::fwrite(s.data(), 1, s.length(), fout.get());
       }
 
@@ -479,7 +477,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
         if (force || !extractor.IsFullyExtracted(working)) {
           PAKEntryReadStream s = entryPtr->beginReadStream(*node);
           extractor.func_b(m_dataSpec, s, working, *this, *entryPtr, force, btok,
-                           [&progress, thisFac](const hecl::SystemChar* update) { progress(update, thisFac); });
+                           [&progress, thisFac](const char* update) { progress(update, thisFac); });
         }
       }
     }

@@ -15,22 +15,22 @@ class ToolCook final : public ToolBase {
 public:
   explicit ToolCook(const ToolPassInfo& info) : ToolBase(info), m_useProj(info.project) {
     /* Check for recursive flag */
-    for (hecl::SystemChar arg : info.flags)
-      if (arg == _SYS_STR('r'))
+    for (char arg : info.flags)
+      if (arg == 'r')
         m_recursive = true;
 
     /* Scan args */
     if (info.args.size()) {
       /* See if project path is supplied via args and use that over the getcwd one */
       m_selectedItems.reserve(info.args.size());
-      for (const hecl::SystemString& arg : info.args) {
+      for (const std::string& arg : info.args) {
         if (arg.empty())
           continue;
-        else if (arg == _SYS_STR("--fast")) {
+        else if (arg == "--fast") {
           m_fast = true;
           continue;
-        } else if (arg.size() >= 8 && !arg.compare(0, 7, _SYS_STR("--spec="))) {
-          hecl::SystemString specName(arg.begin() + 7, arg.end());
+        } else if (arg.size() >= 8 && !arg.compare(0, 7, "--spec=")) {
+          std::string specName(arg.begin() + 7, arg.end());
           for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY) {
             if (!hecl::StrCaseCmp(spec->m_name.data(), specName.c_str())) {
               m_spec = spec;
@@ -38,12 +38,12 @@ public:
             }
           }
           if (!m_spec)
-            LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to find data spec '{}'")), specName);
+            LogModule.report(logvisor::Fatal, FMT_STRING("unable to find data spec '{}'"), specName);
           continue;
-        } else if (arg.size() >= 2 && arg[0] == _SYS_STR('-') && arg[1] == _SYS_STR('-'))
+        } else if (arg.size() >= 2 && arg[0] == '-' && arg[1] == '-')
           continue;
 
-        hecl::SystemString subPath;
+        std::string subPath;
         hecl::ProjectRootPath root = hecl::SearchForProject(MakePathArgAbsolute(arg, info.cwd), subPath);
         if (root) {
           if (!m_fallbackProj) {
@@ -51,8 +51,8 @@ public:
             m_useProj = m_fallbackProj.get();
           } else if (m_fallbackProj->getProjectRootPath() != root)
             LogModule.report(logvisor::Fatal,
-                             FMT_STRING(_SYS_STR("hecl cook can only process multiple items in the same project; ")
-                                 _SYS_STR("'{}' and '{}' are different projects")),
+                             FMT_STRING("hecl cook can only process multiple items in the same project; "
+                                 "'{}' and '{}' are different projects"),
                              m_fallbackProj->getProjectRootPath().getAbsolutePath(),
                              root.getAbsolutePath());
           m_selectedItems.emplace_back(*m_useProj, subPath);
@@ -67,85 +67,91 @@ public:
     /* Default case: recursive at root */
     if (m_selectedItems.empty()) {
       m_selectedItems.reserve(1);
-      m_selectedItems.push_back({hecl::ProjectPath(*m_useProj, _SYS_STR(""))});
+      m_selectedItems.push_back({hecl::ProjectPath(*m_useProj, "")});
       m_recursive = true;
     }
   }
 
   static void Help(HelpOutput& help) {
-    help.secHead(_SYS_STR("NAME"));
+    help.secHead("NAME");
     help.beginWrap();
-    help.wrap(_SYS_STR("hecl-cook - Cook objects within the project database\n"));
+    help.wrap("hecl-cook - Cook objects within the project database\n");
     help.endWrap();
 
-    help.secHead(_SYS_STR("SYNOPSIS"));
+    help.secHead("SYNOPSIS");
     help.beginWrap();
-    help.wrap(_SYS_STR("hecl cook [-rf] [--fast] [--spec=<spec>] [<pathspec>...]\n"));
+    help.wrap("hecl cook [-rf] [--fast] [--spec=<spec>] [<pathspec>...]\n");
     help.endWrap();
 
-    help.secHead(_SYS_STR("DESCRIPTION"));
+    help.secHead("DESCRIPTION");
     help.beginWrap();
-    help.wrap(_SYS_STR("This command initiates a cooking pass on the project database. Cooking ")
-                  _SYS_STR("is analogous to compiling in software development. The resulting object buffers ")
-                      _SYS_STR("are cached within the project database. HECL performs the following ")
-                          _SYS_STR("tasks for each object during the cook process:\n\n"));
-    help.wrapBold(_SYS_STR("- Object Gather: "));
-    help.wrap(_SYS_STR("Files added with "));
-    help.wrapBold(_SYS_STR("hecl add"));
-    help.wrap(_SYS_STR(" are queried for their dependent files (e.g. "));
-    help.wrapBold(_SYS_STR(".blend"));
-    help.wrap(_SYS_STR(" files return any linked "));
-    help.wrapBold(_SYS_STR(".png"));
-    help.wrap(_SYS_STR(" images). If the dependent files are unable to be found, the cook process aborts.\n\n"));
-    help.wrapBold(_SYS_STR("- Modtime Comparison: "));
-    help.wrap(_SYS_STR("Files that have previously finished a cook pass are inspected for their time of ")
-                  _SYS_STR("last modification. If the file hasn't changed since its previous cook-pass, the ") _SYS_STR(
-                      "process is skipped. If the file has been moved or deleted, the object is automatically ")
-                      _SYS_STR("removed from the project database.\n\n"));
-    help.wrapBold(_SYS_STR("- Cook: "));
-    help.wrap(_SYS_STR("A type-specific procedure compiles the file's contents into an efficient format ")
-                  _SYS_STR("for use by the runtime. A data-buffer is provided to HECL.\n\n"));
-    help.wrapBold(_SYS_STR("- Hash and Compress: "));
-    help.wrap(_SYS_STR("The data-buffer is hashed and compressed before being cached in the object database.\n\n"));
+    help.wrap(
+        "This command initiates a cooking pass on the project database. Cooking "
+        "is analogous to compiling in software development. The resulting object buffers "
+        "are cached within the project database. HECL performs the following "
+        "tasks for each object during the cook process:\n\n");
+    help.wrapBold("- Object Gather: ");
+    help.wrap("Files added with ");
+    help.wrapBold("hecl add");
+    help.wrap(" are queried for their dependent files (e.g. ");
+    help.wrapBold(".blend");
+    help.wrap(" files return any linked ");
+    help.wrapBold(".png");
+    help.wrap(" images). If the dependent files are unable to be found, the cook process aborts.\n\n");
+    help.wrapBold("- Modtime Comparison: ");
+    help.wrap(
+        "Files that have previously finished a cook pass are inspected for their time of "
+        "last modification. If the file hasn't changed since its previous cook-pass, the "
+        "process is skipped. If the file has been moved or deleted, the object is automatically "
+        "removed from the project database.\n\n");
+    help.wrapBold("- Cook: ");
+    help.wrap(
+        "A type-specific procedure compiles the file's contents into an efficient format "
+        "for use by the runtime. A data-buffer is provided to HECL.\n\n");
+    help.wrapBold("- Hash and Compress: ");
+    help.wrap("The data-buffer is hashed and compressed before being cached in the object database.\n\n");
     help.endWrap();
 
-    help.secHead(_SYS_STR("OPTIONS"));
-    help.optionHead(_SYS_STR("<pathspec>..."), _SYS_STR("input file(s)"));
+    help.secHead("OPTIONS");
+    help.optionHead("<pathspec>...", "input file(s)");
     help.beginWrap();
-    help.wrap(_SYS_STR("Specifies working file(s) containing production data to be cooked by HECL. ")
-                  _SYS_STR("Glob-strings may be specified (e.g. "));
-    help.wrapBold(_SYS_STR("*.blend"));
-    help.wrap(_SYS_STR(") to automatically cook all matching current-directory files in the project database. ")
-                  _SYS_STR("If no path specified, all files in the project database are cooked.\n"));
+    help.wrap(
+        "Specifies working file(s) containing production data to be cooked by HECL. "
+        "Glob-strings may be specified (e.g. ");
+    help.wrapBold("*.blend");
+    help.wrap(
+        ") to automatically cook all matching current-directory files in the project database. "
+        "If no path specified, all files in the project database are cooked.\n");
     help.endWrap();
 
-    help.optionHead(_SYS_STR("-r"), _SYS_STR("recursion"));
+    help.optionHead("-r", "recursion");
     help.beginWrap();
-    help.wrap(_SYS_STR("Enables recursive file-matching for cooking entire directories of working files.\n"));
+    help.wrap("Enables recursive file-matching for cooking entire directories of working files.\n");
     help.endWrap();
-    help.optionHead(_SYS_STR("-f"), _SYS_STR("force"));
+    help.optionHead("-f", "force");
     help.beginWrap();
-    help.wrap(_SYS_STR("Forces cooking of all matched files, ignoring timestamp differences.\n"));
+    help.wrap("Forces cooking of all matched files, ignoring timestamp differences.\n");
     help.endWrap();
-    help.optionHead(_SYS_STR("--fast"), _SYS_STR("fast cook"));
+    help.optionHead("--fast", "fast cook");
     help.beginWrap();
-    help.wrap(_SYS_STR("Performs draft-optimization cooking for supported data types.\n"));
+    help.wrap("Performs draft-optimization cooking for supported data types.\n");
     help.endWrap();
 
-    help.optionHead(_SYS_STR("--spec=<spec>"), _SYS_STR("data specification"));
+    help.optionHead("--spec=<spec>", "data specification");
     help.beginWrap();
-    help.wrap(_SYS_STR("Specifies a DataSpec to use when cooking. ")
-                  _SYS_STR("This build of hecl supports the following values of <spec>:\n"));
+    help.wrap(
+        "Specifies a DataSpec to use when cooking. "
+        "This build of hecl supports the following values of <spec>:\n");
     for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY) {
       if (!spec->m_factory)
         continue;
-      help.wrap(_SYS_STR("  "));
+      help.wrap("  ");
       help.wrapBold(spec->m_name.data());
-      help.wrap(_SYS_STR("\n"));
+      help.wrap("\n");
     }
   }
 
-  hecl::SystemStringView toolName() const override { return _SYS_STR("cook"sv); }
+  std::string_view toolName() const override { return "cook"sv; }
 
   int run() override {
     hecl::MultiProgressPrinter printer(true);

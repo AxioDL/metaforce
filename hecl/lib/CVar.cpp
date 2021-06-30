@@ -259,18 +259,6 @@ std::string CVar::toLiteral(bool* isValid) const {
   return m_value;
 }
 
-std::wstring CVar::toWideLiteral(bool* isValid) const {
-  if (m_type != EType::Literal && (com_developer && com_developer->toBoolean())) {
-    if (isValid != nullptr)
-      *isValid = false;
-  } else if (isValid != nullptr) {
-    *isValid = true;
-  }
-
-  // Even if it's not a literal, it's still safe to return
-  return hecl::UTF8ToWide(m_value);
-}
-
 bool CVar::fromVec2f(const atVec2f& val) {
   if (!safeToModify(EType::Vec2f))
     return false;
@@ -398,15 +386,6 @@ bool CVar::fromLiteral(std::string_view val) {
   return true;
 }
 
-bool CVar::fromLiteral(std::wstring_view val) {
-  if (!safeToModify(EType::Literal))
-    return false;
-
-  m_value.assign(hecl::WideToUTF8(val));
-  setModified();
-  return true;
-}
-
 bool CVar::fromLiteralToType(std::string_view val) {
   if (!safeToModify(m_type) || !isValidInput(val))
     return false;
@@ -414,8 +393,6 @@ bool CVar::fromLiteralToType(std::string_view val) {
   setModified();
   return true;
 }
-
-bool CVar::fromLiteralToType(std::wstring_view val) { return fromLiteralToType(hecl::WideToUTF8(val)); }
 
 bool CVar::isModified() const { return True(m_flags & EFlags::Modified); }
 bool CVar::modificationRequiresRestart() const { return True(m_flags & EFlags::ModifyRestart); }
@@ -522,8 +499,6 @@ bool CVar::isValidInput(std::string_view input) const {
 
   return false;
 }
-
-bool CVar::isValidInput(std::wstring_view input) const { return isValidInput(hecl::WideToUTF8(input)); }
 
 bool CVar::safeToModify(EType type) const {
   // Are we NoDevelper?

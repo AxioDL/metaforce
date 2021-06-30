@@ -799,22 +799,19 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       MainLog.report(logvisor::Level::Fatal,
                      FMT_STRING("Attempted to initialize URDE in MP1 mode with non-MP1 data!!!!"));
     }
-    hecl::SystemStringConv conv(GetVersionString());
-    boo::SystemStringView versionView(conv.sys_str());
-    MainLog.report(logvisor::Level::Info,
-                   FMT_STRING(_SYS_STR("Loading data from Metroid Prime version {} from region {}{}")), versionView,
-                   boo::SystemChar(GetRegion()), IsTrilogy() ? _SYS_STR(" from trilogy") : _SYS_STR(""));
+    MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from Metroid Prime version {} from region {}{}"),
+                   GetVersionString(), GetRegion(), IsTrilogy() ? " from trilogy" : "");
   } else {
     MainLog.report(logvisor::Level::Fatal, FMT_STRING("Unable to load version info"));
   }
 
   const auto& args = boo::APP->getArgs();
   for (auto it = args.begin(); it != args.end(); ++it) {
-    if (*it == _SYS_STR("--warp") && args.end() - it >= 3) {
-      const hecl::SystemChar* worldIdxStr = (*(it + 1)).c_str();
-      const hecl::SystemChar* areaIdxStr = (*(it + 2)).c_str();
+    if (*it == "--warp" && args.end() - it >= 3) {
+      const char* worldIdxStr = (*(it + 1)).c_str();
+      const char* areaIdxStr = (*(it + 2)).c_str();
 
-      hecl::SystemChar* endptr = nullptr;
+      char* endptr = nullptr;
       m_warpWorldIdx = TAreaId(hecl::StrToUl(worldIdxStr, &endptr, 0));
       if (endptr == worldIdxStr) {
         m_warpWorldIdx = 0;
@@ -838,13 +835,13 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       }
 
       while (args.end() - it >= 4) {
-        const hecl::SystemChar* layerStr = (*(it + 3)).c_str();
-        if (!(layerStr[0] == _SYS_STR('0') && layerStr[1] == _SYS_STR('x')) &&
-            (layerStr[0] == _SYS_STR('0') || layerStr[0] == _SYS_STR('1'))) {
-          for (const auto* cur = layerStr; *cur != _SYS_STR('\0'); ++cur)
-            if (*cur == _SYS_STR('1'))
+        const char* layerStr = (*(it + 3)).c_str();
+        if (!(layerStr[0] == '0' && layerStr[1] == 'x') &&
+            (layerStr[0] == '0' || layerStr[0] == '1')) {
+          for (const auto* cur = layerStr; *cur != '\0'; ++cur)
+            if (*cur == '1')
               m_warpLayerBits |= u64(1) << (cur - layerStr);
-        } else if (layerStr[0] == _SYS_STR('0') && layerStr[1] == _SYS_STR('x')) {
+        } else if (layerStr[0] == '0' && layerStr[1] == 'x') {
           m_warpMemoryRelays.emplace_back(TAreaId(hecl::StrToUl(layerStr + 2, nullptr, 16)));
         }
         ++it;
@@ -1014,7 +1011,7 @@ void CMain::Shutdown() {
 boo::IWindow* CMain::GetMainWindow() const { return m_mainWindow; }
 
 #if 0
-int CMain::RsMain(int argc, boo::SystemChar** argv, boo::IAudioVoiceEngine* voiceEngine,
+int CMain::RsMain(int argc, char** argv, boo::IAudioVoiceEngine* voiceEngine,
                   amuse::IBackendVoiceAllocator& backend) {
   // PPCSetFpIEEEMode();
   // uVar21 = OSGetTime();
@@ -1048,7 +1045,7 @@ int CMain::RsMain(int argc, boo::SystemChar** argv, boo::IAudioVoiceEngine* voic
 
 int CMain::appMain(boo::IApplication* app) {
   zeus::detectCPU();
-  mainWindow = app->newWindow(_SYS_STR("Metroid Prime 1 Reimplementation vZygote"), 1);
+  mainWindow = app->newWindow("Metroid Prime 1 Reimplementation vZygote", 1);
   mainWindow->showWindow();
   TOneStatic<CGameGlobalObjects> globalObjs;
   InitializeSubsystems();

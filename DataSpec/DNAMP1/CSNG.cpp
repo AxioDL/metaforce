@@ -4,8 +4,8 @@
 namespace DataSpec::DNAMP1 {
 
 bool CSNG::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
-  hecl::ProjectPath midPath = outPath.getWithExtension(_SYS_STR(".mid"), true);
-  hecl::ProjectPath yamlPath = outPath.getWithExtension(_SYS_STR(".yaml"), true);
+  hecl::ProjectPath midPath = outPath.getWithExtension(".mid", true);
+  hecl::ProjectPath yamlPath = outPath.getWithExtension(".yaml", true);
 
   Header head;
   head.read(rs);
@@ -36,16 +36,16 @@ bool CSNG::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
   }
 
   /* Update !songs.yaml for Amuse editor */
-  hecl::ProjectPath audGrp(outPath.getParentPath().getParentPath(), _SYS_STR("AudioGrp"));
+  hecl::ProjectPath audGrp(outPath.getParentPath().getParentPath(), "AudioGrp");
   audGrp.makeDirChain(true);
-  hecl::ProjectPath songsPath(audGrp, _SYS_STR("!songs.yaml"));
+  hecl::ProjectPath songsPath(audGrp, "!songs.yaml");
   std::optional<athena::io::FileReader> r;
   if (songsPath.isFile())
     r.emplace(songsPath.getAbsolutePath());
   athena::io::YAMLDocWriter ydw("amuse::Songs", r ? &*r : nullptr);
   r = std::nullopt;
   ydw.writeString(fmt::format(FMT_STRING("{:04X}"), head.midiSetupId),
-                  fmt::format(FMT_STRING("../MidiData/{}"), midPath.getLastComponentUTF8()));
+                  fmt::format(FMT_STRING("../MidiData/{}"), midPath.getLastComponent()));
   athena::io::FileWriter w(songsPath.getAbsolutePath());
   ydw.finish(&w);
 
@@ -53,8 +53,8 @@ bool CSNG::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
 }
 
 bool CSNG::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
-  hecl::ProjectPath midPath = inPath.getWithExtension(_SYS_STR(".mid"), true);
-  hecl::ProjectPath yamlPath = inPath.getWithExtension(_SYS_STR(".yaml"), true);
+  hecl::ProjectPath midPath = inPath.getWithExtension(".mid", true);
+  hecl::ProjectPath yamlPath = inPath.getWithExtension(".yaml", true);
 
   std::vector<uint8_t> sngData;
   {

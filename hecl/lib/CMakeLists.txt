@@ -35,7 +35,6 @@ set(HECL_HEADERS
     ../include/hecl/Database.hpp
     ../include/hecl/Runtime.hpp
     ../include/hecl/ClientProcess.hpp
-    ../include/hecl/SystemChar.hpp
     ../include/hecl/BitVector.hpp
     ../include/hecl/MathExtras.hpp
     ../include/hecl/UniformBufferPool.hpp
@@ -63,27 +62,32 @@ if(UNIX)
 endif()
 
 add_library(hecl-full
-            ${FRONTEND_SOURCES}
-            ${RUNTIME_SOURCES}
-            ${BLENDER_SOURCES}
-            ${COMMON_SOURCES}
-            ${HECL_HEADERS}
-            ${PLAT_SRCS}
-            Pipeline.cpp)
+        ${FRONTEND_SOURCES}
+        ${RUNTIME_SOURCES}
+        ${BLENDER_SOURCES}
+        ${COMMON_SOURCES}
+        ${HECL_HEADERS}
+        ${PLAT_SRCS}
+        Pipeline.cpp)
 target_include_directories(hecl-full PUBLIC ../include)
 target_link_libraries(hecl-full PUBLIC ${HECL_APPLICATION_REPS_TARGETS_LIST}
-                      hecl-blender-addon boo athena-core logvisor)
+        hecl-blender-addon boo athena-core logvisor)
 target_atdna(hecl-full atdna_HMDLMeta_full.cpp ../include/hecl/HMDLMeta.hpp)
 target_atdna(hecl-full atdna_CVar_full.cpp ../include/hecl/CVar.hpp)
 target_atdna(hecl-full atdna_SDNARead_full.cpp ../include/hecl/Blender/SDNARead.hpp)
 
 add_library(hecl-light
-            ${RUNTIME_SOURCES}
-            ${COMMON_SOURCES}
-            ${HECL_HEADERS}
-            ${PLAT_SRCS})
+        ${RUNTIME_SOURCES}
+        ${COMMON_SOURCES}
+        ${HECL_HEADERS}
+        ${PLAT_SRCS}
+        ${FIND_BLENDER_SOURCES})
 target_include_directories(hecl-light PUBLIC ../include)
 target_link_libraries(hecl-light PUBLIC ${HECL_APPLICATION_REPS_TARGETS_LIST} boo athena-core logvisor)
+if (WIN32)
+  # For FindBlender
+  target_link_libraries(hecl-light PUBLIC Version)
+endif ()
 target_atdna(hecl-light atdna_HMDLMeta_light.cpp ../include/hecl/HMDLMeta.hpp)
 target_atdna(hecl-light atdna_CVar_light.cpp ../include/hecl/CVar.hpp)
 

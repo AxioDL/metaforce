@@ -25,7 +25,7 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx, EPrimitive
 : m_mode(mode), m_maxVerts(maxVerts) {
   OPTICK_EVENT();
   if (maxVerts < 2) {
-    LineRendererLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("maxVerts < 2, maxVerts = {}")), maxVerts);
+    LineRendererLog.report(logvisor::Fatal, FMT_STRING("maxVerts < 2, maxVerts = {}"), maxVerts);
     return;
   }
   m_textured = bool(texture);
@@ -57,7 +57,7 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const boo::ObjTo
 : m_mode(mode), m_maxVerts(maxVerts) {
   OPTICK_EVENT();
   if (maxVerts < 2) {
-    LineRendererLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("maxVerts < 2, maxVerts = {}")), maxVerts);
+    LineRendererLog.report(logvisor::Fatal, FMT_STRING("maxVerts < 2, maxVerts = {}"), maxVerts);
     return;
   }
   m_textured = bool(texture);

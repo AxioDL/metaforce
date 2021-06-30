@@ -11,7 +11,7 @@ namespace DataSpec::DNAMP1 {
 struct MAPU : DNAMAPU::MAPU {
   static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                       PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
-                      std::function<void(const hecl::SystemChar*)> fileChanged) {
+                      std::function<void(const char*)> fileChanged) {
     MAPU mapu;
     mapu.read(rs);
     hecl::blender::Connection& conn = btok.getBlenderConnection();

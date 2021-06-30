@@ -15,22 +15,22 @@ using namespace Windows::Storage;
 namespace hecl::Runtime {
 static logvisor::Module Log("FileStoreManager");
 
-FileStoreManager::FileStoreManager(SystemStringView domain) : m_domain(domain) {
+FileStoreManager::FileStoreManager(std::string_view domain) : m_domain(domain) {
 #if _WIN32
 #if !WINDOWS_STORE
   WCHAR home[MAX_PATH];
   if (!SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, home)))
-    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to locate profile for file store")));
+    Log.report(logvisor::Fatal, FMT_STRING("unable to locate profile for file store"));
 
-  SystemString path(home);
+  std::string path = nowide::narrow(home);
 #else
   StorageFolder ^ cacheFolder = ApplicationData::Current->LocalCacheFolder;
-  SystemString path(cacheFolder->Path->Data());
+  std::string path(cacheFolder->Path->Data());
 #endif
-  path += _SYS_STR("/.heclrun");
+  path += "/.heclrun";
 
   hecl::MakeDir(path.c_str());
-  path += _SYS_STR('/');
+  path += '/';
   path += domain.data();
 
   hecl::MakeDir(path.c_str());

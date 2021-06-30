@@ -179,7 +179,7 @@ void MREA::StreamReader::writeDecompInfos(athena::io::IStreamWriter& writer) con
 
 bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const DNAMP2::PAK::Entry& entry, bool force,
-                   hecl::blender::Token& btok, std::function<void(const hecl::SystemChar*)>) {
+                   hecl::blender::Token& btok, std::function<void(const char*)>) {
   using RigPair = std::pair<std::pair<UniqueID32, CSKR*>, std::pair<UniqueID32, CINF*>>;
   RigPair dummy = {};
 
@@ -193,7 +193,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   /* MREA decompression stream */
   StreamReader drs(rs, head.compressedBlockCount);
-  hecl::ProjectPath decompPath = outPath.getCookedPath(SpecEntMP2ORIG).getWithExtension(_SYS_STR(".decomp"));
+  hecl::ProjectPath decompPath = outPath.getCookedPath(SpecEntMP2ORIG).getWithExtension(".decomp");
   decompPath.makeDirChain(false);
   athena::io::FileWriter mreaDecompOut(decompPath.getAbsolutePath());
   head.write(mreaDecompOut);

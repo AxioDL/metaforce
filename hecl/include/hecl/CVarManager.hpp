@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "hecl/CVar.hpp"
-#include "hecl/SystemChar.hpp"
 
 namespace hecl {
 namespace Runtime {
@@ -107,7 +106,7 @@ public:
   void setCheatsEnabled(bool v, bool setDeserialized = false);
   bool restartRequired() const;
 
-  void parseCommandLine(const std::vector<SystemString>& args);
+  void parseCommandLine(const std::vector<std::string>& args);
 
 private:
   bool suppressDeveloper();

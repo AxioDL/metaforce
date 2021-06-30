@@ -144,12 +144,6 @@ public:
     copy[8] = '\0';
     assign(strtoul(copy, nullptr, 16));
   }
-  UniqueID32(const wchar_t* hexStr) noexcept {
-    wchar_t copy[9];
-    wcsncpy(copy, hexStr, 8);
-    copy[8] = L'\0';
-    assign(wcstoul(copy, nullptr, 16));
-  }
 
   static constexpr size_t BinarySize() noexcept { return 4; }
 };
@@ -193,12 +187,6 @@ public:
     std::strncpy(copy, hexStr, 16);
     copy[16] = '\0';
     assign(std::strtoull(copy, nullptr, 16));
-  }
-  UniqueID64(const wchar_t* hexStr) noexcept {
-    wchar_t copy[17];
-    std::wcsncpy(copy, hexStr, 16);
-    copy[16] = L'\0';
-    assign(std::wcstoull(copy, nullptr, 16));
   }
 
   static constexpr size_t BinarySize() noexcept { return 8; }
@@ -370,8 +358,8 @@ struct CharacterAssociations {
 };
 
 hecl::ProjectPath GetPathBeginsWith(const hecl::DirectoryEnumerator& dEnum, const hecl::ProjectPath& parentPath,
-                                    hecl::SystemStringView test);
-inline hecl::ProjectPath GetPathBeginsWith(const hecl::ProjectPath& parentPath, hecl::SystemStringView test) {
+                                    std::string_view test);
+inline hecl::ProjectPath GetPathBeginsWith(const hecl::ProjectPath& parentPath, std::string_view test) {
   return GetPathBeginsWith(hecl::DirectoryEnumerator(parentPath.getAbsolutePath()), parentPath, test);
 }
 

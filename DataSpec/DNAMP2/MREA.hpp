@@ -123,7 +123,7 @@ struct MREA {
 
   static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                       PAKRouter<PAKBridge>& pakRouter, const DNAMP2::PAK::Entry& entry, bool,
-                      hecl::blender::Token& btok, std::function<void(const hecl::SystemChar*)>);
+                      hecl::blender::Token& btok, std::function<void(const char*)>);
 };
 
 } // namespace DataSpec::DNAMP2

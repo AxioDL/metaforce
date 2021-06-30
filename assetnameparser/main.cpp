@@ -25,12 +25,9 @@
 #define NOMINMAX
 #endif
 #include <Windows.h>
-#include <cwchar>
+#include <nowide/args.hpp>
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
-#if UNICODE
-#define IS_UCS2 1
-#endif
 #endif
 
 namespace {
@@ -182,20 +179,10 @@ struct SAsset {
 
 enum class FileLockType { None = 0, Read, Write };
 
-#if IS_UCS2
-using SystemChar = wchar_t;
-using SystemString = std::wstring;
-#ifndef _SYS_STR
-#define _SYS_STR(val) L##val
-#endif
-using Sstat = struct _stat;
+#if _WIN32
+using Sstat = struct ::_stat64;
 #else
-using SystemChar = char;
-using SystemString = std::string;
-#ifndef _SYS_STR
-#define _SYS_STR(val) val
-#endif
-using Sstat = struct stat;
+using SStat = struct stat;
 #endif
 
 struct FILEDeleter {
@@ -203,9 +190,11 @@ struct FILEDeleter {
 };
 using FILEPtr = std::unique_ptr<FILE, FILEDeleter>;
 
-FILEPtr Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock = FileLockType::None) {
-#if IS_UCS2
-  FILEPtr fp{_wfopen(path, mode)};
+FILEPtr Fopen(const char* path, const char* mode, FileLockType lock = FileLockType::None) {
+#if _WIN32
+  const nowide::wstackstring wpath(path);
+  const nowide::wshort_stackstring wmode(mode);
+  FILEPtr fp{_wfopen(wpath.get(), wmode.get())};
   if (!fp) {
     return nullptr;
   }
@@ -269,35 +258,34 @@ std::string getValidExtension(const std::string& type) {
   return type;
 }
 
+int main(int argc, char* argv[]) {
 #if _WIN32
-int wmain(int argc, const wchar_t* argv[])
-#else
-int main(int argc, const char* argv[])
+  nowide::args _(argc, argv);
 #endif
-{
+
   logvisor::RegisterStandardExceptions();
   logvisor::RegisterConsoleLogger();
   if (argc < 3) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Usage: {} <input> <output>")), argv[0]);
+    Log.report(logvisor::Error, FMT_STRING("Usage: {} <input> <output>"), argv[0]);
     return 1;
   }
 
-  SystemString inPath = argv[1];
-  SystemString outPath = argv[2];
+  std::string inPath = argv[1];
+  std::string outPath = argv[2];
 
   tinyxml2::XMLDocument doc;
   std::vector<SAsset> assets;
-  FILEPtr docF = Fopen(inPath.c_str(), _SYS_STR("rb"));
+  FILEPtr docF = Fopen(inPath.c_str(), "rb");
   if (doc.LoadFile(docF.get()) == tinyxml2::XML_SUCCESS) {
     const tinyxml2::XMLElement* elm = doc.RootElement();
     if (strcmp(elm->Name(), "AssetNameMap") != 0) {
-      Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Invalid database supplied")));
+      Log.report(logvisor::Fatal, FMT_STRING("Invalid database supplied"));
       return 1;
     }
 
     elm = elm->FirstChildElement("AssetNameMap");
     if (elm == nullptr) {
-      Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Malformed AssetName database")));
+      Log.report(logvisor::Fatal, FMT_STRING("Malformed AssetName database"));
       return 1;
     }
 
@@ -308,7 +296,7 @@ int main(int argc, const char* argv[])
       const tinyxml2::XMLElement* valueElm = elm->FirstChildElement("Value");
 
       if (keyElm == nullptr || valueElm == nullptr) {
-        Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Malformed Asset entry, [Key,Value] required")));
+        Log.report(logvisor::Fatal, FMT_STRING("Malformed Asset entry, [Key,Value] required"));
         return 0;
       }
 
@@ -319,7 +307,7 @@ int main(int argc, const char* argv[])
       const tinyxml2::XMLElement* autoGenDirElm = valueElm->FirstChildElement("AutoGenDir");
 
       if (nameElm == nullptr || dirElm == nullptr || typeElm == nullptr) {
-        Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Malformed Value entry, [Name,Directory,Type] required")));
+        Log.report(logvisor::Fatal, FMT_STRING("Malformed Value entry, [Name,Directory,Type] required"));
         return 0;
       }
       bool autoGen = strncasecmp(autoGenNameElm->GetText(), "true", 4) == 0 && strncasecmp(autoGenDirElm->GetText(), "true", 4) == 0;
@@ -340,9 +328,9 @@ int main(int argc, const char* argv[])
       elm = elm->NextSiblingElement("Asset");
     }
 
-    FILEPtr f = Fopen(outPath.c_str(), _SYS_STR("wb"));
+    FILEPtr f = Fopen(outPath.c_str(), "wb");
     if (f == nullptr) {
-      Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to open destination")));
+      Log.report(logvisor::Fatal, FMT_STRING("Unable to open destination"));
       return 0;
     }
 
@@ -365,6 +353,6 @@ int main(int argc, const char* argv[])
     return 0;
   }
 
-  Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("failed to load")));
+  Log.report(logvisor::Fatal, FMT_STRING("failed to load"));
   return 1;
 }

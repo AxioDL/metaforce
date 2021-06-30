@@ -43,8 +43,8 @@ static bool CheckNewLineAdvance(std::string::const_iterator& it) {
   return false;
 }
 
-Project::ConfigFile::ConfigFile(const Project& project, SystemStringView name, SystemStringView subdir) {
-  m_filepath = SystemString(project.m_rootPath.getAbsolutePath()) + subdir.data() + name.data();
+Project::ConfigFile::ConfigFile(const Project& project, std::string_view name, std::string_view subdir) {
+  m_filepath = std::string(project.m_rootPath.getAbsolutePath()) + subdir.data() + name.data();
 }
 
 std::vector<std::string>& Project::ConfigFile::lockAndRead() {
@@ -52,7 +52,7 @@ std::vector<std::string>& Project::ConfigFile::lockAndRead() {
     return m_lines;
   }
 
-  m_lockedFile = hecl::FopenUnique(m_filepath.c_str(), _SYS_STR("a+"), FileLockType::Write);
+  m_lockedFile = hecl::FopenUnique(m_filepath.c_str(), "a+", FileLockType::Write);
   hecl::FSeek(m_lockedFile.get(), 0, SEEK_SET);
 
   std::string mainString;
@@ -132,8 +132,8 @@ bool Project::ConfigFile::unlockAndCommit() {
     return false;
   }
 
-  const SystemString newPath = m_filepath + _SYS_STR(".part");
-  auto newFile = hecl::FopenUnique(newPath.c_str(), _SYS_STR("w"), FileLockType::Write);
+  const std::string newPath = m_filepath + ".part";
+  auto newFile = hecl::FopenUnique(newPath.c_str(), "w", FileLockType::Write);
   bool fail = false;
   for (const std::string& line : m_lines) {
     if (std::fwrite(line.c_str(), 1, line.size(), newFile.get()) != line.size()) {
@@ -149,19 +149,10 @@ bool Project::ConfigFile::unlockAndCommit() {
   newFile.reset();
   m_lockedFile.reset();
   if (fail) {
-#if HECL_UCS2
-    _wunlink(newPath.c_str());
-#else
-    unlink(newPath.c_str());
-#endif
+    Unlink(newPath.c_str());
     return false;
   } else {
-#if HECL_UCS2
-    //_wrename(newPath.c_str(), m_filepath.c_str());
-    MoveFileExW(newPath.c_str(), m_filepath.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
-#else
-    rename(newPath.c_str(), m_filepath.c_str());
-#endif
+    Rename(newPath.c_str(), m_filepath.c_str());
     return true;
   }
 }
@@ -172,21 +163,21 @@ bool Project::ConfigFile::unlockAndCommit() {
 
 Project::Project(const ProjectRootPath& rootPath)
 : m_rootPath(rootPath)
-, m_workRoot(*this, _SYS_STR(""))
-, m_dotPath(m_workRoot, _SYS_STR(".hecl"))
-, m_cookedRoot(m_dotPath, _SYS_STR("cooked"))
-, m_specs(*this, _SYS_STR("specs"))
-, m_paths(*this, _SYS_STR("paths"))
-, m_groups(*this, _SYS_STR("groups")) {
+, m_workRoot(*this, "")
+, m_dotPath(m_workRoot, ".hecl")
+, m_cookedRoot(m_dotPath, "cooked")
+, m_specs(*this, "specs")
+, m_paths(*this, "paths")
+, m_groups(*this, "groups") {
   /* Stat for existing project directory (must already exist) */
   Sstat myStat;
   if (hecl::Stat(m_rootPath.getAbsolutePath().data(), &myStat)) {
-    LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to stat {}")), m_rootPath.getAbsolutePath());
+    LogModule.report(logvisor::Error, FMT_STRING("unable to stat {}"), m_rootPath.getAbsolutePath());
     return;
   }
 
   if (!S_ISDIR(myStat.st_mode)) {
-    LogModule.report(logvisor::Error, FMT_STRING(_SYS_STR("provided path must be a directory; '{}' isn't")),
+    LogModule.report(logvisor::Error, FMT_STRING("provided path must be a directory; '{}' isn't"),
                      m_rootPath.getAbsolutePath());
     return;
   }
@@ -196,8 +187,8 @@ Project::Project(const ProjectRootPath& rootPath)
   m_cookedRoot.makeDir();
 
   /* Ensure beacon is valid or created */
-  const ProjectPath beaconPath(m_dotPath, _SYS_STR("beacon"));
-  auto bf = hecl::FopenUnique(beaconPath.getAbsolutePath().data(), _SYS_STR("a+b"));
+  const ProjectPath beaconPath(m_dotPath, "beacon");
+  auto bf = hecl::FopenUnique(beaconPath.getAbsolutePath().data(), "a+b");
   struct BeaconStruct {
     hecl::FourCC magic;
     uint32_t version;
@@ -225,14 +216,14 @@ const ProjectPath& Project::getProjectCookedPath(const DataSpecEntry& spec) cons
   for (const ProjectDataSpec& sp : m_compiledSpecs)
     if (&sp.spec == &spec)
       return sp.cookedPath;
-  LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to find spec '{}'")), spec.m_name);
+  LogModule.report(logvisor::Fatal, FMT_STRING("Unable to find spec '{}'"), spec.m_name);
   return m_cookedRoot;
 }
 
 bool Project::addPaths(const std::vector<ProjectPath>& paths) {
   m_paths.lockAndRead();
   for (const ProjectPath& path : paths)
-    m_paths.addLine(path.getRelativePathUTF8());
+    m_paths.addLine(path.getRelativePath());
   return m_paths.unlockAndCommit();
 }
 
@@ -240,7 +231,7 @@ bool Project::removePaths(const std::vector<ProjectPath>& paths, bool recursive)
   std::vector<std::string>& existingPaths = m_paths.lockAndRead();
   if (recursive) {
     for (const ProjectPath& path : paths) {
-      auto recursiveBase = path.getRelativePathUTF8();
+      auto recursiveBase = path.getRelativePath();
       for (auto it = existingPaths.begin(); it != existingPaths.end();) {
         if (!(*it).compare(0, recursiveBase.size(), recursiveBase)) {
           it = existingPaths.erase(it);
@@ -251,19 +242,19 @@ bool Project::removePaths(const std::vector<ProjectPath>& paths, bool recursive)
     }
   } else
     for (const ProjectPath& path : paths)
-      m_paths.removeLine(path.getRelativePathUTF8());
+      m_paths.removeLine(path.getRelativePath());
   return m_paths.unlockAndCommit();
 }
 
 bool Project::addGroup(const hecl::ProjectPath& path) {
   m_groups.lockAndRead();
-  m_groups.addLine(path.getRelativePathUTF8());
+  m_groups.addLine(path.getRelativePath());
   return m_groups.unlockAndCommit();
 }
 
 bool Project::removeGroup(const ProjectPath& path) {
   m_groups.lockAndRead();
-  m_groups.removeLine(path.getRelativePathUTF8());
+  m_groups.removeLine(path.getRelativePath());
   return m_groups.unlockAndCommit();
 }
 
@@ -271,30 +262,26 @@ void Project::rescanDataSpecs() {
   m_compiledSpecs.clear();
   m_specs.lockAndRead();
   for (const DataSpecEntry* spec : DATA_SPEC_REGISTRY) {
-    hecl::SystemString specStr(spec->m_name);
-    SystemUTF8Conv specUTF8(specStr);
-    m_compiledSpecs.push_back({*spec, ProjectPath(m_cookedRoot, hecl::SystemString(spec->m_name) + _SYS_STR(".spec")),
-                               m_specs.checkForLine(specUTF8.str())});
+    m_compiledSpecs.push_back({*spec, ProjectPath(m_cookedRoot, std::string(spec->m_name) + ".spec"),
+                               m_specs.checkForLine(spec->m_name)});
   }
   m_specs.unlockAndDiscard();
 }
 
-bool Project::enableDataSpecs(const std::vector<SystemString>& specs) {
+bool Project::enableDataSpecs(const std::vector<std::string>& specs) {
   m_specs.lockAndRead();
-  for (const SystemString& spec : specs) {
-    SystemUTF8Conv specView(spec);
-    m_specs.addLine(specView.str());
+  for (const std::string& spec : specs) {
+    m_specs.addLine(spec);
   }
   bool result = m_specs.unlockAndCommit();
   rescanDataSpecs();
   return result;
 }
 
-bool Project::disableDataSpecs(const std::vector<SystemString>& specs) {
+bool Project::disableDataSpecs(const std::vector<std::string>& specs) {
   m_specs.lockAndRead();
-  for (const SystemString& spec : specs) {
-    SystemUTF8Conv specView(spec);
-    m_specs.removeLine(specView.str());
+  for (const std::string& spec : specs) {
+    m_specs.removeLine(spec);
   }
   bool result = m_specs.unlockAndCommit();
   rescanDataSpecs();
@@ -303,34 +290,34 @@ bool Project::disableDataSpecs(const std::vector<SystemString>& specs) {
 
 class CookProgress {
   const hecl::MultiProgressPrinter& m_progPrinter;
-  const SystemChar* m_dir = nullptr;
-  const SystemChar* m_file = nullptr;
+  const char* m_dir = nullptr;
+  const char* m_file = nullptr;
   float m_prog = 0.f;
 
 public:
   CookProgress(const hecl::MultiProgressPrinter& progPrinter) : m_progPrinter(progPrinter) {}
-  void changeDir(const SystemChar* dir) {
+  void changeDir(const char* dir) {
     m_dir = dir;
     m_progPrinter.startNewLine();
   }
-  void changeFile(const SystemChar* file, float prog) {
+  void changeFile(const char* file, float prog) {
     m_file = file;
     m_prog = prog;
   }
   void reportFile(const DataSpecEntry* specEnt) {
-    SystemString submsg(m_file);
-    submsg += _SYS_STR(" (");
+    std::string submsg(m_file);
+    submsg += " (";
     submsg += specEnt->m_name.data();
-    submsg += _SYS_STR(')');
+    submsg += ')';
     m_progPrinter.print(m_dir, submsg, m_prog);
   }
-  void reportFile(const DataSpecEntry* specEnt, const SystemChar* extra) {
-    SystemString submsg(m_file);
-    submsg += _SYS_STR(" (");
+  void reportFile(const DataSpecEntry* specEnt, const char* extra) {
+    std::string submsg(m_file);
+    submsg += " (";
     submsg += specEnt->m_name.data();
-    submsg += _SYS_STR(", ");
+    submsg += ", ";
     submsg += extra;
-    submsg += _SYS_STR(')');
+    submsg += ')';
     m_progPrinter.print(m_dir, submsg, m_prog);
   }
   void reportDirComplete() { m_progPrinter.print(m_dir, std::nullopt, 1.f); }
@@ -348,11 +335,11 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
           continue;
         ProjectPath cooked = path.getCookedPath(*override);
         if (fast)
-          cooked = cooked.getWithExtension(_SYS_STR(".fast"));
+          cooked = cooked.getWithExtension(".fast");
         if (force || cooked.getPathType() == ProjectPath::Type::None || path.getModtime() > cooked.getModtime()) {
           progress.reportFile(override);
           spec->doCook(path, cooked, fast, hecl::blender::SharedBlenderToken,
-                       [&](const SystemChar* extra) { progress.reportFile(override, extra); });
+                       [&](const char* extra) { progress.reportFile(override, extra); });
         }
       }
     }
@@ -362,17 +349,17 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
 static void VisitDirectory(const ProjectPath& dir, bool recursive, bool force, bool fast,
                            std::vector<std::unique_ptr<IDataSpec>>& specInsts, CookProgress& progress,
                            ClientProcess* cp) {
-  if (dir.getLastComponent().size() > 1 && dir.getLastComponent()[0] == _SYS_STR('.'))
+  if (dir.getLastComponent().size() > 1 && dir.getLastComponent()[0] == '.')
     return;
 
-  if (hecl::ProjectPath(dir, _SYS_STR("!project.yaml")).isFile() &&
-      hecl::ProjectPath(dir, _SYS_STR("!pool.yaml")).isFile()) {
+  if (hecl::ProjectPath(dir, "!project.yaml").isFile() &&
+      hecl::ProjectPath(dir, "!pool.yaml").isFile()) {
     /* Handle AudioGroup case */
     VisitFile(dir, force, fast, specInsts, progress, cp);
     return;
   }
 
-  std::map<SystemString, ProjectPath> children;
+  std::map<std::string, ProjectPath> children;
   dir.getDirChildren(children);
 
   /* Pass 1: child file count */
@@ -458,7 +445,7 @@ bool Project::packagePath(const ProjectPath& path, const hecl::MultiProgressPrin
     bool foundPC = false;
     for (const ProjectDataSpec& projectSpec : m_compiledSpecs) {
       if (projectSpec.active && projectSpec.spec.m_factory) {
-        if (hecl::StringUtils::EndsWith(projectSpec.spec.m_name, _SYS_STR("-PC"))) {
+        if (hecl::StringUtils::EndsWith(projectSpec.spec.m_name, "-PC")) {
           foundPC = true;
           specEntry = &projectSpec.spec;
         } else if (!foundPC) {

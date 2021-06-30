@@ -43,10 +43,10 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
 
     if (active) {
       const hecl::ProjectPath activePath(layerPath, "!defaultactive");
-      [[maybe_unused]] const auto fp = hecl::FopenUnique(activePath.getAbsolutePath().data(), _SYS_STR("wb"));
+      [[maybe_unused]] const auto fp = hecl::FopenUnique(activePath.getAbsolutePath().data(), "wb");
     }
 
-    hecl::ProjectPath yamlFile(layerPath, _SYS_STR("!objects.yaml"));
+    hecl::ProjectPath yamlFile(layerPath, "!objects.yaml");
     if (force || yamlFile.isNone()) {
       athena::io::FileWriter writer(yamlFile.getAbsolutePath());
       athena::io::ToYAMLStream(layers[i], writer);
@@ -114,14 +114,13 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs) {
       objects.push_back(std::move(obj));
       size_t actualLen = rs.position() - start;
       if (actualLen != len)
-        Log.report(
-            logvisor::Fatal,
-            FMT_STRING(_SYS_STR("Error while reading object of type 0x{:02X}, did not read the expected amount of "
-                                "data, read 0x{:x}, expected 0x{:x}")),
-            (atUint32)type, actualLen, len);
+        Log.report(logvisor::Fatal,
+                   FMT_STRING("Error while reading object of type 0x{:02X}, did not read the expected amount of "
+                              "data, read 0x{:x}, expected 0x{:x}"),
+                   (atUint32)type, actualLen, len);
       rs.seek(start + len, athena::SeekOrigin::Begin);
     } else {
-      Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to find type 0x{:X} in object database")),
+      Log.report(logvisor::Fatal, FMT_STRING("Unable to find type 0x{:X} in object database"),
                  (atUint32)type);
     }
   }
@@ -147,7 +146,7 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& r
           obj->type = type;
           objects.push_back(std::move(obj));
         } else
-          Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to find type 0x{:X} in object database")),
+          Log.report(logvisor::Fatal, FMT_STRING("Unable to find type 0x{:X} in object database"),
                      (atUint32)type);
       }
     }

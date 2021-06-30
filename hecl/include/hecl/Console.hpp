@@ -38,12 +38,8 @@ class Console {
 
     ~LogVisorAdapter() override = default;
     void report(const char* modName, logvisor::Level severity, fmt::string_view format, fmt::format_args args) override;
-    void report(const char* modName, logvisor::Level severity, fmt::wstring_view format,
-                fmt::wformat_args args) override;
     void reportSource(const char* modName, logvisor::Level severity, const char* file, unsigned linenum,
                       fmt::string_view format, fmt::format_args args) override;
-    void reportSource(const char* modName, logvisor::Level severity, const char* file, unsigned linenum,
-                      fmt::wstring_view format, fmt::wformat_args args) override;
   };
 
 public:

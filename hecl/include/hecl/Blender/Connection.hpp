@@ -731,7 +731,7 @@ class Connection {
   BlendType m_loadedType = BlendType::None;
   bool m_loadedRigged = false;
   ProjectPath m_loadedBlend;
-  hecl::SystemString m_errPath;
+  std::string m_errPath;
   uint32_t _readStr(char* buf, uint32_t bufSz);
   uint32_t _writeStr(const char* str, uint32_t len, int wpipe);
   uint32_t _writeStr(const char* str, uint32_t len) { return _writeStr(str, len, m_writepipe[1]); }
@@ -805,7 +805,7 @@ class Connection {
     char readBuf[16];
     _readStr(readBuf, 16);
     if (status != readBuf)
-      BlenderLog.report(logvisor::Fatal, FMT_STRING("{}: {}: {}"), m_loadedBlend.getRelativePathUTF8(), action, readBuf);
+      BlenderLog.report(logvisor::Fatal, FMT_STRING("{}: {}: {}"), m_loadedBlend.getRelativePath(), action, readBuf);
   }
   void _checkReady(std::string_view action) { _checkStatus(action, "READY"sv); }
   void _checkDone(std::string_view action) { _checkStatus(action, "DONE"sv); }

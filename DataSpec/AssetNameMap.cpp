@@ -36,7 +36,7 @@ void LoadAssetMap(athena::io::MemoryReader& ar) {
     if (magic != FOURCC('AIDM'))
       Log.report(
           logvisor::Warning,
-          FMT_STRING(_SYS_STR("Unable to load asset map; Assets will not have proper filenames for most files.")));
+          FMT_STRING("Unable to load asset map; Assets will not have proper filenames for most files."));
     else {
       uint32_t assetCount = ar.readUint32Big();
       g_AssetNameMap.reserve(assetCount);
@@ -67,7 +67,7 @@ void InitAssetNameMap() {
   } else {
     Log.report(
         logvisor::Warning,
-        FMT_STRING(_SYS_STR("AssetNameMap32 unavailable; Assets will not have proper filenames for most files.")));
+        FMT_STRING("AssetNameMap32 unavailable; Assets will not have proper filenames for most files."));
   }
   /* Now load the 64bit map for MP3 */
   if (ASSET_NAME_MP64_DECOMPRESSED_SZ != 0u) {
@@ -80,7 +80,7 @@ void InitAssetNameMap() {
   } else {
     Log.report(
         logvisor::Warning,
-        FMT_STRING(_SYS_STR("AssetNameMap64 unavailable; Assets will not have proper filenames for most files.")));
+        FMT_STRING("AssetNameMap64 unavailable; Assets will not have proper filenames for most files."));
   }
   g_AssetNameMapInit = true;
 }

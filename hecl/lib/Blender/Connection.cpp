@@ -14,6 +14,7 @@
 #include <tuple>
 
 #include "hecl/Blender/Connection.hpp"
+#include "hecl/Blender/FindBlender.hpp"
 #include "hecl/Blender/Token.hpp"
 #include "hecl/Database.hpp"
 #include "hecl/hecl.hpp"
@@ -48,19 +49,8 @@ using namespace std::literals;
 
 namespace hecl::blender {
 
-static const uint32_t MinBlenderMajorSearch = 2;
-static const uint32_t MaxBlenderMajorSearch = 2;
-static const uint32_t MinBlenderMinorSearch = 83;
-static const uint32_t MaxBlenderMinorSearch = 92;
-
 logvisor::Module BlenderLog("hecl::blender::Connection");
 Token SharedBlenderToken;
-
-#ifdef __APPLE__
-#define DEFAULT_BLENDER_BIN "/Applications/Blender.app/Contents/MacOS/blender"
-#else
-#define DEFAULT_BLENDER_BIN "blender"
-#endif
 
 extern "C" uint8_t HECL_BLENDERSHELL[];
 extern "C" size_t HECL_BLENDERSHELL_SZ;
@@ -71,21 +61,21 @@ extern "C" size_t HECL_ADDON_SZ;
 extern "C" uint8_t HECL_STARTUP[];
 extern "C" size_t HECL_STARTUP_SZ;
 
-static void InstallBlendershell(const SystemChar* path) {
-  auto fp = hecl::FopenUnique(path, _SYS_STR("w"));
+static void InstallBlendershell(const char* path) {
+  auto fp = hecl::FopenUnique(path, "w");
 
   if (fp == nullptr) {
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to open {} for writing")), path);
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("unable to open {} for writing"), path);
   }
 
   std::fwrite(HECL_BLENDERSHELL, 1, HECL_BLENDERSHELL_SZ, fp.get());
 }
 
-static void InstallAddon(const SystemChar* path) {
-  auto fp = hecl::FopenUnique(path, _SYS_STR("wb"));
+static void InstallAddon(const char* path) {
+  auto fp = hecl::FopenUnique(path, "wb");
 
   if (fp == nullptr) {
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to install blender addon at '{}'")), path);
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("Unable to install blender addon at '{}'"), path);
   }
 
   std::fwrite(HECL_ADDON, 1, HECL_ADDON_SZ, fp.get());
@@ -239,9 +229,8 @@ std::size_t Connection::_writeBuf(const void* buf, std::size_t len) {
 ProjectPath Connection::_readPath() {
   std::string path = _readStdString();
   if (!path.empty()) {
-    SystemStringConv pathAbs(path);
-    SystemString meshPathRel =
-        getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(pathAbs.sys_str());
+    std::string meshPathRel =
+        getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(path);
     return ProjectPath(getBlendPath().getProject().getProjectWorkingPath(), meshPathRel);
   }
   return {};
@@ -261,7 +250,7 @@ void Connection::_closePipe() {
 
 void Connection::_blenderDied() {
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  auto errFp = hecl::FopenUnique(m_errPath.c_str(), _SYS_STR("r"));
+  auto errFp = hecl::FopenUnique(m_errPath.c_str(), "r");
 
   if (errFp != nullptr) {
     std::fseek(errFp.get(), 0, SEEK_END);
@@ -281,7 +270,7 @@ void Connection::_blenderDied() {
 static std::atomic_bool BlenderFirstInit(false);
 
 #if _WIN32
-static bool RegFileExists(const hecl::SystemChar* path) {
+static bool RegFileExists(const char* path) {
   if (!path)
     return false;
   hecl::Sstat theStat;
@@ -295,16 +284,16 @@ Connection::Connection(int verbosityLevel) {
     BlenderLog.report(logvisor::Info, FMT_STRING("Establishing BlenderConnection..."));
 
   /* Put hecl_blendershell.py in temp dir */
-  const SystemChar* TMPDIR = GetTmpDir();
+  const std::string TMPDIR = GetTmpDir();
 #ifndef _WIN32
   signal(SIGPIPE, SIG_IGN);
 #endif
 
-  hecl::SystemString blenderShellPath(TMPDIR);
-  blenderShellPath += _SYS_STR("/hecl_blendershell.py");
+  std::string blenderShellPath(TMPDIR);
+  blenderShellPath += "/hecl_blendershell.py";
 
-  hecl::SystemString blenderAddonPath(TMPDIR);
-  blenderAddonPath += _SYS_STR("/hecl_blenderaddon.zip");
+  std::string blenderAddonPath(TMPDIR);
+  blenderAddonPath += "/hecl_blenderaddon.zip";
 
   bool FalseCmp = false;
   if (BlenderFirstInit.compare_exchange_strong(FalseCmp, true)) {
@@ -345,54 +334,16 @@ Connection::Connection(int verbosityLevel) {
     pipe(m_writepipe.data());
 #endif
 
-      /* User-specified blender path */
-#if _WIN32
-    wchar_t BLENDER_BIN_BUF[2048];
-    std::wstring blenderBinBuf;
-    const wchar_t* blenderBin = _wgetenv(L"BLENDER_BIN");
-#else
-    const char* blenderBin = getenv("BLENDER_BIN");
-#endif
-
-    /* Steam blender */
-    hecl::SystemString steamBlender;
-
-    /* Child process of blender */
-#if _WIN32
-    if (!blenderBin || !RegFileExists(blenderBin)) {
-      /* Environment not set; try steam */
-      steamBlender = hecl::FindCommonSteamApp(_SYS_STR("Blender"));
-      if (steamBlender.size()) {
-        steamBlender += _SYS_STR("\\blender.exe");
-        blenderBin = steamBlender.c_str();
-      }
-
-      if (!RegFileExists(blenderBin)) {
-        /* No steam; try default */
-        wchar_t progFiles[256];
-        if (GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256)) {
-          for (size_t major = MaxBlenderMajorSearch; major >= MinBlenderMajorSearch; --major) {
-            bool found = false;
-            for (size_t minor = MaxBlenderMinorSearch; minor >= MinBlenderMinorSearch; --minor) {
-              _snwprintf(BLENDER_BIN_BUF, 2048, L"%s\\Blender Foundation\\Blender %i.%i\\blender.exe", progFiles, major,
-                         minor);
-              if (RegFileExists(BLENDER_BIN_BUF)) {
-                blenderBin = BLENDER_BIN_BUF;
-                found = true;
-                break;
-              }
-            }
-
-            if (found) {
-              break;
-            }
-          }
-        }
-      }
+    int blenderMajor = 0;
+    int blenderMinor = 0;
+    auto blenderBin = blender::FindBlender(blenderMajor, blenderMinor);
+    if (!blenderBin) {
+      BlenderLog.report(logvisor::Fatal, FMT_STRING("Failed to locate Blender installation"));
     }
 
-    std::wstring cmdLine = fmt::format(FMT_STRING(L" --background -P \"{}\" -- {} {} {} \"{}\""), blenderShellPath,
-                                       uintptr_t(writehandle), uintptr_t(readhandle), verbosityLevel, blenderAddonPath);
+#if _WIN32
+    std::string cmdLine = fmt::format(FMT_STRING(" --background -P \"{}\" -- {} {} {} \"{}\""), blenderShellPath,
+                                      uintptr_t(writehandle), uintptr_t(readhandle), verbosityLevel, blenderAddonPath);
 
     STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
     HANDLE nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, &sattrs, OPEN_EXISTING,
@@ -407,14 +358,16 @@ Connection::Connection(int verbosityLevel) {
       sinfo.hStdOutput = consoleOutWrite;
     }
 
-    if (!CreateProcessW(blenderBin, cmdLine.data(), nullptr, nullptr, TRUE, NORMAL_PRIORITY_CLASS, nullptr, nullptr,
-                        &sinfo, &m_pinfo)) {
+    const nowide::wstackstring wblenderBin(blenderBin.value());
+    nowide::wstackstring wcmdLine(cmdLine);
+    if (!CreateProcessW(wblenderBin.get(), wcmdLine.get(), nullptr, nullptr, TRUE, NORMAL_PRIORITY_CLASS, nullptr,
+                        nullptr, &sinfo, &m_pinfo)) {
       LPWSTR messageBuffer = nullptr;
       FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                      nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0,
                      nullptr);
-      BlenderLog.report(logvisor::Fatal, FMT_STRING(L"unable to launch blender from {}: {}"), blenderBin,
-                        messageBuffer);
+      BlenderLog.report(logvisor::Fatal, FMT_STRING("unable to launch blender from {}: {}"), blenderBin.value(),
+                        nowide::narrow(messageBuffer));
     }
 
     close(m_writepipe[0]);
@@ -475,8 +428,8 @@ Connection::Connection(int verbosityLevel) {
 
       /* Try user-specified blender first */
       if (blenderBin) {
-        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds.c_str(),
-               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
+        execlp(blenderBin->c_str(), blenderBin->c_str(), "--background", "-P", blenderShellPath.c_str(), "--",
+               readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
         if (errno != ENOENT) {
           errbuf = fmt::format(FMT_STRING("NOLAUNCH {}"), strerror(errno));
           _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
@@ -485,16 +438,15 @@ Connection::Connection(int verbosityLevel) {
       }
 
       /* Try steam */
-      steamBlender = hecl::FindCommonSteamApp(_SYS_STR("Blender"));
+      steamBlender = hecl::FindCommonSteamApp("Blender");
       if (steamBlender.size()) {
 #ifdef __APPLE__
         steamBlender += "/blender.app/Contents/MacOS/blender";
 #else
         steamBlender += "/blender";
 #endif
-        blenderBin = steamBlender.c_str();
-        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds.c_str(),
-               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
+        execlp(steamBlender.c_str(), steamBlender.c_str(), "--background", "-P", blenderShellPath.c_str(), "--",
+               readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
         if (errno != ENOENT) {
           errbuf = fmt::format(FMT_STRING("NOLAUNCH {}"), strerror(errno));
           _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
@@ -522,11 +474,11 @@ Connection::Connection(int verbosityLevel) {
 
     /* Stash error path and unlink existing file */
 #if _WIN32
-    m_errPath = hecl::SystemString(TMPDIR) +
-                fmt::format(FMT_STRING(_SYS_STR("/hecl_{:016X}.derp")), (unsigned long long)m_pinfo.dwProcessId);
+    m_errPath = std::string(TMPDIR) +
+                fmt::format(FMT_STRING("/hecl_{:016X}.derp"), (unsigned long long)m_pinfo.dwProcessId);
 #else
-    m_errPath = hecl::SystemString(TMPDIR) +
-                fmt::format(FMT_STRING(_SYS_STR("/hecl_{:016X}.derp")), (unsigned long long)m_blenderProc);
+    m_errPath = std::string(TMPDIR) +
+                fmt::format(FMT_STRING("/hecl_{:016X}.derp"), (unsigned long long)m_blenderProc);
 #endif
     hecl::Unlink(m_errPath.c_str());
 
@@ -539,25 +491,25 @@ Connection::Connection(int verbosityLevel) {
     } else if (!lineStr.compare(0, 9, "NOBLENDER")) {
       _closePipe();
 #if _WIN32
-      BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to find blender at '{}'")), blenderBin);
+      BlenderLog.report(logvisor::Fatal, FMT_STRING("Unable to find blender at '{}'"), blenderBin.value());
 #else
       if (blenderBin)
-        BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to find blender at '{}' or '{}'")), blenderBin,
+        BlenderLog.report(logvisor::Fatal, FMT_STRING("Unable to find blender at '{}' or '{}'"), blenderBin,
                           DEFAULT_BLENDER_BIN);
       else
-        BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unable to find blender at '{}'")), DEFAULT_BLENDER_BIN);
+        BlenderLog.report(logvisor::Fatal, FMT_STRING("Unable to find blender at '{}'"), DEFAULT_BLENDER_BIN);
 #endif
     } else if (lineStr == "INVALIDBLENDERVER") {
       _closePipe();
-      BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Installed blender version must be >= {}.{}")),
+      BlenderLog.report(logvisor::Fatal, FMT_STRING("Installed blender version must be >= {}.{}"),
                         MinBlenderMajorSearch, MinBlenderMinorSearch);
     } else if (lineStr == "NOADDON") {
       _closePipe();
-      if (blenderAddonPath != _SYS_STR("SKIPINSTALL"))
+      if (blenderAddonPath != "SKIPINSTALL")
         InstallAddon(blenderAddonPath.c_str());
       ++installAttempt;
       if (installAttempt >= 2)
-        BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to install blender addon using '{}'")),
+        BlenderLog.report(logvisor::Fatal, FMT_STRING("unable to install blender addon using '{}'"),
                           blenderAddonPath.c_str());
 #ifndef _WIN32
       waitpid(pid, nullptr, 0);
@@ -565,7 +517,7 @@ Connection::Connection(int verbosityLevel) {
       continue;
     } else if (lineStr == "ADDONINSTALLED") {
       _closePipe();
-      blenderAddonPath = _SYS_STR("SKIPINSTALL");
+      blenderAddonPath = "SKIPINSTALL";
 #ifndef _WIN32
       waitpid(pid, nullptr, 0);
 #endif
@@ -654,7 +606,7 @@ bool Connection::createBlend(const ProjectPath& path, BlendType type) {
                       FMT_STRING("BlenderConnection::createBlend() musn't be called with stream active"));
     return false;
   }
-  _writeStr(fmt::format(FMT_STRING("CREATE \"{}\" {}"), path.getAbsolutePathUTF8(), BlendTypeStrs[int(type)]));
+  _writeStr(fmt::format(FMT_STRING("CREATE \"{}\" {}"), path.getAbsolutePath(), BlendTypeStrs[int(type)]));
   if (_isFinished()) {
     /* Delete immediately in case save doesn't occur */
     hecl::Unlink(path.getAbsolutePath().data());
@@ -673,7 +625,7 @@ bool Connection::openBlend(const ProjectPath& path, bool force) {
   }
   if (!force && path == m_loadedBlend)
     return true;
-  _writeStr(fmt::format(FMT_STRING("OPEN \"{}\""), path.getAbsolutePathUTF8()));
+  _writeStr(fmt::format(FMT_STRING("OPEN \"{}\""), path.getAbsolutePath()));
   if (_isFinished()) {
     m_loadedBlend = path;
     _writeStr("GETTYPE");
@@ -711,7 +663,7 @@ bool Connection::saveBlend() {
 void Connection::deleteBlend() {
   if (m_loadedBlend) {
     hecl::Unlink(m_loadedBlend.getAbsolutePath().data());
-    BlenderLog.report(logvisor::Info, FMT_STRING(_SYS_STR("Deleted '{}'")), m_loadedBlend.getAbsolutePath());
+    BlenderLog.report(logvisor::Info, FMT_STRING("Deleted '{}'"), m_loadedBlend.getAbsolutePath());
     m_loadedBlend = ProjectPath();
   }
 }
@@ -1203,8 +1155,7 @@ MapUniverse::World::World(Connection& conn) {
   color.read(conn);
   std::string path = conn._readStdString();
   if (!path.empty()) {
-    hecl::SystemStringConv sysPath(path);
-    worldPath.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), sysPath.sys_str());
+    worldPath.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), path);
   }
 }
 
@@ -1350,7 +1301,7 @@ std::vector<std::string> DataStream::getLightList() {
 
 std::pair<atVec3f, atVec3f> DataStream::getMeshAABB() {
   if (m_parent->m_loadedType != BlendType::Mesh && m_parent->m_loadedType != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not a MESH or ACTOR blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not a MESH or ACTOR blend"),
                       m_parent->m_loadedBlend.getAbsolutePath());
 
   m_parent->_writeStr("MESHAABB");
@@ -1368,7 +1319,7 @@ const char* DataStream::MeshOutputModeString(HMDLTopology topology) {
 
 Mesh DataStream::compileMesh(HMDLTopology topology, int skinSlotCount) {
   if (m_parent->getBlendType() != BlendType::Mesh)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not a MESH blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not a MESH blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MESHCOMPILE");
@@ -1379,7 +1330,7 @@ Mesh DataStream::compileMesh(HMDLTopology topology, int skinSlotCount) {
 
 Mesh DataStream::compileMesh(std::string_view name, HMDLTopology topology, int skinSlotCount, bool useLuv) {
   if (m_parent->getBlendType() != BlendType::Area)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an AREA blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an AREA blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(FMT_STRING("MESHCOMPILENAME {} {}"), name, int(useLuv)));
@@ -1390,7 +1341,7 @@ Mesh DataStream::compileMesh(std::string_view name, HMDLTopology topology, int s
 
 ColMesh DataStream::compileColMesh(std::string_view name) {
   if (m_parent->getBlendType() != BlendType::Area)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an AREA blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an AREA blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(FMT_STRING("MESHCOMPILENAMECOLLISION {}"), name));
@@ -1401,7 +1352,7 @@ ColMesh DataStream::compileColMesh(std::string_view name) {
 
 std::vector<ColMesh> DataStream::compileColMeshes() {
   if (m_parent->getBlendType() != BlendType::ColMesh)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not a CMESH blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not a CMESH blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MESHCOMPILECOLLISIONALL");
@@ -1414,7 +1365,7 @@ std::vector<ColMesh> DataStream::compileColMeshes() {
 
 std::vector<Light> DataStream::compileLights() {
   if (m_parent->getBlendType() != BlendType::Area)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an AREA blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an AREA blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("LIGHTCOMPILEALL");
@@ -1427,7 +1378,7 @@ std::vector<Light> DataStream::compileLights() {
 
 PathMesh DataStream::compilePathMesh() {
   if (m_parent->getBlendType() != BlendType::PathMesh)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not a PATH blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not a PATH blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MESHCOMPILEPATH");
@@ -1438,7 +1389,7 @@ PathMesh DataStream::compilePathMesh() {
 
 std::vector<uint8_t> DataStream::compileGuiFrame(int version) {
   if (m_parent->getBlendType() != BlendType::Frame)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not a FRAME blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not a FRAME blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(FMT_STRING("FRAMECOMPILE {}"), version));
@@ -1449,13 +1400,12 @@ std::vector<uint8_t> DataStream::compileGuiFrame(int version) {
     if (readStr == "FRAMEDONE")
       break;
 
-    SystemStringConv absolute(readStr);
     auto& proj = m_parent->getBlendPath().getProject();
-    SystemString relative;
-    if (PathRelative(absolute.c_str()))
-      relative = absolute.sys_str();
+    std::string relative;
+    if (PathRelative(readStr.c_str()))
+      relative = readStr;
     else
-      relative = proj.getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
+      relative = proj.getProjectRootPath().getProjectRelativeFromAbsolute(readStr);
     hecl::ProjectPath path(proj.getProjectWorkingPath(), relative);
 
     m_parent->_writeStr(fmt::format(FMT_STRING("{:08X}"), path.parsedHash32()));
@@ -1478,7 +1428,7 @@ std::vector<ProjectPath> DataStream::getTextures() {
 
 Actor DataStream::compileActor() {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an ACTOR blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an ACTOR blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("ACTORCOMPILE");
@@ -1489,7 +1439,7 @@ Actor DataStream::compileActor() {
 
 Actor DataStream::compileActorCharacterOnly() {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an ACTOR blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an ACTOR blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("ACTORCOMPILECHARACTERONLY");
@@ -1500,7 +1450,7 @@ Actor DataStream::compileActorCharacterOnly() {
 
 Armature DataStream::compileArmature() {
   if (m_parent->getBlendType() != BlendType::Armature)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an ARMATURE blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an ARMATURE blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("ARMATURECOMPILE");
@@ -1511,7 +1461,7 @@ Armature DataStream::compileArmature() {
 
 Action DataStream::compileActionChannelsOnly(std::string_view name) {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an ACTOR blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an ACTOR blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(FMT_STRING("ACTIONCOMPILECHANNELSONLY {}"), name));
@@ -1522,7 +1472,7 @@ Action DataStream::compileActionChannelsOnly(std::string_view name) {
 
 World DataStream::compileWorld() {
   if (m_parent->getBlendType() != BlendType::World)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an WORLD blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an WORLD blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("WORLDCOMPILE");
@@ -1533,7 +1483,7 @@ World DataStream::compileWorld() {
 
 std::vector<std::pair<std::string, std::string>> DataStream::getSubtypeNames() {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an ACTOR blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an ACTOR blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("GETSUBTYPENAMES");
@@ -1551,7 +1501,7 @@ std::vector<std::pair<std::string, std::string>> DataStream::getSubtypeNames() {
 
 std::vector<std::pair<std::string, std::string>> DataStream::getActionNames() {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an ACTOR blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an ACTOR blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("GETACTIONNAMES");
@@ -1569,7 +1519,7 @@ std::vector<std::pair<std::string, std::string>> DataStream::getActionNames() {
 
 std::vector<std::pair<std::string, std::string>> DataStream::getSubtypeOverlayNames(std::string_view name) {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an ACTOR blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an ACTOR blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(FMT_STRING("GETSUBTYPEOVERLAYNAMES {}"), name));
@@ -1587,7 +1537,7 @@ std::vector<std::pair<std::string, std::string>> DataStream::getSubtypeOverlayNa
 
 std::vector<std::pair<std::string, std::string>> DataStream::getAttachmentNames() {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an ACTOR blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an ACTOR blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("GETATTACHMENTNAMES");
@@ -1608,7 +1558,7 @@ std::unordered_map<std::string, Matrix3f> DataStream::getBoneMatrices(std::strin
     return {};
 
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an ACTOR blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an ACTOR blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(FMT_STRING("GETBONEMATRICES {}"), name));
@@ -1643,7 +1593,7 @@ bool DataStream::renderPvs(std::string_view path, const atVec3f& location) {
     return false;
 
   if (m_parent->getBlendType() != BlendType::Area)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an AREA blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an AREA blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   athena::simd_floats f(location.simd);
@@ -1658,7 +1608,7 @@ bool DataStream::renderPvsLight(std::string_view path, std::string_view lightNam
     return false;
 
   if (m_parent->getBlendType() != BlendType::Area)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not an AREA blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not an AREA blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(FMT_STRING("RENDERPVSLIGHT {} {}"), path, lightName));
@@ -1669,7 +1619,7 @@ bool DataStream::renderPvsLight(std::string_view path, std::string_view lightNam
 
 MapArea DataStream::compileMapArea() {
   if (m_parent->getBlendType() != BlendType::MapArea)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not a MAPAREA blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not a MAPAREA blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MAPAREACOMPILE");
@@ -1680,7 +1630,7 @@ MapArea DataStream::compileMapArea() {
 
 MapUniverse DataStream::compileMapUniverse() {
   if (m_parent->getBlendType() != BlendType::MapUniverse)
-    BlenderLog.report(logvisor::Fatal, FMT_STRING(_SYS_STR("{} is not a MAPUNIVERSE blend")),
+    BlenderLog.report(logvisor::Fatal, FMT_STRING("{} is not a MAPUNIVERSE blend"),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MAPUNIVERSECOMPILE");

@@ -25,6 +25,7 @@ extern "C" int rep_closefrom(int lower);
 #include <cwctype>
 #include <Shlwapi.h>
 #include "winsupport.hpp"
+#include <nowide/stackstring.hpp>
 #endif
 
 #include <algorithm>
@@ -41,7 +42,6 @@ extern "C" int rep_closefrom(int lower);
 #include "logvisor/logvisor.hpp"
 #include "athena/Global.hpp"
 #include "xxhash/xxhash.h"
-#include "SystemChar.hpp"
 #include "FourCC.hpp"
 
 #if defined(__has_feature)
@@ -92,10 +92,7 @@ extern unsigned VerbosityLevel;
 extern bool GuiMode;
 extern logvisor::Module LogModule;
 
-std::string WideToUTF8(std::wstring_view src);
 std::string Char16ToUTF8(std::u16string_view src);
-std::wstring Char16ToWide(std::u16string_view src);
-std::wstring UTF8ToWide(std::string_view src);
 std::u16string UTF8ToChar16(std::string_view src);
 
 /* humanize_number port from FreeBSD's libutil */
@@ -107,84 +104,29 @@ ENABLE_BITWISE_ENUM(HNScale)
 
 std::string HumanizeNumber(int64_t quotient, size_t len, const char* suffix, int scale, HNFlags flags);
 
-#if HECL_UCS2
-class SystemUTF8Conv {
-  std::string m_utf8;
+static inline void ToLower(std::string& str) {
+  std::transform(str.begin(), str.end(), str.begin(),
+                 [](char c) { return std::tolower(static_cast<unsigned char>(c)); });
+}
+static inline void ToUpper(std::string& str) {
+  std::transform(str.begin(), str.end(), str.begin(),
+                 [](char c) { return std::toupper(static_cast<unsigned char>(c)); });
+}
 
-public:
-  explicit SystemUTF8Conv(SystemStringView str) : m_utf8(WideToUTF8(str)) {}
-
-  std::string_view str() const { return m_utf8; }
-  const char* c_str() const { return m_utf8.c_str(); }
-
-  friend std::string operator+(const SystemUTF8Conv& lhs, std::string_view rhs) { return lhs.m_utf8 + rhs.data(); }
-  friend std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) {
-    return std::string(lhs).append(rhs.m_utf8);
-  }
-};
-
-class SystemStringConv {
-  std::wstring m_sys;
-
-public:
-  explicit SystemStringConv(std::string_view str) : m_sys(UTF8ToWide(str)) {}
-
-  SystemStringView sys_str() const { return m_sys; }
-  const SystemChar* c_str() const { return m_sys.c_str(); }
-
-  friend std::wstring operator+(const SystemStringConv& lhs, const std::wstring_view rhs) {
-    return lhs.m_sys + rhs.data();
-  }
-  friend std::wstring operator+(std::wstring_view lhs, const SystemStringConv& rhs) {
-    return std::wstring(lhs).append(rhs.m_sys);
-  }
-};
-
-inline hecl::SystemString UTF8StringToSysString(std::string_view src) { return UTF8ToWide(src); }
+#if _WIN32
+using Sstat = struct ::_stat64;
 #else
-class SystemUTF8Conv {
-  std::string_view m_utf8;
-
-public:
-  explicit SystemUTF8Conv(SystemStringView str) : m_utf8(str) {}
-
-  std::string_view str() const { return m_utf8; }
-  const char* c_str() const { return m_utf8.data(); }
-
-  friend std::string operator+(const SystemUTF8Conv& lhs, std::string_view rhs) {
-    return std::string(lhs.m_utf8).append(rhs);
-  }
-  friend std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) {
-    return std::string(lhs).append(rhs.m_utf8);
-  }
-};
-
-class SystemStringConv {
-  std::string_view m_sys;
-
-public:
-  explicit SystemStringConv(std::string_view str) : m_sys(str) {}
-
-  SystemStringView sys_str() const { return m_sys; }
-  const SystemChar* c_str() const { return m_sys.data(); }
-
-  friend std::string operator+(const SystemStringConv& lhs, std::string_view rhs) {
-    return std::string(lhs.m_sys).append(rhs);
-  }
-  friend std::string operator+(std::string_view lhs, const SystemStringConv& rhs) {
-    return std::string(lhs).append(rhs.m_sys);
-  }
-};
-
-inline hecl::SystemString UTF8StringToSysString(std::string src) { return src; }
+using SStat = struct stat;
 #endif
 
-void SanitizePath(std::string& path);
-void SanitizePath(std::wstring& path);
+constexpr size_t StrLen(const char* str) { return std::char_traits<char>::length(str); }
 
-inline void Unlink(const SystemChar* file) {
+void SanitizePath(std::string& path);
+
+inline void Unlink(const char* file) {
 #if _WIN32
-  _wunlink(file);
+  const nowide::wstackstring wfile(file);
+  _wunlink(wfile.get());
 #else
   unlink(file);
 #endif
@@ -193,7 +135,8 @@ inline void Unlink(const SystemChar* file) {
 inline void MakeDir(const char* dir) {
 #if _WIN32
   HRESULT err;
-  if (!CreateDirectoryA(dir, NULL))
+  const nowide::wstackstring wdir(dir);
+  if (!CreateDirectoryW(wdir.get(), NULL))
     if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
       LogModule.report(logvisor::Fatal, FMT_STRING("MakeDir({})"), dir);
 #else
@@ -203,62 +146,68 @@ inline void MakeDir(const char* dir) {
 #endif
 }
 
-#if _WIN32
-inline void MakeDir(const wchar_t* dir) {
-  HRESULT err;
-  if (!CreateDirectoryW(dir, NULL))
-    if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-      LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("MakeDir({})")), dir);
-}
-#endif
+int RecursiveMakeDir(const char* dir);
 
-int RecursiveMakeDir(const SystemChar* dir);
-
-inline const SystemChar* GetEnv(const SystemChar* name) {
+inline std::optional<std::string> GetEnv(const char* name) {
 #if WINDOWS_STORE
   return nullptr;
 #else
-#if HECL_UCS2
-  return _wgetenv(name);
+#if _WIN32
+  size_t sz = 0;
+  const nowide::wshort_stackstring wname(name);
+  _wgetenv_s(&sz, nullptr, 0, wname.get());
+  if (sz == 0) {
+    return {};
+  }
+  auto wbuf = std::make_unique<wchar_t[]>(sz);
+  _wgetenv_s(&sz, wbuf.get(), sz, wname.get());
+  return nowide::narrow(wbuf.get(), sz);
 #else
   return getenv(name);
 #endif
 #endif
 }
 
-inline SystemChar* Getcwd(SystemChar* buf, int maxlen) {
-#if HECL_UCS2
-  return _wgetcwd(buf, maxlen);
+inline char* Getcwd(char* buf, int maxlen) {
+#if _WIN32
+  auto wbuf = std::make_unique<wchar_t[]>(maxlen);
+  wchar_t* result = _wgetcwd(wbuf.get(), maxlen);
+  if (result == nullptr) {
+    return nullptr;
+  }
+  return nowide::narrow(buf, maxlen, wbuf.get());
 #else
   return getcwd(buf, maxlen);
 #endif
 }
 
-SystemString GetcwdStr();
+std::string GetcwdStr();
 
-inline bool IsAbsolute(SystemStringView path) {
+inline bool IsAbsolute(std::string_view path) {
 #if _WIN32
-  if (path.size() && (path[0] == _SYS_STR('\\') || path[0] == _SYS_STR('/')))
+  if (path.size() && (path[0] == '\\' || path[0] == '/'))
     return true;
-  if (path.size() >= 2 && iswalpha(path[0]) && path[1] == _SYS_STR(':'))
+  if (path.size() >= 2 && iswalpha(path[0]) && path[1] == ':')
     return true;
 #else
-  if (path.size() && path[0] == _SYS_STR('/'))
+  if (path.size() && path[0] == '/')
     return true;
 #endif
   return false;
 }
 
-const SystemChar* GetTmpDir();
+std::string GetTmpDir();
 
 #if !WINDOWS_STORE
-int RunProcess(const SystemChar* path, const SystemChar* const args[]);
+int RunProcess(const char* path, const char* const args[]);
 #endif
 
 enum class FileLockType { None = 0, Read, Write };
-inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock = FileLockType::None) {
-#if HECL_UCS2
-  FILE* fp = _wfopen(path, mode);
+inline FILE* Fopen(const char* path, const char* mode, FileLockType lock = FileLockType::None) {
+#if _WIN32
+  const nowide::wstackstring wpath(path);
+  const nowide::wshort_stackstring wmode(mode);
+  FILE* fp = _wfopen(wpath.get(), wmode.get());
   if (!fp)
     return nullptr;
 #else
@@ -286,7 +235,7 @@ struct UniqueFileDeleter {
 };
 using UniqueFilePtr = std::unique_ptr<FILE, UniqueFileDeleter>;
 
-inline UniqueFilePtr FopenUnique(const SystemChar* path, const SystemChar* mode,
+inline UniqueFilePtr FopenUnique(const char* path, const char* mode,
                                  FileLockType lock = FileLockType::None) {
   return UniqueFilePtr{Fopen(path, mode, lock)};
 }
@@ -311,76 +260,72 @@ inline int64_t FTell(FILE* fp) {
 #endif
 }
 
-inline int Rename(const SystemChar* oldpath, const SystemChar* newpath) {
-#if HECL_UCS2
-  // return _wrename(oldpath, newpath);
-  return MoveFileExW(oldpath, newpath, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) == 0;
+inline int Rename(const char* oldpath, const char* newpath) {
+#if _WIN32
+  const nowide::wstackstring woldpath(oldpath);
+  const nowide::wstackstring wnewpath(newpath);
+  return MoveFileExW(woldpath.get(), wnewpath.get(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) == 0;
 #else
   return rename(oldpath, newpath);
 #endif
 }
 
-inline int Stat(const SystemChar* path, Sstat* statOut) {
-#if HECL_UCS2
+inline int Stat(const char* path, Sstat* statOut) {
+#if _WIN32
   size_t pos;
-  for (pos = 0; pos < 3 && path[pos] != L'\0'; ++pos) {}
-  if (pos == 2 && path[1] == L':') {
-    SystemChar fixPath[4] = {path[0], L':', L'/', L'\0'};
-    return _wstat(fixPath, statOut);
+  const nowide::wstackstring wpath(path);
+  const wchar_t* wpathP = wpath.get();
+  for (pos = 0; pos < 3 && wpathP[pos] != L'\0'; ++pos) {}
+  if (pos == 2 && wpathP[1] == L':') {
+    wchar_t fixPath[4] = {wpathP[0], L':', L'/', L'\0'};
+    return _wstat64(fixPath, statOut);
   }
-  return _wstat(path, statOut);
+  return _wstat64(wpath.get(), statOut);
 #else
   return stat(path, statOut);
 #endif
 }
 
-inline int StrCmp(const SystemChar* str1, const SystemChar* str2) {
+inline int StrCmp(const char* str1, const char* str2) {
   if (!str1 || !str2)
     return str1 != str2;
-#if HECL_UCS2
-  return wcscmp(str1, str2);
-#else
   return strcmp(str1, str2);
-#endif
 }
 
-inline int StrNCmp(const SystemChar* str1, const SystemChar* str2, size_t count) {
+inline int StrNCmp(const char* str1, const char* str2, size_t count) {
   if (!str1 || !str2)
     return str1 != str2;
 
-  return std::char_traits<SystemChar>::compare(str1, str2, count);
+  return std::char_traits<char>::compare(str1, str2, count);
 }
 
-inline int StrCaseCmp(const SystemChar* str1, const SystemChar* str2) {
+inline int StrCaseCmp(const char* str1, const char* str2) {
   if (!str1 || !str2)
     return str1 != str2;
-#if HECL_UCS2
-  return _wcsicmp(str1, str2);
+#if _WIN32
+  return _stricmp(str1, str2);
 #else
   return strcasecmp(str1, str2);
 #endif
 }
 
-inline unsigned long StrToUl(const SystemChar* str, SystemChar** endPtr, int base) {
-#if HECL_UCS2
-  return wcstoul(str, endPtr, base);
-#else
+inline unsigned long StrToUl(const char* str, char** endPtr, int base) {
   return strtoul(str, endPtr, base);
-#endif
 }
 
-inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz) {
+inline bool CheckFreeSpace(const char* path, size_t reqSz) {
 #if _WIN32
   ULARGE_INTEGER freeBytes;
   wchar_t buf[1024];
   wchar_t* end;
-  DWORD ret = GetFullPathNameW(path, 1024, buf, &end);
+  const nowide::wstackstring wpath(path);
+  DWORD ret = GetFullPathNameW(wpath.get(), 1024, buf, &end);
   if (!ret || ret > 1024)
-    LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("GetFullPathNameW {}")), path);
+    LogModule.report(logvisor::Fatal, FMT_STRING("GetFullPathNameW {}"), path);
   if (end)
     end[0] = L'\0';
   if (!GetDiskFreeSpaceExW(buf, &freeBytes, nullptr, nullptr))
-    LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("GetDiskFreeSpaceExW {}: {}")), path, GetLastError());
+    LogModule.report(logvisor::Fatal, FMT_STRING("GetDiskFreeSpaceExW {}: {}"), path, GetLastError());
   return reqSz < freeBytes.QuadPart;
 #else
   struct statvfs svfs;
@@ -390,11 +335,12 @@ inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz) {
 #endif
 }
 
-inline bool PathRelative(const SystemChar* path) {
+inline bool PathRelative(const char* path) {
   if (!path || !path[0])
     return false;
 #if _WIN32 && !WINDOWS_STORE
-  return PathIsRelative(path);
+  const nowide::wstackstring wpath(path);
+  return PathIsRelativeW(wpath.get());
 #else
   return path[0] != '/';
 #endif
@@ -428,12 +374,6 @@ inline int ConsoleWidth(bool* ok = nullptr) {
 class MultiProgressPrinter;
 class ProjectRootPath;
 
-using SystemRegex = std::basic_regex<SystemChar>;
-using SystemRegexIterator = std::regex_iterator<SystemString::const_iterator>;
-using SystemRegexMatch = std::match_results<SystemString::const_iterator>;
-using SystemViewRegexMatch = std::match_results<SystemStringView::const_iterator>;
-using SystemRegexTokenIterator = std::regex_token_iterator<SystemString::const_iterator>;
-
 /**
  * @brief Hash representation used for all storable and comparable objects
  *
@@ -451,7 +391,6 @@ public:
   constexpr Hash(uint64_t hashin) noexcept : hash(hashin) {}
   explicit Hash(const void* buf, size_t len) noexcept : hash(XXH64(buf, len, 0)) {}
   explicit Hash(std::string_view str) noexcept : hash(XXH64(str.data(), str.size(), 0)) {}
-  explicit Hash(std::wstring_view str) noexcept : hash(XXH64(str.data(), str.size() * 2, 0)) {}
 
   constexpr uint32_t val32() const noexcept { return uint32_t(hash) ^ uint32_t(hash >> 32); }
   constexpr uint64_t val64() const noexcept { return uint64_t(hash); }
@@ -505,18 +444,12 @@ public:
  * @brief Case-insensitive comparator for std::map sorting
  */
 struct CaseInsensitiveCompare {
-  // Allow heterogenous lookup with maps that use this comparator.
+  // Allow heterogeneous lookup with maps that use this comparator.
   using is_transparent = void;
 
   bool operator()(std::string_view lhs, std::string_view rhs) const {
     return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](char lhs, char rhs) {
       return std::tolower(static_cast<unsigned char>(lhs)) < std::tolower(static_cast<unsigned char>(rhs));
-    });
-  }
-
-  bool operator()(std::wstring_view lhs, std::wstring_view rhs) const {
-    return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](wchar_t lhs, wchar_t rhs) {
-      return std::towlower(lhs) < std::towlower(rhs);
     });
   }
 };
@@ -528,32 +461,27 @@ class DirectoryEnumerator {
 public:
   enum class Mode { Native, DirsSorted, FilesSorted, DirsThenFilesSorted };
   struct Entry {
-    hecl::SystemString m_path;
-    hecl::SystemString m_name;
+    std::string m_path;
+    std::string m_name;
     size_t m_fileSz;
     bool m_isDir;
 
-    Entry(hecl::SystemString path, const hecl::SystemChar* name, size_t sz, bool isDir)
-    : m_path(std::move(path)), m_name(name), m_fileSz(sz), m_isDir(isDir) {}
+    Entry(std::string path, std::string name, size_t sz, bool isDir)
+    : m_path(std::move(path)), m_name(std::move(name)), m_fileSz(sz), m_isDir(isDir) {}
   };
 
 private:
   std::vector<Entry> m_entries;
 
 public:
-  DirectoryEnumerator(SystemStringView path, Mode mode = Mode::DirsThenFilesSorted, bool sizeSort = false,
+  DirectoryEnumerator(std::string_view path, Mode mode = Mode::DirsThenFilesSorted, bool sizeSort = false,
                       bool reverse = false, bool noHidden = false);
 
-  explicit operator bool() const { return m_entries.size() != 0; }
-  size_t size() const { return m_entries.size(); }
-  std::vector<Entry>::const_iterator begin() const { return m_entries.cbegin(); }
-  std::vector<Entry>::const_iterator end() const { return m_entries.cend(); }
+  explicit operator bool() const { return !m_entries.empty(); }
+  [[nodiscard]] size_t size() const { return m_entries.size(); }
+  [[nodiscard]] std::vector<Entry>::const_iterator begin() const { return m_entries.cbegin(); }
+  [[nodiscard]] std::vector<Entry>::const_iterator end() const { return m_entries.cend(); }
 };
-
-/**
- * @brief Build list of common OS-specific directories
- */
-std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations();
 
 /**
  * @brief Special ProjectRootPath class for opening Database::Project instances
@@ -562,7 +490,7 @@ std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations();
  * resolve canonicalized relative paths.
  */
 class ProjectRootPath {
-  SystemString m_projRoot;
+  std::string m_projRoot;
   Hash m_hash = 0;
 
 public:
@@ -582,7 +510,7 @@ public:
    * @brief Construct a representation of a project root path
    * @param path valid filesystem-path (relative or absolute) to project root
    */
-  ProjectRootPath(SystemStringView path) : m_projRoot(path) {
+  ProjectRootPath(std::string_view path) : m_projRoot(path) {
     SanitizePath(m_projRoot);
     m_hash = Hash(m_projRoot);
   }
@@ -591,29 +519,29 @@ public:
    * @brief Access fully-canonicalized absolute path
    * @return Absolute path reference
    */
-  SystemStringView getAbsolutePath() const { return m_projRoot; }
+  std::string_view getAbsolutePath() const { return m_projRoot; }
 
   /**
    * @brief Make absolute path project relative
    * @param absPath Absolute path
-   * @return SystemString of path relative to project root
+   * @return std::string of path relative to project root
    */
-  SystemString getProjectRelativeFromAbsolute(SystemStringView absPath) const {
+  std::string getProjectRelativeFromAbsolute(std::string_view absPath) const {
     if (absPath.size() > m_projRoot.size()) {
-      SystemString absPathForward(absPath);
-      for (SystemChar& ch : absPathForward)
-        if (ch == _SYS_STR('\\'))
-          ch = _SYS_STR('/');
+      std::string absPathForward(absPath);
+      for (char& ch : absPathForward)
+        if (ch == '\\')
+          ch = '/';
       if (!absPathForward.compare(0, m_projRoot.size(), m_projRoot)) {
         auto beginIt = absPathForward.cbegin() + m_projRoot.size();
-        while (*beginIt == _SYS_STR('/'))
+        while (*beginIt == '/')
           ++beginIt;
-        return SystemString(beginIt, absPathForward.cend());
+        return std::string(beginIt, absPathForward.cend());
       }
     }
-    LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to resolve '{}' as project relative '{}'")), absPath,
+    LogModule.report(logvisor::Fatal, FMT_STRING("unable to resolve '{}' as project relative '{}'"), absPath,
                      m_projRoot);
-    return SystemString();
+    return std::string();
   }
 
   /**
@@ -636,9 +564,9 @@ public:
    * @brief Obtain c-string of final path component
    * @return Final component c-string (may be empty)
    */
-  SystemStringView getLastComponent() const {
-    size_t pos = m_projRoot.rfind(_SYS_STR('/'));
-    if (pos == SystemString::npos)
+  std::string_view getLastComponent() const {
+    size_t pos = m_projRoot.rfind('/');
+    if (pos == std::string::npos)
       return {};
     return {m_projRoot.c_str() + pos + 1, size_t(m_projRoot.size() - pos - 1)};
   }
@@ -659,30 +587,15 @@ public:
  */
 class ProjectPath {
   Database::Project* m_proj = nullptr;
-  SystemString m_absPath;
-  SystemString m_relPath;
-  SystemString m_auxInfo;
+  std::string m_absPath;
+  std::string m_relPath;
+  std::string m_auxInfo;
   Hash m_hash = 0;
-#if HECL_UCS2
-  std::string m_utf8AbsPath;
-  std::string m_utf8RelPath;
-  std::string m_utf8AuxInfo;
-#endif
   void ComputeHash() {
-#if HECL_UCS2
-    m_utf8AbsPath = WideToUTF8(m_absPath);
-    m_utf8RelPath = WideToUTF8(m_relPath);
-    m_utf8AuxInfo = WideToUTF8(m_auxInfo);
-    if (m_utf8AuxInfo.size())
-      m_hash = Hash(m_utf8RelPath + '|' + m_utf8AuxInfo);
-    else
-      m_hash = Hash(m_utf8RelPath);
-#else
     if (m_auxInfo.size())
       m_hash = Hash(m_relPath + '|' + m_auxInfo);
     else
       m_hash = Hash(m_relPath);
-#endif
   }
 
 public:
@@ -706,10 +619,6 @@ public:
     m_absPath.clear();
     m_relPath.clear();
     m_hash = 0;
-#if HECL_UCS2
-    m_utf8AbsPath.clear();
-    m_utf8RelPath.clear();
-#endif
   }
 
   /**
@@ -717,26 +626,16 @@ public:
    * @param project previously constructed Project to use root path of
    * @param path valid filesystem-path (relative or absolute) to subpath
    */
-  ProjectPath(Database::Project& project, SystemStringView path) { assign(project, path); }
-  void assign(Database::Project& project, SystemStringView path);
-
-#if HECL_UCS2
   ProjectPath(Database::Project& project, std::string_view path) { assign(project, path); }
   void assign(Database::Project& project, std::string_view path);
-#endif
 
   /**
    * @brief Construct a project subpath representation within another subpath
    * @param parentPath previously constructed ProjectPath which ultimately connects to a ProjectRootPath
    * @param path valid filesystem-path (relative or absolute) to subpath
    */
-  ProjectPath(const ProjectPath& parentPath, SystemStringView path) { assign(parentPath, path); }
-  void assign(const ProjectPath& parentPath, SystemStringView path);
-
-#if HECL_UCS2
   ProjectPath(const ProjectPath& parentPath, std::string_view path) { assign(parentPath, path); }
   void assign(const ProjectPath& parentPath, std::string_view path);
-#endif
 
   /**
    * @brief Determine if ProjectPath represents project root directory
@@ -750,22 +649,22 @@ public:
    * @param replace remove existing extension (if any) before appending new extension
    * @return new path with extension
    */
-  ProjectPath getWithExtension(const SystemChar* ext, bool replace = false) const;
+  ProjectPath getWithExtension(const char* ext, bool replace = false) const;
 
   /**
    * @brief Access fully-canonicalized absolute path
    * @return Absolute path reference
    */
-  SystemStringView getAbsolutePath() const { return m_absPath; }
+  std::string_view getAbsolutePath() const { return m_absPath; }
 
   /**
    * @brief Access fully-canonicalized project-relative path
    * @return Relative pointer to within absolute-path or "." for project root-directory (use isRoot to detect)
    */
-  SystemStringView getRelativePath() const {
+  std::string_view getRelativePath() const {
     if (m_relPath.size())
       return m_relPath;
-    static const SystemString dot = _SYS_STR(".");
+    static const std::string dot = ".";
     return dot;
   }
 
@@ -783,47 +682,35 @@ public:
    * This will not resolve outside the project root (error in that case)
    */
   ProjectPath getParentPath() const {
-    if (m_relPath == _SYS_STR("."))
+    if (m_relPath == ".")
       LogModule.report(logvisor::Fatal, FMT_STRING("attempted to resolve parent of root project path"));
-    size_t pos = m_relPath.rfind(_SYS_STR('/'));
-    if (pos == SystemString::npos)
-      return ProjectPath(*m_proj, _SYS_STR(""));
-    return ProjectPath(*m_proj, SystemString(m_relPath.begin(), m_relPath.begin() + pos));
+    size_t pos = m_relPath.rfind('/');
+    if (pos == std::string::npos)
+      return ProjectPath(*m_proj, "");
+    return ProjectPath(*m_proj, std::string(m_relPath.begin(), m_relPath.begin() + pos));
   }
 
   /**
    * @brief Obtain c-string of final path component (stored within relative path)
    * @return Final component c-string (may be empty)
    */
-  SystemStringView getLastComponent() const {
-    size_t pos = m_relPath.rfind(_SYS_STR('/'));
-    if (pos == SystemString::npos)
+  std::string_view getLastComponent() const {
+    size_t pos = m_relPath.rfind('/');
+    if (pos == std::string::npos)
       return m_relPath;
     return {m_relPath.c_str() + pos + 1, m_relPath.size() - pos - 1};
-  }
-  std::string_view getLastComponentUTF8() const {
-    size_t pos = m_relPath.rfind(_SYS_STR('/'));
-#if HECL_UCS2
-    if (pos == SystemString::npos)
-      return m_utf8RelPath;
-    return {m_utf8RelPath.c_str() + pos + 1, size_t(m_utf8RelPath.size() - pos - 1)};
-#else
-    if (pos == SystemString::npos)
-      return m_relPath;
-    return {m_relPath.c_str() + pos + 1, size_t(m_relPath.size() - pos - 1)};
-#endif
   }
 
   /**
    * @brief Obtain c-string of extension of final path component (stored within relative path)
    * @return Final component extension c-string (may be empty)
    */
-  SystemStringView getLastComponentExt() const {
-    SystemStringView lastCompOrig = getLastComponent().data();
-    const SystemChar* end = lastCompOrig.data() + lastCompOrig.size();
-    const SystemChar* lastComp = end;
+  std::string_view getLastComponentExt() const {
+    std::string_view lastCompOrig = getLastComponent().data();
+    const char* end = lastCompOrig.data() + lastCompOrig.size();
+    const char* lastComp = end;
     while (lastComp != lastCompOrig.data()) {
-      if (*lastComp == _SYS_STR('.'))
+      if (*lastComp == '.')
         return {lastComp + 1, size_t(end - lastComp - 1)};
       --lastComp;
     }
@@ -834,51 +721,17 @@ public:
    * @brief Build vector of project-relative directory/file components
    * @return Vector of path components
    */
-  std::vector<hecl::SystemString> getPathComponents() const {
-    std::vector<hecl::SystemString> ret;
+  std::vector<std::string> getPathComponents() const {
+    std::vector<std::string> ret;
     if (m_relPath.empty())
       return ret;
     auto it = m_relPath.cbegin();
-    if (*it == _SYS_STR('/')) {
-      ret.push_back(_SYS_STR("/"));
-      ++it;
-    }
-    hecl::SystemString comp;
-    for (; it != m_relPath.cend(); ++it) {
-      if (*it == _SYS_STR('/')) {
-        if (comp.empty())
-          continue;
-        ret.push_back(std::move(comp));
-        comp.clear();
-        continue;
-      }
-      comp += *it;
-    }
-    if (comp.size())
-      ret.push_back(std::move(comp));
-    return ret;
-  }
-
-  /**
-   * @brief Build vector of project-relative directory/file components
-   * @return Vector of path components encoded as UTF8
-   */
-  std::vector<std::string> getPathComponentsUTF8() const {
-#if HECL_UCS2
-    const std::string& relPath = m_utf8RelPath;
-#else
-    const std::string& relPath = m_relPath;
-#endif
-    std::vector<std::string> ret;
-    if (relPath.empty())
-      return ret;
-    auto it = relPath.cbegin();
     if (*it == '/') {
       ret.push_back("/");
       ++it;
     }
     std::string comp;
-    for (; it != relPath.cend(); ++it) {
+    for (; it != m_relPath.cend(); ++it) {
       if (*it == '/') {
         if (comp.empty())
           continue;
@@ -893,52 +746,18 @@ public:
     return ret;
   }
 
-  /**
-   * @brief Access fully-canonicalized absolute path in UTF-8
-   * @return Absolute path reference
-   */
-  std::string_view getAbsolutePathUTF8() const {
-#if HECL_UCS2
-    return m_utf8AbsPath;
-#else
-    return m_absPath;
-#endif
-  }
-
-  std::string_view getRelativePathUTF8() const {
-#if HECL_UCS2
-    return m_utf8RelPath;
-#else
-    return m_relPath;
-#endif
-  }
-
-  SystemStringView getAuxInfo() const { return m_auxInfo; }
-
-  std::string_view getAuxInfoUTF8() const {
-#if HECL_UCS2
-    return m_utf8AuxInfo;
-#else
-    return m_auxInfo;
-#endif
-  }
+  std::string_view getAuxInfo() const { return m_auxInfo; }
 
   /**
    * @brief Construct a path with the aux info overwritten with specified string
    * @param auxStr string to replace existing auxInfo with
    */
-  ProjectPath ensureAuxInfo(SystemStringView auxStr) const {
+  ProjectPath ensureAuxInfo(std::string_view auxStr) const {
     if (auxStr.empty())
       return ProjectPath(getProject(), getRelativePath());
     else
-      return ProjectPath(getProject(), SystemString(getRelativePath()) + _SYS_STR('|') + auxStr.data());
+      return ProjectPath(getProject(), std::string(getRelativePath()) + '|' + auxStr.data());
   }
-
-#if HECL_UCS2
-  ProjectPath ensureAuxInfo(std::string_view auxStr) const {
-    return ProjectPath(getProject(), SystemString(getRelativePath()) + _SYS_STR('|') + UTF8ToWide(auxStr));
-  }
-#endif
 
   template<typename StringT>
   class EncodableString {
@@ -956,18 +775,11 @@ public:
     operator EncStringView() const { return m_stringView; }
   };
 
-  EncodableString<SystemString> getEncodableString() const {
+  EncodableString<std::string> getEncodableString() const {
     if (!getAuxInfo().empty())
-      return {SystemString(getRelativePath()) + _SYS_STR('|') + getAuxInfo().data()};
+      return {std::string(getRelativePath()) + '|' + getAuxInfo().data()};
     else
       return {getRelativePath()};
-  }
-
-  EncodableString<std::string> getEncodableStringUTF8() const {
-    if (!getAuxInfo().empty())
-      return {std::string(getRelativePathUTF8()) + '|' + getAuxInfoUTF8().data()};
-    else
-      return {getRelativePathUTF8()};
   }
 
   /**
@@ -1027,7 +839,7 @@ public:
    * @brief Insert directory children into list
    * @param outPaths list to append children to
    */
-  void getDirChildren(std::map<SystemString, ProjectPath>& outPaths) const;
+  void getDirChildren(std::map<std::string, ProjectPath>& outPaths) const;
 
   /**
    * @brief Construct DirectoryEnumerator set to project path
@@ -1046,8 +858,8 @@ public:
    */
   size_t levelCount() const {
     size_t count = 0;
-    for (SystemChar ch : m_relPath)
-      if (ch == _SYS_STR('/') || ch == _SYS_STR('\\'))
+    for (char ch : m_relPath)
+      if (ch == '/' || ch == '\\')
         ++count;
     return count;
   }
@@ -1066,11 +878,11 @@ public:
    *                        directory, creating the final component
    */
   void makeDirChain(bool includeLastComp) const {
-    std::vector<hecl::SystemString> comps = getPathComponents();
+    std::vector<std::string> comps = getPathComponents();
     auto end = comps.cend();
     if (end != comps.cbegin() && !includeLastComp)
       --end;
-    ProjectPath compPath(*m_proj, _SYS_STR("."));
+    ProjectPath compPath(*m_proj, ".");
     for (auto it = comps.cbegin(); it != end; ++it) {
       compPath = ProjectPath(compPath, *it);
       compPath.makeDir();
@@ -1103,29 +915,6 @@ public:
  */
 class StringUtils {
 public:
-  static bool BeginsWith(SystemStringView str, SystemStringView test) {
-    if (test.size() > str.size())
-      return false;
-    return str.compare(0, test.size(), test) == 0;
-  }
-
-  static bool EndsWith(SystemStringView str, SystemStringView test) {
-    if (test.size() > str.size())
-      return false;
-    return str.compare(str.size() - test.size(), SystemStringView::npos, test) == 0;
-  }
-
-  static std::string TrimWhitespace(std::string_view str) {
-    auto bit = str.begin();
-    while (bit != str.cend() && std::isspace(static_cast<unsigned char>(*bit)))
-      ++bit;
-    auto eit = str.end();
-    while (eit != str.cbegin() && std::isspace(static_cast<unsigned char>(*(eit - 1))))
-      --eit;
-    return {bit, eit};
-  }
-
-#if HECL_UCS2
   static bool BeginsWith(std::string_view str, std::string_view test) {
     if (test.size() > str.size())
       return false;
@@ -1138,16 +927,15 @@ public:
     return str.compare(str.size() - test.size(), std::string_view::npos, test) == 0;
   }
 
-  static SystemString TrimWhitespace(SystemStringView str) {
+  static std::string TrimWhitespace(std::string_view str) {
     auto bit = str.begin();
-    while (bit != str.cend() && std::iswspace(*bit))
+    while (bit != str.cend() && std::isspace(static_cast<unsigned char>(*bit)))
       ++bit;
     auto eit = str.end();
-    while (eit != str.cbegin() && std::iswspace(*(eit - 1)))
+    while (eit != str.cbegin() && std::isspace(static_cast<unsigned char>(*(eit - 1))))
       --eit;
     return {bit, eit};
   }
-#endif
 };
 
 /**
@@ -1180,7 +968,7 @@ public:
  * @param path absolute or relative file path to search from
  * @return Newly-constructed root path (bool-evaluating to false if not found)
  */
-ProjectRootPath SearchForProject(SystemStringView path);
+ProjectRootPath SearchForProject(std::string_view path);
 
 /**
  * @brief Search from within provided directory for the project root
@@ -1188,7 +976,7 @@ ProjectRootPath SearchForProject(SystemStringView path);
  * @param subpathOut remainder of provided path assigned to this ProjectPath
  * @return Newly-constructed root path (bool-evaluating to false if not found)
  */
-ProjectRootPath SearchForProject(SystemStringView path, SystemString& subpathOut);
+ProjectRootPath SearchForProject(std::string_view path, std::string& subpathOut);
 
 /**
  * @brief Test if given path is a PNG (based on file header)
@@ -1391,6 +1179,3 @@ struct hash<hecl::Hash> {
   size_t operator()(const hecl::Hash& val) const noexcept { return val.valSizeT(); }
 };
 } // namespace std
-
-FMT_CUSTOM_FORMATTER(hecl::SystemUTF8Conv, "{}", obj.str())
-FMT_CUSTOM_FORMATTER(hecl::SystemStringConv, "{}", obj.sys_str())

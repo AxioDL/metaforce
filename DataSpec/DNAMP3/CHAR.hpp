@@ -267,10 +267,10 @@ struct CHAR : BigDNA {
 
   static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                       PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
-                      std::function<void(const hecl::SystemChar*)> fileChanged) {
-    hecl::ProjectPath yamlPath = outPath.getWithExtension(_SYS_STR(".yaml"), true);
+                      std::function<void(const char*)> fileChanged) {
+    hecl::ProjectPath yamlPath = outPath.getWithExtension(".yaml", true);
     hecl::ProjectPath::Type yamlType = yamlPath.getPathType();
-    hecl::ProjectPath blendPath = outPath.getWithExtension(_SYS_STR(".blend"), true);
+    hecl::ProjectPath blendPath = outPath.getWithExtension(".blend", true);
     hecl::ProjectPath::Type blendType = blendPath.getPathType();
 
     if (force || yamlType == hecl::ProjectPath::Type::None || blendType == hecl::ProjectPath::Type::None) {

@@ -52,7 +52,7 @@ s32 CTextParser::ParseInt(const char16_t* str, int len, bool signVal) {
   int val = 0;
   while (len > procCur) {
     val *= 10;
-    wchar_t ch = str[procCur];
+    char16_t ch = str[procCur];
     val += ch - u'0';
     ++procCur;
   }

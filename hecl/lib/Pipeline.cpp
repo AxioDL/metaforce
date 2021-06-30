@@ -15,7 +15,7 @@ class ShaderCacheZipStream : public athena::io::IStreamReader {
   z_stream m_zstrm = {};
 
 public:
-  explicit ShaderCacheZipStream(const hecl::SystemChar* path) : m_reader(path) {
+  explicit ShaderCacheZipStream(const char* path) : m_reader(path) {
     if (m_reader.hasError())
       return;
     if (m_reader.readUint32Big() != SBIG('SHAD'))
@@ -91,7 +91,7 @@ static std::vector<boo::VertexElementDescriptor> ReadVertexFormat(ShaderCacheZip
 }
 
 template <typename P>
-bool PipelineConverter<P>::loadFromFile(FactoryCtx& ctx, const hecl::SystemChar* path) {
+bool PipelineConverter<P>::loadFromFile(FactoryCtx& ctx, const char* path) {
   ShaderCacheZipStream r(path);
   if (!r)
     return false;

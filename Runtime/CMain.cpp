@@ -101,41 +101,41 @@ private:
 #endif
 };
 
-extern hecl::SystemString ExeDir;
+extern std::string ExeDir;
 
 namespace metaforce {
 static logvisor::Module Log{"Metaforce"};
 
 std::optional<MP1::CMain> g_mainMP1;
 
-static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf) {
-  hecl::SystemString features;
+static std::string CPUFeatureString(const zeus::CPUInfo& cpuInf) {
+  std::string features;
 #if defined(__x86_64__) || defined(_M_X64)
-  auto AddFeature = [&features](const hecl::SystemChar* str) {
+  auto AddFeature = [&features](const char* str) {
     if (!features.empty())
-      features += _SYS_STR(", ");
+      features += ", ";
     features += str;
   };
   if (cpuInf.AESNI)
-    AddFeature(_SYS_STR("AES-NI"));
+    AddFeature("AES-NI");
   if (cpuInf.SSE1)
-    AddFeature(_SYS_STR("SSE"));
+    AddFeature("SSE");
   if (cpuInf.SSE2)
-    AddFeature(_SYS_STR("SSE2"));
+    AddFeature("SSE2");
   if (cpuInf.SSE3)
-    AddFeature(_SYS_STR("SSE3"));
+    AddFeature("SSE3");
   if (cpuInf.SSSE3)
-    AddFeature(_SYS_STR("SSSE3"));
+    AddFeature("SSSE3");
   if (cpuInf.SSE4a)
-    AddFeature(_SYS_STR("SSE4a"));
+    AddFeature("SSE4a");
   if (cpuInf.SSE41)
-    AddFeature(_SYS_STR("SSE4.1"));
+    AddFeature("SSE4.1");
   if (cpuInf.SSE42)
-    AddFeature(_SYS_STR("SSE4.2"));
+    AddFeature("SSE4.2");
   if (cpuInf.AVX)
-    AddFeature(_SYS_STR("AVX"));
+    AddFeature("AVX");
   if (cpuInf.AVX2)
-    AddFeature(_SYS_STR("AVX2"));
+    AddFeature("AVX2");
 #endif
   return features;
 }
@@ -253,7 +253,7 @@ private:
   std::string m_errorString;
 
   boo::ObjToken<boo::ITextureR> m_renderTex;
-  hecl::SystemString m_deferredProject;
+  std::string m_deferredProject;
   std::unique_ptr<hecl::Database::Project> m_proj;
   std::optional<amuse::BooBackendVoiceAllocator> m_amuseAllocWrapper;
   std::unique_ptr<boo::IAudioVoiceEngine> m_voiceEngine;
@@ -275,7 +275,7 @@ public:
   int appMain(boo::IApplication* app) override {
     initialize(app);
 
-    m_window = app->newWindow(_SYS_STR("Metaforce"sv));
+    m_window = app->newWindow("Metaforce"sv);
     if (!m_window) {
       return 1;
     }
@@ -283,8 +283,7 @@ public:
     m_window->showWindow();
 
     boo::IGraphicsDataFactory* gfxF = m_window->getMainContextDataFactory();
-    m_window->setTitle(
-        fmt::format(FMT_STRING(_SYS_STR("Metaforce {} [{}]")), METAFORCE_WC_DESCRIBE_SYS, gfxF->platformName()));
+    m_window->setTitle(fmt::format(FMT_STRING("Metaforce {} [{}]"), METAFORCE_WC_DESCRIBE, gfxF->platformName()));
 
     boo::SWindowRect rect = m_window->getWindowFrame();
     m_windowCallback.m_lastRect = rect;
@@ -303,26 +302,25 @@ public:
     hecl::ProjectPath projectPath;
     for (const auto& arg : app->getArgs()) {
       hecl::Sstat theStat;
-      if (!hecl::Stat((arg + _SYS_STR("/out")).c_str(), &theStat) && S_ISDIR(theStat.st_mode)) {
+      if (!hecl::Stat((arg + "/out").c_str(), &theStat) && S_ISDIR(theStat.st_mode)) {
         hecl::ProjectRootPath rootPath(arg);
         hecl::Database::Project tmp(rootPath); // Force project creation
       }
       if (m_deferredProject.empty() && hecl::SearchForProject(arg))
         m_deferredProject = arg;
-      if (arg == _SYS_STR("--no-shader-warmup"))
+      if (arg == "--no-shader-warmup")
         m_noShaderWarmup = true;
-      else if (arg == _SYS_STR("--no-sound"))
+      else if (arg == "--no-sound")
         m_voiceEngine->setVolume(0.f);
     }
 
     if (m_deferredProject.empty()) {
       /* Default behavior - search upwards for packaged project containing the program */
       if (hecl::ProjectRootPath projRoot = hecl::SearchForProject(ExeDir)) {
-        hecl::SystemString rootPath(projRoot.getAbsolutePath());
+        std::string rootPath(projRoot.getAbsolutePath());
         hecl::Sstat theStat;
-        if (hecl::Stat((rootPath + _SYS_STR("/out/files/MP1/Metroid1.upak")).c_str(), &theStat) == 0 &&
-            S_ISREG(theStat.st_mode))
-          m_deferredProject = rootPath + _SYS_STR("/out");
+        if (hecl::Stat((rootPath + "/out/files/MP1/Metroid1.upak").c_str(), &theStat) == 0 && S_ISREG(theStat.st_mode))
+          m_deferredProject = rootPath + "/out";
       }
     }
 
@@ -353,10 +351,9 @@ public:
   void initialize(boo::IApplication* app) {
     zeus::detectCPU();
 
-    for (const boo::SystemString& arg : app->getArgs()) {
-      if (arg.find(_SYS_STR("--verbosity=")) == 0 || arg.find(_SYS_STR("-v=")) == 0) {
-        hecl::SystemUTF8Conv utf8Arg(arg.substr(arg.find_last_of('=') + 1));
-        hecl::VerbosityLevel = atoi(utf8Arg.c_str());
+    for (const auto& arg : app->getArgs()) {
+      if (arg.find("--verbosity=") == 0 || arg.find("-v=") == 0) {
+        hecl::VerbosityLevel = atoi(arg.substr(arg.find_last_of('=') + 1).c_str());
         hecl::LogModule.report(logvisor::Info, FMT_STRING("Set verbosity level to {}"), hecl::VerbosityLevel);
       }
     }
@@ -364,22 +361,21 @@ public:
     const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
     Log.report(logvisor::Info, FMT_STRING("CPU Name: {}"), cpuInf.cpuBrand);
     Log.report(logvisor::Info, FMT_STRING("CPU Vendor: {}"), cpuInf.cpuVendor);
-    Log.report(logvisor::Info, FMT_STRING(_SYS_STR("CPU Features: {}")), CPUFeatureString(cpuInf));
+    Log.report(logvisor::Info, FMT_STRING("CPU Features: {}"), CPUFeatureString(cpuInf));
   }
 
   void onAppIdle() noexcept {
     if (!m_deferredProject.empty()) {
-      hecl::SystemString subPath;
+      std::string subPath;
       hecl::ProjectRootPath projPath = hecl::SearchForProject(m_deferredProject, subPath);
       if (projPath) {
         m_proj = std::make_unique<hecl::Database::Project>(projPath);
         m_deferredProject.clear();
-        hecl::ProjectPath projectPath{m_proj->getProjectWorkingPath(), _SYS_STR("out/files/MP1")};
+        hecl::ProjectPath projectPath{m_proj->getProjectWorkingPath(), "out/files/MP1"};
         CDvdFile::Initialize(projectPath);
       } else {
-        Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Project doesn't exist at '{}'")), m_deferredProject);
-        hecl::SystemUTF8Conv conv{m_deferredProject};
-        m_errorString = fmt::format(FMT_STRING("Project not found at '{}'"), conv.str());
+        Log.report(logvisor::Error, FMT_STRING("Project doesn't exist at '{}'"), m_deferredProject);
+        m_errorString = fmt::format(FMT_STRING("Project not found at '{}'"), m_deferredProject);
         m_deferredProject.clear();
       }
     }
@@ -433,8 +429,7 @@ public:
       }
     }
     if (!m_imGuiInitialized) {
-      hecl::SystemUTF8Conv configDir{m_fileMgr.getStoreRoot()};
-      ImGuiEngine::Initialize(gfxF, m_window.get(), scale, configDir.str());
+      ImGuiEngine::Initialize(gfxF, m_window.get(), scale, m_fileMgr.getStoreRoot());
       m_imGuiInitialized = true;
     }
 
@@ -534,17 +529,17 @@ public:
 
 } // namespace metaforce
 
-static hecl::SystemChar CwdBuf[1024];
-hecl::SystemString ExeDir;
+static char CwdBuf[1024];
+std::string ExeDir;
 
 static void SetupBasics(bool logging) {
   auto result = zeus::validateCPU();
   if (!result.first) {
 #if _WIN32 && !WINDOWS_STORE
-    std::wstring msg =
-        fmt::format(FMT_STRING(L"ERROR: This build of Metaforce requires the following CPU features:\n{}\n"),
+    std::string msg =
+        fmt::format(FMT_STRING("ERROR: This build of Metaforce requires the following CPU features:\n{}\n"),
                     metaforce::CPUFeatureString(result.second));
-    MessageBoxW(nullptr, msg.c_str(), L"CPU error", MB_OK | MB_ICONERROR);
+    MessageBoxW(nullptr, nowide::widen(msg).c_str(), L"CPU error", MB_OK | MB_ICONERROR);
 #else
     fmt::print(stderr, FMT_STRING("ERROR: This build of Metaforce requires the following CPU features:\n{}\n"),
                metaforce::CPUFeatureString(result.second));
@@ -558,58 +553,52 @@ static void SetupBasics(bool logging) {
   atSetExceptionHandler(AthenaExc);
 
 #if SENTRY_ENABLED
-  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("sentry-native-metaforce")};
-  hecl::SystemUTF8Conv cacheDir{fileMgr.getStoreRoot()};
+  hecl::Runtime::FileStoreManager fileMgr{"sentry-native-metaforce"};
+  std::string cacheDir{fileMgr.getStoreRoot()};
   logvisor::RegisterSentry("metaforce", METAFORCE_WC_DESCRIBE, cacheDir.c_str());
 #endif
 }
 
-static bool IsClientLoggingEnabled(int argc, const boo::SystemChar** argv) {
+static bool IsClientLoggingEnabled(int argc, char** argv) {
   for (int i = 1; i < argc; ++i)
-    if (!hecl::StrNCmp(argv[i], _SYS_STR("-l"), 2))
+    if (!hecl::StrNCmp(argv[i], "-l", 2))
       return true;
   return false;
 }
 
 #if !WINDOWS_STORE
-#if _WIN32
-int wmain(int argc, const boo::SystemChar** argv)
-#else
-int main(int argc, const boo::SystemChar** argv)
-#endif
-{
-  if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage"))) {
+int main(int argc, char** argv) {
+  if (argc > 1 && !hecl::StrCmp(argv[1], "--dlpackage")) {
     fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;
   }
 
   SetupBasics(IsClientLoggingEnabled(argc, argv));
-  hecl::Runtime::FileStoreManager fileMgr{_SYS_STR("metaforce")};
+  hecl::Runtime::FileStoreManager fileMgr{"metaforce"};
   hecl::CVarManager cvarMgr{fileMgr};
   hecl::CVarCommons cvarCmns{cvarMgr};
 
-  std::vector<boo::SystemString> args;
+  std::vector<std::string> args;
   for (int i = 1; i < argc; ++i)
-    args.push_back(argv[i]);
+    args.emplace_back(argv[i]);
   cvarMgr.parseCommandLine(args);
 
-  hecl::SystemString logFile{hecl::SystemStringConv(cvarCmns.getLogFile()).c_str()};
-  hecl::SystemString logFilePath;
+  std::string logFile = cvarCmns.getLogFile();
+  std::string logFilePath;
   if (!logFile.empty()) {
     std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     char buf[100];
     std::strftime(buf, 100, "%Y-%m-%d_%H-%M-%S", std::localtime(&time));
-    hecl::SystemString timeStr = hecl::SystemStringConv(buf).c_str();
-    logFilePath = fmt::format(FMT_STRING(_SYS_STR("{}/{}-{}")), fileMgr.getStoreRoot(), timeStr, logFile);
+    logFilePath = fmt::format(FMT_STRING("{}/{}-{}"), fileMgr.getStoreRoot(), buf, logFile);
     logvisor::RegisterFileLogger(logFilePath.c_str());
   }
 
-  if (hecl::SystemChar* cwd = hecl::Getcwd(CwdBuf, 1024)) {
+  if (char* cwd = hecl::Getcwd(CwdBuf, 1024)) {
     if (hecl::PathRelative(argv[0]))
-      ExeDir = hecl::SystemString(cwd) + _SYS_STR('/');
-    hecl::SystemString Argv0(argv[0]);
-    hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_SYS_STR("/\\"));
-    if (lastIdx != hecl::SystemString::npos)
+      ExeDir = std::string(cwd) + '/';
+    std::string Argv0(argv[0]);
+    std::string::size_type lastIdx = Argv0.find_last_of("/\\");
+    if (lastIdx != std::string::npos)
       ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
   }
 
@@ -617,9 +606,9 @@ int main(int argc, const boo::SystemChar** argv)
   hecl::SetCpuCountOverride(argc, argv);
 
   metaforce::Application appCb(fileMgr, cvarMgr, cvarCmns);
-  int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, appCb, _SYS_STR("metaforce"),
-                                _SYS_STR("Metaforce"), argc, argv, appCb.getGraphicsApi(), appCb.getSamples(),
-                                appCb.getAnisotropy(), appCb.getDeepColor(), false);
+  int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, appCb, "metaforce", "Metaforce", argv[0], args,
+                                appCb.getGraphicsApi(), appCb.getSamples(), appCb.getAnisotropy(), appCb.getDeepColor(),
+                                false);
   return ret;
 }
 #endif
@@ -631,30 +620,22 @@ using namespace Windows::ApplicationModel::Core;
 [Platform::MTAThread] int WINAPIV main(Platform::Array<Platform::String ^> ^ params) {
   SetupBasics(false);
   metaforce::Application appCb;
-  auto viewProvider = ref new boo::ViewProvider(appCb, _SYS_STR("metaforce"), _SYS_STR("Metaforce"),
-                                                _SYS_STR("metaforce"), params, false);
+  auto viewProvider = ref new boo::ViewProvider(appCb, "metaforce", "Metaforce", "metaforce", params, false);
   CoreApplication::Run(viewProvider);
   return 0;
 }
 
 #elif _WIN32
 #include <shellapi.h>
+#include <nowide/args.hpp>
 
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int) {
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int) {
   int argc = 0;
-  const boo::SystemChar** argv;
-  if (lpCmdLine[0])
-    argv = (const wchar_t**)(CommandLineToArgvW(lpCmdLine, &argc));
-  static boo::SystemChar selfPath[1024];
-  GetModuleFileNameW(nullptr, selfPath, 1024);
-  static const boo::SystemChar* booArgv[32] = {};
-  booArgv[0] = selfPath;
-  for (int i = 0; i < argc; ++i)
-    booArgv[i + 1] = argv[i];
-
+  char** argv = nullptr;
+  nowide::args _(argc, argv);
   const DWORD outType = GetFileType(GetStdHandle(STD_ERROR_HANDLE));
-  if (IsClientLoggingEnabled(argc + 1, booArgv) && outType == FILE_TYPE_UNKNOWN)
+  if (IsClientLoggingEnabled(argc, argv) && outType == FILE_TYPE_UNKNOWN)
     logvisor::CreateWin32Console();
-  return wmain(argc + 1, booArgv);
+  return main(argc, argv);
 }
 #endif

@@ -42,16 +42,6 @@ struct STRG : ISTRG {
       return hecl::UTF8ToChar16(search->second->at(idx));
     return std::u16string();
   }
-  hecl::SystemString getSystemString(const FourCC& lang, size_t idx) const override {
-    auto search = langMap.find(lang);
-    if (search != langMap.end())
-#if HECL_UCS2
-      return hecl::UTF8ToWide(search->second->at(idx));
-#else
-      return search->second->at(idx);
-#endif
-    return hecl::SystemString();
-  }
 
   static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
     std::unique_ptr<ISTRG> strg = LoadSTRG(rs);

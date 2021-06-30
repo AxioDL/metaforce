@@ -836,9 +836,9 @@ bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
   const uint16_t height = rs.readUint16Big();
   const uint32_t numMips = rs.readUint32Big();
 
-  auto fp = hecl::FopenUnique(outPath.getAbsolutePath().data(), _SYS_STR("wb"));
+  auto fp = hecl::FopenUnique(outPath.getAbsolutePath().data(), "wb");
   if (fp == nullptr) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Unable to open '{}' for writing")), outPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING("Unable to open '{}' for writing"), outPath.getAbsolutePath());
     return false;
   }
   png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, PNGErr, PNGWarn);
@@ -1039,9 +1039,9 @@ static int GetNumPaletteEntriesForGCN(png_structp png, png_infop info) {
 }
 
 bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
-  auto inf = hecl::FopenUnique(inPath.getAbsolutePath().data(), _SYS_STR("rb"));
+  auto inf = hecl::FopenUnique(inPath.getAbsolutePath().data(), "rb");
   if (inf == nullptr) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Unable to open '{}' for reading")), inPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING("Unable to open '{}' for reading"), inPath.getAbsolutePath());
     return false;
   }
 
@@ -1049,7 +1049,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   char header[8];
   std::fread(header, 1, sizeof(header), inf.get());
   if (png_sig_cmp((png_const_bytep)header, 0, 8)) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("invalid PNG signature in '{}'")), inPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING("invalid PNG signature in '{}'"), inPath.getAbsolutePath());
     return false;
   }
 
@@ -1067,7 +1067,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   }
 
   if (setjmp(png_jmpbuf(pngRead))) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to initialize libpng I/O for '{}'")),
+    Log.report(logvisor::Error, FMT_STRING("unable to initialize libpng I/O for '{}'"),
                inPath.getAbsolutePath());
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
@@ -1113,7 +1113,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   }
 
   if (bitDepth != 8) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("'{}' is not 8 bits-per-channel")), inPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING("'{}' is not 8 bits-per-channel"), inPath.getAbsolutePath());
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1144,7 +1144,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     nComps = 1;
     break;
   default:
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unsupported color type in '{}'")), inPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING("unsupported color type in '{}'"), inPath.getAbsolutePath());
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1164,7 +1164,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   bufOut.reset(new uint8_t[bufLen]);
 
   if (setjmp(png_jmpbuf(pngRead))) {
-    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to read image in '{}'")), inPath.getAbsolutePath());
+    Log.report(logvisor::Fatal, FMT_STRING("unable to read image in '{}'"), inPath.getAbsolutePath());
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1345,7 +1345,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   /* Do write out */
   athena::io::FileWriter outf(outPath.getAbsolutePath(), true, false);
   if (outf.hasError()) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Unable to open '{}' for writing")), outPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING("Unable to open '{}' for writing"), outPath.getAbsolutePath());
     return false;
   }
 
@@ -1359,9 +1359,9 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
 }
 
 bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
-  auto inf = hecl::FopenUnique(inPath.getAbsolutePath().data(), _SYS_STR("rb"));
+  auto inf = hecl::FopenUnique(inPath.getAbsolutePath().data(), "rb");
   if (inf == nullptr) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Unable to open '{}' for reading")), inPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING("Unable to open '{}' for reading"), inPath.getAbsolutePath());
     return false;
   }
 
@@ -1369,7 +1369,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   char header[8];
   std::fread(header, 1, sizeof(header), inf.get());
   if (png_sig_cmp((png_const_bytep)header, 0, 8)) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("invalid PNG signature in '{}'")), inPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING("invalid PNG signature in '{}'"), inPath.getAbsolutePath());
     return false;
   }
 
@@ -1387,7 +1387,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   }
 
   if (setjmp(png_jmpbuf(pngRead))) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unable to initialize libpng I/O for '{}'")),
+    Log.report(logvisor::Error, FMT_STRING("unable to initialize libpng I/O for '{}'"),
                inPath.getAbsolutePath());
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
@@ -1427,7 +1427,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   }
 
   if (bitDepth != 8) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("'{}' is not 8 bits-per-channel")), inPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING("'{}' is not 8 bits-per-channel"), inPath.getAbsolutePath());
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1456,7 +1456,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     paletteBuf = ReadPalette(pngRead, info, paletteSize);
     break;
   default:
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("unsupported color type in '{}'")), inPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING("unsupported color type in '{}'"), inPath.getAbsolutePath());
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1474,7 +1474,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   bufOut.reset(new uint8_t[bufLen]);
 
   if (setjmp(png_jmpbuf(pngRead))) {
-    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("unable to read image in '{}'")), inPath.getAbsolutePath());
+    Log.report(logvisor::Fatal, FMT_STRING("unable to read image in '{}'"), inPath.getAbsolutePath());
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1595,7 +1595,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   /* Do write out */
   athena::io::FileWriter outf(outPath.getAbsolutePath(), true, false);
   if (outf.hasError()) {
-    Log.report(logvisor::Error, FMT_STRING(_SYS_STR("Unable to open '{}' for writing")), outPath.getAbsolutePath());
+    Log.report(logvisor::Error, FMT_STRING("Unable to open '{}' for writing"), outPath.getAbsolutePath());
     return false;
   }
 

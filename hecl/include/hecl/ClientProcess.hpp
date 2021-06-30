@@ -10,7 +10,6 @@
 
 #include "hecl/Blender/Token.hpp"
 #include "hecl/hecl.hpp"
-#include "hecl/SystemChar.hpp"
 
 #include <boo/ThreadLocalPtr.hpp>
 
@@ -22,7 +21,7 @@ namespace hecl {
 class MultiProgressPrinter;
 
 extern int CpuCountOverride;
-void SetCpuCountOverride(int argc, const SystemChar** argv);
+void SetCpuCountOverride(int argc, char** argv);
 
 class ClientProcess {
   std::mutex m_mutex;

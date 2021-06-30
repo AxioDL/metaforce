@@ -54,7 +54,7 @@ void DCLN::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
 
 bool DCLN::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
-                   std::function<void(const hecl::SystemChar*)> fileChanged) {
+                   std::function<void(const char*)> fileChanged) {
   DCLN dcln;
   dcln.read(rs);
   hecl::blender::Connection& conn = btok.getBlenderConnection();
@@ -78,7 +78,7 @@ bool DCLN::Cook(const hecl::ProjectPath& outPath, const std::vector<Mesh>& meshe
 
 #if DCLN_DUMP_OBB
   hecl::blender::Connection& conn = hecl::blender::SharedBlenderToken.getBlenderConnection();
-  conn.createBlend(outPath.getWithExtension(_SYS_STR(".blend")), hecl::blender::BlendType::ColMesh);
+  conn.createBlend(outPath.getWithExtension(".blend"), hecl::blender::BlendType::ColMesh);
   dcln.sendToBlender(conn, "BLAH");
   conn.saveBlend();
 #endif

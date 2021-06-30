@@ -16,12 +16,12 @@ public:
       LogModule.report(logvisor::Fatal, FMT_STRING("hecl spec must be ran within a project directory"));
 
     const auto& specs = info.project->getDataSpecs();
-    hecl::SystemString firstArg = info.args.front();
+    std::string firstArg = info.args.front();
     hecl::ToLower(firstArg);
 
-    if (firstArg == _SYS_STR("enable"))
+    if (firstArg == "enable")
       mode = MENABLE;
-    else if (firstArg == _SYS_STR("disable"))
+    else if (firstArg == "disable")
       mode = MDISABLE;
     else
       return;
@@ -41,46 +41,46 @@ public:
         }
       }
       if (!found)
-        LogModule.report(logvisor::Fatal, FMT_STRING(_SYS_STR("'{}' is not found in the dataspec registry")), *it);
+        LogModule.report(logvisor::Fatal, FMT_STRING("'{}' is not found in the dataspec registry"), *it);
     }
   }
 
   static void Help(HelpOutput& help) {
-    help.secHead(_SYS_STR("NAME"));
+    help.secHead("NAME");
     help.beginWrap();
-    help.wrap(_SYS_STR("hecl-spec - Configure target data options\n"));
+    help.wrap("hecl-spec - Configure target data options\n");
     help.endWrap();
 
-    help.secHead(_SYS_STR("SYNOPSIS"));
+    help.secHead("SYNOPSIS");
     help.beginWrap();
-    help.wrap(_SYS_STR("hecl spec [enable|disable] [<specname>...]\n"));
+    help.wrap("hecl spec [enable|disable] [<specname>...]\n");
     help.endWrap();
 
-    help.secHead(_SYS_STR("DESCRIPTION"));
+    help.secHead("DESCRIPTION");
     help.beginWrap();
     help.wrap(
-        _SYS_STR("This command configures the HECL project with the user's preferred target DataSpecs.\n\n")
-            _SYS_STR("Providing enable/disable argument will bulk-set the enable status of the provided spec(s)")
-                _SYS_STR("list. If enable/disable is not provided, a list of supported DataSpecs is printed.\n\n"));
+        "This command configures the HECL project with the user's preferred target DataSpecs.\n\n"
+            "Providing enable/disable argument will bulk-set the enable status of the provided spec(s)"
+                "list. If enable/disable is not provided, a list of supported DataSpecs is printed.\n\n");
     help.endWrap();
 
-    help.secHead(_SYS_STR("OPTIONS"));
-    help.optionHead(_SYS_STR("<specname>..."), _SYS_STR("DataSpec name(s)"));
+    help.secHead("OPTIONS");
+    help.optionHead("<specname>...", "DataSpec name(s)");
     help.beginWrap();
-    help.wrap(_SYS_STR("Specifies platform-names to enable/disable"));
+    help.wrap("Specifies platform-names to enable/disable");
     help.endWrap();
   }
 
-  hecl::SystemStringView toolName() const override { return _SYS_STR("spec"sv); }
+  std::string_view toolName() const override { return "spec"sv; }
 
   int run() override {
     if (!m_info.project) {
       for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY) {
         if (XTERM_COLOR)
-          fmt::print(FMT_STRING(_SYS_STR("" BOLD CYAN "{}" NORMAL "\n")), spec->m_name);
+          fmt::print(FMT_STRING("" BOLD CYAN "{}" NORMAL "\n"), spec->m_name);
         else
-          fmt::print(FMT_STRING(_SYS_STR("{}\n")), spec->m_name);
-        fmt::print(FMT_STRING(_SYS_STR("  {}\n")), spec->m_desc);
+          fmt::print(FMT_STRING("{}\n"), spec->m_name);
+        fmt::print(FMT_STRING("  {}\n"), spec->m_desc);
       }
       return 0;
     }
@@ -89,28 +89,28 @@ public:
     if (mode == MLIST) {
       for (auto& spec : specs) {
         if (XTERM_COLOR)
-          fmt::print(FMT_STRING(_SYS_STR("" BOLD CYAN "{}" NORMAL "")), spec.spec.m_name);
+          fmt::print(FMT_STRING("" BOLD CYAN "{}" NORMAL ""), spec.spec.m_name);
         else
-          fmt::print(FMT_STRING(_SYS_STR("{}")), spec.spec.m_name);
+          fmt::print(FMT_STRING("{}"), spec.spec.m_name);
         if (spec.active) {
           if (XTERM_COLOR)
-            fmt::print(FMT_STRING(_SYS_STR(" " BOLD GREEN "[ENABLED]" NORMAL "")));
+            fmt::print(FMT_STRING(" " BOLD GREEN "[ENABLED]" NORMAL ""));
           else
-            fmt::print(FMT_STRING(_SYS_STR(" [ENABLED]")));
+            fmt::print(FMT_STRING(" [ENABLED]"));
         }
-        fmt::print(FMT_STRING(_SYS_STR("\n  {}\n")), spec.spec.m_desc);
+        fmt::print(FMT_STRING("\n  {}\n"), spec.spec.m_desc);
       }
       return 0;
     }
 
-    std::vector<hecl::SystemString> opSpecs;
+    std::vector<std::string> opSpecs;
     auto it = m_info.args.begin();
     ++it;
     for (; it != m_info.args.end(); ++it) {
-      hecl::SystemString itName = *it;
+      std::string itName = *it;
       hecl::ToLower(itName);
       for (auto& spec : specs) {
-        hecl::SystemString compName(spec.spec.m_name);
+        std::string compName(spec.spec.m_name);
         hecl::ToLower(compName);
         if (itName == compName) {
           opSpecs.emplace_back(spec.spec.m_name);

@@ -33,7 +33,7 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn, const MAPU& mapu, const 
         "\n";
 
   hecl::ProjectPath hexPath = pakRouter.getWorking(mapu.hexMapa);
-  os.linkMesh(hexPath.getAbsolutePathUTF8(), "MAP");
+  os.linkMesh(hexPath.getAbsolutePath(), "MAP");
   os << "hexMesh = bpy.data.objects['MAP'].data\n";
 
   for (const MAPU::World& wld : mapu.worlds) {
@@ -55,7 +55,7 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn, const MAPU& mapu, const 
                          "bpy.context.scene.collection.objects.link(wldObj)\n"),
               wld.name, wldXfF[0][0], wldXfF[0][1], wldXfF[0][2], wldXfF[0][3], wldXfF[1][0], wldXfF[1][1],
               wldXfF[1][2], wldXfF[1][3], wldXfF[2][0], wldXfF[2][1], wldXfF[2][2], wldXfF[2][3], hexColorF[0],
-              hexColorF[1], hexColorF[2], hexColorF[3], path.getParentPath().getRelativePathUTF8());
+              hexColorF[1], hexColorF[2], hexColorF[3], path.getParentPath().getRelativePath());
     int idx = 0;
     for (const MAPU::Transform& hexXf : wld.hexTransforms) {
       zeus::simd_floats hexXfF[3];
@@ -113,8 +113,8 @@ bool MAPU::Cook(const hecl::blender::MapUniverse& mapuIn, const hecl::ProjectPat
     MAPU::World& wldOut = mapu.worlds.back();
     wldOut.name = wld.name;
     for (const auto& ent : wld.worldPath.enumerateDir()) {
-      if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!world")) &&
-          hecl::StringUtils::EndsWith(ent.m_name, _SYS_STR(".blend"))) {
+      if (hecl::StringUtils::BeginsWith(ent.m_name, "!world") &&
+          hecl::StringUtils::EndsWith(ent.m_name, ".blend")) {
         wldOut.mlvl = hecl::ProjectPath(wld.worldPath, ent.m_name);
         break;
       }

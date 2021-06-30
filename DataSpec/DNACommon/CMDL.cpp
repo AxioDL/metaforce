@@ -82,8 +82,7 @@ void ReadMaterialSetToBlender_1_2(hecl::blender::PyOutStream& os, const Material
       PAKEntryReadStream rs = texEntry->beginReadStream(*node);
       TXTR::Extract(rs, txtrPath);
     }
-    hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
-    hecl::SystemUTF8Conv resPathView(resPath);
+    std::string resPath = pakRouter.getResourceRelativePath(entry, tex);
     os.format(FMT_STRING("if '{}' in bpy.data.images:\n"
                          "    image = bpy.data.images['{}']\n"
                          "else:\n"
@@ -91,7 +90,7 @@ void ReadMaterialSetToBlender_1_2(hecl::blender::PyOutStream& os, const Material
                          "    image.name = '{}'\n"
                          "texmap_list.append(image)\n"
                          "\n"),
-              texName, texName, resPathView, texName);
+              texName, texName, resPath, texName);
   }
 
   unsigned m = 0;
@@ -468,7 +467,7 @@ void InitGeomBlenderContext(hecl::blender::PyOutStream& os, const hecl::ProjectP
                        "with bpy.data.libraries.load('{}', link=True, relative=True) as (data_from, data_to):\n"
                        "    data_to.node_groups = data_from.node_groups\n"
                        "\n"),
-            masterShaderPath.getAbsolutePathUTF8());
+            masterShaderPath.getAbsolutePath());
 }
 
 void FinishBlenderMesh(hecl::blender::PyOutStream& os, unsigned matSetCount, int meshIdx) {
@@ -1195,7 +1194,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
 
       size_t endOff = 0;
       for (const Material& mat : mset) {
-        std::string diagName = fmt::format(FMT_STRING("{}:{}"), inPath.getLastComponentUTF8(), mat.name);
+        std::string diagName = fmt::format(FMT_STRING("{}:{}"), inPath.getLastComponent(), mat.name);
         hecl::Frontend::IR matIR = FE.compileSource(mat.source, diagName);
         setBackends.emplace_back();
         hecl::Backend::GX& matGX = setBackends.back();

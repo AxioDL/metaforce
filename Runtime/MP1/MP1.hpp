@@ -280,7 +280,7 @@ public:
 
   static void UpdateDiscordPresence(CAssetId worldSTRG = {});
 
-  // int RsMain(int argc, boo::SystemChar** argv, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator&
+  // int RsMain(int argc, char** argv, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator&
   // backend);
   void Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarManager, boo::IWindow* window,
             boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) override;

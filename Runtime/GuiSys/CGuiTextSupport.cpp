@@ -1,5 +1,7 @@
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 
+#include <fmt/xchar.h>
+
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CGraphicsPalette.hpp"

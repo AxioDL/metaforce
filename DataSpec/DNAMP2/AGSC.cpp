@@ -30,7 +30,7 @@ bool AGSC::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& dir) {
   /* Write out project/pool */
   {
     auto projd = group.getProj().toYAML();
-    athena::io::FileWriter fo(hecl::ProjectPath(dir, _SYS_STR("!project.yaml")).getAbsolutePath());
+    athena::io::FileWriter fo(hecl::ProjectPath(dir, "!project.yaml").getAbsolutePath());
     if (fo.hasError())
       return false;
     fo.writeUBytes(projd.data(), projd.size());
@@ -38,7 +38,7 @@ bool AGSC::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& dir) {
 
   {
     auto poold = group.getPool().toYAML();
-    athena::io::FileWriter fo(hecl::ProjectPath(dir, _SYS_STR("!pool.yaml")).getAbsolutePath());
+    athena::io::FileWriter fo(hecl::ProjectPath(dir, "!pool.yaml").getAbsolutePath());
     if (fo.hasError())
       return false;
     fo.writeUBytes(poold.data(), poold.size());
@@ -61,7 +61,7 @@ bool AGSC::Cook(const hecl::ProjectPath& dir, const hecl::ProjectPath& outPath) 
   auto sdirSamp = group.getSdir().toGCNData(group);
 
   Header head;
-  head.groupName = dir.getLastComponentUTF8();
+  head.groupName = dir.getLastComponent();
   for (const auto& p : group.getProj().sfxGroups())
     head.groupId = p.first.id;
   head.poolSz = pool.size();

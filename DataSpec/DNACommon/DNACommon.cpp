@@ -83,7 +83,7 @@ void UniqueID32::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& write
   hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
   if (!path)
     return;
-  writer.writeString(path.getEncodableStringUTF8());
+  writer.writeString(path.getEncodableString());
 }
 template <>
 void UniqueID32::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {
@@ -133,7 +133,7 @@ void UniqueID64::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& write
   hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
   if (!path)
     return;
-  writer.writeString(path.getEncodableStringUTF8());
+  writer.writeString(path.getEncodableString());
 }
 template <>
 void UniqueID64::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {
@@ -164,7 +164,7 @@ void UniqueID128::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writ
   hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
   if (!path)
     return;
-  writer.writeString(path.getEncodableStringUTF8());
+  writer.writeString(path.getEncodableString());
 }
 template <>
 void UniqueID128::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {
@@ -189,7 +189,7 @@ void WordBitmap::write(athena::io::IStreamWriter& writer) const {
 void WordBitmap::binarySize(size_t& __isz) const { __isz += m_words.size() * 4; }
 
 hecl::ProjectPath GetPathBeginsWith(const hecl::DirectoryEnumerator& dEnum, const hecl::ProjectPath& parentPath,
-                                    hecl::SystemStringView test) {
+                                    std::string_view test) {
   for (const auto& ent : dEnum)
     if (hecl::StringUtils::BeginsWith(ent.m_name, test))
       return hecl::ProjectPath(parentPath, ent.m_name);

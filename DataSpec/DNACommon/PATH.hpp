@@ -104,7 +104,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::DNAMP1::PAKBridge, DataSpec::DNAMP2::PAKBri
 
   static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                       PAKRouter<PAKBridge>& pakRouter, const typename PAKBridge::PAKType::Entry& entry, bool force,
-                      hecl::blender::Token& btok, std::function<void(const hecl::SystemChar*)> fileChanged);
+                      hecl::blender::Token& btok, std::function<void(const char*)> fileChanged);
 
   static bool Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const PathMesh& mesh,
                    hecl::blender::Token& btok);

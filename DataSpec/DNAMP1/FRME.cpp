@@ -93,7 +93,7 @@ void FRME::Widget::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_read
     widgetInfo = std::make_unique<SLGPInfo>();
     break;
   default:
-    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Unsupported FRME widget type {}")), type);
+    Log.report(logvisor::Fatal, FMT_STRING("Unsupported FRME widget type {}"), type);
   }
 
   /* widgetInfo */
@@ -174,7 +174,7 @@ void FRME::Widget::CAMRInfo::Enumerate<BigDNA::Read>(athena::io::IStreamReader& 
   } else if (projectionType == ProjectionType::Orthographic) {
     projection = std::make_unique<OrthographicProjection>();
   } else {
-    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Invalid CAMR projection mode! {}")), int(projectionType));
+    Log.report(logvisor::Fatal, FMT_STRING("Invalid CAMR projection mode! {}"), int(projectionType));
   }
 
   projection->read(__dna_reader);
@@ -183,9 +183,9 @@ void FRME::Widget::CAMRInfo::Enumerate<BigDNA::Read>(athena::io::IStreamReader& 
 template <>
 void FRME::Widget::CAMRInfo::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& __dna_writer) {
   if (!projection)
-    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("Invalid CAMR projection object!")));
+    Log.report(logvisor::Fatal, FMT_STRING("Invalid CAMR projection object!"));
   if (projection->type != projectionType)
-    Log.report(logvisor::Fatal, FMT_STRING(_SYS_STR("CAMR projection type does not match actual projection type!")));
+    Log.report(logvisor::Fatal, FMT_STRING("CAMR projection type does not match actual projection type!"));
 
   __dna_writer.writeUint32Big(atUint32(projectionType));
   projection->write(__dna_writer);
@@ -274,7 +274,7 @@ AT_SPECIALIZE_DNA(FRME::Widget::TXPNInfo)
 
 bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
-                   std::function<void(const hecl::SystemChar*)> fileChanged) {
+                   std::function<void(const char*)> fileChanged) {
   if (!force && outPath.isFile())
     return true;
 
@@ -390,7 +390,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
       using IMGPInfo = Widget::IMGPInfo;
       if (IMGPInfo* info = static_cast<IMGPInfo*>(w.widgetInfo.get())) {
         std::string texName;
-        hecl::SystemString resPath;
+        std::string resPath;
         if (info->texture.isValid()) {
           texName = pakRouter.getBestEntryName(info->texture);
           const nod::Node* node;
@@ -405,13 +405,12 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         }
 
         if (resPath.size()) {
-          hecl::SystemUTF8Conv resPathView(resPath);
           os.format(FMT_STRING("if '{}' in bpy.data.images:\n"
                                "    image = bpy.data.images['{}']\n"
                                "else:\n"
                                "    image = bpy.data.images.load('''//{}''')\n"
                                "    image.name = '{}'\n"),
-                    texName, texName, resPathView, texName);
+                    texName, texName, resPath, texName);
         } else {
           os << "image = None\n";
         }
@@ -489,7 +488,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
       hecl::ProjectPath modelPath = pakRouter.getWorking(info->model);
       const PAKRouter<PAKBridge>::EntryType* cmdlE = pakRouter.lookupEntry(info->model, nullptr, true, true);
 
-      os.linkMesh(modelPath.getAbsolutePathUTF8(), pakRouter.getBestEntryName(*cmdlE));
+      os.linkMesh(modelPath.getAbsolutePath(), pakRouter.getBestEntryName(*cmdlE));
 
       os.format(FMT_STRING("frme_obj.retro_model_light_mask = {}\n"), info->lightMask);
       os << "print(obj.name)\n"
@@ -536,10 +535,10 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
                              "bpy.types.Object.retro_textpane_hjustification[1]['items'][{}][0]\n"
                              "frme_obj.retro_textpane_vjustification = "
                              "bpy.types.Object.retro_textpane_vjustification[1]['items'][{}][0]\n"),
-                  info->xDim, info->zDim, scaleF[0], scaleF[1], scaleF[2], fontPath.getRelativePathUTF8(),
+                  info->xDim, info->zDim, scaleF[0], scaleF[1], scaleF[2], fontPath.getRelativePath(),
                   info->wordWrap ? "True" : "False", info->horizontal ? "True" : "False", fillF[0], fillF[1], fillF[2],
                   fillF[3], outlineF[0], outlineF[1], outlineF[2], outlineF[3], extentF[0], extentF[1],
-                  jpFontPath.getRelativePathUTF8(), info->jpnPointScale[0], info->jpnPointScale[1],
+                  jpFontPath.getRelativePath(), info->jpnPointScale[0], info->jpnPointScale[1],
                   int(info->justification), int(info->verticalJustification));
       }
     } else if (w.type == SBIG('TBGP')) {
@@ -569,7 +568,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
       if (ENRGInfo* info = static_cast<ENRGInfo*>(w.widgetInfo.get())) {
         hecl::ProjectPath txtrPath = pakRouter.getWorking(info->texture);
         if (txtrPath)
-          os.format(FMT_STRING("frme_obj.retro_energybar_texture_path = '{}'\n"), txtrPath.getRelativePathUTF8());
+          os.format(FMT_STRING("frme_obj.retro_energybar_texture_path = '{}'\n"), txtrPath.getRelativePath());
       }
     } else if (w.type == SBIG('METR')) {
       using METRInfo = Widget::METRInfo;

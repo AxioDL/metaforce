@@ -52,18 +52,18 @@ PAKBridge::PAKBridge(const nod::Node& node, bool doExtract)
         STRG mlvlName;
         mlvlName.read(rs);
         if (m_levelString.size())
-          m_levelString += _SYS_STR(", ");
-        m_levelString += mlvlName.getSystemString(FOURCC('ENGL'), 0);
+          m_levelString += ", ";
+        m_levelString += mlvlName.getUTF8(FOURCC('ENGL'), 0);
       }
     }
   }
 }
 
-static hecl::SystemString LayerName(std::string_view name) {
-  hecl::SystemString ret(hecl::SystemStringConv(name).sys_str());
+static std::string LayerName(std::string_view name) {
+  std::string ret(name);
   for (auto& ch : ret)
-    if (ch == _SYS_STR('/') || ch == _SYS_STR('\\'))
-      ch = _SYS_STR('-');
+    if (ch == '/' || ch == '\\')
+      ch = '-';
   return ret;
 }
 
@@ -80,8 +80,7 @@ void PAKBridge::build() {
         mlvl.read(rs);
       }
       std::string catalogueName;
-      std::string bestName = m_pak.bestEntryName(m_node, e, catalogueName);
-      level.name = hecl::SystemStringConv(bestName).sys_str();
+      level.name = m_pak.bestEntryName(m_node, e, catalogueName);
       level.areas.reserve(mlvl.areaCount);
       unsigned layerIdx = 0;
 
@@ -109,17 +108,16 @@ void PAKBridge::build() {
             PAKEntryReadStream rs = areaNameEnt->beginReadStream(m_node);
             areaName.read(rs);
           }
-          areaDeps.name = areaName.getSystemString(FOURCC('ENGL'), 0);
+          areaDeps.name = areaName.getUTF8(FOURCC('ENGL'), 0);
           areaDeps.name = hecl::StringUtils::TrimWhitespace(areaDeps.name);
         }
         if (areaDeps.name.empty()) {
-          areaDeps.name = hecl::SystemStringConv(area.internalAreaName).sys_str();
+          areaDeps.name = area.internalAreaName;
           if (areaDeps.name.empty()) {
-            std::string idStr = area.areaMREAId.toString();
-            areaDeps.name = hecl::SystemString(_SYS_STR("MREA_")) + hecl::SystemStringConv(idStr).c_str();
+            areaDeps.name = "MREA_" + area.areaMREAId.toString();
           }
         }
-        hecl::SystemString num = fmt::format(FMT_STRING(_SYS_STR("{:02d} ")), ai);
+        std::string num = fmt::format(FMT_STRING("{:02d} "), ai);
         areaDeps.name = num + areaDeps.name;
 
         areaDeps.layers.reserve(area.depLayerCount - 1);
@@ -130,7 +128,7 @@ void PAKBridge::build() {
           layer.name = LayerName(mlvl.layerNames[layerIdx++]);
           layer.active = layerFlags.flags >> (l - 1) & 0x1;
           layer.name = hecl::StringUtils::TrimWhitespace(layer.name);
-          num = fmt::format(FMT_STRING(_SYS_STR("{:02d} ")), l - 1);
+          num = fmt::format(FMT_STRING("{:02d} "), l - 1);
           layer.name = num + layer.name;
 
           layer.resources.reserve(area.depLayers[l] - r);
@@ -202,7 +200,7 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
 
       if (mlvl.worldNameId.isValid())
         pathOverrides[mlvl.worldNameId] =
-            hecl::ProjectPath(mlvlDirPath, fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
+            hecl::ProjectPath(mlvlDirPath, fmt::format(FMT_STRING("!name_{}.yaml"), mlvl.worldNameId));
 
       for (const MLVL::Area& area : mlvl.areas) {
         {
@@ -218,7 +216,7 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
         hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
         if (area.areaNameId.isValid())
           pathOverrides[area.areaNameId] =
-              hecl::ProjectPath(areaDirPath, fmt::format(FMT_STRING(_SYS_STR("!name_{}.yaml")), area.areaNameId));
+              hecl::ProjectPath(areaDirPath, fmt::format(FMT_STRING("!name_{}.yaml"), area.areaNameId));
       }
 
       if (mlvl.worldMap.isValid()) {
@@ -249,43 +247,43 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
                                                    const DNAMP2::PAK::Entry& entry) {
   switch (entry.type.toUint32()) {
   case SBIG('HINT'):
-    return {DNAMP1::HINT::Extract, {_SYS_STR(".yaml")}};
+    return {DNAMP1::HINT::Extract, {".yaml"}};
   case SBIG('STRG'):
-    return {STRG::Extract, {_SYS_STR(".yaml")}};
+    return {STRG::Extract, {".yaml"}};
   case SBIG('TXTR'):
-    return {TXTR::Extract, {_SYS_STR(".png")}};
+    return {TXTR::Extract, {".png"}};
   case SBIG('AFSM'):
-    return {AFSM::Extract, {_SYS_STR(".yaml")}};
+    return {AFSM::Extract, {".yaml"}};
   case SBIG('SAVW'):
-    return {SAVWCommon::ExtractSAVW<SAVW>, {_SYS_STR(".yaml")}};
+    return {SAVWCommon::ExtractSAVW<SAVW>, {".yaml"}};
   case SBIG('CMDL'):
-    return {CMDL::Extract, {_SYS_STR(".blend")}, 1};
+    return {CMDL::Extract, {".blend"}, 1};
   case SBIG('CINF'):
-    return {CINF::Extract<PAKBridge>, {_SYS_STR(".blend")}, 1};
+    return {CINF::Extract<PAKBridge>, {".blend"}, 1};
   case SBIG('ANCS'):
-    return {ANCS::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 2};
+    return {ANCS::Extract, {".yaml", ".blend"}, 2};
   case SBIG('MLVL'):
-    return {MLVL::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 3};
+    return {MLVL::Extract, {".yaml", ".blend"}, 3};
   case SBIG('MREA'):
-    return {MREA::Extract, {_SYS_STR(".blend")}, 4};
+    return {MREA::Extract, {".blend"}, 4};
   case SBIG('MAPA'):
-    return {MAPA::Extract, {_SYS_STR(".blend")}, 4};
+    return {MAPA::Extract, {".blend"}, 4};
   case SBIG('MAPU'):
-    return {MAPU::Extract, {_SYS_STR(".blend")}, 5};
+    return {MAPU::Extract, {".blend"}, 5};
   case SBIG('PATH'):
-    return {PATH::Extract, {_SYS_STR(".blend")}, 5};
+    return {PATH::Extract, {".blend"}, 5};
   case SBIG('FSM2'):
-    return {DNAFSM2::ExtractFSM2<UniqueID32>, {_SYS_STR(".yaml")}};
+    return {DNAFSM2::ExtractFSM2<UniqueID32>, {".yaml"}};
   case SBIG('FONT'):
-    return {DNAFont::ExtractFONT<UniqueID32>, {_SYS_STR(".yaml")}};
+    return {DNAFont::ExtractFONT<UniqueID32>, {".yaml"}};
   case SBIG('DGRP'):
-    return {DNADGRP::ExtractDGRP<UniqueID32>, {_SYS_STR(".yaml")}};
+    return {DNADGRP::ExtractDGRP<UniqueID32>, {".yaml"}};
   case SBIG('AGSC'):
     return {AGSC::Extract, {}};
   case SBIG('CSNG'):
-    return {DNAMP1::CSNG::Extract, {_SYS_STR(".mid"), _SYS_STR(".yaml")}};
+    return {DNAMP1::CSNG::Extract, {".mid", ".yaml"}};
   case SBIG('ATBL'):
-    return {DNAAudio::ATBL::Extract, {_SYS_STR(".yaml")}};
+    return {DNAAudio::ATBL::Extract, {".yaml"}};
   }
   return {};
 }

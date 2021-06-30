@@ -1,7 +1,6 @@
 #pragma once
 
 #include "boo/graphicsdev/glew.h"
-#include "hecl/SystemChar.hpp"
 #include "zeus/CColor.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CAABox.hpp"
@@ -14,7 +13,7 @@ class VISIRenderer {
   friend struct VISIBuilder;
 
   int m_argc;
-  const hecl::SystemChar** m_argv;
+  char** m_argv;
   int m_return = 0;
 
   zeus::CAABox m_totalAABB;
@@ -82,7 +81,7 @@ public:
     uint8_t a;
   };
 
-  VISIRenderer(int argc, const hecl::SystemChar** argv) : m_argc(argc), m_argv(argv) {}
+  VISIRenderer(int argc, char** argv) : m_argc(argc), m_argv(argv) {}
   void Run(FPercent updatePercent);
   void Terminate();
   void RenderPVSOpaque(RGBA8* bufOut, const zeus::CVector3f& pos, bool& needTransparent);
