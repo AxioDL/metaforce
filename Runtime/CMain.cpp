@@ -388,10 +388,29 @@ public:
       return;
     }
 
-    {
-      OPTICK_EVENT("Wait for Retrace");
-      m_window->waitForRetrace();
+    const auto targetFrameTime = getTargetFrameTime();
+    bool skipRetrace = false;
+    if (g_ResFactory != nullptr) {
+      OPTICK_EVENT("Async Load Resources");
+      const auto idleTime = m_limiter.SleepTime(targetFrameTime);
+      skipRetrace = g_ResFactory->AsyncIdle(idleTime);
     }
+
+    if (skipRetrace) {
+      // We stopped loading resources to catch the next frame
+      m_limiter.Reset();
+    } else {
+      // No more to load, and we're under frame time
+      {
+        OPTICK_EVENT("Wait for Retrace");
+        m_window->waitForRetrace();
+      }
+      {
+        OPTICK_EVENT("Sleep");
+        m_limiter.Sleep(targetFrameTime);
+      }
+    }
+
     OPTICK_FRAME("MainThread");
 
     boo::SWindowRect rect = m_windowCallback.m_lastRect;
@@ -489,17 +508,6 @@ public:
     }
 
     gfxQ->resolveDisplay(m_renderTex);
-
-    if (g_ResFactory != nullptr) {
-      const auto targetFrameTime = getTargetFrameTime();
-      const auto idleTime = m_limiter.SleepTime(targetFrameTime);
-      if (g_ResFactory->AsyncIdle(idleTime)) {
-        m_limiter.Reset();
-      } else {
-        // No more to load; sleep
-        m_limiter.Sleep(targetFrameTime);
-      }
-    }
 
     if (m_voiceEngine) {
       m_voiceEngine->pumpAndMixVoices();
