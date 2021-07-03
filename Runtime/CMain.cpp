@@ -447,7 +447,7 @@ public:
       using delta_duration = std::chrono::duration<float, std::ratio<1>>;
       realDt = std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count();
       if (m_cvarCommons.m_variableDt->toBoolean()) {
-        dt = std::max(realDt, 1 / 30.f);
+        dt = std::min(realDt, 1 / 30.f);
       }
     }
     m_prevFrameTime = now;
