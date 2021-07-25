@@ -13,6 +13,9 @@
 
 #include "../version.h"
 
+//#include <fenv.h>
+//#pragma STDC FENV_ACCESS ON
+
 /* Static reference to dataspec additions
  * (used by MSVC to definitively link DataSpecs) */
 #include "DataSpecRegistry.hpp"
@@ -578,6 +581,10 @@ int wmain(int argc, const boo::SystemChar** argv)
 int main(int argc, const boo::SystemChar** argv)
 #endif
 {
+  //TODO: This seems to fix a lot of weird issues with rounding
+  // but breaks animations, need to research why this is the case
+  // for now it's disabled
+  //fesetround(FE_TOWARDZERO);
   if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage"))) {
     fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;

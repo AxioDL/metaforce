@@ -27,7 +27,7 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
       if (modDesc.GetNextId().IsInvalid()) {
         // We only have the pivot id
         const TUniqueId newId = mgr.AllocateUniqueId();
-        CCollisionActor* newAct;
+        CCollisionActor* newAct = nullptr;
 
         if (modDesc.GetType() == CJointCollisionDescription::ECollisionType::Sphere) {
           newAct = new CCollisionActor(newId, area, x10_ownerId, active, modDesc.GetRadius(), modDesc.GetMass(),

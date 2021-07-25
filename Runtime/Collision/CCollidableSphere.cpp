@@ -11,8 +11,8 @@ constexpr CCollisionPrimitive::Type sType(CCollidableSphere::SetStaticTableIndex
 namespace Collide {
 
 bool Sphere_AABox(const CInternalCollisionStructure& collision, CCollisionInfoList& list) {
-  const CCollidableSphere& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
-  const CCollidableAABox& p1 = static_cast<const CCollidableAABox&>(collision.GetRight().GetPrim());
+  const auto& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
+  const auto& p1 = static_cast<const CCollidableAABox&>(collision.GetRight().GetPrim());
 
   zeus::CSphere s0 = p0.Transform(collision.GetLeft().GetTransform());
   zeus::CAABox b1 = p1.Transform(collision.GetRight().GetTransform());
@@ -39,7 +39,7 @@ bool Sphere_AABox(const CInternalCollisionStructure& collision, CCollisionInfoLi
     }
   }
 
-  if (!flags) {
+  if (flags == 0) {
     zeus::CVector3f normal = (s0.position - b1.center()).normalized();
     zeus::CVector3f point = s0.position + normal * s0.radius;
     CCollisionInfo info(point, p0.GetMaterial(), p1.GetMaterial(), normal);
@@ -47,8 +47,9 @@ bool Sphere_AABox(const CInternalCollisionStructure& collision, CCollisionInfoLi
     return true;
   }
 
-  if (distSq > s0.radius * s0.radius)
+  if (distSq > s0.radius * s0.radius) {
     return false;
+  }
 
   zeus::CVector3f point;
   switch (flags) {
@@ -140,8 +141,8 @@ bool Sphere_AABox(const CInternalCollisionStructure& collision, CCollisionInfoLi
 }
 
 bool Sphere_AABox_Bool(const CInternalCollisionStructure& collision) {
-  const CCollidableSphere& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
-  const CCollidableAABox& p1 = static_cast<const CCollidableAABox&>(collision.GetRight().GetPrim());
+  const auto& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
+  const auto& p1 = static_cast<const CCollidableAABox&>(collision.GetRight().GetPrim());
 
   zeus::CSphere s0 = p0.Transform(collision.GetLeft().GetTransform());
   zeus::CAABox b1 = p1.Transform(collision.GetRight().GetTransform());
@@ -150,8 +151,8 @@ bool Sphere_AABox_Bool(const CInternalCollisionStructure& collision) {
 }
 
 bool Sphere_Sphere(const CInternalCollisionStructure& collision, CCollisionInfoList& list) {
-  const CCollidableSphere& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
-  const CCollidableSphere& p1 = static_cast<const CCollidableSphere&>(collision.GetRight().GetPrim());
+  const auto& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
+  const auto& p1 = static_cast<const CCollidableSphere&>(collision.GetRight().GetPrim());
 
   zeus::CSphere s0 = p0.Transform(collision.GetLeft().GetTransform());
   zeus::CSphere s1 = p1.Transform(collision.GetRight().GetTransform());
@@ -172,8 +173,8 @@ bool Sphere_Sphere(const CInternalCollisionStructure& collision, CCollisionInfoL
 }
 
 bool Sphere_Sphere_Bool(const CInternalCollisionStructure& collision) {
-  const CCollidableSphere& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
-  const CCollidableSphere& p1 = static_cast<const CCollidableSphere&>(collision.GetRight().GetPrim());
+  const auto& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
+  const auto& p1 = static_cast<const CCollidableSphere&>(collision.GetRight().GetPrim());
 
   zeus::CSphere s0 = p0.Transform(collision.GetLeft().GetTransform());
   zeus::CSphere s1 = p1.Transform(collision.GetRight().GetTransform());
@@ -205,8 +206,9 @@ zeus::CAABox CCollidableSphere::CalculateLocalAABox() const {
 FourCC CCollidableSphere::GetPrimType() const { return SBIG('SPHR'); }
 
 CRayCastResult CCollidableSphere::CastRayInternal(const CInternalRayCastStructure& rayCast) const {
-  if (!rayCast.GetFilter().Passes(GetMaterial()))
+  if (!rayCast.GetFilter().Passes(GetMaterial())) {
     return {};
+  }
 
   zeus::CSphere xfSphere = Transform(rayCast.GetTransform());
   float t = 0.f;
@@ -227,14 +229,15 @@ const CCollisionPrimitive::Type& CCollidableSphere::GetType() { return sType; }
 
 bool CCollidableSphere::CollideMovingAABox(const CInternalCollisionStructure& collision, const zeus::CVector3f& dir,
                                            double& dOut, CCollisionInfo& infoOut) {
-  const CCollidableSphere& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
-  const CCollidableAABox& p1 = static_cast<const CCollidableAABox&>(collision.GetRight().GetPrim());
+  const auto& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
+  const auto& p1 = static_cast<const CCollidableAABox&>(collision.GetRight().GetPrim());
 
   zeus::CSphere s0 = p0.Transform(collision.GetLeft().GetTransform());
   zeus::CAABox b1 = p1.CalculateAABox(collision.GetRight().GetTransform());
 
   double d = dOut;
-  zeus::CVector3f point, normal;
+  zeus::CVector3f point;
+  zeus::CVector3f normal;
   if (CollisionUtil::MovingSphereAABox(s0, b1, dir, d, point, normal) && d < dOut) {
     dOut = d;
     infoOut = CCollisionInfo(point, p0.GetMaterial(), p1.GetMaterial(), normal);
@@ -246,8 +249,8 @@ bool CCollidableSphere::CollideMovingAABox(const CInternalCollisionStructure& co
 
 bool CCollidableSphere::CollideMovingSphere(const CInternalCollisionStructure& collision, const zeus::CVector3f& dir,
                                             double& dOut, CCollisionInfo& infoOut) {
-  const CCollidableSphere& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
-  const CCollidableSphere& p1 = static_cast<const CCollidableSphere&>(collision.GetRight().GetPrim());
+  const auto& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
+  const auto& p1 = static_cast<const CCollidableSphere&>(collision.GetRight().GetPrim());
 
   zeus::CSphere s0 = p0.Transform(collision.GetLeft().GetTransform());
   zeus::CSphere s1 = p1.Transform(collision.GetRight().GetTransform());
