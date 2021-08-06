@@ -86,7 +86,7 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
        cmake vulkan-headers ninja-build clang-devel llvm-devel libpng-devel qt6-qtbase-devel 
        qt6-linguist qt6-qttools-devel qt6-qtscxml-devel qt6-qtsvg-devel qt6-qt5compat-devel
        ```
-         * It's also important that you install dev tools and library packages
+         * It's also important that you install the developer tools and libraries
            ```
            sudo dnf groupinstall "Development Tools" "Development Libraries"
            ```
