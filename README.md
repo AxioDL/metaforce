@@ -74,7 +74,8 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
       ```
       build-essential curl git ninja-build clang lld zlib1g-dev libcurl4-openssl-dev \
       libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev libpulse-dev \
-      libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 qt5-default
+      libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 \
+      qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libclang-dev
       ```
      * Arch Linux packages
        ```
