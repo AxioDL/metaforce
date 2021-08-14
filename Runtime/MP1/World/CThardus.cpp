@@ -989,6 +989,7 @@ void CThardus::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
 
 void CThardus::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
+    x5ec_ = 0;
     for (TUniqueId uid : x798_) {
       if (auto* rock = CPatterned::CastTo<CThardusRockProjectile>(mgr.ObjectById(uid))) {
         rock->sub80203d58();
