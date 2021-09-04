@@ -30,7 +30,7 @@ class CThardus : public CPatterned {
    * to the use of move semantics to prevent deep copies */
   std::vector<CStaticRes> x5cc_;
   std::vector<CStaticRes> x5dc_;
-  s32 x5ec_ = -1;
+  s32 x5ec_stateProg = -1;
   std::unique_ptr<CCollisionActorManager> x5f0_rockColliders;
   std::unique_ptr<CCollisionActorManager> x5f4_;
   std::unique_ptr<CCollisionActorManager> x5f8_;
