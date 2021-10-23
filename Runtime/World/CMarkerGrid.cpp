@@ -26,9 +26,9 @@ void CMarkerGrid::MarkCells(const zeus::CSphere& area, u32 val) {
 
 bool CMarkerGrid::GetCoords(zeus::CVector3f const& vec, u32& x, u32& y, u32& z) const {
   if (x0_bounds.pointInside(vec)) {
-    x = static_cast<u32>((vec.x() - x0_bounds.min.x()) / x);
-    y = static_cast<u32>((vec.y() - x0_bounds.min.y()) / y);
-    z = static_cast<u32>((vec.z() - x0_bounds.min.z()) / z);
+    x = static_cast<u32>((vec.x() - x0_bounds.min.x()) / x18_gridUnits.x());
+    y = static_cast<u32>((vec.y() - x0_bounds.min.y()) / x18_gridUnits.y());
+    z = static_cast<u32>((vec.z() - x0_bounds.min.z()) / x18_gridUnits.z());
     return true;
   }
   return false;
