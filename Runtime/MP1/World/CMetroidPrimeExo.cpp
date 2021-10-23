@@ -503,7 +503,7 @@ void CMetroidPrimeExo::Run(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x92c_ = 10;
     x1084_ = 1.9666666f;
-    TUniqueId wpId = sub802769e0(mgr, true);
+    TUniqueId wpId = GetNextAttackWaypoint(mgr, true);
     if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(wpId)) {
       GetBodyController()->SetLocomotionType(sub80275e14(1));
       SetDestPos(wp->GetTranslation());
@@ -686,7 +686,7 @@ void CMetroidPrimeExo::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float
     x32c_animState = EAnimState::NotReady;
     x92c_ = 0;
     sub802738d4(mgr);
-    x1088_ = 1.2166667;
+    x1088_ = 1.2166667f;
     xc50_->SetParticleEmission(false);
     FirePlasmaProjectile(mgr, false);
     x1254_ = 2;
@@ -731,7 +731,7 @@ void CMetroidPrimeExo::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
     x32c_animState = EAnimState::Ready;
     SendStateToRelay(EScriptObjectState::Zero, mgr);
     if (TCastToConstPtr<CScriptWaypoint> wp =
-            mgr.GetObjectById(sub80276b3c(mgr, EScriptObjectState::CloseIn, EScriptObjectMessage::Follow))) {
+            mgr.GetObjectById(GetWaypointForBehavior(mgr, EScriptObjectState::CloseIn, EScriptObjectMessage::Follow))) {
       SetTransform(wp->GetTransform());
     }
     x1078_ = 1;
@@ -741,7 +741,7 @@ void CMetroidPrimeExo::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
     if (TCastToConstPtr<CScriptWaypoint> wp =
-            mgr.GetObjectById(sub80276b3c(mgr, EScriptObjectState::Retreat, EScriptObjectMessage::Follow))) {
+            mgr.GetObjectById(GetWaypointForBehavior(mgr, EScriptObjectState::Retreat, EScriptObjectMessage::Follow))) {
       SetTransform(wp->GetTransform());
     }
     ++x91c_;
@@ -926,7 +926,7 @@ void CMetroidPrimeExo::DeactivatePatrolObjects(CStateManager& mgr) {
   const TCastToConstPtr<CMetroidPrimeRelay> relay = mgr.GetObjectById(x568_relayId);
   x1058_.clear();
   if (relay) {
-    for(const auto& conn : relay->GetConnectionList()) {
+    for (const auto& conn : relay->GetConnectionList()) {
       if (conn.x0_state != EScriptObjectState::Patrol) {
         continue;
       }
@@ -975,7 +975,7 @@ void CMetroidPrimeExo::SetBillboardEmission(CStateManager& mgr, bool emission) {
 void CMetroidPrimeExo::FreeBillboard(CStateManager& mgr) { mgr.FreeScriptObject(x1044_billboardId); }
 
 zeus::CVector3f CMetroidPrimeExo::sub8027464c(CStateManager& mgr) {
-  TUniqueId uid = sub80276b3c(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow);
+  TUniqueId uid = GetWaypointForBehavior(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow);
 
   float dVar4 = 0.f;
   zeus::CVector3f tmpVec;
@@ -1028,7 +1028,7 @@ void CMetroidPrimeExo::sub802749e8(float f1, float f2, float f3, const zeus::CVe
     zeus::CVector3f v1 = vec1;
     auto lookAtXf = zeus::lookAt(zeus::skZero3f, diffVec);
     elemGen->SetParticleEmission(true);
-    s32 count =  static_cast<s32>(2.f * dist + 1.f);
+    s32 count = static_cast<s32>(2.f * dist + 1.f);
     for (s32 i = 0; i < count; ++i) {
       float dVar14 = i * static_cast<int>(1.f / static_cast<float>(count));
       float dVar11 = f1 * (dVar14 * std::cos(static_cast<float>(i) + f3));
@@ -1195,7 +1195,7 @@ void CMetroidPrimeExo::UpdateTimers(float dt) {
 }
 
 void CMetroidPrimeExo::sub80275800(CStateManager& mgr) {
-  TUniqueId tmpId = sub802769e0(mgr, true);
+  TUniqueId tmpId = GetNextAttackWaypoint(mgr, true);
 
   u32 flags = 0x13c1;
   if (tmpId != kInvalidUniqueId) {
@@ -1449,7 +1449,7 @@ void CMetroidPrimeExo::SendStateToRelay(EScriptObjectState state, CStateManager&
   }
 }
 
-void CMetroidPrimeExo::sub80276754(CStateManager& mgr) {
+void CMetroidPrimeExo::GetRelayState(CStateManager& mgr) {
   x1160_.clear();
   if (TCastToConstPtr<CMetroidPrimeRelay> relay = mgr.GetObjectById(x568_relayId)) {
     x1160_ = relay->GetRoomParameters();
@@ -1467,8 +1467,8 @@ void CMetroidPrimeExo::sub80276754(CStateManager& mgr) {
   }
 }
 
-TUniqueId CMetroidPrimeExo::sub802769e0(CStateManager& mgr, bool b1) {
-  TUniqueId uid = sub80276b3c(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow);
+TUniqueId CMetroidPrimeExo::GetNextAttackWaypoint(CStateManager& mgr, bool b1) {
+  TUniqueId uid = GetWaypointForBehavior(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow);
   float lastDot = 0.f;
   TUniqueId lastUid = kInvalidUniqueId;
   while (uid != kInvalidUniqueId) {
@@ -1488,7 +1488,7 @@ TUniqueId CMetroidPrimeExo::sub802769e0(CStateManager& mgr, bool b1) {
   return lastUid;
 }
 
-TUniqueId CMetroidPrimeExo::sub80276b3c(CStateManager& mgr, EScriptObjectState state, EScriptObjectMessage msg) {
+TUniqueId CMetroidPrimeExo::GetWaypointForBehavior(CStateManager& mgr, EScriptObjectState state, EScriptObjectMessage msg) {
   if (TCastToConstPtr<CMetroidPrimeRelay> relay = mgr.GetObjectById(x568_relayId)) {
     rstl::reserved_vector<TUniqueId, 8> uids;
     for (const auto& conn : relay->GetConnectionList()) {
@@ -1538,7 +1538,7 @@ void CMetroidPrimeExo::UpdateRelay(CStateManager& mgr, TAreaId areaId) {
     }
   }
 
-  sub80276754(mgr);
+  GetRelayState(mgr);
   DeactivatePatrolObjects(mgr);
 }
 
@@ -1557,15 +1557,12 @@ bool CMetroidPrimeExo::IsRelayValid(CStateManager& mgr, TAreaId aid) {
 }
 
 bool CMetroidPrimeExo::sub80277224(float f1, CStateManager& mgr) {
-  TUniqueId uid = sub802769e0(mgr, f1 >= 0.f);
+  TUniqueId uid = GetNextAttackWaypoint(mgr, f1 >= 0.f);
 
   if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(uid)) {
-    const float dist = (wp->GetTranslation() - GetTranslation()).magSquared();
-    const float scaleMag = f1 * (0.57735026f * GetModelData()->GetScale().magSquared());
-    if (f1 < 0.f) {
-      return dist > scaleMag;
-    }
-    return dist < scaleMag;
+    const float scaleMag = f1 * (0.57735026 * GetModelData()->GetScale().magnitude());
+    const float dist = GetTransform().frontVector().dot(wp->GetTranslation() - GetTranslation());
+    return f1 < 0.f ? dist < scaleMag : dist > scaleMag;
   }
   return false;
 }
@@ -1785,7 +1782,7 @@ void CMetroidPrimeExo::sub80278508(CStateManager& mgr, int w1, bool b1) {
   x570_ = w1;
   sub80278130(x588_[x570_].x6c_color);
   if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x8cc_headColActor)) {
-    if (b1 == false) {
+    if (!b1) {
       colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
       mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
       colAct->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);

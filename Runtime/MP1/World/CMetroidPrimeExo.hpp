@@ -235,9 +235,9 @@ class CMetroidPrimeExo : public CPatterned {
   void SetActorAreaId(CStateManager& mgr, TUniqueId uid, TAreaId aid);
   void UpdateAreaId(CStateManager& mgr);
   void SendStateToRelay(EScriptObjectState state, CStateManager& mgr);
-  void sub80276754(CStateManager& mgr);
-  TUniqueId sub802769e0(CStateManager& mgr, bool b1);
-  TUniqueId sub80276b3c(CStateManager& mgr, EScriptObjectState state, EScriptObjectMessage msg);
+  void GetRelayState(CStateManager& mgr);
+  TUniqueId GetNextAttackWaypoint(CStateManager& mgr, bool b1);
+  TUniqueId GetWaypointForBehavior(CStateManager& mgr, EScriptObjectState state, EScriptObjectMessage msg);
   void UpdateRelay(CStateManager& mgr, TAreaId areaId);
   bool IsRelayValid(CStateManager& mgr, TAreaId w2);
   bool sub80277224(float f1, CStateManager& mgr);
