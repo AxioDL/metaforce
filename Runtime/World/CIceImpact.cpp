@@ -156,10 +156,10 @@ std::optional<CIceImpact::SImpactSphere> CIceImpact::GenerateNewSphere() {
   for (u32 z = 8; loop_cond(fwd_z, z); z = loop_step(fwd_z, z)) {
     for (u32 y = 8; loop_cond(fwd_y, y); y = loop_step(fwd_y, y)) {
       for (u32 x = 8; loop_cond(fwd_x, x); x = loop_step(fwd_x, x)) {
-        u32 grid_val = x118_grid.GetValue(z, y, x);
-        if (grid_val != 1) {
-          zeus::CVector3f pos = x118_grid.GetWorldPositionForCell(z, y, x);
-          x118_grid.SetValue(z, y, x, 3);
+        u32 grid_val = x118_grid.GetValue(x, y, z);
+        if (grid_val == 1) {
+          zeus::CVector3f pos = x118_grid.GetWorldPositionForCell(x, y, z);
+          x118_grid.SetValue(x, y, z, 3);
           if (PointInSphere(x108_sphereGenRange, pos)) {
             x118_grid.MarkCells(zeus::CSphere(pos, 1.6f), 2);
             return SImpactSphere(pos, 1.6f, 1.6f, 0.f, 0.f);
@@ -249,7 +249,7 @@ void CIceImpact::GenerateParticlesAgainstWorld(CStateManager& mgr,
         CCollisionSurface surface = node.GetOwner().GetMasterListTriangle(arr.GetAt(i));
         if (filter.Passes(CMaterialList(surface.GetSurfaceFlags()))) {
           subdivide_result =
-              SubdivideAndGenerateParticles(mgr, surface.GetVert(0), surface.GetVert(1), surface.GetVert(1), a, b);
+              SubdivideAndGenerateParticles(mgr, surface.GetVert(0), surface.GetVert(1), surface.GetVert(2), a, b);
         }
       }
     }
@@ -312,7 +312,7 @@ bool CIceImpact::SubdivideAndGenerateParticles(CStateManager& mgr, zeus::CVector
   if (!CollisionUtil::TriSphereOverlap(a, v1, v2, v3)) {
     return false;
   }
-  if (!PointInSphere(b, v1) && !PointInSphere(b, v2) && !PointInSphere(b, v3)) {
+  if (PointInSphere(b, v1) && PointInSphere(b, v2) && PointInSphere(b, v3)) {
     return false;
   }
 
