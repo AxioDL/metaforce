@@ -39,6 +39,7 @@ extern "C" int rep_closefrom(int lower);
 #include <optional>
 #include <regex>
 #include <string>
+#include <optional>
 
 #include "FourCC.hpp"
 #include "athena/Global.hpp"
