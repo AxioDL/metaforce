@@ -205,6 +205,10 @@
         "BUILD_ATDNA": {
           "type": "BOOL",
           "value": false
+        },
+        "USE_LTO": {
+          "type": "BOOL",
+          "value": false
         }
       }
     },
