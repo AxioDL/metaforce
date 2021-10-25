@@ -17,6 +17,7 @@
 #define _WIN32_IE 0x0400
 #endif
 #include <shlobj.h>
+#include <ranges>
 #endif
 
 #ifdef __APPLE__
@@ -28,9 +29,6 @@
 #include <sys/wait.h>
 #endif
 
-#ifdef __cpp_lib_ranges
-#include <ranges>
-#endif
 #include <logvisor/logvisor.hpp>
 
 using namespace std::literals;
