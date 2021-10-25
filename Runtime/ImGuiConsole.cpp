@@ -5,9 +5,12 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "Runtime/ImGuiEntitySupport.hpp"
 
 #include "ImGuiEngine.hpp"
 #include "magic_enum.hpp"
+
+#include <zeus/CEulerAngles.hpp>
 
 namespace ImGui {
 // Internal functions
@@ -1057,6 +1060,7 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Tools")) {
+      ImGui::MenuItem("Player Transform", nullptr, &m_showPlayerTransformEditor, canInspect && m_developer);
       ImGui::MenuItem("Inspect", nullptr, &m_showInspectWindow, canInspect && m_developer);
       ImGui::MenuItem("Items", nullptr, &m_showItemsWindow, canInspect && m_developer && m_cheats);
       ImGui::MenuItem("Layers", nullptr, &m_showLayersWindow, canInspect && m_developer);
@@ -1196,6 +1200,7 @@ void ImGuiConsole::PreUpdate() {
   }
   ShowDebugOverlay();
   ShowInputViewer();
+  ShowPlayerTransformEditor();
 }
 
 void ImGuiConsole::PostUpdate() {
@@ -1545,4 +1550,71 @@ void ImGuiConsole::ShowMenuHint() {
   ImGui::PopStyleColor(2);
 }
 
+void ImGuiConsole::ShowPlayerTransformEditor() {
+  if (!m_showPlayerTransformEditor) {
+    return;
+  }
+
+  if (ImGui::Begin("Player Transform", &m_showPlayerTransformEditor, ImGuiWindowFlags_AlwaysAutoResize)) {
+    if (ImGui::CollapsingHeader("Position")) {
+      ImGui::PushID("player_position");
+      zeus::CVector3f vec = g_StateManager->GetPlayer().GetTranslation();
+
+      if (ImGuiVector3fInput("Position", vec)) {
+        g_StateManager->GetPlayer().SetTranslation(vec);
+      }
+
+      if (ImGui::Button("Save")) {
+        m_savedLocation.emplace(vec);
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Load") && m_savedLocation) {
+        g_StateManager->GetPlayer().SetTranslation(*m_savedLocation);
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Clear") && m_savedLocation) {
+        m_savedLocation.reset();
+      }
+      if (m_savedLocation) {
+        ImGui::Text("Saved: %g, %g, %g", float(m_savedLocation->x()), float(m_savedLocation->y()),
+                    float(m_savedLocation->z()));
+      }
+      ImGui::PopID();
+    }
+    if (ImGui::CollapsingHeader("Rotation")) {
+      ImGui::PushID("player_rotation");
+      zeus::CEulerAngles angles(g_StateManager->GetPlayer().GetTransform());
+      angles = zeus::CEulerAngles(angles * zeus::skRadToDegVec);
+      if (ImGuiVector3fInput("Rotation", angles)) {
+        angles.x() = zeus::clamp(-179.999f, float(angles.x()), 179.999f);
+        angles.y() = zeus::clamp(-89.999f, float(angles.y()), 89.999f);
+        angles.z() = zeus::clamp(-179.999f, float(angles.z()), 179.999f);
+        auto xf = g_StateManager->GetPlayer().GetTransform();
+        xf.setRotation(zeus::CQuaternion(angles * zeus::skDegToRadVec).toTransform().buildMatrix3f());
+        g_StateManager->GetPlayer().SetTransform(xf);
+      }
+
+      if (ImGui::Button("Save")) {
+        m_savedRotation.emplace(angles);
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Load") && m_savedRotation) {
+        auto xf = g_StateManager->GetPlayer().GetTransform();
+        xf.setRotation(zeus::CQuaternion((*m_savedRotation) * zeus::skDegToRadVec).toTransform().buildMatrix3f());
+        g_StateManager->GetPlayer().SetTransform(xf);
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Clear") && m_savedRotation) {
+        m_savedRotation.reset();
+      }
+
+      if (m_savedRotation) {
+        ImGui::Text("Saved: %g, %g, %g", float(m_savedRotation->x()), float(m_savedRotation->y()),
+                    float(m_savedRotation->z()));
+      }
+      ImGui::PopID();
+    }
+  }
+  ImGui::End();
+}
 } // namespace metaforce

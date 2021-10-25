@@ -36,13 +36,16 @@ extern "C" int rep_closefrom(int lower);
 #include <functional>
 #include <list>
 #include <map>
+#include <optional>
 #include <regex>
 #include <string>
 
-#include "logvisor/logvisor.hpp"
+#include "FourCC.hpp"
 #include "athena/Global.hpp"
+#include "logvisor/logvisor.hpp"
 #include "xxhash/xxhash.h"
 #include "FourCC.hpp"
+
 
 #if defined(__has_feature)
 #if __has_feature(thread_sanitizer)

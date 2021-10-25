@@ -137,6 +137,16 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
   std::array<boo::ObjToken<boo::IShaderPipeline>, 2>* regPipelinePmus = nullptr;
   std::array<boo::ObjToken<boo::IShaderPipeline>, 2>* redToAlphaPipelinePmus = nullptr;
 
+  if (gen.x26c_28_zTest) {
+    redToAlphaPipeline = &m_texRedToAlphaZTest;
+    regPipelineSub = &m_texZTestNoZWriteSub;
+    redToAlphaPipelineSub = &m_texRedToAlphaZTestSub;
+  } else {
+    redToAlphaPipeline = &m_texRedToAlphaNoZTest;
+    regPipelineSub = &m_texNoZTestNoZWriteSub;
+    redToAlphaPipelineSub = &m_texRedToAlphaNoZTestSub;
+  }
+
   if (desc->x54_x40_TEXR) {
     if (desc->x58_x44_TIND) {
       if (desc->x45_30_x32_24_CIND) {
@@ -159,16 +169,6 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
         }
       }
     } else {
-      if (gen.x26c_28_zTest) {
-        redToAlphaPipeline = &m_texRedToAlphaZTest;
-        regPipelineSub = &m_texZTestNoZWriteSub;
-        redToAlphaPipelineSub = &m_texRedToAlphaZTestSub;
-      } else {
-        redToAlphaPipeline = &m_texRedToAlphaNoZTest;
-        regPipelineSub = &m_texNoZTestNoZWriteSub;
-        redToAlphaPipelineSub = &m_texRedToAlphaNoZTestSub;
-      }
-
       if (gen.x26c_26_AAPH) {
         if (gen.x26c_28_zTest)
           regPipeline = &m_texAdditiveZTest;

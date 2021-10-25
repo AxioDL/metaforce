@@ -654,6 +654,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
           }
         }
       }
+      visiGood = true;
 
 #if !WINDOWS_STORE
       if (!visiGood) {

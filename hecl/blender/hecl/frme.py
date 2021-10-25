@@ -275,9 +275,14 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
 
 def cook(writepipebuf, version, path_hasher):
     global hjustifications, vjustifications, model_draw_flags_e
-    hjustifications = dict((i[0], i[3]) for i in bpy.types.Object.retro_textpane_hjustification[1]['items'])
-    vjustifications = dict((i[0], i[3]) for i in bpy.types.Object.retro_textpane_vjustification[1]['items'])
-    model_draw_flags_e = dict((i[0], i[3]) for i in bpy.types.Object.retro_widget_model_draw_flags[1]['items'])
+    if bpy.app.version >= (2, 93, 0):
+        hjustifications = dict((i[0], i[3]) for i in bpy.types.Object.retro_textpane_hjustification.keywords['items'])
+        vjustifications = dict((i[0], i[3]) for i in bpy.types.Object.retro_textpane_vjustification.keywords['items'])
+        model_draw_flags_e = dict((i[0], i[3]) for i in bpy.types.Object.retro_widget_model_draw_flags.keywords['items'])
+    else:
+        hjustifications = dict((i[0], i[3]) for i in bpy.types.Object.retro_textpane_hjustification[1]['items'])
+        vjustifications = dict((i[0], i[3]) for i in bpy.types.Object.retro_textpane_vjustification[1]['items'])
+        model_draw_flags_e = dict((i[0], i[3]) for i in bpy.types.Object.retro_widget_model_draw_flags[1]['items'])
 
     buffer = bytearray()
     buffer += struct.pack('>IIII', 0, 0, 0, 0)
@@ -320,7 +325,7 @@ def register():
         ('RETRO_ADDITIVE', 'Additive', '', 3),
         ('RETRO_ALPHA_ADDITIVE_OVERDRAW', 'Alpha Additive Overdraw', '', 4)]
     bpy.types.Object.retro_widget_parent = bpy.props.StringProperty(name='Retro: FRME Widget Parent', description='Refers to internal frame widgets')
-    bpy.types.Object.retro_widget_use_anim_controller = bpy.props.BoolProperty(name='Retro: Use Animiation Conroller')
+    bpy.types.Object.retro_widget_use_anim_controller = bpy.props.BoolProperty(name='Retro: Use Animation Controller')
     bpy.types.Object.retro_widget_default_visible = bpy.props.BoolProperty(name='Retro: Default Visible', description='Sets widget is visible by default')
     bpy.types.Object.retro_widget_default_active = bpy.props.BoolProperty(name='Retro: Default Active', description='Sets widget is cases by default')
     bpy.types.Object.retro_widget_cull_faces = bpy.props.BoolProperty(name='Retro: Cull Faces', description='Enables face culling')

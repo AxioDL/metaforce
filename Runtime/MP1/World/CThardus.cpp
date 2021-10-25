@@ -815,7 +815,7 @@ void CThardus::PathFind(CStateManager& mgr, EStateMsg msg, float arg) {
 
 void CThardus::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    x5ec_ = 0;
+    x5ec_stateProg = 0;
     if (x95e_) {
       return;
     }
@@ -823,31 +823,31 @@ void CThardus::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
     mgr.SetBossParams(GetUniqueId(), GetHealthInfo(mgr)->GetHP(), 88);
     x95e_ = true;
   } else if (msg == EStateMsg::Update) {
-    if (x5ec_ == 0) {
+    if (x5ec_stateProg == 0) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Taunt) {
-        x5ec_ = 2;
+        x5ec_stateProg = 2;
       } else {
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCTauntCmd(pas::ETauntType::One));
       }
-    } else if (x5ec_ == 2 &&
+    } else if (x5ec_stateProg == 2 &&
                x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Taunt) {
-      x5ec_ = 3;
+      x5ec_stateProg = 3;
     }
   }
 }
 
 void CThardus::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    x5ec_ = 0;
+    x5ec_stateProg = 0;
   } else if (msg == EStateMsg::Update) {
-    if (x5ec_ == 0) {
+    if (x5ec_stateProg == 0) {
       if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::Getup) {
-        x5ec_ = 2;
+        x5ec_stateProg = 2;
       } else {
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCGetupCmd(pas::EGetupType::Zero));
       }
-    } else if (x5ec_ == 2 && x450_bodyController->GetCurrentStateId() != pas::EAnimationState::Getup) {
-      x5ec_ = 3;
+    } else if (x5ec_stateProg == 2 && x450_bodyController->GetCurrentStateId() != pas::EAnimationState::Getup) {
+      x5ec_stateProg = 3;
     }
   } else if (msg == EStateMsg::Deactivate) {
     x93d_ = false;
@@ -856,11 +856,11 @@ void CThardus::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
 
 void CThardus::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    x5ec_ = 0;
+    x5ec_stateProg = 0;
     ++x570_;
-    x5ec_ = 0;
+    x5ec_stateProg = 0;
   } else if (msg == EStateMsg::Update) {
-    if (x5ec_ == 0) {
+    if (x5ec_stateProg == 0) {
       if (GetBodyController()->GetCurrentStateId() != pas::EAnimationState::MeleeAttack) {
         if (mgr.GetActiveRandom()->Float() <= 0.5f) {
           GetBodyController()->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::ESeverity::One));
@@ -869,10 +869,10 @@ void CThardus::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
         }
         ++x570_;
       } else {
-        x5ec_ = 2;
+        x5ec_stateProg = 2;
       }
-    } else if (x5ec_ == 2 && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::MeleeAttack) {
-      x5ec_ = 3;
+    } else if (x5ec_stateProg == 2 && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::MeleeAttack) {
+      x5ec_stateProg = 3;
     }
   }
 }
@@ -941,16 +941,16 @@ void CThardus::GetUp(CStateManager& mgr, EStateMsg msg, float arg) {
 
 void CThardus::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    x5ec_ = 0;
+    x5ec_stateProg = 0;
   } else if (msg == EStateMsg::Update) {
-    if (x5ec_ == 0) {
+    if (x5ec_stateProg == 0) {
       if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::Taunt) {
-        x5ec_ = 2;
+        x5ec_stateProg = 2;
       } else {
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCTauntCmd(pas::ETauntType::One));
       }
-    } else if (x5ec_ == 2 && x450_bodyController->GetCurrentStateId() != pas::EAnimationState::Taunt) {
-      x5ec_ = 3;
+    } else if (x5ec_stateProg == 2 && x450_bodyController->GetCurrentStateId() != pas::EAnimationState::Taunt) {
+      x5ec_stateProg = 3;
     }
   }
 }
@@ -967,28 +967,29 @@ void CThardus::Suck(CStateManager& mgr, EStateMsg msg, float arg) {
 
 void CThardus::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    x5ec_ = 0;
+    x5ec_stateProg = 0;
   } else if (msg == EStateMsg::Update) {
-    if (x5ec_ == 1) {
+    if (x5ec_stateProg == 1) {
       return;
     }
 
-    if (x5ec_ == 0) {
+    if (x5ec_stateProg == 0) {
       if (GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::ProjectileAttack) {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCProjectileAttackCmd(pas::ESeverity::Zero, {}, false));
-        x5ec_ = 0;
+        x5ec_stateProg = 0;
       } else {
-        x5ec_ = 2;
+        x5ec_stateProg = 2;
       }
-    } else if (x5ec_ == 2 &&
+    } else if (x5ec_stateProg == 2 &&
                GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::ProjectileAttack) {
-      x5ec_ = 3;
+      x5ec_stateProg = 3;
     }
   }
 }
 
 void CThardus::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
+    x5ec_stateProg = 0;
     for (TUniqueId uid : x798_) {
       if (auto* rock = CPatterned::CastTo<CThardusRockProjectile>(mgr.ObjectById(uid))) {
         rock->sub80203d58();
@@ -1025,56 +1026,56 @@ void CThardus::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
       break;
     }
 
-    if (x5ec_ == 0) {
+    if (x5ec_stateProg == 0) {
       if (GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::KnockBack) {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCKnockBackCmd({}, severity));
       } else {
-        x5ec_ = 2;
+        x5ec_stateProg = 2;
       }
-    } else if (x5ec_ == 2 &&
+    } else if (x5ec_stateProg == 2 &&
                GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::KnockBack) {
-      x5ec_ = 3;
+      x5ec_stateProg = 3;
     }
   }
 }
 
 void CThardus::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    x5ec_ = 0;
+    x5ec_stateProg = 0;
   } else if (msg == EStateMsg::Update) {
-    if (x5ec_ == 0) {
+    if (x5ec_stateProg == 0) {
       if (GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::ProjectileAttack) {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCProjectileAttackCmd(pas::ESeverity::One, {}, false));
-        x5ec_ = 0;
+        x5ec_stateProg = 0;
       } else {
-        x5ec_ = 2;
+        x5ec_stateProg = 2;
       }
-    } else if (x5ec_ == 2 &&
+    } else if (x5ec_stateProg == 2 &&
                GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::ProjectileAttack) {
-      x5ec_ = 3;
+      x5ec_stateProg = 3;
     }
   }
 }
 
 void CThardus::Explode(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    x5ec_ = 0;
+    x5ec_stateProg = 0;
     CSfxManager::SfxStop(x904_);
     x909_ = true;
     x93d_ = true;
     x909_ = true;
     SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
   } else if (msg == EStateMsg::Update) {
-    if (x5ec_ == 0) {
+    if (x5ec_stateProg == 0) {
       if (GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Step) {
         GetBodyController()->GetCommandMgr().DeliverCmd(
             CBCStepCmd(pas::EStepDirection::Forward, pas::EStepType::Dodge));
       } else {
-        x5ec_ = 2;
+        x5ec_stateProg = 2;
       }
-    } else if (x5ec_ == 2 &&
+    } else if (x5ec_stateProg == 2 &&
                GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Step) {
-      x5ec_ = 3;
+      x5ec_stateProg = 3;
     }
   } else if (msg == EStateMsg::Deactivate) {
     x8f0_ = true;
@@ -1099,19 +1100,19 @@ void CThardus::Cover(CStateManager& mgr, EStateMsg msg, float arg) {
 
 void CThardus::Enraged(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    x5ec_ = 0;
+    x5ec_stateProg = 0;
     x688_ = true;
     x908_ = true;
   } else if (msg == EStateMsg::Update) {
-    if (x5ec_ == 0) {
+    if (x5ec_stateProg == 0) {
       if (GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Taunt) {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCTauntCmd(pas::ETauntType::Zero));
       } else {
-        x5ec_ = 2;
+        x5ec_stateProg = 2;
       }
-    } else if (x5ec_ == 2 &&
+    } else if (x5ec_stateProg == 2 &&
                GetBodyController()->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Taunt) {
-      x5ec_ = 3;
+      x5ec_stateProg = 3;
     }
   } else if (msg == EStateMsg::Deactivate) {
     x908_ = false;
@@ -1120,18 +1121,18 @@ void CThardus::Enraged(CStateManager& mgr, EStateMsg msg, float arg) {
 
 void CThardus::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    x5ec_ = 0;
+    x5ec_stateProg = 0;
     x904_ = CSfxManager::SfxStart(SFXsfx07AD, 1.f, 0.f, false, 0x7f, true, GetAreaIdAlways());
   } else if (msg == EStateMsg::Update) {
-    if (x5ec_ == 0) {
+    if (x5ec_stateProg == 0) {
       if (GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
         GetBodyController()->GetCommandMgr().DeliverCmd(
             CBCStepCmd(pas::EStepDirection::Forward, pas::EStepType::BreakDodge));
       } else {
-        x5ec_ = 2;
+        x5ec_stateProg = 2;
       }
-    } else if (x5ec_ == 2 && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
-      x5ec_ = 3;
+    } else if (x5ec_stateProg == 2 && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::Step) {
+      x5ec_stateProg = 3;
     }
   } else if (msg == EStateMsg::Deactivate) {
     if (TCastToPtr<CScriptDistanceFog> fog = mgr.ObjectById(x64c_fog)) {
@@ -1144,7 +1145,7 @@ void CThardus::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
 
 void CThardus::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    x5ec_ = 0;
+    x5ec_stateProg = 0;
     x93c_ = false;
     SetState(-1, mgr);
     for (TUniqueId uid : x798_) {
@@ -1154,14 +1155,14 @@ void CThardus::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
     }
     x94d_ = true;
   } else if (msg == EStateMsg::Update) {
-    if (x5ec_ == 0) {
+    if (x5ec_stateProg == 0) {
       if (GetBodyController()->GetCurrentStateId() != pas::EAnimationState::KnockBack) {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCKnockBackCmd({}, pas::ESeverity::Six));
       } else {
-        x5ec_ = 2;
+        x5ec_stateProg = 2;
       }
-    } else if (x5ec_ == 2 && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::KnockBack) {
-      x5ec_ = 3;
+    } else if (x5ec_stateProg == 2 && GetBodyController()->GetCurrentStateId() != pas::EAnimationState::KnockBack) {
+      x5ec_stateProg = 3;
     }
   }
 }
@@ -1173,7 +1174,7 @@ bool CThardus::InRange(CStateManager& mgr, float arg) {
 }
 
 bool CThardus::PatternOver(CStateManager& mgr, float arg) { return x570_ != 0 || x93b_; }
-bool CThardus::AnimOver(CStateManager& mgr, float arg) { return x5ec_ == 3; }
+bool CThardus::AnimOver(CStateManager& mgr, float arg) { return x5ec_stateProg == 3; }
 bool CThardus::InPosition(CStateManager& mgr, float arg) { return x660_ > 3; }
 bool CThardus::ShouldTurn(CStateManager& mgr, float arg) {
   return std::fabs(zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(),

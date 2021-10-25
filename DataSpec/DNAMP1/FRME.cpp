@@ -460,27 +460,31 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     }
 
     zeus::simd_floats colorF(w.header.color.simd);
-    os.format(FMT_STRING("frme_obj = bpy.data.objects.new(name='{}', object_data=binding)\n"
-                         "frme_obj.pass_index = {}\n"
-                         "parentName = '{}'\n"
-                         "frme_obj.retro_widget_type = 'RETRO_{}'\n"
-                         "frme_obj.retro_widget_use_anim_controller = {}\n"
-                         "frme_obj.retro_widget_default_visible = {}\n"
-                         "frme_obj.retro_widget_default_active = {}\n"
-                         "frme_obj.retro_widget_cull_faces = {}\n"
-                         "frme_obj.retro_widget_color = ({},{},{},{})\n"
-                         "frme_obj.retro_widget_model_draw_flags = "
-                         "bpy.types.Object.retro_widget_model_draw_flags[1]['items'][{}][0]\n"
-                         "frme_obj.retro_widget_is_worker = {}\n"
-                         "frme_obj.retro_widget_worker_id = {}\n"
-                         "if parentName not in bpy.data.objects:\n"
-                         "    frme_obj.retro_widget_parent = parentName\n"
-                         "else:\n"
-                         "    frme_obj.parent = bpy.data.objects[parentName]\n"),
-              w.header.name, pIdx++, w.header.parent, w.type, w.header.useAnimController ? "True" : "False",
-              w.header.defaultVisible ? "True" : "False", w.header.defaultActive ? "True" : "False",
-              w.header.cullFaces ? "True" : "False", colorF[0], colorF[1], colorF[2], colorF[3],
-              w.header.modelDrawFlags, w.isWorker ? "True" : "False", w.workerId);
+    os.format(FMT_STRING(
+        "frme_obj = bpy.data.objects.new(name='{}', object_data=binding)\n"
+        "frme_obj.pass_index = {}\n"
+        "parentName = '{}'\n"
+        "frme_obj.retro_widget_type = 'RETRO_{}'\n"
+        "frme_obj.retro_widget_use_anim_controller = {}\n"
+        "frme_obj.retro_widget_default_visible = {}\n"
+        "frme_obj.retro_widget_default_active = {}\n"
+        "frme_obj.retro_widget_cull_faces = {}\n"
+        "frme_obj.retro_widget_color = ({},{},{},{})\n"
+        "widget_model_draw_flags = {}\n"
+        "if bpy.app.version >= (2, 93, 0):\n"
+        "    frme_obj.retro_widget_model_draw_flags = bpy.types.Object.retro_widget_model_draw_flags.keywords['items'][widget_model_draw_flags][0]\n"
+        "else:\n"
+        "    frme_obj.retro_widget_model_draw_flags = bpy.types.Object.retro_widget_model_draw_flags[1]['items'][widget_model_draw_flags][0]\n"
+        "frme_obj.retro_widget_is_worker = {}\n"
+        "frme_obj.retro_widget_worker_id = {}\n"
+        "if parentName not in bpy.data.objects:\n"
+        "    frme_obj.retro_widget_parent = parentName\n"
+        "else:\n"
+        "    frme_obj.parent = bpy.data.objects[parentName]\n"),
+        w.header.name, pIdx++, w.header.parent, w.type,
+        w.header.useAnimController ? "True" : "False", w.header.defaultVisible ? "True" : "False",
+        w.header.defaultActive ? "True" : "False", w.header.cullFaces ? "True" : "False", colorF[0], colorF[1],
+        colorF[2], colorF[3], w.header.modelDrawFlags, w.isWorker ? "True" : "False", w.workerId);
 
     if (w.type == SBIG('MODL')) {
       using MODLInfo = FRME::Widget::MODLInfo;
@@ -521,25 +525,30 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         zeus::simd_floats fillF(info->fillColor.simd);
         zeus::simd_floats outlineF(info->outlineColor.simd);
         zeus::simd_floats extentF(info->blockExtent.simd);
-        os.format(FMT_STRING("frme_obj.retro_pane_dimensions = ({},{})\n"
-                             "frme_obj.retro_pane_scale_center = ({},{},{})\n"
-                             "frme_obj.retro_textpane_font_path = '{}'\n"
-                             "frme_obj.retro_textpane_word_wrap = {}\n"
-                             "frme_obj.retro_textpane_horizontal = {}\n"
-                             "frme_obj.retro_textpane_fill_color = ({},{},{},{})\n"
-                             "frme_obj.retro_textpane_outline_color = ({},{},{},{})\n"
-                             "frme_obj.retro_textpane_block_extent = ({},{})\n"
-                             "frme_obj.retro_textpane_jp_font_path = '{}'\n"
-                             "frme_obj.retro_textpane_jp_font_scale = ({},{})\n"
-                             "frme_obj.retro_textpane_hjustification = "
-                             "bpy.types.Object.retro_textpane_hjustification[1]['items'][{}][0]\n"
-                             "frme_obj.retro_textpane_vjustification = "
-                             "bpy.types.Object.retro_textpane_vjustification[1]['items'][{}][0]\n"),
-                  info->xDim, info->zDim, scaleF[0], scaleF[1], scaleF[2], fontPath.getRelativePath(),
-                  info->wordWrap ? "True" : "False", info->horizontal ? "True" : "False", fillF[0], fillF[1], fillF[2],
-                  fillF[3], outlineF[0], outlineF[1], outlineF[2], outlineF[3], extentF[0], extentF[1],
-                  jpFontPath.getRelativePath(), info->jpnPointScale[0], info->jpnPointScale[1],
-                  int(info->justification), int(info->verticalJustification));
+        os.format(FMT_STRING(
+            "frme_obj.retro_pane_dimensions = ({},{})\n"
+            "frme_obj.retro_pane_scale_center = ({},{},{})\n"
+            "frme_obj.retro_textpane_font_path = '{}'\n"
+            "frme_obj.retro_textpane_word_wrap = {}\n"
+            "frme_obj.retro_textpane_horizontal = {}\n"
+            "frme_obj.retro_textpane_fill_color = ({},{},{},{})\n"
+            "frme_obj.retro_textpane_outline_color = ({},{},{},{})\n"
+            "frme_obj.retro_textpane_block_extent = ({},{})\n"
+            "frme_obj.retro_textpane_jp_font_path = '{}'\n"
+            "frme_obj.retro_textpane_jp_font_scale = ({},{})\n"
+            "textpane_hjustification = {}\n"
+            "textpane_vjustification = {}\n"
+            "if bpy.app.version >= (2, 93, 0):\n"
+            "    frme_obj.retro_textpane_hjustification = bpy.types.Object.retro_textpane_hjustification.keywords['items'][textpane_hjustification][0]\n"
+            "    frme_obj.retro_textpane_vjustification = bpy.types.Object.retro_textpane_vjustification.keywords['items'][textpane_vjustification][0]\n"
+            "else:\n"
+            "    frme_obj.retro_textpane_hjustification = bpy.types.Object.retro_textpane_hjustification[1]['items'][textpane_hjustification][0]\n"
+            "    frme_obj.retro_textpane_vjustification = bpy.types.Object.retro_textpane_vjustification[1]['items'][textpane_vjustification][0]\n"),
+            info->xDim, info->zDim, scaleF[0], scaleF[1], scaleF[2], fontPath.getRelativePath(),
+            info->wordWrap ? "True" : "False", info->horizontal ? "True" : "False", fillF[0], fillF[1], fillF[2],
+            fillF[3], outlineF[0], outlineF[1], outlineF[2], outlineF[3], extentF[0], extentF[1],
+            jpFontPath.getRelativePath(), info->jpnPointScale[0], info->jpnPointScale[1],
+            int(info->justification), int(info->verticalJustification));
       }
     } else if (w.type == SBIG('TBGP')) {
       using TBGPInfo = Widget::TBGPInfo;

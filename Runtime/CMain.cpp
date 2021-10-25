@@ -13,6 +13,9 @@
 
 #include "../version.h"
 
+//#include <fenv.h>
+//#pragma STDC FENV_ACCESS ON
+
 /* Static reference to dataspec additions
  * (used by MSVC to definitively link DataSpecs) */
 #include "DataSpecRegistry.hpp"
@@ -461,7 +464,7 @@ public:
       using delta_duration = std::chrono::duration<float, std::ratio<1>>;
       realDt = std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count();
       if (m_cvarCommons.m_variableDt->toBoolean()) {
-        dt = std::max(realDt, 1 / 30.f);
+        dt = std::min(realDt, 1 / 30.f);
       }
     }
     m_prevFrameTime = now;
@@ -576,6 +579,10 @@ static bool IsClientLoggingEnabled(int argc, char** argv) {
 
 #if !WINDOWS_STORE
 int main(int argc, char** argv) {
+  //TODO: This seems to fix a lot of weird issues with rounding
+  // but breaks animations, need to research why this is the case
+  // for now it's disabled
+  //fesetround(FE_TOWARDZERO);
   if (argc > 1 && !hecl::StrCmp(argv[1], "--dlpackage")) {
     fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;

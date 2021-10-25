@@ -11,6 +11,8 @@
 #include "hecl/CVarCommons.hpp"
 #include "hecl/CVarManager.hpp"
 
+#include <zeus/CEulerAngles.hpp>
+
 namespace metaforce {
 void ImGuiStringViewText(std::string_view text);
 void ImGuiTextCenter(std::string_view text);
@@ -57,6 +59,9 @@ private:
   bool m_showItemsWindow = false;
   bool m_showLayersWindow = false;
   bool m_showConsoleVariablesWindow = false;
+  bool m_showPlayerTransformEditor = false;
+  std::optional<zeus::CVector3f> m_savedLocation;
+  std::optional<zeus::CEulerAngles> m_savedRotation;
 
   bool m_paused = false;
   bool m_stepFrame = false;
@@ -106,5 +111,6 @@ private:
   void ShowInputViewer();
   void SetOverlayWindowLocation(int corner) const;
   void ShowCornerContextMenu(int& corner, int avoidCorner) const;
+  void ShowPlayerTransformEditor();
 };
 } // namespace metaforce

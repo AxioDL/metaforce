@@ -1,3 +1,5 @@
+#include "Runtime/ImGuiEntitySupport.hpp"
+
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CAi.hpp"
 #include "Runtime/World/CAmbientAI.hpp"
@@ -178,7 +180,9 @@
     }                                                                                                                  \
   }
 
-static bool ImGuiVector3fInput(const char* label, zeus::CVector3f& vec) {
+namespace metaforce {
+
+bool ImGuiVector3fInput(const char* label, zeus::CVector3f& vec) {
   std::array<float, 3> arr{vec.x(), vec.y(), vec.z()};
   if (ImGui::DragFloat3(label, arr.data(), 0.1f)) {
     vec.assign(arr[0], arr[1], arr[2]);
@@ -221,7 +225,6 @@ void ImGuiAnimRes(const char* label, metaforce::CAnimRes& res) {
   // TODO: More
 }
 
-namespace metaforce {
 void CDamageVulnerability::ImGuiEditWindow(const char* title, bool& open) {
   if (!open) {
     return;

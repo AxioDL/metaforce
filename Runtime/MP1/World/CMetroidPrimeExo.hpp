@@ -182,6 +182,7 @@ class CMetroidPrimeExo : public CPatterned {
   bool x1054_25_ : 1 = false;
   bool x1054_26_ : 1 = false;
   bool x1054_27_ : 1 = false;
+  rstl::reserved_vector<TEditorId, 4> x1058_;
   rstl::reserved_vector<TUniqueId, 2> x106c_energyBallIds;
   float x1074_ = 0.f;
   s32 x1078_ = -1;
@@ -203,7 +204,7 @@ class CMetroidPrimeExo : public CPatterned {
   void sub802738d4(CStateManager& mgr);
   void UpdateEnergyBalls(float dt, CStateManager& mgr);
   u32 CountEnergyBalls(CStateManager& mgr);
-  void sub80273d38(CStateManager& mgr);
+  void DeactivatePatrolObjects(CStateManager& mgr);
   void UpdatePhysicsDummy(CStateManager& mgr);
   void sub80274054(CStateManager& mgr);
   void sub802740cc(CStateManager& mgr);
@@ -213,8 +214,8 @@ class CMetroidPrimeExo : public CPatterned {
   zeus::CVector3f sub8027464c(CStateManager& mgr);
   void CreateHUDBillBoard(CStateManager& mgr);
   void sub802747b8(float f1, CStateManager& mgr, const zeus::CVector3f& vec);
-  void sub802749e8(float f1, float f2, float f3, const zeus::CVector3f& vec1, const zeus::CVector3f& vec2);
-  void sub80274e6c(float f1, CStateManager& mgr);
+  void sub802749e8(float f1, float f2, float f3, const zeus::CVector3f& vec1, const zeus::CVector3f& vec2, s32 idx);
+  void UpdateParticles(float f1, CStateManager& mgr);
   void sub802755ac(CStateManager& mgr, bool b1);
   void EnableHeadOrbitAndTarget(CStateManager& mgr);
   void DisableHeadOrbitAndTarget(CStateManager& mgr);
@@ -227,16 +228,16 @@ class CMetroidPrimeExo : public CPatterned {
   bool sub80275d68(int w1);
   pas::ELocomotionType sub80275e14(int w1);
   u32 sub80275e34(int w1) const;
-  void sub80275e54(float f1, CStateManager& mgr);
+  void UpdateElectricEffect(float dt, CStateManager& mgr);
   void UpdateSfxEmitter(float f1, CStateManager& mgr);
   void sub80276204(CStateManager& mgr, bool b1);
   void sub8027639c(CStateManager& mgr, bool b1);
   void SetActorAreaId(CStateManager& mgr, TUniqueId uid, TAreaId aid);
   void UpdateAreaId(CStateManager& mgr);
   void SendStateToRelay(EScriptObjectState state, CStateManager& mgr);
-  void sub80276754(CStateManager& mgr);
-  TUniqueId sub802769e0(CStateManager& mgr, bool b1);
-  TUniqueId sub80276b3c(CStateManager& mgr, EScriptObjectState state, EScriptObjectMessage msg);
+  void GetRelayState(CStateManager& mgr);
+  TUniqueId GetNextAttackWaypoint(CStateManager& mgr, bool b1);
+  TUniqueId GetWaypointForBehavior(CStateManager& mgr, EScriptObjectState state, EScriptObjectMessage msg);
   void UpdateRelay(CStateManager& mgr, TAreaId areaId);
   bool IsRelayValid(CStateManager& mgr, TAreaId w2);
   bool sub80277224(float f1, CStateManager& mgr);
