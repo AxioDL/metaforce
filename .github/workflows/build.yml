@@ -11,7 +11,7 @@ on:
   pull_request:
 
 env:
-  BUILDCACHE_VERSION: v0.27.0
+  BUILDCACHE_VERSION: v0.27.3
   BUILDCACHE_ACCURACY: STRICT
   BUILDCACHE_MAX_CACHE_SIZE: 1073741824 # 1GiB
 
@@ -52,7 +52,7 @@ jobs:
           echo "$(yarn global bin)" >> $GITHUB_PATH
 
           # setup buildcache
-          curl -LSfs https://github.com/mbitsnbites/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-linux.tar.gz | tar xz -C "$RUNNER_WORKSPACE"
+          curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-linux.tar.gz | tar xz -C "$RUNNER_WORKSPACE"
           echo "$RUNNER_WORKSPACE"/buildcache/bin >> $GITHUB_PATH
 
           # free up disk space
@@ -112,7 +112,7 @@ jobs:
           echo /opt/local/libexec/qt5/bin >> $GITHUB_PATH
 
           # setup buildcache
-          curl -LSfs https://github.com/mbitsnbites/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-macos.zip -o /tmp/buildcache-macos.zip
+          curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-macos.zip -o /tmp/buildcache-macos.zip
           unzip /tmp/buildcache-macos.zip -d "$RUNNER_WORKSPACE"
           echo "$RUNNER_WORKSPACE"/buildcache/bin >> $GITHUB_PATH
 
@@ -195,7 +195,7 @@ jobs:
           # set up buildcache
           $TempDir = "$env:RUNNER_WORKSPACE\temp"
           New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://github.com/mbitsnbites/buildcache/releases/download/$env:BUILDCACHE_VERSION/buildcache-windows.zip", "$TempDir\buildcache.zip")
+          (New-Object Net.WebClient).DownloadFile("https://github.com/encounter/buildcache/releases/download/$env:BUILDCACHE_VERSION/buildcache-windows.zip", "$TempDir\buildcache.zip")
           Expand-Archive -LiteralPath "$TempDir\buildcache.zip" -DestinationPath "$TempDir" -Force
           echo "$TempDir\buildcache\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
