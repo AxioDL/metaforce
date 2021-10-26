@@ -86,7 +86,7 @@ jobs:
 
   build-macos:
     name: Build macOS (AppleClang universal)
-    runs-on: macos-10.15
+    runs-on: macos-11
 
     env:
       Qt_VERSION: 5.15.2
