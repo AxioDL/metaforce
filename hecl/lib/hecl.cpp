@@ -17,7 +17,6 @@
 #define _WIN32_IE 0x0400
 #endif
 #include <shlobj.h>
-#include <ranges>
 #endif
 
 #ifdef __APPLE__
@@ -243,8 +242,8 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(std::string_view path, Mode mode,
 
     m_entries.reserve(sort.size());
     if (reverse) {
-      for (auto& it : std::ranges::reverse_view(sort)) {
-        m_entries.emplace_back(std::move(it.second));
+      for (auto it = sort.crbegin(); it != sort.crend(); ++it) {
+        m_entries.emplace_back(std::move(it->second));
       }
     } else {
       for (auto& e : sort) {
@@ -285,8 +284,8 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(std::string_view path, Mode mode,
 
       m_entries.reserve(m_entries.size() + sort.size());
       if (reverse) {
-        for (auto& it : std::ranges::reverse_view(sort)) {
-          m_entries.emplace_back(std::move(it.second));
+        for (auto it = sort.crbegin(); it != sort.crend(); ++it) {
+          m_entries.emplace_back(std::move(it->second));
         }
       } else {
         for (auto& e : sort) {
@@ -315,8 +314,8 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(std::string_view path, Mode mode,
 
       m_entries.reserve(m_entries.size() + sort.size());
       if (reverse) {
-        for (auto& e : std::ranges::reverse_view(sort)) {
-          m_entries.emplace_back(std::move(e.second));
+        for (auto it = sort.crbegin(); it != sort.crend(); ++it) {
+          m_entries.emplace_back(std::move(it->second));
         }
       } else {
         for (auto& e : sort) {
