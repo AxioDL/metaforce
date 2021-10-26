@@ -16,6 +16,20 @@ static const std::regex regBlenderVersion(R"(Blender (\d+)\.(\d+)(?:\.(\d+))?)",
 static bool RegFileExists(const char* path) {
   if (!path)
     return false;
+#if !defined(WIN32)
+  if (path[0] != '/') {
+    auto envPath = hecl::GetEnv("PATH");
+    if (envPath) {
+      std::istringstream iss(*envPath);
+      std::string item;
+      while (std::getline(iss, item, ':')) {
+        if (RegFileExists((item + "/" + path).c_str())) {
+          return true;
+        }
+      }
+    }
+  }
+#endif
   hecl::Sstat theStat;
   return !hecl::Stat(path, &theStat) && S_ISREG(theStat.st_mode);
 }
@@ -83,17 +97,17 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
 #else
       steamBlender += "/blender";
 #endif
-      blenderBin = steamBlender.c_str();
+      blenderBin = steamBlender;
       if (!RegFileExists(blenderBin->c_str())) {
         blenderBin = DEFAULT_BLENDER_BIN;
         if (!RegFileExists(blenderBin->c_str())) {
-          blenderBin = nullptr;
+          blenderBin.reset();
         }
       }
     } else {
       blenderBin = DEFAULT_BLENDER_BIN;
       if (!RegFileExists(blenderBin->c_str())) {
-        blenderBin = nullptr;
+        blenderBin.reset();
       }
     }
   }
