@@ -1,6 +1,8 @@
 #include "hecl/Blender/FindBlender.hpp"
+
 #include "hecl/SteamFinder.hpp"
-#include "hecl/hecl.hpp"
+
+#include <sstream>
 
 namespace hecl::blender {
 
