@@ -13,10 +13,12 @@ namespace metaforce {
 
 class CWaveBuster : public CGameProjectile {
   zeus::CTransform x2e8_originalXf;
-  zeus::CVector3f x318_;
-  zeus::CVector3f x324_;
+  // Wavebuster is rendered as a cubic bezier
+  // points A & D are at the arm cannon and endpoint/target respectively
+  zeus::CVector3f x318_bezierB;
+  zeus::CVector3f x324_bezierC;
   zeus::CVector3f x330_;
-  zeus::CVector3f x33c_;
+  zeus::CVector3f x33c_homingTargetPoint;
   zeus::CVector3f x348_targetPoint;
   TCachedToken<CSwooshDescription> x354_busterSwoosh1;
   TCachedToken<CSwooshDescription> x360_busterSwoosh2;
@@ -27,7 +29,7 @@ class CWaveBuster : public CGameProjectile {
   std::unique_ptr<CElementGen> x38c_busterSparksGen;
   std::unique_ptr<CElementGen> x390_busterLightGen;
   CRandom16 x394_rand{99};
-  float x398_ = 2.f * M_PIF;
+  float x398_spiralOffset = 2.f * M_PIF;
   float x39c_ = 0.5f;
   float x3a0_ = 0.5f;
   float x3a4_ = 0.f;
@@ -39,13 +41,13 @@ class CWaveBuster : public CGameProjectile {
   float x3bc_ = 0.f;
   float x3c0_ = 0.f;
   float x3c4_ = 0.f;
-  float x3c8_ = 0.f;
-  u32 x3cc_ = 0;
-  bool x3d0_24_firing : 1;
-  bool x3d0_25_ : 1;
-  bool x3d0_26_ : 1;
-  bool x3d0_27_ : 1;
-  bool x3d0_28_ : 1;
+  float x3c8_innerSwooshColorT = 0.f;
+  u32 x3cc_innerSwooshColorIdx = 0;
+  bool x3d0_24_firing : 1 = true;
+  bool x3d0_25_ : 1 = true;
+  bool x3d0_26_trackingTarget : 1 = false;
+  bool x3d0_27_ : 1 = false;
+  bool x3d0_28_ : 1 = true;
   CLineRenderer m_lineRenderer1;
   CLineRenderer m_lineRenderer2;
 
