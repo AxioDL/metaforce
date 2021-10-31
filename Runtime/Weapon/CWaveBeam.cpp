@@ -54,7 +54,7 @@ void CWaveBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, 
       }
     }
     if (x258_25_effectTimerActive && x24c_effectTimer > 0.f)
-      x24c_effectTimer -= 0.f;
+      x24c_effectTimer -= dt;
   }
   CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
