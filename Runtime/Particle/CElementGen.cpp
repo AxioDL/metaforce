@@ -84,24 +84,30 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
   if (CIntElement* mbspElem = desc->x48_x34_MBSP.get())
     mbspElem->GetValue(x74_curFrame, x270_MBSP);
 
+  // x280_VELSources' entries should be tightly packed
+  size_t idx = 0;
   if (CModVectorElement* elem = desc->x7c_x68_VEL1.get()) {
-    x280_VELSources[0] = elem;
-    x278_hasVMD[0] = desc->x45_26_x31_28_VMD1;
+    x280_VELSources[idx] = elem;
+    x278_hasVMD[idx] = desc->x45_26_x31_28_VMD1;
+    idx++;
   }
 
   if (CModVectorElement* elem = desc->x80_x6c_VEL2.get()) {
-    x280_VELSources[1] = elem;
-    x278_hasVMD[1] = desc->x45_27_x31_29_VMD2;
+    x280_VELSources[idx] = elem;
+    x278_hasVMD[idx] = desc->x45_27_x31_29_VMD2;
+    idx++;
   }
 
   if (CModVectorElement* elem = desc->x84_x70_VEL3.get()) {
-    x280_VELSources[2] = elem;
-    x278_hasVMD[2] = desc->x45_28_x31_30_VMD3;
+    x280_VELSources[idx] = elem;
+    x278_hasVMD[idx] = desc->x45_28_x31_30_VMD3;
+    idx++;
   }
 
   if (CModVectorElement* elem = desc->x88_x74_VEL4.get()) {
-    x280_VELSources[3] = elem;
-    x278_hasVMD[3] = desc->x45_29_x31_31_VMD4;
+    x280_VELSources[idx] = elem;
+    x278_hasVMD[idx] = desc->x45_29_x31_31_VMD4;
+    idx++;
   }
 
   if (desc->x10c_ADV1 || desc->x110_ADV2 || desc->x114_ADV3 || desc->x118_ADV4 || desc->x11c_ADV5 || desc->x120_ADV6 ||
