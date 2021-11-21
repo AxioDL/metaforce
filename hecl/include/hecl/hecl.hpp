@@ -165,9 +165,13 @@ inline std::optional<std::string> GetEnv(const char* name) {
   }
   auto wbuf = std::make_unique<wchar_t[]>(sz);
   _wgetenv_s(&sz, wbuf.get(), sz, wname.get());
-  return nowide::narrow(wbuf.get(), sz);
+  return nowide::narrow(wbuf.get(), sz - 1); // null-terminated
 #else
-  return getenv(name);
+  const auto* env = getenv(name);
+  if (env != nullptr) {
+    return env;
+  }
+  return {};
 #endif
 #endif
 }

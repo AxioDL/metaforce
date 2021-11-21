@@ -41,30 +41,24 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
   minor = 0;
 
   /* User-specified blender path */
-#if _WIN32
   auto blenderBin = GetEnv("BLENDER_BIN");
-#else
-  const char* cblenderBin = getenv("BLENDER_BIN");
-  std::optional<std::string> blenderBin{};
-  if (cblenderBin != nullptr) {
-    blenderBin = cblenderBin;
+  if (blenderBin && !RegFileExists(blenderBin->c_str())) {
+    blenderBin.reset();
   }
-#endif
-
-  /* Steam blender */
-  std::string steamBlender;
 
   /* Child process of blender */
 #if _WIN32
-  if (!blenderBin || !RegFileExists(blenderBin->c_str())) {
+  if (!blenderBin) {
     /* Environment not set; try steam */
-    steamBlender = hecl::FindCommonSteamApp("Blender");
-    if (steamBlender.size()) {
+    std::string steamBlender = hecl::FindCommonSteamApp("Blender");
+    if (!steamBlender.empty()) {
       steamBlender += "\\blender.exe";
-      blenderBin = steamBlender.c_str();
+      if (RegFileExists(steamBlender.c_str())) {
+        blenderBin = std::move(steamBlender);
+      }
     }
 
-    if (!RegFileExists(blenderBin->c_str())) {
+    if (!blenderBin) {
       /* No steam; try default */
       wchar_t wProgFiles[256];
       if (GetEnvironmentVariableW(L"ProgramFiles", wProgFiles, 256)) {
@@ -90,33 +84,29 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
   }
 
 #else
-  if (!RegFileExists(blenderBin->c_str())) {
+  if (!blenderBin) {
     /* Try steam */
-    steamBlender = hecl::FindCommonSteamApp("Blender");
+    std::string steamBlender = hecl::FindCommonSteamApp("Blender");
     if (steamBlender.size()) {
 #ifdef __APPLE__
       steamBlender += "/blender.app/Contents/MacOS/blender";
 #else
       steamBlender += "/blender";
 #endif
-      blenderBin = steamBlender;
-      if (!RegFileExists(blenderBin->c_str())) {
+      if (RegFileExists(steamBlender->c_str())) {
+        blenderBin = std::move(steamBlender);
+      } else if (RegFileExists(DEFAULT_BLENDER_BIN)) {
         blenderBin = DEFAULT_BLENDER_BIN;
-        if (!RegFileExists(blenderBin->c_str())) {
-          blenderBin.reset();
-        }
       }
-    } else {
+    } else if (RegFileExists(DEFAULT_BLENDER_BIN)) {
       blenderBin = DEFAULT_BLENDER_BIN;
-      if (!RegFileExists(blenderBin->c_str())) {
-        blenderBin.reset();
-      }
     }
   }
 #endif
 
-  if (!blenderBin)
+  if (!blenderBin) {
     return {};
+  }
 
 #if _WIN32
   const nowide::wstackstring wblenderBin(blenderBin.value());
