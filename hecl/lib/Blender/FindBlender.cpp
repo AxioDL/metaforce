@@ -93,7 +93,7 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
 #else
       steamBlender += "/blender";
 #endif
-      if (RegFileExists(steamBlender->c_str())) {
+      if (RegFileExists(steamBlender.c_str())) {
         blenderBin = std::move(steamBlender);
       } else if (RegFileExists(DEFAULT_BLENDER_BIN)) {
         blenderBin = DEFAULT_BLENDER_BIN;
