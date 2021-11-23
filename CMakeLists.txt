@@ -247,7 +247,7 @@ else()
   add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
                       $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
                       -Wall -Wno-multichar -Werror=implicit-fallthrough
-                      -Wno-unused-variable -Wno-unused-result
+                      -Wno-unused-variable -Wno-unused-result -Wno-unused-but-set-variable
                       -Wno-unused-function -Wno-sign-compare -Wno-unknown-pragmas -Werror)
   # doesn't work with generator expression in add_compile_options?
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
