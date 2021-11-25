@@ -82,11 +82,11 @@ struct AudioGroupInfo {
 };
 
 constexpr std::array<AudioGroupInfo, 5> StaticAudioGroups{{
-    {"Misc_AGSC", GRPmisc},
-    {"MiscSamus_AGSC", GRPmiscSamus},
-    {"UI_AGSC", GRPui},
-    {"Weapons_AGSC", GRPweapons},
-    {"ZZZ_AGSC", GRPzzz},
+    {"Misc_AGSC", GRPMisc},
+    {"MiscSamus_AGSC", GRPMiscSamus},
+    {"UI_AGSC", GRPUI},
+    {"Weapons_AGSC", GRPWeapons},
+    {"ZZZ_AGSC", GRPZZZ},
 }};
 } // Anonymous namespace
 
