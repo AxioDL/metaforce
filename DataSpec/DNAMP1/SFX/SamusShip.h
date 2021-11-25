@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup002A 42
+#define GRPSamusShip 42
 
 #define SFXsas_x_dooropen_00 1724
 #define SFXsas_x_dooropen_01 1725

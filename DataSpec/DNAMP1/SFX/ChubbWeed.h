@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0007 7
+#define GRPChubbWeed 7
 
 #define SFXchb_r_scream_00 192
 #define SFXchb_r_alert_00_lp 193

@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0043 67
+#define GRPIceCrack 67
 
 #define SFXsfx0C31 3121
 #define SFXsfx0C32 3122

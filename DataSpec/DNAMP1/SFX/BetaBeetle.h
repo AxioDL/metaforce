@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0002 2
+#define GRPBetaBeetle 2
 
 #define SFXsfx003C 60
 #define SFXsfx003D 61

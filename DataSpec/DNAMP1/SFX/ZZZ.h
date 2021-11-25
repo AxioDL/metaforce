@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPzzz 65
+#define GRPZZZ 65
 
 #define SFXsfx0C16 3094
 #define SFXsfx0C17 3095

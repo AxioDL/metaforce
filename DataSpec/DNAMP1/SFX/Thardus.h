@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0037 55
+#define GRPThardus 55
 
 #define SFXtha_b_voxangry_02 2703
 #define SFXtha_b_move_00 2704

@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0018 24
+#define GRPPuddleToad 24
 
 #define SFXpud_a_suckin_00 675
 #define SFXpud_a_spitout_00 676

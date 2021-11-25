@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0039 57
+#define GRPOmegaPirate 57
 
 #define SFXsfx0B0F 2831
 #define SFXsfx0B10 2832

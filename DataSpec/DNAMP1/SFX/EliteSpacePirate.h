@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup000A 10
+#define GRPEliteSpacePirate 10
 
 #define SFXepr_a_grenade_00 269
 #define SFXsfx010E 270

@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup001B 27
+#define GRPScarab 27
 
 #define SFXsfx02D1 721
 #define SFXsfx02D2 722

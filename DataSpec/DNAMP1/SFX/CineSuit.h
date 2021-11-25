@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0040 64
+#define GRPCineSuit 64
 
 #define SFXci2_x_energy_lp_00 3069
 #define SFXci2_x_energy_lp_01 3070

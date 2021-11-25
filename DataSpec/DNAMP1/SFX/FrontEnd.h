@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0026 38
+#define GRPFrontEnd 38
 
 #define SFXfnt_transfore_00L 1090
 #define SFXfnt_advance_R 1091

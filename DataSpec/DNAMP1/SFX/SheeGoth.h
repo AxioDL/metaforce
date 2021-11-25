@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup001D 29
+#define GRPSheeGoth 29
 
 #define SFXshe_a_fireball_00 749
 #define SFXshe_b_shake_lp_00 750

@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup000C 12
+#define GRPFlickerBat 12
 
 #define SFXflk_b_flicker_00 336
 #define SFXflk_b_talk_00 337

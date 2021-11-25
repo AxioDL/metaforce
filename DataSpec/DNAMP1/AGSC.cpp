@@ -181,10 +181,9 @@ bool AGSC::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& dir) {
   group.getSdir().extractAllCompressed(dir.getAbsolutePath(), data.getSamp());
 
   /* Import C headers */
-  auto lastComp = dir.getLastComponent();
-  auto search = std::lower_bound(std::cbegin(Headers), std::cend(Headers), lastComp,
+  auto search = std::lower_bound(std::cbegin(Headers), std::cend(Headers), head.groupName,
                                  [](const auto& a, const auto& b) { return a.first < b; });
-  if (search != std::cend(Headers) && search->first == lastComp)
+  if (search != std::cend(Headers) && search->first == head.groupName)
     group.importCHeader((char*)search->second);
 
   /* Write out project/pool */
@@ -232,7 +231,13 @@ bool AGSC::Cook(const hecl::ProjectPath& dir, const hecl::ProjectPath& refOutPat
 
       Header head;
       head.audioDir = "Audio/"sv;
-      head.groupName = path.getLastComponent();
+      auto lastComp = path.getLastComponent();
+      auto str = fmt::format("_{:8X}", path.parsedHash32());
+      auto it = lastComp.rfind(str);
+      if (it != std::string_view::npos) {
+        lastComp = lastComp.substr(0, it);
+      }
+      head.groupName = lastComp;
       head.write(w);
 
       amuse::AudioGroupDatabase group(path.getAbsolutePath());

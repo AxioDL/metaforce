@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0023 35
+#define GRPToroByte 35
 
 #define SFXocu_b_idle_00 981
 #define SFXsfx03D6 982

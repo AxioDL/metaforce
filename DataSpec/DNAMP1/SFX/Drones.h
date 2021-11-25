@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0009 9
+#define GRPDrones 9
 
 #define SFXepr_a_shockhit_00 209
 #define SFXsfx00D2 210

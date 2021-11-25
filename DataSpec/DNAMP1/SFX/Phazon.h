@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0042 66
+#define GRPPhazon 66
 
 #define SFXphz_damage_lp 3114
 #define SFXsfx0C2B 3115

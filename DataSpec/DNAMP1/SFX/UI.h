@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPui 40
+#define GRPUI 40
 
 #define SFXui_map_rotate 1375
 #define SFXui_map_zoom 1376

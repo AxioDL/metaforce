@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0001 1
+#define GRPAtomic 1
 
 #define SFXelu_a_elec_lp_00 42
 #define SFXat2_b_fly_lp_00 43

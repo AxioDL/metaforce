@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0016 22
+#define GRPParasite 22
 
 #define SFXpar_a_voxangry_00 624
 #define SFXsfx0271 625

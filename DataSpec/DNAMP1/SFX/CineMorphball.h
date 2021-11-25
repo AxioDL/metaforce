@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup003F 63
+#define GRPCineMorphball 63
 
 #define SFXsfx0BF3 3059
 #define SFXsfx0BF4 3060

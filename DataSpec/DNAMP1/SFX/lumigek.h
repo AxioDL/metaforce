@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0045 69
+#define GRPLumigek 69
 
 #define SFXlum_b_idle_00 3143
 #define SFXsfx0C48 3144

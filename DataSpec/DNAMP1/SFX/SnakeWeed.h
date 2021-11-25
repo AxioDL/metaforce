@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup001E 30
+#define GRPSnakeWeed 30
 
 #define SFXsfx0326 806
 #define SFXsnk_b_in_00 807

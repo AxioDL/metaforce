@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0000 0
+#define GRPIntroBoss 0
 
 #define SFXsfx0000 0
 #define SFXsfx0001 1

@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0015 21
+#define GRPMetroid 21
 
 #define SFXsfx022F 559
 #define SFXsfx0230 560

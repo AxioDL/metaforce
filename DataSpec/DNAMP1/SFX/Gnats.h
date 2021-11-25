@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup000F 15
+#define GRPGnats 15
 
 #define SFXsfx01CB 459
 #define SFXsfx01CC 460

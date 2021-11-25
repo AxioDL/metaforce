@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0033 51
+#define GRPOverWorld 51
 
 #define SFXsfx09E0 2528
 #define SFXsfx09E1 2529

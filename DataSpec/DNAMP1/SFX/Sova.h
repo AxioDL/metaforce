@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup001F 31
+#define GRPSova 31
 
 #define SFXfpr_b_walk_00 812
 #define SFXfpr_b_walk_01 813

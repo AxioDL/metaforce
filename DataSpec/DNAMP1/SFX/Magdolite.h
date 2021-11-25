@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0013 19
+#define GRPMagdolite 19
 
 #define SFXmag_b_alert_00 518
 #define SFXmag_b_idle_00 519

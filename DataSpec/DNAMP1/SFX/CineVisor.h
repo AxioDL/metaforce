@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup003D 61
+#define GRPCineVisor 61
 
 #define SFXcin_x_visor_00 3033
 #define SFXsfx0BDA 3034

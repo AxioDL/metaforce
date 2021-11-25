@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0008 8
+#define GRPCrystallite 8
 
 #define SFXcry_b_idle_00 199
 #define SFXsfx00C8 200

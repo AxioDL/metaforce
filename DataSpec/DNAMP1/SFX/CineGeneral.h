@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup003C 60
+#define GRPCineGeneral 60
 
 #define SFXsfx0BB0 2992
 #define SFXsfx0BB1 2993

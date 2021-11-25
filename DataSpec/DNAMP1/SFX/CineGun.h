@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup003E 62
+#define GRPCineGun 62
 
 #define SFXsfx0BE5 3045
 #define SFXci3_x_clank_00 3046

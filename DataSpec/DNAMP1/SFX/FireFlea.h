@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup000B 11
+#define GRPFireFlea 11
 
 #define SFXfif_b_idle_lp_00 323
 #define SFXsfx0144 324

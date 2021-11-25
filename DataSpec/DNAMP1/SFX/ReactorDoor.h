@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0031 49
+#define GRPReactorDoor 49
 
 #define SFXdor_x_close_01 2365
 #define SFXdor_x_open_01 2366

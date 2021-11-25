@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0021 33
+#define GRPSpankWeed 33
 
 #define SFXspw_a_spank_00 915
 #define SFXsfx0394 916

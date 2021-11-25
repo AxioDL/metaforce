@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup000D 13
+#define GRPFlyingPirate 13
 
 #define SFXsfx015C 348
 #define SFXfpr_a_chaff_00 349

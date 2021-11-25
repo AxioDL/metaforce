@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0006 6
+#define GRPChozoGhost 6
 
 #define SFXchg_a_dball_00 140
 #define SFXchg_a_dcharge_00 141

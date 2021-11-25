@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0010 16
+#define GRPGryzbee 16
 
 #define SFXgrz_b_idle_00 466
 #define SFXsfx01D3 467

@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0038 56
+#define GRPRidley 56
 
 #define SFXrid_a_flamerake_00 2771
 #define SFXrid_a_flame_lp_00 2772

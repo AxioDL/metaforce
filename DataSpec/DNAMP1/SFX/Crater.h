@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup002C 44
+#define GRPCrater 44
 
 #define SFXsfx0764 1892
 #define SFXsfx0765 1893

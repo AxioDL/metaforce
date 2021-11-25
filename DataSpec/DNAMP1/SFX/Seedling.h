@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup001C 28
+#define GRPSeedling 28
 
 #define SFXsed_a_spine_00 729
 #define SFXsed_b_idle_lp_00 730

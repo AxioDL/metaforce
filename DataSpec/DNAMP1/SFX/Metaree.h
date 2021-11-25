@@ -5,7 +5,7 @@
  * Date: Sat Sep  1 12:32:04 2018
  */
 
-#define GRPgroup0014 20
+#define GRPMetaree 20
 
 #define SFXmtr_a_scream_00 548
 #define SFXsfx0225 549
