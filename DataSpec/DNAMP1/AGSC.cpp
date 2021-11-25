@@ -232,7 +232,7 @@ bool AGSC::Cook(const hecl::ProjectPath& dir, const hecl::ProjectPath& refOutPat
       Header head;
       head.audioDir = "Audio/"sv;
       auto lastComp = path.getLastComponent();
-      auto str = fmt::format("_{:8X}", path.parsedHash32());
+      auto str = fmt::format(FMT_STRING("_{:8X}"), path.parsedHash32());
       auto it = lastComp.rfind(str);
       if (it != std::string_view::npos) {
         lastComp = lastComp.substr(0, it);
