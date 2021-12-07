@@ -161,3 +161,11 @@ existing HECL project (assuming paths are relative), then run the following comm
 hecl package MP1/URDE
 ```
 This will cook and package the debug models and will automatically enable rendering of lights in a debug build of Metaforce.
+
+### Blender Known Issues
+On Windows it is known that paths >240 characters will cause blender to fail while attempting to open/create a file, causing hecl to stall.  
+We currently do not have a good fix for this issue, however a workaround is to place hecl near the root of your directory tree
+and executing from there e.g:  
+`D:\HECLProjects\`  
+Another work around is to install a version of python that matches the one blender ships with and renaming the python directory in the blender directory to `python.bak`.  
+This will force blender to use the system's python if it's available and will not have the same path limitation
