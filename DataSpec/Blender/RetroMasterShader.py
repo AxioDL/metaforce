@@ -768,8 +768,8 @@ def make_retro_shader_mp3_color():
     input.default_value = (0.0, 0.0, 0.0, 1.0)
     input = new_grp.inputs.new("NodeSocketInt", "Add INCA")
     input.default_value = 0
-    input.min_value = 0.000000
-    input.max_value = 1.000000
+    input.min_value = 0
+    input.max_value = 1
     input = new_grp.inputs.new("NodeSocketFloatFactor", "OPAC")
     input.default_value = 1.0
     input.min_value = 0.000000
@@ -1057,8 +1057,8 @@ def make_retro_shader_mp3_bloom():
     input.max_value = 1.000000
     input = new_grp.inputs.new("NodeSocketInt", "Add INCA")
     input.default_value = 0
-    input.min_value = 0.000000
-    input.max_value = 1.000000
+    input.min_value = 0
+    input.max_value = 1
     new_grp.outputs.new("NodeSocketShader", "Shader")
     nodes = {}
     node = new_grp.nodes.new("ShaderNodeMath")
@@ -1261,8 +1261,8 @@ def make_retro_shader_mp3():
     input.max_value = 1.000000
     input = new_grp.inputs.new("NodeSocketInt", "Add INCA")
     input.default_value = 0
-    input.min_value = 0.000000
-    input.max_value = 1.000000
+    input.min_value = 0
+    input.max_value = 1
     input = new_grp.inputs.new("NodeSocketFloatFactor", "BNIF")
     input.default_value = 0.0
     input.min_value = 0.000000

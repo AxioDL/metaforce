@@ -161,7 +161,7 @@ bool IsPathBlend(const hecl::ProjectPath& path) {
   }
 
   buf = hecl::SLittle(buf);
-  return buf == 0x4e454c42 || buf == 0x88b1f;
+  return buf == 0x4e454c42 || buf == 0x88b1f || buf == 0xfd2fb528;
 }
 
 bool IsPathYAML(const hecl::ProjectPath& path) {

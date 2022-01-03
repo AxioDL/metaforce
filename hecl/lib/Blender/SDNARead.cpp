@@ -79,44 +79,51 @@ SDNARead::SDNARead(std::string_view path) {
   r.readUBytesToBuf(magicBuf, 7);
   r.seek(0, athena::SeekOrigin::Begin);
   if (strncmp(magicBuf, "BLENDER", 7)) {
-    /* Try gzip decompression */
-    std::unique_ptr<uint8_t[]> compBuf(new uint8_t[4096]);
-    m_data.resize((length * 2 + 4095) & ~4095);
-    z_stream zstrm = {};
-    inflateInit2(&zstrm, 16 + MAX_WBITS);
-    zstrm.next_out = (Bytef*)m_data.data();
-    zstrm.avail_out = m_data.size();
-    zstrm.total_out = 0;
+    atUint32 magic = hecl::SLittle(*(atUint32*)(magicBuf));
+    if (magic == 0xfd2fb528) {
+      /* Try zstandard decompression */
+      // TODO: Implement
+      m_data = {};
+    } else if (magic == 0x88b1f) {
+      /* Try gzip decompression */
+      std::unique_ptr<uint8_t[]> compBuf(new uint8_t[4096]);
+      m_data.resize((length * 2 + 4095) & ~4095);
+      z_stream zstrm = {};
+      inflateInit2(&zstrm, 16 + MAX_WBITS);
+      zstrm.next_out = (Bytef*)m_data.data();
+      zstrm.avail_out = m_data.size();
+      zstrm.total_out = 0;
 
-    atUint64 rs;
-    while ((rs = r.readUBytesToBuf(compBuf.get(), 4096))) {
-      int inflateRet;
-      zstrm.next_in = compBuf.get();
-      zstrm.avail_in = rs;
-      while (zstrm.avail_in) {
-        if (!zstrm.avail_out) {
-          zstrm.avail_out = m_data.size();
-          m_data.resize(zstrm.avail_out * 2);
-          zstrm.next_out = (Bytef*)m_data.data() + zstrm.avail_out;
+      atUint64 rs;
+      while ((rs = r.readUBytesToBuf(compBuf.get(), 4096))) {
+        int inflateRet;
+        zstrm.next_in = compBuf.get();
+        zstrm.avail_in = rs;
+        while (zstrm.avail_in) {
+          if (!zstrm.avail_out) {
+            zstrm.avail_out = m_data.size();
+            m_data.resize(zstrm.avail_out * 2);
+            zstrm.next_out = (Bytef*)m_data.data() + zstrm.avail_out;
+          }
+          inflateRet = inflate(&zstrm, Z_NO_FLUSH);
+          if (inflateRet == Z_STREAM_END)
+            break;
+          if (inflateRet != Z_OK) {
+            inflateEnd(&zstrm);
+            m_data = std::vector<uint8_t>();
+            return;
+          }
         }
-        inflateRet = inflate(&zstrm, Z_NO_FLUSH);
         if (inflateRet == Z_STREAM_END)
           break;
-        if (inflateRet != Z_OK) {
-          inflateEnd(&zstrm);
-          m_data = std::vector<uint8_t>();
-          return;
-        }
       }
-      if (inflateRet == Z_STREAM_END)
-        break;
-    }
 
-    inflateEnd(&zstrm);
+      inflateEnd(&zstrm);
 
-    if (strncmp((char*)m_data.data(), "BLENDER", 7)) {
-      m_data = std::vector<uint8_t>();
-      return;
+      if (strncmp((char*)m_data.data(), "BLENDER", 7)) {
+        m_data = std::vector<uint8_t>();
+        return;
+      }
     }
   } else {
     m_data.resize(length);

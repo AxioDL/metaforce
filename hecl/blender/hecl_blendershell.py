@@ -505,7 +505,11 @@ try:
             bpy.context.preferences.filepaths.save_version = 0
             print('SAVING %s' % loaded_blend)
             if loaded_blend:
-                if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=loaded_blend, check_existing=False, compress=True):
+                if bpy.app.version >= (3, 0, 0):
+                    ret = bpy.ops.wm.save_as_mainfile(filepath=loaded_blend, check_existing=False, compress=False)
+                else:
+                    ret = bpy.ops.wm.save_as_mainfile(filepath=loaded_blend, check_existing=False, compress=True)
+                if 'FINISHED' in ret:
                     writepipestr(b'FINISHED')
                 else:
                     writepipestr(b'CANCELLED')
