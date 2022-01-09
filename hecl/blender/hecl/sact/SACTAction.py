@@ -176,13 +176,13 @@ class SACTAction_load(bpy.types.Operator):
                         bpy.context.scene.render.frame_map_old = action_obj.hecl_fps
                         bpy.context.scene.render.frame_map_new = 60
                         bpy.context.scene.frame_start = 0
-                        bpy.context.scene.frame_end = action_obj.frame_range[1] * (60 / action_obj.hecl_fps)
+                        bpy.context.scene.frame_end = int(action_obj.frame_range[1] * (60 / action_obj.hecl_fps))
                     else:
                         bpy.context.scene.render.fps = action_obj.hecl_fps
                         bpy.context.scene.render.frame_map_old = action_obj.hecl_fps
                         bpy.context.scene.render.frame_map_new = action_obj.hecl_fps
                         bpy.context.scene.frame_start = 0
-                        bpy.context.scene.frame_end = action_obj.frame_range[1]
+                        bpy.context.scene.frame_end = int(action_obj.frame_range[1])
 
                     # Events
                     #SACTEvent.clear_action_events(self, context, actor_data)

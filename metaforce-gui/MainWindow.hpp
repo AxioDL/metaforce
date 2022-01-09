@@ -35,6 +35,7 @@ class MainWindow : public QMainWindow {
   QString m_path;
   QString m_metaforcePath;
   QString m_heclPath;
+  QString m_blenderOverridePath;
   QProcess m_heclProc;
   DownloadManager m_dlManager;
   QStringList m_warpSettings;
@@ -77,4 +78,5 @@ private:
   void initGraphicsApiOption(QRadioButton* action, bool hidden, bool isDefault);
   void initNumberComboOption(QComboBox* action, hecl::CVar* cvar);
   void initCheckboxOption(QCheckBox* action, hecl::CVar* cvar);
+  void setBlenderOverride(const QString& path);
 };

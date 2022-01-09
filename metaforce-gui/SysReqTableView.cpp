@@ -82,6 +82,15 @@ void SysReqTableModel::updateFreeDiskSpace(const QString& path) {
   }
   emit dataChanged(index(1, 0), index(1, 0));
 }
+void SysReqTableModel::updateBlender() {
+  hecl::blender::FindBlender(m_blendMajor, m_blendMinor);
+  if (m_blendMajor != 0) {
+    m_blendVersionStr = tr("Blender %1.%2").arg(QString::number(m_blendMajor), QString::number(m_blendMinor));
+  } else {
+    m_blendVersionStr = tr("Not Found");
+  }
+  emit dataChanged(index(1, 3), index(1, 3));
+}
 
 int SysReqTableModel::rowCount(const QModelIndex& parent) const { return 4; }
 
@@ -128,9 +137,10 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const {
         return {};
 #endif
       case 3:
+        auto [major, minor] = hecl::blender::GetRecommendedVersion();
         return QStringLiteral("Blender %1.%2+")
-            .arg(hecl::blender::MinBlenderMajorSearch)
-            .arg(hecl::blender::MinBlenderMinorSearch);
+            .arg(major)
+            .arg(minor);
       }
     } else if (index.column() == 1) {
       /* Your System */
@@ -178,9 +188,7 @@ QVariant SysReqTableModel::headerData(int section, Qt::Orientation orientation, 
 }
 
 bool SysReqTableModel::isBlenderVersionOk() const {
-  return (m_blendMajor >= hecl::blender::MinBlenderMajorSearch &&
-          m_blendMajor <= hecl::blender::MaxBlenderMajorSearch) &&
-         (m_blendMinor >= hecl::blender::MinBlenderMinorSearch && m_blendMinor <= hecl::blender::MaxBlenderMinorSearch);
+  return hecl::blender::IsVersionSupported(m_blendMajor, m_blendMinor);
 }
 
 void SysReqTableView::paintEvent(QPaintEvent* e) {

@@ -466,8 +466,9 @@ Connection::Connection(int verbosityLevel) {
       BlenderLog.report(logvisor::Fatal, FMT_STRING("Unable to find blender"));
     } else if (lineStr == "INVALIDBLENDERVER") {
       _closePipe();
+      auto [major, minor] = hecl::blender::GetEarliestSupportedVersion();
       BlenderLog.report(logvisor::Fatal, FMT_STRING("Installed blender version must be >= {}.{}"),
-                        MinBlenderMajorSearch, MinBlenderMinorSearch);
+                        major, minor);
     } else if (lineStr == "NOADDON") {
       _closePipe();
       if (blenderAddonPath != "SKIPINSTALL")
