@@ -161,10 +161,10 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
 }
 
 bool IsVersionSupported(int major, int minor) {
-  const auto* it =
+  auto it =
       std::find_if(SupportedVersions.cbegin(), SupportedVersions.cend(),
                    [&major, &minor](const auto& version) { return version.Major == major && version.Minor == minor; });
-  return it != nullptr;
+  return it != SupportedVersions.cend();
 }
 
 std::pair<uint32_t, uint32_t> GetLatestSupportedVersion() {
