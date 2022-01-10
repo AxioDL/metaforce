@@ -208,9 +208,9 @@ void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::C
     }
     if (x274_26_veinsAlphaActive) {
       CModelFlags useFlags(5, 0, 3, zeus::CColor(1.f, 0.5f * x270_indirectAlpha));
-      x224_phazonVeinsData->Render(mgr, xf, lights, useFlags);
+      x224_phazonVeinsData->Render(mgr, modelXf * zeus::CTransform::Scale(x270_indirectAlpha), lights, useFlags);
     } else {
-      x224_phazonVeinsData->Render(mgr, xf, lights, flags);
+      x224_phazonVeinsData->Render(mgr, modelXf, lights, flags);
     }
   }
 }

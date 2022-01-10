@@ -34,6 +34,13 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEnti
                GetEditorId(), GetAreaIdAlways());
     x11c_forceField.x() = 0.f;
   }
+#else
+  // HACK: For some reason MetroidPrime's lair doesn't enable this trigger until after the cutscene, activate it in debug build
+  if (GetEditorId() == 0x000B01DB && !GetActive()) {
+    Log.report(logvisor::Warning, FMT_STRING("BUG THIS!: Overriding active for trigger {} in area {}"), GetEditorId(),
+               GetAreaIdAlways());
+    SetActive(true);
+  }
 #endif
 }
 
