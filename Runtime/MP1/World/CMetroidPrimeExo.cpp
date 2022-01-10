@@ -359,7 +359,7 @@ void CMetroidPrimeExo::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other
     SetBoneTrackingTarget(mgr, true);
     CreatePlasmaProjectiles(mgr);
     CreatePhysicsDummy(mgr);
-    sub802755ac(mgr, true);
+    EnableParticles(mgr, true);
     CreateHUDBillBoard(mgr);
     mgr.GetPlayer().SetFrozenTimeoutBias(2.f);
     break;
@@ -440,6 +440,7 @@ void CMetroidPrimeExo::Touch(CActor& act, CStateManager& mgr) {
 
 void CMetroidPrimeExo::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   if (type == EUserEventType::ScreenShake) {
+    // TODO: Implement
     return;
   }
   if (type == EUserEventType::EffectOff) {
@@ -457,14 +458,14 @@ void CMetroidPrimeExo::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& 
   }
   if (type == EUserEventType::DamageOn) {
     if (x92c_ == 11) {
-      sub802755ac(mgr, true);
+      EnableParticles(mgr, true);
       x1054_26_ = true;
     } else if (x92c_ == 7) {
       FirePlasmaProjectile(mgr, true);
     }
   } else if (type == EUserEventType::DamageOff) {
     if (x92c_ == 1) {
-      sub802755ac(mgr, false);
+      EnableParticles(mgr, false);
     } else if (x92c_ == 7) {
       FirePlasmaProjectile(mgr, false);
     }
@@ -506,8 +507,8 @@ void CMetroidPrimeExo::Run(CStateManager& mgr, EStateMsg msg, float arg) {
     TUniqueId wpId = GetNextAttackWaypoint(mgr, true);
     if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(wpId)) {
       GetBodyController()->SetLocomotionType(sub80275e14(1));
-      SetDestPos(wp->GetTranslation());
       x2dc_destObj = wpId;
+      SetDestPos(wp->GetTranslation());
       x2ec_reflectedDestPos = GetTranslation();
       x328_24_inPosition = false;
     }
@@ -548,7 +549,7 @@ void CMetroidPrimeExo::TurnAround(CStateManager& mgr, EStateMsg msg, float arg) 
     x1078_ = 1;
     zeus::CVector3f vec = sub8027464c(mgr);
     if ((vec - GetTranslation()).normalized().dot(mgr.GetPlayer().GetTranslation() - GetTranslation()) < 15.f) {
-      sub802747b8(arg, mgr, vec);
+      sub802747b8(arg, mgr, vec - GetTranslation());
     }
   } else if (msg == EStateMsg::Deactivate) {
     x92c_ = 0;
@@ -656,7 +657,7 @@ void CMetroidPrimeExo::Suck(CStateManager& mgr, EStateMsg msg, float arg) {
     x1078_ = 1;
     GetBodyController()->SetLocomotionType(skLocomotions[x1078_]);
     x92c_ = 0;
-    sub802755ac(mgr, false);
+    EnableParticles(mgr, false);
     sub802738d4(mgr);
     x1088_ = 0.6f;
     if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
@@ -1074,7 +1075,7 @@ void CMetroidPrimeExo::sub802749e8(float f1, float f2, float f3, const zeus::CVe
 
 void CMetroidPrimeExo::UpdateParticles(float f1, CStateManager& mgr) {
   if (GetBodyController()->GetPercentageFrozen() > 0.f && x1054_24_) {
-    sub802755ac(mgr, false);
+    EnableParticles(mgr, false);
     x1054_25_ = true;
   }
 
@@ -1156,7 +1157,7 @@ void CMetroidPrimeExo::UpdateParticles(float f1, CStateManager& mgr) {
   mgr.GetPlayer().SetAccelerationChangeTimer(2.f * f1);
 }
 
-void CMetroidPrimeExo::sub802755ac(CStateManager& mgr, bool b1) {
+void CMetroidPrimeExo::EnableParticles(CStateManager& mgr, bool b1) {
   for (size_t i = 0; i < 2; ++i) {
     x1000_[i]->SetParticleEmission(b1);
     if (!b1) {
@@ -1500,7 +1501,7 @@ TUniqueId CMetroidPrimeExo::GetWaypointForBehavior(CStateManager& mgr, EScriptOb
       const auto* ent = mgr.GetObjectById(uid);
       if (ent != nullptr && ent->GetActive()) {
         uids.push_back(uid);
-        if (uids.size() == 8) {
+        if (uids.size() >= 8) {
           break;
         }
       }
