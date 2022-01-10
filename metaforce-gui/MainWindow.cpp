@@ -577,7 +577,9 @@ void MainWindow::setBlenderOverride(const QString& path) {
   int major = 0;
   int minor = 0;
   auto realPath = hecl::blender::FindBlender(major, minor);
-  m_blenderOverridePath.fromStdString(*realPath);
+  if (realPath) {
+    m_blenderOverridePath.fromStdString(*realPath);
+  }
 
   m_settings.setValue(QStringLiteral("blender_override_path"), m_blenderOverridePath);
   auto oldState = m_ui->blenderEdit->blockSignals(true);
