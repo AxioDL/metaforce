@@ -86,7 +86,8 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
         auto progFiles = nowide::narrow(wProgFiles);
         for (const auto& version : SupportedVersions) {
           std::string blenderBinBuf =
-              fmt::format(FMT_STRING("{}\\Blender Foundation\\Blender {}.{}\\blender.exe"), progFiles, major, minor);
+              fmt::format(FMT_STRING("{}\\Blender Foundation\\Blender {}.{}\\blender.exe"),
+                          progFiles, version.Major, version.Minor);
           if (RegFileExists(blenderBinBuf.c_str())) {
             blenderBin = std::move(blenderBinBuf);
             break;
@@ -146,7 +147,7 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
   std::string command = std::string("\"") + blenderBin.value() + "\" --version";
   FILE* fp = popen(command.c_str(), "r");
   char versionBuf[256];
-  size_t rdSize = fread(versionBuf, 1, 255, fp);
+  size_t rdSize = fread(&versionBuf[0], 1, 255, fp);
   versionBuf[rdSize] = '\0';
   pclose(fp);
 

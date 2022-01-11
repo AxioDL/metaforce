@@ -540,7 +540,7 @@ void MainWindow::initSlots() {
     if (res == QFileDialog::Rejected)
       return;
 
-    if (dialog.selectedFiles().size() <= 0)
+    if (dialog.selectedFiles().empty())
       return;
 
     setPath(dialog.selectedFiles().at(0));
@@ -549,7 +549,13 @@ void MainWindow::initSlots() {
   connect(m_ui->blenderEdit, &QLineEdit::editingFinished, [this]() { setBlenderOverride(m_ui->blenderEdit->text()); });
   connect(m_ui->blenderBtn, &QPushButton::clicked, [this]() {
     FileDirDialog dialog(this, QFileDialog::ExistingFiles);
+
+#ifdef Q_OS_WIN
+    dialog.setNameFilter(QStringLiteral("blender.exe"));
+#else
     dialog.setNameFilter(QStringLiteral("blender"));
+#endif
+
     dialog.setDirectory(m_path);
     dialog.setWindowTitle(tr("Select Blender binary"));
     int res = dialog.exec();
