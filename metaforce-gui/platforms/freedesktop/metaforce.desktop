@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Metaforce
+Name=Metaforce GUI
 GenericName=Game Data Prep Tool
 Comment=Prepare Game Data for Metaforce
 Exec=metaforce-gui
