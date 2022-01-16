@@ -73,6 +73,9 @@ set(RUNTIME_SOURCES_B
         ITweak.hpp
         IMain.hpp
         CStopwatch.hpp
+        IAllocator.hpp IAllocator.cpp
+        CSmallAllocPool.hpp CSmallAllocPool.cpp
+        CMediumAllocPool.hpp CMediumAllocPool.cpp
         CGameAllocator.hpp CGameAllocator.cpp
         CMemoryCardSys.hpp CMemoryCardSys.cpp
         CScannableObjectInfo.hpp CScannableObjectInfo.cpp

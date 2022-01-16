@@ -4,76 +4,75 @@
 #include <memory>
 #include <vector>
 
+#include "Runtime/IAllocator.hpp"
 #include "Runtime/RetroTypes.hpp"
+#include "Runtime/CSmallAllocPool.hpp"
+#include "Runtime/CMediumAllocPool.hpp"
 
 namespace metaforce {
-class CCallStack {
-  const char* x0_line;
-  const char* x4_type;
-
-public:
-  CCallStack(int lineNum, const char* lineStr, const char* type) : x0_line(lineStr), x4_type(type) {}
-};
-
-enum class EHint {
-  Unk = (1 << 0),
-  RoundUpLen = (1 << 1),
-};
-
-ENABLE_BITWISE_ENUM(EHint);
-
-enum class EScope {
-
-};
-
-enum class EType {
-
-};
-
-class IAllocator {
-public:
-  struct SAllocInfo {
-    void* x0_infoPtr;
-    size_t x4_len;
-    bool x8_hasPrevious;
-    bool x9_;
-    const char* xc_fileAndLne;
-    const char* x10_type;
-  };
-
-  virtual bool Initialize() = 0; // const COSContext& ctx) = 0;
-
-  virtual void* Alloc(size_t size) = 0;
-  virtual bool Free(void* ptr) = 0;
-  virtual void ReleaseAll() = 0;
-  virtual void* AllocSecondary(size_t size) = 0;
-  virtual bool FreeSecondary(void* ptr) = 0;
-  virtual void ReleaseAllSecondary() = 0;
-  virtual void SetOutOfMemoryCallback() = 0;
-  virtual void EnumAllocations() = 0;
-  virtual SAllocInfo GetAllocInfo(void* ptr) = 0;
-  virtual void OffsetFakeStatics(s32 offset) = 0;
-  virtual void GetMetrics() = 0;
-};
-
 class CGameAllocator : public IAllocator {
-  struct SGameMemInfo {
-    u32 x0_sentinel = 0xefefefef;
+public:
+private:
+  class SGameMemInfo {
+  public:
+    u32 x0_priorGuard = 0xefefefef;
     size_t x4_len = 0;
-    const char* x8_line;
+    const char* x8_fileAndLine;
     const char* xc_type;
-    SGameMemInfo* x10_prev = nullptr;
-    void* x14_ = nullptr;
+    void* x10_prev = nullptr;
+    void* x14_next = nullptr;
     void* x18_ = nullptr;
-    u32 x1c_canary = 0xeaeaeaea;
+    u32 x1c_postGuard = 0xeaeaeaea;
+  public:
+    void* GetPrev() { return x10_prev; }
+    void SetPrev(void* prev) { x10_prev = prev; }
+    void* GetNext() { return x14_next; }
+    void SetNext(void* next) { x14_next = next; }
+    u32 GetPrevMaskedFlags();
+    u32 GetNextMaskedFlags();
+    void SetTopOfHeapAllocated(bool topOfHeap);
   };
+
+  u8 x4_;
+  u8 x5_;
+  u8 x6_;
+  u8 x7_;
+  u32 x8_heapSize;
+  SGameMemInfo* xc_first;
+  SGameMemInfo* x10_last;
+  std::array<SGameMemInfo*, 16> x14_bins;
+  u32 x54_;
+  FOutOfMemoryCb x58_oomCallBack;
+  void* x5c_oomTarget;
+  std::unique_ptr<CSmallAllocPool> x60_smallPool;
+  void* x64_smallAllocBookKeeping;
+  void* x68_smallAllocMainData;
+  bool x6c_;
+  u32 x70_;
+  std::unique_ptr<CMediumAllocPool> x74_mediumPool;
+  void* x78_;
+  bool x7c_;
+  u32 x80_;
+  u32 x84_;
+  u32 x88_;
+  u32 x8c_;
+  u32 x90_heapSize2;
+  u32 x94_;
+  u32 x98_;
+  u32 x9c_;
+  u32 xa0_;
+  u32 xa4_;
+  u32 xa8_;
+  u32 xac_;
+  u32 xb0_;
+  u32 xb4_;
+  u32 xb8_fakeStatics = 0;
+  u32 xbc_;
+
   static u32 GetFreeBinEntryForSize(size_t len);
   SGameMemInfo* GetMemInfoFromBlockPtr(void* ptr) {
     return reinterpret_cast<SGameMemInfo*>(reinterpret_cast<void*>(intptr_t(ptr) - sizeof(SGameMemInfo)));
   }
-  std::array<SGameMemInfo*, 16> x14_bins;
-
-  s32 xb8_fakeStatics = 0;
 
 public:
   bool Initialize() override; // const COsContext& ctx);
@@ -83,10 +82,13 @@ public:
   void* AllocSecondary(size_t size) override;
   bool FreeSecondary(void* ptr) override;
   void ReleaseAllSecondary() override;
-  void SetOutOfMemoryCallback() override;
-  void EnumAllocations() override;
+  void SetOutOfMemoryCallback(FOutOfMemoryCb cb, void* target) override;
+  s32 EnumAllocations(IAllocator::FEnumAllocationsCb cb, const void* ptr, bool b) override;
   SAllocInfo GetAllocInfo(void* ptr) override;
   void OffsetFakeStatics(s32 offset) override;
-  void GetMetrics() override;
+  SMetrics GetMetrics() override;
+  void AllocSecondary();
+  void FreeSecondary();
+  void* Alloc();
 };
 } // namespace metaforce
