@@ -3760,15 +3760,15 @@ CEntity* ScriptLoader::LoadMazeNode(CStateManager& mgr, CInputStream& in, int pr
 
   SActorHead aHead = LoadActorHead(in, mgr);
   bool active = in.readBool();
-  u32 w1 = in.readUint32Big();
-  u32 w2 = in.readUint32Big();
-  u32 w3 = in.readUint32Big();
-  zeus::CVector3f vec1 = zeus::CVector3f::ReadBig(in);
-  zeus::CVector3f vec2 = zeus::CVector3f::ReadBig(in);
-  zeus::CVector3f vec3 = zeus::CVector3f::ReadBig(in);
+  u32 col = in.readUint32Big();
+  u32 row = in.readUint32Big();
+  u32 side = in.readUint32Big();
+  zeus::CVector3f actorPos = zeus::CVector3f::ReadBig(in);
+  zeus::CVector3f triggerPos = zeus::CVector3f::ReadBig(in);
+  zeus::CVector3f effectPos = zeus::CVector3f::ReadBig(in);
 
-  return new CScriptMazeNode(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, w1, w2, w3, vec1,
-                             vec2, vec3);
+  return new CScriptMazeNode(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, col, row, side,
+                             actorPos, triggerPos, effectPos);
 }
 
 CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

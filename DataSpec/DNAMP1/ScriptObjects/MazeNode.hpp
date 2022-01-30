@@ -10,12 +10,12 @@ struct MazeNode : IScriptObject {
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
-  Value<bool> unknown1;
-  Value<atUint32> unknown2;
-  Value<atUint32> unknown3;
-  Value<atUint32> unknown4;
-  Value<atVec3f> unknown5;
-  Value<atVec3f> unknown6;
-  Value<atVec3f> unknown7;
+  Value<bool> active;
+  Value<atUint32> col;
+  Value<atUint32> row;
+  Value<atUint32> side;
+  Value<atVec3f> actorPos;
+  Value<atVec3f> triggerPos;
+  Value<atVec3f> effectPos;
 };
 } // namespace DataSpec::DNAMP1
