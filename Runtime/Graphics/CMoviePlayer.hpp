@@ -5,9 +5,8 @@
 
 #include "Runtime/CDvdFile.hpp"
 #include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
 
-#include <boo/IWindow.hpp>
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
 
@@ -72,13 +71,13 @@ private:
   };
 
   struct CTHPTextureSet {
-    boo::ObjToken<boo::ITextureD> Y[2];
-    boo::ObjToken<boo::ITextureD> U;
-    boo::ObjToken<boo::ITextureD> V;
+    std::shared_ptr<aurora::TextureHandle> Y[2];
+    std::shared_ptr<aurora::TextureHandle> U;
+    std::shared_ptr<aurora::TextureHandle> V;
     u32 playedSamples = 0;
     u32 audioSamples = 0;
     std::unique_ptr<s16[]> audioBuf;
-    boo::ObjToken<boo::IShaderDataBinding> binding[2];
+//    boo::ObjToken<boo::IShaderDataBinding> binding[2];
   };
   std::vector<CTHPTextureSet> x80_textures;
   std::unique_ptr<uint8_t[]> x90_requestBuf;
@@ -118,11 +117,11 @@ private:
   struct ViewBlock {
     zeus::CMatrix4f m_mv;
     zeus::CColor m_color = zeus::skWhite;
-    void setViewRect(const boo::SWindowRect& root, const boo::SWindowRect& sub) {
-      m_mv[0][0] = 2.0f / root.size[0];
-      m_mv[1][1] = 2.0f / root.size[1];
-      m_mv[3][0] = sub.location[0] * m_mv[0][0] - 1.0f;
-      m_mv[3][1] = sub.location[1] * m_mv[1][1] - 1.0f;
+    void setViewRect(const aurora::shaders::ClipRect& root, const aurora::shaders::ClipRect& sub) {
+      m_mv[0][0] = 2.0f / root.width;
+      m_mv[1][1] = 2.0f / root.height;
+      m_mv[3][0] = sub.x * m_mv[0][0] - 1.0f;
+      m_mv[3][1] = sub.y * m_mv[1][1] - 1.0f;
     }
     void finalAssign(const ViewBlock& other) {
       m_mv = g_PlatformMatrix * other.m_mv;
@@ -131,8 +130,8 @@ private:
   };
 
   ViewBlock m_viewVertBlock;
-  boo::ObjToken<boo::IGraphicsBufferD> m_blockBuf;
-  boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_blockBuf;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
 
   TexShaderVert m_frame[4];
 
@@ -167,7 +166,7 @@ public:
   void Update(float dt);
   std::pair<u32, u32> GetVideoDimensions() const { return {x6c_videoInfo.width, x6c_videoInfo.height}; }
 
-  static void Initialize(boo::IGraphicsDataFactory* factory);
+  static void Initialize();
   static void Shutdown();
 };
 

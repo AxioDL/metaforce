@@ -75,7 +75,7 @@ size_t CTexture::ComputeMippedBlockCountDXT1() const {
   return ret;
 }
 
-void CTexture::BuildI4FromGCN(CInputStream& in) {
+void CTexture::BuildI4FromGCN(CInputStream& in, std::string_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -89,11 +89,11 @@ void CTexture::BuildI4FromGCN(CInputStream& in) {
       const int baseY = by * 8;
       for (int bx = 0; bx < bwidth; ++bx) {
         const int baseX = bx * 8;
-        for (int y = 0; y < 8; ++y) {
+        for (int y = 0; y < std::min(h, 8); ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           std::array<u8, 4> source;
-          in.readBytesToBuf(source.data(), source.size());
-          for (size_t x = 0; x < 8; ++x) {
+          in.readBytesToBuf(source.data(), std::min(size_t(w) / 4, source.size()));
+          for (size_t x = 0; x < std::min(w, 8); ++x) {
             target[x].r = Convert4To8(source[x / 2] >> ((x & 1) ? 0 : 4) & 0xf);
             target[x].g = target[x].r;
             target[x].b = target[x].r;
@@ -111,15 +111,11 @@ void CTexture::BuildI4FromGCN(CInputStream& in) {
     }
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                    buf.get(), texelCount * 4)
-                   .get();
-    return true;
-  } BooTrace);
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
+                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildI8FromGCN(CInputStream& in) {
+void CTexture::BuildI8FromGCN(CInputStream& in, std::string_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -155,15 +151,11 @@ void CTexture::BuildI8FromGCN(CInputStream& in) {
     }
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                    buf.get(), texelCount * 4)
-                   .get();
-    return true;
-  } BooTrace);
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
+                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildIA4FromGCN(CInputStream& in) {
+void CTexture::BuildIA4FromGCN(CInputStream& in, std::string_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -200,15 +192,11 @@ void CTexture::BuildIA4FromGCN(CInputStream& in) {
     }
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                    buf.get(), texelCount * 4)
-                   .get();
-    return true;
-  } BooTrace);
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
+                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildIA8FromGCN(CInputStream& in) {
+void CTexture::BuildIA8FromGCN(CInputStream& in, std::string_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -245,12 +233,8 @@ void CTexture::BuildIA8FromGCN(CInputStream& in) {
     }
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                    buf.get(), texelCount * 4)
-                   .get();
-    return true;
-  } BooTrace);
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
+                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
 static std::vector<RGBA8> DecodePalette(int numEntries, CInputStream& in) {
@@ -294,7 +278,7 @@ static std::vector<RGBA8> DecodePalette(int numEntries, CInputStream& in) {
   return ret;
 }
 
-void CTexture::BuildC4FromGCN(CInputStream& in) {
+void CTexture::BuildC4FromGCN(CInputStream& in, std::string_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
   std::vector<RGBA8> palette = DecodePalette(16, in);
@@ -328,15 +312,11 @@ void CTexture::BuildC4FromGCN(CInputStream& in) {
     }
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                    buf.get(), texelCount * 4)
-                   .get();
-    return true;
-  } BooTrace);
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
+                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildC8FromGCN(CInputStream& in) {
+void CTexture::BuildC8FromGCN(CInputStream& in, std::string_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
   std::vector<RGBA8> palette = DecodePalette(256, in);
@@ -370,17 +350,15 @@ void CTexture::BuildC8FromGCN(CInputStream& in) {
     }
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                    buf.get(), texelCount * 4)
-                   .get();
-    return true;
-  } BooTrace);
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
+                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildC14X2FromGCN(CInputStream& in) {}
+void CTexture::BuildC14X2FromGCN(CInputStream& in, std::string_view label) {
+  Log.report(logvisor::Fatal, FMT_STRING("C14X2 not implemented"));
+}
 
-void CTexture::BuildRGB565FromGCN(CInputStream& in) {
+void CTexture::BuildRGB565FromGCN(CInputStream& in, std::string_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -415,15 +393,11 @@ void CTexture::BuildRGB565FromGCN(CInputStream& in) {
     }
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                    buf.get(), texelCount * 4)
-                   .get();
-    return true;
-  } BooTrace);
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
+                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildRGB5A3FromGCN(CInputStream& in) {
+void CTexture::BuildRGB5A3FromGCN(CInputStream& in, std::string_view label) {
   size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -465,15 +439,11 @@ void CTexture::BuildRGB5A3FromGCN(CInputStream& in) {
     }
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                    buf.get(), texelCount * 4)
-                   .get();
-    return true;
-  } BooTrace);
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
+                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildRGBA8FromGCN(CInputStream& in) {
+void CTexture::BuildRGBA8FromGCN(CInputStream& in, std::string_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -514,15 +484,11 @@ void CTexture::BuildRGBA8FromGCN(CInputStream& in) {
     }
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                    buf.get(), texelCount * 4)
-                   .get();
-    return true;
-  } BooTrace);
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
+                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildDXT1FromGCN(CInputStream& in) {
+void CTexture::BuildDXT1FromGCN(CInputStream& in, std::string_view label) {
   const size_t blockCount = ComputeMippedBlockCountDXT1();
   std::unique_ptr<DXT1Block[]> buf(new DXT1Block[blockCount]);
 
@@ -566,48 +532,35 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in) {
     }
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::DXT1, boo::TextureClampMode::Repeat,
-                                    buf.get(), blockCount * 8)
-                   .get();
-    return true;
-  } BooTrace);
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::DXT1,
+                                        {reinterpret_cast<const uint8_t*>(buf.get()), blockCount * 8}, label);
 }
 
-void CTexture::BuildRGBA8(const void* data, size_t length) {
+void CTexture::BuildRGBA8(const void* data, size_t length, std::string_view label) {
   size_t texelCount = ComputeMippedTexelCount();
   size_t expectedSize = texelCount * 4;
   if (expectedSize > length)
     Log.report(logvisor::Fatal, FMT_STRING("insufficient TXTR length ({}/{})"), length, expectedSize);
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, data,
-                                    expectedSize)
-                   .get();
-    return true;
-  } BooTrace);
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
+                                        {reinterpret_cast<const uint8_t*>(data), expectedSize}, label);
 }
 
-void CTexture::BuildC8(const void* data, size_t length) {
+void CTexture::BuildC8(const void* data, size_t length, std::string_view label) {
   size_t texelCount = ComputeMippedTexelCount();
   if (texelCount > length)
     Log.report(logvisor::Fatal, FMT_STRING("insufficient TXTR length ({}/{})"), length, texelCount);
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
-    const u8* paletteTexels = reinterpret_cast<const u8*>(data) + 4;
-    const u8* texels = reinterpret_cast<const u8*>(data) + 4 + nentries * 4;
-    m_paletteTex = ctx.newStaticTexture(nentries, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                        paletteTexels, nentries * 4)
-                       .get();
-    m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::I8, boo::TextureClampMode::Repeat, texels,
-                                    texelCount)
-                   .get();
-    return true;
-  } BooTrace);
+  uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
+  const u8* paletteTexels = reinterpret_cast<const u8*>(data) + 4;
+  const u8* texels = reinterpret_cast<const u8*>(data) + 4 + nentries * 4;
+  m_paletteTex = aurora::new_static_texture_2d(nentries, 1, 1, aurora::shaders::TextureFormat::RGBA8,
+                                               {paletteTexels, nentries * 4}, label);
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::R8, {texels, texelCount},
+                                        label);
 }
 
-void CTexture::BuildC8Font(const void* data, EFontType ftype) {
+void CTexture::BuildC8Font(const void* data, EFontType ftype, std::string_view label) {
   size_t texelCount = ComputeMippedTexelCount();
 
   size_t layerCount = 1;
@@ -697,30 +650,58 @@ void CTexture::BuildC8Font(const void* data, EFontType ftype) {
       h /= 2;
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex = ctx.newStaticArrayTexture(x4_w, x6_h, layerCount, x8_mips, boo::TextureFormat::RGBA8,
-                                         boo::TextureClampMode::Repeat, buf.get(), texelCount * layerCount * 4)
-                   .get();
-    return true;
-  } BooTrace);
+  // TODO array tex
+  //  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+  //    m_booTex = ctx.newStaticArrayTexture(x4_w, x6_h, layerCount, x8_mips, boo::TextureFormat::RGBA8,
+  //                                         boo::TextureClampMode::Repeat, buf.get(), texelCount * layerCount * 4)
+  //                   .get();
+  //    return true;
+  //  } BooTrace);
 }
 
-void CTexture::BuildDXT1(const void* data, size_t length) {
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex =
-        ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::DXT1, boo::TextureClampMode::Repeat, data, length)
-            .get();
-    return true;
-  } BooTrace);
+void CTexture::BuildDXT1(const void* data, size_t length, std::string_view label) {
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::DXT1,
+                                        {reinterpret_cast<const uint8_t*>(data), length}, label);
 }
 
-void CTexture::BuildDXT3(const void* data, size_t length) {
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_booTex =
-        ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::DXT3, boo::TextureClampMode::Repeat, data, length)
-            .get();
-    return true;
-  } BooTrace);
+void CTexture::BuildDXT3(const void* data, size_t length, std::string_view label) {
+  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::DXT3,
+                                        {reinterpret_cast<const uint8_t*>(data), length}, label);
+}
+
+static std::string_view TextureFormatString(ETexelFormat format) {
+  switch (format) {
+  case ETexelFormat::I4:
+    return "I4"sv;
+  case ETexelFormat::I8:
+    return "I8"sv;
+  case ETexelFormat::IA4:
+    return "IA4"sv;
+  case ETexelFormat::IA8:
+    return "IA8"sv;
+  case ETexelFormat::C4:
+    return "C4"sv;
+  case ETexelFormat::C8:
+    return "C8"sv;
+  case ETexelFormat::C14X2:
+    return "C14X2"sv;
+  case ETexelFormat::RGB565:
+    return "RGB565"sv;
+  case ETexelFormat::RGB5A3:
+    return "RGB5A3"sv;
+  case ETexelFormat::RGBA8:
+    return "RGBA8"sv;
+  case ETexelFormat::CMPR:
+    return "CMPR"sv;
+  case ETexelFormat::RGBA8PC:
+    return "RGBA8PC"sv;
+  case ETexelFormat::C8PC:
+    return "C8PC"sv;
+  case ETexelFormat::CMPRPC:
+    return "CMPRPC"sv;
+  case ETexelFormat::CMPRPCA:
+    return "CMPRPCA"sv;
+  }
 }
 
 CTexture::CTexture(ETexelFormat fmt, s16 w, s16 h, s32 mips) : x0_fmt(fmt), x4_w(w), x6_h(h), x8_mips(mips) {
@@ -731,8 +712,8 @@ CTexture::CTexture(ETexelFormat fmt, s16 w, s16 h, s32 mips) : x0_fmt(fmt), x4_w
   */
 }
 
-CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTextureInfo* inf) {
-  m_textureInfo = inf;
+CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTextureInfo* inf, CAssetId id)
+: m_textureInfo(inf) {
   std::unique_ptr<u8[]> owned = std::move(in);
   athena::io::MemoryReader r(owned.get(), length);
   x0_fmt = ETexelFormat(r.readUint32Big());
@@ -740,52 +721,53 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTex
   x6_h = r.readUint16Big();
   x8_mips = r.readUint32Big();
 
+  auto label = fmt::format(FMT_STRING("TXTR {:08X} ({})"), id.Value(), TextureFormatString(x0_fmt));
   switch (x0_fmt) {
   case ETexelFormat::I4:
-    BuildI4FromGCN(r);
+    BuildI4FromGCN(r, label);
     break;
   case ETexelFormat::I8:
-    BuildI8FromGCN(r);
+    BuildI8FromGCN(r, label);
     break;
   case ETexelFormat::IA4:
-    BuildIA4FromGCN(r);
+    BuildIA4FromGCN(r, label);
     break;
   case ETexelFormat::IA8:
-    BuildIA8FromGCN(r);
+    BuildIA8FromGCN(r, label);
     break;
   case ETexelFormat::C4:
-    BuildC4FromGCN(r);
+    BuildC4FromGCN(r, label);
     break;
   case ETexelFormat::C8:
-    BuildC8FromGCN(r);
+    BuildC8FromGCN(r, label);
     break;
   case ETexelFormat::C14X2:
-    BuildC14X2FromGCN(r);
+    BuildC14X2FromGCN(r, label);
     break;
   case ETexelFormat::RGB565:
-    BuildRGB565FromGCN(r);
+    BuildRGB565FromGCN(r, label);
     break;
   case ETexelFormat::RGB5A3:
-    BuildRGB5A3FromGCN(r);
+    BuildRGB5A3FromGCN(r, label);
     break;
   case ETexelFormat::RGBA8:
-    BuildRGBA8FromGCN(r);
+    BuildRGBA8FromGCN(r, label);
     break;
   case ETexelFormat::CMPR:
-    BuildDXT1FromGCN(r);
+    BuildDXT1FromGCN(r, label);
     break;
   case ETexelFormat::RGBA8PC:
-    BuildRGBA8(owned.get() + 12, length - 12);
+    BuildRGBA8(owned.get() + 12, length - 12, label);
     break;
   case ETexelFormat::C8PC:
-    BuildC8(owned.get() + 12, length - 12);
+    BuildC8(owned.get() + 12, length - 12, label);
     otex = true;
     break;
   case ETexelFormat::CMPRPC:
-    BuildDXT1(owned.get() + 12, length - 12);
+    BuildDXT1(owned.get() + 12, length - 12, label);
     break;
   case ETexelFormat::CMPRPCA:
-    BuildDXT3(owned.get() + 12, length - 12);
+    BuildDXT3(owned.get() + 12, length - 12, label);
     break;
   default:
     Log.report(logvisor::Fatal, FMT_STRING("invalid texture type {} for boo"), int(x0_fmt));
@@ -881,12 +863,12 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
   return ret;
 }
 
-const boo::ObjToken<boo::ITexture>& CTexture::GetFontTexture(EFontType tp) {
+const std::shared_ptr<aurora::TextureHandle>& CTexture::GetFontTexture(EFontType tp) {
   if (m_ftype != tp && x0_fmt == ETexelFormat::C8PC) {
     m_ftype = tp;
-    BuildC8Font(m_otex.get() + 12, m_ftype);
+    BuildC8Font(m_otex.get() + 12, m_ftype, "Font (TODO)"sv);
   }
-  return m_booTex;
+  return m_tex;
 }
 
 CFactoryFnReturn FTextureFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
@@ -896,7 +878,7 @@ CFactoryFnReturn FTextureFactory(const metaforce::SObjectTag& tag, std::unique_p
   if (g_TextureCache)
     inf = g_TextureCache->GetTextureInfo(tag.id);
   return TToken<CTexture>::GetIObjObjectFor(
-      std::make_unique<CTexture>(std::move(in), len, u32Owned == SBIG('OTEX'), inf));
+      std::make_unique<CTexture>(std::move(in), len, u32Owned == SBIG('OTEX'), inf, tag.id));
 }
 
 } // namespace metaforce

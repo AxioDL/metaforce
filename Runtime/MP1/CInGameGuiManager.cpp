@@ -607,9 +607,9 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
           {{x, 0.f, -z}, {1.f, 1.f}},
       }};
 
-      if (!m_deathRenderTexQuad)
-        m_deathRenderTexQuad.emplace(EFilterType::Blend, CGraphics::g_SpareTexture.get());
-      m_deathRenderTexQuad->drawVerts(zeus::CColor(1.f, colT), verts);
+//      if (!m_deathRenderTexQuad)
+//        m_deathRenderTexQuad.emplace(EFilterType::Blend, CGraphics::g_SpareTexture.get());
+//      m_deathRenderTexQuad->drawVerts(zeus::CColor(1.f, colT), verts);
 
       if (!m_deathDotQuad)
         m_deathDotQuad.emplace(EFilterType::Multiply, x50_deathDot);

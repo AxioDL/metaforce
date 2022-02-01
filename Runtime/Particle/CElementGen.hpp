@@ -141,17 +141,17 @@ public:
                        EOptionalSystemFlags flags = EOptionalSystemFlags::One);
   ~CElementGen() override;
 
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBind;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalSubDataBind;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBind;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaSubDataBind;
-  boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
-
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBindPmus;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBindPmus;
-  boo::ObjToken<boo::IGraphicsBufferD> m_instBufPmus;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBufPmus;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBind;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalSubDataBind;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBind;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaSubDataBind;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
+//
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBindPmus;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBindPmus;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_instBufPmus;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBufPmus;
 
   CGenDescription* GetDesc() { return x1c_genDesc.GetObj(); }
   const SObjectTag* GetDescTag() const { return x1c_genDesc.GetObjectTag(); }

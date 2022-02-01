@@ -1,8 +1,8 @@
 #include "Runtime/AutoMapper/CMappableObject.hpp"
 
+#include "Runtime/AutoMapper/CMapWorldInfo.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/AutoMapper/CMapWorldInfo.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
@@ -10,7 +10,7 @@
 namespace metaforce {
 std::array<zeus::CVector3f, 8> CMappableObject::skDoorVerts{};
 
-constexpr std::array<u32, 24> DoorIndices{
+std::array<u16, 24> CMappableObject::skDoorIndices{
     6, 4, 2, 0, 3, 1, 7, 5, 1, 0, 5, 4, 7, 6, 3, 2, 3, 2, 1, 0, 5, 4, 7, 6,
 };
 
@@ -116,7 +116,7 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
       DoorSurface& ds = *m_doorSurface;
       ds.m_surface.draw(colors.first, s * 4, 4);
       CLineRenderer& line = ds.m_outline;
-      const u32* baseIdx = &DoorIndices[s * 4];
+      const u16* baseIdx = &skDoorIndices[s * 4];
       line.Reset();
       line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
       line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
@@ -186,7 +186,7 @@ void CMappableObject::DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, 
   DoorSurface& ds = *m_doorSurface;
   ds.m_surface.draw(colors.first, surfIdx * 4, 4);
   CLineRenderer& line = ds.m_outline;
-  const u32* baseIdx = &DoorIndices[surfIdx * 4];
+  const u16* baseIdx = &skDoorIndices[surfIdx * 4];
   line.Reset();
   line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
   line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
@@ -236,9 +236,6 @@ bool CMappableObject::IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& 
   }
 }
 
-boo::ObjToken<boo::IGraphicsBufferS> CMappableObject::g_doorVbo;
-boo::ObjToken<boo::IGraphicsBufferS> CMappableObject::g_doorIbo;
-
 void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks) {
   const zeus::CVector3f& center = tweaks.GetDoorCenter();
   const zeus::simd_floats centerF(center.mSimd);
@@ -254,15 +251,15 @@ void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks) {
   doorVerts[6].assign(.2f * -centerF[2], centerF[1], 0.f);
   doorVerts[7].assign(.2f * -centerF[2], centerF[1], 2.f * centerF[0]);
 
-  CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx) {
-    g_doorVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, skDoorVerts.data(), 16, skDoorVerts.size());
-    g_doorIbo = ctx.newStaticBuffer(boo::BufferUse::Index, DoorIndices.data(), 4, DoorIndices.size());
-    return true;
-  } BooTrace);
+//  CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx) {
+//    g_doorVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, skDoorVerts.data(), 16, skDoorVerts.size());
+//    g_doorIbo = ctx.newStaticBuffer(boo::BufferUse::Index, DoorIndices.data(), 4, DoorIndices.size());
+//    return true;
+//  } BooTrace);
 }
 
 void CMappableObject::Shutdown() {
-  g_doorVbo.reset();
-  g_doorIbo.reset();
+//  g_doorVbo.reset();
+//  g_doorIbo.reset();
 }
 } // namespace metaforce

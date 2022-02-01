@@ -30,11 +30,10 @@ class CSkinnedModel {
 public:
   enum class EDataOwnership { Zero, One };
   CSkinnedModel(TLockedToken<CModel> model, TLockedToken<CSkinRules> skinRules,
-                TLockedToken<CCharLayoutInfo> layoutInfo, int shaderIdx, int drawInsts);
-  CSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo, int shaderIdx,
-                int drawInsts);
-  std::unique_ptr<CSkinnedModel> Clone(int shaderIdx = 0, int drawInsts = 1) const {
-    return std::make_unique<CSkinnedModel>(x4_model, x10_skinRules, x1c_layoutInfo, shaderIdx, drawInsts);
+                TLockedToken<CCharLayoutInfo> layoutInfo, int shaderIdx);
+  CSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo, int shaderIdx);
+  std::unique_ptr<CSkinnedModel> Clone(int shaderIdx = 0) const {
+    return std::make_unique<CSkinnedModel>(x4_model, x10_skinRules, x1c_layoutInfo, shaderIdx);
   }
 
   const TLockedToken<CModel>& GetModel() const { return x4_model; }
@@ -61,8 +60,7 @@ class CMorphableSkinnedModel : public CSkinnedModel {
   std::unique_ptr<float[]> x40_morphMagnitudes;
 
 public:
-  CMorphableSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo, int shaderIdx,
-                         int drawInsts);
+  CMorphableSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo, int shaderIdx);
   const float* GetMorphMagnitudes() const { return x40_morphMagnitudes.get(); }
 };
 

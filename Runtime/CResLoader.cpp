@@ -8,7 +8,7 @@ static logvisor::Module Log("CResLoader");
 CResLoader::CResLoader() { x48_curPak = x18_pakLoadedList.end(); }
 
 const std::vector<CAssetId>* CResLoader::GetTagListForFile(std::string_view name) const {
-  const std::string namePak = std::string(name).append(".upak");
+  const std::string namePak = std::string(name).append(".pak");
   for (const std::unique_ptr<CPakFile>& pak : x18_pakLoadedList) {
     if (CStringExtras::CompareCaseInsensitive(namePak, pak->x18_path)) {
       return &pak->GetDepList();
@@ -18,7 +18,7 @@ const std::vector<CAssetId>* CResLoader::GetTagListForFile(std::string_view name
 }
 
 void CResLoader::AddPakFileAsync(std::string_view name, bool buildDepList, bool worldPak, bool override) {
-  const std::string namePak = std::string(name).append(".upak");
+  const std::string namePak = std::string(name).append(".pak");
   if (CDvdFile::FileExists(namePak)) {
     x30_pakLoadingList.emplace_back(std::make_unique<CPakFile>(namePak, buildDepList, worldPak, override));
     ++x44_pakLoadingCount;
@@ -116,7 +116,7 @@ std::unique_ptr<u8[]> CResLoader::LoadNewResourcePartSync(const metaforce::SObje
 }
 
 void CResLoader::GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const {
-  std::string path = std::string(pakName) + ".upak";
+  std::string path = std::string(pakName) + ".pak";
 
   for (const std::unique_ptr<CPakFile>& file : m_overridePakList) {
     if (_GetTagListForFile(out, path, file))

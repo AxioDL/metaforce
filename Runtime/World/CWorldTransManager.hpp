@@ -77,11 +77,11 @@ private:
   bool x44_28_textDirty : 1 = false;
 
   CColoredQuadFilter m_fadeToBlack{EFilterType::Blend};
-  CTexturedQuadFilter m_dissolve{EFilterType::Blend, CGraphics::g_SpareTexture.get()};
+//  CTexturedQuadFilter m_dissolve{EFilterType::Blend, CGraphics::g_SpareTexture.get()};
   CWideScreenFilter m_widescreen{EFilterType::Blend};
   CCameraBlurFilter m_camblur;
 
-  std::array<boo::ObjToken<boo::ITextureCubeR>, 2> m_reflectionCube;
+//  std::array<boo::ObjToken<boo::ITextureCubeR>, 2> m_reflectionCube;
 
   static int GetSuitCharIdx();
   void DrawFirstPass(CActorLights* lights);

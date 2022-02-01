@@ -2,9 +2,10 @@
 
 #include "RetroTypes.hpp"
 #include "zeus/CColor.hpp"
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+//#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "boo/audiodev/IAudioVoice.hpp"
 #include "zeus/CMatrix4f.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
 
 namespace metaforce {
 struct CFinalInput;
@@ -34,10 +35,10 @@ private:
     zeus::CColor m_color;
   };
 
-  boo::ObjToken<boo::ITextureD> m_texture;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
-  boo::ObjToken<boo::IShaderDataBinding> m_shadBind;
+  std::shared_ptr<aurora::TextureHandle> m_texture;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+//  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
+//  boo::ObjToken<boo::IShaderDataBinding> m_shadBind;
 
   std::unique_ptr<u8[]> m_audioBufBlock;
   u8* m_audioBufs[NUM_AUDIO_BUFFERS];

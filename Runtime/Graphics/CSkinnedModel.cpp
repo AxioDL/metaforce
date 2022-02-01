@@ -9,7 +9,7 @@ namespace metaforce {
 static logvisor::Module Log("metaforce::CSkinnedModel");
 
 CSkinnedModel::CSkinnedModel(TLockedToken<CModel> model, TLockedToken<CSkinRules> skinRules,
-                             TLockedToken<CCharLayoutInfo> layoutInfo, int shaderIdx, int drawInsts)
+                             TLockedToken<CCharLayoutInfo> layoutInfo, int shaderIdx)
 : x4_model(std::move(model)), x10_skinRules(std::move(skinRules)), x1c_layoutInfo(std::move(layoutInfo)) {
   if (!x4_model) {
     Log.report(logvisor::Fatal, FMT_STRING("bad model token provided to CSkinnedModel"));
@@ -20,35 +20,36 @@ CSkinnedModel::CSkinnedModel(TLockedToken<CModel> model, TLockedToken<CSkinRules
   if (!x1c_layoutInfo) {
     Log.report(logvisor::Fatal, FMT_STRING("bad character layout token provided to CSkinnedModel"));
   }
-  m_modelInst = x4_model->MakeNewInstance(shaderIdx, drawInsts);
+  m_modelInst = x4_model->MakeNewInstance(shaderIdx);
 }
 
 CSkinnedModel::CSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo,
-                             int shaderIdx, int drawInsts)
+                             int shaderIdx)
 : CSkinnedModel(store.GetObj(SObjectTag{FOURCC('CMDL'), model}), store.GetObj(SObjectTag{FOURCC('CSKR'), skinRules}),
-                store.GetObj(SObjectTag{FOURCC('CINF'), layoutInfo}), shaderIdx, drawInsts) {}
+                store.GetObj(SObjectTag{FOURCC('CINF'), layoutInfo}), shaderIdx) {}
 
 void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
                               const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
-  if (morphEffect || g_PointGenFunc) {
-    if (boo::ObjToken<boo::IGraphicsBufferD> vertBuf = m_modelInst->UpdateUniformData(drawFlags, nullptr, nullptr)) {
-      x10_skinRules->TransformVerticesCPU(m_vertWorkspace, pose, *x4_model);
-      if (morphEffect)
-        morphEffect->MorphVertices(m_vertWorkspace, morphMagnitudes, x10_skinRules, pose);
-      if (g_PointGenFunc)
-        g_PointGenFunc(g_PointGenCtx, m_vertWorkspace);
-      x4_model->ApplyVerticesCPU(vertBuf, m_vertWorkspace);
-      m_modifiedVBO = true;
-    }
-  } else {
-    if (boo::ObjToken<boo::IGraphicsBufferD> vertBuf =
-            m_modelInst->UpdateUniformData(drawFlags, x10_skinRules.GetObj(), &pose)) {
-      if (m_modifiedVBO) {
-        x4_model->RestoreVerticesCPU(vertBuf);
-        m_modifiedVBO = false;
-      }
-    }
-  }
+  // TODO
+//  if (morphEffect || g_PointGenFunc) {
+//    if (boo::ObjToken<boo::IGraphicsBufferD> vertBuf = m_modelInst->UpdateUniformData(drawFlags, nullptr, nullptr)) {
+//      x10_skinRules->TransformVerticesCPU(m_vertWorkspace, pose, *x4_model);
+//      if (morphEffect)
+//        morphEffect->MorphVertices(m_vertWorkspace, morphMagnitudes, x10_skinRules, pose);
+//      if (g_PointGenFunc)
+//        g_PointGenFunc(g_PointGenCtx, m_vertWorkspace);
+//      x4_model->ApplyVerticesCPU(vertBuf, m_vertWorkspace);
+//      m_modifiedVBO = true;
+//    }
+//  } else {
+//    if (boo::ObjToken<boo::IGraphicsBufferD> vertBuf =
+//            m_modelInst->UpdateUniformData(drawFlags, x10_skinRules.GetObj(), &pose)) {
+//      if (m_modifiedVBO) {
+//        x4_model->RestoreVerticesCPU(vertBuf);
+//        m_modifiedVBO = false;
+//      }
+//    }
+//  }
 }
 
 void CSkinnedModel::Draw(const CModelFlags& drawFlags) const {
@@ -58,8 +59,8 @@ void CSkinnedModel::Draw(const CModelFlags& drawFlags) const {
 }
 
 CMorphableSkinnedModel::CMorphableSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules,
-                                               CAssetId layoutInfo, int shaderIdx, int drawInsts)
-: CSkinnedModel(store, model, skinRules, layoutInfo, shaderIdx, drawInsts) {}
+                                               CAssetId layoutInfo, int shaderIdx)
+: CSkinnedModel(store, model, skinRules, layoutInfo, shaderIdx) {}
 
 CSkinnedModel::FPointGenerator CSkinnedModel::g_PointGenFunc = nullptr;
 void* CSkinnedModel::g_PointGenCtx = nullptr;

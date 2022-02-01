@@ -3,8 +3,8 @@
 #include <array>
 
 #include "Runtime/CToken.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <zeus/CMatrix4f.hpp>
 
 namespace metaforce {
@@ -15,10 +15,10 @@ class CXRayBlurFilter {
     std::array<zeus::CMatrix4f, 8> m_uv;
   };
   TLockedToken<CTexture> m_paletteTex;
-  boo::ObjToken<boo::ITexture> m_booTex;
-  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+  std::shared_ptr<aurora::TextureHandle> m_booTex;
+//  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+//  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
   Uniform m_uniform;
 
 public:

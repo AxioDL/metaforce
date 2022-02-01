@@ -380,9 +380,10 @@ CScriptDoor::EDoorOpenCondition CScriptDoor::GetDoorOpenCondition(CStateManager&
     }
   }
 
-  if (!CGraphics::g_BooFactory->areShadersReady()) {
-    return EDoorOpenCondition::Loading;
-  }
+  // TODO
+//  if (!CGraphics::g_BooFactory->areShadersReady()) {
+//    return EDoorOpenCondition::Loading;
+//  }
 
   return EDoorOpenCondition::Ready;
 }

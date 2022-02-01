@@ -54,8 +54,8 @@ class CPlayerVisor {
   TLockedToken<CModel> xe4_scanFrameCenterTop;
   TLockedToken<CModel> xf0_scanFrameStretchSide;
   TLockedToken<CModel> xfc_scanFrameStretchTop;
-  // TCachedToken<CModel> x108_newScanPane;
-  CTexturedQuadFilter x108_newScanPane;
+   TCachedToken<CModel> x108_newScanPane;
+//  CTexturedQuadFilter x108_newScanPane;
   TLockedToken<CModel> x114_scanShield;
   int x120_assetLockCountdown = 0;
   TLockedToken<CModel> x124_scanIconNoncritical;

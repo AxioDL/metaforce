@@ -20,10 +20,10 @@ struct CQuadDecal {
   CQuadDecal() = default;
   CQuadDecal(s32 i, float f) : x4_lifetime(i), x8_rotation(f) {}
 
-  boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_normalDataBind;
-  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaDataBind;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
+//  boo::ObjToken<boo::IShaderDataBinding> m_normalDataBind;
+//  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaDataBind;
 };
 
 class CDecal {

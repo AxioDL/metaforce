@@ -38,7 +38,6 @@
 #include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
-#include "hecl/Console.hpp"
 #include "hecl/CVarCommons.hpp"
 
 struct DiscordUser;
@@ -203,8 +202,7 @@ class CMain : public IMain
 #endif
 private:
   struct BooSetter {
-    BooSetter(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cmdQ,
-              const boo::ObjToken<boo::ITextureR>& spareTex);
+    BooSetter();
   } m_booSetter;
 
   // COsContext x0_osContext;
@@ -244,10 +242,10 @@ private:
   bool x161_24_gameFrameDrawn : 1 = false;
   std::unique_ptr<CGameArchitectureSupport> x164_archSupport;
 
-  boo::IWindow* m_mainWindow = nullptr;
+//  boo::IWindow* m_mainWindow = nullptr;
   hecl::CVarManager* m_cvarMgr = nullptr;
   std::unique_ptr<hecl::CVarCommons> m_cvarCommons;
-  std::unique_ptr<hecl::Console> m_console;
+//  std::unique_ptr<hecl::Console> m_console;
   // Warmup state
   std::vector<SObjectTag> m_warmupTags;
   std::vector<SObjectTag>::iterator m_warmupIt;
@@ -265,8 +263,7 @@ private:
   static void HandleDiscordErrored(int errorCode, const char* message);
 
 public:
-  CMain(IFactory* resFactory, CSimplePool* resStore, boo::IGraphicsDataFactory* gfxFactory,
-        boo::IGraphicsCommandQueue* cmdQ, const boo::ObjToken<boo::ITextureR>& spareTex);
+  CMain(IFactory* resFactory, CSimplePool* resStore);
   void RegisterResourceTweaks();
   void AddWorldPaks();
   void AddOverridePaks();
@@ -282,13 +279,13 @@ public:
 
   // int RsMain(int argc, char** argv, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator&
   // backend);
-  void Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarManager, boo::IWindow* window,
+  void Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarManager,
             boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) override;
   void WarmupShaders() override;
   bool Proc(float dt) override;
   void Draw() override;
   void Shutdown() override;
-  boo::IWindow* GetMainWindow() const override;
+//  boo::IWindow* GetMainWindow() const override;
 
   void MemoryCardInitializePump();
 
@@ -316,14 +313,6 @@ public:
   CGameArchitectureSupport* GetArchSupport() const { return x164_archSupport.get(); }
 
   size_t GetExpectedIdSize() const override { return sizeof(u32); }
-  void quit(hecl::Console*, const std::vector<std::string>&) { m_doQuit = true; }
-  void Give(hecl::Console*, const std::vector<std::string>&);
-  void Remove(hecl::Console*, const std::vector<std::string>&);
-  void God(hecl::Console*, const std::vector<std::string>&);
-  void Teleport(hecl::Console*, const std::vector<std::string>&);
-  void ListWorlds(hecl::Console*, const std::vector<std::string>&);
-  void Warp(hecl::Console*, const std::vector<std::string>&);
-  hecl::Console* Console() const override { return m_console.get(); }
   bool IsPAL() const override { return m_version.region == ERegion::PAL; }
   bool IsJapanese() const override { return m_version.region == ERegion::NTSC_J; }
   bool IsUSA() const override { return m_version.region == ERegion::NTSC_U; }

@@ -68,7 +68,7 @@ public:
   CCharacterFactory(CSimplePool& store, const CAnimCharacterSet& ancs, CAssetId);
 
   std::unique_ptr<CAnimData> CreateCharacter(int charIdx, bool loop, const TLockedToken<CCharacterFactory>& factory,
-                                             int defaultAnim, int drawInsts);
+                                             int defaultAnim);
   CAssetId GetEventResourceIdForAnimResourceId(CAssetId animId) const;
 
   const CCharacterInfo& GetCharInfo(int charIdx) const { return x4_charInfoDB[charIdx]; }

@@ -98,10 +98,6 @@ public:
 
   void proc();
 
-  void list(class Console* con, const std::vector<std::string>& args);
-  void setCVar(class Console* con, const std::vector<std::string>& args);
-  void getCVar(class Console* con, const std::vector<std::string>& args);
-
   void setDeveloperMode(bool v, bool setDeserialized = false);
   void setCheatsEnabled(bool v, bool setDeserialized = false);
   bool restartRequired() const;

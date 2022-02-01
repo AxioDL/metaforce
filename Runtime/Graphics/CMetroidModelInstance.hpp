@@ -27,7 +27,7 @@ class CMetroidModelInstance {
   std::vector<CBooSurface> m_surfaces;
   std::unique_ptr<CBooModel> m_instance;
   hecl::HMDLMeta m_hmdlMeta;
-  std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
+//  std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
 
 public:
   CMetroidModelInstance() = default;
@@ -39,7 +39,7 @@ public:
     m_surfaces.clear();
     m_instance.reset();
     m_hmdlMeta = {};
-    m_shaders.clear();
+//    m_shaders.clear();
   }
 };
 

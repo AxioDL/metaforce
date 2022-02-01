@@ -11,11 +11,11 @@
 
 #include <array>
 
-#include <boo/graphicsdev/Metal.hpp>
 #include <hecl/CVarManager.hpp>
 #include <hecl/HMDLMeta.hpp>
 #include <hecl/Runtime.hpp>
 #include <logvisor/logvisor.hpp>
+#include <utility>
 
 namespace metaforce {
 namespace {
@@ -125,17 +125,17 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
     mtxsOut[1][3][0] = -surfPos.dot(v2) * f1 + 0.5f;
     mtxsOut[1][2][1] = f2;
     mtxsOut[1][3][1] = -modelToPlayerLocal.z() * f2;
-    switch (CGraphics::g_BooPlatform) {
-    case boo::IGraphicsDataFactory::Platform::OpenGL:
-      mtxsOut[1] = ReflectPostGL * mtxsOut[1];
-      break;
-    default:
-      break;
-    }
+//    switch (CGraphics::g_BooPlatform) {
+//    case boo::IGraphicsDataFactory::Platform::OpenGL:
+//      mtxsOut[1] = ReflectPostGL * mtxsOut[1];
+//      break;
+//    default:
+//      break;
+//    }
   }
 }
 
-void CBooModel::EnableShadowMaps(const boo::ObjToken<boo::ITexture>& map, const zeus::CTransform& texXf) {
+void CBooModel::EnableShadowMaps(const std::shared_ptr<aurora::TextureHandle>& map, const zeus::CTransform& texXf) {
   g_shadowMap = map;
   g_shadowTexXf = texXf;
 }
@@ -151,20 +151,21 @@ CBooModel::~CBooModel() {
 }
 
 CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
-                     const boo::ObjToken<boo::IGraphicsBufferS>& vbo, const boo::ObjToken<boo::IGraphicsBufferS>& ibo,
-                     const zeus::CAABox& aabb, u8 renderMask, int numInsts)
+//                     boo::ObjToken<boo::IGraphicsBufferS>  vbo, boo::ObjToken<boo::IGraphicsBufferS>  ibo,
+                     const zeus::CAABox& aabb, u8 renderMask)
 : m_modelTok(token)
 , m_model(parent)
 , x0_surfaces(surfaces)
 , x4_matSet(&shader.m_matSet)
-, m_geomLayout(&*shader.m_geomLayout)
+//, m_geomLayout(&*shader.m_geomLayout)
 , m_matSetIdx(shader.m_matSetIdx)
-, m_pipelines(&shader.m_shaders)
+//, m_pipelines(&shader.m_shaders)
 , x1c_textures(shader.x0_textures)
 , x20_aabb(aabb)
 , x41_mask(renderMask)
-, m_staticVbo(vbo)
-, m_staticIbo(ibo) {
+//, m_staticVbo(std::move(vbo))
+//, m_staticIbo(std::move(ibo))
+{
   if (!g_FirstModel)
     g_FirstModel = this;
   else {
@@ -188,229 +189,221 @@ CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurf
     }
   }
 
-  m_instances.reserve(numInsts);
-  for (int i = 0; i < numInsts; ++i)
-    PushNewModelInstance();
+//  m_instances.reserve(numInsts);
+//  for (int i = 0; i < numInsts; ++i)
+//    PushNewModelInstance();
 }
 
-boo::ObjToken<boo::IGraphicsBuffer> CBooModel::ModelInstance::GetBooVBO(const CBooModel& model,
-                                                                        boo::IGraphicsDataFactory::Context& ctx) {
-  if (model.m_staticVbo)
-    return model.m_staticVbo.get();
-  if (!m_dynamicVbo && model.m_model) {
-    const CModel& parent = *model.m_model;
-    m_dynamicVbo =
-        ctx.newDynamicBuffer(boo::BufferUse::Vertex, parent.m_hmdlMeta.vertStride, parent.m_hmdlMeta.vertCount);
-    m_dynamicVbo->load(parent.m_dynamicVertexData.get(), parent.m_hmdlMeta.vertStride * parent.m_hmdlMeta.vertCount);
-  }
-  return m_dynamicVbo.get();
-}
+//boo::ObjToken<boo::IGraphicsBuffer> CBooModel::ModelInstance::GetBooVBO(const CBooModel& model,
+//                                                                        boo::IGraphicsDataFactory::Context& ctx) {
+//  if (model.m_staticVbo)
+//    return model.m_staticVbo.get();
+//  if (!m_dynamicVbo && model.m_model) {
+//    const CModel& parent = *model.m_model;
+//    m_dynamicVbo =
+//        ctx.newDynamicBuffer(boo::BufferUse::Vertex, parent.m_hmdlMeta.vertStride, parent.m_hmdlMeta.vertCount);
+//    m_dynamicVbo->load(parent.m_dynamicVertexData.get(), parent.m_hmdlMeta.vertStride * parent.m_hmdlMeta.vertCount);
+//  }
+//  return m_dynamicVbo.get();
+//}
 
-GeometryUniformLayout::GeometryUniformLayout(const CModel* model, const MaterialSet* matSet) {
-  if (model) {
-    m_skinBankCount = model->m_hmdlMeta.bankCount;
-    m_weightVecCount = model->m_hmdlMeta.weightCount;
-  }
+//GeometryUniformLayout::GeometryUniformLayout(const CModel* model, const MaterialSet* matSet) {
+//  if (model) {
+//    m_skinBankCount = model->m_hmdlMeta.bankCount;
+//    m_weightVecCount = model->m_hmdlMeta.weightCount;
+//  }
+//
+//  m_skinOffs.reserve(std::max(size_t(1), m_skinBankCount));
+//  m_skinSizes.reserve(std::max(size_t(1), m_skinBankCount));
+//
+//  m_uvOffs.reserve(matSet->materials.size());
+//  m_uvSizes.reserve(matSet->materials.size());
+//
+//  if (m_skinBankCount) {
+//    /* Skinned */
+//    for (size_t i = 0; i < m_skinBankCount; ++i) {
+//      size_t thisSz = ROUND_UP_256(sizeof(zeus::CMatrix4f) * (2 * m_weightVecCount * 4 + 3));
+//      m_skinOffs.push_back(m_geomBufferSize);
+//      m_skinSizes.push_back(thisSz);
+//      m_geomBufferSize += thisSz;
+//    }
+//  } else {
+//    /* Non-Skinned */
+//    size_t thisSz = ROUND_UP_256(sizeof(zeus::CMatrix4f) * 3);
+//    m_skinOffs.push_back(m_geomBufferSize);
+//    m_skinSizes.push_back(thisSz);
+//    m_geomBufferSize += thisSz;
+//  }
+//
+//  /* Animated UV transform matrices */
+//  for (const MaterialSet::Material& mat : matSet->materials) {
+//    (void)mat;
+//    size_t thisSz = ROUND_UP_256(/*mat.uvAnims.size()*/ 8 * (sizeof(zeus::CMatrix4f) * 2));
+//    m_uvOffs.push_back(m_geomBufferSize);
+//    m_uvSizes.push_back(thisSz);
+//    m_geomBufferSize += thisSz;
+//  }
+//}
 
-  m_skinOffs.reserve(std::max(size_t(1), m_skinBankCount));
-  m_skinSizes.reserve(std::max(size_t(1), m_skinBankCount));
-
-  m_uvOffs.reserve(matSet->materials.size());
-  m_uvSizes.reserve(matSet->materials.size());
-
-  if (m_skinBankCount) {
-    /* Skinned */
-    for (size_t i = 0; i < m_skinBankCount; ++i) {
-      size_t thisSz = ROUND_UP_256(sizeof(zeus::CMatrix4f) * (2 * m_weightVecCount * 4 + 3));
-      m_skinOffs.push_back(m_geomBufferSize);
-      m_skinSizes.push_back(thisSz);
-      m_geomBufferSize += thisSz;
-    }
-  } else {
-    /* Non-Skinned */
-    size_t thisSz = ROUND_UP_256(sizeof(zeus::CMatrix4f) * 3);
-    m_skinOffs.push_back(m_geomBufferSize);
-    m_skinSizes.push_back(thisSz);
-    m_geomBufferSize += thisSz;
-  }
-
-  /* Animated UV transform matrices */
-  for (const MaterialSet::Material& mat : matSet->materials) {
-    (void)mat;
-    size_t thisSz = ROUND_UP_256(/*mat.uvAnims.size()*/ 8 * (sizeof(zeus::CMatrix4f) * 2));
-    m_uvOffs.push_back(m_geomBufferSize);
-    m_uvSizes.push_back(thisSz);
-    m_geomBufferSize += thisSz;
-  }
-}
-
-CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf,
-                                                          boo::IGraphicsDataFactory::Context* ctx) {
-  OPTICK_EVENT();
-  if (!x40_24_texturesLoaded && !g_DummyTextures) {
-    return nullptr;
-  }
-
-  if (m_instances.size() >= 512) {
-    Log.report(logvisor::Fatal, FMT_STRING("Model buffer overflow"));
-  }
-
-  ModelInstance& newInst = m_instances.emplace_back();
-
-  auto withContext = [&](boo::IGraphicsDataFactory::Context& ctx) {
-    /* Build geometry uniform buffer if shared not available */
-    boo::ObjToken<boo::IGraphicsBufferD> geomUniformBuf;
-    if (sharedLayoutBuf >= 0) {
-      geomUniformBuf = m_geomLayout->GetSharedBuffer(sharedLayoutBuf);
-    } else {
-      geomUniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, m_geomLayout->m_geomBufferSize, 1);
-      newInst.m_geomUniformBuffer = geomUniformBuf;
-    }
-
-    /* Lighting and reflection uniforms */
-    size_t uniBufSize = 0;
-
-    /* Lighting uniform */
-    size_t lightOff = 0;
-    size_t lightSz = 0;
-    {
-      size_t thisSz = ROUND_UP_256(sizeof(CModelShaders::LightingUniform));
-      lightOff = uniBufSize;
-      lightSz = thisSz;
-      uniBufSize += thisSz;
-    }
-
-    /* Surface reflection texmatrix uniform with first identity slot */
-    size_t reflectOff = uniBufSize;
-    uniBufSize += 256;
-    for (const CBooSurface& surf : *x0_surfaces) {
-      const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
-      if (mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye())
-        uniBufSize += 256;
-    }
-
-    /* Allocate resident buffer */
-    m_uniformDataSize = uniBufSize;
-    newInst.m_uniformBuffer = ctx.newDynamicBuffer(boo::BufferUse::Uniform, uniBufSize, 1);
-
-    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 4> bufs{
-        geomUniformBuf.get(),
-        geomUniformBuf.get(),
-        newInst.m_uniformBuffer.get(),
-        newInst.m_uniformBuffer.get(),
-    };
-
-    /* Binding for each surface */
-    newInst.m_shaderDataBindings.reserve(x0_surfaces->size());
-
-    std::array<size_t, 4> thisOffs;
-    std::array<size_t, 4> thisSizes;
-
-    static constexpr std::array stages{
-        boo::PipelineStage::Vertex,
-        boo::PipelineStage::Vertex,
-        boo::PipelineStage::Fragment,
-        boo::PipelineStage::Vertex,
-    };
-
-    /* Enumerate surfaces and build data bindings */
-    size_t curReflect = reflectOff + 256;
-    for (const CBooSurface& surf : *x0_surfaces) {
-      const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
-
-      std::array<boo::ObjToken<boo::ITexture>, 12> texs{
-          g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
-          g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
-          g_Renderer->m_whiteTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->x220_sphereRamp.get(),
-          g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(),
-      };
-      if (!g_DummyTextures) {
-        for (const auto& ch : mat.chunks) {
-          if (const auto* const pass = ch.get_if<MaterialSet::Material::PASS>()) {
-            auto search = x1c_textures.find(pass->texId.toUint32());
-            boo::ObjToken<boo::ITexture> btex;
-            if (search != x1c_textures.cend() && (btex = search->second.GetObj()->GetBooTexture())) {
-              texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;
-            }
-          } else if (const auto* const pass = ch.get_if<MaterialSet::Material::CLR>()) {
-            boo::ObjToken<boo::ITexture> btex = g_Renderer->GetColorTexture(zeus::CColor(pass->color));
-            texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;
-          }
-        }
-      }
-
-      if (m_geomLayout->m_skinBankCount) {
-        thisOffs[0] = m_geomLayout->m_skinOffs[surf.m_data.skinMtxBankIdx];
-        thisSizes[0] = m_geomLayout->m_skinSizes[surf.m_data.skinMtxBankIdx];
-      } else {
-        thisOffs[0] = 0;
-        thisSizes[0] = 256;
-      }
-
-      thisOffs[1] = m_geomLayout->m_uvOffs[surf.m_data.matIdx];
-      thisSizes[1] = m_geomLayout->m_uvSizes[surf.m_data.matIdx];
-
-      thisOffs[2] = lightOff;
-      thisSizes[2] = lightSz;
-
-      bool useReflection = mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye();
-      if (useReflection) {
-        if (g_Renderer->x14c_reflectionTex)
-          texs[11] = g_Renderer->x14c_reflectionTex.get();
-        thisOffs[3] = curReflect;
-        curReflect += 256;
-      } else {
-        thisOffs[3] = reflectOff;
-      }
-      thisSizes[3] = 256;
-
-      const CModelShaders::ShaderPipelines& pipelines = m_pipelines->at(surf.m_data.matIdx);
-
-      std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = newInst.m_shaderDataBindings.emplace_back();
-      extendeds.reserve(pipelines->size());
-
-      EExtendedShader idx{};
-      for (const auto& pipeline : *pipelines) {
-        if (idx == EExtendedShader::ThermalModel || idx == EExtendedShader::ThermalModelNoZTestNoZWrite ||
-            idx == EExtendedShader::ThermalStatic || idx == EExtendedShader::ThermalStaticNoZWrite) {
-          texs[8] = g_Renderer->x220_sphereRamp.get();
-        } else if (idx == EExtendedShader::MorphBallShadow) {
-          texs[8] = g_Renderer->m_ballShadowId.get();
-          texs[9] = g_Renderer->x220_sphereRamp.get();
-          texs[10] = g_Renderer->m_ballFade.get();
-        } else if (idx == EExtendedShader::WorldShadow || idx == EExtendedShader::LightingCubeReflectionWorldShadow) {
-          if (g_shadowMap)
-            texs[8] = g_shadowMap;
-          else
-            texs[8] = g_Renderer->x220_sphereRamp.get();
-        } else if (idx == EExtendedShader::Disintegrate) {
-          if (g_disintegrateTexture)
-            texs[8] = g_disintegrateTexture;
-          else
-            texs[8] = g_Renderer->x220_sphereRamp.get();
-        } else if (hecl::com_cubemaps->toBoolean() && (idx == EExtendedShader::LightingCubeReflection ||
-                                                       idx == EExtendedShader::LightingCubeReflectionWorldShadow)) {
-          if (m_lastDrawnReflectionCube)
-            texs[11] = m_lastDrawnReflectionCube.get();
-          else
-            texs[11] = g_Renderer->x220_sphereRamp.get();
-        }
-        extendeds.push_back(ctx.newShaderDataBinding(
-            pipeline, newInst.GetBooVBO(*this, ctx), nullptr, m_staticIbo.get(), bufs.size(), bufs.data(),
-            stages.data(), thisOffs.data(), thisSizes.data(), texs.size(), texs.data(), nullptr, nullptr));
-        idx = EExtendedShader(size_t(idx) + 1);
-      }
-    }
-    return true;
-  };
-
-  if (ctx) {
-    withContext(*ctx);
-  } else {
-    CGraphics::CommitResources(withContext BooTrace);
-  }
-  return &newInst;
-}
+//CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf,
+//                                                          boo::IGraphicsDataFactory::Context* ctx) {
+//  OPTICK_EVENT();
+//  if (!x40_24_texturesLoaded && !g_DummyTextures) {
+//    return nullptr;
+//  }
+//
+//  if (m_instances.size() >= 512) {
+//    Log.report(logvisor::Fatal, FMT_STRING("Model buffer overflow"));
+//  }
+//
+//  ModelInstance& newInst = m_instances.emplace_back();
+//
+//  /* Build geometry uniform buffer if shared not available */
+//  boo::ObjToken<boo::IGraphicsBufferD> geomUniformBuf;
+//  if (sharedLayoutBuf >= 0) {
+//    geomUniformBuf = m_geomLayout->GetSharedBuffer(sharedLayoutBuf);
+//  } else {
+//    geomUniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, m_geomLayout->m_geomBufferSize, 1);
+//    newInst.m_geomUniformBuffer = geomUniformBuf;
+//  }
+//
+//  /* Lighting and reflection uniforms */
+//  size_t uniBufSize = 0;
+//
+//  /* Lighting uniform */
+//  size_t lightOff = 0;
+//  size_t lightSz = 0;
+//  {
+//    size_t thisSz = ROUND_UP_256(sizeof(CModelShaders::LightingUniform));
+//    lightOff = uniBufSize;
+//    lightSz = thisSz;
+//    uniBufSize += thisSz;
+//  }
+//
+//  /* Surface reflection texmatrix uniform with first identity slot */
+//  size_t reflectOff = uniBufSize;
+//  uniBufSize += 256;
+//  for (const CBooSurface& surf : *x0_surfaces) {
+//    const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
+//    if (mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye())
+//      uniBufSize += 256;
+//  }
+//
+//  /* Allocate resident buffer */
+//  m_uniformDataSize = uniBufSize;
+//  newInst.m_uniformBuffer = ctx.newDynamicBuffer(boo::BufferUse::Uniform, uniBufSize, 1);
+//
+//  const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 4> bufs{
+//      geomUniformBuf.get(),
+//      geomUniformBuf.get(),
+//      newInst.m_uniformBuffer.get(),
+//      newInst.m_uniformBuffer.get(),
+//  };
+//
+//  /* Binding for each surface */
+//  newInst.m_shaderDataBindings.reserve(x0_surfaces->size());
+//
+//  std::array<size_t, 4> thisOffs;
+//  std::array<size_t, 4> thisSizes;
+//
+//  static constexpr std::array stages{
+//      boo::PipelineStage::Vertex,
+//      boo::PipelineStage::Vertex,
+//      boo::PipelineStage::Fragment,
+//      boo::PipelineStage::Vertex,
+//  };
+//
+//  /* Enumerate surfaces and build data bindings */
+//  size_t curReflect = reflectOff + 256;
+//  for (const CBooSurface& surf : *x0_surfaces) {
+//    const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
+//
+//    std::array<boo::ObjToken<boo::ITexture>, 12> texs{
+//        g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
+//        g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->m_clearTexture.get(),
+//        g_Renderer->m_whiteTexture.get(),  g_Renderer->m_clearTexture.get(),  g_Renderer->x220_sphereRamp.get(),
+//        g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(),
+//    };
+//    if (!g_DummyTextures) {
+//      for (const auto& ch : mat.chunks) {
+//        if (const auto* const pass = ch.get_if<MaterialSet::Material::PASS>()) {
+//          auto search = x1c_textures.find(pass->texId.toUint32());
+//          boo::ObjToken<boo::ITexture> btex;
+//          if (search != x1c_textures.cend() && (btex = search->second.GetObj()->GetBooTexture())) {
+//            texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;
+//          }
+//        } else if (const auto* const pass = ch.get_if<MaterialSet::Material::CLR>()) {
+//          boo::ObjToken<boo::ITexture> btex = g_Renderer->GetColorTexture(zeus::CColor(pass->color));
+//          texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;
+//        }
+//      }
+//    }
+//
+//    if (m_geomLayout->m_skinBankCount) {
+//      thisOffs[0] = m_geomLayout->m_skinOffs[surf.m_data.skinMtxBankIdx];
+//      thisSizes[0] = m_geomLayout->m_skinSizes[surf.m_data.skinMtxBankIdx];
+//    } else {
+//      thisOffs[0] = 0;
+//      thisSizes[0] = 256;
+//    }
+//
+//    thisOffs[1] = m_geomLayout->m_uvOffs[surf.m_data.matIdx];
+//    thisSizes[1] = m_geomLayout->m_uvSizes[surf.m_data.matIdx];
+//
+//    thisOffs[2] = lightOff;
+//    thisSizes[2] = lightSz;
+//
+//    bool useReflection = mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye();
+//    if (useReflection) {
+//      if (g_Renderer->x14c_reflectionTex)
+//        texs[11] = g_Renderer->x14c_reflectionTex.get();
+//      thisOffs[3] = curReflect;
+//      curReflect += 256;
+//    } else {
+//      thisOffs[3] = reflectOff;
+//    }
+//    thisSizes[3] = 256;
+//
+//    const CModelShaders::ShaderPipelines& pipelines = m_pipelines->at(surf.m_data.matIdx);
+//
+//    std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = newInst.m_shaderDataBindings.emplace_back();
+//    extendeds.reserve(pipelines->size());
+//
+//    EExtendedShader idx{};
+//    for (const auto& pipeline : *pipelines) {
+//      if (idx == EExtendedShader::ThermalModel || idx == EExtendedShader::ThermalModelNoZTestNoZWrite ||
+//          idx == EExtendedShader::ThermalStatic || idx == EExtendedShader::ThermalStaticNoZWrite) {
+//        texs[8] = g_Renderer->x220_sphereRamp.get();
+//      } else if (idx == EExtendedShader::MorphBallShadow) {
+//        texs[8] = g_Renderer->m_ballShadowId.get();
+//        texs[9] = g_Renderer->x220_sphereRamp.get();
+//        texs[10] = g_Renderer->m_ballFade.get();
+//      } else if (idx == EExtendedShader::WorldShadow || idx == EExtendedShader::LightingCubeReflectionWorldShadow) {
+//        if (g_shadowMap)
+//          texs[8] = g_shadowMap;
+//        else
+//          texs[8] = g_Renderer->x220_sphereRamp.get();
+//      } else if (idx == EExtendedShader::Disintegrate) {
+//        if (g_disintegrateTexture)
+//          texs[8] = g_disintegrateTexture;
+//        else
+//          texs[8] = g_Renderer->x220_sphereRamp.get();
+//      } else if (hecl::com_cubemaps->toBoolean() && (idx == EExtendedShader::LightingCubeReflection ||
+//                                                     idx == EExtendedShader::LightingCubeReflectionWorldShadow)) {
+//        if (m_lastDrawnReflectionCube)
+//          texs[11] = m_lastDrawnReflectionCube.get();
+//        else
+//          texs[11] = g_Renderer->x220_sphereRamp.get();
+//      }
+//      extendeds.push_back(ctx.newShaderDataBinding(
+//          pipeline, newInst.GetBooVBO(*this, ctx), nullptr, m_staticIbo.get(), bufs.size(), bufs.data(),
+//          stages.data(), thisOffs.data(), thisSizes.data(), texs.size(), texs.data(), nullptr, nullptr));
+//      idx = EExtendedShader(size_t(idx) + 1);
+//    }
+//  }
+//
+//  return &newInst;
+//}
 
 void CBooModel::MakeTexturesFromMats(const MaterialSet& matSet,
                                      std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut,
@@ -443,28 +436,12 @@ void CBooModel::DisableAllLights() {
 }
 
 void CBooModel::RemapMaterialData(SShader& shader) {
-  if (!shader.m_geomLayout)
-    return;
+  // TODO what is this checking?
+//  if (!shader.m_geomLayout)
+//    return;
   x4_matSet = &shader.m_matSet;
-  m_geomLayout = &*shader.m_geomLayout;
-  m_matSetIdx = shader.m_matSetIdx;
   x1c_textures = shader.x0_textures;
-  m_pipelines = &shader.m_shaders;
   x40_24_texturesLoaded = false;
-  m_instances.clear();
-}
-
-void CBooModel::RemapMaterialData(SShader& shader,
-                                  const std::unordered_map<int, CModelShaders::ShaderPipelines>& pipelines) {
-  if (!shader.m_geomLayout)
-    return;
-  x4_matSet = &shader.m_matSet;
-  m_geomLayout = &*shader.m_geomLayout;
-  m_matSetIdx = shader.m_matSetIdx;
-  x1c_textures = shader.x0_textures;
-  m_pipelines = &pipelines;
-  x40_24_texturesLoaded = false;
-  m_instances.clear();
 }
 
 bool CBooModel::TryLockTextures() {
@@ -477,19 +454,20 @@ bool CBooModel::TryLockTextures() {
       }
     }
 
-    if (allLoad) {
-      for (const auto& pipeline : *m_pipelines) {
-        for (const auto& subpipeline : *pipeline.second) {
-          if (!subpipeline->isReady()) {
-            allLoad = false;
-            break;
-          }
-        }
-        if (!allLoad) {
-          break;
-        }
-      }
-    }
+    // TODO
+//    if (allLoad) {
+//      for (const auto& pipeline : *m_pipelines) {
+//        for (const auto& subpipeline : *pipeline.second) {
+//          if (!subpipeline->isReady()) {
+//            allLoad = false;
+//            break;
+//          }
+//        }
+//        if (!allLoad) {
+//          break;
+//        }
+//      }
+//    }
 
     x40_24_texturesLoaded = allLoad;
   }
@@ -498,7 +476,7 @@ bool CBooModel::TryLockTextures() {
 }
 
 void CBooModel::UnlockTextures() {
-  m_instances.clear();
+//  m_instances.clear();
 
   for (auto& tex : x1c_textures) {
     tex.second.Unlock();
@@ -641,22 +619,20 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
 }
 
 void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const {
-  // if (m_uniUpdateCount == 0)
-  //    Log.report(logvisor::Fatal, FMT_STRING("UpdateUniformData() not called"));
-  if (m_uniUpdateCount == 0 || m_uniUpdateCount > m_instances.size())
-    return;
-  const ModelInstance& inst = m_instances[m_uniUpdateCount - 1];
-
-  const MaterialSet::Material& data = GetMaterialByIndex(surf.m_data.matIdx);
-  if (data.flags.shadowOccluderMesh() && !g_DrawingOccluders)
-    return;
-
-  const std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = inst.m_shaderDataBindings[surf.selfIdx];
-  EExtendedShader extended = ResolveExtendedShader(data, flags);
-
-  boo::ObjToken<boo::IShaderDataBinding> binding = extendeds[size_t(extended)];
-  CGraphics::SetShaderDataBinding(binding);
-  CGraphics::DrawArrayIndexed(surf.m_data.idxStart, surf.m_data.idxCount);
+//  if (m_uniUpdateCount == 0 || m_uniUpdateCount > m_instances.size())
+//    return;
+//  const ModelInstance& inst = m_instances[m_uniUpdateCount - 1];
+//
+//  const MaterialSet::Material& data = GetMaterialByIndex(surf.m_data.matIdx);
+//  if (data.flags.shadowOccluderMesh() && !g_DrawingOccluders)
+//    return;
+//
+//  const std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = inst.m_shaderDataBindings[surf.selfIdx];
+//  EExtendedShader extended = ResolveExtendedShader(data, flags);
+//
+//  boo::ObjToken<boo::IShaderDataBinding> binding = extendeds[size_t(extended)];
+//  CGraphics::SetShaderDataBinding(binding);
+//  CGraphics::DrawArrayIndexed(surf.m_data.idxStart, surf.m_data.idxCount);
 }
 
 void CBooModel::WarmupDrawSurfaces() const {
@@ -674,14 +650,14 @@ void CBooModel::WarmupDrawSurfaces() const {
 }
 
 void CBooModel::WarmupDrawSurface(const CBooSurface& surf) const {
-  if (m_uniUpdateCount > m_instances.size())
-    return;
-  const ModelInstance& inst = m_instances[m_uniUpdateCount - 1];
-
-  for (const auto& binding : inst.m_shaderDataBindings[surf.selfIdx]) {
-    CGraphics::SetShaderDataBinding(binding);
-    CGraphics::DrawArrayIndexed(surf.m_data.idxStart, std::min(u32(3), surf.m_data.idxCount));
-  }
+//  if (m_uniUpdateCount > m_instances.size())
+//    return;
+//  const ModelInstance& inst = m_instances[m_uniUpdateCount - 1];
+//
+//  for (const auto& binding : inst.m_shaderDataBindings[surf.selfIdx]) {
+//    CGraphics::SetShaderDataBinding(binding);
+//    CGraphics::DrawArrayIndexed(surf.m_data.idxStart, std::min(u32(3), surf.m_data.idxCount));
+//  }
 }
 
 void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const MaterialSet::Material::PASS& anim) {
@@ -873,224 +849,223 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
   }
 }
 
-void GeometryUniformLayout::Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
-                                   const MaterialSet* matSet, const boo::ObjToken<boo::IGraphicsBufferD>& buf,
-                                   const CBooModel* parent) const {
-  u8* dataOut = reinterpret_cast<u8*>(buf->map(m_geomBufferSize));
-  u8* dataCur = dataOut;
+//void GeometryUniformLayout::Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
+//                                   const MaterialSet* matSet, const boo::ObjToken<boo::IGraphicsBufferD>& buf,
+//                                   const CBooModel* parent) const {
+//  u8* dataOut = reinterpret_cast<u8*>(buf->map(m_geomBufferSize));
+//  u8* dataCur = dataOut;
+//
+//  if (m_skinBankCount) {
+//    /* Skinned */
+//    std::vector<const zeus::CTransform*> bankTransforms;
+//    size_t weightCount = m_weightVecCount * 4;
+//    bankTransforms.reserve(weightCount);
+//    for (size_t i = 0; i < m_skinBankCount; ++i) {
+//      if (cskr && pose) {
+//        cskr->GetBankTransforms(bankTransforms, *pose, i);
+//
+//        for (size_t w = 0; w < weightCount; ++w) {
+//          zeus::CMatrix4f& obj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+//          if (w >= bankTransforms.size())
+//            obj = zeus::CMatrix4f();
+//          else
+//            obj = bankTransforms[w]->toMatrix4f();
+//          dataCur += sizeof(zeus::CMatrix4f);
+//        }
+//        for (size_t w = 0; w < weightCount; ++w) {
+//          zeus::CMatrix4f& objInv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+//          if (w >= bankTransforms.size())
+//            objInv = zeus::CMatrix4f();
+//          else
+//            objInv = bankTransforms[w]->basis;
+//          dataCur += sizeof(zeus::CMatrix4f);
+//        }
+//
+//        bankTransforms.clear();
+//      } else {
+//        for (size_t w = 0; w < weightCount; ++w) {
+//          zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+//          mv = zeus::CMatrix4f();
+//          dataCur += sizeof(zeus::CMatrix4f);
+//        }
+//        for (size_t w = 0; w < weightCount; ++w) {
+//          zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+//          mvinv = zeus::CMatrix4f();
+//          dataCur += sizeof(zeus::CMatrix4f);
+//        }
+//      }
+//      zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+//      mv = CGraphics::g_GXModelView.toMatrix4f();
+//      dataCur += sizeof(zeus::CMatrix4f);
+//
+//      zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+//      mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+//      dataCur += sizeof(zeus::CMatrix4f);
+//
+//      zeus::CMatrix4f& proj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+//      proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+//      dataCur += sizeof(zeus::CMatrix4f);
+//
+//      dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
+//    }
+//  } else {
+//    /* Non-Skinned */
+//    zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+//    mv = CGraphics::g_GXModelView.toMatrix4f();
+//    dataCur += sizeof(zeus::CMatrix4f);
+//
+//    zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+//    mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+//    dataCur += sizeof(zeus::CMatrix4f);
+//
+//    zeus::CMatrix4f& proj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+//    proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+//    dataCur += sizeof(zeus::CMatrix4f);
+//
+//    dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
+//  }
+//
+//  CBooModel::UVAnimationBuffer::Update(dataCur, matSet, flags, parent);
+//  buf->unmap();
+//}
 
-  if (m_skinBankCount) {
-    /* Skinned */
-    std::vector<const zeus::CTransform*> bankTransforms;
-    size_t weightCount = m_weightVecCount * 4;
-    bankTransforms.reserve(weightCount);
-    for (size_t i = 0; i < m_skinBankCount; ++i) {
-      if (cskr && pose) {
-        cskr->GetBankTransforms(bankTransforms, *pose, i);
+//void GeometryUniformLayout::ReserveSharedBuffers(boo::IGraphicsDataFactory::Context& ctx, int size) {
+//  if (m_sharedBuffer.size() < size)
+//    m_sharedBuffer.resize(size);
+//  for (int i = 0; i < size; ++i) {
+//    auto& buf = m_sharedBuffer[i];
+//    if (!buf)
+//      buf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, m_geomBufferSize, 1);
+//  }
+//}
+//
+//boo::ObjToken<boo::IGraphicsBufferD> GeometryUniformLayout::GetSharedBuffer(int idx) const {
+//  if (idx >= m_sharedBuffer.size())
+//    m_sharedBuffer.resize(idx + 1);
+//
+//  auto& buf = m_sharedBuffer[idx];
+//  if (!buf) {
+//    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+//      buf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, m_geomBufferSize, 1);
+//      return true;
+//    } BooTrace);
+//  }
+//
+//  return buf;
+//}
 
-        for (size_t w = 0; w < weightCount; ++w) {
-          zeus::CMatrix4f& obj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-          if (w >= bankTransforms.size())
-            obj = zeus::CMatrix4f();
-          else
-            obj = bankTransforms[w]->toMatrix4f();
-          dataCur += sizeof(zeus::CMatrix4f);
-        }
-        for (size_t w = 0; w < weightCount; ++w) {
-          zeus::CMatrix4f& objInv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-          if (w >= bankTransforms.size())
-            objInv = zeus::CMatrix4f();
-          else
-            objInv = bankTransforms[w]->basis;
-          dataCur += sizeof(zeus::CMatrix4f);
-        }
-
-        bankTransforms.clear();
-      } else {
-        for (size_t w = 0; w < weightCount; ++w) {
-          zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-          mv = zeus::CMatrix4f();
-          dataCur += sizeof(zeus::CMatrix4f);
-        }
-        for (size_t w = 0; w < weightCount; ++w) {
-          zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-          mvinv = zeus::CMatrix4f();
-          dataCur += sizeof(zeus::CMatrix4f);
-        }
-      }
-      zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-      mv = CGraphics::g_GXModelView.toMatrix4f();
-      dataCur += sizeof(zeus::CMatrix4f);
-
-      zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-      mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-      dataCur += sizeof(zeus::CMatrix4f);
-
-      zeus::CMatrix4f& proj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-      proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-      dataCur += sizeof(zeus::CMatrix4f);
-
-      dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
-    }
-  } else {
-    /* Non-Skinned */
-    zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-    mv = CGraphics::g_GXModelView.toMatrix4f();
-    dataCur += sizeof(zeus::CMatrix4f);
-
-    zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-    mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-    dataCur += sizeof(zeus::CMatrix4f);
-
-    zeus::CMatrix4f& proj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-    proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-    dataCur += sizeof(zeus::CMatrix4f);
-
-    dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
-  }
-
-  CBooModel::UVAnimationBuffer::Update(dataCur, matSet, flags, parent);
-  buf->unmap();
-}
-
-void GeometryUniformLayout::ReserveSharedBuffers(boo::IGraphicsDataFactory::Context& ctx, int size) {
-  if (m_sharedBuffer.size() < size)
-    m_sharedBuffer.resize(size);
-  for (int i = 0; i < size; ++i) {
-    auto& buf = m_sharedBuffer[i];
-    if (!buf)
-      buf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, m_geomBufferSize, 1);
-  }
-}
-
-boo::ObjToken<boo::IGraphicsBufferD> GeometryUniformLayout::GetSharedBuffer(int idx) const {
-  if (idx >= m_sharedBuffer.size())
-    m_sharedBuffer.resize(idx + 1);
-
-  auto& buf = m_sharedBuffer[idx];
-  if (!buf) {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-      buf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, m_geomBufferSize, 1);
-      return true;
-    } BooTrace);
-  }
-
-  return buf;
-}
-
-boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
-                                                                  const CPoseAsTransforms* pose, int sharedLayoutBuf,
-                                                                  boo::IGraphicsDataFactory::Context* ctx) {
-  OPTICK_EVENT();
-  if (!g_DummyTextures && !TryLockTextures())
-    return {};
-
-  /* Invalidate instances if new shadow being drawn */
-  if ((flags.m_extendedShader == EExtendedShader::WorldShadow ||
-       flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
-      m_lastDrawnShadowMap != g_shadowMap) {
-    m_lastDrawnShadowMap = g_shadowMap;
-    m_instances.clear();
-  }
-
-  /* Invalidate instances if new one-texture being drawn */
-  if (flags.m_extendedShader == EExtendedShader::Disintegrate && m_lastDrawnOneTexture != g_disintegrateTexture) {
-    m_lastDrawnOneTexture = g_disintegrateTexture;
-    m_instances.clear();
-  }
-
-  /* Invalidate instances if new reflection cube being drawn */
-  if (hecl::com_cubemaps->toBoolean() &&
-      (flags.m_extendedShader == EExtendedShader::LightingCubeReflection ||
-       flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
-      m_lastDrawnReflectionCube != g_reflectionCube) {
-    m_lastDrawnReflectionCube = g_reflectionCube;
-    m_instances.clear();
-  }
-
-  const ModelInstance* inst;
-  if (sharedLayoutBuf >= 0) {
-    if (m_instances.size() <= sharedLayoutBuf) {
-      do {
-        inst = PushNewModelInstance(m_instances.size(), ctx);
-        if (!inst) {
-          return {};
-        }
-      } while (m_instances.size() <= sharedLayoutBuf);
-    } else {
-      inst = &m_instances[sharedLayoutBuf];
-    }
-    m_uniUpdateCount = sharedLayoutBuf + 1;
-  } else {
-    if (m_instances.size() <= m_uniUpdateCount) {
-      inst = PushNewModelInstance(sharedLayoutBuf, ctx);
-      if (!inst) {
-        return {};
-      }
-    } else {
-      inst = &m_instances[m_uniUpdateCount];
-    }
-    ++m_uniUpdateCount;
-  }
-
-  if (inst->m_geomUniformBuffer) {
-    m_geomLayout->Update(flags, cskr, pose, x4_matSet, inst->m_geomUniformBuffer, this);
-  }
-
-  u8* dataOut = reinterpret_cast<u8*>(inst->m_uniformBuffer->map(m_uniformDataSize));
-  u8* dataCur = dataOut;
-
-  if (flags.m_extendedShader == EExtendedShader::ThermalModel ||
-      flags.m_extendedShader == EExtendedShader::ThermalModelNoZTestNoZWrite) /* Thermal Model (same as UV Mode 0) */
-  {
-    CModelShaders::ThermalUniform& thermalOut = *reinterpret_cast<CModelShaders::ThermalUniform*>(dataCur);
-    thermalOut.mulColor = flags.x4_color;
-    thermalOut.addColor = flags.addColor;
-  } else if (flags.m_extendedShader >= EExtendedShader::SolidColor &&
-             flags.m_extendedShader <= EExtendedShader::SolidColorBackfaceCullGreaterAlphaOnly) /* Solid color render */
-  {
-    CModelShaders::SolidUniform& solidOut = *reinterpret_cast<CModelShaders::SolidUniform*>(dataCur);
-    solidOut.solidColor = flags.x4_color;
-  } else if (flags.m_extendedShader == EExtendedShader::MorphBallShadow) /* MorphBall shadow render */
-  {
-    CModelShaders::MBShadowUniform& shadowOut = *reinterpret_cast<CModelShaders::MBShadowUniform*>(dataCur);
-    shadowOut.shadowUp = CGraphics::g_GXModelView.rotate(zeus::skUp);
-    shadowOut.shadowUp.w() = flags.x4_color.a();
-    shadowOut.shadowId = flags.x4_color.r();
-  } else if (flags.m_extendedShader == EExtendedShader::Disintegrate) {
-    CModelShaders::OneTextureUniform& oneTexOut = *reinterpret_cast<CModelShaders::OneTextureUniform*>(dataCur);
-    oneTexOut.addColor = flags.addColor;
-    oneTexOut.fog = CGraphics::g_Fog;
-  } else {
-    CModelShaders::LightingUniform& lightingOut = *reinterpret_cast<CModelShaders::LightingUniform*>(dataCur);
-    lightingOut = m_lightingData;
-    lightingOut.colorRegs = CGraphics::g_ColorRegs;
-    lightingOut.mulColor = flags.x4_color;
-    lightingOut.addColor = flags.addColor;
-    lightingOut.fog = CGraphics::g_Fog;
-  }
-
-  dataCur += sizeof(CModelShaders::LightingUniform);
-  dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
-
-  /* Reflection texmtx uniform */
-  zeus::CMatrix4f* identMtxs = reinterpret_cast<zeus::CMatrix4f*>(dataCur);
-  identMtxs[0] = zeus::CMatrix4f();
-  identMtxs[1] = zeus::CMatrix4f();
-  u8* curReflect = dataCur + 256;
-  for (const CBooSurface& surf : *x0_surfaces) {
-    const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
-    if (mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye()) {
-      zeus::CMatrix4f* mtxs = reinterpret_cast<zeus::CMatrix4f*>(curReflect);
-      float& alpha = reinterpret_cast<float&>(mtxs[2]);
-      curReflect += 256;
-      EnsureViewDepStateCached(*this, mat.flags.samusReflectionSurfaceEye() ? &surf : nullptr, mtxs, alpha);
-    }
-  }
-
-  inst->m_uniformBuffer->unmap();
-  return inst->m_dynamicVbo;
-}
+//boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
+//                                                                  const CPoseAsTransforms* pose, int sharedLayoutBuf) {
+//  OPTICK_EVENT();
+////  if (!g_DummyTextures && !TryLockTextures())
+//    return {};
+//
+////  /* Invalidate instances if new shadow being drawn */
+////  if ((flags.m_extendedShader == EExtendedShader::WorldShadow ||
+////       flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
+////      m_lastDrawnShadowMap != g_shadowMap) {
+////    m_lastDrawnShadowMap = g_shadowMap;
+////    m_instances.clear();
+////  }
+////
+////  /* Invalidate instances if new one-texture being drawn */
+////  if (flags.m_extendedShader == EExtendedShader::Disintegrate && m_lastDrawnOneTexture != g_disintegrateTexture) {
+////    m_lastDrawnOneTexture = g_disintegrateTexture;
+////    m_instances.clear();
+////  }
+////
+////  /* Invalidate instances if new reflection cube being drawn */
+////  if (hecl::com_cubemaps->toBoolean() &&
+////      (flags.m_extendedShader == EExtendedShader::LightingCubeReflection ||
+////       flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
+////      m_lastDrawnReflectionCube != g_reflectionCube) {
+////    m_lastDrawnReflectionCube = g_reflectionCube;
+////    m_instances.clear();
+////  }
+//
+////  const ModelInstance* inst;
+////  if (sharedLayoutBuf >= 0) {
+////    if (m_instances.size() <= sharedLayoutBuf) {
+////      do {
+////        inst = PushNewModelInstance(m_instances.size(), ctx);
+////        if (!inst) {
+////          return {};
+////        }
+////      } while (m_instances.size() <= sharedLayoutBuf);
+////    } else {
+////      inst = &m_instances[sharedLayoutBuf];
+////    }
+////    m_uniUpdateCount = sharedLayoutBuf + 1;
+////  } else {
+////    if (m_instances.size() <= m_uniUpdateCount) {
+////      inst = PushNewModelInstance(sharedLayoutBuf, ctx);
+////      if (!inst) {
+////        return {};
+////      }
+////    } else {
+////      inst = &m_instances[m_uniUpdateCount];
+////    }
+////    ++m_uniUpdateCount;
+////  }
+////
+////  if (inst->m_geomUniformBuffer) {
+////    m_geomLayout->Update(flags, cskr, pose, x4_matSet, inst->m_geomUniformBuffer, this);
+////  }
+////
+////  u8* dataOut = reinterpret_cast<u8*>(inst->m_uniformBuffer->map(m_uniformDataSize));
+////  u8* dataCur = dataOut;
+////
+////  if (flags.m_extendedShader == EExtendedShader::ThermalModel ||
+////      flags.m_extendedShader == EExtendedShader::ThermalModelNoZTestNoZWrite) /* Thermal Model (same as UV Mode 0) */
+////  {
+////    CModelShaders::ThermalUniform& thermalOut = *reinterpret_cast<CModelShaders::ThermalUniform*>(dataCur);
+////    thermalOut.mulColor = flags.x4_color;
+////    thermalOut.addColor = flags.addColor;
+////  } else if (flags.m_extendedShader >= EExtendedShader::SolidColor &&
+////             flags.m_extendedShader <= EExtendedShader::SolidColorBackfaceCullGreaterAlphaOnly) /* Solid color render */
+////  {
+////    CModelShaders::SolidUniform& solidOut = *reinterpret_cast<CModelShaders::SolidUniform*>(dataCur);
+////    solidOut.solidColor = flags.x4_color;
+////  } else if (flags.m_extendedShader == EExtendedShader::MorphBallShadow) /* MorphBall shadow render */
+////  {
+////    CModelShaders::MBShadowUniform& shadowOut = *reinterpret_cast<CModelShaders::MBShadowUniform*>(dataCur);
+////    shadowOut.shadowUp = CGraphics::g_GXModelView.rotate(zeus::skUp);
+////    shadowOut.shadowUp.w() = flags.x4_color.a();
+////    shadowOut.shadowId = flags.x4_color.r();
+////  } else if (flags.m_extendedShader == EExtendedShader::Disintegrate) {
+////    CModelShaders::OneTextureUniform& oneTexOut = *reinterpret_cast<CModelShaders::OneTextureUniform*>(dataCur);
+////    oneTexOut.addColor = flags.addColor;
+////    oneTexOut.fog = CGraphics::g_Fog;
+////  } else {
+////    CModelShaders::LightingUniform& lightingOut = *reinterpret_cast<CModelShaders::LightingUniform*>(dataCur);
+////    lightingOut = m_lightingData;
+////    lightingOut.colorRegs = CGraphics::g_ColorRegs;
+////    lightingOut.mulColor = flags.x4_color;
+////    lightingOut.addColor = flags.addColor;
+////    lightingOut.fog = CGraphics::g_Fog;
+////  }
+////
+////  dataCur += sizeof(CModelShaders::LightingUniform);
+////  dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
+////
+////  /* Reflection texmtx uniform */
+////  zeus::CMatrix4f* identMtxs = reinterpret_cast<zeus::CMatrix4f*>(dataCur);
+////  identMtxs[0] = zeus::CMatrix4f();
+////  identMtxs[1] = zeus::CMatrix4f();
+////  u8* curReflect = dataCur + 256;
+////  for (const CBooSurface& surf : *x0_surfaces) {
+////    const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
+////    if (mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye()) {
+////      zeus::CMatrix4f* mtxs = reinterpret_cast<zeus::CMatrix4f*>(curReflect);
+////      float& alpha = reinterpret_cast<float&>(mtxs[2]);
+////      curReflect += 256;
+////      EnsureViewDepStateCached(*this, mat.flags.samusReflectionSurfaceEye() ? &surf : nullptr, mtxs, alpha);
+////    }
+////  }
+////
+////  inst->m_uniformBuffer->unmap();
+////  return inst->m_dynamicVbo;
+//}
 
 void CBooModel::DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose) {
   CModelFlags rFlags = flags;
@@ -1101,7 +1076,8 @@ void CBooModel::DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, cons
   }
 
   if (TryLockTextures()) {
-    UpdateUniformData(rFlags, cskr, pose);
+    // TODO?
+//    UpdateUniformData(rFlags, cskr, pose);
     DrawAlphaSurfaces(rFlags);
   }
 }
@@ -1114,7 +1090,8 @@ void CBooModel::DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, con
     rFlags.x4_color = zeus::skBlack;
   }
   if (TryLockTextures()) {
-    UpdateUniformData(rFlags, cskr, pose);
+    // TODO?
+//    UpdateUniformData(rFlags, cskr, pose);
     DrawNormalSurfaces(rFlags);
   }
 }
@@ -1128,7 +1105,8 @@ void CBooModel::Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPo
   }
 
   if (TryLockTextures()) {
-    UpdateUniformData(rFlags, cskr, pose);
+    // TODO?
+//    UpdateUniformData(rFlags, cskr, pose);
     DrawSurfaces(rFlags);
   }
 }
@@ -1145,37 +1123,37 @@ static const u8* MemoryFromPartData(const u8*& dataCur, const u32*& secSizeCur) 
   return ret;
 }
 
-std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts, bool lockParent) {
+std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, bool lockParent) {
   if (shaderIdx >= x18_matSets.size())
     shaderIdx = 0;
-  auto ret = std::make_unique<CBooModel>(m_selfToken, this, &x8_surfaces, x18_matSets[shaderIdx], m_staticVbo, m_ibo,
-                                         m_aabb, (m_flags & 0x2) != 0, subInsts);
+  auto ret = std::make_unique<CBooModel>(m_selfToken, this, &x8_surfaces, x18_matSets[shaderIdx], //m_staticVbo, m_ibo,
+                                         m_aabb, (m_flags & 0x2) != 0);
   if (lockParent)
     ret->LockParent();
   return ret;
 }
 
-CModelShaders::ShaderPipelines SShader::BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat) {
-  OPTICK_EVENT();
-  hecl::Backend::ReflectionType reflectionType;
-  if (mat.flags.samusReflectionIndirectTexture())
-    reflectionType = hecl::Backend::ReflectionType::Indirect;
-  else if (mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye())
-    reflectionType = hecl::Backend::ReflectionType::Simple;
-  else
-    reflectionType = hecl::Backend::ReflectionType::None;
-  hecl::Backend::ShaderTag tag(mat.hash, meta.colorCount, meta.uvCount, meta.weightCount, meta.weightCount * 4,
-                               boo::Primitive(meta.topology), reflectionType, true, true, true, mat.flags.alphaTest());
-  return CModelShaders::BuildExtendedShader(tag, mat);
-}
-
-void SShader::BuildShaders(const hecl::HMDLMeta& meta,
-                           std::unordered_map<int, CModelShaders::ShaderPipelines>& shaders) {
-  shaders.reserve(m_matSet.materials.size());
-  int idx = 0;
-  for (const MaterialSet::Material& mat : m_matSet.materials)
-    shaders[idx++] = BuildShader(meta, mat);
-}
+//CModelShaders::ShaderPipelines SShader::BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat) {
+//  OPTICK_EVENT();
+//  hecl::Backend::ReflectionType reflectionType;
+//  if (mat.flags.samusReflectionIndirectTexture())
+//    reflectionType = hecl::Backend::ReflectionType::Indirect;
+//  else if (mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye())
+//    reflectionType = hecl::Backend::ReflectionType::Simple;
+//  else
+//    reflectionType = hecl::Backend::ReflectionType::None;
+//  hecl::Backend::ShaderTag tag(mat.hash, meta.colorCount, meta.uvCount, meta.weightCount, meta.weightCount * 4,
+//                               boo::Primitive(meta.topology), reflectionType, true, true, true, mat.flags.alphaTest());
+//  return CModelShaders::BuildExtendedShader(tag, mat);
+//}
+//
+//void SShader::BuildShaders(const hecl::HMDLMeta& meta,
+//                           std::unordered_map<int, CModelShaders::ShaderPipelines>& shaders) {
+//  shaders.reserve(m_matSet.materials.size());
+//  int idx = 0;
+//  for (const MaterialSet::Material& mat : m_matSet.materials)
+//    shaders[idx++] = BuildShader(meta, mat);
+//}
 
 CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* store, CObjectReference* selfRef)
 : m_selfToken(selfRef) {
@@ -1184,8 +1162,10 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
 
   u32 version = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x4));
   m_flags = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x8));
-  if (version != 0x10002)
-    Log.report(logvisor::Fatal, FMT_STRING("invalid CMDL for loading with boo"));
+  if (version != 0x10002) {
+    Log.report(logvisor::Error, FMT_STRING("invalid CMDL for loading with boo"));
+    return;
+  }
 
   u32 secCount = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x24));
   u32 matSetCount = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x28));
@@ -1212,31 +1192,31 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
   const u8* iboData = MemoryFromPartData(dataCur, secSizeCur);
   const u8* surfInfo = MemoryFromPartData(dataCur, secSizeCur);
 
-  for (SShader& matSet : x18_matSets) {
-    matSet.InitializeLayout(this);
-    matSet.BuildShaders(m_hmdlMeta);
-  }
+//  for (SShader& matSet : x18_matSets) {
+//    matSet.InitializeLayout(this);
+//    matSet.BuildShaders(m_hmdlMeta);
+//  }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    /* Index buffer is always static */
-    if (m_hmdlMeta.indexCount)
-      m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, m_hmdlMeta.indexCount);
-
-    if (!m_hmdlMeta.bankCount) {
-      /* Non-skinned models use static vertex buffers shared with CBooModel instances */
-      if (m_hmdlMeta.vertCount)
-        m_staticVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData, m_hmdlMeta.vertStride, m_hmdlMeta.vertCount);
-    } else {
-      /* Skinned models use per-instance dynamic buffers for vertex manipulation effects */
-      size_t vboSz = m_hmdlMeta.vertStride * m_hmdlMeta.vertCount;
-      if (vboSz) {
-        m_dynamicVertexData.reset(new uint8_t[vboSz]);
-        memmove(m_dynamicVertexData.get(), vboData, vboSz);
-      }
-    }
-
-    return true;
-  } BooTrace);
+//  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+//    /* Index buffer is always static */
+//    if (m_hmdlMeta.indexCount)
+//      m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, m_hmdlMeta.indexCount);
+//
+//    if (!m_hmdlMeta.bankCount) {
+//      /* Non-skinned models use static vertex buffers shared with CBooModel instances */
+//      if (m_hmdlMeta.vertCount)
+//        m_staticVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData, m_hmdlMeta.vertStride, m_hmdlMeta.vertCount);
+//    } else {
+//      /* Skinned models use per-instance dynamic buffers for vertex manipulation effects */
+//      size_t vboSz = m_hmdlMeta.vertStride * m_hmdlMeta.vertCount;
+//      if (vboSz) {
+//        m_dynamicVertexData.reset(new uint8_t[vboSz]);
+//        memmove(m_dynamicVertexData.get(), vboData, vboSz);
+//      }
+//    }
+//
+//    return true;
+//  } BooTrace);
 
   const u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(surfInfo));
   x8_surfaces.reserve(surfCount);
@@ -1252,7 +1232,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
   const float* aabbPtr = reinterpret_cast<const float*>(data.get() + 0xc);
   m_aabb = zeus::CAABox(hecl::SBig(aabbPtr[0]), hecl::SBig(aabbPtr[1]), hecl::SBig(aabbPtr[2]), hecl::SBig(aabbPtr[3]),
                         hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
-  x28_modelInst = MakeNewInstance(0, 1, false);
+  x28_modelInst = MakeNewInstance(0, false);
 }
 
 void SShader::UnlockTextures() {
@@ -1304,49 +1284,49 @@ zeus::CVector3f CModel::GetPoolNormal(size_t idx) const {
   return {floats};
 }
 
-void CModel::ApplyVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf,
-                              const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const {
-  u8* data = reinterpret_cast<u8*>(vertBuf->map(m_hmdlMeta.vertStride * m_hmdlMeta.vertCount));
-  for (u32 i = 0; i < std::min(u32(vn.size()), m_hmdlMeta.vertCount); ++i) {
-    const std::pair<zeus::CVector3f, zeus::CVector3f>& avn = vn[i];
-    float* floats = reinterpret_cast<float*>(data + GetPoolVertexOffset(i));
-    floats[0] = avn.first.x();
-    floats[1] = avn.first.y();
-    floats[2] = avn.first.z();
-    floats[3] = avn.second.x();
-    floats[4] = avn.second.y();
-    floats[5] = avn.second.z();
-  }
-  vertBuf->unmap();
-}
-
-void CModel::RestoreVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf) const {
-  size_t size = m_hmdlMeta.vertStride * m_hmdlMeta.vertCount;
-  u8* data = reinterpret_cast<u8*>(vertBuf->map(size));
-  memcpy(data, m_dynamicVertexData.get(), size);
-  vertBuf->unmap();
-}
+//void CModel::ApplyVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf,
+//                              const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const {
+//  u8* data = reinterpret_cast<u8*>(vertBuf->map(m_hmdlMeta.vertStride * m_hmdlMeta.vertCount));
+//  for (u32 i = 0; i < std::min(u32(vn.size()), m_hmdlMeta.vertCount); ++i) {
+//    const std::pair<zeus::CVector3f, zeus::CVector3f>& avn = vn[i];
+//    float* floats = reinterpret_cast<float*>(data + GetPoolVertexOffset(i));
+//    floats[0] = avn.first.x();
+//    floats[1] = avn.first.y();
+//    floats[2] = avn.first.z();
+//    floats[3] = avn.second.x();
+//    floats[4] = avn.second.y();
+//    floats[5] = avn.second.z();
+//  }
+//  vertBuf->unmap();
+//}
+//
+//void CModel::RestoreVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf) const {
+//  size_t size = m_hmdlMeta.vertStride * m_hmdlMeta.vertCount;
+//  u8* data = reinterpret_cast<u8*>(vertBuf->map(size));
+//  memcpy(data, m_dynamicVertexData.get(), size);
+//  vertBuf->unmap();
+//}
 
 void CModel::_WarmupShaders() {
-  CBooModel::SetDummyTextures(true);
-  CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp.get(), zeus::CTransform());
-  CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
-  zeus::CTransform backupViewPoint = CGraphics::g_ViewMatrix;
-  zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
-  CGraphics::SetModelMatrix(zeus::CTransform::Translate(-m_aabb.center()));
-  CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -2048.f, 0.f));
-  CGraphics::SetOrtho(-2048.f, 2048.f, 2048.f, -2048.f, 0.f, 4096.f);
-  CModelFlags defaultFlags;
-  for (SShader& shader : x18_matSets) {
-    GetInstance().RemapMaterialData(shader);
-    GetInstance().UpdateUniformData(defaultFlags, nullptr, nullptr);
-    GetInstance().WarmupDrawSurfaces();
-  }
-  CGraphics::SetProjectionState(backupProj);
-  CGraphics::SetViewPointMatrix(backupViewPoint);
-  CGraphics::SetModelMatrix(backupModel);
-  CBooModel::DisableShadowMaps();
-  CBooModel::SetDummyTextures(false);
+//  CBooModel::SetDummyTextures(true);
+//  CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp.get(), zeus::CTransform());
+//  CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
+//  zeus::CTransform backupViewPoint = CGraphics::g_ViewMatrix;
+//  zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
+//  CGraphics::SetModelMatrix(zeus::CTransform::Translate(-m_aabb.center()));
+//  CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -2048.f, 0.f));
+//  CGraphics::SetOrtho(-2048.f, 2048.f, 2048.f, -2048.f, 0.f, 4096.f);
+//  CModelFlags defaultFlags;
+//  for (SShader& shader : x18_matSets) {
+//    GetInstance().RemapMaterialData(shader);
+//    GetInstance().UpdateUniformData(defaultFlags, nullptr, nullptr);
+//    GetInstance().WarmupDrawSurfaces();
+//  }
+//  CGraphics::SetProjectionState(backupProj);
+//  CGraphics::SetViewPointMatrix(backupViewPoint);
+//  CGraphics::SetModelMatrix(backupModel);
+//  CBooModel::DisableShadowMaps();
+//  CBooModel::SetDummyTextures(false);
 }
 
 void CModel::WarmupShaders(const SObjectTag& cmdlTag) {

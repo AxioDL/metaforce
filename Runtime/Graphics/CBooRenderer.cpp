@@ -410,8 +410,7 @@ void CBooRenderer::DrawFogSlices(const zeus::CPlane* planes, size_t numPlanes, s
 }
 
 void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model, const zeus::CTransform& modelMtx,
-                                        const zeus::CTransform& viewMtx, const CSkinnedModel* sModel, int pass,
-                                        CFogVolumePlaneShader* fvs) {
+                                        const zeus::CTransform& viewMtx, const CSkinnedModel* sModel, int pass) {
   if (!model && !sModel) {
     if (pass == 0) {
       zeus::CAABox xfAABB = aabb.getTransformedAABox(modelMtx);
@@ -432,13 +431,14 @@ void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* 
                                          xfAABB.max.z() - xfAABB.min.z()) *
                                 2.f;
 
-      fvs->reset(7 * 6);
+      CFogVolumePlaneShader fvs;
+      fvs.reset(7 * 6);
       for (size_t i = 0; i < planes.size(); ++i) {
-        DrawFogSlices(planes.data(), planes.size(), i, xfAABB.center(), longestAxis, *fvs);
+        DrawFogSlices(planes.data(), planes.size(), i, xfAABB.center(), longestAxis, fvs);
       }
-      fvs->draw(0);
+      aurora::shaders::queue_fog_volume_plane(fvs.m_verts, 0);
     } else {
-      fvs->draw(pass);
+      aurora::shaders::queue_fog_volume_plane({}, pass);
     }
   } else {
     CModelFlags flags;
@@ -547,140 +547,132 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
   zeus::CAABox marginAABB((CGraphics::g_GXModelView * aabb.min) - 1.f, (CGraphics::g_GXModelView * aabb.max) + 1.f);
   bool camInModel = marginAABB.pointInside(CGraphics::g_ViewMatrix.origin) && (model || sModel);
 
-  CFogVolumePlaneShader* fvs;
-  if (!model && !sModel) {
-    fvs = &*((m_nextFogVolumePlaneShader == m_fogVolumePlaneShaders.end())
-                 ? m_fogVolumePlaneShaders.insert(m_fogVolumePlaneShaders.end(), CFogVolumePlaneShader())
-                 : m_nextFogVolumePlaneShader++);
-  } else {
-    fvs = nullptr;
-  }
+//  CFogVolumePlaneShader* fvs;
+//  if (!model && !sModel) {
+//    fvs = &*((m_nextFogVolumePlaneShader == m_fogVolumePlaneShaders.end())
+//                 ? m_fogVolumePlaneShaders.insert(m_fogVolumePlaneShaders.end(), CFogVolumePlaneShader())
+//                 : m_nextFogVolumePlaneShader++);
+//  } else {
+//    fvs = nullptr;
+//  }
 
-  RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 0, fvs);
+  RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 0);
   if (camInModel)
-    RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 1, fvs);
+    RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 1);
 
   CGraphics::ResolveSpareDepth(rect, 0);
 
-  RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 2, fvs);
+  RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 2);
   if (camInModel)
-    RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 3, fvs);
+    RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 3);
 
   CGraphics::ResolveSpareDepth(rect, 1);
 
-  auto fvf = (m_nextFogVolumeFilter == m_fogVolumeFilters.end())
-                 ? m_fogVolumeFilters.insert(m_fogVolumeFilters.end(), CFogVolumeFilter())
-                 : m_nextFogVolumeFilter++;
-  fvf->draw2WayPass(color);
+  aurora::shaders::queue_fog_volume_filter(color, true);
   if (camInModel)
-    fvf->draw1WayPass(color);
+    aurora::shaders::queue_fog_volume_filter(color, false);
 
   // CGraphics::SetScissor(g_Viewport.x0_left, g_Viewport.x4_top, g_Viewport.x8_width, g_Viewport.xc_height);
 }
 
-void CBooRenderer::GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx) {
-  std::array<std::array<u16, FOGVOL_RAMP_RES>, FOGVOL_RAMP_RES> data{};
-  for (size_t y = 0; y < data.size(); ++y) {
-    for (size_t x = 0; x < data[y].size(); ++x) {
-      const int tmp = int(y << 16 | x << 8 | 0x7f);
-      const double a =
-          zeus::clamp(0.0,
-                      (-150.0 / (tmp / double(0xffffff) * (FOGVOL_FAR - FOGVOL_NEAR) - FOGVOL_FAR) - FOGVOL_NEAR) *
-                          3.0 / (FOGVOL_FAR - FOGVOL_NEAR),
-                      1.0);
-      data[y][x] = u16((a * a + a) / 2.0 * 65535);
-    }
-  }
-  x1b8_fogVolumeRamp =
-      ctx.newStaticTexture(FOGVOL_RAMP_RES, FOGVOL_RAMP_RES, 1, boo::TextureFormat::I16, boo::TextureClampMode::Repeat,
-                           data[0].data(), FOGVOL_RAMP_RES * FOGVOL_RAMP_RES * 2);
-}
+//void CBooRenderer::GenerateFogVolumeRampTex() {
+//  std::array<std::array<float, FOGVOL_RAMP_RES>, FOGVOL_RAMP_RES> data{};
+//  for (size_t y = 0; y < data.size(); ++y) {
+//    for (size_t x = 0; x < data[y].size(); ++x) {
+//      const int tmp = int(y << 16 | x << 8 | 0x7f);
+//      const double a =
+//          zeus::clamp(0.0,
+//                      (-150.0 / (tmp / double(0xffffff) * (FOGVOL_FAR - FOGVOL_NEAR) - FOGVOL_FAR) - FOGVOL_NEAR) *
+//                          3.0 / (FOGVOL_FAR - FOGVOL_NEAR),
+//                      1.0);
+//      data[y][x] = (a * a + a) / 2.0;
+//    }
+//  }
+//  x1b8_fogVolumeRamp =
+//      aurora::new_static_texture_2d(FOGVOL_RAMP_RES, FOGVOL_RAMP_RES, 1, aurora::shaders::TextureFormat::R32Float,
+//                                    {data[0].data(), FOGVOL_RAMP_RES * FOGVOL_RAMP_RES * 2});
+//}
+//
+//void CBooRenderer::GenerateSphereRampTex() {
+//  std::array<std::array<u8, SPHERE_RAMP_RES>, SPHERE_RAMP_RES> data{};
+//  constexpr float halfRes = SPHERE_RAMP_RES / 2.f;
+//  for (size_t y = 0; y < data.size(); ++y) {
+//    for (size_t x = 0; x < data[y].size(); ++x) {
+//      const zeus::CVector2f vec((float(x) - halfRes) / halfRes, (float(y) - halfRes) / halfRes);
+//      data[y][x] = 255 - zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
+//    }
+//  }
+//  x220_sphereRamp =
+//      aurora::new_static_texture_2d(SPHERE_RAMP_RES, SPHERE_RAMP_RES, 1, aurora::shaders::TextureFormat::R8,
+//                                    {data[0].data(), SPHERE_RAMP_RES * SPHERE_RAMP_RES});
+//}
+//
+//void CBooRenderer::GenerateScanLinesVBO() {
+//  std::vector<zeus::CVector3f> verts;
+//  verts.reserve(670);
+//
+//  for (int i = 0; i < 112; ++i) {
+//    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
+//    if (i != 0) {
+//      verts.emplace_back(verts.back());
+//    }
+//    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f);
+//    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
+//    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f);
+//    if (i != 111) {
+//      verts.emplace_back(verts.back());
+//    }
+//  }
+//
+//  m_scanLinesEvenVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(zeus::CVector3f), verts.size());
+//
+//  verts.clear();
+//
+//  for (int i = 0; i < 112; ++i) {
+//    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f);
+//    if (i != 0) {
+//      verts.emplace_back(verts.back());
+//    }
+//    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
+//    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f);
+//    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
+//    if (i != 111) {
+//      verts.emplace_back(verts.back());
+//    }
+//  }
+//
+//  m_scanLinesOddVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(zeus::CVector3f), verts.size());
+//}
 
-void CBooRenderer::GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx) {
-  std::array<std::array<u8, SPHERE_RAMP_RES>, SPHERE_RAMP_RES> data{};
-  constexpr float halfRes = SPHERE_RAMP_RES / 2.f;
-  for (size_t y = 0; y < data.size(); ++y) {
-    for (size_t x = 0; x < data[y].size(); ++x) {
-      const zeus::CVector2f vec((float(x) - halfRes) / halfRes, (float(y) - halfRes) / halfRes);
-      data[y][x] = 255 - zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
-    }
-  }
-  x220_sphereRamp =
-      ctx.newStaticTexture(SPHERE_RAMP_RES, SPHERE_RAMP_RES, 1, boo::TextureFormat::I8,
-                           boo::TextureClampMode::ClampToEdge, data[0].data(), SPHERE_RAMP_RES * SPHERE_RAMP_RES);
-}
-
-void CBooRenderer::GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx) {
-  std::vector<zeus::CVector3f> verts;
-  verts.reserve(670);
-
-  for (int i = 0; i < 112; ++i) {
-    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
-    if (i != 0) {
-      verts.emplace_back(verts.back());
-    }
-    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f);
-    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
-    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f);
-    if (i != 111) {
-      verts.emplace_back(verts.back());
-    }
-  }
-
-  m_scanLinesEvenVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(zeus::CVector3f), verts.size());
-
-  verts.clear();
-
-  for (int i = 0; i < 112; ++i) {
-    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f);
-    if (i != 0) {
-      verts.emplace_back(verts.back());
-    }
-    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
-    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f);
-    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
-    if (i != 111) {
-      verts.emplace_back(verts.back());
-    }
-  }
-
-  m_scanLinesOddVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(zeus::CVector3f), verts.size());
-}
-
-boo::ObjToken<boo::ITexture> CBooRenderer::GetColorTexture(const zeus::CColor& color) {
+std::shared_ptr<aurora::TextureHandle> CBooRenderer::GetColorTexture(const zeus::CColor& color) {
   const auto search = m_colorTextures.find(color);
   if (search != m_colorTextures.end()) {
     return search->second;
   }
 
-  std::array<u8, 4> pixel;
+  std::array<u8, 4> pixel{};
   color.toRGBA8(pixel[0], pixel[1], pixel[2], pixel[3]);
-  boo::ObjToken<boo::ITexture> tex;
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    tex = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, pixel.data(),
-                               pixel.size())
-              .get();
-    return true;
-  } BooTrace);
+  auto tex = aurora::new_static_texture_2d(1, 1, 1, aurora::shaders::TextureFormat::RGBA8, {pixel.data(), pixel.size()},
+                                           "Color Texture"sv);
   m_colorTextures.emplace(color, tex);
   return tex;
 }
 
-void CBooRenderer::LoadThermoPalette() {
-  m_thermoPaletteTex = xc_store.GetObj("TXTR_ThermoPalette");
-  CTexture* thermoTexObj = m_thermoPaletteTex.GetObj();
-  if (thermoTexObj)
-    x288_thermoPalette = thermoTexObj->GetPaletteTexture();
-}
-
-void CBooRenderer::LoadBallFade() {
-  m_ballFadeTex = xc_store.GetObj("TXTR_BallFade");
-  CTexture* ballFadeTexObj = m_ballFadeTex.GetObj();
-  if (ballFadeTexObj) {
-    m_ballFade = ballFadeTexObj->GetBooTexture();
-    m_ballFade->setClampMode(boo::TextureClampMode::ClampToEdge);
-  }
-}
+//void CBooRenderer::LoadThermoPalette() {
+//  m_thermoPaletteTex = xc_store.GetObj("TXTR_ThermoPalette");
+//  CTexture* thermoTexObj = m_thermoPaletteTex.GetObj();
+//  if (thermoTexObj)
+//    x288_thermoPalette = thermoTexObj->GetPaletteTexture();
+//}
+//
+//void CBooRenderer::LoadBallFade() {
+//  m_ballFadeTex = xc_store.GetObj("TXTR_BallFade");
+//  CTexture* ballFadeTexObj = m_ballFadeTex.GetObj();
+//  if (ballFadeTexObj) {
+//    m_ballFade = ballFadeTexObj->GetBooTexture();
+//    m_ballFade->setClampMode(boo::TextureClampMode::ClampToEdge);
+//  }
+//}
 
 CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
 : x8_factory(resFac), xc_store(store), x2a8_thermalRand(20) {
@@ -688,36 +680,32 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
 
   m_staticEntropy = store.GetObj("RandomStaticEntropy");
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    constexpr std::array<u8, 4> clearPixel{0, 0, 0, 0};
-    m_clearTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                          clearPixel.data(), clearPixel.size())
-                         .get();
-    constexpr std::array<u8, 4> blackPixel{0, 0, 0, 255};
-    m_blackTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                          blackPixel.data(), blackPixel.size())
-                         .get();
-    constexpr std::array<u8, 4> whitePixel{255, 255, 255, 255};
-    m_whiteTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                          whitePixel.data(), whitePixel.size())
-                         .get();
+  constexpr std::array<u8, 4> clearPixel{0, 0, 0, 0};
+  m_clearTexture = aurora::new_static_texture_2d(1, 1, 1, aurora::shaders::TextureFormat::RGBA8,
+                                                 {clearPixel.data(), clearPixel.size()}, "Clear Texture"sv);
+  constexpr std::array<u8, 4> blackPixel{0, 0, 0, 255};
+  m_blackTexture = aurora::new_static_texture_2d(1, 1, 1, aurora::shaders::TextureFormat::RGBA8,
+                                                 {blackPixel.data(), blackPixel.size()}, "Black Texture"sv);
+  constexpr std::array<u8, 4> whitePixel{255, 255, 255, 255};
+  m_whiteTexture = aurora::new_static_texture_2d(1, 1, 1, aurora::shaders::TextureFormat::RGBA8,
+                                                 {whitePixel.data(), whitePixel.size()}, "White Texture"sv);
 
-    GenerateFogVolumeRampTex(ctx);
-    GenerateSphereRampTex(ctx);
-    m_ballShadowId = ctx.newRenderTexture(m_ballShadowIdW, m_ballShadowIdH, boo::TextureClampMode::Repeat, 1, 0);
-    x14c_reflectionTex = ctx.newRenderTexture(256, 256, boo::TextureClampMode::ClampToBlack, 1, 0);
-    GenerateScanLinesVBO(ctx);
-    return true;
-  } BooTrace);
-  LoadThermoPalette();
-  LoadBallFade();
+//  GenerateFogVolumeRampTex();
+//  GenerateSphereRampTex();
+  m_ballShadowId = aurora::new_render_texture(m_ballShadowIdW, m_ballShadowIdH, 1, 0, "Ball Shadow");
+//  m_ballShadowId = ctx.newRenderTexture(m_ballShadowIdW, m_ballShadowIdH, boo::TextureClampMode::Repeat, 1, 0);
+  x14c_reflectionTex = aurora::new_render_texture(256, 256, 1, 0, "Reflection");
+//  x14c_reflectionTex = ctx.newRenderTexture(256, 256, boo::TextureClampMode::ClampToBlack, 1, 0);
+//  GenerateScanLinesVBO();
+//  LoadThermoPalette();
+//  LoadBallFade();
   m_thermColdFilter.emplace();
   m_thermHotFilter.emplace();
 
   Buckets::Init();
 
-  m_nextFogVolumePlaneShader = m_fogVolumePlaneShaders.end();
-  m_nextFogVolumeFilter = m_fogVolumeFilters.end();
+//  m_nextFogVolumePlaneShader = m_fogVolumePlaneShaders.end();
+//  m_nextFogVolumeFilter = m_fogVolumeFilters.end();
 }
 
 CBooRenderer::~CBooRenderer() { g_Renderer = nullptr; }
@@ -792,23 +780,20 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode, 
     if (areaIdx != -1 && item.x18_areaIdx != areaIdx)
       continue;
 
-    item.m_shaderSet->m_geomLayout->Update(flags, nullptr, nullptr, &item.m_shaderSet->m_matSet,
-                                           item.m_shaderSet->m_geomLayout->GetSharedBuffer(bufIdx), nullptr);
+//    item.m_shaderSet->m_geomLayout->Update(flags, nullptr, nullptr, &item.m_shaderSet->m_matSet,
+//                                           item.m_shaderSet->m_geomLayout->GetSharedBuffer(bufIdx), nullptr);
 
     if (shadowMode == EWorldShadowMode::BallOnWorldShadow || shadowMode == EWorldShadowMode::BallOnWorldIds)
       continue;
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-      for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it) {
-        CBooModel* model = *it;
-        if (model->TryLockTextures()) {
-          if (activateLights)
-            ActivateLightsForModel(&item, *model);
-          model->UpdateUniformData(flags, nullptr, nullptr, bufIdx, &ctx);
-        }
+    for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it) {
+      CBooModel* model = *it;
+      if (model->TryLockTextures()) {
+        if (activateLights)
+          ActivateLightsForModel(&item, *model);
+//        model->UpdateUniformData(flags, nullptr, nullptr, bufIdx);
       }
-      return true;
-    } BooTrace);
+    }
   }
 }
 
@@ -1084,8 +1069,8 @@ void CBooRenderer::BeginScene() {
     x318_26_requestRGBA6 = false;
   // GXSetPixelFmt(x318_27_currentRGBA6);
   CGraphics::BeginScene();
-  m_nextFogVolumePlaneShader = m_fogVolumePlaneShaders.begin();
-  m_nextFogVolumeFilter = m_fogVolumeFilters.begin();
+//  m_nextFogVolumePlaneShader = m_fogVolumePlaneShaders.begin();
+//  m_nextFogVolumeFilter = m_fogVolumeFilters.begin();
 }
 
 void CBooRenderer::EndScene() {
@@ -1111,15 +1096,16 @@ void CBooRenderer::CacheReflection(TReflectionCallback cb, void* ctx, bool clear
   x318_24_refectionDirty = false;
   x2dc_reflectionAge = 0;
 
-  BindReflectionDrawTarget();
-  SViewport backupVp = g_Viewport;
-  SetViewport(0, 0, 256, 256);
-  CGraphics::g_BooMainCommandQueue->clearTarget();
-  cb(ctx, CBooModel::g_ReflectViewPos);
-  boo::SWindowRect rect(0, 0, 256, 256);
-  CGraphics::g_BooMainCommandQueue->resolveBindTexture(x14c_reflectionTex, rect, false, 0, true, false);
-  BindMainDrawTarget();
-  SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
+  // TODO
+  //  BindReflectionDrawTarget();
+  //  SViewport backupVp = g_Viewport;
+  //  SetViewport(0, 0, 256, 256);
+  //  CGraphics::g_BooMainCommandQueue->clearTarget();
+  //  cb(ctx, CBooModel::g_ReflectViewPos);
+  //  boo::SWindowRect rect(0, 0, 256, 256);
+  //  CGraphics::g_BooMainCommandQueue->resolveBindTexture(x14c_reflectionTex, rect, false, 0, true, false);
+  //  BindMainDrawTarget();
+  //  SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
 }
 
 void CBooRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength) {
@@ -1152,7 +1138,7 @@ void CBooRenderer::DrawXRayOutline(const zeus::CAABox& aabb) {
         for (u32 b = 0; b < 32; ++b) {
           if ((bitmap[c] & (1U << b)) != 0) {
             CBooModel* model = item.x10_models[c * 32 + b];
-            model->UpdateUniformData(flags, nullptr, nullptr);
+//            model->UpdateUniformData(flags, nullptr, nullptr);
             const CBooSurface* surf = model->x38_firstUnsortedSurface;
             while (surf) {
               if (surf->GetBounds().intersects(aabb))
@@ -1362,7 +1348,7 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
 
           flags.x4_color.a() = static_cast<float>(alphaVal) / 255.f;
           CBooModel& model = *item.x10_models[wordModel + j];
-          model.UpdateUniformData(flags, nullptr, nullptr, 3);
+//          model.UpdateUniformData(flags, nullptr, nullptr, 3);
           model.VerifyCurrentShader(0);
           for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next) {
             if (surf->GetBounds().intersects(aabb)) {
@@ -1409,7 +1395,7 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
 
           flags.x4_color.r() = static_cast<float>(alphaVal) / 255.f;
           CBooModel& model = *item.x10_models[wordModel + j];
-          model.UpdateUniformData(flags, nullptr, nullptr, 2);
+//          model.UpdateUniformData(flags, nullptr, nullptr, 2);
           model.VerifyCurrentShader(0);
           for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)
             if (surf->GetBounds().intersects(aabb))

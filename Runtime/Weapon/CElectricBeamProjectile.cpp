@@ -20,8 +20,8 @@ CElectricBeamProjectile::CElectricBeamProjectile(const TToken<CWeaponDescription
 , x468_electric(std::make_unique<CParticleElectric>(elec.x0_electricDescription))
 , x46c_genDescription(g_SimplePool->GetObj({SBIG('PART'), elec.x14_particleId}))
 , x478_elementGen(std::make_unique<CElementGen>(x46c_genDescription))
-, x47c_(elec.x18_)
-, x488_(elec.x1c_) {
+, x47c_fadeSpeed(elec.x18_fadeSpeed)
+, x488_damageInterval(elec.x1c_damageInterval) {
   x478_elementGen->SetParticleEmission(false);
   x468_electric->SetParticleEmission(false);
 }
@@ -50,28 +50,28 @@ void CElectricBeamProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CSt
   if (!GetActive())
     return;
 
-  if (x484_ <= 0.f)
+  if (x484_damageTimer <= 0.f)
     CauseDamage(true);
 
   if (GetDamageType() == EDamageType::Actor) {
-    x484_ = x488_;
+    x484_damageTimer = x488_damageInterval;
     CauseDamage(false);
   }
 
-  x484_ -= dt;
-  if (zeus::close_enough(x47c_, 0.f)) {
-    x480_ = 1.f;
+  x484_damageTimer -= dt;
+  if (zeus::close_enough(x47c_fadeSpeed, 0.f)) {
+    x480_intensity = 1.f;
   } else {
     float fVar1 = x48c_ ? 1.f : -1.f;
-    x480_ = std::min(1.f, dt * (fVar1 / x47c_) + x480_);
-    if (x480_ < 0.f) {
+    x480_intensity = std::min(1.f, dt * (fVar1 / x47c_fadeSpeed) + x480_intensity);
+    if (x480_intensity < 0.f) {
       ResetBeam(mgr, true);
     }
   }
 
   CBeamProjectile::UpdateFx(xf, dt, mgr);
 
-  x478_elementGen->SetModulationColor(zeus::CColor::lerp(zeus::skBlack, zeus::skWhite, x480_));
+  x478_elementGen->SetModulationColor(zeus::CColor::lerp(zeus::skBlack, zeus::skWhite, x480_intensity));
   bool hasDamage = GetDamageType() != EDamageType::None;
   if (hasDamage) {
     x478_elementGen->SetGlobalOrientation(zeus::lookAt(zeus::skZero3f, GetSurfaceNormal(), zeus::skUp));
@@ -80,7 +80,7 @@ void CElectricBeamProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CSt
   x478_elementGen->SetParticleEmission(hasDamage);
   x478_elementGen->Update(dt);
 
-  x468_electric->SetModulationColor(zeus::CColor::lerp(zeus::skBlack, zeus::skWhite, x480_));
+  x468_electric->SetModulationColor(zeus::CColor::lerp(zeus::skBlack, zeus::skWhite, x480_intensity));
   x468_electric->SetParticleEmission(true);
   zeus::CVector3f dist = GetCurrentPos() - GetBeamTransform().origin;
   if (dist.canBeNormalized()) {
@@ -107,6 +107,6 @@ void CElectricBeamProjectile::ResetBeam(CStateManager& mgr, bool b) {
 void CElectricBeamProjectile::Fire(const zeus::CTransform&, CStateManager&, bool) {
   x48c_ = true;
   SetActive(true);
-  x480_ = 0.f;
+  x480_intensity = 0.f;
 }
 } // namespace metaforce

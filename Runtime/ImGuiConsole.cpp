@@ -614,7 +614,7 @@ void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) 
   if (ImGui::Begin("About", open, flags)) {
     float iconSize = 128.f * ImGui::GetIO().DisplayFramebufferScale.x;
     ImGui::SameLine(ImGui::GetWindowSize().x / 2 - iconSize + (iconSize / 2));
-    ImGui::Image(ImGuiUserTextureID_MetaforceIcon, ImVec2{iconSize, iconSize});
+    ImGui::Image(ImGuiEngine::metaforceIcon, ImVec2{iconSize, iconSize});
     ImGui::PushFont(ImGuiEngine::fontLarge);
     ImGuiTextCenter("Metaforce");
     ImGui::PopFont();
@@ -1122,7 +1122,6 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
   }
 }
 
-s32 TranslateBooSpecialKey(boo::ESpecialKey key) { return 256 + static_cast<int>(key); }
 void ImGuiConsole::PreUpdate() {
   OPTICK_EVENT();
   if (!m_isInitialized) {
@@ -1148,18 +1147,18 @@ void ImGuiConsole::PreUpdate() {
     g_StateManager->SetActiveRandomToDefault();
   }
 
-  if (ImGui::IsKeyReleased('`')) {
+  if (ImGui::IsKeyReleased(int(KeyCode::Grave))) {
     m_isVisible ^= 1;
   }
   if (m_stepFrame) {
     g_Main->SetPaused(true);
     m_stepFrame = false;
   }
-  if (m_paused && !m_stepFrame && ImGui::IsKeyPressed(TranslateBooSpecialKey(boo::ESpecialKey::F6))) {
+  if (m_paused && !m_stepFrame && ImGui::IsKeyPressed(int(KeyCode::F6))) {
     g_Main->SetPaused(false);
     m_stepFrame = true;
   }
-  if (ImGui::IsKeyReleased(TranslateBooSpecialKey(boo::ESpecialKey::F5))) {
+  if (ImGui::IsKeyReleased(int(KeyCode::F5))) {
     m_paused ^= 1;
     g_Main->SetPaused(m_paused);
   }

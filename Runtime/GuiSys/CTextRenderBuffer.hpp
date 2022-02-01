@@ -9,10 +9,10 @@
 #include "Runtime/GuiSys/CFontImageDef.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
-#include <hecl/UniformBufferPool.hpp>
-#include <hecl/VertexBufferPool.hpp>
+//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+//
+//#include <hecl/UniformBufferPool.hpp>
+//#include <hecl/VertexBufferPool.hpp>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
@@ -62,8 +62,8 @@ private:
 
 #else
   /* Boo-specific text-rendering functionality */
-  hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf;
-  hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf2;
+//  hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf;
+//  hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf2;
 
   struct BooFontCharacters;
   std::vector<BooFontCharacters> m_fontCharacters;

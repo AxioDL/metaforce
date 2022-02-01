@@ -101,31 +101,31 @@ class CBooRenderer final : public IRenderer {
   // boo::ITextureS* xe4_blackTex = nullptr;
   bool xee_24_ : 1 = true;
 
-  boo::ObjToken<boo::ITexture> m_clearTexture;
-  boo::ObjToken<boo::ITexture> m_blackTexture;
-  boo::ObjToken<boo::ITexture> m_whiteTexture;
-  std::unordered_map<zeus::CColor, boo::ObjToken<boo::ITexture>> m_colorTextures;
+  std::shared_ptr<aurora::TextureHandle> m_clearTexture;
+  std::shared_ptr<aurora::TextureHandle> m_blackTexture;
+  std::shared_ptr<aurora::TextureHandle> m_whiteTexture;
+  std::unordered_map<zeus::CColor, std::shared_ptr<aurora::TextureHandle>> m_colorTextures;
 
-  boo::ObjToken<boo::ITextureR> x14c_reflectionTex;
+  std::shared_ptr<aurora::TextureHandle> x14c_reflectionTex;
   // boo::ITextureS* x150_mirrorRamp = nullptr;
-  boo::ObjToken<boo::ITextureS> x1b8_fogVolumeRamp;
-  boo::ObjToken<boo::ITextureS> x220_sphereRamp;
-  TLockedToken<CTexture> m_thermoPaletteTex;
-  boo::ObjToken<boo::ITexture> x288_thermoPalette;
-  TLockedToken<CTexture> m_ballFadeTex;
-  boo::ObjToken<boo::ITexture> m_ballFade;
-  boo::ObjToken<boo::ITextureR> m_ballShadowId;
-  boo::ObjToken<boo::IGraphicsBufferS> m_scanLinesEvenVBO;
-  boo::ObjToken<boo::IGraphicsBufferS> m_scanLinesOddVBO;
+//  std::shared_ptr<aurora::TextureHandle> x1b8_fogVolumeRamp;
+  std::shared_ptr<aurora::TextureHandle> x220_sphereRamp;
+//  TLockedToken<CTexture> m_thermoPaletteTex;
+//  std::shared_ptr<aurora::TextureHandle> x288_thermoPalette;
+//  TLockedToken<CTexture> m_ballFadeTex;
+  std::shared_ptr<aurora::TextureHandle> m_ballFade;
+  std::shared_ptr<aurora::TextureHandle> m_ballShadowId;
+//  boo::ObjToken<boo::IGraphicsBufferS> m_scanLinesEvenVBO;
+//  boo::ObjToken<boo::IGraphicsBufferS> m_scanLinesOddVBO;
   int m_ballShadowIdW = 64;
   int m_ballShadowIdH = 64;
 
   CRandom16 x2a8_thermalRand;
   std::list<CFogVolumeListItem> x2ac_fogVolumes;
-  std::list<CFogVolumePlaneShader> m_fogVolumePlaneShaders;
-  std::list<CFogVolumePlaneShader>::iterator m_nextFogVolumePlaneShader;
-  std::list<CFogVolumeFilter> m_fogVolumeFilters;
-  std::list<CFogVolumeFilter>::iterator m_nextFogVolumeFilter;
+//  std::list<CFogVolumePlaneShader> m_fogVolumePlaneShaders;
+//  std::list<CFogVolumePlaneShader>::iterator m_nextFogVolumePlaneShader;
+//  std::list<CFogVolumeFilter> m_fogVolumeFilters;
+//  std::list<CFogVolumeFilter>::iterator m_nextFogVolumeFilter;
   std::list<std::pair<zeus::CVector3f, float>> x2c4_spaceWarps;
   u32 x2dc_reflectionAge = 2;
   zeus::CColor x2e0_ = zeus::skWhite;
@@ -156,11 +156,11 @@ class CBooRenderer final : public IRenderer {
   bool x318_31_persistRGBA6 : 1 = false;
   bool m_thermalHotPass : 1 = false;
 
-  void GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx);
-  void GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx);
-  void GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx);
-  void LoadThermoPalette();
-  void LoadBallFade();
+//  void GenerateFogVolumeRampTex();
+//  void GenerateSphereRampTex();
+//  void GenerateScanLinesVBO();
+//  void LoadThermoPalette();
+//  void LoadBallFade();
 
   void ActivateLightsForModel(CAreaListItem* item, CBooModel& model);
   void RenderBucketItems(CAreaListItem* item);
@@ -170,8 +170,7 @@ class CBooRenderer final : public IRenderer {
   static void DrawFogSlices(const zeus::CPlane* planes, size_t numPlanes, size_t iteration,
                             const zeus::CVector3f& center, float delta, CFogVolumePlaneShader& fogVol);
   static void RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model, const zeus::CTransform& modelMtx,
-                                   const zeus::CTransform& viewMtx, const CSkinnedModel* sModel, int pass,
-                                   CFogVolumePlaneShader* fvs);
+                                   const zeus::CTransform& viewMtx, const CSkinnedModel* sModel, int pass);
   void SetupRendererStates() const;
 
   void ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertColor, /*const CTexture& maskTex,*/
@@ -264,27 +263,31 @@ public:
   void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const CModel* model,
                              const CSkinnedModel* sModel);
 
-  const boo::ObjToken<boo::ITexture>& GetThermoPalette() const { return x288_thermoPalette; }
-  const boo::ObjToken<boo::ITextureS>& GetFogRampTex() const { return x1b8_fogVolumeRamp; }
-  const boo::ObjToken<boo::ITexture>& GetRandomStaticEntropyTex() const { return m_staticEntropy->GetBooTexture(); }
-  const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesEvenVBO() const { return m_scanLinesEvenVBO; }
-  const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesOddVBO() const { return m_scanLinesOddVBO; }
+//  const boo::ObjToken<boo::ITexture>& GetThermoPalette() const { return x288_thermoPalette; }
+//  const boo::ObjToken<boo::ITextureS>& GetFogRampTex() const { return x1b8_fogVolumeRamp; }
+//  const boo::ObjToken<boo::ITexture>& GetRandomStaticEntropyTex() const { return m_staticEntropy->GetBooTexture(); }
+//  const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesEvenVBO() const { return m_scanLinesEvenVBO; }
+//  const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesOddVBO() const { return m_scanLinesOddVBO; }
 
-  const boo::ObjToken<boo::ITexture>& GetClearTexture() const { return m_clearTexture; }
-  const boo::ObjToken<boo::ITexture>& GetBlackTexture() const { return m_blackTexture; }
-  const boo::ObjToken<boo::ITexture>& GetWhiteTexture() const { return m_whiteTexture; }
+  const std::shared_ptr<aurora::TextureHandle>& GetClearTexture() const { return m_clearTexture; }
+  const std::shared_ptr<aurora::TextureHandle>& GetBlackTexture() const { return m_blackTexture; }
+  const std::shared_ptr<aurora::TextureHandle>& GetWhiteTexture() const { return m_whiteTexture; }
 
-  boo::ObjToken<boo::ITexture> GetColorTexture(const zeus::CColor& color);
+  std::shared_ptr<aurora::TextureHandle> GetColorTexture(const zeus::CColor& color);
 
-  static void BindMainDrawTarget() { CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture); }
-  void BindReflectionDrawTarget() { CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex); }
+  static void BindMainDrawTarget() {
+//    CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture);
+  }
+  void BindReflectionDrawTarget() {
+//    CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex);
+  }
   void BindBallShadowIdTarget() {
-    CGraphics::g_BooMainCommandQueue->setRenderTarget(m_ballShadowId);
+//    CGraphics::g_BooMainCommandQueue->setRenderTarget(m_ballShadowId);
     SetViewport(0, 0, m_ballShadowIdW, m_ballShadowIdH);
   }
   void ResolveBallShadowIdTarget() {
-    CGraphics::g_BooMainCommandQueue->resolveBindTexture(
-        m_ballShadowId, boo::SWindowRect(0, 0, m_ballShadowIdW, m_ballShadowIdH), false, 0, true, false);
+//    CGraphics::g_BooMainCommandQueue->resolveBindTexture(
+//        m_ballShadowId, boo::SWindowRect(0, 0, m_ballShadowIdW, m_ballShadowIdH), false, 0, true, false);
   }
 
   void FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;

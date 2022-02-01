@@ -2,7 +2,7 @@
 
 #include "Runtime/CToken.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <zeus/CColor.hpp>
 
 namespace metaforce {
@@ -15,8 +15,8 @@ class CScanLinesFilter {
   struct Uniform {
     zeus::CColor color;
   };
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+//  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
   Uniform m_uniform;
   bool m_even;
 

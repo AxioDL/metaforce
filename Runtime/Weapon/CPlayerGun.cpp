@@ -2140,7 +2140,7 @@ void CPlayerGun::DrawScreenTex(float z) {
   // Use CopyScreenTex rendering to draw over framebuffer pixels in front of `z`
   // This is accomplished using orthographic projection quad with sweeping `y` coordinates
   // Depth is set to GEQUAL to obscure pixels in front rather than behind
-  m_screenQuad.draw(zeus::skWhite, 1.f, CTexturedQuadFilter::DefaultRect, z);
+//  m_screenQuad.draw(zeus::skWhite, 1.f, CTexturedQuadFilter::DefaultRect, z);
 }
 
 void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) {

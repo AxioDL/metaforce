@@ -23,17 +23,17 @@ CModelData::~CModelData() = default;
 CModelData::CModelData() {}
 CModelData CModelData::CModelDataNull() { return CModelData(); }
 
-CModelData::CModelData(const CStaticRes& res, int instCount) : x0_scale(res.GetScale()), m_drawInstCount(instCount) {
+CModelData::CModelData(const CStaticRes& res) : x0_scale(res.GetScale()) {
   x1c_normalModel = g_SimplePool->GetObj({SBIG('CMDL'), res.GetId()});
   if (!x1c_normalModel)
     Log.report(logvisor::Fatal, FMT_STRING("unable to find CMDL {}"), res.GetId());
-  m_normalModelInst = x1c_normalModel->MakeNewInstance(0, instCount);
+  m_normalModelInst = x1c_normalModel->MakeNewInstance(0);
 }
 
-CModelData::CModelData(const CAnimRes& res, int instCount) : x0_scale(res.GetScale()), m_drawInstCount(instCount) {
+CModelData::CModelData(const CAnimRes& res) : x0_scale(res.GetScale()) {
   TToken<CCharacterFactory> factory = g_CharFactoryBuilder->GetFactory(res);
   x10_animData =
-      factory->CreateCharacter(res.GetCharacterNodeId(), res.CanLoop(), factory, res.GetDefaultAnim(), instCount);
+      factory->CreateCharacter(res.GetCharacterNodeId(), res.CanLoop(), factory, res.GetDefaultAnim());
 }
 
 SAdvancementDeltas CModelData::GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const {
@@ -143,7 +143,7 @@ void CModelData::SetXRayModel(const std::pair<CAssetId, CAssetId>& modelSkin) {
         x2c_xrayModel = g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first});
         if (!x2c_xrayModel)
           Log.report(logvisor::Fatal, FMT_STRING("unable to find CMDL {}"), modelSkin.first);
-        m_xrayModelInst = x2c_xrayModel->MakeNewInstance(0, m_drawInstCount);
+        m_xrayModelInst = x2c_xrayModel->MakeNewInstance(0);
       }
     }
   }
@@ -160,7 +160,7 @@ void CModelData::SetInfraModel(const std::pair<CAssetId, CAssetId>& modelSkin) {
         x3c_infraModel = g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first});
         if (!x3c_infraModel)
           Log.report(logvisor::Fatal, FMT_STRING("unable to find CMDL {}"), modelSkin.first);
-        m_infraModelInst = x3c_infraModel->MakeNewInstance(0, m_drawInstCount);
+        m_infraModelInst = x3c_infraModel->MakeNewInstance(0);
       }
     }
   }
@@ -431,7 +431,7 @@ void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
   zeus::CTransform scaledXf = xf * zeus::CTransform::Scale(x0_scale);
   CGraphics::SetModelMatrix(scaledXf);
 
-  CBooModel::SetDisintegrateTexture(tex.GetBooTexture());
+  CBooModel::SetDisintegrateTexture(tex.GetTexture());
   CModelFlags flags(5, 0, 3, zeus::skWhite);
   flags.m_extendedShader = EExtendedShader::Disintegrate;
   flags.addColor = addColor;

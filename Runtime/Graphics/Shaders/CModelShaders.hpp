@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
+//#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
 
 #include "Runtime/Graphics/CGraphics.hpp"
 
@@ -100,14 +100,14 @@ public:
   static void Initialize();
   static void Shutdown();
 
-  using ShaderPipelinesData = std::array<boo::ObjToken<boo::IShaderPipeline>, size_t(EExtendedShader::MAX)>;
-  using ShaderPipelines = std::shared_ptr<ShaderPipelinesData>;
+//  using ShaderPipelinesData = std::array<boo::ObjToken<boo::IShaderPipeline>, size_t(EExtendedShader::MAX)>;
+//  using ShaderPipelines = std::shared_ptr<ShaderPipelinesData>;
 
-  using Material = DataSpec::DNAMP1::HMDLMaterialSet::Material;
-  static ShaderPipelines BuildExtendedShader(const hecl::Backend::ShaderTag& tag, const Material& material);
+//  using Material = DataSpec::DNAMP1::HMDLMaterialSet::Material;
+//  static ShaderPipelines BuildExtendedShader(const hecl::Backend::ShaderTag& tag, const Material& material);
 
 private:
-  static std::unordered_map<uint64_t, ShaderPipelines> g_ShaderPipelines;
+//  static std::unordered_map<uint64_t, ShaderPipelines> g_ShaderPipelines;
 };
 
 } // namespace metaforce

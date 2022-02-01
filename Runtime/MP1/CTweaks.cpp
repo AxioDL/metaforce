@@ -60,7 +60,9 @@ void CTweaks::RegisterTweaks(hecl::CVarManager* cvarMgr) {
 
   /* Targeting */
   tag = g_ResFactory->GetResourceIdByName("Targeting");
-  strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
+  u8* Args = g_ResFactory->LoadResourceSync(*tag).release();
+  u32 size = g_ResFactory->ResourceSize(*tag);
+  strm.emplace(Args, size, true);
   if (g_Main->IsTrilogy() || g_Main->IsPAL() || g_Main->IsJapanese()) {
     g_tweakTargeting = new DataSpec::DNAMP1::CTweakTargeting<true>(*strm);
     g_tweakTargeting->initCVars(cvarMgr);

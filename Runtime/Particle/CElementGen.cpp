@@ -209,9 +209,9 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
 
   if (x26c_31_LINE) {
     CUVElement* texr = desc->x54_x40_TEXR.get();
-    boo::ObjToken<boo::ITexture> tex;
+    std::shared_ptr<aurora::TextureHandle> tex;
     if (texr)
-      tex = texr->GetValueTexture(0).GetObj()->GetBooTexture();
+      tex = texr->GetValueTexture(0).GetObj()->GetTexture();
     int maxVerts = x90_MAXP;
     m_lineRenderer.reset(
         new CLineRenderer(CLineRenderer::EPrimitiveMode::Lines, maxVerts * 2, tex, x26c_26_AAPH, x26c_28_zTest));
@@ -220,10 +220,10 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
   }
 
   _RecreatePipelines();
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    CElementGenShaders::BuildShaderDataBinding(ctx, *this);
-    return true;
-  } BooTrace);
+//  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+//    CElementGenShaders::BuildShaderDataBinding(ctx, *this);
+//    return true;
+//  } BooTrace);
 }
 
 CElementGen::~CElementGen() {
@@ -259,17 +259,17 @@ void CElementGen::_RecreatePipelines() {
   size_t maxInsts = x26c_30_MBLR ? 2560 * 2 : 2560; // x26c_30_MBLR ? (x270_MBSP * x90_MAXP) : x90_MAXP;
   maxInsts = (maxInsts == 0 ? 256 : maxInsts);
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    if (!x26c_31_LINE) {
-      m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
-      m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-    }
-    if (x28_loadedGenDesc->x45_24_x31_26_PMUS) {
-      m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
-      m_uniformBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-    }
-    return true;
-  } BooTrace);
+//  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+//    if (!x26c_31_LINE) {
+//      m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
+//      m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
+//    }
+//    if (x28_loadedGenDesc->x45_24_x31_26_PMUS) {
+//      m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
+//      m_uniformBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
+//    }
+//    return true;
+//  } BooTrace);
 }
 
 bool CElementGen::InternalUpdate(double dt) {
@@ -837,10 +837,10 @@ u32 CElementGen::GetSystemCount() const {
 
 void CElementGen::Render(const CActorLights* actorLights) {
   // Check to make sure our buffers are ready to render
-  if (!x26c_31_LINE && (!m_instBuf || !m_uniformBuf)) {
+  if (!x26c_31_LINE) { // && (!m_instBuf || !m_uniformBuf)
     return;
   }
-  if (x28_loadedGenDesc->x45_24_x31_26_PMUS && (!m_instBufPmus || !m_uniformBufPmus)) {
+  if (x28_loadedGenDesc->x45_24_x31_26_PMUS) { // && (!m_instBufPmus || !m_uniformBufPmus)
     return;
   }
 
@@ -875,10 +875,10 @@ void CElementGen::Render(const CActorLights* actorLights) {
 
 void CElementGen::RenderModels(const CActorLights* actorLights) {
   // Check to make sure our buffers are ready to render
-  if (!x26c_31_LINE && (!m_instBuf || !m_uniformBuf)) {
+  if (!x26c_31_LINE) { // && (!m_instBuf || !m_uniformBuf)
     return;
   }
-  if (x28_loadedGenDesc->x45_24_x31_26_PMUS && (!m_instBufPmus || !m_uniformBufPmus)) {
+  if (x28_loadedGenDesc->x45_24_x31_26_PMUS) { // && (!m_instBufPmus || !m_uniformBufPmus)
     return;
   }
 
@@ -944,12 +944,12 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
 
     SParticleUniforms uniformData = {CGraphics::GetPerspectiveProjectionMatrix(true), {1.f, 1.f, 1.f, 1.f}};
 
-    m_uniformBufPmus->load(&uniformData, sizeof(SParticleUniforms));
-
-    if (moveRedToAlphaBuffer)
-      CGraphics::SetShaderDataBinding(m_redToAlphaDataBindPmus[g_Renderer->IsThermalVisorHotPass()]);
-    else
-      CGraphics::SetShaderDataBinding(m_normalDataBindPmus[g_Renderer->IsThermalVisorHotPass()]);
+//    m_uniformBufPmus->load(&uniformData, sizeof(SParticleUniforms));
+//
+//    if (moveRedToAlphaBuffer)
+//      CGraphics::SetShaderDataBinding(m_redToAlphaDataBindPmus[g_Renderer->IsThermalVisorHotPass()]);
+//    else
+//      CGraphics::SetShaderDataBinding(m_normalDataBindPmus[g_Renderer->IsThermalVisorHotPass()]);
   }
 
   zeus::CTransform orient = zeus::CTransform();
@@ -1098,12 +1098,12 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
   if (desc->x45_24_x31_26_PMUS) {
     switch (m_shaderClass) {
     case CElementGenShaders::EShaderClass::Tex:
-      m_instBufPmus->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-      CGraphics::DrawInstances(0, 4, g_instTexData.size());
+//      m_instBufPmus->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
+//      CGraphics::DrawInstances(0, 4, g_instTexData.size());
       break;
     case CElementGenShaders::EShaderClass::NoTex:
-      m_instBufPmus->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+//      m_instBufPmus->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
+//      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
       break;
     default:
       break;
@@ -1275,7 +1275,7 @@ void CElementGen::RenderParticles() {
     constUVs = texr->HasConstantUV();
   }
 
-  m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
+//  m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
 
   std::vector<CParticleListItem> sortItems;
   if (desc->x44_28_x30_28_SORT) {
@@ -1300,15 +1300,15 @@ void CElementGen::RenderParticles() {
 
   if (g_subtractBlend) {
     // FIXME should there be NoTex specializations for RedToAlpha?
-    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
-      CGraphics::SetShaderDataBinding(m_redToAlphaSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
-    else
-      CGraphics::SetShaderDataBinding(m_normalSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
+//    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
+//      CGraphics::SetShaderDataBinding(m_redToAlphaSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
+//    else
+//      CGraphics::SetShaderDataBinding(m_normalSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
   } else {
-    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
-      CGraphics::SetShaderDataBinding(m_redToAlphaDataBind[g_Renderer->IsThermalVisorHotPass()]);
-    else
-      CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
+//    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
+//      CGraphics::SetShaderDataBinding(m_redToAlphaDataBind[g_Renderer->IsThermalVisorHotPass()]);
+//    else
+//      CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
   }
 
   int mbspVal = std::max(1, x270_MBSP);
@@ -1521,12 +1521,12 @@ void CElementGen::RenderParticles() {
 
     switch (m_shaderClass) {
     case CElementGenShaders::EShaderClass::Tex:
-      m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-      CGraphics::DrawInstances(0, 4, g_instTexData.size());
+//      m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
+//      CGraphics::DrawInstances(0, 4, g_instTexData.size());
       break;
     case CElementGenShaders::EShaderClass::NoTex:
-      m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+//      m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
+//      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
       break;
     default:
       break;
@@ -1635,12 +1635,12 @@ void CElementGen::RenderParticles() {
     }
     switch (m_shaderClass) {
     case CElementGenShaders::EShaderClass::Tex:
-      m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-      CGraphics::DrawInstances(0, 4, g_instTexData.size());
+//      m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
+//      CGraphics::DrawInstances(0, 4, g_instTexData.size());
       break;
     case CElementGenShaders::EShaderClass::NoTex:
-      m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+//      m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
+//      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
       break;
     default:
       break;
@@ -1661,7 +1661,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
 
   SParticleUniforms uniformData = {
       CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
-  m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
+//  m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
 
   CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 
@@ -1714,8 +1714,8 @@ void CElementGen::RenderParticlesIndirectTexture() {
   g_instIndTexData.clear();
   g_instIndTexData.reserve(x30_particles.size());
 
-  if (!x30_particles.empty())
-    CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
+//  if (!x30_particles.empty())
+//    CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
 
   for (size_t i = 0; i < x30_particles.size(); ++i) {
     const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
@@ -1773,21 +1773,22 @@ void CElementGen::RenderParticlesIndirectTexture() {
     inst.texrTindUVs[1] = zeus::CVector4f{uvs.xMin, uvs.yMax, uvsInd.xMin, uvsInd.yMax};
     inst.texrTindUVs[2] = zeus::CVector4f{uvs.xMax, uvs.yMin, uvsInd.xMax, uvsInd.yMin};
     inst.texrTindUVs[3] = zeus::CVector4f{uvs.xMin, uvs.yMin, uvsInd.xMin, uvsInd.yMin};
-    switch (CGraphics::g_BooPlatform) {
-    case boo::IGraphicsDataFactory::Platform::OpenGL:
-      inst.sceneUVs =
-          zeus::CVector4f{clipRect.x18_uvXMin, clipRect.x24_uvYMax, clipRect.x1c_uvXMax, clipRect.x20_uvYMin};
-      break;
-    default:
+//    switch (CGraphics::g_BooPlatform) {
+//    case boo::IGraphicsDataFactory::Platform::OpenGL:
+//      inst.sceneUVs =
+//          zeus::CVector4f{clipRect.x18_uvXMin, clipRect.x24_uvYMax, clipRect.x1c_uvXMax, clipRect.x20_uvYMin};
+//      break;
+//    default:
       inst.sceneUVs = zeus::CVector4f{clipRect.x18_uvXMin, 1.f - clipRect.x24_uvYMax, clipRect.x1c_uvXMax,
                                       1.f - clipRect.x20_uvYMin};
-      break;
-    }
-    CGraphics::DrawInstances(0, 4, 1, g_instIndTexData.size() - 1);
+//      break;
+//    }
+//    CGraphics::DrawInstances(0, 4, 1, g_instIndTexData.size() - 1);
   }
 
   if (g_instIndTexData.size()) {
-    m_instBuf->load(g_instIndTexData.data(), g_instIndTexData.size() * sizeof(SParticleInstanceIndTex));
+//    m_instBuf->load(g_instIndTexData.data(), g_instIndTexData.size() * sizeof(SParticleInstanceIndTex));
+// TODO! this looks like a bug
     // CGraphics::SetShaderDataBinding(m_normalDataBind);
     // CGraphics::DrawInstances(0, 4, g_instIndTexData.size());
   }

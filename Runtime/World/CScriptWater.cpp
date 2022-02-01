@@ -70,21 +70,21 @@ CScriptWater::CScriptWater(
   x2cc_gridCellCount = (x2c4_gridDimX + 1) * (x2c8_gridDimY + 1);
 
   uint32_t maxPatchSize;
-  if (CGraphics::g_BooFactory->isTessellationSupported(maxPatchSize)) {
-    x1b4_fluidPlane = std::make_unique<CFluidPlaneGPU>(
-        patternMap1, patternMap2, colorMap, bumpMap, envMap, envBumpMap, lightmapId, unitsPerLightmapTexel, tileSize,
-        tileSubdivisions * 2, fluidType, x2bc_alpha, bumpLightDir, bumpScale, uvMot, turbSpeed, turbDistance,
-        turbFreqMax, turbFreqMin, turbPhaseMax, turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, specularMin,
-        specularMax, reflectionBlend, reflectionSize, rippleIntensity,
-        x2cc_gridCellCount * ((std::max(u32(2), tileSubdivisions * 2) * 4 + 2) * 4));
-  } else {
+//  if (CGraphics::g_BooFactory->isTessellationSupported(maxPatchSize)) {
+//    x1b4_fluidPlane = std::make_unique<CFluidPlaneGPU>(
+//        patternMap1, patternMap2, colorMap, bumpMap, envMap, envBumpMap, lightmapId, unitsPerLightmapTexel, tileSize,
+//        tileSubdivisions * 2, fluidType, x2bc_alpha, bumpLightDir, bumpScale, uvMot, turbSpeed, turbDistance,
+//        turbFreqMax, turbFreqMin, turbPhaseMax, turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, specularMin,
+//        specularMax, reflectionBlend, reflectionSize, rippleIntensity,
+//        x2cc_gridCellCount * ((std::max(u32(2), tileSubdivisions * 2) * 4 + 2) * 4));
+//  } else {
     x1b4_fluidPlane = std::make_unique<CFluidPlaneCPU>(
         patternMap1, patternMap2, colorMap, bumpMap, envMap, envBumpMap, lightmapId, unitsPerLightmapTexel, tileSize,
         tileSubdivisions, fluidType, x2bc_alpha, bumpLightDir, bumpScale, uvMot, turbSpeed, turbDistance, turbFreqMax,
         turbFreqMin, turbPhaseMax, turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, specularMin, specularMax,
         reflectionBlend, reflectionSize, rippleIntensity,
         x2cc_gridCellCount * ((std::max(u32(2), tileSubdivisions) * 4 + 2) * 4));
-  }
+//  }
   u32Arr.reset();
   x264_splashEffects.resize(3);
   if (x22c_splashParticle1Id.IsValid()) {

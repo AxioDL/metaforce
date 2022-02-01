@@ -9,8 +9,8 @@
 
 #include "DataSpec/DNACommon/GX.hpp"
 
-#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+//#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <hecl/CVar.hpp>
 #include <hecl/Runtime.hpp>
@@ -20,7 +20,69 @@
 #include <zeus/CVector2i.hpp>
 #include <zeus/CVector2f.hpp>
 
+#include "aurora.h"
+#include "aurora_shaders.h"
+
 using frame_clock = std::chrono::high_resolution_clock;
+
+namespace aurora {
+using TextureRef = aurora::shaders::TextureRef;
+template <typename T>
+struct RustDrop {};
+template <>
+struct RustDrop<TextureRef> {
+  TextureRef ref;
+  explicit RustDrop(TextureRef ref) : ref(ref) {}
+  ~RustDrop() { aurora::shaders::drop_texture(ref); }
+  RustDrop(const RustDrop&) = delete;
+  RustDrop& operator=(const RustDrop&) = delete;
+};
+using TextureHandle = RustDrop<TextureRef>;
+
+inline std::shared_ptr<TextureHandle> new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mips,
+                                                            aurora::shaders::TextureFormat format,
+                                                            rust::Slice<const uint8_t> data,
+                                                            std::string_view label) {
+  rust::Str rlabel{label.data(), label.size()};
+  auto ref = aurora::shaders::create_static_texture_2d(width, height, mips, format, data, rlabel);
+  return std::make_shared<TextureHandle>(ref);
+}
+inline std::shared_ptr<TextureHandle> new_render_texture(uint32_t width, uint32_t height,
+                                                         uint32_t color_bind_count, uint32_t depth_bind_count,
+                                                         std::string_view label) {
+  rust::Str rlabel{label.data(), label.size()};
+  auto ref = aurora::shaders::create_render_texture(width, height, color_bind_count, depth_bind_count, rlabel);
+  return std::make_shared<TextureHandle>(ref);
+}
+
+template <typename T>
+class ArrayRef {
+public:
+  using value_type = std::remove_cvref_t<T>;
+  using pointer = value_type*;
+  using const_pointer = const value_type*;
+  using reference = value_type&;
+  using const_reference = const value_type&;
+  using iterator = const_pointer;
+  using const_iterator = const_pointer;
+  using size_type = std::size_t;
+  using difference_type = std::ptrdiff_t;
+
+  ArrayRef() = default;
+  explicit ArrayRef(T& one) : data(&one), length(1) {}
+  ArrayRef(T* data, size_t length) : data(data), length(length) {}
+  ArrayRef(T* begin, T* end) : data(begin), length(end - begin) {}
+  template <size_t N>
+  constexpr explicit ArrayRef(T (&arr)[N]) : data(arr), length(N) {}
+  template <size_t N>
+  constexpr explicit ArrayRef(std::array<T, N> arr) : data(arr.data()), length(arr.size()) {}
+  explicit ArrayRef(std::vector<T> vec) : data(vec.data()), length(vec.size()) {}
+
+private:
+  T* data = nullptr;
+  size_t length = 0;
+};
+} // namespace aurora
 
 namespace metaforce {
 extern hecl::CVar* g_disableLighting;
@@ -91,21 +153,7 @@ enum class ERglAlphaFunc {
 
 enum class ERglAlphaOp { And = 0, Or = 1, Xor = 2, XNor = 3 };
 
-enum class ERglFogMode : uint32_t {
-  None = 0x00,
-
-  PerspLin = 0x02,
-  PerspExp = 0x04,
-  PerspExp2 = 0x05,
-  PerspRevExp = 0x06,
-  PerspRevExp2 = 0x07,
-
-  OrthoLin = 0x0A,
-  OrthoExp = 0x0C,
-  OrthoExp2 = 0x0D,
-  OrthoRevExp = 0x0E,
-  OrthoRevExp2 = 0x0F
-};
+using ERglFogMode = aurora::shaders::FogMode;
 
 struct SViewport {
   u32 x0_left;
@@ -145,12 +193,12 @@ struct SClipScreenRect {
   , x20_uvYMin(uvYMin)
   , x24_uvYMax(uvYMax) {}
 
-  SClipScreenRect(const boo::SWindowRect& rect) {
-    x4_left = rect.location[0];
-    x8_top = rect.location[1];
-    xc_width = rect.size[0];
-    x10_height = rect.size[1];
-    x14_dstWidth = rect.size[0];
+  SClipScreenRect(const aurora::shaders::ClipRect& rect) {
+    x4_left = rect.x;
+    x8_top = rect.y;
+    xc_width = rect.width;
+    x10_height = rect.height;
+    x14_dstWidth = rect.width;
   }
 
   SClipScreenRect(const SViewport& vp) {
@@ -243,13 +291,14 @@ public:
     float x18_far;
   };
 
-  struct CFogState {
-    zeus::CColor m_color;
-    float m_A = 0.f;
-    float m_B = 0.5f;
-    float m_C = 0.f;
-    ERglFogMode m_mode;
-  };
+  using CFogState = aurora::shaders::FogState;
+  //  struct CFogState {
+  //    zeus::CColor m_color;
+  //    float m_A = 0.f;
+  //    float m_B = 0.5f;
+  //    float m_C = 0.f;
+  //    ERglFogMode m_mode;
+  //  };
 
   static CProjectionState g_Proj;
   static zeus::CVector2f g_CachedDepthRange;
@@ -321,73 +370,78 @@ public:
   static u32 GetFPS() { return g_Framerate; }
   static void UpdateFPSCounter();
 
-  static boo::IGraphicsDataFactory::Platform g_BooPlatform;
-  static const char* g_BooPlatformName;
-  static boo::IGraphicsDataFactory* g_BooFactory;
-  static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
-  static boo::ObjToken<boo::ITextureR> g_SpareTexture;
+//  static boo::IGraphicsDataFactory::Platform g_BooPlatform;
+//  static const char* g_BooPlatformName;
+//  static boo::IGraphicsDataFactory* g_BooFactory;
+//  static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
+//  static boo::ObjToken<boo::ITextureR> g_SpareTexture;
 
   static const std::array<zeus::CMatrix3f, 6> skCubeBasisMats;
 
-  static void InitializeBoo(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cc,
-                            const boo::ObjToken<boo::ITextureR>& spareTex) {
-    g_BooPlatform = factory->platform();
-    g_BooPlatformName = factory->platformName();
-    g_BooFactory = factory;
-    g_BooMainCommandQueue = cc;
-    g_SpareTexture = spareTex;
-  }
+//  static void InitializeBoo(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cc,
+//                            const boo::ObjToken<boo::ITextureR>& spareTex) {
+//    g_BooPlatform = factory->platform();
+//    g_BooPlatformName = factory->platformName();
+//    g_BooFactory = factory;
+//    g_BooMainCommandQueue = cc;
+//    g_SpareTexture = spareTex;
+//  }
+//
+//  static void ShutdownBoo() {
+//    g_BooFactory = nullptr;
+//    g_BooMainCommandQueue = nullptr;
+//    g_SpareTexture.reset();
+//  }
+//
+//  static const char* PlatformName() { return g_BooPlatformName; }
 
-  static void ShutdownBoo() {
-    g_BooFactory = nullptr;
-    g_BooMainCommandQueue = nullptr;
-    g_SpareTexture.reset();
-  }
+//  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs) {
+//    g_BooFactory->commitTransaction(commitFunc __BooTraceArgsUse);
+//  }
 
-  static const char* PlatformName() { return g_BooPlatformName; }
-
-
-  static bool g_commitAsLazy;
-  static void SetCommitResourcesAsLazy(bool newStatus) {
-    if (newStatus != g_commitAsLazy) {
-      g_commitAsLazy = newStatus;
-      if (!newStatus && g_BooFactory) {
-        g_BooFactory->commitPendingTransaction();
-      }
-    }
-  }
-
-  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs) {
-    CommitResources(commitFunc __BooTraceArgsUse, g_commitAsLazy);
-  }
-
-  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs, bool lazy) {
-    if (!g_BooFactory) {
-      return;
-    }
-    if (lazy) {
-      g_BooFactory->lazyCommitTransaction(commitFunc __BooTraceArgsUse);
-    } else {
-      g_BooFactory->commitTransaction(commitFunc __BooTraceArgsUse);
-    }
-  }
-
-  static void SetShaderDataBinding(const boo::ObjToken<boo::IShaderDataBinding>& binding) {
-    g_BooMainCommandQueue->setShaderDataBinding(binding);
-  }
+//  static bool g_commitAsLazy;
+//  static void SetCommitResourcesAsLazy(bool newStatus) {
+//    if (newStatus != g_commitAsLazy) {
+//      g_commitAsLazy = newStatus;
+//      if (!newStatus && g_BooFactory) {
+//        g_BooFactory->commitPendingTransaction();
+//      }
+//    }
+//  }
+//
+//  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs) {
+//    CommitResources(commitFunc __BooTraceArgsUse, g_commitAsLazy);
+//  }
+//
+//  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs, bool lazy) {
+//    if (!g_BooFactory) {
+//      return;
+//    }
+//    if (lazy) {
+//      g_BooFactory->lazyCommitTransaction(commitFunc __BooTraceArgsUse);
+//    } else {
+//      g_BooFactory->commitTransaction(commitFunc __BooTraceArgsUse);
+//    }
+//  }
+//
+//  static void SetShaderDataBinding(const boo::ObjToken<boo::IShaderDataBinding>& binding) {
+//    g_BooMainCommandQueue->setShaderDataBinding(binding);
+//  }
   static void ResolveSpareTexture(const SClipScreenRect& rect, int bindIdx = 0, bool clearDepth = false) {
-    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
-    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, true, false, clearDepth);
+    aurora::shaders::resolve_color({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx, clearDepth);
+//    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
+//    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, true, false, clearDepth);
   }
   static void ResolveSpareDepth(const SClipScreenRect& rect, int bindIdx = 0) {
-    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
-    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, false, true);
+    aurora::shaders::resolve_depth({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx);
+//    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
+//    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, false, true);
   }
-  static void DrawInstances(size_t start, size_t count, size_t instCount, size_t startInst = 0) {
-    g_BooMainCommandQueue->drawInstances(start, count, instCount, startInst);
-  }
-  static void DrawArray(size_t start, size_t count) { g_BooMainCommandQueue->draw(start, count); }
-  static void DrawArrayIndexed(size_t start, size_t count) { g_BooMainCommandQueue->drawIndexed(start, count); }
+//  static void DrawInstances(size_t start, size_t count, size_t instCount, size_t startInst = 0) {
+//    g_BooMainCommandQueue->drawInstances(start, count, instCount, startInst);
+//  }
+//  static void DrawArray(size_t start, size_t count) { g_BooMainCommandQueue->draw(start, count); }
+//  static void DrawArrayIndexed(size_t start, size_t count) { g_BooMainCommandQueue->drawIndexed(start, count); }
 
   static const CTevCombiners::CTevPass sTevPass805a564c;
   static const CTevCombiners::CTevPass sTevPass805a5698;
@@ -441,7 +495,7 @@ public:
     m_vec.emplace_back(std::forward<_Args>(args)...);
   }
 
-  void Draw() const { CGraphics::DrawArray(m_start, m_vec.size() - m_start); }
+//  void Draw() const { CGraphics::DrawArray(m_start, m_vec.size() - m_start); }
 };
 
 #ifdef BOO_GRAPHICS_DEBUG_GROUPS

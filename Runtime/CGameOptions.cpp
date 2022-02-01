@@ -287,7 +287,7 @@ void CGameOptions::ApplyGamma() {
     gammaT = gammaT * 0.5f + 0.5f;
   if (zeus::close_enough(gammaT, 1.f, 0.05f))
     gammaT = 1.f;
-  CGraphics::g_BooFactory->setDisplayGamma(gammaT);
+//  CGraphics::g_BooFactory->setDisplayGamma(gammaT);
 }
 
 void CGameOptions::SetGamma(s32 value, bool apply) {

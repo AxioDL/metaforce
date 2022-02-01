@@ -144,14 +144,12 @@ private:
   static rstl::reserved_vector<CSoundPOINode, 20> g_SoundPOINodes;
   static rstl::reserved_vector<CInt32POINode, 16> g_TransientInt32POINodes;
 
-  int m_drawInstCount;
-
 public:
   CAnimData(CAssetId, const CCharacterInfo& character, int defaultAnim, int charIdx, bool loop,
             TLockedToken<CCharLayoutInfo> layout, TToken<CSkinnedModel> model,
             const std::optional<TToken<CMorphableSkinnedModel>>& iceModel, const std::weak_ptr<CAnimSysContext>& ctx,
             std::shared_ptr<CAnimationManager> animMgr, std::shared_ptr<CTransitionManager> transMgr,
-            TLockedToken<CCharacterFactory> charFactory, int drawInstCount);
+            TLockedToken<CCharacterFactory> charFactory);
 
   void SetParticleEffectState(std::string_view effectName, bool active, CStateManager& mgr);
   void InitializeEffects(CStateManager& mgr, TAreaId aId, const zeus::CVector3f& scale);

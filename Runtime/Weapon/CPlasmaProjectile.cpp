@@ -12,17 +12,17 @@
 
 namespace metaforce {
 
-CPlasmaProjectile::RenderObjects::RenderObjects(boo::IGraphicsDataFactory::Context& ctx,
-                                                boo::ObjToken<boo::ITexture> tex, boo::ObjToken<boo::ITexture> glowTex)
-: m_beamStrip1(ctx, 8, CColoredStripShader::Mode::Additive, {})
-, m_beamStrip2(ctx, 10, CColoredStripShader::Mode::FullAdditive, tex)
-, m_beamStrip3(ctx, 18, CColoredStripShader::Mode::FullAdditive, tex)
-, m_beamStrip4(ctx, 14, CColoredStripShader::Mode::Additive, glowTex)
-, m_beamStrip1Sub(ctx, 8, CColoredStripShader::Mode::Subtractive, {})
-, m_beamStrip2Sub(ctx, 10, CColoredStripShader::Mode::Subtractive, tex)
-, m_beamStrip3Sub(ctx, 18, CColoredStripShader::Mode::Subtractive, tex)
-, m_beamStrip4Sub(ctx, 14, CColoredStripShader::Mode::Subtractive, glowTex)
-, m_motionBlurStrip(ctx, 16, CColoredStripShader::Mode::Alpha, {}) {}
+CPlasmaProjectile::RenderObjects::RenderObjects(std::shared_ptr<aurora::TextureHandle> tex,
+                                                std::shared_ptr<aurora::TextureHandle> glowTex)
+: m_beamStrip1(8, CColoredStripShader::Mode::Additive, {})
+, m_beamStrip2( 10, CColoredStripShader::Mode::FullAdditive, tex)
+, m_beamStrip3( 18, CColoredStripShader::Mode::FullAdditive, tex)
+, m_beamStrip4( 14, CColoredStripShader::Mode::Additive, glowTex)
+, m_beamStrip1Sub( 8, CColoredStripShader::Mode::Subtractive, {})
+, m_beamStrip2Sub( 10, CColoredStripShader::Mode::Subtractive, tex)
+, m_beamStrip3Sub( 18, CColoredStripShader::Mode::Subtractive, tex)
+, m_beamStrip4Sub( 14, CColoredStripShader::Mode::Subtractive, glowTex)
+, m_motionBlurStrip( 16, CColoredStripShader::Mode::Alpha, {}) {}
 
 CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                                      const CBeamInfo& bInfo, const zeus::CTransform& xf, EMaterialTypes matType,
@@ -60,10 +60,10 @@ CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, st
   x518_contactGen->SetParticleEmission(false);
   x51c_pulseGen->SetParticleEmission(false);
 
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    m_renderObjs.emplace(ctx, x4e8_texture->GetBooTexture(), x4f4_glowTexture->GetBooTexture());
-    return true;
-  } BooTrace);
+//  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
+    m_renderObjs.emplace(x4e8_texture->GetTexture(), x4f4_glowTexture->GetTexture());
+//    return true;
+//  } BooTrace);
 }
 
 void CPlasmaProjectile::Accept(IVisitor& visitor) { visitor.Visit(this); }

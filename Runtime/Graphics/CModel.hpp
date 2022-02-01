@@ -9,11 +9,10 @@
 #include "DataSpec/DNAMP1/CMDLMaterials.hpp"
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Graphics/Shaders/CModelShaders.hpp"
+#include "Runtime/RetroTypes.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <hecl/HMDLMeta.hpp>
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
@@ -80,42 +79,42 @@ struct CBooSurface {
 
 using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
 
-struct GeometryUniformLayout {
-  mutable std::vector<boo::ObjToken<boo::IGraphicsBufferD>> m_sharedBuffer;
-  size_t m_geomBufferSize = 0;
-  size_t m_skinBankCount = 0;
-  size_t m_weightVecCount = 0;
-
-  std::vector<size_t> m_skinOffs;
-  std::vector<size_t> m_skinSizes;
-
-  std::vector<size_t> m_uvOffs;
-  std::vector<size_t> m_uvSizes;
-
-  GeometryUniformLayout(const CModel* model, const MaterialSet* matSet);
-  void Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
-              const MaterialSet* matSet, const boo::ObjToken<boo::IGraphicsBufferD>& buf,
-              const CBooModel* parent) const;
-
-  void ReserveSharedBuffers(boo::IGraphicsDataFactory::Context& ctx, int size);
-  boo::ObjToken<boo::IGraphicsBufferD> GetSharedBuffer(int idx) const;
-};
+//struct GeometryUniformLayout {
+//  mutable std::vector<boo::ObjToken<boo::IGraphicsBufferD>> m_sharedBuffer;
+//  size_t m_geomBufferSize = 0;
+//  size_t m_skinBankCount = 0;
+//  size_t m_weightVecCount = 0;
+//
+//  std::vector<size_t> m_skinOffs;
+//  std::vector<size_t> m_skinSizes;
+//
+//  std::vector<size_t> m_uvOffs;
+//  std::vector<size_t> m_uvSizes;
+//
+//  GeometryUniformLayout(const CModel* model, const MaterialSet* matSet);
+//  void Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
+//              const MaterialSet* matSet, const boo::ObjToken<boo::IGraphicsBufferD>& buf,
+//              const CBooModel* parent) const;
+//
+//  void ReserveSharedBuffers(boo::IGraphicsDataFactory::Context& ctx, int size);
+//  boo::ObjToken<boo::IGraphicsBufferD> GetSharedBuffer(int idx) const;
+//};
 
 struct SShader {
   std::unordered_map<CAssetId, TCachedToken<CTexture>> x0_textures;
-  std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
+//  std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
   MaterialSet m_matSet;
-  std::optional<GeometryUniformLayout> m_geomLayout;
+//  std::optional<GeometryUniformLayout> m_geomLayout;
   int m_matSetIdx;
   explicit SShader(int idx) : m_matSetIdx(idx) {
     x0_textures.clear();
-    m_shaders.clear();
+//    m_shaders.clear();
   }
-  void InitializeLayout(const CModel* model) { m_geomLayout.emplace(model, &m_matSet); }
+//  void InitializeLayout(const CModel* model) { m_geomLayout.emplace(model, &m_matSet); }
   void UnlockTextures();
-  CModelShaders::ShaderPipelines BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat);
-  void BuildShaders(const hecl::HMDLMeta& meta, std::unordered_map<int, CModelShaders::ShaderPipelines>& shaders);
-  void BuildShaders(const hecl::HMDLMeta& meta) { BuildShaders(meta, m_shaders); }
+//  CModelShaders::ShaderPipelines BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat);
+//  void BuildShaders(const hecl::HMDLMeta& meta, std::unordered_map<int, CModelShaders::ShaderPipelines>& shaders);
+//  void BuildShaders(const hecl::HMDLMeta& meta) { BuildShaders(meta, m_shaders); }
 };
 
 class CBooModel {
@@ -137,9 +136,9 @@ private:
   CModel* m_model;
   std::vector<CBooSurface>* x0_surfaces;
   const MaterialSet* x4_matSet;
-  const GeometryUniformLayout* m_geomLayout;
+//  const GeometryUniformLayout* m_geomLayout;
   int m_matSetIdx = -1;
-  const std::unordered_map<int, CModelShaders::ShaderPipelines>* m_pipelines;
+//  const std::unordered_map<int, CModelShaders::ShaderPipelines>* m_pipelines;
   std::unordered_map<CAssetId, TCachedToken<CTexture>> x1c_textures;
   zeus::CAABox x20_aabb;
   CBooSurface* x38_firstUnsortedSurface = nullptr;
@@ -158,26 +157,26 @@ private:
   CModelShaders::LightingUniform m_lightingData;
 
   /* metaforce addition: boo! */
-  size_t m_uniformDataSize = 0;
-  struct ModelInstance {
-    boo::ObjToken<boo::IGraphicsBufferD> m_geomUniformBuffer;
-    boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuffer;
-    std::vector<std::vector<boo::ObjToken<boo::IShaderDataBinding>>> m_shaderDataBindings;
-    boo::ObjToken<boo::IGraphicsBufferD> m_dynamicVbo;
+//  size_t m_uniformDataSize = 0;
+//  struct ModelInstance {
+//    boo::ObjToken<boo::IGraphicsBufferD> m_geomUniformBuffer;
+//    boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuffer;
+//    std::vector<std::vector<boo::ObjToken<boo::IShaderDataBinding>>> m_shaderDataBindings;
+//    boo::ObjToken<boo::IGraphicsBufferD> m_dynamicVbo;
+//
+//    boo::ObjToken<boo::IGraphicsBuffer> GetBooVBO(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
+//  };
+//  std::vector<ModelInstance> m_instances;
+//  ModelInstance m_ballShadowInstance;
 
-    boo::ObjToken<boo::IGraphicsBuffer> GetBooVBO(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
-  };
-  std::vector<ModelInstance> m_instances;
-  ModelInstance m_ballShadowInstance;
+//  boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
+//  boo::ObjToken<boo::IGraphicsBufferS> m_staticIbo;
+//
+//  boo::ObjToken<boo::ITexture> m_lastDrawnShadowMap;
+//  boo::ObjToken<boo::ITexture> m_lastDrawnOneTexture;
+//  boo::ObjToken<boo::ITextureCubeR> m_lastDrawnReflectionCube;
 
-  boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
-  boo::ObjToken<boo::IGraphicsBufferS> m_staticIbo;
-
-  boo::ObjToken<boo::ITexture> m_lastDrawnShadowMap;
-  boo::ObjToken<boo::ITexture> m_lastDrawnOneTexture;
-  boo::ObjToken<boo::ITextureCubeR> m_lastDrawnReflectionCube;
-
-  ModelInstance* PushNewModelInstance(int sharedLayoutBuf = -1, boo::IGraphicsDataFactory::Context* ctx = nullptr);
+//  ModelInstance* PushNewModelInstance(int sharedLayoutBuf = -1, boo::IGraphicsDataFactory::Context* ctx = nullptr);
   void DrawAlphaSurfaces(const CModelFlags& flags) const;
   void DrawNormalSurfaces(const CModelFlags& flags) const;
   void DrawSurfaces(const CModelFlags& flags) const;
@@ -197,8 +196,9 @@ private:
 public:
   ~CBooModel();
   CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
-            const boo::ObjToken<boo::IGraphicsBufferS>& vbo, const boo::ObjToken<boo::IGraphicsBufferS>& ibo,
-            const zeus::CAABox& aabb, u8 renderMask, int numInsts);
+            // TODO
+//            boo::ObjToken<boo::IGraphicsBufferS>  vbo, boo::ObjToken<boo::IGraphicsBufferS>  ibo,
+            const zeus::CAABox& aabb, u8 renderMask);
 
   static void MakeTexturesFromMats(const MaterialSet& matSet,
                                    std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut, IObjectStore& store);
@@ -209,15 +209,13 @@ public:
   void SetAmbientColor(const zeus::CColor& color) { m_lightingData.ambient = color; }
   void DisableAllLights();
   void RemapMaterialData(SShader& shader);
-  void RemapMaterialData(SShader& shader, const std::unordered_map<int, CModelShaders::ShaderPipelines>& pipelines);
   bool TryLockTextures();
   void UnlockTextures();
   void SyncLoadTextures();
   void Touch(int shaderIdx);
   void VerifyCurrentShader(int shaderIdx);
-  boo::ObjToken<boo::IGraphicsBufferD> UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
-                                                         const CPoseAsTransforms* pose, int sharedLayoutBuf = -1,
-                                                         boo::IGraphicsDataFactory::Context* ctx = nullptr);
+//  boo::ObjToken<boo::IGraphicsBufferD> UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
+//                                                         const CPoseAsTransforms* pose, int sharedLayoutBuf = -1);
   void DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
   void DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
   void Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
@@ -241,16 +239,16 @@ public:
   static void EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf, zeus::CMatrix4f* mtxsOut,
                                        float& alphaOut);
 
-  static inline boo::ObjToken<boo::ITexture> g_shadowMap;
+  static inline std::shared_ptr<aurora::TextureHandle> g_shadowMap;
   static inline zeus::CTransform g_shadowTexXf;
-  static void EnableShadowMaps(const boo::ObjToken<boo::ITexture>& map, const zeus::CTransform& texXf);
+  static void EnableShadowMaps(const std::shared_ptr<aurora::TextureHandle>& map, const zeus::CTransform& texXf);
   static void DisableShadowMaps();
 
-  static inline boo::ObjToken<boo::ITexture> g_disintegrateTexture;
-  static void SetDisintegrateTexture(const boo::ObjToken<boo::ITexture>& map) { g_disintegrateTexture = map; }
+  static inline std::shared_ptr<aurora::TextureHandle> g_disintegrateTexture;
+  static void SetDisintegrateTexture(const std::shared_ptr<aurora::TextureHandle>& map) { g_disintegrateTexture = map; }
 
-  static inline boo::ObjToken<boo::ITextureCubeR> g_reflectionCube;
-  static void SetReflectionCube(const boo::ObjToken<boo::ITextureCubeR>& map) { g_reflectionCube = map; }
+  static inline std::shared_ptr<aurora::TextureHandle> g_reflectionCube;
+  static void SetReflectionCube(const std::shared_ptr<aurora::TextureHandle>& map) { g_reflectionCube = map; }
 
   static void SetDummyTextures(bool b) { g_DummyTextures = b; }
   static void SetRenderModelBlack(bool b) { g_RenderModelBlack = b; }
@@ -276,10 +274,10 @@ class CModel {
   int x38_lastFrame;
 
   /* metaforce addition: boo! */
-  boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
+//  boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
   hecl::HMDLMeta m_hmdlMeta;
   std::unique_ptr<uint8_t[]> m_dynamicVertexData;
-  boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
+//  boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
 
 public:
   using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
@@ -294,7 +292,7 @@ public:
   const zeus::CAABox& GetAABB() const { return m_aabb; }
   CBooModel& GetInstance() { return *x28_modelInst; }
   const CBooModel& GetInstance() const { return *x28_modelInst; }
-  std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, int subInsts, bool lockParent = true);
+  std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, bool lockParent = true);
   void UpdateLastFrame() const { const_cast<CModel&>(*this).x38_lastFrame = CGraphics::GetFrameCounter(); }
   u32 GetNumMaterialSets() const { return x18_matSets.size(); }
 
@@ -302,9 +300,9 @@ public:
   zeus::CVector3f GetPoolVertex(size_t idx) const;
   size_t GetPoolNormalOffset(size_t idx) const;
   zeus::CVector3f GetPoolNormal(size_t idx) const;
-  void ApplyVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf,
-                        const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const;
-  void RestoreVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf) const;
+//  void ApplyVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf,
+//                        const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const;
+//  void RestoreVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf) const;
 
   void _WarmupShaders();
   static void WarmupShaders(const SObjectTag& cmdlTag);

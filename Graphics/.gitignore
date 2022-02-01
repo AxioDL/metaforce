@@ -1,0 +1,17 @@
+# Rust
+target/
+**/*.rs.bk
+generated/
+
+# cargo-mobile
+.cargo/
+/gen
+
+# macOS
+.DS_Store
+
+# JetBrains
+.idea
+
+# Generated SPIR-V
+*.spv

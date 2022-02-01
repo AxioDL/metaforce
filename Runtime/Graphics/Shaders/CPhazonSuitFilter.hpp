@@ -1,24 +1,24 @@
 #pragma once
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 namespace zeus {
 class CColor;
-}
+} // namespace zeus
 
 namespace metaforce {
 class CTexture;
 
 class CPhazonSuitFilter {
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBufBlurX;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBufBlurY;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IGraphicsBufferS> m_blurVbo;
-  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniBufBlurX;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniBufBlurY;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+//  boo::ObjToken<boo::IGraphicsBufferS> m_blurVbo;
+//  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
   const CTexture* m_indTex = nullptr;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBindBlurX;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBindBlurY;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+//  boo::ObjToken<boo::IShaderDataBinding> m_dataBindBlurX;
+//  boo::ObjToken<boo::IShaderDataBinding> m_dataBindBlurY;
+//  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
 
 public:
   static void Initialize();

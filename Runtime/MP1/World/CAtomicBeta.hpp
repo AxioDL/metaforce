@@ -27,9 +27,9 @@ class CAtomicBeta final : public CPatterned {
   TToken<CWeaponDescription> x608_;
   CDamageInfo x610_projectileDamage;
   CAssetId x62c_beamParticle;
-  float x630_;
+  float x630_beamFadeSpeed;
   float x634_beamRadius;
-  float x638_;
+  float x638_beamDamageInterval;
   float x63c_ = 1.f;
   float x640_ = 10.f;
   u16 x644_;

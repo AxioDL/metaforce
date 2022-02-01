@@ -63,10 +63,10 @@ void CPakFile::InitialHeaderLoad() {
   athena::io::MemoryReader r(x38_headerData.data(), x38_headerData.size());
   x30_dvdReq.reset();
   u32 version = r.readUint32Big();
-  if (version != 0x80030005) {
+  if (version != 0x00030005) {
     Log.report(logvisor::Fatal,
                FMT_STRING("{}: Incompatible pak file version -- Current version is {:08X}, you're using {:08X}"),
-               GetPath(), 0x80030005, version);
+               GetPath(), 0x00030005, version);
     return;
   }
 

@@ -622,7 +622,7 @@ void CActorModelParticles::LightDudeOnFire(CActor& act) {
 const CTexture* CActorModelParticles::GetAshyTexture(const CActor& act) {
   auto iter = FindSystem(act.GetUniqueId());
   if (iter != x0_items.cend() && iter->xdc_ashy && iter->xdc_ashy.IsLoaded()) {
-    iter->xdc_ashy->GetBooTexture()->setClampMode(boo::TextureClampMode::ClampToEdge);
+//    iter->xdc_ashy->GetBooTexture()->setClampMode(boo::TextureClampMode::ClampToEdge);
     return iter->xdc_ashy.GetObj();
   }
   return nullptr;

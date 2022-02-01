@@ -14,13 +14,15 @@
 
 namespace metaforce::MP1 {
 
-CPlayerVisor::CPlayerVisor(CStateManager&) : x108_newScanPane(EFilterType::Blend, CGraphics::g_SpareTexture.get()) {
+CPlayerVisor::CPlayerVisor(CStateManager&) {
+  // TODO
+  // : x108_newScanPane(EFilterType::Blend, CGraphics::g_SpareTexture.get())
   xcc_scanFrameCorner = g_SimplePool->GetObj("CMDL_ScanFrameCorner");
   xd8_scanFrameCenterSide = g_SimplePool->GetObj("CMDL_ScanFrameCenterSide");
   xe4_scanFrameCenterTop = g_SimplePool->GetObj("CMDL_ScanFrameCenterTop");
   xf0_scanFrameStretchSide = g_SimplePool->GetObj("CMDL_ScanFrameStretchSide");
   xfc_scanFrameStretchTop = g_SimplePool->GetObj("CMDL_ScanFrameStretchTop");
-  // x108_newScanPane = g_SimplePool->GetObj("CMDL_NewScanPane");
+  x108_newScanPane = g_SimplePool->GetObj("CMDL_NewScanPane");
   x114_scanShield = g_SimplePool->GetObj("CMDL_ScanShield");
   x124_scanIconNoncritical = g_SimplePool->GetObj("CMDL_ScanIconNoncritical");
   x130_scanIconCritical = g_SimplePool->GetObj("CMDL_ScanIconCritical");
@@ -376,13 +378,13 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
       {{-5.f, 0.f, -4.45f}, {uvX0, uvY1}},
       {{5.f, 0.f, -4.45f}, {uvX1, uvY1}},
   }};
-  if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL) {
-    rttVerts[0].m_uv.y() = uvY1;
-    rttVerts[1].m_uv.y() = uvY1;
-    rttVerts[2].m_uv.y() = uvY0;
-    rttVerts[3].m_uv.y() = uvY0;
-  }
-  x108_newScanPane.drawVerts(zeus::CColor(1.f, transFactor), rttVerts);
+//  if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL) {
+//    rttVerts[0].m_uv.y() = uvY1;
+//    rttVerts[1].m_uv.y() = uvY1;
+//    rttVerts[2].m_uv.y() = uvY0;
+//    rttVerts[3].m_uv.y() = uvY0;
+//  }
+//  x108_newScanPane.drawVerts(zeus::CColor(1.f, transFactor), rttVerts);
 
   // No cull faces
 

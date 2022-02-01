@@ -29,18 +29,18 @@ CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf
     x5c_29_modelInvalid = true;
   }
 
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    for (auto& decal : x3c_decalQuads) {
-      if (decal.m_desc->x14_TEX) {
-        decal.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SParticleInstanceTex), 1);
-      } else {
-        decal.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SParticleInstanceNoTex), 1);
-      }
-      decal.m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-      CDecalShaders::BuildShaderDataBinding(ctx, decal);
-    }
-    return true;
-  } BooTrace);
+//  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
+//    for (auto& decal : x3c_decalQuads) {
+//      if (decal.m_desc->x14_TEX) {
+//        decal.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SParticleInstanceTex), 1);
+//      } else {
+//        decal.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SParticleInstanceNoTex), 1);
+//      }
+//      decal.m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
+//      CDecalShaders::BuildShaderDataBinding(ctx, decal);
+//    }
+//    return true;
+//  } BooTrace);
 }
 
 bool CDecal::InitQuad(CQuadDecal& quad, const SQuadDescr& desc) {
@@ -97,7 +97,7 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
 
   SParticleUniforms uniformData = {
       CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
-  decal.m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
+//  decal.m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
 
   bool redToAlpha = sMoveRedToAlphaBuffer && desc.x18_ADD && desc.x14_TEX;
 
@@ -107,10 +107,10 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
     if (!texObj.IsLoaded())
       return;
     tex->GetValueUV(x58_frameIdx, uvSet);
-    if (redToAlpha)
-      CGraphics::SetShaderDataBinding(decal.m_redToAlphaDataBind);
-    else
-      CGraphics::SetShaderDataBinding(decal.m_normalDataBind);
+//    if (redToAlpha)
+//      CGraphics::SetShaderDataBinding(decal.m_redToAlphaDataBind);
+//    else
+//      CGraphics::SetShaderDataBinding(decal.m_normalDataBind);
 
     g_instTexData.clear();
     g_instTexData.reserve(1);
@@ -136,8 +136,8 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
     inst.uvs[2] = zeus::CVector2f(uvSet.xMin, uvSet.yMax);
     inst.uvs[3] = zeus::CVector2f(uvSet.xMax, uvSet.yMax);
 
-    decal.m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-    CGraphics::DrawInstances(0, 4, g_instTexData.size());
+//    decal.m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
+//    CGraphics::DrawInstances(0, 4, g_instTexData.size());
   } else {
     g_instNoTexData.clear();
     g_instNoTexData.reserve(1);
@@ -159,8 +159,8 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
     }
     inst.color = color;
 
-    decal.m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-    CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+//    decal.m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
+//    CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
   }
 }
 

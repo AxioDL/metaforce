@@ -271,7 +271,7 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManag
     m_cachedAdditive = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot;
     m_shader.emplace(x44_fluidType, x10_texPattern1, x20_texPattern2, x30_texColor, xb0_bumpMap, xc0_envMap,
                      xd0_envBumpMap, xe0_lightmap,
-                     m_tessellation ? CFluidPlaneManager::RippleMapTex : boo::ObjToken<boo::ITextureS>{},
+                     m_tessellation ? CFluidPlaneManager::RippleMapTex : std::shared_ptr<aurora::TextureHandle>{},
                      m_cachedDoubleLightmapBlend, m_cachedAdditive, m_maxVertCount);
   }
 

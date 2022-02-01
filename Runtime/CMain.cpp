@@ -1,7 +1,7 @@
 #include <string>
 #include <string_view>
 #include <numeric>
-#include <hecl/Pipeline.hpp>
+#include <iostream>
 
 #include "boo/boo.hpp"
 #include "logvisor/logvisor.hpp"
@@ -19,6 +19,10 @@
 /* Static reference to dataspec additions
  * (used by MSVC to definitively link DataSpecs) */
 #include "DataSpecRegistry.hpp"
+
+#include "Graphics/include/aurora.hpp"
+#include "aurora.h"
+#include "aurora_shaders.h"
 
 using namespace std::literals;
 
@@ -151,21 +155,21 @@ private:
   boo::SWindowRect m_lastRect;
   bool m_rectDirty = false;
   bool m_windowInvalid = false;
-  ImGuiWindowCallback m_imguiCallback;
+//  ImGuiWindowCallback m_imguiCallback;
 
   void resized(const boo::SWindowRect& rect, bool sync) override {
     m_lastRect = rect;
     m_rectDirty = true;
-    m_imguiCallback.resized(rect, sync);
+//    m_imguiCallback.resized(rect, sync);
   }
 
   void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) override {
-    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->mouseDown(coord, button, mods);
-      }
-    }
-    m_imguiCallback.mouseDown(coord, button, mods);
+//    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
+//      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+//        as->mouseDown(coord, button, mods);
+//      }
+//    }
+//    m_imguiCallback.mouseDown(coord, button, mods);
   }
 
   void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) override {
@@ -174,38 +178,38 @@ private:
         as->mouseUp(coord, button, mods);
       }
     }
-    m_imguiCallback.mouseUp(coord, button, mods);
+//    m_imguiCallback.mouseUp(coord, button, mods);
   }
 
   void mouseMove(const boo::SWindowCoord& coord) override {
-    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->mouseMove(coord);
-      }
-    }
-    m_imguiCallback.mouseMove(coord);
+//    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
+//      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+//        as->mouseMove(coord);
+//      }
+//    }
+//    m_imguiCallback.mouseMove(coord);
   }
 
-  void mouseEnter(const boo::SWindowCoord& coord) override { m_imguiCallback.mouseEnter(coord); }
+//  void mouseEnter(const boo::SWindowCoord& coord) override { m_imguiCallback.mouseEnter(coord); }
 
-  void mouseLeave(const boo::SWindowCoord& coord) override { m_imguiCallback.mouseLeave(coord); }
+//  void mouseLeave(const boo::SWindowCoord& coord) override { m_imguiCallback.mouseLeave(coord); }
 
   void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll) override {
-    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->scroll(coord, scroll);
-      }
-    }
-    m_imguiCallback.scroll(coord, scroll);
+//    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
+//      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+//        as->scroll(coord, scroll);
+//      }
+//    }
+//    m_imguiCallback.scroll(coord, scroll);
   }
 
   void charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat) override {
-    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->charKeyDown(charCode, mods, isRepeat);
-      }
-    }
-    m_imguiCallback.charKeyDown(charCode, mods, isRepeat);
+//    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
+//      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+//        as->charKeyDown(charCode, mods, isRepeat);
+//      }
+//    }
+//    m_imguiCallback.charKeyDown(charCode, mods, isRepeat);
   }
 
   void charKeyUp(unsigned long charCode, boo::EModifierKey mods) override {
@@ -214,40 +218,39 @@ private:
         as->charKeyUp(charCode, mods);
       }
     }
-    m_imguiCallback.charKeyUp(charCode, mods);
+//    m_imguiCallback.charKeyUp(charCode, mods);
   }
 
   void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat) override {
-    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->specialKeyDown(key, mods, isRepeat);
-      }
-    }
-    if (True(mods & boo::EModifierKey::Alt)) {
-      if (key == boo::ESpecialKey::Enter) {
-        m_fullscreenToggleRequested = true;
-      } else if (key == boo::ESpecialKey::F4) {
-        m_windowInvalid = true;
-      }
-    }
-    m_imguiCallback.specialKeyDown(key, mods, isRepeat);
+//    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
+//      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+//        as->specialKeyDown(key, mods, isRepeat);
+//      }
+//    }
+//    if (True(mods & boo::EModifierKey::Alt)) {
+//      if (key == boo::ESpecialKey::Enter) {
+//        m_fullscreenToggleRequested = true;
+//      } else if (key == boo::ESpecialKey::F4) {
+//        m_windowInvalid = true;
+//      }
+//    }
+//    m_imguiCallback.specialKeyDown(key, mods, isRepeat);
   }
 
   void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods) override {
-    if (g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->specialKeyUp(key, mods);
-      }
-    }
-    m_imguiCallback.specialKeyUp(key, mods);
+//    if (g_mainMP1) {
+//      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+//        as->specialKeyUp(key, mods);
+//      }
+//    }
+//    m_imguiCallback.specialKeyUp(key, mods);
   }
 
   void destroyed() override { m_windowInvalid = true; }
 };
 
-struct Application : boo::IApplicationCallback {
+struct Application : aurora::AppDelegate {
 private:
-  std::shared_ptr<boo::IWindow> m_window;
   WindowCallback m_windowCallback;
   hecl::Runtime::FileStoreManager& m_fileMgr;
   hecl::CVarManager& m_cvarManager;
@@ -255,17 +258,16 @@ private:
   ImGuiConsole m_imGuiConsole;
   std::string m_errorString;
 
-  boo::ObjToken<boo::ITextureR> m_renderTex;
+//  boo::ObjToken<boo::ITextureR> m_renderTex;
   std::string m_deferredProject;
-  std::unique_ptr<hecl::Database::Project> m_proj;
+  bool m_projectInitialized = false;
+//  std::unique_ptr<hecl::Database::Project> m_proj;
   std::optional<amuse::BooBackendVoiceAllocator> m_amuseAllocWrapper;
   std::unique_ptr<boo::IAudioVoiceEngine> m_voiceEngine;
-  std::unique_ptr<hecl::PipelineConverterBase> m_pipelineConv;
+//  std::unique_ptr<hecl::PipelineConverterBase> m_pipelineConv;
 
   Limiter m_limiter{};
-  std::atomic_bool m_running = {true};
   bool m_noShaderWarmup = false;
-  bool m_imGuiInitialized = false;
 
   bool m_firstFrame = true;
   using delta_clock = std::chrono::high_resolution_clock;
@@ -275,41 +277,25 @@ public:
   Application(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr, hecl::CVarCommons& cvarCmns)
   : m_fileMgr(fileMgr), m_cvarManager(cvarMgr), m_cvarCommons(cvarCmns), m_imGuiConsole(cvarMgr, cvarCmns) {}
 
-  int appMain(boo::IApplication* app) override {
-    initialize(app);
+  void onAppLaunched() override {
+    initialize();
 
-    m_window = app->newWindow("Metaforce"sv);
-    if (!m_window) {
-      return 1;
-    }
-    m_window->setCallback(&m_windowCallback);
-    m_window->showWindow();
+    auto backend = static_cast<std::string>(aurora::get_backend_string());
+    aurora::set_window_title(fmt::format(FMT_STRING("Metaforce {} [{}]"), METAFORCE_WC_DESCRIBE, backend));
 
-    boo::IGraphicsDataFactory* gfxF = m_window->getMainContextDataFactory();
-    m_window->setTitle(fmt::format(FMT_STRING("Metaforce {} [{}]"), METAFORCE_WC_DESCRIBE, gfxF->platformName()));
-
-    boo::SWindowRect rect = m_window->getWindowFrame();
-    m_windowCallback.m_lastRect = rect;
-    gfxF->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
-      m_renderTex = ctx.newRenderTexture(rect.size[0], rect.size[1], boo::TextureClampMode::ClampToEdge, 3, 3);
-      return true;
-    } BooTrace);
-
-    m_pipelineConv = hecl::NewPipelineConverter(gfxF);
-    hecl::conv = m_pipelineConv.get();
-
-    m_voiceEngine = boo::NewAudioVoiceEngine();
+    m_voiceEngine = boo::NewAudioVoiceEngine("metaforce", "Metaforce");
     m_voiceEngine->setVolume(0.7f);
     m_amuseAllocWrapper.emplace(*m_voiceEngine);
 
-    hecl::ProjectPath projectPath;
-    for (const auto& arg : app->getArgs()) {
-      hecl::Sstat theStat;
-      if (!hecl::Stat((arg + "/out").c_str(), &theStat) && S_ISDIR(theStat.st_mode)) {
-        hecl::ProjectRootPath rootPath(arg);
-        hecl::Database::Project tmp(rootPath); // Force project creation
-      }
-      if (m_deferredProject.empty() && hecl::SearchForProject(arg))
+//    hecl::ProjectPath projectPath;
+    for (const auto& str : aurora::get_args()) {
+      auto arg = static_cast<std::string>(str);
+//      hecl::Sstat theStat;
+//      if (hecl::Stat((arg + "/out").c_str(), &theStat) == 0 && S_ISDIR(theStat.st_mode)) {
+//        hecl::ProjectRootPath rootPath(arg);
+//        hecl::Database::Project tmp(rootPath); // Force project creation
+//      }
+      if (m_deferredProject.empty() && !arg.starts_with('-') && !arg.starts_with('+'))
         m_deferredProject = arg;
       if (arg == "--no-shader-warmup")
         m_noShaderWarmup = true;
@@ -317,45 +303,23 @@ public:
         m_voiceEngine->setVolume(0.f);
     }
 
-    if (m_deferredProject.empty()) {
-      /* Default behavior - search upwards for packaged project containing the program */
-      if (hecl::ProjectRootPath projRoot = hecl::SearchForProject(ExeDir)) {
-        std::string rootPath(projRoot.getAbsolutePath());
-        hecl::Sstat theStat;
-        if (hecl::Stat((rootPath + "/out/files/MP1/Metroid1.upak").c_str(), &theStat) == 0 && S_ISREG(theStat.st_mode))
-          m_deferredProject = rootPath + "/out";
-      }
-    }
-
-    while (m_running) {
-      onAppIdle();
-    }
-
-    if (m_imGuiInitialized) {
-      m_imGuiConsole.Shutdown();
-      ImGuiEngine::Shutdown();
-    }
-    if (g_mainMP1) {
-      g_mainMP1->Shutdown();
-    }
-    g_mainMP1.reset();
-    m_renderTex.reset();
-    m_pipelineConv.reset();
-    if (m_window) {
-      m_window->getCommandQueue()->stopRenderer();
-    }
-    m_cvarManager.serialize();
-    m_voiceEngine.reset();
-    m_amuseAllocWrapper.reset();
-    CDvdFile::Shutdown();
-    return 0;
+//    if (m_deferredProject.empty()) {
+//      /* Default behavior - search upwards for packaged project containing the program */
+//      if (hecl::ProjectRootPath projRoot = hecl::SearchForProject(ExeDir)) {
+//        std::string rootPath(projRoot.getAbsolutePath());
+//        hecl::Sstat theStat;
+//        if (hecl::Stat((rootPath + "/out/files/MP1/Metroid1.upak").c_str(), &theStat) == 0 && S_ISREG(theStat.st_mode))
+//          m_deferredProject = rootPath + "/out";
+//      }
+//    }
   }
 
-  void initialize(boo::IApplication* app) {
+  void initialize() {
     zeus::detectCPU();
 
-    for (const auto& arg : app->getArgs()) {
-      if (arg.find("--verbosity=") == 0 || arg.find("-v=") == 0) {
+    for (const auto& str : aurora::get_args()) {
+      auto arg = static_cast<std::string>(str);
+      if (arg.starts_with("--verbosity=") || arg.starts_with("-v=")) {
         hecl::VerbosityLevel = atoi(arg.substr(arg.find_last_of('=') + 1).c_str());
         hecl::LogModule.report(logvisor::Info, FMT_STRING("Set verbosity level to {}"), hecl::VerbosityLevel);
       }
@@ -367,28 +331,18 @@ public:
     Log.report(logvisor::Info, FMT_STRING("CPU Features: {}"), CPUFeatureString(cpuInf));
   }
 
-  void onAppIdle() noexcept {
-    if (!m_deferredProject.empty()) {
-      std::string subPath;
-      hecl::ProjectRootPath projPath = hecl::SearchForProject(m_deferredProject, subPath);
-      if (projPath) {
-        m_proj = std::make_unique<hecl::Database::Project>(projPath);
-        m_deferredProject.clear();
-        hecl::ProjectPath projectPath{m_proj->getProjectWorkingPath(), "out/files/MP1"};
-        CDvdFile::Initialize(projectPath);
+  bool onAppIdle(float realDt) noexcept override {
+    if (!m_projectInitialized && !m_deferredProject.empty()) {
+      if (CDvdFile::Initialize(m_deferredProject)) {
+        m_projectInitialized = true;
       } else {
         Log.report(logvisor::Error, FMT_STRING("Project doesn't exist at '{}'"), m_deferredProject);
         m_errorString = fmt::format(FMT_STRING("Project not found at '{}'"), m_deferredProject);
         m_deferredProject.clear();
       }
     }
-    if (!m_proj && m_errorString.empty()) {
+    if (!m_projectInitialized && m_errorString.empty()) {
       m_errorString = "Project directory not specified"s;
-    }
-
-    if (m_windowCallback.m_windowInvalid) {
-      m_running.store(false);
-      return;
     }
 
     const auto targetFrameTime = getTargetFrameTime();
@@ -405,28 +359,26 @@ public:
     } else {
       // No more to load, and we're under frame time
       {
-        OPTICK_EVENT("Wait for Retrace");
-        m_window->waitForRetrace();
-      }
-      {
         OPTICK_EVENT("Sleep");
         m_limiter.Sleep(targetFrameTime);
       }
     }
 
     OPTICK_FRAME("MainThread");
-    CGraphics::SetCommitResourcesAsLazy(m_cvarCommons.m_lazyCommitResources->toBoolean());
+//    CGraphics::SetCommitResourcesAsLazy(m_cvarCommons.m_lazyCommitResources->toBoolean());
 
-    boo::SWindowRect rect = m_windowCallback.m_lastRect;
-    rect.location = {0, 0};
-    boo::IGraphicsCommandQueue* gfxQ = m_window->getCommandQueue();
-    if (m_windowCallback.m_rectDirty) {
-      gfxQ->resizeRenderTexture(m_renderTex, rect.size[0], rect.size[1]);
-      CGraphics::SetViewportResolution({rect.size[0], rect.size[1]});
-      m_windowCallback.m_rectDirty = false;
-    } else if (m_firstFrame) {
-      CGraphics::SetViewportResolution({rect.size[0], rect.size[1]});
-    }
+    // TODO
+//    boo::SWindowRect rect = m_windowCallback.m_lastRect;
+//    rect.location = {0, 0};
+//    boo::IGraphicsCommandQueue* gfxQ = m_window->getCommandQueue();
+//    if (m_windowCallback.m_rectDirty) {
+//      gfxQ->resizeRenderTexture(m_renderTex, rect.size[0], rect.size[1]);
+//      CGraphics::SetViewportResolution({rect.size[0], rect.size[1]});
+//      m_windowCallback.m_rectDirty = false;
+//    } else if (m_firstFrame) {
+    auto rect = aurora::get_window_size();
+    CGraphics::SetViewportResolution({static_cast<int32_t>(rect.width), static_cast<int32_t>(rect.height)});
+//    }
 
     // Check if fullscreen has been toggled, if so set the fullscreen cvar accordingly
     if (m_windowCallback.m_fullscreenToggleRequested) {
@@ -436,88 +388,63 @@ public:
 
     // Check if the user has modified the fullscreen CVar, if so set fullscreen state accordingly
     if (m_cvarCommons.m_fullscreen->isModified()) {
-      m_window->setFullscreen(m_cvarCommons.getFullscreen());
+      aurora::set_fullscreen(m_cvarCommons.getFullscreen());
     }
 
     // Let CVarManager inform all CVar listeners of the CVar's state and clear all mdoified flags if necessary
     m_cvarManager.proc();
 
-    boo::IGraphicsDataFactory* gfxF = m_window->getMainContextDataFactory();
-    float scale = std::floor(m_window->getVirtualPixelFactor() * 4.f) / 4.f;
-    if (!g_mainMP1 && m_proj) {
-      g_mainMP1.emplace(nullptr, nullptr, gfxF, gfxQ, m_renderTex.get());
-      g_mainMP1->Init(m_fileMgr, &m_cvarManager, m_window.get(), m_voiceEngine.get(), *m_amuseAllocWrapper);
+    // TODO
+//    boo::IGraphicsDataFactory* gfxF = m_window->getMainContextDataFactory();
+//    float scale = std::floor(m_window->getVirtualPixelFactor() * 4.f) / 4.f;
+    if (!g_mainMP1 && m_projectInitialized) {
+      g_mainMP1.emplace(nullptr, nullptr);
+      g_mainMP1->Init(m_fileMgr, &m_cvarManager, m_voiceEngine.get(), *m_amuseAllocWrapper);
       if (!m_noShaderWarmup) {
         g_mainMP1->WarmupShaders();
       }
     }
-    if (!m_imGuiInitialized) {
-      ImGuiEngine::Initialize(gfxF, m_window.get(), scale, m_fileMgr.getStoreRoot());
-      m_imGuiInitialized = true;
-    }
+//    if (!m_imGuiInitialized) {
+//      ImGuiEngine::Initialize(gfxF, m_window.get(), scale, m_fileMgr.getStoreRoot());
+//      m_imGuiInitialized = true;
+//    }
 
     float dt = 1 / 60.f;
-    float realDt = dt;
-    auto now = delta_clock::now();
-    if (m_firstFrame) {
-      m_firstFrame = false;
-    } else {
-      using delta_duration = std::chrono::duration<float, std::ratio<1>>;
-      realDt = std::chrono::duration_cast<delta_duration>(now - m_prevFrameTime).count();
-      if (m_cvarCommons.m_variableDt->toBoolean()) {
-        dt = std::min(realDt, 1 / 30.f);
-      }
+    if (m_cvarCommons.m_variableDt->toBoolean()) {
+      dt = std::min(realDt, 1 / 30.f);
     }
-    m_prevFrameTime = now;
-
-    ImGuiEngine::Begin(realDt, scale);
 
     if (g_mainMP1) {
       m_imGuiConsole.PreUpdate();
       if (g_mainMP1->Proc(dt)) {
-        m_running.store(false);
-        return;
+        return false;
       }
       m_imGuiConsole.PostUpdate();
     } else {
       m_imGuiConsole.ShowAboutWindow(false, m_errorString);
     }
 
-    {
-      OPTICK_EVENT("Flush");
-      CGraphics::SetCommitResourcesAsLazy(false);
-    }
+//    {
+//      OPTICK_EVENT("Flush");
+//      CGraphics::SetCommitResourcesAsLazy(false);
+//    }
 
-    {
-      OPTICK_EVENT("Draw");
-      gfxQ->setRenderTarget(m_renderTex);
-      gfxQ->clearTarget();
-      gfxQ->setViewport(rect);
-      gfxQ->setScissor(rect);
-      if (g_Renderer != nullptr) {
-        g_Renderer->BeginScene();
-      }
+    return true;
+  }
+
+  void onAppDraw() noexcept override {
+    OPTICK_EVENT("Draw");
+    if (g_Renderer != nullptr) {
+      g_Renderer->BeginScene();
       if (g_mainMP1) {
         g_mainMP1->Draw();
       }
-      if (g_Renderer != nullptr) {
-        g_Renderer->EndScene();
-      }
+      g_Renderer->EndScene();
     }
+  }
 
-    {
-      OPTICK_EVENT("ImGui Draw");
-      ImGuiEngine::End();
-      ImGuiEngine::Draw(gfxQ);
-    }
-
-    {
-      OPTICK_EVENT("Execute");
-      gfxQ->execute();
-    }
-
-    gfxQ->resolveDisplay(m_renderTex);
-
+  void onAppPostDraw() noexcept override {
+    OPTICK_EVENT("PostDraw");
     if (m_voiceEngine) {
       m_voiceEngine->pumpAndMixVoices();
     }
@@ -526,7 +453,19 @@ public:
     ++logvisor::FrameIndex;
   }
 
-  void appQuitting(boo::IApplication* /*unused*/) override { m_running.store(false); }
+  void onAppExiting() noexcept override {
+    m_imGuiConsole.Shutdown();
+    if (g_mainMP1) {
+      g_mainMP1->Shutdown();
+    }
+    g_mainMP1.reset();
+//    m_renderTex.reset();
+//    m_pipelineConv.reset();
+    m_cvarManager.serialize();
+    m_voiceEngine.reset();
+    m_amuseAllocWrapper.reset();
+    CDvdFile::Shutdown();
+  }
 
   [[nodiscard]] std::string getGraphicsApi() const { return m_cvarCommons.getGraphicsApi(); }
 
@@ -626,11 +565,9 @@ int main(int argc, char** argv) {
   /* Handle -j argument */
   hecl::SetCpuCountOverride(argc, argv);
 
-  metaforce::Application appCb(fileMgr, cvarMgr, cvarCmns);
-  int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, appCb, "metaforce", "Metaforce", argv[0], args,
-                                appCb.getGraphicsApi(), appCb.getSamples(), appCb.getAnisotropy(), appCb.getDeepColor(),
-                                false);
-  return ret;
+  auto app = std::make_unique<metaforce::Application>(fileMgr, cvarMgr, cvarCmns);
+  aurora::app_run(std::move(app));
+  return 0;
 }
 #endif
 

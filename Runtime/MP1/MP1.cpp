@@ -72,7 +72,9 @@
 
 #include "Runtime/MP1/CCredits.hpp"
 
+#ifdef ENABLE_DISCORD
 #include <discord_rpc.h>
+#endif
 
 namespace metaforce::MP1 {
 namespace {
@@ -224,37 +226,35 @@ CGameArchitectureSupport::~CGameArchitectureSupport() {
 
 void CGameArchitectureSupport::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat) {
   x30_inputGenerator.charKeyDown(charCode, mods, isRepeat);
-  m_parent.m_console->handleCharCode(charCode, mods, isRepeat);
+//  m_parent.m_console->handleCharCode(charCode, mods, isRepeat);
 }
 
 void CGameArchitectureSupport::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat) {
   x30_inputGenerator.specialKeyDown(key, mods, isRepeat);
-  m_parent.m_console->handleSpecialKeyDown(key, mods, isRepeat);
+//  m_parent.m_console->handleSpecialKeyDown(key, mods, isRepeat);
 }
 
 void CGameArchitectureSupport::specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods) {
   x30_inputGenerator.specialKeyUp(key, mods);
-  m_parent.m_console->handleSpecialKeyUp(key, mods);
+//  m_parent.m_console->handleSpecialKeyUp(key, mods);
 }
 
-CMain::CMain(IFactory* resFactory, CSimplePool* resStore, boo::IGraphicsDataFactory* gfxFactory,
-             boo::IGraphicsCommandQueue* cmdQ, const boo::ObjToken<boo::ITextureR>& spareTex)
-: m_booSetter(gfxFactory, cmdQ, spareTex)
+CMain::CMain(IFactory* resFactory, CSimplePool* resStore)
+: m_booSetter()
 , xe4_gameplayResult(EGameplayResult::Playing)
 , x128_globalObjects(std::make_unique<CGameGlobalObjects>(resFactory, resStore)) {
   g_Main = this;
 }
 
-CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cmdQ,
-                            const boo::ObjToken<boo::ITextureR>& spareTex) {
-  CGraphics::InitializeBoo(factory, cmdQ, spareTex);
+CMain::BooSetter::BooSetter() {
+//  CGraphics::InitializeBoo();
   CParticleSwooshShaders::Initialize();
   CThermalColdFilter::Initialize();
   CThermalHotFilter::Initialize();
   CSpaceWarpFilter::Initialize();
   CCameraBlurFilter::Initialize();
   CXRayBlurFilter::Initialize();
-  CFogVolumePlaneShader::Initialize();
+//  CFogVolumePlaneShader::Initialize();
   CFogVolumeFilter::Initialize();
   CEnergyBarShader::Initialize();
   CRadarPaintShader::Initialize();
@@ -271,7 +271,7 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory, boo::IGraphicsCo
   CRandomStaticFilter::Initialize();
   CEnvFxShaders::Initialize();
   CNESShader::Initialize();
-  CMoviePlayer::Initialize(factory);
+  CMoviePlayer::Initialize();
 }
 
 void CMain::RegisterResourceTweaks() {}
@@ -357,7 +357,7 @@ void CMain::AddWorldPaks() {
       path += '0' + char(i);
     }
 
-    if (CDvdFile::FileExists(path + ".upak")) {
+    if (CDvdFile::FileExists(path + ".pak")) {
       loader->AddPakFileAsync(path, false, true);
     }
   }
@@ -373,27 +373,27 @@ void CMain::AddOverridePaks() {
   /* Inversely load each pak starting at 999, to ensure proper priority order
    * the higher the number the higer the priority, e.g: Override0 has less priority than Override1 etc.
    */
-  for (size_t i = 999; i > 0; --i) {
+  for (size_t i = 9; i > 0; --i) {
     const std::string path = fmt::format(FMT_STRING("Override{}"), i);
-    if (CDvdFile::FileExists(path + ".upak")) {
+    if (CDvdFile::FileExists(path + ".pak")) {
       loader->AddPakFileAsync(path, false, false, true);
     }
   }
-  /* Make sure all Override paks are ready before attempting to load URDE.upak */
+  /* Make sure all Override paks are ready before attempting to load URDE.pak */
   loader->WaitForPakFileLoadingComplete();
 
   /* Load Trilogy PAKs */
-  if (CDvdFile::FileExists("RS5.upak")) {
+  if (CDvdFile::FileExists("RS5.pak")) {
     loader->AddPakFile("RS5", false, false, true);
   }
-  if (CDvdFile::FileExists("Strings.upak")) {
+  if (CDvdFile::FileExists("Strings.pak")) {
     loader->AddPakFile("Strings", false, false, true);
   }
 
-  /* Attempt to load URDE.upak
+  /* Attempt to load URDE.pak
    * NOTE(phil): Should we fatal here if it's not found?
    */
-  if (CDvdFile::FileExists("URDE.upak")) {
+  if (CDvdFile::FileExists("URDE.pak")) {
     loader->AddPakFile("URDE", false, false, true);
   }
 }
@@ -416,7 +416,7 @@ void CMain::InitializeSubsystems() {
   CDecalManager::Initialize();
   CGBASupport::Initialize();
   CPatterned::Initialize();
-  CGraphics::g_BooFactory->waitUntilShadersReady();
+//  CGraphics::g_BooFactory->waitUntilShadersReady();
 }
 
 void CMain::MemoryCardInitializePump() {
@@ -450,197 +450,6 @@ bool CMain::LoadAudio() {
 void CMain::EnsureWorldPaksReady() {}
 
 void CMain::EnsureWorldPakReady(CAssetId mlvl) { /* TODO: Schedule resource list load for World Pak containing mlvl */
-}
-
-void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
-  if (args.empty() || (g_GameState == nullptr || !g_GameState->GetPlayerState())) {
-    return;
-  }
-
-  std::string type = args[0];
-  athena::utility::tolower(type);
-  std::shared_ptr<CPlayerState> pState = g_GameState->GetPlayerState();
-  if (type == "all") {
-    for (u32 item = 0; item < u32(CPlayerState::EItemType::Max); ++item) {
-      pState->ReInitializePowerUp(CPlayerState::EItemType(item),
-                                  CPlayerState::GetPowerUpMaxValue(CPlayerState::EItemType(item)));
-      pState->IncrPickup(CPlayerState::EItemType(item),
-                         CPlayerState::GetPowerUpMaxValue(CPlayerState::EItemType(item)));
-    }
-    pState->IncrPickup(CPlayerState::EItemType::HealthRefill, 99999);
-  } else if (type == "map") {
-    g_GameState->CurrentWorldState().MapWorldInfo()->SetMapStationUsed(true);
-  } else {
-    CPlayerState::EItemType eType = CPlayerState::ItemNameToType(type);
-    if (eType == CPlayerState::EItemType::Invalid) {
-      console->report(hecl::Console::Level::Info, FMT_STRING("Invalid item {}"), type);
-      return;
-    }
-    if (eType == CPlayerState::EItemType::HealthRefill) {
-      pState->IncrPickup(eType, 9999);
-      console->report(hecl::Console::Level::Info,
-                      FMT_STRING("Cheater....., Greatly increasing Metroid encounters, have fun!"));
-      if (g_StateManager != nullptr) {
-        g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
-      }
-      return;
-    }
-
-    s32 itemAmt = CPlayerState::GetPowerUpMaxValue(eType);
-    if (args.size() == 2) {
-      s32 itemMax = CPlayerState::GetPowerUpMaxValue(eType);
-      itemAmt = s32(strtol(args[1].c_str(), nullptr, 10));
-      itemAmt = zeus::clamp(-itemMax, itemAmt, itemMax);
-    }
-
-    u32 curCap = pState->GetItemCapacity(eType);
-    if (itemAmt > 0 && curCap < u32(itemAmt)) {
-      /* Handle special case with Missiles */
-      if (eType == CPlayerState::EItemType::Missiles) {
-        u32 tmp = ((u32(itemAmt) / 5) + (itemAmt % 5)) * 5;
-        pState->ReInitializePowerUp(eType, tmp);
-      } else {
-        pState->ReInitializePowerUp(eType, itemAmt);
-      }
-    }
-
-    if (itemAmt > 0) {
-      pState->IncrPickup(eType, u32(itemAmt));
-    } else {
-      pState->DecrPickup(eType, zeus::clamp(0u, u32(abs(itemAmt)), pState->GetItemAmount(eType)));
-    }
-  }
-  if (g_StateManager != nullptr) {
-    g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
-  }
-  console->report(hecl::Console::Level::Info,
-                  FMT_STRING("Cheater....., Greatly increasing Metroid encounters, have fun!"));
-} // namespace MP1
-
-void CMain::Remove(hecl::Console*, const std::vector<std::string>& args) {
-  if (args.empty() || (g_GameState == nullptr || !g_GameState->GetPlayerState())) {
-    return;
-  }
-
-  std::string type = args[0];
-  athena::utility::tolower(type);
-  std::shared_ptr<CPlayerState> pState = g_GameState->GetPlayerState();
-  if (type == "all") {
-
-  } else if (type == "map") {
-    g_GameState->CurrentWorldState().MapWorldInfo()->SetMapStationUsed(false);
-  } else {
-    CPlayerState::EItemType eType = CPlayerState::ItemNameToType(type);
-    if (eType != CPlayerState::EItemType::Invalid) {
-      pState->ReInitializePowerUp(eType, 0);
-      if (g_StateManager != nullptr) {
-        g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
-      }
-    }
-  }
-}
-
-void CMain::God(hecl::Console* con, const std::vector<std::string>&) {
-  if (g_GameState != nullptr && g_GameState->GetPlayerState()) {
-    g_GameState->GetPlayerState()->SetCanTakeDamage(!g_GameState->GetPlayerState()->CanTakeDamage());
-    if (!g_GameState->GetPlayerState()->CanTakeDamage()) {
-      con->report(hecl::Console::Level::Info, FMT_STRING("God Mode Enabled"));
-    } else {
-      con->report(hecl::Console::Level::Info, FMT_STRING("God Mode Disabled"));
-    }
-  }
-}
-
-void CMain::Teleport(hecl::Console*, const std::vector<std::string>& args) {
-  if (g_StateManager == nullptr || args.size() < 3) {
-    return;
-  }
-
-  zeus::CVector3f loc;
-  for (u32 i = 0; i < 3; ++i) {
-    loc[i] = strtof(args[i].c_str(), nullptr);
-  }
-
-  zeus::CTransform xf = g_StateManager->Player()->GetTransform();
-  xf.origin = loc;
-
-  if (args.size() >= 6) {
-    zeus::CVector3f angle;
-    for (u32 i = 0; i < 3; ++i) {
-      angle[i] = zeus::degToRad(strtof(args[i + 3].c_str(), nullptr));
-    }
-    xf.setRotation(zeus::CMatrix3f(zeus::CQuaternion(angle)));
-  }
-  g_StateManager->Player()->Teleport(xf, *g_StateManager, false);
-}
-
-void CMain::ListWorlds(hecl::Console* con, const std::vector<std::string>&) {
-
-  if (g_ResFactory != nullptr && g_ResFactory->GetResLoader() != nullptr) {
-    for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks()) {
-      if (pak->IsWorldPak()) {
-        for (const auto& named : pak->GetNameList()) {
-          if (named.second.type == SBIG('MLVL')) {
-            con->report(hecl::Console::Level::Info, FMT_STRING("{} '{}'"), named.first, named.second.id);
-          }
-        }
-      }
-    }
-  }
-}
-
-void CMain::Warp(hecl::Console* con, const std::vector<std::string>& args) {
-  if (g_StateManager == nullptr) {
-    return;
-  }
-
-  if (args.empty()) {
-    return;
-  }
-
-  TAreaId aId = 0;
-  std::string worldName;
-  if (args.size() == 2) {
-    worldName = args[0];
-    athena::utility::tolower(worldName);
-    aId = strtol(args[1].c_str(), nullptr, 10);
-  } else {
-    aId = strtol(args[0].c_str(), nullptr, 10);
-  }
-
-  if (!worldName.empty() && g_ResFactory != nullptr && g_ResFactory->GetResLoader() != nullptr) {
-    bool found = false;
-
-    for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks()) {
-      if (found) {
-        break;
-      }
-      if (pak->IsWorldPak()) {
-        for (const auto& named : pak->GetNameList()) {
-          if (named.second.type == SBIG('MLVL')) {
-            std::string name = named.first;
-            athena::utility::tolower(name);
-            if (name.find(worldName) != std::string::npos) {
-              g_GameState->SetCurrentWorldId(named.second.id);
-              found = true;
-              break;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  g_GameState->GetWorldTransitionManager()->DisableTransition();
-
-  if (aId >= g_GameState->CurrentWorldState().GetLayerState()->GetAreaCount()) {
-    aId = 0;
-  }
-
-  g_GameState->CurrentWorldState().SetAreaId(aId);
-  g_Main->SetFlowState(EClientFlowStates::None);
-  g_StateManager->SetWarping(true);
-  g_StateManager->SetShouldQuitGame(true);
 }
 
 void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx) {
@@ -677,20 +486,25 @@ static u32 DiscordItemPercent = 0xffffffff;
 static std::string DiscordState;
 
 void CMain::InitializeDiscord() {
+#ifdef ENABLE_DISCORD
   DiscordStartTime = std::time(nullptr);
   DiscordEventHandlers handlers = {};
   handlers.ready = HandleDiscordReady;
   handlers.disconnected = HandleDiscordDisconnected;
   handlers.errored = HandleDiscordErrored;
   Discord_Initialize(DISCORD_APPLICATION_ID, &handlers, 1, nullptr);
+#endif
 }
 
 void CMain::ShutdownDiscord() {
+#ifdef ENABLE_DISCORD
   DiscordWorldSTRGObj = TLockedToken<CStringTable>();
   Discord_Shutdown();
+#endif
 }
 
 void CMain::UpdateDiscordPresence(CAssetId worldSTRG) {
+#ifdef ENABLE_DISCORD
   bool updated = false;
 
   if (worldSTRG != DiscordWorldSTRG) {
@@ -722,6 +536,7 @@ void CMain::UpdateDiscordPresence(CAssetId worldSTRG) {
     discordPresence.startTimestamp = DiscordStartTime;
     Discord_UpdatePresence(&discordPresence);
   }
+#endif
 }
 
 void CMain::HandleDiscordReady(const DiscordUser* request) {
@@ -736,41 +551,11 @@ void CMain::HandleDiscordErrored(int errorCode, const char* message) {
   DiscordLog.report(logvisor::Error, FMT_STRING("Discord Error: {}"), message);
 }
 
-void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarMgr, boo::IWindow* window,
+void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarMgr,
                  boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) {
   InitializeDiscord();
-  m_mainWindow = window;
   m_cvarMgr = cvarMgr;
   m_cvarCommons = std::make_unique<hecl::CVarCommons>(*m_cvarMgr);
-  m_console = std::make_unique<hecl::Console>(m_cvarMgr);
-  m_console->init(window);
-  m_console->registerCommand(
-      "Quit"sv, "Quits the game immediately"sv, ""sv,
-      [this](hecl::Console* console, const std::vector<std::string>& args) { quit(console, args); });
-  m_console->registerCommand(
-      "Give"sv, "Gives the player the specified item, maxing it out"sv, ""sv,
-      [this](hecl::Console* console, const std::vector<std::string>& args) { Give(console, args); },
-      hecl::SConsoleCommand::ECommandFlags::Cheat);
-  m_console->registerCommand(
-      "Remove"sv, "Removes the specified item from the player"sv, ""sv,
-      [this](hecl::Console* console, const std::vector<std::string>& args) { Remove(console, args); },
-      hecl::SConsoleCommand::ECommandFlags::Cheat);
-  m_console->registerCommand(
-      "Teleport"sv, "Teleports the player to the specified coordinates in worldspace"sv, "x y z [dX dY dZ]"sv,
-      [this](hecl::Console* console, const std::vector<std::string>& args) { Teleport(console, args); },
-      (hecl::SConsoleCommand::ECommandFlags::Cheat | hecl::SConsoleCommand::ECommandFlags::Developer));
-  m_console->registerCommand(
-      "God"sv, "Disables damage given by enemies and objects"sv, ""sv,
-      [this](hecl::Console* console, const std::vector<std::string>& args) { God(console, args); },
-      hecl::SConsoleCommand::ECommandFlags::Cheat);
-  m_console->registerCommand(
-      "ListWorlds"sv, "Lists loaded worlds"sv, ""sv,
-      [this](hecl::Console* console, const std::vector<std::string>& args) { ListWorlds(console, args); },
-      hecl::SConsoleCommand::ECommandFlags::Normal);
-  m_console->registerCommand(
-      "Warp"sv, "Warps to a given area and world"sv, "[worldname] areaId"sv,
-      [this](hecl::Console* console, const std::vector<std::string>& args) { Warp(console, args); },
-      hecl::SConsoleCommand::ECommandFlags::Normal);
 
   bool loadedVersion = false;
   if (CDvdFile::FileExists("version.yaml")) {
@@ -781,6 +566,25 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       if (readLen == file.Length()) {
         CMemoryInStream memoryInStream(buf.get(), file.Length());
         athena::io::FromYAMLStream(m_version, memoryInStream);
+        loadedVersion = true;
+        MainLog.report(logvisor::Level::Info, FMT_STRING("Loaded version info"));
+      }
+    }
+  } else if (CDvdFile::FileExists("default.dol")) {
+    CDvdFile file("default.dol");
+    if (file) {
+      std::unique_ptr<u8[]> buf = std::make_unique<u8[]>(file.Length());
+      u32 readLen = file.SyncRead(buf.get(), file.Length());
+      const char* buildInfo =
+          static_cast<char*>(memmem(buf.get(), readLen, "MetroidBuildInfo", 16)) + 19;
+      if (buildInfo != nullptr) {
+        // TODO
+        m_version = DataSpec::MetaforceVersionInfo{
+            .version = std::string(buildInfo),
+            .region = DataSpec::ERegion::NTSC_U,
+            .game = DataSpec::EGame::MetroidPrime1,
+            .isTrilogy = false,
+        };
         loadedVersion = true;
         MainLog.report(logvisor::Level::Info, FMT_STRING("Loaded version info"));
       }
@@ -805,7 +609,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
     MainLog.report(logvisor::Level::Fatal, FMT_STRING("Unable to load version info"));
   }
 
-  const auto& args = boo::APP->getArgs();
+  auto args = aurora::get_args();
   for (auto it = args.begin(); it != args.end(); ++it) {
     if (*it == "--warp" && args.end() - it >= 3) {
       const char* worldIdxStr = (*(it + 1)).c_str();
@@ -923,7 +727,9 @@ bool CMain::Proc(float dt) {
     x160_24_finished = true;
   }
 
+#ifdef ENABLE_DISCORD
   Discord_RunCallbacks();
+#endif
 
   return x160_24_finished;
 }
@@ -932,7 +738,7 @@ void CMain::Draw() {
   // Warmup cycle overrides draw
   if (m_warmupTags.size()) {
     if (m_needsWarmupClear) {
-      CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
+//      CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
       m_needsWarmupClear = false;
     }
     auto startTime = std::chrono::steady_clock::now();
@@ -959,7 +765,7 @@ void CMain::Draw() {
   }
 
   x164_archSupport->Draw();
-  m_console->draw(CGraphics::g_BooMainCommandQueue);
+//  m_console->draw(CGraphics::g_BooMainCommandQueue);
 }
 
 void CMain::ShutdownSubsystems() {
@@ -974,7 +780,7 @@ void CMain::ShutdownSubsystems() {
 }
 
 void CMain::Shutdown() {
-  m_console->unregisterCommand("Give");
+//  m_console->unregisterCommand("Give");
   x128_globalObjects->m_gameResFactory->UnloadPersistentResources();
   x164_archSupport.reset();
   ShutdownSubsystems();
@@ -984,7 +790,7 @@ void CMain::Shutdown() {
   CSpaceWarpFilter::Shutdown();
   CCameraBlurFilter::Shutdown();
   CXRayBlurFilter::Shutdown();
-  CFogVolumePlaneShader::Shutdown();
+//  CFogVolumePlaneShader::Shutdown();
   CFogVolumeFilter::Shutdown();
   CEnergyBarShader::Shutdown();
   CRadarPaintShader::Shutdown();
@@ -1004,11 +810,9 @@ void CMain::Shutdown() {
   CFluidPlaneManager::RippleMapTex.reset();
   CNESShader::Shutdown();
   CBooModel::Shutdown();
-  CGraphics::ShutdownBoo();
+//  CGraphics::ShutdownBoo();
   ShutdownDiscord();
 }
-
-boo::IWindow* CMain::GetMainWindow() const { return m_mainWindow; }
 
 #if 0
 int CMain::RsMain(int argc, char** argv, boo::IAudioVoiceEngine* voiceEngine,
@@ -1039,52 +843,6 @@ int CMain::RsMain(int argc, char** argv, boo::IAudioVoiceEngine* voiceEngine,
 
   return 0;
 }
-#endif
-
-#if MP1_USE_BOO
-
-int CMain::appMain(boo::IApplication* app) {
-  zeus::detectCPU();
-  mainWindow = app->newWindow("Metroid Prime 1 Reimplementation vZygote", 1);
-  mainWindow->showWindow();
-  TOneStatic<CGameGlobalObjects> globalObjs;
-  InitializeSubsystems();
-  globalObjs->PostInitialize();
-  x70_tweaks.RegisterTweaks();
-  AddWorldPaks();
-  g_TweakManager->ReadFromMemoryCard("AudioTweaks");
-  FillInAssetIDs();
-  TOneStatic<CGameArchitectureSupport> archSupport;
-  mainWindow->setCallback(archSupport.GetAllocSpace());
-
-  boo::IGraphicsCommandQueue* gfxQ = mainWindow->getCommandQueue();
-  boo::SWindowRect windowRect = mainWindow->getWindowFrame();
-  boo::ITextureR* renderTex;
-  boo::GraphicsDataToken data =
-      mainWindow->getMainContextDataFactory()->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool {
-        renderTex = ctx.newRenderTexture(windowRect.size[0], windowRect.size[1], true, true);
-        return true;
-      });
-  float rgba[4] = {0.2f, 0.2f, 0.2f, 1.0f};
-  gfxQ->setClearColor(rgba);
-
-  while (!xe8_b24_finished) {
-    xe8_b24_finished = archSupport->Update();
-
-    if (archSupport->isRectDirty()) {
-      const boo::SWindowRect& windowRect = archSupport->getWindowRect();
-      gfxQ->resizeRenderTexture(renderTex, windowRect.size[0], windowRect.size[1]);
-    }
-
-    gfxQ->setRenderTarget(renderTex);
-    gfxQ->clearTarget();
-    gfxQ->resolveDisplay(renderTex);
-    gfxQ->execute();
-    mainWindow->waitForRetrace();
-  }
-  return 0;
-}
-
 #endif
 
 } // namespace metaforce::MP1

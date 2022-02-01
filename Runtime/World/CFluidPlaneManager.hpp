@@ -1,10 +1,9 @@
 #pragma once
 
+#include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/World/CRippleManager.hpp"
-
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 namespace metaforce {
 
@@ -47,7 +46,7 @@ public:
   static std::array<std::array<u8, 64>, 64> RippleValues;
   static std::array<u8, 64> RippleMins;
   static std::array<u8, 64> RippleMaxs;
-  static boo::ObjToken<boo::ITextureS> RippleMapTex;
+  static std::shared_ptr<aurora::TextureHandle> RippleMapTex;
 
   CFluidPlaneManager();
   void StartFrame(bool);

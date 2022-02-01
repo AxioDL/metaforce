@@ -14,9 +14,9 @@ namespace metaforce {
 
 struct CTextRenderBuffer::BooFontCharacters {
   TLockedToken<CRasterFont> m_font;
-  hecl::VertexBufferPool<CTextSupportShader::CharacterInstance>::Token m_instBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBinding;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBinding2;
+//  hecl::VertexBufferPool<CTextSupportShader::CharacterInstance>::Token m_instBuf;
+//  boo::ObjToken<boo::IShaderDataBinding> m_dataBinding;
+//  boo::ObjToken<boo::IShaderDataBinding> m_dataBinding2;
   std::vector<CTextSupportShader::CharacterInstance> m_charData;
   u32 m_charCount = 0;
   bool m_dirty = true;
@@ -26,9 +26,9 @@ struct CTextRenderBuffer::BooFontCharacters {
 
 struct CTextRenderBuffer::BooImage {
   CFontImageDef m_imageDef;
-  hecl::VertexBufferPool<CTextSupportShader::ImageInstance>::Token m_instBuf;
-  std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding;
-  std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding2;
+//  hecl::VertexBufferPool<CTextSupportShader::ImageInstance>::Token m_instBuf;
+//  std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding;
+//  std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding2;
   CTextSupportShader::ImageInstance m_imageData;
   bool m_dirty = true;
 
@@ -80,68 +80,68 @@ void CTextRenderBuffer::CommitResources() {
   for (BooFontCharacters& chs : m_fontCharacters)
     chs.m_font->GetTexture();
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    m_uniBuf = CTextSupportShader::s_Uniforms.allocateBlock(CGraphics::g_BooFactory);
-    auto uBufInfo = m_uniBuf.getBufferInfo();
-    decltype(uBufInfo) uBufInfo2;
-    if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
-      m_uniBuf2 = CTextSupportShader::s_Uniforms.allocateBlock(CGraphics::g_BooFactory);
-      uBufInfo2 = m_uniBuf2.getBufferInfo();
-    }
-
-    for (BooFontCharacters& chs : m_fontCharacters) {
-      chs.m_instBuf = CTextSupportShader::s_CharInsts.allocateBlock(CGraphics::g_BooFactory, chs.m_charCount);
-      auto iBufInfo = chs.m_instBuf.getBufferInfo();
-
-      boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {uBufInfo.first.get()};
-      boo::PipelineStage unistages[] = {boo::PipelineStage::Vertex};
-      size_t unioffs[] = {size_t(uBufInfo.second)};
-      size_t unisizes[] = {sizeof(CTextSupportShader::Uniform)};
-      boo::ObjToken<boo::ITexture> texs[] = {chs.m_font->GetTexture()};
-      chs.m_dataBinding = ctx.newShaderDataBinding(CTextSupportShader::SelectTextPipeline(m_drawFlags), nullptr,
-                                                   iBufInfo.first.get(), nullptr, 1, uniforms, unistages, unioffs,
-                                                   unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second);
-
-      if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
-        uniforms[0] = uBufInfo2.first.get();
-        unioffs[0] = size_t(uBufInfo2.second);
-        chs.m_dataBinding2 = ctx.newShaderDataBinding(CTextSupportShader::GetTextAdditiveOverdrawPipeline(), nullptr,
-                                                      iBufInfo.first.get(), nullptr, 1, uniforms, unistages, unioffs,
-                                                      unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second);
-      }
-    }
-
-    for (BooImage& img : m_images) {
-      img.m_instBuf = CTextSupportShader::s_ImgInsts.allocateBlock(CGraphics::g_BooFactory, 1);
-      auto iBufInfo = img.m_instBuf.getBufferInfo();
-
-      boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {uBufInfo.first.get()};
-      boo::PipelineStage unistages[] = {boo::PipelineStage::Vertex};
-      size_t unioffs[] = {size_t(uBufInfo.second)};
-      size_t unisizes[] = {sizeof(CTextSupportShader::Uniform)};
-      img.m_dataBinding.reserve(img.m_imageDef.x4_texs.size());
-      for (TToken<CTexture>& tex : img.m_imageDef.x4_texs) {
-        boo::ObjToken<boo::ITexture> texs[] = {tex->GetBooTexture()};
-        texs[0]->setClampMode(boo::TextureClampMode::ClampToEdge);
-        img.m_dataBinding.push_back(ctx.newShaderDataBinding(
-            CTextSupportShader::SelectImagePipeline(m_drawFlags), nullptr, iBufInfo.first.get(), nullptr, 1, uniforms,
-            unistages, unioffs, unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second));
-      }
-
-      if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
-        uniforms[0] = uBufInfo2.first.get();
-        unioffs[0] = size_t(uBufInfo2.second);
-        img.m_dataBinding2.reserve(img.m_imageDef.x4_texs.size());
-        for (TToken<CTexture>& tex : img.m_imageDef.x4_texs) {
-          boo::ObjToken<boo::ITexture> texs[] = {tex->GetBooTexture()};
-          img.m_dataBinding2.push_back(ctx.newShaderDataBinding(
-              CTextSupportShader::GetImageAdditiveOverdrawPipeline(), nullptr, iBufInfo.first.get(), nullptr, 1,
-              uniforms, unistages, unioffs, unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second));
-        }
-      }
-    }
-    return true;
-  } BooTrace);
+//  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+//    m_uniBuf = CTextSupportShader::s_Uniforms.allocateBlock(CGraphics::g_BooFactory);
+//    auto uBufInfo = m_uniBuf.getBufferInfo();
+//    decltype(uBufInfo) uBufInfo2;
+//    if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
+//      m_uniBuf2 = CTextSupportShader::s_Uniforms.allocateBlock(CGraphics::g_BooFactory);
+//      uBufInfo2 = m_uniBuf2.getBufferInfo();
+//    }
+//
+//    for (BooFontCharacters& chs : m_fontCharacters) {
+//      chs.m_instBuf = CTextSupportShader::s_CharInsts.allocateBlock(CGraphics::g_BooFactory, chs.m_charCount);
+//      auto iBufInfo = chs.m_instBuf.getBufferInfo();
+//
+//      boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {uBufInfo.first.get()};
+//      boo::PipelineStage unistages[] = {boo::PipelineStage::Vertex};
+//      size_t unioffs[] = {size_t(uBufInfo.second)};
+//      size_t unisizes[] = {sizeof(CTextSupportShader::Uniform)};
+//      boo::ObjToken<boo::ITexture> texs[] = {chs.m_font->GetTexture()};
+//      chs.m_dataBinding = ctx.newShaderDataBinding(CTextSupportShader::SelectTextPipeline(m_drawFlags), nullptr,
+//                                                   iBufInfo.first.get(), nullptr, 1, uniforms, unistages, unioffs,
+//                                                   unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second);
+//
+//      if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
+//        uniforms[0] = uBufInfo2.first.get();
+//        unioffs[0] = size_t(uBufInfo2.second);
+//        chs.m_dataBinding2 = ctx.newShaderDataBinding(CTextSupportShader::GetTextAdditiveOverdrawPipeline(), nullptr,
+//                                                      iBufInfo.first.get(), nullptr, 1, uniforms, unistages, unioffs,
+//                                                      unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second);
+//      }
+//    }
+//
+//    for (BooImage& img : m_images) {
+//      img.m_instBuf = CTextSupportShader::s_ImgInsts.allocateBlock(CGraphics::g_BooFactory, 1);
+//      auto iBufInfo = img.m_instBuf.getBufferInfo();
+//
+//      boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {uBufInfo.first.get()};
+//      boo::PipelineStage unistages[] = {boo::PipelineStage::Vertex};
+//      size_t unioffs[] = {size_t(uBufInfo.second)};
+//      size_t unisizes[] = {sizeof(CTextSupportShader::Uniform)};
+//      img.m_dataBinding.reserve(img.m_imageDef.x4_texs.size());
+//      for (TToken<CTexture>& tex : img.m_imageDef.x4_texs) {
+//        boo::ObjToken<boo::ITexture> texs[] = {tex->GetBooTexture()};
+//        texs[0]->setClampMode(boo::TextureClampMode::ClampToEdge);
+//        img.m_dataBinding.push_back(ctx.newShaderDataBinding(
+//            CTextSupportShader::SelectImagePipeline(m_drawFlags), nullptr, iBufInfo.first.get(), nullptr, 1, uniforms,
+//            unistages, unioffs, unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second));
+//      }
+//
+//      if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
+//        uniforms[0] = uBufInfo2.first.get();
+//        unioffs[0] = size_t(uBufInfo2.second);
+//        img.m_dataBinding2.reserve(img.m_imageDef.x4_texs.size());
+//        for (TToken<CTexture>& tex : img.m_imageDef.x4_texs) {
+//          boo::ObjToken<boo::ITexture> texs[] = {tex->GetBooTexture()};
+//          img.m_dataBinding2.push_back(ctx.newShaderDataBinding(
+//              CTextSupportShader::GetImageAdditiveOverdrawPipeline(), nullptr, iBufInfo.first.get(), nullptr, 1,
+//              uniforms, unistages, unioffs, unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second));
+//        }
+//      }
+//    }
+//    return true;
+//  } BooTrace);
 }
 
 void CTextRenderBuffer::SetMode(EMode mode) {
@@ -163,44 +163,44 @@ u32 CTextRenderBuffer::GetPrimitiveCount() const { return m_primitiveMarks.size(
 void CTextRenderBuffer::Render(const zeus::CColor& col, float time) {
   CommitResources();
 
-  const zeus::CMatrix4f mv = CGraphics::g_GXModelView.toMatrix4f();
-  const zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-  const zeus::CMatrix4f mat = proj * mv;
+//  const zeus::CMatrix4f mv = CGraphics::g_GXModelView.toMatrix4f();
+//  const zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+//  const zeus::CMatrix4f mat = proj * mv;
 
-  m_uniBuf.access() = CTextSupportShader::Uniform{mat, col};
+//  m_uniBuf.access() = CTextSupportShader::Uniform{mat, col};
   if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
     zeus::CColor colPremul = col * col.a();
     colPremul.a() = col.a();
-    m_uniBuf2.access() = CTextSupportShader::Uniform{mat, colPremul};
+//    m_uniBuf2.access() = CTextSupportShader::Uniform{mat, colPremul};
   }
 
   for (BooFontCharacters& chs : m_fontCharacters) {
     if (chs.m_charData.size()) {
       if (chs.m_dirty) {
-        std::memmove(chs.m_instBuf.access(), chs.m_charData.data(),
-                     sizeof(CTextSupportShader::CharacterInstance) * chs.m_charData.size());
+//        std::memmove(chs.m_instBuf.access(), chs.m_charData.data(),
+//                     sizeof(CTextSupportShader::CharacterInstance) * chs.m_charData.size());
         chs.m_dirty = false;
       }
-      CGraphics::SetShaderDataBinding(chs.m_dataBinding);
-      CGraphics::DrawInstances(0, 4, chs.m_charData.size());
+//      CGraphics::SetShaderDataBinding(chs.m_dataBinding);
+//      CGraphics::DrawInstances(0, 4, chs.m_charData.size());
       if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
-        CGraphics::SetShaderDataBinding(chs.m_dataBinding2);
-        CGraphics::DrawInstances(0, 4, chs.m_charData.size());
+//        CGraphics::SetShaderDataBinding(chs.m_dataBinding2);
+//        CGraphics::DrawInstances(0, 4, chs.m_charData.size());
       }
     }
   }
 
   for (BooImage& img : m_images) {
     if (img.m_dirty) {
-      *img.m_instBuf.access() = img.m_imageData;
+//      *img.m_instBuf.access() = img.m_imageData;
       img.m_dirty = false;
     }
-    const int idx = int(img.m_imageDef.x0_fps * time) % img.m_dataBinding.size();
-    CGraphics::SetShaderDataBinding(img.m_dataBinding[idx]);
-    CGraphics::DrawInstances(0, 4, 1);
+//    const int idx = int(img.m_imageDef.x0_fps * time) % img.m_dataBinding.size();
+//    CGraphics::SetShaderDataBinding(img.m_dataBinding[idx]);
+//    CGraphics::DrawInstances(0, 4, 1);
     if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
-      CGraphics::SetShaderDataBinding(img.m_dataBinding2[idx]);
-      CGraphics::DrawInstances(0, 4, 1);
+//      CGraphics::SetShaderDataBinding(img.m_dataBinding2[idx]);
+//      CGraphics::DrawInstances(0, 4, 1);
     }
   }
 }

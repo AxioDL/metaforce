@@ -20,7 +20,7 @@ endif()
 set(HECL_HEADERS
     ../include/hecl/CVar.hpp
     ../include/hecl/CVarManager.hpp
-    ../include/hecl/Console.hpp
+#    ../include/hecl/Console.hpp
     ../include/hecl/CVarCommons.hpp
     ../include/hecl/hecl.hpp
     ../include/hecl/MultiProgressPrinter.hpp
@@ -37,11 +37,9 @@ set(HECL_HEADERS
     ../include/hecl/ClientProcess.hpp
     ../include/hecl/BitVector.hpp
     ../include/hecl/MathExtras.hpp
-    ../include/hecl/UniformBufferPool.hpp
-    ../include/hecl/VertexBufferPool.hpp
-    ../include/hecl/PipelineBase.hpp
-    ../include/hecl/Pipeline.hpp
-    ../include/hecl/Compilers.hpp)
+#    ../include/hecl/UniformBufferPool.hpp
+#    ../include/hecl/VertexBufferPool.hpp
+    )
 set(COMMON_SOURCES
     hecl.cpp
     MultiProgressPrinter.cpp
@@ -51,11 +49,10 @@ set(COMMON_SOURCES
     CVar.cpp
     CVarCommons.cpp
     CVarManager.cpp
-    Console.cpp
+#    Console.cpp
     ClientProcess.cpp
     SteamFinder.cpp
-    WideStringConvert.cpp
-    Compilers.cpp)
+    WideStringConvert.cpp)
 
 if(UNIX)
   list(APPEND PLAT_SRCS closefrom.c)
@@ -68,7 +65,7 @@ add_library(hecl-full
         ${COMMON_SOURCES}
         ${HECL_HEADERS}
         ${PLAT_SRCS}
-        Pipeline.cpp)
+        ${FIND_BLENDER_SOURCES})
 target_include_directories(hecl-full PUBLIC ../include)
 target_link_libraries(hecl-full PUBLIC ${HECL_APPLICATION_REPS_TARGETS_LIST}
         hecl-blender-addon boo athena-core logvisor)
@@ -83,7 +80,7 @@ add_library(hecl-light
         ${PLAT_SRCS}
         ${FIND_BLENDER_SOURCES})
 target_include_directories(hecl-light PUBLIC ../include)
-target_link_libraries(hecl-light PUBLIC ${HECL_APPLICATION_REPS_TARGETS_LIST} boo athena-core logvisor)
+target_link_libraries(hecl-light PUBLIC ${HECL_APPLICATION_REPS_TARGETS_LIST} boo athena-core logvisor aurora)
 if (WIN32)
   # For FindBlender
   target_link_libraries(hecl-light PUBLIC Version)

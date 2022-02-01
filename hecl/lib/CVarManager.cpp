@@ -4,7 +4,6 @@
 #include <memory>
 #include <regex>
 
-#include "hecl/Console.hpp"
 #include "hecl/hecl.hpp"
 #include "hecl/Runtime.hpp"
 
@@ -206,62 +205,6 @@ void CVarManager::serialize() {
 }
 
 CVarManager* CVarManager::instance() { return m_instance; }
-
-void CVarManager::list(Console* con, const std::vector<std::string>& /*args*/) {
-  for (const auto& cvar : m_cvars) {
-    if (!cvar.second->isHidden())
-      con->report(Console::Level::Info, FMT_STRING("{}: {}"), cvar.second->name(), cvar.second->help());
-  }
-}
-
-void CVarManager::setCVar(Console* con, const std::vector<std::string>& args) {
-  if (args.size() < 2) {
-    con->report(Console::Level::Info, FMT_STRING("Usage setCvar <cvar> <value>"));
-    return;
-  }
-
-  std::string cvName = args[0];
-  athena::utility::tolower(cvName);
-  const auto iter = m_cvars.find(cvName);
-  if (iter == m_cvars.end()) {
-    con->report(Console::Level::Error, FMT_STRING("CVar '{}' does not exist"), args[0]);
-    return;
-  }
-
-  const auto& cv = iter->second;
-  std::string oldVal = cv->value();
-  std::string value = args[1];
-  auto it = args.begin() + 2;
-  for (; it != args.end(); ++it)
-    value += " " + *it;
-
-  /*  Check to make sure we're not redundantly assigning the value */
-  if (cv->value() == value)
-    return;
-
-  if (!cv->fromLiteralToType(value))
-    con->report(Console::Level::Warning, FMT_STRING("Unable to set cvar '{}' to value '{}'"), cv->name(), value);
-  else
-    con->report(Console::Level::Info, FMT_STRING("Set '{}' from '{}' to '{}'"), cv->name(), oldVal, value);
-}
-
-void CVarManager::getCVar(Console* con, const std::vector<std::string>& args) {
-  if (args.empty()) {
-    con->report(Console::Level::Info, FMT_STRING("Usage getCVar <cvar>"));
-    return;
-  }
-
-  std::string cvName = args[0];
-  athena::utility::tolower(cvName);
-  const auto iter = m_cvars.find(cvName);
-  if (iter == m_cvars.end()) {
-    con->report(Console::Level::Error, FMT_STRING("CVar '{}' does not exist"), args[0]);
-    return;
-  }
-
-  const auto& cv = iter->second;
-  con->report(Console::Level::Info, FMT_STRING("'{}' = '{}'"), cv->name(), cv->value());
-}
 
 void CVarManager::setDeveloperMode(bool v, bool setDeserialized) {
   com_developer->unlock();

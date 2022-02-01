@@ -2,13 +2,13 @@
 
 #ifndef _WIN32
 #include <cstdlib>
-#include <sys/stat.h>
-#include <sys/file.h>
-#include <sys/ioctl.h>
 #include <dirent.h>
 #include <fcntl.h>
-#include <unistd.h>
+#include <sys/file.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <sys/statvfs.h>
+#include <unistd.h>
 #if __linux__ || __APPLE__
 extern "C" int rep_closefrom(int lower);
 #define closefrom rep_closefrom
@@ -45,7 +45,6 @@ extern "C" int rep_closefrom(int lower);
 #include "athena/Global.hpp"
 #include "logvisor/logvisor.hpp"
 #include "xxhash/xxhash.h"
-#include "FourCC.hpp"
 
 
 #if defined(__has_feature)

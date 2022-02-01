@@ -74,7 +74,7 @@ add_library(AssetNameMapNull
 
 get_target_property(HECL_INCLUDES hecl-full INCLUDE_DIRECTORIES)
 target_include_directories(RetroDataSpec PUBLIC ${HECL_INCLUDES} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
-target_link_libraries(RetroDataSpec PUBLIC amuse zeus nod squish ${PNG_LIBRARIES} ${ZLIB_LIBRARIES} lzokay logvisor)
+target_link_libraries(RetroDataSpec PUBLIC amuse zeus nod squish ${PNG_LIBRARIES} ${ZLIB_LIBRARIES} lzokay logvisor aurora)
 if (COMMAND add_sanitizers)
     add_sanitizers(RetroDataSpec)
 endif ()

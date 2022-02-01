@@ -260,31 +260,31 @@ void CNESEmulator::InitializeEmulator() {
   // mainLoopRuns = nesPAL ? DOTS*ppuCycleTimer : DOTS*ppuCycleTimer;
   // mainLoopPos = mainLoopRuns;
 
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    // Nearest-neighbor FTW!
-    m_texture = ctx.newDynamicTexture(VISIBLE_DOTS, linesToDraw, boo::TextureFormat::RGBA8,
-                                      boo::TextureClampMode::ClampToEdgeNearest);
-    if (ctx.platform() == boo::IGraphicsDataFactory::Platform::OpenGL) {
-      Vert verts[4] = {
-          {{-1.f, -1.f, 0.f}, {0.f, 1.f}},
-          {{-1.f, 1.f, 0.f}, {0.f, 0.f}},
-          {{1.f, -1.f, 0.f}, {1.f, 1.f}},
-          {{1.f, 1.f, 0.f}, {1.f, 0.f}},
-      };
-      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
-    } else {
-      Vert verts[4] = {
-          {{-1.f, 1.f, 0.f}, {0.f, 1.f}},
-          {{-1.f, -1.f, 0.f}, {0.f, 0.f}},
-          {{1.f, 1.f, 0.f}, {1.f, 1.f}},
-          {{1.f, -1.f, 0.f}, {1.f, 0.f}},
-      };
-      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
-    }
-    m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-    m_shadBind = CNESShader::BuildShaderDataBinding(ctx, m_vbo, m_uniBuf, m_texture);
-    return true;
-  } BooTrace);
+//  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
+//    // Nearest-neighbor FTW!
+//    m_texture = ctx.newDynamicTexture(VISIBLE_DOTS, linesToDraw, boo::TextureFormat::RGBA8,
+//                                      boo::TextureClampMode::ClampToEdgeNearest);
+//    if (ctx.platform() == boo::IGraphicsDataFactory::Platform::OpenGL) {
+//      Vert verts[4] = {
+//          {{-1.f, -1.f, 0.f}, {0.f, 1.f}},
+//          {{-1.f, 1.f, 0.f}, {0.f, 0.f}},
+//          {{1.f, -1.f, 0.f}, {1.f, 1.f}},
+//          {{1.f, 1.f, 0.f}, {1.f, 0.f}},
+//      };
+//      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
+//    } else {
+//      Vert verts[4] = {
+//          {{-1.f, 1.f, 0.f}, {0.f, 1.f}},
+//          {{-1.f, -1.f, 0.f}, {0.f, 0.f}},
+//          {{1.f, 1.f, 0.f}, {1.f, 1.f}},
+//          {{1.f, -1.f, 0.f}, {1.f, 0.f}},
+//      };
+//      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
+//    }
+//    m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
+//    m_shadBind = CNESShader::BuildShaderDataBinding(ctx, m_vbo, m_uniBuf, m_texture);
+//    return true;
+//  } BooTrace);
 
   // double useFreq = 223740;
   double useFreq = apuGetFrequency();
@@ -413,7 +413,8 @@ void CNESEmulator::NesEmuMainLoop(bool forceDraw) {
       emuMainTimesSkipped++;
 #endif
       // printf("LC RENDER: %d\n", loopCount);
-      m_texture->load(textureImage, visibleImg);
+      // TODO TODO
+//      m_texture->load(textureImage, visibleImg);
       emuRenderFrame = false;
       break;
     }
@@ -770,10 +771,10 @@ void CNESEmulator::Draw(const zeus::CColor& mulColor, bool filtering) {
 
   Uniform uniform = {zeus::CMatrix4f{}, mulColor};
   uniform.m_matrix[0][0] = widthFac;
-  m_uniBuf->load(&uniform, sizeof(Uniform));
-
-  CGraphics::SetShaderDataBinding(m_shadBind);
-  CGraphics::DrawArray(0, 4);
+//  m_uniBuf->load(&uniform, sizeof(Uniform));
+//
+//  CGraphics::SetShaderDataBinding(m_shadBind);
+//  CGraphics::DrawArray(0, 4);
 }
 
 void CNESEmulator::LoadPassword(const u8* state) {

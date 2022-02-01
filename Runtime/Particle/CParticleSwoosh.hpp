@@ -104,9 +104,9 @@ private:
   float x208_maxRadius = 0.f;
   zeus::CColor x20c_moduColor = zeus::skWhite;
 
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_dataBind;
-  boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_dataBind;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
   std::unique_ptr<CLineRenderer> m_lineRenderer;
   std::vector<CParticleSwooshShaders::Vert> m_cachedVerts;
 

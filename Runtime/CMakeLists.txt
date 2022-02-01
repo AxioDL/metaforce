@@ -136,7 +136,7 @@ endfunction()
 
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 set(RUNTIME_LIBRARIES ${HECL_APPLICATION_REPS_TARGETS_LIST} RetroDataSpec AssetNameMapNull NESEmulator
-        libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui)
+        libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui aurora)
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
 target_include_directories(RuntimeCommon PUBLIC ${RUNTIME_INCLUDES})
@@ -205,7 +205,7 @@ elseif (UNIX)
     set(PLAT_LIBS rt)
 endif ()
 
-add_executable(metaforce CMain.cpp ${PLAT_SRCS} ImGuiConsole.hpp ImGuiConsole.cpp ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp) # ImGuiPlayerLoadouts.hpp
+add_executable(metaforce CMain.cpp ${PLAT_SRCS} ImGuiConsole.hpp ImGuiConsole.cpp ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp ../Graphics/lib.cpp) # ImGuiPlayerLoadouts.hpp
 # target_atdna(metaforce atdna_ImGuiPlayerLoadouts.cpp ImGuiPlayerLoadouts.hpp)
 # RUNTIME_LIBRARIES repeated here for link ordering
 target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS})
@@ -215,7 +215,7 @@ if (COMMAND add_sanitizers)
 endif ()
 
 if (NOT WINDOWS_STORE)
-    add_dependencies(metaforce visigen hecl)
+    add_dependencies(metaforce hecl) # visigen
 else ()
     set_property(TARGET metaforce PROPERTY VS_WINRT_COMPONENT TRUE)
     # This should match the Package.appxmanifest

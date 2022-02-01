@@ -24,13 +24,11 @@ CFactoryFnReturn CCharacterFactory::CDummyFactory::Build(const SObjectTag& tag, 
 
   switch (tag.type.toUint32() & 0x1) {
   case 0:
-    return TToken<CSkinnedModel>::GetIObjObjectFor(
-        std::make_unique<CSkinnedModel>(*g_SimplePool, charInfo.GetModelId(), charInfo.GetSkinRulesId(),
-                                        charInfo.GetCharLayoutInfoId(), 0, tag.type.toUint32() >> 16));
+    return TToken<CSkinnedModel>::GetIObjObjectFor(std::make_unique<CSkinnedModel>(
+        *g_SimplePool, charInfo.GetModelId(), charInfo.GetSkinRulesId(), charInfo.GetCharLayoutInfoId(), 0));
   case 1:
-    return TToken<CSkinnedModel>::GetIObjObjectFor(
-        std::make_unique<CMorphableSkinnedModel>(*g_SimplePool, charInfo.GetIceModelId(), charInfo.GetIceSkinRulesId(),
-                                                 charInfo.GetCharLayoutInfoId(), 0, tag.type.toUint32() >> 16));
+    return TToken<CSkinnedModel>::GetIObjObjectFor(std::make_unique<CMorphableSkinnedModel>(
+        *g_SimplePool, charInfo.GetIceModelId(), charInfo.GetIceSkinRulesId(), charInfo.GetCharLayoutInfoId(), 0));
   default:
     break;
   }
@@ -78,21 +76,20 @@ std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadNewResourcePartSync(
 
 std::unique_ptr<CAnimData> CCharacterFactory::CreateCharacter(int charIdx, bool loop,
                                                               const TLockedToken<CCharacterFactory>& factory,
-                                                              int defaultAnim, int drawInsts) {
+                                                              int defaultAnim) {
   const CCharacterInfo& charInfo = x4_charInfoDB[charIdx];
   const CVParamTransfer charParm(new TObjOwnerParam<const CCharacterInfo*>(&charInfo));
 
-  TToken<CSkinnedModel> skinnedModel =
-      x70_cacheResPool.GetObj({FourCC(drawInsts << 16), charInfo.GetModelId()}, charParm);
+  TToken<CSkinnedModel> skinnedModel = x70_cacheResPool.GetObj({FourCC(0u), charInfo.GetModelId()}, charParm);
 
   std::optional<TToken<CMorphableSkinnedModel>> iceModel;
   if (charInfo.GetIceModelId().IsValid() && charInfo.GetIceSkinRulesId().IsValid()) {
-    iceModel.emplace(x70_cacheResPool.GetObj({FourCC((drawInsts << 16) | 1), charInfo.GetIceModelId()}, charParm));
+    iceModel.emplace(x70_cacheResPool.GetObj({FourCC(1u), charInfo.GetIceModelId()}, charParm));
   }
 
   return std::make_unique<CAnimData>(x68_selfId, charInfo, defaultAnim, charIdx, loop, x14_charLayoutInfoDB[charIdx],
                                      std::move(skinnedModel), iceModel, x24_sysContext, x28_animMgr, x2c_transMgr,
-                                     factory, drawInsts);
+                                     factory);
 }
 
 CAssetId CCharacterFactory::GetEventResourceIdForAnimResourceId(CAssetId id) const {
@@ -156,8 +153,9 @@ CCharacterFactory::CCharacterFactory(CSimplePool& store, const CAnimCharacterSet
   std::vector<CPrimitive> primitives;
   x28_animMgr->GetAnimationDatabase()->GetAllUniquePrimitives(primitives);
   x30_animSourceDB.reserve(primitives.size());
-  for (const CPrimitive& prim : primitives)
-    x30_animSourceDB.push_back(store.GetObj({SBIG('ANIM'), prim.GetAnimResId()}));
+  for (const CPrimitive& prim : primitives) {
+    x30_animSourceDB.emplace_back(store.GetObj({SBIG('ANIM'), prim.GetAnimResId()}));
+  }
 }
 
 } // namespace metaforce

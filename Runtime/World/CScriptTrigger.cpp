@@ -9,9 +9,8 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
-namespace {
-logvisor::Module Log("CScriptTrigger");
-}
+static logvisor::Module Log("CScriptTrigger");
+
 CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                const zeus::CVector3f& pos, const zeus::CAABox& bounds, const CDamageInfo& dInfo,
                                const zeus::CVector3f& forceField, ETriggerFlags triggerFlags, bool active,

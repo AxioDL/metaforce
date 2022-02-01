@@ -3,7 +3,7 @@
 #include <array>
 #include <vector>
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
@@ -25,9 +25,9 @@ private:
     zeus::CMatrix4f m_matrix;
     zeus::CColor m_color;
   };
-  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-  std::array<boo::ObjToken<boo::IGraphicsBufferD>, 3> m_uniBuf;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 3> m_dataBind;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+//  std::array<boo::ObjToken<boo::IGraphicsBufferD>, 3> m_uniBuf;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 3> m_dataBind;
   Uniform m_uniform;
   const CTexture* m_tex = nullptr;
   size_t m_maxVerts = 0;

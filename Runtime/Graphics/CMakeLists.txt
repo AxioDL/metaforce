@@ -1,6 +1,7 @@
 set(GRAPHICS_SOURCES
         IRenderer.hpp
         IWeaponRenderer.hpp IWeaponRenderer.cpp
+        CCubeModel.cpp CCubeModel.hpp
         CBooRenderer.hpp CBooRenderer.cpp
         CDrawable.hpp
         CDrawablePlaneObject.hpp

@@ -469,7 +469,7 @@ function(shaderc out)
 endfunction()
 
 include(hecl/ApplicationTools.cmake)
-add_subdirectory(Shaders)
+#add_subdirectory(Shaders)
 add_subdirectory(imgui)
 add_subdirectory(extern/libSquish EXCLUDE_FROM_ALL)
 add_subdirectory(extern/libpng EXCLUDE_FROM_ALL)
@@ -481,21 +481,21 @@ target_include_directories(hecl-light PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(hecl-full PRIVATE zeus nod)
 target_link_libraries(hecl-light PRIVATE zeus nod)
 
-bintoc(CModelShaders.common.glsl.cpp Shaders/CModelShaders.common.glsl CMODELSHADERS_COMMON_GLSL)
-bintoc(CModelShaders.vert.glsl.cpp Shaders/CModelShaders.vert.glsl CMODELSHADERS_VERT_GLSL)
-bintoc(CModelShaders.frag.glsl.cpp Shaders/CModelShaders.frag.glsl CMODELSHADERS_FRAG_GLSL)
-bintoc(CModelShaders.common.hlsl.cpp Shaders/CModelShaders.common.hlsl CMODELSHADERS_COMMON_HLSL)
-bintoc(CModelShaders.vert.hlsl.cpp Shaders/CModelShaders.vert.hlsl CMODELSHADERS_VERT_HLSL)
-bintoc(CModelShaders.frag.hlsl.cpp Shaders/CModelShaders.frag.hlsl CMODELSHADERS_FRAG_HLSL)
-bintoc(CModelShaders.common.metal.cpp Shaders/CModelShaders.common.metal CMODELSHADERS_COMMON_METAL)
-bintoc(CModelShaders.vert.metal.cpp Shaders/CModelShaders.vert.metal CMODELSHADERS_VERT_METAL)
-bintoc(CModelShaders.frag.metal.cpp Shaders/CModelShaders.frag.metal CMODELSHADERS_FRAG_METAL)
-add_library(CModelShaders
-    CModelShaders.common.glsl.cpp CModelShaders.vert.glsl.cpp CModelShaders.frag.glsl.cpp
-    CModelShaders.common.hlsl.cpp CModelShaders.vert.hlsl.cpp CModelShaders.frag.hlsl.cpp
-    CModelShaders.common.metal.cpp CModelShaders.vert.metal.cpp CModelShaders.frag.metal.cpp)
-target_link_libraries(CModelShaders PUBLIC zeus)
-target_link_libraries(shader_CModelShaders PUBLIC CModelShaders)
+#bintoc(CModelShaders.common.glsl.cpp Shaders/CModelShaders.common.glsl CMODELSHADERS_COMMON_GLSL)
+#bintoc(CModelShaders.vert.glsl.cpp Shaders/CModelShaders.vert.glsl CMODELSHADERS_VERT_GLSL)
+#bintoc(CModelShaders.frag.glsl.cpp Shaders/CModelShaders.frag.glsl CMODELSHADERS_FRAG_GLSL)
+#bintoc(CModelShaders.common.hlsl.cpp Shaders/CModelShaders.common.hlsl CMODELSHADERS_COMMON_HLSL)
+#bintoc(CModelShaders.vert.hlsl.cpp Shaders/CModelShaders.vert.hlsl CMODELSHADERS_VERT_HLSL)
+#bintoc(CModelShaders.frag.hlsl.cpp Shaders/CModelShaders.frag.hlsl CMODELSHADERS_FRAG_HLSL)
+#bintoc(CModelShaders.common.metal.cpp Shaders/CModelShaders.common.metal CMODELSHADERS_COMMON_METAL)
+#bintoc(CModelShaders.vert.metal.cpp Shaders/CModelShaders.vert.metal CMODELSHADERS_VERT_METAL)
+#bintoc(CModelShaders.frag.metal.cpp Shaders/CModelShaders.frag.metal CMODELSHADERS_FRAG_METAL)
+#add_library(CModelShaders
+#    CModelShaders.common.glsl.cpp CModelShaders.vert.glsl.cpp CModelShaders.frag.glsl.cpp
+#    CModelShaders.common.hlsl.cpp CModelShaders.vert.hlsl.cpp CModelShaders.frag.hlsl.cpp
+#    CModelShaders.common.metal.cpp CModelShaders.vert.metal.cpp CModelShaders.frag.metal.cpp)
+#target_link_libraries(CModelShaders PUBLIC zeus)
+#target_link_libraries(shader_CModelShaders PUBLIC CModelShaders)
 
 if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
@@ -517,12 +517,13 @@ add_subdirectory(extern/jbus EXCLUDE_FROM_ALL)
 set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/jbus/include)
 
 add_subdirectory(NESEmulator EXCLUDE_FROM_ALL)
+add_subdirectory(Graphics)
 add_subdirectory(Runtime)
 add_subdirectory(mpcksum EXCLUDE_FROM_ALL)
 add_subdirectory(gbalink EXCLUDE_FROM_ALL)
-add_subdirectory(visigen)
+#add_subdirectory(visigen)
 
-add_dependencies(hecl visigen)
+#add_dependencies(hecl visigen)
 
 if (NOT WINDOWS_STORE AND NOT NX)
   if (APPLE AND EXISTS /opt/local/libexec/qt5)
@@ -552,7 +553,7 @@ endif()
 configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_BINARY_DIR}/version.h)
 
 # Packaging logic
-list(APPEND BINARY_TARGETS metaforce hecl visigen)
+list(APPEND BINARY_TARGETS metaforce hecl) # visigen
 set(DSYM_ONLY_TARGETS "")
 if (TARGET crashpad_handler)
   list(APPEND BINARY_TARGETS crashpad_handler)
