@@ -39,11 +39,8 @@ pub(crate) fn initialize_imgui(window: &winit::window::Window, gpu: &DeviceHolde
         ffi::ImGuiEngine_Initialize(hidpi_factor as f32);
     }
 
-    let renderer_config = if gpu.backend == wgpu::Backend::Vulkan {
-        imgui_backend::RendererConfig::new_spv_srgb()
-    } else {
-        imgui_backend::RendererConfig::new_srgb()
-    };
+    let renderer_config = imgui_backend::RendererConfig::new_srgb();
+
     let imgui_backend = imgui_backend::Renderer::new(
         &mut imgui,
         &gpu.device,

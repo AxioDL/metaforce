@@ -272,28 +272,6 @@ impl RendererConfig<'_> {
     pub fn new_srgb() -> Self {
         Self::with_combined_shaders(include_wgsl!("imgui.wgsl"), FS_ENTRY_POINT_SRGB)
     }
-
-    /// Create a new renderer config with precompiled default shaders outputting linear color.
-    ///
-    /// If you write to a Bgra8UnormSrgb framebuffer, this is what you want.
-    pub fn new_spv() -> Self {
-        Self::with_separate_shaders(
-            include_spirv_raw!("imgui_vs_main.spv"),
-            include_spirv_raw!("imgui_fs_main_linear.spv"),
-            FS_ENTRY_POINT_LINEAR,
-        )
-    }
-
-    /// Create a new renderer config with precompiled default shaders outputting srgb color.
-    ///
-    /// If you write to a Bgra8Unorm framebuffer, this is what you want.
-    pub fn new_spv_srgb() -> Self {
-        Self::with_separate_shaders(
-            include_spirv_raw!("imgui_vs_main.spv"),
-            include_spirv_raw!("imgui_fs_main_srgb.spv"),
-            FS_ENTRY_POINT_SRGB,
-        )
-    }
 }
 
 pub struct Renderer {
