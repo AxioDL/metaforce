@@ -297,7 +297,7 @@ void CGameGlobalObjects::AddPaksAndFactories() {
     fmgr->AddFactory(FOURCC('PART'), FFactoryFunc(FParticleFactory));
     fmgr->AddFactory(FOURCC('FRME'), FFactoryFunc(RGuiFrameFactoryInGame));
     fmgr->AddFactory(FOURCC('FONT'), FFactoryFunc(FRasterFontFactory));
-    fmgr->AddFactory(FOURCC('CMDL'), FMemFactoryFunc(FModelFactory));
+    fmgr->AddFactory(FOURCC('CMDL'), FMemFactoryFunc(FPCModelFactory));
     fmgr->AddFactory(FOURCC('CINF'), FFactoryFunc(FCharLayoutInfo));
     fmgr->AddFactory(FOURCC('CSKR'), FFactoryFunc(FSkinRulesFactory));
     fmgr->AddFactory(FOURCC('ANCS'), FFactoryFunc(FAnimCharacterSet));
