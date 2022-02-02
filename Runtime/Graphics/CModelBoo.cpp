@@ -1335,7 +1335,7 @@ void CModel::WarmupShaders(const SObjectTag& cmdlTag) {
   modelObj->_WarmupShaders();
 }
 
-CFactoryFnReturn FModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+CFactoryFnReturn FPCModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
                                const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef) {
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
   CFactoryFnReturn ret = TToken<CModel>::GetIObjObjectFor(std::make_unique<CModel>(std::move(in), len, sp, selfRef));

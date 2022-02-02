@@ -3,12 +3,12 @@
 #include <memory>
 #include <vector>
 
-#include "GCNTypes.hpp"
-#include "IObjectStore.hpp"
-#include "CTexture.hpp"
-#include "CToken.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/IObjectStore.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/CToken.hpp"
 
-namespace metaforce {
+namespace metaforce::WIP {
 class CCubeSurface;
 class CCubeModel;
 
@@ -34,7 +34,7 @@ private:
 
   std::unique_ptr<u8[]> x0_data;
   u32 x4_dataLen;
-  std::vector<CCubeSurface*> x8_surfaces;
+  std::vector<CCubeSurface> x8_surfaces;
   std::vector<SShader> x18_matSets;
   std::unique_ptr<CCubeModel> x28_modelInst = nullptr;
   u16 x2c_ = 0;
@@ -42,6 +42,14 @@ private:
   CModel* x30_prev = nullptr;
   CModel* x34_next;
   u32 x38_lastFrame;
+  /* Resident copies of maintained data */
+  zeus::CAABox m_aabox;
+  std::vector<zeus::CVector3f> m_positions;
+  std::vector<zeus::CVector3f> m_floatNormals;
+  std::vector<std::array<s16, 3>> m_shortNormals;
+  std::vector<zeus::CColor> m_colors;
+  std::vector<zeus::CVector2f> m_floatUVs;
+  std::vector<std::array<s16, 2>> m_shortUVs;
 
 public:
   CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store);
@@ -60,9 +68,11 @@ public:
 #pragma region CCubeModel
 class CCubeModel {
 public:
-  CCubeModel(const std::vector<CCubeSurface*>* surfaces, const std::vector<TCachedToken<CTexture>>* textures,
-             const u8* materialData, const u8* positions, const u8* normals, const u8* vtxColors, const u8* floatUvs,
-             const u8* shortUVs, const zeus::CAABox* aabox, u8 flags, bool b1, u32 w1) {}
+  CCubeModel(const std::vector<CCubeSurface>* surfaces, const std::vector<TCachedToken<CTexture>>* textures,
+             const u8* materialData, const std::vector<zeus::CVector3f>* positions,
+             const std::vector<zeus::CVector3f>* floatNormals, const std::vector<std::array<s16, 3>>* shortNormals,
+             const std::vector<zeus::CColor>* vtxColors, const std::vector<zeus::CVector2f>* floatUvs,
+             const std::vector<std::array<s16, 2>>* shortUVs, const zeus::CAABox* aabox, u8 flags, bool b1, u32 w1) {}
 
   void UnlockTextures();
 
@@ -72,14 +82,17 @@ public:
 
 #pragma region CCubeSurface
 class CCubeSurface {
+  static constexpr zeus::CVector3f skDefaultNormal{1.f, 0.f, 0.f};
+
 public:
   enum class ECookie {
 
   };
 
 public:
+  CCubeSurface(u8* ptr);
   bool IsValid() const;
-  static CCubeSurface* FromCookieValue(u32);
+  static CCubeSurface* FromCookieValue(u32 value);
   void GetCookie(ECookie cookie);
   void SetCookie(ECookie cookie, u32 value);
   u32 GetCookieValue() const;
@@ -93,4 +106,6 @@ public:
 };
 #pragma endregion
 
+CFactoryFnReturn FModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+                               const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef);
 } // namespace metaforce

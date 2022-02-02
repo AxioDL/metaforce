@@ -308,7 +308,7 @@ public:
   static void WarmupShaders(const SObjectTag& cmdlTag);
 };
 
-CFactoryFnReturn FModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+CFactoryFnReturn FPCModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
                                const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef);
 
 } // namespace metaforce
