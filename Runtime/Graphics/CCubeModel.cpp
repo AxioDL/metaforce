@@ -64,8 +64,8 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
       m_normals.emplace_back(hecl::SBig(norm[0]), hecl::SBig(norm[1]), hecl::SBig(norm[2]));
     } else {
       const auto* norm = reinterpret_cast<const s16*>(normals + (i * (sizeof(s16) * 3)));
-      m_normals.emplace_back(hecl::SBig(norm[0]) / 32676.f, hecl::SBig(norm[1]) / 32676.f,
-                             hecl::SBig(norm[2]) / 32676.f);
+      m_normals.emplace_back(hecl::SBig(norm[0]) / 32767.f, hecl::SBig(norm[1]) / 32767.f,
+                             hecl::SBig(norm[2]) / 32767.f);
     }
   }
   u32 numColors = hecl::SBig(*secSizeCur) / (sizeof(int));
