@@ -2,7 +2,7 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/CSimplePool.hpp"
 
-//TODO Remove WIP once we've transitioned to this
+// TODO Remove WIP once we've transitioned to this
 namespace metaforce::WIP {
 #pragma region CModel
 u32 CModel::sTotalMemory = 0;
@@ -61,10 +61,11 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
   for (u32 i = 0; i < numNormals; ++i) {
     if ((flags & 2) == 0) {
       const auto* norm = reinterpret_cast<const float*>(normals + (i * (sizeof(float) * 3)));
-      m_floatNormals.emplace_back(hecl::SBig(norm[0]), hecl::SBig(norm[1]), hecl::SBig(norm[2]));
+      m_normals.emplace_back(hecl::SBig(norm[0]), hecl::SBig(norm[1]), hecl::SBig(norm[2]));
     } else {
       const auto* norm = reinterpret_cast<const s16*>(normals + (i * (sizeof(s16) * 3)));
-      m_shortNormals.emplace_back(std::array{hecl::SBig(norm[0]), hecl::SBig(norm[1]), hecl::SBig(norm[2])});
+      m_normals.emplace_back(hecl::SBig(norm[0]) / 32676.f, hecl::SBig(norm[1]) / 32676.f,
+                             hecl::SBig(norm[2]) / 32676.f);
     }
   }
   u32 numColors = hecl::SBig(*secSizeCur) / (sizeof(int));
@@ -102,17 +103,18 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
       x8_surfaces.reserve(x8_surfaces.capacity() * 2);
     }
 
-    x8_surfaces.emplace_back(MemoryFromPartData(dataCur, secSizeCur));
+    x8_surfaces.emplace_back(std::make_unique<CCubeSurface>(MemoryFromPartData(dataCur, secSizeCur)));
   }
 
   const float* bounds = reinterpret_cast<float*>(data + 12);
-  m_aabox.min = {hecl::SBig(bounds[0]), hecl::SBig(bounds[1]), hecl::SBig(bounds[2])};
-  m_aabox.max = {hecl::SBig(bounds[3]), hecl::SBig(bounds[4]), hecl::SBig(bounds[5])};
+  zeus::CAABox aabox = zeus::skNullBox;
+  aabox.min = {hecl::SBig(bounds[0]), hecl::SBig(bounds[1]), hecl::SBig(bounds[2])};
+  aabox.max = {hecl::SBig(bounds[3]), hecl::SBig(bounds[4]), hecl::SBig(bounds[5])};
 
   /* This constructor has been changed from the original to take into account platform differences */
-  x28_modelInst = std::make_unique<CCubeModel>(&x8_surfaces, &x18_matSets[0].x0_textures, x18_matSets[0].x10_data,
-                                               &m_positions, &m_floatNormals, &m_shortNormals, &m_colors, &m_floatUVs,
-                                               &m_shortUVs, &m_aabox, flags, true, -1);
+  x28_modelInst =
+      std::make_unique<CCubeModel>(&x8_surfaces, &x18_matSets[0].x0_textures, x18_matSets[0].x10_data, &m_positions,
+                                   &m_colors, &m_normals, &m_floatUVs, &m_shortUVs, aabox, flags, true, -1);
 
   sThisFrameList = this;
   if (x34_next != nullptr) {
@@ -187,6 +189,23 @@ void CModel::DisableTextureTimeout() { sIsTextureTimeoutEnabled = false; }
 
 #pragma region CCubeModel
 
+CCubeModel::CCubeModel(const std::vector<std::unique_ptr<CCubeSurface>>* surfaces,
+                       const std::vector<TCachedToken<CTexture>>* textures, const u8* materialData,
+                       const std::vector<zeus::CVector3f>* positions, const std::vector<zeus::CColor>* colors,
+                       const std::vector<zeus::CVector3f>* normals, const std::vector<zeus::CVector2f>* texCoords,
+                       const std::vector<std::array<s16, 2>>* packedTexCoords, const zeus::CAABox& aabox, u8 flags,
+                       bool b1, u32 idx)
+: x0_modelInstance(surfaces, materialData, positions, colors, normals, texCoords, packedTexCoords)
+, x1c_textures(textures)
+, x20_worldAABB(aabox)
+, x40_24_(!b1)
+, x41_visorFlags(flags)
+, x44_idx(idx) {
+  for (const auto& surf : x0_modelInstance.Surfaces()) {
+    surf->SetParent(this);
+  }
+}
+
 void CCubeModel::UnlockTextures() {}
 
 void CCubeModel::MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CTexture>>& texture, bool b1) {}
@@ -194,7 +213,19 @@ void CCubeModel::MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CT
 #pragma endregion
 
 #pragma region CCubeSurface
-CCubeSurface::CCubeSurface(u8* ptr) {}
+CCubeSurface::CCubeSurface(u8* ptr) {
+  CMemoryInStream mem(ptr, 64);
+  x0_center.readBig(mem);
+  xc_materialIndex = mem.readUint32Big();
+  x10_displayListSize = mem.readUint32Big();
+  x14_parent = reinterpret_cast<CCubeModel*>(mem.readUint32Big());
+  x18_nextSurface = reinterpret_cast<CCubeSurface*>(mem.readUint32Big());
+  x1c_extraSize = mem.readUint32Big();
+  x20_normal.readBig(mem);
+  if (x1c_extraSize > 0) {
+    x2c_bounds = zeus::CAABox::ReadBoundingBoxBig(mem);
+  }
+}
 #pragma endregion
 
 CFactoryFnReturn FModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
@@ -204,4 +235,4 @@ CFactoryFnReturn FModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr
   return ret;
 }
 
-} // namespace metaforce
+} // namespace metaforce::WIP
