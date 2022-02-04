@@ -158,6 +158,8 @@ public:
     m_obj = nullptr;
     return *this;
   }
+
+  bool IsNull() { return m_obj == nullptr; }
 };
 
 template <class T>

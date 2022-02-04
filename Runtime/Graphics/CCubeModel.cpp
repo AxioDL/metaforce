@@ -42,8 +42,8 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
   x18_matSets.reserve(numMatSets);
   for (s32 i = 0; i < numMatSets; ++i) {
     x18_matSets.emplace_back(static_cast<u8*>(MemoryFromPartData(dataCur, secSizeCur)));
-    auto shader = x18_matSets.back();
-    CCubeModel::MakeTexturesFromMats(shader.x10_data, shader.x0_textures, true);
+    auto& shader = x18_matSets.back();
+    CCubeModel::MakeTexturesFromMats(shader.x10_data, shader.x0_textures, store, true);
     x4_dataLen += shader.x0_textures.size() * sizeof(TCachedToken<CTexture>);
   }
 
@@ -204,17 +204,52 @@ CCubeModel::CCubeModel(const std::vector<std::unique_ptr<CCubeSurface>>* surface
   for (const auto& surf : x0_modelInstance.Surfaces()) {
     surf->SetParent(this);
   }
+
+  for (u32 i = x0_modelInstance.Surfaces().size(); i > 0; --i) {
+    const auto& surf = x0_modelInstance.Surfaces()[i - 1];
+    if (!GetMaterialByIndex(surf->GetMaterialIndex()).IsFlagSet(EStateFlags::DepthSorting)) {
+      surf->SetNextSurface(x38_firstUnsortedSurf);
+      x38_firstUnsortedSurf = surf.get();
+    } else {
+      surf->SetNextSurface(x3c_firstSortedSurf);
+      x3c_firstSortedSurf = surf.get();
+    }
+  }
+}
+
+CCubeMaterial CCubeModel::GetMaterialByIndex(u32 idx) {
+  u32 materialOffset = 0;
+  const u8* matData = x0_modelInstance.GetMaterialPointer();
+  matData += (x1c_textures->size() + 1) * 4;
+  if (idx != 0) {
+    materialOffset = hecl::SBig(*reinterpret_cast<const u32*>(matData + (idx * 4)));
+  }
+
+  u32 materialCount = hecl::SBig(*reinterpret_cast<const u32*>(matData));
+  return CCubeMaterial(matData + materialOffset + (materialCount * 4) + 4);
 }
 
 void CCubeModel::UnlockTextures() {}
 
-void CCubeModel::MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CTexture>>& texture, bool b1) {}
+void CCubeModel::MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CTexture>>& textures, IObjectStore* store,
+                                      bool b1) {
+  const u32* curId = reinterpret_cast<const u32*>(ptr + 4);
+  u32 textureCount = hecl::SBig(*reinterpret_cast<const u32*>(ptr));
+  textures.reserve(textureCount);
+  for (u32 i = 0; i < textureCount; ++i) {
+    textures.emplace_back(store->GetObj({FOURCC('TXTR'), hecl::SBig(curId[i])}));
+
+    if (!b1 && textures.back().IsNull()) {
+      textures.back().GetObj();
+    }
+  }
+}
 
 #pragma endregion
 
 #pragma region CCubeSurface
-CCubeSurface::CCubeSurface(u8* ptr) {
-  CMemoryInStream mem(ptr, 64);
+CCubeSurface::CCubeSurface(u8* ptr) : x0_data(ptr) {
+  CMemoryInStream mem(ptr, 10000); // Oversized so we can read everything in
   x0_center.readBig(mem);
   xc_materialIndex = mem.readUint32Big();
   x10_displayListSize = mem.readUint32Big();
@@ -226,6 +261,7 @@ CCubeSurface::CCubeSurface(u8* ptr) {
     x2c_bounds = zeus::CAABox::ReadBoundingBoxBig(mem);
   }
 }
+
 #pragma endregion
 
 CFactoryFnReturn FModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,

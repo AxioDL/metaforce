@@ -11,6 +11,7 @@
 namespace metaforce::WIP {
 class CCubeSurface;
 class CCubeModel;
+class CCubeMaterial;
 
 #pragma region CModel
 class CModel {
@@ -118,14 +119,16 @@ public:
              const std::vector<std::array<s16, 2>>* packedTexCoords, const zeus::CAABox& aabox, u8 flags, bool b1,
              u32 idx);
 
+  CCubeMaterial GetMaterialByIndex(u32 idx);
   void UnlockTextures();
-  static void MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CTexture>>& texture, bool b1);
+  static void MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CTexture>>& texture, IObjectStore* store, bool b1);
 };
 #pragma endregion
 
 #pragma region CCubeSurface
 class CCubeSurface {
   static constexpr zeus::CVector3f skDefaultNormal{1.f, 0.f, 0.f};
+  u8* x0_data;
   zeus::CVector3f x0_center;
   u32 xc_materialIndex;
   u32 x10_displayListSize;
@@ -136,18 +139,63 @@ class CCubeSurface {
   zeus::CAABox x2c_bounds;
 
 public:
-  CCubeSurface(u8* ptr);
+  explicit CCubeSurface(u8* ptr);
   bool IsValid() const;
   void SetParent(CCubeModel* parent) { x14_parent = parent; }
+  void SetNextSurface(CCubeSurface* next) { x18_nextSurface = next; }
   [[nodiscard]] u32 GetMaterialIndex() const { return xc_materialIndex; }
   [[nodiscard]] u32 GetDisplayListSize() const { return x10_displayListSize & 0x7fffffff; }
   [[nodiscard]] u32 GetNormalHint() const { return (x10_displayListSize >> 31) & 1; }
-  [[nodiscard]] u8* GetDisplayList() const;
-  // u32 GetSurfaceHeaderSize() const { }
+  [[nodiscard]] u8* GetDisplayList() const {
+    return reinterpret_cast<u8*>(reinterpret_cast<uintptr_t>(x0_data) + GetSurfaceHeaderSize());
+  }
+  u32 GetSurfaceHeaderSize() const { return (0x4b + x1c_extraSize) & ~31; }
   [[nodiscard]] zeus::CVector3f GetCenter() const { return x0_center; }
   [[nodiscard]] zeus::CAABox GetBounds() const {
     return x1c_extraSize != 0 ? x2c_bounds : zeus::CAABox{x0_center, x0_center};
   }
+};
+#pragma endregion
+
+#pragma region CCubeMaterial
+
+enum class EStateFlags {
+  Unused1 = 1 << 0,
+  Unused2 = 1 << 1,
+  Unused3 = 1 << 2,
+  KonstEnabled = 1 << 3,
+  DepthSorting = 1 << 4,
+  AlphaTest = 1 << 5,
+  Reflection = 1 << 6,
+  DepthWrite = 1 << 7,
+  ReflectionSurfaceEye = 1 << 8,
+  OccluderMesh = 1 << 9,
+  ReflectionIndirectTexture = 1 << 10,
+  LightMap = 1 << 11,
+  Unused4 = 1 << 12,
+  LightmapUVArray = 1 << 13,
+};
+ENABLE_BITWISE_ENUM(EStateFlags);
+
+class CCubeMaterial {
+  const u8* x0_data;
+
+public:
+  explicit CCubeMaterial(const u8* data) : x0_data(data) {}
+
+  [[nodiscard]] u32 GetCompressedBlend() {
+    const u32* ptr = reinterpret_cast<const u32*>(x0_data[(GetTextureCount() * 4) + 16]);
+    if (IsFlagSet(EStateFlags::KonstEnabled)) {
+      ptr += hecl::SBig(*ptr) + 1;
+    }
+
+    return hecl::SBig(*ptr);
+  }
+  [[nodiscard]] EStateFlags GetFlags() const { return EStateFlags(hecl::SBig(*reinterpret_cast<const u32*>(x0_data))); }
+  [[nodiscard]] bool IsFlagSet(EStateFlags flag) const { return True(GetFlags() & flag); }
+  [[nodiscard]] u32 GetUsedTextureSlots() const { return static_cast<u32>(GetFlags()) >> 16; }
+  [[nodiscard]] u32 GetTextureCount() const { return hecl::SBig(*reinterpret_cast<const u32*>(&x0_data[4])); }
+  [[nodiscard]] u32 GetVertexDesc() const { return hecl::SBig(*reinterpret_cast<const u32*>(&x0_data[(GetTextureCount() * 4) + 8])); }
 };
 #pragma endregion
 
