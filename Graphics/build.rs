@@ -27,14 +27,20 @@ fn main() {
     // let out_path = std::path::PathBuf::from(std::env::var("OUT_DIR").unwrap());
     // bindings.write_to_file(out_path.join("zeus.rs")).expect("Couldn't write bindings!");
 
+    #[cfg(any(not(unix), target_os = "macos", target_os = "ios"))]
+    let cxx_flag = "-std=c++17";
+    #[cfg(all(unix, not(any(target_os = "macos", target_os = "ios"))))]
+    let cxx_flag = "-std=gnu++17";
     cxx_build::bridge("src/lib.rs")
         .include("include")
         .include(zeus_include.clone())
+        .flag(cxx_flag)
         .compile("aurora");
     println!("cargo:rerun-if-changed=src/lib.rs");
     cxx_build::bridge("src/shaders/mod.rs")
         .include("include")
         .include(zeus_include.clone())
+        .flag(cxx_flag)
         .compile("aurora_shaders");
     println!("cargo:rerun-if-changed=src/shaders/mod.rs");
     cxx_build::bridge("src/imgui.rs")
@@ -42,6 +48,7 @@ fn main() {
         .include(zeus_include.clone())
         .include(imgui_include.clone())
         .include(imgui_engine_include.clone())
+        .flag(cxx_flag)
         .compile("aurora_imgui");
     println!("cargo:rerun-if-changed=src/imgui.rs");
 }

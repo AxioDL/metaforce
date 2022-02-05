@@ -13,8 +13,8 @@ void CFrontEndUITouchBar::SetFusionBonusPhase(bool fusionSuitActive) { m_phase =
 void CFrontEndUITouchBar::SetStartOptionsPhase(bool normalBeat) { m_phase = EPhase::StartOptions; }
 CFrontEndUITouchBar::EAction CFrontEndUITouchBar::PopAction() { return EAction::None; }
 
-#ifndef __APPLE__
+//#ifndef __APPLE__
 std::unique_ptr<CFrontEndUITouchBar> NewFrontEndUITouchBar() { return std::make_unique<CFrontEndUITouchBar>(); }
-#endif
+//#endif
 
 } // namespace metaforce

@@ -13,8 +13,8 @@ void CGameOptionsTouchBar::GetSelection(int& left, int& right, int& value) {
 void CGameOptionsTouchBar::SetSelection([[maybe_unused]] int left, [[maybe_unused]] int right,
                                         [[maybe_unused]] int value) {}
 
-#ifndef __APPLE__
+//#ifndef __APPLE__
 std::unique_ptr<CGameOptionsTouchBar> NewGameOptionsTouchBar() { return std::make_unique<CGameOptionsTouchBar>(); }
-#endif
+//#endif
 
 } // namespace metaforce

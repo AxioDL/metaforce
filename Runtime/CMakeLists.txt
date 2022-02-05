@@ -39,14 +39,14 @@ add_subdirectory(MP1)
 add_subdirectory(MP2)
 add_subdirectory(MP3)
 
-if (APPLE)
-    set_source_files_properties(MP1/CFrontEndUITouchBarMac.mm
-            MP1/CSaveGameScreenTouchBarMac.mm
-            CGameOptionsTouchBarMac.mm
-            PROPERTIES COMPILE_FLAGS -fobjc-arc)
-    bintoc(startButton.cpp Resources/startButton@2x.png START_BUTTON_2X)
-    list(APPEND PLAT_SRCS startButton.cpp CGameOptionsTouchBarMac.mm)
-endif ()
+#if (APPLE)
+#    set_source_files_properties(MP1/CFrontEndUITouchBarMac.mm
+#            MP1/CSaveGameScreenTouchBarMac.mm
+#            CGameOptionsTouchBarMac.mm
+#            PROPERTIES COMPILE_FLAGS -fobjc-arc)
+#    bintoc(startButton.cpp Resources/startButton@2x.png START_BUTTON_2X)
+#    list(APPEND PLAT_SRCS startButton.cpp CGameOptionsTouchBarMac.mm)
+#endif ()
 
 set(CAST_TO_SOURCES
         MkCastTo.py

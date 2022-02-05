@@ -1,10 +1,10 @@
 add_subdirectory(World)
 
-if (APPLE)
-    set(MP1_PLAT_SOURCES
-            CFrontEndUITouchBarMac.mm
-            CSaveGameScreenTouchBarMac.mm)
-endif ()
+#if (APPLE)
+#    set(MP1_PLAT_SOURCES
+#            CFrontEndUITouchBarMac.mm
+#            CSaveGameScreenTouchBarMac.mm)
+#endif ()
 
 set(MP1_SOURCES
         CTweaks.hpp CTweaks.cpp
