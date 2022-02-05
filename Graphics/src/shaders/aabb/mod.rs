@@ -24,8 +24,10 @@ pub(crate) struct DrawData {
 pub(crate) struct PipelineConfig {
     z_only: bool,
 }
-pub(crate) const INITIAL_PIPELINES: &[PipelineConfig] =
-    &[PipelineConfig { z_only: false }, PipelineConfig { z_only: true }];
+pub(crate) const INITIAL_PIPELINES: &[PipelineCreateCommand] = &[
+    PipelineCreateCommand::Aabb(PipelineConfig { z_only: false }),
+    PipelineCreateCommand::Aabb(PipelineConfig { z_only: true }),
+];
 
 pub(crate) struct State {
     shader: wgpu::ShaderModule,
@@ -39,7 +41,7 @@ pub(crate) fn construct_state(
     _queue: &wgpu::Queue,
     buffers: &BuiltBuffers,
 ) -> State {
-    let shader = device.create_shader_module(&include_wgsl!("aabb.wgsl"));
+    let shader = device.create_shader_module(&include_wgsl!("shader.wgsl"));
     let uniform_size = wgpu::BufferSize::new(std::mem::size_of::<Uniform>() as u64);
     let uniform_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
         label: Some("AABB Bind Group Layout"),
@@ -145,7 +147,7 @@ struct Uniform {
 }
 
 pub(crate) fn queue_aabb(aabb: CAABox, color: CColor, z_only: bool) {
-    let pipeline = pipeline_ref(PipelineCreateCommand::Aabb(PipelineConfig { z_only }));
+    let pipeline = pipeline_ref(&PipelineCreateCommand::Aabb(PipelineConfig { z_only }));
     let vert_range = push_verts(&[
         CVector3f::new(aabb.max.x, aabb.max.y, aabb.min.z),
         CVector3f::new(aabb.max.x, aabb.min.y, aabb.min.z),

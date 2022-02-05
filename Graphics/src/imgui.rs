@@ -59,6 +59,7 @@ pub(crate) fn initialize_imgui(window: &winit::window::Window, gpu: &DeviceHolde
     state
 }
 
+#[allow(non_snake_case)]
 fn ImGuiEngine_AddTexture(
     state: &mut ImGuiState,
     gpu: &DeviceHolder,

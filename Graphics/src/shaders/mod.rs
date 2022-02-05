@@ -1,7 +1,6 @@
 use std::{
     collections::{HashMap, VecDeque},
     hash::{Hash, Hasher},
-    num::NonZeroU8,
     ops::Range,
     sync::Arc,
 };
@@ -10,10 +9,12 @@ use aabb::queue_aabb;
 use bytemuck::Pod;
 use bytemuck_derive::{Pod, Zeroable};
 use cxx::{type_id, ExternType};
+use cxx::private::hash;
 use fog_volume_filter::queue_fog_volume_filter;
 use fog_volume_plane::queue_fog_volume_plane;
 use model::{add_material_set, add_model};
 use texture::{create_render_texture, create_static_texture_2d, drop_texture};
+use textured_quad::queue_textured_quad;
 use twox_hash::Xxh3Hash64;
 use wgpu::RenderPipeline;
 
@@ -21,11 +22,14 @@ use crate::{
     gpu::GraphicsConfig,
     zeus::{CColor, CMatrix4f, CRectangle, CVector2f, CVector3f, IDENTITY_MATRIX4F},
 };
+use crate::shaders::ffi::{TextureFormat, TextureRef};
+use crate::shaders::texture::{RenderTexture, TextureWithView};
 
 mod aabb;
 mod fog_volume_filter;
 mod fog_volume_plane;
 mod model;
+mod textured_quad;
 mod texture;
 
 #[cxx::bridge]
@@ -55,7 +59,7 @@ mod ffi {
     }
 
     #[namespace = "aurora::shaders"]
-    #[derive(Debug, Copy, Clone)]
+    #[derive(Debug, Copy, Clone, Hash)]
     pub(crate) enum CameraFilterType {
         Passthru,
         Multiply,
@@ -69,7 +73,7 @@ mod ffi {
         InvDstMultiply,
     }
     #[namespace = "aurora::shaders"]
-    #[derive(Debug, Copy, Clone)]
+    #[derive(Debug, Copy, Clone, Hash)]
     pub(crate) enum ZTest {
         None,
         LEqual,
@@ -96,9 +100,10 @@ mod ffi {
         ClampToBlack,
     }
     #[namespace = "aurora::shaders"]
-    #[derive(Debug, Copy, Clone)]
+    #[derive(Debug, Copy, Clone, Hash)]
     pub(crate) struct TextureRef {
         pub(crate) id: u32,
+        pub(crate) render: bool,
     }
 
     #[namespace = "aurora::shaders"]
@@ -180,6 +185,15 @@ mod ffi {
         fn queue_aabb(aabb: CAABox, color: CColor, z_only: bool);
         fn queue_fog_volume_plane(verts: &CxxVector<CVector4f>, pass: u8);
         fn queue_fog_volume_filter(color: CColor, two_way: bool);
+        fn queue_textured_quad(
+            filter_type: CameraFilterType,
+            texture: TextureRef,
+            z_test: ZTest,
+            color: CColor,
+            uv_scale: f32,
+            rect: CRectangle,
+            z: f32,
+        );
 
         fn create_static_texture_2d(
             width: u32,
@@ -208,6 +222,21 @@ unsafe impl bytemuck::Pod for ffi::FogState {}
 impl Default for ffi::FogState {
     fn default() -> Self {
         Self { color: Default::default(), a: 0.0, b: 0.5, c: 0.0, mode: ffi::FogMode::None }
+    }
+}
+impl Into<u32> for ffi::TextureFormat {
+    // noinspection RsUnreachablePatterns
+    fn into(self) -> u32 {
+        match self {
+            TextureFormat::RGBA8 => 1,
+            TextureFormat::R8 => 2,
+            TextureFormat::R32Float => 3,
+            TextureFormat::DXT1 => 4,
+            TextureFormat::DXT3 => 5,
+            TextureFormat::DXT5 => 6,
+            TextureFormat::BPTC => 7,
+            _ => panic!("Invalid texture format {:?}", self),
+        }
     }
 }
 
@@ -280,12 +309,7 @@ enum ShaderDrawCommand {
     RandomStaticFilter {/* TODO */},
     ScanLinesFilter {/* TODO */},
     TextSupport {/* TODO */},
-    TexturedQuad {
-        filter_type: ffi::CameraFilterType,
-        z_test: ffi::ZTest,
-        tex: u32, /* TODO */
-                  /* draw, cropped, verts, filter? */
-    },
+    TexturedQuad(textured_quad::DrawData),
     ThermalCold,
     ThermalHot,
     WorldShadow {
@@ -309,8 +333,11 @@ struct RenderState {
     storage_alignment: usize,
     buffers: BuiltBuffers,
     commands: VecDeque<Command>,
+    textures: HashMap<u32, TextureWithView>,
+    render_textures: HashMap<u32, RenderTexture>,
     // Shader states
     aabb: aabb::State,
+    textured_quad: textured_quad::State,
 }
 pub(crate) fn construct_state(
     device: Arc<wgpu::Device>,
@@ -318,7 +345,7 @@ pub(crate) fn construct_state(
     graphics_config: &GraphicsConfig,
 ) {
     let limits = device.limits();
-    let mut buffers = BuiltBuffers {
+    let buffers = BuiltBuffers {
         uniform_buffer: device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("Shared Uniform Buffer"),
             size: 134_217_728, // 128mb
@@ -333,6 +360,7 @@ pub(crate) fn construct_state(
         }),
     };
     let aabb = aabb::construct_state(&device, &queue, &buffers);
+    let textured_quad = textured_quad::construct_state(&device, &queue, &buffers, graphics_config);
     let mut state = RenderState {
         device: device.clone(),
         queue: queue.clone(),
@@ -343,12 +371,16 @@ pub(crate) fn construct_state(
         storage_alignment: limits.min_storage_buffer_offset_alignment as usize,
         buffers,
         commands: Default::default(),
+        textures: Default::default(),
+        render_textures: Default::default(),
         aabb,
+        textured_quad,
     };
     for config in aabb::INITIAL_PIPELINES {
-        let hash = hash_with_seed(config, 0xAABB);
-        let pipeline = aabb::construct_pipeline(&device, graphics_config, &state.aabb, config);
-        state.pipelines.insert(hash, pipeline);
+        construct_pipeline(&mut state, config);
+    }
+    for config in textured_quad::INITIAL_PIPELINES {
+        construct_pipeline(&mut state, config);
     }
     unsafe {
         STATE = Some(state);
@@ -442,8 +474,9 @@ struct PipelineRef {
     id: u64,
 }
 
-enum PipelineCreateCommand {
+pub(crate) enum PipelineCreateCommand {
     Aabb(aabb::PipelineConfig),
+    TexturedQuad(textured_quad::PipelineConfig),
 }
 #[inline(always)]
 fn hash_with_seed<T: Hash>(value: &T, seed: u64) -> u64 {
@@ -451,12 +484,11 @@ fn hash_with_seed<T: Hash>(value: &T, seed: u64) -> u64 {
     value.hash(&mut state);
     state.finish()
 }
-fn pipeline_ref(cmd: PipelineCreateCommand) -> PipelineRef {
-    let state = unsafe { STATE.as_mut().unwrap() };
+fn construct_pipeline(state: &mut RenderState, cmd: &PipelineCreateCommand) -> u64 {
     let id = match cmd {
         PipelineCreateCommand::Aabb(ref config) => hash_with_seed(config, 0xAABB),
+        PipelineCreateCommand::TexturedQuad(ref config) => hash_with_seed(config, 0xEEAD),
     };
-    // TODO queue for creation if not found
     if !state.pipelines.contains_key(&id) {
         let pipeline = match cmd {
             PipelineCreateCommand::Aabb(ref config) => aabb::construct_pipeline(
@@ -465,14 +497,26 @@ fn pipeline_ref(cmd: PipelineCreateCommand) -> PipelineRef {
                 &state.aabb,
                 config,
             ),
+            PipelineCreateCommand::TexturedQuad(ref config) => textured_quad::construct_pipeline(
+                state.device.as_ref(),
+                &state.graphics_config,
+                &state.textured_quad,
+                config,
+            ),
         };
         state.pipelines.insert(id, pipeline);
     }
+    id
+}
+fn pipeline_ref(cmd: &PipelineCreateCommand) -> PipelineRef {
+    let state = unsafe { STATE.as_mut().unwrap_unchecked() };
+    // TODO queue for creation if not found
+    let id = construct_pipeline(state, cmd);
     PipelineRef { id }
 }
 
 fn bind_pipeline(pipeline_ref: PipelineRef, pass: &mut wgpu::RenderPass) -> bool {
-    let state = unsafe { STATE.as_ref().unwrap() };
+    let state = unsafe { STATE.as_ref().unwrap_unchecked() };
     if pipeline_ref.id == state.current_pipeline {
         return true;
     }
@@ -484,7 +528,7 @@ fn bind_pipeline(pipeline_ref: PipelineRef, pass: &mut wgpu::RenderPass) -> bool
 }
 
 pub(crate) fn render_into_pass(pass: &mut wgpu::RenderPass) {
-    let state = unsafe { STATE.as_mut().unwrap() };
+    let state = unsafe { STATE.as_mut().unwrap_unchecked() };
     {
         let global_buffers = unsafe { &mut GLOBAL_BUFFERS };
         state.queue.write_buffer(&state.buffers.vertex_buffer, 0, &global_buffers.verts);
@@ -511,6 +555,9 @@ pub(crate) fn render_into_pass(pass: &mut wgpu::RenderPass) {
             Command::Draw(cmd) => match cmd {
                 ShaderDrawCommand::Aabb(data) => {
                     aabb::draw_aabb(data, &state.aabb, pass, &state.buffers);
+                }
+                ShaderDrawCommand::TexturedQuad(data) => {
+                    textured_quad::draw_textured_quad(data, &state.textured_quad, pass, &state.buffers);
                 }
                 _ => todo!(),
             },
@@ -554,15 +601,15 @@ fn finalize_global_uniform() -> Range<u64> {
 }
 
 fn push_draw_command(cmd: ShaderDrawCommand) {
-    let state = unsafe { STATE.as_mut().unwrap() };
+    let state = unsafe { STATE.as_mut().unwrap_unchecked() };
     state.commands.push_back(Command::Draw(cmd));
 }
 fn set_viewport(rect: CRectangle, znear: f32, zfar: f32) {
-    let state = unsafe { STATE.as_mut().unwrap() };
+    let state = unsafe { STATE.as_mut().unwrap_unchecked() };
     state.commands.push_back(Command::SetViewport(rect, znear, zfar));
 }
 fn set_scissor(x: u32, y: u32, w: u32, h: u32) {
-    let state = unsafe { STATE.as_mut().unwrap() };
+    let state = unsafe { STATE.as_mut().unwrap_unchecked() };
     state.commands.push_back(Command::SetScissor(x, y, w, h));
 }
 

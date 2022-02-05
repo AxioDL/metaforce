@@ -1,17 +1,20 @@
-use std::ptr::null;
+use std::hash::{Hash, Hasher};
+use std::num::NonZeroU8;
 
-use cxx::SharedPtr;
+use twox_hash::XxHash32;
 use wgpu::util::DeviceExt;
 
 use crate::{
     get_app,
-    gpu::TextureWithSampler,
-    shaders::ffi::{TextureClampMode, TextureFormat, TextureRef},
+    shaders::{
+        ffi::{TextureFormat, TextureRef},
+        STATE,
+    },
 };
 
 pub(crate) struct TextureWithView {
-    texture: wgpu::Texture,
-    view: wgpu::TextureView,
+    pub(crate) texture: wgpu::Texture,
+    pub(crate) view: wgpu::TextureView,
 }
 impl TextureWithView {
     fn new(texture: wgpu::Texture) -> Self {
@@ -21,12 +24,8 @@ impl TextureWithView {
 }
 
 pub(crate) struct RenderTexture {
-    color_texture: Option<TextureWithView>,
-    depth_texture: Option<TextureWithView>,
-}
-
-pub(crate) struct Texture {
-    texture: wgpu::Texture,
+    pub(crate) color_texture: Option<TextureWithView>,
+    pub(crate) depth_texture: Option<TextureWithView>,
 }
 
 pub(crate) fn create_static_texture_2d(
@@ -60,7 +59,20 @@ pub(crate) fn create_static_texture_2d(
         },
         data,
     );
-    TextureRef { id: u32::MAX }
+
+    // Generate texture hash as ID
+    let mut hasher = XxHash32::with_seed(format.into());
+    width.hash(&mut hasher);
+    height.hash(&mut hasher);
+    mips.hash(&mut hasher);
+    data.hash(&mut hasher);
+    label.hash(&mut hasher);
+    let id = hasher.finish() as u32;
+
+    // Store texture and return reference
+    let state = unsafe { STATE.as_mut().unwrap_unchecked() };
+    state.textures.insert(id, TextureWithView::new(texture));
+    TextureRef { id, render: false }
 }
 
 pub(crate) fn create_render_texture(
@@ -122,8 +134,54 @@ pub(crate) fn create_render_texture(
     //     anisotropy_clamp: None,
     //     border_color,
     // });
-    RenderTexture { color_texture, depth_texture };
-    TextureRef { id: u32::MAX }
+
+    // Generate texture hash as ID
+    let mut hasher = XxHash32::default();
+    width.hash(&mut hasher);
+    height.hash(&mut hasher);
+    color_bind_count.hash(&mut hasher);
+    depth_bind_count.hash(&mut hasher);
+    label.hash(&mut hasher);
+    let id = hasher.finish() as u32;
+
+    // Store texture and return reference
+    let state = unsafe { STATE.as_mut().unwrap_unchecked() };
+    state.render_textures.insert(id, RenderTexture { color_texture, depth_texture });
+    TextureRef { id, render: true }
 }
 
-pub(crate) fn drop_texture(handle: TextureRef) {}
+pub(crate) fn drop_texture(handle: TextureRef) {
+    let state = unsafe { STATE.as_mut().unwrap_unchecked() };
+    if handle.render {
+        state.render_textures.remove(&handle.id).expect("Render texture already dropped");
+    } else {
+        state.textures.remove(&handle.id).expect("Texture already dropped");
+    }
+}
+
+pub(crate) fn create_sampler(
+    device: &wgpu::Device,
+    mut address_mode: wgpu::AddressMode,
+    mut border_color: Option<wgpu::SamplerBorderColor>,
+) -> wgpu::Sampler {
+    if address_mode == wgpu::AddressMode::ClampToBorder
+        && !device.features().contains(wgpu::Features::ADDRESS_MODE_CLAMP_TO_BORDER)
+    {
+        address_mode = wgpu::AddressMode::ClampToEdge;
+        border_color = None;
+    }
+    device.create_sampler(&wgpu::SamplerDescriptor {
+        label: None,
+        address_mode_u: address_mode,
+        address_mode_v: address_mode,
+        address_mode_w: address_mode,
+        mag_filter: wgpu::FilterMode::Linear,
+        min_filter: wgpu::FilterMode::Linear,
+        mipmap_filter: wgpu::FilterMode::Linear,
+        lod_min_clamp: 0.0,
+        lod_max_clamp: f32::MAX,
+        compare: None,
+        anisotropy_clamp: NonZeroU8::new(16),
+        border_color,
+    })
+}

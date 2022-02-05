@@ -15,13 +15,13 @@ constexpr std::array SplashTextures{"TXTR_NintendoLogo"sv, "TXTR_RetroLogo"sv, "
 CSplashScreen::CSplashScreen(ESplashScreen which)
 : CIOWin("SplashScreen")
 , x14_which(which)
-, m_quad(EFilterType::Blend, g_SimplePool->GetObj(SplashTextures[size_t(which)])) {}
+, m_texture(g_SimplePool->GetObj(SplashTextures[size_t(which)])) {}
 
 CIOWin::EMessageReturn CSplashScreen::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) {
   switch (msg.GetType()) {
   case EArchMsgType::TimerTick: {
     if (!x25_textureLoaded) {
-      if (!m_quad.GetTex().IsLoaded())
+      if (!m_texture.IsLoaded())
         return EMessageReturn::Exit;
       x25_textureLoaded = true;
     }
@@ -68,12 +68,20 @@ void CSplashScreen::Draw() {
   }
 
   zeus::CRectangle rect;
-  rect.size.x() = m_quad.GetTex()->GetWidth() / (480.f * g_Viewport.aspect);
-  rect.size.y() = m_quad.GetTex()->GetHeight() / 480.f;
+  rect.size.x() = m_texture->GetWidth() / (480.f * g_Viewport.aspect);
+  rect.size.y() = m_texture->GetHeight() / 480.f;
   rect.position.x() = 0.5f - rect.size.x() / 2.f;
   rect.position.y() = 0.5f - rect.size.y() / 2.f;
 
-  m_quad.draw(color, 1.f, rect);
+  aurora::shaders::queue_textured_quad(
+      aurora::shaders::CameraFilterType::Blend,
+      m_texture->GetTexture()->ref,
+      aurora::shaders::ZTest::None,
+      color,
+      1.f,
+      rect,
+      0.f
+  );
 }
 
 } // namespace metaforce

@@ -22,6 +22,7 @@ mod imgui;
 mod imgui_backend;
 mod shaders;
 mod zeus;
+mod util;
 
 #[cxx::bridge(namespace = "aurora")]
 mod ffi {
@@ -143,6 +144,8 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>) {
         APP.replace(app);
         ffi::App_onAppLaunched(delegate.as_mut().unwrap());
     };
+
+    let mut last_frame: Option<Instant> = None;
     event_loop.run(move |event, _, control_flow| {
         // Have the closure take ownership of the resources.
         // `event_loop.run` never returns, therefore we must do this to ensure
@@ -153,7 +156,6 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>) {
         let imgui = &mut app.imgui;
         let window_ctx = get_window_context();
         let gpu = &mut app.gpu;
-        let mut last_frame: Option<Instant> = None;
 
         *control_flow = ControlFlow::Poll;
         match event {
@@ -183,7 +185,7 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>) {
             Event::Suspended => {}
             Event::Resumed => {}
             Event::MainEventsCleared => {
-                log::info!("Requesting redraw");
+                log::trace!("Requesting redraw");
                 window_ctx.window.request_redraw();
             }
             Event::RedrawRequested(_) => {
@@ -208,7 +210,7 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>) {
                     return;
                 }
 
-                log::info!("Redrawing");
+                log::trace!("Redrawing");
                 let frame_result = gpu.surface.get_current_texture();
                 if let Err(err) = frame_result {
                     log::warn!("Failed to acquire frame {}", err);

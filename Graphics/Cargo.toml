@@ -13,15 +13,13 @@ crate-type = ["staticlib"]
 #path = "src/main.rs"
 
 [dependencies]
-cxx = "1.0.60"
-web-sys = "0.3.55"
+cxx = "1.0.64"
 env_logger = "0.9.0"
-mobile-entry-point = "0.1.1"
 pollster = "0.2.4"
-binread = { version = "2.2.0", features = ['const_generics'] }
+binrw = "0.8.4"
 modular-bitfield = "0.11.2"
 num-traits = "0.2.14"
-num_enum = "0.5.5"
+num_enum = "0.5.6"
 bytemuck = "1.7.3"
 bytemuck_derive = "1.0.1"
 log = "0.4.14"
@@ -30,7 +28,7 @@ cgmath = "0.18.0"
 smallvec = "1.7.0"
 scopeguard = "1.1.0"
 twox-hash = "1.6.2"
-winit = "0.26.0"
+winit = "0.26.1"
 
 [dependencies.imgui]
 git = "https://github.com/imgui-rs/imgui-rs"
@@ -44,11 +42,12 @@ features = ["winit-26"]
 imgui-sys = { path = "../imgui-sys" }
 [patch.crates-io]
 imgui-sys = { path = "../imgui-sys" }
+naga = { git = "https://github.com/gfx-rs/naga", rev = "d6f8958b346676396db97053771b8d95684c47ee" }
 
 [dependencies.wgpu]
 #path = "../../wgpu/wgpu"
 git = "https://github.com/gfx-rs/wgpu"
-rev = "39b7a8a202c21da43035ec8dd5570a58cf4e8ef1"
+rev = "766c6cda1917c1265fa8a5f610ef7516d4314d1b"
 features = ["spirv"]
 
 #[patch.'https://github.com/gfx-rs/naga']
@@ -56,9 +55,9 @@ features = ["spirv"]
 
 [build-dependencies]
 #naga = { path = "../../naga", features = ['spv-out', 'wgsl-in'] }
-naga = { git = "https://github.com/gfx-rs/naga", rev = "8df5421", features = ['spv-out', 'wgsl-in'] }
+naga = { git = "https://github.com/gfx-rs/naga", rev = "d6f8958b346676396db97053771b8d95684c47ee", features = ['spv-out', 'wgsl-in'] }
 bytemuck = "1.7.3"
-cxx-build = "1.0.60"
+cxx-build = "1.0.64"
 bindgen = "0.59.2"
 
 [target.'cfg(target_os = "android")'.dependencies]
