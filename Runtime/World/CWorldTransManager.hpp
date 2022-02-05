@@ -69,7 +69,7 @@ private:
   float x34_stopTime = 0.0f;
   float x38_textStartTime = 0.f;
   float x3c_sfxInterval = 0.0f;
-  bool x40_strIdx = false;
+  u32 x40_strIdx = 0;
   bool x44_24_transFinished : 1 = true;
   bool x44_25_stopSoon : 1 = false;
   bool x44_26_goingUp : 1 = false;

@@ -23,11 +23,12 @@ bool CGuiModel::GetIsFinishedLoadingWidgetSpecific() {
   if (!xb8_model.IsLoaded()) {
     return false;
   }
-  xb8_model->GetInstance().Touch(0);
-  return xb8_model->IsLoaded(0);
+  //xb8_model->GetInstance().Touch(0);
+  return true; //xb8_model->IsLoaded(0);
 }
 
 void CGuiModel::Touch() {
+  return;
   CModel* const model = xb8_model.GetObj();
 
   if (model == nullptr) {
@@ -38,6 +39,7 @@ void CGuiModel::Touch() {
 }
 
 void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) {
+  return;
   CGraphics::SetModelMatrix(x34_worldXF);
   if (!xb8_model) {
     return;

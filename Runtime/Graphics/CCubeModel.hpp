@@ -77,7 +77,7 @@ private:
     const std::vector<std::array<s16, 2>>* x18_packedTexCoords; // was a pointer to void
 
   public:
-    ModelInstance(const std::vector<std::unique_ptr<CCubeSurface>>* surfaces, const u8* material,
+    ModelInstance(std::vector<std::unique_ptr<CCubeSurface>>* surfaces, const u8* material,
                   const std::vector<zeus::CVector3f>* positions, const std::vector<zeus::CColor>* colors,
                   const std::vector<zeus::CVector3f>* normals, const std::vector<zeus::CVector2f>* texCoords,
                   const std::vector<std::array<s16, 2>>* packedTexCoords)
@@ -103,7 +103,7 @@ private:
   };
 
   ModelInstance x0_modelInstance;
-  const std::vector<TCachedToken<CTexture>>* x1c_textures;
+  std::vector<TCachedToken<CTexture>>* x1c_textures;
   zeus::CAABox x20_worldAABB;
   CCubeSurface* x38_firstUnsortedSurf = nullptr;
   CCubeSurface* x3c_firstSortedSurf = nullptr;
@@ -112,8 +112,8 @@ private:
   u32 x44_idx;
 
 public:
-  CCubeModel(const std::vector<std::unique_ptr<CCubeSurface>>* surfaces,
-             const std::vector<TCachedToken<CTexture>>* textures, const u8* materialData,
+  CCubeModel(std::vector<std::unique_ptr<CCubeSurface>>* surfaces,
+             std::vector<TCachedToken<CTexture>>* textures, const u8* materialData,
              const std::vector<zeus::CVector3f>* positions, const std::vector<zeus::CColor>* colors,
              const std::vector<zeus::CVector3f>* normals, const std::vector<zeus::CVector2f>* texCoords,
              const std::vector<std::array<s16, 2>>* packedTexCoords, const zeus::CAABox& aabox, u8 flags, bool b1,

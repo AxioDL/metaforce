@@ -189,8 +189,8 @@ void CModel::DisableTextureTimeout() { sIsTextureTimeoutEnabled = false; }
 
 #pragma region CCubeModel
 
-CCubeModel::CCubeModel(const std::vector<std::unique_ptr<CCubeSurface>>* surfaces,
-                       const std::vector<TCachedToken<CTexture>>* textures, const u8* materialData,
+CCubeModel::CCubeModel(std::vector<std::unique_ptr<CCubeSurface>>* surfaces,
+                       std::vector<TCachedToken<CTexture>>* textures, const u8* materialData,
                        const std::vector<zeus::CVector3f>* positions, const std::vector<zeus::CColor>* colors,
                        const std::vector<zeus::CVector3f>* normals, const std::vector<zeus::CVector2f>* texCoords,
                        const std::vector<std::array<s16, 2>>* packedTexCoords, const zeus::CAABox& aabox, u8 flags,
@@ -229,7 +229,11 @@ CCubeMaterial CCubeModel::GetMaterialByIndex(u32 idx) {
   return CCubeMaterial(matData + materialOffset + (materialCount * 4) + 4);
 }
 
-void CCubeModel::UnlockTextures() {}
+void CCubeModel::UnlockTextures() {
+  for (TCachedToken<CTexture>& tex : *x1c_textures) {
+    tex.Unlock();
+  }
+}
 
 void CCubeModel::MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CTexture>>& textures, IObjectStore* store,
                                       bool b1) {
