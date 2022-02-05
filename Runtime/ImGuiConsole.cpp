@@ -597,7 +597,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
 void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) {
   // Center window
   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-  ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+  ImGui::SetNextWindowPos(center, canClose ? ImGuiCond_Appearing : ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 
   ImVec4& windowBg = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
   ImGui::PushStyleColor(ImGuiCol_TitleBg, windowBg);
