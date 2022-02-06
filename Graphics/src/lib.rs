@@ -7,14 +7,16 @@ use std::{num::NonZeroU8, time::Instant};
 
 use wgpu::Backend;
 use winit::{
-    event::{Event, WindowEvent},
+    event::{Event, WindowEvent, KeyboardInput},
     event_loop::ControlFlow,
 };
+
 
 use crate::{
     gpu::{create_depth_texture, create_render_texture, initialize_gpu, DeviceHolder},
     imgui::{initialize_imgui, ImGuiState},
     shaders::render_into_pass,
+    ffi::{WindowSize},
 };
 
 mod gpu;
@@ -37,16 +39,20 @@ mod ffi {
         pub(crate) fn App_onAppIdle(cb: Pin<&mut AppDelegate>, dt: f32) -> bool;
         pub(crate) fn App_onAppDraw(cb: Pin<&mut AppDelegate>);
         pub(crate) fn App_onAppPostDraw(cb: Pin<&mut AppDelegate>);
+        pub(crate) fn App_onAppWindowResized(cb: Pin<&mut AppDelegate>, size: &WindowSize);
+        pub(crate) fn App_onAppWindowMoved(cb: Pin<&mut AppDelegate>, x: i32, y: i32);
         pub(crate) fn App_onAppExiting(cb: Pin<&mut AppDelegate>);
     }
 
     pub struct Window {
         pub(crate) inner: Box<WindowContext>,
     }
+
     pub struct WindowSize {
         pub width: u32,
         pub height: u32,
     }
+
     #[derive(Debug)]
     pub enum Backend {
         Invalid,
@@ -62,12 +68,14 @@ mod ffi {
         Pressed,
         Released,
     }
+
     pub enum MouseButton {
         Left,
         Right,
         Middle,
         Other,
     }
+
     pub enum SpecialKey {
         None = 0,
         F1 = 1,
@@ -97,6 +105,7 @@ mod ffi {
         Down = 25,
         Tab = 26,
     }
+
     pub struct KeyboardInput {
         pub scancode: u32,
         pub state: ElementState,
@@ -177,9 +186,21 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>) {
                     &app.gpu.surface_config,
                     &app.gpu.config,
                 );
-                // TODO resize callback
+                unsafe {
+                    let window_size = WindowSize{width: app.gpu.surface_config.width, height: app.gpu.surface_config.height};
+
+                    ffi::App_onAppWindowResized(delegate.as_mut().unwrap(), &window_size);
+                }
             }
-            Event::WindowEvent { event: WindowEvent::KeyboardInput { .. }, .. } => {}
+            Event::WindowEvent { event: WindowEvent::Moved(loc), ..} => {
+                unsafe {
+                    ffi::App_onAppWindowMoved(delegate.as_mut().unwrap(), loc.x, loc.y);
+                }
+            }
+            Event::WindowEvent { event: WindowEvent::KeyboardInput {
+                input: KeyboardInput, .. }, .. } => {
+
+            }
             Event::WindowEvent { .. } => {}
             Event::DeviceEvent { .. } => {}
             Event::UserEvent(_) => {}

@@ -365,20 +365,6 @@ public:
     }
 
     OPTICK_FRAME("MainThread");
-//    CGraphics::SetCommitResourcesAsLazy(m_cvarCommons.m_lazyCommitResources->toBoolean());
-
-    // TODO
-//    boo::SWindowRect rect = m_windowCallback.m_lastRect;
-//    rect.location = {0, 0};
-//    boo::IGraphicsCommandQueue* gfxQ = m_window->getCommandQueue();
-//    if (m_windowCallback.m_rectDirty) {
-//      gfxQ->resizeRenderTexture(m_renderTex, rect.size[0], rect.size[1]);
-//      CGraphics::SetViewportResolution({rect.size[0], rect.size[1]});
-//      m_windowCallback.m_rectDirty = false;
-//    } else if (m_firstFrame) {
-    auto rect = aurora::get_window_size();
-    CGraphics::SetViewportResolution({static_cast<int32_t>(rect.width), static_cast<int32_t>(rect.height)});
-//    }
 
     // Check if fullscreen has been toggled, if so set the fullscreen cvar accordingly
     if (m_windowCallback.m_fullscreenToggleRequested) {
@@ -394,9 +380,6 @@ public:
     // Let CVarManager inform all CVar listeners of the CVar's state and clear all mdoified flags if necessary
     m_cvarManager.proc();
 
-    // TODO
-//    boo::IGraphicsDataFactory* gfxF = m_window->getMainContextDataFactory();
-//    float scale = std::floor(m_window->getVirtualPixelFactor() * 4.f) / 4.f;
     if (!g_mainMP1 && m_projectInitialized) {
       g_mainMP1.emplace(nullptr, nullptr);
       g_mainMP1->Init(m_fileMgr, &m_cvarManager, m_voiceEngine.get(), *m_amuseAllocWrapper);
@@ -404,10 +387,6 @@ public:
         g_mainMP1->WarmupShaders();
       }
     }
-//    if (!m_imGuiInitialized) {
-//      ImGuiEngine::Initialize(gfxF, m_window.get(), scale, m_fileMgr.getStoreRoot());
-//      m_imGuiInitialized = true;
-//    }
 
     float dt = 1 / 60.f;
     if (m_cvarCommons.m_variableDt->toBoolean()) {
@@ -453,6 +432,13 @@ public:
     ++logvisor::FrameIndex;
   }
 
+  void onAppWindowResized(const aurora::WindowSize& size) noexcept override {
+    CGraphics::SetViewportResolution({static_cast<s32>(size.width), static_cast<s32>(size.height)});
+  }
+
+  void onAppWindowMoved(std::int32_t x, std::int32_t y) noexcept override {
+    // TODO: implement this
+  }
   void onAppExiting() noexcept override {
     m_imGuiConsole.Shutdown();
     if (g_mainMP1) {

@@ -3,6 +3,7 @@
 #include <array>
 #include <type_traits>
 #include <vector>
+#include <cinttypes>
 
 namespace aurora {
 struct WindowSize;
@@ -20,6 +21,8 @@ struct AppDelegate {
   virtual bool onAppIdle(float dt) noexcept = 0;
   virtual void onAppDraw() noexcept = 0;
   virtual void onAppPostDraw() noexcept = 0;
+  virtual void onAppWindowResized(const WindowSize& size) noexcept = 0;
+  virtual void onAppWindowMoved(std::int32_t x, std::int32_t y) noexcept = 0;
   virtual void onAppExiting() noexcept = 0;
 
 //  virtual void resized([[maybe_unused]] const WindowSize& rect, [[maybe_unused]] bool sync) noexcept {}
