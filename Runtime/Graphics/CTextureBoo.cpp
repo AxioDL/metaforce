@@ -754,7 +754,24 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTex
     BuildRGBA8FromGCN(r, label);
     break;
   case ETexelFormat::CMPR:
-    BuildDXT1FromGCN(r, label);
+    if (aurora::get_dxt_compression_supported()) {
+      BuildDXT1FromGCN(r, label);
+    } else {
+      Log.report(logvisor::Error, FMT_STRING("BC/DXT1 compression is not supported on your GPU, unable to load {}"),
+                 label);
+      x0_fmt = ETexelFormat::RGBA8PC;
+      x8_mips = 1;
+      std::unique_ptr<u8[]> data= std::make_unique<u8[]>(x4_w * x6_h * 4);
+      /* Build a fake texture to use */
+      for (u32 i = 0; i < (x4_w * x6_h) * 4; i += 4) {
+        data[i + 0] = 0xFF;
+        data[i + 1] = 0x00;
+        data[i + 2] = 0xFF;
+        data[i + 3] = 0xFF;
+      }
+      m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
+                                            {reinterpret_cast<const uint8_t*>(data.get()), (x4_w * x6_h * 4ul)}, label);
+    }
     break;
   case ETexelFormat::RGBA8PC:
     BuildRGBA8(owned.get() + 12, length - 12, label);

@@ -110,6 +110,7 @@ mod ffi {
         fn get_args() -> Vec<String>;
         fn get_window_size() -> WindowSize;
         fn set_window_title(title: &CxxString);
+        fn get_dxt_compression_supported() -> bool;
         fn get_backend() -> Backend;
         fn get_backend_string() -> &'static str;
         fn set_fullscreen(v: bool);
@@ -324,6 +325,10 @@ fn get_backend() -> ffi::Backend {
         Backend::BrowserWebGpu => ffi::Backend::WebGPU,
         Backend::Empty => ffi::Backend::Invalid,
     }
+}
+
+fn get_dxt_compression_supported() -> bool {
+    return get_app().gpu.adapter.features().contains(wgpu::Features::TEXTURE_COMPRESSION_BC);
 }
 
 fn get_backend_string() -> &'static str {
