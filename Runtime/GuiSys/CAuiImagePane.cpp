@@ -81,13 +81,6 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
     realUseUvs.push_back(v + xd0_uvBias0);
   }
 
-  const std::array<CTexturedQuadFilter::Vert, 4> verts{{
-      {xe0_coords[0], (*useUVs)[0] + xd0_uvBias0},
-      {xe0_coords[1], (*useUVs)[1] + xd0_uvBias0},
-      {xe0_coords[3], (*useUVs)[3] + xd0_uvBias0},
-      {xe0_coords[2], (*useUVs)[2] + xd0_uvBias0},
-  }};
-
   if (noBlur) {
     aurora::shaders::queue_textured_quad_verts(
         aurora::shaders::CameraFilterType(filter), tex.GetTexture()->ref, aurora::shaders::ZTest::None, useColor,
