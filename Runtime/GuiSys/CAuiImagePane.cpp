@@ -51,13 +51,6 @@ void CAuiImagePane::Update(float dt) {
   CGuiWidget::Update(dt);
 }
 
-CAuiImagePane::Filters::Filters(TLockedToken<CTexture>& tex)
-: m_texId(tex.GetObjectTag()->id)
-, m_darkenerQuad(EFilterType::Blend, tex)
-, m_flashQuad{{CTexturedQuadFilterAlpha{EFilterType::Add, tex}, CTexturedQuadFilterAlpha{EFilterType::Add, tex}}}
-, m_alphaQuad{{CTexturedQuadFilterAlpha{EFilterType::Blend, tex}, CTexturedQuadFilterAlpha{EFilterType::Blend, tex}}}
-, m_addQuad{{CTexturedQuadFilterAlpha{EFilterType::Add, tex}, CTexturedQuadFilterAlpha{EFilterType::Add, tex}}} {}
-
 void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& tex, int frame, float alpha, bool noBlur,
                                     EFilterType filter) const {
   zeus::CColor useColor = color;
@@ -121,10 +114,6 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) {
   }
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CAuiImagePane::Draw {}"), m_name).c_str(), zeus::skCyan);
   GetIsFinishedLoadingWidgetSpecific();
-  if (!m_filters || m_filters->m_texId != xb8_tex0Tok.GetObjectTag()->id) {
-    m_filters.emplace(xb8_tex0Tok);
-  }
-  Filters& filters = *m_filters;
   zeus::CColor color = xa8_color2;
   color.a() *= params.x0_alphaMod;
   // SetZUpdate(xac_drawFlags == EGuiModelDrawFlags::Shadeless || xac_drawFlags == EGuiModelDrawFlags::Opaque);
