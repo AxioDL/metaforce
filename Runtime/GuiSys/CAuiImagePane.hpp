@@ -42,7 +42,7 @@ class CAuiImagePane : public CGuiWidget {
   };
   std::optional<Filters> m_filters;
   void DoDrawImagePane(const zeus::CColor& color, const CTexture& tex, int frame, float blurAmt, bool noBlur,
-                       CTexturedQuadFilterAlpha& quad) const;
+                       EFilterType filter) const;
 
 public:
   CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId, CAssetId,

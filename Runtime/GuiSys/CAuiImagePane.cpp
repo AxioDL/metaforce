@@ -59,7 +59,7 @@ CAuiImagePane::Filters::Filters(TLockedToken<CTexture>& tex)
 , m_addQuad{{CTexturedQuadFilterAlpha{EFilterType::Add, tex}, CTexturedQuadFilterAlpha{EFilterType::Add, tex}}} {}
 
 void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& tex, int frame, float alpha, bool noBlur,
-                                    CTexturedQuadFilterAlpha& quad) const {
+                                    EFilterType filter) const {
   zeus::CColor useColor = color;
   useColor.a() *= alpha;
 
@@ -82,6 +82,12 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
     useUVs = &x114_uvs;
   }
 
+  std::vector<zeus::CVector2f> realUseUvs;
+  realUseUvs.reserve(4);
+  for (auto v : *useUVs) {
+    realUseUvs.push_back(v + xd0_uvBias0);
+  }
+
   const std::array<CTexturedQuadFilter::Vert, 4> verts{{
       {xe0_coords[0], (*useUVs)[0] + xd0_uvBias0},
       {xe0_coords[1], (*useUVs)[1] + xd0_uvBias0},
@@ -90,14 +96,21 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
   }};
 
   if (noBlur) {
-    quad.drawVerts(useColor, verts);
+    aurora::shaders::queue_textured_quad_verts(
+        aurora::shaders::CameraFilterType(filter), tex.GetTexture()->ref, aurora::shaders::ZTest::None, useColor,
+        {xe0_coords.data(), xe0_coords.size()}, {realUseUvs.data(), xe0_coords.size()}, 0);
+    // quad.drawVerts(useColor, verts);
   } else if ((x14c_deResFactor == 0.f && alpha == 1.f) || tex.GetNumMips() == 1) {
-    quad.drawVerts(useColor, verts, 0.f);
+    aurora::shaders::queue_textured_quad_verts(
+        aurora::shaders::CameraFilterType(filter), tex.GetTexture()->ref, aurora::shaders::ZTest::None, useColor,
+        {xe0_coords.data(), xe0_coords.size()}, {realUseUvs.data(), xe0_coords.size()}, 0);
   } else {
     const float tmp = (1.f - x14c_deResFactor) * alpha;
     const float tmp3 = 1.f - tmp * tmp * tmp;
     const float mip = tmp3 * static_cast<float>(tex.GetNumMips() - 1);
-    quad.drawVerts(useColor, verts, mip);
+    aurora::shaders::queue_textured_quad_verts(
+        aurora::shaders::CameraFilterType(filter), tex.GetTexture()->ref, aurora::shaders::ZTest::None, useColor,
+        {xe0_coords.data(), xe0_coords.size()}, {realUseUvs.data(), xe0_coords.size()}, mip);
   }
 }
 
@@ -130,46 +143,46 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) {
   }
 
   // Alpha blend
-  DoDrawImagePane(color * zeus::CColor(0.f, 0.5f), *xb8_tex0Tok, frame0, 1.f, true, filters.m_darkenerQuad);
+  DoDrawImagePane(color * zeus::CColor(0.f, 0.5f), *xb8_tex0Tok, frame0, 1.f, true, EFilterType::Blend);
 
   if (x150_flashFactor > 0.f) {
     // Additive blend
     zeus::CColor color2 = xa8_color2;
     color2.a() = x150_flashFactor;
-    DoDrawImagePane(color2, *xb8_tex0Tok, frame0, blur0, false, filters.m_flashQuad[0]);
+    DoDrawImagePane(color2, *xb8_tex0Tok, frame0, blur0, false, EFilterType::Blend);
     if (blur1 > 0.f)
-      DoDrawImagePane(color2, *xb8_tex0Tok, frame1, blur1, false, filters.m_flashQuad[1]);
+      DoDrawImagePane(color2, *xb8_tex0Tok, frame1, blur1, false, EFilterType::Blend);
   }
 
   switch (xac_drawFlags) {
   case EGuiModelDrawFlags::Shadeless:
   case EGuiModelDrawFlags::Opaque:
     // Opaque blend
-    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, filters.m_alphaQuad[0]);
+    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, EFilterType::Blend);
     if (blur1 > 0.f)
-      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, filters.m_alphaQuad[1]);
+      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, EFilterType::Blend);
     break;
   case EGuiModelDrawFlags::Alpha:
     // Alpha blend
-    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, filters.m_alphaQuad[0]);
+    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, EFilterType::Blend);
     if (blur1 > 0.f)
-      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, filters.m_alphaQuad[1]);
+      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, EFilterType::Blend);
     break;
   case EGuiModelDrawFlags::Additive:
     // Additive blend
-    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, filters.m_addQuad[0]);
+    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, EFilterType::Add);
     if (blur1 > 0.f)
-      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, filters.m_addQuad[1]);
+      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, EFilterType::Add);
     break;
   case EGuiModelDrawFlags::AlphaAdditiveOverdraw:
     // Alpha blend
-    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, filters.m_alphaQuad[0]);
+    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, EFilterType::Blend);
     if (blur1 > 0.f)
-      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, filters.m_alphaQuad[1]);
+      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, EFilterType::Blend);
     // Full additive blend
-    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, filters.m_addQuad[0]);
+    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, EFilterType::Add);
     if (blur1 > 0.f)
-      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, filters.m_addQuad[1]);
+      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, EFilterType::Add);
     break;
   default:
     break;

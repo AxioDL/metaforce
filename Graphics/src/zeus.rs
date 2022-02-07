@@ -1,5 +1,6 @@
 use bytemuck_derive::{Pod, Zeroable};
 use cxx::{type_id, ExternType};
+use crate::util::{Vec2, Vec3};
 
 #[derive(Debug, Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
@@ -166,6 +167,45 @@ impl From<CMatrix4f> for cgmath::Matrix4<f32> {
             y: cgmath::Vector4::from(m.y),
             z: cgmath::Vector4::from(m.z),
             w: cgmath::Vector4::from(m.w),
+        }
+    }
+}
+
+impl From<Vec2<f32>> for CVector2f {
+    fn from(v: Vec2<f32>) -> Self {
+        Self {
+            x: v.x,
+            y: v.y,
+            _p1: 0.0,
+            _p2: 0.0
+        }
+    }
+}
+impl From<CVector2f> for Vec2<f32> {
+    fn from(v: CVector2f) -> Self {
+        Self {
+            x: v.x,
+            y: v.y,
+        }
+    }
+}
+
+impl From<Vec3<f32>> for CVector3f {
+    fn from(v: Vec3<f32>) -> Self {
+        Self {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+            _p: 0.0,
+        }
+    }
+}
+impl From<CVector3f> for Vec3<f32> {
+    fn from(v: CVector3f) -> Self {
+        Self {
+            x: v.x,
+            y: v.y,
+            z: v.z,
         }
     }
 }

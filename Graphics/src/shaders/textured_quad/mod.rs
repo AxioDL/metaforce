@@ -7,6 +7,7 @@ use crate::{
     get_app,
     gpu::GraphicsConfig,
     shaders::{
+        get_combined_matrix,
         bind_pipeline,
         BuiltBuffers,
         ffi::{CameraFilterType, TextureRef, ZTest}, pipeline_ref, PipelineCreateCommand, PipelineHolder, PipelineRef,
@@ -267,6 +268,15 @@ pub(crate) fn queue_textured_quad(
         lod: 0.0,
     });
 
+    push_textured_quad(texture, pipeline, vert_range, uniform_range);
+}
+
+fn push_textured_quad(
+    texture: TextureRef,
+    pipeline: PipelineRef,
+    vert_range: Range<u64>,
+    uniform_range: Range<u64>
+){
     // TODO defer bind group creation to draw time or another thread?
     let state = unsafe { STATE.as_mut().unwrap_unchecked() };
     let groups = &mut state.textured_quad.texture_bind_groups;

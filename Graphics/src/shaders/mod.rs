@@ -14,7 +14,7 @@ use fog_volume_filter::queue_fog_volume_filter;
 use fog_volume_plane::queue_fog_volume_plane;
 use model::{add_material_set, add_model};
 use texture::{create_render_texture, create_static_texture_2d, drop_texture};
-use textured_quad::queue_textured_quad;
+use textured_quad::{queue_textured_quad_verts, queue_textured_quad};
 use twox_hash::Xxh3Hash64;
 use wgpu::RenderPipeline;
 
@@ -185,6 +185,15 @@ mod ffi {
         fn queue_aabb(aabb: CAABox, color: CColor, z_only: bool);
         fn queue_fog_volume_plane(verts: &CxxVector<CVector4f>, pass: u8);
         fn queue_fog_volume_filter(color: CColor, two_way: bool);
+        fn queue_textured_quad_verts(
+            filter_type: CameraFilterType,
+            texture: TextureRef,
+            z_test: ZTest,
+            color: CColor,
+            pos: &[CVector3f],
+            uvs: &[CVector2f],
+            lod: f32,
+        );
         fn queue_textured_quad(
             filter_type: CameraFilterType,
             texture: TextureRef,
