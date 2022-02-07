@@ -154,7 +154,7 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>) {
     let window = winit::window::WindowBuilder::new().build(&event_loop).unwrap();
     let gpu = initialize_gpu(&window);
     let imgui = initialize_imgui(&window, &gpu);
-    let mut special_keys_pressed : [bool; 27] = [false; 27];
+    let mut special_keys_pressed : [bool; 512] = [false; 512];
     shaders::construct_state(gpu.device.clone(), gpu.queue.clone(), &gpu.config);
     let app = App { window: ffi::Window { inner: Box::new(WindowContext { window }) }, gpu, imgui};
     unsafe {
