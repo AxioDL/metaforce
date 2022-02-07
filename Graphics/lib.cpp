@@ -12,4 +12,18 @@ void App_onAppWindowMoved(AppDelegate& cb, std::int32_t x, std::int32_t y) noexc
   cb.onAppWindowMoved(x, y);
 }
 void App_onAppExiting(AppDelegate& cb) noexcept { cb.onAppExiting(); }
+
+// Input
+void App_onCharKeyDown(AppDelegate& cb, std::uint8_t code, bool is_repeat) noexcept {
+  cb.onCharKeyDown(code, is_repeat);
+}
+void App_onCharKeyUp(AppDelegate& cb, std::uint8_t code) noexcept {
+  cb.onCharKeyUp(code);
+}
+void App_onSpecialKeyDown(AppDelegate& cb, const SpecialKey& key, bool is_repeat) {
+  cb.onSpecialKeyDown(key, is_repeat);
+}
+void App_onSpecialKeyUp(AppDelegate& cb, const SpecialKey& key) {
+  cb.onSpecialKeyUp(key);
+}
 } // namespace aurora

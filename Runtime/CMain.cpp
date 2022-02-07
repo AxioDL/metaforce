@@ -102,9 +102,7 @@ private:
     } while (count.QuadPart < end);
   }
 #else
-  void NanoSleep(const duration_t duration) {
-    std::this_thread::sleep_for(duration);
-  }
+  void NanoSleep(const duration_t duration) { std::this_thread::sleep_for(duration); }
 #endif
 };
 
@@ -155,21 +153,21 @@ private:
   boo::SWindowRect m_lastRect;
   bool m_rectDirty = false;
   bool m_windowInvalid = false;
-//  ImGuiWindowCallback m_imguiCallback;
+  //  ImGuiWindowCallback m_imguiCallback;
 
   void resized(const boo::SWindowRect& rect, bool sync) override {
     m_lastRect = rect;
     m_rectDirty = true;
-//    m_imguiCallback.resized(rect, sync);
+    //    m_imguiCallback.resized(rect, sync);
   }
 
   void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) override {
-//    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
-//      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-//        as->mouseDown(coord, button, mods);
-//      }
-//    }
-//    m_imguiCallback.mouseDown(coord, button, mods);
+    //    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
+    //      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+    //        as->mouseDown(coord, button, mods);
+    //      }
+    //    }
+    //    m_imguiCallback.mouseDown(coord, button, mods);
   }
 
   void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) override {
@@ -178,38 +176,38 @@ private:
         as->mouseUp(coord, button, mods);
       }
     }
-//    m_imguiCallback.mouseUp(coord, button, mods);
+    //    m_imguiCallback.mouseUp(coord, button, mods);
   }
 
   void mouseMove(const boo::SWindowCoord& coord) override {
-//    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
-//      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-//        as->mouseMove(coord);
-//      }
-//    }
-//    m_imguiCallback.mouseMove(coord);
+    //    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
+    //      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+    //        as->mouseMove(coord);
+    //      }
+    //    }
+    //    m_imguiCallback.mouseMove(coord);
   }
 
-//  void mouseEnter(const boo::SWindowCoord& coord) override { m_imguiCallback.mouseEnter(coord); }
+  //  void mouseEnter(const boo::SWindowCoord& coord) override { m_imguiCallback.mouseEnter(coord); }
 
-//  void mouseLeave(const boo::SWindowCoord& coord) override { m_imguiCallback.mouseLeave(coord); }
+  //  void mouseLeave(const boo::SWindowCoord& coord) override { m_imguiCallback.mouseLeave(coord); }
 
   void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll) override {
-//    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
-//      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-//        as->scroll(coord, scroll);
-//      }
-//    }
-//    m_imguiCallback.scroll(coord, scroll);
+    //    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
+    //      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+    //        as->scroll(coord, scroll);
+    //      }
+    //    }
+    //    m_imguiCallback.scroll(coord, scroll);
   }
 
   void charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat) override {
-//    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
-//      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-//        as->charKeyDown(charCode, mods, isRepeat);
-//      }
-//    }
-//    m_imguiCallback.charKeyDown(charCode, mods, isRepeat);
+    //    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
+    //      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+    //        as->charKeyDown(charCode, mods, isRepeat);
+    //      }
+    //    }
+    //    m_imguiCallback.charKeyDown(charCode, mods, isRepeat);
   }
 
   void charKeyUp(unsigned long charCode, boo::EModifierKey mods) override {
@@ -218,32 +216,32 @@ private:
         as->charKeyUp(charCode, mods);
       }
     }
-//    m_imguiCallback.charKeyUp(charCode, mods);
+    //    m_imguiCallback.charKeyUp(charCode, mods);
   }
 
   void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat) override {
-//    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
-//      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-//        as->specialKeyDown(key, mods, isRepeat);
-//      }
-//    }
-//    if (True(mods & boo::EModifierKey::Alt)) {
-//      if (key == boo::ESpecialKey::Enter) {
-//        m_fullscreenToggleRequested = true;
-//      } else if (key == boo::ESpecialKey::F4) {
-//        m_windowInvalid = true;
-//      }
-//    }
-//    m_imguiCallback.specialKeyDown(key, mods, isRepeat);
+    //    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
+    //      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+    //        as->specialKeyDown(key, mods, isRepeat);
+    //      }
+    //    }
+    //    if (True(mods & boo::EModifierKey::Alt)) {
+    //      if (key == boo::ESpecialKey::Enter) {
+    //        m_fullscreenToggleRequested = true;
+    //      } else if (key == boo::ESpecialKey::F4) {
+    //        m_windowInvalid = true;
+    //      }
+    //    }
+    //    m_imguiCallback.specialKeyDown(key, mods, isRepeat);
   }
 
   void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods) override {
-//    if (g_mainMP1) {
-//      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-//        as->specialKeyUp(key, mods);
-//      }
-//    }
-//    m_imguiCallback.specialKeyUp(key, mods);
+    //    if (g_mainMP1) {
+    //      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+    //        as->specialKeyUp(key, mods);
+    //      }
+    //    }
+    //    m_imguiCallback.specialKeyUp(key, mods);
   }
 
   void destroyed() override { m_windowInvalid = true; }
@@ -445,12 +443,58 @@ public:
       g_mainMP1->Shutdown();
     }
     g_mainMP1.reset();
-//    m_renderTex.reset();
-//    m_pipelineConv.reset();
+    //    m_renderTex.reset();
+    //    m_pipelineConv.reset();
     m_cvarManager.serialize();
     m_voiceEngine.reset();
     m_amuseAllocWrapper.reset();
     CDvdFile::Shutdown();
+  }
+
+  void onCharKeyDown(uint8_t code, bool is_repeat) noexcept override {
+    Log.report(logvisor::Info, FMT_STRING("DEBUG CHAR KEYS: '{}', is_repeat {}"), static_cast<char>(code), is_repeat);
+    //    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
+    if (g_mainMP1) {
+      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+        as->charKeyDown(code, boo::EModifierKey::None, is_repeat);
+      }
+    }
+    //    }
+  }
+
+  void onCharKeyUp(uint8_t code) noexcept override {
+    Log.report(logvisor::Info, FMT_STRING("DEBUG CHAR KEYS: '{}'"), static_cast<char>(code));
+    if (g_mainMP1) {
+      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+        as->charKeyUp(code, boo::EModifierKey::None);
+      }
+    }
+  }
+
+  void onSpecialKeyDown(const aurora::SpecialKey& key, bool is_repeat) noexcept override {
+    Log.report(logvisor::Info, FMT_STRING("DEBUG KEYS: SpecialKey {}, is_repeat {}"), key, is_repeat);
+    /* TODO: Temporarily convert the aurora enum to boo's until we refactor everything */
+    if (g_mainMP1) {
+      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+        as->specialKeyDown(boo::ESpecialKey(key), boo::EModifierKey::None, is_repeat);
+      }
+    }
+    //    if (True(mods & boo::EModifierKey::Alt)) {
+    //      if (key == boo::ESpecialKey::Enter) {
+    //        m_fullscreenToggleRequested = true;
+    //      } else if (key == boo::ESpecialKey::F4) {
+    //        m_windowInvalid = true;
+    //      }
+    //    }
+  }
+
+  void onSpecialKeyUp(const aurora::SpecialKey& key) noexcept override {
+    /* TODO: Temporarily convert the aurora enum to boo's until we refactor everything */
+    if (g_mainMP1) {
+      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+        as->specialKeyUp(boo::ESpecialKey(key), boo::EModifierKey::None);
+      }
+    }
   }
 
   [[nodiscard]] std::string getGraphicsApi() const { return m_cvarCommons.getGraphicsApi(); }

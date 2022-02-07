@@ -6,6 +6,8 @@
 #include <cinttypes>
 
 namespace aurora {
+enum class SpecialKey : std::uint8_t;
+
 struct WindowSize;
 
 struct App;
@@ -24,6 +26,12 @@ struct AppDelegate {
   virtual void onAppWindowResized(const WindowSize& size) noexcept = 0;
   virtual void onAppWindowMoved(std::int32_t x, std::int32_t y) noexcept = 0;
   virtual void onAppExiting() noexcept = 0;
+
+  // Input
+  virtual void onCharKeyDown(std::uint8_t charCode, bool is_repeat) noexcept = 0;
+  virtual void onCharKeyUp(std::uint8_t charCode) noexcept = 0;
+  virtual void onSpecialKeyDown(const SpecialKey& key, bool is_repeat) noexcept = 0;
+  virtual void onSpecialKeyUp(const SpecialKey& key) noexcept = 0;
 
 //  virtual void resized([[maybe_unused]] const WindowSize& rect, [[maybe_unused]] bool sync) noexcept {}
 //  virtual void mouseDown([[maybe_unused]] const SWindowCoord& coord, [[maybe_unused]] EMouseButton button,

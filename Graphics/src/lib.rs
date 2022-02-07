@@ -3,21 +3,22 @@
 #![allow(unused_variables)]
 #![allow(unused_unsafe)]
 
-use std::{num::NonZeroU8, time::Instant};
-
 use wgpu::Backend;
 use winit::{
-    event::{Event, WindowEvent, KeyboardInput},
+    event::{ElementState, Event, KeyboardInput, WindowEvent},
     event_loop::ControlFlow,
 };
+use winit::event::VirtualKeyCode;
 
+use std::{num::NonZeroU8, time::Instant, collections::HashMap};
 
 use crate::{
-    gpu::{create_depth_texture, create_render_texture, initialize_gpu, DeviceHolder},
-    imgui::{initialize_imgui, ImGuiState},
+    ffi::WindowSize,
+    gpu::{create_depth_texture, create_render_texture, DeviceHolder, initialize_gpu},
+    imgui::{ImGuiState, initialize_imgui},
     shaders::render_into_pass,
-    ffi::{WindowSize},
 };
+use crate::ffi::SpecialKey;
 
 mod gpu;
 mod imgui;
@@ -42,6 +43,11 @@ mod ffi {
         pub(crate) fn App_onAppWindowResized(cb: Pin<&mut AppDelegate>, size: &WindowSize);
         pub(crate) fn App_onAppWindowMoved(cb: Pin<&mut AppDelegate>, x: i32, y: i32);
         pub(crate) fn App_onAppExiting(cb: Pin<&mut AppDelegate>);
+        // Input
+        pub(crate) fn App_onCharKeyDown(cb: Pin<&mut AppDelegate>, code: u8, is_repeat: bool);
+        pub(crate) fn App_onCharKeyUp(cb: Pin<&mut AppDelegate>, code: u8);
+        pub(crate) fn App_onSpecialKeyDown(cb: Pin<&mut AppDelegate>, key: &SpecialKey, is_repeat: bool);
+        pub(crate) fn App_onSpecialKeyUp(cb: Pin<&mut AppDelegate>, key: &SpecialKey);
     }
 
     pub struct Window {
@@ -148,13 +154,13 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>) {
     let window = winit::window::WindowBuilder::new().build(&event_loop).unwrap();
     let gpu = initialize_gpu(&window);
     let imgui = initialize_imgui(&window, &gpu);
+    let mut special_keys_pressed : [bool; 27] = [false; 27];
     shaders::construct_state(gpu.device.clone(), gpu.queue.clone(), &gpu.config);
-    let app = App { window: ffi::Window { inner: Box::new(WindowContext { window }) }, gpu, imgui };
+    let app = App { window: ffi::Window { inner: Box::new(WindowContext { window }) }, gpu, imgui};
     unsafe {
         APP.replace(app);
         ffi::App_onAppLaunched(delegate.as_mut().unwrap());
     };
-
     let mut last_frame: Option<Instant> = None;
     event_loop.run(move |event, _, control_flow| {
         // Have the closure take ownership of the resources.
@@ -187,19 +193,72 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>) {
                     &app.gpu.config,
                 );
                 unsafe {
-                    let window_size = WindowSize{width: app.gpu.surface_config.width, height: app.gpu.surface_config.height};
+                    let window_size = WindowSize { width: app.gpu.surface_config.width, height: app.gpu.surface_config.height };
 
                     ffi::App_onAppWindowResized(delegate.as_mut().unwrap(), &window_size);
                 }
             }
-            Event::WindowEvent { event: WindowEvent::Moved(loc), ..} => {
+            Event::WindowEvent { event: WindowEvent::Moved(loc), .. } => {
                 unsafe {
                     ffi::App_onAppWindowMoved(delegate.as_mut().unwrap(), loc.x, loc.y);
                 }
             }
-            Event::WindowEvent { event: WindowEvent::KeyboardInput {
-                input: KeyboardInput, .. }, .. } => {
+            Event::WindowEvent {
+                event: WindowEvent::KeyboardInput {
+                    input:
+                    KeyboardInput {
+                        scancode,
+                        virtual_keycode: Some(key),
+                        state,
+                        ..
+                    },
+                    ..
+                },
+                ..
+            } => {
+                // TODO: Handle normal keys, this will require a refactor in game runtime code
+                let special_key = match key {
+                    VirtualKeyCode::F1 => SpecialKey::F1,
+                    VirtualKeyCode::F2 => SpecialKey::F2,
+                    VirtualKeyCode::F3 => SpecialKey::F3,
+                    VirtualKeyCode::F4 => SpecialKey::F4,
+                    VirtualKeyCode::F5 => SpecialKey::F5,
+                    VirtualKeyCode::F6 => SpecialKey::F6,
+                    VirtualKeyCode::F7 => SpecialKey::F7,
+                    VirtualKeyCode::F8 => SpecialKey::F8,
+                    VirtualKeyCode::F9 => SpecialKey::F9,
+                    VirtualKeyCode::F10 => SpecialKey::F10,
+                    VirtualKeyCode::F11 => SpecialKey::F11,
+                    VirtualKeyCode::F12 => SpecialKey::F12,
+                    VirtualKeyCode::Escape => SpecialKey::Esc,
+                    VirtualKeyCode::Return => SpecialKey::Enter,
+                    VirtualKeyCode::Back => SpecialKey::Backspace,
+                    VirtualKeyCode::Insert => SpecialKey::Insert,
+                    VirtualKeyCode::Delete => SpecialKey::Delete,
+                    VirtualKeyCode::Home => SpecialKey::Home,
+                    VirtualKeyCode::PageUp => SpecialKey::PgUp,
+                    VirtualKeyCode::PageDown => SpecialKey::PgDown,
+                    VirtualKeyCode::Left => SpecialKey::Left,
+                    VirtualKeyCode::Right => SpecialKey::Right,
+                    VirtualKeyCode::Up => SpecialKey::Up,
+                    VirtualKeyCode::Down => SpecialKey::Down,
+                    VirtualKeyCode::Tab => SpecialKey::Tab,
+                    _ => SpecialKey::None,
+                };
 
+                if special_key != SpecialKey::None {
+                    let pressed = state == ElementState::Pressed;
+                    let repeat = special_keys_pressed[key as usize] == pressed;
+                    special_keys_pressed[key as usize] = pressed;
+
+                    unsafe {
+                        if pressed {
+                            ffi::App_onSpecialKeyDown(delegate.as_mut().unwrap(), &special_key, repeat);
+                        } else {
+                            ffi::App_onSpecialKeyUp(delegate.as_mut().unwrap(), &special_key);
+                        }
+                    }
+                }
             }
             Event::WindowEvent { .. } => {}
             Event::DeviceEvent { .. } => {}
