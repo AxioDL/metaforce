@@ -1443,7 +1443,7 @@ checksum = "96311ef4a16462c757bb6a39152c40f58f31cd2602a40fceb937e2bc34e6cbab"
 [[package]]
 name = "sdl2"
 version = "0.35.2"
-source = "git+https://github.com/encounter/rust-sdl2.git?rev=e282ef3acd7fcb4b2ba16863a7a0a7a8439f9335#e282ef3acd7fcb4b2ba16863a7a0a7a8439f9335"
+source = "git+https://github.com/encounter/rust-sdl2.git?rev=f39d7a7549fd59bebb1fb42ec12973200bb3080b#f39d7a7549fd59bebb1fb42ec12973200bb3080b"
 dependencies = [
  "bitflags",
  "lazy_static",
@@ -1454,7 +1454,7 @@ dependencies = [
 [[package]]
 name = "sdl2-sys"
 version = "0.35.2"
-source = "git+https://github.com/encounter/rust-sdl2.git?rev=e282ef3acd7fcb4b2ba16863a7a0a7a8439f9335#e282ef3acd7fcb4b2ba16863a7a0a7a8439f9335"
+source = "git+https://github.com/encounter/rust-sdl2.git?rev=f39d7a7549fd59bebb1fb42ec12973200bb3080b#f39d7a7549fd59bebb1fb42ec12973200bb3080b"
 dependencies = [
  "cfg-if 1.0.0",
  "libc",

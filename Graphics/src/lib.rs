@@ -183,6 +183,8 @@ mod ffi {
         fn get_backend() -> Backend;
         fn get_backend_string() -> &'static str;
         fn set_fullscreen(v: bool);
+        fn get_controller_player_index(which: u32) -> i32;
+        fn set_controller_player_index(which: u32, index: i32);
     }
 }
 impl From<Button> for ffi::ControllerButton {
@@ -593,4 +595,20 @@ fn set_fullscreen(v: bool) {
     } else {
         None
     });
+}
+
+fn get_controller_player_index(which: u32) -> i32 {
+    let has_controller = get_app().sdl_open_controllers.contains_key(&which);
+    let result = if has_controller {
+        get_app().sdl_open_controllers.get(&which).unwrap().player_index()
+    } else {
+        -1
+    };
+    result as i32
+}
+
+fn set_controller_player_index(which: u32, index: i32) {
+    if get_app().sdl_open_controllers.contains_key(&which) {
+        get_app().sdl_open_controllers.get(&which).unwrap().set_player_index(index);
+    }
 }

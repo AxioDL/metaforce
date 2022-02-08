@@ -2,6 +2,7 @@
 
 #include "imgui.h"
 #include "misc/cpp/imgui_stdlib.h"
+#include <memory>
 
 //#include <boo/IWindow.hpp>
 //#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
