@@ -2,12 +2,19 @@
 
 #include <array>
 
-#include "Runtime/RetroTypes.hpp"
 #include "Runtime/Input/CKeyboardMouseController.hpp"
+#include "Runtime/RetroTypes.hpp"
 
-#include <boo/inputdev/DolphinSmashAdapter.hpp>
+#include "aurora.h"
+
+//#include <boo/inputdev/DolphinSmashAdapter.hpp>
 
 namespace metaforce {
+
+struct SAuroraControllerState {
+  std::array<int16_t, size_t(aurora::ControllerAxis::MAX)> m_axes{};
+  std::bitset<size_t(aurora::ControllerButton::MAX)> m_btns{};
+};
 
 struct CFinalInput {
   float x0_dt = 0.0f;
@@ -72,7 +79,9 @@ struct CFinalInput {
   float m_rightMul = 1.f;
 
   CFinalInput();
-  CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput, float leftDiv,
+//  CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput, float leftDiv,
+//              float rightDiv);
+  CFinalInput(int cIdx, float dt, const SAuroraControllerState& data, const CFinalInput& prevInput, float leftDiv,
               float rightDiv);
   CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData& data, const CFinalInput& prevInput);
 

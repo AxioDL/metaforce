@@ -7,16 +7,15 @@ use crate::{
     get_app,
     gpu::GraphicsConfig,
     shaders::{
-        get_combined_matrix,
         bind_pipeline,
-        BuiltBuffers,
-        ffi::{CameraFilterType, TextureRef, ZTest}, pipeline_ref, PipelineCreateCommand, PipelineHolder, PipelineRef,
-        push_draw_command, push_uniform, push_verts, ShaderDrawCommand, STATE,
+        ffi::{CameraFilterType, TextureRef, ZTest},
+        get_combined_matrix, pipeline_ref, push_draw_command, push_uniform, push_verts,
+        texture::create_sampler,
+        BuiltBuffers, PipelineCreateCommand, PipelineHolder, PipelineRef, ShaderDrawCommand, STATE,
     },
+    util::{align, Vec2, Vec3},
     zeus::{CColor, CMatrix4f, CRectangle, CVector2f, CVector3f, CVector4f},
 };
-use crate::shaders::texture::create_sampler;
-use crate::util::{align, Vec2, Vec3};
 
 #[derive(Debug, Clone)]
 pub(crate) struct DrawData {
@@ -56,40 +55,46 @@ pub(crate) fn construct_state(
 ) -> State {
     let shader = device.create_shader_module(&include_wgsl!("shader.wgsl"));
     let uniform_alignment = device.limits().min_uniform_buffer_offset_alignment;
-    let uniform_size = wgpu::BufferSize::new(align(std::mem::size_of::<Uniform>() as u64, uniform_alignment as u64));
+    let uniform_size = wgpu::BufferSize::new(align(
+        std::mem::size_of::<Uniform>() as u64,
+        uniform_alignment as u64,
+    ));
     let uniform_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
         label: Some("Textured Quad Uniform Bind Group Layout"),
-        entries: &[wgpu::BindGroupLayoutEntry {
-            binding: 0,
-            visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
-            ty: wgpu::BindingType::Buffer {
-                ty: wgpu::BufferBindingType::Uniform,
-                has_dynamic_offset: true,
-                min_binding_size: uniform_size,
+        entries: &[
+            wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: true,
+                    min_binding_size: uniform_size,
+                },
+                count: None,
             },
-            count: None,
-        }, wgpu::BindGroupLayoutEntry {
-            binding: 1,
-            visibility: wgpu::ShaderStages::FRAGMENT,
-            ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
-            count: None,
-        }],
+            wgpu::BindGroupLayoutEntry {
+                binding: 1,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                count: None,
+            },
+        ],
     });
     let sampler = create_sampler(device, wgpu::AddressMode::Repeat, None);
     let uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
         label: Some("Textured Quad Uniform Bind Group"),
         layout: &uniform_layout,
-        entries: &[wgpu::BindGroupEntry {
-            binding: 0,
-            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                buffer: &buffers.uniform_buffer,
-                offset: 0, // dynamic
-                size: uniform_size,
-            }),
-        }, wgpu::BindGroupEntry {
-            binding: 1,
-            resource: wgpu::BindingResource::Sampler(&sampler),
-        }],
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                    buffer: &buffers.uniform_buffer,
+                    offset: 0, // dynamic
+                    size: uniform_size,
+                }),
+            },
+            wgpu::BindGroupEntry { binding: 1, resource: wgpu::BindingResource::Sampler(&sampler) },
+        ],
     });
     let texture_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
         label: Some("Textured Quad Texture Bind Group Layout"),
@@ -170,7 +175,6 @@ pub(crate) fn construct_pipeline(
         ),
         _ => todo!(),
     };
-    log::warn!("VERT SIZE: {}", std::mem::size_of::<Vert>() as u64);
     PipelineHolder {
         pipeline: device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Textured Quad Pipeline"),
@@ -271,12 +275,38 @@ pub(crate) fn queue_textured_quad(
     push_textured_quad(texture, pipeline, vert_range, uniform_range);
 }
 
+pub(crate) fn queue_textured_quad_verts(
+    filter_type: CameraFilterType,
+    texture: TextureRef,
+    z_test: ZTest,
+    color: CColor,
+    pos: &[CVector3f],
+    uvs: &[CVector2f],
+    lod: f32,
+) {
+    if pos.len() != 4 || uvs.len() != 4 {
+        panic!("Invalid pos/uv sizes: {}/{}", pos.len(), uvs.len());
+    }
+
+    let pipeline =
+        pipeline_ref(&PipelineCreateCommand::TexturedQuad(PipelineConfig { filter_type, z_test }));
+    let vert_range = push_verts(
+        &pos.iter()
+            .zip(uvs)
+            .map(|(pos, uv)| Vert { pos: pos.into(), uv: uv.into() })
+            .collect::<Vec<Vert>>(),
+    );
+    let uniform_range = push_uniform(&Uniform { xf: get_combined_matrix(), color, lod: 0.0 });
+
+    push_textured_quad(texture, pipeline, vert_range, uniform_range);
+}
+
 fn push_textured_quad(
     texture: TextureRef,
     pipeline: PipelineRef,
     vert_range: Range<u64>,
-    uniform_range: Range<u64>
-){
+    uniform_range: Range<u64>,
+) {
     // TODO defer bind group creation to draw time or another thread?
     let state = unsafe { STATE.as_mut().unwrap_unchecked() };
     let groups = &mut state.textured_quad.texture_bind_groups;

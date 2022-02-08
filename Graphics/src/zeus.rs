@@ -189,6 +189,14 @@ impl From<CVector2f> for Vec2<f32> {
         }
     }
 }
+impl From<&CVector2f> for Vec2<f32> {
+    fn from(v: &CVector2f) -> Self {
+        Self {
+            x: v.x,
+            y: v.y,
+        }
+    }
+}
 
 impl From<Vec3<f32>> for CVector3f {
     fn from(v: Vec3<f32>) -> Self {
@@ -202,6 +210,15 @@ impl From<Vec3<f32>> for CVector3f {
 }
 impl From<CVector3f> for Vec3<f32> {
     fn from(v: CVector3f) -> Self {
+        Self {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+        }
+    }
+}
+impl From<&CVector3f> for Vec3<f32> {
+    fn from(v: &CVector3f) -> Self {
         Self {
             x: v.x,
             y: v.y,

@@ -1,12 +1,14 @@
 #pragma once
 
 #include <array>
+#include <cinttypes>
 #include <type_traits>
 #include <vector>
-#include <cinttypes>
 
 namespace aurora {
-enum class SpecialKey : std::uint8_t;
+enum class SpecialKey : uint8_t;
+enum class ControllerButton : uint8_t;
+enum class ControllerAxis : uint8_t;
 
 struct WindowSize;
 
@@ -24,14 +26,18 @@ struct AppDelegate {
   virtual void onAppDraw() noexcept = 0;
   virtual void onAppPostDraw() noexcept = 0;
   virtual void onAppWindowResized(const WindowSize& size) noexcept = 0;
-  virtual void onAppWindowMoved(std::int32_t x, std::int32_t y) noexcept = 0;
+  virtual void onAppWindowMoved(int32_t x, int32_t y) noexcept = 0;
   virtual void onAppExiting() noexcept = 0;
 
   // Input
-  virtual void onCharKeyDown(std::uint8_t charCode, bool is_repeat) noexcept = 0;
-  virtual void onCharKeyUp(std::uint8_t charCode) noexcept = 0;
-  virtual void onSpecialKeyDown(const SpecialKey& key, bool is_repeat) noexcept = 0;
-  virtual void onSpecialKeyUp(const SpecialKey& key) noexcept = 0;
+  virtual void onCharKeyDown(uint8_t charCode, bool isRepeat) noexcept = 0;
+  virtual void onCharKeyUp(uint8_t charCode) noexcept = 0;
+  virtual void onSpecialKeyDown(SpecialKey key, bool isRepeat) noexcept = 0;
+  virtual void onSpecialKeyUp(SpecialKey key) noexcept = 0;
+
+  // Controller
+  virtual void onControllerButton(uint32_t idx, ControllerButton button, bool pressed) noexcept = 0;
+  virtual void onControllerAxis(uint32_t idx, ControllerAxis axis, int16_t value) noexcept = 0;
 
 //  virtual void resized([[maybe_unused]] const WindowSize& rect, [[maybe_unused]] bool sync) noexcept {}
 //  virtual void mouseDown([[maybe_unused]] const SWindowCoord& coord, [[maybe_unused]] EMouseButton button,

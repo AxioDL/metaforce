@@ -437,6 +437,19 @@ public:
   void onAppWindowMoved(std::int32_t x, std::int32_t y) noexcept override {
     // TODO: implement this
   }
+
+  void onControllerButton(uint32_t idx, aurora::ControllerButton button, bool pressed) noexcept override {
+    if (auto* input = g_InputGenerator) {
+      input->controllerButton(idx, button, pressed);
+    }
+  }
+
+  void onControllerAxis(uint32_t idx, aurora::ControllerAxis axis, int16_t value) noexcept override {
+    if (auto* input = g_InputGenerator) {
+      input->controllerAxis(idx, axis, value);
+    }
+  }
+
   void onAppExiting() noexcept override {
     m_imGuiConsole.Shutdown();
     if (g_mainMP1) {
@@ -451,12 +464,12 @@ public:
     CDvdFile::Shutdown();
   }
 
-  void onCharKeyDown(uint8_t code, bool is_repeat) noexcept override {
-    Log.report(logvisor::Info, FMT_STRING("DEBUG CHAR KEYS: '{}', is_repeat {}"), static_cast<char>(code), is_repeat);
+  void onCharKeyDown(uint8_t code, bool isRepeat) noexcept override {
+    Log.report(logvisor::Info, FMT_STRING("DEBUG CHAR KEYS: '{}', isRepeat {}"), static_cast<char>(code), isRepeat);
     //    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->charKeyDown(code, boo::EModifierKey::None, is_repeat);
+        as->charKeyDown(code, boo::EModifierKey::None, isRepeat);
       }
     }
     //    }
@@ -471,12 +484,12 @@ public:
     }
   }
 
-  void onSpecialKeyDown(const aurora::SpecialKey& key, bool is_repeat) noexcept override {
-    Log.report(logvisor::Info, FMT_STRING("DEBUG KEYS: SpecialKey {}, is_repeat {}"), key, is_repeat);
+  void onSpecialKeyDown(aurora::SpecialKey key, bool isRepeat) noexcept override {
+    Log.report(logvisor::Info, FMT_STRING("DEBUG KEYS: SpecialKey {}, isRepeat {}"), key, isRepeat);
     /* TODO: Temporarily convert the aurora enum to boo's until we refactor everything */
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->specialKeyDown(boo::ESpecialKey(key), boo::EModifierKey::None, is_repeat);
+        as->specialKeyDown(boo::ESpecialKey(key), boo::EModifierKey::None, isRepeat);
       }
     }
     //    if (True(mods & boo::EModifierKey::Alt)) {
@@ -488,7 +501,7 @@ public:
     //    }
   }
 
-  void onSpecialKeyUp(const aurora::SpecialKey& key) noexcept override {
+  void onSpecialKeyUp(aurora::SpecialKey key) noexcept override {
     /* TODO: Temporarily convert the aurora enum to boo's until we refactor everything */
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {

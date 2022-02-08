@@ -29,6 +29,8 @@ smallvec = "1.7.0"
 scopeguard = "1.1.0"
 twox-hash = "1.6.2"
 winit = "0.26.1"
+# custom sdl2
+sdl2 = { git = "https://github.com/encounter/rust-sdl2.git", rev = "e282ef3acd7fcb4b2ba16863a7a0a7a8439f9335", features = ["no-link", "hidapi"] }
 
 [dependencies.imgui]
 git = "https://github.com/imgui-rs/imgui-rs"

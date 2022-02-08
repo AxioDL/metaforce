@@ -116,6 +116,7 @@ dependencies = [
  "num_enum",
  "pollster",
  "scopeguard",
+ "sdl2",
  "smallvec",
  "twox-hash",
  "wasm-bindgen-futures",
@@ -1440,6 +1441,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96311ef4a16462c757bb6a39152c40f58f31cd2602a40fceb937e2bc34e6cbab"
 
 [[package]]
+name = "sdl2"
+version = "0.35.2"
+source = "git+https://github.com/encounter/rust-sdl2.git?rev=e282ef3acd7fcb4b2ba16863a7a0a7a8439f9335#e282ef3acd7fcb4b2ba16863a7a0a7a8439f9335"
+dependencies = [
+ "bitflags",
+ "lazy_static",
+ "libc",
+ "sdl2-sys",
+]
+
+[[package]]
+name = "sdl2-sys"
+version = "0.35.2"
+source = "git+https://github.com/encounter/rust-sdl2.git?rev=e282ef3acd7fcb4b2ba16863a7a0a7a8439f9335#e282ef3acd7fcb4b2ba16863a7a0a7a8439f9335"
+dependencies = [
+ "cfg-if 1.0.0",
+ "libc",
+ "version-compare",
+]
+
+[[package]]
 name = "serde"
 version = "1.0.132"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1702,6 +1724,12 @@ name = "vec_map"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1bddf1187be692e79c5ffeab891132dfb0f236ed36a43c7ed39f1165ee20191"
+
+[[package]]
+name = "version-compare"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe88247b92c1df6b6de80ddc290f3976dbdf2f5f5d3fd049a9fb598c6dd5ca73"
 
 [[package]]
 name = "version_check"

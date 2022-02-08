@@ -100,7 +100,7 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
 , x44_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero) {
   auto* m = static_cast<CMain*>(g_Main);
 
-  x30_inputGenerator.startScanning();
+//  x30_inputGenerator.startScanning();
   g_InputGenerator = &x30_inputGenerator;
 
   CAudioSys::SysSetVolume(0x7f);
