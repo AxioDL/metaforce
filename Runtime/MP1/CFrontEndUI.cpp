@@ -2048,7 +2048,8 @@ void CFrontEndUI::Draw() {
       aurora::shaders::queue_textured_quad(
           aurora::shaders::CameraFilterType::Add,
           x38_pressStart->GetTexture()->ref,
-          aurora::shaders::ZTest::None,
+          aurora::shaders::ZTest::Always,
+          false,
           color,
           1.f,
           rect,

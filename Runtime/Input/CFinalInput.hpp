@@ -14,6 +14,7 @@ namespace metaforce {
 struct SAuroraControllerState {
   std::array<int16_t, size_t(aurora::ControllerAxis::MAX)> m_axes{};
   std::bitset<size_t(aurora::ControllerButton::MAX)> m_btns{};
+  void clamp();
 };
 
 struct CFinalInput {

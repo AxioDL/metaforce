@@ -25,13 +25,13 @@ class CInputGenerator /*: public boo::DeviceFinder*/ {
   float m_leftDiv;
   float m_rightDiv;
   CKeyboardMouseControllerData m_data;
-  SAuroraControllerState m_state;
+  SAuroraControllerState m_state[4];
 
   CFinalInput m_lastUpdate;
   const CFinalInput& getFinalInput(unsigned idx, float dt) {
     auto input = CFinalInput(idx, dt, m_data, m_lastUpdate);
     // Merge controller input with kb/m input
-    input |= CFinalInput(idx, dt, m_state, m_lastUpdate, m_leftDiv, m_rightDiv);
+    input |= CFinalInput(idx, dt, m_state[idx], m_lastUpdate, m_leftDiv, m_rightDiv);
     m_lastUpdate = input;
     return m_lastUpdate;
   }
@@ -50,13 +50,13 @@ public:
 //  }
 
   void controllerButton(uint32_t idx, aurora::ControllerButton button, bool pressed) noexcept {
-    // TODO check idx
-    m_state.m_btns.set(size_t(button), pressed);
+    s32 player = aurora::get_controller_player_index(idx);
+    if (player < 0) {
+      return;
+    }
+    m_state[player].m_btns.set(size_t(button), pressed);
   }
-  void controllerAxis(uint32_t idx, aurora::ControllerAxis axis, int16_t value) noexcept {
-    // TODO check idx
-    m_state.m_axes[size_t(axis)] = value;
-  }
+  void controllerAxis(uint32_t idx, aurora::ControllerAxis axis, int16_t value) noexcept;
 
   /* Keyboard and mouse events are delivered on the main game
    * thread as part of the app's main event loop. The OS is responsible

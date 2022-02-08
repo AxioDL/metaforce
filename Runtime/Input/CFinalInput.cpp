@@ -6,8 +6,8 @@ namespace metaforce {
 
 CFinalInput::CFinalInput() = default;
 
-//CFinalInput::CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput,
-//                         float leftDiv, float rightDiv)
+// CFinalInput::CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput,
+//                          float leftDiv, float rightDiv)
 //: x0_dt(dt)
 //, x4_controllerIdx(cIdx)
 //, x8_anaLeftX(zeus::clamp(-1.0f, data.m_leftStick[0] / 72.0f / leftDiv, 1.0f))
@@ -75,9 +75,9 @@ CFinalInput::CFinalInput(int cIdx, float dt, const SAuroraControllerState& data,
 , x2c_b25_B(data.m_btns[size_t(aurora::ControllerButton::B)])
 , x2c_b26_X(data.m_btns[size_t(aurora::ControllerButton::X)])
 , x2c_b27_Y(data.m_btns[size_t(aurora::ControllerButton::Y)])
-, x2c_b28_Z(data.m_btns[size_t(aurora::ControllerButton::RightShoulder)])
-, x2c_b29_L(data.m_axes[size_t(aurora::ControllerAxis::TriggerLeft)] > 29490)
-, x2c_b30_R(data.m_axes[size_t(aurora::ControllerAxis::TriggerRight)] > 29490)
+, x2c_b28_Z(data.m_btns[size_t(aurora::ControllerButton::Back)])
+, x2c_b29_L(data.m_btns[size_t(aurora::ControllerButton::LeftShoulder)])
+, x2c_b30_R(data.m_btns[size_t(aurora::ControllerButton::RightShoulder)])
 , x2c_b31_DPUp(data.m_btns[size_t(aurora::ControllerButton::DPadUp)])
 , x2d_b24_DPRight(data.m_btns[size_t(aurora::ControllerButton::DPadRight)])
 , x2d_b25_DPDown(data.m_btns[size_t(aurora::ControllerButton::DPadDown)])
@@ -94,7 +94,21 @@ CFinalInput::CFinalInput(int cIdx, float dt, const SAuroraControllerState& data,
 , x2e_b28_PDPRight(DDPRight() && !prevInput.DDPRight())
 , x2e_b29_PDPDown(DDPDown() && !prevInput.DDPDown())
 , x2e_b30_PDPLeft(DDPLeft() && !prevInput.DDPLeft())
-, x2e_b31_PStart(DStart() && !prevInput.DStart()) {}
+, x2e_b31_PStart(DStart() && !prevInput.DStart()) {
+  if (x2c_b29_L) {
+    x18_anaLeftTrigger = 150.f * 0.007f;
+  }
+  if (x2c_b30_R) {
+    x1c_anaRightTrigger = 150.f * 0.007f;
+  }
+
+  if (x18_anaLeftTrigger > (150.f * 0.007f) && !x2c_b29_L) {
+    x2c_b29_L = true;
+  }
+  if (x1c_anaRightTrigger > (150.f * 0.007f) && !x2c_b30_R) {
+    x2c_b30_R = true;
+  }
+}
 
 CFinalInput::CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData& data, const CFinalInput& prevInput)
 : x0_dt(dt)
@@ -206,5 +220,111 @@ CFinalInput CFinalInput::ScaleAnalogueSticks(float leftDiv, float rightDiv) cons
   ret.m_leftMul = 1.f / leftDiv;
   ret.m_rightMul = 1.f / rightDiv;
   return ret;
+}
+
+/* The following code is derived from pad.c in libogc
+ *
+ *  Copyright (C) 2004 - 2009
+ *  Michael Wiedenbauer (shagkur)
+ *  Dave Murphy (WinterMute)
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any
+ * damages arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any
+ * purpose, including commercial applications, and to alter it and
+ * redistribute it freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you
+ *    must not claim that you wrote the original software. If you use
+ *    this software in a product, an acknowledgment in the product
+ *    documentation would be appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and
+ *    must not be misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source
+ *    distribution.
+ */
+
+constexpr std::array<int16_t, 8> pad_clampregion{
+    30, 180, 15, 72, 40, 15, 59, 31,
+};
+
+static void pad_clampstick(int16_t& px, int16_t& py, int16_t max, int16_t xy, int16_t min) {
+  int x = px;
+  int y = py;
+
+  int signX;
+  if (x > 0) {
+    signX = 1;
+  } else {
+    signX = -1;
+    x = -x;
+  }
+
+  int signY;
+  if (y > 0) {
+    signY = 1;
+  } else {
+    signY = -1;
+    y = -y;
+  }
+
+  if (x <= min) {
+    x = 0;
+  } else {
+    x -= min;
+  }
+
+  if (y <= min) {
+    y = 0;
+  } else {
+    y -= min;
+  }
+
+  if (x == 0 && y == 0) {
+    px = py = 0;
+    return;
+  }
+
+  if (xy * y <= xy * x) {
+    const int d = xy * x + (max - xy) * y;
+    if (xy * max < d) {
+      x = int16_t(xy * max * x / d);
+      y = int16_t(xy * max * y / d);
+    }
+  } else {
+    const int d = xy * y + (max - xy) * x;
+    if (xy * max < d) {
+      x = int16_t(xy * max * x / d);
+      y = int16_t(xy * max * y / d);
+    }
+  }
+
+  px = int16_t(signX * x);
+  py = int16_t(signY * y);
+}
+
+static void pad_clamptrigger(int16_t& trigger) {
+  const int16_t min = pad_clampregion[0];
+  const int16_t max = pad_clampregion[1];
+
+  if (trigger <= min) {
+    trigger = 0;
+  } else {
+    if (max < trigger) {
+      trigger = max;
+    }
+    trigger -= min;
+  }
+}
+
+void SAuroraControllerState::clamp() {
+  pad_clampstick(m_axes[size_t(aurora::ControllerAxis::LeftX)], m_axes[size_t(aurora::ControllerAxis::LeftY)],
+                 pad_clampregion[3], pad_clampregion[4], pad_clampregion[2]);
+  pad_clampstick(m_axes[size_t(aurora::ControllerAxis::RightX)], m_axes[size_t(aurora::ControllerAxis::RightY)],
+                 pad_clampregion[6], pad_clampregion[7], pad_clampregion[5]);
+  pad_clamptrigger(m_axes[size_t(aurora::ControllerAxis::TriggerLeft)]);
+  pad_clamptrigger(m_axes[size_t(aurora::ControllerAxis::TriggerRight)]);
 }
 } // namespace metaforce

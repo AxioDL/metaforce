@@ -182,7 +182,7 @@ CTexturedQuadFilter::CTexturedQuadFilter(const std::shared_ptr<aurora::TextureHa
   m_flipRect = true; // TODO?
 }
 
-CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const std::shared_ptr<aurora::TextureHandle>& tex, ZTest ztest)
+CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const std::shared_ptr<aurora::TextureHandle>& tex, ERglEnum ztest)
 : m_booTex(tex), m_zTest(ztest) {
   m_flipRect = true; // TODO?
 //  tex->setClampMode(boo::TextureClampMode::ClampToEdge);
@@ -200,7 +200,7 @@ CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const std::shared_ptr
 //  } BooTrace);
 }
 
-CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ZTest ztest)
+CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ERglEnum ztest)
 : CTexturedQuadFilter(type, (tex ? tex->GetTexture() : nullptr), ztest) {
   m_flipRect = true; // TODO?
   m_tex = tex;

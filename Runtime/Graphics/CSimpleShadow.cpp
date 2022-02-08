@@ -31,8 +31,8 @@ void CSimpleShadow::Render(const TLockedToken<CTexture>& tex) {
   CGraphics::DisableAllLights();
   CGraphics::SetModelMatrix(x0_xf);
 
-  if (!m_filter || m_filter->GetTex().GetObj() != tex.GetObj())
-    m_filter.emplace(EFilterType::InvDstMultiply, tex, CTexturedQuadFilter::ZTest::LEqual);
+  //if (!m_filter || m_filter->GetTex().GetObj() != tex.GetObj())
+    //m_filter.emplace(EFilterType::InvDstMultiply, tex, CTexturedQuadFilter::ZTest::LEqual);
 
   float radius = x34_radius * x30_scale;
   const std::array<CTexturedQuadFilter::Vert, 4> verts{{
@@ -41,7 +41,7 @@ void CSimpleShadow::Render(const TLockedToken<CTexture>& tex) {
       {{-radius, 0.f, radius}, {1.f, 0.f}},
       {{radius, 0.f, radius}, {1.f, 1.f}},
   }};
-  m_filter->drawVerts(zeus::skWhite, verts);
+  //m_filter->drawVerts(zeus::skWhite, verts);
 }
 
 void CSimpleShadow::Calculate(const zeus::CAABox& aabb, const zeus::CTransform& xf, const CStateManager& mgr) {

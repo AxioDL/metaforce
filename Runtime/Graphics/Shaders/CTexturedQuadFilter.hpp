@@ -17,7 +17,7 @@ enum class EFilterType;
 
 class CTexturedQuadFilter {
 public:
-  enum class ZTest { None, LEqual, GEqual, GEqualZWrite };
+  enum class ZTest { Never, Less, Equal, LEqual, Greater, NEqual, GEqual, Always };
 
 protected:
   struct Uniform {
@@ -27,11 +27,11 @@ protected:
   };
   TLockedToken<CTexture> m_tex;
   std::shared_ptr<aurora::TextureHandle> m_booTex;
-//  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-//  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-//  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+  //  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+  //  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+  //  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
   Uniform m_uniform;
-  ZTest m_zTest;
+  ERglEnum m_zTest;
   bool m_flipRect = false;
 
   explicit CTexturedQuadFilter(const std::shared_ptr<aurora::TextureHandle>& tex);
@@ -44,8 +44,9 @@ public:
   static void Initialize();
   static void Shutdown();
   static constexpr zeus::CRectangle DefaultRect{0.f, 0.f, 1.f, 1.f};
-  explicit CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ZTest zTest = ZTest::None);
-  explicit CTexturedQuadFilter(EFilterType type, const std::shared_ptr<aurora::TextureHandle>& tex, ZTest zTest = ZTest::None);
+  explicit CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ERglEnum zTest = ERglEnum::Never);
+  explicit CTexturedQuadFilter(EFilterType type, const std::shared_ptr<aurora::TextureHandle>& tex,
+                               ERglEnum zTest = ERglEnum::Never);
   CTexturedQuadFilter(const CTexturedQuadFilter&) = delete;
   CTexturedQuadFilter& operator=(const CTexturedQuadFilter&) = delete;
   CTexturedQuadFilter(CTexturedQuadFilter&&) = default;

@@ -598,17 +598,23 @@ fn set_fullscreen(v: bool) {
 }
 
 fn get_controller_player_index(which: u32) -> i32 {
-    let has_controller = get_app().sdl_open_controllers.contains_key(&which);
-    let result = if has_controller {
-        get_app().sdl_open_controllers.get(&which).unwrap().player_index()
-    } else {
-        -1
-    };
+    let mut result: i32 = -1;
+    for (key, value) in &get_app().sdl_open_controllers {
+        if value.instance_id() == which {
+            result = value.player_index();
+            break;
+        }
+    }
+
     result as i32
 }
 
 fn set_controller_player_index(which: u32, index: i32) {
-    if get_app().sdl_open_controllers.contains_key(&which) {
-        get_app().sdl_open_controllers.get(&which).unwrap().set_player_index(index);
+
+    for (key, value) in &get_app().sdl_open_controllers {
+        if value.instance_id() == which {
+            value.set_player_index(index);
+            break;
+        }
     }
 }

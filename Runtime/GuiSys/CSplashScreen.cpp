@@ -76,7 +76,8 @@ void CSplashScreen::Draw() {
   aurora::shaders::queue_textured_quad(
       aurora::shaders::CameraFilterType::Blend,
       m_texture->GetTexture()->ref,
-      aurora::shaders::ZTest::None,
+      aurora::shaders::ZTest::Always,
+      false,
       color,
       1.f,
       rect,

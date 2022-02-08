@@ -81,10 +81,14 @@ mod ffi {
     #[namespace = "aurora::shaders"]
     #[derive(Debug, Copy, Clone, Hash)]
     pub(crate) enum ZTest {
-        None,
+        Never,
+        Less,
+        Equal,
         LEqual,
+        Greater,
+        NEqual,
         GEqual,
-        GEqualZWrite,
+        Always
     }
     #[namespace = "aurora::shaders"]
     #[derive(Debug, Copy, Clone)]
@@ -194,7 +198,8 @@ mod ffi {
         fn queue_textured_quad_verts(
             filter_type: CameraFilterType,
             texture: TextureRef,
-            z_test: ZTest,
+            z_comparison: ZTest,
+            z_test: bool,
             color: CColor,
             pos: &[CVector3f],
             uvs: &[CVector2f],
@@ -203,7 +208,8 @@ mod ffi {
         fn queue_textured_quad(
             filter_type: CameraFilterType,
             texture: TextureRef,
-            z_test: ZTest,
+            z_comparison: ZTest,
+            z_test: bool,
             color: CColor,
             uv_scale: f32,
             rect: CRectangle,

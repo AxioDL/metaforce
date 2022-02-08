@@ -28,7 +28,8 @@ pub(crate) struct DrawData {
 #[derive(Hash)]
 pub(crate) struct PipelineConfig {
     filter_type: CameraFilterType,
-    z_test: ZTest,
+    z_comparison: ZTest,
+    z_test: bool,
 }
 pub(crate) const INITIAL_PIPELINES: &[PipelineCreateCommand] = &[
     // PipelineCreateCommand::TexturedQuad(PipelineConfig { z_only: false }),
@@ -194,12 +195,17 @@ pub(crate) fn construct_pipeline(
             },
             depth_stencil: Some(wgpu::DepthStencilState {
                 format: graphics.depth_format,
-                depth_write_enabled: config.z_test == ZTest::GEqualZWrite,
-                depth_compare: match config.z_test {
-                    ZTest::None => wgpu::CompareFunction::Always,
+                depth_write_enabled: config.z_test,
+                depth_compare: match config.z_comparison {
+                    ZTest::Never => wgpu::CompareFunction::Never,
+                    ZTest::Less => wgpu::CompareFunction::Less,
+                    ZTest::Equal => wgpu::CompareFunction::Equal,
                     ZTest::LEqual => wgpu::CompareFunction::LessEqual,
-                    ZTest::GEqual | ZTest::GEqualZWrite => wgpu::CompareFunction::GreaterEqual,
-                    _ => todo!(),
+                    ZTest::Greater => wgpu::CompareFunction::Greater,
+                    ZTest::NEqual => wgpu::CompareFunction::NotEqual,
+                    ZTest::GEqual => wgpu::CompareFunction::GreaterEqual,
+                    ZTest::Always => wgpu::CompareFunction::Always,
+                    _=>todo!(),
                 },
                 stencil: Default::default(),
                 bias: Default::default(),
@@ -247,14 +253,15 @@ struct Vert {
 pub(crate) fn queue_textured_quad(
     filter_type: CameraFilterType,
     texture: TextureRef,
-    z_test: ZTest,
+    z_comparison: ZTest,
+    z_test: bool,
     color: CColor,
     uv_scale: f32,
     rect: CRectangle,
     z: f32,
 ) {
     let pipeline =
-        pipeline_ref(&PipelineCreateCommand::TexturedQuad(PipelineConfig { filter_type, z_test }));
+        pipeline_ref(&PipelineCreateCommand::TexturedQuad(PipelineConfig { filter_type, z_comparison, z_test }));
     let vert_range = push_verts(&[
         Vert { pos: Vec3::new(0.0, 0.0, z), uv: Vec2::new(0.0, 0.0) },
         Vert { pos: Vec3::new(0.0, 1.0, z), uv: Vec2::new(0.0, uv_scale) },
@@ -278,7 +285,8 @@ pub(crate) fn queue_textured_quad(
 pub(crate) fn queue_textured_quad_verts(
     filter_type: CameraFilterType,
     texture: TextureRef,
-    z_test: ZTest,
+    z_comparison: ZTest,
+    z_test: bool,
     color: CColor,
     pos: &[CVector3f],
     uvs: &[CVector2f],
@@ -289,7 +297,7 @@ pub(crate) fn queue_textured_quad_verts(
     }
 
     let pipeline =
-        pipeline_ref(&PipelineCreateCommand::TexturedQuad(PipelineConfig { filter_type, z_test }));
+        pipeline_ref(&PipelineCreateCommand::TexturedQuad(PipelineConfig { filter_type, z_comparison, z_test }));
     let vert_range = push_verts(
         &pos.iter()
             .zip(uvs)
