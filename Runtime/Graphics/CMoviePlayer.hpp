@@ -12,8 +12,6 @@
 
 namespace metaforce {
 
-extern zeus::CMatrix4f g_PlatformMatrix;
-
 class CMoviePlayer : public CDvdFile {
 public:
   enum class EPlayMode { Stopped, Playing };
@@ -77,7 +75,6 @@ private:
     u32 playedSamples = 0;
     u32 audioSamples = 0;
     std::unique_ptr<s16[]> audioBuf;
-//    boo::ObjToken<boo::IShaderDataBinding> binding[2];
   };
   std::vector<CTHPTextureSet> x80_textures;
   std::unique_ptr<uint8_t[]> x90_requestBuf;
@@ -109,31 +106,8 @@ private:
   u32 xfc_fieldIndex = 0;
 
   std::unique_ptr<uint8_t[]> m_yuvBuf;
-
-  struct TexShaderVert {
-    zeus::CVector3f m_pos;
-    zeus::CVector2f m_uv;
-  };
-  struct ViewBlock {
-    zeus::CMatrix4f m_mv;
-    zeus::CColor m_color = zeus::skWhite;
-    void setViewRect(const aurora::shaders::ClipRect& root, const aurora::shaders::ClipRect& sub) {
-      m_mv[0][0] = 2.0f / root.width;
-      m_mv[1][1] = 2.0f / root.height;
-      m_mv[3][0] = sub.x * m_mv[0][0] - 1.0f;
-      m_mv[3][1] = sub.y * m_mv[1][1] - 1.0f;
-    }
-    void finalAssign(const ViewBlock& other) {
-      m_mv = g_PlatformMatrix * other.m_mv;
-      m_color = other.m_color;
-    }
-  };
-
-  ViewBlock m_viewVertBlock;
-//  boo::ObjToken<boo::IGraphicsBufferD> m_blockBuf;
-//  boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
-
-  TexShaderVert m_frame[4];
+  float m_hpad;
+  float m_vpad;
 
   static u32 THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo);
   void DecodeFromRead(const void* data);
@@ -161,7 +135,7 @@ public:
   float GetPlayedSeconds() const { return xdc_frameRem + xe8_curSeconds; }
   float GetTotalSeconds() const { return xe4_totalSeconds; }
   void SetPlayMode(EPlayMode mode) { xe0_playMode = mode; }
-  void SetFrame(const zeus::CVector3f& a, const zeus::CVector3f& b, const zeus::CVector3f& c, const zeus::CVector3f& d);
+  void SetFrame(float hpad, float vpad);
   void DrawFrame();
   void Update(float dt);
   std::pair<u32, u32> GetVideoDimensions() const { return {x6c_videoInfo.width, x6c_videoInfo.height}; }

@@ -5,12 +5,9 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 
 #include <amuse/DSPCodec.hpp>
-//#include <hecl/Pipeline.hpp>
 #include <turbojpeg.h>
 
 namespace metaforce {
-
-zeus::CMatrix4f g_PlatformMatrix;
 
 /* used in the original to look up fixed-point dividends on a
  * MIDI-style volume scale (0-127) -> (n/0x8000) */
@@ -26,8 +23,7 @@ static const std::array<u16, 128> StaticVolumeLookup = {
     0x55D6, 0x577E, 0x592B, 0x5ADC, 0x5C90, 0x5E49, 0x6006, 0x61C7, 0x638C, 0x6555, 0x6722, 0x68F4, 0x6AC9,
     0x6CA2, 0x6E80, 0x7061, 0x7247, 0x7430, 0x761E, 0x7810, 0x7A06, 0x7C00, 0x7DFE, 0x8000};
 
-/* shared boo resources */
-//static boo::ObjToken<boo::IShaderPipeline> YUVShaderPipeline;
+/* shared resources */
 static tjhandle TjHandle = nullptr;
 
 /* RSF audio state */
@@ -43,25 +39,9 @@ static g72x_state StaticStateRight = {};
 /* THP SFX audio */
 static float SfxVolume = 1.f;
 
-static const char* BlockNames[] = {"SpecterViewBlock"};
-static const char* TexNames[] = {"texY", "texU", "texV"};
+void CMoviePlayer::Initialize() { TjHandle = tjInitDecompress(); }
 
-void CMoviePlayer::Initialize() {
-//  switch (factory->platform()) {
-//  case boo::IGraphicsDataFactory::Platform::Vulkan:
-//    g_PlatformMatrix.m[1][1] = -1.f;
-//    break;
-//  default:
-//    break;
-//  }
-//  YUVShaderPipeline = hecl::conv->convert(Shader_CMoviePlayerShader{});
-  TjHandle = tjInitDecompress();
-}
-
-void CMoviePlayer::Shutdown() {
-//  YUVShaderPipeline.reset();
-  tjDestroy(TjHandle);
-}
+void CMoviePlayer::Shutdown() { tjDestroy(TjHandle); }
 
 void CMoviePlayer::THPHeader::swapBig() {
   magic = hecl::SBig(magic);
@@ -201,51 +181,39 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
   if (xf0_preLoadFrames > 0)
     xa0_bufferQueue.reserve(xf0_preLoadFrames);
 
-  /* All set for GPU resources */
-//  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-//    m_blockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(m_viewVertBlock), 1);
-//    m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(TexShaderVert), 4);
-//
-//    /* Allocate textures here (rather than at decode time) */
-//    x80_textures.reserve(3);
-//    for (int i = 0; i < 3; ++i) {
-//      CTHPTextureSet& set = x80_textures.emplace_back();
-//      if (deinterlace) {
-//        /* metaforce addition: this way interlaced THPs don't look horrible */
-//        set.Y[0] = ctx.newDynamicTexture(x6c_videoInfo.width, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
-//                                         boo::TextureClampMode::Repeat);
-//        set.Y[1] = ctx.newDynamicTexture(x6c_videoInfo.width, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
-//                                         boo::TextureClampMode::Repeat);
-//        set.U = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
-//                                      boo::TextureClampMode::Repeat);
-//        set.V = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
-//                                      boo::TextureClampMode::Repeat);
-//
-//        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_blockBuf.get()};
-//        for (int j = 0; j < 2; ++j) {
-//          boo::ObjToken<boo::ITexture> texs[] = {set.Y[j].get(), set.U.get(), set.V.get()};
-//          set.binding[j] = ctx.newShaderDataBinding(YUVShaderPipeline, m_vertBuf.get(), nullptr, nullptr, 1, bufs,
-//                                                    nullptr, 3, texs, nullptr, nullptr);
-//        }
-//      } else {
-//        /* normal progressive presentation */
-//        set.Y[0] = ctx.newDynamicTexture(x6c_videoInfo.width, x6c_videoInfo.height, boo::TextureFormat::I8,
-//                                         boo::TextureClampMode::Repeat);
-//        set.U = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
-//                                      boo::TextureClampMode::Repeat);
-//        set.V = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, boo::TextureFormat::I8,
-//                                      boo::TextureClampMode::Repeat);
-//
-//        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_blockBuf.get()};
-//        boo::ObjToken<boo::ITexture> texs[] = {set.Y[0].get(), set.U.get(), set.V.get()};
-//        set.binding[0] = ctx.newShaderDataBinding(YUVShaderPipeline, m_vertBuf.get(), nullptr, nullptr, 1, bufs,
-//                                                  nullptr, 3, texs, nullptr, nullptr);
-//      }
-//      if (xf4_25_hasAudio)
-//        set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);
-//    }
-//    return true;
-//  } BooTrace);
+  /* Allocate textures here (rather than at decode time) */
+  x80_textures.reserve(3);
+  for (int i = 0; i < 3; ++i) {
+    CTHPTextureSet& set = x80_textures.emplace_back();
+    if (deinterlace) {
+      /* metaforce addition: this way interlaced THPs don't look horrible */
+      set.Y[0] = aurora::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1,
+                                                aurora::shaders::TextureFormat::R8,
+                                                fmt::format(FMT_STRING("Movie {} Texture Set {} Y[0]"), path, i));
+      set.Y[1] = aurora::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1,
+                                                aurora::shaders::TextureFormat::R8,
+                                                fmt::format(FMT_STRING("Movie {} Texture Set {} Y[1]"), path, i));
+      set.U = aurora::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1,
+                                             aurora::shaders::TextureFormat::R8,
+                                             fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
+      set.V = aurora::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1,
+                                             aurora::shaders::TextureFormat::R8,
+                                             fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
+    } else {
+      /* normal progressive presentation */
+      set.Y[0] = aurora::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height, 1,
+                                                aurora::shaders::TextureFormat::R8,
+                                                fmt::format(FMT_STRING("Movie {} Texture Set {} Y"), path, i));
+      set.U = aurora::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1,
+                                             aurora::shaders::TextureFormat::R8,
+                                             fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
+      set.V = aurora::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1,
+                                             aurora::shaders::TextureFormat::R8,
+                                             fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
+    }
+    if (xf4_25_hasAudio)
+      set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);
+  }
 
   /* Temporary planar YUV decode buffer, resulting planes copied to Boo */
   m_yuvBuf.reset(new uint8_t[tjBufSizeYUV(x6c_videoInfo.width, x6c_videoInfo.height, TJ_420)]);
@@ -253,14 +221,8 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
   /* Schedule initial read */
   PostDVDReadRequestIfNeeded();
 
-  m_frame[0].m_uv = {0.f, 0.f};
-  m_frame[1].m_uv = {0.f, 1.f};
-  m_frame[2].m_uv = {1.f, 0.f};
-  m_frame[3].m_uv = {1.f, 1.f};
-  SetFrame({-0.5f, 0.5f, 0.f}, {-0.5f, -0.5f, 0.f}, {0.5f, -0.5f, 0.f}, {0.5f, 0.5f, 0.f});
-
-  m_viewVertBlock.finalAssign(m_viewVertBlock);
-//  m_blockBuf->load(&m_viewVertBlock, sizeof(m_viewVertBlock));
+  m_hpad = 0.5f;
+  m_vpad = 0.5f;
 }
 
 void CMoviePlayer::SetStaticAudioVolume(int vol) {
@@ -399,13 +361,9 @@ void CMoviePlayer::Rewind() {
   xe8_curSeconds = 0.f;
 }
 
-void CMoviePlayer::SetFrame(const zeus::CVector3f& a, const zeus::CVector3f& b, const zeus::CVector3f& c,
-                            const zeus::CVector3f& d) {
-  m_frame[0].m_pos = a;
-  m_frame[1].m_pos = b;
-  m_frame[2].m_pos = d;
-  m_frame[3].m_pos = c;
-//  m_vertBuf->load(m_frame, sizeof(m_frame));
+void CMoviePlayer::SetFrame(float hpad, float vpad) {
+  m_hpad = hpad;
+  m_vpad = vpad;
 }
 
 void CMoviePlayer::DrawFrame() {
@@ -415,8 +373,8 @@ void CMoviePlayer::DrawFrame() {
 
   /* draw appropriate field */
   CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
-//  CGraphics::SetShaderDataBinding(tex.binding[m_deinterlace ? (xfc_fieldIndex != 0) : 0]);
-//  CGraphics::DrawArray(0, 4);
+  aurora::shaders::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0]->ref, tex.U->ref, tex.V->ref,
+                                      zeus::skWhite, m_hpad, m_vpad);
 
   /* ensure second field is being displayed by VI to signal advance
    * (faked in metaforce with continuous xor) */
@@ -532,28 +490,23 @@ void CMoviePlayer::DecodeFromRead(const void* data) {
 
       if (m_deinterlace) {
         /* Deinterlace into 2 discrete 60-fps half-res textures */
-//        u8* mappedData = (u8*)tex.Y[0]->map(planeSizeHalf);
-//        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
-//          memmove(mappedData + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2),
-//                  x6c_videoInfo.width);
-//        }
-//        tex.Y[0]->unmap();
-//
-//        mappedData = (u8*)tex.Y[1]->map(planeSizeHalf);
-//        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
-//          memmove(mappedData + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
-//                  x6c_videoInfo.width);
-//        }
-//        tex.Y[1]->unmap();
-//
-//        tex.U->load(m_yuvBuf.get() + planeSize, planeSizeQuarter);
-//        tex.V->load(m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter);
+        auto buffer = std::make_unique<u8[]>(planeSizeHalf);
+        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
+          memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2),
+                 x6c_videoInfo.width);
+        }
+        aurora::shaders::write_texture(tex.Y[0]->ref, {buffer.get(), planeSizeHalf});
+        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
+          memmove(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
+                  x6c_videoInfo.width);
+        }
+        aurora::shaders::write_texture(tex.Y[1]->ref, {buffer.get(), planeSizeHalf});
       } else {
         /* Direct planar load */
-//        tex.Y[0]->load(m_yuvBuf.get(), planeSize);
-//        tex.U->load(m_yuvBuf.get() + planeSize, planeSizeQuarter);
-//        tex.V->load(m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter);
+        aurora::shaders::write_texture(tex.Y[0]->ref, {m_yuvBuf.get(), planeSize});
       }
+      aurora::shaders::write_texture(tex.U->ref, {m_yuvBuf.get() + planeSize, planeSizeQuarter});
+      aurora::shaders::write_texture(tex.V->ref, {m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter});
 
       break;
     }

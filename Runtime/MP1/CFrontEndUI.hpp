@@ -330,7 +330,7 @@ private:
   float x64_pressStartAlpha = 0.f;
   float x68_musicVol = 1.f;
   u32 x6c_;
-  std::array<std::unique_ptr<CMoviePlayer>, 9> x70_menuMovies;
+  std::array<std::unique_ptr<CMoviePlayer>, 8> x70_menuMovies;
   EMenuMovie xb8_curMovie = EMenuMovie::Stopped;
   int xbc_nextAttract = 0;
   int xc0_attractCount = 0;
@@ -350,7 +350,6 @@ private:
   CStaticAudioPlayer* xf4_curAudio = nullptr;
 
   CColoredQuadFilter m_fadeToBlack{EFilterType::Blend};
-  std::optional<CTexturedQuadFilterAlpha> m_pressStartQuad;
 
   std::unique_ptr<CFrontEndUITouchBar> m_touchBar;
 

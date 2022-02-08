@@ -9,28 +9,34 @@ use aabb::queue_aabb;
 use bytemuck::Pod;
 use bytemuck_derive::{Pod, Zeroable};
 use cxx::{type_id, ExternType};
-use cxx::private::hash;
 use fog_volume_filter::queue_fog_volume_filter;
 use fog_volume_plane::queue_fog_volume_plane;
 use model::{add_material_set, add_model};
-use texture::{create_render_texture, create_static_texture_2d, drop_texture};
-use textured_quad::{queue_textured_quad_verts, queue_textured_quad};
+use movie_player::queue_movie_player;
+use texture::{
+    create_dynamic_texture_2d, create_render_texture, create_static_texture_2d, drop_texture,
+    write_texture,
+};
+use textured_quad::{queue_textured_quad, queue_textured_quad_verts};
 use twox_hash::Xxh3Hash64;
 use wgpu::RenderPipeline;
 
 use crate::{
     gpu::GraphicsConfig,
+    shaders::{
+        ffi::{TextureFormat, TextureRef},
+        texture::{RenderTexture, TextureWithView},
+    },
     zeus::{CColor, CMatrix4f, CRectangle, CVector2f, CVector3f, IDENTITY_MATRIX4F},
 };
-use crate::shaders::ffi::{TextureFormat, TextureRef};
-use crate::shaders::texture::{RenderTexture, TextureWithView};
 
 mod aabb;
 mod fog_volume_filter;
 mod fog_volume_plane;
 mod model;
-mod textured_quad;
+mod movie_player;
 mod texture;
+mod textured_quad;
 
 #[cxx::bridge]
 mod ffi {
@@ -203,6 +209,14 @@ mod ffi {
             rect: CRectangle,
             z: f32,
         );
+        fn queue_movie_player(
+            tex_y: TextureRef,
+            tex_u: TextureRef,
+            tex_v: TextureRef,
+            color: CColor,
+            h_pad: f32,
+            v_pad: f32,
+        );
 
         fn create_static_texture_2d(
             width: u32,
@@ -210,6 +224,13 @@ mod ffi {
             mips: u32,
             format: TextureFormat,
             data: &[u8],
+            label: &str,
+        ) -> TextureRef;
+        fn create_dynamic_texture_2d(
+            width: u32,
+            height: u32,
+            mips: u32,
+            format: TextureFormat,
             label: &str,
         ) -> TextureRef;
         fn create_render_texture(
@@ -220,6 +241,7 @@ mod ffi {
             depth_bind_count: u32,
             label: &str,
         ) -> TextureRef;
+        fn write_texture(handle: TextureRef, data: &[u8]);
         fn drop_texture(handle: TextureRef);
     }
 }
@@ -310,7 +332,7 @@ enum ShaderDrawCommand {
         game_blend_mode: u32,
         model_flags: u32,
     },
-    MoviePlayer {/* TODO */},
+    MoviePlayer(movie_player::DrawData),
     NES {/* TODO */},
     ParticleSwoosh {/* TODO */},
     PhazonSuitFilter {/* TODO */},
@@ -347,6 +369,7 @@ struct RenderState {
     // Shader states
     aabb: aabb::State,
     textured_quad: textured_quad::State,
+    movie_player: movie_player::State,
 }
 pub(crate) fn construct_state(
     device: Arc<wgpu::Device>,
@@ -370,6 +393,7 @@ pub(crate) fn construct_state(
     };
     let aabb = aabb::construct_state(&device, &queue, &buffers);
     let textured_quad = textured_quad::construct_state(&device, &queue, &buffers, graphics_config);
+    let movie_player = movie_player::construct_state(&device, &queue, &buffers, graphics_config);
     let mut state = RenderState {
         device: device.clone(),
         queue: queue.clone(),
@@ -384,6 +408,7 @@ pub(crate) fn construct_state(
         render_textures: Default::default(),
         aabb,
         textured_quad,
+        movie_player,
     };
     for config in aabb::INITIAL_PIPELINES {
         construct_pipeline(&mut state, config);
@@ -486,6 +511,7 @@ struct PipelineRef {
 pub(crate) enum PipelineCreateCommand {
     Aabb(aabb::PipelineConfig),
     TexturedQuad(textured_quad::PipelineConfig),
+    MoviePlayer(movie_player::PipelineConfig),
 }
 #[inline(always)]
 fn hash_with_seed<T: Hash>(value: &T, seed: u64) -> u64 {
@@ -497,6 +523,7 @@ fn construct_pipeline(state: &mut RenderState, cmd: &PipelineCreateCommand) -> u
     let id = match cmd {
         PipelineCreateCommand::Aabb(ref config) => hash_with_seed(config, 0xAABB),
         PipelineCreateCommand::TexturedQuad(ref config) => hash_with_seed(config, 0xEEAD),
+        PipelineCreateCommand::MoviePlayer(ref config) => hash_with_seed(config, 0xFAAE),
     };
     if !state.pipelines.contains_key(&id) {
         let pipeline = match cmd {
@@ -510,6 +537,12 @@ fn construct_pipeline(state: &mut RenderState, cmd: &PipelineCreateCommand) -> u
                 state.device.as_ref(),
                 &state.graphics_config,
                 &state.textured_quad,
+                config,
+            ),
+            PipelineCreateCommand::MoviePlayer(ref config) => movie_player::construct_pipeline(
+                state.device.as_ref(),
+                &state.graphics_config,
+                &state.movie_player,
                 config,
             ),
         };
@@ -566,7 +599,20 @@ pub(crate) fn render_into_pass(pass: &mut wgpu::RenderPass) {
                     aabb::draw_aabb(data, &state.aabb, pass, &state.buffers);
                 }
                 ShaderDrawCommand::TexturedQuad(data) => {
-                    textured_quad::draw_textured_quad(data, &state.textured_quad, pass, &state.buffers);
+                    textured_quad::draw_textured_quad(
+                        data,
+                        &state.textured_quad,
+                        pass,
+                        &state.buffers,
+                    );
+                }
+                ShaderDrawCommand::MoviePlayer(data) => {
+                    movie_player::draw_movie_player(
+                        data,
+                        &state.movie_player,
+                        pass,
+                        &state.buffers,
+                    );
                 }
                 _ => todo!(),
             },

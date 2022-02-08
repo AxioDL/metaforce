@@ -47,6 +47,13 @@ inline std::shared_ptr<TextureHandle> new_static_texture_2d(uint32_t width, uint
   auto ref = aurora::shaders::create_static_texture_2d(width, height, mips, format, data, rlabel);
   return std::make_shared<TextureHandle>(ref);
 }
+inline std::shared_ptr<TextureHandle> new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t mips,
+                                                            aurora::shaders::TextureFormat format,
+                                                            std::string_view label) {
+  rust::Str rlabel{label.data(), label.size()};
+  auto ref = aurora::shaders::create_dynamic_texture_2d(width, height, mips, format, rlabel);
+  return std::make_shared<TextureHandle>(ref);
+}
 inline std::shared_ptr<TextureHandle> new_render_texture(uint32_t width, uint32_t height,
                                                          uint32_t color_bind_count, uint32_t depth_bind_count,
                                                          std::string_view label) {

@@ -56,7 +56,7 @@ struct FEMovie {
   bool loop;
 };
 
-constexpr std::array<FEMovie, 9> FEMovies{{
+constexpr std::array<FEMovie, 8> FEMovies{{
     {"Video/00_first_start.thp", false},
     {"Video/01_startloop.thp", true},
     {"Video/02_start_fileselect_A.thp", false},
@@ -64,7 +64,6 @@ constexpr std::array<FEMovie, 9> FEMovies{{
     {"Video/04_fileselect_playgame_A.thp", false},
     {"Video/06_fileselect_GBA.thp", false},
     {"Video/07_GBAloop.thp", true},
-    {"Video/08_GBA_fileselect.thp", false},
     {"Video/08_GBA_fileselect.thp", false},
 }};
 
@@ -2021,7 +2020,7 @@ void CFrontEndUI::Draw() {
 
     if (xcc_curMoviePtr && xcc_curMoviePtr->GetIsFullyCached()) {
       /* Render movie */
-      xcc_curMoviePtr->SetFrame({-hPad, vPad, 0.f}, {-hPad, -vPad, 0.f}, {hPad, -vPad, 0.f}, {hPad, vPad, 0.f});
+      xcc_curMoviePtr->SetFrame(hPad, vPad);
       xcc_curMoviePtr->DrawFrame();
     }
 
@@ -2038,7 +2037,7 @@ void CFrontEndUI::Draw() {
       xe4_fusionBonusFrme->Draw();
     }
 
-    if (x64_pressStartAlpha > 0.f && x38_pressStart.IsLoaded() && m_pressStartQuad) {
+    if (x64_pressStartAlpha > 0.f && x38_pressStart.IsLoaded()) {
       /* Render "Press Start" */
       const zeus::CRectangle rect(0.5f - x38_pressStart->GetWidth() / 2.f / 640.f * hPad,
                                   0.5f + (x38_pressStart->GetHeight() / 2.f - 240.f + 72.f) / 480.f * vPad,
@@ -2047,7 +2046,7 @@ void CFrontEndUI::Draw() {
       zeus::CColor color = zeus::skWhite;
       color.a() = x64_pressStartAlpha;
       aurora::shaders::queue_textured_quad(
-          aurora::shaders::CameraFilterType::Blend,
+          aurora::shaders::CameraFilterType::Add,
           x38_pressStart->GetTexture()->ref,
           aurora::shaders::ZTest::None,
           color,
@@ -2129,9 +2128,6 @@ bool CFrontEndUI::PumpLoad() {
       return false;
   if (!x44_frontendAudioGrp.IsLoaded())
     return false;
-
-  /* Ready to construct texture quads */
-  m_pressStartQuad.emplace(EFilterType::Add, x38_pressStart);
 
   return true;
 }

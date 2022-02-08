@@ -212,7 +212,7 @@ void CCredits::DrawVideo() {
 
   if (x28_ && x28_->GetIsFullyCached()) {
     /* Render movie */
-    x28_->SetFrame({-hPad, vPad, 0.f}, {-hPad, -vPad, 0.f}, {hPad, -vPad, 0.f}, {hPad, vPad, 0.f});
+    x28_->SetFrame(hPad, vPad);
     x28_->DrawFrame();
     if (x5c_27_ || x5c_28_) {
       float alpha = x58_ / g_tweakGui->x310_;
