@@ -497,8 +497,8 @@ void CMoviePlayer::DecodeFromRead(const void* data) {
         }
         aurora::shaders::write_texture(tex.Y[0]->ref, {buffer.get(), planeSizeHalf});
         for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
-          memmove(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
-                  x6c_videoInfo.width);
+          memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
+                 x6c_videoInfo.width);
         }
         aurora::shaders::write_texture(tex.Y[1]->ref, {buffer.get(), planeSizeHalf});
       } else {
