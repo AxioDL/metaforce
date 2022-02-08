@@ -21,6 +21,14 @@ struct ImGuiState;
 struct DeviceHolder;
 void ImGuiEngine_AddTextures(ImGuiState& state, const DeviceHolder& gpu);
 
+struct Icon {
+  std::unique_ptr<uint8_t[]> data;
+  size_t size;
+  uint32_t width;
+  uint32_t height;
+};
+Icon GetIcon();
+
 enum class KeyCode {
   /// The '1' key over the letters.
   Key1,

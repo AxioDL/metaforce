@@ -166,11 +166,16 @@ mod ffi {
         TriggerRight,
         MAX,
     }
+    pub struct Icon {
+        pub data: Vec<u8>,
+        pub width: u32,
+        pub height: u32,
+    }
 
     extern "Rust" {
         type WindowContext;
         type App;
-        fn app_run(mut delegate: UniquePtr<AppDelegate>);
+        fn app_run(mut delegate: UniquePtr<AppDelegate>, icon: Icon);
         fn get_args() -> Vec<String>;
         fn get_window_size() -> WindowSize;
         fn set_window_title(title: &CxxString);
@@ -232,14 +237,19 @@ pub struct WindowContext {
 
 static mut APP: Option<App> = None;
 
-fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>) {
+fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>, icon: ffi::Icon) {
     if delegate.is_null() {
         return;
     }
     env_logger::init();
     log::info!("Running app");
     let event_loop = winit::event_loop::EventLoop::new();
-    let window = winit::window::WindowBuilder::new().build(&event_loop).unwrap();
+    let window_icon = winit::window::Icon::from_rgba(icon.data, icon.width, icon.height).expect("Failed to load icon");
+    let window = winit::window::WindowBuilder::new()
+        .with_inner_size(winit::dpi::LogicalSize::new(1280, 720))
+        .with_window_icon(Some(window_icon))
+        .build(&event_loop)
+        .unwrap();
     let sdl = sdl2::init().unwrap();
     let sdl_events = sdl.event_pump().unwrap();
     let controller = sdl.game_controller().unwrap();

@@ -45,13 +45,22 @@ void ImGuiEngine_Initialize(float scale) {
   ImGui::GetStyle().ScaleAllSizes(scale);
 }
 
-void ImGuiEngine_AddTextures(ImGuiState& state, const DeviceHolder& gpu) {
+Icon GetIcon() {
   int iconWidth = 0;
   int iconHeight = 0;
-  auto* iconData = stbi_load_from_memory(static_cast<const stbi_uc*>(METAFORCE_ICON), int(METAFORCE_ICON_SZ),
-                                         &iconWidth, &iconHeight, nullptr, 4);
-  ImGuiEngine::metaforceIcon = ImGuiEngine_AddTexture(state, gpu, iconWidth, iconHeight,
-                                                      {iconData, static_cast<size_t>(iconWidth * iconHeight * 4)});
-  stbi_image_free(iconData);
+  auto* data = stbi_load_from_memory(static_cast<const stbi_uc*>(METAFORCE_ICON), int(METAFORCE_ICON_SZ), &iconWidth,
+                                     &iconHeight, nullptr, 4);
+  return Icon{
+      std::unique_ptr<uint8_t[]>{data},
+      static_cast<size_t>(iconWidth) * static_cast<size_t>(iconHeight) * 4,
+      static_cast<uint32_t>(iconWidth),
+      static_cast<uint32_t>(iconHeight),
+  };
+}
+
+void ImGuiEngine_AddTextures(ImGuiState& state, const DeviceHolder& gpu) {
+  auto icon = GetIcon();
+  ImGuiEngine::metaforceIcon =
+      ImGuiEngine_AddTexture(state, gpu, icon.width, icon.height, {icon.data.get(), icon.size});
 }
 } // namespace metaforce
