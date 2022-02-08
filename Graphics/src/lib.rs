@@ -266,9 +266,14 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>, icon: ffi::Icon) {
         sdl_controller_sys: controller,
         sdl_open_controllers: Default::default(),
     };
+    let window_size = WindowSize {
+        width: app.gpu.surface_config.width,
+        height: app.gpu.surface_config.height,
+    };
     unsafe {
         APP.replace(app);
         ffi::App_onAppLaunched(delegate.as_mut().unwrap());
+        ffi::App_onAppWindowResized(delegate.as_mut().unwrap_unchecked(), &window_size);
     };
     let mut last_frame: Option<Instant> = None;
     event_loop.run(move |event, _, control_flow| {

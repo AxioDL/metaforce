@@ -285,14 +285,8 @@ public:
     m_voiceEngine->setVolume(0.7f);
     m_amuseAllocWrapper.emplace(*m_voiceEngine);
 
-//    hecl::ProjectPath projectPath;
     for (const auto& str : aurora::get_args()) {
       auto arg = static_cast<std::string>(str);
-//      hecl::Sstat theStat;
-//      if (hecl::Stat((arg + "/out").c_str(), &theStat) == 0 && S_ISDIR(theStat.st_mode)) {
-//        hecl::ProjectRootPath rootPath(arg);
-//        hecl::Database::Project tmp(rootPath); // Force project creation
-//      }
       if (m_deferredProject.empty() && !arg.starts_with('-') && !arg.starts_with('+'))
         m_deferredProject = arg;
       if (arg == "--no-shader-warmup")
@@ -300,16 +294,6 @@ public:
       else if (arg == "--no-sound")
         m_voiceEngine->setVolume(0.f);
     }
-
-//    if (m_deferredProject.empty()) {
-//      /* Default behavior - search upwards for packaged project containing the program */
-//      if (hecl::ProjectRootPath projRoot = hecl::SearchForProject(ExeDir)) {
-//        std::string rootPath(projRoot.getAbsolutePath());
-//        hecl::Sstat theStat;
-//        if (hecl::Stat((rootPath + "/out/files/MP1/Metroid1.upak").c_str(), &theStat) == 0 && S_ISREG(theStat.st_mode))
-//          m_deferredProject = rootPath + "/out";
-//      }
-//    }
   }
 
   void initialize() {
@@ -400,11 +384,6 @@ public:
     } else {
       m_imGuiConsole.ShowAboutWindow(false, m_errorString);
     }
-
-//    {
-//      OPTICK_EVENT("Flush");
-//      CGraphics::SetCommitResourcesAsLazy(false);
-//    }
 
     return true;
   }
