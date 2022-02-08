@@ -215,17 +215,19 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssoci
         PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdl);
         PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskr);
         PAK::Entry* cinfEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cinf);
-        cmdlEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_model"), id, ci.name);
-        cskrEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_skin"), id, ci.name);
-        cinfEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_skel"), id, ci.name);
-        if (ci.cmdlIce.isValid() && ci.cskrIce.isValid()) {
-          charAssoc.m_cmdlRigs[ci.cmdlIce] = {ci.cskrIce, ci.cinf};
-          charAssoc.m_cskrToCharacter[ci.cskrIce] =
-              std::make_pair(entry.id, fmt::format(FMT_STRING("{}.ICE_{}.CSKR"), ci.name, ci.cskrIce));
-          PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdlIce);
-          PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrIce);
-          cmdlEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_icemodel"), id, ci.name);
-          cskrEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_iceskin"), id, ci.name);
+        if (cmdlEnt != nullptr && cskrEnt != nullptr && cinfEnt != nullptr) {
+          cmdlEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_model"), id, ci.name);
+          cskrEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_skin"), id, ci.name);
+          cinfEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_skel"), id, ci.name);
+          if (ci.cmdlIce.isValid() && ci.cskrIce.isValid()) {
+            charAssoc.m_cmdlRigs[ci.cmdlIce] = {ci.cskrIce, ci.cinf};
+            charAssoc.m_cskrToCharacter[ci.cskrIce] =
+                std::make_pair(entry.id, fmt::format(FMT_STRING("{}.ICE_{}.CSKR"), ci.name, ci.cskrIce));
+            PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdlIce);
+            PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrIce);
+            cmdlEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_icemodel"), id, ci.name);
+            cskrEnt->name = fmt::format(FMT_STRING("ANCS_{}_{}_iceskin"), id, ci.name);
+          }
         }
       }
       std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>> animInfo;

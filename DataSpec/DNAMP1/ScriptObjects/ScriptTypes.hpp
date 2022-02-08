@@ -9,7 +9,7 @@ struct IScriptObject;
 
 struct ScriptObjectSpec {
   atUint8 type;
-  IScriptObject* (*a)();
+  IScriptObject* (*loader)();
 };
 
 using ScriptObjectDBArray = std::array<const ScriptObjectSpec*, 127>;

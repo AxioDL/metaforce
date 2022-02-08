@@ -221,7 +221,7 @@ void CGameState::PutTo(CBitStreamWriter& writer) {
     writer.WriteEncoded(u32(value), 8);
   }
 
-  writer.WriteEncoded(CBasics::ToWiiTime(std::chrono::system_clock::now()) / CBasics::TICKS_PER_SECOND, 32);
+  writer.WriteEncoded(CBasics::GetTime() / CBasics::TICKS_PER_SECOND, 32);
   writer.WriteEncoded(x228_24_hardMode, 1);
   writer.WriteEncoded(x228_25_initPowerupsAtFirstSpawn, 1);
   writer.WriteEncoded(u32(x84_mlvlId.Value()), 32);

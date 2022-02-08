@@ -30,6 +30,7 @@ public:
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
   bool isBlenderVersionOk() const;
   void updateFreeDiskSpace(const QString& path);
+  void updateBlender();
 };
 
 class SysReqTableView : public QTableView {
@@ -43,4 +44,5 @@ public:
   const SysReqTableModel& getModel() const { return m_model; }
   bool isBlenderVersionOk() const { return m_model.isBlenderVersionOk(); }
   void updateFreeDiskSpace(const QString& path) { m_model.updateFreeDiskSpace(path); }
+  void updateBlender() { m_model.updateBlender(); }
 };

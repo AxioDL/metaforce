@@ -338,7 +338,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
                                "cam.lens_unit = 'FOV'\n"
                                "cam.clip_start = {}\n"
                                "cam.clip_end = {}\n"
-                               "bpy.context.scene.render.resolution_x = 480 * {}\n"),
+                               "bpy.context.scene.render.resolution_x = int(480 * {})\n"),
                     proj->znear, proj->zfar, proj->aspect);
           if (proj->aspect > 1.f)
             os.format(FMT_STRING("cam.angle = math.atan2({}, 1.0 / math.tan(math.radians({} / 2.0))) * 2.0\n"),

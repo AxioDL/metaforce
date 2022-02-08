@@ -632,7 +632,7 @@ void CPlayerGun::HandlePhazonBeamChange(CStateManager& mgr) {
     inMorph = true;
     break;
   case EPhazonBeamState::Active:
-    if (!x835_25_inPhazonBeam) {
+    if (!x835_24_canFirePhazon) {
       SetPhazonBeamMorph(true);
       x338_nextState = ENextState::ExitPhazonBeam;
       inMorph = true;

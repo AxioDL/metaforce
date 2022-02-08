@@ -14,6 +14,8 @@
 #include "FileDirDialog.hpp"
 #include "ExtractZip.hpp"
 
+#include "hecl/Blender/FindBlender.hpp"
+
 #if _WIN32
 #include <Windows.h>
 #include <shellapi.h>
@@ -131,6 +133,7 @@ MainWindow::MainWindow(QWidget* parent)
   m_dlManager.fetchIndex();
 
   setPath(m_settings.value(QStringLiteral("working_dir")).toString());
+  setBlenderOverride(m_settings.value(QStringLiteral("blender_override_path")).toString());
   resize(1024, 768);
 }
 
@@ -154,6 +157,9 @@ void MainWindow::onExtract() {
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
   env.insert(QStringLiteral("TERM"), QStringLiteral("xterm-color"));
   env.insert(QStringLiteral("ConEmuANSI"), QStringLiteral("ON"));
+  if (!m_blenderOverridePath.isEmpty() && QFile::exists(m_blenderOverridePath)) {
+    env.insert(QStringLiteral("BLENDER_BIN"), m_blenderOverridePath);
+  }
   m_heclProc.setProcessEnvironment(env);
   disconnect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), nullptr, nullptr);
   connect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &MainWindow::onExtractFinished);
@@ -189,6 +195,9 @@ void MainWindow::onPackage() {
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
   env.insert(QStringLiteral("TERM"), QStringLiteral("xterm-color"));
   env.insert(QStringLiteral("ConEmuANSI"), QStringLiteral("ON"));
+  if (!m_blenderOverridePath.isEmpty() && QFile::exists(m_blenderOverridePath)) {
+    env.insert(QStringLiteral("BLENDER_BIN"), m_blenderOverridePath);
+  }
   m_heclProc.setProcessEnvironment(env);
   disconnect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), nullptr, nullptr);
   connect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &MainWindow::onPackageFinished);
@@ -302,8 +311,14 @@ void MainWindow::onBinaryDownloaded(QuaZip& file) {
     m_ui->downloadErrorLabel->setText(tr("Download successful - Press 'Extract' to continue."), true);
   }
   if (!err && !m_ui->sysReqTable->isBlenderVersionOk()) {
-    m_ui->downloadErrorLabel->setText(
-        tr("Blender 2.90 or greater must be installed. Please download via Steam or blender.org."));
+    auto [recMajor, recMinor] = hecl::blender::GetRecommendedVersion();
+    auto [minMajor, minMinor] = hecl::blender::GetEarliestSupportedVersion();
+    insertContinueNote(
+        tr("Blender %1.%2 or greater must be installed (%3.%4 recommended). Please download via Steam or blender.org.")
+            .arg(minMajor)
+            .arg(minMinor)
+            .arg(recMajor)
+            .arg(recMinor));
   }
 }
 
@@ -318,6 +333,8 @@ void MainWindow::disableOperations() {
   m_ui->launchBtn->setEnabled(false);
   m_ui->pathEdit->setEnabled(false);
   m_ui->browseBtn->setEnabled(false);
+  m_ui->blenderEdit->setEnabled(false);
+  m_ui->blenderBtn->setEnabled(false);
   m_ui->downloadButton->setEnabled(false);
   m_ui->warpBtn->setEnabled(false);
 }
@@ -326,6 +343,8 @@ void MainWindow::enableOperations() {
   disableOperations();
   m_ui->pathEdit->setEnabled(true);
   m_ui->browseBtn->setEnabled(true);
+  m_ui->blenderEdit->setEnabled(true);
+  m_ui->blenderBtn->setEnabled(true);
 
   if (hecl::com_enableCheats->toBoolean()) {
     m_ui->warpBtn->show();
@@ -357,7 +376,14 @@ void MainWindow::enableOperations() {
   }
 
   if (!m_ui->sysReqTable->isBlenderVersionOk()) {
-    insertContinueNote(tr("Blender 2.90 or greater must be installed. Please download via Steam or blender.org."));
+    auto [recMajor, recMinor] = hecl::blender::GetRecommendedVersion();
+    auto [minMajor, minMinor] = hecl::blender::GetEarliestSupportedVersion();
+    insertContinueNote(
+        tr("Blender %1.%2 or greater must be installed (%3.%4 recommended). Please download via Steam or blender.org.")
+            .arg(minMajor)
+            .arg(minMinor)
+            .arg(recMajor)
+            .arg(recMinor));
   } else if (m_ui->launchBtn->isEnabled()) {
     insertContinueNote(tr("Package complete - Press 'Launch' to start Metaforce."));
   } else if (m_ui->packageBtn->isEnabled()) {
@@ -514,14 +540,59 @@ void MainWindow::initSlots() {
     if (res == QFileDialog::Rejected)
       return;
 
-    if (dialog.selectedFiles().size() <= 0)
+    if (dialog.selectedFiles().empty())
       return;
 
     setPath(dialog.selectedFiles().at(0));
   });
   connect(m_ui->pathEdit, &QLineEdit::editingFinished, [this]() { setPath(m_ui->pathEdit->text()); });
+  connect(m_ui->blenderEdit, &QLineEdit::editingFinished, [this]() { setBlenderOverride(m_ui->blenderEdit->text()); });
+  connect(m_ui->blenderBtn, &QPushButton::clicked, [this]() {
+    FileDirDialog dialog(this, QFileDialog::ExistingFiles);
+
+#ifdef Q_OS_WIN
+    dialog.setNameFilter(QStringLiteral("blender.exe"));
+#else
+    dialog.setNameFilter(QStringLiteral("blender"));
+#endif
+
+    dialog.setDirectory(m_path);
+    dialog.setWindowTitle(tr("Select Blender binary"));
+    int res = dialog.exec();
+    if (res == QFileDialog::Rejected)
+      return;
+
+    if (dialog.selectedFiles().size() <= 0)
+      return;
+
+    setBlenderOverride(dialog.selectedFiles().at(0));
+  });
 
   connect(m_ui->downloadButton, &QPushButton::clicked, this, &MainWindow::onDownloadPressed);
+}
+void MainWindow::setBlenderOverride(const QString& path) {
+  const QFileInfo finfo(path);
+
+  QString usePath;
+  if (!path.isEmpty() && finfo.isFile()) {
+    usePath = finfo.absoluteFilePath();
+  }
+
+  m_blenderOverridePath = usePath;
+  hecl::blender::SetOverridePath(m_blenderOverridePath.toStdString());
+  int major = 0;
+  int minor = 0;
+  auto realPath = hecl::blender::FindBlender(major, minor);
+  if (realPath) {
+    m_blenderOverridePath.fromStdString(*realPath);
+  }
+
+  m_settings.setValue(QStringLiteral("blender_override_path"), m_blenderOverridePath);
+  auto oldState = m_ui->blenderEdit->blockSignals(true);
+  m_ui->blenderEdit->setText(m_blenderOverridePath);
+  m_ui->blenderEdit->blockSignals(oldState);
+
+  m_ui->sysReqTable->updateBlender();
 }
 
 void MainWindow::setTextTermFormatting(const QString& text) {

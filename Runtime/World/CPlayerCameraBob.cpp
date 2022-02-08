@@ -1,8 +1,6 @@
 #include "Runtime/World/CPlayerCameraBob.hpp"
 
 #include "Runtime/CStateManager.hpp"
-#include "Runtime/Camera/CCameraManager.hpp"
-#include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
 #include <zeus/Math.hpp>

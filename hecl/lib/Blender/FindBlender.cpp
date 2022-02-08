@@ -2,9 +2,24 @@
 
 #include "hecl/SteamFinder.hpp"
 
+#include <array>
 #include <sstream>
 
 namespace hecl::blender {
+namespace {
+struct SBlenderVersion {
+  uint32_t Major;
+  uint32_t Minor;
+};
+// Supported blender versions in reverse order, with the most recently supported version first
+constexpr std::array SupportedVersions{
+    SBlenderVersion{3, 0},  SBlenderVersion{2, 93}, SBlenderVersion{2, 92},
+    SBlenderVersion{2, 91}, SBlenderVersion{2, 90}, SBlenderVersion{2, 83},
+};
+// The most recent version with the most testing
+constexpr SBlenderVersion RecommendedVersion{2, 93};
+static std::string OverridePath;
+} // namespace
 
 #ifdef __APPLE__
 #define DEFAULT_BLENDER_BIN "/Applications/Blender.app/Contents/MacOS/blender"
@@ -40,8 +55,14 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
   major = 0;
   minor = 0;
 
-  /* User-specified blender path */
-  auto blenderBin = GetEnv("BLENDER_BIN");
+  std::optional<std::string> blenderBin;
+  if (!OverridePath.empty()) {
+    blenderBin = {OverridePath};
+  } else {
+    /* User-specified blender path */
+    blenderBin = GetEnv("BLENDER_BIN");
+  }
+
   if (blenderBin && !RegFileExists(blenderBin->c_str())) {
     blenderBin.reset();
   }
@@ -63,19 +84,12 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
       wchar_t wProgFiles[256];
       if (GetEnvironmentVariableW(L"ProgramFiles", wProgFiles, 256)) {
         auto progFiles = nowide::narrow(wProgFiles);
-        for (size_t major = MaxBlenderMajorSearch; major >= MinBlenderMajorSearch; --major) {
-          bool found = false;
-          for (size_t minor = MaxBlenderMinorSearch; minor >= MinBlenderMinorSearch; --minor) {
-            std::string blenderBinBuf = fmt::format(FMT_STRING("{}\\Blender Foundation\\Blender {}.{}\\blender.exe"),
-                                                    progFiles, major, minor);
-            if (RegFileExists(blenderBinBuf.c_str())) {
-              blenderBin = std::move(blenderBinBuf);
-              found = true;
-              break;
-            }
-          }
-
-          if (found) {
+        for (const auto& version : SupportedVersions) {
+          std::string blenderBinBuf =
+              fmt::format(FMT_STRING("{}\\Blender Foundation\\Blender {}.{}\\blender.exe"),
+                          progFiles, version.Major, version.Minor);
+          if (RegFileExists(blenderBinBuf.c_str())) {
+            blenderBin = std::move(blenderBinBuf);
             break;
           }
         }
@@ -133,7 +147,7 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
   std::string command = std::string("\"") + blenderBin.value() + "\" --version";
   FILE* fp = popen(command.c_str(), "r");
   char versionBuf[256];
-  size_t rdSize = fread(versionBuf, 1, 255, fp);
+  size_t rdSize = fread(&versionBuf[0], 1, 255, fp);
   versionBuf[rdSize] = '\0';
   pclose(fp);
 
@@ -147,4 +161,21 @@ std::optional<std::string> FindBlender(int& major, int& minor) {
   return blenderBin;
 }
 
+bool IsVersionSupported(int major, int minor) {
+  auto it =
+      std::find_if(SupportedVersions.cbegin(), SupportedVersions.cend(),
+                   [&major, &minor](const auto& version) { return version.Major == major && version.Minor == minor; });
+  return it != SupportedVersions.cend();
+}
+
+std::pair<uint32_t, uint32_t> GetLatestSupportedVersion() {
+  return {SupportedVersions.front().Major, SupportedVersions.front().Minor};
+}
+std::pair<uint32_t, uint32_t> GetEarliestSupportedVersion() {
+  return {SupportedVersions.back().Major, SupportedVersions.back().Minor};
+}
+
+std::pair<uint32_t, uint32_t> GetRecommendedVersion() { return {RecommendedVersion.Major, RecommendedVersion.Minor}; }
+
+void SetOverridePath(std::string_view overridePath) { OverridePath = overridePath; }
 } // namespace hecl::blender

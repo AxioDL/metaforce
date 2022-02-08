@@ -651,11 +651,16 @@ bool MREA::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
             secs.emplace_back(preVisiLen, 0);
             memcpy(secs.back().data(), preVisiData.get(), preVisiLen);
             visiGood = true;
+          } else {
+            // TODO: Fix visigen and remove this hack
+            secs.emplace_back(preVisiLen, 0);
+            memcpy(secs.back().data(), preVisiData.get(), preVisiLen);
+            visiGood = true;
           }
         }
       }
-      visiGood = true;
-
+// TODO: fix visigen so this can be re-enabled
+#if 0
 #if !WINDOWS_STORE
       if (!visiGood) {
         hecl::ProjectPath visiIntOut = outPath.getWithExtension(".visiint");
@@ -723,6 +728,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
           Log.report(logvisor::Fatal, FMT_STRING("Unable to launch {}"), VisiGenPath);
         }
       }
+#endif
 #endif
     }
   }

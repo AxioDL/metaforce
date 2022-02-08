@@ -108,7 +108,7 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs) {
                              [&type](const ScriptObjectSpec* obj) -> bool { return obj->type == type; });
 
     if (iter != SCRIPT_OBJECT_DB.end()) {
-      std::unique_ptr<IScriptObject> obj((*iter)->a());
+      std::unique_ptr<IScriptObject> obj((*iter)->loader());
       obj->type = type;
       obj->read(rs);
       objects.push_back(std::move(obj));
@@ -141,7 +141,7 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& r
                                  [&type](const ScriptObjectSpec* obj) -> bool { return obj->type == type; });
 
         if (iter != SCRIPT_OBJECT_DB.end()) {
-          std::unique_ptr<IScriptObject> obj((*iter)->a());
+          std::unique_ptr<IScriptObject> obj((*iter)->loader());
           obj->read(rs);
           obj->type = type;
           objects.push_back(std::move(obj));

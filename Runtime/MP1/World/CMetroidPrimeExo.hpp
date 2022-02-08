@@ -216,7 +216,7 @@ class CMetroidPrimeExo : public CPatterned {
   void sub802747b8(float f1, CStateManager& mgr, const zeus::CVector3f& vec);
   void sub802749e8(float f1, float f2, float f3, const zeus::CVector3f& vec1, const zeus::CVector3f& vec2, s32 idx);
   void UpdateParticles(float f1, CStateManager& mgr);
-  void sub802755ac(CStateManager& mgr, bool b1);
+  void EnableParticles(CStateManager& mgr, bool b1);
   void EnableHeadOrbitAndTarget(CStateManager& mgr);
   void DisableHeadOrbitAndTarget(CStateManager& mgr);
   void UpdateTimers(float mgr);

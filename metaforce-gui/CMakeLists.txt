@@ -131,11 +131,13 @@ elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 endif ()
 
 if (WIN32)
+    configure_file(platforms/win/metaforce-gui.rc.in "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/metaforce-gui.rc" @ONLY)
     target_sources(metaforce-gui PRIVATE
             platforms/win/metaforce-gui.manifest
             platforms/win/metaforce-gui.rc
             )
 elseif (APPLE)
+    configure_file(platforms/mac/Info.plist.in "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist" @ONLY)
     set_target_properties(metaforce-gui PROPERTIES
             MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist"
             )

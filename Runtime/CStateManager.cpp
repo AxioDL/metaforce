@@ -1330,8 +1330,14 @@ void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMes
   }
 
   if (m_logScripting) {
-    LogModule.report(logvisor::Info, FMT_STRING("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
-                     dest->GetName(), dest->GetUniqueId());
+    auto srcObj = GetObjectById(src);
+    if (srcObj != nullptr) {
+      LogModule.report(logvisor::Info, FMT_STRING("{} is sending '{}' to '{}' id= {} -> {}"), srcObj->GetName(),
+                       ScriptObjectMessageToStr(msg), dest->GetName(), dest->GetUniqueId(), src, dest->GetUniqueId());
+    } else {
+      LogModule.report(logvisor::Info, FMT_STRING("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
+                       dest->GetName(), dest->GetUniqueId());
+    }
   }
 
   dest->AcceptScriptMsg(msg, src, *this);
@@ -1349,8 +1355,14 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
   }
 
   if (m_logScripting) {
-    LogModule.report(logvisor::Info, FMT_STRING("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
-                     dst->GetName(), dst->GetUniqueId());
+    auto srcObj = GetObjectById(src);
+    if (srcObj != nullptr) {
+      LogModule.report(logvisor::Info, FMT_STRING("{} is sending '{}' to '{}' id= {} -> {}"), srcObj->GetName(),
+                       ScriptObjectMessageToStr(msg), dst->GetName(), dst->GetUniqueId(), src, dst->GetUniqueId());
+    } else {
+      LogModule.report(logvisor::Info, FMT_STRING("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
+                       dst->GetName(), dst->GetUniqueId());
+    }
   }
 
   dst->AcceptScriptMsg(msg, src, *this);

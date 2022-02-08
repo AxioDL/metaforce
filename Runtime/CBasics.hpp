@@ -34,6 +34,7 @@ public:
   static OSTime ToWiiTime(std::chrono::system_clock::time_point time);
   static std::chrono::system_clock::time_point FromWiiTime(OSTime wiiTime);
 
+  static OSTime GetTime() { return ToWiiTime(std::chrono::system_clock::now()); }
   static u64 GetGCTicks();
   static constexpr u64 GetGCTicksPerSec() { return 486000000ull; }
 
