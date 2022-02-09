@@ -3,17 +3,9 @@
 #![allow(unused_variables)]
 #![allow(unused_unsafe)]
 
-use std::{
-    collections::{BTreeMap, HashMap},
-    time::Instant,
-};
+use std::time::Instant;
 
 use cxxbridge::ffi;
-use sdl2::{
-    controller::{Axis, Button, GameController},
-    event::Event as SDLEvent,
-    GameControllerSubsystem, Sdl,
-};
 use wgpu::Backend;
 use winit::{
     event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent},
@@ -23,10 +15,7 @@ use winit::{
 use crate::{
     gpu::{create_depth_texture, create_render_texture, initialize_gpu, DeviceHolder},
     imgui::{initialize_imgui, ImGuiState},
-    sdl::{
-        get_controller_player_index, initialize_sdl, poll_sdl_events, remap_controller_layout,
-        set_controller_player_index, SdlState,
-    },
+    sdl::{initialize_sdl, poll_sdl_events, SdlState},
     shaders::render_into_pass,
 };
 
